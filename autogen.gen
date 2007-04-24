@@ -1,0 +1,8 @@
+#! /bin/sh
+
+if [ ${#SRC_DIR} = 0 ]; then
+    SRC_DIR=`dirname $0`
+fi
+
+(cd ${SRC_DIR}; autoreconf -fiv)
+${SRC_DIR}/configure --with-blas-dir=/usr/lib/sse2 $* 2>&1 | tee CONFIG.log

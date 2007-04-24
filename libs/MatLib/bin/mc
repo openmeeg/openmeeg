@@ -1,0 +1,49 @@
+#!/bin/sh
+
+# MKL/ACML config : edit this
+MKL_PATH="/opt/intel/mkl72"
+MKL_LIB_PATH="$MKL_PATH/lib/32"
+ACML_PATH="/opt/acml2.5.0/gnu64"
+#MATLIB_PATH="/certis/2/adde/PBI_clean/bin/deps/MatLib"
+
+# 1) find the OS
+IS64=`uname -p | grep -c -i 64`
+if test $IS64 -eq 0
+then
+OS=linux32
+else
+OS=linux64
+fi
+
+# 2) Eventually adjust this
+FLAGS=-I$MATLIB_PATH/MatLib
+
+if test $OS = linux32
+then
+	LIBS="$LIBS -L$MKL_LIB_PATH -lmkl_solver -lmkl_lapack -lmkl_ia32 $MKL_LIB_PATH/libguide.a -lpthread"
+	FLAGS="$FLAGS -I$MKL_PATH/include -DUSE_MKL -finline-limit=1000000 --param inline-unit-growth=10000 --param large-function-growth=10000"
+fi
+if test $OS = linux64
+then
+	OS=linux64
+	LIBS="$LIBS $ACML_PATH/lib/libacml.a $ACML_PATH/lib/libacml_mv.a -lg2c -m64"
+	FLAGS="$FLAGS -I$ACML_PATH/include -m64 -DUSE_ACML -finline-limit=1000000 --param inline-unit-growth=10000 --param large-function-growth=10000"
+fi
+
+# =======================================================
+# 3) Do not touch from here....
+
+case $1 in
+--os)
+	echo $OS
+	;;
+--flags)
+	echo $FLAGS
+	;;
+--libs)
+	echo $LIBS 
+	;;
+*)
+	echo 'Usage: matlib-config [--flags] [--libs] [--os]'
+	;;
+esac

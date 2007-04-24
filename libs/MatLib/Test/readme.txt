@@ -1,0 +1,1 @@
+- set the number of thread used by mkl in "batch file\run_test.bat"

@@ -1,0 +1,212 @@
+License
+=======
+Copyright (C) 2006 - Geoffray ADDE
+
+This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version. 
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details. 
+You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
+Linking ABC statically or dynamically with other modules is making a combined work based on ABC. Thus, the terms and conditions of the GNU General Public License cover the whole combination.
+In addition, as a special exception, the copyright holders of ABC give you permission to combine ABC program with free software programs or libraries that are released under the GNU LGPL and with code included in the standard release of DEF under the XYZ license (or modified versions of such code, with unchanged license). You may copy and distribute such a system following the terms of the GNU GPL for ABC and the licenses of the other code concerned, provided that you include the source code of that other code when and as the GNU GPL requires distribution of source code.
+Note that people who make modified versions of ABC are not obligated to grant this special exception for their modified versions; it is their choice whether to do so. The GNU General Public License gives permission to release a modified version without this exception; this exception also makes it possible to release a modified version which carries forward this exception. 
+
+
+
+Installation
+============
+
+To work, this suite of programs needs Intel MKL to be installed for Windows and Linux 32bit. For linux 64bit, it needs AMD ACML to be installed.
+
+    Linux
+    -----
+            1 - Decompress OpenMeeg.zip in a directory of which path does not contain any space. We shall denote OPENMEEGPATH this path (your_path/OpenMeeg)
+            2 - Use autoconf/automake to configure the software
+                ./autogen.gen
+                Eventually, one wants to provide the proper path for blas/lapack libraries with the flag --with-blas-dir
+            3 - To compile the code, type the following commands:
+                > make clean
+                > make
+            4 - To run the example case, type the following commands:
+                > cd $OPENMEEGPATH/Computations/Head1
+                > run clean
+                > run forinv
+
+    Windows
+    -------
+            1 - Decompress OpenMeeg.zip in a directory. We shall denote OPENMEEGPATH the corresponding path (your_directory/OpenMeeg) 
+            2 - Edit the file OPENMEEGPATH/install/OpenMeeg.bat file and update the upper user-supplied lines and copy this file somewhere you can acces it easily (on your desktop for example).
+            3 - To compile the code run OpenMeeg.bat. At the command prompt, type the following commands
+                > cd %OPENMEEGPATH%\bin\MSVC
+                > start OpenMeeg.sln
+                The Microsoft Visual Studio IDE should start, build the solution in Release configuration. You can then quit Visual Studio.
+            4 - To run the example case, run OpenMeeg.bat and type the following commands:
+                > cd %OPENMEEGPATH%\Computations\Head1
+                > run clean
+                > run forinv
+
+Usage
+=====
+%OPENMEEGPATH% contains 3 importants directories:
+        HeadModels: this directory contains all the head models of the database
+                    a head model is contained into a sub-directory of HeadModels
+                    this sub-directory contains a .geo file and the corresponding .tri mesh files.
+        Computations: this directory contains the study cases
+                      each study case is contained in a sub-directory of Computations.
+        IntermediateFiles: this directory contains intermediate files for precalculations.
+                           
+A typical usage of this structure is to use three equaly named sub-directories in HeadModels, IntermediateFiles and Computations. This is what is done for the sample case Head1.
+One can use a common head model for several simulations. For example one can have, the following file structure:
+%OPENMEEGPATH%--------HeadModels----------------MyCase
+              \
+               \-------IntermediateFiles--------MyCase1
+                \                       \-------MyCase2
+                 \
+                  \------Computations-----------MyCase1
+                                         \------Mycase2
+                                         
+Sub-directories used for computations are stored in a file named config in the corresponding subdirectory in Computations.
+Here follows the section of the sample config file dealing with it and with the type of simulation (EEG or MEG)
+# general settings
+HEADMODELDIR=Head1
+COMPUTATIONDIR=Head1
+INTERMEDIATEDIR=Head1
+TYPE=EEG
+
+The next sections of the config file are explicit
+# forward problem settings
+EEGNOISELEVEL=0.00
+MEGNOISELEVEL=0.00
+
+# inverse problem settings
+EEGDATAWEIGHT=1
+MEGDATAWEIGHT=1
+SMOOTHWEIGHT=1e-4
+SMOOTHTYPE=HEAT
+STOPPINGTOL=0
+MAXNBITER=10000
+Weights are multiplicating factors in the minimized energy. SMOOTHTYPE can be MN (minimum norm solution) , HEAT (minimum gradient norm solution), TV (minimum total variation solution).
+STOPPINGTOL is the maximum relative difference between two iterations of the TV algorithm to stop. MAXNBITER is the maximum number of iterations for this algorithm.
+MN and HEAT are newton algorithms with one iteration and no stopping criterion.
+
+Once you have adjusted all your parameters in your config file, you can run the program by typing at the command prompt (obtained by OpenMeeg.bat under Windows):
+
+>run clean       |  it deletes all files generated by the program for the current case(intermediate and result files)
+    or           |
+>run forward     |  it takes SourcesData and computes the corresponding EstimatedEegData or EstimatedMegData
+    or           |
+>run inverse     |  it takes EegData or MegData and computes EstimatedSourcesData
+    or           |
+>run forinv      |  run forward; copy Estimated?egData to ?egData; run inverse
+
+The signification of SourcesData,EstimatedEegData,... is given in the following section
+
+
+Files, Programs and Directories
+===============================
+
+Here follow some hopefully informations to understand OpenMeeg functions.
+ _____________________________________________________________________________
+|                                                                             |
+|        what:filextension:path                                               |
+|_____________________________________________________________________________|
+|                                                                             |
+| SourceMesh:.tri:$(OpenMeegPath)/HeadModels/$(HeadModelDir)                  | The mesh for the distributed sources
+| Geometry:.geo:$(OpenMeegPath)/HeadModels/$(HeadModelDir)                    | Informations about the nested geometry of the head
+| Patches:.patches:$(OpenMeegPath)/Computation/$(ComputationDir)              | Coordinates of EEG patches
+| Squids:.squids:$(OpenMeegPath)/Computation/$(ComputationDir)                | Coordinates and orientations of MEG captors
+| LhsMatrix:.lhs:$(OpenMeegPath)/HeadModels/$(HeadModelDir)                   |
+| LhsInvMatrix:.lhs_inv:$(OpenMeegPath)/HeadModels/$(HeadModelDir)            |
+| RhsMatrix:.rhs:$(OpenMeegPath)/HeadModels/$(HeadModelDir)                   |
+| X2EegMatrix:.x2eeg:$(OpenMeegPath)/IntermediateFiles/$(IntermediateDir)     |
+| S2MegMatrix:.s2meg:$(OpenMeegPath)/IntermediateFiles/$(IntermediateDir)     |
+| X2MegMatrix:.x2meg:$(OpenMeegPath)/IntermediateFiles/$(IntermediateDir)     |
+| EegGainMatrix:.Heeg:$(OpenMeegPath)/IntermediateFiles/$(IntermediateDir)    |
+| MegGainMatrix:.Hmeg:$(OpenMeegPath)/IntermediateFiles/$(IntermediateDir)    |
+| AiVector:.ai:$(OpenMeegPath)/HeadModels/$(HeadModelDir)                     |
+| SmoothMatrix:.smooth:$(OpenMeegPath)/HeadModels/$(HeadModelDir)             |
+| EstimatedSourcesData:.est_src:$(OpenMeegPath)/Computation/$(ComputationDir) | Output sources data from the inverse problem
+| EstimatedMegData:.est_meg:$(OpenMeegPath)/Computation/$(ComputationDir)     | Output meg data from the forward problem
+| EstimatedEegData:.est_eeg:$(OpenMeegPath)/Computation/$(ComputationDir)     | Output eeg data from the forward problem
+| SourcesData:.src:$(OpenMeegPath)/Computation/$(ComputationDir)              | Input sources data for the forward problem
+| MegData:.meg:$(OpenMeegPath)/Computation/$(ComputationDir)                  | Input meg data for the inverse problem
+| EegData:.eeg:$(OpenMeegPath)/Computation/$(ComputationDir)                  | Input eeg data for the inverse problem
+|_____________________________________________________________________________|
+
+Further informations concerning the other matrices can be found in my PhD Thesis (in french, sorry..) or in my publications.
+http://cermics.enpc.fr/~adde
+
+
+
+
+	INFILES                     PROGRAM                OUTFILES
+
+
+
+            SourceMesh  ->-\                       /-->  LhsMatrix
+                            \                     /
+            Geometry    ->---\	       	         /---->  RhsMatrix
+                              \     assemble    /
+                               >===============<------>  S2MegMatrix
+                              /                 \
+            Patches     ->---/	             	 \---->  X2MegMatrix
+                            /                     \
+            Squids      ->-/                       \-->  X2EegMatrix
+
+	
+
+
+                                   minverser
+            LhsMatrix   ->-----================-------> LhsInvMatrix
+
+
+
+
+                                                  /---->  SmoothMatrix
+                                     presmooth   /
+            SourceMesh   ->-----================< 
+                                                 \
+                                                  \---->  AiVector
+
+
+
+            LhsMatrix   ->-\
+                            \
+            RhsMatrix   ->---\                   /---->  EegGainMatrix
+                              \     gain        /
+            S2MegMatrix ->----->===============<
+                              /                 \
+            X2MegMatrix ->---/                   \---->  MegGainMatrix
+                            /
+            X2EegMatrix ->-/
+
+
+        
+        EegGainMatrix   ->---\                   /---->  EstimatedEegData
+                              \     forward     /
+        MegGainMatrix   ->----->===============<
+                              /                 \
+        SourcesData     ->---/                   \---->  EstimatedMEgData
+
+
+
+        EggGainMatrix   ->-\
+                            \
+        MegGainMatrix   ->---\
+                              \
+        EegData         ->-----\    inverse
+                                >===============------->  EstimatedSourcesData
+        MegData         ->-----/
+                              /
+        AiVector        ->---/
+                            / 
+        SmoothMatrix    ->-/
+
+
+In %OPENMEEGPATH%\bin\MSVC\tools (for windows) and $OPENMEEGPATH/bin/tools/linux??( 32 or 64 for linux 32bit and linux 64bit), you can find some utilities.
+One of these (txt2tex) can convert the ascii output files of OpenMeeg (EstimatedSourcesData) into Anatomist/BrainVisa (http://brainvisa.info) texture file.
+SourceMesh being a file that Anatomist can read, it is then possible to visualize thes results of an inverse problem with Anatomist.
+There are also some programs that permit to convert binary matrices generated by OpenMeeg (the gain matrix for example) to ascii file easily exportable.
+Their usage is obvious and it is given if you type the name of the command without arguments.
+
+Troubleshooting
+===============
+If something goes wrong with the windows version, try to locate nmake.exe and copy it to a directory which is in the path (%SystemPath%\system32, for example)

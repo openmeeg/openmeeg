@@ -1,0 +1,14 @@
+/* 
+ * Here is where system computed values get stored these values should only
+ * change when the target compile platform changes 
+ */
+
+#cmakedefine USE_VTK
+
+#cmakedefine HAVE_BLAS
+
+#cmakedefine HAVE_LAPACK
+
+#cmakedefine USE_ATLAS
+
+#cmakedefine USE_MKL

@@ -1,0 +1,56 @@
+%define version @CPACK_PACKAGE_VERSION_MAJOR@.@CPACK_PACKAGE_VERSION_MINOR@
+%define release @CPACK_PACKAGE_VERSION_PATCH@
+
+Name:         @PROJECT_NAME@
+Version:      %{version}
+Release:      %{release}
+Epoch:        0
+Summary:      The OpenMEEG package.
+
+Group:        Applications/Medical
+License:      GPL
+Url:          https://gforge.inria.fr/projects/openmeeg/
+Packager:     Theodore Papadopoulo <Theodore.Papadopoulo@sophia.inria.fr>
+Vendor:       Odyssee ENPC/INRIA/Ens Ulm 
+Distribution: research software
+
+Source: @CPACK_SOURCE_PACKAGE_FILE_NAME@.tar.gz
+BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
+BuildRequires: cmake
+
+%define srcdirname %{name}-%{version}.%{release}-Source
+%define builddirname %{_tmppath}/%{name}.build
+
+%description
+@PROJECT_NAME@ is a package for forward/inverse problems of EEG/MEG. The forward problem uses the symmetric Boundary Element Method.
+The inverse problem uses a distributed approach (L2, L1 regularization). Developped within Odyssee (INRIA-ENPC-ENS).
+
+%prep
+%setup -q -n %{srcdirname}
+
+%build
+mkdir %{builddirname}
+cd %{builddirname}
+%cmake @CMAKE_SOURCE_DIR@
+make
+
+%check
+ctest
+
+%install
+rm -rf $RPM_BUILD_ROOT
+cd %{builddirname}
+%makeinstall
+
+%clean
+rm -rf %{builddirname}
+rm -rf $RPM_BUILD_ROOT
+rm -rf %{srcdirname}
+
+%files
+%defattr(-,root,root,-)
+%{_bindir}/*
+
+%changelog
+* Wed Mar 28 2007 Theo Papadopoulo <Theodore.Papadopoulo@sophia.inria.fr> 0.8.0
+- Initial revision (internal).
