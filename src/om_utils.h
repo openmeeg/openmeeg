@@ -1,8 +1,6 @@
 #if WIN32
-//! allows the use of M_PI (math.h).
 #define _USE_MATH_DEFINES
 #endif
-// #define M_PI       3.14159265358979323846
 #include <math.h>
 
 inline int getNameExtension ( const char* name, char* extension )

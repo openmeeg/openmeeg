@@ -20,7 +20,7 @@ int main( int argc, char **argv)
     mesh M;
     M.load(input_filename);
 
-    for( unsigned int i = 0; i < M.nbr_pts(); i += 1 )
+    for( unsigned int i = 0; i < unsigned(M.nbr_pts()); i += 1 )
     {
         vect3& pt = M[i];
         if (apply_asa_flip) {

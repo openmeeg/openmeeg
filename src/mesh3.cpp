@@ -2,6 +2,7 @@
 
 #if WIN32
 #define _USE_MATH_DEFINES
+#define _CRT_SECURE_NO_DEPRECATE 1
 #endif
 #include <math.h>
 #include <assert.h>
@@ -59,10 +60,10 @@ mesh& mesh::operator=(const mesh& M){
 
 }
 
-mesh& mesh::operator=(mesh& M){
-    if (this!=&M) copy(M);
-    return *this;
-}
+//mesh& mesh::operator=(mesh& M){
+//    if (this!=&M) copy(M);
+//    return *this;
+//}
 
 void mesh::copy(const mesh& M){
     nb_pts = M.nb_pts;
@@ -344,7 +345,7 @@ void mesh::load_bnd(std::istream &f){
     pts = new vect3[nb_pts];
     links = new intlist[nb_pts];
 
-    for( size_t i = 0; i < nb_pts; i += 1 )
+    for( size_t i = 0; i < size_t(nb_pts); i += 1 )
     {
         f>>pts[i];
         pts[i]=pts[i];

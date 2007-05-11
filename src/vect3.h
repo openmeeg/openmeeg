@@ -3,6 +3,7 @@
 
 #if WIN32
 #define _USE_MATH_DEFINES
+#define _CRT_SECURE_NO_DEPRECATE 1
 #endif
 #include <math.h>
 #include <iostream>

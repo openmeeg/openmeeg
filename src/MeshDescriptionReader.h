@@ -136,7 +136,7 @@ namespace MeshDescription {
         std::vector<int> sortInterfaceIDAndDomains(); // implemented in MeshDescriptionReaderSpecialized.h
         std::vector<std::string> getDomainNames() {
             std::vector<std::string> domainNames;
-            for(int i=0;i<doms.size();i++)
+            for(size_t i=0;i<doms.size();i++)
                 domainNames.push_back(doms[i].name());
             return domainNames;
         };

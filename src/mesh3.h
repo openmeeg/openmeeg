@@ -31,7 +31,7 @@ public:
     mesh (int, int); // n_pts, n_trg
     mesh(int, vect3 *, int ,triangle* );
     mesh(const mesh& M);
-    mesh& operator=( mesh& M);
+    //mesh& operator=( mesh& M);
     mesh& operator=(const mesh& M);
     ~mesh(){kill();}
     inline int nbr_pts() const { return nb_pts; }

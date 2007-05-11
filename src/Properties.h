@@ -47,11 +47,10 @@ namespace Utils {
                 Property property;
 
                 is >> io_utils::skip_comments("#") >> id >> property >> std::ws;
-
                 try {
                     loader.properties.define(id,property);
                 } catch(int& i) {
-                    std::cerr << "Double definition of " << id << " in " << loader.filename << '.' << std::endl
+                    std::cerr << "Double definition of " << id << " in " << loader.filename << "( error " << i << ")." << std::endl
                               << "Keeping first definition...." << std::endl;
                 }
             }

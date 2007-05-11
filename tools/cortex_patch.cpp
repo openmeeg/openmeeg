@@ -50,7 +50,7 @@ int main( int argc, char **argv)
         center->_z() = patchs(k,2);
         cout << "-----" << endl;
         cout << "Center : " << *center << endl;
-        radius = patchs(k,3);
+        radius = float(patchs(k,3));
         cout << "Radius : " << radius << " mm" << endl;
 
         for( int i = 0; i < nb_points; i += 1 )

@@ -77,7 +77,7 @@ int main(int argc, char **argv)
     #ifdef USE_OMP
     #pragma omp parallel for
     #endif
-    for(int frame=0;frame<nT;frame++)
+    for(size_t frame=0;frame<nT;frame++)
     {
         vecteur v; v.DangerousBuild(&RealSourcesData(0,frame),RealSourcesData.nlin());
         vecteur result;

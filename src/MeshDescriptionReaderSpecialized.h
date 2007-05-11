@@ -80,7 +80,7 @@ namespace MeshDescription {
         // Look for first internal surface :
         int firstSurfId = -1;
         int innerDomainId;
-        for(int i=0;i<doms.size();i++)
+        for(size_t i=0;i<doms.size();i++)
             if(doms[i].size()==1)
                 if(doms[i][0].inout()==0){
                     firstSurfId = doms[i][0].interface();
@@ -107,11 +107,11 @@ namespace MeshDescription {
         bool outerSurfaceReached = false;
         for( unsigned int k = 1; k <= interfaces.size(); k += 1 )
         {
-            for(int i=1;i<doms.size();i++)
+            for(size_t i=1;i<doms.size();i++)
             {
                 if((domainSeen[i] == false))
                 {
-                    for(int j=0;j<doms[i].size();j++)
+                    for(size_t j=0;j<doms[i].size();j++)
                     {
                         // find the shared surface which is :
                         //   ** external for the last domain added
@@ -135,7 +135,7 @@ namespace MeshDescription {
         if (sortedListOfSurfId.size() != interfaces.size())
         {
             std::cout << "Current list : \t" ;
-            for(int i=0;i<sortedListOfSurfId.size();i++)
+            for(size_t i=0;i<sortedListOfSurfId.size();i++)
                 std::cout << sortedListOfSurfId[i] << "\t" ;
             std::cerr << std::endl << "Cannot find " << interfaces.size();
             std::cerr << " nested interfaces with geometry file" << std::endl;

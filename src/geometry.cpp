@@ -50,7 +50,7 @@ int geometry::read(char* geomFileName, char* condFileName){
     
     // Store the internal conductivity of the external boundary of domain i
     // and store the external conductivity of the internal boundary of domain i
-    for(int i=1;i<domainNames.size()-1;i++){
+    for(size_t i=1;i<domainNames.size()-1;i++){
         const Conductivity<double>& cond=properties.find(domainNames[i]);
         sigin[i] = cond.sigma();
         sigout[i-1] = sigin[i];
