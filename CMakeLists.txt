@@ -210,44 +210,45 @@ OPTION(ENABLE_PACKAGING "Enable Packaging" ON)
 
 IF(ENABLE_PACKAGING)
 
-SET(CPACK_PACKAGE_VERSION_MAJOR ${PACKAGE_VERSION_MAJOR})
-SET(CPACK_PACKAGE_VERSION_MINOR ${PACKAGE_VERSION_MINOR})
-SET(CPACK_PACKAGE_VERSION_PATCH ${PACKAGE_VERSION_PATCH})
+    INCLUDE(CPack)
 
-IF(APPLE OR WIN32)
-
-    INCLUDE(InstallRequiredSystemLibraries)
+    SET(CPACK_PACKAGE_VERSION_MAJOR ${PACKAGE_VERSION_MAJOR})
+    SET(CPACK_PACKAGE_VERSION_MINOR ${PACKAGE_VERSION_MINOR})
+    SET(CPACK_PACKAGE_VERSION_PATCH ${PACKAGE_VERSION_PATCH})
 
     SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY "OpenMEEG Project")
     SET(CPACK_PACKAGE_VENDOR "Odyssee ENPC/INRIA/Ens Ulm")
     SET(CPACK_PACKAGE_DESCRIPTION_FILE "${OpenMEEG_SOURCE_DIR}/README")
     SET(CPACK_RESOURCE_FILE_LICENSE "${OpenMEEG_SOURCE_DIR}/Copyright.txt")
     SET(CPACK_PACKAGE_INSTALL_DIRECTORY "OpenMEEG")
-    IF(WIN32 AND NOT UNIX)
-      # There is a bug in NSI that does not handle full unix paths properly. Make
-      # sure there is at least one set of four (4) backlasshes.
-      SET(CPACK_NSIS_DISPLAY_NAME "OpenMEEG Project")
-      SET(CPACK_NSIS_HELP_LINK "https:\\\\\\\\gforge.inria.fr/projects/openmeeg/")
-      SET(CPACK_NSIS_URL_INFO_ABOUT "https:\\\\\\\\gforge.inria.fr/projects/openmeeg/")
-      SET(CPACK_NSIS_CONTACT "odyssee@sophia.inria.fr")
-      SET(CPACK_NSIS_MODIFY_PATH ON)
-    ELSE(WIN32 AND NOT UNIX)
-      SET(CPACK_SOURCE_STRIP_FILES "")
-    ENDIF(WIN32 AND NOT UNIX)
 
-ELSE(APPLE OR WIN32) # linux
+    IF(APPLE OR WIN32)
 
-    OPTION(BUILD_RPM "Build RPM package" ON)
-    IF (BUILD_RPM)
-        INCLUDE(UseRPMTools)
-        IF (RPMTools_FOUND)
-            RPMTools_ADD_RPM_TARGETS(${PROJECT_NAME} "packaging/${PROJECT_NAME}.spec.in")
-        ENDIF (RPMTools_FOUND)
-    ENDIF (BUILD_RPM)
+        INCLUDE(InstallRequiredSystemLibraries)
 
-ENDIF(APPLE OR WIN32)
+        IF(WIN32 AND NOT UNIX)
+          # There is a bug in NSI that does not handle full unix paths properly. Make
+          # sure there is at least one set of four (4) backlasshes.
+          SET(CPACK_NSIS_DISPLAY_NAME "OpenMEEG Project")
+          SET(CPACK_NSIS_HELP_LINK "https:\\\\\\\\gforge.inria.fr/projects/openmeeg/")
+          SET(CPACK_NSIS_URL_INFO_ABOUT "https:\\\\\\\\gforge.inria.fr/projects/openmeeg/")
+          SET(CPACK_NSIS_CONTACT "odyssee@sophia.inria.fr")
+          SET(CPACK_NSIS_MODIFY_PATH ON)
+        ELSE(WIN32 AND NOT UNIX)
+          SET(CPACK_SOURCE_STRIP_FILES "")
+        ENDIF(WIN32 AND NOT UNIX)
 
-INCLUDE(CPack)
+    ELSE(APPLE OR WIN32) # linux
+
+        OPTION(BUILD_RPM "Build RPM package" ON)
+        IF (BUILD_RPM)
+            INCLUDE(UseRPMTools)
+            IF (RPMTools_FOUND)
+                RPMTools_ADD_RPM_TARGETS(${PROJECT_NAME} "packaging/${PROJECT_NAME}.spec.in")
+            ENDIF (RPMTools_FOUND)
+        ENDIF (BUILD_RPM)
+
+    ENDIF(APPLE OR WIN32)
 
 ENDIF(ENABLE_PACKAGING)
 
