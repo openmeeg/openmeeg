@@ -222,9 +222,10 @@ public:
 
     inline double f(const vect3& x) const
     {
-        vect3 r0r=x-r0;
-        double r0rn3=r0r.norme(); r0rn3=r0rn3*r0rn3*r0rn3;
-        return (q*r0r)/r0rn3;
+        // RK: A=q.(x-r0)/||^3
+        vect3 r=x-r0;
+        double rn=r.norme();
+        return (q*r)/(rn*rn*rn);
     }
 };
 
@@ -263,12 +264,102 @@ public:
 
     inline vect3 f(const vect3& x) const
     {
-        vect3 rr0=r0-x;
+		vect3 P1part(H0p0DivNorm2*(x-H0),H1p1DivNorm2*(x-H1),H2p2DivNorm2*(x-H2));
+
+		// RK: B=n.grad_x(A) with grad_x(A)= q/||^3 - 3r(q.r)/||^5 
+		vect3 r=x-r0;
+        double rn=r.norme();
+		double EMpart=n*(q/pow(rn,3.)-3*(q*r)*r/pow(rn,5.));
+
+		return EMpart*P1part;
+    }
+
+};
+
+////////// Gradients wrt r0 (and q)
+class analytiqueDipPotGrad: public fContainer<vect3array<2>> {
+private:
+    vect3 q,r0;
+public:
+    analytiqueDipPotGrad(){}
+    ~analytiqueDipPotGrad(){}
+
+    inline void init( const vect3 &_q, const vect3 &_r0)
+    {
+        q=_q;
+        r0=_r0;
+    }
+
+    inline vect3array<2> f(const vect3& x) const
+    {
+        vect3 r=x-r0;
+        double rn=r.norme();
+		vect3array<2> res;
+		// grad_r0(A)= -q/||^3 + 3 r (q.r)/||^5
+		res(0)=3*(q*r)*r/pow(rn,5.)-q/pow(rn,3.);
+		// grad_q(A)= r||^3
+		res(1)=r/pow(rn,3.);
+		return res;
+    }
+};
+
+class analytiqueDipPotDerGrad : public fContainer<vect3array<6>> {
+private:
+    vect3 q,r0;
+    vect3 H0,H1,H2;
+    vect3 H0p0DivNorm2,H1p1DivNorm2,H2p2DivNorm2,n;
+public:
+    analytiqueDipPotDerGrad(){}
+    ~analytiqueDipPotDerGrad(){}
+    inline void init( const mesh& m, const int nT, const vect3 &_q, const vect3 _r0)
+    {
+        q=_q;
+        r0=_r0;
+
+        triangle& T=(triangle&)m.trngl(nT);
+
+        vect3 p0,p1,p2,p1p0,p2p1,p0p2,p1p0n,p2p1n,p0p2n,p1H0,p2H1,p0H2;
+        p0=m.vctr(T.som1());
+        p1=m.vctr(T.som2());
+        p2=m.vctr(T.som3());
+
+
+        p1p0=p0-p1; p2p1=p1-p2; p0p2=p2-p0;
+        p1p0n=p1p0; p1p0n.normalize(); p2p1n=p2p1; p2p1n.normalize(); p0p2n=p0p2; p0p2n.normalize();
+
+        p1H0=(p1p0*p2p1n)*p2p1n; H0=p1H0+p1; H0p0DivNorm2=p0-H0; H0p0DivNorm2=H0p0DivNorm2/H0p0DivNorm2.norme2();
+        p2H1=(p2p1*p0p2n)*p0p2n; H1=p2H1+p2; H1p1DivNorm2=p1-H1; H1p1DivNorm2=H1p1DivNorm2/H1p1DivNorm2.norme2();
+        p0H2=(p0p2*p1p0n)*p1p0n; H2=p0H2+p0; H2p2DivNorm2=p2-H2; H2p2DivNorm2=H2p2DivNorm2/H2p2DivNorm2.norme2();
+
+        n=-p1p0^p0p2;
+        n.normalize();
+
+    }
+
+    inline vect3array<6> f(const vect3& x) const
+    {
         vect3 P1part(H0p0DivNorm2*(x-H0),H1p1DivNorm2*(x-H1),H2p2DivNorm2*(x-H2));
-        double inv_r0rn3=(rr0).norme(); inv_r0rn3=inv_r0rn3*inv_r0rn3*inv_r0rn3; inv_r0rn3=1.0/inv_r0rn3;
-        rr0.normalize();
-        double EMpart=q*n*inv_r0rn3-3*inv_r0rn3*(q*rr0)*(n*rr0);
-        return EMpart*P1part;
+
+		vect3 r=x-r0;
+        double rn=r.norme();
+		// grad_r0(B)= 3/||^5 [ (q.n)r + (q.r)n + (r.n)[q-5(q.r)r/||^2] ]
+		vect3 EMpartR0=3/pow(rn,5.)*(
+			(q*n)*r
+			+(q*r)*n
+			+(r*n)*(q-5*(q*r)/(rn*rn)*r)
+			);
+		// grad_q(B)=n/||^3-3*(n.r)r/||^5
+		vect3 EMpartQ=n/pow(rn,3.)-3*(n*r)/pow(rn,5.)*r;
+
+		vect3array<6> res;
+		res(0)=EMpartR0[0]*P1part; // d/dr0[0]
+		res(1)=EMpartR0[1]*P1part; // d/dr0[1]
+		res(2)=EMpartR0[2]*P1part; // d/dr0[2]
+		res(3)=EMpartQ[0]*P1part; // d/dq[0]
+		res(4)=EMpartQ[1]*P1part; // d/dq[1]
+		res(5)=EMpartQ[2]*P1part; // d/dq[2]
+		return res;
+
     }
 };
 

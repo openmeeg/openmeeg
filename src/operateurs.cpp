@@ -371,3 +371,44 @@ void operateurDipolePot(const vect3 &r0, const vect3 &q, const mesh &inner_layer
         rhs(i)+=gauss.integre(anaDP,inner_layer.trngl(i-offsetIdx),inner_layer);
     }
 }
+
+// Grad wrt r0
+void operateurDipolePotDerGrad(const vect3 &r0, const vect3 &q,const mesh &inner_layer, vecteur rhs[6], int offsetIdx)
+{
+    static analytiqueDipPotDerGrad anaDPD;
+    static integrateur<vect3array<6>> gauss;
+    gauss.setOrdre(GaussOrder);
+
+    for(int i=0;i<inner_layer.nbr_trg();i++)
+    {
+        anaDPD.init(inner_layer,i,q,r0);
+        vect3array<6> v=gauss.integre(anaDPD,inner_layer.trngl(i),inner_layer);
+		for (int d=0;d<6;d++) { // derivatives wrt r0,q
+			rhs[d](inner_layer.trngl(i-offsetIdx).id1()+offsetIdx)+=v(d)[0];
+			rhs[d](inner_layer.trngl(i-offsetIdx).id2()+offsetIdx)+=v(d)[1];
+			rhs[d](inner_layer.trngl(i-offsetIdx).id3()+offsetIdx)+=v(d)[2];
+		}
+    }
+}
+
+// Grad wrt r0,q
+void operateurDipolePotGrad(const vect3 &r0, const vect3 &q, const mesh &inner_layer, vecteur rhs[6], int offsetIdx)
+{
+    static analytiqueDipPotGrad anaDP;
+    static integrateur<vect3array<2>> gauss;
+    gauss.setOrdre(GaussOrder);
+
+    anaDP.init(q,r0);
+    for(int i=offsetIdx;i<offsetIdx+inner_layer.nbr_trg();i++)
+    {
+        vect3array<2> v=gauss.integre(anaDP,inner_layer.trngl(i-offsetIdx),inner_layer);
+		// grad_r0
+		rhs[0](i)+=v(0).X();
+		rhs[1](i)+=v(0).Y();
+		rhs[2](i)+=v(0).Z();
+		// grad_q
+		rhs[3](i)+=v(1).X();
+		rhs[4](i)+=v(1).Y();
+		rhs[5](i)+=v(1).Z();
+    }
+}

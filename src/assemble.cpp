@@ -312,8 +312,71 @@ int main(int argc, char** argv)
 
         int newtaille=taille-(geo.getM(geo.nb()-1)).nbr_trg();
         matrice rhs(newtaille, nd);
-        rhs.set(0);
         assemble_RHS_dipoles_matrice( geo, Rs, Qs, rhs);
+
+        // Saving RHS matrix for dipolar case :
+        if(argc<6)
+        {    // if no outfile, outfile on the same path as geometry file
+            char* fileout=new char[255];
+            #ifdef SAVEBIN
+            getOutputFilepath(argv[2],(char*)"rhsMatrix.bin", fileout);
+            #elif
+            getOutputFilepath(argv[2],(char*)"rhsMatrix.txt", fileout);
+            #endif
+            rhs.SAVE(fileout);
+            delete[] fileout;
+        }
+        else rhs.SAVE(argv[5]);    //if outfile is specified
+
+    }
+
+	/*********************************************************************************************
+    * RK: Computation of RHS member for discrete dipolar case: gradient wrt dipoles position and intensity!
+    **********************************************************************************************/
+    else if(!strcmp(argv[1],"-rhsPOINTgrad")){
+
+        if(argc < 3)
+        {
+            cerr << "Please set geometry filepath !" << endl;
+            exit(1);
+        }
+        if (argc < 4)
+        {
+            std::cerr << "Please set conductivities filepath !" << endl;
+            exit(1);
+        }
+        if(argc < 5)
+        {
+            cerr << "Please set dipoles filepath!" << endl;
+            exit(1);
+        }
+
+        // Loading surfaces from geometry file.
+        geometry geo;
+        int taille=geo.read(argv[2],argv[3]);
+
+        // Loading matrix of dipoles :
+        matrice &dipoles=* new matrice(argv[4]);
+        if(dipoles.ncol()!=6)
+        {
+            cerr << "Dipoles File Format Error" << endl;
+            exit(1);
+        }
+
+        // Assembling matrix from discretization :
+        unsigned int nd = (unsigned int) dipoles.nlin();
+        std::vector<vect3> Rs,Qs;
+        for( unsigned int i=0; i<nd; i++ )
+        {
+            vect3 r(3),q(3);
+            for(int j=0;j<3;j++) r[j]=dipoles(i,j);
+            for(int j=3;j<6;j++) q[j-3]=dipoles(i,j);
+            Rs.push_back(r); Qs.push_back(q);
+        }
+
+        int newtaille=taille-(geo.getM(geo.nb()-1)).nbr_trg();
+        matrice rhs(newtaille, 6*nd); // 6 derivatives! (
+        assemble_RHS_dipoles_matrice_grad( geo, Rs, Qs, rhs);
 
         // Saving RHS matrix for dipolar case :
         if(argc<6)

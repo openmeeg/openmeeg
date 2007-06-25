@@ -15,10 +15,37 @@ inline void multadd (double &cible, const double multiplicateur, const double mu
 
 inline void multadd (vect3 &cible, const double multiplicateur,  const vect3 &multiplie)
 {
-    cible._x()+=multiplicateur*multiplie.X();
-    cible._y()+=multiplicateur*multiplie.Y();
-    cible._z()+=multiplicateur*multiplie.Z();
+    cible=cible+multiplicateur*multiplie;
 }
+
+// light class containing d vect3
+template <int d> class vect3array {
+	vect3 t[d];
+
+public:
+	vect3array() {};
+	inline vect3array(double x) {
+		for (int i=0;i<d;i++)
+			t[i]=vect3(x);
+	}
+	inline vect3array<d> operator*(double x) const {
+		vect3array<d> r;
+		for (int i=0;i<d;i++)
+			r.t[i]=t[i]*x;
+		return r;
+	}
+	inline vect3 operator()(int i) const { return t[i]; }
+	inline vect3& operator()(int i) { return t[i]; }
+};
+
+template <int d>
+inline void multadd (vect3array<d> &cible, const double multiplicateur,  const vect3array<d> &multiplie)
+{
+	for (int i=0;i<d;i++) {
+		cible(i)=cible(i)+multiplicateur*multiplie(i);
+	}
+}
+
 
 //#define OPTIMIZED_GAUSS //(Older version)
 #define JK_GAUSS // (Most precise version)

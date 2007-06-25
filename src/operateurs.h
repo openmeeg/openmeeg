@@ -21,6 +21,8 @@ void operateurFerguson( const vect3 x, const mesh &m1, matrice &mat, int offsetI
 void trBlock(matrice &mat,int Iinit,int Jinit,int nbI,int nbJ);
 void operateurDipolePotDer(const vect3 &r0, const vect3 &q,const mesh &inner_layer, vecteur &rhs, int offsetIdx);
 void operateurDipolePot(const vect3 &r0, const vect3 &q,const mesh &inner_layer, vecteur &rhs, int offsetIdx);
+void operateurDipolePotDerGrad(const vect3 &r0, const vect3 &q,const mesh &inner_layer, vecteur rhs[3], int offsetIdx);
+void operateurDipolePotGrad(const vect3 &r0, const vect3 &q,const mesh &inner_layer, vecteur rhs[3], int offsetIdx);
 
 
 inline void mult( symmatrice &mat, int Istart, int Jstart, int Istop, int Jstop, double coeff)

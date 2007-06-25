@@ -99,6 +99,55 @@ void assemble_RHS_dipoles_matrice( geometry &geo, vector<vect3> Rs, vector<vect3
     }
 }
 
+// Gradient
+void assemble_RHS_dipoles_matrice_grad( geometry &geo, vector<vect3> Rs, vector<vect3> Qs, matrice &rhs)
+{
+
+	unsigned int nd=Qs.size();
+
+    unsigned nVertexFirstLayer=geo.getM(0).nbr_pts();
+    unsigned nFacesFirstLayer=geo.getM(0).nbr_trg();
+
+    double K=1.0/(4*M_PI);
+
+    // First block is nVertexFistLayer
+    rhs.set(0);
+    for( unsigned s=0; s<nd; s++ ) 
+    {
+        vecteur prov[6];
+		for (int d=0;d<6;d++) {
+			prov[d]=vecteur(rhs.nlin());
+	        prov[d].set(0);
+		}
+
+        operateurDipolePotDerGrad(Rs[s],Qs[s],geo.getM(0),prov,0);
+
+        // Second block is nFaceFistLayer
+        operateurDipolePotGrad(Rs[s],Qs[s],geo.getM(0),prov,nVertexFirstLayer);
+
+        for (unsigned i=0; i<rhs.nlin(); i++)
+			for (int d=0;d<6;d++)
+			    rhs(i, 6*s+d) = prov[d](i);
+    }
+    
+    // Blocks multiplication
+    double s1i=geo.sigma_in(0);
+    for( unsigned i=0; i<nVertexFirstLayer; i++ )
+    {
+        for (unsigned j=0; j<6*nd; j++) {
+            rhs(i,j) *= K;
+        }
+    }
+    for( unsigned i=0; i<nFacesFirstLayer; i++ )
+    {
+        for (unsigned j=0; j<6*nd; j++)
+        {
+            rhs(i+nVertexFirstLayer, j) *= (-K/s1i);
+        }
+    }
+}
+
+
 void assemble_RHSvector( geometry &geo, vector<vect3> Rs, vector<vect3> Qs, vecteur &rhs)
 {
     unsigned nVertexFirstLayer=geo.getM(0).nbr_pts();
