@@ -277,7 +277,7 @@ public:
 };
 
 ////////// Gradients wrt r0 (and q)
-class analytiqueDipPotGrad: public fContainer<vect3array<2>> {
+class analytiqueDipPotGrad: public fContainer< vect3array<2> > {
 private:
     vect3 q,r0;
 public:
@@ -303,7 +303,7 @@ public:
     }
 };
 
-class analytiqueDipPotDerGrad : public fContainer<vect3array<6>> {
+class analytiqueDipPotDerGrad : public fContainer< vect3array<6> > {
 private:
     vect3 q,r0;
     vect3 H0,H1,H2;

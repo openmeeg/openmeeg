@@ -376,7 +376,7 @@ void operateurDipolePot(const vect3 &r0, const vect3 &q, const mesh &inner_layer
 void operateurDipolePotDerGrad(const vect3 &r0, const vect3 &q,const mesh &inner_layer, vecteur rhs[6], int offsetIdx)
 {
     static analytiqueDipPotDerGrad anaDPD;
-    static integrateur<vect3array<6>> gauss;
+    static integrateur< vect3array<6> > gauss;
     gauss.setOrdre(GaussOrder);
 
     for(int i=0;i<inner_layer.nbr_trg();i++)
@@ -395,7 +395,7 @@ void operateurDipolePotDerGrad(const vect3 &r0, const vect3 &q,const mesh &inner
 void operateurDipolePotGrad(const vect3 &r0, const vect3 &q, const mesh &inner_layer, vecteur rhs[6], int offsetIdx)
 {
     static analytiqueDipPotGrad anaDP;
-    static integrateur<vect3array<2>> gauss;
+    static integrateur< vect3array<2> > gauss;
     gauss.setOrdre(GaussOrder);
 
     anaDP.init(q,r0);

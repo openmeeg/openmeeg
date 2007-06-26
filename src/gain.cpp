@@ -46,7 +46,6 @@ int main(int argc, char **argv)
 
     matrice reducedLhsInvMatrix; 
 
-
     // for use with EEG DATA
     if(!strcmp(argv[1],"-EEG"))
     {
@@ -66,11 +65,10 @@ int main(int argc, char **argv)
     // for use with MEG DATA
     else if(!strcmp(argv[1],"-MEG"))
     {
-        
         if(argc<7)
         {
             cerr << "Not enough arguments \nPlease try \"" << argv[0] << " -h\" or \"" << argv[0] << " --help \" \n" << endl;
-            return 0; 
+            return 0;
         }
         LhsInvMatrix.loadBin(argv[2]);
         RhsMatrix.loadBin(argv[3]);

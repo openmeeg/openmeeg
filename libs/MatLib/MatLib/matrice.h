@@ -90,11 +90,11 @@ inline std::ostream& operator<<(std::ostream& f,const matrice &M) {
 
 inline void matrice::alloc(size_t M,size_t N)
 {
-    m=M; 
-    n=N; 
-    t=new double[M*N]; 
+    m=M;
+    n=N;
+    t=new double[M*N];
     count=new int[1];
-    (*count)=1; 
+    (*count)=1;
 }
 
 inline void matrice::destroy()
@@ -561,13 +561,13 @@ inline void matrice::loadBin( const char *filename )
 
 
     unsigned int ui;
-    fread(&ui,sizeof(unsigned int),1,infile); 
+    fread(&ui,sizeof(unsigned int),1,infile);
     m=ui;
     fread(&ui,sizeof(unsigned int),1,infile);
     n=ui;
-    if(t!=0) destroy(); 
-    alloc(m,n); 
-    fread(t,sizeof(double),n*m,infile); 
+    if(t!=0) destroy();
+    alloc(m,n);
+    fread(t,sizeof(double),n*m,infile);
     fclose(infile);
 }
 

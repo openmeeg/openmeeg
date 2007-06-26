@@ -33,7 +33,7 @@ int main(int argc, char **argv)
         cout << "| " << argv[i] << endl;
     }
     cout << "| -----------------------" << endl;
-    
+
     // declaration of argument variables
     string Option;
     matrice EegGainMatrix;
@@ -104,14 +104,14 @@ int main(int argc, char **argv)
             vecteur m_vec;
             m_vec.DangerousBuild(&data(0,frame),data.nlin());
 
-            //==========  initialization of source vector =======================//
+            // ====================  initialization of source vector ===================== //
             if(frame==0) for(size_t i=0;i<v.size();i++) v(i)=1e-3*drandom();
             else for(size_t i=0;i<v.size();i++) v(i)=EstimatedSourcesData(i,frame-1);
 
             bool errorTest=true;
             double dtv=0.0;
 
-            // ==========================  the inverse problem ==========================//
+            // ==========================  the inverse problem ========================== //
             int t;
             for(t=0;t<MaxNbIter && errorTest;t++)
             {
