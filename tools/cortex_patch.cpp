@@ -1,8 +1,10 @@
+#include <iostream>
+#include <fstream>
+#include <cstring>
+
 #include "vecteur.h"
 #include "matrice.h"
 #include "symmatrice.h"
-#include <iostream>
-#include <fstream>
 #include "mesh3.h"
 #include "vect3.h"
 

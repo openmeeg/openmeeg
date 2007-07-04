@@ -10,7 +10,10 @@
 //! allows the use of M_PI (math.h).
 #define _USE_MATH_DEFINES
 #endif
+
 // #define M_PI       3.14159265358979323846
+
+#include <cstring>
 #include <math.h>
 
 #include <algorithm>

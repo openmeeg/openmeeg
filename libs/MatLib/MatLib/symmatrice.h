@@ -1,12 +1,14 @@
 #ifndef H_symmatrice
 #define H_symmatrice
 
+#include <sstream>
+#include <cmath>
+#include <cstdlib>
+
 #include "MatLibConfig.h"
 
 #include "matrice_dcl.h"
 #include "symmatrice_dcl.h"
-#include <sstream>
-#include <math.h>
 
 inline symmatrice::symmatrice():n(0),t(0),count(0) {}
 inline symmatrice::symmatrice(size_t N) { alloc(N); }

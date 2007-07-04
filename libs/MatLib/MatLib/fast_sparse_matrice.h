@@ -1,11 +1,13 @@
 #ifndef H_fast_sparse_matrice
 #define H_fast_sparse_matrice
 
+#include <cstring>
+#include <fstream>
+
 #include "MatLibConfig.h"
 #include "fast_sparse_matrice_dcl.h"
 #include "vecteur.h"
 #include "sparse_matrice.h"
-#include <fstream>
 
 inline fast_sparse_matrice::fast_sparse_matrice()
 {

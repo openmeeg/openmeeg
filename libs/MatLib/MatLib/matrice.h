@@ -1,13 +1,15 @@
 #ifndef H_matrice
 #define H_matrice
 
-#include "matrice_dcl.h"
-#include "symmatrice_dcl.h"
-#include "vecteur.h"
+#include <cstdlib>
 #include <cmath>
 #include <string>
 #include <sstream>
 #include <cfloat>
+
+#include "matrice_dcl.h"
+#include "symmatrice_dcl.h"
+#include "vecteur.h"
 
 inline matrice::matrice():m(0),n(0),t(0),count(0) {}
 inline matrice::matrice(size_t M,size_t N) { alloc(M,N); }

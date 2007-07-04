@@ -11,6 +11,7 @@
 #endif
 
 #include <cmath>
+#include <cstdlib>
 #include <iostream>
 
 namespace command_line {
@@ -32,7 +33,7 @@ namespace command_line {
     }
     inline int strlen(const char *s) { if (s) { int k; for (k=0; s[k]; k++) ; return k; } return -1; }
     inline int strncmp(const char *s1,const char *s2,const int l) {
-        if (s1 && s2) { int n=0; for (int k=0; k<l; k++) n+=std::abs(s1[k] - s2[k]); return n; }
+        if (s1 && s2) { int n=0; for (int k=0; k<l; k++) n+=abs(s1[k]- s2[k]); return n; }
         return 0;
     }
     inline int strfind(const char *s,const char c)
@@ -44,7 +45,7 @@ namespace command_line {
         return -1; 
     }
     inline int strncasecmp(const char *s1,const char *s2,const int l) {
-        if (s1 && s2) { int n=0; for (int k=0; k<l; k++) n+=std::abs(uncase(s1[k])-uncase(s2[k])); return n; }
+        if (s1 && s2) { int n=0; for (int k=0; k<l; k++) n+=abs(uncase(s1[k])-uncase(s2[k])); return n; }
         return 0;
     }
     inline int strcmp(const char *s1,const char *s2) { 

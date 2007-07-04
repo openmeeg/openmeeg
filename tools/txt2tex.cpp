@@ -1,9 +1,11 @@
+#include <fstream>
+#include <cstdlib>
+#include <cstring>
+#include <cmath>
+
 #include <matrice.h>
 #include <symmatrice.h>
 #include <vecteur.h>
-#include <fstream>
-#include <cstdlib>
-#include <cmath>
 
 using namespace std;
 //using namespace CLMatLib;

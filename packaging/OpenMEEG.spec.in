@@ -1,5 +1,5 @@
-%define version @CPACK_PACKAGE_VERSION_MAJOR@.@CPACK_PACKAGE_VERSION_MINOR@
-%define release @CPACK_PACKAGE_VERSION_PATCH@
+%define version @PACKAGE_VERSION_MAJOR@.@PACKAGE_VERSION_MINOR@
+%define release @PACKAGE_VERSION_PATCH@
 
 Name:         @PROJECT_NAME@
 Version:      %{version}
@@ -40,7 +40,7 @@ ctest
 %install
 rm -rf $RPM_BUILD_ROOT
 cd %{builddirname}
-%makeinstall
+make install DESTDIR=$RPM_BUILD_ROOT
 
 %clean
 rm -rf %{builddirname}
