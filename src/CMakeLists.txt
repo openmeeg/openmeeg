@@ -23,11 +23,7 @@ TARGET_LINK_LIBRARIES (assemble ${OPENMEEG_OTHER_LIBRARIES})
 # =============
 
 IF(ENABLE_PACKAGING)
-    IF(UNIX)
-        INSTALL(TARGETS assemble forward gain inverse minverser presmooth DESTINATION local/bin)
-    ELSE(UNIX)
-        INSTALL(TARGETS assemble forward gain inverse minverser presmooth DESTINATION bin)
-    ENDIF(UNIX)
+    INSTALL(TARGETS assemble forward gain inverse minverser presmooth DESTINATION bin)
 ENDIF(ENABLE_PACKAGING)
 
 # ===========

@@ -9,6 +9,7 @@
 #endif
 
 #include <fstream>
+#include <cstring>
 
 #include "mesh3.h"
 #include "integrateur.h"

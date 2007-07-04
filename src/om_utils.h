@@ -1,7 +1,8 @@
 #if WIN32
 #define _USE_MATH_DEFINES
 #endif
-#include <math.h>
+#include <cstring>
+#include <cmath>
 
 inline int getNameExtension ( const char* name, char* extension )
 {

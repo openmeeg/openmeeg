@@ -119,7 +119,6 @@ public:
 
     friend std::ostream& operator<<(std::ostream &os,const vect3 &v);
     friend std::istream& operator>>(std::istream &is,vect3 &v);
-
 };
 
 inline vect3 operator * (const double &d, const vect3 &v) {return v*d;}

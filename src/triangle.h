@@ -1,6 +1,7 @@
 #ifndef H_TRIANGLE
 #define H_TRIANGLE
 
+#include <cstdlib>
 #include "vect3.h"
 
 class triangle{
@@ -11,7 +12,7 @@ private:
     vect3 n;
 
 public:
-    inline triangle(int a, int b, int c, vect3 m){
+    inline triangle(int a, int b, int c, vect3 m) {
         s1=a; s2=b; s3=c; n=m;
     }
 

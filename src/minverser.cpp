@@ -1,3 +1,5 @@
+#include <cstring>
+
 #include "matrice.h"
 #include "symmatrice.h"
 #include "vecteur.h"
