@@ -225,7 +225,7 @@ public:
         // RK: A=q.(x-r0)/||^3
         vect3 r=x-r0;
         double rn=r.norme();
-        return (q*r)/(rn*rn*rn);
+        return -(q*r)/(rn*rn*rn); // RK: why this sign?
     }
 };
 
@@ -292,14 +292,15 @@ public:
 
     inline vect3array<2> f(const vect3& x) const
     {
+		// RK: changed sign to fit strange sign in analytiqueDipPot...
         vect3 r=x-r0;
         double rn=r.norme();
 		vect3array<2> res;
 		// grad_r0(A)= -q/||^3 + 3 r (q.r)/||^5
-		res(0)=3*(q*r)*r/pow(rn,5.)-q/pow(rn,3.);
+		res(0)=-(3*(q*r)*r/pow(rn,5.)-q/pow(rn,3.));   
 		// grad_q(A)= r||^3
-		res(1)=r/pow(rn,3.);
-		return res;
+		res(1)=-r/pow(rn,3.); 
+		return res; 
     }
 };
 
