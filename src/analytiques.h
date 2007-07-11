@@ -225,7 +225,7 @@ public:
         // RK: A=q.(x-r0)/||^3
         vect3 r=x-r0;
         double rn=r.norme();
-        return -(q*r)/(rn*rn*rn); // RK: why this sign?
+        return (q*r)/(rn*rn*rn);
     }
 };
 
@@ -271,7 +271,7 @@ public:
         double rn=r.norme();
 		double EMpart=n*(q/pow(rn,3.)-3*(q*r)*r/pow(rn,5.));
 
-		return EMpart*P1part;
+		return -EMpart*P1part; // RK: why - sign ?
     }
 
 };
@@ -292,14 +292,13 @@ public:
 
     inline vect3array<2> f(const vect3& x) const
     {
-		// RK: changed sign to fit strange sign in analytiqueDipPot...
         vect3 r=x-r0;
         double rn=r.norme();
 		vect3array<2> res;
 		// grad_r0(A)= -q/||^3 + 3 r (q.r)/||^5
-		res(0)=-(3*(q*r)*r/pow(rn,5.)-q/pow(rn,3.));   
+		res(0)=(3*(q*r)*r/pow(rn,5.)-q/pow(rn,3.));   
 		// grad_q(A)= r||^3
-		res(1)=-r/pow(rn,3.); 
+		res(1)=r/pow(rn,3.); 
 		return res; 
     }
 };
@@ -353,12 +352,12 @@ public:
 		vect3 EMpartQ=n/pow(rn,3.)-3*(n*r)/pow(rn,5.)*r;
 
 		vect3array<6> res;
-		res(0)=EMpartR0[0]*P1part; // d/dr0[0]
-		res(1)=EMpartR0[1]*P1part; // d/dr0[1]
-		res(2)=EMpartR0[2]*P1part; // d/dr0[2]
-		res(3)=EMpartQ[0]*P1part; // d/dq[0]
-		res(4)=EMpartQ[1]*P1part; // d/dq[1]
-		res(5)=EMpartQ[2]*P1part; // d/dq[2]
+		res(0)=-EMpartR0[0]*P1part; // d/dr0[0]		// RK: why - sign?
+		res(1)=-EMpartR0[1]*P1part; // d/dr0[1]
+		res(2)=-EMpartR0[2]*P1part; // d/dr0[2]
+		res(3)=-EMpartQ[0]*P1part; // d/dq[0]
+		res(4)=-EMpartQ[1]*P1part; // d/dq[1]
+		res(5)=-EMpartQ[2]*P1part; // d/dq[2]
 		return res;
 
     }
