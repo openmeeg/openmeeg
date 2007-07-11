@@ -20,7 +20,7 @@
 using namespace std;
 //using namespace CLMatLib;
 
-int GaussOrder=0;
+int GaussOrder=3;
 
 void getOutputFilepath(char* ref_filepath, char* output_filename, char* path);
 void getHelp(char** argv);
