@@ -16,6 +16,7 @@
 #include "fcontainer.h"
 #include "cpuChrono.h"
 #include "mainHeader.h"
+#include "sensors.h"
 
 using namespace std;
 //using namespace CLMatLib;
@@ -530,6 +531,11 @@ int main(int argc, char** argv)
         geometry geo;
         int taille=geo.read(argv[2],argv[3]);
 
+		// Load positions and orientations of sensors  :
+		sensors fileDescription(argv[4]);
+		matrice squidsPositions = *(fileDescription.getSensorsPositions());
+		matrice squidsOrientations = *(fileDescription.getSensorsOrientations());
+        /*
         // read the file containing the positions and the orientations of the MEG captors
         const matrice squidsPositionsOrientations(argv[4]);
         matrice squidsOrientations(squidsPositionsOrientations.nlin(),3);
@@ -543,7 +549,7 @@ int main(int argc, char** argv)
                 else    squidsOrientations(i,j-3)=squidsPositionsOrientations(i,j);
             }
         }
-
+		*/
         // Assembling matrix from discretization :
         int newtaille=taille-(geo.getM(geo.nb()-1)).nbr_trg();
         matrice xToMEGrespCont(squidsPositions.nlin(),newtaille);
@@ -590,7 +596,12 @@ int main(int argc, char** argv)
         if(!strcmp(argv[2]+ls-3,"vtk"))      mesh_sources.load_vtk(argv[2]);
         else if(!strcmp(argv[2]+ls-3,"tri")) mesh_sources.load_tri(argv[2]);
         else if(!strcmp(argv[2]+ls-3,"geo")) mesh_sources.load_3d(argv[2]);
-
+        
+        // Load positions and orientations of sensors  :
+		sensors fileDescription(argv[3]);
+		matrice squidsPositions = *(fileDescription.getSensorsPositions());
+		matrice squidsOrientations = *(fileDescription.getSensorsOrientations());
+		/*
         // read the file containing the positions and the orientations of the MEG captors
         const matrice squidsPositionsOrientations(argv[3]);
         matrice squidsOrientations(squidsPositionsOrientations.nlin(),3);
@@ -604,7 +615,7 @@ int main(int argc, char** argv)
                 else    squidsOrientations(i,j-3)=squidsPositionsOrientations(i,j);
             }
         }
-
+		*/
         // Assembling matrix from discretization :
         int nVertices=mesh_sources.nbr_pts();
         matrice sToMEGrespCont(squidsPositions.nlin(),nVertices);
@@ -651,7 +662,12 @@ int main(int argc, char** argv)
         // Loading dipoles :
         matrice dipoles(argv[2]);
         size_t nVertices=dipoles.nlin();
-
+        
+        // Load positions and orientations of sensors  :
+		sensors fileDescription(argv[3]);
+		matrice squidsPositions = *(fileDescription.getSensorsPositions());
+		matrice squidsOrientations = *(fileDescription.getSensorsOrientations());
+		/*
         // read the file containing the positions and the orientations of the MEG captors
         const matrice squidsPositionsOrientations(argv[3]);
         matrice squidsOrientations(squidsPositionsOrientations.nlin(),3);
@@ -664,7 +680,7 @@ int main(int argc, char** argv)
                 else    squidsOrientations(i,j-3)=squidsPositionsOrientations(i,j);
             }
         }
-
+		*/
         matrice sToMEGrespCont(squidsPositions.nlin(),nVertices);
         sToMEGrespCont.set(0.0);
 
