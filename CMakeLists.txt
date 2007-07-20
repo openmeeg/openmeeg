@@ -16,6 +16,9 @@ SET(PACKAGE_VERSION_MAJOR "0")
 SET(PACKAGE_VERSION_MINOR "8")
 SET(PACKAGE_VERSION_PATCH "svn")
 
+#   The next two lines are a kludge to make rpm generation work. If you change this,
+#   please check that rpm generation still works.
+
 SET(CPACK_PACKAGE_VERSION_MAJOR ${PACKAGE_VERSION_MAJOR})
 SET(CPACK_PACKAGE_VERSION_MINOR ${PACKAGE_VERSION_MINOR})
 SET(CPACK_PACKAGE_VERSION_PATCH ${PACKAGE_VERSION_PATCH})
