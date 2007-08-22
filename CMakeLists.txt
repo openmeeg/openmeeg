@@ -70,74 +70,11 @@ ENDIF (USE_VTK)
 # OpenMEEG
 #######################################################################
 
+#------------------------------------------------------------
+# Atlas - MKL for blas and lapack
+#------------------------------------------------------------
 
-IF (WIN32)
-
-    OPTION(USE_MKL "Build the project with MKL" ON)
-
-    IF(USE_MKL)
-
-        FIND_PATH(MKL_INCLUDE_PATH mkl.h
-                    "C:/Program Files/Intel/MKL/8.1.1/include"
-                    ../../mkl/include
-        )
-        INCLUDE_DIRECTORIES(${MKL_INCLUDE_PATH})
-
-        FIND_PATH(MKL_LIB_PATH libguide.lib
-                    "C:/Program Files/Intel/MKL/8.1.1/ia32/lib"
-                    ../../mkl/ia32/lib
-        )
-        LINK_DIRECTORIES(${MKL_LIB_PATH})
-
-        SET(OPENMEEG_OTHER_LIBRARIES
-            ${OPENMEEG_OTHER_LIBRARIES}
-            mkl_solver
-            mkl_c
-            libguide
-        )
-
-    ENDIF(USE_MKL)
-
-ELSE (WIN32) # Apple or Linux
-
-    OPTION(USE_ATLAS "Build the project using ATLAS" ON)
-
-    IF(USE_ATLAS)
-        FIND_PATH(ATLAS_LDFLAGS libatlas.so
-                    /usr/lib/sse2
-                    /usr/lib64/atlas
-                 )
-        LINK_DIRECTORIES(${ATLAS_LDFLAGS})
-        LINK_LIBRARIES(lapack cblas blas)
-        SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS}")
-        INCLUDE_DIRECTORIES( /usr/include/atlas )
-    ELSE(USE_ATLAS)
-        OPTION(USE_MKL "Build the project using MKL" ON)
-        IF(USE_MKL)
-            FIND_PATH(MKL_INCLUDE_PATH mkl.h
-                        ~/intel/mkl/8.1/include
-                        ~/Intel/MKL/8.1/include
-                        /Library/Frameworks/Intel_MKL.framework/Headers
-            )
-            INCLUDE_DIRECTORIES(${MKL_INCLUDE_PATH})
-
-            FIND_PATH(MKL_LIB_PATH libguide.a
-                        ~/intel/mkl/8.1/lib/32
-                        ~/Intel/MKL/8.1/lib/32
-                        /Library/Frameworks/Intel_MKL.framework/Libraries/32
-            )
-            LINK_DIRECTORIES(${MKL_LIB_PATH})
-
-            SET(OPENMEEG_OTHER_LIBRARIES
-                ${OPENMEEG_OTHER_LIBRARIES}
-                mkl_lapack
-                mkl_ia32
-                guide
-            )
-        ENDIF(USE_MKL)
-    ENDIF(USE_ATLAS)
-
-ENDIF (WIN32)
+INCLUDE(UseAtlas.cmake)
 
 #------------------------------------------------------------
 # OpenMP
@@ -187,7 +124,6 @@ SET (OPENMEEG_INCLUDE_DIRECTORIES
     ${OpenMEEG_BINARY_DIR}
     ${OpenMEEG_SOURCE_DIR}
     ${OpenMEEG_SOURCE_DIR}/src
-    ${OpenMEEG_SOURCE_DIR}/libs/LsLib
 )
 
 INCLUDE_DIRECTORIES(
@@ -223,6 +159,17 @@ IF (BUILD_TEST)
 ENDIF (BUILD_TEST)
 
 #-----------------------------------------------
+# documentation
+#-----------------------------------------------
+
+OPTION(BUILD_DOCUMENTATION "Build Doxygen documentation" OFF)
+
+IF ( BUILD_DOCUMENTATION )
+    SET(OPENMEEG_DOXYGEN_HOME ${OpenMEEG_SOURCE_DIR}/documentation)
+    SUBDIRS(${OPENMEEG_DOXYGEN_HOME})
+ENDIF ( BUILD_DOCUMENTATION )
+
+#-----------------------------------------------
 # packaging
 #-----------------------------------------------
 
@@ -256,7 +203,7 @@ IF(ENABLE_PACKAGING)
 
     ELSE(APPLE OR WIN32) # linux
 
-        OPTION(BUILD_RPM "Build RPM package" ON)
+        OPTION(BUILD_RPM "Build RPM package" OFF)
         IF (BUILD_RPM)
             INCLUDE(UseRPMTools)
             IF (RPMTools_FOUND)

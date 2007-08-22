@@ -10,6 +10,7 @@
 #include "matrice_dcl.h"
 #include "symmatrice_dcl.h"
 #include "vecteur.h"
+#include "om_utils.h"
 
 inline matrice::matrice():m(0),n(0),t(0),count(0) {}
 inline matrice::matrice(size_t M,size_t N) { alloc(M,N); }
@@ -75,7 +76,7 @@ inline double matrice::operator()(size_t i,size_t j) const
 }
 inline double& matrice::operator()(size_t i,size_t j)
 {
-    assert( i<m && j<n);
+    assert(i<m && j<n);
     return t[i+m*j];
 }
 
@@ -92,11 +93,11 @@ inline std::ostream& operator<<(std::ostream& f,const matrice &M) {
 
 inline void matrice::alloc(size_t M,size_t N)
 {
-    m=M;
-    n=N;
-    t=new double[M*N];
-    count=new int[1];
-    (*count)=1;
+    m = M;
+    n = N;
+    t = new double[M*N];
+    count = new int[1];
+    (*count) = 1;
 }
 
 inline void matrice::destroy()
@@ -116,7 +117,7 @@ inline void matrice::copy(const matrice& A)
     m=A.m;
     n=A.n;
     if (t) {
-        count=A.count;
+        count = A.count;
         (*count)++;
     }
 }
@@ -294,7 +295,7 @@ inline matrice matrice::pinverse(double tolrel) const {
 #if defined(HAVE_BLAS) && defined(HAVE_LAPACK)
     if(n > m) return transpose().pinverse().transpose();
     else {
-        matrice retour(n,m);
+        matrice result(n,m);
         matrice U,S,V;
         svd(U,S,V);
         double maxs=0;
@@ -305,8 +306,8 @@ inline matrice matrice::pinverse(double tolrel) const {
         int r=0; for(int i=0;i<mimi;i++) if(S(i,i)>tol) r++;
         if (r == 0)
         {
-            retour.set(0.);
-            return retour;
+            result.set(0.);
+            return result;
         }
         else
         {
@@ -316,10 +317,10 @@ inline matrice matrice::pinverse(double tolrel) const {
             Vbis.DangerousBuild(V.t,V.nlin(),r);
             matrice Ubis;
             Ubis.DangerousBuild(U.t,U.nlin(),r);
-            retour=Vbis*s*Ubis.transpose();
+            result=Vbis*s*Ubis.transpose();
             Vbis.DangerousKill();
             Ubis.DangerousKill();
-            return retour;
+            return result;
         }
     }
 #else
@@ -329,9 +330,9 @@ inline matrice matrice::pinverse(double tolrel) const {
 }
 
 inline matrice matrice::transpose() const {
-    matrice retour(n,m);
-    for(size_t i=0;i<m;i++) for(size_t j=0;j<n;j++) retour(j,i)=(*this)(i,j);
-    return retour;
+    matrice result(n,m);
+    for(size_t i=0;i<m;i++) for(size_t j=0;j<n;j++) result(j,i)=(*this)(i,j);
+    return result;
 }
 
 inline void matrice::svd(matrice &U,matrice &S, matrice &V) const {
@@ -627,6 +628,18 @@ inline matrice matrice::operator()(size_t i_start, size_t i_end, size_t j_start,
 #endif
 
     return retMat;
+}
+
+inline void matrice::load( const char *filename ) {
+    char extension[128];
+    getNameExtension(filename,extension);
+    if(!strcmp(extension,"bin") || !strcmp(extension,"BIN")) loadBin(filename);
+    else if(!strcmp(extension,"txt") || !strcmp(extension,"TXT")) loadTxt(filename);
+    else {
+        std::cout << "Warning : Unknown file extension " << std::endl;
+        std::cout << "Assuming ASCII format " << std::endl;
+        loadTxt(filename);
+    }
 }
 
 inline void matrice::loadTxt( const char *filename )

@@ -1,7 +1,6 @@
 #ifndef MESHDESCRIPTION_READER_H
 #define MESHDESCRIPTION_READER_H
 
-//#include <iostream>
 #include <fstream>
 #include <sstream>
 #include <vector>
@@ -18,7 +17,7 @@ namespace MeshDescription {
 
     template <typename INTERFACE,typename GEOMETRY>
     class Reader {
-        
+
         //  A domain is the association of a name and a vector of pairs.
         //  The first element of each pair corresponds to an interface.
         //  The second element of each pair states whether the domain is contains in the
@@ -60,7 +59,7 @@ namespace MeshDescription {
         //  Check their compatibility and create a data structure indexing all these interfaces.
 
         void LoadInterfaces(std::istream& is) {
-            
+
             //  The first interface is special as it determines the size of the meshed domain.
             //  Load the first interface and register it for validation.
 
@@ -120,7 +119,7 @@ namespace MeshDescription {
         Reader(const char* geometry);
         Reader(const Reader& reader);
         Reader& operator=(Reader& reader);
-        
+
               Domains& domains()       { return doms; }
         const Domains& domains() const { return doms; }
 
@@ -129,9 +128,7 @@ namespace MeshDescription {
                       << interfaces.size() << " interfaces" << std::endl
                       << doms.size()       << " domains"    << std::endl;
         }
-        
 
-        
         Interfaces& getInterfaces() { return this->interfaces; }
         std::vector<int> sortInterfaceIDAndDomains(); // implemented in MeshDescriptionReaderSpecialized.h
         std::vector<std::string> getDomainNames() {
@@ -140,8 +137,8 @@ namespace MeshDescription {
                 domainNames.push_back(doms[i].name());
             return domainNames;
         };
-        
-    private :    
+
+    private :
         Interfaces interfaces;  //  The various levelsets depicting interfaces between domains.
         Domains    doms;        //  Domain descriptions in terms of interfaces.
         Geometry   geom;        //  The geometry of the depicted domain (origin and size).
@@ -175,11 +172,12 @@ namespace MeshDescription {
         //            or the exterior of the interface should be used to select the domain.
         //
         //  Any line starting with # is considered a comment and is silently ignored.
-        
+
+
+
         std::ifstream ifs(geometry);
         ifs >> io_utils::match("# Domain Description 1.0");
         GEOMETRY::Load(ifs,geom);
-        
 
         //  Process interfaces.
 
@@ -190,20 +188,21 @@ namespace MeshDescription {
             throw "Wrong file format!";
 
         interfaces.reserve(num_interfaces);
-        interfaces.resize(num_interfaces);  
+        interfaces.resize(num_interfaces);
+
         LoadInterfaces(ifs);
 
         //  Process domains.
-        
+
         unsigned num_domains;
         ifs >> io_utils::skip_comments('#') >> io_utils::match("Domains") >> num_domains;
         if (ifs.fail())
             throw "Wrong file format!";
-        
+
         doms.reserve(num_domains);
         doms.resize(num_domains);
         LoadDomains(ifs);
-        
+
         if (ifs.fail())
             throw "Wrong file format!";
 
@@ -211,13 +210,13 @@ namespace MeshDescription {
 
         ifs.close();
     }
-#if 0   
+#if 0
     // constructeur de copie :
     template <typename INTERFACES,typename GEOMETRY>
     Reader<INTERFACES,GEOMETRY>::Reader(const Reader<INTERFACES,GEOMETRY>& reader) {
         *this = reader;
     }
-    
+
     // operateur de copie :
     template <typename INTERFACES,typename GEOMETRY>
     Reader<INTERFACES,GEOMETRY>& Reader<INTERFACES,GEOMETRY>::operator=(Reader<INTERFACES,GEOMETRY>& reader){

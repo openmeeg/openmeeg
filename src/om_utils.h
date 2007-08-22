@@ -1,3 +1,6 @@
+#ifndef _OM_UTILS_H_
+#define _OM_UTILS_H_
+
 #if WIN32
 #define _USE_MATH_DEFINES
 #endif
@@ -31,8 +34,11 @@ inline double drandom()
 inline double gaussienne()
 {
     double x;
-    do 
+    do
         x=drandom();
     while (x==0);
     return (double)(sqrt(-2*log(x))*cos(2*M_PI*drandom()));
 }
+
+#endif /* _OM_UTILS_H_ */
+

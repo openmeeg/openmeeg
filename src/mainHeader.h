@@ -9,16 +9,16 @@
 
 #include "geometry.h"
 
-void assemble_matrice( geometry &geo, symmatrice &mat);
-void assemble_RHSmatrix(geometry &geo, mesh &sources, matrice &mat);
-void assemble_RHS2matrix(geometry &geo, mesh &sources, matrice &mat);
-void assemble_RHSvector( geometry &geo, std::vector<vect3> Rs, std::vector<vect3> Qs, vecteur &rhs);
-void assemble_RHS_dipoles_matrice( geometry &geo, std::vector<vect3> Rs, std::vector<vect3> Qs, matrice &rhs);
-void assemble_RHS_dipoles_matrice_grad( geometry &geo, std::vector<vect3> Rs, std::vector<vect3> Qs, matrice &rhs);
-void assemble_ferguson( geometry &geo, matrice &mat, const vect3* pts, int n);
-void assemble_xToEEGresponse( geometry &geo, matrice &mat, const matrice &positions );
-void assemble_xToMEGresponseContrib( geometry &geo, matrice &mat, const matrice &positions, const matrice &orientations );
-void assemble_sToMEGresponseContrib( mesh &sources_mesh, matrice &mat, const matrice &positions, const matrice &orientations );
+void assemble_matrice( Geometry &geo, symmatrice &mat);
+void assemble_RHSmatrix(Geometry &geo, Mesh &sources, matrice &mat);
+void assemble_RHS2matrix(Geometry &geo, Mesh &sources, matrice &mat);
+void assemble_RHSvector( Geometry &geo, std::vector<Vect3> Rs, std::vector<Vect3> Qs, vecteur &rhs);
+void assemble_RHS_dipoles_matrice( Geometry &geo, std::vector<Vect3> Rs, std::vector<Vect3> Qs, matrice &rhs);
+void assemble_RHS_dipoles_matrice_grad( Geometry &geo, std::vector<Vect3> Rs, std::vector<Vect3> Qs, matrice &rhs);
+void assemble_ferguson( Geometry &geo, matrice &mat, const Vect3* pts, int n);
+void assemble_xToEEGresponse( Geometry &geo, matrice &mat, const matrice &positions );
+void assemble_xToMEGresponseContrib( Geometry &geo, matrice &mat, const matrice &positions, const matrice &orientations );
+void assemble_sToMEGresponseContrib( Mesh &sources_mesh, matrice &mat, const matrice &positions, const matrice &orientations );
 void deflat(genericMatrix &M, int start, int end, double coef);
 
 void assemble_sToMEGresponseContrib_point(matrice&dipoles, matrice &mat, const matrice &positions, const matrice &orientations );

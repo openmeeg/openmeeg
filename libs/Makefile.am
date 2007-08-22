@@ -1,1 +1,1 @@
-SUBDIRS= MatLib LsLib
+SUBDIRS= MatLib

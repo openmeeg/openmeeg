@@ -23,164 +23,154 @@
 #include <vtkCharArray.h>
 #include <vtkProperty.h>
 #include <vtkPolyDataNormals.h>
+#include <vtkPointData.h>
+#include <vtkDataArray.h>
 #include <vtkCleanPolyData.h>
 #endif
 
 using namespace std;
 
-mesh::mesh()
-{
-    nb_pts=0;
+Mesh::Mesh() {
+    npts = 0;
 }
 
-mesh::mesh(int a, int b)
-{
-    nb_pts=a;  nb_trg=b;
-    pts = new vect3[nb_pts];
-    trg = new triangle[nb_trg];
-    links = new intlist[nb_pts];
+Mesh::Mesh(int a, int b) {
+    npts = a;
+    ntrgs = b;
+    pts = new Vect3[npts];
+    trgs = new Triangle[ntrgs];
+    links = new intSet[npts];
+    normals = new Vect3[npts];
 }
 
-mesh::mesh ( int a, vect3 *b, int c,triangle* d)
-{
-    nb_pts=a;
-    pts=b;
-    nb_trg=c;
-    trg=d;
-    links = new intlist[nb_pts];
-}
-
-mesh::mesh(const mesh& M){
+Mesh::Mesh(const Mesh& M) {
     *this = M;
 }
 
-mesh& mesh::operator=(const mesh& M){
+Mesh& Mesh::operator=(const Mesh& M) {
     if (this!=&M) copy(M);
     return *this;
-
 }
 
-//mesh& mesh::operator=(mesh& M){
-//    if (this!=&M) copy(M);
-//    return *this;
-//}
-
-void mesh::copy(const mesh& M){
-    nb_pts = M.nb_pts;
-    if (nb_pts!=0) {
-        nb_trg = M.nb_trg;
-        pts = new vect3[nb_pts];
-        trg = new triangle[nb_trg];
-        links = new intlist[nb_pts];
-        for(int i=0;i<nb_pts;i++){
+void Mesh::copy(const Mesh& M) {
+    npts = M.npts;
+    if (npts!=0) {
+        ntrgs = M.ntrgs;
+        pts = new Vect3[npts];
+        trgs = new Triangle[ntrgs];
+        links = new intSet[npts];
+        normals = new Vect3[npts];
+        for(int i=0;i<npts;i++){
             pts[i] = M.pts[i];
             links[i] = M.links[i];
         }
-        for(int i=0;i<nb_trg;i++)
-            trg[i] = M.trg[i];
+        for(int i=0;i<ntrgs;i++)
+            trgs[i] = M.trgs[i];
     }
 }
 
-
-void mesh::kill()
-{
-    if (nb_pts!=0) {
+void Mesh::kill() {
+    if (npts!=0) {
         delete []pts;
-        delete []trg;
+        delete []trgs;
         delete []links;
+        delete []normals;
 
-        nb_pts=0;
-        nb_trg=0;
+        npts = 0;
+        ntrgs = 0;
     }
 }
 
-void mesh::make_links()
-{
+void Mesh::make_links() {
     int i;
-    for (i=0;i<nb_pts;i++) {
+    for (i=0;i<npts;i++) {
         links[i].clear();
     }
 
-    for (i=0;i<nb_trg;i++) {
-        links[trg[i].som1()].push_back(i);
-        links[trg[i].som2()].push_back(i);
-        links[trg[i].som3()].push_back(i);
+    for (i=0;i<ntrgs;i++) {
+        links[trgs[i].s1()].insert(i);
+        links[trgs[i].s2()].insert(i);
+        links[trgs[i].s3()].insert(i);
     }
 }
 
-
-void mesh::getFileFormat(const char* filename){
-    //store in streamFormat the format of the mesh :
+void Mesh::getFileFormat(const char* filename) {
+    // store in streamFormat the format of the Mesh :
     char extension[128];
     getNameExtension(filename,extension);
-    if(!strcmp(extension,"vtk") || !strcmp(extension,"VTK")) streamFormat=mesh::VTK ;
-    else if(!strcmp(extension,"3d") || !strcmp(extension,"3D")) streamFormat=mesh::TREE_D;
-    else if(!strcmp(extension,"tri") || !strcmp(extension,"TRI")) streamFormat=mesh::TRI;
-    else if(!strcmp(extension,"bnd") || !strcmp(extension,"BND")) streamFormat=mesh::BND;
+    if(!strcmp(extension,"vtk") || !strcmp(extension,"VTK")) streamFormat = Mesh::VTK ;
+    else if(!strcmp(extension,"tri") || !strcmp(extension,"TRI")) streamFormat = Mesh::TRI;
+    else if(!strcmp(extension,"bnd") || !strcmp(extension,"BND")) streamFormat = Mesh::BND;
 }
 
-
-void mesh::load(const char* name, bool verbose) {
+void Mesh::load(const char* name, bool verbose) {
     char extension[128];
     getNameExtension(name,extension);
     if(!strcmp(extension,"vtk") || !strcmp(extension,"VTK")) load_vtk(name);
-    else if(!strcmp(extension,"3d") || !strcmp(extension,"3D")) load_3d(name);
-    else if(!strcmp(extension,"mesh") || !strcmp(extension,"MESH")) load_mesh(name);
+    else if(!strcmp(extension,"mesh") || !strcmp(extension,"MESH")) load_Mesh(name);
     else if(!strcmp(extension,"tri") || !strcmp(extension,"TRI")) load_tri(name);
     else if(!strcmp(extension,"bnd") || !strcmp(extension,"BND")) load_bnd(name);
     else {
         cerr << "Load : Unknown file format" << endl;
         exit(1);
     }
-    
+
     if(verbose)
     {
         std::cout<<"Mesh File: "<<name<<std::endl;
-        std::cout<<"\t# points: "<<nb_pts<<std::endl;
-        std::cout<<"\t# triangles: "<<nb_trg<<std::endl;
+        std::cout<<"\t# points: "<<npts<<std::endl;
+        std::cout<<"\t# triangles: "<<ntrgs<<std::endl;
     }
 }
 
 #ifdef USE_VTK
-void mesh::getDataFromVTKReader(vtkPolyDataReader* reader){   //private
-    
+void Mesh::getDataFromVTKReader(vtkPolyDataReader* reader) {   //private
+
     reader->Update();
     vtkPolyData *vtkMesh = reader->GetOutput();
 
-    nb_pts = vtkMesh->GetNumberOfPoints();
+    npts = vtkMesh->GetNumberOfPoints();
 
-    pts=new vect3[nb_pts]; // points array
-    links=new intlist[nb_pts];
+    pts = new Vect3[npts]; // points array
+    normals = new Vect3[npts]; // normals on each point
+    links = new intSet[npts];
 
-    for (int i=0;i<nb_pts;i++)
+    vtkDataArray *normalsData = vtkMesh->GetPointData()->GetNormals();
+    assert(npts == normalsData->GetNumberOfTuples());
+    assert(3 == normalsData->GetNumberOfComponents());
+    
+    for (int i = 0;i<npts;i++)
     {
-        pts[i]._x() = vtkMesh->GetPoint(i)[0];
-        pts[i]._y() = vtkMesh->GetPoint(i)[1];
-        pts[i]._z() = vtkMesh->GetPoint(i)[2];
+        pts[i].x() = vtkMesh->GetPoint(i)[0];
+        pts[i].y() = vtkMesh->GetPoint(i)[1];
+        pts[i].z() = vtkMesh->GetPoint(i)[2];
+
+        normals[i][0] = normalsData->GetTuple(i)[0];
+        normals[i][1] = normalsData->GetTuple(i)[1];
+        normals[i][2] = normalsData->GetTuple(i)[2];
     }
-    nb_trg = vtkMesh->GetNumberOfCells();
-    trg = new triangle[nb_trg];
+    ntrgs = vtkMesh->GetNumberOfCells();
+    trgs = new Triangle[ntrgs];
 
     vtkIdList *l;
-    for (int i=0;i<nb_trg;i++) {
+    for (int i = 0;i<ntrgs;i++) {
         if (vtkMesh->GetCellType(i) == VTK_TRIANGLE) {
             l = vtkMesh->GetCell(i)->GetPointIds();
-            trg[i].som1() = l->GetId(0);
-            trg[i].som2() = l->GetId(1);
-            trg[i].som3() = l->GetId(2);
-            trg[i].set_normale(pts[trg[i].som1()].normale(pts[trg[i].som2()],pts[trg[i].som3()]));
-            trg[i].setAire(trg[i].normale().norme()/2.0);
+            trgs[i][0] = l->GetId(0);
+            trgs[i][1] = l->GetId(1);
+            trgs[i][2] = l->GetId(2);
+            trgs[i].normal() = pts[trgs[i][0]].normal( pts[trgs[i][1]] , pts[trgs[i][2]] );
+            trgs[i].area() = trgs[i].normal().norme()/2.0;
         } else {
             std::cerr << "This is not a triangulation" << std::endl;
             exit(1);
         }
     }
-
 }
 
-void mesh::load_vtk(std::istream &is){
+void Mesh::load_vtk(std::istream &is) {
     kill();
-    
+
     // get length of file:
     is.seekg (0, ios::end);
     int length = is.tellg();
@@ -196,20 +186,17 @@ void mesh::load_vtk(std::istream &is){
     vtkCharArray* buf = vtkCharArray::New();
     buf->SetArray(buffer,length,1);
 
-      
     vtkPolyDataReader* reader = vtkPolyDataReader::New();
     reader->SetInputArray(buf); // Specify 'buf' to be used when reading from a string
     reader->SetReadFromInputString(1);  // Enable reading from the InputArray 'buf' instead of the default, a file
-    
-    mesh::getDataFromVTKReader(reader);  
+
+    Mesh::getDataFromVTKReader(reader);
 
     delete[] buffer;
     reader->Delete();
 }
 
-
-
-void mesh::load_vtk(const char* name) {
+void Mesh::load_vtk(const char* name) {
     kill();
 
     vtkPolyDataReader *reader = vtkPolyDataReader::New();
@@ -219,110 +206,75 @@ void mesh::load_vtk(const char* name) {
         reader->Delete();
         exit(1);
     }
-    
-    mesh::getDataFromVTKReader(reader);
+
+    Mesh::getDataFromVTKReader(reader);
 }
 
 #endif
 
-
-
-void mesh::load_3d(std::istream &in){
-    kill();
-    in>>nb_pts;
-    pts=new vect3[nb_pts];
-    links=new intlist[nb_pts];
-
-    for(int i=0;i<nb_pts;i++){  // reading points
-        in>>pts[i]._x();
-        in>>pts[i]._y();
-        in>>pts[i]._z();
-    }
-
-    in>>nb_trg;
-    trg=new triangle[nb_trg]; // reading triangles
-    for(int i=0;i<nb_trg;i++){
-        in>>trg[i].som1();
-        in>>trg[i].som2();
-        in>>trg[i].som3();
-
-        trg[i].set_normale(pts[trg[i].som1()].normale(pts[trg[i].som2()],pts[trg[i].som3()]));
-        trg[i].setAire(trg[i].normale().norme()/2.0);
-    }
-}
-
-void mesh::load_3d(const char *name){
-    ifstream in(name,ios::in);
-    if(!in.is_open()) {
-        cerr<<"Error Reading File : " << name << std::endl;
-        exit(1);
-    }
-    mesh::load_3d(in);
-    in.close();
-}
-
-void mesh::load_mesh(std::istream &is){
-    std::cerr << "load_mesh not inmplemented yet" << std::endl;
-    exit(1);
-}
-void mesh::load_mesh(const char* name) {
-    std::cerr << "load_mesh not implemented yet (name: "<<name << " )." << std::endl;
+void Mesh::load_Mesh(std::istream &is) {
+    std::cerr << "load_Mesh not inmplemented yet" << std::endl;
     exit(1);
 }
 
-void mesh::load_tri(std::istream &f){
+void Mesh::load_Mesh(const char* name) {
+    std::cerr << "load_Mesh not implemented yet (name: "<<name << " )." << std::endl;
+    exit(1);
+}
+
+void Mesh::load_tri(std::istream &f) {
     char ch; f>>ch;
-    f>>nb_pts;
+    f>>npts;
 
     char myline[256];
     f.seekg( 0, std::ios_base::beg );
     f.getline(myline,256);
     f.getline(myline,256);
-    int nread=0;
+    int nread = 0;
 
     float r;
     nread = sscanf(myline,"%f %f %f %f %f %f",&r,&r,&r,&r,&r,&r);
 
-    bool withNormals = (nread==6);
-    vect3 normals;
     f.seekg( 0, std::ios_base::beg );
     f.getline(myline,256);
 
-    pts=new vect3[nb_pts];
-    links=new intlist[nb_pts];
-    for (int i=0;i<nb_pts;i++){
+    pts = new Vect3[npts];
+    normals = new Vect3[npts];
+    links = new intSet[npts];
+    for (int i=0;i<npts;i++){
         f>>pts[i];
-        pts[i]=pts[i];
-        if(withNormals) f >> normals; // Saute la normale (format Nicolas)
+        pts[i] = pts[i];
+        f >> normals[i];
     }
     f>>ch;
-    f>>nb_trg; f>>nb_trg; f>>nb_trg; // Ce numÈro est rÈpÈtÈ trois fois.
-    trg=new triangle[nb_trg];
-    for (int i=0;i<nb_trg;i++){
-        f>>trg[i];
-        trg[i].set_normale(pts[trg[i].som1()].normale(pts[trg[i].som2()],pts[trg[i].som3()]));
-        trg[i].setAire(trg[i].normale().norme()/2.0);
+    f>>ntrgs; f>>ntrgs; f>>ntrgs; // This number is repeated 3 times
+    trgs = new Triangle[ntrgs];
+    for (int i=0;i<ntrgs;i++) {
+        f>>trgs[i];
+        trgs[i].normal() = pts[trgs[i][0]].normal( pts[trgs[i][1]] , pts[trgs[i][2]] );
+        trgs[i].area() = trgs[i].normal().norme()/2.0;
     }
 }
 
-void mesh::load_tri(const char* filename) {
-    string s=filename;
+void Mesh::load_tri(const char* filename) {
+    string s = filename;
     cout << "load_tri : " << filename << endl;
     std::ifstream f(filename);
     if(!f.is_open()) {
         cerr << "Error opening TRI file: " << filename << endl;
         exit(1);
     }
-    mesh::load_tri(f);
+    Mesh::load_tri(f);
     f.close();
 }
-void mesh::load_bnd(std::istream &f){
+
+void Mesh::load_bnd(std::istream &f) {
     char myline[256];
     f.seekg( 0, std::ios_base::beg );
     f.getline(myline,256);
     f.getline(myline,256);
 
-    // vect3 normals;
+    // Vect3 normals;
     f.seekg( 0, std::ios_base::beg );
     f.getline(myline,256);
     f.getline(myline,256);
@@ -334,7 +286,7 @@ void mesh::load_bnd(std::istream &f){
     {
         istringstream iss(myline); iss >> st;
         assert(st == "NumberPositions=");
-        iss >> nb_pts;
+        iss >> npts;
     }
 
     f.getline(myline,256); // skip : "UnitPosition mm"
@@ -342,20 +294,20 @@ void mesh::load_bnd(std::istream &f){
     f.getline(myline,256); {istringstream iss(myline); iss >> st;}
     assert(st == "Positions");
 
-    pts = new vect3[nb_pts];
-    links = new intlist[nb_pts];
+    pts = new Vect3[npts];
+    links = new intSet[npts];
 
-    for( size_t i = 0; i < size_t(nb_pts); i += 1 )
+    for( size_t i = 0; i < size_t(npts); i += 1 )
     {
         f>>pts[i];
-        pts[i]=pts[i];
+        pts[i] = pts[i];
     }
     f.getline(myline,256);
     f.getline(myline,256);
     {
         istringstream iss(myline); iss >> st;
         assert(st == "NumberPolygons=");
-        iss >> nb_trg;
+        iss >> ntrgs;
     }
 
     f.getline(myline,256);
@@ -369,32 +321,31 @@ void mesh::load_bnd(std::istream &f){
     f.getline(myline,256); {istringstream iss(myline); iss >> st;}
     assert(st == "Polygons");
 
-    trg=new triangle[nb_trg];
-    for (int i=0;i<nb_trg;i++){
-        f>>trg[i];
-        trg[i].set_normale(pts[trg[i].som1()].normale(pts[trg[i].som2()],pts[trg[i].som3()]),true); // set normale with normalization
-        // trg[i].set_normale(pts[trg[i].som1()].normale(pts[trg[i].som2()],pts[trg[i].som3()]),false); // set normale with normalization
-        trg[i].setAire(trg[i].normale().norme()/2.0);
+    trgs = new Triangle[ntrgs];
+    for (int i=0;i<ntrgs;i++){
+        f>>trgs[i];
+        
+        trgs[i].normal() = pts[trgs[i][0]].normal( pts[trgs[i][1]] , pts[trgs[i][2]] );
+        trgs[i].area() = trgs[i].normal().norme()/2.0;
     }
 }
 
-void mesh::load_bnd(const char* filename) {
-    string s=filename;
+void Mesh::load_bnd(const char* filename) {
+    string s = filename;
     cout << "load_bnd : " << filename << endl;
     std::ifstream f(filename);
     if(!f.is_open()) {
         cerr << "Error opening BND file: " << filename << endl;
         exit(1);
     }
-    mesh::load_bnd(f);
+    Mesh::load_bnd(f);
     f.close();
 }
 
-void mesh::save(const char* name) {
+void Mesh::save(const char* name) {
     char extension[128];
     getNameExtension(name,extension);
     if(!strcmp(extension,"vtk") || !strcmp(extension,"VTK")) save_vtk(name);
-    else if(!strcmp(extension,"3d") || !strcmp(extension,"3D")) save_3d(name);
     else if(!strcmp(extension,"mesh") || !strcmp(extension,"MESH")) save_mesh(name);
     else if(!strcmp(extension,"bnd") || !strcmp(extension,"BND")) save_bnd(name);
     else if(!strcmp(extension,"tri") || !strcmp(extension,"TRI")) save_tri(name);
@@ -404,63 +355,98 @@ void mesh::save(const char* name) {
     }
 }
 
-void mesh::save_3d(const char* name) {
-    std::ofstream f(name);
-    f<<nb_pts<<std::endl;
-    for (int i=0;i<nb_pts;i++)
-        f<<pts[i]<<std::endl;
-
-    f<<nb_trg<<std::endl;
-    for (int i=0;i<nb_trg;i++)
-        f<<trg[i]<<std::endl;
-
-    for (int i=0;i<nb_pts;i++)
-        f<<trg[i].normale()<<std::endl;
-    f.close();
-}
-
-void mesh::save_vtk ( const char* filename) {
+void Mesh::save_vtk(const char* filename) {
     std::ofstream os(filename);
     os<<"# vtk DataFile Version 2.0"<<std::endl;
     os<<"File "<<filename<<" generated by OpenMEEG"<<std::endl;
     os<<"ASCII"<<std::endl;
     os<<"DATASET POLYDATA"<<std::endl;
-    os<<"POINTS "<<nb_pts<<" float"<<std::endl;
-    for(int i=0;i<nb_pts;i++) os<<pts[i]<<std::endl;
-    os<<"POLYGONS "<<nb_trg<<" "<<nb_trg*4<<std::endl;
-    for(int i=0;i<nb_trg;i++) os<<3<<" "<<trg[i]<<std::endl;
+    os<<"POINTS "<<npts<<" float"<<std::endl;
+    for(int i=0;i<npts;i++) os<<pts[i]<<std::endl;
+    os<<"POLYGONS "<<ntrgs<<" "<<ntrgs*4<<std::endl;
+    for(int i=0;i<ntrgs;i++) os<<3<<" "<<trgs[i]<<std::endl;
+
+    os<<"CELL_DATA "<<ntrgs<<std::endl;
+    os<<"POINT_DATA "<<npts<<std::endl;
+    os<<"NORMALS normals float"<<std::endl;
+    for(int i=0;i<npts;i++)
+        os<<normals[i]<<std::endl;
     os.close();
 }
 
-void mesh::save_bnd ( const char* filename) {
+void Mesh::save_bnd(const char* filename) {
     std::ofstream os(filename);
     os << "# Bnd mesh file generated by OpenMeeg" << std::endl;
     os << "Type= Unknown" << std::endl;
-    os << "NumberPositions= " << nb_pts << std::endl;
+    os << "NumberPositions= " << npts << std::endl;
     os << "UnitPosition\tmm" << std::endl;
     os << "Positions" << std::endl;
-    for(int i=0;i<nb_pts;i++) os<<pts[i]<<std::endl;
-    os << "NumberPolygons= " << nb_trg <<std::endl;
+    for(int i=0;i<npts;i++) os<<pts[i]<<std::endl;
+    os << "NumberPolygons= " << ntrgs <<std::endl;
     os << "TypePolygons=\t3" << std::endl;
     os << "Polygons" << std::endl;
-    for(int i=0;i<nb_trg;i++) os << trg[i] << std::endl;
+    for(int i=0;i<ntrgs;i++) os << trgs[i] << std::endl;
     os.close();
 }
 
-void mesh::save_tri ( const char* filename) {
+void Mesh::save_tri(const char* filename) {
     std::ofstream os(filename);
-    os<<"- "<<this->nb_pts<<std::endl;
-    for(int i=0;i<nb_pts;i++) {
+    os<<"- "<<this->npts<<std::endl;
+    for(int i=0;i<npts;i++) {
         os<<this->pts[i]<<" ";
-        os<<this->trg[i].normale()<<std::endl;
+        os<<this->normals[i]<<std::endl;
     }
-    os<<"- "<<nb_trg<<" "<<nb_trg<<" "<<nb_trg<<std::endl;
-    for(int i=0;i<nb_trg;i++) os<<this->trg[i]<<std::endl;
+    os<<"- "<<ntrgs<<" "<<ntrgs<<" "<<ntrgs<<std::endl;
+    for(int i=0;i<ntrgs;i++) os<<this->trgs[i]<<std::endl;
     os.close();
 }
 
-void mesh::save_mesh(const char* name) {
+void Mesh::save_mesh(const char* name) {
     std::cerr<<"save_mesh not implemented yet (name: "<<name << " )."<<std::endl;
     exit(1);
+}
+
+/**
+ * Append another Mesh to on instance of Mesh
+**/
+void Mesh::append(const Mesh* m) {
+    int old_npts = this->npts;
+    int old_ntrgs = this->ntrgs;
+
+    int new_npts = old_npts + m->nbPts();
+    int new_ntrgs = old_ntrgs + m->nbTrgs();
+
+    Vect3 *newPts = new Vect3[new_npts];
+    Vect3 *newNormals = new Vect3[new_npts];
+    Triangle *newTrgs = new Triangle[new_ntrgs];
+
+    for(int i = 0; i < old_npts; ++i) {
+        newPts[i] = this->getPt(i);
+        newNormals[i] = this->normal(i);
+    }
+
+    for(int i = 0; i < m->nbPts(); ++i) {
+        newPts[i + old_npts] = m->getPt(i);
+        newNormals[i + old_npts] = this->normal(i);
+    }
+
+    for(int i = 0; i < old_ntrgs; ++i)
+        newTrgs[i] = this->trgs[i];
+
+    for(int i = 0; i < m->nbTrgs(); ++i) {
+        const Triangle t = m->getTrg(i);
+        Triangle* new_t = new Triangle(t[0] + old_npts, t[1] + old_npts, t[2] + old_npts, t.normal());
+        newTrgs[i + old_ntrgs] = *new_t;
+    }
+
+    kill(); // Clean old Mesh
+    npts = new_npts;
+    ntrgs = new_ntrgs;
+    pts = newPts;
+    trgs = newTrgs;
+    normals = newNormals;
+    links = new intSet[npts];
+    make_links(); // To keep a valid Mesh
+    return;
 }
 

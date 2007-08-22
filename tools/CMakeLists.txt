@@ -11,8 +11,11 @@ TARGET_LINK_LIBRARIES (tex2txt ${OPENMEEG_OTHER_LIBRARIES})
 ADD_EXECUTABLE(tex2mask tex2mask.cpp)
 TARGET_LINK_LIBRARIES (tex2mask ${OPENMEEG_OTHER_LIBRARIES})
 
-ADD_EXECUTABLE(meshconvert meshconvert.cpp ../src/mesh3.cpp)
-TARGET_LINK_LIBRARIES (meshconvert ${OPENMEEG_OTHER_LIBRARIES})
+ADD_EXECUTABLE(mesh_convert mesh_convert.cpp ../src/mesh3.cpp)
+TARGET_LINK_LIBRARIES (mesh_convert ${OPENMEEG_OTHER_LIBRARIES})
+
+ADD_EXECUTABLE(mesh_concat mesh_concat.cpp ../src/mesh3.cpp)
+TARGET_LINK_LIBRARIES (mesh_concat ${OPENMEEG_OTHER_LIBRARIES})
 
 ADD_EXECUTABLE(mattxt2bin mattxt2bin.cpp)
 TARGET_LINK_LIBRARIES (mattxt2bin ${OPENMEEG_OTHER_LIBRARIES})
@@ -39,5 +42,5 @@ ADD_EXECUTABLE(extract_frames extract_frames.cpp)
 TARGET_LINK_LIBRARIES (extract_frames ${OPENMEEG_OTHER_LIBRARIES})
 
 IF(ENABLE_PACKAGING)
-INSTALL(TARGETS matbin2txt mattxt2bin symtxt2bin symbin2txt meshconvert cortex_patch register_squids squids2vtk tex2mask tex2txt txt2tex DESTINATION bin)
+INSTALL(TARGETS matbin2txt mattxt2bin symtxt2bin symbin2txt mesh_convert mesh_concat cortex_patch register_squids squids2vtk tex2mask tex2txt txt2tex DESTINATION bin)
 ENDIF(ENABLE_PACKAGING)

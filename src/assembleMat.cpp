@@ -9,16 +9,16 @@
 #include "geometry.h"
 #include "operateurs.h"
 
-void assemble_matrice( geometry &geo, symmatrice &mat)
+void assemble_matrice( Geometry &geo, symmatrice &mat)
 {
     int offset=0;
 
     for(int c=0;c<geo.nb()-1;c++)
     {
         int offset0=offset;
-        int offset1=offset+geo.getM(c).nbr_pts();
-        int offset2=offset+geo.getM(c).nbr_pts()+geo.getM(c).nbr_trg();
-        int offset3=offset+geo.getM(c).nbr_pts()+geo.getM(c).nbr_trg()+geo.getM(c+1).nbr_pts();
+        int offset1=offset+geo.getM(c).nbPts();
+        int offset2=offset+geo.getM(c).nbPts()+geo.getM(c).nbTrgs();
+        int offset3=offset+geo.getM(c).nbPts()+geo.getM(c).nbTrgs()+geo.getM(c+1).nbPts();
 
         //Computing S block first because it's needed for the corresponding N block
         if(c==0) operateurS(geo,c,c,mat,offset1,offset1);
@@ -46,10 +46,10 @@ void assemble_matrice( geometry &geo, symmatrice &mat)
     for(int c=0;c<geo.nb()-1;c++)
     {
         int offset0=offset;
-        int offset1=offset+geo.getM(c).nbr_pts();
-        int offset2=offset+geo.getM(c).nbr_pts()+geo.getM(c).nbr_trg();
-        int offset3=offset+geo.getM(c).nbr_pts()+geo.getM(c).nbr_trg()+geo.getM(c+1).nbr_pts();
-        int offset4=offset+geo.getM(c).nbr_pts()+geo.getM(c).nbr_trg()+geo.getM(c+1).nbr_pts()+geo.getM(c+1).nbr_trg();
+        int offset1=offset+geo.getM(c).nbPts();
+        int offset2=offset+geo.getM(c).nbPts()+geo.getM(c).nbTrgs();
+        int offset3=offset+geo.getM(c).nbPts()+geo.getM(c).nbTrgs()+geo.getM(c+1).nbPts();
+        int offset4=offset+geo.getM(c).nbPts()+geo.getM(c).nbTrgs()+geo.getM(c+1).nbPts()+geo.getM(c+1).nbTrgs();
 
         //Each operator is scaled with the appropriate constant
 
@@ -77,7 +77,7 @@ void assemble_matrice( geometry &geo, symmatrice &mat)
 
 
 
-void assemble_EITmatrice( geometry &geo, symmatrice &mat)
+void assemble_EITmatrice( Geometry &geo, symmatrice &mat)
 {
     // same as assemble_matrice without multiplication of blocks
     int offset=0;
@@ -85,9 +85,9 @@ void assemble_EITmatrice( geometry &geo, symmatrice &mat)
     for(int c=0;c<geo.nb()-1;c++)
     {
         int offset0=offset;
-        int offset1=offset+geo.getM(c).nbr_pts();
-        int offset2=offset+geo.getM(c).nbr_pts()+geo.getM(c).nbr_trg();
-        int offset3=offset+geo.getM(c).nbr_pts()+geo.getM(c).nbr_trg()+geo.getM(c+1).nbr_pts();
+        int offset1=offset+geo.getM(c).nbPts();
+        int offset2=offset+geo.getM(c).nbPts()+geo.getM(c).nbTrgs();
+        int offset3=offset+geo.getM(c).nbPts()+geo.getM(c).nbTrgs()+geo.getM(c+1).nbPts();
 
         //Computing S block first because it's needed for the corresponding N block
         if(c==0) operateurS(geo,c,c,mat,offset1,offset1);

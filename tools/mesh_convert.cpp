@@ -17,12 +17,12 @@ int main( int argc, char **argv)
     const bool apply_asa_flip = command_option("-flip",false,"Rotating axis if mesh comes from ASA");
     if (command_option("-h",(const char *)0,0)) return 0;
 
-    mesh M;
+    Mesh M;
     M.load(input_filename);
 
-    for( unsigned int i = 0; i < unsigned(M.nbr_pts()); i += 1 )
+    for( unsigned int i = 0; i < unsigned(M.nbPts()); i += 1 )
     {
-        vect3& pt = M[i];
+        Vect3& pt = M[i];
         if (apply_asa_flip) {
             double tmp;
             tmp = pt[0];

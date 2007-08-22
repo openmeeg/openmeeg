@@ -13,20 +13,20 @@ inline void multadd (double &cible, const double multiplicateur, const double mu
     cible+=multiplicateur*multiplie;
 }
 
-inline void multadd (vect3 &cible, const double multiplicateur,  const vect3 &multiplie)
+inline void multadd (Vect3 &cible, const double multiplicateur,  const Vect3 &multiplie)
 {
     cible=cible+multiplicateur*multiplie;
 }
 
-// light class containing d vect3
+// light class containing d Vect3
 template <int d> class vect3array {
-	vect3 t[d];
+	Vect3 t[d];
 
 public:
 	vect3array() {};
 	inline vect3array(double x) {
 		for (int i=0;i<d;i++)
-			t[i]=vect3(x);
+			t[i]=Vect3(x);
 	}
 	inline vect3array<d> operator*(double x) const {
 		vect3array<d> r;
@@ -34,8 +34,8 @@ public:
 			r.t[i]=t[i]*x;
 		return r;
 	}
-	inline vect3 operator()(int i) const { return t[i]; }
-	inline vect3& operator()(int i) { return t[i]; }
+	inline Vect3 operator()(int i) const { return t[i]; }
+	inline Vect3& operator()(int i) { return t[i]; }
 };
 
 template <int d>
@@ -159,26 +159,26 @@ public:
         else {std::cout<<"Ordre Gauss hors limites: "<<n<<std::endl; ordre = (n<1)?ordre=1:ordre;}
     }
 
-    inline T integre ( const fContainer<T> &fc, const triangle& Trg ,const mesh& M) 
+    inline T integre ( const fContainer<T> &fc, const Triangle& Trg ,const Mesh& M) 
     {
-        double S=Trg.getAire();
-        T retour=0;
+        double S=Trg.getArea();
+        T result=0;
 
-        vect3 sommets[3]={M.vctr(Trg.id1()),M.vctr(Trg.id2()),M.vctr(Trg.id3())};
-        static vect3 zero(0.0,0.0,0.0);
+        Vect3 sommets[3]={M.getPt(Trg.s1()),M.getPt(Trg.s2()),M.getPt(Trg.s3())};
+        static Vect3 zero(0.0,0.0,0.0);
 
         int i;
         for(i=0;i<nbPts[ordre];i++)
         {
-            vect3 v=zero;
+            Vect3 v=zero;
             int j;
             for(j=0;j<3;j++) {
                 v.multadd(cordBars[ordre][i][j],sommets[j]);
             }
-            multadd(retour,cordBars[ordre][i][3],fc.f(v));
+            multadd(result,cordBars[ordre][i][3],fc.f(v));
         }
 
-        return retour*(S*2);
+        return result*(S*2);
     }
 
 };
@@ -326,22 +326,22 @@ public:
         pbarys=(double**)(cordBars[ordre]); pds=(double*)(poids[ordre]);
     }
 
-    inline T integre ( const fContainer<T> &fc, const triangle& Trg ,const mesh& M) 
+    inline T integre ( const fContainer<T> &fc, const Triangle& Trg ,const Mesh& M) 
     {
-        double S=Trg.getAire();
-        T retour=0;
+        double S=Trg.getArea();
+        T result=0;
 
-        vect3 sommets[3]={M.vctr(Trg.id1()),M.vctr(Trg.id2()),M.vctr(Trg.id3())};
-        static vect3 zero(0.0,0.0,0.0);
+        Vect3 sommets[3]={M.getPt(Trg.s1()),M.getPt(Trg.s2()),M.getPt(Trg.s3())};
+        static Vect3 zero(0.0,0.0,0.0);
 
         for(int i=0;i<nbPts[ordre];i++) 
         {
-            vect3 v=zero;
+            Vect3 v=zero;
             for(int j=0;j<3;j++) v.multadd(cordBars[ordre][i][j],sommets[j]);
-            multadd(retour,poids[ordre][i]*S,fc.f(v));
+            multadd(result,poids[ordre][i]*S,fc.f(v));
         }
 
-        return retour;
+        return result;
     }
 
 };
@@ -428,27 +428,27 @@ GaussQ2D_nodes[GaussQ2D_maxorder][GaussQ2D_maxorder]={
                 else {std::cout<<"Odre Gauss hors limites: "<<n<<std::endl; ordre = (n<1)?ordre=1:ordre;}
             }
 
-            T integre ( const fContainer<T> &fc, const triangle& Trg ,const mesh& M)
+            T integre ( const fContainer<T> &fc, const Triangle& Trg ,const Mesh& M)
             { 
                 T sum=0 ;
                 double u,v ;
-                vect3 t[3]={M.vctr(Trg.id1()),M.vctr(Trg.id2()),M.vctr(Trg.id3())};
-                const vect3 d10=t[1]-t[0] ;
-                const vect3 d20=t[2]-t[0] ;
+                Vect3 t[3]={M.getPt(Trg.s1()),M.getPt(Trg.s2()),M.getPt(Trg.s3())};
+                const Vect3 d10=t[1]-t[0] ;
+                const Vect3 d20=t[2]-t[0] ;
 
                 for (int iu=0;iu<ordre+1;iu++) { 
                     // sumv = integral wrt v for u fixed 
                     T sumv=0 ;
                     u=0.5*(GaussQ2D_nodes[ordre][iu]+1.0) ; 
                     for (int iv=0;iv<ordre+1;iv++) { 
-                        vect3 point ;
+                        Vect3 point ;
                         v=0.5*(GaussQ2D_nodes[ordre][iv]+1)*(1.0-u) ;
                         point=d10*u+d20*v+t[0] ;
                         multadd(sumv,GaussQ2D_weights[ordre][iv],fc.f(point));
                     } // for iv
                     multadd(sum,GaussQ2D_weights[ordre][iu]*0.5*(1.0-u),sumv) ;
                 } // for iu
-                return sum*Trg.getAire() ;
+                return sum*Trg.getArea() ;
             } 
         };
 #endif

@@ -1,4 +1,0 @@
-#! /bin/tcsh
-setenv MKL_CFG_FILE ./mkl.cfg
-setenv OMP_NUM_THREADS 2
-./test

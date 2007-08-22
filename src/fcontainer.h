@@ -11,7 +11,7 @@ public:
     fContainer(){}
     virtual ~fContainer(){}
 
-    virtual T f(const vect3& v) const=0;
+    virtual T f(const Vect3& v) const=0;
 };
 #endif
 

@@ -179,7 +179,7 @@ public:
         opd.refreshNZ();
         if(_p!=opd.nlin()) {std::cerr<<"Erreur Produit Matrice"; exit(1);}
 
-        MySparseLib<T,I> retour(_n,opd.ncol());
+        MySparseLib<T,I> result(_n,opd.ncol());
 
         for(idxType i=0;i<_nnzrows;i++)
             for(idxType j=0;j<opd._nnzcols;j++)
@@ -196,12 +196,12 @@ public:
                     if(startCol->i == startRow->j) total+=startCol->val*startRow->val;
                     startRow=startRow->right;
                 }
-                if (total!=0) (retour)(_nzrows[i],opd._nzcols[j])=total;
+                if (total!=0) (result)(_nzrows[i],opd._nzcols[j])=total;
             }
         }
 
-        retour.refreshNZ();
-        return retour;
+        result.refreshNZ();
+        return result;
 
     }
 
@@ -513,7 +513,7 @@ public:
     {
         if(this->p!=opd.nlin()) {std::cerr<<"Erreur Produit Matrice"; exit(1);}
 
-        MySparseLib<T,I> retour(this->n,opd.ncol());
+        MySparseLib<T,I> result(this->n,opd.ncol());
 
         for(idxType i=0;i<this->n;i++)
             for(idxType j=0;j<opd.ncol();j++)
@@ -531,11 +531,11 @@ public:
                     startRow=startRow->right;
                 }
                 finIJ:
-                if (total!=0) (retour)(i,j)=total;
+                if (total!=0) (result)(i,j)=total;
             }
         }
 
-        return retour;
+        return result;
     }
     */
 
@@ -547,7 +547,7 @@ public:
     {
         if(this->p!=opd.nlin()) {std::cerr<<"Erreur Produit Matrice"; exit(1);}
 
-        MySparseLib<T,I> retour(this->n,opd.ncol());
+        MySparseLib<T,I> result(this->n,opd.ncol());
 
         cellType* voisinGauche=0;
         cellType** voisinsHaut=new cellType*[opd.p]; for(idxType i=0;i<opd.p;i++) voisinsHaut[i]=0;
@@ -572,19 +572,19 @@ public:
                     finIJ:
                     if (total!=0)
                     {
-    //On fait (retour)(i,j)=total;
+    //On fait (result)(i,j)=total;
 
     //On creer une nouvelle cellule
                         newCell=new cellType;
                         newCell->val=total;
-                        retour.nz++;
+                        result.nz++;
 
     // On insere la nouvelle cellule dans la ligne
                         if(voisinGauche==0)
                         {
     //On insere en debut de ligne
                             newCell->left=0;
-                            retour.RowEntry[i]=newCell;
+                            result.RowEntry[i]=newCell;
                         }
                         else
                         {
@@ -598,7 +598,7 @@ public:
                         {
     //On insere en debut de ligne
                             newCell->left=0;
-                            retour.ColEntry[j]=newCell;
+                            result.ColEntry[j]=newCell;
                         }
                         else
                         {
@@ -620,7 +620,7 @@ public:
         for(idxType i=0;i<opd.p;i++) if(voisinsHaut[i]!=0) voisinsHaut[i]->down=0;
 
         delete[] voisinsHaut;
-        return retour;
+        return result;
     }
     */
 
@@ -631,7 +631,7 @@ public:
 
         if(_p!=opd.ncol() || _n!=opd.nlin()) {std::cerr<<"Erreur Somme Matrice"; exit(1);}
 
-        MySparseLib<T,I> retour(_n,_p);
+        MySparseLib<T,I> result(_n,_p);
 
         for(idxType i=0;i<_n;i++)
         {
@@ -643,18 +643,18 @@ public:
                 {
                     if(startRowD!=0 && startRowG!=0)
                     {
-                        if(startRowD->j > startRowG->j) {(retour)(i,startRowG->j)=startRowG->val; startRowG=startRowG->right;}
-                        else if(startRowD->j == startRowG->j) {(retour)(i,startRowD->j)=startRowD->val+startRowG->val; startRowD=startRowD->right; startRowG=startRowG->right;}
-                        else if(startRowD->j < startRowG->j) {(retour)(i,startRowD->j)=startRowD->val; startRowD=startRowD->right;}
+                        if(startRowD->j > startRowG->j) {(result)(i,startRowG->j)=startRowG->val; startRowG=startRowG->right;}
+                        else if(startRowD->j == startRowG->j) {(result)(i,startRowD->j)=startRowD->val+startRowG->val; startRowD=startRowD->right; startRowG=startRowG->right;}
+                        else if(startRowD->j < startRowG->j) {(result)(i,startRowD->j)=startRowD->val; startRowD=startRowD->right;}
                     }
-                    if(startRowD==0 && startRowG!=0) {(retour)(i,startRowG->j)=startRowG->val; startRowG=startRowG->right;}
-                    if(startRowG==0 && startRowD!=0) {(retour)(i,startRowD->j)=startRowD->val; startRowD=startRowD->right;}
+                    if(startRowD==0 && startRowG!=0) {(result)(i,startRowG->j)=startRowG->val; startRowG=startRowG->right;}
+                    if(startRowG==0 && startRowD!=0) {(result)(i,startRowD->j)=startRowD->val; startRowD=startRowD->right;}
                 }
             }
         }
 
-        retour.refreshNZ();
-        return retour;
+        result.refreshNZ();
+        return result;
     }
 
     inline void operator += ( MySparseLib<T,I>& opd)
@@ -689,49 +689,49 @@ public:
 
     inline MySparseLib<T,I> operator - ()
     {
-        MySparseLib<T,I> retour=(*this);
+        MySparseLib<T,I> result=(*this);
 
         for(idxType i=0;i<_n;i++)
         {
             cellType *pt;//,*ptbis;
-            pt=retour._RowEntry[i];
+            pt=result._RowEntry[i];
             while(pt!=0)
             {
                 pt->val=-pt->val;
                 pt=pt->right;
             }
         }
-        retour.refreshNZ();
-        return retour;
+        result.refreshNZ();
+        return result;
     }
 
     inline MySparseLib<T,I> operator * (T alpha)
     {
-        MySparseLib<T,I> retour=(*this);
+        MySparseLib<T,I> result=(*this);
 
         for(idxType i=0;i<_n;i++)
         {
             cellType *pt;//,*ptbis;
-            pt=retour._RowEntry[i];
+            pt=result._RowEntry[i];
             while(pt!=0)
             {
                 pt->val=alpha*pt->val;
                 pt=pt->right;
             }
         }
-        retour.refreshNZ();
-        return retour;
+        result.refreshNZ();
+        return result;
     }
 
     //void operator = ( MySparseLib<T,I> modele);
 
     inline MySparseLib<T,I> transpose()
     {
-        MySparseLib<T,I> retour=(*this);
+        MySparseLib<T,I> result=(*this);
 
-        retour.autotranspose();
+        result.autotranspose();
 
-        return retour;
+        return result;
     }
 
     inline void autotranspose()
@@ -783,13 +783,13 @@ public:
     inline T operator () (size_t i, size_t j) const
     {
         cellType **Entry,*temp,ruse;
-        T retour=0;
+        T result=0;
 
         assert(i<_n && j<_p);
 
         if(_sp==row) Entry=_RowEntry; else Entry=_ColEntry;
 
-        if(_RowEntry[i]==0 || _ColEntry[j]==0) retour=0;
+        if(_RowEntry[i]==0 || _ColEntry[j]==0) result=0;
         else
         {
             bool status=false;
@@ -801,7 +801,7 @@ public:
                 do
                 {
                     temp=temp->right;
-                    if(temp->j==j) {retour=temp->val; status=true;} //On a trouve, on s'arrete
+                    if(temp->j==j) {result=temp->val; status=true;} //On a trouve, on s'arrete
                     if(temp->j>j || temp->right==0) status=true;    //On n'a pas trouve, on s'arrete
                 }
                 while(!status);
@@ -813,14 +813,14 @@ public:
                 do
                 {
                     temp=temp->down;
-                    if(temp->i==i) {retour=temp->val; status=true;} //On a trouve, on s'arrete
+                    if(temp->i==i) {result=temp->val; status=true;} //On a trouve, on s'arrete
                     if(temp->i>i || temp->down==0) status=true;     //On n'a pas trouve, on s'arrete
                 }
                 while(!status);
             }
 
         }
-        return retour;
+        return result;
 
     }; //fin de operator ()
 
@@ -915,7 +915,7 @@ public:
         cellType *tempbis=new cellType(); _nz++; //Un element non nul de plus dans la matrice
         tempbis->i=i;
         tempbis->j=j;
-        //retour=temp->val;
+        //result=temp->val;
 
         if(insRow==0 || _RowEntry[i]==0) // Si l'on ajoute une cellule en tete de ligne
         {

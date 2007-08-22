@@ -2,10 +2,10 @@
 #include "danielsson.h"
 #include "operateurs.h"
 
-int* computeVindexes(geometry &geo,int* n_indexes=0)
+int* computeVindexes(Geometry &geo,int* n_indexes=0)
 {
     int count=0;
-    for(int i=0;i<geo.nb();i++) count+=geo.getM(i).nbr_pts();
+    for(int i=0;i<geo.nb();i++) count+=geo.getM(i).nbPts();
 
     int *ret=new int[count];
     if(n_indexes!=0) *n_indexes=count;
@@ -14,42 +14,42 @@ int* computeVindexes(geometry &geo,int* n_indexes=0)
     int offset=0;
     for(int i=0;i<geo.nb();i++)
     {
-        for(int j=0;j<geo.getM(i).nbr_pts();j++) {ret[count]=count+offset; count++;}
-        offset+=geo.getM(i).nbr_trg();
+        for(int j=0;j<geo.getM(i).nbPts();j++) {ret[count]=count+offset; count++;}
+        offset+=geo.getM(i).nbTrgs();
     }
 
     return ret;
 }
 
-void assemble_xToEEGresponse( geometry &geo, matrice &mat, const matrice &positions )
+void assemble_xToEEGresponse( Geometry &geo, matrice &mat, const matrice &positions )
 //EEG patches positions are reported line by line in the positions matrix
 //mat is supposed to be filled with zeros
 //mat is the linear application which maps x (the unknown vector in symmetric system) -> v (potential at the electrodes)
 {
-    mesh &extLayer=geo.getM(geo.nb()-1);
+    Mesh &extLayer=geo.getM(geo.nb()-1);
 
     //first we calculate the offset of the potential on the external layer in the unknown vector x
     int offset=0;
-    for(int l=0;l<geo.nb()-1;l++)
+    for(int l=0; l < geo.nb()-1; l++)
     {
-        offset+=geo.getM(l).nbr_pts(); offset+=geo.getM(l).nbr_trg();
+        offset += geo.getM(l).nbPts(); offset+=geo.getM(l).nbTrgs();
     }
 
-    vect3 current_position;
-    vect3 current_alphas;
+    Vect3 current_position;
+    Vect3 current_alphas;
     int current_nearestNumber;
-    for(size_t i=0;i<positions.nlin();i++)
+    for(size_t i=0; i < positions.nlin(); i++)
     {
         for(int k=0;k<3;k++) current_position[k]=positions(i,k);
         dist_point_mesh(current_position ,extLayer,current_alphas,current_nearestNumber);
-        mat(i,extLayer.trngl(current_nearestNumber).id1()+offset)=current_alphas[0];
-        mat(i,extLayer.trngl(current_nearestNumber).id2()+offset)=current_alphas[1];
-        mat(i,extLayer.trngl(current_nearestNumber).id3()+offset)=current_alphas[2];
+        mat(i,extLayer.getTrg(current_nearestNumber).s1()+offset)=current_alphas[0];
+        mat(i,extLayer.getTrg(current_nearestNumber).s2()+offset)=current_alphas[1];
+        mat(i,extLayer.getTrg(current_nearestNumber).s3()+offset)=current_alphas[2];
     }
 
 }
 
-void assemble_xToMEGresponseContrib( geometry &geo, matrice &mat, const matrice &positions, const matrice &orientations )
+void assemble_xToMEGresponseContrib( Geometry &geo, matrice &mat, const matrice &positions, const matrice &orientations )
 //MEG patches positions are reported line by line in the positions matrix (same for positions)
 //mat is supposed to be filled with zeros
 //mat is the linear application which maps x (the unknown vector in symmetric system) -> bFerguson (contrib to MEG response)
@@ -57,7 +57,7 @@ void assemble_xToMEGresponseContrib( geometry &geo, matrice &mat, const matrice 
     matrice myFergusonMatrix(3*mat.nlin(),mat.ncol());
     myFergusonMatrix.set(0.0);
     const int nsquids=(int)positions.nlin();
-    vect3 *positionsVectArray=new vect3[nsquids];
+    Vect3 *positionsVectArray=new Vect3[nsquids];
 
     int n_indexes;
     int* vIndexes=computeVindexes(geo,&n_indexes);
@@ -75,8 +75,8 @@ void assemble_xToMEGresponseContrib( geometry &geo, matrice &mat, const matrice 
     {
         for(int j=0;j<n_indexes;j++)
         {
-            vect3 fergusonField(myFergusonMatrix(3*i,vIndexes[j]),myFergusonMatrix(3*i+1,vIndexes[j]),myFergusonMatrix(3*i+2,vIndexes[j]));
-            vect3 normalizedDirection(orientations(i,0),orientations(i,1),orientations(i,2));
+            Vect3 fergusonField(myFergusonMatrix(3*i,vIndexes[j]),myFergusonMatrix(3*i+1,vIndexes[j]),myFergusonMatrix(3*i+2,vIndexes[j]));
+            Vect3 normalizedDirection(orientations(i,0),orientations(i,1),orientations(i,2));
             normalizedDirection.normalize();
             mat(i,vIndexes[j])=fergusonField*normalizedDirection;
         }
@@ -87,7 +87,7 @@ void assemble_xToMEGresponseContrib( geometry &geo, matrice &mat, const matrice 
 }
 
 
-void assemble_sToMEGresponseContrib( mesh &sources_mesh, matrice &mat, const matrice &positions, const matrice &orientations )
+void assemble_sToMEGresponseContrib( Mesh &sources_mesh, matrice &mat, const matrice &positions, const matrice &orientations )
 //MEG patches positions are reported line by line in the positions matrix (same for positions)
 //mat is supposed to be filled with zeros
 //mat is the linear application which maps x (the unknown vector in symmetric system) -> binf (contrib to MEG response)
@@ -95,7 +95,7 @@ void assemble_sToMEGresponseContrib( mesh &sources_mesh, matrice &mat, const mat
     matrice myFergusonMatrix(3*mat.nlin(),mat.ncol());
     myFergusonMatrix.set(0.0);
     const int nsquids=(int)positions.nlin();
-    vect3 *positionsVectArray=new vect3[nsquids];
+    Vect3 *positionsVectArray=new Vect3[nsquids];
 
     for(int i=0;i<nsquids;i++)
     {
@@ -110,8 +110,8 @@ void assemble_sToMEGresponseContrib( mesh &sources_mesh, matrice &mat, const mat
     {
         for(size_t j=0;j<mat.ncol();j++)
         {
-            vect3 fergusonField(myFergusonMatrix(3*i,j),myFergusonMatrix(3*i+1,j),myFergusonMatrix(3*i+2,j));
-            vect3 normalizedDirection(orientations(i,0),orientations(i,1),orientations(i,2));
+            Vect3 fergusonField(myFergusonMatrix(3*i,j),myFergusonMatrix(3*i+1,j),myFergusonMatrix(3*i+2,j));
+            Vect3 normalizedDirection(orientations(i,0),orientations(i,1),orientations(i,2));
             normalizedDirection.normalize();
             mat(i,j)=fergusonField*normalizedDirection;
         }
@@ -130,10 +130,10 @@ void assemble_sToMEGresponseContrib_point( matrice&dipoles, matrice &mat, const 
 {
     if(dipoles.ncol()!=6) {std::cerr<<"Dipoles File Format Error"<<std::endl; exit(1);}
     int nd=(int)dipoles.nlin();
-    std::vector<vect3> Rs,Qs;
+    std::vector<Vect3> Rs,Qs;
     for(int i=0;i<nd;i++)
     {
-        vect3 r(3),q(3);
+        Vect3 r(3),q(3);
         for(int j=0;j<3;j++) r[j]=dipoles(i,j);
         for(int j=3;j<6;j++) q[j-3]=dipoles(i,j);
         Rs.push_back(r); Qs.push_back(q);
@@ -144,7 +144,7 @@ void assemble_sToMEGresponseContrib_point( matrice&dipoles, matrice &mat, const 
     matrice SignalMatrix(3*mat.nlin(),mat.ncol());
     SignalMatrix.set(0.0);
     const int nsquids=(int)positions.nlin();
-    vect3 *positionsVectArray=new vect3[nsquids];
+    Vect3 *positionsVectArray=new Vect3[nsquids];
 
     for(int i=0;i<nsquids;i++)
     {
@@ -158,13 +158,13 @@ void assemble_sToMEGresponseContrib_point( matrice&dipoles, matrice &mat, const 
     {
         for(unsigned int j=0;j<0+mat.ncol();j++)
         {
-            vect3 diff=positionsVectArray[i]-Rs[j];
+            Vect3 diff=positionsVectArray[i]-Rs[j];
             double norm_diff=diff.norme();
-            vect3 v=diff/(norm_diff*norm_diff*norm_diff)^Qs[j];
+            Vect3 v=diff/(norm_diff*norm_diff*norm_diff)^Qs[j];
 
-            SignalMatrix(3*i+0,j)=v.X();
-            SignalMatrix(3*i+1,j)=v.Y();
-            SignalMatrix(3*i+2,j)=v.Z();
+            SignalMatrix(3*i+0,j) = v.x();
+            SignalMatrix(3*i+1,j) = v.y();
+            SignalMatrix(3*i+2,j) = v.z();
         }
     }
 
@@ -173,8 +173,8 @@ void assemble_sToMEGresponseContrib_point( matrice&dipoles, matrice &mat, const 
     {
         for(size_t j=0;j<mat.ncol();j++)
         {
-            vect3 fergusonField(SignalMatrix(3*i,j),SignalMatrix(3*i+1,j),SignalMatrix(3*i+2,j));
-            vect3 normalizedDirection(orientations(i,0),orientations(i,1),orientations(i,2));
+            Vect3 fergusonField(SignalMatrix(3*i,j),SignalMatrix(3*i+1,j),SignalMatrix(3*i+2,j));
+            Vect3 normalizedDirection(orientations(i,0),orientations(i,1),orientations(i,2));
             normalizedDirection.normalize();
             mat(i,j)=fergusonField*normalizedDirection/(4*M_PI);
         }

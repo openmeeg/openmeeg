@@ -6,7 +6,6 @@
 #include "MeshDataSmoother.h"
 
 using namespace std;
-//using namespace CLMatLib;
 
 void getHelp(char** argv);
 
@@ -21,7 +20,7 @@ int main(int argc, char **argv)
     if ((!strcmp(argv[1],"-h")) | (!strcmp(argv[1],"--help"))) getHelp(argv);
 
     // declaration of argument variables
-    mesh<3> SourceMesh;
+    Mesh SourceMesh;
     sparse_matrice SmoothMatrix;
     fast_sparse_matrice fastSmoothMatrix;
     fast_sparse_matrice fastSmoothMatrix_t;

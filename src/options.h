@@ -130,6 +130,6 @@ namespace command_line {
 #define SP_STRINGIFY(s)  #s
 #define SP_EVAL(s) SP_STRINGIFY(s)
 #define SRCPATH(s) (SP_EVAL(SRCDIR)"/"s)
-#elif
+#else
 #define SRCPATH(s) ("")
 #endif

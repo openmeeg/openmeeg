@@ -95,25 +95,25 @@ inline vecteur gentv( vecteur x,
     {
         double d=mynorms_inv(k);
         //double d2=1.0/(Ai(k)*fp(mynorms(i)));
-        rPoint(3) a1(A[0]*d,A[3]*d,A[6]*d);
-        rPoint(3) a2(A[1]*d,A[4]*d,A[7]*d);
-        rPoint(3) a3(A[2]*d,A[5]*d,A[8]*d);
-        //rPoint(3) zk(z[0]*d2,z[1]*d2,z[2]*d2);
-        rPoint(3) zk(z[0],z[1],z[2]);
+        Vect3 a1(A[0]*d,A[3]*d,A[6]*d);
+        Vect3 a2(A[1]*d,A[4]*d,A[7]*d);
+        Vect3 a3(A[2]*d,A[5]*d,A[8]*d);
+        //Vect3 zk(z[0]*d2,z[1]*d2,z[2]*d2);
+        Vect3 zk(z[0],z[1],z[2]);
         //double nzk=zk.norme();
         double nzk=mynorms(k);
         //double _f= f!=0?f(nzk):nzk;
-        double _fp= fp!=0?fp(nzk):1;
-        double _fpp= fpp!=0?fpp(nzk)*nzk:0;
-        rPoint(3) alpha1=( _fp*a1+( (_fpp-_fp)*(a1*zk) )*zk )*Ai(k);
-        rPoint(3) alpha2=( _fp*a2+( (_fpp-_fp)*(a2*zk) )*zk )*Ai(k);
-        rPoint(3) alpha3=( _fp*a3+( (_fpp-_fp)*(a3*zk) )*zk )*Ai(k);
+        double _fp = fp!=0?fp(nzk):1;
+        double _fpp = fpp!=0?fpp(nzk)*nzk:0;
+        Vect3 alpha1 = ( _fp*a1+( (_fpp-_fp)*(a1*zk) )*zk )*Ai(k);
+        Vect3 alpha2 = ( _fp*a2+( (_fpp-_fp)*(a2*zk) )*zk )*Ai(k);
+        Vect3 alpha3 = ( _fp*a3+( (_fpp-_fp)*(a3*zk) )*zk )*Ai(k);
         Hess[0]=alpha1[0]; Hess[3]=alpha1[1]; Hess[6]=alpha1[2];
         Hess[1]=alpha2[0]; Hess[4]=alpha2[1]; Hess[7]=alpha2[2];
         Hess[2]=alpha3[0]; Hess[5]=alpha3[1]; Hess[8]=alpha3[2];
-        A+=9;
-        Hess+=9;
-        z+=3;
+        A += 9;
+        Hess += 9;
+        z += 3;
     }
 
     for(size_t i=0;i<mynorms.size();i++)

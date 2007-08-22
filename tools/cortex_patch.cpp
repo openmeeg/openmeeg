@@ -9,7 +9,6 @@
 #include "vect3.h"
 
 using namespace std;
-//using namespace CLMatLib;
 
 int main( int argc, char **argv)
 {
@@ -20,13 +19,10 @@ int main( int argc, char **argv)
     }
 
     // Loading mesh for distributed sources
-    mesh input_mesh;
-    int ls=(int)strlen(argv[1]);
-    if (!strcmp(argv[1]+ls-3,"vtk"))      input_mesh.load_vtk(argv[1]);
-    else if (!strcmp(argv[1]+ls-3,"geo")) input_mesh.load_3d(argv[1]);
-    else if (!strcmp(argv[1]+ls-3,"tri")) input_mesh.load_tri(argv[1]);
+    Mesh input_mesh;
+    input_mesh.load(argv[1]);
 
-    int nb_points = input_mesh.nbr_pts();
+    int nb_points = input_mesh.nbPts();
     cout << "Nb of vertices : " << nb_points << endl;
 
     cout << "Reading patches from  : " << argv[2] << endl;
@@ -40,16 +36,16 @@ int main( int argc, char **argv)
 
     cout << "Nb patches : " << patchs.nlin() << endl;
 
-    vect3 *center = new vect3();
+    Vect3 *center = new Vect3();
     float radius;
 
     matrice mask(nb_points,patchs.nlin());
 
     for( unsigned int k = 0; k < patchs.nlin(); k += 1 )
     {
-        center->_x() = patchs(k,0);
-        center->_y() = patchs(k,1);
-        center->_z() = patchs(k,2);
+        center[0] = patchs(k,0);
+        center[1] = patchs(k,1);
+        center[2] = patchs(k,2);
         cout << "-----" << endl;
         cout << "Center : " << *center << endl;
         radius = float(patchs(k,3));
@@ -57,7 +53,7 @@ int main( int argc, char **argv)
 
         for( int i = 0; i < nb_points; i += 1 )
         {
-            if((input_mesh.vctr(i) - *center).norme() > radius)
+            if((input_mesh.getPt(i) - *center).norme() > radius)
                 mask(i,k) = 0;
             else
                 mask(i,k) = 1;

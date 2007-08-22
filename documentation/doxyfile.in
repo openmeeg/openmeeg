@@ -1,0 +1,82 @@
+# -------------------------------------------------------------------------
+# doxyfile for OpenMEEG
+# -------------------------------------------------------------------------
+
+PROJECT_NAME         = OpenMEEG
+
+FULL_PATH_NAMES      = YES
+WARN_IF_UNDOCUMENTED = NO
+
+GENERATE_TREEVIEW    = NO
+GENERATE_TODOLIST    = YES
+GENERATE_BUGLIST     = YES
+GENERATE_HTML        = YES
+GENERATE_HTMLHELP    = YES
+GENERATE_LATEX       = NO
+GENERATE_MAN         = NO
+GENERATE_RTF         = NO
+
+PDF_HYPERLINKS       = YES
+
+HAVE_DOT             = YES
+#HAVE_DOT            = NO
+DOT_PATH             = "@DOT_PATH@"
+CLASS_GRAPH          = YES
+COLLABORATION_GRAPH  = YES
+TEMPLATE_RELATIONS   = YES
+INCLUDE_GRAPH        = YES
+INCLUDED_BY_GRAPH    = YES
+CLASS_DIAGRAMS       = YES
+GENERATE_LEGEND      = YES
+GRAPHICAL_HIERARCHY  = YES
+
+ALLEXTERNALS         = NO
+
+IMAGE_PATH           = "@OpenMEEG_SOURCE_DIR@/documentation" "@OpenMEEG_BINARY_DIR@/documentation"
+
+OUTPUT_DIRECTORY     = "@OpenMEEG_BINARY_DIR@/documentation"
+
+INPUT                = \
+        "@OpenMEEG_SOURCE_DIR@/src" \
+        "@OpenMEEG_SOURCE_DIR@/tools" \
+        "@OpenMEEG_SOURCE_DIR@/tests" \
+        "@OpenMEEG_SOURCE_DIR@/libs/MatLib/Matlib"
+        "@OpenMEEG_SOURCE_DIR@/libs/MatLib/Test"
+
+# EXCLUDE_PATTERNS     =
+# EXCLUDE              = \
+#         "@OpenMEEG_BINARY_DIR@/src/.h" \
+#         "@OpenMEEG_BINARY_DIR@/src/.h"
+
+EXTRACT_ALL           = YES
+# EXTRACT_PRIVATE       = NO
+EXTRACT_PRIVATE       = YES
+EXTRACT_STATIC        = YES
+EXTRACT_LOCAL_CLASSES = NO
+HIDE_UNDOC_MEMBERS    = NO
+HIDE_UNDOC_CLASSES    = YES
+ALWAYS_DETAILED_SEC   = NO
+SOURCE_BROWSER        = YES
+INLINE_SOURCES        = NO
+CASE_SENSE_NAMES      = YES
+VERBATIM_HEADERS      = NO
+SHOW_INCLUDE_FILES    = YES
+JAVADOC_AUTOBRIEF     = YES
+SORT_MEMBER_DOCS      = NO
+DISTRIBUTE_GROUP_DOC  = YES
+TAB_SIZE              = 3
+DETAILS_AT_TOP        = YES
+
+FILE_PATTERNS        = *.h
+RECURSIVE            = NO
+
+HTML_ALIGN_MEMBERS   = YES
+
+ALPHABETICAL_INDEX   = YES
+COLS_IN_ALPHA_INDEX  = 3
+
+ENABLE_PREPROCESSING = YES
+MACRO_EXPANSION      = YES
+SEARCH_INCLUDES      = YES
+INCLUDE_PATH         =
+EXPAND_ONLY_PREDEF   = YES

@@ -4,110 +4,105 @@
 #include <cstdlib>
 #include "vect3.h"
 
-class triangle{
+/** \brief  Triangle
+    
+    Triangle class
+    
+© Copyright 2007 Odyssee INRIA . All Rights Reserved.
+
+    \author $LastChangedBy$
+    \date $Date$
+    \version $Rev$  \sa
+**/
+
+class Triangle {
 
 private:
-    int s1,s2,s3;
-    double aire;
-    vect3 n;
+    int m_s1,m_s2,m_s3; //!< index of vertices of the triangle
+    double m_area; //!< area of the triangle
+    Vect3 n; // Normale
 
 public:
-    inline triangle(int a, int b, int c, vect3 m) {
-        s1=a; s2=b; s3=c; n=m;
+    inline Triangle(int a, int b, int c, Vect3 m) {
+        m_s1=a; m_s2=b; m_s3=c; n=m;
     }
 
-    inline triangle() {}
+    inline Triangle() {}
 
-    inline ~triangle() {}
+    inline ~Triangle() {}
 
-    inline int&  som(int i) {
+    inline int& som(int i) {
         switch (i){
             case 1:
-            return s1;
+                return m_s1;
             case 2:
-            return s2;
+                return m_s2;
             case 3:
-            return s3;
+                return m_s3;
             default:
-            static int foo;
-            std::cerr << "bad idx in som\n";
-            return foo;
+                static int foo;
+                std::cerr << "bad idx in som\n";
+                return foo;
         }
     }
 
-    inline int&  next(int i) {
+    inline int& next(int i) {
         return som(1+(i%3));
     }
 
-    inline int&  prev(int i) {
+    inline int& prev(int i) {
         return som(1+((1+i)%3));
     }
 
-    inline int&  som1() {
-        return s1;
-    }
+    inline const int& s1() { return m_s1; }
+    inline const int& s2() { return m_s2; }
+    inline const int& s3() { return m_s3; }
 
-    inline int&  som2(){
-        return s2;
-    }
+    inline int s1() const { return m_s1; }
+    inline int s2() const { return m_s2; }
+    inline int s3() const { return m_s3; }
 
-    inline int&  som3(){
-        return s3;
-    }
+    inline const Vect3& normal() const { return n; }
+    inline Vect3& normal() { return n; }
 
-    inline const vect3& normale() const{
-        return n;
-    }
-
-    inline int appar(int l) const
-    {
-        if(s1==l)
+    inline int contains(int l) const {
+        if(m_s1==l)
             return 1;
-        if(s2==l)
+        if(m_s2==l)
             return 2;
-        if(s3==l)
+        if(m_s3==l)
             return 3;
         return 0;
     }
 
-    inline void retour()
-    {
-        int tp;
-        tp=s3;
-        s3=s2;
-        s2=tp;
-    }
+    inline double getArea() const { return m_area; };
+    inline void setArea( double a ) { m_area = a; };
+    inline double& area() { return m_area; }
 
-    inline int id1()const { return s1; }
-    inline int id2()const { return s2; }
-    inline int id3()const { return s3; }
-
-    inline double getAire() const {return aire;};
-    inline void setAire( double a ) {aire=a;};
     inline const int operator[] (const int i) const {
         switch(i)
         {
-            case 0 : return s1;
-            case 1 : return s2;
-            case 2 : return s3;
-            default : {std::cerr<<"Error in triangle class: too large index\n"; exit(-1);}
+            case 0 : return m_s1;
+            case 1 : return m_s2;
+            case 2 : return m_s3;
+            default : {std::cerr<<"Error in Triangle class: too large index\n"; exit(-1);}
         }
     }
 
     inline int& operator[] (const int i) {
         switch(i)
         {
-            case 0 : return s1;
-            case 1 : return s2;
-            case 2 : return s3;
-            default : {std::cerr<<"Error in triangle class: too large index\n"; exit(-1);}
+            case 0 : return m_s1;
+            case 1 : return m_s2;
+            case 2 : return m_s3;
+            default : {std::cerr<<"Error in Triangle class: too large index\n"; exit(-1);}
         }
     }
 
-    friend std::istream& operator>>(std::istream &is,triangle &t);
+    friend std::istream& operator>>(std::istream &is,Triangle &t);
 
-    inline void set_normale(const vect3& v, bool normalize = false) {
-        n=v;
+    inline void setNormal(const Vect3& v, bool normalize = false) {
+        n = v;
         if (normalize) {
             double norm = n.norme();
             assert(norm > 0);
@@ -116,14 +111,14 @@ public:
     }
 };
 
-inline std::istream& operator>>(std::istream &is,triangle &t)
+inline std::istream& operator>>(std::istream &is,Triangle &t)
 {
-    return is >> t.s1 >> t.s2 >> t.s3;
+    return is >> t.m_s1 >> t.m_s2 >> t.m_s3;
 }
 
-inline std::ostream& operator<<(std::ostream &os,const triangle &t)
+inline std::ostream& operator<<(std::ostream &os,const Triangle &t)
 {
-    return os << t.id1() << " " << t.id2() << " " << t.id3() ;
+    return os << t[0] << " " << t[1] << " " << t[2] ;
 }
 
 #endif

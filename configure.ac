@@ -83,8 +83,7 @@ AC_CONFIG_FILES([
          src/Makefile
          libs/Makefile
          libs/MatLib/Makefile
-         libs/LsLib/Makefile
-		 tests/Makefile
+         tests/Makefile
          libs/MatLib/Test/Makefile
 ])
 AC_OUTPUT

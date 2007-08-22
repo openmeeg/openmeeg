@@ -125,8 +125,8 @@ inline std::ostream& operator<<(std::ostream& f,const fast_sparse_matrice &M)
 #if 0
 vecteur fast_sparse_matrice::solve(const vecteur &rhs_vec) const
 {
-    vecteur retour(nlignes);
-    _DOUBLE_PRECISION_t *solValues=&retour(0);
+    vecteur result(nlignes);
+    _DOUBLE_PRECISION_t *solValues=&result(0);
     _MKL_DSS_HANDLE_t handle;
     _INTEGER_t error;
     int opt = MKL_DSS_DEFAULTS;
@@ -171,15 +171,15 @@ vecteur fast_sparse_matrice::solve(const vecteur &rhs_vec) const
 
     delete[] int_rowindex;
     delete[] int_js;
-    return retour;
+    return result;
 
     lbl_error:
     {
         delete[] int_rowindex;
         delete[] int_js;
         std::cerr<<"Error in fast_sparse_matrice : solve"<<std::endl;
-        retour.set(0.0);
-        return retour;
+        result.set(0.0);
+        return result;
     }
 }
 #endif
@@ -241,19 +241,19 @@ inline double& fast_sparse_matrice::operator()(size_t i,size_t j)
 
 inline vecteur fast_sparse_matrice::operator * (const vecteur &v) const
 {
-    vecteur retour(nlignes); retour.set(0);
-    double *pt_retour=&retour(0);
+    vecteur result(nlignes); result.set(0);
+    double *pt_result=&result(0);
     vecteur *_v=(vecteur *)&v;
     double *pt_vect=&(*_v)(0);
 
     for(idxType i=0;i<nlignes;i++)
     {
-        double& total=pt_retour[i]; //deja à 0
+        double& total=pt_result[i]; //deja à 0
         for(idxType j=rowindex[i];j<rowindex[i+1];j++) {
             total+=tank[j]*pt_vect[js[j]];
         }
     }
-    return retour;
+    return result;
 }
 
 inline double* fast_sparse_matrice::getbuf() const

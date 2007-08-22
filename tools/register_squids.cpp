@@ -16,74 +16,20 @@ vecteur cross_product(const vecteur &a, const vecteur &b)
     return p;
 }
 
-void extract_fiducials(matrice& positions, const char* filename)
-{
-    std::cout << "Extracting positions from  : " << filename << std::endl;
-    assert(positions.nlin() == 3);
-    assert(positions.ncol() == 3);
-
-    std::ifstream file(filename);
-    if (!file.is_open()) 
-    {
-        std::cerr << "Problem reading : " << filename << std::endl;
-        exit(1);
-    }
-
-    std::string line;
-    for( unsigned int i = 0; i < 24; i += 1 ) // skip 25 lines
-    {
-        std::getline(file, line, '\n');
-    }
-    for( unsigned int k = 0; k < 3; k += 1 )
-    {
-        std::getline(file, line, '\n');
-        std::cout << "Reading : " << line << std::endl;
-        for( unsigned int i = 0; i < 3; i += 1 )
-        {
-            std::getline(file, line, '\n');
-            // std::cout << line << std::endl;
-            if (!line.empty())
-            {
-                std::istringstream buffer(line);
-                std::string axis,tmp;
-                buffer >> axis;
-                buffer >> tmp;
-                assert(tmp == "=");
-                float p;
-                buffer >> p;
-                positions(k,i) = p;
-            }
-        }
-    }
-}
-
 int main( int argc, char** argv)
 {
     command_usage("Convert squids positions from the machine coordinate system to the MRI coordinate system");
     const char *squids_filename = command_option("-i",(const char *) SRCPATH("tools/data/MEGPositions.squids"),"Squids positions in original coordinate system");
-    const char *fiducials_orig_filename = command_option("-fo",(const char *) SRCPATH("tools/data/fiducials_orig.hc"),"Fiducial points in the original coordinate system (txt format or .hc CTF format)");
-    const char *fiducials_dest_filename = command_option("-fd",(const char *) SRCPATH("tools/data/fiducials_dest.txt"),"Fiducial points in the destination coordinate system");
-    const char *rotation_filename = command_option("-r",(const char *) "rotation.txt","Rotation matrix");
-    const char *translation_filename = command_option("-t",(const char *) "translation.txt","Translation vector");
+    const char *fiducials_orig_filename = command_option("-fo",(const char *) SRCPATH("tools/data/fiducials_orig.fid"),"Fiducial points in the original coordinate system (txt format or .hc CTF format)");
+    const char *fiducials_dest_filename = command_option("-fd",(const char *) SRCPATH("tools/data/fiducials_dest.fid"),"Fiducial points in the destination coordinate system");
+    const char *rotation_filename = command_option("-r",(const char *) "","Rotation matrix");
+    const char *translation_filename = command_option("-t",(const char *) "","Translation vector");
     const char *squids_output_filename = command_option("-o",(const char *) "NewPositions.squids","Squids positions in the destination coordinate system");
     if (command_option("-h",(const char *)0,0)) return 0;
 
     matrice squids(squids_filename);
-    
-    char extension[128];
-    getNameExtension(fiducials_orig_filename,extension);
-    matrice fiducials_orig(3,3);
-    if (!strcmp(extension,"hc")) extract_fiducials(fiducials_orig,fiducials_orig_filename); // .hc
-    else if (!strcmp(extension,"txt")) {
-        std::cout << "Extracting positions from text file : " << fiducials_orig_filename << std::endl;
-        matrice tmp(fiducials_orig_filename); // .txt
-        fiducials_orig = tmp;
-    } else {
-        std::cerr << "Unknown file type for : " << fiducials_orig_filename << std::endl;
-    }
-    
-    std::cout << fiducials_orig << std::endl;
-    
+
+    matrice fiducials_orig(fiducials_orig_filename);
     matrice fiducials_dest(fiducials_dest_filename);
 
     size_t nb_squids = 151;
@@ -127,8 +73,15 @@ int main( int argc, char** argv)
     rot_dest.setcol(1,vy_dest);
     rot_dest.setcol(2,vz_dest);
 
-    matrice R = rot_dest * rot_orig.inverse();
-    vecteur T = origin_dest - R * origin_orig ;
+    // Get the scaling factor since for now we have an isometry with R and T
+    double scaling_factor = (lpa_dest - rpa_dest).norm() / (lpa_orig - rpa_orig).norm();
+    scaling_factor += (lpa_dest - nas_dest).norm() / (lpa_orig - nas_orig).norm();
+    scaling_factor += (rpa_dest - nas_dest).norm() / (rpa_orig - nas_orig).norm();
+    scaling_factor = scaling_factor / 3.;
+
+    matrice R =  rot_dest * rot_orig.inverse() * scaling_factor;
+    matrice R_isometry =  rot_dest * rot_orig.inverse();
+    vecteur T = origin_dest - R * origin_orig;
 
     for( unsigned int i = 0; i < nb_squids; i += 1 )
     {
@@ -138,8 +91,8 @@ int main( int argc, char** argv)
         position(1) = squid(1); orientation(1) = squid(4);
         position(2) = squid(2); orientation(2) = squid(5);
         position = R*position + T;
-        orientation = R*orientation + T;
-        squid(0) = position(0); squid(3) = orientation(0);
+        orientation = R_isometry*orientation;
+        squid(0) = position(0); squid(3) = orientation(0); // TODO : normalize direction
         squid(1) = position(1); squid(4) = orientation(1);
         squid(2) = position(2); squid(5) = orientation(2);
         squids.setlin(i,squid);
@@ -147,6 +100,6 @@ int main( int argc, char** argv)
 
     std::cout << "Storing new squids positions in : " << squids_output_filename << std::endl;
     squids.saveTxt(squids_output_filename);
-    R.saveTxt(rotation_filename);
-    T.saveTxt(translation_filename);
+    if(rotation_filename != "") R.saveTxt(rotation_filename);
+    if(translation_filename != "") T.saveTxt(translation_filename);
 }

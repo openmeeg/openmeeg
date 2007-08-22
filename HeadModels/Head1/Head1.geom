@@ -2,9 +2,9 @@
 
 Interfaces 3 Mesh
 
-/Users/alex/work/openmeeg/HeadModels/Head1/crane.1.tri  
-/Users/alex/work/openmeeg/HeadModels/Head1/cortex.1.tri 
-/Users/alex/work/openmeeg/HeadModels/Head1/scalp.1.tri  
+/Users/alex/work/openmeeg/trunk/HeadModels/Head1/crane.1.tri  
+/Users/alex/work/openmeeg/trunk/HeadModels/Head1/cortex.1.tri 
+/Users/alex/work/openmeeg/trunk/HeadModels/Head1/scalp.1.tri  
 
 Domains 4
 

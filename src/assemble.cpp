@@ -19,9 +19,9 @@
 #include "sensors.h"
 
 using namespace std;
-//using namespace CLMatLib;
 
-int GaussOrder=3;
+// int GaussOrder=3;
+int GaussOrder=0;
 
 void getOutputFilepath(char* ref_filepath, char* output_filename, char* path);
 void getHelp(char** argv);
@@ -32,8 +32,8 @@ int main(int argc, char** argv)
     {
         cerr << "Not enough arguments \nPlease try \"" << argv[0] << " -h\" or \"" << argv[0] << " --help \" \n" << endl;
         return 0;
-    } 
-    
+    }
+
     if ((!strcmp(argv[1],"-h")) | (!strcmp(argv[1],"--help"))) getHelp(argv);
 
     cout << endl << "| ------ " << argv[0] << " -------" << endl;
@@ -63,16 +63,16 @@ int main(int argc, char** argv)
             exit(1);
         }
         // Loading surfaces from geometry file. 'taille' = sum on surfaces of number of points and number of triangles
-        geometry geo;
-        unsigned int taille=geo.read(argv[2],argv[3]); // FIXME : read returns an int not unsigned 
+        Geometry geo;
+        unsigned int taille = geo.read(argv[2],argv[3]); // FIXME : read returns an int not unsigned
 
         // Assembling matrix from discretization :
         symmatrice mat(taille);
         assemble_matrice(geo, mat);
 
         // Deflation the last diagonal bloc of new 'mat'  :
-        int newtaille=taille-(geo.getM(geo.nb()-1)).nbr_trg();
-        int offset=newtaille-(geo.getM(geo.nb()-1)).nbr_pts();
+        int newtaille=taille-(geo.getM(geo.nb()-1)).nbTrgs();
+        int offset=newtaille-(geo.getM(geo.nb()-1)).nbPts();
         deflat(mat,offset,newtaille-1,mat(offset,offset)/(newtaille-offset));
 
         // Saving LHS matrix :
@@ -113,19 +113,16 @@ int main(int argc, char** argv)
         }
 
         // Loading surfaces from geometry file.
-        geometry geo;
-        int taille=geo.read(argv[2],argv[3]);
+        Geometry geo;
+        int taille = geo.read(argv[2],argv[3]);
 
         // Loading mesh for distributed sources
-        mesh mesh_sources;
-        int ls=(int)strlen(argv[4]);
-        if (!strcmp(argv[4]+ls-3,"vtk"))      mesh_sources.load_vtk(argv[4]);
-        else if (!strcmp(argv[4]+ls-3,"geo")) mesh_sources.load_3d(argv[4]);
-        else if (!strcmp(argv[4]+ls-3,"tri")) mesh_sources.load_tri(argv[4]);
+        Mesh mesh_sources;
+        mesh_sources.load(argv[4]);
 
         // Assembling matrix from discretization :
-        int newtaille = taille-(geo.getM(geo.nb()-1)).nbr_trg();
-        matrice mat(newtaille,mesh_sources.nbr_pts());
+        int newtaille = taille-(geo.getM(geo.nb()-1)).nbTrgs();
+        matrice mat(newtaille,mesh_sources.nbPts());
         mat.set(0.0);
         assemble_RHSmatrix( geo, mesh_sources, mat);
 
@@ -170,19 +167,16 @@ int main(int argc, char** argv)
         }
 
         // Loading surfaces from geometry file.
-        geometry geo;
+        Geometry geo;
         //int taille=geo.read(argv[2]);
 
         // Loading mesh for distributed sources
-        mesh mesh_sources;
-        int ls=(int)strlen(argv[4]);
-        if(!strcmp(argv[4]+ls-3,"vtk"))      mesh_sources.load_vtk(argv[4]);
-        else if(!strcmp(argv[4]+ls-3,"geo")) mesh_sources.load_3d(argv[4]);
-        else if(!strcmp(argv[4]+ls-3,"tri")) mesh_sources.load_tri(argv[4]);
+        Mesh mesh_sources;
+        mesh_sources.load(argv[4]);
 
         // Assembling matrix from discretization :
-        int newtaille=geo.getM(0).nbr_pts()+geo.getM(0).nbr_trg();
-        matrice mat(newtaille,mesh_sources.nbr_pts()+mesh_sources.nbr_trg());
+        int newtaille=geo.getM(0).nbPts()+geo.getM(0).nbTrgs();
+        matrice mat(newtaille,mesh_sources.nbPts()+mesh_sources.nbTrgs());
         mat.set(0.0);
         assemble_RHS2matrix( geo, mesh_sources, mat);
 
@@ -195,10 +189,10 @@ int main(int argc, char** argv)
             #elif
             getOutputFilepath(argv[2],(char*)"rhsMatrix.txt", fileout);
             #endif
-            mat.SAVESUB(fileout,0,newtaille-1,0,mesh_sources.nbr_pts()-1);
+            mat.SAVESUB(fileout,0,newtaille-1,0,mesh_sources.nbPts()-1);
             delete[] fileout;
         }
-        else mat.SAVESUB(argv[5],0,newtaille-1,0,mesh_sources.nbr_pts()-1); // if outfile is specified
+        else mat.SAVESUB(argv[5],0,newtaille-1,0,mesh_sources.nbPts()-1); // if outfile is specified
 
     }
 
@@ -224,11 +218,11 @@ int main(int argc, char** argv)
         }
 
         // Loading surfaces from geometry file.
-        geometry geo;
-        int taille=geo.read(argv[2],argv[3]);
+        Geometry geo;
+        int taille = geo.read(argv[2],argv[3]);
 
         // Loading matrix of dipoles :
-        matrice &dipoles=* new matrice(argv[4]);
+        matrice dipoles(argv[4]);
         if(dipoles.ncol() != 6)
         {
             cerr << "Dipoles File Format Error" << endl;
@@ -237,16 +231,16 @@ int main(int argc, char** argv)
 
         // Assembling vector from discretization :
         unsigned int nd = (unsigned int) dipoles.nlin();
-        std::vector<vect3> Rs,Qs;
+        std::vector<Vect3> Rs,Qs;
         for ( unsigned int i = 0; i < nd; i++)
         {
-            vect3 r(3),q(3);
+            Vect3 r(3),q(3);
             for(int j=0;j<3;j++) r[j] = dipoles(i,j);
             for(int j=3;j<6;j++) q[j-3] = dipoles(i,j);
             Rs.push_back(r); Qs.push_back(q);
         }
 
-        int newtaille = taille-(geo.getM(geo.nb()-1)).nbr_trg();
+        int newtaille = taille-(geo.getM(geo.nb()-1)).nbTrgs();
         vecteur rhs(newtaille);
         rhs.set(0);
         assemble_RHSvector( geo, Rs, Qs, rhs);
@@ -290,7 +284,7 @@ int main(int argc, char** argv)
         }
 
         // Loading surfaces from geometry file.
-        geometry geo;
+        Geometry geo;
         int taille=geo.read(argv[2],argv[3]);
 
         // Loading matrix of dipoles :
@@ -303,16 +297,16 @@ int main(int argc, char** argv)
 
         // Assembling matrix from discretization :
         unsigned int nd = (unsigned int) dipoles.nlin();
-        std::vector<vect3> Rs,Qs;
+        std::vector<Vect3> Rs,Qs;
         for( unsigned int i=0; i<nd; i++ )
         {
-            vect3 r(3),q(3);
+            Vect3 r(3),q(3);
             for(int j=0;j<3;j++) r[j]=dipoles(i,j);
             for(int j=3;j<6;j++) q[j-3]=dipoles(i,j);
             Rs.push_back(r); Qs.push_back(q);
         }
 
-        int newtaille=taille-(geo.getM(geo.nb()-1)).nbr_trg();
+        int newtaille=taille-(geo.getM(geo.nb()-1)).nbTrgs();
         matrice rhs(newtaille, nd);
         assemble_RHS_dipoles_matrice( geo, Rs, Qs, rhs);
 
@@ -354,7 +348,7 @@ int main(int argc, char** argv)
         }
 
         // Loading surfaces from geometry file.
-        geometry geo;
+        Geometry geo;
         int taille=geo.read(argv[2],argv[3]);
 
         // Loading matrix of dipoles :
@@ -367,16 +361,16 @@ int main(int argc, char** argv)
 
         // Assembling matrix from discretization :
         unsigned int nd = (unsigned int) dipoles.nlin();
-        std::vector<vect3> Rs,Qs;
+        std::vector<Vect3> Rs,Qs;
         for( unsigned int i=0; i<nd; i++ )
         {
-            vect3 r(3),q(3);
+            Vect3 r(3),q(3);
             for(int j=0;j<3;j++) r[j]=dipoles(i,j);
             for(int j=3;j<6;j++) q[j-3]=dipoles(i,j);
             Rs.push_back(r); Qs.push_back(q);
         }
 
-        int newtaille=taille-(geo.getM(geo.nb()-1)).nbr_trg();
+        int newtaille = taille-(geo.getM(geo.nb()-1)).nbTrgs();
         matrice rhs(newtaille, 6*nd); // 6 derivatives! (
         assemble_RHS_dipoles_matrice_grad( geo, Rs, Qs, rhs);
 
@@ -416,25 +410,24 @@ int main(int argc, char** argv)
         unsigned int npts;
         ifstream f(argv[4],ios::in);
         f >> npts;
-        vect3 *pts=new vect3[npts];
+        Vect3 *pts=new Vect3[npts];
         for ( unsigned int i=0; i<npts; i++ )
         {
             f >> pts[i];
         }
 
         // Loading geometry :
-        geometry geo;
+        Geometry geo;
         geo.read(argv[2],argv[3]);
-        int taille=0;
+        int taille = 0;
         for( int i=0; i<geo.nb(); i++ )
         {
-            taille+=geo.getM(i).nbr_pts();
+            taille += geo.getM(i).nbPts();
         }
 
         matrice mat(npts*3,taille);
 
         assemble_ferguson( geo, mat,pts , npts );
-
 
         if(argc<6)
         {    // if no outfile, outfile on the same path as geometry file
@@ -475,14 +468,14 @@ int main(int argc, char** argv)
         }
 
         // Loading surfaces from geometry file.
-        geometry geo;
-        int taille=geo.read(argv[2],argv[3]);
+        Geometry geo;
+        int taille = geo.read(argv[2],argv[3]);
 
         // read the file containing the positions of the EEG patches
         matrice patchesPositions(argv[4]);
 
         // Assembling matrix from discretization :
-        int newtaille=taille-(geo.getM(geo.nb()-1)).nbr_trg();
+        int newtaille = taille-(geo.getM(geo.nb()-1)).nbTrgs();
         matrice xToEEGresponse(patchesPositions.nlin(),newtaille);
         xToEEGresponse.set(0.0);
         assemble_xToEEGresponse( geo, xToEEGresponse, patchesPositions );
@@ -528,30 +521,16 @@ int main(int argc, char** argv)
         }
 
         // Loading surfaces from geometry file.
-        geometry geo;
-        int taille=geo.read(argv[2],argv[3]);
+        Geometry geo;
+        int taille = geo.read(argv[2],argv[3]);
 
-		// Load positions and orientations of sensors  :
-		sensors fileDescription(argv[4]);
-		matrice squidsPositions = *(fileDescription.getSensorsPositions());
-		matrice squidsOrientations = *(fileDescription.getSensorsOrientations());
-        /*
-        // read the file containing the positions and the orientations of the MEG captors
-        const matrice squidsPositionsOrientations(argv[4]);
-        matrice squidsOrientations(squidsPositionsOrientations.nlin(),3);
-        matrice squidsPositions(squidsPositionsOrientations.nlin(),3);
+        // Load positions and orientations of sensors  :
+        Sensors fileDescription(argv[4]);
+        matrice& squidsPositions = fileDescription.getSensorsPositions();
+        matrice& squidsOrientations = fileDescription.getSensorsOrientations();
 
-        for( unsigned i=0; i<squidsPositionsOrientations.nlin(); i++ )
-        {
-            for( unsigned j=0; j<6; j++ )
-            {
-                if(j<3) squidsPositions(i,j)=squidsPositionsOrientations(i,j);
-                else    squidsOrientations(i,j-3)=squidsPositionsOrientations(i,j);
-            }
-        }
-		*/
         // Assembling matrix from discretization :
-        int newtaille=taille-(geo.getM(geo.nb()-1)).nbr_trg();
+        int newtaille = taille-(geo.getM(geo.nb()-1)).nbTrgs();
         matrice xToMEGrespCont(squidsPositions.nlin(),newtaille);
         xToMEGrespCont.set(0.0);
         assemble_xToMEGresponseContrib( geo, xToMEGrespCont, squidsPositions, squidsOrientations);
@@ -568,7 +547,7 @@ int main(int argc, char** argv)
             xToMEGrespCont.SAVE(fileout);
             delete[] fileout;
         }
-        else xToMEGrespCont.SAVE(argv[5]);    //if outfile is specified
+        else xToMEGrespCont.SAVE(argv[5]); // if outfile is specified
     }
 
 
@@ -591,33 +570,16 @@ int main(int argc, char** argv)
         }
 
         // Loading mesh for distributed sources :
-        mesh mesh_sources;
-        int ls=(int)strlen(argv[2]);
-        if(!strcmp(argv[2]+ls-3,"vtk"))      mesh_sources.load_vtk(argv[2]);
-        else if(!strcmp(argv[2]+ls-3,"tri")) mesh_sources.load_tri(argv[2]);
-        else if(!strcmp(argv[2]+ls-3,"geo")) mesh_sources.load_3d(argv[2]);
-        
-        // Load positions and orientations of sensors  :
-		sensors fileDescription(argv[3]);
-		matrice squidsPositions = *(fileDescription.getSensorsPositions());
-		matrice squidsOrientations = *(fileDescription.getSensorsOrientations());
-		/*
-        // read the file containing the positions and the orientations of the MEG captors
-        const matrice squidsPositionsOrientations(argv[3]);
-        matrice squidsOrientations(squidsPositionsOrientations.nlin(),3);
-        matrice squidsPositions(squidsPositionsOrientations.nlin(),3);
+        Mesh mesh_sources;
+        mesh_sources.load(argv[2]);
 
-        for( unsigned i=0; i<squidsPositionsOrientations.nlin(); i++ )
-        {
-            for( unsigned j=0; j<6; j++ )
-            {
-                if(j < 3) squidsPositions(i,j)=squidsPositionsOrientations(i,j);
-                else    squidsOrientations(i,j-3)=squidsPositionsOrientations(i,j);
-            }
-        }
-		*/
+        // Load positions and orientations of sensors  :
+        Sensors fileDescription(argv[3]);
+        matrice squidsPositions = fileDescription.getSensorsPositions();
+        matrice squidsOrientations = fileDescription.getSensorsOrientations();
+
         // Assembling matrix from discretization :
-        int nVertices=mesh_sources.nbr_pts();
+        int nVertices=mesh_sources.nbPts();
         matrice sToMEGrespCont(squidsPositions.nlin(),nVertices);
         sToMEGrespCont.set(0.0);
         assemble_sToMEGresponseContrib( mesh_sources, sToMEGrespCont, squidsPositions, squidsOrientations);
@@ -662,25 +624,12 @@ int main(int argc, char** argv)
         // Loading dipoles :
         matrice dipoles(argv[2]);
         size_t nVertices=dipoles.nlin();
-        
+
         // Load positions and orientations of sensors  :
-		sensors fileDescription(argv[3]);
-		matrice squidsPositions = *(fileDescription.getSensorsPositions());
-		matrice squidsOrientations = *(fileDescription.getSensorsOrientations());
-		/*
-        // read the file containing the positions and the orientations of the MEG captors
-        const matrice squidsPositionsOrientations(argv[3]);
-        matrice squidsOrientations(squidsPositionsOrientations.nlin(),3);
-        matrice squidsPositions(squidsPositionsOrientations.nlin(),3);
-        for(unsigned i=0;i<squidsPositionsOrientations.nlin();i++)
-        {
-            for(unsigned j=0;j<6;j++)
-            {
-                if(j<3) squidsPositions(i,j)=squidsPositionsOrientations(i,j);
-                else    squidsOrientations(i,j-3)=squidsPositionsOrientations(i,j);
-            }
-        }
-		*/
+        Sensors fileDescription(argv[3]);
+        matrice squidsPositions = fileDescription.getSensorsPositions();
+        matrice squidsOrientations = fileDescription.getSensorsOrientations();
+
         matrice sToMEGrespCont(squidsPositions.nlin(),nVertices);
         sToMEGrespCont.set(0.0);
 

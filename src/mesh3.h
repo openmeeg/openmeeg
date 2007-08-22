@@ -3,7 +3,7 @@
 
 #include <istream>
 #include <fstream>
-#include <list>
+#include <set>
 #include "vect3.h"
 #include "triangle.h"
 
@@ -11,52 +11,74 @@
 #include <vtkPolyDataReader.h>
 #endif
 
-typedef std::list<int> intlist;
+typedef std::set<int> intSet;
 
-class mesh
+/** \brief  Mesh
+
+    Mesh Class
+
+© Copyright 2007-2007 Odyssee INRIA . All Rights Reserved.
+
+    \author $LastChangedBy$
+    \date $LastChangedDate$
+    \version $Rev$  \sa
+**/
+
+class Mesh
 {
 
 private:
-    int nb_pts, nb_trg;
-    vect3 *pts;
-    triangle *trg;
-    intlist *links;
-
+    int npts; //!< Number of points in the mesh.
+    int ntrgs; //!< Number of triangles in the mesh.
+    Vect3* pts; //!< Points of the mesh
+    Triangle* trgs; //!< Triangles of the mesh
+    intSet* links; //!< links[i] are the triangles that contain point i : each point knows each triangle it is a part of
+    Vect3* normals; //!< Normals at each point
 
 public:
 
-    enum Filetype { VTK, TRI, TREE_D, BND } ;
+    enum Filetype { VTK, TRI, BND };
 
-    mesh ();
-    mesh (int, int); // n_pts, n_trg
-    mesh(int, vect3 *, int ,triangle* );
-    mesh(const mesh& M);
-    //mesh& operator=( mesh& M);
-    mesh& operator=(const mesh& M);
-    ~mesh(){kill();}
-    inline int nbr_pts() const { return nb_pts; }
-    inline int nbr_trg() const { return nb_trg; }
-    inline const vect3& vctr(int i) const { return pts[i]; }
-    inline const triangle& trngl(int i) const { return trg[i]; }
-    inline const intlist& trg_list(int i) const { return links[i]; }
+    Mesh();
+    Mesh(int, int); // npts, ntrgs
+    Mesh(int, Vect3 *, int ,Triangle* );
+    Mesh(const Mesh& M);
+    //Mesh& operator=( Mesh& M);
+    Mesh& operator=(const Mesh& M);
+    ~Mesh(){kill();}
+    inline int nbPts() const { return npts; }
+    inline int nbTrgs() const { return ntrgs; }
+    inline const Vect3& getPt(int i) const { return pts[i]; }
+    inline const Triangle& getTrg(int i) const { return trgs[i]; }
+    inline const intSet& getTrianglesForPoint(int i) const { return links[i]; }
+    inline intSet* getTrianglesForPoints() const { return links; }
 
-    inline vect3& operator[](int i) {
-        assert(i<nb_pts);
+    inline Vect3 normal(int i) const { return normals[i]; }
+    inline Vect3& normal(int i) { return normals[i]; }
+
+    inline Vect3& operator[](int i) {
+        assert(i<npts);
         return pts[i];
     }
 
-    inline void set_pt(int i,const vect3& v) { pts[i]=v;}
-    inline void set_trg(int i,const triangle& t) { trg[i]=t;}
+    inline void setPt(int i,const Vect3& v) { pts[i]=v;}
+    inline void setTrg(int i,const Triangle& t) { trgs[i]=t;}
 
-    // each point knows each triangle it is a part of.
     void make_links();
     void compute_omega();
-    vect3 center(int) const; // center of triangle i
 
+    /**
+       * Get center of triangle
+       * \param i index of the triangle
+       */
+    Vect3 center(int) const;
+
+    /**
+       * Read mesh from file
+       * \param filename can be .vtk, .tri (ascii), .bnd
+       * \param verbose true or false
+       */
     void load(const char* filename, bool verbose=true);
-
-    void load_3d(std::istream &is);
-    void load_3d(const char*);
 
 #ifdef USE_VTK
     void load_vtk(std::istream &is);
@@ -75,20 +97,29 @@ public:
     void load_bnd(std::istream &);
     void load_bnd(const char*);
 
-    void load_mesh(std::istream &is);
-    void load_mesh(const char*);
+    void load_Mesh(std::istream &is);
+    void load_Mesh(const char*);
 
     void save(const char* filename);
-    void save_3d(const char*);
     void save_vtk(const char*);
     void save_bnd(const char*);
     void save_tri(const char*);
     void save_mesh(const char*);
 
+    /** \brief elem
+
+            Find the triangles that use the point i
+            and store the indices of these points in T
+
+        \param i point ID
+        \param T indices of the triangles that use the point i
+        \return the number of triangles that use point i
+        \sa
+    **/
     inline int elem(int i, int* T ) const{ // gives each triangle a point belongs to
         int c=0;
-        for(int k=0; k<nb_trg; k++){
-            if( (i==trg[k].som1()) || (i==trg[k].som2()) || (i==trg[k].som3())){
+        for(int k=0; k<ntrgs; k++){
+            if( (i==trgs[k].s1()) || (i==trgs[k].s2()) || (i==trgs[k].s3())){
                 T[c] = k;
                 c = c+1;
             }
@@ -98,26 +129,36 @@ public:
 
     void getFileFormat(const char* filename);
 
-    inline friend void operator>>(std::istream &ifs,mesh &m){
+    /** \brief append a mesh
+
+            append a mesh to the current Mesh.
+            Used to concat two meshes
+
+        \param m Mesh to append
+        \return void
+        \sa
+    **/
+    void append(const Mesh* m);
+
+    inline friend void operator>>(std::istream &ifs,Mesh &m){
         Filetype format = m.streamFormat;
         switch (format){
-            case TRI:        m.load_tri(ifs); break;
-            case TREE_D:     m.load_3d(ifs); break;
-#ifdef USE_VTK            
-            case VTK:        m.load_vtk(ifs); std::cout<<"Load vtk file format - OK "<< std::endl; break;
-#endif 
-            case BND:     m.load_bnd(ifs); /*std::cout << "mesh3.h - operator >> - switch 3D " << std::endl;*/ break;
-            default: std::cout << "Format different de TRI ou 3d" << std::endl;
+            case TRI:       m.load_tri(ifs); break;
+#ifdef USE_VTK
+            case VTK:       m.load_vtk(ifs); break;
+#endif
+            case BND:       m.load_bnd(ifs); break;
+            default: std::cout << "Unknown file format" << std::endl;
         }
     }
 
 private:
     Filetype streamFormat;
     void kill();
-    void copy(const mesh& M);
+    void copy(const Mesh& M);
 #ifdef USE_VTK
     void getDataFromVTKReader(vtkPolyDataReader* vtkMesh);
-#endif    
+#endif
 };
 
 #endif

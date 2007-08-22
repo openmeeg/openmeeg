@@ -3,9 +3,10 @@
 #include "vecteur.h"
 #include "sparse_matrice.h"
 #include "fast_sparse_matrice.h"
-#include "point.h"
+#include "vect3.h"
 #include "cpuChrono.h"
 
+#include "om_utils.h"
 #include "inverse.h"
 
 using namespace std;

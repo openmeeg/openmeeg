@@ -6,9 +6,9 @@
 #include <cstdlib>
 
 #include "MatLibConfig.h"
-
 #include "matrice_dcl.h"
 #include "symmatrice_dcl.h"
+#include "om_utils.h"
 
 inline symmatrice::symmatrice():n(0),t(0),count(0) {}
 inline symmatrice::symmatrice(size_t N) { alloc(N); }
@@ -415,6 +415,18 @@ inline void symmatrice::saveSubTxt( const char *filename , size_t i_start, size_
             outfile<<this->operator ()(i,j);
             if(j!=n-1) outfile<<"\t"; else outfile<<"\n";
         }
+}
+
+inline void symmatrice::load( const char *filename ) {
+    char extension[128];
+    getNameExtension(filename,extension);
+    if(!strcmp(extension,"bin") || !strcmp(extension,"BIN")) loadBin(filename);
+    else if(!strcmp(extension,"txt") || !strcmp(extension,"TXT")) loadTxt(filename);
+    else {
+        std::cout << "Warning : Unknown file extension " << std::endl;
+        std::cout << "Assuming ASCII format " << std::endl;
+        loadTxt(filename);
+    }
 }
 
 inline void symmatrice::loadTxt( const char *filename ) {

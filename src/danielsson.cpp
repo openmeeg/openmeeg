@@ -96,7 +96,7 @@ static inline int sgn(double s) { return (s>0)?1:(s<0)?-1:0; }
 #include <list>
 using namespace std;
 
-double dist_point_mesh(const dpoint&m ,const mesh &mesh,dpoint& alphas,int &nearestNumber)
+double dist_point_mesh(const dpoint&m ,const Mesh &mesh,dpoint& alphas,int &nearestNumber)
 {
     double distmin=DBL_MAX;
     ipoint t;
@@ -104,10 +104,10 @@ double dist_point_mesh(const dpoint&m ,const mesh &mesh,dpoint& alphas,int &near
     double distance;
     dpoint alphasLoop;
 
-    for(int i=0; i<mesh.nbr_trg(); i++)
+    for(int i=0; i<mesh.nbTrgs(); i++)
     {
-        t=mesh.trngl(i);
-        distance=dist_point_cell(m ,& mesh.vctr(0),t,alphasLoop,inside);
+        t=mesh.getTrg(i);
+        distance=dist_point_cell(m ,& mesh.getPt(0),t,alphasLoop,inside);
         if(distance < distmin)
         {
             distmin=distance;

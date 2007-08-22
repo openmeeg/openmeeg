@@ -14,7 +14,7 @@ namespace MeshDescription {
 
     struct MeshInterface {
 
-        typedef mesh Type;
+        typedef Mesh Type;
 
         struct Validation {
             Validation(const Type& Mesh) { }
@@ -29,13 +29,15 @@ namespace MeshDescription {
     template <>
     void Reader<MeshInterface, VoidGeometry>::LoadInterfaces(std::istream& is) {
 
-       // std::cout << "Incoming in MeshdescriptionReaderSpecialized.h - Reader::LoadInterfaces " << std::endl;
+        // std::cout << "Incoming in MeshdescriptionReaderSpecialized.h - Reader::LoadInterfaces " << std::endl;
         //  The first interface is special as it determines the size of the meshed domain.
         //  Load the first interface and register it for validation.
         std::string interface_name;
         is >> io_utils::skip_comments('#') >> interface_name;
+
         std::ifstream ifs0(interface_name.c_str());
         if(!ifs0.is_open()) {
+            // TODO : Try path relative to position of .geom file to avoid absolute paths in .geom files
             std::cerr << "Error opening file: " << interface_name.c_str() << std::endl;
             exit(1);
         }
