@@ -35,7 +35,7 @@ public:
     void dispEllapsed ()
     {
         cout <<  "------------------------------------------" << endl;
-        cout <<  "| Ellapsed Time: " << getEllapsedS() << " s." << endl;
+        cout <<  "| Elapsed Time: " << getEllapsedS() << " s." << endl;
         cout <<  "------------------------------------------" << endl;
     }
 };
