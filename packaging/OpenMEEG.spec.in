@@ -50,6 +50,7 @@ rm -rf %{srcdirname}
 %files
 %defattr(-,root,root,-)
 %{_bindir}/*
+%{_libdir}/*
 
 %changelog
 * Wed Mar 28 2007 Theo Papadopoulo <Theodore.Papadopoulo@sophia.inria.fr> 0.8.0
