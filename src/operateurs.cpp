@@ -5,7 +5,7 @@
 //#define USE_SYM
 
 #ifndef OPTIMIZED_OPERATOR_D
-void operateurD(Geometry &geo,int I,int J,symmatrice &mat,int offsetI,int offsetJ)
+void operateurD(const Geometry &geo,const int I,const int J,const int GaussOrder,symmatrice &mat,const int offsetI,const int offsetJ)
 // This function (NON OPTIMIZED VERSION) has the following arguments:
 //    One geometry
 //    the indices of the treated layers I and J
@@ -21,11 +21,11 @@ void operateurD(Geometry &geo,int I,int J,symmatrice &mat,int offsetI,int offset
         for(int j=offsetJ;j<offsetJ+m2.nbPts();j++)
         {
             // P1 functions are tested thus looping on vertices
-            mat(i,j)=_operateurD(i-offsetI,j-offsetJ,m1,m2);
+            mat(i,j)=_operateurD(i-offsetI,j-offsetJ,GaussOrder,m1,m2);
         }
 }
 
-void operateurD(Mesh &m1, Mesh &m2,matrice &mat,int offsetI,int offsetJ)
+void operateurD(const Mesh &m1,const Mesh &m2,matrice &mat,const int offsetI,const int offsetJ,const int GaussOrder)
 // This function (NON OPTIMIZED VERSION) has the following arguments:
 //    One geometry
 //    the indices of the treated layers I and J
@@ -38,12 +38,12 @@ void operateurD(Mesh &m1, Mesh &m2,matrice &mat,int offsetI,int offsetJ)
         for(int j=offsetJ;j<offsetJ+m2.nbPts();j++)
         {
             // P1 functions are tested thus looping on vertices
-            mat(i,j)=_operateurD(i-offsetI,j-offsetJ,m1,m2);
+            mat(i,j)=_operateurD(i-offsetI,j-offsetJ,GaussOrder,m1,m2);
         }
 }
 
 #else
-void operateurD(Geometry &geo,int I,int J,symmatrice &mat,int offsetI,int offsetJ)
+void operateurD(const Geometry &geo,const int I,const int J,const int GaussOrder,symmatrice &mat,const int offsetI,const int offsetJ)
 {
     // This function (OPTIMIZED VERSION) has the following arguments:
     //    One geometry
@@ -62,11 +62,11 @@ void operateurD(Geometry &geo,int I,int J,symmatrice &mat,int offsetI,int offset
             //In this version of the funtcion, in order to skip multiple computations of the same quantities
             //    loops are run over the triangles but the matrix cannot be filled in this function anymore
             //    That's why the filling is done is function _operateurD
-            _operateurD(i-offsetI,j-offsetJ,m1,m2,mat,offsetI,offsetJ);
+            _operateurD(i-offsetI,j-offsetJ,GaussOrder,m1,m2,mat,offsetI,offsetJ);
         }
 }
 
-void operateurD(Mesh &m1, Mesh &m2,genericMatrix &mat,int offsetI,int offsetJ)
+void operateurD(const Mesh &m1,const Mesh &m2,genericMatrix &mat,const int offsetI,const int offsetJ,const int GaussOrder)
 {
     // This function (OPTIMIZED VERSION) has the following arguments:
     //    One geometry
@@ -82,13 +82,13 @@ void operateurD(Mesh &m1, Mesh &m2,genericMatrix &mat,int offsetI,int offsetJ)
             //In this version of the funtcion, in order to skip multiple computations of the same quantities
             //    loops are run over the triangles but the matrix cannot be filled in this function anymore
             //    That's why the filling is done is function _operateurD
-            _operateurD(i-offsetI,j-offsetJ,m1,m2,mat,offsetI,offsetJ);
+            _operateurD(i-offsetI,j-offsetJ,GaussOrder,m1,m2,mat,offsetI,offsetJ);
         }
 }
 #endif
 
 
-void operateurS(Geometry &geo,int I,int J,symmatrice &mat,int offsetI,int offsetJ )
+void operateurS(const Geometry &geo,const int I,const int J,const int GaussOrder,symmatrice &mat,const int offsetI,const int offsetJ )
 {
     // This function has the following arguments:
     //    One geometry
@@ -108,7 +108,7 @@ void operateurS(Geometry &geo,int I,int J,symmatrice &mat,int offsetI,int offset
             // #pragma omp parallel for
             for(int j=i;j<offsetJ+m2.nbTrgs();j++)
             {
-                mat(i,j)=_operateurS(i-offsetI,j-offsetJ,m1,m2);
+                mat(i,j)=_operateurS(i-offsetI,j-offsetJ,GaussOrder,m1,m2);
             }
         }
     } else {
@@ -116,7 +116,7 @@ void operateurS(Geometry &geo,int I,int J,symmatrice &mat,int offsetI,int offset
             // #pragma omp parallel for
             for(int j=offsetJ;j<offsetJ+m2.nbTrgs();j++)
             {
-                mat(i,j)=_operateurS(i-offsetI,j-offsetJ,m1,m2);
+                mat(i,j)=_operateurS(i-offsetI,j-offsetJ,GaussOrder,m1,m2);
             }
         }
     }
@@ -126,7 +126,7 @@ void operateurS(Geometry &geo,int I,int J,symmatrice &mat,int offsetI,int offset
             // #pragma omp parallel for
             for(int j=i;j<offsetJ+m2.nbTrgs();j++)
             {
-                mat(i,j)=_operateurS(i-offsetI,j-offsetJ,m1,m2);
+                mat(i,j)=_operateurS(i-offsetI,j-offsetJ,GaussOrder,m1,m2);
             }
     else
     {
@@ -135,7 +135,7 @@ void operateurS(Geometry &geo,int I,int J,symmatrice &mat,int offsetI,int offset
                 // #pragma omp parallel for
                 for(int j=offsetJ+i-offsetI;j<offsetJ+m2.nbTrgs();j++)
                 {
-                    mat(i,j)=_operateurS(i-offsetI,j-offsetJ,m1,m2);
+                    mat(i,j)=_operateurS(i-offsetI,j-offsetJ,GaussOrder,m1,m2);
                     mat(offsetI+j-offsetJ,offsetJ+i-offsetI)=mat(i,j);
                 }
         else
@@ -143,14 +143,14 @@ void operateurS(Geometry &geo,int I,int J,symmatrice &mat,int offsetI,int offset
                 // #pragma omp parallel for
                 for(int j=offsetJ;j<=offsetJ+i-offsetI;j++)
                 {
-                    mat(i,j)=_operateurS(i-offsetI,j-offsetJ,m1,m2);
+                    mat(i,j)=_operateurS(i-offsetI,j-offsetJ,GaussOrder,m1,m2);
                     mat(offsetI+j-offsetJ,offsetJ+i-offsetI)=mat(i,j);
                 }
     }
 #endif
 }
 
-void operateurS(const Mesh &m1,const Mesh &m2,genericMatrix &mat,int offsetI,int offsetJ )
+void operateurS(const Mesh &m1,const Mesh &m2,genericMatrix &mat,const int offsetI,const int offsetJ,const int GaussOrder)
 {
     // This function has the following arguments:
     //    One geometry
@@ -168,14 +168,14 @@ void operateurS(const Mesh &m1,const Mesh &m2,genericMatrix &mat,int offsetI,int
             // #pragma omp parallel for
             for(int j=i;j<offsetJ+m2.nbTrgs();j++)
             {
-                mat(i,j)=_operateurS(i-offsetI,j-offsetJ,m1,m2);
+                mat(i,j)=_operateurS(i-offsetI,j-offsetJ,GaussOrder,m1,m2);
             }
     else
     {
         for(int i=offsetI;i<offsetI+m1.nbTrgs();i++)
             for(int j=offsetJ;j<offsetJ+m2.nbTrgs();j++)
             {
-                mat(i,j)=_operateurS(i-offsetI,j-offsetJ,m1,m2);
+                mat(i,j)=_operateurS(i-offsetI,j-offsetJ,GaussOrder,m1,m2);
             }
     }
 #else
@@ -185,7 +185,7 @@ void operateurS(const Mesh &m1,const Mesh &m2,genericMatrix &mat,int offsetI,int
             // #pragma omp parallel for
             for(int j=i;j<offsetJ+m2.nbTrgs();j++)
             {
-                mat(i,j)=_operateurS(i-offsetI,j-offsetJ,m1,m2);
+                mat(i,j)=_operateurS(i-offsetI,j-offsetJ,GaussOrder,m1,m2);
             }
     else
     {
@@ -193,21 +193,21 @@ void operateurS(const Mesh &m1,const Mesh &m2,genericMatrix &mat,int offsetI,int
             for(int i=offsetI;i<offsetI+m1.nbTrgs();i++)
                 for(int j=offsetJ+i-offsetI;j<offsetJ+m2.nbTrgs();j++)
                 {
-                    mat(i,j)=_operateurS(i-offsetI,j-offsetJ,m1,m2);
+                    mat(i,j)=_operateurS(i-offsetI,j-offsetJ,GaussOrder,m1,m2);
                     mat(offsetI+j-offsetJ,offsetJ+i-offsetI)=mat(i,j);
                 }
         else
             for(int i=offsetI;i<offsetI+m1.nbTrgs();i++)
                 for(int j=offsetJ;j<=offsetJ+i-offsetI;j++)
                 {
-                    mat(i,j)=_operateurS(i-offsetI,j-offsetJ,m1,m2);
+                    mat(i,j)=_operateurS(i-offsetI,j-offsetJ,GaussOrder,m1,m2);
                     mat(offsetI+j-offsetJ,offsetJ+i-offsetI)=mat(i,j);
                 }
     }
 #endif
 }
 
-void operateurN(Geometry &geo,int I,int J,symmatrice &mat,int offsetI,int offsetJ , int IopS, int JopS )
+void operateurN(const Geometry &geo,const int I,const int J,const int GaussOrder,symmatrice &mat,const int offsetI,const int offsetJ,const int IopS,const int JopS)
 {
     // This function has the following arguments:
     //    One geometry
@@ -227,7 +227,7 @@ void operateurN(Geometry &geo,int I,int J,symmatrice &mat,int offsetI,int offset
             // #pragma omp parallel for
             for(int j=i;j<offsetJ+m2.nbPts();j++)
             {
-                mat(i,j)=_operateurN(i-offsetI,j-offsetJ,m1,m2,IopS,JopS,mat);
+                mat(i,j)=_operateurN(i-offsetI,j-offsetJ,GaussOrder,m1,m2,IopS,JopS,mat);
             }
     else
     {
@@ -235,7 +235,7 @@ void operateurN(Geometry &geo,int I,int J,symmatrice &mat,int offsetI,int offset
             // #pragma omp parallel for
             for(int j=offsetJ;j<offsetJ+m2.nbPts();j++)
             {
-                mat(i,j)=_operateurN(i-offsetI,j-offsetJ,m1,m2,IopS,JopS,mat);
+                mat(i,j)=_operateurN(i-offsetI,j-offsetJ,GaussOrder,m1,m2,IopS,JopS,mat);
             }
     }
 
@@ -246,7 +246,7 @@ void operateurN(Geometry &geo,int I,int J,symmatrice &mat,int offsetI,int offset
             // #pragma omp parallel for
             for(int j=i;j<offsetJ+m2.nbPts();j++)
             {
-                mat(i,j)=_operateurN(i-offsetI,j-offsetJ,m1,m2,IopS,JopS,mat);
+                mat(i,j)=_operateurN(i-offsetI,j-offsetJ,GaussOrder,m1,m2,IopS,JopS,mat);
             }
     else
     {
@@ -255,7 +255,7 @@ void operateurN(Geometry &geo,int I,int J,symmatrice &mat,int offsetI,int offset
                 // #pragma omp parallel for
                 for(int j=offsetJ+i-offsetI;j<offsetJ+m2.nbPts();j++)
                 {
-                    mat(i,j)=_operateurN(i-offsetI,j-offsetJ,m1,m2,IopS,JopS,mat);
+                    mat(i,j)=_operateurN(i-offsetI,j-offsetJ,GaussOrder,m1,m2,IopS,JopS,mat);
                     mat(offsetI+j-offsetJ,offsetJ+i-offsetI)=mat(i,j);
                 }
         else
@@ -263,7 +263,7 @@ void operateurN(Geometry &geo,int I,int J,symmatrice &mat,int offsetI,int offset
                 // #pragma omp parallel for
                 for(int j=offsetJ;j<=offsetJ+i-offsetI;j++)
                 {
-                    mat(i,j)=_operateurN(i-offsetI,j-offsetJ,m1,m2,IopS,JopS,mat);
+                    mat(i,j)=_operateurN(i-offsetI,j-offsetJ,GaussOrder,m1,m2,IopS,JopS,mat);
                     mat(offsetI+j-offsetJ,offsetJ+i-offsetI)=mat(i,j);
                 }
     }
@@ -271,7 +271,7 @@ void operateurN(Geometry &geo,int I,int J,symmatrice &mat,int offsetI,int offset
 #endif
 }
 
-void operateurN(Mesh &m1, Mesh &m2,genericMatrix &mat,int offsetI,int offsetJ,int IopS, int JopS)
+void operateurN(const Mesh &m1,const Mesh &m2,genericMatrix &mat,const int offsetI,const int offsetJ,const int GaussOrder,const int IopS,const int JopS)
 {
     // This function has the following arguments:
     //    One geometry
@@ -289,14 +289,14 @@ void operateurN(Mesh &m1, Mesh &m2,genericMatrix &mat,int offsetI,int offsetJ,in
             // #pragma omp parallel for schedule(runtime) ordered
             for(int j=i;j<offsetJ+m2.nbPts();j++)
             {
-                mat(i,j)=_operateurN(i-offsetI,j-offsetJ,m1,m2,IopS,JopS,mat);
+                mat(i,j)=_operateurN(i-offsetI,j-offsetJ,GaussOrder,m1,m2,IopS,JopS,mat);
             }
     else
     {
         for(int i=offsetI;i<offsetI+m1.nbPts();i++){
             for(int j=offsetJ;j<offsetJ+m2.nbPts();j++)
             {
-                mat(i,j)=_operateurN(i-offsetI,j-offsetJ,m1,m2,IopS,JopS,mat);
+                mat(i,j)=_operateurN(i-offsetI,j-offsetJ,GaussOrder,m1,m2,IopS,JopS,mat);
             }
         }
     }
@@ -307,7 +307,7 @@ void operateurN(Mesh &m1, Mesh &m2,genericMatrix &mat,int offsetI,int offsetJ,in
         for(int i=offsetI;i<offsetI+m1.nbPts();i++)
             for(int j=i;j<offsetJ+m2.nbPts();j++)
             {
-                mat(i,j)=_operateurN(i-offsetI,j-offsetJ,m1,m2,IopS,JopS,mat);
+                mat(i,j)=_operateurN(i-offsetI,j-offsetJ,GaussOrder,m1,m2,IopS,JopS,mat);
             }
     else
     {
@@ -315,14 +315,14 @@ void operateurN(Mesh &m1, Mesh &m2,genericMatrix &mat,int offsetI,int offsetJ,in
             for(int i=offsetI;i<offsetI+m1.nbPts();i++)
                 for(int j=offsetJ+i-offsetI;j<offsetJ+m2.nbPts();j++)
                 {
-                    mat(i,j)=_operateurN(i-offsetI,j-offsetJ,m1,m2,IopS,JopS,mat);
+                    mat(i,j)=_operateurN(i-offsetI,j-offsetJ,GaussOrder,m1,m2,IopS,JopS,mat);
                     mat(offsetI+j-offsetJ,offsetJ+i-offsetI)=mat(i,j);
                 }
         else
             for(int i=offsetI;i<offsetI+m1.nbPts();i++)
                 for(int j=offsetJ;j<=offsetJ+i-offsetI;j++)
                 {
-                    mat(i,j)=_operateurN(i-offsetI,j-offsetJ,m1,m2,IopS,JopS,mat);
+                    mat(i,j)=_operateurN(i-offsetI,j-offsetJ,GaussOrder,m1,m2,IopS,JopS,mat);
                     mat(offsetI+j-offsetJ,offsetJ+i-offsetI)=mat(i,j);
                 }
     }
@@ -332,7 +332,7 @@ void operateurN(Mesh &m1, Mesh &m2,genericMatrix &mat,int offsetI,int offsetJ,in
 
 
 //general routine for applying _operateurFerguson (see this function for further comments) to an entire mesh, and storing coordinates of the output in a matrix.
-void operateurFerguson( const Vect3 x, const Mesh &m1, matrice &mat, int offsetI, int offsetJ)
+void operateurFerguson(const Vect3 x, const Mesh &m1, matrice &mat, int offsetI, int offsetJ)
 {
     for(int j=offsetJ;j<offsetJ+m1.nbPts();j++)
     {
@@ -343,7 +343,7 @@ void operateurFerguson( const Vect3 x, const Mesh &m1, matrice &mat, int offsetI
     }
 }
 
-void operateurDipolePotDer(const Vect3 &r0, const Vect3 &q,const Mesh &inner_layer, vecteur &rhs, int offsetIdx)
+void operateurDipolePotDer(const Vect3 &r0,const Vect3 &q,const Mesh &inner_layer,vecteur &rhs,const int offsetIdx,const int GaussOrder)
 {
     static analytiqueDipPotDer anaDPD;
     static integrateur<Vect3> gauss;
@@ -359,7 +359,7 @@ void operateurDipolePotDer(const Vect3 &r0, const Vect3 &q,const Mesh &inner_lay
     }
 }
 
-void operateurDipolePot(const Vect3 &r0, const Vect3 &q, const Mesh &inner_layer, vecteur &rhs, int offsetIdx)
+void operateurDipolePot(const Vect3 &r0, const Vect3 &q, const Mesh &inner_layer, vecteur &rhs,const int offsetIdx,const int GaussOrder)
 {
     static analytiqueDipPot anaDP;
     static integrateur<double> gauss;
@@ -373,7 +373,7 @@ void operateurDipolePot(const Vect3 &r0, const Vect3 &q, const Mesh &inner_layer
 }
 
 // Grad wrt r0
-void operateurDipolePotDerGrad(const Vect3 &r0, const Vect3 &q,const Mesh &inner_layer, vecteur rhs[6], int offsetIdx)
+void operateurDipolePotDerGrad(const Vect3 &r0, const Vect3 &q,const Mesh &inner_layer, vecteur rhs[6],const int offsetIdx,const int GaussOrder)
 {
     static analytiqueDipPotDerGrad anaDPD;
     static integrateur< vect3array<6> > gauss;
@@ -392,7 +392,7 @@ void operateurDipolePotDerGrad(const Vect3 &r0, const Vect3 &q,const Mesh &inner
 }
 
 // Grad wrt r0,q
-void operateurDipolePotGrad(const Vect3 &r0, const Vect3 &q, const Mesh &inner_layer, vecteur rhs[6], int offsetIdx)
+void operateurDipolePotGrad(const Vect3 &r0,const Vect3 &q,const Mesh &inner_layer,vecteur rhs[6],const int offsetIdx,const int GaussOrder)
 {
     static analytiqueDipPotGrad anaDP;
     static integrateur< vect3array<2> > gauss;

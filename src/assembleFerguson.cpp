@@ -9,7 +9,7 @@
 // mat = storage for ferguson matrix
 // pts = where the magnetic field is to be computed 
 // n   = numbers of places where magnetic field is to be computed
-void assemble_ferguson(Geometry &geo, matrice &mat, const Vect3 *pts, int n)
+void assemble_ferguson(const Geometry &geo,matrice &mat, const Vect3 *pts,const int n)
 {
     int offsetJ=0;
     // Computation of blocks of Ferguson's matrix
