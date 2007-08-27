@@ -9,7 +9,7 @@
 #include "geometry.h"
 #include "operateurs.h"
 
-void assemble_matrice( Geometry &geo, symmatrice &mat)
+void assemble_matrice(const Geometry &geo,symmatrice &mat,const int GaussOrder)
 {
     int offset=0;
 
@@ -21,20 +21,20 @@ void assemble_matrice( Geometry &geo, symmatrice &mat)
         int offset3=offset+geo.getM(c).nbPts()+geo.getM(c).nbTrgs()+geo.getM(c+1).nbPts();
 
         //Computing S block first because it's needed for the corresponding N block
-        if(c==0) operateurS(geo,c,c,mat,offset1,offset1);
-        operateurS(geo,c+1,c,mat,offset3,offset1);
-        operateurS(geo,c+1,c+1,mat,offset3,offset3);
+        if(c==0) operateurS(geo,c,c,GaussOrder,mat,offset1,offset1);
+        operateurS(geo,c+1,c,GaussOrder,mat,offset3,offset1);
+        operateurS(geo,c+1,c+1,GaussOrder,mat,offset3,offset3);
 
         //Computing N block
-        if(c==0) operateurN(geo,c,c,mat,offset0,offset0,offset1,offset1);
-        operateurN(geo,c+1,c,mat,offset2,offset0,offset3,offset1);
-        operateurN(geo,c+1,c+1,mat,offset2,offset2,offset3,offset3);
+        if(c==0) operateurN(geo,c,c,GaussOrder,mat,offset0,offset0,offset1,offset1);
+        operateurN(geo,c+1,c,GaussOrder,mat,offset2,offset0,offset3,offset1);
+        operateurN(geo,c+1,c+1,GaussOrder,mat,offset2,offset2,offset3,offset3);
 
         //Computing D block
-        if(c==0) operateurD(geo,c,c,mat,offset1,offset0);
-        if(c!=geo.nb()-2) operateurD(geo,c+1,c,mat,offset3,offset0);
-        operateurD(geo,c,c+1,mat,offset1,offset2);
-        if(c!=geo.nb()-2) operateurD(geo,c+1,c+1,mat,offset3,offset2);
+        if(c==0) operateurD(geo,c,c,GaussOrder,mat,offset1,offset0);
+        if(c!=geo.nb()-2) operateurD(geo,c+1,c,GaussOrder,mat,offset3,offset0);
+        operateurD(geo,c,c+1,GaussOrder,mat,offset1,offset2);
+        if(c!=geo.nb()-2) operateurD(geo,c+1,c+1,GaussOrder,mat,offset3,offset2);
 
         offset=offset2;
     }
@@ -77,7 +77,7 @@ void assemble_matrice( Geometry &geo, symmatrice &mat)
 
 
 
-void assemble_EITmatrice( Geometry &geo, symmatrice &mat)
+void assemble_EITmatrice(const Geometry &geo, symmatrice &mat,const int GaussOrder)
 {
     // same as assemble_matrice without multiplication of blocks
     int offset=0;
@@ -90,23 +90,22 @@ void assemble_EITmatrice( Geometry &geo, symmatrice &mat)
         int offset3=offset+geo.getM(c).nbPts()+geo.getM(c).nbTrgs()+geo.getM(c+1).nbPts();
 
         //Computing S block first because it's needed for the corresponding N block
-        if(c==0) operateurS(geo,c,c,mat,offset1,offset1);
-        operateurS(geo,c+1,c,mat,offset3,offset1);
-        operateurS(geo,c+1,c+1,mat,offset3,offset3);
+        if(c==0) operateurS(geo,c,c,GaussOrder,mat,offset1,offset1);
+        operateurS(geo,c+1,c,GaussOrder,mat,offset3,offset1);
+        operateurS(geo,c+1,c+1,GaussOrder,mat,offset3,offset3);
 
         //Computing N block
-        if(c==0) operateurN(geo,c,c,mat,offset0,offset0,offset1,offset1);
-        operateurN(geo,c+1,c,mat,offset2,offset0,offset3,offset1);
-        operateurN(geo,c+1,c+1,mat,offset2,offset2,offset3,offset3);
+        if(c==0) operateurN(geo,c,c,GaussOrder,mat,offset0,offset0,offset1,offset1);
+        operateurN(geo,c+1,c,GaussOrder,mat,offset2,offset0,offset3,offset1);
+        operateurN(geo,c+1,c+1,GaussOrder,mat,offset2,offset2,offset3,offset3);
 
         //Computing D block
-        if(c==0) operateurD(geo,c,c,mat,offset1,offset0);
-        if(c!=geo.nb()-2) operateurD(geo,c+1,c,mat,offset3,offset0);
-        operateurD(geo,c,c+1,mat,offset1,offset2);
-        if(c!=geo.nb()-2) operateurD(geo,c+1,c+1,mat,offset3,offset2);
+        if(c==0) operateurD(geo,c,c,GaussOrder,mat,offset1,offset0);
+        if(c!=geo.nb()-2) operateurD(geo,c+1,c,GaussOrder,mat,offset3,offset0);
+        operateurD(geo,c,c+1,GaussOrder,mat,offset1,offset2);
+        if(c!=geo.nb()-2) operateurD(geo,c+1,c+1,GaussOrder,mat,offset3,offset2);
 
         offset=offset2;
-
     }
 
 }

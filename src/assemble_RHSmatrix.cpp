@@ -11,7 +11,7 @@
 
 using namespace std;
 
-void assemble_RHSmatrix( Geometry &geo, Mesh &sources, matrice &mat)
+void assemble_RHSmatrix(const Geometry &geo,const Mesh& sources,matrice &mat,const int GaussOrder)
 {
     unsigned nVertexSources=sources.nbPts();
     unsigned nVertexFirstLayer=geo.getM(0).nbPts();
@@ -19,10 +19,10 @@ void assemble_RHSmatrix( Geometry &geo, Mesh &sources, matrice &mat)
     cout << endl << "assemble RHS with " << nVertexFirstLayer << " vertices (Sources)" << endl << endl;
 
     // First block is nVertexFistLayer*nVertexSources
-    operateurN( geo.getM(0), sources, mat, 0, 0 );
+    operateurN(geo.getM(0),sources,mat,0,0,GaussOrder);
 
     // Second block is nFacesFistLayer*nVertexSources
-    operateurD( geo.getM(0), sources, mat,  (int)nVertexFirstLayer, 0);
+    operateurD(geo.getM(0),sources,mat,(int)nVertexFirstLayer,0,GaussOrder);
 
     double K=1.0/(4.0*M_PI);
 
@@ -32,20 +32,20 @@ void assemble_RHSmatrix( Geometry &geo, Mesh &sources, matrice &mat)
     mult2(mat,0,0,nVertexFirstLayer-1,nVertexSources-1,K );
 }
 
-void assemble_RHS2matrix( Geometry &geo, Mesh &sources, matrice &mat)
+void assemble_RHS2matrix(const Geometry &geo,const Mesh &sources, matrice &mat,const int GaussOrder)
 {
     unsigned nVertexSources=sources.nbPts();
     unsigned nVertexFirstLayer=geo.getM(0).nbPts();
     unsigned nFacesFirstLayer=geo.getM(0).nbTrgs();
 
     // S block (nFacesfirstLayer*nFacesSources) is computed in order to speed-up the computation of the N block
-    operateurS(geo.getM(0),sources,mat,(int)nVertexFirstLayer, (int)nVertexSources);
+    operateurS(geo.getM(0),sources,mat,(int)nVertexFirstLayer,(int)nVertexSources,GaussOrder);
 
     // First block is nVertexFistLayer*nVertexSources
-    operateurN( geo.getM(0), sources, mat, 0, 0, (int)nVertexFirstLayer, (int)nVertexSources);
+    operateurN(geo.getM(0),sources,mat,0,0,GaussOrder,(int)nVertexFirstLayer,(int)nVertexSources);
 
     // Second block is nFacesFistLayer*nVertexSources
-    operateurD( geo.getM(0), sources, mat,  (int)nVertexFirstLayer, 0);
+    operateurD(geo.getM(0),sources,mat,(int)nVertexFirstLayer,0,GaussOrder);
 
     double K=1.0/(4.0*M_PI);
 
@@ -55,7 +55,7 @@ void assemble_RHS2matrix( Geometry &geo, Mesh &sources, matrice &mat)
     mult2(mat,0,0,nVertexFirstLayer-1,nVertexSources-1,K );
 }
 
-void assemble_RHS_dipoles_matrice( Geometry &geo, vector<Vect3> Rs, vector<Vect3> Qs, matrice &rhs)
+void assemble_RHS_dipoles_matrice(const Geometry &geo,vector<Vect3> Rs,vector<Vect3> Qs,matrice &rhs,const int GaussOrder)
 {
 
     unsigned nVertexFirstLayer=geo.getM(0).nbPts();
@@ -71,10 +71,10 @@ void assemble_RHS_dipoles_matrice( Geometry &geo, vector<Vect3> Rs, vector<Vect3
 
         prov.set(0);
 
-        operateurDipolePotDer(Rs[s],Qs[s],geo.getM(0),prov,0);
+        operateurDipolePotDer(Rs[s],Qs[s],geo.getM(0),prov,0,GaussOrder);
 
         // Second block is nFaceFistLayer
-        operateurDipolePot(Rs[s],Qs[s],geo.getM(0),prov,nVertexFirstLayer);
+        operateurDipolePot(Rs[s],Qs[s],geo.getM(0),prov,nVertexFirstLayer,GaussOrder);
 
         for (unsigned i=0; i<rhs.nlin(); i++)
         {
@@ -100,7 +100,7 @@ void assemble_RHS_dipoles_matrice( Geometry &geo, vector<Vect3> Rs, vector<Vect3
 }
 
 // Gradient
-void assemble_RHS_dipoles_matrice_grad( Geometry &geo, vector<Vect3> Rs, vector<Vect3> Qs, matrice &rhs)
+void assemble_RHS_dipoles_matrice_grad(const Geometry &geo,vector<Vect3> Rs,vector<Vect3> Qs,matrice &rhs,const int GaussOrder)
 {
 
 	unsigned int nd=Qs.size();
@@ -120,10 +120,10 @@ void assemble_RHS_dipoles_matrice_grad( Geometry &geo, vector<Vect3> Rs, vector<
 	        prov[d].set(0);
 		}
 
-        operateurDipolePotDerGrad(Rs[s],Qs[s],geo.getM(0),prov,0);
+        operateurDipolePotDerGrad(Rs[s],Qs[s],geo.getM(0),prov,0,GaussOrder);
 
         // Second block is nFaceFistLayer
-        operateurDipolePotGrad(Rs[s],Qs[s],geo.getM(0),prov,nVertexFirstLayer);
+        operateurDipolePotGrad(Rs[s],Qs[s],geo.getM(0),prov,nVertexFirstLayer,GaussOrder);
 
         for (unsigned i=0; i<rhs.nlin(); i++)
 			for (int d=0;d<6;d++)
@@ -148,7 +148,7 @@ void assemble_RHS_dipoles_matrice_grad( Geometry &geo, vector<Vect3> Rs, vector<
 }
 
 
-void assemble_RHSvector( Geometry &geo, vector<Vect3> Rs, vector<Vect3> Qs, vecteur &rhs)
+void assemble_RHSvector(const Geometry &geo, vector<Vect3> Rs, vector<Vect3> Qs, vecteur &rhs,const int GaussOrder)
 {
     unsigned nVertexFirstLayer=geo.getM(0).nbPts();
     unsigned nFacesFirstLayer=geo.getM(0).nbTrgs();
@@ -159,13 +159,13 @@ void assemble_RHSvector( Geometry &geo, vector<Vect3> Rs, vector<Vect3> Qs, vect
     rhs.set(0);
     for( unsigned s=0; s<Qs.size(); s++ )
     {
-        operateurDipolePotDer(Rs[s],Qs[s],geo.getM(0),rhs,0);
+        operateurDipolePotDer(Rs[s],Qs[s],geo.getM(0),rhs,0,GaussOrder);
     }
 
     // Second block is nFaceFistLayer
     for( unsigned s=0;s<Qs.size();s++ )
     {
-        operateurDipolePot(Rs[s],Qs[s],geo.getM(0),rhs,nVertexFirstLayer);
+        operateurDipolePot(Rs[s],Qs[s],geo.getM(0),rhs,nVertexFirstLayer,GaussOrder);
     }
     
     // Blocks multiplication

@@ -73,7 +73,7 @@ int main(int argc, char** argv)
 
         // Assembling matrix from discretization :
         symmatrice mat(taille);
-        assemble_matrice(geo, mat);
+        assemble_matrice(geo,mat,GaussOrder);
 
         // Deflation the last diagonal bloc of new 'mat'  :
         int newtaille=taille-(geo.getM(geo.nb()-1)).nbTrgs();
@@ -129,7 +129,7 @@ int main(int argc, char** argv)
         int newtaille = taille-(geo.getM(geo.nb()-1)).nbTrgs();
         matrice mat(newtaille,mesh_sources.nbPts());
         mat.set(0.0);
-        assemble_RHSmatrix( geo, mesh_sources, mat);
+        assemble_RHSmatrix(geo,mesh_sources,mat,GaussOrder);
 
         // Saving RHS matrix
         if(argc < 6)
@@ -183,7 +183,7 @@ int main(int argc, char** argv)
         int newtaille=geo.getM(0).nbPts()+geo.getM(0).nbTrgs();
         matrice mat(newtaille,mesh_sources.nbPts()+mesh_sources.nbTrgs());
         mat.set(0.0);
-        assemble_RHS2matrix( geo, mesh_sources, mat);
+        assemble_RHS2matrix(geo,mesh_sources,mat,GaussOrder);
 
         // Saving RHS matrix :
         if(argc < 6)
@@ -248,7 +248,7 @@ int main(int argc, char** argv)
         int newtaille = taille-(geo.getM(geo.nb()-1)).nbTrgs();
         vecteur rhs(newtaille);
         rhs.set(0);
-        assemble_RHSvector( geo, Rs, Qs, rhs);
+        assemble_RHSvector( geo, Rs, Qs, rhs,GaussOrder);
 
         // Saving RHS vector for dipolar case :
         if(argc<6)
@@ -313,7 +313,7 @@ int main(int argc, char** argv)
 
         int newtaille=taille-(geo.getM(geo.nb()-1)).nbTrgs();
         matrice rhs(newtaille, nd);
-        assemble_RHS_dipoles_matrice( geo, Rs, Qs, rhs);
+        assemble_RHS_dipoles_matrice( geo, Rs, Qs, rhs,GaussOrder);
 
         // Saving RHS matrix for dipolar case :
         if(argc<6)
@@ -377,7 +377,7 @@ int main(int argc, char** argv)
 
         int newtaille = taille-(geo.getM(geo.nb()-1)).nbTrgs();
         matrice rhs(newtaille, 6*nd); // 6 derivatives! (
-        assemble_RHS_dipoles_matrice_grad( geo, Rs, Qs, rhs);
+        assemble_RHS_dipoles_matrice_grad( geo, Rs, Qs, rhs,GaussOrder);
 
         // Saving RHS matrix for dipolar case :
         if(argc<6)

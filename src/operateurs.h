@@ -11,22 +11,23 @@
 #include "integrateur.h"
 #include "analytiques.h"
 
-extern int GaussOrder;
 #define OPTIMIZED_OPERATOR_N
 #define OPTIMIZED_OPERATOR_D
 
-void operateurN(Geometry &geo,int I,int J,symmatrice &mat,int offsetI,int offsetJ,int IopS, int JopS );
-void operateurN(Mesh &m1,Mesh &m2,genericMatrix &mat,int offsetI,int offsetJ,int IopS=0, int JopS=0 );
-void operateurS(Geometry &geo,int I,int J,symmatrice &mat,int offsetI,int offsetJ);
-void operateurS(const Mesh &m1,const Mesh &m2,genericMatrix &mat,int offsetI,int offsetJ);
-void operateurD(Geometry &geo,int I,int J,symmatrice &mat,int offsetI,int offsetJ);
-void operateurD(Mesh &m1,Mesh &m2,genericMatrix &mat,int offsetI,int offsetJ);
-void operateurFerguson( const Vect3 x, const Mesh &m1, matrice &mat, int offsetI, int offsetJ);
+void operateurN(const Geometry &geo,const int I,const int J,const int,symmatrice &mat,const int offsetI,const int offsetJ,const int IopS,const int JopS);
+void operateurS(const Geometry &geo,const int I,const int J,const int,symmatrice &mat,const int offsetI,const int offsetJ);
+void operateurD(const Geometry &geo,const int I,const int J,const int,symmatrice &mat,const int offsetI,const int offsetJ);
+
+void operateurN(const Mesh &m1,const Mesh &m2,genericMatrix &mat,const int offsetI,const int offsetJ,const int,const int IopS=0,const int JopS=0);
+void operateurS(const Mesh &m1,const Mesh &m2,genericMatrix &mat,const int offsetI,const int offsetJ,const int);
+void operateurD(const Mesh &m1,const Mesh &m2,genericMatrix &mat,const int offsetI,const int offsetJ,const int);
+
+void operateurFerguson(const Vect3 x, const Mesh &m1, matrice &mat, int offsetI, int offsetJ);
 void trBlock(matrice &mat,int Iinit,int Jinit,int nbI,int nbJ);
-void operateurDipolePotDer(const Vect3 &r0, const Vect3 &q,const Mesh &inner_layer, vecteur &rhs, int offsetIdx);
-void operateurDipolePot(const Vect3 &r0, const Vect3 &q,const Mesh &inner_layer, vecteur &rhs, int offsetIdx);
-void operateurDipolePotDerGrad(const Vect3 &r0, const Vect3 &q,const Mesh &inner_layer, vecteur rhs[3], int offsetIdx);
-void operateurDipolePotGrad(const Vect3 &r0, const Vect3 &q,const Mesh &inner_layer, vecteur rhs[3], int offsetIdx);
+void operateurDipolePotDer(const Vect3 &r0, const Vect3 &q,const Mesh &inner_layer, vecteur &rhs, int offsetIdx,const int);
+void operateurDipolePot(const Vect3 &r0, const Vect3 &q,const Mesh &inner_layer, vecteur &rhs, int offsetIdx,const int);
+void operateurDipolePotDerGrad(const Vect3 &r0, const Vect3 &q,const Mesh &inner_layer, vecteur rhs[3], int offsetIdx,const int);
+void operateurDipolePotGrad(const Vect3 &r0, const Vect3 &q,const Mesh &inner_layer, vecteur rhs[3], int offsetIdx,const int);
 
 inline void mult( symmatrice &mat, int Istart, int Jstart, int Istop, int Jstop, double coeff)
 {
@@ -62,7 +63,7 @@ inline void mult2( matrice &mat, int Istart, int Jstart, int Istop, int Jstop, d
 }
 
 #ifndef OPTIMIZED_OPERATOR_D
-inline double _operateurD( int nT1, int nP2, const Mesh &m1, const Mesh &m2)
+inline double _operateurD(const int nT1,const int nP2,const int GaussOrder,const Mesh &m1,const Mesh &m2)
 {
     // consider varying order of quadrature with the distance between T1 and T2
     const Triangle &T1=m1.getTrg(nT1);
@@ -83,7 +84,7 @@ inline double _operateurD( int nT1, int nP2, const Mesh &m1, const Mesh &m2)
     return total;
 }
 #else
-inline void _operateurD( int nT1, int nT2, const Mesh &m1, const Mesh &m2, genericMatrix &mat, int offsetI, int offsetJ)
+inline void _operateurD(const int nT1,const int nT2,const int GaussOrder,const Mesh &m1,const Mesh &m2,genericMatrix &mat,const int offsetI,const int offsetJ)
 {
     //this version of _operateurD add in the matrix the contribution of T2 on T1
     // for all the P1 functions it gets involved
@@ -103,7 +104,7 @@ inline void _operateurD( int nT1, int nT2, const Mesh &m1, const Mesh &m2, gener
 }
 #endif
 
-inline double _operateurS( int nT1, int nT2, const Mesh &m1, const Mesh &m2)
+inline double _operateurS(const int nT1,const int nT2,const int GaussOrder,const Mesh &m1,const Mesh &m2)
 {
     const Triangle &T1=m1.getTrg(nT1);
     const Triangle &T2=m2.getTrg(nT2);
@@ -122,7 +123,7 @@ inline double _operateurS( int nT1, int nT2, const Mesh &m1, const Mesh &m2)
     return gauss.integre(analyS,T2,m2);
 }
 
-inline double _operateurN( int nP1, int nP2, const Mesh &m1, const Mesh &m2, int IopS, int JopS, genericMatrix &mat)
+inline double _operateurN(const int nP1,const int nP2,const int GaussOrder,const Mesh &m1,const Mesh &m2,const int IopS,const int JopS,genericMatrix &mat)
 {
     int trgs1[128],trgs2[128];
     const Vect3 P1=m1.getPt(nP1);
@@ -141,7 +142,7 @@ inline double _operateurN( int nP1, int nP2, const Mesh &m1, const Mesh &m2, int
             const Triangle& T2=m2.getTrg(trgs2[r]);
 
             // A1 , B1 , A2, B2 are the two opposite vertices to P1 and P2 (triangles A1,B1,P1 and A2,B2,P2)
-            if(IopS!=0 || JopS!=0) Iqr=mat(IopS+trgs1[q],JopS+trgs2[r]); else Iqr=_operateurS(trgs1[q],trgs2[r],m1,m2);
+            if(IopS!=0 || JopS!=0) Iqr=mat(IopS+trgs1[q],JopS+trgs2[r]); else Iqr=_operateurS(trgs1[q],trgs2[r],GaussOrder,m1,m2);
             int nP1T=T1.contains(nP1);    //index of P1 in current triangle of mesh m1
             int nP2T=T2.contains(nP2);    //index of P2 in current triangle of mesh m2
 #ifndef OPTIMIZED_OPERATOR_N
@@ -175,7 +176,7 @@ inline double _operateurN( int nP1, int nP2, const Mesh &m1, const Mesh &m2, int
 
 
 //calcultates the S at point x integrated over all the triagles having nP1 as a vertice.
-inline Vect3& _operateurFerguson( const Vect3 x, int nP1, const Mesh &m1)
+inline Vect3& _operateurFerguson(const Vect3 x,const int nP1,const Mesh &m1)
 {
     int trgs1[128];
     const Vect3 P1=m1.getPt(nP1);

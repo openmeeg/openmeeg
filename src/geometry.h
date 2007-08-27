@@ -31,7 +31,9 @@ public:
     inline double sigma_out(int i) const {return (i<n)?sigout[i]:0;} // 0 for sig(n)
     inline double sigma(int i) const {return (i<n)?sigin[i]:0;} // 0 for sig(n)
     inline const Mesh &surf(int i) const {return M[i];}
-    inline Mesh& getM(int i) {assert(i>-1 && i<n); return M[i];}
+
+    inline       Mesh& getM(const int i)       {assert(i>-1 && i<n); return M[i];}
+    inline const Mesh& getM(const int i) const {assert(i>-1 && i<n); return M[i];}
 
 private:
     void destroy() {

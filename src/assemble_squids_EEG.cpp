@@ -2,7 +2,7 @@
 #include "danielsson.h"
 #include "operateurs.h"
 
-int* computeVindexes(Geometry &geo,int* n_indexes=0)
+int* computeVindexes(const Geometry &geo,int* n_indexes=0)
 {
     int count=0;
     for(int i=0;i<geo.nb();i++) count+=geo.getM(i).nbPts();
@@ -21,12 +21,12 @@ int* computeVindexes(Geometry &geo,int* n_indexes=0)
     return ret;
 }
 
-void assemble_xToEEGresponse( Geometry &geo, matrice &mat, const matrice &positions )
+void assemble_xToEEGresponse(const Geometry &geo, matrice &mat, const matrice &positions )
 //EEG patches positions are reported line by line in the positions matrix
 //mat is supposed to be filled with zeros
 //mat is the linear application which maps x (the unknown vector in symmetric system) -> v (potential at the electrodes)
 {
-    Mesh &extLayer=geo.getM(geo.nb()-1);
+    const Mesh& extLayer=geo.getM(geo.nb()-1);
 
     //first we calculate the offset of the potential on the external layer in the unknown vector x
     int offset=0;
@@ -49,7 +49,7 @@ void assemble_xToEEGresponse( Geometry &geo, matrice &mat, const matrice &positi
 
 }
 
-void assemble_xToMEGresponseContrib( Geometry &geo, matrice &mat, const matrice &positions, const matrice &orientations )
+void assemble_xToMEGresponseContrib(const Geometry &geo, matrice &mat, const matrice &positions, const matrice &orientations )
 //MEG patches positions are reported line by line in the positions matrix (same for positions)
 //mat is supposed to be filled with zeros
 //mat is the linear application which maps x (the unknown vector in symmetric system) -> bFerguson (contrib to MEG response)
@@ -87,7 +87,7 @@ void assemble_xToMEGresponseContrib( Geometry &geo, matrice &mat, const matrice 
 }
 
 
-void assemble_sToMEGresponseContrib( Mesh &sources_mesh, matrice &mat, const matrice &positions, const matrice &orientations )
+void assemble_sToMEGresponseContrib(const Mesh &sources_mesh, matrice &mat, const matrice &positions, const matrice &orientations )
 //MEG patches positions are reported line by line in the positions matrix (same for positions)
 //mat is supposed to be filled with zeros
 //mat is the linear application which maps x (the unknown vector in symmetric system) -> binf (contrib to MEG response)
