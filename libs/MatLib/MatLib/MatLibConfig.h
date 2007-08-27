@@ -38,8 +38,8 @@
 
 #ifdef USE_ATLAS
     extern "C" {
-        #include <cblas.h>
-        #include <clapack.h>
+        #include <atlas/cblas.h>
+        #include <atlas/clapack.h>
     }
     #define BLAS(x,X) cblas_ ## x
     #define LAPACK(x,X) clapack_ ## x
