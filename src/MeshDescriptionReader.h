@@ -1,12 +1,12 @@
 #ifndef MESHDESCRIPTION_READER_H
 #define MESHDESCRIPTION_READER_H
 
+#include <iostream>
 #include <fstream>
 #include <sstream>
 #include <vector>
 #include <new>
-#include "IOUtils.h"
-#include "mesh3.h"
+#include <IOUtils.h>
 
 namespace MeshDescription {
 
@@ -70,6 +70,7 @@ namespace MeshDescription {
                 std::cerr << "Error opening file: " << interface_name.c_str() << std::endl;
                 exit(1);
             }
+
             ifs0 >> interfaces[0];
 
             typename INTERFACE::Validation validate(interfaces[0]);
@@ -80,7 +81,7 @@ namespace MeshDescription {
                 //  Load the interface and check that it is compatible with the first one.
                 const char* name = interface_name.c_str();
                 std::ifstream ifs(name);
-                if(!ifs.is_open()) {
+                if (!ifs.is_open()) {
                     std::cerr << "Error opening file: " << interface_name.c_str() << std::endl;
                     exit(1);
                 }
@@ -173,8 +174,6 @@ namespace MeshDescription {
         //
         //  Any line starting with # is considered a comment and is silently ignored.
 
-
-
         std::ifstream ifs(geometry);
         ifs >> io_utils::match("# Domain Description 1.0");
         GEOMETRY::Load(ifs,geom);
@@ -196,6 +195,7 @@ namespace MeshDescription {
 
         unsigned num_domains;
         ifs >> io_utils::skip_comments('#') >> io_utils::match("Domains") >> num_domains;
+
         if (ifs.fail())
             throw "Wrong file format!";
 
