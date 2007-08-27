@@ -24,7 +24,7 @@ SET(OPENMEEG_HEADERS
     inverse.h
 )
 
-ADD_LIBRARY(OpenMEEG
+ADD_LIBRARY(OpenMEEG SHARED
     assembleFerguson.cpp assembleMat.cpp assemble_RHSmatrix.cpp assemble_squids_EEG.cpp
     danielsson.cpp geometry.cpp mesh3.cpp operateurs.cpp ${OPENMEEG_HEADERS}
 )
@@ -52,7 +52,10 @@ TARGET_LINK_LIBRARIES (assemble OpenMEEG ${OPENMEEG_OTHER_LIBRARIES})
 # =============
 
 IF(ENABLE_PACKAGING)
-    INSTALL(TARGETS assemble forward gain inverse minverser presmooth DESTINATION bin)
+    INSTALL(TARGETS OpenMEEG assemble forward gain inverse minverser presmooth
+            RUNTIME DESTINATION bin
+            LIBRARY DESTINATION lib
+            ARCHIVE DESTINATION lib)
 ENDIF(ENABLE_PACKAGING)
 
 # ===========
