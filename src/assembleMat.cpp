@@ -56,13 +56,13 @@ void assemble_matrice(const Geometry &geo,symmatrice &mat,const int GaussOrder)
         //Column 1
         if(c==0) mult(mat,offset0,offset0,offset1,offset1,(geo.sigma_in(c)+geo.sigma_out(c))*K);
         if(c==0) mult(mat,offset1,offset0,offset2,offset1,-2.0*K);
-        mult(mat,offset2,offset0,offset3,offset1,(geo.sigma_out(c))*K);
-        mult(mat,offset3,offset0,offset4,offset1,-1.0*K);
+        mult(mat,offset2,offset0,offset3,offset1,(-geo.sigma_out(c))*K);
+        mult(mat,offset3,offset0,offset4,offset1,K);
 
         //Column 2
         if(c==0) mult(mat,offset1,offset1,offset2,offset2,(1.0/geo.sigma_in(c)+1.0/geo.sigma_out(c))*K);
-        mult(mat,offset2,offset1,offset3,offset2,-1.0*K);
-        mult(mat,offset3,offset1,offset4,offset2,(1.0/geo.sigma_out(c))*K);
+        mult(mat,offset2,offset1,offset3,offset2,K);
+        mult(mat,offset3,offset1,offset4,offset2,(-1.0/geo.sigma_out(c))*K);
 
         //Column 3
         mult(mat,offset2,offset2,offset3,offset3,(geo.sigma_in(c+1)+geo.sigma_out(c+1))*K);
