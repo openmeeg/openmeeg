@@ -20,8 +20,8 @@
 
 using namespace std;
 
-// int GaussOrder=3;
-int GaussOrder=0;
+int GaussOrder=3;
+//int GaussOrder=0;
 
 void getOutputFilepath(char* ref_filepath, char* output_filename, char* path);
 void getHelp(char** argv);
