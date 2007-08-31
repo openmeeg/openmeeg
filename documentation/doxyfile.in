@@ -40,7 +40,7 @@ INPUT                = \
         "@OpenMEEG_SOURCE_DIR@/src" \
         "@OpenMEEG_SOURCE_DIR@/tools" \
         "@OpenMEEG_SOURCE_DIR@/tests" \
-        "@OpenMEEG_SOURCE_DIR@/libs/MatLib/Matlib"
+        "@OpenMEEG_SOURCE_DIR@/libs/MatLib/MatLib" \
         "@OpenMEEG_SOURCE_DIR@/libs/MatLib/Test"
 
 # EXCLUDE_PATTERNS     =
