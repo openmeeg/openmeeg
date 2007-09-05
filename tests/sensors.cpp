@@ -1,9 +1,8 @@
 #include <fstream>
 #include <cstring>
 
-#include "matrice.h"
-#include "IOUtils.h"
-#include "sensors.h"
+#include <matrice.h>
+#include <sensors.h>
 
 int main(int argc, char** argv) {
 // usage : sensors sensors_file_description.txt
