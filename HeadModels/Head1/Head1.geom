@@ -2,15 +2,14 @@
 
 Interfaces 3 Mesh
 
-/Users/alex/work/openmeeg/trunk/HeadModels/Head1/crane.1.tri
-/Users/alex/work/openmeeg/trunk/HeadModels/Head1/cortex.1.tri
-/Users/alex/work/openmeeg/trunk/HeadModels/Head1/scalp.1.tri
-
+crane.1.tri  
+cortex.1.tri 
+scalp.1.tri  
 
 Domains 4
 
 Domain Scalp 1 -3
-Domain Brain -2 shared
+Domain Brain -2
 Domain Air 3
 Domain Skull 2 -1
 
