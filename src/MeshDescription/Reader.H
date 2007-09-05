@@ -1,0 +1,219 @@
+#ifndef MESHDESCRIPTION_READER_H
+#define MESHDESCRIPTION_READER_H
+
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <vector>
+#include <new>
+#include <IOUtils.H>
+
+#include <MeshDescription/Domains.H>
+#include <MeshDescription/Exceptions.H>
+#include <MeshDescription/Normals.H>
+
+namespace MeshDescription {
+
+    //  Parsing of the head description file.
+    //  See comments for the syntax of the file.
+
+    template <typename INTERFACE,typename GEOMETRY,typename NORMALS=NoNormals>
+    class Reader: public GEOMETRY {
+    public:
+        
+        typedef typename INTERFACE::Type Interface;
+        typedef std::vector<std::string> InterfaceNames;
+        typedef std::vector<Interface>   Interfaces;
+        typedef NORMALS                  Normals;
+        typedef MeshDescription::Domains Domains;
+
+    private:
+
+        //  Read the interface section of the description file.
+        //  Check their compatibility and create a data structure indexing all these interfaces.
+
+        void LoadInterfaces(std::istream& is) {
+
+            for (unsigned i=0;i<interfaces().size();++i) {
+
+                std::string name;
+                is >> io_utils::skip_comments("#") >> name;
+                INTERFACE::set_file_format(interfaces()[i],name);
+
+                //  Load the interface and check that it is compatible with the first one.
+
+                const std::string& full_name = path+name;
+                std::ifstream ifs(full_name.c_str());
+                if (!ifs.is_open())
+                    throw MeshDescription::OpenError(full_name);
+
+                ifs >> interfaces()[i];
+            }
+        }
+
+        //  Load the domain part of the description file.
+
+        void LoadDomains(std::istream& is) {
+
+            for (typename Domains::iterator i=domains().begin();i!=domains().end();++i) {
+
+                std::string line;
+
+                is >> io_utils::skip_comments('#') >> io_utils::match("Domain") >> i->name();
+
+                getline(is,line);
+                std::istringstream iss(line);
+                int number;
+                while (iss >> number) {
+                    const unsigned index = abs(number);
+                    if ((index==0) || (index>interfaces().size()))
+                        throw 2;
+                    i->push_back(SimpleDomain(number));
+                }
+                iss.clear();
+                iss >> line;
+            }
+        }
+
+        void LoadNormals(std::istream& is) {
+           std::string normal_name;
+           is >> io_utils::skip_comments('#') >> normal_name;
+           std::ifstream ifs(normal_name.c_str());
+           ifs >> nrmls;
+           ifs.close();
+        }
+
+#if 0
+        void InterfaceOrder() const {
+            for (Interfaces::const_iterator i=interfaces().begin();i!=interfaces().end();++i)
+                for (Domain::const_iterator j=i->begin();j!=i->end();++j) {
+                    
+                }
+        }
+#endif
+
+    public:
+
+        Reader(const char* geometry);
+
+              Domains& domains()       { return doms; }
+        const Domains& domains() const { return doms; }
+
+        const InterfaceNames& domain_names() const                { return names;      }
+        const std::string&    domain_name(const unsigned i) const { return names[i-1]; }
+
+              Interfaces& interfaces()       { return interfs; }
+        const Interfaces& interfaces() const { return interfs; }
+   
+              Normals&    normals()          { return nrmls; }
+        const Normals&    normals()    const { return nrmls; }
+
+        void stats() const {
+            std::cerr << "There are:" << std::endl
+                      << interfaces().size() << " interfaces" << std::endl
+                      << doms.size()         << " domains"    << std::endl;
+        }
+
+    private:
+
+        static std::string set_path(const std::string& name) {
+            static const char PathSeparator = '/';
+            const std::string::size_type pos = name.find_last_of(PathSeparator);
+            return (pos==std::string::npos) ? "" : name.substr(0,pos+1);
+        }
+
+        const std::string path;    //  Path of the initial geometry file.
+        InterfaceNames    names;   //  The file names for the different interfaces.
+        Interfaces        interfs; //  The various levelsets depicting interfaces between domains.
+        Domains           doms;    //  Domain descriptions in terms of interfaces.
+        Normals           nrmls;   //  Eventually stores a normal information for each voxel.
+    };
+
+    template <typename INTERFACES,typename GEOMETRY,typename NORMALS>
+    Reader<INTERFACES,GEOMETRY,NORMALS>::Reader(const char* geometry): path(set_path(geometry)) {
+
+        //  Read the head file description and load the information into temporary data structures.
+
+        //  The syntax of the head description is a header ("# Domain Description (1.0):") followed
+        //  by three sections:
+        //
+        //      - The first section is made of two fields and defines the geometry of the rectangular
+        //        domain. First the origin of the domain is given by the keyword "Origin" and the
+        //        vector specifying the coordinates of the upper corner of the domain. Then, the size
+        //        of the domain is given by another vector and introduced by the keyword "DomainSize".
+        //
+        //      - the second section is introduced by the keyword "Interfaces" followed by a number
+        //        (the number of interfaces) and a type (currently only "LevelSet" is possible).
+        //        The section just contains a list of names (one per line, the remainder of the line
+        //        being ignored).
+        //
+        //      - the third section is introduced by the keyword "Domains" and the number of domains
+        //        (everything else on the line containing the keyword is currently ignored). The section
+        //        contains domains descriptions, one per line. Each domain consist of:
+        //
+        //          o a domain name.
+        //          o a list of signed numbers: the absolute value of the number gives describes an
+        //            interface by its index in the "Interfaces" list (indices are starting at one so
+        //            that the sign is meaningful), the sign of the number depicts whether the interior
+        //            or the exterior of the interface should be used to select the domain.
+        //
+        //  Any line starting with # is considered a comment and is silently ignored.
+
+        std::ifstream ifs(geometry);
+        if (!ifs.is_open())
+            throw MeshDescription::OpenError(geometry);
+        ifs >> io_utils::match("# Domain Description 1.0");
+
+        if (ifs.fail())
+            throw "Wrong file format!";
+
+        GEOMETRY::Load(ifs);
+
+        //  Process interfaces.
+
+        unsigned num_interfaces;
+        ifs >> io_utils::skip_comments('#')
+            >> io_utils::match("Interfaces") >> num_interfaces >> io_utils::match(INTERFACES::keyword);
+
+        if (ifs.fail())
+            throw "Wrong file format!";
+
+        names.reserve(num_interfaces);
+        names.resize(num_interfaces);
+        interfaces().reserve(num_interfaces);
+        interfaces().resize(num_interfaces);
+        LoadInterfaces(ifs);
+
+        //  Process domains.
+
+        unsigned num_domains;
+        ifs >> io_utils::skip_comments('#') >> io_utils::match("Domains") >> num_domains;
+
+        if (ifs.fail())
+            throw "Wrong file format!";
+
+        domains().reserve(num_domains);
+        domains().resize(num_domains);
+        LoadDomains(ifs);
+
+        if (ifs.fail())
+            throw "Wrong file format!";
+
+        //  Process normals (optional).
+
+        bool hasnormals = true;
+        ifs >> io_utils::skip_comments('#') >> io_utils::match_optional("Normals",hasnormals);
+
+        if (hasnormals) {
+            LoadNormals(ifs);
+            if (ifs.fail())
+                throw "Wrong file format!";
+        }
+        
+        //  Close the input file.
+
+        ifs.close();
+    }
+}
+
+#endif  // ! MESHDESCRIPTION_READER_H
