@@ -2,9 +2,9 @@
 
 Interfaces 3 Mesh
 
-/home/mclerc/meeg/meegsurf/openmeeg/trunk/HeadModels/Head2/crane.2.tri  
-/home/mclerc/meeg/meegsurf/openmeeg/trunk/HeadModels/Head2/cortex.2.tri 
-/home/mclerc/meeg/meegsurf/openmeeg/trunk/HeadModels/Head2/scalp.2.tri  
+/Users/alex/work/openmeeg/trunk/HeadModels/Head2/crane.2.tri
+/Users/alex/work/openmeeg/trunk/HeadModels/Head2/cortex.2.tri
+/Users/alex/work/openmeeg/trunk/HeadModels/Head2/scalp.2.tri
 
 Domains 4
 
