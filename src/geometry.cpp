@@ -1,10 +1,10 @@
-#include "vect3.h"
-#include "triangle.h"
-#include "mesh3.h"
-#include "geometry.h"
+#include <vect3.h>
+#include <triangle.h>
+#include <mesh3.h>
+#include <geometry.h>
 
-#include "MeshDescriptionReaderSpecialized.h"
-#include "PropertiesSpecialized.h"
+#include <MeshReader.h>
+#include <PropertiesSpecialized.h>
 
 
 int Geometry::read(char* geomFileName, char* condFileName){
@@ -13,10 +13,9 @@ int Geometry::read(char* geomFileName, char* condFileName){
 
     int result = 0;
 
-    typedef MeshDescription::Reader<MeshDescription::MeshInterface,MeshDescription::VoidGeometry> Reader;
-    Reader reader(geomFileName);
+    MeshReader::Reader reader(geomFileName);
 
-    std::vector<Mesh>& Meshes = reader.getInterfaces();
+    std::vector<Mesh>& Meshes = reader.interfaces();
     std::vector<int> meshOrder = reader.sortInterfaceIDAndDomains();
 
     n = Meshes.size();
@@ -33,7 +32,7 @@ int Geometry::read(char* geomFileName, char* condFileName){
     
     std::cout << "Total number of points and triangles : " << result << std::endl;
 
-    std::vector<std::string> domainNames = reader.getDomainNames();
+    std::vector<std::string> domainNames = reader.domain_names();
 
     typedef Utils::Properties::Named< std::string , Conductivity<double> > HeadProperties;
     HeadProperties properties(condFileName);
