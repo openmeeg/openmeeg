@@ -229,17 +229,20 @@ namespace io_utils {
         restore_string(is,&*s.begin(),&*s.end());
     }
 
-    //  Like match but returns the matching is optional and the
+    //  Like match but the matching is optional and the
     //  presence of the string is given in result.
 
     inline std::istream&
     match_string_internal(std::istream& is,const char* s,bool& res)
     {
+        std::ios::iostate state = is.rdstate();
         is >> std::ws;
         const char* s1 = s;
         res = match_string(is,s1);
-        if (!res)
+        if (!res) {
+            is.setstate(state);
             restore_string(is,s,s1);
+        }
 
         return is;
     }

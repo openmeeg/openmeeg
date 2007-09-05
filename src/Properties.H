@@ -5,8 +5,8 @@
 #include <map>
 #include <fstream>
 
-#include <IOUtils.h>
-#include <DataTag.h>
+#include <IOUtils.H>
+#include <DataTag.H>
 
 namespace Utils {
 

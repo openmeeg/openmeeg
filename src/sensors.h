@@ -7,7 +7,7 @@
 #include <string>
 #include <vector>
 
-#include "IOUtils.h"
+#include "IOUtils.H"
 #include "vect3.h"
 #include "matrice.h"
 #include "symmatrice.h"
@@ -184,7 +184,6 @@ void Sensors::load(std::istream &in) {
         }
         current_line_id++;
     }
-
 }
 
 void Sensors::load(char* filename, char filetype) {

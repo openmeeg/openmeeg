@@ -1,8 +1,8 @@
 #ifndef UTILS_PROPERTIES_SPECIALIZED_H
 #define UTILS_PROPERTIES_SPECIALIZED_H
 
-#include "Properties.h"
-#include "DataTag.h"
+#include "Properties.H"
+#include "DataTag.H"
 
 template <typename REP=double>
 class Conductivity {
@@ -22,10 +22,7 @@ inline std::istream& operator>>(std::istream& is,Conductivity<REP>& m) { return 
 template <typename REP>
 inline std::ostream& operator<<(std::ostream& os,const Conductivity<REP>& m) { return os << m.sigma(); }
 
-
-
-
-namespace Types{
+namespace Types {
     template<>
     struct DataTrait<Utils::Properties::Named<std::string, Conductivity<double> > >{
         static const char TAG[];

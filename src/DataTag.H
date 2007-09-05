@@ -3,9 +3,8 @@
 
 #include <string>
 #include <iostream>
-#include <IOUtils.h>
-#include <FileExceptions.h>
-
+#include <IOUtils.H>
+#include <FileExceptions.H>
 
 namespace Types {
 
