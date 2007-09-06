@@ -2,9 +2,9 @@
 
 Interfaces 3 Mesh
 
-crane.1.tri  
-cortex.1.tri 
-scalp.1.tri  
+crane.1.tri
+cortex.1.tri
+scalp.1.tri
 
 Domains 4
 

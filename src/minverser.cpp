@@ -6,7 +6,6 @@
 #include "cpuChrono.h"
 
 using namespace std;
-//using namespace CLMatLib;
 
 void getHelp(char** argv);
 

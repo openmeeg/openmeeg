@@ -202,72 +202,6 @@ int main(int argc, char** argv)
     }
 
     /*********************************************************************************************
-    * Computation of RHS for dipolar case
-    **********************************************************************************************/
-    else if(!strcmp(argv[1],"-rhs")){
-
-      if(argc < 3)
-        {
-            cerr << "Please set geometry filepath !" << endl;
-            exit(1);
-        }
-        if (argc < 4)
-        {
-            std::cerr << "Please set conductivities filepath !" << endl;
-            exit(1);
-        }
-        if(argc < 5)
-        {
-            cerr << "Please set dipoles filepath!" << endl;
-            exit(1);
-        }
-
-        // Loading surfaces from geometry file.
-        Geometry geo;
-        int taille = geo.read(argv[2],argv[3]);
-
-        // Loading matrix of dipoles :
-        matrice dipoles(argv[4]);
-        if(dipoles.ncol() != 6)
-        {
-            cerr << "Dipoles File Format Error" << endl;
-            exit(1);
-        }
-
-        // Assembling vector from discretization :
-        unsigned int nd = (unsigned int) dipoles.nlin();
-        std::vector<Vect3> Rs,Qs;
-        for ( unsigned int i = 0; i < nd; i++)
-        {
-            Vect3 r(3),q(3);
-            for(int j=0;j<3;j++) r[j] = dipoles(i,j);
-            for(int j=3;j<6;j++) q[j-3] = dipoles(i,j);
-            Rs.push_back(r); Qs.push_back(q);
-        }
-
-        int newtaille = taille-(geo.getM(geo.nb()-1)).nbTrgs();
-        vecteur rhs(newtaille);
-        rhs.set(0);
-        assemble_RHSvector( geo, Rs, Qs, rhs,GaussOrder);
-
-        // Saving RHS vector for dipolar case :
-        if(argc<6)
-        {    // if no outfile, outfile on the same path as geometry file
-            char* fileout=new char[255];
-            #ifdef SAVEBIN
-            getOutputFilepath(argv[2],(char*)"rhsMatrix.bin", fileout);
-            #elif
-            getOutputFilepath(argv[2],(char*)"rhsMatrix.txt", fileout);
-            #endif
-            rhs.SAVE(fileout);
-            delete[] fileout;
-        }
-        else rhs.SAVE(argv[5]);    //if outfile is specified
-
-    }
-
-
-    /*********************************************************************************************
     * Computation of RHS for discrete dipolar case
     **********************************************************************************************/
     else if(!strcmp(argv[1],"-rhsPOINT")){
@@ -453,7 +387,7 @@ int main(int argc, char** argv)
     * Computation of the linear application which maps x (the unknown vector in symmetric system)
     * |----> v (potential at the electrodes)
     **********************************************************************************************/
-    else if(!strcmp(argv[1],"-xToEEGresponse"))
+    else if(!strcmp(argv[1],"-vToEEG"))
     {
 
         if(argc < 3)
@@ -481,12 +415,12 @@ int main(int argc, char** argv)
 
         // Assembling matrix from discretization :
         int newtaille = taille-(geo.getM(geo.nb()-1)).nbTrgs();
-        matrice xToEEGresponse(patchesPositions.nlin(),newtaille);
-        xToEEGresponse.set(0.0);
-        assemble_xToEEGresponse( geo, xToEEGresponse, patchesPositions );
-        //xToEEGresponse is the linear application which maps x |----> v
+        matrice vToEEG(patchesPositions.nlin(),newtaille);
+        vToEEG.set(0.0);
+        assemble_vToEEG( geo, vToEEG, patchesPositions );
+        //vToEEG is the linear application which maps x |----> v
 
-        // Saving xToEEGresponse matrix :
+        // Saving vToEEG matrix :
         if(argc < 6)
         {    // if no outfile, outfile on the same path as geometry file
             char* fileout=new char[255];
@@ -495,10 +429,10 @@ int main(int argc, char** argv)
             #elif
             getOutputFilepath(argv[2],(char*)"x2EEG.txt", fileout);
             #endif
-            xToEEGresponse.SAVE(fileout);
+            vToEEG.SAVE(fileout);
             delete[] fileout;
         }
-        else xToEEGresponse.SAVE(argv[5]);    //if outfile is specified
+        else vToEEG.SAVE(argv[5]);    //if outfile is specified
 
     }
 
@@ -506,7 +440,7 @@ int main(int argc, char** argv)
     * Computation of the linear application which maps x (the unknown vector in symmetric system)
     * |----> bFerguson (contrib to MEG response)
     **********************************************************************************************/
-    else if(!strcmp(argv[1],"-xToMEGresponseContrib"))
+    else if(!strcmp(argv[1],"-vToMEG"))
     {
 
         if(argc < 3)
@@ -538,7 +472,7 @@ int main(int argc, char** argv)
         int newtaille = taille-(geo.getM(geo.nb()-1)).nbTrgs();
         matrice xToMEGrespCont(squidsPositions.nlin(),newtaille);
         xToMEGrespCont.set(0.0);
-        assemble_xToMEGresponseContrib( geo, xToMEGrespCont, squidsPositions, squidsOrientations);
+        assemble_vToMEG( geo, xToMEGrespCont, squidsPositions, squidsOrientations);
 
         // Saving xToMEGrespCont matrix :
         if(argc < 6)
@@ -560,7 +494,7 @@ int main(int argc, char** argv)
     * Computation of the linear application which maps x (the unknown vector in symmetric system)
     * |----> binf (contrib to MEG response)
     **********************************************************************************************/
-    else if(!strcmp(argv[1],"-sToMEGresponseContrib"))
+    else if(!strcmp(argv[1],"-sToMEG"))
     {
 
         if(argc < 3)
@@ -587,7 +521,7 @@ int main(int argc, char** argv)
         int nVertices=mesh_sources.nbPts();
         matrice sToMEGrespCont(squidsPositions.nlin(),nVertices);
         sToMEGrespCont.set(0.0);
-        assemble_sToMEGresponseContrib( mesh_sources, sToMEGrespCont, squidsPositions, squidsOrientations);
+        assemble_sToMEG( mesh_sources, sToMEGrespCont, squidsPositions, squidsOrientations);
 
         // Saving sToMEGrespCont matrix :
         if(argc < 5)
@@ -612,7 +546,7 @@ int main(int argc, char** argv)
     // arguments are the positions and orientations of the squids,
     // the position and orientations of the sources and the output name.
 
-    else if(!strcmp(argv[1],"-sToMEGresponseContrib_point"))
+    else if(!strcmp(argv[1],"-sToMEG_point"))
     {
 
         if (argc < 3)
@@ -638,7 +572,7 @@ int main(int argc, char** argv)
         matrice sToMEGrespCont(squidsPositions.nlin(),nVertices);
         sToMEGrespCont.set(0.0);
 
-        assemble_sToMEGresponseContrib_point( dipoles, sToMEGrespCont, squidsPositions, squidsOrientations);
+        assemble_sToMEG_point( dipoles, sToMEGrespCont, squidsPositions, squidsOrientations);
 
         if(argc < 5)
         {
@@ -706,13 +640,6 @@ void getHelp(char** argv)
     cout << "            (.tri or .vtk. or .geo), name of the output file of RHS" << endl;
     cout << "            matrix (.bin or .txt)" << endl << endl;
 
-    cout << "   -rhs :   Compute the RHS for dipolar case. Filepaths are " << endl;
-    cout << "            in order :" << endl;
-    cout << "            geometry file (.geom),conductivity file (.cond),  " << endl;
-    cout << "            file which contain the matrix of " << endl;
-    cout << "            dipoles, name of the output file of RHS matrix (.bin or " << endl;
-    cout << "            .txt)" << endl << endl;
-
     cout << "   -rhsPOINT :   Compute the RHS for discrete dipolar case. " << endl;
     cout << "            Filepaths are in order :" << endl;
     cout << "            geometry file (.geom), conductivity file (.cond), " << endl;
@@ -720,7 +647,7 @@ void getHelp(char** argv)
     cout << "            dipoles, name of the output file of RHS matrix (.bin or " << endl;
     cout << "            .txt)" << endl << endl;
 
-    cout << "   -xToEEGresponse :   Compute the linear application which maps x " << endl;
+    cout << "   -vToEEG :   Compute the linear application which maps x " << endl;
     cout << "            (the unknown vector in symmetric system) |----> v (potential"<< endl;
     cout << "            at the electrodes). Filepaths are in order :" << endl;
     cout << "            geometry file (.geom), conductivity file (.cond), " << endl;
@@ -728,7 +655,7 @@ void getHelp(char** argv)
     cout << "            the EEG patches (.patches), name of the output file of " << endl;
     cout << "            xToEEG matrix (.bin or .txt)" << endl << endl;
 
-    cout << "   -xToMEGresponseContrib :   Compute the linear application which maps" << endl;
+    cout << "   -vToMEG :   Compute the linear application which maps" << endl;
     cout << "            x (the unknown vector in symmetric system) |----> bFerguson"  << endl;
     cout << "            (contrib to MEG response). Filepaths are in order :" << endl;
     cout << "            geometry file (.geom), conductivity file (.cond), " << endl;
@@ -736,7 +663,7 @@ void getHelp(char** argv)
     cout << "            the orientations of the MEG captors (.squids), name of " << endl;
     cout << "            the output file of xToMEG matrix (.bin or .txt)" << endl << endl;
 
-    cout << "   -sToMEGresponseContrib :   Compute the linear application which maps" << endl;
+    cout << "   -sToMEG :   Compute the linear application which maps" << endl;
     cout << "            x (the unknown vector in symmetric system) |----> binf " << endl;
     cout << "            (contrib to MEG response). Filepaths are in order :" << endl;
     cout << "            mesh file for distributed sources (.tri or .vtk. or " << endl;
@@ -744,7 +671,7 @@ void getHelp(char** argv)
     cout << "            of the MEG sensors (.squids), name of the output file of" << endl;
     cout << "            sToMEG matrix (.bin or .txt)" << endl << endl;
 
-    cout << "   -sToMEGresponseContrib_point :   Compute the linear application which maps"  << endl;
+    cout << "   -sToMEG_point :   Compute the linear application which maps"  << endl;
     cout << "            x (the unknown vector in symmetric system) |----> binf " << endl;
     cout << "            (contrib to MEG response) in dipolar case. Filepaths are in order :" << endl;
     cout << "            mesh file for distributed sources (.tri or .vtk. or " << endl;

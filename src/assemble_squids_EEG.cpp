@@ -21,7 +21,7 @@ int* computeVindexes(const Geometry &geo,int* n_indexes=0)
     return ret;
 }
 
-void assemble_xToEEGresponse(const Geometry &geo, matrice &mat, const matrice &positions )
+void assemble_vToEEG(const Geometry &geo, matrice &mat, const matrice &positions )
 //EEG patches positions are reported line by line in the positions matrix
 //mat is supposed to be filled with zeros
 //mat is the linear application which maps x (the unknown vector in symmetric system) -> v (potential at the electrodes)
@@ -49,7 +49,7 @@ void assemble_xToEEGresponse(const Geometry &geo, matrice &mat, const matrice &p
 
 }
 
-void assemble_xToMEGresponseContrib(const Geometry &geo, matrice &mat, const matrice &positions, const matrice &orientations )
+void assemble_vToMEG(const Geometry &geo, matrice &mat, const matrice &positions, const matrice &orientations )
 //MEG patches positions are reported line by line in the positions matrix (same for positions)
 //mat is supposed to be filled with zeros
 //mat is the linear application which maps x (the unknown vector in symmetric system) -> bFerguson (contrib to MEG response)
@@ -87,7 +87,7 @@ void assemble_xToMEGresponseContrib(const Geometry &geo, matrice &mat, const mat
 }
 
 
-void assemble_sToMEGresponseContrib(const Mesh &sources_mesh, matrice &mat, const matrice &positions, const matrice &orientations )
+void assemble_sToMEG(const Mesh &sources_mesh, matrice &mat, const matrice &positions, const matrice &orientations )
 //MEG patches positions are reported line by line in the positions matrix (same for positions)
 //mat is supposed to be filled with zeros
 //mat is the linear application which maps x (the unknown vector in symmetric system) -> binf (contrib to MEG response)
@@ -122,7 +122,7 @@ void assemble_sToMEGresponseContrib(const Mesh &sources_mesh, matrice &mat, cons
 
 
 // creates the S2MEG matrix with unconstrained orientations for the sources.
-void assemble_sToMEGresponseContrib_point( matrice&dipoles, matrice &mat, const matrice &positions, const matrice &orientations )
+void assemble_sToMEG_point( matrice&dipoles, matrice &mat, const matrice &positions, const matrice &orientations )
 //MEG patches positions are reported line by line in the positions matrix (same for positions)
 //mat is supposed to be filled with zeros
 //mat is the linear application which maps x (the unknown vector in symmetric system) -> binf (contrib to MEG response)

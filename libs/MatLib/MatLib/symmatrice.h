@@ -257,26 +257,6 @@ inline void symmatrice::eigen(matrice & Z, vecteur & D ){
 #endif
 }
 
-inline symmatrice symmatrice::operator *(const symmatrice &B) const {
-#ifdef HAVE_LAPACK
-    matrice D(B);
-    matrice C=(*this)*D;
-    return symmatrice(C);
-#else
-    assert(n==B.n);
-    symmatrice C(B.n);
-
-    for (size_t j=0;j<B.n;j++) 
-        for (size_t i=0;i<=j;i++)
-        {
-            C(i,j)=0;
-            for (size_t k=0;k<n;k++)
-                C(i,j)+=(*this)(i,k)*B(k,j);
-        }
-        return C;
-#endif
-}
-
 inline matrice symmatrice::operator *(const matrice &B) const {
     assert(n==B.m);
     matrice C(n,B.n);

@@ -8,7 +8,6 @@
 #include <vecteur.h>
 
 using namespace std;
-//using namespace CLMatLib;
 
 int main( int argc, char **argv)
 {
@@ -18,7 +17,7 @@ int main( int argc, char **argv)
         exit(1);
     }
 
-	matrice M(argv[1],'t');
+    matrice M(argv[1],'t');
     ofstream os(argv[2]);
     os<<"ascii"<<endl<<"FLOAT"<<endl<<(unsigned int)M.ncol()<<endl;
     for(size_t j=0;j<M.ncol();j++)

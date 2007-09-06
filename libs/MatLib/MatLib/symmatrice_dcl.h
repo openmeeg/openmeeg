@@ -54,7 +54,6 @@ public:
     inline void operator -=(const symmatrice& B);
     inline void operator *=(double x);
     inline void operator /=(double x) ;
-    inline symmatrice operator*(const symmatrice& B) const;
     inline matrice operator*(const matrice& B) const; // faux !!
     inline vecteur operator*(const vecteur& v) const; // faux ?
 

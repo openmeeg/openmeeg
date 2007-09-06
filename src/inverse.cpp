@@ -106,7 +106,7 @@ int main(int argc, char **argv)
             m_vec.DangerousBuild(&data(0,frame),data.nlin());
 
             // ====================  initialization of source vector ===================== //
-            if(frame==0) for(size_t i=0;i<v.size();i++) v(i)=1e-3*drandom();
+            if(frame==0) for(size_t i=0;i<v.size();i++) v(i)=0.0;//v(i)=1e-3*drandom(); // FIXME : add option for random init
             else for(size_t i=0;i<v.size();i++) v(i)=EstimatedSourcesData(i,frame-1);
 
             bool errorTest=true;
@@ -157,7 +157,7 @@ int main(int argc, char **argv)
             double alpha=SmoothWeight/DataWeight;
 
             //==========  initialization of source vector =======================//
-            for(size_t i=0;i<v.size();i++) v(i)=1e-3*drandom();
+            for(size_t i=0;i<v.size();i++) v(i)=0.0;//v(i)=1e-3*drandom(); // FIXME : add option for random init
 
             bool errorTest=true;
             double dtv=0;
@@ -174,7 +174,7 @@ int main(int argc, char **argv)
                 LinOp &TIH=*(Heat?(LinOp*)new TvInverseHessian(GainMatrix,fastSmoothMatrix_t,hess,alpha):(LinOp*)new TikInverseHessian(GainMatrix,alpha));
 
                 vecteur s(v.size()); s.set(0.0);
-                for(size_t i=0;i<s.size();i++) s(i)=1e-3*drandom();
+                for(size_t i=0;i<s.size();i++) s(i)=0.0;//s(i)=1e-3*drandom(); // FIXME : add option for random init
 
                 MinRes2(TIH,-1.0*grad,s,MINRES_TOL);
 

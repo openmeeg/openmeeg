@@ -41,6 +41,9 @@ TARGET_LINK_LIBRARIES (squids2vtk ${OPENMEEG_OTHER_LIBRARIES})
 ADD_EXECUTABLE(extract_frames extract_frames.cpp)
 TARGET_LINK_LIBRARIES (extract_frames ${OPENMEEG_OTHER_LIBRARIES})
 
+ADD_EXECUTABLE(matrix_info matrix_info.cpp)
+TARGET_LINK_LIBRARIES (matrix_info ${OPENMEEG_OTHER_LIBRARIES})
+
 IF(ENABLE_PACKAGING)
-INSTALL(TARGETS matbin2txt mattxt2bin symtxt2bin symbin2txt mesh_convert mesh_concat cortex_patch register_squids squids2vtk tex2mask tex2txt txt2tex DESTINATION bin)
+INSTALL(TARGETS matbin2txt mattxt2bin symtxt2bin symbin2txt mesh_convert mesh_concat cortex_patch register_squids squids2vtk tex2mask tex2txt txt2tex matrix_info DESTINATION bin)
 ENDIF(ENABLE_PACKAGING)

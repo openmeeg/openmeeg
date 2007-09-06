@@ -147,35 +147,3 @@ void assemble_RHS_dipoles_matrice_grad(const Geometry &geo,vector<Vect3> Rs,vect
     }
 }
 
-
-void assemble_RHSvector(const Geometry &geo, vector<Vect3> Rs, vector<Vect3> Qs, vecteur &rhs,const int GaussOrder)
-{
-    unsigned nVertexFirstLayer=geo.getM(0).nbPts();
-    unsigned nFacesFirstLayer=geo.getM(0).nbTrgs();
-
-    double K=1.0/(4*M_PI);
-
-    // First block is nVertexFistLayer
-    rhs.set(0);
-    for( unsigned s=0; s<Qs.size(); s++ )
-    {
-        operateurDipolePotDer(Rs[s],Qs[s],geo.getM(0),rhs,0,GaussOrder);
-    }
-
-    // Second block is nFaceFistLayer
-    for( unsigned s=0;s<Qs.size();s++ )
-    {
-        operateurDipolePot(Rs[s],Qs[s],geo.getM(0),rhs,nVertexFirstLayer,GaussOrder);
-    }
-    
-    // Blocks multiplication
-    double s1i=geo.sigma_in(0);
-    for(unsigned i=0;i<nVertexFirstLayer;i++)
-    {
-        rhs(i)*=K;
-    }
-    for(unsigned i=0;i<nFacesFirstLayer;i++)
-    {
-        rhs(i+nVertexFirstLayer)*=(-K/s1i);
-    }
-}

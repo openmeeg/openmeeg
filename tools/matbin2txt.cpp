@@ -3,7 +3,6 @@
 #include <matrice.h>
 
 using namespace std;
-//using namespace CLMatLib;
 
 int main( int argc, char **argv)
 {

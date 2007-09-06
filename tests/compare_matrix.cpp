@@ -11,7 +11,7 @@
 using namespace std;
 
 template<class T> bool compare(const T& mat1, const T& mat2, float eps);
-template<class T> bool compare_corr(const T& mat1, const T& mat2, float eps);
+template<class T> bool compare_rdm(const T& mat1, const T& mat2, float eps, int col);
 template<class T> double normInf(const T& mat);
 
 int main (int argc, char** argv)
@@ -25,8 +25,9 @@ int main (int argc, char** argv)
     const char *bin = command_option("-bin",(const char *) 0,"Force reading data stored in binary format");
     const char *txt = command_option("-txt",(const char *) 0,"Force reading data stored in ascii format");
     const char *sym = command_option("-sym",(const char *) 0,"Data are symmetric matrices");
-    const char *epsilon = command_option("-eps","0.0001","Data are symmetric matrices");
-    const char *corr = command_option("-corr",(const char *) 0,"Use 1-correlation between normalized columns of matrices");
+    const char *epsilon = command_option("-eps","0.00001","Tolerance on differences");
+    const char *rdm = command_option("-rdm",(const char *) 0,"Use RDM (Relative difference measure) to compare each column of matrices");
+    const int col = command_option("-col",(const int) -1,"Restrict RDM comparison to one column (index starts at 0)");
     if (command_option("-h",(const char *)0,0)) return 0;
 
     float eps = atof(epsilon);
@@ -50,8 +51,8 @@ int main (int argc, char** argv)
             mat1.load(argv[1]);
             mat2.load(argv[2]);
         }
-        if(corr) {
-            std::cerr << "ERROR : Cannot use correlation on symmetric matrices" << std::endl;
+        if(rdm) {
+            std::cerr << "ERROR : Cannot use RDM on symmetric matrices" << std::endl;
             exit(1);
         } else {
             flag = compare(mat1,mat2,eps);
@@ -70,8 +71,8 @@ int main (int argc, char** argv)
             mat1.load(argv[1]);
             mat2.load(argv[2]);
         }
-        if(corr) {
-            flag = compare_corr(mat1,mat2,eps);
+        if(rdm) {
+            flag = compare_rdm(mat1,mat2,eps,col);
         } else {
             flag = compare(mat1,mat2,eps);
         }
@@ -105,22 +106,27 @@ bool compare(const T& mat1, const T& mat2, float eps){
             for(unsigned int j=0; j<mat1.ncol(); j++) {
                 diff = abs(mat1(i,j)/norm1 - mat2(i,j)/norm2);
                 flag = flag && (diff < eps);
-                if(!(diff < eps)) {
-                    cout << "NORM  " << mat1(i,j) << "  " << mat2(i,j) << "  " << diff << endl;
+                if (!(diff < eps)) {
+                    cout << "ERROR NORM  " << mat1(i,j) << "  " << mat2(i,j) << "  " << diff << endl;
                 }
             }
         }
     } else {
         for(unsigned int i=0; i<mat1.nlin(); i++) {
             for(unsigned int j=0; j<mat1.ncol(); j++) {
-                if(abs(mat1(i,j))>1e-4){
+                if (abs(mat1(i,j))>1e-4) {
                     diff = abs(mat1(i,j) - mat2(i,j))/abs(mat1(i,j));
                     flag = flag && ( diff < eps);
-                    if(!(diff < eps))
-                        cout << " ERR REL  " << mat1(i,j) << "  " << mat2(i,j) << "  " << diff << endl;
+                    if (!(diff < eps))
+                        cout << "ERROR RELATIVE  " << mat1(i,j) << "  " << mat2(i,j) << "  " << diff << endl;
                 }
-                else
-                    flag = flag && (abs(mat1(i,j) - mat2(i,j)) < eps);
+                else {
+                    diff = abs(mat1(i,j) - mat2(i,j));
+                    flag = flag && ( diff < eps);
+                    if (!(diff < eps)) {
+                        cout << "ERROR DIFF  " << mat1(i,j) << "  " << mat2(i,j) << "  " << diff << endl;
+                    }
+                }
             }
         }
     }
@@ -128,7 +134,7 @@ bool compare(const T& mat1, const T& mat2, float eps){
 }
 
 template<class T>
-bool compare_corr(const T& mat1, const T& mat2, float eps){
+bool compare_rdm(const T& mat1, const T& mat2, float eps, int col){
 // T is a matrice
 
     if ((mat1.ncol() != mat2.ncol()) || (mat1.nlin() != mat2.nlin())) {
@@ -138,17 +144,26 @@ bool compare_corr(const T& mat1, const T& mat2, float eps){
 
     bool flag = true;
     double diff;
-    for(unsigned int j=0; j<mat1.ncol(); j++) {
+    unsigned int j = 0;
+    unsigned int jmax = mat1.ncol();
+    if(col >= 0)
+    {
+        assert(j < mat1.ncol());
+        j = col;
+        jmax = col;
+    }
+    for(j=0; j<jmax; j++) {
         vecteur col1 = mat1.getcol(j);
         vecteur col2 = mat2.getcol(j);
         col1 = col1 - col1.mean();
         col2 = col2 - col2.mean();
         col1 = col1 / col1.norm();
         col2 = col2 / col2.norm();
-        diff = (col1 - col2).norm() / mat1.nlin();
+        // diff = (col1 - col2).norm() / mat1.nlin(); // FIXME : divide or not ?
+        diff = (col1 - col2).norm();
         flag = flag && (diff < eps);
-        if(!(diff < eps)) {
-            cout << "NORM ( column " << j << " ) " << diff << endl;
+        if(diff > eps) {
+            cout << "ERROR RDM ( column " << j << " ) " << diff << endl;
         }
     }
     return flag;
