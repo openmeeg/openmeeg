@@ -10,7 +10,7 @@ ADD_TEST(RHS-${SUBJECT} ${CMAKE_CURRENT_BINARY_DIR}/assemble -RHS ${OpenMEEG_SOU
 ADD_TEST(AI-${SUBJECT} ${CMAKE_CURRENT_BINARY_DIR}/presmooth ${OpenMEEG_SOURCE_DIR}/HeadModels/${SUBJECT}/${SUBJECT}.tri ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.smooth ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.ai)
 
 ############ EEG TEST ##############
-ADD_TEST(x2EEG-${SUBJECT} ${CMAKE_CURRENT_BINARY_DIR}/assemble -vToEEG ${OpenMEEG_SOURCE_DIR}/HeadModels/${SUBJECT}/${SUBJECT}.geom ${OpenMEEG_SOURCE_DIR}/HeadModels/${SUBJECT}/${SUBJECT}.cond ${OpenMEEG_SOURCE_DIR}/Computations/${SUBJECT}/${SUBJECT}.patches ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.x2eeg)
+ADD_TEST(v2EEG-${SUBJECT} ${CMAKE_CURRENT_BINARY_DIR}/assemble -vToEEG ${OpenMEEG_SOURCE_DIR}/HeadModels/${SUBJECT}/${SUBJECT}.geom ${OpenMEEG_SOURCE_DIR}/HeadModels/${SUBJECT}/${SUBJECT}.cond ${OpenMEEG_SOURCE_DIR}/Computations/${SUBJECT}/${SUBJECT}.patches ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.x2eeg)
 
 ADD_TEST(Heeg-${SUBJECT} ${CMAKE_CURRENT_BINARY_DIR}/gain -EEG ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.lhs_inv ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.rhs ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.x2eeg ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.Heeg)
 
@@ -25,7 +25,7 @@ ADD_TEST(EEG-MN-${SUBJECT} ${CMAKE_CURRENT_BINARY_DIR}/inverse -EEG ${OpenMEEG_B
 ADD_TEST(EEG-TV-${SUBJECT} ${CMAKE_CURRENT_BINARY_DIR}/inverse -EEG ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.Heeg ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.smooth ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.ai ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.est_eeg ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}-eeg-tv.est_src 1 1e-4 TV 10000 0.0)
 
 ############ MEG TEST ##############
-ADD_TEST(x2MEG-${SUBJECT} ${CMAKE_CURRENT_BINARY_DIR}/assemble -vToMEG ${OpenMEEG_SOURCE_DIR}/HeadModels/${SUBJECT}/${SUBJECT}.geom ${OpenMEEG_SOURCE_DIR}/HeadModels/${SUBJECT}/${SUBJECT}.cond ${OpenMEEG_SOURCE_DIR}/Computations/${SUBJECT}/${SUBJECT}.squids ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.x2meg)
+ADD_TEST(v2MEG-${SUBJECT} ${CMAKE_CURRENT_BINARY_DIR}/assemble -vToMEG ${OpenMEEG_SOURCE_DIR}/HeadModels/${SUBJECT}/${SUBJECT}.geom ${OpenMEEG_SOURCE_DIR}/HeadModels/${SUBJECT}/${SUBJECT}.cond ${OpenMEEG_SOURCE_DIR}/Computations/${SUBJECT}/${SUBJECT}.squids ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.x2meg)
 
 ADD_TEST(s2MEG-${SUBJECT} ${CMAKE_CURRENT_BINARY_DIR}/assemble -sToMEG ${OpenMEEG_SOURCE_DIR}/HeadModels/${SUBJECT}/${SUBJECT}.tri ${OpenMEEG_SOURCE_DIR}/Computations/${SUBJECT}/${SUBJECT}.squids ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.s2meg)
 

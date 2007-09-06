@@ -5,7 +5,7 @@ ADD_TEST(LHS-${SUBJECT} ${CMAKE_CURRENT_BINARY_DIR}/assemble -LHS ${OpenMEEG_SOU
 
 ADD_TEST(LHSINV-${SUBJECT} ${CMAKE_CURRENT_BINARY_DIR}/minverser ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.lhs ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.lhs_inv)
 
-ADD_TEST(x2EEG-${SUBJECT} ${CMAKE_CURRENT_BINARY_DIR}/assemble -vToEEG ${OpenMEEG_SOURCE_DIR}/HeadModels/${SUBJECT}/${SUBJECT}.geom ${OpenMEEG_SOURCE_DIR}/HeadModels/${SUBJECT}/${SUBJECT}.cond ${OpenMEEG_SOURCE_DIR}/Computations/${SUBJECT}/${SUBJECT}.patches ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.x2eeg)
+ADD_TEST(v2EEG-${SUBJECT} ${CMAKE_CURRENT_BINARY_DIR}/assemble -vToEEG ${OpenMEEG_SOURCE_DIR}/HeadModels/${SUBJECT}/${SUBJECT}.geom ${OpenMEEG_SOURCE_DIR}/HeadModels/${SUBJECT}/${SUBJECT}.cond ${OpenMEEG_SOURCE_DIR}/Computations/${SUBJECT}/${SUBJECT}.patches ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.x2eeg)
 
 ############ TEST DIPOLE FORWARD RESULTS (Regression test) ##############
 

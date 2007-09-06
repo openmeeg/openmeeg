@@ -425,9 +425,9 @@ int main(int argc, char** argv)
         {    // if no outfile, outfile on the same path as geometry file
             char* fileout=new char[255];
             #ifdef SAVEBIN
-            getOutputFilepath(argv[2],(char*)"x2EEG.bin", fileout);
+            getOutputFilepath(argv[2],(char*)"v2EEG.bin", fileout);
             #elif
-            getOutputFilepath(argv[2],(char*)"x2EEG.txt", fileout);
+            getOutputFilepath(argv[2],(char*)"v2EEG.txt", fileout);
             #endif
             vToEEG.SAVE(fileout);
             delete[] fileout;
@@ -479,9 +479,9 @@ int main(int argc, char** argv)
         {
             char* fileout=new char[255];
             #ifdef SAVEBIN
-            getOutputFilepath(argv[2],(char*)"x2MEG.bin", fileout);
+            getOutputFilepath(argv[2],(char*)"v2MEG.bin", fileout);
             #elif
-            getOutputFilepath(argv[2],(char*)"x2MEG.txt", fileout);
+            getOutputFilepath(argv[2],(char*)"v2MEG.txt", fileout);
             #endif
             xToMEGrespCont.SAVE(fileout);
             delete[] fileout;
