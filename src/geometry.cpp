@@ -33,8 +33,6 @@ int Geometry::read(char* geomFileName, char* condFileName){
     std::cout << "Total number of points and triangles : " << result << std::endl;
 
     std::vector<std::string> domainNames = reader.domain_names();
-    for (std::vector<std::string>::const_iterator i=domainNames.begin();i!=domainNames.end();++i)
-        std::cerr << "Domain: " << *i << std::endl;
 
     typedef Utils::Properties::Named< std::string , Conductivity<double> > HeadProperties;
     HeadProperties properties(condFileName);
