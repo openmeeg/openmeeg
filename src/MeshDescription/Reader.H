@@ -22,7 +22,7 @@ namespace MeshDescription {
     public:
         
         typedef typename INTERFACE::Type Interface;
-        typedef std::vector<std::string> InterfaceNames;
+        typedef std::vector<std::string> Names;
         typedef std::vector<Interface>   Interfaces;
         typedef NORMALS                  Normals;
         typedef MeshDescription::Domains Domains;
@@ -99,8 +99,18 @@ namespace MeshDescription {
               Domains& domains()       { return doms; }
         const Domains& domains() const { return doms; }
 
-        const InterfaceNames& domain_names() const                { return names;      }
-        const std::string&    domain_name(const unsigned i) const { return names[i-1]; }
+        Names domain_names() const {
+            Names nms;
+            nms.reserve(domains().size());
+            for (Domains::const_iterator i=domains().begin();i!=domains().end();++i)
+                nms.push_back(i->name());
+            return nms;
+        }
+
+        const std::string& domain_name(const unsigned i) const { return domains()[i-1].name(); }
+
+        const Names&       interface_names() const                { return names;      }
+        const std::string& interface_name(const unsigned i) const { return names[i-1]; }
 
               Interfaces& interfaces()       { return interfs; }
         const Interfaces& interfaces() const { return interfs; }
@@ -116,14 +126,23 @@ namespace MeshDescription {
 
     private:
 
+#ifdef WIN32
+        static const char PathSeparator = '\\';
+#else
+        static const char PathSeparator = '/';
+#endif
+
         static std::string set_path(const std::string& name) {
-            static const char PathSeparator = '/';
             const std::string::size_type pos = name.find_last_of(PathSeparator);
             return (pos==std::string::npos) ? "" : name.substr(0,pos+1);
         }
 
+        std::string file_name(const std::string& name) const {
+            return (name[0]==PathSeparator) ? name : path+name;
+        }
+
         const std::string path;    //  Path of the initial geometry file.
-        InterfaceNames    names;   //  The file names for the different interfaces.
+        Names             names;   //  The file names for the different interfaces.
         Interfaces        interfs; //  The various levelsets depicting interfaces between domains.
         Domains           doms;    //  Domain descriptions in terms of interfaces.
         Normals           nrmls;   //  Eventually stores a normal information for each voxel.

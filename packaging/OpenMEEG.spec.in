@@ -41,6 +41,9 @@ ctest
 rm -rf $RPM_BUILD_ROOT
 cd %{builddirname}
 make install DESTDIR=$RPM_BUILD_ROOT
+#   The following lines are because of the buggy installation point of CMake for x86_64 for libraries.
+mkdir $RPM_BUILD_ROOT%{_libdir}
+mv $RPM_BUILD_ROOT/usr/lib/* $RPM_BUILD_ROOT%{_libdir}
 
 %clean
 rm -rf %{builddirname}
@@ -53,5 +56,7 @@ rm -rf %{srcdirname}
 %{_libdir}/*
 
 %changelog
+* Mon Aug 27 2007 Theo Papadopoulo <Theodore.Papadopoulo@sophia.inria.fr> 0.8.0
+- Added the new libOpenMEEG.so to installed files.
 * Wed Mar 28 2007 Theo Papadopoulo <Theodore.Papadopoulo@sophia.inria.fr> 0.8.0
 - Initial revision (internal).
