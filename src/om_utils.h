@@ -3,11 +3,13 @@
 
 #if WIN32
 #define _USE_MATH_DEFINES
-// #define M_PI 3.1415927 // FIXME : Compilation error on VS Express
 #endif
 #include <cstring>
 #include <cmath>
 
+#ifndef M_PI
+    #define M_PI 3.14159265358979323846
+#endif
 
 inline int getNameExtension ( const char* name, char* extension )
 {

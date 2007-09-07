@@ -45,6 +45,7 @@ ENDIF(USE_ATLAS)
 IF ( USE_MKL )
 
     FIND_PATH(MKL_INCLUDE_PATH mkl.h
+                "C:/Program Files/Intel/MKL/9.1.027/include"
                 "C:/Program Files/Intel/MKL/8.1.1/include"
                 ../../mkl/include
                 ~/intel/mkl/8.1/include
@@ -55,6 +56,7 @@ IF ( USE_MKL )
     INCLUDE_DIRECTORIES(${MKL_INCLUDE_PATH})
 
     SET(MKL_LIB_SEARCHPATH
+        "C:/Program Files/Intel/MKL/9.1.027/ia32/lib"
         "C:/Program Files/Intel/MKL/8.1.1/ia32/lib"
         ../../mkl/ia32/lib
         ~/intel/mkl/8.1/lib/32
@@ -63,7 +65,7 @@ IF ( USE_MKL )
     )
 
     IF ( WIN32 )
-        SET(MKL_LIBS mkl_solver mkl_c guide)
+        SET(MKL_LIBS mkl_solver mkl_c libguide)
     ELSE ( WIN32 )
         SET(MKL_LIBS mkl mkl_lapack mkl_ia32 guide)
     ENDIF ( WIN32 )

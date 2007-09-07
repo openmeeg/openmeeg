@@ -156,7 +156,7 @@ void Sensors::load(std::istream &in) {
 
         tokensIterator =  tokens.begin();
 
-        if ( (num_of_columns == 7) or (num_of_columns == 4) ) { // Get label
+        if ( (num_of_columns == 7) || (num_of_columns == 4) ) { // Get label
             m_id.push_back(*tokensIterator);
             tokensIterator++;
         }

@@ -69,6 +69,7 @@ public:
             case 0 : return m_x;
             case 1 : return m_y;
             case 2 : return m_z;
+            default : exit(1);
         }
     }
 
