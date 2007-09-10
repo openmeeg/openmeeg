@@ -600,11 +600,7 @@ void getOutputFilepath(char* ref_filepath, char* output_filename, char* path)
     assert(path!=ref_filepath && path!=output_filename);
     // output filename on the same path as filename referenced in ref_filepath
     // go in search on all platform of path less filename included in ref_filepath.
-#if WIN32
-    char* p = strrchr(ref_filepath, '\\' );
-#else
     char* p = strrchr(ref_filepath, '/' );
-#endif
     if (p == NULL)
         strcpy(path,output_filename);
     else

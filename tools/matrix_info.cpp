@@ -59,18 +59,32 @@ void print_infos(const T& M) {
         return;
     }
 
+    cout << "Dimensions : " << M.nlin() << " x " << M.ncol() << endl;
+
     double minv = M(0,0);
     double maxv = M(0,0);
+    size_t mini = 0;
+    size_t maxi = 0;
+    size_t minj = 0;
+    size_t maxj = 0;
+
     for(size_t i = 0; i < M.nlin(); ++i)
     {
         for(size_t j = 0; j < M.ncol(); ++j)
         {
-            minv = std::min(minv,M(i,j));
-            maxv = std::max(maxv,M(i,j));
+            if (minv > M(i,j)) {
+                minv = M(i,j);
+                mini = i;
+                minj = j;
+            } else if (maxv < M(i,j)) {
+                maxv = M(i,j);
+                maxi = i;
+                maxj = j;
+            }
         }
     }
-    cout << "Min Value : " << minv << endl;
-    cout << "Max Value : " << maxv << endl;
+    cout << "Min Value : " << minv << " (" << mini << "," << minj << ")" << endl;
+    cout << "Max Value : " << maxv << " (" << maxi << "," << maxj << ")" << endl;
 
     cout << "First Values" << endl;
     for(size_t i = 0; i < std::min(M.nlin(),(size_t) 5); ++i)

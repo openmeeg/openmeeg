@@ -40,10 +40,10 @@ int main(int argc, char **argv)
     }
     symmatrice LhsInvMatrix; 
     matrice RhsMatrix; 
-    matrice X2MegMatrix;
+    matrice V2MegMatrix;
     matrice S2MegMatrix;
     matrice MegGainMatrix;
-    matrice X2EegMatrix;
+    matrice V2EegMatrix;
     matrice EegGainMatrix;
 
     matrice reducedLhsInvMatrix; 
@@ -60,8 +60,8 @@ int main(int argc, char **argv)
         RhsMatrix.loadBin(argv[3]);
         reducedLhsInvMatrix=matrice(LhsInvMatrix)(0,LhsInvMatrix.nlin()-1,0,RhsMatrix.nlin()-1);
 
-        X2EegMatrix.loadBin(argv[4]);
-        EegGainMatrix=(X2EegMatrix*reducedLhsInvMatrix)*RhsMatrix;
+        V2EegMatrix.loadBin(argv[4]);
+        EegGainMatrix=(V2EegMatrix*reducedLhsInvMatrix)*RhsMatrix;
         EegGainMatrix.saveBin(argv[5]);
     }
     // for use with MEG DATA
@@ -76,9 +76,9 @@ int main(int argc, char **argv)
         RhsMatrix.loadBin(argv[3]);
         reducedLhsInvMatrix=matrice(LhsInvMatrix)(0,LhsInvMatrix.nlin()-1,0,RhsMatrix.nlin()-1);
 
-        X2MegMatrix.loadBin(argv[4]);
+        V2MegMatrix.loadBin(argv[4]);
         S2MegMatrix.loadBin(argv[5]);
-        MegGainMatrix=S2MegMatrix+(X2MegMatrix*reducedLhsInvMatrix)*RhsMatrix;
+        MegGainMatrix=S2MegMatrix+(V2MegMatrix*reducedLhsInvMatrix)*RhsMatrix;
         MegGainMatrix.saveBin(argv[6]);
     }
     else
@@ -100,12 +100,12 @@ void getHelp(char** argv)
     cout << "-option :" << endl;
     cout << "   -EEG :   Compute the gain for EEG " << endl;
     cout << "            Filepaths are in order :" << endl;
-    cout << "            LhsInvMatrix, RhsMatrix, X2EegMatrix, EegGainMatrix" << endl;
+    cout << "            LhsInvMatrix, RhsMatrix, V2EegMatrix, EegGainMatrix" << endl;
     cout << "            bin matrix" << endl << endl;
 
     cout << "   -MEG :   Compute the gain for MEG " << endl;
     cout << "            Filepaths are in order :" << endl;
-    cout << "            LhsInvMatrix, RhsMatrix, X2MegMatrix, S2MegMatrix, MegGainMatrix" << endl;
+    cout << "            LhsInvMatrix, RhsMatrix, V2MegMatrix, S2MegMatrix, MegGainMatrix" << endl;
     cout << "            matrix (.bin or .txt)" << endl << endl;
 
     exit(0);

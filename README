@@ -135,9 +135,9 @@ Here follow some hopefully informations to understand OpenMeeg functions.
 | LhsMatrix:.lhs:$(OpenMeegPath)/HeadModels/$(HeadModelDir)                   |
 | LhsInvMatrix:.lhs_inv:$(OpenMeegPath)/HeadModels/$(HeadModelDir)            |
 | RhsMatrix:.rhs:$(OpenMeegPath)/HeadModels/$(HeadModelDir)                   |
-| X2EegMatrix:.x2eeg:$(OpenMeegPath)/IntermediateFiles/$(IntermediateDir)     |
+| X2EegMatrix:.v2eeg:$(OpenMeegPath)/IntermediateFiles/$(IntermediateDir)     |
 | S2MegMatrix:.s2meg:$(OpenMeegPath)/IntermediateFiles/$(IntermediateDir)     |
-| X2MegMatrix:.x2meg:$(OpenMeegPath)/IntermediateFiles/$(IntermediateDir)     |
+| X2MegMatrix:.v2meg:$(OpenMeegPath)/IntermediateFiles/$(IntermediateDir)     |
 | EegGainMatrix:.Heeg:$(OpenMeegPath)/IntermediateFiles/$(IntermediateDir)    |
 | MegGainMatrix:.Hmeg:$(OpenMeegPath)/IntermediateFiles/$(IntermediateDir)    |
 | AiVector:.ai:$(OpenMeegPath)/HeadModels/$(HeadModelDir)                     |
