@@ -126,11 +126,11 @@ namespace MeshDescription {
 
     private:
 
-#ifdef WIN32
-        static const char PathSeparator = '\\';
-#else
+// #ifdef WIN32
+//         static const char PathSeparator = '\\';
+// #else
         static const char PathSeparator = '/';
-#endif
+// #endif
 
         static std::string set_path(const std::string& name) {
             const std::string::size_type pos = name.find_last_of(PathSeparator);

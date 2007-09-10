@@ -1,17 +1,21 @@
 #include <iostream>
 
-#include "mesh3.h"
+#include "geometry.h"
 
 int main (int argc, char** argv)
 {
-    if(argc==1) {
+	if(argc!=3) {
         std::cerr << "Wrong nb of parameters" << std::endl;
         exit(1);
     }
-    Mesh geo;
-    geo.load(argv[1]);
-    
-    std::cerr << geo.nbPts() << ' ' << geo.nbTrgs() << std::endl;
+
+    std::cerr << "Geom : " << argv[1] << std::endl;
+    std::cerr << "Cond : " << argv[2] << std::endl;
+
+    Geometry geo;
+    int taille = geo.read(argv[1],argv[2]);
+
+    std::cerr << "Geometry Size : " << taille << std::endl;
 
     return 0;
 }

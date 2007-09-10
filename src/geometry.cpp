@@ -11,7 +11,8 @@ int Geometry::read(char* geomFileName, char* condFileName){
 
     destroy();
 
-    int result = 0;
+    int npts = 0;
+    int ntrgs = 0;
 
     MeshReader::Reader reader(geomFileName);
 
@@ -22,15 +23,16 @@ int Geometry::read(char* geomFileName, char* condFileName){
     M = new Mesh[n];
     
     for (int i=0;i<n;i++)
-        M[i]=Meshes[meshOrder[i]];
+        M[i] = Meshes[meshOrder[i]];
 
     for (int i=0;i<n;i++) {
         M[i].make_links();
-        result += M[i].nbPts();
-        result += M[i].nbTrgs();
+        npts += M[i].nbPts();
+        ntrgs += M[i].nbTrgs();
     }
     
-    std::cout << "Total number of points and triangles : " << result << std::endl;
+    std::cout << "Total number of points    : " << npts << std::endl;
+    std::cout << "Total number of triangles : " << ntrgs << std::endl;
 
     std::vector<std::string> domainNames = reader.domain_names();
 
@@ -59,5 +61,6 @@ int Geometry::read(char* geomFileName, char* condFileName){
     for(int i=0;i<n;i++)
         std::cout << "\tMesh " << i << " : internal conductivity = " << sigin[i] << " and external conductivity = " << sigout[i] << std::endl;
 
+    int result = npts + ntrgs;
     return result;
 }

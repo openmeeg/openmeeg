@@ -82,7 +82,7 @@ int main(int argc, char** argv)
 
         // Saving LHS matrix :
         if (argc < 5)
-        {         // if no outfile, outfile on the same path as geometry file
+        {   // if no outfile, outfile on the same path as geometry file
             char* fileout=new char[255];
             #ifdef SAVEBIN
             getOutputFilepath(argv[2],(char*)"lhsMatrix.bin", fileout);

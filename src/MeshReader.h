@@ -100,7 +100,7 @@ namespace MeshReader {
         for (Domains::iterator i=domains().begin();i!=domains().end();++i)
             *i = oldDomains[sortedDomainsId[domains().index(*i)]];
 
-#if 0
+#if 1
         std::cout << "Sorted List : \t" ;
         for(int i=0;i<sortedListOfSurfId.size();i++)
             std::cout << sortedListOfSurfId[i] << " " ;
