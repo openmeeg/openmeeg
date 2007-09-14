@@ -2,8 +2,6 @@
 #include "vecteur.h"
 #include "matrice.h"
 #include "symmatrice.h"
-#include "sparse_matrice.h"
-#include "fast_sparse_matrice.h"
 #include "options.h"
 #include <iostream>
 #include <cmath>
@@ -27,7 +25,7 @@ int main (int argc, char** argv)
     const char *sym = command_option("-sym",(const char *) 0,"Data are symmetric matrices");
     const char *epsilon = command_option("-eps","0.00001","Tolerance on differences");
     const char *rdm = command_option("-rdm",(const char *) 0,"Use RDM (Relative difference measure) to compare each column of matrices");
-    const int col = command_option("-col",(const int) -1,"Restrict RDM comparison to one column (index starts at 0)");
+    const int col = command_option("-col",(int) -1,"Restrict RDM comparison to one column (index starts at 0)");
     if (command_option("-h",(const char *)0,0)) return 0;
 
     float eps = atof(epsilon);

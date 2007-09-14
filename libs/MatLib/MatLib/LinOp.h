@@ -1,5 +1,5 @@
-#ifndef H_Linop
-#define H_Linop
+#ifndef H_LINOP
+#define H_LINOP
 
 #include "vecteur_dcl.h"
 

@@ -25,7 +25,36 @@ SET(CPACK_PACKAGE_VERSION_PATCH ${PACKAGE_VERSION_PATCH})
 
 PROJECT(OpenMEEG)
 
-ADD_DEFINITIONS(-D USE_CMAKE)
+#######################################################################
+# Setting compilation options
+#######################################################################
+
+OPTION(BUILD_SHARED "Build shared libs" OFF)
+
+IF ( BUILD_SHARED )
+    SET(LIB_TYPE SHARED)
+ELSE ( BUILD_SHARED )
+    SET(LIB_TYPE STATIC)
+ENDIF ( BUILD_SHARED )
+
+IF(${CMAKE_C_COMPILER} MATCHES "gcc")
+    SET(USE_GCC YES)
+ENDIF(${CMAKE_C_COMPILER} MATCHES "gcc")
+
+IF(${CMAKE_C_COMPILER} MATCHES "icc")
+    SET(USE_ICC YES)
+ENDIF(${CMAKE_C_COMPILER} MATCHES "icc")
+
+IF ( USE_GCC )
+    SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall")
+    SET(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -Wall")
+    IF ( APPLE )
+        IF ( NOT ${CMAKE_MAKE_PROGRAM} MATCHES "cmakexbuild" ) # Test if not xcode
+            SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m64")
+            SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -m64")
+        ENDIF ( NOT ${CMAKE_MAKE_PROGRAM} MATCHES "cmakexbuild"  )
+    ENDIF ( APPLE )
+ENDIF ( USE_GCC )
 
 #######################################################################
 # External Libraries
@@ -80,32 +109,30 @@ INCLUDE(UseAtlas.cmake)
 # OpenMP
 #------------------------------------------------------------
 
-OPTION(USE_OMP "Use OpenMP" OFF)
-
-OPTION(USE_ICC "Use Intel Compiler" OFF)
-
-IF(USE_OMP)
-    IF(UNIX)
-        IF(USE_ICC)
-            SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -openmp")
-            SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -openmp")
-        ELSE(USE_ICC)
-            SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp")
-            SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fopenmp")
-        ENDIF(USE_ICC)
-    ELSE(UNIX)
-        SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /openmp")
-        SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /openmp")
-    ENDIF(UNIX)
-    ADD_DEFINITIONS(-D USE_OMP)
-ENDIF(USE_OMP)
-
+INCLUDE(UseOpenMP.cmake)
 
 #------------------------------------------------------------
 # MatLib
 #------------------------------------------------------------
 
-INCLUDE_DIRECTORIES(${OpenMEEG_SOURCE_DIR}/libs/MatLib/MatLib)
+SET(MATLIB_PATH ${OpenMEEG_SOURCE_DIR}/libs/MatLib/MatLib)
+INCLUDE_DIRECTORIES(${MATLIB_PATH})
+SET(MATLIB_HEADERS
+    LinOp.h
+    MatLibConfig.h
+    sparse_matrice.h
+    fast_sparse_matrice.h
+    generic_matrix.h
+    matrice.h
+    matrice_dcl.h
+    sparse_matrice.h
+    symmatrice.h
+    symmatrice_dcl.h
+    vecteur.h
+    vecteur_dcl.h)
+FOREACH ( HEADER ${MATLIB_HEADERS} )
+    SET(MATLIB_FILES "${MATLIB_FILES} ${MATLIB_PATH}/${HEADER}")
+ENDFOREACH ( HEADER )
 
 #---------------------------------------------------------------
 # Configure files with settings for use by the build.

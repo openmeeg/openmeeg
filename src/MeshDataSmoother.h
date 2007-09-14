@@ -5,7 +5,7 @@
 #include <vector>
 #include <set>
 #include <algorithm>
-#include "sparse_matrice.h" // to change for sparse matrices
+#include "sparse_matrice.h"
 #include "vecteur.h"
 
 #define myFloat double
@@ -96,7 +96,7 @@ public:
     inline matType* getMatrix() {return A;}
 };
 
-inline vecteur chambolleSmooth( sparse_matrice &Q, const vecteur &g, double lambda);
+inline vecteur chambolleSmooth( matType &Q, const vecteur &g, double lambda);
 
 #define  EPSILON 1e-3
 #include <fstream>
@@ -625,7 +625,7 @@ inline double norm3 ( const vecteur& v, size_t i)
     return sqrt(v(3*i)*v(3*i)+v(3*i+1)*v(3*i+1)+v(3*i+2)*v(3*i+2));
 }
 
-inline vecteur chambolleSmooth( sparse_matrice &Q, const vecteur &g, double lambda)
+inline vecteur chambolleSmooth( matType &Q, const vecteur &g, double lambda)
 {
     static const double tau = 0.01;
     static const double tol = 1e-3;
@@ -633,7 +633,7 @@ inline vecteur chambolleSmooth( sparse_matrice &Q, const vecteur &g, double lamb
     vecteur p(Q.nlin()); p.set(0);
     vecteur p_old(Q.nlin()); p.set(0);
     vecteur q(Q.nlin());
-    sparse_matrice Qstar = Q.transpose();
+    matType Qstar = Q.transpose();
 
     double delta;
 

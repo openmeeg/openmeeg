@@ -7,7 +7,6 @@ SET(OPENMEEG_HEADERS
     MeshDataSmoother.h
     fcontainer.h
     operateurs.h
-    genericMatrix.h
     sensors.h
     MeshReader.h
     geometry.h
@@ -29,10 +28,11 @@ SET(OPENMEEG_HEADERS
     Properties.H
 )
 
-ADD_LIBRARY(OpenMEEG
+ADD_LIBRARY(OpenMEEG ${LIB_TYPE}
     assembleFerguson.cpp assembleMat.cpp assemble_RHSmatrix.cpp assemble_squids_EEG.cpp
-    danielsson.cpp geometry.cpp mesh3.cpp operateurs.cpp ${OPENMEEG_HEADERS}
+    danielsson.cpp geometry.cpp mesh3.cpp operateurs.cpp ${OPENMEEG_HEADERS} 
 )
+TARGET_LINK_LIBRARIES (OpenMEEG ${OPENMEEG_OTHER_LIBRARIES})
 
 ADD_EXECUTABLE(presmooth presmooth.cpp ${OPENMEEG_HEADERS})
 TARGET_LINK_LIBRARIES (presmooth ${OPENMEEG_OTHER_LIBRARIES} OpenMEEG)

@@ -79,7 +79,7 @@ public:
     inline void setArea( double a ) { m_area = a; };
     inline double& area() { return m_area; }
 
-    inline const int operator[] (const int i) const {
+    inline int operator[] (const int i) const {
         switch(i)
         {
             case 0 : return m_s1;

@@ -1,5 +1,5 @@
-#ifndef H_vecteur_dcl
-#define H_vecteur_dcl
+#ifndef H_VECTEUR_DCL
+#define H_VECTEUR_DCL
 
 #include "MatLibConfig.h"
 #include <iostream>

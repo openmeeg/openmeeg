@@ -57,7 +57,7 @@ int main(int argc, char **argv)
     }
     //=======================================================================================================
 
-    size_t nT=RealSourcesData.ncol();
+    int nT=RealSourcesData.ncol();
     matrice* data;
 
     if(!strcmp(argv[1],"-EEG"))
@@ -76,7 +76,7 @@ int main(int argc, char **argv)
     #ifdef USE_OMP
     #pragma omp parallel for
     #endif
-    for(size_t frame=0;frame<nT;frame++)
+    for(int frame=0;frame<nT;frame++)
     {
         vecteur v; v.DangerousBuild(&RealSourcesData(0,frame),RealSourcesData.nlin());
         vecteur result;
@@ -97,14 +97,14 @@ int main(int argc, char **argv)
 
     double meannorm = 0.0;
 
-    for(size_t frame=0;frame<nT;frame++)
+    for(int frame=0;frame<nT;frame++)
     {
         vecteur v; v.DangerousBuild(&((*data)(0,frame)),data->nlin());
         meannorm += (1.0/nT)*v.norm();
         v.DangerousKill();
     }
 
-    for(size_t frame=0;frame<nT;frame++)
+    for(int frame=0;frame<nT;frame++)
     {
         vecteur grand(data->nlin());
         for(size_t i=0;i<grand.size();i++) grand(i)=gaussienne();

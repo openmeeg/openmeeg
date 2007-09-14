@@ -65,7 +65,7 @@ namespace MeshReader {
         std::vector<int> sortedDomainsId;
         sortedDomainsId.push_back(0);
 
-        int currentExternalSurfaceId = firstSurfId;
+        unsigned int currentExternalSurfaceId = firstSurfId;
 
         for (Interfaces::const_iterator k=interfaces().begin();k!=interfaces().end();++k)
             for (Domains::const_iterator i=domains().begin();i!=domains().end();++i) {
@@ -102,7 +102,7 @@ namespace MeshReader {
 
 #if 1
         std::cout << "Sorted List : \t" ;
-        for(int i=0;i<sortedListOfSurfId.size();i++)
+        for(size_t i=0;i<sortedListOfSurfId.size();i++)
             std::cout << sortedListOfSurfId[i] << " " ;
         std::cout << std::endl;
 

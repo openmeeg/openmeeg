@@ -61,13 +61,13 @@ IF ( USE_MKL )
         ../../mkl/ia32/lib
         ~/intel/mkl/8.1/lib/32
         ~/Intel/MKL/8.1/lib/32
-        /Library/Frameworks/Intel_MKL.framework/Libraries/32
+        /Library/Frameworks/Intel_MKL.framework/Libraries/universal
     )
 
     IF ( WIN32 )
         SET(MKL_LIBS mkl_solver mkl_c libguide)
     ELSE ( WIN32 )
-        SET(MKL_LIBS mkl mkl_lapack mkl_ia32 guide)
+        SET(MKL_LIBS mkl mkl_lapack guide)
     ENDIF ( WIN32 )
 
     FOREACH ( LIB ${MKL_LIBS})

@@ -8,10 +8,6 @@
 #include <cmath>
 #include <iostream>
 
-//#define BIG_MAT_TEST
-//#define BIG_BIG_MAT_TEST
-// #define SPEED
-
 using namespace std;
 
 void genericTest( const genericMatrix &M)
@@ -134,8 +130,8 @@ int main ()
     R.loadTxt("tmp.txt");
     cout<<"R= "<<endl<<R<<endl;
 
-    // section matrice creuse
-    cout<<endl<<"========== sparse matrices =========="<<endl;
+    // section sparse_matrice 
+    cout<<endl<<"========== sparse matrices =========="<<endl; // FIXME : write test on sparse matrices
     sparse_matrice spM(10,10);
     int _n=0;
     for(unsigned int i=0;i<30;i++)
@@ -159,9 +155,11 @@ int main ()
     fast_sparse_matrice fspM(spM);
     genericTest(fspM);
     cout<<"fast_sparse-vector product: "<<fspM*spv<<endl;
-    //cout<<"fast_sparse-vector solve: "<<fspM.solve(spv)<<endl;
 
-#ifdef SPEED
+// =========
+// = SPEED =
+// =========
+#if 0
     cout<<endl<<"========== speed test =========="<<endl;
     int sm_size = 1000;
     matrice sm(sm_size,sm_size);
@@ -244,7 +242,10 @@ int main ()
 
 #endif
 
-#ifdef BIG_MAT_TEST
+// ================
+// = BIG_MAT_TEST =
+// ================
+#if 0
     // 2GB Test
     matrice bigmat(15800,15800);
     vecteur bigvec(15800);
@@ -263,7 +264,10 @@ int main ()
     bigvec=vecteur();
 #endif
 
-#ifdef BIG_BIG_MAT_TEST
+// ====================
+// = BIG_BIG_MAT_TEST =
+// ====================
+#if 0
     // 12GB Test
     matrice bigbigmat(38700,38700);
     vecteur bigbigvec(38700);

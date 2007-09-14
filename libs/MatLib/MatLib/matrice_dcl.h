@@ -1,17 +1,17 @@
-#ifndef H_matrice_dcl
-#define H_matrice_dcl
+#ifndef H_MATRICE_DCL
+#define H_MATRICE_DCL
 
 #include "MatLibConfig.h"
 #include <iostream>
 #include <fstream>
 #include <cassert>
 
-#include "genericMatrix.h"
+#include "generic_matrix.h"
 
 class symmatrice;
 class vecteur;
 
-class matrice : public virtual genericMatrix{
+class matrice : public virtual genericMatrix {
 protected:
     size_t m,n;
     double *t;

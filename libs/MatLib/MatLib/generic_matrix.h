@@ -17,7 +17,7 @@ public:
     virtual void loadTxt( const char *filename )=0;
     virtual void loadBin( const char *filename )=0;
     virtual void write(std::ostream& f) const =0;
-    virtual void read(std::istream& f) =0;    
+    virtual void read(std::istream& f) =0;
 };
 
 typedef TgenericMatrix<double> genericMatrix;

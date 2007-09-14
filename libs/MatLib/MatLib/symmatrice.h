@@ -1,5 +1,5 @@
-#ifndef H_symmatrice
-#define H_symmatrice
+#ifndef H_SYMMATRICE
+#define H_SYMMATRICE
 
 #include <sstream>
 #include <cmath>

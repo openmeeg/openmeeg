@@ -156,7 +156,7 @@ public:
     inline void setOrdre(int n)
     {
         if(n>=0 && n<4) ordre=n;
-        else {std::cout<<"Ordre Gauss hors limites: "<<n<<std::endl; ordre = (n<1)?ordre=1:ordre;}
+        else {std::cout<<"Unavalaible Gauss Order: "<<n<<std::endl; ordre = (n<1)?ordre=1:ordre;}
     }
 
     inline T integre ( const fContainer<T> &fc, const Triangle& Trg ,const Mesh& M) 

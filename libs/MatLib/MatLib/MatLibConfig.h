@@ -1,9 +1,9 @@
 #ifndef MATLIBCONFIG_H
 #define MATLIBCONFIG_H
 
-#ifdef USE_CMAKE
 //  cmake configuration.
 #include <OpenMEEGConfigure.h>
+
 #ifdef __APPLE__
 #define F77_FUNC(name,NAME) name
 #define F77_FUNC_(name,NAME) name ## _
@@ -11,10 +11,10 @@
 #define F77_FUNC(name,NAME) name ## _
 #define F77_FUNC_(name,NAME) name ## _
 #endif
+
 #if defined(USE_ATLAS) || defined(USE_MKL)
 #define HAVE_BLAS
 #define HAVE_LAPACK
-#endif
 #endif
 
 #ifdef HAVE_CONFIG_H
@@ -47,7 +47,7 @@
 
 #ifdef USE_MKL
 // Hack to avoid the MKL declarations of Lapack Functions which do not use the power of C++ references
-	#define _MKL_LAPACK_H_
+    #define _MKL_LAPACK_H_
     #include <mkl.h>
     #define BLAS(x,X) cblas_ ## x
     #define LAPACK(x,X) x

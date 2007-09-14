@@ -1,5 +1,5 @@
-#ifndef H_matrice
-#define H_matrice
+#ifndef H_MATRICE
+#define H_MATRICE
 
 #include <cstdlib>
 #include <cmath>

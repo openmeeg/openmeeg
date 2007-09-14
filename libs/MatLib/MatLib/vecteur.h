@@ -1,10 +1,9 @@
-#ifndef H_vecteur
-#define H_vecteur
+#ifndef H_VECTEUR
+#define H_VECTEUR
 
 #include "MatLibConfig.h"
 #include "vecteur_dcl.h"
 #include "matrice.h"
-
 
 inline vecteur::vecteur():n(0),t(0),count(0) {}
 inline vecteur::vecteur(size_t N) {alloc(N); }

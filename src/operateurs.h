@@ -73,7 +73,7 @@ inline double _operateurD(const int nT1,const int nP2,const int GaussOrder,const
 
     double total = 0;
     static int Tadj[128];            // triangles of which P2 is a vertex
-    int nTadj = m2.elem(nP2,Tadj);    //
+    int nTadj = m2.elem(nP2,Tadj);
 
     for(int k=0;k<nTadj;k++)
     {
@@ -97,7 +97,7 @@ inline void _operateurD(const int nT1,const int nT2,const int GaussOrder,const M
     static analytiqueD3 analyD;
 
     analyD.init( m2, nT2);
-    Vect3 total=gauss.integre(analyD,T1,m1);
+    Vect3 total = gauss.integre(analyD,T1,m1);
     mat(offsetI+nT1,offsetJ+((Triangle)T2)[0]) += total.x();
     mat(offsetI+nT1,offsetJ+((Triangle)T2)[1]) += total.y();
     mat(offsetI+nT1,offsetJ+((Triangle)T2)[2]) += total.z();

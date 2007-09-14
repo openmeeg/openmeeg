@@ -1,7 +1,7 @@
-#ifndef H_symmatrice_dcl
-#define H_symmatrice_dcl
+#ifndef H_SYMMATRICE_DCL
+#define H_SYMMATRICE_DCL
 
-#include "genericMatrix.h"
+#include "generic_matrix.h"
 #include <fstream>
 #include <cassert>
 
