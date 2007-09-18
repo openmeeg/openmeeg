@@ -10,9 +10,12 @@
 #include "geometry.h"
 #include "integrateur.h"
 #include "analytiques.h"
+#include <iostream>
 
 #define OPTIMIZED_OPERATOR_N
 #define OPTIMIZED_OPERATOR_D
+#define ADAPT_RHS
+//#define ADAPT_LHS
 
 void operateurN(const Geometry &geo,const int I,const int J,const int,symmatrice &mat,const int offsetI,const int offsetJ,const int IopS,const int JopS);
 void operateurS(const Geometry &geo,const int I,const int J,const int,symmatrice &mat,const int offsetI,const int offsetJ);
@@ -68,19 +71,27 @@ inline double _operateurD(const int nT1,const int nP2,const int GaussOrder,const
     // consider varying order of quadrature with the distance between T1 and T2
     const Triangle &T1=m1.getTrg(nT1);
 
-    static integrateur<double> gauss(GaussOrder);
     static analytiqueD analyD;
 
     double total = 0;
     static int Tadj[128];            // triangles of which P2 is a vertex
     int nTadj = m2.elem(nP2,Tadj);
-
+#ifdef ADAPT_LHS
+ integrateur:adaptive_integrator<double> gauss(0.005);
     for(int k=0;k<nTadj;k++)
+    {
+      gauss.setOrdre(GaussOrder);
+        analyD.init( m2, Tadj[k], nP2);
+        total += gauss.integrate(analyD,T1,m1);
+    }
+#else 
+     static integrateur<double> gauss(GaussOrder);
+         for(int k=0;k<nTadj;k++)
     {
         analyD.init( m2, Tadj[k], nP2);
         total += gauss.integre(analyD,T1,m1);
     }
-
+#endif //ADAPT_LHS
     return total;
 }
 #else
@@ -93,16 +104,22 @@ inline void _operateurD(const int nT1,const int nT2,const int GaussOrder,const M
     const Triangle &T1=m1.getTrg(nT1);
     const Triangle &T2=m2.getTrg(nT2);
 
-    static integrateur<Vect3> gauss(GaussOrder);
     static analytiqueD3 analyD;
 
     analyD.init( m2, nT2);
-    Vect3 total = gauss.integre(analyD,T1,m1);
+#ifdef ADAPT_LHS
+ integrateur:adaptive_integrator<Vect3> gauss(0.005);
+    gauss.setOrdre(GaussOrder);
+    Vect3 total=gauss.integrate(analyD,T1,m1);
+#else
+    static integrateur<Vect3> gauss(GaussOrder);
+    Vect3 total=gauss.integre(analyD,T1,m1);
+#endif //ADAPT_LHS
     mat(offsetI+nT1,offsetJ+((Triangle)T2)[0]) += total.x();
     mat(offsetI+nT1,offsetJ+((Triangle)T2)[1]) += total.y();
     mat(offsetI+nT1,offsetJ+((Triangle)T2)[2]) += total.z();
 }
-#endif
+#endif //OPTIMIZED_OPERATOR_D
 
 inline double _operateurS(const int nT1,const int nT2,const int GaussOrder,const Mesh &m1,const Mesh &m2)
 {
@@ -110,17 +127,22 @@ inline double _operateurS(const int nT1,const int nT2,const int GaussOrder,const
     const Triangle &T2=m2.getTrg(nT2);
 
     static Triangle *oldT=0;
-    static integrateur<double> gauss;
     static analytiqueS analyS;
-    gauss.setOrdre(GaussOrder);
 
     if(oldT != &T1)    // a few computations are needed only when changing triangle T1
     {
         oldT=(Triangle*)&T1;
         analyS.init(nT1,m1);
     }
-
-    return gauss.integre(analyS,T2,m2);
+#ifdef ADAPT_LHS
+    integrateur:adaptive_integrator<double> gauss(0.005);
+    gauss.setOrdre(GaussOrder);
+    return gauss.integrate(analyS,T2,m2);
+#else
+        static integrateur<double> gauss;
+	gauss.setOrdre(GaussOrder);
+	return gauss.integre(analyS,T2,m2);
+#endif //ADAPT_LHS
 }
 
 inline double _operateurN(const int nP1,const int nP2,const int GaussOrder,const Mesh &m1,const Mesh &m2,const int IopS,const int JopS,genericMatrix &mat)

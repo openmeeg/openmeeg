@@ -346,9 +346,22 @@ void operateurFerguson(const Vect3 x, const Mesh &m1, matrice &mat, int offsetI,
 void operateurDipolePotDer(const Vect3 &r0,const Vect3 &q,const Mesh &inner_layer,vecteur &rhs,const int offsetIdx,const int GaussOrder)
 {
     static analytiqueDipPotDer anaDPD;
+    
+
+#ifdef ADAPT_RHS
+ integrateur:adaptive_integrator<Vect3> gauss(0.001);
+    gauss.setOrdre(GaussOrder);
+    for(int i=0;i<inner_layer.nbTrgs();i++)
+    {
+    anaDPD.init(inner_layer,i,q,r0);
+        Vect3 v=gauss.integrate(anaDPD,inner_layer.getTrg(i),inner_layer);
+        rhs(inner_layer.getTrg(i-offsetIdx).s1()+offsetIdx)+=v[0];
+        rhs(inner_layer.getTrg(i-offsetIdx).s2()+offsetIdx)+=v[1];
+        rhs(inner_layer.getTrg(i-offsetIdx).s3()+offsetIdx)+=v[2];
+    }
+#else
     static integrateur<Vect3> gauss;
     gauss.setOrdre(GaussOrder);
-
     for(int i=0;i<inner_layer.nbTrgs();i++)
     {
         anaDPD.init(inner_layer,i,q,r0);
@@ -357,20 +370,30 @@ void operateurDipolePotDer(const Vect3 &r0,const Vect3 &q,const Mesh &inner_laye
         rhs(inner_layer.getTrg(i-offsetIdx).s2()+offsetIdx)+=v[1];
         rhs(inner_layer.getTrg(i-offsetIdx).s3()+offsetIdx)+=v[2];
     }
+#endif //ADAPT_RHS
 }
 
 void operateurDipolePot(const Vect3 &r0, const Vect3 &q, const Mesh &inner_layer, vecteur &rhs,const int offsetIdx,const int GaussOrder)
 {
     static analytiqueDipPot anaDP;
-    static integrateur<double> gauss;
-    gauss.setOrdre(GaussOrder);
 
     anaDP.init(q,r0);
+#ifdef ADAPT_RHS
+ integrateur:adaptive_integrator<double> gauss(0.001);
+    gauss.setOrdre(GaussOrder);
+    for(int i=offsetIdx;i<offsetIdx+inner_layer.nbTrgs();i++)
+      {
+        rhs(i)+=gauss.integrate(anaDP,inner_layer.getTrg(i-offsetIdx),inner_layer);
+      }
+#else
+   static integrateur<double> gauss;
+   gauss.setOrdre(GaussOrder);
     for(int i=offsetIdx;i<offsetIdx+inner_layer.nbTrgs();i++)
     {
         rhs(i)+=gauss.integre(anaDP,inner_layer.getTrg(i-offsetIdx),inner_layer);
     }
-}
+#endif //ADAPT_RHS
+ }
 
 // Grad wrt r0
 void operateurDipolePotDerGrad(const Vect3 &r0, const Vect3 &q,const Mesh &inner_layer, vecteur rhs[6],const int offsetIdx,const int GaussOrder)

@@ -150,7 +150,7 @@ private:
     int ordre;
 
 public:
-    inline integrateur() {setOrdre(1);}
+    inline integrateur() {setOrdre(3);}
     inline integrateur(int ord) {setOrdre(ord);}
     inline ~integrateur() {}
     inline void setOrdre(int n)
@@ -161,26 +161,91 @@ public:
 
     inline T integre ( const fContainer<T> &fc, const Triangle& Trg ,const Mesh& M) 
     {
-        double S=Trg.getArea();
-        T result=0;
-
         Vect3 sommets[3]={M.getPt(Trg.s1()),M.getPt(Trg.s2()),M.getPt(Trg.s3())};
-        static Vect3 zero(0.0,0.0,0.0);
-
-        int i;
-        for(i=0;i<nbPts[ordre];i++)
+	return triangle_integration(fc,sommets);
+    }
+    inline T  triangle_integration( const fContainer<T> &fc, Vect3 *vertices)
+      {// compute double area of triangle defined by vertices
+	Vect3 crossprod=(vertices[1]-vertices[0])^(vertices[2]-vertices[0]);
+        double S= crossprod.norme();
+        T result=0;
+	static Vect3 zero(0.0,0.0,0.0);
+	int i;
+	for(i=0;i<nbPts[ordre];i++)
         {
             Vect3 v=zero;
             int j;
             for(j=0;j<3;j++) {
-                v.multadd(cordBars[ordre][i][j],sommets[j]);
+                v.multadd(cordBars[ordre][i][j],vertices[j]);
             }
             multadd(result,cordBars[ordre][i][3],fc.f(v));
         }
+        return result*S;
+      }
+};
 
-        return result*(S*2);
+template<class T> class adaptive_integrator : public integrateur<T> {
+ private:
+  double tolerance;
+ public:
+  inline adaptive_integrator() {setTol(0.0001);}
+  inline adaptive_integrator(double tol) {setTol(tol);}
+  inline ~adaptive_integrator() {}
+  inline void setTol(double tol)
+    {
+      tolerance = tol;
     }
-
+    inline double norme(double a) {
+   return fabs(a);
+  }
+  inline double norme(Vect3 a) {
+    return a.norme();
+  }
+  inline T integrate ( const fContainer<T> &fc, const Triangle& Trg ,const Mesh& M) 
+    { 
+      int n=0;
+      Vect3 sommets[3]={M.getPt(Trg.s1()),M.getPt(Trg.s2()),M.getPt(Trg.s3())};
+      T I0=triangle_integration(fc,sommets);     
+      return adaptive_integration(fc,sommets,I0,tolerance,n);
+    }
+  inline T  adaptive_integration(const fContainer<T> &fc,const Vect3 *vertices,T I0,const double tolerance,int n)
+    { 
+      Vect3 newpoint0(0.0,0.0,0.0);
+      multadd(newpoint0,0.5,vertices[0]);
+      multadd(newpoint0,0.5,vertices[1]);
+      Vect3 newpoint1(0.0,0.0,0.0);
+      multadd(newpoint1,0.5,vertices[1]);
+      multadd(newpoint1,0.5,vertices[2]);
+      Vect3 newpoint2(0.0,0.0,0.0);
+      multadd(newpoint2,0.5,vertices[2]);
+      multadd(newpoint2,0.5,vertices[0]);
+      Vect3 vertices1[3]={vertices[0],newpoint0,newpoint2};
+      Vect3 vertices2[3]={vertices[1],newpoint1,newpoint0};
+      Vect3 vertices3[3]={vertices[2],newpoint2,newpoint1}; 
+      Vect3 vertices4[3]={newpoint0,newpoint1,newpoint2}; 
+      T I1=triangle_integration(fc,vertices1);
+      T I2=triangle_integration(fc,vertices2);
+      T I3=triangle_integration(fc,vertices3);
+      T I4=triangle_integration(fc,vertices4);
+      T somme=I1+I2+I3+I4;
+      if (norme(I0-somme)>tolerance*norme(I0)){ 
+	n=n+1;
+	if (n<10) {
+	  I1 = adaptive_integration(fc,vertices1,I1,tolerance,n);
+	  I2 = adaptive_integration(fc,vertices2,I2,tolerance,n);
+	  I3 = adaptive_integration(fc,vertices3,I3,tolerance,n);
+	  I4 = adaptive_integration(fc,vertices4,I4,tolerance,n);	
+	  I0 = I1+I2+I3+I4;
+	}
+	}
+      //     	std::cout<<"  "<<n ;
+	return I0;
+      
+      //  else {
+      //			std::cout<<"depth: "<<n<<std::endl;
+      //return I0;
+      //}
+    }
 };
 
 
@@ -209,7 +274,7 @@ static const double cordBars[6][12][3]=
     }
     ,
     {
-        {2/3.,1/6.,1/6.},
+      {2/3.,1/6.,1/6.},
         {1/6.,2/3.,1/6.},
         {1/6.,1/6.,2/3.},
         {0.,0.,0},
@@ -322,7 +387,7 @@ public:
     inline void setOrdre(int n)
     {
         if(n>=0 && n<6) ordre=n;
-        else {std::cout<<"Ordre Gauss hors limites: "<<n<<std::endl; ordre = (n<1)?ordre=1:ordre;}
+        else {std::cout<<"Gauss order out of limits: "<<n<<std::endl; ordre = (n<1)?ordre=1:ordre;}
         pbarys=(double**)(cordBars[ordre]); pds=(double*)(poids[ordre]);
     }
 
@@ -425,7 +490,7 @@ GaussQ2D_nodes[GaussQ2D_maxorder][GaussQ2D_maxorder]={
             void setOrdre(int n)
             {
                 if(n>=0 && n<12) ordre=n;
-                else {std::cout<<"Odre Gauss hors limites: "<<n<<std::endl; ordre = (n<1)?ordre=1:ordre;}
+                else {std::cout<<"Gauss order out of limits: "<<n<<std::endl; ordre = (n<1)?ordre=1:ordre;}
             }
 
             T integre ( const fContainer<T> &fc, const Triangle& Trg ,const Mesh& M)
