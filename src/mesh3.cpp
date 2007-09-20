@@ -107,7 +107,7 @@ void Mesh::load(const char* name, bool verbose) {
     char extension[128];
     getNameExtension(name,extension);
     if(!strcmp(extension,"vtk") || !strcmp(extension,"VTK")) load_vtk(name);
-    else if(!strcmp(extension,"mesh") || !strcmp(extension,"MESH")) load_Mesh(name);
+    else if(!strcmp(extension,"mesh") || !strcmp(extension,"MESH")) load_mesh(name);
     else if(!strcmp(extension,"tri") || !strcmp(extension,"TRI")) load_tri(name);
     else if(!strcmp(extension,"bnd") || !strcmp(extension,"BND")) load_bnd(name);
     else {
@@ -138,7 +138,7 @@ void Mesh::getDataFromVTKReader(vtkPolyDataReader* reader) {   //private
     vtkDataArray *normalsData = vtkMesh->GetPointData()->GetNormals();
     assert(npts == normalsData->GetNumberOfTuples());
     assert(3 == normalsData->GetNumberOfComponents());
-    
+
     for (int i = 0;i<npts;i++)
     {
         pts[i].x() = vtkMesh->GetPoint(i)[0];
@@ -212,14 +212,104 @@ void Mesh::load_vtk(const char* name) {
 
 #endif
 
-void Mesh::load_Mesh(std::istream &is) {
-    std::cerr << "load_Mesh not inmplemented yet" << std::endl;
-    exit(1);
+void Mesh::load_mesh(std::istream &is) {
+    unsigned char* uc = new unsigned char[5]; // File format
+    is.read((char*)uc,sizeof(unsigned char)*5);
+    delete[] uc;
+
+    uc = new unsigned char[4]; // lbindian
+    is.read((char*)uc,sizeof(unsigned char)*4);
+    delete[] uc;
+
+    unsigned int* ui = new unsigned int[1]; // arg_size
+    is.read((char*)ui,sizeof(unsigned int));
+    unsigned int arg_size = ui[0];
+    delete[] ui;
+
+    uc = new unsigned char[arg_size]; // Trash
+    is.read((char*)uc,sizeof(unsigned char)*arg_size);
+    delete[] uc;
+
+    ui = new unsigned int[1]; // vertex_per_face
+    is.read((char*)ui,sizeof(unsigned int));
+    unsigned int vertex_per_face = ui[0];
+    delete[] ui;
+
+    ui = new unsigned int[1]; // mesh_time
+    is.read((char*)ui,sizeof(unsigned int));
+    unsigned int mesh_time = ui[0];
+    delete[] ui;
+
+    ui = new unsigned int[1]; // mesh_step
+    is.read((char*)ui,sizeof(unsigned int));
+    delete[] ui;
+
+    ui = new unsigned int[1]; // vertex number
+    is.read((char*)ui,sizeof(unsigned int));
+    npts = ui[0];
+    delete[] ui;
+
+    assert(vertex_per_face == 3); // Support only for triangulations
+    assert(mesh_time == 1); // Support only 1 time frame
+
+    float* pts_raw = new float[npts*3]; // Points
+    is.read((char*)pts_raw,sizeof(float)*npts*3);
+
+    ui = new unsigned int[1]; // arg_size
+    is.read((char*)ui,sizeof(unsigned int));
+    delete[] ui;
+
+    float* normals_raw = new float[npts*3]; // Normals
+    is.read((char*)normals_raw,sizeof(float)*npts*3);
+
+    ui = new unsigned int[1]; // arg_size
+    is.read((char*)ui,sizeof(unsigned int));
+    delete[] ui;
+
+    ui = new unsigned int[1]; // number of faces
+    is.read((char*)ui,sizeof(unsigned int));
+    ntrgs = ui[0];
+    delete[] ui;
+
+    unsigned int* faces_raw = new unsigned int[ntrgs*3]; // Faces
+    is.read((char*)faces_raw,sizeof(unsigned int)*ntrgs*3);
+
+    pts = new Vect3[npts];
+    normals = new Vect3[npts];
+    links = new intSet[npts];
+    for(int i = 0; i < npts; ++i)
+    {
+        pts[i].x() = pts_raw[i*3+0];
+        pts[i].y() = pts_raw[i*3+1];
+        pts[i].z() = pts_raw[i*3+2];
+        normals[i].x() = normals_raw[i*3+0];
+        normals[i].y() = normals_raw[i*3+1];
+        normals[i].z() = normals_raw[i*3+2];
+    }
+    trgs = new Triangle[ntrgs];
+    for(int i = 0; i < ntrgs; ++i)
+    {
+        trgs[i][0] = faces_raw[i*3+0];
+        trgs[i][1] = faces_raw[i*3+1];
+        trgs[i][2] = faces_raw[i*3+2];
+        trgs[i].normal() = pts[trgs[i][0]].normal( pts[trgs[i][1]] , pts[trgs[i][2]] );
+        trgs[i].area() = trgs[i].normal().norme()/2.0;
+    }
+    delete[] faces_raw;
+    delete[] normals_raw;
+    delete[] pts_raw;
 }
 
-void Mesh::load_Mesh(const char* name) {
-    std::cerr << "load_Mesh not implemented yet (name: "<<name << " )." << std::endl;
-    exit(1);
+void Mesh::load_mesh(const char* filename) {
+    string s = filename;
+    cout << "load_mesh : " << filename << endl;
+    std::ifstream f(filename);
+    if(!f.is_open()) {
+        cerr << "Error opening MESH file: " << filename << endl;
+        exit(1);
+    }
+    Mesh::load_mesh(f);
+    f.close();
 }
 
 void Mesh::load_tri(std::istream &f) {
@@ -324,7 +414,7 @@ void Mesh::load_bnd(std::istream &f) {
     trgs = new Triangle[ntrgs];
     for (int i=0;i<ntrgs;i++){
         f>>trgs[i];
-        
+
         trgs[i].normal() = pts[trgs[i][0]].normal( pts[trgs[i][1]] , pts[trgs[i][2]] );
         trgs[i].area() = trgs[i].normal().norme()/2.0;
     }
@@ -401,9 +491,66 @@ void Mesh::save_tri(const char* filename) {
     os.close();
 }
 
-void Mesh::save_mesh(const char* name) {
-    std::cerr<<"save_mesh not implemented yet (name: "<<name << " )."<<std::endl;
-    exit(1);
+void Mesh::save_mesh(const char* filename) {
+    std::ofstream os(filename);
+
+    unsigned char format[5] = {'b','i','n','a','r'}; // File format
+    os.write((char*)format,sizeof(unsigned char)*5);
+
+    unsigned char lbindian[4] = {'D','C','B','A'}; // lbindian
+    os.write((char*)lbindian,sizeof(unsigned char)*4);
+
+    unsigned int arg_size[1] = {4}; // arg_size
+    os.write((char*)arg_size,sizeof(unsigned int));
+
+    unsigned char VOID[4] = {'V','O','I','D'}; // Trash
+    os.write((char*)VOID,sizeof(unsigned char)*4);
+
+    unsigned int vertex_per_face[1] = {3}; // vertex_per_face
+    os.write((char*)vertex_per_face,sizeof(unsigned int));
+
+    unsigned int mesh_time[1] = {1}; // mesh_time
+    os.write((char*)mesh_time,sizeof(unsigned int));
+
+    unsigned int mesh_step[1] = {0}; // mesh_step
+    os.write((char*)mesh_step,sizeof(unsigned int));
+
+    unsigned int vertex_number[1] = {npts}; // vertex number
+    os.write((char*)vertex_number,sizeof(unsigned int));
+
+    float* pts_raw = new float[npts*3]; // Points
+    float* normals_raw = new float[npts*3]; // Normals
+    unsigned int* faces_raw = new unsigned int[ntrgs*3]; // Faces
+
+    for(int i = 0; i < npts; ++i)
+    {
+        pts_raw[i*3+0] = pts[i].x();
+        pts_raw[i*3+1] = pts[i].y();
+        pts_raw[i*3+2] = pts[i].z();
+        normals_raw[i*3+0] = normals[i].x();
+        normals_raw[i*3+1] = normals[i].y();
+        normals_raw[i*3+2] = normals[i].z();
+    }
+    for(int i = 0; i < ntrgs; ++i)
+    {
+        faces_raw[i*3+0] = trgs[i][0];
+        faces_raw[i*3+1] = trgs[i][1];
+        faces_raw[i*3+2] = trgs[i][2];
+    }
+
+    os.write((char*)pts_raw,sizeof(float)*npts*3);          // points
+    os.write((char*)vertex_number,sizeof(unsigned int));    // arg size : npts
+    os.write((char*)normals_raw,sizeof(float)*npts*3);      // normals
+    unsigned char zero[1] = {0};
+    os.write((char*)zero,sizeof(unsigned int));             // arg size : 0
+    unsigned int faces_number[1] = {ntrgs};
+    os.write((char*)faces_number,sizeof(unsigned int));     // ntrgs
+    os.write((char*)faces_raw,sizeof(unsigned int)*ntrgs*3); // triangles
+
+    delete[] faces_raw;
+    delete[] normals_raw;
+    delete[] pts_raw;
+    os.close();
 }
 
 /**

@@ -37,7 +37,7 @@ private:
 
 public:
 
-    enum Filetype { VTK, TRI, BND };
+    enum Filetype { VTK, TRI, BND, MESH };
 
     Mesh();
     Mesh(int, int); // npts, ntrgs
@@ -97,8 +97,8 @@ public:
     void load_bnd(std::istream &);
     void load_bnd(const char*);
 
-    void load_Mesh(std::istream &is);
-    void load_Mesh(const char*);
+    void load_mesh(std::istream &is);
+    void load_mesh(const char*);
 
     void save(const char* filename);
     void save_vtk(const char*);
@@ -148,6 +148,7 @@ public:
             case VTK:       m.load_vtk(ifs); break;
 #endif
             case BND:       m.load_bnd(ifs); break;
+            case MESH:       m.load_mesh(ifs); break;
             default: std::cout << "Unknown file format" << std::endl;
         }
     }
