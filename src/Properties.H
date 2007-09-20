@@ -92,7 +92,7 @@ namespace Utils {
         template <typename ID,typename PROPERTY>
         std::istream& operator>>(std::istream& is,Named<ID,PROPERTY>& properties) {
             PropertyLoader<Named<ID,PROPERTY> > loader(properties);
-            is >> loader;
+            return is >> loader;
         }
 
         template <typename ID,typename PROPERTY>

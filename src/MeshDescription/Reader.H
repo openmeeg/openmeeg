@@ -42,7 +42,7 @@ namespace MeshDescription {
 
                 //  Load the interface and check that it is compatible with the first one.
 
-                const std::string& full_name = path+name;
+                const std::string& full_name = file_name(name);
                 std::ifstream ifs(full_name.c_str());
                 if (!ifs.is_open())
                     throw MeshDescription::OpenError(full_name);
