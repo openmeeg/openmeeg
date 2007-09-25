@@ -646,10 +646,8 @@ inline void matrice::loadTxt( const char *filename )
 {
     std::ifstream file(filename);
     if(!file.is_open()) {
-
         std::cerr<<"Error Opening Matrix File "<<filename<<std::endl;
         exit(1);
-
     }
     std::stringstream sst;
 

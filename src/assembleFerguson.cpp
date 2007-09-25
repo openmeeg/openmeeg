@@ -4,7 +4,6 @@
 #include "operateurs.h"
 #define MU0 1 //1.25e-6
 
-
 // geo = geometry 
 // mat = storage for ferguson matrix
 // pts = where the magnetic field is to be computed 
@@ -19,7 +18,7 @@ void assemble_ferguson(const Geometry &geo,matrice &mat, const Vect3 *pts,const 
         for (int p=0;p<n;p++)
         {
             operateurFerguson(pts[p],geo.getM(c),mat,offsetI,offsetJ);
-            offsetI+=3;
+            offsetI += 3;
         }
         offsetJ+=geo.getM(c).nbPts();
     }
@@ -28,13 +27,10 @@ void assemble_ferguson(const Geometry &geo,matrice &mat, const Vect3 *pts,const 
     offsetJ=0;
     for(int c=0;c<geo.nb();c++)
     {
-        //int offsetI=0;
         mult2(mat,0,offsetJ,mat.nlin(),offsetJ+geo.getM(c).nbPts(),(geo.sigma_in(c)-geo.sigma_out(c))*MU0/(4*M_PI));
         offsetJ+=geo.getM(c).nbPts();
     }
-
 }
-
 
 void compute_Binf ( const Mesh& sources_mesh, const matrice& squids_positions, matrice& field_at_squids)
 // squids positions are layed line by line in the positions matrix (though it is nSquidsX3 matrix)

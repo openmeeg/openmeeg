@@ -13,7 +13,7 @@ bin_PROGRAMS= forward gain assemble inverse matbin2txt mattxt2bin mesh_convert \
 
 forward_SOURCES= forward.cpp
 gain_SOURCES= gain.cpp
-assemble_SOURCES= assembleFerguson.cpp assembleMat.cpp assemble_RHSmatrix.cpp assemble_squids_EEG.cpp \
+assemble_SOURCES= assembleFerguson.cpp assembleLHS.cpp assembleRHS.cpp assembleSensors.cpp \
                   danielsson.cpp geometry.cpp assemble.cpp mesh3.cpp operateurs.cpp
 inverse_SOURCES= inverse.cpp
 matbin2txt_SOURCES= matbin2txt.cpp

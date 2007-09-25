@@ -21,7 +21,7 @@ int main(int argc, char **argv)
         cerr << "Not enough arguments \nPlease try \"" << argv[0] << " -h\" or \"" << argv[0] << " --help \" \n" << endl;
         return 0;
     }
-    
+
     if ((!strcmp(argv[1],"-h")) | (!strcmp(argv[1],"--help"))) getHelp(argv);
 
     // Start Chrono
@@ -52,7 +52,7 @@ int main(int argc, char **argv)
     matrice MegGainMatrix;
     double MegDataWeight;
     matrice RealMegData;
-    
+
     // for use with EEG DATA
     if(!strcmp(argv[1],"-EEG"))
     {

@@ -116,6 +116,10 @@ inline void fast_sparse_matrice::loadTxt( const char *filename )
 {
     idxType nz;
     std::ifstream ifs(filename);
+	if(!ifs.is_open()) {
+        std::cerr<<"Error Opening Matrix File "<<filename<<std::endl;
+        exit(1);
+    }
     ifs>>m_nlin>>m_ncol;
     ifs>>nz;
     alloc(m_nlin,m_ncol,nz);
@@ -127,6 +131,10 @@ inline void fast_sparse_matrice::loadTxt( const char *filename )
 inline void fast_sparse_matrice::loadBin( const char *filename )
 {
     std::ifstream ifs(filename,std::ios_base::binary);
+	if(!ifs.is_open()) {
+        std::cerr<<"Error Opening Matrix File "<<filename<<std::endl;
+        exit(1);
+    }
     read(ifs);
     ifs.close();
 }

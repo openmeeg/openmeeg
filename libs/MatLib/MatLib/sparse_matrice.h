@@ -200,17 +200,17 @@ public:
         return result;
     }
 
-    inline void saveBin( const char * filename) const // Les colonnes sont ecrites les unes ‡ la suite des autres
+    inline void saveBin( const char * filename) const // Les colonnes sont ecrites les unes à la suite des autres
     {
         FILE *file;
         file=fopen(filename,"wb");
+	    if(file==NULL) {std::cerr<<"Error opening file: " << filename << std::endl; exit(1);}
 
         // On ecrit avant toute chose le nombre de lignes et de colonnes de la matrice
         idxType nn=this->_n;
         idxType pp=this->_p;
         fwrite(&nn,sizeof(idxType),1,file);
         fwrite(&pp,sizeof(idxType),1,file);
-
 
         // On parcourt les colonnes
         for(idxType j=0;j<_p;j++)
@@ -229,7 +229,6 @@ public:
         } //fin de la boucle sur les colonnes
 
         fclose(file);
-
     }
 
     inline void saveTxt( const char * filename) const // Les colonnes sont ecrites les unes ‡ la suite des autres
@@ -240,7 +239,7 @@ public:
         of<<(*this);
     }
 
-    inline void loadTxt( const char * fileName) // Les colonnes sont ecrites les unes ‡ la suite des autres
+    inline void loadTxt( const char * filename) // Les colonnes sont ecrites les unes ‡ la suite des autres
     {
         if(_RowEntry!=0) destroy();
 
@@ -248,8 +247,8 @@ public:
         T vval;
 
         FILE *file;
-        file=fopen(fileName,"r");
-
+        file=fopen(filename,"r");
+	    if(file==NULL) {std::cerr<<"Error opening file: " << filename << std::endl; exit(1);}
 
         // On ecrit avant toute chose le nombre de lignes et de colonnes de la matrice
         int nnn,ppp,iii,jjj;
@@ -336,7 +335,7 @@ public:
         delete[] RowPrev;
     }
 
-    inline void loadBin( const char * fileName) // Les colonnes sont ecrites les unes ‡ la suite des autres
+    inline void loadBin( const char * filename) // Les colonnes sont ecrites les unes ‡ la suite des autres
     {
         if(_RowEntry!=0) destroy();
 
@@ -344,8 +343,8 @@ public:
         T vval;
 
         FILE *file;
-        file=fopen(fileName,"rb");
-
+        file=fopen(filename,"rb");
+	    if(file==NULL) {std::cerr<<"Error opening sparse matrix binary file: " << filename << std::endl; exit(1);}
 
         // On ecrit avant toute chose le nombre de lignes et de colonnes de la matrice
         fread(&nn,sizeof(idxType),1,file);
@@ -354,7 +353,6 @@ public:
         cellType **RowPrev=new cellType*[nn]; for(idxType i=0;i<nn;i++) RowPrev[i]=0;
         cellType *ColPrev=0;
         cellType *current=0;
-
 
         init(nn,pp);
 

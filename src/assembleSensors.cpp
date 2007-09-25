@@ -1,4 +1,4 @@
-#include "mainHeader.h"
+#include "assemble.h"
 #include "danielsson.h"
 #include "operateurs.h"
 
@@ -73,6 +73,9 @@ void assemble_vToMEG(const Geometry &geo, matrice &mat, const matrice &positions
 
     for(size_t i=0;i<mat.nlin();i++)
     {
+        #ifdef USE_OMP
+        #pragma omp parallel for
+        #endif
         for(int j=0;j<n_indexes;j++)
         {
             Vect3 fergusonField(myFergusonMatrix(3*i,vIndexes[j]),myFergusonMatrix(3*i+1,vIndexes[j]),myFergusonMatrix(3*i+2,vIndexes[j]));
@@ -104,6 +107,7 @@ void assemble_sToMEG(const Mesh &sources_mesh, matrice &mat, const matrice &posi
         positionsVectArray[i][2]=positions(i,2);
     }
 
+    
     for(size_t i=0;i<mat.nlin();i++) operateurFerguson(positionsVectArray[i],sources_mesh,myFergusonMatrix,3*(int)i,0);
 
     for(size_t i=0;i<mat.nlin();i++)

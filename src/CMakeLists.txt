@@ -1,6 +1,6 @@
 SET(OPENMEEG_HEADERS
     analytiques.h
-    mainHeader.h
+    assemble.h
     cpuChrono.h mesh3.h
     danielsson.h
     om_utils.h
@@ -29,7 +29,7 @@ SET(OPENMEEG_HEADERS
 )
 
 ADD_LIBRARY(OpenMEEG ${LIB_TYPE}
-    assembleFerguson.cpp assembleMat.cpp assemble_RHSmatrix.cpp assemble_squids_EEG.cpp
+    assembleFerguson.cpp assembleLHS.cpp assembleRHS.cpp assembleSensors.cpp
     danielsson.cpp geometry.cpp mesh3.cpp operateurs.cpp ${OPENMEEG_HEADERS} 
 )
 TARGET_LINK_LIBRARIES (OpenMEEG ${OPENMEEG_OTHER_LIBRARIES})
