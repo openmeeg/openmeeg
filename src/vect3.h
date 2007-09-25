@@ -5,6 +5,7 @@
 #define _USE_MATH_DEFINES
 #define _CRT_SECURE_NO_DEPRECATE 1
 #endif
+#include <cstdlib>
 #include <math.h>
 #include <iostream>
 #include <assert.h>
