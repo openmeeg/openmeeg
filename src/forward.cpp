@@ -34,9 +34,9 @@ int main(int argc, char **argv)
     matrice MegGainMatrix;
     matrice EegGainMatrix;
     matrice RealSourcesData;
-    matrice EstimatedMegData;
+    matrice SimulatedMegData;
     double MegNoiseLevel;
-    matrice EstimatedEegData;
+    matrice SimulatedEegData;
     double EegNoiseLevel;
     
     // for use with EEG DATA
@@ -62,13 +62,13 @@ int main(int argc, char **argv)
 
     if(!strcmp(argv[1],"-EEG"))
     {
-        EstimatedEegData=matrice(EegGainMatrix.nlin(),nT);
-        data=&EstimatedEegData;
+        SimulatedEegData=matrice(EegGainMatrix.nlin(),nT);
+        data=&SimulatedEegData;
     }
     if(!strcmp(argv[1],"-MEG"))
     {
-        EstimatedMegData=matrice(MegGainMatrix.nlin(),nT);
-        data=&EstimatedMegData;
+        SimulatedMegData=matrice(MegGainMatrix.nlin(),nT);
+        data=&SimulatedMegData;
     }
 
     double noiselevel;
@@ -119,12 +119,12 @@ int main(int argc, char **argv)
     // for use with EEG DATA
     if(!strcmp(argv[1],"-EEG"))
     {
-        EstimatedEegData.saveTxt(argv[4]);
+        SimulatedEegData.saveTxt(argv[4]);
     }
     // for use with MEG DATA
     else if(!strcmp(argv[1],"-MEG"))
     {
-        EstimatedMegData.saveTxt(argv[4]);
+        SimulatedMegData.saveTxt(argv[4]);
     }
     // ===========================================================================================================
 
@@ -142,11 +142,11 @@ void getHelp(char** argv)
     cout << "-option :" << endl;
     cout << "   -EEG :   Compute the forward problem for EEG " << endl;
     cout << "            Filepaths are in order :" << endl;
-    cout << "            EegGainMatrix (bin), RealSourcesData (txt), EstimatedEegData (txt), EegNoiseLevel (float)" << endl << endl;
+    cout << "            EegGainMatrix (bin), RealSourcesData (txt), SimulatedEegData (txt), EegNoiseLevel (float)" << endl << endl;
 
     cout << "   -MEG :   Compute the forward problem for MEG " << endl;
     cout << "            Filepaths are in order :" << endl;
-    cout << "            MegGainMatrix (bin), RealSourcesData (txt), EstimatedMegData (txt), MegNoiseLevel (float)" << endl << endl;
+    cout << "            MegGainMatrix (bin), RealSourcesData (txt), SimulatedMegData (txt), MegNoiseLevel (float)" << endl << endl;
 
     exit(0);
 }
