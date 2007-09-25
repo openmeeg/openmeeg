@@ -100,7 +100,6 @@ void operateurS(const Geometry &geo,const int I,const int J,const int GaussOrder
     const Mesh &m1=geo.getM(I);
     const Mesh &m2=geo.getM(J);
 
-#ifndef USE_SYM
     if(I==J) {
         for(int i=offsetI;i<offsetI+m1.nbTrgs();i++) {
             for(int j=i;j<offsetJ+m2.nbTrgs();j++)
@@ -116,31 +115,6 @@ void operateurS(const Geometry &geo,const int I,const int J,const int GaussOrder
             }
         }
     }
-#else
-    if(I==J)
-        for(int i=offsetI;i<offsetI+m1.nbTrgs();i++)
-            for(int j=i;j<offsetJ+m2.nbTrgs();j++)
-            {
-                mat(i,j)=_operateurS(i-offsetI,j-offsetJ,GaussOrder,m1,m2);
-            }
-    else
-    {
-        if(m1.nbTrgs()<m2.nbTrgs())
-            for(int i=offsetI;i<offsetI+m1.nbTrgs();i++)
-                for(int j=offsetJ+i-offsetI;j<offsetJ+m2.nbTrgs();j++)
-                {
-                    mat(i,j)=_operateurS(i-offsetI,j-offsetJ,GaussOrder,m1,m2);
-                    mat(offsetI+j-offsetJ,offsetJ+i-offsetI)=mat(i,j);
-                }
-        else
-            for(int i=offsetI;i<offsetI+m1.nbTrgs();i++)
-                for(int j=offsetJ;j<=offsetJ+i-offsetI;j++)
-                {
-                    mat(i,j)=_operateurS(i-offsetI,j-offsetJ,GaussOrder,m1,m2);
-                    mat(offsetI+j-offsetJ,offsetJ+i-offsetI)=mat(i,j);
-                }
-    }
-#endif
 }
 
 void operateurS(const Mesh &m1,const Mesh &m2,genericMatrix &mat,const int offsetI,const int offsetJ,const int GaussOrder)
@@ -210,8 +184,6 @@ void operateurN(const Mesh &m1,const Mesh &m2,genericMatrix &mat,const int offse
 
     std::cout<<"OPERATEUR N... (arg : mesh m1, mesh m2)"<<std::endl;
 
-#ifndef USE_SYM
-
     if(&m1==&m2) {
         for(int i=offsetI;i<offsetI+m1.nbPts();i++){
             for(int j=i;j<offsetJ+m2.nbPts();j++)
@@ -227,33 +199,6 @@ void operateurN(const Mesh &m1,const Mesh &m2,genericMatrix &mat,const int offse
             }
         }
     }
-
-#else
-
-    if(offsetI==offsetJ) {
-        for(int i=offsetI;i<offsetI+m1.nbPts();i++)
-            for(int j=i;j<offsetJ+m2.nbPts();j++)
-            {
-                mat(i,j)=_operateurN(i-offsetI,j-offsetJ,GaussOrder,m1,m2,IopS,JopS,mat);
-            }
-    } else {
-        if(m1.nbPts()<m2.nbPts())
-            for(int i=offsetI;i<offsetI+m1.nbPts();i++)
-                for(int j=offsetJ+i-offsetI;j<offsetJ+m2.nbPts();j++)
-                {
-                    mat(i,j)=_operateurN(i-offsetI,j-offsetJ,GaussOrder,m1,m2,IopS,JopS,mat);
-                    mat(offsetI+j-offsetJ,offsetJ+i-offsetI)=mat(i,j);
-                }
-        else
-            for(int i=offsetI;i<offsetI+m1.nbPts();i++)
-                for(int j=offsetJ;j<=offsetJ+i-offsetI;j++)
-                {
-                    mat(i,j)=_operateurN(i-offsetI,j-offsetJ,GaussOrder,m1,m2,IopS,JopS,mat);
-                    mat(offsetI+j-offsetJ,offsetJ+i-offsetI)=mat(i,j);
-                }
-    }
-
-#endif
 }
 
 //general routine for applying _operateurFerguson (see this function for further comments) to an entire mesh, and storing coordinates of the output in a matrix.
