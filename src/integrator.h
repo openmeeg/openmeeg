@@ -1,5 +1,5 @@
-#ifndef H_integrateur
-#define H_integrateur
+#ifndef H_integrator
+#define H_integrator
 
 #include "vect3.h"
 #include "triangle.h"
@@ -135,23 +135,23 @@ static const double cordBars[4][16][4]=
 
 static const int nbPts[4]={3,6,7,16};
 
-template<class T> class integrateur
+template<class T> class integrator
 {
 private:
     // ordre numéro_du_noeud x_y_z_bary
     int ordre;
 
 public:
-    inline integrateur() {setOrdre(3);}
-    inline integrateur(int ord) {setOrdre(ord);}
-    inline ~integrateur() {}
-    inline void setOrdre(int n)
+    inline integrator() {setOrder(3);}
+    inline integrator(int ord) {setOrder(ord);}
+    inline ~integrator() {}
+    inline void setOrder(int n)
     {
         if(n>=0 && n<4) ordre=n;
         else {std::cout<<"Unavalaible Gauss Order: "<<n<<std::endl; ordre = (n<1)?ordre=1:ordre;}
     }
 
-    inline T integre ( const fContainer<T> &fc, const Triangle& Trg ,const Mesh& M)
+    inline T integrate ( const fContainer<T> &fc, const Triangle& Trg ,const Mesh& M)
     {
         Vect3 sommets[3]={M.getPt(Trg.s1()),M.getPt(Trg.s2()),M.getPt(Trg.s3())};
         return triangle_integration(fc,sommets);
@@ -176,7 +176,7 @@ public:
     }
 };
 
-template<class T> class adaptive_integrator : public integrateur<T>
+template<class T> class adaptive_integrator : public integrator<T>
 {
 private:
     double tolerance;

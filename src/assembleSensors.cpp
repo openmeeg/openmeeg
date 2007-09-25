@@ -1,6 +1,6 @@
 #include "assemble.h"
 #include "danielsson.h"
-#include "operateurs.h"
+#include "operators.h"
 
 int* computeVindexes(const Geometry &geo,int* n_indexes=0)
 {
@@ -108,7 +108,7 @@ void assemble_sToMEG(const Mesh &sources_mesh, matrice &mat, const matrice &posi
     }
 
     
-    for(size_t i=0;i<mat.nlin();i++) operateurFerguson(positionsVectArray[i],sources_mesh,myFergusonMatrix,3*(int)i,0);
+    for(size_t i=0;i<mat.nlin();i++) operatorFerguson(positionsVectArray[i],sources_mesh,myFergusonMatrix,3*(int)i,0);
 
     for(size_t i=0;i<mat.nlin();i++)
     {
@@ -157,7 +157,7 @@ void assemble_sToMEG_point( matrice&dipoles, matrice &mat, const matrice &positi
         positionsVectArray[i][2]=positions(i,2);
     }
 
-  // the following routine is the equivalent of operateurFerguson for pointlike dipoles.
+  // the following routine is the equivalent of operatorFerguson for pointlike dipoles.
     for(size_t i=0;i<mat.nlin();i++)
     {
         for(unsigned int j=0;j<0+mat.ncol();j++)

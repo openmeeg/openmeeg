@@ -1,17 +1,17 @@
 SET(OPENMEEG_HEADERS
-    analytiques.h
+    analytics.h
     assemble.h
     cpuChrono.h mesh3.h
     danielsson.h
     om_utils.h
     MeshDataSmoother.h
     fcontainer.h
-    operateurs.h
+    operators.h
     sensors.h
     MeshReader.h
     geometry.h
     triangle.h
-    integrateur.h
+    integrator.h
     vect3.h
     mesh3.h
     PropertiesSpecialized.h
@@ -30,7 +30,7 @@ SET(OPENMEEG_HEADERS
 
 ADD_LIBRARY(OpenMEEG ${LIB_TYPE}
     assembleFerguson.cpp assembleLHS.cpp assembleRHS.cpp assembleSensors.cpp
-    danielsson.cpp geometry.cpp mesh3.cpp operateurs.cpp ${OPENMEEG_HEADERS} 
+    danielsson.cpp geometry.cpp mesh3.cpp operators.cpp ${OPENMEEG_HEADERS} 
 )
 TARGET_LINK_LIBRARIES (OpenMEEG ${OPENMEEG_OTHER_LIBRARIES})
 

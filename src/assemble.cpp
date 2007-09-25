@@ -12,7 +12,7 @@
 #include <cstring>
 
 #include "mesh3.h"
-#include "integrateur.h"
+#include "integrator.h"
 #include "fcontainer.h"
 #include "cpuChrono.h"
 #include "assemble.h"

@@ -7,7 +7,7 @@
 #include "matrice.h"
 #include "symmatrice.h"
 #include "geometry.h"
-#include "operateurs.h"
+#include "operators.h"
 
 void assemble_LHS(const Geometry &geo,symmatrice &mat,const int GaussOrder)
 {
@@ -21,20 +21,20 @@ void assemble_LHS(const Geometry &geo,symmatrice &mat,const int GaussOrder)
         int offset3=offset+geo.getM(c).nbPts()+geo.getM(c).nbTrgs()+geo.getM(c+1).nbPts();
 
         //Computing S block first because it's needed for the corresponding N block
-        if(c==0) operateurS(geo,c,c,GaussOrder,mat,offset1,offset1);
-        operateurS(geo,c+1,c,GaussOrder,mat,offset3,offset1);
-        operateurS(geo,c+1,c+1,GaussOrder,mat,offset3,offset3);
+        if(c==0) operatorS(geo,c,c,GaussOrder,mat,offset1,offset1);
+        operatorS(geo,c+1,c,GaussOrder,mat,offset3,offset1);
+        operatorS(geo,c+1,c+1,GaussOrder,mat,offset3,offset3);
 
         //Computing N block
-        if(c==0) operateurN(geo,c,c,GaussOrder,mat,offset0,offset0,offset1,offset1);
-        operateurN(geo,c+1,c,GaussOrder,mat,offset2,offset0,offset3,offset1);
-        operateurN(geo,c+1,c+1,GaussOrder,mat,offset2,offset2,offset3,offset3);
-        
+        if(c==0) operatorN(geo,c,c,GaussOrder,mat,offset0,offset0,offset1,offset1);
+        operatorN(geo,c+1,c,GaussOrder,mat,offset2,offset0,offset3,offset1);
+        operatorN(geo,c+1,c+1,GaussOrder,mat,offset2,offset2,offset3,offset3);
+
         //Computing D block
-        if(c==0) operateurD(geo,c,c,GaussOrder,mat,offset1,offset0);
-        if(c!=geo.nb()-2) operateurD(geo,c+1,c,GaussOrder,mat,offset3,offset0);
-        operateurD(geo,c,c+1,GaussOrder,mat,offset1,offset2);
-        if(c!=geo.nb()-2) operateurD(geo,c+1,c+1,GaussOrder,mat,offset3,offset2);
+        if(c==0) operatorD(geo,c,c,GaussOrder,mat,offset1,offset0);
+        if(c!=geo.nb()-2) operatorD(geo,c+1,c,GaussOrder,mat,offset3,offset0);
+        operatorD(geo,c,c+1,GaussOrder,mat,offset1,offset2);
+        if(c!=geo.nb()-2) operatorD(geo,c+1,c+1,GaussOrder,mat,offset3,offset2);
 
         offset=offset2;
     }

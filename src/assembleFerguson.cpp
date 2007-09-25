@@ -1,7 +1,7 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 
-#include "operateurs.h"
+#include "operators.h"
 #define MU0 1 //1.25e-6
 
 // geo = geometry 
@@ -17,7 +17,7 @@ void assemble_ferguson(const Geometry &geo,matrice &mat, const Vect3 *pts,const 
         int offsetI=0;
         for (int p=0;p<n;p++)
         {
-            operateurFerguson(pts[p],geo.getM(c),mat,offsetI,offsetJ);
+            operatorFerguson(pts[p],geo.getM(c),mat,offsetI,offsetJ);
             offsetI += 3;
         }
         offsetJ+=geo.getM(c).nbPts();
@@ -42,6 +42,6 @@ void compute_Binf ( const Mesh& sources_mesh, const matrice& squids_positions, m
     for(int iSquid=0;iSquid<nSquids;iSquid++)
     {
         Vect3 x( squids_positions(iSquid,0), squids_positions(iSquid,1), squids_positions(iSquid,2));
-        operateurFerguson(x,sources_mesh,field_at_squids,3*iSquid,0);
+        operatorFerguson(x,sources_mesh,field_at_squids,3*iSquid,0);
     }
 }

@@ -1,10 +1,10 @@
-#ifndef H_analytiques
-#define H_analytiques
+#ifndef H_analytics
+#define H_analytics
 
 #include "fcontainer.h"
 #include "mesh3.h"
 
-class analytiqueS : public fContainer<double> {
+class analyticS : public fContainer<double> {
 private:
     Vect3 p0,p1,p2; //!< vertices of the triangle
     Vect3 p2p1,p1p0,p0p2;
@@ -14,8 +14,8 @@ private:
     double tanTHETA0m,tanTHETA0p,tanTHETA1m,tanTHETA1p,tanTHETA2m,tanTHETA2p;
 
 public:
-    analytiqueS(){}
-    ~analytiqueS(){}
+    analyticS(){}
+    ~analyticS(){}
     void init( int nT, const Mesh &m)
     {
         // all computations needed when the first triangle of integration is changed
@@ -88,14 +88,14 @@ public:
     }
 };
 
-class analytiqueD : public fContainer<double> {
+class analyticD : public fContainer<double> {
 private:
     Vect3 v1,v2,v3;
     int i;
     double aire;
 public:
-    analytiqueD(){}
-    ~analytiqueD(){}
+    analyticD(){}
+    ~analyticD(){}
     inline void init( const Mesh& m1, const int trg, const int noeud)
     {
         v1 = m1.getPt(m1.getTrg(trg).s1());
@@ -149,13 +149,13 @@ public:
 };
 
 
-class analytiqueD3 : public fContainer<Vect3> {
+class analyticD3 : public fContainer<Vect3> {
 private:
     Vect3 v1,v2,v3;
     double aire;
 public:
-    analytiqueD3(){}
-    ~analytiqueD3(){}
+    analyticD3(){}
+    ~analyticD3(){}
     inline void init( const Mesh& m1, const int trg)
     {
         v1 = m1.getPt(m1.getTrg(trg).s1());
@@ -207,12 +207,12 @@ public:
     }
 };
 
-class analytiqueDipPot: public fContainer<double> {
+class analyticDipPot: public fContainer<double> {
 private:
     Vect3 q,r0;
 public:
-    analytiqueDipPot(){}
-    ~analytiqueDipPot(){}
+    analyticDipPot(){}
+    ~analyticDipPot(){}
 
     inline void init( const Vect3& _q, const Vect3& _r0)
     {
@@ -229,14 +229,14 @@ public:
     }
 };
 
-class analytiqueDipPotDer : public fContainer<Vect3> {
+class analyticDipPotDer : public fContainer<Vect3> {
 private:
     Vect3 q,r0;
     Vect3 H0,H1,H2;
     Vect3 H0p0DivNorm2,H1p1DivNorm2,H2p2DivNorm2,n;
 public:
-    analytiqueDipPotDer(){}
-    ~analytiqueDipPotDer(){}
+    analyticDipPotDer(){}
+    ~analyticDipPotDer(){}
     inline void init( const Mesh& m, const int nT, const Vect3 &_q, const Vect3 _r0)
     {
         q = _q;
@@ -258,7 +258,6 @@ public:
 
         n = -p1p0^p0p2;
         n.normalize();
-
     }
 
     inline Vect3 f(const Vect3& x) const
@@ -276,12 +275,12 @@ public:
 };
 
 ////////// Gradients wrt r0 (and q)
-class analytiqueDipPotGrad: public fContainer< vect3array<2> > {
+class analyticDipPotGrad: public fContainer< vect3array<2> > {
 private:
     Vect3 q,r0;
 public:
-    analytiqueDipPotGrad(){}
-    ~analytiqueDipPotGrad(){}
+    analyticDipPotGrad(){}
+    ~analyticDipPotGrad(){}
 
     inline void init( const Vect3 &_q, const Vect3 &_r0)
     {
@@ -302,14 +301,14 @@ public:
     }
 };
 
-class analytiqueDipPotDerGrad : public fContainer< vect3array<6> > {
+class analyticDipPotDerGrad : public fContainer< vect3array<6> > {
 private:
     Vect3 q,r0;
     Vect3 H0,H1,H2;
     Vect3 H0p0DivNorm2,H1p1DivNorm2,H2p2DivNorm2,n;
 public:
-    analytiqueDipPotDerGrad(){}
-    ~analytiqueDipPotDerGrad(){}
+    analyticDipPotDerGrad(){}
+    ~analyticDipPotDerGrad(){}
     inline void init( const Mesh& m, const int nT, const Vect3 &_q, const Vect3 _r0)
     {
         q = _q;

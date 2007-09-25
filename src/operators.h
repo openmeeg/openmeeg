@@ -1,8 +1,8 @@
 /*! \file
     \brief file containing the integral operators
 */
-#ifndef H_operateurs
-#define H_operateurs
+#ifndef H_operators
+#define H_operators
 
 #include <iostream>
 
@@ -10,27 +10,29 @@
 #include "matrice.h"
 #include "symmatrice.h"
 #include "geometry.h"
-#include "integrateur.h"
-#include "analytiques.h"
+#include "integrator.h"
+#include "analytics.h"
 
 #define OPTIMIZED_OPERATOR_N
+
 #define OPTIMIZED_OPERATOR_D
+
 #define ADAPT_RHS
 //#define ADAPT_LHS
 
-void operateurN(const Geometry &geo,const int I,const int J,const int,symmatrice &mat,const int offsetI,const int offsetJ,const int IopS,const int JopS);
-void operateurS(const Geometry &geo,const int I,const int J,const int,symmatrice &mat,const int offsetI,const int offsetJ);
-void operateurD(const Geometry &geo,const int I,const int J,const int,symmatrice &mat,const int offsetI,const int offsetJ);
+void operatorN(const Geometry &geo,const int I,const int J,const int,symmatrice &mat,const int offsetI,const int offsetJ,const int IopS,const int JopS);
+void operatorS(const Geometry &geo,const int I,const int J,const int,symmatrice &mat,const int offsetI,const int offsetJ);
+void operatorD(const Geometry &geo,const int I,const int J,const int,symmatrice &mat,const int offsetI,const int offsetJ);
 
-void operateurN(const Mesh &m1,const Mesh &m2,genericMatrix &mat,const int offsetI,const int offsetJ,const int,const int IopS=0,const int JopS=0);
-void operateurS(const Mesh &m1,const Mesh &m2,genericMatrix &mat,const int offsetI,const int offsetJ,const int);
-void operateurD(const Mesh &m1,const Mesh &m2,genericMatrix &mat,const int offsetI,const int offsetJ,const int);
+void operatorN(const Mesh &m1,const Mesh &m2,genericMatrix &mat,const int offsetI,const int offsetJ,const int,const int IopS=0,const int JopS=0);
+void operatorS(const Mesh &m1,const Mesh &m2,genericMatrix &mat,const int offsetI,const int offsetJ,const int);
+void operatorD(const Mesh &m1,const Mesh &m2,genericMatrix &mat,const int offsetI,const int offsetJ,const int);
 
-void operateurFerguson(const Vect3& x, const Mesh &m1, matrice &mat, int offsetI, int offsetJ);
-void operateurDipolePotDer(const Vect3 &r0, const Vect3 &q,const Mesh &inner_layer, vecteur &rhs, int offsetIdx,const int);
-void operateurDipolePot(const Vect3 &r0, const Vect3 &q,const Mesh &inner_layer, vecteur &rhs, int offsetIdx,const int);
-void operateurDipolePotDerGrad(const Vect3 &r0, const Vect3 &q,const Mesh &inner_layer, vecteur rhs[3], int offsetIdx,const int);
-void operateurDipolePotGrad(const Vect3 &r0, const Vect3 &q,const Mesh &inner_layer, vecteur rhs[3], int offsetIdx,const int);
+void operatorFerguson(const Vect3& x, const Mesh &m1, matrice &mat, int offsetI, int offsetJ);
+void operatorDipolePotDer(const Vect3 &r0, const Vect3 &q,const Mesh &inner_layer, vecteur &rhs, int offsetIdx,const int);
+void operatorDipolePot(const Vect3 &r0, const Vect3 &q,const Mesh &inner_layer, vecteur &rhs, int offsetIdx,const int);
+void operatorDipolePotDerGrad(const Vect3 &r0, const Vect3 &q,const Mesh &inner_layer, vecteur rhs[3], int offsetIdx,const int);
+void operatorDipolePotGrad(const Vect3 &r0, const Vect3 &q,const Mesh &inner_layer, vecteur rhs[3], int offsetIdx,const int);
 
 inline void mult( symmatrice &mat, int Istart, int Jstart, int Istop, int Jstop, double coeff)
 {
@@ -66,12 +68,16 @@ inline void mult2( matrice &mat, int Istart, int Jstart, int Istop, int Jstop, d
 }
 
 #ifndef OPTIMIZED_OPERATOR_D
-inline double _operateurD(const int nT1,const int nP2,const int GaussOrder,const Mesh &m1,const Mesh &m2)
+inline double _operatorD(const int nT1,const int nP2,const int GaussOrder,const Mesh &m1,const Mesh &m2)
 {
     // consider varying order of quadrature with the distance between T1 and T2
     const Triangle &T1=m1.getTrg(nT1);
 
-    static analytiqueD analyD;
+    #ifdef USE_OMP
+        analyticD analyD;
+    #else
+        static analyticD analyD;
+    #endif
 
     double total = 0;
     int Tadj[128];            // triangles of which P2 is a vertex
@@ -80,42 +86,54 @@ inline double _operateurD(const int nT1,const int nP2,const int GaussOrder,const
     adaptive_integrator<double> gauss(0.005);
     for(int k=0;k<nTadj;k++)
     {
-        gauss.setOrdre(GaussOrder);
+        gauss.setOrder(GaussOrder);
         analyD.init( m2, Tadj[k], nP2);
         total += gauss.integrate(analyD,T1,m1);
     }
 #else
-    static integrateur<double> gauss(GaussOrder);
+    #ifdef USE_OMP
+        integrator<double> gauss(GaussOrder);
+    #else
+        static integrator<double> gauss(GaussOrder);
+    #endif
 
     for(int k=0;k<nTadj;k++)
     {
         analyD.init( m2, Tadj[k], nP2);
-        total += gauss.integre(analyD,T1,m1);
+        total += gauss.integrate(analyD,T1,m1);
     }
 #endif //ADAPT_LHS
     return total;
 }
 #else
-inline void _operateurD(const int nT1,const int nT2,const int GaussOrder,const Mesh &m1,const Mesh &m2, genericMatrix &mat,const int offsetI, const int offsetJ)
+inline void _operatorD(const int nT1,const int nT2,const int GaussOrder,const Mesh &m1,const Mesh &m2, genericMatrix &mat,const int offsetI, const int offsetJ)
 {
-    //this version of _operateurD add in the matrix the contribution of T2 on T1
+    //this version of _operatorD add in the matrix the contribution of T2 on T1
     // for all the P1 functions it gets involved
 
     // consider varying order of quadrature with the distance between T1 and T2
     const Triangle &T1=m1.getTrg(nT1);
     const Triangle &T2=m2.getTrg(nT2);
 
-    static analytiqueD3 analyD;
+    #ifdef USE_OMP
+        analyticD3 analyD;
+    #else
+        static analyticD3 analyD;
+    #endif
 
     analyD.init( m2, nT2);
 #ifdef ADAPT_LHS
     adaptive_integrator<Vect3> gauss(0.005);
-    gauss.setOrdre(GaussOrder);
+    gauss.setOrder(GaussOrder);
     Vect3 total=gauss.integrate(analyD,T1,m1);
 #else
-    static integrateur<Vect3> gauss(GaussOrder);
+    #ifdef USE_OMP
+        integrator<Vect3> gauss(GaussOrder);
+    #else
+        static integrator<Vect3> gauss(GaussOrder);
+    #endif
 
-    Vect3 total=gauss.integre(analyD,T1,m1);
+    Vect3 total=gauss.integrate(analyD,T1,m1);
 #endif //ADAPT_LHS
 
     mat(offsetI+nT1,offsetJ+((Triangle)T2)[0]) += total.x();
@@ -124,31 +142,40 @@ inline void _operateurD(const int nT1,const int nT2,const int GaussOrder,const M
 }
 #endif //OPTIMIZED_OPERATOR_D
 
-inline double _operateurS(const int nT1,const int nT2,const int GaussOrder,const Mesh &m1,const Mesh &m2)
+inline double _operatorS(const int nT1,const int nT2,const int GaussOrder,const Mesh &m1,const Mesh &m2)
 {
     const Triangle &T1=m1.getTrg(nT1);
     const Triangle &T2=m2.getTrg(nT2);
 
-    static Triangle *oldT=0;
-    static analytiqueS analyS;
+    #ifdef USE_OMP
+        Triangle *oldT=0;
+        analyticS analyS;
+    #else
+        static Triangle *oldT=0;
+        static analyticS analyS;
+    #endif
 
-    if(oldT != &T1)    // a few computations are needed only when changing triangle T1
+    if(oldT != &T1) // a few computations are needed only when changing triangle T1
     {
         oldT=(Triangle*)&T1;
         analyS.init(nT1,m1);
     }
 #ifdef ADAPT_LHS
     adaptive_integrator<double> gauss(0.005);
-    gauss.setOrdre(GaussOrder);
+    gauss.setOrder(GaussOrder);
     return gauss.integrate(analyS,T2,m2);
 #else
-    static integrateur<double> gauss;
-    gauss.setOrdre(GaussOrder);
-    return gauss.integre(analyS,T2,m2);
+    #ifdef USE_OMP
+        integrator<double> gauss;
+    #else
+        static integrator<double> gauss;
+    #endif
+    gauss.setOrder(GaussOrder);
+    return gauss.integrate(analyS,T2,m2);
 #endif //ADAPT_LHS
 }
 
-inline double _operateurN(const int nP1,const int nP2,const int GaussOrder,const Mesh &m1,const Mesh &m2,const int IopS,const int JopS,const genericMatrix &mat)
+inline double _operatorN(const int nP1,const int nP2,const int GaussOrder,const Mesh &m1,const Mesh &m2,const int IopS,const int JopS,const genericMatrix &mat)
 {
     int trgs1[128],trgs2[128];
     const Vect3 P1=m1.getPt(nP1);
@@ -167,7 +194,7 @@ inline double _operateurN(const int nP1,const int nP2,const int GaussOrder,const
             const Triangle& T2=m2.getTrg(trgs2[r]);
 
             // A1 , B1 , A2, B2 are the two opposite vertices to P1 and P2 (triangles A1,B1,P1 and A2,B2,P2)
-            if(IopS!=0 || JopS!=0) Iqr=mat(IopS+trgs1[q],JopS+trgs2[r]); else Iqr=_operateurS(trgs1[q],trgs2[r],GaussOrder,m1,m2);
+            if(IopS!=0 || JopS!=0) Iqr=mat(IopS+trgs1[q],JopS+trgs2[r]); else Iqr=_operatorS(trgs1[q],trgs2[r],GaussOrder,m1,m2);
             int nP1T=T1.contains(nP1);    //index of P1 in current triangle of mesh m1
             int nP2T=T2.contains(nP2);    //index of P2 in current triangle of mesh m2
 #ifndef OPTIMIZED_OPERATOR_N
@@ -201,7 +228,7 @@ inline double _operateurN(const int nP1,const int nP2,const int GaussOrder,const
 
 
 //calcultates the S at point x integrated over all the triangles having nP1 as a vertice.
-inline Vect3 _operateurFerguson(const Vect3 x,const int nP1,const Mesh &m1)
+inline Vect3 _operatorFerguson(const Vect3 x,const int nP1,const Mesh &m1)
 {
     int trgs1[128];
     const Vect3 P1=m1.getPt(nP1);
@@ -213,10 +240,10 @@ inline Vect3 _operateurFerguson(const Vect3 x,const int nP1,const Mesh &m1)
 
     #ifdef USE_OMP
         Vect3 result;
-        analytiqueS analyS;
+        analyticS analyS;
     #else
         static Vect3 result;
-        static analytiqueS analyS;
+        static analyticS analyS;
     #endif
 
     result.x()=0;
