@@ -13,6 +13,8 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <vector>
+#include <list>
 
 #ifdef USE_VTK
 #include <vtkPolyData.h>
@@ -115,11 +117,11 @@ void Mesh::load(const char* name, bool verbose) {
         exit(1);
     }
 
+    updateTriangleOrientations();
+
     if(verbose)
     {
-        std::cout<<"Mesh File: "<<name<<std::endl;
-        std::cout<<"\t# points: "<<npts<<std::endl;
-        std::cout<<"\t# triangles: "<<ntrgs<<std::endl;
+        info();
     }
 }
 
@@ -139,7 +141,7 @@ void Mesh::getDataFromVTKReader(vtkPolyDataReader* reader) {   //private
     assert(npts == normalsData->GetNumberOfTuples());
     assert(3 == normalsData->GetNumberOfComponents());
 
-    for (int i = 0;i<npts;i++)
+    for (int i = 0; i<npts; i++)
     {
         pts[i].x() = vtkMesh->GetPoint(i)[0];
         pts[i].y() = vtkMesh->GetPoint(i)[1];
@@ -153,7 +155,7 @@ void Mesh::getDataFromVTKReader(vtkPolyDataReader* reader) {   //private
     trgs = new Triangle[ntrgs];
 
     vtkIdList *l;
-    for (int i = 0;i<ntrgs;i++) {
+    for (int i = 0; i<ntrgs; i++) {
         if (vtkMesh->GetCellType(i) == VTK_TRIANGLE) {
             l = vtkMesh->GetCell(i)->GetPointIds();
             trgs[i][0] = l->GetId(0);
@@ -194,6 +196,8 @@ void Mesh::load_vtk(std::istream &is) {
 
     delete[] buffer;
     reader->Delete();
+
+    make_links();
 }
 
 void Mesh::load_vtk(const char* name) {
@@ -209,7 +213,6 @@ void Mesh::load_vtk(const char* name) {
 
     Mesh::getDataFromVTKReader(reader);
 }
-
 #endif
 
 void Mesh::load_mesh(std::istream &is) {
@@ -298,6 +301,8 @@ void Mesh::load_mesh(std::istream &is) {
     delete[] faces_raw;
     delete[] normals_raw;
     delete[] pts_raw;
+
+    make_links();
 }
 
 void Mesh::load_mesh(const char* filename) {
@@ -344,6 +349,8 @@ void Mesh::load_tri(std::istream &f) {
         trgs[i].normal() = pts[trgs[i][0]].normal( pts[trgs[i][1]] , pts[trgs[i][2]] );
         trgs[i].area() = trgs[i].normal().norme()/2.0;
     }
+
+    make_links();
 }
 
 void Mesh::load_tri(const char* filename) {
@@ -387,7 +394,7 @@ void Mesh::load_bnd(std::istream &f) {
     pts = new Vect3[npts];
     links = new intSet[npts];
 
-    for( size_t i = 0; i < size_t(npts); i += 1 )
+    for( int i = 0; i < npts; i += 1 )
     {
         f>>pts[i];
         pts[i] = pts[i];
@@ -418,6 +425,8 @@ void Mesh::load_bnd(std::istream &f) {
         trgs[i].normal() = pts[trgs[i][0]].normal( pts[trgs[i][1]] , pts[trgs[i][2]] );
         trgs[i].area() = trgs[i].normal().norme()/2.0;
     }
+
+    make_links();
 }
 
 void Mesh::load_bnd(const char* filename) {
@@ -595,5 +604,126 @@ void Mesh::append(const Mesh* m) {
     links = new intSet[npts];
     make_links(); // To keep a valid Mesh
     return;
+}
+
+/**
+ * Update the orientations of the triangles in the mesh to have all
+ * normals pointing in the same direction
+**/
+void Mesh::updateTriangleOrientations() {
+    // std::cout << "Updating Triangle Orientations" << std::endl;
+    std::vector< bool > seen(ntrgs); // Flag to say if a Triangle has been see or not
+    std::list< int > triangles;
+    triangles.push_front(0); // Add First Triangle to the Heap
+
+    ncomponents = 1;
+    ninversions = 0;
+
+    for(int i = 0; i < ntrgs; ++i)
+    {
+        int next = triangles.front();
+        triangles.pop_front();
+        seen[next] = true;
+        Triangle t = getTrg(next);
+
+        for(int offset = 0; offset < 3; ++offset)
+        {
+            int a = t.next(offset);
+            int b = t.next(offset+1);
+            int c = t.next(offset+2);
+            int n = getNeighTrg(a,b,c);
+            Triangle nt = getTrg(n);
+            int aId = trgs[n].contains(a);
+            int bId = trgs[n].contains(b);
+            int dId;
+            for(int k = 1; k <= 3; ++k)
+            {
+                if ( (aId != k) && (bId != k)) dId = k;
+            }
+            int d = trgs[n].som(dId);
+            trgs[n].s1() = b;
+            trgs[n].s2() = a;
+            trgs[n].s3() = d;
+
+            // Check inversion :
+            Vect3 old_normal = (getPt(nt.s2())-getPt(nt.s1()))^(getPt(nt.s3())-getPt(nt.s1()));
+            Vect3 new_normal = (getPt(trgs[n].s2())-getPt(trgs[n].s1()))^(getPt(trgs[n].s3())-getPt(trgs[n].s1()));
+            if((old_normal * new_normal) <= 0)
+            {
+                ninversions++;
+                std::cout << "Warning : Fixing triangle " << n << std::endl;
+                std::cout << "\tOld triangle : " << nt << std::endl;
+                std::cout << "\tNew triangle : " << trgs[n] << std::endl;
+                
+                if(nt.getArea() < 0.000001)
+                {
+                    std::cerr << "Error : Mesh contains a flat triangle !" << std::endl;
+                    exit(1);
+                }
+            }
+
+            if(!seen[n]) {
+                triangles.push_front(n);
+            }
+        }
+
+        if(triangles.empty()) // Try to find an unseen triangle in an other connexe component
+        {
+            int j;
+            for(j = 0; j < ntrgs; ++j)
+            {
+                if(!seen[j])
+                {
+                    triangles.push_front(j);
+                    ncomponents++;
+                    break;
+                }
+            }
+            if(j == ntrgs)
+            {
+                std::cerr << "Problem while updating triangles orientations !"<< std::endl;
+                exit(1);
+            }
+        }
+    }
+    return;
+}
+
+/**
+ * Get the neighboring triangle to triangle (a,b,c) containing edge (a,b)
+**/
+int Mesh::getNeighTrg(int a, int b, int c) const {
+    intSet possible_triangles = links[a];
+    intSet::iterator it;
+    for(it = possible_triangles.begin(); it != possible_triangles.end(); ++it) {
+        Triangle t = getTrg(*it);
+        if (t.contains(b) && !t.contains(c)) return *it;
+    }
+    std::cerr << "Impossible to find neighboring triangle !" << std::endl;
+    exit(1);
+    return 0;
+}
+
+/**
+ * Print informations about the mesh
+**/
+void Mesh::info() {
+    std::cout << "Mesh Info : " << std::endl;
+    std::cout << "\t# points : " << npts << std::endl;
+    std::cout << "\t# triangles : " << ntrgs << std::endl;
+    std::cout << "\tEuler characteristic : " << npts - 3*ntrgs/2 + ntrgs << std::endl;
+    std::cout << "\tNb of connexe components : " << ncomponents << std::endl;
+    std::cout << "\tNb of Triangles inversions : " << ninversions << std::endl;
+
+    double min_area = trgs[0].area();
+    double max_area = trgs[0].area();
+    for(int i = 0; i < ntrgs; ++i)
+    {
+        min_area = (trgs[i].area() < min_area) ? trgs[i].area() : min_area;
+        max_area = (trgs[i].area() > max_area) ? trgs[i].area() : max_area;
+    }
+
+    std::cout << "\tMin Area : " << min_area << std::endl;
+    std::cout << "\tMax Area : " << max_area << std::endl;
 }
 

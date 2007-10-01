@@ -14,6 +14,9 @@ TARGET_LINK_LIBRARIES (om_tex2mask ${OPENMEEG_OTHER_LIBRARIES})
 ADD_EXECUTABLE(om_mesh_convert mesh_convert.cpp ../src/mesh3.cpp)
 TARGET_LINK_LIBRARIES (om_mesh_convert ${OPENMEEG_OTHER_LIBRARIES})
 
+ADD_EXECUTABLE(om_mesh_info mesh_info.cpp ../src/mesh3.cpp ../src/mesh3.h)
+TARGET_LINK_LIBRARIES (om_mesh_info ${OPENMEEG_OTHER_LIBRARIES})
+
 ADD_EXECUTABLE(om_mesh_concat mesh_concat.cpp ../src/mesh3.cpp)
 TARGET_LINK_LIBRARIES (om_mesh_concat ${OPENMEEG_OTHER_LIBRARIES})
 
@@ -45,5 +48,5 @@ ADD_EXECUTABLE(om_matrix_info matrix_info.cpp)
 TARGET_LINK_LIBRARIES (om_matrix_info ${OPENMEEG_OTHER_LIBRARIES})
 
 IF(ENABLE_PACKAGING)
-INSTALL(TARGETS om_matbin2txt om_mattxt2bin om_symtxt2bin om_symbin2txt om_mesh_convert om_mesh_concat om_cortex_patch om_register_squids om_squids2vtk om_tex2mask om_tex2txt om_txt2tex om_matrix_info DESTINATION bin)
+INSTALL(TARGETS om_matbin2txt om_mattxt2bin om_symtxt2bin om_symbin2txt om_mesh_convert om_mesh_concat om_mesh_info om_cortex_patch om_register_squids om_squids2vtk om_tex2mask om_tex2txt om_txt2tex om_matrix_info DESTINATION bin)
 ENDIF(ENABLE_PACKAGING)

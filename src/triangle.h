@@ -54,9 +54,9 @@ public:
         return som(1+((1+i)%3));
     }
 
-    inline const int& s1() { return m_s1; }
-    inline const int& s2() { return m_s2; }
-    inline const int& s3() { return m_s3; }
+    inline int& s1() { return m_s1; }
+    inline int& s2() { return m_s2; }
+    inline int& s3() { return m_s3; }
 
     inline int s1() const { return m_s1; }
     inline int s2() const { return m_s2; }
@@ -118,7 +118,7 @@ inline std::istream& operator>>(std::istream &is,Triangle &t)
 
 inline std::ostream& operator<<(std::ostream &os,const Triangle &t)
 {
-    return os << t[0] << " " << t[1] << " " << t[2] ;
+    return os << t[0] << " " << t[1] << " " << t[2] << " ( area : " << t.getArea() << " )";
 }
 
 #endif

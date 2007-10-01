@@ -34,6 +34,35 @@ private:
     Triangle* trgs; //!< Triangles of the mesh
     intSet* links; //!< links[i] are the triangles that contain point i : each point knows each triangle it is a part of
     Vect3* normals; //!< Normals at each point
+    int ncomponents; //!< Number of connexe components
+    int ninversions; //!< Number of triangles with inverted orientations
+    
+
+    void load_tri(std::istream &);
+    void load_tri(const char*);
+
+    void load_bnd(std::istream &);
+    void load_bnd(const char*);
+
+    void load_mesh(std::istream &is);
+    void load_mesh(const char*);
+    #ifdef USE_VTK
+        void load_vtk(std::istream &is);
+        void load_vtk(const char*);
+    #else
+        template <typename T>
+        void load_vtk(T) {
+            std::cerr << "You have to compile OpenMEEG with VTK to read VTK files" << std::endl;
+            exit(1);
+        }
+    #endif
+
+    void save_vtk(const char*);
+    void save_bnd(const char*);
+    void save_tri(const char*);
+    void save_mesh(const char*);
+    
+    void updateTriangleOrientations();
 
 public:
 
@@ -80,31 +109,11 @@ public:
        */
     void load(const char* filename, bool verbose=true);
 
-#ifdef USE_VTK
-    void load_vtk(std::istream &is);
-    void load_vtk(const char*);
-#else
-    template <typename T>
-    void load_vtk(T) {
-        std::cerr << "You have to compile OpenMEEG with VTK to read VTK files" << std::endl;
-        exit(1);
-    }
-#endif
-
-    void load_tri(std::istream &);
-    void load_tri(const char*);
-
-    void load_bnd(std::istream &);
-    void load_bnd(const char*);
-
-    void load_mesh(std::istream &is);
-    void load_mesh(const char*);
-
+    /**
+       * Save mesh to file
+       * \param filename can be .vtk, .tri (ascii), .bnd or .mesh
+       */
     void save(const char* filename);
-    void save_vtk(const char*);
-    void save_bnd(const char*);
-    void save_tri(const char*);
-    void save_mesh(const char*);
 
     /** \brief elem
 
@@ -116,7 +125,7 @@ public:
         \return the number of triangles that use point i
         \sa
     **/
-    inline int elem(int i, int* T ) const{ // gives each triangle a point belongs to
+    inline int elem(int i, int* T ) const {
         int c=0;
         for(int k=0; k<ntrgs; k++){
             if( (i==trgs[k].s1()) || (i==trgs[k].s2()) || (i==trgs[k].s3())){
@@ -127,6 +136,14 @@ public:
         return c;
     }
 
+    /** \brief Get file format based on file extension
+
+            A list of supported file formats is in variable "Filetype"
+
+        \param filename
+        \return void
+        \sa
+    **/
     void getFileFormat(const char* filename);
 
     /** \brief append a mesh
@@ -139,6 +156,19 @@ public:
         \sa
     **/
     void append(const Mesh* m);
+    
+    /** \brief Print info
+
+            Print to std::cout some info about the mesh
+
+        \param m Mesh to append
+        \return void
+        \sa
+    **/
+    void info();
+    
+    
+    int getNeighTrg(int a, int b, int c) const;
 
     inline friend void operator>>(std::istream &ifs,Mesh &m){
         Filetype format = m.streamFormat;
@@ -148,7 +178,7 @@ public:
             case VTK:       m.load_vtk(ifs); break;
 #endif
             case BND:       m.load_bnd(ifs); break;
-            case MESH:       m.load_mesh(ifs); break;
+            case MESH:      m.load_mesh(ifs); break;
             default: std::cout << "Unknown file format" << std::endl;
         }
     }
