@@ -117,8 +117,6 @@ void Mesh::load(const char* name, bool verbose) {
         exit(1);
     }
 
-    updateTriangleOrientations();
-
     if(verbose)
     {
         info();
@@ -198,6 +196,7 @@ void Mesh::load_vtk(std::istream &is) {
     reader->Delete();
 
     make_links();
+    updateTriangleOrientations();
 }
 
 void Mesh::load_vtk(const char* name) {
@@ -303,6 +302,7 @@ void Mesh::load_mesh(std::istream &is) {
     delete[] pts_raw;
 
     make_links();
+    updateTriangleOrientations();
 }
 
 void Mesh::load_mesh(const char* filename) {
@@ -351,6 +351,7 @@ void Mesh::load_tri(std::istream &f) {
     }
 
     make_links();
+    updateTriangleOrientations();
 }
 
 void Mesh::load_tri(const char* filename) {
@@ -427,6 +428,7 @@ void Mesh::load_bnd(std::istream &f) {
     }
 
     make_links();
+    updateTriangleOrientations();
 }
 
 void Mesh::load_bnd(const char* filename) {
@@ -603,6 +605,7 @@ void Mesh::append(const Mesh* m) {
     normals = newNormals;
     links = new intSet[npts];
     make_links(); // To keep a valid Mesh
+    updateTriangleOrientations();
     return;
 }
 
@@ -612,18 +615,38 @@ void Mesh::append(const Mesh* m) {
 **/
 void Mesh::updateTriangleOrientations() {
     // std::cout << "Updating Triangle Orientations" << std::endl;
-    std::vector< bool > seen(ntrgs); // Flag to say if a Triangle has been see or not
+    std::vector< bool > seen(ntrgs,false); // Flag to say if a Triangle has been seen or not
     std::list< int > triangles;
     triangles.push_front(0); // Add First Triangle to the Heap
+    seen[0] = true;
 
     ncomponents = 1;
     ninversions = 0;
 
     for(int i = 0; i < ntrgs; ++i)
     {
+        if(triangles.empty()) // Try to find an unseen triangle in an other connexe component
+        {
+            int j;
+            for(j = 0; j < ntrgs; ++j)
+            {
+                if(!seen[j])
+                {
+                    triangles.push_front(j);
+                    seen[j] = true;
+                    ncomponents++;
+                    break;
+                }
+            }
+            if(j == ntrgs)
+            {
+                std::cerr << "Problem while updating triangles orientations !"<< std::endl;
+                exit(1);
+            }
+        }
+
         int next = triangles.front();
         triangles.pop_front();
-        seen[next] = true;
         Triangle t = getTrg(next);
 
         for(int offset = 0; offset < 3; ++offset)
@@ -664,28 +687,12 @@ void Mesh::updateTriangleOrientations() {
 
             if(!seen[n]) {
                 triangles.push_front(n);
-            }
-        }
-
-        if(triangles.empty()) // Try to find an unseen triangle in an other connexe component
-        {
-            int j;
-            for(j = 0; j < ntrgs; ++j)
-            {
-                if(!seen[j])
-                {
-                    triangles.push_front(j);
-                    ncomponents++;
-                    break;
-                }
-            }
-            if(j == ntrgs)
-            {
-                std::cerr << "Problem while updating triangles orientations !"<< std::endl;
-                exit(1);
+                seen[n] = true;
             }
         }
     }
+    for(int i = 0; i < ntrgs; ++i) assert(seen[i]); // All triangles have been explored
+    assert(triangles.empty());
     return;
 }
 

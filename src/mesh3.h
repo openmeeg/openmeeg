@@ -36,7 +36,6 @@ private:
     Vect3* normals; //!< Normals at each point
     int ncomponents; //!< Number of connexe components
     int ninversions; //!< Number of triangles with inverted orientations
-    
 
     void load_tri(std::istream &);
     void load_tri(const char*);
