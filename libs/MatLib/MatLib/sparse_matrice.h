@@ -215,7 +215,7 @@ public:
         // On parcourt les colonnes
         for(idxType j=0;j<_p;j++)
         {
-            if(_ColEntry[j]!=0) // Si la colonne n'est pas vide, il y a quelque chos ‡ ecrire
+            if(_ColEntry[j]!=0) // Si la colonne n'est pas vide, il y a quelque chos à ecrire
             {
                 cellType *ce=_ColEntry[j];
                 while(ce!=0)
@@ -231,7 +231,7 @@ public:
         fclose(file);
     }
 
-    inline void saveTxt( const char * filename) const // Les colonnes sont ecrites les unes ‡ la suite des autres
+    inline void saveTxt( const char * filename) const // Les colonnes sont ecrites les unes à la suite des autres
     {
         std::ofstream of(filename);
 
@@ -239,7 +239,7 @@ public:
         of<<(*this);
     }
 
-    inline void loadTxt( const char * filename) // Les colonnes sont ecrites les unes ‡ la suite des autres
+    inline void loadTxt( const char * filename) // Les colonnes sont ecrites les unes à la suite des autres
     {
         if(_RowEntry!=0) destroy();
 
@@ -278,7 +278,7 @@ public:
             current->j=jj;
             current->val=vval;
 
-            // On met le pointeur up ‡ jour
+            // On met le pointeur up àjour
             if(ColPrev==0)
             {
                 _ColEntry[jj]=current;
@@ -290,9 +290,9 @@ public:
                 current->up=ColPrev;
             }
 
-            ColPrev=current; // On met ‡ jour le ColPrev
+            ColPrev=current; // On met à jour le ColPrev
 
-            //On met ‡ jour le pointeur left
+            //On met à jour le pointeur left
             if(RowPrev[ii]==0)
             {
                 _RowEntry[ii]=current;
@@ -304,7 +304,7 @@ public:
                 current->left=RowPrev[ii];
             }
 
-            RowPrev[ii]=current; // On met ‡ jour le RowPrev[ii]
+            RowPrev[ii]=current; // On met à jour le RowPrev[ii]
             ColPrev=current;
 
             // On lit les valeurs suivantes dans le fichier
@@ -319,7 +319,7 @@ public:
             if(jj!=oldjj) {current->down=0; ColPrev=0;}
         }
 
-        // Une fois qu'on ‡ fini la lecture de la matrice, il convient 
+        // Une fois qu'on à fini la lecture de la matrice, il convient 
         // de verouiller la fin de colonne et les fins de lignes
         current->down=0;
         for(idxType i=0;i<_n;i++)
@@ -328,14 +328,14 @@ public:
         // On referme le fichier
         fclose(file);
 
-        // On met ‡ jour les nnzs
+        // On met à jour les nnzs
         refreshNZ();
 
         //On efface les variables temporaires
         delete[] RowPrev;
     }
 
-    inline void loadBin( const char * filename) // Les colonnes sont ecrites les unes ‡ la suite des autres
+    inline void loadBin( const char * filename) // Les colonnes sont ecrites les unes à la suite des autres
     {
         if(_RowEntry!=0) destroy();
 
@@ -371,7 +371,7 @@ public:
             current->j=jj;
             current->val=vval;
 
-            // On met le pointeur up ‡ jour
+            // On met le pointeur up à jour
             if(ColPrev==0)
             {
                 _ColEntry[jj]=current;
@@ -383,9 +383,9 @@ public:
                 current->up=ColPrev;
             }
 
-            ColPrev=current; // On met ‡ jour le ColPrev
+            ColPrev=current; // On met à jour le ColPrev
 
-            //On met ‡ jour le pointeur left
+            //On met à jour le pointeur left
             if(RowPrev[ii]==0)
             {
                 _RowEntry[ii]=current;
@@ -397,7 +397,7 @@ public:
                 current->left=RowPrev[ii];
             }
 
-            RowPrev[ii]=current; // On met ‡ jour le RowPrev[ii]
+            RowPrev[ii]=current; // On met à jour le RowPrev[ii]
             ColPrev=current;
 
             // On lit les valeurs suivantes dans le fichier
@@ -411,7 +411,7 @@ public:
             if(jj!=oldjj) {current->down=0; ColPrev=0;}
         }
 
-        // Une fois qu'on ‡ fini la lecture de la matrice, il convient de verouiller la fin de colonne et les fins de lignes
+        // Une fois qu'on à fini la lecture de la matrice, il convient de verouiller la fin de colonne et les fins de lignes
         current->down=0;
         for(idxType i=0;i<_n;i++)
             if(RowPrev[i]!=0) RowPrev[i]->right=0;
@@ -419,7 +419,7 @@ public:
         // On referme le fichier
         fclose(file);
 
-        // On met ‡ jour les nnzs
+        // On met à jour les nnzs
         refreshNZ();
 
         //On efface les variables temporaires
@@ -435,7 +435,7 @@ public:
         // On parcourt les colonnes
         for(idxType j=0;j<_p;j++)
         {
-            if(_ColEntry[j]!=0) // Si la colonne n'est pas vide, il y a quelque chos ‡ ecrire
+            if(_ColEntry[j]!=0) // Si la colonne n'est pas vide, il y a quelque chos à ecrire
             {
                 cellType *ce=_ColEntry[j];
                 while(ce!=0)
@@ -731,7 +731,7 @@ public:
 
         }
 
-        // si on arrive ‡ ce stade, c'est que l'element cherche n'existe pas, il faut donc le creer
+        // si on arrive à ce stade, c'est que l'element cherche n'existe pas, il faut donc le creer
 
         // On cherche l'endroit ou l'insÈrer suivant la ligne concernÈe
         if(_RowEntry[i]!=0)
@@ -749,7 +749,7 @@ public:
             while(!status);
 
             if(flag) insRow=temprow->left;  //element apres lequel doit Ítre insÈrÈ le nouveau
-            else insRow=temprow;            //on indique qu'il faut l'ajouter ‡ la fin
+            else insRow=temprow;            //on indique qu'il faut l'ajouter à la fin
         }
 
         // On cherche l'endroit ou l'insÈrer suivant la colonne concernÈe
@@ -768,7 +768,7 @@ public:
             while(!status);
 
             if(flag) insCol=tempcol->up;    //element apres lequel doit Ítre insÈrÈ le nouveau
-            else insCol=tempcol;            //on indique qu'il faut l'ajouter ‡ la fin
+            else insCol=tempcol;            //on indique qu'il faut l'ajouter à la fin
         }
 
 
@@ -800,8 +800,6 @@ public:
             insRow->right=tempbis;
             if(tempbis->right!=0) tempbis->right->left=tempbis;
         }
-
-
 
         if(insCol==0 || _ColEntry[j]==0) // Si l'on ajoute une cellule en tete de colonne
         {
@@ -888,7 +886,7 @@ template<class T,class I> inline std::ostream& operator<<(std::ostream& f,const 
     // Loop on columns
     for(size_t j=0;j<M.ncol();j++)
     {
-        if(((TsparseMatrix<T,I> &)M).getColEntry()[j]!=0) // Si la colonne n'est pas vide, il y a quelque chos ‡ ecrire
+        if(((TsparseMatrix<T,I> &)M).getColEntry()[j]!=0) // Si la colonne n'est pas vide, il y a quelque chos à ecrire
         {
             typename TsparseMatrix<T,I>::cellType *ce=((TsparseMatrix<T,I> &)M).getColEntry()[j];
             while(ce!=0)

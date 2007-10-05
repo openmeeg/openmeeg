@@ -166,6 +166,16 @@ public:
     **/
     void info();
     
+    /** \brief Smooth Mesh
+
+            Smooth Mesh
+
+        \param smoothing_intensity
+        \param niter
+        \return void
+        \sa
+    **/
+    void smooth(double smoothing_intensity, size_t niter);
     
     int getNeighTrg(int a, int b, int c) const;
 

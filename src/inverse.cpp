@@ -36,74 +36,52 @@ int main(int argc, char **argv)
     cout << "| -----------------------" << endl;
 
     // declaration of argument variables
-    string Option;
-    matrice EegGainMatrix;
+    matrice GainMatrix;
     sparse_matrice SmoothMatrix;
     fast_sparse_matrice fastSmoothMatrix;
     fast_sparse_matrice fastSmoothMatrix_t;
     vecteur AiVector;
-    matrice RealEegData;
+    matrice Data;
     matrice EstimatedSourcesData;
-    double EegDataWeight;
+    double DataWeight;
     double SmoothWeight;
     string SmoothType;
     int MaxNbIter;
     double StoppingTol;
-    matrice MegGainMatrix;
-    double MegDataWeight;
-    matrice RealMegData;
 
-    // for use with EEG DATA
-    if(!strcmp(argv[1],"-EEG"))
-    {
-        Option=string(argv[1]);
-        EegGainMatrix.loadBin(argv[2]);
-        SmoothMatrix.loadBin(argv[3]);
-        fastSmoothMatrix=fast_sparse_matrice(SmoothMatrix);
-        fastSmoothMatrix_t=fast_sparse_matrice(SmoothMatrix.transpose());
-        AiVector.loadBin(argv[4]);
-        RealEegData.loadTxt(argv[5]);
-        EegDataWeight=atof(argv[7]);
-        SmoothWeight=atof(argv[8]);
-        SmoothType=string(argv[9]);
-        MaxNbIter=atoi(argv[10]);
-        StoppingTol=atof(argv[11]);
-    }
-    // for use with MEG DATA
-    else if(!strcmp(argv[1],"-MEG"))
-    {
-        Option=string(argv[1]);
-        MegGainMatrix.loadBin(argv[2]);
-        SmoothMatrix.loadBin(argv[3]);
-        fastSmoothMatrix=fast_sparse_matrice(SmoothMatrix);
-        fastSmoothMatrix_t=fast_sparse_matrice(SmoothMatrix.transpose());
-        AiVector.loadBin(argv[4]);
-        RealMegData.loadTxt(argv[5]);
-        MegDataWeight=atof(argv[7]);
-        SmoothWeight=atof(argv[8]);
-        SmoothType=string(argv[9]);
-        MaxNbIter=atoi(argv[10]);
-        StoppingTol=atof(argv[11]);
-    }
+    GainMatrix.loadBin(argv[1]);
+    SmoothMatrix.loadBin(argv[2]);
+    fastSmoothMatrix=fast_sparse_matrice(SmoothMatrix);
+    fastSmoothMatrix_t=fast_sparse_matrice(SmoothMatrix.transpose());
+    AiVector.loadBin(argv[3]);
+    Data.loadTxt(argv[4]);
+    DataWeight=atof(argv[6]);
+    SmoothWeight=atof(argv[7]);
+    SmoothType=string(argv[8]);
+    MaxNbIter=atoi(argv[9]);
+    StoppingTol=atof(argv[10]);
 
-    bool MEG,EEG;
-    MEG=(Option==string("-MEG"));
-    EEG=(Option==string("-EEG"));
-
-    matrice &GainMatrix=MEG?MegGainMatrix:EegGainMatrix;
-    matrice &data=MEG?RealMegData:RealEegData;
-    double  DataWeight=MEG?MegDataWeight:EegDataWeight;
-    size_t nT=data.ncol();
+    size_t nT=Data.ncol();
     EstimatedSourcesData=matrice(GainMatrix.ncol(),nT);
     vecteur v(EstimatedSourcesData.nlin());
 
-    if(SmoothType==string("TV"))
+    bool Heat = SmoothType==string("HEAT");
+    bool Mn   = SmoothType==string("MN");
+    bool Tv   = SmoothType==string("TV");
+
+    if (!Tv && !Mn && !Heat) {
+        std::cerr << "Unknown Smoothtype :  " << SmoothType << std::endl;
+        std::cerr << "Should be HEAT , MN or TV" << std::endl;
+        exit(1);
+    }
+
+    if(Tv)
     {
         for(size_t frame=0;frame<nT;frame++)
         {
             cout << ">> Frame " << frame+1 << endl;
             vecteur m_vec;
-            m_vec.DangerousBuild(&data(0,frame),data.nlin());
+            m_vec.DangerousBuild(&Data(0,frame),Data.nlin());
 
             // ====================  initialization of source vector ===================== //
             if(frame==0) for(size_t i=0;i<v.size();i++) v(i)=0.0;//v(i)=1e-3*drandom(); // FIXME : add option for random init
@@ -139,9 +117,6 @@ int main(int argc, char **argv)
         }
     }// TV SmoothType
 
-    bool Heat=SmoothType==string("HEAT");
-    bool Mn=SmoothType==string("MN");
-
     if(Heat || Mn)
     {
         // In both cases override maxnbiter number because the energy is quadratic and the minimum is found in one iteration
@@ -153,7 +128,7 @@ int main(int argc, char **argv)
         {
             cout << ">> Frame " << frame+1 << endl;
             vecteur m_vec;
-            m_vec.DangerousBuild(&data(0,frame),data.nlin());
+            m_vec.DangerousBuild(&Data(0,frame),Data.nlin());
             double alpha=SmoothWeight/DataWeight;
 
             //==========  initialization of source vector =======================//
@@ -165,22 +140,23 @@ int main(int argc, char **argv)
             int t;
             for( t=0;t<MaxNbIter && errorTest;t++)
             {
-                vecteur gradtv=gentv(v,fastSmoothMatrix,fastSmoothMatrix_t,AiVector,hess,&dtv,ftab[1],fptab[1],fpptab[1]);
+                vecteur gradtv = gentv(v,fastSmoothMatrix,fastSmoothMatrix_t,AiVector,hess,&dtv,ftab[1],fptab[1],fpptab[1]);
 
-                vecteur err_vec=GainMatrix*v-m_vec;
-                vecteur graddata=GainMatrix.tmult(err_vec);
-                vecteur grad=graddata+alpha*gradtv;
+                vecteur err_vec = GainMatrix*v-m_vec;
+                vecteur graddata = GainMatrix.tmult(err_vec);
+                vecteur grad = graddata+alpha*gradtv;
 
-                LinOp &TIH=*(Heat?(LinOp*)new TvInverseHessian(GainMatrix,fastSmoothMatrix_t,hess,alpha):(LinOp*)new TikInverseHessian(GainMatrix,alpha));
+                LinOp &TIH = *( Heat ?
+                                (LinOp*) new TvInverseHessian(GainMatrix,fastSmoothMatrix_t,hess,alpha) :
+                                (LinOp*) new TikInverseHessian(GainMatrix,alpha) );
 
                 vecteur s(v.size()); s.set(0.0);
-                for(size_t i=0;i<s.size();i++) s(i)=0.0;//s(i)=1e-3*drandom(); // FIXME : add option for random init
 
                 MinRes2(TIH,-1.0*grad,s,MINRES_TOL);
 
                 v=v+s;
-                double move= (s*s)/(v*v);
-                cout<<"Move = "<<move<<endl;
+                double move = (s*s)/(v*v);
+                std::cout << "Move = " << move << std::endl;
                 if(move<StoppingTol) errorTest=false;
 
                 if(Heat) delete (TvInverseHessian*)&TIH; else delete (TikInverseHessian*)&TIH;
@@ -196,16 +172,7 @@ int main(int argc, char **argv)
     } // HEAT SmoothType
 
     // write output variables
-    // for use with EEG DATA
-    if(!strcmp(argv[1],"-EEG"))
-    {
-        EstimatedSourcesData.saveTxt(argv[6]);
-    }
-    // for use with MEG DATA
-    else if(!strcmp(argv[1],"-MEG"))
-    {
-        EstimatedSourcesData.saveTxt(argv[6]);
-    }
+    EstimatedSourcesData.saveTxt(argv[5]);
 
     // Stop Chrono
     C.stop();
@@ -216,16 +183,9 @@ int main(int argc, char **argv)
 
 void getHelp(char** argv)
 {
-    cout << argv[0] <<" [-option] [filepaths...]" << endl << endl;
-
-    cout << "-option :" << endl;
-    cout << "   -EEG :   Compute the inverse for EEG " << endl;
-    cout << "            Filepaths are in order :" << endl;
-    cout << "            EegGainMatrix, SmoothMatrix, AiVector, RealEegData, EstimatedSourcesData, EegDataWeight, SmoothWeight, SmoothType, MaxNbIter, StoppingTol" << endl << endl;
-
-    cout << "   -MEG :   Compute the inverse for MEG " << endl;
-    cout << "            Filepaths are in order :" << endl;
-    cout << "            MegGainMatrix, SmoothMatrix, AiVector, RealMegData, EstimatedSourcesData, MegDataWeight, SmoothWeight, SmoothType, MaxNbIter, StoppingTol" << endl << endl;
-
+    cout << argv[0] <<"[filepaths...]" << endl << endl;
+    cout << "Compute the inverse for MEG/EEG " << endl;
+    cout << "\tFilepaths are in order :" << endl;
+    cout << "\tGainMatrix, SmoothMatrix, AiVector, RealData, EstimatedSourcesData, DataWeight, SmoothWeight, SmoothType, MaxNbIter, StoppingTol" << endl << endl;
     exit(0);
 }

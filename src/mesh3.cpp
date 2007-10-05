@@ -585,7 +585,7 @@ void Mesh::append(const Mesh* m) {
 
     for(int i = 0; i < m->nbPts(); ++i) {
         newPts[i + old_npts] = m->getPt(i);
-        newNormals[i + old_npts] = this->normal(i);
+        newNormals[i + old_npts] = m->normal(i);
     }
 
     for(int i = 0; i < old_ntrgs; ++i)
@@ -734,3 +734,35 @@ void Mesh::info() {
     std::cout << "\tMax Area : " << max_area << std::endl;
 }
 
+/**
+ * Smooth Mesh
+**/
+void Mesh::smooth(double smoothing_intensity,size_t niter) {
+    std::vector< intSet > neighbors(npts);
+    for(int i = 0; i < npts; ++i)
+    {
+        for(intSet::iterator it = links[i].begin(); it != links[i].end(); ++it)
+        {
+            Triangle nt = getTrg(*it);
+            for(size_t k = 0; k < 3; ++k)
+            {
+                if (nt[k] != i) neighbors[i].insert(nt[k]);
+            }
+        }
+    }
+    Vect3* new_pts = new Vect3[npts];
+
+    for(size_t n = 0; n < niter; ++n)
+    {
+        for(int p = 0; p < npts; ++p)
+        {
+            new_pts[p] = pts[p];
+            for(intSet::iterator it = neighbors[p].begin(); it != neighbors[p].end(); ++it)
+            {
+                new_pts[p] = new_pts[p] + (smoothing_intensity * (pts[*it] - pts[p])) / neighbors[p].size();
+            }
+        }
+        for(int p = 0; p < npts; ++p) pts[p] = new_pts[p];
+    }
+    delete[] new_pts;
+}

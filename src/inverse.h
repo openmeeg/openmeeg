@@ -172,8 +172,9 @@ public:
     Transfer(TransferMat),mat_t(mat_t_Hessian),HessianAux(HessianAuxMat),alpha(Alpha),Ai(AiVec) {}
     virtual vecteur operator * ( const vecteur &x) const
     {
-        if(Ai==0)
+        if(Ai==0) {
             return Transfer.tmult(Transfer*x)+alpha*(mat_t*(HessianAux*x));
+        }
         else
         {
             vecteur toto=HessianAux*x;
@@ -212,10 +213,10 @@ class GenTvInverseHessian : public LinOp
     const vecteur *Ai;
 public:
     GenTvInverseHessian(const matrice &TransferMat,
-        const fast_sparse_matrice &mat_t_Hessian,
-        const fast_sparse_matrice &HessianAuxMat,
-        const double &Alpha,
-        const vecteur *AiVec=0):
+                        const fast_sparse_matrice &mat_t_Hessian,
+                        const fast_sparse_matrice &HessianAuxMat,
+                        const double &Alpha,
+                        const vecteur *AiVec=0):
     Transfer(TransferMat),mat_t(mat_t_Hessian),HessianAux(HessianAuxMat),alpha(Alpha),Ai(AiVec) {}
     virtual vecteur operator * ( const vecteur &x) const
     {
