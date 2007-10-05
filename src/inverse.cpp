@@ -43,7 +43,6 @@ int main(int argc, char **argv)
     vecteur AiVector;
     matrice Data;
     matrice EstimatedSourcesData;
-    double DataWeight;
     double SmoothWeight;
     string SmoothType;
     int MaxNbIter;
@@ -55,11 +54,10 @@ int main(int argc, char **argv)
     fastSmoothMatrix_t=fast_sparse_matrice(SmoothMatrix.transpose());
     AiVector.loadBin(argv[3]);
     Data.loadTxt(argv[4]);
-    DataWeight=atof(argv[6]);
-    SmoothWeight=atof(argv[7]);
-    SmoothType=string(argv[8]);
-    MaxNbIter=atoi(argv[9]);
-    StoppingTol=atof(argv[10]);
+    SmoothWeight=atof(argv[6]);
+    SmoothType=string(argv[7]);
+    MaxNbIter=atoi(argv[8]);
+    StoppingTol=atof(argv[9]);
 
     size_t nT=Data.ncol();
     EstimatedSourcesData=matrice(GainMatrix.ncol(),nT);
@@ -94,15 +92,15 @@ int main(int argc, char **argv)
             int t;
             for(t=0;t<MaxNbIter && errorTest;t++)
             {
-                vecteur gradtv=gentv(v,fastSmoothMatrix,fastSmoothMatrix_t,AiVector,&dtv);
-                vecteur current_mes=GainMatrix*v;
-                vecteur err_vec=current_mes-m_vec;
-                vecteur graddata=GainMatrix.tmult(err_vec);
-                vecteur Ggraddata=GainMatrix*graddata;
+                vecteur gradtv = gentv(v,fastSmoothMatrix,fastSmoothMatrix_t,AiVector,&dtv);
+                vecteur current_mes = GainMatrix*v;
+                vecteur err_vec = current_mes-m_vec;
+                vecteur graddata = GainMatrix.tmult(err_vec);
+                vecteur Ggraddata = GainMatrix*graddata;
 
-                double denom_data=Ggraddata*Ggraddata;
-                double opt_step_data=-(Ggraddata*err_vec)/denom_data;
-                vecteur grad=(-DataWeight)*graddata+(-SmoothWeight)*gradtv;
+                double denom_data = Ggraddata*Ggraddata;
+                double opt_step_data = -(Ggraddata*err_vec)/denom_data;
+                vecteur grad = (-SmoothWeight)*gradtv - graddata;
                 v=v+grad;
                 double tol = sqrt((grad*grad)/(v*v));
                 errorTest = tol>StoppingTol;
@@ -129,7 +127,6 @@ int main(int argc, char **argv)
             cout << ">> Frame " << frame+1 << endl;
             vecteur m_vec;
             m_vec.DangerousBuild(&Data(0,frame),Data.nlin());
-            double alpha=SmoothWeight/DataWeight;
 
             //==========  initialization of source vector =======================//
             for(size_t i=0;i<v.size();i++) v(i)=0.0;//v(i)=1e-3*drandom(); // FIXME : add option for random init
@@ -144,11 +141,11 @@ int main(int argc, char **argv)
 
                 vecteur err_vec = GainMatrix*v-m_vec;
                 vecteur graddata = GainMatrix.tmult(err_vec);
-                vecteur grad = graddata+alpha*gradtv;
+                vecteur grad = graddata+SmoothWeight*gradtv;
 
                 LinOp &TIH = *( Heat ?
-                                (LinOp*) new TvInverseHessian(GainMatrix,fastSmoothMatrix_t,hess,alpha) :
-                                (LinOp*) new TikInverseHessian(GainMatrix,alpha) );
+                                (LinOp*) new TvInverseHessian(GainMatrix,fastSmoothMatrix_t,hess,SmoothWeight) :
+                                (LinOp*) new TikInverseHessian(GainMatrix,SmoothWeight) );
 
                 vecteur s(v.size()); s.set(0.0);
 
@@ -186,6 +183,6 @@ void getHelp(char** argv)
     cout << argv[0] <<"[filepaths...]" << endl << endl;
     cout << "Compute the inverse for MEG/EEG " << endl;
     cout << "\tFilepaths are in order :" << endl;
-    cout << "\tGainMatrix, SmoothMatrix, AiVector, RealData, EstimatedSourcesData, DataWeight, SmoothWeight, SmoothType, MaxNbIter, StoppingTol" << endl << endl;
+    cout << "\tGainMatrix, SmoothMatrix, AiVector, RealData, EstimatedSourcesData, SmoothWeight, SmoothType, MaxNbIter, StoppingTol" << endl << endl;
     exit(0);
 }
