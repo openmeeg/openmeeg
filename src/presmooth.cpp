@@ -26,7 +26,8 @@ int main(int argc, char **argv)
     fast_sparse_matrice fastSmoothMatrix_t;
     vecteur AiVector;
     
-    SourceMesh.load(argv[1]);
+    bool checkClosedSurface = false;
+    SourceMesh.load(argv[1],checkClosedSurface);
 
     MeshDataL1Phi MD2(SourceMesh);
     std::vector<double> *Ai;

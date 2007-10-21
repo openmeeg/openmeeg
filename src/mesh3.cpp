@@ -105,13 +105,13 @@ void Mesh::getFileFormat(const char* filename) {
     else if(!strcmp(extension,"bnd") || !strcmp(extension,"BND")) streamFormat = Mesh::BND;
 }
 
-void Mesh::load(const char* name, bool verbose) {
+void Mesh::load(const char* name, bool checkClosedSurface, bool verbose) {
     char extension[128];
     getNameExtension(name,extension);
-    if(!strcmp(extension,"vtk") || !strcmp(extension,"VTK")) load_vtk(name);
-    else if(!strcmp(extension,"mesh") || !strcmp(extension,"MESH")) load_mesh(name);
-    else if(!strcmp(extension,"tri") || !strcmp(extension,"TRI")) load_tri(name);
-    else if(!strcmp(extension,"bnd") || !strcmp(extension,"BND")) load_bnd(name);
+    if(!strcmp(extension,"vtk") || !strcmp(extension,"VTK")) load_vtk(name,checkClosedSurface);
+    else if(!strcmp(extension,"mesh") || !strcmp(extension,"MESH")) load_mesh(name,checkClosedSurface);
+    else if(!strcmp(extension,"tri") || !strcmp(extension,"TRI")) load_tri(name,checkClosedSurface);
+    else if(!strcmp(extension,"bnd") || !strcmp(extension,"BND")) load_bnd(name,checkClosedSurface);
     else {
         cerr << "Load : Unknown file format" << endl;
         exit(1);
@@ -168,7 +168,7 @@ void Mesh::getDataFromVTKReader(vtkPolyDataReader* reader) {   //private
     }
 }
 
-void Mesh::load_vtk(std::istream &is) {
+void Mesh::load_vtk(std::istream &is, bool checkClosedSurface) {
     kill();
 
     // get length of file:
@@ -196,14 +196,14 @@ void Mesh::load_vtk(std::istream &is) {
     reader->Delete();
 
     make_links();
-    updateTriangleOrientations();
+    updateTriangleOrientations(checkClosedSurface);
 }
 
-void Mesh::load_vtk(const char* name) {
+void Mesh::load_vtk(const char* filename, bool checkClosedSurface) {
     kill();
 
     vtkPolyDataReader *reader = vtkPolyDataReader::New();
-    reader->SetFileName(name); // Specify file name of vtk data file to read
+    reader->SetFileName(filename); // Specify file name of vtk data file to read
     if (!reader->IsFilePolyData()) {
         std::cerr << "This is not a valid vtk poly data file" << std::endl;
         reader->Delete();
@@ -214,7 +214,7 @@ void Mesh::load_vtk(const char* name) {
 }
 #endif
 
-void Mesh::load_mesh(std::istream &is) {
+void Mesh::load_mesh(std::istream &is, bool checkClosedSurface) {
     unsigned char* uc = new unsigned char[5]; // File format
     is.read((char*)uc,sizeof(unsigned char)*5);
     delete[] uc;
@@ -302,10 +302,10 @@ void Mesh::load_mesh(std::istream &is) {
     delete[] pts_raw;
 
     make_links();
-    updateTriangleOrientations();
+    updateTriangleOrientations(checkClosedSurface);
 }
 
-void Mesh::load_mesh(const char* filename) {
+void Mesh::load_mesh(const char* filename, bool checkClosedSurface) {
     string s = filename;
     cout << "load_mesh : " << filename << endl;
     std::ifstream f(filename);
@@ -313,11 +313,11 @@ void Mesh::load_mesh(const char* filename) {
         cerr << "Error opening MESH file: " << filename << endl;
         exit(1);
     }
-    Mesh::load_mesh(f);
+    Mesh::load_mesh(f,checkClosedSurface);
     f.close();
 }
 
-void Mesh::load_tri(std::istream &f) {
+void Mesh::load_tri(std::istream &f, bool checkClosedSurface) {
     char ch; f>>ch;
     f>>npts;
 
@@ -351,10 +351,10 @@ void Mesh::load_tri(std::istream &f) {
     }
 
     make_links();
-    updateTriangleOrientations();
+    updateTriangleOrientations(checkClosedSurface);
 }
 
-void Mesh::load_tri(const char* filename) {
+void Mesh::load_tri(const char* filename, bool checkClosedSurface) {
     string s = filename;
     cout << "load_tri : " << filename << endl;
     std::ifstream f(filename);
@@ -362,11 +362,11 @@ void Mesh::load_tri(const char* filename) {
         cerr << "Error opening TRI file: " << filename << endl;
         exit(1);
     }
-    Mesh::load_tri(f);
+    Mesh::load_tri(f,checkClosedSurface);
     f.close();
 }
 
-void Mesh::load_bnd(std::istream &f) {
+void Mesh::load_bnd(std::istream &f, bool checkClosedSurface) {
     char myline[256];
     f.seekg( 0, std::ios_base::beg );
     f.getline(myline,256);
@@ -428,10 +428,10 @@ void Mesh::load_bnd(std::istream &f) {
     }
 
     make_links();
-    updateTriangleOrientations();
+    updateTriangleOrientations(checkClosedSurface);
 }
 
-void Mesh::load_bnd(const char* filename) {
+void Mesh::load_bnd(const char* filename, bool checkClosedSurface) {
     string s = filename;
     cout << "load_bnd : " << filename << endl;
     std::ifstream f(filename);
@@ -613,7 +613,7 @@ void Mesh::append(const Mesh* m) {
  * Update the orientations of the triangles in the mesh to have all
  * normals pointing in the same direction
 **/
-void Mesh::updateTriangleOrientations() {
+void Mesh::updateTriangleOrientations(bool checkClosedSurface) {
     // std::cout << "Updating Triangle Orientations" << std::endl;
     std::vector< bool > seen(ntrgs,false); // Flag to say if a Triangle has been seen or not
     std::list< int > triangles;
@@ -655,39 +655,49 @@ void Mesh::updateTriangleOrientations() {
             int b = t.next(offset+1);
             int c = t.next(offset+2);
             int n = getNeighTrg(a,b,c);
-            Triangle nt = getTrg(n);
-            int aId = trgs[n].contains(a);
-            int bId = trgs[n].contains(b);
-            int dId;
-            for(int k = 1; k <= 3; ++k)
+            if(n >= 0)
             {
-                if ( (aId != k) && (bId != k)) dId = k;
-            }
-            int d = trgs[n].som(dId);
-            trgs[n].s1() = b;
-            trgs[n].s2() = a;
-            trgs[n].s3() = d;
-
-            // Check inversion :
-            Vect3 old_normal = (getPt(nt.s2())-getPt(nt.s1()))^(getPt(nt.s3())-getPt(nt.s1()));
-            Vect3 new_normal = (getPt(trgs[n].s2())-getPt(trgs[n].s1()))^(getPt(trgs[n].s3())-getPt(trgs[n].s1()));
-            if((old_normal * new_normal) <= 0)
-            {
-                ninversions++;
-                std::cout << "Warning : Fixing triangle " << n << std::endl;
-                std::cout << "\tOld triangle : " << nt << std::endl;
-                std::cout << "\tNew triangle : " << trgs[n] << std::endl;
-                
-                if(nt.getArea() < 0.000001)
+                Triangle nt = getTrg(n);
+                int aId = trgs[n].contains(a);
+                int bId = trgs[n].contains(b);
+                int dId;
+                for(int k = 1; k <= 3; ++k)
                 {
-                    std::cerr << "Error : Mesh contains a flat triangle !" << std::endl;
+                    if ( (aId != k) && (bId != k)) dId = k;
+                }
+                int d = trgs[n].som(dId);
+                trgs[n].s1() = b;
+                trgs[n].s2() = a;
+                trgs[n].s3() = d;
+
+                // Check inversion :
+                Vect3 old_normal = (getPt(nt.s2())-getPt(nt.s1()))^(getPt(nt.s3())-getPt(nt.s1()));
+                Vect3 new_normal = (getPt(trgs[n].s2())-getPt(trgs[n].s1()))^(getPt(trgs[n].s3())-getPt(trgs[n].s1()));
+                if((old_normal * new_normal) <= 0)
+                {
+                    ninversions++;
+                    std::cout << "Warning : Fixing triangle " << n << std::endl;
+                    std::cout << "\tOld triangle : " << nt << std::endl;
+                    std::cout << "\tNew triangle : " << trgs[n] << std::endl;
+
+                    if(nt.getArea() < 0.000001)
+                    {
+                        std::cerr << "Error : Mesh contains a flat triangle !" << std::endl;
+                        exit(1);
+                    }
+                }
+
+                if(!seen[n]) {
+                    triangles.push_front(n);
+                    seen[n] = true;
+                }
+            } else {
+                if(checkClosedSurface)
+                {
+                    std::cerr << "!!!!!!!!!!!! Warning : Impossible to find neighboring triangle !!!!!!!!!!!!" << std::endl;
+                    std::cerr << "!!!!!!!!!!!! Your mesh does not seem to be a closed surface    !!!!!!!!!!!!" << std::endl;
                     exit(1);
                 }
-            }
-
-            if(!seen[n]) {
-                triangles.push_front(n);
-                seen[n] = true;
             }
         }
     }
@@ -706,9 +716,7 @@ int Mesh::getNeighTrg(int a, int b, int c) const {
         Triangle t = getTrg(*it);
         if (t.contains(b) && !t.contains(c)) return *it;
     }
-    std::cerr << "Impossible to find neighboring triangle !" << std::endl;
-    exit(1);
-    return 0;
+    return -1; // Impossible to find neighboring triangle
 }
 
 /**

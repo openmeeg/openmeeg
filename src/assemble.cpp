@@ -123,7 +123,8 @@ int main(int argc, char** argv)
 
         // Loading mesh for distributed sources
         Mesh mesh_sources;
-        mesh_sources.load(argv[4]);
+        bool checkClosedSurface = false;
+        mesh_sources.load(argv[4],false); // Load mesh without crashing when the surface is not closed
 
         // Assembling matrix from discretization :
         int newtaille = taille-(geo.getM(geo.nb()-1)).nbTrgs();
@@ -455,7 +456,9 @@ int main(int argc, char** argv)
 
         // Loading mesh for distributed sources :
         Mesh mesh_sources;
-        mesh_sources.load(argv[2]);
+        bool checkClosedSurface = false;
+        mesh_sources.load(argv[2],false); // Load mesh without crashing when the surface is not closed
+        
 
         // Load positions and orientations of sensors  :
         Sensors fileDescription(argv[3]);
