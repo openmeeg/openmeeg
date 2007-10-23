@@ -118,7 +118,7 @@ inline std::istream& operator>>(std::istream &is,Triangle &t)
 
 inline std::ostream& operator<<(std::ostream &os,const Triangle &t)
 {
-    return os << t[0] << " " << t[1] << " " << t[2] << " ( area : " << t.getArea() << " )";
+    return os << t[0] << " " << t[1] << " " << t[2];
 }
 
 #endif
