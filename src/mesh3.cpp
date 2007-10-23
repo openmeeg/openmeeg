@@ -103,6 +103,7 @@ void Mesh::getFileFormat(const char* filename) {
     if(!strcmp(extension,"vtk") || !strcmp(extension,"VTK")) streamFormat = Mesh::VTK ;
     else if(!strcmp(extension,"tri") || !strcmp(extension,"TRI")) streamFormat = Mesh::TRI;
     else if(!strcmp(extension,"bnd") || !strcmp(extension,"BND")) streamFormat = Mesh::BND;
+    else if(!strcmp(extension,"mesh") || ! strcmp(extension,"MESH")) streamFormat = Mesh::MESH;
 }
 
 void Mesh::load(const char* name, bool checkClosedSurface, bool verbose) {
