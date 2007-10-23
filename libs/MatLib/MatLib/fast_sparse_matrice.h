@@ -48,6 +48,9 @@ public:
     inline vecteur solve(const vecteur &rhs_vec) const;
 
     inline friend std::ostream& operator<<(std::ostream& f,const fast_sparse_matrice &M);
+
+    inline double& operator[](size_t i) {return tank[i];};
+
 };
 
 inline fast_sparse_matrice::fast_sparse_matrice()

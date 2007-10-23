@@ -16,7 +16,16 @@ int main(int argc, char **argv)
         return 0;
     }
 
-    if ((!strcmp(argv[1],"-h")) | (!strcmp(argv[1],"--help"))) getHelp(argv);
+    if ((!strcmp(argv[1],"-h")) | (!strcmp(argv[1],"--help"))) {
+        getHelp(argv);
+        return 0;
+    }
+
+    if(argc < 5)
+    {
+        cerr << "Bad arguments \nPlease try \"" << argv[0] << " -h\" or \"" << argv[0] << " --help \" \n" << endl;
+        exit(1);
+    }
 
     // Start Chrono
     cpuChrono C;
@@ -31,48 +40,23 @@ int main(int argc, char **argv)
 
     // declaration of argument variables======================================================================
     string Option;
-    matrice MegGainMatrix;
-    matrice EegGainMatrix;
+    matrice GainMatrix;
     matrice RealSourcesData;
-    matrice SimulatedMegData;
-    double MegNoiseLevel;
-    matrice SimulatedEegData;
-    double EegNoiseLevel;
-    
-    // for use with EEG DATA
-    if(!strcmp(argv[1],"-EEG"))
-    {
-        Option=string(argv[1]);
-        EegGainMatrix.loadBin(argv[2]);
-        RealSourcesData.loadTxt(argv[3]);
-        EegNoiseLevel=atof(argv[5]);
-    }
-    // for use with MEG DATA
-    else if(!strcmp(argv[1],"-MEG"))
-    {
-        Option=string(argv[1]);
-        MegGainMatrix.loadBin(argv[2]);
-        RealSourcesData.loadTxt(argv[3]);
-        MegNoiseLevel=atof(argv[5]);
-    }
-    //=======================================================================================================
+    double NoiseLevel;
+    matrice SimulatedData;
 
-    int nT=RealSourcesData.ncol();
+    GainMatrix.loadBin(argv[1]);
+    RealSourcesData.loadTxt(argv[2]);
+    NoiseLevel = atof(argv[4]);
+
+    int nT = RealSourcesData.ncol();
     matrice* data;
 
-    if(!strcmp(argv[1],"-EEG"))
-    {
-        SimulatedEegData=matrice(EegGainMatrix.nlin(),nT);
-        data=&SimulatedEegData;
-    }
-    if(!strcmp(argv[1],"-MEG"))
-    {
-        SimulatedMegData=matrice(MegGainMatrix.nlin(),nT);
-        data=&SimulatedMegData;
-    }
+    SimulatedData=matrice(GainMatrix.nlin(),nT);
+    data = &SimulatedData;
 
     double noiselevel;
-    
+
     #ifdef USE_OMP
     #pragma omp parallel for
     #endif
@@ -81,16 +65,9 @@ int main(int argc, char **argv)
         vecteur v; v.DangerousBuild(&RealSourcesData(0,frame),RealSourcesData.nlin());
         vecteur result;
 
-        if(!strcmp(argv[1],"-EEG"))
-        {
-            result=EegGainMatrix*v;
-            noiselevel=EegNoiseLevel;
-        }
-        if(!strcmp(argv[1],"-MEG"))
-        {
-            result=MegGainMatrix*v;
-            noiselevel=MegNoiseLevel;
-        }
+        result = GainMatrix*v;
+        noiselevel = NoiseLevel;
+
         for(size_t i=0;i<result.size();i++) (*data)(i,frame)=result(i);
         v.DangerousKill();
     }
@@ -107,7 +84,7 @@ int main(int argc, char **argv)
     for(int frame=0;frame<nT;frame++)
     {
         vecteur grand(data->nlin());
-        for(size_t i=0;i<grand.size();i++) grand(i)=gaussienne();
+        for(size_t i=0;i<grand.size();i++) grand(i)=gaussian();
         double coef=noiselevel*meannorm/grand.norm();
 
         vecteur v; v.DangerousBuild(&((*data)(0,frame)),data->nlin());
@@ -116,16 +93,7 @@ int main(int argc, char **argv)
     }
 
     // write output variables ===================================================================================
-    // for use with EEG DATA
-    if(!strcmp(argv[1],"-EEG"))
-    {
-        SimulatedEegData.saveTxt(argv[4]);
-    }
-    // for use with MEG DATA
-    else if(!strcmp(argv[1],"-MEG"))
-    {
-        SimulatedMegData.saveTxt(argv[4]);
-    }
+    SimulatedData.saveTxt(argv[3]);
     // ===========================================================================================================
 
     // Stop Chrono
@@ -137,16 +105,11 @@ int main(int argc, char **argv)
 
 void getHelp(char** argv)
 {
-    cout << argv[0] <<" [-option] [filepaths...]" << endl << endl;
-    
-    cout << "-option :" << endl;
-    cout << "   -EEG :   Compute the forward problem for EEG " << endl;
-    cout << "            Filepaths are in order :" << endl;
-    cout << "            EegGainMatrix (bin), RealSourcesData (txt), SimulatedEegData (txt), EegNoiseLevel (float)" << endl << endl;
+    cout << argv[0] << " [filepaths...]" << endl << endl;
 
-    cout << "   -MEG :   Compute the forward problem for MEG " << endl;
-    cout << "            Filepaths are in order :" << endl;
-    cout << "            MegGainMatrix (bin), RealSourcesData (txt), SimulatedMegData (txt), MegNoiseLevel (float)" << endl << endl;
+    cout << "   Compute the forward problem " << endl;
+    cout << "   Filepaths are in order :" << endl;
+    cout << "   GainMatrix (bin), RealSourcesData (txt), SimulatedData (txt), NoiseLevel (float)" << endl << endl;
 
     exit(0);
 }

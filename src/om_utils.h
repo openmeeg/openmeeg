@@ -11,12 +11,16 @@
     #define M_PI 3.14159265358979323846
 #endif
 
-inline int getNameExtension ( const char* name, char* extension )
+inline void getNameExtension ( const char* name, char* extension )
 {
-    const char *point=strrchr(name,'.');
-    strcpy(extension,point+1);
-
-    if(point) return 0; else return 1;
+    const char *point = strrchr(name,'.');
+    if(point)
+    {
+        strcpy(extension,point+1);
+    } else {
+        std::cerr << "Unable to get file extension from file : " << *name << std::endl;
+        exit(1);
+    }
 };
 
 inline void init_random(int seed) {
@@ -35,7 +39,7 @@ inline double drandom()
     return double(rand())/RAND_MAX;
 }
 
-inline double gaussienne()
+inline double gaussian()
 {
     double x;
     do

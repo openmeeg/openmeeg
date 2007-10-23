@@ -29,8 +29,9 @@ public:
     typedef T valType;
     typedef I idxType;
     typedef MyCell<T,I> cellType;
+
 protected:
-    // On a 2 tableaux d'indexs pour parcourir les matrices
+    // On a 2 tableaux d'indices pour parcourir les matrices
     cellType **_RowEntry;
     cellType **_ColEntry;
     bool _tr;
@@ -923,9 +924,5 @@ template <> inline vecteur sparse_matrice::operator * ( const vecteur &x) const
 
     return ret;
 }
-
-template class TsparseMatrix<double,size_t>;
-
-// template inline std::ostream& operator<<(std::ostream& f,const TsparseMatrix<double,size_t> &M);
 
 #endif

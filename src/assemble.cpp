@@ -62,7 +62,7 @@ int main(int argc, char** argv)
             std::cerr << "Please set conductivities filepath !" << endl;
             exit(1);
         }
-	        if (argc < 5)
+	    if (argc < 5)
         {
             std::cerr << "Please set output filepath !" << endl;
             exit(1);
@@ -80,19 +80,7 @@ int main(int argc, char** argv)
         int offset=newtaille-(geo.getM(geo.nb()-1)).nbPts();
         deflat(mat,offset,newtaille-1,mat(offset,offset)/(newtaille-offset));
 
-        // Saving LHS matrix :
-        if (argc < 5)
-        {   // if no outfile, outfile on the same path as geometry file
-            char* fileout=new char[255];
-            #ifdef SAVEBIN
-            getOutputFilepath(argv[2],(char*)"lhsMatrix.bin", fileout);
-            #elif
-            getOutputFilepath(argv[2],(char*)"lhsMatrix.txt", fileout);
-            #endif
-            mat.SAVESUB(fileout,0,newtaille-1,0,newtaille-1);
-            delete[] fileout;
-        }
-        else mat.SAVESUB(argv[4],0,newtaille-1,0,newtaille-1);
+        mat.SAVESUB(argv[4],0,newtaille-1,0,newtaille-1);
     }
 
     /*********************************************************************************************
@@ -132,22 +120,7 @@ int main(int argc, char** argv)
         mat.set(0.0);
         assemble_RHS(geo,mesh_sources,mat,GaussOrder);
 
-        // Saving RHS matrix
-        if(argc < 6)
-        { // if no outfile, outfile on the same path as geometry file
-            char* fileout = new char[255];
-            #ifdef SAVEBIN
-            getOutputFilepath(argv[2],(char*)"rhsMatrix.bin", fileout);
-            #elif
-            getOutputFilepath(argv[2],(char*)"rhsMatrix.txt", fileout);
-            #endif
-            mat.SAVE(fileout);
-            delete[] fileout;
-        }
-        else
-        {
-            mat.SAVE(argv[5]); // if outfile is specified
-        }
+        mat.SAVE(argv[5]); // if outfile is specified
     }
 
     /*********************************************************************************************
@@ -174,31 +147,20 @@ int main(int argc, char** argv)
 
         // Loading surfaces from geometry file.
         Geometry geo;
-        //int taille=geo.read(argv[2]);
 
         // Loading mesh for distributed sources
         Mesh mesh_sources;
-        mesh_sources.load(argv[4]);
+        bool checkClosedSurface = false;
+        mesh_sources.load(argv[4],false); // Load mesh without crashing when the surface is not closed
 
         // Assembling matrix from discretization :
-        int newtaille=geo.getM(0).nbPts()+geo.getM(0).nbTrgs();
+        int newtaille = geo.getM(0).nbPts()+geo.getM(0).nbTrgs();
         matrice mat(newtaille,mesh_sources.nbPts()+mesh_sources.nbTrgs());
         mat.set(0.0);
         assemble_RHS2(geo,mesh_sources,mat,GaussOrder);
 
         // Saving RHS matrix :
-        if(argc < 6)
-        {   // if no outfile, outfile on the same path as geometry file
-            char* fileout=new char[255];
-            #ifdef SAVEBIN
-            getOutputFilepath(argv[2],(char*)"rhsMatrix.bin", fileout);
-            #elif
-            getOutputFilepath(argv[2],(char*)"rhsMatrix.txt", fileout);
-            #endif
-            mat.SAVESUB(fileout,0,newtaille-1,0,mesh_sources.nbPts()-1);
-            delete[] fileout;
-        }
-        else mat.SAVESUB(argv[5],0,newtaille-1,0,mesh_sources.nbPts()-1); // if outfile is specified
+        mat.SAVESUB(argv[5],0,newtaille-1,0,mesh_sources.nbPts()-1);
     }
 
     /*********************************************************************************************
@@ -250,19 +212,7 @@ int main(int argc, char** argv)
         assemble_RHS_dipoles( geo, Rs, Qs, rhs,GaussOrder);
 
         // Saving RHS matrix for dipolar case :
-        if(argc<6)
-        {    // if no outfile, outfile on the same path as geometry file
-            char* fileout=new char[255];
-            #ifdef SAVEBIN
-            getOutputFilepath(argv[2],(char*)"rhsMatrix.bin", fileout);
-            #elif
-            getOutputFilepath(argv[2],(char*)"rhsMatrix.txt", fileout);
-            #endif
-            rhs.SAVE(fileout);
-            delete[] fileout;
-        }
-        else rhs.SAVE(argv[5]);    //if outfile is specified
-
+        rhs.SAVE(argv[5]);
     }
 
 	/*********************************************************************************************
@@ -314,19 +264,7 @@ int main(int argc, char** argv)
         assemble_RHS_dipoles_grad( geo, Rs, Qs, rhs,GaussOrder);
 
         // Saving RHS matrix for dipolar case :
-        if(argc<6)
-        {    // if no outfile, outfile on the same path as geometry file
-            char* fileout=new char[255];
-            #ifdef SAVEBIN
-            getOutputFilepath(argv[2],(char*)"rhsMatrix.bin", fileout);
-            #elif
-            getOutputFilepath(argv[2],(char*)"rhsMatrix.txt", fileout);
-            #endif
-            rhs.SAVE(fileout);
-            delete[] fileout;
-        }
-        else rhs.SAVE(argv[5]);    //if outfile is specified
-
+        rhs.SAVE(argv[5]);
     }
 
     /*********************************************************************************************
@@ -367,19 +305,7 @@ int main(int argc, char** argv)
         //vToEEG is the linear application which maps x |----> v
 
         // Saving vToEEG matrix :
-        if(argc < 6)
-        {    // if no outfile, outfile on the same path as geometry file
-            char* fileout=new char[255];
-            #ifdef SAVEBIN
-            getOutputFilepath(argv[2],(char*)"v2EEG.bin", fileout);
-            #elif
-            getOutputFilepath(argv[2],(char*)"v2EEG.txt", fileout);
-            #endif
-            vToEEG.SAVE(fileout);
-            delete[] fileout;
-        }
-        else vToEEG.SAVE(argv[5]);    //if outfile is specified
-
+        vToEEG.SAVE(argv[5]);
     }
 
     /*********************************************************************************************
@@ -421,18 +347,7 @@ int main(int argc, char** argv)
         assemble_vToMEG( geo, xToMEGrespCont, squidsPositions, squidsOrientations);
 
         // Saving xToMEGrespCont matrix :
-        if(argc < 6)
-        {
-            char* fileout=new char[255];
-            #ifdef SAVEBIN
-            getOutputFilepath(argv[2],(char*)"v2MEG.bin", fileout);
-            #elif
-            getOutputFilepath(argv[2],(char*)"v2MEG.txt", fileout);
-            #endif
-            xToMEGrespCont.SAVE(fileout);
-            delete[] fileout;
-        }
-        else xToMEGrespCont.SAVE(argv[5]); // if outfile is specified
+        xToMEGrespCont.SAVE(argv[5]); // if outfile is specified
     }
 
 
@@ -458,7 +373,6 @@ int main(int argc, char** argv)
         Mesh mesh_sources;
         bool checkClosedSurface = false;
         mesh_sources.load(argv[2],false); // Load mesh without crashing when the surface is not closed
-        
 
         // Load positions and orientations of sensors  :
         Sensors fileDescription(argv[3]);
@@ -472,19 +386,7 @@ int main(int argc, char** argv)
         assemble_sToMEG( mesh_sources, sToMEGrespCont, squidsPositions, squidsOrientations);
 
         // Saving sToMEGrespCont matrix :
-        if(argc < 5)
-        {
-            char* fileout=new char[255];
-            #ifdef SAVEBIN
-            getOutputFilepath(argv[2],(char*)"s2MEG.bin", fileout);
-            #elif
-            getOutputFilepath(argv[2],(char*)"s2MEG.txt", fileout);
-            #endif
-            sToMEGrespCont.SAVE(fileout);
-            delete[] fileout;
-        }
-        else sToMEGrespCont.SAVE(argv[4]);    //if outfile is specified
-
+        sToMEGrespCont.SAVE(argv[4]);
     }
 
     /*********************************************************************************************
@@ -510,7 +412,7 @@ int main(int argc, char** argv)
 
         // Loading dipoles :
         matrice dipoles(argv[2]);
-        size_t nVertices=dipoles.nlin();
+        size_t nVertices = dipoles.nlin();
 
         // Load positions and orientations of sensors  :
         Sensors fileDescription(argv[3]);
@@ -522,19 +424,7 @@ int main(int argc, char** argv)
 
         assemble_sToMEG_point( dipoles, sToMEGrespCont, squidsPositions, squidsOrientations);
 
-        if(argc < 5)
-        {
-            char* fileout=new char[255];
-            #ifdef SAVEBIN
-            getOutputFilepath(argv[2],(char*)"s2MEG.bin", fileout);
-            #elif
-            getOutputFilepath(argv[2],(char*)"s2MEG.txt", fileout);
-            #endif
-            sToMEGrespCont.SAVE(fileout);
-            delete[] fileout;
-        }
-        else sToMEGrespCont.SAVE(argv[4]);    //if outfile is specified
-
+        sToMEGrespCont.SAVE(argv[4]);
     }
     else cerr << "unknown argument: " << argv[1] << endl;
 

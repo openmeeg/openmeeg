@@ -39,6 +39,7 @@ namespace Utils {
             } catch(...) {
                 std::cerr << "Wrong property file: " << loader.filename << '.' << std::endl
                           << "  Check whether the file exists and contains the proper properties." << std::endl;
+                exit(1);
             }
 
             while (is.peek()!=std::istream::traits_type::eof()) {

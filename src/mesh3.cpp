@@ -352,6 +352,7 @@ void Mesh::load_tri(std::istream &f, bool checkClosedSurface) {
     }
 
     make_links();
+
     updateTriangleOrientations(checkClosedSurface);
 }
 
@@ -659,6 +660,13 @@ void Mesh::updateTriangleOrientations(bool checkClosedSurface) {
             if(n >= 0)
             {
                 Triangle nt = getTrg(n);
+
+                if(nt.getArea() < 0.000001) // FIXME : check what should be a good value for the threshold
+                {
+                    std::cerr << "Error : Mesh contains a flat triangle !" << std::endl;
+                    exit(1);
+                }
+
                 int aId = trgs[n].contains(a);
                 int bId = trgs[n].contains(b);
                 int dId;
@@ -680,12 +688,6 @@ void Mesh::updateTriangleOrientations(bool checkClosedSurface) {
                     std::cout << "Warning : Fixing triangle " << n << std::endl;
                     std::cout << "\tOld triangle : " << nt << std::endl;
                     std::cout << "\tNew triangle : " << trgs[n] << std::endl;
-
-                    if(nt.getArea() < 0.000001)
-                    {
-                        std::cerr << "Error : Mesh contains a flat triangle !" << std::endl;
-                        exit(1);
-                    }
                 }
 
                 if(!seen[n]) {
@@ -775,3 +777,30 @@ void Mesh::smooth(double smoothing_intensity,size_t niter) {
     }
     delete[] new_pts;
 }
+
+/**
+ * Surface Gradient
+**/
+sparse_matrice Mesh::gradient() const
+{
+    sparse_matrice A(3*ntrgs,npts);
+    // loop on triangles
+    for(int t=0;t<ntrgs;t++)
+    {
+        const Triangle& trg = getTrg(t);
+        Vect3 pts[3] = {getPt(trg[0]), getPt(trg[1]), getPt(trg[2])};
+        Vect3 grads[3];
+        for(int i=0;i<3;i++) grads[i] = P1Vector(pts[0], pts[1], pts[2], i);
+
+        for(int i=0;i<3;i++)
+        {
+            for(int j=0;j<3;j++)
+            {
+                A(3*t+i,trg[j]) = grads[j][i];
+            }
+        }
+    }
+    A.refreshNZ();
+    return A;
+}
+

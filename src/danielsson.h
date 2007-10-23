@@ -15,8 +15,6 @@ typedef int dim_t;
 const int UnknownPoint=INT_MAX;
 const double UnknownDist=DBL_MAX;
 
-
-
 double dist_point_cell(const dpoint&m ,const dpoint *pts,const ipoint& cell,dpoint& alphas,bool& inside);
 double dist_point_mesh(const dpoint&m ,const Mesh &mesh,dpoint& alphas,int &nearestNumber);
 

@@ -1,9 +1,8 @@
 #include "symmatrice.h"
 #include "vecteur.h"
+#include "mesh3.h"
 #include "sparse_matrice.h"
 #include "fast_sparse_matrice.h"
-
-#include "MeshDataSmoother.h"
 
 using namespace std;
 
@@ -21,29 +20,21 @@ int main(int argc, char **argv)
 
     // declaration of argument variables
     Mesh SourceMesh;
-    sparse_matrice SmoothMatrix;
-    fast_sparse_matrice fastSmoothMatrix;
-    fast_sparse_matrice fastSmoothMatrix_t;
-    vecteur AiVector;
-    
+
     bool checkClosedSurface = false;
     SourceMesh.load(argv[1],checkClosedSurface);
 
-    MeshDataL1Phi MD2(SourceMesh);
-    std::vector<double> *Ai;
-    MD2.computeMatrix(Ai);
-    sparse_matrice *mat=MD2.getMatrix();
-    mat->refreshNZ();
-    SmoothMatrix=(*mat);
-    vecteur v;
-    v.DangerousBuild(&(*Ai)[0],Ai->size());
-    AiVector=v.duplicate();
-    v.DangerousKill();
-    delete Ai;
+    sparse_matrice SmoothMatrix = SourceMesh.gradient();
+
+    vecteur areas(SourceMesh.nbTrgs());
+    for(size_t i = 0; i < SourceMesh.nbTrgs(); ++i)
+    {
+        areas(i) = SourceMesh.getTrg(i).getArea();
+    }
 
     // write output variables
     SmoothMatrix.saveBin(argv[2]);
-    AiVector.saveBin(argv[3]);
+    areas.saveBin(argv[3]);
 
     return 0;
 }
@@ -57,7 +48,5 @@ void getHelp(char** argv)
     cout << "   SourceMesh, SmoothMatrix (txt), AiVector (txt)" << endl << endl;
 
     exit(0);
-
 }
-
 

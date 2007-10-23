@@ -56,8 +56,6 @@ int main(int argc, char **argv)
     Data.loadTxt(argv[4]);
     SmoothWeight=atof(argv[6]);
     SmoothType=string(argv[7]);
-    MaxNbIter=atoi(argv[8]);
-    StoppingTol=atof(argv[9]);
 
     size_t nT=Data.ncol();
     EstimatedSourcesData=matrice(GainMatrix.ncol(),nT);
@@ -75,6 +73,9 @@ int main(int argc, char **argv)
 
     if(Tv)
     {
+        MaxNbIter=atoi(argv[8]);
+        StoppingTol=atof(argv[9]);
+
         for(size_t frame=0;frame<nT;frame++)
         {
             cout << ">> Frame " << frame+1 << endl;
@@ -117,9 +118,6 @@ int main(int argc, char **argv)
 
     if(Heat || Mn)
     {
-        // In both cases override maxnbiter number because the energy is quadratic and the minimum is found in one iteration
-        // minor modifications should be done on the Newton algorithm for convex non-quadratic functions
-        MaxNbIter=1;
         fast_sparse_matrice hess(fastSmoothMatrix);
 
         for(size_t frame=0;frame<nT;frame++)
@@ -129,41 +127,20 @@ int main(int argc, char **argv)
             m_vec.DangerousBuild(&Data(0,frame),Data.nlin());
 
             //==========  initialization of source vector =======================//
-            for(size_t i=0;i<v.size();i++) v(i)=0.0;//v(i)=1e-3*drandom(); // FIXME : add option for random init
+            v.set(0.0);
 
-            bool errorTest=true;
-            double dtv=0;
+            LinOp &TIH = *( Heat ?
+                            (LinOp*) new HeatInverseHessian(GainMatrix,fastSmoothMatrix,fastSmoothMatrix_t,SmoothWeight) :
+                            (LinOp*) new TikInverseHessian(GainMatrix,SmoothWeight) );
 
-            int t;
-            for( t=0;t<MaxNbIter && errorTest;t++)
-            {
-                vecteur gradtv = gentv(v,fastSmoothMatrix,fastSmoothMatrix_t,AiVector,hess,&dtv,ftab[1],fptab[1],fpptab[1]);
+            MinRes2(TIH,GainMatrix.tmult(m_vec),v,MINRES_TOL);
 
-                vecteur err_vec = GainMatrix*v-m_vec;
-                vecteur graddata = GainMatrix.tmult(err_vec);
-                vecteur grad = graddata+SmoothWeight*gradtv;
+            if (Heat) delete (HeatInverseHessian*)&TIH; else delete (TikInverseHessian*)&TIH;
 
-                LinOp &TIH = *( Heat ?
-                                (LinOp*) new TvInverseHessian(GainMatrix,fastSmoothMatrix_t,hess,SmoothWeight) :
-                                (LinOp*) new TikInverseHessian(GainMatrix,SmoothWeight) );
-
-                vecteur s(v.size()); s.set(0.0);
-
-                MinRes2(TIH,-1.0*grad,s,MINRES_TOL);
-
-                v=v+s;
-                double move = (s*s)/(v*v);
-                std::cout << "Move = " << move << std::endl;
-                if(move<StoppingTol) errorTest=false;
-
-                if(Heat) delete (TvInverseHessian*)&TIH; else delete (TikInverseHessian*)&TIH;
-
-            }// loop over t
-            std::cout << "Number of iterations = " << t << std::endl;
             std::cout << "Relative Error = " << (GainMatrix*v-m_vec).norm()/m_vec.norm() << std::endl;
+
             for(size_t i=0;i<EstimatedSourcesData.nlin();i++) EstimatedSourcesData(i,frame)=v(i);
             m_vec.DangerousKill();
-
         }// loop over frame
 
     } // HEAT SmoothType

@@ -787,5 +787,4 @@ inline double matrice::det() const{
 #endif
 }
 
-
 #endif

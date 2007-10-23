@@ -6,6 +6,8 @@
 #include <set>
 #include "vect3.h"
 #include "triangle.h"
+#include "sparse_matrice.h"
+#include "symmatrice.h"
 
 #ifdef USE_VTK
 #include <vtkPolyDataReader.h>
@@ -179,6 +181,11 @@ public:
     void smooth(double smoothing_intensity, size_t niter);
     
     int getNeighTrg(int a, int b, int c) const;
+    
+    /**
+     * Compute the surfacic gradient
+    **/
+    sparse_matrice gradient() const;
 
     inline friend void operator>>(std::istream &ifs,Mesh &m){
         Filetype format = m.streamFormat;
@@ -201,5 +208,23 @@ private:
     void getDataFromVTKReader(vtkPolyDataReader* vtkMesh);
 #endif
 };
+
+/**
+ * P1Vector : aux function to compute the surfacic gradient
+**/
+inline Vect3 P1Vector( const Vect3 &p0, const Vect3 &p1, const Vect3 &p2, const int idx )
+{
+    assert(idx>-1 && idx<3);
+    int i = idx+1;
+    Vect3 pts[5] = {p2,p0,p1,p2,p0};
+    Vect3 ret(0,0,0);
+    Vect3 pim1pi = pts[i]-pts[i-1];
+    Vect3 pim1pip1 = pts[i+1]-pts[i-1];
+    Vect3 pim1H = ( (1.0/pim1pip1.norme2()) * ( pim1pi*pim1pip1 ) ) *pim1pip1;
+    Vect3 piH = pim1H-pim1pi;
+    ret = -1.0/piH.norme2()*piH;
+
+    return ret;
+}
 
 #endif

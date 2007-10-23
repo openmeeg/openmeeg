@@ -10,7 +10,7 @@ int main( int argc, char **argv)
     if (command_option("-h",(const char *)0,0)) return 0;
 
     Mesh* M = new Mesh();
-    M->load(input_filename,true);
+    M->load(input_filename,false);
     M->save("toto.tri");
 
     delete M;

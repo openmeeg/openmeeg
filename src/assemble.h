@@ -2,10 +2,10 @@
 #define _ASSEMBLE_H_
 
 #include <vector>
-#include <vecteur.h>
-#include <matrice.h>
-#include <symmatrice.h>
 
+#include "vecteur.h"
+#include "matrice.h"
+#include "symmatrice.h"
 #include "geometry.h"
 
 void assemble_LHS(const Geometry &geo,symmatrice &mat,const int);
