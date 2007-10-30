@@ -19,12 +19,7 @@ int main(int argc, char **argv)
 
     if ((!strcmp(argv[1],"-h")) | (!strcmp(argv[1],"--help"))) getHelp(argv);
 
-    cout << endl << "| ------ " << argv[0] << " -------" << endl;
-    for( int i = 1; i < argc; i += 1 )
-    {
-        cout << "| " << argv[i] << endl;
-    }
-    cout << "| -----------------------" << endl;
+    disp_argv(argc,argv);
 
     // Start Chrono
     cpuChrono C;

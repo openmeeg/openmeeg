@@ -616,6 +616,7 @@ void Mesh::append(const Mesh* m) {
  * normals pointing in the same direction
 **/
 void Mesh::updateTriangleOrientations(bool checkClosedSurface) {
+    return;
     // std::cout << "Updating Triangle Orientations" << std::endl;
     std::vector< bool > seen(ntrgs,false); // Flag to say if a Triangle has been seen or not
     std::list< int > triangles;
@@ -796,7 +797,7 @@ sparse_matrice Mesh::gradient() const
         {
             for(int j=0;j<3;j++)
             {
-                A(3*t+i,trg[j]) = grads[j][i];
+                A(3*t+i,trg[j]) = grads[j](i);
             }
         }
     }
@@ -804,3 +805,11 @@ sparse_matrice Mesh::gradient() const
     return A;
 }
 
+vecteur Mesh::areas() const {
+    vecteur areas(nbTrgs());
+    for(size_t i = 0; i < nbTrgs(); ++i)
+    {
+        areas(i) = getTrg(i).getArea();
+    }
+    return areas;
+}

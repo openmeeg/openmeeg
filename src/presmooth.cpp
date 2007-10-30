@@ -25,16 +25,11 @@ int main(int argc, char **argv)
     SourceMesh.load(argv[1],checkClosedSurface);
 
     sparse_matrice SmoothMatrix = SourceMesh.gradient();
-
-    vecteur areas(SourceMesh.nbTrgs());
-    for(size_t i = 0; i < SourceMesh.nbTrgs(); ++i)
-    {
-        areas(i) = SourceMesh.getTrg(i).getArea();
-    }
+    vecteur AiVector = SourceMesh.areas();
 
     // write output variables
     SmoothMatrix.saveBin(argv[2]);
-    areas.saveBin(argv[3]);
+    AiVector.saveBin(argv[3]);
 
     return 0;
 }
@@ -45,7 +40,7 @@ void getHelp(char** argv)
 
     cout << "   Presmooth a mesh " << endl;
     cout << "   Filepaths are in order :" << endl;
-    cout << "   SourceMesh, SmoothMatrix (txt), AiVector (txt)" << endl << endl;
+    cout << "   SourceMesh, SmoothMatrix (bin), AiVector (bin)" << endl << endl;
 
     exit(0);
 }

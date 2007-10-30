@@ -14,7 +14,7 @@ static double dpc(const dpoint&m ,const dpoint *pts,const ipoint& cell,dpoint& a
 {
     if(nb == 1)
     {
-        alphas[idx[0]]=1;
+        alphas(idx[0])=1;
         return (m-pts[cell[idx[0]]]).norme();
     }
     // Resoud H=sum(alpha_i A_i), sum(alpha_i)=1, et HM.(A_i-A_0)=0
@@ -26,8 +26,8 @@ static double dpc(const dpoint&m ,const dpoint *pts,const ipoint& cell,dpoint& a
     dpoint A0M=m-pts[cell[idx[0]]]; // M-A_0
     if(nb == 2)
     {
-        alphas[idx[1]]=(A0M*A0Ai[1])/(A0Ai[1]*A0Ai[1]);
-        alphas[idx[0]]=1-alphas[idx[1]];
+        alphas(idx[1])=(A0M*A0Ai[1])/(A0Ai[1]*A0Ai[1]);
+        alphas(idx[0])=1-alphas(idx[1]);
     } 
     else if (nb==3) 
     {
@@ -39,9 +39,9 @@ static double dpc(const dpoint&m ,const dpoint *pts,const ipoint& cell,dpoint& a
         double b1=A0M*A0Ai[2];
         double d=a00*a11-a10*a10;
         assert(d!=0);
-        alphas[idx[1]]=(b0*a11-b1*a10)/d;
-        alphas[idx[2]]=(a00*b1-a10*b0)/d;
-        alphas[idx[0]]=1-alphas[idx[1]]-alphas[idx[2]];
+        alphas(idx[1])=(b0*a11-b1*a10)/d;
+        alphas(idx[2])=(a00*b1-a10*b0)/d;
+        alphas(idx[0])=1-alphas(idx[1])-alphas(idx[2]);
     }
     else
     {
@@ -54,10 +54,10 @@ static double dpc(const dpoint&m ,const dpoint *pts,const ipoint& cell,dpoint& a
     // NB: traite le cas >0 car si alpha_i>1 alors alpha_j<0 pour un j
     for (int i=0;i<nb;i++)
     {
-        if (alphas[idx[i]]<0)
+        if (alphas(idx[i])<0)
         {
             inside=false;
-            alphas[idx[i]]=0;
+            alphas(idx[i])=0;
             swap(idx[i],idx[nb-1]);
             return dpc(m,pts,cell,alphas,nb-1,idx,inside);
         }
@@ -66,7 +66,7 @@ static double dpc(const dpoint&m ,const dpoint *pts,const ipoint& cell,dpoint& a
     dpoint MH=-A0M;
     for (int i=1;i<nb;i++)
     {
-        MH=MH+alphas[idx[i]]*A0Ai[i];
+        MH=MH+alphas(idx[i])*A0Ai[i];
     }
     return MH.norme();
 }

@@ -11,8 +11,8 @@ int Geometry::read(char* geomFileName, char* condFileName){
 
     destroy();
 
-    int npts = 0;
-    int ntrgs = 0;
+    size_t npts = 0;
+    size_t ntrgs = 0;
 
     MeshReader::Reader reader(geomFileName);
 
@@ -61,6 +61,6 @@ int Geometry::read(char* geomFileName, char* condFileName){
     for(int i=0;i<n;i++)
         std::cout << "\tMesh " << i << " : internal conductivity = " << sigin[i] << " and external conductivity = " << sigout[i] << std::endl;
 
-    int result = npts + ntrgs;
-    return result;
+    m_size = npts + ntrgs;
+    return m_size;
 }

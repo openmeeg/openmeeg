@@ -350,12 +350,12 @@ public:
         Vect3 EMpartQ = n/pow(rn,3.)-3*(n*r)/pow(rn,5.)*r;
 
         vect3array<6> res;
-        res(0) = -EMpartR0[0]*P1part; // d/dr0[0]		// RK: why - sign?
-        res(1) = -EMpartR0[1]*P1part; // d/dr0[1]
-        res(2) = -EMpartR0[2]*P1part; // d/dr0[2]
-        res(3) = -EMpartQ[0]*P1part; // d/dq[0]
-        res(4) = -EMpartQ[1]*P1part; // d/dq[1]
-        res(5) = -EMpartQ[2]*P1part; // d/dq[2]
+        res(0) = -EMpartR0(0)*P1part; // d/dr0[0]		// RK: why - sign?
+        res(1) = -EMpartR0(1)*P1part; // d/dr0[1]
+        res(2) = -EMpartR0(2)*P1part; // d/dr0[2]
+        res(3) = -EMpartQ(0)*P1part; // d/dq[0]
+        res(4) = -EMpartQ(1)*P1part; // d/dq[1]
+        res(5) = -EMpartQ(2)*P1part; // d/dq[2]
         return res;
 
     }

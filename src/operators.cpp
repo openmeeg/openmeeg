@@ -269,9 +269,9 @@ void operatorDipolePotDer(const Vect3 &r0,const Vect3 &q,const Mesh &inner_layer
         #pragma omp critical
         #endif
         {
-        rhs(inner_layer.getTrg(i-offsetIdx).s1()+offsetIdx)+=v[0];
-        rhs(inner_layer.getTrg(i-offsetIdx).s2()+offsetIdx)+=v[1];
-        rhs(inner_layer.getTrg(i-offsetIdx).s3()+offsetIdx)+=v[2];
+        rhs(inner_layer.getTrg(i-offsetIdx).s1()+offsetIdx)+=v(0);
+        rhs(inner_layer.getTrg(i-offsetIdx).s2()+offsetIdx)+=v(1);
+        rhs(inner_layer.getTrg(i-offsetIdx).s3()+offsetIdx)+=v(2);
         }
     }
 }
@@ -312,9 +312,9 @@ void operatorDipolePotDerGrad(const Vect3 &r0, const Vect3 &q,const Mesh &inner_
         anaDPD.init(inner_layer,i,q,r0);
         vect3array<6> v=gauss.integrate(anaDPD,inner_layer.getTrg(i),inner_layer);
         for (int d=0;d<6;d++) { // derivatives wrt r0,q
-            rhs[d](inner_layer.getTrg(i-offsetIdx).s1()+offsetIdx)+=v(d)[0];
-            rhs[d](inner_layer.getTrg(i-offsetIdx).s2()+offsetIdx)+=v(d)[1];
-            rhs[d](inner_layer.getTrg(i-offsetIdx).s3()+offsetIdx)+=v(d)[2];
+            rhs[d](inner_layer.getTrg(i-offsetIdx).s1()+offsetIdx)+=v(d)(0);
+            rhs[d](inner_layer.getTrg(i-offsetIdx).s2()+offsetIdx)+=v(d)(1);
+            rhs[d](inner_layer.getTrg(i-offsetIdx).s3()+offsetIdx)+=v(d)(2);
         }
     }
 }

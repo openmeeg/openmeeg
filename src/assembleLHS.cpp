@@ -8,10 +8,27 @@
 #include "symmatrice.h"
 #include "geometry.h"
 #include "operators.h"
+#include "assemble.h"
+
+void deflat(genericMatrix &M, int start, int end, double coef)
+{// deflat the matrix
+    for(int i=start;i<=end;i++)
+    {
+        #ifdef USE_OMP
+        #pragma omp parallel for
+        #endif
+        for(int j=i;j<=end;j++)
+        {
+            M(i,j)+=coef;
+        }
+    }
+}
 
 void assemble_LHS(const Geometry &geo,symmatrice &mat,const int GaussOrder)
 {
     int offset=0;
+
+    mat = symmatrice(geo.size());
 
     for(int c=0;c<geo.nb()-1;c++)
     {
@@ -73,19 +90,16 @@ void assemble_LHS(const Geometry &geo,symmatrice &mat,const int GaussOrder)
 
         offset=offset2;
     }
+    
+    // Deflation the last diagonal bloc of new 'mat' :
+    int newsize = geo.size()-(geo.getM(geo.nb()-1)).nbTrgs();
+    offset = newsize-(geo.getM(geo.nb()-1)).nbPts();
+    deflat(mat,offset,newsize-1,mat(offset,offset)/(newsize-offset));
+
+    mat = mat.getsubmat(0,newsize-1);
 }
 
-void deflat(genericMatrix &M, int start, int end, double coef)
-{// deflat the matrix
-
-    for(int i=start;i<=end;i++)
-    {
-        #ifdef USE_OMP
-        #pragma omp parallel for
-        #endif
-        for(int j=i;j<=end;j++)
-        {
-            M(i,j)+=coef;
-        }
-    }
+LHS_matrice::LHS_matrice (const Geometry &geo, const int GaussOrder) {
+    assemble_LHS(geo,*this,GaussOrder);
 }
+

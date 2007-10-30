@@ -167,9 +167,9 @@ public:
         }
     }
 
-    vecteur operator * ( const vecteur &x) const;
+    vecteur operator*( const vecteur &x) const;
 
-    inline TsparseMatrix<T,I> operator * (  TsparseMatrix<T,I>& opd)
+    inline TsparseMatrix<T,I> operator*(  TsparseMatrix<T,I>& opd )
     {
 
         refreshNZ();
@@ -489,7 +489,7 @@ public:
         if(flag) std::cout<<"Matrice Vide"<<std::endl;
     }
 
-    inline TsparseMatrix<T,I> operator + ( TsparseMatrix<T,I>& opd)
+    inline TsparseMatrix<T,I> operator+( TsparseMatrix<T,I>& opd)
     {
         refreshNZ();
         opd.refreshNZ();
@@ -522,7 +522,7 @@ public:
         return result;
     }
 
-    inline void operator += ( TsparseMatrix<T,I>& opd)
+    inline TsparseMatrix<T,I>& operator+=( TsparseMatrix<T,I>& opd)
     {
         refreshNZ();
         opd.refreshNZ();
@@ -550,9 +550,10 @@ public:
                 }
             }
         }
+        return *this;
     }
 
-    inline TsparseMatrix<T,I> operator - ()
+    inline TsparseMatrix<T,I> operator-()
     {
         TsparseMatrix<T,I> result=(*this);
 
@@ -570,7 +571,7 @@ public:
         return result;
     }
 
-    inline TsparseMatrix<T,I> operator * (T alpha)
+    inline TsparseMatrix<T,I> operator*(T alpha)
     {
         TsparseMatrix<T,I> result=(*this);
 
@@ -588,12 +589,10 @@ public:
         return result;
     }
 
-    inline TsparseMatrix<T,I> transpose()
+    inline TsparseMatrix<T,I> transpose() const
     {
         TsparseMatrix<T,I> result=(*this);
-
         result.autotranspose();
-
         return result;
     }
 
@@ -641,7 +640,7 @@ public:
         }
     }
 
-    inline T operator () (size_t i, size_t j) const
+    inline T operator()(size_t i, size_t j) const
     {
         cellType **Entry,*temp,ruse;
         T result=0;
@@ -685,7 +684,7 @@ public:
 
     }; //fin de operator ()
 
-    inline T& operator () (size_t i, size_t j)
+    inline T& operator()(size_t i, size_t j)
     {
         assert(i<_n && j<_p);
 
@@ -830,7 +829,7 @@ public:
         return tempbis->val;
     }; //fin de operator ()
 
-    inline void operator = (TsparseMatrix<T,I>& modele)
+    inline const TsparseMatrix<T,I>& operator=(const TsparseMatrix<T,I>& modele)
     {
         // On efface le contenu precedent de la matrice
 
@@ -854,8 +853,7 @@ public:
             delete[] _nzcols;
         }
 
-        // On recree le nouveau contenu
-
+        // Recreate new content
         _n=modele._n;
         _p=modele._p;
         _nz=modele._nz;
@@ -878,8 +876,8 @@ public:
                 pt=pt->right;
             }
         }
+        return *this;
     }
-
 };
 
 template<class T,class I> inline std::ostream& operator<<(std::ostream& f,const TsparseMatrix<T,I> &M)
@@ -902,7 +900,7 @@ template<class T,class I> inline std::ostream& operator<<(std::ostream& f,const 
 
 typedef TsparseMatrix<double,size_t> sparse_matrice;
 
-template <> inline vecteur sparse_matrice::operator * ( const vecteur &x) const
+template <> inline vecteur sparse_matrice::operator*( const vecteur &x) const
 {
     vecteur ret(nlin());
     ret.set(0);

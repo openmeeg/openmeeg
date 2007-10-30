@@ -592,7 +592,6 @@ inline void matrice::saveSubBin( const char *filename, size_t i_start, size_t i_
     fclose(outfile);
 }
 
-
 inline void matrice::saveTxt( const char *filename ) const
 {
     std::ofstream outfile(filename);

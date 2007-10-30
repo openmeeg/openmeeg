@@ -411,7 +411,7 @@ inline void symmatrice::load( const char *filename ) {
 
 inline void symmatrice::loadTxt( const char *filename ) {
     std::ifstream file(filename);
-    if(!file.is_open()) { std::cerr<<"Error reading symmetric matrix text file"<<filename<<std::endl;exit(1); }
+    if(!file.is_open()) { std::cerr<<"Error reading symmetric matrix text file : "<<filename<<std::endl;exit(1); }
     std::stringstream sst;
 
     // determine the size of the LineBuffer
@@ -486,6 +486,20 @@ inline matrice symmatrice::operator()(size_t i_start, size_t i_end, size_t j_sta
 inline matrice symmatrice::getsubmat(size_t istart, size_t isize, size_t jstart, size_t jsize) const {
     assert ( istart+isize<=n && jstart+jsize<=n );
     return (*this)(istart,istart+isize-1,jstart,jstart+jsize-1);
+}
+
+inline symmatrice symmatrice::getsubmat(size_t istart, size_t iend) const {
+    assert( iend > istart);
+    size_t isize = iend - istart + 1;
+    assert ( istart+isize<=n );
+
+    symmatrice mat(isize);
+    const symmatrice &self=*this;
+    for(size_t i=istart;i<=iend;i++)
+        for(size_t j=i;j<=iend;j++)
+            mat(i,j)=self(i,j);
+
+    return mat;
 }
 
 //returns the solution of (this)*X = B

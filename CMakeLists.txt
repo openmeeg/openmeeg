@@ -50,8 +50,10 @@ IF ( USE_GCC )
     SET(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -Wall")
     IF ( APPLE )
         IF ( NOT ${CMAKE_MAKE_PROGRAM} MATCHES "cmakexbuild" ) # Test if not xcode
-            SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m64")
-            SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -m64")
+            IF ( NOT MATLAB_WRAP AND NOT PYTHON_WRAP)
+                SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m64")
+                SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -m64")
+            ENDIF ( NOT MATLAB_WRAP AND NOT PYTHON_WRAP)
         ENDIF ( NOT ${CMAKE_MAKE_PROGRAM} MATCHES "cmakexbuild"  )
     ENDIF ( APPLE )
 ENDIF ( USE_GCC )
@@ -237,6 +239,15 @@ IF ( BUILD_DOCUMENTATION )
     SET(OPENMEEG_DOXYGEN_HOME ${OpenMEEG_SOURCE_DIR}/documentation)
     SUBDIRS(${OPENMEEG_DOXYGEN_HOME})
 ENDIF ( BUILD_DOCUMENTATION )
+
+#-----------------------------------------------
+# Wrapping
+#-----------------------------------------------
+
+OPTION(MATLAB_WRAP "Enable MATLAB Wrapping" OFF)
+OPTION(PYTHON_WRAP "Enable TCL Wrapping" OFF)
+
+SUBDIRS(Wrapping)
 
 #-----------------------------------------------
 # packaging

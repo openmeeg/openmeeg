@@ -51,7 +51,7 @@ public:
     inline Vect3 operator* (const double &d) const {return Vect3(d*m_x, d*m_y, d*m_z);}
     inline Vect3 operator/ (const double &d) const {double d2 = 1.0/d; return Vect3(d2*m_x, d2*m_y, d2*m_z);}
 
-    inline double operator[] (const int i) const
+    inline double operator() (const int i) const
     {
         assert(i>=0 && i<3);
         switch(i)
@@ -63,7 +63,7 @@ public:
         }
     }
 
-    inline double& operator[] (const int i)
+    inline double& operator() (const int i)
     {
         assert(i>=0 && i<3);
         switch(i)

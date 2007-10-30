@@ -59,25 +59,25 @@ public:
     inline matrice outer_product(const vecteur& v) const;
 
     inline double norm()const;
-    inline size_t argabsmin() const;
-    inline size_t argabsmax() const;
-    inline double abssum() const;
     inline double sum() const;
     inline double mean() const;
 
-    inline vecteur div(const vecteur &d) const;
-    inline vecteur invsqrt() const;
-    inline vecteur sqrt() const;
-    inline vecteur inv() const;
-    inline vecteur sin() const;
-    inline vecteur cos() const;
-    inline vecteur exp() const;
-    inline vecteur ln() const;
-    inline vecteur log10() const;
-    inline vecteur pow( double x) const;
-    inline vecteur pow( const vecteur &x) const;
-    inline vecteur erf() const;
-    inline vecteur erfc() const;
+    // inline size_t argabsmin() const;
+    // inline size_t argabsmax() const;
+    // inline double abssum() const;
+    // inline vecteur div(const vecteur &d) const;
+    // inline vecteur invsqrt() const;
+    // inline vecteur sqrt() const;
+    // inline vecteur inv() const;
+    // inline vecteur sin() const;
+    // inline vecteur cos() const;
+    // inline vecteur exp() const;
+    // inline vecteur ln() const;
+    // inline vecteur log10() const;
+    // inline vecteur pow( double x) const;
+    // inline vecteur pow( const vecteur &x) const;
+    // inline vecteur erf() const;
+    // inline vecteur erfc() const;
 
     inline void set(double x);
     inline void write(std::ostream& f) const ;

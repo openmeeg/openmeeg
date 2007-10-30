@@ -8,6 +8,7 @@
 #include <assert.h>
 #include <math.h>
 #include "mesh3.h"
+
 typedef Vect3 dpoint;
 typedef Triangle ipoint;
 typedef int dim_t;

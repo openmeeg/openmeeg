@@ -71,9 +71,7 @@ public:
 
     Mesh();
     Mesh(int, int); // npts, ntrgs
-    Mesh(int, Vect3 *, int ,Triangle* );
     Mesh(const Mesh& M);
-    //Mesh& operator=( Mesh& M);
     Mesh& operator=(const Mesh& M);
     ~Mesh(){kill();}
     inline int nbPts() const { return npts; }
@@ -95,13 +93,13 @@ public:
     inline void setTrg(int i,const Triangle& t) { trgs[i]=t;}
 
     void make_links();
-    void compute_omega();
+    // void compute_omega();
 
     /**
        * Get center of triangle
        * \param i index of the triangle
        */
-    Vect3 center(int) const;
+    // Vect3 center(int) const;
 
     /**
        * Read mesh from file
@@ -186,6 +184,11 @@ public:
      * Compute the surfacic gradient
     **/
     sparse_matrice gradient() const;
+
+    /**
+     * Return the area of each triangle
+    **/
+    vecteur areas() const;
 
     inline friend void operator>>(std::istream &ifs,Mesh &m){
         Filetype format = m.streamFormat;

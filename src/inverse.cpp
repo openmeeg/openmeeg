@@ -1,11 +1,4 @@
-#include "matrice.h"
-#include "symmatrice.h"
-#include "vecteur.h"
-#include "sparse_matrice.h"
-#include "fast_sparse_matrice.h"
-#include "vect3.h"
 #include "cpuChrono.h"
-
 #include "om_utils.h"
 #include "inverse.h"
 
@@ -28,38 +21,23 @@ int main(int argc, char **argv)
     cpuChrono C;
     C.start();
 
-    cout << endl << "| ------ " << argv[0] << " -------" << endl;
-    for( int i = 1; i < argc; i += 1 )
-    {
-        cout << "| " << argv[i] << endl;
-    }
-    cout << "| -----------------------" << endl;
+    disp_argv(argc,argv);
 
     // declaration of argument variables
     matrice GainMatrix;
     sparse_matrice SmoothMatrix;
-    fast_sparse_matrice fastSmoothMatrix;
-    fast_sparse_matrice fastSmoothMatrix_t;
     vecteur AiVector;
     matrice Data;
     matrice EstimatedSourcesData;
     double SmoothWeight;
     string SmoothType;
-    int MaxNbIter;
-    double StoppingTol;
 
     GainMatrix.loadBin(argv[1]);
     SmoothMatrix.loadBin(argv[2]);
-    fastSmoothMatrix=fast_sparse_matrice(SmoothMatrix);
-    fastSmoothMatrix_t=fast_sparse_matrice(SmoothMatrix.transpose());
     AiVector.loadBin(argv[3]);
     Data.loadTxt(argv[4]);
-    SmoothWeight=atof(argv[6]);
-    SmoothType=string(argv[7]);
-
-    size_t nT=Data.ncol();
-    EstimatedSourcesData=matrice(GainMatrix.ncol(),nT);
-    vecteur v(EstimatedSourcesData.nlin());
+    SmoothWeight = atof(argv[6] );
+    SmoothType   = string(argv[7]);
 
     bool Heat = SmoothType==string("HEAT");
     bool Mn   = SmoothType==string("MN");
@@ -73,80 +51,24 @@ int main(int argc, char **argv)
 
     if(Tv)
     {
-        MaxNbIter=atoi(argv[8]);
-        StoppingTol=atof(argv[9]);
+        size_t MaxNbIter   = (size_t) atoi(argv[8]);
+        double StoppingTol = atof(argv[9]);
+    
+        TV_inverse_matrice EstimatedSourcesData(Data,GainMatrix,SmoothMatrix,AiVector,SmoothWeight,MaxNbIter,StoppingTol);
+        EstimatedSourcesData.saveTxt(argv[5]);
+    }
 
-        for(size_t frame=0;frame<nT;frame++)
-        {
-            cout << ">> Frame " << frame+1 << endl;
-            vecteur m_vec;
-            m_vec.DangerousBuild(&Data(0,frame),Data.nlin());
-
-            // ====================  initialization of source vector ===================== //
-            if(frame==0) for(size_t i=0;i<v.size();i++) v(i)=0.0;//v(i)=1e-3*drandom(); // FIXME : add option for random init
-            else for(size_t i=0;i<v.size();i++) v(i)=EstimatedSourcesData(i,frame-1);
-
-            bool errorTest=true;
-            double dtv=0.0;
-
-            // ==========================  the inverse problem ========================== //
-            int t;
-            for(t=0;t<MaxNbIter && errorTest;t++)
-            {
-                vecteur gradtv = gentv(v,fastSmoothMatrix,fastSmoothMatrix_t,AiVector,&dtv);
-                vecteur current_mes = GainMatrix*v;
-                vecteur err_vec = current_mes-m_vec;
-                vecteur graddata = GainMatrix.tmult(err_vec);
-                vecteur Ggraddata = GainMatrix*graddata;
-
-                double denom_data = Ggraddata*Ggraddata;
-                double opt_step_data = -(Ggraddata*err_vec)/denom_data;
-                vecteur grad = (-SmoothWeight)*gradtv - graddata;
-                v=v+grad;
-                double tol = sqrt((grad*grad)/(v*v));
-                errorTest = tol>StoppingTol;
-                if ((t%100)==0)
-                    printf("TV= %f   Relative Error= %f   opt_step_data= %f   Tol= %f   Iter %d\n",dtv,(err_vec).norm()/m_vec.norm(),opt_step_data,tol,t);
-            }
-            //===========================================================================//
-            for(size_t i=0;i<EstimatedSourcesData.nlin();i++) EstimatedSourcesData(i,frame)=v(i);
-            m_vec.DangerousKill();
-            std::cout << "Number of iterations = " << t << std::endl;
-            cout << "Total Variation = " << dtv << endl;
-        }
-    }// TV SmoothType
-
-    if(Heat || Mn)
+    if(Mn)
     {
-        fast_sparse_matrice hess(fastSmoothMatrix);
+        MN_inverse_matrice EstimatedSourcesData(Data,GainMatrix,SmoothWeight);
+        EstimatedSourcesData.saveTxt(argv[5]);
+    }
 
-        for(size_t frame=0;frame<nT;frame++)
-        {
-            cout << ">> Frame " << frame+1 << endl;
-            vecteur m_vec;
-            m_vec.DangerousBuild(&Data(0,frame),Data.nlin());
-
-            //==========  initialization of source vector =======================//
-            v.set(0.0);
-
-            LinOp &TIH = *( Heat ?
-                            (LinOp*) new HeatInverseHessian(GainMatrix,fastSmoothMatrix,fastSmoothMatrix_t,SmoothWeight) :
-                            (LinOp*) new TikInverseHessian(GainMatrix,SmoothWeight) );
-
-            MinRes2(TIH,GainMatrix.tmult(m_vec),v,MINRES_TOL);
-
-            if (Heat) delete (HeatInverseHessian*)&TIH; else delete (TikInverseHessian*)&TIH;
-
-            std::cout << "Relative Error = " << (GainMatrix*v-m_vec).norm()/m_vec.norm() << std::endl;
-
-            for(size_t i=0;i<EstimatedSourcesData.nlin();i++) EstimatedSourcesData(i,frame)=v(i);
-            m_vec.DangerousKill();
-        }// loop over frame
-
-    } // HEAT SmoothType
-
-    // write output variables
-    EstimatedSourcesData.saveTxt(argv[5]);
+    if(Heat)
+    {
+        HEAT_inverse_matrice EstimatedSourcesData(Data,GainMatrix,SmoothMatrix,SmoothWeight);
+        EstimatedSourcesData.saveTxt(argv[5]);
+    }
 
     // Stop Chrono
     C.stop();

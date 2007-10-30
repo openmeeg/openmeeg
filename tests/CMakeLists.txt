@@ -58,19 +58,19 @@ ADD_TEST(compareEEG-TV-${SUBJECT} ${CMAKE_CURRENT_BINARY_DIR}/compare_matrix
 ############ TEST MEG RESULTS ##############
 
 #------ v2meg -----#
-ADD_TEST(comparev2meg ${CMAKE_CURRENT_BINARY_DIR}/compare_matrix
+ADD_TEST(comparev2meg-${SUBJECT} ${CMAKE_CURRENT_BINARY_DIR}/compare_matrix
                       ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.v2meg
                       ${OpenMEEG_SOURCE_DIR}/tests/initialTest/${SUBJECT}.v2meg -bin)
 #------ S2MEG -----#
-ADD_TEST(compareS2MEG ${CMAKE_CURRENT_BINARY_DIR}/compare_matrix
+ADD_TEST(compareS2MEG-${SUBJECT} ${CMAKE_CURRENT_BINARY_DIR}/compare_matrix
                       ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.s2meg
                       ${OpenMEEG_SOURCE_DIR}/tests/initialTest/${SUBJECT}.s2meg -bin)
 #------ MEG GAIN -----#
-ADD_TEST(compareMEGGAIN ${CMAKE_CURRENT_BINARY_DIR}/compare_matrix
+ADD_TEST(compareMEGGAIN-${SUBJECT} ${CMAKE_CURRENT_BINARY_DIR}/compare_matrix
                         ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.Hmeg
                         ${OpenMEEG_SOURCE_DIR}/tests/initialTest/${SUBJECT}.Hmeg -bin)
 #------ MEG ESTIMATION (FORWARD) -----#
-ADD_TEST(compareMEGEST ${CMAKE_CURRENT_BINARY_DIR}/compare_matrix
+ADD_TEST(compareMEGEST-${SUBJECT} ${CMAKE_CURRENT_BINARY_DIR}/compare_matrix
                         ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.est_meg
                         ${OpenMEEG_SOURCE_DIR}/tests/initialTest/${SUBJECT}.est_meg -txt)
 #------ MEG SOURCE ESTIMATION (INVERSE HEAT) -----#

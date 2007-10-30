@@ -1,61 +1,71 @@
+#include "matrice.h"
+#include "symmatrice.h"
+#include "vecteur.h"
+#include "sparse_matrice.h"
+#include "fast_sparse_matrice.h"
+
 #define EPSILON 1e-6
 #define MINRES_TOL 1e-5
 
-static double k2;
-struct tv_evaluator;
-
-inline double tik (const double &x)
-{
-    return 0.5*x*x;
-}
-inline double tikp (const double &x)
-{
-    return x;
-}
-
-inline double tikpp (const double &x)
-{
-    return 1.0;
-}
-
-inline double ftv (const double &x)
-{
-    return x;
-}
-inline double ftvp (const double &x)
-{
-    return 1.0;
-}
-
-inline double ftvpp (const double &x)
-{
-    return 0.0;
-}
-
-inline double pm (const double &x)
-{
-    return -0.5*k2*(exp(-(x*x)/k2)-1);
-}
-
-inline double pmp (const double &x)
-{
-    return x*exp(-(x*x)/k2);
-}
-
-inline double aub (const double &x)
-{
-    return (sqrt(1+x*x*k2)-1);
-}
-
-inline double aubp (const double &x)
-{
-    return x/(k2*sqrt((k2+x*x)*k2));
-}
-
-inline double aubpp (const double &x)
-{
-    return 1.0/((k2+x*x)*sqrt((k2+x*x)*k2));
-}
+// static double k2;
+// struct tv_evaluator;
+// 
+// inline double tik (const double &x)
+// {
+//     return 0.5*x*x;
+// }
+// inline double tikp (const double &x)
+// {
+//     return x;
+// }
+// 
+// inline double tikpp (const double &x)
+// {
+//     return 1.0;
+// }
+// 
+// inline double ftv (const double &x)
+// {
+//     return x;
+// }
+// inline double ftvp (const double &x)
+// {
+//     return 1.0;
+// }
+// 
+// inline double ftvpp (const double &x)
+// {
+//     return 0.0;
+// }
+// 
+// inline double pm (const double &x)
+// {
+//     return -0.5*k2*(exp(-(x*x)/k2)-1);
+// }
+// 
+// inline double pmp (const double &x)
+// {
+//     return x*exp(-(x*x)/k2);
+// }
+// 
+// inline double aub (const double &x)
+// {
+//     return (sqrt(1+x*x*k2)-1);
+// }
+// 
+// inline double aubp (const double &x)
+// {
+//     return x/(k2*sqrt((k2+x*x)*k2));
+// }
+// 
+// inline double aubpp (const double &x)
+// {
+//     return 1.0/((k2+x*x)*sqrt((k2+x*x)*k2));
+// }
+// 
+// static double (*ftab[4]) (const double &)={0,tik,pm,aub};
+// static double (*fptab[4]) (const double &)={0,tikp,pmp,aubp};
+// static double (*fpptab[4]) (const double &)={0,tikpp,0,aubpp};
 
 inline vecteur gentv( vecteur x,
                       const fast_sparse_matrice &mat,
@@ -64,7 +74,6 @@ inline vecteur gentv( vecteur x,
                       double (*f) (const double &)=0,
                       double (*fp) (const double&)=0 )
 {// first order
-
     // hess is suppposed to be the same size than mat
     vecteur v= mat* x;
     vecteur mynorms( v.size()/3);
@@ -85,6 +94,9 @@ inline vecteur gentv( vecteur x,
     return mat_t*v;
 }
 
+// ========================================================
+// = Define Hessian matrices for linear inversion methods =
+// ========================================================
 class HeatInverseHessian : public LinOp
 {
     const matrice &m_transfer;
@@ -118,6 +130,8 @@ public:
     }
 
 };
+
+// ========================================================
 
 size_t MinRes2(const LinOp& A,const vecteur& b,vecteur& x0,double tol)
 {
@@ -162,7 +176,120 @@ size_t MinRes2(const LinOp& A,const vecteur& b,vecteur& x0,double tol)
     return n;
 }
 
-static double (*ftab[4]) (const double &)={0,tik,pm,aub};
-static double (*fptab[4]) (const double &)={0,tikp,pmp,aubp};
-static double (*fpptab[4]) (const double &)={0,tikpp,0,aubpp};
+// ===========================================
+// = Define all the linear inversion methods =
+// ===========================================
 
+void LIN_inverse (matrice& EstimatedData, const LinOp& hess, const matrice& GainMatrix, const matrice& Data) {
+    size_t nT = Data.ncol();
+    EstimatedData = matrice(GainMatrix.ncol(),nT);
+    
+    #ifdef USE_OMP
+    #pragma omp parallel for
+    #endif
+    for(int frame=0;frame<nT;frame++)// loop over frame
+    {
+        cout << ">> Frame " << frame+1 << endl;
+        vecteur m = Data.getcol(frame);
+
+        //==========  initialization of source vector =======================//
+        vecteur v(GainMatrix.ncol()); v.set(0.0);
+
+        //==========  Invert =======================//
+        MinRes2(hess,GainMatrix.tmult(m),v,MINRES_TOL);
+
+        std::cout << "Relative Error = " << (GainMatrix*v-m).norm()/m.norm() << std::endl;
+        for(size_t i=0;i<EstimatedData.nlin();i++) EstimatedData(i,frame) = v(i);
+    }
+}
+
+//==========  Mininum norm inversion =======================//
+
+class MN_inverse_matrice : public virtual matrice
+{
+public:
+    MN_inverse_matrice (const matrice& Data, const matrice& GainMatrix, double SmoothWeight);
+    virtual ~MN_inverse_matrice () {};
+};
+
+MN_inverse_matrice::MN_inverse_matrice (const matrice& Data, const matrice& GainMatrix, double SmoothWeight) {
+    TikInverseHessian hess(GainMatrix,SmoothWeight);
+    LIN_inverse(*this,hess,GainMatrix,Data);
+}
+
+//==========  Gradient based Mininum norm inversion =======================//
+
+class HEAT_inverse_matrice : public virtual matrice
+{
+public:
+    HEAT_inverse_matrice (const matrice& Data, const matrice& GainMatrix, const sparse_matrice& SmoothMatrix, double SmoothWeight);
+    virtual ~HEAT_inverse_matrice () {};
+};
+
+HEAT_inverse_matrice::HEAT_inverse_matrice (const matrice& Data, const matrice& GainMatrix, const sparse_matrice& SmoothMatrix, double SmoothWeight) {
+    fast_sparse_matrice fastSmoothMatrix(SmoothMatrix);
+    fast_sparse_matrice fastSmoothMatrix_t(SmoothMatrix.transpose());
+    HeatInverseHessian hess(GainMatrix,fastSmoothMatrix,fastSmoothMatrix_t,SmoothWeight);
+    LIN_inverse(*this,hess,GainMatrix,Data);
+}
+
+//==========  Total variation based inversion =======================//
+
+void TV_inverse(matrice& EstimatedData, const matrice& Data, const matrice& GainMatrix, const sparse_matrice& SmoothMatrix, const vecteur& AiVector, double SmoothWeight, size_t MaxNbIter, double StoppingTol)
+{
+    fast_sparse_matrice fastSmoothMatrix(SmoothMatrix);
+    fast_sparse_matrice fastSmoothMatrix_t(SmoothMatrix.transpose());
+    
+    size_t nT = Data.ncol();
+    EstimatedData = matrice(GainMatrix.ncol(),nT);
+
+    for(size_t frame=0;frame<nT;frame++)
+    {
+        cout << ">> Frame " << frame+1 << endl;
+        vecteur m = Data.getcol(frame);
+
+        vecteur v(EstimatedData.nlin());
+
+        // ====================  initialization of source vector ===================== //
+        if(frame==0) v.set(0.0);
+        else for(size_t i=0;i<v.size();i++) v(i) = EstimatedData(i,frame-1);
+
+        bool errorTest=true;
+        double dtv=0.0;
+
+        // ==========================  the inverse problem ========================== //
+        int t;
+        for(t=0;t<MaxNbIter && errorTest;t++)
+        {
+            vecteur gradtv = gentv(v,fastSmoothMatrix,fastSmoothMatrix_t,AiVector,&dtv);
+            vecteur current_mes = GainMatrix*v;
+            vecteur err_vec = current_mes-m;
+            vecteur graddata = GainMatrix.tmult(err_vec);
+            vecteur Ggraddata = GainMatrix*graddata;
+
+            double denom_data = Ggraddata*Ggraddata;
+            double opt_step_data = -(Ggraddata*err_vec)/denom_data;
+            vecteur grad = (-SmoothWeight)*gradtv - graddata;
+            v = v+grad;
+            double tol = sqrt((grad*grad)/(v*v));
+            errorTest = tol>StoppingTol;
+            if ((t%100)==0)
+                printf("TV= %f   Relative Error= %f   opt_step_data= %f   Tol= %f   Iter %d\n",dtv,(err_vec).norm()/m.norm(),opt_step_data,tol,t);
+        }
+        //===========================================================================//
+        for(size_t i=0;i<EstimatedData.nlin();i++) EstimatedData(i,frame)=v(i);
+        cout << "Number of iterations = " << t << endl;
+        cout << "Total Variation = " << dtv << endl;
+    }
+}
+
+class TV_inverse_matrice : public virtual matrice
+{
+public:
+    TV_inverse_matrice (const matrice& Data, const matrice& GainMatrix, const sparse_matrice& SmoothMatrix, const vecteur& AiVector, double SmoothWeight, size_t MaxNbIter, double StoppingTol);
+    virtual ~TV_inverse_matrice () {};
+};
+
+TV_inverse_matrice::TV_inverse_matrice (const matrice& Data, const matrice& GainMatrix, const sparse_matrice& SmoothMatrix, const vecteur& AiVector, double SmoothWeight, size_t MaxNbIter, double StoppingTol) {
+    TV_inverse(*this,Data,GainMatrix,SmoothMatrix,AiVector,SmoothWeight,MaxNbIter,StoppingTol);
+}

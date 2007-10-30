@@ -40,6 +40,7 @@ public:
 
     inline matrice operator()(size_t i_start, size_t i_end, size_t j_start, size_t j_end) const;
     inline matrice getsubmat(size_t istart, size_t isize, size_t jstart, size_t jsize) const;
+    inline symmatrice getsubmat(size_t istart, size_t iend) const;
     inline vecteur solveLin(const vecteur &B) const;
     inline void solveLin(vecteur * B, int nbvect);
 

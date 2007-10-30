@@ -21,12 +21,14 @@ class Geometry
     double *sigin;
     double *sigout;
     Mesh *M;
+    size_t m_size; // Number of triangles + Number of points
 
 public:
     Geometry() {n=0;}
     ~Geometry() {destroy();}
     int read(char* geomFileName, char* condFileName);
     inline int nb() const {return n;}
+    inline size_t size() const {return m_size;}
     inline double sigma_in(int i) const {return (i<n)?sigin[i]:0;} // 0 for sig(n)
     inline double sigma_out(int i) const {return (i<n)?sigout[i]:0;} // 0 for sig(n)
     inline double sigma(int i) const {return (i<n)?sigin[i]:0;} // 0 for sig(n)

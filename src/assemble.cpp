@@ -2,10 +2,8 @@
 
 #ifdef SAVEBIN
     #define SAVE saveBin
-    #define SAVESUB saveSubBin
 #else
     #define SAVE saveTxt
-    #define SAVESUB saveSubTxt
 #endif
 
 #include <fstream>
@@ -36,12 +34,7 @@ int main(int argc, char** argv)
 
     if ((!strcmp(argv[1],"-h")) | (!strcmp(argv[1],"--help"))) getHelp(argv);
 
-    cout << endl << "| ------ " << argv[0] << " -------" << endl;
-    for( int i = 1; i < argc; i += 1 )
-    {
-        cout << "| " << argv[i] << endl;
-    }
-    cout << "| -----------------------" << endl;
+    disp_argv(argc,argv);
 
     // Start Chrono
     cpuChrono C;
@@ -69,18 +62,11 @@ int main(int argc, char** argv)
         }
         // Loading surfaces from geometry file. 'taille' = sum on surfaces of number of points and number of triangles
         Geometry geo;
-        unsigned int taille = geo.read(argv[2],argv[3]); // FIXME : read returns an int not unsigned
+        geo.read(argv[2],argv[3]);
 
         // Assembling matrix from discretization :
-        symmatrice mat(taille);
-        assemble_LHS(geo,mat,GaussOrder);
-
-        // Deflation the last diagonal bloc of new 'mat'  :
-        int newtaille=taille-(geo.getM(geo.nb()-1)).nbTrgs();
-        int offset=newtaille-(geo.getM(geo.nb()-1)).nbPts();
-        deflat(mat,offset,newtaille-1,mat(offset,offset)/(newtaille-offset));
-
-        mat.SAVESUB(argv[4],0,newtaille-1,0,newtaille-1);
+        LHS_matrice lhs(geo,GaussOrder);
+        lhs.SAVE(argv[4]);
     }
 
     /*********************************************************************************************
@@ -115,52 +101,8 @@ int main(int argc, char** argv)
         mesh_sources.load(argv[4],false); // Load mesh without crashing when the surface is not closed
 
         // Assembling matrix from discretization :
-        int newtaille = taille-(geo.getM(geo.nb()-1)).nbTrgs();
-        matrice mat(newtaille,mesh_sources.nbPts());
-        mat.set(0.0);
-        assemble_RHS(geo,mesh_sources,mat,GaussOrder);
-
+        RHS_matrice mat(geo,mesh_sources,GaussOrder);
         mat.SAVE(argv[5]); // if outfile is specified
-    }
-
-    /*********************************************************************************************
-    * Computation of RHS from BEM Symmetric formulation with precomputation
-    **********************************************************************************************/
-    else if(!strcmp(argv[1],"-RHS2"))
-    {
-
-        if(argc < 3)
-        {
-            cerr << "Please set geometry filepath !" << endl;
-            exit(1);
-        }
-        if (argc < 4)
-        {
-            std::cerr << "Please set conductivities filepath !" << endl;
-            exit(1);
-        }
-        if(argc < 5)
-        {
-            cerr << "Please set 'mesh of sources' filepath !" << endl;
-            exit(1);
-        }
-
-        // Loading surfaces from geometry file.
-        Geometry geo;
-
-        // Loading mesh for distributed sources
-        Mesh mesh_sources;
-        bool checkClosedSurface = false;
-        mesh_sources.load(argv[4],false); // Load mesh without crashing when the surface is not closed
-
-        // Assembling matrix from discretization :
-        int newtaille = geo.getM(0).nbPts()+geo.getM(0).nbTrgs();
-        matrice mat(newtaille,mesh_sources.nbPts()+mesh_sources.nbTrgs());
-        mat.set(0.0);
-        assemble_RHS2(geo,mesh_sources,mat,GaussOrder);
-
-        // Saving RHS matrix :
-        mat.SAVESUB(argv[5],0,newtaille-1,0,mesh_sources.nbPts()-1);
     }
 
     /*********************************************************************************************
@@ -189,7 +131,7 @@ int main(int argc, char** argv)
         int taille=geo.read(argv[2],argv[3]);
 
         // Loading matrix of dipoles :
-        matrice &dipoles=* new matrice(argv[4]);
+        matrice dipoles(argv[4]);
         if(dipoles.ncol()!=6)
         {
             cerr << "Dipoles File Format Error" << endl;
@@ -202,17 +144,14 @@ int main(int argc, char** argv)
         for( unsigned int i=0; i<nd; i++ )
         {
             Vect3 r(3),q(3);
-            for(int j=0;j<3;j++) r[j]=dipoles(i,j);
-            for(int j=3;j<6;j++) q[j-3]=dipoles(i,j);
+            for(int j=0;j<3;j++) r(j)   = dipoles(i,j);
+            for(int j=3;j<6;j++) q(j-3) = dipoles(i,j);
             Rs.push_back(r); Qs.push_back(q);
         }
 
-        int newtaille=taille-(geo.getM(geo.nb()-1)).nbTrgs();
-        matrice rhs(newtaille, nd);
-        assemble_RHS_dipoles( geo, Rs, Qs, rhs,GaussOrder);
-
+        RHSdip_matrice mat(geo, Rs, Qs, GaussOrder);
         // Saving RHS matrix for dipolar case :
-        rhs.SAVE(argv[5]);
+        mat.SAVE(argv[5]);
     }
 
 	/*********************************************************************************************
@@ -241,7 +180,7 @@ int main(int argc, char** argv)
         int taille=geo.read(argv[2],argv[3]);
 
         // Loading matrix of dipoles :
-        matrice &dipoles=* new matrice(argv[4]);
+        matrice dipoles(argv[4]);
         if(dipoles.ncol()!=6)
         {
             cerr << "Dipoles File Format Error" << endl;
@@ -254,17 +193,14 @@ int main(int argc, char** argv)
         for( unsigned int i=0; i<nd; i++ )
         {
             Vect3 r(3),q(3);
-            for(int j=0;j<3;j++) r[j]=dipoles(i,j);
-            for(int j=3;j<6;j++) q[j-3]=dipoles(i,j);
+            for(int j=0;j<3;j++) r(j)   = dipoles(i,j);
+            for(int j=3;j<6;j++) q(j-3) = dipoles(i,j);
             Rs.push_back(r); Qs.push_back(q);
         }
 
-        int newtaille = taille-(geo.getM(geo.nb()-1)).nbTrgs();
-        matrice rhs(newtaille, 6*nd); // 6 derivatives! (
-        assemble_RHS_dipoles_grad( geo, Rs, Qs, rhs,GaussOrder);
-
+        RHSdip_grad_matrice mat( geo, Rs, Qs, GaussOrder);
         // Saving RHS matrix for dipolar case :
-        rhs.SAVE(argv[5]);
+        mat.SAVE(argv[5]);
     }
 
     /*********************************************************************************************
@@ -292,20 +228,16 @@ int main(int argc, char** argv)
 
         // Loading surfaces from geometry file.
         Geometry geo;
-        int taille = geo.read(argv[2],argv[3]);
+        geo.read(argv[2],argv[3]);
 
         // read the file containing the positions of the EEG patches
-        matrice patchesPositions(argv[4]);
+        matrice patches(argv[4]);
 
         // Assembling matrix from discretization :
-        int newtaille = taille-(geo.getM(geo.nb()-1)).nbTrgs();
-        matrice vToEEG(patchesPositions.nlin(),newtaille);
-        vToEEG.set(0.0);
-        assemble_vToEEG( geo, vToEEG, patchesPositions );
-        //vToEEG is the linear application which maps x |----> v
-
+        // vToEEG is the linear application which maps x |----> v
+        vToEEG_matrice mat(geo,patches);
         // Saving vToEEG matrix :
-        vToEEG.SAVE(argv[5]);
+        mat.SAVE(argv[5]);
     }
 
     /*********************************************************************************************
@@ -336,18 +268,12 @@ int main(int argc, char** argv)
         int taille = geo.read(argv[2],argv[3]);
 
         // Load positions and orientations of sensors  :
-        Sensors fileDescription(argv[4]);
-        matrice& squidsPositions = fileDescription.getSensorsPositions();
-        matrice& squidsOrientations = fileDescription.getSensorsOrientations();
+        Sensors sensors(argv[4]);
 
         // Assembling matrix from discretization :
-        int newtaille = taille-(geo.getM(geo.nb()-1)).nbTrgs();
-        matrice xToMEGrespCont(squidsPositions.nlin(),newtaille);
-        xToMEGrespCont.set(0.0);
-        assemble_vToMEG( geo, xToMEGrespCont, squidsPositions, squidsOrientations);
-
+        vToMEG_matrice mat(geo,sensors);
         // Saving xToMEGrespCont matrix :
-        xToMEGrespCont.SAVE(argv[5]); // if outfile is specified
+        mat.SAVE(argv[5]); // if outfile is specified
     }
 
 
@@ -375,18 +301,12 @@ int main(int argc, char** argv)
         mesh_sources.load(argv[2],false); // Load mesh without crashing when the surface is not closed
 
         // Load positions and orientations of sensors  :
-        Sensors fileDescription(argv[3]);
-        matrice squidsPositions = fileDescription.getSensorsPositions();
-        matrice squidsOrientations = fileDescription.getSensorsOrientations();
+        Sensors sensors(argv[3]);
 
         // Assembling matrix from discretization :
-        int nVertices=mesh_sources.nbPts();
-        matrice sToMEGrespCont(squidsPositions.nlin(),nVertices);
-        sToMEGrespCont.set(0.0);
-        assemble_sToMEG( mesh_sources, sToMEGrespCont, squidsPositions, squidsOrientations);
-
-        // Saving sToMEGrespCont matrix :
-        sToMEGrespCont.SAVE(argv[4]);
+        sToMEG_matrice mat(mesh_sources, sensors);
+        // Saving sToMEG matrix :
+        mat.SAVE(argv[4]);
     }
 
     /*********************************************************************************************
@@ -412,19 +332,12 @@ int main(int argc, char** argv)
 
         // Loading dipoles :
         matrice dipoles(argv[2]);
-        size_t nVertices = dipoles.nlin();
 
         // Load positions and orientations of sensors  :
-        Sensors fileDescription(argv[3]);
-        matrice squidsPositions = fileDescription.getSensorsPositions();
-        matrice squidsOrientations = fileDescription.getSensorsOrientations();
+        Sensors sensors(argv[3]);
 
-        matrice sToMEGrespCont(squidsPositions.nlin(),nVertices);
-        sToMEGrespCont.set(0.0);
-
-        assemble_sToMEG_point( dipoles, sToMEGrespCont, squidsPositions, squidsOrientations);
-
-        sToMEGrespCont.SAVE(argv[4]);
+        sToMEGdip_matrice mat( dipoles, sensors );
+        mat.SAVE(argv[4]);
     }
     else cerr << "unknown argument: " << argv[1] << endl;
 

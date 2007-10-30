@@ -4,6 +4,7 @@
 #include "symmatrice.h"
 #include "vecteur.h"
 #include "cpuChrono.h"
+#include "gain.h"
 
 using namespace std;
 
@@ -24,29 +25,20 @@ int main(int argc, char **argv)
     cpuChrono C;
     C.start();
 
-    cout << endl << "| ------ " << argv[0] << " -------" << endl;
-    for( int i = 1; i < argc; i += 1 )
-    {
-        cout << "| " << argv[i] << endl;
-    }
-    cout << "| -----------------------" << endl;
+    disp_argv(argc,argv);
 
     // declaration of argument variables
     string Option=string(argv[1]);
     if(argc<5)
     {
         cerr << "Not enough arguments \nPlease try \"" << argv[0] << " -h\" or \"" << argv[0] << " --help \" \n" << endl;
-        return 0; 
+        return 0;
     }
-    symmatrice LhsInvMatrix; 
-    matrice RhsMatrix; 
+    symmatrice LhsInvMatrix;
+    matrice RhsMatrix;
     matrice V2MegMatrix;
     matrice S2MegMatrix;
-    matrice MegGainMatrix;
     matrice V2EegMatrix;
-    matrice EegGainMatrix;
-
-    matrice reducedLhsInvMatrix; 
 
     // for use with EEG DATA
     if(!strcmp(argv[1],"-EEG"))
@@ -54,15 +46,14 @@ int main(int argc, char **argv)
         if(argc<6)
         {
             cerr << "Not enough arguments \nPlease try \"" << argv[0] << " -h\" or \"" << argv[0] << " --help \" \n" << endl;
-            return 0; 
+            return 0;
         }
         LhsInvMatrix.loadBin(argv[2]);
         RhsMatrix.loadBin(argv[3]);
-        reducedLhsInvMatrix=matrice(LhsInvMatrix)(0,LhsInvMatrix.nlin()-1,0,RhsMatrix.nlin()-1);
-
         V2EegMatrix.loadBin(argv[4]);
-        EegGainMatrix=(V2EegMatrix*reducedLhsInvMatrix)*RhsMatrix;
-        EegGainMatrix.saveBin(argv[5]);
+
+        HEEG_matrice mat(LhsInvMatrix,RhsMatrix,V2EegMatrix);
+        mat.saveBin(argv[5]);
     }
     // for use with MEG DATA
     else if(!strcmp(argv[1],"-MEG"))
@@ -74,12 +65,11 @@ int main(int argc, char **argv)
         }
         LhsInvMatrix.loadBin(argv[2]);
         RhsMatrix.loadBin(argv[3]);
-        reducedLhsInvMatrix=matrice(LhsInvMatrix)(0,LhsInvMatrix.nlin()-1,0,RhsMatrix.nlin()-1);
-
         V2MegMatrix.loadBin(argv[4]);
         S2MegMatrix.loadBin(argv[5]);
-        MegGainMatrix=S2MegMatrix+(V2MegMatrix*reducedLhsInvMatrix)*RhsMatrix;
-        MegGainMatrix.saveBin(argv[6]);
+        
+        HMEG_matrice mat(LhsInvMatrix,RhsMatrix,V2MegMatrix,S2MegMatrix);
+        mat.saveBin(argv[6]);
     }
     else
     {

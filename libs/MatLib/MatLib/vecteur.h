@@ -51,14 +51,15 @@ inline void vecteur::read(std::istream& f)
     f.read((char*)t,(std::streamsize)n*sizeof(double));
 }
 inline vecteur operator * (const double &d, const vecteur &v) {return v*d;}
+
 inline std::ostream& operator<<(std::ostream& f,const vecteur &M) {
     for (size_t i=0;i<M.size();i++)
     {
-        //f.width(VecteurDisplayElementWidth);
         f << M(i) << " ";
     }
     return f;
 }
+
 inline std::istream& operator>>(std::istream& f,vecteur &M) {
     for (size_t i=0;i<M.size();i++)
     {
@@ -67,15 +68,15 @@ inline std::istream& operator>>(std::istream& f,vecteur &M) {
 
     return f;
 }
-inline void vecteur::alloc(size_t N)
-{
+
+inline void vecteur::alloc(size_t N) {
     n=N;
     t=new double[N];
     count=new int[1];
     (*count)=1;
 }
-inline void vecteur::destroy()
-{
+
+inline void vecteur::destroy() {
     if (t!=0)
     {
         (*count)--;
@@ -87,8 +88,7 @@ inline void vecteur::destroy()
     }
 }
 
-inline void vecteur::copy(const vecteur& A)
-{
+inline void vecteur::copy(const vecteur& A) {
     t=A.t;
     n=A.n;
     if (t)
@@ -191,7 +191,6 @@ inline void vecteur::loadTxt(const char* filename)
     infile.clear();
     infile.seekg(0);
     for(size_t i=0;i<n;i++) infile>>t[i];
-
 }
 
 inline void vecteur::loadBin(const char* filename)
@@ -217,7 +216,6 @@ inline vecteur vecteur::operator+(const vecteur& v) const {
     {
         p.t[i]=t[i]+v.t[i];
     }
-
 #endif
     return p;
 }
@@ -247,7 +245,6 @@ inline void vecteur::operator+=(const vecteur& v) {
     }
 
 #endif
-
 }
 
 inline void vecteur::operator-=(const vecteur& v) {
@@ -309,7 +306,6 @@ inline vecteur vecteur::operator-(double x) const
     return p;
 }
 
-
 inline void vecteur::operator*=(double x) {
 #ifdef HAVE_BLAS
     BLAS(dscal,DSCAL)((int)n,x,t,1);
@@ -326,9 +322,9 @@ inline double vecteur::norm() const
 #ifdef HAVE_BLAS
     return BLAS(dnrm2,DNRM2)((int)n,t,1);
 #else
-	 std::cout << "'vecteur::norm' not implemented" << std::endl;
-	 exit(1);
-	 return 0;
+    std::cout << "'vecteur::norm' not implemented" << std::endl;
+    exit(1);
+    return 0;
 #endif
 }
 
@@ -349,128 +345,6 @@ inline double vecteur::sum() const
     }
     return s;
 }
-
-#if defined(USE_MKL)
-inline size_t vecteur::argabsmin() const
-{
-    return (size_t)cblas_idamin((int)n, t, 1);
-}
-
-inline size_t vecteur::argabsmax() const
-{
-    return (size_t)cblas_idamax((int)n, t, 1);
-}
-inline double vecteur::abssum() const
-{
-    return cblas_dasum((int)n, t, 1);
-}
-inline vecteur vecteur::div(const vecteur &d) const
-{
-    vecteur p(n);
-    vdDiv( (int)n, t,d.t, p.t );
-    return p;
-}
-inline vecteur vecteur::invsqrt() const
-{
-    vecteur p(n);
-    vdInvSqrt( (int)n, t, p.t );
-    return p;
-}
-inline vecteur vecteur::sqrt() const
-{
-    vecteur p(n);
-    vdSqrt( (int)n, t, p.t );
-    return p;
-}
-inline vecteur vecteur::inv() const
-{
-    vecteur p(n);
-    vdInv( (int)n, t, p.t );
-    return p;
-}
-inline vecteur vecteur::sin() const
-{
-    vecteur p(n);
-    vdSin( (int)n, t, p.t );
-    return p;
-}
-inline vecteur vecteur::cos() const
-{
-    vecteur p(n);
-    vdCos( (int)n, t, p.t );
-    return p;
-}
-inline vecteur vecteur::exp() const
-{
-    vecteur p(n);
-    vdExp( (int)n, t, p.t );
-    return p;
-}
-inline vecteur vecteur::ln() const
-{
-    vecteur p(n);
-    vdLn( (int)n, t, p.t );
-    return p;
-}
-inline vecteur vecteur::log10() const
-{
-    vecteur p(n);
-    vdLog10( (int)n, t, p.t );
-    return p;
-}
-inline vecteur vecteur::pow( double x) const
-{
-    vecteur p(n);
-    vdPowx( (int)n, t, x, p.t );
-    return p;
-}
-inline vecteur vecteur::pow( const vecteur &x) const
-{
-    vecteur p(n);
-    vdPow( (int)n, t, x.t, p.t );
-    return p;
-}
-inline vecteur vecteur::erf() const
-{
-    vecteur p(n);
-    vdErf( (int)n, t, p.t );
-    return p;
-}
-inline vecteur vecteur::erfc() const
-{
-    vecteur p(n);
-    vdErfc( (int)n, t, p.t );
-    return p;
-}
-#endif
-
-#if _ACML_
-inline vecteur vecteur::sin() const
-{
-    vecteur p(n);
-    vrda_sin ((int)n, t, p.t);
-    return p;
-}
-inline vecteur vecteur::cos() const
-{
-    vecteur p(n);
-    vrda_cos ((int)n, t, p.t);
-    return p;
-}
-inline vecteur vecteur::exp() const
-{
-    vecteur p(n);
-    vrda_exp ((int)n, t, p.t);
-    return p;
-}
-inline vecteur vecteur::ln() const
-{
-    vecteur p(n);
-    vrda_log ((int)n, t, p.t);
-    return p;
-}
-#endif
-
 
 inline void vecteur::DangerousBuild(double *ptr, size_t s)
 {

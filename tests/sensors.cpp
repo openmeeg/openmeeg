@@ -16,8 +16,8 @@ int main(int argc, char** argv) {
     if (S.isEmpty())
         std::cout << "WARNING : empty sensors !" << std::endl;
     else{
-        matrice& p = S.getSensorsPositions();
-        matrice& o = S.getSensorsOrientations();
+        matrice& p = S.getPositions();
+        matrice& o = S.getOrientations();
         std::cout << std::endl << "Positions of sensors : " << std::endl;
         std::cout << p << std::endl;
         std::cout << std::endl << "Orientations of sensors : " << std::endl;

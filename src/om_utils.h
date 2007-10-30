@@ -48,5 +48,14 @@ inline double gaussian()
     return (double)(sqrt(-2*log(x))*cos(2*M_PI*drandom()));
 }
 
+inline void disp_argv(int argc, char **argv) {
+    std::cout << std::endl << "| ------ " << argv[0] << std::endl;
+    for( int i = 1; i < argc; i += 1 )
+    {
+        std::cout << "| " << argv[i] << std::endl;
+    }
+    std::cout << "| -----------------------" << std::endl;
+}
+
 #endif /* _OM_UTILS_H_ */
 

@@ -18,21 +18,21 @@ int main( int argc, char **argv)
     if (command_option("-h",(const char *)0,0)) return 0;
 
     Mesh M;
-    M.load(input_filename);
+    M.load(input_filename,false);
 
     for( unsigned int i = 0; i < unsigned(M.nbPts()); i += 1 )
     {
         Vect3& pt = M[i];
         if (apply_asa_flip) {
             double tmp;
-            tmp = pt[0];
-            pt[0] = pt[1];
-            pt[1] = tmp;
-            pt[2] = -pt[2];
+            tmp = pt(0);
+            pt(0) = pt(1);
+            pt(1) = tmp;
+            pt(2) = -pt(2);
         }
-        pt[0] = pt[0]+tx*vx;
-        pt[1] = pt[1]+ty*vy;
-        pt[2] = pt[2]+tz*vz;
+        pt(0) = pt(0)+tx*vx;
+        pt(1) = pt(1)+ty*vy;
+        pt(2) = pt(2)+tz*vz;
     }
 
     M.save(output_filename);

@@ -1,6 +1,9 @@
 #include "assemble.h"
 #include "danielsson.h"
 #include "operators.h"
+#include "sensors.h"
+
+void assemble_ferguson(const Geometry &geo, matrice &mat, const Vect3* pts,const int n);
 
 int* computeVindexes(const Geometry &geo,int* n_indexes=0)
 {
@@ -21,11 +24,15 @@ int* computeVindexes(const Geometry &geo,int* n_indexes=0)
     return ret;
 }
 
-void assemble_vToEEG(const Geometry &geo, matrice &mat, const matrice &positions )
+void assemble_vToEEG(matrice &mat, const Geometry &geo, const matrice &positions )
 //EEG patches positions are reported line by line in the positions matrix
 //mat is supposed to be filled with zeros
 //mat is the linear application which maps x (the unknown vector in symmetric system) -> v (potential at the electrodes)
 {
+    int newsize = geo.size()-(geo.getM(geo.nb()-1)).nbTrgs();
+    mat = matrice(positions.nlin(),newsize);
+    mat.set(0.0);
+
     const Mesh& extLayer=geo.getM(geo.nb()-1);
 
     //first we calculate the offset of the potential on the external layer in the unknown vector x
@@ -40,20 +47,31 @@ void assemble_vToEEG(const Geometry &geo, matrice &mat, const matrice &positions
     int current_nearestNumber;
     for(size_t i=0; i < positions.nlin(); i++)
     {
-        for(int k=0;k<3;k++) current_position[k]=positions(i,k);
+        for(int k=0;k<3;k++) current_position(k)=positions(i,k);
         dist_point_mesh(current_position ,extLayer,current_alphas,current_nearestNumber);
-        mat(i,extLayer.getTrg(current_nearestNumber).s1()+offset)=current_alphas[0];
-        mat(i,extLayer.getTrg(current_nearestNumber).s2()+offset)=current_alphas[1];
-        mat(i,extLayer.getTrg(current_nearestNumber).s3()+offset)=current_alphas[2];
+        mat(i,extLayer.getTrg(current_nearestNumber).s1()+offset)=current_alphas(0);
+        mat(i,extLayer.getTrg(current_nearestNumber).s2()+offset)=current_alphas(1);
+        mat(i,extLayer.getTrg(current_nearestNumber).s3()+offset)=current_alphas(2);
     }
 
 }
 
-void assemble_vToMEG(const Geometry &geo, matrice &mat, const matrice &positions, const matrice &orientations )
+vToEEG_matrice::vToEEG_matrice(const Geometry &geo, const matrice &positions) {
+    assemble_vToEEG(*this, geo, positions);
+}
+
+void assemble_vToMEG(matrice &mat, const Geometry &geo, const Sensors &sensors)
 //MEG patches positions are reported line by line in the positions matrix (same for positions)
 //mat is supposed to be filled with zeros
 //mat is the linear application which maps x (the unknown vector in symmetric system) -> bFerguson (contrib to MEG response)
 {
+    matrice positions = sensors.getPositions();
+    matrice orientations = sensors.getOrientations();
+
+    int newsize = geo.size()-(geo.getM(geo.nb()-1)).nbTrgs();
+    mat = matrice(positions.nlin(),newsize);
+    mat.set(0.0);
+
     matrice myFergusonMatrix(3*mat.nlin(),mat.ncol());
     myFergusonMatrix.set(0.0);
     const int nsquids=(int)positions.nlin();
@@ -64,9 +82,9 @@ void assemble_vToMEG(const Geometry &geo, matrice &mat, const matrice &positions
 
     for(int i=0;i<nsquids;i++)
     {
-        positionsVectArray[i][0]=positions(i,0);
-        positionsVectArray[i][1]=positions(i,1);
-        positionsVectArray[i][2]=positions(i,2);
+        positionsVectArray[i](0)=positions(i,0);
+        positionsVectArray[i](1)=positions(i,1);
+        positionsVectArray[i](2)=positions(i,2);
     }
 
     assemble_ferguson(geo,myFergusonMatrix,positionsVectArray,nsquids);
@@ -89,12 +107,21 @@ void assemble_vToMEG(const Geometry &geo, matrice &mat, const matrice &positions
     delete[] vIndexes;
 }
 
+vToMEG_matrice::vToMEG_matrice(const Geometry &geo, const Sensors &sensors) {
+    assemble_vToMEG(*this, geo, sensors);
+}
 
-void assemble_sToMEG(const Mesh &sources_mesh, matrice &mat, const matrice &positions, const matrice &orientations )
+void assemble_sToMEG(matrice &mat, const Mesh &sources_mesh, const Sensors &sensors)
 //MEG patches positions are reported line by line in the positions matrix (same for positions)
 //mat is supposed to be filled with zeros
 //mat is the linear application which maps x (the unknown vector in symmetric system) -> binf (contrib to MEG response)
 {
+    matrice positions = sensors.getPositions();
+    matrice orientations = sensors.getPositions();
+
+    mat = matrice(positions.nlin(),sources_mesh.nbPts());
+    mat.set(0.0);
+
     matrice myFergusonMatrix(3*mat.nlin(),mat.ncol());
     myFergusonMatrix.set(0.0);
     const int nsquids=(int)positions.nlin();
@@ -102,12 +129,11 @@ void assemble_sToMEG(const Mesh &sources_mesh, matrice &mat, const matrice &posi
 
     for(int i=0;i<nsquids;i++)
     {
-        positionsVectArray[i][0]=positions(i,0);
-        positionsVectArray[i][1]=positions(i,1);
-        positionsVectArray[i][2]=positions(i,2);
+        positionsVectArray[i](0)=positions(i,0);
+        positionsVectArray[i](1)=positions(i,1);
+        positionsVectArray[i](2)=positions(i,2);
     }
 
-    
     for(size_t i=0;i<mat.nlin();i++) operatorFerguson(positionsVectArray[i],sources_mesh,myFergusonMatrix,3*(int)i,0);
 
     for(size_t i=0;i<mat.nlin();i++)
@@ -124,22 +150,30 @@ void assemble_sToMEG(const Mesh &sources_mesh, matrice &mat, const matrice &posi
     delete[] positionsVectArray;
 }
 
+sToMEG_matrice::sToMEG_matrice(const Mesh &sources_mesh, const Sensors &sensors) {
+    assemble_sToMEG(*this, sources_mesh, sensors);
+}
 
 // creates the S2MEG matrix with unconstrained orientations for the sources.
-void assemble_sToMEG_point( matrice&dipoles, matrice &mat, const matrice &positions, const matrice &orientations )
+void assemble_sToMEGdip( matrice &mat, const matrice& dipoles, const Sensors &sensors)
 //MEG patches positions are reported line by line in the positions matrix (same for positions)
 //mat is supposed to be filled with zeros
 //mat is the linear application which maps x (the unknown vector in symmetric system) -> binf (contrib to MEG response)
 //sources is the name of a file containing the description of the sources - one dipole per line: x1 x2 x3 n1 n2 n3, x being the position and n the orientation.
 {
+    matrice positions = sensors.getPositions();
+    matrice orientations = sensors.getOrientations();
+
+    mat = matrice(positions.nlin(),dipoles.nlin());
+
     if(dipoles.ncol()!=6) {std::cerr<<"Dipoles File Format Error"<<std::endl; exit(1);}
     int nd=(int)dipoles.nlin();
     std::vector<Vect3> Rs,Qs;
     for(int i=0;i<nd;i++)
     {
         Vect3 r(3),q(3);
-        for(int j=0;j<3;j++) r[j]=dipoles(i,j);
-        for(int j=3;j<6;j++) q[j-3]=dipoles(i,j);
+        for(int j=0;j<3;j++) r(j)=dipoles(i,j);
+        for(int j=3;j<6;j++) q(j-3)=dipoles(i,j);
         Rs.push_back(r); Qs.push_back(q);
     }
   //Rs and Qs respectively contains positions and orientations of the dipoles.
@@ -152,9 +186,9 @@ void assemble_sToMEG_point( matrice&dipoles, matrice &mat, const matrice &positi
 
     for(int i=0;i<nsquids;i++)
     {
-        positionsVectArray[i][0]=positions(i,0);
-        positionsVectArray[i][1]=positions(i,1);
-        positionsVectArray[i][2]=positions(i,2);
+        positionsVectArray[i](0)=positions(i,0);
+        positionsVectArray[i](1)=positions(i,1);
+        positionsVectArray[i](2)=positions(i,2);
     }
 
   // the following routine is the equivalent of operatorFerguson for pointlike dipoles.
@@ -172,7 +206,6 @@ void assemble_sToMEG_point( matrice&dipoles, matrice &mat, const matrice &positi
         }
     }
 
-
     for(size_t i=0;i<mat.nlin();i++)
     {
         for(size_t j=0;j<mat.ncol();j++)
@@ -184,7 +217,11 @@ void assemble_sToMEG_point( matrice&dipoles, matrice &mat, const matrice &positi
         }
     }
 
-
     delete[] positionsVectArray;
 }
+
+sToMEGdip_matrice::sToMEGdip_matrice(const matrice &dipoles, const Sensors &sensors) {
+    assemble_sToMEGdip(*this, dipoles, sensors);
+}
+
 

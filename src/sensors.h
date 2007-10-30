@@ -54,7 +54,7 @@ private:
 
 public:
     Sensors(): m_nb(0) {} /*!< Default constructor. Number of sensors = 0. */
-    Sensors(char* filename, char filetype = 't'); /*!< Construct from file. Option 't' is for text file, and 'b' is for binary file. */
+    Sensors(char* filename); /*!< Construct from file. Option 't' is for text file, and 'b' is for binary file. */
     Sensors(const Sensors& S) { copy(S); }        /*!< Copy constructor. */
     ~Sensors() { m_nb=0; }                        /*!< Destructor. Number of sensors = 0. */
 
@@ -65,11 +65,11 @@ public:
 
     int getNumberOfSensors() const { return m_nb; } /*!< Return the number of sensors. */
 
-    matrice& getSensorsPositions() { return m_positions ; } /*!< Return a reference on sensors positions. */
-    matrice getSensorsPositions() const { return m_positions ; } /*!< Return a copy of sensors positions */
+    matrice& getPositions() { return m_positions ; } /*!< Return a reference on sensors positions. */
+    matrice getPositions() const { return m_positions ; } /*!< Return a copy of sensors positions */
 
-    matrice& getSensorsOrientations() {return m_orientations ; } /*!< Return a reference on sensors orientations. */
-    matrice getSensorsOrientations() const {return m_orientations ; } /*!< Return a copy of sensors orientations. */
+    matrice& getOrientations() {return m_orientations ; } /*!< Return a reference on sensors orientations. */
+    matrice getOrientations() const {return m_orientations ; } /*!< Return a copy of sensors orientations. */
 
     std::vector<std::string>& getSensorsIds() {return m_id ; } /*!< Return a reference on sensors ids. */
     std::vector<std::string> getSensorsIds() const {return m_id ; } /*!< Return a copy of sensors ids. */
@@ -84,11 +84,11 @@ public:
     bool isEmpty() { if(m_nb == 0) return true; else return false; } /*!< Return if the sensors object is empty. The sensors object is empty if its number of sensors is null. */
 };
 
-Sensors::Sensors(char* filename, char filetype) {
+inline Sensors::Sensors(char* filename) {
     this->load(filename,'t');
 }
 
-void Sensors::copy(const Sensors& S) {
+inline void Sensors::copy(const Sensors& S) {
     m_nb = S.m_nb;
     if ( m_nb != 0 ) {
         if ( S.m_id.size() != 0 ) {
@@ -101,12 +101,12 @@ void Sensors::copy(const Sensors& S) {
     }
 }
 
-Sensors& Sensors::operator=(const Sensors& S) {
+inline Sensors& Sensors::operator=(const Sensors& S) {
     if ( this != &S ) copy(S);
     return *this;
 }
 
-void Sensors::load(std::istream &in) {
+inline void Sensors::load(std::istream &in) {
 
     in >> io_utils::skip_comments('#');
 
@@ -186,7 +186,7 @@ void Sensors::load(std::istream &in) {
     }
 }
 
-void Sensors::load(char* filename, char filetype) {
+inline void Sensors::load(char* filename, char filetype) {
     std::ifstream in;
     if(filetype == 't')
         in.open(filename,std::ios::in);
@@ -203,7 +203,7 @@ void Sensors::load(char* filename, char filetype) {
     in.close();
 }
 
-int Sensors::getIndexOfId(std::string id ) {
+inline int Sensors::getIndexOfId(std::string id ) {
     size_t i=0;
     while(i<m_id.size() && m_id[i]!=id)
         i++;
@@ -213,13 +213,13 @@ int Sensors::getIndexOfId(std::string id ) {
         { std::cout <<"ERROR: this id not exist! " << std::endl; exit(1); }
 }
 
-Vect3 Sensors::getPosition(std::string id ) {
+inline Vect3 Sensors::getPosition(std::string id ) {
     int ind = getIndexOfId(id);
     Vect3 pos( m_positions(ind,0), m_positions(ind,1), m_positions(ind,2) );
     return pos;
 }
 
-Vect3 Sensors::getOrientation(std::string id ) {
+inline Vect3 Sensors::getOrientation(std::string id ) {
     int ind = getIndexOfId(id);
     Vect3 orient( m_orientations(ind,0), m_orientations(ind,1), m_orientations(ind,2) );
     return orient;
@@ -228,11 +228,11 @@ Vect3 Sensors::getOrientation(std::string id ) {
 inline std::ostream& operator<<(std::ostream& f,const Sensors &S) {
     f << "Nb of sensors : " << S.getNumberOfSensors() << std::endl;
     f << "Positions" << std::endl;
-    f << S.getSensorsPositions();
+    f << S.getPositions();
     if(S.hasOrientations())
     {
         f << "Orientations" << std::endl;
-        f << S.getSensorsOrientations();
+        f << S.getOrientations();
     }
     if(S.hasIds())
     {
