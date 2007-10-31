@@ -28,7 +28,7 @@ static double dpc(const dpoint&m ,const dpoint *pts,const ipoint& cell,dpoint& a
     {
         alphas(idx[1])=(A0M*A0Ai[1])/(A0Ai[1]*A0Ai[1]);
         alphas(idx[0])=1-alphas(idx[1]);
-    } 
+    }
     else if (nb==3) 
     {
         // Systeme ci dessous resolution directe (systeme 2x2)

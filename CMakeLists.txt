@@ -167,40 +167,40 @@ SUBDIRS(src)
 
 IF ( UNIX )
     ADD_CUSTOM_TARGET(copy_head1
-        COMMAND mkdir -p ${CMAKE_BINARY_DIR}/HeadModels/Head1
-        COMMAND mkdir -p ${CMAKE_BINARY_DIR}/IntermediateFiles/Head1
-        COMMAND mkdir -p ${CMAKE_BINARY_DIR}/Computations/Head1
-        COMMAND cp -rf ${CMAKE_SOURCE_DIR}/HeadModels/Head1 ${CMAKE_BINARY_DIR}/HeadModels
-        COMMAND cp -rf ${CMAKE_SOURCE_DIR}/IntermediateFiles/Head1 ${CMAKE_BINARY_DIR}/IntermediateFiles
-        COMMAND cp -rf ${CMAKE_SOURCE_DIR}/Computations/Head1 ${CMAKE_BINARY_DIR}/Computations
+        COMMAND mkdir -p ${CMAKE_BINARY_DIR}/data/HeadModels/Head1
+        COMMAND mkdir -p ${CMAKE_BINARY_DIR}/data/IntermediateFiles/Head1
+        COMMAND mkdir -p ${CMAKE_BINARY_DIR}/data/Computations/Head1
+        COMMAND cp -rf ${CMAKE_SOURCE_DIR}/data/HeadModels/Head1 ${CMAKE_BINARY_DIR}/data/HeadModels
+        COMMAND cp -rf ${CMAKE_SOURCE_DIR}/data/IntermediateFiles/Head1 ${CMAKE_BINARY_DIR}/data/IntermediateFiles
+        COMMAND cp -rf ${CMAKE_SOURCE_DIR}/data/Computations/Head1 ${CMAKE_BINARY_DIR}/data/Computations
     )
     ADD_CUSTOM_TARGET(copy_head2
-        COMMAND mkdir -p ${CMAKE_BINARY_DIR}/HeadModels/Head2
-        COMMAND mkdir -p ${CMAKE_BINARY_DIR}/IntermediateFiles/Head2
-        COMMAND mkdir -p ${CMAKE_BINARY_DIR}/Computations/Head2
-        COMMAND cp -rf ${CMAKE_SOURCE_DIR}/HeadModels/Head2 ${CMAKE_BINARY_DIR}/HeadModels
-        COMMAND cp -rf ${CMAKE_SOURCE_DIR}/IntermediateFiles/Head2 ${CMAKE_BINARY_DIR}/IntermediateFiles
-        COMMAND cp -rf ${CMAKE_SOURCE_DIR}/Computations/Head2 ${CMAKE_BINARY_DIR}/Computations
+        COMMAND mkdir -p ${CMAKE_BINARY_DIR}/data/HeadModels/Head2
+        COMMAND mkdir -p ${CMAKE_BINARY_DIR}/data/IntermediateFiles/Head2
+        COMMAND mkdir -p ${CMAKE_BINARY_DIR}/data/Computations/Head2
+        COMMAND cp -rf ${CMAKE_SOURCE_DIR}/data/HeadModels/Head2 ${CMAKE_BINARY_DIR}/data/HeadModels
+        COMMAND cp -rf ${CMAKE_SOURCE_DIR}/data/IntermediateFiles/Head2 ${CMAKE_BINARY_DIR}/data/IntermediateFiles
+        COMMAND cp -rf ${CMAKE_SOURCE_DIR}/data/Computations/Head2 ${CMAKE_BINARY_DIR}/data/Computations
     )
     ADD_CUSTOM_TARGET(copy_head3
-        COMMAND mkdir -p ${CMAKE_BINARY_DIR}/HeadModels/Head3
-        COMMAND mkdir -p ${CMAKE_BINARY_DIR}/IntermediateFiles/Head3
-        COMMAND mkdir -p ${CMAKE_BINARY_DIR}/Computations/Head3
-        COMMAND cp -rf ${CMAKE_SOURCE_DIR}/HeadModels/Head3 ${CMAKE_BINARY_DIR}/HeadModels
-        COMMAND cp -rf ${CMAKE_SOURCE_DIR}/IntermediateFiles/Head3 ${CMAKE_BINARY_DIR}/IntermediateFiles
-        COMMAND cp -rf ${CMAKE_SOURCE_DIR}/Computations/Head3 ${CMAKE_BINARY_DIR}/Computations
+        COMMAND mkdir -p ${CMAKE_BINARY_DIR}/data/HeadModels/Head3
+        COMMAND mkdir -p ${CMAKE_BINARY_DIR}/data/IntermediateFiles/Head3
+        COMMAND mkdir -p ${CMAKE_BINARY_DIR}/data/Computations/Head3
+        COMMAND cp -rf ${CMAKE_SOURCE_DIR}/data/HeadModels/Head3 ${CMAKE_BINARY_DIR}/data/HeadModels
+        COMMAND cp -rf ${CMAKE_SOURCE_DIR}/data/IntermediateFiles/Head3 ${CMAKE_BINARY_DIR}/data/IntermediateFiles
+        COMMAND cp -rf ${CMAKE_SOURCE_DIR}/data/Computations/Head3 ${CMAKE_BINARY_DIR}/data/Computations
     )
     ADD_CUSTOM_TARGET(demo_head1
         COMMAND make forinv
-        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/Computations/Head1
+        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/data/Computations/Head1
     )
     ADD_CUSTOM_TARGET(demo_head2
         COMMAND make forward
-        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/Computations/Head2
+        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/data/Computations/Head2
     )
     ADD_CUSTOM_TARGET(demo_head3
         COMMAND make forward
-        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/Computations/Head3
+        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/data/Computations/Head3
     )
     ADD_DEPENDENCIES(demo_head1 copy_head1)
     ADD_DEPENDENCIES(demo_head2 copy_head2)

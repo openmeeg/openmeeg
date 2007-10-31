@@ -13,9 +13,9 @@ int main (int argc, char** argv)
     std::cerr << "Cond : " << argv[2] << std::endl;
 
     Geometry geo;
-    int taille = geo.read(argv[1],argv[2]);
+    geo.read(argv[1],argv[2]);
 
-    std::cerr << "Geometry Size : " << taille << std::endl;
+    std::cerr << "Geometry Size : " << geo.size() << std::endl;
 
     return 0;
 }

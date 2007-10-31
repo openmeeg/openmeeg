@@ -45,7 +45,7 @@ Quick Start
 
 Sample demo files are available in the Head1 folders.
 Head1 is a spherical head model with 3 spherical interfaces.
-To run a first computation, do in the "Computations/Head1" folder :
+To run a first computation, do in the "data/Computations/Head1" folder :
 
 Linux & Mac OS X
 ----------------
@@ -128,20 +128,20 @@ Here follow some hopefully informations to understand OpenMeeg functions.
 |        what:filextension:path                                               |
 |_____________________________________________________________________________|
 |                                                                             |
-| SourceMesh:.tri:$(OpenMeegPath)/HeadModels/$(HeadModelDir)                  | The mesh for the distributed sources
-| Geometry:.geo:$(OpenMeegPath)/HeadModels/$(HeadModelDir)                    | Informations about the nested geometry of the head
+| SourceMesh:.tri:$(OpenMeegPath)/data/HeadModels/$(HeadModelDir)                  | The mesh for the distributed sources
+| Geometry:.geo:$(OpenMeegPath)/data/HeadModels/$(HeadModelDir)                    | Informations about the nested geometry of the head
 | Patches:.patches:$(OpenMeegPath)/Computation/$(ComputationDir)              | Coordinates of EEG patches
 | Squids:.squids:$(OpenMeegPath)/Computation/$(ComputationDir)                | Coordinates and orientations of MEG captors
-| LhsMatrix:.lhs:$(OpenMeegPath)/HeadModels/$(HeadModelDir)                   |
-| LhsInvMatrix:.lhs_inv:$(OpenMeegPath)/HeadModels/$(HeadModelDir)            |
-| RhsMatrix:.rhs:$(OpenMeegPath)/HeadModels/$(HeadModelDir)                   |
-| X2EegMatrix:.v2eeg:$(OpenMeegPath)/IntermediateFiles/$(IntermediateDir)     |
-| S2MegMatrix:.s2meg:$(OpenMeegPath)/IntermediateFiles/$(IntermediateDir)     |
-| X2MegMatrix:.v2meg:$(OpenMeegPath)/IntermediateFiles/$(IntermediateDir)     |
-| EegGainMatrix:.Heeg:$(OpenMeegPath)/IntermediateFiles/$(IntermediateDir)    |
-| MegGainMatrix:.Hmeg:$(OpenMeegPath)/IntermediateFiles/$(IntermediateDir)    |
-| AiVector:.ai:$(OpenMeegPath)/HeadModels/$(HeadModelDir)                     |
-| SmoothMatrix:.smooth:$(OpenMeegPath)/HeadModels/$(HeadModelDir)             |
+| LhsMatrix:.lhs:$(OpenMeegPath)/data/HeadModels/$(HeadModelDir)                   |
+| LhsInvMatrix:.lhs_inv:$(OpenMeegPath)/data/HeadModels/$(HeadModelDir)            |
+| RhsMatrix:.rhs:$(OpenMeegPath)/data/HeadModels/$(HeadModelDir)                   |
+| X2EegMatrix:.v2eeg:$(OpenMeegPath)/data/IntermediateFiles/$(IntermediateDir)     |
+| S2MegMatrix:.s2meg:$(OpenMeegPath)/data/IntermediateFiles/$(IntermediateDir)     |
+| X2MegMatrix:.v2meg:$(OpenMeegPath)/data/IntermediateFiles/$(IntermediateDir)     |
+| EegGainMatrix:.Heeg:$(OpenMeegPath)/data/IntermediateFiles/$(IntermediateDir)    |
+| MegGainMatrix:.Hmeg:$(OpenMeegPath)/data/IntermediateFiles/$(IntermediateDir)    |
+| AiVector:.ai:$(OpenMeegPath)/data/HeadModels/$(HeadModelDir)                     |
+| SmoothMatrix:.smooth:$(OpenMeegPath)/data/HeadModels/$(HeadModelDir)             |
 | EstimatedSourcesData:.est_src:$(OpenMeegPath)/Computation/$(ComputationDir) | Output sources data from the inverse problem
 | EstimatedMegData:.est_meg:$(OpenMeegPath)/Computation/$(ComputationDir)     | Output meg data from the forward problem
 | EstimatedEegData:.est_eeg:$(OpenMeegPath)/Computation/$(ComputationDir)     | Output eeg data from the forward problem

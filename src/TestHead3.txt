@@ -1,24 +1,24 @@
 SET(SUBJECT "Head3")
 
 ############ ASSEMBLE TEST ##############
-ADD_TEST(LHS-${SUBJECT} ${CMAKE_CURRENT_BINARY_DIR}/om_assemble -LHS ${OpenMEEG_SOURCE_DIR}/HeadModels/${SUBJECT}/${SUBJECT}.geom ${OpenMEEG_SOURCE_DIR}/HeadModels/${SUBJECT}/${SUBJECT}.cond ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.lhs)
+ADD_TEST(LHS-${SUBJECT} ${CMAKE_CURRENT_BINARY_DIR}/om_assemble -LHS ${OpenMEEG_SOURCE_DIR}/data/HeadModels/${SUBJECT}/${SUBJECT}.geom ${OpenMEEG_SOURCE_DIR}/data/HeadModels/${SUBJECT}/${SUBJECT}.cond ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.lhs)
 
 ADD_TEST(LHSINV-${SUBJECT} ${CMAKE_CURRENT_BINARY_DIR}/om_minverser ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.lhs ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.lhs_inv)
 
-ADD_TEST(v2EEG-${SUBJECT} ${CMAKE_CURRENT_BINARY_DIR}/om_assemble -vToEEG ${OpenMEEG_SOURCE_DIR}/HeadModels/${SUBJECT}/${SUBJECT}.geom ${OpenMEEG_SOURCE_DIR}/HeadModels/${SUBJECT}/${SUBJECT}.cond ${OpenMEEG_SOURCE_DIR}/Computations/${SUBJECT}/${SUBJECT}.patches ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.v2eeg)
+ADD_TEST(v2EEG-${SUBJECT} ${CMAKE_CURRENT_BINARY_DIR}/om_assemble -vToEEG ${OpenMEEG_SOURCE_DIR}/data/HeadModels/${SUBJECT}/${SUBJECT}.geom ${OpenMEEG_SOURCE_DIR}/data/HeadModels/${SUBJECT}/${SUBJECT}.cond ${OpenMEEG_SOURCE_DIR}/data/Computations/${SUBJECT}/${SUBJECT}.patches ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.v2eeg)
 
 ############ TEST DIPOLE FORWARD RESULTS (Regression test) ##############
 
 # om_assemble -rhsPOINT geometry.geom conductivity.cond dipoles.dip rhsmat.bin
-ADD_TEST(rhsPOINT-${SUBJECT} ${CMAKE_CURRENT_BINARY_DIR}/om_assemble -rhsPOINT ${OpenMEEG_SOURCE_DIR}/HeadModels/${SUBJECT}/${SUBJECT}.geom ${OpenMEEG_SOURCE_DIR}/HeadModels/${SUBJECT}/${SUBJECT}.cond ${OpenMEEG_SOURCE_DIR}/Computations/${SUBJECT}/${SUBJECT}.dip ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}-point.rhs)
+ADD_TEST(rhsPOINT-${SUBJECT} ${CMAKE_CURRENT_BINARY_DIR}/om_assemble -rhsPOINT ${OpenMEEG_SOURCE_DIR}/data/HeadModels/${SUBJECT}/${SUBJECT}.geom ${OpenMEEG_SOURCE_DIR}/data/HeadModels/${SUBJECT}/${SUBJECT}.cond ${OpenMEEG_SOURCE_DIR}/data/Computations/${SUBJECT}/${SUBJECT}.dip ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}-point.rhs)
 
-#ADD_TEST(sToMEGPoint-${SUBJECT} ${CMAKE_CURRENT_BINARY_DIR}/om_assemble -sToMEG_point ${OpenMEEG_SOURCE_DIR}/Computations/${SUBJECT}/${SUBJECT}.dip ${OpenMEEG_SOURCE_DIR}/Computations/${SUBJECT}/${SUBJECT}.squids ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}-point.s2meg)
+#ADD_TEST(sToMEGPoint-${SUBJECT} ${CMAKE_CURRENT_BINARY_DIR}/om_assemble -sToMEG_point ${OpenMEEG_SOURCE_DIR}/data/Computations/${SUBJECT}/${SUBJECT}.dip ${OpenMEEG_SOURCE_DIR}/data/Computations/${SUBJECT}/${SUBJECT}.squids ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}-point.s2meg)
 
 ADD_TEST(HeegPoint-${SUBJECT} ${CMAKE_CURRENT_BINARY_DIR}/om_gain -EEG ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.lhs_inv ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}-point.rhs ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.v2eeg ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}-point.Heeg)
 
 #ADD_TEST(HmegPoint-${SUBJECT} ${CMAKE_CURRENT_BINARY_DIR}/om_gain -MEG ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.lhs_inv ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}-point.rhs ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.v2meg ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}-point.s2meg ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}-point.Hmeg)
 
 # forward -EEG gainmatrix.bin dipoleActivation.src estimatedeegdata.txt noiselevel
-ADD_TEST(EEG-dipoles-${SUBJECT} ${CMAKE_CURRENT_BINARY_DIR}/om_forward ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}-point.Heeg ${OpenMEEG_SOURCE_DIR}/Computations/${SUBJECT}/${SUBJECT}.srcdip ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}-point.est_eeg 0.0)
+ADD_TEST(EEG-dipoles-${SUBJECT} ${CMAKE_CURRENT_BINARY_DIR}/om_forward ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}-point.Heeg ${OpenMEEG_SOURCE_DIR}/data/Computations/${SUBJECT}/${SUBJECT}.srcdip ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}-point.est_eeg 0.0)
 
-#ADD_TEST(MEG-dipoles-${SUBJECT} ${CMAKE_CURRENT_BINARY_DIR}/om_forward ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}-point.Hmeg ${OpenMEEG_SOURCE_DIR}/Computations/${SUBJECT}/${SUBJECT}.srcdip ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}-point.est_meg 0.0)
+#ADD_TEST(MEG-dipoles-${SUBJECT} ${CMAKE_CURRENT_BINARY_DIR}/om_forward ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}-point.Hmeg ${OpenMEEG_SOURCE_DIR}/data/Computations/${SUBJECT}/${SUBJECT}.srcdip ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}-point.est_meg 0.0)

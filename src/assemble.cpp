@@ -60,7 +60,7 @@ int main(int argc, char** argv)
             std::cerr << "Please set output filepath !" << endl;
             exit(1);
         }
-        // Loading surfaces from geometry file. 'taille' = sum on surfaces of number of points and number of triangles
+        // Loading surfaces from geometry file
         Geometry geo;
         geo.read(argv[2],argv[3]);
 
@@ -93,7 +93,7 @@ int main(int argc, char** argv)
 
         // Loading surfaces from geometry file.
         Geometry geo;
-        int taille = geo.read(argv[2],argv[3]);
+        geo.read(argv[2],argv[3]);
 
         // Loading mesh for distributed sources
         Mesh mesh_sources;
@@ -128,7 +128,7 @@ int main(int argc, char** argv)
 
         // Loading surfaces from geometry file.
         Geometry geo;
-        int taille=geo.read(argv[2],argv[3]);
+        geo.read(argv[2],argv[3]);
 
         // Loading matrix of dipoles :
         matrice dipoles(argv[4]);
@@ -177,7 +177,7 @@ int main(int argc, char** argv)
 
         // Loading surfaces from geometry file.
         Geometry geo;
-        int taille=geo.read(argv[2],argv[3]);
+        geo.read(argv[2],argv[3]);
 
         // Loading matrix of dipoles :
         matrice dipoles(argv[4]);
@@ -265,7 +265,7 @@ int main(int argc, char** argv)
 
         // Loading surfaces from geometry file.
         Geometry geo;
-        int taille = geo.read(argv[2],argv[3]);
+        geo.read(argv[2],argv[3]);
 
         // Load positions and orientations of sensors  :
         Sensors sensors(argv[4]);

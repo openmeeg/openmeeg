@@ -77,7 +77,7 @@ AC_TYPE_SIZE_T
 # Checks for library functions.
 AC_CHECK_FUNCS([pow sqrt strrchr])
 
-#                 Computations/Head1/Makefile
+#                 data/Computations/Head1/Makefile
 AC_CONFIG_FILES([
          Makefile
          src/Makefile
