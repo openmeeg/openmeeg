@@ -17,6 +17,7 @@ IF(USE_ATLAS)
         /usr/lib64/atlas
         /usr/lib/sse2
         /usr/lib/
+        /usr/lib/atlas
     )
 
     SET(ATLAS_OTHER_LIBS lapack cblas)
