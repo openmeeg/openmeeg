@@ -52,6 +52,7 @@ IF ( USE_MKL )
                 ~/intel/mkl/8.1/include
                 ~/Intel/MKL/8.1/include
                 /Library/Frameworks/Intel_MKL.framework/Headers
+                ~/Intel/MKL/10.0.011/include
 
     )
     INCLUDE_DIRECTORIES(${MKL_INCLUDE_PATH})
@@ -63,12 +64,13 @@ IF ( USE_MKL )
         ~/intel/mkl/8.1/lib/32
         ~/Intel/MKL/8.1/lib/32
         /Library/Frameworks/Intel_MKL.framework/Libraries/universal
+        ~/intel/mkl/10.0.011/lib/32
     )
 
     IF ( WIN32 )
         SET(MKL_LIBS mkl_solver mkl_c libguide)
     ELSE ( WIN32 )
-        SET(MKL_LIBS mkl mkl_lapack guide)
+        SET(MKL_LIBS mkl guide mkl_lapack )
     ENDIF ( WIN32 )
 
     FOREACH ( LIB ${MKL_LIBS})
@@ -77,6 +79,10 @@ IF ( USE_MKL )
         IF(${LIB}_PATH)
             SET(OPENMEEG_OTHER_LIBRARIES
                 ${OPENMEEG_OTHER_LIBRARIES} ${${LIB}_PATH})
+            IF( UNIX )
+                SET(OPENMEEG_OTHER_LIBRARIES
+                  ${OPENMEEG_OTHER_LIBRARIES} pthread)
+            ENDIF( UNIX )
             #MESSAGE("${LIB} found in ${${LIB}_PATH}")
             MARK_AS_ADVANCED(${LIB}_PATH)
         ELSE(${LIB}_PATH)
