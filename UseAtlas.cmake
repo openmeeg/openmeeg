@@ -48,24 +48,26 @@ IF ( USE_MKL )
     FIND_PATH(MKL_INCLUDE_PATH mkl.h
                 "C:/Program Files/Intel/MKL/9.1.027/include"
                 "C:/Program Files/Intel/MKL/8.1.1/include"
-                ../../mkl/include
-                ~/intel/mkl/8.1/include
-                ~/Intel/MKL/8.1/include
-                /Library/Frameworks/Intel_MKL.framework/Headers
-                ~/Intel/MKL/10.0.011/include
-
     )
-    INCLUDE_DIRECTORIES(${MKL_INCLUDE_PATH})
+    IF ( MKL_INCLUDE_PATH )
+        #MESSAGE("mkl.h found in ${MKL_INCLUDE_PATH}")
+        INCLUDE_DIRECTORIES(${MKL_INCLUDE_PATH})
+    ELSE ( MKL_INCLUDE_PATH )
+        MESSAGE("Can not find mkl.h")
+    ENDIF ( MKL_INCLUDE_PATH )
 
-    SET(MKL_LIB_SEARCHPATH
-        "C:/Program Files/Intel/MKL/9.1.027/ia32/lib"
-        "C:/Program Files/Intel/MKL/8.1.1/ia32/lib"
-        ../../mkl/ia32/lib
-        ~/intel/mkl/8.1/lib/32
-        ~/Intel/MKL/8.1/lib/32
-        /Library/Frameworks/Intel_MKL.framework/Libraries/universal
-        ~/intel/mkl/10.0.011/lib/32
-    )
+    IF ( UNIX )
+        SET(MKL_LIB_SEARCHPATH # add here some paths to look for mkl libs
+            ""
+        )
+    ENDIF ( UNIX )
+
+    IF ( WIN32 )
+        SET(MKL_LIB_SEARCHPATH
+            "C:/Program Files/Intel/MKL/9.1.027/ia32/lib"
+            "C:/Program Files/Intel/MKL/8.1.1/ia32/lib"
+        )
+    ENDIF ( WIN32 )
 
     IF ( WIN32 )
         SET(MKL_LIBS mkl_solver mkl_c libguide)
@@ -73,16 +75,15 @@ IF ( USE_MKL )
         SET(MKL_LIBS mkl guide mkl_lapack )
     ENDIF ( WIN32 )
 
-    FOREACH ( LIB ${MKL_LIBS})
-        FIND_LIBRARY(${LIB}_PATH ${LIB} ${MKL_LIB_SEARCHPATH})
+    FOREACH ( LIB ${MKL_LIBS} )
+        FIND_LIBRARY(${LIB}_PATH ${LIB}
+            PATHS "${MKL_LIB_SEARCHPATH}"
+            ENV LIBRARY_PATH
+            )
 
         IF(${LIB}_PATH)
             SET(OPENMEEG_OTHER_LIBRARIES
                 ${OPENMEEG_OTHER_LIBRARIES} ${${LIB}_PATH})
-            IF( UNIX )
-                SET(OPENMEEG_OTHER_LIBRARIES
-                  ${OPENMEEG_OTHER_LIBRARIES} pthread)
-            ENDIF( UNIX )
             #MESSAGE("${LIB} found in ${${LIB}_PATH}")
             MARK_AS_ADVANCED(${LIB}_PATH)
         ELSE(${LIB}_PATH)
@@ -90,5 +91,9 @@ IF ( USE_MKL )
         ENDIF(${LIB}_PATH)
 
     ENDFOREACH ( LIB )
+
+    IF( LINUX ) # MKL on linux requires to link with the pthread library
+        SET(OPENMEEG_OTHER_LIBRARIES "${OPENMEEG_OTHER_LIBRARIES} pthread")
+    ENDIF( LINUX )
 
 ENDIF ( USE_MKL )
