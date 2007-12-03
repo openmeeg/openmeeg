@@ -4,6 +4,7 @@
 #if WIN32
 #define _USE_MATH_DEFINES
 #endif
+
 #include <cstring>
 #include <cmath>
 
@@ -55,6 +56,42 @@ inline void disp_argv(int argc, char **argv) {
         std::cout << "| " << argv[i] << std::endl;
     }
     std::cout << "| -----------------------" << std::endl;
+}
+
+inline void progressbar(int n, int N, int w = 20) {
+    // w : nb of steps
+    const char* cprog = ".";
+    const char* cprog1 = "*";
+    const char* cbeg = "[";
+    const char* cend = "]";
+    int p = std::min( (int)floor(n*(w+1)/N), w);
+
+    static int pprev = -1;
+    if (n == 0) {
+        pprev = -1;
+    }
+
+    if (p != pprev) {
+        if (n>1) {
+            // clear previous string
+            for(size_t i = 0; i < (w+2); ++i)
+                printf( "\b" );
+
+            printf( cbeg );
+            for(size_t i = 0; i < p; ++i) {
+                printf( cprog1 );
+            }
+            for(size_t i = p; i < w; ++i) {
+                printf( cprog );
+            }
+            printf( cend );
+        }
+    }
+    pprev = p;
+    if (n >= (N-1)) {
+        printf("\n");
+    }
+    std::cout.flush();
 }
 
 #endif /* _OM_UTILS_H_ */

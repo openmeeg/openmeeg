@@ -82,15 +82,16 @@ void assemble_vToMEG(matrice &mat, const Geometry &geo, const Sensors &sensors)
 
     for(int i=0;i<nsquids;i++)
     {
-        positionsVectArray[i](0)=positions(i,0);
-        positionsVectArray[i](1)=positions(i,1);
-        positionsVectArray[i](2)=positions(i,2);
+        positionsVectArray[i](0) = positions(i,0);
+        positionsVectArray[i](1) = positions(i,1);
+        positionsVectArray[i](2) = positions(i,2);
     }
 
     assemble_ferguson(geo,myFergusonMatrix,positionsVectArray,nsquids);
 
     for(size_t i=0;i<mat.nlin();i++)
     {
+        progressbar(i,mat.nlin());
         #ifdef USE_OMP
         #pragma omp parallel for
         #endif
@@ -99,7 +100,7 @@ void assemble_vToMEG(matrice &mat, const Geometry &geo, const Sensors &sensors)
             Vect3 fergusonField(myFergusonMatrix(3*i,vIndexes[j]),myFergusonMatrix(3*i+1,vIndexes[j]),myFergusonMatrix(3*i+2,vIndexes[j]));
             Vect3 normalizedDirection(orientations(i,0),orientations(i,1),orientations(i,2));
             normalizedDirection.normalize();
-            mat(i,vIndexes[j])=fergusonField*normalizedDirection;
+            mat(i,vIndexes[j]) = fergusonField*normalizedDirection;
         }
     }
 
@@ -134,8 +135,11 @@ void assemble_sToMEG(matrice &mat, const Mesh &sources_mesh, const Sensors &sens
         positionsVectArray[i](2)=positions(i,2);
     }
 
-    for(size_t i=0;i<mat.nlin();i++) operatorFerguson(positionsVectArray[i],sources_mesh,myFergusonMatrix,3*(int)i,0);
-
+    for(size_t i=0;i<mat.nlin();i++) {
+        progressbar(i,mat.nlin());
+        operatorFerguson(positionsVectArray[i],sources_mesh,myFergusonMatrix,3*(int)i,0);
+    }
+    
     for(size_t i=0;i<mat.nlin();i++)
     {
         for(size_t j=0;j<mat.ncol();j++)

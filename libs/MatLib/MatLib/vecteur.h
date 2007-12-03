@@ -259,7 +259,7 @@ inline void vecteur::operator-=(const vecteur& v) {
 #endif
 }
 
-inline double vecteur::operator*(const vecteur& v)const {
+inline double vecteur::operator*(const vecteur& v) const {
     assert(n==v.n);
 #ifdef HAVE_BLAS
     return BLAS(ddot,DDOT)((int)n,t,1,v.t,1);
@@ -271,6 +271,20 @@ inline double vecteur::operator*(const vecteur& v)const {
     }
     return s;
 #endif
+}
+
+inline vecteur vecteur::kmult(const vecteur& v) const { // Kronecker multiplication
+    assert(n == v.n);
+// #ifdef HAVE_BLAS
+//     // FIXME : add blas version
+// #else
+    vecteur p(n);
+    for( size_t i=0; i<n; i++ )
+    {
+        p(i) = v(i)*t[i];
+    }
+// #endif
+    return p;
 }
 
 inline vecteur vecteur::operator*(double x) const {

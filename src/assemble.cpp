@@ -43,8 +43,7 @@ int main(int argc, char** argv)
     /*********************************************************************************************
     * Computation of LHS for BEM Symmetric formulation
     **********************************************************************************************/
-    if (!strcmp(argv[1],"-LHS"))
-    {
+    if (!strcmp(argv[1],"-LHS")) {
         if (argc < 3)
         {
             std::cerr << "Please set geometry filepath !" << endl;
@@ -72,12 +71,11 @@ int main(int argc, char** argv)
     /*********************************************************************************************
     * Computation of general RHS from BEM Symmetric formulation
     **********************************************************************************************/
-    else if (!strcmp(argv[1],"-RHS"))
-    {
+    else if (!strcmp(argv[1],"-RHS")) {
 
         if (argc < 3)
         {
-            cerr << "Please set geometry filepath !" << endl;
+            std::cerr << "Please set geometry filepath !" << endl;
             exit(1);
         }
         if (argc < 4)
@@ -87,7 +85,7 @@ int main(int argc, char** argv)
         }
         if (argc < 5)
         {
-            cerr << "Please set 'mesh of sources' filepath !" << endl;
+            std::cerr << "Please set 'mesh of sources' filepath !" << endl;
             exit(1);
         }
 
@@ -108,7 +106,7 @@ int main(int argc, char** argv)
     /*********************************************************************************************
     * Computation of RHS for discrete dipolar case
     **********************************************************************************************/
-    else if(!strcmp(argv[1],"-rhsPOINT")){
+    else if(!strcmp(argv[1],"-rhsPOINT")) {
 
         if(argc < 3)
         {
@@ -157,7 +155,7 @@ int main(int argc, char** argv)
 	/*********************************************************************************************
     * RK: Computation of RHS for discrete dipolar case: gradient wrt dipoles position and intensity!
     **********************************************************************************************/
-    else if(!strcmp(argv[1],"-rhsPOINTgrad")){
+    else if(!strcmp(argv[1],"-rhsPOINTgrad")) {
 
         if(argc < 3)
         {
@@ -207,8 +205,7 @@ int main(int argc, char** argv)
     * Computation of the linear application which maps x (the unknown vector in symmetric system)
     * |----> v (potential at the electrodes)
     **********************************************************************************************/
-    else if(!strcmp(argv[1],"-vToEEG"))
-    {
+    else if(!strcmp(argv[1],"-vToEEG")) {
 
         if(argc < 3)
         {
@@ -244,8 +241,7 @@ int main(int argc, char** argv)
     * Computation of the linear application which maps x (the unknown vector in symmetric system)
     * |----> bFerguson (contrib to MEG response)
     **********************************************************************************************/
-    else if(!strcmp(argv[1],"-vToMEG"))
-    {
+    else if(!strcmp(argv[1],"-vToMEG")) {
 
         if(argc < 3)
         {
@@ -276,13 +272,11 @@ int main(int argc, char** argv)
         mat.SAVE(argv[5]); // if outfile is specified
     }
 
-
     /*********************************************************************************************
     * Computation of the linear application which maps x (the unknown vector in symmetric system)
     * |----> binf (contrib to MEG response)
     **********************************************************************************************/
-    else if(!strcmp(argv[1],"-sToMEG"))
-    {
+    else if(!strcmp(argv[1],"-sToMEG")) {
 
         if(argc < 3)
         {
@@ -316,8 +310,7 @@ int main(int argc, char** argv)
     // arguments are the positions and orientations of the squids,
     // the position and orientations of the sources and the output name.
 
-    else if(!strcmp(argv[1],"-sToMEG_point"))
-    {
+    else if(!strcmp(argv[1],"-sToMEG_point")) {
 
         if (argc < 3)
         {
@@ -346,8 +339,7 @@ int main(int argc, char** argv)
     C.dispEllapsed();
 }
 
-void getOutputFilepath(char* ref_filepath, char* output_filename, char* path)
-{
+void getOutputFilepath(char* ref_filepath, char* output_filename, char* path) {
     assert(path!=ref_filepath && path!=output_filename);
     // output filename on the same path as filename referenced in ref_filepath
     // go in search on all platform of path less filename included in ref_filepath.
@@ -361,69 +353,59 @@ void getOutputFilepath(char* ref_filepath, char* output_filename, char* path)
     }
 }
 
-void getHelp(char** argv)
-{
+void getHelp(char** argv) {
     cout << argv[0] <<" [-option] [filepaths...]" << endl << endl;
 
-    cout << "-option :" << endl;
-    cout << "   -LHS :   Compute the LHS from BEM symmetric formulation. " << endl;
-    cout << "            Filepaths are in order :" << endl;
-    cout << "            geometry file (.geom), conductivity file (.cond),"  << endl;
-    cout << "            name of the output file of LHS matrix (.bin or .txt)" << endl << endl;
+    cout << "option :" << endl;
+    cout << "   -LHS :   Compute LHS from BEM symmetric formulation." << endl;
+    cout << "            Arguments :" << endl;
+    cout << "               geometry file (.geom)" << endl;
+    cout << "               conductivity file (.cond)" << endl;
+    cout << "               output LHS matrix" << endl << endl;
 
-    cout << "   -RHS :   Compute the RHS from BEM symmetric formulation. " << endl;
-    cout << "            Filepaths are in order :" << endl;
-    cout << "            geometry file (.geom), conductivity file (.cond), " << endl;
-    cout << "            mesh file for distributed sources" << endl;
-    cout << "            (.tri or .vtk. or .geo), name of the output file of RHS" << endl;
-    cout << "            matrix (.bin or .txt)" << endl << endl;
+    cout << "   -RHS :   Compute RHS from BEM symmetric formulation. " << endl;
+    cout << "            Arguments :" << endl;
+    cout << "               geometry file (.geom)" << endl;
+    cout << "               conductivity file (.cond)" << endl;
+    cout << "               mesh of sources (.tri .vtk .mesh .bnd)" << endl;
+    cout << "               output RHS matrix" << endl << endl;
 
-    cout << "   -RHS2 :  Compute in another way (with precomputation of certain" << endl;
-    cout << "            blocks in order to speed-up the computation of the " << endl;
-    cout << "            diagonal blocks) the RHS from BEM symmetric " << endl;
-    cout << "            formulation. Filepaths are in order :" << endl;
-    cout << "            geometry file (.geom), conductivity file (.cond), " << endl;
-    cout << "            mesh file for distributed sources" << endl;
-    cout << "            (.tri or .vtk. or .geo), name of the output file of RHS" << endl;
-    cout << "            matrix (.bin or .txt)" << endl << endl;
+    cout << "   -rhsPOINT :   Compute RHS for discrete dipolar case. " << endl;
+    cout << "            Arguments :" << endl;
+    cout << "               geometry file (.geom)" << endl;
+    cout << "               conductivity file (.cond)" << endl;
+    cout << "               dipoles positions and orientations" << endl;
+    cout << "               output RHS matrix" << endl << endl;
 
-    cout << "   -rhsPOINT :   Compute the RHS for discrete dipolar case. " << endl;
-    cout << "            Filepaths are in order :" << endl;
-    cout << "            geometry file (.geom), conductivity file (.cond), " << endl;
-    cout << "            file which contains the matrix of " << endl;
-    cout << "            dipoles, name of the output file of RHS matrix (.bin or " << endl;
-    cout << "            .txt)" << endl << endl;
+    cout << "   -vToEEG :   Compute the linear application which maps the potiential" << endl;
+    cout << "            on the scalp to the EEG electrodes"  << endl;
+    cout << "            Arguments :" << endl;
+    cout << "               geometry file (.geom)" << endl;
+    cout << "               conductivity file (.cond)" << endl;
+    cout << "               file containing the positions of EEG patches (.patches)" << endl;
+    cout << "               output vToEEG matrice" << endl << endl;
 
-    cout << "   -vToEEG :   Compute the linear application which maps x " << endl;
-    cout << "            (the unknown vector in symmetric system) |----> v (potential"<< endl;
-    cout << "            at the electrodes). Filepaths are in order :" << endl;
-    cout << "            geometry file (.geom), conductivity file (.cond), " << endl;
-    cout << "            file containing the positions of " << endl;
-    cout << "            the EEG patches (.patches), name of the output file of " << endl;
-    cout << "            xToEEG matrix (.bin or .txt)" << endl << endl;
+    cout << "   -vToMEG :   Compute the linear application which maps the potential" << endl;
+    cout << "            on the scalp to the MEG sensors"  << endl;
+    cout << "            Arguments :" << endl;
+    cout << "               geometry file (.geom)" << endl;
+    cout << "               conductivity file (.cond)" << endl;
+    cout << "               file containing the positions and orientations of the MEG sensors (.squids)" << endl;
+    cout << "               output xToMEG matrix" << endl << endl;
 
-    cout << "   -vToMEG :   Compute the linear application which maps" << endl;
-    cout << "            x (the unknown vector in symmetric system) |----> bFerguson"  << endl;
-    cout << "            (contrib to MEG response). Filepaths are in order :" << endl;
-    cout << "            geometry file (.geom), conductivity file (.cond), " << endl;
-    cout << "            file containing the positions and" << endl;
-    cout << "            the orientations of the MEG captors (.squids), name of " << endl;
-    cout << "            the output file of xToMEG matrix (.bin or .txt)" << endl << endl;
+    cout << "   -sToMEG :   Compute the linear application which maps the current" << endl;
+    cout << "            dipoles on the source mesh to the MEG sensors" << endl;
+    cout << "            Arguments :" << endl;
+    cout << "               mesh file for distributed sources (.tri .vtk .mesh .bnd)" << endl;
+    cout << "               positions and orientations of the MEG sensors (.squids)" << endl;
+    cout << "               output sToMEG matrix" << endl << endl;
 
-    cout << "   -sToMEG :   Compute the linear application which maps" << endl;
-    cout << "            x (the unknown vector in symmetric system) |----> binf " << endl;
-    cout << "            (contrib to MEG response). Filepaths are in order :" << endl;
-    cout << "            mesh file for distributed sources (.tri or .vtk. or " << endl;
-    cout << "            .geo), file containing the positions and the orientations" << endl;
-    cout << "            of the MEG sensors (.squids), name of the output file of" << endl;
-    cout << "            sToMEG matrix (.bin or .txt)" << endl << endl;
-
-    cout << "   -sToMEG_point :   Compute the linear application which maps"  << endl;
-    cout << "            x (the unknown vector in symmetric system) |----> binf " << endl;
-    cout << "            (contrib to MEG response) in dipolar case. Filepaths are in order :" << endl;
-    cout << "            mesh file for distributed sources (.tri or .vtk. or " << endl;
-    cout << "            .geo), file containing the matrix of dipoles, name of the output " << endl;
-    cout << "            file of sToMEG matrix (.bin or .txt)" << endl << endl;
+    cout << "   -sToMEG_point :   Compute the linear application which maps the current" << endl;
+    cout << "            dipoles to the MEG sensors" << endl;
+    cout << "            Arguments :" << endl;
+    cout << "               dipoles positions and orientations" << endl;
+    cout << "               positions and orientations of the MEG sensors (.squids)" << endl;
+    cout << "               name of the output sToMEG matrix" << endl << endl;
 
     exit(0);
 }

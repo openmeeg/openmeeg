@@ -54,6 +54,7 @@ public:
     inline vecteur operator/(double x) const ;
     inline double operator*(const vecteur& v) const;
 
+    inline vecteur kmult(const vecteur& x) const;
     inline vecteur conv(const vecteur& v) const;
     inline vecteur conv_trunc(const vecteur& v) const;
     inline matrice outer_product(const vecteur& v) const;

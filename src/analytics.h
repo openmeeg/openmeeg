@@ -12,11 +12,22 @@ private:
     Vect3 n;
     double norme2p2p1,norme2p1p0,norme2p0p2;
     double tanTHETA0m,tanTHETA0p,tanTHETA1m,tanTHETA1p,tanTHETA2m,tanTHETA2p;
+    
+    void init_aux() {
+        n *= -(1/n.norme()) ;
+        nu0 = (n^p1p0);
+        nu1 = (n^p2p1);
+        nu2 = (n^p0p2);
+        nu0.normalize();
+        nu1.normalize();
+        nu2.normalize();
+    }
 
 public:
+
     analyticS(){}
     ~analyticS(){}
-    void init( int nT, const Mesh &m)
+    void init( int nT, const Mesh &m )
     {
         // all computations needed when the first triangle of integration is changed
         Triangle& T = (Triangle&) m.getTrg(nT);
@@ -29,38 +40,21 @@ public:
         norme2p1p0 = p1p0.norme(); norme2p2p1 = p2p1.norme(); norme2p0p2 = p0p2.norme();
 
         n = T.normal();
-        n *= -(1/n.norme()) ;
-
-        nu0 = (n^p1p0);
-        nu1 = (n^p2p1);
-        nu2 = (n^p0p2);
-        nu0 *= (1/nu0.norme()) ;
-        nu1 *= (1/nu1.norme()) ;
-        nu2 *= (1/nu2.norme()) ;
+        init_aux();
     }
 
-    void init( const Vect3 v0, const Vect3 v1,const Vect3 v2)
+    void init( const Vect3& v0, const Vect3& v1, const Vect3& v2 )
     {
         // all computations needed when the first triangle of integration is changed
-
         p0 = v0;
         p1 = v1;
         p2 = v2;
-
         p1p0 = p1-p0; p2p1 = p2-p1; p0p2 = p0-p2;
         norme2p1p0 = p1p0.norme(); norme2p2p1 = p2p1.norme(); norme2p0p2 = p0p2.norme();
 
         n = p1p0^p0p2;
-        n *= -(1/n.norme()) ;
-
-        nu0 = (n^p1p0);
-        nu1 = (n^p2p1);
-        nu2 = (n^p0p2);
-        nu0 *= (1/nu0.norme()) ;
-        nu1 *= (1/nu1.norme()) ;
-        nu2 *= (1/nu2.norme()) ;
+        init_aux();
     }
-
 
     inline double f(const Vect3& x) const
     {
@@ -264,7 +258,7 @@ public:
     {
         Vect3 P1part(H0p0DivNorm2*(x-H0),H1p1DivNorm2*(x-H1),H2p2DivNorm2*(x-H2));
 
-        // RK: B = n.grad_x(A) with grad_x(A)= q/||^3 - 3r(q.r)/||^5 
+        // RK: B = n.grad_x(A) with grad_x(A)= q/||^3 - 3r(q.r)/||^5
         Vect3 r = x-r0;
         double rn = r.norme();
         double EMpart = n*(q/pow(rn,3.)-3*(q*r)*r/pow(rn,5.));

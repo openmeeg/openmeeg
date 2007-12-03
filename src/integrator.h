@@ -159,8 +159,8 @@ public:
     inline T triangle_integration( const fContainer<T> &fc, Vect3 *vertices)
     {// compute double area of triangle defined by vertices
         Vect3 crossprod=(vertices[1]-vertices[0])^(vertices[2]-vertices[0]);
-        double S= crossprod.norme();
-        T result=0;
+        double S = crossprod.norme();
+        T result = 0;
         static Vect3 zero(0.0,0.0,0.0);
         int i;
         for(i=0;i<nbPts[ordre];i++)

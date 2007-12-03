@@ -12,6 +12,7 @@ function save_bin(data,filename)
 %   Created by Alexandre Gramfort on 2007-05-22.
 %
 
+disp(['save_bin() : saving file ',filename])
 file = fopen(filename,'w');
 dims = size(data);
 fwrite(file,dims,'uint32');

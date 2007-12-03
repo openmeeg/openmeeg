@@ -35,7 +35,8 @@ void operatorD(const Mesh &m1,const Mesh &m2,genericMatrix &mat,const int offset
 {
     std::cout<<"OPERATEUR D... (arg : mesh m1, mesh m2)"<<std::endl;
 
-    for(int i=offsetI;i<offsetI+m1.nbTrgs();i++)
+    for(int i=offsetI;i<offsetI+m1.nbTrgs();i++) {
+        progressbar(i-offsetI,m1.nbTrgs());
         #ifdef USE_OMP
         #pragma omp parallel for
         #endif
@@ -44,6 +45,7 @@ void operatorD(const Mesh &m1,const Mesh &m2,genericMatrix &mat,const int offset
             // P1 functions are tested thus looping on vertices
             mat(i,j)=_operatorD(i-offsetI,j-offsetJ,GaussOrder,m1,m2);
         }
+    }
 }
 
 #else // OPTIMIZED_OPERATOR_D
@@ -61,7 +63,8 @@ void operatorD(const Geometry &geo,const int I,const int J,const int GaussOrder,
     const Mesh &m1=geo.getM(I);
     const Mesh &m2=geo.getM(J);
 
-    for(int i=offsetI;i<offsetI+m1.nbTrgs();i++)
+    for(int i=offsetI;i<offsetI+m1.nbTrgs();i++) {
+        progressbar(i-offsetI,m1.nbTrgs());
         for(int j=offsetJ;j<offsetJ+m2.nbTrgs();j++)
         {
             //In this version of the funtcion, in order to skip multiple computations of the same quantities
@@ -69,6 +72,7 @@ void operatorD(const Geometry &geo,const int I,const int J,const int GaussOrder,
             //    That's why the filling is done is function _operatorD
             _operatorD(i-offsetI,j-offsetJ,GaussOrder,m1,m2,mat,offsetI,offsetJ);
         }
+    }
 }
 
 void operatorD(const Mesh &m1,const Mesh &m2,genericMatrix &mat,const int offsetI,const int offsetJ,const int GaussOrder)
@@ -81,7 +85,8 @@ void operatorD(const Mesh &m1,const Mesh &m2,genericMatrix &mat,const int offset
 
     std::cout<<"OPERATEUR D (Optimized) ... (arg : mesh m1, mesh m2)"<<std::endl;
 
-    for(int i=offsetI;i<offsetI+m1.nbTrgs();i++)
+    for(int i=offsetI;i<offsetI+m1.nbTrgs();i++) {
+        progressbar(i-offsetI,m1.nbTrgs());
         for(int j=offsetJ;j<offsetJ+m2.nbTrgs();j++)
         {
             //In this version of the funtcion, in order to skip multiple computations of the same quantities
@@ -89,6 +94,7 @@ void operatorD(const Mesh &m1,const Mesh &m2,genericMatrix &mat,const int offset
             //    That's why the filling is done is function _operatorD
             _operatorD(i-offsetI,j-offsetJ,GaussOrder,m1,m2,mat,offsetI,offsetJ);
         }
+    }
 }
 
 #endif // OPTIMIZED_OPERATOR_D
@@ -109,6 +115,7 @@ void operatorS(const Geometry &geo,const int I,const int J,const int GaussOrder,
 
     if(I==J) {
         for(int i=offsetI;i<offsetI+m1.nbTrgs();i++) {
+            progressbar(i-offsetI,m1.nbTrgs());
             #ifdef USE_OMP
             #pragma omp parallel for
             #endif
@@ -119,6 +126,7 @@ void operatorS(const Geometry &geo,const int I,const int J,const int GaussOrder,
         }
     } else {
         for(int i=offsetI;i<offsetI+m1.nbTrgs();i++) {
+            progressbar(i-offsetI,m1.nbTrgs());
             #ifdef USE_OMP
             #pragma omp parallel for
             #endif
@@ -142,7 +150,8 @@ void operatorS(const Mesh &m1,const Mesh &m2,genericMatrix &mat,const int offset
 
     // The operator S is given by Sij=\Int G*PSI(I,i)*Psi(J,j) with PSI(A,a) is a P0 test function on layer A and triangle a
     if(&m1==&m2)
-        for(int i=offsetI;i<offsetI+m1.nbTrgs();i++)
+        for(int i=offsetI;i<offsetI+m1.nbTrgs();i++) {
+            progressbar(i-offsetI,m1.nbTrgs());
             #ifdef USE_OMP
             #pragma omp parallel for
             #endif
@@ -150,9 +159,11 @@ void operatorS(const Mesh &m1,const Mesh &m2,genericMatrix &mat,const int offset
             {
                 mat(i,j)=_operatorS(i-offsetI,j-offsetJ,GaussOrder,m1,m2);
             }
+        }
     else
     {
-        for(int i=offsetI;i<offsetI+m1.nbTrgs();i++)
+        for(int i=offsetI;i<offsetI+m1.nbTrgs();i++) {
+            progressbar(i-offsetI,m1.nbTrgs());
             #ifdef USE_OMP
             #pragma omp parallel for
             #endif
@@ -160,6 +171,7 @@ void operatorS(const Mesh &m1,const Mesh &m2,genericMatrix &mat,const int offset
             {
                 mat(i,j)=_operatorS(i-offsetI,j-offsetJ,GaussOrder,m1,m2);
             }
+        }
     }
 }
 
@@ -177,7 +189,8 @@ void operatorN(const Geometry &geo,const int I,const int J,const int GaussOrder,
     const Mesh &m2=geo.getM(J);
 
     if(I==J)
-        for(int i=offsetI;i<offsetI+m1.nbPts();i++)
+        for(int i=offsetI;i<offsetI+m1.nbPts();i++) {
+            progressbar(i-offsetI,m1.nbPts());
             #ifdef USE_OMP
             #pragma omp parallel for
             #endif
@@ -185,9 +198,11 @@ void operatorN(const Geometry &geo,const int I,const int J,const int GaussOrder,
             {
                 mat(i,j)=_operatorN(i-offsetI,j-offsetJ,GaussOrder,m1,m2,IopS,JopS,mat);
             }
+        }
     else
     {
-        for(int i=offsetI;i<offsetI+m1.nbPts();i++)
+        for(int i=offsetI;i<offsetI+m1.nbPts();i++) {
+            progressbar(i-offsetI,m1.nbPts());
             #ifdef USE_OMP
             #pragma omp parallel for
             #endif
@@ -195,6 +210,7 @@ void operatorN(const Geometry &geo,const int I,const int J,const int GaussOrder,
             {
                 mat(i,j)=_operatorN(i-offsetI,j-offsetJ,GaussOrder,m1,m2,IopS,JopS,mat);
             }
+        }
     }
 }
 
@@ -210,7 +226,8 @@ void operatorN(const Mesh &m1,const Mesh &m2,genericMatrix &mat,const int offset
     std::cout<<"OPERATEUR N... (arg : mesh m1, mesh m2)"<<std::endl;
 
     if(&m1==&m2) {
-        for(int i=offsetI;i<offsetI+m1.nbPts();i++){
+        for(int i=offsetI;i<offsetI+m1.nbPts();i++) {
+            progressbar(i-offsetI,m1.nbPts());
             #ifdef USE_OMP
             #pragma omp parallel for
             #endif
@@ -221,6 +238,7 @@ void operatorN(const Mesh &m1,const Mesh &m2,genericMatrix &mat,const int offset
         }
     } else {
         for(int i=offsetI;i<offsetI+m1.nbPts();i++){
+            progressbar(i-offsetI,m1.nbPts());
             #ifdef USE_OMP
             #pragma omp parallel for
             #endif

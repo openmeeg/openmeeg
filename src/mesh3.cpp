@@ -114,7 +114,7 @@ void Mesh::load(const char* name, bool checkClosedSurface, bool verbose) {
     else if(!strcmp(extension,"tri") || !strcmp(extension,"TRI")) load_tri(name,checkClosedSurface);
     else if(!strcmp(extension,"bnd") || !strcmp(extension,"BND")) load_bnd(name,checkClosedSurface);
     else {
-        cerr << "Load : Unknown file format" << endl;
+        cerr << "Load : Unknown mesh file format for " << name << endl;
         exit(1);
     }
 
@@ -160,8 +160,6 @@ void Mesh::getDataFromVTKReader(vtkPolyDataReader* reader) {   //private
             trgs[i][0] = l->GetId(0);
             trgs[i][1] = l->GetId(1);
             trgs[i][2] = l->GetId(2);
-            trgs[i].normal() = pts[trgs[i][0]].normal( pts[trgs[i][1]] , pts[trgs[i][2]] );
-            trgs[i].area() = trgs[i].normal().norme()/2.0;
         } else {
             std::cerr << "This is not a triangulation" << std::endl;
             exit(1);
@@ -197,6 +195,7 @@ void Mesh::load_vtk(std::istream &is, bool checkClosedSurface) {
     reader->Delete();
 
     make_links();
+    update_triangles();
     updateTriangleOrientations(checkClosedSurface);
 }
 
@@ -295,14 +294,13 @@ void Mesh::load_mesh(std::istream &is, bool checkClosedSurface) {
         trgs[i][0] = faces_raw[i*3+0];
         trgs[i][1] = faces_raw[i*3+1];
         trgs[i][2] = faces_raw[i*3+2];
-        trgs[i].normal() = pts[trgs[i][0]].normal( pts[trgs[i][1]] , pts[trgs[i][2]] );
-        trgs[i].area() = trgs[i].normal().norme()/2.0;
     }
     delete[] faces_raw;
     delete[] normals_raw;
     delete[] pts_raw;
 
     make_links();
+    update_triangles();
     updateTriangleOrientations(checkClosedSurface);
 }
 
@@ -347,12 +345,10 @@ void Mesh::load_tri(std::istream &f, bool checkClosedSurface) {
     trgs = new Triangle[ntrgs];
     for (int i=0;i<ntrgs;i++) {
         f>>trgs[i];
-        trgs[i].normal() = pts[trgs[i][0]].normal( pts[trgs[i][1]] , pts[trgs[i][2]] );
-        trgs[i].area() = trgs[i].normal().norme()/2.0;
     }
 
     make_links();
-
+    update_triangles();
     updateTriangleOrientations(checkClosedSurface);
 }
 
@@ -422,14 +418,12 @@ void Mesh::load_bnd(std::istream &f, bool checkClosedSurface) {
     assert(st == "Polygons");
 
     trgs = new Triangle[ntrgs];
-    for (int i=0;i<ntrgs;i++){
+    for (int i=0;i<ntrgs;i++) {
         f>>trgs[i];
-
-        trgs[i].normal() = pts[trgs[i][0]].normal( pts[trgs[i][1]] , pts[trgs[i][2]] );
-        trgs[i].area() = trgs[i].normal().norme()/2.0;
     }
 
     make_links();
+    update_triangles();
     updateTriangleOrientations(checkClosedSurface);
 }
 
@@ -731,8 +725,8 @@ void Mesh::info() {
     std::cout << "\t# points : " << npts << std::endl;
     std::cout << "\t# triangles : " << ntrgs << std::endl;
     std::cout << "\tEuler characteristic : " << npts - 3*ntrgs/2 + ntrgs << std::endl;
-    std::cout << "\tNb of connexe components : " << ncomponents << std::endl;
-    std::cout << "\tNb of Triangles inversions : " << ninversions << std::endl;
+    // std::cout << "\tNb of connexe components : " << ncomponents << std::endl;
+    // std::cout << "\tNb of Triangles inversions : " << ninversions << std::endl;
 
     double min_area = trgs[0].area();
     double max_area = trgs[0].area();
@@ -777,27 +771,23 @@ void Mesh::smooth(double smoothing_intensity,size_t niter) {
         for(int p = 0; p < npts; ++p) pts[p] = new_pts[p];
     }
     delete[] new_pts;
+    update_triangles(); // Updating triangles (areas + normals)
+    recompute_normals(); // Updating normals
 }
 
 /**
  * Surface Gradient
 **/
-sparse_matrice Mesh::gradient() const
-{
-    sparse_matrice A(3*ntrgs,npts);
+sparse_matrice Mesh::gradient() const {
+    sparse_matrice A(3*ntrgs,npts); // edges x points
     // loop on triangles
-    for(int t=0;t<ntrgs;t++)
-    {
+    for (int t=0;t<ntrgs;t++) {
         const Triangle& trg = getTrg(t);
         Vect3 pts[3] = {getPt(trg[0]), getPt(trg[1]), getPt(trg[2])};
-        Vect3 grads[3];
-        for(int i=0;i<3;i++) grads[i] = P1Vector(pts[0], pts[1], pts[2], i);
-
-        for(int i=0;i<3;i++)
-        {
-            for(int j=0;j<3;j++)
-            {
-                A(3*t+i,trg[j]) = grads[j](i);
+        for(int j=0;j<3;j++) {
+            Vect3 grads = P1Vector(pts[0], pts[1], pts[2], j);
+            for(int i=0;i<3;i++) {
+                A(3*t+i,trg[j]) = grads(i);
             }
         }
     }
@@ -812,4 +802,25 @@ vecteur Mesh::areas() const {
         areas(i) = getTrg(i).getArea();
     }
     return areas;
+}
+
+void Mesh::update_triangles() {
+    for(int i = 0; i < ntrgs; ++i)
+    {
+        trgs[i].normal() = pts[trgs[i][0]].normal( pts[trgs[i][1]] , pts[trgs[i][2]] );
+        trgs[i].area() = trgs[i].normal().norme()/2.0;
+    }
+}
+
+void Mesh::recompute_normals() {
+    for(size_t p = 0; p < nbPts(); ++p)
+    {
+        Vect3 normal(0);
+        for(intSet::iterator it = links[p].begin(); it != links[p].end(); ++it)
+        {
+            normal += trgs[*it].normal().normalize();
+        }
+        normal.normalize();
+        normals[p] = normal;
+    }
 }

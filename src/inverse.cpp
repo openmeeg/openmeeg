@@ -41,9 +41,10 @@ int main(int argc, char **argv)
 
     bool Heat = SmoothType==string("HEAT");
     bool Mn   = SmoothType==string("MN");
+    bool WMn  = SmoothType==string("WMN");
     bool Tv   = SmoothType==string("TV");
 
-    if (!Tv && !Mn && !Heat) {
+    if (!Tv && !Mn && !Heat && !WMn) {
         std::cerr << "Unknown Smoothtype :  " << SmoothType << std::endl;
         std::cerr << "Should be HEAT , MN or TV" << std::endl;
         exit(1);
@@ -61,6 +62,12 @@ int main(int argc, char **argv)
     if(Mn)
     {
         MN_inverse_matrice EstimatedSourcesData(Data,GainMatrix,SmoothWeight);
+        EstimatedSourcesData.saveTxt(argv[5]);
+    }
+
+    if(WMn)
+    {
+        WMN_inverse_matrice EstimatedSourcesData(Data,GainMatrix,SmoothWeight);
         EstimatedSourcesData.saveTxt(argv[5]);
     }
 

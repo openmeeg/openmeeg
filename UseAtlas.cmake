@@ -56,11 +56,17 @@ IF ( USE_MKL )
         MESSAGE("Can not find mkl.h")
     ENDIF ( MKL_INCLUDE_PATH )
 
-    IF ( UNIX )
+    IF ( LINUX )
         SET(MKL_LIB_SEARCHPATH # add here some paths to look for mkl libs
             ""
         )
-    ENDIF ( UNIX )
+    ENDIF ( LINUX )
+
+    IF ( APPLE )
+        SET(MKL_LIB_SEARCHPATH # add here some paths to look for mkl libs
+            /Library/Frameworks/Intel_MKL.framework/Libraries/universal
+        )
+    ENDIF ( APPLE )
 
     IF ( WIN32 )
         SET(MKL_LIB_SEARCHPATH

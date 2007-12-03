@@ -81,6 +81,10 @@ public:
     inline matrice multt(const matrice &m) const;
     inline matrice tmultt(const matrice &m) const;
 
+    inline vecteur mean() const;
+    inline vecteur tmean() const;
+    // inline matrice operator.*(const matrice&) const;
+
     inline matrice transpose () const;
     inline matrice inverse() const;
     inline matrice pinverse(double reltol=0) const;
@@ -112,6 +116,8 @@ public:
     inline void load( const char *filename );
     inline void loadTxt( const char *filename );
     inline void loadBin( const char *filename );
+    
+    inline void info();
 
     friend class symmatrice;
 };

@@ -24,7 +24,7 @@ void assemble_RHS(matrice &mat,const Geometry &geo,const Mesh& sources,const int
 
     // First block is nVertexFistLayer*nVertexSources
     operatorN(geo.getM(0),sources,mat,0,0,GaussOrder);
-    
+
     // Second block is nFacesFistLayer*nVertexSources
     operatorD(geo.getM(0),sources,mat,(int)nVertexFirstLayer,0,GaussOrder);
 
@@ -32,8 +32,8 @@ void assemble_RHS(matrice &mat,const Geometry &geo,const Mesh& sources,const int
 
     // First block*=(-1/sigma_inside)
     double s1i=geo.sigma_in(0);
-    mult2(mat,nVertexFirstLayer,0,nVertexFirstLayer+nFacesFirstLayer-1,nVertexSources-1,(-1.0/s1i)*K );
-    mult2(mat,0,0,nVertexFirstLayer-1,nVertexSources-1,K );
+    mult2(mat,nVertexFirstLayer,0,nVertexFirstLayer+nFacesFirstLayer-1,nVertexSources-1,(-1.0/s1i)*K);
+    mult2(mat,0,0,nVertexFirstLayer-1,nVertexSources-1,K);
 }
 
 RHS_matrice::RHS_matrice (const Geometry &geo, const Mesh& sources, const int GaussOrder) {

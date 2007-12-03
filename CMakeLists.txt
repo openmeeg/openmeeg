@@ -244,8 +244,12 @@ ENDIF ( BUILD_DOCUMENTATION )
 # Wrapping
 #-----------------------------------------------
 
-OPTION(MATLAB_WRAP "Enable MATLAB Wrapping" OFF)
 OPTION(PYTHON_WRAP "Enable TCL Wrapping" OFF)
+
+IF ( PYTHON_WRAP AND APPLE AND USE_ICC ) # Builtin Python2.5 on Mac OS X in 32 bits...
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m32")
+    SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -m32")
+ENDIF ( PYTHON_WRAP AND APPLE AND USE_ICC )
 
 SUBDIRS(Wrapping)
 

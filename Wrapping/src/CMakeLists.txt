@@ -28,8 +28,8 @@ IF(PYTHON_WRAP)
 
     IF ( APPLE )
         # Darwin ports python
-        SET(PYTHON_INCLUDE_PATH /opt/local/Library/Frameworks/Python.framework/Versions/2.4/include/python2.4)
-        SET(PYTHON_LIBRARIES /opt/local/Library/Frameworks/Python.framework/Versions/2.4/lib/libpython2.4.dylib)
+        SET(PYTHON_INCLUDE_PATH /opt/local/include/python2.5/)
+        SET(PYTHON_LIBRARIES /opt/local/lib/libpython2.5.dylib)
 
         # Buildin python
         SET(PYTHON_INCLUDE_PATH /usr/include/python2.5)

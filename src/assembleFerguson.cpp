@@ -17,6 +17,7 @@ void assemble_ferguson(const Geometry &geo,matrice &mat, const Vect3 *pts,const 
         int offsetI=0;
         for (int p=0;p<n;p++)
         {
+            progressbar(c*p,geo.nb()*n);
             operatorFerguson(pts[p],geo.getM(c),mat,offsetI,offsetJ);
             offsetI += 3;
         }

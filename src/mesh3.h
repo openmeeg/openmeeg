@@ -62,8 +62,10 @@ private:
     void save_bnd(const char*);
     void save_tri(const char*);
     void save_mesh(const char*);
-    
+
     void updateTriangleOrientations(bool checkOrientations = true);
+    void update_triangles();
+    void recompute_normals();
 
 public:
 
@@ -223,7 +225,7 @@ inline Vect3 P1Vector( const Vect3 &p0, const Vect3 &p1, const Vect3 &p2, const 
     Vect3 ret(0,0,0);
     Vect3 pim1pi = pts[i]-pts[i-1];
     Vect3 pim1pip1 = pts[i+1]-pts[i-1];
-    Vect3 pim1H = ( (1.0/pim1pip1.norme2()) * ( pim1pi*pim1pip1 ) ) *pim1pip1;
+    Vect3 pim1H = ( (1.0/pim1pip1.norme2()) * ( pim1pi*pim1pip1 ) ) * pim1pip1;
     Vect3 piH = pim1H-pim1pi;
     ret = -1.0/piH.norme2()*piH;
 

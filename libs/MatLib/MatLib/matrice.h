@@ -786,4 +786,73 @@ inline double matrice::det() const{
 #endif
 }
 
+inline vecteur matrice::mean() const {
+    vecteur v(ncol()); v.set(0);
+    for(size_t j = 0; j < ncol(); ++j) {
+        for(size_t i = 0; i < nlin(); ++i) {
+            v(j) += this->operator()(i,j);
+        }
+    }
+    for(size_t j = 0; j < ncol(); ++j) {
+        v(j) = v(j) / nlin();
+    }
+    return v;
+}
+
+inline vecteur matrice::tmean() const {
+    vecteur v(nlin()); v.set(0);
+    for(size_t j = 0; j < ncol(); ++j) {
+        for(size_t i = 0; i < nlin(); ++i) {
+            v(i) += this->operator()(i,j);
+        }
+    }
+    for(size_t i = 0; i < nlin(); ++i) {
+        v(i) = v(i) / ncol();
+    }
+    return v;
+}
+
+inline void matrice::info() {
+    if ((nlin() == 0) && (ncol() == 0)) {
+        std::cout << "Matrix Empty" << std::endl;
+        return;
+    }
+
+    std::cout << "Dimensions : " << nlin() << " x " << ncol() << std::endl;
+
+    double minv = this->operator()(0,0);
+    double maxv = this->operator()(0,0);
+    size_t mini = 0;
+    size_t maxi = 0;
+    size_t minj = 0;
+    size_t maxj = 0;
+
+    for(size_t i = 0; i < nlin(); ++i)
+    {
+        for(size_t j = 0; j < ncol(); ++j)
+        {
+            if (minv > this->operator()(i,j)) {
+                minv = this->operator()(i,j);
+                mini = i;
+                minj = j;
+            } else if (maxv < this->operator()(i,j)) {
+                maxv = this->operator()(i,j);
+                maxi = i;
+                maxj = j;
+            }
+        }
+    }
+    std::cout << "Min Value : " << minv << " (" << mini << "," << minj << ")" << std::endl;
+    std::cout << "Max Value : " << maxv << " (" << maxi << "," << maxj << ")" << std::endl;
+    std::cout << "First Values" << std::endl;
+    for(size_t i = 0; i < std::min(nlin(),(size_t) 5); ++i)
+    {
+        for(size_t j = 0; j < std::min(ncol(),(size_t) 5); ++j)
+        {
+            std::cout << this->operator()(i,j) << " " ;
+        }
+        std::cout << std::endl ;
+    }
+}
+
 #endif

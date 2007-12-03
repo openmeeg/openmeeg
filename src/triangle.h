@@ -31,7 +31,7 @@ public:
 
     inline ~Triangle() {}
 
-    inline int& som(int i) {
+    inline int som(int i) const {
         switch (i){
             case 1:
                 return m_s1;
@@ -46,11 +46,11 @@ public:
         }
     }
 
-    inline int& next(int i) {
+    inline int next(int i) const {
         return som(1+(i%3));
     }
 
-    inline int& prev(int i) {
+    inline int prev(int i) const {
         return som(1+((1+i)%3));
     }
 
@@ -100,15 +100,6 @@ public:
     }
 
     friend std::istream& operator>>(std::istream &is,Triangle &t);
-
-    inline void setNormal(const Vect3& v, bool normalize = false) {
-        n = v;
-        if (normalize) {
-            double norm = n.norme();
-            assert(norm > 0);
-            n = n/norm;
-        }
-    }
 };
 
 inline std::istream& operator>>(std::istream &is,Triangle &t)

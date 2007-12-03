@@ -127,7 +127,7 @@ public:
         return ( (v-v2)^(v-v3) ) ;
     }
 
-    inline void normalize() {*this=*this*(1/(*this).norme());}
+    inline Vect3& normalize() {*this=*this*(1/(*this).norme()); return *this;}
 
     friend std::ostream& operator<<(std::ostream &os,const Vect3 &v);
     friend std::istream& operator>>(std::istream &is,Vect3 &v);

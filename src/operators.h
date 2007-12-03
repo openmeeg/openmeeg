@@ -255,12 +255,12 @@ inline Vect3 _operatorFerguson(const Vect3 x,const int nP1,const Mesh &m1)
         const Triangle& T1=m1.getTrg(trgs1[q]);
 
         // A1 , B1 , A2, B2 are the two opposite vertices to P1 and P2 (triangles A1,B1,P1 and A2,B2,P2)
-        int nP1T=T1.contains(nP1);    //index of P1 in current triangle of mesh m1
+        int nP1T = T1.contains(nP1);    //index of P1 in current triangle of mesh m1
 
-        Vect3 A1=m1.getPt(((Triangle)T1).next(nP1T));
-        Vect3 B1=m1.getPt(((Triangle)T1).prev(nP1T));
-        Vect3 A1B1=B1-A1;    // actually, B1A1 is needed
-        v=A1B1*(-0.5/T1.getArea());
+        Vect3 A1 = m1.getPt(T1.next(nP1T));
+        Vect3 B1 = m1.getPt(T1.prev(nP1T));
+        Vect3 A1B1 = B1-A1;    // actually, B1A1 is needed
+        v = A1B1*(-0.5/T1.getArea());
 
         analyS.init(P1,A1,B1);
         opS=analyS.f(x);

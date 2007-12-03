@@ -11,7 +11,7 @@ template<class T> void print_infos(const T& M);
 
 int main( int argc, char **argv)
 {
-    command_usage("Compare two matrices of float with a certain numerical precision\ncompare_matrix mat1 mat2 [options]");
+    command_usage("Provides informations on a matrix generated with OpenMEEG");
     const char *filename = command_option("-i",(const char *) NULL,"Matrix file");
     const char *txt = command_option("-txt",(const char *) 0,"Force reading data stored in ascii format");
     const char *sym = command_option("-sym",(const char *) 0,"Data are symmetric matrices");
