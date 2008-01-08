@@ -35,7 +35,7 @@
  *        <li>- the 2nd, 3rd and 4th are respectively positions coordinates x, y, z of sensor  </li>
  *        </ul>
  *  </li>
- *    <li> 1 line per 1 sensor and 4 columns (EEG sensors or MEG sensors without orientation) :
+ *    <li> 1 line per 1 sensor and 3 columns (EEG sensors or MEG sensors without orientation) :
  *        <ul TYPE="circle">
  *        <li>- the 1st, 2nd and 3rd are respectively positions coordinates x, y, z of sensor  </li>
  *        </ul>

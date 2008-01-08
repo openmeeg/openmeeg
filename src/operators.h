@@ -177,24 +177,22 @@ inline double _operatorS(const int nT1,const int nT2,const int GaussOrder,const 
 
 inline double _operatorN(const int nP1,const int nP2,const int GaussOrder,const Mesh &m1,const Mesh &m2,const int IopS,const int JopS,const genericMatrix &mat)
 {
-    int trgs1[128],trgs2[128];
     const Vect3 P1=m1.getPt(nP1);
     const Vect3 P2=m2.getPt(nP2);
-
-    int nik=m1.elem(nP1,trgs1);    //number of triangles of which P1 is a vertex
-    int njl=m2.elem(nP2,trgs2);    //number of triangles of which P2 is a vertex
 
     double Iqr,Aqr;
     double result=0.0;
 
-    for(int q=0;q<nik;q++)        //loop over triangles of which P1 is a vertex
-        for(int r=0;r<njl;r++)    //loop over triangles of which P2 is a vertex
+    const intSet& trgs1 = m1.getTrianglesForPoint(nP1);
+    const intSet& trgs2 = m1.getTrianglesForPoint(nP2);
+    for(intSet::iterator it1 = trgs1.begin(); it1 != trgs1.end(); ++it1)
+        for(intSet::iterator it2 = trgs2.begin(); it2 != trgs2.end(); ++it2)
         {
-            const Triangle& T1=m1.getTrg(trgs1[q]);
-            const Triangle& T2=m2.getTrg(trgs2[r]);
+            const Triangle& T1=m1.getTrg(*it1);
+            const Triangle& T2=m2.getTrg(*it2);
 
             // A1 , B1 , A2, B2 are the two opposite vertices to P1 and P2 (triangles A1,B1,P1 and A2,B2,P2)
-            if(IopS!=0 || JopS!=0) Iqr=mat(IopS+trgs1[q],JopS+trgs2[r]); else Iqr=_operatorS(trgs1[q],trgs2[r],GaussOrder,m1,m2);
+            if(IopS!=0 || JopS!=0) Iqr=mat(IopS + *it1,JopS + *it2); else Iqr=_operatorS(*it1,*it2,GaussOrder,m1,m2);
             int nP1T=T1.contains(nP1);    //index of P1 in current triangle of mesh m1
             int nP2T=T2.contains(nP2);    //index of P2 in current triangle of mesh m2
 #ifndef OPTIMIZED_OPERATOR_N
@@ -230,10 +228,8 @@ inline double _operatorN(const int nP1,const int nP2,const int GaussOrder,const 
 //calcultates the S at point x integrated over all the triangles having nP1 as a vertice.
 inline Vect3 _operatorFerguson(const Vect3 x,const int nP1,const Mesh &m1)
 {
-    int trgs1[128];
+    // int trgs1[128];
     const Vect3 P1=m1.getPt(nP1);
-
-    int nik=m1.elem(nP1,trgs1);    //number of triangles of which P1 is a vertex
 
     double opS;
     Vect3  v;
@@ -250,9 +246,11 @@ inline Vect3 _operatorFerguson(const Vect3 x,const int nP1,const Mesh &m1)
     result.y()=0;
     result.z()=0;
 
-    for(int q=0;q<nik;q++)        //loop over triangles of which P1 is a vertex
+    //loop over triangles of which P1 is a vertex
+    const intSet& trgs1 = m1.getTrianglesForPoint(nP1);
+    for(intSet::iterator it = trgs1.begin(); it != trgs1.end(); ++it)
     {
-        const Triangle& T1=m1.getTrg(trgs1[q]);
+        const Triangle& T1=m1.getTrg(*it);
 
         // A1 , B1 , A2, B2 are the two opposite vertices to P1 and P2 (triangles A1,B1,P1 and A2,B2,P2)
         int nP1T = T1.contains(nP1);    //index of P1 in current triangle of mesh m1

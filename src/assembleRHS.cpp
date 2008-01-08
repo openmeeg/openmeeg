@@ -20,7 +20,7 @@ void assemble_RHS(matrice &mat,const Geometry &geo,const Mesh& sources,const int
     unsigned nVertexSources=sources.nbPts();
     unsigned nVertexFirstLayer=geo.getM(0).nbPts();
     unsigned nFacesFirstLayer=geo.getM(0).nbTrgs();
-    cout << endl << "assemble RHS with " << nVertexFirstLayer << " vertices (Sources)" << endl << endl;
+    cout << endl << "assemble RHS with " << nVertexSources << " sources" << endl << endl;
 
     // First block is nVertexFistLayer*nVertexSources
     operatorN(geo.getM(0),sources,mat,0,0,GaussOrder);

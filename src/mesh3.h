@@ -117,27 +117,6 @@ public:
        */
     void save(const char* filename);
 
-    /** \brief elem
-
-            Find the triangles that use the point i
-            and store the indices of these points in T
-
-        \param i point ID
-        \param T indices of the triangles that use the point i
-        \return the number of triangles that use point i
-        \sa
-    **/
-    inline int elem(int i, int* T ) const {
-        int c=0;
-        for(int k=0; k<ntrgs; k++){
-            if( (i==trgs[k].s1()) || (i==trgs[k].s2()) || (i==trgs[k].s3())){
-                T[c] = k;
-                c = c+1;
-            }
-        }
-        return c;
-    }
-
     /** \brief Get file format based on file extension
 
             A list of supported file formats is in variable "Filetype"

@@ -73,25 +73,47 @@ inline vecteur gentv( vecteur x,
                       const vecteur &Ai, double *tv=NULL,
                       double (*f) (const double &)=0,
                       double (*fp) (const double&)=0 )
-{// first order
-    // hess is suppposed to be the same size than mat
-    vecteur v= mat* x;
-    vecteur mynorms( v.size()/3);
-    vecteur mynorms_inv( v.size()/3);
-    for(size_t i=0;i<mynorms.size();i++)
+{
+    vecteur v = mat * x;
+    vecteur grad_norms( v.size()/3 );
+    vecteur grad_norms_inv( v.size()/3 );
+    for(size_t i=0;i<grad_norms.size();i++)
     {
         double *pt=&v(3*i);
-        mynorms(i)=sqrt(pt[0]*pt[0]+pt[1]*pt[1]+pt[2]*pt[2]);
-        mynorms_inv(i)=mynorms(i)!=0?1.0/(mynorms(i)+EPSILON):0;
-        double normaliz=mynorms_inv(i)*Ai(i);
-        if(fp!=0) normaliz*=fp(mynorms(i));
+        grad_norms(i)=sqrt(pt[0]*pt[0]+pt[1]*pt[1]+pt[2]*pt[2]);
+        grad_norms_inv(i)=grad_norms(i)!=0?1.0/(grad_norms(i)+EPSILON):0;
+        double normaliz=grad_norms_inv(i)*Ai(i);
+        if (fp!=0) normaliz*=fp(grad_norms(i));
         pt[0]*=normaliz; pt[1]*=normaliz; pt[2]*=normaliz;
     }
 
-    if(tv!=NULL && f!=0) {*tv=0; for(size_t i=0;i<mynorms.size();i++) *tv+=f(mynorms(i))*Ai(i);}
-    if(tv!=NULL && f==0) {*tv=0; for(size_t i=0;i<mynorms.size();i++) *tv+=mynorms(i)*Ai(i);}
+    if (tv!=NULL && f!=0) {*tv=0; for(size_t i=0;i<grad_norms.size();i++) *tv+=f(grad_norms(i))*Ai(i);}
+    if (tv!=NULL && f==0) {*tv=0; for(size_t i=0;i<grad_norms.size();i++) *tv+=grad_norms(i)*Ai(i);}
 
     return mat_t*v;
+}
+
+inline double compute_tv(vecteur x,
+                          const fast_sparse_matrice &mat,
+                          const fast_sparse_matrice &mat_t,
+                          const vecteur &Ai,
+                          double (*f) (const double &)=0,
+                          double (*fp) (const double&)=0)
+{
+    double tv = 0;
+    vecteur v = mat * x;
+    vecteur grad_norms( v.size()/3 );
+    for(size_t i=0;i<grad_norms.size();i++)
+    {
+        double *pt=&v(3*i);
+        grad_norms(i)=sqrt(pt[0]*pt[0]+pt[1]*pt[1]+pt[2]*pt[2]);
+        if (f!=0) {
+            tv += f(grad_norms(i))*Ai(i);
+        } else {
+            tv += grad_norms(i)*Ai(i);
+        }
+    }
+    return tv;
 }
 
 // ========================================================
@@ -215,8 +237,6 @@ void LIN_inverse (matrice& EstimatedData, const LinOp& hess, const matrice& Gain
     for(int frame=0;frame<nT;frame++)// loop over frame
     {
         vecteur m = Data.getcol(frame);
-
-        //==========  initialization of source vector =======================//
         vecteur v(GainMatrix.ncol()); v.set(0.0);
 
         //==========  Invert =======================//
@@ -225,14 +245,14 @@ void LIN_inverse (matrice& EstimatedData, const LinOp& hess, const matrice& Gain
         for(size_t i=0;i<EstimatedData.nlin();i++) EstimatedData(i,frame) = v(i);
 
         #pragma omp critical
-        std::cout << ">> Frame " << frame+1 << " / " << nT 
-                  << " : Rel. Err. = " << (GainMatrix*v-m).norm()/m.norm() 
+        std::cout << ">> Frame " << frame+1 << " / " << nT
+                  << " : Rel. Err. = " << (GainMatrix*v-m).norm()/m.norm()
                   << " : Nb. iter. MinRes = " << niter
                   << std::endl;
     }
 }
 
-//==========  Mininum norm inversion =======================//
+// ================= Mininum norm inversion =======================//
 
 class MN_inverse_matrice : public virtual matrice
 {
@@ -247,7 +267,7 @@ MN_inverse_matrice::MN_inverse_matrice (const matrice& Data, const matrice& Gain
     LIN_inverse(*this,hess,GainMatrix,Data);
 }
 
-//==========  Weighted Mininum norm inversion =======================//
+// ================= Weighted Mininum norm inversion =======================//
 
 class WMN_inverse_matrice : public virtual matrice
 {
@@ -262,7 +282,7 @@ WMN_inverse_matrice::WMN_inverse_matrice (const matrice& Data, const matrice& Ga
     LIN_inverse(*this,hess,GainMatrix,Data);
 }
 
-//==========  Gradient based Mininum norm inversion =======================//
+// ================= Gradient based Mininum norm inversion ================ //
 
 class HEAT_inverse_matrice : public virtual matrice
 {
@@ -279,7 +299,7 @@ HEAT_inverse_matrice::HEAT_inverse_matrice (const matrice& Data, const matrice& 
     LIN_inverse(*this,hess,GainMatrix,Data);
 }
 
-//==========  Total variation based inversion =======================//
+// ================= Total variation based inversion =================== //
 
 void TV_inverse(matrice& EstimatedData, const matrice& Data, const matrice& GainMatrix, const sparse_matrice& SmoothMatrix, const vecteur& AiVector, double SmoothWeight, size_t MaxNbIter, double StoppingTol)
 {
@@ -300,36 +320,61 @@ void TV_inverse(matrice& EstimatedData, const matrice& Data, const matrice& Gain
 
         // ====================  initialization of source vector ===================== //
         if(frame==0) v.set(0.0);
-        else for(size_t i=0;i<v.size();i++) v(i) = EstimatedData(i,frame-1);
+        else v = EstimatedData.getcol(frame-1);
 
-        bool errorTest=true;
-        double dtv=0.0;
+        double tv_v = compute_tv(v,fastSmoothMatrix,fastSmoothMatrix_t,AiVector);
 
-        // ==========================  the inverse problem ========================== //
+        bool errorTest = true;
+
+        // ========  Backtracking line search parameters for gradient step  ========= //
+        double grad_step = 1;
+        double alpha = 0.001;
+        double beta = 0.5;
+        int max_iter_line_search = 50;
+
+        // ================== Inverse problem via gradient descent ================== //
         int t;
         for(t=0;t<MaxNbIter && errorTest;t++)
         {
-            vecteur gradtv = gentv(v,fastSmoothMatrix,fastSmoothMatrix_t,AiVector,&dtv);
-            vecteur current_mes = GainMatrix*v;
-            vecteur err_vec = current_mes-m;
+            vecteur gradtv = gentv(v,fastSmoothMatrix,fastSmoothMatrix_t,AiVector);
+            vecteur err_vec = GainMatrix*v-m;
             vecteur graddata = GainMatrix.tmult(err_vec);
-            vecteur Ggraddata = GainMatrix*graddata;
-
-            double denom_data = Ggraddata*Ggraddata;
-            double opt_step_data = -(Ggraddata*err_vec)/denom_data;
             vecteur grad = (-SmoothWeight)*gradtv - graddata;
-            v = v+grad;
-            double tol = sqrt((grad*grad)/(v*v));
-            errorTest = tol>StoppingTol;
-            if ((t%100)==0)
-                printf("TV= %f   Relative Error= %f   opt_step_data= %f   Tol= %f   Iter %d\n",dtv,(err_vec).norm()/m.norm(),opt_step_data,tol,t);
+            double f_v = pow(err_vec.norm(),2) + SmoothWeight*tv_v;
+
+            // ======= Backtracking line search for gradient step ======= //
+            double search_slope = alpha*grad.norm();
+            double f_v_dv;
+            double tv_v_dv;
+            vecteur v_dv;
+
+            int iter_line_search = 0;
+            bool stop_line_search = false;
+            while ( stop_line_search != true && (++iter_line_search < max_iter_line_search) ) {
+                v_dv = v+grad_step*grad;
+                double f_v_dv_data = pow((m-GainMatrix*(v_dv)).norm(),2);
+                tv_v_dv = compute_tv(v_dv,fastSmoothMatrix,fastSmoothMatrix_t,AiVector);
+                f_v_dv = f_v_dv_data + SmoothWeight*tv_v_dv;
+                if ( grad_step*search_slope < (f_v - f_v_dv)) {
+                    stop_line_search = true;
+                } else {
+                    grad_step = beta*grad_step;
+                }
+            }
+
+            double tol = (v_dv-v).norm()/v.norm();
+
+            v = v_dv;
+            tv_v = tv_v_dv;
+
+            errorTest = tol>StoppingTol && iter_line_search<max_iter_line_search;
+
+            if ((t%100)==0 || !errorTest)
+                printf("Energy %e   Relative Error %f   TV %f   Tol %e   GradStep %f Iter %d\n",
+                       f_v,(err_vec).norm()/m.norm(),tv_v,tol,grad_step,t);
         }
         //===========================================================================//
-        for(size_t i=0;i<EstimatedData.nlin();i++) EstimatedData(i,frame)=v(i);
-
-        std::cout << ">> Frame " << frame+1 << " / " << nT  << " : Relative Error = " << (GainMatrix*v-m).norm()/m.norm() << std::endl;
-        cout << "\tNumber of iterations = " << t << endl;
-        cout << "\tTotal Variation = " << dtv << endl;
+        EstimatedData.setcol(frame,v);
     }
 }
 

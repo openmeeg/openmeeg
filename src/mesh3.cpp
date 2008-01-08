@@ -779,7 +779,7 @@ void Mesh::smooth(double smoothing_intensity,size_t niter) {
  * Surface Gradient
 **/
 sparse_matrice Mesh::gradient() const {
-    sparse_matrice A(3*ntrgs,npts); // edges x points
+    sparse_matrice A(3*ntrgs,npts); // nb edges x points
     // loop on triangles
     for (int t=0;t<ntrgs;t++) {
         const Triangle& trg = getTrg(t);

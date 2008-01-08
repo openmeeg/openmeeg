@@ -59,6 +59,7 @@ inline void disp_argv(int argc, char **argv) {
 }
 
 inline void progressbar(int n, int N, int w = 20) {
+#ifdef USE_PROGRESSBAR
     // w : nb of steps
     const char* cprog = ".";
     const char* cprog1 = "*";
@@ -92,6 +93,7 @@ inline void progressbar(int n, int N, int w = 20) {
         printf("\n");
     }
     std::cout.flush();
+#endif
 }
 
 #endif /* _OM_UTILS_H_ */

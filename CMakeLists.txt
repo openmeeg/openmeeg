@@ -254,6 +254,18 @@ ENDIF ( PYTHON_WRAP AND APPLE AND USE_ICC )
 SUBDIRS(Wrapping)
 
 #-----------------------------------------------
+# Progress bar
+#-----------------------------------------------
+
+OPTION(USE_PROGRESSBAR "Show ascii progress bar when assembling matrices" OFF)
+
+IF ( USE_PROGRESSBAR )
+    ADD_DEFINITIONS(-DUSE_PROGRESSBAR)
+ENDIF ( USE_PROGRESSBAR )
+
+SUBDIRS(Wrapping)
+
+#-----------------------------------------------
 # packaging
 #-----------------------------------------------
 
