@@ -812,7 +812,7 @@ inline vecteur matrice::tmean() const {
     return v;
 }
 
-inline void matrice::info() {
+inline void matrice::info() const {
     if ((nlin() == 0) && (ncol() == 0)) {
         std::cout << "Matrix Empty" << std::endl;
         return;

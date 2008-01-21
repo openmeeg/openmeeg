@@ -180,9 +180,9 @@ void assemble_sToMEGdip( matrice &mat, const matrice& dipoles, const Sensors &se
         for(int j=3;j<6;j++) q(j-3)=dipoles(i,j);
         Rs.push_back(r); Qs.push_back(q);
     }
-  //Rs and Qs respectively contains positions and orientations of the dipoles.
+    //Rs and Qs respectively contains positions and orientations of the dipoles.
 
-  //this matrix will contain the field generated at the location of the i-th squid by the j-th source
+    //this matrix will contain the field generated at the location of the i-th squid by the j-th source
     matrice SignalMatrix(3*mat.nlin(),mat.ncol());
     SignalMatrix.set(0.0);
     const int nsquids=(int)positions.nlin();
@@ -195,14 +195,14 @@ void assemble_sToMEGdip( matrice &mat, const matrice& dipoles, const Sensors &se
         positionsVectArray[i](2)=positions(i,2);
     }
 
-  // the following routine is the equivalent of operatorFerguson for pointlike dipoles.
+    // the following routine is the equivalent of operatorFerguson for pointlike dipoles.
     for(size_t i=0;i<mat.nlin();i++)
     {
         for(unsigned int j=0;j<0+mat.ncol();j++)
         {
             Vect3 diff=positionsVectArray[i]-Rs[j];
             double norm_diff=diff.norme();
-            Vect3 v=diff/(norm_diff*norm_diff*norm_diff)^Qs[j];
+            Vect3 v = Qs[j] ^ diff/(norm_diff*norm_diff*norm_diff);
 
             SignalMatrix(3*i+0,j) = v.x();
             SignalMatrix(3*i+1,j) = v.y();

@@ -116,8 +116,8 @@ public:
     inline void load( const char *filename );
     inline void loadTxt( const char *filename );
     inline void loadBin( const char *filename );
-    
-    inline void info();
+
+    inline void info() const;
 
     friend class symmatrice;
 };

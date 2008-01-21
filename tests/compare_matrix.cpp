@@ -135,18 +135,23 @@ template<class T>
 bool compare_rdm(const T& mat1, const T& mat2, float eps, int col){
 // T is a matrice
 
-    if ((mat1.ncol() != mat2.ncol()) || (mat1.nlin() != mat2.nlin())) {
-        cerr << "ERROR : Dimension mismatch !" << endl;
-        exit(1);
+    if(col < 0) {
+        if ((mat1.ncol() != mat2.ncol()) || (mat1.nlin() != mat2.nlin())) {
+            cerr << "ERROR : Dimension mismatch !" << endl;
+            exit(1);
+        }
+    } else {
+        if ((mat1.ncol() <= col) || (mat2.ncol() <= col)) {
+            cerr << "ERROR : Bad Column Id for matrices dimensions !" << endl;
+            exit(1);
+        }
     }
 
     bool flag = true;
     double diff;
     unsigned int j = 0;
     unsigned int jmax = mat1.ncol();
-    if(col >= 0)
-    {
-        assert(j < mat1.ncol());
+    if(col >= 0) {
         j = col;
         jmax = col;
     }

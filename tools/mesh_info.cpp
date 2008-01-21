@@ -11,7 +11,6 @@ int main( int argc, char **argv)
 
     Mesh* M = new Mesh();
     M->load(input_filename,false);
-    M->save("toto.tri");
 
     delete M;
     return 0;

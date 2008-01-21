@@ -111,3 +111,17 @@ FOREACH ( DIP 1 2 3 4 5 )
     ENDIF ( TEST_HEAD3 )
 
 ENDFOREACH ( DIP 1 2 3 4 5 )
+
+FOREACH ( DIP 1 2 3 4 5 6 )
+
+    SET(EPSILON 0.15)
+
+    # Compare MEG result with analytical solution obtained with Matlab
+    ADD_TEST(compareMEGEST-point-Head1-d${DIP} ${CMAKE_CURRENT_BINARY_DIR}/compare_matrix
+                             ${OpenMEEG_BINARY_DIR}/tests/Head1-point.est_meg
+                             ${OpenMEEG_SOURCE_DIR}/tests/analytic/meg_head1_analytic.txt
+                             -rdm -eps ${EPSILON} -col ${DIP})
+
+ENDFOREACH ( DIP 1 2 3 4 5 6 )
+
+
