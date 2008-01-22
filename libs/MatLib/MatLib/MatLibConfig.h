@@ -4,6 +4,10 @@
 //  cmake configuration.
 #include <OpenMEEGConfigure.h>
 
+#ifdef USE_MATIO
+#include "matio.h"
+#endif
+
 #ifdef __APPLE__
 #define F77_FUNC(name,NAME) name
 #define F77_FUNC_(name,NAME) name ## _

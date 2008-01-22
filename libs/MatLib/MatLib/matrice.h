@@ -617,6 +617,24 @@ inline void matrice::saveSubTxt( const char *filename, size_t i_start, size_t i_
 
 }
 
+inline void matrice::loadMat( const char *filename )
+{
+#ifdef USE_MATIO
+// FIXME : implement loadMat
+#else
+    std::cerr << "You have to compile OpenMEEG with MATIO to load matlab files" << std::endl;
+#endif
+}
+
+inline void matrice::saveMat( const char *filename ) const
+{
+#ifdef USE_MATIO
+// FIXME : implement loadMat
+#else
+    std::cerr << "You have to compile OpenMEEG with MATIO to save matlab files" << std::endl;
+#endif
+}
+
 inline matrice matrice::operator()(size_t i_start, size_t i_end, size_t j_start, size_t j_end) const
 {
     matrice retMat(i_end-i_start+1,j_end-j_start+1);
@@ -634,6 +652,7 @@ inline void matrice::load( const char *filename ) {
     getNameExtension(filename,extension);
     if(!strcmp(extension,"bin") || !strcmp(extension,"BIN")) loadBin(filename);
     else if(!strcmp(extension,"txt") || !strcmp(extension,"TXT")) loadTxt(filename);
+    else if(!strcmp(extension,"mat") || !strcmp(extension,"MAT")) loadMat(filename);
     else {
         std::cout << "Warning : Unknown file extension " << std::endl;
         std::cout << "Assuming ASCII format " << std::endl;

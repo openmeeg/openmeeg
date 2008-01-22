@@ -12,3 +12,5 @@
 #cmakedefine USE_ATLAS
 
 #cmakedefine USE_MKL
+
+#cmakedefine USE_MATIO

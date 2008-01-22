@@ -96,6 +96,39 @@ IF (USE_VTK)
 
 ENDIF (USE_VTK)
 
+#------------------------------------------------------------
+# MATIO library
+#------------------------------------------------------------
+
+OPTION(USE_MATIO "Build the project using MATIO" OFF)
+
+IF (USE_MATIO)
+
+    SET(MATIO_SEARCHPATH
+        /usr/lib/
+        /usr/local/lib/atlas
+        $ENV{HOME}/local/lib
+    )
+
+    FIND_LIBRARY(MATIO_LIB
+                        NAMES matio
+                        PATHS ${MATIO_SEARCHPATH}
+    )
+
+    SET(OPENMEEG_OTHER_LIBRARIES
+        ${OPENMEEG_OTHER_LIBRARIES}
+        ${MATIO_LIB}
+    )
+
+    FIND_PATH(MATIO_INCLUDE_PATH matio.h
+                /usr/include/
+                /usr/local/include/
+                $ENV{HOME}/local/include/
+    )
+    INCLUDE_DIRECTORIES(${MATIO_INCLUDE_PATH})
+
+ENDIF (USE_MATIO)
+
 
 #######################################################################
 # OpenMEEG
