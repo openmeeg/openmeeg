@@ -8,6 +8,10 @@
 
 #include "generic_matrix.h"
 
+#ifdef USE_MATIO
+#include <matio.h>
+#endif
+
 class symmatrice;
 class vecteur;
 
@@ -118,7 +122,7 @@ public:
     inline void load( const char *filename );
     inline void loadTxt( const char *filename );
     inline void loadBin( const char *filename );
-    inline void loadMat( const char *filename );
+    inline void loadMat( const char *filename ) throw(std::string);
 
     inline void info() const;
 

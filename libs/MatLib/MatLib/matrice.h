@@ -617,10 +617,23 @@ inline void matrice::saveSubTxt( const char *filename, size_t i_start, size_t i_
 
 }
 
-inline void matrice::loadMat( const char *filename )
+inline void matrice::loadMat(const char *filename) throw(std::string)
 {
 #ifdef USE_MATIO
-// FIXME : implement loadMat
+    mat_t* mat = Mat_Open(filename,MAT_ACC_RDONLY);
+    if (mat) {
+        matvar_t* matvar = Mat_VarReadNext(mat);
+        while (matvar!=NULL && (matvar->rank!=2 && matvar->data_type!=MAT_T_DOUBLE))
+            matvar = Mat_VarReadNext(mat);
+        if (matvar==NULL)
+            throw std::string("There is no 2D double matrix in file ")+filename;
+        m = matvar->dims[0];
+        n = matvar->dims[1];
+        t = static_cast<double*>(matvar->data);
+        matvar->mem_conserve = 1;
+        Mat_VarFree(matvar);
+        Mat_Close(mat);
+    }
 #else
     std::cerr << "You have to compile OpenMEEG with MATIO to load matlab files" << std::endl;
 #endif
@@ -629,7 +642,16 @@ inline void matrice::loadMat( const char *filename )
 inline void matrice::saveMat( const char *filename ) const
 {
 #ifdef USE_MATIO
-// FIXME : implement loadMat
+    mat_t* mat = Mat_Open(filename,MAT_ACC_RDWR);
+    if (mat) {
+        matvar_t* matvar;
+        int dims[2] = { m, n };
+        matvar = Mat_VarCreate("",MAT_C_DOUBLE,MAT_T_DOUBLE,2,dims,t,0);
+        Mat_VarWrite(mat,matvar,COMPRESSION_ZLIB);
+        Mat_VarFree(matvar);
+        Mat_Close(mat);
+    }
+
 #else
     std::cerr << "You have to compile OpenMEEG with MATIO to save matlab files" << std::endl;
 #endif

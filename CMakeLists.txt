@@ -25,6 +25,8 @@ SET(CPACK_PACKAGE_VERSION_PATCH ${PACKAGE_VERSION_PATCH})
 
 PROJECT(OpenMEEG)
 
+SET(CMAKE_SKIP_RPATH ON)
+
 #######################################################################
 # Setting compilation options
 #######################################################################
@@ -69,7 +71,6 @@ ENDIF ( USE_GCC )
 OPTION(USE_VTK "Build the project using VTK" OFF)
 
 IF (USE_VTK)
-
     FIND_PACKAGE(VTK)
     IF (VTK_FOUND)
         SET(USE_VTK 1)
@@ -104,26 +105,33 @@ OPTION(USE_MATIO "Build the project using MATIO" OFF)
 
 IF (USE_MATIO)
 
-    SET(MATIO_SEARCHPATH
+    SET(SEARCHPATH
         /usr/lib/
+        /usr/lib64/
         /usr/local/lib/atlas
         $ENV{HOME}/local/lib
     )
 
     FIND_LIBRARY(MATIO_LIB
-                        NAMES matio
-                        PATHS ${MATIO_SEARCHPATH}
+                 NAMES matio
+                 PATHS ${SEARCHPATH}
+    )
+
+    FIND_LIBRARY(ZLIB_LIB
+                 NAMES z
+                 PATHS ${SEARCHPATH}
     )
 
     SET(OPENMEEG_OTHER_LIBRARIES
         ${OPENMEEG_OTHER_LIBRARIES}
         ${MATIO_LIB}
+        ${ZLIB_LIB}
     )
 
     FIND_PATH(MATIO_INCLUDE_PATH matio.h
-                /usr/include/
-                /usr/local/include/
-                $ENV{HOME}/local/include/
+              /usr/include/
+              /usr/local/include/
+              $ENV{HOME}/local/include/
     )
     INCLUDE_DIRECTORIES(${MATIO_INCLUDE_PATH})
 

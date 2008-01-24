@@ -50,6 +50,7 @@ int main ()
             M(i,j)=pow(2.0,(double)i)+pow(2.0,(double)j);
     
     M.saveBin("tmp.bin");
+    M.saveMat("tmp.mat");
 
     matrice Q=M(1,2,0,2);
     genericTest(Q);
@@ -59,6 +60,8 @@ int main ()
     cout<<"Q= "<<endl<<Q<<endl;
     cout<<"M= "<<endl<<M<<endl;
     M.loadBin("tmp.bin");
+    cout<<"M= "<<endl<<M<<endl;
+    M.loadMat("tmp.mat");
     cout<<"M= "<<endl<<M<<endl;
 
     ofstream ofs("tmp.test",ios::binary);
