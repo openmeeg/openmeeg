@@ -646,12 +646,11 @@ inline void matrice::saveMat( const char *filename ) const
     if (mat) {
         matvar_t* matvar;
         int dims[2] = { m, n };
-        matvar = Mat_VarCreate("",MAT_C_DOUBLE,MAT_T_DOUBLE,2,dims,t,0);
+        matvar = Mat_VarCreate("matrix",MAT_C_DOUBLE,MAT_T_DOUBLE,2,dims,t,0);
         Mat_VarWrite(mat,matvar,COMPRESSION_ZLIB);
         Mat_VarFree(matvar);
         Mat_Close(mat);
     }
-
 #else
     std::cerr << "You have to compile OpenMEEG with MATIO to save matlab files" << std::endl;
 #endif
@@ -679,6 +678,19 @@ inline void matrice::load( const char *filename ) {
         std::cout << "Warning : Unknown file extension " << std::endl;
         std::cout << "Assuming ASCII format " << std::endl;
         loadTxt(filename);
+    }
+}
+
+inline void matrice::save( const char *filename ) const {
+    char extension[128];
+    getNameExtension(filename,extension);
+    if(!strcmp(extension,"bin") || !strcmp(extension,"BIN")) saveBin(filename);
+    else if(!strcmp(extension,"txt") || !strcmp(extension,"TXT")) saveTxt(filename);
+    else if(!strcmp(extension,"mat") || !strcmp(extension,"MAT")) saveMat(filename);
+    else {
+        std::cout << "Warning : Unknown file extension " << std::endl;
+        std::cout << "Assuming ASCII format " << std::endl;
+        saveTxt(filename);
     }
 }
 

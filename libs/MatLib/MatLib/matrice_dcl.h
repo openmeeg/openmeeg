@@ -113,6 +113,7 @@ public:
         f.read((char*)t,(std::streamsize)(n*m*sizeof(double)));
     }
 
+    inline void save( const char *filename ) const;
     inline void saveTxt( const char *filename ) const;
     inline void saveSubTxt( const char *filename , size_t i_start, size_t i_end, size_t j_start, size_t j_end) const;
     inline void saveBin( const char *filename ) const;
