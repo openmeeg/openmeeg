@@ -425,6 +425,9 @@ void Mesh::load_bnd(std::istream &f, bool checkClosedSurface) {
     make_links();
     update_triangles();
     updateTriangleOrientations(checkClosedSurface);
+
+    normals = new Vect3[npts];
+    recompute_normals(); // Compute normals since bnd files don't have any !
 }
 
 void Mesh::load_bnd(const char* filename, bool checkClosedSurface) {
