@@ -358,3 +358,16 @@ void operatorDipolePotGrad(const Vect3 &r0,const Vect3 &q,const Mesh &inner_laye
         rhs[5](i) += v(1).z();
     }
 }
+
+void operatorP1P0(const Geometry &geo,const int I,symmatrice &mat,const int offsetI,const int offsetJ)
+{
+// This time mat(i,j)+= ... the matrix is incremented by the P1P0 operator
+	std::cout<<"OPERATEUR P1P0..."<<std::endl;
+	const Mesh &m=geo.getM(I);
+	for(int i=offsetI;i<offsetI+m.nbTrgs();i++)
+		for(int j=offsetJ;j<offsetJ+m.nbPts();j++)
+		{
+	   	mat(i,j)=-mat(i,j)+_operateurP1P0(i-offsetI,j-offsetJ,m)/2;
+		}
+}
+

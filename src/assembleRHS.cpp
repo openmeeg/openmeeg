@@ -143,3 +143,62 @@ void assemble_RHSdip_grad(matrice &rhs,const Geometry &geo,vector<Vect3> Rs,vect
 RHSdip_grad_matrice::RHSdip_grad_matrice (const Geometry &geo, vector<Vect3> Rs, vector<Vect3> Qs, const int GaussOrder) {
     assemble_RHSdip_grad(*this,geo,Rs,Qs,GaussOrder);
 }
+
+void assemble_EITsource(const Geometry &geo, matrice &mat, matrice &airescalp, const int GaussOrder)
+{
+// Une matrice qu'il suffira de multiplier par la valeur du courant
+// injecte sur le scalp (modulo les constantes multiplicatives)
+//  pour obtenir le second membre du pb direct de l'EIT
+// 
+    int newtaille = mat.nlin();
+    int sourcetaille = mat.ncol();
+// transmat = une grande matrice dont mat = une partie de la transposee
+    symmatrice transmat(newtaille+sourcetaille);
+// airemat = une matrice qui va servir a stocker l'aire des triangles du 
+// scalp, pour l'injection du courant
+    symmatrice transairescalp(newtaille+sourcetaille);
+    int c;
+    int offset=0;
+    int offset0;
+    int offset1;
+    int offset2;
+    int offset3;
+    int offset4;
+    double K=1.0/(4*M_PI);
+
+   for(c=0;c<geo.nb()-1;c++)
+        {
+            offset0=offset;
+            offset1=offset+geo.getM(c).nbPts();
+            offset2=offset+geo.getM(c).nbPts()+geo.getM(c).nbTrgs();
+            offset3=offset+geo.getM(c).nbPts()+geo.getM(c).nbTrgs()+geo.getM(c+1).nbPts();
+	    offset4=offset+geo.getM(c).nbPts()+geo.getM(c).nbTrgs()+geo.getM(c+1).nbPts()+geo.getM(c+1).nbTrgs();
+            offset=offset2;
+        }
+    c=geo.nb()-2;
+
+// calcul de S 
+    operatorS(geo,c,c-1,GaussOrder,transmat,offset3,offset1);
+    mult(transmat,offset3,offset1,offset4,offset2,-1.0*K);
+// on calcule d'abord D puis on transposera
+    operatorD(geo,c+1,c,GaussOrder,transmat,offset3,offset0);
+    mult(transmat,offset3,offset0,offset4,offset1,K);
+    operatorD(geo,c+1,c+1,GaussOrder,transmat,offset3,offset2);
+    mult(transmat,offset3,offset2,offset4,offset3,-1.0*K);
+    operatorP1P0(geo,c+1, transmat,offset3,offset2);
+    operatorP1P0(geo,c+1, transairescalp,offset3,offset2);
+// on extrait la transposee du dernier bloc de lignes de transmat
+    std::cout<<"offset0 "<<offset0<<std::endl;
+    std::cout<<"offset1 "<<offset1<<std::endl;
+    std::cout<<"offset2 "<<offset2<<std::endl;
+    std::cout<<"offset3 "<<offset3<<std::endl;
+
+// on transpose la matrice
+    std::cout<<"last element "<<transmat(newtaille+sourcetaille-1,newtaille-1)<<std::endl;
+        for(int i=0;i<newtaille;i++) 
+            for(int j=0;j<sourcetaille;j++) {
+                mat(i,j) = transmat(newtaille+j,i);
+                airescalp(i,j) = 2*transairescalp(newtaille+j,i);
+            }
+}
+

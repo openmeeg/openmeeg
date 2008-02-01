@@ -152,6 +152,53 @@ int main(int argc, char** argv)
         mat.SAVE(argv[5]);
     }
 
+    /*********************************************************************************************
+    * Computation of RHS for EIT
+    **********************************************************************************************/
+
+
+    else if(!strcmp(argv[1],"-EITsource")) {
+
+        if(argc < 3)
+        {
+            cerr << "Please set geometry filepath !" << endl;
+            exit(1);
+        }
+        if (argc < 4)
+        {
+            std::cerr << "Please set conductivities filepath !" << endl;
+            exit(1);
+        }
+        if (argc < 5)
+        {
+            std::cerr << "Please set output filepath !" << endl;
+            exit(1);
+        }
+        if (argc < 6)
+        {
+            std::cerr << "Please set output filepath !" << endl;
+            exit(1);
+        }
+
+        // Loading surfaces from geometry file.
+        Geometry geo;
+        geo.read(argv[2],argv[3]);
+
+	int taille=geo.size();
+        int sourcetaille = (geo.getM(geo.nb()-1)).nbTrgs();
+	int newtaille=taille-sourcetaille;
+	
+	matrice source(newtaille,sourcetaille);
+        matrice airescalp(newtaille,sourcetaille);
+        source.set(0.0);
+        airescalp.set(0.0);
+
+	assemble_EITsource( geo, source, airescalp, GaussOrder);
+
+        source.SAVE(argv[4]);
+        airescalp.SAVE(argv[5]);
+    }
+
 	/*********************************************************************************************
     * RK: Computation of RHS for discrete dipolar case: gradient wrt dipoles position and intensity!
     **********************************************************************************************/
@@ -376,6 +423,13 @@ void getHelp(char** argv) {
     cout << "               conductivity file (.cond)" << endl;
     cout << "               dipoles positions and orientations" << endl;
     cout << "               output RHS matrix" << endl << endl;
+
+    cout << "   -EITsource :  Compute RHS for scalp current injection. " << endl;
+    cout << "            Arguments :" << endl;
+    cout << "               geometry file (.geom)" << endl;
+    cout << "               conductivity file (.cond)" << endl;
+    cout << "               output EITsource" << endl;
+    cout << "               output airescalp" << endl << endl;
 
     cout << "   -vToEEG :   Compute the linear application which maps the potiential" << endl;
     cout << "            on the scalp to the EEG electrodes"  << endl;

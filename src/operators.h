@@ -23,6 +23,7 @@
 void operatorN(const Geometry &geo,const int I,const int J,const int,symmatrice &mat,const int offsetI,const int offsetJ,const int IopS,const int JopS);
 void operatorS(const Geometry &geo,const int I,const int J,const int,symmatrice &mat,const int offsetI,const int offsetJ);
 void operatorD(const Geometry &geo,const int I,const int J,const int,symmatrice &mat,const int offsetI,const int offsetJ);
+void operatorP1P0(const Geometry &geo,const int I,symmatrice &mat,const int offsetI,const int offsetJ);
 
 void operatorN(const Mesh &m1,const Mesh &m2,genericMatrix &mat,const int offsetI,const int offsetJ,const int,const int IopS=0,const int JopS=0);
 void operatorS(const Mesh &m1,const Mesh &m2,genericMatrix &mat,const int offsetI,const int offsetJ,const int);
@@ -222,6 +223,16 @@ inline double _operatorN(const int nP1,const int nP2,const int GaussOrder,const 
         }
 
         return result;
+}
+
+inline double _operateurP1P0( int nT2, int nP1, const Mesh &m)
+{
+	const Triangle &T2=m.getTrg(nT2);
+    if(T2.contains(nP1)== 0)
+        {
+             return 0;
+        }
+             else return T2.getArea()/3.;
 }
 
 

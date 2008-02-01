@@ -66,4 +66,6 @@ public:
     virtual ~sToMEGdip_matrice () {};
 };
 
+void assemble_EITsource(const Geometry &geo, matrice &mat, matrice &airescalp, const int GaussOrder) ;
+
 #endif /* _ASSEMBLE_H_ */
