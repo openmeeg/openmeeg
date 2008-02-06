@@ -244,7 +244,9 @@ void LIN_inverse (matrice& EstimatedData, const LinOp& hess, const matrice& Gain
 
         for(size_t i=0;i<EstimatedData.nlin();i++) EstimatedData(i,frame) = v(i);
 
+        #ifdef USE_OMP
         #pragma omp critical
+        #endif
         std::cout << ">> Frame " << frame+1 << " / " << nT
                   << " : Rel. Err. = " << (GainMatrix*v-m).norm()/m.norm()
                   << " : Nb. iter. MinRes = " << niter

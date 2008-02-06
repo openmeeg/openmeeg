@@ -186,11 +186,11 @@ inline double _operatorN(const int nP1,const int nP2,const int GaussOrder,const 
 
     const intSet& trgs1 = m1.getTrianglesForPoint(nP1);
     const intSet& trgs2 = m1.getTrianglesForPoint(nP2);
-    for(intSet::iterator it1 = trgs1.begin(); it1 != trgs1.end(); ++it1)
-        for(intSet::iterator it2 = trgs2.begin(); it2 != trgs2.end(); ++it2)
+    for(intSet::const_iterator it1 = trgs1.begin(); it1 != trgs1.end(); ++it1)
+        for(intSet::const_iterator it2 = trgs2.begin(); it2 != trgs2.end(); ++it2)
         {
-            const Triangle& T1=m1.getTrg(*it1);
-            const Triangle& T2=m2.getTrg(*it2);
+            const Triangle& T1 = m1.getTrg(*it1);
+            const Triangle& T2 = m2.getTrg(*it2);
 
             // A1 , B1 , A2, B2 are the two opposite vertices to P1 and P2 (triangles A1,B1,P1 and A2,B2,P2)
             if(IopS!=0 || JopS!=0) Iqr=mat(IopS + *it1,JopS + *it2); else Iqr=_operatorS(*it1,*it2,GaussOrder,m1,m2);
@@ -259,7 +259,7 @@ inline Vect3 _operatorFerguson(const Vect3 x,const int nP1,const Mesh &m1)
 
     //loop over triangles of which P1 is a vertex
     const intSet& trgs1 = m1.getTrianglesForPoint(nP1);
-    for(intSet::iterator it = trgs1.begin(); it != trgs1.end(); ++it)
+    for(intSet::const_iterator it = trgs1.begin(); it != trgs1.end(); ++it)
     {
         const Triangle& T1=m1.getTrg(*it);
 
