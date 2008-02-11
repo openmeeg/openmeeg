@@ -34,11 +34,6 @@ int main(int argc, char **argv)
         cerr << "Not enough arguments \nPlease try \"" << argv[0] << " -h\" or \"" << argv[0] << " --help \" \n" << endl;
         return 0;
     }
-    symmatrice LhsInvMatrix;
-    matrice RhsMatrix;
-    matrice V2MegMatrix;
-    matrice S2MegMatrix;
-    matrice V2EegMatrix;
 
     // for use with EEG DATA
     if(!strcmp(argv[1],"-EEG"))
@@ -48,12 +43,28 @@ int main(int argc, char **argv)
             cerr << "Not enough arguments \nPlease try \"" << argv[0] << " -h\" or \"" << argv[0] << " --help \" \n" << endl;
             return 0;
         }
-        LhsInvMatrix.loadBin(argv[2]);
-        RhsMatrix.loadBin(argv[3]);
-        V2EegMatrix.loadBin(argv[4]);
 
-        HEEG_matrice mat(LhsInvMatrix,RhsMatrix,V2EegMatrix);
-        mat.saveBin(argv[5]);
+        matrice EegGainMatrix;
+
+        { // Avoiding to store all matrices at the same time
+            size_t nn,mm;
+            matrice::readDimsBin(argv[3],nn,mm); // read nb lines of RhsMatrix without allocating it
+            symmatrice LhsInvMatrix;
+            LhsInvMatrix.loadBin(argv[2]);
+            EegGainMatrix = matrice(LhsInvMatrix)(0,LhsInvMatrix.nlin()-1,0,nn-1); // reducedLhsInvMatrix
+        }
+        {
+            matrice V2EegMatrix;
+            V2EegMatrix.loadBin(argv[4]);
+            EegGainMatrix = V2EegMatrix*EegGainMatrix;
+        }
+        {
+            matrice RhsMatrix;
+            RhsMatrix.loadBin(argv[3]);
+            EegGainMatrix = EegGainMatrix*RhsMatrix;
+        }
+
+        EegGainMatrix.saveBin(argv[5]);
     }
     // for use with MEG DATA
     else if(!strcmp(argv[1],"-MEG"))
@@ -63,13 +74,32 @@ int main(int argc, char **argv)
             cerr << "Not enough arguments \nPlease try \"" << argv[0] << " -h\" or \"" << argv[0] << " --help \" \n" << endl;
             return 0;
         }
-        LhsInvMatrix.loadBin(argv[2]);
-        RhsMatrix.loadBin(argv[3]);
-        V2MegMatrix.loadBin(argv[4]);
-        S2MegMatrix.loadBin(argv[5]);
-        
-        HMEG_matrice mat(LhsInvMatrix,RhsMatrix,V2MegMatrix,S2MegMatrix);
-        mat.saveBin(argv[6]);
+        matrice MegGainMatrix;
+
+        { // Avoiding to store all matrices at the same time
+            size_t nn,mm;
+            matrice::readDimsBin(argv[3],nn,mm); // read nb lines of RhsMatrix without allocating it
+            symmatrice LhsInvMatrix;
+            LhsInvMatrix.loadBin(argv[2]);
+            MegGainMatrix = matrice(LhsInvMatrix)(0,LhsInvMatrix.nlin()-1,0,nn-1); // reducedLhsInvMatrix
+        }
+        {
+            matrice V2MegMatrix;
+            V2MegMatrix.loadBin(argv[4]);
+            MegGainMatrix = V2MegMatrix*MegGainMatrix;
+        }
+        {
+            matrice RhsMatrix;
+            RhsMatrix.loadBin(argv[3]);
+            MegGainMatrix = MegGainMatrix*RhsMatrix;
+        }
+        {
+            matrice S2MegMatrix;
+            S2MegMatrix.loadBin(argv[5]);
+            MegGainMatrix += S2MegMatrix;
+        }
+
+        MegGainMatrix.saveBin(argv[6]);
     }
     else
     {

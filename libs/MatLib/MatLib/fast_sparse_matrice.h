@@ -14,6 +14,8 @@ public:
     typedef sparse_matrice::idxType idxType;
     typedef sparse_matrice::valType valType;
 
+    inline friend std::ostream& operator<<(std::ostream& f,const fast_sparse_matrice &M);
+
 protected:
 
     valType *tank;
@@ -46,9 +48,22 @@ public:
     inline vecteur operator * (const vecteur &v) const;
     inline void operator =( const fast_sparse_matrice &M);
 
-    inline friend std::ostream& operator<<(std::ostream& f,const fast_sparse_matrice &M);
-
     inline double& operator[](size_t i) {return tank[i];};
+
+    virtual std::ostream& operator>>(std::ostream& f) const
+    {
+        idxType nz = rowindex[m_nlin];
+        f << m_nlin << " " << m_ncol << std::endl;
+        f << nz << std::endl;
+        for(idxType i=0;i<m_nlin;i++)
+        {
+            for(idxType j=rowindex[i];j<rowindex[i+1];j++)
+            {
+                f<<(long unsigned int)i<<"\t"<<(long unsigned int)js[j]<<"\t"<<tank[j]<<std::endl;
+            }
+        }
+        return f;
+    }
 };
 
 inline fast_sparse_matrice::fast_sparse_matrice()
@@ -98,37 +113,42 @@ inline fast_sparse_matrice::fast_sparse_matrice( const sparse_matrice &M)
         }
     }
     rowindex[m_nlin]=cpt;
-
 }
 
 inline void fast_sparse_matrice::saveTxt( const char *filename ) const
 {
+    idxType nz = rowindex[m_nlin];
     std::ofstream ofs(filename);
-    ofs<<(*this);
+    ofs << m_nlin << " " << m_ncol << " " << nz << " ";
+    for(idxType i=0;i<nz;i++) ofs << tank[i] << " ";
+    for(idxType i=0;i<nz;i++) ofs << js[i] << " ";
+    for(idxType i=0;i<m_nlin+1;i++) ofs << rowindex[i]  << " ";
     ofs.close();
 }
+
 inline void fast_sparse_matrice::saveBin( const char *filename ) const
 {
     std::ofstream ofs(filename,std::ios_base::binary);
     write(ofs);
     ofs.close();
 }
+
 inline void fast_sparse_matrice::loadTxt( const char *filename )
 {
     idxType nz;
     std::ifstream ifs(filename);
-	if(!ifs.is_open()) {
+    if(!ifs.is_open()) {
         std::cerr<<"Error Opening Matrix File "<<filename<<std::endl;
         exit(1);
     }
-    ifs>>m_nlin>>m_ncol;
-    ifs>>nz;
+    ifs >> m_nlin >> m_ncol;
+    ifs >> nz;
     alloc(m_nlin,m_ncol,nz);
     for(idxType i=0;i<nz;i++) ifs>>tank[i];
     for(idxType i=0;i<nz;i++) ifs>>js[i];
     for(idxType i=0;i<m_nlin+1;i++) ifs>>rowindex[i];
-
 }
+
 inline void fast_sparse_matrice::loadBin( const char *filename )
 {
     std::ifstream ifs(filename,std::ios_base::binary);
@@ -164,18 +184,6 @@ inline void fast_sparse_matrice::read(std::istream& f)
     f.read((char*)rowindex,(std::streamsize)(sizeof(idxType)*m_nlin));
 }
 
-inline std::ostream& operator<<(std::ostream& f,const fast_sparse_matrice &M) 
-{
-    for(fast_sparse_matrice::idxType i=0;i<M.m_nlin;i++)
-    {
-        for(fast_sparse_matrice::idxType j=M.rowindex[i];j<M.rowindex[i+1];j++)
-        {
-            f<<(long unsigned int)i<<"\t"<<(long unsigned int)M.js[j]<<"\t"<<M.tank[j];
-        }
-    }
-    return f;
-}
-
 inline void fast_sparse_matrice::alloc(idxType nl, idxType nc, idxType nz)
 {
     m_nlin=nl;
@@ -183,6 +191,7 @@ inline void fast_sparse_matrice::alloc(idxType nl, idxType nc, idxType nz)
     tank=new valType[nz];
     js=new idxType[nz];
     rowindex=new idxType[nl+1];
+    rowindex[nl]=nz;
 }
 
 inline void fast_sparse_matrice::destroy()
@@ -238,7 +247,7 @@ inline vecteur fast_sparse_matrice::operator * (const vecteur &v) const
 
     for(idxType i=0;i<m_nlin;i++)
     {
-        double& total=pt_result[i]; //deja à 0
+        double& total=pt_result[i];
         for(idxType j=rowindex[i];j<rowindex[i+1];j++) {
             total+=tank[j]*pt_vect[js[j]];
         }

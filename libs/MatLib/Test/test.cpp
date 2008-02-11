@@ -10,16 +10,48 @@
 
 using namespace std;
 
-void genericTest( const genericMatrix &M)
+void genericTest(genericMatrix &M)
 {
     cout<<" Generic Test "<<endl;
-    cout<<"   nlin  = "<<(int)M.nlin()<<endl;
-    cout<<"   ncol  = "<<(int)M.ncol()<<endl;
-    cout<<"   (0,0) = "<<M(0,0)<<endl;
+    cout<<"   nlin  = " << (int)M.nlin() << endl;
+    cout<<"   ncol  = " << (int)M.ncol() << endl;
     vecteur v(M.ncol());
     v.set(1);
-    v=M*v;
-    cout<<"   operator * OK"<<endl;
+    v = M*v;
+
+    cout << endl << "BASE :" << endl;
+    M >> cout;
+
+    // Test IO
+    cout << endl << "BIN :" << endl;
+    M.saveBin("tmp.bin");
+    M.loadBin("tmp.bin");
+    M >> cout;
+
+    cout << endl << "TXT :" << endl;
+    M.saveTxt("tmp.txt");
+    M.loadTxt("tmp.txt");
+    M >> cout;
+
+// #ifdef USE_MATIO
+//     cout << "MAT :" << endl;
+//     M.saveMat("tmp.mat");
+//     M.loadMat("tmp.mat");
+//     M >> cout;
+// #endif
+
+    cout << endl << "Read & Write :" << endl;
+    ofstream ofs("tmp.bin",ios::binary);
+    M.write(ofs);
+    ofs.close();
+    ifstream ifs("tmp.bin",ios::binary);
+    M.read(ifs);
+    ifs.close();
+    M >> cout;
+    cout << endl;
+
+    cout << "   operator * OK" << endl;
+    cout.flush();
 }
 
 int main ()
@@ -44,63 +76,28 @@ int main ()
     // section matrice
     cout<<endl<<"========== matrices =========="<<endl;
     matrice M(4,4);
-    
+
     for(int i=0;i<4;i++)
         for(int j=0;j<4;j++)
             M(i,j)=pow(2.0,(double)i)+pow(2.0,(double)j);
-    
-    M.saveBin("tmp.bin");
-    M.saveMat("tmp.mat");
 
-    matrice Q=M(1,2,0,2);
-    genericTest(Q);
+    genericTest(M);
 
-    Q.saveTxt("tmp.txt");
-    M.loadTxt("tmp.txt");
+    matrice Q = M(1,2,0,2); // select submatrice
     cout<<"Q= "<<endl<<Q<<endl;
-    cout<<"M= "<<endl<<M<<endl;
-    M.loadBin("tmp.bin");
-    cout<<"M= "<<endl<<M<<endl;
-    M.loadMat("tmp.mat");
-    cout<<"M= "<<endl<<M<<endl;
 
-    ofstream ofs("tmp.test",ios::binary);
-    M.write(ofs);
-    Q.write(ofs);
-    ofs.close();
-
-    matrice tmp;
-    ifstream ifs("tmp.test",ios::binary);
-    tmp.read(ifs);
-    bool flag=true;
-    for(size_t i=0;i<M.nlin()*M.ncol();i++) flag=flag && (M[i]==tmp[i]);
-    if(flag) cout<<"load/save M is OK"<<endl;
-    else cerr<<"load/save M ERROR"<<endl;
-    tmp.read(ifs);
-    flag=true;
-    for(size_t i=0;i<Q.nlin()*Q.ncol();i++) flag=flag && (Q[i]==tmp[i]);
-    if(flag) cout<<"load/save Q is OK"<<endl;
-    else cerr<<"load/save Q ERROR"<<endl;
-    ifs.close();
-    
     matrice P(3,3);
     P(0,0) = 25 ; P(0,1) = 3 ; P(0,2) = 6 ;
     P(1,0) = 12 ; P(1,1) = 5 ; P(1,2) = 32 ;
     P(2,0) = 4 ; P(2,1) = 10 ; P(2,2) = 4 ;
     cout << "Matrice P : " << endl;
-    for(unsigned int i=0;i<P.nlin(); i++){
-      for(unsigned int j=0;j<P.ncol(); j++)
-         cout << P(i,j) << "\t" ;
-      cout << endl;
-    }
-    matrice inverseP = P.inverse();
-    cout << "Matrice inverse de P : " << endl;
-    for(unsigned int i=0;i<inverseP.nlin(); i++){
-      for(unsigned int j=0;j<inverseP.ncol(); j++)
-         cout << inverseP(i,j) << "\t" ;
-      cout << endl;
-    }
-    matrice unit = P*inverseP;
+    P >> cout;
+
+    matrice Pinv = P.inverse();
+    cout << "P Inverse matrice : " << endl;
+    Pinv >> cout;
+
+    matrice unit = P*Pinv;
     double eps = 0.01;
     for(unsigned int i = 0; i<unit.nlin(); i++)
         for(unsigned int j = 0; j<unit.ncol(); j++){
@@ -117,27 +114,29 @@ int main ()
                 }
         }
 
+#ifdef USE_MATIO
+    cout << "MAT :" << endl;
+    M.saveMat("tmp.mat");
+    M.loadMat("tmp.mat");
+    M >> cout;
+#endif
+
     // section symmatrice
     cout<<endl<<"========== symmetric matrices =========="<<endl;
     symmatrice S(4);
     for(unsigned int i=0; i<4; i++)
         for(unsigned int j=i; j<4; j++)
             S(i,j)=pow(2.0,(double)i)+pow(3.0,(double)j);
-    
-    S.saveBin("tmp.bin");
-    genericTest(S);
-    matrice R=S(1,2,0,2);
-    S.saveTxt("tmp.txt");
-    cout<<"S= "<<endl<<S<<endl;
-    cout<<"R= "<<endl<<R<<endl;
-    R.loadTxt("tmp.txt");
-    cout<<"R= "<<endl<<R<<endl;
 
-    // section sparse_matrice 
-    cout<<endl<<"========== sparse matrices =========="<<endl; // FIXME : write test on sparse matrices
+    genericTest(S);
+    matrice R = S(1,2,0,2); // extract submatrice
+    cout << "R= " << endl << R << endl;
+
+    // section sparse_matrice
+    cout<<endl<<"========== sparse matrices =========="<<endl;
     sparse_matrice spM(10,10);
     int _n=0;
-    for(unsigned int i=0;i<30;i++)
+    for(unsigned int i=0;i<5;i++)
     {
         _n=(_n*1237+1493)%1723;
         int _p=(_n*1237+1493)%1723;
@@ -145,19 +144,17 @@ int main ()
     }
     spM.refreshNZ();
     genericTest(spM);
-    cout<<spM<<endl;
-    spM.saveTxt("tmp.txt");
-    spM.loadTxt("tmp.txt");
-    cout<<spM<<endl;
-    spM.saveBin("tmp.bin");
-    spM.loadBin("tmp.bin");
-    cout<<spM<<endl;
-    vecteur spv(10); spv.set(1);
-    cout<<"sparse-vector product: "<<spM*spv<<endl;
-    cout<<"fast sparse build: "<<endl;
+
+#ifdef USE_MATIO
+    cout << "MAT :" << endl;
+    spM.saveMat("tmp.mat");
+    spM.loadMat("tmp.mat");
+    spM >> cout;
+#endif
+
+    cout<<endl<<"========== fast sparse matrices =========="<<endl;
     fast_sparse_matrice fspM(spM);
     genericTest(fspM);
-    cout<<"fast_sparse-vector product: "<<fspM*spv<<endl;
 
 // =========
 // = SPEED =
@@ -193,7 +190,7 @@ int main ()
     vecteur resv;
     matrice resm;
     double resd;
-    
+
     timer_start();
     for(int i=0;i<10;i++)
         resm=sm.inverse();

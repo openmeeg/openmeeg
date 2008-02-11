@@ -25,11 +25,14 @@ int main(int argc, char **argv)
     SourceMesh.load(argv[1],checkClosedSurface);
 
     sparse_matrice SmoothMatrix = SourceMesh.gradient();
-    vecteur AiVector = SourceMesh.areas();
 
     // write output variables
     SmoothMatrix.saveBin(argv[2]);
-    AiVector.saveBin(argv[3]);
+    if(argc == 4)
+    {
+        vecteur AiVector = SourceMesh.areas();
+        AiVector.saveBin(argv[3]);
+    }
 
     return 0;
 }
@@ -38,9 +41,9 @@ void getHelp(char** argv)
 {
     cout << argv[0] <<" [filepaths...]" << endl << endl;
 
-    cout << "   Presmooth a mesh " << endl;
+    cout << "   Compute mesh gradient and triangles areas" << endl;
     cout << "   Filepaths are in order :" << endl;
-    cout << "   SourceMesh, SmoothMatrix (bin), AiVector (bin)" << endl << endl;
+    cout << "   SourceMesh, GradientMatrix (bin) [ , AreasVector (bin) ]" << endl << endl;
 
     exit(0);
 }

@@ -17,11 +17,17 @@ public:
     virtual void loadBin( const char *filename )=0;
     virtual void write(std::ostream& f) const =0;
     virtual void read(std::istream& f) =0;
+    virtual std::ostream& operator>>(std::ostream& f) const =0;
+
+// #ifdef USE_MATIO
+//     virtual void saveMat( const char *filename ) const=0;
+//     virtual void loadMat( const char *filename )=0;
+// #endif
+    
 };
 
 typedef TgenericMatrix<double> genericMatrix;
 
-std::ostream& operator<<(std::ostream& f,const genericMatrix &M);
 
 #endif
 

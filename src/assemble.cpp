@@ -15,6 +15,7 @@
 #include "cpuChrono.h"
 #include "assemble.h"
 #include "sensors.h"
+#include "geometry.h"
 
 using namespace std;
 

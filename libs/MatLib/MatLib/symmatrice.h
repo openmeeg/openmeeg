@@ -50,17 +50,6 @@ inline void symmatrice::read(std::istream& f)
     f.read((char*)t,(std::streamsize)(n*(n+1))/2*sizeof(double));
 }
 
-inline std::ostream& operator<<(std::ostream& f,const symmatrice &M) {
-    for (size_t i=0;i<M.nlin();i++) {
-        for (size_t j=0;j<M.ncol();j++) {
-            //f.width(SymmatriceDisplayElementWidth);
-            f << M(i,j) << " ";
-        }
-        f << std::endl;
-    }
-    return f;
-}
-
 inline void symmatrice::alloc(size_t N)
 {
     n=N;
@@ -406,6 +395,18 @@ inline void symmatrice::load( const char *filename ) {
         std::cout << "Warning : Unknown file extension " << std::endl;
         std::cout << "Assuming ASCII format " << std::endl;
         loadTxt(filename);
+    }
+}
+
+inline void symmatrice::save( const char *filename ) const {
+    char extension[128];
+    getNameExtension(filename,extension);
+    if(!strcmp(extension,"bin") || !strcmp(extension,"BIN")) saveBin(filename);
+    else if(!strcmp(extension,"txt") || !strcmp(extension,"TXT")) saveTxt(filename);
+    else {
+        std::cout << "Warning : Unknown file extension " << std::endl;
+        std::cout << "Assuming ASCII format " << std::endl;
+        saveTxt(filename);
     }
 }
 

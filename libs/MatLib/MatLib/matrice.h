@@ -80,17 +80,6 @@ inline double& matrice::operator()(size_t i,size_t j)
     return t[i+m*j];
 }
 
-inline std::ostream& operator<<(std::ostream& f,const matrice &M) {
-    for (size_t i=0;i<M.nlin();i++) {
-        for (size_t j=0;j<M.ncol();j++) {
-            //f.width(MatriceDisplayElementWidth);
-            f << M(i,j) << " ";
-        }
-        f << std::endl;
-    }
-    return f;
-}
-
 inline void matrice::alloc(size_t M,size_t N)
 {
     m = M;
@@ -562,7 +551,6 @@ inline void matrice::loadBin( const char *filename )
         exit(1);
     }
 
-
     unsigned int ui;
     fread(&ui,sizeof(unsigned int),1,infile);
     m=ui;
@@ -617,16 +605,17 @@ inline void matrice::saveSubTxt( const char *filename, size_t i_start, size_t i_
 
 }
 
-inline void matrice::loadMat(const char *filename) throw(std::string)
+inline void matrice::loadMat(const char *filename)
 {
 #ifdef USE_MATIO
     mat_t* mat = Mat_Open(filename,MAT_ACC_RDONLY);
     if (mat) {
         matvar_t* matvar = Mat_VarReadNext(mat);
-        while (matvar!=NULL && (matvar->rank!=2 && matvar->data_type!=MAT_T_DOUBLE))
+        while (matvar!=NULL && (matvar->rank!=2 || matvar->data_type!=MAT_T_DOUBLE || matvar->class_type!=MAT_C_DOUBLE))
             matvar = Mat_VarReadNext(mat);
         if (matvar==NULL)
-            throw std::string("There is no 2D double matrix in file ")+filename;
+            std::cerr << "There is no 2D full double matrix in file : " << filename << std::endl;
+
         m = matvar->dims[0];
         n = matvar->dims[1];
         t = static_cast<double*>(matvar->data);
@@ -906,6 +895,16 @@ inline void matrice::info() const {
         }
         std::cout << std::endl ;
     }
+}
+
+inline std::ostream& operator<<(std::ostream& f,const matrice &M) {
+    for (size_t i=0;i<M.nlin();i++) {
+        for (size_t j=0;j<M.ncol();j++) {
+            f << M(i,j) << " ";
+        }
+        f << std::endl;
+    }
+    return f;
 }
 
 #endif

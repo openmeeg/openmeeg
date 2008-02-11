@@ -14,6 +14,7 @@
 
 class symmatrice;
 class vecteur;
+class matrice;
 
 class matrice : public virtual genericMatrix {
 protected:
@@ -44,6 +45,8 @@ public:
     inline double* DangerousGetData () const;
     inline int* DangerousGetCount () const;
     inline void DangerousReshape(size_t M, size_t N);
+
+    // inline void print() const { std::cout << *this; };
 
     inline matrice duplicate() const;
     inline void copyin(const matrice& A) ;
@@ -95,14 +98,14 @@ public:
     inline void svd(matrice &U,matrice &S, matrice &V) const;
     inline double det() const;
 
-    inline double frobenius_norm() const; 
+    inline double frobenius_norm() const;
     inline double dot(const matrice& B) const;
-    inline matrice lowercholesky() const; 
+    inline matrice lowercholesky() const;
 
     inline void write(std::ostream& f) const {
-        f.write((const char*)&m,(std::streamsize)sizeof(int));
-        f.write((const char*)&n,(std::streamsize)sizeof(int));
-        f.write((const char*)t,(std::streamsize)(n*m*sizeof(double)));
+        f.write(reinterpret_cast<const char*>(&m),(std::streamsize)sizeof(int));
+        f.write(reinterpret_cast<const char*>(&n),(std::streamsize)sizeof(int));
+        f.write(reinterpret_cast<const char*>(t),(std::streamsize)(n*m*sizeof(double)));
     }
 
     inline void read(std::istream& f) {
@@ -111,6 +114,31 @@ public:
         f.read((char*)&n,(std::streamsize)sizeof(int));
         alloc(m,n);
         f.read((char*)t,(std::streamsize)(n*m*sizeof(double)));
+    }
+
+    static void readDimsBin( const char* filename, size_t& mm, size_t& nn)
+    {
+        FILE *infile=fopen(filename,"rb");
+        if(infile == NULL) {
+            std::cerr<<"Error Opening Matrix File "<<filename<<std::endl;
+            exit(1);
+        }
+        unsigned int ui;
+        fread(&ui,sizeof(unsigned int),1,infile);
+        mm=ui;
+        fread(&ui,sizeof(unsigned int),1,infile);
+        nn=ui;
+        fclose(infile);
+    }
+
+    virtual std::ostream& operator>>(std::ostream& f) const {
+        for (size_t i=0;i<this->nlin();i++) {
+            for (size_t j=0;j<this->ncol();j++) {
+                f << (*this)(i,j) << " ";
+            }
+            f << std::endl;
+        }
+        return f;
     }
 
     inline void save( const char *filename ) const;
@@ -123,14 +151,12 @@ public:
     inline void load( const char *filename );
     inline void loadTxt( const char *filename );
     inline void loadBin( const char *filename );
-    inline void loadMat( const char *filename ) throw(std::string);
+    inline void loadMat( const char *filename );
 
     inline void info() const;
 
     friend class symmatrice;
 };
-
-inline std::ostream& operator<<(std::ostream& f,const matrice &M);
 
 #endif
 

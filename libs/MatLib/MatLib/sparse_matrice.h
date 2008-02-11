@@ -23,12 +23,20 @@ template<class T,class I> struct MyCell
     MyCell<T,I> *right;
 };
 
+template<class T,class I> class TsparseMatrixIterator;
+template<class T,class I> class TsparseMatrix;
+
+typedef TsparseMatrix<double,size_t> sparse_matrice;
+typedef TsparseMatrixIterator<double,size_t> sparse_matrice_iterator;
+
 template<class T,class I> class TsparseMatrix: public TgenericMatrix<T>
 {
 public:
     typedef T valType;
     typedef I idxType;
     typedef MyCell<T,I> cellType;
+
+    friend class TsparseMatrixIterator<T,I>;
 
 protected:
     // On a 2 tableaux d'indices pour parcourir les matrices
@@ -118,8 +126,8 @@ public:
 
     inline size_t nlin() const {return (size_t)_n;}
     inline size_t ncol() const {return (size_t)_p;}
-    inline cellType **getColEntry() {return _ColEntry;}
-    inline cellType **getRowEntry() {return _RowEntry;}
+    inline cellType **getColEntry() const {return _ColEntry;}
+    inline cellType **getRowEntry() const {return _RowEntry;}
     inline idxType getNz() const {return _nz;}
     inline idxType getNnzrows() const { return _nnzrows;}
     inline idxType getNnzcols() const { return _nnzcols;}
@@ -139,32 +147,54 @@ public:
         destroy();
     }
 
-    inline TsparseMatrix ( const TsparseMatrix<T,I>& modele )
+    inline TsparseMatrix ( const TsparseMatrix<T,I>& M )
     {
-
-        _n=modele._n;
-        _p=modele._p;
-        //nz=modele.nz;
+        _n=M._n;
+        _p=M._p;
+        //nz=M.nz;
         _nz=0;
-        _sp=modele._sp;
-        _tr=modele._tr;
+        _sp=M._sp;
+        _tr=M._tr;
         _RowEntry=new cellType*[_n]; for(idxType i=0;i<_n;i++) _RowEntry[i]=0;
         _ColEntry=new cellType*[_p]; for(idxType j=0;j<_p;j++) _ColEntry[j]=0;
-        _nzrows=new idxType[_n]; for(idxType i=0;i<_n;i++) _nzrows[i]=modele._nzrows[i];
-        _nzcols=new idxType[_p]; for(idxType i=0;i<_p;i++) _nzcols[i]=modele._nzcols[i];
-        _nnzrows=modele._nnzrows;
-        _nnzcols=modele._nnzcols;
+        _nzrows=new idxType[_n]; for(idxType i=0;i<_n;i++) _nzrows[i]=M._nzrows[i];
+        _nzcols=new idxType[_p]; for(idxType i=0;i<_p;i++) _nzcols[i]=M._nzcols[i];
+        _nnzrows=M._nnzrows;
+        _nnzcols=M._nnzcols;
 
         for(idxType i=0;i<_n;i++)
         {
             cellType *pt;
-            pt=modele._RowEntry[i];
+            pt = M._RowEntry[i];
             while(pt!=0)
             {
-                (*this)(pt->i,pt->j)=modele(pt->i,pt->j);
+                (*this)(pt->i,pt->j) = M(pt->i,pt->j);
                 pt=pt->right;
             }
         }
+    }
+
+    virtual std::ostream& operator>>(std::ostream& f) const
+    {
+        f << _n << " " << _p << std::endl;
+        TsparseMatrixIterator<T,I> it(*this);
+        for(it.begin(); !it.end(); it.next()) {
+            f << (unsigned long int) it.current()->i << "\t";
+            f << (unsigned long int) it.current()->j << "\t" << it.current()->val << std::endl;
+        }
+        return f;
+    }
+
+    inline cellType* first() const // get first non empty cell
+    {
+        cellType* cell;
+        for (idxType i=0;i<_p;i++) {
+            cell=_ColEntry[i];
+            if (cell!=0) {
+                return cell;
+            }
+        }
+        return NULL;
     }
 
     vecteur operator*( const vecteur &x) const;
@@ -201,292 +231,317 @@ public:
         return result;
     }
 
-    inline void saveBin( const char * filename) const // Les colonnes sont ecrites les unes à la suite des autres
+    inline void saveBin( const char * filename) const
     {
         FILE *file;
         file=fopen(filename,"wb");
-	    if(file==NULL) {std::cerr<<"Error opening file: " << filename << std::endl; exit(1);}
+	    if (file==NULL) {std::cerr<<"Error opening file: " << filename << std::endl; exit(1);}
 
-        // On ecrit avant toute chose le nombre de lignes et de colonnes de la matrice
+        // Start by writting matrix dimensions
         idxType nn=this->_n;
         idxType pp=this->_p;
         fwrite(&nn,sizeof(idxType),1,file);
         fwrite(&pp,sizeof(idxType),1,file);
 
-        // On parcourt les colonnes
-        for(idxType j=0;j<_p;j++)
-        {
-            if(_ColEntry[j]!=0) // Si la colonne n'est pas vide, il y a quelque chos à ecrire
-            {
-                cellType *ce=_ColEntry[j];
-                while(ce!=0)
-                {
-                    fwrite(&(ce->i),sizeof(idxType),1,file);
-                    fwrite(&(ce->j),sizeof(idxType),1,file);
-                    fwrite(&(ce->val),sizeof(T),1,file);
-                    ce=ce->down;
-                }
-            }
-        } //fin de la boucle sur les colonnes
+        // write each element
+        TsparseMatrixIterator<T,I> it(*this);
+        for(it.begin(); !it.end(); it.next()) {
+            fwrite(&(it.current()->i),sizeof(idxType),1,file);
+            fwrite(&(it.current()->j),sizeof(idxType),1,file);
+            fwrite(&(it.current()->val),sizeof(valType),1,file);
+        }
 
         fclose(file);
     }
 
-    inline void saveTxt( const char * filename) const // Les colonnes sont ecrites les unes à la suite des autres
+    inline void saveTxt( const char * filename ) const
     {
         std::ofstream of(filename);
-
-        of<<(unsigned long int)_n<<"\t"<<(unsigned long int)_p<<std::endl;
-        of<<(*this);
+        *this >> of;
     }
 
-    inline void loadTxt( const char * filename) // Les colonnes sont ecrites les unes à la suite des autres
+    inline void saveMat( const char *filename ) const
+    {
+    #ifdef USE_MATIO
+        mat_t* mat = Mat_Open(filename,MAT_ACC_RDWR);
+        if (mat) {
+            valType* t = (double*)malloc(sizeof(double)*_nz);
+            mat_int32_t  *ir = (mat_int32_t*)malloc(sizeof(mat_int32_t)*_nz);
+            mat_int32_t  *jc = (mat_int32_t*)malloc(sizeof(mat_int32_t)*(_p+1));
+
+            jc[_p] = _nz;
+
+            cellType *ce;
+
+            size_t counter = 0;
+
+            for(size_t j=0;j<_p;j++)
+            {
+                jc[j] = counter;
+                if(_ColEntry[j] != NULL) // check if the column is not empty
+                {
+                    ce = _ColEntry[j];
+                    do {
+                        ir[counter] = ce->i;
+                        t[counter] = ce->val;
+                        ce = ce->down;
+                        counter++;
+                    } while (ce != 0);
+                }
+            }
+
+            int dims[2] = { _n, _p };
+            matvar_t *matvar;
+            sparse_t  sparse = {0,};
+            sparse.nzmax = _nz;
+            sparse.nir   = _nz;
+            sparse.ir    = ir;
+            sparse.njc   = _p+1;
+            sparse.jc    = jc;
+            sparse.ndata = _nz;
+            sparse.data  = t;
+
+            matvar = Mat_VarCreate("matrix",MAT_C_SPARSE,MAT_T_DOUBLE,2,dims,&sparse,MEM_CONSERVE);
+            Mat_VarWrite(mat,matvar,COMPRESSION_ZLIB);
+            Mat_VarFree(matvar);
+            Mat_Close(mat);
+        }
+    #else
+        std::cerr << "You have to compile OpenMEEG with MATIO to save matlab files" << std::endl;
+    #endif
+    }
+
+    inline void loadTxt( const char * filename ) // Les colonnes sont ecrites les unes à la suite des autres
+    {
+        load(filename,'t');
+    }
+
+    inline int readDim(FILE *file, idxType& nn, idxType& pp, const char c) {
+        int nread = 0;
+        if (c=='t') {
+            int nnn;
+            int ppp;
+            nread += fscanf(file,"%d",&nnn);
+            nread += fscanf(file,"%d",&ppp);
+            nn = nnn;
+            pp = ppp;
+        } else if (c=='b') {
+            nread += fread(&nn,sizeof(idxType),1,file);
+            nread += fread(&pp,sizeof(idxType),1,file);
+        } else {
+            std::cerr << "Unknown format" << std::endl;
+        }
+        return nread;
+    }
+
+    inline int readCell(FILE *file, idxType& ii, idxType& jj, valType& val, const char c) {
+        int nread = 0;
+        if (c=='t') {
+            int iii,jjj;
+            nread += fscanf(file,"%d",&iii);
+            nread += fscanf(file,"%d",&jjj);
+            nread += fscanf(file,"%lf",&val);
+            ii = iii;
+            jj = jjj;
+        } else if (c=='b') {
+            nread += fread(&ii,sizeof(idxType),1,file);
+            nread += fread(&jj,sizeof(idxType),1,file);
+            nread += fread(&val,sizeof(valType),1,file);
+        } else {
+            std::cerr << "Unknown format" << std::endl;
+        }
+        return nread;
+    }
+
+    inline void loadBin( const char * filename) // Columns are written next to one another
+    {
+        load(filename,'b');
+    }
+
+    inline void loadMat( const char *filename ) throw(std::string)
+    {
+    #ifdef USE_MATIO
+        mat_t* mat = Mat_Open(filename,MAT_ACC_RDONLY);
+        if (mat) {
+            matvar_t* matvar = Mat_VarReadNext(mat);
+
+            while( matvar!=NULL && (matvar->rank!=2 || matvar->data_type!=MAT_T_DOUBLE || matvar->class_type!=MAT_C_SPARSE) )
+                matvar = Mat_VarReadNext(mat);
+            if (matvar==NULL)
+                std::cerr << "There is no 2D sparse double matrix in file : " << filename << std::endl;
+
+            std::cout << "loadMat : Using variable with name " << matvar->name << std::endl;
+
+            int nn = matvar->dims[0];
+            int pp = matvar->dims[1];
+
+            init(nn,pp);
+
+            sparse_t* sparse = static_cast<sparse_t*>(matvar->data);
+            _nz = sparse->nzmax;
+
+            double *data = static_cast<double*>(sparse->data);
+
+            idxType current_col = 0;
+            for(size_t k = 0; k < _nz; ++k)
+            {
+                idxType i = sparse->ir[k];
+                valType val = data[k];
+                if(k < sparse->jc[sparse->njc-1])
+                {
+                    assert(current_col < sparse->njc);
+                    while(sparse->jc[current_col + 1] <= k) // look for the last idx of jc such that jc[idx+1] > k
+                    {
+                        current_col++;
+                    }
+                    idxType j = current_col;
+                    (*this)(i,j)=val;
+                }
+            }
+            matvar->mem_conserve = 1;
+            Mat_VarFree(matvar);
+            Mat_Close(mat);
+
+            refreshNZ();
+        }
+    #else
+        std::cerr << "You have to compile OpenMEEG with MATIO to read matlab files" << std::endl;
+    #endif
+    }
+
+    inline void load( const char *filename )
+    {
+        char extension[128];
+        getNameExtension(filename,extension);
+        if(!strcmp(extension,"bin") || !strcmp(extension,"BIN")) load(filename,'b');
+        else if(!strcmp(extension,"txt") || !strcmp(extension,"TXT")) load(filename,'t');
+        else if(!strcmp(extension,"mat") || !strcmp(extension,"MAT")) loadMat(filename);
+        else {
+            std::cout << "Warning : Unknown file extension " << std::endl;
+            std::cout << "Assuming ASCII format " << std::endl;
+            load(filename,'t');
+        }
+    }
+
+    inline void load( const char *filename, const char format)
     {
         if(_RowEntry!=0) destroy();
 
         idxType nn,pp,ii,jj;
-        T vval;
+        valType val;
 
         FILE *file;
-        file=fopen(filename,"r");
-	    if(file==NULL) {std::cerr<<"Error opening file: " << filename << std::endl; exit(1);}
+        file = fopen(filename,"r");
+        if (file==NULL) {std::cerr << "Error opening file: " << filename << std::endl; exit(1);}
 
-        // On ecrit avant toute chose le nombre de lignes et de colonnes de la matrice
-        int nnn,ppp,iii,jjj;
-        fscanf(file,"%d",&nnn);
-        fscanf(file,"%d",&ppp);
-        nn=(size_t)nnn; pp=(size_t)ppp;
+        // read matrix size
+        readDim(file,nn,pp,format);
 
-        cellType **RowPrev=new cellType*[nn]; for(idxType i=0;i<nn;i++) RowPrev[i]=0;
-        cellType *ColPrev=0;
-        cellType *current=0;
+        cellType **RowPrev = new cellType*[nn]; for(idxType i=0;i<nn;i++) RowPrev[i]=0;
+        cellType *ColPrev = 0;
+        cellType *current = 0;
 
         init(nn,pp);
 
-        // On parcourt le fichier et on remplit la matrice
-        _nz=0;
-        int nread=1;
-        fscanf(file,"%d",&iii);
-        fscanf(file,"%d",&jjj);
-        fscanf(file,"%lf",&vval);
-        ii=iii;jj=jjj;
-        while(nread>0)
+        _nz = 0;
+        int nread = readCell(file,ii,jj,val,format);
+
+        assert(nread > 0); // matrix is not empty
+
+        while (nread > 0)
         {
+            assert(ii < _n);
+            assert(jj < _p);
+
             _nz++;
+            current = new cellType;
+            current->i = ii;
+            current->j = jj;
+            current->val = val;
 
-            current=new cellType;
-            current->i=ii;
-            current->j=jj;
-            current->val=vval;
-
-            // On met le pointeur up àjour
-            if(ColPrev==0)
-            {
-                _ColEntry[jj]=current;
-                current->up=0;
-            }
-            else
-            {
-                ColPrev->down=current;
-                current->up=ColPrev;
+            if (ColPrev == 0) {
+                _ColEntry[jj] = current;
+                current->up = 0;
+            } else {
+                ColPrev->down = current;
+                current->up = ColPrev;
             }
 
-            ColPrev=current; // On met à jour le ColPrev
+            ColPrev = current;
 
-            //On met à jour le pointeur left
-            if(RowPrev[ii]==0)
-            {
-                _RowEntry[ii]=current;
-                current->left=0;
-            }
-            else
-            {
-                RowPrev[ii]->right=current;
-                current->left=RowPrev[ii];
+            if (RowPrev[ii] == 0) {
+                _RowEntry[ii] = current;
+                current->left = 0;
+            } else {
+                RowPrev[ii]->right = current;
+                current->left = RowPrev[ii];
             }
 
-            RowPrev[ii]=current; // On met à jour le RowPrev[ii]
-            ColPrev=current;
+            RowPrev[ii] = current;
 
-            // On lit les valeurs suivantes dans le fichier
-            nread=0;
-            idxType oldjj=jj;
-            nread+=fscanf(file,"%d",&iii);
-            nread+=fscanf(file,"%d",&jjj);
-            ii=iii; jj=jjj;
-            nread+=fscanf(file,"%lf",&vval);
+            idxType oldjj = jj;
+            nread = readCell(file,ii,jj,val,format);
 
-            // Si on commence une nouvelle colonne, on ferme l'ancienne
+            // if start new column
             if(jj!=oldjj) {current->down=0; ColPrev=0;}
         }
 
-        // Une fois qu'on à fini la lecture de la matrice, il convient 
-        // de verouiller la fin de colonne et les fins de lignes
-        current->down=0;
-        for(idxType i=0;i<_n;i++)
-            if(RowPrev[i]!=0) RowPrev[i]->right=0;
+        // Update last cell of the matrix
+        current->down = 0;
+        for (idxType i=0;i<_n;i++)
+            if (RowPrev[i]!=0) RowPrev[i]->right=0;
 
-        // On referme le fichier
         fclose(file);
 
-        // On met à jour les nnzs
         refreshNZ();
 
-        //On efface les variables temporaires
         delete[] RowPrev;
     }
 
-    inline void loadBin( const char * filename) // Les colonnes sont ecrites les unes à la suite des autres
+    inline void save( const char *filename ) const
     {
-        if(_RowEntry!=0) destroy();
-
-        idxType nn,pp,ii,jj;
-        T vval;
-
-        FILE *file;
-        file=fopen(filename,"rb");
-	    if(file==NULL) {std::cerr<<"Error opening sparse matrix binary file: " << filename << std::endl; exit(1);}
-
-        // On ecrit avant toute chose le nombre de lignes et de colonnes de la matrice
-        fread(&nn,sizeof(idxType),1,file);
-        fread(&pp,sizeof(idxType),1,file);
-
-        cellType **RowPrev=new cellType*[nn]; for(idxType i=0;i<nn;i++) RowPrev[i]=0;
-        cellType *ColPrev=0;
-        cellType *current=0;
-
-        init(nn,pp);
-
-        // On parcourt le fichier et on remplit la matrice
-        _nz=0;
-        size_t nread=1;
-        fread(&ii,sizeof(idxType),1,file);
-        fread(&jj,sizeof(idxType),1,file);
-        fread(&vval,sizeof(T),1,file);
-        while(nread>0)
-        {
-            _nz++;
-
-            current=new cellType;
-            current->i=ii;
-            current->j=jj;
-            current->val=vval;
-
-            // On met le pointeur up à jour
-            if(ColPrev==0)
-            {
-                _ColEntry[jj]=current;
-                current->up=0;
-            }
-            else
-            {
-                ColPrev->down=current;
-                current->up=ColPrev;
-            }
-
-            ColPrev=current; // On met à jour le ColPrev
-
-            //On met à jour le pointeur left
-            if(RowPrev[ii]==0)
-            {
-                _RowEntry[ii]=current;
-                current->left=0;
-            }
-            else
-            {
-                RowPrev[ii]->right=current;
-                current->left=RowPrev[ii];
-            }
-
-            RowPrev[ii]=current; // On met à jour le RowPrev[ii]
-            ColPrev=current;
-
-            // On lit les valeurs suivantes dans le fichier
-            nread=0;
-            idxType oldjj=jj;
-            nread+=fread(&ii,sizeof(idxType),1,file);
-            nread+=fread(&jj,sizeof(idxType),1,file);
-            nread+=fread(&vval,sizeof(T),1,file);
-
-            // Si on commence une nouvelle colonne, on ferme l'ancienne
-            if(jj!=oldjj) {current->down=0; ColPrev=0;}
+        char extension[128];
+        getNameExtension(filename,extension);
+        if(!strcmp(extension,"bin") || !strcmp(extension,"BIN")) saveBin(filename);
+        else if(!strcmp(extension,"txt") || !strcmp(extension,"TXT")) saveTxt(filename);
+        else if(!strcmp(extension,"mat") || !strcmp(extension,"MAT")) saveMat(filename);
+        else {
+            std::cout << "Warning : Unknown file extension " << std::endl;
+            std::cout << "Assuming ASCII format " << std::endl;
+            saveTxt(filename);
         }
-
-        // Une fois qu'on à fini la lecture de la matrice, il convient de verouiller la fin de colonne et les fins de lignes
-        current->down=0;
-        for(idxType i=0;i<_n;i++)
-            if(RowPrev[i]!=0) RowPrev[i]->right=0;
-
-        // On referme le fichier
-        fclose(file);
-
-        // On met à jour les nnzs
-        refreshNZ();
-
-        //On efface les variables temporaires
-        delete[] RowPrev;
     }
 
     inline void write(std::ostream& f) const
     {
         ((TsparseMatrix<T,I>*)this)->refreshNZ();
-        f.write((const char*)&_n,(std::streamsize)sizeof(idxType)); // n lignes
-        f.write((const char*)&_p,(std::streamsize)sizeof(idxType)); // n col
-        f.write((const char*)&_nz,(std::streamsize)sizeof(idxType)); // n non nuls
-        // On parcourt les colonnes
-        for(idxType j=0;j<_p;j++)
-        {
-            if(_ColEntry[j]!=0) // Si la colonne n'est pas vide, il y a quelque chos à ecrire
-            {
-                cellType *ce=_ColEntry[j];
-                while(ce!=0)
-                {
-                    f.write((const char*)&(ce->i),(std::streamsize)sizeof(idxType));
-                    f.write((const char*)&(ce->j),(std::streamsize)sizeof(idxType));
-                    f.write((const char*)&(ce->val),(std::streamsize)sizeof(T));
-                    ce=ce->down;
-                }
-            }
-        } //fin de la boucle sur les colonnes
+        f.write(reinterpret_cast<const char*>(&_n),(std::streamsize)sizeof(idxType)); // nb lines
+        f.write(reinterpret_cast<const char*>(&_p),(std::streamsize)sizeof(idxType)); // nb cols
+
+        TsparseMatrixIterator<T,I> it(*this);
+        for(it.begin(); !it.end(); it.next()) {
+            f.write(reinterpret_cast<const char*>(&(it.current()->i)),(std::streamsize)sizeof(idxType));
+            f.write(reinterpret_cast<const char*>(&(it.current()->j)),(std::streamsize)sizeof(idxType));
+            f.write(reinterpret_cast<const char*>(&(it.current()->val)),(std::streamsize)sizeof(valType));
+        }
     }
 
     inline void read(std::istream& f)
     {
-        // On parcourt les colonnes
-        destroy();
-        f.read((char*)&_n,(std::streamsize)sizeof(idxType)); // n lignes
-        f.read((char*)&_p,(std::streamsize)sizeof(idxType)); // n col
+        if(_RowEntry!=0) destroy();
+        f.seekg (0, std::ios::beg);
+        f.read(reinterpret_cast<char*>(&_n),(std::streamsize)sizeof(idxType)); // nb lines
+        f.read(reinterpret_cast<char*>(&_p),(std::streamsize)sizeof(idxType)); // nb cols
         init(_n,_p);
-        idxType nz; // FIXME:
-        f.read((char*)&nz,(std::streamsize)sizeof(idxType)); // n non nuls
-        for(idxType k=0;k<nz;k++)
-        {
-            idxType i,j;
-            T val;
-
-            f.read((char*)&i,(std::streamsize)sizeof(idxType));
-            f.read((char*)&j,(std::streamsize)sizeof(idxType));
-            f.read((char*)&val,(std::streamsize)sizeof(T));
+        idxType i,j;
+        valType val;
+        while (! f.eof() ) {
+            f.read(reinterpret_cast<char*>(&i),(std::streamsize)sizeof(idxType));
+            f.read(reinterpret_cast<char*>(&j),(std::streamsize)sizeof(idxType));
+            f.read(reinterpret_cast<char*>(&val),(std::streamsize)sizeof(valType));
             (*this)(i,j)=val;
         }
         refreshNZ();
-    }
-
-    inline void display() const //Procedure lente car pas optimisee!!
-    {
-        bool flag=true;
-        for(idxType i=0;i<this->_n;i++)
-            for(idxType j=0;j<this->_p;j++)
-        {
-            double val=((const TsparseMatrix<T,I> &)(*this))(i,j);
-            if(val!=0)
-            {
-                flag=false;
-                std::cout<<"\t("<<(unsigned int)i<<","<<(unsigned int)j<<") = "<<val<<std::endl;
-            }
-        }
-
-        if(flag) std::cout<<"Matrice Vide"<<std::endl;
     }
 
     inline TsparseMatrix<T,I> operator+( TsparseMatrix<T,I>& opd)
@@ -527,9 +582,7 @@ public:
         refreshNZ();
         opd.refreshNZ();
 
-        if(_p!=opd.ncol() || _n!=opd.nlin()) {std::cerr<<"Erreur Somme Matrice"; exit(1);}
-
-        //TsparseMatrix<T,I> *this(this->n,this->p);
+        if(_p!=opd.ncol() || _n!=opd.nlin()) {std::cerr<<"Bad dimensions for sparse matrice addition"; exit(1);}
 
         for(idxType i=0;i<_n;i++)
         {
@@ -640,21 +693,20 @@ public:
         }
     }
 
-    inline T operator()(size_t i, size_t j) const
+    inline valType operator()(size_t i, size_t j) const
     {
         cellType **Entry,*temp,ruse;
-        T result=0;
+        valType result=0;
 
         assert(i<_n && j<_p);
 
-        if(_sp==row) Entry=_RowEntry; else Entry=_ColEntry;
+        if (_sp==row) Entry=_RowEntry; else Entry=_ColEntry;
 
-        if(_RowEntry[i]==0 || _ColEntry[j]==0) result=0;
-        else
-        {
+        if (_RowEntry[i]==0 || _ColEntry[j]==0) result=0;
+        else {
             bool status=false;
 
-            if(_sp==row)
+            if (_sp==row)
             {
                 ruse.right=_RowEntry[i];
                 temp=&ruse;
@@ -678,11 +730,10 @@ public:
                 }
                 while(!status);
             }
-
         }
         return result;
 
-    }; //fin de operator ()
+    }; //end operator ()
 
     inline T& operator()(size_t i, size_t j)
     {
@@ -831,40 +882,21 @@ public:
 
     inline const TsparseMatrix<T,I>& operator=(const TsparseMatrix<T,I>& modele)
     {
-        // On efface le contenu precedent de la matrice
-
-        for(idxType i=0;i<_n;i++)
-        {
-            cellType *pt,*ptbis;
-            pt=_RowEntry[i];
-            while(pt!=0)
-            {
-                ptbis=pt->right;
-                delete pt;
-                pt=ptbis;
-            }
-        }
-
-        if (_RowEntry)
-        {
-            delete[] _RowEntry;
-            delete[] _ColEntry;
-            delete[] _nzrows;
-            delete[] _nzcols;
-        }
+        // Delete current instance
+        if(_RowEntry!=0) destroy();
 
         // Recreate new content
-        _n=modele._n;
-        _p=modele._p;
-        _nz=modele._nz;
-        _sp=modele._sp;
-        _tr=modele._tr;
-        _RowEntry=new cellType*[_n]; for(idxType i=0;i<_n;i++) _RowEntry[i]=0;
-        _ColEntry=new cellType*[_p]; for(idxType j=0;j<_p;j++) _ColEntry[j]=0;
-        _nzrows=new idxType[_n]; for(idxType i=0;i<_n;i++) _nzrows[i]=modele._nzrows[i];
-        _nzcols=new idxType[_p]; for(idxType i=0;i<_p;i++) _nzcols[i]=modele._nzcols[i];
-        _nnzrows=modele._nnzrows;
-        _nnzcols=modele._nnzcols;
+        _n = modele._n;
+        _p = modele._p;
+        _nz = modele._nz;
+        _sp = modele._sp;
+        _tr = modele._tr;
+        _RowEntry = new cellType*[_n]; for(idxType i=0;i<_n;i++) _RowEntry[i]=0;
+        _ColEntry = new cellType*[_p]; for(idxType j=0;j<_p;j++) _ColEntry[j]=0;
+        _nzrows = new idxType[_n]; for(idxType i=0;i<_n;i++) _nzrows[i]=modele._nzrows[i];
+        _nzcols = new idxType[_p]; for(idxType i=0;i<_p;i++) _nzcols[i]=modele._nzcols[i];
+        _nnzrows = modele._nnzrows;
+        _nnzcols = modele._nnzcols;
 
         for(idxType i=0;i<_n;i++)
         {
@@ -872,7 +904,7 @@ public:
             pt=modele._RowEntry[i];
             while(pt!=0)
             {
-                (*this)(pt->i,pt->j)=modele(pt->i,pt->j);
+                (*this)(pt->i,pt->j) = modele(pt->i,pt->j);
                 pt=pt->right;
             }
         }
@@ -880,25 +912,41 @@ public:
     }
 };
 
-template<class T,class I> inline std::ostream& operator<<(std::ostream& f,const TsparseMatrix<T,I> &M)
+template<class T,class I> class TsparseMatrixIterator
 {
-    // Loop on columns
-    for(size_t j=0;j<M.ncol();j++)
-    {
-        if(((TsparseMatrix<T,I> &)M).getColEntry()[j]!=0) // Si la colonne n'est pas vide, il y a quelque chos à ecrire
-        {
-            typename TsparseMatrix<T,I>::cellType *ce=((TsparseMatrix<T,I> &)M).getColEntry()[j];
-            while(ce!=0)
-            {
-                f<<(unsigned long int)ce->i<<"\t"<<(unsigned long int)ce->j<<"\t"<<ce->val<<std::endl;
-                ce=ce->down;
+    public:
+
+        typedef MyCell<T,I> cellType;
+
+        inline TsparseMatrixIterator(const TsparseMatrix<T,I> &M) : _M(M) {
+            _current = _M.first();
+        }
+
+        inline void begin(void) {
+            _current = _M.first();
+        }
+
+        inline void next(void) {
+            if (_current != NULL) {
+                I next_col = _current->j + 1;
+                _current = _current->down;
+                while (_current == NULL && next_col < _M.ncol()) {
+                    _current = _M.getColEntry()[next_col];
+                    next_col++;
+                }
             }
         }
-    }
-    return f;
-}
 
-typedef TsparseMatrix<double,size_t> sparse_matrice;
+        inline int end(void) { return (_current == NULL); }
+
+        inline cellType *current(void) {
+            if(_current == NULL) return NULL; else return _current;
+        }
+
+    private:
+        cellType *_current;
+        const TsparseMatrix<T,I>& _M;
+};
 
 template <> inline vecteur sparse_matrice::operator*( const vecteur &x) const
 {

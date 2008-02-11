@@ -9,6 +9,7 @@
 
 class matrice;
 class vecteur;
+class symmatrice;
 
 class symmatrice : public genericMatrix  {
     size_t n;
@@ -69,16 +70,25 @@ public:
 
     inline void saveSubTxt( const char *filename , size_t i_start, size_t i_end, size_t j_start, size_t j_end) const;
     inline void saveSubBin( const char *filename , size_t i_start, size_t i_end, size_t j_start, size_t j_end) const;
-    inline void saveTxt( const char *filename )const;
-    inline void saveBin( const char *filename )const;
+    inline void saveTxt( const char *filename ) const;
+    inline void saveBin( const char *filename ) const;
+    inline void save( const char *filename ) const;
     inline void load( const char *filename );
     inline void loadTxt( const char *filename );
     inline void loadBin( const char *filename );
+    
+    inline std::ostream& operator>>(std::ostream& f) const {
+        for (size_t i=0;i<this->nlin();i++) {
+            for (size_t j=0;j<this->ncol();j++) {
+                f << (*this)(i,j) << " ";
+            }
+            f << std::endl;
+        }
+        return f;
+    }
 
     friend class matrice;
 };
-
-inline std::ostream& operator<<(std::ostream& f,const symmatrice &M);
 
 #endif
 

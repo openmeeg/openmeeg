@@ -82,7 +82,7 @@ inline double _operatorD(const int nT1,const int nP2,const int GaussOrder,const 
 
     double total = 0;
     int Tadj[128];            // triangles of which P2 is a vertex
-    int nTadj = m2.elem(nP2,Tadj);
+    int nTadj = m2.elem(nP2,Tadj); // FIXME : elem to be removed
 #ifdef ADAPT_LHS
     adaptive_integrator<double> gauss(0.005);
     for(int k=0;k<nTadj;k++)

@@ -80,10 +80,10 @@ inline vecteur gentv( vecteur x,
     for(size_t i=0;i<grad_norms.size();i++)
     {
         double *pt=&v(3*i);
-        grad_norms(i)=sqrt(pt[0]*pt[0]+pt[1]*pt[1]+pt[2]*pt[2]);
-        grad_norms_inv(i)=grad_norms(i)!=0?1.0/(grad_norms(i)+EPSILON):0;
-        double normaliz=grad_norms_inv(i)*Ai(i);
-        if (fp!=0) normaliz*=fp(grad_norms(i));
+        grad_norms(i) = sqrt(pt[0]*pt[0]+pt[1]*pt[1]+pt[2]*pt[2]);
+        grad_norms_inv(i) = grad_norms(i)!=0 ? 1.0/(grad_norms(i)+EPSILON) : 0;
+        double normaliz = grad_norms_inv(i)*Ai(i);
+        if (fp!=0) normaliz *= fp(grad_norms(i));
         pt[0]*=normaliz; pt[1]*=normaliz; pt[2]*=normaliz;
     }
 
@@ -329,10 +329,9 @@ void TV_inverse(matrice& EstimatedData, const matrice& Data, const matrice& Gain
         bool errorTest = true;
 
         // ========  Backtracking line search parameters for gradient step  ========= //
-        double grad_step = 1;
         double alpha = 0.001;
         double beta = 0.5;
-        int max_iter_line_search = 50;
+        int max_iter_line_search = 10;
 
         // ================== Inverse problem via gradient descent ================== //
         int t;
@@ -350,6 +349,11 @@ void TV_inverse(matrice& EstimatedData, const matrice& Data, const matrice& Gain
             double tv_v_dv;
             vecteur v_dv;
 
+            double grad_step = 1.0;
+
+#define USE_LINE_SEARCH 1
+
+#if USE_LINE_SEARCH
             int iter_line_search = 0;
             bool stop_line_search = false;
             while ( stop_line_search != true && (++iter_line_search < max_iter_line_search) ) {
@@ -363,18 +367,23 @@ void TV_inverse(matrice& EstimatedData, const matrice& Data, const matrice& Gain
                     grad_step = beta*grad_step;
                 }
             }
+#elif
+            v_dv = v+grad_step*grad;
+#endif
 
             double tol = (v_dv-v).norm()/v.norm();
 
             v = v_dv;
             tv_v = tv_v_dv;
 
-            errorTest = tol>StoppingTol && iter_line_search<max_iter_line_search;
+            errorTest = tol>StoppingTol;// || iter_line_search<max_iter_line_search;
 
-            if ((t%100)==0 || !errorTest)
+            if ((t%100)==0 || !errorTest || (t == (MaxNbIter-1)))
                 printf("Energy %e   Relative Error %f   TV %f   Tol %e   GradStep %f Iter %d\n",
                        f_v,(err_vec).norm()/m.norm(),tv_v,tol,grad_step,t);
         }
+        printf("Total number of iterations : %d\n",t);
+
         //===========================================================================//
         EstimatedData.setcol(frame,v);
     }
