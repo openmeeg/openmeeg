@@ -254,6 +254,30 @@ void LIN_inverse (matrice& EstimatedData, const LinOp& hess, const matrice& Gain
     }
 }
 
+void MN_inverse (matrice& EstimatedData, const matrice& Data, const matrice& GainMatrix, double SmoothWeight) {
+    matrice eye(GainMatrix.nlin(),GainMatrix.nlin());
+    eye.set(0);
+    for(size_t i = 0; i < GainMatrix.nlin(); ++i) {
+        eye(i,i) = SmoothWeight;
+    }
+    EstimatedData = GainMatrix.transpose() * (GainMatrix * GainMatrix.transpose() + eye).inverse() * Data;
+}
+
+// ================= Iterative Mininum norm inversion =======================//
+
+class IMN_inverse_matrice : public virtual matrice
+{
+public:
+    IMN_inverse_matrice (const matrice& Data, const matrice& GainMatrix, double SmoothWeight);
+    virtual ~IMN_inverse_matrice () {};
+};
+
+IMN_inverse_matrice::IMN_inverse_matrice (const matrice& Data, const matrice& GainMatrix, double SmoothWeight) {
+    std::cout << "Running Iterative MN inversion" << std::endl;
+    MN_Hessian hess(GainMatrix,SmoothWeight);
+    LIN_inverse(*this,hess,GainMatrix,Data);
+}
+
 // ================= Mininum norm inversion =======================//
 
 class MN_inverse_matrice : public virtual matrice
@@ -265,8 +289,7 @@ public:
 
 MN_inverse_matrice::MN_inverse_matrice (const matrice& Data, const matrice& GainMatrix, double SmoothWeight) {
     std::cout << "Running MN inversion" << std::endl;
-    MN_Hessian hess(GainMatrix,SmoothWeight);
-    LIN_inverse(*this,hess,GainMatrix,Data);
+    MN_inverse(*this,Data,GainMatrix,SmoothWeight);
 }
 
 // ================= Weighted Mininum norm inversion =======================//
