@@ -10,6 +10,7 @@
 #include "triangle.h"
 #include "mesh3.h"
 #include "om_utils.h"
+#include "Triangle_triangle_intersection.h"
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -723,7 +724,7 @@ int Mesh::getNeighTrg(int a, int b, int c) const {
 /**
  * Print informations about the mesh
 **/
-void Mesh::info() {
+void Mesh::info() const {
     std::cout << "Mesh Info : " << std::endl;
     std::cout << "\t# points : " << npts << std::endl;
     std::cout << "\t# triangles : " << ntrgs << std::endl;
@@ -826,4 +827,35 @@ void Mesh::recompute_normals() {
         normal.normalize();
         normals[p] = normal;
     }
+}
+
+bool Mesh::selfIntersection() const {
+    bool selfIntersects = false;
+    for(int i = 0; i < ntrgs; ++i)
+    {
+        const Triangle& T1 = getTrg(i);
+        for(int j = i+1; j < ntrgs; ++j)
+        {
+            const Triangle& T2 = getTrg(j);
+            if(!T1.contains(T2.s1()) && !T1.contains(T2.s2()) && !T1.contains(T2.s3()))
+            {
+                if(triangle_intersection(*this,i,*this,j)) {
+                    selfIntersects = true;
+                }
+            }
+        }
+    }
+    return selfIntersects;
+}
+
+bool Mesh::intersection(const Mesh& m) const {
+    bool intersects = false;
+    for(int i = 0; i < ntrgs; ++i)
+    {
+        for(int j = 0; j < m.nbTrgs(); ++j)
+        {
+            intersects = intersects | triangle_intersection(*this,i,m,j);
+        }
+    }
+    return intersects;
 }

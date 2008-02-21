@@ -22,11 +22,12 @@ class Geometry
     double *sigout;
     Mesh *M;
     size_t m_size; // Number of triangles + Number of points
+    bool has_cond;
 
 public:
     Geometry() {n=0;}
     ~Geometry() {destroy();}
-    int read(char* geomFileName, char* condFileName);
+    int read(const char* geomFileName, const char* condFileName = NULL);
     inline int nb() const {return n;}
     inline size_t size() const {return m_size;}
     inline double sigma_in(int i) const {return (i<n)?sigin[i]:0;} // 0 for sig(n)
@@ -37,13 +38,18 @@ public:
     inline       Mesh& getM(const int i)       {assert(i>-1 && i<n); return M[i];}
     inline const Mesh& getM(const int i) const {assert(i>-1 && i<n); return M[i];}
 
+    bool selfCheck() const;
+    bool check(const Mesh& m) const;
 private:
     void destroy() {
         if (n!=0){
             n=0;
             delete []M;
-            delete []sigin;
-            delete []sigout;
+            if(has_cond)
+            {
+                delete []sigin;
+                delete []sigout;
+            }
         }
     }
 

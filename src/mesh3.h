@@ -14,6 +14,7 @@
 #endif
 
 typedef std::set<int> intSet;
+int tri_tri_overlap_test_3d(float p1[3], float q1[3], float r1[3],float p2[3], float q2[3], float r2[3]);
 
 /** \brief  Mesh
 
@@ -146,7 +147,7 @@ public:
         \return void
         \sa
     **/
-    void info();
+    void info() const;
     
     /** \brief Smooth Mesh
 
@@ -183,6 +184,31 @@ public:
             default: std::cout << "Unknown file format" << std::endl;
         }
     }
+    
+    /**
+     * Check intersection between two triangles
+    **/
+    static inline bool triangle_intersection( const Mesh& m1, int nT1, const Mesh& m2, int nT2 ) {
+        const Triangle& T1 = m1.getTrg(nT1);
+        const Vect3& p1 = m1.getPt(T1.s1());
+        const Vect3& q1 = m1.getPt(T1.s2());
+        const Vect3& r1 = m1.getPt(T1.s3());
+        const Triangle& T2 = m2.getTrg(nT2);
+        const Vect3& p2 = m2.getPt(T2.s1());
+        const Vect3& q2 = m2.getPt(T2.s2());
+        const Vect3& r2 = m2.getPt(T2.s3());
+
+        float pp1[3] = {p1.x(),p1.y(),p1.z()};
+        float qq1[3] = {q1.x(),q1.y(),q1.z()};
+        float rr1[3] = {r1.x(),r1.y(),r1.z()};
+        float pp2[3] = {p2.x(),p2.y(),p2.z()};
+        float qq2[3] = {q2.x(),q2.y(),q2.z()};
+        float rr2[3] = {r2.x(),r2.y(),r2.z()};
+        return tri_tri_overlap_test_3d(pp1,qq1,rr1,pp2,qq2,rr2);
+    }
+
+    bool selfIntersection() const;
+    bool intersection(const Mesh& m) const;
 
 private:
     Filetype streamFormat;

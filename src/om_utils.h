@@ -5,7 +5,7 @@
 #define _USE_MATH_DEFINES
 #endif
 
-#include <cstring>
+#include <string>
 #include <cmath>
 
 #ifndef M_PI
@@ -94,6 +94,13 @@ inline void progressbar(int n, int N, int w = 20) {
     }
     std::cout.flush();
 #endif
+}
+
+inline void warning(std::string message) {
+    std::cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
+    std::cout << "!!!!!!!!!!! WARNING !!!!!!!!!!!" << std::endl;
+    std::cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
+    std::cout << message << std::endl;
 }
 
 #endif /* _OM_UTILS_H_ */
