@@ -80,30 +80,30 @@ inline double _operatorD(const int nT1,const int nP2,const int GaussOrder,const 
         static analyticD analyD;
     #endif
 
-    double total = 0;
-    int Tadj[128];            // triangles of which P2 is a vertex
-    int nTadj = m2.elem(nP2,Tadj); // FIXME : elem to be removed
 #ifdef ADAPT_LHS
-    adaptive_integrator<double> gauss(0.005);
-    for(int k=0;k<nTadj;k++)
-    {
-        gauss.setOrder(GaussOrder);
-        analyD.init( m2, Tadj[k], nP2);
-        total += gauss.integrate(analyD,T1,m1);
-    }
+    #ifdef USE_OMP
+        adaptive_integrator<double> gauss(0.005);
+    #else
+        static adaptive_integrator<double> gauss(0.005);
+    #endif
+    gauss.setOrder(GaussOrder);
 #else
     #ifdef USE_OMP
         integrator<double> gauss(GaussOrder);
     #else
         static integrator<double> gauss(GaussOrder);
     #endif
+#endif //ADAPT_LHS
 
-    for(int k=0;k<nTadj;k++)
+    double total = 0;
+
+    const intSet& Tadj = m2.getTrianglesForPoint(nP2); // loop on triangles of which nP2 is a vertex
+    for(intSet::const_iterator it = Tadj.begin(); it != Tadj.end(); ++it)
     {
-        analyD.init( m2, Tadj[k], nP2);
+        analyD.init( m2, *it, nP2);
         total += gauss.integrate(analyD,T1,m1);
     }
-#endif //ADAPT_LHS
+
     return total;
 }
 #else
@@ -185,7 +185,7 @@ inline double _operatorN(const int nP1,const int nP2,const int GaussOrder,const 
     double result=0.0;
 
     const intSet& trgs1 = m1.getTrianglesForPoint(nP1);
-    const intSet& trgs2 = m1.getTrianglesForPoint(nP2);
+    const intSet& trgs2 = m2.getTrianglesForPoint(nP2);
     for(intSet::const_iterator it1 = trgs1.begin(); it1 != trgs1.end(); ++it1)
         for(intSet::const_iterator it2 = trgs2.begin(); it2 != trgs2.end(); ++it2)
         {
@@ -228,18 +228,15 @@ inline double _operatorN(const int nP1,const int nP2,const int GaussOrder,const 
 inline double _operateurP1P0( int nT2, int nP1, const Mesh &m)
 {
 	const Triangle &T2=m.getTrg(nT2);
-    if(T2.contains(nP1)== 0)
-        {
-             return 0;
-        }
-             else return T2.getArea()/3.;
+    if(T2.contains(nP1)== 0) {
+        return 0;
+    }
+    else return T2.getArea()/3.;
 }
-
 
 //calcultates the S at point x integrated over all the triangles having nP1 as a vertice.
 inline Vect3 _operatorFerguson(const Vect3 x,const int nP1,const Mesh &m1)
 {
-    // int trgs1[128];
     const Vect3 P1=m1.getPt(nP1);
 
     double opS;

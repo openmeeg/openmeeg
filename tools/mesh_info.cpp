@@ -9,9 +9,8 @@ int main( int argc, char **argv)
     const char *input_filename = command_option("-i",(const char *) "","Input Mesh");
     if (command_option("-h",(const char *)0,0)) return 0;
 
-    Mesh* M = new Mesh();
-    M->load(input_filename,false);
+    Mesh M;
+    M.load(input_filename,false);
 
-    delete M;
     return 0;
 }

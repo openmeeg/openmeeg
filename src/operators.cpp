@@ -15,7 +15,8 @@ void operatorD(const Geometry &geo,const int I,const int J,const int GaussOrder,
     const Mesh &m1=geo.getM(I);
     const Mesh &m2=geo.getM(J);
 
-    for(int i=offsetI;i<offsetI+m1.nbTrgs();i++)
+    for(int i=offsetI;i<offsetI+m1.nbTrgs();i++) {
+        progressbar(i-offsetI,m1.nbTrgs());
         #ifdef USE_OMP
         #pragma omp parallel for
         #endif
@@ -24,6 +25,7 @@ void operatorD(const Geometry &geo,const int I,const int J,const int GaussOrder,
             // P1 functions are tested thus looping on vertices
             mat(i,j)=_operatorD(i-offsetI,j-offsetJ,GaussOrder,m1,m2);
         }
+    }
 }
 
 void operatorD(const Mesh &m1,const Mesh &m2,genericMatrix &mat,const int offsetI,const int offsetJ,const int GaussOrder)

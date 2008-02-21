@@ -14,11 +14,6 @@ template<class T> double normInf(const T& mat);
 
 int main (int argc, char** argv)
 {
-    if (argc<3) {
-        cerr << "Error: Not enough arguments, try the -h option" << endl;
-        return 1;
-    }
-
     command_usage("Compare two matrices of float with a certain numerical precision\ncompare_matrix mat1 mat2 [options]");
     const char *bin = command_option("-bin",(const char *) 0,"Force reading data stored in binary format");
     const char *txt = command_option("-txt",(const char *) 0,"Force reading data stored in ascii format");
