@@ -1,3 +1,17 @@
+/* FILE: $Id$ */
+
+/*
+Project Name : $Project$
+
+author            : $Author$
+version           : $Revision$
+lastrevision      : $Date$
+modified by       : $LastChangedBy$
+last modified     : $LastChangedDate$
+
+$License$
+*/
+
 #include "mesh3.h"
 #include "geometry.h"
 #include "options.h"

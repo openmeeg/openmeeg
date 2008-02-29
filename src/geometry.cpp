@@ -1,3 +1,17 @@
+/* FILE: $Id$ */
+
+/*
+Project Name : $Project$
+
+author            : $Author$
+version           : $Revision$
+lastrevision      : $Date$
+modified by       : $LastChangedBy$
+last modified     : $LastChangedDate$
+
+$License$
+*/
+
 #include "vect3.h"
 #include "triangle.h"
 #include "mesh3.h"

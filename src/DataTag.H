@@ -1,3 +1,17 @@
+/* FILE: $Id$ */
+
+/*
+Project Name : $Project$
+
+author            : $Author$
+version           : $Revision$
+lastrevision      : $Date$
+modified by       : $LastChangedBy$
+last modified     : $LastChangedDate$
+
+$License$
+*/
+
 #ifndef DATATAG_H
 #define DATATAG_H
 

@@ -1,3 +1,17 @@
+/* FILE: $Id$ */
+
+/*
+Project Name : $Project$
+
+author            : $Author$
+version           : $Revision$
+lastrevision      : $Date$
+modified by       : $LastChangedBy$
+last modified     : $LastChangedDate$
+
+$License$
+*/
+
 #ifndef H_geometry
 #define H_geometry
 
@@ -8,11 +22,6 @@
     
     Geometry Class
     
-© Copyright 2007-2007 Odyssee INRIA . All Rights Reserved.
-
-    \author $LastChangedBy$
-    \date $LastChangedDate$
-    \version $Rev$  \sa
 **/
 
 class Geometry

@@ -1,3 +1,17 @@
+/* FILE: $Id$ */
+
+/*
+Project Name : $Project$
+
+author            : $Author$
+version           : $Revision$
+lastrevision      : $Date$
+modified by       : $LastChangedBy$
+last modified     : $LastChangedDate$
+
+$License$
+*/
+
 #define command_usage(usage) command_line::option((const char*)0,argc,argv,(const char*)0,usage)
 #define command_option(name,defaut,usage) command_line::option(name,argc,argv,defaut,usage)
 

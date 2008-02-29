@@ -1,3 +1,17 @@
+/* FILE: $Id$ */
+
+/*
+Project Name : $Project$
+
+author            : $Author$
+version           : $Revision$
+lastrevision      : $Date$
+modified by       : $LastChangedBy$
+last modified     : $LastChangedDate$
+
+$License$
+*/
+
 #ifndef H_TRIANGLE
 #define H_TRIANGLE
 
@@ -8,11 +22,6 @@
     
     Triangle class
     
-© Copyright 2007 Odyssee INRIA . All Rights Reserved.
-
-    \author $LastChangedBy$
-    \date $Date$
-    \version $Rev$  \sa
 **/
 
 class Triangle {

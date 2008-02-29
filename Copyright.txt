@@ -1,1 +1,1 @@
-OpenMEEG Copyright
+See LICENSE file.
