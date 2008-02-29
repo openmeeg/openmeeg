@@ -1,6 +1,10 @@
-© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU, Théodore PAPADOPOULO, Maureen.Clerc.AT.sophia.inria.fr, keriven.AT.certis.enpc.fr, kybic.AT.fel.cvut.cz, papadop.AT.sophia.inria.fr)
+© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre 
+GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU, Théodore PAPADOPOULO,
+Maureen.Clerc.AT.sophia.inria.fr, keriven.AT.certis.enpc.fr,
+kybic.AT.fel.cvut.cz, papadop.AT.sophia.inria.fr)
 
-The OpenMEEG software is a C++ package for solving the forward/inverse problems of electroencephalography and magnetoencephalography.
+The OpenMEEG software is a C++ package for solving the forward/inverse
+problems of electroencephalography and magnetoencephalography.
 
 This software is governed by the CeCILL-B license under French law and
 abiding by the rules of distribution of free software.  You can  use,

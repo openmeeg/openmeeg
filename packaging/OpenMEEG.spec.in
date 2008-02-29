@@ -8,7 +8,7 @@ Epoch:        0
 Summary:      The OpenMEEG package.
 
 Group:        Applications/Medical
-License:      GPL
+License:      CeCILL-B
 Url:          https://gforge.inria.fr/projects/openmeeg/
 Packager:     Theodore Papadopoulo <Theodore.Papadopoulo@sophia.inria.fr>
 Vendor:       Odyssee ENPC/INRIA/Ens Ulm 
