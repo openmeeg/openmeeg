@@ -5,7 +5,7 @@ Project Name : $Project$
 
 author            : $Author$
 version           : $Revision$
-lastrevision      : $Date$
+last revision     : $Date$
 modified by       : $LastChangedBy$
 last modified     : $LastChangedDate$
 

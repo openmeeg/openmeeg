@@ -1,3 +1,17 @@
+/* FILE: $Id$ */
+
+/*
+Project Name : $Project$
+
+author            : $Author$
+version           : $Revision$
+last revision     : $Date$
+modified by       : $LastChangedBy$
+last modified     : $LastChangedDate$
+
+$License$
+*/
+
 #ifndef H_genericMatrix
 
 #define H_genericMatrix

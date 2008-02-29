@@ -1,3 +1,17 @@
+/* FILE: $Id$ */
+
+/*
+Project Name : $Project$
+
+author            : $Author$
+version           : $Revision$
+last revision     : $Date$
+modified by       : $LastChangedBy$
+last modified     : $LastChangedDate$
+
+$License$
+*/
+
 #ifndef H_fast_sparse_matrice
 #define H_fast_sparse_matrice
 
