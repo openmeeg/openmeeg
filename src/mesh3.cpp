@@ -193,9 +193,9 @@ void Mesh::getDataFromVTKReader(vtkPolyDataReader* reader) {   //private
         pts[i].y() = vtkMesh->GetPoint(i)[1];
         pts[i].z() = vtkMesh->GetPoint(i)[2];
 
-        normals[i][0] = normalsData->GetTuple(i)[0];
-        normals[i][1] = normalsData->GetTuple(i)[1];
-        normals[i][2] = normalsData->GetTuple(i)[2];
+        normals[i](0) = normalsData->GetTuple(i)[0];
+        normals[i](1) = normalsData->GetTuple(i)[1];
+        normals[i](2) = normalsData->GetTuple(i)[2];
     }
     ntrgs = vtkMesh->GetNumberOfCells();
     trgs = new Triangle[ntrgs];
