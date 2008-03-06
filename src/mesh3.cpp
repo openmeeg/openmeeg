@@ -183,10 +183,17 @@ void Mesh::getDataFromVTKReader(vtkPolyDataReader* reader) {   //private
     normals = new Vect3[npts]; // normals on each point
     links = new intSet[npts];
 
+    if(reader->GetNumberOfNormalsInFile()){
+      vtkPolyDataNormals *newNormals = vtkPolyDataNormals::New();
+      newNormals->SetInput(vtkMesh);    
+      newNormals->Update();   
+      vtkMesh = newNormals->GetOutput();
+    }    
+
     vtkDataArray *normalsData = vtkMesh->GetPointData()->GetNormals();
     assert(npts == normalsData->GetNumberOfTuples());
     assert(3 == normalsData->GetNumberOfComponents());
-
+    std::cout << "after assert mention" << std::endl;
     for (int i = 0; i<npts; i++)
     {
         pts[i].x() = vtkMesh->GetPoint(i)[0];
@@ -212,6 +219,7 @@ void Mesh::getDataFromVTKReader(vtkPolyDataReader* reader) {   //private
             exit(1);
         }
     }
+    std::cout <<"exit from getDataFromVTKReader" << std::endl;
 }
 
 void Mesh::load_vtk(std::istream &is, bool checkClosedSurface) {
@@ -651,7 +659,7 @@ void Mesh::append(const Mesh* m) {
     normals = newNormals;
     links = new intSet[npts];
     make_links(); // To keep a valid Mesh
-    updateTriangleOrientations();
+    //updateTriangleOrientations(true);
     return;
 }
 
