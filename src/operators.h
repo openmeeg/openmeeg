@@ -80,6 +80,7 @@ void operatorDipolePotDer(const Vect3 &r0, const Vect3 &q,const Mesh &inner_laye
 void operatorDipolePot(const Vect3 &r0, const Vect3 &q,const Mesh &inner_layer, vecteur &rhs, int offsetIdx,const int);
 void operatorDipolePotDerGrad(const Vect3 &r0, const Vect3 &q,const Mesh &inner_layer, vecteur rhs[3], int offsetIdx,const int);
 void operatorDipolePotGrad(const Vect3 &r0, const Vect3 &q,const Mesh &inner_layer, vecteur rhs[3], int offsetIdx,const int);
+void operateurGradSurf(const Geometry &geo,int I,matrice &mat,int offsetI,int offsetJ);
 
 inline void mult( symmatrice &mat, int Istart, int Jstart, int Istop, int Jstop, double coeff)
 {
@@ -306,7 +307,7 @@ inline Vect3 _operatorFerguson(const Vect3 x,const int nP1,const Mesh &m1)
     {
         const Triangle& T1=m1.getTrg(*it);
 
-        // A1 , B1 , A2, B2 are the two opposite vertices to P1 and P2 (triangles A1,B1,P1 and A2,B2,P2)
+        // A1 , B1  are the two opposite vertices to P1 (triangles A1,B1,P1)
         int nP1T = T1.contains(nP1);    //index of P1 in current triangle of mesh m1
 
         Vect3 A1 = m1.getPt(T1.next(nP1T));
@@ -321,6 +322,32 @@ inline Vect3 _operatorFerguson(const Vect3 x,const int nP1,const Mesh &m1)
     }
 
     return result;
+}
+
+inline Vect3& _operateurGradSurf( int nT1, int nP1, const Mesh &m)
+{
+	const Triangle &T1=m.getTrg(nT1);
+	static Vect3 retour;
+	if(T1.contains(nP1)== 0)
+	  {retour.x()=0;
+	    retour.y()=0;
+	    retour.z()=0;
+	    return retour;
+	  }
+	else 
+	  {	       
+	    int nP1T=T1.contains(nP1);	//Numero de P1 dans le triangle courant
+	    const Vect3 P1=m.getPt(nP1);
+	    Vect3 P0=m.getPt(((Triangle)T1).prev(nP1T));
+	    Vect3 P2=m.getPt(((Triangle)T1).next(nP1T));
+	    Vect3 P0P1=P1-P0;
+	    Vect3 P0P2=P2-P0;
+	    Vect3 P2P1=P1-P2;	       
+	    retour = (P0P2^T1.normal());
+	    retour *= (1.0/retour.norme());
+	    retour *= (2*P0P2.norme()/T1.getArea());
+	    return retour;
+	  }
 }
 
 #endif

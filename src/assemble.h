@@ -113,5 +113,5 @@ public:
 };
 
 void assemble_EITsource(const Geometry &geo, matrice &mat, matrice &airescalp, const int GaussOrder);
-
+void assemble_GradSurf(const Geometry &geo, matrice &mat);
 #endif /* _ASSEMBLE_H_ */
