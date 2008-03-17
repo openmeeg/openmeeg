@@ -614,7 +614,6 @@ inline void matrice::saveSubBin( const char *filename, size_t i_start, size_t i_
     if(outfile==NULL) {std::cout<<"Error opening matrix binary file: " << filename << std::endl; exit(1);}
     size_t sub_m=i_end-i_start+1;
     size_t sub_n=j_end-j_start+1;
-
     unsigned int ui;
     ui=(unsigned int)sub_m;
     fwrite(&ui,sizeof(unsigned int),1,outfile);

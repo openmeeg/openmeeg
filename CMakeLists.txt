@@ -77,7 +77,7 @@ IF (USE_VTK)
         INCLUDE(${VTK_USE_FILE})
         SET (VTK_LIBRARIES
                 # vtkRendering
-                # vtkGraphics
+                 vtkGraphics
                 # vtkHybrid
                 # vtkImaging
                 vtkIO

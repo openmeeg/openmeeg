@@ -374,6 +374,7 @@ inline void symmatrice::saveBin( const char *filename ) const {
     FILE *outfile=fopen(filename,"wb");
     if(outfile==NULL) {std::cout<<"Error opening symmetric matrix binary file: " << filename << std::endl; exit(1);}
     unsigned int ui;
+      std::cout << "matrice.h saveBin: "  << n << std::endl;
     ui=(unsigned int)n;
     fwrite(&ui,sizeof(unsigned int),1,outfile);
     fwrite(t,sizeof(double),(n*(n+1))/2,outfile);
