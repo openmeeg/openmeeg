@@ -20,7 +20,7 @@ IF(USE_ATLAS)
         /usr/lib/atlas
     )
 
-    SET(ATLAS_OTHER_LIBS lapack cblas)
+    SET(ATLAS_OTHER_LIBS lapack_atlas lapack cblas)
 
     # Find lib atlas and assume ${ATLAS_OTHER_LIBS} are in the same directory
     FIND_LIBRARY(ATLAS_LIB

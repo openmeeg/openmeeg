@@ -58,10 +58,10 @@ int main( int argc, char **argv)
     if (command_option("-h",(const char *)0,0)) return 0;
 
     Mesh* M1 = new Mesh();
-    M1->load(input_filename1,false);
+    M1->load(input_filename1);
 
     Mesh* M2 = new Mesh();
-    M2->load(input_filename2,false);
+    M2->load(input_filename2);
 
     M1->append(M2);
     M1->save(output_filename);
