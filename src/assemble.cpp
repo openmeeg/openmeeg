@@ -245,45 +245,7 @@ int main(int argc, char** argv)
         source.SAVE(argv[4]);
         airescalp.SAVE(argv[5]);
     }
-    /*********************************************************************************************
-    * Computation of Surfacic Gradient for Surface Regularization
-    **********************************************************************************************/
 
-
-    else if(!strcmp(argv[1],"-GradSurf")) {
-
-        if(argc < 3)
-        {
-            cerr << "Please set geometry filepath !" << endl;
-            exit(1);
-        }       
-	if (argc < 4)
-        {
-            std::cerr << "Please set conductivities filepath !" << endl;
-            exit(1);
-        }
-        if (argc < 5)
-        {
-            std::cerr << "Please set output filepath !" << endl;
-            exit(1);
-        }
-        // Loading surfaces from geometry file.
-        Geometry geo;
-        geo.read(argv[2],argv[3]);
-	int taille=geo.size();
-	int nbpoints=0;
-	int nbtriangles = 0;
-	int c;
-	for(c=0;c<geo.nb();c++)
-	  { 
-	    nbpoints = nbpoints+ geo.getM(c).nbPts();
-	    nbtriangles = nbtriangles+geo.getM(c).nbTrgs();
-	  }
-	cout << nbtriangles<<endl;
-	matrice mat(3*nbtriangles,nbpoints);
-	assemble_GradSurf(geo,mat);
-        mat.SAVE(argv[4]);
-    }
 
     /*********************************************************************************************
     * RK: Computation of RHS for discrete dipolar case: gradient wrt dipoles position and intensity!
@@ -517,12 +479,6 @@ void getHelp(char** argv) {
     cout << "               output EITsource" << endl;
     cout << "               output airescalp" << endl << endl;
 
-    cout << "   -GradSurf :   Compute the linear application which maps a P1 function on the geometry" << endl;
-    cout << "            to its surfacic gradient (a Vect3 on each triangle)" << endl;
-    cout << "            Arguments :" << endl;
-    cout << "              geometry file (.geom)" << endl;
-    cout << "              conductivity file (.cond)" << endl;
-    cout << "              name of the output GradSurf matrix" << endl << endl;
 
     cout << "   -vToEEG :   Compute the linear application which maps the potiential" << endl;
     cout << "            on the scalp to the EEG electrodes"  << endl;

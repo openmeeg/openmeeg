@@ -444,7 +444,6 @@ void TV_inverse(matrice& EstimatedData, const matrice& Data, const matrice& Gain
 
             v = v_dv;
             tv_v = tv_v_dv;
-
             errorTest = tol>StoppingTol;// || iter_line_search<max_iter_line_search;
 
             if ((t%100)==0 || !errorTest || (t == (MaxNbIter-1)))

@@ -48,7 +48,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include "danielsson.h"
 #include "operators.h"
 #include "sensors.h"
-
+#define MU0 1 //1.25e-6
 void assemble_ferguson(const Geometry &geo, matrice &mat, const Vect3* pts,const int n);
 
 int* computeVindexes(const Geometry &geo,int* n_indexes=0)

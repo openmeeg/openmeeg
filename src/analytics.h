@@ -49,7 +49,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #include "fcontainer.h"
 #include "mesh3.h"
-
+#include <stdio.h>
 class analyticS : public fContainer<double> {
 private:
     Vect3 p0,p1,p2; //!< vertices of the triangle
@@ -113,7 +113,7 @@ public:
         double g0,g1,g2;
 
         if ((p0x^p1p0).norme() > .00000001)
-            g0 = -log(norme2p1x-p1x*p1p0*(1.0/norme2p1p0) )+log(norme2p0x-p0x*p1p0*(1.0/norme2p1p0) );
+	  g0 = -log(norme2p1x-p1x*p1p0*(1.0/norme2p1p0) )+log(norme2p0x-p0x*p1p0*(1.0/norme2p1p0) );
         else
             g0= fabs(log(norme2p1x)-log(norme2p0x));
         if ((p1x^p2p1).norme() > .00000001)

@@ -244,18 +244,4 @@ void assemble_EITsource(const Geometry &geo, matrice &mat, matrice &airescalp, c
             }
 }
 
-void assemble_GradSurf(const Geometry &geo, matrice &mat)
-{
-// A matrix to be applied to the vector of potential values (P1, a value per point)
-// to obtain the surfacic gradient (a vector per triangle)
-    int c;
-    int offset0=0;
-    int offset1=0;
-   for(c=0;c<geo.nb();c++)
-     {
- 		operateurGradSurf(geo,c,mat,offset0,offset1);
-		offset0 = offset0 +3*geo.getM(c).nbTrgs();
-		offset1 = offset1 + geo.getM(c).nbPts();
-	}
-}
 

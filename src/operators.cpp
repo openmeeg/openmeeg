@@ -419,16 +419,3 @@ void operatorP1P0(const Geometry &geo,const int I,symmatrice &mat,const int offs
 		}
 }
 
-void operateurGradSurf(const Geometry &geo,int c, matrice &mat, int offsetI, int offsetJ)
-{
-	std::cout<<"OPERATEUR GradSurf..."<<std::endl;	
-	const Mesh &m=geo.getM(c);
-	for(int i=offsetI;i<offsetI+m.nbTrgs();i++)
-	  for(int j=offsetJ;j<offsetJ+m.nbPts();j++)
-	    {	
-	      Vect3 &v=_operateurGradSurf(i-offsetI,j-offsetJ,m);
-	      mat(offsetI+3*(i-offsetI),j)=v.x();
-	      mat(offsetI+3*(i-offsetI)+1,j)=v.y();
-	      mat(offsetI+3*(i-offsetI)+2,j)=v.z();
-	}
-}
