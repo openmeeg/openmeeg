@@ -183,19 +183,20 @@ void Mesh::getDataFromVTKReader(vtkPolyDataReader* reader) {   //private
     normals = new Vect3[npts]; // normals on each point
     links = new intSet[npts];
 
-    if(reader->GetNumberOfNormalsInFile()){
+    if(reader->GetNumberOfNormalsInFile()==0){
       vtkPolyDataNormals *newNormals = vtkPolyDataNormals::New();
       newNormals->SetInput(vtkMesh);    
       newNormals->Update();   
       vtkMesh = newNormals->GetOutput();
     }    
-
+ 
     vtkDataArray *normalsData = vtkMesh->GetPointData()->GetNormals();
     assert(npts == normalsData->GetNumberOfTuples());
+ 
     assert(3 == normalsData->GetNumberOfComponents());
-    std::cout << "after assert mention" << std::endl;
+
     for (int i = 0; i<npts; i++)
-    {
+    {   
         pts[i].x() = vtkMesh->GetPoint(i)[0];
         pts[i].y() = vtkMesh->GetPoint(i)[1];
         pts[i].z() = vtkMesh->GetPoint(i)[2];
@@ -206,7 +207,6 @@ void Mesh::getDataFromVTKReader(vtkPolyDataReader* reader) {   //private
     }
     ntrgs = vtkMesh->GetNumberOfCells();
     trgs = new Triangle[ntrgs];
-
     vtkIdList *l;
     for (int i = 0; i<ntrgs; i++) {
         if (vtkMesh->GetCellType(i) == VTK_TRIANGLE) {
@@ -219,7 +219,6 @@ void Mesh::getDataFromVTKReader(vtkPolyDataReader* reader) {   //private
             exit(1);
         }
     }
-    std::cout <<"exit from getDataFromVTKReader" << std::endl;
 }
 
 void Mesh::load_vtk(std::istream &is, bool checkClosedSurface) {
