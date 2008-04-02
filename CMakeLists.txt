@@ -51,12 +51,12 @@ IF ( USE_GCC )
     SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall")
     SET(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -Wall")
     IF ( APPLE )
-        IF ( NOT ${CMAKE_MAKE_PROGRAM} MATCHES "cmakexbuild" ) # Test if not xcode
+        IF ( NOT XCODE ) # Test if not xcode
             IF ( NOT MATLAB_WRAP AND NOT PYTHON_WRAP AND NOT USE_VTK)
                 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m64")
                 SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -m64")
             ENDIF ( NOT MATLAB_WRAP AND NOT PYTHON_WRAP AND NOT USE_VTK)
-        ENDIF ( NOT ${CMAKE_MAKE_PROGRAM} MATCHES "cmakexbuild"  )
+        ENDIF ( NOT XCODE  )
     ENDIF ( APPLE )
 ENDIF ( USE_GCC )
 

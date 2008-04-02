@@ -8,8 +8,8 @@
 
 using namespace std;
 
-template<class T> bool compare(const T& mat1, const T& mat2, float eps);
-template<class T> bool compare_rdm(const T& mat1, const T& mat2, float eps, int col);
+template<class T> bool compare(const T& mat1, const T& mat2, float eps, int col = 0);
+template<class T> bool compare_rdm(const T& mat1, const T& mat2, float eps, int col = 0);
 template<class T> double normInf(const T& mat);
 
 int main (int argc, char** argv)
@@ -20,7 +20,7 @@ int main (int argc, char** argv)
     const char *sym = command_option("-sym",(const char *) 0,"Data are symmetric matrices");
     const char *epsilon = command_option("-eps","0.00001","Tolerance on differences");
     const char *rdm = command_option("-rdm",(const char *) 0,"Use RDM (Relative difference measure) to compare each column of matrices");
-    const int col = command_option("-col",(int) -1,"Restrict RDM comparison to one column (index starts at 0)");
+    const int col = command_option("-col",(int) 0,"Restrict RDM comparison to one column (index starts at 1)");
     if (command_option("-h",(const char *)0,0)) return 0;
 
     float eps = atof(epsilon);
@@ -29,7 +29,7 @@ int main (int argc, char** argv)
     cout << "Comparing : " << endl;
     cout << "- " << argv[1] << endl;
     cout << "- " << argv[2] << endl;
-    
+
     bool flag;
     if(sym){
         symmatrice mat1;
@@ -65,9 +65,17 @@ int main (int argc, char** argv)
             mat2.load(argv[2]);
         }
         if(rdm) {
-            flag = compare_rdm(mat1,mat2,eps,col);
+            if(col) {
+                flag = compare_rdm(mat1,mat2,eps,col);
+            } else {
+                flag = compare_rdm(mat1,mat2,eps);
+            }
         } else {
-            flag = compare(mat1,mat2,eps);
+            if(col) {
+                flag = compare(mat1,mat2,eps,col);
+            } else {
+                flag = compare(mat1,mat2,eps);
+            }
         }
     }
 
@@ -76,16 +84,33 @@ int main (int argc, char** argv)
         exit(1);
     }
     cout << "OK" << endl;
+    cout.flush();
     return 0;
 }
 
 template<class T>
-bool compare(const T& mat1, const T& mat2, float eps){
+bool compare(const T& mat1, const T& mat2, float eps, int col){
 // T is a matrice or a symmatrice
 
-    if ((mat1.ncol() != mat2.ncol()) || (mat1.nlin() != mat2.nlin())) {
-        cerr << "ERROR : Dimension mismatch !" << endl;
-        exit(1);
+    if(col) {
+        if ((mat1.ncol() < col) || (mat2.ncol() < col)) {
+            cerr << "ERROR : Bad Column Id for matrices dimensions !" << endl;
+            exit(1);
+        }
+    } else {
+        if ((mat1.ncol() != mat2.ncol()) || (mat1.nlin() != mat2.nlin())) {
+            cerr << "ERROR : Dimension mismatch !" << endl;
+            exit(1);
+        }
+    }
+
+    unsigned int jmin,jmax;
+    if(col > 0) {
+        jmin = col-1;
+        jmax = col;
+    } else {
+        jmin = 0;
+        jmax = mat1.ncol();;
     }
 
     bool flag = true;
@@ -96,28 +121,31 @@ bool compare(const T& mat1, const T& mat2, float eps){
 
     if((norm1>1e-4)&(norm2>1e-4)) {
         for(unsigned int i=0; i<mat1.nlin(); i++) {
-            for(unsigned int j=0; j<mat1.ncol(); j++) {
+            for(unsigned int j=jmin; j<jmax; j++) {
                 diff = abs(mat1(i,j)/norm1 - mat2(i,j)/norm2);
                 flag = flag && (diff < eps);
                 if (!(diff < eps)) {
                     cout << "ERROR NORM  " << mat1(i,j) << "  " << mat2(i,j) << "  " << diff << endl;
+                    cout.flush();
                 }
             }
         }
     } else {
         for(unsigned int i=0; i<mat1.nlin(); i++) {
-            for(unsigned int j=0; j<mat1.ncol(); j++) {
-                if (abs(mat1(i,j))>1e-4) {
-                    diff = abs(mat1(i,j) - mat2(i,j))/abs(mat1(i,j));
+            for(unsigned int j=jmin; j<jmax; j++) {
+                if (abs(mat2(i,j))>1e-4) {
+                    diff = abs(mat1(i,j) - mat2(i,j))/abs(mat2(i,j));
                     flag = flag && ( diff < eps);
                     if (!(diff < eps))
                         cout << "ERROR RELATIVE  " << mat1(i,j) << "  " << mat2(i,j) << "  " << diff << endl;
+                        cout.flush();
                 }
                 else {
                     diff = abs(mat1(i,j) - mat2(i,j));
                     flag = flag && ( diff < eps);
                     if (!(diff < eps)) {
                         cout << "ERROR DIFF  " << mat1(i,j) << "  " << mat2(i,j) << "  " << diff << endl;
+                        cout.flush();
                     }
                 }
             }
@@ -127,41 +155,45 @@ bool compare(const T& mat1, const T& mat2, float eps){
 }
 
 template<class T>
-bool compare_rdm(const T& mat1, const T& mat2, float eps, int col){
+bool compare_rdm(const T& mat1, const T& mat2, float eps, int col = 0){
 // T is a matrice
 
-    if(col < 0) {
-        if ((mat1.ncol() != mat2.ncol()) || (mat1.nlin() != mat2.nlin())) {
-            cerr << "ERROR : Dimension mismatch !" << endl;
+    if(col) {
+        if ((mat1.ncol() < col) || (mat2.ncol() < col)) {
+            cerr << "ERROR : Bad Column Id for matrices dimensions !" << endl;
             exit(1);
         }
     } else {
-        if ((mat1.ncol() <= col) || (mat2.ncol() <= col)) {
-            cerr << "ERROR : Bad Column Id for matrices dimensions !" << endl;
+        if ((mat1.ncol() != mat2.ncol()) || (mat1.nlin() != mat2.nlin())) {
+            cerr << "ERROR : Dimension mismatch !" << endl;
             exit(1);
         }
     }
 
     bool flag = true;
     double diff;
-    unsigned int j = 0;
-    unsigned int jmax = mat1.ncol();
-    if(col >= 0) {
-        j = col;
+    unsigned int jmin,jmax;
+    if(col > 0) {
+        jmin = col-1;
         jmax = col;
+    } else {
+        jmin = 0;
+        jmax = mat1.ncol();;
     }
-    for(j=0; j<jmax; j++) {
+
+    for(unsigned int j=jmin; j<jmax; j++) {
         vecteur col1 = mat1.getcol(j);
         vecteur col2 = mat2.getcol(j);
         col1 = col1 - col1.mean();
         col2 = col2 - col2.mean();
         col1 = col1 / col1.norm();
         col2 = col2 / col2.norm();
-        // diff = (col1 - col2).norm() / mat1.nlin(); // FIXME : divide or not ?
         diff = (col1 - col2).norm();
+
         flag = flag && (diff < eps);
         if(diff > eps) {
             cout << "ERROR RDM ( column " << j << " ) " << diff << endl;
+            cout.flush();
         }
     }
     return flag;

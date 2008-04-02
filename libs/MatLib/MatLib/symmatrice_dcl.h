@@ -47,17 +47,14 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #ifndef H_SYMMATRICE_DCL
 #define H_SYMMATRICE_DCL
 
-#include "generic_matrix.h"
 #include <fstream>
 #include <cassert>
 
 #include "vecteur_dcl.h"
 
 class matrice;
-class vecteur;
-class symmatrice;
 
-class symmatrice : public genericMatrix  {
+class symmatrice {
     size_t n;
     double *t;
     int *count;

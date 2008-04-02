@@ -47,14 +47,11 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #ifndef H_fast_sparse_matrice
 #define H_fast_sparse_matrice
 
-#include <cstring>
-#include <fstream>
-
 #include "MatLibConfig.h"
 #include "vecteur.h"
 #include "sparse_matrice.h"
 
-class fast_sparse_matrice : public genericMatrix
+class fast_sparse_matrice
 {
 public:
     typedef sparse_matrice::idxType idxType;
@@ -139,7 +136,7 @@ inline fast_sparse_matrice::fast_sparse_matrice( const sparse_matrice &M)
     m_nlin=(idxType)M.nlin();
     m_ncol=(idxType)M.ncol();
 
-    // On remplit une structure plus rapide pour le calcul.
+    // we fill a data structure faster for computation
     sparse_matrice::cellType *cell;
     int cpt=0;
     for(idxType i=0;i<m_nlin;i++)

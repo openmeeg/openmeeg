@@ -165,7 +165,7 @@ inline double compute_tv(vecteur x,
 // ========================================================
 // = Define Hessian matrices for linear inversion methods =
 // ========================================================
-class MN_Hessian : public LinOp
+class MN_Hessian
 {
     const matrice &Transfer;
     const double alpha;
@@ -174,14 +174,14 @@ public:
 
     MN_Hessian(const matrice &TransferMat, const double &Alpha):Transfer(TransferMat),alpha(Alpha) {}
 
-    virtual vecteur operator * (const vecteur &x) const
+    inline vecteur operator * (const vecteur &x) const
     {
         return Transfer.tmult(Transfer*x)+alpha*x;
     }
 
 };
 
-class WMN_Hessian : public LinOp
+class WMN_Hessian
 {
     const matrice &Transfer;
     const double alpha;
@@ -199,14 +199,14 @@ public:
         weights = v;
     }
 
-    virtual vecteur operator * (const vecteur &x) const
+    inline vecteur operator * (const vecteur &x) const
     {
         return Transfer.tmult(Transfer*x)+alpha*(weights.kmult(x));
     }
 
 };
 
-class HEAT_Hessian : public LinOp
+class HEAT_Hessian
 {
     const matrice &m_transfer;
     const fast_sparse_matrice &m_mat;
@@ -218,7 +218,8 @@ public:
                      const fast_sparse_matrice &mat_t,
                      const double &alpha):
     m_transfer(transfer),m_mat(mat),m_mat_t(mat_t),m_alpha(alpha) {}
-    virtual vecteur operator * ( const vecteur &x) const
+
+    inline vecteur operator * ( const vecteur &x) const
     {
         return m_transfer.tmult(m_transfer*x)+m_alpha*(m_mat_t*(m_mat*x));
     }
@@ -226,7 +227,8 @@ public:
 
 // ========================================================
 
-size_t MinRes2(const LinOp& A,const vecteur& b,vecteur& x0,double tol)
+template<class T> // T should a linear operator
+size_t MinRes2(const T& A,const vecteur& b,vecteur& x0,double tol)
 {
     size_t n_max=10000;
     size_t n=1; size_t N=x0.size();
@@ -273,7 +275,8 @@ size_t MinRes2(const LinOp& A,const vecteur& b,vecteur& x0,double tol)
 // = Define all the linear inversion methods =
 // ===========================================
 
-void LIN_inverse (matrice& EstimatedData, const LinOp& hess, const matrice& GainMatrix, const matrice& Data) {
+template<class T>
+void LIN_inverse (matrice& EstimatedData, const T& hess, const matrice& GainMatrix, const matrice& Data) {
     size_t nT = Data.ncol();
     EstimatedData = matrice(GainMatrix.ncol(),nT);
 
@@ -311,7 +314,7 @@ void MN_inverse (matrice& EstimatedData, const matrice& Data, const matrice& Gai
 
 // ================= Iterative Mininum norm inversion =======================//
 
-class IMN_inverse_matrice : public virtual matrice
+class IMN_inverse_matrice : public matrice
 {
 public:
     IMN_inverse_matrice (const matrice& Data, const matrice& GainMatrix, double SmoothWeight);
@@ -326,7 +329,7 @@ IMN_inverse_matrice::IMN_inverse_matrice (const matrice& Data, const matrice& Ga
 
 // ================= Mininum norm inversion =======================//
 
-class MN_inverse_matrice : public virtual matrice
+class MN_inverse_matrice : public matrice
 {
 public:
     MN_inverse_matrice (const matrice& Data, const matrice& GainMatrix, double SmoothWeight);
@@ -340,7 +343,7 @@ MN_inverse_matrice::MN_inverse_matrice (const matrice& Data, const matrice& Gain
 
 // ================= Weighted Mininum norm inversion =======================//
 
-class WMN_inverse_matrice : public virtual matrice
+class WMN_inverse_matrice : public matrice
 {
 public:
     WMN_inverse_matrice (const matrice& Data, const matrice& GainMatrix, double SmoothWeight);
@@ -355,7 +358,7 @@ WMN_inverse_matrice::WMN_inverse_matrice (const matrice& Data, const matrice& Ga
 
 // ================= Gradient based Mininum norm inversion ================ //
 
-class HEAT_inverse_matrice : public virtual matrice
+class HEAT_inverse_matrice : public matrice
 {
 public:
     HEAT_inverse_matrice (const matrice& Data, const matrice& GainMatrix, const sparse_matrice& SmoothMatrix, double SmoothWeight);
@@ -457,7 +460,7 @@ void TV_inverse(matrice& EstimatedData, const matrice& Data, const matrice& Gain
     }
 }
 
-class TV_inverse_matrice : public virtual matrice
+class TV_inverse_matrice : public matrice
 {
 public:
     TV_inverse_matrice (const matrice& Data, const matrice& GainMatrix, const sparse_matrice& SmoothMatrix, const vecteur& AiVector, double SmoothWeight, size_t MaxNbIter, double StoppingTol);

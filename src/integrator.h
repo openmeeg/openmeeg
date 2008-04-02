@@ -181,11 +181,11 @@ static const double cordBars[4][16][4]=
 
 static const int nbPts[4]={3,6,7,16};
 
-template<class T> class integrator
+template<class T>
+class integrator
 {
 private:
-    // ordre numéro_du_noeud x_y_z_bary
-    int ordre;
+    int order;
 
 public:
     inline integrator() {setOrder(3);}
@@ -193,8 +193,8 @@ public:
     inline ~integrator() {}
     inline void setOrder(int n)
     {
-        if(n>=0 && n<4) ordre=n;
-        else {std::cout<<"Unavalaible Gauss Order: "<<n<<std::endl; ordre = (n<1)?ordre=1:ordre;}
+        if(n>=0 && n<4) order=n;
+        else {std::cout<<"Unavalaible Gauss Order: "<<n<<std::endl; order = (n<1)?order=1:order;}
     }
 
     inline T integrate ( const fContainer<T> &fc, const Triangle& Trg ,const Mesh& M)
@@ -209,31 +209,28 @@ public:
         T result = 0;
         static Vect3 zero(0.0,0.0,0.0);
         int i;
-        for(i=0;i<nbPts[ordre];i++)
+        for(i=0;i<nbPts[order];i++)
         {
             Vect3 v=zero;
             int j;
             for(j=0;j<3;j++) {
-                v.multadd(cordBars[ordre][i][j],vertices[j]);
+                v.multadd(cordBars[order][i][j],vertices[j]);
             }
-            multadd(result,cordBars[ordre][i][3],fc.f(v));
+            multadd(result,cordBars[order][i][3],fc.f(v));
         }
         return result*S;
     }
 };
 
-template<class T> class adaptive_integrator : public integrator<T>
+template<class T>
+class adaptive_integrator : public integrator<T>
 {
 private:
     double tolerance;
 public:
-    inline adaptive_integrator() {setTol(0.0001);}
-    inline adaptive_integrator(double tol) {setTol(tol);}
+    inline adaptive_integrator() : tolerance(0.0001) {}
+    inline adaptive_integrator(double tol) : tolerance(tol) {}
     inline ~adaptive_integrator() {}
-    inline void setTol(double tol)
-    {
-        tolerance = tol;
-    }
     inline double norme(double a) {
         return fabs(a);
     }
@@ -243,9 +240,9 @@ public:
     inline T integrate ( const fContainer<T> &fc, const Triangle& Trg ,const Mesh& M)
     {
         int n=0;
-        Vect3 sommets[3]={M.getPt(Trg.s1()),M.getPt(Trg.s2()),M.getPt(Trg.s3())};
-        T I0=triangle_integration(fc,sommets);
-        return adaptive_integration(fc,sommets,I0,tolerance,n);
+        Vect3 vertices[3]={M.getPt(Trg.s1()),M.getPt(Trg.s2()),M.getPt(Trg.s3())};
+        T I0=triangle_integration(fc,vertices);
+        return adaptive_integration(fc,vertices,I0,tolerance,n);
     }
     inline T adaptive_integration(const fContainer<T> &fc,const Vect3 *vertices,T I0,const double tolerance,int n)
     {

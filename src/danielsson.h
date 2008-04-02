@@ -47,7 +47,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #ifndef H_danielsson
 #define H_danielsson
 
-#define DIM 3
+#include <list>
 #include <limits.h>
 #include <float.h>
 #include "vect3.h"
@@ -55,14 +55,10 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <math.h>
 #include "mesh3.h"
 
-typedef Vect3 dpoint;
-typedef Triangle ipoint;
-typedef int dim_t;
-
 const int UnknownPoint=INT_MAX;
 const double UnknownDist=DBL_MAX;
 
-double dist_point_cell(const dpoint&m ,const dpoint *pts,const ipoint& cell,dpoint& alphas,bool& inside);
-double dist_point_mesh(const dpoint&m ,const Mesh &mesh,dpoint& alphas,int &nearestNumber);
+double dist_point_cell(const Vect3& m, const Vect3 *pts, const Triangle& cell, Vect3& alphas,bool& inside);
+double dist_point_mesh(const Vect3& m, const Mesh& mesh, Vect3& alphas, int& nearestNumber);
 
 #endif

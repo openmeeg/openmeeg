@@ -112,7 +112,7 @@ FOREACH ( DIP 1 2 3 4 5 )
 
 ENDFOREACH ( DIP 1 2 3 4 5 )
 
-FOREACH ( DIP 1 2 3 4 5 6 )
+FOREACH ( DIP 1 2 3 4 5)
 
     SET(EPSILON 0.15)
 
@@ -122,6 +122,39 @@ FOREACH ( DIP 1 2 3 4 5 6 )
                              ${OpenMEEG_SOURCE_DIR}/tests/analytic/meg_head1_analytic.txt
                              -rdm -eps ${EPSILON} -col ${DIP})
 
-ENDFOREACH ( DIP 1 2 3 4 5 6 )
+    ADD_TEST(compareMEGEST-point-Head2-d${DIP} ${CMAKE_CURRENT_BINARY_DIR}/compare_matrix
+                             ${OpenMEEG_BINARY_DIR}/tests/Head2-point.est_meg
+                             ${OpenMEEG_SOURCE_DIR}/tests/analytic/meg_head1_analytic.txt
+                             -rdm -eps ${EPSILON} -col ${DIP})
+
+    IF ( TEST_HEAD3 )
+        ADD_TEST(compareMEGEST-point-Head3-d${DIP} ${CMAKE_CURRENT_BINARY_DIR}/compare_matrix
+                                 ${OpenMEEG_BINARY_DIR}/tests/Head3-point.est_meg
+                                 ${OpenMEEG_SOURCE_DIR}/tests/analytic/meg_head1_analytic.txt
+                                 -rdm -eps ${EPSILON} -col ${DIP})
+    ENDIF ( TEST_HEAD3 )
+
+ENDFOREACH ( DIP 1 2 3 4 5)
+
+# Compare MEG result with analytical solution obtained with Matlab for dipole 6 that should be radial
+SET(DIP 6)
+SET(EPSILON 0.001)
+
+ADD_TEST(compareMEGEST-point-Head1-d${DIP} ${CMAKE_CURRENT_BINARY_DIR}/compare_matrix
+                         ${OpenMEEG_BINARY_DIR}/tests/Head1-point.est_meg
+                         ${OpenMEEG_SOURCE_DIR}/tests/analytic/meg_head1_analytic.txt
+                         -eps ${EPSILON} -col ${DIP})
+
+ADD_TEST(compareMEGEST-point-Head2-d${DIP} ${CMAKE_CURRENT_BINARY_DIR}/compare_matrix
+                         ${OpenMEEG_BINARY_DIR}/tests/Head2-point.est_meg
+                         ${OpenMEEG_SOURCE_DIR}/tests/analytic/meg_head1_analytic.txt
+                         -eps ${EPSILON} -col ${DIP})
+
+IF ( TEST_HEAD3 )
+    ADD_TEST(compareMEGEST-point-Head3-d${DIP} ${CMAKE_CURRENT_BINARY_DIR}/compare_matrix
+                             ${OpenMEEG_BINARY_DIR}/tests/Head3-point.est_meg
+                             ${OpenMEEG_SOURCE_DIR}/tests/analytic/meg_head1_analytic.txt
+                             -eps ${EPSILON} -col ${DIP})
+ENDIF ( TEST_HEAD3 )
 
 

@@ -74,7 +74,7 @@ void assemble_RHS(matrice &mat,const Geometry &geo,const Mesh& sources,const int
     // Second block is nFacesFistLayer*nVertexSources
     operatorD(geo.getM(0),sources,mat,(int)nVertexFirstLayer,0,GaussOrder);
 
-    double K=1.0/(4.0*M_PI);
+    double K = 1.0 / (4.0*M_PI);
 
     // First block*=(-1/sigma_inside)
     double s1i=geo.sigma_in(0);
@@ -93,7 +93,7 @@ void assemble_RHSdip(matrice &rhs,const Geometry &geo,vector<Vect3> Rs,vector<Ve
      unsigned nVertexFirstLayer=geo.getM(0).nbPts();
 
     unsigned nFacesFirstLayer=geo.getM(0).nbTrgs();
-    double K=1.0/(4*M_PI);
+    double K = 1.0 / (4*M_PI);
 
     // First block is nVertexFistLayer
     rhs.set(0);
@@ -146,7 +146,7 @@ void assemble_RHSdip_grad(matrice &rhs,const Geometry &geo,vector<Vect3> Rs,vect
     unsigned nVertexFirstLayer=geo.getM(0).nbPts();
     unsigned nFacesFirstLayer=geo.getM(0).nbTrgs();
 
-    double K=1.0/(4*M_PI);
+    double K = 1.0 / (4*M_PI);
 
     // First block is nVertexFistLayer
     rhs.set(0);
@@ -206,7 +206,8 @@ void assemble_EITsource(const Geometry &geo, matrice &mat, matrice &airescalp, c
     int offset2;
     int offset3;
     int offset4;
-    double K=1.0/(4*M_PI);
+
+    double K = 1.0 / (4*M_PI);
 
    for(c=0;c<geo.nb()-1;c++)
         {

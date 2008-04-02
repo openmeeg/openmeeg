@@ -56,7 +56,8 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 using namespace std;
 
-void genericTest(genericMatrix &M)
+template<class T>
+void genericTest(T &M)
 {
     cout<<" Generic Test "<<endl;
     cout<<"   nlin  = " << (int)M.nlin() << endl;
@@ -103,7 +104,7 @@ void genericTest(genericMatrix &M)
 int main ()
 {
     // section vecteur
-    cout<<endl<<"========== vecteurs =========="<<endl;
+    cout<<endl<<"========== vectors =========="<<endl;
     vecteur v(8);
     v.set(0);
     v.saveBin("tmp.bin");

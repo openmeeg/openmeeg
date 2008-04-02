@@ -56,7 +56,8 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include "operators.h"
 #include "assemble.h"
 
-void deflat(genericMatrix &M, int start, int end, double coef)
+template<class T> 
+void deflat(T &M, int start, int end, double coef)
 {// deflat the matrix
     for(int i=start;i<=end;i++)
     {
@@ -105,7 +106,7 @@ void assemble_LHS(const Geometry &geo,symmatrice &mat,const int GaussOrder)
     //Blocks multiplications
     //Because only half the matrix is stored, only the lower part of the matrix is treated
     offset=0;
-    double K=1.0/(4*M_PI);
+    double K = 1 / (4*M_PI);
     for(int c=0;c<geo.nb()-1;c++)
     {
         int offset0=offset;

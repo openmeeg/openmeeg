@@ -407,7 +407,7 @@ inline void symmatrice::saveSubBin( const char *filename , size_t i_start, size_
             tmpMat(i-i_start,j-j_start)=self(i,j);
         }
 
-        tmpMat.saveBin(filename);
+    tmpMat.saveBin(filename);
 }
 
 inline void symmatrice::saveTxt( const char *filename ) const {

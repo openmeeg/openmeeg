@@ -82,7 +82,7 @@ int main(int argc, char **argv)
     SmoothMatrix.loadBin(argv[2]);
     AiVector.loadBin(argv[3]);
     Data.loadTxt(argv[4]);
-    SmoothWeight = atof(argv[6] );
+    SmoothWeight = atof(argv[6]);
     SmoothType   = string(argv[7]);
 
     bool Heat = SmoothType==string("HEAT");

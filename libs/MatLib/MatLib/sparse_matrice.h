@@ -53,7 +53,6 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <fstream>
 
 #include "vecteur.h"
-#include "generic_matrix.h"
 
 enum sparsity {row,column};
 typedef sparsity sparsity;
@@ -75,7 +74,8 @@ template<class T,class I> class TsparseMatrix;
 typedef TsparseMatrix<double,size_t> sparse_matrice;
 typedef TsparseMatrixIterator<double,size_t> sparse_matrice_iterator;
 
-template<class T,class I> class TsparseMatrix: public TgenericMatrix<T>
+template<class T,class I>
+class TsparseMatrix
 {
 public:
     typedef T valType;

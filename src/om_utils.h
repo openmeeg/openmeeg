@@ -58,6 +58,8 @@ knowledge of the CeCILL-B license and that you accept its terms.
     #define M_PI 3.14159265358979323846
 #endif
 
+#define MU0 1.0 //1.25e-6
+
 inline void getNameExtension ( const char* name, char* extension )
 {
     const char *point = strrchr(name,'.');

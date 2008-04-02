@@ -52,17 +52,14 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <fstream>
 #include <cassert>
 
-#include "generic_matrix.h"
-
 #ifdef USE_MATIO
 #include <matio.h>
 #endif
 
 class symmatrice;
 class vecteur;
-class matrice;
 
-class matrice : public virtual genericMatrix {
+class matrice {
 protected:
     size_t m,n;
     double *t;

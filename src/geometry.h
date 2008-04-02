@@ -79,6 +79,15 @@ public:
     inline       Mesh& getM(const int i)       {assert(i>-1 && i<n); return M[i];}
     inline const Mesh& getM(const int i) const {assert(i>-1 && i<n); return M[i];}
 
+    inline int getNumberOfPoints() const {
+        int number_points_total = 0;
+        for(int i = 0; i < n; ++i)
+        {
+            number_points_total += M[i].nbPts();
+        }
+        return number_points_total;
+    }
+
     bool selfCheck() const;
     bool check(const Mesh& m) const;
 private:
