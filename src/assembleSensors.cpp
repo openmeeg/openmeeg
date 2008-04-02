@@ -9,7 +9,7 @@ last revision     : $Date$
 modified by       : $LastChangedBy$
 last modified     : $LastChangedDate$
 
-© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre 
+© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre
 GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU, Théodore PAPADOPOULO,
 Maureen.Clerc.AT.sophia.inria.fr, keriven.AT.certis.enpc.fr,
 kybic.AT.fel.cvut.cz, papadop.AT.sophia.inria.fr)
@@ -114,8 +114,6 @@ void assemble_vToMEG(matrice &mat, const Geometry &geo, const Sensors &sensors)
 
     assemble_ferguson(geo,myFergusonMatrix,positionsVectArray,nsquids);
 
-    myFergusonMatrix.saveBin("ferguson.bin");
-    
     // Compute indexes of V indexes (P1 elements)
     int* vindex = new int[geo_number_points];
     int count = 0;
@@ -179,7 +177,7 @@ void assemble_sToMEG(matrice &mat, const Mesh &sources_mesh, const Sensors &sens
         progressbar(i,mat.nlin());
         operatorFerguson(positionsVectArray[i],sources_mesh,myFergusonMatrix,3*(int)i,0);
     }
-    
+
     for(size_t i=0;i<mat.nlin();i++)
     {
         for(size_t j=0;j<mat.ncol();j++)
