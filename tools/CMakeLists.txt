@@ -5,6 +5,9 @@ ADD_DEFINITIONS ( -DSRCDIR=${OpenMEEG_SOURCE_DIR} )
 ADD_EXECUTABLE(om_txt2tex txt2tex.cpp)
 TARGET_LINK_LIBRARIES (om_txt2tex ${OPENMEEG_OTHER_LIBRARIES})
 
+ADD_EXECUTABLE(om_make_nerve make_nerve.cpp)
+TARGET_LINK_LIBRARIES (om_make_nerve OpenMEEG ${OPENMEEG_OTHER_LIBRARIES})
+
 ADD_EXECUTABLE(om_tex2txt tex2txt.cpp)
 TARGET_LINK_LIBRARIES (om_tex2txt ${OPENMEEG_OTHER_LIBRARIES})
 
@@ -57,5 +60,5 @@ ADD_EXECUTABLE(om_check_geom check_geom.cpp)
 TARGET_LINK_LIBRARIES (om_check_geom OpenMEEG ${OPENMEEG_OTHER_LIBRARIES})
 
 IF(ENABLE_PACKAGING)
-INSTALL(TARGETS om_matbin2txt om_mattxt2bin om_symtxt2bin om_symbin2txt om_mesh_convert om_mesh_concat om_mesh_info om_mesh_smooth om_cortex_patch om_register_squids om_squids2vtk om_tex2mask om_tex2txt om_txt2tex om_matrix_info om_matrix_convert om_check_geom DESTINATION bin)
+INSTALL(TARGETS om_make_nerve om_matbin2txt om_mattxt2bin om_symtxt2bin om_symbin2txt om_mesh_convert om_mesh_concat om_mesh_info om_mesh_smooth om_cortex_patch om_register_squids om_squids2vtk om_tex2mask om_tex2txt om_txt2tex om_matrix_info om_matrix_convert om_check_geom DESTINATION bin)
 ENDIF(ENABLE_PACKAGING)
