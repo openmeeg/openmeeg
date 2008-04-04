@@ -221,7 +221,7 @@ void assemble_EITsource(const Geometry &geo, matrice &mat, matrice &airescalp, c
     c=geo.nb()-2;
 
 // compute S 
-    operatorS(geo,c,c-1,GaussOrder,transmat,offset3,offset1);
+    operatorS(geo,c+1,c,GaussOrder,transmat,offset3,offset1);
     mult(transmat,offset3,offset1,offset4,offset2,-1.0*K);
 // first compute D, then it will be transposed
     operatorD(geo,c+1,c,GaussOrder,transmat,offset3,offset0);
