@@ -77,9 +77,9 @@ void operatorD(const Mesh &m1,const Mesh &m2,T &mat, const int offsetI,const int
 void operatorN(const Geometry &,const int,const int,const int,symmatrice &,const int,const int ,const int,const int);
 void operatorS(const Geometry &,const int,const int,const int,symmatrice &,const int,const int);
 void operatorD(const Geometry &,const int,const int,const int,symmatrice &,const int,const int);
-
+void operatorSinternal(const Geometry &,const int, matrice &,const int,const matrice &);
+void operatorDinternal(const Geometry &,const int, matrice &,const int,const matrice &);
 void operatorP1P0(const Geometry &geo,const int I,symmatrice &mat,const int offsetI,const int offsetJ);
-
 void operatorFerguson(const Vect3& x, const Mesh &m1, matrice &mat, int offsetI, int offsetJ);
 void operatorDipolePotDer(const Vect3 &r0, const Vect3 &q,const Mesh &inner_layer, vecteur &rhs, int offsetIdx,const int);
 void operatorDipolePot(const Vect3 &r0, const Vect3 &q,const Mesh &inner_layer, vecteur &rhs, int offsetIdx,const int);
@@ -104,7 +104,6 @@ inline void mult( symmatrice &mat, int Istart, int Jstart, int Istop, int Jstop,
             #endif
             for(int j=Jstart;j<=Jstart+(i-Istart);j++)
                 mat(i,j)*=coeff;
-
 }
 
 inline void mult2( matrice &mat, int Istart, int Jstart, int Istop, int Jstop, double coeff)
@@ -124,13 +123,11 @@ inline double _operatorD(const int nT1,const int nP2,const int GaussOrder,const 
 {
     // consider varying order of quadrature with the distance between T1 and T2
     const Triangle &T1=m1.getTrg(nT1);
-
     #ifdef USE_OMP
         analyticD analyD;
     #else
         static analyticD analyD;
     #endif
-
 #ifdef ADAPT_LHS
     #ifdef USE_OMP
         adaptive_integrator<double> gauss(0.005);
@@ -196,6 +193,24 @@ inline void _operatorD(const int nT1,const int nT2,const int GaussOrder,const Me
 }
 #endif //OPTIMIZED_OPERATOR_D
 
+
+inline void _operatorDinternal(const int nT,const int nT2, const Mesh &m, matrice  &mat,  const int offsetJ,const Vect3 pt)
+{
+	const Triangle &T2=m.getTrg(nT2); 
+	static analyticD3 analyD;
+  
+ 	//vect3 total(0,0,0);
+  
+	analyD.init( m, nT2);
+
+      	Vect3 total=analyD.f(pt);
+        
+	mat(nT,offsetJ+((Triangle)T2).som(1))+=total.x();
+	mat(nT,offsetJ+((Triangle)T2).som(2))+=total.y();
+	mat(nT,offsetJ+((Triangle)T2).som(3))+=total.z();
+ }
+
+
 inline double _operatorS(const int nT1,const int nT2,const int GaussOrder,const Mesh &m1,const Mesh &m2)
 {
     const Triangle &T1=m1.getTrg(nT1);
@@ -227,6 +242,13 @@ inline double _operatorS(const int nT1,const int nT2,const int GaussOrder,const 
     gauss.setOrder(GaussOrder);
     return gauss.integrate(analyS,T2,m2);
 #endif //ADAPT_LHS
+}
+
+inline double _operatorSinternal(const int nP, const int nT, const Mesh &m,const Vect3 pt)
+{
+static analyticS analyS;
+analyS.init(nT,m);
+return analyS.f(pt);
 }
 
 template<class T> 
@@ -407,6 +429,7 @@ void operatorD(const Mesh &m1,const Mesh &m2,T &mat,const int offsetI,const int 
 #endif // OPTIMIZED_OPERATOR_D
 
 
+
 inline double _operatorP1P0( int nT2, int nP1, const Mesh &m)
 {
 	const Triangle &T2=m.getTrg(nT2);
@@ -416,7 +439,6 @@ inline double _operatorP1P0( int nT2, int nP1, const Mesh &m)
     else return T2.getArea()/3.;
 }
 
-//calcultates the S at point x integrated over all the triangles having nP1 as a vertice.
 inline Vect3 _operatorFerguson(const Vect3 x,const int nP1,const Mesh &m1)
 {
     const Vect3 P1=m1.getPt(nP1);

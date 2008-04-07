@@ -52,6 +52,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
     #define SAVE saveTxt
 #endif
 
+
 #include <fstream>
 #include <cstring>
 
@@ -141,7 +142,7 @@ int main(int argc, char** argv)
         geo.read(argv[2],argv[3]);
 
         // Loading mesh for distributed sources
-        Mesh mesh_sources;
+        Mesh  mesh_sources;
         bool checkClosedSurface = false;
         mesh_sources.load(argv[4],false); // Load mesh without crashing when the surface is not closed
 
@@ -244,6 +245,55 @@ int main(int argc, char** argv)
 
         source.SAVE(argv[4]);
         airescalp.SAVE(argv[5]);
+    }
+
+    /*********************************************************************************************
+    * Computation of RHS for EIT
+    **********************************************************************************************/
+
+
+    else if(!strcmp(argv[1],"-EITstim")) {
+
+        if(argc < 3)
+        {
+            cerr << "Please set geometry filepath !" << endl;
+            exit(1);
+        }
+        if (argc < 4)
+        {
+            std::cerr << "Please set conductivities filepath !" << endl;
+            exit(1);
+        }
+        if (argc < 5)
+        {
+            std::cerr << "Please set EITsource filepath !" << endl;
+            exit(1);
+        }
+        if (argc < 6)
+        {
+            std::cerr << "Please set stimelec filepath !" << endl;
+            exit(1);
+        }
+        if (argc < 6)
+        {
+            std::cerr << "Please set output filepath !" << endl;
+            exit(1);
+        }
+        // Loading surfaces from geometry file.
+        Geometry geo;
+        geo.read(argv[2],argv[3]);
+	int taille=geo.size();
+        int sourcetaille = (geo.getM(geo.nb()-1)).nbTrgs();
+	int newtaille=taille-sourcetaille;
+	matrice source;
+	source.loadBin(argv[4]);
+	sparse_matrice stimelec;
+        stimelec.loadBin(argv[5]);
+	std::cout << "EITsource nlines: " << source.nlin() << "   ncols: " << source.ncol() << std::endl;
+	std::cout << "stimelec nlines: " << stimelec.nlin() << "   ncols: " << stimelec.ncol() << std::endl;
+        matrice stim(source.nlin(),stimelec.ncol());
+	//        stim = source*stimelec;
+	stim.saveBin(argv[6]);
     }
 
 
@@ -427,6 +477,45 @@ int main(int argc, char** argv)
         sToMEGdip_matrice mat( dipoles, sensors );
         mat.SAVE(argv[4]);
     }
+    /*********************************************************************************************
+    * Computation of the discrete linear application which maps x (the unknown vector in a symmetric system)
+    * |----> v, potential at a set of prescribed points within the 3D volume
+    **********************************************************************************************/
+    // arguments are the geom file
+    // a tri-like file of point positions at which to evaluate the potential" << endl;
+
+    else if(!strcmp(argv[1],"-SurfToVol")) {
+        if (argc < 3)
+        {
+            cerr << "Please set geom filepath !" << endl;
+            exit(1);
+        }
+	if (argc < 4)
+        {
+            cerr << "Please set cond filepath !" << endl;
+            exit(1);
+        }
+        if (argc < 5)
+        {
+            cerr << "Please set point positions filepath !" << endl;
+            exit(1);
+       }
+	    if (argc < 6)
+        {
+            std::cerr << "Please set output filepath !" << endl;
+            exit(1);
+        }
+        // Loading surfaces from geometry file
+        Geometry geo;
+        geo.read(argv[2],argv[3]);
+	matrice points(argv[4]);
+        SurfToVol_matrice mat(geo,points);
+	std::cout << " mat(0,0) = " << mat(0,0) << std::endl;
+	std::cout << " mat(1770,3445) = " << mat(1770,3445) << std::endl;
+        // Saving SurfToVol matrix :
+        mat.SAVE(argv[5]);
+    }
+
     else cerr << "unknown argument: " << argv[1] << endl;
 
     // Stop Chrono
@@ -479,8 +568,17 @@ void getHelp(char** argv) {
     cout << "               output EITsource" << endl;
     cout << "               output airescalp" << endl << endl;
 
+    cout << "   -EITstim :  Compute matrix directly mapping injected current values to EIT RHS. " << endl;
+    cout << "            Arguments :" << endl;
+    cout << "               geometry file (.geom)" << endl;
+    cout << "               conductivity file (.cond)" << endl;
+    cout << "               input EITsource" << endl;
+    //    cout << "               input airescalp" << endl; 
+    cout << "               input stimelec" << endl;
+    cout << "               output EITstim" << endl << endl;
 
-    cout << "   -vToEEG :   Compute the linear application which maps the potiential" << endl;
+
+    cout << "   -vToEEG :   Compute the linear application which maps the potential" << endl;
     cout << "            on the scalp to the EEG electrodes"  << endl;
     cout << "            Arguments :" << endl;
     cout << "               geometry file (.geom)" << endl;
@@ -510,6 +608,13 @@ void getHelp(char** argv) {
     cout << "               positions and orientations of the MEG sensors (.squids)" << endl;
     cout << "               name of the output sToMEG matrix" << endl << endl;
 
+    cout << "   -SurfToVol :   Compute the linear application which maps the surface potential" << endl;
+    cout << "            and normal current to the value of the potential at a set of points in the volume" << endl;
+    cout << "            Arguments :" << endl;
+    cout << "               geom file" << endl;
+     cout << "              cond file" << endl;
+    cout << "               a tri file of point positions at which to evaluate the potential" << endl;
+    cout << "               name of the output SurfToVol matrix" << endl << endl;
 
 
     exit(0);

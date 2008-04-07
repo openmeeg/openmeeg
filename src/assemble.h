@@ -84,6 +84,12 @@ public:
     virtual ~RHSdip_grad_matrice () {};
 };
 
+class SurfToVol_matrice : public virtual matrice
+{
+public:
+    SurfToVol_matrice (const Geometry &geo, const matrice &points);
+    virtual ~SurfToVol_matrice () {};
+};
 class vToEEG_matrice : public virtual matrice
 {
 public:

@@ -58,7 +58,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 template<class T> 
 void deflat(T &M, int start, int end, double coef)
-{// deflat the matrix
+{// deflate the matrix
     for(int i=start;i<=end;i++)
     {
         #ifdef USE_OMP
@@ -103,7 +103,7 @@ void assemble_LHS(const Geometry &geo,symmatrice &mat,const int GaussOrder)
         offset=offset2;
     }
 
-    //Blocks multiplications
+    //Block multiplications
     //Because only half the matrix is stored, only the lower part of the matrix is treated
     offset=0;
     double K = 1 / (4*M_PI);
@@ -136,9 +136,8 @@ void assemble_LHS(const Geometry &geo,symmatrice &mat,const int GaussOrder)
         mult(mat,offset3,offset3,offset4,offset4,(1.0/geo.sigma_in(c+1)+1.0/geo.sigma_out(c+1))*K);
 
         offset=offset2;
-    }
-    
-    // Deflation the last diagonal bloc of new 'mat' :
+    }    
+    // Deflate the last diagonal block of new 'mat' :
     int newsize = geo.size()-(geo.getM(geo.nb()-1)).nbTrgs();
     offset = newsize-(geo.getM(geo.nb()-1)).nbPts();
     deflat(mat,offset,newsize-1,mat(offset,offset)/(newsize-offset));
@@ -146,7 +145,32 @@ void assemble_LHS(const Geometry &geo,symmatrice &mat,const int GaussOrder)
     mat = mat.getsubmat(0,newsize-1);
 }
 
+void assemble_SurfToVol(const Geometry &geo,matrice &mat,const matrice &points)
+{
+ // only consider innermost surface points and triangles 
+  // (for the moment SurfToVol only works for the innermost surface and volume)
+  int c=0;
+  int offset=0;
+  int offset0=offset;
+  int offset1=offset+geo.getM(c).nbPts();
+  int nbpoints=geo.getM(0).nbPts();
+  int nbtriangles = geo.getM(0).nbTrgs();
+  double K = 1/(4*M_PI);
+  std::cout<<" nbpoints= " << nbpoints <<std::endl;
+  std::cout<<" nbtriangles= " << nbtriangles <<std::endl;
+  std::cout<< "observation points: " << points.nlin() << std::endl;
+   mat = matrice(points.nlin(),nbpoints+nbtriangles);
+     // compute S blocks 
+       operatorSinternal(geo,c,mat,offset1,points); 
+       mult2(mat,offset0,offset1,offset0+points.nlin(),offset1+geo.getM(0).nbTrgs(),K);
+      // compute D blocks
+      operatorDinternal(geo,c,mat,offset0,points);
+      mult2(mat,offset0,offset0,offset0+points.nlin(),offset1,-(1.0/geo.sigma_in(0))*K);
+}
 LHS_matrice::LHS_matrice (const Geometry &geo, const int GaussOrder) {
-    assemble_LHS(geo,*this,GaussOrder);
+  assemble_LHS(geo,*this,GaussOrder);
 }
 
+SurfToVol_matrice::SurfToVol_matrice (const Geometry &geo, const matrice &points) {
+  assemble_SurfToVol(geo,*this,points);
+}
