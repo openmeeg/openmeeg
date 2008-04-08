@@ -45,6 +45,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 */
 
 #include <vecteur.h>
+#include <sparse_matrice.h>
 #include <symmatrice.h>
 #include <matrice.h>
 #include <cmath>
@@ -61,6 +62,8 @@ int main( int argc, char **argv)
     const char *filename = command_option("-i",(const char *) NULL,"Matrix file");
     const char *txt = command_option("-txt",(const char *) 0,"Force reading data stored in ascii format");
     const char *sym = command_option("-sym",(const char *) 0,"Data are symmetric matrices");
+    const char *sparse = command_option("-sparse",(const char *) 0,"Data are sparse matrices");
+    const char *mat = command_option("-mat",(const char *) 0,"Data are matlab format");
     if (command_option("-h",(const char *)0,0)) return 0;
     
     if(!filename)
@@ -72,24 +75,51 @@ int main( int argc, char **argv)
     cout << "Loading : " << filename << endl;
 
     if(sym) {
-        if(txt)
-        {
-            symmatrice M(filename,'t');
+        if(txt) {
+            symmatrice M;
+            M.loadTxt(filename);
             cout << "Format : ASCII" << endl;
             print_infos(M);
+        } else if(mat) {
+            cerr << "Unsupported Format : MAT for symmetric matrices" << endl;
+            exit(1);
         } else {
-            symmatrice M(filename,'b');
+            symmatrice M;
+            M.loadBin(filename);
+            cout << "Format : BINARY" << endl;
+            print_infos(M);
+        }
+    } else if(sparse) {
+        if(txt) {
+            sparse_matrice M;
+            M.loadTxt(filename);
+            cout << "Format : ASCII" << endl;
+            print_infos(M);
+        } else if(mat) {
+            sparse_matrice M;
+            M.loadMat(filename);
+            cout << "Format : MAT" << endl;
+            print_infos(M);
+        } else {
+            sparse_matrice M;
+            M.loadBin(filename);
             cout << "Format : BINARY" << endl;
             print_infos(M);
         }
     } else {
-        if(txt)
-        {
-            matrice M(filename,'t');
+        if(txt) {
+            matrice M;
+            M.loadTxt(filename);
             cout << "Format : ASCII" << endl;
             print_infos(M);
+        } else if(mat) {
+            matrice M;
+            M.loadMat(filename);
+            cout << "Format : MAT" << endl;
+            print_infos(M);
         } else {
-            matrice M(filename,'b');
+            matrice M;
+            M.loadBin(filename);
             cout << "Format : BINARY" << endl;
             print_infos(M);
         }
@@ -133,9 +163,9 @@ void print_infos(const T& M) {
     cout << "Max Value : " << maxv << " (" << maxi << "," << maxj << ")" << endl;
 
     cout << "First Values" << endl;
-    for(size_t i = 0; i < std::min(M.nlin(),(size_t) 5); ++i)
+    for(size_t i = 0; i < std::min(M.nlin(),(size_t) 10); ++i)
     {
-        for(size_t j = 0; j < std::min(M.ncol(),(size_t) 5); ++j)
+        for(size_t j = 0; j < std::min(M.ncol(),(size_t) 10); ++j)
         {
             cout << M(i,j) << " " ;
         }

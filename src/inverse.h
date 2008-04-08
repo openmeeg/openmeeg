@@ -283,7 +283,7 @@ void LIN_inverse (matrice& EstimatedData, const T& hess, const matrice& GainMatr
     #ifdef USE_OMP
     #pragma omp parallel for
     #endif
-    for(int frame=0;frame<nT;frame++)// loop over frame
+    for(size_t frame=0;frame<nT;frame++)// loop over frame
     {
         vecteur m = Data.getcol(frame);
         vecteur v(GainMatrix.ncol()); v.set(0.0);
@@ -406,7 +406,7 @@ void TV_inverse(matrice& EstimatedData, const matrice& Data, const matrice& Gain
         int max_iter_line_search = 10;
 
         // ================== Inverse problem via gradient descent ================== //
-        int t;
+        size_t t;
         for(t=0;t<MaxNbIter && errorTest;t++)
         {
             vecteur gradtv = gentv(v,fastSmoothMatrix,fastSmoothMatrix_t,AiVector);
@@ -451,9 +451,9 @@ void TV_inverse(matrice& EstimatedData, const matrice& Data, const matrice& Gain
 
             if ((t%100)==0 || !errorTest || (t == (MaxNbIter-1)))
                 printf("Energy %e   Relative Error %f   TV %f   Tol %e   GradStep %f Iter %d\n",
-                       f_v,(err_vec).norm()/m.norm(),tv_v,tol,grad_step,t);
+                       f_v,(err_vec).norm()/m.norm(),tv_v,tol,grad_step,(int)t);
         }
-        printf("Total number of iterations : %d\n",t);
+        printf("Total number of iterations : %d\n",(int)t);
 
         //===========================================================================//
         EstimatedData.setcol(frame,v);

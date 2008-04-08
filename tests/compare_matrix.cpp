@@ -2,14 +2,15 @@
 #include "vecteur.h"
 #include "matrice.h"
 #include "symmatrice.h"
+#include "sparse_matrice.h"
 #include "options.h"
 #include <iostream>
 #include <cmath>
 
 using namespace std;
 
-template<class T> bool compare(const T& mat1, const T& mat2, float eps, int col = 0);
-template<class T> bool compare_rdm(const T& mat1, const T& mat2, float eps, int col = 0);
+template<class T> bool compare(const T& mat1, const T& mat2, float eps, size_t col = 0);
+template<class T> bool compare_rdm(const T& mat1, const T& mat2, float eps, size_t col = 0);
 template<class T> double normInf(const T& mat);
 
 int main (int argc, char** argv)
@@ -18,6 +19,7 @@ int main (int argc, char** argv)
     const char *bin = command_option("-bin",(const char *) 0,"Force reading data stored in binary format");
     const char *txt = command_option("-txt",(const char *) 0,"Force reading data stored in ascii format");
     const char *sym = command_option("-sym",(const char *) 0,"Data are symmetric matrices");
+    const char *sparse = command_option("-sparse",(const char *) 0,"Data are sparse matrices");
     const char *epsilon = command_option("-eps","0.00001","Tolerance on differences");
     const char *rdm = command_option("-rdm",(const char *) 0,"Use RDM (Relative difference measure) to compare each column of matrices");
     const int col = command_option("-col",(int) 0,"Restrict RDM comparison to one column (index starts at 1)");
@@ -50,8 +52,26 @@ int main (int argc, char** argv)
         } else {
             flag = compare(mat1,mat2,eps);
         }
-    }
-    else {
+    } else if (sparse) {
+        sparse_matrice mat1;
+        sparse_matrice mat2;
+        if(bin) {
+            mat1.loadBin(argv[1]);
+            mat2.loadBin(argv[2]);
+        } else if(txt) {
+            mat1.loadTxt(argv[1]);
+            mat2.loadTxt(argv[2]);
+        } else {
+            mat1.load(argv[1]);
+            mat2.load(argv[2]);
+        }
+        if(rdm) {
+            std::cerr << "ERROR : Cannot use RDM on sparse matrices" << std::endl;
+            exit(1);
+        } else {
+            flag = compare(mat1,mat2,eps);
+        }
+    } else {
         matrice mat1;
         matrice mat2;
         if(bin) {
@@ -89,7 +109,7 @@ int main (int argc, char** argv)
 }
 
 template<class T>
-bool compare(const T& mat1, const T& mat2, float eps, int col){
+bool compare(const T& mat1, const T& mat2, float eps, size_t col){
 // T is a matrice or a symmatrice
 
     if(col) {
@@ -155,7 +175,7 @@ bool compare(const T& mat1, const T& mat2, float eps, int col){
 }
 
 template<class T>
-bool compare_rdm(const T& mat1, const T& mat2, float eps, int col = 0){
+bool compare_rdm(const T& mat1, const T& mat2, float eps, size_t col){
 // T is a matrice
 
     if(col) {

@@ -854,7 +854,7 @@ sparse_matrice Mesh::gradient() const {
 
 vecteur Mesh::areas() const {
     vecteur areas(nbTrgs());
-    for(size_t i = 0; i < nbTrgs(); ++i)
+    for(int i = 0; i < nbTrgs(); ++i)
     {
         areas(i) = getTrg(i).getArea();
     }
@@ -870,7 +870,7 @@ void Mesh::update_triangles() {
 }
 
 void Mesh::recompute_normals() {
-    for(size_t p = 0; p < nbPts(); ++p)
+    for(int p = 0; p < nbPts(); ++p)
     {
         Vect3 normal(0);
         for(intSet::iterator it = links[p].begin(); it != links[p].end(); ++it)

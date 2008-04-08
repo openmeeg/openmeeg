@@ -10,7 +10,7 @@ int main(int argc, char** argv) {
     /*** tests on sensors file ****/
     Sensors S(argv[1]);
 
-    int n = S.getNumberOfSensors();
+    size_t n = S.getNumberOfSensors();
     std::cout << "Number of sensors of S : " << n << std::endl;
 
     if (S.isEmpty())

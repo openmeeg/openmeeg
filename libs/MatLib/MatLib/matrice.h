@@ -53,10 +53,12 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <sstream>
 #include <cfloat>
 
+#include "om_utils.h"
 #include "matrice_dcl.h"
 #include "symmatrice_dcl.h"
+#include "sparse_matrice_dcl.h"
 #include "vecteur.h"
-#include "om_utils.h"
+#include "sparse_matrice.h"
 
 inline matrice::matrice():m(0),n(0),t(0),count(0) {}
 inline matrice::matrice(size_t M,size_t N) { alloc(M,N); }
@@ -415,6 +417,24 @@ inline matrice matrice::operator *(const matrice &B) const
         return C;
 }
 
+inline matrice matrice::operator *(const sparse_matrice &mat) const
+{
+    assert(ncol()==mat.nlin());
+    matrice out(nlin(),mat.ncol());
+    out.set(0.0);
+
+    sparse_matrice_iterator it(mat);
+    for(it.begin(); !it.end(); it.next()) {
+        size_t ii = it.current()->i;
+        size_t jj = it.current()->j;
+        double val = it.current()->val;
+        for(size_t k = 0; k < mat.nlin(); ++k) {
+            out(k,jj) += this->operator()(k,ii) * val;
+        }
+    }
+    return out;
+}
+
 inline matrice matrice::tmult(const matrice &B) const
 {
     assert(m==B.m);
@@ -668,6 +688,9 @@ inline void matrice::loadMat(const char *filename)
         matvar->mem_conserve = 1;
         Mat_VarFree(matvar);
         Mat_Close(mat);
+    } else {
+        std::cerr<<"Error Opening Matrix File "<<filename<<std::endl;
+        exit(1);
     }
 #else
     std::cerr << "You have to compile OpenMEEG with MATIO to load matlab files" << std::endl;

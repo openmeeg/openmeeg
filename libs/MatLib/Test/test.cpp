@@ -163,8 +163,8 @@ int main ()
 
 #ifdef USE_MATIO
     cout << "MAT :" << endl;
-    M.saveMat("tmp.mat");
-    M.loadMat("tmp.mat");
+    M.saveMat("tmp_matrice.mat");
+    M.loadMat("tmp_matrice.mat");
     M >> cout;
 #endif
 
@@ -194,10 +194,17 @@ int main ()
 
 #ifdef USE_MATIO
     cout << "MAT :" << endl;
-    spM.saveMat("tmp.mat");
-    spM.loadMat("tmp.mat");
+    spM.saveMat("tmp_sparse_matrice.mat");
+    spM.loadMat("tmp_sparse_matrice.mat");
     spM >> cout;
 #endif
+
+    matrice U(10,10);
+    U.set(1.0);
+    matrice T = spM*U;
+    cout << T;
+    T = U*spM;
+    cout << T;
 
     cout<<endl<<"========== fast sparse matrices =========="<<endl;
     fast_sparse_matrice fspM(spM);

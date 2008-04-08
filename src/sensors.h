@@ -109,7 +109,7 @@ public:
     void load(char* filename, char filetype = 't' ); /*!< Load sensors from file. Filetype is 't' for text file or 'b' for binary file. */
     void load(std::istream &in); /*!< Load description file of sensors from stream. */
 
-    int getNumberOfSensors() const { return m_nb; } /*!< Return the number of sensors. */
+    size_t getNumberOfSensors() const { return m_nb; } /*!< Return the number of sensors. */
 
     matrice& getPositions() { return m_positions ; } /*!< Return a reference on sensors positions. */
     matrice getPositions() const { return m_positions ; } /*!< Return a copy of sensors positions */

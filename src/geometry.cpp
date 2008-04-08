@@ -118,7 +118,7 @@ int Geometry::read(const char* geomFileName, const char* condFileName) {
 
 bool Geometry::selfCheck() const {
     bool OK = true;
-    for(size_t i = 0; i < nb(); ++i)
+    for(int i = 0; i < nb(); ++i)
     {
         const Mesh& m1 = getM(i);
         if(m1.selfIntersection())
@@ -127,7 +127,7 @@ bool Geometry::selfCheck() const {
             m1.info();
             OK = false;
         }
-        for(size_t j = i+1; j < nb(); ++j)
+        for(int j = i+1; j < nb(); ++j)
         {
             const Mesh& m2 = getM(j);
             if(m1.intersection(m2))
@@ -150,7 +150,7 @@ bool Geometry::check(const Mesh& m) const {
         m.info();
         OK = false;
     }
-    for(size_t i = 0; i < nb(); ++i)
+    for(int i = 0; i < nb(); ++i)
     {
         const Mesh& m1 = getM(i);
         if(m1.intersection(m))

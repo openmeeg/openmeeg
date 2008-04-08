@@ -93,7 +93,7 @@ public:
 
     inline double& operator[](size_t i) {return tank[i];};
 
-    virtual std::ostream& operator>>(std::ostream& f) const
+    std::ostream& operator>>(std::ostream& f) const
     {
         idxType nz = rowindex[m_nlin];
         f << m_nlin << " " << m_ncol << std::endl;

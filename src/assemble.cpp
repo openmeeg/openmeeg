@@ -144,7 +144,7 @@ int main(int argc, char** argv)
         // Loading mesh for distributed sources
         Mesh  mesh_sources;
         bool checkClosedSurface = false;
-        mesh_sources.load(argv[4],false); // Load mesh without crashing when the surface is not closed
+        mesh_sources.load(argv[4],checkClosedSurface); // Load mesh without crashing when the surface is not closed
 
         // Assembling matrix from discretization :
         RHS_matrice mat(geo,mesh_sources,GaussOrder);
@@ -437,7 +437,7 @@ int main(int argc, char** argv)
         // Loading mesh for distributed sources :
         Mesh mesh_sources;
         bool checkClosedSurface = false;
-        mesh_sources.load(argv[2],false); // Load mesh without crashing when the surface is not closed
+        mesh_sources.load(argv[2],checkClosedSurface); // Load mesh without crashing when the surface is not closed
 
         // Load positions and orientations of sensors  :
         Sensors sensors(argv[3]);

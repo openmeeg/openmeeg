@@ -48,7 +48,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include "danielsson.h"
 #include "operators.h"
 #include "sensors.h"
-#define MU0 1 //1.25e-6
+
 void assemble_ferguson(const Geometry &geo, matrice &mat, const Vect3* pts,const int n);
 
 // EEG patches positions are reported line by line in the positions matrix
@@ -94,7 +94,7 @@ void assemble_vToMEG(matrice &mat, const Geometry &geo, const Sensors &sensors)
 {
     matrice positions = sensors.getPositions();
     matrice orientations = sensors.getOrientations();
-    const int nsquids = (int)sensors.getNumberOfSensors();
+    const size_t nsquids = sensors.getNumberOfSensors();
     int p0_p1_size = geo.size()-(geo.getM(geo.nb()-1)).nbTrgs();
     int geo_number_points = geo.getNumberOfPoints();
 
@@ -105,7 +105,7 @@ void assemble_vToMEG(matrice &mat, const Geometry &geo, const Sensors &sensors)
     myFergusonMatrix.set(0.0);
 
     Vect3 *positionsVectArray = new Vect3[nsquids];
-    for(int i=0;i<nsquids;i++)
+    for(size_t i=0;i<nsquids;i++)
     {
         positionsVectArray[i](0) = positions(i,0);
         positionsVectArray[i](1) = positions(i,1);

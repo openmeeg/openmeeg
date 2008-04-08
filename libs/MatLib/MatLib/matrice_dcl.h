@@ -56,6 +56,8 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <matio.h>
 #endif
 
+#include "sparse_matrice_dcl.h"
+
 class symmatrice;
 class vecteur;
 
@@ -75,7 +77,7 @@ public:
     inline matrice(size_t M,size_t N);
     inline matrice(const matrice& A);
     inline explicit matrice(const symmatrice& A);
-    inline matrice(const vecteur& v, size_t M, size_t N); // accede violemment a v.t et v.count
+    inline matrice(const vecteur& v, size_t M, size_t N); // violent access to v.t and v.count
     inline matrice(double* T, int* COUNT, size_t M, size_t N);
     inline matrice(const char *filename, char c='t');
 
@@ -116,6 +118,7 @@ public:
 
     inline matrice operator*(const matrice& B) const;
     inline matrice operator*(const symmatrice& B) const;
+    inline matrice operator*(const sparse_matrice& B) const;
     inline matrice operator+(const matrice& B) const;
     inline matrice operator-(const matrice& B) const;
     inline matrice operator*(double x) const;
@@ -133,7 +136,6 @@ public:
 
     inline vecteur mean() const;
     inline vecteur tmean() const;
-    // inline matrice operator.*(const matrice&) const;
 
     inline matrice transpose () const;
     inline matrice inverse() const;
@@ -174,7 +176,7 @@ public:
         fclose(infile);
     }
 
-    virtual std::ostream& operator>>(std::ostream& f) const {
+    std::ostream& operator>>(std::ostream& f) const {
         for (size_t i=0;i<this->nlin();i++) {
             for (size_t j=0;j<this->ncol();j++) {
                 f << (*this)(i,j) << " ";
