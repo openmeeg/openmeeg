@@ -428,7 +428,7 @@ inline matrice matrice::operator *(const sparse_matrice &mat) const
         size_t ii = it.current()->i;
         size_t jj = it.current()->j;
         double val = it.current()->val;
-        for(size_t k = 0; k < mat.nlin(); ++k) {
+        for(size_t k = 0; k < nlin(); ++k) {
             out(k,jj) += this->operator()(k,ii) * val;
         }
     }
