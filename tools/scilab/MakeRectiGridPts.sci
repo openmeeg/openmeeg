@@ -16,14 +16,17 @@ if nz==1
   xx = x'*ones(1,ny);
   yy = ones(nx,1)*y;
   zz = zmin*ones(nx,ny);
+  eps = min(dx,dy)/10; // value of eps for finite difference current computation
 elseif nx ==1
   yy = y'*ones(1,nz);
   zz = ones(ny,1)*z;
   xx = xmin*ones(ny,nz);
+  eps = min(dy,dz)/10; // value of eps for finite difference current computation
 elseif ny ==1
   zz = z'*ones(1,nx);
   xx = ones(nz,1)*x;
   yy = ymin*ones(nz,nx);
+  eps=min(dx,dz)/10; // value of eps for finite difference current computation
 else disp('Error: one of the three dimensions must be equal to 1.')
 end
 savevtkrectigrid(vtkfile,x,y,z);
@@ -36,12 +39,12 @@ pt(:,2) = matrix(yy,[np 1]);
 pt(:,3) = matrix(zz,[np 1]);
 fprintfMat(ptsfile,pt);
 newpt = pt;
-newpt(:,1) = newpt(:,1)+0.001;
+newpt(:,1) = newpt(:,1)+eps
 fprintfMat(ptsdxfile,newpt);
 newpt = pt;
-newpt(:,2) = newpt(:,2)+0.001;
+newpt(:,2) = newpt(:,2)+eps;
 fprintfMat(ptsdyfile,newpt);
 newpt = pt;
-newpt(:,3) = newpt(:,3)+0.001;
+newpt(:,3) = newpt(:,3)+eps;
 fprintfMat(ptsdzfile,newpt);
 
