@@ -53,6 +53,12 @@ $(RDIR)$(MODEL).$(CUTPLANE)dz.gain: $(RDIR)$(MODEL).$(CUTPLANE)dz.SurfToVol $(MD
 $(MDIR)$(MODEL).parameters:
 	$(MAKE_NERVE) -makeparameters $(MDIR)$(MODEL).parameters $(MDIR)$(MODEL).geom $(MDIR)$(MODEL).cond $(MDIR)$(MODEL).int.tri $(MDIR)$(MODEL).ext.tri $(MDIR)$(MODEL).stimelec
 
+$(MDIR)$(MODEL).geom:
+	$(MAKE_NERVE) -useparameters $(MDIR)$(MODEL).parameters $(MDIR)$(MODEL).geom $(MDIR)$(MODEL).cond $(MDIR)$(MODEL).int.tri $(MDIR)$(MODEL).ext.tri $(MDIR)$(MODEL).stimelec
+
+$(MDIR)$(MODEL).cond:
+	$(MAKE_NERVE) -useparameters $(MDIR)$(MODEL).parameters $(MDIR)$(MODEL).geom $(MDIR)$(MODEL).cond $(MDIR)$(MODEL).int.tri $(MDIR)$(MODEL).ext.tri $(MDIR)$(MODEL).stimelec
+
 nerve:
 	$(MAKE_NERVE) -useparameters $(MDIR)$(MODEL).parameters $(MDIR)$(MODEL).geom $(MDIR)$(MODEL).cond $(MDIR)$(MODEL).int.tri $(MDIR)$(MODEL).ext.tri $(MDIR)$(MODEL).stimelec
 
@@ -61,8 +67,7 @@ SurfToVol: $(RDIR)$(MODEL).$(CUTPLANE).SurfToVol $(RDIR)$(MODEL).$(CUTPLANE)dx.S
 gain: $(RDIR)$(MODEL).$(CUTPLANE).gain $(RDIR)$(MODEL).$(CUTPLANE)dx.gain $(RDIR)$(MODEL).$(CUTPLANE)dy.gain $(RDIR)$(MODEL).$(CUTPLANE)dz.gain
 
 all:
-	(make nerve;\
-	make gain)
+	make gain
 
 clean:
 	(-@rm $(RDIR)$(MODEL).*SurfToVol* $(MDIR)$(MODEL).*LHS* $(MDIR)$(MODEL).stimelec\
