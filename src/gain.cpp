@@ -47,6 +47,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <cstring>
 
 #include "matrice.h"
+#include "matrice_dcl.h"
 #include "symmatrice.h"
 #include "vecteur.h"
 #include "cpuChrono.h"
@@ -147,6 +148,29 @@ int main(int argc, char **argv)
 
         MegGainMatrix.saveBin(argv[6]);
     }
+    else if(!strcmp(argv[1],"-VolPotEIT"))
+    {
+        if(argc<6)
+        {
+            cerr << "Not enough arguments \nPlease try \"" << argv[0] << " -h\" or \"" << argv[0] << " --help \" \n" << endl;
+            return 0;
+        }
+        matrice VolPotEITGainMatrix;
+
+        { // Avoiding to store all matrices at the same time
+	  matrice SurfToVol;
+	  SurfToVol.loadBin(argv[2]); 
+	  symmatrice LhsInvMatrix;
+	  LhsInvMatrix.loadBin(argv[3]);
+	  VolPotEITGainMatrix = SurfToVol*matrice(LhsInvMatrix)(0,SurfToVol.ncol()-1,0,LhsInvMatrix.ncol()-1);
+        }
+        {
+	  matrice EITStim;
+	  EITStim.loadBin(argv[4]);
+	  VolPotEITGainMatrix = VolPotEITGainMatrix*EITStim;
+        }
+        VolPotEITGainMatrix.saveTxt(argv[5]);
+    }
     else
     {
         cerr << "Error: unknown option. \nPlease try \"" << argv[0] << " -h\" or \"" << argv[0] << " --help \" \n" << endl;
@@ -173,6 +197,11 @@ void getHelp(char** argv)
     cout << "            Filepaths are in order :" << endl;
     cout << "            LhsInvMatrix, RhsMatrix, V2MegMatrix, S2MegMatrix, MegGainMatrix" << endl;
     cout << "            matrix (.bin or .txt)" << endl << endl;
+
+    cout << "   -VolPotEIT :   Compute the gain for EIT, measured within the volume " << endl;
+    cout << "            Filepaths are in order :" << endl;
+    cout << "            inputs: SurfToVolMatrix, LhsInvMatrix, EITStimMatrix," << endl;
+    cout << "            output: VolPotEITgain matrix (.txt)" << endl << endl;
 
     exit(0);
 

@@ -289,13 +289,10 @@ int main(int argc, char** argv)
 	source.loadBin(argv[4]);
 	sparse_matrice stimelec;
         stimelec.loadBin(argv[5]);
-	std::cout << "EITsource nlines: " << source.nlin() << "   ncols: " << source.ncol() << std::endl;
-	std::cout << "stimelec nlines: " << stimelec.nlin() << "   ncols: " << stimelec.ncol() << std::endl;
-        matrice stim(source.nlin(),stimelec.ncol());
-	//        stim = source*stimelec;
+	matrice stim(source.nlin(),stimelec.ncol());
+	stim = source*stimelec;	
 	stim.saveBin(argv[6]);
     }
-
 
     /*********************************************************************************************
     * RK: Computation of RHS for discrete dipolar case: gradient wrt dipoles position and intensity!
@@ -510,8 +507,6 @@ int main(int argc, char** argv)
         geo.read(argv[2],argv[3]);
 	matrice points(argv[4]);
         SurfToVol_matrice mat(geo,points);
-	std::cout << " mat(0,0) = " << mat(0,0) << std::endl;
-	std::cout << " mat(1770,3445) = " << mat(1770,3445) << std::endl;
         // Saving SurfToVol matrix :
         mat.SAVE(argv[5]);
     }
