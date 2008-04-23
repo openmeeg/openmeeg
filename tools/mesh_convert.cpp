@@ -57,16 +57,17 @@ int main( int argc, char **argv)
     const double tx = command_option("-tx",0.0,"Translation along the x axis");
     const double ty = command_option("-ty",0.0,"Translation along the y axis");
     const double tz = command_option("-tz",0.0,"Translation along the z axis");
-    const double vx = command_option("-vx",1.0,"Scaling along the x axis");
-    const double vy = command_option("-vy",1.0,"Scaling along the y axis");
-    const double vz = command_option("-vz",1.0,"Scaling along the z axis");
+    const double sx = command_option("-sx",1.0,"Scaling along the x axis");
+    const double sy = command_option("-sy",1.0,"Scaling along the y axis");
+    const double sz = command_option("-sz",1.0,"Scaling along the z axis");
+    const char *invert = command_option("-invert",(const char *) NULL,"Invert triangles point order");
     const bool apply_asa_flip = command_option("-flip",false,"Rotating axis if mesh comes from ASA");
     if (command_option("-h",(const char *)0,0)) return 0;
 
     Mesh M;
     M.load(input_filename,false);
 
-    for( unsigned int i = 0; i < unsigned(M.nbPts()); i += 1 )
+    for( int i = 0; i < M.nbPts(); ++i )
     {
         Vect3& pt = M[i];
         if (apply_asa_flip) {
@@ -76,10 +77,26 @@ int main( int argc, char **argv)
             pt(1) = tmp;
             pt(2) = -pt(2);
         }
-        pt(0) = pt(0)+tx*vx;
-        pt(1) = pt(1)+ty*vy;
-        pt(2) = pt(2)+tz*vz;
+        pt(0) = pt(0)*sx+tx;
+        pt(1) = pt(1)*sy+ty;
+        pt(2) = pt(2)*sz+tz;
     }
+    
+    if(invert)
+    {
+        for( int i = 0; i < M.nbPts(); ++i )
+        {
+            M.normal(i) = M.normal(i) * -1;
+        }
+        for( int i = 0; i < M.nbTrgs(); ++i )
+        {
+            Triangle& t = M.getTrg(i);
+            int tmp = t[1];
+            t[1] = t[0];
+            t[0] = tmp;
+        }
+    }
+
 
     M.save(output_filename);
 

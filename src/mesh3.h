@@ -94,6 +94,9 @@ private:
     void load_bnd(std::istream &, bool checkOrientations = true);
     void load_bnd(const char*, bool checkOrientations = true);
 
+    void load_off(std::istream &, bool checkOrientations = true);
+    void load_off(const char*, bool checkOrientations = true);
+
     void load_mesh(std::istream &is, bool checkOrientations = true);
     void load_mesh(const char*, bool checkOrientations = true);
     #ifdef USE_VTK
@@ -129,6 +132,7 @@ public:
     inline int nbTrgs() const { return ntrgs; }
     inline const Vect3& getPt(int i) const { return pts[i]; }
     inline const Triangle& getTrg(int i) const { return trgs[i]; }
+    inline Triangle& getTrg(int i) { return trgs[i]; }
     inline const intSet& getTrianglesForPoint(int i) const { return links[i]; }
     inline intSet* getTrianglesForPoints() const { return links; }
 

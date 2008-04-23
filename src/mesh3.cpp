@@ -9,7 +9,7 @@ last revision     : $Date$
 modified by       : $LastChangedBy$
 last modified     : $LastChangedDate$
 
-© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre 
+© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre
 GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU, Théodore PAPADOPOULO,
 Maureen.Clerc.AT.sophia.inria.fr, keriven.AT.certis.enpc.fr,
 kybic.AT.fel.cvut.cz, papadop.AT.sophia.inria.fr)
@@ -160,6 +160,7 @@ void Mesh::load(const char* name, bool checkClosedSurface, bool verbose) {
     else if(!strcmp(extension,"mesh") || !strcmp(extension,"MESH")) load_mesh(name,checkClosedSurface);
     else if(!strcmp(extension,"tri") || !strcmp(extension,"TRI")) load_tri(name,checkClosedSurface);
     else if(!strcmp(extension,"bnd") || !strcmp(extension,"BND")) load_bnd(name,checkClosedSurface);
+    else if(!strcmp(extension,"off") || !strcmp(extension,"OFF")) load_off(name,checkClosedSurface);
     else {
         cerr << "Load : Unknown mesh file format for " << name << endl;
         exit(1);
@@ -185,18 +186,18 @@ void Mesh::getDataFromVTKReader(vtkPolyDataReader* reader) {   //private
 
     if(reader->GetNumberOfNormalsInFile()==0){
       vtkPolyDataNormals *newNormals = vtkPolyDataNormals::New();
-      newNormals->SetInput(vtkMesh);    
-      newNormals->Update();   
+      newNormals->SetInput(vtkMesh);
+      newNormals->Update();
       vtkMesh = newNormals->GetOutput();
-    }    
- 
+    }
+
     vtkDataArray *normalsData = vtkMesh->GetPointData()->GetNormals();
     assert(npts == normalsData->GetNumberOfTuples());
- 
+
     assert(3 == normalsData->GetNumberOfComponents());
 
     for (int i = 0; i<npts; i++)
-    {   
+    {
         pts[i].x() = vtkMesh->GetPoint(i)[0];
         pts[i].y() = vtkMesh->GetPoint(i)[1];
         pts[i].z() = vtkMesh->GetPoint(i)[2];
@@ -493,6 +494,45 @@ void Mesh::load_bnd(const char* filename, bool checkClosedSurface) {
         exit(1);
     }
     Mesh::load_bnd(f);
+    f.close();
+}
+
+void Mesh::load_off(std::istream &f, bool checkClosedSurface) {
+
+    kill();
+    char tmp[128]; int trash;
+    f>>tmp;        // put the "OFF" string
+    f>>npts; f>>ntrgs; f>>trash;
+
+    pts = new Vect3[npts];
+    links = new intSet[npts];
+    for (int i=0;i<npts;i++) {
+        f>>pts[i];
+    }
+
+    trgs = new Triangle[ntrgs];
+    for (int i=0;i<ntrgs;i++) {
+        f>>trash;        // put the "3" to trash
+        f>>trgs[i];
+    }
+
+    make_links();
+    update_triangles();
+    updateTriangleOrientations(checkClosedSurface);
+
+    normals = new Vect3[npts];
+    recompute_normals(); // Compute normals since off files don't have any !
+}
+
+void Mesh::load_off(const char* filename, bool checkClosedSurface) {
+    string s = filename;
+    cout << "load_off : " << filename << endl;
+    std::ifstream f(filename);
+    if(!f.is_open()) {
+        cerr << "Error opening OFF file: " << filename << endl;
+        exit(1);
+    }
+    Mesh::load_off(f);
     f.close();
 }
 
