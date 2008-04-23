@@ -319,44 +319,42 @@ decoupe(dt,iz2,&niz2,&diz2);
   surf.save(namesurf);
 
   //the electrode
-  if (E[0]>=0)
-  {
+  if (E[0]>=0){
     float aire= 1; //deo*R *dez /2;
     int trianglecounter=0;
     sparse_matrice stimelec(nt,12);
-    for (i=0;i<(nl-1)*2*nteta+3*nteta+1;i++)
-      { trianglecounter++;
-      }
+    for (i=0;i<(nl-1)*2*nteta+3*nteta+1;i++){
+      trianglecounter++;
+    }
     int eleccounter = 0;
-    for (j=0;j<=6;j++)
-      { for (k=0;k<4;k++)
-	  { for (g=0;g<((j%2==0)?((j == 4)?niz2:niz):(nez));g++)
-	      { for (i=0;i<neo;i++)
-		  { // find for each electrode to which triangles it corresponds
-		    if(j%2==1){
-		      stimelec(trianglecounter,eleccounter) = 1.;
-		      trianglecounter++    ;
-		      stimelec(trianglecounter,eleccounter) = 1.;
-		      trianglecounter++    ;
-		    }
-		    else{
-		    trianglecounter++    ;
-		    trianglecounter++    ;
-		    }
-		  }	      
-		for (i=0;i<nio;i++)
-		  {
-		    trianglecounter++;
-		    trianglecounter++;
-		  }
-	      }
-	    if(j%2==1) eleccounter++;
-	  }
-      }
-    for (i= (nl-1)*2*nteta +3*nteta + 2*2*nteta*(3*nez+3*niz+niz2)+1;i<nt;i++)
-           { 
-	     trianglecounter++;
-	   }
+    for (j=0;j<=6;j++){
+  	for (g=0;g<((j%2==0)?((j == 4)?niz2:niz):(nez));g++){
+	 for (k=0;k<4;k++){
+	  for (i=0;i<neo;i++){
+	    // find for each electrode to which triangles it corresponds
+	    if(j%2==1){
+	      stimelec(trianglecounter,4*(j/2)+k) = 1.;
+	      trianglecounter++    ;
+	      stimelec(trianglecounter,4*(j/2)+k) = 1.;
+	      trianglecounter++    ;
+	    }
+	    else{
+	      trianglecounter++    ;
+	      trianglecounter++    ;
+	    }
+	  }	      
+	  for (i=0;i<nio;i++)
+	    {
+	      trianglecounter++;
+	      trianglecounter++;
+	    }
+	}
+	 //	if(j%2==1) eleccounter++;
+	}
+    }
+    for (i= (nl-1)*2*nteta +3*nteta + 2*2*nteta*(3*nez+3*niz+niz2)+1;i<nt;i++){
+      trianglecounter++;
+    }
     stimelec.saveBin(namestim);
   }
   return 0;
@@ -373,6 +371,7 @@ int main(int argc, char** argv)
     float Ea,Eb,Eb2;
     int Nteta[Nc],Nz[Nc];
     float L[Nc],R[Nc],dt[Nc],sig[Nc+1];
+    string name;
     sig[Nc]=0;
     
     if (!strcmp(argv[1], "-makeparameters")){
@@ -445,12 +444,14 @@ int main(int argc, char** argv)
     fprintf(Fgeom,"Interfaces %d Mesh\n\n",Nc);
     fprintf(Fcond,"# Properties Description 1.0 (Conductivities)\n\n");
     for (i=0;i<Nc;i++){ 
-      cylindre(argv[5+i],argv[7], L[i], R[i], dt[i], (i==Nc-1)?(Elec):(E) ,&Nteta[i],&Nz[i], Ea, Eb, Eb2);
-      fprintf(Fgeom,"%s\n",argv[5+i]);
+      cylindre(argv[5+i],argv[7],L[i],R[i],dt[i],(i==Nc-1)?(Elec):(E),&Nteta[i],&Nz[i],Ea,Eb,Eb2);
+      name = argv[5+i];
+      name = name.substr(name.rfind("/")+1); // only keep the file name without the directories (after the last /)
+      fprintf(Fgeom,"%s\n",name.c_str());    // c_str to convert string back to char
       }
     fprintf(Fcond,"Air        0.0\n");
-    fprintf(Fcond,"CSF        %f\n",sig[0]);
-    fprintf(Fcond,"Nerve      %f\n",sig[1]);
+    fprintf(Fcond,"CSF        %f\n",sig[1]);
+    fprintf(Fcond,"Nerve      %f\n",sig[0]);
     fprintf(Fgeom,"\nDomains %d\n\n",Nc+1);
     fprintf(Fgeom,"Domain CSF 1 -2\n");
     fprintf(Fgeom,"Domain Nerve -1 shared\n");
