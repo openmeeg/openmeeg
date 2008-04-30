@@ -76,10 +76,6 @@ inline vecteur sparse_matrice::operator*(const vecteur &x) const
 template <>
 inline matrice sparse_matrice::operator*(const matrice &mat) const
 {
-    std::cout << "toto" << std::endl;
-    std::cout << ncol() << std::endl;
-    std::cout << mat.nlin() << std::endl;
-
     assert(ncol()==mat.nlin());
     matrice out(nlin(),mat.ncol());
     out.set(0.0);
