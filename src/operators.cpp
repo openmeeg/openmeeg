@@ -9,7 +9,7 @@ last revision     : $Date$
 modified by       : $LastChangedBy$
 last modified     : $LastChangedDate$
 
-© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre 
+© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre
 GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU, Théodore PAPADOPOULO,
 Maureen.Clerc.AT.sophia.inria.fr, keriven.AT.certis.enpc.fr,
 kybic.AT.fel.cvut.cz, papadop.AT.sophia.inria.fr)
@@ -184,28 +184,28 @@ void operatorN(const Geometry &geo,const int I,const int J,const int GaussOrder,
 
 void operatorDinternal(const Geometry &geo,const int I,matrice &mat,const int offsetJ,const matrice &points)
 {
-std::cout<<"INTERNAL OPERATOR D..."<<std::endl;		
-std::cout<<"offsetJ="<<offsetJ<<std::endl;
-const Mesh &m=geo.getM(I);
- for(int i=0;i<points.nlin();i++)  { 
-   Vect3 pt(points(i,0),points(i,1),points(i,2));
-   for(int j=offsetJ;j<offsetJ+m.nbTrgs();j++){
-     _operatorDinternal(i,j-offsetJ,m,mat,offsetJ,pt);
-   }
- }
+    std::cout<<"INTERNAL OPERATOR D..."<<std::endl;
+    std::cout<<"offsetJ="<<offsetJ<<std::endl;
+    const Mesh &m=geo.getM(I);
+    for(size_t i=0;i<points.nlin();i++)  {
+        Vect3 pt(points(i,0),points(i,1),points(i,2));
+        for(int j=offsetJ;j<offsetJ+m.nbTrgs();j++){
+            _operatorDinternal(i,j-offsetJ,m,mat,offsetJ,pt);
+        }
+    }
 }
 
 void operatorSinternal(const Geometry &geo,const int I,matrice &mat,const int offsetJ,const matrice &points)
 {
-  	std::cout<<"INTERNAL OPERATOR S..."<<std::endl;
-	const Mesh &m=geo.getM(I);
-	for(int i=0;i<points.nlin();i++) {
-	  Vect3 pt(points(i,0),points(i,1),points(i,2));
-	  for(int j=offsetJ;j<offsetJ+m.nbTrgs();j++)   
-	    {		
-	      mat(i,j)=_operatorSinternal(i,j-offsetJ,m,pt);
-	    }
-	}
+    std::cout<<"INTERNAL OPERATOR S..."<<std::endl;
+    const Mesh &m=geo.getM(I);
+    for(size_t i=0;i<points.nlin();i++) {
+        Vect3 pt(points(i,0),points(i,1),points(i,2));
+        for(int j=offsetJ;j<offsetJ+m.nbTrgs();j++)
+        {
+            mat(i,j)=_operatorSinternal(i,j-offsetJ,m,pt);
+        }
+    }
 }
 
 // general routine for applying _operatorFerguson (see this function for further comments)

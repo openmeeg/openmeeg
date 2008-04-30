@@ -154,7 +154,13 @@ void Sensors::load(std::istream &in) {
         while( iss >> buf)
             tokens.push_back(buf);
 
-        assert(tokens.size() == num_of_columns); // Each line has same length
+        if(tokens.size() != num_of_columns)
+        {
+            std::cout << tokens.size() << " != " << num_of_columns << std::endl;
+            std::cerr << "Problem while reading Sensors file" << std::endl;
+            std::cerr << "Each line should have the same number of elements" << std::endl;
+            exit(1);
+        }
 
         tokensIterator =  tokens.begin();
 
@@ -229,9 +235,9 @@ void Sensors::save(const char* filename) {
 }
 
 sparse_matrice Sensors::getWeightsMatrix() const {
-    sparse_matrice weight_matrix(getNumberOfPositions(),getNumberOfSensors());
+    sparse_matrice weight_matrix(getNumberOfSensors(),getNumberOfPositions());
     for(size_t i = 0; i < getNumberOfPositions(); ++i) {
-        weight_matrix(i,m_pointSensorIdx[i]) = m_weights(i);
+        weight_matrix(m_pointSensorIdx[i],i) = m_weights(i);
     }
     return weight_matrix;
 }

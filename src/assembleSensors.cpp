@@ -94,25 +94,25 @@ void assemble_vToMEG(matrice &mat, const Geometry &geo, const Sensors &sensors)
 {
     matrice positions = sensors.getPositions();
     matrice orientations = sensors.getOrientations();
-    const size_t nsquids = sensors.getNumberOfSensors();
+    const size_t nbIntegrationPoints = sensors.getNumberOfPositions();
     int p0_p1_size = geo.size()-(geo.getM(geo.nb()-1)).nbTrgs();
     int geo_number_points = geo.getNumberOfPoints();
 
-    mat = matrice(nsquids,p0_p1_size);
+    mat = matrice(nbIntegrationPoints,p0_p1_size);
     mat.set(0.0);
 
-    matrice myFergusonMatrix(3*nsquids,geo_number_points);
+    matrice myFergusonMatrix(3*nbIntegrationPoints,geo_number_points);
     myFergusonMatrix.set(0.0);
 
-    Vect3 *positionsVectArray = new Vect3[nsquids];
-    for(size_t i=0;i<nsquids;i++)
+    Vect3 *positionsVectArray = new Vect3[nbIntegrationPoints];
+    for(size_t i=0;i<nbIntegrationPoints;i++)
     {
         positionsVectArray[i](0) = positions(i,0);
         positionsVectArray[i](1) = positions(i,1);
         positionsVectArray[i](2) = positions(i,2);
     }
 
-    assemble_ferguson(geo,myFergusonMatrix,positionsVectArray,nsquids);
+    assemble_ferguson(geo,myFergusonMatrix,positionsVectArray,nbIntegrationPoints);
 
     // Compute indexes of V indexes (P1 elements)
     int* vindex = new int[geo_number_points];
@@ -127,9 +127,9 @@ void assemble_vToMEG(matrice &mat, const Geometry &geo, const Sensors &sensors)
         offset += geo.getM(i).nbTrgs();
     }
 
-    for(size_t i=0;i<nsquids;i++)
+    for(size_t i=0;i<nbIntegrationPoints;i++)
     {
-        progressbar(i,nsquids);
+        progressbar(i,nbIntegrationPoints);
         #ifdef USE_OMP
         #pragma omp parallel for
         #endif

@@ -282,16 +282,16 @@ int main(int argc, char** argv)
         // Loading surfaces from geometry file.
         Geometry geo;
         geo.read(argv[2],argv[3]);
-	int taille=geo.size();
+        int taille=geo.size();
         int sourcetaille = (geo.getM(geo.nb()-1)).nbTrgs();
-	int newtaille=taille-sourcetaille;
-	matrice source;
-	source.loadBin(argv[4]);
-	sparse_matrice stimelec;
+        int newtaille=taille-sourcetaille;
+        matrice source;
+        source.loadBin(argv[4]);
+        sparse_matrice stimelec;
         stimelec.loadBin(argv[5]);
-	matrice stim(source.nlin(),stimelec.ncol());
-	stim = source*stimelec;	
-	stim.saveBin(argv[6]);
+        matrice stim(source.nlin(),stimelec.ncol());
+        stim = source*stimelec;	
+        stim.saveBin(argv[6]);
     }
 
     /*********************************************************************************************

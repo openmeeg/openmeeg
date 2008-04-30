@@ -79,7 +79,7 @@ void permute (Triangle *t)
 
 int cylindre (char namesurf[],char namestim[],float L,float R,float dt,int*E,int*Nteta,int*Nz,float Ea,float Eb,float Eb2)
 {      
-  FILE *F;
+  // FILE *F;
   int i,j,g,k,save;	                	//counters
   float decal_teta;                            // gap along teta.
   float z=-L/2;
@@ -320,13 +320,13 @@ decoupe(dt,iz2,&niz2,&diz2);
 
   //the electrode
   if (E[0]>=0){
-    float aire= 1; //deo*R *dez /2;
+    // float aire= 1; //deo*R *dez /2;
     int trianglecounter=0;
     sparse_matrice stimelec(nt,12);
     for (i=0;i<(nl-1)*2*nteta+3*nteta+1;i++){
       trianglecounter++;
     }
-    int eleccounter = 0;
+    // int eleccounter = 0;
     for (j=0;j<=6;j++){
   	for (g=0;g<((j%2==0)?((j == 4)?niz2:niz):(nez));g++){
 	 for (k=0;k<4;k++){
@@ -366,7 +366,7 @@ int main(int argc, char** argv)
     if ((!strcmp(argv[1],"-h")) | (!strcmp(argv[1],"--help"))) getHelp(argv);
     disp_argv(argc,argv);
     FILE *F,*Fgeom,*Fcond;
-    char nom[80],s[80];
+    // char nom[80],s[80];
     int i,Nc=2,Elec[4],E[1]={-1};
     float Ea,Eb,Eb2;
     int Nteta[Nc],Nz[Nc];

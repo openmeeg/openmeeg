@@ -124,14 +124,14 @@ inline void progressbar(int n, int N, int w = 20) {
     if (p != pprev) {
         if (n>1) {
             // clear previous string
-            for(size_t i = 0; i < (w+2); ++i)
+            for(int i = 0; i < (w+2); ++i)
                 printf( "\b" );
 
             printf( cbeg );
-            for(size_t i = 0; i < p; ++i) {
+            for(int i = 0; i < p; ++i) {
                 printf( cprog1 );
             }
-            for(size_t i = p; i < w; ++i) {
+            for(int i = p; i < w; ++i) {
                 printf( cprog );
             }
             printf( cend );

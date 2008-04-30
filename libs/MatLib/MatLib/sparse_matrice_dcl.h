@@ -971,9 +971,57 @@ public:
         return *this;
     }
 
+    inline void info() const;
+
 };
 
-template<class T,class I> class TsparseMatrixIterator
+template<class T,class I>
+inline void TsparseMatrix<T,I>::info() const {
+    if ((nlin() == 0) && (ncol() == 0)) {
+        std::cout << "Matrix Empty" << std::endl;
+        return;
+    }
+
+    std::cout << "Dimensions : " << nlin() << " x " << ncol() << std::endl;
+
+    double minv = this->operator()(0,0);
+    double maxv = this->operator()(0,0);
+    size_t mini = 0;
+    size_t maxi = 0;
+    size_t minj = 0;
+    size_t maxj = 0;
+
+    for(size_t i = 0; i < nlin(); ++i)
+    {
+        for(size_t j = 0; j < ncol(); ++j)
+        {
+            if (minv > this->operator()(i,j)) {
+                minv = this->operator()(i,j);
+                mini = i;
+                minj = j;
+            } else if (maxv < this->operator()(i,j)) {
+                maxv = this->operator()(i,j);
+                maxi = i;
+                maxj = j;
+            }
+        }
+    }
+    std::cout << "Min Value : " << minv << " (" << mini << "," << minj << ")" << std::endl;
+    std::cout << "Max Value : " << maxv << " (" << maxi << "," << maxj << ")" << std::endl;
+    std::cout << "First Values" << std::endl;
+    for(size_t i = 0; i < std::min(nlin(),(size_t) 5); ++i)
+    {
+        for(size_t j = 0; j < std::min(ncol(),(size_t) 5); ++j)
+        {
+            std::cout << this->operator()(i,j) << " " ;
+        }
+        std::cout << std::endl ;
+    }
+}
+
+
+template<class T,class I>
+class TsparseMatrixIterator
 {
     public:
 
