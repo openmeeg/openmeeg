@@ -1,15 +1,15 @@
-/* FILE: $Id$ */
+/* FILE: $Id: mesh_convert.cpp 229 2008-04-23 12:23:15Z gramfort $ */
 
 /*
 Project Name : OpenMEEG
 
-author            : $Author$
-version           : $Revision$
-last revision     : $Date$
-modified by       : $LastChangedBy$
-last modified     : $LastChangedDate$
+author            : $Author: gramfort $
+version           : $Revision: 229 $
+last revision     : $Date: 2008-04-23 14:23:15 +0200 (Wed, 23 Apr 2008) $
+modified by       : $LastChangedBy: gramfort $
+last modified     : $LastChangedDate: 2008-04-23 14:23:15 +0200 (Wed, 23 Apr 2008) $
 
-© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre 
+© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre
 GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU, Théodore PAPADOPOULO,
 Maureen.Clerc.AT.sophia.inria.fr, keriven.AT.certis.enpc.fr,
 kybic.AT.fel.cvut.cz, papadop.AT.sophia.inria.fr)
@@ -75,13 +75,13 @@ int main( int argc, char **argv)
             tmp = pt(0);
             pt(0) = pt(1);
             pt(1) = tmp;
-            pt(2) = -pt(2);
+            // pt(2) = -pt(2);
         }
         pt(0) = pt(0)*sx+tx;
         pt(1) = pt(1)*sy+ty;
         pt(2) = pt(2)*sz+tz;
     }
-    
+
     if(invert)
     {
         for( int i = 0; i < M.nbPts(); ++i )

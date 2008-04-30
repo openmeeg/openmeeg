@@ -3,8 +3,8 @@ ADD_EXECUTABLE(load_geo load_geo.cpp)
 TARGET_LINK_LIBRARIES (load_geo ${OPENMEEG_OTHER_LIBRARIES} OpenMEEG)
 ADD_TEST(load_mesh_tri ${EXECUTABLE_OUTPUT_PATH}/load_geo ${OpenMEEG_SOURCE_DIR}/data/HeadModels/Head1/Head1.geom ${OpenMEEG_SOURCE_DIR}/data/HeadModels/Head1/Head1.cond)
 
-ADD_EXECUTABLE(sensors sensors.cpp)
-TARGET_LINK_LIBRARIES (sensors ${OPENMEEG_OTHER_LIBRARIES})
+ADD_EXECUTABLE(test_sensors test_sensors.cpp)
+TARGET_LINK_LIBRARIES (test_sensors OpenMEEG ${OPENMEEG_OTHER_LIBRARIES})
 
 ADD_EXECUTABLE(compare_matrix compare_matrix.cpp)
 TARGET_LINK_LIBRARIES (compare_matrix ${OPENMEEG_OTHER_LIBRARIES})

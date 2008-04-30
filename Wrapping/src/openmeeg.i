@@ -38,5 +38,5 @@
 %include "forward.h"
 %include "inverse.h"
 
-%template(sparse_matrice) TsparseMatrix<double,size_t>;
+/*%template(sparse_matrice) TsparseMatrix<double,size_t>;*/
 

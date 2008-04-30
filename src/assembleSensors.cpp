@@ -1,13 +1,13 @@
-/* FILE: $Id$ */
+/* FILE: $Id: assembleSensors.cpp 222 2008-04-08 06:14:41Z gramfort $ */
 
 /*
 Project Name : OpenMEEG
 
-author            : $Author$
-version           : $Revision$
-last revision     : $Date$
-modified by       : $LastChangedBy$
-last modified     : $LastChangedDate$
+author            : $Author: gramfort $
+version           : $Revision: 222 $
+last revision     : $Date: 2008-04-08 08:14:41 +0200 (Tue, 08 Apr 2008) $
+modified by       : $LastChangedBy: gramfort $
+last modified     : $LastChangedDate: 2008-04-08 08:14:41 +0200 (Tue, 08 Apr 2008) $
 
 © INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre
 GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU, Théodore PAPADOPOULO,
@@ -142,6 +142,8 @@ void assemble_vToMEG(matrice &mat, const Geometry &geo, const Sensors &sensors)
         }
     }
 
+    mat = sensors.getWeightsMatrix() * mat; // Apply weights
+
     delete[] positionsVectArray;
     delete[] vindex;
 }
@@ -188,6 +190,8 @@ void assemble_sToMEG(matrice &mat, const Mesh &sources_mesh, const Sensors &sens
             mat(i,j)=fergusonField*normalizedDirection;
         }
     }
+
+    mat = sensors.getWeightsMatrix() * mat; // Apply weights
 
     delete[] positionsVectArray;
 }
@@ -258,6 +262,8 @@ void assemble_sToMEGdip( matrice &mat, const matrice& dipoles, const Sensors &se
             mat(i,j)=fergusonField*normalizedDirection/(4*M_PI);
         }
     }
+
+    mat = sensors.getWeightsMatrix() * mat; // Apply weights
 
     delete[] positionsVectArray;
 }

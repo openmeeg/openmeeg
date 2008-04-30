@@ -1,15 +1,15 @@
-/* FILE: $Id$ */
+/* FILE: $Id: sensors.h 222 2008-04-08 06:14:41Z gramfort $ */
 
 /*
 Project Name : OpenMEEG
 
-author            : $Author$
-version           : $Revision$
-last revision     : $Date$
-modified by       : $LastChangedBy$
-last modified     : $LastChangedDate$
+author            : $Author: gramfort $
+version           : $Revision: 222 $
+last revision     : $Date: 2008-04-08 08:14:41 +0200 (Tue, 08 Apr 2008) $
+modified by       : $LastChangedBy: gramfort $
+last modified     : $LastChangedDate: 2008-04-08 08:14:41 +0200 (Tue, 08 Apr 2008) $
 
-© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre 
+© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre
 GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU, Théodore PAPADOPOULO,
 Maureen.Clerc.AT.sophia.inria.fr, keriven.AT.certis.enpc.fr,
 kybic.AT.fel.cvut.cz, papadop.AT.sophia.inria.fr)
@@ -54,9 +54,10 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <vector>
 
 #include "IOUtils.H"
-#include "vect3.h"
+#include "vecteur.h"
 #include "matrice.h"
 #include "symmatrice.h"
+#include "sparse_matrice.h"
 
 /*!
  *  Sensors class for EEG and MEG sensors.
@@ -91,12 +92,13 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 class Sensors {
 private:
-    size_t m_nb;                    /*!< Number of sensors. */
-    std::vector<std::string> m_id;  /*!< List of sensors name. */
-    matrice m_positions;            /*!< Matrix of sensors positions. ex: positions(i,j) with  j in {0,1,2} for sensor i */
-    matrice m_orientations;         /*!< Matrix of sensors orientations. ex: orientation(i,j) with  j in {0,1,2} for sensor i */
-
-    void copy(const Sensors& S);    /*!< Copy function. Copy sensor S in current sensor object. ex. senors S1; ...; sensors S2(S1); */
+    size_t m_nb;                       /*!< Number of sensors. */
+    std::vector<std::string> m_names;  /*!< List of sensors names. */
+    matrice m_positions;               /*!< Matrix of sensors positions. ex: positions(i,j) with  j in {0,1,2} for sensor i */
+    matrice m_orientations;            /*!< Matrix of sensors orientations. ex: orientation(i,j) with  j in {0,1,2} for sensor i */
+    vecteur m_weights;                 /*!< Weights of integration points */
+    std::vector<size_t> m_pointSensorIdx; /*!< Correspondance between point id and sensor id */
+    void copy(const Sensors& S);       /*!< Copy function. Copy sensor S in current sensor object. ex. senors S1; ...; sensors S2(S1); */
 
 public:
     Sensors(): m_nb(0) {} /*!< Default constructor. Number of sensors = 0. */
@@ -106,10 +108,12 @@ public:
 
     Sensors& operator=(const Sensors& S); /*!< Copy operator. Copy sensor S in current sensor object. ex. sensors S1; ...; sensors S2 = S1; */
 
-    void load(char* filename, char filetype = 't' ); /*!< Load sensors from file. Filetype is 't' for text file or 'b' for binary file. */
+    void load(const char* filename, char filetype = 't' ); /*!< Load sensors from file. Filetype is 't' for text file or 'b' for binary file. */
     void load(std::istream &in); /*!< Load description file of sensors from stream. */
+    void save(const char* filename);
 
     size_t getNumberOfSensors() const { return m_nb; } /*!< Return the number of sensors. */
+    size_t getNumberOfPositions() const { return m_positions.nlin(); } /*!< Return the number of integration points. */
 
     matrice& getPositions() { return m_positions ; } /*!< Return a reference on sensors positions. */
     matrice getPositions() const { return m_positions ; } /*!< Return a copy of sensors positions */
@@ -117,179 +121,57 @@ public:
     matrice& getOrientations() {return m_orientations ; } /*!< Return a reference on sensors orientations. */
     matrice getOrientations() const {return m_orientations ; } /*!< Return a copy of sensors orientations. */
 
-    std::vector<std::string>& getSensorsIds() {return m_id ; } /*!< Return a reference on sensors ids. */
-    std::vector<std::string> getSensorsIds() const {return m_id ; } /*!< Return a copy of sensors ids. */
+    std::vector<std::string>& getSensorsNames() {return m_names ; } /*!< Return a reference on sensors ids. */
+    std::vector<std::string> getSensorsNames() const {return m_names ; } /*!< Return a copy of sensors ids. */
 
-    std::vector<std::string> getIdOfSensors() {return m_id ; } /*!< Return the vector of whole sensors names. */
     bool hasOrientations() const { return m_orientations.nlin() > 0 ;} /*!< Return true if contains orientations */
-    bool hasIds() const { return m_id.size() == m_nb ;} /*!< Return true if contains all sensors ids (names) */
-    int getIndexOfId(std::string id ); /*!< Return the index of id string looked up. */
-    Vect3 getPosition(std::string id ); /*!< Return the position (3D point) of the id string looked up. */
-    Vect3 getOrientation(std::string id ); /*!< Return the orientation vector (3D point) of the id string looked up .*/
+    bool hasNames() const { return m_names.size() == m_nb ;} /*!< Return true if contains all sensors names */
+    vecteur getPosition(size_t idx) const; /*!< Return the position (3D point) of the integration point i. */
+    vecteur getOrientation(size_t idx) const; /*!< Return the orientations (3D point) of the integration point i. */
+    void setPosition(size_t idx, vecteur& pos); /*!< Set the position (3D point) of the integration point i. */
+    void setOrientation(size_t idx, vecteur& orient); /*!< Set the orientation (3D point) of the integration point i. */
+
+    bool hasSensor(std::string name);
+    size_t getSensorIdx(std::string name);
+
+    sparse_matrice getWeightsMatrix() const;
 
     bool isEmpty() { if(m_nb == 0) return true; else return false; } /*!< Return if the sensors object is empty. The sensors object is empty if its number of sensors is null. */
 };
 
-inline Sensors::Sensors(char* filename) {
-    this->load(filename,'t');
+inline vecteur Sensors::getPosition(size_t idx) const {
+    return m_positions.getlin(idx);
 }
 
-inline void Sensors::copy(const Sensors& S) {
-    m_nb = S.m_nb;
-    if ( m_nb != 0 ) {
-        if ( S.m_id.size() != 0 ) {
-            for( size_t i=0; i<m_nb; i++)
-                m_id.push_back(S.m_id[i]);
-        }
-
-        m_positions = matrice( S.m_positions );
-        m_orientations = matrice( S.m_orientations );
-    }
+inline vecteur Sensors::getOrientation(size_t idx) const {
+    return m_orientations.getlin(idx);
 }
 
-inline Sensors& Sensors::operator=(const Sensors& S) {
-    if ( this != &S ) copy(S);
-    return *this;
+inline void Sensors::setPosition(size_t idx, vecteur& pos) {
+    return m_positions.setlin(idx,pos);
 }
 
-inline void Sensors::load(std::istream &in) {
-
-    in >> io_utils::skip_comments('#');
-
-    std::string buf;
-    std::vector<std::string> tokens;
-    std::vector<std::string>::const_iterator tokensIterator;
-
-    // Get data type :
-    std::string s;
-    std::getline(in, s);
-    std::stringstream is(s);
-    size_t num_of_columns = 0;
-    while( is >> buf )
-        num_of_columns++;
-
-    // Determine the number of lines
-    in.seekg(0,std::ios::beg);
-    size_t num_of_lines = 0;
-    while(!in.fail())
-    {
-        std::getline(in,s);
-        num_of_lines++;
-    }
-    num_of_lines--;
-
-    // init private members :
-    m_nb = num_of_lines;
-    m_positions = matrice( m_nb, 3);
-    if ( num_of_columns > 4 ) {
-        m_orientations = matrice( m_nb, 3);
-    }
-
-    size_t current_line_id = 0;
-    in.clear();
-    in.seekg(0,std::ios::beg); // move the get pointer to the beginning of the file.
-    while ( !in.fail() ) {
-        // Tokenize line
-        std::getline(in,s);
-
-        if( s == "" ) break; // Skip blank line
-        std::stringstream iss(s);
-        tokens.clear();
-        while( iss >> buf)
-            tokens.push_back(buf);
-
-        assert(tokens.size() == num_of_columns); // Each line has same length
-
-        tokensIterator =  tokens.begin();
-
-        if ( (num_of_columns == 7) || (num_of_columns == 4) ) { // Get label
-            m_id.push_back(*tokensIterator);
-            tokensIterator++;
-        }
-
-        // read position
-        std::vector<double> coord;
-        for(size_t i=0; i<3; i++){
-            std::stringstream tmp_is(*tokensIterator);
-            double tmp;
-            tmp_is >> tmp;
-            m_positions(current_line_id,i) = tmp;
-            tokensIterator++;
-        }
-        
-        if ( num_of_columns > 4 ) {
-            // read orientation
-            std::vector<double> coord;
-            for(size_t i=0; i<3; i++){
-                std::stringstream tmp_is(*tokensIterator);
-                double tmp;
-                tmp_is >> tmp;
-                m_orientations(current_line_id,i) = tmp;
-                tokensIterator++;
-            }
-        }
-        current_line_id++;
-    }
-}
-
-inline void Sensors::load(char* filename, char filetype) {
-    std::ifstream in;
-    if(filetype == 't')
-        in.open(filename,std::ios::in);
-    else
-        if(filetype == 'b')
-            in.open(filename,std::ios::in|std::ios::binary);
-        else
-            { std::cout << "ERROR: unkown filetype. " << std::endl; exit(1); }
-
-
-    if(!in.is_open())
-        { std::cerr<<"Error Reading File : " << filename << std::endl;  exit(1);  }
-    Sensors::load(in);
-    in.close();
-}
-
-inline int Sensors::getIndexOfId(std::string id ) {
-    size_t i=0;
-    while(i<m_id.size() && m_id[i]!=id)
-        i++;
-    if(m_id[i]!=id)
-        return i;
-    else
-        { std::cout <<"ERROR: this id not exist! " << std::endl; exit(1); }
-}
-
-inline Vect3 Sensors::getPosition(std::string id ) {
-    int ind = getIndexOfId(id);
-    Vect3 pos( m_positions(ind,0), m_positions(ind,1), m_positions(ind,2) );
-    return pos;
-}
-
-inline Vect3 Sensors::getOrientation(std::string id ) {
-    int ind = getIndexOfId(id);
-    Vect3 orient( m_orientations(ind,0), m_orientations(ind,1), m_orientations(ind,2) );
-    return orient;
+inline void Sensors::setOrientation(size_t idx, vecteur& orient) {
+    return m_orientations.setlin(idx,orient);
 }
 
 inline std::ostream& operator<<(std::ostream& f,const Sensors &S) {
     f << "Nb of sensors : " << S.getNumberOfSensors() << std::endl;
     f << "Positions" << std::endl;
     f << S.getPositions();
-    if(S.hasOrientations())
-    {
+    if(S.hasOrientations()) {
         f << "Orientations" << std::endl;
         f << S.getOrientations();
     }
-    if(S.hasIds())
-    {
-        f << "Ids" << std::endl;
-        std::vector<std::string> ids = S.getSensorsIds();
-        for(size_t i = 0; i < ids.size(); ++i)
-        {
-            f << ids[i] << std::endl;
+    if(S.hasNames()) {
+        f << "Names" << std::endl;
+        std::vector<std::string> names = S.getSensorsNames();
+        for(size_t i = 0; i < names.size(); ++i) {
+            f << names[i] << std::endl;
         }
     }
     return f;
 }
+
 
 #endif

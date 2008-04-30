@@ -42,7 +42,7 @@ ADD_EXECUTABLE(om_cortex_patch cortex_patch.cpp)
 TARGET_LINK_LIBRARIES (om_cortex_patch OpenMEEG ${OPENMEEG_OTHER_LIBRARIES})
 
 ADD_EXECUTABLE(om_register_squids register_squids.cpp)
-TARGET_LINK_LIBRARIES (om_register_squids ${OPENMEEG_OTHER_LIBRARIES})
+TARGET_LINK_LIBRARIES (om_register_squids OpenMEEG ${OPENMEEG_OTHER_LIBRARIES})
 
 ADD_EXECUTABLE(om_squids2vtk squids2vtk.cpp)
 TARGET_LINK_LIBRARIES (om_squids2vtk ${OPENMEEG_OTHER_LIBRARIES})
