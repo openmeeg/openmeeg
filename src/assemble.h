@@ -90,7 +90,7 @@ public:
     SurfToVol_matrice (const Geometry &geo, const matrice &points);
     virtual ~SurfToVol_matrice () {};
 };
-class vToEEG_matrice : public virtual matrice
+class vToEEG_matrice : public virtual sparse_matrice
 {
 public:
     vToEEG_matrice (const Geometry &geo, const matrice& patches);

@@ -419,6 +419,8 @@ void Mesh::load_tri(const char* filename, bool checkClosedSurface) {
     f.close();
 }
 
+
+
 void Mesh::load_bnd(std::istream &f, bool checkClosedSurface) {
     char myline[256];
     f.seekg( 0, std::ios_base::beg );

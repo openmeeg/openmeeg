@@ -31,7 +31,7 @@ ADD_TEST(compareRHS-${SUBJECT} ${CMAKE_CURRENT_BINARY_DIR}/compare_matrix
 ############ TEST EEG RESULTS ##############
 
 #------ v2eeg -----#
-ADD_TEST(comparev2eeg-${SUBJECT} ${CMAKE_CURRENT_BINARY_DIR}/compare_matrix
+ADD_TEST(comparev2eeg-${SUBJECT} ${CMAKE_CURRENT_BINARY_DIR}/compare_matrix 
                       ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.v2eeg
                       ${OpenMEEG_SOURCE_DIR}/tests/initialTest/${SUBJECT}.v2eeg -bin)
 #------ EEG GAIN -----#

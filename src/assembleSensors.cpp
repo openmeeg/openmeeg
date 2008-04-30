@@ -54,11 +54,11 @@ void assemble_ferguson(const Geometry &geo, matrice &mat, const Vect3* pts,const
 // EEG patches positions are reported line by line in the positions matrix
 // mat is supposed to be filled with zeros
 // mat is the linear application which maps x (the unknown vector in symmetric system) -> v (potential at the electrodes)
-void assemble_vToEEG(matrice &mat, const Geometry &geo, const matrice &positions )
+void assemble_vToEEG(sparse_matrice &mat, const Geometry &geo, const matrice &positions )
 {
     int newsize = geo.size()-(geo.getM(geo.nb()-1)).nbTrgs();
-    mat = matrice(positions.nlin(),newsize);
-    mat.set(0.0);
+    mat= sparse_matrice(positions.nlin(),newsize);
+    //    mat.set(0.0);
 
     const Mesh& extLayer = geo.getM(geo.nb()-1);
 

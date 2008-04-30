@@ -64,16 +64,6 @@ knowledge of the CeCILL-B license and that you accept its terms.
 typedef std::set<int> intSet;
 int tri_tri_overlap_test_3d(float p1[3], float q1[3], float r1[3],float p2[3], float q2[3], float r2[3]);
 
-/** \brief  Mesh
-
-    Mesh Class
-
-© Copyright 2007-2007 Odyssee INRIA . All Rights Reserved.
-
-    \author $LastChangedBy$
-    \date $LastChangedDate$
-    \version $Rev$  \sa
-**/
 
 class Mesh
 {
@@ -99,6 +89,7 @@ private:
 
     void load_mesh(std::istream &is, bool checkOrientations = true);
     void load_mesh(const char*, bool checkOrientations = true);
+
     #ifdef USE_VTK
         void load_vtk(std::istream &is, bool checkOrientations = true);
         void load_vtk(const char*, bool checkOrientations = true);

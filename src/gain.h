@@ -49,31 +49,31 @@ knowledge of the CeCILL-B license and that you accept its terms.
 class HMEG_matrice : public virtual matrice
 {
 public:
-    HMEG_matrice (const symmatrice& LhsInvMatrix,const matrice& RhsMatrix, const matrice& V2MegMatrix, const matrice& S2MegMatrix);
+    HMEG_matrice (const symmatrice& LhsInvMatrix,const matrice& RhsMatrix, const matrice& vToMEGMatrix, const matrice& sToMEGMatrix);
     virtual ~HMEG_matrice () {};
 };
 
 class HEEG_matrice : public virtual matrice
 {
 public:
-    HEEG_matrice (const symmatrice& LhsInvMatrix,const matrice& RhsMatrix, const matrice& V2EegMatrix);
+    HEEG_matrice (const symmatrice& LhsInvMatrix,const matrice& RhsMatrix, const sparse_matrice& vToEEGMatrix);
     virtual ~HEEG_matrice () {};
 };
 
-inline void assemble_gain_EEG(matrice& EegGainMatrix,const symmatrice& LhsInvMatrix,const matrice& RhsMatrix, const matrice& V2EegMatrix) {
+inline void assemble_gain_EEG(matrice& EEGGainMatrix,const symmatrice& LhsInvMatrix,const matrice& RhsMatrix, const sparse_matrice& vToEEGMatrix) {
     matrice reducedLhsInvMatrix = matrice(LhsInvMatrix)(0,LhsInvMatrix.nlin()-1,0,RhsMatrix.nlin()-1);
-    EegGainMatrix = (V2EegMatrix*reducedLhsInvMatrix)*RhsMatrix;
+    EEGGainMatrix = (vToEEGMatrix*reducedLhsInvMatrix)*RhsMatrix;
 }
 
-inline void assemble_gain_MEG(matrice& MegGainMatrix,const symmatrice& LhsInvMatrix,const matrice& RhsMatrix, const matrice& V2MegMatrix, const matrice& S2MegMatrix) {
+inline void assemble_gain_MEG(matrice& MEGGainMatrix,const symmatrice& LhsInvMatrix,const matrice& RhsMatrix, const matrice& vToMEGMatrix, const matrice& sToMEGMatrix) {
     matrice reducedLhsInvMatrix = matrice(LhsInvMatrix)(0,LhsInvMatrix.nlin()-1,0,RhsMatrix.nlin()-1);
-    MegGainMatrix = S2MegMatrix+(V2MegMatrix*reducedLhsInvMatrix)*RhsMatrix;
+    MEGGainMatrix = sToMEGMatrix+(vToMEGMatrix*reducedLhsInvMatrix)*RhsMatrix;
 }
 
-HMEG_matrice::HMEG_matrice(const symmatrice& LhsInvMatrix,const matrice& RhsMatrix, const matrice& V2MegMatrix, const matrice& S2MegMatrix) {
-    assemble_gain_MEG(*this,LhsInvMatrix,RhsMatrix,V2MegMatrix,S2MegMatrix);
+HMEG_matrice::HMEG_matrice(const symmatrice& LhsInvMatrix,const matrice& RhsMatrix, const matrice& vToMEGMatrix, const matrice& sToMEGMatrix) {
+    assemble_gain_MEG(*this,LhsInvMatrix,RhsMatrix,vToMEGMatrix,sToMEGMatrix);
 }
 
-HEEG_matrice::HEEG_matrice(const symmatrice& LhsInvMatrix,const matrice& RhsMatrix, const matrice& V2EegMatrix) {
-    assemble_gain_EEG(*this,LhsInvMatrix,RhsMatrix,V2EegMatrix);
+HEEG_matrice::HEEG_matrice(const symmatrice& LhsInvMatrix,const matrice& RhsMatrix, const sparse_matrice& vToEEGMatrix) {
+    assemble_gain_EEG(*this,LhsInvMatrix,RhsMatrix,vToEEGMatrix);
 }
