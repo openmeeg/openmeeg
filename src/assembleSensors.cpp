@@ -158,7 +158,7 @@ vToMEG_matrice::vToMEG_matrice(const Geometry &geo, const Sensors &sensors) {
 void assemble_sToMEG(matrice &mat, const Mesh &sources_mesh, const Sensors &sensors)
 {
     matrice positions = sensors.getPositions();
-    matrice orientations = sensors.getPositions();
+    matrice orientations = sensors.getOrientations();
 
     mat = matrice(positions.nlin(),sources_mesh.nbPts());
     mat.set(0.0);

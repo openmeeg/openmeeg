@@ -344,7 +344,8 @@ int main(int argc, char** argv)
     }
 
     /*********************************************************************************************
-    * Computation of the linear application which maps x (the unknown vector in symmetric system)
+    * Computation of the linear application which maps v (the unknown vector in symmetric system,
+    * i.e. the potential and the normal current on all interfaces)
     * |----> v (potential at the electrodes)
     **********************************************************************************************/
     else if(!strcmp(argv[1],"-vToEEG")) {
@@ -380,7 +381,8 @@ int main(int argc, char** argv)
     }
 
     /*********************************************************************************************
-    * Computation of the linear application which maps x (the unknown vector in symmetric system)
+    * Computation of the linear application which maps v (the unknown vector in symmetric system,
+    * i.e. the potential and the normal current on all interfaces)
     * |----> bFerguson (contrib to MEG response)
     **********************************************************************************************/
     else if(!strcmp(argv[1],"-vToMEG")) {
@@ -415,7 +417,7 @@ int main(int argc, char** argv)
     }
 
     /*********************************************************************************************
-    * Computation of the linear application which maps x (the unknown vector in symmetric system)
+    * Computation of the linear application which maps s (the distributed source)
     * |----> binf (contrib to MEG response)
     **********************************************************************************************/
     else if(!strcmp(argv[1],"-sToMEG")) {
@@ -446,7 +448,7 @@ int main(int argc, char** argv)
     }
 
     /*********************************************************************************************
-    * Computation of the discrete linear application which maps x (the unknown vector in a symmetric system)
+    * Computation of the discrete linear application which maps s (the dipolar source)
     * |----> binf (contrib to MEG response)
     **********************************************************************************************/
     // arguments are the positions and orientations of the squids,
