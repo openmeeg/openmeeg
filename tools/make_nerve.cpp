@@ -110,7 +110,7 @@ decoupe(dt,iz2,&niz2,&diz2);
 
   float ang[c];
 
-  int max= floor(nteta*(L/dt+2*c)*4);
+  int max = (int) floor(nteta*(L/dt+2*c)*4);
     Vect3* P = new Vect3[max];
     Triangle* T = new Triangle[2*max];
 

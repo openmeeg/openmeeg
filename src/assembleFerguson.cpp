@@ -67,8 +67,7 @@ void assemble_ferguson(const Geometry &geo,matrice &mat, const Vect3 *pts,const 
             operatorFerguson(pts[p],geo.getM(c),mat,offsetI,offsetJ);
             offsetI += 3;
         }
-        offsetJ += geo.getM(c).nbPts(); // FIXME : check if it should not be nbTrgs
-        // offsetJ += geo.getM(c).nbTrgs();
+        offsetJ += geo.getM(c).nbPts();
     }
 
     // Blocks multiplications
@@ -76,7 +75,6 @@ void assemble_ferguson(const Geometry &geo,matrice &mat, const Vect3 *pts,const 
     for(int c=0;c<geo.nb();c++)
     {
         mult2(mat,0,offsetJ,mat.nlin(),offsetJ+geo.getM(c).nbPts(),(geo.sigma_in(c)-geo.sigma_out(c))*MU0/(4*M_PI));
-        offsetJ += geo.getM(c).nbPts(); // FIXME : check if it should not be nbTrgs
-        // offsetJ += geo.getM(c).nbTrgs();
+        offsetJ += geo.getM(c).nbPts();
     }
 }

@@ -1,13 +1,13 @@
-/* FILE: $Id$ */
+/* FILE: $Id: sparse_matrice.h 235 2008-04-30 13:39:08Z gramfort $ */
 
 /*
 Project Name : OpenMEEG
 
-author            : $Author$
-version           : $Revision$
-last revision     : $Date$
-modified by       : $LastChangedBy$
-last modified     : $LastChangedDate$
+author            : $Author: $
+version           : $Revision: $
+last revision     : $Date: $
+modified by       : $LastChangedBy: $
+last modified     : $LastChangedDate: $
 
 © INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre 
 GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU, Théodore PAPADOPOULO,
@@ -44,20 +44,33 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#ifndef H_fContainer
-#define H_fContainer
+#include "mesh3.h"
+#include "options.h"
+#include "matrice.h"
 
-#include <math.h>
-#include "vect3.h"
+using namespace std;
 
-template<class T> class fContainer
+int main( int argc, char **argv)
 {
-    // fContainer class , an interface for a class having a T-valued function in \real^3
-public:
-    fContainer(){}
-    virtual ~fContainer(){}
+    command_usage("Convert mesh file to a dipole file");
+    const char *input_filename = command_option("-i",(const char *) NULL,"Input Mesh");
+    const char *output_filename = command_option("-o",(const char *) NULL,"Output .dip file");
+    if (command_option("-h",(const char *)0,0)) return 0;
 
-    virtual T f(const Vect3& v) const=0;
-};
-#endif
+    Mesh M;
+    M.load(input_filename,false);
 
+    matrice mat(M.nbPts(),6);
+    for(int i = 0; i < M.nbPts(); ++i)
+    {
+        mat(i,0) = M.getPt(i).x();
+        mat(i,1) = M.getPt(i).y();
+        mat(i,2) = M.getPt(i).z();
+        mat(i,3) = M.normal(i).x();
+        mat(i,4) = M.normal(i).y();
+        mat(i,5) = M.normal(i).z();
+    }
+    mat.saveTxt(output_filename);
+
+    return 0;
+}

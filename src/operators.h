@@ -174,14 +174,14 @@ inline void _operatorD(const int nT1,const int nT2,const int GaussOrder,const Me
 
     analyD.init( m2, nT2);
 #ifdef ADAPT_LHS
-    adaptive_integrator<Vect3> gauss(0.005);
+    adaptive_integrator<Vect3,analyticD3> gauss(0.005);
     gauss.setOrder(GaussOrder);
     Vect3 total=gauss.integrate(analyD,T1,m1);
 #else
     #ifdef USE_OMP
-        integrator<Vect3> gauss(GaussOrder);
+        integrator<Vect,analyticD33> gauss(GaussOrder);
     #else
-        static integrator<Vect3> gauss(GaussOrder);
+        static integrator<Vect3,analyticD3> gauss(GaussOrder);
     #endif
 
     Vect3 total=gauss.integrate(analyD,T1,m1);
@@ -230,14 +230,14 @@ inline double _operatorS(const int nT1,const int nT2,const int GaussOrder,const 
         analyS.init(nT1,m1);
     }
 #ifdef ADAPT_LHS
-    adaptive_integrator<double> gauss(0.005);
+    adaptive_integrator<double,analyticS> gauss(0.005);
     gauss.setOrder(GaussOrder);
     return gauss.integrate(analyS,T2,m2);
 #else
     #ifdef USE_OMP
-        integrator<double> gauss;
+        integrator<double,analyticS> gauss;
     #else
-        static integrator<double> gauss;
+        static integrator<double,analyticS> gauss;
     #endif
     gauss.setOrder(GaussOrder);
     return gauss.integrate(analyS,T2,m2);

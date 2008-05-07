@@ -47,10 +47,10 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #ifndef H_analytics
 #define H_analytics
 
-#include "fcontainer.h"
 #include "mesh3.h"
 #include <stdio.h>
-class analyticS : public fContainer<double> {
+
+class analyticS {
 private:
     Vect3 p0,p1,p2; //!< vertices of the triangle
     Vect3 p2p1,p1p0,p0p2;
@@ -113,22 +113,25 @@ public:
         double g0,g1,g2;
 
         if ((p0x^p1p0).norme() > .00000001)
-	  g0 = -log(norme2p1x-p1x*p1p0*(1.0/norme2p1p0) )+log(norme2p0x-p0x*p1p0*(1.0/norme2p1p0) );
+            g0 = -log(norme2p1x-p1x*p1p0*(1.0/norme2p1p0) )+log(norme2p0x-p0x*p1p0*(1.0/norme2p1p0) );
         else
             g0= fabs(log(norme2p1x)-log(norme2p0x));
+
         if ((p1x^p2p1).norme() > .00000001)
             g1 = -log(norme2p2x-p2x*p2p1*(1.0/norme2p2p1) )+log(norme2p1x-p1x*p2p1*(1.0/norme2p2p1) );
         else
             g1= fabs(log(norme2p2x)-log(norme2p1x));
+
         if ((p2x^p0p2).norme() > .00000001)
             g2 = -log(norme2p0x-p0x*p0p2*(1.0/norme2p0p2) )+log(norme2p2x-p2x*p0p2*(1.0/norme2p0p2) );
         else
             g2 = fabs(log(norme2p0x)-log(norme2p2x));
+
         return ((p0x*nu0)*g0+(p1x*nu1)*g1+(p2x*nu2)*g2)-alpha*x.solangl(p0,p1,p2);
     }
 };
 
-class analyticD : public fContainer<double> {
+class analyticD {
 private:
     Vect3 v1,v2,v3;
     int i;
@@ -189,7 +192,7 @@ public:
 };
 
 
-class analyticD3 : public fContainer<Vect3> {
+class analyticD3 {
 private:
     Vect3 v1,v2,v3;
     double aire;
@@ -247,7 +250,7 @@ public:
     }
 };
 
-class analyticDipPot: public fContainer<double> {
+class analyticDipPot {
 private:
     Vect3 q,r0;
 public:
@@ -269,7 +272,7 @@ public:
     }
 };
 
-class analyticDipPotDer : public fContainer<Vect3> {
+class analyticDipPotDer {
 private:
     Vect3 q,r0;
     Vect3 H0,H1,H2;
@@ -315,7 +318,7 @@ public:
 };
 
 ////////// Gradients wrt r0 (and q)
-class analyticDipPotGrad: public fContainer< vect3array<2> > {
+class analyticDipPotGrad {
 private:
     Vect3 q,r0;
 public:
@@ -328,11 +331,11 @@ public:
         r0 = _r0;
     }
 
-    inline vect3array<2> f(const Vect3& x) const
+    inline Vect3array<2> f(const Vect3& x) const
     {
         Vect3 r = x-r0;
         double rn = r.norme();
-        vect3array<2> res;
+        Vect3array<2> res;
         // grad_r0(A)= -q/||^3 + 3 r (q.r)/||^5
         res(0) = (3*(q*r)*r/pow(rn,5.)-q/pow(rn,3.));
         // grad_q(A)= r||^3
@@ -341,7 +344,7 @@ public:
     }
 };
 
-class analyticDipPotDerGrad : public fContainer< vect3array<6> > {
+class analyticDipPotDerGrad {
 private:
     Vect3 q,r0;
     Vect3 H0,H1,H2;
@@ -374,7 +377,7 @@ public:
 
     }
 
-    inline vect3array<6> f(const Vect3& x) const
+    inline Vect3array<6> f(const Vect3& x) const
     {
         Vect3 P1part(H0p0DivNorm2*(x-H0),H1p1DivNorm2*(x-H1),H2p2DivNorm2*(x-H2));
 
@@ -389,7 +392,7 @@ public:
         // grad_q(B) = n/||^3-3*(n.r)r/||^5
         Vect3 EMpartQ = n/pow(rn,3.)-3*(n*r)/pow(rn,5.)*r;
 
-        vect3array<6> res;
+        Vect3array<6> res;
         res(0) = -EMpartR0(0)*P1part; // d/dr0[0]		// RK: why - sign?
         res(1) = -EMpartR0(1)*P1part; // d/dr0[1]
         res(2) = -EMpartR0(2)*P1part; // d/dr0[2]

@@ -50,32 +50,24 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include "vect3.h"
 #include "triangle.h"
 #include "mesh3.h"
-#include "fcontainer.h"
 #include <cmath>
 #include <iostream>
 
-inline void multadd (double &cible, const double multiplicateur, const double multiplie)
-{
-    cible+=multiplicateur*multiplie;
-}
-
-inline void multadd (Vect3 &cible, const double multiplicateur,  const Vect3 &multiplie)
-{
-    cible=cible+multiplicateur*multiplie;
-}
-
 // light class containing d Vect3
-template <int d> class vect3array {
+template <int d>
+class Vect3array
+{
+private:
     Vect3 t[d];
 
 public:
-    vect3array() {};
-    inline vect3array(double x) {
+    Vect3array() {};
+    inline Vect3array(double x) {
         for (int i=0;i<d;i++)
             t[i]=Vect3(x);
     }
-    inline vect3array<d> operator*(double x) const {
-        vect3array<d> r;
+    inline Vect3array<d> operator*(double x) const {
+        Vect3array<d> r;
         for (int i=0;i<d;i++)
             r.t[i]=t[i]*x;
         return r;
@@ -85,11 +77,21 @@ public:
 };
 
 template <int d>
-inline void multadd (vect3array<d> &cible, const double multiplicateur,  const vect3array<d> &multiplie)
+inline void multadd (Vect3array<d> &target, const double scale,  const Vect3array<d> &incr)
 {
     for (int i=0;i<d;i++) {
-        cible(i)=cible(i)+multiplicateur*multiplie(i);
+        target(i) = target(i) + scale*incr(i);
     }
+}
+
+inline void multadd (double &target, const double scale, const double incr)
+{
+    target += scale*incr;
+}
+
+inline void multadd (Vect3 &target, const double scale,  const Vect3 &incr)
+{
+    target = target + scale*incr;
 }
 
 // Quadrature rules are from Marc Bonnet's book: Equations integrales..., Appendix B.3
@@ -181,7 +183,7 @@ static const double cordBars[4][16][4]=
 
 static const int nbPts[4]={3,6,7,16};
 
-template<class T>
+template<class T,class I>
 class integrator
 {
 private:
@@ -197,12 +199,12 @@ public:
         else {std::cout<<"Unavalaible Gauss Order: "<<n<<std::endl; order = (n<1)?order=1:order;}
     }
 
-    inline T integrate ( const fContainer<T> &fc, const Triangle& Trg ,const Mesh& M)
+    inline T integrate ( const I &fc, const Triangle& Trg ,const Mesh& M)
     {
         Vect3 sommets[3]={M.getPt(Trg.s1()),M.getPt(Trg.s2()),M.getPt(Trg.s3())};
         return triangle_integration(fc,sommets);
     }
-    inline T triangle_integration( const fContainer<T> &fc, Vect3 *vertices)
+    inline T triangle_integration( const I &fc, Vect3 *vertices)
     {// compute double area of triangle defined by vertices
         Vect3 crossprod=(vertices[1]-vertices[0])^(vertices[2]-vertices[0]);
         double S = crossprod.norme();
@@ -222,8 +224,8 @@ public:
     }
 };
 
-template<class T>
-class adaptive_integrator : public integrator<T>
+template<class T,class I>
+class adaptive_integrator : public integrator<T,I>
 {
 private:
     double tolerance;
@@ -237,14 +239,14 @@ public:
     inline double norme(Vect3 a) {
         return a.norme();
     }
-    inline T integrate ( const fContainer<T> &fc, const Triangle& Trg ,const Mesh& M)
+    inline T integrate(const I &fc, const Triangle& Trg ,const Mesh& M)
     {
         int n=0;
         Vect3 vertices[3]={M.getPt(Trg.s1()),M.getPt(Trg.s2()),M.getPt(Trg.s3())};
         T I0=triangle_integration(fc,vertices);
         return adaptive_integration(fc,vertices,I0,tolerance,n);
     }
-    inline T adaptive_integration(const fContainer<T> &fc,const Vect3 *vertices,T I0,const double tolerance,int n)
+    inline T adaptive_integration(const I &fc,const Vect3 *vertices,T I0,const double tolerance,int n)
     {
         Vect3 newpoint0(0.0,0.0,0.0);
         multadd(newpoint0,0.5,vertices[0]);
@@ -263,8 +265,8 @@ public:
         T I2=triangle_integration(fc,vertices2);
         T I3=triangle_integration(fc,vertices3);
         T I4=triangle_integration(fc,vertices4);
-        T somme=I1+I2+I3+I4;
-        if (norme(I0-somme)>tolerance*norme(I0)){
+        T sum=I1+I2+I3+I4;
+        if (norme(I0-sum)>tolerance*norme(I0)){
             n=n+1;
             if (n<10) {
                 I1 = adaptive_integration(fc,vertices1,I1,tolerance,n);

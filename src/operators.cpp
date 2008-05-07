@@ -229,9 +229,9 @@ void operatorDipolePotDer(const Vect3 &r0,const Vect3 &q,const Mesh &inner_layer
     static analyticDipPotDer anaDPD;
 
 #ifdef ADAPT_RHS
-    adaptive_integrator<Vect3> gauss(0.001);
+    adaptive_integrator<Vect3,analyticDipPotDer> gauss(0.001);
 #else
-    static integrator<Vect3> gauss;
+    static integrator<Vect3,analyticDipPotDer> gauss;
 #endif //ADAPT_RHS
     gauss.setOrder(GaussOrder);
     #ifdef USE_OMP
@@ -258,9 +258,9 @@ void operatorDipolePot(const Vect3 &r0, const Vect3 &q, const Mesh &inner_layer,
 
     anaDP.init(q,r0);
 #ifdef ADAPT_RHS
-    adaptive_integrator<double> gauss(0.001);
+    adaptive_integrator<double,analyticDipPot> gauss(0.001);
 #else
-    static integrator<double> gauss;
+    static integrator<double,analyticDipPot> gauss;
 #endif
     gauss.setOrder(GaussOrder);
     #ifdef USE_OMP
@@ -280,13 +280,13 @@ void operatorDipolePot(const Vect3 &r0, const Vect3 &q, const Mesh &inner_layer,
 void operatorDipolePotDerGrad(const Vect3 &r0, const Vect3 &q,const Mesh &inner_layer, vecteur rhs[6],const int offsetIdx,const int GaussOrder)
 {
     static analyticDipPotDerGrad anaDPD;
-    static integrator< vect3array<6> > gauss;
+    static integrator< Vect3array<6> , analyticDipPotDerGrad > gauss;
     gauss.setOrder(GaussOrder);
 
     for(int i=0;i<inner_layer.nbTrgs();i++)
     {
         anaDPD.init(inner_layer,i,q,r0);
-        vect3array<6> v=gauss.integrate(anaDPD,inner_layer.getTrg(i),inner_layer);
+        Vect3array<6> v=gauss.integrate(anaDPD,inner_layer.getTrg(i),inner_layer);
         for (int d=0;d<6;d++) { // derivatives wrt r0,q
             rhs[d](inner_layer.getTrg(i-offsetIdx).s1()+offsetIdx)+=v(d)(0);
             rhs[d](inner_layer.getTrg(i-offsetIdx).s2()+offsetIdx)+=v(d)(1);
@@ -299,13 +299,13 @@ void operatorDipolePotDerGrad(const Vect3 &r0, const Vect3 &q,const Mesh &inner_
 void operatorDipolePotGrad(const Vect3 &r0,const Vect3 &q,const Mesh &inner_layer,vecteur rhs[6],const int offsetIdx,const int GaussOrder)
 {
     static analyticDipPotGrad anaDP;
-    static integrator< vect3array<2> > gauss;
+    static integrator< Vect3array<2> , analyticDipPotGrad > gauss;
     gauss.setOrder(GaussOrder);
 
     anaDP.init(q,r0);
     for(int i=offsetIdx;i<offsetIdx+inner_layer.nbTrgs();i++)
     {
-        vect3array<2> v = gauss.integrate(anaDP,inner_layer.getTrg(i-offsetIdx),inner_layer);
+        Vect3array<2> v = gauss.integrate(anaDP,inner_layer.getTrg(i-offsetIdx),inner_layer);
         // grad_r0
         rhs[0](i) += v(0).x();
         rhs[1](i) += v(0).y();

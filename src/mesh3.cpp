@@ -57,6 +57,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include "mesh3.h"
 #include "om_utils.h"
 #include "Triangle_triangle_intersection.h"
+#include "IOUtils.h"
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -422,61 +423,50 @@ void Mesh::load_tri(const char* filename, bool checkClosedSurface) {
 
 
 void Mesh::load_bnd(std::istream &f, bool checkClosedSurface) {
-    char myline[256];
-    f.seekg( 0, std::ios_base::beg );
-    f.getline(myline,256);
-    f.getline(myline,256);
-
-    // Vect3 normals;
-    f.seekg( 0, std::ios_base::beg );
-    f.getline(myline,256);
-    f.getline(myline,256);
-
-    // istringstream iss;
+    std::string line;
     string st;
 
-    f.getline(myline,256);
-    {
-        istringstream iss(myline); iss >> st;
-        assert(st == "NumberPositions=");
-        iss >> npts;
+    f.seekg( 0, std::ios_base::beg );
+
+    f >> io_utils::skip_comments('#') >> st;
+    if(st == "Type=") {
+        io_utils::skip_line(f);
+        f >> io_utils::skip_comments('#') >> st;
     }
 
-    f.getline(myline,256); // skip : "UnitPosition mm"
+    assert(st == "NumberPositions=");
+    f >> npts;
 
-    f.getline(myline,256); {istringstream iss(myline); iss >> st;}
+    f >> io_utils::skip_comments('#') >> st;
+    if(st == "UnitPosition") {
+        io_utils::skip_line(f); // skip : "UnitPosition mm"
+    }
+
+    f >> io_utils::skip_comments('#') >> st;
     assert(st == "Positions");
 
     pts = new Vect3[npts];
     links = new intSet[npts];
 
-    for( int i = 0; i < npts; i += 1 )
-    {
-        f>>pts[i];
-        pts[i] = pts[i];
-    }
-    f.getline(myline,256);
-    f.getline(myline,256);
-    {
-        istringstream iss(myline); iss >> st;
-        assert(st == "NumberPolygons=");
-        iss >> ntrgs;
+    for( int i = 0; i < npts; i += 1 ) {
+        f >> io_utils::skip_comments('#') >> pts[i];
     }
 
-    f.getline(myline,256);
-    {
-        istringstream iss(myline); iss >> st;
-        assert(st == "TypePolygons=");
-        iss >> st;
-        assert(st == "3");
-    }
+    f >> io_utils::skip_comments('#') >> st;
+    assert(st == "NumberPolygons=");
+    f >> io_utils::skip_comments('#') >> ntrgs;
 
-    f.getline(myline,256); {istringstream iss(myline); iss >> st;}
+    f >> io_utils::skip_comments('#') >> st;
+    assert(st == "TypePolygons=");
+    f >> io_utils::skip_comments('#') >> st;
+    assert(st == "3");
+
+    f >> io_utils::skip_comments('#') >> st;
     assert(st == "Polygons");
 
     trgs = new Triangle[ntrgs];
     for (int i=0;i<ntrgs;i++) {
-        f>>trgs[i];
+        f >> io_utils::skip_comments('#') >> trgs[i];
     }
 
     make_links();
@@ -491,6 +481,7 @@ void Mesh::load_bnd(const char* filename, bool checkClosedSurface) {
     string s = filename;
     cout << "load_bnd : " << filename << endl;
     std::ifstream f(filename);
+
     if(!f.is_open()) {
         cerr << "Error opening BND file: " << filename << endl;
         exit(1);

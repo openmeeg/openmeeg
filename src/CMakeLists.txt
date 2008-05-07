@@ -4,7 +4,6 @@ SET(OPENMEEG_HEADERS
     cpuChrono.h mesh3.h
     danielsson.h
     om_utils.h
-    fcontainer.h
     operators.h
     sensors.h
     MeshReader.h

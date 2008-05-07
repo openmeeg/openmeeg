@@ -58,11 +58,12 @@ int main( int argc, char **argv)
     const size_t niter = command_option("-n",1000,"Number of iterations");
     if (command_option("-h",(const char *)0,0)) return 0;
 
-    Mesh* M = new Mesh();
-    M->load(input_filename);
-    M->smooth(smoothing_intensity,niter);
-    M->save(output_filename);
+    Mesh M;
+    M.load(input_filename);
+    M.smooth(smoothing_intensity,niter);
+    std::cout << "Smoothing done !" << std::endl;
+    M.info();
+    M.save(output_filename);
 
-    delete M;
     return 0;
 }
