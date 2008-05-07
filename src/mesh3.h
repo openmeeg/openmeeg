@@ -112,7 +112,7 @@ private:
 
 public:
 
-    enum Filetype { VTK, TRI, BND, MESH };
+    enum Filetype { VTK, TRI, BND, MESH, OFF };
 
     Mesh();
     Mesh(int, int); // npts, ntrgs

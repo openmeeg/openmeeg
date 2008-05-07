@@ -130,16 +130,16 @@ inline double _operatorD(const int nT1,const int nP2,const int GaussOrder,const 
     #endif
 #ifdef ADAPT_LHS
     #ifdef USE_OMP
-        adaptive_integrator<double> gauss(0.005);
+        adaptive_integrator<double,analyticD> gauss(0.005);
     #else
-        static adaptive_integrator<double> gauss(0.005);
+        static adaptive_integrator<double,analyticD> gauss(0.005);
     #endif
     gauss.setOrder(GaussOrder);
 #else
     #ifdef USE_OMP
-        integrator<double> gauss(GaussOrder);
+        integrator<double,analyticD> gauss(GaussOrder);
     #else
-        static integrator<double> gauss(GaussOrder);
+        static integrator<double,analyticD> gauss(GaussOrder);
     #endif
 #endif //ADAPT_LHS
 

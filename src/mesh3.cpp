@@ -57,7 +57,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include "mesh3.h"
 #include "om_utils.h"
 #include "Triangle_triangle_intersection.h"
-#include "IOUtils.h"
+#include "IOUtils.H"
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -152,6 +152,7 @@ void Mesh::getFileFormat(const char* filename) {
     else if(!strcmp(extension,"tri") || !strcmp(extension,"TRI")) streamFormat = Mesh::TRI;
     else if(!strcmp(extension,"bnd") || !strcmp(extension,"BND")) streamFormat = Mesh::BND;
     else if(!strcmp(extension,"mesh") || ! strcmp(extension,"MESH")) streamFormat = Mesh::MESH;
+    else if(!strcmp(extension,"off") || ! strcmp(extension,"OFF")) streamFormat = Mesh::OFF;
 }
 
 void Mesh::load(const char* name, bool checkClosedSurface, bool verbose) {
