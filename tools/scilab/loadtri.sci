@@ -39,9 +39,9 @@ while max(size(mtlb_findstr("-",s)))==0
 end;
 ntriangles = msscanf(s,"- %d");
 dim2 = 3;
-ntriangles = mtlb_e(ntriangles,1);
-triangles = mtlb_fscanf(fid,"%g %g %g\n",[dim2,ntriangles]);
-triangles = triangles';
+for i=1:ntriangles
+  triangles(i,:) = mfscanf(fid,"%g %g %g\n");
+end
 triangles = triangles+1;
 mclose(fid);
 endfunction
