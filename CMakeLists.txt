@@ -25,6 +25,8 @@ SET(CPACK_PACKAGE_VERSION_PATCH ${PACKAGE_VERSION_PATCH})
 
 PROJECT(OpenMEEG)
 
+CMAKE_MINIMUM_REQUIRED(VERSION 2.5)
+
 SET(CMAKE_SKIP_RPATH ON)
 
 #######################################################################

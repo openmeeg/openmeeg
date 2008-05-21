@@ -1,6 +1,7 @@
 # A way to load data via their absolute path
 # See SRCPATH macro in C++ source
-ADD_DEFINITIONS ( -DSRCDIR=${OpenMEEG_SOURCE_DIR} )
+
+ADD_DEFINITIONS ( -D"SRCDIR=${OpenMEEG_SOURCE_DIR}" )
 
 ADD_EXECUTABLE(om_txt2tex txt2tex.cpp)
 TARGET_LINK_LIBRARIES (om_txt2tex ${OPENMEEG_OTHER_LIBRARIES})
