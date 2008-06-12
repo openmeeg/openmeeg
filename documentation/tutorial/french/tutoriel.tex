@@ -1,0 +1,62 @@
+\documentclass[11pt,a4paper,makeidx]{book}
+
+\usepackage[french]{babel}
+\usepackage[utf8x]{inputenc}
+\usepackage{subfig}
+\usepackage{amsmath,amsthm,amssymb,pifont,makeidx,geometry}
+\usepackage{makeidx}
+\usepackage{color}
+\usepackage[pagebackref=true,breaklinks=true,colorlinks,bookmarks=false]{hyperref}
+\usepackage{graphicx}
+\usepackage{wasysym,pifont}
+
+\newcommand{\checkItem}{\textbf{\Pisymbol{wasy}{8}}\hspace{3mm}}
+\newcommand{\command}[1]{\framebox[\textwidth][l]{\tt \$ #1}}
+\newcommand{\fileName}[1]{{\tt #1}}
+\newcommand{\commandName}[1]{\textcolor{red}{\tt #1}}
+\newcommand{\optionName}[1]{\textcolor{green}{\tt #1}}
+\newcommand{\outputName}[1]{\textcolor{blue}{\tt #1}}
+
+\newcounter{thenote}
+\newenvironment{note}{\stepcounter{thenote} \noindent \textcolor{red}{\textbf{Note \arabic{thenote}}~:}}{\par}
+\newcommand{\warning}[1]{\textcolor{red}{\textbf{Attention~: #1}}}
+
+\bibliographystyle{plain}
+
+\graphicspath{{../images/}}
+%\DeclareGraphicsRule{.jpg}{eps}{.ps.bb}{`convert #1 ps:-}
+%\DeclareGraphicsRule{.gif}{eps}{.ps.bb}{`convert #1 ps:-}
+%\DeclareGraphicsRule{.png}{eps}{.ps.bb}{`convert #1 ps:-}
+
+\geometry{width=17cm,height=21.7cm}
+\makeindex 
+
+\title{{\textbf{\textcolor{blue}{Tutoriel\\
+        {\Large Problème direct avec OpenMEEG.\\
+                Utilisation par lignes de commande.}}}}}
+\author{Maureen Clerc\\Alexandre Gramfort \\
+        Perrine Landreau\\Théo Papadopoulo}
+
+\date{08 Juin 2008\\
+      Version 0.3}
+
+\pdfpageattr {/Group << /S /Transparency /I true /CS /DeviceRGB>>}
+\begin{document}
+
+    \maketitle
+    \tableofcontents
+
+    \chapter{Contexte}
+    \input{Contexte}
+
+    \chapter{Données}
+    \input{Donnees}
+
+    \chapter{Lignes de commande}
+    \input{Commandes}
+
+    \appendix
+    \chapter{Annexes}
+    \input{Annexes}
+
+\end{document}
