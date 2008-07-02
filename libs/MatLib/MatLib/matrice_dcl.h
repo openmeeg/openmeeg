@@ -203,5 +203,15 @@ public:
     friend class symmatrice;
 };
 
+inline std::ostream& operator<<(std::ostream& f,const matrice &M) {
+    for (size_t i=0;i<M.nlin();i++) {
+        for (size_t j=0;j<M.ncol();j++) {
+            f << M(i,j) << " ";
+        }
+        f << std::endl;
+    }
+    return f;
+}
+
 #endif
 

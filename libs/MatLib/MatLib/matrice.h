@@ -888,8 +888,8 @@ inline double matrice::det() const{
     int info;
     // using cholesky factorization
     DPOTF2('L',n,b.t,n,info);
-    double d=1;
-    for (size_t i=1; i<n; i++) d*=b(i,i);
+    double d=1.0;
+    for (size_t i=0; i<n; i++) d*=b(i,i);
     return d;
 #else
     std::cerr << "lowercholesky not defined" << std::endl;
@@ -964,16 +964,6 @@ inline void matrice::info() const {
         }
         std::cout << std::endl ;
     }
-}
-
-inline std::ostream& operator<<(std::ostream& f,const matrice &M) {
-    for (size_t i=0;i<M.nlin();i++) {
-        for (size_t j=0;j<M.ncol();j++) {
-            f << M(i,j) << " ";
-        }
-        f << std::endl;
-    }
-    return f;
 }
 
 #endif

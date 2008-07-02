@@ -104,6 +104,7 @@ private:
     void save_vtk(const char*);
     void save_bnd(const char*);
     void save_tri(const char*);
+    void save_off(const char*);
     void save_mesh(const char*);
 
     void updateTriangleOrientations(bool checkOrientations = true);

@@ -267,6 +267,7 @@ ENDIF (BUILD_TOOLS)
 OPTION(BUILD_TEST "Build tests" OFF)
 
 IF (BUILD_TEST)
+    INCLUDE(CTest)
     ENABLE_TESTING()
     SUBDIRS(tests)
     SUBDIRS(libs)

@@ -537,6 +537,7 @@ void Mesh::save(const char* name) {
     else if(!strcmp(extension,"mesh") || !strcmp(extension,"MESH")) save_mesh(name);
     else if(!strcmp(extension,"bnd") || !strcmp(extension,"BND")) save_bnd(name);
     else if(!strcmp(extension,"tri") || !strcmp(extension,"TRI")) save_tri(name);
+    else if(!strcmp(extension,"off") || !strcmp(extension,"OFF")) save_off(name);
     else {
         cerr << "Save : Unknown file format" << endl;
         exit(1);
@@ -586,6 +587,17 @@ void Mesh::save_tri(const char* filename) {
     }
     os<<"- "<<ntrgs<<" "<<ntrgs<<" "<<ntrgs<<std::endl;
     for(int i=0;i<ntrgs;i++) os<<this->trgs[i]<<std::endl;
+    os.close();
+}
+
+void Mesh::save_off(const char* filename) {
+    std::ofstream os(filename);
+    os<<"OFF"<<std::endl;
+    os<<this->npts<<" "<<this->ntrgs<<" 0"<<std::endl;
+    for(int i=0;i<npts;i++) {
+        os<<this->pts[i]<<std::endl;
+    }
+    for(int i=0;i<ntrgs;i++) os<<"3 "<<this->trgs[i]<<std::endl;
     os.close();
 }
 

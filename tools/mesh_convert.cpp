@@ -60,7 +60,8 @@ int main( int argc, char **argv)
     const double sx = command_option("-sx",1.0,"Scaling along the x axis");
     const double sy = command_option("-sy",1.0,"Scaling along the y axis");
     const double sz = command_option("-sz",1.0,"Scaling along the z axis");
-    const char *invert = command_option("-invert",(const char *) NULL,"Invert triangles point order");
+    const char* transfmat = command_option("-mat",(const char *) NULL,"4x4 Transformation matrix (Assumed format ASCII)");
+    const char* invert = command_option("-invert",(const char *) NULL,"Invert triangles point order");
     const bool apply_asa_flip = command_option("-flip",false,"Rotating axis if mesh comes from ASA");
     if (command_option("-h",(const char *)0,0)) return 0;
 
@@ -82,12 +83,48 @@ int main( int argc, char **argv)
         pt(2) = pt(2)*sz+tz;
     }
 
-    if(invert)
+    if(transfmat)
     {
+        matrice m;
+        m.loadTxt(transfmat);
+
+        assert(m.nlin() == 4);
+        assert(m.ncol() == 4);
+
+        double mdet = m.det();
+
+        if(mdet < 0) // transformation is indirect => force face flipping
+        {
+            cout << "Transformation is indirect : Forcing face flipping" << endl;
+            invert = "-invert";
+        }
+
         for( int i = 0; i < M.nbPts(); ++i )
         {
-            M.normal(i) = M.normal(i) * -1;
+            Vect3& pt = M[i];
+            vecteur point(4);
+            point.set(1.0);
+            point(0) = pt(0); point(1) = pt(1); point(2) = pt(2);
+            vecteur out_point = m*point;
+            pt(0) = out_point(0); pt(1) = out_point(1); pt(2) = out_point(2);
+
+            Vect3& nm = M.normal(i);
+            vecteur normal(4);
+            normal.set(0.0); // Hack to avoid the translation part
+            normal(0) = nm(0); normal(1) = nm(1); normal(2) = nm(2);
+            vecteur out_normal = m*normal;
+            nm(0) = out_normal(0); nm(1) = out_normal(1); nm(2) = out_normal(2);
         }
+    }
+
+    if(invert)
+    {
+        cout << "Running face flipping" << endl;
+
+        // for( int i = 0; i < M.nbPts(); ++i )
+        // {
+        //     M.normal(i) = M.normal(i) * -1.0;
+        // }
         for( int i = 0; i < M.nbTrgs(); ++i )
         {
             Triangle& t = M.getTrg(i);
@@ -96,7 +133,6 @@ int main( int argc, char **argv)
             t[0] = tmp;
         }
     }
-
 
     M.save(output_filename);
 

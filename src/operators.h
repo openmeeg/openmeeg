@@ -179,7 +179,7 @@ inline void _operatorD(const int nT1,const int nT2,const int GaussOrder,const Me
     Vect3 total=gauss.integrate(analyD,T1,m1);
 #else
     #ifdef USE_OMP
-        integrator<Vect,analyticD33> gauss(GaussOrder);
+        integrator<Vect3,analyticD3> gauss(GaussOrder);
     #else
         static integrator<Vect3,analyticD3> gauss(GaussOrder);
     #endif

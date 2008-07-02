@@ -13,10 +13,10 @@ IF (BUILD_DOCUMENTATION)
     ENDIF(NOT DOT_PATH)
 
     CONFIGURE_FILE(
-        ${OpenMEEG_SOURCE_DIR}/documentation/doxyfile.in
-        ${OpenMEEG_BINARY_DIR}/documentation/doxyfile)
+        ${OpenMEEG_SOURCE_DIR}/documentation/reference/doxyfile.in
+        ${OpenMEEG_BINARY_DIR}/documentation/reference/doxyfile)
 
     ADD_CUSTOM_TARGET(documentation
-        ${DOXYGEN_EXECUTABLE} ${OpenMEEG_BINARY_DIR}/documentation/doxyfile)
+        ${DOXYGEN_EXECUTABLE} ${OpenMEEG_BINARY_DIR}/documentation/reference/doxyfile)
 
 ENDIF (BUILD_DOCUMENTATION)

@@ -32,9 +32,9 @@ GRAPHICAL_HIERARCHY  = YES
 
 ALLEXTERNALS         = NO
 
-IMAGE_PATH           = "@OpenMEEG_SOURCE_DIR@/documentation" "@OpenMEEG_BINARY_DIR@/documentation"
+IMAGE_PATH           = "@OpenMEEG_SOURCE_DIR@/documentation/reference" "@OpenMEEG_BINARY_DIR@/documentation/reference"
 
-OUTPUT_DIRECTORY     = "@OpenMEEG_BINARY_DIR@/documentation"
+OUTPUT_DIRECTORY     = "@OpenMEEG_BINARY_DIR@/documentation/reference"
 
 INPUT                = \
         "@OpenMEEG_SOURCE_DIR@/src" \
