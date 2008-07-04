@@ -49,6 +49,8 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 using namespace std;
 
+double determinant3x3(const matrice& m);
+
 int main( int argc, char **argv)
 {
     command_usage("Convert mesh between different formats");
@@ -60,10 +62,14 @@ int main( int argc, char **argv)
     const double sx = command_option("-sx",1.0,"Scaling along the x axis");
     const double sy = command_option("-sy",1.0,"Scaling along the y axis");
     const double sz = command_option("-sz",1.0,"Scaling along the z axis");
-    const char* transfmat = command_option("-mat",(const char *) NULL,"4x4 Transformation matrix (Assumed format ASCII)");
+    const char* transfmat = command_option("-mat",(const char *) NULL,"3x3 Transformation matrix (Assumed format ASCII)");
     const char* invert = command_option("-invert",(const char *) NULL,"Invert triangles point order");
-    const bool apply_asa_flip = command_option("-flip",false,"Rotating axis if mesh comes from ASA");
     if (command_option("-h",(const char *)0,0)) return 0;
+
+    if(!input_filename || !output_filename) {
+        std::cout << "Not enough arguments, try the -h option" << std::endl;
+        return 1;
+    }
 
     Mesh M;
     M.load(input_filename,false);
@@ -71,13 +77,6 @@ int main( int argc, char **argv)
     for( int i = 0; i < M.nbPts(); ++i )
     {
         Vect3& pt = M[i];
-        if (apply_asa_flip) {
-            double tmp;
-            tmp = pt(0);
-            pt(0) = pt(1);
-            pt(1) = tmp;
-            // pt(2) = -pt(2);
-        }
         pt(0) = pt(0)*sx+tx;
         pt(1) = pt(1)*sy+ty;
         pt(2) = pt(2)*sz+tz;
@@ -91,12 +90,10 @@ int main( int argc, char **argv)
         assert(m.nlin() == 4);
         assert(m.ncol() == 4);
 
-        double mdet = m.det();
-
-        if(mdet < 0) // transformation is indirect => force face flipping
+        double mdet = determinant3x3(m.submat(0,3,0,3));
+        if(mdet < 0 && !invert) // transformation is indirect => should force face flipping
         {
-            cout << "Transformation is indirect : Forcing face flipping" << endl;
-            invert = "-invert";
+            cout << "Warning : Transformation is indirect use -invert option to force face flipping" << endl;
         }
 
         for( int i = 0; i < M.nbPts(); ++i )
@@ -121,10 +118,6 @@ int main( int argc, char **argv)
     {
         cout << "Running face flipping" << endl;
 
-        // for( int i = 0; i < M.nbPts(); ++i )
-        // {
-        //     M.normal(i) = M.normal(i) * -1.0;
-        // }
         for( int i = 0; i < M.nbTrgs(); ++i )
         {
             Triangle& t = M.getTrg(i);
@@ -138,3 +131,19 @@ int main( int argc, char **argv)
 
     return 0;
 }
+
+double determinant3x3(const matrice& m) {
+    assert(m.nlin() == m.ncol());
+    assert(m.nlin() == 3);
+    double f = 0;
+
+    f += m(0,0)*m(1,1)*m(2,2);
+    f += m(0,2)*m(1,0)*m(2,1);
+    f += m(0,1)*m(1,2)*m(2,0);
+    f -= m(0,2)*m(1,1)*m(2,0);
+    f -= m(0,0)*m(1,2)*m(2,1);
+    f -= m(0,1)*m(1,0)*m(2,2);
+
+    return f;
+}
+

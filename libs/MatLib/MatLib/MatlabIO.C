@@ -1,4 +1,4 @@
-/* FILE: $Id$ */
+// FILE: $Id$
 
 /*
 Project Name : OpenMEEG
@@ -44,48 +44,11 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#include "options.h"
-#include "matrice_dcl.h"
-#include "symmatrice_dcl.h"
-#include "vecteur_dcl.h"
-#include "om_utils.h"
+#include "MatlabIO.H"
 
-int main( int argc, char** argv)
-{
-    command_usage("Convert squids in text file to a vtk file for vizualisation");
-    const char *input_filename = command_option("-i",(const char *) NULL,"Squids positions in original coordinate system");
-    const char *output_filename = command_option("-o",(const char *) NULL,"Squids positions with orientations in vtk format");
-    if (command_option("-h",(const char *)0,0)) return 0;
-
-    if(!input_filename || !output_filename) {
-        std::cout << "Not enough arguments, try the -h option" << std::endl;
-        return 1;
-    }
-
-    matrice squids(input_filename);
-    assert(squids.nlin() == 151);
-
-    FILE* f = fopen(output_filename,"w");
-    if (f==NULL)
-    {
-        perror("fopen");
-        return -1;
-    }
-    fprintf(f,"# vtk DataFile Version 3.0\n");
-    fprintf(f,"vtk output\n");
-    fprintf(f,"ASCII\n");
-    fprintf(f,"DATASET POLYDATA\n");
-    fprintf(f,"POINTS %d float\n",(int)squids.nlin());
-    for( unsigned int i = 0; i < squids.nlin(); i += 1 )
-    {
-        fprintf(f, "%f %f %f\n", squids(i,0), squids(i,1), squids(i,2));
-    }
-    fprintf(f,"POINT_DATA %d\n",(int)squids.nlin());
-    fprintf(f,"NORMALS normals float\n");
-    for( unsigned int i = 0; i < squids.nlin(); i += 1 )
-    {
-        fprintf(f, "%f %f %f\n", squids(i,3), squids(i,4), squids(i,5));
-    }
-    fclose(f);
-    return 0;
+namespace Maths {
+    const MatlabIO           MatlabIO::prototype;
+    const std::string        MatlabIO::MagicTag("MATLAB");
+    const MatlabIO::Suffixes MatlabIO::suffs = MatlabIO::init();
+    const std::string        MatlabIO::Identity("matlab");
 }

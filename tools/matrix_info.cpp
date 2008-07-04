@@ -44,13 +44,13 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#include <vecteur.h>
-#include <sparse_matrice.h>
-#include <symmatrice.h>
-#include <matrice.h>
-#include <cmath>
-
+#include "vecteur_dcl.h"
+#include "sparse_matrice_dcl.h"
+#include "symmatrice_dcl.h"
+#include "matrice_dcl.h"
 #include "options.h"
+
+#include <cmath>
 
 using namespace std;
 
@@ -65,7 +65,7 @@ int main( int argc, char **argv)
     const char *sparse = command_option("-sparse",(const char *) 0,"Data are sparse matrices");
     const char *mat = command_option("-mat",(const char *) 0,"Data are matlab format");
     if (command_option("-h",(const char *)0,0)) return 0;
-    
+
     if(!filename)
     {
         cerr << "Please set Matrix File" << endl;

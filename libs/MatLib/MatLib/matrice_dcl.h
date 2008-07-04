@@ -9,7 +9,7 @@ last revision     : $Date$
 modified by       : $LastChangedBy$
 last modified     : $LastChangedDate$
 
-© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre 
+© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre
 GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU, Théodore PAPADOPOULO,
 Maureen.Clerc.AT.sophia.inria.fr, keriven.AT.certis.enpc.fr,
 kybic.AT.fel.cvut.cz, papadop.AT.sophia.inria.fr)
@@ -51,115 +51,94 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <iostream>
 #include <fstream>
 #include <cassert>
+#include <string>
 
 #ifdef USE_MATIO
 #include <matio.h>
 #endif
 
-#include "sparse_matrice_dcl.h"
+#include "base_matrix.H"
+#include "MatrixIO.H"
 
+class sparse_matrice;
 class symmatrice;
 class vecteur;
 
-class matrice {
+class matrice: public MatrixBase {
 protected:
-    size_t m,n;
     double *t;
     int* count;
 
-    inline void alloc(size_t M,size_t N);
-    inline void copy(const matrice& A);
-    inline void destroy();
-    inline void copyout(double * p) const;
-    inline void copyin(const double * p);
+    std::string identity() const;
+    void copy(const matrice& A);
+    void destroy();
+    void copyout(double * p) const;
+    void copyin(const double * p);
 public:
-    inline matrice();
-    inline matrice(size_t M,size_t N);
-    inline matrice(const matrice& A);
-    inline explicit matrice(const symmatrice& A);
-    inline matrice(const vecteur& v, size_t M, size_t N); // violent access to v.t and v.count
-    inline matrice(double* T, int* COUNT, size_t M, size_t N);
-    inline matrice(const char *filename, char c='t');
+    matrice();
+    matrice(const char*);
+    matrice(size_t M,size_t N);
+    matrice(const matrice& A);
+    explicit matrice(const symmatrice& A);
+    matrice(const vecteur& v, size_t M, size_t N); // violent access to v.t and v.count
+    matrice(double* T, int* COUNT, size_t M, size_t N);
 
-    inline ~matrice() { destroy(); }
-    inline size_t nlin() const;
-    inline size_t ncol() const;
-    inline bool empty() const;
-    inline void DangerousBuild( double *, size_t i, size_t j);
-    inline void DangerousKill ();
-    inline double* DangerousGetData () const;
-    inline int* DangerousGetCount () const;
-    inline void DangerousReshape(size_t M, size_t N);
+    void alloc_data();
 
-    // inline void print() const { std::cout << *this; };
-
-    inline matrice duplicate() const;
-    inline void copyin(const matrice& A) ;
-
-    inline matrice colsref(size_t jstart, size_t jsize) const ;
-    inline vecteur colref(size_t j) const;
-    inline vecteur subcolref(size_t j, size_t istart, size_t isize) const ;
-    inline matrice getsubmat(size_t istart, size_t isize, size_t jstart, size_t jsize) const;
-    inline vecteur getcol(size_t j) const;
-    inline void setcol(size_t j, const vecteur& v);
-    inline vecteur getlin(size_t i) const;
-    inline void setlin(size_t i, const vecteur& v);
-
-    inline double operator[](size_t i) const ;
-    inline double& operator[](size_t i) ;
+    ~matrice() { destroy(); }
+    bool empty() const;
+    size_t size() const { return nlin()*ncol(); };
+    void DangerousBuild( double *, size_t i, size_t j);
+    void DangerousKill ();
+    double* data() const;
+    int* DangerousGetCount () const;
 
     inline double operator()(size_t i,size_t j) const ;
     inline double& operator()(size_t i,size_t j) ;
 
-    inline matrice operator()(size_t i_start, size_t i_end, size_t j_start, size_t j_end) const;
+    matrice duplicate() const;
+    void copyin(const matrice& A) ;
 
-    inline const matrice& operator=(const matrice& A);
-    inline const matrice& set(const double d);
+    matrice submat(size_t istart, size_t isize, size_t jstart, size_t jsize) const;
+    vecteur getcol(size_t j) const;
+    void setcol(size_t j, const vecteur& v);
+    vecteur getlin(size_t i) const;
+    void setlin(size_t i, const vecteur& v);
 
-    inline matrice operator*(const matrice& B) const;
-    inline matrice operator*(const symmatrice& B) const;
-    inline matrice operator*(const sparse_matrice& B) const;
-    inline matrice operator+(const matrice& B) const;
-    inline matrice operator-(const matrice& B) const;
-    inline matrice operator*(double x) const;
-    inline matrice operator/(double x) const;
-    inline void operator+=(const matrice& B);
-    inline void operator-=(const matrice& B);
-    inline void operator*=(double x);
-    inline void operator/=(double x);
+    // inline double operator[](size_t i) const ;
+    // inline double& operator[](size_t i) ;
 
-    inline vecteur operator*(const vecteur& v) const;
-    inline vecteur tmult(const vecteur &v) const;
-    inline matrice tmult(const matrice &m) const;
-    inline matrice multt(const matrice &m) const;
-    inline matrice tmultt(const matrice &m) const;
+    const matrice& operator=(const matrice& A);
+    const matrice& set(const double d);
 
-    inline vecteur mean() const;
-    inline vecteur tmean() const;
+    matrice operator*(const matrice& B) const;
+    matrice operator*(const symmatrice& B) const;
+    matrice operator*(const sparse_matrice& B) const;
+    matrice operator+(const matrice& B) const;
+    matrice operator-(const matrice& B) const;
+    matrice operator*(double x) const;
+    matrice operator/(double x) const;
+    void operator+=(const matrice& B);
+    void operator-=(const matrice& B);
+    void operator*=(double x);
+    void operator/=(double x);
 
-    inline matrice transpose () const;
-    inline matrice inverse() const;
-    inline matrice pinverse(double reltol=0) const;
-    inline void svd(matrice &U,matrice &S, matrice &V) const;
-    inline double det() const;
+    vecteur operator*(const vecteur& v) const;
+    vecteur tmult(const vecteur &v) const;
+    matrice tmult(const matrice &m) const;
+    matrice multt(const matrice &m) const;
+    matrice tmultt(const matrice &m) const;
 
-    inline double frobenius_norm() const;
-    inline double dot(const matrice& B) const;
-    inline matrice lowercholesky() const;
+    vecteur mean() const;
+    vecteur tmean() const;
 
-    inline void write(std::ostream& f) const {
-        f.write(reinterpret_cast<const char*>(&m),(std::streamsize)sizeof(int));
-        f.write(reinterpret_cast<const char*>(&n),(std::streamsize)sizeof(int));
-        f.write(reinterpret_cast<const char*>(t),(std::streamsize)(n*m*sizeof(double)));
-    }
+    matrice transpose () const;
+    matrice inverse() const;
+    matrice pinverse(double reltol=0) const;
+    void svd(matrice &U,matrice &S, matrice &V) const;
 
-    inline void read(std::istream& f) {
-        destroy();
-        f.read((char*)&m,(std::streamsize)sizeof(int));
-        f.read((char*)&n,(std::streamsize)sizeof(int));
-        alloc(m,n);
-        f.read((char*)t,(std::streamsize)(n*m*sizeof(double)));
-    }
+    double frobenius_norm() const;
+    double dot(const matrice& B) const;
 
     static void readDimsBin( const char* filename, size_t& mm, size_t& nn)
     {
@@ -176,42 +155,34 @@ public:
         fclose(infile);
     }
 
-    std::ostream& operator>>(std::ostream& f) const {
-        for (size_t i=0;i<this->nlin();i++) {
-            for (size_t j=0;j<this->ncol();j++) {
-                f << (*this)(i,j) << " ";
-            }
-            f << std::endl;
-        }
-        return f;
-    }
+    void save( const char *filename ) const;
+    void saveTxt( const char *filename ) const;
+    void saveBin( const char *filename ) const;
+    void saveMat( const char *filename ) const;
 
-    inline void save( const char *filename ) const;
-    inline void saveTxt( const char *filename ) const;
-    inline void saveSubTxt( const char *filename , size_t i_start, size_t i_end, size_t j_start, size_t j_end) const;
-    inline void saveBin( const char *filename ) const;
-    inline void saveSubBin( const char *filename , size_t i_start, size_t i_end, size_t j_start, size_t j_end) const;
-    inline void saveMat( const char *filename ) const;
+    void load( const char *filename );
+    void loadTxt( const char *filename );
+    void loadBin( const char *filename );
+    void loadMat( const char *filename );
 
-    inline void load( const char *filename );
-    inline void loadTxt( const char *filename );
-    inline void loadBin( const char *filename );
-    inline void loadMat( const char *filename );
+    void info() const;
 
-    inline void info() const;
-
+    friend class sparse_matrice;
     friend class symmatrice;
 };
 
-inline std::ostream& operator<<(std::ostream& f,const matrice &M) {
-    for (size_t i=0;i<M.nlin();i++) {
-        for (size_t j=0;j<M.ncol();j++) {
-            f << M(i,j) << " ";
-        }
-        f << std::endl;
-    }
-    return f;
+inline double matrice::operator()(size_t i,size_t j) const
+{
+    assert(i<nlin() && j<ncol());
+    return t[i+nlin()*j];
 }
+inline double& matrice::operator()(size_t i,size_t j)
+{
+    assert(i<nlin() && j<ncol());
+    return t[i+nlin()*j];
+}
+
+std::ostream& operator<<(std::ostream& f,const matrice &M);
 
 #endif
 

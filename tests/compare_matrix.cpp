@@ -1,8 +1,8 @@
 #include "MatLibConfig.h"
-#include "vecteur.h"
-#include "matrice.h"
-#include "symmatrice.h"
-#include "sparse_matrice.h"
+#include "vecteur_dcl.h"
+#include "matrice_dcl.h"
+#include "symmatrice_dcl.h"
+#include "sparse_matrice_dcl.h"
 #include "options.h"
 #include <iostream>
 #include <cmath>
@@ -12,18 +12,41 @@ using namespace std;
 template<class T> bool compare(const T& mat1, const T& mat2, float eps, size_t col = 0);
 template<class T> bool compare_rdm(const T& mat1, const T& mat2, float eps, size_t col = 0);
 template<class T> double normInf(const T& mat);
+template<class T> bool compare_matrices(Maths::ifstream& ifs1,T& mat1,Maths::ifstream& ifs2,T& mat2,
+                                          float eps,const char* rdm,size_t col);
 
 int main (int argc, char** argv)
 {
     command_usage("Compare two matrices of float with a certain numerical precision\ncompare_matrix mat1 mat2 [options]");
-    const char *bin = command_option("-bin",(const char *) 0,"Force reading data stored in binary format");
-    const char *txt = command_option("-txt",(const char *) 0,"Force reading data stored in ascii format");
-    const char *sym = command_option("-sym",(const char *) 0,"Data are symmetric matrices");
-    const char *sparse = command_option("-sparse",(const char *) 0,"Data are sparse matrices");
+    const char *input_filename = command_option("-i",(const char *) NULL,"Input full matrice");
+    const char *output_filename = command_option("-o",(const char *) NULL,"Output full matrice");
+    const char *input_format1 = command_option("-if1",(const char *) NULL,
+                                                "Input file format for matrix 1 : ascii, binary, tex, matlab, old_binary (should be avoided)");
+    const char *input_format2 = command_option("-if1",(const char *) NULL,
+                                                "Input file format for matrix 2 : ascii, binary, tex, matlab, old_binary (should be avoided)");
+
+    const char *isfull = command_option("-full",(const char *) 0,"Data are symmetric matrices");
+    const char *issym = command_option("-sym",(const char *) 0,"Data are symmetric matrices");
+    const char *issparse = command_option("-sparse",(const char *) 0,"Data are sparse matrices");
     const char *epsilon = command_option("-eps","0.00001","Tolerance on differences");
     const char *rdm = command_option("-rdm",(const char *) 0,"Use RDM (Relative difference measure) to compare each column of matrices");
     const int col = command_option("-col",(int) 0,"Restrict RDM comparison to one column (index starts at 1)");
     if (command_option("-h",(const char *)0,0)) return 0;
+
+    if(argc < 3) {
+        std::cout << "Not enough arguments, try the -h option" << std::endl;
+        return 1;
+    }
+
+    if(!isfull && !issym && !issparse) {
+        std::cout << "Please set matrice type using : -full, -sym or -sparse" << std::endl;
+        return 1;
+    }
+
+    if(!isfull && rdm) {
+        std::cerr << "Can use -rdm or -col only with full matrices" << std::endl;
+        return 1;
+    }
 
     float eps = atof(epsilon);
 
@@ -32,71 +55,34 @@ int main (int argc, char** argv)
     cout << "- " << argv[1] << endl;
     cout << "- " << argv[2] << endl;
 
+    Maths::ifstream ifs1(argv[1]);
+    Maths::ifstream ifs2(argv[2]);
+
+    if(input_format1) {
+        ifs1 = ifs1 >> Maths::format(input_format1);
+    }
+
+    if(input_format2) {
+        ifs2 = ifs2 >> Maths::format(input_format2);
+    }
+
     bool flag;
-    if(sym){
+    if(issym) {
         symmatrice mat1;
         symmatrice mat2;
-        if(bin) {
-            mat1.loadBin(argv[1]);
-            mat2.loadBin(argv[2]);
-        } else if(txt) {
-            mat1.loadTxt(argv[1]);
-            mat2.loadTxt(argv[2]);
-        } else {
-            mat1.load(argv[1]);
-            mat2.load(argv[2]);
-        }
-        if(rdm) {
-            std::cerr << "ERROR : Cannot use RDM on symmetric matrices" << std::endl;
-            exit(1);
-        } else {
-            flag = compare(mat1,mat2,eps);
-        }
-    } else if (sparse) {
+        ifs1 >> mat1;
+        ifs2 >> mat2;
+        flag = compare(mat1,mat2,eps,col);
+    } else if (issparse) {
         sparse_matrice mat1;
         sparse_matrice mat2;
-        if(bin) {
-            mat1.loadBin(argv[1]);
-            mat2.loadBin(argv[2]);
-        } else if(txt) {
-            mat1.loadTxt(argv[1]);
-            mat2.loadTxt(argv[2]);
-        } else {
-            mat1.load(argv[1]);
-            mat2.load(argv[2]);
-        }
-        if(rdm) {
-            std::cerr << "ERROR : Cannot use RDM on sparse matrices" << std::endl;
-            exit(1);
-        } else {
-            flag = compare(mat1,mat2,eps);
-        }
-    } else {
+        ifs1 >> mat1;
+        ifs2 >> mat2;
+        flag = compare(mat1,mat2,eps,col);
+    } else { // assumes isfull
         matrice mat1;
         matrice mat2;
-        if(bin) {
-            mat1.loadBin(argv[1]);
-            mat2.loadBin(argv[2]);
-        } else if(txt) {
-            mat1.loadTxt(argv[1]);
-            mat2.loadTxt(argv[2]);
-        } else {
-            mat1.load(argv[1]);
-            mat2.load(argv[2]);
-        }
-        if(rdm) {
-            if(col) {
-                flag = compare_rdm(mat1,mat2,eps,col);
-            } else {
-                flag = compare_rdm(mat1,mat2,eps);
-            }
-        } else {
-            if(col) {
-                flag = compare(mat1,mat2,eps,col);
-            } else {
-                flag = compare(mat1,mat2,eps);
-            }
-        }
+        flag = compare_matrices(ifs1,mat1,ifs2,mat2,eps,rdm,col);
     }
 
     if(!flag){
@@ -105,7 +91,37 @@ int main (int argc, char** argv)
     }
     cout << "OK" << endl;
     cout.flush();
+
     return 0;
+}
+
+template<class T>
+bool compare_matrices(Maths::ifstream& ifs1,T& mat1,Maths::ifstream& ifs2,T& mat2,
+                                          float eps,const char*rdm,size_t col) {
+    bool flag;
+    try
+    {
+        ifs1 >> mat1;
+        ifs2 >> mat2;
+    } catch (std::string s) {
+        std::cerr << s << std::endl;
+        exit(1);
+    }
+
+    if(rdm) {
+        if(col) {
+            flag = compare_rdm(mat1,mat2,eps,col);
+        } else {
+            flag = compare_rdm(mat1,mat2,eps);
+        }
+    } else {
+        if(col) {
+            flag = compare(mat1,mat2,eps,col);
+        } else {
+            flag = compare(mat1,mat2,eps);
+        }
+    }
+    return flag;
 }
 
 template<class T>

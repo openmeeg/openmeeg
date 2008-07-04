@@ -44,7 +44,8 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#include "matrice.h"
+#include "matrice_dcl.h"
+#include "sparse_matrice_dcl.h"
 
 class HMEG_matrice : public virtual matrice
 {
@@ -61,12 +62,12 @@ public:
 };
 
 inline void assemble_gain_EEG(matrice& EEGGainMatrix,const symmatrice& LhsInvMatrix,const matrice& RhsMatrix, const sparse_matrice& vToEEGMatrix) {
-    matrice reducedLhsInvMatrix = matrice(LhsInvMatrix)(0,LhsInvMatrix.nlin()-1,0,RhsMatrix.nlin()-1);
+    matrice reducedLhsInvMatrix = LhsInvMatrix(0,LhsInvMatrix.nlin()-1,0,RhsMatrix.nlin()-1);
     EEGGainMatrix = (vToEEGMatrix*reducedLhsInvMatrix)*RhsMatrix;
 }
 
 inline void assemble_gain_MEG(matrice& MEGGainMatrix,const symmatrice& LhsInvMatrix,const matrice& RhsMatrix, const matrice& vToMEGMatrix, const matrice& sToMEGMatrix) {
-    matrice reducedLhsInvMatrix = matrice(LhsInvMatrix)(0,LhsInvMatrix.nlin()-1,0,RhsMatrix.nlin()-1);
+    matrice reducedLhsInvMatrix = LhsInvMatrix(0,LhsInvMatrix.nlin()-1,0,RhsMatrix.nlin()-1);
     MEGGainMatrix = sToMEGMatrix+(vToMEGMatrix*reducedLhsInvMatrix)*RhsMatrix;
 }
 

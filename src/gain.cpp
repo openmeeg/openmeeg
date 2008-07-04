@@ -46,10 +46,10 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #include <cstring>
 
-#include "matrice.h"
 #include "matrice_dcl.h"
-#include "symmatrice.h"
-#include "vecteur.h"
+#include "matrice_dcl.h"
+#include "symmatrice_dcl.h"
+#include "vecteur_dcl.h"
 #include "cpuChrono.h"
 #include "gain.h"
 
@@ -98,7 +98,7 @@ int main(int argc, char **argv)
             matrice::readDimsBin(argv[3],nn,mm); // read nb lines of RhsMatrix without allocating it
             symmatrice LhsInvMatrix;
             LhsInvMatrix.loadBin(argv[2]);
-            EEGGainMatrix = matrice(LhsInvMatrix)(0,LhsInvMatrix.nlin()-1,0,nn-1); // reducedLhsInvMatrix
+            EEGGainMatrix = LhsInvMatrix(0,LhsInvMatrix.nlin()-1,0,nn-1); // reducedLhsInvMatrix
         }
         {
             sparse_matrice vToEEGMatrix;
@@ -128,7 +128,7 @@ int main(int argc, char **argv)
             matrice::readDimsBin(argv[3],nn,mm); // read nb lines of RhsMatrix without allocating it
             symmatrice LhsInvMatrix;
             LhsInvMatrix.loadBin(argv[2]);
-            MEGGainMatrix = matrice(LhsInvMatrix)(0,LhsInvMatrix.nlin()-1,0,nn-1); // reducedLhsInvMatrix
+            MEGGainMatrix = LhsInvMatrix(0,LhsInvMatrix.nlin()-1,0,nn-1); // reducedLhsInvMatrix
         }
         {
             matrice vToMEGMatrix;
@@ -158,16 +158,16 @@ int main(int argc, char **argv)
         matrice VolPotEITGainMatrix;
 
         { // Avoiding to store all matrices at the same time
-	  matrice SurfToVol;
-	  SurfToVol.loadBin(argv[2]); 
-	  symmatrice LhsInvMatrix;
-	  LhsInvMatrix.loadBin(argv[3]);
-	  VolPotEITGainMatrix = SurfToVol*matrice(LhsInvMatrix)(0,SurfToVol.ncol()-1,0,LhsInvMatrix.ncol()-1);
+            matrice SurfToVol;
+            SurfToVol.loadBin(argv[2]); 
+            symmatrice LhsInvMatrix;
+            LhsInvMatrix.loadBin(argv[3]);
+            VolPotEITGainMatrix = SurfToVol*LhsInvMatrix(0,SurfToVol.ncol()-1,0,LhsInvMatrix.ncol()-1);
         }
         {
-	  matrice EITStim;
-	  EITStim.loadBin(argv[4]);
-	  VolPotEITGainMatrix = VolPotEITGainMatrix*EITStim;
+            matrice EITStim;
+            EITStim.loadBin(argv[4]);
+            VolPotEITGainMatrix = VolPotEITGainMatrix*EITStim;
         }
         VolPotEITGainMatrix.saveTxt(argv[5]);
     }

@@ -9,7 +9,7 @@ last revision     : $Date$
 modified by       : $LastChangedBy$
 last modified     : $LastChangedDate$
 
-© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre 
+© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre
 GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU, Théodore PAPADOPOULO,
 Maureen.Clerc.AT.sophia.inria.fr, keriven.AT.certis.enpc.fr,
 kybic.AT.fel.cvut.cz, papadop.AT.sophia.inria.fr)
@@ -50,13 +50,13 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #include <math.h>
 
-#include "matrice.h"
-#include "symmatrice.h"
+#include "matrice_dcl.h"
+#include "symmatrice_dcl.h"
 #include "geometry.h"
 #include "operators.h"
 #include "assemble.h"
 
-template<class T> 
+template<class T>
 void deflat(T &M, int start, int end, double coef)
 {// deflate the matrix
     for(int i=start;i<=end;i++)
@@ -136,18 +136,18 @@ void assemble_LHS(const Geometry &geo,symmatrice &mat,const int GaussOrder)
         mult(mat,offset3,offset3,offset4,offset4,(1.0/geo.sigma_in(c+1)+1.0/geo.sigma_out(c+1))*K);
 
         offset=offset2;
-    }    
+    }
     // Deflate the last diagonal block of new 'mat' :
     int newsize = geo.size()-(geo.getM(geo.nb()-1)).nbTrgs();
     offset = newsize-(geo.getM(geo.nb()-1)).nbPts();
     deflat(mat,offset,newsize-1,mat(offset,offset)/(newsize-offset));
 
-    mat = mat.getsubmat(0,newsize-1);
+    mat = mat.submat(0,newsize-1);
 }
 
 void assemble_SurfToVol(const Geometry &geo,matrice &mat,const matrice &points)
 {
- // only consider innermost surface points and triangles 
+ // only consider innermost surface points and triangles
   // (for the moment SurfToVol only works for the innermost surface and volume)
   int c=0;
   int offset=0;
@@ -160,8 +160,8 @@ void assemble_SurfToVol(const Geometry &geo,matrice &mat,const matrice &points)
   std::cout<<" nbtriangles= " << nbtriangles <<std::endl;
   std::cout<< "observation points: " << points.nlin() << std::endl;
    mat = matrice(points.nlin(),nbpoints+nbtriangles);
-     // compute S blocks 
-       operatorSinternal(geo,c,mat,offset1,points); 
+     // compute S blocks
+       operatorSinternal(geo,c,mat,offset1,points);
        mult2(mat,offset0,offset1,offset0+points.nlin(),offset1+geo.getM(0).nbTrgs(),K);
       // compute D blocks
       operatorDinternal(geo,c,mat,offset0,points);

@@ -44,9 +44,9 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#include "symmatrice.h"
-#include "matrice.h"
-#include "sparse_matrice.h"
+#include "symmatrice_dcl.h"
+#include "matrice_dcl.h"
+#include "sparse_matrice_dcl.h"
 #include "fast_sparse_matrice.h"
 
 #include "options.h"
@@ -54,52 +54,37 @@ knowledge of the CeCILL-B license and that you accept its terms.
 using namespace std;
 
 int main( int argc, char **argv) {
-    command_usage("Convert matrices between different formats");
-    const char *input_filename = command_option("-i",(const char *) NULL,"Input Matrice");
-    const char *output_filename = command_option("-o",(const char *) NULL,"Output Matrice");
-    const char *use_symmetric = command_option("-sym",(const char *) NULL,"Matrices are symmetric");
-    const char *use_sparse = command_option("-sparse",(const char *) NULL,"Matrices are sparse");
-    const char *use_binary = command_option("-bin",(const char *) NULL,"Input matrice is in binary format");
-    const char *use_txt = command_option("-txt",(const char *) NULL,"Input matrices is in ascii format");
-    const char *use_mat = command_option("-mat",(const char *) NULL,"Input matrices is in matlab format");
+    command_usage("Convert full matrices between different formats");
+    const char *input_filename = command_option("-i",(const char *) NULL,"Input full matrice");
+    const char *output_filename = command_option("-o",(const char *) NULL,"Output full matrice");
+    const char *input_format = command_option("-if",(const char *) NULL,"Input file format : ascii, binary, tex, matlab, old_binary (should be avoided)");
+    const char *output_format = command_option("-of",(const char *) NULL,"Output file format : ascii, binary, tex, matlab, old_binary (should be avoided)");
     if (command_option("-h",(const char *)0,0)) return 0;
 
-    if (use_symmetric) {
-        symmatrice M;
-        if (use_binary) {
-            M.loadBin(input_filename);
-        } else if (use_txt) {
-            M.loadTxt(input_filename);
-        } else if (use_mat) {
-            std::cerr << "Matlab format not supported for symmetric matrices" << std::endl;
+    if(argc<2 || !input_filename || !output_filename) {
+        cout << "Not enough arguments, try the -h option" << endl;
+        return 1;
+    }
+
+    matrice M;
+    Maths::ifstream ifs(input_filename);
+    Maths::ofstream ofs(output_filename);
+
+    try
+    {
+        if(input_format) {
+            ifs >> Maths::format(input_format) >> M;
         } else {
-            M.load(input_filename);
+            ifs >> M;
         }
-        M.save(output_filename);
-    } else if (use_sparse) {
-        sparse_matrice M;
-        if (use_binary) {
-            M.loadBin(input_filename);
-        } else if (use_txt) {
-            M.loadTxt(input_filename);
-        } else if (use_mat) {
-            M.loadMat(input_filename);
+
+        if(output_format) {
+            ofs << Maths::format(output_format) << M;
         } else {
-            M.load(input_filename);
+            ofs << Maths::format(output_filename,Maths::format::FromSuffix) << M;
         }
-        M.save(output_filename);
-    } else {
-        matrice M;
-        if (use_binary) {
-            M.loadBin(input_filename);
-        } else if (use_txt) {
-            M.loadTxt(input_filename);
-        } else if (use_mat) {
-            M.loadMat(input_filename);
-        } else {
-            M.load(input_filename);
-        }
-        M.save(output_filename);
+    } catch (std::string s) {
+        std::cerr << s << std::endl;
     }
 
     return 0;

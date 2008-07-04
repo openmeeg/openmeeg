@@ -9,7 +9,7 @@ last revision     : $Date: 2008-02-29 14:28:33 +0100 (Fri, 29 Feb 2008) $
 modified by       : $LastChangedBy: gramfort $
 last modified     : $LastChangedDate: 2008-02-29 14:28:33 +0100 (Fri, 29 Feb 2008) $
 
-© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre 
+© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre
 GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU, Théodore PAPADOPOULO,
 Maureen.Clerc.AT.sophia.inria.fr, keriven.AT.certis.enpc.fr,
 kybic.AT.fel.cvut.cz, papadop.AT.sophia.inria.fr)
@@ -45,9 +45,9 @@ knowledge of the CeCILL-B license and that you accept its terms.
 */
 
 #include "options.h"
-#include "matrice.h"
-#include "symmatrice.h"
-#include "vecteur.h"
+#include "matrice_dcl.h"
+#include "symmatrice_dcl.h"
+#include "vecteur_dcl.h"
 #include "om_utils.h"
 #include "sensors.h"
 #include <string>
@@ -66,44 +66,49 @@ vecteur cross_product(const vecteur &a, const vecteur &b)
 int main( int argc, char** argv)
 {
     command_usage("Convert squids positions from the CTF MEG coordinate system to the MRI coordinate system");
-    const char *squids_filename = command_option("-i",(const char *) SRCPATH("tools/data/MEGPositions.squids"),"Squids positions in CTF coordinate system");
-    const char *fiducials_filename = command_option("-f",(const char *) SRCPATH("tools/data/fiducials_orig.fid"),"Fiducial points in the MRI coordinate system (mm in txt format)");
-    const char *rotation_filename = command_option("-r",(const char *) "","Output Rotation matrix");
-    const char *translation_filename = command_option("-t",(const char *) "","Output Translation vector");
-    const char *squids_output_filename = command_option("-o",(const char *) "NewPositions.squids","Squids positions in the MRI coordinate system");
+    const char *squids_filename = command_option("-i",(const char *) NULL,"Squids positions in CTF coordinate system");
+    const char *fiducials_filename = command_option("-f",(const char *) NULL,"Fiducial points in the MRI coordinate system (mm in txt format)");
+    const char *rotation_filename = command_option("-r",(const char *) NULL,"Output Rotation matrix");
+    const char *translation_filename = command_option("-t",(const char *) NULL,"Output Translation vector");
+    const char *squids_output_filename = command_option("-o",(const char *) NULL,"Squids positions in the MRI coordinate system");
     const double scale = command_option("-scale",10.0,"Scaling (10 by default for CTF data)"); // CTF counts in cm whereas MRI is in mm
     if (command_option("-h",(const char *)0,0)) return 0;
+
+    if(!squids_filename || !fiducials_filename || !squids_output_filename) {
+        std::cout << "Not enough arguments, try the -h option" << std::endl;
+        return 1;
+    }
 
     Sensors squids;
     squids.load(squids_filename);
     size_t nb_positions = squids.getNumberOfPositions();
 
     matrice fiducials; fiducials.loadTxt(fiducials_filename);
-    
+
     assert(fiducials.nlin() == 3);
     assert(fiducials.ncol() == 3);
-    
+
     vecteur nas = fiducials.getlin(0); // Nasion
     vecteur lpa = fiducials.getlin(1); // Left preauricular
     vecteur rpa = fiducials.getlin(2); // Right preauricular
-    
+
     vecteur origin = (lpa+rpa)/2.0;
     vecteur vx = (nas-origin);
     vecteur vz = cross_product(vx, lpa-rpa);
     vecteur vy = cross_product(vz,vx);
-    
+
     vx = vx/vx.norm();
     vy = vy/vy.norm();
     vz = vz/vz.norm();
-    
+
     matrice R(3,3);
     R.setlin(0,vx);
     R.setlin(1,vy);
     R.setlin(2,vz);
-    
+
     vecteur T = R * origin;
     T = T * (-1);
-    
+
     for( size_t i = 0; i < nb_positions; i += 1 )
     {
         vecteur position = squids.getPosition(i);
@@ -116,8 +121,8 @@ int main( int argc, char** argv)
         squids.setPosition(i,position);
         squids.setOrientation(i,orientation);
     }
-    
+
     squids.save(squids_output_filename);
-    if(rotation_filename != "") R.saveTxt(rotation_filename);
-    if(translation_filename != "") T.saveTxt(translation_filename);
+    if(rotation_filename) R.saveTxt(rotation_filename);
+    if(translation_filename) T.saveTxt(translation_filename);
 }

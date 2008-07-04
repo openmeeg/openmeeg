@@ -1,4 +1,4 @@
-/* FILE: $Id$ */
+// FILE: $Id:$
 
 /*
 Project Name : OpenMEEG
@@ -44,48 +44,40 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#include "options.h"
-#include "matrice_dcl.h"
-#include "symmatrice_dcl.h"
-#include "vecteur_dcl.h"
-#include "om_utils.h"
+#ifndef BASE_MATRIX_H
+#define BASE_MATRIX_H
 
-int main( int argc, char** argv)
-{
-    command_usage("Convert squids in text file to a vtk file for vizualisation");
-    const char *input_filename = command_option("-i",(const char *) NULL,"Squids positions in original coordinate system");
-    const char *output_filename = command_option("-o",(const char *) NULL,"Squids positions with orientations in vtk format");
-    if (command_option("-h",(const char *)0,0)) return 0;
+#include "MatLibConfig.h"
 
-    if(!input_filename || !output_filename) {
-        std::cout << "Not enough arguments, try the -h option" << std::endl;
-        return 1;
-    }
+struct MatrixBase {
 
-    matrice squids(input_filename);
-    assert(squids.nlin() == 151);
+    typedef enum { FULL, SYMMETRIC, SPARSE } MatrixStorageType;
+    typedef enum { ONE, TWO } Dimension;
 
-    FILE* f = fopen(output_filename,"w");
-    if (f==NULL)
-    {
-        perror("fopen");
-        return -1;
-    }
-    fprintf(f,"# vtk DataFile Version 3.0\n");
-    fprintf(f,"vtk output\n");
-    fprintf(f,"ASCII\n");
-    fprintf(f,"DATASET POLYDATA\n");
-    fprintf(f,"POINTS %d float\n",(int)squids.nlin());
-    for( unsigned int i = 0; i < squids.nlin(); i += 1 )
-    {
-        fprintf(f, "%f %f %f\n", squids(i,0), squids(i,1), squids(i,2));
-    }
-    fprintf(f,"POINT_DATA %d\n",(int)squids.nlin());
-    fprintf(f,"NORMALS normals float\n");
-    for( unsigned int i = 0; i < squids.nlin(); i += 1 )
-    {
-        fprintf(f, "%f %f %f\n", squids(i,3), squids(i,4), squids(i,5));
-    }
-    fclose(f);
-    return 0;
-}
+    MatrixBase() { }
+    MatrixBase(const size_t m,const size_t n,const MatrixStorageType st, const Dimension d):
+        num_lines(m),num_cols(n),storage(st),dim(d)  { }
+
+    virtual ~MatrixBase() {};
+
+    size_t& nlin()       { return num_lines; }
+    size_t  nlin() const { return num_lines; }
+
+    size_t& ncol()       { return num_cols; }
+    size_t  ncol() const { return num_cols; }
+
+    virtual size_t size() const = 0;
+    MatrixStorageType storageType() const { return storage; }
+    Dimension dimension() const { return dim; }
+    virtual void   info() const = 0;
+
+protected:
+
+    size_t            num_lines;
+    size_t            num_cols;
+    MatrixStorageType storage;
+    Dimension         dim;
+
+};
+
+#endif  //! BASE_MATRIX_H

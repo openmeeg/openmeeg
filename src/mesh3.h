@@ -52,10 +52,10 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <set>
 #include "vect3.h"
 #include "triangle.h"
-#include "vecteur.h"
-#include "matrice.h"
-#include "symmatrice.h"
-#include "sparse_matrice.h"
+#include "vecteur_dcl.h"
+#include "matrice_dcl.h"
+#include "symmatrice_dcl.h"
+#include "sparse_matrice_dcl.h"
 
 #ifdef USE_VTK
 #include <vtkPolyDataReader.h>

@@ -52,11 +52,16 @@ using namespace std;
 int main( int argc, char **argv)
 {
     command_usage("Get info about a Mesh");
-    const char *input_filename = command_option("-i",(const char *) "","Input Mesh");
-    const char *output_filename = command_option("-o",(const char *) "","Output Mesh");
+    const char *input_filename = command_option("-i",(const char *) NULL,"Input Mesh");
+    const char *output_filename = command_option("-o",(const char *) NULL,"Output Mesh");
     const double smoothing_intensity = command_option("-s",0.1,"Smoothing Intensity");
     const size_t niter = command_option("-n",1000,"Number of iterations");
     if (command_option("-h",(const char *)0,0)) return 0;
+
+    if(!input_filename || !output_filename) {
+        std::cout << "Not enough arguments, try the -h option" << std::endl;
+        return 1;
+    }
 
     Mesh M;
     M.load(input_filename);

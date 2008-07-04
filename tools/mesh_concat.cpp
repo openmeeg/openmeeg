@@ -57,6 +57,11 @@ int main( int argc, char **argv)
     const char *output_filename = command_option("-o",(const char *) "","Output Mesh");
     if (command_option("-h",(const char *)0,0)) return 0;
 
+    if(argc<2) {
+        cout << "Not enough arguments, try the -h option" << endl;
+        return 1;
+    }
+
     Mesh* M1 = new Mesh();
     M1->load(input_filename1);
 

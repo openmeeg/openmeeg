@@ -48,16 +48,17 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #define H_sensors
 
 #include <fstream>
+#include <sstream>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string>
 #include <vector>
 
 #include "IOUtils.H"
-#include "vecteur.h"
-#include "matrice.h"
-#include "symmatrice.h"
-#include "sparse_matrice.h"
+#include "vecteur_dcl.h"
+#include "matrice_dcl.h"
+#include "symmatrice_dcl.h"
+#include "sparse_matrice_dcl.h"
 
 /*!
  *  Sensors class for EEG and MEG sensors.

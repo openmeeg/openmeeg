@@ -759,7 +759,7 @@ void Mesh::updateTriangleOrientations(bool checkClosedSurface) {
             {
                 Triangle nt = getTrg(n);
 
-                if(nt.getArea() < 0.000001) // FIXME : check what should be a good value for the threshold
+                if(nt.getArea() < 0.000001) // TODO : check what should be a good value for the threshold
                 {
                     std::cerr << "Error : Mesh contains a flat triangle !" << std::endl;
                     exit(1);
@@ -894,7 +894,6 @@ sparse_matrice Mesh::gradient() const {
             }
         }
     }
-    A.refreshNZ();
     return A;
 }
 

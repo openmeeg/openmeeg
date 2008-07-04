@@ -372,6 +372,7 @@ int main(int argc, char** argv)
         // Assembling matrix from discretization :
         // vToEEG is the linear application which maps x |----> v
         vToEEG_matrice mat(geo,patches);
+        mat.info();
         // Saving vToEEG matrix :
         mat.SAVE(argv[5]);
     }

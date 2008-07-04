@@ -30,7 +30,7 @@ ADD_LIBRARY(OpenMEEG ${LIB_TYPE}
     assembleFerguson.cpp assembleLHS.cpp assembleRHS.cpp assembleSensors.cpp
     danielsson.cpp geometry.cpp mesh3.cpp operators.cpp sensors.cpp ${OPENMEEG_HEADERS}
 )
-TARGET_LINK_LIBRARIES (OpenMEEG ${OPENMEEG_OTHER_LIBRARIES})
+TARGET_LINK_LIBRARIES (OpenMEEG ${OPENMEEG_OTHER_LIBRARIES} OpenMEEGMaths)
 
 ADD_EXECUTABLE(om_presmooth presmooth.cpp ${OPENMEEG_HEADERS})
 TARGET_LINK_LIBRARIES (om_presmooth ${OPENMEEG_OTHER_LIBRARIES} OpenMEEG)

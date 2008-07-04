@@ -54,9 +54,14 @@ using namespace std;
 int main( int argc, char **argv)
 {
     command_usage("Check mesh intersections in geometry file");
-    const char *geom_filename = command_option("-g",(const char *) "","Input .geom file");
+    const char *geom_filename = command_option("-g",(const char *) NULL,"Input .geom file");
     const char *mesh_filename = command_option("-m",(const char *) NULL,"Mesh file (ex: to test .geom with cortex mesh)");
     if (command_option("-h",(const char *)0,0)) return 0;
+
+    if(!geom_filename) {
+        std::cout << "Not enough arguments, try the -h option" << std::endl;
+        return 1;
+    }
 
     Geometry g;
     g.read(geom_filename);

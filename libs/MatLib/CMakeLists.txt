@@ -1,2 +1,5 @@
+SUBDIRS(MatLib)
 
-SUBDIRS(Test)
+IF ( BUILD_TEST )
+    SUBDIRS(Test)
+ENDIF ( BUILD_TEST )

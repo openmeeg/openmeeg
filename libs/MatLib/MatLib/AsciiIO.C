@@ -1,13 +1,13 @@
-/* FILE: $Id$ */
+// FILE: $Id: AsciiIO.C 252 2008-06-27 14:43:17Z papadop $
 
 /*
 Project Name : OpenMEEG
 
-author            : $Author$
-version           : $Revision$
-last revision     : $Date$
-modified by       : $LastChangedBy$
-last modified     : $LastChangedDate$
+author            : $Author: papadop $
+version           : $Revision: 252 $
+last revision     : $Date: 2008-06-27 16:43:17 +0200 (Ven, 27 jui 2008) $
+modified by       : $LastChangedBy: papadop $
+last modified     : $LastChangedDate: 2008-06-27 16:43:17 +0200 (Ven, 27 jui 2008) $
 
 © INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre 
 GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU, Théodore PAPADOPOULO,
@@ -44,53 +44,10 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#ifndef H_SPARSE_MATRICE
-#define H_SPARSE_MATRICE
+#include <AsciiIO.H>
 
-#include "sparse_matrice_dcl.h"
-
-template <>
-inline vecteur sparse_matrice::operator*(const vecteur &x) const
-{
-    vecteur ret(nlin());
-    ret.set(0);
-
-    for(idxType i=0;i<_nnzrows;i++)
-    {
-        MyCell<sparse_matrice::valType,sparse_matrice::idxType>* startRow=_RowEntry[_nzrows[i]];
-        if(startRow!=0)
-        {
-            double total=0;
-            while(startRow!=0)
-            {
-                total+=startRow->val*x(startRow->j);
-                startRow=startRow->right;
-            }
-            ret(_nzrows[i])=total;
-        }
-    }
-
-    return ret;
+namespace Maths {
+    const AsciiIO           AsciiIO::prototype;
+    const AsciiIO::Suffixes AsciiIO::suffs = AsciiIO::init();
+    const std::string       AsciiIO::Identity("ascii");
 }
-
-template <>
-inline matrice sparse_matrice::operator*(const matrice &mat) const
-{
-    assert(ncol()==mat.nlin());
-    matrice out(nlin(),mat.ncol());
-    out.set(0.0);
-
-    sparse_matrice_iterator it(*this);
-    for(it.begin(); !it.end(); it.next()) {
-        idxType ii = it.current()->i;
-        idxType jj = it.current()->j;
-        valType val = it.current()->val;
-        for(size_t k = 0; k < mat.ncol(); ++k) {
-            out(ii,k) += val * mat(jj,k);
-        }
-    }
-
-    return out;
-}
-
-#endif

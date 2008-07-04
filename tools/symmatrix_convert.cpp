@@ -1,13 +1,13 @@
-/* FILE: $Id$ */
+/* FILE: $Id: matrix_convert.cpp 208 2008-02-29 13:28:33Z gramfort $ */
 
 /*
 Project Name : OpenMEEG
 
-author            : $Author$
-version           : $Revision$
-last revision     : $Date$
-modified by       : $LastChangedBy$
-last modified     : $LastChangedDate$
+author            : $Author: gramfort $
+version           : $Revision: 208 $
+last revision     : $Date: 2008-02-29 14:28:33 +0100 (Ven, 29 fév 2008) $
+modified by       : $LastChangedBy: gramfort $
+last modified     : $LastChangedDate: 2008-02-29 14:28:33 +0100 (Ven, 29 fév 2008) $
 
 © INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre 
 GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU, Théodore PAPADOPOULO,
@@ -44,48 +44,48 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#include "options.h"
-#include "matrice_dcl.h"
 #include "symmatrice_dcl.h"
-#include "vecteur_dcl.h"
-#include "om_utils.h"
+#include "matrice_dcl.h"
+#include "sparse_matrice_dcl.h"
+#include "fast_sparse_matrice.h"
 
-int main( int argc, char** argv)
-{
-    command_usage("Convert squids in text file to a vtk file for vizualisation");
-    const char *input_filename = command_option("-i",(const char *) NULL,"Squids positions in original coordinate system");
-    const char *output_filename = command_option("-o",(const char *) NULL,"Squids positions with orientations in vtk format");
+#include "options.h"
+
+using namespace std;
+
+int main( int argc, char **argv) {
+    command_usage("Convert symmetric matrices between different formats");
+    const char *input_filename = command_option("-i",(const char *) NULL,"Input full matrice");
+    const char *output_filename = command_option("-o",(const char *) NULL,"Output full matrice");
+    const char *input_format = command_option("-if",(const char *) NULL,"Input file format : ascii, binary, old_binary (should be avoided)");
+    const char *output_format = command_option("-of",(const char *) NULL,"Output file format : ascii, binary, old_binary (should be avoided)");
     if (command_option("-h",(const char *)0,0)) return 0;
 
-    if(!input_filename || !output_filename) {
-        std::cout << "Not enough arguments, try the -h option" << std::endl;
+    if(argc<2 || !input_filename || !output_filename) {
+        cout << "Not enough arguments, try the -h option" << endl;
         return 1;
     }
 
-    matrice squids(input_filename);
-    assert(squids.nlin() == 151);
+    symmatrice M;
+    Maths::ifstream ifs(input_filename);
+    Maths::ofstream ofs(output_filename);
 
-    FILE* f = fopen(output_filename,"w");
-    if (f==NULL)
+    try
     {
-        perror("fopen");
-        return -1;
+        if(input_format) {
+            ifs >> Maths::format(input_format) >> M;
+        } else {
+            ifs >> M;
+        }
+
+        if(output_format) {
+            ofs << Maths::format(output_format) << M;
+        } else {
+            ofs << Maths::format(output_filename,Maths::format::FromSuffix) << M;
+        }
+    } catch (std::string s) {
+        std::cerr << s << std::endl;
     }
-    fprintf(f,"# vtk DataFile Version 3.0\n");
-    fprintf(f,"vtk output\n");
-    fprintf(f,"ASCII\n");
-    fprintf(f,"DATASET POLYDATA\n");
-    fprintf(f,"POINTS %d float\n",(int)squids.nlin());
-    for( unsigned int i = 0; i < squids.nlin(); i += 1 )
-    {
-        fprintf(f, "%f %f %f\n", squids(i,0), squids(i,1), squids(i,2));
-    }
-    fprintf(f,"POINT_DATA %d\n",(int)squids.nlin());
-    fprintf(f,"NORMALS normals float\n");
-    for( unsigned int i = 0; i < squids.nlin(); i += 1 )
-    {
-        fprintf(f, "%f %f %f\n", squids(i,3), squids(i,4), squids(i,5));
-    }
-    fclose(f);
+
     return 0;
 }

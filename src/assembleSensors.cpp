@@ -57,8 +57,7 @@ void assemble_ferguson(const Geometry &geo, matrice &mat, const Vect3* pts,const
 void assemble_vToEEG(sparse_matrice &mat, const Geometry &geo, const matrice &positions )
 {
     int newsize = geo.size()-(geo.getM(geo.nb()-1)).nbTrgs();
-    mat= sparse_matrice(positions.nlin(),newsize);
-    //    mat.set(0.0);
+    mat = sparse_matrice(positions.nlin(),newsize);
 
     const Mesh& extLayer = geo.getM(geo.nb()-1);
 

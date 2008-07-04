@@ -25,9 +25,9 @@ SET(CPACK_PACKAGE_VERSION_PATCH ${PACKAGE_VERSION_PATCH})
 
 PROJECT(OpenMEEG)
 
-CMAKE_MINIMUM_REQUIRED(VERSION 2.5)
+CMAKE_MINIMUM_REQUIRED(VERSION 2.4)
 
-SET(CMAKE_SKIP_RPATH ON)
+#SET(CMAKE_SKIP_RPATH ON)
 
 #######################################################################
 # Setting compilation options
@@ -99,6 +99,11 @@ IF (USE_VTK)
 
 ENDIF (USE_VTK)
 
+SET(OPENMEEG_OTHER_LIBRARIES
+        ${OPENMEEG_OTHER_LIBRARIES}
+        OpenMEEGMaths
+)
+
 #------------------------------------------------------------
 # MATIO library
 #------------------------------------------------------------
@@ -165,13 +170,13 @@ INCLUDE_DIRECTORIES(${MATLIB_PATH})
 SET(MATLIB_HEADERS
     LinOp.h
     MatLibConfig.h
-    sparse_matrice.h
+    sparse_matrice_dcl.h
     fast_sparse_matrice.h
     generic_matrix.h
-    matrice.h
     matrice_dcl.h
-    sparse_matrice.h
-    symmatrice.h
+    matrice_dcl.h
+    sparse_matrice_dcl.h
+    symmatrice_dcl.h
     symmatrice_dcl.h
     vecteur.h
     vecteur_dcl.h)
@@ -206,7 +211,7 @@ INCLUDE_DIRECTORIES(
 # Setting sources and libraries
 #---------------------------------------------------------------
 
-SUBDIRS(src)
+SUBDIRS(libs src)
 
 IF ( UNIX )
     ADD_CUSTOM_TARGET(copy_head1
@@ -270,7 +275,6 @@ IF (BUILD_TEST)
     INCLUDE(CTest)
     ENABLE_TESTING()
     SUBDIRS(tests)
-    SUBDIRS(libs)
 ENDIF (BUILD_TEST)
 
 #-----------------------------------------------

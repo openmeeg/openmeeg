@@ -46,10 +46,11 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #include <cstring>
 
-#include "matrice.h"
-#include "symmatrice.h"
-#include "vecteur.h"
+#include "matrice_dcl.h"
+#include "symmatrice_dcl.h"
+#include "vecteur_dcl.h"
 #include "cpuChrono.h"
+#include "om_utils.h"
 
 using namespace std;
 

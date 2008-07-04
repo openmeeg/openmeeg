@@ -1,4 +1,4 @@
-/* FILE: $Id: sparse_matrice.h 235 2008-04-30 13:39:08Z gramfort $ */
+/* FILE: $Id: sparse_#include "Maths.H" 235 2008-04-30 13:39:08Z gramfort $ */
 
 /*
 Project Name : OpenMEEG
@@ -46,7 +46,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #include "mesh3.h"
 #include "options.h"
-#include "matrice.h"
+#include "matrice_dcl.h"
 
 using namespace std;
 
@@ -56,6 +56,11 @@ int main( int argc, char **argv)
     const char *input_filename = command_option("-i",(const char *) NULL,"Input Mesh");
     const char *output_filename = command_option("-o",(const char *) NULL,"Output .dip file");
     if (command_option("-h",(const char *)0,0)) return 0;
+
+    if(!input_filename || !output_filename) {
+        std::cout << "Not enough arguments, try the -h option" << std::endl;
+        return 1;
+    }
 
     Mesh M;
     M.load(input_filename,false);

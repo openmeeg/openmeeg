@@ -44,10 +44,10 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#include "symmatrice.h"
-#include "vecteur.h"
+#include "symmatrice_dcl.h"
+#include "vecteur_dcl.h"
 #include "mesh3.h"
-#include "sparse_matrice.h"
+#include "sparse_matrice_dcl.h"
 #include "fast_sparse_matrice.h"
 
 using namespace std;

@@ -1,13 +1,13 @@
-/* FILE: $Id$ */
+// FILE: $Id: BrainVisaTextureIO.C 252 2008-06-27 14:43:17Z papadop $
 
 /*
 Project Name : OpenMEEG
 
-author            : $Author$
-version           : $Revision$
-last revision     : $Date$
-modified by       : $LastChangedBy$
-last modified     : $LastChangedDate$
+author            : $Author: papadop $
+version           : $Revision: 252 $
+last revision     : $Date: 2008-06-27 16:43:17 +0200 (Ven, 27 jui 2008) $
+modified by       : $LastChangedBy: papadop $
+last modified     : $LastChangedDate: 2008-06-27 16:43:17 +0200 (Ven, 27 jui 2008) $
 
 © INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre 
 GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU, Théodore PAPADOPOULO,
@@ -44,37 +44,11 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#include "matrice.h"
-#include "symmatrice.h"
-#include "vecteur.h"
-#include "options.h"
+#include <BrainVisaTextureIO.H>
 
-using namespace std;
-
-int main( int argc, char **argv)
-{
-    command_usage("Simple tool to select a few time frames in a dataset.");
-    const char *input_filename = command_option("-i",(const char *) SRCPATH("data/Computations/Head1/Head1.src"),"Dataset from which frames are extracted");
-    const char *output_filename = command_option("-o",(const char *) "extracted_frames.txt","Extracted time frames");
-    const size_t first_frame = command_option("-f",0,"Index of first frame");
-    const size_t length = command_option("-l",1,"Nb of frames to extract");
-    const double mult = command_option("-m",1.0,"Nb of frames to extract");
-    if (command_option("-h",(const char *)0,0)) return 0;
-
-    matrice in(input_filename,'t');
-    assert((first_frame+length) <= in.ncol());
-    matrice out(in.nlin(),length);
-    for( unsigned int i = 0; i < length; i += 1 )
-    {
-        out.setcol(i,in.getcol(first_frame+i));
-    }
-    if (mult != 1.0) {
-        for (size_t j=0;j<out.ncol();j++)
-            for (size_t i=0;i<out.nlin();i++)
-            {
-                out(i,j) = out(i,j)*mult;
-            }
-    }
-    out.saveTxt(output_filename);
-    return 0;
+namespace Maths {
+    const BrainVisaTextureIO           BrainVisaTextureIO::prototype;
+    const std::string                  BrainVisaTextureIO::MagicTag("ascii");
+    const BrainVisaTextureIO::Suffixes BrainVisaTextureIO::suffs = BrainVisaTextureIO::init();
+    const std::string                  BrainVisaTextureIO::Identity("tex");
 }

@@ -1,13 +1,13 @@
-/* FILE: $Id$ */
+/* FILE: $Id: matrix_convert.cpp 208 2008-02-29 13:28:33Z gramfort $ */
 
 /*
 Project Name : OpenMEEG
 
-author            : $Author$
-version           : $Revision$
-last revision     : $Date$
-modified by       : $LastChangedBy$
-last modified     : $LastChangedDate$
+author            : $Author: gramfort $
+version           : $Revision: 208 $
+last revision     : $Date: 2008-02-29 14:28:33 +0100 (Ven, 29 fév 2008) $
+modified by       : $LastChangedBy: gramfort $
+last modified     : $LastChangedDate: 2008-02-29 14:28:33 +0100 (Ven, 29 fév 2008) $
 
 © INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre 
 GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU, Théodore PAPADOPOULO,
@@ -44,72 +44,48 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#include <iostream>
-#include <fstream>
-#include <cstring>
+#include "symmatrice_dcl.h"
+#include "matrice_dcl.h"
+#include "sparse_matrice_dcl.h"
+#include "fast_sparse_matrice.h"
 
-#include "vecteur.h"
-#include "matrice.h"
-#include "symmatrice.h"
-#include "mesh3.h"
-#include "vect3.h"
+#include "options.h"
 
 using namespace std;
 
-int main( int argc, char **argv)
-{
-    if(argc<4)
-    {
-        cout << " usage: "<< argv[0] << " input_mesh patches (txt) output_texture (txt)" << endl;
-        exit(1);
+int main( int argc, char **argv) {
+    command_usage("Convert vectors between different formats");
+    const char *input_filename = command_option("-i",(const char *) NULL,"Input vector");
+    const char *output_filename = command_option("-o",(const char *) NULL,"Output vector");
+    const char *input_format = command_option("-if",(const char *) NULL,"Input file format : ascii, binary, tex, old_binary (should be avoided)");
+    const char *output_format = command_option("-of",(const char *) NULL,"Output file format : ascii, binary, tex, old_binary (should be avoided)");
+    if (command_option("-h",(const char *)0,0)) return 0;
+
+    if(argc<2 || !input_filename || !output_filename) {
+        cout << "Not enough arguments, try the -h option" << endl;
+        return 1;
     }
 
-    // Loading mesh for distributed sources
-    Mesh input_mesh;
-    input_mesh.load(argv[1]);
+    vecteur V;
+    Maths::ifstream ifs(input_filename);
+    Maths::ofstream ofs(output_filename);
 
-    int nb_points = input_mesh.nbPts();
-    cout << "Nb of vertices : " << nb_points << endl;
-
-    cout << "Reading patches from  : " << argv[2] << endl;
-    matrice patchs(argv[2],'t');
-
-    if(patchs.ncol() != 4)
+    try
     {
-        cerr << "Nb cols should be 4 not " << patchs.ncol() << endl;
-        exit(1);
-    }
-
-    cout << "Nb patches : " << patchs.nlin() << endl;
-
-    Vect3 *center = new Vect3();
-    float radius;
-
-    matrice mask(nb_points,patchs.nlin());
-
-    for( unsigned int k = 0; k < patchs.nlin(); k += 1 )
-    {
-        center[0] = patchs(k,0);
-        center[1] = patchs(k,1);
-        center[2] = patchs(k,2);
-        cout << "-----" << endl;
-        cout << "Center : " << *center << endl;
-        radius = float(patchs(k,3));
-        cout << "Radius : " << radius << " mm" << endl;
-
-        for( int i = 0; i < nb_points; i += 1 )
-        {
-            if((input_mesh.getPt(i) - *center).norme() > radius)
-                mask(i,k) = 0;
-            else
-                mask(i,k) = 1;
+        if(input_format) {
+            ifs >> Maths::format(input_format) >> V;
+        } else {
+            ifs >> V;
         }
+
+        if(output_format) {
+            ofs << Maths::format(output_format) << V;
+        } else {
+            ofs << Maths::format(output_filename,Maths::format::FromSuffix) << V;
+        }
+    } catch (std::string s) {
+        std::cerr << s << std::endl;
     }
-
-    mask.saveTxt(argv[3]);
-    cout << "Mask written in : " << argv[3] << endl;
-
-    delete center;
 
     return 0;
 }

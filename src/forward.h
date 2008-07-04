@@ -44,9 +44,9 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#include "matrice.h"
-#include "symmatrice.h"
-#include "vecteur.h"
+#include "matrice_dcl.h"
+#include "symmatrice_dcl.h"
+#include "vecteur_dcl.h"
 
 class Forward_matrice : public virtual matrice
 {
