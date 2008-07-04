@@ -48,8 +48,8 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #define H_fast_sparse_matrice
 
 #include "MatLibConfig.h"
-#include "vecteur_dcl.h"
-#include "sparse_matrice_dcl.h"
+#include "vecteur.h"
+#include "sparse_matrice.h"
 
 class fast_sparse_matrice
 {

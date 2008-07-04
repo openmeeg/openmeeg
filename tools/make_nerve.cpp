@@ -49,7 +49,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <cstring>
 
 #include "mesh3.h"
-#include "sparse_matrice_dcl.h"
+#include "sparse_matrice.h"
 #include "fast_sparse_matrice.h"
 #include "stdlib.h"
 #include "stdio.h"
@@ -57,7 +57,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include "triangle.h"
 #include "options.h"
 #include "geometry.h"
-#include "vecteur_dcl.h"
+#include "vecteur.h"
 
 #define Pi acos(-1)
 using namespace std;

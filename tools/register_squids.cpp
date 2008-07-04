@@ -45,9 +45,9 @@ knowledge of the CeCILL-B license and that you accept its terms.
 */
 
 #include "options.h"
-#include "matrice_dcl.h"
-#include "symmatrice_dcl.h"
-#include "vecteur_dcl.h"
+#include "matrice.h"
+#include "symmatrice.h"
+#include "vecteur.h"
 #include "om_utils.h"
 #include "sensors.h"
 #include <string>

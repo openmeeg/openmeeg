@@ -50,8 +50,8 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #endif
 #include <math.h>
 
-#include "vecteur_dcl.h"
-#include "matrice_dcl.h"
+#include "vecteur.h"
+#include "matrice.h"
 #include "operators.h"
 #include "assemble.h"
 #include <fstream>

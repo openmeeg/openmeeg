@@ -57,8 +57,8 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #include "om_utils.h"
 #include "base_matrix.H"
-#include "vecteur_dcl.h"
-#include "matrice_dcl.h"
+#include "vecteur.h"
+#include "matrice.h"
 
 class sparse_matrice : public MatrixBase {
 

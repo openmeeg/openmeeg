@@ -52,8 +52,8 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #endif
 
 #include "MatrixIO.H"
-#include "sparse_matrice_dcl.h"
-// #include "matrice_dcl.h"
+#include "sparse_matrice.h"
+// #include "matrice.h"
 
 namespace Maths {
 

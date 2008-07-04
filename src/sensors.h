@@ -55,10 +55,10 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <vector>
 
 #include "IOUtils.H"
-#include "vecteur_dcl.h"
-#include "matrice_dcl.h"
-#include "symmatrice_dcl.h"
-#include "sparse_matrice_dcl.h"
+#include "vecteur.h"
+#include "matrice.h"
+#include "symmatrice.h"
+#include "sparse_matrice.h"
 
 /*!
  *  Sensors class for EEG and MEG sensors.

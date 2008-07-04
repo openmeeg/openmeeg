@@ -1,8 +1,8 @@
 #include "MatLibConfig.h"
-#include "vecteur_dcl.h"
-#include "matrice_dcl.h"
-#include "symmatrice_dcl.h"
-#include "sparse_matrice_dcl.h"
+#include "vecteur.h"
+#include "matrice.h"
+#include "symmatrice.h"
+#include "sparse_matrice.h"
 #include "options.h"
 #include <iostream>
 #include <cmath>

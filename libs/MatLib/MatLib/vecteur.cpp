@@ -45,9 +45,9 @@ knowledge of the CeCILL-B license and that you accept its terms.
 */
 
 #include "MatLibConfig.h"
-#include "vecteur_dcl.h"
-#include "matrice_dcl.h"
-#include "symmatrice_dcl.h"
+#include "vecteur.h"
+#include "matrice.h"
+#include "symmatrice.h"
 
 vecteur::vecteur() : MatrixBase(0,1,FULL,ONE),t(0),count(0) {}
 vecteur::vecteur(size_t N) : MatrixBase(N,1,FULL,ONE),t(0),count(0) { alloc_data(); }

@@ -45,10 +45,10 @@ knowledge of the CeCILL-B license and that you accept its terms.
 */
 
 #include "MatLibConfig.h"
-#include "vecteur_dcl.h"
-#include "matrice_dcl.h"
-#include "symmatrice_dcl.h"
-#include "sparse_matrice_dcl.h"
+#include "vecteur.h"
+#include "matrice.h"
+#include "symmatrice.h"
+#include "sparse_matrice.h"
 #include "fast_sparse_matrice.h"
 #include "chrono.h"
 

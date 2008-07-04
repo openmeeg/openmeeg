@@ -50,8 +50,8 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #include <math.h>
 
-#include "matrice_dcl.h"
-#include "symmatrice_dcl.h"
+#include "matrice.h"
+#include "symmatrice.h"
 #include "geometry.h"
 #include "operators.h"
 #include "assemble.h"

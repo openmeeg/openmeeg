@@ -51,11 +51,11 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <cfloat>
 
 #include "om_utils.h"
-#include "matrice_dcl.h"
-#include "symmatrice_dcl.h"
-#include "sparse_matrice_dcl.h"
-#include "vecteur_dcl.h"
-#include "sparse_matrice_dcl.h"
+#include "matrice.h"
+#include "symmatrice.h"
+#include "sparse_matrice.h"
+#include "vecteur.h"
+#include "sparse_matrice.h"
 
 matrice::matrice() : MatrixBase(0,0,FULL,TWO),t(0),count(0) { }
 matrice::matrice(const char* fname) : MatrixBase(0,0,FULL,TWO),t(0),count(0) {

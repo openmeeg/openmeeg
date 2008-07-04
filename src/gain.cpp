@@ -46,10 +46,10 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #include <cstring>
 
-#include "matrice_dcl.h"
-#include "matrice_dcl.h"
-#include "symmatrice_dcl.h"
-#include "vecteur_dcl.h"
+#include "matrice.h"
+#include "matrice.h"
+#include "symmatrice.h"
+#include "vecteur.h"
 #include "cpuChrono.h"
 #include "gain.h"
 

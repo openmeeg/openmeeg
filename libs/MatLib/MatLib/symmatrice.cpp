@@ -49,8 +49,8 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <cstdlib>
 
 #include "MatLibConfig.h"
-#include "matrice_dcl.h"
-#include "symmatrice_dcl.h"
+#include "matrice.h"
+#include "symmatrice.h"
 #include "om_utils.h"
 
 symmatrice::symmatrice() : MatrixBase(0,0,SYMMETRIC,TWO),t(0),count(0) {}

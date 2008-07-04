@@ -44,8 +44,8 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#include "matrice_dcl.h"
-#include "sparse_matrice_dcl.h"
+#include "matrice.h"
+#include "sparse_matrice.h"
 
 class HMEG_matrice : public virtual matrice
 {

@@ -50,7 +50,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <fstream>
 #include <cassert>
 
-#include "vecteur_dcl.h"
+#include "vecteur.h"
 #include "base_matrix.H"
 
 class matrice;

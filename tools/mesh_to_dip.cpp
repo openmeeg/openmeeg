@@ -46,7 +46,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #include "mesh3.h"
 #include "options.h"
-#include "matrice_dcl.h"
+#include "matrice.h"
 
 using namespace std;
 

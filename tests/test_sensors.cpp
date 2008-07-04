@@ -47,7 +47,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <fstream>
 #include <cstring>
 
-#include <matrice_dcl.h>
+#include <matrice.h>
 #include <sensors.h>
 
 int main(int argc, char** argv) {
