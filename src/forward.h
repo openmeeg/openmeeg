@@ -68,3 +68,4 @@ void compute_forward(Matrix& SimulatedData, const Matrix& GainMatrix, const Matr
 Forward_matrix::Forward_matrix(const Matrix& GainMatrix, const Matrix& RealSourcesData, double NoiseLevel) {
     compute_forward(*this,GainMatrix,RealSourcesData,NoiseLevel);
 }
+

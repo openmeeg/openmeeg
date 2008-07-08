@@ -46,6 +46,8 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #ifndef LINOP_H
 #define LINOP_H
 
+#include <cstdlib>
+
 #include "MatLibConfig.h"
 
 struct LinOp {

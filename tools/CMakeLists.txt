@@ -19,10 +19,10 @@ TARGET_LINK_LIBRARIES (om_register_squids OpenMEEG ${OPENMEEG_OTHER_LIBRARIES})
 ADD_EXECUTABLE(om_squids2vtk squids2vtk.cpp)
 TARGET_LINK_LIBRARIES (om_squids2vtk ${OPENMEEG_OTHER_LIBRARIES})
 
-ADD_EXECUTABLE(om_matrix_info Matrix_info.cpp)
+ADD_EXECUTABLE(om_matrix_info matrix_info.cpp)
 TARGET_LINK_LIBRARIES (om_matrix_info ${OPENMEEG_OTHER_LIBRARIES})
 
-ADD_EXECUTABLE(om_matrix_convert Matrix_convert.cpp)
+ADD_EXECUTABLE(om_matrix_convert matrix_convert.cpp)
 TARGET_LINK_LIBRARIES (om_matrix_convert ${OPENMEEG_OTHER_LIBRARIES})
 
 ADD_EXECUTABLE(om_vector_convert vector_convert.cpp)
