@@ -71,6 +71,8 @@ namespace maths {
             return linop.storageType()==LinOp::FULL || linop.storageType()==LinOp::SPARSE;
         }
 
+#ifdef USE_MATIO
+
         void read_full(mat_t* mat,LinOp& linop) const {
             matvar_t* matvar = Mat_VarReadNext(mat);
             while (matvar!=NULL && (matvar->rank!=2 || matvar->data_type!=MAT_T_DOUBLE || matvar->class_type!=MAT_C_DOUBLE))
@@ -196,6 +198,8 @@ namespace maths {
             Mat_VarFree(matvar);
             Mat_Close(mat);
         }
+
+#endif
 
         void read(std::ifstream& is,LinOp& linop) const {
             #ifdef USE_MATIO
