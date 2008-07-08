@@ -3,7 +3,6 @@
 /*
 Project Name : OpenMEEG
 
-author            : $Author$
 version           : $Revision$
 last revision     : $Date$
 modified by       : $LastChangedBy$
@@ -45,20 +44,20 @@ knowledge of the CeCILL-B license and that you accept its terms.
 */
 
 #include "MatLibConfig.h"
-#include "vecteur.h"
-#include "matrice.h"
-#include "symmatrice.h"
+#include "vector.h"
+#include "matrix.h"
+#include "symmatrix.h"
 
-vecteur::vecteur() : MatrixBase(0,1,FULL,ONE),t(0),count(0) {}
-vecteur::vecteur(size_t N) : MatrixBase(N,1,FULL,ONE),t(0),count(0) { alloc_data(); }
-vecteur::vecteur(double* T, int* COUNT, size_t N) : MatrixBase(N,1,FULL,ONE),t(T),count(COUNT) {(*count)++;}
-size_t vecteur::size() const { return nlin(); }
-bool vecteur::empty() const {return t==0;}
-double*  vecteur::data() const {return t;}
-int* vecteur::DangerousGetCount () const {return count;}
-vecteur vecteur::duplicate() const
+Vector::Vector() : LinOp(0,1,FULL,ONE),t(0),count(0) {}
+Vector::Vector(size_t N) : LinOp(N,1,FULL,ONE),t(0),count(0) { alloc_data(); }
+Vector::Vector(double* T, int* COUNT, size_t N) : LinOp(N,1,FULL,ONE),t(T),count(COUNT) {(*count)++;}
+size_t Vector::size() const { return nlin(); }
+bool Vector::empty() const {return t==0;}
+double*  Vector::data() const {return t;}
+int* Vector::DangerousGetCount () const {return count;}
+Vector Vector::duplicate() const
 {
-    vecteur A;
+    Vector A;
     if (t)
     {
         A.nlin() = nlin();
@@ -67,18 +66,18 @@ vecteur vecteur::duplicate() const
     }
     return A;
 }
-void vecteur::copyin(const vecteur& A)
+void Vector::copyin(const Vector& A)
 {
     assert(nlin()==A.nlin());
     copyin(A.t);
 }
 
-void vecteur::operator/=(double x) {(*this)*=(1.0/x);}
-vecteur vecteur::operator/(double x) const {return (*this)*(1.0/x);}
-double vecteur::mean() const {return sum()/size();}
-vecteur operator * (const double &d, const vecteur &v) {return v*d;}
+void Vector::operator/=(double x) {(*this)*=(1.0/x);}
+Vector Vector::operator/(double x) const {return (*this)*(1.0/x);}
+double Vector::mean() const {return sum()/size();}
+Vector operator * (const double &d, const Vector &v) {return v*d;}
 
-std::ostream& operator<<(std::ostream& f,const vecteur &M) {
+std::ostream& operator<<(std::ostream& f,const Vector &M) {
     for (size_t i=0;i<M.size();i++)
     {
         f << M(i) << " ";
@@ -86,7 +85,7 @@ std::ostream& operator<<(std::ostream& f,const vecteur &M) {
     return f;
 }
 
-std::istream& operator>>(std::istream& f,vecteur &M) {
+std::istream& operator>>(std::istream& f,Vector &M) {
     for (size_t i=0;i<M.size();i++)
     {
         f >> M(i);
@@ -95,13 +94,13 @@ std::istream& operator>>(std::istream& f,vecteur &M) {
     return f;
 }
 
-void vecteur::alloc_data() {
+void Vector::alloc_data() {
     t=new double[nlin()];
     count=new int[1];
     (*count)=1;
 }
 
-void vecteur::destroy() {
+void Vector::destroy() {
     if (t!=0)
     {
         (*count)--;
@@ -113,7 +112,7 @@ void vecteur::destroy() {
     }
 }
 
-void vecteur::copy(const vecteur& A) {
+void Vector::copy(const Vector& A) {
     t=A.t;
     nlin()=A.nlin();
     if (t)
@@ -123,7 +122,7 @@ void vecteur::copy(const vecteur& A) {
     }
 }
 
-void vecteur::copyout(double * p) const {
+void Vector::copyout(double * p) const {
 #ifdef HAVE_BLAS
     BLAS(dcopy,DCOPY)((int)nlin(),t,1,p,1);
 #else
@@ -134,7 +133,7 @@ void vecteur::copyout(double * p) const {
 #endif
 }
 
-void vecteur::copyin(const double * p) {
+void Vector::copyin(const double * p) {
 #ifdef HAVE_BLAS
     BLAS(dcopy,DCOPY)((int)nlin(),p,1,t,1);
 #else
@@ -145,19 +144,19 @@ void vecteur::copyin(const double * p) {
 #endif
 }
 
-const vecteur& vecteur::operator=(const vecteur& A)
+const Vector& Vector::operator=(const Vector& A)
 {
     destroy();
     copy(A);
     return *this;
 }
 
-vecteur::vecteur(const vecteur& A)
+Vector::Vector(const Vector& A)
 {
     copy(A);
 }
 
-vecteur::vecteur(matrice& A)
+Vector::Vector(Matrix& A)
 {
     nlin()=A.nlin()*A.ncol();
     t=A.data();
@@ -168,7 +167,7 @@ vecteur::vecteur(matrice& A)
     }
 }
 
-vecteur::vecteur(symmatrice& A)
+Vector::Vector(SymMatrix& A)
 {
     nlin()=A.nlin()*(A.nlin()+1)/2;
     t=A.data();
@@ -179,9 +178,9 @@ vecteur::vecteur(symmatrice& A)
     }
 }
 
-vecteur vecteur::operator+(const vecteur& v) const {
+Vector Vector::operator+(const Vector& v) const {
     assert(nlin()==v.nlin());
-    vecteur p=duplicate();
+    Vector p=duplicate();
 #ifdef HAVE_BLAS
     BLAS(daxpy,DAXPY)((int)nlin(),1,v.t,1,p.t,1);
 #else
@@ -193,9 +192,9 @@ vecteur vecteur::operator+(const vecteur& v) const {
     return p;
 }
 
-vecteur vecteur::operator-(const vecteur& v) const {
+Vector Vector::operator-(const Vector& v) const {
     assert(nlin()==v.nlin());
-    vecteur p=duplicate();
+    Vector p=duplicate();
 #ifdef HAVE_BLAS
     BLAS(daxpy,DAXPY)((int)nlin(),-1,v.t,1,p.t,1);
 #else
@@ -207,7 +206,7 @@ vecteur vecteur::operator-(const vecteur& v) const {
     return p;
 }
 
-void vecteur::operator+=(const vecteur& v) {
+void Vector::operator+=(const Vector& v) {
     assert(nlin()==v.nlin());
 #ifdef HAVE_BLAS
     BLAS(daxpy,DAXPY)((int)nlin(),1,v.t,1,t,1);
@@ -220,7 +219,7 @@ void vecteur::operator+=(const vecteur& v) {
 #endif
 }
 
-void vecteur::operator-=(const vecteur& v) {
+void Vector::operator-=(const Vector& v) {
     assert(nlin()==v.nlin());
 #ifdef HAVE_BLAS
     BLAS(daxpy,DAXPY)((int)nlin(),-1,v.t,1,t,1);
@@ -232,7 +231,7 @@ void vecteur::operator-=(const vecteur& v) {
 #endif
 }
 
-double vecteur::operator*(const vecteur& v) const {
+double Vector::operator*(const Vector& v) const {
     assert(nlin()==v.nlin());
 #ifdef HAVE_BLAS
     return BLAS(ddot,DDOT)((int)nlin(),t,1,v.t,1);
@@ -246,12 +245,12 @@ double vecteur::operator*(const vecteur& v) const {
 #endif
 }
 
-vecteur vecteur::kmult(const vecteur& v) const { // Kronecker multiplication
+Vector Vector::kmult(const Vector& v) const { // Kronecker multiplication
     assert(nlin() == v.nlin());
 // #ifdef HAVE_BLAS
 //     // FIXME : add blas version
 // #else
-    vecteur p(nlin());
+    Vector p(nlin());
     for( size_t i=0; i<nlin(); i++ )
     {
         p(i) = v(i)*t[i];
@@ -260,12 +259,12 @@ vecteur vecteur::kmult(const vecteur& v) const { // Kronecker multiplication
     return p;
 }
 
-vecteur vecteur::operator*(double x) const {
+Vector Vector::operator*(double x) const {
 #ifdef HAVE_BLAS
-    vecteur p=duplicate();
+    Vector p=duplicate();
     BLAS(dscal,DSCAL)((int)nlin(),x,p.t,1);
 #else
-    vecteur p(nlin());
+    Vector p(nlin());
     for( size_t i=0; i<nlin(); i++ )
     {
         p.t[i]=x*t[i];
@@ -274,9 +273,9 @@ vecteur vecteur::operator*(double x) const {
     return p;
 }
 
-vecteur vecteur::operator+(double x) const
+Vector Vector::operator+(double x) const
 {
-    vecteur p=duplicate();
+    Vector p=duplicate();
     for( size_t i=0; i<nlin(); i++ )
     {
         p.t[i]+=x;
@@ -284,16 +283,16 @@ vecteur vecteur::operator+(double x) const
     return p;
 }
 
-vecteur vecteur::operator-(double x) const
+Vector Vector::operator-(double x) const
 {
-    vecteur p=duplicate();
+    Vector p=duplicate();
     for( size_t i=0; i<nlin(); i++ )
         p.t[i]-=x;
 
     return p;
 }
 
-void vecteur::operator*=(double x) {
+void Vector::operator*=(double x) {
 #ifdef HAVE_BLAS
     BLAS(dscal,DSCAL)((int)nlin(),x,t,1);
 #else
@@ -304,18 +303,18 @@ void vecteur::operator*=(double x) {
 #endif
 }
 
-double vecteur::norm() const
+double Vector::norm() const
 {
 #ifdef HAVE_BLAS
     return BLAS(dnrm2,DNRM2)((int)nlin(),t,1);
 #else
-    std::cout << "'vecteur::norm' not implemented" << std::endl;
+    std::cout << "'Vector::norm' not implemented" << std::endl;
     exit(1);
     return 0;
 #endif
 }
 
-void vecteur::set(double x) {
+void Vector::set(double x) {
     assert(nlin()>0);
     for( size_t i=0; i<nlin(); i++ )
     {
@@ -323,7 +322,7 @@ void vecteur::set(double x) {
     }
 }
 
-double vecteur::sum() const
+double Vector::sum() const
 {
     double s=0;
     for (size_t i=0; i<nlin(); i++)
@@ -333,7 +332,7 @@ double vecteur::sum() const
     return s;
 }
 
-void vecteur::DangerousBuild(double *ptr, size_t s)
+void Vector::DangerousBuild(double *ptr, size_t s)
 {
     t=ptr;
     nlin()=s;
@@ -341,17 +340,17 @@ void vecteur::DangerousBuild(double *ptr, size_t s)
     *count=1;
 }
 
-void vecteur::DangerousKill()
+void Vector::DangerousKill()
 {
     t=0;
     nlin()=0;
     delete[] count;
 }
 
-vecteur vecteur::conv(const vecteur& v) const {
+Vector Vector::conv(const Vector& v) const {
     if (v.nlin()<nlin()) return v.conv(*this);
 
-    vecteur p(nlin()+v.nlin()-1);
+    Vector p(nlin()+v.nlin()-1);
     p.set(0);
     for (size_t i=0; i<v.nlin(); i++) {
 #ifdef HAVE_BLAS
@@ -366,8 +365,8 @@ vecteur vecteur::conv(const vecteur& v) const {
     return p;
 }
 
-vecteur vecteur::conv_trunc(const vecteur& v) const {
-    vecteur p(v.nlin());
+Vector Vector::conv_trunc(const Vector& v) const {
+    Vector p(v.nlin());
     p.set(0);
     for (size_t i=0; i<v.nlin(); i++)
     {
@@ -385,9 +384,9 @@ vecteur vecteur::conv_trunc(const vecteur& v) const {
 }
 
 
-matrice vecteur::outer_product(const vecteur& v) const {
+Matrix Vector::outer_product(const Vector& v) const {
     assert(nlin()==v.size());
-    matrice A(nlin(),nlin());
+    Matrix A(nlin(),nlin());
 #ifdef HAVE_BLAS
     DGEMM(CblasNoTrans,CblasNoTrans,
         (int)nlin(),(int)nlin(),1,
@@ -404,7 +403,7 @@ matrice vecteur::outer_product(const vecteur& v) const {
     return A;
 }
 
-void vecteur::info() const {
+void Vector::info() const {
     if (size() == 0) {
         std::cout << "Vector Empty" << std::endl;
         return;
@@ -440,33 +439,33 @@ void vecteur::info() const {
 // = IOs =
 // =======
 
-void vecteur::saveTxt(const char* filename) const
+void Vector::saveTxt(const char* filename) const
 {
-    Maths::ofstream ofs(filename);
-    ofs << Maths::format("ascii") << *this;
+    maths::ofstream ofs(filename);
+    ofs << maths::format("ascii") << *this;
 }
 
-void vecteur::saveBin(const char* filename) const
+void Vector::saveBin(const char* filename) const
 {
-    Maths::ofstream ofs(filename);
-    ofs << Maths::format("old_binary") << *this;
+    maths::ofstream ofs(filename);
+    ofs << maths::format("old_binary") << *this;
 }
 
-void vecteur::loadTxt(const char* filename)
+void Vector::loadTxt(const char* filename)
 {
-    Maths::ifstream ifs(filename);
-    ifs >> Maths::format("ascii") >> *this;
+    maths::ifstream ifs(filename);
+    ifs >> maths::format("ascii") >> *this;
 }
 
-void vecteur::loadBin(const char* filename)
+void Vector::loadBin(const char* filename)
 {
-    Maths::ifstream ifs(filename);
-    ifs >> Maths::format("old_binary") >> *this;
+    maths::ifstream ifs(filename);
+    ifs >> maths::format("old_binary") >> *this;
 }
 
-void vecteur::load( const char *filename ) {
+void Vector::load( const char *filename ) {
     try {
-        Maths::ifstream ifs(filename);
+        maths::ifstream ifs(filename);
         ifs >> *this;
     }
     catch (std::string s) {
@@ -474,9 +473,9 @@ void vecteur::load( const char *filename ) {
     }
 }
 
-void vecteur::save( const char *filename ) const {
+void Vector::save( const char *filename ) const {
     try {
-        Maths::ofstream ofs(filename);
+        maths::ofstream ofs(filename);
         ofs << *this;
     }
     catch (std::string s) {

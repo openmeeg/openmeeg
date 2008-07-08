@@ -1,6 +1,6 @@
-#include "MatrixIO.H"
+#include "MathsIO.H"
 
-namespace Maths {
+namespace maths {
 
     namespace Internal {
 
@@ -48,7 +48,7 @@ namespace Maths {
         throw UnknownFileSuffix(std::string("Unkown suffix :")+suffix);
     }
 
-    Maths::ifstream& operator>>(Maths::ifstream& mio,MatrixBase& matrix) throw(std::string) {
+    maths::ifstream& operator>>(maths::ifstream& mio,LinOp& linop) throw(std::string) {
         std::ifstream is(mio.name().c_str());
         if(is.fail()) {
             throw std::string("Unable to open : ")+mio.name();
@@ -56,17 +56,17 @@ namespace Maths {
 
         const char* buffer = Internal::ReadTag(is);
 
-        if (Maths::MathsIO::IO io = Maths::MathsIO::default_io()) {
+        if (maths::MathsIO::IO io = maths::MathsIO::default_io()) {
             if (io->identify(std::string(buffer))) {
                 io->setName(mio.name());
-                io->read(is,matrix);
+                io->read(is,linop);
                 return mio;
             }
         } else {
-            for (Maths::MathsIO::IOs::const_iterator io=Maths::MathsIO::ios().begin();io!=Maths::MathsIO::ios().end();++io) {
+            for (maths::MathsIO::IOs::const_iterator io=maths::MathsIO::ios().begin();io!=maths::MathsIO::ios().end();++io) {
                 if ((*io)->identify(std::string(buffer))) {
                     (*io)->setName(mio.name());
-                    (*io)->read(is,matrix);
+                    (*io)->read(is,linop);
                     return mio;
                 }
             }
@@ -74,23 +74,23 @@ namespace Maths {
         throw std::string("Unable to find proper reader.");
     }
 
-    Maths::ofstream& operator<<(Maths::ofstream& mio,const MatrixBase& matrix) throw(std::string) {
+    maths::ofstream& operator<<(maths::ofstream& mio,const LinOp& linop) throw(std::string) {
         std::ofstream os(mio.name().c_str());
         if(os.fail()) {
             throw std::string("Unable to open : ")+mio.name();
         }
 
-        if (Maths::MathsIO::IO io = Maths::MathsIO::default_io()) {
-            if (io->known(matrix)) {
+        if (maths::MathsIO::IO io = maths::MathsIO::default_io()) {
+            if (io->known(linop)) {
                 io->setName(mio.name());
-                io->write(os,matrix);
+                io->write(os,linop);
                 return mio;
             }
         } else {
-            for (Maths::MathsIO::IOs::const_iterator io=Maths::MathsIO::ios().begin();io!=Maths::MathsIO::ios().end();++io) {
-                if ((*io)->known(matrix)) {
+            for (maths::MathsIO::IOs::const_iterator io=maths::MathsIO::ios().begin();io!=maths::MathsIO::ios().end();++io) {
+                if ((*io)->known(linop)) {
                     (*io)->setName(mio.name());
-                    (*io)->write(os,matrix);
+                    (*io)->write(os,linop);
                     return mio;
                 }
             }

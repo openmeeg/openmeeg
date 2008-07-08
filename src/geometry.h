@@ -3,7 +3,6 @@
 /*
 Project Name : OpenMEEG
 
-author            : $Author$
 version           : $Revision$
 last revision     : $Date$
 modified by       : $LastChangedBy$
@@ -44,8 +43,8 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#ifndef H_geometry
-#define H_geometry
+#ifndef GEOMETRY_H
+#define GEOMETRY_H
 
 #include <assert.h>
 #include "mesh3.h"

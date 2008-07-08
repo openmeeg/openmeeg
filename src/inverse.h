@@ -3,7 +3,6 @@
 /*
 Project Name : OpenMEEG
 
-author            : $Author$
 version           : $Revision$
 last revision     : $Date$
 modified by       : $LastChangedBy$
@@ -44,11 +43,14 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#include "matrice.h"
-#include "symmatrice.h"
-#include "vecteur.h"
-#include "sparse_matrice.h"
-#include "fast_sparse_matrice.h"
+#ifndef INVERSE_H
+#define INVERSE_H
+
+#include "matrix.h"
+#include "symmatrix.h"
+#include "vector.h"
+#include "sparse_matrix.h"
+#include "fast_sparse_matrix.h"
 
 #define EPSILON 1e-6
 #define MINRES_TOL 1e-5
@@ -113,16 +115,16 @@ knowledge of the CeCILL-B license and that you accept its terms.
 // static double (*fptab[4]) (const double &)={0,tikp,pmp,aubp};
 // static double (*fpptab[4]) (const double &)={0,tikpp,0,aubpp};
 
-inline vecteur gentv( vecteur x,
-                      const fast_sparse_matrice &mat,
-                      const fast_sparse_matrice &mat_t,
-                      const vecteur &Ai, double *tv=NULL,
+inline Vector gentv( Vector x,
+                      const FastSparseMatrix &mat,
+                      const FastSparseMatrix &mat_t,
+                      const Vector &Ai, double *tv=NULL,
                       double (*f) (const double &)=0,
                       double (*fp) (const double&)=0 )
 {
-    vecteur v = mat * x;
-    vecteur grad_norms( v.size()/3 );
-    vecteur grad_norms_inv( v.size()/3 );
+    Vector v = mat * x;
+    Vector grad_norms( v.size()/3 );
+    Vector grad_norms_inv( v.size()/3 );
     for(size_t i=0;i<grad_norms.size();i++)
     {
         double *pt=&v(3*i);
@@ -139,16 +141,16 @@ inline vecteur gentv( vecteur x,
     return mat_t*v;
 }
 
-inline double compute_tv(vecteur x,
-                          const fast_sparse_matrice &mat,
-                          const fast_sparse_matrice &mat_t,
-                          const vecteur &Ai,
+inline double compute_tv(Vector x,
+                          const FastSparseMatrix &mat,
+                          const FastSparseMatrix &mat_t,
+                          const Vector &Ai,
                           double (*f) (const double &)=0,
                           double (*fp) (const double&)=0)
 {
     double tv = 0;
-    vecteur v = mat * x;
-    vecteur grad_norms( v.size()/3 );
+    Vector v = mat * x;
+    Vector grad_norms( v.size()/3 );
     for(size_t i=0;i<grad_norms.size();i++)
     {
         double *pt=&v(3*i);
@@ -167,14 +169,14 @@ inline double compute_tv(vecteur x,
 // ========================================================
 class MN_Hessian
 {
-    const matrice &Transfer;
+    const Matrix &Transfer;
     const double alpha;
 
 public:
 
-    MN_Hessian(const matrice &TransferMat, const double &Alpha):Transfer(TransferMat),alpha(Alpha) {}
+    MN_Hessian(const Matrix &TransferMat, const double &Alpha):Transfer(TransferMat),alpha(Alpha) {}
 
-    inline vecteur operator * (const vecteur &x) const
+    inline Vector operator * (const Vector &x) const
     {
         return Transfer.tmult(Transfer*x)+alpha*x;
     }
@@ -183,23 +185,23 @@ public:
 
 class WMN_Hessian
 {
-    const matrice &Transfer;
+    const Matrix &Transfer;
     const double alpha;
-    vecteur weights;
+    Vector weights;
 
 public:
 
-    WMN_Hessian(const matrice &TransferMat, const double &Alpha):Transfer(TransferMat),alpha(Alpha) {
-        vecteur v(Transfer.ncol());
+    WMN_Hessian(const Matrix &TransferMat, const double &Alpha):Transfer(TransferMat),alpha(Alpha) {
+        Vector v(Transfer.ncol());
         for(size_t i = 0; i < weights.size(); ++i)
         {
-            vecteur col = Transfer.getcol(i);
+            Vector col = Transfer.getcol(i);
             v(i) = pow(col.norm(),2);
         }
         weights = v;
     }
 
-    inline vecteur operator * (const vecteur &x) const
+    inline Vector operator * (const Vector &x) const
     {
         return Transfer.tmult(Transfer*x)+alpha*(weights.kmult(x));
     }
@@ -208,18 +210,18 @@ public:
 
 class HEAT_Hessian
 {
-    const matrice &m_transfer;
-    const fast_sparse_matrice &m_mat;
-    const fast_sparse_matrice &m_mat_t;
+    const Matrix &m_transfer;
+    const FastSparseMatrix &m_mat;
+    const FastSparseMatrix &m_mat_t;
     const double m_alpha;
 public:
-    HEAT_Hessian(const matrice &transfer,
-                     const fast_sparse_matrice &mat,
-                     const fast_sparse_matrice &mat_t,
+    HEAT_Hessian(const Matrix &transfer,
+                     const FastSparseMatrix &mat,
+                     const FastSparseMatrix &mat_t,
                      const double &alpha):
     m_transfer(transfer),m_mat(mat),m_mat_t(mat_t),m_alpha(alpha) {}
 
-    inline vecteur operator * ( const vecteur &x) const
+    inline Vector operator * ( const Vector &x) const
     {
         return m_transfer.tmult(m_transfer*x)+m_alpha*(m_mat_t*(m_mat*x));
     }
@@ -228,20 +230,20 @@ public:
 // ========================================================
 
 template<class T> // T should a linear operator
-size_t MinRes2(const T& A,const vecteur& b,vecteur& x0,double tol)
+size_t MinRes2(const T& A,const Vector& b,Vector& x0,double tol)
 {
     size_t n_max=10000;
     size_t n=1; size_t N=x0.size();
-    vecteur v(N); v.set(0.0);
-    vecteur v_hat=b-A*x0;
+    Vector v(N); v.set(0.0);
+    Vector v_hat=b-A*x0;
     double beta=v_hat.norm();
-    vecteur v_old(v.size());
-    vecteur Av(v.size());
+    Vector v_old(v.size());
+    Vector Av(v.size());
     double c=1; double c_old=1; double s_old=0; double s=0;
-    vecteur w(N); w.set(0.0);
-    vecteur w_oold(N); vecteur w_old=w.duplicate();
+    Vector w(N); w.set(0.0);
+    Vector w_oold(N); Vector w_old=w.duplicate();
     double eta=beta;
-    vecteur xMR=x0;
+    Vector xMR=x0;
     double norm_rMR=beta; double norm_r0=beta;
     double c_oold,s_oold,r1_hat,r1,r2,r3,alpha,beta_old;
     while ((n < n_max+1) && (norm_rMR/norm_r0 > tol) )
@@ -276,22 +278,22 @@ size_t MinRes2(const T& A,const vecteur& b,vecteur& x0,double tol)
 // ===========================================
 
 template<class T>
-void LIN_inverse (matrice& EstimatedData, const T& hess, const matrice& GainMatrix, const matrice& Data) {
+void LIN_inverse (Matrix& EstimatedData, const T& hess, const Matrix& GainMatrix, const Matrix& Data) {
     size_t nT = Data.ncol();
-    EstimatedData = matrice(GainMatrix.ncol(),nT);
+    EstimatedData = Matrix(GainMatrix.ncol(),nT);
 
     #ifdef USE_OMP
     #pragma omp parallel for
     #endif
-    for(size_t frame=0;frame<nT;frame++)// loop over frame
+    for(long frame=0;frame<(long)nT;frame++)// loop over frame
     {
-        vecteur m = Data.getcol(frame);
-        vecteur v(GainMatrix.ncol()); v.set(0.0);
+        Vector m = Data.getcol((size_t) frame);
+        Vector v(GainMatrix.ncol()); v.set(0.0);
 
         //==========  Invert =======================//
         size_t niter = MinRes2(hess,GainMatrix.tmult(m),v,MINRES_TOL);
 
-        for(size_t i=0;i<EstimatedData.nlin();i++) EstimatedData(i,frame) = v(i);
+        for(size_t i=0;i<EstimatedData.nlin();i++) EstimatedData(i,(size_t) frame) = v(i);
 
         #ifdef USE_OMP
         #pragma omp critical
@@ -303,8 +305,8 @@ void LIN_inverse (matrice& EstimatedData, const T& hess, const matrice& GainMatr
     }
 }
 
-void MN_inverse (matrice& EstimatedData, const matrice& Data, const matrice& GainMatrix, double SmoothWeight) {
-    matrice eye(GainMatrix.nlin(),GainMatrix.nlin());
+void MN_inverse (Matrix& EstimatedData, const Matrix& Data, const Matrix& GainMatrix, double SmoothWeight) {
+    Matrix eye(GainMatrix.nlin(),GainMatrix.nlin());
     eye.set(0);
     for(size_t i = 0; i < GainMatrix.nlin(); ++i) {
         eye(i,i) = SmoothWeight;
@@ -314,14 +316,14 @@ void MN_inverse (matrice& EstimatedData, const matrice& Data, const matrice& Gai
 
 // ================= Iterative Mininum norm inversion =======================//
 
-class IMN_inverse_matrice : public matrice
+class IMN_inverse_matrix : public Matrix
 {
 public:
-    IMN_inverse_matrice (const matrice& Data, const matrice& GainMatrix, double SmoothWeight);
-    virtual ~IMN_inverse_matrice () {};
+    IMN_inverse_matrix (const Matrix& Data, const Matrix& GainMatrix, double SmoothWeight);
+    virtual ~IMN_inverse_matrix () {};
 };
 
-IMN_inverse_matrice::IMN_inverse_matrice (const matrice& Data, const matrice& GainMatrix, double SmoothWeight) {
+IMN_inverse_matrix::IMN_inverse_matrix (const Matrix& Data, const Matrix& GainMatrix, double SmoothWeight) {
     std::cout << "Running Iterative MN inversion" << std::endl;
     MN_Hessian hess(GainMatrix,SmoothWeight);
     LIN_inverse(*this,hess,GainMatrix,Data);
@@ -329,28 +331,28 @@ IMN_inverse_matrice::IMN_inverse_matrice (const matrice& Data, const matrice& Ga
 
 // ================= Mininum norm inversion =======================//
 
-class MN_inverse_matrice : public matrice
+class MN_inverse_matrix : public Matrix
 {
 public:
-    MN_inverse_matrice (const matrice& Data, const matrice& GainMatrix, double SmoothWeight);
-    virtual ~MN_inverse_matrice () {};
+    MN_inverse_matrix (const Matrix& Data, const Matrix& GainMatrix, double SmoothWeight);
+    virtual ~MN_inverse_matrix () {};
 };
 
-MN_inverse_matrice::MN_inverse_matrice (const matrice& Data, const matrice& GainMatrix, double SmoothWeight) {
+MN_inverse_matrix::MN_inverse_matrix (const Matrix& Data, const Matrix& GainMatrix, double SmoothWeight) {
     std::cout << "Running MN inversion" << std::endl;
     MN_inverse(*this,Data,GainMatrix,SmoothWeight);
 }
 
 // ================= Weighted Mininum norm inversion =======================//
 
-class WMN_inverse_matrice : public matrice
+class WMN_inverse_matrix : public Matrix
 {
 public:
-    WMN_inverse_matrice (const matrice& Data, const matrice& GainMatrix, double SmoothWeight);
-    virtual ~WMN_inverse_matrice () {};
+    WMN_inverse_matrix (const Matrix& Data, const Matrix& GainMatrix, double SmoothWeight);
+    virtual ~WMN_inverse_matrix () {};
 };
 
-WMN_inverse_matrice::WMN_inverse_matrice (const matrice& Data, const matrice& GainMatrix, double SmoothWeight) {
+WMN_inverse_matrix::WMN_inverse_matrix (const Matrix& Data, const Matrix& GainMatrix, double SmoothWeight) {
     std::cout << "Running WMN inversion" << std::endl;
     WMN_Hessian hess(GainMatrix,SmoothWeight);
     LIN_inverse(*this,hess,GainMatrix,Data);
@@ -358,39 +360,39 @@ WMN_inverse_matrice::WMN_inverse_matrice (const matrice& Data, const matrice& Ga
 
 // ================= Gradient based Mininum norm inversion ================ //
 
-class HEAT_inverse_matrice : public matrice
+class HEAT_inverse_matrix : public Matrix
 {
 public:
-    HEAT_inverse_matrice (const matrice& Data, const matrice& GainMatrix, const sparse_matrice& SmoothMatrix, double SmoothWeight);
-    virtual ~HEAT_inverse_matrice () {};
+    HEAT_inverse_matrix (const Matrix& Data, const Matrix& GainMatrix, const SparseMatrix& SmoothMatrix, double SmoothWeight);
+    virtual ~HEAT_inverse_matrix () {};
 };
 
-HEAT_inverse_matrice::HEAT_inverse_matrice (const matrice& Data, const matrice& GainMatrix, const sparse_matrice& SmoothMatrix, double SmoothWeight) {
+HEAT_inverse_matrix::HEAT_inverse_matrix (const Matrix& Data, const Matrix& GainMatrix, const SparseMatrix& SmoothMatrix, double SmoothWeight) {
     std::cout << "Running HEAT inversion" << std::endl;
-    fast_sparse_matrice fastSmoothMatrix(SmoothMatrix);
-    fast_sparse_matrice fastSmoothMatrix_t(SmoothMatrix.transpose());
+    FastSparseMatrix fastSmoothMatrix(SmoothMatrix);
+    FastSparseMatrix fastSmoothMatrix_t(SmoothMatrix.transpose());
     HEAT_Hessian hess(GainMatrix,fastSmoothMatrix,fastSmoothMatrix_t,SmoothWeight);
     LIN_inverse(*this,hess,GainMatrix,Data);
 }
 
 // ================= Total variation based inversion =================== //
 
-void TV_inverse(matrice& EstimatedData, const matrice& Data, const matrice& GainMatrix, const sparse_matrice& SmoothMatrix, const vecteur& AiVector, double SmoothWeight, size_t MaxNbIter, double StoppingTol)
+void TV_inverse(Matrix& EstimatedData, const Matrix& Data, const Matrix& GainMatrix, const SparseMatrix& SmoothMatrix, const Vector& AiVector, double SmoothWeight, size_t MaxNbIter, double StoppingTol)
 {
-    fast_sparse_matrice fastSmoothMatrix(SmoothMatrix);
-    fast_sparse_matrice fastSmoothMatrix_t(SmoothMatrix.transpose());
+    FastSparseMatrix fastSmoothMatrix(SmoothMatrix);
+    FastSparseMatrix fastSmoothMatrix_t(SmoothMatrix.transpose());
 
     size_t nT = Data.ncol();
-    EstimatedData = matrice(GainMatrix.ncol(),nT);
+    EstimatedData = Matrix(GainMatrix.ncol(),nT);
 
     // #ifdef USE_OMP
     // #pragma omp parallel for
     // #endif
     for(size_t frame=0;frame<nT;frame++)
     {
-        cout << ">> Frame " << frame+1 << " / " << nT << endl;
-        vecteur m = Data.getcol(frame);
-        vecteur v(EstimatedData.nlin());
+        std::cout << ">> Frame " << frame+1 << " / " << nT << std::endl;
+        Vector m = Data.getcol(frame);
+        Vector v(EstimatedData.nlin());
 
         // ====================  initialization of source vector ===================== //
         if(frame==0) v.set(0.0);
@@ -409,17 +411,17 @@ void TV_inverse(matrice& EstimatedData, const matrice& Data, const matrice& Gain
         size_t t;
         for(t=0;t<MaxNbIter && errorTest;t++)
         {
-            vecteur gradtv = gentv(v,fastSmoothMatrix,fastSmoothMatrix_t,AiVector);
-            vecteur err_vec = GainMatrix*v-m;
-            vecteur graddata = GainMatrix.tmult(err_vec);
-            vecteur grad = (-SmoothWeight)*gradtv - graddata;
+            Vector gradtv = gentv(v,fastSmoothMatrix,fastSmoothMatrix_t,AiVector);
+            Vector err_vec = GainMatrix*v-m;
+            Vector graddata = GainMatrix.tmult(err_vec);
+            Vector grad = (-SmoothWeight)*gradtv - graddata;
             double f_v = pow(err_vec.norm(),2) + SmoothWeight*tv_v;
 
             // ======= Backtracking line search for gradient step ======= //
             double search_slope = alpha*grad.norm();
             double f_v_dv;
             double tv_v_dv;
-            vecteur v_dv;
+            Vector v_dv;
 
             double grad_step = 1.0;
 
@@ -460,14 +462,17 @@ void TV_inverse(matrice& EstimatedData, const matrice& Data, const matrice& Gain
     }
 }
 
-class TV_inverse_matrice : public matrice
+class TV_inverse_matrix : public Matrix
 {
 public:
-    TV_inverse_matrice (const matrice& Data, const matrice& GainMatrix, const sparse_matrice& SmoothMatrix, const vecteur& AiVector, double SmoothWeight, size_t MaxNbIter, double StoppingTol);
-    virtual ~TV_inverse_matrice () {};
+    TV_inverse_matrix (const Matrix& Data, const Matrix& GainMatrix, const SparseMatrix& SmoothMatrix, const Vector& AiVector, double SmoothWeight, size_t MaxNbIter, double StoppingTol);
+    virtual ~TV_inverse_matrix () {};
 };
 
-TV_inverse_matrice::TV_inverse_matrice (const matrice& Data, const matrice& GainMatrix, const sparse_matrice& SmoothMatrix, const vecteur& AiVector, double SmoothWeight, size_t MaxNbIter, double StoppingTol) {
+TV_inverse_matrix::TV_inverse_matrix (const Matrix& Data, const Matrix& GainMatrix, const SparseMatrix& SmoothMatrix, const Vector& AiVector, double SmoothWeight, size_t MaxNbIter, double StoppingTol) {
     std::cout << "Running TV inversion" << std::endl;
     TV_inverse(*this,Data,GainMatrix,SmoothMatrix,AiVector,SmoothWeight,MaxNbIter,StoppingTol);
 }
+
+#endif /* INVERSE_H */
+

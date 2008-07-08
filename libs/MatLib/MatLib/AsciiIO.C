@@ -3,7 +3,6 @@
 /*
 Project Name : OpenMEEG
 
-author            : $Author: papadop $
 version           : $Revision: 252 $
 last revision     : $Date: 2008-06-27 16:43:17 +0200 (Ven, 27 jui 2008) $
 modified by       : $LastChangedBy: papadop $
@@ -46,7 +45,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #include <AsciiIO.H>
 
-namespace Maths {
+namespace maths {
     const AsciiIO           AsciiIO::prototype;
     const AsciiIO::Suffixes AsciiIO::suffs = AsciiIO::init();
     const std::string       AsciiIO::Identity("ascii");

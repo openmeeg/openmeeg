@@ -3,7 +3,6 @@
 /*
 Project Name : OpenMEEG
 
-author            : $Author: papadop $
 version           : $Revision: 252 $
 last revision     : $Date: 2008-06-27 16:43:17 +0200 (Ven, 27 jui 2008) $
 modified by       : $LastChangedBy: papadop $
@@ -47,18 +46,18 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #ifndef ASCIIIO_H
 #define ASCIIIO_H
 
+#include <sstream>
+
 #ifdef USE_MATIO
 #include <matio.h>
 #endif
 
-#include <sstream>
+#include "MathsIO.H"
+#include "sparse_matrix.h"
+#include "matrix.h"
+#include "symmatrix.h"
 
-#include "MatrixIO.H"
-#include "sparse_matrice.h"
-#include "matrice.h"
-#include "symmatrice.h"
-
-namespace Maths {
+namespace maths {
 
     struct AsciiIO: public MathsIOBase {
 
@@ -75,17 +74,17 @@ namespace Maths {
             }
         }
 
-        bool known(const MatrixBase& matrix) const {
+        bool known(const LinOp& linop) const {
             return true;
         }
 
-        void read_sparse(std::ifstream& is,MatrixBase& matrix) const {
+        void read_sparse(std::ifstream& is,LinOp& linop) const {
             size_t i,j;
             double val;
             std::stringstream buffer;
             std::string line;
 
-            sparse_matrice* M = dynamic_cast<sparse_matrice*>(const_cast<MatrixBase*>(&matrix));
+            SparseMatrix* m = dynamic_cast<SparseMatrix*>(const_cast<LinOp*>(&linop));
 
             is.clear();
             is.seekg(0,std::ios::beg);
@@ -94,26 +93,26 @@ namespace Maths {
                 buffer.clear();
                 buffer.str(line);
                 buffer >> i >> j >> val;
-                M->operator()(i,j) = val;
+                m->operator()(i,j) = val;
             }
         }
 
-        void read_full(std::ifstream& is,MatrixBase& matrix) const {
+        void read_full(std::ifstream& is,LinOp& linop) const {
             std::stringstream buffer;
             std::string line;
             is.clear();
             is.seekg(0,std::ios::beg);
 
-            if(matrix.dimension()==MatrixBase::ONE) {
-                vecteur* M = dynamic_cast<vecteur*>(&matrix);
-                M->alloc_data();
+            if(linop.dimension()==LinOp::ONE) {
+                Vector* v = dynamic_cast<Vector*>(&linop);
+                v->alloc_data();
 
-                for(size_t i=0;i<M->nlin();i++)
+                for(size_t i=0;i<v->nlin();i++)
                 {
                     std::getline(is,line,'\n');
                     buffer.clear();
                     buffer.str(line);
-                    buffer>>M->data()[i];
+                    buffer>>v->data()[i];
                     if(buffer.fail())
                     {
                         std::cerr << "Error parsing" << std::endl;
@@ -121,16 +120,16 @@ namespace Maths {
                     }
                 }
             } else {
-                matrice* M = dynamic_cast<matrice*>(&matrix);
-                M->alloc_data();
+                Matrix* m = dynamic_cast<Matrix*>(&linop);
+                m->alloc_data();
 
-                for(size_t i=0;i<M->nlin();i++)
+                for(size_t i=0;i<m->nlin();i++)
                 {
                     std::getline(is,line,'\n');
                     buffer.clear();
                     buffer.str(line);
-                    for(size_t j=0;j<M->ncol();j++) {
-                        buffer>>M->data()[i+j*M->nlin()];
+                    for(size_t j=0;j<m->ncol();j++) {
+                        buffer>>m->data()[i+j*m->nlin()];
                     }
                     if(buffer.fail())
                     {
@@ -141,9 +140,9 @@ namespace Maths {
             }
         }
 
-        void read_symmetric(std::ifstream& is,MatrixBase& matrix) const {
-            symmatrice* M = dynamic_cast<symmatrice*>(&matrix);
-            M->alloc_data();
+        void read_symmetric(std::ifstream& is,LinOp& linop) const {
+            SymMatrix* m = dynamic_cast<SymMatrix*>(&linop);
+            m->alloc_data();
 
             std::stringstream buffer;
             std::string line;
@@ -151,26 +150,24 @@ namespace Maths {
             // Read data
             is.clear();
             is.seekg(0,std::ios::beg);
-            for(size_t i=0;i<M->nlin();i++)
-            {
+            for(size_t i=0;i<m->nlin();i++) {
                 std::getline(is,line,'\n');
                 buffer.clear();
                 buffer.str(line);
-                for(size_t j=i;j<M->ncol();j++) {
-                    buffer>>M->data()[i+j*(j+1)/2];
+                for(size_t j=i;j<m->ncol();j++) {
+                    buffer>>m->data()[i+j*(j+1)/2];
                 }
-                if(buffer.fail())
-                {
-                    std::cerr << "Error parsing" << std::endl; //  FIXME : throw proper exception
+                if(buffer.fail()) {
+                    throw("Error parsing"); //  FIXME : throw proper exception
                     return;
                 }
             }
         }
 
-        void read(std::ifstream& is,MatrixBase& matrix) const {
+        void read(std::ifstream& is,LinOp& linop) const {
 
-            if(matrix.storageType()==MatrixBase::SPARSE) {
-                read_sparse(is,matrix);
+            if(linop.storageType()==LinOp::SPARSE) {
+                read_sparse(is,linop);
                 return;
             }
 
@@ -178,8 +175,8 @@ namespace Maths {
             std::string line;
             std::string s;
 
-            matrix.ncol() = 0;
-            matrix.nlin() = 0;
+            linop.ncol() = 0;
+            linop.nlin() = 0;
             // Determine the number of columns on the first line
             is.clear();
             is.seekg(0,std::ios::beg);
@@ -188,12 +185,12 @@ namespace Maths {
             buffer.str(line);
             while(!buffer.fail()) {
                 buffer >> s;
-                matrix.ncol()++;
+                linop.ncol()++;
             }
-            matrix.ncol()--;
+            linop.ncol()--;
 
-            if(matrix.dimension()==MatrixBase::ONE) {
-                assert(matrix.ncol() == 1); // TODO : throw proper exception
+            if(linop.dimension()==LinOp::ONE) {
+                assert(linop.ncol() == 1); // TODO : throw proper exception
             }
 
             is.clear();
@@ -201,22 +198,22 @@ namespace Maths {
             // Determine the number of lines in the file
             while (std::getline(is, line, '\n')) {
                 if (!line.empty()) {
-                    matrix.nlin()++;
+                    linop.nlin()++;
                 }
             }
 
-            if(matrix.storageType()==MatrixBase::SYMMETRIC) {
-                read_symmetric(is,matrix);
+            if(linop.storageType()==LinOp::SYMMETRIC) {
+                read_symmetric(is,linop);
                 return;
             }
 
-            read_full(is,matrix);
+            read_full(is,linop);
             return;
         }
 
-        void write_sparse(std::ofstream& os, const MatrixBase& matrix) const {
-            sparse_matrice* spm = dynamic_cast<sparse_matrice*>(const_cast<MatrixBase*>(&matrix));
-            sparse_matrice::const_iterator it;
+        void write_sparse(std::ofstream& os, const LinOp& linop) const {
+            SparseMatrix* spm = dynamic_cast<SparseMatrix*>(const_cast<LinOp*>(&linop));
+            SparseMatrix::const_iterator it;
             for(it = spm->begin(); it != spm->end(); ++it) {
                 size_t i = it->first.first;
                 size_t j = it->first.second;
@@ -225,44 +222,44 @@ namespace Maths {
             }
         }
 
-        void write_symmetric(std::ofstream& os, const MatrixBase& matrix) const {
-            symmatrice* M = dynamic_cast<symmatrice*>(const_cast<MatrixBase*>(&matrix));
-            for(size_t i=0;i<M->nlin();i++) {
-                for(size_t j=i;j<M->ncol();j++) {
-                    os << M->data()[i+j*(j+1)/2];
-                    if(j!=M->ncol()-1) os<<"\t"; else os<<"\n";
+        void write_symmetric(std::ofstream& os, const LinOp& linop) const {
+            SymMatrix* m = dynamic_cast<SymMatrix*>(const_cast<LinOp*>(&linop));
+            for(size_t i=0;i<m->nlin();i++) {
+                for(size_t j=i;j<m->ncol();j++) {
+                    os << m->data()[i+j*(j+1)/2];
+                    if(j!=m->ncol()-1) os<<"\t"; else os<<"\n";
                 }
             }
         }
 
-        void write_full(std::ofstream& os, const MatrixBase& matrix) const {
-            if (matrix.dimension()==MatrixBase::ONE) {
-                vecteur* M = dynamic_cast<vecteur*>(const_cast<MatrixBase*>(&matrix));
-                for(size_t i=0;i<M->nlin();i++) {
-                    os << M->data()[i];
+        void write_full(std::ofstream& os, const LinOp& linop) const {
+            if (linop.dimension()==LinOp::ONE) {
+                Vector* v = dynamic_cast<Vector*>(const_cast<LinOp*>(&linop));
+                for(size_t i=0;i<v->nlin();i++) {
+                    os << v->data()[i];
                     os<<"\n";
                 }
             } else {
-                matrice* M = dynamic_cast<matrice*>(const_cast<MatrixBase*>(&matrix));
-                for(size_t i=0;i<M->nlin();i++) {
-                    for(size_t j=0;j<M->ncol();j++) {
-                        os << M->data()[i+j*M->nlin()];
-                        if(j!=M->ncol()-1) os<<"\t"; else os<<"\n";
+                Matrix* m = dynamic_cast<Matrix*>(const_cast<LinOp*>(&linop));
+                for(size_t i=0;i<m->nlin();i++) {
+                    for(size_t j=0;j<m->ncol();j++) {
+                        os << m->data()[i+j*m->nlin()];
+                        if(j!=m->ncol()-1) os<<"\t"; else os<<"\n";
                     }
                 }
             }
         }
 
-        void write(std::ofstream& os, const MatrixBase& matrix) const {
-            switch (matrix.storageType()) {
-                case MatrixBase::SPARSE :
-                    write_sparse(os,matrix);
+        void write(std::ofstream& os, const LinOp& linop) const {
+            switch (linop.storageType()) {
+                case LinOp::SPARSE :
+                    write_sparse(os,linop);
                     return;
-                case MatrixBase::FULL :
-                    write_full(os,matrix);
+                case LinOp::FULL :
+                    write_full(os,linop);
                     return;
-                case MatrixBase::SYMMETRIC :
-                    write_symmetric(os,matrix);
+                case LinOp::SYMMETRIC :
+                    write_symmetric(os,linop);
                     return;
                 default:
                     return;

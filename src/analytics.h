@@ -3,7 +3,6 @@
 /*
 Project Name : OpenMEEG
 
-author            : $Author$
 version           : $Revision$
 last revision     : $Date$
 modified by       : $LastChangedBy$
@@ -44,11 +43,12 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#ifndef H_analytics
-#define H_analytics
+#ifndef ANALYTICS_H
+#define ANALYTICS_H
+
+#include <stdio.h>
 
 #include "mesh3.h"
-#include <stdio.h>
 
 class analyticS {
 private:
@@ -56,11 +56,11 @@ private:
     Vect3 p2p1,p1p0,p0p2;
     Vect3 nu0,nu1,nu2;
     Vect3 n;
-    double norme2p2p1,norme2p1p0,norme2p0p2;
+    double norm2p2p1,norm2p1p0,norm2p0p2;
     double tanTHETA0m,tanTHETA0p,tanTHETA1m,tanTHETA1p,tanTHETA2m,tanTHETA2p;
     
     void init_aux() {
-        n *= -(1/n.norme()) ;
+        n *= -(1/n.norm()) ;
         nu0 = (n^p1p0);
         nu1 = (n^p2p1);
         nu2 = (n^p0p2);
@@ -83,7 +83,7 @@ public:
         p2 = m.getPt(T.s3());
 
         p1p0 = p1-p0; p2p1 = p2-p1; p0p2 = p0-p2;
-        norme2p1p0 = p1p0.norme(); norme2p2p1 = p2p1.norme(); norme2p0p2 = p0p2.norme();
+        norm2p1p0 = p1p0.norm(); norm2p2p1 = p2p1.norm(); norm2p0p2 = p0p2.norm();
 
         n = T.normal();
         init_aux();
@@ -96,7 +96,7 @@ public:
         p1 = v1;
         p2 = v2;
         p1p0 = p1-p0; p2p1 = p2-p1; p0p2 = p0-p2;
-        norme2p1p0 = p1p0.norme(); norme2p2p1 = p2p1.norme(); norme2p0p2 = p0p2.norme();
+        norm2p1p0 = p1p0.norm(); norm2p2p1 = p2p1.norm(); norm2p0p2 = p0p2.norm();
 
         n = p1p0^p0p2;
         init_aux();
@@ -106,26 +106,26 @@ public:
     {
         // analytical value of the internal integral of S operator at point X
         Vect3 p1x = p1-x, p2x = p2-x, p0x = p0-x ;
-        double norme2p0x = p0x.norme();
-        double norme2p1x = p1x.norme();
-        double norme2p2x = p2x.norme();
+        double norm2p0x = p0x.norm();
+        double norm2p1x = p1x.norm();
+        double norm2p2x = p2x.norm();
         double alpha = (x-p0)*n ;
         double g0,g1,g2;
 
-        if ((p0x^p1p0).norme() > .00000001)
-            g0 = -log(norme2p1x-p1x*p1p0*(1.0/norme2p1p0) )+log(norme2p0x-p0x*p1p0*(1.0/norme2p1p0) );
+        if ((p0x^p1p0).norm() > .00000001)
+            g0 = -log(norm2p1x-p1x*p1p0*(1.0/norm2p1p0) )+log(norm2p0x-p0x*p1p0*(1.0/norm2p1p0) );
         else
-            g0= fabs(log(norme2p1x)-log(norme2p0x));
+            g0= fabs(log(norm2p1x)-log(norm2p0x));
 
-        if ((p1x^p2p1).norme() > .00000001)
-            g1 = -log(norme2p2x-p2x*p2p1*(1.0/norme2p2p1) )+log(norme2p1x-p1x*p2p1*(1.0/norme2p2p1) );
+        if ((p1x^p2p1).norm() > .00000001)
+            g1 = -log(norm2p2x-p2x*p2p1*(1.0/norm2p2p1) )+log(norm2p1x-p1x*p2p1*(1.0/norm2p2p1) );
         else
-            g1= fabs(log(norme2p2x)-log(norme2p1x));
+            g1= fabs(log(norm2p2x)-log(norm2p1x));
 
-        if ((p2x^p0p2).norme() > .00000001)
-            g2 = -log(norme2p0x-p0x*p0p2*(1.0/norme2p0p2) )+log(norme2p2x-p2x*p0p2*(1.0/norme2p0p2) );
+        if ((p2x^p0p2).norm() > .00000001)
+            g2 = -log(norm2p0x-p0x*p0p2*(1.0/norm2p0p2) )+log(norm2p2x-p2x*p0p2*(1.0/norm2p0p2) );
         else
-            g2 = fabs(log(norme2p0x)-log(norme2p2x));
+            g2 = fabs(log(norm2p0x)-log(norm2p2x));
 
         return ((p0x*nu0)*g0+(p1x*nu1)*g1+(p2x*nu2)*g2)-alpha*x.solangl(p0,p1,p2);
     }
@@ -156,9 +156,9 @@ public:
         Vect3 Y1 = v1-x;
         Vect3 Y2 = v2-x;
         Vect3 Y3 = v3-x;
-        double y1 = Y1.norme();
-        double y2 = Y2.norme();
-        double y3 = Y3.norme();
+        double y1 = Y1.norm();
+        double y2 = Y2.norm();
+        double y3 = Y3.norm();
         double d = Y1*(Y2^Y3);
 
         double derr = 1e-10;
@@ -172,14 +172,14 @@ public:
         Vect3 D1 = Y2-Y1;
         Vect3 D2 = Y3-Y2;
         Vect3 D3 = Y1-Y3;
-        double d1 = D1.norme();
-        double d2 = D2.norme();
-        double d3 = D3.norme();
+        double d1 = D1.norm();
+        double d2 = D2.norm();
+        double d3 = D3.norm();
         double g1 = -1/d1*log((y1*d1+Y1*D1)/(y2*d1+Y2*D1));
         double g2 = -1/d2*log((y2*d2+Y2*D2)/(y3*d2+Y3*D2));
         double g3 = -1/d3*log((y3*d3+Y3*D3)/(y1*d3+Y1*D3));
         Vect3 N = Z1+Z2+Z3;
-        double A = N.norme2();
+        double A = N.norm2();
         Vect3 S = D1*g1+D2*g2+D3*g3;
         double omega_i[3];
         omega_i[0] = 1/A*(Z1*N*omega+d*(D2*S));
@@ -216,9 +216,9 @@ public:
         Vect3 Y1 = v1-x;
         Vect3 Y2 = v2-x;
         Vect3 Y3 = v3-x;
-        double y1 = Y1.norme();
-        double y2 = Y2.norme();
-        double y3 = Y3.norme();
+        double y1 = Y1.norm();
+        double y2 = Y2.norm();
+        double y3 = Y3.norm();
         double d = Y1*(Y2^Y3);
 
         double derr = 1e-10;
@@ -232,14 +232,14 @@ public:
         Vect3 D1 = Y2-Y1;
         Vect3 D2 = Y3-Y2;
         Vect3 D3 = Y1-Y3;
-        double d1 = D1.norme();
-        double d2 = D2.norme();
-        double d3 = D3.norme();
+        double d1 = D1.norm();
+        double d2 = D2.norm();
+        double d3 = D3.norm();
         double g1 = -1/d1*log((y1*d1+Y1*D1)/(y2*d1+Y2*D1));
         double g2 = -1/d2*log((y2*d2+Y2*D2)/(y3*d2+Y3*D2));
         double g3 = -1/d3*log((y3*d3+Y3*D3)/(y1*d3+Y1*D3));
         Vect3 N = Z1+Z2+Z3;
-        double A = N.norme2();
+        double A = N.norm2();
         Vect3 S = D1*g1+D2*g2+D3*g3;
         Vect3 omega_i;
         omega_i.x() = 1/A*(Z1*N*omega+d*(D2*S));
@@ -267,7 +267,7 @@ public:
     {
         // RK: A = q.(x-r0)/||^3
         Vect3 r = x-r0;
-        double rn = r.norme();
+        double rn = r.norm();
         return (q*r)/(rn*rn*rn);
     }
 };
@@ -295,9 +295,9 @@ public:
         p1p0 = p0-p1; p2p1 = p1-p2; p0p2 = p2-p0;
         p1p0n = p1p0; p1p0n.normalize(); p2p1n = p2p1; p2p1n.normalize(); p0p2n = p0p2; p0p2n.normalize();
 
-        p1H0 = (p1p0*p2p1n)*p2p1n; H0 = p1H0+p1; H0p0DivNorm2 = p0-H0; H0p0DivNorm2 = H0p0DivNorm2/H0p0DivNorm2.norme2();
-        p2H1 = (p2p1*p0p2n)*p0p2n; H1 = p2H1+p2; H1p1DivNorm2 = p1-H1; H1p1DivNorm2 = H1p1DivNorm2/H1p1DivNorm2.norme2();
-        p0H2 = (p0p2*p1p0n)*p1p0n; H2 = p0H2+p0; H2p2DivNorm2 = p2-H2; H2p2DivNorm2 = H2p2DivNorm2/H2p2DivNorm2.norme2();
+        p1H0 = (p1p0*p2p1n)*p2p1n; H0 = p1H0+p1; H0p0DivNorm2 = p0-H0; H0p0DivNorm2 = H0p0DivNorm2/H0p0DivNorm2.norm2();
+        p2H1 = (p2p1*p0p2n)*p0p2n; H1 = p2H1+p2; H1p1DivNorm2 = p1-H1; H1p1DivNorm2 = H1p1DivNorm2/H1p1DivNorm2.norm2();
+        p0H2 = (p0p2*p1p0n)*p1p0n; H2 = p0H2+p0; H2p2DivNorm2 = p2-H2; H2p2DivNorm2 = H2p2DivNorm2/H2p2DivNorm2.norm2();
 
         n = -p1p0^p0p2;
         n.normalize();
@@ -309,7 +309,7 @@ public:
 
         // RK: B = n.grad_x(A) with grad_x(A)= q/||^3 - 3r(q.r)/||^5
         Vect3 r = x-r0;
-        double rn = r.norme();
+        double rn = r.norm();
         double EMpart = n*(q/pow(rn,3.)-3*(q*r)*r/pow(rn,5.));
 
         return -EMpart*P1part; // RK: why - sign ?
@@ -334,7 +334,7 @@ public:
     inline Vect3array<2> f(const Vect3& x) const
     {
         Vect3 r = x-r0;
-        double rn = r.norme();
+        double rn = r.norm();
         Vect3array<2> res;
         // grad_r0(A)= -q/||^3 + 3 r (q.r)/||^5
         res(0) = (3*(q*r)*r/pow(rn,5.)-q/pow(rn,3.));
@@ -368,9 +368,9 @@ public:
         p1p0 = p0-p1; p2p1 = p1-p2; p0p2 = p2-p0;
         p1p0n = p1p0; p1p0n.normalize(); p2p1n = p2p1; p2p1n.normalize(); p0p2n = p0p2; p0p2n.normalize();
 
-        p1H0 = (p1p0*p2p1n)*p2p1n; H0 = p1H0+p1; H0p0DivNorm2 = p0-H0; H0p0DivNorm2 = H0p0DivNorm2/H0p0DivNorm2.norme2();
-        p2H1 = (p2p1*p0p2n)*p0p2n; H1 = p2H1+p2; H1p1DivNorm2 = p1-H1; H1p1DivNorm2 = H1p1DivNorm2/H1p1DivNorm2.norme2();
-        p0H2 = (p0p2*p1p0n)*p1p0n; H2 = p0H2+p0; H2p2DivNorm2 = p2-H2; H2p2DivNorm2 = H2p2DivNorm2/H2p2DivNorm2.norme2();
+        p1H0 = (p1p0*p2p1n)*p2p1n; H0 = p1H0+p1; H0p0DivNorm2 = p0-H0; H0p0DivNorm2 = H0p0DivNorm2/H0p0DivNorm2.norm2();
+        p2H1 = (p2p1*p0p2n)*p0p2n; H1 = p2H1+p2; H1p1DivNorm2 = p1-H1; H1p1DivNorm2 = H1p1DivNorm2/H1p1DivNorm2.norm2();
+        p0H2 = (p0p2*p1p0n)*p1p0n; H2 = p0H2+p0; H2p2DivNorm2 = p2-H2; H2p2DivNorm2 = H2p2DivNorm2/H2p2DivNorm2.norm2();
 
         n = -p1p0^p0p2;
         n.normalize();
@@ -382,7 +382,7 @@ public:
         Vect3 P1part(H0p0DivNorm2*(x-H0),H1p1DivNorm2*(x-H1),H2p2DivNorm2*(x-H2));
 
         Vect3 r = x-r0;
-        double rn = r.norme();
+        double rn = r.norm();
         // grad_r0(B)= 3/||^5 [ (q.n)r + (q.r)n + (r.n)[q-5(q.r)r/||^2] ]
         Vect3 EMpartR0 = 3/pow(rn,5.)*(
             (q*n)*r

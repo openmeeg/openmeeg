@@ -3,7 +3,6 @@
 /*
 Project Name : OpenMEEG
 
-author            : $Author$
 version           : $Revision$
 last revision     : $Date$
 modified by       : $LastChangedBy$
@@ -44,18 +43,18 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#ifndef H_MESH
-#define H_MESH
+#ifndef MESH_H
+#define MESH_H
 
 #include <istream>
 #include <fstream>
 #include <set>
 #include "vect3.h"
 #include "triangle.h"
-#include "vecteur.h"
-#include "matrice.h"
-#include "symmatrice.h"
-#include "sparse_matrice.h"
+#include "vector.h"
+#include "matrix.h"
+#include "symmatrix.h"
+#include "sparse_matrix.h"
 
 #ifdef USE_VTK
 #include <vtkPolyDataReader.h>
@@ -209,12 +208,12 @@ public:
     /**
      * Compute the surfacic gradient
     **/
-    sparse_matrice gradient() const;
+    SparseMatrix gradient() const;
 
     /**
      * Return the area of each triangle
     **/
-    vecteur areas() const;
+    Vector areas() const;
 
     inline friend void operator>>(std::istream &ifs,Mesh &m){
         Filetype format = m.streamFormat;
@@ -274,9 +273,9 @@ inline Vect3 P1Vector( const Vect3 &p0, const Vect3 &p1, const Vect3 &p2, const 
     Vect3 ret(0,0,0);
     Vect3 pim1pi = pts[i]-pts[i-1];
     Vect3 pim1pip1 = pts[i+1]-pts[i-1];
-    Vect3 pim1H = ( (1.0/pim1pip1.norme2()) * ( pim1pi*pim1pip1 ) ) * pim1pip1;
+    Vect3 pim1H = ( (1.0/pim1pip1.norm2()) * ( pim1pi*pim1pip1 ) ) * pim1pip1;
     Vect3 piH = pim1H-pim1pi;
-    ret = -1.0/piH.norme2()*piH;
+    ret = -1.0/piH.norm2()*piH;
 
     return ret;
 }

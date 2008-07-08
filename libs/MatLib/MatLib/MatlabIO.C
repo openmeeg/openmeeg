@@ -3,7 +3,6 @@
 /*
 Project Name : OpenMEEG
 
-author            : $Author$
 version           : $Revision$
 last revision     : $Date$
 modified by       : $LastChangedBy$
@@ -46,7 +45,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #include "MatlabIO.H"
 
-namespace Maths {
+namespace maths {
     const MatlabIO           MatlabIO::prototype;
     const std::string        MatlabIO::MagicTag("MATLAB");
     const MatlabIO::Suffixes MatlabIO::suffs = MatlabIO::init();

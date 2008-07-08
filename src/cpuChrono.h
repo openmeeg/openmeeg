@@ -3,7 +3,6 @@
 /*
 Project Name : OpenMEEG
 
-author            : $Author$
 version           : $Revision$
 last revision     : $Date$
 modified by       : $LastChangedBy$
@@ -49,8 +48,6 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <stdlib.h>
 #include <time.h>
 
-using namespace std;
-
 class cpuChrono
 {
 private:
@@ -81,8 +78,8 @@ public:
     }
     void dispEllapsed ()
     {
-        cout <<  "------------------------------------------" << endl;
-        cout <<  "| Elapsed Time: " << getEllapsedS() << " s." << endl;
-        cout <<  "------------------------------------------" << endl;
+        std::cout <<  "-------------------------------------------" << std::endl;
+        std::cout <<  "| Elapsed Time: " << getEllapsedS() << " s." << std::endl;
+        std::cout <<  "-------------------------------------------" << std::endl;
     }
 };

@@ -3,7 +3,6 @@
 /*
 Project Name : OpenMEEG
 
-author            : $Author$
 version           : $Revision$
 last revision     : $Date$
 modified by       : $LastChangedBy$
@@ -78,15 +77,15 @@ int main(int argc, char **argv)
     disp_argv(argc,argv);
 
     // declaration of argument variables======================================================================
-    matrice GainMatrix;
-    matrice RealSourcesData;
+    Matrix GainMatrix;
+    Matrix RealSourcesData;
     double NoiseLevel;
 
     GainMatrix.loadBin(argv[1]);
     RealSourcesData.loadTxt(argv[2]);
     NoiseLevel = atof(argv[4]);
 
-    Forward_matrice SimulatedData(GainMatrix,RealSourcesData,NoiseLevel);
+    Forward_matrix SimulatedData(GainMatrix,RealSourcesData,NoiseLevel);
 
     // write output variables ===================================================================================
     SimulatedData.saveTxt(argv[3]);

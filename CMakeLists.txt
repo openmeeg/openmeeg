@@ -170,16 +170,16 @@ INCLUDE_DIRECTORIES(${MATLIB_PATH})
 SET(MATLIB_HEADERS
     LinOp.h
     MatLibConfig.h
-    sparse_matrice.h
-    fast_sparse_matrice.h
+    sparse_matrix.h
+    fast_sparse_matrix.h
     generic_matrix.h
-    matrice.h
-    matrice.h
-    sparse_matrice.h
-    symmatrice.h
-    symmatrice.h
-    vecteur.h
-    vecteur.h)
+    matrix.h
+    matrix.h
+    sparse_matrix.h
+    symmatrix.h
+    symmatrix.h
+    vector.h
+    vector.h)
 FOREACH ( HEADER ${MATLIB_HEADERS} )
     SET(MATLIB_FILES "${MATLIB_FILES} ${MATLIB_PATH}/${HEADER}")
 ENDFOREACH ( HEADER )

@@ -3,7 +3,6 @@
 /*
 Project Name : OpenMEEG
 
-author            : $Author$
 version           : $Revision$
 last revision     : $Date$
 modified by       : $LastChangedBy$
@@ -44,8 +43,8 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#ifndef H_SPARSE_MATRICE_DCL
-#define H_SPARSE_MATRICE_DCL
+#ifndef SPARSE_MATRIX_H
+#define SPARSE_MATRIX_H
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -56,11 +55,11 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <utility>
 
 #include "om_utils.h"
-#include "base_matrix.H"
-#include "vecteur.h"
-#include "matrice.h"
+#include "linop.h"
+#include "vector.h"
+#include "matrix.h"
 
-class sparse_matrice : public MatrixBase {
+class SparseMatrix : public LinOp {
 
 public:
 
@@ -68,9 +67,9 @@ public:
     typedef std::map< std::pair< size_t, size_t >, double >::const_iterator const_iterator;
     typedef std::map< std::pair< size_t, size_t >, double >::iterator iterator;
 
-    sparse_matrice() : MatrixBase(0,0,SPARSE,TWO) {};
-    sparse_matrice(size_t N,size_t M) : MatrixBase(N,M,SPARSE,TWO) {};
-    ~sparse_matrice() {};
+    SparseMatrix() : LinOp(0,0,SPARSE,TWO) {};
+    SparseMatrix(size_t N,size_t M) : LinOp(N,M,SPARSE,TWO) {};
+    ~SparseMatrix() {};
 
     inline double operator()( size_t i, size_t j ) const {
         assert(i < nlin());
@@ -97,9 +96,8 @@ public:
     const_iterator begin() const {return m_tank.begin();}
     const_iterator end() const {return m_tank.end();}
 
-    sparse_matrice transpose() const;
+    SparseMatrix transpose() const;
 
-    double* data() const {return 0;} // FIXME : ugly
     const Tank& tank() const {return m_tank;}
 
     void save( const char *filename ) const;
@@ -114,14 +112,14 @@ public:
 
     void info() const;
 
-    vecteur operator*( const vecteur &x ) const;
-    matrice operator*( const matrice &m ) const;
+    Vector operator*( const Vector &x ) const;
+    Matrix operator*( const Matrix &m ) const;
 
 private:
 
     Tank m_tank;
 };
 
-std::ostream& operator<<(std::ostream& f,const sparse_matrice &M);
+std::ostream& operator<<(std::ostream& f,const SparseMatrix &M);
 
 #endif

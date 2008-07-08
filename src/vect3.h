@@ -3,7 +3,6 @@
 /*
 Project Name : OpenMEEG
 
-author            : $Author$
 version           : $Revision$
 last revision     : $Date$
 modified by       : $LastChangedBy$
@@ -44,8 +43,8 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#ifndef H_CLASS3VECT
-#define H_CLASS3VECT
+#ifndef VECT3_H
+#define VECT3_H
 
 #if WIN32
 #define _USE_MATH_DEFINES
@@ -80,8 +79,8 @@ public:
     inline const double& z() const {return m_z;}
 
     inline double operator* (const Vect3 &v) const {return m_x*v.x() + m_y*v.y() + m_z*v.z();}
-    inline double norme() const {return sqrt(m_x*m_x+m_y*m_y+m_z*m_z);}
-    inline double norme2() const {return m_x*m_x+m_y*m_y+m_z*m_z;}
+    inline double norm() const {return sqrt(m_x*m_x+m_y*m_y+m_z*m_z);}
+    inline double norm2() const {return m_x*m_x+m_y*m_y+m_z*m_z;}
     inline bool operator== (const Vect3 &v ) const {return (m_x==v.x() &&  m_y==v.y() && m_z==v.z());}
     inline void operator+= (const Vect3 &v) {m_x+=v.x(); m_y+=v.y(); m_z+=v.z();}
     inline void operator*= (const double &d) {m_x*=d; m_y*=d; m_z*=d;}
@@ -131,9 +130,9 @@ public:
         Vect3 Y1 = v1-*this;
         Vect3 Y2 = v2-*this;
         Vect3 Y3 = v3-*this;
-        double y1 = Y1.norme();
-        double y2 = Y2.norme();
-        double y3 = Y3.norme();
+        double y1 = Y1.norm();
+        double y2 = Y2.norm();
+        double y3 = Y3.norm();
         double d = Y1*(Y2^Y3);
         omega = 2*atan2(d,(y1*y2*y3+y1*(Y2*Y3)+y2*(Y3*Y1)+y3*(Y1*Y2)));
 
@@ -146,14 +145,14 @@ public:
         Vect3 D1 = Y2-Y1;
         Vect3 D2 = Y3-Y2;
         Vect3 D3 = Y1-Y3;
-        double d1 = D1.norme();
-        double d2 = D2.norme();
-        double d3 = D3.norme();
+        double d1 = D1.norm();
+        double d2 = D2.norm();
+        double d3 = D3.norm();
         double g1 = -1/d1*log((y1*d1+Y1*D1)/(y2*d1+Y2*D1));
         double g2 = -1/d2*log((y2*d2+Y2*D2)/(y3*d2+Y3*D2));
         double g3 = -1/d3*log((y3*d3+Y3*D3)/(y1*d3+Y1*D3));
         Vect3 N = Z1+Z2+Z3;
-        double A = N.norme();
+        double A = N.norm();
         Vect3 S = D1*g1+D2*g2+D3*g3;
         omega_i[0] = 1/A/A*(Z1*N*omega+d*(D2*S));
         omega_i[1] = 1/A/A*(Z2*N*omega+d*(D3*S));
@@ -168,7 +167,7 @@ public:
         return ( (v-v2)^(v-v3) ) ;
     }
 
-    inline Vect3& normalize() {*this=*this*(1/(*this).norme()); return *this;}
+    inline Vect3& normalize() {*this=*this*(1/(*this).norm()); return *this;}
 
     friend std::ostream& operator<<(std::ostream &os,const Vect3 &v);
     friend std::istream& operator>>(std::istream &is,Vect3 &v);

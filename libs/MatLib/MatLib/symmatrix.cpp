@@ -3,7 +3,6 @@
 /*
 Project Name : OpenMEEG
 
-author            : $Author$
 version           : $Revision$
 last revision     : $Date$
 modified by       : $LastChangedBy$
@@ -49,30 +48,29 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <cstdlib>
 
 #include "MatLibConfig.h"
-#include "matrice.h"
-#include "symmatrice.h"
+#include "matrix.h"
+#include "symmatrix.h"
 #include "om_utils.h"
 
-symmatrice::symmatrice() : MatrixBase(0,0,SYMMETRIC,TWO),t(0),count(0) {}
-symmatrice::symmatrice(const char* fname) : MatrixBase(0,0,SYMMETRIC,TWO),t(0),count(0) {
-    this->load(fname);
-}
-symmatrice::symmatrice(size_t N) : MatrixBase(N,N,SYMMETRIC,TWO),t(0),count(0) { alloc_data(); }
-symmatrice::symmatrice(double* T, int* COUNT, size_t N) : MatrixBase(N,N,SYMMETRIC,TWO),t(T),count(COUNT) {(*count)++;}
-bool symmatrice::empty() const {return t==0;}
-double* symmatrice::data() const {return t;}
-int* symmatrice::DangerousGetCount() {return count;}
+SymMatrix::SymMatrix() : LinOp(0,0,SYMMETRIC,TWO),t(0),count(0) {}
+SymMatrix::SymMatrix(const char* fname) : LinOp(0,0,SYMMETRIC,TWO),t(0),count(0) { this->load(fname); }
+SymMatrix::SymMatrix(size_t N) : LinOp(N,N,SYMMETRIC,TWO),t(0),count(0) { alloc_data(); }
+SymMatrix::SymMatrix(double* T, int* COUNT, size_t N) : LinOp(N,N,SYMMETRIC,TWO),t(T),count(COUNT) {(*count)++;}
 
-void symmatrice::operator /=(double x) {(*this)*=(1/x);}
+bool SymMatrix::empty() const {return t==0;}
+double* SymMatrix::data() const {return t;}
+int* SymMatrix::DangerousGetCount() {return count;}
 
-void symmatrice::alloc_data()
+void SymMatrix::operator /=(double x) {(*this)*=(1/x);}
+
+void SymMatrix::alloc_data()
 {
     t=new double[(nlin()*(nlin()+1))/2];
     count=new int[1];
     (*count)=1;
 }
 
-void symmatrice::destroy()
+void SymMatrix::destroy()
 {
     if (t!=0) {
         (*count)--;
@@ -83,7 +81,7 @@ void symmatrice::destroy()
     }
 }
 
-void symmatrice::copy(const symmatrice& A)
+void SymMatrix::copy(const SymMatrix& A)
 {
     t=A.t;
     nlin()=A.nlin();
@@ -93,9 +91,9 @@ void symmatrice::copy(const symmatrice& A)
     }
 }
 
-symmatrice symmatrice::duplicate() const
+SymMatrix SymMatrix::duplicate() const
 {
-    symmatrice A(nlin());
+    SymMatrix A(nlin());
 #ifdef HAVE_BLAS
     BLAS(dcopy,DCOPY)((int)(nlin()*(nlin()+1))/2,t,1,A.t,1);
 #else
@@ -105,22 +103,22 @@ symmatrice symmatrice::duplicate() const
     return A;
 }
 
-const symmatrice& symmatrice::operator=(const symmatrice& A) {
+const SymMatrix& SymMatrix::operator=(const SymMatrix& A) {
     destroy();
     copy(A);
     return *this;
 }
 
-const symmatrice& symmatrice::operator=(const double d) {
-    for(size_t i=0;i<nlin()*nlin();i++) t[i]=d;
+const SymMatrix& SymMatrix::operator=(const double d) {
+    for(size_t i=0;i<size();i++) t[i]=d;
     return *this;
 }
 
-symmatrice::symmatrice(const symmatrice& A) {
+SymMatrix::SymMatrix(const SymMatrix& A) {
     copy(A);
 }
 
-symmatrice::symmatrice(const vecteur& v) {
+SymMatrix::SymMatrix(const Vector& v) {
     size_t N = v.size();
     nlin() = (size_t)((sqrt((double)(1+8*N))-1)/2+0.1);
     assert(nlin()*(nlin()+1)/2==N);
@@ -131,7 +129,7 @@ symmatrice::symmatrice(const vecteur& v) {
     }
 }
 
-symmatrice::symmatrice(const matrice& A) {
+SymMatrix::SymMatrix(const Matrix& A) {
     assert(A.nlin()==A.ncol());
     ncol() = A.ncol();
     alloc_data();
@@ -144,14 +142,14 @@ symmatrice::symmatrice(const matrice& A) {
 #endif
 }
 
-void symmatrice::set(double x) {
+void SymMatrix::set(double x) {
     for (size_t i=0;i<(nlin()*(nlin()+1))/2;i++)
         t[i]=x;
 }
 
-vecteur symmatrice::operator *(const vecteur &v) const {
+Vector SymMatrix::operator *(const Vector &v) const {
     assert(nlin()==v.size());
-    vecteur y(nlin());
+    Vector y(nlin());
 #ifdef HAVE_BLAS
     DSPMV(CblasUpper,(int)nlin(),1.,t,v.t,1,0.,y.t,1);
 #else
@@ -164,9 +162,9 @@ vecteur symmatrice::operator *(const vecteur &v) const {
     return y;
 }
 
-symmatrice symmatrice::inverse() const {
+SymMatrix SymMatrix::inverse() const {
 #ifdef HAVE_LAPACK
-    symmatrice invA=duplicate();
+    SymMatrix invA=duplicate();
     // LU
     int *pivots=new int[nlin()];
     int info;
@@ -185,9 +183,9 @@ symmatrice symmatrice::inverse() const {
 #endif
 }
 
-symmatrice symmatrice::posdefinverse() const {
+SymMatrix SymMatrix::posdefinverse() const {
     // supposes (*this) is definite positive
-    symmatrice invA=duplicate();
+    SymMatrix invA=duplicate();
 #ifdef HAVE_LAPACK
     // U'U factorization then inverse
     int info;
@@ -199,8 +197,8 @@ symmatrice symmatrice::posdefinverse() const {
     return invA;
 }
 
-double symmatrice::det() {
-    symmatrice invA=duplicate();
+double SymMatrix::det() {
+    SymMatrix invA=duplicate();
     double d = 1.0;
 #ifdef HAVE_LAPACK
     // Bunch Kaufmqn
@@ -229,15 +227,15 @@ double symmatrice::det() {
     return(d);
 }
 
-void symmatrice::eigen(matrice & Z, vecteur & D ){
+void SymMatrix::eigen(Matrix & Z, Vector & D ){
     // performs the complete eigen-decomposition.
     //  (*this) = Z.D.Z'
-    // -> eigenvector are columns of the matrix Z.
+    // -> eigenvector are columns of the Matrix Z.
     // (*this).Z[:,i] = D[i].Z[:,i]
 #ifdef HAVE_LAPACK
-    symmatrice symtemp = duplicate();
-    D = vecteur(nlin());
-    Z = matrice(nlin(),nlin());
+    SymMatrix symtemp = duplicate();
+    D = Vector(nlin());
+    Z = Matrix(nlin(),nlin());
 
     int info;
     double lworkd;
@@ -255,12 +253,12 @@ void symmatrice::eigen(matrice & Z, vecteur & D ){
 #endif
 }
 
-matrice symmatrice::operator *(const matrice &B) const {
+Matrix SymMatrix::operator *(const Matrix &B) const {
     assert(nlin()==B.nlin());
-    matrice C(nlin(),B.ncol());
+    Matrix C(nlin(),B.ncol());
 
 #ifdef HAVE_BLAS
-    matrice D(*this);
+    Matrix D(*this);
     DSYMM(CblasLeft,  CblasUpper
         , (int)nlin(), (int)B.ncol(),
         1. , D.t, (int)D.ncol(),
@@ -278,9 +276,9 @@ matrice symmatrice::operator *(const matrice &B) const {
     return C;
 }
 
-symmatrice symmatrice::operator +(const symmatrice &B) const {
+SymMatrix SymMatrix::operator +(const SymMatrix &B) const {
     assert(nlin()==B.nlin());
-    symmatrice C=duplicate();
+    SymMatrix C=duplicate();
 #ifdef HAVE_BLAS
     BLAS(daxpy,DAXPY)((int)(nlin()*(nlin()+1)/2), 1.0, B.t, 1, C.t , 1);
 #else
@@ -290,10 +288,10 @@ symmatrice symmatrice::operator +(const symmatrice &B) const {
     return C;
 }
 
-symmatrice symmatrice::operator -(const symmatrice &B) const
+SymMatrix SymMatrix::operator -(const SymMatrix &B) const
 {
     assert(nlin()==B.nlin());
-    symmatrice C=duplicate();
+    SymMatrix C=duplicate();
 #ifdef HAVE_BLAS
     BLAS(daxpy,DAXPY)((int)(nlin()*(nlin()+1)/2), -1.0, B.t, 1, C.t , 1);
 #else
@@ -303,13 +301,13 @@ symmatrice symmatrice::operator -(const symmatrice &B) const
     return C;
 }
 
-symmatrice symmatrice::operator *(double x) const {
-    symmatrice C(nlin());
+SymMatrix SymMatrix::operator *(double x) const {
+    SymMatrix C(nlin());
     for (size_t k=0; k<nlin()*(nlin()+1)/2; k++) C.t[k] = t[k]*x;
     return C;
 }
 
-void symmatrice::operator +=(const symmatrice &B) {
+void SymMatrix::operator +=(const SymMatrix &B) {
     assert(nlin()==B.nlin());
 #ifdef HAVE_BLAS
     BLAS(daxpy,DAXPY)((int)(nlin()*(nlin()+1)/2), 1.0, B.t, 1, t , 1);
@@ -319,11 +317,11 @@ void symmatrice::operator +=(const symmatrice &B) {
 #endif
 }
 
-void symmatrice::operator *=(double x) {
+void SymMatrix::operator *=(double x) {
     for (size_t k=0; k<nlin()*(nlin()+1)/2; k++) t[k] *= x;
 }
 
-void symmatrice::operator -=(const symmatrice &B) {
+void SymMatrix::operator -=(const SymMatrix &B) {
     assert(nlin()==B.nlin());
 #ifdef HAVE_BLAS
     BLAS(daxpy,DAXPY)((int)(nlin()*(nlin()+1)/2), -1.0, B.t, 1, t , 1);
@@ -333,8 +331,8 @@ void symmatrice::operator -=(const symmatrice &B) {
 #endif
 }
 
-matrice symmatrice::operator()(size_t i_start, size_t i_end, size_t j_start, size_t j_end) const {
-    matrice retMat(i_end-i_start+1,j_end-j_start+1);
+Matrix SymMatrix::operator()(size_t i_start, size_t i_end, size_t j_start, size_t j_end) const {
+    Matrix retMat(i_end-i_start+1,j_end-j_start+1);
     for(size_t i=0;i<=i_end-i_start;i++)
         for(size_t j=0;j<=j_end-j_start;j++)
             retMat(i,j)=this->operator()(i_start+i,j_start+j);
@@ -342,17 +340,17 @@ matrice symmatrice::operator()(size_t i_start, size_t i_end, size_t j_start, siz
     return retMat;
 }
 
-matrice symmatrice::submat(size_t istart, size_t isize, size_t jstart, size_t jsize) const {
+Matrix SymMatrix::submat(size_t istart, size_t isize, size_t jstart, size_t jsize) const {
     assert ( istart+isize<=nlin() && jstart+jsize<=nlin() );
     return (*this)(istart,istart+isize-1,jstart,jstart+jsize-1);
 }
 
-symmatrice symmatrice::submat(size_t istart, size_t iend) const {
+SymMatrix SymMatrix::submat(size_t istart, size_t iend) const {
     assert( iend > istart);
     size_t isize = iend - istart + 1;
     assert ( istart+isize<=nlin() );
 
-    symmatrice mat(isize);
+    SymMatrix mat(isize);
     for(size_t i=istart;i<=iend;i++)
         for(size_t j=i;j<=iend;j++)
             mat(i,j)=this->operator()(i,j);
@@ -361,9 +359,9 @@ symmatrice symmatrice::submat(size_t istart, size_t iend) const {
 }
 
 //returns the solution of (this)*X = B
-vecteur symmatrice::solveLin(const vecteur &B) const {
-    symmatrice invA=duplicate();
-    vecteur X = B.duplicate();
+Vector SymMatrix::solveLin(const Vector &B) const {
+    SymMatrix invA=duplicate();
+    Vector X = B.duplicate();
 
 #ifdef HAVE_LAPACK
     // Bunch Kaufman Factorization
@@ -384,8 +382,8 @@ vecteur symmatrice::solveLin(const vecteur &B) const {
 }
 
 // stores in B the solution of (this)*X = B, where B is a set of nbvect vector
-void symmatrice::solveLin(vecteur * B, int nbvect) {
-    symmatrice invA=duplicate();
+void SymMatrix::solveLin(Vector * B, int nbvect) {
+    SymMatrix invA=duplicate();
 
 #ifdef HAVE_LAPACK
     // Bunch Kaufman Factorization
@@ -406,7 +404,7 @@ void symmatrice::solveLin(vecteur * B, int nbvect) {
 #endif
 }
 
-void symmatrice::info() const {
+void SymMatrix::info() const {
     if (nlin() == 0) {
         std::cout << "Matrix Empty" << std::endl;
         return;
@@ -453,33 +451,33 @@ void symmatrice::info() const {
 // = IOs =
 // =======
 
-void symmatrice::loadBin( const char *filename )
+void SymMatrix::loadBin( const char *filename )
 {
-    Maths::ifstream ifs(filename);
-    ifs >> Maths::format("old_binary") >> *this;
+    maths::ifstream ifs(filename);
+    ifs >> maths::format("old_binary") >> *this;
 }
 
-void symmatrice::saveBin( const char *filename ) const
+void SymMatrix::saveBin( const char *filename ) const
 {
-    Maths::ofstream ofs(filename);
-    ofs << Maths::format("old_binary") << *this;
+    maths::ofstream ofs(filename);
+    ofs << maths::format("old_binary") << *this;
 }
 
-void symmatrice::loadTxt( const char *filename )
+void SymMatrix::loadTxt( const char *filename )
 {
-    Maths::ifstream ifs(filename);
-    ifs >> Maths::format("ascii") >> *this;
+    maths::ifstream ifs(filename);
+    ifs >> maths::format("ascii") >> *this;
 }
 
-void symmatrice::saveTxt( const char *filename ) const
+void SymMatrix::saveTxt( const char *filename ) const
 {
-    Maths::ofstream ofs(filename);
-    ofs << Maths::format("ascii") << *this;
+    maths::ofstream ofs(filename);
+    ofs << maths::format("ascii") << *this;
 }
 
-void symmatrice::load( const char *filename ) {
+void SymMatrix::load( const char *filename ) {
     try {
-        Maths::ifstream ifs(filename);
+        maths::ifstream ifs(filename);
         ifs >> *this;
     }
     catch (std::string s) {
@@ -487,9 +485,9 @@ void symmatrice::load( const char *filename ) {
     }
 }
 
-void symmatrice::save( const char *filename ) const {
+void SymMatrix::save( const char *filename ) const {
     try {
-        Maths::ofstream ofs(filename);
+        maths::ofstream ofs(filename);
         ofs << *this;
     }
     catch (std::string s) {
@@ -497,7 +495,7 @@ void symmatrice::save( const char *filename ) const {
     }
 }
 
-std::ostream& operator<<(std::ostream& f,const symmatrice &M) {
+std::ostream& operator<<(std::ostream& f,const SymMatrix &M) {
     for (size_t i=0;i<M.nlin();i++) {
         for (size_t j=i;j<M.ncol();j++) {
             f << M(i,j) << " ";

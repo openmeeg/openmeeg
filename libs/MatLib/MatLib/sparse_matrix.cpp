@@ -3,7 +3,6 @@
 /*
 Project Name : OpenMEEG
 
-author            : $Author$
 version           : $Revision$
 last revision     : $Date$
 modified by       : $LastChangedBy$
@@ -44,11 +43,11 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#include "sparse_matrice.h"
+#include "sparse_matrix.h"
 
-vecteur sparse_matrice::operator*(const vecteur &x) const
+Vector SparseMatrix::operator*(const Vector &x) const
 {
-    vecteur ret(nlin());
+    Vector ret(nlin());
     ret.set(0);
 
     Tank::const_iterator it;
@@ -62,10 +61,10 @@ vecteur sparse_matrice::operator*(const vecteur &x) const
     return ret;
 }
 
-matrice sparse_matrice::operator*(const matrice &mat) const
+Matrix SparseMatrix::operator*(const Matrix &mat) const
 {
     assert(ncol()==mat.nlin());
-    matrice out(nlin(),mat.ncol());
+    Matrix out(nlin(),mat.ncol());
     out.set(0.0);
 
     Tank::const_iterator it;
@@ -81,8 +80,8 @@ matrice sparse_matrice::operator*(const matrice &mat) const
     return out;
 }
 
-sparse_matrice sparse_matrice::transpose() const {
-    sparse_matrice tsp;
+SparseMatrix SparseMatrix::transpose() const {
+    SparseMatrix tsp;
     const_iterator it;
     for(it = m_tank.begin(); it != m_tank.end(); ++it) {
         size_t i = it->first.first;
@@ -92,7 +91,7 @@ sparse_matrice sparse_matrice::transpose() const {
     return tsp;
 }
 
-void sparse_matrice::info() const {
+void SparseMatrix::info() const {
     if ((nlin() == 0) || (ncol() == 0) || m_tank.empty()) {
         std::cout << "Matrix Empty" << std::endl;
         return;
@@ -135,45 +134,45 @@ void sparse_matrice::info() const {
 // = IOs =
 // =======
 
-void sparse_matrice::loadBin( const char *filename )
+void SparseMatrix::loadBin( const char *filename )
 {
-    Maths::ifstream ifs(filename);
-    ifs >> Maths::format("old_binary") >> *this;
+    maths::ifstream ifs(filename);
+    ifs >> maths::format("old_binary") >> *this;
 }
 
-void sparse_matrice::saveBin( const char *filename ) const
+void SparseMatrix::saveBin( const char *filename ) const
 {
-    Maths::ofstream ofs(filename);
-    ofs << Maths::format("old_binary") << *this;
+    maths::ofstream ofs(filename);
+    ofs << maths::format("old_binary") << *this;
 }
 
-void sparse_matrice::loadTxt( const char *filename )
+void SparseMatrix::loadTxt( const char *filename )
 {
-    Maths::ifstream ifs(filename);
-    ifs >> Maths::format("ascii") >> *this;
+    maths::ifstream ifs(filename);
+    ifs >> maths::format("ascii") >> *this;
 }
 
-void sparse_matrice::saveTxt( const char *filename ) const
+void SparseMatrix::saveTxt( const char *filename ) const
 {
-    Maths::ofstream ofs(filename);
-    ofs << Maths::format("ascii") << *this;
+    maths::ofstream ofs(filename);
+    ofs << maths::format("ascii") << *this;
 }
 
-void sparse_matrice::loadMat(const char *filename)
+void SparseMatrix::loadMat(const char *filename)
 {
-    Maths::ifstream ifs(filename);
-    ifs >> Maths::format("matlab") >> *this;
+    maths::ifstream ifs(filename);
+    ifs >> maths::format("matlab") >> *this;
 }
 
-void sparse_matrice::saveMat( const char *filename ) const
+void SparseMatrix::saveMat( const char *filename ) const
 {
-    Maths::ofstream ofs(filename);
-    ofs << Maths::format("matlab") << *this;
+    maths::ofstream ofs(filename);
+    ofs << maths::format("matlab") << *this;
 }
 
-void sparse_matrice::load( const char *filename ) {
+void SparseMatrix::load( const char *filename ) {
     try {
-        Maths::ifstream ifs(filename);
+        maths::ifstream ifs(filename);
         ifs >> *this;
     }
     catch (std::string s) {
@@ -181,9 +180,9 @@ void sparse_matrice::load( const char *filename ) {
     }
 }
 
-void sparse_matrice::save( const char *filename ) const {
+void SparseMatrix::save( const char *filename ) const {
     try {
-        Maths::ofstream ofs(filename);
+        maths::ofstream ofs(filename);
         ofs << *this;
     }
     catch (std::string s) {
@@ -191,8 +190,8 @@ void sparse_matrice::save( const char *filename ) const {
     }
 }
 
-std::ostream& operator<<(std::ostream& f,const sparse_matrice &M) {
-    sparse_matrice::const_iterator it;
+std::ostream& operator<<(std::ostream& f,const SparseMatrix &M) {
+    SparseMatrix::const_iterator it;
     for(it = M.tank().begin(); it != M.tank().end(); ++it) {
         std::cout << "(" << it->first.first << "," << it->first.second << ") " << it->second << std::endl;
     }

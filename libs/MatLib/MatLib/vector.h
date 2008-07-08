@@ -3,7 +3,6 @@
 /*
 Project Name : OpenMEEG
 
-author            : $Author$
 version           : $Revision$
 last revision     : $Date$
 modified by       : $LastChangedBy$
@@ -44,35 +43,35 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#ifndef H_VECTEUR_DCL
-#define H_VECTEUR_DCL
+#ifndef VECTOR_H
+#define VECTOR_H
 
 #include "MatLibConfig.h"
-#include "base_matrix.H"
-#include "MatrixIO.H"
+#include "linop.h"
+#include "MathsIO.H"
 
 #include <iostream>
 #include <cassert>
 
-class matrice;
-class symmatrice;
+class Matrix;
+class SymMatrix;
 
-class vecteur: public MatrixBase {
+class Vector: public LinOp {
     double *t;
     int *count;
 
     void destroy();
-    void copy(const vecteur& A) ;
+    void copy(const Vector& A) ;
     void copyout(double * p) const;
     void copyin(const double * p);
 public:
-    vecteur();
-    vecteur(size_t N);
-    vecteur(const vecteur& A);
-    explicit vecteur(matrice& A);
-    explicit vecteur(symmatrice& A);
-    vecteur(double* T, int* COUNT, size_t N);
-     ~vecteur() { destroy(); }
+    Vector();
+    Vector(size_t N);
+    Vector(const Vector& A);
+    explicit Vector(Matrix& A);
+    explicit Vector(SymMatrix& A);
+    Vector(double* T, int* COUNT, size_t N);
+     ~Vector() { destroy(); }
 
     void alloc_data();
 
@@ -83,30 +82,30 @@ public:
     double* data() const ;
     int* DangerousGetCount() const ;
 
-    vecteur duplicate() const ;
-    void copyin(const vecteur& A) ;
+    Vector duplicate() const ;
+    void copyin(const Vector& A) ;
 
     inline double operator()(size_t i) const ;
     inline double& operator()(size_t i) ;
 
-    const vecteur& operator=(const vecteur& A);
+    const Vector& operator=(const Vector& A);
 
-    vecteur operator+(const vecteur& v) const;
-    vecteur operator-(const vecteur& v) const;
-    void operator+=(const vecteur& v);
-    void operator-=(const vecteur& v);
+    Vector operator+(const Vector& v) const;
+    Vector operator-(const Vector& v) const;
+    void operator+=(const Vector& v);
+    void operator-=(const Vector& v);
     void operator*=(double x);
     void operator/=(double x);
-    vecteur operator+(double i) const;
-    vecteur operator-(double i) const;
-    vecteur operator*(double x) const;
-    vecteur operator/(double x) const ;
-    double operator*(const vecteur& v) const;
+    Vector operator+(double i) const;
+    Vector operator-(double i) const;
+    Vector operator*(double x) const;
+    Vector operator/(double x) const ;
+    double operator*(const Vector& v) const;
 
-    vecteur kmult(const vecteur& x) const;
-    vecteur conv(const vecteur& v) const;
-    vecteur conv_trunc(const vecteur& v) const;
-    matrice outer_product(const vecteur& v) const;
+    Vector kmult(const Vector& x) const;
+    Vector conv(const Vector& v) const;
+    Vector conv_trunc(const Vector& v) const;
+    Matrix outer_product(const Vector& v) const;
 
     double norm() const;
     double sum() const;
@@ -122,19 +121,19 @@ public:
 
     void info() const;
 
-    friend class symmatrice;
-    friend class matrice;
+    friend class SymMatrix;
+    friend class Matrix;
 };
 
-vecteur operator * (const double &d, const vecteur &v) ;
-std::ostream& operator<<(std::ostream& f,const vecteur &M);
-std::istream& operator>>(std::istream& f,vecteur &M);
+Vector operator * (const double &d, const Vector &v) ;
+std::ostream& operator<<(std::ostream& f,const Vector &M);
+std::istream& operator>>(std::istream& f,Vector &M);
 
-inline double vecteur::operator()(size_t i) const {
+inline double Vector::operator()(size_t i) const {
     assert(i<nlin());
     return t[i];
 }
-inline double& vecteur::operator()(size_t i) {
+inline double& Vector::operator()(size_t i) {
     assert(i<nlin());
     return t[i];
 }

@@ -34,9 +34,9 @@ savevtkrectigrid(vtkfile,x,y,z);
 [np1,np2] =  size(zz);
 np = np1*np2
 pt = zeros(np,3);
-pt(:,1) = matrix(xx,[np 1]);
-pt(:,2) = matrix(yy,[np 1]);
-pt(:,3) = matrix(zz,[np 1]);
+pt(:,1) = Matrix(xx,[np 1]);
+pt(:,2) = Matrix(yy,[np 1]);
+pt(:,3) = Matrix(zz,[np 1]);
 fprintfMat(ptsfile,pt);
 newpt = pt;
 newpt(:,1) = newpt(:,1)+eps

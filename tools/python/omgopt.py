@@ -94,7 +94,7 @@ def SavePolyVTK(grid,N,filename):
     scipy.io.write_array(file,grid.reshape((N,3),order="F"))
     file.close()
 def SaveTrimmedFieldVTK(gridxyz,field,filename,FieldName,epsilon):
-    #Careful.  This function requires the field as a rank 2 array (that is, a matrix)
+    #Careful.  This function requires the field as a rank 2 array (that is, a Matrix)
     #This way a scalar field is written as a vector field of 1 component vectors
     #In particular, it allows the same framework to apply to both potential and current
     m=len(field.transpose())
@@ -145,7 +145,7 @@ def Get1Dimension(x):
     m=min(x)
     return int(round(1+(M-m)/GetGridSpacing(x)))
 def LoadGain(geom,grid,filename):
-    #Loads Gain matrix, then uses grid information to zero out all gain elements corresponding to 
+    #Loads Gain Matrix, then uses grid information to zero out all gain elements corresponding to 
     #grid locations outside the nerve.  We do this because solver gives undefined results outside nerve.
     return TrimFieldNerve(geom,grid,scipy.io.read_array(filename))
     #return scipy.io.read_array(filename)

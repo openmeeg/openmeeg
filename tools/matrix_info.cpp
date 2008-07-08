@@ -3,7 +3,6 @@
 /*
 Project Name : OpenMEEG
 
-author            : $Author$
 version           : $Revision$
 last revision     : $Date$
 modified by       : $LastChangedBy$
@@ -44,10 +43,10 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#include "vecteur.h"
-#include "sparse_matrice.h"
-#include "symmatrice.h"
-#include "matrice.h"
+#include "vector.h"
+#include "sparse_matrix.h"
+#include "symmatrix.h"
+#include "matrix.h"
 #include "options.h"
 
 #include <cmath>
@@ -58,7 +57,7 @@ template<class T> void print_infos(const T& M);
 
 int main( int argc, char **argv)
 {
-    command_usage("Provides informations on a matrix generated with OpenMEEG");
+    command_usage("Provides informations on a Matrix generated with OpenMEEG");
     const char *filename = command_option("-i",(const char *) NULL,"Matrix file");
     const char *txt = command_option("-txt",(const char *) 0,"Force reading data stored in ascii format");
     const char *sym = command_option("-sym",(const char *) 0,"Data are symmetric matrices");
@@ -76,7 +75,7 @@ int main( int argc, char **argv)
 
     if(sym) {
         if(txt) {
-            symmatrice M;
+            SymMatrix M;
             M.loadTxt(filename);
             cout << "Format : ASCII" << endl;
             print_infos(M);
@@ -84,41 +83,41 @@ int main( int argc, char **argv)
             cerr << "Unsupported Format : MAT for symmetric matrices" << endl;
             exit(1);
         } else {
-            symmatrice M;
+            SymMatrix M;
             M.loadBin(filename);
             cout << "Format : BINARY" << endl;
             print_infos(M);
         }
     } else if(sparse) {
         if(txt) {
-            sparse_matrice M;
+            SparseMatrix M;
             M.loadTxt(filename);
             cout << "Format : ASCII" << endl;
             print_infos(M);
         } else if(mat) {
-            sparse_matrice M;
+            SparseMatrix M;
             M.loadMat(filename);
             cout << "Format : MAT" << endl;
             print_infos(M);
         } else {
-            sparse_matrice M;
+            SparseMatrix M;
             M.loadBin(filename);
             cout << "Format : BINARY" << endl;
             print_infos(M);
         }
     } else {
         if(txt) {
-            matrice M;
+            Matrix M;
             M.loadTxt(filename);
             cout << "Format : ASCII" << endl;
             print_infos(M);
         } else if(mat) {
-            matrice M;
+            Matrix M;
             M.loadMat(filename);
             cout << "Format : MAT" << endl;
             print_infos(M);
         } else {
-            matrice M;
+            Matrix M;
             M.loadBin(filename);
             cout << "Format : BINARY" << endl;
             print_infos(M);

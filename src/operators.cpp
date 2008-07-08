@@ -3,7 +3,6 @@
 /*
 Project Name : OpenMEEG
 
-author            : $Author$
 version           : $Revision$
 last revision     : $Date$
 modified by       : $LastChangedBy$
@@ -50,12 +49,12 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #ifndef OPTIMIZED_OPERATOR_D
 
-void operatorD(const Geometry &geo,const int I,const int J,const int GaussOrder,symmatrice &mat,const int offsetI,const int offsetJ)
+void operatorD(const Geometry &geo,const int I,const int J,const int GaussOrder,SymMatrix &mat,const int offsetI,const int offsetJ)
 // This function (NON OPTIMIZED VERSION) has the following arguments:
 //    One geometry
 //    the indices of the treated layers I and J
-//    the storage matrix for the result
-//    the upper left corner of the submatrix to be written is the matrix
+//    the storage Matrix for the result
+//    the upper left corner of the submatrix to be written is the Matrix
 {
     std::cout<<"OPERATEUR D..."<<std::endl;
 
@@ -77,13 +76,13 @@ void operatorD(const Geometry &geo,const int I,const int J,const int GaussOrder,
 
 #else // OPTIMIZED_OPERATOR_D
 
-void operatorD(const Geometry &geo,const int I,const int J,const int GaussOrder,symmatrice &mat,const int offsetI,const int offsetJ)
+void operatorD(const Geometry &geo,const int I,const int J,const int GaussOrder,SymMatrix &mat,const int offsetI,const int offsetJ)
 {
     // This function (OPTIMIZED VERSION) has the following arguments:
     //    One geometry
     //    the indices of the treated layers I and J
-    //    the storage matrix for the result
-    //    the upper left corner of the submatrix to be written is the matrix
+    //    the storage Matrix for the result
+    //    the upper left corner of the submatrix to be written is the Matrix
 
     std::cout<<"OPERATEUR D (Optimized)..."<<std::endl;
 
@@ -95,7 +94,7 @@ void operatorD(const Geometry &geo,const int I,const int J,const int GaussOrder,
         for(int j=offsetJ;j<offsetJ+m2.nbTrgs();j++)
         {
             //In this version of the funtcion, in order to skip multiple computations of the same quantities
-            //    loops are run over the triangles but the matrix cannot be filled in this function anymore
+            //    loops are run over the triangles but the Matrix cannot be filled in this function anymore
             //    That's why the filling is done is function _operatorD
             _operatorD(i-offsetI,j-offsetJ,GaussOrder,m1,m2,mat,offsetI,offsetJ);
         }
@@ -104,13 +103,13 @@ void operatorD(const Geometry &geo,const int I,const int J,const int GaussOrder,
 
 #endif // OPTIMIZED_OPERATOR_D
 
-void operatorS(const Geometry &geo,const int I,const int J,const int GaussOrder,symmatrice &mat,const int offsetI,const int offsetJ )
+void operatorS(const Geometry &geo,const int I,const int J,const int GaussOrder,SymMatrix &mat,const int offsetI,const int offsetJ )
 {
     // This function has the following arguments:
     //    One geometry
     //    the indices of the treated layers I and J
-    //    the storage matrix for the result
-    //    the upper left corner of the submatrix to be written is the matrix
+    //    the storage Matrix for the result
+    //    the upper left corner of the submatrix to be written is the Matrix
 
     std::cout<<"OPERATEUR S..."<<std::endl;
 
@@ -143,13 +142,13 @@ void operatorS(const Geometry &geo,const int I,const int J,const int GaussOrder,
     }
 }
 
-void operatorN(const Geometry &geo,const int I,const int J,const int GaussOrder,symmatrice &mat,const int offsetI,const int offsetJ,const int IopS,const int JopS)
+void operatorN(const Geometry &geo,const int I,const int J,const int GaussOrder,SymMatrix &mat,const int offsetI,const int offsetJ,const int IopS,const int JopS)
 {
     // This function has the following arguments:
     //    One geometry
     //    the indices of the treated layers I and J
-    //    the storage matrix for the result
-    //    the upper left corner of the submatrix to be written is the matrix
+    //    the storage Matrix for the result
+    //    the upper left corner of the submatrix to be written is the Matrix
     //  the upper left corner of the corresponding S block
     std::cout<<"OPERATEUR N..."<<std::endl;
 
@@ -182,7 +181,7 @@ void operatorN(const Geometry &geo,const int I,const int J,const int GaussOrder,
     }
 }
 
-void operatorDinternal(const Geometry &geo,const int I,matrice &mat,const int offsetJ,const matrice &points)
+void operatorDinternal(const Geometry &geo,const int I,Matrix &mat,const int offsetJ,const Matrix &points)
 {
     std::cout<<"INTERNAL OPERATOR D..."<<std::endl;
     std::cout<<"offsetJ="<<offsetJ<<std::endl;
@@ -195,7 +194,7 @@ void operatorDinternal(const Geometry &geo,const int I,matrice &mat,const int of
     }
 }
 
-void operatorSinternal(const Geometry &geo,const int I,matrice &mat,const int offsetJ,const matrice &points)
+void operatorSinternal(const Geometry &geo,const int I,Matrix &mat,const int offsetJ,const Matrix &points)
 {
     std::cout<<"INTERNAL OPERATOR S..."<<std::endl;
     const Mesh &m=geo.getM(I);
@@ -209,8 +208,8 @@ void operatorSinternal(const Geometry &geo,const int I,matrice &mat,const int of
 }
 
 // general routine for applying _operatorFerguson (see this function for further comments)
-// to an entire mesh, and storing coordinates of the output in a matrix.
-void operatorFerguson(const Vect3& x, const Mesh &m, matrice &mat, int offsetI, int offsetJ)
+// to an entire mesh, and storing coordinates of the output in a Matrix.
+void operatorFerguson(const Vect3& x, const Mesh &m, Matrix &mat, int offsetI, int offsetJ)
 {
     #ifdef USE_OMP
     #pragma omp parallel for
@@ -224,14 +223,14 @@ void operatorFerguson(const Vect3& x, const Mesh &m, matrice &mat, int offsetI, 
     }
 }
 
-void operatorDipolePotDer(const Vect3 &r0,const Vect3 &q,const Mesh &inner_layer,vecteur &rhs,const int offsetIdx,const int GaussOrder)
+void operatorDipolePotDer(const Vect3 &r0,const Vect3 &q,const Mesh &inner_layer,Vector &rhs,const int offsetIdx,const int GaussOrder)
 {
     static analyticDipPotDer anaDPD;
 
 #ifdef ADAPT_RHS
-    adaptive_integrator<Vect3,analyticDipPotDer> gauss(0.001);
+    AdaptiveIntegrator<Vect3,analyticDipPotDer> gauss(0.001);
 #else
-    static integrator<Vect3,analyticDipPotDer> gauss;
+    static Integrator<Vect3,analyticDipPotDer> gauss;
 #endif //ADAPT_RHS
     gauss.setOrder(GaussOrder);
     #ifdef USE_OMP
@@ -252,15 +251,15 @@ void operatorDipolePotDer(const Vect3 &r0,const Vect3 &q,const Mesh &inner_layer
     }
 }
 
-void operatorDipolePot(const Vect3 &r0, const Vect3 &q, const Mesh &inner_layer, vecteur &rhs,const int offsetIdx,const int GaussOrder)
+void operatorDipolePot(const Vect3 &r0, const Vect3 &q, const Mesh &inner_layer, Vector &rhs,const int offsetIdx,const int GaussOrder)
 {
     static analyticDipPot anaDP;
 
     anaDP.init(q,r0);
 #ifdef ADAPT_RHS
-    adaptive_integrator<double,analyticDipPot> gauss(0.001);
+    AdaptiveIntegrator<double,analyticDipPot> gauss(0.001);
 #else
-    static integrator<double,analyticDipPot> gauss;
+    static Integrator<double,analyticDipPot> gauss;
 #endif
     gauss.setOrder(GaussOrder);
     #ifdef USE_OMP
@@ -277,10 +276,10 @@ void operatorDipolePot(const Vect3 &r0, const Vect3 &q, const Mesh &inner_layer,
 }
 
 // Grad wrt r0
-void operatorDipolePotDerGrad(const Vect3 &r0, const Vect3 &q,const Mesh &inner_layer, vecteur rhs[6],const int offsetIdx,const int GaussOrder)
+void operatorDipolePotDerGrad(const Vect3 &r0, const Vect3 &q,const Mesh &inner_layer, Vector rhs[6],const int offsetIdx,const int GaussOrder)
 {
     static analyticDipPotDerGrad anaDPD;
-    static integrator< Vect3array<6> , analyticDipPotDerGrad > gauss;
+    static Integrator< Vect3array<6> , analyticDipPotDerGrad > gauss;
     gauss.setOrder(GaussOrder);
 
     for(int i=0;i<inner_layer.nbTrgs();i++)
@@ -296,10 +295,10 @@ void operatorDipolePotDerGrad(const Vect3 &r0, const Vect3 &q,const Mesh &inner_
 }
 
 // Grad wrt r0,q
-void operatorDipolePotGrad(const Vect3 &r0,const Vect3 &q,const Mesh &inner_layer,vecteur rhs[6],const int offsetIdx,const int GaussOrder)
+void operatorDipolePotGrad(const Vect3 &r0,const Vect3 &q,const Mesh &inner_layer,Vector rhs[6],const int offsetIdx,const int GaussOrder)
 {
     static analyticDipPotGrad anaDP;
-    static integrator< Vect3array<2> , analyticDipPotGrad > gauss;
+    static Integrator< Vect3array<2> , analyticDipPotGrad > gauss;
     gauss.setOrder(GaussOrder);
 
     anaDP.init(q,r0);
@@ -317,9 +316,9 @@ void operatorDipolePotGrad(const Vect3 &r0,const Vect3 &q,const Mesh &inner_laye
     }
 }
 
-void operatorP1P0(const Geometry &geo,const int I,symmatrice &mat,const int offsetI,const int offsetJ)
+void operatorP1P0(const Geometry &geo,const int I,SymMatrix &mat,const int offsetI,const int offsetJ)
 {
-    // This time mat(i,j)+= ... the matrix is incremented by the P1P0 operator
+    // This time mat(i,j)+= ... the Matrix is incremented by the P1P0 operator
     std::cout<<"OPERATOR P1P0..."<<std::endl;
     const Mesh &m=geo.getM(I);
     for(int i=offsetI;i<offsetI+m.nbTrgs();i++)

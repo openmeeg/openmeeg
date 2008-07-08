@@ -1,9 +1,8 @@
-/* FILE: $Id: matrix_convert.cpp 208 2008-02-29 13:28:33Z gramfort $ */
+/* FILE: $Id: Matrix_convert.cpp 208 2008-02-29 13:28:33Z gramfort $ */
 
 /*
 Project Name : OpenMEEG
 
-author            : $Author: gramfort $
 version           : $Revision: 208 $
 last revision     : $Date: 2008-02-29 14:28:33 +0100 (Ven, 29 fév 2008) $
 modified by       : $LastChangedBy: gramfort $
@@ -44,10 +43,10 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#include "symmatrice.h"
-#include "matrice.h"
-#include "sparse_matrice.h"
-#include "fast_sparse_matrice.h"
+#include "symmatrix.h"
+#include "matrix.h"
+#include "sparse_matrix.h"
+#include "fast_sparse_matrix.h"
 
 #include "options.h"
 
@@ -55,8 +54,8 @@ using namespace std;
 
 int main( int argc, char **argv) {
     command_usage("Convert sparse matrices between different formats");
-    const char *input_filename = command_option("-i",(const char *) NULL,"Input full matrice");
-    const char *output_filename = command_option("-o",(const char *) NULL,"Output full matrice");
+    const char *input_filename = command_option("-i",(const char *) NULL,"Input full Matrix");
+    const char *output_filename = command_option("-o",(const char *) NULL,"Output full Matrix");
     const char *input_format = command_option("-if",(const char *) NULL,"Input file format : ascii, binary, matlab, old_binary (should be avoided)");
     const char *output_format = command_option("-of",(const char *) NULL,"Output file format : ascii, binary, matlab, old_binary (should be avoided)");
     if (command_option("-h",(const char *)0,0)) return 0;
@@ -66,22 +65,22 @@ int main( int argc, char **argv) {
         return 1;
     }
 
-    sparse_matrice M;
-    Maths::ifstream ifs(input_filename);
-    Maths::ofstream ofs(output_filename);
+    SparseMatrix M;
+    maths::ifstream ifs(input_filename);
+    maths::ofstream ofs(output_filename);
 
     try
     {
         if(input_format) {
-            ifs >> Maths::format(input_format) >> M;
+            ifs >> maths::format(input_format) >> M;
         } else {
             ifs >> M;
         }
 
         if(output_format) {
-            ofs << Maths::format(output_format) << M;
+            ofs << maths::format(output_format) << M;
         } else {
-            ofs << Maths::format(output_filename,Maths::format::FromSuffix) << M;
+            ofs << maths::format(output_filename,maths::format::FromSuffix) << M;
         }
     } catch (std::string s) {
         std::cerr << s << std::endl;

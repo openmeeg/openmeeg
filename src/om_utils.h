@@ -3,7 +3,6 @@
 /*
 Project Name : OpenMEEG
 
-author            : $Author$
 version           : $Revision$
 last revision     : $Date$
 modified by       : $LastChangedBy$
@@ -44,8 +43,8 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#ifndef _OM_UTILS_H_
-#define _OM_UTILS_H_
+#ifndef OM_UTILS_H
+#define OM_UTILS_H
 
 #if WIN32
 #define _USE_MATH_DEFINES
@@ -54,7 +53,8 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <string>
 #include <cmath>
 #include <iostream>
-#include <string.h>
+#include <algorithm>
+#include <cctype>
 
 #ifndef M_PI
     #define M_PI 3.14159265358979323846
@@ -62,15 +62,15 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #define MU0 1.0 //1.25e-6
 
-inline void getNameExtension ( const char* name, char* extension )
+inline std::string getNameExtension ( const std::string& name )
 {
-    const char *point = strrchr(name,'.');
-    if(point)
-    {
-        strcpy(extension,point+1);
+    std::string::size_type idx = name.find('.');
+    if (idx == std::string::npos) { 
+        return std::string("");
+    } else if (name.substr(idx+1).find('.') != std::string::npos) {
+        return getNameExtension( name.substr(idx+1) );
     } else {
-        std::cerr << "Unable to get file extension from file : " << *name << std::endl;
-        exit(1);
+        return name.substr(idx+1);
     }
 };
 
@@ -153,5 +153,5 @@ inline void warning(std::string message) {
     std::cout << message << std::endl;
 }
 
-#endif /* _OM_UTILS_H_ */
+#endif /* OM_UTILS_H */
 

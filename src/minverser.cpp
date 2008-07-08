@@ -3,7 +3,6 @@
 /*
 Project Name : OpenMEEG
 
-author            : $Author$
 version           : $Revision$
 last revision     : $Date$
 modified by       : $LastChangedBy$
@@ -46,9 +45,9 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #include <cstring>
 
-#include "matrice.h"
-#include "symmatrice.h"
-#include "vecteur.h"
+#include "matrix.h"
+#include "symmatrix.h"
+#include "vector.h"
 #include "cpuChrono.h"
 #include "om_utils.h"
 
@@ -72,8 +71,8 @@ int main(int argc, char **argv)
     cpuChrono C;
     C.start();
 
-    symmatrice LhsMatrix;
-    symmatrice LhsInvMatrix;
+    SymMatrix LhsMatrix;
+    SymMatrix LhsInvMatrix;
 
     LhsMatrix.loadBin(argv[1]);
     LhsInvMatrix=LhsMatrix.inverse();

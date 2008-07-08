@@ -3,13 +3,12 @@
 /*
 Project Name : OpenMEEG
 
-author            : $Author$
 version           : $Revision$
 last revision     : $Date$
 modified by       : $LastChangedBy$
 last modified     : $LastChangedDate$
 
-© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre 
+© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre
 GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU, Théodore PAPADOPOULO,
 Maureen.Clerc.AT.sophia.inria.fr, keriven.AT.certis.enpc.fr,
 kybic.AT.fel.cvut.cz, papadop.AT.sophia.inria.fr)
@@ -101,7 +100,7 @@ int main(int argc, char** argv)
             std::cerr << "Please set conductivities filepath !" << endl;
             exit(1);
         }
-	    if (argc < 5)
+        if (argc < 5)
         {
             std::cerr << "Please set output filepath !" << endl;
             exit(1);
@@ -110,8 +109,8 @@ int main(int argc, char** argv)
         Geometry geo;
         geo.read(argv[2],argv[3]);
 
-        // Assembling matrix from discretization :
-        LHS_matrice lhs(geo,GaussOrder);
+        // Assembling Matrix from discretization :
+        LHS_matrix lhs(geo,GaussOrder);
         lhs.SAVE(argv[4]);
     }
 
@@ -145,8 +144,8 @@ int main(int argc, char** argv)
         bool checkClosedSurface = false;
         mesh_sources.load(argv[4],checkClosedSurface); // Load mesh without crashing when the surface is not closed
 
-        // Assembling matrix from discretization :
-        RHS_matrice mat(geo,mesh_sources,GaussOrder);
+        // Assembling Matrix from discretization :
+        RHS_matrix mat(geo,mesh_sources,GaussOrder);
         mat.SAVE(argv[5]); // if outfile is specified
     }
 
@@ -175,15 +174,15 @@ int main(int argc, char** argv)
         Geometry geo;
         geo.read(argv[2],argv[3]);
 
-        // Loading matrix of dipoles :
-        matrice dipoles(argv[4]);
+        // Loading Matrix of dipoles :
+        Matrix dipoles(argv[4]);
         if(dipoles.ncol()!=6)
         {
             cerr << "Dipoles File Format Error" << endl;
             exit(1);
         }
 
-        // Assembling matrix from discretization :
+        // Assembling Matrix from discretization :
         unsigned int nd = (unsigned int) dipoles.nlin();
         std::vector<Vect3> Rs,Qs;
         for( unsigned int i=0; i<nd; i++ )
@@ -193,9 +192,9 @@ int main(int argc, char** argv)
             for(int j=3;j<6;j++) q(j-3) = dipoles(i,j);
             Rs.push_back(r); Qs.push_back(q);
         }
-        RHSdip_matrice mat(geo, Rs, Qs, GaussOrder);
+        RHSdip_matrix mat(geo, Rs, Qs, GaussOrder);
 
-        // Saving RHS matrix for dipolar case :
+        // Saving RHS Matrix for dipolar case :
         mat.SAVE(argv[5]);
     }
 
@@ -231,16 +230,16 @@ int main(int argc, char** argv)
         Geometry geo;
         geo.read(argv[2],argv[3]);
 
-	int taille=geo.size();
+        int taille=geo.size();
         int sourcetaille = (geo.getM(geo.nb()-1)).nbTrgs();
-	int newtaille=taille-sourcetaille;
-	
-	matrice source(newtaille,sourcetaille);
-        matrice airescalp(newtaille,sourcetaille);
+        int newtaille=taille-sourcetaille;
+
+        Matrix source(newtaille,sourcetaille);
+        Matrix airescalp(newtaille,sourcetaille);
         source.set(0.0);
         airescalp.set(0.0);
 
-	assemble_EITsource( geo, source, airescalp, GaussOrder);
+        assemble_EITsource( geo, source, airescalp, GaussOrder);
 
         source.SAVE(argv[4]);
         airescalp.SAVE(argv[5]);
@@ -281,12 +280,12 @@ int main(int argc, char** argv)
         // Loading surfaces from geometry file.
         Geometry geo;
         geo.read(argv[2],argv[3]);
-        matrice source;
+        Matrix source;
         source.loadBin(argv[4]);
-        sparse_matrice stimelec;
+        SparseMatrix stimelec;
         stimelec.loadBin(argv[5]);
-        matrice stim(source.nlin(),stimelec.ncol());
-        stim = source*stimelec;	
+        Matrix stim(source.nlin(),stimelec.ncol());
+        stim = source*stimelec;
         stim.saveBin(argv[6]);
     }
 
@@ -315,15 +314,15 @@ int main(int argc, char** argv)
         Geometry geo;
         geo.read(argv[2],argv[3]);
 
-        // Loading matrix of dipoles :
-        matrice dipoles(argv[4]);
+        // Loading Matrix of dipoles :
+        Matrix dipoles(argv[4]);
         if(dipoles.ncol()!=6)
         {
             cerr << "Dipoles File Format Error" << endl;
             exit(1);
         }
 
-        // Assembling matrix from discretization :
+        // Assembling Matrix from discretization :
         unsigned int nd = (unsigned int) dipoles.nlin();
         std::vector<Vect3> Rs,Qs;
         for( unsigned int i=0; i<nd; i++ )
@@ -334,8 +333,8 @@ int main(int argc, char** argv)
             Rs.push_back(r); Qs.push_back(q);
         }
 
-        RHSdip_grad_matrice mat( geo, Rs, Qs, GaussOrder);
-        // Saving RHS matrix for dipolar case :
+        RHSdip_grad_matrix mat( geo, Rs, Qs, GaussOrder);
+        // Saving RHS Matrix for dipolar case :
         mat.SAVE(argv[5]);
     }
 
@@ -367,13 +366,13 @@ int main(int argc, char** argv)
         geo.read(argv[2],argv[3]);
 
         // read the file containing the positions of the EEG patches
-        matrice patches(argv[4]);
+        Matrix patches(argv[4]);
 
-        // Assembling matrix from discretization :
+        // Assembling Matrix from discretization :
         // vToEEG is the linear application which maps x |----> v
-        vToEEG_matrice mat(geo,patches);
+        vToEEG_matrix mat(geo,patches);
         mat.info();
-        // Saving vToEEG matrix :
+        // Saving vToEEG Matrix :
         mat.SAVE(argv[5]);
     }
 
@@ -407,9 +406,9 @@ int main(int argc, char** argv)
         // Load positions and orientations of sensors  :
         Sensors sensors(argv[4]);
 
-        // Assembling matrix from discretization :
-        vToMEG_matrice mat(geo,sensors);
-        // Saving xToMEGrespCont matrix :
+        // Assembling Matrix from discretization :
+        vToMEG_matrix mat(geo,sensors);
+        // Saving xToMEGrespCont Matrix :
         mat.SAVE(argv[5]); // if outfile is specified
     }
 
@@ -438,9 +437,9 @@ int main(int argc, char** argv)
         // Load positions and orientations of sensors  :
         Sensors sensors(argv[3]);
 
-        // Assembling matrix from discretization :
-        sToMEG_matrice mat(mesh_sources, sensors);
-        // Saving sToMEG matrix :
+        // Assembling Matrix from discretization :
+        sToMEG_matrix mat(mesh_sources, sensors);
+        // Saving sToMEG Matrix :
         mat.SAVE(argv[4]);
     }
 
@@ -465,12 +464,12 @@ int main(int argc, char** argv)
         }
 
         // Loading dipoles :
-        matrice dipoles(argv[2]);
+        Matrix dipoles(argv[2]);
 
         // Load positions and orientations of sensors  :
         Sensors sensors(argv[3]);
 
-        sToMEGdip_matrice mat( dipoles, sensors );
+        sToMEGdip_matrix mat( dipoles, sensors );
         mat.SAVE(argv[4]);
     }
     /*********************************************************************************************
@@ -486,7 +485,7 @@ int main(int argc, char** argv)
             cerr << "Please set geom filepath !" << endl;
             exit(1);
         }
-	if (argc < 4)
+        if (argc < 4)
         {
             cerr << "Please set cond filepath !" << endl;
             exit(1);
@@ -495,8 +494,8 @@ int main(int argc, char** argv)
         {
             cerr << "Please set point positions filepath !" << endl;
             exit(1);
-       }
-	    if (argc < 6)
+        }
+        if (argc < 6)
         {
             std::cerr << "Please set output filepath !" << endl;
             exit(1);
@@ -504,9 +503,9 @@ int main(int argc, char** argv)
         // Loading surfaces from geometry file
         Geometry geo;
         geo.read(argv[2],argv[3]);
-	matrice points(argv[4]);
-        SurfToVol_matrice mat(geo,points);
-        // Saving SurfToVol matrix :
+        Matrix points(argv[4]);
+        SurfToVol_matrix mat(geo,points);
+        // Saving SurfToVol Matrix :
         mat.SAVE(argv[5]);
     }
 
@@ -539,21 +538,21 @@ void getHelp(char** argv) {
     cout << "            Arguments :" << endl;
     cout << "               geometry file (.geom)" << endl;
     cout << "               conductivity file (.cond)" << endl;
-    cout << "               output LHS matrix" << endl << endl;
+    cout << "               output LHS Matrix" << endl << endl;
 
     cout << "   -RHS :   Compute RHS from BEM symmetric formulation. " << endl;
     cout << "            Arguments :" << endl;
     cout << "               geometry file (.geom)" << endl;
     cout << "               conductivity file (.cond)" << endl;
     cout << "               mesh of sources (.tri .vtk .mesh .bnd)" << endl;
-    cout << "               output RHS matrix" << endl << endl;
+    cout << "               output RHS Matrix" << endl << endl;
 
     cout << "   -rhsPOINT :   Compute RHS for discrete dipolar case. " << endl;
     cout << "            Arguments :" << endl;
     cout << "               geometry file (.geom)" << endl;
     cout << "               conductivity file (.cond)" << endl;
     cout << "               dipoles positions and orientations" << endl;
-    cout << "               output RHS matrix" << endl << endl;
+    cout << "               output RHS Matrix" << endl << endl;
 
     cout << "   -EITsource :  Compute RHS for scalp current injection. " << endl;
     cout << "            Arguments :" << endl;
@@ -562,12 +561,12 @@ void getHelp(char** argv) {
     cout << "               output EITsource" << endl;
     cout << "               output airescalp" << endl << endl;
 
-    cout << "   -EITstim :  Compute matrix directly mapping injected current values to EIT RHS. " << endl;
+    cout << "   -EITstim :  Compute Matrix directly mapping injected current values to EIT RHS. " << endl;
     cout << "            Arguments :" << endl;
     cout << "               geometry file (.geom)" << endl;
     cout << "               conductivity file (.cond)" << endl;
     cout << "               input EITsource" << endl;
-    //    cout << "               input airescalp" << endl; 
+    //    cout << "               input airescalp" << endl;
     cout << "               input stimelec" << endl;
     cout << "               output EITstim" << endl << endl;
 
@@ -578,7 +577,7 @@ void getHelp(char** argv) {
     cout << "               geometry file (.geom)" << endl;
     cout << "               conductivity file (.cond)" << endl;
     cout << "               file containing the positions of EEG patches (.patches)" << endl;
-    cout << "               output vToEEG matrice" << endl << endl;
+    cout << "               output vToEEG Matrix" << endl << endl;
 
     cout << "   -vToMEG :   Compute the linear application which maps the potential" << endl;
     cout << "            on the scalp to the MEG sensors"  << endl;
@@ -586,30 +585,29 @@ void getHelp(char** argv) {
     cout << "               geometry file (.geom)" << endl;
     cout << "               conductivity file (.cond)" << endl;
     cout << "               file containing the positions and orientations of the MEG sensors (.squids)" << endl;
-    cout << "               output xToMEG matrix" << endl << endl;
+    cout << "               output xToMEG Matrix" << endl << endl;
 
     cout << "   -sToMEG :   Compute the linear application which maps the current" << endl;
     cout << "            dipoles on the source mesh to the MEG sensors" << endl;
     cout << "            Arguments :" << endl;
     cout << "               mesh file for distributed sources (.tri .vtk .mesh .bnd)" << endl;
     cout << "               positions and orientations of the MEG sensors (.squids)" << endl;
-    cout << "               output sToMEG matrix" << endl << endl;
+    cout << "               output sToMEG Matrix" << endl << endl;
 
     cout << "   -sToMEG_point :   Compute the linear application which maps the current" << endl;
     cout << "            dipoles to the MEG sensors" << endl;
     cout << "            Arguments :" << endl;
     cout << "               dipoles positions and orientations" << endl;
     cout << "               positions and orientations of the MEG sensors (.squids)" << endl;
-    cout << "               name of the output sToMEG matrix" << endl << endl;
+    cout << "               name of the output sToMEG Matrix" << endl << endl;
 
     cout << "   -SurfToVol :   Compute the linear application which maps the surface potential" << endl;
     cout << "            and normal current to the value of the potential at a set of points in the volume" << endl;
     cout << "            Arguments :" << endl;
     cout << "               geom file" << endl;
-     cout << "              cond file" << endl;
+    cout << "               cond file" << endl;
     cout << "               a tri file of point positions at which to evaluate the potential" << endl;
-    cout << "               name of the output SurfToVol matrix" << endl << endl;
-
+    cout << "               name of the output SurfToVol Matrix" << endl << endl;
 
     exit(0);
 }

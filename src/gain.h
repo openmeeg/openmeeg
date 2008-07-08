@@ -3,7 +3,6 @@
 /*
 Project Name : OpenMEEG
 
-author            : $Author$
 version           : $Revision$
 last revision     : $Date$
 modified by       : $LastChangedBy$
@@ -44,37 +43,37 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#include "matrice.h"
-#include "sparse_matrice.h"
+#include "matrix.h"
+#include "sparse_matrix.h"
 
-class HMEG_matrice : public virtual matrice
+class HMEG_matrix : public virtual Matrix
 {
 public:
-    HMEG_matrice (const symmatrice& LhsInvMatrix,const matrice& RhsMatrix, const matrice& vToMEGMatrix, const matrice& sToMEGMatrix);
-    virtual ~HMEG_matrice () {};
+    HMEG_matrix (const SymMatrix& LhsInvMatrix,const Matrix& RhsMatrix, const Matrix& vToMEGMatrix, const Matrix& sToMEGMatrix);
+    virtual ~HMEG_matrix () {};
 };
 
-class HEEG_matrice : public virtual matrice
+class HEEG_matrix : public virtual Matrix
 {
 public:
-    HEEG_matrice (const symmatrice& LhsInvMatrix,const matrice& RhsMatrix, const sparse_matrice& vToEEGMatrix);
-    virtual ~HEEG_matrice () {};
+    HEEG_matrix (const SymMatrix& LhsInvMatrix,const Matrix& RhsMatrix, const SparseMatrix& vToEEGMatrix);
+    virtual ~HEEG_matrix () {};
 };
 
-inline void assemble_gain_EEG(matrice& EEGGainMatrix,const symmatrice& LhsInvMatrix,const matrice& RhsMatrix, const sparse_matrice& vToEEGMatrix) {
-    matrice reducedLhsInvMatrix = LhsInvMatrix(0,LhsInvMatrix.nlin()-1,0,RhsMatrix.nlin()-1);
+inline void assemble_gain_EEG(Matrix& EEGGainMatrix,const SymMatrix& LhsInvMatrix,const Matrix& RhsMatrix, const SparseMatrix& vToEEGMatrix) {
+    Matrix reducedLhsInvMatrix = LhsInvMatrix(0,LhsInvMatrix.nlin()-1,0,RhsMatrix.nlin()-1);
     EEGGainMatrix = (vToEEGMatrix*reducedLhsInvMatrix)*RhsMatrix;
 }
 
-inline void assemble_gain_MEG(matrice& MEGGainMatrix,const symmatrice& LhsInvMatrix,const matrice& RhsMatrix, const matrice& vToMEGMatrix, const matrice& sToMEGMatrix) {
-    matrice reducedLhsInvMatrix = LhsInvMatrix(0,LhsInvMatrix.nlin()-1,0,RhsMatrix.nlin()-1);
+inline void assemble_gain_MEG(Matrix& MEGGainMatrix,const SymMatrix& LhsInvMatrix,const Matrix& RhsMatrix, const Matrix& vToMEGMatrix, const Matrix& sToMEGMatrix) {
+    Matrix reducedLhsInvMatrix = LhsInvMatrix(0,LhsInvMatrix.nlin()-1,0,RhsMatrix.nlin()-1);
     MEGGainMatrix = sToMEGMatrix+(vToMEGMatrix*reducedLhsInvMatrix)*RhsMatrix;
 }
 
-HMEG_matrice::HMEG_matrice(const symmatrice& LhsInvMatrix,const matrice& RhsMatrix, const matrice& vToMEGMatrix, const matrice& sToMEGMatrix) {
+HMEG_matrix::HMEG_matrix(const SymMatrix& LhsInvMatrix,const Matrix& RhsMatrix, const Matrix& vToMEGMatrix, const Matrix& sToMEGMatrix) {
     assemble_gain_MEG(*this,LhsInvMatrix,RhsMatrix,vToMEGMatrix,sToMEGMatrix);
 }
 
-HEEG_matrice::HEEG_matrice(const symmatrice& LhsInvMatrix,const matrice& RhsMatrix, const sparse_matrice& vToEEGMatrix) {
+HEEG_matrix::HEEG_matrix(const SymMatrix& LhsInvMatrix,const Matrix& RhsMatrix, const SparseMatrix& vToEEGMatrix) {
     assemble_gain_EEG(*this,LhsInvMatrix,RhsMatrix,vToEEGMatrix);
 }

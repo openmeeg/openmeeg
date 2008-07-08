@@ -3,7 +3,6 @@
 /*
 Project Name : OpenMEEG
 
-author            : $Author$
 version           : $Revision$
 last revision     : $Date$
 modified by       : $LastChangedBy$
@@ -51,13 +50,13 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include "om_utils.h"
 
 // geo = geometry 
-// mat = storage for ferguson matrix
+// mat = storage for ferguson Matrix
 // pts = where the magnetic field is to be computed 
 // n   = numbers of places where magnetic field is to be computed
-void assemble_ferguson(const Geometry &geo,matrice &mat, const Vect3 *pts,const int n)
+void assemble_ferguson(const Geometry &geo,Matrix &mat, const Vect3 *pts,const int n)
 {
     int offsetJ = 0;
-    // Computation of blocks of Ferguson's matrix
+    // Computation of blocks of Ferguson's Matrix
     for(int c=0;c<geo.nb();c++)
     {
         int offsetI = 0;

@@ -3,7 +3,6 @@
 /*
 Project Name : OpenMEEG
 
-author            : $Author$
 version           : $Revision$
 last revision     : $Date$
 modified by       : $LastChangedBy$
@@ -60,7 +59,7 @@ static double dpc(const Vect3& m, const Vect3 *pts, const Triangle& cell, Vect3&
     if(nb == 1)
     {
         alphas(idx[0])=1;
-        return (m-pts[cell[idx[0]]]).norme();
+        return (m-pts[cell[idx[0]]]).norm();
     }
     // Resoud H=sum(alpha_i A_i), sum(alpha_i)=1, et HM.(A_i-A_0)=0
     Vect3 A0Ai[3]; // A_i-A_0
@@ -113,7 +112,7 @@ static double dpc(const Vect3& m, const Vect3 *pts, const Triangle& cell, Vect3&
     {
         MH=MH+alphas(idx[i])*A0Ai[i];
     }
-    return MH.norme();
+    return MH.norm();
 }
 
 // Principal Fn

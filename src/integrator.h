@@ -3,7 +3,6 @@
 /*
 Project Name : OpenMEEG
 
-author            : $Author$
 version           : $Revision$
 last revision     : $Date$
 modified by       : $LastChangedBy$
@@ -44,14 +43,15 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#ifndef H_integrator
-#define H_integrator
+#ifndef INTEGRATOR_H
+#define INTEGRATOR_H
+
+#include <cmath>
+#include <iostream>
 
 #include "vect3.h"
 #include "triangle.h"
 #include "mesh3.h"
-#include <cmath>
-#include <iostream>
 
 // light class containing d Vect3
 template <int d>
@@ -184,15 +184,15 @@ static const double cordBars[4][16][4]=
 static const int nbPts[4]={3,6,7,16};
 
 template<class T,class I>
-class integrator
+class Integrator
 {
 private:
     int order;
 
 public:
-    inline integrator() {setOrder(3);}
-    inline integrator(int ord) {setOrder(ord);}
-    inline ~integrator() {}
+    inline Integrator() {setOrder(3);}
+    inline Integrator(int ord) {setOrder(ord);}
+    inline ~Integrator() {}
     inline void setOrder(int n)
     {
         if(n>=0 && n<4) order=n;
@@ -204,10 +204,13 @@ public:
         Vect3 sommets[3]={M.getPt(Trg.s1()),M.getPt(Trg.s2()),M.getPt(Trg.s3())};
         return triangle_integration(fc,sommets);
     }
+
+protected:
+
     inline T triangle_integration( const I &fc, Vect3 *vertices)
     {// compute double area of triangle defined by vertices
         Vect3 crossprod=(vertices[1]-vertices[0])^(vertices[2]-vertices[0]);
-        double S = crossprod.norme();
+        double S = crossprod.norm();
         T result = 0;
         static Vect3 zero(0.0,0.0,0.0);
         int i;
@@ -225,19 +228,19 @@ public:
 };
 
 template<class T,class I>
-class adaptive_integrator : public integrator<T,I>
+class AdaptiveIntegrator : public Integrator<T,I>
 {
-private:
-    double tolerance;
+
 public:
-    inline adaptive_integrator() : tolerance(0.0001) {}
-    inline adaptive_integrator(double tol) : tolerance(tol) {}
-    inline ~adaptive_integrator() {}
-    inline double norme(double a) {
+
+    inline AdaptiveIntegrator() : tolerance(0.0001) {}
+    inline AdaptiveIntegrator(double tol) : tolerance(tol) {}
+    inline ~AdaptiveIntegrator() {}
+    inline double norm(double a) {
         return fabs(a);
     }
-    inline double norme(Vect3 a) {
-        return a.norme();
+    inline double norm(Vect3 a) {
+        return a.norm();
     }
     inline T integrate(const I &fc, const Triangle& Trg ,const Mesh& M)
     {
@@ -246,6 +249,11 @@ public:
         T I0=triangle_integration(fc,vertices);
         return adaptive_integration(fc,vertices,I0,tolerance,n);
     }
+
+private:
+
+    double tolerance;
+
     inline T adaptive_integration(const I &fc,const Vect3 *vertices,T I0,const double tolerance,int n)
     {
         Vect3 newpoint0(0.0,0.0,0.0);
@@ -266,7 +274,7 @@ public:
         T I3=triangle_integration(fc,vertices3);
         T I4=triangle_integration(fc,vertices4);
         T sum=I1+I2+I3+I4;
-        if (norme(I0-sum)>tolerance*norme(I0)){
+        if (norm(I0-sum)>tolerance*norm(I0)){
             n=n+1;
             if (n<10) {
                 I1 = adaptive_integration(fc,vertices1,I1,tolerance,n);

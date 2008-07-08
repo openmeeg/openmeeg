@@ -47,7 +47,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <fstream>
 #include <cstring>
 
-#include <matrice.h>
+#include <matrix.h>
 #include <sensors.h>
 
 int main(int argc, char** argv) {
@@ -62,8 +62,8 @@ int main(int argc, char** argv) {
     if (S.isEmpty())
         std::cout << "WARNING : empty sensors !" << std::endl;
     else{
-        matrice& p = S.getPositions();
-        matrice& o = S.getOrientations();
+        Matrix& p = S.getPositions();
+        Matrix& o = S.getOrientations();
         std::cout << std::endl << "Positions of sensors : " << std::endl;
         std::cout << p << std::endl;
         std::cout << std::endl << "Orientations of sensors : " << std::endl;

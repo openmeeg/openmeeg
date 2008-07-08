@@ -3,7 +3,6 @@
 /*
 Project Name : OpenMEEG
 
-author            : $Author: gramfort $
 version           : $Revision: 229 $
 last revision     : $Date: 2008-04-23 14:23:15 +0200 (Wed, 23 Apr 2008) $
 modified by       : $LastChangedBy: gramfort $
@@ -49,7 +48,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 using namespace std;
 
-double determinant3x3(const matrice& m);
+double determinant3x3(const Matrix& m);
 
 int main( int argc, char **argv)
 {
@@ -62,7 +61,7 @@ int main( int argc, char **argv)
     const double sx = command_option("-sx",1.0,"Scaling along the x axis");
     const double sy = command_option("-sy",1.0,"Scaling along the y axis");
     const double sz = command_option("-sz",1.0,"Scaling along the z axis");
-    const char* transfmat = command_option("-mat",(const char *) NULL,"3x3 Transformation matrix (Assumed format ASCII)");
+    const char* transfmat = command_option("-mat",(const char *) NULL,"3x3 Transformation Matrix (Assumed format ASCII)");
     const char* invert = command_option("-invert",(const char *) NULL,"Invert triangles point order");
     if (command_option("-h",(const char *)0,0)) return 0;
 
@@ -84,7 +83,7 @@ int main( int argc, char **argv)
 
     if(transfmat)
     {
-        matrice m;
+        Matrix m;
         m.loadTxt(transfmat);
 
         assert(m.nlin() == 4);
@@ -99,17 +98,17 @@ int main( int argc, char **argv)
         for( int i = 0; i < M.nbPts(); ++i )
         {
             Vect3& pt = M[i];
-            vecteur point(4);
+            Vector point(4);
             point.set(1.0);
             point(0) = pt(0); point(1) = pt(1); point(2) = pt(2);
-            vecteur out_point = m*point;
+            Vector out_point = m*point;
             pt(0) = out_point(0); pt(1) = out_point(1); pt(2) = out_point(2);
 
             Vect3& nm = M.normal(i);
-            vecteur normal(4);
+            Vector normal(4);
             normal.set(0.0); // Hack to avoid the translation part
             normal(0) = nm(0); normal(1) = nm(1); normal(2) = nm(2);
-            vecteur out_normal = m*normal;
+            Vector out_normal = m*normal;
             nm(0) = out_normal(0); nm(1) = out_normal(1); nm(2) = out_normal(2);
         }
     }
@@ -132,7 +131,7 @@ int main( int argc, char **argv)
     return 0;
 }
 
-double determinant3x3(const matrice& m) {
+double determinant3x3(const Matrix& m) {
     assert(m.nlin() == m.ncol());
     assert(m.nlin() == 3);
     double f = 0;

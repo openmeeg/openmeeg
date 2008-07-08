@@ -3,7 +3,6 @@
 /*
 Project Name : OpenMEEG
 
-author            : $Author: gramfort $
 version           : $Revision: 222 $
 last revision     : $Date: 2008-04-08 08:14:41 +0200 (Tue, 08 Apr 2008) $
 modified by       : $LastChangedBy: gramfort $
@@ -49,15 +48,15 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include "operators.h"
 #include "sensors.h"
 
-void assemble_ferguson(const Geometry &geo, matrice &mat, const Vect3* pts,const int n);
+void assemble_ferguson(const Geometry &geo, Matrix &mat, const Vect3* pts,const int n);
 
-// EEG patches positions are reported line by line in the positions matrix
+// EEG patches positions are reported line by line in the positions Matrix
 // mat is supposed to be filled with zeros
 // mat is the linear application which maps x (the unknown vector in symmetric system) -> v (potential at the electrodes)
-void assemble_vToEEG(sparse_matrice &mat, const Geometry &geo, const matrice &positions )
+void assemble_vToEEG(SparseMatrix &mat, const Geometry &geo, const Matrix &positions )
 {
     int newsize = geo.size()-(geo.getM(geo.nb()-1)).nbTrgs();
-    mat = sparse_matrice(positions.nlin(),newsize);
+    mat = SparseMatrix(positions.nlin(),newsize);
 
     const Mesh& extLayer = geo.getM(geo.nb()-1);
 
@@ -82,25 +81,25 @@ void assemble_vToEEG(sparse_matrice &mat, const Geometry &geo, const matrice &po
     }
 }
 
-vToEEG_matrice::vToEEG_matrice(const Geometry &geo, const matrice &positions) {
+vToEEG_matrix::vToEEG_matrix(const Geometry &geo, const Matrix &positions) {
     assemble_vToEEG(*this, geo, positions);
 }
 
-// MEG patches positions are reported line by line in the positions matrix (same for positions)
+// MEG patches positions are reported line by line in the positions Matrix (same for positions)
 // mat is supposed to be filled with zeros
 // mat is the linear application which maps x (the unknown vector in symmetric system) -> bFerguson (contrib to MEG response)
-void assemble_vToMEG(matrice &mat, const Geometry &geo, const Sensors &sensors)
+void assemble_vToMEG(Matrix &mat, const Geometry &geo, const Sensors &sensors)
 {
-    matrice positions = sensors.getPositions();
-    matrice orientations = sensors.getOrientations();
+    Matrix positions = sensors.getPositions();
+    Matrix orientations = sensors.getOrientations();
     const size_t nbIntegrationPoints = sensors.getNumberOfPositions();
     int p0_p1_size = geo.size()-(geo.getM(geo.nb()-1)).nbTrgs();
     int geo_number_points = geo.getNumberOfPoints();
 
-    mat = matrice(nbIntegrationPoints,p0_p1_size);
+    mat = Matrix(nbIntegrationPoints,p0_p1_size);
     mat.set(0.0);
 
-    matrice myFergusonMatrix(3*nbIntegrationPoints,geo_number_points);
+    Matrix myFergusonMatrix(3*nbIntegrationPoints,geo_number_points);
     myFergusonMatrix.set(0.0);
 
     Vect3 *positionsVectArray = new Vect3[nbIntegrationPoints];
@@ -147,22 +146,22 @@ void assemble_vToMEG(matrice &mat, const Geometry &geo, const Sensors &sensors)
     delete[] vindex;
 }
 
-vToMEG_matrice::vToMEG_matrice(const Geometry &geo, const Sensors &sensors) {
+vToMEG_matrix::vToMEG_matrix(const Geometry &geo, const Sensors &sensors) {
     assemble_vToMEG(*this, geo, sensors);
 }
 
-// MEG patches positions are reported line by line in the positions matrix (same for positions)
+// MEG patches positions are reported line by line in the positions Matrix (same for positions)
 // mat is supposed to be filled with zeros
 // mat is the linear application which maps x (the unknown vector in symmetric system) -> binf (contrib to MEG response)
-void assemble_sToMEG(matrice &mat, const Mesh &sources_mesh, const Sensors &sensors)
+void assemble_sToMEG(Matrix &mat, const Mesh &sources_mesh, const Sensors &sensors)
 {
-    matrice positions = sensors.getPositions();
-    matrice orientations = sensors.getOrientations();
+    Matrix positions = sensors.getPositions();
+    Matrix orientations = sensors.getOrientations();
 
-    mat = matrice(positions.nlin(),sources_mesh.nbPts());
+    mat = Matrix(positions.nlin(),sources_mesh.nbPts());
     mat.set(0.0);
 
-    matrice myFergusonMatrix(3*mat.nlin(),mat.ncol());
+    Matrix myFergusonMatrix(3*mat.nlin(),mat.ncol());
     myFergusonMatrix.set(0.0);
     const int nsquids=(int)positions.nlin();
     Vect3 *positionsVectArray=new Vect3[nsquids];
@@ -195,21 +194,21 @@ void assemble_sToMEG(matrice &mat, const Mesh &sources_mesh, const Sensors &sens
     delete[] positionsVectArray;
 }
 
-sToMEG_matrice::sToMEG_matrice(const Mesh &sources_mesh, const Sensors &sensors) {
+sToMEG_matrix::sToMEG_matrix(const Mesh &sources_mesh, const Sensors &sensors) {
     assemble_sToMEG(*this, sources_mesh, sensors);
 }
 
-// creates the S2MEG matrix with unconstrained orientations for the sources.
-//MEG patches positions are reported line by line in the positions matrix (same for positions)
+// creates the S2MEG Matrix with unconstrained orientations for the sources.
+//MEG patches positions are reported line by line in the positions Matrix (same for positions)
 //mat is supposed to be filled with zeros
 //mat is the linear application which maps x (the unknown vector in symmetric system) -> binf (contrib to MEG response)
 //sources is the name of a file containing the description of the sources - one dipole per line: x1 x2 x3 n1 n2 n3, x being the position and n the orientation.
-void assemble_sToMEGdip( matrice &mat, const matrice& dipoles, const Sensors &sensors)
+void assemble_sToMEGdip( Matrix &mat, const Matrix& dipoles, const Sensors &sensors)
 {
-    matrice positions = sensors.getPositions();
-    matrice orientations = sensors.getOrientations();
+    Matrix positions = sensors.getPositions();
+    Matrix orientations = sensors.getOrientations();
 
-    mat = matrice(positions.nlin(),dipoles.nlin());
+    mat = Matrix(positions.nlin(),dipoles.nlin());
 
     if(dipoles.ncol()!=6) {std::cerr<<"Dipoles File Format Error"<<std::endl; exit(1);}
     int nd=(int)dipoles.nlin();
@@ -223,8 +222,8 @@ void assemble_sToMEGdip( matrice &mat, const matrice& dipoles, const Sensors &se
     }
     //Rs and Qs respectively contains positions and orientations of the dipoles.
 
-    //this matrix will contain the field generated at the location of the i-th squid by the j-th source
-    matrice SignalMatrix(3*mat.nlin(),mat.ncol());
+    //this Matrix will contain the field generated at the location of the i-th squid by the j-th source
+    Matrix SignalMatrix(3*mat.nlin(),mat.ncol());
     SignalMatrix.set(0.0);
     const int nsquids=(int)positions.nlin();
     Vect3 *positionsVectArray=new Vect3[nsquids];
@@ -242,7 +241,7 @@ void assemble_sToMEGdip( matrice &mat, const matrice& dipoles, const Sensors &se
         for(unsigned int j=0;j<0+mat.ncol();j++)
         {
             Vect3 diff=positionsVectArray[i]-Rs[j];
-            double norm_diff=diff.norme();
+            double norm_diff=diff.norm();
             Vect3 v = Qs[j] ^ diff/(norm_diff*norm_diff*norm_diff);
 
             SignalMatrix(3*i+0,j) = v.x();
@@ -267,7 +266,7 @@ void assemble_sToMEGdip( matrice &mat, const matrice& dipoles, const Sensors &se
     delete[] positionsVectArray;
 }
 
-sToMEGdip_matrice::sToMEGdip_matrice(const matrice &dipoles, const Sensors &sensors) {
+sToMEGdip_matrix::sToMEGdip_matrix(const Matrix &dipoles, const Sensors &sensors) {
     assemble_sToMEGdip(*this, dipoles, sensors);
 }
 

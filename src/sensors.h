@@ -3,7 +3,6 @@
 /*
 Project Name : OpenMEEG
 
-author            : $Author: gramfort $
 version           : $Revision: 222 $
 last revision     : $Date: 2008-04-08 08:14:41 +0200 (Tue, 08 Apr 2008) $
 modified by       : $LastChangedBy: gramfort $
@@ -44,8 +43,8 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#ifndef H_sensors
-#define H_sensors
+#ifndef SENSORS_H
+#define SENSORS_H
 
 #include <fstream>
 #include <sstream>
@@ -55,10 +54,10 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <vector>
 
 #include "IOUtils.H"
-#include "vecteur.h"
-#include "matrice.h"
-#include "symmatrice.h"
-#include "sparse_matrice.h"
+#include "vector.h"
+#include "matrix.h"
+#include "symmatrix.h"
+#include "sparse_matrix.h"
 
 /*!
  *  Sensors class for EEG and MEG sensors.
@@ -95,9 +94,9 @@ class Sensors {
 private:
     size_t m_nb;                       /*!< Number of sensors. */
     std::vector<std::string> m_names;  /*!< List of sensors names. */
-    matrice m_positions;               /*!< Matrix of sensors positions. ex: positions(i,j) with  j in {0,1,2} for sensor i */
-    matrice m_orientations;            /*!< Matrix of sensors orientations. ex: orientation(i,j) with  j in {0,1,2} for sensor i */
-    vecteur m_weights;                 /*!< Weights of integration points */
+    Matrix m_positions;               /*!< Matrix of sensors positions. ex: positions(i,j) with  j in {0,1,2} for sensor i */
+    Matrix m_orientations;            /*!< Matrix of sensors orientations. ex: orientation(i,j) with  j in {0,1,2} for sensor i */
+    Vector m_weights;                 /*!< Weights of integration points */
     std::vector<size_t> m_pointSensorIdx; /*!< Correspondance between point id and sensor id */
     void copy(const Sensors& S);       /*!< Copy function. Copy sensor S in current sensor object. ex. senors S1; ...; sensors S2(S1); */
 
@@ -116,43 +115,43 @@ public:
     size_t getNumberOfSensors() const { return m_nb; } /*!< Return the number of sensors. */
     size_t getNumberOfPositions() const { return m_positions.nlin(); } /*!< Return the number of integration points. */
 
-    matrice& getPositions() { return m_positions ; } /*!< Return a reference on sensors positions. */
-    matrice getPositions() const { return m_positions ; } /*!< Return a copy of sensors positions */
+    Matrix& getPositions() { return m_positions ; } /*!< Return a reference on sensors positions. */
+    Matrix getPositions() const { return m_positions ; } /*!< Return a copy of sensors positions */
 
-    matrice& getOrientations() {return m_orientations ; } /*!< Return a reference on sensors orientations. */
-    matrice getOrientations() const {return m_orientations ; } /*!< Return a copy of sensors orientations. */
+    Matrix& getOrientations() {return m_orientations ; } /*!< Return a reference on sensors orientations. */
+    Matrix getOrientations() const {return m_orientations ; } /*!< Return a copy of sensors orientations. */
 
     std::vector<std::string>& getSensorsNames() {return m_names ; } /*!< Return a reference on sensors ids. */
     std::vector<std::string> getSensorsNames() const {return m_names ; } /*!< Return a copy of sensors ids. */
 
     bool hasOrientations() const { return m_orientations.nlin() > 0 ;} /*!< Return true if contains orientations */
     bool hasNames() const { return m_names.size() == m_nb ;} /*!< Return true if contains all sensors names */
-    vecteur getPosition(size_t idx) const; /*!< Return the position (3D point) of the integration point i. */
-    vecteur getOrientation(size_t idx) const; /*!< Return the orientations (3D point) of the integration point i. */
-    void setPosition(size_t idx, vecteur& pos); /*!< Set the position (3D point) of the integration point i. */
-    void setOrientation(size_t idx, vecteur& orient); /*!< Set the orientation (3D point) of the integration point i. */
+    Vector getPosition(size_t idx) const; /*!< Return the position (3D point) of the integration point i. */
+    Vector getOrientation(size_t idx) const; /*!< Return the orientations (3D point) of the integration point i. */
+    void setPosition(size_t idx, Vector& pos); /*!< Set the position (3D point) of the integration point i. */
+    void setOrientation(size_t idx, Vector& orient); /*!< Set the orientation (3D point) of the integration point i. */
 
     bool hasSensor(std::string name);
     size_t getSensorIdx(std::string name);
 
-    sparse_matrice getWeightsMatrix() const;
+    SparseMatrix getWeightsMatrix() const;
 
     bool isEmpty() { if(m_nb == 0) return true; else return false; } /*!< Return if the sensors object is empty. The sensors object is empty if its number of sensors is null. */
 };
 
-inline vecteur Sensors::getPosition(size_t idx) const {
+inline Vector Sensors::getPosition(size_t idx) const {
     return m_positions.getlin(idx);
 }
 
-inline vecteur Sensors::getOrientation(size_t idx) const {
+inline Vector Sensors::getOrientation(size_t idx) const {
     return m_orientations.getlin(idx);
 }
 
-inline void Sensors::setPosition(size_t idx, vecteur& pos) {
+inline void Sensors::setPosition(size_t idx, Vector& pos) {
     return m_positions.setlin(idx,pos);
 }
 
-inline void Sensors::setOrientation(size_t idx, vecteur& orient) {
+inline void Sensors::setOrientation(size_t idx, Vector& orient) {
     return m_orientations.setlin(idx,orient);
 }
 

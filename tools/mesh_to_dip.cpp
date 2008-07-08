@@ -46,7 +46,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #include "mesh3.h"
 #include "options.h"
-#include "matrice.h"
+#include "matrix.h"
 
 using namespace std;
 
@@ -65,7 +65,7 @@ int main( int argc, char **argv)
     Mesh M;
     M.load(input_filename,false);
 
-    matrice mat(M.nbPts(),6);
+    Matrix mat(M.nbPts(),6);
     for(int i = 0; i < M.nbPts(); ++i)
     {
         mat(i,0) = M.getPt(i).x();

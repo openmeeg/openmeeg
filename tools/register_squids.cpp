@@ -3,7 +3,6 @@
 /*
 Project Name : OpenMEEG
 
-author            : $Author: gramfort $
 version           : $Revision: 208 $
 last revision     : $Date: 2008-02-29 14:28:33 +0100 (Fri, 29 Feb 2008) $
 modified by       : $LastChangedBy: gramfort $
@@ -45,18 +44,18 @@ knowledge of the CeCILL-B license and that you accept its terms.
 */
 
 #include "options.h"
-#include "matrice.h"
-#include "symmatrice.h"
-#include "vecteur.h"
+#include "matrix.h"
+#include "symmatrix.h"
+#include "vector.h"
 #include "om_utils.h"
 #include "sensors.h"
 #include <string>
 
-vecteur cross_product(const vecteur &a, const vecteur &b)
+Vector cross_product(const Vector &a, const Vector &b)
 {
     assert(a.size() == 3);
     assert(b.size() == 3);
-    vecteur p(3);
+    Vector p(3);
     p(0) = a(1)*b(2)-a(2)*b(1);
     p(1) = a(2)*b(0)-a(0)*b(2);
     p(2) = a(0)*b(1)-a(1)*b(0);
@@ -68,7 +67,7 @@ int main( int argc, char** argv)
     command_usage("Convert squids positions from the CTF MEG coordinate system to the MRI coordinate system");
     const char *squids_filename = command_option("-i",(const char *) NULL,"Squids positions in CTF coordinate system");
     const char *fiducials_filename = command_option("-f",(const char *) NULL,"Fiducial points in the MRI coordinate system (mm in txt format)");
-    const char *rotation_filename = command_option("-r",(const char *) NULL,"Output Rotation matrix");
+    const char *rotation_filename = command_option("-r",(const char *) NULL,"Output Rotation Matrix");
     const char *translation_filename = command_option("-t",(const char *) NULL,"Output Translation vector");
     const char *squids_output_filename = command_option("-o",(const char *) NULL,"Squids positions in the MRI coordinate system");
     const double scale = command_option("-scale",10.0,"Scaling (10 by default for CTF data)"); // CTF counts in cm whereas MRI is in mm
@@ -83,36 +82,36 @@ int main( int argc, char** argv)
     squids.load(squids_filename);
     size_t nb_positions = squids.getNumberOfPositions();
 
-    matrice fiducials; fiducials.loadTxt(fiducials_filename);
+    Matrix fiducials; fiducials.loadTxt(fiducials_filename);
 
     assert(fiducials.nlin() == 3);
     assert(fiducials.ncol() == 3);
 
-    vecteur nas = fiducials.getlin(0); // Nasion
-    vecteur lpa = fiducials.getlin(1); // Left preauricular
-    vecteur rpa = fiducials.getlin(2); // Right preauricular
+    Vector nas = fiducials.getlin(0); // Nasion
+    Vector lpa = fiducials.getlin(1); // Left preauricular
+    Vector rpa = fiducials.getlin(2); // Right preauricular
 
-    vecteur origin = (lpa+rpa)/2.0;
-    vecteur vx = (nas-origin);
-    vecteur vz = cross_product(vx, lpa-rpa);
-    vecteur vy = cross_product(vz,vx);
+    Vector origin = (lpa+rpa)/2.0;
+    Vector vx = (nas-origin);
+    Vector vz = cross_product(vx, lpa-rpa);
+    Vector vy = cross_product(vz,vx);
 
     vx = vx/vx.norm();
     vy = vy/vy.norm();
     vz = vz/vz.norm();
 
-    matrice R(3,3);
+    Matrix R(3,3);
     R.setlin(0,vx);
     R.setlin(1,vy);
     R.setlin(2,vz);
 
-    vecteur T = R * origin;
+    Vector T = R * origin;
     T = T * (-1);
 
     for( size_t i = 0; i < nb_positions; i += 1 )
     {
-        vecteur position = squids.getPosition(i);
-        vecteur orientation = squids.getOrientation(i);
+        Vector position = squids.getPosition(i);
+        Vector orientation = squids.getOrientation(i);
 
         position = position*scale;
         position = R.transpose()*(position - T); // R is orthognal : R^-1 == R'

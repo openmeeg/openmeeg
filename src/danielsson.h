@@ -3,7 +3,6 @@
 /*
 Project Name : OpenMEEG
 
-author            : $Author$
 version           : $Revision$
 last revision     : $Date$
 modified by       : $LastChangedBy$
@@ -44,15 +43,16 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#ifndef H_danielsson
-#define H_danielsson
+#ifndef DANIELSSON_H
+#define DANIELSSON_H
 
 #include <list>
 #include <limits.h>
 #include <float.h>
-#include "vect3.h"
 #include <assert.h>
 #include <math.h>
+
+#include "vect3.h"
 #include "mesh3.h"
 
 const int UnknownPoint=INT_MAX;

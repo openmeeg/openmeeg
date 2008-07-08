@@ -3,7 +3,6 @@
 /*
 Project Name : OpenMEEG
 
-author            : $Author$
 version           : $Revision$
 last revision     : $Date$
 modified by       : $LastChangedBy$
@@ -44,18 +43,18 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#ifndef H_fast_sparse_matrice
-#define H_fast_sparse_matrice
+#ifndef FAST_SPARSE_MATRIX_H
+#define FAST_SPARSE_MATRIX_H
 
 #include "MatLibConfig.h"
-#include "vecteur.h"
-#include "sparse_matrice.h"
+#include "vector.h"
+#include "sparse_matrix.h"
 
-class fast_sparse_matrice
+class FastSparseMatrix
 {
 public:
 
-    inline friend std::ostream& operator<<(std::ostream& f,const fast_sparse_matrice &M);
+    inline friend std::ostream& operator<<(std::ostream& f,const FastSparseMatrix &M);
 
 protected:
 
@@ -69,11 +68,11 @@ protected:
     inline void destroy();
 
 public:
-    inline fast_sparse_matrice();
-    inline fast_sparse_matrice(size_t n,size_t p, size_t sp);
-    inline fast_sparse_matrice( const sparse_matrice &M);
-    inline fast_sparse_matrice( const fast_sparse_matrice &M);
-    inline ~fast_sparse_matrice() {destroy();}
+    inline FastSparseMatrix();
+    inline FastSparseMatrix(size_t n,size_t p, size_t sp);
+    inline FastSparseMatrix( const SparseMatrix &M);
+    inline FastSparseMatrix( const FastSparseMatrix &M);
+    inline ~FastSparseMatrix() {destroy();}
     inline size_t nlin() const ;
     inline size_t ncol() const ;
     inline void saveTxt( const char *filename ) const;
@@ -83,17 +82,16 @@ public:
     inline void write(std::ostream& f) const;
     inline void read(std::istream& f);
 
-    inline double* getbuf() const;
     inline double operator()(size_t i,size_t j) const;
     inline double& operator()(size_t i,size_t j);
-    inline vecteur operator * (const vecteur &v) const;
-    inline void operator =( const fast_sparse_matrice &M);
+    inline Vector operator * (const Vector &v) const;
+    inline void operator =( const FastSparseMatrix &M);
 
     inline double& operator[](size_t i) {return tank[i];};
 
 };
 
-inline std::ostream& operator<<(std::ostream& f,const fast_sparse_matrice &M)
+inline std::ostream& operator<<(std::ostream& f,const FastSparseMatrix &M)
 {
     size_t nz = M.rowindex[M.nlin()];
     f << M.nlin() << " " << M.ncol() << std::endl;
@@ -108,17 +106,17 @@ inline std::ostream& operator<<(std::ostream& f,const fast_sparse_matrice &M)
     return f;
 }
 
-inline fast_sparse_matrice::fast_sparse_matrice()
+inline FastSparseMatrix::FastSparseMatrix()
 {
     alloc(1,1,1);
 }
 
-inline fast_sparse_matrice::fast_sparse_matrice(size_t n,size_t p, size_t sp=1)
+inline FastSparseMatrix::FastSparseMatrix(size_t n,size_t p, size_t sp=1)
 {
     alloc(n,p,sp);
 }
 
-inline void fast_sparse_matrice::operator =( const fast_sparse_matrice &M)
+inline void FastSparseMatrix::operator =( const FastSparseMatrix &M)
 {
     destroy();
     alloc(M.m_nlin,M.m_ncol,M.rowindex[M.m_nlin]);
@@ -127,7 +125,7 @@ inline void fast_sparse_matrice::operator =( const fast_sparse_matrice &M)
     memcpy(rowindex,M.rowindex,sizeof(size_t)*(M.m_nlin+1));
 }
 
-inline fast_sparse_matrice::fast_sparse_matrice( const sparse_matrice &M)
+inline FastSparseMatrix::FastSparseMatrix( const SparseMatrix &M)
 {
     tank=new double[M.size()];
     js=new size_t[M.size()];
@@ -136,9 +134,9 @@ inline fast_sparse_matrice::fast_sparse_matrice( const sparse_matrice &M)
     m_ncol=(size_t)M.ncol();
 
     // we fill a data structure faster for computation
-    sparse_matrice::const_iterator it;
+    SparseMatrix::const_iterator it;
     int cnt = 0;
-    long current_line = -1;
+    size_t current_line = (size_t)-1;
     for( it = M.begin(); it != M.end(); ++it) {
         size_t i = it->first.first;
         size_t j = it->first.second;
@@ -158,10 +156,9 @@ inline fast_sparse_matrice::fast_sparse_matrice( const sparse_matrice &M)
         rowindex[k]=M.size();
     }
 
-    this->saveTxt("totofspm.txt");
 }
 
-inline void fast_sparse_matrice::saveTxt( const char *filename ) const
+inline void FastSparseMatrix::saveTxt( const char *filename ) const
 {
     size_t nz = rowindex[m_nlin];
     std::ofstream ofs(filename);
@@ -172,14 +169,14 @@ inline void fast_sparse_matrice::saveTxt( const char *filename ) const
     ofs.close();
 }
 
-inline void fast_sparse_matrice::saveBin( const char *filename ) const
+inline void FastSparseMatrix::saveBin( const char *filename ) const
 {
     std::ofstream ofs(filename,std::ios_base::binary);
     write(ofs);
     ofs.close();
 }
 
-inline void fast_sparse_matrice::loadTxt( const char *filename )
+inline void FastSparseMatrix::loadTxt( const char *filename )
 {
     size_t nz;
     std::ifstream ifs(filename);
@@ -195,7 +192,7 @@ inline void fast_sparse_matrice::loadTxt( const char *filename )
     for(size_t i=0;i<m_nlin+1;i++) ifs>>rowindex[i];
 }
 
-inline void fast_sparse_matrice::loadBin( const char *filename )
+inline void FastSparseMatrix::loadBin( const char *filename )
 {
     std::ifstream ifs(filename,std::ios_base::binary);
 	if(!ifs.is_open()) {
@@ -206,7 +203,7 @@ inline void fast_sparse_matrice::loadBin( const char *filename )
     ifs.close();
 }
 
-inline void fast_sparse_matrice::write(std::ostream& f) const
+inline void FastSparseMatrix::write(std::ostream& f) const
 {
     size_t nz=rowindex[m_nlin];
     f.write((const char*)&m_nlin,(std::streamsize)sizeof(size_t));
@@ -217,7 +214,7 @@ inline void fast_sparse_matrice::write(std::ostream& f) const
     f.write((const char*)rowindex,(std::streamsize)(sizeof(size_t)*m_nlin));
 }
 
-inline void fast_sparse_matrice::read(std::istream& f)
+inline void FastSparseMatrix::read(std::istream& f)
 {
     destroy();
     size_t nz;
@@ -230,7 +227,7 @@ inline void fast_sparse_matrice::read(std::istream& f)
     f.read((char*)rowindex,(std::streamsize)(sizeof(size_t)*m_nlin));
 }
 
-inline void fast_sparse_matrice::alloc(size_t nl, size_t nc, size_t nz)
+inline void FastSparseMatrix::alloc(size_t nl, size_t nc, size_t nz)
 {
     m_nlin=nl;
     m_ncol=nc;
@@ -240,26 +237,26 @@ inline void fast_sparse_matrice::alloc(size_t nl, size_t nc, size_t nz)
     rowindex[nl]=nz;
 }
 
-inline void fast_sparse_matrice::destroy()
+inline void FastSparseMatrix::destroy()
 {
     delete[] tank;
     delete[] js;
     delete[] rowindex;
 }
 
-inline fast_sparse_matrice::fast_sparse_matrice( const fast_sparse_matrice &M)
+inline FastSparseMatrix::FastSparseMatrix( const FastSparseMatrix &m)
 {
-    alloc(M.m_nlin,M.m_ncol,M.rowindex[M.m_nlin]);
-    memcpy(tank,M.tank,sizeof(double)*M.rowindex[M.m_nlin]);
-    memcpy(js,M.js,sizeof(size_t)*M.rowindex[M.m_nlin]);
-    memcpy(rowindex,M.rowindex,sizeof(size_t)*(M.m_nlin+1));
+    alloc(m.m_nlin,m.m_ncol,m.rowindex[m.m_nlin]);
+    memcpy(tank,m.tank,sizeof(double)*m.rowindex[m.m_nlin]);
+    memcpy(js,m.js,sizeof(size_t)*m.rowindex[m.m_nlin]);
+    memcpy(rowindex,m.rowindex,sizeof(size_t)*(m.m_nlin+1));
 }
 
-inline size_t fast_sparse_matrice::nlin() const {return (size_t)m_nlin;}
+inline size_t FastSparseMatrix::nlin() const {return (size_t)m_nlin;}
 
-inline size_t fast_sparse_matrice::ncol() const {return (size_t)m_ncol;}
+inline size_t FastSparseMatrix::ncol() const {return (size_t)m_ncol;}
 
-inline double fast_sparse_matrice::operator()(size_t i,size_t j) const
+inline double FastSparseMatrix::operator()(size_t i,size_t j) const
 {
     for(size_t k=rowindex[i];k<rowindex[i+1];k++)
     {
@@ -271,7 +268,7 @@ inline double fast_sparse_matrice::operator()(size_t i,size_t j) const
     return 0;
 }
 
-inline double& fast_sparse_matrice::operator()(size_t i,size_t j)
+inline double& FastSparseMatrix::operator()(size_t i,size_t j)
 {
     for(size_t k=rowindex[i];k<rowindex[i+1];k++)
     {
@@ -280,15 +277,15 @@ inline double& fast_sparse_matrice::operator()(size_t i,size_t j)
         else break;
     }
 
-    std::cerr<<"fast_sparse_matrice : double& operator()(size_t i,size_t j) can't add element"<<std::endl;
+    std::cerr<<"FastSparseMatrix : double& operator()(size_t i,size_t j) can't add element"<<std::endl;
     exit(1);
 }
 
-inline vecteur fast_sparse_matrice::operator * (const vecteur &v) const
+inline Vector FastSparseMatrix::operator * (const Vector &v) const
 {
-    vecteur result(m_nlin); result.set(0);
+    Vector result(m_nlin); result.set(0);
     double *pt_result=&result(0);
-    vecteur *_v=(vecteur *)&v;
+    Vector *_v=(Vector *)&v;
     double *pt_vect=&(*_v)(0);
 
     for(size_t i=0;i<m_nlin;i++)
@@ -301,9 +298,4 @@ inline vecteur fast_sparse_matrice::operator * (const vecteur &v) const
     return result;
 }
 
-inline double* fast_sparse_matrice::getbuf() const
-{
-    return tank;
-}
-
-#endif
+#endif /* FAST_SPARSE_MATRIX_H */

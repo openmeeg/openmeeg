@@ -1,8 +1,8 @@
 function save_txt(data,filename)
 
-% SAVE_TXT   Save ascii matrix
+% SAVE_TXT   Save ascii Matrix
 %
-%   Save ascii matrix
+%   Save ascii Matrix
 %
 %   SYNTAX
 %       SAVE_TXT(DATA,FILENAME)

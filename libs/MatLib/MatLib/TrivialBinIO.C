@@ -3,7 +3,6 @@
 /*
 Project Name : OpenMEEG
 
-author            : $Author$
 version           : $Revision$
 last revision     : $Date$
 modified by       : $LastChangedBy$
@@ -46,7 +45,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #include <TrivialBinIO.H>
 
-namespace Maths {
+namespace maths {
     const TrivialBinIO           TrivialBinIO::prototype;
     const TrivialBinIO::Suffixes TrivialBinIO::suffs = TrivialBinIO::init();
     const std::string            TrivialBinIO::Identity("old_binary");

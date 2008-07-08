@@ -2,7 +2,7 @@
 # = Maths Lib =
 # =============
 
-SET(OpenMEEGMaths_SRC vecteur.cpp matrice.cpp symmatrice.cpp sparse_matrice.cpp MatrixIO.C MatlabIO.C AsciiIO.C BrainVisaTextureIO.C TrivialBinIO.C)
+SET(OpenMEEGMaths_SRC vector.cpp matrix.cpp symmatrix.cpp sparse_matrix.cpp MathsIO.C MatlabIO.C AsciiIO.C BrainVisaTextureIO.C TrivialBinIO.C)
 
 ADD_LIBRARY(OpenMEEGMaths        SHARED ${OpenMEEGMaths_SRC})
 ADD_LIBRARY(OpenMEEGMaths-static STATIC ${OpenMEEGMaths_SRC})

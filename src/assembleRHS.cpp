@@ -3,7 +3,6 @@
 /*
 Project Name : OpenMEEG
 
-author            : $Author$
 version           : $Revision$
 last revision     : $Date$
 modified by       : $LastChangedBy$
@@ -50,17 +49,17 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #endif
 #include <math.h>
 
-#include "vecteur.h"
-#include "matrice.h"
+#include "vector.h"
+#include "matrix.h"
 #include "operators.h"
 #include "assemble.h"
 #include <fstream>
 using namespace std;
 
-void assemble_RHS(matrice &mat,const Geometry &geo,const Mesh& sources,const int GaussOrder)
+void assemble_RHS(Matrix &mat,const Geometry &geo,const Mesh& sources,const int GaussOrder)
 {
     int newsize = geo.size()-(geo.getM(geo.nb()-1)).nbTrgs();
-    mat = matrice(newsize,sources.nbPts());
+    mat = Matrix(newsize,sources.nbPts());
     mat.set(0.0);
 
     unsigned nVertexSources=sources.nbPts();
@@ -82,14 +81,14 @@ void assemble_RHS(matrice &mat,const Geometry &geo,const Mesh& sources,const int
     mult2(mat,0,0,nVertexFirstLayer-1,nVertexSources-1,K);
 }
 
-RHS_matrice::RHS_matrice (const Geometry &geo, const Mesh& sources, const int GaussOrder) {
+RHS_matrix::RHS_matrix (const Geometry &geo, const Mesh& sources, const int GaussOrder) {
     assemble_RHS(*this,geo,sources,GaussOrder);
 }
 
-void assemble_RHSdip(matrice &rhs,const Geometry &geo,vector<Vect3> Rs,vector<Vect3> Qs,const int GaussOrder)
+void assemble_RHSdip(Matrix &rhs,const Geometry &geo,vector<Vect3> Rs,vector<Vect3> Qs,const int GaussOrder)
 { 
     int newsize=geo.size()-(geo.getM(geo.nb()-1)).nbTrgs();
-    rhs = matrice(newsize, Qs.size());
+    rhs = Matrix(newsize, Qs.size());
      unsigned nVertexFirstLayer=geo.getM(0).nbPts();
 
     unsigned nFacesFirstLayer=geo.getM(0).nbTrgs();
@@ -99,7 +98,7 @@ void assemble_RHSdip(matrice &rhs,const Geometry &geo,vector<Vect3> Rs,vector<Ve
     rhs.set(0);
     for (unsigned s=0; s<Qs.size(); s++)
     {  
-      vecteur prov(rhs.nlin());
+      Vector prov(rhs.nlin());
       prov.set(0);
         operatorDipolePotDer(Rs[s],Qs[s],geo.getM(0),prov,0,GaussOrder);
         // Second block is nFaceFistLayer
@@ -130,18 +129,18 @@ void assemble_RHSdip(matrice &rhs,const Geometry &geo,vector<Vect3> Rs,vector<Ve
     }
 }
 
-RHSdip_matrice::RHSdip_matrice (const Geometry &geo, vector<Vect3> Rs, vector<Vect3> Qs, const int GaussOrder) {
+RHSdip_matrix::RHSdip_matrix (const Geometry &geo, vector<Vect3> Rs, vector<Vect3> Qs, const int GaussOrder) {
     assemble_RHSdip(*this,geo,Rs,Qs,GaussOrder);
    std::cerr << "OK till here"  << endl;
 }
 
 // Gradient
-void assemble_RHSdip_grad(matrice &rhs,const Geometry &geo,vector<Vect3> Rs,vector<Vect3> Qs,const int GaussOrder)
+void assemble_RHSdip_grad(Matrix &rhs,const Geometry &geo,vector<Vect3> Rs,vector<Vect3> Qs,const int GaussOrder)
 {
     unsigned int nd=Qs.size();
 
     int newsize = geo.size()-(geo.getM(geo.nb()-1)).nbTrgs();
-    rhs = matrice(newsize, 6*nd); // 6 derivatives!
+    rhs = Matrix(newsize, 6*nd); // 6 derivatives!
 
     unsigned nVertexFirstLayer=geo.getM(0).nbPts();
     unsigned nFacesFirstLayer=geo.getM(0).nbTrgs();
@@ -152,9 +151,9 @@ void assemble_RHSdip_grad(matrice &rhs,const Geometry &geo,vector<Vect3> Rs,vect
     rhs.set(0);
     for( unsigned s=0; s<nd; s++ )
     {
-        vecteur prov[6];
+        Vector prov[6];
         for (int d=0;d<6;d++) {
-            prov[d]=vecteur(rhs.nlin());
+            prov[d]=Vector(rhs.nlin());
             prov[d].set(0);
         }
 
@@ -185,20 +184,20 @@ void assemble_RHSdip_grad(matrice &rhs,const Geometry &geo,vector<Vect3> Rs,vect
     }
 }
 
-RHSdip_grad_matrice::RHSdip_grad_matrice (const Geometry &geo, vector<Vect3> Rs, vector<Vect3> Qs, const int GaussOrder) {
+RHSdip_grad_matrix::RHSdip_grad_matrix (const Geometry &geo, vector<Vect3> Rs, vector<Vect3> Qs, const int GaussOrder) {
     assemble_RHSdip_grad(*this,geo,Rs,Qs,GaussOrder);
 }
 
-void assemble_EITsource(const Geometry &geo, matrice &mat, matrice &airescalp, const int GaussOrder)
+void assemble_EITsource(const Geometry &geo, Matrix &mat, Matrix &airescalp, const int GaussOrder)
 {
-// a matrix to be applied to the scalp-injected current (modulo multiplicative constants)
+// a Matrix to be applied to the scalp-injected current (modulo multiplicative constants)
 // to obtain the RHS of the EIT foward problem 
     int newtaille = mat.nlin();
     int sourcetaille = mat.ncol();
-// transmat = a big  matrix of which mat = part of its transpose
-    symmatrice transmat(newtaille+sourcetaille);
-// airemat = a matrix to store the surface of triangles on the scalp, for normalizing the injected current
-    symmatrice transairescalp(newtaille+sourcetaille);
+// transmat = a big  Matrix of which mat = part of its transpose
+    SymMatrix transmat(newtaille+sourcetaille);
+// airemat = a Matrix to store the surface of triangles on the scalp, for normalizing the injected current
+    SymMatrix transairescalp(newtaille+sourcetaille);
     int c;
     int offset=0;
     int offset0;
@@ -236,7 +235,7 @@ void assemble_EITsource(const Geometry &geo, matrice &mat, matrice &airescalp, c
     std::cout<<"offset2 "<<offset2<<std::endl;
     std::cout<<"offset3 "<<offset3<<std::endl;
 
-// transposing the matrix
+// transposing the Matrix
     std::cout<<"last element "<<transmat(newtaille+sourcetaille-1,newtaille-1)<<std::endl;
         for(int i=0;i<newtaille;i++) 
             for(int j=0;j<sourcetaille;j++) {

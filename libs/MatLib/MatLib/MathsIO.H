@@ -3,7 +3,6 @@
 /*
 Project Name : OpenMEEG
 
-author            : $Author$
 version           : $Revision$
 last revision     : $Date$
 modified by       : $LastChangedBy$
@@ -52,14 +51,14 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <list>
 #include <string>
 
-#include "base_matrix.H"
+#include "linop.h"
 
 //#include <Exceptions.H>
 typedef std::string UnknownFileFormat;
 typedef std::string NoSuffix;
 typedef std::string UnknownFileSuffix;
 
-namespace Maths {
+namespace maths {
 
     class MathsIOBase;
 
@@ -139,10 +138,10 @@ namespace Maths {
         virtual const Suffixes&    suffixes() const = 0;
 
         virtual bool identify(const std::string&) const = 0;
-        virtual bool known(const MatrixBase&) const = 0;
+        virtual bool known(const LinOp&) const = 0;
 
-        virtual void read(std::ifstream&,MatrixBase&) const = 0;
-        virtual void write(std::ofstream&,const MatrixBase&) const = 0;
+        virtual void read(std::ifstream&,LinOp&) const = 0;
+        virtual void write(std::ofstream&,const LinOp&) const = 0;
 
         virtual bool known_suffix(const char* suffix)  const throw() {
             const Suffixes& suffs = suffixes();
@@ -163,8 +162,8 @@ namespace Maths {
     typedef MathsIO ifstream;
     typedef MathsIO ofstream;
 
-    Maths::ifstream& operator>>(Maths::ifstream&,MatrixBase&) throw(std::string);
-    Maths::ofstream& operator<<(Maths::ofstream&,const MatrixBase&) throw(std::string);
+    maths::ifstream& operator>>(maths::ifstream&,LinOp&) throw(std::string);
+    maths::ofstream& operator<<(maths::ofstream&,const LinOp&) throw(std::string);
 
     // The manip format() used to specify explicitely a format.
     // Almost similar to Images::format. How to fuse those.
@@ -176,8 +175,8 @@ namespace Maths {
         format(const char* id,       const FormatSpec sp=FromFormatName,const bool perm=false): identity(id),type(sp),permanent(perm) { }
         format(const std::string& id,const FormatSpec sp=FromFormatName,const bool perm=false): identity(id),type(sp),permanent(perm) { }
 
-        friend Maths::ifstream& operator>>(Maths::ifstream&,const format&);
-        friend Maths::ofstream& operator<<(Maths::ofstream&,const format&);
+        friend maths::ifstream& operator>>(maths::ifstream&,const format&);
+        friend maths::ofstream& operator<<(maths::ofstream&,const format&);
 
     private:
 
@@ -197,8 +196,8 @@ namespace Maths {
         const bool        permanent;
     };
 
-    inline Maths::ifstream& operator>>(Maths::ifstream &is,const format& f) { f.set(); return is; }
-    inline Maths::ofstream& operator<<(Maths::ofstream &os,const format& f) { f.set(); return os; }
+    inline maths::ifstream& operator>>(maths::ifstream &is,const format& f) { f.set(); return is; }
+    inline maths::ofstream& operator<<(maths::ofstream &os,const format& f) { f.set(); return os; }
 }
 
 #endif  //! MATRIXIO_H

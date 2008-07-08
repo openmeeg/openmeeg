@@ -3,7 +3,6 @@
 /*
 Project Name : OpenMEEG
 
-author            : $Author$
 version           : $Revision$
 last revision     : $Date$
 modified by       : $LastChangedBy$
@@ -145,26 +144,29 @@ void Mesh::make_links() {
 }
 
 void Mesh::getFileFormat(const char* filename) {
-    // store in streamFormat the format of the Mesh :
-    char extension[128];
-    getNameExtension(filename,extension);
-    if(!strcmp(extension,"vtk") || !strcmp(extension,"VTK")) streamFormat = Mesh::VTK ;
-    else if(!strcmp(extension,"tri") || !strcmp(extension,"TRI")) streamFormat = Mesh::TRI;
-    else if(!strcmp(extension,"bnd") || !strcmp(extension,"BND")) streamFormat = Mesh::BND;
-    else if(!strcmp(extension,"mesh") || ! strcmp(extension,"MESH")) streamFormat = Mesh::MESH;
-    else if(!strcmp(extension,"off") || ! strcmp(extension,"OFF")) streamFormat = Mesh::OFF;
+    std::string extension = getNameExtension(filename);
+    std::transform(extension.begin(), extension.end(), extension.begin(), (int(*)(int))std::tolower);
+    if     (extension==std::string("vtk"))  streamFormat = Mesh::VTK ;
+    else if(extension==std::string("tri"))  streamFormat = Mesh::TRI;
+    else if(extension==std::string("bnd"))  streamFormat = Mesh::BND;
+    else if(extension==std::string("mesh")) streamFormat = Mesh::MESH;
+    else if(extension==std::string("off"))  streamFormat = Mesh::OFF;
+    else {
+        cerr << "Unknown mesh file format for " << filename << endl;
+        exit(1);
+    }
 }
 
-void Mesh::load(const char* name, bool checkClosedSurface, bool verbose) {
-    char extension[128];
-    getNameExtension(name,extension);
-    if(!strcmp(extension,"vtk") || !strcmp(extension,"VTK")) load_vtk(name,checkClosedSurface);
-    else if(!strcmp(extension,"mesh") || !strcmp(extension,"MESH")) load_mesh(name,checkClosedSurface);
-    else if(!strcmp(extension,"tri") || !strcmp(extension,"TRI")) load_tri(name,checkClosedSurface);
-    else if(!strcmp(extension,"bnd") || !strcmp(extension,"BND")) load_bnd(name,checkClosedSurface);
-    else if(!strcmp(extension,"off") || !strcmp(extension,"OFF")) load_off(name,checkClosedSurface);
+void Mesh::load(const char* filename, bool checkClosedSurface, bool verbose) {
+    std::string extension = getNameExtension(filename);
+    std::transform(extension.begin(), extension.end(), extension.begin(), (int(*)(int))std::tolower);
+    if     (extension==std::string("vtk"))  load_vtk(filename,checkClosedSurface);
+    else if(extension==std::string("tri"))  load_tri(filename,checkClosedSurface);
+    else if(extension==std::string("bnd"))  load_bnd(filename,checkClosedSurface);
+    else if(extension==std::string("mesh")) load_mesh(filename,checkClosedSurface);
+    else if(extension==std::string("off"))  load_off(filename,checkClosedSurface);
     else {
-        cerr << "Load : Unknown mesh file format for " << name << endl;
+        cerr << "Load : Unknown mesh file format for " << filename << endl;
         exit(1);
     }
 
@@ -530,16 +532,16 @@ void Mesh::load_off(const char* filename, bool checkClosedSurface) {
     f.close();
 }
 
-void Mesh::save(const char* name) {
-    char extension[128];
-    getNameExtension(name,extension);
-    if(!strcmp(extension,"vtk") || !strcmp(extension,"VTK")) save_vtk(name);
-    else if(!strcmp(extension,"mesh") || !strcmp(extension,"MESH")) save_mesh(name);
-    else if(!strcmp(extension,"bnd") || !strcmp(extension,"BND")) save_bnd(name);
-    else if(!strcmp(extension,"tri") || !strcmp(extension,"TRI")) save_tri(name);
-    else if(!strcmp(extension,"off") || !strcmp(extension,"OFF")) save_off(name);
+void Mesh::save(const char* filename) {
+    std::string extension = getNameExtension(filename);
+    std::transform(extension.begin(), extension.end(), extension.begin(), (int(*)(int))std::tolower);
+    if     (extension==std::string("vtk"))  save_vtk(filename);
+    else if(extension==std::string("tri"))  save_tri(filename);
+    else if(extension==std::string("bnd"))  save_bnd(filename);
+    else if(extension==std::string("mesh")) save_mesh(filename);
+    else if(extension==std::string("off"))  save_off(filename);
     else {
-        cerr << "Save : Unknown file format" << endl;
+        cerr << "Unknown file format for : " << filename << endl;
         exit(1);
     }
 }
@@ -881,8 +883,8 @@ void Mesh::smooth(double smoothing_intensity,size_t niter) {
 /**
  * Surface Gradient
 **/
-sparse_matrice Mesh::gradient() const {
-    sparse_matrice A(3*ntrgs,npts); // nb edges x points
+SparseMatrix Mesh::gradient() const {
+    SparseMatrix A(3*ntrgs,npts); // nb edges x points
     // loop on triangles
     for (int t=0;t<ntrgs;t++) {
         const Triangle& trg = getTrg(t);
@@ -897,8 +899,8 @@ sparse_matrice Mesh::gradient() const {
     return A;
 }
 
-vecteur Mesh::areas() const {
-    vecteur areas(nbTrgs());
+Vector Mesh::areas() const {
+    Vector areas(nbTrgs());
     for(int i = 0; i < nbTrgs(); ++i)
     {
         areas(i) = getTrg(i).getArea();
@@ -910,7 +912,7 @@ void Mesh::update_triangles() {
     for(int i = 0; i < ntrgs; ++i)
     {
         trgs[i].normal() = pts[trgs[i][0]].normal( pts[trgs[i][1]] , pts[trgs[i][2]] );
-        trgs[i].area() = trgs[i].normal().norme()/2.0;
+        trgs[i].area() = trgs[i].normal().norm()/2.0;
     }
 }
 

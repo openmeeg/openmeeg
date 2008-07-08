@@ -1,8 +1,8 @@
 function [data] = load_bin_sym(filename)
 
-% LOAD_TXT_SYM   Load binary symmetric matrix
+% LOAD_TXT_SYM   Load binary symmetric Matrix
 %
-%   Load binary symmetric matrix
+%   Load binary symmetric Matrix
 %   
 %   SYNTAX
 %       [DATA] = LOAD_BIN_SYM(FILENAME)

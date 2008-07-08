@@ -3,7 +3,6 @@
 /*
 Project Name : OpenMEEG
 
-author            : $Author$
 version           : $Revision$
 last revision     : $Date$
 modified by       : $LastChangedBy$
@@ -44,18 +43,18 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#include "matrice.h"
-#include "symmatrice.h"
-#include "vecteur.h"
+#include "matrix.h"
+#include "symmatrix.h"
+#include "vector.h"
 
-class Forward_matrice : public virtual matrice
+class Forward_matrix : public virtual Matrix
 {
 public:
-    Forward_matrice (const matrice& GainMatrix, const matrice& RealSourcesData, double NoiseLevel);
-    virtual ~Forward_matrice () {};
+    Forward_matrix (const Matrix& GainMatrix, const Matrix& RealSourcesData, double NoiseLevel);
+    virtual ~Forward_matrix () {};
 };
 
-void compute_forward(matrice& SimulatedData, const matrice& GainMatrix, const matrice& RealSourcesData, double NoiseLevel) {
+void compute_forward(Matrix& SimulatedData, const Matrix& GainMatrix, const Matrix& RealSourcesData, double NoiseLevel) {
 
     SimulatedData = GainMatrix * RealSourcesData;
 
@@ -66,6 +65,6 @@ void compute_forward(matrice& SimulatedData, const matrice& GainMatrix, const ma
     }
 }
 
-Forward_matrice::Forward_matrice(const matrice& GainMatrix, const matrice& RealSourcesData, double NoiseLevel) {
+Forward_matrix::Forward_matrix(const Matrix& GainMatrix, const Matrix& RealSourcesData, double NoiseLevel) {
     compute_forward(*this,GainMatrix,RealSourcesData,NoiseLevel);
 }

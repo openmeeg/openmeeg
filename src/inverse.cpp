@@ -3,7 +3,6 @@
 /*
 Project Name : OpenMEEG
 
-author            : $Author$
 version           : $Revision$
 last revision     : $Date$
 modified by       : $LastChangedBy$
@@ -70,11 +69,11 @@ int main(int argc, char **argv)
     disp_argv(argc,argv);
 
     // declaration of argument variables
-    matrice GainMatrix;
-    sparse_matrice SmoothMatrix;
-    vecteur AiVector;
-    matrice Data;
-    matrice EstimatedSourcesData;
+    Matrix GainMatrix;
+    SparseMatrix SmoothMatrix;
+    Vector AiVector;
+    Matrix Data;
+    Matrix EstimatedSourcesData;
     double SmoothWeight;
     string SmoothType;
 
@@ -102,31 +101,31 @@ int main(int argc, char **argv)
         size_t MaxNbIter   = (size_t) atoi(argv[8]);
         double StoppingTol = atof(argv[9]);
     
-        TV_inverse_matrice EstimatedSourcesData(Data,GainMatrix,SmoothMatrix,AiVector,SmoothWeight,MaxNbIter,StoppingTol);
+        TV_inverse_matrix EstimatedSourcesData(Data,GainMatrix,SmoothMatrix,AiVector,SmoothWeight,MaxNbIter,StoppingTol);
         EstimatedSourcesData.saveTxt(argv[5]);
     }
 
     if(Mn)
     {
-        MN_inverse_matrice EstimatedSourcesData(Data,GainMatrix,SmoothWeight);
+        MN_inverse_matrix EstimatedSourcesData(Data,GainMatrix,SmoothWeight);
         EstimatedSourcesData.saveTxt(argv[5]);
     }
 
     if(IMn)
     {
-        IMN_inverse_matrice EstimatedSourcesData(Data,GainMatrix,SmoothWeight);
+        IMN_inverse_matrix EstimatedSourcesData(Data,GainMatrix,SmoothWeight);
         EstimatedSourcesData.saveTxt(argv[5]);
     }
 
     if(WMn)
     {
-        WMN_inverse_matrice EstimatedSourcesData(Data,GainMatrix,SmoothWeight);
+        WMN_inverse_matrix EstimatedSourcesData(Data,GainMatrix,SmoothWeight);
         EstimatedSourcesData.saveTxt(argv[5]);
     }
 
     if(Heat)
     {
-        HEAT_inverse_matrice EstimatedSourcesData(Data,GainMatrix,SmoothMatrix,SmoothWeight);
+        HEAT_inverse_matrix EstimatedSourcesData(Data,GainMatrix,SmoothMatrix,SmoothWeight);
         EstimatedSourcesData.saveTxt(argv[5]);
     }
 

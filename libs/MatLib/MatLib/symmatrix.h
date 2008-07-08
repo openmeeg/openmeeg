@@ -3,7 +3,6 @@
 /*
 Project Name : OpenMEEG
 
-author            : $Author$
 version           : $Revision$
 last revision     : $Date$
 modified by       : $LastChangedBy$
@@ -44,36 +43,39 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#ifndef H_SYMMATRICE_DCL
-#define H_SYMMATRICE_DCL
+#ifndef SYMMATRIX_H
+#define SYMMATRIX_H
 
 #include <fstream>
 #include <cassert>
 
-#include "vecteur.h"
-#include "base_matrix.H"
+#include "vector.h"
+#include "linop.h"
 
-class matrice;
+class Matrix;
 
-class symmatrice : public MatrixBase {
+class SymMatrix : public LinOp {
     double *t;
     int *count;
 
     std::string identity() const;
-    void copy(const symmatrice& A);
+    void copy(const SymMatrix& A);
     void destroy();
 public:
-    symmatrice();
-    symmatrice(const char* fname);
-    symmatrice(size_t N) ;
-    symmatrice(const symmatrice& A);
-    explicit symmatrice(const vecteur& v);
-    explicit symmatrice(const matrice& A); // upper triangle based (lower triangle need not to be set)
-    symmatrice(double* T, int* COUNT, size_t N);
-     ~symmatrice() { destroy(); }
-    symmatrice duplicate() const;
+    SymMatrix();
+    SymMatrix(const char* fname);
+    SymMatrix(size_t N) ;
+    SymMatrix(const SymMatrix& A);
+    explicit SymMatrix(const Vector& v);
+    explicit SymMatrix(const Matrix& A); // upper triangle based (lower triangle need not to be set)
+    SymMatrix(double* T, int* COUNT, size_t N);
+     ~SymMatrix() { destroy(); }
+    SymMatrix duplicate() const;
     size_t size() const { return nlin()*(nlin()+1)/2; };
     void info() const ;
+
+    size_t  ncol() const { return num_lines; } // SymMatrix only need num_lines
+    size_t& ncol()       { return num_lines; }
 
     void alloc_data();
 
@@ -85,30 +87,30 @@ public:
     inline double operator()(size_t i,size_t j) const;
     inline double& operator()(size_t i,size_t j) ;
 
-    matrice operator()(size_t i_start, size_t i_end, size_t j_start, size_t j_end) const;
-    matrice submat(size_t istart, size_t isize, size_t jstart, size_t jsize) const;
-    symmatrice submat(size_t istart, size_t iend) const;
-    vecteur solveLin(const vecteur &B) const;
-    void solveLin(vecteur * B, int nbvect);
+    Matrix operator()(size_t i_start, size_t i_end, size_t j_start, size_t j_end) const;
+    Matrix submat(size_t istart, size_t isize, size_t jstart, size_t jsize) const;
+    SymMatrix submat(size_t istart, size_t iend) const;
+    Vector solveLin(const Vector &B) const;
+    void solveLin(Vector * B, int nbvect);
 
-    const symmatrice& operator=(const double d);
-    const symmatrice& operator=(const symmatrice& A);
+    const SymMatrix& operator=(const double d);
+    const SymMatrix& operator=(const SymMatrix& A);
 
-    symmatrice operator+(const symmatrice& B) const;
-    symmatrice operator-(const symmatrice& B) const;
-    symmatrice operator*(double x) const;
-    symmatrice operator/(double x) const {return (*this)*(1/x);}
-    void operator +=(const symmatrice& B);
-    void operator -=(const symmatrice& B);
+    SymMatrix operator+(const SymMatrix& B) const;
+    SymMatrix operator-(const SymMatrix& B) const;
+    SymMatrix operator*(double x) const;
+    SymMatrix operator/(double x) const {return (*this)*(1/x);}
+    void operator +=(const SymMatrix& B);
+    void operator -=(const SymMatrix& B);
     void operator *=(double x);
     void operator /=(double x) ;
-    matrice operator*(const matrice& B) const; // faux !!
-    vecteur operator*(const vecteur& v) const; // faux ?
+    Matrix operator*(const Matrix& B) const; // faux !!
+    Vector operator*(const Vector& v) const; // faux ?
 
-    symmatrice inverse() const;
-    symmatrice posdefinverse() const;
+    SymMatrix inverse() const;
+    SymMatrix posdefinverse() const;
     double det();
-    void eigen(matrice & Z, vecteur & D );
+    void eigen(Matrix & Z, Vector & D );
 
     void save( const char *filename ) const;
     void load( const char *filename );
@@ -117,10 +119,10 @@ public:
     void loadTxt( const char *filename );
     void loadBin( const char *filename );
 
-    friend class matrice;
+    friend class Matrix;
 };
 
-inline double symmatrice::operator()(size_t i,size_t j) const {
+inline double SymMatrix::operator()(size_t i,size_t j) const {
     assert(i<nlin() && j<nlin());
     if(i<=j)
         return t[i+j*(j+1)/2];
@@ -128,7 +130,7 @@ inline double symmatrice::operator()(size_t i,size_t j) const {
         return t[j+i*(i+1)/2];
 }
 
-inline double& symmatrice::operator()(size_t i,size_t j) {
+inline double& SymMatrix::operator()(size_t i,size_t j) {
     assert(i<nlin() && j<nlin());
     if(i<=j)
         return t[i+j*(j+1)/2];
@@ -136,7 +138,7 @@ inline double& symmatrice::operator()(size_t i,size_t j) {
         return t[j+i*(i+1)/2];
 }
 
-std::ostream& operator<<(std::ostream& f,const symmatrice &M);
+std::ostream& operator<<(std::ostream& f,const SymMatrix &M);
 
 #endif
 

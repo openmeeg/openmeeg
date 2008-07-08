@@ -1,8 +1,8 @@
 function [data] = load_bin(filename)
 
-% LOAD_BIN   Load binary matrix
+% LOAD_BIN   Load binary Matrix
 %
-%   Load binary matrix
+%   Load binary Matrix
 %
 %   SYNTAX
 %       [DATA] = LOAD_BIN(FILENAME)

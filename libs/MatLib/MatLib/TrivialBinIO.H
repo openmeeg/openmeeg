@@ -3,7 +3,6 @@
 /*
 Project Name : OpenMEEG
 
-author            : $Author$
 version           : $Revision$
 last revision     : $Date$
 modified by       : $LastChangedBy$
@@ -47,23 +46,23 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #ifndef TRIVIALBINIO_H
 #define TRIVIALBINIO_H
 
-#include "MatrixIO.H"
-#include "sparse_matrice.h"
-#include "matrice.h"
-#include "symmatrice.h"
+#include "MathsIO.H"
+#include "sparse_matrix.h"
+#include "matrix.h"
+#include "symmatrix.h"
 
-namespace Maths {
+namespace maths {
 
     struct TrivialBinIO: public MathsIOBase {
 
-        void read_header(std::istream& is,MatrixBase& matrix) const {
+        void read_header(std::istream& is,LinOp& linop) const {
             unsigned int ui;
             is.read(reinterpret_cast<char*>(&ui),sizeof(unsigned int));
-            matrix.nlin() = ui;
-            if (matrix.storageType()!=MatrixBase::SYMMETRIC && matrix.dimension()!=MatrixBase::ONE)
+            linop.nlin() = ui;
+            if (linop.storageType()!=LinOp::SYMMETRIC && linop.dimension()!=LinOp::ONE)
                 is.read(reinterpret_cast<char*>(&ui),sizeof(unsigned int));
-            if (matrix.dimension()==MatrixBase::TWO) {
-                matrix.ncol() = ui;
+            if (linop.dimension()==LinOp::TWO) {
+                linop.ncol() = ui;
             }
         }
 
@@ -71,13 +70,13 @@ namespace Maths {
         const Suffixes&    suffixes() const { return suffs;    }
 
         bool identify(const std::string&)    const { return true; }
-        bool known(const MatrixBase& matrix) const {
-            return matrix.dimension()==MatrixBase::TWO
-                   || (matrix.dimension()==MatrixBase::ONE && matrix.storageType()==MatrixBase::FULL);
+        bool known(const LinOp& linop) const {
+            return linop.dimension()==LinOp::TWO
+                   || (linop.dimension()==LinOp::ONE && linop.storageType()==LinOp::FULL);
         }
 
-        void read_sparse(std::ifstream& is,MatrixBase& matrix) const {
-            sparse_matrice* M = dynamic_cast<sparse_matrice*>(&matrix);
+        void read_sparse(std::ifstream& is,LinOp& linop) const {
+            SparseMatrix* m = dynamic_cast<SparseMatrix*>(&linop);
 
             while (! is.eof() ) {
                 unsigned int ui;
@@ -89,50 +88,50 @@ namespace Maths {
                 j = ui;
                 if (is.read(reinterpret_cast<char*>(&val),sizeof(double)) == 0) break;
 
-                M->operator()(i,j) = val;
+                m->operator()(i,j) = val;
             }
         }
 
-        void read_full(std::ifstream& is,MatrixBase& matrix) const {
-            if(matrix.dimension()==MatrixBase::ONE) {
-                vecteur* M = dynamic_cast<vecteur*>(&matrix);
-                M->alloc_data();
-                is.read(reinterpret_cast<char*>(M->data()),M->size()*sizeof(double));
+        void read_full(std::ifstream& is,LinOp& linop) const {
+            if(linop.dimension()==LinOp::ONE) {
+                Vector* v = dynamic_cast<Vector*>(&linop);
+                v->alloc_data();
+                is.read(reinterpret_cast<char*>(v->data()),v->size()*sizeof(double));
             } else {
-                matrice* M = dynamic_cast<matrice*>(&matrix);
-                M->alloc_data();
-                is.read(reinterpret_cast<char*>(M->data()),M->size()*sizeof(double));
+                Matrix* m = dynamic_cast<Matrix*>(&linop);
+                m->alloc_data();
+                is.read(reinterpret_cast<char*>(m->data()),m->size()*sizeof(double));
             }
         }
 
-        void read_symmetric(std::ifstream& is,MatrixBase& matrix) const {
-            symmatrice* M = dynamic_cast<symmatrice*>(&matrix);
-            M->alloc_data();
-            is.read(reinterpret_cast<char*>(M->data()),M->size()*sizeof(double));
+        void read_symmetric(std::ifstream& is,LinOp& linop) const {
+            SymMatrix* m = dynamic_cast<SymMatrix*>(&linop);
+            m->alloc_data();
+            is.read(reinterpret_cast<char*>(m->data()),m->size()*sizeof(double));
         }
 
-        void read(std::ifstream& is,MatrixBase& matrix) const {
-            read_header(is,matrix);
-            switch (matrix.storageType()) {
-                case MatrixBase::SPARSE :
-                    read_sparse(is,matrix);
+        void read(std::ifstream& is,LinOp& linop) const {
+            read_header(is,linop);
+            switch (linop.storageType()) {
+                case LinOp::SPARSE :
+                    read_sparse(is,linop);
                     return;
-                case MatrixBase::FULL :
-                    read_full(is,matrix);
+                case LinOp::FULL :
+                    read_full(is,linop);
                     return;
-                case MatrixBase::SYMMETRIC :
-                    read_symmetric(is,matrix);
+                case LinOp::SYMMETRIC :
+                    read_symmetric(is,linop);
                     return;
                 default:
                     return;
             }
         }
 
-        void write_sparse(std::ofstream& os, const MatrixBase& matrix) const {
-            sparse_matrice* M = dynamic_cast<sparse_matrice*>(const_cast<MatrixBase*>(&matrix));
-            sparse_matrice::const_iterator it;
+        void write_sparse(std::ofstream& os, const LinOp& linop) const {
+            SparseMatrix* m = dynamic_cast<SparseMatrix*>(const_cast<LinOp*>(&linop));
+            SparseMatrix::const_iterator it;
             unsigned int ui;
-            for(it = M->begin(); it != M->end(); ++it) {
+            for(it = m->begin(); it != m->end(); ++it) {
                 size_t i = it->first.first;
                 size_t j = it->first.second;
                 double val = it->second;
@@ -142,42 +141,42 @@ namespace Maths {
             }
         }
 
-        void write_symmetric(std::ofstream& os, const MatrixBase& matrix) const {
-            symmatrice* M = dynamic_cast<symmatrice*>(const_cast<MatrixBase*>(&matrix));
-            os.write(reinterpret_cast<const char*>(M->data()),M->size()*sizeof(double));
+        void write_symmetric(std::ofstream& os, const LinOp& linop) const {
+            SymMatrix* m = dynamic_cast<SymMatrix*>(const_cast<LinOp*>(&linop));
+            os.write(reinterpret_cast<const char*>(m->data()),m->size()*sizeof(double));
         }
 
-        void write_full(std::ofstream& os, const MatrixBase& matrix) const {
-            if(matrix.dimension()==MatrixBase::ONE) {
-                vecteur* M = dynamic_cast<vecteur*>(const_cast<MatrixBase*>(&matrix));
-                os.write(reinterpret_cast<const char*>(M->data()),M->size()*sizeof(double));
+        void write_full(std::ofstream& os, const LinOp& linop) const {
+            if(linop.dimension()==LinOp::ONE) {
+                Vector* v = dynamic_cast<Vector*>(const_cast<LinOp*>(&linop));
+                os.write(reinterpret_cast<const char*>(v->data()),v->size()*sizeof(double));
             } else {
-                matrice* M = dynamic_cast<matrice*>(const_cast<MatrixBase*>(&matrix));
-                os.write(reinterpret_cast<const char*>(M->data()),M->size()*sizeof(double));
+                Matrix* m = dynamic_cast<Matrix*>(const_cast<LinOp*>(&linop));
+                os.write(reinterpret_cast<const char*>(m->data()),m->size()*sizeof(double));
             }
         }
 
-        void write_header(std::ofstream& os, const MatrixBase& matrix) const {
+        void write_header(std::ofstream& os, const LinOp& linop) const {
             unsigned int ui;
-            ui = matrix.nlin();
+            ui = linop.nlin();
             os.write(reinterpret_cast<const char*>(&ui),sizeof(unsigned int));
-            if (matrix.storageType()!=MatrixBase::SYMMETRIC && matrix.dimension()!=MatrixBase::ONE) {
-                ui = matrix.ncol();
+            if (linop.storageType()!=LinOp::SYMMETRIC && linop.dimension()!=LinOp::ONE) {
+                ui = linop.ncol();
                 os.write(reinterpret_cast<const char*>(&ui),sizeof(unsigned int));
             }
         }
 
-        void write(std::ofstream& os, const MatrixBase& matrix) const {
-            write_header(os,matrix);
-            switch (matrix.storageType()) {
-                case MatrixBase::SPARSE :
-                    write_sparse(os,matrix);
+        void write(std::ofstream& os, const LinOp& linop) const {
+            write_header(os,linop);
+            switch (linop.storageType()) {
+                case LinOp::SPARSE :
+                    write_sparse(os,linop);
                     return;
-                case MatrixBase::FULL :
-                    write_full(os,matrix);
+                case LinOp::FULL :
+                    write_full(os,linop);
                     return;
-                case MatrixBase::SYMMETRIC :
-                    write_symmetric(os,matrix);
+                case LinOp::SYMMETRIC :
+                    write_symmetric(os,linop);
                     return;
                 default:
                     return;

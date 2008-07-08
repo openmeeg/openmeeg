@@ -1,9 +1,8 @@
-// FILE: $Id:$
+// FILE: $Id$
 
 /*
 Project Name : OpenMEEG
 
-author            : $Author$
 version           : $Revision$
 last revision     : $Date$
 modified by       : $LastChangedBy$
@@ -44,30 +43,30 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#ifndef BASE_MATRIX_H
-#define BASE_MATRIX_H
+#ifndef LINOP_H
+#define LINOP_H
 
 #include "MatLibConfig.h"
 
-struct MatrixBase {
+struct LinOp {
 
-    typedef enum { FULL, SYMMETRIC, SPARSE } MatrixStorageType;
+    typedef enum { FULL, SYMMETRIC, SPARSE } StorageType;
     typedef enum { ONE, TWO } Dimension;
 
-    MatrixBase() { }
-    MatrixBase(const size_t m,const size_t n,const MatrixStorageType st, const Dimension d):
+    LinOp() { }
+    LinOp(const size_t m,const size_t n,const StorageType st, const Dimension d):
         num_lines(m),num_cols(n),storage(st),dim(d)  { }
 
-    virtual ~MatrixBase() {};
+    virtual ~LinOp() {};
 
-    size_t& nlin()       { return num_lines; }
     size_t  nlin() const { return num_lines; }
+    size_t& nlin()       { return num_lines; }
 
-    size_t& ncol()       { return num_cols; }
-    size_t  ncol() const { return num_cols; }
+    virtual size_t  ncol() const { return num_cols; }
+    virtual size_t& ncol()       { return num_cols; }
 
     virtual size_t size() const = 0;
-    MatrixStorageType storageType() const { return storage; }
+    StorageType storageType() const { return storage; }
     Dimension dimension() const { return dim; }
     virtual void   info() const = 0;
 
@@ -75,9 +74,9 @@ protected:
 
     size_t            num_lines;
     size_t            num_cols;
-    MatrixStorageType storage;
+    StorageType       storage;
     Dimension         dim;
 
 };
 
-#endif  //! BASE_MATRIX_H
+#endif  //! LINOP_H

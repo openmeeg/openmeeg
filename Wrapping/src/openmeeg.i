@@ -2,14 +2,12 @@
 %{
    #include "vect3.h"
    #include "triangle.h"
-   #include "vecteur.h"
-   #include "vecteur.h"
-   #include "matrice.h"
-   #include "matrice.h"
-   #include "symmatrice.h"
-   #include "symmatrice.h"
-   #include "sparse_matrice.h"
-   #include "fast_sparse_matrice.h"
+   #include "linop.h"
+   #include "vector.h"
+   #include "matrix.h"
+   #include "symmatrix.h"
+   #include "sparse_matrix.h"
+   #include "fast_sparse_matrix.h"
    #include "sensors.h"
    #include "geometry.h"
    #include "mesh3.h"
@@ -19,17 +17,14 @@
    #include "inverse.h"
 %}
 
-
 %include "vect3.h"
 %include "triangle.h"
-%include "vecteur.h"
-%include "vecteur.h"
-%include "matrice.h"
-%include "matrice.h"
-%include "symmatrice.h"
-%include "symmatrice.h"
-%include "sparse_matrice.h"
-%include "fast_sparse_matrice.h"
+%include "linop.h"
+%include "vector.h"
+%include "matrix.h"
+%include "symmatrix.h"
+%include "sparse_matrix.h"
+%include "fast_sparse_matrix.h"
 %include "geometry.h"
 %include "sensors.h"
 %include "mesh3.h"
@@ -37,6 +32,4 @@
 %include "gain.h"
 %include "forward.h"
 %include "inverse.h"
-
-/*%template(sparse_matrice) TsparseMatrix<double,size_t>;*/
 

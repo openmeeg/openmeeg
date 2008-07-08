@@ -3,7 +3,6 @@
 /*
 Project Name : OpenMEEG
 
-author            : $Author: papadop $
 version           : $Revision: 252 $
 last revision     : $Date: 2008-06-27 16:43:17 +0200 (Ven, 27 jui 2008) $
 modified by       : $LastChangedBy: papadop $
@@ -49,10 +48,10 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #include <sstream>
 
-#include "MatrixIO.H"
-#include "matrice.h"
+#include "MathsIO.H"
+#include "matrix.h"
 
-namespace Maths {
+namespace maths {
 
     struct BrainVisaTextureIO: public MathsIOBase {
 
@@ -65,12 +64,12 @@ namespace Maths {
             return strncmp(buffer.c_str(),MagicTag.c_str(),MagicTag.size()) == 0;
         }
 
-        bool known(const MatrixBase& matrix) const {
-            return matrix.storageType()==MatrixBase::FULL;
+        bool known(const LinOp& linop) const {
+            return linop.storageType()==LinOp::FULL;
         }
 
-        void read(std::ifstream& is,MatrixBase& matrix) const {
-            matrice* M = dynamic_cast<matrice*>(&matrix);
+        void read(std::ifstream& is,LinOp& linop) const {
+            Matrix* m = dynamic_cast<Matrix*>(&linop);
 
             std::string line;
             std::getline(is, line, '\n');
@@ -84,10 +83,10 @@ namespace Maths {
             std::getline(is, line, '\n');
             buffer.clear();
             buffer.str(line);
-            buffer >> M->ncol();
+            buffer >> m->ncol();
 
-            if(matrix.dimension()==MatrixBase::ONE) {
-                assert(M->ncol() == 1); // TODO : throw proper exception
+            if(linop.dimension()==LinOp::ONE) {
+                assert(m->ncol() == 1); // TODO : throw proper exception
             }
 
             size_t j = 0; // column index
@@ -96,26 +95,26 @@ namespace Maths {
                 std::getline(is, line, '\n');
                 buffer.clear();
                 buffer.str(line);
-                buffer >> M->nlin();
+                buffer >> m->nlin();
                 if(j==0) {
-                    M->alloc_data();
+                    m->alloc_data();
                 }
-                for(size_t i = 0; i < M->nlin(); ++i) {
-                    buffer >> M->data()[i+j*M->nlin()];
+                for(size_t i = 0; i < m->nlin(); ++i) {
+                    buffer >> m->data()[i+j*m->nlin()];
                 }
                 j++;
-            } while(j<M->ncol());
+            } while(j<m->ncol());
         }
 
-        void write(std::ofstream& os, const MatrixBase& matrix) const {
-            matrice* M = dynamic_cast<matrice*>(const_cast<MatrixBase*>(&matrix));
+        void write(std::ofstream& os, const LinOp& linop) const {
+            Matrix* m = dynamic_cast<Matrix*>(const_cast<LinOp*>(&linop));
 
-            os << "ascii" << std::endl << "FLOAT" << std::endl << (unsigned int)M->ncol() << std::endl;
-            for(size_t j=0; j<M->ncol(); j++) {
+            os << "ascii" << std::endl << "FLOAT" << std::endl << (unsigned int)m->ncol() << std::endl;
+            for(size_t j=0; j<m->ncol(); j++) {
                 os << (unsigned int) j << std::endl;
-                os << (unsigned int) M->nlin();
-                for(size_t i=0; i<M->nlin(); i++) {
-                    os << " " << M->data()[i+j*M->nlin()];
+                os << (unsigned int) m->nlin();
+                for(size_t i=0; i<m->nlin(); i++) {
+                    os << " " << m->data()[i+j*m->nlin()];
                 }
                 os << std::endl;
             }
@@ -133,9 +132,9 @@ namespace Maths {
         }
 
         static const BrainVisaTextureIO prototype;
-        static const std::string MagicTag;
-        static const Suffixes     suffs;
-        static const std::string  Identity;
+        static const std::string        MagicTag;
+        static const Suffixes           suffs;
+        static const std::string        Identity;
     };
 }
 

@@ -3,7 +3,6 @@
 /*
 Project Name : OpenMEEG
 
-author            : $Author$
 version           : $Revision$
 last revision     : $Date$
 modified by       : $LastChangedBy$
@@ -44,79 +43,79 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#ifndef _ASSEMBLE_H_
-#define _ASSEMBLE_H_
+#ifndef ASSEMBLE_H
+#define ASSEMBLE_H
 
 #include <vector>
-using namespace std;
 
-#include "vecteur.h"
-#include "matrice.h"
-#include "symmatrice.h"
+#include "vector.h"
+#include "matrix.h"
+#include "symmatrix.h"
 #include "geometry.h"
 #include "sensors.h"
 
-class LHS_matrice : public virtual symmatrice
+class LHS_matrix : public virtual SymMatrix
 {
 public:
-    LHS_matrice (const Geometry &geo, const int GaussOrder);
-    virtual ~LHS_matrice () {};
+    LHS_matrix (const Geometry &geo, const int GaussOrder);
+    virtual ~LHS_matrix () {};
 };
 
-class RHS_matrice : public virtual matrice
+class RHS_matrix : public virtual Matrix
 {
 public:
-    RHS_matrice (const Geometry &geo, const Mesh & sources, const int GaussOrder);
-    virtual ~RHS_matrice () {};
+    RHS_matrix (const Geometry &geo, const Mesh & sources, const int GaussOrder);
+    virtual ~RHS_matrix () {};
 };
 
-class RHSdip_matrice : public virtual matrice
+class RHSdip_matrix : public virtual Matrix
 {
 public:
-    RHSdip_matrice (const Geometry &geo, vector<Vect3> Rs, vector<Vect3> Qs, const int GaussOrder);
-    virtual ~RHSdip_matrice () {};
+    RHSdip_matrix (const Geometry &geo, std::vector<Vect3> Rs, std::vector<Vect3> Qs, const int GaussOrder);
+    virtual ~RHSdip_matrix () {};
 };
 
-class RHSdip_grad_matrice : public virtual matrice
+class RHSdip_grad_matrix : public virtual Matrix
 {
 public:
-    RHSdip_grad_matrice (const Geometry &geo, vector<Vect3> Rs, vector<Vect3> Qs, const int GaussOrder);
-    virtual ~RHSdip_grad_matrice () {};
+    RHSdip_grad_matrix (const Geometry &geo, std::vector<Vect3> Rs, std::vector<Vect3> Qs, const int GaussOrder);
+    virtual ~RHSdip_grad_matrix () {};
 };
 
-class SurfToVol_matrice : public virtual matrice
+class SurfToVol_matrix : public virtual Matrix
 {
 public:
-    SurfToVol_matrice (const Geometry &geo, const matrice &points);
-    virtual ~SurfToVol_matrice () {};
+    SurfToVol_matrix (const Geometry &geo, const Matrix &points);
+    virtual ~SurfToVol_matrix () {};
 };
-class vToEEG_matrice : public virtual sparse_matrice
+class vToEEG_matrix : public virtual SparseMatrix
 {
 public:
-    vToEEG_matrice (const Geometry &geo, const matrice& patches);
-    virtual ~vToEEG_matrice () {};
-};
-
-class vToMEG_matrice : public virtual matrice
-{
-public:
-    vToMEG_matrice (const Geometry &geo, const Sensors& sensors);
-    virtual ~vToMEG_matrice () {};
+    vToEEG_matrix (const Geometry &geo, const Matrix& patches);
+    virtual ~vToEEG_matrix () {};
 };
 
-class sToMEG_matrice : public virtual matrice
+class vToMEG_matrix : public virtual Matrix
 {
 public:
-    sToMEG_matrice (const Mesh& sources, const Sensors& sensors);
-    virtual ~sToMEG_matrice () {};
+    vToMEG_matrix (const Geometry &geo, const Sensors& sensors);
+    virtual ~vToMEG_matrix () {};
 };
 
-class sToMEGdip_matrice : public virtual matrice
+class sToMEG_matrix : public virtual Matrix
 {
 public:
-    sToMEGdip_matrice(const matrice &dipoles, const Sensors &sensors);
-    virtual ~sToMEGdip_matrice () {};
+    sToMEG_matrix (const Mesh& sources, const Sensors& sensors);
+    virtual ~sToMEG_matrix () {};
 };
 
-void assemble_EITsource(const Geometry &geo, matrice &mat, matrice &airescalp, const int GaussOrder);
-#endif /* _ASSEMBLE_H_ */
+class sToMEGdip_matrix : public virtual Matrix
+{
+public:
+    sToMEGdip_matrix(const Matrix &dipoles, const Sensors &sensors);
+    virtual ~sToMEGdip_matrix () {};
+};
+
+void assemble_EITsource(const Geometry &geo, Matrix &mat, Matrix &airescalp, const int GaussOrder);
+
+#endif /* ASSEMBLE_H */

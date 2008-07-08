@@ -3,7 +3,6 @@
 /*
 Project Name : OpenMEEG
 
-author            : $Author$
 version           : $Revision$
 last revision     : $Date$
 modified by       : $LastChangedBy$
@@ -50,15 +49,15 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #include <math.h>
 
-#include "matrice.h"
-#include "symmatrice.h"
+#include "matrix.h"
+#include "symmatrix.h"
 #include "geometry.h"
 #include "operators.h"
 #include "assemble.h"
 
 template<class T>
 void deflat(T &M, int start, int end, double coef)
-{// deflate the matrix
+{// deflate the Matrix
     for(int i=start;i<=end;i++)
     {
         #ifdef USE_OMP
@@ -71,11 +70,11 @@ void deflat(T &M, int start, int end, double coef)
     }
 }
 
-void assemble_LHS(const Geometry &geo,symmatrice &mat,const int GaussOrder)
+void assemble_LHS(const Geometry &geo,SymMatrix &mat,const int GaussOrder)
 {
     int offset=0;
 
-    mat = symmatrice(geo.size());
+    mat = SymMatrix(geo.size());
 
     for(int c=0;c<geo.nb()-1;c++)
     {
@@ -104,7 +103,7 @@ void assemble_LHS(const Geometry &geo,symmatrice &mat,const int GaussOrder)
     }
 
     //Block multiplications
-    //Because only half the matrix is stored, only the lower part of the matrix is treated
+    //Because only half the Matrix is stored, only the lower part of the Matrix is treated
     offset=0;
     double K = 1 / (4*M_PI);
     for(int c=0;c<geo.nb()-1;c++)
@@ -145,7 +144,7 @@ void assemble_LHS(const Geometry &geo,symmatrice &mat,const int GaussOrder)
     mat = mat.submat(0,newsize-1);
 }
 
-void assemble_SurfToVol(const Geometry &geo,matrice &mat,const matrice &points)
+void assemble_SurfToVol(const Geometry &geo,Matrix &mat,const Matrix &points)
 {
  // only consider innermost surface points and triangles
   // (for the moment SurfToVol only works for the innermost surface and volume)
@@ -159,7 +158,7 @@ void assemble_SurfToVol(const Geometry &geo,matrice &mat,const matrice &points)
   std::cout<<" nbpoints= " << nbpoints <<std::endl;
   std::cout<<" nbtriangles= " << nbtriangles <<std::endl;
   std::cout<< "observation points: " << points.nlin() << std::endl;
-   mat = matrice(points.nlin(),nbpoints+nbtriangles);
+   mat = Matrix(points.nlin(),nbpoints+nbtriangles);
      // compute S blocks
        operatorSinternal(geo,c,mat,offset1,points);
        mult2(mat,offset0,offset1,offset0+points.nlin(),offset1+geo.getM(0).nbTrgs(),K);
@@ -167,10 +166,10 @@ void assemble_SurfToVol(const Geometry &geo,matrice &mat,const matrice &points)
       operatorDinternal(geo,c,mat,offset0,points);
       mult2(mat,offset0,offset0,offset0+points.nlin(),offset1,-(1.0/geo.sigma_in(0))*K);
 }
-LHS_matrice::LHS_matrice (const Geometry &geo, const int GaussOrder) {
+LHS_matrix::LHS_matrix (const Geometry &geo, const int GaussOrder) {
   assemble_LHS(geo,*this,GaussOrder);
 }
 
-SurfToVol_matrice::SurfToVol_matrice (const Geometry &geo, const matrice &points) {
+SurfToVol_matrix::SurfToVol_matrix (const Geometry &geo, const Matrix &points) {
   assemble_SurfToVol(geo,*this,points);
 }

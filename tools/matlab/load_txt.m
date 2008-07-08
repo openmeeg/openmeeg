@@ -1,8 +1,8 @@
 function [data] = load_txt(filename)
 
-% LOAD_TXT   Load ascii matrix
+% LOAD_TXT   Load ascii Matrix
 %
-%   Load ascii matrix
+%   Load ascii Matrix
 %
 %   SYNTAX
 %       [DATA] = LOAD_TXT(FILENAME)

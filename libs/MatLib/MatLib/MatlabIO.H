@@ -3,7 +3,6 @@
 /*
 Project Name : OpenMEEG
 
-author            : $Author$
 version           : $Revision$
 last revision     : $Date$
 modified by       : $LastChangedBy$
@@ -51,11 +50,11 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <matio.h>
 #endif
 
-#include "MatrixIO.H"
-#include "sparse_matrice.h"
-// #include "matrice.h"
+#include "MathsIO.H"
+#include "sparse_matrix.h"
+#include "matrix.h"
 
-namespace Maths {
+namespace maths {
 
     struct MatlabIO: public MathsIOBase {
 
@@ -68,43 +67,43 @@ namespace Maths {
             return strncmp(buffer.c_str(),MagicTag.c_str(),MagicTag.size()) == 0;
         }
 
-        bool known(const MatrixBase& matrix) const {
-            return matrix.storageType()==MatrixBase::FULL || matrix.storageType()==MatrixBase::SPARSE;
+        bool known(const LinOp& linop) const {
+            return linop.storageType()==LinOp::FULL || linop.storageType()==LinOp::SPARSE;
         }
 
-        void read_full(mat_t* mat,MatrixBase& matrix) const {
+        void read_full(mat_t* mat,LinOp& linop) const {
             matvar_t* matvar = Mat_VarReadNext(mat);
             while (matvar!=NULL && (matvar->rank!=2 || matvar->data_type!=MAT_T_DOUBLE || matvar->class_type!=MAT_C_DOUBLE))
                 matvar = Mat_VarReadNext(mat);
             if (matvar==NULL)
-                throw std::string("There is no 2D full double matrix in this Matlab file");
+                throw std::string("There is no 2D full double Matrix in this Matlab file");
 
-            matrice* M = dynamic_cast<matrice*>(&matrix);
+            Matrix* m = dynamic_cast<Matrix*>(&linop);
 
-            M->nlin() = matvar->dims[0];
-            M->ncol() = matvar->dims[1];
-            double* data = M->data();
+            m->nlin() = matvar->dims[0];
+            m->ncol() = matvar->dims[1];
+            double* data = m->data();
             data = static_cast<double*>(matvar->data);
             matvar->mem_conserve = 1;
             Mat_VarFree(matvar);
             Mat_Close(mat);
         }
 
-        void read_sparse(mat_t* mat,MatrixBase& matrix) const {
-            sparse_matrice* M = dynamic_cast<sparse_matrice*>(&matrix);
+        void read_sparse(mat_t* mat,LinOp& linop) const {
+            SparseMatrix* m = dynamic_cast<SparseMatrix*>(&linop);
 
             matvar_t* matvar = Mat_VarReadNext(mat);
 
             while( matvar!=NULL && (matvar->rank!=2 || matvar->data_type!=MAT_T_DOUBLE || matvar->class_type!=MAT_C_SPARSE) )
                 matvar = Mat_VarReadNext(mat);
             if (matvar==NULL) {
-                throw std::string("There is no 2D sparse double matrix in this Matlab file");
+                throw std::string("There is no 2D sparse double Matrix in this Matlab file");
             }
 
             std::cout << "Using variable with name : " << matvar->name << std::endl;
 
-            M->nlin() = matvar->dims[0];
-            M->ncol() = matvar->dims[1];
+            m->nlin() = matvar->dims[0];
+            m->ncol() = matvar->dims[1];
 
             sparse_t* sparse = static_cast<sparse_t*>(matvar->data);
             size_t _nz = sparse->nzmax;
@@ -124,7 +123,7 @@ namespace Maths {
                         current_col++;
                     }
                     size_t j = current_col;
-                    M->operator()(i,j) = val;
+                    m->operator()(i,j) = val;
                 }
             }
             matvar->mem_conserve = 1;
@@ -132,36 +131,36 @@ namespace Maths {
             Mat_Close(mat);
         }
 
-        void write_full(mat_t* mat,const MatrixBase& matrix) const {
-            matrice* M = dynamic_cast<matrice*>(const_cast<MatrixBase*>(&matrix));
+        void write_full(mat_t* mat,const LinOp& linop) const {
+            Matrix* m = dynamic_cast<Matrix*>(const_cast<LinOp*>(&linop));
             matvar_t* matvar;
-            int dims[2] = { M->nlin(), M->ncol() };
-            matvar = Mat_VarCreate("matrix",MAT_C_DOUBLE,MAT_T_DOUBLE,2,dims,M->data(),0);
+            int dims[2] = { m->nlin(), m->ncol() };
+            matvar = Mat_VarCreate("linop",MAT_C_DOUBLE,MAT_T_DOUBLE,2,dims,m->data(),0);
             Mat_VarWrite(mat,matvar,COMPRESSION_ZLIB);
             Mat_VarFree(matvar);
             Mat_Close(mat);
         }
 
-        void write_sparse(mat_t* mat,const MatrixBase& matrix) const {
-            sparse_matrice* M = dynamic_cast<sparse_matrice*>(const_cast<MatrixBase*>(&matrix));
-            sparse_matrice::const_iterator it;
-            
-            sparse_matrice::Tank tank_inverted;
-            
-            for(it = M->begin(); it != M->end(); ++it) {
+        void write_sparse(mat_t* mat,const LinOp& linop) const {
+            SparseMatrix* m = dynamic_cast<SparseMatrix*>(const_cast<LinOp*>(&linop));
+            SparseMatrix::const_iterator it;
+
+            SparseMatrix::Tank tank_inverted;
+
+            for(it = m->begin(); it != m->end(); ++it) {
                 size_t i = it->first.first;
                 size_t j = it->first.second;
                 double val = it->second;
                 tank_inverted[std::pair<size_t,size_t>(j,i)] = val;
             }
-            
-            double* t = (double*)malloc(sizeof(double)*matrix.size());
-            mat_int32_t  *ir = (mat_int32_t*)malloc(sizeof(mat_int32_t)*matrix.size());
-            mat_int32_t  *jc = (mat_int32_t*)malloc(sizeof(mat_int32_t)*(matrix.ncol()+1));
-            
+
+            double* t = (double*)malloc(sizeof(double)*linop.size());
+            mat_int32_t  *ir = (mat_int32_t*)malloc(sizeof(mat_int32_t)*linop.size());
+            mat_int32_t  *jc = (mat_int32_t*)malloc(sizeof(mat_int32_t)*(linop.ncol()+1));
+
             size_t cnt = 0;
-            long current_col = -1;
-            
+            size_t current_col = (size_t)-1;
+
             for(it = tank_inverted.begin(); it != tank_inverted.end(); ++it) {
                 size_t i = it->first.second;
                 size_t j = it->first.first;
@@ -176,39 +175,39 @@ namespace Maths {
                 t[cnt] = val;
                 cnt++;
             }
-            
-            for(size_t k = current_col+1; k <= matrix.ncol(); ++k) {
-                jc[k] = matrix.size();
+
+            for(size_t k = current_col+1; k <= linop.ncol(); ++k) {
+                jc[k] = linop.size();
             }
-            
-            int dims[2] = { matrix.nlin(), matrix.ncol() };
+
+            int dims[2] = { linop.nlin(), linop.ncol() };
             matvar_t *matvar;
             sparse_t  sparse = {0,};
-            sparse.nzmax = matrix.size();
-            sparse.nir   = matrix.size();
+            sparse.nzmax = linop.size();
+            sparse.nir   = linop.size();
             sparse.ir    = ir;
-            sparse.njc   = matrix.ncol()+1;
+            sparse.njc   = linop.ncol()+1;
             sparse.jc    = jc;
-            sparse.ndata = matrix.size();
+            sparse.ndata = linop.size();
             sparse.data  = t;
-            
+
             matvar = Mat_VarCreate("matrix",MAT_C_SPARSE,MAT_T_DOUBLE,2,dims,&sparse,MEM_CONSERVE);
             Mat_VarWrite(mat,matvar,COMPRESSION_ZLIB);
             Mat_VarFree(matvar);
             Mat_Close(mat);
         }
 
-        void read(std::ifstream& is,MatrixBase& matrix) const {
+        void read(std::ifstream& is,LinOp& linop) const {
             #ifdef USE_MATIO
                 if(is.is_open()) {
                     is.close();
                 }
                 mat_t* mat = Mat_Open(name().c_str(),MAT_ACC_RDONLY);
                 if (mat) {
-                    if(matrix.storageType()==MatrixBase::SPARSE) {
-                        read_sparse(mat,matrix);
+                    if(linop.storageType()==LinOp::SPARSE) {
+                        read_sparse(mat,linop);
                     } else {
-                        read_full(mat,matrix);
+                        read_full(mat,linop);
                     }
                 } else {
                     throw std::string("Unable to open : ")+name();
@@ -218,7 +217,7 @@ namespace Maths {
             #endif
         }
 
-        void write(std::ofstream& os, const MatrixBase& matrix) const {
+        void write(std::ofstream& os, const LinOp& linop) const {
             #ifdef USE_MATIO
                 if(os.is_open()) {
                     std::cout << "closing stream" << std::endl;
@@ -227,10 +226,10 @@ namespace Maths {
                 }
                 mat_t* mat = Mat_Open(name().c_str(),MAT_ACC_RDWR);
                 if (mat) {
-                    if(matrix.storageType()==MatrixBase::SPARSE) {
-                        write_sparse(mat,matrix);
+                    if(linop.storageType()==LinOp::SPARSE) {
+                        write_sparse(mat,linop);
                     } else {
-                        write_full(mat,matrix);
+                        write_full(mat,linop);
                     }
                 } else {
                     throw std::string("Unable to open : ")+name();

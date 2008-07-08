@@ -49,15 +49,15 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <cstring>
 
 #include "mesh3.h"
-#include "sparse_matrice.h"
-#include "fast_sparse_matrice.h"
+#include "sparse_matrix.h"
+#include "fast_sparse_matrix.h"
 #include "stdlib.h"
 #include "stdio.h"
 #include "math.h"
 #include "triangle.h"
 #include "options.h"
 #include "geometry.h"
-#include "vecteur.h"
+#include "vector.h"
 
 #define Pi acos(-1)
 using namespace std;
@@ -323,7 +323,7 @@ decoupe(dt,iz2,&niz2,&diz2);
   if (E[0]>=0){
     // float aire= 1; //deo*R *dez /2;
     int trianglecounter=0;
-    sparse_matrice stimelec(nt,12);
+    SparseMatrix stimelec(nt,12);
     for (i=0;i<(nl-1)*2*nteta+3*nteta+1;i++){
       trianglecounter++;
     }
@@ -472,14 +472,14 @@ void getHelp(char** argv) {
     cout << "               Output cond file " << endl;
     cout << "               Output surf1 tri mesh " << endl;
     cout << "               Output surf2 tri mesh " << endl;
-    cout << "               Output stimelec sparse matrix" << endl << endl;
+    cout << "               Output stimelec sparse Matrix" << endl << endl;
     cout << "         -makeparameters       " <<endl;    
     cout << "               Output parameter file" << endl;
     cout << "               Output geom file " << endl;
     cout << "               Output cond file " << endl;
     cout << "               Output surf1 tri mesh " << endl;
     cout << "               Output surf2 tri mesh " << endl;
-    cout << "               Output stimelec sparse matrix" << endl << endl;
+    cout << "               Output stimelec sparse Matrix" << endl << endl;
 
     exit(0);
 }

@@ -3,7 +3,6 @@
 /*
 Project Name : OpenMEEG
 
-author            : $Author$
 version           : $Revision$
 last revision     : $Date$
 modified by       : $LastChangedBy$
@@ -46,10 +45,10 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #include <cstring>
 
-#include "matrice.h"
-#include "matrice.h"
-#include "symmatrice.h"
-#include "vecteur.h"
+#include "matrix.h"
+#include "matrix.h"
+#include "symmatrix.h"
+#include "vector.h"
 #include "cpuChrono.h"
 #include "gain.h"
 
@@ -91,22 +90,22 @@ int main(int argc, char **argv)
             return 0;
         }
 
-        matrice EEGGainMatrix;
+        Matrix EEGGainMatrix;
 
         { // Avoiding to store all matrices at the same time
             size_t nn,mm;
-            matrice::readDimsBin(argv[3],nn,mm); // read nb lines of RhsMatrix without allocating it
-            symmatrice LhsInvMatrix;
+            Matrix::readDimsBin(argv[3],nn,mm); // read nb lines of RhsMatrix without allocating it
+            SymMatrix LhsInvMatrix;
             LhsInvMatrix.loadBin(argv[2]);
             EEGGainMatrix = LhsInvMatrix(0,LhsInvMatrix.nlin()-1,0,nn-1); // reducedLhsInvMatrix
         }
         {
-            sparse_matrice vToEEGMatrix;
+            SparseMatrix vToEEGMatrix;
             vToEEGMatrix.loadBin(argv[4]);
             EEGGainMatrix = vToEEGMatrix*EEGGainMatrix;
         }
         {
-            matrice RhsMatrix;
+            Matrix RhsMatrix;
             RhsMatrix.loadBin(argv[3]);
             EEGGainMatrix = EEGGainMatrix*RhsMatrix;
         }
@@ -121,27 +120,27 @@ int main(int argc, char **argv)
             cerr << "Not enough arguments \nPlease try \"" << argv[0] << " -h\" or \"" << argv[0] << " --help \" \n" << endl;
             return 0;
         }
-        matrice MEGGainMatrix;
+        Matrix MEGGainMatrix;
 
         { // Avoiding to store all matrices at the same time
             size_t nn,mm;
-            matrice::readDimsBin(argv[3],nn,mm); // read nb lines of RhsMatrix without allocating it
-            symmatrice LhsInvMatrix;
+            Matrix::readDimsBin(argv[3],nn,mm); // read nb lines of RhsMatrix without allocating it
+            SymMatrix LhsInvMatrix;
             LhsInvMatrix.loadBin(argv[2]);
             MEGGainMatrix = LhsInvMatrix(0,LhsInvMatrix.nlin()-1,0,nn-1); // reducedLhsInvMatrix
         }
         {
-            matrice vToMEGMatrix;
+            Matrix vToMEGMatrix;
             vToMEGMatrix.loadBin(argv[4]);
             MEGGainMatrix = vToMEGMatrix*MEGGainMatrix;
         }
         {
-            matrice RhsMatrix;
+            Matrix RhsMatrix;
             RhsMatrix.loadBin(argv[3]);
             MEGGainMatrix = MEGGainMatrix*RhsMatrix;
         }
         {
-            matrice sToMEGMatrix;
+            Matrix sToMEGMatrix;
             sToMEGMatrix.loadBin(argv[5]);
             MEGGainMatrix += sToMEGMatrix;
         }
@@ -155,17 +154,17 @@ int main(int argc, char **argv)
             cerr << "Not enough arguments \nPlease try \"" << argv[0] << " -h\" or \"" << argv[0] << " --help \" \n" << endl;
             return 0;
         }
-        matrice VolPotEITGainMatrix;
+        Matrix VolPotEITGainMatrix;
 
         { // Avoiding to store all matrices at the same time
-            matrice SurfToVol;
+            Matrix SurfToVol;
             SurfToVol.loadBin(argv[2]); 
-            symmatrice LhsInvMatrix;
+            SymMatrix LhsInvMatrix;
             LhsInvMatrix.loadBin(argv[3]);
             VolPotEITGainMatrix = SurfToVol*LhsInvMatrix(0,SurfToVol.ncol()-1,0,LhsInvMatrix.ncol()-1);
         }
         {
-            matrice EITStim;
+            Matrix EITStim;
             EITStim.loadBin(argv[4]);
             VolPotEITGainMatrix = VolPotEITGainMatrix*EITStim;
         }
@@ -191,17 +190,17 @@ void getHelp(char** argv)
     cout << "   -EEG :   Compute the gain for EEG " << endl;
     cout << "            Filepaths are in order :" << endl;
     cout << "            LhsInvMatrix, RhsMatrix, vToEEGMatrix, EEGGainMatrix" << endl;
-    cout << "            bin matrix" << endl << endl;
+    cout << "            bin Matrix" << endl << endl;
 
     cout << "   -MEG :   Compute the gain for MEG " << endl;
     cout << "            Filepaths are in order :" << endl;
     cout << "            LhsInvMatrix, RhsMatrix, vToMEGMatrix, sToMEGMatrix, MEGGainMatrix" << endl;
-    cout << "            matrix (.bin or .txt)" << endl << endl;
+    cout << "            Matrix (.bin or .txt)" << endl << endl;
 
     cout << "   -VolPotEIT :   Compute the gain for EIT, measured within the volume " << endl;
     cout << "            Filepaths are in order :" << endl;
     cout << "            inputs: SurfToVolMatrix, LhsInvMatrix, EITStimMatrix," << endl;
-    cout << "            output: VolPotEITgain matrix (.txt)" << endl << endl;
+    cout << "            output: VolPotEITgain Matrix (.txt)" << endl << endl;
 
     exit(0);
 

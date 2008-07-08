@@ -54,8 +54,8 @@ void Sensors::copy(const Sensors& S) {
                 m_names.push_back(S.m_names[i]);
         }
 
-        m_positions = matrice( S.m_positions );
-        m_orientations = matrice( S.m_orientations );
+        m_positions = Matrix( S.m_positions );
+        m_orientations = Matrix( S.m_orientations );
     }
 }
 
@@ -132,12 +132,12 @@ void Sensors::load(std::istream &in) {
     num_of_lines--;
 
     // init private members :
-    m_positions = matrice( num_of_lines, 3);
-    m_weights = vecteur( num_of_lines );
+    m_positions = Matrix( num_of_lines, 3);
+    m_weights = Vector( num_of_lines );
     m_pointSensorIdx = std::vector<size_t>( num_of_lines );
 
     if ( num_of_columns > 4 ) {
-        m_orientations = matrice( num_of_lines, 3);
+        m_orientations = Matrix( num_of_lines, 3);
     }
 
     m_nb = 0;
@@ -234,8 +234,8 @@ void Sensors::save(const char* filename) {
     return;
 }
 
-sparse_matrice Sensors::getWeightsMatrix() const {
-    sparse_matrice weight_matrix(getNumberOfSensors(),getNumberOfPositions());
+SparseMatrix Sensors::getWeightsMatrix() const {
+    SparseMatrix weight_matrix(getNumberOfSensors(),getNumberOfPositions());
     for(size_t i = 0; i < getNumberOfPositions(); ++i) {
         weight_matrix(m_pointSensorIdx[i],i) = m_weights(i);
     }

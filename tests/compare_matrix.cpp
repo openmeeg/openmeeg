@@ -1,8 +1,8 @@
 #include "MatLibConfig.h"
-#include "vecteur.h"
-#include "matrice.h"
-#include "symmatrice.h"
-#include "sparse_matrice.h"
+#include "vector.h"
+#include "matrix.h"
+#include "symmatrix.h"
+#include "sparse_matrix.h"
 #include "options.h"
 #include <iostream>
 #include <cmath>
@@ -12,18 +12,16 @@ using namespace std;
 template<class T> bool compare(const T& mat1, const T& mat2, float eps, size_t col = 0);
 template<class T> bool compare_rdm(const T& mat1, const T& mat2, float eps, size_t col = 0);
 template<class T> double normInf(const T& mat);
-template<class T> bool compare_matrices(Maths::ifstream& ifs1,T& mat1,Maths::ifstream& ifs2,T& mat2,
+template<class T> bool compare_matrixs(maths::ifstream& ifs1,T& mat1,maths::ifstream& ifs2,T& mat2,
                                           float eps,const char* rdm,size_t col);
 
 int main (int argc, char** argv)
 {
     command_usage("Compare two matrices of float with a certain numerical precision\ncompare_matrix mat1 mat2 [options]");
-    const char *input_filename = command_option("-i",(const char *) NULL,"Input full matrice");
-    const char *output_filename = command_option("-o",(const char *) NULL,"Output full matrice");
     const char *input_format1 = command_option("-if1",(const char *) NULL,
-                                                "Input file format for matrix 1 : ascii, binary, tex, matlab, old_binary (should be avoided)");
+                                                "Input file format for Matrix 1 : ascii, binary, tex, matlab, old_binary (should be avoided)");
     const char *input_format2 = command_option("-if1",(const char *) NULL,
-                                                "Input file format for matrix 2 : ascii, binary, tex, matlab, old_binary (should be avoided)");
+                                                "Input file format for Matrix 2 : ascii, binary, tex, matlab, old_binary (should be avoided)");
 
     const char *isfull = command_option("-full",(const char *) 0,"Data are symmetric matrices");
     const char *issym = command_option("-sym",(const char *) 0,"Data are symmetric matrices");
@@ -39,7 +37,7 @@ int main (int argc, char** argv)
     }
 
     if(!isfull && !issym && !issparse) {
-        std::cout << "Please set matrice type using : -full, -sym or -sparse" << std::endl;
+        std::cout << "Please set Matrix type using : -full, -sym or -sparse" << std::endl;
         return 1;
     }
 
@@ -55,34 +53,34 @@ int main (int argc, char** argv)
     cout << "- " << argv[1] << endl;
     cout << "- " << argv[2] << endl;
 
-    Maths::ifstream ifs1(argv[1]);
-    Maths::ifstream ifs2(argv[2]);
+    maths::ifstream ifs1(argv[1]);
+    maths::ifstream ifs2(argv[2]);
 
     if(input_format1) {
-        ifs1 = ifs1 >> Maths::format(input_format1);
+        ifs1 = ifs1 >> maths::format(input_format1);
     }
 
     if(input_format2) {
-        ifs2 = ifs2 >> Maths::format(input_format2);
+        ifs2 = ifs2 >> maths::format(input_format2);
     }
 
     bool flag;
     if(issym) {
-        symmatrice mat1;
-        symmatrice mat2;
+        SymMatrix mat1;
+        SymMatrix mat2;
         ifs1 >> mat1;
         ifs2 >> mat2;
         flag = compare(mat1,mat2,eps,col);
     } else if (issparse) {
-        sparse_matrice mat1;
-        sparse_matrice mat2;
+        SparseMatrix mat1;
+        SparseMatrix mat2;
         ifs1 >> mat1;
         ifs2 >> mat2;
         flag = compare(mat1,mat2,eps,col);
     } else { // assumes isfull
-        matrice mat1;
-        matrice mat2;
-        flag = compare_matrices(ifs1,mat1,ifs2,mat2,eps,rdm,col);
+        Matrix mat1;
+        Matrix mat2;
+        flag = compare_matrixs(ifs1,mat1,ifs2,mat2,eps,rdm,col);
     }
 
     if(!flag){
@@ -96,7 +94,7 @@ int main (int argc, char** argv)
 }
 
 template<class T>
-bool compare_matrices(Maths::ifstream& ifs1,T& mat1,Maths::ifstream& ifs2,T& mat2,
+bool compare_matrixs(maths::ifstream& ifs1,T& mat1,maths::ifstream& ifs2,T& mat2,
                                           float eps,const char*rdm,size_t col) {
     bool flag;
     try
@@ -126,7 +124,7 @@ bool compare_matrices(Maths::ifstream& ifs1,T& mat1,Maths::ifstream& ifs2,T& mat
 
 template<class T>
 bool compare(const T& mat1, const T& mat2, float eps, size_t col){
-// T is a matrice or a symmatrice
+// T is a Matrix or a SymMatrix
 
     if(col) {
         if ((mat1.ncol() < col) || (mat2.ncol() < col)) {
@@ -192,7 +190,7 @@ bool compare(const T& mat1, const T& mat2, float eps, size_t col){
 
 template<class T>
 bool compare_rdm(const T& mat1, const T& mat2, float eps, size_t col){
-// T is a matrice
+// T is a Matrix
 
     if(col) {
         if ((mat1.ncol() < col) || (mat2.ncol() < col)) {
@@ -218,8 +216,8 @@ bool compare_rdm(const T& mat1, const T& mat2, float eps, size_t col){
     }
 
     for(unsigned int j=jmin; j<jmax; j++) {
-        vecteur col1 = mat1.getcol(j);
-        vecteur col2 = mat2.getcol(j);
+        Vector col1 = mat1.getcol(j);
+        Vector col2 = mat2.getcol(j);
         col1 = col1 - col1.mean();
         col2 = col2 - col2.mean();
         col1 = col1 / col1.norm();

@@ -1,8 +1,8 @@
 function save_txt_sym(data,filename)
 
-% SAVE_TXT_SYM   Save ascii symmetric matrix
+% SAVE_TXT_SYM   Save ascii symmetric Matrix
 %
-%   Save ascii symmetric matrix
+%   Save ascii symmetric Matrix
 %   
 %   SYNTAX
 %       SAVE_TXT_SYM(DATA,FILENAME)

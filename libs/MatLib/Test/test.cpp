@@ -3,7 +3,6 @@
 /*
 Project Name : OpenMEEG
 
-author            : $Author$
 version           : $Revision$
 last revision     : $Date$
 modified by       : $LastChangedBy$
@@ -45,11 +44,11 @@ knowledge of the CeCILL-B license and that you accept its terms.
 */
 
 #include "MatLibConfig.h"
-#include "vecteur.h"
-#include "matrice.h"
-#include "symmatrice.h"
-#include "sparse_matrice.h"
-#include "fast_sparse_matrice.h"
+#include "vector.h"
+#include "matrix.h"
+#include "symmatrix.h"
+#include "sparse_matrix.h"
+#include "fast_sparse_matrix.h"
 #include "chrono.h"
 
 #include <cmath>
@@ -63,7 +62,7 @@ void genericTest(T &M)
     cout<<" Generic Test "<<endl;
     cout<<"   nlin  = " << (int)M.nlin() << endl;
     cout<<"   ncol  = " << (int)M.ncol() << endl;
-    vecteur v(M.ncol());
+    Vector v(M.ncol());
     v.set(1);
     v = M*v;
 
@@ -87,9 +86,9 @@ void genericTest(T &M)
 
 int main ()
 {
-    // section vecteur
+    // section Vector
     cout<<endl<<"========== vectors =========="<<endl;
-    vecteur v(8);
+    Vector v(8);
     v.set(0);
     v.saveBin("tmp.bin");
     for(int i=0;i<8;i++) v(i)=i;
@@ -99,9 +98,9 @@ int main ()
     v.loadTxt("tmp.txt");
     cout<<"v= "<<endl<<v<<endl;
 
-    // section matrice
+    // section Matrix
     cout<<endl<<"========== matrices =========="<<endl;
-    matrice M(5,5);
+    Matrix M(5,5);
 
     for(size_t i=0;i<M.nlin();i++)
         for(size_t j=0;j<M.ncol();j++)
@@ -109,21 +108,21 @@ int main ()
 
     genericTest(M);
 
-    matrice Q = M.submat(3,1,2,3); // select submatrice
+    Matrix Q = M.submat(3,1,2,3); // select submatrix
     cout<<"Q= "<<endl<<Q<<endl;
 
-    matrice P(3,3);
+    Matrix P(3,3);
     P(0,0) = 25 ; P(0,1) = 3 ; P(0,2) = 6 ;
     P(1,0) = 12 ; P(1,1) = 5 ; P(1,2) = 32 ;
     P(2,0) = 4 ; P(2,1) = 10 ; P(2,2) = 4 ;
     cout << "Matrice P : " << endl;
     cout << P;
 
-    matrice Pinv = P.inverse();
-    cout << "P Inverse matrice : " << endl;
+    Matrix Pinv = P.inverse();
+    cout << "P Inverse Matrix : " << endl;
     cout << Pinv;
 
-    matrice unit = P*Pinv;
+    Matrix unit = P*Pinv;
     double eps = 0.01;
     for(unsigned int i = 0; i<unit.nlin(); i++)
         for(unsigned int j = 0; j<unit.ncol(); j++){
@@ -142,25 +141,25 @@ int main ()
 
 #ifdef USE_MATIO
     cout << "MAT :" << endl;
-    M.saveMat("tmp_matrice.mat");
-    M.loadMat("tmp_matrice.mat");
+    M.saveMat("tmp_matrix.mat");
+    M.loadMat("tmp_matrix.mat");
     cout << M;
 #endif
 
-    // section symmatrice
+    // section SymMatrix
     cout<<endl<<"========== symmetric matrices =========="<<endl;
-    symmatrice S(4);
+    SymMatrix S(4);
     for(unsigned int i=0; i<4; i++)
         for(unsigned int j=i; j<4; j++)
             S(i,j)=pow(2.0,(double)i)+pow(3.0,(double)j);
 
     genericTest(S);
-    matrice R = S(1,2,0,2); // extract submatrice
+    Matrix R = S(1,2,0,2); // extract submatrix
     cout << "R= " << endl << R << endl;
 
-    // section sparse_matrice
+    // section SparseMatrix
     cout<<endl<<"========== sparse matrices =========="<<endl;
-    sparse_matrice spM(10,10);
+    SparseMatrix spM(10,10);
     size_t _n=0;
     for(size_t i=0;i<5;i++)
     {
@@ -172,21 +171,21 @@ int main ()
 
 #ifdef USE_MATIO
     cout << "MAT :" << endl;
-    spM.saveMat("tmp_sparse_matrice.mat");
-    spM.loadMat("tmp_sparse_matrice.mat");
+    spM.saveMat("tmp_SparseMatrix.mat");
+    spM.loadMat("tmp_SparseMatrix.mat");
     cout << spM;
 #endif
 
-    matrice U(10,10);
+    Matrix U(10,10);
     U.set(1.0);
-    matrice T = spM*U;
+    Matrix T = spM*U;
     cout << T;
     T = U*spM;
     cout << T;
 
     cout<<endl<<"========== fast sparse matrices =========="<<endl;
     cout << spM;
-    fast_sparse_matrice fspM(spM);
+    FastSparseMatrix fspM(spM);
     cout << fspM;
     genericTest(fspM);
 

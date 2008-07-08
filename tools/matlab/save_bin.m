@@ -1,8 +1,8 @@
 function save_bin(data,filename)
 
-% SAVE_BIN   Save binary matrix
+% SAVE_BIN   Save binary Matrix
 %
-%   Save binary matrix
+%   Save binary Matrix
 %
 %   SYNTAX
 %       SAVE_BIN(DATA,FILENAME)

@@ -3,7 +3,6 @@
 /*
 Project Name : OpenMEEG
 
-author            : $Author$
 version           : $Revision$
 last revision     : $Date$
 modified by       : $LastChangedBy$
@@ -44,11 +43,11 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#include "symmatrice.h"
-#include "vecteur.h"
+#include "symmatrix.h"
+#include "vector.h"
 #include "mesh3.h"
-#include "sparse_matrice.h"
-#include "fast_sparse_matrice.h"
+#include "sparse_matrix.h"
+#include "fast_sparse_matrix.h"
 
 using namespace std;
 
@@ -70,13 +69,13 @@ int main(int argc, char **argv)
     bool checkClosedSurface = false;
     SourceMesh.load(argv[1],checkClosedSurface);
 
-    sparse_matrice SmoothMatrix = SourceMesh.gradient();
+    SparseMatrix SmoothMatrix = SourceMesh.gradient();
 
     // write output variables
     SmoothMatrix.saveBin(argv[2]);
     if(argc == 4)
     {
-        vecteur AiVector = SourceMesh.areas();
+        Vector AiVector = SourceMesh.areas();
         AiVector.saveBin(argv[3]);
     }
 

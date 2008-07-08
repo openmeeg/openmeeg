@@ -3,7 +3,6 @@
 /*
 Project Name : OpenMEEG
 
-author            : $Author$
 version           : $Revision$
 last revision     : $Date$
 modified by       : $LastChangedBy$
@@ -45,9 +44,9 @@ knowledge of the CeCILL-B license and that you accept its terms.
 */
 
 #include "options.h"
-#include "matrice.h"
-#include "symmatrice.h"
-#include "vecteur.h"
+#include "matrix.h"
+#include "symmatrix.h"
+#include "vector.h"
 #include "om_utils.h"
 
 int main( int argc, char** argv)
@@ -62,7 +61,7 @@ int main( int argc, char** argv)
         return 1;
     }
 
-    matrice squids(input_filename);
+    Matrix squids(input_filename);
     assert(squids.nlin() == 151);
 
     FILE* f = fopen(output_filename,"w");

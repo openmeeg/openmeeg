@@ -3,7 +3,6 @@
 /*
 Project Name : OpenMEEG
 
-author            : $Author$
 version           : $Revision$
 last revision     : $Date$
 modified by       : $LastChangedBy$
@@ -47,14 +46,14 @@ knowledge of the CeCILL-B license and that you accept its terms.
 /*! \file
     \brief file containing the integral operators
 */
-#ifndef H_operators
-#define H_operators
+#ifndef OPERATORS_H
+#define OPERATORS_H
 
 #include <iostream>
 
-#include "vecteur.h"
-#include "matrice.h"
-#include "symmatrice.h"
+#include "vector.h"
+#include "matrix.h"
+#include "symmatrix.h"
 #include "geometry.h"
 #include "integrator.h"
 #include "analytics.h"
@@ -66,7 +65,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #define ADAPT_RHS
 //#define ADAPT_LHS
 
-// T can be a matrice or symmatrice
+// T can be a Matrix or SymMatrix
 template<class T>
 void operatorN(const Mesh &m1,const Mesh &m2,T &mat, const int offsetI,const int offsetJ,const int,const int IopS=0,const int JopS=0);
 template<class T>
@@ -74,21 +73,21 @@ void operatorS(const Mesh &m1,const Mesh &m2,T &mat, const int offsetI,const int
 template<class T>
 void operatorD(const Mesh &m1,const Mesh &m2,T &mat, const int offsetI,const int offsetJ,const int);
 
-void operatorN(const Geometry &,const int,const int,const int,symmatrice &,const int,const int ,const int,const int);
-void operatorS(const Geometry &,const int,const int,const int,symmatrice &,const int,const int);
-void operatorD(const Geometry &,const int,const int,const int,symmatrice &,const int,const int);
-void operatorSinternal(const Geometry &,const int, matrice &,const int,const matrice &);
-void operatorDinternal(const Geometry &,const int, matrice &,const int,const matrice &);
-void operatorP1P0(const Geometry &geo,const int I,symmatrice &mat,const int offsetI,const int offsetJ);
-void operatorFerguson(const Vect3& x, const Mesh &m1, matrice &mat, int offsetI, int offsetJ);
-void operatorDipolePotDer(const Vect3 &r0, const Vect3 &q,const Mesh &inner_layer, vecteur &rhs, int offsetIdx,const int);
-void operatorDipolePot(const Vect3 &r0, const Vect3 &q,const Mesh &inner_layer, vecteur &rhs, int offsetIdx,const int);
-void operatorDipolePotDerGrad(const Vect3 &r0, const Vect3 &q,const Mesh &inner_layer, vecteur rhs[3], int offsetIdx,const int);
-void operatorDipolePotGrad(const Vect3 &r0, const Vect3 &q,const Mesh &inner_layer, vecteur rhs[3], int offsetIdx,const int);
+void operatorN(const Geometry &,const int,const int,const int,SymMatrix &,const int,const int ,const int,const int);
+void operatorS(const Geometry &,const int,const int,const int,SymMatrix &,const int,const int);
+void operatorD(const Geometry &,const int,const int,const int,SymMatrix &,const int,const int);
+void operatorSinternal(const Geometry &,const int, Matrix &,const int,const Matrix &);
+void operatorDinternal(const Geometry &,const int, Matrix &,const int,const Matrix &);
+void operatorP1P0(const Geometry &geo,const int I,SymMatrix &mat,const int offsetI,const int offsetJ);
+void operatorFerguson(const Vect3& x, const Mesh &m1, Matrix &mat, int offsetI, int offsetJ);
+void operatorDipolePotDer(const Vect3 &r0, const Vect3 &q,const Mesh &inner_layer, Vector &rhs, int offsetIdx,const int);
+void operatorDipolePot(const Vect3 &r0, const Vect3 &q,const Mesh &inner_layer, Vector &rhs, int offsetIdx,const int);
+void operatorDipolePotDerGrad(const Vect3 &r0, const Vect3 &q,const Mesh &inner_layer, Vector rhs[3], int offsetIdx,const int);
+void operatorDipolePotGrad(const Vect3 &r0, const Vect3 &q,const Mesh &inner_layer, Vector rhs[3], int offsetIdx,const int);
 
-inline void mult( symmatrice &mat, int Istart, int Jstart, int Istop, int Jstop, double coeff)
+inline void mult( SymMatrix &mat, int Istart, int Jstart, int Istop, int Jstop, double coeff)
 {
-    //If the upper left corner of the block is on the diagonal line of the matrix
+    //If the upper left corner of the block is on the diagonal line of the Matrix
     //Only the half of the block has to be treated because of the symmetric storage
     if(Istart!=Jstart)
         for(int i=Istart;i<Istop;i++)
@@ -106,9 +105,9 @@ inline void mult( symmatrice &mat, int Istart, int Jstart, int Istop, int Jstop,
                 mat(i,j)*=coeff;
 }
 
-inline void mult2( matrice &mat, int Istart, int Jstart, int Istop, int Jstop, double coeff)
+inline void mult2( Matrix &mat, int Istart, int Jstart, int Istop, int Jstop, double coeff)
 {
-    //If the upper left corner of the block is on the diagonal line of the matrix
+    //If the upper left corner of the block is on the diagonal line of the Matrix
     //Only the half of the block has to be treated because of the symmetric storage
     for(int i=Istart;i<Istop;i++)
         #ifdef USE_OMP
@@ -130,16 +129,16 @@ inline double _operatorD(const int nT1,const int nP2,const int GaussOrder,const 
     #endif
 #ifdef ADAPT_LHS
     #ifdef USE_OMP
-        adaptive_integrator<double,analyticD> gauss(0.005);
+        AdaptiveIntegrator<double,analyticD> gauss(0.005);
     #else
-        static adaptive_integrator<double,analyticD> gauss(0.005);
+        static AdaptiveIntegrator<double,analyticD> gauss(0.005);
     #endif
     gauss.setOrder(GaussOrder);
 #else
     #ifdef USE_OMP
-        integrator<double,analyticD> gauss(GaussOrder);
+        Integrator<double,analyticD> gauss(GaussOrder);
     #else
-        static integrator<double,analyticD> gauss(GaussOrder);
+        static Integrator<double,analyticD> gauss(GaussOrder);
     #endif
 #endif //ADAPT_LHS
 
@@ -159,7 +158,7 @@ inline double _operatorD(const int nT1,const int nP2,const int GaussOrder,const 
 template<class T>
 inline void _operatorD(const int nT1,const int nT2,const int GaussOrder,const Mesh &m1,const Mesh &m2,T &mat,const int offsetI,const int offsetJ)
 {
-    //this version of _operatorD add in the matrix the contribution of T2 on T1
+    //this version of _operatorD add in the Matrix the contribution of T2 on T1
     // for all the P1 functions it gets involved
 
     // consider varying order of quadrature with the distance between T1 and T2
@@ -174,14 +173,14 @@ inline void _operatorD(const int nT1,const int nT2,const int GaussOrder,const Me
 
     analyD.init( m2, nT2);
 #ifdef ADAPT_LHS
-    adaptive_integrator<Vect3,analyticD3> gauss(0.005);
+    AdaptiveIntegrator<Vect3,analyticD3> gauss(0.005);
     gauss.setOrder(GaussOrder);
     Vect3 total=gauss.integrate(analyD,T1,m1);
 #else
     #ifdef USE_OMP
-        integrator<Vect3,analyticD3> gauss(GaussOrder);
+        Integrator<Vect3,analyticD3> gauss(GaussOrder);
     #else
-        static integrator<Vect3,analyticD3> gauss(GaussOrder);
+        static Integrator<Vect3,analyticD3> gauss(GaussOrder);
     #endif
 
     Vect3 total=gauss.integrate(analyD,T1,m1);
@@ -194,7 +193,7 @@ inline void _operatorD(const int nT1,const int nT2,const int GaussOrder,const Me
 #endif //OPTIMIZED_OPERATOR_D
 
 
-inline void _operatorDinternal(const int nT,const int nT2, const Mesh &m, matrice  &mat,  const int offsetJ,const Vect3 pt)
+inline void _operatorDinternal(const int nT,const int nT2, const Mesh &m, Matrix  &mat,  const int offsetJ,const Vect3 pt)
 {
 	const Triangle &T2=m.getTrg(nT2); 
 	static analyticD3 analyD;
@@ -230,14 +229,14 @@ inline double _operatorS(const int nT1,const int nT2,const int GaussOrder,const 
         analyS.init(nT1,m1);
     }
 #ifdef ADAPT_LHS
-    adaptive_integrator<double,analyticS> gauss(0.005);
+    AdaptiveIntegrator<double,analyticS> gauss(0.005);
     gauss.setOrder(GaussOrder);
     return gauss.integrate(analyS,T2,m2);
 #else
     #ifdef USE_OMP
-        integrator<double,analyticS> gauss;
+        Integrator<double,analyticS> gauss;
     #else
-        static integrator<double,analyticS> gauss;
+        static Integrator<double,analyticS> gauss;
     #endif
     gauss.setOrder(GaussOrder);
     return gauss.integrate(analyS,T2,m2);
@@ -281,12 +280,12 @@ inline double _operatorN(const int nP1,const int nP2,const int GaussOrder,const 
             Vect3 A2B2=B2-A2;
             Vect3 A1P1=P1-A1;
             Vect3 A2P2=P2-A2;
-            double coef1=A1P1*A1B1*1.0/A1B1.norme2();
-            double coef2=A2P2*A2B2*1.0/A2B2.norme2();
+            double coef1=A1P1*A1B1*1.0/A1B1.norm2();
+            double coef2=A2P2*A2B2*1.0/A2B2.norm2();
             Vect3 aq=P1-(A1+A1B1*coef1);
             Vect3 br=P2-(A2+A2B2*coef2);
-            aq*=(1.0/aq.norme2());
-            br*=(1.0/br.norme2());
+            aq*=(1.0/aq.norm2());
+            br*=(1.0/br.norm2());
 
             Aqr=-0.25/T1.getArea()/T2.getArea()*( (aq^T1.normal())*(br^T2.normal()) );
 #else
@@ -307,8 +306,8 @@ void operatorN(const Mesh &m1,const Mesh &m2,T &mat,const int offsetI,const int 
     // This function has the following arguments:
     //    One geometry
     //    the indices of the treated layers I and J
-    //    the storage matrix for the result
-    //    the upper left corner of the submatrix to be written is the matrix
+    //    the storage Matrix for the result
+    //    the upper left corner of the submatrix to be written is the Matrix
     //  the upper left corner of the corresponding S block
 
     std::cout<<"OPERATEUR N... (arg : mesh m1, mesh m2)"<<std::endl;
@@ -344,8 +343,8 @@ void operatorS(const Mesh &m1,const Mesh &m2,T &mat,const int offsetI,const int 
     // This function has the following arguments:
     //    One geometry
     //    the indices of the treated layers I and J
-    //    the storage matrix for the result
-    //    the upper left corner of the submatrix to be written is the matrix
+    //    the storage Matrix for the result
+    //    the upper left corner of the submatrix to be written is the Matrix
 
     std::cout<<"OPERATEUR S... (arg : mesh m1, mesh m2)"<<std::endl;
 
@@ -383,8 +382,8 @@ void operatorD(const Mesh &m1,const Mesh &m2,T &mat,const int offsetI,const int 
 // This function (NON OPTIMIZED VERSION) has the following arguments:
 //    One geometry
 //    the indices of the treated layers I and J
-//    the storage matrix for the result
-//    the upper left corner of the submatrix to be written is the matrix
+//    the storage Matrix for the result
+//    the upper left corner of the submatrix to be written is the Matrix
 {
     std::cout<<"OPERATEUR D... (arg : mesh m1, mesh m2)"<<std::endl;
 
@@ -409,8 +408,8 @@ void operatorD(const Mesh &m1,const Mesh &m2,T &mat,const int offsetI,const int 
     // This function (OPTIMIZED VERSION) has the following arguments:
     //    One geometry
     //    the indices of the treated layers I and J
-    //    the storage matrix for the result
-    //    the upper left corner of the submatrix to be written is the matrix
+    //    the storage Matrix for the result
+    //    the upper left corner of the submatrix to be written is the Matrix
 
     std::cout<<"OPERATEUR D (Optimized) ... (arg : mesh m1, mesh m2)"<<std::endl;
 
@@ -419,7 +418,7 @@ void operatorD(const Mesh &m1,const Mesh &m2,T &mat,const int offsetI,const int 
         for(int j=offsetJ;j<offsetJ+m2.nbTrgs();j++)
         {
             //In this version of the funtcion, in order to skip multiple computations of the same quantities
-            //    loops are run over the triangles but the matrix cannot be filled in this function anymore
+            //    loops are run over the triangles but the Matrix cannot be filled in this function anymore
             //    That's why the filling is done is function _operatorD
             _operatorD(i-offsetI,j-offsetJ,GaussOrder,m1,m2,mat,offsetI,offsetJ);
         }

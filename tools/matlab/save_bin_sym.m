@@ -1,8 +1,8 @@
 function save_bin_sym(data,filename)
 
-% SAVE_BIN_SYM   Save binary symmetric matrix
+% SAVE_BIN_SYM   Save binary symmetric Matrix
 %
-%   Save binary symmetric matrix
+%   Save binary symmetric Matrix
 %   
 %   SYNTAX
 %       SAVE_BIN_SYM(DATA,FILENAME)
