@@ -71,7 +71,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <config.h>
 #endif
 
-#ifndef __APPLE__
+#ifdef WIN32
     #pragma inline_recursion (on)
     #pragma inline_depth (255)
 #endif
