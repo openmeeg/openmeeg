@@ -55,6 +55,9 @@ namespace maths {
 
     struct TrivialBinIO: public MathsIOBase {
 
+        TrivialBinIO() { }
+        ~TrivialBinIO() {};
+
         void read_header(std::istream& is,LinOp& linop) const {
             unsigned int ui;
             is.read(reinterpret_cast<char*>(&ui),sizeof(unsigned int));
@@ -185,16 +188,12 @@ namespace maths {
 
     private:
 
-        TrivialBinIO(): MathsIOBase(MathsIO::ios()) { }
-        ~TrivialBinIO() {};
-
         static Suffixes init() {
             Suffixes suffs;
             suffs.push_back("bin");
             return suffs;
         }
 
-        static const TrivialBinIO prototype;
         static const Suffixes     suffs;
         static const std::string  Identity;
     };

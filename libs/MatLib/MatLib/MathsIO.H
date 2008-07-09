@@ -153,11 +153,19 @@ namespace maths {
             return false;
         }
 
+        //  An ugly hack to insert TrivialBinIO at the end of the IO list. 
+        //  Remove when TrivialBinIo is deleted.
+
+        static void InsertTrivialBinIO();
+
     protected:
+
+        //  This constructor is only needed for the ugly hack for TrivialBinIo.
+        //  Remove when TrivialBinIo is deleted.
+        MathsIOBase() { }
 
         MathsIOBase(IOs& ios) { base::ios().push_back(this); }
         ~MathsIOBase() {};
-
     };
 
     typedef MathsIO ifstream;

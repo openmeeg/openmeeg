@@ -1,5 +1,9 @@
 #include "MathsIO.H"
 
+//  An ugly hack to insert TrivialBinIO at the end of the IO list. 
+//  Remove when TrivialBinIo is deleted.
+#include <TrivialBinIO.H>
+
 namespace maths {
 
     namespace Internal {
@@ -28,14 +32,38 @@ namespace maths {
     MathsIO::IO MathsIO::DefaultIO = 0;
     bool MathsIO::permanent = false;
 
+    //  An ugly hack to insert TrivialBinIO at the end of the IO list. 
+    //  Remove when TrivialBinIo is deleted.
+    //
+    void MathsIOBase::InsertTrivialBinIO() {
+        static bool TrivialBinIOInserted = false;
+
+        if (!TrivialBinIOInserted) {
+            maths::TrivialBinIO* prototype = new maths::TrivialBinIO();
+            maths::MathsIO::ios().push_back(prototype);
+            TrivialBinIOInserted = true;
+        }
+    }
+
     const MathsIO::IO& MathsIO::format(const std::string& fmt) throw(UnknownFileFormat) {
+        //  An ugly hack to insert TrivialBinIO at the end of the IO list. 
+        //  Remove when TrivialBinIo is deleted.
+
+        maths::MathsIOBase::InsertTrivialBinIO();
+
         for (IOs::const_iterator i=ios().begin();i!=ios().end();++i)
             if (fmt==(*i)->identity())
                 return *i;
+
         throw UnknownFileFormat(std::string("Unknown file format : ")+fmt);
     }
 
     const MathsIO::IO& MathsIO::format_from_suffix(const std::string& name) throw(NoSuffix,UnknownFileSuffix) {
+        //  An ugly hack to insert TrivialBinIO at the end of the IO list. 
+        //  Remove when TrivialBinIo is deleted.
+
+        maths::MathsIOBase::InsertTrivialBinIO();
+        
         const std::string::size_type pos = name.find_last_of(".");
         if (pos==std::string::npos)
             throw NoSuffix(std::string("Could find suffix for :")+name);
@@ -49,6 +77,12 @@ namespace maths {
     }
 
     maths::ifstream& operator>>(maths::ifstream& mio,LinOp& linop) throw(std::string) {
+
+        //  An ugly hack to insert TrivialBinIO at the end of the IO list. 
+        //  Remove when TrivialBinIo is deleted.
+
+        maths::MathsIOBase::InsertTrivialBinIO();
+
         std::ifstream is(mio.name().c_str());
         if(is.fail()) {
             throw std::string("Unable to open : ")+mio.name();
@@ -75,6 +109,12 @@ namespace maths {
     }
 
     maths::ofstream& operator<<(maths::ofstream& mio,const LinOp& linop) throw(std::string) {
+
+        //  An ugly hack to insert TrivialBinIO at the end of the IO list. 
+        //  Remove when TrivialBinIo is deleted.
+
+        maths::MathsIOBase::InsertTrivialBinIO();
+
         std::ofstream os(mio.name().c_str());
         if(os.fail()) {
             throw std::string("Unable to open : ")+mio.name();
