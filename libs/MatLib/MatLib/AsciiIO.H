@@ -175,8 +175,8 @@ namespace maths {
             std::string line;
             std::string s;
 
-            linop.ncol() = 0;
-            linop.nlin() = 0;
+            unsigned ncol = 0;
+            unsigned nlin = 0;
             // Determine the number of columns on the first line
             is.clear();
             is.seekg(0,std::ios::beg);
@@ -185,12 +185,12 @@ namespace maths {
             buffer.str(line);
             while(!buffer.fail()) {
                 buffer >> s;
-                linop.ncol()++;
+                ++ncol;
             }
-            linop.ncol()--;
+            --ncol;
 
             if(linop.dimension()==LinOp::ONE) {
-                assert(linop.ncol() == 1); // TODO : throw proper exception
+                assert(ncol == 1); // TODO : throw proper exception
             }
 
             is.clear();
@@ -198,16 +198,20 @@ namespace maths {
             // Determine the number of lines in the file
             while (std::getline(is, line, '\n')) {
                 if (!line.empty()) {
-                    linop.nlin()++;
+                    ++nlin;
                 }
             }
 
             if(linop.storageType()==LinOp::SYMMETRIC) {
+                assert(nlin==ncol); // TODO : throw proper exception
+                linop.ncol() = ncol;
                 read_symmetric(is,linop);
-                return;
+            } else {
+                linop.nlin() = nlin;
+                linop.ncol() = ncol;
+                read_full(is,linop);
             }
 
-            read_full(is,linop);
             return;
         }
 
