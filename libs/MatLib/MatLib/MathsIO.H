@@ -50,6 +50,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <fstream>
 #include <list>
 #include <string>
+#include <cstring>
 
 #include "linop.h"
 
