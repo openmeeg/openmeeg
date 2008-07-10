@@ -34,7 +34,7 @@ namespace maths {
 
     //  An ugly hack to insert TrivialBinIO at the end of the IO list. 
     //  Remove when TrivialBinIo is deleted.
-    //
+
     void MathsIOBase::InsertTrivialBinIO() {
         static bool TrivialBinIOInserted = false;
 

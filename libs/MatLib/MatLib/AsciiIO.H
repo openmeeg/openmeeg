@@ -158,7 +158,7 @@ namespace maths {
                     buffer>>m->data()[i+j*(j+1)/2];
                 }
                 if(buffer.fail()) {
-                    throw("Error parsing"); //  FIXME : throw proper exception
+                    throw(std::string("Error parsing")); //  FIXME : throw proper exception
                     return;
                 }
             }
@@ -173,7 +173,6 @@ namespace maths {
 
             std::stringstream buffer;
             std::string line;
-            std::string s;
 
             unsigned ncol = 0;
             unsigned nlin = 0;
@@ -183,11 +182,12 @@ namespace maths {
             std::getline(is, line, '\n');
             buffer.clear();
             buffer.str(line);
+            double d;
             while(!buffer.fail()) {
-                buffer >> s;
-                ++ncol;
+                if(buffer >> d) {
+                    ++ncol;
+                }
             }
-            --ncol;
 
             if(linop.dimension()==LinOp::ONE) {
                 assert(ncol == 1); // TODO : throw proper exception
