@@ -53,7 +53,7 @@ void assemble_ferguson(const Geometry &geo, Matrix &mat, const Vect3* pts,const 
 // EEG patches positions are reported line by line in the positions Matrix
 // mat is supposed to be filled with zeros
 // mat is the linear application which maps x (the unknown vector in symmetric system) -> v (potential at the electrodes)
-void assemble_vToEEG(SparseMatrix &mat, const Geometry &geo, const Matrix &positions )
+void assemble_Head2EEG(SparseMatrix &mat, const Geometry &geo, const Matrix &positions )
 {
     int newsize = geo.size()-(geo.getM(geo.nb()-1)).nbTrgs();
     mat = SparseMatrix(positions.nlin(),newsize);
@@ -81,14 +81,14 @@ void assemble_vToEEG(SparseMatrix &mat, const Geometry &geo, const Matrix &posit
     }
 }
 
-vToEEG_matrix::vToEEG_matrix(const Geometry &geo, const Matrix &positions) {
-    assemble_vToEEG(*this, geo, positions);
+Head2EEG_matrix::Head2EEG_matrix(const Geometry &geo, const Matrix &positions) {
+    assemble_Head2EEG(*this, geo, positions);
 }
 
 // MEG patches positions are reported line by line in the positions Matrix (same for positions)
 // mat is supposed to be filled with zeros
 // mat is the linear application which maps x (the unknown vector in symmetric system) -> bFerguson (contrib to MEG response)
-void assemble_vToMEG(Matrix &mat, const Geometry &geo, const Sensors &sensors)
+void assemble_Head2MEG(Matrix &mat, const Geometry &geo, const Sensors &sensors)
 {
     Matrix positions = sensors.getPositions();
     Matrix orientations = sensors.getOrientations();
@@ -146,14 +146,14 @@ void assemble_vToMEG(Matrix &mat, const Geometry &geo, const Sensors &sensors)
     delete[] vindex;
 }
 
-vToMEG_matrix::vToMEG_matrix(const Geometry &geo, const Sensors &sensors) {
-    assemble_vToMEG(*this, geo, sensors);
+Head2MEG_matrix::Head2MEG_matrix(const Geometry &geo, const Sensors &sensors) {
+    assemble_Head2MEG(*this, geo, sensors);
 }
 
 // MEG patches positions are reported line by line in the positions Matrix (same for positions)
 // mat is supposed to be filled with zeros
 // mat is the linear application which maps x (the unknown vector in symmetric system) -> binf (contrib to MEG response)
-void assemble_sToMEG(Matrix &mat, const Mesh &sources_mesh, const Sensors &sensors)
+void assemble_SurfSource2MEG(Matrix &mat, const Mesh &sources_mesh, const Sensors &sensors)
 {
     Matrix positions = sensors.getPositions();
     Matrix orientations = sensors.getOrientations();
@@ -194,16 +194,15 @@ void assemble_sToMEG(Matrix &mat, const Mesh &sources_mesh, const Sensors &senso
     delete[] positionsVectArray;
 }
 
-sToMEG_matrix::sToMEG_matrix(const Mesh &sources_mesh, const Sensors &sensors) {
-    assemble_sToMEG(*this, sources_mesh, sensors);
+SurfSource2MEG_matrix::SurfSource2MEG_matrix(const Mesh &sources_mesh, const Sensors &sensors) {
+    assemble_SurfSource2MEG(*this, sources_mesh, sensors);
 }
 
-// creates the S2MEG Matrix with unconstrained orientations for the sources.
+// creates the DipSource2MEG Matrix with unconstrained orientations for the sources.
 //MEG patches positions are reported line by line in the positions Matrix (same for positions)
 //mat is supposed to be filled with zeros
-//mat is the linear application which maps x (the unknown vector in symmetric system) -> binf (contrib to MEG response)
 //sources is the name of a file containing the description of the sources - one dipole per line: x1 x2 x3 n1 n2 n3, x being the position and n the orientation.
-void assemble_sToMEGdip( Matrix &mat, const Matrix& dipoles, const Sensors &sensors)
+void assemble_DipSource2MEG( Matrix &mat, const Matrix& dipoles, const Sensors &sensors)
 {
     Matrix positions = sensors.getPositions();
     Matrix orientations = sensors.getOrientations();
@@ -266,8 +265,8 @@ void assemble_sToMEGdip( Matrix &mat, const Matrix& dipoles, const Sensors &sens
     delete[] positionsVectArray;
 }
 
-sToMEGdip_matrix::sToMEGdip_matrix(const Matrix &dipoles, const Sensors &sensors) {
-    assemble_sToMEGdip(*this, dipoles, sensors);
+DipSource2MEG_matrix::DipSource2MEG_matrix(const Matrix &dipoles, const Sensors &sensors) {
+    assemble_DipSource2MEG(*this, dipoles, sensors);
 }
 
 

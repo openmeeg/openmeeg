@@ -71,12 +71,12 @@ int main(int argc, char **argv)
     cpuChrono C;
     C.start();
 
-    SymMatrix LhsMatrix;
-    SymMatrix LhsInvMatrix;
+    SymMatrix HeadMat;
+    SymMatrix HeadMatInv;
 
-    LhsMatrix.loadBin(argv[1]);
-    LhsInvMatrix=LhsMatrix.inverse();
-    LhsInvMatrix.saveBin(argv[2]);
+    HeadMat.loadBin(argv[1]);
+    HeadMatInv=HeadMat.inverse();
+    HeadMatInv.saveBin(argv[2]);
 
     // Stop Chrono
     C.stop();
@@ -89,9 +89,9 @@ void getHelp(char** argv)
 {
     cout << argv[0] <<" [-option] [filepaths...]" << endl << endl;
 
-    cout << "   Inverse LHS " << endl;
+    cout << "   Inverse HeadMatrix " << endl;
     cout << "   Filepaths are in order :" << endl;
-    cout << "       LhsMatrix (bin), LhsInvMatrix (bin)" << endl << endl;
+    cout << "       HeadMat (bin), HeadMatInv (bin)" << endl << endl;
 
     exit(0);
 }

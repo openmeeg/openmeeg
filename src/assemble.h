@@ -54,66 +54,66 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include "geometry.h"
 #include "sensors.h"
 
-class LHS_matrix : public virtual SymMatrix
+class Head_matrix : public virtual SymMatrix
 {
 public:
-    LHS_matrix (const Geometry &geo, const int GaussOrder);
-    virtual ~LHS_matrix () {};
+    Head_matrix (const Geometry &geo, const int GaussOrder);
+    virtual ~Head_matrix () {};
 };
 
-class RHS_matrix : public virtual Matrix
+class SurfSource_matrix : public virtual Matrix
 {
 public:
-    RHS_matrix (const Geometry &geo, const Mesh & sources, const int GaussOrder);
-    virtual ~RHS_matrix () {};
+    SurfSource_matrix (const Geometry &geo, const Mesh & sources, const int GaussOrder);
+    virtual ~SurfSource_matrix () {};
 };
 
-class RHSdip_matrix : public virtual Matrix
+class DipSource_matrix : public virtual Matrix
 {
 public:
-    RHSdip_matrix (const Geometry &geo, std::vector<Vect3> Rs, std::vector<Vect3> Qs, const int GaussOrder);
-    virtual ~RHSdip_matrix () {};
+    DipSource_matrix (const Geometry &geo, std::vector<Vect3> Rs, std::vector<Vect3> Qs, const int GaussOrder);
+    virtual ~DipSource_matrix () {};
 };
 
-class RHSdip_grad_matrix : public virtual Matrix
+class DipSourceGrad_matrix : public virtual Matrix
 {
 public:
-    RHSdip_grad_matrix (const Geometry &geo, std::vector<Vect3> Rs, std::vector<Vect3> Qs, const int GaussOrder);
-    virtual ~RHSdip_grad_matrix () {};
+    DipSourceGrad_matrix (const Geometry &geo, std::vector<Vect3> Rs, std::vector<Vect3> Qs, const int GaussOrder);
+    virtual ~DipSourceGrad_matrix () {};
 };
 
-class SurfToVol_matrix : public virtual Matrix
+class Surf2Vol_matrix : public virtual Matrix
 {
 public:
-    SurfToVol_matrix (const Geometry &geo, const Matrix &points);
-    virtual ~SurfToVol_matrix () {};
+    Surf2Vol_matrix (const Geometry &geo, const Matrix &points);
+    virtual ~Surf2Vol_matrix () {};
 };
-class vToEEG_matrix : public virtual SparseMatrix
+class Head2EEG_matrix : public virtual SparseMatrix
 {
 public:
-    vToEEG_matrix (const Geometry &geo, const Matrix& patches);
-    virtual ~vToEEG_matrix () {};
-};
-
-class vToMEG_matrix : public virtual Matrix
-{
-public:
-    vToMEG_matrix (const Geometry &geo, const Sensors& sensors);
-    virtual ~vToMEG_matrix () {};
+    Head2EEG_matrix (const Geometry &geo, const Matrix& patches);
+    virtual ~Head2EEG_matrix () {};
 };
 
-class sToMEG_matrix : public virtual Matrix
+class Head2MEG_matrix : public virtual Matrix
 {
 public:
-    sToMEG_matrix (const Mesh& sources, const Sensors& sensors);
-    virtual ~sToMEG_matrix () {};
+    Head2MEG_matrix (const Geometry &geo, const Sensors& sensors);
+    virtual ~Head2MEG_matrix () {};
 };
 
-class sToMEGdip_matrix : public virtual Matrix
+class SurfSource2MEG_matrix : public virtual Matrix
 {
 public:
-    sToMEGdip_matrix(const Matrix &dipoles, const Sensors &sensors);
-    virtual ~sToMEGdip_matrix () {};
+    SurfSource2MEG_matrix (const Mesh& sources, const Sensors& sensors);
+    virtual ~SurfSource2MEG_matrix () {};
+};
+
+class DipSource2MEG_matrix : public virtual Matrix
+{
+public:
+    DipSource2MEG_matrix(const Matrix &dipoles, const Sensors &sensors);
+    virtual ~DipSource2MEG_matrix () {};
 };
 
 void assemble_EITsource(const Geometry &geo, Matrix &mat, Matrix &airescalp, const int GaussOrder);

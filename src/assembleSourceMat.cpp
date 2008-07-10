@@ -1,12 +1,12 @@
-/* FILE: $Id$ */
+/* FILE: $Id: assembleRHS.cpp 257 2008-07-08 16:03:45Z gramfort $ */
 
 /*
 Project Name : OpenMEEG
 
-version           : $Revision$
-last revision     : $Date$
-modified by       : $LastChangedBy$
-last modified     : $LastChangedDate$
+version           : $Revision: 257 $
+last revision     : $Date: 2008-07-08 18:03:45 +0200 (Tue, 08 Jul 2008) $
+modified by       : $LastChangedBy: gramfort $
+last modified     : $LastChangedDate: 2008-07-08 18:03:45 +0200 (Tue, 08 Jul 2008) $
 
 © INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre 
 GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU, Théodore PAPADOPOULO,
@@ -56,7 +56,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <fstream>
 using namespace std;
 
-void assemble_RHS(Matrix &mat,const Geometry &geo,const Mesh& sources,const int GaussOrder)
+void assemble_SurfSourceMat(Matrix &mat,const Geometry &geo,const Mesh& sources,const int GaussOrder)
 {
     int newsize = geo.size()-(geo.getM(geo.nb()-1)).nbTrgs();
     mat = Matrix(newsize,sources.nbPts());
@@ -81,11 +81,11 @@ void assemble_RHS(Matrix &mat,const Geometry &geo,const Mesh& sources,const int 
     mult2(mat,0,0,nVertexFirstLayer-1,nVertexSources-1,K);
 }
 
-RHS_matrix::RHS_matrix (const Geometry &geo, const Mesh& sources, const int GaussOrder) {
-    assemble_RHS(*this,geo,sources,GaussOrder);
+SurfSource_matrix::SurfSource_matrix (const Geometry &geo, const Mesh& sources, const int GaussOrder) {
+    assemble_SurfSourceMat(*this,geo,sources,GaussOrder);
 }
 
-void assemble_RHSdip(Matrix &rhs,const Geometry &geo,vector<Vect3> Rs,vector<Vect3> Qs,const int GaussOrder)
+void assemble_DipSourceMat(Matrix &rhs,const Geometry &geo,vector<Vect3> Rs,vector<Vect3> Qs,const int GaussOrder)
 { 
     int newsize=geo.size()-(geo.getM(geo.nb()-1)).nbTrgs();
     rhs = Matrix(newsize, Qs.size());
@@ -129,13 +129,13 @@ void assemble_RHSdip(Matrix &rhs,const Geometry &geo,vector<Vect3> Rs,vector<Vec
     }
 }
 
-RHSdip_matrix::RHSdip_matrix (const Geometry &geo, vector<Vect3> Rs, vector<Vect3> Qs, const int GaussOrder) {
-    assemble_RHSdip(*this,geo,Rs,Qs,GaussOrder);
+DipSource_matrix::DipSource_matrix (const Geometry &geo, vector<Vect3> Rs, vector<Vect3> Qs, const int GaussOrder) {
+    assemble_DipSourceMat(*this,geo,Rs,Qs,GaussOrder);
    std::cerr << "OK till here"  << endl;
 }
 
 // Gradient
-void assemble_RHSdip_grad(Matrix &rhs,const Geometry &geo,vector<Vect3> Rs,vector<Vect3> Qs,const int GaussOrder)
+void assemble_DipSourceGradMat(Matrix &rhs,const Geometry &geo,vector<Vect3> Rs,vector<Vect3> Qs,const int GaussOrder)
 {
     unsigned int nd=Qs.size();
 
@@ -184,14 +184,14 @@ void assemble_RHSdip_grad(Matrix &rhs,const Geometry &geo,vector<Vect3> Rs,vecto
     }
 }
 
-RHSdip_grad_matrix::RHSdip_grad_matrix (const Geometry &geo, vector<Vect3> Rs, vector<Vect3> Qs, const int GaussOrder) {
-    assemble_RHSdip_grad(*this,geo,Rs,Qs,GaussOrder);
+DipSourceGrad_matrix::DipSourceGrad_matrix (const Geometry &geo, vector<Vect3> Rs, vector<Vect3> Qs, const int GaussOrder) {
+    assemble_DipSourceGradMat(*this,geo,Rs,Qs,GaussOrder);
 }
 
 void assemble_EITsource(const Geometry &geo, Matrix &mat, Matrix &airescalp, const int GaussOrder)
 {
 // a Matrix to be applied to the scalp-injected current (modulo multiplicative constants)
-// to obtain the RHS of the EIT foward problem 
+// to obtain the Source Term of the EIT foward problem 
     int newtaille = mat.nlin();
     int sourcetaille = mat.ncol();
 // transmat = a big  Matrix of which mat = part of its transpose

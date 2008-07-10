@@ -87,9 +87,9 @@ int main(int argc, char** argv)
     C.start();
 
     /*********************************************************************************************
-    * Computation of LHS for BEM Symmetric formulation
+    * Computation of Head Matrix for BEM Symmetric formulation
     **********************************************************************************************/
-    if (!strcmp(argv[1],"-LHS")) {
+    if ((!strcmp(argv[1],"-HeadMat")) |(!strcmp(argv[1],"-HM"))|(!strcmp(argv[1],"-hm"))) {
         if (argc < 3)
         {
             std::cerr << "Please set geometry filepath !" << endl;
@@ -110,15 +110,14 @@ int main(int argc, char** argv)
         geo.read(argv[2],argv[3]);
 
         // Assembling Matrix from discretization :
-        LHS_matrix lhs(geo,GaussOrder);
-        lhs.SAVE(argv[4]);
+        Head_matrix HM(geo,GaussOrder);
+        HM.SAVE(argv[4]);
     }
 
     /*********************************************************************************************
-    * Computation of general RHS from BEM Symmetric formulation
+    * Computation of general Surface Source Matrix for BEM Symmetric formulation
     **********************************************************************************************/
-    else if (!strcmp(argv[1],"-RHS")) {
-
+    else if ((!strcmp(argv[1],"-SurfSourceMat")) | (!strcmp(argv[1],"-SSM")) | (!strcmp(argv[1],"-ssm"))) {
         if (argc < 3)
         {
             std::cerr << "Please set geometry filepath !" << endl;
@@ -145,16 +144,15 @@ int main(int argc, char** argv)
         mesh_sources.load(argv[4],checkClosedSurface); // Load mesh without crashing when the surface is not closed
 
         // Assembling Matrix from discretization :
-        RHS_matrix mat(geo,mesh_sources,GaussOrder);
-        mat.SAVE(argv[5]); // if outfile is specified
+        SurfSource_matrix ssm(geo,mesh_sources,GaussOrder);
+        ssm.SAVE(argv[5]); // if outfile is specified
     }
 
     /*********************************************************************************************
     * Computation of RHS for discrete dipolar case
     **********************************************************************************************/
-    else if(!strcmp(argv[1],"-rhsPOINT")) {
-
-        if(argc < 3)
+    else if((!strcmp(argv[1],"-DipSourceMat")) |(!strcmp(argv[1],"-DSM"))|(!strcmp(argv[1],"-dsm")))  {
+             if(argc < 3)
         {
             cerr << "Please set geometry filepath !" << endl;
             exit(1);
@@ -192,10 +190,10 @@ int main(int argc, char** argv)
             for(int j=3;j<6;j++) q(j-3) = dipoles(i,j);
             Rs.push_back(r); Qs.push_back(q);
         }
-        RHSdip_matrix mat(geo, Rs, Qs, GaussOrder);
+        DipSource_matrix dsm(geo, Rs, Qs, GaussOrder);
 
         // Saving RHS Matrix for dipolar case :
-        mat.SAVE(argv[5]);
+        dsm.SAVE(argv[5]);
     }
 
     /*********************************************************************************************
@@ -290,9 +288,9 @@ int main(int argc, char** argv)
     }
 
     /*********************************************************************************************
-    * RK: Computation of RHS for discrete dipolar case: gradient wrt dipoles position and intensity!
+    * RK: Computation of Dipole Source Gradient Matrix for discrete dipolar case: gradient wrt dipoles position and intensity!
     **********************************************************************************************/
-    else if(!strcmp(argv[1],"-rhsPOINTgrad")) {
+    else if((!strcmp(argv[1],"-DipSourceGradMat"))|(!strcmp(argv[1],"-DSGM"))|(!strcmp(argv[1],"-dsgm"))) {
 
         if(argc < 3)
         {
@@ -333,17 +331,17 @@ int main(int argc, char** argv)
             Rs.push_back(r); Qs.push_back(q);
         }
 
-        RHSdip_grad_matrix mat( geo, Rs, Qs, GaussOrder);
-        // Saving RHS Matrix for dipolar case :
+        DipSourceGrad_matrix mat( geo, Rs, Qs, GaussOrder);
+        // Saving DipSourceGrad Matrix :
         mat.SAVE(argv[5]);
     }
 
     /*********************************************************************************************
-    * Computation of the linear application which maps v (the unknown vector in symmetric system,
-    * i.e. the potential and the normal current on all interfaces)
+    * Computation of the linear application which maps the unknown vector in symmetric system,
+    * (i.e. the potential and the normal current on all interfaces)
     * |----> v (potential at the electrodes)
     **********************************************************************************************/
-    else if(!strcmp(argv[1],"-vToEEG")) {
+    else if((!strcmp(argv[1],"-Head2EEGMat")) | (!strcmp(argv[1],"-H2EM"))| (!strcmp(argv[1],"-h2em"))) {
 
         if(argc < 3)
         {
@@ -369,19 +367,19 @@ int main(int argc, char** argv)
         Matrix patches(argv[4]);
 
         // Assembling Matrix from discretization :
-        // vToEEG is the linear application which maps x |----> v
-        vToEEG_matrix mat(geo,patches);
+        // Head2EEG is the linear application which maps x |----> v
+        Head2EEG_matrix mat(geo,patches);
         mat.info();
-        // Saving vToEEG Matrix :
+        // Saving Head2EEG Matrix :
         mat.SAVE(argv[5]);
     }
 
     /*********************************************************************************************
-    * Computation of the linear application which maps v (the unknown vector in symmetric system,
-    * i.e. the potential and the normal current on all interfaces)
+    * Computation of the linear application which maps the unknown vector in symmetric system,
+    * (i.e. the potential and the normal current on all interfaces)
     * |----> bFerguson (contrib to MEG response)
     **********************************************************************************************/
-    else if(!strcmp(argv[1],"-vToMEG")) {
+    else if((!strcmp(argv[1],"-Head2MEGMat"))|(!strcmp(argv[1],"-H2MM"))|(!strcmp(argv[1],"-h2mm"))) {
 
         if(argc < 3)
         {
@@ -407,16 +405,16 @@ int main(int argc, char** argv)
         Sensors sensors(argv[4]);
 
         // Assembling Matrix from discretization :
-        vToMEG_matrix mat(geo,sensors);
-        // Saving xToMEGrespCont Matrix :
+        Head2MEG_matrix mat(geo,sensors);
+        // Saving Head2MEG Matrix :
         mat.SAVE(argv[5]); // if outfile is specified
     }
 
     /*********************************************************************************************
-    * Computation of the linear application which maps s (the distributed source)
+    * Computation of the linear application which maps the distributed source
     * |----> binf (contrib to MEG response)
     **********************************************************************************************/
-    else if(!strcmp(argv[1],"-sToMEG")) {
+    else if((!strcmp(argv[1],"-SurfSource2MEGMat"))|(!strcmp(argv[1],"-SS2MM"))|(!strcmp(argv[1],"-ss2mm"))) {
 
         if(argc < 3)
         {
@@ -438,8 +436,8 @@ int main(int argc, char** argv)
         Sensors sensors(argv[3]);
 
         // Assembling Matrix from discretization :
-        sToMEG_matrix mat(mesh_sources, sensors);
-        // Saving sToMEG Matrix :
+        SurfSource2MEG_matrix mat(mesh_sources, sensors);
+        // Saving SurfSource2MEG Matrix :
         mat.SAVE(argv[4]);
     }
 
@@ -450,7 +448,7 @@ int main(int argc, char** argv)
     // arguments are the positions and orientations of the squids,
     // the position and orientations of the sources and the output name.
 
-    else if(!strcmp(argv[1],"-sToMEG_point")) {
+    else if((!strcmp(argv[1],"-DipSource2MEGMat"))|(!strcmp(argv[1],"-DS2MM"))|(!strcmp(argv[1],"-ds2mm"))) {
 
         if (argc < 3)
         {
@@ -469,7 +467,7 @@ int main(int argc, char** argv)
         // Load positions and orientations of sensors  :
         Sensors sensors(argv[3]);
 
-        sToMEGdip_matrix mat( dipoles, sensors );
+        DipSource2MEG_matrix mat( dipoles, sensors );
         mat.SAVE(argv[4]);
     }
     /*********************************************************************************************
@@ -479,7 +477,7 @@ int main(int argc, char** argv)
     // arguments are the geom file
     // a tri-like file of point positions at which to evaluate the potential" << endl;
 
-    else if(!strcmp(argv[1],"-SurfToVol")) {
+    else if(!strcmp(argv[1],"-Surf2Vol")) {
         if (argc < 3)
         {
             cerr << "Please set geom filepath !" << endl;
@@ -504,7 +502,7 @@ int main(int argc, char** argv)
         Geometry geo;
         geo.read(argv[2],argv[3]);
         Matrix points(argv[4]);
-        SurfToVol_matrix mat(geo,points);
+        Surf2Vol_matrix mat(geo,points);
         // Saving SurfToVol Matrix :
         mat.SAVE(argv[5]);
     }
@@ -534,20 +532,23 @@ void getHelp(char** argv) {
     cout << argv[0] <<" [-option] [filepaths...]" << endl << endl;
 
     cout << "option :" << endl;
-    cout << "   -LHS :   Compute LHS from BEM symmetric formulation." << endl;
-    cout << "            Arguments :" << endl;
+    cout << "   -HeadMat, -HM, -hm :   " << endl;
+    cout << "    Compute Head Matrix for Symmetric BEM (left-hand side of linear system)." << endl;
+    cout << "             Arguments :" << endl;
     cout << "               geometry file (.geom)" << endl;
     cout << "               conductivity file (.cond)" << endl;
     cout << "               output LHS Matrix" << endl << endl;
 
-    cout << "   -RHS :   Compute RHS from BEM symmetric formulation. " << endl;
+    cout << "   -SurfSourceMat, -SSM, -ssm :   " << endl;
+    cout << "   Compute Surfacic Source Matrix for Symmetric BEM (right-hand side of linear system). " << endl;
     cout << "            Arguments :" << endl;
     cout << "               geometry file (.geom)" << endl;
     cout << "               conductivity file (.cond)" << endl;
     cout << "               mesh of sources (.tri .vtk .mesh .bnd)" << endl;
     cout << "               output RHS Matrix" << endl << endl;
 
-    cout << "   -rhsPOINT :   Compute RHS for discrete dipolar case. " << endl;
+    cout << "   -DipSourceMat, -DSM, -dsm:    " << endl;
+    cout << "  Compute Dipolar Source Matrix for Symmetric BEM (right-hand side of linear system). " << endl;
     cout << "            Arguments :" << endl;
     cout << "               geometry file (.geom)" << endl;
     cout << "               conductivity file (.cond)" << endl;
@@ -571,7 +572,8 @@ void getHelp(char** argv) {
     cout << "               output EITstim" << endl << endl;
 
 
-    cout << "   -vToEEG :   Compute the linear application which maps the potential" << endl;
+    cout << "   -Head2EEGMat, -H2EM, -h2em : " << endl;
+    cout << "        Compute the linear application which maps the potential" << endl;
     cout << "            on the scalp to the EEG electrodes"  << endl;
     cout << "            Arguments :" << endl;
     cout << "               geometry file (.geom)" << endl;
@@ -579,7 +581,8 @@ void getHelp(char** argv) {
     cout << "               file containing the positions of EEG patches (.patches)" << endl;
     cout << "               output vToEEG Matrix" << endl << endl;
 
-    cout << "   -vToMEG :   Compute the linear application which maps the potential" << endl;
+    cout << "   -Head2MEGMat, -H2MM, -h2mm : " << endl;
+    cout << "          Compute the linear application which maps the potential" << endl;
     cout << "            on the scalp to the MEG sensors"  << endl;
     cout << "            Arguments :" << endl;
     cout << "               geometry file (.geom)" << endl;
@@ -587,21 +590,22 @@ void getHelp(char** argv) {
     cout << "               file containing the positions and orientations of the MEG sensors (.squids)" << endl;
     cout << "               output xToMEG Matrix" << endl << endl;
 
-    cout << "   -sToMEG :   Compute the linear application which maps the current" << endl;
-    cout << "            dipoles on the source mesh to the MEG sensors" << endl;
+    cout << "   -SurfSource2MEGMat, -SS2MM, -ss2mm : " << endl;
+    cout << "         Compute the linear application which maps the " << endl;
+    cout << "            distributed source  to the MEG sensors" << endl;
     cout << "            Arguments :" << endl;
     cout << "               mesh file for distributed sources (.tri .vtk .mesh .bnd)" << endl;
     cout << "               positions and orientations of the MEG sensors (.squids)" << endl;
     cout << "               output sToMEG Matrix" << endl << endl;
 
-    cout << "   -sToMEG_point :   Compute the linear application which maps the current" << endl;
+    cout << "   -DipSource2MEGMat, -DS2MM, -ds2mm :   Compute the linear application which maps the current" << endl;
     cout << "            dipoles to the MEG sensors" << endl;
     cout << "            Arguments :" << endl;
     cout << "               dipoles positions and orientations" << endl;
     cout << "               positions and orientations of the MEG sensors (.squids)" << endl;
     cout << "               name of the output sToMEG Matrix" << endl << endl;
 
-    cout << "   -SurfToVol :   Compute the linear application which maps the surface potential" << endl;
+    cout << "   -Surf2Vol :   Compute the linear application which maps the surface potential" << endl;
     cout << "            and normal current to the value of the potential at a set of points in the volume" << endl;
     cout << "            Arguments :" << endl;
     cout << "               geom file" << endl;
