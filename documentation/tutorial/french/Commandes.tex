@@ -2,8 +2,8 @@
 Sont en \commandName{rouge} les binaires appelés, en \optionName{vert} les options de ces binaires, en \textbf{noir}
 les fichiers existants et en \outputName{bleu} les sorties/résultats. 
 
-\section{Assemblage de la matrice $\mathbf{LHS}$~:}
-\label{sect: command assemble lhs}
+\section{Assemblage de la matrice $\mathbf{HeadMat}$~:}
+\label{sect: command assemble HeadMat}
 
 \noindent
 Entrées~: 
@@ -15,16 +15,18 @@ Entrées~:
 \noindent
 Sortie~:
 \begin{itemize}
-    \item \outputName{lhsMat.bin}~: fichier binaire où est sauvée la matrice $\mathbf{LHS}$
+    \item \outputName{HeadMat.bin}~: fichier binaire où est sauvée la matrice $\mathbf{HeadMat}$
 \end{itemize}
 
 \medskip
 
 \noindent
-\command{\commandName{om\_assemble} \optionName{-LHS} subject.geom subject.cond \outputName{lhsMat.bin}}
+\command{\commandName{om\_assemble} \optionName{-HeadMat} subject.geom subject.cond \outputName{HeadMat.bin}}
+\medskip
+Remarque: \optionName{-HeadMat} peut être remplacé par la version abrégée \optionName{-HM} ou \optionName{-hm}.
 
-\section{Assemblage de la matrice $\mathbf{RHS}$~:}
-\label{sect: command assemble rhs}
+\section{Assemblage de la matrice $\mathbf{Source}$~:}
+\label{sect: command assemble SourceMat}
 
 \noindent
 Entrées~: 
@@ -42,7 +44,7 @@ Entrées~:
 \noindent
 Sortie~:
 \begin{itemize}
-    \item \outputName{rhsMat.bin}~: fichier binaire matrice $\mathbf{RHS}$
+    \item \outputName{SourceMat.bin}~: fichier binaire matrice $\mathbf{SourceMat}$
 \end{itemize}
 
 \medskip
@@ -50,34 +52,38 @@ Sortie~:
 \noindent
 Cas dipolaire~:\\
 \noindent
-\command{\commandName{om\_assemble} \optionName{-rhsPOINT} subject.geom subject.cond dipolePosition.dip \outputName{rhsMat.bin}}
+\command{\commandName{om\_assemble} \optionName{-DipSourceMat} subject.geom subject.cond dipolePosition.dip \outputName{SourceMat.bin}}
+\medskip
+Remarque: \optionName{-DipSourceMat} peut être remplacé par la version abrégée \optionName{-DSM} ou \optionName{-dsm}.
 
 \medskip
 
 \noindent
 Cas des sources distribuées~:\\
 \noindent
-\command{\commandName{om\_assemble} \optionName{-RHS} subject.geom subject.cond sourcemesh \outputName{rhsMat.bin}}
+\command{\commandName{om\_assemble} \optionName{-SurfSourceMat} subject.geom subject.cond sourcemesh \outputName{SourceMat.bin}}
+\medskip
+Remarque: \optionName{-SurfSourceMat} peut être remplacé par la version abrégée \optionName{-SSM} ou \optionName{-ssm}.
 
-\section{Inversion de la matrice $\mathbf{LHS}$~:}
-\label{sect: command invert lhs}
+\section{Inversion de la matrice $\mathbf{HeadMat}$~:}
+\label{sect: command invert HeadMat}
 
 \noindent
 Entrées~:
 \begin{itemize}
-    \item \fileName{lhsMat.bin}~: matrice $\mathbf{LHS}$
+    \item \fileName{HeadMat.bin}~: matrice $\mathbf{HeadMat}$
 \end{itemize}
 
 \noindent
 Sortie~:
 \begin{itemize}
-    \item \outputName{lhsInvMat.bin}~: fichier binaire matrice $\mathbf{LHS}^{-1}$
+    \item \outputName{HeadMatInv.bin}~: fichier binaire matrice $\mathbf{HeadMat}^{-1}$
 \end{itemize}
 
 \medskip
 
 \noindent
-\command{\commandName{om\_minverser} lhsMat.bin \outputName{lhsInvMat.bin}}
+\command{\commandName{om\_minverser} HeadMat.bin \outputName{HeadMatInv.bin}}
 
 \section{Calcul de l'application linéaire qui à X associe le potentiel aux capteurs~:}
 \label{sect: command assemble sensors}
@@ -94,13 +100,12 @@ aux électrodes est donc une opération linéaire (par rapport aux valeurs du po
 \medskip
 
 \noindent
-On a alors~: $\mathbf{V_{electrode}} = \mathbf{vToEEG} . \mathbf{X}$\\
+On a alors~: $\mathbf{V_{electrode}} = \mathbf{Head2EEG} . \mathbf{X}$\\
 où~:\\ 
 \begin{itemize}
-    \item $\mathbf{V_{electrode}}$ est la matrice des valeurs du potentiel électrique aux électrodes (ce que l'on cherche),
-    \item $\mathbf{X}$ est la matrice contenant les valeurs du potentiel électrique en chaque sommet de la triangulation de la
-          surface la plus externe,
-    \item $\mathbf{vToEEG}$ est la matrice de passage que l'on doit assembler.
+    \item $\mathbf{V_{electrode}}$ est le vecteur-colonne des valeurs du potentiel électrique aux électrodes (ce que l'on cherche),
+    \item $\mathbf{X}$ est le vecteur-colonne contenant les valeurs du potentiel électrique et des courants normaux sur toutes les surfaces du modèle,
+    \item $\mathbf{Head2EEG}$ est la matrice de passage que l'on doit assembler.
 \end{itemize}
 
 \bigskip
@@ -120,7 +125,9 @@ Sortie~:
 \medskip
 
 \noindent
-\command{\commandName{om\_assemble} \optionName{-vToEEG} subject.geom subject.cond patchespositions.txt \outputName{v2eegMat.bin}}
+\command{\commandName{om\_assemble} \optionName{-Head2EEGMat} subject.geom subject.cond patchespositions.txt \outputName{Head2EEGMat.bin}}
+\medskip
+Remarque: \optionName{-Head2EEGMat} peut être remplacé par la version abrégée \optionName{-H2EM} ou \optionName{-h2em}.
 
 \bigskip
 
@@ -135,7 +142,7 @@ On a alors~: $\mathbf{M_{capteur}} = \mathbf{sToMEG} . \mathbf{S} + \mathbf{vToM
 \medskip
 
 \noindent
-\underline{Assemblage de la matrice de passage du potentiel ($\mathbf{vToMEG}$)}~:\\
+\underline{Assemblage de la matrice de passage du potentiel ($\mathbf{Head2MEGMat}$)}~:\\
 Entrées~:
 \begin{itemize}
     \item \fileName{subject.geom}~: fichier de description de la géométrie (voir Annexe~\ref{sect: annexe 1})
@@ -144,18 +151,20 @@ Entrées~:
 \end{itemize}
 Sortie~:
 \begin{itemize}
-    \item \outputName{v2megMat.bin}~: fichier binaire matrice $\mathbf{vToMEG}$
+    \item \outputName{Head2MegMat.bin}~: fichier binaire matrice $\mathbf{Head2MEGMat}$
 \end{itemize}
 
 \medskip
 
 \noindent
-\command{\commandName{om\_assemble} \optionName{-vToMEG} subject.geom subject.cond sensorpositions.txt \outputName{v2megMat.bin}}
+\command{\commandName{om\_assemble} \optionName{-Head2MEGMat} subject.geom subject.cond sensorpositions.txt \outputName{Head2MEGMat.bin}}
+\medskip
+Remarque: \optionName{-Head2MEGMat} peut être remplacé par la version abrégée \optionName{-H2MM} ou \optionName{-h2mm}.
 
 \bigskip
 
 \noindent
-\underline{Assemblage de la matrice de contribution des sources ($\mathbf{sToMEG}$)}~:\\
+\underline{Assemblage de la matrice de contribution des sources ($\mathbf{Source2MEGMat}$)}~:\\
 Entrées~:
 \begin{itemize}
     \item la/les source(s)~:
@@ -167,7 +176,7 @@ Entrées~:
 \end{itemize}
 Sortie~: 
 \begin{itemize}
-    \item \outputName{s2megMat.bin}~: fichier binaire matrice $\mathbf{sToMEG}$
+    \item \outputName{Source2MEGMat.bin}~: fichier binaire matrice $\mathbf{sToMEG}$
 \end{itemize}
 
 \medskip
@@ -175,14 +184,18 @@ Sortie~:
 \noindent
 Cas dipolaire~:\\
 \noindent
-\command{\commandName{om\_assemble} \optionName{-sToMEG\_point} dipolePosition.dip sensorpositions.txt \outputName{s2megMat.bin}}
+\command{\commandName{om\_assemble} \optionName{-DipSource2MEGMat} dipolePosition.dip sensorpositions.txt \outputName{Source2MEGMat.bin}}
+\medskip
+Remarque: \optionName{-DipSource2MEGMat} peut être remplacé par la version abrégée \optionName{-DS2MM} ou \optionName{-ds2mm}.
 
 \medskip
 
 \noindent
 Cas des sources distribuées~:\\
 \noindent
-\command{\commandName{om\_assemble} \optionName{-sToMEG} sourcemesh sensorpositions.txt \outputName{s2megMat.bin}}
+\command{\commandName{om\_assemble} \optionName{-SurfSource2MEGMat} sourcemesh sensorpositions.txt \outputName{Source2MEGMat.bin}}
+\medskip
+Remarque: \optionName{-SurfSource2MEGMat} peut être remplacé par la version abrégée \optionName{-sS2MM} ou \optionName{-ss2mm}.
 
 \section{Calcul de la matrice de Gain~:}
 \label{sect: command gain}
@@ -193,19 +206,19 @@ de la MEG) des capteurs.
 \checkItem \underline{Cas de l'EEG}~:\\
 Entrées~:
 \begin{itemize}
-    \item \fileName{lhsInvMat.bin}~: fichier binaire matrice $\mathbf{LHS}^{-1}$
-    \item \fileName{rhsMat.bin}~: fichier binaire matrice $\mathbf{RHS}$
-    \item \fileName{v2eegMat.bin}~: fichier binaire matrice $\mathbf{vToEEG}$
+    \item \fileName{HeadMatInv.bin}~: fichier binaire matrice $\mathbf{LHS}^{-1}$
+    \item \fileName{SourceMat.bin}~: fichier binaire matrice $\mathbf{RHS}$
+    \item \fileName{Head2EEGMat.bin}~: fichier binaire matrice $\mathbf{vToEEG}$
 \end{itemize}
 Sortie~:
 \begin{itemize}
-    \item \outputName{gainMat.bin}~: fichier binaire matrice de gain
+    \item \outputName{GainEEGMat.bin}~: fichier binaire matrice de gain
 \end{itemize}
 
 \medskip
 
 \noindent
-\command{\commandName{om\_gain} \optionName{-EEG} lhsInvMat.bin rhsMat.bin v2eegMat.bin \outputName{gainMat.bin}}
+\command{\commandName{om\_gain} \optionName{-EEG} HeadMatInv.bin SourceMat.bin Head2EEGMat.bin \outputName{GainEEGMat.bin}}
 
 
 \bigskip
@@ -213,20 +226,20 @@ Sortie~:
 \checkItem\underline{Cas de la MEG}~:\\
 Entrées~:
 \begin{itemize}
-    \item \fileName{lhsInvMat.bin}~: fichier binaire matrice $\mathbf{LHS}^{-1}$
-    \item \fileName{rhsMat.bin}~: fichier binaire matrice $\mathbf{RHS}$
-    \item \fileName{v2megMat.bin}~: fichier binaire matrice $\mathbf{vToMEG}$
-    \item \fileName{s2megMat.bin}~: fichier binaire matrice $\mathbf{sToMEG}$
+    \item \fileName{HeadMatInv.bin}~: fichier binaire matrice $\mathbf{HeadMat}^{-1}$
+    \item \fileName{SourceMat.bin}~: fichier binaire matrice $\mathbf{SourceMat}$
+    \item \fileName{Head2MEGMat.bin}~: fichier binaire matrice $\mathbf{Head2MEG}$
+    \item \fileName{Source2MEGMat.bin}~: fichier binaire matrice $\mathbf{Source2MEG}$
 \end{itemize}
 Sortie~:
 \begin{itemize}
-    \item \outputName{gainMat.bin}~: fichier binaire matrice de gain
+    \item \outputName{GainMEGMat.bin}~: fichier binaire matrice de gain
 \end{itemize}
 
 \medskip
 
 \noindent
-\command{\commandName{om\_gain} \optionName{-MEG} lhsInvMat.bin rhsMat.bin v2megMat.bin s2megMat.bin \outputName{gainMat.bin}}
+\command{\commandName{om\_gain} \optionName{-MEG} HeadMatInv.bin SourceMat.bin Head2MEGMat.bin Source2MEGMat.bin \outputName{GainMEGMat.bin}}
 
 
 \section{Le problème direct~:}
