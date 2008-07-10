@@ -18,7 +18,7 @@ namespace maths {
     class Exception: public std::exception {
     public:
 
-        Exception(const std::string& w): whatstring(std::string("Images::Exception: ")+w) { }
+        Exception(const std::string& w): whatstring(std::string("Exception: ")+w) { }
 
         virtual ~Exception() throw() { }
 
