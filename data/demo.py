@@ -7,9 +7,9 @@ import openmeeg as om
 # =============
 
 subject='Head1'
-condFile='HeadModels/'+subject+'/'+subject+'.cond'
-geomFile='HeadModels/'+subject+'/'+subject+'.geom'
-sourceMeshFile='HeadModels/'+subject+'/'+subject+'.tri'
+condFile='Models/'+subject+'/'+subject+'.cond'
+geomFile='Models/'+subject+'/'+subject+'.geom'
+sourceMeshFile='Models/'+subject+'/'+subject+'.tri'
 squidsFile='Computations/'+subject+'/'+subject+'.squids'
 patchesFile='Computations/'+subject+'/'+subject+'.patches'
 

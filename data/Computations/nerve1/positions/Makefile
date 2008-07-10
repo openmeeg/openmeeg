@@ -3,7 +3,7 @@ CUTPLANE:=cutz0
 # root of openmeeg build directory 
 OPENMEEGBUILDDIR:=../../../../
 # model directory (where nerve parameters, geometry, etc are stored)
-MDIR:=$(OPENMEEGBUILDDIR)HeadModels/$(MODEL)/
+MDIR:=$(OPENMEEGBUILDDIR)Models/$(MODEL)/
 # directory containing the evaluation positions
 PDIR:=$(OPENMEEGBUILDDIR)Computations/$(MODEL)/positions/
 # directory containing the results
