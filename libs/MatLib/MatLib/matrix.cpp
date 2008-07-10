@@ -719,13 +719,3 @@ void Matrix::save( const char *filename ) const {
         std::cout << s << std::endl;
     }
 }
-
-std::ostream& operator<<(std::ostream& f,const Matrix &M) {
-    for (size_t i=0;i<M.nlin();i++) {
-        for (size_t j=0;j<M.ncol();j++) {
-            f << M(i,j) << " ";
-        }
-        f << std::endl;
-    }
-    return f;
-}

@@ -181,7 +181,5 @@ inline double& Matrix::operator()(size_t i,size_t j)
     return t[i+nlin()*j];
 }
 
-std::ostream& operator<<(std::ostream& f,const Matrix &M);
-
 #endif
 

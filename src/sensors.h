@@ -156,12 +156,32 @@ inline void Sensors::setOrientation(size_t idx, Vector& orient) {
 }
 
 inline std::ostream& operator<<(std::ostream& f,const Sensors &S) {
+    size_t nb_to_display = (int)std::min((int)S.getNumberOfSensors(),(int)5);
     f << "Nb of sensors : " << S.getNumberOfSensors() << std::endl;
     f << "Positions" << std::endl;
-    f << S.getPositions();
+    const Matrix& positions = S.getPositions();
+    for(size_t i = 0; i < nb_to_display ; ++i) {
+        for (size_t j=0;j<positions.ncol();++j) {
+            f << positions(i,j) << " ";
+        }
+        f << std::endl;
+    }
+    if(S.getNumberOfSensors() > nb_to_display) {
+        f << "..." << std::endl;
+    }
+
     if(S.hasOrientations()) {
         f << "Orientations" << std::endl;
-        f << S.getOrientations();
+        const Matrix& orientations = S.getOrientations();
+        for(size_t i = 0; i < nb_to_display ; ++i) {
+            for (size_t j=0;j<orientations.ncol();++j) {
+                f << orientations(i,j) << " ";
+            }
+            f << std::endl;
+        }
+        if(S.getNumberOfSensors() > nb_to_display) {
+            f << "..." << std::endl;
+        }
     }
     if(S.hasNames()) {
         f << "Names" << std::endl;

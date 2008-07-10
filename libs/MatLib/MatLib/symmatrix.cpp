@@ -495,12 +495,3 @@ void SymMatrix::save( const char *filename ) const {
     }
 }
 
-std::ostream& operator<<(std::ostream& f,const SymMatrix &M) {
-    for (size_t i=0;i<M.nlin();i++) {
-        for (size_t j=i;j<M.ncol();j++) {
-            f << M(i,j) << " ";
-        }
-        f << std::endl;
-    }
-    return f;
-}

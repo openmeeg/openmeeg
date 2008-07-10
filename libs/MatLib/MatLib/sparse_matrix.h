@@ -80,12 +80,8 @@ public:
     }
 
     inline double& operator()( size_t i, size_t j ) {
-        if(i > nlin()) {
-            nlin() = i+1;
-        }
-        if(j > ncol()) {
-            ncol() = j+1;
-        }
+        assert(i < nlin());
+        assert(j < ncol());
         return m_tank[ std::make_pair( i, j ) ];
     }
 
@@ -119,7 +115,5 @@ private:
 
     Tank m_tank;
 };
-
-std::ostream& operator<<(std::ostream& f,const SparseMatrix &M);
 
 #endif

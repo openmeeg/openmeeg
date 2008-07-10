@@ -67,18 +67,18 @@ void genericTest(T &M)
     v = M*v;
 
     cout << endl << "BASE :" << endl;
-    cout << M;
+    M.info();
 
     // Test IO
     cout << endl << "BIN :" << endl;
     M.saveBin("tmp.bin");
     M.loadBin("tmp.bin");
-    cout << M;
+    M.info();
 
     cout << endl << "TXT :" << endl;
     M.saveTxt("tmp.txt");
     M.loadTxt("tmp.txt");
-    cout << M;
+    M.info();
 
     cout << "   operator * OK" << endl;
     cout.flush();
@@ -109,18 +109,19 @@ int main ()
     genericTest(M);
 
     Matrix Q = M.submat(3,1,2,3); // select submatrix
-    cout<<"Q= "<<endl<<Q<<endl;
+    cout << "Matrice Q : " << endl;
+    Q.info();
 
     Matrix P(3,3);
     P(0,0) = 25 ; P(0,1) = 3 ; P(0,2) = 6 ;
     P(1,0) = 12 ; P(1,1) = 5 ; P(1,2) = 32 ;
     P(2,0) = 4 ; P(2,1) = 10 ; P(2,2) = 4 ;
     cout << "Matrice P : " << endl;
-    cout << P;
+    P.info();
 
     Matrix Pinv = P.inverse();
     cout << "P Inverse Matrix : " << endl;
-    cout << Pinv;
+    Pinv.info();
 
     Matrix unit = P*Pinv;
     double eps = 0.01;
@@ -143,7 +144,7 @@ int main ()
     cout << "MAT :" << endl;
     M.saveMat("tmp_matrix.mat");
     M.loadMat("tmp_matrix.mat");
-    cout << M;
+    M.info();
 #endif
 
     // section SymMatrix
@@ -155,7 +156,8 @@ int main ()
 
     genericTest(S);
     Matrix R = S(1,2,0,2); // extract submatrix
-    cout << "R= " << endl << R << endl;
+    cout << "Matrice R : " << endl;
+    R.info();
 
     // section SparseMatrix
     cout<<endl<<"========== sparse matrices =========="<<endl;
@@ -179,9 +181,10 @@ int main ()
     Matrix U(10,10);
     U.set(1.0);
     Matrix T = spM*U;
-    cout << T;
+    T.info();
     T = U*spM;
-    cout << T;
+    cout << "Matrice T : " << endl;
+    T.info();
 
     cout<<endl<<"========== fast sparse matrices =========="<<endl;
     cout << spM;

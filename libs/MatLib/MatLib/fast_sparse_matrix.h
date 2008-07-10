@@ -89,6 +89,8 @@ public:
 
     inline double& operator[](size_t i) {return tank[i];};
 
+    inline void info() const;
+
 };
 
 inline std::ostream& operator<<(std::ostream& f,const FastSparseMatrix &M)
@@ -104,6 +106,16 @@ inline std::ostream& operator<<(std::ostream& f,const FastSparseMatrix &M)
         }
     }
     return f;
+}
+
+inline void FastSparseMatrix::info() const {
+    if ((nlin() == 0) && (ncol() == 0)) {
+        std::cout << "Matrix Empty" << std::endl;
+        return;
+    }
+
+    std::cout << "Dimensions : " << nlin() << " x " << ncol() << std::endl;
+    std::cout << *this;
 }
 
 inline FastSparseMatrix::FastSparseMatrix()

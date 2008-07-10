@@ -138,7 +138,5 @@ inline double& SymMatrix::operator()(size_t i,size_t j) {
         return t[j+i*(i+1)/2];
 }
 
-std::ostream& operator<<(std::ostream& f,const SymMatrix &M);
-
 #endif
 

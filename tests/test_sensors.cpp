@@ -62,12 +62,7 @@ int main(int argc, char** argv) {
     if (S.isEmpty())
         std::cout << "WARNING : empty sensors !" << std::endl;
     else{
-        Matrix& p = S.getPositions();
-        Matrix& o = S.getOrientations();
-        std::cout << std::endl << "Positions of sensors : " << std::endl;
-        std::cout << p << std::endl;
-        std::cout << std::endl << "Orientations of sensors : " << std::endl;
-        std::cout << o << std::endl;
+        std::cout << S << std::endl;
 
         /**** test on copy constructor ****/
         Sensors Scopy(S);

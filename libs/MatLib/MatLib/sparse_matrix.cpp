@@ -81,7 +81,7 @@ Matrix SparseMatrix::operator*(const Matrix &mat) const
 }
 
 SparseMatrix SparseMatrix::transpose() const {
-    SparseMatrix tsp;
+    SparseMatrix tsp(ncol(),nlin());
     const_iterator it;
     for(it = m_tank.begin(); it != m_tank.end(); ++it) {
         size_t i = it->first.first;
@@ -190,10 +190,3 @@ void SparseMatrix::save( const char *filename ) const {
     }
 }
 
-std::ostream& operator<<(std::ostream& f,const SparseMatrix &M) {
-    SparseMatrix::const_iterator it;
-    for(it = M.tank().begin(); it != M.tank().end(); ++it) {
-        std::cout << "(" << it->first.first << "," << it->first.second << ") " << it->second << std::endl;
-    }
-    return f;
-}

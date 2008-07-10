@@ -81,9 +81,15 @@ namespace maths {
             is.seekg(0,std::ios::beg);
 
             std::string line;
+
+            // Start by reading dimensions
+            std::getline(is, line, '\n');
+            std::stringstream buffer(line);
+            buffer >> m.nlin();
+            buffer >> m.ncol();
+
             while (std::getline(is, line, '\n')) {
                 std::stringstream buffer(line);
-
                 size_t i,j;
                 buffer >> i >> j;
                 buffer >> m(i,j);
@@ -197,7 +203,8 @@ namespace maths {
         void write_sparse(std::ofstream& os, const LinOp& linop) const {
             const SparseMatrix& spm = dynamic_cast<const SparseMatrix&>(linop);
             SparseMatrix::const_iterator it;
-            for (it = spm.begin(); it != spm.end(); ++it) {
+            os << spm.nlin() << " " << spm.ncol() << std::endl;
+            for(it = spm.begin(); it != spm.end(); ++it) {
                 size_t i = it->first.first;
                 size_t j = it->first.second;
                 double val = it->second;
