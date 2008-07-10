@@ -80,11 +80,11 @@ namespace maths {
             if (matvar==NULL)
                 throw std::string("There is no 2D full double Matrix in this Matlab file");
 
-            Matrix* m = dynamic_cast<Matrix*>(&linop);
+            Matrix& m = dynamic_cast<Matrix&>(linop);
 
-            m->nlin() = matvar->dims[0];
-            m->ncol() = matvar->dims[1];
-            double* data = m->data();
+            m.nlin() = matvar->dims[0];
+            m.ncol() = matvar->dims[1];
+            double* data = m.data();
             data = static_cast<double*>(matvar->data);
             matvar->mem_conserve = 1;
             Mat_VarFree(matvar);
@@ -92,7 +92,7 @@ namespace maths {
         }
 
         void read_sparse(mat_t* mat,LinOp& linop) const {
-            SparseMatrix* m = dynamic_cast<SparseMatrix*>(&linop);
+            SparseMatrix& m = dynamic_cast<SparseMatrix&>(linop);
 
             matvar_t* matvar = Mat_VarReadNext(mat);
 
@@ -104,8 +104,8 @@ namespace maths {
 
             std::cout << "Using variable with name : " << matvar->name << std::endl;
 
-            m->nlin() = matvar->dims[0];
-            m->ncol() = matvar->dims[1];
+            m.nlin() = matvar->dims[0];
+            m.ncol() = matvar->dims[1];
 
             sparse_t* sparse = static_cast<sparse_t*>(matvar->data);
             size_t _nz = sparse->nzmax;
@@ -113,19 +113,14 @@ namespace maths {
             double *data = static_cast<double*>(sparse->data);
 
             size_t current_col = 0;
-            for(size_t k = 0; k < _nz; ++k)
-            {
+            for (size_t k = 0; k < _nz; ++k) {
                 size_t i = sparse->ir[k];
                 double val = data[k];
-                if(k < (size_t) sparse->jc[sparse->njc-1])
-                {
+                if (k < (size_t) sparse->jc[sparse->njc-1]) {
                     assert(current_col < (size_t) sparse->njc);
-                    while((size_t) sparse->jc[current_col + 1] <= k) // look for the last idx of jc such that jc[idx+1] > k
-                    {
-                        current_col++;
-                    }
+                    while((size_t) sparse->jc[current_col + 1] <= k) current_col++; // look for the last idx of jc such that jc[idx+1] > k
                     size_t j = current_col;
-                    m->operator()(i,j) = val;
+                    m(i,j) = val;
                 }
             }
             matvar->mem_conserve = 1;
@@ -134,43 +129,40 @@ namespace maths {
         }
 
         void write_full(mat_t* mat,const LinOp& linop) const {
-            Matrix* m = dynamic_cast<Matrix*>(const_cast<LinOp*>(&linop));
+            const Matrix& m = dynamic_cast<const Matrix&>(linop);
             matvar_t* matvar;
-            int dims[2] = { m->nlin(), m->ncol() };
-            matvar = Mat_VarCreate("linop",MAT_C_DOUBLE,MAT_T_DOUBLE,2,dims,m->data(),0);
+            int dims[2] = { m.nlin(), m.ncol() };
+            matvar = Mat_VarCreate("linop",MAT_C_DOUBLE,MAT_T_DOUBLE,2,dims,m.data(),0);
             Mat_VarWrite(mat,matvar,COMPRESSION_ZLIB);
             Mat_VarFree(matvar);
             Mat_Close(mat);
         }
 
         void write_sparse(mat_t* mat,const LinOp& linop) const {
-            SparseMatrix* m = dynamic_cast<SparseMatrix*>(const_cast<LinOp*>(&linop));
-            SparseMatrix::const_iterator it;
+            const SparseMatrix& m = dynamic_cast<const SparseMatrix&>(linop);
 
             SparseMatrix::Tank tank_inverted;
-
-            for(it = m->begin(); it != m->end(); ++it) {
+            for (SparseMatrix::const_iterator it=m.begin();it!=m.end();++it) {
                 size_t i = it->first.first;
                 size_t j = it->first.second;
                 double val = it->second;
                 tank_inverted[std::pair<size_t,size_t>(j,i)] = val;
             }
 
-            double* t = (double*)malloc(sizeof(double)*linop.size());
-            mat_int32_t  *ir = (mat_int32_t*)malloc(sizeof(mat_int32_t)*linop.size());
-            mat_int32_t  *jc = (mat_int32_t*)malloc(sizeof(mat_int32_t)*(linop.ncol()+1));
+            double*      t  = new double[linop.size()];
+            mat_int32_t* ir = new mat_int32_t[linop.size()];
+            mat_int32_t* jc = new mat_int32_t[linop.ncol()+1];
 
             size_t cnt = 0;
             size_t current_col = (size_t)-1;
 
-            for(it = tank_inverted.begin(); it != tank_inverted.end(); ++it) {
-                size_t i = it->first.second;
-                size_t j = it->first.first;
-                double val = it->second;
-                if(current_col != j) {
-                    for(size_t k = current_col+1; k <= j; ++k) {
+            for (SparseMatrix::const_iterator it = tank_inverted.begin(); it != tank_inverted.end(); ++it) {
+                const size_t i   = it->first.second;
+                const size_t j   = it->first.first;
+                const double val = it->second;
+                if (current_col != j) {
+                    for (size_t k = current_col+1; k <= j; ++k)
                         jc[k] = cnt;
-                    }
                     current_col = j;
                 }
                 ir[cnt] = i;
@@ -178,9 +170,8 @@ namespace maths {
                 cnt++;
             }
 
-            for(size_t k = current_col+1; k <= linop.ncol(); ++k) {
+            for (size_t k = current_col+1; k <= linop.ncol(); ++k)
                 jc[k] = linop.size();
-            }
 
             int dims[2] = { linop.nlin(), linop.ncol() };
             matvar_t *matvar;
@@ -203,12 +194,12 @@ namespace maths {
 
         void read(std::ifstream& is,LinOp& linop) const {
             #ifdef USE_MATIO
-                if(is.is_open()) {
+                if (is.is_open()) {
                     is.close();
                 }
                 mat_t* mat = Mat_Open(name().c_str(),MAT_ACC_RDONLY);
                 if (mat) {
-                    if(linop.storageType()==LinOp::SPARSE) {
+                    if (linop.storageType()==LinOp::SPARSE) {
                         read_sparse(mat,linop);
                     } else {
                         read_full(mat,linop);
@@ -223,14 +214,14 @@ namespace maths {
 
         void write(std::ofstream& os, const LinOp& linop) const {
             #ifdef USE_MATIO
-                if(os.is_open()) {
+                if (os.is_open()) {
                     std::cout << "closing stream" << std::endl;
                     os.close();
                     std::remove(name().c_str());
                 }
                 mat_t* mat = Mat_Open(name().c_str(),MAT_ACC_RDWR);
                 if (mat) {
-                    if(linop.storageType()==LinOp::SPARSE) {
+                    if (linop.storageType()==LinOp::SPARSE) {
                         write_sparse(mat,linop);
                     } else {
                         write_full(mat,linop);

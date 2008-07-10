@@ -78,41 +78,6 @@ namespace maths {
                    || (linop.dimension()==LinOp::ONE && linop.storageType()==LinOp::FULL);
         }
 
-        void read_sparse(std::ifstream& is,LinOp& linop) const {
-            SparseMatrix* m = dynamic_cast<SparseMatrix*>(&linop);
-
-            while (! is.eof() ) {
-                unsigned int ui;
-                size_t i,j;
-                double val;
-                if (is.read(reinterpret_cast<char*>(&ui),sizeof(unsigned int)) == 0) break;
-                i = ui;
-                if (is.read(reinterpret_cast<char*>(&ui),sizeof(unsigned int)) == 0) break;
-                j = ui;
-                if (is.read(reinterpret_cast<char*>(&val),sizeof(double)) == 0) break;
-
-                m->operator()(i,j) = val;
-            }
-        }
-
-        void read_full(std::ifstream& is,LinOp& linop) const {
-            if(linop.dimension()==LinOp::ONE) {
-                Vector* v = dynamic_cast<Vector*>(&linop);
-                v->alloc_data();
-                is.read(reinterpret_cast<char*>(v->data()),v->size()*sizeof(double));
-            } else {
-                Matrix* m = dynamic_cast<Matrix*>(&linop);
-                m->alloc_data();
-                is.read(reinterpret_cast<char*>(m->data()),m->size()*sizeof(double));
-            }
-        }
-
-        void read_symmetric(std::ifstream& is,LinOp& linop) const {
-            SymMatrix* m = dynamic_cast<SymMatrix*>(&linop);
-            m->alloc_data();
-            is.read(reinterpret_cast<char*>(m->data()),m->size()*sizeof(double));
-        }
-
         void read(std::ifstream& is,LinOp& linop) const {
             read_header(is,linop);
             switch (linop.storageType()) {
@@ -120,52 +85,17 @@ namespace maths {
                     read_sparse(is,linop);
                     return;
                 case LinOp::FULL :
-                    read_full(is,linop);
+                    if(linop.dimension()==LinOp::ONE) {
+                        read_internal<Vector>(is,linop);
+                    } else {
+                        read_internal<Matrix>(is,linop);
+                    }
                     return;
                 case LinOp::SYMMETRIC :
-                    read_symmetric(is,linop);
+                    read_internal<SymMatrix>(is,linop);
                     return;
                 default:
                     return;
-            }
-        }
-
-        void write_sparse(std::ofstream& os, const LinOp& linop) const {
-            SparseMatrix* m = dynamic_cast<SparseMatrix*>(const_cast<LinOp*>(&linop));
-            SparseMatrix::const_iterator it;
-            unsigned int ui;
-            for(it = m->begin(); it != m->end(); ++it) {
-                size_t i = it->first.first;
-                size_t j = it->first.second;
-                double val = it->second;
-                ui = i; os.write(reinterpret_cast<const char*>(&ui),sizeof(unsigned int));
-                ui = j; os.write(reinterpret_cast<const char*>(&ui),sizeof(unsigned int));
-                os.write(reinterpret_cast<const char*>(&val),sizeof(double));
-            }
-        }
-
-        void write_symmetric(std::ofstream& os, const LinOp& linop) const {
-            SymMatrix* m = dynamic_cast<SymMatrix*>(const_cast<LinOp*>(&linop));
-            os.write(reinterpret_cast<const char*>(m->data()),m->size()*sizeof(double));
-        }
-
-        void write_full(std::ofstream& os, const LinOp& linop) const {
-            if(linop.dimension()==LinOp::ONE) {
-                Vector* v = dynamic_cast<Vector*>(const_cast<LinOp*>(&linop));
-                os.write(reinterpret_cast<const char*>(v->data()),v->size()*sizeof(double));
-            } else {
-                Matrix* m = dynamic_cast<Matrix*>(const_cast<LinOp*>(&linop));
-                os.write(reinterpret_cast<const char*>(m->data()),m->size()*sizeof(double));
-            }
-        }
-
-        void write_header(std::ofstream& os, const LinOp& linop) const {
-            unsigned int ui;
-            ui = linop.nlin();
-            os.write(reinterpret_cast<const char*>(&ui),sizeof(unsigned int));
-            if (linop.storageType()!=LinOp::SYMMETRIC && linop.dimension()!=LinOp::ONE) {
-                ui = linop.ncol();
-                os.write(reinterpret_cast<const char*>(&ui),sizeof(unsigned int));
             }
         }
 
@@ -176,10 +106,14 @@ namespace maths {
                     write_sparse(os,linop);
                     return;
                 case LinOp::FULL :
-                    write_full(os,linop);
+                    if(linop.dimension()==LinOp::ONE) {
+                        write_internal<Vector>(os,linop);
+                    } else {
+                        write_internal<Matrix>(os,linop);
+                    }
                     return;
                 case LinOp::SYMMETRIC :
-                    write_symmetric(os,linop);
+                    write_internal<SymMatrix>(os,linop);
                     return;
                 default:
                     return;
@@ -187,6 +121,57 @@ namespace maths {
         }
 
     private:
+
+        void read_sparse(std::ifstream& is,LinOp& linop) const {
+            SparseMatrix& m = dynamic_cast<SparseMatrix&>(linop);
+
+            while (!is.eof()) {
+                unsigned int ui;
+                size_t i,j;
+                double val;
+                if (is.read(reinterpret_cast<char*>(&ui),sizeof(unsigned int)) == 0) break;
+                i = ui;
+                if (is.read(reinterpret_cast<char*>(&ui),sizeof(unsigned int)) == 0) break;
+                j = ui;
+                if (is.read(reinterpret_cast<char*>(&val),sizeof(double)) == 0) break;
+
+                m(i,j) = val;
+            }
+        }
+
+        void write_sparse(std::ofstream& os, const LinOp& linop) const {
+            const SparseMatrix& m = dynamic_cast<const SparseMatrix&>(linop);
+            for (SparseMatrix::const_iterator it=m.begin();it!=m.end();++it) {
+                const unsigned i = it->first.first;
+                const unsigned j = it->first.second;
+                const double val = it->second;
+                os.write(reinterpret_cast<const char*>(&i),sizeof(unsigned int));
+                os.write(reinterpret_cast<const char*>(&j),sizeof(unsigned int));
+                os.write(reinterpret_cast<const char*>(&val),sizeof(double));
+            }
+        }
+
+        template <typename LINOP>
+        static void read_internal(std::ifstream& is,LinOp& linop) {
+            LINOP& l = dynamic_cast<LINOP&>(linop);
+            l.alloc_data();
+            is.read(reinterpret_cast<char*>(l.data()),l.size()*sizeof(double));
+        }
+
+        template <typename LINOP>
+        static void write_internal(std::ofstream& os, const LinOp& linop) {
+            const LINOP& l = dynamic_cast<const LINOP&>(linop);
+            os.write(reinterpret_cast<const char*>(l.data()),l.size()*sizeof(double));
+        }
+
+        void write_header(std::ofstream& os,const LinOp& linop) const {
+            const unsigned nlin = linop.nlin();
+            os.write(reinterpret_cast<const char*>(&nlin),sizeof(unsigned));
+            if (linop.storageType()!=LinOp::SYMMETRIC && linop.dimension()!=LinOp::ONE) {
+                const unsigned ncol = linop.ncol();
+                os.write(reinterpret_cast<const char*>(&ncol),sizeof(unsigned));
+            }
+        }
 
         static Suffixes init() {
             Suffixes suffs;
