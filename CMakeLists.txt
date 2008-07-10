@@ -33,7 +33,8 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.4)
 # Setting compilation options
 #######################################################################
 
-OPTION(BUILD_SHARED "Build shared libs" OFF)
+OPTION(BUILD_SHARED "Build shared libs" ON)
+MARK_AS_ADVANCED(BUILD_SHARED)
 
 IF ( BUILD_SHARED )
     SET(LIB_TYPE SHARED)
