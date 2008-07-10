@@ -94,10 +94,15 @@ namespace maths {
                 buffer >> i >> j;
                 buffer >> m(i,j);
             }
-            // throw ?
+
+            //  Check that there is nothing more in the file (otherwise the file is corrupted somehow).
+
+            is >> std::ws;
+            if (!is.eof())
+                throw BadData(identity()+" sparse matrix");
         }
 
-        void read_full(std::ifstream& is,LinOp& linop) const {
+        void read_full(std::ifstream& is,LinOp& linop) const throw(BadData) {
             is.clear();
             is.seekg(0,std::ios::beg);
 
@@ -111,7 +116,7 @@ namespace maths {
                     std::stringstream buffer(line);
                     buffer >> v(i);
                     if (buffer.fail())
-                        throw("Error parsing"); //  FIXME : throw proper exception
+                        throw BadData(identity()+" vector");
                 }
             } else {
                 Matrix& m = dynamic_cast<Matrix&>(linop);
@@ -123,12 +128,12 @@ namespace maths {
                     for (size_t j=0;j<m.ncol();++j)
                         buffer >> m(i,j);
                     if (buffer.fail())
-                        throw("Error parsing"); //  FIXME : throw proper exception
+                        throw BadData(identity()+" matrix");
                 }
             }
         }
 
-        void read_symmetric(std::ifstream& is,LinOp& linop) const {
+        void read_symmetric(std::ifstream& is,LinOp& linop) const throw(BadData) {
             SymMatrix& m = dynamic_cast<SymMatrix&>(linop);
             m.alloc_data();
 
@@ -144,11 +149,11 @@ namespace maths {
                 for (size_t j=i;j<m.ncol();++j)
                     buffer >> m(i,j);
                 if (buffer.fail())
-                    throw("Error parsing"); //  FIXME : throw proper exception
+                    throw BadData(identity()+" symmetric matrix");
             }
         }
 
-        void read(std::ifstream& is,LinOp& linop) const {
+        void read(std::ifstream& is,LinOp& linop) const throw(std::exception) {
 
             if (linop.storageType()==LinOp::SPARSE) {
 
@@ -172,9 +177,8 @@ namespace maths {
                 }
                 --ncol;
 
-                if (linop.dimension()==LinOp::ONE) {
-                    assert(ncol == 1); // TODO : throw proper exception
-                }
+                if (linop.dimension()==LinOp::ONE && ncol!=1)
+                    throw BadVector(ncol);
 
                 // Determine the number of lines in the file
 
@@ -189,7 +193,8 @@ namespace maths {
                 //  Read the data according to the type of the matrix.
 
                 if (linop.storageType()==LinOp::SYMMETRIC) {
-                    assert(nlin==ncol); // TODO : throw proper exception
+                    if (nlin!=ncol)
+                        throw BadSymmMatrix(nlin,ncol);
                     linop.ncol() = ncol;
                     read_symmetric(is,linop);
                 } else {

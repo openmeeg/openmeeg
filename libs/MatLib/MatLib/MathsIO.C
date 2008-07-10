@@ -12,14 +12,14 @@ namespace maths {
         static const unsigned maxtagsize = 32;
 
         static const char*
-        ReadTag(std::istream& is) throw(std::string) {
+        ReadTag(std::istream& is) throw(BadHeader) {
 
             static char buffer[maxtagsize];
 
             try {
                 is.read(buffer,maxtagsize);
             } catch(...) {
-                throw std::string("BadHeader(is)");
+                throw BadHeader();
             }
 
             for(int i=maxtagsize-1;i>=0;--i)
@@ -55,7 +55,7 @@ namespace maths {
             if (fmt==(*i)->identity())
                 return *i;
 
-        throw UnknownFileFormat(std::string("Unknown file format : ")+fmt);
+        throw UnknownFileFormat(fmt);
     }
 
     const MathsIO::IO& MathsIO::format_from_suffix(const std::string& name) throw(NoSuffix,UnknownFileSuffix) {
@@ -66,17 +66,17 @@ namespace maths {
         
         const std::string::size_type pos = name.find_last_of(".");
         if (pos==std::string::npos)
-            throw NoSuffix(std::string("Could find suffix for :")+name);
+            throw NoSuffix(name);
 
         const std::string suffix = name.substr(pos+1);
         for(IOs::const_iterator i=ios().begin();i!=ios().end();++i) {
             if ((*i)->known_suffix(suffix.c_str()))
                 return *i;
         }
-        throw UnknownFileSuffix(std::string("Unkown suffix :")+suffix);
+        throw UnknownFileSuffix(suffix);
     }
 
-    maths::ifstream& operator>>(maths::ifstream& mio,LinOp& linop) throw(std::string) {
+    maths::ifstream& operator>>(maths::ifstream& mio,LinOp& linop) throw(BadFileOpening,NoIO) {
 
         //  An ugly hack to insert TrivialBinIO at the end of the IO list. 
         //  Remove when TrivialBinIo is deleted.
@@ -84,9 +84,8 @@ namespace maths {
         maths::MathsIOBase::InsertTrivialBinIO();
 
         std::ifstream is(mio.name().c_str());
-        if(is.fail()) {
-            throw std::string("Unable to open : ")+mio.name();
-        }
+        if(is.fail())
+            throw BadFileOpening(mio.name(),BadFileOpening::READ);
 
         const char* buffer = Internal::ReadTag(is);
 
@@ -105,10 +104,10 @@ namespace maths {
                 }
             }
         }
-        throw std::string("Unable to find proper reader.");
+        throw NoIO(mio.name(),NoIO::READ);
     }
 
-    maths::ofstream& operator<<(maths::ofstream& mio,const LinOp& linop) throw(std::string) {
+    maths::ofstream& operator<<(maths::ofstream& mio,const LinOp& linop) throw(BadFileOpening,NoIO) {
 
         //  An ugly hack to insert TrivialBinIO at the end of the IO list. 
         //  Remove when TrivialBinIo is deleted.
@@ -116,9 +115,8 @@ namespace maths {
         maths::MathsIOBase::InsertTrivialBinIO();
 
         std::ofstream os(mio.name().c_str());
-        if(os.fail()) {
-            throw std::string("Unable to open : ")+mio.name();
-        }
+        if(os.fail())
+            throw BadFileOpening(mio.name(),BadFileOpening::WRITE);
 
         if (maths::MathsIO::IO io = maths::MathsIO::default_io()) {
             if (io->known(linop)) {
@@ -135,7 +133,7 @@ namespace maths {
                 }
             }
         }
-        throw std::string("Unable to find proper writer.");
+        throw NoIO(mio.name(),NoIO::WRITE);
     }
 
 

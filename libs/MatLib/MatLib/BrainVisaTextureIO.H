@@ -48,6 +48,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #include <sstream>
 
+#include <Exceptions.H>
 #include "MathsIO.H"
 #include "matrix.h"
 
@@ -68,8 +69,8 @@ namespace maths {
             return linop.storageType()==LinOp::FULL;
         }
 
-        void read(std::ifstream& is,LinOp& linop) const {
-            Matrix* m = dynamic_cast<Matrix*>(&linop);
+        void read(std::ifstream& is,LinOp& linop) const throw(std::exception) {
+            Matrix& m = dynamic_cast<Matrix&>(linop);
 
             std::string line;
             std::getline(is, line, '\n');
@@ -83,11 +84,10 @@ namespace maths {
             std::getline(is, line, '\n');
             buffer.clear();
             buffer.str(line);
-            buffer >> m->ncol();
+            buffer >> m.ncol();
 
-            if(linop.dimension()==LinOp::ONE) {
-                assert(m->ncol() == 1); // TODO : throw proper exception
-            }
+            if (linop.dimension()==LinOp::ONE && m.ncol()!=1)
+                throw maths::BadVector(m.ncol());
 
             size_t j = 0; // column index
             do {
@@ -95,27 +95,24 @@ namespace maths {
                 std::getline(is, line, '\n');
                 buffer.clear();
                 buffer.str(line);
-                buffer >> m->nlin();
-                if(j==0) {
-                    m->alloc_data();
+                buffer >> m.nlin();
+                if (j==0) {
+                    m.alloc_data();
                 }
-                for(size_t i = 0; i < m->nlin(); ++i) {
-                    buffer >> m->data()[i+j*m->nlin()];
-                }
+                for (size_t i = 0; i < m.nlin(); ++i)
+                    buffer >> m(i,j);
                 j++;
-            } while(j<m->ncol());
+            } while (j<m.ncol());
         }
 
         void write(std::ofstream& os, const LinOp& linop) const {
-            Matrix* m = dynamic_cast<Matrix*>(const_cast<LinOp*>(&linop));
+            const Matrix& m = dynamic_cast<const Matrix&>(linop);
 
-            os << "ascii" << std::endl << "FLOAT" << std::endl << (unsigned int)m->ncol() << std::endl;
-            for(size_t j=0; j<m->ncol(); j++) {
-                os << (unsigned int) j << std::endl;
-                os << (unsigned int) m->nlin();
-                for(size_t i=0; i<m->nlin(); i++) {
-                    os << " " << m->data()[i+j*m->nlin()];
-                }
+            os << "ascii" << std::endl << "FLOAT" << std::endl << static_cast<unsigned>(m.ncol()) << std::endl;
+            for (size_t j=0; j<m.ncol(); ++j) {
+                os << static_cast<unsigned>(j) << std::endl << static_cast<unsigned>(m.nlin()) << std::endl;
+                for (size_t i=0; i<m.nlin(); ++i)
+                    os << " " << m(i,j);
                 os << std::endl;
             }
         }

@@ -11,9 +11,9 @@
 namespace maths {
 
     typedef enum { UNEXPECTED = 128, IO_EXCPT,
-                   BAD_FMT, NO_SUFFIX, NON_MATCH_FMT, BAD_HDR, BAD_DATA, BAD_DIM, UNKN_DIM, BAD_SIZE_SPEC, UNKN_PIX, UNKN_PIX_TYPE,
-                   UNKN_FILE_FMT, UNKN_FILE_SUFFIX, UNKN_NAMED_FILE_FMT, NON_MATCH_NAMED_FILE_FMT, NO_FILE_FMT,
-                   BAD_PLGIN_LIST, BAD_PLGIN_FILE, BAD_PLGIN, ALREADY_KN_TAG } ExceptionCode;
+                   BAD_FILE, BAD_FILE_OPEN, BAD_CONTENT, NO_SUFFIX, BAD_HDR, BAD_DATA, BAD_VECT, UNKN_DIM, BAD_SYMM_MAT,
+                   NO_IO, UNKN_FILE_FMT, UNKN_FILE_SUFFIX, NO_FILE_FMT, UNKN_NAMED_FILE_FMT } ExceptionCode;
+
 
     class Exception: public std::exception {
     public:
@@ -55,16 +55,46 @@ namespace maths {
         ExceptionCode code() const throw() { return IO_EXCPT; }
     };
 
-    struct BadFormat: public IOException {
+    struct BadFile: public IOException {
+ 
+        BadFile(const std::string& fmtname):                  IOException(message(fmtname))    { }
+        BadFile(std::istream& is,const std::string& fmtname): IOException(is,message(fmtname)) { }
 
-        BadFormat(const std::string& fmtname):                  IOException(message(fmtname))    { }
-        BadFormat(std::istream& is,const std::string& fmtname): IOException(is,message(fmtname)) { }
-
-        ExceptionCode code() const throw() { return BAD_FMT; }
+        ExceptionCode code() const throw() { return BAD_FILE; }
 
     private:
 
         static std::string message(const std::string& fmtname) { return std::string("Unable to read the input as a "+fmtname+" image file."); }
+    };
+
+    struct BadFileOpening: public IOException {
+ 
+        typedef enum { READ, WRITE } Mode;
+
+        BadFileOpening(const std::string& file,const Mode& mode):                  IOException(message(file,mode))    { }
+        BadFileOpening(std::istream& is,const std::string& file,const Mode& mode): IOException(is,message(file,mode)) { }
+
+        ExceptionCode code() const throw() { return BAD_FILE_OPEN; }
+
+    private:
+
+        static std::string message(const std::string& file,const Mode& mode) {
+            return std::string("Unable to open the file ")+file+" for "+((mode==READ) ? "reading" : "writing");
+        }
+    };
+
+    struct BadContent: public IOException {
+
+        BadContent(const std::string& fmtname,const std::string& object):                  IOException(message(fmtname,object))    { }
+        BadContent(std::istream& is,const std::string& fmtname,const std::string& object): IOException(is,message(fmtname,object)) { }
+
+        ExceptionCode code() const throw() { return BAD_CONTENT; }
+
+    private:
+
+        static std::string message(const std::string& fmtname,const std::string& object) {
+            return std::string("This "+fmtname+" file does not contains a "+object+" as expected.");
+        }
     };
 
     struct NoSuffix: public IOException {
@@ -73,28 +103,16 @@ namespace maths {
         ExceptionCode code() const throw() { return NO_SUFFIX; }
     };
 
-    struct NonMatchingFormat: public IOException {
-
-        NonMatchingFormat(const std::string& fmtname):                  IOException(message(fmtname))    { }
-        NonMatchingFormat(std::ostream& os,const std::string& fmtname): IOException(os,message(fmtname)) { }
-
-        ExceptionCode code() const throw() { return NON_MATCH_FMT; }
-
-    private:
-
-        static std::string message(const std::string& fmtname) { return std::string("Unable to save the image in the ")+fmtname+" format."; }
-    };
-
     struct BadHeader: public IOException {
 
-        BadHeader(const std::string& fmtname=""):                  IOException(message(fmtname))    { }
-        BadHeader(std::istream& is,const std::string& fmtname=""): IOException(is,message(fmtname)) { }
+        BadHeader():                 IOException(message())    { }
+        BadHeader(std::istream& is): IOException(is,message()) { }
 
         ExceptionCode code() const throw() { return BAD_HDR; }
 
     private:
 
-        static std::string message(const std::string& fmtname) { return std::string("Bad ")+fmtname+" file header."; }
+        static std::string message() { return std::string("Bad file header."); }
     };
 
     struct BadData: public IOException {
@@ -109,54 +127,57 @@ namespace maths {
         static std::string message(const std::string& fmtname) { return std::string("Bad ")+fmtname+" file data."; }
     };
 
-    struct BadDimension: public IOException {
+    struct BadVector: public IOException {
 
-        BadDimension(const std::size_t dim): IOException(message(dim)) { }
+        BadVector(const std::size_t dim): IOException(message(dim)) { }
 
         template <typename CharT,typename Traits>
-        BadDimension(std::basic_ios<CharT,Traits>& ios,const std::size_t dim): IOException(ios,message(dim)) { }
+        BadVector(std::basic_ios<CharT,Traits>& ios,const std::size_t dim): IOException(ios,message(dim)) { }
 
-        ExceptionCode code() const throw() { return BAD_DIM; }
+        ExceptionCode code() const throw() { return BAD_VECT; }
 
     private:
 
         static std::string message(const std::size_t dim) {
             std::ostringstream ost;
-            ost << "Incoming image is not of dimension " << dim << '.';
+            ost << "Bad file (expected a vector, got a matrix with " << dim << " columns).";
             return ost.str();
         }
     };
 
-    struct BadSizeSpec: public IOException {
+    struct BadSymmMatrix: public IOException {
 
-        BadSizeSpec(const std::size_t dim): IOException(message(dim)) { }
+        BadSymmMatrix(const std::size_t dim1,const std::size_t dim2): IOException(message(dim1,dim2)) { }
 
         template <typename CharT,typename Traits>
-        BadSizeSpec(std::basic_ios<CharT,Traits>& ios,const std::size_t dim): IOException(ios,message(dim)) { }
+        BadSymmMatrix(std::basic_ios<CharT,Traits>& ios,const std::size_t dim1,const std::size_t dim2): IOException(ios,message(dim1,dim2)) { }
 
-        ExceptionCode code() const throw() { return BAD_SIZE_SPEC; }
+        ExceptionCode code() const throw() { return BAD_SYMM_MAT; }
 
     private:
 
-        static std::string message(const std::size_t dim) {
+        static std::string message(const std::size_t dim1,const std::size_t dim2) {
             std::ostringstream ost;
-            ost << "Size specification is not of dimension " << dim << '.';
+            ost << "Symmetric matrix is expected to be square (got an " << dim1 << 'x' << dim2 << " matrix instead).";
             return ost.str();
         }
     };
 
-    struct UnknownDimension: public Exception {
+    struct NoIO: public IOException {
 
-        UnknownDimension(const std::size_t dim): Exception(message(dim)) { }
+        typedef enum { READ, WRITE } Mode;
 
-        ExceptionCode code() const throw() { return UNKN_DIM; }
+        NoIO(const std::string& file,const Mode& mode): IOException(message(file,mode)) { }
+
+        template <typename CharT,typename Traits>
+        NoIO(std::basic_ios<CharT,Traits>& ios,const std::string& file,const Mode& mode): IOException(ios,message(file,mode)) { }
+
+        ExceptionCode code() const throw() { return NO_IO; }
 
     private:
 
-        static std::string message(const std::size_t dim) {
-            std::ostringstream ost;
-            ost << "Image is of unknown dimension " << dim << '.';
-            return ost.str();
+        static std::string message(const std::string& file,const Mode& mode) {
+            return std::string("Unable to find ")+((mode==READ) ? "reader" : "writer")+" for file "+file+".";
         }
     };
 
@@ -178,18 +199,6 @@ namespace maths {
     struct UnknownNamedFileFormat: public Exception {
         UnknownNamedFileFormat(const std::string& name): Exception(std::string("Unknown format for file "+name+".")) { }
         ExceptionCode code() const throw() { return UNKN_NAMED_FILE_FMT; }
-    };
-
-    struct NonMatchingNamedFileFormat: public Exception {
-        NonMatchingNamedFileFormat(const std::string& name,const std::string& fmt): Exception(std::string("Cannot save the image "+name+" as a "+fmt+" file.")) { }
-
-        ExceptionCode code() const throw() { return NON_MATCH_NAMED_FILE_FMT; }
-    };
-
-    struct NoMatchingFileFormat: public IOException {
-        NoMatchingFileFormat(std::ostream& os): IOException(os,std::string("No IO is able to write this type of image.")) { }
-
-        ExceptionCode code() const throw() { return NO_FILE_FMT; }
     };
 }
 

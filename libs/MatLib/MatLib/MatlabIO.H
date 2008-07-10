@@ -50,6 +50,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <matio.h>
 #endif
 
+#include <Exceptions.H>
 #include "MathsIO.H"
 #include "sparse_matrix.h"
 #include "matrix.h"
@@ -73,12 +74,12 @@ namespace maths {
 
 #ifdef USE_MATIO
 
-        void read_full(mat_t* mat,LinOp& linop) const {
+        void read_full(mat_t* mat,LinOp& linop) const throw(std::exception) {
             matvar_t* matvar = Mat_VarReadNext(mat);
             while (matvar!=NULL && (matvar->rank!=2 || matvar->data_type!=MAT_T_DOUBLE || matvar->class_type!=MAT_C_DOUBLE))
                 matvar = Mat_VarReadNext(mat);
             if (matvar==NULL)
-                throw std::string("There is no 2D full double Matrix in this Matlab file");
+                throw maths::BadContent(identity(),"2D full double Matrix");
 
             Matrix& m = dynamic_cast<Matrix&>(linop);
 
@@ -91,16 +92,15 @@ namespace maths {
             Mat_Close(mat);
         }
 
-        void read_sparse(mat_t* mat,LinOp& linop) const {
+        void read_sparse(mat_t* mat,LinOp& linop) const throw(std::exception) {
             SparseMatrix& m = dynamic_cast<SparseMatrix&>(linop);
 
             matvar_t* matvar = Mat_VarReadNext(mat);
 
             while( matvar!=NULL && (matvar->rank!=2 || matvar->data_type!=MAT_T_DOUBLE || matvar->class_type!=MAT_C_SPARSE) )
                 matvar = Mat_VarReadNext(mat);
-            if (matvar==NULL) {
-                throw std::string("There is no 2D sparse double Matrix in this Matlab file");
-            }
+            if (matvar==NULL)
+                throw maths::BadContent(identity(),"2D sparse double Matrix");
 
             std::cout << "Using variable with name : " << matvar->name << std::endl;
 
@@ -192,7 +192,7 @@ namespace maths {
 
 #endif
 
-        void read(std::ifstream& is,LinOp& linop) const {
+        void read(std::ifstream& is,LinOp& linop) const throw(std::exception) {
             #ifdef USE_MATIO
                 if (is.is_open()) {
                     is.close();
@@ -205,14 +205,14 @@ namespace maths {
                         read_full(mat,linop);
                     }
                 } else {
-                    throw std::string("Unable to open : ")+name();
+                    throw BadFileOpening(name(),maths::BadFileOpening::READ);
                 }
             #else
                 std::cerr << "You have to compile OpenMEEG with MATIO to load matlab files" << std::endl;
             #endif
         }
 
-        void write(std::ofstream& os, const LinOp& linop) const {
+        void write(std::ofstream& os, const LinOp& linop) const throw(std::exception) {
             #ifdef USE_MATIO
                 if (os.is_open()) {
                     std::cout << "closing stream" << std::endl;
@@ -227,7 +227,7 @@ namespace maths {
                         write_full(mat,linop);
                     }
                 } else {
-                    throw std::string("Unable to open : ")+name();
+                    throw BadFileOpening(name(),maths::BadFileOpening::WRITE);
                 }
             #else
                 std::cerr << "You have to compile OpenMEEG with MATIO to save matlab files" << std::endl;

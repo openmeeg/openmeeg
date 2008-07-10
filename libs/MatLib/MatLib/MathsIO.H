@@ -54,10 +54,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #include "linop.h"
 
-//#include <Exceptions.H>
-typedef std::string UnknownFileFormat;
-typedef std::string NoSuffix;
-typedef std::string UnknownFileSuffix;
+#include <Exceptions.H>
 
 namespace maths {
 
@@ -171,8 +168,8 @@ namespace maths {
     typedef MathsIO ifstream;
     typedef MathsIO ofstream;
 
-    maths::ifstream& operator>>(maths::ifstream&,LinOp&) throw(std::string);
-    maths::ofstream& operator<<(maths::ofstream&,const LinOp&) throw(std::string);
+    maths::ifstream& operator>>(maths::ifstream&,LinOp&) throw(BadFileOpening,NoIO);
+    maths::ofstream& operator<<(maths::ofstream&,const LinOp&) throw(BadFileOpening,NoIO);
 
     // The manip format() used to specify explicitely a format.
     // Almost similar to Images::format. How to fuse those.
