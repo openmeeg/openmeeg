@@ -131,7 +131,6 @@ void assemble_DipSourceMat(Matrix &rhs,const Geometry &geo,vector<Vect3> Rs,vect
 
 DipSource_matrix::DipSource_matrix (const Geometry &geo, vector<Vect3> Rs, vector<Vect3> Qs, const int GaussOrder) {
     assemble_DipSourceMat(*this,geo,Rs,Qs,GaussOrder);
-   std::cerr << "OK till here"  << endl;
 }
 
 // Gradient
