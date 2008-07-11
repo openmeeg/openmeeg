@@ -65,7 +65,7 @@ void assemble_SurfSourceMat(Matrix &mat,const Geometry &geo,const Mesh& sources,
     unsigned nVertexSources=sources.nbPts();
     unsigned nVertexFirstLayer=geo.getM(0).nbPts();
     unsigned nFacesFirstLayer=geo.getM(0).nbTrgs();
-    cout << endl << "assemble RHS with " << nVertexSources << " sources" << endl << endl;
+    cout << endl << "assemble SurfSourceMat with " << nVertexSources << " sources" << endl << endl;
 
     // First block is nVertexFistLayer*nVertexSources
     operatorN(geo.getM(0),sources,mat,0,0,GaussOrder);
@@ -81,7 +81,7 @@ void assemble_SurfSourceMat(Matrix &mat,const Geometry &geo,const Mesh& sources,
     mult2(mat,0,0,nVertexFirstLayer-1,nVertexSources-1,K);
 }
 
-SurfSource_matrix::SurfSource_matrix (const Geometry &geo, const Mesh& sources, const int GaussOrder) {
+SurfSourceMat::SurfSourceMat (const Geometry &geo, const Mesh& sources, const int GaussOrder) {
     assemble_SurfSourceMat(*this,geo,sources,GaussOrder);
 }
 
@@ -129,7 +129,7 @@ void assemble_DipSourceMat(Matrix &rhs,const Geometry &geo,vector<Vect3> Rs,vect
     }
 }
 
-DipSource_matrix::DipSource_matrix (const Geometry &geo, vector<Vect3> Rs, vector<Vect3> Qs, const int GaussOrder) {
+DipSourceMat::DipSourceMat (const Geometry &geo, vector<Vect3> Rs, vector<Vect3> Qs, const int GaussOrder) {
     assemble_DipSourceMat(*this,geo,Rs,Qs,GaussOrder);
 }
 
@@ -183,7 +183,7 @@ void assemble_DipSourceGradMat(Matrix &rhs,const Geometry &geo,vector<Vect3> Rs,
     }
 }
 
-DipSourceGrad_matrix::DipSourceGrad_matrix (const Geometry &geo, vector<Vect3> Rs, vector<Vect3> Qs, const int GaussOrder) {
+DipSourceGradMat::DipSourceGradMat (const Geometry &geo, vector<Vect3> Rs, vector<Vect3> Qs, const int GaussOrder) {
     assemble_DipSourceGradMat(*this,geo,Rs,Qs,GaussOrder);
 }
 

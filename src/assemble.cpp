@@ -89,7 +89,7 @@ int main(int argc, char** argv)
     /*********************************************************************************************
     * Computation of Head Matrix for BEM Symmetric formulation
     **********************************************************************************************/
-    if ((!strcmp(argv[1],"-HeadMat")) |(!strcmp(argv[1],"-HM"))|(!strcmp(argv[1],"-hm"))) {
+    if ((!strcmp(argv[1],"-HeadMat")) | (!strcmp(argv[1],"-HM")) | (!strcmp(argv[1],"-hm"))) {
         if (argc < 3)
         {
             std::cerr << "Please set geometry filepath !" << endl;
@@ -110,7 +110,7 @@ int main(int argc, char** argv)
         geo.read(argv[2],argv[3]);
 
         // Assembling Matrix from discretization :
-        Head_matrix HM(geo,GaussOrder);
+        HeadMat HM(geo,GaussOrder);
         HM.SAVE(argv[4]);
     }
 
@@ -144,7 +144,7 @@ int main(int argc, char** argv)
         mesh_sources.load(argv[4],checkClosedSurface); // Load mesh without crashing when the surface is not closed
 
         // Assembling Matrix from discretization :
-        SurfSource_matrix ssm(geo,mesh_sources,GaussOrder);
+        SurfSourceMat ssm(geo,mesh_sources,GaussOrder);
         ssm.SAVE(argv[5]); // if outfile is specified
     }
 
@@ -190,7 +190,7 @@ int main(int argc, char** argv)
             for(int j=3;j<6;j++) q(j-3) = dipoles(i,j);
             Rs.push_back(r); Qs.push_back(q);
         }
-        DipSource_matrix dsm(geo, Rs, Qs, GaussOrder);
+        DipSourceMat dsm(geo, Rs, Qs, GaussOrder);
 
         // Saving RHS Matrix for dipolar case :
         dsm.SAVE(argv[5]);
@@ -331,7 +331,7 @@ int main(int argc, char** argv)
             Rs.push_back(r); Qs.push_back(q);
         }
 
-        DipSourceGrad_matrix mat( geo, Rs, Qs, GaussOrder);
+        DipSourceGradMat mat( geo, Rs, Qs, GaussOrder);
         // Saving DipSourceGrad Matrix :
         mat.SAVE(argv[5]);
     }
@@ -368,7 +368,7 @@ int main(int argc, char** argv)
 
         // Assembling Matrix from discretization :
         // Head2EEG is the linear application which maps x |----> v
-        Head2EEG_matrix mat(geo,patches);
+        Head2EEGMat mat(geo,patches);
         mat.info();
         // Saving Head2EEG Matrix :
         mat.SAVE(argv[5]);
@@ -405,7 +405,7 @@ int main(int argc, char** argv)
         Sensors sensors(argv[4]);
 
         // Assembling Matrix from discretization :
-        Head2MEG_matrix mat(geo,sensors);
+        Head2MEGMat mat(geo,sensors);
         // Saving Head2MEG Matrix :
         mat.SAVE(argv[5]); // if outfile is specified
     }
@@ -436,7 +436,7 @@ int main(int argc, char** argv)
         Sensors sensors(argv[3]);
 
         // Assembling Matrix from discretization :
-        SurfSource2MEG_matrix mat(mesh_sources, sensors);
+        SurfSource2MEGMat mat(mesh_sources, sensors);
         // Saving SurfSource2MEG Matrix :
         mat.SAVE(argv[4]);
     }
@@ -467,7 +467,7 @@ int main(int argc, char** argv)
         // Load positions and orientations of sensors  :
         Sensors sensors(argv[3]);
 
-        DipSource2MEG_matrix mat( dipoles, sensors );
+        DipSource2MEGMat mat( dipoles, sensors );
         mat.SAVE(argv[4]);
     }
     /*********************************************************************************************
@@ -502,7 +502,7 @@ int main(int argc, char** argv)
         Geometry geo;
         geo.read(argv[2],argv[3]);
         Matrix points(argv[4]);
-        Surf2Vol_matrix mat(geo,points);
+        Surf2VolMat mat(geo,points);
         // Saving SurfToVol Matrix :
         mat.SAVE(argv[5]);
     }
@@ -537,7 +537,7 @@ void getHelp(char** argv) {
     cout << "             Arguments :" << endl;
     cout << "               geometry file (.geom)" << endl;
     cout << "               conductivity file (.cond)" << endl;
-    cout << "               output LHS Matrix" << endl << endl;
+    cout << "               output matrix" << endl << endl;
 
     cout << "   -SurfSourceMat, -SSM, -ssm :   " << endl;
     cout << "   Compute Surfacic Source Matrix for Symmetric BEM (right-hand side of linear system). " << endl;
@@ -545,7 +545,7 @@ void getHelp(char** argv) {
     cout << "               geometry file (.geom)" << endl;
     cout << "               conductivity file (.cond)" << endl;
     cout << "               mesh of sources (.tri .vtk .mesh .bnd)" << endl;
-    cout << "               output RHS Matrix" << endl << endl;
+    cout << "               output matrix" << endl << endl;
 
     cout << "   -DipSourceMat, -DSM, -dsm:    " << endl;
     cout << "  Compute Dipolar Source Matrix for Symmetric BEM (right-hand side of linear system). " << endl;
@@ -553,23 +553,22 @@ void getHelp(char** argv) {
     cout << "               geometry file (.geom)" << endl;
     cout << "               conductivity file (.cond)" << endl;
     cout << "               dipoles positions and orientations" << endl;
-    cout << "               output RHS Matrix" << endl << endl;
+    cout << "               output matrix" << endl << endl;
 
     cout << "   -EITsource :  Compute RHS for scalp current injection. " << endl;
     cout << "            Arguments :" << endl;
     cout << "               geometry file (.geom)" << endl;
     cout << "               conductivity file (.cond)" << endl;
     cout << "               output EITsource" << endl;
-    cout << "               output airescalp" << endl << endl;
+    cout << "               output matrix" << endl << endl;
 
     cout << "   -EITstim :  Compute Matrix directly mapping injected current values to EIT RHS. " << endl;
     cout << "            Arguments :" << endl;
     cout << "               geometry file (.geom)" << endl;
     cout << "               conductivity file (.cond)" << endl;
     cout << "               input EITsource" << endl;
-    //    cout << "               input airescalp" << endl;
     cout << "               input stimelec" << endl;
-    cout << "               output EITstim" << endl << endl;
+    cout << "               output matrix" << endl << endl;
 
 
     cout << "   -Head2EEGMat, -H2EM, -h2em : " << endl;
@@ -579,7 +578,7 @@ void getHelp(char** argv) {
     cout << "               geometry file (.geom)" << endl;
     cout << "               conductivity file (.cond)" << endl;
     cout << "               file containing the positions of EEG patches (.patches)" << endl;
-    cout << "               output vToEEG Matrix" << endl << endl;
+    cout << "               output matrix" << endl << endl;
 
     cout << "   -Head2MEGMat, -H2MM, -h2mm : " << endl;
     cout << "          Compute the linear application which maps the potential" << endl;
@@ -588,7 +587,7 @@ void getHelp(char** argv) {
     cout << "               geometry file (.geom)" << endl;
     cout << "               conductivity file (.cond)" << endl;
     cout << "               file containing the positions and orientations of the MEG sensors (.squids)" << endl;
-    cout << "               output xToMEG Matrix" << endl << endl;
+    cout << "               output matrix" << endl << endl;
 
     cout << "   -SurfSource2MEGMat, -SS2MM, -ss2mm : " << endl;
     cout << "         Compute the linear application which maps the " << endl;
@@ -596,14 +595,14 @@ void getHelp(char** argv) {
     cout << "            Arguments :" << endl;
     cout << "               mesh file for distributed sources (.tri .vtk .mesh .bnd)" << endl;
     cout << "               positions and orientations of the MEG sensors (.squids)" << endl;
-    cout << "               output sToMEG Matrix" << endl << endl;
+    cout << "               output matrix" << endl << endl;
 
     cout << "   -DipSource2MEGMat, -DS2MM, -ds2mm :   Compute the linear application which maps the current" << endl;
     cout << "            dipoles to the MEG sensors" << endl;
     cout << "            Arguments :" << endl;
     cout << "               dipoles positions and orientations" << endl;
     cout << "               positions and orientations of the MEG sensors (.squids)" << endl;
-    cout << "               name of the output sToMEG Matrix" << endl << endl;
+    cout << "               name of the output matrix" << endl << endl;
 
     cout << "   -Surf2Vol :   Compute the linear application which maps the surface potential" << endl;
     cout << "            and normal current to the value of the potential at a set of points in the volume" << endl;
@@ -611,7 +610,7 @@ void getHelp(char** argv) {
     cout << "               geom file" << endl;
     cout << "               cond file" << endl;
     cout << "               a tri file of point positions at which to evaluate the potential" << endl;
-    cout << "               name of the output SurfToVol Matrix" << endl << endl;
+    cout << "               name of the output matrix" << endl << endl;
 
     exit(0);
 }

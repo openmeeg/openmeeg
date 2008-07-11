@@ -101,31 +101,31 @@ int main(int argc, char **argv)
         size_t MaxNbIter   = (size_t) atoi(argv[8]);
         double StoppingTol = atof(argv[9]);
     
-        TV_inverse_matrix EstimatedSourcesData(Data,GainMatrix,SmoothMatrix,AiVector,SmoothWeight,MaxNbIter,StoppingTol);
+        TV_inverse EstimatedSourcesData(Data,GainMatrix,SmoothMatrix,AiVector,SmoothWeight,MaxNbIter,StoppingTol);
         EstimatedSourcesData.saveTxt(argv[5]);
     }
 
     if(Mn)
     {
-        MN_inverse_matrix EstimatedSourcesData(Data,GainMatrix,SmoothWeight);
+        MN_inverse EstimatedSourcesData(Data,GainMatrix,SmoothWeight);
         EstimatedSourcesData.saveTxt(argv[5]);
     }
 
     if(IMn)
     {
-        IMN_inverse_matrix EstimatedSourcesData(Data,GainMatrix,SmoothWeight);
+        IMN_inverse EstimatedSourcesData(Data,GainMatrix,SmoothWeight);
         EstimatedSourcesData.saveTxt(argv[5]);
     }
 
     if(WMn)
     {
-        WMN_inverse_matrix EstimatedSourcesData(Data,GainMatrix,SmoothWeight);
+        WMN_inverse EstimatedSourcesData(Data,GainMatrix,SmoothWeight);
         EstimatedSourcesData.saveTxt(argv[5]);
     }
 
     if(Heat)
     {
-        HEAT_inverse_matrix EstimatedSourcesData(Data,GainMatrix,SmoothMatrix,SmoothWeight);
+        HEAT_inverse EstimatedSourcesData(Data,GainMatrix,SmoothMatrix,SmoothWeight);
         EstimatedSourcesData.saveTxt(argv[5]);
     }
 

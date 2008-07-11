@@ -81,7 +81,7 @@ void assemble_Head2EEG(SparseMatrix &mat, const Geometry &geo, const Matrix &pos
     }
 }
 
-Head2EEG_matrix::Head2EEG_matrix(const Geometry &geo, const Matrix &positions) {
+Head2EEGMat::Head2EEGMat(const Geometry &geo, const Matrix &positions) {
     assemble_Head2EEG(*this, geo, positions);
 }
 
@@ -146,7 +146,7 @@ void assemble_Head2MEG(Matrix &mat, const Geometry &geo, const Sensors &sensors)
     delete[] vindex;
 }
 
-Head2MEG_matrix::Head2MEG_matrix(const Geometry &geo, const Sensors &sensors) {
+Head2MEGMat::Head2MEGMat(const Geometry &geo, const Sensors &sensors) {
     assemble_Head2MEG(*this, geo, sensors);
 }
 
@@ -194,7 +194,7 @@ void assemble_SurfSource2MEG(Matrix &mat, const Mesh &sources_mesh, const Sensor
     delete[] positionsVectArray;
 }
 
-SurfSource2MEG_matrix::SurfSource2MEG_matrix(const Mesh &sources_mesh, const Sensors &sensors) {
+SurfSource2MEGMat::SurfSource2MEGMat(const Mesh &sources_mesh, const Sensors &sensors) {
     assemble_SurfSource2MEG(*this, sources_mesh, sensors);
 }
 
@@ -265,7 +265,7 @@ void assemble_DipSource2MEG( Matrix &mat, const Matrix& dipoles, const Sensors &
     delete[] positionsVectArray;
 }
 
-DipSource2MEG_matrix::DipSource2MEG_matrix(const Matrix &dipoles, const Sensors &sensors) {
+DipSource2MEGMat::DipSource2MEGMat(const Matrix &dipoles, const Sensors &sensors) {
     assemble_DipSource2MEG(*this, dipoles, sensors);
 }
 

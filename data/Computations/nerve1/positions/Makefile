@@ -14,7 +14,7 @@ GAIN=$(OPENMEEGBUILDDIR)src/om_gain
 MAKE_NERVE=$(OPENMEEGBUILDDIR)tools/om_make_nerve 
 
 $(MDIR)$(MODEL).LHS: $(MDIR)$(MODEL).geom $(MDIR)$(MODEL).cond
-	$(ASSEMBLE) -LHS $(MDIR)$(MODEL).geom $(MDIR)$(MODEL).cond $(MDIR)$(MODEL).LHS
+	$(ASSEMBLE) -HeadMat $(MDIR)$(MODEL).geom $(MDIR)$(MODEL).cond $(MDIR)$(MODEL).LHS
 
 $(MDIR)$(MODEL).LHSinv: $(MDIR)$(MODEL).LHS
 	$(MINVERSER) $(MDIR)$(MODEL).LHS $(MDIR)$(MODEL).LHSinv

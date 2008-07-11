@@ -85,7 +85,7 @@ int main(int argc, char **argv)
     RealSourcesData.loadTxt(argv[2]);
     NoiseLevel = atof(argv[4]);
 
-    Forward_matrix SimulatedData(GainMatrix,RealSourcesData,NoiseLevel);
+    Forward SimulatedData(GainMatrix,RealSourcesData,NoiseLevel);
 
     // write output variables ===================================================================================
     SimulatedData.saveTxt(argv[3]);

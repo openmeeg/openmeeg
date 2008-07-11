@@ -33,28 +33,28 @@ patches.load(patchesFile)
 
 gaussOrder = 3;
 
-lhs      = om.LHS_matrix(geom,gaussOrder);
-lhsinv   = lhs.inverse()
-rhs      = om.RHS_matrix(geom,mesh,gaussOrder);
-s2meg    = om.sToMEG_matrix(mesh,sensors)
-v2meg    = om.vToMEG_matrix(geom,sensors)
-v2eeg    = om.vToEEG_matrix(geom,patches)
-gain_meg = om.HMEG_matrix(lhsinv,rhs,v2meg,s2meg)
-gain_eeg = om.HEEG_matrix(lhsinv,rhs,v2eeg)
+hm      = om.HeadMat(geom,gaussOrder);
+hminv   = hm.inverse()
+ssm      = om.SurfSourceMat(geom,mesh,gaussOrder);
+ss2mm    = om.SurfSource2MEGMat(mesh,sensors)
+h2mm    = om.Head2MEGMat(geom,sensors)
+h2em    = om.Head2EEGMat(geom,patches)
+gain_meg = om.GainMEG(hminv,ssm,h2mm,ss2mm)
+gain_eeg = om.GainEEG(hminv,ssm,h2em)
 
-print "lhs        : %d x %d"%(lhs.nlin(),lhs.ncol())
-print "lhsinv     : %d x %d"%(lhsinv.nlin(),lhsinv.ncol())
-print "rhs        : %d x %d"%(rhs.nlin(),rhs.ncol())
-print "s2meg      : %d x %d"%(s2meg.nlin(),s2meg.ncol())
-print "v2meg      : %d x %d"%(v2meg.nlin(),v2meg.ncol())
-print "v2eeg      : %d x %d"%(v2meg.nlin(),v2meg.ncol())
+print "hm         : %d x %d"%(hm.nlin(),hm.ncol())
+print "hminv      : %d x %d"%(hminv.nlin(),hminv.ncol())
+print "ssm        : %d x %d"%(ssm.nlin(),ssm.ncol())
+print "ss2mm      : %d x %d"%(ss2mm.nlin(),ss2mm.ncol())
+print "h2mm       : %d x %d"%(h2mm.nlin(),h2mm.ncol())
+print "h2em       : %d x %d"%(h2mm.nlin(),h2mm.ncol())
 print "gain_meg   : %d x %d"%(gain_meg.nlin(),gain_meg.ncol())
 print "gain_eeg   : %d x %d"%(gain_eeg.nlin(),gain_eeg.ncol())
 
 # Leadfield MEG in one line :
 
-gain_meg = om.HMEG_matrix(om.LHS_matrix(geom,gaussOrder).inverse(),om.RHS_matrix(geom,mesh,gaussOrder), \
-om.vToMEG_matrix(geom,sensors),om.sToMEG_matrix(mesh,sensors));
+surf_gain_meg = om.GainMEG(om.HeadMat(geom,gaussOrder).inverse(),om.SurfSourceMat(geom,mesh,gaussOrder), \
+om.Head2MEGMat(geom,sensors),om.SurfSource2MEGMat(mesh,sensors));
 
 print "gain_meg (one line) : %d x %d"%(gain_meg.nlin(),gain_meg.ncol())
 
@@ -67,10 +67,10 @@ sources = om.Matrix()
 sources.load(srcFile)
 
 noiseLevel = 0.0
-est_meg = om.Forward_matrix(gain_meg,sources,noiseLevel)
+est_meg = om.Forward(gain_meg,sources,noiseLevel)
 print "est_meg    : %d x %d"%(est_meg.nlin(),est_meg.ncol())
 
-est_eeg = om.Forward_matrix(gain_eeg,sources,noiseLevel)
+est_eeg = om.Forward(gain_eeg,sources,noiseLevel)
 print "est_eeg    : %d x %d"%(est_eeg.nlin(),est_eeg.ncol())
 
 # ============================
@@ -84,9 +84,9 @@ tol = 0
 smoothMatrix = mesh.gradient()
 aiVector = mesh.areas()
 
-meg_inverse_mn   = om.MN_inverse_matrix(est_meg,gain_meg,smoothWeight)
-meg_inverse_heat = om.HEAT_inverse_matrix(est_meg,gain_meg,smoothMatrix,smoothWeight)
-meg_inverse_tv   = om.TV_inverse_matrix(est_meg,gain_meg,smoothMatrix,aiVector,smoothWeight,maxIter,tol)
+meg_inverse_mn   = om.MN_inverse(est_meg,gain_meg,smoothWeight)
+meg_inverse_heat = om.HEAT_inverse(est_meg,gain_meg,smoothMatrix,smoothWeight)
+meg_inverse_tv   = om.TV_inverse(est_meg,gain_meg,smoothMatrix,aiVector,smoothWeight,maxIter,tol)
 
 # ==================================
 # = Example of basic manipulations =
@@ -102,20 +102,20 @@ print (v1+v2).norm()
 normale = om.Vect3(1,0,0)
 t = om.Triangle(0,1,2,normale)
 
-lhsFile = subject+'.lhs'
-lhs.saveBin(lhsFile)
+hmFile = subject+'.hm'
+hm.saveBin(hmFile)
 
-rhsFile = subject+'.rhs'
-rhs.saveBin(rhsFile)
+ssmFile = subject+'.ssm'
+ssm.saveBin(ssmFile)
 
 m1 = om.SymMatrix()
-m1.loadBin(lhsFile)
+m1.loadBin(hmFile)
 print m1(0,0)
 print m1.nlin()
 print m1.ncol()
 
 m2 = om.Matrix()
-m2.loadBin(rhsFile)
+m2.loadBin(ssmFile)
 print m2(0,0)
 print m2.nlin()
 print m2.ncol()

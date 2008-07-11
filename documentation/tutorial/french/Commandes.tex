@@ -195,7 +195,7 @@ Cas des sources distribuées~:\\
 \noindent
 \command{\commandName{om\_assemble} \optionName{-SurfSource2MEGMat} sourcemesh sensorpositions.txt \outputName{Source2MEGMat.bin}}
 \medskip
-Remarque: \optionName{-SurfSource2MEGMat} peut être remplacé par la version abrégée \optionName{-sS2MM} ou \optionName{-ss2mm}.
+Remarque: \optionName{-SurfSource2MEGMat} peut être remplacé par la version abrégée \optionName{-SS2MM} ou \optionName{-ss2mm}.
 
 \section{Calcul de la matrice de Gain~:}
 \label{sect: command gain}
@@ -206,9 +206,9 @@ de la MEG) des capteurs.
 \checkItem \underline{Cas de l'EEG}~:\\
 Entrées~:
 \begin{itemize}
-    \item \fileName{HeadMatInv.bin}~: fichier binaire matrice $\mathbf{LHS}^{-1}$
-    \item \fileName{SourceMat.bin}~: fichier binaire matrice $\mathbf{RHS}$
-    \item \fileName{Head2EEGMat.bin}~: fichier binaire matrice $\mathbf{vToEEG}$
+    \item \fileName{HeadMatInv.bin}~: fichier binaire matrice $\mathbf{HeadMat}^{-1}$
+    \item \fileName{SourceMat.bin}~: fichier binaire matrice $\mathbf{SurfSourceMat}$
+    \item \fileName{Head2EEGMat.bin}~: fichier binaire matrice $\mathbf{Head2EEGMat}$
 \end{itemize}
 Sortie~:
 \begin{itemize}

@@ -46,18 +46,18 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include "matrix.h"
 #include "sparse_matrix.h"
 
-class GainMEG_matrix : public virtual Matrix
+class GainMEG : public virtual Matrix
 {
 public:
-    GainMEG_matrix (const SymMatrix& HeadMatInv,const Matrix& SourceMat, const Matrix& Head2MEGMat, const Matrix& Source2MEGMat);
-    virtual ~GainMEG_matrix () {};
+    GainMEG (const SymMatrix& HeadMatInv,const Matrix& SourceMat, const Matrix& Head2MEGMat, const Matrix& Source2MEGMat);
+    virtual ~GainMEG () {};
 };
 
-class GainEEG_matrix : public virtual Matrix
+class GainEEG : public virtual Matrix
 {
 public:
-    GainEEG_matrix (const SymMatrix& HeadMatInv,const Matrix& SourceMat, const SparseMatrix& Head2EEGMat);
-    virtual ~GainEEG_matrix () {};
+    GainEEG (const SymMatrix& HeadMatInv,const Matrix& SourceMat, const SparseMatrix& Head2EEGMat);
+    virtual ~GainEEG () {};
 };
 
 inline void assemble_gain_EEG(Matrix& EEGGainMatrix,const SymMatrix& HeadMatInv,const Matrix& SourceMat, const SparseMatrix& Head2EEGMat) {
@@ -70,10 +70,10 @@ inline void assemble_gain_MEG(Matrix& MEGGainMatrix,const SymMatrix& HeadMatInv,
     MEGGainMatrix = Source2MEGMat+(Head2MEGMat*reducedHeadMatInv)*SourceMat;
 }
 
-GainMEG_matrix::GainMEG_matrix(const SymMatrix& HeadMatInv,const Matrix& SourceMat, const Matrix& Head2MEGMat, const Matrix& Source2MEGMat) {
+GainMEG::GainMEG(const SymMatrix& HeadMatInv,const Matrix& SourceMat, const Matrix& Head2MEGMat, const Matrix& Source2MEGMat) {
     assemble_gain_MEG(*this,HeadMatInv,SourceMat,Head2MEGMat,Source2MEGMat);
 }
 
-GainEEG_matrix::GainEEG_matrix(const SymMatrix& HeadMatInv,const Matrix& SourceMat, const SparseMatrix& Head2EEGMat) {
+GainEEG::GainEEG(const SymMatrix& HeadMatInv,const Matrix& SourceMat, const SparseMatrix& Head2EEGMat) {
     assemble_gain_EEG(*this,HeadMatInv,SourceMat,Head2EEGMat);
 }

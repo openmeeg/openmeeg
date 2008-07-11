@@ -1,12 +1,12 @@
-/* FILE: $Id: assembleLHS.cpp 257 2008-07-08 16:03:45Z gramfort $ */
+/* FILE: $Id$ */
 
 /*
 Project Name : OpenMEEG
 
-version           : $Revision: 257 $
-last revision     : $Date: 2008-07-08 18:03:45 +0200 (Tue, 08 Jul 2008) $
-modified by       : $LastChangedBy: gramfort $
-last modified     : $LastChangedDate: 2008-07-08 18:03:45 +0200 (Tue, 08 Jul 2008) $
+version           : $Revision$
+last revision     : $Date$
+modified by       : $LastChangedBy$
+last modified     : $LastChangedDate$
 
 © INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre
 GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU, Théodore PAPADOPOULO,
@@ -166,10 +166,10 @@ void assemble_Surf2Vol(const Geometry &geo,Matrix &mat,const Matrix &points)
       operatorDinternal(geo,c,mat,offset0,points);
       mult2(mat,offset0,offset0,offset0+points.nlin(),offset1,-(1.0/geo.sigma_in(0))*K);
 }
-Head_matrix::Head_matrix (const Geometry &geo, const int GaussOrder) {
+HeadMat::HeadMat (const Geometry &geo, const int GaussOrder) {
   assemble_HM(geo,*this,GaussOrder);
 }
 
-Surf2Vol_matrix::Surf2Vol_matrix (const Geometry &geo, const Matrix &points) {
+Surf2VolMat::Surf2VolMat (const Geometry &geo, const Matrix &points) {
   assemble_Surf2Vol(geo,*this,points);
 }

@@ -47,11 +47,11 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include "symmatrix.h"
 #include "vector.h"
 
-class Forward_matrix : public virtual Matrix
+class Forward : public virtual Matrix
 {
 public:
-    Forward_matrix (const Matrix& GainMatrix, const Matrix& RealSourcesData, double NoiseLevel);
-    virtual ~Forward_matrix () {};
+    Forward (const Matrix& GainMatrix, const Matrix& RealSourcesData, double NoiseLevel);
+    virtual ~Forward () {};
 };
 
 void compute_forward(Matrix& SimulatedData, const Matrix& GainMatrix, const Matrix& RealSourcesData, double NoiseLevel) {
@@ -65,7 +65,7 @@ void compute_forward(Matrix& SimulatedData, const Matrix& GainMatrix, const Matr
     }
 }
 
-Forward_matrix::Forward_matrix(const Matrix& GainMatrix, const Matrix& RealSourcesData, double NoiseLevel) {
+Forward::Forward(const Matrix& GainMatrix, const Matrix& RealSourcesData, double NoiseLevel) {
     compute_forward(*this,GainMatrix,RealSourcesData,NoiseLevel);
 }
 

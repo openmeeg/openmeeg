@@ -141,7 +141,7 @@ inline Vector gentv( Vector x,
     return mat_t*v;
 }
 
-inline double compute_tv(Vector x,
+inline double compute_one_tv(Vector x,
                           const FastSparseMatrix &mat,
                           const FastSparseMatrix &mat_t,
                           const Vector &Ai,
@@ -305,7 +305,7 @@ void LIN_inverse (Matrix& EstimatedData, const T& hess, const Matrix& GainMatrix
     }
 }
 
-void MN_inverse (Matrix& EstimatedData, const Matrix& Data, const Matrix& GainMatrix, double SmoothWeight) {
+void compute_mn (Matrix& EstimatedData, const Matrix& Data, const Matrix& GainMatrix, double SmoothWeight) {
     Matrix eye(GainMatrix.nlin(),GainMatrix.nlin());
     eye.set(0);
     for(size_t i = 0; i < GainMatrix.nlin(); ++i) {
@@ -316,14 +316,14 @@ void MN_inverse (Matrix& EstimatedData, const Matrix& Data, const Matrix& GainMa
 
 // ================= Iterative Mininum norm inversion =======================//
 
-class IMN_inverse_matrix : public Matrix
+class IMN_inverse : public Matrix
 {
 public:
-    IMN_inverse_matrix (const Matrix& Data, const Matrix& GainMatrix, double SmoothWeight);
-    virtual ~IMN_inverse_matrix () {};
+    IMN_inverse (const Matrix& Data, const Matrix& GainMatrix, double SmoothWeight);
+    virtual ~IMN_inverse () {};
 };
 
-IMN_inverse_matrix::IMN_inverse_matrix (const Matrix& Data, const Matrix& GainMatrix, double SmoothWeight) {
+IMN_inverse::IMN_inverse (const Matrix& Data, const Matrix& GainMatrix, double SmoothWeight) {
     std::cout << "Running Iterative MN inversion" << std::endl;
     MN_Hessian hess(GainMatrix,SmoothWeight);
     LIN_inverse(*this,hess,GainMatrix,Data);
@@ -331,28 +331,28 @@ IMN_inverse_matrix::IMN_inverse_matrix (const Matrix& Data, const Matrix& GainMa
 
 // ================= Mininum norm inversion =======================//
 
-class MN_inverse_matrix : public Matrix
+class MN_inverse : public Matrix
 {
 public:
-    MN_inverse_matrix (const Matrix& Data, const Matrix& GainMatrix, double SmoothWeight);
-    virtual ~MN_inverse_matrix () {};
+    MN_inverse (const Matrix& Data, const Matrix& GainMatrix, double SmoothWeight);
+    virtual ~MN_inverse () {};
 };
 
-MN_inverse_matrix::MN_inverse_matrix (const Matrix& Data, const Matrix& GainMatrix, double SmoothWeight) {
+MN_inverse::MN_inverse (const Matrix& Data, const Matrix& GainMatrix, double SmoothWeight) {
     std::cout << "Running MN inversion" << std::endl;
-    MN_inverse(*this,Data,GainMatrix,SmoothWeight);
+    compute_mn(*this,Data,GainMatrix,SmoothWeight);
 }
 
 // ================= Weighted Mininum norm inversion =======================//
 
-class WMN_inverse_matrix : public Matrix
+class WMN_inverse : public Matrix
 {
 public:
-    WMN_inverse_matrix (const Matrix& Data, const Matrix& GainMatrix, double SmoothWeight);
-    virtual ~WMN_inverse_matrix () {};
+    WMN_inverse (const Matrix& Data, const Matrix& GainMatrix, double SmoothWeight);
+    virtual ~WMN_inverse () {};
 };
 
-WMN_inverse_matrix::WMN_inverse_matrix (const Matrix& Data, const Matrix& GainMatrix, double SmoothWeight) {
+WMN_inverse::WMN_inverse (const Matrix& Data, const Matrix& GainMatrix, double SmoothWeight) {
     std::cout << "Running WMN inversion" << std::endl;
     WMN_Hessian hess(GainMatrix,SmoothWeight);
     LIN_inverse(*this,hess,GainMatrix,Data);
@@ -360,14 +360,14 @@ WMN_inverse_matrix::WMN_inverse_matrix (const Matrix& Data, const Matrix& GainMa
 
 // ================= Gradient based Mininum norm inversion ================ //
 
-class HEAT_inverse_matrix : public Matrix
+class HEAT_inverse : public Matrix
 {
 public:
-    HEAT_inverse_matrix (const Matrix& Data, const Matrix& GainMatrix, const SparseMatrix& SmoothMatrix, double SmoothWeight);
-    virtual ~HEAT_inverse_matrix () {};
+    HEAT_inverse (const Matrix& Data, const Matrix& GainMatrix, const SparseMatrix& SmoothMatrix, double SmoothWeight);
+    virtual ~HEAT_inverse () {};
 };
 
-HEAT_inverse_matrix::HEAT_inverse_matrix (const Matrix& Data, const Matrix& GainMatrix, const SparseMatrix& SmoothMatrix, double SmoothWeight) {
+HEAT_inverse::HEAT_inverse (const Matrix& Data, const Matrix& GainMatrix, const SparseMatrix& SmoothMatrix, double SmoothWeight) {
     std::cout << "Running HEAT inversion" << std::endl;
     FastSparseMatrix fastSmoothMatrix(SmoothMatrix);
     FastSparseMatrix fastSmoothMatrix_t(SmoothMatrix.transpose());
@@ -377,7 +377,7 @@ HEAT_inverse_matrix::HEAT_inverse_matrix (const Matrix& Data, const Matrix& Gain
 
 // ================= Total variation based inversion =================== //
 
-void TV_inverse(Matrix& EstimatedData, const Matrix& Data, const Matrix& GainMatrix, const SparseMatrix& SmoothMatrix, const Vector& AiVector, double SmoothWeight, size_t MaxNbIter, double StoppingTol)
+void compute_tv(Matrix& EstimatedData, const Matrix& Data, const Matrix& GainMatrix, const SparseMatrix& SmoothMatrix, const Vector& AiVector, double SmoothWeight, size_t MaxNbIter, double StoppingTol)
 {
     FastSparseMatrix fastSmoothMatrix(SmoothMatrix);
     FastSparseMatrix fastSmoothMatrix_t(SmoothMatrix.transpose());
@@ -398,7 +398,7 @@ void TV_inverse(Matrix& EstimatedData, const Matrix& Data, const Matrix& GainMat
         if(frame==0) v.set(0.0);
         else v = EstimatedData.getcol(frame-1);
 
-        double tv_v = compute_tv(v,fastSmoothMatrix,fastSmoothMatrix_t,AiVector);
+        double tv_v = compute_one_tv(v,fastSmoothMatrix,fastSmoothMatrix_t,AiVector);
 
         bool errorTest = true;
 
@@ -433,7 +433,7 @@ void TV_inverse(Matrix& EstimatedData, const Matrix& Data, const Matrix& GainMat
             while ( stop_line_search != true && (++iter_line_search < max_iter_line_search) ) {
                 v_dv = v+grad_step*grad;
                 double f_v_dv_data = pow((m-GainMatrix*(v_dv)).norm(),2);
-                tv_v_dv = compute_tv(v_dv,fastSmoothMatrix,fastSmoothMatrix_t,AiVector);
+                tv_v_dv = compute_one_tv(v_dv,fastSmoothMatrix,fastSmoothMatrix_t,AiVector);
                 f_v_dv = f_v_dv_data + SmoothWeight*tv_v_dv;
                 if ( grad_step*search_slope < (f_v - f_v_dv)) {
                     stop_line_search = true;
@@ -462,16 +462,16 @@ void TV_inverse(Matrix& EstimatedData, const Matrix& Data, const Matrix& GainMat
     }
 }
 
-class TV_inverse_matrix : public Matrix
+class TV_inverse : public Matrix
 {
 public:
-    TV_inverse_matrix (const Matrix& Data, const Matrix& GainMatrix, const SparseMatrix& SmoothMatrix, const Vector& AiVector, double SmoothWeight, size_t MaxNbIter, double StoppingTol);
-    virtual ~TV_inverse_matrix () {};
+    TV_inverse (const Matrix& Data, const Matrix& GainMatrix, const SparseMatrix& SmoothMatrix, const Vector& AiVector, double SmoothWeight, size_t MaxNbIter, double StoppingTol);
+    virtual ~TV_inverse () {};
 };
 
-TV_inverse_matrix::TV_inverse_matrix (const Matrix& Data, const Matrix& GainMatrix, const SparseMatrix& SmoothMatrix, const Vector& AiVector, double SmoothWeight, size_t MaxNbIter, double StoppingTol) {
+TV_inverse::TV_inverse (const Matrix& Data, const Matrix& GainMatrix, const SparseMatrix& SmoothMatrix, const Vector& AiVector, double SmoothWeight, size_t MaxNbIter, double StoppingTol) {
     std::cout << "Running TV inversion" << std::endl;
-    TV_inverse(*this,Data,GainMatrix,SmoothMatrix,AiVector,SmoothWeight,MaxNbIter,StoppingTol);
+    compute_tv(*this,Data,GainMatrix,SmoothMatrix,AiVector,SmoothWeight,MaxNbIter,StoppingTol);
 }
 
 #endif /* INVERSE_H */

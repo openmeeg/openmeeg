@@ -13,31 +13,31 @@ TARGET_LINK_LIBRARIES (compare_matrix ${OPENMEEG_OTHER_LIBRARIES})
 
 SET(SUBJECT "Head1")
 
-#------ LHS -----#
-ADD_TEST(compareLHS-${SUBJECT} ${CMAKE_CURRENT_BINARY_DIR}/compare_matrix
-                    ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.lhs
-                    ${OpenMEEG_SOURCE_DIR}/tests/initialTest/${SUBJECT}.lhs
+#------ HeadMat -----#
+ADD_TEST(compareHeadMat-${SUBJECT} ${CMAKE_CURRENT_BINARY_DIR}/compare_matrix
+                    ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.hm
+                    ${OpenMEEG_SOURCE_DIR}/tests/initialTest/${SUBJECT}.hm
                     -sym)
-#------ LHS INV -----#
-ADD_TEST(compareLHSINV-${SUBJECT} ${CMAKE_CURRENT_BINARY_DIR}/compare_matrix
-                       ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.lhs_inv
-                       ${OpenMEEG_SOURCE_DIR}/tests/initialTest/${SUBJECT}.lhs_inv
+#------ HeadMat INV -----#
+ADD_TEST(compareHeadMatINV-${SUBJECT} ${CMAKE_CURRENT_BINARY_DIR}/compare_matrix
+                       ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.hm_inv
+                       ${OpenMEEG_SOURCE_DIR}/tests/initialTest/${SUBJECT}.hm_inv
                        -sym)
-#------ RHS -----#
-ADD_TEST(compareRHS-${SUBJECT} ${CMAKE_CURRENT_BINARY_DIR}/compare_matrix
-                    ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.rhs
-                    ${OpenMEEG_SOURCE_DIR}/tests/initialTest/${SUBJECT}.rhs -full)
+#------ SurfSourceMat -----#
+ADD_TEST(compareSurfSourceMat-${SUBJECT} ${CMAKE_CURRENT_BINARY_DIR}/compare_matrix
+                    ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.ssm
+                    ${OpenMEEG_SOURCE_DIR}/tests/initialTest/${SUBJECT}.ssm -full)
 
 ############ TEST EEG RESULTS ##############
 
 #------ v2eeg -----#
 ADD_TEST(comparev2eeg-${SUBJECT} ${CMAKE_CURRENT_BINARY_DIR}/compare_matrix 
-                      ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.v2eeg
-                      ${OpenMEEG_SOURCE_DIR}/tests/initialTest/${SUBJECT}.v2eeg -if old_binary -sparse)
+                      ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.h2em
+                      ${OpenMEEG_SOURCE_DIR}/tests/initialTest/${SUBJECT}.h2em -if old_binary -sparse)
 #------ EEG GAIN -----#
-ADD_TEST(compareHeeg-${SUBJECT} ${CMAKE_CURRENT_BINARY_DIR}/compare_matrix
-                        ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.Heeg
-                        ${OpenMEEG_SOURCE_DIR}/tests/initialTest/${SUBJECT}.Heeg -full)
+ADD_TEST(compareSurfGainEEG-${SUBJECT} ${CMAKE_CURRENT_BINARY_DIR}/compare_matrix
+                        ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.sgem
+                        ${OpenMEEG_SOURCE_DIR}/tests/initialTest/${SUBJECT}.sgem -full)
 #------ EEG ESTIMATION (FORWARD) -----#
 ADD_TEST(compareEEGEST-${SUBJECT} ${CMAKE_CURRENT_BINARY_DIR}/compare_matrix
                         ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.est_eeg
@@ -57,18 +57,18 @@ ADD_TEST(compareEEG-TV-${SUBJECT} ${CMAKE_CURRENT_BINARY_DIR}/compare_matrix
 
 ############ TEST MEG RESULTS ##############
 
-#------ v2meg -----#
-ADD_TEST(comparev2meg-${SUBJECT} ${CMAKE_CURRENT_BINARY_DIR}/compare_matrix
-                      ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.v2meg
-                      ${OpenMEEG_SOURCE_DIR}/tests/initialTest/${SUBJECT}.v2meg -full)
-#------ S2MEG -----#
-ADD_TEST(compareS2MEG-${SUBJECT} ${CMAKE_CURRENT_BINARY_DIR}/compare_matrix
-                      ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.s2meg
-                      ${OpenMEEG_SOURCE_DIR}/tests/initialTest/${SUBJECT}.s2meg -full)
+#------ Head2MEGMat -----#
+ADD_TEST(compareHead2MEGMat-${SUBJECT} ${CMAKE_CURRENT_BINARY_DIR}/compare_matrix
+                      ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.h2mm
+                      ${OpenMEEG_SOURCE_DIR}/tests/initialTest/${SUBJECT}.h2mm -full)
+#------ SurfSource2MEGMat -----#
+ADD_TEST(compareSurfSource2MEGMat-${SUBJECT} ${CMAKE_CURRENT_BINARY_DIR}/compare_matrix
+                      ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.ss2mm
+                      ${OpenMEEG_SOURCE_DIR}/tests/initialTest/${SUBJECT}.ss2mm -full)
 #------ MEG GAIN -----#
-ADD_TEST(compareMEGGAIN-${SUBJECT} ${CMAKE_CURRENT_BINARY_DIR}/compare_matrix
-                        ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.Hmeg
-                        ${OpenMEEG_SOURCE_DIR}/tests/initialTest/${SUBJECT}.Hmeg -full)
+ADD_TEST(compareSurfGainMEG-${SUBJECT} ${CMAKE_CURRENT_BINARY_DIR}/compare_matrix
+                        ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.sgmm
+                        ${OpenMEEG_SOURCE_DIR}/tests/initialTest/${SUBJECT}.sgmm -full)
 #------ MEG ESTIMATION (FORWARD) -----#
 ADD_TEST(compareMEGEST-${SUBJECT} ${CMAKE_CURRENT_BINARY_DIR}/compare_matrix
                         ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.est_meg
@@ -93,19 +93,19 @@ FOREACH ( DIP 1 2 3 4 5 )
     SET(EPSILON 0.15)
 
     # Compare EEG result with analytical solution obtained with Matlab
-    ADD_TEST(compareEEGEST-point-Head1-d${DIP} ${CMAKE_CURRENT_BINARY_DIR}/compare_matrix
-                             ${OpenMEEG_BINARY_DIR}/tests/Head1-point.est_eeg
+    ADD_TEST(compareEEGEST-dip-Head1-d${DIP} ${CMAKE_CURRENT_BINARY_DIR}/compare_matrix
+                             ${OpenMEEG_BINARY_DIR}/tests/Head1-dip.est_eeg
                              ${OpenMEEG_SOURCE_DIR}/tests/analytic/eeg_head1_analytic.txt
                              -rdm -eps ${EPSILON} -col ${DIP} -full)
 
-    ADD_TEST(compareEEGEST-point-Head2-d${DIP} ${CMAKE_CURRENT_BINARY_DIR}/compare_matrix
-                             ${OpenMEEG_BINARY_DIR}/tests/Head2-point.est_eeg
+    ADD_TEST(compareEEGEST-dip-Head2-d${DIP} ${CMAKE_CURRENT_BINARY_DIR}/compare_matrix
+                             ${OpenMEEG_BINARY_DIR}/tests/Head2-dip.est_eeg
                              ${OpenMEEG_SOURCE_DIR}/tests/analytic/eeg_head2_analytic.txt
                              -rdm -eps ${EPSILON} -col ${DIP} -full)
 
     IF ( TEST_HEAD3 )
-        ADD_TEST(compareEEGEST-point-Head3-d${DIP} ${CMAKE_CURRENT_BINARY_DIR}/compare_matrix
-                                 ${OpenMEEG_BINARY_DIR}/tests/Head3-point.est_eeg
+        ADD_TEST(compareEEGEST-dip-Head3-d${DIP} ${CMAKE_CURRENT_BINARY_DIR}/compare_matrix
+                                 ${OpenMEEG_BINARY_DIR}/tests/Head3-dip.est_eeg
                                  ${OpenMEEG_SOURCE_DIR}/tests/analytic/eeg_head3_analytic.txt
                                  -rdm -eps ${EPSILON} -col ${DIP} -full)
     ENDIF ( TEST_HEAD3 )
@@ -117,19 +117,19 @@ FOREACH ( DIP 1 2 3 4 5)
     SET(EPSILON 0.15)
 
     # Compare MEG result with analytical solution obtained with Matlab
-    ADD_TEST(compareMEGEST-point-Head1-d${DIP} ${CMAKE_CURRENT_BINARY_DIR}/compare_matrix
-                             ${OpenMEEG_BINARY_DIR}/tests/Head1-point.est_meg
+    ADD_TEST(compareMEGEST-dip-Head1-d${DIP} ${CMAKE_CURRENT_BINARY_DIR}/compare_matrix
+                             ${OpenMEEG_BINARY_DIR}/tests/Head1-dip.est_meg
                              ${OpenMEEG_SOURCE_DIR}/tests/analytic/meg_head1_analytic.txt
                              -rdm -eps ${EPSILON} -col ${DIP} -full)
 
-    ADD_TEST(compareMEGEST-point-Head2-d${DIP} ${CMAKE_CURRENT_BINARY_DIR}/compare_matrix
-                             ${OpenMEEG_BINARY_DIR}/tests/Head2-point.est_meg
+    ADD_TEST(compareMEGEST-dip-Head2-d${DIP} ${CMAKE_CURRENT_BINARY_DIR}/compare_matrix
+                             ${OpenMEEG_BINARY_DIR}/tests/Head2-dip.est_meg
                              ${OpenMEEG_SOURCE_DIR}/tests/analytic/meg_head1_analytic.txt
                              -rdm -eps ${EPSILON} -col ${DIP} -full)
 
     IF ( TEST_HEAD3 )
-        ADD_TEST(compareMEGEST-point-Head3-d${DIP} ${CMAKE_CURRENT_BINARY_DIR}/compare_matrix
-                                 ${OpenMEEG_BINARY_DIR}/tests/Head3-point.est_meg
+        ADD_TEST(compareMEGEST-dip-Head3-d${DIP} ${CMAKE_CURRENT_BINARY_DIR}/compare_matrix
+                                 ${OpenMEEG_BINARY_DIR}/tests/Head3-dip.est_meg
                                  ${OpenMEEG_SOURCE_DIR}/tests/analytic/meg_head1_analytic.txt
                                  -rdm -eps ${EPSILON} -col ${DIP} -full)
     ENDIF ( TEST_HEAD3 )
@@ -140,25 +140,25 @@ ENDFOREACH ( DIP 1 2 3 4 5)
 SET(DIP 6)
 SET(EPSILON 0.001)
 
-ADD_TEST(compareMEGEST-point-Head1-d${DIP} ${CMAKE_CURRENT_BINARY_DIR}/compare_matrix
-                         ${OpenMEEG_BINARY_DIR}/tests/Head1-point.est_meg
+ADD_TEST(compareMEGEST-dip-Head1-d${DIP} ${CMAKE_CURRENT_BINARY_DIR}/compare_matrix
+                         ${OpenMEEG_BINARY_DIR}/tests/Head1-dip.est_meg
                          ${OpenMEEG_SOURCE_DIR}/tests/analytic/meg_head1_analytic.txt
                          -eps ${EPSILON} -col ${DIP} -full)
 
-ADD_TEST(compareMEGEST-point-Head2-d${DIP} ${CMAKE_CURRENT_BINARY_DIR}/compare_matrix
-                         ${OpenMEEG_BINARY_DIR}/tests/Head2-point.est_meg
+ADD_TEST(compareMEGEST-dip-Head2-d${DIP} ${CMAKE_CURRENT_BINARY_DIR}/compare_matrix
+                         ${OpenMEEG_BINARY_DIR}/tests/Head2-dip.est_meg
                          ${OpenMEEG_SOURCE_DIR}/tests/analytic/meg_head1_analytic.txt
                          -eps ${EPSILON} -col ${DIP} -full)
 
 IF ( TEST_HEAD3 )
-    ADD_TEST(compareMEGEST-point-Head3-d${DIP} ${CMAKE_CURRENT_BINARY_DIR}/compare_matrix
-                             ${OpenMEEG_BINARY_DIR}/tests/Head3-point.est_meg
+    ADD_TEST(compareMEGEST-dip-Head3-d${DIP} ${CMAKE_CURRENT_BINARY_DIR}/compare_matrix
+                             ${OpenMEEG_BINARY_DIR}/tests/Head3-dip.est_meg
                              ${OpenMEEG_SOURCE_DIR}/tests/analytic/meg_head1_analytic.txt
                              -eps ${EPSILON} -col ${DIP} -full)
 ENDIF ( TEST_HEAD3 )
 
 # set tests that are expected to fail :
-SET_TESTS_PROPERTIES(compareEEGEST-point-Head1-d4 PROPERTIES WILL_FAIL TRUE)
-SET_TESTS_PROPERTIES(compareEEGEST-point-Head1-d5 PROPERTIES WILL_FAIL TRUE)
-SET_TESTS_PROPERTIES(compareMEGEST-point-Head1-d6 PROPERTIES WILL_FAIL TRUE)
+SET_TESTS_PROPERTIES(compareEEGEST-dip-Head1-d4 PROPERTIES WILL_FAIL TRUE)
+SET_TESTS_PROPERTIES(compareEEGEST-dip-Head1-d5 PROPERTIES WILL_FAIL TRUE)
+SET_TESTS_PROPERTIES(compareMEGEST-dip-Head1-d6 PROPERTIES WILL_FAIL TRUE)
 

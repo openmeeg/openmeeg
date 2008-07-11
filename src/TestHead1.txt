@@ -12,34 +12,34 @@ ADD_TEST(AI-${SUBJECT} ${CMAKE_CURRENT_BINARY_DIR}/om_presmooth ${OpenMEEG_SOURC
 ############ EEG TEST ##############
 ADD_TEST(H2EM-${SUBJECT} ${CMAKE_CURRENT_BINARY_DIR}/om_assemble -H2EM ${OpenMEEG_SOURCE_DIR}/data/Models/${SUBJECT}/${SUBJECT}.geom ${OpenMEEG_SOURCE_DIR}/data/Models/${SUBJECT}/${SUBJECT}.cond ${OpenMEEG_SOURCE_DIR}/data/Computations/${SUBJECT}/${SUBJECT}.patches ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.h2em)
 
-ADD_TEST(GainEEG-${SUBJECT} ${CMAKE_CURRENT_BINARY_DIR}/om_gain -EEG ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.hm_inv ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.ssm ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.h2em ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.gaineeg)
+ADD_TEST(SurfGainEEG-${SUBJECT} ${CMAKE_CURRENT_BINARY_DIR}/om_gain -EEG ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.hm_inv ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.ssm ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.h2em ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.sgem)
 
 #------ FORWARD -----#
-ADD_TEST(ESTEEG-${SUBJECT} ${CMAKE_CURRENT_BINARY_DIR}/om_forward ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.gaineeg ${OpenMEEG_SOURCE_DIR}/data/Computations/${SUBJECT}/${SUBJECT}.src ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.est_eeg 0.0)
+ADD_TEST(ESTEEG-${SUBJECT} ${CMAKE_CURRENT_BINARY_DIR}/om_forward ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.sgem ${OpenMEEG_SOURCE_DIR}/data/Computations/${SUBJECT}/${SUBJECT}.src ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.est_eeg 0.0)
 
 #------ INVERSE -----#
-ADD_TEST(EEG-HEAT-${SUBJECT} ${CMAKE_CURRENT_BINARY_DIR}/om_inverse ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.gaineeg ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.smooth ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.ai ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.est_eeg ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}-eeg-heat.est_src 1e-4 HEAT)
+ADD_TEST(EEG-HEAT-${SUBJECT} ${CMAKE_CURRENT_BINARY_DIR}/om_inverse ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.sgem ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.smooth ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.ai ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.est_eeg ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}-eeg-heat.est_src 1e-4 HEAT)
 
-ADD_TEST(EEG-MN-${SUBJECT} ${CMAKE_CURRENT_BINARY_DIR}/om_inverse ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.gaineeg ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.smooth ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.ai ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.est_eeg ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}-eeg-mn.est_src 1e-4 MN)
+ADD_TEST(EEG-MN-${SUBJECT} ${CMAKE_CURRENT_BINARY_DIR}/om_inverse ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.sgem ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.smooth ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.ai ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.est_eeg ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}-eeg-mn.est_src 1e-4 MN)
 
-ADD_TEST(EEG-TV-${SUBJECT} ${CMAKE_CURRENT_BINARY_DIR}/om_inverse ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.gaineeg ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.smooth ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.ai ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.est_eeg ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}-eeg-tv.est_src 1e-4 TV 10000 0.0)
+ADD_TEST(EEG-TV-${SUBJECT} ${CMAKE_CURRENT_BINARY_DIR}/om_inverse ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.sgem ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.smooth ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.ai ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.est_eeg ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}-eeg-tv.est_src 1e-4 TV 10000 0.0)
 
 ############ MEG TEST ##############
 ADD_TEST(H2MM-${SUBJECT} ${CMAKE_CURRENT_BINARY_DIR}/om_assemble -H2MM ${OpenMEEG_SOURCE_DIR}/data/Models/${SUBJECT}/${SUBJECT}.geom ${OpenMEEG_SOURCE_DIR}/data/Models/${SUBJECT}/${SUBJECT}.cond ${OpenMEEG_SOURCE_DIR}/data/Computations/${SUBJECT}/${SUBJECT}.squids ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.h2mm)
 
 ADD_TEST(SS2MM-${SUBJECT} ${CMAKE_CURRENT_BINARY_DIR}/om_assemble -SS2MM ${OpenMEEG_SOURCE_DIR}/data/Models/${SUBJECT}/${SUBJECT}.tri ${OpenMEEG_SOURCE_DIR}/data/Computations/${SUBJECT}/${SUBJECT}.squids ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.ss2mm)
 
-ADD_TEST(GainMEG-${SUBJECT} ${CMAKE_CURRENT_BINARY_DIR}/om_gain -MEG ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.hm_inv ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.ssm ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.h2mm ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.ss2mm ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.gainmeg)
+ADD_TEST(SurfGainMEG-${SUBJECT} ${CMAKE_CURRENT_BINARY_DIR}/om_gain -MEG ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.hm_inv ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.ssm ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.h2mm ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.ss2mm ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.sgmm)
 
 #------ FORWARD ----#
-ADD_TEST(ESTMEG-${SUBJECT} ${CMAKE_CURRENT_BINARY_DIR}/om_forward ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.gainmeg ${OpenMEEG_SOURCE_DIR}/data/Computations/${SUBJECT}/${SUBJECT}.src ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.est_meg 0.0)
+ADD_TEST(ESTMEG-${SUBJECT} ${CMAKE_CURRENT_BINARY_DIR}/om_forward ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.sgmm ${OpenMEEG_SOURCE_DIR}/data/Computations/${SUBJECT}/${SUBJECT}.src ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.est_meg 0.0)
 
 #------ INVERSE -----#
-ADD_TEST(MEG-HEAT-${SUBJECT} ${CMAKE_CURRENT_BINARY_DIR}/om_inverse ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.gainmeg ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.smooth ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.ai ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.est_meg ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}-meg-heat.est_src 1e-4 HEAT)
+ADD_TEST(MEG-HEAT-${SUBJECT} ${CMAKE_CURRENT_BINARY_DIR}/om_inverse ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.sgmm ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.smooth ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.ai ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.est_meg ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}-meg-heat.est_src 1e-4 HEAT)
 
-ADD_TEST(MEG-MN-${SUBJECT} ${CMAKE_CURRENT_BINARY_DIR}/om_inverse ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.gainmeg ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.smooth ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.ai ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.est_meg ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}-meg-mn.est_src 1e-4 MN)
+ADD_TEST(MEG-MN-${SUBJECT} ${CMAKE_CURRENT_BINARY_DIR}/om_inverse ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.sgmm ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.smooth ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.ai ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.est_meg ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}-meg-mn.est_src 1e-4 MN)
 
-ADD_TEST(MEG-TV-${SUBJECT} ${CMAKE_CURRENT_BINARY_DIR}/om_inverse ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.gainmeg ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.smooth ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.ai ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.est_meg ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}-meg-tv.est_src 1e-4 TV 10000 0.0)
+ADD_TEST(MEG-TV-${SUBJECT} ${CMAKE_CURRENT_BINARY_DIR}/om_inverse ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.sgmm ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.smooth ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.ai ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.est_meg ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}-meg-tv.est_src 1e-4 TV 10000 0.0)
 
 ############ TEST DIPOLE FORWARD RESULTS (Regression test) ##############
 
@@ -49,11 +49,11 @@ ADD_TEST(DSM-${SUBJECT} ${CMAKE_CURRENT_BINARY_DIR}/om_assemble -DSM ${OpenMEEG_
 # om_assemble -DS2MM dipoles.dip squidscoord.squids sToMEGmat.bin
 ADD_TEST(DS2MM-${SUBJECT} ${CMAKE_CURRENT_BINARY_DIR}/om_assemble -DS2MM ${OpenMEEG_SOURCE_DIR}/data/Computations/${SUBJECT}/${SUBJECT}.dip ${OpenMEEG_SOURCE_DIR}/data/Computations/${SUBJECT}/${SUBJECT}.squids ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.ds2mm)
 
-ADD_TEST(DGainEEG-${SUBJECT} ${CMAKE_CURRENT_BINARY_DIR}/om_gain -EEG ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.hm_inv ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.dsm ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.h2em ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.dgaineeg)
+ADD_TEST(DipGainEEG-${SUBJECT} ${CMAKE_CURRENT_BINARY_DIR}/om_gain -EEG ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.hm_inv ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.dsm ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.h2em ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.SurfSource2MEGMat)
 
-ADD_TEST(DGainMEG-${SUBJECT} ${CMAKE_CURRENT_BINARY_DIR}/om_gain -MEG ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.hm_inv ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.dsm ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.h2mm ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.ds2mm ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.dgainmeg)
+ADD_TEST(DipGainMEG-${SUBJECT} ${CMAKE_CURRENT_BINARY_DIR}/om_gain -MEG ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.hm_inv ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.dsm ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.h2mm ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.ds2mm ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.dgmm)
 
 # forward -EEG gainmatrix.bin dipoleActivation.src estimatedeegdata.txt noiselevel
-ADD_TEST(EEG-dipoles-${SUBJECT} ${CMAKE_CURRENT_BINARY_DIR}/om_forward ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.dgaineeg ${OpenMEEG_SOURCE_DIR}/data/Computations/${SUBJECT}/${SUBJECT}.srcdip ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.dest_eeg 0.0)
+ADD_TEST(EEG-dipoles-${SUBJECT} ${CMAKE_CURRENT_BINARY_DIR}/om_forward ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.SurfSource2MEGMat ${OpenMEEG_SOURCE_DIR}/data/Computations/${SUBJECT}/${SUBJECT}.srcdip ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}-dip.est_eeg 0.0)
 
-ADD_TEST(MEG-dipoles-${SUBJECT} ${CMAKE_CURRENT_BINARY_DIR}/om_forward ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.dgainmeg ${OpenMEEG_SOURCE_DIR}/data/Computations/${SUBJECT}/${SUBJECT}.srcdip ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.dest_meg 0.0)
+ADD_TEST(MEG-dipoles-${SUBJECT} ${CMAKE_CURRENT_BINARY_DIR}/om_forward ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.dgmm ${OpenMEEG_SOURCE_DIR}/data/Computations/${SUBJECT}/${SUBJECT}.srcdip ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}-dip.est_meg 0.0)
