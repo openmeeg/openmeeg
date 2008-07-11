@@ -56,7 +56,7 @@ void operatorD(const Geometry &geo,const int I,const int J,const int GaussOrder,
 //    the storage Matrix for the result
 //    the upper left corner of the submatrix to be written is the Matrix
 {
-    std::cout<<"OPERATEUR D..."<<std::endl;
+    std::cout<<"OPERATOR D..."<<std::endl;
 
     const Mesh &m1=geo.getM(I);
     const Mesh &m2=geo.getM(J);
@@ -84,7 +84,7 @@ void operatorD(const Geometry &geo,const int I,const int J,const int GaussOrder,
     //    the storage Matrix for the result
     //    the upper left corner of the submatrix to be written is the Matrix
 
-    std::cout<<"OPERATEUR D (Optimized)..."<<std::endl;
+    std::cout<<"OPERATOR D (Optimized)..."<<std::endl;
 
     const Mesh &m1=geo.getM(I);
     const Mesh &m2=geo.getM(J);
@@ -111,7 +111,7 @@ void operatorS(const Geometry &geo,const int I,const int J,const int GaussOrder,
     //    the storage Matrix for the result
     //    the upper left corner of the submatrix to be written is the Matrix
 
-    std::cout<<"OPERATEUR S..."<<std::endl;
+    std::cout<<"OPERATOR S..."<<std::endl;
 
     // The operator S is given by Sij=\Int G*PSI(I,i)*Psi(J,j) with PSI(A,a) is a P0 test function on layer A and triangle a
     const Mesh &m1=geo.getM(I);
@@ -150,7 +150,7 @@ void operatorN(const Geometry &geo,const int I,const int J,const int GaussOrder,
     //    the storage Matrix for the result
     //    the upper left corner of the submatrix to be written is the Matrix
     //  the upper left corner of the corresponding S block
-    std::cout<<"OPERATEUR N..."<<std::endl;
+    std::cout<<"OPERATOR N..."<<std::endl;
 
     const Mesh &m1=geo.getM(I);
     const Mesh &m2=geo.getM(J);

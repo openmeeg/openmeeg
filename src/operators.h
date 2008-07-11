@@ -310,7 +310,7 @@ void operatorN(const Mesh &m1,const Mesh &m2,T &mat,const int offsetI,const int 
     //    the upper left corner of the submatrix to be written is the Matrix
     //  the upper left corner of the corresponding S block
 
-    std::cout<<"OPERATEUR N... (arg : mesh m1, mesh m2)"<<std::endl;
+    std::cout<<"OPERATOR N... (arg : mesh m1, mesh m2)"<<std::endl;
 
     if(&m1==&m2) {
         for(int i=offsetI;i<offsetI+m1.nbPts();i++) {
@@ -346,7 +346,7 @@ void operatorS(const Mesh &m1,const Mesh &m2,T &mat,const int offsetI,const int 
     //    the storage Matrix for the result
     //    the upper left corner of the submatrix to be written is the Matrix
 
-    std::cout<<"OPERATEUR S... (arg : mesh m1, mesh m2)"<<std::endl;
+    std::cout<<"OPERATOR S... (arg : mesh m1, mesh m2)"<<std::endl;
 
     // The operator S is given by Sij=\Int G*PSI(I,i)*Psi(J,j) with PSI(A,a) is a P0 test function on layer A and triangle a
     if(&m1==&m2)
@@ -385,7 +385,7 @@ void operatorD(const Mesh &m1,const Mesh &m2,T &mat,const int offsetI,const int 
 //    the storage Matrix for the result
 //    the upper left corner of the submatrix to be written is the Matrix
 {
-    std::cout<<"OPERATEUR D... (arg : mesh m1, mesh m2)"<<std::endl;
+    std::cout<<"OPERATOR D... (arg : mesh m1, mesh m2)"<<std::endl;
 
     for(int i=offsetI;i<offsetI+m1.nbTrgs();i++) {
         progressbar(i-offsetI,m1.nbTrgs());
@@ -411,7 +411,7 @@ void operatorD(const Mesh &m1,const Mesh &m2,T &mat,const int offsetI,const int 
     //    the storage Matrix for the result
     //    the upper left corner of the submatrix to be written is the Matrix
 
-    std::cout<<"OPERATEUR D (Optimized) ... (arg : mesh m1, mesh m2)"<<std::endl;
+    std::cout<<"OPERATOR D (Optimized) ... (arg : mesh m1, mesh m2)"<<std::endl;
 
     for(int i=offsetI;i<offsetI+m1.nbTrgs();i++) {
         progressbar(i-offsetI,m1.nbTrgs());
