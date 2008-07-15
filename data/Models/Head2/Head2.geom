@@ -2,7 +2,7 @@
 
 Interfaces 3 Mesh
 
-crane.2.tri
+skull.2.tri
 cortex.2.tri
 scalp.2.tri
 
