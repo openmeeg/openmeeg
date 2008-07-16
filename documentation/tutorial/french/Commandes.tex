@@ -15,9 +15,9 @@ Entrées~:
 \noindent
 Sortie~:
 \begin{itemize}
-    \item \outputName{HeadMat.bin}~: fichier binaire où est sauvée la matrice $\mathbf{HeadMat}$
+    \item \outputName{HeadMat.bin}~: fichier binaire où est sauvée la matrice $\mathbf{HeadMat}$ (format symétrique)
 \end{itemize}
-
+Le format symétrique ne stocke que la partie inférieure d'une matrice.
 \medskip
 
 \noindent
@@ -200,15 +200,14 @@ Remarque: \optionName{-SurfSource2MEGMat} peut être remplacé par la version ab
 \section{Calcul de la matrice de Gain~:}
 \label{sect: command gain}
 
-La matrice de gain est la matrice qui lie \textbf{la position et l'orientation des sources} à la position (et l'orientation dans le cas
-de la MEG) des capteurs. 
+La matrice de gain est la matrice liant l'activation des sources \textbf{à position et orientation fixées} aux valeurs des champs d'intérêt (potentiel électrique ou champ magnétique) aux capteurs, à des positions (et orientations pour la MEG)  prédéfinis. 
 
 \checkItem \underline{Cas de l'EEG}~:\\
 Entrées~:
 \begin{itemize}
-    \item \fileName{HeadMatInv.bin}~: fichier binaire matrice $\mathbf{HeadMat}^{-1}$
-    \item \fileName{SourceMat.bin}~: fichier binaire matrice $\mathbf{SurfSourceMat}$
-    \item \fileName{Head2EEGMat.bin}~: fichier binaire matrice $\mathbf{Head2EEGMat}$
+    \item \fileName{HeadMatInv.bin}~: fichier binaire matrice $\mathbf{HeadMat}^{-1}$ (format symétrique)
+    \item \fileName{SourceMat.bin}~: fichier binaire matrice $\mathbf{SurfSourceMat}$ ou $\mathbf{DipSourceMat}$
+    \item \fileName{Head2EEGMat.bin}~: fichier binaire matrice $\mathbf{Head2EEGMat}$ (format sparse)
 \end{itemize}
 Sortie~:
 \begin{itemize}
