@@ -47,5 +47,5 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 namespace maths {
     const TrivialBinIO::Suffixes TrivialBinIO::suffs = TrivialBinIO::init();
-    const std::string            TrivialBinIO::Identity("old_binary");
+    const std::string            TrivialBinIO::Identity("binary");
 }

@@ -63,6 +63,13 @@ IF ( USE_GCC )
     ENDIF ( APPLE )
 ENDIF ( USE_GCC )
 
+# ==============
+# = Endianess =
+# ==============
+
+INCLUDE(${CMAKE_ROOT}/Modules/TestBigEndian.cmake)
+TEST_BIG_ENDIAN(WORDS_BIGENDIAN)
+
 #######################################################################
 # External Libraries
 #######################################################################

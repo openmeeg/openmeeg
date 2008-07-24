@@ -139,7 +139,6 @@ public:
     inline void setTrg(int i,const Triangle& t) { trgs[i]=t;}
 
     void make_links();
-    // void compute_omega();
 
     /**
        * Get center of triangle

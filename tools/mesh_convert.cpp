@@ -134,7 +134,7 @@ int main( int argc, char **argv)
 double determinant3x3(const Matrix& m) {
     assert(m.nlin() == m.ncol());
     assert(m.nlin() == 3);
-    double f = 0;
+    double f = 0.0;
 
     f += m(0,0)*m(1,1)*m(2,2);
     f += m(0,2)*m(1,0)*m(2,1);

@@ -33,7 +33,7 @@ ADD_TEST(compareSurfSourceMat-${SUBJECT} ${CMAKE_CURRENT_BINARY_DIR}/compare_mat
 #------ v2eeg -----#
 ADD_TEST(comparev2eeg-${SUBJECT} ${CMAKE_CURRENT_BINARY_DIR}/compare_matrix 
                       ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.h2em
-                      ${OpenMEEG_SOURCE_DIR}/tests/initialTest/${SUBJECT}.h2em -if old_binary -sparse)
+                      ${OpenMEEG_SOURCE_DIR}/tests/initialTest/${SUBJECT}.h2em -if binary -sparse)
 #------ EEG GAIN -----#
 ADD_TEST(compareSurfGainEEG-${SUBJECT} ${CMAKE_CURRENT_BINARY_DIR}/compare_matrix
                         ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.sgem

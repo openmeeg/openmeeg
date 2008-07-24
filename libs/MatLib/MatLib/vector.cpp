@@ -448,7 +448,7 @@ void Vector::saveTxt(const char* filename) const
 void Vector::saveBin(const char* filename) const
 {
     maths::ofstream ofs(filename);
-    ofs << maths::format("old_binary") << *this;
+    ofs << maths::format("binary") << *this;
 }
 
 void Vector::loadTxt(const char* filename)
@@ -460,7 +460,7 @@ void Vector::loadTxt(const char* filename)
 void Vector::loadBin(const char* filename)
 {
     maths::ifstream ifs(filename);
-    ifs >> maths::format("old_binary") >> *this;
+    ifs >> maths::format("binary") >> *this;
 }
 
 void Vector::load( const char *filename ) {

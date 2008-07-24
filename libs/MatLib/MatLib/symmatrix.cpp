@@ -454,13 +454,13 @@ void SymMatrix::info() const {
 void SymMatrix::loadBin( const char *filename )
 {
     maths::ifstream ifs(filename);
-    ifs >> maths::format("old_binary") >> *this;
+    ifs >> maths::format("binary") >> *this;
 }
 
 void SymMatrix::saveBin( const char *filename ) const
 {
     maths::ofstream ofs(filename);
-    ofs << maths::format("old_binary") << *this;
+    ofs << maths::format("binary") << *this;
 }
 
 void SymMatrix::loadTxt( const char *filename )

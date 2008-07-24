@@ -33,9 +33,9 @@ patches.load(patchesFile)
 
 gaussOrder = 3;
 
-hm      = om.HeadMat(geom,gaussOrder);
+hm      = om.HeadMat(geom,gaussOrder)
 hminv   = hm.inverse()
-ssm      = om.SurfSourceMat(geom,mesh,gaussOrder);
+ssm      = om.SurfSourceMat(geom,mesh,gaussOrder)
 ss2mm    = om.SurfSource2MEGMat(mesh,sensors)
 h2mm    = om.Head2MEGMat(geom,sensors)
 h2em    = om.Head2EEGMat(geom,patches)

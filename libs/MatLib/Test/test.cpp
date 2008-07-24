@@ -190,7 +190,6 @@ int main ()
     cout << spM;
     FastSparseMatrix fspM(spM);
     cout << fspM;
-    genericTest(fspM);
 
     return 0;
 }

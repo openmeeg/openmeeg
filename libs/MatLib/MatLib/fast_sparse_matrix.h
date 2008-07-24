@@ -75,10 +75,6 @@ public:
     inline ~FastSparseMatrix() {destroy();}
     inline size_t nlin() const ;
     inline size_t ncol() const ;
-    inline void saveTxt( const char *filename ) const;
-    inline void saveBin( const char *filename ) const;
-    inline void loadTxt( const char *filename );
-    inline void loadBin( const char *filename );
     inline void write(std::ostream& f) const;
     inline void read(std::istream& f);
 
@@ -168,51 +164,6 @@ inline FastSparseMatrix::FastSparseMatrix( const SparseMatrix &M)
         rowindex[k]=M.size();
     }
 
-}
-
-inline void FastSparseMatrix::saveTxt( const char *filename ) const
-{
-    size_t nz = rowindex[m_nlin];
-    std::ofstream ofs(filename);
-    ofs << m_nlin << " " << m_ncol << " " << nz << " ";
-    for(size_t i=0;i<nz;i++) ofs << tank[i] << " ";
-    for(size_t i=0;i<nz;i++) ofs << js[i] << " ";
-    for(size_t i=0;i<m_nlin+1;i++) ofs << rowindex[i]  << " ";
-    ofs.close();
-}
-
-inline void FastSparseMatrix::saveBin( const char *filename ) const
-{
-    std::ofstream ofs(filename,std::ios_base::binary);
-    write(ofs);
-    ofs.close();
-}
-
-inline void FastSparseMatrix::loadTxt( const char *filename )
-{
-    size_t nz;
-    std::ifstream ifs(filename);
-    if(!ifs.is_open()) {
-        std::cerr<<"Error Opening Matrix File "<<filename<<std::endl;
-        exit(1);
-    }
-    ifs >> m_nlin >> m_ncol;
-    ifs >> nz;
-    alloc(m_nlin,m_ncol,nz);
-    for(size_t i=0;i<nz;i++) ifs>>tank[i];
-    for(size_t i=0;i<nz;i++) ifs>>js[i];
-    for(size_t i=0;i<m_nlin+1;i++) ifs>>rowindex[i];
-}
-
-inline void FastSparseMatrix::loadBin( const char *filename )
-{
-    std::ifstream ifs(filename,std::ios_base::binary);
-	if(!ifs.is_open()) {
-        std::cerr<<"Error Opening Matrix File "<<filename<<std::endl;
-        exit(1);
-    }
-    read(ifs);
-    ifs.close();
 }
 
 inline void FastSparseMatrix::write(std::ostream& f) const

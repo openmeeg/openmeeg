@@ -667,13 +667,13 @@ void Matrix::info() const {
 void Matrix::loadBin( const char *filename )
 {
     maths::ifstream ifs(filename);
-    ifs >> maths::format("old_binary") >> *this;
+    ifs >> maths::format("binary") >> *this;
 }
 
 void Matrix::saveBin( const char *filename ) const
 {
     maths::ofstream ofs(filename);
-    ofs << maths::format("old_binary") << *this;
+    ofs << maths::format("binary") << *this;
 }
 
 void Matrix::loadTxt( const char *filename )

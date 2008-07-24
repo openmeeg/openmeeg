@@ -56,8 +56,8 @@ int main( int argc, char **argv) {
     command_usage("Convert symmetric matrices between different formats");
     const char *input_filename = command_option("-i",(const char *) NULL,"Input full Matrix");
     const char *output_filename = command_option("-o",(const char *) NULL,"Output full Matrix");
-    const char *input_format = command_option("-if",(const char *) NULL,"Input file format : ascii, binary, old_binary (should be avoided)");
-    const char *output_format = command_option("-of",(const char *) NULL,"Output file format : ascii, binary, old_binary (should be avoided)");
+    const char *input_format = command_option("-if",(const char *) NULL,"Input file format : ascii, binary");
+    const char *output_format = command_option("-of",(const char *) NULL,"Output file format : ascii, binary");
     if (command_option("-h",(const char *)0,0)) return 0;
 
     if(argc<2 || !input_filename || !output_filename) {

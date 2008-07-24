@@ -137,13 +137,13 @@ void SparseMatrix::info() const {
 void SparseMatrix::loadBin( const char *filename )
 {
     maths::ifstream ifs(filename);
-    ifs >> maths::format("old_binary") >> *this;
+    ifs >> maths::format("binary") >> *this;
 }
 
 void SparseMatrix::saveBin( const char *filename ) const
 {
     maths::ofstream ofs(filename);
-    ofs << maths::format("old_binary") << *this;
+    ofs << maths::format("binary") << *this;
 }
 
 void SparseMatrix::loadTxt( const char *filename )
