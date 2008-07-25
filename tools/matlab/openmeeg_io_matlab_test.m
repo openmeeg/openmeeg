@@ -4,11 +4,11 @@
 
 data = randn(4,9);
 
-save_bin(data,'test.bin');
-save_txt(data,'test.txt');
+om_save_full(data,'test.txt','ascii');
+om_save_full(data,'test.bin','binary');
 
-data_txt = load_txt('test.txt');
-data_bin = load_bin('test.bin');
+data_txt = om_load_full('test.txt','ascii');
+data_bin = om_load_full('test.bin','binary');
 
 norm(data_txt - data_bin)
 norm(data_txt - data)
@@ -21,19 +21,38 @@ delete 'test.bin'
 % = Testing symmetric matrices =
 % =============================
 
+randn('seed',0);
 data = randn(5,5);
-data = randn(2,2);
 data = (data+data')/2;
 
-save_bin_sym(data,'test.bin');
-save_txt_sym(data,'test.txt');
+om_save_sym(data,'test.txt','ascii');
+om_save_sym(data,'test.bin','binary');
 
-data_txt = load_txt_sym('test.txt');
-data_bin = load_bin_sym('test.bin');
+data_txt = om_load_sym('test.txt','ascii');
+data_bin = om_load_sym('test.bin','binary');
 
 norm(data_txt - data_bin)
 norm(data_txt - data)
 norm(data_bin - data)
+
+delete 'test.txt'
+delete 'test.bin'
+
+% =============================
+% = Testing sparse matrices =
+% =============================
+
+data = sprand(5,5,0.5);
+
+om_save_sparse(data,'test.txt','ascii');
+om_save_sparse(data,'test.bin','binary');
+
+data_txt = om_load_sparse('test.txt','ascii');
+data_bin = om_load_sparse('test.bin','binary');
+
+norm(full(data_txt - data_bin))
+norm(full(data_txt - data))
+norm(full(data_bin - data))
 
 delete 'test.txt'
 delete 'test.bin'
