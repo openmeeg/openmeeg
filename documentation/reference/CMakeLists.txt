@@ -1,7 +1,7 @@
 #
 # Build the documentation
 #
-INCLUDE (${CMAKE_ROOT}/Modules/Documentation.cmake OPTIONAL)
+INCLUDE (Documentation OPTIONAL)
 
 IF (BUILD_DOCUMENTATION)
 
@@ -16,7 +16,10 @@ IF (BUILD_DOCUMENTATION)
         ${OpenMEEG_SOURCE_DIR}/documentation/reference/doxyfile.in
         ${OpenMEEG_BINARY_DIR}/documentation/reference/doxyfile)
 
-    ADD_CUSTOM_TARGET(documentation
-        ${DOXYGEN_EXECUTABLE} ${OpenMEEG_BINARY_DIR}/documentation/reference/doxyfile)
+    ADD_CUSTOM_COMMAND(OUTPUT html/index.html
+                       COMMAND ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/doxyfile
+                       DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/doxyfile)
+
+    INSTALL(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/html DESTINATION share/doc/OpenMEEG/reference)
 
 ENDIF (BUILD_DOCUMENTATION)

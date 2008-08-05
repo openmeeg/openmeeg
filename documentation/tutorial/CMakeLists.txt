@@ -1,3 +1,3 @@
 INCLUDE(UseLATEX.cmake)
 
-SUBDIRS(french)
+SUBDIRS(french english)
