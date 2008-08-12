@@ -20,6 +20,9 @@ IF (BUILD_DOCUMENTATION)
                        COMMAND ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/doxyfile
                        DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/doxyfile)
 
+    ADD_CUSTOM_TARGET(documentation ALL
+                      DEPENDS html/index.html)
+
     INSTALL(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/html DESTINATION share/doc/OpenMEEG/reference)
 
 ENDIF (BUILD_DOCUMENTATION)
