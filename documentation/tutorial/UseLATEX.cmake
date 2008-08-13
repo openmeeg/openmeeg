@@ -498,6 +498,9 @@ MACRO(ADD_LATEX_TARGETS)
     COMMAND ${CMAKE_COMMAND} -E chdir ${output_dir}
     ${PDFLATEX_COMPILER} ${PDFLATEX_COMPILER_FLAGS} ${LATEX_MAIN_INPUT})
 
+  #     TO: I'm not totally sure but the ALL seem to be here to circumvent a bug in cmake (as of 2.4.8)
+  #     handling of INSTALL dependencies. Try to remove them with newer versions of cmake.
+
   IF (LATEX_DEFAULT_PDF)
     ADD_CUSTOM_TARGET(${dvi_target} ${make_dvi_command}
       DEPENDS ${make_dvi_depends})
@@ -548,27 +551,32 @@ MACRO(LATEX_COPY_INPUT_FILE file)
   LATEX_GET_OUTPUT_PATH(output_dir)
 
   IF (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/${file})
-    GET_FILENAME_COMPONENT(path ${file} PATH)
-    FILE(MAKE_DIRECTORY ${output_dir}/${path})
 
-    LATEX_LIST_CONTAINS(use_config ${file} ${LATEX_CONFIGURE})
-    IF (use_config)
-      CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/${file}
-	${output_dir}/${file}
-	@ONLY
-	)
-      ADD_CUSTOM_COMMAND(OUTPUT ${output_dir}/${file}
-	COMMAND ${CMAKE_COMMAND}
-	ARGS ${CMAKE_BINARY_DIR}
-	DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${file}
-	)
-    ELSE (use_config)
-      ADD_CUSTOM_COMMAND(OUTPUT ${output_dir}/${file}
-	COMMAND ${CMAKE_COMMAND}
-	ARGS -E copy ${CMAKE_CURRENT_SOURCE_DIR}/${file} ${output_dir}/${file}
-	DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${file}
-	)
-    ENDIF (use_config)
+    #   TO: Avoid the copy if the source file is older than the copy...
+
+    IF (${CMAKE_CURRENT_SOURCE_DIR}/${file} IS_NEWER_THAN ${output_dir}/${file})
+        GET_FILENAME_COMPONENT(path ${file} PATH)
+        FILE(MAKE_DIRECTORY ${output_dir}/${path})
+
+        LATEX_LIST_CONTAINS(use_config ${file} ${LATEX_CONFIGURE})
+        IF (use_config)
+          CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/${file}
+            ${output_dir}/${file}
+            @ONLY
+            )
+          ADD_CUSTOM_COMMAND(OUTPUT ${output_dir}/${file}
+            COMMAND ${CMAKE_COMMAND}
+            ARGS ${CMAKE_BINARY_DIR}
+            DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${file}
+            )
+        ELSE (use_config)
+          ADD_CUSTOM_COMMAND(OUTPUT ${output_dir}/${file}
+            COMMAND ${CMAKE_COMMAND}
+            ARGS -E copy ${CMAKE_CURRENT_SOURCE_DIR}/${file} ${output_dir}/${file}
+            DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${file}
+            )
+        ENDIF (use_config)
+    ENDIF (${CMAKE_CURRENT_SOURCE_DIR}/${file} IS_NEWER_THAN ${output_dir}/${file})
   ELSE (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/${file})
     IF (EXISTS ${output_dir}/${file})
       # Special case: output exists but input does not.  Assume that it was
