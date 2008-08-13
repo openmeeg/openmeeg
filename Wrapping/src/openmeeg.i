@@ -1,4 +1,4 @@
-%module openmeeg
+%module(docstring="OpenMEEG bidings for python") openmeeg
 %{
    #include "vect3.h"
    #include "triangle.h"
@@ -16,6 +16,10 @@
    #include "forward.h"
    #include "inverse.h"
 %}
+
+#ifdef DOCSTRINGS
+%include "docstrings.i"
+#endif
 
 %include "vect3.h"
 %include "triangle.h"
