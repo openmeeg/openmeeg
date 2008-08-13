@@ -16,13 +16,16 @@ IF (BUILD_DOCUMENTATION)
         ${OpenMEEG_SOURCE_DIR}/documentation/reference/doxyfile.in
         ${OpenMEEG_BINARY_DIR}/documentation/reference/doxyfile)
 
-    ADD_CUSTOM_COMMAND(OUTPUT html/index.html
+    ADD_CUSTOM_COMMAND(OUTPUT html/index.html xml/index.xml
                        COMMAND ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/doxyfile
                        DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/doxyfile)
 
-    ADD_CUSTOM_TARGET(documentation ALL
-                      DEPENDS html/index.html)
+    #   The ALL in the next directive is necessary to cope with a CMake bug !!!
+    #   Otherwise the target is never activated.
 
-    INSTALL(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/html DESTINATION share/doc/OpenMEEG/reference)
+    ADD_CUSTOM_TARGET(documentation ALL
+                      DEPENDS html/index.html xml/index.xml)
+
+    INSTALL(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/html/ DESTINATION share/doc/OpenMEEG/reference)
 
 ENDIF (BUILD_DOCUMENTATION)
