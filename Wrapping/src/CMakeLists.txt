@@ -9,6 +9,7 @@ IF (PYTHON_WRAP)
     SET (CMAKE_SWIG_FLAGS  "-c++" )
 
     IF (APPLE)
+
         # Darwin ports python
         SET(PYTHON_INCLUDE_PATH /opt/local/include/python2.5/)
         SET(PYTHON_LIBRARIES /opt/local/lib/libpython2.5.dylib)
@@ -16,6 +17,11 @@ IF (PYTHON_WRAP)
         # Buildin python
         SET(PYTHON_INCLUDE_PATH /usr/include/python2.5)
         SET(PYTHON_LIBRARIES /usr/lib/libpython2.5.dylib)
+
+        # Enthought python
+        SET(PYTHON_INCLUDE_PATH /Library/Frameworks/Python.framework/Versions/Current/include/python2.5)
+        SET(PYTHON_LIBRARIES /Library/Frameworks/Python.framework/Versions/Current/Python)
+
     ELSE (APPLE)
         FIND_PACKAGE(PythonLibs)
     ENDIF (APPLE)
@@ -32,7 +38,7 @@ IF (PYTHON_WRAP)
         ADD_CUSTOM_COMMAND(OUTPUT docstrings.i
                            COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/doxy2swig.py ${PROJECT_BINARY_DIR}/documentation/reference/xml/index.xml docstrings.i
                            DEPENDS documentation)
-        SET (SWIG_MODULE_${MODULE_NAME}_EXTRA_DEPS ${SWIG_MODULE_${MODULE_NAME}_EXTRA_DEPS} docstrings.i)
+        SET (SWIG_MODULE_${MODULE_NAME}_EXTRA_DEPS ${SWIG_MODULE_${MODULE_NAME}_EXTRA_DEPS} ${PROJECT_BINARY_DIR}/Wrapping/src/docstrings.i)
     ENDIF (BUILD_DOCUMENTATION)
 
     SWIG_ADD_MODULE(${MODULE_NAME} python ${SWIG_SRC_FILE_NAME} "")

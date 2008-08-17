@@ -24,7 +24,7 @@ IF (BUILD_DOCUMENTATION)
     #   Otherwise the target is never activated.
 
     ADD_CUSTOM_TARGET(documentation ALL
-                      DEPENDS html/index.html xml/index.xml)
+                      DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/html/index.html ${CMAKE_CURRENT_BINARY_DIR}/xml/index.xml)
 
     INSTALL(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/html/ DESTINATION share/doc/OpenMEEG/reference)
 
