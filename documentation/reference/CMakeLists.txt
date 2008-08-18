@@ -2,7 +2,6 @@
 # Build the documentation
 #
 INCLUDE (Documentation OPTIONAL)
-SUBDIRS(html)
 
 IF (BUILD_DOCUMENTATION)
 
