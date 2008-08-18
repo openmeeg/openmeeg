@@ -35,9 +35,9 @@ IF (PYTHON_WRAP)
     SET (SWIG_MODULE_${MODULE_NAME}_EXTRA_DEPS ${SWIG_SRC_FILE})
     IF (BUILD_DOCUMENTATION)
         SET(CMAKE_SWIG_FLAGS ${CMAKE_SWIG_FLAGS} -DDOCSTRINGS)
-        ADD_CUSTOM_COMMAND(OUTPUT docstrings.i
-                           COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/doxy2swig.py ${PROJECT_BINARY_DIR}/documentation/reference/xml/index.xml docstrings.i
-                           DEPENDS documentation)
+        ADD_CUSTOM_TARGET(docstrings
+                          COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/doxy2swig.py ${PROJECT_BINARY_DIR}/documentation/reference/xml/index.xml docstrings.i)
+        ADD_DEPENDENCIES(documentation docstrings)
         SET (SWIG_MODULE_${MODULE_NAME}_EXTRA_DEPS ${SWIG_MODULE_${MODULE_NAME}_EXTRA_DEPS} ${PROJECT_BINARY_DIR}/Wrapping/src/docstrings.i)
     ENDIF (BUILD_DOCUMENTATION)
 

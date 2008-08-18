@@ -22,9 +22,11 @@ IF (BUILD_DOCUMENTATION)
 
     ADD_CUSTOM_TARGET(documentation ALL)
 
-    ADD_CUSTOM_COMMAND(TARGET documentation
-                       PRE_BUILD COMMAND ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/doxyfile
-                       DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/doxyfile)
+    ADD_DEPENDENCIES(documentation doxygen_outputs)
+
+    ADD_CUSTOM_TARGET(doxygen_outputs
+                      COMMAND ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/doxyfile
+                      DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/doxyfile)
 
     INSTALL(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/html/ DESTINATION share/doc/OpenMEEG/reference)
 
