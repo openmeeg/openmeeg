@@ -25,13 +25,30 @@ BuildRequires: cmake
 @PROJECT_NAME@ is a package for forward/inverse problems of EEG/MEG. The forward problem uses the symmetric Boundary Element Method.
 The inverse problem uses a distributed approach (L2, L1 regularization). Developped within Odyssee (INRIA-ENPC-ENS).
 
+%package python
+Summary:      Development files for the python interface to @PROJECT_NAME@.
+Group:        Development/Libraries
+Requires:     %{name} = %{epoch}:%{version}-%{release}
+
+%description python
+This package contains all the necessary files to acces @PROJECT_NAME@ from the python language.
+This enables the creation of customized complex scripts using the basic blocks of @PROJECT_NAME@.
+
+%package doc
+Summary:      Documentation files for @PROJECT_NAME@.
+Group:        Documentation
+Requires:     %{name} = %{epoch}:%{version}-%{release}
+
+%description doc
+Documentation for @PROJECT_NAME@.
+
 %prep
 %setup -q -n %{srcdirname}
 
 %build
 mkdir %{builddirname}
 cd %{builddirname}
-%cmake @CMAKE_SOURCE_DIR@
+%cmake -DBUILD_DOCUMENTATION=ON -DPYTHON_WRAP=ON -DUSE_MATIO=ON @CMAKE_SOURCE_DIR@
 make
 
 %check
@@ -57,9 +74,18 @@ rm -rf %{srcdirname}
 %files
 %defattr(-,root,root,-)
 %{_bindir}/*
-%{_libdir}/*
+%{_libdir}/lib@PROJECT_NAME@*
+
+%files python
+%{_libdir}/python/*
+
+%files doc
+%{_docdir}/OpenMEEG/*
 
 %changelog
+* Tue Jul 19 2008 Theo Papadopoulo <papadop@sophia.inria.fr>
+- Added some cmake option and several packages to contain the python and
+documentation parts of @PROJECT_NAME@.
 * Thu Dec  6 2007 Theo Papadopoulo <papadop@sophia.inria.fr>
 - Adapt the file to work for both i386 and x86-64 architectures.
 * Mon Aug 27 2007 Theo Papadopoulo <Theodore.Papadopoulo@sophia.inria.fr> 0.8.0
