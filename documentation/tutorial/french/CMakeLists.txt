@@ -1,8 +1,8 @@
-ADD_LATEX_DOCUMENT(tutoriel.tex
-                   INPUTS tutoriel.tex Contexte.tex Commandes.tex Annexes.tex Donnees.tex
+ADD_LATEX_DOCUMENT(tutorial-french.tex
+                   INPUTS tutorial-french.tex Contexte.tex Commandes.tex Annexes.tex Donnees.tex
                    IMAGE_DIRS ../images
-                   CONFIGURE tutoriel.tex
+                   CONFIGURE tutorial-french.tex
                    DEFAULT_PDF
                    MANGLE_TARGET_NAMES ON)
 
-INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/tutoriel.pdf DESTINATION share/doc/OpenMEEG/tutorials)
+INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/tutorial-french.pdf DESTINATION share/doc/OpenMEEG/tutorials)
