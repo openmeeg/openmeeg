@@ -115,6 +115,8 @@ void Vector::destroy() {
 void Vector::copy(const Vector& A) {
     t=A.t;
     nlin()=A.nlin();
+    dim = ONE;
+    storage = FULL;
     if (t)
     {
         count=A.count;

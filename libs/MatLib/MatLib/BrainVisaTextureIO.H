@@ -54,7 +54,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 namespace maths {
 
-    struct BrainVisaTextureIO: public MathsIOBase {
+    struct OPENMEEGMATHS_EXPORT BrainVisaTextureIO: public MathsIOBase {
 
         const std::string& identity() const { return Identity; }
         const Suffixes&    suffixes() const { return suffs;    }

@@ -47,6 +47,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #include <fstream>
 #include <cstring>
+#include <vector>
 
 #include "mesh3.h"
 #include "sparse_matrix.h"
@@ -59,7 +60,8 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include "geometry.h"
 #include "vector.h"
 
-#define Pi acos(-1)
+#define Pi 3.14159265358979323846f
+
 using namespace std;
 
 void getHelp(char** argv);
@@ -83,15 +85,15 @@ int cylindre (char namesurf[],char namestim[],float L,float R,float dt,int*E,int
   // FILE *F;
   int i,j,g,k,save;	                	//counters
   float decal_teta;                            // gap along teta.
-  float z=-L/2;
-  float ez=Ea,iz=Eb ,iz2=Eb2,eo=1.85/9*2*Pi,io=Pi/2-eo;	// size of electrode contacts
+  float z=-L/2.0f;
+  float ez=Ea,iz=Eb,iz2=Eb2,eo=1.85f/9.f*2.f*Pi,io=Pi/2.f-eo;	// size of electrode contacts
   int nteta,nl,c,nez,niz,niz2,neo,nio;		//number of points
   float dteta,dl,alpha,o,dez,diz,diz2,deo,dio;
   int np=0, nt=0;				//number of points and triangles to create
 
   decoupe(dt,ez,&nez,&dez);
   decoupe(dt,iz,&niz,&diz);
-decoupe(dt,iz2,&niz2,&diz2);
+  decoupe(dt,iz2,&niz2,&diz2);
   decoupe(dt/R,eo,&neo,&deo);
   decoupe(dt/R,io,&nio,&dio);
 
@@ -106,10 +108,10 @@ decoupe(dt,iz2,&niz2,&diz2);
   c=(int)(Pi/2*R/dt+0.5)+1;             	 //number of inner circles
   c=(c<2)?2:c;
   alpha=Pi/2/(c-1);		                //distance between inner circles
-  int N[c];		                        //number of points on inner circles
-  int num[c];            		       //index of first point on inner circle
+  std::vector<int> N(c);		                        //number of points on inner circles
+  std::vector<int> num(c);            		       //index of first point on inner circle
 
-  float ang[c];
+  std::vector<float> ang(c);
 
   int max = (int) floor(nteta*(L/dt+2*c)*4);
     Vect3* P = new Vect3[max];
@@ -370,8 +372,12 @@ int main(int argc, char** argv)
     // char nom[80],s[80];
     int i,Nc=2,Elec[4],E[1]={-1};
     float Ea,Eb,Eb2;
-    int Nteta[Nc],Nz[Nc];
-    float L[Nc],R[Nc],dt[Nc],sig[Nc+1];
+    std::vector<int> Nteta(Nc);
+    std::vector<int> Nz(Nc);
+    std::vector<float> L(Nc);
+    std::vector<float> R(Nc);
+    std::vector<float> dt(Nc);
+    std::vector<float> sig(Nc+1);
     string name;
     sig[Nc]=0;
     

@@ -61,10 +61,10 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #endif
 
 typedef std::set<int> intSet;
-int tri_tri_overlap_test_3d(float p1[3], float q1[3], float r1[3],float p2[3], float q2[3], float r2[3]);
+bool tri_tri_overlap_test_3d(double p1[3], double q1[3], double r1[3],double p2[3], double q2[3], double r2[3]);
 
 
-class Mesh
+class OPENMEEG_EXPORT Mesh
 {
 
 private:
@@ -240,12 +240,12 @@ public:
         const Vect3& q2 = m2.getPt(T2.s2());
         const Vect3& r2 = m2.getPt(T2.s3());
 
-        float pp1[3] = {p1.x(),p1.y(),p1.z()};
-        float qq1[3] = {q1.x(),q1.y(),q1.z()};
-        float rr1[3] = {r1.x(),r1.y(),r1.z()};
-        float pp2[3] = {p2.x(),p2.y(),p2.z()};
-        float qq2[3] = {q2.x(),q2.y(),q2.z()};
-        float rr2[3] = {r2.x(),r2.y(),r2.z()};
+        double pp1[3] = {p1.x(),p1.y(),p1.z()};
+        double qq1[3] = {q1.x(),q1.y(),q1.z()};
+        double rr1[3] = {r1.x(),r1.y(),r1.z()};
+        double pp2[3] = {p2.x(),p2.y(),p2.z()};
+        double qq2[3] = {q2.x(),q2.y(),q2.z()};
+        double rr2[3] = {r2.x(),r2.y(),r2.z()};
         return tri_tri_overlap_test_3d(pp1,qq1,rr1,pp2,qq2,rr2);
     }
 

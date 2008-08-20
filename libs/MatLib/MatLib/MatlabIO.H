@@ -57,7 +57,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 namespace maths {
 
-    struct MatlabIO: public MathsIOBase {
+    struct OPENMEEGMATHS_EXPORT MatlabIO: public MathsIOBase {
 
         const std::string& identity() const { return Identity; }
         const Suffixes&    suffixes() const { return suffs;    }

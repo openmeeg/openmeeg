@@ -53,7 +53,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 namespace maths {
 
-    struct TrivialBinIO: public MathsIOBase {
+    struct OPENMEEGMATHS_EXPORT TrivialBinIO: public MathsIOBase {
 
         TrivialBinIO() { }
         ~TrivialBinIO() {};

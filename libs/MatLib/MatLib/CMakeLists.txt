@@ -2,9 +2,12 @@
 # = Maths Lib =
 # =============
 
-SET(OpenMEEGMaths_SRC vector.cpp matrix.cpp symmatrix.cpp sparse_matrix.cpp MathsIO.C MatlabIO.C AsciiIO.C BrainVisaTextureIO.C TrivialBinIO.C)
+SET(OpenMEEGMaths_SRC vector.cpp matrix.cpp symmatrix.cpp sparse_matrix.cpp fast_sparse_matrix.cpp MathsIO.C MatlabIO.C AsciiIO.C BrainVisaTextureIO.C TrivialBinIO.C)
 
-ADD_LIBRARY(OpenMEEGMaths SHARED ${OpenMEEGMaths_SRC})
+#ADD_LIBRARY(OpenMEEGMaths ${OpenMEEGMaths_SRC})
+#ADD_LIBRARY(OpenMEEGMaths STATIC ${OpenMEEGMaths_SRC})
+ADD_LIBRARY(OpenMEEGMaths ${LIB_TYPE} ${OpenMEEGMaths_SRC})
+#ADD_LIBRARY(OpenMEEGMaths SHARED ${OpenMEEGMaths_SRC})
 
 TARGET_LINK_LIBRARIES(OpenMEEGMaths ${OPENMEEG_OTHER_LIBRARIES})
 

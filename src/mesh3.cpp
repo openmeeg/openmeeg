@@ -636,12 +636,12 @@ void Mesh::save_mesh(const char* filename) {
 
     for(int i = 0; i < npts; ++i)
     {
-        pts_raw[i*3+0] = pts[i].x();
-        pts_raw[i*3+1] = pts[i].y();
-        pts_raw[i*3+2] = pts[i].z();
-        normals_raw[i*3+0] = normals[i].x();
-        normals_raw[i*3+1] = normals[i].y();
-        normals_raw[i*3+2] = normals[i].z();
+        pts_raw[i*3+0] = (float)pts[i].x();
+        pts_raw[i*3+1] = (float)pts[i].y();
+        pts_raw[i*3+2] = (float)pts[i].z();
+        normals_raw[i*3+0] = (float)normals[i].x();
+        normals_raw[i*3+1] = (float)normals[i].y();
+        normals_raw[i*3+2] = (float)normals[i].z();
     }
     for(int i = 0; i < ntrgs; ++i)
     {

@@ -50,7 +50,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #include "mesh3.h"
 
-class analyticS {
+class OPENMEEG_EXPORT analyticS {
 private:
     Vect3 p0,p1,p2; //!< vertices of the triangle
     Vect3 p2p1,p1p0,p0p2;
@@ -131,7 +131,7 @@ public:
     }
 };
 
-class analyticD {
+class OPENMEEG_EXPORT analyticD {
 private:
     Vect3 v1,v2,v3;
     int i;
@@ -192,7 +192,7 @@ public:
 };
 
 
-class analyticD3 {
+class OPENMEEG_EXPORT analyticD3 {
 private:
     Vect3 v1,v2,v3;
     double aire;
@@ -250,7 +250,7 @@ public:
     }
 };
 
-class analyticDipPot {
+class OPENMEEG_EXPORT analyticDipPot {
 private:
     Vect3 q,r0;
 public:
@@ -272,7 +272,7 @@ public:
     }
 };
 
-class analyticDipPotDer {
+class OPENMEEG_EXPORT analyticDipPotDer {
 private:
     Vect3 q,r0;
     Vect3 H0,H1,H2;
@@ -318,7 +318,7 @@ public:
 };
 
 ////////// Gradients wrt r0 (and q)
-class analyticDipPotGrad {
+class OPENMEEG_EXPORT analyticDipPotGrad {
 private:
     Vect3 q,r0;
 public:
@@ -344,7 +344,7 @@ public:
     }
 };
 
-class analyticDipPotDerGrad {
+class OPENMEEG_EXPORT analyticDipPotDerGrad {
 private:
     Vect3 q,r0;
     Vect3 H0,H1,H2;

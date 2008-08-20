@@ -55,7 +55,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
     
 **/
 
-class Geometry
+class OPENMEEG_EXPORT Geometry
 {
     int n;
     double *sigin;

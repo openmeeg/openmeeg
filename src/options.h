@@ -50,6 +50,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #define command_line_OS 2
 #pragma warning( disable : 4530)    //MSVC standard library can't be inlined
 #pragma warning( disable : 4996)    //MSVC warning C4996: declared deprecated
+#pragma warning( disable : 4290)    //MSVC warning C4290
 #else
 #define use_color_terminal
 #define command_line_OS 1

@@ -59,7 +59,14 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include "vector.h"
 #include "matrix.h"
 
-class SparseMatrix : public LinOp {
+// #ifdef WIN32
+// #pragma warning( disable : 4251)    //MSVC warning C4251 : DLL exports of STL templates
+// #endif
+
+//template class OPENMEEGMATHS_EXPORT std::pair< size_t, size_t >;
+template class OPENMEEGMATHS_EXPORT std::map< std::pair< size_t, size_t >, double >;
+
+class OPENMEEGMATHS_EXPORT SparseMatrix : public LinOp {
 
 public:
 

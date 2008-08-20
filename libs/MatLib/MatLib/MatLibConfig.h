@@ -49,6 +49,8 @@ knowledge of the CeCILL-B license and that you accept its terms.
 //  cmake configuration.
 #include <OpenMEEGConfigure.h>
 
+#include "DLLDefinesOpenMEEGMaths.h"
+
 #ifdef USE_MATIO
 #include "matio.h"
 #endif

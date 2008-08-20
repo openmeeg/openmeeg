@@ -55,7 +55,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 // light class containing d Vect3
 template <int d>
-class Vect3array
+class OPENMEEG_EXPORT Vect3array
 {
 private:
     Vect3 t[d];
@@ -184,7 +184,7 @@ static const double cordBars[4][16][4]=
 static const int nbPts[4]={3,6,7,16};
 
 template<class T,class I>
-class Integrator
+class OPENMEEG_EXPORT Integrator
 {
 private:
     int order;
@@ -228,7 +228,7 @@ protected:
 };
 
 template<class T,class I>
-class AdaptiveIntegrator : public Integrator<T,I>
+class OPENMEEG_EXPORT AdaptiveIntegrator : public Integrator<T,I>
 {
 
 public:

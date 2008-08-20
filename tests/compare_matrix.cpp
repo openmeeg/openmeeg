@@ -9,15 +9,15 @@
 
 using namespace std;
 
-template<class T> bool compare(const T& mat1, const T& mat2, float eps, size_t col = 0);
-template<class T> bool compare_rdm(const T& mat1, const T& mat2, float eps, size_t col = 0);
+template<class T> bool compare(const T& mat1, const T& mat2, double eps, size_t col = 0);
+template<class T> bool compare_rdm(const T& mat1, const T& mat2, double eps, size_t col = 0);
 template<class T> double normInf(const T& mat);
 template<class T> bool compare_matrixs(maths::ifstream& ifs1,T& mat1,maths::ifstream& ifs2,T& mat2,
-                                          float eps,const char* rdm,size_t col);
+                                          double eps,const char* rdm,size_t col);
 
 int main (int argc, char** argv)
 {
-    command_usage("Compare two matrices of float with a certain numerical precision\ncompare_matrix mat1 mat2 [options]");
+    command_usage("Compare two matrices with a certain numerical precision\ncompare_matrix mat1 mat2 [options]");
     const char *input_format1 = command_option("-if1",(const char *) NULL,
                                                 "Input file format for Matrix 1 : ascii, binary, tex, matlab");
     const char *input_format2 = command_option("-if1",(const char *) NULL,
@@ -46,7 +46,7 @@ int main (int argc, char** argv)
         return 1;
     }
 
-    float eps = atof(epsilon);
+    double eps = atof(epsilon);
 
     cout << "-------------------------------------------------" << endl;
     cout << "Comparing : " << endl;
@@ -95,7 +95,7 @@ int main (int argc, char** argv)
 
 template<class T>
 bool compare_matrixs(maths::ifstream& ifs1,T& mat1,maths::ifstream& ifs2,T& mat2,
-                                          float eps,const char*rdm,size_t col) {
+                                          double eps,const char*rdm,size_t col) {
     bool flag;
     try
     {
@@ -123,7 +123,7 @@ bool compare_matrixs(maths::ifstream& ifs1,T& mat1,maths::ifstream& ifs2,T& mat2
 }
 
 template<class T>
-bool compare(const T& mat1, const T& mat2, float eps, size_t col){
+bool compare(const T& mat1, const T& mat2, double eps, size_t col){
 // T is a Matrix or a SymMatrix
 
     if(col) {
@@ -189,7 +189,7 @@ bool compare(const T& mat1, const T& mat2, float eps, size_t col){
 }
 
 template<class T>
-bool compare_rdm(const T& mat1, const T& mat2, float eps, size_t col){
+bool compare_rdm(const T& mat1, const T& mat2, double eps, size_t col){
 // T is a Matrix
 
     if(col) {

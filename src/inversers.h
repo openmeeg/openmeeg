@@ -52,6 +52,8 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include "sparse_matrix.h"
 #include "fast_sparse_matrix.h"
 
+#include "DLLDefinesOpenMEEG.h"
+
 #define EPSILON 1e-6
 #define MINRES_TOL 1e-5
 
@@ -167,7 +169,7 @@ inline double compute_one_tv(Vector x,
 // ========================================================
 // = Define Hessian matrices for linear inversion methods =
 // ========================================================
-class MN_Hessian
+class OPENMEEG_EXPORT MN_Hessian
 {
     const Matrix &Transfer;
     const double alpha;
@@ -183,7 +185,7 @@ public:
 
 };
 
-class WMN_Hessian
+class OPENMEEG_EXPORT WMN_Hessian
 {
     const Matrix &Transfer;
     const double alpha;
@@ -208,7 +210,7 @@ public:
 
 };
 
-class HEAT_Hessian
+class OPENMEEG_EXPORT HEAT_Hessian
 {
     const Matrix &m_transfer;
     const FastSparseMatrix &m_mat;
@@ -229,7 +231,7 @@ public:
 
 // ========================================================
 
-template<class T> // T should a linear operator
+template<class T> // T should be a linear operator
 size_t MinRes2(const T& A,const Vector& b,Vector& x0,double tol)
 {
     size_t n_max=10000;

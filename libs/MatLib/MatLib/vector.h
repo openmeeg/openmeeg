@@ -56,7 +56,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 class Matrix;
 class SymMatrix;
 
-class Vector: public LinOp {
+class OPENMEEGMATHS_EXPORT Vector: public LinOp {
     double *t;
     int *count;
 
@@ -125,15 +125,15 @@ public:
     friend class Matrix;
 };
 
-Vector operator * (const double &d, const Vector &v) ;
-std::ostream& operator<<(std::ostream& f,const Vector &M);
-std::istream& operator>>(std::istream& f,Vector &M);
+OPENMEEGMATHS_EXPORT Vector operator * (const double &d, const Vector &v) ;
+OPENMEEGMATHS_EXPORT std::ostream& operator<<(std::ostream& f,const Vector &M);
+OPENMEEGMATHS_EXPORT std::istream& operator>>(std::istream& f,Vector &M);
 
-inline double Vector::operator()(size_t i) const {
+OPENMEEGMATHS_EXPORT inline double Vector::operator()(size_t i) const {
     assert(i<nlin());
     return t[i];
 }
-inline double& Vector::operator()(size_t i) {
+OPENMEEGMATHS_EXPORT inline double& Vector::operator()(size_t i) {
     assert(i<nlin());
     return t[i];
 }

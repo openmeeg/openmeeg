@@ -54,7 +54,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 class Matrix;
 
-class SymMatrix : public LinOp {
+class OPENMEEGMATHS_EXPORT SymMatrix : public LinOp {
     double *t;
     int *count;
 

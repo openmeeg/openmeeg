@@ -8,6 +8,8 @@
 #include <iostream>
 #include <exception>
 
+#include "DLLDefinesOpenMEEGMaths.h"
+
 namespace maths {
 
     typedef enum { UNEXPECTED = 128, IO_EXCPT,
@@ -15,7 +17,7 @@ namespace maths {
                    NO_IO, UNKN_FILE_FMT, UNKN_FILE_SUFFIX, NO_FILE_FMT, UNKN_NAMED_FILE_FMT } ExceptionCode;
 
 
-    class Exception: public std::exception {
+    class OPENMEEGMATHS_EXPORT Exception: public std::exception {
     public:
 
         Exception(const std::string& w): whatstring(std::string("Exception: ")+w) { }
@@ -30,7 +32,7 @@ namespace maths {
         std::string whatstring;
     };
     
-    struct UnexpectedException: public Exception {
+    struct OPENMEEGMATHS_EXPORT UnexpectedException: public Exception {
 
         UnexpectedException(const std::string& func,const std::string& file,const unsigned line): Exception(message(func,file,line)) { }
 
@@ -45,7 +47,7 @@ namespace maths {
         }
     };
 
-    struct IOException: public Exception {
+    struct OPENMEEGMATHS_EXPORT IOException: public Exception {
 
         IOException(const std::string& str): Exception(str) { }
 
@@ -55,7 +57,7 @@ namespace maths {
         ExceptionCode code() const throw() { return IO_EXCPT; }
     };
 
-    struct BadFile: public IOException {
+    struct OPENMEEGMATHS_EXPORT BadFile: public IOException {
  
         BadFile(const std::string& fmtname):                  IOException(message(fmtname))    { }
         BadFile(std::istream& is,const std::string& fmtname): IOException(is,message(fmtname)) { }
@@ -67,7 +69,7 @@ namespace maths {
         static std::string message(const std::string& fmtname) { return std::string("Unable to read the input as a "+fmtname+" image file."); }
     };
 
-    struct BadFileOpening: public IOException {
+    struct OPENMEEGMATHS_EXPORT BadFileOpening: public IOException {
  
         typedef enum { READ, WRITE } Mode;
 
@@ -83,7 +85,7 @@ namespace maths {
         }
     };
 
-    struct BadContent: public IOException {
+    struct OPENMEEGMATHS_EXPORT BadContent: public IOException {
 
         BadContent(const std::string& fmtname,const std::string& object):                  IOException(message(fmtname,object))    { }
         BadContent(std::istream& is,const std::string& fmtname,const std::string& object): IOException(is,message(fmtname,object)) { }
@@ -97,13 +99,13 @@ namespace maths {
         }
     };
 
-    struct NoSuffix: public IOException {
+    struct OPENMEEGMATHS_EXPORT NoSuffix: public IOException {
         NoSuffix(const std::string& name): IOException(std::string("No identifiable suffix in name ")+name) { }
 
         ExceptionCode code() const throw() { return NO_SUFFIX; }
     };
 
-    struct BadHeader: public IOException {
+    struct OPENMEEGMATHS_EXPORT BadHeader: public IOException {
 
         BadHeader():                 IOException(message())    { }
         BadHeader(std::istream& is): IOException(is,message()) { }
@@ -115,7 +117,7 @@ namespace maths {
         static std::string message() { return std::string("Bad file header."); }
     };
 
-    struct BadData: public IOException {
+    struct OPENMEEGMATHS_EXPORT BadData: public IOException {
 
         BadData(const std::string& fmtname):                  IOException(message(fmtname))    { }
         BadData(std::istream& is,const std::string& fmtname): IOException(is,message(fmtname)) { }
@@ -127,7 +129,7 @@ namespace maths {
         static std::string message(const std::string& fmtname) { return std::string("Bad ")+fmtname+" file data."; }
     };
 
-    struct BadVector: public IOException {
+    struct OPENMEEGMATHS_EXPORT BadVector: public IOException {
 
         BadVector(const std::size_t dim): IOException(message(dim)) { }
 
@@ -145,7 +147,7 @@ namespace maths {
         }
     };
 
-    struct BadSymmMatrix: public IOException {
+    struct OPENMEEGMATHS_EXPORT BadSymmMatrix: public IOException {
 
         BadSymmMatrix(const std::size_t dim1,const std::size_t dim2): IOException(message(dim1,dim2)) { }
 
@@ -163,7 +165,7 @@ namespace maths {
         }
     };
 
-    struct NoIO: public IOException {
+    struct OPENMEEGMATHS_EXPORT NoIO: public IOException {
 
         typedef enum { READ, WRITE } Mode;
 
@@ -181,7 +183,7 @@ namespace maths {
         }
     };
 
-    struct UnknownFileFormat: public IOException {
+    struct OPENMEEGMATHS_EXPORT UnknownFileFormat: public IOException {
 
         UnknownFileFormat(const std::string& fmt): IOException(std::string("Unknown ")+fmt+" format.") { }
 
@@ -191,12 +193,12 @@ namespace maths {
         ExceptionCode code() const throw() { return UNKN_FILE_FMT; }
     };
 
-    struct UnknownFileSuffix: public IOException {
+    struct OPENMEEGMATHS_EXPORT UnknownFileSuffix: public IOException {
         UnknownFileSuffix(const std::string& fmt): IOException(std::string("Unknown ")+fmt+" suffix.") { }
         ExceptionCode code() const throw() { return UNKN_FILE_SUFFIX; }
     };
 
-    struct UnknownNamedFileFormat: public Exception {
+    struct OPENMEEGMATHS_EXPORT UnknownNamedFileFormat: public Exception {
         UnknownNamedFileFormat(const std::string& name): Exception(std::string("Unknown format for file "+name+".")) { }
         ExceptionCode code() const throw() { return UNKN_NAMED_FILE_FMT; }
     };

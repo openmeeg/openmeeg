@@ -96,24 +96,24 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 /* function prototype */
 
-int tri_tri_overlap_test_3d(float p1[3], float q1[3], float r1[3],
-                            float p2[3], float q2[3], float r2[3]);
+bool tri_tri_overlap_test_3d(double p1[3], double q1[3], double r1[3],
+                            double p2[3], double q2[3], double r2[3]);
 
 
-int coplanar_tri_tri3d(float  p1[3], float  q1[3], float  r1[3],
-                       float  p2[3], float  q2[3], float  r2[3],
-                       float  N1[3], float  N2[3]);
+bool coplanar_tri_tri3d(double  p1[3], double  q1[3], double  r1[3],
+                       double  p2[3], double  q2[3], double  r2[3],
+                       double  N1[3], double  N2[3]);
 
 
-int tri_tri_overlap_test_2d(float p1[2], float q1[2], float r1[2],
-                            float p2[2], float q2[2], float r2[2]);
+bool tri_tri_overlap_test_2d(double p1[2], double q1[2], double r1[2],
+                            double p2[2], double q2[2], double r2[2]);
 
 
-int tri_tri_intersection_test_3d(float p1[3], float q1[3], float r1[3],
-                                 float p2[3], float q2[3], float r2[3],
-                                 int * coplanar, float source[3],float target[3]);
+bool tri_tri_intersection_test_3d(double p1[3], double q1[3], double r1[3],
+                                 double p2[3], double q2[3], double r2[3],
+                                 int * coplanar, double source[3],double target[3]);
 
-float triangle_area(float p[3], float q[3], float r[3]);
+double triangle_area(double p[3], double q[3], double r[3]);
 
 /* coplanar returns whether the triangles are coplanar  */
 /* source and target are the endpoints of the segment of intersection if it exists) */
@@ -193,12 +193,12 @@ float triangle_area(float p[3], float q[3], float r[3]);
 /******************************************************************/
 
 
-int tri_tri_overlap_test_3d(float p1[3], float q1[3], float r1[3],
-                            float p2[3], float q2[3], float r2[3])
+bool tri_tri_overlap_test_3d(double p1[3], double q1[3], double r1[3],
+                            double p2[3], double q2[3], double r2[3])
 {
-  float dp1, dq1, dr1, dp2, dq2, dr2;
-  float v1[3], v2[3];
-  float N1[3], N2[3];
+  double dp1, dq1, dr1, dp2, dq2, dr2;
+  double v1[3], v2[3];
+  double N1[3], N2[3];
 
   // Compute distance signs  of p1, q1 and r1 to the plane of triangle(p2,q2,r2)
 
@@ -259,14 +259,14 @@ int tri_tri_overlap_test_3d(float p1[3], float q1[3], float r1[3],
 
 
 
-int coplanar_tri_tri3d(float p1[3], float q1[3], float r1[3],
-                       float p2[3], float q2[3], float r2[3],
-                       float normal_1[3], float normal_2[3]){
+bool coplanar_tri_tri3d(double p1[3], double q1[3], double r1[3],
+                       double p2[3], double q2[3], double r2[3],
+                       double normal_1[3], double normal_2[3]){
 
-  float P1[2],Q1[2],R1[2];
-  float P2[2],Q2[2],R2[2];
+  double P1[2],Q1[2],R1[2];
+  double P2[2],Q2[2],R2[2];
 
-  float n_x, n_y, n_z;
+  double n_x, n_y, n_z;
 
   n_x = ((normal_1[0]<0)?-normal_1[0]:normal_1[0]);
   n_y = ((normal_1[1]<0)?-normal_1[1]:normal_1[1]);
@@ -432,16 +432,16 @@ int coplanar_tri_tri3d(float p1[3], float q1[3], float r1[3],
 // coplanar returns whether the triangles are coplanar
 // source and target are the endpoints of the line segment of intersection
 
-int tri_tri_intersection_test_3d(float p1[3], float q1[3], float r1[3],
-                                 float p2[3], float q2[3], float r2[3],
+bool tri_tri_intersection_test_3d(double p1[3], double q1[3], double r1[3],
+                                 double p2[3], double q2[3], double r2[3],
                                  int * coplanar,
-                                 float source[3], float target[3] )
+                                 double source[3], double target[3] )
 
 {
-  float dp1, dq1, dr1, dp2, dq2, dr2;
-  float v1[3], v2[3], v[3];
-  float N1[3], N2[3], N[3];
-  float alpha;
+  double dp1, dq1, dr1, dp2, dq2, dr2;
+  double v1[3], v2[3], v[3];
+  double N1[3], N2[3], N[3];
+  double alpha;
 
   // Compute distance signs  of p1, q1 and r1 to the plane of triangle(p2,q2,r2)
 
@@ -571,8 +571,8 @@ int tri_tri_intersection_test_3d(float p1[3], float q1[3], float r1[3],
 
 
 
-int ccw_tri_tri_intersection_2d(float p1[2], float q1[2], float r1[2],
-                                float p2[2], float q2[2], float r2[2]) {
+bool ccw_tri_tri_intersection_2d(double p1[2], double q1[2], double r1[2],
+                                double p2[2], double q2[2], double r2[2]) {
   if ( ORIENT_2D(p2,q2,p1) >= 0.0f ) {
     if ( ORIENT_2D(q2,r2,p1) >= 0.0f ) {
       if ( ORIENT_2D(r2,p2,p1) >= 0.0f ) return 1;
@@ -588,8 +588,8 @@ int ccw_tri_tri_intersection_2d(float p1[2], float q1[2], float r1[2],
 };
 
 
-int tri_tri_overlap_test_2d(float p1[2], float q1[2], float r1[2],
-                            float p2[2], float q2[2], float r2[2]) {
+bool tri_tri_overlap_test_2d(double p1[2], double q1[2], double r1[2],
+                            double p2[2], double q2[2], double r2[2]) {
   if ( ORIENT_2D(p1,q1,r1) < 0.0f )
     if ( ORIENT_2D(p2,q2,r2) < 0.0f )
       return ccw_tri_tri_intersection_2d(p1,r1,q1,p2,r2,q2);
@@ -604,8 +604,8 @@ int tri_tri_overlap_test_2d(float p1[2], float q1[2], float r1[2],
 };
 
 
-float triangle_area(float p[3], float q[3], float r[3]) {
-	float v1[3], v2[3], N[3];
+double triangle_area(double p[3], double q[3], double r[3]) {
+	double v1[3], v2[3], N[3];
 	SUB(v1,p,r)
 	SUB(v2,q,r)
 	CROSS(N,v1,v2)

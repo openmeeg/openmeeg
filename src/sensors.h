@@ -59,6 +59,8 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include "symmatrix.h"
 #include "sparse_matrix.h"
 
+#include "DLLDefinesOpenMEEG.h"
+
 /*!
  *  Sensors class for EEG and MEG sensors.
  *  This class is made for read sensors description file. This description file is a file text which can take the shape of :
@@ -90,7 +92,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
  *  </ul>
  */
 
-class Sensors {
+class OPENMEEG_EXPORT Sensors {
 private:
     size_t m_nb;                       /*!< Number of sensors. */
     std::vector<std::string> m_names;  /*!< List of sensors names. */

@@ -48,6 +48,9 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #if WIN32
 #define _USE_MATH_DEFINES
+#define DLL_EXPORT   __declspec( dllexport )
+#else
+#define DLL_EXPORT
 #endif
 
 #include <string>

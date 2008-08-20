@@ -63,7 +63,7 @@ class SparseMatrix;
 class SymMatrix;
 class Vector;
 
-class Matrix: public LinOp {
+class OPENMEEGMATHS_EXPORT Matrix: public LinOp {
 protected:
     double *t;
     int* count;

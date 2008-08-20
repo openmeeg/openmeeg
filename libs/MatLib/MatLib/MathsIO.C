@@ -51,9 +51,10 @@ namespace maths {
 
         maths::MathsIOBase::InsertTrivialBinIO();
 
-        for (IOs::const_iterator i=ios().begin();i!=ios().end();++i)
+        for (IOs::const_iterator i=ios().begin();i!=ios().end();++i) {
             if (fmt==(*i)->identity())
                 return *i;
+        }
 
         throw UnknownFileFormat(fmt);
     }

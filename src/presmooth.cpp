@@ -75,7 +75,7 @@ int main(int argc, char **argv)
     SmoothMatrix.saveBin(argv[2]);
     if(argc == 4)
     {
-        Vector AiVector = SourceMesh.areas();
+        const Vector &AiVector = SourceMesh.areas();
         AiVector.saveBin(argv[3]);
     }
 

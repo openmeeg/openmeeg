@@ -76,7 +76,7 @@ IF ( USE_MKL )
     ENDIF ( WIN32 )
 
     IF ( WIN32 )
-        SET(MKL_LIBS mkl_solver mkl_c libguide)
+        SET(MKL_LIBS mkl_solver mkl_c libguide mkl_lapack mkl_ia32)
     ELSE ( WIN32 )
         SET(MKL_LIBS mkl guide mkl_lapack )
     ENDIF ( WIN32 )

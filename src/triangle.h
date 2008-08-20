@@ -55,7 +55,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
     
 **/
 
-class Triangle {
+class OPENMEEG_EXPORT Triangle {
 
 private:
     int m_s1,m_s2,m_s3; //!< index of vertices of the triangle

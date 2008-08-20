@@ -49,8 +49,9 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <cstdlib>
 
 #include "MatLibConfig.h"
+#include "om_utils.h"
 
-struct LinOp {
+struct OPENMEEGMATHS_EXPORT LinOp {
 
     typedef enum { FULL, SYMMETRIC, SPARSE } StorageType;
     typedef enum { ONE, TWO } Dimension;

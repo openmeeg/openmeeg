@@ -14,8 +14,12 @@
    #include "assemble.h"
    #include "gain.h"
    #include "forward.h"
-   #include "inverse.h"
+   #include "inversers.h"
 %}
+
+/* DLL Exports handling on Windows */
+#define OPENMEEGMATHS_EXPORT
+#define OPENMEEG_EXPORT
 
 #ifdef DOCSTRINGS
 %include "docstrings.i"
@@ -35,5 +39,5 @@
 %include "assemble.h"
 %include "gain.h"
 %include "forward.h"
-%include "inverse.h"
+%include "inversers.h"
 

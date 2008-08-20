@@ -50,7 +50,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include "vector.h"
 #include "sparse_matrix.h"
 
-class FastSparseMatrix
+class OPENMEEGMATHS_EXPORT FastSparseMatrix
 {
 public:
 

@@ -55,13 +55,15 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <iostream>
 #include <assert.h>
 
+#include "DLLDefinesOpenMEEG.h"
+
 /** \brief  Vect3
 
     Mesh Class
 
 **/
 
-class Vect3 {
+class OPENMEEG_EXPORT Vect3 {
 
 private:
     double m_x,m_y,m_z; //!< Coordinates of the vector

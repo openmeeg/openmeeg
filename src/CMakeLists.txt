@@ -1,7 +1,8 @@
 SET(OPENMEEG_HEADERS
     analytics.h
     assemble.h
-    cpuChrono.h mesh3.h
+    cpuChrono.h
+    mesh3.h
     danielsson.h
     om_utils.h
     operators.h
@@ -13,7 +14,7 @@ SET(OPENMEEG_HEADERS
     vect3.h
     mesh3.h
     PropertiesSpecialized.h
-    inverse.h
+    inversers.h
 #   These files are imported from another repository.
 #   Please do not update them in this repository.
     DataTag.H
@@ -28,7 +29,7 @@ SET(OPENMEEG_HEADERS
 
 ADD_LIBRARY(OpenMEEG ${LIB_TYPE}
     assembleFerguson.cpp assembleHeadMat.cpp assembleSourceMat.cpp assembleSensors.cpp
-    danielsson.cpp geometry.cpp mesh3.cpp operators.cpp sensors.cpp ${OPENMEEG_HEADERS}
+    danielsson.cpp geometry.cpp mesh3.cpp operators.cpp sensors.cpp inversers.cpp cpuChrono.cpp ${OPENMEEG_HEADERS}
 )
 TARGET_LINK_LIBRARIES (OpenMEEG ${OPENMEEG_OTHER_LIBRARIES} OpenMEEGMaths)
 
@@ -36,19 +37,19 @@ ADD_EXECUTABLE(om_presmooth presmooth.cpp ${OPENMEEG_HEADERS})
 TARGET_LINK_LIBRARIES (om_presmooth ${OPENMEEG_OTHER_LIBRARIES} OpenMEEG)
 
 ADD_EXECUTABLE(om_minverser minverser.cpp ${OPENMEEG_HEADERS})
-TARGET_LINK_LIBRARIES (om_minverser ${OPENMEEG_OTHER_LIBRARIES})
+TARGET_LINK_LIBRARIES (om_minverser ${OPENMEEG_OTHER_LIBRARIES} OpenMEEG)
 
 ADD_EXECUTABLE(om_inverse inverse.cpp ${OPENMEEG_HEADERS})
-TARGET_LINK_LIBRARIES (om_inverse ${OPENMEEG_OTHER_LIBRARIES})
+TARGET_LINK_LIBRARIES (om_inverse ${OPENMEEG_OTHER_LIBRARIES} OpenMEEG)
 
 ADD_EXECUTABLE(om_gain gain.cpp ${OPENMEEG_HEADERS})
-TARGET_LINK_LIBRARIES (om_gain ${OPENMEEG_OTHER_LIBRARIES})
+TARGET_LINK_LIBRARIES (om_gain ${OPENMEEG_OTHER_LIBRARIES} OpenMEEG)
 
 ADD_EXECUTABLE(om_forward forward.cpp ${OPENMEEG_HEADERS})
-TARGET_LINK_LIBRARIES (om_forward ${OPENMEEG_OTHER_LIBRARIES})
+TARGET_LINK_LIBRARIES (om_forward ${OPENMEEG_OTHER_LIBRARIES} OpenMEEG)
 
 ADD_EXECUTABLE(om_assemble assemble.cpp)
-TARGET_LINK_LIBRARIES (om_assemble OpenMEEG ${OPENMEEG_OTHER_LIBRARIES})
+TARGET_LINK_LIBRARIES (om_assemble ${OPENMEEG_OTHER_LIBRARIES} OpenMEEG)
 
 # =============
 # = PACKAGING =

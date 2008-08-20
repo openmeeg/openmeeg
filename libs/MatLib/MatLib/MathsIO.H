@@ -56,13 +56,18 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #include <Exceptions.H>
 
+
+#ifdef WIN32
+#pragma warning( disable : 4290)    //MSVC warning C4290
+#endif
+
 namespace maths {
 
-    class MathsIOBase;
+    class OPENMEEGMATHS_EXPORT MathsIOBase;
 
     //  Quite similar to ImageIO, how to fuse this ?
 
-    struct MathsIO {
+    struct OPENMEEGMATHS_EXPORT MathsIO {
 
         typedef MathsIOBase* IO;
         typedef std::list<IO> IOs;
@@ -123,7 +128,7 @@ namespace maths {
         std::string file_name;
     };
 
-    class MathsIOBase : public MathsIO {
+    class OPENMEEGMATHS_EXPORT MathsIOBase : public MathsIO {
 
         typedef MathsIO base;
 
@@ -168,13 +173,13 @@ namespace maths {
     typedef MathsIO ifstream;
     typedef MathsIO ofstream;
 
-    maths::ifstream& operator>>(maths::ifstream&,LinOp&) throw(BadFileOpening,NoIO);
-    maths::ofstream& operator<<(maths::ofstream&,const LinOp&) throw(BadFileOpening,NoIO);
+    OPENMEEGMATHS_EXPORT maths::ifstream& operator>>(maths::ifstream&,LinOp&) throw(BadFileOpening,NoIO);
+    OPENMEEGMATHS_EXPORT maths::ofstream& operator<<(maths::ofstream&,const LinOp&) throw(BadFileOpening,NoIO);
 
     // The manip format() used to specify explicitely a format.
     // Almost similar to Images::format. How to fuse those.
 
-    struct format {
+    struct OPENMEEGMATHS_EXPORT format {
 
         typedef enum { FromFormatName, FromSuffix } FormatSpec;
 
