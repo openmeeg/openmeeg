@@ -72,7 +72,7 @@ protected:
     void copy(const Matrix& A);
     void destroy();
     void copyout(double * p) const;
-    void copyin(const double * p);
+
 public:
     Matrix();
     Matrix(const char*);
@@ -96,7 +96,6 @@ public:
     inline double& operator()(size_t i,size_t j) ;
 
     Matrix duplicate() const;
-    void copyin(const Matrix& A) ;
 
     Matrix submat(size_t istart, size_t isize, size_t jstart, size_t jsize) const;
     Vector getcol(size_t j) const;

@@ -8,7 +8,7 @@ last revision     : $Date$
 modified by       : $LastChangedBy$
 last modified     : $LastChangedDate$
 
-© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre 
+© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre
 GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU, Théodore PAPADOPOULO,
 Maureen.Clerc.AT.sophia.inria.fr, keriven.AT.certis.enpc.fr,
 kybic.AT.fel.cvut.cz, papadop.AT.sophia.inria.fr)
@@ -50,7 +50,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #define command_line_OS 2
 #pragma warning( disable : 4530)    //MSVC standard library can't be inlined
 #pragma warning( disable : 4996)    //MSVC warning C4996: declared deprecated
-#pragma warning( disable : 4290)    //MSVC warning C4290
+#pragma warning( disable : 4290)    //MSVC warning C4290: C++ exception specification
 #else
 #define use_color_terminal
 #define command_line_OS 1
@@ -61,7 +61,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <iostream>
 
 namespace command_line {
-    
+
     #ifdef use_color_terminal
         const char t_normal[9]  = {0x1b,'[','0',';','0',';','0','m','\0'};
         const char t_red[11]    = {0x1b,'[','4',';','3','1',';','5','9','m','\0'};
@@ -71,7 +71,7 @@ namespace command_line {
         const char t_normal[1]  = {'\0'};
         const char *const t_red = command_line::t_normal, *const t_bold = command_line::t_normal, *const t_purple = command_line::t_normal;
     #endif
-    
+
     inline char uncase(const char x) { return (char)((x<'A'||x>'Z')?x:x-'A'+'a'); }
     inline float atof(const char *str) {
         float x=0,y=1;
@@ -84,17 +84,17 @@ namespace command_line {
     }
     inline int strfind(const char *s,const char c)
     {
-        if (s) { 
+        if (s) {
             int l; for (l=command_line::strlen(s); l>=0 && s[l]!=c; l--) ;
-            return l; 
+            return l;
         }
-        return -1; 
+        return -1;
     }
     inline int strncasecmp(const char *s1,const char *s2,const int l) {
         if (s1 && s2) { int n=0; for (int k=0; k<l; k++) n+=abs(uncase(s1[k])-uncase(s2[k])); return n; }
         return 0;
     }
-    inline int strcmp(const char *s1,const char *s2) { 
+    inline int strcmp(const char *s1,const char *s2) {
         const int l1 = command_line::strlen(s1), l2 = command_line::strlen(s2);
         return command_line::strncmp(s1,s2,1+(l1<l2?l1:l2));
     }
@@ -104,9 +104,9 @@ namespace command_line {
     }
     inline const char* basename(const char *s)
     {
-        return (command_line_OS!=2)?(s?s+1+command_line::strfind(s,'/'):NULL):(s?s+1+command_line::strfind(s,'\\'):NULL); 
+        return (command_line_OS!=2)?(s?s+1+command_line::strfind(s,'/'):NULL):(s?s+1+command_line::strfind(s,'\\'):NULL);
     }
-    
+
     inline const char* option(const char *const name, const int argc, char **argv,
                               const char *defaut, const char *const usage=NULL)
     {

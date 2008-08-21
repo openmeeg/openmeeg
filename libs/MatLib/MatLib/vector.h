@@ -63,7 +63,7 @@ class OPENMEEGMATHS_EXPORT Vector: public LinOp {
     void destroy();
     void copy(const Vector& A) ;
     void copyout(double * p) const;
-    void copyin(const double * p);
+
 public:
     Vector();
     Vector(size_t N);
@@ -83,7 +83,6 @@ public:
     int* DangerousGetCount() const ;
 
     Vector duplicate() const ;
-    void copyin(const Vector& A) ;
 
     inline double operator()(size_t i) const ;
     inline double& operator()(size_t i) ;

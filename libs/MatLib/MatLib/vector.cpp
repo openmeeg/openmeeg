@@ -66,11 +66,6 @@ Vector Vector::duplicate() const
     }
     return A;
 }
-void Vector::copyin(const Vector& A)
-{
-    assert(nlin()==A.nlin());
-    copyin(A.t);
-}
 
 void Vector::operator/=(double x) {(*this)*=(1.0/x);}
 Vector Vector::operator/(double x) const {return (*this)*(1.0/x);}
@@ -131,17 +126,6 @@ void Vector::copyout(double * p) const {
     for( size_t i=0; i<nlin(); i++ )
     {
         p[i]=t[i];
-    }
-#endif
-}
-
-void Vector::copyin(const double * p) {
-#ifdef HAVE_BLAS
-    BLAS(dcopy,DCOPY)((int)nlin(),p,1,t,1);
-#else
-    for( size_t i=0; i<nlin(); i++ )
-    {
-        t[i]=p[i];
     }
 #endif
 }

@@ -76,14 +76,6 @@ Matrix Matrix::duplicate() const
     return A;
 }
 
-void Matrix::copyin(const Matrix& A)
-{
-    if (t) {
-        assert(nlin()==A.nlin() && ncol()==A.ncol());
-        copyin(A.t);
-    }
-}
-
 void Matrix::alloc_data() {
     if (t!=0)
         destroy();
@@ -121,15 +113,6 @@ void Matrix::copyout(double * p) const {
 #else
     for (size_t i=0;i<nlin()*ncol();i++)
         p[i]=t[i];
-#endif
-}
-
-void Matrix::copyin(const double * p) {
-#ifdef HAVE_BLAS
-    BLAS(dcopy,DCOPY)((int)(nlin()*ncol()),p,1,t,1);
-#else
-    for (size_t i=0;i<nlin()*ncol();i++)
-        t[i]=p[i];
 #endif
 }
 
