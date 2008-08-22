@@ -1,6 +1,9 @@
 #ifndef _OpenMEEG_DLLDEFINES_H_
 #define _OpenMEEG_DLLDEFINES_H_
 
+//  This is used only in src/inversers.h and src/cpuChrono.h and they do not use the macro.
+//  Unify with DLLDefinesOpenMEEGMaths.h ???
+
 /* Cmake will define OpenMEEG_EXPORTS on Windows when it
 configures to build a shared library. If you are going to use
 another build system on windows or create the visual studio

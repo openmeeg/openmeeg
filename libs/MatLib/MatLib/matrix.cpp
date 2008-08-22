@@ -55,116 +55,33 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include "sparse_matrix.h"
 #include "vector.h"
 
-Matrix::Matrix() : LinOp(0,0,FULL,TWO),t(0),count(0) { }
-Matrix::Matrix(const char* fname) : LinOp(0,0,FULL,TWO),t(0),count(0) { this->load(fname); }
-Matrix::Matrix(size_t M,size_t N) : LinOp(M,N,FULL,TWO),t(0),count(0) { alloc_data(); }
-Matrix::Matrix(double* T, int* COUNT, size_t M, size_t N) : LinOp(M,N,FULL,TWO),t(T),count(COUNT) {(*count)++;}
-
-bool Matrix::empty() const { return t==0;}
-double* Matrix::data() const {return t;}
-int* Matrix::DangerousGetCount () const {return count;}
-
-Matrix Matrix::duplicate() const
-{
-    Matrix A;
-    if (t) {
-        A.nlin() = nlin();
-        A.ncol() = ncol();
-        A.alloc_data();
-        copyout(A.t);
-    }
-    return A;
-}
-
-void Matrix::alloc_data() {
-    if (t!=0)
-        destroy();
-    t = new double[size()];
-    count = new int[1];
-    (*count) = 1;
-}
-
-void Matrix::destroy()
-{
-    if (t!=0) {
-        (*count)--;
-        if ((*count)==0) {
-            delete[] t;
-            delete[] count;
-        }
-    }
-}
-
-void Matrix::copy(const Matrix& A)
-{
-    t=A.t;
-    nlin()=A.nlin();
-    ncol()=A.ncol();
-    if (t) {
-        count = A.count;
-        (*count)++;
-    }
-}
-
-void Matrix::copyout(double * p) const {
-    if (!t) return;
-#ifdef HAVE_BLAS
-    BLAS(dcopy,DCOPY)((int)(nlin()*ncol()),t,1,p,1);
-#else
-    for (size_t i=0;i<nlin()*ncol();i++)
-        p[i]=t[i];
-#endif
-}
-
-const Matrix& Matrix::operator=(const Matrix& A)
-{
-    destroy();
-    copy(A);
+const Matrix& Matrix::set(const double d) {
+    for(size_t i=0;i<size();i++) data()[i]=d;
     return *this;
 }
 
-const Matrix& Matrix::set(const double d)
-{
-    for(size_t i=0;i<ncol()*nlin();i++) t[i]=d;
-    return *this;
+Matrix::Matrix(const SymMatrix& A): LinOp(A.nlin(),A.ncol(),FULL,TWO),value(new LinOpValue(size())) {
+    for (size_t j=0; j<ncol();++j)
+        for (size_t i=0; i<nlin();++i)
+            (*this)(i,j) = A(i,j);
 }
 
-Matrix::Matrix(const Matrix& A): LinOp(A.nlin(),A.ncol(),FULL,TWO)
-{
-    copy(A);
-}
-
-Matrix::Matrix(const SymMatrix& A): LinOp(A.nlin(),A.ncol(),FULL,TWO)
-{
-    nlin() = A.nlin();
-    ncol() = A.ncol();
-    alloc_data();
-    for (size_t j=0; j<ncol(); j++)
-        for (size_t i=0; i<nlin(); i++)
-            (*this)(i,j)=A(i,j);
-}
-
-Matrix::Matrix(const Vector& v, size_t M, size_t N): LinOp(M,N,FULL,TWO)
-{
+Matrix::Matrix(const Vector& v,const size_t M,const size_t N): LinOp(M,N,FULL,TWO) {
     assert(M*N==v.size());
-    t=v.data();
-    if (t) {
-        count=v.DangerousGetCount();
-        (*count)++;
-    }
+    value = v.value;
 }
 
-Vector Matrix::operator *(const Vector &v) const
+Vector Matrix::operator*(const Vector &v) const
 {
     assert(ncol()==v.nlin());
     Vector y(nlin());
 #ifdef HAVE_BLAS
-    DGEMV(CblasNoTrans,(int)nlin(),(int)ncol(),1.0,t,(int)nlin(),v.t,1,0.,y.t,1);
+    DGEMV(CblasNoTrans,(int)nlin(),(int)ncol(),1.0,data(),(int)nlin(),v.data(),1,0.,y.data(),1);
 #else
     for (size_t i=0;i<nlin();i++) {
-        y(i)=0;
+        y(i) = 0;
         for (size_t j=0;j<ncol();j++)
-            y(i)+=(*this)(i,j)*v(j);
+            y(i) += (*this)(i,j)*v(j);
     }
 #endif
 
@@ -177,12 +94,12 @@ Matrix Matrix::submat(size_t istart, size_t isize, size_t jstart, size_t jsize) 
     Matrix a(isize,jsize);
     for (size_t j=0; j<jsize; j++)
 #ifdef HAVE_BLAS
-        BLAS(dcopy,DCOPY)((int)(isize),t+istart+(jstart+j)*nlin(),1,a.t+j*isize,1);
+        BLAS(dcopy,DCOPY)((int)(isize),data()+istart+(jstart+j)*nlin(),1,a.data()+j*isize,1);
 #elif USE_ACML
-        dcopy((int)(isize),t+istart+(jstart+j)*nlin(),1,a.t+j*isize,1);
+        dcopy((int)(isize),data()+istart+(jstart+j)*nlin(),1,a.data()+j*isize,1);
 #else
         for (size_t i=0; i<isize; i++)
-            a(i,j)=(*this)(istart+i,jstart+j);
+            a(i,j) = (*this)(istart+i,jstart+j);
 #endif
     return a;
 }
@@ -191,9 +108,9 @@ Vector Matrix::getcol(size_t j) const {
     assert(j<ncol());
     Vector v(nlin());
 #ifdef HAVE_BLAS
-    BLAS(dcopy,DCOPY)((int)nlin(),t+nlin()*j,1,v.t,1);
+    BLAS(dcopy,DCOPY)((int)nlin(),data()+nlin()*j,1,v.data(),1);
 #else
-    for (size_t i=0;i<nlin();i++) v.t[i]=t[i+nlin()*j];
+    for (size_t i=0;i<nlin();i++) v.data()[i]=data()[i+nlin()*j];
 #endif
     return v;
 }
@@ -202,28 +119,28 @@ Vector Matrix::getlin(size_t i) const {
     assert(i<nlin());
     Vector v(ncol());
 #ifdef HAVE_BLAS
-    BLAS(dcopy,DCOPY)((int)ncol(),t+i,(int)nlin(),v.t,1);
+    BLAS(dcopy,DCOPY)((int)ncol(),data()+i,(int)nlin(),v.data(),1);
 #else
-    for (size_t j=0;j<ncol();j++) v.t[j]=t[i+nlin()*j];
+    for (size_t j=0;j<ncol();j++) v.data()[j]=data()[i+nlin()*j];
 #endif
     return v;
 }
 
-void Matrix::setcol(size_t j, const Vector& v) {
+void Matrix::setcol(size_t j,const Vector& v) {
     assert(v.size()==nlin() && j<ncol());
 #ifdef HAVE_BLAS
-    BLAS(dcopy,DCOPY)((int)nlin(),v.t,1,t+nlin()*j,1);
+    BLAS(dcopy,DCOPY)((int)nlin(),v.data(),1,data()+nlin()*j,1);
 #else
-    for (size_t i=0;i<nlin();i++) t[i+nlin()*j]=v.t[i];
+    for (size_t i=0;i<nlin();i++) data()[i+nlin()*j]=v.data()[i];
 #endif
 }
 
-void Matrix::setlin(size_t i, const Vector& v) {
+void Matrix::setlin(size_t i,const Vector& v) {
     assert(v.size()==ncol() && i<nlin());
 #ifdef HAVE_BLAS
-    BLAS(dcopy,DCOPY)((int)ncol(),v.t,1,t+i,(int)nlin());
+    BLAS(dcopy,DCOPY)((int)ncol(),v.data(),1,data()+i,(int)nlin());
 #else
-    for (size_t j=0;j<ncol();j++) t[i+nlin()*j]=v.t[j];
+    for (size_t j=0;j<ncol();j++) data()[i+nlin()*j]=v.data()[j];
 #endif
 }
 
@@ -232,7 +149,7 @@ Vector Matrix::tmult(const Vector &v) const
     assert(nlin()==v.nlin());
     Vector y(ncol());
 #ifdef HAVE_BLAS
-    DGEMV(CblasTrans,(int)nlin(),(int)ncol(),1.,t,(int)nlin(),v.t,1,0.,y.t,1);
+    DGEMV(CblasTrans,(int)nlin(),(int)ncol(),1.,data(),(int)nlin(),v.data(),1,0.,y.data(),1);
 #else
     for (size_t i=0;i<ncol();i++) {
         y(i)=0;
@@ -248,15 +165,15 @@ Matrix Matrix::inverse() const
 {
 #ifdef HAVE_LAPACK
     assert(nlin()==ncol());
-    Matrix invA=duplicate();
+    Matrix invA(*this,DEEP_COPY);
     // LU
     int *pivots=new int[ncol()];
     int info;
-    DGETRF(invA.nlin(),invA.ncol(),invA.t,invA.nlin(),pivots,info);
+    DGETRF(invA.nlin(),invA.ncol(),invA.data(),invA.nlin(),pivots,info);
     // Inverse
     int size=(int)invA.ncol()*64;
     double *work=new double[size];
-    DGETRI(invA.ncol(),invA.t,invA.ncol(),pivots,work,size,info);
+    DGETRI(invA.ncol(),invA.data(),invA.ncol(),pivots,work,size,info);
     delete[] pivots;
     delete[] work;
     return invA;
@@ -279,23 +196,15 @@ Matrix Matrix::pinverse(double tolrel) const {
         if (tolrel==0) tolrel=DBL_EPSILON;
         double tol = std::max(nlin(),ncol()) * maxs * tolrel;
         int r=0; for(int i=0;i<mimi;i++) if(S(i,i)>tol) r++;
-        if (r == 0)
-        {
+        if (r == 0) {
             result.set(0.);
             return result;
-        }
-        else
-        {
+        } else {
             Matrix s(r,r); s.set(0);
             for(int i=0;i<r;i++) s(i,i)=1.0/S(i,i);
-            Matrix Vbis;
-            Vbis.DangerousBuild(V.t,V.nlin(),r);
-            Matrix Ubis;
-            Ubis.DangerousBuild(U.t,U.nlin(),r);
-            result=Vbis*s*Ubis.transpose();
-            Vbis.DangerousKill();
-            Ubis.DangerousKill();
-            return result;
+            const Matrix Vbis(V,r);
+            const Matrix Ubis(U,r);
+            return Vbis*s*Ubis.transpose();
         }
     }
 #else
@@ -312,7 +221,7 @@ Matrix Matrix::transpose() const {
 
 void Matrix::svd(Matrix &U,Matrix &S, Matrix &V) const {
 #ifdef HAVE_LAPACK
-    Matrix cpy=duplicate();
+    Matrix cpy(*this,DEEP_COPY);
     int mimi = (int)std::min(nlin(),ncol());
     U = Matrix(nlin(),ncol()); U.set(0);
     V = Matrix(ncol(),ncol()); V.set(0);
@@ -322,7 +231,7 @@ void Matrix::svd(Matrix &U,Matrix &S, Matrix &V) const {
     double *work=new double[lwork];
     int *iwork=new int[8*mimi];
     int info;
-    DGESDD('S',nlin(),ncol(),cpy.t,nlin(),s,U.t,U.nlin(),V.t,V.nlin(),work,lwork,iwork,info);
+    DGESDD('S',nlin(),ncol(),cpy.data(),nlin(),s,U.data(),U.nlin(),V.data(),V.nlin(),work,lwork,iwork,info);
     for(int i=0;i<mimi;i++) S(i,i)=s[i];
     V=V.transpose();
     delete[] s;
@@ -341,9 +250,9 @@ Matrix Matrix::operator *(const Matrix &B) const
 #ifdef HAVE_BLAS
     DGEMM(CblasNoTrans,CblasNoTrans,
         (int)C.nlin(),(int)C.ncol(),(int)p,
-        1.,t,(int)nlin(),
-        B.t,(int)B.nlin(),
-        0.,C.t,(int)C.nlin());
+        1.,data(),(int)nlin(),
+        B.data(),(int)B.nlin(),
+        0.,C.data(),(int)C.nlin());
 #else
     for (size_t i=0;i<C.nlin();i++)
         for (size_t j=0;j<C.ncol();j++) {
@@ -381,9 +290,9 @@ Matrix Matrix::tmult(const Matrix &B) const
 #ifdef HAVE_BLAS
     DGEMM(CblasTrans,CblasNoTrans,
         (int)C.nlin(),(int)C.ncol(),(int)p,
-        1.,t,(int)nlin(),
-        B.t,(int)B.nlin(),
-        0.,C.t,(int)C.nlin());
+        1.,data(),(int)nlin(),
+        B.data(),(int)B.nlin(),
+        0.,C.data(),(int)C.nlin());
 #else
     for (size_t i=0;i<C.nlin();i++)
         for (size_t j=0;j<C.ncol();j++) {
@@ -403,9 +312,9 @@ Matrix Matrix::multt(const Matrix &B) const
 #ifdef HAVE_BLAS
     DGEMM(CblasNoTrans,CblasTrans,
         (int)C.nlin(),(int)C.ncol(),(int)p,
-        1.,t,(int)nlin(),
-        B.t,(int)B.nlin(),
-        0.,C.t,(int)C.nlin());
+        1.,data(),(int)nlin(),
+        B.data(),(int)B.nlin(),
+        0.,C.data(),(int)C.nlin());
 #else
     for (size_t i=0;i<C.nlin();i++)
         for (size_t j=0;j<C.ncol();j++) {
@@ -425,9 +334,9 @@ Matrix Matrix::tmultt(const Matrix &B) const
 #ifdef HAVE_BLAS
     DGEMM(CblasTrans,CblasTrans,
         (int)C.nlin(),(int)C.ncol(),(int)p,
-        1.,t,(int)nlin(),
-        B.t,(int)B.nlin(),
-        0.,C.t,(int)C.nlin());
+        1.,data(),(int)nlin(),
+        B.data(),(int)B.nlin(),
+        0.,C.data(),(int)C.nlin());
 #else
     for (size_t i=0;i<C.nlin();i++)
         for (size_t j=0;j<C.ncol();j++) {
@@ -439,7 +348,7 @@ Matrix Matrix::tmultt(const Matrix &B) const
         return C;
 }
 
-Matrix Matrix::operator *(const SymMatrix &B) const
+Matrix Matrix::operator*(const SymMatrix &B) const
 {
     assert(ncol()==B.ncol());
     Matrix C(nlin(),B.ncol());
@@ -448,9 +357,9 @@ Matrix Matrix::operator *(const SymMatrix &B) const
     Matrix D(B);
     DSYMM(CblasRight,  CblasUpper
         , (int)nlin(), (int)D.ncol(),
-        1. , D.t, (int)D.ncol(),
-        t, (int)nlin(),
-        0, C.t,(int)C.nlin());
+        1. , D.data(), (int)D.ncol(),
+        data(), (int)nlin(),
+        0, C.data(),(int)C.nlin());
 #else
     for (size_t j=0;j<B.ncol();j++)
         for (size_t i=0;i<ncol();i++)
@@ -463,101 +372,86 @@ Matrix Matrix::operator *(const SymMatrix &B) const
         return C;
 }
 
-Matrix Matrix::operator *(double x) const {
+Matrix Matrix::operator*(double x) const {
     Matrix C(nlin(),ncol());
-    for (size_t k=0; k<nlin()*ncol(); k++) C.t[k] = t[k]*x;
+    for (size_t k=0; k<nlin()*ncol(); k++) C.data()[k] = data()[k]*x;
     return C;
 }
 
-Matrix Matrix::operator /(double x) const {
+Matrix Matrix::operator/(double x) const {
     Matrix C(nlin(),ncol());
-    for (size_t k=0; k<nlin()*ncol(); k++) C.t[k] = t[k]/x;
+    for (size_t k=0; k<nlin()*ncol(); k++) C.data()[k] = data()[k]/x;
     return C;
 }
 
-Matrix Matrix::operator +(const Matrix &B) const
+Matrix Matrix::operator+(const Matrix &B) const
 {
     assert(ncol()==B.ncol());
     assert(nlin()==B.nlin());
-    Matrix C=duplicate();
+    Matrix C(*this,DEEP_COPY);
 #ifdef HAVE_BLAS
-    BLAS(daxpy,DAXPY)((int)(nlin()*ncol()), 1.0, B.t, 1, C.t , 1);
+    BLAS(daxpy,DAXPY)((int)(nlin()*ncol()), 1.0, B.data(), 1, C.data() , 1);
 #else
     for (size_t i=0;i<nlin()*ncol();i++)
-        C.t[i]+=B.t[i];
-#endif
-    return C;
-}
-
-Matrix Matrix::operator -(const Matrix &B) const
-{
-    assert(ncol()==B.ncol());
-    assert(nlin()==B.nlin());
-    Matrix C=duplicate();
-#ifdef HAVE_BLAS
-    BLAS(daxpy,DAXPY)((int)(nlin()*ncol()), -1.0, B.t, 1, C.t , 1);
-#else
-    for (size_t i=0;i<nlin()*ncol();i++)
-        C.t[i]-=B.t[i];
+        C.data()[i]+=B.data()[i];
 #endif
     return C;
 }
 
-void Matrix::operator +=(const Matrix &B)
+Matrix Matrix::operator-(const Matrix &B) const
+{
+    assert(ncol()==B.ncol());
+    assert(nlin()==B.nlin());
+    Matrix C(*this,DEEP_COPY);
+#ifdef HAVE_BLAS
+    BLAS(daxpy,DAXPY)((int)(nlin()*ncol()), -1.0, B.data(), 1, C.data() , 1);
+#else
+    for (size_t i=0;i<nlin()*ncol();i++)
+        C.data()[i]-=B.data()[i];
+#endif
+    return C;
+}
+
+void Matrix::operator+=(const Matrix &B)
 {
     assert(ncol()==B.ncol());
     assert(nlin()==B.nlin());
 #ifdef HAVE_BLAS
-    BLAS(daxpy,DAXPY)((int)(nlin()*ncol()), 1.0, B.t, 1, t , 1);
+    BLAS(daxpy,DAXPY)((int)(nlin()*ncol()), 1.0, B.data(), 1, data() , 1);
 #else
     for (size_t i=0;i<nlin()*ncol();i++)
-        t[i]+=B.t[i];
+        data()[i]+=B.data()[i];
 #endif
 }
 
-void Matrix::operator -=(const Matrix &B)
+void Matrix::operator-=(const Matrix &B)
 {
     assert(ncol()==B.ncol());
     assert(nlin()==B.nlin());
 #ifdef HAVE_BLAS
-    BLAS(daxpy,DAXPY)((int)(nlin()*ncol()), -1.0, B.t, 1, t , 1);
+    BLAS(daxpy,DAXPY)((int)(nlin()*ncol()), -1.0, B.data(), 1, data() , 1);
 #else
     for (size_t i=0;i<nlin()*ncol();i++)
-        t[i]-=B.t[i];
+        data()[i]-=B.data()[i];
 #endif
 }
 
-void Matrix::operator *=(double x) {
-    for (size_t k=0; k<nlin()*ncol(); k++) t[k] *= x;
+void Matrix::operator*=(double x) {
+    for (size_t k=0; k<nlin()*ncol(); k++) data()[k] *= x;
 }
 
-void Matrix::operator /=(double x) {
-    for (size_t k=0; k<nlin()*ncol(); k++) t[k] /= x;
-}
-
-void Matrix::DangerousBuild( double *pt, size_t i, size_t j)
-{
-    t=pt;
-    nlin()=i;
-    ncol()=j;
-    count=new int[1];
-    *count=1;
-}
-
-void Matrix::DangerousKill ()
-{
-    delete[] count;
-    t=0;
+void Matrix::operator/=(double x) {
+    for (size_t k=0; k<nlin()*ncol(); k++) data()[k] /= x;
 }
 
 double Matrix::dot(const Matrix& b) const {
     assert(nlin()==b.nlin()&&ncol()==b.ncol());
 #ifdef HAVE_BLAS
-    return BLAS(ddot,DDOT)((int)(nlin()*ncol()),t,1,b.t,1);
+    return BLAS(ddot,DDOT)((int)(nlin()*ncol()),data(),1,b.data(),1);
 #else
     double s=0;
     for (size_t i=0;i<nlin()*ncol();i++)
-        s+=t[i]*b.t[i];
+        s+=data()[i]*b.data()[i];
     return s;
 #endif
 }
@@ -565,11 +459,11 @@ double Matrix::dot(const Matrix& b) const {
 double Matrix::frobenius_norm() const {
 #ifdef HAVE_LAPACK
     double info;
-    Matrix b=duplicate();
-    return DLANGE('F',nlin(),ncol(),b.t,nlin(),&info);
+    Matrix b(*this,DEEP_COPY);
+    return DLANGE('F',nlin(),ncol(),b.data(),nlin(),&info);
 #else
     double d=0;
-    for (size_t i=0; i<nlin()*ncol(); i++) d+=t[i]*t[i];
+    for (size_t i=0; i<nlin()*ncol(); i++) d+=data()[i]*data()[i];
     return sqrt(d);
 #endif
 }

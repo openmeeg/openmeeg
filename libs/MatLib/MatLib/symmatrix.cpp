@@ -52,106 +52,28 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include "symmatrix.h"
 #include "om_utils.h"
 
-SymMatrix::SymMatrix() : LinOp(0,0,SYMMETRIC,TWO),t(0),count(0) {}
-SymMatrix::SymMatrix(const char* fname) : LinOp(0,0,SYMMETRIC,TWO),t(0),count(0) { this->load(fname); }
-SymMatrix::SymMatrix(size_t N) : LinOp(N,N,SYMMETRIC,TWO),t(0),count(0) { alloc_data(); }
-SymMatrix::SymMatrix(double* T, int* COUNT, size_t N) : LinOp(N,N,SYMMETRIC,TWO),t(T),count(COUNT) {(*count)++;}
-
-bool SymMatrix::empty() const {return t==0;}
-double* SymMatrix::data() const {return t;}
-int* SymMatrix::DangerousGetCount() {return count;}
-
-void SymMatrix::operator /=(double x) {(*this)*=(1/x);}
-
-void SymMatrix::alloc_data()
-{
-    t=new double[(nlin()*(nlin()+1))/2];
-    count=new int[1];
-    (*count)=1;
-}
-
-void SymMatrix::destroy()
-{
-    if (t!=0) {
-        (*count)--;
-        if ((*count)==0) {
-            delete[] t;
-            delete[] count;
-        }
-    }
-}
-
-void SymMatrix::copy(const SymMatrix& A)
-{
-    t=A.t;
-    nlin()=A.nlin();
-    if (t) {
-        count=A.count;
-        (*count)++;
-    }
-}
-
-SymMatrix SymMatrix::duplicate() const
-{
-    SymMatrix A(nlin());
-#ifdef HAVE_BLAS
-    BLAS(dcopy,DCOPY)((int)(nlin()*(nlin()+1))/2,t,1,A.t,1);
-#else
-    for (size_t i=0;i<(nlin()*(nlin()+1))/2;i++)
-        A.t[i]=t[i];
-#endif
-    return A;
-}
-
-const SymMatrix& SymMatrix::operator=(const SymMatrix& A) {
-    destroy();
-    copy(A);
-    return *this;
-}
-
 const SymMatrix& SymMatrix::operator=(const double d) {
-    for(size_t i=0;i<size();i++) t[i]=d;
+    for(size_t i=0;i<size();i++) data()[i]=d;
     return *this;
-}
-
-SymMatrix::SymMatrix(const SymMatrix& A) {
-    copy(A);
 }
 
 SymMatrix::SymMatrix(const Vector& v) {
     size_t N = v.size();
     nlin() = (size_t)((sqrt((double)(1+8*N))-1)/2+0.1);
     assert(nlin()*(nlin()+1)/2==N);
-    t=v.data();
-    if (t) {
-        count=v.DangerousGetCount();
-        (*count)++;
-    }
-}
-
-SymMatrix::SymMatrix(const Matrix& A) {
-    assert(A.nlin()==A.ncol());
-    ncol() = A.ncol();
-    alloc_data();
-    for (size_t j=0; j<ncol(); j++)
-#ifdef HAVE_BLAS
-    BLAS(dcopy,DCOPY)((int)(j+1),A.t+j*A.nlin(),1,t+(j*(j+1))/2,1);
-#else
-    for (size_t i=0; i<=j; i++)
-        (*this)(i,j)=A(i,j);
-#endif
+    value = v.value;
 }
 
 void SymMatrix::set(double x) {
     for (size_t i=0;i<(nlin()*(nlin()+1))/2;i++)
-        t[i]=x;
+        data()[i]=x;
 }
 
 Vector SymMatrix::operator *(const Vector &v) const {
     assert(nlin()==v.size());
     Vector y(nlin());
 #ifdef HAVE_BLAS
-    DSPMV(CblasUpper,(int)nlin(),1.,t,v.t,1,0.,y.t,1);
+    DSPMV(CblasUpper,(int)nlin(),1.,data(),v.data(),1,0.,y.data(),1);
 #else
     for (size_t i=0;i<nlin();i++) {
         y(i)=0;
@@ -164,15 +86,15 @@ Vector SymMatrix::operator *(const Vector &v) const {
 
 SymMatrix SymMatrix::inverse() const {
 #ifdef HAVE_LAPACK
-    SymMatrix invA=duplicate();
+    SymMatrix invA(*this,DEEP_COPY);
     // LU
     int *pivots=new int[nlin()];
     int info;
-    DSPTRF('U',invA.nlin(),invA.t,pivots,info);
+    DSPTRF('U',invA.nlin(),invA.data(),pivots,info);
     // Inverse
     int size=(int)invA.nlin()*64;
     double *work=new double[size];
-    DSPTRI('U',invA.nlin(),invA.t,pivots,work,info);
+    DSPTRI('U',invA.nlin(),invA.data(),pivots,work,info);
 
     delete[] pivots;
     delete[] work;
@@ -185,12 +107,12 @@ SymMatrix SymMatrix::inverse() const {
 
 SymMatrix SymMatrix::posdefinverse() const {
     // supposes (*this) is definite positive
-    SymMatrix invA=duplicate();
+    SymMatrix invA(*this,DEEP_COPY);
 #ifdef HAVE_LAPACK
     // U'U factorization then inverse
     int info;
-    DPPTRF('U',nlin(),invA.t,info);
-    DPPTRI('U',nlin(),invA.t,info);
+    DPPTRF('U',nlin(),invA.data(),info);
+    DPPTRI('U',nlin(),invA.data(),info);
 #else
     std::cerr << "Positive definite inverse not defined" << std::endl;
 #endif
@@ -198,14 +120,14 @@ SymMatrix SymMatrix::posdefinverse() const {
 }
 
 double SymMatrix::det() {
-    SymMatrix invA=duplicate();
+    SymMatrix invA(*this,DEEP_COPY);
     double d = 1.0;
 #ifdef HAVE_LAPACK
     // Bunch Kaufmqn
     int *pivots=new int[nlin()];
     int info;
     // TUDUtTt
-    DSPTRF('U',invA.nlin(),invA.t,pivots,info);
+    DSPTRF('U',invA.nlin(),invA.data(),pivots,info);
     if(info<0)
         std::cout << "Big problem in det (DSPTRF)" << std::endl;
     for(int i = 0; i<(int) nlin(); i++){
@@ -233,7 +155,7 @@ void SymMatrix::eigen(Matrix & Z, Vector & D ){
     // -> eigenvector are columns of the Matrix Z.
     // (*this).Z[:,i] = D[i].Z[:,i]
 #ifdef HAVE_LAPACK
-    SymMatrix symtemp = duplicate();
+    SymMatrix symtemp(*this,DEEP_COPY);
     D = Vector(nlin());
     Z = Matrix(nlin(),nlin());
 
@@ -242,11 +164,11 @@ void SymMatrix::eigen(Matrix & Z, Vector & D ){
     int lwork;
     int liwork;
 
-    DSPEVD('V','U',nlin(),symtemp.t,D.t,Z.t,nlin(),&lworkd,-1,&liwork,-1,info);
+    DSPEVD('V','U',nlin(),symtemp.data(),D.data(),Z.data(),nlin(),&lworkd,-1,&liwork,-1,info);
     lwork = (int) lworkd;
     double * work = new double[lwork];
     int * iwork = new int[liwork];
-    DSPEVD('V','U',nlin(),symtemp.t,D.t,Z.t,nlin(),work,lwork,iwork,liwork,info);
+    DSPEVD('V','U',nlin(),symtemp.data(),D.data(),Z.data(),nlin(),work,lwork,iwork,liwork,info);
 
     delete[] work;
     delete[] iwork;
@@ -261,9 +183,9 @@ Matrix SymMatrix::operator *(const Matrix &B) const {
     Matrix D(*this);
     DSYMM(CblasLeft,  CblasUpper
         , (int)nlin(), (int)B.ncol(),
-        1. , D.t, (int)D.ncol(),
-        B.t, (int)B.nlin(),
-        0, C.t,(int)C.nlin());
+        1. , D.data(), (int)D.ncol(),
+        B.data(), (int)B.nlin(),
+        0, C.data(),(int)C.nlin());
 #else
     for (size_t j=0;j<B.ncol();j++)
         for (size_t i=0;i<ncol();i++)
@@ -278,12 +200,12 @@ Matrix SymMatrix::operator *(const Matrix &B) const {
 
 SymMatrix SymMatrix::operator +(const SymMatrix &B) const {
     assert(nlin()==B.nlin());
-    SymMatrix C=duplicate();
+    SymMatrix C(*this,DEEP_COPY);
 #ifdef HAVE_BLAS
-    BLAS(daxpy,DAXPY)((int)(nlin()*(nlin()+1)/2), 1.0, B.t, 1, C.t , 1);
+    BLAS(daxpy,DAXPY)((int)(nlin()*(nlin()+1)/2), 1.0, B.data(), 1, C.data() , 1);
 #else
     for (size_t i=0;i<nlin()*(nlin()+1)/2;i++)
-        C.t[i]+=B.t[i];
+        C.data()[i]+=B.data()[i];
 #endif
     return C;
 }
@@ -291,43 +213,43 @@ SymMatrix SymMatrix::operator +(const SymMatrix &B) const {
 SymMatrix SymMatrix::operator -(const SymMatrix &B) const
 {
     assert(nlin()==B.nlin());
-    SymMatrix C=duplicate();
+    SymMatrix C(*this,DEEP_COPY);
 #ifdef HAVE_BLAS
-    BLAS(daxpy,DAXPY)((int)(nlin()*(nlin()+1)/2), -1.0, B.t, 1, C.t , 1);
+    BLAS(daxpy,DAXPY)((int)(nlin()*(nlin()+1)/2), -1.0, B.data(), 1, C.data() , 1);
 #else
     for (size_t i=0;i<nlin()*(nlin()+1)/2;i++)
-        C.t[i]-=B.t[i];
+        C.data()[i]-=B.data()[i];
 #endif
     return C;
 }
 
 SymMatrix SymMatrix::operator *(double x) const {
     SymMatrix C(nlin());
-    for (size_t k=0; k<nlin()*(nlin()+1)/2; k++) C.t[k] = t[k]*x;
+    for (size_t k=0; k<nlin()*(nlin()+1)/2; k++) C.data()[k] = data()[k]*x;
     return C;
 }
 
 void SymMatrix::operator +=(const SymMatrix &B) {
     assert(nlin()==B.nlin());
 #ifdef HAVE_BLAS
-    BLAS(daxpy,DAXPY)((int)(nlin()*(nlin()+1)/2), 1.0, B.t, 1, t , 1);
+    BLAS(daxpy,DAXPY)((int)(nlin()*(nlin()+1)/2), 1.0, B.data(), 1, data() , 1);
 #else
     for (size_t i=0;i<nlin()*(nlin()+1)/2;i++)
-        t[i]+=B.t[i];
+        data()[i]+=B.data()[i];
 #endif
 }
 
 void SymMatrix::operator *=(double x) {
-    for (size_t k=0; k<nlin()*(nlin()+1)/2; k++) t[k] *= x;
+    for (size_t k=0; k<nlin()*(nlin()+1)/2; k++) data()[k] *= x;
 }
 
 void SymMatrix::operator -=(const SymMatrix &B) {
     assert(nlin()==B.nlin());
 #ifdef HAVE_BLAS
-    BLAS(daxpy,DAXPY)((int)(nlin()*(nlin()+1)/2), -1.0, B.t, 1, t , 1);
+    BLAS(daxpy,DAXPY)((int)(nlin()*(nlin()+1)/2), -1.0, B.data(), 1, data() , 1);
 #else
     for (size_t i=0;i<nlin()*(nlin()+1)/2;i++)
-        t[i]+=B.t[i];
+        data()[i]+=B.data()[i];
 #endif
 }
 
@@ -360,18 +282,18 @@ SymMatrix SymMatrix::submat(size_t istart, size_t iend) const {
 
 //returns the solution of (this)*X = B
 Vector SymMatrix::solveLin(const Vector &B) const {
-    SymMatrix invA=duplicate();
-    Vector X = B.duplicate();
+    SymMatrix invA(*this,DEEP_COPY);
+    Vector X(B,DEEP_COPY);
 
 #ifdef HAVE_LAPACK
     // Bunch Kaufman Factorization
     int *pivots=new int[nlin()];
     int info;
-    DSPTRF('U',invA.nlin(),invA.t,pivots,info);
+    DSPTRF('U',invA.nlin(),invA.data(),pivots,info);
     // Inverse
     int size=(int)invA.nlin()*64;
     double *work=new double[size];
-    DSPTRS('U',invA.nlin(),1,invA.t,pivots,X.t,invA.nlin(),info);
+    DSPTRS('U',invA.nlin(),1,invA.data(),pivots,X.data(),invA.nlin(),info);
 
     delete[] pivots;
     delete[] work;
@@ -383,19 +305,19 @@ Vector SymMatrix::solveLin(const Vector &B) const {
 
 // stores in B the solution of (this)*X = B, where B is a set of nbvect vector
 void SymMatrix::solveLin(Vector * B, int nbvect) {
-    SymMatrix invA=duplicate();
+    SymMatrix invA(*this,DEEP_COPY);
 
 #ifdef HAVE_LAPACK
     // Bunch Kaufman Factorization
     int *pivots=new int[nlin()];
     int info;
     //char *uplo="U";
-    DSPTRF('U',invA.nlin(),invA.t,pivots,info);
+    DSPTRF('U',invA.nlin(),invA.data(),pivots,info);
     // Inverse
     int size=(int) invA.nlin()*64;
     double *work=new double[size];
     for(int i = 0; i < nbvect; i++)
-        DSPTRS('U',invA.nlin(),1,invA.t,pivots,B[i].t,invA.nlin(),info);
+        DSPTRS('U',invA.nlin(),1,invA.data(),pivots,B[i].data(),invA.nlin(),info);
 
     delete[] pivots;
     delete[] work;
@@ -494,4 +416,3 @@ void SymMatrix::save( const char *filename ) const {
         std::cout << s << std::endl;
     }
 }
-

@@ -55,34 +55,34 @@ knowledge of the CeCILL-B license and that you accept its terms.
 class Matrix;
 
 class OPENMEEGMATHS_EXPORT SymMatrix : public LinOp {
-    double *t;
-    int *count;
+
+    friend class Vector;
+
+    utils::RCPtr<LinOpValue> value;
 
     std::string identity() const;
-    void copy(const SymMatrix& A);
-    void destroy();
+
 public:
-    SymMatrix();
-    SymMatrix(const char* fname);
-    SymMatrix(size_t N) ;
-    SymMatrix(const SymMatrix& A);
+
+    SymMatrix(): LinOp(0,0,SYMMETRIC,TWO),value() {}
+
+    SymMatrix(const char* fname): LinOp(0,0,SYMMETRIC,TWO),value() { this->load(fname); }
+    SymMatrix(size_t N): LinOp(N,N,SYMMETRIC,TWO),value(new LinOpValue(size())) { }
+    SymMatrix(const SymMatrix& S,const DeepCopy): LinOp(S.nlin(),S.nlin(),SYMMETRIC,TWO),value(new LinOpValue(S.size(),S.data())) { }
+
     explicit SymMatrix(const Vector& v);
-    explicit SymMatrix(const Matrix& A); // upper triangle based (lower triangle need not to be set)
-    SymMatrix(double* T, int* COUNT, size_t N);
-     ~SymMatrix() { destroy(); }
-    SymMatrix duplicate() const;
+
     size_t size() const { return nlin()*(nlin()+1)/2; };
     void info() const ;
 
-    size_t  ncol() const { return num_lines; } // SymMatrix only need num_lines
-    size_t& ncol()       { return num_lines; }
+    size_t  ncol() const { return nlin(); } // SymMatrix only need num_lines
+    size_t& ncol()       { return nlin(); }
 
-    void alloc_data();
+    void alloc_data() { value = new LinOpValue(size()); }
 
-    bool empty() const ;
+    bool empty() const { return value->empty(); }
     void set(double x) ;
-    double* data() const ;
-    int* DangerousGetCount() ;
+    double* data() const { return value->data; }
 
     inline double operator()(size_t i,size_t j) const;
     inline double& operator()(size_t i,size_t j) ;
@@ -94,7 +94,6 @@ public:
     void solveLin(Vector * B, int nbvect);
 
     const SymMatrix& operator=(const double d);
-    const SymMatrix& operator=(const SymMatrix& A);
 
     SymMatrix operator+(const SymMatrix& B) const;
     SymMatrix operator-(const SymMatrix& B) const;
@@ -103,7 +102,7 @@ public:
     void operator +=(const SymMatrix& B);
     void operator -=(const SymMatrix& B);
     void operator *=(double x);
-    void operator /=(double x) ;
+    void operator /=(double x) { (*this)*=(1/x); }
     Matrix operator*(const Matrix& B) const; // faux !!
     Vector operator*(const Vector& v) const; // faux ?
 
@@ -125,18 +124,17 @@ public:
 inline double SymMatrix::operator()(size_t i,size_t j) const {
     assert(i<nlin() && j<nlin());
     if(i<=j)
-        return t[i+j*(j+1)/2];
+        return data()[i+j*(j+1)/2];
     else
-        return t[j+i*(i+1)/2];
+        return data()[j+i*(i+1)/2];
 }
 
 inline double& SymMatrix::operator()(size_t i,size_t j) {
     assert(i<nlin() && j<nlin());
     if(i<=j)
-        return t[i+j*(j+1)/2];
+        return data()[i+j*(j+1)/2];
     else
-        return t[j+i*(i+1)/2];
+        return data()[j+i*(i+1)/2];
 }
 
 #endif
-

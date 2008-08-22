@@ -65,37 +65,34 @@ class Vector;
 
 class OPENMEEGMATHS_EXPORT Matrix: public LinOp {
 protected:
-    double *t;
-    int* count;
+
+    friend class Vector;
+
+    utils::RCPtr<LinOpValue> value;
 
     std::string identity() const;
-    void copy(const Matrix& A);
-    void destroy();
-    void copyout(double * p) const;
+
+    explicit Matrix(const Matrix& A,const size_t M): LinOp(A.nlin(),M,FULL,TWO),value(A.value) { }
 
 public:
-    Matrix();
-    Matrix(const char*);
-    Matrix(size_t M,size_t N);
-    Matrix(const Matrix& A);
+
+    Matrix(): LinOp(0,0,FULL,TWO),value() { }
+    Matrix(const char* fname): LinOp(0,0,FULL,TWO),value() { this->load(fname); }
+    Matrix(size_t M,size_t N): LinOp(M,N,FULL,TWO),value(new LinOpValue(N*M)) { }
+    Matrix(const Matrix& A,const DeepCopy): LinOp(A.nlin(),A.ncol(),FULL,TWO),value(new LinOpValue(A.size(),A.data())) { }
+
     explicit Matrix(const SymMatrix& A);
-    Matrix(const Vector& v, size_t M, size_t N); // violent access to v.t and v.count
-    Matrix(double* T, int* COUNT, size_t M, size_t N);
+    Matrix(const Vector& v,const size_t M,const size_t N);
 
-    void alloc_data();
+    void alloc_data() { value = new LinOpValue(size()); }
 
-    ~Matrix() { destroy(); }
-    bool empty() const;
+    bool empty() const { return value->empty(); }
     size_t size() const { return nlin()*ncol(); };
-    void DangerousBuild( double *, size_t i, size_t j);
-    void DangerousKill ();
-    double* data() const;
-    int* DangerousGetCount () const;
+
+    double* data() const { return value->data; }
 
     inline double operator()(size_t i,size_t j) const ;
     inline double& operator()(size_t i,size_t j) ;
-
-    Matrix duplicate() const;
 
     Matrix submat(size_t istart, size_t isize, size_t jstart, size_t jsize) const;
     Vector getcol(size_t j) const;
@@ -103,10 +100,6 @@ public:
     Vector getlin(size_t i) const;
     void setlin(size_t i, const Vector& v);
 
-    // inline double operator[](size_t i) const ;
-    // inline double& operator[](size_t i) ;
-
-    const Matrix& operator=(const Matrix& A);
     const Matrix& set(const double d);
 
     Matrix operator*(const Matrix& B) const;
@@ -172,12 +165,12 @@ public:
 inline double Matrix::operator()(size_t i,size_t j) const
 {
     assert(i<nlin() && j<ncol());
-    return t[i+nlin()*j];
+    return value->data[i+nlin()*j];
 }
 inline double& Matrix::operator()(size_t i,size_t j)
 {
     assert(i<nlin() && j<ncol());
-    return t[i+nlin()*j];
+    return value->data[i+nlin()*j];
 }
 
 #endif

@@ -46,6 +46,9 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #ifndef OM_UTILS_H
 #define OM_UTILS_H
 
+// This does not appear to be used !!!
+// TODO.
+
 #if WIN32
 #define _USE_MATH_DEFINES
 #define DLL_EXPORT   __declspec( dllexport )

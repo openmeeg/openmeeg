@@ -243,7 +243,7 @@ size_t MinRes2(const T& A,const Vector& b,Vector& x0,double tol)
     Vector Av(v.size());
     double c=1; double c_old=1; double s_old=0; double s=0;
     Vector w(N); w.set(0.0);
-    Vector w_oold(N); Vector w_old=w.duplicate();
+    Vector w_oold(N); Vector w_old(w,DEEP_COPY);
     double eta=beta;
     Vector xMR=x0;
     double norm_rMR=beta; double norm_r0=beta;

@@ -48,6 +48,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #include "MatLibConfig.h"
 #include "linop.h"
+#include "RC.H"
 #include "MathsIO.H"
 
 #include <iostream>
@@ -57,48 +58,47 @@ class Matrix;
 class SymMatrix;
 
 class OPENMEEGMATHS_EXPORT Vector: public LinOp {
-    double *t;
-    int *count;
 
-    void destroy();
-    void copy(const Vector& A) ;
-    void copyout(double * p) const;
+    utils::RCPtr<LinOpValue> value;
 
 public:
-    Vector();
-    Vector(size_t N);
-    Vector(const Vector& A);
+
+    Vector(): LinOp(0,1,FULL,ONE),value() { }
+
+    Vector(const size_t N): LinOp(N,1,FULL,ONE),value(new LinOpValue(size())) { }
+    Vector(const Vector& A,const DeepCopy): LinOp(A.nlin(),1,FULL,ONE),value(new LinOpValue(A.size(),A.data())) { }
+
     explicit Vector(Matrix& A);
     explicit Vector(SymMatrix& A);
-    Vector(double* T, int* COUNT, size_t N);
-     ~Vector() { destroy(); }
 
-    void alloc_data();
+    void alloc_data() { value = new LinOpValue(size()); }
 
-    size_t size() const ;
-    bool empty() const ;
-    void DangerousBuild(double *t, size_t size);
-    void DangerousKill();
-    double* data() const ;
-    int* DangerousGetCount() const ;
+    size_t size() const { return nlin(); }
 
-    Vector duplicate() const ;
+    bool empty() const { return value->empty(); }
 
-    inline double operator()(size_t i) const ;
-    inline double& operator()(size_t i) ;
+    double* data() const { return value->data; }
 
-    const Vector& operator=(const Vector& A);
+    inline double operator()(const size_t i) const {
+        assert(i<nlin());
+        return value->data[i];
+    }
+
+    inline double& operator()(const size_t i) {
+        assert(i<nlin());
+        return value->data[i];
+    }
 
     Vector operator+(const Vector& v) const;
     Vector operator-(const Vector& v) const;
     void operator+=(const Vector& v);
     void operator-=(const Vector& v);
     void operator*=(double x);
-    void operator/=(double x);
+    void operator/=(double x) { (*this) *= (1.0/x); }
     Vector operator+(double i) const;
     Vector operator-(double i) const;
     Vector operator*(double x) const;
-    Vector operator/(double x) const ;
+    Vector operator/(double x) const { return (*this)*(1.0/x); }
     double operator*(const Vector& v) const;
 
     Vector kmult(const Vector& x) const;
@@ -108,7 +108,7 @@ public:
 
     double norm() const;
     double sum() const;
-    double mean() const;
+    double mean() const { return sum()/size(); }
 
     void set(double x);
     void saveTxt( const char* filename) const;
@@ -124,18 +124,9 @@ public:
     friend class Matrix;
 };
 
-OPENMEEGMATHS_EXPORT Vector operator * (const double &d, const Vector &v) ;
+OPENMEEGMATHS_EXPORT Vector operator*(const double &d, const Vector &v);
+
 OPENMEEGMATHS_EXPORT std::ostream& operator<<(std::ostream& f,const Vector &M);
 OPENMEEGMATHS_EXPORT std::istream& operator>>(std::istream& f,Vector &M);
 
-OPENMEEGMATHS_EXPORT inline double Vector::operator()(size_t i) const {
-    assert(i<nlin());
-    return t[i];
-}
-OPENMEEGMATHS_EXPORT inline double& Vector::operator()(size_t i) {
-    assert(i<nlin());
-    return t[i];
-}
-
 #endif
-

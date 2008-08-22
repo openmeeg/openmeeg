@@ -56,7 +56,7 @@ namespace utils {
 
     //	Base class for reference-counted objects.
 
-    class RCObject {
+    class OPENMEEGMATHS_EXPORT RCObject {
     public:
 
         void addReference()      { ++refCount;                     }

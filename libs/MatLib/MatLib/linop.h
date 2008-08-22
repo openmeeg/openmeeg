@@ -50,6 +50,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #include "MatLibConfig.h"
 #include "om_utils.h"
+#include "RC.H"
 
 struct OPENMEEGMATHS_EXPORT LinOp {
 
@@ -57,11 +58,19 @@ struct OPENMEEGMATHS_EXPORT LinOp {
     typedef enum { ONE, TWO } Dimension;
 
     LinOp() { }
-    LinOp(const size_t m,const size_t n,const StorageType st, const Dimension d):
+    LinOp(const size_t m,const size_t n,const StorageType st,const Dimension d):
         num_lines(m),num_cols(n),storage(st),dim(d)  { }
 
     virtual ~LinOp() {};
 
+    LinOp& operator=(const LinOp& l) {
+        num_lines = l.num_lines;
+        num_cols  = l.num_cols;
+        storage   = l.storage;
+        dim       = l.dim;
+        return *this;
+    }
+    
     size_t  nlin() const { return num_lines; }
     size_t& nlin()       { return num_lines; }
 
@@ -79,7 +88,28 @@ protected:
     size_t            num_cols;
     StorageType       storage;
     Dimension         dim;
+};
 
+typedef enum { DEEP_COPY } DeepCopy;
+
+struct OPENMEEGMATHS_EXPORT LinOpValue: public utils::RCObject {
+    double *data;
+
+    LinOpValue(): data(0) { }
+
+    LinOpValue(const size_t n): data(new double[n]) { }
+
+    LinOpValue(const size_t n,const double* initval) { init(n,initval); }
+    LinOpValue(const size_t n,const LinOpValue& v)   { init(n,v.data);  }
+
+    void init(const size_t n,const double* initval) {
+        data = new double[n];
+        std::copy(initval,initval+n,data);
+    }
+
+    ~LinOpValue() { delete[] data; }
+
+    bool empty() const { return data==0; }
 };
 
 #endif  //! LINOP_H
