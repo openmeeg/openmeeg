@@ -614,4 +614,3 @@ void getHelp(char** argv) {
 
     exit(0);
 }
-

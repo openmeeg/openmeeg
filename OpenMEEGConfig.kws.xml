@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<Description>
+
+<Project>OpenMEEG</Project>
+<ProjectLogo>documentation/tutorial/images/OMlogo_small.gif</ProjectLogo>
+
+<Files>KWStyleFilesToCheck.txt</Files>
+
+<LessHTML>1</LessHTML>
+
+<ErrorThreshold>10</ErrorThreshold>
+
+<LineLength>180</LineLength>
+
+<DeclarationOrder>0,1,2</DeclarationOrder>
+<Typedefs>[A-Z]</Typedefs>
+<InternalVariables>m_[A-Z]</InternalVariables>
+<SemicolonSpace>0</SemicolonSpace>
+<EndOfFileNewLine>1</EndOfFileNewLine>
+<Tabs>1</Tabs>
+<Spaces>0</Spaces>
+<EndOfFileNewLine>true</EndOfFileNewLine>
+<Comments>/**, *, */,true</Comments>
+<Indent>SPACE,4,true,true</Indent>
+<EmptyLines>2</EmptyLines>
+
+<Comments>
+<begin>/**</begin>
+<middle> *</middle>
+<end>*/<end>
+<emptyLineBeforeClass>true</emptyLineBeforeClass>
+<checkWrongComment>true</checkWrongComment>
+// True if not specified 
+<checkMissingComments>false</checkMissingComments>
+</Comments>
+
+<EmptyLines>2</EmptyLines>
+
+<Operator>
+<spaceBefore>1</spaceBefore>
+<spaceAfter>1</spaceAfter>
+</Operator>
+
+</Description>

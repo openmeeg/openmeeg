@@ -107,7 +107,7 @@ namespace maths {
             is.seekg(0,std::ios::beg);
 
             std::string line;
-            if (linop.dimension()==LinOp::ONE) {
+            if (linop.dimension() == LinOp::ONE) {
                 Vector& v = dynamic_cast<Vector&>(linop);
                 v.alloc_data();
 
@@ -177,7 +177,7 @@ namespace maths {
                 }
                 --ncol;
 
-                if (linop.dimension()==LinOp::ONE && ncol!=1)
+                if (linop.dimension() == LinOp::ONE && ncol!=1)
                     throw BadVector(ncol);
 
                 // Determine the number of lines in the file
@@ -192,7 +192,7 @@ namespace maths {
 
                 //  Read the data according to the type of the matrix.
 
-                if (linop.storageType()==LinOp::SYMMETRIC) {
+                if (linop.storageType() == LinOp::SYMMETRIC) {
                     if (nlin!=ncol)
                         throw BadSymmMatrix(nlin,ncol);
                     linop.ncol() = ncol;

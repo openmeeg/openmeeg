@@ -310,6 +310,18 @@ ENDIF ( PYTHON_WRAP AND APPLE AND USE_ICC )
 SUBDIRS(Wrapping)
 
 #-----------------------------------------------
+# Code Syntax Checking with KWStyle
+#-----------------------------------------------
+
+OPTION(CHECK_SYNTAX "Checking code syntax using KWStyle" OFF)
+
+IF ( CHECK_SYNTAX )
+    ADD_CUSTOM_TARGET(check_syntax
+        COMMAND KWStyle -xml ${OpenMEEG_SOURCE_DIR}/OpenMEEGConfig.kws.xml -html ${OpenMEEG_BINARY_DIR}/KWStyleCheck -D KWStyleFilesToCheck.txt -v
+        WORKING_DIRECTORY ${OpenMEEG_SOURCE_DIR})
+ENDIF ( CHECK_SYNTAX )
+
+#-----------------------------------------------
 # Progress bar
 #-----------------------------------------------
 

@@ -1,0 +1,6 @@
+src/*.cpp
+src/*.h*
+tools/*.cpp
+tools/*.h*
+libs/*/*/*.cpp
+libs/*/*/*.h*
