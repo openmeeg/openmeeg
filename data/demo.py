@@ -119,3 +119,23 @@ m2.loadBin(ssmFile)
 print m2(0,0)
 print m2.nlin()
 print m2.ncol()
+
+# ===================
+# = Numpy interface =
+# ===================
+
+# For a Vector
+
+vec = om.asarray(aiVector)
+print vec.size
+print vec[0:5]
+print vec
+
+# For a Matrix
+
+mat = om.asarray(m2)
+
+print mat.shape
+print mat.sum()
+mat[0:2,1:3] = 0
+print mat[0:5,0:5]

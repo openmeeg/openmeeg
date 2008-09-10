@@ -11,7 +11,7 @@ namespace utils {
     template <class T>
     class RCPtr {
     public:
-        
+
         RCPtr(T* realPtr = 0):  pointee(realPtr)     { init(); }
         RCPtr(const RCPtr& rhs):pointee(rhs.pointee) { init(); }
 
@@ -74,7 +74,7 @@ namespace utils {
         RCObject(const RCObject&): refCount(0),shareable(true) { }
 
         virtual ~RCObject() { }
-        
+
         RCObject& operator=(const RCObject&) { return *this; }
 
     private:

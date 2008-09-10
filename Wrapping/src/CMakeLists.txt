@@ -19,7 +19,10 @@ IF (PYTHON_WRAP)
         SET(PYTHON_LIBRARIES /usr/lib/libpython2.5.dylib)
 
         # Enthought python
-        SET(PYTHON_INCLUDE_PATH /Library/Frameworks/Python.framework/Versions/Current/include/python2.5)
+        SET(PYTHON_INCLUDE_PATH
+            /Library/Frameworks/Python.framework/Versions/Current/include/python2.5
+            /Library/Frameworks/Python.framework/Versions/Current/lib/python2.5/site-packages/numpy-1.0.4.0004-py2.5-macosx-10.3-fat.egg/numpy/core/include/
+            )
         SET(PYTHON_LIBRARIES /Library/Frameworks/Python.framework/Versions/Current/Python)
 
     ELSE (APPLE)
