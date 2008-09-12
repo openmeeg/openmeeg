@@ -41,5 +41,5 @@ ADD_EXECUTABLE(om_mesh_to_dip mesh_to_dip.cpp)
 TARGET_LINK_LIBRARIES (om_mesh_to_dip OpenMEEG ${OPENMEEG_OTHER_LIBRARIES})
 
 IF(ENABLE_PACKAGING)
-INSTALL(TARGETS om_make_nerve om_mesh_convert om_mesh_concat om_mesh_info om_mesh_smooth om_register_squids om_squids2vtk om_matrix_info om_symmatrix_convert om_sparse_matrix_convert om_vector_convert om_check_geom om_mesh_to_dip DESTINATION bin)
+INSTALL(TARGETS om_make_nerve om_mesh_convert om_mesh_concat om_mesh_info om_mesh_smooth om_register_squids om_squids2vtk om_matrix_info om_matrix_convert om_symmatrix_convert om_sparse_matrix_convert om_vector_convert om_check_geom om_mesh_to_dip DESTINATION bin)
 ENDIF(ENABLE_PACKAGING)

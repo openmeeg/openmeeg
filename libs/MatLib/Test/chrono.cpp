@@ -53,6 +53,10 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #endif
 
 static double ref;
+
+/** \brief start timer
+    \sa
+**/
 void timer_start()
 {
 #if WIN32
@@ -64,6 +68,10 @@ void timer_start()
 #endif
 }
 
+/** \brief Get timer delay since timer_start
+    \return time delay
+    \sa
+**/
 double timer_lap()
 {
 #if WIN32

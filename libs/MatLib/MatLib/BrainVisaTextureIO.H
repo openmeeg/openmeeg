@@ -43,8 +43,8 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#ifndef TRIVIALBINIO_H
-#define TRIVIALBINIO_H
+#ifndef BRAINVISATEXTUREIO_H
+#define BRAINVISATEXTUREIO_H
 
 #include <sstream>
 
@@ -135,4 +135,4 @@ namespace maths {
     };
 }
 
-#endif  //! TRIVIALBINIO_H
+#endif  //! BRAINVISATEXTUREIO_H

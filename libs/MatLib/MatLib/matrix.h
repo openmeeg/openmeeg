@@ -63,6 +63,10 @@ class SparseMatrix;
 class SymMatrix;
 class Vector;
 
+/** \brief  Matrix class
+
+    Matrix class
+**/
 class OPENMEEGMATHS_EXPORT Matrix: public LinOp {
 protected:
 
@@ -86,12 +90,34 @@ public:
 
     void alloc_data() { value = new LinOpValue(size()); }
 
+    /** \brief Test if Matrix is empty
+        \return true if Matrix is empty
+        \sa
+    **/
     bool empty() const { return value->empty(); }
+
+    /** \brief Get Matrix size
+        \return number of values (nb lines x nb columns)
+        \sa
+    **/
     size_t size() const { return nlin()*ncol(); };
 
+    /** \brief Get Matrix data
+        \return pointer to Matrix values
+        \sa
+    **/
     double* data() const { return value->data; }
 
+    /** \brief Get Matrix value
+        \return value in Matrix
+        \sa
+    **/
     inline double operator()(size_t i,size_t j) const ;
+
+    /** \brief Get Matrix value
+        \return reference to value in Matrix
+        \sa
+    **/
     inline double& operator()(size_t i,size_t j) ;
 
     Matrix submat(size_t istart, size_t isize, size_t jstart, size_t jsize) const;
@@ -128,9 +154,16 @@ public:
     Matrix pinverse(double reltol=0) const;
     void svd(Matrix &U,Matrix &S, Matrix &V) const;
 
+    /** \brief Get Matrix Frobenius norm
+        \return norm value
+        \sa
+    **/
     double frobenius_norm() const;
     double dot(const Matrix& B) const;
 
+    /** \brief Read Matrix dimensions for raw binary file without loading the full data
+        \sa
+    **/
     static void readDimsBin( const char* filename, size_t& mm, size_t& nn)
     {
         FILE *infile=fopen(filename,"rb");
@@ -146,16 +179,49 @@ public:
         fclose(infile);
     }
 
+    /** \brief Save Matrix to file (Format set using file name extension)
+        \sa
+    **/
     void save( const char *filename ) const;
+
+    /** \brief Save Matrix in ascii file
+        \sa
+    **/
     void saveTxt( const char *filename ) const;
+
+    /** \brief Save Matrix in raw binary file
+        \sa
+    **/
     void saveBin( const char *filename ) const;
+
+    /** \brief Save Matrix in Matlab file
+        \sa
+    **/
     void saveMat( const char *filename ) const;
 
+    /** \brief Load Matrix from file (Format set using file name extension)
+        \sa
+    **/
     void load( const char *filename );
+
+    /** \brief Load Matrix from ascii file
+        \sa
+    **/
     void loadTxt( const char *filename );
+
+    /** \brief Load Matrix from raw binary file
+        \sa
+    **/
     void loadBin( const char *filename );
+
+    /** \brief Load Matrix from Matlab file
+        \sa
+    **/
     void loadMat( const char *filename );
 
+    /** \brief Print info on Matrix
+        \sa
+    **/
     void info() const;
 
     friend class SparseMatrix;

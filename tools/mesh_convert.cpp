@@ -61,7 +61,7 @@ int main( int argc, char **argv)
     const double sx = command_option("-sx",1.0,"Scaling along the x axis");
     const double sy = command_option("-sy",1.0,"Scaling along the y axis");
     const double sz = command_option("-sz",1.0,"Scaling along the z axis");
-    const char* transfmat = command_option("-mat",(const char *) NULL,"3x3 Transformation Matrix (Assumed format ASCII)");
+    const char* transfmat = command_option("-mat",(const char *) NULL,"4x4 Transformation Matrix (Assumed format ASCII)");
     const char* invert = command_option("-invert",(const char *) NULL,"Invert triangles point order");
     if (command_option("-h",(const char *)0,0)) return 0;
 
