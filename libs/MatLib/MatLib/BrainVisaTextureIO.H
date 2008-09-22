@@ -96,6 +96,10 @@ namespace maths {
                 buffer.clear();
                 buffer.str(line);
                 buffer >> m.nlin();
+                if(m.nlin() == 0) {
+                    buffer >> m.nlin(); // Hack for certain tex files
+                }
+
                 if (j==0) {
                     m.alloc_data();
                 }

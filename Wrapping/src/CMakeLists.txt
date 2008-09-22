@@ -40,11 +40,16 @@ IF (PYTHON_WRAP)
         SET(CMAKE_SWIG_FLAGS ${CMAKE_SWIG_FLAGS} -DDOCSTRINGS)
         ADD_CUSTOM_TARGET(docstrings
                           COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/doxy2swig.py ${PROJECT_BINARY_DIR}/documentation/reference/xml/index.xml docstrings.i)
+        ADD_DEPENDENCIES(docstrings doxygen_outputs)
         ADD_DEPENDENCIES(documentation docstrings)
         SET (SWIG_MODULE_${MODULE_NAME}_EXTRA_DEPS ${SWIG_MODULE_${MODULE_NAME}_EXTRA_DEPS} ${PROJECT_BINARY_DIR}/Wrapping/src/docstrings.i)
     ENDIF (BUILD_DOCUMENTATION)
 
+    ADD_CUSTOM_TARGET( numpy_swig
+                       COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/numpy.i ${CMAKE_CURRENT_BINARY_DIR})
+
     SWIG_ADD_MODULE(${MODULE_NAME} python ${SWIG_SRC_FILE_NAME} "")
+    ADD_DEPENDENCIES(_${MODULE_NAME} numpy_swig)
 
     SET_SOURCE_FILES_PROPERTIES(${SWIG_SRC_FILE_NAME} PROPERTIES CPLUSPLUS ON)
     SET_SOURCE_FILES_PROPERTIES(${SWIG_SRC_FILE_NAME} PROPERTIES SWIG_FLAGS "-includeall")

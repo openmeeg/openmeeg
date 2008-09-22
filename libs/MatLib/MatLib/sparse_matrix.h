@@ -64,7 +64,9 @@ knowledge of the CeCILL-B license and that you accept its terms.
 // #endif
 
 //template class OPENMEEGMATHS_EXPORT std::pair< size_t, size_t >;
-template class OPENMEEGMATHS_EXPORT std::map< std::pair< size_t, size_t >, double >;
+#ifdef WIN32
+    template class OPENMEEGMATHS_EXPORT std::map< std::pair< size_t, size_t >, double >;
+#endif
 
 class OPENMEEGMATHS_EXPORT SparseMatrix : public LinOp {
 

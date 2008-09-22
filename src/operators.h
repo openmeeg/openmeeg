@@ -472,9 +472,9 @@ inline Vect3 _operatorFerguson(const Vect3 x,const int nP1,const Mesh &m1)
         v = A1B1*(-0.5/T1.getArea());
 
         analyS.init(P1,A1,B1);
-        opS=analyS.f(x);
+        opS = analyS.f(x);
 
-        result+=(v*opS);
+        result += (v*opS);
     }
 
     return result;

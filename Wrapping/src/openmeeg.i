@@ -35,7 +35,7 @@
 
        /* Get the number of dimensions from the Matrix
         */
-       int ar_dim[7], ndims, k;
+       int ar_dim[7], ndims;
        ndims = 2;
        ar_dim[0] = _mat->ncol();
        ar_dim[1] = _mat->nlin();
@@ -66,7 +66,7 @@
 
        /* Get the size of the Vector
         */
-       int ar_dim[7], ndims, k;
+       int ar_dim[7], ndims;
        ndims = 1;
        ar_dim[0] = _vec->size();
 

@@ -237,10 +237,10 @@ void assemble_DipSource2MEG( Matrix &mat, const Matrix& dipoles, const Sensors &
     // the following routine is the equivalent of operatorFerguson for pointlike dipoles.
     for(size_t i=0;i<mat.nlin();i++)
     {
-        for(unsigned int j=0;j<0+mat.ncol();j++)
+        for(unsigned int j=0;j<mat.ncol();j++)
         {
-            Vect3 diff=positionsVectArray[i]-Rs[j];
-            double norm_diff=diff.norm();
+            Vect3 diff = positionsVectArray[i]-Rs[j];
+            double norm_diff = diff.norm();
             Vect3 v = Qs[j] ^ diff/(norm_diff*norm_diff*norm_diff);
 
             SignalMatrix(3*i+0,j) = v.x();
