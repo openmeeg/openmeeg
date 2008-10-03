@@ -348,17 +348,15 @@ OPTION(ENABLE_PACKAGING "Enable Packaging" ON)
 
 IF(ENABLE_PACKAGING)
 
-    INCLUDE(CPack)
+    INCLUDE(InstallRequiredSystemLibraries)
 
     SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY "OpenMEEG Project")
-    SET(CPACK_PACKAGE_VENDOR "Odyssee ENPC/INRIA/Ens Ulm")
+    SET(CPACK_PACKAGE_VENDOR "INRIA - Odyssee ENPC/INRIA/Ens Ulm")
     SET(CPACK_PACKAGE_DESCRIPTION_FILE "${OpenMEEG_SOURCE_DIR}/README")
-    SET(CPACK_RESOURCE_FILE_LICENSE "${OpenMEEG_SOURCE_DIR}/Copyright.txt")
+    SET(CPACK_RESOURCE_FILE_LICENSE "${OpenMEEG_SOURCE_DIR}/LICENSE")
     SET(CPACK_PACKAGE_INSTALL_DIRECTORY "OpenMEEG")
 
     IF(APPLE OR WIN32)
-
-        INCLUDE(InstallRequiredSystemLibraries)
 
         IF(WIN32 AND NOT UNIX)
           # There is a bug in NSI that does not handle full unix paths properly. Make
@@ -366,7 +364,7 @@ IF(ENABLE_PACKAGING)
           SET(CPACK_NSIS_DISPLAY_NAME "OpenMEEG Project")
           SET(CPACK_NSIS_HELP_LINK "https:\\\\\\\\gforge.inria.fr/projects/openmeeg/")
           SET(CPACK_NSIS_URL_INFO_ABOUT "https:\\\\\\\\gforge.inria.fr/projects/openmeeg/")
-          SET(CPACK_NSIS_CONTACT "odyssee@sophia.inria.fr")
+          SET(CPACK_NSIS_CONTACT "openmeeg-info@lists.gforge.inria.fr")
           SET(CPACK_NSIS_MODIFY_PATH ON)
         ELSE(WIN32 AND NOT UNIX)
           SET(CPACK_SOURCE_STRIP_FILES "")
@@ -383,6 +381,8 @@ IF(ENABLE_PACKAGING)
         ENDIF (BUILD_RPM)
 
     ENDIF(APPLE OR WIN32)
+
+    INCLUDE(CPack)
 
 ENDIF(ENABLE_PACKAGING)
 
