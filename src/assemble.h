@@ -71,7 +71,7 @@ public:
 class OPENMEEG_EXPORT DipSourceMat : public virtual Matrix
 {
 public:
-    DipSourceMat (const Geometry &geo, std::vector<Vect3> Rs, std::vector<Vect3> Qs, const int GaussOrder);
+    DipSourceMat (const Geometry &geo, const Matrix& dipoles, const int GaussOrder);
     virtual ~DipSourceMat () {};
 };
 
@@ -88,6 +88,7 @@ public:
     Surf2VolMat (const Geometry &geo, const Matrix &points);
     virtual ~Surf2VolMat () {};
 };
+
 class OPENMEEG_EXPORT Head2EEGMat : public virtual SparseMatrix
 {
 public:

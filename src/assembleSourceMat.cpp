@@ -8,7 +8,7 @@ last revision     : $Date: 2008-07-08 18:03:45 +0200 (Tue, 08 Jul 2008) $
 modified by       : $LastChangedBy: gramfort $
 last modified     : $LastChangedDate: 2008-07-08 18:03:45 +0200 (Tue, 08 Jul 2008) $
 
-© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre 
+© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre
 GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU, Théodore PAPADOPOULO,
 Maureen.Clerc.AT.sophia.inria.fr, keriven.AT.certis.enpc.fr,
 kybic.AT.fel.cvut.cz, papadop.AT.sophia.inria.fr)
@@ -86,50 +86,58 @@ SurfSourceMat::SurfSourceMat (const Geometry &geo, const Mesh& sources, const in
 }
 
 void assemble_DipSourceMat(Matrix &rhs,const Geometry &geo,vector<Vect3> Rs,vector<Vect3> Qs,const int GaussOrder)
-{ 
+{
     int newsize=geo.size()-(geo.getM(geo.nb()-1)).nbTrgs();
     rhs = Matrix(newsize, Qs.size());
-     unsigned nVertexFirstLayer=geo.getM(0).nbPts();
+    int nVertexFirstLayer=geo.getM(0).nbPts();
 
-    unsigned nFacesFirstLayer=geo.getM(0).nbTrgs();
+    int nFacesFirstLayer=geo.getM(0).nbTrgs();
     double K = 1.0 / (4*M_PI);
 
     // First block is nVertexFistLayer
     rhs.set(0);
-    for (unsigned s=0; s<Qs.size(); s++)
-    {  
-      Vector prov(rhs.nlin());
-      prov.set(0);
+    Vector prov(rhs.nlin());
+    for (int s=0; s<Qs.size(); s++) {
+        progressbar(s,Qs.size());
+        prov.set(0);
         operatorDipolePotDer(Rs[s],Qs[s],geo.getM(0),prov,0,GaussOrder);
         // Second block is nFaceFistLayer
-	if(geo.nb()>1){
-        operatorDipolePot(Rs[s],Qs[s],geo.getM(0),prov,nVertexFirstLayer,GaussOrder);
-	
-	}
-        for (unsigned i=0; i<rhs.nlin(); i++)
-	  {              rhs(i,s) = prov(i);
+        if(geo.nb()>1) {
+            operatorDipolePot(Rs[s],Qs[s],geo.getM(0),prov,nVertexFirstLayer,GaussOrder);
+        }
+        for (size_t i=0; i<rhs.nlin(); i++) {              
+            rhs(i,s) = prov(i);
         }
     }
     // Blocks multiplication
     double s1i=geo.sigma_in(0);
-    for( unsigned i=0; i<nVertexFirstLayer; i++ )
-    {
+    for( int i=0; i<nVertexFirstLayer; i++ ) {
         for (unsigned j=0; j<rhs.ncol(); j++) {
             rhs(i,j) *= K;
         }
     }
-    if(geo.nb()>1){
-    for( unsigned i=0; i<nFacesFirstLayer; i++ )
-    {
-        for (unsigned j=0; j<rhs.ncol(); j++)
-	  { 
-            rhs(i+nVertexFirstLayer, j) *= (-K/s1i);
+    if (geo.nb()>1) {
+        for( int i=0; i<nFacesFirstLayer; i++ ) {
+            for (unsigned j=0; j<rhs.ncol(); j++) {
+                rhs(i+nVertexFirstLayer, j) *= (-K/s1i);
+            }
         }
-    }
     }
 }
 
-DipSourceMat::DipSourceMat (const Geometry &geo, vector<Vect3> Rs, vector<Vect3> Qs, const int GaussOrder) {
+DipSourceMat::DipSourceMat (const Geometry &geo, const Matrix& dipoles, const int GaussOrder) {
+    vector<Vect3> Rs, Qs;
+
+    // Assembling Matrix from discretization :
+    unsigned int nd = (unsigned int) dipoles.nlin();
+    for( unsigned int i=0; i<nd; i++ )
+    {
+        Vect3 r(3),q(3);
+        for(int j=0;j<3;j++) r(j)   = dipoles(i,j);
+        for(int j=3;j<6;j++) q(j-3) = dipoles(i,j);
+        Rs.push_back(r); Qs.push_back(q);
+    }
+
     assemble_DipSourceMat(*this,geo,Rs,Qs,GaussOrder);
 }
 
@@ -190,7 +198,7 @@ DipSourceGradMat::DipSourceGradMat (const Geometry &geo, vector<Vect3> Rs, vecto
 void assemble_EITsource(const Geometry &geo, Matrix &mat, Matrix &airescalp, const int GaussOrder)
 {
 // a Matrix to be applied to the scalp-injected current (modulo multiplicative constants)
-// to obtain the Source Term of the EIT foward problem 
+// to obtain the Source Term of the EIT foward problem
     int newtaille = mat.nlin();
     int sourcetaille = mat.ncol();
 // transmat = a big  Matrix of which mat = part of its transpose
@@ -218,7 +226,7 @@ void assemble_EITsource(const Geometry &geo, Matrix &mat, Matrix &airescalp, con
         }
     c=geo.nb()-2;
 
-// compute S 
+// compute S
     operatorS(geo,c+1,c,GaussOrder,transmat,offset3,offset1);
     mult(transmat,offset3,offset1,offset4,offset2,-1.0*K);
 // first compute D, then it will be transposed
@@ -236,7 +244,7 @@ void assemble_EITsource(const Geometry &geo, Matrix &mat, Matrix &airescalp, con
 
 // transposing the Matrix
     std::cout<<"last element "<<transmat(newtaille+sourcetaille-1,newtaille-1)<<std::endl;
-        for(int i=0;i<newtaille;i++) 
+        for(int i=0;i<newtaille;i++)
             for(int j=0;j<sourcetaille;j++) {
                 mat(i,j) = transmat(newtaille+j,i);
                 airescalp(i,j) = 2*transairescalp(newtaille+j,i);

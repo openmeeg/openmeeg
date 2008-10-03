@@ -180,17 +180,7 @@ int main(int argc, char** argv)
             exit(1);
         }
 
-        // Assembling Matrix from discretization :
-        unsigned int nd = (unsigned int) dipoles.nlin();
-        std::vector<Vect3> Rs,Qs;
-        for( unsigned int i=0; i<nd; i++ )
-        {
-            Vect3 r(3),q(3);
-            for(int j=0;j<3;j++) r(j)   = dipoles(i,j);
-            for(int j=3;j<6;j++) q(j-3) = dipoles(i,j);
-            Rs.push_back(r); Qs.push_back(q);
-        }
-        DipSourceMat dsm(geo, Rs, Qs, GaussOrder);
+        DipSourceMat dsm(geo, dipoles, GaussOrder);
 
         // Saving RHS Matrix for dipolar case :
         dsm.SAVE(argv[5]);
