@@ -84,7 +84,7 @@ namespace maths {
 
         maths::MathsIOBase::InsertTrivialBinIO();
 
-        std::ifstream is(mio.name().c_str());
+        std::ifstream is(mio.name().c_str(),std::ios::binary);
         if(is.fail())
             throw BadFileOpening(mio.name(),BadFileOpening::READ);
 
@@ -115,7 +115,7 @@ namespace maths {
 
         maths::MathsIOBase::InsertTrivialBinIO();
 
-        std::ofstream os(mio.name().c_str());
+        std::ofstream os(mio.name().c_str(),std::ios::binary);
         if(os.fail())
             throw BadFileOpening(mio.name(),BadFileOpening::WRITE);
 

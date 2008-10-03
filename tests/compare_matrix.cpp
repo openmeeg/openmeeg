@@ -20,7 +20,7 @@ int main (int argc, char** argv)
     command_usage("Compare two matrices with a certain numerical precision\ncompare_matrix mat1 mat2 [options]");
     const char *input_format1 = command_option("-if1",(const char *) NULL,
                                                 "Input file format for Matrix 1 : ascii, binary, tex, matlab");
-    const char *input_format2 = command_option("-if1",(const char *) NULL,
+    const char *input_format2 = command_option("-if2",(const char *) NULL,
                                                 "Input file format for Matrix 2 : ascii, binary, tex, matlab");
 
     const char *isfull = command_option("-full",(const char *) 0,"Data are symmetric matrices");
