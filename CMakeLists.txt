@@ -51,8 +51,9 @@ IF(${CMAKE_C_COMPILER} MATCHES "icc")
 ENDIF(${CMAKE_C_COMPILER} MATCHES "icc")
 
 IF ( USE_GCC )
-    SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall -W -Wshadow -Wunused-variable -Wunused-parameter -Wunused-function -Wunused -Wno-system-headers -Wno-deprecated -Woverloaded-virtual -Wwrite-strings")
-    SET(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -Wall -W -Wshadow -Wunused-variable -Wunused-parameter -Wunused-function -Wunused -Wno-system-headers -Wno-deprecated -Woverloaded-virtual -Wwrite-strings")
+    SET(GCC_WARNING_OPTIONS "-Wall -W -Wshadow -Wunused-variable -Wunused-parameter -Wunused-function -Wunused -Wno-system-headers -Wno-deprecated -Woverloaded-virtual -Wwrite-strings")
+    SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} ${GCC_WARNING_OPTIONS}")
+    SET(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} ${GCC_WARNING_OPTIONS}")
     IF ( APPLE )
         IF ( NOT XCODE ) # Test if not xcode
             IF ( NOT PYTHON_WRAP AND NOT USE_VTK)
@@ -295,16 +296,20 @@ IF (BUILD_TEST)
     SUBDIRS(tests)
 ENDIF (BUILD_TEST)
 
-IF ( USE_GCC AND BUILD_TEST)
+IF (USE_GCC AND BUILD_TEST)
     OPTION(ENABLE_COVERAGE "Build tests" OFF)
     MARK_AS_ADVANCED(ENABLE_COVERAGE)
 ENDIF ( USE_GCC AND BUILD_TEST)
 
-IF ( ENABLE_COVERAGE )
-    SET(CMAKE_CXX_FLAGS "-g -O0 -Wall -W -Wshadow -Wunused-variable -Wunused-parameter -Wunused-function -Wunused -Wno-system-headers -Wno-deprecated -Woverloaded-virtual -Wwrite-strings -fprofile-arcs -ftest-coverage")
-    SET(CMAKE_C_FLAGS "-g -O0 -Wall -W -fprofile-arcs -ftest-coverage")
-    SET(CMAKE_EXE_LINKER_FLAGS "-fprofile-arcs -ftest-coverage")
-ENDIF ( ENABLE_COVERAGE )
+IF (ENABLE_COVERAGE)
+    IF (USE_GCC)
+        SET(CMAKE_EXE_LINKER_FLAGS "-fprofile-arcs -ftest-coverage")
+        SET(CMAKE_CXX_FLAGS "-g -O0 ${GCC_WARNING_OPTIONS} ${CMAKE_EXE_LINKER_FLAGS}")
+        SET(CMAKE_C_FLAGS "-g -O0 -Wall -W ${CMAKE_EXE_LINKER_FLAGS}")
+    ELSE (USE_GCC)
+        MESSAGE(SEND_ERROR "Coverage is only available with gcc.")
+    ENDIF (USE_GCC)
+ENDIF (ENABLE_COVERAGE)
 
 #-----------------------------------------------
 # documentation
@@ -357,9 +362,13 @@ ENDIF ( USE_PROGRESSBAR )
 # packaging
 #-----------------------------------------------
 
-OPTION(ENABLE_PACKAGING "Enable Packaging" ON)
+IF (WIN32 OR APPLE)
+    OPTION(ENABLE_PACKAGING "Enable Packaging" ON)
+ELSE (WIN32 OR APPLE)
+    OPTION(BUILD_RPM "Build RPM package" OFF)
+ENDIF (WIN32 OR APPLE)
 
-IF(ENABLE_PACKAGING)
+IF(ENABLE_PACKAGING OR BUILD_RPM)
 
     INCLUDE(InstallRequiredSystemLibraries)
 
@@ -369,34 +378,28 @@ IF(ENABLE_PACKAGING)
     SET(CPACK_RESOURCE_FILE_LICENSE "${OpenMEEG_SOURCE_DIR}/LICENSE.txt")
     SET(CPACK_PACKAGE_INSTALL_DIRECTORY "OpenMEEG")
 
-    IF(APPLE OR WIN32)
+    IF (WIN32)
+        # There is a bug in NSIS that does not handle full unix paths properly. Make
+        # sure there is at least one set of four (4) backlasshes.
+        SET(CPACK_NSIS_DISPLAY_NAME "OpenMEEG Project")
+        SET(CPACK_NSIS_HELP_LINK "https:\\\\\\\\gforge.inria.fr/projects/openmeeg/")
+        SET(CPACK_NSIS_URL_INFO_ABOUT "https:\\\\\\\\gforge.inria.fr/projects/openmeeg/")
+        SET(CPACK_NSIS_CONTACT "openmeeg-info@lists.gforge.inria.fr")
+        SET(CPACK_NSIS_MODIFY_PATH ON)
+    ENDIF (WIN32)
 
-        IF(WIN32 AND NOT UNIX)
-          # There is a bug in NSI that does not handle full unix paths properly. Make
-          # sure there is at least one set of four (4) backlasshes.
-          SET(CPACK_NSIS_DISPLAY_NAME "OpenMEEG Project")
-          SET(CPACK_NSIS_HELP_LINK "https:\\\\\\\\gforge.inria.fr/projects/openmeeg/")
-          SET(CPACK_NSIS_URL_INFO_ABOUT "https:\\\\\\\\gforge.inria.fr/projects/openmeeg/")
-          SET(CPACK_NSIS_CONTACT "openmeeg-info@lists.gforge.inria.fr")
-          SET(CPACK_NSIS_MODIFY_PATH ON)
-        ELSE(WIN32 AND NOT UNIX)
-          SET(CPACK_SOURCE_STRIP_FILES "")
-        ENDIF(WIN32 AND NOT UNIX)
-    ENDIF(APPLE OR WIN32)
+    SET(CPACK_SOURCE_STRIP_FILES "")
 
     INCLUDE(CPack)
 
-    IF ( UNIX AND NOT APPLE )
-        OPTION(BUILD_RPM "Build RPM package" OFF)
-        IF( BUILD_RPM ) # linux
-            INCLUDE(UseRPMTools)
-            IF (RPMTools_FOUND)
-                RPMTools_ADD_RPM_TARGETS(${PROJECT_NAME} "packaging/${PROJECT_NAME}.spec.in")
-            ENDIF (RPMTools_FOUND)
-        ENDIF( BUILD_RPM )
-    ENDIF ( UNIX AND NOT APPLE )
+    IF(UNIX AND BUILD_RPM) # linux
+        INCLUDE(UseRPMTools)
+        IF (RPMTools_FOUND)
+            RPMTools_ADD_RPM_TARGETS(${PROJECT_NAME} "packaging/${PROJECT_NAME}.spec.in")
+        ENDIF (RPMTools_FOUND)
+    ENDIF(UNIX AND BUILD_RPM)
 
-ENDIF(ENABLE_PACKAGING)
+ENDIF(ENABLE_PACKAGING OR BUILD_RPM)
 
 #######################################################################
 # Help other projects use OpenMEEG
