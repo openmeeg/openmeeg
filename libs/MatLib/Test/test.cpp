@@ -147,6 +147,11 @@ int main ()
     M.info();
 #endif
 
+    cout << endl << "BRAINVISA :" << endl;
+    M.saveBrainvisa("tmp.tex");
+    M.loadBrainvisa("tmp.tex");
+    M.info();
+
     // section SymMatrix
     cout<<endl<<"========== symmetric matrices =========="<<endl;
     SymMatrix S(4);

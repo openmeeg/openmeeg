@@ -199,6 +199,11 @@ public:
     **/
     void saveMat( const char *filename ) const;
 
+    /** \brief Save Matrix in Brainvisa ascii texture file
+        \sa
+    **/
+    void saveBrainvisa( const char *filename ) const;
+
     /** \brief Load Matrix from file (Format set using file name extension)
         \sa
     **/
@@ -218,6 +223,11 @@ public:
         \sa
     **/
     void loadMat( const char *filename );
+
+    /** \brief Load Matrix from Brainvisa ascii texture file
+        \sa
+    **/
+    void loadBrainvisa( const char *filename );
 
     /** \brief Print info on Matrix
         \sa

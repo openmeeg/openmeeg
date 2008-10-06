@@ -162,8 +162,8 @@ inline void _operatorD(const int nT1,const int nT2,const int GaussOrder,const Me
     // for all the P1 functions it gets involved
 
     // consider varying order of quadrature with the distance between T1 and T2
-    const Triangle &T1=m1.getTrg(nT1);
-    const Triangle &T2=m2.getTrg(nT2);
+    const Triangle &T1 = m1.getTrg(nT1);
+    const Triangle &T2 = m2.getTrg(nT2);
 
     #ifdef USE_OMP
         analyticD3 analyD;
@@ -175,7 +175,7 @@ inline void _operatorD(const int nT1,const int nT2,const int GaussOrder,const Me
 #ifdef ADAPT_LHS
     AdaptiveIntegrator<Vect3,analyticD3> gauss(0.005);
     gauss.setOrder(GaussOrder);
-    Vect3 total=gauss.integrate(analyD,T1,m1);
+    Vect3 total = gauss.integrate(analyD,T1,m1);
 #else
     #ifdef USE_OMP
         Integrator<Vect3,analyticD3> gauss(GaussOrder);
@@ -183,7 +183,7 @@ inline void _operatorD(const int nT1,const int nT2,const int GaussOrder,const Me
         static Integrator<Vect3,analyticD3> gauss(GaussOrder);
     #endif
 
-    Vect3 total=gauss.integrate(analyD,T1,m1);
+    Vect3 total = gauss.integrate(analyD,T1,m1);
 #endif //ADAPT_LHS
 
     mat(offsetI+nT1,offsetJ+((Triangle)T2)[0]) += total.x();

@@ -577,6 +577,18 @@ void Matrix::saveMat( const char *filename ) const
     ofs << maths::format("matlab") << *this;
 }
 
+void Matrix::loadBrainvisa(const char *filename)
+{
+    maths::ifstream ifs(filename);
+    ifs >> maths::format("tex") >> *this;
+}
+
+void Matrix::saveBrainvisa( const char *filename ) const
+{
+    maths::ofstream ofs(filename);
+    ofs << maths::format("tex") << *this;
+}
+
 void Matrix::load( const char *filename ) {
     try {
         maths::ifstream ifs(filename);
