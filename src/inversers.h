@@ -145,18 +145,16 @@ inline Vector gentv( Vector x,
 
 inline double compute_one_tv(Vector x,
                           const FastSparseMatrix &mat,
-                          const FastSparseMatrix &mat_t,
                           const Vector &Ai,
-                          double (*f) (const double &)=0,
-                          double (*fp) (const double&)=0)
+                          double (*f) (const double &)=0)
 {
     double tv = 0;
     Vector v = mat * x;
     Vector grad_norms( v.size()/3 );
     for(size_t i=0;i<grad_norms.size();i++)
     {
-        double *pt=&v(3*i);
-        grad_norms(i)=sqrt(pt[0]*pt[0]+pt[1]*pt[1]+pt[2]*pt[2]);
+        double *pt = &v(3*i);
+        grad_norms(i) = sqrt(pt[0]*pt[0]+pt[1]*pt[1]+pt[2]*pt[2]);
         if (f!=0) {
             tv += f(grad_norms(i))*Ai(i);
         } else {
@@ -400,7 +398,7 @@ void compute_tv(Matrix& EstimatedData, const Matrix& Data, const Matrix& GainMat
         if(frame==0) v.set(0.0);
         else v = EstimatedData.getcol(frame-1);
 
-        double tv_v = compute_one_tv(v,fastSmoothMatrix,fastSmoothMatrix_t,AiVector);
+        double tv_v = compute_one_tv(v,fastSmoothMatrix,AiVector);
 
         bool errorTest = true;
 
@@ -435,7 +433,7 @@ void compute_tv(Matrix& EstimatedData, const Matrix& Data, const Matrix& GainMat
             while ( stop_line_search != true && (++iter_line_search < max_iter_line_search) ) {
                 v_dv = v+grad_step*grad;
                 double f_v_dv_data = pow((m-GainMatrix*(v_dv)).norm(),2);
-                tv_v_dv = compute_one_tv(v_dv,fastSmoothMatrix,fastSmoothMatrix_t,AiVector);
+                tv_v_dv = compute_one_tv(v_dv,fastSmoothMatrix,AiVector);
                 f_v_dv = f_v_dv_data + SmoothWeight*tv_v_dv;
                 if ( grad_step*search_slope < (f_v - f_v_dv)) {
                     stop_line_search = true;

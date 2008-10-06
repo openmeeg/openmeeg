@@ -66,8 +66,7 @@ int main(int argc, char **argv)
     // declaration of argument variables
     Mesh SourceMesh;
 
-    bool checkClosedSurface = false;
-    SourceMesh.load(argv[1],checkClosedSurface);
+    SourceMesh.load(argv[1]);
 
     SparseMatrix SmoothMatrix = SourceMesh.gradient();
 

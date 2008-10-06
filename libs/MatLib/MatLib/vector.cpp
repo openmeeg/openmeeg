@@ -116,13 +116,9 @@ double Vector::operator*(const Vector& v) const {
 
 Vector Vector::kmult(const Vector& v) const { // Kronecker multiplication
     assert(nlin() == v.nlin());
-// #ifdef HAVE_BLAS
-//     // FIXME : add blas version
-// #else
     Vector p(nlin());
     for( size_t i=0; i<nlin(); i++ )
         p(i) = v(i)*data()[i];
-// #endif
     return p;
 }
 

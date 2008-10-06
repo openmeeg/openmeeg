@@ -202,7 +202,7 @@ void operatorSinternal(const Geometry &geo,const int I,Matrix &mat,const int off
         Vect3 pt(points(i,0),points(i,1),points(i,2));
         for(int j=offsetJ;j<offsetJ+m.nbTrgs();j++)
         {
-            mat(i,j)=_operatorSinternal(i,j-offsetJ,m,pt);
+            mat(i,j)=_operatorSinternal(j-offsetJ,m,pt);
         }
     }
 }

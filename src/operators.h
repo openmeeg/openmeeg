@@ -243,7 +243,7 @@ inline double _operatorS(const int nT1,const int nT2,const int GaussOrder,const 
 #endif //ADAPT_LHS
 }
 
-inline double _operatorSinternal(const int nP, const int nT, const Mesh &m,const Vect3 pt)
+inline double _operatorSinternal(const int nT, const Mesh &m,const Vect3 pt)
 {
 static analyticS analyS;
 analyS.init(nT,m);

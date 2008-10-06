@@ -51,8 +51,8 @@ IF(${CMAKE_C_COMPILER} MATCHES "icc")
 ENDIF(${CMAKE_C_COMPILER} MATCHES "icc")
 
 IF ( USE_GCC )
-    SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall")
-    SET(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -Wall")
+    SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall -W -Wshadow -Wunused-variable -Wunused-parameter -Wunused-function -Wunused -Wno-system-headers -Wno-deprecated -Woverloaded-virtual -Wwrite-strings")
+    SET(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -Wall -W -Wshadow -Wunused-variable -Wunused-parameter -Wunused-function -Wunused -Wno-system-headers -Wno-deprecated -Woverloaded-virtual -Wwrite-strings")
     IF ( APPLE )
         IF ( NOT XCODE ) # Test if not xcode
             IF ( NOT PYTHON_WRAP AND NOT USE_VTK)
@@ -293,6 +293,16 @@ IF (BUILD_TEST)
     ENABLE_TESTING()
     SUBDIRS(tests)
 ENDIF (BUILD_TEST)
+
+IF ( USE_GCC AND BUILD_TEST)
+    OPTION(ENABLE_COVERAGE "Build tests" OFF)
+ENDIF ( USE_GCC AND BUILD_TEST)
+
+IF ( ENABLE_COVERAGE )
+    SET(CMAKE_CXX_FLAGS "-g -O0 -Wall -W -Wshadow -Wunused-variable -Wunused-parameter -Wunused-function -Wunused -Wno-system-headers -Wno-deprecated -Woverloaded-virtual -Wwrite-strings -fprofile-arcs -ftest-coverage")
+    SET(CMAKE_C_FLAGS "-g -O0 -Wall -W -fprofile-arcs -ftest-coverage")
+    SET(CMAKE_EXE_LINKER_FLAGS "-fprofile-arcs -ftest-coverage")
+ENDIF ( ENABLE_COVERAGE )
 
 #-----------------------------------------------
 # documentation

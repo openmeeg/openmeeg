@@ -247,14 +247,14 @@ public:
         int n=0;
         Vect3 vertices[3]={M.getPt(Trg.s1()),M.getPt(Trg.s2()),M.getPt(Trg.s3())};
         T I0=triangle_integration(fc,vertices);
-        return adaptive_integration(fc,vertices,I0,tolerance,n);
+        return adaptive_integration(fc,vertices,I0,n);
     }
 
 private:
 
     double tolerance;
 
-    inline T adaptive_integration(const I &fc,const Vect3 *vertices,T I0,const double tolerance,int n)
+    inline T adaptive_integration(const I &fc,const Vect3 *vertices,T I0,int n)
     {
         Vect3 newpoint0(0.0,0.0,0.0);
         multadd(newpoint0,0.5,vertices[0]);
@@ -277,10 +277,10 @@ private:
         if (norm(I0-sum)>tolerance*norm(I0)){
             n=n+1;
             if (n<10) {
-                I1 = adaptive_integration(fc,vertices1,I1,tolerance,n);
-                I2 = adaptive_integration(fc,vertices2,I2,tolerance,n);
-                I3 = adaptive_integration(fc,vertices3,I3,tolerance,n);
-                I4 = adaptive_integration(fc,vertices4,I4,tolerance,n);
+                I1 = adaptive_integration(fc,vertices1,I1,n);
+                I2 = adaptive_integration(fc,vertices2,I2,n);
+                I3 = adaptive_integration(fc,vertices3,I3,n);
+                I4 = adaptive_integration(fc,vertices4,I4,n);
                 I0 = I1+I2+I3+I4;
             }
         }

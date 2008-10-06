@@ -97,7 +97,7 @@ void assemble_DipSourceMat(Matrix &rhs,const Geometry &geo,vector<Vect3> Rs,vect
     // First block is nVertexFistLayer
     rhs.set(0);
     Vector prov(rhs.nlin());
-    for (int s=0; s<Qs.size(); s++) {
+    for (size_t s=0; s<Qs.size(); s++) {
         progressbar(s,Qs.size());
         prov.set(0);
         operatorDipolePotDer(Rs[s],Qs[s],geo.getM(0),prov,0,GaussOrder);

@@ -258,7 +258,6 @@ bool tri_tri_overlap_test_3d(double p1[3], double q1[3], double r1[3],
 };
 
 
-
 bool coplanar_tri_tri3d(double p1[3], double q1[3], double r1[3],
                        double p2[3], double q2[3], double r2[3],
                        double normal_1[3], double normal_2[3]){

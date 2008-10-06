@@ -77,24 +77,24 @@ private:
     int ncomponents; //!< Number of connexe components
     int ninversions; //!< Number of triangles with inverted orientations
 
-    void load_tri(std::istream &, bool checkOrientations = true);
-    void load_tri(const char*, bool checkOrientations = true);
+    void load_tri(std::istream &);
+    void load_tri(const char*);
 
-    void load_bnd(std::istream &, bool checkOrientations = true);
-    void load_bnd(const char*, bool checkOrientations = true);
+    void load_bnd(std::istream &);
+    void load_bnd(const char*);
 
-    void load_off(std::istream &, bool checkOrientations = true);
-    void load_off(const char*, bool checkOrientations = true);
+    void load_off(std::istream &);
+    void load_off(const char*);
 
-    void load_mesh(std::istream &is, bool checkOrientations = true);
-    void load_mesh(const char*, bool checkOrientations = true);
+    void load_mesh(std::istream &is);
+    void load_mesh(const char*);
 
     #ifdef USE_VTK
-        void load_vtk(std::istream &is, bool checkOrientations = true);
-        void load_vtk(const char*, bool checkOrientations = true);
+        void load_vtk(std::istream &is);
+        void load_vtk(const char*);
     #else
         template <typename T>
-        void load_vtk(T, bool checkOrientations = true) {
+        void load_vtk(T) {
             std::cerr << "You have to compile OpenMEEG with VTK to read VTK files" << std::endl;
             exit(1);
         }
@@ -106,7 +106,6 @@ private:
     void save_off(const char*);
     void save_mesh(const char*);
 
-    void updateTriangleOrientations(bool checkOrientations = true);
     void update_triangles();
     void recompute_normals();
 
@@ -149,10 +148,9 @@ public:
     /**
        * Read mesh from file
        * \param filename can be .vtk, .tri (ascii), .bnd
-       * \param checkOrientations true or false
        * \param verbose true or false
        */
-    void load(const char* filename, bool checkOrientations = true, bool verbose=true);
+    void load(const char* filename, bool verbose=true);
 
     /**
        * Save mesh to file
