@@ -291,11 +291,13 @@ OPTION(BUILD_TEST "Build tests" OFF)
 IF (BUILD_TEST)
     INCLUDE(CTest)
     ENABLE_TESTING()
+    MARK_AS_ADVANCED(BUILD_TESTING)
     SUBDIRS(tests)
 ENDIF (BUILD_TEST)
 
 IF ( USE_GCC AND BUILD_TEST)
     OPTION(ENABLE_COVERAGE "Build tests" OFF)
+    MARK_AS_ADVANCED(ENABLE_COVERAGE)
 ENDIF ( USE_GCC AND BUILD_TEST)
 
 IF ( ENABLE_COVERAGE )
@@ -333,6 +335,7 @@ SUBDIRS(Wrapping)
 #-----------------------------------------------
 
 OPTION(CHECK_SYNTAX "Checking code syntax using KWStyle" OFF)
+MARK_AS_ADVANCED(CHECK_SYNTAX)
 
 IF ( CHECK_SYNTAX )
     ADD_CUSTOM_TARGET(check_syntax
@@ -383,13 +386,15 @@ IF(ENABLE_PACKAGING)
 
     INCLUDE(CPack)
 
-    OPTION(BUILD_RPM "Build RPM package" OFF)
-    IF(UNIX AND BUILD_RPM) # linux
-        INCLUDE(UseRPMTools)
-        IF (RPMTools_FOUND)
-            RPMTools_ADD_RPM_TARGETS(${PROJECT_NAME} "packaging/${PROJECT_NAME}.spec.in")
-        ENDIF (RPMTools_FOUND)
-    ENDIF(UNIX AND BUILD_RPM)
+    IF ( UNIX AND NOT APPLE )
+        OPTION(BUILD_RPM "Build RPM package" OFF)
+        IF( BUILD_RPM ) # linux
+            INCLUDE(UseRPMTools)
+            IF (RPMTools_FOUND)
+                RPMTools_ADD_RPM_TARGETS(${PROJECT_NAME} "packaging/${PROJECT_NAME}.spec.in")
+            ENDIF (RPMTools_FOUND)
+        ENDIF( BUILD_RPM )
+    ENDIF ( UNIX AND NOT APPLE )
 
 ENDIF(ENABLE_PACKAGING)
 

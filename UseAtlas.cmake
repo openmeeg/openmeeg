@@ -1,6 +1,8 @@
 IF (WIN32)       # WINDOWS
         OPTION(USE_ATLAS "Build the project using ATLAS" OFF)
         OPTION(USE_MKL "Build the project with MKL" ON)
+        MARK_AS_ADVANCED(USE_MKL)
+        MARK_AS_ADVANCED(USE_ATLAS)
 ELSE (WIN32)
     IF (APPLE)   # MACOSX
         OPTION(USE_ATLAS "Build the project using ATLAS" OFF)
