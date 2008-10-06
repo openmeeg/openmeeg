@@ -46,20 +46,22 @@ Documentation for @PROJECT_NAME@.
 %setup -q -n %{srcdirname}
 
 %build
+rm -rf %{builddirname}
 mkdir %{builddirname}
 cd %{builddirname}
-%cmake -DBUILD_DOCUMENTATION=ON -DPYTHON_WRAP=ON -DUSE_MATIO=ON @CMAKE_SOURCE_DIR@
+%cmake -DBUILD_DOCUMENTATION=ON -DPYTHON_WRAP=ON -DUSE_MATIO=ON -DBUILD_TEST=ON -DCMAKE_BUILD_TYPE=Release @CMAKE_SOURCE_DIR@
 make
 
 %check
-ctest
+cd %{builddirname}
+make test
 
 %install
 rm -rf $RPM_BUILD_ROOT
 cd %{builddirname}
 %ifarch x86_64
 #   The following lines are because of the buggy installation point of CMake for x86_64 for libraries.
-make install DESTDIR=$RPM_BUILD_ROOT
+make DESTDIR=$RPM_BUILD_ROOT install
 mkdir -p $RPM_BUILD_ROOT%{_libdir}
 mv $RPM_BUILD_ROOT/usr/lib/* $RPM_BUILD_ROOT%{_libdir}
 %else
