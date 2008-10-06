@@ -369,20 +369,17 @@ IF(ENABLE_PACKAGING)
         ELSE(WIN32 AND NOT UNIX)
           SET(CPACK_SOURCE_STRIP_FILES "")
         ENDIF(WIN32 AND NOT UNIX)
-
-    ELSE(APPLE OR WIN32) # linux
-
-        OPTION(BUILD_RPM "Build RPM package" OFF)
-        IF (BUILD_RPM)
-            INCLUDE(UseRPMTools)
-            IF (RPMTools_FOUND)
-                RPMTools_ADD_RPM_TARGETS(${PROJECT_NAME} "packaging/${PROJECT_NAME}.spec.in")
-            ENDIF (RPMTools_FOUND)
-        ENDIF (BUILD_RPM)
-
     ENDIF(APPLE OR WIN32)
 
     INCLUDE(CPack)
+
+    OPTION(BUILD_RPM "Build RPM package" OFF)
+    IF(UNIX AND BUILD_RPM) # linux
+        INCLUDE(UseRPMTools)
+        IF (RPMTools_FOUND)
+            RPMTools_ADD_RPM_TARGETS(${PROJECT_NAME} "packaging/${PROJECT_NAME}.spec.in")
+        ENDIF (RPMTools_FOUND)
+    ENDIF(UNIX AND BUILD_RPM)
 
 ENDIF(ENABLE_PACKAGING)
 
