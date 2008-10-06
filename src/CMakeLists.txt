@@ -51,30 +51,26 @@ TARGET_LINK_LIBRARIES (om_forward ${OPENMEEG_OTHER_LIBRARIES} OpenMEEG)
 ADD_EXECUTABLE(om_assemble assemble.cpp)
 TARGET_LINK_LIBRARIES (om_assemble ${OPENMEEG_OTHER_LIBRARIES} OpenMEEG)
 
-# =============
-# = PACKAGING =
-# =============
+# ================
+# = INSTALLATION =
+# ================
 
-IF(ENABLE_PACKAGING)
-    INSTALL(TARGETS OpenMEEG om_assemble om_forward om_gain om_inverse om_minverser om_presmooth
-            RUNTIME DESTINATION bin
-            LIBRARY DESTINATION lib
-            ARCHIVE DESTINATION lib)
-ENDIF(ENABLE_PACKAGING)
+INSTALL(TARGETS OpenMEEG om_assemble om_forward om_gain om_inverse om_minverser om_presmooth
+        RUNTIME DESTINATION bin
+        LIBRARY DESTINATION lib
+        ARCHIVE DESTINATION lib)
 
 # ===========
 # = TESTING =
 # ===========
 
 IF(BUILD_TEST)
+    INCLUDE(TestHead1.txt)
+    INCLUDE(TestHead2.txt)
 
-INCLUDE(TestHead1.txt)
-INCLUDE(TestHead2.txt)
+    OPTION(TEST_HEAD3 "Run tests on Head 3" OFF)
 
-OPTION(TEST_HEAD3 "Run tests on Head 3" OFF)
-
-IF ( TEST_HEAD3 )
-    INCLUDE(TestHead3.txt)
-ENDIF ( TEST_HEAD3 )
-
+    IF (TEST_HEAD3)
+        INCLUDE(TestHead3.txt)
+    ENDIF (TEST_HEAD3)
 ENDIF(BUILD_TEST)
