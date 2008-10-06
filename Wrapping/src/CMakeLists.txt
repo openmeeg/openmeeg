@@ -4,32 +4,19 @@
 
 IF (PYTHON_WRAP)
 
+    INCLUDE(FindNumpy.cmake)
+
     SET (MODULE_NAME openmeeg)
     SET (SWIG_SRC_FILE_NAME ${MODULE_NAME}.i)
     SET (CMAKE_SWIG_FLAGS  "-c++" )
 
-    IF (APPLE)
+    FIND_PACKAGE(SWIG REQUIRED)
+    INCLUDE(${SWIG_USE_FILE})
+    FIND_PACKAGE(PythonLibs)
 
-        # Darwin ports python
-        SET(PYTHON_INCLUDE_PATH /opt/local/include/python2.5/)
-        SET(PYTHON_LIBRARIES /opt/local/lib/libpython2.5.dylib)
+    INCLUDE_DIRECTORIES(${PYTHON_INCLUDE_PATH} ${PYTHON_NUMPY_INCLUDE_DIR} ${CMAKE_CURRENT_SOURCE_DIR} ${OPENMEEG_INCLUDE_DIRECTORIES})
 
-        # Buildin python
-        SET(PYTHON_INCLUDE_PATH /usr/include/python2.5)
-        SET(PYTHON_LIBRARIES /usr/lib/libpython2.5.dylib)
-
-        # Enthought python
-        SET(PYTHON_INCLUDE_PATH
-            /Library/Frameworks/Python.framework/Versions/Current/include/python2.5
-            /Library/Frameworks/Python.framework/Versions/Current/lib/python2.5/site-packages/numpy-1.0.4.0004-py2.5-macosx-10.3-fat.egg/numpy/core/include/
-            )
-        SET(PYTHON_LIBRARIES /Library/Frameworks/Python.framework/Versions/Current/Python)
-
-    ELSE (APPLE)
-        FIND_PACKAGE(PythonLibs)
-    ENDIF (APPLE)
-
-    INCLUDE_DIRECTORIES(${PYTHON_INCLUDE_PATH} ${CMAKE_CURRENT_SOURCE_DIR} ${OPENMEEG_INCLUDE_DIRECTORIES})
+    SET(CMAKE_SWIG_FLAGS "")
 
     FILE(GLOB SWIG_SRC_FILE ${SWIG_SRC_FILE_NAME})
 
@@ -45,14 +32,7 @@ IF (PYTHON_WRAP)
         SET (SWIG_MODULE_${MODULE_NAME}_EXTRA_DEPS ${SWIG_MODULE_${MODULE_NAME}_EXTRA_DEPS} ${PROJECT_BINARY_DIR}/Wrapping/src/docstrings.i)
     ENDIF (BUILD_DOCUMENTATION)
 
-    ADD_CUSTOM_TARGET( numpy_swig
-                       COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/numpy.i ${CMAKE_CURRENT_BINARY_DIR})
-
     SWIG_ADD_MODULE(${MODULE_NAME} python ${SWIG_SRC_FILE_NAME} "")
-    ADD_DEPENDENCIES(_${MODULE_NAME} numpy_swig)
-
-    SET_SOURCE_FILES_PROPERTIES(${SWIG_SRC_FILE_NAME} PROPERTIES CPLUSPLUS ON)
-    SET_SOURCE_FILES_PROPERTIES(${SWIG_SRC_FILE_NAME} PROPERTIES SWIG_FLAGS "-includeall")
 
     IF (PYTHON_LIBRARIES)
         TARGET_LINK_LIBRARIES ("_${MODULE_NAME}" ${PYTHON_LIBRARIES} ${OPENMEEG_OTHER_LIBRARIES} OpenMEEG)
