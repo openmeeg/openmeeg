@@ -256,6 +256,14 @@ IF ( UNIX )
         COMMAND cp -rf ${CMAKE_SOURCE_DIR}/data/IntermediateFiles/Head3 ${CMAKE_BINARY_DIR}/data/IntermediateFiles
         COMMAND cp -rf ${CMAKE_SOURCE_DIR}/data/Computations/Head3 ${CMAKE_BINARY_DIR}/data/Computations
     )
+    ADD_CUSTOM_TARGET(copy_nerve1
+        COMMAND mkdir -p ${CMAKE_BINARY_DIR}/data/Models/nerve1
+        COMMAND mkdir -p ${CMAKE_BINARY_DIR}/data/IntermediateFiles/nerve1
+        COMMAND mkdir -p ${CMAKE_BINARY_DIR}/data/Computations/nerve1
+        COMMAND cp -rf ${CMAKE_SOURCE_DIR}/data/Models/nerve1 ${CMAKE_BINARY_DIR}/data/Models
+        COMMAND cp -rf ${CMAKE_SOURCE_DIR}/data/IntermediateFiles/nerve1 ${CMAKE_BINARY_DIR}/data/IntermediateFiles
+        COMMAND cp -rf ${CMAKE_SOURCE_DIR}/data/Computations/nerve1 ${CMAKE_BINARY_DIR}/data/Computations
+    )
     ADD_CUSTOM_TARGET(demo_head1
         COMMAND make forinv
         WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/data/Computations/Head1
@@ -268,9 +276,14 @@ IF ( UNIX )
         COMMAND make forward
         WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/data/Computations/Head3
     )
+    ADD_CUSTOM_TARGET(demo_nerve1
+        COMMAND make gain
+        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/data/Computations/nerve1
+    )
     ADD_DEPENDENCIES(demo_head1 copy_head1)
     ADD_DEPENDENCIES(demo_head2 copy_head2)
     ADD_DEPENDENCIES(demo_head3 copy_head3)
+    ADD_DEPENDENCIES(demo_nerve1 copy_nerve1)
 ENDIF ( UNIX )
 
 #-----------------------------------------------
