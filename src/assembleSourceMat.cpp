@@ -141,60 +141,6 @@ DipSourceMat::DipSourceMat (const Geometry &geo, const Matrix& dipoles, const in
     assemble_DipSourceMat(*this,geo,Rs,Qs,GaussOrder);
 }
 
-// Gradient
-void assemble_DipSourceGradMat(Matrix &rhs,const Geometry &geo,vector<Vect3> Rs,vector<Vect3> Qs,const int GaussOrder)
-{
-    unsigned int nd=Qs.size();
-
-    int newsize = geo.size()-(geo.getM(geo.nb()-1)).nbTrgs();
-    rhs = Matrix(newsize, 6*nd); // 6 derivatives!
-
-    unsigned nVertexFirstLayer=geo.getM(0).nbPts();
-    unsigned nFacesFirstLayer=geo.getM(0).nbTrgs();
-
-    double K = 1.0 / (4*M_PI);
-
-    // First block is nVertexFistLayer
-    rhs.set(0);
-    for( unsigned s=0; s<nd; s++ )
-    {
-        Vector prov[6];
-        for (int d=0;d<6;d++) {
-            prov[d]=Vector(rhs.nlin());
-            prov[d].set(0);
-        }
-
-        operatorDipolePotDerGrad(Rs[s],Qs[s],geo.getM(0),prov,0,GaussOrder);
-
-        // Second block is nFaceFistLayer
-        operatorDipolePotGrad(Rs[s],Qs[s],geo.getM(0),prov,nVertexFirstLayer,GaussOrder);
-
-        for (unsigned i=0; i<rhs.nlin(); i++)
-            for (int d=0;d<6;d++)
-                rhs(i, 6*s+d) = prov[d](i);
-    }
-
-    // Blocks multiplication
-    double s1i=geo.sigma_in(0);
-    for( unsigned i=0; i<nVertexFirstLayer; i++ )
-    {
-        for (unsigned j=0; j<6*nd; j++) {
-            rhs(i,j) *= K;
-        }
-    }
-    for( unsigned i=0; i<nFacesFirstLayer; i++ )
-    {
-        for (unsigned j=0; j<6*nd; j++)
-        {
-            rhs(i+nVertexFirstLayer, j) *= (-K/s1i);
-        }
-    }
-}
-
-DipSourceGradMat::DipSourceGradMat (const Geometry &geo, vector<Vect3> Rs, vector<Vect3> Qs, const int GaussOrder) {
-    assemble_DipSourceGradMat(*this,geo,Rs,Qs,GaussOrder);
-}
-
 void assemble_EITsource(const Geometry &geo, Matrix &mat, Matrix &airescalp, const int GaussOrder)
 {
 // a Matrix to be applied to the scalp-injected current (modulo multiplicative constants)

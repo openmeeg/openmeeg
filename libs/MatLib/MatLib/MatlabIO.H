@@ -215,7 +215,7 @@ namespace maths {
         void write(std::ofstream& os, const LinOp& linop) const throw(std::exception) {
             #ifdef USE_MATIO
                 if (os.is_open()) {
-                    std::cout << "closing stream" << std::endl;
+                    // std::cout << "closing stream" << std::endl;
                     os.close();
                     std::remove(name().c_str());
                 }

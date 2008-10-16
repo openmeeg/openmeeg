@@ -121,7 +121,7 @@ inline void progressbar(int n, int N, int w = 20) {
     const char* cprog1 = "*";
     const char* cbeg = "[";
     const char* cend = "]";
-    int p = std::min( (int)floor(n*(w+1)/N), w);
+    int p = (int)std::min( (int)floor(1.f*n*(w+1)/N), w);
 
     static int pprev = -1;
     if (n == 0) {

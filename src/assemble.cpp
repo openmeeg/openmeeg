@@ -277,55 +277,6 @@ int main(int argc, char** argv)
     }
 
     /*********************************************************************************************
-    * RK: Computation of Dipole Source Gradient Matrix for discrete dipolar case: gradient wrt dipoles position and intensity!
-    **********************************************************************************************/
-    else if((!strcmp(argv[1],"-DipSourceGradMat"))|(!strcmp(argv[1],"-DSGM"))|(!strcmp(argv[1],"-dsgm"))) {
-
-        if(argc < 3)
-        {
-            cerr << "Please set geometry filepath !" << endl;
-            exit(1);
-        }
-        if (argc < 4)
-        {
-            std::cerr << "Please set conductivities filepath !" << endl;
-            exit(1);
-        }
-        if(argc < 5)
-        {
-            cerr << "Please set dipoles filepath!" << endl;
-            exit(1);
-        }
-
-        // Loading surfaces from geometry file.
-        Geometry geo;
-        geo.read(argv[2],argv[3]);
-
-        // Loading Matrix of dipoles :
-        Matrix dipoles(argv[4]);
-        if(dipoles.ncol()!=6)
-        {
-            cerr << "Dipoles File Format Error" << endl;
-            exit(1);
-        }
-
-        // Assembling Matrix from discretization :
-        unsigned int nd = (unsigned int) dipoles.nlin();
-        std::vector<Vect3> Rs,Qs;
-        for( unsigned int i=0; i<nd; i++ )
-        {
-            Vect3 r(3),q(3);
-            for(int j=0;j<3;j++) r(j)   = dipoles(i,j);
-            for(int j=3;j<6;j++) q(j-3) = dipoles(i,j);
-            Rs.push_back(r); Qs.push_back(q);
-        }
-
-        DipSourceGradMat mat( geo, Rs, Qs, GaussOrder);
-        // Saving DipSourceGrad Matrix :
-        mat.SAVE(argv[5]);
-    }
-
-    /*********************************************************************************************
     * Computation of the linear application which maps the unknown vector in symmetric system,
     * (i.e. the potential and the normal current on all interfaces)
     * |----> v (potential at the electrodes)

@@ -75,13 +75,6 @@ public:
     virtual ~DipSourceMat () {};
 };
 
-class OPENMEEG_EXPORT DipSourceGradMat : public virtual Matrix
-{
-public:
-    DipSourceGradMat (const Geometry &geo, std::vector<Vect3> Rs, std::vector<Vect3> Qs, const int GaussOrder);
-    virtual ~DipSourceGradMat () {};
-};
-
 class OPENMEEG_EXPORT Surf2VolMat : public virtual Matrix
 {
 public:

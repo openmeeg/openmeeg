@@ -261,7 +261,6 @@ IF ( UNIX )
         COMMAND mkdir -p ${CMAKE_BINARY_DIR}/data/IntermediateFiles/nerve1
         COMMAND mkdir -p ${CMAKE_BINARY_DIR}/data/Computations/nerve1
         COMMAND cp -rf ${CMAKE_SOURCE_DIR}/data/Models/nerve1 ${CMAKE_BINARY_DIR}/data/Models
-        COMMAND cp -rf ${CMAKE_SOURCE_DIR}/data/IntermediateFiles/nerve1 ${CMAKE_BINARY_DIR}/data/IntermediateFiles
         COMMAND cp -rf ${CMAKE_SOURCE_DIR}/data/Computations/nerve1 ${CMAKE_BINARY_DIR}/data/Computations
     )
     ADD_CUSTOM_TARGET(demo_head1
@@ -329,11 +328,12 @@ ENDIF (ENABLE_COVERAGE)
 #-----------------------------------------------
 
 OPTION(BUILD_DOCUMENTATION "Build Doxygen documentation" OFF)
+MARK_AS_ADVANCED(BUILD_DOCUMENTATION)
 
-IF ( BUILD_DOCUMENTATION )
-    SET(OPENMEEG_DOXYGEN_HOME ${OpenMEEG_SOURCE_DIR}/documentation)
-    SUBDIRS(${OPENMEEG_DOXYGEN_HOME})
-ENDIF ( BUILD_DOCUMENTATION )
+OPTION(BUILD_TUTORIALS "Build Tutorials" OFF)
+MARK_AS_ADVANCED(BUILD_TUTORIALS)
+
+SUBDIRS(${OpenMEEG_SOURCE_DIR}/documentation)
 
 #-----------------------------------------------
 # Wrapping

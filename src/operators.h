@@ -82,8 +82,6 @@ void operatorP1P0(const Geometry &geo,const int I,SymMatrix &mat,const int offse
 void operatorFerguson(const Vect3& x, const Mesh &m1, Matrix &mat, int offsetI, int offsetJ);
 void operatorDipolePotDer(const Vect3 &r0, const Vect3 &q,const Mesh &inner_layer, Vector &rhs, int offsetIdx,const int);
 void operatorDipolePot(const Vect3 &r0, const Vect3 &q,const Mesh &inner_layer, Vector &rhs, int offsetIdx,const int);
-void operatorDipolePotDerGrad(const Vect3 &r0, const Vect3 &q,const Mesh &inner_layer, Vector rhs[3], int offsetIdx,const int);
-void operatorDipolePotGrad(const Vect3 &r0, const Vect3 &q,const Mesh &inner_layer, Vector rhs[3], int offsetIdx,const int);
 
 inline void mult( SymMatrix &mat, int Istart, int Jstart, int Istop, int Jstop, double coeff)
 {
