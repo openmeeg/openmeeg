@@ -392,6 +392,11 @@ IF(ENABLE_PACKAGING OR BUILD_RPM)
     SET(CPACK_RESOURCE_FILE_LICENSE "${OpenMEEG_SOURCE_DIR}/LICENSE.txt")
     SET(CPACK_PACKAGE_INSTALL_DIRECTORY "OpenMEEG")
 
+    IF ( APPLE )
+        SET(CPACK_PACKAGE_FILE_NAME
+            "OpenMEEG-${PACKAGE_VERSION_MAJOR}-${PACKAGE_VERSION_MINOR}-${PACKAGE_VERSION_PATCH}-MacOSX-Intel")
+    ENDIF ( APPLE )
+
     IF (WIN32)
         # There is a bug in NSIS that does not handle full unix paths properly. Make
         # sure there is at least one set of four (4) backlasshes.

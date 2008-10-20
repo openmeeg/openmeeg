@@ -15,33 +15,43 @@ ENDIF (WIN32)
 
 IF(USE_ATLAS)
 
-    SET(ATLAS_LIB_SEARCHPATH
-        /usr/lib64/atlas
-        /usr/lib/sse2
-        /usr/lib/
-        /usr/lib/atlas
-    )
+    IF ( WIN32 )
+        MESSAGE("Atlas not supported on Windows. Please use MKL")
+    ENDIF ( WIN32 )
 
-    SET(ATLAS_OTHER_LIBS lapack_atlas lapack cblas)
+    IF ( LINUX )
+        SET(ATLAS_LIB_SEARCHPATH
+            /usr/lib64/atlas
+            /usr/lib/sse2
+            /usr/lib/
+            /usr/lib/atlas
+        )
 
-    # Find lib atlas and assume ${ATLAS_OTHER_LIBS} are in the same directory
-    FIND_LIBRARY(ATLAS_LIB
-                 NAMES atlas
-                 PATHS ${ATLAS_LIB_SEARCHPATH}
-                 NO_DEFAULT_PATH
-                 NO_CMAKE_ENVIRONMENT_PATH
-                 NO_CMAKE_PATH
-                 NO_SYSTEM_ENVIRONMENT_PATH
-                 NO_CMAKE_SYSTEM_PATH)
+        SET(ATLAS_OTHER_LIBS lapack_atlas lapack cblas)
 
-    SET(OPENMEEG_OTHER_LIBRARIES
-        ${OPENMEEG_OTHER_LIBRARIES} ${ATLAS_LIB} ${ATLAS_OTHER_LIBS})
-    #MARK_AS_ADVANCED(${ATLAS_LIB})
+        # Find lib atlas and assume ${ATLAS_OTHER_LIBS} are in the same directory
+        FIND_LIBRARY(ATLAS_LIB
+                     NAMES atlas
+                     PATHS ${ATLAS_LIB_SEARCHPATH}
+                     NO_DEFAULT_PATH
+                     NO_CMAKE_ENVIRONMENT_PATH
+                     NO_CMAKE_PATH
+                     NO_SYSTEM_ENVIRONMENT_PATH
+                     NO_CMAKE_SYSTEM_PATH)
 
-    FIND_PATH(ATLAS_INCLUDE_PATH atlas/cblas.h
-                /usr/include/
-    )
-    INCLUDE_DIRECTORIES(${ATLAS_INCLUDE_PATH})
+        SET(OPENMEEG_OTHER_LIBRARIES
+            ${OPENMEEG_OTHER_LIBRARIES} ${ATLAS_LIB} ${ATLAS_OTHER_LIBS})
+        #MARK_AS_ADVANCED(${ATLAS_LIB})
+
+        FIND_PATH(ATLAS_INCLUDE_PATH atlas/cblas.h
+                    /usr/include/
+        )
+        INCLUDE_DIRECTORIES(${ATLAS_INCLUDE_PATH})
+    ELSE ( LINUX ) # Assume APPLE
+
+        INCLUDE_DIRECTORIES(/System/Library/Frameworks/vecLib.framework/Headers)
+
+    ENDIF ( LINUX )
 
 ENDIF(USE_ATLAS)
 

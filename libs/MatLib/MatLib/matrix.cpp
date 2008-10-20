@@ -169,11 +169,16 @@ Matrix Matrix::inverse() const
     // LU
     int *pivots=new int[ncol()];
     int info;
-    DGETRF(invA.nlin(),invA.ncol(),invA.data(),invA.nlin(),pivots,info);
+    int nlin_local = invA.nlin();
+    int nlin_local2 = invA.nlin();
+    int ncol_local = invA.ncol();
+    DGETRF(nlin_local,ncol_local,invA.data(),nlin_local2,pivots,info);
+    // DGETRF(invA.nlin(),invA.ncol(),invA.data(),invA.nlin(),pivots,info);
     // Inverse
     int size=(int)invA.ncol()*64;
     double *work=new double[size];
-    DGETRI(invA.ncol(),invA.data(),invA.ncol(),pivots,work,size,info);
+    DGETRI(ncol_local,invA.data(),ncol_local,pivots,work,size,info);
+    // DGETRI(invA.ncol(),invA.data(),invA.ncol(),pivots,work,size,info);
     delete[] pivots;
     delete[] work;
     return invA;
