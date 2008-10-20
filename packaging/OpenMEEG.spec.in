@@ -59,13 +59,12 @@ make test
 %install
 rm -rf $RPM_BUILD_ROOT
 cd %{builddirname}
+make DESTDIR=$RPM_BUILD_ROOT install
+
 %ifarch x86_64
 #   The following lines are because of the buggy installation point of CMake for x86_64 for libraries.
-make DESTDIR=$RPM_BUILD_ROOT install
 mkdir -p $RPM_BUILD_ROOT%{_libdir}
 mv $RPM_BUILD_ROOT/usr/lib/* $RPM_BUILD_ROOT%{_libdir}
-%else
-make install
 %endif
 
 %clean
@@ -85,6 +84,8 @@ rm -rf %{srcdirname}
 %{_docdir}/OpenMEEG/*
 
 %changelog
+* Mon Oct 20 2008 Theo Papadopoulo <papadop@sophia.inria.fr>
+- Corrected installation for i386.
 * Tue Jul 19 2008 Theo Papadopoulo <papadop@sophia.inria.fr>
 - Added some cmake option and several packages to contain the python and
 documentation parts of @PROJECT_NAME@.
