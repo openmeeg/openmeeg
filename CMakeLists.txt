@@ -229,7 +229,8 @@ INCLUDE_DIRECTORIES(
 # Setting sources and libraries
 #---------------------------------------------------------------
 
-SUBDIRS(libs src)
+ADD_SUBDIRECTORY(libs)
+ADD_SUBDIRECTORY(src)
 
 IF ( UNIX )
     ADD_CUSTOM_TARGET(copy_head1
@@ -419,6 +420,10 @@ IF(ENABLE_PACKAGING OR BUILD_RPM)
     ENDIF(UNIX AND BUILD_RPM)
 
 ENDIF(ENABLE_PACKAGING OR BUILD_RPM)
+
+IF ( ENABLE_PACKAGING AND WIN32 )
+    INCLUDE(UseWin32dlls.cmake)
+ENDIF ( ENABLE_PACKAGING AND WIN32 )
 
 #######################################################################
 # Help other projects use OpenMEEG
