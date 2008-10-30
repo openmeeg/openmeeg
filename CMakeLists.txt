@@ -89,6 +89,7 @@ TEST_BIG_ENDIAN(WORDS_BIGENDIAN)
 #------------------------------------------------------------
 
 OPTION(USE_VTK "Build the project using VTK" OFF)
+MARK_AS_ADVANCED(USE_VTK)
 
 IF (USE_VTK)
     FIND_PACKAGE(VTK)
@@ -328,10 +329,7 @@ ENDIF (ENABLE_COVERAGE)
 #-----------------------------------------------
 
 OPTION(BUILD_DOCUMENTATION "Build Doxygen documentation" OFF)
-MARK_AS_ADVANCED(BUILD_DOCUMENTATION)
-
 OPTION(BUILD_TUTORIALS "Build Tutorials" OFF)
-MARK_AS_ADVANCED(BUILD_TUTORIALS)
 
 SUBDIRS(${OpenMEEG_SOURCE_DIR}/documentation)
 
@@ -339,7 +337,7 @@ SUBDIRS(${OpenMEEG_SOURCE_DIR}/documentation)
 # Wrapping
 #-----------------------------------------------
 
-OPTION(PYTHON_WRAP "Enable TCL Wrapping" OFF)
+OPTION(PYTHON_WRAP "Enable Python Wrapping" OFF)
 
 IF ( PYTHON_WRAP AND APPLE AND USE_ICC ) # Builtin Python2.5 on Mac OS X in 32 bits...
     SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m32")

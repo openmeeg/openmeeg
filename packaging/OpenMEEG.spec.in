@@ -49,7 +49,7 @@ Documentation for @PROJECT_NAME@.
 rm -rf %{builddirname}
 mkdir %{builddirname}
 cd %{builddirname}
-%cmake -DBUILD_DOCUMENTATION=ON -DPYTHON_WRAP=ON -DUSE_MATIO=ON -DBUILD_TEST=ON -DCMAKE_BUILD_TYPE=Release @CMAKE_SOURCE_DIR@
+%cmake -DBUILD_DOCUMENTATION=ON -DPYTHON_WRAP=ON -DUSE_MATIO=ON -DBUILD_TEST=ON -DCMAKE_BUILD_TYPE=Release -DBUILD_DOCUMENTATION=ON -DBUILD_TUTORIALS=ON @CMAKE_SOURCE_DIR@
 make
 
 %check
@@ -84,6 +84,8 @@ rm -rf %{srcdirname}
 %{_docdir}/OpenMEEG/*
 
 %changelog
+* Thu Oct 30 2008 Theo Papadopoulo <papadop@sophia.inria.fr>
+- Add documentation build that had been suppressed by default.
 * Mon Oct 20 2008 Theo Papadopoulo <papadop@sophia.inria.fr>
 - Corrected installation for i386.
 * Tue Jul 19 2008 Theo Papadopoulo <papadop@sophia.inria.fr>

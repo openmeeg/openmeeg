@@ -127,8 +127,7 @@ inline Vector gentv( Vector x,
     Vector v = mat * x;
     Vector grad_norms( v.size()/3 );
     Vector grad_norms_inv( v.size()/3 );
-    for(size_t i=0;i<grad_norms.size();i++)
-    {
+    for(size_t i=0;i<grad_norms.size();i++) {
         double *pt=&v(3*i);
         grad_norms(i) = sqrt(pt[0]*pt[0]+pt[1]*pt[1]+pt[2]*pt[2]);
         grad_norms_inv(i) = grad_norms(i)!=0 ? 1.0/(grad_norms(i)+EPSILON) : 0;
@@ -151,8 +150,7 @@ inline double compute_one_tv(Vector x,
     double tv = 0;
     Vector v = mat * x;
     Vector grad_norms( v.size()/3 );
-    for(size_t i=0;i<grad_norms.size();i++)
-    {
+    for(size_t i=0;i<grad_norms.size();i++) {
         double *pt = &v(3*i);
         grad_norms(i) = sqrt(pt[0]*pt[0]+pt[1]*pt[1]+pt[2]*pt[2]);
         if (f!=0) {
@@ -167,8 +165,9 @@ inline double compute_one_tv(Vector x,
 // ========================================================
 // = Define Hessian matrices for linear inversion methods =
 // ========================================================
-class OPENMEEG_EXPORT MN_Hessian
-{
+
+class OPENMEEG_EXPORT MN_Hessian {
+
     const Matrix &Transfer;
     const double alpha;
 
@@ -176,15 +175,11 @@ public:
 
     MN_Hessian(const Matrix &TransferMat, const double &Alpha):Transfer(TransferMat),alpha(Alpha) {}
 
-    inline Vector operator * (const Vector &x) const
-    {
-        return Transfer.tmult(Transfer*x)+alpha*x;
-    }
-
+    inline Vector operator * (const Vector &x) const { return Transfer.tmult(Transfer*x)+alpha*x; }
 };
 
-class OPENMEEG_EXPORT WMN_Hessian
-{
+class OPENMEEG_EXPORT WMN_Hessian {
+
     const Matrix &Transfer;
     const double alpha;
     Vector weights;
@@ -193,36 +188,35 @@ public:
 
     WMN_Hessian(const Matrix &TransferMat, const double &Alpha):Transfer(TransferMat),alpha(Alpha) {
         Vector v(Transfer.ncol());
-        for(size_t i = 0; i < weights.size(); ++i)
-        {
+        for(size_t i = 0; i < weights.size(); ++i) {
             Vector col = Transfer.getcol(i);
             v(i) = pow(col.norm(),2);
         }
         weights = v;
     }
 
-    inline Vector operator * (const Vector &x) const
-    {
+    inline Vector operator * (const Vector &x) const {
         return Transfer.tmult(Transfer*x)+alpha*(weights.kmult(x));
     }
 
 };
 
-class OPENMEEG_EXPORT HEAT_Hessian
-{
+class OPENMEEG_EXPORT HEAT_Hessian {
+
     const Matrix &m_transfer;
     const FastSparseMatrix &m_mat;
     const FastSparseMatrix &m_mat_t;
     const double m_alpha;
+
 public:
+
     HEAT_Hessian(const Matrix &transfer,
                      const FastSparseMatrix &mat,
                      const FastSparseMatrix &mat_t,
                      const double &alpha):
     m_transfer(transfer),m_mat(mat),m_mat_t(mat_t),m_alpha(alpha) {}
 
-    inline Vector operator * ( const Vector &x) const
-    {
+    inline Vector operator * ( const Vector &x) const {
         return m_transfer.tmult(m_transfer*x)+m_alpha*(m_mat_t*(m_mat*x));
     }
 };
@@ -230,8 +224,8 @@ public:
 // ========================================================
 
 template<class T> // T should be a linear operator
-size_t MinRes2(const T& A,const Vector& b,Vector& x0,double tol)
-{
+size_t MinRes2(const T& A,const Vector& b,Vector& x0,double tol) {
+
     size_t n_max=10000;
     size_t n=1; size_t N=x0.size();
     Vector v(N); v.set(0.0);
@@ -246,8 +240,7 @@ size_t MinRes2(const T& A,const Vector& b,Vector& x0,double tol)
     Vector xMR=x0;
     double norm_rMR=beta; double norm_r0=beta;
     double c_oold,s_oold,r1_hat,r1,r2,r3,alpha,beta_old;
-    while ((n < n_max+1) && (norm_rMR/norm_r0 > tol) )
-    {
+    while ((n < n_max+1) && (norm_rMR/norm_r0 > tol) ) {
         n=n+1;
         //Lanczos
         v_old=v;
@@ -268,7 +261,7 @@ size_t MinRes2(const T& A,const Vector& b,Vector& x0,double tol)
         w=(v-r3*w_oold-r2*w_old)*(1.0/r1);
         xMR+=c*eta*w; norm_rMR=norm_rMR*fabs(s);
         eta=-s*eta;
-    }// end while
+    }
     std::cout<<"\r";
     return n;
 }
@@ -285,8 +278,7 @@ void LIN_inverse (Matrix& EstimatedData, const T& hess, const Matrix& GainMatrix
     #ifdef USE_OMP
     #pragma omp parallel for
     #endif
-    for(long frame=0;frame<(long)nT;frame++)// loop over frame
-    {
+    for(long frame=0;frame<(long)nT;frame++) { // loop over frame
         Vector m = Data.getcol((size_t) frame);
         Vector v(GainMatrix.ncol()); v.set(0.0);
 
@@ -308,16 +300,14 @@ void LIN_inverse (Matrix& EstimatedData, const T& hess, const Matrix& GainMatrix
 void compute_mn (Matrix& EstimatedData, const Matrix& Data, const Matrix& GainMatrix, double SmoothWeight) {
     Matrix eye(GainMatrix.nlin(),GainMatrix.nlin());
     eye.set(0);
-    for(size_t i = 0; i < GainMatrix.nlin(); ++i) {
+    for (size_t i=0;i<GainMatrix.nlin();++i)
         eye(i,i) = SmoothWeight;
-    }
     EstimatedData = GainMatrix.transpose() * (GainMatrix * GainMatrix.transpose() + eye).inverse() * Data;
 }
 
 // ================= Iterative Mininum norm inversion =======================//
 
-class IMN_inverse : public Matrix
-{
+class IMN_inverse: public Matrix {
 public:
     IMN_inverse (const Matrix& Data, const Matrix& GainMatrix, double SmoothWeight);
     virtual ~IMN_inverse () {};
@@ -331,8 +321,7 @@ IMN_inverse::IMN_inverse (const Matrix& Data, const Matrix& GainMatrix, double S
 
 // ================= Mininum norm inversion =======================//
 
-class MN_inverse : public Matrix
-{
+class MN_inverse: public Matrix {
 public:
     MN_inverse (const Matrix& Data, const Matrix& GainMatrix, double SmoothWeight);
     virtual ~MN_inverse () {};
@@ -345,8 +334,7 @@ MN_inverse::MN_inverse (const Matrix& Data, const Matrix& GainMatrix, double Smo
 
 // ================= Weighted Mininum norm inversion =======================//
 
-class WMN_inverse : public Matrix
-{
+class WMN_inverse: public Matrix {
 public:
     WMN_inverse (const Matrix& Data, const Matrix& GainMatrix, double SmoothWeight);
     virtual ~WMN_inverse () {};
@@ -360,8 +348,7 @@ WMN_inverse::WMN_inverse (const Matrix& Data, const Matrix& GainMatrix, double S
 
 // ================= Gradient based Mininum norm inversion ================ //
 
-class HEAT_inverse : public Matrix
-{
+class HEAT_inverse: public Matrix {
 public:
     HEAT_inverse (const Matrix& Data, const Matrix& GainMatrix, const SparseMatrix& SmoothMatrix, double SmoothWeight);
     virtual ~HEAT_inverse () {};
@@ -388,8 +375,7 @@ void compute_tv(Matrix& EstimatedData, const Matrix& Data, const Matrix& GainMat
     // #ifdef USE_OMP
     // #pragma omp parallel for
     // #endif
-    for(size_t frame=0;frame<nT;frame++)
-    {
+    for(size_t frame=0;frame<nT;frame++) {
         std::cout << ">> Frame " << frame+1 << " / " << nT << std::endl;
         Vector m = Data.getcol(frame);
         Vector v(EstimatedData.nlin());
@@ -409,8 +395,7 @@ void compute_tv(Matrix& EstimatedData, const Matrix& Data, const Matrix& GainMat
 
         // ================== Inverse problem via gradient descent ================== //
         size_t t;
-        for(t=0;t<MaxNbIter && errorTest;t++)
-        {
+        for(t=0;t<MaxNbIter && errorTest;t++) {
             Vector gradtv = gentv(v,fastSmoothMatrix,fastSmoothMatrix_t,AiVector);
             Vector err_vec = GainMatrix*v-m;
             Vector graddata = GainMatrix.tmult(err_vec);
@@ -462,8 +447,7 @@ void compute_tv(Matrix& EstimatedData, const Matrix& Data, const Matrix& GainMat
     }
 }
 
-class TV_inverse : public Matrix
-{
+class TV_inverse: public Matrix {
 public:
     TV_inverse (const Matrix& Data, const Matrix& GainMatrix, const SparseMatrix& SmoothMatrix, const Vector& AiVector, double SmoothWeight, size_t MaxNbIter, double StoppingTol);
     virtual ~TV_inverse () {};

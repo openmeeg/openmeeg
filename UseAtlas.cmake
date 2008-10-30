@@ -47,6 +47,7 @@ IF(USE_ATLAS)
                     /usr/include/
         )
         INCLUDE_DIRECTORIES(${ATLAS_INCLUDE_PATH})
+
     ELSE ( UNIX AND NOT APPLE ) # Assume APPLE
 
         INCLUDE_DIRECTORIES(/System/Library/Frameworks/vecLib.framework/Headers)
