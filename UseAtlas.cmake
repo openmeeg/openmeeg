@@ -19,7 +19,7 @@ IF(USE_ATLAS)
         MESSAGE("Atlas not supported on Windows. Please use MKL")
     ENDIF ( WIN32 )
 
-    IF ( LINUX )
+    IF ( UNIX AND NOT APPLE )
         SET(ATLAS_LIB_SEARCHPATH
             /usr/lib64/atlas
             /usr/lib/sse2
@@ -47,11 +47,11 @@ IF(USE_ATLAS)
                     /usr/include/
         )
         INCLUDE_DIRECTORIES(${ATLAS_INCLUDE_PATH})
-    ELSE ( LINUX ) # Assume APPLE
+    ELSE ( UNIX AND NOT APPLE ) # Assume APPLE
 
         INCLUDE_DIRECTORIES(/System/Library/Frameworks/vecLib.framework/Headers)
 
-    ENDIF ( LINUX )
+    ENDIF ( UNIX AND NOT APPLE )
 
 ENDIF(USE_ATLAS)
 
@@ -68,11 +68,11 @@ IF ( USE_MKL )
         MESSAGE("Can not find mkl.h")
     ENDIF ( MKL_INCLUDE_PATH )
 
-    IF ( LINUX )
+    IF ( UNIX AND NOT APPLE )
         SET(MKL_LIB_SEARCHPATH # add here some paths to look for mkl libs
             ""
         )
-    ENDIF ( LINUX )
+    ENDIF ( UNIX AND NOT APPLE )
 
     IF ( APPLE )
         SET(MKL_LIB_SEARCHPATH # add here some paths to look for mkl libs
@@ -110,8 +110,8 @@ IF ( USE_MKL )
 
     ENDFOREACH ( LIB )
 
-    IF( LINUX ) # MKL on linux requires to link with the pthread library
+    IF( UNIX AND NOT APPLE ) # MKL on linux requires to link with the pthread library
         SET(OPENMEEG_OTHER_LIBRARIES "${OPENMEEG_OTHER_LIBRARIES} pthread")
-    ENDIF( LINUX )
+    ENDIF( UNIX AND NOT APPLE )
 
 ENDIF ( USE_MKL )

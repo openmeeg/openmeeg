@@ -229,8 +229,7 @@ INCLUDE_DIRECTORIES(
 # Setting sources and libraries
 #---------------------------------------------------------------
 
-ADD_SUBDIRECTORY(libs)
-ADD_SUBDIRECTORY(src)
+SUBDIRS(libs src)
 
 IF ( UNIX )
     ADD_CUSTOM_TARGET(copy_head1
