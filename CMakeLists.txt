@@ -14,7 +14,7 @@
 
 SET(PACKAGE_VERSION_MAJOR "1")
 SET(PACKAGE_VERSION_MINOR "0")
-SET(PACKAGE_VERSION_PATCH "svn")
+SET(PACKAGE_VERSION_PATCH "0")
 
 #   The next two lines are a kludge to make rpm generation work. If you change this,
 #   please check that rpm generation still works.

@@ -167,15 +167,24 @@ Matrix Matrix::inverse() const
     assert(nlin()==ncol());
     Matrix invA(*this,DEEP_COPY);
     // LU
+#if defined(USE_ATLAS) & defined(__APPLE__) // Apple Veclib Framework (Handles 32 and 64 Bits)
+    __CLPK_integer *pivots = new __CLPK_integer[ncol()];
+    __CLPK_integer info;
+    __CLPK_integer nlin_local = invA.nlin();
+    __CLPK_integer nlin_local2 = invA.nlin();
+    __CLPK_integer ncol_local = invA.ncol();
+    __CLPK_integer size = invA.ncol()*64;
+#else
     int *pivots=new int[ncol()];
     int info;
     int nlin_local = invA.nlin();
     int nlin_local2 = invA.nlin();
     int ncol_local = invA.ncol();
+    int size = (int)invA.ncol()*64;
+#endif
     DGETRF(nlin_local,ncol_local,invA.data(),nlin_local2,pivots,info);
     // DGETRF(invA.nlin(),invA.ncol(),invA.data(),invA.nlin(),pivots,info);
     // Inverse
-    int size=(int)invA.ncol()*64;
     double *work=new double[size];
     DGETRI(ncol_local,invA.data(),ncol_local,pivots,work,size,info);
     // DGETRI(invA.ncol(),invA.data(),invA.ncol(),pivots,work,size,info);
