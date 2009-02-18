@@ -23,7 +23,7 @@ int main (int argc, char** argv)
     const char *input_format2 = command_option("-if2",(const char *) NULL,
                                                 "Input file format for Matrix 2 : ascii, binary, tex, matlab");
 
-    const char *isfull = command_option("-full",(const char *) 0,"Data are symmetric matrices");
+    const char *isfull = command_option("-full",(const char *) 0,"Data are full matrices");
     const char *issym = command_option("-sym",(const char *) 0,"Data are symmetric matrices");
     const char *issparse = command_option("-sparse",(const char *) 0,"Data are sparse matrices");
     const char *epsilon = command_option("-eps","0.00001","Tolerance on differences");
