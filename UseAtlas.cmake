@@ -27,9 +27,7 @@ IF(USE_ATLAS)
             /usr/lib/atlas
         )
 
-        SET(ATLAS_OTHER_LIBS lapack_atlas lapack cblas)
-
-        # Find lib atlas and assume ${ATLAS_OTHER_LIBS} are in the same directory
+        # Find libs atlas and assume ${ATLAS_OTHER_LIBS} are in the same directory
         FIND_LIBRARY(ATLAS_LIB
                      NAMES atlas
                      PATHS ${ATLAS_LIB_SEARCHPATH}
@@ -39,8 +37,12 @@ IF(USE_ATLAS)
                      NO_SYSTEM_ENVIRONMENT_PATH
                      NO_CMAKE_SYSTEM_PATH)
 
+        FIND_LIBRARY(LAPACK_ATLAS_LIB lapack_atlas ${ATLAS_LIB_SEARCHPATH})
+        FIND_LIBRARY(LAPACK_LIB lapack ${ATLAS_LIB_SEARCHPATH})
+        FIND_LIBRARY(BLAS_LIB blas ${ATLAS_LIB_SEARCHPATH})
+
         SET(OPENMEEG_OTHER_LIBRARIES
-            ${OPENMEEG_OTHER_LIBRARIES} ${ATLAS_LIB} ${ATLAS_OTHER_LIBS})
+            ${OPENMEEG_OTHER_LIBRARIES} ${ATLAS_LIB} ${LAPACK_ATLAS_LIB} ${LAPACK_LIB} ${BLAS_LIB})
         #MARK_AS_ADVANCED(${ATLAS_LIB})
 
         FIND_PATH(ATLAS_INCLUDE_PATH atlas/cblas.h

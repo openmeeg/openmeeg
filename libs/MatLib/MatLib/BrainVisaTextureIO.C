@@ -45,9 +45,11 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #include <BrainVisaTextureIO.H>
 
-namespace maths {
-    const BrainVisaTextureIO           BrainVisaTextureIO::prototype;
-    const std::string                  BrainVisaTextureIO::MagicTag("ascii");
-    const BrainVisaTextureIO::Suffixes BrainVisaTextureIO::suffs = BrainVisaTextureIO::init();
-    const std::string                  BrainVisaTextureIO::Identity("tex");
+namespace OpenMEEG {
+    namespace maths {
+        const BrainVisaTextureIO           BrainVisaTextureIO::prototype;
+        const std::string                  BrainVisaTextureIO::MagicTag("ascii");
+        const BrainVisaTextureIO::Suffixes BrainVisaTextureIO::suffs = BrainVisaTextureIO::init();
+        const std::string                  BrainVisaTextureIO::Identity("tex");
+    }
 }

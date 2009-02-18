@@ -43,8 +43,8 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#ifndef BRAINVISATEXTUREIO_H
-#define BRAINVISATEXTUREIO_H
+#ifndef OPENMEEG_BRAINVISATEXTUREIO_H
+#define OPENMEEG_BRAINVISATEXTUREIO_H
 
 #include <sstream>
 
@@ -52,91 +52,93 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include "MathsIO.H"
 #include "matrix.h"
 
-namespace maths {
+namespace OpenMEEG {
+    namespace maths {
 
-    struct OPENMEEGMATHS_EXPORT BrainVisaTextureIO: public MathsIOBase {
+        struct OPENMEEGMATHS_EXPORT BrainVisaTextureIO: public MathsIOBase {
 
-        const std::string& identity() const { return Identity; }
-        const Suffixes&    suffixes() const { return suffs;    }
+            const std::string& identity() const { return Identity; }
+            const Suffixes&    suffixes() const { return suffs;    }
 
-        bool identify(const std::string& buffer)    const {
-            if (buffer.size()<MagicTag.size())
-                return false;
-            return strncmp(buffer.c_str(),MagicTag.c_str(),MagicTag.size()) == 0;
-        }
+            bool identify(const std::string& buffer)    const {
+                if (buffer.size()<MagicTag.size())
+                    return false;
+                return strncmp(buffer.c_str(),MagicTag.c_str(),MagicTag.size()) == 0;
+            }
 
-        bool known(const LinOp& linop) const {
-            return linop.storageType()==LinOp::FULL;
-        }
+            bool known(const LinOp& linop) const {
+                return linop.storageType()==LinOp::FULL;
+            }
 
-        void read(std::ifstream& is,LinOp& linop) const throw(std::exception) {
-            Matrix& m = dynamic_cast<Matrix&>(linop);
+            void read(std::ifstream& is,LinOp& linop) const throw(std::exception) {
+                Matrix& m = dynamic_cast<Matrix&>(linop);
 
-            std::string line;
-            std::getline(is, line, '\n');
-            std::istringstream buffer(line);
-            std::string s;
-            buffer >> s;
-            assert(s == "ascii");
+                std::string line;
+                std::getline(is, line, '\n');
+                std::istringstream buffer(line);
+                std::string s;
+                buffer >> s;
+                assert(s == "ascii");
 
-            std::getline(is, line, '\n'); // skip keyword FLOAT
+                std::getline(is, line, '\n'); // skip keyword FLOAT
 
-            std::getline(is, line, '\n');
-            buffer.clear();
-            buffer.str(line);
-            buffer >> m.ncol();
-
-            if (linop.dimension()==LinOp::ONE && m.ncol()!=1)
-                throw maths::BadVector(m.ncol());
-
-            size_t j = 0; // column index
-            do {
-                std::getline(is, line, '\n'); // skip column index
                 std::getline(is, line, '\n');
                 buffer.clear();
                 buffer.str(line);
-                buffer >> m.nlin();
-                if(m.nlin() == 0) {
-                    buffer >> m.nlin(); // Hack for certain tex files
-                }
+                buffer >> m.ncol();
 
-                if (j==0) {
-                    m.alloc_data();
-                }
-                for (size_t i = 0; i < m.nlin(); ++i)
-                    buffer >> m(i,j);
-                j++;
-            } while (j<m.ncol());
-        }
+                if (linop.dimension()==LinOp::ONE && m.ncol()!=1)
+                    throw maths::BadVector(m.ncol());
 
-        void write(std::ofstream& os, const LinOp& linop) const {
-            const Matrix& m = dynamic_cast<const Matrix&>(linop);
+                size_t j = 0; // column index
+                do {
+                    std::getline(is, line, '\n'); // skip column index
+                    std::getline(is, line, '\n');
+                    buffer.clear();
+                    buffer.str(line);
+                    buffer >> m.nlin();
+                    if(m.nlin() == 0) {
+                        buffer >> m.nlin(); // Hack for certain tex files
+                    }
 
-            os << "ascii" << std::endl << "FLOAT" << std::endl << static_cast<unsigned>(m.ncol()) << std::endl;
-            for (size_t j=0; j<m.ncol(); ++j) {
-                os << static_cast<unsigned>(j) << std::endl << static_cast<unsigned>(m.nlin()) << std::endl;
-                for (size_t i=0; i<m.nlin(); ++i)
-                    os << " " << m(i,j);
-                os << std::endl;
+                    if (j==0) {
+                        m.alloc_data();
+                    }
+                    for (size_t i = 0; i < m.nlin(); ++i)
+                        buffer >> m(i,j);
+                    j++;
+                } while (j<m.ncol());
             }
-        }
 
-    private:
+            void write(std::ofstream& os, const LinOp& linop) const {
+                const Matrix& m = dynamic_cast<const Matrix&>(linop);
 
-        BrainVisaTextureIO(): MathsIOBase(MathsIO::ios()) { }
-        ~BrainVisaTextureIO() {};
+                os << "ascii" << std::endl << "FLOAT" << std::endl << static_cast<unsigned>(m.ncol()) << std::endl;
+                for (size_t j=0; j<m.ncol(); ++j) {
+                    os << static_cast<unsigned>(j) << std::endl << static_cast<unsigned>(m.nlin()) << std::endl;
+                    for (size_t i=0; i<m.nlin(); ++i)
+                        os << " " << m(i,j);
+                    os << std::endl;
+                }
+            }
 
-        static Suffixes init() {
-            Suffixes suffs;
-            suffs.push_back("tex");
-            return suffs;
-        }
+        private:
 
-        static const BrainVisaTextureIO prototype;
-        static const std::string        MagicTag;
-        static const Suffixes           suffs;
-        static const std::string        Identity;
-    };
+            BrainVisaTextureIO(): MathsIOBase(MathsIO::ios()) { }
+            ~BrainVisaTextureIO() {};
+
+            static Suffixes init() {
+                Suffixes suffs;
+                suffs.push_back("tex");
+                return suffs;
+            }
+
+            static const BrainVisaTextureIO prototype;
+            static const std::string        MagicTag;
+            static const Suffixes           suffs;
+            static const std::string        Identity;
+        };
+    }
 }
 
-#endif  //! BRAINVISATEXTUREIO_H
+#endif  //! OPENMEEG_BRAINVISATEXTUREIO_H

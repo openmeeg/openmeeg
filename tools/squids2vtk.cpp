@@ -49,6 +49,8 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include "vector.h"
 #include "om_utils.h"
 
+using namespace OpenMEEG;
+
 int main( int argc, char** argv)
 {
     command_usage("Convert squids in text file to a vtk file for vizualisation");

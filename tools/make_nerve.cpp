@@ -63,6 +63,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #define Pi 3.14159265358979323846f
 
 using namespace std;
+using namespace OpenMEEG;
 
 void getHelp(char** argv);
 

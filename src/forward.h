@@ -47,25 +47,28 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include "symmatrix.h"
 #include "vector.h"
 
-class Forward : public virtual Matrix
-{
-public:
-    Forward (const Matrix& GainMatrix, const Matrix& RealSourcesData, double NoiseLevel);
-    virtual ~Forward () {};
-};
+namespace OpenMEEG {
 
-void compute_forward(Matrix& SimulatedData, const Matrix& GainMatrix, const Matrix& RealSourcesData, double NoiseLevel) {
-
-    SimulatedData = GainMatrix * RealSourcesData;
-
-    int nT = RealSourcesData.ncol();
-    for(int frame=0;frame<nT;frame++)
+    class Forward : public virtual Matrix
     {
-        for(size_t i=0;i<SimulatedData.nlin();i++) SimulatedData(i,frame) += NoiseLevel * gaussian();
-    }
-}
+    public:
+        Forward (const Matrix& GainMatrix, const Matrix& RealSourcesData, double NoiseLevel);
+        virtual ~Forward () {};
+    };
 
-Forward::Forward(const Matrix& GainMatrix, const Matrix& RealSourcesData, double NoiseLevel) {
-    compute_forward(*this,GainMatrix,RealSourcesData,NoiseLevel);
+    void compute_forward(Matrix& SimulatedData, const Matrix& GainMatrix, const Matrix& RealSourcesData, double NoiseLevel) {
+
+        SimulatedData = GainMatrix * RealSourcesData;
+
+        int nT = RealSourcesData.ncol();
+        for(int frame=0;frame<nT;frame++)
+        {
+            for(size_t i=0;i<SimulatedData.nlin();i++) SimulatedData(i,frame) += NoiseLevel * gaussian();
+        }
+    }
+
+    Forward::Forward(const Matrix& GainMatrix, const Matrix& RealSourcesData, double NoiseLevel) {
+        compute_forward(*this,GainMatrix,RealSourcesData,NoiseLevel);
+    }
 }
 

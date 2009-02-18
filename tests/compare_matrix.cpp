@@ -8,6 +8,7 @@
 #include <cmath>
 
 using namespace std;
+using namespace OpenMEEG;
 
 template<class T> bool compare(const T& mat1, const T& mat2, double eps, size_t col = 0);
 template<class T> bool compare_rdm(const T& mat1, const T& mat2, double eps, size_t col = 0);

@@ -48,282 +48,285 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include "matrix.h"
 #include "symmatrix.h"
 
-Vector::Vector(Matrix& A) {
-    nlin()=A.nlin()*A.ncol();
-    value = A.value;
-}
+namespace OpenMEEG {
 
-Vector::Vector(SymMatrix& A) {
-    nlin()=A.nlin()*(A.nlin()+1)/2;
-    value = A.value;
-}
-
-Vector Vector::operator+(const Vector& v) const {
-    assert(nlin()==v.nlin());
-    Vector p(*this,DEEP_COPY);
-#ifdef HAVE_BLAS
-    BLAS(daxpy,DAXPY)((int)nlin(),1,v.data(),1,p.data(),1);
-#else
-    for( size_t i=0; i<nlin(); i++ )
-        p.data()[i]=data()[i]+v.data()[i];
-#endif
-    return p;
-}
-
-Vector Vector::operator-(const Vector& v) const {
-    assert(nlin()==v.nlin());
-    Vector p(*this,DEEP_COPY);
-#ifdef HAVE_BLAS
-    BLAS(daxpy,DAXPY)((int)nlin(),-1,v.data(),1,p.data(),1);
-#else
-    for( size_t i=0; i<nlin(); i++ )
-        p.data()[i]=data()[i]-v.data()[i];
-#endif
-    return p;
-}
-
-void Vector::operator+=(const Vector& v) {
-    assert(nlin()==v.nlin());
-#ifdef HAVE_BLAS
-    BLAS(daxpy,DAXPY)((int)nlin(),1,v.data(),1,data(),1);
-#else
-    for( size_t i=0; i<nlin(); i++ )
-        data()[i]+=v.data()[i];
-#endif
-}
-
-void Vector::operator-=(const Vector& v) {
-    assert(nlin()==v.nlin());
-#ifdef HAVE_BLAS
-    BLAS(daxpy,DAXPY)((int)nlin(),-1,v.data(),1,data(),1);
-#else
-    for( size_t i=0; i<nlin(); i++ )
-        data()[i]-=v.data()[i];
-#endif
-}
-
-double Vector::operator*(const Vector& v) const {
-    assert(nlin()==v.nlin());
-#ifdef HAVE_BLAS
-    return BLAS(ddot,DDOT)((int)nlin(),data(),1,v.data(),1);
-#else
-    double s=0;
-    for( size_t i=0; i<nlin(); i++ )
-        s+=data()[i]*v.data()[i];
-    return s;
-#endif
-}
-
-Vector Vector::kmult(const Vector& v) const { // Kronecker multiplication
-    assert(nlin() == v.nlin());
-    Vector p(nlin());
-    for( size_t i=0; i<nlin(); i++ )
-        p(i) = v(i)*data()[i];
-    return p;
-}
-
-Vector Vector::operator*(double x) const {
-#ifdef HAVE_BLAS
-    Vector p(*this,DEEP_COPY);
-    BLAS(dscal,DSCAL)((int)nlin(),x,p.data(),1);
-#else
-    Vector p(nlin());
-    for( size_t i=0; i<nlin(); i++ )
-        p.data()[i]=x*data()[i];
-#endif
-    return p;
-}
-
-Vector Vector::operator+(double x) const
-{
-    Vector p(*this,DEEP_COPY);
-    for( size_t i=0; i<nlin(); i++ )
-        p.data()[i]+=x;
-    return p;
-}
-
-Vector Vector::operator-(double x) const
-{
-    Vector p(*this,DEEP_COPY);
-    for( size_t i=0; i<nlin(); i++ )
-        p.data()[i]-=x;
-
-    return p;
-}
-
-void Vector::operator*=(double x) {
-#ifdef HAVE_BLAS
-    BLAS(dscal,DSCAL)((int)nlin(),x,data(),1);
-#else
-    for( size_t i=0; i<nlin(); i++ )
-        data()[i]*=x;
-#endif
-}
-
-double Vector::norm() const
-{
-#ifdef HAVE_BLAS
-    return BLAS(dnrm2,DNRM2)((int)nlin(),data(),1);
-#else
-    std::cout << "'Vector::norm' not implemented" << std::endl;
-    exit(1);
-    return 0;
-#endif
-}
-
-void Vector::set(double x) {
-    assert(nlin()>0);
-    for( size_t i=0; i<nlin(); i++ )
-        data()[i]=x;
-}
-
-double Vector::sum() const
-{
-    double s=0;
-    for (size_t i=0; i<nlin(); i++)
-        s+=data()[i];
-    return s;
-}
-
-Vector Vector::conv(const Vector& v) const {
-    if (v.nlin()<nlin()) return v.conv(*this);
-
-    Vector p(nlin()+v.nlin()-1);
-    p.set(0);
-    for (size_t i=0; i<v.nlin(); i++) {
-#ifdef HAVE_BLAS
-        BLAS(daxpy,DAXPY)((int)nlin(), v(i), data(), 1, p.data()+i, 1);
-#else
-        for (size_t j=0;j<nlin();j++)
-            p(i+j)+=v(i)*data()[j];
-#endif
+    Vector::Vector(Matrix& A) {
+        nlin()=A.nlin()*A.ncol();
+        value = A.value;
     }
-    return p;
-}
 
-Vector Vector::conv_trunc(const Vector& v) const {
-    Vector p(v.nlin());
-    p.set(0);
-    for (size_t i=0; i<v.nlin(); i++)
+    Vector::Vector(SymMatrix& A) {
+        nlin()=A.nlin()*(A.nlin()+1)/2;
+        value = A.value;
+    }
+
+    Vector Vector::operator+(const Vector& v) const {
+        assert(nlin()==v.nlin());
+        Vector p(*this,DEEP_COPY);
+    #ifdef HAVE_BLAS
+        BLAS(daxpy,DAXPY)((int)nlin(),1,v.data(),1,p.data(),1);
+    #else
+        for( size_t i=0; i<nlin(); i++ )
+            p.data()[i]=data()[i]+v.data()[i];
+    #endif
+        return p;
+    }
+
+    Vector Vector::operator-(const Vector& v) const {
+        assert(nlin()==v.nlin());
+        Vector p(*this,DEEP_COPY);
+    #ifdef HAVE_BLAS
+        BLAS(daxpy,DAXPY)((int)nlin(),-1,v.data(),1,p.data(),1);
+    #else
+        for( size_t i=0; i<nlin(); i++ )
+            p.data()[i]=data()[i]-v.data()[i];
+    #endif
+        return p;
+    }
+
+    void Vector::operator+=(const Vector& v) {
+        assert(nlin()==v.nlin());
+    #ifdef HAVE_BLAS
+        BLAS(daxpy,DAXPY)((int)nlin(),1,v.data(),1,data(),1);
+    #else
+        for( size_t i=0; i<nlin(); i++ )
+            data()[i]+=v.data()[i];
+    #endif
+    }
+
+    void Vector::operator-=(const Vector& v) {
+        assert(nlin()==v.nlin());
+    #ifdef HAVE_BLAS
+        BLAS(daxpy,DAXPY)((int)nlin(),-1,v.data(),1,data(),1);
+    #else
+        for( size_t i=0; i<nlin(); i++ )
+            data()[i]-=v.data()[i];
+    #endif
+    }
+
+    double Vector::operator*(const Vector& v) const {
+        assert(nlin()==v.nlin());
+    #ifdef HAVE_BLAS
+        return BLAS(ddot,DDOT)((int)nlin(),data(),1,v.data(),1);
+    #else
+        double s=0;
+        for( size_t i=0; i<nlin(); i++ )
+            s+=data()[i]*v.data()[i];
+        return s;
+    #endif
+    }
+
+    Vector Vector::kmult(const Vector& v) const { // Kronecker multiplication
+        assert(nlin() == v.nlin());
+        Vector p(nlin());
+        for( size_t i=0; i<nlin(); i++ )
+            p(i) = v(i)*data()[i];
+        return p;
+    }
+
+    Vector Vector::operator*(double x) const {
+    #ifdef HAVE_BLAS
+        Vector p(*this,DEEP_COPY);
+        BLAS(dscal,DSCAL)((int)nlin(),x,p.data(),1);
+    #else
+        Vector p(nlin());
+        for( size_t i=0; i<nlin(); i++ )
+            p.data()[i]=x*data()[i];
+    #endif
+        return p;
+    }
+
+    Vector Vector::operator+(double x) const
     {
-        size_t m = std::min(nlin(),v.nlin()-i);
-#ifdef HAVE_BLAS
-        BLAS(daxpy,DAXPY)((int)m, v(i), data(), 1, p.data()+i, 1);
-#else
-        for (size_t j=0;j<m;j++)
-            p(i+j)+=v(i)*data()[j];
-#endif
-    }
-    return p;
-}
-
-
-Matrix Vector::outer_product(const Vector& v) const {
-    assert(nlin()==v.size());
-    Matrix A(nlin(),nlin());
-#ifdef HAVE_BLAS
-    DGEMM(CblasNoTrans,CblasNoTrans,
-        (int)nlin(),(int)nlin(),1,
-        1.,data(),(int)nlin(),
-        v.data(),(int)nlin(),
-        0.,A.data(),(int)nlin());
-#else
-    for( unsigned int j=0; j<nlin(); j++ )
-        for ( unsigned int i=0; i<nlin(); i++)
-            A(i,j)=v(i)*(*this)(j);
-#endif
-    return A;
-}
-
-void Vector::info() const {
-    if (size() == 0) {
-        std::cout << "Vector Empty" << std::endl;
-        return;
+        Vector p(*this,DEEP_COPY);
+        for( size_t i=0; i<nlin(); i++ )
+            p.data()[i]+=x;
+        return p;
     }
 
-    std::cout << "Size : " << nlin() << std::endl;
+    Vector Vector::operator-(double x) const
+    {
+        Vector p(*this,DEEP_COPY);
+        for( size_t i=0; i<nlin(); i++ )
+            p.data()[i]-=x;
 
-    double minv = this->operator()(0);
-    double maxv = this->operator()(0);
-    size_t mini = 0;
-    size_t maxi = 0;
+        return p;
+    }
 
-    for(size_t i = 0; i < nlin(); ++i)
-        if (minv > this->operator()(i)) {
-            minv = this->operator()(i);
-            mini = i;
-        } else if (maxv < this->operator()(i)) {
-            maxv = this->operator()(i);
-            maxi = i;
+    void Vector::operator*=(double x) {
+    #ifdef HAVE_BLAS
+        BLAS(dscal,DSCAL)((int)nlin(),x,data(),1);
+    #else
+        for( size_t i=0; i<nlin(); i++ )
+            data()[i]*=x;
+    #endif
+    }
+
+    double Vector::norm() const
+    {
+    #ifdef HAVE_BLAS
+        return BLAS(dnrm2,DNRM2)((int)nlin(),data(),1);
+    #else
+        std::cout << "'Vector::norm' not implemented" << std::endl;
+        exit(1);
+        return 0;
+    #endif
+    }
+
+    void Vector::set(double x) {
+        assert(nlin()>0);
+        for( size_t i=0; i<nlin(); i++ )
+            data()[i]=x;
+    }
+
+    double Vector::sum() const
+    {
+        double s=0;
+        for (size_t i=0; i<nlin(); i++)
+            s+=data()[i];
+        return s;
+    }
+
+    Vector Vector::conv(const Vector& v) const {
+        if (v.nlin()<nlin()) return v.conv(*this);
+
+        Vector p(nlin()+v.nlin()-1);
+        p.set(0);
+        for (size_t i=0; i<v.nlin(); i++) {
+    #ifdef HAVE_BLAS
+            BLAS(daxpy,DAXPY)((int)nlin(), v(i), data(), 1, p.data()+i, 1);
+    #else
+            for (size_t j=0;j<nlin();j++)
+                p(i+j)+=v(i)*data()[j];
+    #endif
+        }
+        return p;
+    }
+
+    Vector Vector::conv_trunc(const Vector& v) const {
+        Vector p(v.nlin());
+        p.set(0);
+        for (size_t i=0; i<v.nlin(); i++)
+        {
+            size_t m = std::min(nlin(),v.nlin()-i);
+    #ifdef HAVE_BLAS
+            BLAS(daxpy,DAXPY)((int)m, v(i), data(), 1, p.data()+i, 1);
+    #else
+            for (size_t j=0;j<m;j++)
+                p(i+j)+=v(i)*data()[j];
+    #endif
+        }
+        return p;
+    }
+
+
+    Matrix Vector::outer_product(const Vector& v) const {
+        assert(nlin()==v.size());
+        Matrix A(nlin(),nlin());
+    #ifdef HAVE_BLAS
+        DGEMM(CblasNoTrans,CblasNoTrans,
+            (int)nlin(),(int)nlin(),1,
+            1.,data(),(int)nlin(),
+            v.data(),(int)nlin(),
+            0.,A.data(),(int)nlin());
+    #else
+        for( unsigned int j=0; j<nlin(); j++ )
+            for ( unsigned int i=0; i<nlin(); i++)
+                A(i,j)=v(i)*(*this)(j);
+    #endif
+        return A;
+    }
+
+    void Vector::info() const {
+        if (size() == 0) {
+            std::cout << "Vector Empty" << std::endl;
+            return;
         }
 
-    std::cout << "Min Value : " << minv << " (" << mini << ")" << std::endl;
-    std::cout << "Max Value : " << maxv << " (" << maxi << ")" << std::endl;
-    std::cout << "First Values" << std::endl;
-    for(size_t i = 0; i < std::min(nlin(),(size_t) 5); ++i)
-        std::cout << this->operator()(i) << std::endl;
-}
+        std::cout << "Size : " << nlin() << std::endl;
 
-//  Operators.
+        double minv = this->operator()(0);
+        double maxv = this->operator()(0);
+        size_t mini = 0;
+        size_t maxi = 0;
 
-OPENMEEGMATHS_EXPORT Vector operator*(const double &d, const Vector &v) { return v*d; }
+        for(size_t i = 0; i < nlin(); ++i)
+            if (minv > this->operator()(i)) {
+                minv = this->operator()(i);
+                mini = i;
+            } else if (maxv < this->operator()(i)) {
+                maxv = this->operator()(i);
+                maxi = i;
+            }
 
-// =======
-// = IOs =
-// =======
-
-std::ostream& operator<<(std::ostream& f,const Vector &M) {
-    for (size_t i=0;i<M.size();i++)
-        f << M(i) << ' ';
-    return f;
-}
-
-std::istream& operator>>(std::istream& f,Vector &M) {
-    for (size_t i=0;i<M.size();i++)
-        f >> M(i);
-    return f;
-}
-
-void Vector::saveTxt(const char* filename) const
-{
-    maths::ofstream ofs(filename);
-    ofs << maths::format("ascii") << *this;
-}
-
-void Vector::saveBin(const char* filename) const
-{
-    maths::ofstream ofs(filename);
-    ofs << maths::format("binary") << *this;
-}
-
-void Vector::loadTxt(const char* filename)
-{
-    maths::ifstream ifs(filename);
-    ifs >> maths::format("ascii") >> *this;
-}
-
-void Vector::loadBin(const char* filename)
-{
-    maths::ifstream ifs(filename);
-    ifs >> maths::format("binary") >> *this;
-}
-
-void Vector::load( const char *filename ) {
-    try {
-        maths::ifstream ifs(filename);
-        ifs >> *this;
+        std::cout << "Min Value : " << minv << " (" << mini << ")" << std::endl;
+        std::cout << "Max Value : " << maxv << " (" << maxi << ")" << std::endl;
+        std::cout << "First Values" << std::endl;
+        for(size_t i = 0; i < std::min(nlin(),(size_t) 5); ++i)
+            std::cout << this->operator()(i) << std::endl;
     }
-    catch (std::string s) {
-        std::cout << s << std::endl;
-    }
-}
 
-void Vector::save( const char *filename ) const {
-    try {
+    //  Operators.
+
+    OPENMEEGMATHS_EXPORT Vector operator*(const double &d, const Vector &v) { return v*d; }
+
+    // =======
+    // = IOs =
+    // =======
+
+    std::ostream& operator<<(std::ostream& f,const Vector &M) {
+        for (size_t i=0;i<M.size();i++)
+            f << M(i) << ' ';
+        return f;
+    }
+
+    std::istream& operator>>(std::istream& f,Vector &M) {
+        for (size_t i=0;i<M.size();i++)
+            f >> M(i);
+        return f;
+    }
+
+    void Vector::saveTxt(const char* filename) const
+    {
         maths::ofstream ofs(filename);
-        ofs << *this;
+        ofs << maths::format("ascii") << *this;
     }
-    catch (std::string s) {
-        std::cout << s << std::endl;
+
+    void Vector::saveBin(const char* filename) const
+    {
+        maths::ofstream ofs(filename);
+        ofs << maths::format("binary") << *this;
+    }
+
+    void Vector::loadTxt(const char* filename)
+    {
+        maths::ifstream ifs(filename);
+        ifs >> maths::format("ascii") >> *this;
+    }
+
+    void Vector::loadBin(const char* filename)
+    {
+        maths::ifstream ifs(filename);
+        ifs >> maths::format("binary") >> *this;
+    }
+
+    void Vector::load( const char *filename ) {
+        try {
+            maths::ifstream ifs(filename);
+            ifs >> *this;
+        }
+        catch (std::string s) {
+            std::cout << s << std::endl;
+        }
+    }
+
+    void Vector::save( const char *filename ) const {
+        try {
+            maths::ofstream ofs(filename);
+            ofs << *this;
+        }
+        catch (std::string s) {
+            std::cout << s << std::endl;
+        }
     }
 }

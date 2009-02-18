@@ -43,8 +43,8 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#ifndef OM_UTILS_H
-#define OM_UTILS_H
+#ifndef OPENMEEG_UTILS_H
+#define OPENMEEG_UTILS_H
 
 // This does not appear to be used !!!
 // TODO.
@@ -62,102 +62,104 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <algorithm>
 #include <cctype>
 
-#ifndef M_PI
-    #define M_PI 3.14159265358979323846
-#endif
+namespace OpenMEEG {
 
-#define MU0 1.0 //1.25e-6
+    #ifndef M_PI
+        #define M_PI 3.14159265358979323846
+    #endif
 
-inline std::string getNameExtension ( const std::string& name )
-{
-    std::string::size_type idx = name.find('.');
-    if (idx == std::string::npos) { 
-        return std::string("");
-    } else if (name.substr(idx+1).find('.') != std::string::npos) {
-        return getNameExtension( name.substr(idx+1) );
-    } else {
-        return name.substr(idx+1);
-    }
-};
+    #define MU0 1.0 //1.25e-6
 
-inline void init_random(int seed) {
-    static bool first=true;
-    if (seed==-1 && !first)
-        return;
-    first=false;
-    // srand((unsigned int)((seed==-1)?time(0):seed));
-    srand(0);
-    rand(); // the first is biased!
-}
-
-inline double drandom()
-{
-    init_random(-1);
-    return double(rand())/RAND_MAX;
-}
-
-inline double gaussian()
-{
-    double x;
-    do
-        x=drandom();
-    while (x==0);
-    return (double)(sqrt(-2*log(x))*cos(2*M_PI*drandom()));
-}
-
-inline void disp_argv(int argc, char **argv) {
-    std::cout << std::endl << "| ------ " << argv[0] << std::endl;
-    for( int i = 1; i < argc; i += 1 )
+    inline std::string getNameExtension ( const std::string& name )
     {
-        std::cout << "| " << argv[i] << std::endl;
-    }
-    std::cout << "| -----------------------" << std::endl;
-}
-
-inline void progressbar(int n, int N, int w = 20) {
-#ifdef USE_PROGRESSBAR
-    // w : nb of steps
-    const char* cprog = ".";
-    const char* cprog1 = "*";
-    const char* cbeg = "[";
-    const char* cend = "]";
-    int p = (int)std::min( (int)floor(1.f*n*(w+1)/N), w);
-
-    static int pprev = -1;
-    if (n == 0) {
-        pprev = -1;
-    }
-
-    if (p != pprev) {
-        if (n>1) {
-            // clear previous string
-            for(int i = 0; i < (w+2); ++i)
-                printf( "\b" );
-
-            printf( cbeg );
-            for(int i = 0; i < p; ++i) {
-                printf( cprog1 );
-            }
-            for(int i = p; i < w; ++i) {
-                printf( cprog );
-            }
-            printf( cend );
+        std::string::size_type idx = name.find('.');
+        if (idx == std::string::npos) { 
+            return std::string("");
+        } else if (name.substr(idx+1).find('.') != std::string::npos) {
+            return getNameExtension( name.substr(idx+1) );
+        } else {
+            return name.substr(idx+1);
         }
+    };
+
+    inline void init_random(int seed) {
+        static bool first=true;
+        if (seed==-1 && !first)
+            return;
+        first=false;
+        // srand((unsigned int)((seed==-1)?time(0):seed));
+        srand(0);
+        rand(); // the first is biased!
     }
-    pprev = p;
-    if (n >= (N-1)) {
-        printf("\n");
+
+    inline double drandom()
+    {
+        init_random(-1);
+        return double(rand())/RAND_MAX;
     }
-    std::cout.flush();
-#endif
+
+    inline double gaussian()
+    {
+        double x;
+        do
+            x=drandom();
+        while (x==0);
+        return (double)(sqrt(-2*log(x))*cos(2*M_PI*drandom()));
+    }
+
+    inline void disp_argv(int argc, char **argv) {
+        std::cout << std::endl << "| ------ " << argv[0] << std::endl;
+        for( int i = 1; i < argc; i += 1 )
+        {
+            std::cout << "| " << argv[i] << std::endl;
+        }
+        std::cout << "| -----------------------" << std::endl;
+    }
+
+    inline void progressbar(int n, int N, int w = 20) {
+    #ifdef USE_PROGRESSBAR
+        // w : nb of steps
+        const char* cprog = ".";
+        const char* cprog1 = "*";
+        const char* cbeg = "[";
+        const char* cend = "]";
+        int p = (int)std::min( (int)floor(1.f*n*(w+1)/N), w);
+
+        static int pprev = -1;
+        if (n == 0) {
+            pprev = -1;
+        }
+
+        if (p != pprev) {
+            if (n>1) {
+                // clear previous string
+                for(int i = 0; i < (w+2); ++i)
+                    printf( "\b" );
+
+                printf( cbeg );
+                for(int i = 0; i < p; ++i) {
+                    printf( cprog1 );
+                }
+                for(int i = p; i < w; ++i) {
+                    printf( cprog );
+                }
+                printf( cend );
+            }
+        }
+        pprev = p;
+        if (n >= (N-1)) {
+            printf("\n");
+        }
+        std::cout.flush();
+    #endif
+    }
+
+    inline void warning(std::string message) {
+        std::cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
+        std::cout << "!!!!!!!!!!! WARNING !!!!!!!!!!!" << std::endl;
+        std::cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
+        std::cout << message << std::endl;
+    }
 }
 
-inline void warning(std::string message) {
-    std::cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
-    std::cout << "!!!!!!!!!!! WARNING !!!!!!!!!!!" << std::endl;
-    std::cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
-    std::cout << message << std::endl;
-}
-
-#endif /* OM_UTILS_H */
-
+#endif /* OPENMEEG_UTILS_H */

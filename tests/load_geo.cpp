@@ -2,6 +2,8 @@
 
 #include "geometry.h"
 
+using namespace OpenMEEG;
+
 int main (int argc, char** argv)
 {
 	if(argc!=3) {

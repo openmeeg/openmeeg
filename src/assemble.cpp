@@ -63,6 +63,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include "geometry.h"
 
 using namespace std;
+using namespace OpenMEEG;
 
 int GaussOrder=3;
 //int GaussOrder=0;

@@ -45,8 +45,10 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #include <AsciiIO.H>
 
-namespace maths {
-    const AsciiIO           AsciiIO::prototype;
-    const AsciiIO::Suffixes AsciiIO::suffs = AsciiIO::init();
-    const std::string       AsciiIO::Identity("ascii");
+namespace OpenMEEG {
+    namespace maths {
+        const AsciiIO           AsciiIO::prototype;
+        const AsciiIO::Suffixes AsciiIO::suffs = AsciiIO::init();
+        const std::string       AsciiIO::Identity("ascii");
+    }
 }

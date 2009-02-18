@@ -51,6 +51,8 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include "sensors.h"
 #include <string>
 
+using namespace OpenMEEG;
+
 Vector cross_product(const Vector &a, const Vector &b)
 {
     assert(a.size() == 3);

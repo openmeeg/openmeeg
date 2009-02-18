@@ -50,29 +50,32 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #include "DLLDefinesOpenMEEG.h"
 
-class OPENMEEG_EXPORT cpuChrono {
+namespace OpenMEEG {
 
-    clock_t ellapsed;
-    clock_t tstart;
+    class OPENMEEG_EXPORT cpuChrono {
 
-public:
+        clock_t ellapsed;
+        clock_t tstart;
 
-    cpuChrono(): ellapsed(0),tstart(0) { }
-    ~cpuChrono(){}
+    public:
 
-    void start() { tstart = clock();                      }
-    void stop()  { ellapsed += (ellapsed+clock()-tstart); }
-    void zero()  { ellapsed=0;                            }
+        cpuChrono(): ellapsed(0),tstart(0) { }
+        ~cpuChrono(){}
 
-    clock_t getEllapsedT() const { return ellapsed; }
+        void start() { tstart = clock();                      }
+        void stop()  { ellapsed += (ellapsed+clock()-tstart); }
+        void zero()  { ellapsed=0;                            }
 
-    double getEllapsedS() const {
-        return (double)(ellapsed)/CLOCKS_PER_SEC;
-    }
+        clock_t getEllapsedT() const { return ellapsed; }
 
-    void dispEllapsed() const {
-        std::cout <<  "-------------------------------------------" << std::endl;
-        std::cout <<  "| Elapsed Time: " << getEllapsedS() << " s." << std::endl;
-        std::cout <<  "-------------------------------------------" << std::endl;
-    }
-};
+        double getEllapsedS() const {
+            return (double)(ellapsed)/CLOCKS_PER_SEC;
+        }
+
+        void dispEllapsed() const {
+            std::cout <<  "-------------------------------------------" << std::endl;
+            std::cout <<  "| Elapsed Time: " << getEllapsedS() << " s." << std::endl;
+            std::cout <<  "-------------------------------------------" << std::endl;
+        }
+    };
+}

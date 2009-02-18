@@ -43,8 +43,8 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#ifndef FILEEXCEPTIONS_H
-#define FILEEXCEPTIONS_H
+#ifndef OPENMEEG_FILEEXCEPTIONS_H
+#define OPENMEEG_FILEEXCEPTIONS_H
 
 #include <iostream>
 #include <stdexcept>  //  Needs class 'std::runtime_error'
@@ -185,4 +185,4 @@ namespace std {
 #undef LANGUAGE_WAS_DEF
 #endif
 
-#endif  //  !FILEEXCEPTIONS_H
+#endif  //  !OPENMEEG_FILEEXCEPTIONS_H

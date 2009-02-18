@@ -52,6 +52,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include "om_utils.h"
 
 using namespace std;
+using namespace OpenMEEG;
 
 void getHelp(char** argv);
 
@@ -95,4 +96,3 @@ void getHelp(char** argv)
 
     exit(0);
 }
-

@@ -43,115 +43,116 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#ifndef TRIANGLE_H
-#define TRIANGLE_H
+#ifndef OPENMEEG_TRIANGLE_H
+#define OPENMEEG_TRIANGLE_H
 
 #include <cstdlib>
 #include "vect3.h"
 
-/** \brief  Triangle
-    
-    Triangle class
-    
-**/
+namespace OpenMEEG {
 
-class OPENMEEG_EXPORT Triangle {
+    /** \brief  Triangle
+        
+        Triangle class
+        
+    **/
 
-private:
-    int m_s1,m_s2,m_s3; //!< index of vertices of the triangle
-    double m_area; //!< area of the triangle
-    Vect3 n; // Normale
+    class OPENMEEG_EXPORT Triangle {
 
-public:
-    inline Triangle(int a, int b, int c, Vect3 m) {
-        m_s1=a; m_s2=b; m_s3=c; n=m;
-    }
+    private:
+        int m_s1,m_s2,m_s3; //!< index of vertices of the triangle
+        double m_area; //!< area of the triangle
+        Vect3 n; // Normale
 
-    inline Triangle() {}
-
-    inline ~Triangle() {}
-
-    inline int som(int i) const {
-        switch (i){
-            case 1:
-                return m_s1;
-            case 2:
-                return m_s2;
-            case 3:
-                return m_s3;
-            default:
-                static int foo;
-                std::cerr << "bad idx in som\n";
-                return foo;
+    public:
+        inline Triangle(int a, int b, int c, Vect3 m) {
+            m_s1=a; m_s2=b; m_s3=c; n=m;
         }
-    }
 
-    inline int next(int i) const {
-        return som(1+(i%3));
-    }
+        inline Triangle() {}
 
-    inline int prev(int i) const {
-        return som(1+((1+i)%3));
-    }
+        inline ~Triangle() {}
 
-    inline int& s1() { return m_s1; }
-    inline int& s2() { return m_s2; }
-    inline int& s3() { return m_s3; }
-
-    inline int s1() const { return m_s1; }
-    inline int s2() const { return m_s2; }
-    inline int s3() const { return m_s3; }
-
-    inline const Vect3& normal() const { return n; }
-    inline Vect3& normal() { return n; }
-
-    inline int contains(int l) const {
-        if(m_s1==l)
-            return 1;
-        if(m_s2==l)
-            return 2;
-        if(m_s3==l)
-            return 3;
-        return 0;
-    }
-
-    inline double getArea() const { return m_area; };
-    inline void setArea( double a ) { m_area = a; };
-    inline double& area() { return m_area; }
-
-    inline int operator[] (const int i) const {
-        switch(i)
-        {
-            case 0 : return m_s1;
-            case 1 : return m_s2;
-            case 2 : return m_s3;
-            default : {std::cerr<<"Error in Triangle class: too large index\n"; exit(-1);}
+        inline int som(int i) const {
+            switch (i){
+                case 1:
+                    return m_s1;
+                case 2:
+                    return m_s2;
+                case 3:
+                    return m_s3;
+                default:
+                    static int foo;
+                    std::cerr << "bad idx in som\n";
+                    return foo;
+            }
         }
-    }
 
-    inline int& operator[] (const int i) {
-        switch(i)
-        {
-            case 0 : return m_s1;
-            case 1 : return m_s2;
-            case 2 : return m_s3;
-            default : {std::cerr<<"Error in Triangle class: too large index\n"; exit(-1);}
+        inline int next(int i) const {
+            return som(1+(i%3));
         }
+
+        inline int prev(int i) const {
+            return som(1+((1+i)%3));
+        }
+
+        inline int& s1() { return m_s1; }
+        inline int& s2() { return m_s2; }
+        inline int& s3() { return m_s3; }
+
+        inline int s1() const { return m_s1; }
+        inline int s2() const { return m_s2; }
+        inline int s3() const { return m_s3; }
+
+        inline const Vect3& normal() const { return n; }
+        inline Vect3& normal() { return n; }
+
+        inline int contains(int l) const {
+            if(m_s1==l)
+                return 1;
+            if(m_s2==l)
+                return 2;
+            if(m_s3==l)
+                return 3;
+            return 0;
+        }
+
+        inline double getArea() const { return m_area; };
+        inline void setArea( double a ) { m_area = a; };
+        inline double& area() { return m_area; }
+
+        inline int operator[] (const int i) const {
+            switch(i)
+            {
+                case 0 : return m_s1;
+                case 1 : return m_s2;
+                case 2 : return m_s3;
+                default : {std::cerr<<"Error in Triangle class: too large index\n"; exit(-1);}
+            }
+        }
+
+        inline int& operator[] (const int i) {
+            switch(i)
+            {
+                case 0 : return m_s1;
+                case 1 : return m_s2;
+                case 2 : return m_s3;
+                default : {std::cerr<<"Error in Triangle class: too large index\n"; exit(-1);}
+            }
+        }
+
+        friend std::istream& operator>>(std::istream &is,Triangle &t);
+    };
+
+    inline std::istream& operator>>(std::istream &is,Triangle &t)
+    {
+        return is >> t.m_s1 >> t.m_s2 >> t.m_s3;
     }
 
-    friend std::istream& operator>>(std::istream &is,Triangle &t);
-};
-
-inline std::istream& operator>>(std::istream &is,Triangle &t)
-{
-    return is >> t.m_s1 >> t.m_s2 >> t.m_s3;
+    inline std::ostream& operator<<(std::ostream &os,const Triangle &t)
+    {
+        return os << t[0] << " " << t[1] << " " << t[2];
+    }
 }
 
-inline std::ostream& operator<<(std::ostream &os,const Triangle &t)
-{
-    return os << t[0] << " " << t[1] << " " << t[2];
-}
-
-#endif
-
-
+#endif  //! OPENMEEG_TRIANGLE_H

@@ -43,8 +43,8 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#ifndef LINOP_H
-#define LINOP_H
+#ifndef OPENMEEG_LINOP_H
+#define OPENMEEG_LINOP_H
 
 #include <cstdlib>
 
@@ -52,64 +52,66 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include "om_utils.h"
 #include "RC.H"
 
-struct OPENMEEGMATHS_EXPORT LinOp {
+namespace OpenMEEG {
 
-    typedef enum { FULL, SYMMETRIC, SPARSE } StorageType;
-    typedef enum { ONE, TWO } Dimension;
+    struct OPENMEEGMATHS_EXPORT LinOp {
 
-    LinOp() { }
-    LinOp(const size_t m,const size_t n,const StorageType st,const Dimension d):
-        num_lines(m),num_cols(n),storage(st),dim(d)  { }
+        typedef enum { FULL, SYMMETRIC, SPARSE } StorageType;
+        typedef enum { ONE, TWO } Dimension;
 
-    virtual ~LinOp() {};
+        LinOp() { }
+        LinOp(const size_t m,const size_t n,const StorageType st,const Dimension d):
+            num_lines(m),num_cols(n),storage(st),dim(d)  { }
 
-    LinOp& operator=(const LinOp& l) {
-        num_lines = l.num_lines;
-        num_cols  = l.num_cols;
-        storage   = l.storage;
-        dim       = l.dim;
-        return *this;
-    }
-    
-    size_t  nlin() const { return num_lines; }
-    size_t& nlin()       { return num_lines; }
+        virtual ~LinOp() {};
 
-    virtual size_t  ncol() const { return num_cols; }
-    virtual size_t& ncol()       { return num_cols; }
+        LinOp& operator=(const LinOp& l) {
+            num_lines = l.num_lines;
+            num_cols  = l.num_cols;
+            storage   = l.storage;
+            dim       = l.dim;
+            return *this;
+        }
+        
+        size_t  nlin() const { return num_lines; }
+        size_t& nlin()       { return num_lines; }
 
-    virtual size_t size() const = 0;
-    StorageType storageType() const { return storage; }
-    Dimension dimension() const { return dim; }
-    virtual void   info() const = 0;
+        virtual size_t  ncol() const { return num_cols; }
+        virtual size_t& ncol()       { return num_cols; }
 
-protected:
+        virtual size_t size() const = 0;
+        StorageType storageType() const { return storage; }
+        Dimension dimension() const { return dim; }
+        virtual void   info() const = 0;
 
-    size_t            num_lines;
-    size_t            num_cols;
-    StorageType       storage;
-    Dimension         dim;
-};
+    protected:
 
-typedef enum { DEEP_COPY } DeepCopy;
+        size_t            num_lines;
+        size_t            num_cols;
+        StorageType       storage;
+        Dimension         dim;
+    };
 
-struct OPENMEEGMATHS_EXPORT LinOpValue: public utils::RCObject {
-    double *data;
+    typedef enum { DEEP_COPY } DeepCopy;
 
-    LinOpValue(): data(0) { }
+    struct OPENMEEGMATHS_EXPORT LinOpValue: public utils::RCObject {
+        double *data;
 
-    LinOpValue(const size_t n): data(new double[n]) { }
+        LinOpValue(): data(0) { }
 
-    LinOpValue(const size_t n,const double* initval) { init(n,initval); }
-    LinOpValue(const size_t n,const LinOpValue& v)   { init(n,v.data);  }
+        LinOpValue(const size_t n): data(new double[n]) { }
 
-    void init(const size_t n,const double* initval) {
-        data = new double[n];
-        std::copy(initval,initval+n,data);
-    }
+        LinOpValue(const size_t n,const double* initval) { init(n,initval); }
+        LinOpValue(const size_t n,const LinOpValue& v)   { init(n,v.data);  }
 
-    ~LinOpValue() { delete[] data; }
+        void init(const size_t n,const double* initval) {
+            data = new double[n];
+            std::copy(initval,initval+n,data);
+        }
 
-    bool empty() const { return data==0; }
-};
+        ~LinOpValue() { delete[] data; }
 
-#endif  //! LINOP_H
+        bool empty() const { return data==0; }
+    };
+}
+#endif  //! OPENMEEG_LINOP_H

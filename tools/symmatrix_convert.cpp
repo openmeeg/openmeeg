@@ -51,6 +51,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include "options.h"
 
 using namespace std;
+using namespace OpenMEEG;
 
 int main( int argc, char **argv) {
     command_usage("Convert symmetric matrices between different formats");

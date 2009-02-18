@@ -55,6 +55,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <iostream>
 
 using namespace std;
+using namespace OpenMEEG;
 
 template<class T>
 void genericTest(T &M)

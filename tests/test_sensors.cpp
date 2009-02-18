@@ -50,6 +50,8 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <matrix.h>
 #include <sensors.h>
 
+using namespace OpenMEEG;
+
 int main(int argc, char** argv) {
 // usage : sensors sensors_file_description.txt
 

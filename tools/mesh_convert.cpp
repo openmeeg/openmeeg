@@ -47,6 +47,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include "options.h"
 
 using namespace std;
+using namespace OpenMEEG;
 
 double determinant3x3(const Matrix& m);
 

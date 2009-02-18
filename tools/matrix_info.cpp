@@ -52,6 +52,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <cmath>
 
 using namespace std;
+using namespace OpenMEEG;
 
 template<class T> void print_infos(const T& M);
 

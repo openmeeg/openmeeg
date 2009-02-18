@@ -49,31 +49,34 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include "operators.h"
 #include "om_utils.h"
 
-// geo = geometry 
-// mat = storage for ferguson Matrix
-// pts = where the magnetic field is to be computed 
-// n   = numbers of places where magnetic field is to be computed
-void assemble_ferguson(const Geometry &geo,Matrix &mat, const Vect3 *pts,const int n)
-{
-    int offsetJ = 0;
-    // Computation of blocks of Ferguson's Matrix
-    for(int c=0;c<geo.nb();c++)
-    {
-        int offsetI = 0;
-        for (int p=0;p<n;p++)
-        {
-            progressbar(c*p,geo.nb()*n);
-            operatorFerguson(pts[p],geo.getM(c),mat,offsetI,offsetJ);
-            offsetI += 3;
-        }
-        offsetJ += geo.getM(c).nbPts();
-    }
+namespace OpenMEEG {
 
-    // Blocks multiplications
-    offsetJ = 0;
-    for(int c=0;c<geo.nb();c++)
+    // geo = geometry 
+    // mat = storage for ferguson Matrix
+    // pts = where the magnetic field is to be computed 
+    // n   = numbers of places where magnetic field is to be computed
+    void assemble_ferguson(const Geometry &geo,Matrix &mat, const Vect3 *pts,const int n)
     {
-        mult2(mat,0,offsetJ,mat.nlin(),offsetJ+geo.getM(c).nbPts(),(geo.sigma_in(c)-geo.sigma_out(c))*MU0/(4*M_PI));
-        offsetJ += geo.getM(c).nbPts();
+        int offsetJ = 0;
+        // Computation of blocks of Ferguson's Matrix
+        for(int c=0;c<geo.nb();c++)
+        {
+            int offsetI = 0;
+            for (int p=0;p<n;p++)
+            {
+                progressbar(c*p,geo.nb()*n);
+                operatorFerguson(pts[p],geo.getM(c),mat,offsetI,offsetJ);
+                offsetI += 3;
+            }
+            offsetJ += geo.getM(c).nbPts();
+        }
+
+        // Blocks multiplications
+        offsetJ = 0;
+        for(int c=0;c<geo.nb();c++)
+        {
+            mult2(mat,0,offsetJ,mat.nlin(),offsetJ+geo.getM(c).nbPts(),(geo.sigma_in(c)-geo.sigma_out(c))*MU0/(4*M_PI));
+            offsetJ += geo.getM(c).nbPts();
+        }
     }
 }

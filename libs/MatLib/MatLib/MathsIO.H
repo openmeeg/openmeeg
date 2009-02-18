@@ -43,8 +43,8 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#ifndef MATRIXIO_H
-#define MATRIXIO_H
+#ifndef OPENMEEG_MATRIXIO_H
+#define OPENMEEG_MATRIXIO_H
 
 #include <iostream>
 #include <fstream>
@@ -61,154 +61,156 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #pragma warning( disable : 4290)    //MSVC warning C4290
 #endif
 
-namespace maths {
+namespace OpenMEEG {
 
-    class OPENMEEGMATHS_EXPORT MathsIOBase;
+    namespace maths {
 
-    //  Quite similar to ImageIO, how to fuse this ?
+        class OPENMEEGMATHS_EXPORT MathsIOBase;
 
-    struct OPENMEEGMATHS_EXPORT MathsIO {
+        //  Quite similar to ImageIO, how to fuse this ?
 
-        typedef MathsIOBase* IO;
-        typedef std::list<IO> IOs;
+        struct OPENMEEGMATHS_EXPORT MathsIO {
 
-    private:
+            typedef MathsIOBase* IO;
+            typedef std::list<IO> IOs;
 
-        static IO DefaultIO;
+        private:
 
-    public:
+            static IO DefaultIO;
 
-        MathsIO() { };
-        MathsIO(const char* name):  file_name(name) { }
-        virtual ~MathsIO() {};
+        public:
 
-        static IOs& ios() { static IOs* ios = new IOs; return *ios; }
+            MathsIO() { };
+            MathsIO(const char* name):  file_name(name) { }
+            virtual ~MathsIO() {};
 
-        static IO default_io() { return DefaultIO; }
+            static IOs& ios() { static IOs* ios = new IOs; return *ios; }
 
-        static bool permanent;
+            static IO default_io() { return DefaultIO; }
 
-        const std::string& name() const { return file_name; }
+            static bool permanent;
 
-        void setName(const std::string& n) { file_name = n; }
+            const std::string& name() const { return file_name; }
 
-        //  This is very similar with ImageIO, how to commonize it ?
+            void setName(const std::string& n) { file_name = n; }
 
-        //  Handle the default io.
+            //  This is very similar with ImageIO, how to commonize it ?
 
-        static IO GetCurrentFormat() {
-            IO tmp = DefaultIO;
-            if (!permanent)
-                DefaultIO = 0;
-            return tmp;
-        }
+            //  Handle the default io.
 
-        static void SetCurrentFormat(IO io,const bool perm=false) {
-            DefaultIO = io;
-            permanent = perm;
-        }
-
-        static const IO& format(const std::string&)             throw(UnknownFileFormat);
-        static const IO& format_from_suffix(const std::string&) throw(NoSuffix,UnknownFileSuffix);
-
-        static void SetCurrentFormat(const std::string& fmt,const bool perm) throw(UnknownFileFormat) {
-            if (fmt=="default") {
-                SetCurrentFormat(0,perm);
-                return;
+            static IO GetCurrentFormat() {
+                IO tmp = DefaultIO;
+                if (!permanent)
+                    DefaultIO = 0;
+                return tmp;
             }
-            SetCurrentFormat(format(fmt),perm);
-        }
 
-        static void SetCurrentFormatFromSuffix(const std::string& name,const bool perm) throw(NoSuffix,UnknownFileSuffix) {
-            SetCurrentFormat(format_from_suffix(name),perm);
-        }
-
-    protected:
-
-        std::string file_name;
-    };
-
-    class OPENMEEGMATHS_EXPORT MathsIOBase : public MathsIO {
-
-        typedef MathsIO base;
-
-    public:
-
-        typedef base::IOs              IOs;
-        typedef std::list<std::string> Suffixes;
-
-        virtual const std::string& identity() const = 0;
-        virtual const Suffixes&    suffixes() const = 0;
-
-        virtual bool identify(const std::string&) const = 0;
-        virtual bool known(const LinOp&) const = 0;
-
-        virtual void read(std::ifstream&,LinOp&) const = 0;
-        virtual void write(std::ofstream&,const LinOp&) const = 0;
-
-        virtual bool known_suffix(const char* suffix)  const throw() {
-            const Suffixes& suffs = suffixes();
-            for (Suffixes::const_iterator i=suffs.begin();i!=suffs.end();++i) {
-                if (!strcmp(suffix,i->c_str()))
-                    return true;
+            static void SetCurrentFormat(IO io,const bool perm=false) {
+                DefaultIO = io;
+                permanent = perm;
             }
-            return false;
-        }
 
-        //  An ugly hack to insert TrivialBinIO at the end of the IO list. 
-        //  Remove when TrivialBinIo is deleted.
+            static const IO& format(const std::string&)             throw(UnknownFileFormat);
+            static const IO& format_from_suffix(const std::string&) throw(NoSuffix,UnknownFileSuffix);
 
-        static void InsertTrivialBinIO();
-
-    protected:
-
-        //  This constructor is only needed for the ugly hack for TrivialBinIo.
-        //  Remove when TrivialBinIo is deleted.
-        MathsIOBase() { }
-
-        MathsIOBase(IOs& ios) { base::ios().push_back(this); }
-        ~MathsIOBase() {};
-    };
-
-    typedef MathsIO ifstream;
-    typedef MathsIO ofstream;
-
-    OPENMEEGMATHS_EXPORT maths::ifstream& operator>>(maths::ifstream&,LinOp&) throw(BadFileOpening,NoIO);
-    OPENMEEGMATHS_EXPORT maths::ofstream& operator<<(maths::ofstream&,const LinOp&) throw(BadFileOpening,NoIO);
-
-    // The manip format() used to specify explicitely a format.
-    // Almost similar to Images::format. How to fuse those.
-
-    struct OPENMEEGMATHS_EXPORT format {
-
-        typedef enum { FromFormatName, FromSuffix } FormatSpec;
-
-        format(const char* id,       const FormatSpec sp=FromFormatName,const bool perm=false): identity(id),type(sp),permanent(perm) { }
-        format(const std::string& id,const FormatSpec sp=FromFormatName,const bool perm=false): identity(id),type(sp),permanent(perm) { }
-
-        friend maths::ifstream& operator>>(maths::ifstream&,const format&);
-        friend maths::ofstream& operator<<(maths::ofstream&,const format&);
-
-    private:
-
-        void set() const {
-            switch (type) {
-                case FromFormatName:
-                    MathsIO::SetCurrentFormat(identity,permanent);
-                    break;
-                case FromSuffix:
-                    MathsIO::SetCurrentFormatFromSuffix(identity,permanent);
-                    break;
+            static void SetCurrentFormat(const std::string& fmt,const bool perm) throw(UnknownFileFormat) {
+                if (fmt=="default") {
+                    SetCurrentFormat(0,perm);
+                    return;
+                }
+                SetCurrentFormat(format(fmt),perm);
             }
-        }
 
-        const std::string identity;
-        const FormatSpec  type;
-        const bool        permanent;
-    };
+            static void SetCurrentFormatFromSuffix(const std::string& name,const bool perm) throw(NoSuffix,UnknownFileSuffix) {
+                SetCurrentFormat(format_from_suffix(name),perm);
+            }
 
-    inline maths::ifstream& operator>>(maths::ifstream &is,const format& f) { f.set(); return is; }
-    inline maths::ofstream& operator<<(maths::ofstream &os,const format& f) { f.set(); return os; }
+        protected:
+
+            std::string file_name;
+        };
+
+        class OPENMEEGMATHS_EXPORT MathsIOBase : public MathsIO {
+
+            typedef MathsIO base;
+
+        public:
+
+            typedef base::IOs              IOs;
+            typedef std::list<std::string> Suffixes;
+
+            virtual const std::string& identity() const = 0;
+            virtual const Suffixes&    suffixes() const = 0;
+
+            virtual bool identify(const std::string&) const = 0;
+            virtual bool known(const LinOp&) const = 0;
+
+            virtual void read(std::ifstream&,LinOp&) const = 0;
+            virtual void write(std::ofstream&,const LinOp&) const = 0;
+
+            virtual bool known_suffix(const char* suffix)  const throw() {
+                const Suffixes& suffs = suffixes();
+                for (Suffixes::const_iterator i=suffs.begin();i!=suffs.end();++i) {
+                    if (!strcmp(suffix,i->c_str()))
+                        return true;
+                }
+                return false;
+            }
+
+            //  An ugly hack to insert TrivialBinIO at the end of the IO list. 
+            //  Remove when TrivialBinIo is deleted.
+
+            static void InsertTrivialBinIO();
+
+        protected:
+
+            //  This constructor is only needed for the ugly hack for TrivialBinIo.
+            //  Remove when TrivialBinIo is deleted.
+            MathsIOBase() { }
+
+            MathsIOBase(IOs& ios) { base::ios().push_back(this); }
+            ~MathsIOBase() {};
+        };
+
+        typedef MathsIO ifstream;
+        typedef MathsIO ofstream;
+
+        OPENMEEGMATHS_EXPORT maths::ifstream& operator>>(maths::ifstream&,LinOp&) throw(BadFileOpening,NoIO);
+        OPENMEEGMATHS_EXPORT maths::ofstream& operator<<(maths::ofstream&,const LinOp&) throw(BadFileOpening,NoIO);
+
+        // The manip format() used to specify explicitely a format.
+        // Almost similar to Images::format. How to fuse those.
+
+        struct OPENMEEGMATHS_EXPORT format {
+
+            typedef enum { FromFormatName, FromSuffix } FormatSpec;
+
+            format(const char* id,       const FormatSpec sp=FromFormatName,const bool perm=false): identity(id),type(sp),permanent(perm) { }
+            format(const std::string& id,const FormatSpec sp=FromFormatName,const bool perm=false): identity(id),type(sp),permanent(perm) { }
+
+            friend maths::ifstream& operator>>(maths::ifstream&,const format&);
+            friend maths::ofstream& operator<<(maths::ofstream&,const format&);
+
+        private:
+
+            void set() const {
+                switch (type) {
+                    case FromFormatName:
+                        MathsIO::SetCurrentFormat(identity,permanent);
+                        break;
+                    case FromSuffix:
+                        MathsIO::SetCurrentFormatFromSuffix(identity,permanent);
+                        break;
+                }
+            }
+
+            const std::string identity;
+            const FormatSpec  type;
+            const bool        permanent;
+        };
+
+        inline maths::ifstream& operator>>(maths::ifstream &is,const format& f) { f.set(); return is; }
+        inline maths::ofstream& operator<<(maths::ofstream &os,const format& f) { f.set(); return os; }
+    }
 }
-
-#endif  //! MATRIXIO_H
+#endif  //! OPENMEEG_MATRIXIO_H

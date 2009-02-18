@@ -45,148 +45,150 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #include "sparse_matrix.h"
 
-Vector SparseMatrix::operator*(const Vector &x) const
-{
-    Vector ret(nlin());
-    ret.set(0);
+namespace OpenMEEG {
 
-    Tank::const_iterator it;
-    for(it = m_tank.begin(); it != m_tank.end(); ++it) {
-        size_t i = it->first.first;
-        size_t j = it->first.second;
-        double val = it->second;
-        ret(i) += val * x(j);
+    Vector SparseMatrix::operator*(const Vector &x) const
+    {
+        Vector ret(nlin());
+        ret.set(0);
+
+        Tank::const_iterator it;
+        for(it = m_tank.begin(); it != m_tank.end(); ++it) {
+            size_t i = it->first.first;
+            size_t j = it->first.second;
+            double val = it->second;
+            ret(i) += val * x(j);
+        }
+
+        return ret;
     }
 
-    return ret;
-}
+    Matrix SparseMatrix::operator*(const Matrix &mat) const
+    {
+        assert(ncol()==mat.nlin());
+        Matrix out(nlin(),mat.ncol());
+        out.set(0.0);
 
-Matrix SparseMatrix::operator*(const Matrix &mat) const
-{
-    assert(ncol()==mat.nlin());
-    Matrix out(nlin(),mat.ncol());
-    out.set(0.0);
+        Tank::const_iterator it;
+        for(it = m_tank.begin(); it != m_tank.end(); ++it) {
+            size_t i = it->first.first;
+            size_t j = it->first.second;
+            double val = it->second;
+            for(size_t k = 0; k < mat.ncol(); ++k) {
+                out(i,k) += val * mat(j,k);
+            }
+        }
 
-    Tank::const_iterator it;
-    for(it = m_tank.begin(); it != m_tank.end(); ++it) {
-        size_t i = it->first.first;
-        size_t j = it->first.second;
-        double val = it->second;
-        for(size_t k = 0; k < mat.ncol(); ++k) {
-            out(i,k) += val * mat(j,k);
+        return out;
+    }
+
+    SparseMatrix SparseMatrix::transpose() const {
+        SparseMatrix tsp(ncol(),nlin());
+        const_iterator it;
+        for(it = m_tank.begin(); it != m_tank.end(); ++it) {
+            size_t i = it->first.first;
+            size_t j = it->first.second;
+            tsp(j,i) = it->second;
+        }
+        return tsp;
+    }
+
+    void SparseMatrix::info() const {
+        if ((nlin() == 0) || (ncol() == 0) || m_tank.empty()) {
+            std::cout << "Matrix Empty" << std::endl;
+            return;
+        }
+
+        std::cout << "Dimensions : " << nlin() << " x " << ncol() << std::endl;
+
+        double minv = m_tank.begin()->second;
+        double maxv = m_tank.begin()->second;
+        size_t mini = 0;
+        size_t maxi = 0;
+        size_t minj = 0;
+        size_t maxj = 0;
+
+        Tank::const_iterator it;
+        for(it = m_tank.begin(); it != m_tank.end(); ++it) {
+                if (minv > it->second) {
+                    minv = it->second;
+                    mini = it->first.first;
+                    minj = it->first.second;
+                } else if (maxv < it->second) {
+                    maxv = it->second;
+                    maxi = it->first.first;
+                    maxj = it->first.second;
+                }
+        }
+
+        std::cout << "Min Value : " << minv << " (" << mini << "," << minj << ")" << std::endl;
+        std::cout << "Max Value : " << maxv << " (" << maxi << "," << maxj << ")" << std::endl;
+        std::cout << "First Values" << std::endl;
+
+        size_t cnt = 0;
+        for(it = m_tank.begin(); it != m_tank.end() && cnt < 5; ++it) {
+            std::cout << "(" << it->first.first << "," << it->first.second << ") " << it->second << std::endl;
+            cnt++;
         }
     }
 
-    return out;
-}
+    // =======
+    // = IOs =
+    // =======
 
-SparseMatrix SparseMatrix::transpose() const {
-    SparseMatrix tsp(ncol(),nlin());
-    const_iterator it;
-    for(it = m_tank.begin(); it != m_tank.end(); ++it) {
-        size_t i = it->first.first;
-        size_t j = it->first.second;
-        tsp(j,i) = it->second;
-    }
-    return tsp;
-}
-
-void SparseMatrix::info() const {
-    if ((nlin() == 0) || (ncol() == 0) || m_tank.empty()) {
-        std::cout << "Matrix Empty" << std::endl;
-        return;
-    }
-
-    std::cout << "Dimensions : " << nlin() << " x " << ncol() << std::endl;
-
-    double minv = m_tank.begin()->second;
-    double maxv = m_tank.begin()->second;
-    size_t mini = 0;
-    size_t maxi = 0;
-    size_t minj = 0;
-    size_t maxj = 0;
-
-    Tank::const_iterator it;
-    for(it = m_tank.begin(); it != m_tank.end(); ++it) {
-            if (minv > it->second) {
-                minv = it->second;
-                mini = it->first.first;
-                minj = it->first.second;
-            } else if (maxv < it->second) {
-                maxv = it->second;
-                maxi = it->first.first;
-                maxj = it->first.second;
-            }
-    }
-
-    std::cout << "Min Value : " << minv << " (" << mini << "," << minj << ")" << std::endl;
-    std::cout << "Max Value : " << maxv << " (" << maxi << "," << maxj << ")" << std::endl;
-    std::cout << "First Values" << std::endl;
-
-    size_t cnt = 0;
-    for(it = m_tank.begin(); it != m_tank.end() && cnt < 5; ++it) {
-        std::cout << "(" << it->first.first << "," << it->first.second << ") " << it->second << std::endl;
-        cnt++;
-    }
-}
-
-// =======
-// = IOs =
-// =======
-
-void SparseMatrix::loadBin( const char *filename )
-{
-    maths::ifstream ifs(filename);
-    ifs >> maths::format("binary") >> *this;
-}
-
-void SparseMatrix::saveBin( const char *filename ) const
-{
-    maths::ofstream ofs(filename);
-    ofs << maths::format("binary") << *this;
-}
-
-void SparseMatrix::loadTxt( const char *filename )
-{
-    maths::ifstream ifs(filename);
-    ifs >> maths::format("ascii") >> *this;
-}
-
-void SparseMatrix::saveTxt( const char *filename ) const
-{
-    maths::ofstream ofs(filename);
-    ofs << maths::format("ascii") << *this;
-}
-
-void SparseMatrix::loadMat(const char *filename)
-{
-    maths::ifstream ifs(filename);
-    ifs >> maths::format("matlab") >> *this;
-}
-
-void SparseMatrix::saveMat( const char *filename ) const
-{
-    maths::ofstream ofs(filename);
-    ofs << maths::format("matlab") << *this;
-}
-
-void SparseMatrix::load( const char *filename ) {
-    try {
+    void SparseMatrix::loadBin( const char *filename )
+    {
         maths::ifstream ifs(filename);
-        ifs >> *this;
+        ifs >> maths::format("binary") >> *this;
     }
-    catch (std::string s) {
-        std::cout << s << std::endl;
-    }
-}
 
-void SparseMatrix::save( const char *filename ) const {
-    try {
+    void SparseMatrix::saveBin( const char *filename ) const
+    {
         maths::ofstream ofs(filename);
-        ofs << *this;
+        ofs << maths::format("binary") << *this;
     }
-    catch (std::string s) {
-        std::cout << s << std::endl;
+
+    void SparseMatrix::loadTxt( const char *filename )
+    {
+        maths::ifstream ifs(filename);
+        ifs >> maths::format("ascii") >> *this;
+    }
+
+    void SparseMatrix::saveTxt( const char *filename ) const
+    {
+        maths::ofstream ofs(filename);
+        ofs << maths::format("ascii") << *this;
+    }
+
+    void SparseMatrix::loadMat(const char *filename)
+    {
+        maths::ifstream ifs(filename);
+        ifs >> maths::format("matlab") >> *this;
+    }
+
+    void SparseMatrix::saveMat( const char *filename ) const
+    {
+        maths::ofstream ofs(filename);
+        ofs << maths::format("matlab") << *this;
+    }
+
+    void SparseMatrix::load( const char *filename ) {
+        try {
+            maths::ifstream ifs(filename);
+            ifs >> *this;
+        }
+        catch (std::string s) {
+            std::cout << s << std::endl;
+        }
+    }
+
+    void SparseMatrix::save( const char *filename ) const {
+        try {
+            maths::ofstream ofs(filename);
+            ofs << *this;
+        }
+        catch (std::string s) {
+            std::cout << s << std::endl;
+        }
     }
 }
-

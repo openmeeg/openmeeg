@@ -17,6 +17,8 @@
     #include "forward.h"
     #include "inversers.h"
 
+    using namespace OpenMEEG;
+
     #ifdef SWIGPYTHON
 
         #include <numpy/arrayobject.h>

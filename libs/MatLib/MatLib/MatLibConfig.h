@@ -43,8 +43,8 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#ifndef MATLIBCONFIG_H
-#define MATLIBCONFIG_H
+#ifndef OPENMEEG_MATLIBCONFIG_H
+#define OPENMEEG_MATLIBCONFIG_H
 
 //  cmake configuration.
 #include <OpenMEEGConfigure.h>
@@ -211,4 +211,4 @@ knowledge of the CeCILL-B license and that you accept its terms.
     #endif
 #endif
 
-#endif // !MATLIBCONFIG_H
+#endif // !OPENMEEG_MATLIBCONFIG_H

@@ -43,8 +43,8 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#ifndef ASSEMBLE_H
-#define ASSEMBLE_H
+#ifndef OPENMEEG_ASSEMBLE_H
+#define OPENMEEG_ASSEMBLE_H
 
 #include <vector>
 
@@ -54,62 +54,65 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include "geometry.h"
 #include "sensors.h"
 
-class OPENMEEG_EXPORT HeadMat : public virtual SymMatrix
-{
-public:
-    HeadMat (const Geometry &geo, const int GaussOrder);
-    virtual ~HeadMat () {};
-};
+namespace OpenMEEG {
 
-class OPENMEEG_EXPORT SurfSourceMat : public virtual Matrix
-{
-public:
-    SurfSourceMat (const Geometry &geo, const Mesh & sources, const int GaussOrder);
-    virtual ~SurfSourceMat () {};
-};
+    class OPENMEEG_EXPORT HeadMat : public virtual SymMatrix
+    {
+    public:
+        HeadMat (const Geometry &geo, const int GaussOrder);
+        virtual ~HeadMat () {};
+    };
 
-class OPENMEEG_EXPORT DipSourceMat : public virtual Matrix
-{
-public:
-    DipSourceMat (const Geometry &geo, const Matrix& dipoles, const int GaussOrder);
-    virtual ~DipSourceMat () {};
-};
+    class OPENMEEG_EXPORT SurfSourceMat : public virtual Matrix
+    {
+    public:
+        SurfSourceMat (const Geometry &geo, const Mesh & sources, const int GaussOrder);
+        virtual ~SurfSourceMat () {};
+    };
 
-class OPENMEEG_EXPORT Surf2VolMat : public virtual Matrix
-{
-public:
-    Surf2VolMat (const Geometry &geo, const Matrix &points);
-    virtual ~Surf2VolMat () {};
-};
+    class OPENMEEG_EXPORT DipSourceMat : public virtual Matrix
+    {
+    public:
+        DipSourceMat (const Geometry &geo, const Matrix& dipoles, const int GaussOrder);
+        virtual ~DipSourceMat () {};
+    };
 
-class OPENMEEG_EXPORT Head2EEGMat : public virtual SparseMatrix
-{
-public:
-    Head2EEGMat (const Geometry &geo, const Matrix& patches);
-    virtual ~Head2EEGMat () {};
-};
+    class OPENMEEG_EXPORT Surf2VolMat : public virtual Matrix
+    {
+    public:
+        Surf2VolMat (const Geometry &geo, const Matrix &points);
+        virtual ~Surf2VolMat () {};
+    };
 
-class OPENMEEG_EXPORT Head2MEGMat : public virtual Matrix
-{
-public:
-    Head2MEGMat (const Geometry &geo, const Sensors& sensors);
-    virtual ~Head2MEGMat () {};
-};
+    class OPENMEEG_EXPORT Head2EEGMat : public virtual SparseMatrix
+    {
+    public:
+        Head2EEGMat (const Geometry &geo, const Matrix& patches);
+        virtual ~Head2EEGMat () {};
+    };
 
-class OPENMEEG_EXPORT SurfSource2MEGMat : public virtual Matrix
-{
-public:
-    SurfSource2MEGMat (const Mesh& sources, const Sensors& sensors);
-    virtual ~SurfSource2MEGMat () {};
-};
+    class OPENMEEG_EXPORT Head2MEGMat : public virtual Matrix
+    {
+    public:
+        Head2MEGMat (const Geometry &geo, const Sensors& sensors);
+        virtual ~Head2MEGMat () {};
+    };
 
-class OPENMEEG_EXPORT DipSource2MEGMat : public virtual Matrix
-{
-public:
-    DipSource2MEGMat(const Matrix &dipoles, const Sensors &sensors);
-    virtual ~DipSource2MEGMat () {};
-};
+    class OPENMEEG_EXPORT SurfSource2MEGMat : public virtual Matrix
+    {
+    public:
+        SurfSource2MEGMat (const Mesh& sources, const Sensors& sensors);
+        virtual ~SurfSource2MEGMat () {};
+    };
 
-OPENMEEG_EXPORT void assemble_EITsource(const Geometry &geo, Matrix &mat, Matrix &airescalp, const int GaussOrder);
+    class OPENMEEG_EXPORT DipSource2MEGMat : public virtual Matrix
+    {
+    public:
+        DipSource2MEGMat(const Matrix &dipoles, const Sensors &sensors);
+        virtual ~DipSource2MEGMat () {};
+    };
 
-#endif /* ASSEMBLE_H */
+    OPENMEEG_EXPORT void assemble_EITsource(const Geometry &geo, Matrix &mat, Matrix &airescalp, const int GaussOrder);
+}
+
+#endif /* OPENMEEG_ASSEMBLE_H */

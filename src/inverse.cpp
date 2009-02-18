@@ -48,6 +48,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include "inversers.h"
 
 using namespace std;
+using namespace OpenMEEG;
 
 void getHelp(char** argv);
 

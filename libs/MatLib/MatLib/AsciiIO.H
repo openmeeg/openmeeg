@@ -43,8 +43,8 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#ifndef ASCIIIO_H
-#define ASCIIIO_H
+#ifndef OPENMEEG_ASCIIIO_H
+#define OPENMEEG_ASCIIIO_H
 
 #include <sstream>
 
@@ -58,216 +58,218 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include "matrix.h"
 #include "symmatrix.h"
 
-namespace maths {
+namespace OpenMEEG {
+    namespace maths {
 
-    struct OPENMEEGMATHS_EXPORT AsciiIO: public MathsIOBase {
+        struct OPENMEEGMATHS_EXPORT AsciiIO: public MathsIOBase {
 
-        const std::string& identity() const { return Identity; }
-        const Suffixes&    suffixes() const { return suffs;    }
+            const std::string& identity() const { return Identity; }
+            const Suffixes&    suffixes() const { return suffs;    }
 
-        bool identify(const std::string& buffer) const {
-            double tmp;
-            std::stringstream ss(buffer);
-            return (ss >> tmp) ? true : false; // test if file starts with a proper float value
-        }
-
-        bool known(const LinOp& linop) const { return true; }
-
-        void read_sparse(std::ifstream& is,LinOp& linop) const {
-
-            SparseMatrix& m = dynamic_cast<SparseMatrix&>(linop);
-
-            is.clear();
-            is.seekg(0,std::ios::beg);
-
-            std::string line;
-
-            // Start by reading dimensions
-            std::getline(is, line, '\n');
-            std::stringstream buffer(line);
-            buffer >> m.nlin();
-            buffer >> m.ncol();
-
-            while (std::getline(is, line, '\n')) {
-                std::stringstream buffer(line);
-                size_t i,j;
-                buffer >> i >> j;
-                buffer >> m(i,j);
+            bool identify(const std::string& buffer) const {
+                double tmp;
+                std::stringstream ss(buffer);
+                return (ss >> tmp) ? true : false; // test if file starts with a proper float value
             }
 
-            //  Check that there is nothing more in the file (otherwise the file is corrupted somehow).
+            bool known(const LinOp& linop) const { return true; }
 
-            is >> std::ws;
-            if (!is.eof())
-                throw BadData(identity()+" sparse matrix");
-        }
+            void read_sparse(std::ifstream& is,LinOp& linop) const {
 
-        void read_full(std::ifstream& is,LinOp& linop) const throw(BadData) {
-            is.clear();
-            is.seekg(0,std::ios::beg);
+                SparseMatrix& m = dynamic_cast<SparseMatrix&>(linop);
 
-            std::string line;
-            if (linop.dimension() == LinOp::ONE) {
-                Vector& v = dynamic_cast<Vector&>(linop);
-                v.alloc_data();
+                is.clear();
+                is.seekg(0,std::ios::beg);
 
-                for (size_t i=0;i<v.nlin();++i) {
-                    std::getline(is,line,'\n');
+                std::string line;
+
+                // Start by reading dimensions
+                std::getline(is, line, '\n');
+                std::stringstream buffer(line);
+                buffer >> m.nlin();
+                buffer >> m.ncol();
+
+                while (std::getline(is, line, '\n')) {
                     std::stringstream buffer(line);
-                    buffer >> v(i);
-                    if (buffer.fail())
-                        throw BadData(identity()+" vector");
+                    size_t i,j;
+                    buffer >> i >> j;
+                    buffer >> m(i,j);
                 }
-            } else {
-                Matrix& m = dynamic_cast<Matrix&>(linop);
+
+                //  Check that there is nothing more in the file (otherwise the file is corrupted somehow).
+
+                is >> std::ws;
+                if (!is.eof())
+                    throw BadData(identity()+" sparse matrix");
+            }
+
+            void read_full(std::ifstream& is,LinOp& linop) const throw(BadData) {
+                is.clear();
+                is.seekg(0,std::ios::beg);
+
+                std::string line;
+                if (linop.dimension() == LinOp::ONE) {
+                    Vector& v = dynamic_cast<Vector&>(linop);
+                    v.alloc_data();
+
+                    for (size_t i=0;i<v.nlin();++i) {
+                        std::getline(is,line,'\n');
+                        std::stringstream buffer(line);
+                        buffer >> v(i);
+                        if (buffer.fail())
+                            throw BadData(identity()+" vector");
+                    }
+                } else {
+                    Matrix& m = dynamic_cast<Matrix&>(linop);
+                    m.alloc_data();
+
+                    for (size_t i=0;i<m.nlin();++i) {
+                        std::getline(is,line,'\n');
+                        std::stringstream buffer(line);
+                        for (size_t j=0;j<m.ncol();++j)
+                            buffer >> m(i,j);
+                        if (buffer.fail())
+                            throw BadData(identity()+" matrix");
+                    }
+                }
+            }
+
+            void read_symmetric(std::ifstream& is,LinOp& linop) const throw(BadData) {
+                SymMatrix& m = dynamic_cast<SymMatrix&>(linop);
                 m.alloc_data();
 
+                // Read data
+
+                is.clear();
+                is.seekg(0,std::ios::beg);
+
+                std::string line;
                 for (size_t i=0;i<m.nlin();++i) {
                     std::getline(is,line,'\n');
                     std::stringstream buffer(line);
-                    for (size_t j=0;j<m.ncol();++j)
+                    for (size_t j=i;j<m.ncol();++j)
                         buffer >> m(i,j);
                     if (buffer.fail())
-                        throw BadData(identity()+" matrix");
+                        throw BadData(identity()+" symmetric matrix");
                 }
             }
-        }
 
-        void read_symmetric(std::ifstream& is,LinOp& linop) const throw(BadData) {
-            SymMatrix& m = dynamic_cast<SymMatrix&>(linop);
-            m.alloc_data();
+            void read(std::ifstream& is,LinOp& linop) const throw(std::exception) {
 
-            // Read data
+                if (linop.storageType()==LinOp::SPARSE) {
 
-            is.clear();
-            is.seekg(0,std::ios::beg);
+                    read_sparse(is,linop);
 
-            std::string line;
-            for (size_t i=0;i<m.nlin();++i) {
-                std::getline(is,line,'\n');
-                std::stringstream buffer(line);
-                for (size_t j=i;j<m.ncol();++j)
-                    buffer >> m(i,j);
-                if (buffer.fail())
-                    throw BadData(identity()+" symmetric matrix");
-            }
-        }
-
-        void read(std::ifstream& is,LinOp& linop) const throw(std::exception) {
-
-            if (linop.storageType()==LinOp::SPARSE) {
-
-                read_sparse(is,linop);
-
-            } else {
-
-                // Determine the number of columns on the first line
-
-                is.clear();
-                is.seekg(0,std::ios::beg);
-
-                unsigned ncol = 0;
-                std::string line;
-                std::getline(is, line, '\n');
-                std::stringstream buffer(line);
-                while(!buffer.fail()) {
-                    double d;
-                    buffer >> d;
-                    ++ncol;
-                }
-                --ncol;
-
-                if (linop.dimension() == LinOp::ONE && ncol!=1)
-                    throw BadVector(ncol);
-
-                // Determine the number of lines in the file
-
-                is.clear();
-                is.seekg(0,std::ios::beg);
-
-                unsigned nlin = 0;
-                while (std::getline(is, line, '\n'))
-                    if (!line.empty())
-                        ++nlin;
-
-                //  Read the data according to the type of the matrix.
-
-                if (linop.storageType() == LinOp::SYMMETRIC) {
-                    if (nlin!=ncol)
-                        throw BadSymmMatrix(nlin,ncol);
-                    linop.ncol() = ncol;
-                    read_symmetric(is,linop);
                 } else {
-                    linop.nlin() = nlin;
-                    linop.ncol() = ncol;
-                    read_full(is,linop);
+
+                    // Determine the number of columns on the first line
+
+                    is.clear();
+                    is.seekg(0,std::ios::beg);
+
+                    unsigned ncol = 0;
+                    std::string line;
+                    std::getline(is, line, '\n');
+                    std::stringstream buffer(line);
+                    while(!buffer.fail()) {
+                        double d;
+                        buffer >> d;
+                        ++ncol;
+                    }
+                    --ncol;
+
+                    if (linop.dimension() == LinOp::ONE && ncol!=1)
+                        throw BadVector(ncol);
+
+                    // Determine the number of lines in the file
+
+                    is.clear();
+                    is.seekg(0,std::ios::beg);
+
+                    unsigned nlin = 0;
+                    while (std::getline(is, line, '\n'))
+                        if (!line.empty())
+                            ++nlin;
+
+                    //  Read the data according to the type of the matrix.
+
+                    if (linop.storageType() == LinOp::SYMMETRIC) {
+                        if (nlin!=ncol)
+                            throw BadSymmMatrix(nlin,ncol);
+                        linop.ncol() = ncol;
+                        read_symmetric(is,linop);
+                    } else {
+                        linop.nlin() = nlin;
+                        linop.ncol() = ncol;
+                        read_full(is,linop);
+                    }
                 }
             }
-        }
 
-        void write_sparse(std::ofstream& os, const LinOp& linop) const {
-            const SparseMatrix& spm = dynamic_cast<const SparseMatrix&>(linop);
-            SparseMatrix::const_iterator it;
-            os << spm.nlin() << " " << spm.ncol() << std::endl;
-            for(it = spm.begin(); it != spm.end(); ++it) {
-                size_t i = it->first.first;
-                size_t j = it->first.second;
-                double val = it->second;
-                os << i << " " << j << " " << val << std::endl;
+            void write_sparse(std::ofstream& os, const LinOp& linop) const {
+                const SparseMatrix& spm = dynamic_cast<const SparseMatrix&>(linop);
+                SparseMatrix::const_iterator it;
+                os << spm.nlin() << " " << spm.ncol() << std::endl;
+                for(it = spm.begin(); it != spm.end(); ++it) {
+                    size_t i = it->first.first;
+                    size_t j = it->first.second;
+                    double val = it->second;
+                    os << i << " " << j << " " << val << std::endl;
+                }
             }
-        }
 
-        void write_symmetric(std::ofstream& os, const LinOp& linop) const {
-            const SymMatrix& m = dynamic_cast<const SymMatrix&>(linop);
-            for (size_t i=0;i<m.nlin();++i)
-                for (size_t j=i;j<m.ncol();++j)
-                    os << m(i,j) << ((j!=m.ncol()-1) ? "\t" : "\n");
-        }
-
-        void write_full(std::ofstream& os, const LinOp& linop) const {
-            if (linop.dimension()==LinOp::ONE) {
-                const Vector& v = dynamic_cast<const Vector&>(linop);
-                for (size_t i=0;i<v.nlin();++i)
-                    os << v(i) << std::endl;
-            } else {
-                const Matrix& m = dynamic_cast<const Matrix&>(linop);
+            void write_symmetric(std::ofstream& os, const LinOp& linop) const {
+                const SymMatrix& m = dynamic_cast<const SymMatrix&>(linop);
                 for (size_t i=0;i<m.nlin();++i)
-                    for (size_t j=0;j<m.ncol();++j)
+                    for (size_t j=i;j<m.ncol();++j)
                         os << m(i,j) << ((j!=m.ncol()-1) ? "\t" : "\n");
             }
-        }
 
-        void write(std::ofstream& os, const LinOp& linop) const {
-            switch (linop.storageType()) {
-                case LinOp::SPARSE :
-                    write_sparse(os,linop);
-                    return;
-                case LinOp::FULL :
-                    write_full(os,linop);
-                    return;
-                case LinOp::SYMMETRIC :
-                    write_symmetric(os,linop);
-                    return;
-                default:
-                    return;
+            void write_full(std::ofstream& os, const LinOp& linop) const {
+                if (linop.dimension()==LinOp::ONE) {
+                    const Vector& v = dynamic_cast<const Vector&>(linop);
+                    for (size_t i=0;i<v.nlin();++i)
+                        os << v(i) << std::endl;
+                } else {
+                    const Matrix& m = dynamic_cast<const Matrix&>(linop);
+                    for (size_t i=0;i<m.nlin();++i)
+                        for (size_t j=0;j<m.ncol();++j)
+                            os << m(i,j) << ((j!=m.ncol()-1) ? "\t" : "\n");
+                }
             }
-        }
 
-    private:
+            void write(std::ofstream& os, const LinOp& linop) const {
+                switch (linop.storageType()) {
+                    case LinOp::SPARSE :
+                        write_sparse(os,linop);
+                        return;
+                    case LinOp::FULL :
+                        write_full(os,linop);
+                        return;
+                    case LinOp::SYMMETRIC :
+                        write_symmetric(os,linop);
+                        return;
+                    default:
+                        return;
+                }
+            }
 
-        AsciiIO(): MathsIOBase(MathsIO::ios()) { }
-        ~AsciiIO() {};
+        private:
 
-        static Suffixes init() {
-            Suffixes suffs;
-            suffs.push_back("txt");
-            return suffs;
-        }
+            AsciiIO(): MathsIOBase(MathsIO::ios()) { }
+            ~AsciiIO() {};
 
-        static const AsciiIO     prototype;
-        static const Suffixes    suffs;
-        static const std::string Identity;
-    };
+            static Suffixes init() {
+                Suffixes suffs;
+                suffs.push_back("txt");
+                return suffs;
+            }
+
+            static const AsciiIO     prototype;
+            static const Suffixes    suffs;
+            static const std::string Identity;
+        };
+    }
 }
 
-#endif  //! ASCIIIO_H
+#endif  //! OPENMEEG_ASCIIIO_H

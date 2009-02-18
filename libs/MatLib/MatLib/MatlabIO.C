@@ -45,9 +45,12 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #include "MatlabIO.H"
 
-namespace maths {
-    const MatlabIO           MatlabIO::prototype;
-    const std::string        MatlabIO::MagicTag("MATLAB");
-    const MatlabIO::Suffixes MatlabIO::suffs = MatlabIO::init();
-    const std::string        MatlabIO::Identity("matlab");
+namespace OpenMEEG {
+
+    namespace maths {
+        const MatlabIO           MatlabIO::prototype;
+        const std::string        MatlabIO::MagicTag("MATLAB");
+        const MatlabIO::Suffixes MatlabIO::suffs = MatlabIO::init();
+        const std::string        MatlabIO::Identity("matlab");
+    }
 }

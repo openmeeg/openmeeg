@@ -43,8 +43,8 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#ifndef SPARSE_MATRIX_H
-#define SPARSE_MATRIX_H
+#ifndef OPENMEEG_SPARSE_MATRIX_H
+#define OPENMEEG_SPARSE_MATRIX_H
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -68,61 +68,63 @@ knowledge of the CeCILL-B license and that you accept its terms.
     template class OPENMEEGMATHS_EXPORT std::map< std::pair< size_t, size_t >, double >;
 #endif
 
-class OPENMEEGMATHS_EXPORT SparseMatrix : public LinOp {
+namespace OpenMEEG {
 
-public:
+    class OPENMEEGMATHS_EXPORT SparseMatrix : public LinOp {
 
-    typedef std::map< std::pair< size_t, size_t >, double > Tank;
-    typedef std::map< std::pair< size_t, size_t >, double >::const_iterator const_iterator;
-    typedef std::map< std::pair< size_t, size_t >, double >::iterator iterator;
+    public:
 
-    SparseMatrix() : LinOp(0,0,SPARSE,TWO) {};
-    SparseMatrix(size_t N,size_t M) : LinOp(N,M,SPARSE,TWO) {};
-    ~SparseMatrix() {};
+        typedef std::map< std::pair< size_t, size_t >, double > Tank;
+        typedef std::map< std::pair< size_t, size_t >, double >::const_iterator const_iterator;
+        typedef std::map< std::pair< size_t, size_t >, double >::iterator iterator;
 
-    inline double operator()( size_t i, size_t j ) const {
-        assert(i < nlin());
-        assert(j < ncol());
-        const_iterator it = m_tank.find(std::make_pair<size_t, size_t>(i, j));
-        if (it != m_tank.end()) return it->second;
-        else return 0.0;
-    }
+        SparseMatrix() : LinOp(0,0,SPARSE,TWO) {};
+        SparseMatrix(size_t N,size_t M) : LinOp(N,M,SPARSE,TWO) {};
+        ~SparseMatrix() {};
 
-    inline double& operator()( size_t i, size_t j ) {
-        assert(i < nlin());
-        assert(j < ncol());
-        return m_tank[ std::make_pair( i, j ) ];
-    }
+        inline double operator()( size_t i, size_t j ) const {
+            assert(i < nlin());
+            assert(j < ncol());
+            const_iterator it = m_tank.find(std::make_pair<size_t, size_t>(i, j));
+            if (it != m_tank.end()) return it->second;
+            else return 0.0;
+        }
 
-    size_t size() const {
-        return m_tank.size();
-    }
+        inline double& operator()( size_t i, size_t j ) {
+            assert(i < nlin());
+            assert(j < ncol());
+            return m_tank[ std::make_pair( i, j ) ];
+        }
 
-    const_iterator begin() const {return m_tank.begin();}
-    const_iterator end() const {return m_tank.end();}
+        size_t size() const {
+            return m_tank.size();
+        }
 
-    SparseMatrix transpose() const;
+        const_iterator begin() const {return m_tank.begin();}
+        const_iterator end() const {return m_tank.end();}
 
-    const Tank& tank() const {return m_tank;}
+        SparseMatrix transpose() const;
 
-    void save( const char *filename ) const;
-    void saveTxt( const char *filename ) const;
-    void saveBin( const char *filename ) const;
-    void saveMat( const char *filename ) const;
+        const Tank& tank() const {return m_tank;}
 
-    void load( const char *filename );
-    void loadTxt( const char *filename );
-    void loadBin( const char *filename );
-    void loadMat( const char *filename );
+        void save( const char *filename ) const;
+        void saveTxt( const char *filename ) const;
+        void saveBin( const char *filename ) const;
+        void saveMat( const char *filename ) const;
 
-    void info() const;
+        void load( const char *filename );
+        void loadTxt( const char *filename );
+        void loadBin( const char *filename );
+        void loadMat( const char *filename );
 
-    Vector operator*( const Vector &x ) const;
-    Matrix operator*( const Matrix &m ) const;
+        void info() const;
 
-private:
+        Vector operator*( const Vector &x ) const;
+        Matrix operator*( const Matrix &m ) const;
 
-    Tank m_tank;
-};
+    private:
 
-#endif
+        Tank m_tank;
+    };
+}
+#endif  //! OPENMEEG_SPARSE_MATRIX_H

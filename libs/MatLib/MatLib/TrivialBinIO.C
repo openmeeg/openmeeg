@@ -45,7 +45,10 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #include <TrivialBinIO.H>
 
-namespace maths {
-    const TrivialBinIO::Suffixes TrivialBinIO::suffs = TrivialBinIO::init();
-    const std::string            TrivialBinIO::Identity("binary");
+namespace OpenMEEG {
+
+    namespace maths {
+        const TrivialBinIO::Suffixes TrivialBinIO::suffs = TrivialBinIO::init();
+        const std::string            TrivialBinIO::Identity("binary");
+    }
 }

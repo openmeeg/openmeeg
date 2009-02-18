@@ -43,37 +43,39 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#ifndef UTILS_PROPERTIES_SPECIALIZED_H
-#define UTILS_PROPERTIES_SPECIALIZED_H
+#ifndef OPENMEEG_PROPERTIES_SPECIALIZED_H
+#define OPENMEEG_PROPERTIES_SPECIALIZED_H
 
 #include "Properties.H"
 #include "DataTag.H"
 
-template <typename REP=double>
-class OPENMEEG_EXPORT Conductivity {
-public:
+namespace OpenMEEG {
 
-    Conductivity(): conductivity(1.0) { }
+    template <typename REP=double>
+    class OPENMEEG_EXPORT Conductivity {
+    public:
 
-    REP& sigma()       { return conductivity; }
-    REP  sigma() const { return conductivity; }
-private:
-    REP conductivity;    //  The conductivity of the layer (constant per layer).
-};
+        Conductivity(): conductivity(1.0) { }
 
-template <typename REP>
-inline std::istream& operator>>(std::istream& is,Conductivity<REP>& m) { return is >> m.sigma(); }
+        REP& sigma()       { return conductivity; }
+        REP  sigma() const { return conductivity; }
+    private:
+        REP conductivity;    //  The conductivity of the layer (constant per layer).
+    };
 
-template <typename REP>
-inline std::ostream& operator<<(std::ostream& os,const Conductivity<REP>& m) { return os << m.sigma(); }
+    template <typename REP>
+    inline std::istream& operator>>(std::istream& is,Conductivity<REP>& m) { return is >> m.sigma(); }
+
+    template <typename REP>
+    inline std::ostream& operator<<(std::ostream& os,const Conductivity<REP>& m) { return os << m.sigma(); }
+}
 
 namespace Types {
     template<>
-    struct DataTrait<Utils::Properties::Named<std::string, Conductivity<double> > >{
+    struct DataTrait<Utils::Properties::Named<std::string,OpenMEEG::Conductivity<double> > >{
         static const char TAG[];
     };
-    const char DataTrait<Utils::Properties::Named<std::string, Conductivity<double> > >::TAG[]= "Conductivities";
+    const char DataTrait<Utils::Properties::Named<std::string,OpenMEEG::Conductivity<double> > >::TAG[]= "Conductivities";
 };
 
-
-#endif  //  ! UTILS_PROPERTIES_SPECIALIZED_H
+#endif  //! OPENMEEG_PROPERTIES_SPECIALIZED_H

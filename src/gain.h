@@ -46,34 +46,37 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include "matrix.h"
 #include "sparse_matrix.h"
 
-class GainMEG : public virtual Matrix
-{
-public:
-    GainMEG (const SymMatrix& HeadMatInv,const Matrix& SourceMat, const Matrix& Head2MEGMat, const Matrix& Source2MEGMat);
-    virtual ~GainMEG () {};
-};
+namespace OpenMEEG {
 
-class GainEEG : public virtual Matrix
-{
-public:
-    GainEEG (const SymMatrix& HeadMatInv,const Matrix& SourceMat, const SparseMatrix& Head2EEGMat);
-    virtual ~GainEEG () {};
-};
+    class GainMEG : public virtual Matrix
+    {
+    public:
+        GainMEG (const SymMatrix& HeadMatInv,const Matrix& SourceMat, const Matrix& Head2MEGMat, const Matrix& Source2MEGMat);
+        virtual ~GainMEG () {};
+    };
 
-inline void assemble_gain_EEG(Matrix& EEGGainMatrix,const SymMatrix& HeadMatInv,const Matrix& SourceMat, const SparseMatrix& Head2EEGMat) {
-    Matrix reducedHeadMatInv = HeadMatInv(0,HeadMatInv.nlin()-1,0,SourceMat.nlin()-1);
-    EEGGainMatrix = (Head2EEGMat*reducedHeadMatInv)*SourceMat;
-}
+    class GainEEG : public virtual Matrix
+    {
+    public:
+        GainEEG (const SymMatrix& HeadMatInv,const Matrix& SourceMat, const SparseMatrix& Head2EEGMat);
+        virtual ~GainEEG () {};
+    };
 
-inline void assemble_gain_MEG(Matrix& MEGGainMatrix,const SymMatrix& HeadMatInv,const Matrix& SourceMat, const Matrix& Head2MEGMat, const Matrix& Source2MEGMat) {
-    Matrix reducedHeadMatInv = HeadMatInv(0,HeadMatInv.nlin()-1,0,SourceMat.nlin()-1);
-    MEGGainMatrix = Source2MEGMat+(Head2MEGMat*reducedHeadMatInv)*SourceMat;
-}
+    inline void assemble_gain_EEG(Matrix& EEGGainMatrix,const SymMatrix& HeadMatInv,const Matrix& SourceMat, const SparseMatrix& Head2EEGMat) {
+        Matrix reducedHeadMatInv = HeadMatInv(0,HeadMatInv.nlin()-1,0,SourceMat.nlin()-1);
+        EEGGainMatrix = (Head2EEGMat*reducedHeadMatInv)*SourceMat;
+    }
 
-GainMEG::GainMEG(const SymMatrix& HeadMatInv,const Matrix& SourceMat, const Matrix& Head2MEGMat, const Matrix& Source2MEGMat) {
-    assemble_gain_MEG(*this,HeadMatInv,SourceMat,Head2MEGMat,Source2MEGMat);
-}
+    inline void assemble_gain_MEG(Matrix& MEGGainMatrix,const SymMatrix& HeadMatInv,const Matrix& SourceMat, const Matrix& Head2MEGMat, const Matrix& Source2MEGMat) {
+        Matrix reducedHeadMatInv = HeadMatInv(0,HeadMatInv.nlin()-1,0,SourceMat.nlin()-1);
+        MEGGainMatrix = Source2MEGMat+(Head2MEGMat*reducedHeadMatInv)*SourceMat;
+    }
 
-GainEEG::GainEEG(const SymMatrix& HeadMatInv,const Matrix& SourceMat, const SparseMatrix& Head2EEGMat) {
-    assemble_gain_EEG(*this,HeadMatInv,SourceMat,Head2EEGMat);
+    GainMEG::GainMEG(const SymMatrix& HeadMatInv,const Matrix& SourceMat, const Matrix& Head2MEGMat, const Matrix& Source2MEGMat) {
+        assemble_gain_MEG(*this,HeadMatInv,SourceMat,Head2MEGMat,Source2MEGMat);
+    }
+
+    GainEEG::GainEEG(const SymMatrix& HeadMatInv,const Matrix& SourceMat, const SparseMatrix& Head2EEGMat) {
+        assemble_gain_EEG(*this,HeadMatInv,SourceMat,Head2EEGMat);
+    }
 }

@@ -43,8 +43,8 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#ifndef DANIELSSON_H
-#define DANIELSSON_H
+#ifndef OPENMEEG_DANIELSSON_H
+#define OPENMEEG_DANIELSSON_H
 
 #include <list>
 #include <limits.h>
@@ -55,10 +55,13 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include "vect3.h"
 #include "mesh3.h"
 
-const int UnknownPoint=INT_MAX;
-const double UnknownDist=DBL_MAX;
+namespace OpenMEEG {
 
-double dist_point_cell(const Vect3& m, const Vect3 *pts, const Triangle& cell, Vect3& alphas,bool& inside);
-double dist_point_mesh(const Vect3& m, const Mesh& mesh, Vect3& alphas, int& nearestNumber);
+    const int UnknownPoint=INT_MAX;
+    const double UnknownDist=DBL_MAX;
 
-#endif
+    double dist_point_cell(const Vect3& m, const Vect3 *pts, const Triangle& cell, Vect3& alphas,bool& inside);
+    double dist_point_mesh(const Vect3& m, const Mesh& mesh, Vect3& alphas, int& nearestNumber);
+}
+
+#endif  //! OPENMEEG_DANIELSSON_H

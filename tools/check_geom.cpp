@@ -49,6 +49,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <string>
 
 using namespace std;
+using namespace OpenMEEG;
 
 int main( int argc, char **argv)
 {

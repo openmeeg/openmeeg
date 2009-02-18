@@ -43,8 +43,8 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#ifndef VECTOR_H
-#define VECTOR_H
+#ifndef OPENMEEG_VECTOR_H
+#define OPENMEEG_VECTOR_H
 
 #include "MatLibConfig.h"
 #include "linop.h"
@@ -54,79 +54,81 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <iostream>
 #include <cassert>
 
-class Matrix;
-class SymMatrix;
+namespace OpenMEEG {
 
-class OPENMEEGMATHS_EXPORT Vector: public LinOp {
+    class Matrix;
+    class SymMatrix;
 
-    utils::RCPtr<LinOpValue> value;
+    class OPENMEEGMATHS_EXPORT Vector: public LinOp {
 
-public:
+        utils::RCPtr<LinOpValue> value;
 
-    Vector(): LinOp(0,1,FULL,ONE),value() { }
+    public:
 
-    Vector(const size_t N): LinOp(N,1,FULL,ONE),value(new LinOpValue(size())) { }
-    Vector(const Vector& A,const DeepCopy): LinOp(A.nlin(),1,FULL,ONE),value(new LinOpValue(A.size(),A.data())) { }
+        Vector(): LinOp(0,1,FULL,ONE),value() { }
 
-    explicit Vector(Matrix& A);
-    explicit Vector(SymMatrix& A);
+        Vector(const size_t N): LinOp(N,1,FULL,ONE),value(new LinOpValue(size())) { }
+        Vector(const Vector& A,const DeepCopy): LinOp(A.nlin(),1,FULL,ONE),value(new LinOpValue(A.size(),A.data())) { }
 
-    void alloc_data() { value = new LinOpValue(size()); }
+        explicit Vector(Matrix& A);
+        explicit Vector(SymMatrix& A);
 
-    size_t size() const { return nlin(); }
+        void alloc_data() { value = new LinOpValue(size()); }
 
-    bool empty() const { return value->empty(); }
+        size_t size() const { return nlin(); }
 
-    double* data() const { return value->data; }
+        bool empty() const { return value->empty(); }
 
-    inline double operator()(const size_t i) const {
-        assert(i<nlin());
-        return value->data[i];
-    }
+        double* data() const { return value->data; }
 
-    inline double& operator()(const size_t i) {
-        assert(i<nlin());
-        return value->data[i];
-    }
+        inline double operator()(const size_t i) const {
+            assert(i<nlin());
+            return value->data[i];
+        }
 
-    Vector operator+(const Vector& v) const;
-    Vector operator-(const Vector& v) const;
-    void operator+=(const Vector& v);
-    void operator-=(const Vector& v);
-    void operator*=(double x);
-    void operator/=(double x) { (*this) *= (1.0/x); }
-    Vector operator+(double i) const;
-    Vector operator-(double i) const;
-    Vector operator*(double x) const;
-    Vector operator/(double x) const { return (*this)*(1.0/x); }
-    double operator*(const Vector& v) const;
+        inline double& operator()(const size_t i) {
+            assert(i<nlin());
+            return value->data[i];
+        }
 
-    Vector kmult(const Vector& x) const;
-    Vector conv(const Vector& v) const;
-    Vector conv_trunc(const Vector& v) const;
-    Matrix outer_product(const Vector& v) const;
+        Vector operator+(const Vector& v) const;
+        Vector operator-(const Vector& v) const;
+        void operator+=(const Vector& v);
+        void operator-=(const Vector& v);
+        void operator*=(double x);
+        void operator/=(double x) { (*this) *= (1.0/x); }
+        Vector operator+(double i) const;
+        Vector operator-(double i) const;
+        Vector operator*(double x) const;
+        Vector operator/(double x) const { return (*this)*(1.0/x); }
+        double operator*(const Vector& v) const;
 
-    double norm() const;
-    double sum() const;
-    double mean() const { return sum()/size(); }
+        Vector kmult(const Vector& x) const;
+        Vector conv(const Vector& v) const;
+        Vector conv_trunc(const Vector& v) const;
+        Matrix outer_product(const Vector& v) const;
 
-    void set(double x);
-    void saveTxt( const char* filename) const;
-    void saveBin( const char* filename) const;
-    void loadTxt( const char* filename);
-    void loadBin( const char* filename);
-    void save( const char *filename ) const ;
-    void load( const char *filename ) ;
+        double norm() const;
+        double sum() const;
+        double mean() const { return sum()/size(); }
 
-    void info() const;
+        void set(double x);
+        void saveTxt( const char* filename) const;
+        void saveBin( const char* filename) const;
+        void loadTxt( const char* filename);
+        void loadBin( const char* filename);
+        void save( const char *filename ) const ;
+        void load( const char *filename ) ;
 
-    friend class SymMatrix;
-    friend class Matrix;
-};
+        void info() const;
 
-OPENMEEGMATHS_EXPORT Vector operator*(const double &d, const Vector &v);
+        friend class SymMatrix;
+        friend class Matrix;
+    };
 
-OPENMEEGMATHS_EXPORT std::ostream& operator<<(std::ostream& f,const Vector &M);
-OPENMEEGMATHS_EXPORT std::istream& operator>>(std::istream& f,Vector &M);
+    OPENMEEGMATHS_EXPORT Vector operator*(const double &d, const Vector &v);
 
-#endif
+    OPENMEEGMATHS_EXPORT std::ostream& operator<<(std::ostream& f,const Vector &M);
+    OPENMEEGMATHS_EXPORT std::istream& operator>>(std::istream& f,Vector &M);
+}
+#endif  //! OPENMEEG_VECTOR_H

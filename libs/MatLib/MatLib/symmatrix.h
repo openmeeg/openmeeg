@@ -43,8 +43,8 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#ifndef SYMMATRIX_H
-#define SYMMATRIX_H
+#ifndef OPENMEEG_SYMMATRIX_H
+#define OPENMEEG_SYMMATRIX_H
 
 #include <fstream>
 #include <cassert>
@@ -52,89 +52,91 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include "vector.h"
 #include "linop.h"
 
-class Matrix;
+namespace OpenMEEG {
 
-class OPENMEEGMATHS_EXPORT SymMatrix : public LinOp {
+    class Matrix;
 
-    friend class Vector;
+    class OPENMEEGMATHS_EXPORT SymMatrix : public LinOp {
 
-    utils::RCPtr<LinOpValue> value;
+        friend class Vector;
 
-    std::string identity() const;
+        utils::RCPtr<LinOpValue> value;
 
-public:
+        std::string identity() const;
 
-    SymMatrix(): LinOp(0,0,SYMMETRIC,TWO),value() {}
+    public:
 
-    SymMatrix(const char* fname): LinOp(0,0,SYMMETRIC,TWO),value() { this->load(fname); }
-    SymMatrix(size_t N): LinOp(N,N,SYMMETRIC,TWO),value(new LinOpValue(size())) { }
-    SymMatrix(const SymMatrix& S,const DeepCopy): LinOp(S.nlin(),S.nlin(),SYMMETRIC,TWO),value(new LinOpValue(S.size(),S.data())) { }
+        SymMatrix(): LinOp(0,0,SYMMETRIC,TWO),value() {}
 
-    explicit SymMatrix(const Vector& v);
+        SymMatrix(const char* fname): LinOp(0,0,SYMMETRIC,TWO),value() { this->load(fname); }
+        SymMatrix(size_t N): LinOp(N,N,SYMMETRIC,TWO),value(new LinOpValue(size())) { }
+        SymMatrix(const SymMatrix& S,const DeepCopy): LinOp(S.nlin(),S.nlin(),SYMMETRIC,TWO),value(new LinOpValue(S.size(),S.data())) { }
 
-    size_t size() const { return nlin()*(nlin()+1)/2; };
-    void info() const ;
+        explicit SymMatrix(const Vector& v);
 
-    size_t  ncol() const { return nlin(); } // SymMatrix only need num_lines
-    size_t& ncol()       { return nlin(); }
+        size_t size() const { return nlin()*(nlin()+1)/2; };
+        void info() const ;
 
-    void alloc_data() { value = new LinOpValue(size()); }
+        size_t  ncol() const { return nlin(); } // SymMatrix only need num_lines
+        size_t& ncol()       { return nlin(); }
 
-    bool empty() const { return value->empty(); }
-    void set(double x) ;
-    double* data() const { return value->data; }
+        void alloc_data() { value = new LinOpValue(size()); }
 
-    inline double operator()(size_t i,size_t j) const;
-    inline double& operator()(size_t i,size_t j) ;
+        bool empty() const { return value->empty(); }
+        void set(double x) ;
+        double* data() const { return value->data; }
 
-    Matrix operator()(size_t i_start, size_t i_end, size_t j_start, size_t j_end) const;
-    Matrix submat(size_t istart, size_t isize, size_t jstart, size_t jsize) const;
-    SymMatrix submat(size_t istart, size_t iend) const;
-    Vector solveLin(const Vector &B) const;
-    void solveLin(Vector * B, int nbvect);
+        inline double operator()(size_t i,size_t j) const;
+        inline double& operator()(size_t i,size_t j) ;
 
-    const SymMatrix& operator=(const double d);
+        Matrix operator()(size_t i_start, size_t i_end, size_t j_start, size_t j_end) const;
+        Matrix submat(size_t istart, size_t isize, size_t jstart, size_t jsize) const;
+        SymMatrix submat(size_t istart, size_t iend) const;
+        Vector solveLin(const Vector &B) const;
+        void solveLin(Vector * B, int nbvect);
 
-    SymMatrix operator+(const SymMatrix& B) const;
-    SymMatrix operator-(const SymMatrix& B) const;
-    SymMatrix operator*(double x) const;
-    SymMatrix operator/(double x) const {return (*this)*(1/x);}
-    void operator +=(const SymMatrix& B);
-    void operator -=(const SymMatrix& B);
-    void operator *=(double x);
-    void operator /=(double x) { (*this)*=(1/x); }
-    Matrix operator*(const Matrix& B) const; // faux !!
-    Vector operator*(const Vector& v) const; // faux ?
+        const SymMatrix& operator=(const double d);
 
-    SymMatrix inverse() const;
-    SymMatrix posdefinverse() const;
-    double det();
-    void eigen(Matrix & Z, Vector & D );
+        SymMatrix operator+(const SymMatrix& B) const;
+        SymMatrix operator-(const SymMatrix& B) const;
+        SymMatrix operator*(double x) const;
+        SymMatrix operator/(double x) const {return (*this)*(1/x);}
+        void operator +=(const SymMatrix& B);
+        void operator -=(const SymMatrix& B);
+        void operator *=(double x);
+        void operator /=(double x) { (*this)*=(1/x); }
+        Matrix operator*(const Matrix& B) const; // faux !!
+        Vector operator*(const Vector& v) const; // faux ?
 
-    void save( const char *filename ) const;
-    void load( const char *filename );
-    void saveTxt( const char *filename ) const;
-    void saveBin( const char *filename ) const;
-    void loadTxt( const char *filename );
-    void loadBin( const char *filename );
+        SymMatrix inverse() const;
+        SymMatrix posdefinverse() const;
+        double det();
+        void eigen(Matrix & Z, Vector & D );
 
-    friend class Matrix;
-};
+        void save( const char *filename ) const;
+        void load( const char *filename );
+        void saveTxt( const char *filename ) const;
+        void saveBin( const char *filename ) const;
+        void loadTxt( const char *filename );
+        void loadBin( const char *filename );
 
-inline double SymMatrix::operator()(size_t i,size_t j) const {
-    assert(i<nlin() && j<nlin());
-    if(i<=j)
-        return data()[i+j*(j+1)/2];
-    else
-        return data()[j+i*(i+1)/2];
+        friend class Matrix;
+    };
+
+    inline double SymMatrix::operator()(size_t i,size_t j) const {
+        assert(i<nlin() && j<nlin());
+        if(i<=j)
+            return data()[i+j*(j+1)/2];
+        else
+            return data()[j+i*(i+1)/2];
+    }
+
+    inline double& SymMatrix::operator()(size_t i,size_t j) {
+        assert(i<nlin() && j<nlin());
+        if(i<=j)
+            return data()[i+j*(j+1)/2];
+        else
+            return data()[j+i*(i+1)/2];
+    }
 }
-
-inline double& SymMatrix::operator()(size_t i,size_t j) {
-    assert(i<nlin() && j<nlin());
-    if(i<=j)
-        return data()[i+j*(j+1)/2];
-    else
-        return data()[j+i*(i+1)/2];
-}
-
-#endif
+#endif  //! OPENMEEG_SYMMATRIX_H
