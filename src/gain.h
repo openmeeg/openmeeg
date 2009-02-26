@@ -43,6 +43,9 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
+#ifndef OPENMEEG_GAIN_H
+#define OPENMEEG_GAIN_H
+
 #include "matrix.h"
 #include "sparse_matrix.h"
 
@@ -80,3 +83,4 @@ namespace OpenMEEG {
         assemble_gain_EEG(*this,HeadMatInv,SourceMat,Head2EEGMat);
     }
 }
+#endif  //! OPENMEEG_GAIN_H
