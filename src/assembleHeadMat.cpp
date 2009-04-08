@@ -86,20 +86,20 @@ namespace OpenMEEG {
             int offset3=offset+geo.getM(c).nbPts()+geo.getM(c).nbTrgs()+geo.getM(c+1).nbPts();
 
             //Computing S block first because it's needed for the corresponding N block
-            if(c==0) operatorS(geo,c,c,GaussOrder,mat,offset1,offset1);
-            operatorS(geo,c+1,c,GaussOrder,mat,offset3,offset1);
-            operatorS(geo,c+1,c+1,GaussOrder,mat,offset3,offset3);
+            if(c==0) operatorS(geo.getM(c),geo.getM(c),mat,offset1,offset1,GaussOrder);
+            operatorS(geo.getM(c+1),geo.getM(c),mat,offset3,offset1,GaussOrder);
+            operatorS(geo.getM(c+1),geo.getM(c+1),mat,offset3,offset3,GaussOrder);
 
             //Computing N block
-            if(c==0) operatorN(geo,c,c,GaussOrder,mat,offset0,offset0,offset1,offset1);
-            operatorN(geo,c+1,c,GaussOrder,mat,offset2,offset0,offset3,offset1);
-            operatorN(geo,c+1,c+1,GaussOrder,mat,offset2,offset2,offset3,offset3);
+            if(c==0) operatorN(geo.getM(c),geo.getM(c),mat,offset0,offset0,GaussOrder,offset1,offset1);
+            operatorN(geo.getM(c+1),geo.getM(c),mat,offset2,offset0,GaussOrder,offset3,offset1);
+            operatorN(geo.getM(c+1),geo.getM(c+1),mat,offset2,offset2,GaussOrder,offset3,offset3);
 
             //Computing D block
-            if(c==0) operatorD(geo,c,c,GaussOrder,mat,offset1,offset0);
-            if(c!=geo.nb()-2) operatorD(geo,c+1,c,GaussOrder,mat,offset3,offset0);
-            operatorD(geo,c,c+1,GaussOrder,mat,offset1,offset2);
-            if(c!=geo.nb()-2) operatorD(geo,c+1,c+1,GaussOrder,mat,offset3,offset2);
+            if(c==0) operatorD(geo.getM(c),geo.getM(c),mat,offset1,offset0,GaussOrder);
+            if(c!=geo.nb()-2) operatorD(geo.getM(c+1),geo.getM(c),mat,offset3,offset0,GaussOrder);
+            operatorD(geo.getM(c),geo.getM(c+1),mat,offset1,offset2,GaussOrder);
+            if(c!=geo.nb()-2) operatorD(geo.getM(c+1),geo.getM(c+1),mat,offset3,offset2,GaussOrder);
 
             offset=offset2;
         }

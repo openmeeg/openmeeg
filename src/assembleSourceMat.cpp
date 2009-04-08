@@ -176,12 +176,12 @@ namespace OpenMEEG {
         c=geo.nb()-2;
 
     // compute S
-        operatorS(geo,c+1,c,GaussOrder,transmat,offset3,offset1);
+        operatorS(geo.getM(c+1),geo.getM(c),transmat,offset3,offset1,GaussOrder);
         mult(transmat,offset3,offset1,offset4,offset2,-1.0*K);
     // first compute D, then it will be transposed
-        operatorD(geo,c+1,c,GaussOrder,transmat,offset3,offset0);
+        operatorD(geo.getM(c+1),geo.getM(c),transmat,offset3,offset0,GaussOrder);
         mult(transmat,offset3,offset0,offset4,offset1,K);
-        operatorD(geo,c+1,c+1,GaussOrder,transmat,offset3,offset2);
+        operatorD(geo.getM(c+1),geo.getM(c+1),transmat,offset3,offset2,GaussOrder);
         mult(transmat,offset3,offset2,offset4,offset3,-1.0*K);
         operatorP1P0(geo,c+1, transmat,offset3,offset2);
         operatorP1P0(geo,c+1, transairescalp,offset3,offset2);

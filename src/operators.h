@@ -75,9 +75,6 @@ namespace OpenMEEG {
     template<class T>
     void operatorD(const Mesh &m1,const Mesh &m2,T &mat, const int offsetI,const int offsetJ,const int);
 
-    void operatorN(const Geometry &,const int,const int,const int,SymMatrix &,const int,const int ,const int,const int);
-    void operatorS(const Geometry &,const int,const int,const int,SymMatrix &,const int,const int);
-    void operatorD(const Geometry &,const int,const int,const int,SymMatrix &,const int,const int);
     void operatorSinternal(const Geometry &,const int, Matrix &,const int,const Matrix &);
     void operatorDinternal(const Geometry &,const int, Matrix &,const int,const Matrix &);
     void operatorP1P0(const Geometry &geo,const int I,SymMatrix &mat,const int offsetI,const int offsetJ);
@@ -118,7 +115,7 @@ namespace OpenMEEG {
     }
 
     #ifndef OPTIMIZED_OPERATOR_D
-    inline double _operatorD(const int nT1,const int nP2,const int GaussOrder,const Mesh &m1,const Mesh &m2)
+    inline double _operatorD(const int nT1,const int nP2,const Mesh &m1,const Mesh &m2,const int GaussOrder)    
     {
         // consider varying order of quadrature with the distance between T1 and T2
         const Triangle &T1=m1.getTrg(nT1);
@@ -156,7 +153,7 @@ namespace OpenMEEG {
     #else
 
     template<class T>
-    inline void _operatorD(const int nT1,const int nT2,const int GaussOrder,const Mesh &m1,const Mesh &m2,T &mat,const int offsetI,const int offsetJ)
+    inline void _operatorD(const int nT1,const int nT2,const Mesh &m1,const Mesh &m2,T &mat,const int offsetI,const int offsetJ,const int GaussOrder)
     {
         //this version of _operatorD add in the Matrix the contribution of T2 on T1
         // for all the P1 functions it gets involved
@@ -209,8 +206,7 @@ namespace OpenMEEG {
         mat(nT,offsetJ+((Triangle)T2).som(3))+=total.z();
      }
 
-
-    inline double _operatorS(const int nT1,const int nT2,const int GaussOrder,const Mesh &m1,const Mesh &m2)
+    inline double _operatorS(const int nT1,const int nT2,const Mesh &m1,const Mesh &m2,const int GaussOrder)
     {
         const Triangle &T1=m1.getTrg(nT1);
         const Triangle &T2=m2.getTrg(nT2);
@@ -251,7 +247,7 @@ namespace OpenMEEG {
     }
 
     template<class T> 
-    inline double _operatorN(const int nP1,const int nP2,const int GaussOrder,const Mesh &m1,const Mesh &m2,const int IopS,const int JopS,const T &mat)
+    inline double _operatorN(const int nP1,const int nP2,const Mesh &m1,const Mesh &m2,const int GaussOrder,const int IopS,const int JopS,const T &mat)
     {
         const Vect3 P1=m1.getPt(nP1);
         const Vect3 P2=m2.getPt(nP2);
@@ -268,7 +264,7 @@ namespace OpenMEEG {
                 const Triangle& T2 = m2.getTrg(*it2);
 
                 // A1 , B1 , A2, B2 are the two opposite vertices to P1 and P2 (triangles A1,B1,P1 and A2,B2,P2)
-                if(IopS!=0 || JopS!=0) Iqr=mat(IopS + *it1,JopS + *it2); else Iqr=_operatorS(*it1,*it2,GaussOrder,m1,m2);
+                if(IopS!=0 || JopS!=0) Iqr=mat(IopS + *it1,JopS + *it2); else Iqr=_operatorS(*it1,*it2,m1,m2,GaussOrder);
                 int nP1T=T1.contains(nP1);    //index of P1 in current triangle of mesh m1
                 int nP2T=T2.contains(nP2);    //index of P2 in current triangle of mesh m2
     #ifndef OPTIMIZED_OPERATOR_N
@@ -320,7 +316,7 @@ namespace OpenMEEG {
                 #endif
                 for(int j=i;j<offsetJ+m2.nbPts();j++)
                 {
-                    mat(i,j)=_operatorN(i-offsetI,j-offsetJ,GaussOrder,m1,m2,IopS,JopS,mat);
+                    mat(i,j)=_operatorN(i-offsetI,j-offsetJ,m1,m2,GaussOrder,IopS,JopS,mat);
                 }
             }
         } else {
@@ -331,7 +327,7 @@ namespace OpenMEEG {
                 #endif
                 for(int j=offsetJ;j<offsetJ+m2.nbPts();j++)
                 {
-                    mat(i,j)=_operatorN(i-offsetI,j-offsetJ,GaussOrder,m1,m2,IopS,JopS,mat);
+                    mat(i,j)=_operatorN(i-offsetI,j-offsetJ,m1,m2,GaussOrder,IopS,JopS,mat);
                 }
             }
         }
@@ -357,7 +353,7 @@ namespace OpenMEEG {
                 #endif
                 for(int j=i;j<offsetJ+m2.nbTrgs();j++)
                 {
-                    mat(i,j)=_operatorS(i-offsetI,j-offsetJ,GaussOrder,m1,m2);
+                    mat(i,j)=_operatorS(i-offsetI,j-offsetJ,m1,m2,GaussOrder);
                 }
             }
         else
@@ -369,7 +365,7 @@ namespace OpenMEEG {
                 #endif
                 for(int j=offsetJ;j<offsetJ+m2.nbTrgs();j++)
                 {
-                    mat(i,j)=_operatorS(i-offsetI,j-offsetJ,GaussOrder,m1,m2);
+                    mat(i,j)=_operatorS(i-offsetI,j-offsetJ,m1,m2,GaussOrder);
                 }
             }
         }
@@ -395,7 +391,7 @@ namespace OpenMEEG {
             for(int j=offsetJ;j<offsetJ+m2.nbPts();j++)
             {
                 // P1 functions are tested thus looping on vertices
-                mat(i,j)=_operatorD(i-offsetI,j-offsetJ,GaussOrder,m1,m2);
+                mat(i,j)=_operatorD(i-offsetI,j-offsetJ,m1,m2,GaussOrder);
             }
         }
     }
@@ -420,7 +416,7 @@ namespace OpenMEEG {
                 //In this version of the funtcion, in order to skip multiple computations of the same quantities
                 //    loops are run over the triangles but the Matrix cannot be filled in this function anymore
                 //    That's why the filling is done is function _operatorD
-                _operatorD(i-offsetI,j-offsetJ,GaussOrder,m1,m2,mat,offsetI,offsetJ);
+                _operatorD(i-offsetI,j-offsetJ,m1,m2,mat,offsetI,offsetJ,GaussOrder);
             }
         }
     }
