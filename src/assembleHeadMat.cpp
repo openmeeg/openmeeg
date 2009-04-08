@@ -77,6 +77,7 @@ namespace OpenMEEG {
         int offset=0;
 
         mat = SymMatrix(geo.size());
+        mat.set(0.0);
 
         for(int c=0;c<geo.nb()-1;c++)
         {
