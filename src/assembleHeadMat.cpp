@@ -78,6 +78,9 @@ namespace OpenMEEG {
 
         mat = SymMatrix(geo.size());
         mat.set(0.0);
+        
+        if (geo.nb()==1)
+            operatorN(geo.getM(0),geo.getM(0),mat,0,0,GaussOrder,offset,offset);
 
         for(int c=0;c<geo.nb()-1;c++)
         {
@@ -139,6 +142,9 @@ namespace OpenMEEG {
 
             offset=offset2;
         }
+        if (geo.nb()==1)
+            mult(mat,0,0,geo.getM(0).nbPts(),geo.getM(0).nbPts(),geo.sigma_in(0)*K);
+
         // Deflate the last diagonal block of new 'mat' :
         int newsize = geo.size()-(geo.getM(geo.nb()-1)).nbTrgs();
         offset = newsize-(geo.getM(geo.nb()-1)).nbPts();
