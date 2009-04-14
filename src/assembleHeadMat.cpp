@@ -167,16 +167,18 @@ namespace OpenMEEG {
       std::cout<<" nbpoints= " << nbpoints <<std::endl;
       std::cout<<" nbtriangles= " << nbtriangles <<std::endl;
       std::cout<< "observation points: " << points.nlin() << std::endl;
-       mat = Matrix(points.nlin(),nbpoints+nbtriangles);
-         // compute S blocks
-           operatorSinternal(geo,c,mat,offset1,points);
-           mult2(mat,offset0,offset1,offset0+points.nlin(),offset1+geo.getM(0).nbTrgs(),K);
-          // compute D blocks
-          operatorDinternal(geo,c,mat,offset0,points);
-          mult2(mat,offset0,offset0,offset0+points.nlin(),offset1,-(1.0/geo.sigma_in(0))*K);
+      mat = Matrix(points.nlin(),nbpoints+nbtriangles);
+      mat.set(0.0);
+      // compute S blocks
+      operatorSinternal(geo,c,mat,offset1,points);
+      mult2(mat,offset0,offset1,offset0+points.nlin(),offset1+geo.getM(0).nbTrgs(),(1.0/geo.sigma_in(0))*K);
+      // compute D blocks
+      operatorDinternal(geo,c,mat,offset0,points);
+      mult2(mat,offset0,offset0,offset0+points.nlin(),offset1,-1.0*K);
     }
+
     HeadMat::HeadMat (const Geometry &geo, const int GaussOrder) {
-      assemble_HM(geo,*this,GaussOrder);
+        assemble_HM(geo,*this,GaussOrder);
     }
 
     Surf2VolMat::Surf2VolMat (const Geometry &geo, const Matrix &points) {

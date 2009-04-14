@@ -24,3 +24,6 @@ ADD_TEST(DipGainMEG-${SUBJECT} ${CMAKE_CURRENT_BINARY_DIR}/om_gain -MEG ${OpenME
 ADD_TEST(EEG-dipoles-${SUBJECT} ${CMAKE_CURRENT_BINARY_DIR}/om_forward ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.SurfSource2MEGMat ${OpenMEEG_SOURCE_DIR}/data/Computations/${SUBJECT}/${SUBJECT}.srcdip ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}-dip.est_eeg 0.0)
 
 ADD_TEST(MEG-dipoles-${SUBJECT} ${CMAKE_CURRENT_BINARY_DIR}/om_forward ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.dgmm ${OpenMEEG_SOURCE_DIR}/data/Computations/${SUBJECT}/${SUBJECT}.srcdip ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}-dip.est_meg 0.0)
+
+# internalPotential geometry.geom conductivity.cond dipoles.dip source.dsm headmatinv.bin outputPotential.txt
+ADD_TEST(EEGINTERNAL-dipoles-${SUBJECT} ${CMAKE_CURRENT_BINARY_DIR}/om_internalPotential ${OpenMEEG_SOURCE_DIR}/data/Models/${SUBJECT}/${SUBJECT}.geom ${OpenMEEG_SOURCE_DIR}/data/Models/${SUBJECT}/${SUBJECT}.cond ${OpenMEEG_SOURCE_DIR}/data/Computations/${SUBJECT}/${SUBJECT}.dip ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.dsm ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.hm_inv ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}-dip.est_eeginternal)

@@ -121,6 +121,23 @@ FOREACH ( DIP 1 2 3 4 5 )
 
 ENDFOREACH ( DIP 1 2 3 4 5 )
 
+FOREACH ( DIP 1 2 3 4 5 6 )
+
+    SET(EPSILON 0.15)
+    # Compare the potential results in a interior sphere of the Surf2Vol operator with analytical solution
+    # obtained with Sphere (V.Hedou Modified)
+    ADD_TEST(compareEEGINTERNAL-dip-Head1-d${DIP} ${COMPARE_MATRIX}
+                             ${OpenMEEG_BINARY_DIR}/tests/Head1-dip.est_eeginternal
+                             ${OpenMEEG_SOURCE_DIR}/tests/analytic/eeg_internal_analytic.txt
+                             -rdm -eps ${EPSILON} -col ${DIP} -full)
+
+    ADD_TEST(compareEEGINTERNAL-dip-Head2-d${DIP} ${COMPARE_MATRIX}
+                             ${OpenMEEG_BINARY_DIR}/tests/Head2-dip.est_eeginternal
+                             ${OpenMEEG_SOURCE_DIR}/tests/analytic/eeg_internal_analytic.txt
+                             -rdm -eps ${EPSILON} -col ${DIP} -full)
+ENDFOREACH ( DIP 1 2 3 4 5 6 )
+
+
 FOREACH ( DIP 1 2 3 4 5)
 
     SET(EPSILON 0.15)
@@ -170,4 +187,10 @@ ENDIF ( TEST_HEAD3 )
 SET_TESTS_PROPERTIES(compareEEGEST-dip-Head1-d4 PROPERTIES WILL_FAIL TRUE)
 SET_TESTS_PROPERTIES(compareEEGEST-dip-Head1-d5 PROPERTIES WILL_FAIL TRUE)
 SET_TESTS_PROPERTIES(compareMEGEST-dip-Head1-d6 PROPERTIES WILL_FAIL TRUE)
+SET_TESTS_PROPERTIES(compareEEGINTERNAL-dip-Head1-d1 PROPERTIES WILL_FAIL TRUE)
+SET_TESTS_PROPERTIES(compareEEGINTERNAL-dip-Head1-d2 PROPERTIES WILL_FAIL TRUE)
+SET_TESTS_PROPERTIES(compareEEGINTERNAL-dip-Head1-d3 PROPERTIES WILL_FAIL TRUE)
+SET_TESTS_PROPERTIES(compareEEGINTERNAL-dip-Head1-d4 PROPERTIES WILL_FAIL TRUE)
+SET_TESTS_PROPERTIES(compareEEGINTERNAL-dip-Head1-d5 PROPERTIES WILL_FAIL TRUE)
+SET_TESTS_PROPERTIES(compareEEGINTERNAL-dip-Head1-d6 PROPERTIES WILL_FAIL TRUE)
 

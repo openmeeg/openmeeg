@@ -51,11 +51,15 @@ TARGET_LINK_LIBRARIES (om_forward ${OPENMEEG_OTHER_LIBRARIES} OpenMEEG)
 ADD_EXECUTABLE(om_assemble assemble.cpp)
 TARGET_LINK_LIBRARIES (om_assemble ${OPENMEEG_OTHER_LIBRARIES} OpenMEEG)
 
+ADD_EXECUTABLE(om_internalPotential internalPotential.cpp ${OPEMEEG_HEADERS})
+TARGET_LINK_LIBRARIES (om_internalPotential ${OPENMEEG_OTHER_LIBRARIES} OpenMEEG)
+
 # ================
 # = INSTALLATION =
 # ================
 
-INSTALL(TARGETS OpenMEEG om_assemble om_forward om_gain om_inverse om_minverser om_presmooth
+INSTALL(TARGETS OpenMEEG om_assemble om_forward om_gain om_inverse
+    om_minverser om_presmooth om_internalPotential
         RUNTIME DESTINATION bin
         LIBRARY DESTINATION lib
         ARCHIVE DESTINATION lib)
