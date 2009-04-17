@@ -10,6 +10,7 @@ subject='Head1'
 condFile='Models/'+subject+'/'+subject+'.cond'
 geomFile='Models/'+subject+'/'+subject+'.geom'
 sourceMeshFile='Models/'+subject+'/'+subject+'.tri'
+dipoleFile='Models/'+subject+'/'+subject+'.dip'
 squidsFile='Computations/'+subject+'/'+subject+'.squids'
 patchesFile='Computations/'+subject+'/'+subject+'.patches'
 
@@ -20,6 +21,9 @@ geom.read(geomFile,condFile)
 
 mesh = om.Mesh()
 mesh.load(sourceMeshFile)
+
+dipoles = om.Matrix()
+dipoles.load(dipoleFile)
 
 sensors = om.Sensors()
 sensors.load(squidsFile)
@@ -33,30 +37,38 @@ patches.load(patchesFile)
 
 gaussOrder = 3;
 
-hm      = om.HeadMat(geom,gaussOrder)
-hminv   = hm.inverse()
-ssm      = om.SurfSourceMat(geom,mesh,gaussOrder)
-ss2mm    = om.SurfSource2MEGMat(mesh,sensors)
-h2mm    = om.Head2MEGMat(geom,sensors)
-h2em    = om.Head2EEGMat(geom,patches)
-gain_meg = om.GainMEG(hminv,ssm,h2mm,ss2mm)
-gain_eeg = om.GainEEG(hminv,ssm,h2em)
+hm            = om.HeadMat(geom,gaussOrder)
+hminv         = hm.inverse()
+ssm           = om.SurfSourceMat(geom,mesh,gaussOrder)
+ss2mm         = om.SurfSource2MEGMat(mesh,sensors)
+dsm           = om.DipSourceMat(geom,dipoles,gaussOrder)
+ds2mm         = om.DipSource2MEGMat(dipoles,sensors)
+h2mm          = om.Head2MEGMat(geom,sensors)
+h2em          = om.Head2EEGMat(geom,patches)
+gain_meg_surf = om.GainMEG(hminv,ssm,h2mm,ss2mm)
+gain_eeg_surf = om.GainEEG(hminv,ssm,h2em)
+gain_meg_dip  = om.GainMEG(hminv,dsm,h2mm,ds2mm)
+gain_eeg_dip  = om.GainEEG(hminv,dsm,h2em)
 
-print "hm         : %d x %d"%(hm.nlin(),hm.ncol())
-print "hminv      : %d x %d"%(hminv.nlin(),hminv.ncol())
-print "ssm        : %d x %d"%(ssm.nlin(),ssm.ncol())
-print "ss2mm      : %d x %d"%(ss2mm.nlin(),ss2mm.ncol())
-print "h2mm       : %d x %d"%(h2mm.nlin(),h2mm.ncol())
-print "h2em       : %d x %d"%(h2mm.nlin(),h2mm.ncol())
-print "gain_meg   : %d x %d"%(gain_meg.nlin(),gain_meg.ncol())
-print "gain_eeg   : %d x %d"%(gain_eeg.nlin(),gain_eeg.ncol())
+print "hm              : %d x %d"%(hm.nlin(),hm.ncol())
+print "hminv           : %d x %d"%(hminv.nlin(),hminv.ncol())
+print "ssm             : %d x %d"%(ssm.nlin(),ssm.ncol())
+print "ss2mm           : %d x %d"%(ss2mm.nlin(),ss2mm.ncol())
+print "dsm             : %d x %d"%(ssm.nlin(),ssm.ncol())
+print "ds2mm           : %d x %d"%(ss2mm.nlin(),ss2mm.ncol())
+print "h2mm            : %d x %d"%(h2mm.nlin(),h2mm.ncol())
+print "h2em            : %d x %d"%(h2mm.nlin(),h2mm.ncol())
+print "gain_meg_surf   : %d x %d"%(gain_meg_surf.nlin(),gain_meg_surf.ncol())
+print "gain_eeg_surf   : %d x %d"%(gain_eeg_surf.nlin(),gain_eeg_surf.ncol())
+print "gain_meg_dip    : %d x %d"%(gain_meg_dip.nlin(),gain_meg_dip.ncol())
+print "gain_eeg_dip    : %d x %d"%(gain_eeg_dip.nlin(),gain_eeg_dip.ncol())
 
 # Leadfield MEG in one line :
 
-surf_gain_meg = om.GainMEG(om.HeadMat(geom,gaussOrder).inverse(),om.SurfSourceMat(geom,mesh,gaussOrder), \
+gain_meg_surf_one_line = om.GainMEG(om.HeadMat(geom,gaussOrder).inverse(),om.SurfSourceMat(geom,mesh,gaussOrder), \
 om.Head2MEGMat(geom,sensors),om.SurfSource2MEGMat(mesh,sensors));
 
-print "gain_meg (one line) : %d x %d"%(gain_meg.nlin(),gain_meg.ncol())
+print "gain_meg_surf_one_line : %d x %d"%(gain_meg_surf_one_line.nlin(),gain_meg_surf_one_line.ncol())
 
 # ========================
 # = Compute forward data =
@@ -67,10 +79,10 @@ sources = om.Matrix()
 sources.load(srcFile)
 
 noiseLevel = 0.0
-est_meg = om.Forward(gain_meg,sources,noiseLevel)
+est_meg = om.Forward(gain_meg_dip,sources,noiseLevel)
 print "est_meg    : %d x %d"%(est_meg.nlin(),est_meg.ncol())
 
-est_eeg = om.Forward(gain_eeg,sources,noiseLevel)
+est_eeg = om.Forward(gain_eeg_dip,sources,noiseLevel)
 print "est_eeg    : %d x %d"%(est_eeg.nlin(),est_eeg.ncol())
 
 # ============================
@@ -84,9 +96,9 @@ tol = 0
 smoothMatrix = mesh.gradient()
 aiVector = mesh.areas()
 
-meg_inverse_mn   = om.MN_inverse(est_meg,gain_meg,smoothWeight)
-meg_inverse_heat = om.HEAT_inverse(est_meg,gain_meg,smoothMatrix,smoothWeight)
-meg_inverse_tv   = om.TV_inverse(est_meg,gain_meg,smoothMatrix,aiVector,smoothWeight,maxIter,tol)
+meg_inverse_mn   = om.MN_inverse(est_meg,gain_meg_dip,smoothWeight)
+meg_inverse_heat = om.HEAT_inverse(est_meg,gain_meg_dip,smoothMatrix,smoothWeight)
+meg_inverse_tv   = om.TV_inverse(est_meg,gain_meg_dip,smoothMatrix,aiVector,smoothWeight,maxIter,tol)
 
 # ==================================
 # = Example of basic manipulations =

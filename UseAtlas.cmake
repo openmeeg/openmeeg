@@ -79,7 +79,9 @@ IF ( USE_MKL )
 
     IF ( APPLE )
         SET(MKL_LIB_SEARCHPATH # add here some paths to look for mkl libs
+            #/Library/Frameworks/Intel_MKL.framework/Libraries/32
             /Library/Frameworks/Intel_MKL.framework/Libraries/universal
+            /opt/intel/Compiler/11.0/056/lib
         )
     ENDIF ( APPLE )
 
@@ -93,7 +95,10 @@ IF ( USE_MKL )
     IF ( WIN32 )
         SET(MKL_LIBS mkl_solver mkl_c libguide mkl_lapack mkl_ia32)
     ELSE ( WIN32 )
-        SET(MKL_LIBS mkl guide mkl_lapack )
+        SET(MKL_LIBS mkl_intel mkl_intel_thread mkl_core iomp5md pthread)
+        #SET(MKL_LIBS mkl_intel mkl_core mkl_lapack)
+        #SET(MKL_LIBS mkl_intel_lp64 mkl_core mkl_lapack)
+        #SET(MKL_LIBS mkl guide mkl_lapack) % for old MKL
     ENDIF ( WIN32 )
 
     FOREACH ( LIB ${MKL_LIBS} )
@@ -114,7 +119,11 @@ IF ( USE_MKL )
     ENDFOREACH ( LIB )
 
     IF( UNIX AND NOT APPLE ) # MKL on linux requires to link with the pthread library
-        SET(OPENMEEG_OTHER_LIBRARIES "${OPENMEEG_OTHER_LIBRARIES} pthread")
+        SET(OPENMEEG_OTHER_LIBRARIES "${OPENMEEG_OTHER_LIBRARIES} iomp5md pthread")
     ENDIF( UNIX AND NOT APPLE )
+
+    IF ( APPLE )
+        SET(OPENMEEG_OTHER_LIBRARIES "${OPENMEEG_OTHER_LIBRARIES}")
+    ENDIF ( APPLE )
 
 ENDIF ( USE_MKL )

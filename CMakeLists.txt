@@ -23,6 +23,7 @@ SET(CPACK_PACKAGE_VERSION_MAJOR ${PACKAGE_VERSION_MAJOR})
 SET(CPACK_PACKAGE_VERSION_MINOR ${PACKAGE_VERSION_MINOR})
 SET(CPACK_PACKAGE_VERSION_PATCH ${PACKAGE_VERSION_PATCH})
 
+#PROJECT(OpenMEEG C CXX Fortran)
 PROJECT(OpenMEEG)
 
 #CMAKE_MINIMUM_REQUIRED(VERSION 2.4)
@@ -55,14 +56,14 @@ IF ( USE_GCC )
     SET(GCC_WARNING_OPTIONS "-Wall -W -Wshadow -Wunused-variable -Wunused-parameter -Wunused-function -Wunused -Wno-system-headers -Wno-deprecated -Woverloaded-virtual -Wwrite-strings")
     SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} ${GCC_WARNING_OPTIONS}")
     SET(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} ${GCC_WARNING_OPTIONS}")
-    IF ( APPLE )
-        IF ( NOT XCODE ) # Test if not xcode
-            IF ( NOT PYTHON_WRAP AND NOT USE_VTK)
-                SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m64")
-                SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -m64")
-            ENDIF ( NOT PYTHON_WRAP AND NOT USE_VTK)
-        ENDIF ( NOT XCODE  )
-    ENDIF ( APPLE )
+    #IF ( APPLE )
+    #    IF ( NOT XCODE ) # Test if not xcode
+    #        IF ( NOT PYTHON_WRAP AND NOT USE_VTK )
+    #            SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m64")
+    #            SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -m64")
+    #        ENDIF ( NOT PYTHON_WRAP AND NOT USE_VTK )
+    #    ENDIF ( NOT XCODE  )
+    #ENDIF ( APPLE )
 ENDIF ( USE_GCC )
 
 # ==============================
@@ -132,6 +133,7 @@ OPTION(USE_MATIO "Build the project using MATIO" OFF)
 
 IF (USE_MATIO)
 
+
     SET(SEARCHPATH
         /usr/lib/
         /usr/lib64/
@@ -172,6 +174,105 @@ ENDIF (USE_MATIO)
 #------------------------------------------------------------
 # Atlas - MKL for blas and lapack
 #------------------------------------------------------------
+
+#IF (WIN32)       # WINDOWS
+#        OPTION(USE_ATLAS "Build the project using ATLAS" OFF)
+#        OPTION(USE_MKL "Build the project with MKL" ON)
+#        MARK_AS_ADVANCED(USE_MKL)
+#        MARK_AS_ADVANCED(USE_ATLAS)
+#ELSE (WIN32)
+#    IF (APPLE)   # MACOSX
+#        OPTION(USE_ATLAS "Build the project using ATLAS" ON)
+#        OPTION(USE_MKL "Build the project with MKL" OFF)
+#    ELSE (APPLE) # LINUX
+#        OPTION(USE_ATLAS "Build the project using ATLAS" ON)
+#        OPTION(USE_MKL "Build the project with MKL" OFF)
+#    ENDIF (APPLE)
+#ENDIF (WIN32)
+#
+#IF ( USE_ATLAS AND USE_MKL )
+#    MESSAGE("Cannot set both USE_ATLAS and USE_MKL to ON")
+#ENDIF ( USE_ATLAS AND USE_MKL )
+#
+#OPTION(USE_STATIC_BLAS_LAPACK "Use static BLAS LAPACK libraries for easy deployment" OFF)
+#MARK_AS_ADVANCED(USE_STATIC_BLAS_LAPACK)
+#IF ( USE_STATIC_BLAS_LAPACK )
+#    SET(BLA_STATIC 1)
+#ELSE ( USE_STATIC_BLAS_LAPACK )
+#    SET(BLA_STATIC 0)
+#ENDIF ( USE_STATIC_BLAS_LAPACK )
+#
+#IF ( USE_MKL )
+#    SET(BLAS_HEADER mkl.h)
+#ENDIF ( USE_MKL )
+#
+#IF ( USE_ATLAS )
+#    SET(BLAS_HEADER cblas.h)
+#ENDIF ( USE_ATLAS )
+#
+#SET(BLAS_SEARCHPATH)
+#
+## Apple
+#IF ( APPLE )
+#    IF ( USE_MKL)
+#        SET(ENV{BLA_VENDOR} "Intel")
+#        SET(BLAS_SEARCHPATH /Library/Frameworks/Intel_MKL.framework/Versions/Current/include/)
+#    ELSE ( USE_MKL )
+#        #SET(ENV{BLA_VENDOR} "Apple")
+#        SET(ENV{BLA_VENDOR} "Generic")
+#        SET(BLAS_SEARCHPATH /System/Library/Frameworks/vecLib.framework/Versions/A/Headers/)
+#    ENDIF ( USE_MKL )
+#ENDIF ( APPLE )
+#
+## Linux
+#IF ( UNIX AND NOT APPLE )
+#    SET(ENV{LD_LIBRARY_PATH} "$ENV{LD_LIBRARY_PATH}:/usr/lib64/atlas/")
+#    IF ( USE_MKL )
+#        SET(ENV{BLA_VENDOR} "Intel")
+#        SET(BLAS_SEARCHPATH /usr/local/include /usr/include)
+#    ELSE ( USE_MKL )
+#        SET(ENV{BLA_VENDOR} "ATLAS")
+#        SET(BLAS_HEADER atlas/cblas.h)
+#        SET(BLAS_SEARCHPATH /usr/local/include /usr/include)
+#    ENDIF ( USE_MKL )
+#ENDIF ( UNIX AND NOT APPLE )
+#
+## Win32
+#IF ( WIN32 )
+#    IF ( USE_MKL )
+#        SET(ENV{BLA_VENDOR} "Intel")
+#        SET(BLAS_SEARCHPATH
+#            "C:/Program Files/Intel/MKL/9.1.027/include"
+#            "C:/Program Files/Intel/MKL/8.1.1/include"
+#        )
+#    ELSE ( USE_MKL )
+#        MESSAGE("MKL is required on WIN32")
+#    ENDIF ( USE_MKL )
+#ENDIF ( WIN32 )
+#
+#FIND_PACKAGE(BLAS)
+#IF (BLAS_FOUND)
+#    SET(OPENMEEG_OTHER_LIBRARIES
+#        ${OPENMEEG_OTHER_LIBRARIES}
+#        ${BLAS_LIBRARIES}
+#    )
+#    FIND_PATH(BLAS_INCLUDE_DIR ${BLAS_HEADER}
+#        ${BLAS_SEARCHPATH}
+#    )
+#    INCLUDE_DIRECTORIES(${BLAS_INCLUDE_DIR})
+#ELSE(BLAS_FOUND)
+#    MESSAGE(FATAL_ERROR "Could not find BLAS")
+#ENDIF(BLAS_FOUND)
+#
+#FIND_PACKAGE(LAPACK)
+#IF (LAPACK_FOUND)
+#    SET(OPENMEEG_OTHER_LIBRARIES
+#        ${OPENMEEG_OTHER_LIBRARIES}
+#        ${LAPACK_LIBRARIES}
+#    )
+#ELSE(LAPACK_FOUND)
+#    MESSAGE(FATAL_ERROR "Could not find LAPACK")
+#ENDIF(LAPACK_FOUND)
 
 INCLUDE(UseAtlas.cmake)
 
