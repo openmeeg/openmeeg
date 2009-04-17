@@ -1,5 +1,6 @@
 #!/usr/bin/python
 import numpy
+import re
 import scipy.io
 import scipy.optimize
 
@@ -31,6 +32,9 @@ def LoadCubicGrid(filename):
     file=open(filename,'r')
     return scipy.io.read_array(file)
 def SaveGridFiles(xmin,xmax,nx,ymin,ymax,ny,zmin,zmax,nz,dir,name):
+    y=re.compile('/\Z')
+    if(y.match(dir) is None):
+        dir=dir+"/"
     if(xmin>xmax or nx<=0 or ymin>ymax or ny<=0 or zmin>zmax or nz<=0):
         print "Bad Arguments to MakeCubicGrid"
         return

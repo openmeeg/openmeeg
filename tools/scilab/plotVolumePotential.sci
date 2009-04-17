@@ -4,9 +4,9 @@ function [pot,cur] = plotVolumePotential(model,cutplane,inj,extr)
 //   model = 'nerve0'
 // inj = 1; extr = 2;
 // cutplane = 'fichier_coupy';
-getf('/home/mclerc/meeg/meegsurf/scilab/savevtk.sci')
-getf('/home/mclerc/meeg/meegsurf/scilab/loadvtk.sci')
-compdir ='../Computations/';
+getf('savevtk.sci')
+getf('loadvtk.sci')
+compdir ='../../data/Computations/';
 injcode = ['A' 'B' 'C' 'D' 'E' 'F' 'G' 'H' 'I' 'J' 'K' 'L'];
 extrcode = ['a' 'b' 'c' 'd' 'e' 'f' 'g' 'h' 'i' 'j' 'k' 'l'];
 vtkpointfile = strcat([compdir model '/positions/' cutplane '.vtk']);

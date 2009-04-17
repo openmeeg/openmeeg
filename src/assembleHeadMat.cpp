@@ -167,6 +167,7 @@ namespace OpenMEEG {
       std::cout<<" nbpoints= " << nbpoints <<std::endl;
       std::cout<<" nbtriangles= " << nbtriangles <<std::endl;
       std::cout<< "observation points: " << points.nlin() << std::endl;
+
       mat = Matrix(points.nlin(),nbpoints+nbtriangles);
       mat.set(0.0);
       // compute S blocks
@@ -175,6 +176,7 @@ namespace OpenMEEG {
       // compute D blocks
       operatorDinternal(geo,c,mat,offset0,points);
       mult2(mat,offset0,offset0,offset0+points.nlin(),offset1,-1.0*K);
+
     }
 
     HeadMat::HeadMat (const Geometry &geo, const int GaussOrder) {

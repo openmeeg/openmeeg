@@ -4,8 +4,8 @@ function u=om_spher_pot_aniso(x,q,p,sigmas,xis,rk) ;
 % p. The radii of the spheres are given by a vector rk in ascending order,
 % the radial (resp. tangential) conductivities are in sigmas (resp. xis) SI units.
 % The norm of x must be equal to the last rk.
-%
-% Usage: u=function (x,q,p,sigmas,rk) ;
+%  
+% Usage: u=om_spher_pot_aniso(x,q,p,sigmas,xis,rk) ;
 %
 % If called without arguments, makes a demo
 %

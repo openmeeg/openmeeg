@@ -47,7 +47,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include "matrix.h"
 #include "sparse_matrix.h"
 #include "fast_sparse_matrix.h"
-
+#include <fstream>
 #include "options.h"
 
 using namespace std;
@@ -71,7 +71,7 @@ int main( int argc, char **argv) {
     maths::ofstream ofs(output_filename);
 
     try
-    {
+      { 
         if(input_format) {
             ifs >> maths::format(input_format) >> M;
         } else {
