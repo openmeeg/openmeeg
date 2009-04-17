@@ -1,22 +1,51 @@
+/*
+OpenMEEG
+
+© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre 
+GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU, Théodore PAPADOPOULO,
+Maureen.Clerc.AT.sophia.inria.fr, keriven.AT.certis.enpc.fr,
+kybic.AT.fel.cvut.cz, papadop.AT.sophia.inria.fr)
+
+The OpenMEEG software is a C++ package for solving the forward/inverse
+problems of electroencephalography and magnetoencephalography.
+
+This software is governed by the CeCILL-B license under French law and
+abiding by the rules of distribution of free software.  You can  use,
+modify and/ or redistribute the software under the terms of the CeCILL-B
+license as circulated by CEA, CNRS and INRIA at the following URL
+"http://www.cecill.info".
+
+As a counterpart to the access to the source code and  rights to copy,
+modify and redistribute granted by the license, users are provided only
+with a limited warranty  and the software's authors,  the holders of the
+economic rights,  and the successive licensors  have only  limited
+liability.
+
+In this respect, the user's attention is drawn to the risks associated
+with loading,  using,  modifying and/or developing or reproducing the
+software by the user in light of its specific status of free software,
+that may mean  that it is complicated to manipulate,  and  that  also
+therefore means  that it is reserved for developers  and  experienced
+professionals having in-depth computer knowledge. Users are therefore
+encouraged to load and test the software's suitability as regards their
+requirements in conditions enabling the security of their systems and/or
+data to be ensured and,  more generally, to use and operate it in the
+same conditions as regards security.
+
+The fact that you are presently reading this means that you have had
+knowledge of the CeCILL-B license and that you accept its terms.
+
+*/
+
 #include "assemble.h"
 #include "gain.h"
 #include "mesh3.h"
-
-#define SAVETXT
-
-#ifdef SAVEBIN
-    #define SAVE saveBin
-#else
-    #define SAVE saveTxt
-#endif
 
 using namespace OpenMEEG;
 
 void getHelp(char** argv);
 
 void PotAtInfinity(const Geometry& , const Matrix&, const Matrix&, Matrix&);
-
-Matrix GetPoints();
 
 int main(int argc, char** argv)
 {
@@ -37,9 +66,11 @@ int main(int argc, char** argv)
     HeadMatInv.loadBin(argv[5]);
 
     Matrix Points;
-    if (argc>7){// if a mesh file is given, we compute the potential at these points
+    std::string extension = getNameExtension(argv[6]); // We check wether it is a mesh file or not
+    std::transform(extension.begin(), extension.end(), extension.begin(), (int(*)(int))std::tolower);
+    if ((extension==std::string("vtk")) || (extension==std::string("tri")) || (extension==std::string("bnd")) || (extension==std::string("mesh")) || (extension==std::string("off"))){
         Mesh innermesh;
-        innermesh.load(argv[7]);
+        innermesh.load(argv[6]);
         Matrix pts(innermesh.nbPts(),3);
         for (int i=0;i<innermesh.nbPts();i++){
             for (int j=0;j<3;j++){
@@ -48,8 +79,13 @@ int main(int argc, char** argv)
         }
         Points=pts;
     }
-    else{ // else we load 15 points
-        Points=GetPoints();
+    else{ //else we suppose it is a Txt file, with coordinates
+        std::cout << "poitns" << std::endl;
+        Points.loadTxt(argv[6]);
+        if (Points.ncol()!=3){
+            std::cerr << "Not a correct file with points coordinates " << argv[6] << std::endl;
+            exit(1);
+        }
     }
 
     Surf2VolMat surf2volmat(geo,Points);
@@ -61,12 +97,12 @@ int main(int argc, char** argv)
     Matrix Vinfinite(EEGGainMatrix.nlin(),EEGGainMatrix.ncol()); // We must substract the contribution of the dipole at infinity
     PotAtInfinity(geo,Points,dipoles,Vinfinite);
     EEGGainMatrix+=Vinfinite;
-    EEGGainMatrix.SAVE(argv[6]);
+    EEGGainMatrix.saveTxt(argv[7]);
 }
 
 void getHelp(char** argv)
 {
-    std::cout << "Testing the SurfToVol : \nCompute the potential at points located in the first volume, with coordinates described in the mesh file if given or at 10  inner points." << std::endl;
+    std::cout << "Testing the SurfToVol : \nCompute the potential at points located in the first volume, with coordinates described in the mesh file." << std::endl;
 
     std::cout << argv[0] << " [filepaths...]" << std::endl;
     std::cout << "Arguments :"                << std::endl;
@@ -75,8 +111,9 @@ void getHelp(char** argv)
     std::cout << "               dipoles file (.dip)"       << std::endl;
     std::cout << "               SourceMat"                 << std::endl;
     std::cout << "               HeadMatInv"                << std::endl ;
+    std::cout << "               innermesh or file with the points coordinates on which you want the potential" << std::endl;
     std::cout << "               output Potential" << std::endl;
-    std::cout << "   (optional)  innermesh on which you want the potential" << std::endl;
+
     exit(0);
 }
 
@@ -102,25 +139,4 @@ void PotAtInfinity(const Geometry& geo, const Matrix& pts, const Matrix& dipoles
             Vinfinite(iPTS,iDIP)=K*1.0/geo.sigma_in(0)*((r-r0)*q)/(pow((r-r0).norm(),3));
         }
     }
-}
-
-Matrix GetPoints() // We set up 15 points in the inner volume at which we have already computed the analytical solution.
-{
-    Matrix pts(15,3);
-    pts(0,0)=0.08005925;	 pts(0,1)=0.00234002;	 pts(0,2)=0.05987521;	 //r=0.100000 theta=0.029220 phi=0.928854
-    pts(1,0)=0.06993597;	 pts(1,1)=0.06262861;	 pts(1,2)=0.17659733;	 //r=0.200000 theta=0.730331 phi=0.488609
-    pts(2,0)=0.03936227;	 pts(2,1)=0.02570602;	 pts(2,2)=0.19439602;	 //r=0.200000 theta=0.578525 phi=0.237284
-    pts(3,0)=0.28705616;	 pts(3,1)=0.14181029;	 pts(3,2)=0.22268499;	 //r=0.390000 theta=0.458849 phi=0.963089
-    pts(4,0)=0.17010865;	 pts(4,1)=0.10354833;	 pts(4,2)=0.34690170;	 //r=0.400000 theta=0.546806 phi=0.521136
-    pts(5,0)=0.18284564;	 pts(5,1)=0.04311972;	 pts(5,2)=0.35314043;	 //r=0.400000 theta=0.231594 phi=0.488898
-    pts(6,0)=0.22937753;	 pts(6,1)=0.16516472;	 pts(6,2)=0.35015220;	 //r=0.450000 theta=0.624060 phi=0.679136
-    pts(7,0)=0.18232037;	 pts(7,1)=0.07612181;	 pts(7,2)=0.51328818;	 //r=0.550000 theta=0.395515 phi=0.367437
-    pts(8,0)=0.01245938;	 pts(8,1)=0.01890081;	 pts(8,2)=0.59957278;	 //r=0.600000 theta=0.987982 phi=0.037739
-    pts(9,0)=0.30069379;	 pts(9,1)=0.36759053;	 pts(9,2)=0.36668849;	 //r=0.600000 theta=0.885168 phi=0.913287
-    pts(10,0)=0.05445562;	 pts(10,1)=0.05564316;	 pts(10,2)=0.78615420;	 //r=0.790000 theta=0.796184 phi=0.098712
-    pts(11,0)=0.26066653;	 pts(11,1)=0.06986545;	 pts(11,2)=0.77432020;	 //r=0.820000 theta=0.261871 phi=0.335357
-    pts(12,0)=0.08681635;	 pts(12,1)=0.07016598;	 pts(12,2)=0.81236670;	 //r=0.820000 theta=0.679728 phi=0.136553
-    pts(13,0)=0.06802166;	 pts(13,1)=0.05980750;	 pts(13,2)=0.84516041;	 //r=0.850000 theta=0.721227 phi=0.106762
-    pts(14,0)=0.32002926;	 pts(14,1)=0.24519047;	 pts(14,2)=0.74830669;	 //r=0.850000 theta=0.653757 phi=0.494174
-    return pts;
 }
