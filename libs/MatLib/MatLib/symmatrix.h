@@ -105,13 +105,13 @@ namespace OpenMEEG {
         void operator -=(const SymMatrix& B);
         void operator *=(double x);
         void operator /=(double x) { (*this)*=(1/x); }
-        Matrix operator*(const Matrix& B) const; // faux !!
+        // Matrix operator*(const Matrix& B) const; // faux !!
         Vector operator*(const Vector& v) const; // faux ?
 
         SymMatrix inverse() const;
         SymMatrix posdefinverse() const;
         double det();
-        void eigen(Matrix & Z, Vector & D );
+        // void eigen(Matrix & Z, Vector & D );
 
         void save( const char *filename ) const;
         void load( const char *filename );
@@ -138,5 +138,226 @@ namespace OpenMEEG {
         else
             return data()[j+i*(i+1)/2];
     }
+
+    //returns the solution of (this)*X = B
+    inline Vector SymMatrix::solveLin(const Vector &B) const {
+        SymMatrix invA(*this,DEEP_COPY);
+        Vector X(B,DEEP_COPY);
+
+    #ifdef HAVE_LAPACK
+        // Bunch Kaufman Factorization
+        int *pivots=new int[nlin()];
+        int info;
+        DSPTRF('U',invA.nlin(),invA.data(),pivots,info);
+        // Inverse
+        int size=(int)invA.nlin()*64;
+        double *work=new double[size];
+        DSPTRS('U',invA.nlin(),1,invA.data(),pivots,X.data(),invA.nlin(),info);
+
+        delete[] pivots;
+        delete[] work;
+    #else
+        std::cout << "solveLin not defined" << std::endl;
+    #endif
+        return X;
+    }
+
+    // stores in B the solution of (this)*X = B, where B is a set of nbvect vector
+    inline void SymMatrix::solveLin(Vector * B, int nbvect) {
+        SymMatrix invA(*this,DEEP_COPY);
+
+    #ifdef HAVE_LAPACK
+        // Bunch Kaufman Factorization
+        int *pivots=new int[nlin()];
+        int info;
+        //char *uplo="U";
+        DSPTRF('U',invA.nlin(),invA.data(),pivots,info);
+        // Inverse
+        int size=(int) invA.nlin()*64;
+        double *work=new double[size];
+        for(int i = 0; i < nbvect; i++)
+            DSPTRS('U',invA.nlin(),1,invA.data(),pivots,B[i].data(),invA.nlin(),info);
+
+        delete[] pivots;
+        delete[] work;
+    #else
+        std::cout << "solveLin not defined" << std::endl;
+    #endif
+    }
+
+    inline void SymMatrix::operator -=(const SymMatrix &B) {
+        assert(nlin()==B.nlin());
+    #ifdef HAVE_BLAS
+        BLAS(daxpy,DAXPY)((int)(nlin()*(nlin()+1)/2), -1.0, B.data(), 1, data() , 1);
+    #else
+        for (size_t i=0;i<nlin()*(nlin()+1)/2;i++)
+            data()[i]+=B.data()[i];
+    #endif
+    }
+
+    inline void SymMatrix::operator +=(const SymMatrix &B) {
+        assert(nlin()==B.nlin());
+    #ifdef HAVE_BLAS
+        BLAS(daxpy,DAXPY)((int)(nlin()*(nlin()+1)/2), 1.0, B.data(), 1, data() , 1);
+    #else
+        for (size_t i=0;i<nlin()*(nlin()+1)/2;i++)
+            data()[i]+=B.data()[i];
+    #endif
+    }
+
+    inline SymMatrix SymMatrix::posdefinverse() const {
+        // supposes (*this) is definite positive
+        SymMatrix invA(*this,DEEP_COPY);
+    #ifdef HAVE_LAPACK
+        // U'U factorization then inverse
+        int info;
+        DPPTRF('U',nlin(),invA.data(),info);
+        DPPTRI('U',nlin(),invA.data(),info);
+    #else
+        std::cerr << "Positive definite inverse not defined" << std::endl;
+    #endif
+        return invA;
+    }
+
+    inline double SymMatrix::det() {
+        SymMatrix invA(*this,DEEP_COPY);
+        double d = 1.0;
+    #ifdef HAVE_LAPACK
+        // Bunch Kaufmqn
+        int *pivots=new int[nlin()];
+        int info;
+        // TUDUtTt
+        DSPTRF('U',invA.nlin(),invA.data(),pivots,info);
+        if(info<0)
+            std::cout << "Big problem in det (DSPTRF)" << std::endl;
+        for(int i = 0; i<(int) nlin(); i++){
+            if(pivots[i] >= 0)
+                d *= invA(i,i);
+            else // pivots[i] < 0
+                if(i < (int) nlin()-1 && pivots[i] == pivots[i+1]){
+                    d *= (invA(i,i)*invA(i+1,i+1)-invA(i,i+1)*invA(i+1,i));
+                    i++;
+                }
+                else
+                    std::cout << "Big problem in det" << std::endl;
+        }
+        delete[] pivots;
+    #else
+        std::cerr << "Determinant not defined without LAPACK" << std::endl;
+        exit(1);
+    #endif
+        return(d);
+    }
+
+    // inline void SymMatrix::eigen(Matrix & Z, Vector & D ){
+    //     // performs the complete eigen-decomposition.
+    //     //  (*this) = Z.D.Z'
+    //     // -> eigenvector are columns of the Matrix Z.
+    //     // (*this).Z[:,i] = D[i].Z[:,i]
+    // #ifdef HAVE_LAPACK
+    //     SymMatrix symtemp(*this,DEEP_COPY);
+    //     D = Vector(nlin());
+    //     Z = Matrix(nlin(),nlin());
+    // 
+    //     int info;
+    //     double lworkd;
+    //     int lwork;
+    //     int liwork;
+    // 
+    //     DSPEVD('V','U',nlin(),symtemp.data(),D.data(),Z.data(),nlin(),&lworkd,-1,&liwork,-1,info);
+    //     lwork = (int) lworkd;
+    //     double * work = new double[lwork];
+    //     int * iwork = new int[liwork];
+    //     DSPEVD('V','U',nlin(),symtemp.data(),D.data(),Z.data(),nlin(),work,lwork,iwork,liwork,info);
+    // 
+    //     delete[] work;
+    //     delete[] iwork;
+    // #endif
+    // }
+
+    // inline Matrix SymMatrix::operator *(const Matrix &B) const {
+    //     assert(nlin()==B.nlin());
+    //     Matrix C(nlin(),B.ncol());
+    // 
+    // #ifdef HAVE_BLAS
+    //     Matrix D(*this);
+    //     DSYMM(CblasLeft,  CblasUpper
+    //         , (int)nlin(), (int)B.ncol(),
+    //         1. , D.data(), (int)D.ncol(),
+    //         B.data(), (int)B.nlin(),
+    //         0, C.data(),(int)C.nlin());
+    // #else
+    //     for (size_t j=0;j<B.ncol();j++)
+    //         for (size_t i=0;i<ncol();i++)
+    //         {
+    //             C(i,j)=0;
+    //             for (size_t k=0;k<ncol();k++)
+    //                 C(i,j)+=(*this)(i,k)*B(k,j);
+    //         }
+    // #endif
+    //     return C;
+    // }
+
+    inline SymMatrix SymMatrix::operator +(const SymMatrix &B) const {
+        assert(nlin()==B.nlin());
+        SymMatrix C(*this,DEEP_COPY);
+    #ifdef HAVE_BLAS
+        BLAS(daxpy,DAXPY)((int)(nlin()*(nlin()+1)/2), 1.0, B.data(), 1, C.data() , 1);
+    #else
+        for (size_t i=0;i<nlin()*(nlin()+1)/2;i++)
+            C.data()[i]+=B.data()[i];
+    #endif
+        return C;
+    }
+
+    inline SymMatrix SymMatrix::operator -(const SymMatrix &B) const
+    {
+        assert(nlin()==B.nlin());
+        SymMatrix C(*this,DEEP_COPY);
+    #ifdef HAVE_BLAS
+        BLAS(daxpy,DAXPY)((int)(nlin()*(nlin()+1)/2), -1.0, B.data(), 1, C.data() , 1);
+    #else
+        for (size_t i=0;i<nlin()*(nlin()+1)/2;i++)
+            C.data()[i]-=B.data()[i];
+    #endif
+        return C;
+    }
+
+    inline SymMatrix SymMatrix::inverse() const {
+    #ifdef HAVE_LAPACK
+        SymMatrix invA(*this,DEEP_COPY);
+        // LU
+        int *pivots=new int[nlin()];
+        int info;
+        DSPTRF('U',invA.nlin(),invA.data(),pivots,info);
+        // Inverse
+        int size=(int)invA.nlin()*64;
+        double *work=new double[size];
+        DSPTRI('U',invA.nlin(),invA.data(),pivots,work,info);
+
+        delete[] pivots;
+        delete[] work;
+        return invA;
+    #else
+        std::cerr << "!!!!! Inverse not implemented !!!!!" << std::endl;
+        exit(1);
+    #endif
+    }
+
+    inline Vector SymMatrix::operator *(const Vector &v) const {
+        assert(nlin()==v.size());
+        Vector y(nlin());
+    #ifdef HAVE_BLAS
+        DSPMV(CblasUpper,(int)nlin(),1.,data(),v.data(),1,0.,y.data(),1);
+    #else
+        for (size_t i=0;i<nlin();i++) {
+            y(i)=0;
+            for (size_t j=0;j<nlin();j++)
+                y(i)+=(*this)(i,j)*v(j);
+        }
+    #endif
+        return y;
+    }
+
 }
 #endif  //! OPENMEEG_SYMMATRIX_H

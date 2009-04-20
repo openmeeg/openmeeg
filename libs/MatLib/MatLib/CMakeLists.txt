@@ -4,18 +4,19 @@
 
 SET(OpenMEEGMaths_SRC vector.cpp matrix.cpp symmatrix.cpp sparse_matrix.cpp fast_sparse_matrix.cpp MathsIO.C MatlabIO.C AsciiIO.C BrainVisaTextureIO.C TrivialBinIO.C)
 
-ADD_LIBRARY(OpenMEEGMaths ${LIB_TYPE} ${OpenMEEGMaths_SRC})
+ADD_LIBRARY(OpenMEEGMaths SHARED ${OpenMEEGMaths_SRC})
+IF ( USE_MATIO )
+    TARGET_LINK_LIBRARIES(OpenMEEGMaths ${MATIO_LIBRARIES})
+ENDIF ( USE_MATIO )
 
-IF ( APPLE AND USE_ATLAS )
-    TARGET_LINK_LIBRARIES(OpenMEEGMaths "-framework vecLib")
-ENDIF ( APPLE AND USE_ATLAS )
+IF ( WIN32 )
+    TARGET_LINK_LIBRARIES(OpenMEEGMaths ${LAPACK_LIBRARIES})
+ENDIF ( WIN32 )
 
-TARGET_LINK_LIBRARIES(OpenMEEGMaths ${OPENMEEG_OTHER_LIBRARIES})
-
-SET_TARGET_PROPERTIES(OpenMEEGMaths PROPERTIES
-                      VERSION 0.1.0
-                      SOVERSION 0
-                      CLEAN_DIRECT_OUTPUT 1)
+#SET_TARGET_PROPERTIES(OpenMEEGMaths PROPERTIES
+#                      VERSION 0.1.0
+#                      SOVERSION 0
+#                      CLEAN_DIRECT_OUTPUT 1)
 
 INSTALL(TARGETS OpenMEEGMaths
         RUNTIME DESTINATION bin
