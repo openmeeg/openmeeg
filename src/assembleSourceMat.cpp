@@ -146,14 +146,14 @@ namespace OpenMEEG {
 
     void assemble_EITsource(const Geometry &geo, Matrix &mat, Matrix &airescalp, const int GaussOrder)
     {
-    // a Matrix to be applied to the scalp-injected current (modulo multiplicative constants)
-    // to obtain the Source Term of the EIT foward problem
-        int newtaille = mat.nlin();
-        int sourcetaille = mat.ncol();
-    // transmat = a big  Matrix of which mat = part of its transpose
-        SymMatrix transmat(newtaille+sourcetaille);
-    // airemat = a Matrix to store the surface of triangles on the scalp, for normalizing the injected current
-        SymMatrix transairescalp(newtaille+sourcetaille);
+        // a Matrix to be applied to the scalp-injected current (modulo multiplicative constants)
+        // to obtain the Source Term of the EIT foward problem
+        int newsize = mat.nlin();
+        int sourcesize = mat.ncol();
+        // transmat = a big  Matrix of which mat = part of its transpose
+        SymMatrix transmat(newsize+sourcesize);
+        // airemat = a Matrix to store the surface of triangles on the scalp, for normalizing the injected current
+        SymMatrix transairescalp(newsize+sourcesize);
         int c;
         int offset=0;
         int offset0;
@@ -164,43 +164,35 @@ namespace OpenMEEG {
 
         double K = 1.0 / (4*M_PI);
 
-       for(c=0;c<geo.nb()-1;c++)
-            {
-                offset0=offset;
-                offset1=offset+geo.getM(c).nbPts();
-                offset2=offset+geo.getM(c).nbPts()+geo.getM(c).nbTrgs();
-                offset3=offset+geo.getM(c).nbPts()+geo.getM(c).nbTrgs()+geo.getM(c+1).nbPts();
+        for(c=0;c<geo.nb()-1;c++)
+        {
+            offset0=offset;
+            offset1=offset+geo.getM(c).nbPts();
+            offset2=offset+geo.getM(c).nbPts()+geo.getM(c).nbTrgs();
+            offset3=offset+geo.getM(c).nbPts()+geo.getM(c).nbTrgs()+geo.getM(c+1).nbPts();
             offset4=offset+geo.getM(c).nbPts()+geo.getM(c).nbTrgs()+geo.getM(c+1).nbPts()+geo.getM(c+1).nbTrgs();
-                offset=offset2;
-            }
+            offset=offset2;
+        }
         c=geo.nb()-2;
 
-    // compute S
+        // compute S
         operatorS(geo.getM(c+1),geo.getM(c),transmat,offset3,offset1,GaussOrder);
-        mult(transmat,offset3,offset1,offset4,offset2,-1.0*K);
-    // first compute D, then it will be transposed
+        mult(transmat,offset3,offset1,offset4,offset2,K/geo.sigma_in(c+1));
+        // first compute D, then it will be transposed
         operatorD(geo.getM(c+1),geo.getM(c),transmat,offset3,offset0,GaussOrder);
-        mult(transmat,offset3,offset0,offset4,offset1,K);
+        mult(transmat,offset3,offset0,offset4,offset1,-K);
         operatorD(geo.getM(c+1),geo.getM(c+1),transmat,offset3,offset2,GaussOrder);
-        mult(transmat,offset3,offset2,offset4,offset3,-1.0*K);
+        mult(transmat,offset3,offset2,offset4,offset3,-2.0*K);
         operatorP1P0(geo,c+1, transmat,offset3,offset2);
+        mult(transmat,offset3,offset2,offset4,offset3,-1/2.0);
         operatorP1P0(geo,c+1, transairescalp,offset3,offset2);
-    // extracting the transpose of the last block of lines of transmat
-        std::cout<<"offset0 "<<offset0<<std::endl;
-        std::cout<<"offset1 "<<offset1<<std::endl;
-        std::cout<<"offset2 "<<offset2<<std::endl;
-        std::cout<<"offset3 "<<offset3<<std::endl;
-
-    // transposing the Matrix
-        std::cout<<"last element "<<transmat(newtaille+sourcetaille-1,newtaille-1)<<std::endl;
-            for(int i=0;i<newtaille;i++)
-                for(int j=0;j<sourcetaille;j++) {
-                    mat(i,j) = transmat(newtaille+j,i);
-                    airescalp(i,j) = 2*transairescalp(newtaille+j,i);
-                }
+        // extracting the transpose of the last block of lines of transmat
+        // transposing the Matrix
+        for(int i=0;i<newsize;i++) {
+            for(int j=0;j<sourcesize;j++) {
+                mat(i,j) = transmat(newsize+j,i);
+                airescalp(i,j) = transairescalp(newsize+j,i);
+            }
+        }
     }
 }
-
-
-
-

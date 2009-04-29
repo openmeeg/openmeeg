@@ -8,6 +8,9 @@ TARGET_LINK_LIBRARIES (test_sensors OpenMEEG "${OPENMEEG_OTHER_LIBRARIES}")
 ADD_EXECUTABLE(compare_matrix compare_matrix.cpp)
 TARGET_LINK_LIBRARIES (compare_matrix OpenMEEGMaths "${OPENMEEG_OTHER_LIBRARIES}" ${LAPACK_LIBRARIES})
 
+ADD_EXECUTABLE(om_validationEIT validationEIT.cpp ${OPEMEEG_HEADERS})
+TARGET_LINK_LIBRARIES (om_validationEIT OpenMEEG OpenMEEGMaths "${OPENMEEG_OTHER_LIBRARIES}" ${LAPACK_LIBRARIES})
+
 IF ( WIN32 )
     SET(LOAD_GEO "${EXECUTABLE_OUTPUT_PATH}/load_geo")
     SET(COMPARE_MATRIX "${EXECUTABLE_OUTPUT_PATH}/compare_matrix")
@@ -121,22 +124,48 @@ FOREACH ( DIP 1 2 3 4 5 )
 
 ENDFOREACH ( DIP 1 2 3 4 5 )
 
+FOREACH ( SUB 1 2 )
+
+    # validationEIT geometry.geom conductivity.cond dipoles.dip source.dsm headmatinv.bin out.eit_qgradVj out.eit_diffVf
+    ADD_TEST(EITvalidation-dipoles-Head${SUB}
+        ${OpenMEEG_BINARY_DIR}/tests/om_validationEIT
+        ${OpenMEEG_SOURCE_DIR}/data/Models/Head${SUB}/Head${SUB}.geom
+        ${OpenMEEG_SOURCE_DIR}/data/Models/Head${SUB}/Head${SUB}.cond
+        ${OpenMEEG_SOURCE_DIR}/data/Computations/Head${SUB}/Head${SUB}.dip
+        ${OpenMEEG_BINARY_DIR}/tests/Head${SUB}.dsm
+        ${OpenMEEG_BINARY_DIR}/tests/Head${SUB}.hm_inv
+        ${OpenMEEG_BINARY_DIR}/tests/Head${SUB}.eit_qgradVj
+        ${OpenMEEG_BINARY_DIR}/tests/Head${SUB}.eit_diffVf)
+
+ENDFOREACH ( SUB 1 2 )
+
 FOREACH ( DIP 1 2 3 4 5 6 )
 
     SET(EPSILON 0.15)
     # Compare the potential results in a interior sphere of the Surf2Vol operator with analytical solution
     # obtained with Sphere (V.Hedou Modified)
-    ADD_TEST(compareEEGINTERNAL-dip-Head1-d${DIP} ${COMPARE_MATRIX}
+    ADD_TEST(compareEEGinternal-dip-Head1-d${DIP} ${COMPARE_MATRIX}
                              ${OpenMEEG_BINARY_DIR}/tests/Head1-dip.est_eeginternal
                              ${OpenMEEG_SOURCE_DIR}/tests/analytic/eeg_internal_analytic.txt
-                             -rdm -eps ${EPSILON} -col ${DIP} -full)
+                             -eps ${EPSILON} -col ${DIP} -full)
 
-    ADD_TEST(compareEEGINTERNAL-dip-Head2-d${DIP} ${COMPARE_MATRIX}
+    ADD_TEST(compareEEGinternal-dip-Head2-d${DIP} ${COMPARE_MATRIX}
                              ${OpenMEEG_BINARY_DIR}/tests/Head2-dip.est_eeginternal
                              ${OpenMEEG_SOURCE_DIR}/tests/analytic/eeg_internal_analytic.txt
-                             -rdm -eps ${EPSILON} -col ${DIP} -full)
-ENDFOREACH ( DIP 1 2 3 4 5 6 )
+                             -eps ${EPSILON} -col ${DIP} -full)
 
+    # Compare the q.gradVj to diffVf in order to validate the EIT problem
+    ADD_TEST(compareEITvalidation-Head1-d${DIP} ${COMPARE_MATRIX}
+                             ${OpenMEEG_BINARY_DIR}/tests/Head1.eit_qgradVj
+                             ${OpenMEEG_BINARY_DIR}/tests/Head1.eit_diffVf
+                             -eps ${EPSILON} -col ${DIP} -full)
+
+    ADD_TEST(compareEITvalidation-Head2-d${DIP} ${COMPARE_MATRIX}
+                             ${OpenMEEG_BINARY_DIR}/tests/Head2.eit_qgradVj
+                             ${OpenMEEG_BINARY_DIR}/tests/Head2.eit_diffVf
+                             -eps ${EPSILON} -col ${DIP} -full)
+
+ENDFOREACH ( DIP 1 2 3 4 5 6 )
 
 FOREACH ( DIP 1 2 3 4 5)
 
@@ -187,10 +216,8 @@ ENDIF ( TEST_HEAD3 )
 SET_TESTS_PROPERTIES(compareEEGEST-dip-Head1-d4 PROPERTIES WILL_FAIL TRUE)
 SET_TESTS_PROPERTIES(compareEEGEST-dip-Head1-d5 PROPERTIES WILL_FAIL TRUE)
 SET_TESTS_PROPERTIES(compareMEGEST-dip-Head1-d6 PROPERTIES WILL_FAIL TRUE)
-SET_TESTS_PROPERTIES(compareEEGINTERNAL-dip-Head1-d1 PROPERTIES WILL_FAIL TRUE)
-SET_TESTS_PROPERTIES(compareEEGINTERNAL-dip-Head1-d2 PROPERTIES WILL_FAIL TRUE)
-SET_TESTS_PROPERTIES(compareEEGINTERNAL-dip-Head1-d3 PROPERTIES WILL_FAIL TRUE)
-SET_TESTS_PROPERTIES(compareEEGINTERNAL-dip-Head1-d4 PROPERTIES WILL_FAIL TRUE)
-SET_TESTS_PROPERTIES(compareEEGINTERNAL-dip-Head1-d5 PROPERTIES WILL_FAIL TRUE)
-SET_TESTS_PROPERTIES(compareEEGINTERNAL-dip-Head1-d6 PROPERTIES WILL_FAIL TRUE)
-
+SET_TESTS_PROPERTIES(compareEEGinternal-dip-Head1-d2 PROPERTIES WILL_FAIL TRUE)
+SET_TESTS_PROPERTIES(compareEEGinternal-dip-Head1-d3 PROPERTIES WILL_FAIL TRUE)
+SET_TESTS_PROPERTIES(compareEEGinternal-dip-Head1-d4 PROPERTIES WILL_FAIL TRUE)
+SET_TESTS_PROPERTIES(compareEEGinternal-dip-Head1-d5 PROPERTIES WILL_FAIL TRUE)
+SET_TESTS_PROPERTIES(compareEEGinternal-dip-Head1-d6 PROPERTIES WILL_FAIL TRUE)

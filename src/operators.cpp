@@ -151,7 +151,7 @@ namespace OpenMEEG {
         for(int i=offsetI;i<offsetI+m.nbTrgs();i++)
             for(int j=offsetJ;j<offsetJ+m.nbPts();j++)
             {
-                mat(i,j)=-mat(i,j)+_operatorP1P0(i-offsetI,j-offsetJ,m)/2;
+                mat(i,j)+=_operatorP1P0(i-offsetI,j-offsetJ,m);
             }
     }
 }

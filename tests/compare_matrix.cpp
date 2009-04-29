@@ -7,22 +7,21 @@
 #include <iostream>
 #include <cmath>
 
-using namespace std;
 using namespace OpenMEEG;
 
 template<class T> bool compare(const T& mat1, const T& mat2, double eps, size_t col = 0);
 template<class T> bool compare_rdm(const T& mat1, const T& mat2, double eps, size_t col = 0);
 template<class T> double normInf(const T& mat);
-template<class T> bool compare_matrixs(maths::ifstream& ifs1,T& mat1,maths::ifstream& ifs2,T& mat2,
-                                          double eps,const char* rdm,size_t col);
+template<class T> bool compare_matrix(maths::ifstream& ifs1,T& mat1,maths::ifstream& ifs2,T& mat2,
+        double eps,const char* rdm,size_t col);
 
 int main (int argc, char** argv)
 {
     command_usage("Compare two matrices with a certain numerical precision\ncompare_matrix mat1 mat2 [options]");
     const char *input_format1 = command_option("-if1",(const char *) NULL,
-                                                "Input file format for Matrix 1 : ascii, binary, tex, matlab");
+            "Input file format for Matrix 1 : ascii, binary, tex, matlab");
     const char *input_format2 = command_option("-if2",(const char *) NULL,
-                                                "Input file format for Matrix 2 : ascii, binary, tex, matlab");
+            "Input file format for Matrix 2 : ascii, binary, tex, matlab");
 
     const char *isfull = command_option("-full",(const char *) 0,"Data are full matrices");
     const char *issym = command_option("-sym",(const char *) 0,"Data are symmetric matrices");
@@ -49,10 +48,10 @@ int main (int argc, char** argv)
 
     double eps = atof(epsilon);
 
-    cout << "-------------------------------------------------" << endl;
-    cout << "Comparing : " << endl;
-    cout << "- " << argv[1] << endl;
-    cout << "- " << argv[2] << endl;
+    std::cout << "-------------------------------------------------" << std::endl;
+    std::cout << "Comparing : " << std::endl;
+    std::cout << "- " << argv[1] << std::endl;
+    std::cout << "- " << argv[2] << std::endl;
 
     maths::ifstream ifs1(argv[1]);
     maths::ifstream ifs2(argv[2]);
@@ -81,22 +80,22 @@ int main (int argc, char** argv)
     } else { // assumes isfull
         Matrix mat1;
         Matrix mat2;
-        flag = compare_matrixs(ifs1,mat1,ifs2,mat2,eps,rdm,col);
+        flag = compare_matrix(ifs1,mat1,ifs2,mat2,eps,rdm,col);
     }
 
     if(!flag){
-        cerr << endl << "ERROR : Matrices are different at the precision : eps = " << eps << endl;
+        std::cerr << std::endl << "ERROR : Matrices are different at the precision : eps = " << eps << std::endl;
         exit(1);
     }
-    cout << "OK" << endl;
-    cout.flush();
+    std::cout << "OK" << std::endl;
+    std::cout.flush();
 
     return 0;
 }
 
 template<class T>
-bool compare_matrixs(maths::ifstream& ifs1,T& mat1,maths::ifstream& ifs2,T& mat2,
-                                          double eps,const char*rdm,size_t col) {
+bool compare_matrix(maths::ifstream& ifs1,T& mat1,maths::ifstream& ifs2,T& mat2,
+        double eps,const char*rdm,size_t col) {
     bool flag;
     try
     {
@@ -125,16 +124,16 @@ bool compare_matrixs(maths::ifstream& ifs1,T& mat1,maths::ifstream& ifs2,T& mat2
 
 template<class T>
 bool compare(const T& mat1, const T& mat2, double eps, size_t col){
-// T is a Matrix or a SymMatrix
+    // T is a Matrix or a SymMatrix
 
     if(col) {
         if ((mat1.ncol() < col) || (mat2.ncol() < col)) {
-            cerr << "ERROR : Bad Column Id for matrices dimensions !" << endl;
+            std::cerr << "ERROR : Bad Column Id for matrices dimensions !" << std::endl;
             exit(1);
         }
     } else {
         if ((mat1.ncol() != mat2.ncol()) || (mat1.nlin() != mat2.nlin())) {
-            cerr << "ERROR : Dimension mismatch !" << endl;
+            std::cerr << "ERROR : Dimension mismatch !" << std::endl;
             exit(1);
         }
     }
@@ -154,33 +153,34 @@ bool compare(const T& mat1, const T& mat2, double eps, size_t col){
     double norm2 = normInf<T>(mat2);
     double diff;
 
-    if((norm1>1e-4)&(norm2>1e-4)) {
+    if((norm1>1e-4)&(norm2>1e-4)&(mat1.nlin()!=1)) {
         for(unsigned int i=0; i<mat1.nlin(); i++) {
             for(unsigned int j=jmin; j<jmax; j++) {
-                diff = abs(mat1(i,j)/norm1 - mat2(i,j)/norm2);
+                diff = std::abs(mat1(i,j)/norm1 - mat2(i,j)/norm2);
                 flag = flag && (diff < eps);
                 if (!(diff < eps)) {
-                    cout << "ERROR NORM  " << mat1(i,j) << "  " << mat2(i,j) << "  " << diff << endl;
-                    cout.flush();
+                    std::cout << "ERROR NORM  " << mat1(i,j) << "  " << mat2(i,j) << "  " << diff << std::endl;
+                    std::cout.flush();
                 }
             }
         }
     } else {
         for(unsigned int i=0; i<mat1.nlin(); i++) {
             for(unsigned int j=jmin; j<jmax; j++) {
-                if (abs(mat2(i,j))>1e-4) {
-                    diff = abs(mat1(i,j) - mat2(i,j))/abs(mat2(i,j));
-                    flag = flag && ( diff < eps);
-                    if (!(diff < eps))
-                        cout << "ERROR RELATIVE  " << mat1(i,j) << "  " << mat2(i,j) << "  " << diff << endl;
-                        cout.flush();
-                }
-                else {
-                    diff = abs(mat1(i,j) - mat2(i,j));
+                if (std::abs(mat2(i,j))>1e-4) {
+                    diff = std::abs(mat1(i,j) - mat2(i,j))/std::abs(mat2(i,j));
                     flag = flag && ( diff < eps);
                     if (!(diff < eps)) {
-                        cout << "ERROR DIFF  " << mat1(i,j) << "  " << mat2(i,j) << "  " << diff << endl;
-                        cout.flush();
+                        std::cout << "ERROR RELATIVE  " << mat1(i,j) << "  " << mat2(i,j) << "  " << diff << std::endl;
+                        std::cout.flush();
+                    }
+                }
+                else {
+                    diff = std::abs(mat1(i,j) - mat2(i,j));
+                    flag = flag && ( diff < eps);
+                    if (!(diff < eps)) {
+                        std::cout << "ERROR DIFF  " << mat1(i,j) << "  " << mat2(i,j) << "  " << diff << std::endl;
+                        std::cout.flush();
                     }
                 }
             }
@@ -191,16 +191,16 @@ bool compare(const T& mat1, const T& mat2, double eps, size_t col){
 
 template<class T>
 bool compare_rdm(const T& mat1, const T& mat2, double eps, size_t col){
-// T is a Matrix
+    // T is a Matrix
 
     if(col) {
         if ((mat1.ncol() < col) || (mat2.ncol() < col)) {
-            cerr << "ERROR : Bad Column Id for matrices dimensions !" << endl;
+            std::cerr << "ERROR : Bad Column Id for matrices dimensions !" << std::endl;
             exit(1);
         }
     } else {
         if ((mat1.ncol() != mat2.ncol()) || (mat1.nlin() != mat2.nlin())) {
-            cerr << "ERROR : Dimension mismatch !" << endl;
+            std::cerr << "ERROR : Dimension mismatch !" << std::endl;
             exit(1);
         }
     }
@@ -227,8 +227,8 @@ bool compare_rdm(const T& mat1, const T& mat2, double eps, size_t col){
 
         flag = flag && (diff < eps);
         if(diff > eps) {
-            cout << "ERROR RDM ( column " << j << " ) " << diff << endl;
-            cout.flush();
+            std::cout << "ERROR RDM ( column " << j << " ) " << diff << std::endl;
+            std::cout.flush();
         }
     }
     return flag;
@@ -241,7 +241,7 @@ double normInf(const T& mat){ // compute the max of the norm 1 of each line
     for(unsigned int i=0;i<mat.nlin();i++){
         sum = 0.0;
         for(unsigned int j=0;j<mat.ncol();j++) {
-            sum += abs(mat(i,j));
+            sum += std::abs(mat(i,j));
         }
         if(max < sum)
             max = sum;

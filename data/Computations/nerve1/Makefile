@@ -25,9 +25,8 @@ $(MDIR)$(MODEL).lhsinv: $(MDIR)$(MODEL).lhs
 $(MDIR)$(MODEL).EITsource: $(MDIR)$(MODEL).geom $(MDIR)$(MODEL).cond
 	$(ASSEMBLE) -EITsource $(MDIR)$(MODEL).geom $(MDIR)$(MODEL).cond $(MDIR)$(MODEL).EITsource $(MDIR)$(MODEL).areas
 
-$(MDIR)$(MODEL).EITstim: $(MDIR)$(MODEL).geom $(MDIR)$(MODEL).cond $(MDIR)$(MODEL).EITsource $(MDIR)$(MODEL).stimelec
-	($(ASSEMBLE) -EITstim $(MDIR)$(MODEL).geom $(MDIR)$(MODEL).cond\
-	  $(MDIR)$(MODEL).EITsource $(MDIR)$(MODEL).stimelec $(MDIR)$(MODEL).EITstim)
+$(MDIR)$(MODEL).EITstim: $(MDIR)$(MODEL).EITsource $(MDIR)$(MODEL).stimelec
+	$(ASSEMBLE) -EITstim $(MDIR)$(MODEL).EITsource $(MDIR)$(MODEL).stimelec $(MDIR)$(MODEL).EITstim
 
 $(RDIR)$(MODEL).$(CUTPLANE).SurfToVol: $(MDIR)$(MODEL).geom $(MDIR)$(MODEL).cond $(PDIR)$(CUTPLANE)
 	$(ASSEMBLE) -Surf2Vol $(MDIR)$(MODEL).geom $(MDIR)$(MODEL).cond $(PDIR)$(CUTPLANE) $(RDIR)$(MODEL).$(CUTPLANE).SurfToVol

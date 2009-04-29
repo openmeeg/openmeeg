@@ -232,41 +232,28 @@ int main(int argc, char** argv)
 
     else if(!strcmp(argv[1],"-EITstim")) {
 
-        if(argc < 3)
-        {
-            cerr << "Please set geometry filepath !" << endl;
-            exit(1);
-        }
-        if (argc < 4)
-        {
-            std::cerr << "Please set conductivities filepath !" << endl;
-            exit(1);
-        }
-        if (argc < 5)
+        if (argc < 3)
         {
             std::cerr << "Please set EITsource filepath !" << endl;
             exit(1);
         }
-        if (argc < 6)
+        if (argc < 4)
         {
             std::cerr << "Please set stimelec filepath !" << endl;
             exit(1);
         }
-        if (argc < 6)
+        if (argc < 5)
         {
             std::cerr << "Please set output filepath !" << endl;
             exit(1);
         }
-        // Loading surfaces from geometry file.
-        Geometry geo;
-        geo.read(argv[2],argv[3]);
         Matrix source;
-        source.loadBin(argv[4]);
+        source.loadBin(argv[2]);
         SparseMatrix stimelec;
-        stimelec.loadBin(argv[5]);
+        stimelec.loadBin(argv[3]);
         Matrix stim(source.nlin(),stimelec.ncol());
         stim = source*stimelec;
-        stim.saveBin(argv[6]);
+        stim.saveBin(argv[4]);
     }
 
     /*********************************************************************************************
@@ -496,8 +483,6 @@ void getHelp(char** argv) {
 
     cout << "   -EITstim :  Compute Matrix directly mapping injected current values to EIT RHS. " << endl;
     cout << "            Arguments :" << endl;
-    cout << "               geometry file (.geom)" << endl;
-    cout << "               conductivity file (.cond)" << endl;
     cout << "               input EITsource" << endl;
     cout << "               input stimelec" << endl;
     cout << "               output matrix" << endl << endl;
