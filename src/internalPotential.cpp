@@ -49,6 +49,11 @@ void PotAtInfinity(const Geometry& , const Matrix&, const Matrix&, Matrix&);
 
 int main(int argc, char** argv)
 {
+    if(argc < 2)
+    {
+        std::cerr << "Not enough arguments \nPlease try \"" << argv[0] << " -h\" or \"" << argv[0] << " --help \" \n" << std::endl;
+        return 0;
+    }
     if ((!strcmp(argv[1],"-h")) | (!strcmp(argv[1],"--help"))) {
         getHelp(argv);
         return 0;
@@ -80,7 +85,7 @@ int main(int argc, char** argv)
         Points=pts;
     }
     else{ //else we suppose it is a Txt file, with coordinates
-        std::cout << "poitns" << std::endl;
+        std::cout << "points" << std::endl;
         Points.loadTxt(argv[6]);
         if (Points.ncol()!=3){
             std::cerr << "Not a correct file with points coordinates " << argv[6] << std::endl;
@@ -130,7 +135,6 @@ void PotAtInfinity(const Geometry& geo, const Matrix& pts, const Matrix& dipoles
         q(0)=dipoles(iDIP,3);
         q(1)=dipoles(iDIP,4);
         q(2)=dipoles(iDIP,5);
-        std:: cout << r0(0) << "," << r0(1) << "," << r0(2) << std::endl;
         for (int iPTS=0;iPTS<pts.nlin();iPTS++){
             Vect3 r;
             r(0)=pts(iPTS,0);
