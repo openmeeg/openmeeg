@@ -56,20 +56,20 @@ namespace MeshDescription {
     typedef enum { Inside, Outside } InOut;
     typedef unsigned InterfaceId;
 
-    //  A simple domain (SimpleDomain) is given by an id (of type InterfaceId) identifying a closed surface and a side (of type InOut) information.
+    //  A simple domain (HalfSpace) is given by an id (of type InterfaceId) identifying a closed surface and a side (of type InOut) information.
     //  The closed surface split the space into two components. The side depicts which of these two components is the simple domain.
 
-    struct SimpleDomain: protected std::pair<InterfaceId,InOut> {
+    struct HalfSpace: protected std::pair<InterfaceId,InOut> {
         typedef std::pair<InterfaceId,InOut> base;
-        SimpleDomain(const int num): base(abs(num)-1,((num<0) ? Inside : Outside)) { }
+        HalfSpace(const int num): base(abs(num)-1,((num<0) ? Inside : Outside)) { }
         InterfaceId interface() const { return base::first;  }
         InOut       inout()     const { return base::second; }
     };
 
-    //  A Domain is the intersection of simple domains (of type SimpleDomain).
+    //  A Domain is the intersection of simple domains (of type HalfSpace).
     //  In addition the domain is named.
 
-    struct Domain: public std::vector<SimpleDomain> {
+    struct Domain: public std::vector<HalfSpace> {
 
         Domain() { }
 

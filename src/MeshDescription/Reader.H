@@ -113,7 +113,7 @@ namespace MeshDescription {
                     const unsigned index = abs(number);
                     if ((index==0) || (index>interfaces().size()))
                         throw 2;
-                    i->push_back(SimpleDomain(number));
+                    i->push_back(HalfSpace(number));
                 }
                 iss.clear();
                 iss >> line;
@@ -121,14 +121,19 @@ namespace MeshDescription {
         }
 
         void LoadNormals(std::istream& is) {
-           std::string normal_name;
-           is >> io_utils::skip_comments('#') >> normal_name;
-           std::ifstream ifs(normal_name.c_str());
-           ifs >> nrmls;
-           ifs.close();
+            std::string normal_name;
+            is >> io_utils::skip_comments('#') >> normal_name;
+            const std::string& full_name = file_name(normal_name);
+            std::ifstream ifs(full_name.c_str());
+            if (!ifs.is_open())
+                throw MeshDescription::OpenError(full_name);
+            ifs >> nrmls;
+            ifs.close();
         }
 
 #if 0
+        //  Ordering of domains (partial order) from the most outer domain to the most inner domain.
+
         void InterfaceOrder() const {
             for (Interfaces::const_iterator i=interfaces().begin();i!=interfaces().end();++i)
                 for (Domain::const_iterator j=i->begin();j!=i->end();++j) {
@@ -141,7 +146,7 @@ namespace MeshDescription {
 
         Reader(const char* geometry);
 
-              Domains& domains()       { return doms; }
+        Domains& domains()       { return doms; }
         const Domains& domains() const { return doms; }
 
         Names domain_names() const {
@@ -157,16 +162,16 @@ namespace MeshDescription {
         const Names&       interface_names() const                { return names;      }
         const std::string& interface_name(const unsigned i) const { return names[i-1]; }
 
-              Interfaces& interfaces()       { return interfs; }
+        Interfaces& interfaces()       { return interfs; }
         const Interfaces& interfaces() const { return interfs; }
-   
-              Normals&    normals()          { return nrmls; }
+
+        Normals&    normals()          { return nrmls; }
         const Normals&    normals()    const { return nrmls; }
 
         void stats() const {
             std::cerr << "There are:" << std::endl
-                      << interfaces().size() << " interfaces" << std::endl
-                      << doms.size()         << " domains"    << std::endl;
+                << interfaces().size() << " interfaces" << std::endl
+                << doms.size()         << " domains"    << std::endl;
         }
 
     private:
