@@ -103,11 +103,11 @@ namespace OpenMEEG {
                 #ifdef USE_OMP
                 #pragma omp parallel for
                 #endif
-                for(int j=Jstart;j<=Jstart+(i-Istart);j++)
+                for(int j=Jstart;j<=i;j++)
                     mat(i,j)*=coeff;
     }
 
-    inline void mult2( Matrix &mat, int Istart, int Jstart, int Istop, int Jstop, double coeff)
+    inline void mult( Matrix &mat, int Istart, int Jstart, int Istop, int Jstop, double coeff)
     {
         //If the upper left corner of the block is on the diagonal line of the Matrix
         //Only the half of the block has to be treated because of the symmetric storage

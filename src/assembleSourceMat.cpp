@@ -80,8 +80,8 @@ namespace OpenMEEG {
 
         // First block*=(-1/sigma_inside)
         double s1i=geo.sigma_in(0);
-        mult2(mat,nVertexFirstLayer,0,nVertexFirstLayer+nFacesFirstLayer-1,nVertexSources-1,(-1.0/s1i)*K);
-        mult2(mat,0,0,nVertexFirstLayer-1,nVertexSources-1,K);
+        mult(mat,nVertexFirstLayer,0,nVertexFirstLayer+nFacesFirstLayer-1,nVertexSources-1,(-1.0/s1i)*K);
+        mult(mat,0,0,nVertexFirstLayer-1,nVertexSources-1,K);
     }
 
     SurfSourceMat::SurfSourceMat (const Geometry &geo, const Mesh& sources, const int GaussOrder) {
