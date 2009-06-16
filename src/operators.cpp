@@ -49,11 +49,9 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 namespace OpenMEEG {
 
-    void operatorDinternal(const Geometry &geo,const int I,Matrix &mat,const int offsetJ,const Matrix &points)
+    void operatorDinternal(const Mesh &m,Matrix &mat,const int offsetJ,const Matrix &points)
     {
         std::cout<<"INTERNAL OPERATOR D..."<<std::endl;
-        std::cout<<"offsetJ="<<offsetJ<<std::endl;
-        const Mesh &m=geo.getM(I);
         for(size_t i=0;i<points.nlin();i++)  {
             Vect3 pt(points(i,0),points(i,1),points(i,2));
             for(int j=offsetJ;j<offsetJ+m.nbTrgs();j++){
@@ -62,10 +60,9 @@ namespace OpenMEEG {
         }
     }
 
-    void operatorSinternal(const Geometry &geo,const int I,Matrix &mat,const int offsetJ,const Matrix &points)
+    void operatorSinternal(const Mesh &m,Matrix &mat,const int offsetJ,const Matrix &points)
     {
         std::cout<<"INTERNAL OPERATOR S..."<<std::endl;
-        const Mesh &m=geo.getM(I);
         for(size_t i=0;i<points.nlin();i++) {
             Vect3 pt(points(i,0),points(i,1),points(i,2));
             for(int j=offsetJ;j<offsetJ+m.nbTrgs();j++)
@@ -141,18 +138,6 @@ namespace OpenMEEG {
             #endif
             rhs(i) += d;
         }
-    }
-
-    void operatorP1P0(const Geometry &geo,const int I,SymMatrix &mat,const int offsetI,const int offsetJ)
-    {
-        // This time mat(i,j)+= ... the Matrix is incremented by the P1P0 operator
-        std::cout<<"OPERATOR P1P0..."<<std::endl;
-        const Mesh &m=geo.getM(I);
-        for(int i=offsetI;i<offsetI+m.nbTrgs();i++)
-            for(int j=offsetJ;j<offsetJ+m.nbPts();j++)
-            {
-                mat(i,j)+=_operatorP1P0(i-offsetI,j-offsetJ,m);
-            }
     }
 }
 

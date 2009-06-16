@@ -183,9 +183,9 @@ namespace OpenMEEG {
         mult(transmat,offset3,offset0,offset4,offset1,-K);
         operatorD(geo.getM(c+1),geo.getM(c+1),transmat,offset3,offset2,GaussOrder);
         mult(transmat,offset3,offset2,offset4,offset3,-2.0*K);
-        operatorP1P0(geo,c+1, transmat,offset3,offset2);
+        operatorP1P0(geo.getM(c+1), transmat,offset3,offset2);
         mult(transmat,offset3,offset2,offset4,offset3,-1/2.0);
-        operatorP1P0(geo,c+1, transairescalp,offset3,offset2);
+        operatorP1P0(geo.getM(c+1), transairescalp,offset3,offset2);
         // extracting the transpose of the last block of lines of transmat
         // transposing the Matrix
         for(int i=0;i<newsize;i++) {

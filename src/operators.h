@@ -62,7 +62,11 @@ namespace OpenMEEG {
 
     #define OPTIMIZED_OPERATOR_N
 
+    #ifdef USE_OMP
+    #undef OPTIMIZED_OPERATOR_D
+    #else
     #define OPTIMIZED_OPERATOR_D
+    #endif
 
     #define ADAPT_RHS
     //#define ADAPT_LHS
@@ -74,10 +78,11 @@ namespace OpenMEEG {
     void operatorS(const Mesh &m1,const Mesh &m2,T &mat, const int offsetI,const int offsetJ,const int);
     template<class T>
     void operatorD(const Mesh &m1,const Mesh &m2,T &mat, const int offsetI,const int offsetJ,const int);
+    template<class T>
+    void operatorP1P0(const Mesh &,T &mat,const int offsetI,const int offsetJ);
 
-    void operatorSinternal(const Geometry &,const int, Matrix &,const int,const Matrix &);
-    void operatorDinternal(const Geometry &,const int, Matrix &,const int,const Matrix &);
-    void operatorP1P0(const Geometry &geo,const int I,SymMatrix &mat,const int offsetI,const int offsetJ);
+    void operatorSinternal(const Mesh &, Matrix &,const int,const Matrix &);
+    void operatorDinternal(const Mesh &, Matrix &,const int,const Matrix &);
     void operatorFerguson(const Vect3& x, const Mesh &m1, Matrix &mat, int offsetI, int offsetJ);
     void operatorDipolePotDer(const Vect3 &r0, const Vect3 &q,const Mesh &inner_layer, Vector &rhs, int offsetIdx,const int);
     void operatorDipolePot(const Vect3 &r0, const Vect3 &q,const Mesh &inner_layer, Vector &rhs, int offsetIdx,const int);
@@ -296,6 +301,15 @@ namespace OpenMEEG {
             return result;
     }
 
+    inline double _operatorP1P0( int nT2, int nP1, const Mesh &m)
+    {
+        const Triangle &T2=m.getTrg(nT2);
+        if(T2.contains(nP1)== 0) {
+            return 0;
+        }
+        else return T2.getArea()/3.;
+    }
+
     template<class T>
     void operatorN(const Mesh &m1,const Mesh &m2,T &mat,const int offsetI,const int offsetJ,const int GaussOrder,const int IopS,const int JopS)
     {
@@ -423,16 +437,18 @@ namespace OpenMEEG {
 
     #endif // OPTIMIZED_OPERATOR_D
 
-
-
-    inline double _operatorP1P0( int nT2, int nP1, const Mesh &m)
+    template<class T>
+    void operatorP1P0(const Mesh &m,T &mat,const int offsetI,const int offsetJ)
     {
-        const Triangle &T2=m.getTrg(nT2);
-        if(T2.contains(nP1)== 0) {
-            return 0;
-        }
-        else return T2.getArea()/3.;
+        // This time mat(i,j)+= ... the Matrix is incremented by the P1P0 operator
+        std::cout<<"OPERATOR P1P0..."<<std::endl;
+        for(int i=offsetI;i<offsetI+m.nbTrgs();i++)
+            for(int j=offsetJ;j<offsetJ+m.nbPts();j++)
+            {
+                mat(i,j)+=_operatorP1P0(i-offsetI,j-offsetJ,m);
+            }
     }
+
 
     inline Vect3 _operatorFerguson(const Vect3 x,const int nP1,const Mesh &m1)
     {
