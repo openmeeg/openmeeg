@@ -43,6 +43,7 @@ def SaveGridFiles(xmin,xmax,nx,ymin,ymax,ny,zmin,zmax,nz,dir,name):
     SaveCubicGrid(CreateDGrid(grid,0),dir+name+"dx")
     SaveCubicGrid(CreateDGrid(grid,1),dir+name+"dy")
     SaveCubicGrid(CreateDGrid(grid,2),dir+name+"dz")
+    SaveCubicGrid(CreateNegDGrid(grid,2),dir+name+"-dz")
     SaveGridVTK(grid,nx,ny,nz,dir+name+".vtk")
     
 def CreateDGrid(grid,index):
@@ -54,6 +55,15 @@ def CreateDGrid(grid,index):
     tileunit[index]=1
     vec=numpy.tile(numpy.array(tileunit),(len(grid),1))
     return grid+alpha*delta*vec
+def CreateNegDGrid(grid,index):
+    if(index not in set([0,1,2])):
+        print "Index must be 0,1, or 2\n"
+        sys.exit()
+    delta=GetGridSpacing(grid[:,index])
+    tileunit=[0,0,0]
+    tileunit[index]=1
+    vec=numpy.tile(numpy.array(tileunit),(len(grid),1))
+    return grid-alpha*delta*vec
 def SaveInjVTK(inj,filename):
     #Saves a VTK file with 12 glyphs representing injected current.  Locations are hardwired.
     file=open(filename,'w')
@@ -158,7 +168,8 @@ def LoadGains(geom,grid,fileprefix):
     gaindx=LoadGain(geom, grid,fileprefix+"dx.gain")
     gaindy=LoadGain(geom, grid,fileprefix+"dy.gain")
     gaindz=LoadGain(geom, grid,fileprefix+"dz.gain")
-    return gain,gaindx,gaindy,gaindz
+    gainminusdz=LoadGain(geom, grid,fileprefix+"-dz.gain")
+    return gain,gaindx,gaindy,gaindz,gainminusdz
 def GetPotentialAndCurrent(inj,geom,grid,gains):
     [dx,dy,dz]=GetFiniteDifferenceDxDyDz(grid)
     pot=numpy.dot(gains[0],inj)
@@ -166,7 +177,10 @@ def GetPotentialAndCurrent(inj,geom,grid,gains):
     cury=-conductivity*(numpy.dot(gains[2],inj)-pot)/dy
     curz=-conductivity*(numpy.dot(gains[3],inj)-pot)/dz
     return numpy.transpose(numpy.array([pot])),numpy.transpose(numpy.array([curx,cury,curz]))
-
+def GetActivationFunction(inj,geom,grid,gains):
+    [dx,dy,dz]=GetFiniteDifferenceDxDyDz(grid)
+    activation=numpy.dot(gains[3]+gains[4]-2*gains[0],inj)/(dz*dz)
+    return numpy.transpose(numpy.array([activation]))
 def GetGridDxDyDz(grid):
     return [GetGridSpacing(grid[:,i]) for i in range (3)]
 def GetGridSpacing(x):
@@ -232,9 +246,9 @@ class workspace:
         #geom[1]=NERVE = [x,y,z,l,r,*,*]
         #geom[2]=Focus/Chi/Omega = [x,y,z,J0_x,J0_y,J0_z,sigma]
         self.grid=LoadCubicGrid(gridfilename)
-        
-        g0,g1,g2,g3=LoadGains(self.geom,self.grid,gainfilename)
-        self.gains=numpy.array([g0,g1,g2,g3])
+
+        g0,g1,g2,g3,g4=LoadGains(self.geom,self.grid,gainfilename)   
+        self.gains=numpy.array([g0,g1,g2,g3,g4])
         self.NumberOfElectrodes=len(self.gains[0,0])
         self.ConstrainedNumberOfElectrodes=self.NumberOfElectrodes-1
         self.SetRandomInj()
@@ -260,6 +274,11 @@ class workspace:
     def Constrained_f_Chi(self,cinj):
         y=numpy.concatenate((cinj,[-sum(cinj)]))
         return self.f_Chi(y)
+    def f_Ksi(self,inj):
+        return f_Ksi(inj,self.geom,self.grid,self.gains)
+    def Constrained_f_Ksi(self,cinj):
+        y=numpy.concatenate((cinj,[-sum(cinj)]))
+        return self.f_Ksi(y)
     def OptimizePhi(self):
         self.SetRandomInj()
         self.CurrentFunc=self.Constrained_f_Phi
@@ -278,6 +297,11 @@ class workspace:
         self.CurrentFunc=self.Constrained_f_Chi
         temp=scipy.optimize.fmin_bfgs(self.Constrained_f_Chi,self.cinj,callback=self.MyCallback,gtol=self.GTol)
         self.SetInj(temp)
+        return temp
+    def OptimizeKsi(self):
+        self.SetRandomInj()
+        self.CurrentFunc=self.Constrained_f_Ksi
+        temp=scipy.optimize.fmin_bfgs(self.Constrained_f_Ksi,self.cinj,retall=1,callback=self.MyCallback,gtol=self.GTol)
         return temp
     def OptimizeOmegaGeom(self):
         self.SetRandomInj()
@@ -321,6 +345,21 @@ class workspace:
         g2[0:3]=x[self.ConstrainedNumberOfElectrodes:self.ConstrainedNumberOfElectrodes+3]
         geom=numpy.array([self.geom[0],self.geom[1],g2])
         return f_Chi(inj,geom,self.grid,self.gains)
+    def OptimizeKsiGeom(self):
+        self.SetRandomInj()
+        self.SetRandomOmegaGeom()
+        self.CurrentFunc=self.f_KsiGeom
+        x=numpy.concatenate((self.cinj,self.geom[2,0:3]))
+        temp=scipy.optimize.fmin_bfgs(self.f_KsiGeom,x,callback=self.MyCallback,gtol=self.GTol)
+        self.SetInjGeom(temp)
+        return temp
+    def f_KsiGeom(self,x):
+        cinj=x[0:self.ConstrainedNumberOfElectrodes]
+        inj=numpy.concatenate((cinj,[-sum(cinj)]))
+        g2=self.geom[2]
+        g2[0:3]=x[self.ConstrainedNumberOfElectrodes:self.ConstrainedNumberOfElectrodes+3]
+        geom=numpy.array([self.geom[0],self.geom[1],g2])
+        return f_Ksi(inj,geom,self.grid,self.gains)
     def MyCallback(self,x):
         print "Callback."
         print "params = ", x
@@ -344,7 +383,7 @@ def PhiC(inj,geom,grid,gains):
 
 def GetCurrentMagnitude(cur):
     func=lambda x: numpy.linalg.norm(x)
-    return numpy.reshape(numpy.apply_along_axis(func,1,cur),(-1,1))
+    return numpy.reshape(numpy.apply_along_axis(func,1,cur),(-1,1)) # -1 means unspecified value - inferred from the data
 def GetCurSq(cur):
     func = lambda x: numpy.linalg.norm(x)**2.
     return numpy.reshape(numpy.apply_along_axis(func,1,cur),(-1,1))
@@ -360,6 +399,13 @@ def Chi(inj,geom,grid,gains):
     cur=GetPotentialAndCurrent(inj,geom,grid,gains)[1]
     Omega_i=lambda i: W(grid[i],x0,sigma)*numpy.dot(cur[i],cur[i])
     return dv*numpy.sum([Omega_i(i) for i in range(len(grid))])
+def Ksi(inj,geom,grid,gains):
+    x0=geom[2,0:3]
+    sigma=geom[2,6]
+    dv=numpy.product(GetGridDxDyDz(grid))
+    activ=GetActivationFunction(inj,geom,grid,gains)
+    Omega_i=lambda i: W(grid[i],x0,sigma)*(activ[i]**2)
+    return dv*numpy.sum([Omega_i(i) for i in range(len(grid))])
 def f_Chi(inj,geom,grid,gains):
     a=PhiN(inj,geom,grid,gains)
     b=Chi(inj,geom,grid,gains)
@@ -368,6 +414,10 @@ def f_Omega(inj,geom,grid,gains):
     a=PhiN(inj,geom,grid,gains)
     b=Omega(inj,geom,grid,gains)
     return a/float(b)
+def f_Ksi(inj,geom,grid,gains):
+    a=PhiN(inj,geom,grid,gains)
+    b=Ksi(inj,geom,grid,gains)
+    return 1000000*a/float(b)
 def VolumeNerve(geom,grid):
     return scipy.pi*geom[1,3]*geom[1,4]**2
 def VolumeCore(geom,grid):
@@ -382,7 +432,7 @@ def Omega(inj,geom,grid,gains):
     return dv*numpy.sum([omega_i(i) for i in range(len(grid))])
 def Normalize(inj,geom,grid,gains):
     #A way to scale injected currents.  This should produce comparable current densities throughout the nerve.
-    return numpy.array((1e10/PhiN(inj,geom,grid,gains))**.5 *inj,float)
+    return numpy.array((1/PhiN(inj,geom,grid,gains))**.5 *inj,float)
 def InjFromCinj(cinj,NumberOfElectrodes):
     N=NumberOfElectrodes
     CN=N-1
@@ -390,3 +440,55 @@ def InjFromCinj(cinj,NumberOfElectrodes):
     temp[0:CN]=cinj
     temp[CN]=-sum(cinj)
     return numpy.array(temp,float)
+def SymmetricalMatch(inj1,inj2):
+    # try to find a transformation T (combining rotations and symmetries)
+    # that minimizes the L2 norm between inj1 and T(inj2)
+    bestinj2=inj2;
+    bestnorm=numpy.norm(inj1-bestinj2,2)
+    newinj2=inj2;
+    for mirrortype in range(0,4):
+        newinj2=Mirror(newinj2,mirrortype)
+        for i in range(0,4):
+            newinj2=Rotation(newinj2)
+            newnorm=numpy.norm(inj1-newinj2,2)
+            if (newnorm<bestnorm):
+                bestnorm=newnorm
+                bestinj2=newinj2
+    return bestinj2
+
+def Rotation(v):
+    mat=numpy.diag(numpy.ones(11),1)
+    mat[11,0]=1
+    return mat*v
+def Mirror(v,type):
+    if type==0:
+        #type 0: identity
+        mat=numpy.diag(numpy.ones(12))
+    elif type==1:
+        # type 1: mirror through a horizontal plane containing z
+        mat=numpy.zeros((12,12));
+        for i in range(0,4):
+            mat[i,4-i]=1
+        for i in range(4,8):
+            mat[i,8-i]=1
+        for i in range(8,12):
+            mat[i,12-i]=1
+    elif type==2:
+        #type 2: mirror through a vertical plane containing z
+        mat=numpy.zeros((12,12));
+        for i in range(0,6):
+            mat[2*i,2*i]=1
+        for i in range(1,6):
+            mat[2*i-1,2*i+1]=1
+            mat[2*i+1,2*i-1]=1
+    elif type==3:
+        # type 3: mirror through the central electrode (only if intercuff distances
+        # are equal)
+        mat=numpy.zeros((12,12))
+        for i in range(0,4):
+            mat[i,i+8]=1
+        for i in range(4,8):
+            mat[i,i]=1
+        for i in range(8,12):
+            mat[i,i-8]=1
+    return mat*v
