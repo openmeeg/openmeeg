@@ -8,6 +8,17 @@ Contact : openmeeg-info@lists.gforge.inria.fr
 The OpenMEEG software is a C++ package for solving the forward/inverse
 problems of electroencephalography and magnetoencephalography.
 
+BibTex Citation:
+
+@MISC{OpenMEEG,
+  author = {A Gramfort and T Papadopoulo and M Clerc},
+  title = {OpenMEEG},
+  month = {January},
+  year = {2009},
+  timestamp = {2009.01.01},
+  url = { http://www-sop.inria.fr/odyssee/software/OpenMEEG }
+}
+
 This software is governed by the CeCILL-B license under French law and
 abiding by the rules of distribution of free software.  You can  use,
 modify and/ or redistribute the software under the terms of the CeCILL-B
