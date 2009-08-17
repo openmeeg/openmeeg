@@ -105,21 +105,35 @@ FOREACH ( DIP 1 2 3 4 5 )
     SET(EPSILON 0.15)
 
     # Compare EEG result with analytical solution obtained with Matlab
-    ADD_TEST(compareEEGEST-dip-Head1-d${DIP} ${COMPARE_MATRIX}
+    ADD_TEST(compareEEGEST-dip-Head1-d${DIP}-rdm ${COMPARE_MATRIX}
                              ${OpenMEEG_BINARY_DIR}/tests/Head1-dip.est_eeg
                              ${OpenMEEG_SOURCE_DIR}/tests/analytic/eeg_head1_analytic.txt
                              -rdm -eps ${EPSILON} -col ${DIP} -full)
 
-    ADD_TEST(compareEEGEST-dip-Head2-d${DIP} ${COMPARE_MATRIX}
+    ADD_TEST(compareEEGEST-dip-Head2-d${DIP}-rdm ${COMPARE_MATRIX}
                              ${OpenMEEG_BINARY_DIR}/tests/Head2-dip.est_eeg
                              ${OpenMEEG_SOURCE_DIR}/tests/analytic/eeg_head2_analytic.txt
                              -rdm -eps ${EPSILON} -col ${DIP} -full)
 
+    ADD_TEST(compareEEGEST-dip-Head1-d${DIP}-mag ${COMPARE_MATRIX}
+                             ${OpenMEEG_BINARY_DIR}/tests/Head1-dip.est_eeg
+                             ${OpenMEEG_SOURCE_DIR}/tests/analytic/eeg_head1_analytic.txt
+                             -mag -eps ${EPSILON} -col ${DIP} -full)
+
+    ADD_TEST(compareEEGEST-dip-Head2-d${DIP}-mag ${COMPARE_MATRIX}
+                             ${OpenMEEG_BINARY_DIR}/tests/Head2-dip.est_eeg
+                             ${OpenMEEG_SOURCE_DIR}/tests/analytic/eeg_head2_analytic.txt
+                             -mag -eps ${EPSILON} -col ${DIP} -full)
     IF ( TEST_HEAD3 )
-        ADD_TEST(compareEEGEST-dip-Head3-d${DIP} ${COMPARE_MATRIX}
+        ADD_TEST(compareEEGEST-dip-Head3-d${DIP}-rdm ${COMPARE_MATRIX}
                                  ${OpenMEEG_BINARY_DIR}/tests/Head3-dip.est_eeg
                                  ${OpenMEEG_SOURCE_DIR}/tests/analytic/eeg_head3_analytic.txt
                                  -rdm -eps ${EPSILON} -col ${DIP} -full)
+
+        ADD_TEST(compareEEGEST-dip-Head3-d${DIP}-mag ${COMPARE_MATRIX}
+                                 ${OpenMEEG_BINARY_DIR}/tests/Head3-dip.est_eeg
+                                 ${OpenMEEG_SOURCE_DIR}/tests/analytic/eeg_head3_analytic.txt
+                                 -mag -eps ${EPSILON} -col ${DIP} -full)
     ENDIF ( TEST_HEAD3 )
 
 ENDFOREACH ( DIP 1 2 3 4 5 )
@@ -172,21 +186,39 @@ FOREACH ( DIP 1 2 3 4 5)
     SET(EPSILON 0.15)
 
     # Compare MEG result with analytical solution obtained with Matlab
-    ADD_TEST(compareMEGEST-dip-Head1-d${DIP} ${COMPARE_MATRIX}
+    ADD_TEST(compareMEGEST-dip-Head1-d${DIP}-rdm ${COMPARE_MATRIX}
                              ${OpenMEEG_BINARY_DIR}/tests/Head1-dip.est_meg
                              ${OpenMEEG_SOURCE_DIR}/tests/analytic/meg_head1_analytic.txt
                              -rdm -eps ${EPSILON} -col ${DIP} -full)
 
-    ADD_TEST(compareMEGEST-dip-Head2-d${DIP} ${COMPARE_MATRIX}
+    ADD_TEST(compareMEGEST-dip-Head2-d${DIP}-rdm ${COMPARE_MATRIX}
                              ${OpenMEEG_BINARY_DIR}/tests/Head2-dip.est_meg
                              ${OpenMEEG_SOURCE_DIR}/tests/analytic/meg_head1_analytic.txt
                              -rdm -eps ${EPSILON} -col ${DIP} -full)
 
     IF ( TEST_HEAD3 )
-        ADD_TEST(compareMEGEST-dip-Head3-d${DIP} ${COMPARE_MATRIX}
+        ADD_TEST(compareMEGEST-dip-Head3-d${DIP}-rdm ${COMPARE_MATRIX}
                                  ${OpenMEEG_BINARY_DIR}/tests/Head3-dip.est_meg
                                  ${OpenMEEG_SOURCE_DIR}/tests/analytic/meg_head1_analytic.txt
                                  -rdm -eps ${EPSILON} -col ${DIP} -full)
+    ENDIF ( TEST_HEAD3 )
+
+    # Compare MEG result with analytical solution obtained with Matlab
+    ADD_TEST(compareMEGEST-dip-Head1-d${DIP}-mag ${COMPARE_MATRIX}
+                             ${OpenMEEG_BINARY_DIR}/tests/Head1-dip.est_meg
+                             ${OpenMEEG_SOURCE_DIR}/tests/analytic/meg_head1_analytic.txt
+                             -mag -eps ${EPSILON} -col ${DIP} -full)
+
+    ADD_TEST(compareMEGEST-dip-Head2-d${DIP}-mag ${COMPARE_MATRIX}
+                             ${OpenMEEG_BINARY_DIR}/tests/Head2-dip.est_meg
+                             ${OpenMEEG_SOURCE_DIR}/tests/analytic/meg_head1_analytic.txt
+                             -mag -eps ${EPSILON} -col ${DIP} -full)
+
+    IF ( TEST_HEAD3 )
+        ADD_TEST(compareMEGEST-dip-Head3-d${DIP}-mag ${COMPARE_MATRIX}
+                                 ${OpenMEEG_BINARY_DIR}/tests/Head3-dip.est_meg
+                                 ${OpenMEEG_SOURCE_DIR}/tests/analytic/meg_head1_analytic.txt
+                                 -mag -eps ${EPSILON} -col ${DIP} -full)
     ENDIF ( TEST_HEAD3 )
 
 ENDFOREACH ( DIP 1 2 3 4 5)
@@ -213,9 +245,9 @@ IF ( TEST_HEAD3 )
 ENDIF ( TEST_HEAD3 )
 
 # set tests that are expected to fail :
-SET_TESTS_PROPERTIES(compareEEGEST-dip-Head1-d4 PROPERTIES WILL_FAIL TRUE)
-SET_TESTS_PROPERTIES(compareEEGEST-dip-Head1-d5 PROPERTIES WILL_FAIL TRUE)
-SET_TESTS_PROPERTIES(compareMEGEST-dip-Head1-d6 PROPERTIES WILL_FAIL TRUE)
+SET_TESTS_PROPERTIES(compareEEGEST-dip-Head1-d1-mag PROPERTIES WILL_FAIL TRUE)
+SET_TESTS_PROPERTIES(compareEEGEST-dip-Head1-d4-rdm PROPERTIES WILL_FAIL TRUE)
+SET_TESTS_PROPERTIES(compareEEGEST-dip-Head1-d5-rdm PROPERTIES WILL_FAIL TRUE)
 SET_TESTS_PROPERTIES(compareEEGinternal-dip-Head1-d2 PROPERTIES WILL_FAIL TRUE)
 SET_TESTS_PROPERTIES(compareEEGinternal-dip-Head1-d3 PROPERTIES WILL_FAIL TRUE)
 SET_TESTS_PROPERTIES(compareEEGinternal-dip-Head1-d4 PROPERTIES WILL_FAIL TRUE)

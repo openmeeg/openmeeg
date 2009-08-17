@@ -11,9 +11,10 @@ using namespace OpenMEEG;
 
 template<class T> bool compare(const T& mat1, const T& mat2, double eps, size_t col = 0);
 template<class T> bool compare_rdm(const T& mat1, const T& mat2, double eps, size_t col = 0);
+template<class T> bool compare_mag(const T& mat1, const T& mat2, double eps, size_t col = 0);
 template<class T> double normInf(const T& mat);
 template<class T> bool compare_matrix(maths::ifstream& ifs1,T& mat1,maths::ifstream& ifs2,T& mat2,
-        double eps,const char* rdm,size_t col);
+        double eps,const char* rdm,const char* mag,size_t col);
 
 int main (int argc, char** argv)
 {
@@ -28,6 +29,7 @@ int main (int argc, char** argv)
     const char *issparse = command_option("-sparse",(const char *) 0,"Data are sparse matrices");
     const char *epsilon = command_option("-eps","0.00001","Tolerance on differences");
     const char *rdm = command_option("-rdm",(const char *) 0,"Use RDM (Relative difference measure) to compare each column of matrices");
+    const char *mag = command_option("-mag",(const char *) 0,"Use MAG (MAGnification error) to compare each column of matrices");
     const int col = command_option("-col",(int) 0,"Restrict RDM comparison to one column (index starts at 1)");
     if (command_option("-h",(const char *)0,0)) return 0;
 
@@ -41,10 +43,16 @@ int main (int argc, char** argv)
         return 1;
     }
 
-    if(!isfull && rdm) {
-        std::cerr << "Can use -rdm or -col only with full matrices" << std::endl;
+    if(!isfull && (rdm||mag)) {
+        std::cerr << "Can use -rdm, -mag or -col only with full matrices" << std::endl;
         return 1;
     }
+
+    if(rdm&&mag) {
+        std::cerr << "Choose either -rdm OR -mag but not both" << std::endl;
+        return 1;
+    }
+
 
     double eps = atof(epsilon);
 
@@ -80,7 +88,7 @@ int main (int argc, char** argv)
     } else { // assumes isfull
         Matrix mat1;
         Matrix mat2;
-        flag = compare_matrix(ifs1,mat1,ifs2,mat2,eps,rdm,col);
+        flag = compare_matrix(ifs1,mat1,ifs2,mat2,eps,rdm,mag,col);
     }
 
     if(!flag){
@@ -95,7 +103,7 @@ int main (int argc, char** argv)
 
 template<class T>
 bool compare_matrix(maths::ifstream& ifs1,T& mat1,maths::ifstream& ifs2,T& mat2,
-        double eps,const char*rdm,size_t col) {
+        double eps,const char*rdm,const char*mag,size_t col) {
     bool flag;
     try
     {
@@ -105,12 +113,18 @@ bool compare_matrix(maths::ifstream& ifs1,T& mat1,maths::ifstream& ifs2,T& mat2,
         std::cerr << s << std::endl;
         exit(1);
     }
-
+    
     if(rdm) {
         if(col) {
             flag = compare_rdm(mat1,mat2,eps,col);
         } else {
             flag = compare_rdm(mat1,mat2,eps);
+        }
+    } else if(mag) {
+        if(col) {
+            flag = compare_mag(mat1,mat2,eps,col);
+        } else {
+            flag = compare_mag(mat1,mat2,eps);
         }
     } else {
         if(col) {
@@ -228,6 +242,49 @@ bool compare_rdm(const T& mat1, const T& mat2, double eps, size_t col){
         flag = flag && (diff < eps);
         if(diff > eps) {
             std::cout << "ERROR RDM ( column " << j << " ) " << diff << std::endl;
+            std::cout.flush();
+        }
+    }
+    return flag;
+}
+
+template<class T>
+bool compare_mag(const T& mat1, const T& mat2, double eps, size_t col){
+    // T is a Matrix
+
+    if(col) {
+        if ((mat1.ncol() < col) || (mat2.ncol() < col)) {
+            std::cerr << "ERROR : Bad Column Id for matrices dimensions !" << std::endl;
+            exit(1);
+        }
+    } else {
+        if ((mat1.ncol() != mat2.ncol()) || (mat1.nlin() != mat2.nlin())) {
+            std::cerr << "ERROR : Dimension mismatch !" << std::endl;
+            exit(1);
+        }
+    }
+
+    bool flag = true;
+    double diff;
+    unsigned int jmin,jmax;
+    if(col > 0) {
+        jmin = col-1;
+        jmax = col;
+    } else {
+        jmin = 0;
+        jmax = mat1.ncol();;
+    }
+
+    for(unsigned int j=jmin; j<jmax; j++) {
+        Vector col1 = mat1.getcol(j);
+        Vector col2 = mat2.getcol(j);
+        col1 = col1 - col1.mean();
+        col2 = col2 - col2.mean();
+        diff = std::abs(1-col1.norm()/col2.norm()); //distance to 1
+
+        flag = flag && (diff < eps);
+        if(diff > eps) {
+            std::cout << "ERROR MAG ( column " << j << " ) " << diff << std::endl;
             std::cout.flush();
         }
     }
