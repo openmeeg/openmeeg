@@ -48,6 +48,11 @@ void getHelp(char** argv);
 
 int main(int argc, char** argv)
 {
+    if(argc < 2)
+    {
+        std::cerr << "Not enough arguments \nPlease try \"" << argv[0] << " -h\" or \"" << argv[0] << " --help \" \n" << std::endl;
+        return 0;
+    }
     if ((!strcmp(argv[1],"-h")) | (!strcmp(argv[1],"--help"))) {
         getHelp(argv);
         return 0;
