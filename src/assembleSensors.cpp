@@ -258,7 +258,7 @@ namespace OpenMEEG {
                 Vect3 fergusonField(SignalMatrix(3*i,j),SignalMatrix(3*i+1,j),SignalMatrix(3*i+2,j));
                 Vect3 normalizedDirection(orientations(i,0),orientations(i,1),orientations(i,2));
                 normalizedDirection.normalize();
-                mat(i,j)=fergusonField*normalizedDirection/(4*M_PI);
+                mat(i,j)=fergusonField*normalizedDirection*1.e-7;
             }
         }
 
