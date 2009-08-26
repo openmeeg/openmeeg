@@ -14,9 +14,11 @@ TARGET_LINK_LIBRARIES (om_validationEIT OpenMEEG OpenMEEGMaths "${OPENMEEG_OTHER
 IF ( WIN32 )
     SET(LOAD_GEO "${EXECUTABLE_OUTPUT_PATH}/load_geo")
     SET(COMPARE_MATRIX "${EXECUTABLE_OUTPUT_PATH}/compare_matrix")
+    SET(VALIDATION_EIT "${EXECUTABLE_OUTPUT_PATH}/om_validationEIT")
 ELSE ( WIN32 )
     SET(LOAD_GEO "${CMAKE_CURRENT_BINARY_DIR}/load_geo")
     SET(COMPARE_MATRIX "${CMAKE_CURRENT_BINARY_DIR}/compare_matrix")
+    SET(VALIDATION_EIT "${CMAKE_CURRENT_BINARY_DIR}/om_validationEIT")
 ENDIF ( WIN32 )
 
 ADD_TEST(load_geo ${LOAD_GEO} ${OpenMEEG_SOURCE_DIR}/data/Models/Head1/Head1.geom ${OpenMEEG_SOURCE_DIR}/data/Models/Head1/Head1.cond)
@@ -142,7 +144,7 @@ FOREACH ( SUB 1 2 )
 
     # validationEIT geometry.geom conductivity.cond dipoles.dip source.dsm headmatinv.bin out.eit_qgradVj out.eit_diffVf
     ADD_TEST(EITvalidation-dipoles-Head${SUB}
-        ${OpenMEEG_BINARY_DIR}/tests/om_validationEIT
+        ${VALIDATION_EIT}
         ${OpenMEEG_SOURCE_DIR}/data/Models/Head${SUB}/Head${SUB}.geom
         ${OpenMEEG_SOURCE_DIR}/data/Models/Head${SUB}/Head${SUB}.cond
         ${OpenMEEG_SOURCE_DIR}/data/Computations/Head${SUB}/Head${SUB}.dip
