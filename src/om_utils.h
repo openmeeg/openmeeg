@@ -68,7 +68,7 @@ namespace OpenMEEG {
         #define M_PI 3.14159265358979323846
     #endif
 
-    #define MU0 1.0 //1.25e-6
+#define MU0 (4*M_PI*1e-7) 
 
     inline std::string getNameExtension ( const std::string& name )
     {

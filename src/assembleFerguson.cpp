@@ -75,7 +75,7 @@ namespace OpenMEEG {
         offsetJ = 0;
         for(int c=0;c<geo.nb();c++)
         {
-            mult(mat,0,offsetJ,mat.nlin(),offsetJ+geo.getM(c).nbPts(),(geo.sigma_in(c)-geo.sigma_out(c))*1e-7);
+            mult(mat,0,offsetJ,mat.nlin(),offsetJ+geo.getM(c).nbPts(),(geo.sigma_in(c)-geo.sigma_out(c))*MU0/(4*M_PI));
             offsetJ += geo.getM(c).nbPts();
         }
     }

@@ -1,26 +1,24 @@
 Release 1.1:
 
 New features:
-	- added a new criterion to optimize: current activation (Ksi), started
-	working on transformations of injection current that respect the geometry
-	of the nerve.
 	- added target for uninstalling (make uninstall).
-
+	- possibility of evaluating the potential at any point within inner volume.
+	- for Functional Electric Stimulation: added a new criterion to optimize: current activation.
 Improvements:
 	- support for MKL-10.0 on MacOS.
 	- added the possibility of statically linked libraries for easier distribution (unix only).
 	- more information on mesh qualify in om_mesh_info.
-	- tests (mostly for EIT tests).
+	- more tests (mostly for EIT tests).
 	- do not use optimized operator D when using OpenMP.
 	- automatic finding of fortan libraries (for unix), better blas/lapack/atlas detection.
 	- build system updated for cmake 2.6
 
 Bug corrections:
-	- correction of a misprint help message and adding a message if not enough arguments are given.
-	- correct the magnitude of MEG leadfields, update the tests accordingly.
+	- corrected a misprint help message and adding a message if not enough arguments are given.
+	- corrected the magnitude of MEG leadfields, update the tests accordingly.
 	- added some missing guards against multiple .H inclusion.
-	- correctly initialize matrices before filling them.
-	- correct handling of single layer models.
+	- correctly initialized matrices before filling them.
+	- corrected handling of single layer models.
 	- corrected the order of atlas libraries in link.
 
 Code clean up: 
