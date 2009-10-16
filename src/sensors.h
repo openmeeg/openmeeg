@@ -74,6 +74,14 @@ namespace OpenMEEG {
      *        <li> the 5th, 6th and 7th are coordinates of vector orientation </li>
      *        </ul>
      *  </li>
+     *    <li> 1 line per integration point for each sensor and 8 columns (MEG sensors) :
+     *        <ul TYPE="circle">
+     *        <li> the 1st column is sensors names </li>
+     *        <li> the 2nd, 3rd and 4th are respectively positions coordinates x, y, z of sensor  </li>
+     *        <li> the 5th, 6th and 7th are coordinates of vector orientation </li>
+     *        <li> the 8th is the weight to apply for numerical integration (uses sensor name) </li>
+     *        </ul>
+     *  </li>
      *  <li> 1 line per 1 sensor and 6 columns (MEG sensors) :
      *        <ul TYPE="circle">
      *        <li>- the 1st, 2nd and 3rd are respectively positions coordinates x, y, z of sensor  </li>
