@@ -1,12 +1,5 @@
-/* FILE: $Id$ */
-
 /*
 Project Name : OpenMEEG
-
-version           : $Revision$
-last revision     : $Date$
-modified by       : $LastChangedBy$
-last modified     : $LastChangedDate$
 
 © INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre 
 GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU, Théodore PAPADOPOULO,
@@ -68,7 +61,7 @@ namespace OpenMEEG {
         #define M_PI 3.14159265358979323846
     #endif
 
-#define MU0 (4*M_PI*1e-7) 
+    #define MU0 (4*M_PI*1e-7) 
 
     inline std::string getNameExtension ( const std::string& name )
     {
