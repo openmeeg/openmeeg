@@ -28,12 +28,9 @@ PROJECT(OpenMEEG)
 
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6 FATAL_ERROR)
 
-#SET(CMAKE_SKIP_RPATH ON)
-
 #######################################################################
 # Setting compilation options
 #######################################################################
-
 
 SET(LIB_TYPE SHARED)
 
@@ -285,13 +282,13 @@ ENDIF (USE_MATIO)
 #    MESSAGE(FATAL_ERROR "Could not find LAPACK")
 #ENDIF(LAPACK_FOUND)
 
-INCLUDE(UseAtlas.cmake)
+INCLUDE(macros/UseAtlas.cmake)
 
 #------------------------------------------------------------
 # OpenMP
 #------------------------------------------------------------
 
-INCLUDE(UseOpenMP.cmake)
+INCLUDE(macros/UseOpenMP.cmake)
 
 #------------------------------------------------------------
 # MatLib
@@ -468,7 +465,7 @@ SUBDIRS(Wrapping)
 #-----------------------------------------------
 
 CONFIGURE_FILE(
-    "${CMAKE_CURRENT_SOURCE_DIR}/cmake_uninstall.cmake.in"
+    "${CMAKE_CURRENT_SOURCE_DIR}/macros/cmake_uninstall.cmake.in"
     "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
     IMMEDIATE @ONLY)
 
@@ -574,7 +571,7 @@ IF(ENABLE_PACKAGING OR BUILD_RPM)
 ENDIF(ENABLE_PACKAGING OR BUILD_RPM)
 
 IF ( ENABLE_PACKAGING AND WIN32 )
-    INCLUDE(UseWin32dlls.cmake)
+    INCLUDE(macros/UseWin32dlls.cmake)
 ENDIF ( ENABLE_PACKAGING AND WIN32 )
 
 #######################################################################
@@ -585,9 +582,7 @@ ENDIF ( ENABLE_PACKAGING AND WIN32 )
 #-----------------------------------------------
 # Include directories
 #-----------------------------------------------
-SET (OPENMEEG_INCLUDE_DIRECTORIES
-        ${OPENMEEG_INCLUDE_DIRECTORIES}
-)
+SET (OPENMEEG_INCLUDE_DIRECTORIES ${OPENMEEG_INCLUDE_DIRECTORIES})
 
 #-----------------------------------------------
 # Creating files for external projects
@@ -595,7 +590,7 @@ SET (OPENMEEG_INCLUDE_DIRECTORIES
 
 # Copy the UseOpenMEEG.cmake file to the binary tree for backward compatability.
 CONFIGURE_FILE(
-    ${OpenMEEG_SOURCE_DIR}/UseOpenMEEG.cmake.in
+    ${OpenMEEG_SOURCE_DIR}/macros/UseOpenMEEG.cmake.in
     ${OpenMEEG_BINARY_DIR}/UseOpenMEEG.cmake COPYONLY IMMEDIATE)
 
 # The "use" file.
@@ -603,5 +598,5 @@ SET(OPENMEEG_USE_FILE ${OpenMEEG_BINARY_DIR}/UseOpenMEEG.cmake)
 
 # Configure OpenMEEGConfig.cmake for the build tree.
 CONFIGURE_FILE(
-    ${OpenMEEG_SOURCE_DIR}/OpenMEEGConfig.cmake.in
+    ${OpenMEEG_SOURCE_DIR}/macros/OpenMEEGConfig.cmake.in
     ${OpenMEEG_BINARY_DIR}/OpenMEEGConfig.cmake @ONLY IMMEDIATE)
