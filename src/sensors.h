@@ -65,38 +65,39 @@ namespace OpenMEEG {
 
     /*!
      *  Sensors class for EEG and MEG sensors.
-     *  This class is made for read sensors description file. This description file is a file text which can take the shape of :
+     *  This class is made for reading sensors description file. This description file is a file text which can take the shape of :
      *  <ul>
-     *    <li> 1 line per 1 sensor and 7 columns (MEG sensors) :
+     *    
+     *    <li> 1 line per sensor and 3 columns (EEG sensors or MEG sensors without orientation) :
+     *        <ul TYPE="circle">
+     *        <li> the 1st, 2nd and 3rd columns are respectively position coordinates x, y, z of sensor  </li>
+     *        </ul>
+     *  </li>
+     *    <li> 1 line per sensor and 4 columns (EEG sensors or MEG sensors without orientation) :
      *        <ul TYPE="circle">
      *        <li> the 1st column is sensors names </li>
-     *        <li> the 2nd, 3rd and 4th are respectively positions coordinates x, y, z of sensor  </li>
+     *        <li> the 2nd, 3rd and 4th are respectively position coordinates x, y, z of sensor  </li>
+     *        </ul>
+     *  </li>
+     *  <li> 1 line per sensor and 6 columns (MEG sensors) :
+     *        <ul TYPE="circle">
+     *        <li> the 1st, 2nd and 3rd are respectively position coordinates x, y, z of sensor  </li>
+     *        <li> the 4th, 5th and 6th are coordinates of vector orientation </li>
+     *        </ul>
+     *  </li>
+     *  <li> 1 line per sensor and 7 columns (MEG sensors) :
+     *        <ul TYPE="circle">
+     *        <li> the 1st column is sensors names </li>
+     *        <li> the 2nd, 3rd and 4th are respectively position coordinates x, y, z of sensor  </li>
      *        <li> the 5th, 6th and 7th are coordinates of vector orientation </li>
      *        </ul>
      *  </li>
      *    <li> 1 line per integration point for each sensor and 8 columns (MEG sensors) :
      *        <ul TYPE="circle">
      *        <li> the 1st column is sensors names </li>
-     *        <li> the 2nd, 3rd and 4th are respectively positions coordinates x, y, z of sensor  </li>
+     *        <li> the 2nd, 3rd and 4th are respectively position coordinates x, y, z of sensor  </li>
      *        <li> the 5th, 6th and 7th are coordinates of vector orientation </li>
      *        <li> the 8th is the weight to apply for numerical integration (uses sensor name) </li>
-     *        </ul>
-     *  </li>
-     *  <li> 1 line per 1 sensor and 6 columns (MEG sensors) :
-     *        <ul TYPE="circle">
-     *        <li>- the 1st, 2nd and 3rd are respectively positions coordinates x, y, z of sensor  </li>
-     *        <li>- the 4th, 5th and 6th are coordinates of vector orientation </li>
-     *        </ul>
-     *  </li>
-     *    <li> 1 line per 1 sensor and 4 columns (EEG sensors or MEG sensors without orientation) :
-     *        <ul TYPE="circle">
-     *        <li>- the 1st column is sensors names </li>
-     *        <li>- the 2nd, 3rd and 4th are respectively positions coordinates x, y, z of sensor  </li>
-     *        </ul>
-     *  </li>
-     *    <li> 1 line per 1 sensor and 3 columns (EEG sensors or MEG sensors without orientation) :
-     *        <ul TYPE="circle">
-     *        <li>- the 1st, 2nd and 3rd are respectively positions coordinates x, y, z of sensor  </li>
      *        </ul>
      *  </li>
      *  </ul>

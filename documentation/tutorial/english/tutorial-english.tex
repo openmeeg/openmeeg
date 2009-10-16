@@ -18,7 +18,7 @@
 
 \newcounter{thenote}
 \newenvironment{note}{\stepcounter{thenote} \noindent \textcolor{red}{\textbf{Note \arabic{thenote}}~:}}{\par}
-\newcommand{\warning}[1]{\textcolor{red}{\textbf{Attention~: #1}}}
+\newcommand{\warning}[1]{\textcolor{red}{\textbf{Warning~: #1}}}
 
 \bibliographystyle{plain}
 
@@ -30,7 +30,7 @@
 \geometry{width=17cm,height=21.7cm}
 \makeindex 
 
-\title{{\textbf{\textcolor{blue}{openMEEG Tutorial\\
+\title{{\textbf{\textcolor{blue}{OpenMEEG Tutorial\\
         {\Large EEG and MEG forward problems\\
                 via the command-line interface.}}}}}
 \author{Maureen Clerc\\Alexandre Gramfort \\
@@ -55,7 +55,8 @@
     \input{Commands}
 
     \appendix
-    \chapter{Appendices}
+    \chapter{Data format}
+	\label{chap:format}
     \input{Appendix}
 
 \end{document}

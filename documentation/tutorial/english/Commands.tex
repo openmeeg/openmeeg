@@ -7,8 +7,8 @@ In the following, the binaries in \commandName{red}, the options in \optionName{
 \noindent
 Inputs~: 
 \begin{itemize}
-    \item \fileName{subject.geom}~: geometry description file (see Appendix~\ref{sect: annexe 1})
-    \item \fileName{subject.cond}~: conductivity description file (see Appendix~\ref{sect: annexe 2})
+    \item \fileName{subject.geom}~: geometry description file (see Appendix~\ref{sec:geom})
+    \item \fileName{subject.cond}~: conductivity description file (see Appendix~\ref{sec:cond})
 \end{itemize}
 
 \noindent
@@ -30,12 +30,12 @@ Note: the abbreviated option names \optionName{-HM} or \optionName{-hm} can be u
 \noindent
 Inputs~: 
 \begin{itemize}
-    \item \fileName{subject.geom}~: geometry description file (see Appendix~\ref{sect: annexe 1})
-    \item \fileName{subject.cond}~: conductivity description file (see Appendix~\ref{sect: annexe 2})
+    \item \fileName{subject.geom}~: geometry description file (see Appendix~\ref{sec:geom})
+    \item \fileName{subject.cond}~: conductivity description file (see Appendix~\ref{sec:cond})
     \item the source(s)~:
         \begin{description}
             \item [[dipolar case]] \fileName{dipolePosition.dip}~: dipole description file (list of coordinates and orientations)
-                                    (see Appendix~\ref{sect: annexe 3}) 
+                                    (see Appendix~\ref{sec:dipoles}) 
             \item [[case of distributed sources]]  \fileName{sourcemesh}~: source mesh (accepted formats:  *.tri or *.mesh of BrainVisa, or *.vtk) 
         \end{description}
 \end{itemize}
@@ -106,9 +106,9 @@ where~:\\
 \noindent
 Inputs~:
 \begin{itemize}
-    \item \fileName{subject.geom}~: geometry description file (see Appendix~\ref{sect: annexe 1})
-    \item \fileName{subject.cond}~: conductivity description file (see Appendix~\ref{sect: annexe 2})
-    \item \fileName{patchespositions.txt}~: file containing the positions of the EEG electrodes (see Appendix~\ref{sect: annexe 4})
+    \item \fileName{subject.geom}~: geometry description file (see Appendix~\ref{sec:geom})
+    \item \fileName{subject.cond}~: conductivity description file (see Appendix~\ref{sec:cond})
+    \item \fileName{patchespositions.txt}~: file containing the positions of the EEG electrodes (see Appendix~\ref{sec:sensors})
 \end{itemize}
 Sortie~:
 \begin{itemize}
@@ -137,9 +137,9 @@ The magnetic field is related both to the sources directly, as well as to the el
 \underline{Contribution to MEG from the potential ($\mathbf{Head2MEGMat}$)}~:\\
 Inputs~:
 \begin{itemize}
-    \item \fileName{subject.geom}~: geometry description file (see Appendix~\ref{sect: annexe 1})
-    \item \fileName{subject.cond}~: conductivity description file (see Appendix~\ref{sect: annexe 2})
-    \item \fileName{sensorpositions.txt}~: positions and orientations of MEG sensors (see Appendix~\ref{sect: annexe 4})
+    \item \fileName{subject.geom}~: geometry description file (see Appendix~\ref{sec:geom})
+    \item \fileName{subject.cond}~: conductivity description file (see Appendix~\ref{sec:cond})
+    \item \fileName{sensorpositions.txt}~: positions and orientations of MEG sensors (see Appendix~\ref{sec:sensors})
 \end{itemize}
 Output~:
 \begin{itemize}
@@ -161,10 +161,10 @@ Inputs~:
 \begin{itemize}
     \item the source(s)~:
     \begin{description}
-        \item [[dipolar sources]] \fileName{dipolePosition.dip}~:  dipole description file (list of coordinates and orientations) (see Appendix~\ref{sect: annexe 3}) 
+        \item [[dipolar sources]] \fileName{dipolePosition.dip}~:  dipole description file (list of coordinates and orientations) (see Appendix~\ref{sec:dipoles}) 
         \item [[distributed sources]] \fileName{sourcemesh}~:  source mesh (accepted formats:  *.tri or *.mesh of BrainVisa, or *.vtk) 
     \end{description}
-    \item \fileName{sensorpositions.txt}~: positions and orientations of MEG sensors (see Appendix~\ref{sect: annexe 4})
+    \item \fileName{sensorpositions.txt}~: positions and orientations of MEG sensors (see Appendix~\ref{sec:sensors})
 \end{itemize}
 Output~: 
 \begin{itemize}
@@ -242,7 +242,7 @@ Once the gain matrix is computed, the forward problem amounts to defining the so
 Inputs~: 
 \begin{itemize}
     \item \fileName{GainMat.bin}~: binary file containing EEG or MEG gain matrix
-    \item \fileName{activationSources.txt}~: file describing the source activation (see Appendix~\ref{sect: annexe 5})
+    \item \fileName{activationSources.txt}~: file describing the source activation (see Appendix~\ref{sec:activ})
     \item \fileName{noise}~: noise (zero, or positive real number)
 \end{itemize}
 Output:

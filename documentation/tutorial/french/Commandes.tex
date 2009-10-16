@@ -8,8 +8,8 @@ les fichiers existants et en \outputName{bleu} les sorties/résultats.
 \noindent
 Entrées~: 
 \begin{itemize}
-    \item \fileName{subject.geom}~: fichier de description de la géométrie (voir Annexe~\ref{sect: annexe 1})
-    \item \fileName{subject.cond}~: fichier de description des conductivités (voir Annexe~\ref{sect: annexe 2})
+    \item \fileName{subject.geom}~: fichier de description de la géométrie (voir Annexe~\ref{sec:geom})
+    \item \fileName{subject.cond}~: fichier de description des conductivités (voir Annexe~\ref{sec:cond})
 \end{itemize}
 
 \noindent
@@ -31,12 +31,12 @@ Remarque: \optionName{-HeadMat} peut être remplacé par la version abrégée \o
 \noindent
 Entrées~: 
 \begin{itemize}
-    \item \fileName{subject.geom}~: fichier de description de la géométrie (voir Annexe~\ref{sect: annexe 1})
-    \item \fileName{subject.cond}~: fichier de description des conductivités (voir Annexe~\ref{sect: annexe 2})
+    \item \fileName{subject.geom}~: fichier de description de la géométrie (voir Annexe~\ref{sec:geom})
+    \item \fileName{subject.cond}~: fichier de description des conductivités (voir Annexe~\ref{sec:cond})
     \item la/les source(s)~:
         \begin{description}
             \item [[cas dipolaire]] \fileName{dipolePosition.dip}~: fichier de localisation du/des dipole(s) (coordonnées et orientation)
-                                    (voir Annexe~\ref{sect: annexe 3}) 
+                                    (voir Annexe~\ref{sec:dipoles}) 
             \item [[cas des sources distribuées]]  \fileName{sourcemesh}~: maillage de sources (format *.tri de BrainVisa, ou *.mesh de BrainVisa, ou *.vtk de VTK) 
         \end{description}
 \end{itemize}
@@ -113,9 +113,9 @@ où~:\\
 \noindent
 Entrées~:
 \begin{itemize}
-    \item \fileName{subject.geom}~: fichier de description de la géométrie (voir Annexe~\ref{sect: annexe 1})
-    \item \fileName{subject.cond}~: fichier de description des conductivités (voir Annexe~\ref{sect: annexe 2})
-    \item \fileName{patchespositions.txt}~: fichier des positions capteurs eeg (voir Annexe~\ref{sect: annexe 4})
+    \item \fileName{subject.geom}~: fichier de description de la géométrie (voir Annexe~\ref{sec:geom})
+    \item \fileName{subject.cond}~: fichier de description des conductivités (voir Annexe~\ref{sec:cond})
+    \item \fileName{patchespositions.txt}~: fichier des positions capteurs eeg (voir Annexe~\ref{sec:sensors})
 \end{itemize}
 Sortie~:
 \begin{itemize}
@@ -145,9 +145,9 @@ On a alors~: $\mathbf{M_{capteur}} = \mathbf{sToMEG} . \mathbf{S} + \mathbf{vToM
 \underline{Assemblage de la matrice de passage du potentiel ($\mathbf{Head2MEGMat}$)}~:\\
 Entrées~:
 \begin{itemize}
-    \item \fileName{subject.geom}~: fichier de description de la géométrie (voir Annexe~\ref{sect: annexe 1})
-    \item \fileName{subject.cond}~: fichier de description des conductivités (voir Annexe~\ref{sect: annexe 2})
-    \item \fileName{sensorpositions.txt}~: fichier des positions et orientation de capteurs meg (voir Annexe~\ref{sect: annexe 4})
+    \item \fileName{subject.geom}~: fichier de description de la géométrie (voir Annexe~\ref{sec:geom})
+    \item \fileName{subject.cond}~: fichier de description des conductivités (voir Annexe~\ref{sec:cond})
+    \item \fileName{sensorpositions.txt}~: fichier des positions et orientation de capteurs meg (voir Annexe~\ref{sec:sensors})
 \end{itemize}
 Sortie~:
 \begin{itemize}
@@ -169,10 +169,10 @@ Entrées~:
 \begin{itemize}
     \item la/les source(s)~:
     \begin{description}
-        \item [[cas dipolaire]] \fileName{dipolePosition.dip}~: fichier de localisation du/des dipole(s) (coordonnées et orientation) (voir Annexe~\ref{sect: annexe 3}) 
+        \item [[cas dipolaire]] \fileName{dipolePosition.dip}~: fichier de localisation du/des dipole(s) (coordonnées et orientation) (voir Annexe~\ref{sec:dipoles}) 
         \item [[cas des sources distribuées]] \fileName{sourcemesh}~: maillage de sources (format *.tri, ou *.mesh, ou *.vtk)
     \end{description}
-    \item \fileName{sensorpositions.txt}~: fichier des positions et orientation de capteurs meg (voir Annexe~\ref{sect: annexe 4})
+    \item \fileName{sensorpositions.txt}~: fichier des positions et orientation de capteurs meg (voir Annexe~\ref{sec:sensors})
 \end{itemize}
 Sortie~: 
 \begin{itemize}
@@ -248,7 +248,7 @@ Il s'agit d'indiquer comment sont activées les sources et d'appliquer cette act
 Entrées~: 
 \begin{itemize}
     \item \fileName{gainMat.bin}~: fichier binaire matrice de gain
-    \item \fileName{activationSources.txt}~: fichier de description de l'état d'activation des sources (voir Annexe~\ref{sect: annexe 5})
+    \item \fileName{activationSources.txt}~: fichier de description de l'état d'activation des sources (voir Annexe~\ref{sec:activ})
     \item \fileName{noise}~: bruit (réel positif ou nul)
 \end{itemize}
 Sortie:

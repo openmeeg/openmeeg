@@ -1,22 +1,24 @@
 \section{Geometry description file}
-\label{sect: annexe 1}
-{\huge TO BE TRANSLATED}\\
+\label{sec:geom}
 \noindent
-Ce fichier décrit la géométrie utilisée~: le nombre et le nom des surfaces maillées séparant les différents domaines de
-conductivité ainsi que le nombre et le nom de chacun de ces domaines et leur disposition par rapport aux surfaces précédemment
-citées.\\ 
-Extension du fichier~: *.geom par convention. 
+The geometry description file provides 
+	\begin{itemize}
+		\item the number of the meshed surfaces separating the different domains,
+		\item  the names of the files corresponding to these surfaces, 
+		\item the number of domains of homogeneous conductivity,
+		\item the positions of the domains with respect to the surfaces (inside or outside)
+	\end{itemize}
+The geometry description file should have as extension: *.geom 
 
 \centerline{\includegraphics[height=9cm]{geom.png}}
 
 \begin{note}
-    nous avons un bug qui peut survenir sur l'ordre des domaines. Il est alors préférable de noter les domaines de la manière
-    suivante (noter en premier la référence aux surfaces externes et en deuxième position la surface interne)~:
+    	The domains are to be described in the following way (first the external surface and then the internal surface)~:
 
     \begin{tabular}{ll}
         Domain Brain -1              & \\
-        Domain Skull \textbf{1 -2}	 &	\emph{au lieu de Domain Skull -2 1} \\
-        Domain Skin \textbf{2 -3}	 &	\emph{au lieu de Domain Skin -3 2}  \\
+        Domain Skull \textbf{1 -2}	 &	\emph{and not Domain Skull -2 1} \\
+        Domain Skin \textbf{2 -3}	 &	\emph{and not Domain Skin -3 2}  \\
         Domain Air 3                 &  \\
     \end{tabular}
 \end{note}
@@ -24,94 +26,128 @@ Extension du fichier~: *.geom par convention.
 \medskip
 
 \begin{note}
-    les "Meshes paths" sont 
+    "Meshes paths" can be  
     \begin{itemize}
-        \item soit absolus (comme le montre le dessin)
-        \item soit relatifs à l'endroit où on exécute les lignes de commandes 
+        \item global (as on drawing)
+        \item relative to where the command line is executed
     \end{itemize}
-    Seuls les formats suivants sont lus pour les surfaces maillées~:
+    For the meshes, the following formats are allowed~:
     \begin{itemize}
-        \item *.tri~: format TRI issu des premières versions de BrainVisa. Aussi lu par Anatomist.
-        \item *.mesh~: format MESH issu des versions 3.0.2 et plus de BrainVisa. Aussi lu par Anatomist.
-        \item *.vtk~: format de maillage VTK.
+        \item *.tri~: TRI format corresponding to early BrainVisa. Also handled by Anatomist.
+        \item *.mesh~: MESH format corresponding to BrainVisa versions 3.0.2 and later. Also handled by Anatomist.
+        \item *.vtk~: VTK mesh format.
     \end{itemize}
 \end{note}
 
-
-\section{Fichier de description des conductivités}
-\label{sect: annexe 2}
+%###################################################
+\section{Conductivity description file}
+\label{sec:cond}
 
 \noindent
-Ce fichier décrit les valeurs des conductivités associées aux différents domaines déclarés dans le fichier de description de la
-géométrie.\\ 
-Extension du fichier~: *.cond par convention.\\
-\warning{Attention~:  bien respecter la casse entre les noms de domaines donnés dans le fichier de description de la géométrie et ceux
-notés dans le fichier de description des conductivités !}
+The conductivity description file defines the conductivity values corresponding to each domain listed in the Geometry Description File (section~\ref{sec:geom}).
+\\ 
+The file extension should be: *.cond .\\
+\warning{  the domain names should match the ones defined in the Geometry Description File (beware of differences in upper/lower case).}
+
 
 \centerline{\includegraphics[height=9cm]{cond.png}}
 
-\begin{note}
-    ce sont des conductivités relatives~: l'air n'est pas conducteur, donc a une conductivité nulle, le cerveau est considéré
-    comme étant entièrement conducteur tout comme la peau et le crâne a une conductivité égale à 1/80 de celle du cerveau.
-\end{note}
+%###################################################
 
-\section{Position et orientation des dipôles}
-\label{sect: annexe 3}
-
+\section{Source description}
+Sources are defined by their geometry (position and orientation)  and their magnitude.
+OpenMEEG handles two types of source models: isolated dipoles, or distributed dipoles: these two models differ in their geometry description.
+%-----------------------------------
+\subsection{Source position and orientation}
+\label{sec:dipoles}
+%---
+\subsubsection{Isolated dipoles}
 \noindent
-Fichier texte. A une ligne donnée correspond un dipôle~: 
+Isolated dipoles are represented by a text file (extension *.dip or *.txt), in which each line defines a dipole position and orientation, encoded in 6 real values:
+
 \begin{itemize}
-    \item les trois premiers nombres (séparés par un espace) sont les coordonnées cartésiennes de la position du dipôle,
-    \item les trois derniers nombres (séparés par un espace) sont les coordonnées cartésiennes du vecteur normale donnant
-           l'orientation du dipôle.
-\end{itemize}
-Extension de fichier~: *.dip ou *.txt.
-
-\medskip
-
-\noindent
-Dans l'exemple ci dessous, sont décrits 5 dipôles~:
-
-\centerline{\includegraphics[height=9cm]{dipolePositions.png}}
-
-\begin{note}
-    les coordonnées sont prises dans le même repère que celui des maillages (repère de l'IRM en général)
-\end{note}
-
-\section{Position (et orientation) des capteurs}
-\label{sect: annexe 4}
-
-\noindent
-Dans le cas de l'EEG, il s'agit d'un fichier de description de la position des capteurs en coordonnées cartésiennes et dans le
-même repère que celui des maillages (en général, le repère de l'IRM). A une ligne correspond les coordonnées d'un capteur
-séparées par un espace. 
-
-\medskip
-
-\noindent
-Dans le cas de la MEG, il s'agit d'un fichier de description de la position et de l'orientation des capteurs en coordonnées
-cartésiennes et dans le même repère que celui des maillages (en général, le repère de l'IRM). A une ligne correspond les
-coordonnées d'un capteur (séparées par un espace) suivies des coordonnées du vecteur orientation normé (séparés par un espace).
-
-\section{Activation des sources}
-\label{sect: annexe 5}
-
-\noindent
-Les fichiers d'activation des sources sont des fichiers texte. A une ligne correspond une source~: 
-\begin{itemize}
-    \item dans le cas dipolaire, sont écrits sur la ième ligne les états d'activation du ième dipôle,
-    \item dans le cas des sources distribuées, sont écrits sur la ième ligne les états d'activation du ième point du maillage
-          des sources.
+    \item three values encoding the Cartesian coordinate for the position,
+    \item three values encoding the orientation of the dipole (supposed unitary).
 \end{itemize}
 
 \medskip
 
 \noindent
-On trouve en colonne les temps auxquels sont associés les activations.
+The following example shows a file describing 5 isolated dipoles:
+
+\centerline{\includegraphics[height=9cm]{dipolePositions_en.png}}
+
+\begin{note}
+	The referential of the coordinates should be the same as for the meshes (the MR coordinates in general).
+\end{note}
+%---
+\subsubsection{Distributed dipoles}
+Distributed dipoles are supported on a mesh, whose format must be *.mesh, or *.tri, or *.vtk.
+%-----------------------------------
+\subsection{Source activation}
+\label{sec:activ}
+
+\noindent
+
+Source activation files are text files, in which each line corresponds to a source, and each column to a time sample.
+\begin{itemize}
+    \item for isolated dipoles, the nth line corresponds to the amplitude of the nth dipole (with its fixed orientation) 
+    \item for distributed dipoles, the nth line correspond to the amplitude of the nth vertex in the source mesh.
+\end{itemize}
 
 \medskip
 
 \noindent
-Exemple dans le cas dipolaire~:
+Example for isolated dipoles:
 
 \centerline{\includegraphics[height=9cm]{dipActiv.png}}
+
+%###################################################
+
+\section{Sensor definition}
+\label{sec:sensors}
+
+\noindent
+The sensor definition is provided in a text file, in which each line provides the position of the sensor, and additional information such as its orientation or its name.
+More precisely, there are 5 options for defining sensors:
+\begin{enumerate}
+\item  1 line per sensor and 3 columns (typically for EEG sensors or MEG sensors without orientation) :
+	\begin{itemize}
+		\item  the 1st, 2nd and 3rd columns are respectively position coordinates x, y, z of sensor
+	\end{itemize}
+\item  1 line per sensor and 4 columns (typically for EEG sensors or MEG sensors without orientation) :
+	\begin{itemize}
+		\item   the 1st column is sensors names 
+		\item the 2nd, 3rd and 4th are respectively position coordinates x, y, z of sensor
+	\end{itemize}
+\item 1 line per sensor and 6 columns (typically for MEG sensors) :
+	\begin{itemize}
+		\item  the 1st, 2nd and 3rd are respectively position coordinates x, y, z of sensor
+		\item  the 4th, 5th and 6th are coordinates of vector orientation
+	\end{itemize}
+\item  1 line per sensor and 7 columns (typically for MEG sensors) :
+	\begin{itemize}
+		\item the 1st column is sensors names
+		\item the 2nd, 3rd and 4th are respectively position coordinates x, y, z of sensor
+		\item the 5th, 6th and 7th are coordinates of vector orientation
+	\end{itemize}
+\item 1 line per integration point for each sensor and 8 columns (typically for MEG realistic sensors with coils, or gradiometers) :
+	\begin{itemize}
+		\item  the 1st column is sensors names
+		\item the 2nd, 3rd and 4th are respectively position coordinates x, y, z of sensor
+		\item the 5th, 6th and 7th are coordinates of vector orientation
+		\item  the 8th is the weight to apply for numerical integration (related to sensor name)
+	\end{itemize}
+
+\end{enumerate}
+
+An example of MEG sensor description:
+
+
+
+
+\centerline{\includegraphics[height=9cm]{sensors-grad.png}}
+
+
+
+%###################################################
