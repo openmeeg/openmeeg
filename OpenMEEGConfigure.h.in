@@ -1,7 +1,8 @@
-/* 
- * Here is where system computed values get stored these values should only
- * change when the target compile platform changes 
- */
+#ifndef OPENMEEGCONFIGURE_H
+#define OPENMEEGCONFIGURE_H
+
+// Here is where system computed values get stored these values should only
+// change when the target compile platform changes 
  
 #cmakedefine USE_VTK
 
@@ -19,3 +20,6 @@
    first (like Motorola and SPARC, unlike Intel and VAX). */
 #cmakedefine WORDS_BIGENDIAN
 
+static const char version[] = "@VERSION_STRING@";
+
+#endif  //  ! OPENMEEGCONFIGURE_H

@@ -28,6 +28,10 @@ PROJECT(OpenMEEG)
 
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6 FATAL_ERROR)
 
+INCLUDE(macros/Revision.cmake)
+GENERATE_VERSION_INFO()
+MESSAGE(${VERSION_STRING})
+
 #######################################################################
 # Setting compilation options
 #######################################################################
