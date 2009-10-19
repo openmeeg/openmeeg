@@ -1,4 +1,4 @@
-MACRO(OPENMEEG_EXECUTABLE EXECUTABLE)
+MACRO(NEW_EXECUTABLE EXECUTABLE)
     SET (lib_found 0)
     SET (sources)
     SET (libraries)
