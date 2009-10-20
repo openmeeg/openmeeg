@@ -59,6 +59,7 @@ void getHelp(char** argv);
 
 int main(int argc, char **argv)
 {
+    om_print_version(argv);
 
     if(argc<2)
     {

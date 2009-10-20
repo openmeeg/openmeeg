@@ -53,7 +53,10 @@ knowledge of the CeCILL-B license and that you accept its terms.
 using namespace std;
 using namespace OpenMEEG;
 
-int main( int argc, char **argv) {
+int main( int argc, char **argv)
+{
+    om_print_version(argv);
+
     command_usage("Convert symmetric matrices between different formats");
     const char *input_filename = command_option("-i",(const char *) NULL,"Input full Matrix");
     const char *output_filename = command_option("-o",(const char *) NULL,"Output full Matrix");

@@ -53,6 +53,8 @@ using namespace OpenMEEG;
 
 int main( int argc, char **argv)
 {
+    om_print_version(argv);
+
     command_usage("Check mesh intersections in geometry file");
     const char *geom_filename = command_option("-g",(const char *) NULL,"Input .geom file");
     const char *mesh_filename = command_option("-m",(const char *) NULL,"Mesh file (ex: to test .geom with cortex mesh)");

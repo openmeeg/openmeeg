@@ -58,6 +58,8 @@ template<class T> void print_infos(const T& M);
 
 int main( int argc, char **argv)
 {
+    om_print_version(argv);
+
     command_usage("Provides informations on a Matrix generated with OpenMEEG");
     const char *filename = command_option("-i",(const char *) NULL,"Matrix file");
     const char *txt = command_option("-txt",(const char *) 0,"Force reading data stored in ascii format");

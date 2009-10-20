@@ -53,6 +53,8 @@ double determinant3x3(const Matrix& m);
 
 int main( int argc, char **argv)
 {
+    om_print_version(argv);
+
     command_usage("Convert mesh between different formats");
     const char *input_filename = command_option("-i",(const char *) NULL,"Input Mesh");
     const char *output_filename = command_option("-o",(const char *) NULL,"Output Mesh");

@@ -58,6 +58,8 @@ void getHelp(char** argv);
 
 int main(int argc, char **argv)
 {
+    om_print_version(argv);
+
     if(argc==1)
     {
         cerr << "Not enough arguments \nPlease try \"" << argv[0] << " -h\" or \"" << argv[0] << " --help \" \n" << endl;

@@ -55,6 +55,8 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <algorithm>
 #include <cctype>
 
+#include "OpenMEEGConfigure.h"
+
 namespace OpenMEEG {
 
     #ifndef M_PI
@@ -153,6 +155,10 @@ namespace OpenMEEG {
         std::cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
         std::cout << message << std::endl;
     }
+}
+
+inline void om_print_version(char** argv) {
+    std::cout << argv[0] <<" version " << version << " compiled at " << __DATE__ << " " << __TIME__ << std::endl << std::endl;
 }
 
 #endif /* OPENMEEG_UTILS_H */

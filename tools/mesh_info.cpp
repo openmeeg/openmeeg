@@ -51,6 +51,8 @@ using namespace OpenMEEG;
 
 int main( int argc, char **argv)
 {
+    om_print_version(argv);
+
     command_usage("Get info about a Mesh");
     const char *input_filename = command_option("-i",(const char *) NULL,"Input Mesh");
     if (command_option("-h",(const char *)0,0)) return 0;

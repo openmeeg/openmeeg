@@ -54,6 +54,8 @@ void getHelp(char** argv);
 
 int main(int argc, char **argv)
 {
+    om_print_version(argv);
+
     // Makefile for global usage
     if(argc==1)
     {
