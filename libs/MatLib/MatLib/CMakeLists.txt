@@ -2,16 +2,16 @@
 # = Maths Lib =
 # =============
 
-SET(OpenMEEGMaths_SRC vector.cpp matrix.cpp symmatrix.cpp sparse_matrix.cpp fast_sparse_matrix.cpp MathsIO.C MatlabIO.C AsciiIO.C BrainVisaTextureIO.C TrivialBinIO.C)
+ADD_LIBRARY(OpenMEEGMaths SHARED
+    vector.cpp matrix.cpp symmatrix.cpp sparse_matrix.cpp fast_sparse_matrix.cpp MathsIO.C MatlabIO.C AsciiIO.C BrainVisaTextureIO.C TrivialBinIO.C)
 
-ADD_LIBRARY(OpenMEEGMaths SHARED ${OpenMEEGMaths_SRC})
-IF ( USE_MATIO )
+IF (USE_MATIO)
     TARGET_LINK_LIBRARIES(OpenMEEGMaths ${MATIO_LIBRARIES})
-ENDIF ( USE_MATIO )
+ENDIF()
 
-IF ( WIN32 )
+IF (WIN32)
     TARGET_LINK_LIBRARIES(OpenMEEGMaths ${LAPACK_LIBRARIES})
-ENDIF ( WIN32 )
+ENDIF()
 
 #SET_TARGET_PROPERTIES(OpenMEEGMaths PROPERTIES
 #                      VERSION 0.1.0

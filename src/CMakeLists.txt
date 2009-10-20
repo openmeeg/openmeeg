@@ -1,29 +1,9 @@
 SET(OPENMEEG_HEADERS
-    analytics.h
-    assemble.h
-    cpuChrono.h
-    mesh3.h
-    danielsson.h
-    om_utils.h
-    operators.h
-    sensors.h
-    MeshReader.h
-    geometry.h
-    triangle.h
-    integrator.h
-    vect3.h
-    mesh3.h
-    PropertiesSpecialized.h
-    inversers.h
+    analytics.h assemble.h cpuChrono.h mesh3.h danielsson.h om_utils.h operators.h sensors.h MeshReader.h geometry.h triangle.h integrator.h vect3.h
+    mesh3.h PropertiesSpecialized.h inversers.h
 #   These files are imported from another repository.
 #   Please do not update them in this repository.
-    DataTag.H
-    FileExceptions.H
-    IOUtils.H
-    MeshDescription/Reader.H
-    MeshDescription/Normals.H
-    MeshDescription/Domains.H
-    MeshDescription/Exceptions.H
+    DataTag.H FileExceptions.H IOUtils.H MeshDescription/Reader.H MeshDescription/Normals.H MeshDescription/Domains.H MeshDescription/Exceptions.H
     Properties.H
 )
 
@@ -33,26 +13,17 @@ ADD_LIBRARY(OpenMEEG ${LIB_TYPE}
 )
 TARGET_LINK_LIBRARIES (OpenMEEG OpenMEEGMaths "${OPENMEEG_OTHER_LIBRARIES}" ${LAPACK_LIBRARIES})
 
-ADD_EXECUTABLE(om_presmooth presmooth.cpp ${OPENMEEG_HEADERS})
-TARGET_LINK_LIBRARIES (om_presmooth OpenMEEG "${OPENMEEG_OTHER_LIBRARIES}")
+MACRO(OPENMEEG_EXECUTABLE EXECUTABLE)
+    NEW_EXECUTABLE(${EXECUTABLE} ${ARGN} LIBRARIES OpenMEEG "${OPENMEEG_OTHER_LIBRARIES}")
+ENDMACRO()
 
-ADD_EXECUTABLE(om_minverser minverser.cpp ${OPENMEEG_HEADERS})
-TARGET_LINK_LIBRARIES (om_minverser OpenMEEG "${OPENMEEG_OTHER_LIBRARIES}")
-
-ADD_EXECUTABLE(om_inverse inverse.cpp ${OPENMEEG_HEADERS})
-TARGET_LINK_LIBRARIES (om_inverse OpenMEEG "${OPENMEEG_OTHER_LIBRARIES}")
-
-ADD_EXECUTABLE(om_gain gain.cpp ${OPENMEEG_HEADERS})
-TARGET_LINK_LIBRARIES (om_gain OpenMEEG "${OPENMEEG_OTHER_LIBRARIES}")
-
-ADD_EXECUTABLE(om_forward forward.cpp ${OPENMEEG_HEADERS})
-TARGET_LINK_LIBRARIES (om_forward OpenMEEG "${OPENMEEG_OTHER_LIBRARIES}")
-
-ADD_EXECUTABLE(om_assemble assemble.cpp)
-TARGET_LINK_LIBRARIES (om_assemble OpenMEEG "${OPENMEEG_OTHER_LIBRARIES}")
-
-ADD_EXECUTABLE(om_internalPotential internalPotential.cpp ${OPEMEEG_HEADERS})
-TARGET_LINK_LIBRARIES (om_internalPotential OpenMEEG "${OPENMEEG_OTHER_LIBRARIES}")
+OPENMEEG_EXECUTABLE(om_presmooth presmooth.cpp ${OPENMEEG_HEADERS})
+OPENMEEG_EXECUTABLE(om_minverser minverser.cpp ${OPENMEEG_HEADERS})
+OPENMEEG_EXECUTABLE(om_inverse inverse.cpp ${OPENMEEG_HEADERS})
+OPENMEEG_EXECUTABLE(om_gain gain.cpp ${OPENMEEG_HEADERS})
+OPENMEEG_EXECUTABLE(om_forward forward.cpp ${OPENMEEG_HEADERS})
+OPENMEEG_EXECUTABLE(om_assemble assemble.cpp)
+OPENMEEG_EXECUTABLE(om_internalPotential internalPotential.cpp ${OPEMEEG_HEADERS})
 
 # ================
 # = INSTALLATION =

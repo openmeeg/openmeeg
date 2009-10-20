@@ -28,9 +28,11 @@ PROJECT(OpenMEEG)
 
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6 FATAL_ERROR)
 
+INCLUDE(macros/NewExecutable.cmake)
+INCLUDE(macros/UnitTest.cmake)
 INCLUDE(macros/Revision.cmake)
+
 GENERATE_VERSION_INFO()
-MESSAGE(${VERSION_STRING})
 
 #######################################################################
 # Setting compilation options
@@ -52,7 +54,6 @@ IF (NOT WIN32)
     IF(BUILD_SHARED_STATUS_NOT_EMPTY)
         STRING(COMPARE NOTEQUAL "${BUILD_SHARED_STATUS}" "${BUILD_SHARED}" RESET)
         IF(${RESET})
-            # MESSAGE("Reset")
             IF(UNIX AND NOT APPLE AND USE_ATLAS)
                 SET(LAPACK_ATLAS_LIB NOTFOUND CACHE STRING "Atlas Lib" FORCE)
                 SET(LAPACK_LIB NOTFOUND CACHE STRING "Atlas Lib" FORCE)
@@ -346,59 +347,13 @@ INCLUDE_DIRECTORIES(
 
 SUBDIRS(libs src)
 
-IF ( UNIX )
-    ADD_CUSTOM_TARGET(copy_head1
-        COMMAND mkdir -p ${CMAKE_BINARY_DIR}/data/Models/Head1
-        COMMAND mkdir -p ${CMAKE_BINARY_DIR}/data/IntermediateFiles/Head1
-        COMMAND mkdir -p ${CMAKE_BINARY_DIR}/data/Computations/Head1
-        COMMAND cp -rf ${CMAKE_SOURCE_DIR}/data/Models/Head1 ${CMAKE_BINARY_DIR}/data/Models
-        COMMAND cp -rf ${CMAKE_SOURCE_DIR}/data/IntermediateFiles/Head1 ${CMAKE_BINARY_DIR}/data/IntermediateFiles
-        COMMAND cp -rf ${CMAKE_SOURCE_DIR}/data/Computations/Head1 ${CMAKE_BINARY_DIR}/data/Computations
-    )
-    ADD_CUSTOM_TARGET(copy_head2
-        COMMAND mkdir -p ${CMAKE_BINARY_DIR}/data/Models/Head2
-        COMMAND mkdir -p ${CMAKE_BINARY_DIR}/data/IntermediateFiles/Head2
-        COMMAND mkdir -p ${CMAKE_BINARY_DIR}/data/Computations/Head2
-        COMMAND cp -rf ${CMAKE_SOURCE_DIR}/data/Models/Head2 ${CMAKE_BINARY_DIR}/data/Models
-        COMMAND cp -rf ${CMAKE_SOURCE_DIR}/data/IntermediateFiles/Head2 ${CMAKE_BINARY_DIR}/data/IntermediateFiles
-        COMMAND cp -rf ${CMAKE_SOURCE_DIR}/data/Computations/Head2 ${CMAKE_BINARY_DIR}/data/Computations
-    )
-    ADD_CUSTOM_TARGET(copy_head3
-        COMMAND mkdir -p ${CMAKE_BINARY_DIR}/data/Models/Head3
-        COMMAND mkdir -p ${CMAKE_BINARY_DIR}/data/IntermediateFiles/Head3
-        COMMAND mkdir -p ${CMAKE_BINARY_DIR}/data/Computations/Head3
-        COMMAND cp -rf ${CMAKE_SOURCE_DIR}/data/Models/Head3 ${CMAKE_BINARY_DIR}/data/Models
-        COMMAND cp -rf ${CMAKE_SOURCE_DIR}/data/IntermediateFiles/Head3 ${CMAKE_BINARY_DIR}/data/IntermediateFiles
-        COMMAND cp -rf ${CMAKE_SOURCE_DIR}/data/Computations/Head3 ${CMAKE_BINARY_DIR}/data/Computations
-    )
-    ADD_CUSTOM_TARGET(copy_nerve1
-        COMMAND mkdir -p ${CMAKE_BINARY_DIR}/data/Models/nerve1
-        COMMAND mkdir -p ${CMAKE_BINARY_DIR}/data/IntermediateFiles/nerve1
-        COMMAND mkdir -p ${CMAKE_BINARY_DIR}/data/Computations/nerve1
-        COMMAND cp -rf ${CMAKE_SOURCE_DIR}/data/Models/nerve1 ${CMAKE_BINARY_DIR}/data/Models
-        COMMAND cp -rf ${CMAKE_SOURCE_DIR}/data/Computations/nerve1 ${CMAKE_BINARY_DIR}/data/Computations
-    )
-    ADD_CUSTOM_TARGET(demo_head1
-        COMMAND make forinv
-        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/data/Computations/Head1
-    )
-    ADD_CUSTOM_TARGET(demo_head2
-        COMMAND make forward
-        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/data/Computations/Head2
-    )
-    ADD_CUSTOM_TARGET(demo_head3
-        COMMAND make forward
-        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/data/Computations/Head3
-    )
-    ADD_CUSTOM_TARGET(demo_nerve1
-        COMMAND make gain
-        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/data/Computations/nerve1
-    )
-    ADD_DEPENDENCIES(demo_head1 copy_head1)
-    ADD_DEPENDENCIES(demo_head2 copy_head2)
-    ADD_DEPENDENCIES(demo_head3 copy_head3)
-    ADD_DEPENDENCIES(demo_nerve1 copy_nerve1)
-ENDIF ( UNIX )
+IF(UNIX)
+    INCLUDE(macros/AddDemoTarget.cmake)
+    ADD_DEMO_TARGET(Head1 forinv)
+    ADD_DEMO_TARGET(Head2 forward)
+    ADD_DEMO_TARGET(Head3 forward)
+    ADD_DEMO_TARGET(nerve1 gain)
+ENDIF()
 
 #-----------------------------------------------
 # tools
