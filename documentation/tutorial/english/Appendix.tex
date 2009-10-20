@@ -1,14 +1,14 @@
 \section{Geometry description file}
 \label{sec:geom}
 \noindent
-The geometry description file provides 
+The geometry description file provides
 	\begin{itemize}
 		\item the number of the meshed surfaces separating the different domains,
-		\item  the names of the files corresponding to these surfaces, 
+		\item  the names of the files corresponding to these surfaces,
 		\item the number of domains of homogeneous conductivity,
 		\item the positions of the domains with respect to the surfaces (inside or outside)
 	\end{itemize}
-The geometry description file should have as extension: *.geom 
+The geometry description file should have as extension: *.geom
 
 \centerline{\includegraphics[height=9cm]{geom.png}}
 
@@ -26,7 +26,7 @@ The geometry description file should have as extension: *.geom
 \medskip
 
 \begin{note}
-    "Meshes paths" can be  
+    ``Meshes paths'' can be
     \begin{itemize}
         \item global (as on drawing)
         \item relative to where the command line is executed
@@ -45,7 +45,7 @@ The geometry description file should have as extension: *.geom
 
 \noindent
 The conductivity description file defines the conductivity values corresponding to each domain listed in the Geometry Description File (section~\ref{sec:geom}).
-\\ 
+\\
 The file extension should be: *.cond .\\
 \warning{  the domain names should match the ones defined in the Geometry Description File (beware of differences in upper/lower case).}
 
@@ -91,7 +91,7 @@ Distributed dipoles are supported on a mesh, whose format must be *.mesh, or *.t
 
 Source activation files are text files, in which each line corresponds to a source, and each column to a time sample.
 \begin{itemize}
-    \item for isolated dipoles, the nth line corresponds to the amplitude of the nth dipole (with its fixed orientation) 
+    \item for isolated dipoles, the nth line corresponds to the amplitude of the nth dipole (with its fixed orientation)
     \item for distributed dipoles, the nth line correspond to the amplitude of the nth vertex in the source mesh.
 \end{itemize}
 
@@ -117,7 +117,7 @@ More precisely, there are 5 options for defining sensors:
 	\end{itemize}
 \item  1 line per sensor and 4 columns (typically for EEG sensors or MEG sensors without orientation) :
 	\begin{itemize}
-		\item   the 1st column is sensors names 
+		\item   the 1st column is sensors names
 		\item the 2nd, 3rd and 4th are respectively position coordinates x, y, z of sensor
 	\end{itemize}
 \item 1 line per sensor and 6 columns (typically for MEG sensors) :

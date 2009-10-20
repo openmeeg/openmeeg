@@ -3,8 +3,8 @@
 
 \noindent
 Ce fichier décrit la géométrie de tête utilisée dans la méthode d'éléments finis surfaciques~: le nombre et le nom des surfaces maillées (interfaces) séparant les différents domaines de
-conductivité homogènes ainsi que le nombre et le nom de chacun de ces domaines et leur disposition par rapport aux interfaces.\\ 
-Extension du fichier~: *.geom par convention. 
+conductivité homogènes ainsi que le nombre et le nom de chacun de ces domaines et leur disposition par rapport aux interfaces.\\
+Extension du fichier~: *.geom par convention.
 
 \centerline{\includegraphics[height=9cm]{geom.png}}
 
@@ -23,10 +23,10 @@ Extension du fichier~: *.geom par convention.
 \medskip
 
 \begin{note}
-    Les "Meshes paths" sont 
+    Les ``Meshes paths'' sont
     \begin{itemize}
         \item soit absolus (comme le montre le dessin)
-        \item soit relatifs à l'endroit où on exécute les lignes de commandes 
+        \item soit relatifs à l'endroit où on exécute les lignes de commandes
     \end{itemize}
     Seuls les formats suivants sont lus pour les surfaces maillées~:
     \begin{itemize}
@@ -42,7 +42,7 @@ Extension du fichier~: *.geom par convention.
 
 \noindent
 Ce fichier décrit les valeurs des conductivités associées aux différents domaines déclarés dans le fichier de description de la
-géométrie (section~\ref{sec:geom}).\\ 
+géométrie (section~\ref{sec:geom}).\\
 Extension du fichier~: *.cond par convention.\\
 \warning{bien respecter la casse entre les noms de domaines donnés dans le fichier de description de la géométrie et ceux
 notés dans le fichier de description des conductivités !}
@@ -55,16 +55,16 @@ notés dans le fichier de description des conductivités !}
 
 \section{Descriptions des sources d'activité cérébrale}
 Les sources sont définies par leur géométrie (position et orientation) et leur amplitude.
-OpenMEEG peut traiter deux types de modèles de source: des dipoles isolés, ou bien des dipôles distribués.
+OpenMEEG peut traiter deux types de modèles de source: des dipôles isolés, ou bien des dipôles distribués.
 Ces deux modèles sont décrits ci-dessous.
 
 %-----------------------------------
 \subsection{Position et orientation des sources}
 \label{sec:dipoles}
 %----
-\subsubsection{Dipoles isolés}
+\subsubsection{Dipôles isolés}
 \noindent
-Les dipoles isolés sont représentés par un fichier texte, dans lequel à chaque ligne correspond un dipôle~: 
+Les dipôles isolés sont représentés par un fichier texte, dans lequel à chaque ligne correspond un dipôle~:
 \begin{itemize}
     \item les trois premiers nombres (séparés par un espace) sont les coordonnées cartésiennes de la position du dipôle,
     \item les trois derniers nombres (séparés par un espace) sont les coordonnées cartésiennes du vecteur normale donnant
@@ -84,14 +84,14 @@ Exemple d'un fichier décrivant 5 dipôles~:
 \end{note}
 
 %----
-\subsubsection{Distributed dipoles}
-Les dipoles distribués sont supportés sur une surface, de format *.tri, *.mesh ou *.vtk. 
+\subsubsection{Dipôles distribués}
+Les dipôles distribués sont supportés sur une surface, de format *.tri, *.mesh ou *.vtk.
 %-----------------------------------
 \subsection{Activation des sources}
 \label{sec:activ}
 
 \noindent
-Les fichiers d'activation des sources sont des fichiers texte. A une ligne correspond une source~: 
+Les fichiers d'activation des sources sont des fichiers texte. A une ligne correspond une source~:
 \begin{itemize}
     \item dans le cas dipolaire, sont écrits sur la ième ligne les états d'activation du ième dipôle,
     \item dans le cas des sources distribuées, sont écrits sur la ième ligne les états d'activation du ième point du maillage
@@ -131,13 +131,13 @@ et éventuellement d'autres informations telles que son label ou son orientation
 \item 1 ligne par capteur et 6 colonnes (typiquement pour des capteurs MEG) :
 	\begin{itemize}
 		\item  les colonnes 1, 2  et 3  représentent les coordonnées cartésiennes du capteur
-		\item  les colonnes 4, 5, et 6 représentent l'orientation du capteur 
+		\item  les colonnes 4, 5, et 6 représentent l'orientation du capteur
 	\end{itemize}
 \item  1 ligne par capteur et 7 colonnes (typiquement pour des capteurs MEG) :
 	\begin{itemize}
 		\item la première colonne contient le nom du capteur (label)
 		\item les colonnes 2, 3  et 4  représentent les coordonnées cartésiennes du capteur
-		\item les colonnes 5, 6, et 7 représentent l'orientation du capteur 
+		\item les colonnes 5, 6, et 7 représentent l'orientation du capteur
 	\end{itemize}
 \item 1 ligne par point d'intégration pour chaque capteur, et 8 colonnes (typiquement pour des gradiomètres MEG ou des capteurs réalistes avec bobines) :
 	\begin{itemize}
@@ -152,6 +152,5 @@ et éventuellement d'autres informations telles que son label ou son orientation
 Exemple de description de capteurs MEG:
 
 
-
-
+% \centerline{\includegraphics[height=9cm]{dipActiv.png}}
 \centerline{\includegraphics[height=9cm]{sensors-grad.png}}

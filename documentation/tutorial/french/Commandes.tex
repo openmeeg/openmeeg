@@ -35,7 +35,7 @@ Entrées~:
     \item \fileName{subject.cond}~: fichier de description des conductivités (voir Annexe~\ref{sec:cond})
     \item la/les source(s)~:
         \begin{description}
-            \item [[cas dipolaire]] \fileName{dipolePosition.dip}~: fichier de localisation du/des dipole(s) (coordonnées et orientation)
+            \item [[cas dipolaire]] \fileName{dipolePosition.dip}~: fichier de localisation du/des dipôle(s) (coordonnées et orientation)
                                     (voir Annexe~\ref{sec:dipoles}) 
             \item [[cas des sources distribuées]]  \fileName{sourcemesh}~: maillage de sources (format *.tri de BrainVisa, ou *.mesh de BrainVisa, ou *.vtk de VTK) 
         \end{description}
@@ -89,13 +89,13 @@ Sortie~:
 \label{sect: command assemble sensors}
 
 \checkItem \underline{Cas de l'EEG}~:\\
-"La méthode BEM symétrique fournit le potentiel électrique aux sommets des maillages de toutes les interfaces. Pour simuler le
+``La méthode BEM symétrique fournit le potentiel électrique aux sommets des maillages de toutes les interfaces. Pour simuler le
 potentiel à une électrode donnée, on projette sa position sur la dernière interface (censée modéliser le scalp) et on interpole
 ensuite la valeur en ce point grâce aux fonctions P1.  [...] on considère [...] un modèle de tête ainsi que des positions de
 capteurs EEG et MEG fixes par rapport à ce modèle. Le passage des valeurs du potentiel électrique de l'interface la plus externe
-aux électrodes est donc une opération linéaire (par rapport aux valeurs du potentiel sur la dernière couche)."
-\emph{\underline{\textcolor{blue}{Extrait de la thèse de Geoffray Adde "Méthodes de traitement d'image appliquées au}}}\\
-\emph{\underline{\textcolor{blue}{problème inverse en magnéto-électro-encéphalographie"}}  p.62-63.}
+aux électrodes est donc une opération linéaire (par rapport aux valeurs du potentiel sur la dernière couche).''
+\emph{\underline{\textcolor{blue}{Extrait de la thèse de Geoffray Adde ``Méthodes de traitement d'image appliquées au}}}\\
+\emph{\underline{\textcolor{blue}{problème inverse en magnéto-électro-encéphalographi''}}  p.62-63.}
 
 \medskip
 
@@ -115,7 +115,7 @@ Entrées~:
 \begin{itemize}
     \item \fileName{subject.geom}~: fichier de description de la géométrie (voir Annexe~\ref{sec:geom})
     \item \fileName{subject.cond}~: fichier de description des conductivités (voir Annexe~\ref{sec:cond})
-    \item \fileName{patchespositions.txt}~: fichier des positions capteurs eeg (voir Annexe~\ref{sec:sensors})
+    \item \fileName{patchespositions.txt}~: fichier des positions capteurs EEG (voir Annexe~\ref{sec:sensors})
 \end{itemize}
 Sortie~:
 \begin{itemize}
@@ -169,7 +169,7 @@ Entrées~:
 \begin{itemize}
     \item la/les source(s)~:
     \begin{description}
-        \item [[cas dipolaire]] \fileName{dipolePosition.dip}~: fichier de localisation du/des dipole(s) (coordonnées et orientation) (voir Annexe~\ref{sec:dipoles}) 
+        \item [[cas dipolaire]] \fileName{dipolePosition.dip}~: fichier de localisation du/des dipôle(s) (coordonnées et orientation) (voir Annexe~\ref{sec:dipoles}) 
         \item [[cas des sources distribuées]] \fileName{sourcemesh}~: maillage de sources (format *.tri, ou *.mesh, ou *.vtk)
     \end{description}
     \item \fileName{sensorpositions.txt}~: fichier des positions et orientation de capteurs meg (voir Annexe~\ref{sec:sensors})
