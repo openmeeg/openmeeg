@@ -7,11 +7,12 @@ SET(OPENMEEG_HEADERS
     Properties.H
 )
 
+MESSAGE("${OPENMEEG_OTHER_LIBRARIES} ${LAPACK_LIBRARIES}")
 ADD_LIBRARY(OpenMEEG ${LIB_TYPE}
     assembleFerguson.cpp assembleHeadMat.cpp assembleSourceMat.cpp assembleSensors.cpp
     danielsson.cpp geometry.cpp mesh3.cpp operators.cpp sensors.cpp inversers.cpp cpuChrono.cpp ${OPENMEEG_HEADERS}
 )
-TARGET_LINK_LIBRARIES (OpenMEEG OpenMEEGMaths "${OPENMEEG_OTHER_LIBRARIES}" ${LAPACK_LIBRARIES})
+TARGET_LINK_LIBRARIES(OpenMEEG OpenMEEGMaths "${OPENMEEG_OTHER_LIBRARIES}" ${LAPACK_LIBRARIES})
 
 MACRO(OPENMEEG_EXECUTABLE EXECUTABLE)
     NEW_EXECUTABLE(${EXECUTABLE} ${ARGN} LIBRARIES OpenMEEG "${OPENMEEG_OTHER_LIBRARIES}")

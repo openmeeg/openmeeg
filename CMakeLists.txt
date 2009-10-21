@@ -23,83 +23,18 @@ SET(CPACK_PACKAGE_VERSION_MAJOR ${PACKAGE_VERSION_MAJOR})
 SET(CPACK_PACKAGE_VERSION_MINOR ${PACKAGE_VERSION_MINOR})
 SET(CPACK_PACKAGE_VERSION_PATCH ${PACKAGE_VERSION_PATCH})
 
-#PROJECT(OpenMEEG C CXX Fortran)
 PROJECT(OpenMEEG)
 
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6 FATAL_ERROR)
 
 INCLUDE(macros/NewExecutable.cmake)
+INCLUDE(macros/FindLibrary.cmake)
 INCLUDE(macros/UnitTest.cmake)
 INCLUDE(macros/Revision.cmake)
 
 GENERATE_VERSION_INFO()
 
-#######################################################################
-# Setting compilation options
-#######################################################################
-
-SET(LIB_TYPE SHARED)
-
-IF (NOT WIN32)
-    OPTION(BUILD_SHARED "Build shared libs" ON)
-    MARK_AS_ADVANCED(BUILD_SHARED)
-
-    IF ( BUILD_SHARED )
-        SET(LIB_TYPE SHARED)
-    ELSE ( BUILD_SHARED )
-        SET(LIB_TYPE STATIC)
-    ENDIF ( BUILD_SHARED )
-
-    STRING(COMPARE NOTEQUAL "${BUILD_SHARED_STATUS}" "" BUILD_SHARED_STATUS_NOT_EMPTY)
-    IF(BUILD_SHARED_STATUS_NOT_EMPTY)
-        STRING(COMPARE NOTEQUAL "${BUILD_SHARED_STATUS}" "${BUILD_SHARED}" RESET)
-        IF(${RESET})
-            IF(UNIX AND NOT APPLE AND USE_ATLAS)
-                SET(LAPACK_ATLAS_LIB NOTFOUND CACHE STRING "Atlas Lib" FORCE)
-                SET(LAPACK_LIB NOTFOUND CACHE STRING "Atlas Lib" FORCE)
-                SET(CBLAS_LIB NOTFOUND CACHE STRING "Atlas Lib" FORCE)
-                SET(ATLAS_LIB NOTFOUND CACHE STRING "Atlas Lib" FORCE)
-                SET(BLAS_LIB NOTFOUND CACHE STRING "Atlas Lib" FORCE)
-                SET(GFORTRAN_LIB NOTFOUND CACHE STRING "Atlas Lib" FORCE)
-            ENDIF()
-        ENDIF()
-    ENDIF()
-
-    # Store in cache previous value of BUILD_SHARED
-    SET(BUILD_SHARED_STATUS "${BUILD_SHARED}" CACHE STRING "Build shared status" FORCE)
-    MARK_AS_ADVANCED(BUILD_SHARED_STATUS)
-ENDIF ()
-
-IF(${CMAKE_C_COMPILER} MATCHES "gcc")
-    SET(USE_GCC YES)
-ENDIF(${CMAKE_C_COMPILER} MATCHES "gcc")
-
-IF(${CMAKE_C_COMPILER} MATCHES "icc")
-    SET(USE_ICC YES)
-ENDIF(${CMAKE_C_COMPILER} MATCHES "icc")
-
-IF ( USE_GCC )
-    SET(GCC_WARNING_OPTIONS "-Wall -W -Wshadow -Wunused-variable -Wunused-parameter -Wunused-function -Wunused -Wno-system-headers -Wno-deprecated -Woverloaded-virtual -Wwrite-strings")
-    SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} ${GCC_WARNING_OPTIONS}")
-    SET(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} ${GCC_WARNING_OPTIONS}")
-    #IF ( APPLE )
-    #    IF ( NOT XCODE ) # Test if not xcode
-    #        IF ( NOT PYTHON_WRAP AND NOT USE_VTK )
-    #            SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m64")
-    #            SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -m64")
-    #        ENDIF ( NOT PYTHON_WRAP AND NOT USE_VTK )
-    #    ENDIF ( NOT XCODE  )
-    #ENDIF ( APPLE )
-ENDIF ( USE_GCC )
-
-# ==============================
-# = Fix DLL search pb on WIN32 =
-# ==============================
-
-IF ( WIN32 )
-    SET(LIBRARY_OUTPUT_PATH "${OpenMEEG_BINARY_DIR}/src")
-    SET(EXECUTABLE_OUTPUT_PATH "${OpenMEEG_BINARY_DIR}/src")
-ENDIF ( WIN32 )
+INCLUDE(macros/CompileOptions.cmake)
 
 # ==============
 # = Endianess =
@@ -112,216 +47,16 @@ TEST_BIG_ENDIAN(WORDS_BIGENDIAN)
 # External Libraries
 #######################################################################
 
-#------------------------------------------------------------
-# VTK library
-#------------------------------------------------------------
-
-OPTION(USE_VTK "Build the project using VTK" OFF)
-MARK_AS_ADVANCED(USE_VTK)
-
-IF (USE_VTK)
-    FIND_PACKAGE(VTK)
-    IF (VTK_FOUND)
-        SET(USE_VTK 1)
-        INCLUDE(${VTK_USE_FILE})
-        SET (VTK_LIBRARIES
-                # vtkRendering
-                vtkGraphics
-                # vtkHybrid
-                # vtkImaging
-                vtkIO
-                # vtkFiltering
-                # vtkGenericFiltering
-                vtkCommon
-                # vtkDICOMParser
-                # vtkzlib
-        )
-        SET(OPENMEEG_OTHER_LIBRARIES
-            ${OPENMEEG_OTHER_LIBRARIES}
-            ${VTK_LIBRARIES}
-        )
-    ELSE(VTK_FOUND)
-        MESSAGE(FATAL_ERROR "Please set VTK_DIR")
-    ENDIF(VTK_FOUND)
-ENDIF (USE_VTK)
-
-#------------------------------------------------------------
-# MATIO library
-#------------------------------------------------------------
-
-OPTION(USE_MATIO "Build the project using MATIO" OFF)
-
-IF (USE_MATIO)
-
-    SET(SEARCHPATH
-        /usr/lib/
-        /usr/lib64/
-        /usr/local/lib/atlas
-        $ENV{HOME}/local/lib
-    )
-
-    FIND_LIBRARY(MATIO_LIB
-                 NAMES matio
-                 PATHS ${SEARCHPATH}
-    )
-
-    FIND_LIBRARY(ZLIB_LIB
-                 NAMES z
-                 PATHS ${SEARCHPATH}
-    )
-
-    SET(MATIO_LIBRARIES ${MATIO_LIB} ${ZLIB_LIB})
-
-    FIND_PATH(MATIO_INCLUDE_PATH matio.h
-              /usr/include/
-              /usr/local/include/
-              $ENV{HOME}/local/include/
-    )
-    INCLUDE_DIRECTORIES(${MATIO_INCLUDE_PATH})
-
-ENDIF (USE_MATIO)
-
-
-#######################################################################
-# OpenMEEG
-#######################################################################
-
-#------------------------------------------------------------
-# Atlas - MKL for blas and lapack
-#------------------------------------------------------------
-
-#IF (WIN32)       # WINDOWS
-#        OPTION(USE_ATLAS "Build the project using ATLAS" OFF)
-#        OPTION(USE_MKL "Build the project with MKL" ON)
-#        MARK_AS_ADVANCED(USE_MKL)
-#        MARK_AS_ADVANCED(USE_ATLAS)
-#ELSE (WIN32)
-#    IF (APPLE)   # MACOSX
-#        OPTION(USE_ATLAS "Build the project using ATLAS" ON)
-#        OPTION(USE_MKL "Build the project with MKL" OFF)
-#    ELSE (APPLE) # LINUX
-#        OPTION(USE_ATLAS "Build the project using ATLAS" ON)
-#        OPTION(USE_MKL "Build the project with MKL" OFF)
-#    ENDIF (APPLE)
-#ENDIF (WIN32)
-#
-#IF ( USE_ATLAS AND USE_MKL )
-#    MESSAGE("Cannot set both USE_ATLAS and USE_MKL to ON")
-#ENDIF ( USE_ATLAS AND USE_MKL )
-#
-#OPTION(USE_STATIC_BLAS_LAPACK "Use static BLAS LAPACK libraries for easy deployment" OFF)
-#MARK_AS_ADVANCED(USE_STATIC_BLAS_LAPACK)
-#IF ( BUILD_SHARED )
-#    SET(BLA_STATIC FALSE)
-#ELSE ( BUILD_SHARED )
-#    SET(BLA_STATIC TRUE)
-#ENDIF ( BUILD_SHARED )
-#
-#IF ( USE_MKL )
-#    SET(BLAS_HEADER mkl.h)
-#ENDIF ( USE_MKL )
-#
-#IF ( USE_ATLAS )
-#    SET(BLAS_HEADER cblas.h)
-#ENDIF ( USE_ATLAS )
-#
-#SET(BLAS_SEARCHPATH)
-#
-## Apple
-#IF ( APPLE )
-#    IF ( USE_MKL)
-#        #SET(ENV{BLA_VENDOR} "Intel(mkl)")
-#        SET(ENV{BLA_VENDOR} "Intel")
-#        SET(BLAS_SEARCHPATH /Library/Frameworks/Intel_MKL.framework/Versions/Current/include/)
-#    ELSE ( USE_MKL )
-#        #SET(ENV{BLA_VENDOR} "Apple")
-#        #SET(ENV{BLA_VENDOR} "Generic")
-#        SET(ENV{BLA_VENDOR})
-#        SET(BLAS_SEARCHPATH /System/Library/Frameworks/vecLib.framework/Versions/A/Headers/)
-#    ENDIF ( USE_MKL )
-#ENDIF ( APPLE )
-#
-## Linux
-#IF ( UNIX AND NOT APPLE )
-#    SET(ENV{LD_LIBRARY_PATH} "$ENV{LD_LIBRARY_PATH}:/usr/lib64/atlas/")
-#    IF ( USE_MKL )
-#        SET(ENV{BLA_VENDOR} "Intel")
-#        SET(BLAS_SEARCHPATH /usr/local/include /usr/include)
-#    ELSE ( USE_MKL )
-#        SET(ENV{BLA_VENDOR} "ATLAS")
-#        SET(BLAS_HEADER atlas/cblas.h)
-#        SET(BLAS_SEARCHPATH /usr/local/include /usr/include)
-#    ENDIF ( USE_MKL )
-#ENDIF ( UNIX AND NOT APPLE )
-#
-## Win32
-#IF ( WIN32 )
-#    IF ( USE_MKL )
-#        SET(ENV{BLA_VENDOR} "Intel")
-#        SET(BLAS_SEARCHPATH
-#            "C:/Program Files/Intel/MKL/9.1.027/include"
-#            "C:/Program Files/Intel/MKL/8.1.1/include"
-#        )
-#    ELSE ( USE_MKL )
-#        MESSAGE("MKL is required on WIN32")
-#    ENDIF ( USE_MKL )
-#ENDIF ( WIN32 )
-#
-#FIND_PACKAGE(BLAS)
-#IF (BLAS_FOUND)
-#    #SET(OPENMEEG_OTHER_LIBRARIES
-#    #    ${OPENMEEG_OTHER_LIBRARIES}
-#    #    ${BLAS_LIBRARIES}
-#    #)
-#ELSE(BLAS_FOUND)
-#    MESSAGE(FATAL_ERROR "Could not find BLAS")
-#ENDIF(BLAS_FOUND)
-#
-#FIND_PACKAGE(LAPACK)
-#IF (LAPACK_FOUND)
-#    FIND_PATH(BLAS_INCLUDE_DIR ${BLAS_HEADER}
-#        ${BLAS_SEARCHPATH}
-#    )
-#    INCLUDE_DIRECTORIES(${BLAS_INCLUDE_DIR})
-#ELSE(LAPACK_FOUND)
-#    MESSAGE(FATAL_ERROR "Could not find LAPACK")
-#ENDIF(LAPACK_FOUND)
-
+INCLUDE(macros/VtkOption.cmake)
+INCLUDE(macros/MatioOption.cmake)
 INCLUDE(macros/UseAtlas.cmake)
-
-#------------------------------------------------------------
-# OpenMP
-#------------------------------------------------------------
-
 INCLUDE(macros/UseOpenMP.cmake)
 
-#------------------------------------------------------------
-# MatLib
-#------------------------------------------------------------
-
-SET(MATLIB_PATH ${OpenMEEG_SOURCE_DIR}/libs/MatLib/MatLib)
-INCLUDE_DIRECTORIES(${MATLIB_PATH})
-SET(MATLIB_HEADERS
-    LinOp.h
-    MatLibConfig.h
-    sparse_matrix.h
-    fast_sparse_matrix.h
-    generic_matrix.h
-    matrix.h
-    matrix.h
-    sparse_matrix.h
-    symmatrix.h
-    symmatrix.h
-    vector.h
-    vector.h)
-FOREACH ( HEADER ${MATLIB_HEADERS} )
-    SET(MATLIB_FILES "${MATLIB_FILES} ${MATLIB_PATH}/${HEADER}")
-ENDFOREACH ( HEADER )
-
-#---------------------------------------------------------------
+#######################################################################
 # Configure files with settings for use by the build.
-#---------------------------------------------------------------
-CONFIGURE_FILE (${OpenMEEG_SOURCE_DIR}/OpenMEEGConfigure.h.in
+#######################################################################
+
+CONFIGURE_FILE(${OpenMEEG_SOURCE_DIR}/OpenMEEGConfigure.h.in
                ${OpenMEEG_BINARY_DIR}/OpenMEEGConfigure.h)
 
 #---------------------------------------------------------------
@@ -329,17 +64,15 @@ CONFIGURE_FILE (${OpenMEEG_SOURCE_DIR}/OpenMEEGConfigure.h.in
 #---------------------------------------------------------------
 
 # Include the file with all source tree directories for OpenMEEG
-#
 
 SET (OPENMEEG_INCLUDE_DIRECTORIES
     ${OpenMEEG_BINARY_DIR}
     ${OpenMEEG_SOURCE_DIR}
     ${OpenMEEG_SOURCE_DIR}/src
+    ${OpenMEEG_SOURCE_DIR}/libs/MatLib/MatLib
 )
 
-INCLUDE_DIRECTORIES(
-    ${OPENMEEG_INCLUDE_DIRECTORIES}
-)
+INCLUDE_DIRECTORIES(${OPENMEEG_INCLUDE_DIRECTORIES})
 
 #---------------------------------------------------------------
 # Setting sources and libraries
@@ -369,29 +102,7 @@ ENDIF (BUILD_TOOLS)
 # tests
 #-----------------------------------------------
 
-OPTION(BUILD_TEST "Build tests" OFF)
-
-IF (BUILD_TEST)
-    INCLUDE(CTest)
-    ENABLE_TESTING()
-    MARK_AS_ADVANCED(BUILD_TESTING)
-    SUBDIRS(tests)
-ENDIF (BUILD_TEST)
-
-IF (USE_GCC AND BUILD_TEST)
-    OPTION(ENABLE_COVERAGE "Enable coverage" OFF)
-    MARK_AS_ADVANCED(ENABLE_COVERAGE)
-ENDIF ( USE_GCC AND BUILD_TEST)
-
-IF (ENABLE_COVERAGE)
-    IF (USE_GCC)
-        SET(CMAKE_EXE_LINKER_FLAGS "-fprofile-arcs -ftest-coverage")
-        SET(CMAKE_CXX_FLAGS "-g -O0 ${GCC_WARNING_OPTIONS} ${CMAKE_EXE_LINKER_FLAGS}")
-        SET(CMAKE_C_FLAGS "-g -O0 -Wall -W ${CMAKE_EXE_LINKER_FLAGS}")
-    ELSE (USE_GCC)
-        MESSAGE(SEND_ERROR "Coverage is only available with gcc.")
-    ENDIF (USE_GCC)
-ENDIF (ENABLE_COVERAGE)
+INCLUDE(macros/TestOption.cmake)
 
 #-----------------------------------------------
 # documentation
@@ -458,80 +169,7 @@ ENDIF ( USE_PROGRESSBAR )
 # packaging
 #-----------------------------------------------
 
-OPTION(ENABLE_PACKAGING "Enable Packaging" ON)
-
-IF (UNIX AND NOT APPLE) # LINUX
-    OPTION(BUILD_RPM "Enable RPM Packaging" OFF)
-ENDIF (UNIX AND NOT APPLE)
-
-IF(ENABLE_PACKAGING OR BUILD_RPM)
-
-    INCLUDE(InstallRequiredSystemLibraries)
-
-    SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY "OpenMEEG Project")
-    SET(CPACK_PACKAGE_VENDOR "INRIA - Odyssee ENPC/INRIA/Ens Ulm")
-    SET(CPACK_PACKAGE_DESCRIPTION_FILE "${OpenMEEG_SOURCE_DIR}/README.txt")
-    SET(CPACK_RESOURCE_FILE_LICENSE "${OpenMEEG_SOURCE_DIR}/LICENSE.txt")
-    SET(CPACK_PACKAGE_INSTALL_DIRECTORY "OpenMEEG")
-    SET(CPACK_PACKAGE_CONTACT "openmeeg-info_at_lists.gforge.inria.fr")
-
-    IF(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "x86_64")
-        SET(CPACK_DEBIAN_PACKAGE_ARCHITECTURE amd64)
-        SET(CPACK_RPM_PACKAGE_ARCHITECTURE x86_64)
-    ELSEIF(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "i686")
-        SET(CPACK_DEBIAN_PACKAGE_ARCHITECTURE i386)
-        SET(CPACK_RPM_PACKAGE_ARCHITECTURE i386)
-    ENDIF(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "x86_64")
-
-    IF ( APPLE )
-        IF ( USE_OMP )
-            SET(CPACK_PACKAGE_FILE_NAME
-                "OpenMEEG-${PACKAGE_VERSION_MAJOR}.${PACKAGE_VERSION_MINOR}.${PACKAGE_VERSION_PATCH}-MacOSX-Intel-gcc42-OpenMP")
-        ELSE ( USE_OMP )
-            SET(CPACK_PACKAGE_FILE_NAME
-                "OpenMEEG-${PACKAGE_VERSION_MAJOR}.${PACKAGE_VERSION_MINOR}.${PACKAGE_VERSION_PATCH}-MacOSX-Intel")
-        ENDIF ( USE_OMP )
-    ENDIF ( APPLE )
-
-    IF ( UNIX AND NOT APPLE )
-        SET(CPACK_PACKAGE_FILE_NAME
-            "OpenMEEG-${PACKAGE_VERSION_MAJOR}.${PACKAGE_VERSION_MINOR}.${PACKAGE_VERSION_PATCH}-Linux.${CPACK_DEBIAN_PACKAGE_ARCHITECTURE}")
-    ENDIF ( UNIX AND NOT APPLE )
-    IF ( WIN32 )
-        SET(CPACK_PACKAGE_FILE_NAME
-            "OpenMEEG-${PACKAGE_VERSION_MAJOR}.${PACKAGE_VERSION_MINOR}.${PACKAGE_VERSION_PATCH}-win32-x86")
-    ENDIF ( WIN32 )
-
-    IF (WIN32)
-        # There is a bug in NSIS that does not handle full unix paths properly. Make
-        # sure there is at least one set of four (4) backlasshes.
-        SET(CPACK_NSIS_DISPLAY_NAME "OpenMEEG Project")
-        SET(CPACK_NSIS_HELP_LINK "https:\\\\\\\\gforge.inria.fr/projects/openmeeg/")
-        SET(CPACK_NSIS_URL_INFO_ABOUT "https:\\\\\\\\gforge.inria.fr/projects/openmeeg/")
-        SET(CPACK_NSIS_CONTACT "openmeeg-info@lists.gforge.inria.fr")
-        SET(CPACK_NSIS_MODIFY_PATH ON)
-    ENDIF (WIN32)
-
-    SET(CPACK_SOURCE_STRIP_FILES "")
-
-    INCLUDE(CPack)
-
-    IF(UNIX AND BUILD_RPM) # linux
-        IF (CMAKE_MAJOR_VERSION EQUAL 2 AND CMAKE_MINOR_VERSION LESS 8)
-            INCLUDE(UseRPMTools)
-            IF (RPMTools_FOUND)
-                RPMTools_ADD_RPM_TARGETS(${PROJECT_NAME} "packaging/${PROJECT_NAME}.spec.in")
-            ENDIF (RPMTools_FOUND)
-        ELSE ()
-            SET(CPACK_RPM_USER_BINARY_SPECFILE "packaging/${PROJECT_NAME}.spec.in")
-        ENDIF ()
-    ENDIF(UNIX AND BUILD_RPM)
-
-ENDIF(ENABLE_PACKAGING OR BUILD_RPM)
-
-IF ( ENABLE_PACKAGING AND WIN32 )
-    INCLUDE(macros/UseWin32dlls.cmake)
-ENDIF ( ENABLE_PACKAGING AND WIN32 )
+INCLUDE(macros/Packaging.cmake)
 
 #######################################################################
 # Help other projects use OpenMEEG
@@ -539,14 +177,10 @@ ENDIF ( ENABLE_PACKAGING AND WIN32 )
 #######################################################################
 
 #-----------------------------------------------
-# Include directories
-#-----------------------------------------------
-SET (OPENMEEG_INCLUDE_DIRECTORIES ${OPENMEEG_INCLUDE_DIRECTORIES})
-
-#-----------------------------------------------
 # Creating files for external projects
 #-----------------------------------------------
 
+# This section uses the OPENMEEG_INCLUDE_DIRECTORIES variable.
 # Copy the UseOpenMEEG.cmake file to the binary tree for backward compatability.
 CONFIGURE_FILE(
     ${OpenMEEG_SOURCE_DIR}/macros/UseOpenMEEG.cmake.in
