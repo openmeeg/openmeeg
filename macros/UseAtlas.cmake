@@ -58,6 +58,7 @@ IF(USE_ATLAS)
         #MARK_AS_ADVANCED(${LAPACK_LIBRARIES})
 
         FIND_PATH(ATLAS_INCLUDE_PATH atlas/cblas.h /usr/include/)
+        MARK_AS_ADVANCED(ATLAS_INCLUDE_PATH)
         INCLUDE_DIRECTORIES(${ATLAS_INCLUDE_PATH})
     ELSE() # Assume APPLE
         SET(LAPACK_LIBRARIES "-framework Veclib")
