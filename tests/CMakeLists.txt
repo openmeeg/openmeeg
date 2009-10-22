@@ -59,9 +59,9 @@ FOREACH(DIP 1 2 3 4 5)
                                  ${OpenMEEG_BINARY_DIR}/tests/Head${HEADNUM}-dip.est_eeg
                                  ${OpenMEEG_SOURCE_DIR}/tests/analytic/eeg_head${HEADNUM}_analytic.txt
                                  -rdm -eps ${EPSILON} -col ${DIP} -full)
-        ADD_TEST(compareEEGEST-dip-Head1-d${DIP}-mag ${COMPARE_MATRIX}
-                                 ${OpenMEEG_BINARY_DIR}/tests/Head1-dip.est_eeg
-                                 ${OpenMEEG_SOURCE_DIR}/tests/analytic/eeg_head1_analytic.txt
+        ADD_TEST(compareEEGEST-dip-Head${HEADNUM}-d${DIP}-mag ${COMPARE_MATRIX}
+                                 ${OpenMEEG_BINARY_DIR}/tests/Head${HEADNUM}-dip.est_eeg
+                                 ${OpenMEEG_SOURCE_DIR}/tests/analytic/eeg_head${HEADNUM}_analytic.txt
                                  -mag -eps ${EPSILON} -col ${DIP} -full)
     ENDFOREACH()
 ENDFOREACH()
