@@ -68,11 +68,6 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #define HAVE_LAPACK
 #endif
 
-#ifdef HAVE_CONFIG_H
-//  autoconf configuration.
-#include <config.h>
-#endif
-
 #ifdef WIN32
     #pragma inline_recursion (on)
     #pragma inline_depth (255)
