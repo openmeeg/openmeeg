@@ -54,15 +54,13 @@ ENDIF()
 SET(EPSILON 0.15)
 FOREACH(DIP 1 2 3 4 5)
     FOREACH(HEADNUM 1 2 ${HEAD3})
-        # Compare EEG result with analytical solution obtained with Matlab
-        ADD_TEST(compareEEGEST-dip-Head${HEADNUM}-d${DIP}-rdm ${COMPARE_MATRIX}
-                                 ${OpenMEEG_BINARY_DIR}/tests/Head${HEADNUM}-dip.est_eeg
-                                 ${OpenMEEG_SOURCE_DIR}/tests/analytic/eeg_head${HEADNUM}_analytic.txt
-                                 -rdm -eps ${EPSILON} -col ${DIP} -full)
-        ADD_TEST(compareEEGEST-dip-Head${HEADNUM}-d${DIP}-mag ${COMPARE_MATRIX}
-                                 ${OpenMEEG_BINARY_DIR}/tests/Head${HEADNUM}-dip.est_eeg
-                                 ${OpenMEEG_SOURCE_DIR}/tests/analytic/eeg_head${HEADNUM}_analytic.txt
-                                 -mag -eps ${EPSILON} -col ${DIP} -full)
+        FOREACH(COMP mag rdm)
+            # Compare EEG result with analytical solution obtained with Matlab
+            ADD_TEST(compareEEGEST-dip-Head${HEADNUM}-d${DIP}-${COMP} ${COMPARE_MATRIX}
+                                     ${OpenMEEG_BINARY_DIR}/tests/Head${HEADNUM}-dip.est_eeg
+                                     ${OpenMEEG_SOURCE_DIR}/tests/analytic/eeg_head${HEADNUM}_analytic.txt
+                                     -${COMP} -eps ${EPSILON} -col ${DIP} -full)
+        ENDFOREACH()
     ENDFOREACH()
 ENDFOREACH()
 
@@ -98,19 +96,13 @@ ENDFOREACH()
 
 FOREACH(DIP 1 2 3 4 5)
     FOREACH(HEADNUM 1 2 ${HEAD3})
-
-        # Compare MEG result with analytical solution obtained with Matlab
-        ADD_TEST(compareMEGEST-dip-Head${HEADNUM}-d${DIP}-rdm ${COMPARE_MATRIX}
-                                 ${OpenMEEG_BINARY_DIR}/tests/Head${HEADNUM}-dip.est_meg
-                                 ${OpenMEEG_SOURCE_DIR}/tests/analytic/meg_head1_analytic.txt
-                                 -rdm -eps ${EPSILON} -col ${DIP} -full)
-
-
-        # Compare MEG result with analytical solution obtained with Matlab
-        ADD_TEST(compareMEGEST-dip-Head${HEADNUM}-d${DIP}-mag ${COMPARE_MATRIX}
-                                 ${OpenMEEG_BINARY_DIR}/tests/Head${HEADNUM}-dip.est_meg
-                                 ${OpenMEEG_SOURCE_DIR}/tests/analytic/meg_head1_analytic.txt
-                                 -mag -eps ${EPSILON} -col ${DIP} -full)
+        FOREACH(COMP mag rdm)
+            # Compare MEG result with analytical solution obtained with Matlab
+            ADD_TEST(compareMEGEST-dip-Head${HEADNUM}-d${DIP}-${COMP} ${COMPARE_MATRIX}
+                                     ${OpenMEEG_BINARY_DIR}/tests/Head${HEADNUM}-dip.est_meg
+                                     ${OpenMEEG_SOURCE_DIR}/tests/analytic/meg_head1_analytic.txt
+                                     -${COMP} -eps ${EPSILON} -col ${DIP} -full)
+        ENDFOREACH()
     ENDFOREACH()
 ENDFOREACH()
 
