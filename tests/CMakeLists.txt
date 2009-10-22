@@ -1,104 +1,49 @@
+INCLUDE(${OpenMEEG_SOURCE_DIR}/macros/ComparisonTest.cmake)
+
+SET_FILE_PROPERTIES(Suffix
+    "HeadMat .hm" "HeadMatInv .hm_inv" "SurfSourceMat .ssm" "v2eeg .h2em" "SurfGainEEG .sgem"
+    "EEGEST .est_eeg" "EEG-HEAT -eeg-heat.est_src" "EEG-MN -eeg-mn.est_src" "EEG-TV -eeg-tv.est_src"
+    "Head2MEGMat .h2mm" "SurfSource2MEGMat .ss2mm" "SurfGainMEG .sgmm" "MEGEST .est_meg"
+    "MEG-HEAT -meg-heat.est_src" "MEG-MN -meg-mn.est_src" "MEG-TV -meg-tv.est_src"
+)
+
+SET_FILE_PROPERTIES(CompareOptions
+    "HeadMat -sym" "HeadMatInv -sym" "SurfSourceMat -full:-if1:binary:-if2:binary" "v2eeg -if:binary:-sparse"
+    "SurfGainEEG -full" "EEGEST -full" "EEG-HEAT -full:-eps:0.02" "EEG-MN -full" "EEG-TV -full:-eps:0.0001"
+    "Head2MEGMat -full" "SurfSource2MEGMat -full" "SurfGainMEG -full" "MEGEST -full"
+    "MEG-HEAT -full:-eps:0.02" "MEG-MN -full" "MEG-TV -full"
+)
+
 ############ IO TEST ##############
-ADD_EXECUTABLE(load_geo load_geo.cpp)
-TARGET_LINK_LIBRARIES (load_geo OpenMEEG OpenMEEGMaths "${OPENMEEG_OTHER_LIBRARIES}")
+OPENMEEG_UNIT_TEST(load_geo
+    SOURCES load_geo.cpp
+    LIBRARIES OpenMEEG OpenMEEGMaths "${OPENMEEG_OTHER_LIBRARIES}"
+    PARAMETERS ${OpenMEEG_SOURCE_DIR}/data/Models/Head1/Head1.geom ${OpenMEEG_SOURCE_DIR}/data/Models/Head1/Head1.cond)
 
-ADD_EXECUTABLE(test_sensors test_sensors.cpp)
-TARGET_LINK_LIBRARIES (test_sensors OpenMEEG "${OPENMEEG_OTHER_LIBRARIES}")
-
-ADD_EXECUTABLE(compare_matrix compare_matrix.cpp)
-TARGET_LINK_LIBRARIES (compare_matrix OpenMEEGMaths "${OPENMEEG_OTHER_LIBRARIES}" ${LAPACK_LIBRARIES})
-
-ADD_EXECUTABLE(om_validationEIT validationEIT.cpp ${OPEMEEG_HEADERS})
-TARGET_LINK_LIBRARIES (om_validationEIT OpenMEEG OpenMEEGMaths "${OPENMEEG_OTHER_LIBRARIES}" ${LAPACK_LIBRARIES})
+NEW_EXECUTABLE(test_sensors test_sensors.cpp
+               LIBRARIES OpenMEEG "${OPENMEEG_OTHER_LIBRARIES}")
+NEW_EXECUTABLE(compare_matrix compare_matrix.cpp
+               LIBRARIES OpenMEEGMaths "${OPENMEEG_OTHER_LIBRARIES}" ${LAPACK_LIBRARIES})
+NEW_EXECUTABLE(om_validationEIT validationEIT.cpp ${OPEMEEG_HEADERS}
+               LIBRARIES OpenMEEG OpenMEEGMaths "${OPENMEEG_OTHER_LIBRARIES}" ${LAPACK_LIBRARIES})
 
 IF ( WIN32 )
-    SET(LOAD_GEO "${EXECUTABLE_OUTPUT_PATH}/load_geo")
     SET(COMPARE_MATRIX "${EXECUTABLE_OUTPUT_PATH}/compare_matrix")
     SET(VALIDATION_EIT "${EXECUTABLE_OUTPUT_PATH}/om_validationEIT")
 ELSE ( WIN32 )
-    SET(LOAD_GEO "${CMAKE_CURRENT_BINARY_DIR}/load_geo")
     SET(COMPARE_MATRIX "${CMAKE_CURRENT_BINARY_DIR}/compare_matrix")
     SET(VALIDATION_EIT "${CMAKE_CURRENT_BINARY_DIR}/om_validationEIT")
 ENDIF ( WIN32 )
 
-ADD_TEST(load_geo ${LOAD_GEO} ${OpenMEEG_SOURCE_DIR}/data/Models/Head1/Head1.geom ${OpenMEEG_SOURCE_DIR}/data/Models/Head1/Head1.cond)
-
 ############ TEST COMMON RESULTS ON HEAD1 (Regression test) ##############
 
-SET(SUBJECT "Head1")
+SET(COMPARISONS HeadMat HeadMatInv SurfSourceMat v2eeg SurfGainEEG EEGEST EEG-HEAT EEG-MN EEG-TV
+                Head2MEGMat SurfSource2MEGMat SurfGainMEG MEGEST MEG-HEAT MEG-MN MEG-TV
+)
 
-#------ HeadMat -----#
-ADD_TEST(compareHeadMat-${SUBJECT} ${COMPARE_MATRIX}
-                    ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.hm
-                    ${OpenMEEG_SOURCE_DIR}/tests/initialTest/${SUBJECT}.hm
-                    -sym)
-#------ HeadMat INV -----#
-ADD_TEST(compareHeadMatINV-${SUBJECT} ${COMPARE_MATRIX}
-                       ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.hm_inv
-                       ${OpenMEEG_SOURCE_DIR}/tests/initialTest/${SUBJECT}.hm_inv
-                       -sym)
-#------ SurfSourceMat -----#
-ADD_TEST(compareSurfSourceMat-${SUBJECT} ${COMPARE_MATRIX}
-                    ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.ssm
-                    ${OpenMEEG_SOURCE_DIR}/tests/initialTest/${SUBJECT}.ssm -full -if1 binary -if2 binary)
-
-############ TEST EEG RESULTS ##############
-
-#------ v2eeg -----#
-ADD_TEST(comparev2eeg-${SUBJECT} ${COMPARE_MATRIX} 
-                      ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.h2em
-                      ${OpenMEEG_SOURCE_DIR}/tests/initialTest/${SUBJECT}.h2em -if binary -sparse)
-#------ EEG GAIN -----#
-ADD_TEST(compareSurfGainEEG-${SUBJECT} ${COMPARE_MATRIX}
-                        ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.sgem
-                        ${OpenMEEG_SOURCE_DIR}/tests/initialTest/${SUBJECT}.sgem -full)
-#------ EEG ESTIMATION (FORWARD) -----#
-ADD_TEST(compareEEGEST-${SUBJECT} ${COMPARE_MATRIX}
-                        ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.est_eeg
-                        ${OpenMEEG_SOURCE_DIR}/tests/initialTest/${SUBJECT}.est_eeg -full)
-#------ EEG SOURCE ESTIMATION (INVERSE HEAT) -----#
-ADD_TEST(compareEEG-HEAT-${SUBJECT} ${COMPARE_MATRIX}
-                           ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}-eeg-heat.est_src
-                           ${OpenMEEG_SOURCE_DIR}/tests/initialTest/${SUBJECT}-eeg-heat.est_src -full -eps 0.02)
-#------ EEG SOURCE ESTIMATION (INVERSE MN) -----#
-ADD_TEST(compareEEG-MN-${SUBJECT} ${COMPARE_MATRIX}
-                         ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}-eeg-mn.est_src
-                         ${OpenMEEG_SOURCE_DIR}/tests/initialTest/${SUBJECT}-eeg-mn.est_src -full)
-#------ EEG SOURCE ESTIMATION (INVERSE TV) -----#
-ADD_TEST(compareEEG-TV-${SUBJECT} ${COMPARE_MATRIX}
-                         ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}-eeg-tv.est_src
-                         ${OpenMEEG_SOURCE_DIR}/tests/initialTest/${SUBJECT}-eeg-tv.est_src -full -eps 0.0001)
-
-############ TEST MEG RESULTS ##############
-
-#------ Head2MEGMat -----#
-ADD_TEST(compareHead2MEGMat-${SUBJECT} ${COMPARE_MATRIX}
-                      ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.h2mm
-                      ${OpenMEEG_SOURCE_DIR}/tests/initialTest/${SUBJECT}.h2mm -full)
-#------ SurfSource2MEGMat -----#
-ADD_TEST(compareSurfSource2MEGMat-${SUBJECT} ${COMPARE_MATRIX}
-                      ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.ss2mm
-                      ${OpenMEEG_SOURCE_DIR}/tests/initialTest/${SUBJECT}.ss2mm -full)
-#------ MEG GAIN -----#
-ADD_TEST(compareSurfGainMEG-${SUBJECT} ${COMPARE_MATRIX}
-                        ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.sgmm
-                        ${OpenMEEG_SOURCE_DIR}/tests/initialTest/${SUBJECT}.sgmm -full)
-#------ MEG ESTIMATION (FORWARD) -----#
-ADD_TEST(compareMEGEST-${SUBJECT} ${COMPARE_MATRIX}
-                        ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}.est_meg
-                        ${OpenMEEG_SOURCE_DIR}/tests/initialTest/${SUBJECT}.est_meg -full)
-#------ MEG SOURCE ESTIMATION (INVERSE HEAT) -----#
-ADD_TEST(compareMEG-HEAT-${SUBJECT} ${COMPARE_MATRIX}
-                           ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}-meg-heat.est_src
-                           ${OpenMEEG_SOURCE_DIR}/tests/initialTest/${SUBJECT}-meg-heat.est_src -full -eps 0.02)
-#------ MEG SOURCE ESTIMATION (INVERSE MN) -----#
-ADD_TEST(compareMEG-MN-${SUBJECT} ${COMPARE_MATRIX}
-                         ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}-meg-mn.est_src
-                         ${OpenMEEG_SOURCE_DIR}/tests/initialTest/${SUBJECT}-meg-mn.est_src -full)
-#------ MEG SOURCE ESTIMATION (INVERSE TV) -----#
-ADD_TEST(compareMEG-TV-${SUBJECT} ${COMPARE_MATRIX}
-                         ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}-meg-tv.est_src
-                         ${OpenMEEG_SOURCE_DIR}/tests/initialTest/${SUBJECT}-meg-tv.est_src -full)
+FOREACH (COMPARISON ${COMPARISONS})
+    OPENMEEG_COMPARISON_TEST(Head1 ${COMPARISON} compare_matrix)
+ENDFOREACH()
 
 ############ TEST EEG RESULTS ON DIPOLES ##############
 
