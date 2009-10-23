@@ -42,7 +42,8 @@ SET(COMPARISONS HeadMat HeadMatInv SurfSourceMat v2eeg SurfGainEEG EEGEST EEG-HE
 )
 
 FOREACH (COMPARISON ${COMPARISONS})
-    OPENMEEG_COMPARISON_TEST(Head1 ${COMPARISON} compare_matrix)
+    SET(BASE_FILE_NAME Head1${Suffix_${COMPARISON}})
+    OPENMEEG_COMPARISON_TEST(Head1 ${COMPARISON} "" compare_matrix ${BASE_FILE_NAME} initialTest/${BASE_FILE_NAME})
 ENDFOREACH()
 
 ############ TEST EEG RESULTS ON DIPOLES ##############
@@ -55,11 +56,10 @@ SET(EPSILON 0.15)
 FOREACH(DIP 1 2 3 4 5)
     FOREACH(HEADNUM 1 2 ${HEAD3})
         FOREACH(COMP mag rdm)
+            SET(BASE_FILE_NAME "Head${HEADNUM}-dip.est_eeg")
             # Compare EEG result with analytical solution obtained with Matlab
-            ADD_TEST(compareEEGEST-dip-Head${HEADNUM}-d${DIP}-${COMP} ${COMPARE_MATRIX}
-                                     ${OpenMEEG_BINARY_DIR}/tests/Head${HEADNUM}-dip.est_eeg
-                                     ${OpenMEEG_SOURCE_DIR}/tests/analytic/eeg_head${HEADNUM}_analytic.txt
-                                     -${COMP} -eps ${EPSILON} -col ${DIP} -full)
+            OPENMEEG_COMPARISON_TEST(Head${HEADNUM}-dip EEGEST-dip "${DIP}-${COMP}"
+                                     compare_matrix ${BASE_FILE_NAME} analytic/eeg_head${HEADNUM}_analytic.txt -${COMP} -eps ${EPSILON} -col ${DIP} -full)
         ENDFOREACH()
     ENDFOREACH()
 ENDFOREACH()
@@ -118,9 +118,9 @@ FOREACH(HEADNUM 1 2 ${HEAD3})
 ENDFOREACH()
 
 # set tests that are expected to fail :
-SET_TESTS_PROPERTIES(compareEEGEST-dip-Head1-d1-mag PROPERTIES WILL_FAIL TRUE)
-SET_TESTS_PROPERTIES(compareEEGEST-dip-Head1-d4-rdm PROPERTIES WILL_FAIL TRUE)
-SET_TESTS_PROPERTIES(compareEEGEST-dip-Head1-d5-rdm PROPERTIES WILL_FAIL TRUE)
+SET_TESTS_PROPERTIES(compare-EEGEST-dip-Head1-dip1-mag PROPERTIES WILL_FAIL TRUE)
+SET_TESTS_PROPERTIES(compare-EEGEST-dip-Head1-dip4-rdm PROPERTIES WILL_FAIL TRUE)
+SET_TESTS_PROPERTIES(compare-EEGEST-dip-Head1-dip5-rdm PROPERTIES WILL_FAIL TRUE)
 SET_TESTS_PROPERTIES(compareEEGinternal-dip-Head1-d2 PROPERTIES WILL_FAIL TRUE)
 SET_TESTS_PROPERTIES(compareEEGinternal-dip-Head1-d3 PROPERTIES WILL_FAIL TRUE)
 SET_TESTS_PROPERTIES(compareEEGinternal-dip-Head1-d4 PROPERTIES WILL_FAIL TRUE)
