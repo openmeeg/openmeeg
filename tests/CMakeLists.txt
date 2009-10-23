@@ -27,14 +27,6 @@ NEW_EXECUTABLE(compare_matrix compare_matrix.cpp
 NEW_EXECUTABLE(om_validationEIT validationEIT.cpp ${OPEMEEG_HEADERS}
                LIBRARIES OpenMEEG OpenMEEGMaths "${OPENMEEG_OTHER_LIBRARIES}" ${LAPACK_LIBRARIES})
 
-IF ( WIN32 )
-    SET(COMPARE_MATRIX "${EXECUTABLE_OUTPUT_PATH}/compare_matrix")
-    SET(VALIDATION_EIT "${EXECUTABLE_OUTPUT_PATH}/om_validationEIT")
-ELSE ( WIN32 )
-    SET(COMPARE_MATRIX "${CMAKE_CURRENT_BINARY_DIR}/compare_matrix")
-    SET(VALIDATION_EIT "${CMAKE_CURRENT_BINARY_DIR}/om_validationEIT")
-ENDIF ( WIN32 )
-
 ############ TEST COMMON RESULTS ON HEAD1 (Regression test) ##############
 
 SET(COMPARISONS HeadMat HeadMatInv SurfSourceMat v2eeg SurfGainEEG EEGEST EEG-HEAT EEG-MN EEG-TV
@@ -43,7 +35,8 @@ SET(COMPARISONS HeadMat HeadMatInv SurfSourceMat v2eeg SurfGainEEG EEGEST EEG-HE
 
 FOREACH (COMPARISON ${COMPARISONS})
     SET(BASE_FILE_NAME Head1${Suffix_${COMPARISON}})
-    OPENMEEG_COMPARISON_TEST(Head1 ${COMPARISON} "" compare_matrix ${BASE_FILE_NAME} initialTest/${BASE_FILE_NAME})
+    SET(TEST_NAME ${COMPARISON}-Head1)
+    OPENMEEG_COMPARISON_TEST(${COMPARISON}-Head1 ${BASE_FILE_NAME} initialTest/${BASE_FILE_NAME} ${CompareOptions_${COMPARISON}})
 ENDFOREACH()
 
 ############ TEST EEG RESULTS ON DIPOLES ##############
@@ -56,73 +49,66 @@ SET(EPSILON 0.15)
 FOREACH(DIP 1 2 3 4 5)
     FOREACH(HEADNUM 1 2 ${HEAD3})
         FOREACH(COMP mag rdm)
-            SET(BASE_FILE_NAME "Head${HEADNUM}-dip.est_eeg")
+            SET(HEAD "Head${HEADNUM}")
+            SET(BASE_FILE_NAME "${HEAD}-dip.est_eeg")
             # Compare EEG result with analytical solution obtained with Matlab
-            OPENMEEG_COMPARISON_TEST(Head${HEADNUM}-dip EEGEST-dip "${DIP}-${COMP}"
-                                     compare_matrix ${BASE_FILE_NAME} analytic/eeg_head${HEADNUM}_analytic.txt -${COMP} -eps ${EPSILON} -col ${DIP} -full)
+            OPENMEEG_COMPARISON_TEST("EEGEST-dip-${HEAD}-dip${DIP}-${COMP}"
+                                     ${BASE_FILE_NAME} analytic/eeg_head${HEADNUM}_analytic.txt -${COMP} -eps ${EPSILON} -col ${DIP} -full)
         ENDFOREACH()
     ENDFOREACH()
 ENDFOREACH()
+# set tests that are expected to fail :
+SET_TESTS_PROPERTIES(cmp-EEGEST-dip-Head1-dip1-mag PROPERTIES WILL_FAIL TRUE)
+SET_TESTS_PROPERTIES(cmp-EEGEST-dip-Head1-dip4-rdm PROPERTIES WILL_FAIL TRUE)
+SET_TESTS_PROPERTIES(cmp-EEGEST-dip-Head1-dip5-rdm PROPERTIES WILL_FAIL TRUE)
+
+IF (WIN32)
+    SET(VALIDATION_EIT "${EXECUTABLE_OUTPUT_PATH}/om_validationEIT")
+ELSE()
+    SET(VALIDATION_EIT "${CMAKE_CURRENT_BINARY_DIR}/om_validationEIT")
+ENDIF()
 
 FOREACH(HEADNUM 1 2)
+    SET(HEAD "Head${HEADNUM}")
+    SET(DATADIR ${OpenMEEG_SOURCE_DIR}/data)
+    SET(MODELPREFIX ${DATADIR}/Models/${HEAD}/${HEAD})
+    SET(TESTPREFIX ${OpenMEEG_BINARY_DIR}/tests/${HEAD})
     # validationEIT geometry.geom conductivity.cond dipoles.dip source.dsm headmatinv.bin out.eit_qgradVj out.eit_diffVf
-    ADD_TEST(EITvalidation-dipoles-Head${HEADNUM}
-        ${VALIDATION_EIT}
-        ${OpenMEEG_SOURCE_DIR}/data/Models/Head${HEADNUM}/Head${HEADNUM}.geom
-        ${OpenMEEG_SOURCE_DIR}/data/Models/Head${HEADNUM}/Head${HEADNUM}.cond
-        ${OpenMEEG_SOURCE_DIR}/data/Computations/Head${HEADNUM}/Head${HEADNUM}.dip
-        ${OpenMEEG_BINARY_DIR}/tests/Head${HEADNUM}.dsm
-        ${OpenMEEG_BINARY_DIR}/tests/Head${HEADNUM}.hm_inv
-        ${OpenMEEG_BINARY_DIR}/tests/Head${HEADNUM}.eit_qgradVj
-        ${OpenMEEG_BINARY_DIR}/tests/Head${HEADNUM}.eit_diffVf)
+    ADD_TEST(EITvalidation-dipoles-${HEAD}
+        ${VALIDATION_EIT} ${MODELPREFIX}.geom ${MODELPREFIX}.cond
+        ${DATADIR}/Computations/${HEAD}/${HEAD}.dip
+        ${TESTPREFIX}.dsm ${TESTPREFIX}.hm_inv ${TESTPREFIX}.eit_qgradVj ${TESTPREFIX}.eit_diffVf)
 ENDFOREACH()
 
 FOREACH(DIP 1 2 3 4 5 6)
     FOREACH(HEADNUM 1 2 ${HEAD3})
+        SET(HEAD "Head${HEADNUM}")
         # Compare the potential results in a interior sphere of the Surf2Vol operator with analytical solution
         # obtained with Sphere (V.Hedou Modified)
-        ADD_TEST(compareEEGinternal-dip-Head${HEADNUM}-d${DIP} ${COMPARE_MATRIX}
-                                 ${OpenMEEG_BINARY_DIR}/tests/Head${HEADNUM}-dip.est_eeginternal
-                                 ${OpenMEEG_SOURCE_DIR}/tests/analytic/eeg_internal_analytic.txt
-                                 -eps ${EPSILON} -col ${DIP} -full)
+        OPENMEEG_COMPARISON_TEST("EEGinternal-dip-${HEAD}-dip${DIP}"
+                                 ${HEAD}-dip.est_eeginternal analytic/eeg_internal_analytic.txt -eps ${EPSILON} -col ${DIP} -full)
 
         # Compare the q.gradVj to diffVf in order to validate the EIT problem
-        ADD_TEST(compareEITvalidation-Head${HEADNUM}-d${DIP} ${COMPARE_MATRIX}
-                                 ${OpenMEEG_BINARY_DIR}/tests/Head${HEADNUM}.eit_qgradVj
-                                 ${OpenMEEG_BINARY_DIR}/tests/Head${HEADNUM}.eit_diffVf
-                                 -eps ${EPSILON} -col ${DIP} -full)
+        OPENMEEG_COMPARISON_TEST("EIT-${HEAD}-dip${DIP}"
+                                 ${HEAD}.eit_qgradVj ${OpenMEEG_BINARY_DIR}/tests/${HEAD}.eit_diffVf -eps ${EPSILON} -col ${DIP} -full)
     ENDFOREACH()
 ENDFOREACH()
-
-FOREACH(DIP 1 2 3 4 5)
-    FOREACH(HEADNUM 1 2 ${HEAD3})
-        FOREACH(COMP mag rdm)
-            # Compare MEG result with analytical solution obtained with Matlab
-            ADD_TEST(compareMEGEST-dip-Head${HEADNUM}-d${DIP}-${COMP} ${COMPARE_MATRIX}
-                                     ${OpenMEEG_BINARY_DIR}/tests/Head${HEADNUM}-dip.est_meg
-                                     ${OpenMEEG_SOURCE_DIR}/tests/analytic/meg_head1_analytic.txt
-                                     -${COMP} -eps ${EPSILON} -col ${DIP} -full)
-        ENDFOREACH()
-    ENDFOREACH()
-ENDFOREACH()
-
-# Compare MEG result with analytical solution obtained with Matlab for dipole 6 that should be radial
-SET(DIP 6)
-SET(EPSILON 0.001)
+# set tests that are expected to fail :
+SET_TESTS_PROPERTIES(cmp-EEGinternal-dip-Head1-dip2 PROPERTIES WILL_FAIL TRUE)
+SET_TESTS_PROPERTIES(cmp-EEGinternal-dip-Head1-dip3 PROPERTIES WILL_FAIL TRUE)
+SET_TESTS_PROPERTIES(cmp-EEGinternal-dip-Head1-dip4 PROPERTIES WILL_FAIL TRUE)
+SET_TESTS_PROPERTIES(cmp-EEGinternal-dip-Head1-dip5 PROPERTIES WILL_FAIL TRUE)
+SET_TESTS_PROPERTIES(cmp-EEGinternal-dip-Head1-dip6 PROPERTIES WILL_FAIL TRUE)
 
 FOREACH(HEADNUM 1 2 ${HEAD3})
-    ADD_TEST(compareMEGEST-dip-Head${HEADNUM}-d${DIP} ${COMPARE_MATRIX}
-                             ${OpenMEEG_BINARY_DIR}/tests/Head${HEADNUM}-dip.est_meg
-                             ${OpenMEEG_SOURCE_DIR}/tests/analytic/meg_head1_analytic.txt
-                             -eps ${EPSILON} -col ${DIP} -full)
+    SET(HEAD "Head${HEADNUM}")
+    FOREACH(DIP 1 2 3 4 5)
+        FOREACH(COMP mag rdm)
+            # Compare MEG result with analytical solution obtained with Matlab
+            OPENMEEG_COMPARISON_TEST("MEGEST-dip-${HEAD}-dip${DIP}-${COMP}"
+                                     ${HEAD}-dip.est_meg analytic/meg_head1_analytic.txt -${COMP} -eps ${EPSILON} -col ${DIP} -full)
+        ENDFOREACH()
+    ENDFOREACH()
+    OPENMEEG_COMPARISON_TEST("MEGEST-dip${HEAD}-dip6"
+                             ${HEAD}-dip.est_meg analytic/meg_head1_analytic.txt -eps 0.001 -col 6 -full)
 ENDFOREACH()
-
-# set tests that are expected to fail :
-SET_TESTS_PROPERTIES(compare-EEGEST-dip-Head1-dip1-mag PROPERTIES WILL_FAIL TRUE)
-SET_TESTS_PROPERTIES(compare-EEGEST-dip-Head1-dip4-rdm PROPERTIES WILL_FAIL TRUE)
-SET_TESTS_PROPERTIES(compare-EEGEST-dip-Head1-dip5-rdm PROPERTIES WILL_FAIL TRUE)
-SET_TESTS_PROPERTIES(compareEEGinternal-dip-Head1-d2 PROPERTIES WILL_FAIL TRUE)
-SET_TESTS_PROPERTIES(compareEEGinternal-dip-Head1-d3 PROPERTIES WILL_FAIL TRUE)
-SET_TESTS_PROPERTIES(compareEEGinternal-dip-Head1-d4 PROPERTIES WILL_FAIL TRUE)
-SET_TESTS_PROPERTIES(compareEEGinternal-dip-Head1-d5 PROPERTIES WILL_FAIL TRUE)
-SET_TESTS_PROPERTIES(compareEEGinternal-dip-Head1-d6 PROPERTIES WILL_FAIL TRUE)
