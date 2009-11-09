@@ -66,7 +66,7 @@ Vector cross_product(const Vector &a, const Vector &b)
 
 int main( int argc, char** argv)
 {
-    om_print_version(argv);
+    print_version(argv[0]);
 
     command_usage("Convert squids positions from the CTF MEG coordinate system to the MRI coordinate system");
     const char *squids_filename = command_option("-i",(const char *) NULL,"Squids positions in CTF coordinate system");

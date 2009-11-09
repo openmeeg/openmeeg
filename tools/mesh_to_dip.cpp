@@ -53,7 +53,7 @@ using namespace OpenMEEG;
 
 int main( int argc, char **argv)
 {
-    om_print_version(argv);
+    print_version(argv[0]);
 
     command_usage("Convert mesh file to a dipole file");
     const char *input_filename = command_option("-i",(const char *) NULL,"Input Mesh");

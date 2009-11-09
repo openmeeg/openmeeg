@@ -55,7 +55,7 @@ using namespace OpenMEEG;
 
 int main( int argc, char **argv)
 {
-    om_print_version(argv);
+    print_version(argv[0]);
 
     command_usage("Convert symmetric matrices between different formats");
     const char *input_filename = command_option("-i",(const char *) NULL,"Input full Matrix");

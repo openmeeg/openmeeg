@@ -155,10 +155,10 @@ namespace OpenMEEG {
         std::cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
         std::cout << message << std::endl;
     }
-}
 
-inline void om_print_version(char** argv) {
-    std::cout << argv[0] <<" version " << version << " compiled at " << __DATE__ << " " << __TIME__ << std::endl << std::endl;
+    inline void print_version(const char* cmd) {
+        std::cout << cmd <<" version " << version << " compiled at " << __DATE__ << " " << __TIME__ << std::endl << std::endl;
+    }
 }
 
 #endif /* OPENMEEG_UTILS_H */

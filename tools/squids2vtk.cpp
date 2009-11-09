@@ -53,7 +53,7 @@ using namespace OpenMEEG;
 
 int main( int argc, char** argv)
 {
-    om_print_version(argv);
+    print_version(argv[0]);
 
     command_usage("Convert squids in text file to a vtk file for vizualisation");
     const char *input_filename = command_option("-i",(const char *) NULL,"Squids positions in original coordinate system");

@@ -51,7 +51,7 @@ using namespace OpenMEEG;
 
 int main( int argc, char **argv)
 {
-    om_print_version(argv);
+    print_version(argv[0]);
 
     command_usage("Concat 2 mesh and save the result");
     const char *input_filename1 = command_option("-i1",(const char *) "","Input Mesh 1");

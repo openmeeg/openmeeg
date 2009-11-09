@@ -58,7 +58,7 @@ template<class T> void print_infos(const T& M);
 
 int main( int argc, char **argv)
 {
-    om_print_version(argv);
+    print_version(argv[0]);
 
     command_usage("Provides informations on a Matrix generated with OpenMEEG");
     const char *filename = command_option("-i",(const char *) NULL,"Matrix file");

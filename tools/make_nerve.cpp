@@ -355,7 +355,7 @@ int cylindre (char namesurf[],char namestim[],float L,float R,float dt,int*E,int
 
 int main(int argc, char** argv)
 {
-    om_print_version(argv);
+    print_version(argv[0]);
 
     command_usage("Make nerve geometry from existing parameters or make nerve geometry and parameter file from commandline user interface.");
     if ((!strcmp(argv[1],"-h")) | (!strcmp(argv[1],"--help"))) getHelp(argv);
