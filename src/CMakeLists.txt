@@ -39,13 +39,14 @@ INSTALL(TARGETS OpenMEEG om_assemble om_forward om_gain om_inverse
 # = TESTING =
 # ===========
 
+INCLUDE(TestHead.txt)
 IF(BUILD_TEST)
-    INCLUDE(TestHead1.txt)
-    INCLUDE(TestHead2.txt)
+    TESTHEAD(1)
+    TESTHEAD(2)
 
     OPTION(TEST_HEAD3 "Run tests on Head 3" OFF)
 
     IF (TEST_HEAD3)
-        INCLUDE(TestHead3.txt)
-    ENDIF (TEST_HEAD3)
-ENDIF(BUILD_TEST)
+        TESTHEAD(3)
+    ENDIF()
+ENDIF()

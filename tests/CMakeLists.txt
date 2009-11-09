@@ -81,7 +81,7 @@ FOREACH(HEADNUM 1 2)
 ENDFOREACH()
 
 FOREACH(DIP 1 2 3 4 5 6)
-    FOREACH(HEADNUM 1 2 ${HEAD3})
+    FOREACH(HEADNUM 1 2)
         SET(HEAD "Head${HEADNUM}")
         # Compare the potential results in a interior sphere of the Surf2Vol operator with analytical solution
         # obtained with Sphere (V.Hedou Modified)
