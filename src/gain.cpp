@@ -160,9 +160,9 @@ int main(int argc, char **argv)
 
         { // Avoiding to store all matrices at the same time
             Matrix Surf2Vol;
-            Surf2Vol.loadBin(argv[2]); 
+            Surf2Vol.loadBin(argv[3]); 
             SymMatrix HeadMatInv;
-            HeadMatInv.loadBin(argv[3]);
+            HeadMatInv.loadBin(argv[2]);
             VolPotEITGainMatrix = Surf2Vol*HeadMatInv(0,Surf2Vol.ncol()-1,0,HeadMatInv.ncol()-1);
         }
         {
@@ -201,7 +201,7 @@ void getHelp(char** argv)
 
     cout << "   -VolPotEIT :   Compute the gain for EIT, measured within the volume " << endl;
     cout << "            Filepaths are in order :" << endl;
-    cout << "            inputs: Surf2VolMat, HeadMatInv, EITStimMatrix," << endl;
+    cout << "            inputs: HeadMatInv, Surf2VolMat, EITStimMatrix," << endl;
     cout << "            output: VolPotEITgain Matrix (.txt)" << endl << endl;
 
     exit(0);
