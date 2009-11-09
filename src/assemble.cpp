@@ -67,8 +67,7 @@ int main(int argc, char** argv)
 {
     om_print_version(argv);
 
-    if(argc < 2)
-    {
+    if (argc<2) {
         cerr << "Not enough arguments \nPlease try \"" << argv[0] << " -h\" or \"" << argv[0] << " --help \" \n" << endl;
         return 0;
     }
@@ -85,18 +84,15 @@ int main(int argc, char** argv)
     * Computation of Head Matrix for BEM Symmetric formulation
     **********************************************************************************************/
     if ((!strcmp(argv[1],"-HeadMat")) | (!strcmp(argv[1],"-HM")) | (!strcmp(argv[1],"-hm"))) {
-        if (argc < 3)
-        {
+        if (argc < 3) {
             std::cerr << "Please set geometry filepath !" << endl;
             exit(1);
         }
-        if (argc < 4)
-        {
+        if (argc < 4) {
             std::cerr << "Please set conductivities filepath !" << endl;
             exit(1);
         }
-        if (argc < 5)
-        {
+        if (argc < 5) {
             std::cerr << "Please set output filepath !" << endl;
             exit(1);
         }
@@ -113,18 +109,15 @@ int main(int argc, char** argv)
     * Computation of general Surface Source Matrix for BEM Symmetric formulation
     **********************************************************************************************/
     else if ((!strcmp(argv[1],"-SurfSourceMat")) | (!strcmp(argv[1],"-SSM")) | (!strcmp(argv[1],"-ssm"))) {
-        if (argc < 3)
-        {
+        if (argc < 3) {
             std::cerr << "Please set geometry filepath !" << endl;
             exit(1);
         }
-        if (argc < 4)
-        {
+        if (argc < 4) {
             std::cerr << "Please set conductivities filepath !" << endl;
             exit(1);
         }
-        if (argc < 5)
-        {
+        if (argc < 5) {
             std::cerr << "Please set 'mesh of sources' filepath !" << endl;
             exit(1);
         }

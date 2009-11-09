@@ -1,0 +1,130 @@
+SET(HEADNUM @HEADNUM@)
+SET(SUBJECT "Head"${HEADNUM})
+
+SET(ASSEMBLE  ${CMAKE_CURRENT_BINARY_DIR}/om_assemble)
+SET(INVERSER  ${CMAKE_CURRENT_BINARY_DIR}/om_minverser)
+SET(PRESMOOTH ${CMAKE_CURRENT_BINARY_DIR}/om_presmooth)
+SET(GAIN      ${CMAKE_CURRENT_BINARY_DIR}/om_gain)
+SET(FORWARD   ${CMAKE_CURRENT_BINARY_DIR}/om_forward)
+SET(INVERSE   ${CMAKE_CURRENT_BINARY_DIR}/om_inverse)
+SET(INTPOT    ${CMAKE_CURRENT_BINARY_DIR}/om_internalPotential)
+
+SET(MODELBASE     ${OpenMEEG_SOURCE_DIR}/data/Models/${SUBJECT}/${SUBJECT})
+SET(GENERATEDBASE ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT})
+SET(COMPBASE      ${OpenMEEG_SOURCE_DIR}/data/Computations/${SUBJECT}/${SUBJECT})
+SET(ANABASE       ${OpenMEEG_SOURCE_DIR}/tests/analytic}
+
+SET(GEOM        ${MODELBASE}.geom)
+SET(COND        ${MODELBASE}.cond)
+SET(SRCMESH     ${MODELBASE}.tri)
+SET(POINTS      ${ANABASE}/eeg_internal_points.txt)
+SET(DIPPOS      ${COMPBASE}.dip)
+SET(PATCHES     ${COMPBASE}.patches)
+SET(SQUIDS      ${COMPBASE}.squids)
+SET(SURFSOURCES ${COMPBASE}.src)
+SET(DIPSOURCES  ${COMPBASE}.srcdip)
+
+SET(SMOOTH     ${GENERATEDBASE}.smooth)
+SET(AREAS      ${GENERATEDBASE}.ai)
+SET(HMMAT      ${GENERATEDBASE}.hm)
+SET(HMINVMAT   ${GENERATEDBASE}.hm_inv)
+SET(SSMMAT     ${GENERATEDBASE}.ssm)
+SET(H2EMMAT    ${GENERATEDBASE}.h2em)
+SET(SGEMMAT    ${GENERATEDBASE}.sgem)
+SET(H2MMMAT    ${GENERATEDBASE}.h2mm)
+SET(SS2MMMAT   ${GENERATEDBASE}.ss2mm)
+SET(SGMMMAT    ${GENERATEDBASE}.sgmm)
+SET(DSMMAT     ${GENERATEDBASE}.dsm)
+SET(DS2MMMAT   ${GENERATEDBASE}.ds2mm)
+SET(SURFMEGMAT ${GENERATEDBASE}.SurfSource2MEGMat)
+SET(DGMMMAT    ${GENERATEDBASE}.dgmm)
+
+SET(ESTEEG     ${GENERATEDBASE}.est_eeg)
+SET(ESTMEG     ${GENERATEDBASE}.est_meg)
+SET(EEGINVBASE ${GENERATEDBASE}-eeg)
+SET(MEGINVBASE ${GENERATEDBASE}-meg)
+SET(DIPBASE    ${GENERATEDBASE}-dip)
+
+############ ASSEMBLE TEST ##############
+
+ADD_TEST(HM-${SUBJECT} ${ASSEMBLE} -HM ${GEOM} ${COND} ${HMMAT})
+ADD_TEST(HMINV-${SUBJECT} ${INVERSER} ${HMMAT} ${HMINVMAT})
+
+IF (${SUBJECT} STREQUAL "Head1)
+    ADD_TEST(SSM-${SUBJECT} ${ASSEMBLE} -SSM ${GEOM} ${COND} ${SRCMESH} ${SSMMAT})
+    ADD_TEST(AI-${SUBJECT} ${PRESMOOTH} ${SRCMESH} ${SMOOTH} ${AREAS})
+ENDIF()
+
+############ EEG TEST ##############
+
+ADD_TEST(H2EM-${SUBJECT} ${ASSEMBLE} -H2EM ${GEOM} ${COND} ${PATCHES} ${H2EMMAT})
+
+IF (${HEADNUM} EQ 1)
+
+    ############ EEG TEST ##############
+
+    ADD_TEST(SurfGainEEG-${SUBJECT} ${GAIN} -EEG ${HMINVMAT} ${SSMMAT} ${H2EMMAT} ${SGEMMAT})
+
+    #------ FORWARD -----#
+
+    ADD_TEST(ESTEEG-${SUBJECT} ${FORWARD} ${SGEMMAT} ${SURFSOURCES} ${ESTEEG} 0.0)
+
+    #------ INVERSE -----#
+
+    ADD_TEST(EEG-HEAT-${SUBJECT} ${INVERSE} ${SGEMMAT} ${SMOOTH} ${AREAS} ${ESTEEG} ${EEGINVBASE}-heat.est_src 1e-4 HEAT)
+    ADD_TEST(EEG-MN-${SUBJECT}   ${INVERSE} ${SGEMMAT} ${SMOOTH} ${AREAS} ${ESTEEG} ${EEGINVBASE}-mn.est_src 1e-4 MN)
+    ADD_TEST(EEG-TV-${SUBJECT}   ${INVERSE} ${SGEMMAT} ${SMOOTH} ${AREAS} ${ESTEEG} ${EEGINVBASE}-tv.est_src 1e-4 TV 10000 0.0)
+
+ENDIF()
+
+############ MEG TEST ##############
+
+ADD_TEST(H2MM-${SUBJECT} ${ASSEMBLE} -H2MM ${GEOM} ${COND} ${SQUIDS} ${H2MMMAT})
+
+IF (${HEADNUM} EQ 1)
+
+    ############ MEG TEST ##############
+
+    ADD_TEST(SS2MM-${SUBJECT} ${ASSEMBLE} -SS2MM ${SRCMESH} ${SQUIDS} ${SS2MMMAT})
+
+    ADD_TEST(SurfGainMEG-${SUBJECT} ${GAIN} -MEG ${HMINVMAT} ${SSMMAT} ${H2MMMAT} ${SS2MMMAT} ${SGMMMAT})
+
+    #------ FORWARD ----#
+
+    ADD_TEST(ESTMEG-${SUBJECT} ${FORWARD} ${SGMMMAT} ${SURFSOURCES} ${ESTMEG} 0.0)
+
+    #------ INVERSE -----#
+    #
+    ADD_TEST(MEG-HEAT-${SUBJECT} ${INVERSE} ${SGMMMAT} ${SMOOTH} ${AREAS} ${ESTMEG} ${MEGINVBASE}-heat.est_src 1e-4 HEAT)
+    ADD_TEST(MEG-MN-${SUBJECT}   ${INVERSE} ${SGMMMAT} ${SMOOTH} ${AREAS} ${ESTMEG} ${MEGINVBASE}-mn.est_src 1e-4 MN)
+    ADD_TEST(MEG-TV-${SUBJECT}   ${INVERSE} ${SGMMMAT} ${SMOOTH} ${AREAS} ${ESTMEG} ${MEGINVBASE}-tv.est_src 1e-4 TV 10000 0.0)
+
+ENDIF()
+
+############ TEST DIPOLE FORWARD RESULTS (Regression test) ##############
+
+# om_assemble -DSM geometry.geom conductivity.cond dipoles.dip dsm.bin
+
+ADD_TEST(DSM-${SUBJECT} ${ASSEMBLE} -DSM ${GEOM} ${COND} ${DIPPOS} ${DSMMAT})
+
+# om_assemble -DS2MM dipoles.dip squidscoord.squids sToMEGmat.bin
+
+ADD_TEST(DS2MM-${SUBJECT} ${ASSEMBLE} -DS2MM ${DIPPOS} ${SQUIDS} ${DS2MMMAT})
+
+ADD_TEST(DipGainEEG-${SUBJECT} ${GAIN} -EEG ${HMINVMAT} ${DSMMAT} ${H2EMMAT} ${SURFMEGMAT})
+
+ADD_TEST(DipGainMEG-${SUBJECT} ${GAIN} -MEG ${HMINVMAT} ${DSMMAT} ${H2MMMAT} ${DS2MMMAT} ${DGMMMAT})
+
+# forward -EEG gainmatrix.bin dipoleActivation.src estimatedeegdata.txt noiselevel
+
+ADD_TEST(EEG-dipoles-${SUBJECT} ${FORWARD} ${SURFMEGMAT} ${DIPSOURCES} ${DIPESTBASE}.est_eeg 0.0)
+
+ADD_TEST(MEG-dipoles-${SUBJECT} ${FORWARD} ${DGMMMAT} ${DIPSOURCES} ${DIPESTBASE}.est_meg 0.0)
+
+IF (${HEADNUM} LE 2)
+
+    # internalPotential geometry.geom conductivity.cond dipoles.dip source.dsm headmatinv.bin internalpoints.txt outputPotential.txt
+
+    ADD_TEST(EEGinternal-dipoles-${SUBJECT} ${INTPOT} ${GEOM} ${COND} ${DIPPOS} ${DSMMAT} ${HMINVMAT} ${POINTS} ${DIPESTBASE}.est_eeginternal)
+
+ENDIF()
