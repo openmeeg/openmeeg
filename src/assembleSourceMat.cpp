@@ -128,7 +128,7 @@ namespace OpenMEEG {
         }
     }
 
-    DipSourceMat::DipSourceMat (const Geometry &geo, const Matrix& dipoles, const int GaussOrder, const bool adapt_rhs) {
+    DipSourceMat::DipSourceMat (const Geometry &geo, const Matrix& dipoles, const int GaussOrder, const bool adapt_rhs=true) {
         vector<Vect3> Rs, Qs;
 
         // Assembling Matrix from discretization :

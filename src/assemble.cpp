@@ -168,12 +168,12 @@ int main(int argc, char** argv)
         }
 
         // Choosing between adaptative integration or not for the RHS
-        if (!strcmp(argv[1],"-DipSourceMatNotAdapt")){
+        if (!strcmp(argv[1],"-DipSourceMatNoAdapt")){
             DipSourceMat dsm(geo, dipoles, GaussOrder,false);
             // Saving RHS Matrix for dipolar case :
             dsm.SAVE(argv[5]);
         } else {
-            DipSourceMat dsm(geo, dipoles, GaussOrder);
+            DipSourceMat dsm(geo, dipoles, GaussOrder,true);
             // Saving RHS Matrix for dipolar case :
             dsm.SAVE(argv[5]);
         }
