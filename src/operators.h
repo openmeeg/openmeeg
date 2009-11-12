@@ -68,7 +68,6 @@ namespace OpenMEEG {
     #define OPTIMIZED_OPERATOR_D
     #endif
 
-    #define ADAPT_RHS
     //#define ADAPT_LHS
 
     // T can be a Matrix or SymMatrix
@@ -84,8 +83,8 @@ namespace OpenMEEG {
     void operatorSinternal(const Mesh &, Matrix &,const int,const Matrix &);
     void operatorDinternal(const Mesh &, Matrix &,const int,const Matrix &);
     void operatorFerguson(const Vect3& x, const Mesh &m1, Matrix &mat, int offsetI, int offsetJ);
-    void operatorDipolePotDer(const Vect3 &r0, const Vect3 &q,const Mesh &inner_layer, Vector &rhs, int offsetIdx,const int);
-    void operatorDipolePot(const Vect3 &r0, const Vect3 &q,const Mesh &inner_layer, Vector &rhs, int offsetIdx,const int);
+    void operatorDipolePotDer(const Vect3 &r0, const Vect3 &q,const Mesh &inner_layer, Vector &rhs, int offsetIdx,const int,const bool);
+    void operatorDipolePot(const Vect3 &r0, const Vect3 &q,const Mesh &inner_layer, Vector &rhs, int offsetIdx,const int,const bool);
 
     inline void mult( SymMatrix &mat, int Istart, int Jstart, int Istop, int Jstop, double coeff)
     {

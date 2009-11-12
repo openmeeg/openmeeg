@@ -88,7 +88,7 @@ namespace OpenMEEG {
         assemble_SurfSourceMat(*this,geo,sources,GaussOrder);
     }
 
-    void assemble_DipSourceMat(Matrix &rhs,const Geometry &geo,vector<Vect3> Rs,vector<Vect3> Qs,const int GaussOrder)
+    void assemble_DipSourceMat(Matrix &rhs,const Geometry &geo,vector<Vect3> Rs,vector<Vect3> Qs,const int GaussOrder, const bool adapt_rhs)
     {
         int newsize=geo.size()-(geo.getM(geo.nb()-1)).nbTrgs();
         rhs = Matrix(newsize, Qs.size());
@@ -103,10 +103,10 @@ namespace OpenMEEG {
         for (size_t s=0; s<Qs.size(); s++) {
             progressbar(s,Qs.size());
             prov.set(0);
-            operatorDipolePotDer(Rs[s],Qs[s],geo.getM(0),prov,0,GaussOrder);
+            operatorDipolePotDer(Rs[s],Qs[s],geo.getM(0),prov,0,GaussOrder,adapt_rhs);
             // Second block is nFaceFistLayer
             if(geo.nb()>1) {
-                operatorDipolePot(Rs[s],Qs[s],geo.getM(0),prov,nVertexFirstLayer,GaussOrder);
+                operatorDipolePot(Rs[s],Qs[s],geo.getM(0),prov,nVertexFirstLayer,GaussOrder,adapt_rhs);
             }
             for (size_t i=0; i<rhs.nlin(); i++) {              
                 rhs(i,s) = prov(i);
@@ -128,7 +128,7 @@ namespace OpenMEEG {
         }
     }
 
-    DipSourceMat::DipSourceMat (const Geometry &geo, const Matrix& dipoles, const int GaussOrder) {
+    DipSourceMat::DipSourceMat (const Geometry &geo, const Matrix& dipoles, const int GaussOrder, const bool adapt_rhs) {
         vector<Vect3> Rs, Qs;
 
         // Assembling Matrix from discretization :
@@ -141,7 +141,7 @@ namespace OpenMEEG {
             Rs.push_back(r); Qs.push_back(q);
         }
 
-        assemble_DipSourceMat(*this,geo,Rs,Qs,GaussOrder);
+        assemble_DipSourceMat(*this,geo,Rs,Qs,GaussOrder,adapt_rhs);
     }
 
     void assemble_EITsource(const Geometry &geo, Matrix &mat, Matrix &airescalp, const int GaussOrder)

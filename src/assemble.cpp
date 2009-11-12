@@ -138,7 +138,7 @@ int main(int argc, char** argv)
     /*********************************************************************************************
     * Computation of RHS for discrete dipolar case
     **********************************************************************************************/
-    else if((!strcmp(argv[1],"-DipSourceMat")) |(!strcmp(argv[1],"-DSM"))|(!strcmp(argv[1],"-dsm")))  {
+    else if((!strcmp(argv[1],"-DipSourceMat")) |(!strcmp(argv[1],"-DSM"))|(!strcmp(argv[1],"-dsm"))|(!strcmp(argv[1],"-DipSourceMatNoAdapt")))  {
              if(argc < 3)
         {
             cerr << "Please set geometry filepath !" << endl;
@@ -167,10 +167,16 @@ int main(int argc, char** argv)
             exit(1);
         }
 
-        DipSourceMat dsm(geo, dipoles, GaussOrder);
-
-        // Saving RHS Matrix for dipolar case :
-        dsm.SAVE(argv[5]);
+        // Choosing between adaptative integration or not for the RHS
+        if (!strcmp(argv[1],"-DipSourceMatNotAdapt")){
+            DipSourceMat dsm(geo, dipoles, GaussOrder,false);
+            // Saving RHS Matrix for dipolar case :
+            dsm.SAVE(argv[5]);
+        } else {
+            DipSourceMat dsm(geo, dipoles, GaussOrder);
+            // Saving RHS Matrix for dipolar case :
+            dsm.SAVE(argv[5]);
+        }
     }
 
     /*********************************************************************************************

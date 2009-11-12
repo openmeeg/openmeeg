@@ -88,51 +88,55 @@ namespace OpenMEEG {
         }
     }
 
-    void operatorDipolePotDer(const Vect3 &r0,const Vect3 &q,const Mesh &inner_layer,Vector &rhs,const int offsetIdx,const int GaussOrder)
+    void operatorDipolePotDer(const Vect3 &r0,const Vect3 &q,const Mesh &inner_layer,Vector &rhs,const int offsetIdx,const int GaussOrder,const bool adapt_rhs)
     {
         static analyticDipPotDer anaDPD;
 
-    #ifdef ADAPT_RHS
-        AdaptiveIntegrator<Vect3,analyticDipPotDer> gauss(0.001);
-    #else
-        static Integrator<Vect3,analyticDipPotDer> gauss;
-    #endif //ADAPT_RHS
-        gauss.setOrder(GaussOrder);
+        Integrator<Vect3,analyticDipPotDer>* gauss;
+        if (adapt_rhs){
+            gauss= new AdaptiveIntegrator<Vect3,analyticDipPotDer>(0.001);
+        } else {
+            gauss= new Integrator<Vect3,analyticDipPotDer>;
+        }
+
+        gauss->setOrder(GaussOrder);
         #ifdef USE_OMP
         #pragma omp parallel for private(anaDPD)
         #endif
         for(int i=0;i<inner_layer.nbTrgs();i++)
         {
             anaDPD.init(inner_layer,i,q,r0);
-            Vect3 v=gauss.integrate(anaDPD,inner_layer.getTrg(i),inner_layer);
+            Vect3 v=gauss->integrate(anaDPD,inner_layer.getTrg(i),inner_layer);
             #ifdef USE_OMP
             #pragma omp critical
             #endif
             {
-            rhs(inner_layer.getTrg(i-offsetIdx).s1()+offsetIdx)+=v(0);
-            rhs(inner_layer.getTrg(i-offsetIdx).s2()+offsetIdx)+=v(1);
-            rhs(inner_layer.getTrg(i-offsetIdx).s3()+offsetIdx)+=v(2);
+                rhs(inner_layer.getTrg(i-offsetIdx).s1()+offsetIdx)+=v(0);
+                rhs(inner_layer.getTrg(i-offsetIdx).s2()+offsetIdx)+=v(1);
+                rhs(inner_layer.getTrg(i-offsetIdx).s3()+offsetIdx)+=v(2);
             }
         }
     }
 
-    void operatorDipolePot(const Vect3 &r0, const Vect3 &q, const Mesh &inner_layer, Vector &rhs,const int offsetIdx,const int GaussOrder)
+    void operatorDipolePot(const Vect3 &r0, const Vect3 &q, const Mesh &inner_layer, Vector &rhs,const int offsetIdx,const int GaussOrder,const bool adapt_rhs)
     {
         static analyticDipPot anaDP;
 
         anaDP.init(q,r0);
-    #ifdef ADAPT_RHS
-        AdaptiveIntegrator<double,analyticDipPot> gauss(0.001);
-    #else
-        static Integrator<double,analyticDipPot> gauss;
-    #endif
-        gauss.setOrder(GaussOrder);
+        Integrator<double,analyticDipPot> *gauss;
+        if (adapt_rhs){
+            gauss= new AdaptiveIntegrator<double,analyticDipPot>(0.001);
+        } else {
+            gauss= new Integrator<double,analyticDipPot>;
+        }
+
+        gauss->setOrder(GaussOrder);
         #ifdef USE_OMP
         #pragma omp parallel for
         #endif
         for(int i=offsetIdx;i<offsetIdx+inner_layer.nbTrgs();i++)
         {
-            double d = gauss.integrate(anaDP,inner_layer.getTrg(i-offsetIdx),inner_layer);
+            double d = gauss->integrate(anaDP,inner_layer.getTrg(i-offsetIdx),inner_layer);
             #ifdef USE_OMP
             #pragma omp critical
             #endif

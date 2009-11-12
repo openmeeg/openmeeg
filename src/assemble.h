@@ -73,7 +73,7 @@ namespace OpenMEEG {
     class OPENMEEG_EXPORT DipSourceMat : public virtual Matrix
     {
     public:
-        DipSourceMat (const Geometry &geo, const Matrix& dipoles, const int GaussOrder);
+        DipSourceMat (const Geometry &geo, const Matrix& dipoles, const int GaussOrder, const bool adapt_rhs=true);
         virtual ~DipSourceMat () {};
     };
 

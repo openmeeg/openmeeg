@@ -201,7 +201,7 @@ namespace OpenMEEG {
             else {std::cout<<"Unavalaible Gauss Order: "<<n<<std::endl; order = (n<1)?order=1:order;}
         }
 
-        inline T integrate ( const I &fc, const Triangle& Trg ,const Mesh& M)
+        virtual inline T integrate ( const I &fc, const Triangle& Trg ,const Mesh& M)
         {
             Vect3 sommets[3]={M.getPt(Trg.s1()),M.getPt(Trg.s2()),M.getPt(Trg.s3())};
             return triangle_integration(fc,sommets);
@@ -244,7 +244,7 @@ namespace OpenMEEG {
         inline double norm(Vect3 a) {
             return a.norm();
         }
-        inline T integrate(const I &fc, const Triangle& Trg ,const Mesh& M)
+        virtual inline T integrate(const I &fc, const Triangle& Trg ,const Mesh& M)
         {
             int n=0;
             Vect3 vertices[3]={M.getPt(Trg.s1()),M.getPt(Trg.s2()),M.getPt(Trg.s3())};
