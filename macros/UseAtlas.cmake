@@ -68,11 +68,14 @@ ENDIF()
 
 IF (USE_MKL)
 
+    IF ( WIN32 )
+	FILE(GLOB MKL_PATH "C:/Program Files/Intel/MKL/*")
+    ENDIF( WIN32 )
     FIND_PATH(MKL_INCLUDE_PATH mkl.h
-                "C:/Program Files/Intel/MKL/9.1.027/include"
-                "C:/Program Files/Intel/MKL/8.1.1/include"
+                "${MKL_PATH}/include"
     )
-    IF (MKL_INCLUDE_PATH)
+
+    IF ( MKL_INCLUDE_PATH )
         #MESSAGE("mkl.h found in ${MKL_INCLUDE_PATH}")
         INCLUDE_DIRECTORIES(${MKL_INCLUDE_PATH})
     ELSE()
@@ -98,13 +101,16 @@ IF (USE_MKL)
 
     IF (WIN32)
         SET(MKL_LIB_SEARCHPATH
-            "C:/Program Files/Intel/MKL/9.1.027/ia32/lib"
-            "C:/Program Files/Intel/MKL/8.1.1/ia32/lib"
+            "${MKL_PATH}/ia32/lib"
         )
     ENDIF()
 
     IF (WIN32)
-        SET(MKL_LIBS mkl_solver mkl_c libguide mkl_lapack mkl_ia32)
+    	IF (MKL_INCLUDE_PATH MATCHES "10.")
+    	    SET(MKL_LIBS mkl_solver mkl_core mkl_intel_c mkl_intel_s mkl_intel_thread libguide mkl_lapack95 mkl_blas95)
+    	ELSE (MKL_INCLUDE_PATH MATCHES "10.")
+    	    SET(MKL_LIBS mkl_solver mkl_c libguide mkl_lapack mkl_ia32)
+    	ENDIF (MKL_INCLUDE_PATH MATCHES "10.")
     ELSE()
         SET(MKL_LIBS mkl_intel mkl_intel_thread mkl_core iomp5 pthread)
         #SET(MKL_LIBS mkl_intel mkl_intel_thread mkl_core iomp5md pthread)
