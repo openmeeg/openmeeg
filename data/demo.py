@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import openmeeg as om
+import sys
 
 # =============
 # = Load data =
@@ -35,13 +36,14 @@ patches.load(patchesFile)
 # = Compute forward problem (Build Gain Matrices) =
 # =================================================
 
-gaussOrder = 3;
+gaussOrder = 3
+use_adaptive_integration = True
 
 hm            = om.HeadMat(geom,gaussOrder)
 hminv         = hm.inverse()
 ssm           = om.SurfSourceMat(geom,mesh,gaussOrder)
 ss2mm         = om.SurfSource2MEGMat(mesh,sensors)
-dsm           = om.DipSourceMat(geom,dipoles,gaussOrder)
+dsm           = om.DipSourceMat(geom,dipoles,gaussOrder,use_adaptive_integration)
 ds2mm         = om.DipSource2MEGMat(dipoles,sensors)
 h2mm          = om.Head2MEGMat(geom,sensors)
 h2em          = om.Head2EEGMat(geom,patches)
@@ -131,6 +133,8 @@ m2.loadBin(ssmFile)
 print m2(0,0)
 print m2.nlin()
 print m2.ncol()
+
+sys.exit(0)
 
 # ===================
 # = Numpy interface =
