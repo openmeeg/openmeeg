@@ -46,5 +46,13 @@ IF (PYTHON_WRAP)
             DESTINATION lib/python
             PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ)
 
+    # Test Python wrapping
+    IF(BUILD_TEST)
+        ADD_TEST(openmeeg_python_aux
+            COMMAND ${CMAKE_COMMAND} -E copy ${OpenMEEG_SOURCE_DIR}/data/demo.py ${OpenMEEG_BINARY_DIR}/Wrapping/src/)
+        ADD_TEST(openmeeg_python
+            COMMAND ${PYTHON_EXECUTABLE} ${OpenMEEG_BINARY_DIR}/Wrapping/src/demo.py --path ${OpenMEEG_SOURCE_DIR}/data)
+    ENDIF()
+
 ENDIF (PYTHON_WRAP)
 

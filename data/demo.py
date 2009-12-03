@@ -1,19 +1,28 @@
 #!/usr/bin/env python
 
 import openmeeg as om
+from os import path
 import sys
+from optparse import OptionParser
+
+data_path = path.dirname(path.abspath(__file__))
+parser = OptionParser()
+parser.add_option("-p", "--path", dest="data_path", \
+    help="path to data folder", metavar="FILE", default=data_path)
+(options, args) = parser.parse_args()
+data_path = options.data_path
 
 # =============
 # = Load data =
 # =============
 
-subject='Head1'
-condFile='Models/'+subject+'/'+subject+'.cond'
-geomFile='Models/'+subject+'/'+subject+'.geom'
-sourceMeshFile='Models/'+subject+'/'+subject+'.tri'
-dipoleFile='Models/'+subject+'/'+subject+'.dip'
-squidsFile='Computations/'+subject+'/'+subject+'.squids'
-patchesFile='Computations/'+subject+'/'+subject+'.patches'
+subject = 'Head1'
+condFile = path.join(data_path,'Models/'+subject+'/'+subject+'.cond')
+geomFile = path.join(data_path,'Models/'+subject+'/'+subject+'.geom')
+sourceMeshFile = path.join(data_path,'Models/'+subject+'/'+subject+'.tri')
+dipoleFile = path.join(data_path,'Models/'+subject+'/'+subject+'.dip')
+squidsFile = path.join(data_path,'Computations/'+subject+'/'+subject+'.squids')
+patchesFile = path.join(data_path,'Computations/'+subject+'/'+subject+'.patches')
 
 print condFile
 
@@ -76,7 +85,7 @@ print "gain_meg_surf_one_line : %d x %d"%(gain_meg_surf_one_line.nlin(),gain_meg
 # = Compute forward data =
 # ========================
 
-srcFile = 'Computations/'+subject+'/'+subject+'.src'
+srcFile = path.join(data_path,'Computations/'+subject+'/'+subject+'.src')
 sources = om.Matrix()
 sources.load(srcFile)
 
