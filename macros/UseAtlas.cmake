@@ -38,24 +38,38 @@ IF(USE_ATLAS)
             /usr/lib/atlas
         )
 
-        # Find libs atlas and assume ${ATLAS_OTHER_LIBS} are in the same directory
-        FIND_LIBRARY(ATLAS_LIB
-            NAMES atlas
-            PATHS ${ATLAS_LIB_SEARCHPATH}
-            NO_DEFAULT_PATH
-            NO_CMAKE_ENVIRONMENT_PATH
-            NO_CMAKE_PATH
-            NO_SYSTEM_ENVIRONMENT_PATH
-            NO_CMAKE_SYSTEM_PATH)
+	SET(ATLAS_LIBS atlas cblas f77blas lapack_atlas lapack)
+	SET(ATLAS_LIBS atlas cblas f77blas lapack_atlas lapack blas)
+    	
+	FOREACH (LIB ${ATLAS_LIBS})
+	    FIND_LIBRARY(${LIB}_PATH
+		NAMES ${LIB} 
+		PATHS ${ATLAS_LIB_SEARCHPATH}
+		NO_DEFAULT_PATH
+		NO_CMAKE_ENVIRONMENT_PATH
+		NO_CMAKE_PATH
+		NO_SYSTEM_ENVIRONMENT_PATH
+		NO_CMAKE_SYSTEM_PATH)
+	    IF(${LIB}_PATH)
+		SET(LAPACK_LIBRARIES ${LAPACK_LIBRARIES} ${${LIB}_PATH})
+		MARK_AS_ADVANCED(${LIB}_PATH)
+	    ELSE()
+		MESSAGE("Could not find ${LIB}")
+	    ENDIF()
+	ENDFOREACH()
 
-        FIND_LIBRARY(LAPACK_ATLAS_LIB lapack_atlas ${ATLAS_LIB_SEARCHPATH})
-        FIND_LIBRARY(CBLAS_LIB cblas ${ATLAS_LIB_SEARCHPATH})
-        FIND_PACKAGE(LAPACK REQUIRED)
-        #FIND_LIBRARY(LAPACK_LIB lapack ${ATLAS_LIB_SEARCHPATH})
-        #FIND_LIBRARY(BLAS_LIB blas ${ATLAS_LIB_SEARCHPATH})
-        #FIND_LIBRARY(GFORTRAN_LIB gfortran)
-
-        SET(LAPACK_LIBRARIES ${LAPACK_ATLAS_LIB} ${LAPACK_LIBRARIES} ${CBLAS_LIB} ${ATLAS_LIB} ${LAPACK_LINKER_FLAGS})
+	IF (NOT BUILD_SHARED)
+	    FIND_FILE(GFORTRAN_LIB libgfortran.a
+		/usr/lib/gcc/i486-linux-gnu/4.2.4/
+		/usr/lib/gcc/i386-redhat-linux/4.3.2/
+		/usr/lib/gcc/x86_64-manbo-linux-gnu/4.3.2/
+	    )
+#	    SET(GFORTRAN_LIB
+#    /usr/lib/gcc/i486-linux-gnu/4.2.4/libgfortran.a)
+#    /usr/lib/gcc/i386-redhat-linux/4.3.2/libgfortran.a)
+#    /usr/lib/gcc/x86_64-manbo-linux-gnu/4.3.2/libgfortran.a)
+	    SET(LAPACK_LIBRARIES ${LAPACK_LIBRARIES} ${GFORTRAN_LIB})
+	ENDIF()
 
         FIND_PATH(ATLAS_INCLUDE_PATH atlas/cblas.h /usr/include/)
         MARK_AS_ADVANCED(ATLAS_INCLUDE_PATH)
