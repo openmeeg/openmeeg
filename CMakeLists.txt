@@ -31,6 +31,7 @@ INCLUDE(macros/NewExecutable.cmake)
 INCLUDE(macros/FindLibrary.cmake)
 INCLUDE(macros/UnitTest.cmake)
 INCLUDE(macros/Revision.cmake)
+INCLUDE(macros/Win32Compat.cmake)
 
 GENERATE_VERSION_INFO()
 
