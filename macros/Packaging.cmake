@@ -78,18 +78,27 @@ IF(ENABLE_PACKAGING OR BUILD_RPM)
 
     SET(CPACK_SOURCE_STRIP_FILES "")
 
-    INCLUDE(CPack)
-
+    IF(UNIX AND NOT APPLE)
+	SET(CPACK_GENERATOR "TGZ")
+    ENDIF()
+    
     IF(UNIX AND BUILD_RPM) # linux
-        IF (CMAKE_MAJOR_VERSION EQUAL 2 AND CMAKE_MINOR_VERSION LESS 8)
+	SET(CPACK_GENERATOR "${CPACK_GENERATOR};RPM")
+	IF (CMAKE_MAJOR_VERSION EQUAL 2 AND CMAKE_MINOR_VERSION LESS 8)
             INCLUDE(UseRPMTools)
             IF (RPMTools_FOUND)
-                RPMTools_ADD_RPM_TARGETS(${PROJECT_NAME} "packaging/${PROJECT_NAME}.spec.in")
+                RPMTools_ADD_RPM_TARGETS(${PROJECT_NAME}
+"${PROJECT_SOURCE_DIR}/packaging/${PROJECT_NAME}.spec.in")
             ENDIF()
         ELSE()
-            SET(CPACK_RPM_USER_BINARY_SPECFILE "packaging/${PROJECT_NAME}.spec.in")
+	    SET(CPACK_RPM_PACKAGE_LICENSE "CeCILL-B")
+	    SET(CPACK_RPM_PACKAGE_DESCRIPTION  "OpenMEEG is a package for forward/inverse problems of EEG/MEG. The forward problem uses the symmetric Boundary Element Method. The inverse problem uses a distributed approach (L2, L1 regularization). Developped within Odyssee (INRIA-ENPC-ENS).")
+            SET(CPACK_RPM_PACKAGE_GROUP "Applications/Medical")
         ENDIF()
     ENDIF()
+    
+    INCLUDE(CPack)
+
 ENDIF()
 
 IF (ENABLE_PACKAGING AND WIN32)
