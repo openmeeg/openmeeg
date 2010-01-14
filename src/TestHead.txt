@@ -14,36 +14,44 @@ FUNCTION(TESTHEAD HEADNUM)
     SET(COMPBASE      ${OpenMEEG_SOURCE_DIR}/data/Computations/${SUBJECT}/${SUBJECT})
     SET(ANABASE       ${OpenMEEG_SOURCE_DIR}/tests/analytic)
 
-    SET(GEOM        ${MODELBASE}.geom)
-    SET(COND        ${MODELBASE}.cond)
-    SET(SRCMESH     ${MODELBASE}.tri)
-    SET(POINTS      ${ANABASE}/eeg_internal_points.txt)
-    SET(DIPPOS      ${COMPBASE}.dip)
-    SET(PATCHES     ${COMPBASE}.patches)
-    SET(SQUIDS      ${COMPBASE}.squids)
-    SET(SURFSOURCES ${COMPBASE}.src)
-    SET(DIPSOURCES  ${COMPBASE}.srcdip)
+    SET(GEOM                ${MODELBASE}.geom)
+    SET(COND                ${MODELBASE}.cond)
+    SET(SRCMESH             ${MODELBASE}.tri)
+    SET(POINTS              ${ANABASE}/eeg_internal_points.txt)
+    SET(DIPPOS              ${COMPBASE}.dip)
+    SET(PATCHES             ${COMPBASE}.patches)
+    SET(SQUIDS              ${COMPBASE}.squids)
+    SET(SQUIDS-TANGENTIAL   ${COMPBASE}-tangential.squids)
+    SET(SQUIDS-NORADIAL     ${COMPBASE}-noradial.squids)
+    SET(SURFSOURCES         ${COMPBASE}.src)
+    SET(DIPSOURCES          ${COMPBASE}.srcdip)
 
-    SET(SMOOTH     ${GENERATEDBASE}.smooth)
-    SET(AREAS      ${GENERATEDBASE}.ai)
-    SET(HMMAT      ${GENERATEDBASE}.hm)
-    SET(HMINVMAT   ${GENERATEDBASE}.hm_inv)
-    SET(SSMMAT     ${GENERATEDBASE}.ssm)
-    SET(H2EMMAT    ${GENERATEDBASE}.h2em)
-    SET(SGEMMAT    ${GENERATEDBASE}.sgem)
-    SET(H2MMMAT    ${GENERATEDBASE}.h2mm)
-    SET(SS2MMMAT   ${GENERATEDBASE}.ss2mm)
-    SET(SGMMMAT    ${GENERATEDBASE}.sgmm)
-    SET(DSMMAT     ${GENERATEDBASE}.dsm)
-    SET(DS2MMMAT   ${GENERATEDBASE}.ds2mm)
-    SET(SURFMEGMAT ${GENERATEDBASE}.SurfSource2MEGMat)
-    SET(DGMMMAT    ${GENERATEDBASE}.dgmm)
+    SET(SMOOTH              ${GENERATEDBASE}.smooth)
+    SET(AREAS               ${GENERATEDBASE}.ai)
+    SET(HMMAT               ${GENERATEDBASE}.hm)
+    SET(HMINVMAT            ${GENERATEDBASE}.hm_inv)
+    SET(SSMMAT              ${GENERATEDBASE}.ssm)
+    SET(H2EMMAT             ${GENERATEDBASE}.h2em)
+    SET(SGEMMAT             ${GENERATEDBASE}.sgem)
+    SET(H2MMMAT             ${GENERATEDBASE}.h2mm)
+    SET(H2MMMAT-TANGENTIAL  ${GENERATEDBASE}-tangential.h2mm)
+    SET(H2MMMAT-NORADIAL    ${GENERATEDBASE}-noradial.h2mm)
+    SET(SS2MMMAT            ${GENERATEDBASE}.ss2mm)
+    SET(SGMMMAT             ${GENERATEDBASE}.sgmm)
+    SET(DSMMAT              ${GENERATEDBASE}.dsm)
+    SET(DS2MMMAT            ${GENERATEDBASE}.ds2mm)
+    SET(DS2MMMAT-TANGENTIAL ${GENERATEDBASE}-tangential.ds2mm)
+    SET(DS2MMMAT-NORADIAL   ${GENERATEDBASE}-noradial.ds2mm)
+    SET(SURFMEGMAT          ${GENERATEDBASE}.SurfSource2MEGMat)
+    SET(DGMMMAT             ${GENERATEDBASE}.dgmm)
+    SET(DGMMMAT-TANGENTIAL  ${GENERATEDBASE}-tangential.dgmm)
+    SET(DGMMMAT-NORADIAL    ${GENERATEDBASE}-noradial.dgmm)
 
-    SET(ESTEEG     ${GENERATEDBASE}.est_eeg)
-    SET(ESTMEG     ${GENERATEDBASE}.est_meg)
-    SET(EEGINVBASE ${GENERATEDBASE}-eeg)
-    SET(MEGINVBASE ${GENERATEDBASE}-meg)
-    SET(ESTDIPBASE ${GENERATEDBASE}-dip)
+    SET(ESTEEG             ${GENERATEDBASE}.est_eeg)
+    SET(ESTMEG             ${GENERATEDBASE}.est_meg)
+    SET(EEGINVBASE         ${GENERATEDBASE}-eeg)
+    SET(MEGINVBASE         ${GENERATEDBASE}-meg)
+    SET(ESTDIPBASE         ${GENERATEDBASE}-dip)
 
     ############ ASSEMBLE TEST ##############
 
@@ -81,6 +89,10 @@ FUNCTION(TESTHEAD HEADNUM)
 
     ADD_TEST(H2MM-${SUBJECT} ${ASSEMBLE} -H2MM ${GEOM} ${COND} ${SQUIDS} ${H2MMMAT})
 
+    ADD_TEST(H2MM-${SUBJECT}-tangential ${ASSEMBLE} -H2MM ${GEOM} ${COND} ${SQUIDS-TANGENTIAL} ${H2MMMAT-TANGENTIAL})
+
+    ADD_TEST(H2MM-${SUBJECT}-noradial ${ASSEMBLE} -H2MM ${GEOM} ${COND} ${SQUIDS-NORADIAL} ${H2MMMAT-NORADIAL})
+
     IF (${HEADNUM} EQUAL 1)
         ############ MEG TEST ##############
 
@@ -109,15 +121,27 @@ FUNCTION(TESTHEAD HEADNUM)
 
     ADD_TEST(DS2MM-${SUBJECT} ${ASSEMBLE} -DS2MM ${DIPPOS} ${SQUIDS} ${DS2MMMAT})
 
+    ADD_TEST(DS2MM-${SUBJECT}-tangential ${ASSEMBLE} -DS2MM ${DIPPOS} ${SQUIDS-TANGENTIAL} ${DS2MMMAT-TANGENTIAL})
+
+    ADD_TEST(DS2MM-${SUBJECT}-noradial ${ASSEMBLE} -DS2MM ${DIPPOS} ${SQUIDS-NORADIAL} ${DS2MMMAT-NORADIAL})
+
     ADD_TEST(DipGainEEG-${SUBJECT} ${GAIN} -EEG ${HMINVMAT} ${DSMMAT} ${H2EMMAT} ${SURFMEGMAT})
 
     ADD_TEST(DipGainMEG-${SUBJECT} ${GAIN} -MEG ${HMINVMAT} ${DSMMAT} ${H2MMMAT} ${DS2MMMAT} ${DGMMMAT})
+
+    ADD_TEST(DipGainMEG-${SUBJECT}-tangential ${GAIN} -MEG ${HMINVMAT} ${DSMMAT} ${H2MMMAT-TANGENTIAL} ${DS2MMMAT-TANGENTIAL} ${DGMMMAT-TANGENTIAL})
+
+    ADD_TEST(DipGainMEG-${SUBJECT}-noradial ${GAIN} -MEG ${HMINVMAT} ${DSMMAT} ${H2MMMAT-NORADIAL} ${DS2MMMAT-NORADIAL} ${DGMMMAT-NORADIAL})
 
     # forward -EEG gainmatrix.bin dipoleActivation.src estimatedeegdata.txt noiselevel
 
     ADD_TEST(EEG-dipoles-${SUBJECT} ${FORWARD} ${SURFMEGMAT} ${DIPSOURCES} ${ESTDIPBASE}.est_eeg 0.0)
 
     ADD_TEST(MEG-dipoles-${SUBJECT} ${FORWARD} ${DGMMMAT} ${DIPSOURCES} ${ESTDIPBASE}.est_meg 0.0)
+
+    ADD_TEST(MEG-dipoles-${SUBJECT}-tangential ${FORWARD} ${DGMMMAT-TANGENTIAL} ${DIPSOURCES} ${ESTDIPBASE}-tangential.est_meg 0.0)
+
+    ADD_TEST(MEG-dipoles-${SUBJECT}-noradial ${FORWARD} ${DGMMMAT-NORADIAL} ${DIPSOURCES} ${ESTDIPBASE}-noradial.est_meg 0.0)
 
     IF (${HEADNUM} LESS 3)
         # internalPotential geometry.geom conductivity.cond dipoles.dip source.dsm headmatinv.bin internalpoints.txt outputPotential.txt

@@ -100,15 +100,32 @@ SET_TESTS_PROPERTIES(cmp-EEGinternal-dip-Head1-dip4 PROPERTIES WILL_FAIL TRUE)
 SET_TESTS_PROPERTIES(cmp-EEGinternal-dip-Head1-dip5 PROPERTIES WILL_FAIL TRUE)
 SET_TESTS_PROPERTIES(cmp-EEGinternal-dip-Head1-dip6 PROPERTIES WILL_FAIL TRUE)
 
-FOREACH(HEADNUM 1 2 ${HEAD3})
-    SET(HEAD "Head${HEADNUM}")
-    FOREACH(DIP 1 2 3 4 5)
-        FOREACH(COMP mag rdm)
-            # Compare MEG result with analytical solution obtained with Matlab
-            OPENMEEG_COMPARISON_TEST("MEGEST-dip-${HEAD}-dip${DIP}-${COMP}"
-                                     ${HEAD}-dip.est_meg analytic/meg_head1_analytic.txt -${COMP} -eps ${EPSILON} -col ${DIP} -full)
+FOREACH(SENSORORIENT "" "-tangential" "-noradial")
+    FOREACH(HEADNUM 1 2 ${HEAD3})
+        SET(HEAD "Head${HEADNUM}")
+        FOREACH(DIP 1 2 3 4 5)
+            FOREACH(COMP mag rdm)
+                # Compare MEG result with analytical solution obtained with Matlab
+                OPENMEEG_COMPARISON_TEST("MEGEST-dip-${HEAD}-dip${DIP}${SENSORORIENT}-${COMP}"
+                    ${HEAD}-dip${SENSORORIENT}.est_meg analytic/meg_analytic${SENSORORIENT}.txt -${COMP} -eps ${EPSILON} -col ${DIP} -full)
+            ENDFOREACH()
         ENDFOREACH()
+        OPENMEEG_COMPARISON_TEST("MEGEST-dip${SENSORORIENT}-${HEAD}-dip6"
+            ${HEAD}-dip${SENSORORIENT}.est_meg analytic/meg_analytic${SENSORORIENT}.txt -eps 0.001 -col 6 -full)
     ENDFOREACH()
-    OPENMEEG_COMPARISON_TEST("MEGEST-dip${HEAD}-dip6"
-                             ${HEAD}-dip.est_meg analytic/meg_head1_analytic.txt -eps 0.001 -col 6 -full)
 ENDFOREACH()
+# set tests that are expected to fail :
+SET_TESTS_PROPERTIES(cmp-MEGEST-dip-Head1-dip2-tangential-mag PROPERTIES WILL_FAIL TRUE)
+SET_TESTS_PROPERTIES(cmp-MEGEST-dip-Head1-dip2-tangential-rdm PROPERTIES WILL_FAIL TRUE)
+SET_TESTS_PROPERTIES(cmp-MEGEST-dip-Head1-dip3-tangential-mag PROPERTIES WILL_FAIL TRUE)
+SET_TESTS_PROPERTIES(cmp-MEGEST-dip-Head1-dip3-tangential-rdm PROPERTIES WILL_FAIL TRUE)
+SET_TESTS_PROPERTIES(cmp-MEGEST-dip-Head1-dip4-tangential-mag PROPERTIES WILL_FAIL TRUE)
+SET_TESTS_PROPERTIES(cmp-MEGEST-dip-Head1-dip4-tangential-rdm PROPERTIES WILL_FAIL TRUE)
+SET_TESTS_PROPERTIES(cmp-MEGEST-dip-Head1-dip5-tangential-mag PROPERTIES WILL_FAIL TRUE)
+SET_TESTS_PROPERTIES(cmp-MEGEST-dip-Head1-dip5-tangential-rdm PROPERTIES WILL_FAIL TRUE)
+SET_TESTS_PROPERTIES(cmp-MEGEST-dip-Head2-dip4-tangential-mag PROPERTIES WILL_FAIL TRUE)
+SET_TESTS_PROPERTIES(cmp-MEGEST-dip-Head2-dip4-tangential-rdm PROPERTIES WILL_FAIL TRUE)
+SET_TESTS_PROPERTIES(cmp-MEGEST-dip-Head2-dip5-tangential-mag PROPERTIES WILL_FAIL TRUE)
+SET_TESTS_PROPERTIES(cmp-MEGEST-dip-Head2-dip5-tangential-rdm PROPERTIES WILL_FAIL TRUE)
+SET_TESTS_PROPERTIES(cmp-MEGEST-dip-Head1-dip4-noradial-mag PROPERTIES   WILL_FAIL TRUE)
+SET_TESTS_PROPERTIES(cmp-MEGEST-dip-Head1-dip5-noradial-mag PROPERTIES   WILL_FAIL TRUE)
