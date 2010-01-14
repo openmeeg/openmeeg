@@ -215,12 +215,10 @@ namespace OpenMEEG {
             double S = crossprod.norm();
             T result = 0;
             static Vect3 zero(0.0,0.0,0.0);
-            int i;
-            for(i=0;i<nbPts[order];i++)
+            for(int i=0;i<nbPts[order];i++)
             {
                 Vect3 v=zero;
-                int j;
-                for(j=0;j<3;j++) {
+                for(int j=0;j<3;j++) {
                     v.multadd(cordBars[order][i][j],vertices[j]);
                 }
                 multadd(result,cordBars[order][i][3],fc.f(v));
