@@ -192,9 +192,12 @@ SET (OPENMEEG_LIBRARY_DIRECTORIES
     ${OpenMEEG_BINARY_DIR}/libs/MatLib/MatLib
 )
 
+FIND_LIBRARY(OpenMEEG_LIB OpenMEEG)
+FIND_LIBRARY(OpenMEEGMaths_LIB OpenMEEGMaths)
+
 SET (OPENMEEG_LIBRARIES
-    ${OpenMEEG_BINARY_DIR}/src/libOpenMEEG.so
-    ${OpenMEEG_BINARY_DIR}/libs/MatLib/MatLib/libOpenMEEGMaths.so
+    ${OpenMEEG_LIB}
+    ${OpenMEEGMaths_LIB}
 )
 
 # This section uses the OPENMEEG_INCLUDE_DIRECTORIES variable.
