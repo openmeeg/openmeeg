@@ -1,6 +1,6 @@
 #-----------------------------------------------------------------------------
 #
-# OpenMEEGConfig.cmake - 
+# OpenMEEGConfig.cmake -
 # OpenMEEG CMake configuration file for external projects.
 #
 # This file is configured by OpenMEEG and used by the UseOpenMEEG.cmake module
@@ -16,7 +16,7 @@ SET(OpenMEEG_INCLUDE_DIRS "@OPENMEEG_INCLUDE_DIRECTORIES@")
 # Includes OpenMEEG libs directory and OTHER libs directories
 SET(OpenMEEG_LIBRARY_DIRS "@OPENMEEG_LIBRARY_DIRECTORIES@")
 
-# This includes all libraries on which OpenMEEG depends 
+# This includes all libraries on which OpenMEEG depends
 # (direct/indirectly) except VTK
 SET(OpenMEEG_OTHER_LIBRARIES "@OPENMEEG_OTHER_LIBRARIES@")
 
