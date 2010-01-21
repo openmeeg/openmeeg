@@ -185,6 +185,18 @@ INCLUDE(macros/Packaging.cmake)
 # Creating files for external projects
 #-----------------------------------------------
 
+# Include the libraries and their directories for OpenMEEG
+
+SET (OPENMEEG_LIBRARY_DIRECTORIES
+    ${OpenMEEG_BINARY_DIR}/src
+    ${OpenMEEG_BINARY_DIR}/libs/MatLib/MatLib
+)
+
+SET (OPENMEEG_LIBRARIES
+    ${OpenMEEG_BINARY_DIR}/src/libOpenMEEG.so
+    ${OpenMEEG_BINARY_DIR}/libs/MatLib/MatLib/libOpenMEEGMaths.so
+)
+
 # This section uses the OPENMEEG_INCLUDE_DIRECTORIES variable.
 # Copy the UseOpenMEEG.cmake file to the binary tree for backward compatability.
 CONFIGURE_FILE(
