@@ -290,7 +290,6 @@ int main(int argc, char** argv)
         // Assembling Matrix from discretization :
         // Head2EEG is the linear application which maps x |----> v
         Head2EEGMat mat(geo,patches);
-        mat.info();
         // Saving Head2EEG Matrix :
         mat.SAVE(argv[5]);
     }
