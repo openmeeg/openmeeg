@@ -149,28 +149,28 @@ int main(int argc, char **argv)
 
         MEGGainMatrix.saveBin(argv[6]);
     }
-    else if(!strcmp(argv[1],"-VolPotEIT"))
+    else if(!strcmp(argv[1],"-VolEEG"))
     {
         if(argc<6)
         {
             cerr << "Not enough arguments \nPlease try \"" << argv[0] << " -h\" or \"" << argv[0] << " --help \" \n" << endl;
             return 0;
         }
-        Matrix VolPotEITGainMatrix;
+        Matrix VolEEGGainMatrix;
 
         { // Avoiding to store all matrices at the same time
             Matrix Surf2Vol;
-            Surf2Vol.loadBin(argv[3]); 
+            Surf2Vol.loadBin(argv[4]); 
             SymMatrix HeadMatInv;
             HeadMatInv.loadBin(argv[2]);
-            VolPotEITGainMatrix = Surf2Vol*HeadMatInv(0,Surf2Vol.ncol()-1,0,HeadMatInv.ncol()-1);
+            VolEEGGainMatrix = Surf2Vol*HeadMatInv(0,Surf2Vol.ncol()-1,0,HeadMatInv.ncol()-1);
         }
         {
             Matrix EITStim;
-            EITStim.loadBin(argv[4]);
-            VolPotEITGainMatrix = VolPotEITGainMatrix*EITStim;
+            EITStim.loadBin(argv[3]);
+            VolEEGGainMatrix = VolEEGGainMatrix*EITStim;
         }
-        VolPotEITGainMatrix.saveTxt(argv[5]);
+        VolEEGGainMatrix.saveTxt(argv[5]);
     }
     else
     {
@@ -199,10 +199,10 @@ void getHelp(char** argv)
     cout << "            HeadMatInv, SourceMat, Head2MEGMatrix, Source2MEGMatrix, MEGGainMatrix" << endl;
     cout << "            Matrix (.bin or .txt)" << endl << endl;
 
-    cout << "   -VolPotEIT :   Compute the gain for EIT, measured within the volume " << endl;
+    cout << "   -VolEEG :   Compute the gain for EEG, measured within the volume " << endl;
     cout << "            Filepaths are in order :" << endl;
-    cout << "            inputs: HeadMatInv, Surf2VolMat, EITStimMatrix," << endl;
-    cout << "            output: VolPotEITgain Matrix (.txt)" << endl << endl;
+    cout << "            inputs: HeadMatInv, SourceMat, Surf2VolMat" << endl;
+    cout << "            output: VolEEGgain Matrix (.txt)" << endl << endl;
 
     exit(0);
 
