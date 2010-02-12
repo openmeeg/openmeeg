@@ -428,7 +428,7 @@ namespace OpenMEEG {
                         grad_step = beta*grad_step;
                     }
                 }
-    #elif
+    #else
                 v_dv = v+grad_step*grad;
     #endif
 
