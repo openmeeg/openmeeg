@@ -48,9 +48,9 @@ IF (PYTHON_WRAP)
 
     # Test Python wrapping
     IF(BUILD_TEST)
-        ADD_TEST(openmeeg_python_aux
+        ADD_TEST(NAME openmeeg_python_aux
             COMMAND ${CMAKE_COMMAND} -E copy ${OpenMEEG_SOURCE_DIR}/data/demo.py ${OpenMEEG_BINARY_DIR}/Wrapping/src/)
-        ADD_TEST(openmeeg_python
+        ADD_TEST(NAME openmeeg_python
             COMMAND ${PYTHON_EXECUTABLE} ${OpenMEEG_BINARY_DIR}/Wrapping/src/demo.py --path ${OpenMEEG_SOURCE_DIR}/data)
     ENDIF()
 
