@@ -39,16 +39,16 @@ $(RDIR)$(MODEL).$(CUTPLANE)dz.Surf2Vol: $(MDIR)$(MODEL).geom $(MDIR)$(MODEL).con
 	$(ASSEMBLE) -Surf2Vol $(MDIR)$(MODEL).geom $(MDIR)$(MODEL).cond $(PDIR)$(CUTPLANE)dz $(RDIR)$(MODEL).$(CUTPLANE)dz.Surf2Vol
 
 $(RDIR)$(MODEL).$(CUTPLANE).gain: $(RDIR)$(MODEL).$(CUTPLANE).Surf2Vol $(MDIR)$(MODEL).HMinv $(MDIR)$(MODEL).EITstim
-	$(GAIN) -VolPotEIT $(RDIR)$(MODEL).$(CUTPLANE).Surf2Vol $(MDIR)$(MODEL).HMinv $(MDIR)$(MODEL).EITstim $(RDIR)$(MODEL).$(CUTPLANE).gain
+	$(GAIN) -VolEEG $(MDIR)$(MODEL).HMinv $(MDIR)$(MODEL).EITstim  $(RDIR)$(MODEL).$(CUTPLANE).Surf2Vol $(RDIR)$(MODEL).$(CUTPLANE).gain
 
 $(RDIR)$(MODEL).$(CUTPLANE)dx.gain: $(RDIR)$(MODEL).$(CUTPLANE)dx.Surf2Vol $(MDIR)$(MODEL).LHSinv  $(MDIR)$(MODEL).EITstim
-	$(GAIN) -VolPotEIT $(RDIR)$(MODEL).$(CUTPLANE)dx.Surf2Vol $(MDIR)$(MODEL).HMinv  $(MDIR)$(MODEL).EITstim  $(RDIR)$(MODEL).$(CUTPLANE)dx.gain
+	$(GAIN) -VolEEG $(MDIR)$(MODEL).HMinv  $(MDIR)$(MODEL).EITstim  $(RDIR)$(MODEL).$(CUTPLANE)dx.Surf2Vol $(RDIR)$(MODEL).$(CUTPLANE)dx.gain
 
 $(RDIR)$(MODEL).$(CUTPLANE)dy.gain: $(RDIR)$(MODEL).$(CUTPLANE)dy.Surf2Vol $(MDIR)$(MODEL).LHSinv $(MDIR)$(MODEL).EITstim
-	$(GAIN) -VolPotEIT $(RDIR)$(MODEL).$(CUTPLANE)dy.Surf2Vol $(MDIR)$(MODEL).HMinv  $(MDIR)$(MODEL).EITstim  $(RDIR)$(MODEL).$(CUTPLANE)dy.gain
+	$(GAIN) -VolEEG $(MDIR)$(MODEL).HMinv  $(MDIR)$(MODEL).EITstim $(RDIR)$(MODEL).$(CUTPLANE)dy.Surf2Vol  $(RDIR)$(MODEL).$(CUTPLANE)dy.gain
 
 $(RDIR)$(MODEL).$(CUTPLANE)dz.gain: $(RDIR)$(MODEL).$(CUTPLANE)dz.Surf2Vol $(MDIR)$(MODEL).LHSinv $(MDIR)$(MODEL).EITstim
-	$(GAIN) -VolPotEIT $(RDIR)$(MODEL).$(CUTPLANE)dz.Surf2Vol $(MDIR)$(MODEL).HMinv $(MDIR)$(MODEL).EITstim  $(RDIR)$(MODEL).$(CUTPLANE)dz.gain
+	$(GAIN) -VolEEG $(MDIR)$(MODEL).HMinv $(MDIR)$(MODEL).EITstim  $(RDIR)$(MODEL).$(CUTPLANE)dz.Surf2Vol $(RDIR)$(MODEL).$(CUTPLANE)dz.gain
 
 $(MDIR)$(MODEL).parameters:
 	$(MAKE_NERVE) -makeparameters $(MDIR)$(MODEL).parameters $(MDIR)$(MODEL).geom $(MDIR)$(MODEL).cond $(MDIR)$(MODEL).int.tri $(MDIR)$(MODEL).ext.tri $(MDIR)$(MODEL).stimelec

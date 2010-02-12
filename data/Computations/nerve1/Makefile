@@ -41,16 +41,16 @@ $(RDIR)$(MODEL).$(CUTPLANE)dz.SurfToVol: $(MDIR)$(MODEL).geom $(MDIR)$(MODEL).co
 	$(ASSEMBLE) -Surf2Vol $(MDIR)$(MODEL).geom $(MDIR)$(MODEL).cond $(PDIR)$(CUTPLANE)dz $(RDIR)$(MODEL).$(CUTPLANE)dz.SurfToVol
 
 $(RDIR)$(MODEL).$(CUTPLANE).gain: $(RDIR)$(MODEL).$(CUTPLANE).SurfToVol $(MDIR)$(MODEL).lhsinv $(MDIR)$(MODEL).EITstim
-	$(GAIN) -VolPotEIT $(MDIR)$(MODEL).lhsinv $(RDIR)$(MODEL).$(CUTPLANE).SurfToVol $(MDIR)$(MODEL).EITstim $(RDIR)$(MODEL).$(CUTPLANE).gain
+	$(GAIN) -VolEEG $(MDIR)$(MODEL).lhsinv $(MDIR)$(MODEL).EITstim $(RDIR)$(MODEL).$(CUTPLANE).SurfToVol $(RDIR)$(MODEL).$(CUTPLANE).gain
 
 $(RDIR)$(MODEL).$(CUTPLANE)dx.gain: $(RDIR)$(MODEL).$(CUTPLANE)dx.SurfToVol $(MDIR)$(MODEL).lhsinv  $(MDIR)$(MODEL).EITstim
-	$(GAIN) -VolPotEIT $(MDIR)$(MODEL).lhsinv $(RDIR)$(MODEL).$(CUTPLANE)dx.SurfToVol $(MDIR)$(MODEL).EITstim  $(RDIR)$(MODEL).$(CUTPLANE)dx.gain
+	$(GAIN) -VolEEG $(MDIR)$(MODEL).lhsinv $(MDIR)$(MODEL).EITstim   $(RDIR)$(MODEL).$(CUTPLANE)dx.SurfToVol $(RDIR)$(MODEL).$(CUTPLANE)dx.gain
 
 $(RDIR)$(MODEL).$(CUTPLANE)dy.gain: $(RDIR)$(MODEL).$(CUTPLANE)dy.SurfToVol $(MDIR)$(MODEL).lhsinv $(MDIR)$(MODEL).EITstim
-	$(GAIN) -VolPotEIT $(MDIR)$(MODEL).lhsinv $(RDIR)$(MODEL).$(CUTPLANE)dy.SurfToVol $(MDIR)$(MODEL).EITstim  $(RDIR)$(MODEL).$(CUTPLANE)dy.gain
+	$(GAIN) -VolEEG $(MDIR)$(MODEL).lhsinv $(MDIR)$(MODEL).EITstim $(RDIR)$(MODEL).$(CUTPLANE)dy.SurfToVol  $(RDIR)$(MODEL).$(CUTPLANE)dy.gain
 
 $(RDIR)$(MODEL).$(CUTPLANE)dz.gain: $(RDIR)$(MODEL).$(CUTPLANE)dz.SurfToVol $(MDIR)$(MODEL).lhsinv $(MDIR)$(MODEL).EITstim
-	$(GAIN) -VolPotEIT $(MDIR)$(MODEL).lhsinv $(RDIR)$(MODEL).$(CUTPLANE)dz.SurfToVol $(MDIR)$(MODEL).EITstim  $(RDIR)$(MODEL).$(CUTPLANE)dz.gain
+	$(GAIN) -VolEEG $(MDIR)$(MODEL).lhsinv $(MDIR)$(MODEL).EITstim $(RDIR)$(MODEL).$(CUTPLANE)dz.SurfToVol  $(RDIR)$(MODEL).$(CUTPLANE)dz.gain
 
 $(MDIR)$(MODEL).parameters:
 	$(MAKE_NERVE) -makeparameters $(MDIR)$(MODEL).parameters $(MDIR)$(MODEL).geom $(MDIR)$(MODEL).cond $(MDIR)$(MODEL).int.tri $(MDIR)$(MODEL).ext.tri $(MDIR)$(MODEL).stimelec
