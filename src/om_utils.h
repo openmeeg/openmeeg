@@ -129,21 +129,21 @@ namespace OpenMEEG {
             if (n>1) {
                 // clear previous string
                 for(int i = 0; i < (w+2); ++i)
-                    printf( "\b" );
+                    std::cout<< "\b";
 
-                printf( cbeg );
+                std::cout<< cbeg;
                 for(int i = 0; i < p; ++i) {
-                    printf( cprog1 );
+                    std::cout<< cprog1;
                 }
                 for(int i = p; i < w; ++i) {
-                    printf( cprog );
+                    std::cout<< cprog;
                 }
-                printf( cend );
+                std::cout<< cend;
             }
         }
         pprev = p;
         if (n >= (N-1)) {
-            printf("\n");
+            std::cout<<"\n";
         }
         std::cout.flush();
     #endif
