@@ -34,44 +34,50 @@ IF(USE_ATLAS)
             /usr/lib64/atlas/sse2
             /usr/lib/atlas/sse2
             /usr/lib/sse2
+            /usr/lib64/atlas/sse3
+            /usr/lib/atlas/sse3
+            /usr/lib/sse3
             /usr/lib/
             /usr/lib/atlas
         )
 
-	SET(ATLAS_LIBS atlas cblas f77blas lapack_atlas lapack)
-	SET(ATLAS_LIBS atlas cblas f77blas lapack_atlas lapack blas)
-    	
-	FOREACH (LIB ${ATLAS_LIBS})
-	    FIND_LIBRARY(${LIB}_PATH
-		NAMES ${LIB} 
-		PATHS ${ATLAS_LIB_SEARCHPATH}
-		NO_DEFAULT_PATH
-		NO_CMAKE_ENVIRONMENT_PATH
-		NO_CMAKE_PATH
-		NO_SYSTEM_ENVIRONMENT_PATH
-		NO_CMAKE_SYSTEM_PATH)
-	    IF(${LIB}_PATH)
-		SET(LAPACK_LIBRARIES ${LAPACK_LIBRARIES} ${${LIB}_PATH})
-		MARK_AS_ADVANCED(${LIB}_PATH)
-	    ELSE()
-		MESSAGE("Could not find ${LIB}")
-	    ENDIF()
-	ENDFOREACH()
+        SET(ATLAS_LIBS atlas cblas f77blas clapack lapack blas)
+            
+        FOREACH (LIB ${ATLAS_LIBS})
+            SET(LIBNAMES ${LIB})
+            IF (${LIB} STREQUAL "clapack")
+                SET(LIBNAMES ${LIB} lapack_atlas)
+            ENDIF()
+            FIND_LIBRARY(${LIB}_PATH
+                NAMES ${LIBNAMES} 
+                PATHS ${ATLAS_LIB_SEARCHPATH}
+                NO_DEFAULT_PATH
+                NO_CMAKE_ENVIRONMENT_PATH
+                NO_CMAKE_PATH
+                NO_SYSTEM_ENVIRONMENT_PATH
+                NO_CMAKE_SYSTEM_PATH)
+            IF(${LIB}_PATH)
+                SET(LAPACK_LIBRARIES ${LAPACK_LIBRARIES} ${${LIB}_PATH})
+                MARK_AS_ADVANCED(${LIB}_PATH)
+            ELSE()
+                MESSAGE(WARNING "Could not find ${LIB}")
+            ENDIF()
+        ENDFOREACH()
 
-	IF (NOT BUILD_SHARED)
-	    FIND_FILE(GFORTRAN_LIB libgfortran.a
-		/usr/lib/gcc/i486-linux-gnu/4.2.4/
-		/usr/lib/gcc/i386-redhat-linux/4.3.2/
-		/usr/lib/gcc/x86_64-manbo-linux-gnu/4.3.2/
-	    )
-#	    SET(GFORTRAN_LIB
-#    /usr/lib/gcc/i486-linux-gnu/4.2.4/libgfortran.a)
-#    /usr/lib/gcc/i386-redhat-linux/4.3.2/libgfortran.a)
-#    /usr/lib/gcc/x86_64-manbo-linux-gnu/4.3.2/libgfortran.a)
-	    SET(LAPACK_LIBRARIES ${LAPACK_LIBRARIES} ${GFORTRAN_LIB})
-	ENDIF()
+        IF (NOT BUILD_SHARED)
+            FIND_FILE(GFORTRAN_LIB libgfortran.a
+                /usr/lib/gcc/i486-linux-gnu/4.2.4/
+                /usr/lib/gcc/i386-redhat-linux/4.3.2/
+                /usr/lib/gcc/x86_64-manbo-linux-gnu/4.3.2/
+            )
+    #	    SET(GFORTRAN_LIB
+    #    /usr/lib/gcc/i486-linux-gnu/4.2.4/libgfortran.a)
+    #    /usr/lib/gcc/i386-redhat-linux/4.3.2/libgfortran.a)
+    #    /usr/lib/gcc/x86_64-manbo-linux-gnu/4.3.2/libgfortran.a)
+            SET(LAPACK_LIBRARIES ${LAPACK_LIBRARIES} ${GFORTRAN_LIB})
+        ENDIF()
 
-        FIND_PATH(ATLAS_INCLUDE_PATH atlas/cblas.h /usr/include/)
+        FIND_PATH(ATLAS_INCLUDE_PATH cblas.h /usr/include/ /usr/include/atlas)
         MARK_AS_ADVANCED(ATLAS_INCLUDE_PATH)
         INCLUDE_DIRECTORIES(${ATLAS_INCLUDE_PATH})
     ELSE() # Assume APPLE
@@ -83,11 +89,9 @@ ENDIF()
 IF (USE_MKL)
 
     IF ( WIN32 )
-	FILE(GLOB MKL_PATH "C:/Program Files/Intel/MKL/*")
+        FILE(GLOB MKL_PATH "C:/Program Files/Intel/MKL/*")
     ENDIF( WIN32 )
-    FIND_PATH(MKL_INCLUDE_PATH mkl.h
-                "${MKL_PATH}/include"
-    )
+    FIND_PATH(MKL_INCLUDE_PATH mkl.h "${MKL_PATH}/include")
 
     IF ( MKL_INCLUDE_PATH )
         #MESSAGE("mkl.h found in ${MKL_INCLUDE_PATH}")
@@ -114,9 +118,7 @@ IF (USE_MKL)
     ENDIF()
 
     IF (WIN32)
-        SET(MKL_LIB_SEARCHPATH
-            "${MKL_PATH}/ia32/lib"
-        )
+        SET(MKL_LIB_SEARCHPATH "${MKL_PATH}/ia32/lib")
     ENDIF()
 
     IF (WIN32)

@@ -16,6 +16,8 @@ SET(PACKAGE_VERSION_MAJOR "1")
 SET(PACKAGE_VERSION_MINOR "1")
 SET(PACKAGE_VERSION_PATCH "svn")
 
+SET(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/macros")
+
 #   The next two lines are a kludge to make rpm generation work. If you change this,
 #   please check that rpm generation still works.
 
@@ -23,39 +25,40 @@ SET(CPACK_PACKAGE_VERSION_MAJOR ${PACKAGE_VERSION_MAJOR})
 SET(CPACK_PACKAGE_VERSION_MINOR ${PACKAGE_VERSION_MINOR})
 SET(CPACK_PACKAGE_VERSION_PATCH ${PACKAGE_VERSION_PATCH})
 
+SET(EXTRA_LANGUAGE)
 IF(APPLE OR WIN32)
-    PROJECT(OpenMEEG C CXX)
-ELSE()
-    PROJECT(OpenMEEG C CXX Fortran)
+    SET(EXTRA_LANGUAGE Fortran)
 ENDIF()
+
+PROJECT(OpenMEEG C CXX ${EXTRA_LANGUAGE})
 
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6 FATAL_ERROR)
 
-INCLUDE(macros/NewExecutable.cmake)
-INCLUDE(macros/FindLibrary.cmake)
-INCLUDE(macros/UnitTest.cmake)
-INCLUDE(macros/Revision.cmake)
-INCLUDE(macros/Win32Compat.cmake)
+INCLUDE(NewExecutable)
+INCLUDE(FindLibrary)
+INCLUDE(UnitTest)
+INCLUDE(Revision)
+INCLUDE(Win32Compat)
 
 GENERATE_VERSION_INFO()
 
-INCLUDE(macros/CompileOptions.cmake)
+INCLUDE(CompileOptions)
 
 # ==============
 # = Endianess =
 # ==============
 
-INCLUDE(${CMAKE_ROOT}/Modules/TestBigEndian.cmake)
+INCLUDE(TestBigEndian)
 TEST_BIG_ENDIAN(WORDS_BIGENDIAN)
 
 #######################################################################
 # External Libraries
 #######################################################################
 
-INCLUDE(macros/VtkOption.cmake)
-INCLUDE(macros/MatioOption.cmake)
-INCLUDE(macros/UseAtlas.cmake)
-INCLUDE(macros/UseOpenMP.cmake)
+INCLUDE(VtkOption)
+INCLUDE(UseMatio)
+INCLUDE(UseAtlas)
+INCLUDE(UseOpenMP)
 
 #######################################################################
 # Configure files with settings for use by the build.
@@ -86,7 +89,7 @@ INCLUDE_DIRECTORIES(${OPENMEEG_INCLUDE_DIRECTORIES})
 SUBDIRS(libs src)
 
 IF(UNIX)
-    INCLUDE(macros/AddDemoTarget.cmake)
+    INCLUDE(AddDemoTarget)
     ADD_DEMO_TARGET(Head1 forinv)
     ADD_DEMO_TARGET(Head2 forward)
     ADD_DEMO_TARGET(Head3 forward)
@@ -107,13 +110,13 @@ ENDIF (BUILD_TOOLS)
 # tests
 #-----------------------------------------------
 
-INCLUDE(macros/TestOption.cmake)
+INCLUDE(TestOption)
 
 #-----------------------------------------------
 # Dart 
 #-----------------------------------------------
 
-INCLUDE(${CMAKE_ROOT}/Modules/Dart.cmake)
+INCLUDE(Dart)
 
 #-----------------------------------------------
 # documentation
@@ -180,7 +183,7 @@ ENDIF ( USE_PROGRESSBAR )
 # packaging
 #-----------------------------------------------
 
-INCLUDE(macros/Packaging.cmake)
+INCLUDE(Packaging)
 
 #######################################################################
 # Help other projects use OpenMEEG
