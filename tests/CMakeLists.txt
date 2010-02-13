@@ -1,4 +1,4 @@
-INCLUDE(${OpenMEEG_SOURCE_DIR}/macros/ComparisonTest.cmake)
+INCLUDE(ComparisonTest)
 
 SET_FILE_PROPERTIES(Suffix
     "HeadMat .hm" "HeadMatInv .hm_inv" "SurfSourceMat .ssm" "v2eeg .h2em" "SurfGainEEG .sgem"
