@@ -1,12 +1,5 @@
-/* FILE: $Id$ */
-
 /*
 Project Name : OpenMEEG
-
-version           : $Revision$
-last revision     : $Date$
-modified by       : $LastChangedBy$
-last modified     : $LastChangedDate$
 
 © INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre 
 GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU, Théodore PAPADOPOULO,
@@ -58,8 +51,7 @@ int main(int argc, char **argv)
 {
     print_version(argv[0]);
 
-    if(argc==1)
-    {
+    if (argc==1) {
         cerr << "Not enough arguments \nPlease try \"" << argv[0] << " -h\" or \"" << argv[0] << " --help \" \n" << endl;
         return 0;
     }
@@ -74,11 +66,10 @@ int main(int argc, char **argv)
     SparseMatrix SmoothMatrix = SourceMesh.gradient();
 
     // write output variables
-    SmoothMatrix.saveBin(argv[2]);
-    if(argc == 4)
-    {
+    SmoothMatrix.save(argv[2]);
+    if (argc==4) {
         const Vector &AiVector = SourceMesh.areas();
-        AiVector.saveBin(argv[3]);
+        AiVector.save(argv[3]);
     }
 
     return 0;
