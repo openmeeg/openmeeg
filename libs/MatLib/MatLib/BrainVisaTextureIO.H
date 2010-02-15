@@ -67,7 +67,7 @@ namespace OpenMEEG {
             }
 
             bool known(const LinOp& linop) const {
-                return linop.storageType()==LinOp::FULL;
+                return linop.dimension()==LinOp::TWO && linop.storageType()==LinOp::FULL;
             }
 
             void read(std::ifstream& is,LinOp& linop) const throw(std::exception) {
