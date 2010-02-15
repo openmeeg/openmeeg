@@ -81,7 +81,7 @@ IF(USE_ATLAS)
         MARK_AS_ADVANCED(ATLAS_INCLUDE_PATH)
         INCLUDE_DIRECTORIES(${ATLAS_INCLUDE_PATH})
     ELSE() # Assume APPLE
-        SET(LAPACK_LIBRARIES "-framework Veclib")
+        SET(LAPACK_LIBRARIES "-framework vecLib")
         INCLUDE_DIRECTORIES(/System/Library/Frameworks/vecLib.framework/Headers)
     ENDIF()
 ENDIF()
