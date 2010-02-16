@@ -73,7 +73,7 @@ int main(int argc, char** argv)
     HeadMatInv.loadBin(argv[5]);
 
     Matrix Points;
-    std::string extension = getNameExtension(argv[6]); // We check wether it is a mesh file or not
+    std::string extension = getNameExtension(argv[6]); // We check whether it is a mesh file or not
     std::transform(extension.begin(), extension.end(), extension.begin(), (int(*)(int))std::tolower);
     if ((extension==std::string("vtk")) || (extension==std::string("tri")) || (extension==std::string("bnd")) || (extension==std::string("mesh")) || (extension==std::string("off"))){
         Mesh innermesh;
