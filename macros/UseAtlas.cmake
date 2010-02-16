@@ -42,14 +42,14 @@ IF(USE_ATLAS)
         )
 
         SET(ATLAS_LIBS atlas cblas f77blas clapack lapack blas)
-            
+
         FOREACH (LIB ${ATLAS_LIBS})
             SET(LIBNAMES ${LIB})
             IF (${LIB} STREQUAL "clapack")
                 SET(LIBNAMES ${LIB} lapack_atlas)
             ENDIF()
             FIND_LIBRARY(${LIB}_PATH
-                NAMES ${LIBNAMES} 
+                NAMES ${LIBNAMES}
                 PATHS ${ATLAS_LIB_SEARCHPATH}
                 NO_DEFAULT_PATH
                 NO_CMAKE_ENVIRONMENT_PATH
@@ -76,7 +76,7 @@ IF(USE_ATLAS)
     #    /usr/lib/gcc/x86_64-manbo-linux-gnu/4.3.2/libgfortran.a)
             SET(LAPACK_LIBRARIES ${LAPACK_LIBRARIES} ${GFORTRAN_LIB})
         ENDIF()
-
+# 
         FIND_PATH(ATLAS_INCLUDE_PATH cblas.h /usr/include/ /usr/include/atlas)
         MARK_AS_ADVANCED(ATLAS_INCLUDE_PATH)
         INCLUDE_DIRECTORIES(${ATLAS_INCLUDE_PATH})
@@ -122,11 +122,11 @@ IF (USE_MKL)
     ENDIF()
 
     IF (WIN32)
-    	IF (MKL_INCLUDE_PATH MATCHES "10.")
-    	    SET(MKL_LIBS mkl_solver mkl_core mkl_intel_c mkl_intel_s mkl_intel_thread libguide mkl_lapack95 mkl_blas95)
-    	ELSE (MKL_INCLUDE_PATH MATCHES "10.")
-    	    SET(MKL_LIBS mkl_solver mkl_c libguide mkl_lapack mkl_ia32)
-    	ENDIF (MKL_INCLUDE_PATH MATCHES "10.")
+        IF (MKL_INCLUDE_PATH MATCHES "10.")
+            SET(MKL_LIBS mkl_solver mkl_core mkl_intel_c mkl_intel_s mkl_intel_thread libguide mkl_lapack95 mkl_blas95)
+        ELSE (MKL_INCLUDE_PATH MATCHES "10.")
+            SET(MKL_LIBS mkl_solver mkl_c libguide mkl_lapack mkl_ia32)
+        ENDIF (MKL_INCLUDE_PATH MATCHES "10.")
     ELSE()
         SET(MKL_LIBS mkl_intel mkl_intel_thread mkl_core iomp5 pthread)
         #SET(MKL_LIBS mkl_intel mkl_intel_thread mkl_core iomp5md pthread)
