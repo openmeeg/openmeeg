@@ -1,12 +1,5 @@
-// FILE: $Id$
-
 /*
 Project Name : OpenMEEG
-
-version           : $Revision$
-last revision     : $Date$
-modified by       : $LastChangedBy$
-last modified     : $LastChangedDate$
 
 © INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre
 GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU, Théodore PAPADOPOULO,
@@ -57,37 +50,63 @@ namespace OpenMEEG {
 
         struct OPENMEEGMATHS_EXPORT TrivialBinIO: public MathsIOBase {
 
-            TrivialBinIO() { }
-            ~TrivialBinIO() {};
-
-            void read_header(std::istream& is,LinOp& linop) const {
-                unsigned int ui;
-                is.read(reinterpret_cast<char*>(&ui),sizeof(unsigned int));
-                linop.nlin() = ui;
-                if (linop.storageType()!=LinOp::SYMMETRIC && linop.dimension()!=LinOp::ONE)
-                    is.read(reinterpret_cast<char*>(&ui),sizeof(unsigned int));
-                if (linop.dimension()==LinOp::TWO) {
-                    linop.ncol() = ui;
-                }
-            }
-
             const std::string& identity() const { return Identity; }
             const Suffixes&    suffixes() const { return suffs;    }
 
             bool identify(const std::string&)    const { return true; }
             bool known(const LinOp& linop) const {
-                return linop.dimension()==LinOp::TWO
-                       || (linop.dimension()==LinOp::ONE && linop.storageType()==LinOp::FULL);
+                return linop.dimension()==2
+                       || (linop.dimension()==1 && linop.storageType()==LinOp::FULL);
+            }
+
+            /** \brief Read Matrix dimensions for raw binary file without loading the full data
+                \sa
+            **/
+
+            LinOpInfo info(std::ifstream& is) const {
+
+                //  Get the size of the file.
+
+                std::ifstream::pos_type pos = is.tellg();
+                is.seekg(0, std::ios::end);
+                const unsigned size = static_cast<unsigned>(is.tellg())-sizeof(unsigned int);
+                is.seekg(pos);
+
+                //  Attempt to find the type of the file from its size.
+
+                LinOpInfo linop;
+                unsigned int ui;
+                is.read(reinterpret_cast<char*>(&ui),sizeof(unsigned int));
+                linop.nlin() = ui;
+
+                if (size==ui*sizeof(double)) {
+                    linop.storageType() = LinOp::FULL;
+                    linop.dimension()   = 1;
+                    linop.ncol()        = 1;
+                } else {
+                    linop.dimension()   = 2;
+                    if (size==ui*(ui+1)*sizeof(double)/2) {
+                        linop.storageType() = LinOp::SYMMETRIC;
+                        linop.ncol()        = ui;
+                    } else {
+                        is.read(reinterpret_cast<char*>(&ui),sizeof(unsigned int));
+                        linop.ncol()        = ui;
+                        linop.storageType() = (size-sizeof(unsigned int)==linop.nlin()*linop.ncol()*sizeof(double)) ?
+                                                LinOp::FULL : LinOp::SPARSE;
+                    }
+                }
+
+                return linop;
             }
 
             void read(std::ifstream& is,LinOp& linop) const {
-                read_header(is,linop);
+                static_cast<LinOpInfo&>(linop) = info(is);
                 switch (linop.storageType()) {
                     case LinOp::SPARSE :
                         read_sparse(is,linop);
                         return;
                     case LinOp::FULL :
-                        if(linop.dimension()==LinOp::ONE) {
+                        if(linop.dimension()==1) {
                             read_internal<Vector>(is,linop);
                         } else {
                             read_internal<Matrix>(is,linop);
@@ -102,13 +121,24 @@ namespace OpenMEEG {
             }
 
             void write(std::ofstream& os, const LinOp& linop) const {
-                write_header(os,linop);
+
+                //  Write the header.
+
+                const unsigned nlin = linop.nlin();
+                os.write(reinterpret_cast<const char*>(&nlin),sizeof(unsigned));
+                if (linop.storageType()!=LinOp::SYMMETRIC && linop.dimension()!=1) {
+                    const unsigned ncol = linop.ncol();
+                    os.write(reinterpret_cast<const char*>(&ncol),sizeof(unsigned));
+                }
+                
+                //  Write the data.
+
                 switch (linop.storageType()) {
                     case LinOp::SPARSE :
                         write_sparse(os,linop);
                         return;
                     case LinOp::FULL :
-                        if(linop.dimension()==LinOp::ONE) {
+                        if(linop.dimension()==1) {
                             write_internal<Vector>(os,linop);
                         } else {
                             write_internal<Matrix>(os,linop);
@@ -166,21 +196,16 @@ namespace OpenMEEG {
                 os.write(reinterpret_cast<const char*>(l.data()),l.size()*sizeof(double));
             }
 
-            void write_header(std::ofstream& os,const LinOp& linop) const {
-                const unsigned nlin = linop.nlin();
-                os.write(reinterpret_cast<const char*>(&nlin),sizeof(unsigned));
-                if (linop.storageType()!=LinOp::SYMMETRIC && linop.dimension()!=LinOp::ONE) {
-                    const unsigned ncol = linop.ncol();
-                    os.write(reinterpret_cast<const char*>(&ncol),sizeof(unsigned));
-                }
-            }
+            TrivialBinIO(): MathsIOBase(1) { }
+            ~TrivialBinIO() {};
 
             static Suffixes init() {
-                Suffixes suffs;
-                suffs.push_back("bin");
-                return suffs;
+                Suffixes suffixes;
+                suffixes.push_back("bin");
+                return suffixes;
             }
 
+            static const TrivialBinIO prototype;
             static const Suffixes     suffs;
             static const std::string  Identity;
         };

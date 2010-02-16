@@ -1,12 +1,5 @@
-/* FILE: $Id$ */
-
 /*
 Project Name : OpenMEEG
-
-version           : $Revision$
-last revision     : $Date$
-modified by       : $LastChangedBy$
-last modified     : $LastChangedDate$
 
 © INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre
 GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU, Théodore PAPADOPOULO,
@@ -46,7 +39,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #ifndef OPENMEEG_MATRIX_H
 #define OPENMEEG_MATRIX_H
 
-#include "MatLibConfig.h"
+#include <MatLibConfig.h>
 #include <iostream>
 #include <fstream>
 #include <cassert>
@@ -56,9 +49,9 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <matio.h>
 #endif
 
-#include "linop.h"
-#include "MathsIO.H"
-#include "symmatrix.h"
+#include <linop.h>
+#include <MathsIO.H>
+#include <symmatrix.h>
 
 namespace OpenMEEG {
 
@@ -79,19 +72,20 @@ namespace OpenMEEG {
 
         std::string identity() const;
 
-        explicit Matrix(const Matrix& A,const size_t M): LinOp(A.nlin(),M,FULL,TWO),value(A.value) { }
+        explicit Matrix(const Matrix& A,const size_t M): LinOp(A.nlin(),M,FULL,2),value(A.value) { }
 
     public:
 
-        Matrix(): LinOp(0,0,FULL,TWO),value() { }
-        Matrix(const char* fname): LinOp(0,0,FULL,TWO),value() { this->load(fname); }
-        Matrix(size_t M,size_t N): LinOp(M,N,FULL,TWO),value(new LinOpValue(N*M)) { }
-        Matrix(const Matrix& A,const DeepCopy): LinOp(A.nlin(),A.ncol(),FULL,TWO),value(new LinOpValue(A.size(),A.data())) { }
+        Matrix(): LinOp(0,0,FULL,2),value() { }
+        Matrix(const char* fname): LinOp(0,0,FULL,2),value() { this->load(fname); }
+        Matrix(size_t M,size_t N): LinOp(M,N,FULL,2),value(new LinOpValue(N*M)) { }
+        Matrix(const Matrix& A,const DeepCopy): LinOp(A.nlin(),A.ncol(),FULL,2),value(new LinOpValue(A.size(),A.data())) { }
 
         explicit Matrix(const SymMatrix& A);
         Matrix(const Vector& v,const size_t M,const size_t N);
 
-        void alloc_data() { value = new LinOpValue(size()); }
+        void alloc_data()                       { value = new LinOpValue(size());      }
+        void reference_data(const double* vals) { value = new LinOpValue(size(),vals); }
 
         /** \brief Test if Matrix is empty
             \return true if Matrix is empty
@@ -164,73 +158,15 @@ namespace OpenMEEG {
         double frobenius_norm() const;
         double dot(const Matrix& B) const;
 
-        /** \brief Read Matrix dimensions for raw binary file without loading the full data
-            \sa
-        **/
-        static void readDimsBin( const char* filename, size_t& mm, size_t& nn)
-        {
-            FILE *infile=fopen(filename,"rb");
-            if(infile == NULL) {
-                std::cerr<<"Error Opening Matrix File "<<filename<<std::endl;
-                exit(1);
-            }
-            unsigned int ui;
-            fread(&ui,sizeof(unsigned int),1,infile);
-            mm=ui;
-            fread(&ui,sizeof(unsigned int),1,infile);
-            nn=ui;
-            fclose(infile);
-        }
-
         /** \brief Save Matrix to file (Format set using file name extension)
             \sa
         **/
         void save( const char *filename ) const;
 
-        /** \brief Save Matrix in ascii file
-            \sa
-        **/
-        void saveTxt( const char *filename ) const;
-
-        /** \brief Save Matrix in raw binary file
-            \sa
-        **/
-        void saveBin( const char *filename ) const;
-
-        /** \brief Save Matrix in Matlab file
-            \sa
-        **/
-        void saveMat( const char *filename ) const;
-
-        /** \brief Save Matrix in Brainvisa ascii texture file
-            \sa
-        **/
-        void saveBrainvisa( const char *filename ) const;
-
         /** \brief Load Matrix from file (Format set using file name extension)
             \sa
         **/
         void load( const char *filename );
-
-        /** \brief Load Matrix from ascii file
-            \sa
-        **/
-        void loadTxt( const char *filename );
-
-        /** \brief Load Matrix from raw binary file
-            \sa
-        **/
-        void loadBin( const char *filename );
-
-        /** \brief Load Matrix from Matlab file
-            \sa
-        **/
-        void loadMat( const char *filename );
-
-        /** \brief Load Matrix from Brainvisa ascii texture file
-            \sa
-        **/
-        void loadBrainvisa( const char *filename );
 
         /** \brief Print info on Matrix
             \sa
@@ -241,22 +177,20 @@ namespace OpenMEEG {
         friend class SymMatrix;
     };
 
-    inline double Matrix::operator()(size_t i,size_t j) const
-    {
+    inline double Matrix::operator()(size_t i,size_t j) const {
         assert(i<nlin() && j<ncol());
         return value->data[i+nlin()*j];
     }
-    inline double& Matrix::operator()(size_t i,size_t j)
-    {
+    inline double& Matrix::operator()(size_t i,size_t j) {
         assert(i<nlin() && j<ncol());
         return value->data[i+nlin()*j];
     }
     
     inline double Matrix::frobenius_norm() const {
     #ifdef HAVE_LAPACK
-        double info;
+        double Info;
         Matrix b(*this,DEEP_COPY);
-        return DLANGE('F',nlin(),ncol(),b.data(),nlin(),&info);
+        return DLANGE('F',nlin(),ncol(),b.data(),nlin(),&Info);
     #else
         double d=0;
         for (size_t i=0; i<nlin()*ncol(); i++) d+=data()[i]*data()[i];
@@ -264,8 +198,7 @@ namespace OpenMEEG {
     #endif
     }
 
-    inline Vector Matrix::operator*(const Vector &v) const
-    {
+    inline Vector Matrix::operator*(const Vector &v) const {
         assert(ncol()==v.nlin());
         Vector y(nlin());
     #ifdef HAVE_BLAS
@@ -337,8 +270,7 @@ namespace OpenMEEG {
     #endif
     }
 
-    inline Vector Matrix::tmult(const Vector &v) const
-    {
+    inline Vector Matrix::tmult(const Vector &v) const {
         assert(nlin()==v.nlin());
         Vector y(ncol());
     #ifdef HAVE_BLAS
@@ -354,33 +286,32 @@ namespace OpenMEEG {
         return y;
     }
 
-    inline Matrix Matrix::inverse() const
-    {
+    inline Matrix Matrix::inverse() const {
     #ifdef HAVE_LAPACK
         assert(nlin()==ncol());
         Matrix invA(*this,DEEP_COPY);
         // LU
-    #if defined(USE_ATLAS) & defined(__APPLE__) // Apple Veclib Framework (Handles 32 and 64 Bits)
+        #if defined(USE_ATLAS) & defined(__APPLE__) // Apple Veclib Framework (Handles 32 and 64 Bits)
         __CLPK_integer *pivots = new __CLPK_integer[ncol()];
-        __CLPK_integer info;
+        __CLPK_integer Info;
         __CLPK_integer nlin_local = invA.nlin();
         __CLPK_integer nlin_local2 = invA.nlin();
         __CLPK_integer ncol_local = invA.ncol();
         __CLPK_integer size = invA.ncol()*64;
-    #else
+        #else
         int *pivots=new int[ncol()];
-        int info;
+        int Info;
         int nlin_local = invA.nlin();
         int nlin_local2 = invA.nlin();
         int ncol_local = invA.ncol();
-        int size = (int)invA.ncol()*64;
-    #endif
-        DGETRF(nlin_local,ncol_local,invA.data(),nlin_local2,pivots,info);
-        // DGETRF(invA.nlin(),invA.ncol(),invA.data(),invA.nlin(),pivots,info);
+        int sz = (int)invA.ncol()*64;
+        #endif
+        DGETRF(nlin_local,ncol_local,invA.data(),nlin_local2,pivots,Info);
+        // DGETRF(invA.nlin(),invA.ncol(),invA.data(),invA.nlin(),pivots,Info);
         // Inverse
-        double *work=new double[size];
-        DGETRI(ncol_local,invA.data(),ncol_local,pivots,work,size,info);
-        // DGETRI(invA.ncol(),invA.data(),invA.ncol(),pivots,work,size,info);
+        double *work=new double[sz];
+        DGETRI(ncol_local,invA.data(),ncol_local,pivots,work,sz,Info);
+        // DGETRI(invA.ncol(),invA.data(),invA.ncol(),pivots,work,sz,Info);
         delete[] pivots;
         delete[] work;
         return invA;
@@ -390,8 +321,7 @@ namespace OpenMEEG {
     #endif
     }
     
-    inline Matrix Matrix::operator *(const Matrix &B) const
-    {
+    inline Matrix Matrix::operator *(const Matrix &B) const {
         assert(ncol()==B.nlin());
         size_t p=ncol();
         Matrix C(nlin(),B.ncol());
@@ -412,8 +342,7 @@ namespace OpenMEEG {
             return C;
     }
     
-    inline Matrix Matrix::tmult(const Matrix &B) const
-    {
+    inline Matrix Matrix::tmult(const Matrix &B) const {
         assert(nlin()==B.nlin());
         size_t p=nlin();
         Matrix C(ncol(),B.ncol());
@@ -434,8 +363,7 @@ namespace OpenMEEG {
             return C;
     }
 
-    inline Matrix Matrix::multt(const Matrix &B) const
-    {
+    inline Matrix Matrix::multt(const Matrix &B) const {
         assert(ncol()==B.ncol());
         size_t p=ncol();
         Matrix C(nlin(),B.nlin());
@@ -456,8 +384,7 @@ namespace OpenMEEG {
             return C;
     }
 
-    inline Matrix Matrix::tmultt(const Matrix &B) const
-    {
+    inline Matrix Matrix::tmultt(const Matrix &B) const {
         assert(nlin()==B.ncol());
         size_t p=nlin();
         Matrix C(ncol(),B.nlin());
@@ -478,8 +405,7 @@ namespace OpenMEEG {
             return C;
     }
 
-    inline Matrix Matrix::operator*(const SymMatrix &B) const
-    {
+    inline Matrix Matrix::operator*(const SymMatrix &B) const {
         assert(ncol()==B.ncol());
         Matrix C(nlin(),B.ncol());
 
@@ -502,8 +428,7 @@ namespace OpenMEEG {
             return C;
     }
     
-    inline Matrix Matrix::operator+(const Matrix &B) const
-    {
+    inline Matrix Matrix::operator+(const Matrix &B) const {
         assert(ncol()==B.ncol());
         assert(nlin()==B.nlin());
         Matrix C(*this,DEEP_COPY);
@@ -516,8 +441,7 @@ namespace OpenMEEG {
         return C;
     }
 
-    inline Matrix Matrix::operator-(const Matrix &B) const
-    {
+    inline Matrix Matrix::operator-(const Matrix &B) const {
         assert(ncol()==B.ncol());
         assert(nlin()==B.nlin());
         Matrix C(*this,DEEP_COPY);
@@ -530,8 +454,7 @@ namespace OpenMEEG {
         return C;
     }
 
-    inline void Matrix::operator+=(const Matrix &B)
-    {
+    inline void Matrix::operator+=(const Matrix &B) {
         assert(ncol()==B.ncol());
         assert(nlin()==B.nlin());
     #ifdef HAVE_BLAS
@@ -542,8 +465,7 @@ namespace OpenMEEG {
     #endif
     }
 
-    inline void Matrix::operator-=(const Matrix &B)
-    {
+    inline void Matrix::operator-=(const Matrix &B) {
         assert(ncol()==B.ncol());
         assert(nlin()==B.nlin());
     #ifdef HAVE_BLAS
@@ -565,7 +487,5 @@ namespace OpenMEEG {
         return s;
     #endif
     }
-    
-
 }
 #endif  // ! OPENMEEG_MATRIX_H

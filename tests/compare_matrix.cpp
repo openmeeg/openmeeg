@@ -64,13 +64,15 @@ int main (int argc, char** argv)
     maths::ifstream ifs1(argv[1]);
     maths::ifstream ifs2(argv[2]);
 
+#if 0
     if(input_format1) {
-        ifs1 = ifs1 >> maths::format(input_format1);
+        ifs1 >> maths::format(input_format1);
     }
 
     if(input_format2) {
-        ifs2 = ifs2 >> maths::format(input_format2);
+        ifs2 >> maths::format(input_format2);
     }
+#endif
 
     bool flag;
     if(issym) {

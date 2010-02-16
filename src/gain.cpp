@@ -1,12 +1,5 @@
-/* FILE: $Id$ */
-
 /*
 Project Name : OpenMEEG
-
-version           : $Revision$
-last revision     : $Date$
-modified by       : $LastChangedBy$
-last modified     : $LastChangedDate$
 
 © INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre 
 GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU, Théodore PAPADOPOULO,
@@ -95,24 +88,23 @@ int main(int argc, char **argv)
         Matrix EEGGainMatrix;
 
         { // Avoiding to store all matrices at the same time
-            size_t nn,mm;
-            Matrix::readDimsBin(argv[3],nn,mm); // read nb lines of SourceMatrix without allocating it
+            LinOpInfo matinfo = OpenMEEG::maths::info(argv[3]);
             SymMatrix HeadMatInv;
-            HeadMatInv.loadBin(argv[2]);
-            EEGGainMatrix = HeadMatInv(0,HeadMatInv.nlin()-1,0,nn-1); // reducedHeadInvMatrix
+            HeadMatInv.load(argv[2]);
+            EEGGainMatrix = HeadMatInv(0,HeadMatInv.nlin()-1,0,matinfo.nlin()-1); // reducedHeadInvMatrix
         }
         {
             SparseMatrix Head2EEGMatrix;
-            Head2EEGMatrix.loadBin(argv[4]);
+            Head2EEGMatrix.load(argv[4]);
             EEGGainMatrix = Head2EEGMatrix*EEGGainMatrix;
         }
         {
             Matrix SourceMatrix;
-            SourceMatrix.loadBin(argv[3]);
+            SourceMatrix.load(argv[3]);
             EEGGainMatrix = EEGGainMatrix*SourceMatrix;
         }
 
-        EEGGainMatrix.saveBin(argv[5]);
+        EEGGainMatrix.save(argv[5]);
     }
     // for use with MEG DATA
     else if(!strcmp(argv[1],"-MEG"))
@@ -125,29 +117,28 @@ int main(int argc, char **argv)
         Matrix MEGGainMatrix;
 
         { // Avoiding to store all matrices at the same time
-            size_t nn,mm;
-            Matrix::readDimsBin(argv[3],nn,mm); // read nb lines of SourceMatrix without allocating it
+            LinOpInfo matinfo = OpenMEEG::maths::info(argv[3]);
             SymMatrix HeadMatInv;
-            HeadMatInv.loadBin(argv[2]);
-            MEGGainMatrix = HeadMatInv(0,HeadMatInv.nlin()-1,0,nn-1); // reducedLhsInvMatrix
+            HeadMatInv.load(argv[2]);
+            MEGGainMatrix = HeadMatInv(0,HeadMatInv.nlin()-1,0,matinfo.nlin()-1); // reducedLhsInvMatrix
         }
         {
             Matrix Head2MEGMatrix;
-            Head2MEGMatrix.loadBin(argv[4]);
+            Head2MEGMatrix.load(argv[4]);
             MEGGainMatrix = Head2MEGMatrix*MEGGainMatrix;
         }
         {
             Matrix SourceMatrix;
-            SourceMatrix.loadBin(argv[3]);
+            SourceMatrix.load(argv[3]);
             MEGGainMatrix = MEGGainMatrix*SourceMatrix;
         }
         {
             Matrix Source2MEGMatrix;
-            Source2MEGMatrix.loadBin(argv[5]);
+            Source2MEGMatrix.load(argv[5]);
             MEGGainMatrix += Source2MEGMatrix;
         }
 
-        MEGGainMatrix.saveBin(argv[6]);
+        MEGGainMatrix.save(argv[6]);
     }
     else if(!strcmp(argv[1],"-VolEEG"))
     {
@@ -160,17 +151,17 @@ int main(int argc, char **argv)
 
         { // Avoiding to store all matrices at the same time
             Matrix Surf2Vol;
-            Surf2Vol.loadBin(argv[4]); 
+            Surf2Vol.load(argv[4]); 
             SymMatrix HeadMatInv;
-            HeadMatInv.loadBin(argv[2]);
+            HeadMatInv.load(argv[2]);
             VolEEGGainMatrix = Surf2Vol*HeadMatInv(0,Surf2Vol.ncol()-1,0,HeadMatInv.ncol()-1);
         }
         {
             Matrix EITStim;
-            EITStim.loadBin(argv[3]);
+            EITStim.load(argv[3]);
             VolEEGGainMatrix = VolEEGGainMatrix*EITStim;
         }
-        VolEEGGainMatrix.saveTxt(argv[5]);
+        VolEEGGainMatrix.save(argv[5]);
     }
     else
     {
@@ -205,5 +196,4 @@ void getHelp(char** argv)
     cout << "            output: VolEEGgain Matrix (.txt)" << endl << endl;
 
     exit(0);
-
 }

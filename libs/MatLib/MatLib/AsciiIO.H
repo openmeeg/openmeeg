@@ -1,12 +1,5 @@
-// FILE: $Id: AsciiIO.H 252 2008-06-27 14:43:17Z papadop $
-
 /*
 Project Name : OpenMEEG
-
-version           : $Revision: 252 $
-last revision     : $Date: 2008-06-27 16:43:17 +0200 (Ven, 27 jui 2008) $
-modified by       : $LastChangedBy: papadop $
-last modified     : $LastChangedDate: 2008-06-27 16:43:17 +0200 (Ven, 27 jui 2008) $
 
 © INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre
 GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU, Théodore PAPADOPOULO,
@@ -72,11 +65,113 @@ namespace OpenMEEG {
                 return (ss >> tmp) ? true : false; // test if file starts with a proper float value
             }
 
-            bool known(const LinOp& linop) const { return true; }
+            bool known(const LinOp&) const { return true; }
+
+            LinOpInfo info(std::ifstream& is) const throw(std::exception) {
+                is.clear();
+                is.seekg(0,std::ios::beg);
+
+                std::string line;
+                std::getline(is,line,'\n');
+
+                LinOpInfo linop;
+                set_type(is,length(line),linop);
+
+                if (linop.storageType()==LinOp::SPARSE) {
+                    is.clear();
+                    is.seekg(0,std::ios::beg);
+
+                    std::stringstream buffer(line);
+                    buffer >> linop.nlin() >> linop.ncol();
+                    return linop;
+                }
+
+                // Determine the number of lines in the file
+
+                is.clear();
+                is.seekg(0,std::ios::beg);
+
+                unsigned nlin = 0;
+                while (std::getline(is,line,'\n'))
+                    if (!line.empty())
+                        ++nlin;
+                linop.nlin() = nlin;
+
+                if (linop.storageType()==LinOp::SYMMETRIC && linop.nlin()!=linop.ncol())
+                    throw BadSymmMatrix(linop.nlin(),linop.ncol());
+
+                return linop;
+            }
+
+            void read(std::ifstream& is,LinOp& linop) const throw(std::exception) {
+
+                static_cast<LinOpInfo&>(linop) = info(is);
+
+                //  Read the data according to the type of the matrix.
+
+                if (linop.storageType()==LinOp::SPARSE) {
+                    read_sparse(is,linop);
+                } else if (linop.storageType() == LinOp::SYMMETRIC) {
+                    read_symmetric(is,linop);
+                } else {
+                    read_full(is,linop);
+                }
+            }
+
+            void write(std::ofstream& os, const LinOp& linop) const {
+                switch (linop.storageType()) {
+                    case LinOp::SPARSE :
+                        write_sparse(os,linop);
+                        return;
+                    case LinOp::FULL :
+                        write_full(os,linop);
+                        return;
+                    case LinOp::SYMMETRIC :
+                        write_symmetric(os,linop);
+                        return;
+                    default:
+                        return;
+                }
+            }
+
+        private:
+
+            AsciiIO(): MathsIOBase(9) { }
+            ~AsciiIO() {};
+
+            static unsigned length(const std::string& line) {
+                std::stringstream buffer(line);
+                unsigned ncol = 0;
+                while(!buffer.fail()) {
+                    double d;
+                    buffer >> d;
+                    ++ncol;
+                }
+                return ncol-1;
+            }
+
+            static void set_type(std::ifstream& is,const unsigned len,LinOpInfo& linop) {
+                linop.ncol() = len;
+
+                std::string line;
+                std::getline(is,line,'\n');
+
+                const unsigned len1 = length(line);
+
+                if (len1==len)
+                    linop.storageType() = LinOp::FULL;
+                else if (len1==len-1)
+                    linop.storageType() = LinOp::SYMMETRIC;
+                else if (len ==2 && len1==3)
+                    linop.storageType() = LinOp::SPARSE;
+                else {
+                    ;;
+                }
+
+                linop.dimension() = (linop.storageType()==LinOp::FULL && len==1) ? 1 : 2;
+            }
 
             void read_sparse(std::ifstream& is,LinOp& linop) const {
-
-                SparseMatrix& m = dynamic_cast<SparseMatrix&>(linop);
 
                 is.clear();
                 is.seekg(0,std::ios::beg);
@@ -86,14 +181,17 @@ namespace OpenMEEG {
                 // Start by reading dimensions
                 std::getline(is, line, '\n');
                 std::stringstream buffer(line);
+
+                SparseMatrix& m = dynamic_cast<SparseMatrix&>(linop);
+
                 buffer >> m.nlin();
                 buffer >> m.ncol();
 
                 while (std::getline(is, line, '\n')) {
-                    std::stringstream buffer(line);
+                    std::stringstream buff(line);
                     size_t i,j;
-                    buffer >> i >> j;
-                    buffer >> m(i,j);
+                    buff >> i >> j;
+                    buff >> m(i,j);
                 }
 
                 //  Check that there is nothing more in the file (otherwise the file is corrupted somehow).
@@ -108,7 +206,7 @@ namespace OpenMEEG {
                 is.seekg(0,std::ios::beg);
 
                 std::string line;
-                if (linop.dimension() == LinOp::ONE) {
+                if (linop.dimension()==1) {
                     Vector& v = dynamic_cast<Vector&>(linop);
                     v.alloc_data();
 
@@ -154,58 +252,6 @@ namespace OpenMEEG {
                 }
             }
 
-            void read(std::ifstream& is,LinOp& linop) const throw(std::exception) {
-
-                if (linop.storageType()==LinOp::SPARSE) {
-
-                    read_sparse(is,linop);
-
-                } else {
-
-                    // Determine the number of columns on the first line
-
-                    is.clear();
-                    is.seekg(0,std::ios::beg);
-
-                    unsigned ncol = 0;
-                    std::string line;
-                    std::getline(is, line, '\n');
-                    std::stringstream buffer(line);
-                    while(!buffer.fail()) {
-                        double d;
-                        buffer >> d;
-                        ++ncol;
-                    }
-                    --ncol;
-
-                    if (linop.dimension() == LinOp::ONE && ncol!=1)
-                        throw BadVector(ncol);
-
-                    // Determine the number of lines in the file
-
-                    is.clear();
-                    is.seekg(0,std::ios::beg);
-
-                    unsigned nlin = 0;
-                    while (std::getline(is, line, '\n'))
-                        if (!line.empty())
-                            ++nlin;
-
-                    //  Read the data according to the type of the matrix.
-
-                    if (linop.storageType() == LinOp::SYMMETRIC) {
-                        if (nlin!=ncol)
-                            throw BadSymmMatrix(nlin,ncol);
-                        linop.ncol() = ncol;
-                        read_symmetric(is,linop);
-                    } else {
-                        linop.nlin() = nlin;
-                        linop.ncol() = ncol;
-                        read_full(is,linop);
-                    }
-                }
-            }
-
             void write_sparse(std::ofstream& os, const LinOp& linop) const {
                 const SparseMatrix& spm = dynamic_cast<const SparseMatrix&>(linop);
                 SparseMatrix::const_iterator it;
@@ -226,7 +272,7 @@ namespace OpenMEEG {
             }
 
             void write_full(std::ofstream& os, const LinOp& linop) const {
-                if (linop.dimension()==LinOp::ONE) {
+                if (linop.dimension()==1) {
                     const Vector& v = dynamic_cast<const Vector&>(linop);
                     for (size_t i=0;i<v.nlin();++i)
                         os << v(i) << std::endl;
@@ -238,31 +284,10 @@ namespace OpenMEEG {
                 }
             }
 
-            void write(std::ofstream& os, const LinOp& linop) const {
-                switch (linop.storageType()) {
-                    case LinOp::SPARSE :
-                        write_sparse(os,linop);
-                        return;
-                    case LinOp::FULL :
-                        write_full(os,linop);
-                        return;
-                    case LinOp::SYMMETRIC :
-                        write_symmetric(os,linop);
-                        return;
-                    default:
-                        return;
-                }
-            }
-
-        private:
-
-            AsciiIO(): MathsIOBase(MathsIO::ios()) { }
-            ~AsciiIO() {};
-
             static Suffixes init() {
-                Suffixes suffs;
-                suffs.push_back("txt");
-                return suffs;
+                Suffixes suffixes;
+                suffixes.push_back("txt");
+                return suffixes;
             }
 
             static const AsciiIO     prototype;

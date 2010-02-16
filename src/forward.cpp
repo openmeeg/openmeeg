@@ -1,12 +1,5 @@
-/* FILE: $Id$ */
-
 /*
 Project Name : OpenMEEG
-
-version           : $Revision$
-last revision     : $Date$
-modified by       : $LastChangedBy$
-last modified     : $LastChangedDate$
 
 © INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre 
 GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU, Théodore PAPADOPOULO,
@@ -84,14 +77,14 @@ int main(int argc, char **argv)
     Matrix RealSourcesData;
     double NoiseLevel;
 
-    GainMatrix.loadBin(argv[1]);
-    RealSourcesData.loadTxt(argv[2]);
+    GainMatrix.load(argv[1]);
+    RealSourcesData.load(argv[2]);
     NoiseLevel = atof(argv[4]);
 
     Forward SimulatedData(GainMatrix,RealSourcesData,NoiseLevel);
 
     // write output variables ===================================================================================
-    SimulatedData.saveTxt(argv[3]);
+    SimulatedData.save(argv[3]);
 
     // Stop Chrono
     C.stop();

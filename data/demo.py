@@ -126,19 +126,19 @@ normale = om.Vect3(1,0,0)
 t = om.Triangle(0,1,2,normale)
 
 hmFile = subject+'.hm'
-hm.saveBin(hmFile)
+hm.save(hmFile)
 
 ssmFile = subject+'.ssm'
-ssm.saveBin(ssmFile)
+ssm.save(ssmFile)
 
 m1 = om.SymMatrix()
-m1.loadBin(hmFile)
+m1.load(hmFile)
 print m1(0,0)
 print m1.nlin()
 print m1.ncol()
 
 m2 = om.Matrix()
-m2.loadBin(ssmFile)
+m2.load(ssmFile)
 print m2(0,0)
 print m2.nlin()
 print m2.ncol()

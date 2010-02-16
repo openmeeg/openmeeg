@@ -1,12 +1,5 @@
-/* FILE: $Id$ */
-
 /*
 Project Name : OpenMEEG
-
-version           : $Revision$
-last revision     : $Date$
-modified by       : $LastChangedBy$
-last modified     : $LastChangedDate$
 
 © INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre 
 GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU, Théodore PAPADOPOULO,
@@ -64,7 +57,7 @@ namespace OpenMEEG {
             int offsetI = 0;
             for (int p=0;p<n;p++)
             {
-                progressbar(c*p,geo.nb()*n);
+                PROGRESSBAR(c*p,geo.nb()*n);
                 operatorFerguson(pts[p],geo.getM(c),mat,offsetI,offsetJ);
                 offsetI += 3;
             }

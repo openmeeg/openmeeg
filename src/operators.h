@@ -1,12 +1,5 @@
-/* FILE: $Id$ */
-
 /*
 Project Name : OpenMEEG
-
-version           : $Revision$
-last revision     : $Date$
-modified by       : $LastChangedBy$
-last modified     : $LastChangedDate$
 
 © INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre 
 GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU, Théodore PAPADOPOULO,
@@ -323,7 +316,7 @@ namespace OpenMEEG {
 
         if(&m1==&m2) {
             for(int i=offsetI;i<offsetI+m1.nbPts();i++) {
-                progressbar(i-offsetI,m1.nbPts());
+                PROGRESSBAR(i-offsetI,m1.nbPts());
                 #ifdef USE_OMP
                 #pragma omp parallel for
                 #endif
@@ -334,7 +327,7 @@ namespace OpenMEEG {
             }
         } else {
             for(int i=offsetI;i<offsetI+m1.nbPts();i++){
-                progressbar(i-offsetI,m1.nbPts());
+                PROGRESSBAR(i-offsetI,m1.nbPts());
                 #ifdef USE_OMP
                 #pragma omp parallel for
                 #endif
@@ -360,7 +353,7 @@ namespace OpenMEEG {
         // The operator S is given by Sij=\Int G*PSI(I,i)*Psi(J,j) with PSI(A,a) is a P0 test function on layer A and triangle a
         if(&m1==&m2)
             for(int i=offsetI;i<offsetI+m1.nbTrgs();i++) {
-                progressbar(i-offsetI,m1.nbTrgs());
+                PROGRESSBAR(i-offsetI,m1.nbTrgs());
                 #ifdef USE_OMP
                 #pragma omp parallel for
                 #endif
@@ -372,7 +365,7 @@ namespace OpenMEEG {
         else
         {
             for(int i=offsetI;i<offsetI+m1.nbTrgs();i++) {
-                progressbar(i-offsetI,m1.nbTrgs());
+                PROGRESSBAR(i-offsetI,m1.nbTrgs());
                 #ifdef USE_OMP
                 #pragma omp parallel for
                 #endif
@@ -397,7 +390,7 @@ namespace OpenMEEG {
         std::cout<<"OPERATOR D... (arg : mesh m1, mesh m2)"<<std::endl;
 
         for(int i=offsetI;i<offsetI+m1.nbTrgs();i++) {
-            progressbar(i-offsetI,m1.nbTrgs());
+            PROGRESSBAR(i-offsetI,m1.nbTrgs());
             #ifdef USE_OMP
             #pragma omp parallel for
             #endif
@@ -423,7 +416,7 @@ namespace OpenMEEG {
         std::cout<<"OPERATOR D (Optimized) ... (arg : mesh m1, mesh m2)"<<std::endl;
 
         for(int i=offsetI;i<offsetI+m1.nbTrgs();i++) {
-            progressbar(i-offsetI,m1.nbTrgs());
+            PROGRESSBAR(i-offsetI,m1.nbTrgs());
             for(int j=offsetJ;j<offsetJ+m2.nbTrgs();j++)
             {
                 //In this version of the funtcion, in order to skip multiple computations of the same quantities

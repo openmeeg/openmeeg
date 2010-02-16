@@ -1,12 +1,5 @@
-/* FILE: $Id: assembleRHS.cpp 257 2008-07-08 16:03:45Z gramfort $ */
-
 /*
 Project Name : OpenMEEG
-
-version           : $Revision: 257 $
-last revision     : $Date: 2008-07-08 18:03:45 +0200 (Tue, 08 Jul 2008) $
-modified by       : $LastChangedBy: gramfort $
-last modified     : $LastChangedDate: 2008-07-08 18:03:45 +0200 (Tue, 08 Jul 2008) $
 
 © INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre
 GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU, Théodore PAPADOPOULO,
@@ -101,7 +94,7 @@ namespace OpenMEEG {
         rhs.set(0);
         Vector prov(rhs.nlin());
         for (size_t s=0; s<Qs.size(); s++) {
-            progressbar(s,Qs.size());
+            PROGRESSBAR(s,Qs.size());
             prov.set(0);
             operatorDipolePotDer(Rs[s],Qs[s],geo.getM(0),prov,0,GaussOrder,adapt_rhs);
             // Second block is nFaceFistLayer

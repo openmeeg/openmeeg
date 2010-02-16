@@ -1,13 +1,5 @@
-/* FILE: $Id: sparse_#include "Maths.H" 235 2008-04-30 13:39:08Z gramfort $ */
-
 /*
 Project Name : OpenMEEG
-
-author            : $Author: $
-version           : $Revision: $
-last revision     : $Date: $
-modified by       : $LastChangedBy: $
-last modified     : $LastChangedDate: $
 
 © INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre 
 GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU, Théodore PAPADOPOULO,
@@ -78,7 +70,7 @@ int main( int argc, char **argv)
         mat(i,4) = M.normal(i).y();
         mat(i,5) = M.normal(i).z();
     }
-    mat.saveTxt(output_filename);
+    mat.save(output_filename);
 
     return 0;
 }

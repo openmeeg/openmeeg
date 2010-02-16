@@ -1,12 +1,5 @@
-// FILE: $Id: BrainVisaTextureIO.H 252 2008-06-27 14:43:17Z papadop $
-
 /*
 Project Name : OpenMEEG
-
-version           : $Revision: 252 $
-last revision     : $Date: 2008-06-27 16:43:17 +0200 (Ven, 27 jui 2008) $
-modified by       : $LastChangedBy: papadop $
-last modified     : $LastChangedDate: 2008-06-27 16:43:17 +0200 (Ven, 27 jui 2008) $
 
 © INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre
 GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU, Théodore PAPADOPOULO,
@@ -67,7 +60,11 @@ namespace OpenMEEG {
             }
 
             bool known(const LinOp& linop) const {
-                return linop.dimension()==LinOp::TWO && linop.storageType()==LinOp::FULL;
+                return linop.storageType()==LinOp::FULL && linop.dimension()==2;
+            }
+
+            LinOpInfo info(std::ifstream& is) const throw(std::exception) {
+                throw "TODO: this is a dummy exception to allow compilation on windows.";
             }
 
             void read(std::ifstream& is,LinOp& linop) const throw(std::exception) {
@@ -87,7 +84,7 @@ namespace OpenMEEG {
                 buffer.str(line);
                 buffer >> m.ncol();
 
-                if (linop.dimension()==LinOp::ONE && m.ncol()!=1)
+                if (linop.dimension()==1 && m.ncol()!=1)
                     throw maths::BadVector(m.ncol());
 
                 size_t j = 0; // column index
@@ -124,13 +121,13 @@ namespace OpenMEEG {
 
         private:
 
-            BrainVisaTextureIO(): MathsIOBase(MathsIO::ios()) { }
+            BrainVisaTextureIO(): MathsIOBase(8) { }
             ~BrainVisaTextureIO() {};
 
             static Suffixes init() {
-                Suffixes suffs;
-                suffs.push_back("tex");
-                return suffs;
+                Suffixes suffixes;
+                suffixes.push_back("tex");
+                return suffixes;
             }
 
             static const BrainVisaTextureIO prototype;

@@ -1,12 +1,5 @@
-/* FILE: $Id$ */
-
 /*
-Project Name : OpenMEEG
-
-version           : $Revision$
-last revision     : $Date$
-modified by       : $LastChangedBy$
-last modified     : $LastChangedDate$
+Project Name: OpenMEEG
 
 © INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre 
 GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU, Théodore PAPADOPOULO,
@@ -56,57 +49,49 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 namespace OpenMEEG {
 
-    class OPENMEEG_EXPORT HeadMat : public virtual SymMatrix
-    {
+    class OPENMEEG_EXPORT HeadMat: public virtual SymMatrix {
     public:
         HeadMat (const Geometry &geo, const int GaussOrder);
         virtual ~HeadMat () {};
     };
 
-    class OPENMEEG_EXPORT SurfSourceMat : public virtual Matrix
-    {
+    class OPENMEEG_EXPORT SurfSourceMat: public virtual Matrix {
     public:
         SurfSourceMat (const Geometry &geo, const Mesh & sources, const int GaussOrder);
         virtual ~SurfSourceMat () {};
     };
 
-    class OPENMEEG_EXPORT DipSourceMat : public virtual Matrix
-    {
+    class OPENMEEG_EXPORT DipSourceMat: public virtual Matrix {
     public:
         DipSourceMat (const Geometry &geo, const Matrix& dipoles, const int GaussOrder, const bool adapt_rhs);
         virtual ~DipSourceMat () {};
     };
 
-    class OPENMEEG_EXPORT Surf2VolMat : public virtual Matrix
-    {
+    class OPENMEEG_EXPORT Surf2VolMat: public virtual Matrix {
     public:
         Surf2VolMat (const Geometry &geo, const Matrix &points);
         virtual ~Surf2VolMat () {};
     };
 
-    class OPENMEEG_EXPORT Head2EEGMat : public virtual SparseMatrix
-    {
+    class OPENMEEG_EXPORT Head2EEGMat: public virtual SparseMatrix {
     public:
         Head2EEGMat (const Geometry &geo, const Matrix& patches);
         virtual ~Head2EEGMat () {};
     };
 
-    class OPENMEEG_EXPORT Head2MEGMat : public virtual Matrix
-    {
+    class OPENMEEG_EXPORT Head2MEGMat: public virtual Matrix {
     public:
         Head2MEGMat (const Geometry &geo, const Sensors& sensors);
         virtual ~Head2MEGMat () {};
     };
 
-    class OPENMEEG_EXPORT SurfSource2MEGMat : public virtual Matrix
-    {
+    class OPENMEEG_EXPORT SurfSource2MEGMat: public virtual Matrix {
     public:
         SurfSource2MEGMat (const Mesh& sources, const Sensors& sensors);
         virtual ~SurfSource2MEGMat () {};
     };
 
-    class OPENMEEG_EXPORT DipSource2MEGMat : public virtual Matrix
-    {
+    class OPENMEEG_EXPORT DipSource2MEGMat: public virtual Matrix {
     public:
         DipSource2MEGMat(const Matrix &dipoles, const Sensors &sensors);
         virtual ~DipSource2MEGMat () {};

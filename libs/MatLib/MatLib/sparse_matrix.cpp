@@ -1,12 +1,5 @@
-/* FILE: $Id$ */
-
 /*
 Project Name : OpenMEEG
-
-version           : $Revision$
-last revision     : $Date$
-modified by       : $LastChangedBy$
-last modified     : $LastChangedDate$
 
 © INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre 
 GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU, Théodore PAPADOPOULO,
@@ -136,59 +129,25 @@ namespace OpenMEEG {
     // = IOs =
     // =======
 
-    void SparseMatrix::loadBin( const char *filename )
-    {
+    void SparseMatrix::load(const char *filename) {
         maths::ifstream ifs(filename);
-        ifs >> maths::format("binary") >> *this;
-    }
-
-    void SparseMatrix::saveBin( const char *filename ) const
-    {
-        maths::ofstream ofs(filename);
-        ofs << maths::format("binary") << *this;
-    }
-
-    void SparseMatrix::loadTxt( const char *filename )
-    {
-        maths::ifstream ifs(filename);
-        ifs >> maths::format("ascii") >> *this;
-    }
-
-    void SparseMatrix::saveTxt( const char *filename ) const
-    {
-        maths::ofstream ofs(filename);
-        ofs << maths::format("ascii") << *this;
-    }
-
-    void SparseMatrix::loadMat(const char *filename)
-    {
-        maths::ifstream ifs(filename);
-        ifs >> maths::format("matlab") >> *this;
-    }
-
-    void SparseMatrix::saveMat( const char *filename ) const
-    {
-        maths::ofstream ofs(filename);
-        ofs << maths::format("matlab") << *this;
-    }
-
-    void SparseMatrix::load( const char *filename ) {
         try {
-            maths::ifstream ifs(filename);
+            ifs >> maths::format(filename,maths::format::FromSuffix) << *this;
+        }
+        catch (maths::Exception& e) {
+            std::cout << e.what() << " Doing my best...." << std::endl;
             ifs >> *this;
         }
-        catch (std::string s) {
-            std::cout << s << std::endl;
-        }
     }
 
-    void SparseMatrix::save( const char *filename ) const {
+    void SparseMatrix::save(const char *filename) const {
+        maths::ofstream ofs(filename);
         try {
-            maths::ofstream ofs(filename);
-            ofs << *this;
+            ofs << maths::format(filename,maths::format::FromSuffix) << *this;
         }
-        catch (std::string s) {
-            std::cout << s << std::endl;
+        catch (maths::Exception& e) {
+            std::cout << e.what() << " Doing my best...." << std::endl;
+            ofs << *this;
         }
     }
 }

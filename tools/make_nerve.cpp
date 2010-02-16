@@ -348,7 +348,7 @@ int cylindre (char namesurf[],char namestim[],float L,float R,float dt,int*E,int
         for (i= (nl-1)*2*nteta +3*nteta + 2*2*nteta*(3*nez+3*niz+niz2)+1;i<nt;i++){
             trianglecounter++;
         }
-        stimelec.saveBin(namestim);
+        stimelec.save(namestim);
     }
     return 0;
 }

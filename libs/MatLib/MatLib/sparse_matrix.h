@@ -1,12 +1,5 @@
-/* FILE: $Id$ */
-
 /*
 Project Name : OpenMEEG
-
-version           : $Revision$
-last revision     : $Date$
-modified by       : $LastChangedBy$
-last modified     : $LastChangedDate$
 
 © INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre
 GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU, Théodore PAPADOPOULO,
@@ -78,8 +71,8 @@ namespace OpenMEEG {
         typedef std::map< std::pair< size_t, size_t >, double >::const_iterator const_iterator;
         typedef std::map< std::pair< size_t, size_t >, double >::iterator iterator;
 
-        SparseMatrix() : LinOp(0,0,SPARSE,TWO) {};
-        SparseMatrix(size_t N,size_t M) : LinOp(N,M,SPARSE,TWO) {};
+        SparseMatrix() : LinOp(0,0,SPARSE,2) {};
+        SparseMatrix(size_t N,size_t M) : LinOp(N,M,SPARSE,2) {};
         ~SparseMatrix() {};
 
         inline double operator()( size_t i, size_t j ) const {
@@ -107,15 +100,8 @@ namespace OpenMEEG {
 
         const Tank& tank() const {return m_tank;}
 
-        void save( const char *filename ) const;
-        void saveTxt( const char *filename ) const;
-        void saveBin( const char *filename ) const;
-        void saveMat( const char *filename ) const;
-
-        void load( const char *filename );
-        void loadTxt( const char *filename );
-        void loadBin( const char *filename );
-        void loadMat( const char *filename );
+        void save(const char *filename) const;
+        void load(const char *filename);
 
         void info() const;
 

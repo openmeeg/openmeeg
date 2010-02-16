@@ -1,12 +1,5 @@
-// FILE: $Id$
-
 /*
 Project Name : OpenMEEG
-
-version           : $Revision$
-last revision     : $Date$
-modified by       : $LastChangedBy$
-last modified     : $LastChangedDate$
 
 © INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre 
 GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU, Théodore PAPADOPOULO,
@@ -54,18 +47,18 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 namespace OpenMEEG {
 
-    struct OPENMEEGMATHS_EXPORT LinOp {
+    struct OPENMEEGMATHS_EXPORT LinOpInfo {
 
         typedef enum { FULL, SYMMETRIC, SPARSE } StorageType;
-        typedef enum { ONE, TWO } Dimension;
+        typedef unsigned                         Dimension;
 
-        LinOp() { }
-        LinOp(const size_t m,const size_t n,const StorageType st,const Dimension d):
+        LinOpInfo() { }
+        LinOpInfo(const size_t m,const size_t n,const StorageType st,const Dimension d):
             num_lines(m),num_cols(n),storage(st),dim(d)  { }
 
-        virtual ~LinOp() {};
+        virtual ~LinOpInfo() {};
 
-        LinOp& operator=(const LinOp& l) {
+        LinOpInfo& operator=(const LinOpInfo& l) {
             num_lines = l.num_lines;
             num_cols  = l.num_cols;
             storage   = l.storage;
@@ -79,10 +72,11 @@ namespace OpenMEEG {
         virtual size_t  ncol() const { return num_cols; }
         virtual size_t& ncol()       { return num_cols; }
 
-        virtual size_t size() const = 0;
-        StorageType storageType() const { return storage; }
-        Dimension dimension() const { return dim; }
-        virtual void   info() const = 0;
+        StorageType  storageType() const { return storage; }
+        StorageType& storageType()       { return storage; }
+
+        Dimension   dimension()   const { return dim;     }
+        Dimension&  dimension()         { return dim;     }
 
     protected:
 
@@ -90,6 +84,24 @@ namespace OpenMEEG {
         size_t            num_cols;
         StorageType       storage;
         Dimension         dim;
+    };
+
+    class OPENMEEGMATHS_EXPORT LinOp: public LinOpInfo {
+
+        typedef LinOpInfo base;
+
+    public:
+
+        LinOp() { }
+        LinOp(const size_t m,const size_t n,const StorageType st,const Dimension d): base(m,n,st,d) { }
+
+        LinOp& operator=(const LinOp& l) {
+            base::operator=(l);
+            return *this;
+        }
+        
+        virtual size_t size() const = 0;
+        virtual void   info() const = 0;
     };
 
     typedef enum { DEEP_COPY } DeepCopy;

@@ -1,12 +1,5 @@
-/* FILE: $Id$ */
-
 /*
 Project Name : OpenMEEG
-
-version           : $Revision$
-last revision     : $Date$
-modified by       : $LastChangedBy$
-last modified     : $LastChangedDate$
 
 © INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre
 GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU, Théodore PAPADOPOULO,
@@ -80,10 +73,10 @@ int main(int argc, char **argv)
     double SmoothWeight;
     string SmoothType;
     
-    GainMatrix.loadBin(argv[1]);
-    SmoothMatrix.loadBin(argv[2]);
-    AiVector.loadBin(argv[3]);
-    Data.loadTxt(argv[4]);
+    GainMatrix.load(argv[1]);
+    SmoothMatrix.load(argv[2]);
+    AiVector.load(argv[3]);
+    Data.load(argv[4]);
     SmoothWeight = atof(argv[6]);
     SmoothType   = string(argv[7]);
     
@@ -105,31 +98,31 @@ int main(int argc, char **argv)
         double StoppingTol = atof(argv[9]);
     
         TV_inverse EstimatedSourcesData(Data,GainMatrix,SmoothMatrix,AiVector,SmoothWeight,MaxNbIter,StoppingTol);
-        EstimatedSourcesData.saveTxt(argv[5]);
+        EstimatedSourcesData.save(argv[5]);
     }
     
     if(Mn)
     {
         MN_inverse EstimatedSourcesData(Data,GainMatrix,SmoothWeight);
-        EstimatedSourcesData.saveTxt(argv[5]);
+        EstimatedSourcesData.save(argv[5]);
     }
     
     if(IMn)
     {
         IMN_inverse EstimatedSourcesData(Data,GainMatrix,SmoothWeight);
-        EstimatedSourcesData.saveTxt(argv[5]);
+        EstimatedSourcesData.save(argv[5]);
     }
     
     if(WMn)
     {
         WMN_inverse EstimatedSourcesData(Data,GainMatrix,SmoothWeight);
-        EstimatedSourcesData.saveTxt(argv[5]);
+        EstimatedSourcesData.save(argv[5]);
     }
     
     if(Heat)
     {
         HEAT_inverse EstimatedSourcesData(Data,GainMatrix,SmoothMatrix,SmoothWeight);
-        EstimatedSourcesData.saveTxt(argv[5]);
+        EstimatedSourcesData.save(argv[5]);
     }
     
     // Stop Chrono

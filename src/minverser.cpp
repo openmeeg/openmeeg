@@ -1,12 +1,5 @@
-/* FILE: $Id$ */
-
 /*
 Project Name : OpenMEEG
-
-version           : $Revision$
-last revision     : $Date$
-modified by       : $LastChangedBy$
-last modified     : $LastChangedDate$
 
 © INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre 
 GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU, Théodore PAPADOPOULO,
@@ -77,9 +70,9 @@ int main(int argc, char **argv)
     SymMatrix HeadMat;
     SymMatrix HeadMatInv;
 
-    HeadMat.loadBin(argv[1]);
+    HeadMat.load(argv[1]);
     HeadMatInv=HeadMat.inverse();
-    HeadMatInv.saveBin(argv[2]);
+    HeadMatInv.save(argv[2]);
 
     // Stop Chrono
     C.stop();

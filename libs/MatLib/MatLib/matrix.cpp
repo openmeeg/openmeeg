@@ -1,12 +1,5 @@
-/* FILE: $Id$ */
-
 /*
 Project Name : OpenMEEG
-
-version           : $Revision$
-last revision     : $Date$
-modified by       : $LastChangedBy$
-last modified     : $LastChangedDate$
 
 © INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre 
 GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU, Théodore PAPADOPOULO,
@@ -62,13 +55,13 @@ namespace OpenMEEG {
         return *this;
     }
 
-    Matrix::Matrix(const SymMatrix& A): LinOp(A.nlin(),A.ncol(),FULL,TWO),value(new LinOpValue(size())) {
+    Matrix::Matrix(const SymMatrix& A): LinOp(A.nlin(),A.ncol(),FULL,2),value(new LinOpValue(size())) {
         for (size_t j=0; j<ncol();++j)
             for (size_t i=0; i<nlin();++i)
                 (*this)(i,j) = A(i,j);
     }
 
-    Matrix::Matrix(const Vector& v,const size_t M,const size_t N): LinOp(M,N,FULL,TWO) {
+    Matrix::Matrix(const Vector& v,const size_t M,const size_t N): LinOp(M,N,FULL,2) {
         assert(M*N==v.size());
         value = v.value;
     }
@@ -243,71 +236,25 @@ namespace OpenMEEG {
     // = IOs =
     // =======
 
-    void Matrix::loadBin( const char *filename )
-    {
+    void Matrix::load(const char *filename) {
         maths::ifstream ifs(filename);
-        ifs >> maths::format("binary") >> *this;
-    }
-
-    void Matrix::saveBin( const char *filename ) const
-    {
-        maths::ofstream ofs(filename);
-        ofs << maths::format("binary") << *this;
-    }
-
-    void Matrix::loadTxt( const char *filename )
-    {
-        maths::ifstream ifs(filename);
-        ifs >> maths::format("ascii") >> *this;
-    }
-
-    void Matrix::saveTxt( const char *filename ) const
-    {
-        maths::ofstream ofs(filename);
-        ofs << maths::format("ascii") << *this;
-    }
-
-    void Matrix::loadMat(const char *filename)
-    {
-        maths::ifstream ifs(filename);
-        ifs >> maths::format("matlab") >> *this;
-    }
-
-    void Matrix::saveMat( const char *filename ) const
-    {
-        maths::ofstream ofs(filename);
-        ofs << maths::format("matlab") << *this;
-    }
-
-    void Matrix::loadBrainvisa(const char *filename)
-    {
-        maths::ifstream ifs(filename);
-        ifs >> maths::format("tex") >> *this;
-    }
-
-    void Matrix::saveBrainvisa( const char *filename ) const
-    {
-        maths::ofstream ofs(filename);
-        ofs << maths::format("tex") << *this;
-    }
-
-    void Matrix::load( const char *filename ) {
         try {
-            maths::ifstream ifs(filename);
+            ifs >> maths::format(filename,maths::format::FromSuffix) >> *this;
+        }
+        catch (maths::Exception& e) {
+            std::cout << e.what() << " Doing my best...." << std::endl;
             ifs >> *this;
         }
-        catch (std::string s) {
-            std::cout << s << std::endl;
-        }
     }
 
-    void Matrix::save( const char *filename ) const {
+    void Matrix::save(const char *filename) const {
+        maths::ofstream ofs(filename);
         try {
-            maths::ofstream ofs(filename);
-            ofs << *this;
+            ofs << maths::format(filename,maths::format::FromSuffix) << *this;
         }
-        catch (std::string s) {
-            std::cout << s << std::endl;
+        catch (maths::Exception& e) {
+            std::cout << e.what() << " Doing my best...." << std::endl;
+            ofs << *this;
         }
     }
 }

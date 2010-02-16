@@ -1,12 +1,5 @@
-// FILE: $Id$
-
 /*
 Project Name : OpenMEEG
-
-version           : $Revision$
-last revision     : $Date$
-modified by       : $LastChangedBy$
-last modified     : $LastChangedDate$
 
 © INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre 
 GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU, Théodore PAPADOPOULO,
@@ -48,6 +41,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 namespace OpenMEEG {
 
     namespace maths {
+        const TrivialBinIO           TrivialBinIO::prototype;
         const TrivialBinIO::Suffixes TrivialBinIO::suffs = TrivialBinIO::init();
         const std::string            TrivialBinIO::Identity("binary");
     }

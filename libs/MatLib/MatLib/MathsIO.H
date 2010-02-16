@@ -1,12 +1,5 @@
-// FILE: $Id$
-
 /*
 Project Name : OpenMEEG
-
-version           : $Revision$
-last revision     : $Date$
-modified by       : $LastChangedBy$
-last modified     : $LastChangedDate$
 
 © INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre
 GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU, Théodore PAPADOPOULO,
@@ -48,6 +41,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #include <iostream>
 #include <fstream>
+#include <set>
 #include <list>
 #include <string>
 #include <cstring>
@@ -56,13 +50,11 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #include <Exceptions.H>
 
-
 #ifdef WIN32
 #pragma warning( disable : 4290)    //MSVC warning C4290
 #endif
 
 namespace OpenMEEG {
-
     namespace maths {
 
         class OPENMEEGMATHS_EXPORT MathsIOBase;
@@ -72,7 +64,7 @@ namespace OpenMEEG {
         struct OPENMEEGMATHS_EXPORT MathsIO {
 
             typedef MathsIOBase* IO;
-            typedef std::list<IO> IOs;
+            typedef std::set<IO> IOs;
 
         private:
 
@@ -80,8 +72,8 @@ namespace OpenMEEG {
 
         public:
 
-            MathsIO() { };
-            MathsIO(const char* name):  file_name(name) { }
+            MathsIO(const unsigned pr): priority(pr) { };
+            MathsIO(const char* file): file_name(file),priority(0) { }
             virtual ~MathsIO() {};
 
             static IOs& ios() { static IOs* ios = new IOs; return *ios; }
@@ -127,7 +119,8 @@ namespace OpenMEEG {
 
         protected:
 
-            std::string file_name;
+            std::string    file_name;
+            const unsigned priority;
         };
 
         class OPENMEEGMATHS_EXPORT MathsIOBase : public MathsIO {
@@ -145,6 +138,8 @@ namespace OpenMEEG {
             virtual bool identify(const std::string&) const = 0;
             virtual bool known(const LinOp&) const = 0;
 
+            virtual LinOpInfo info(std::ifstream&) const = 0;
+
             virtual void read(std::ifstream&,LinOp&) const = 0;
             virtual void write(std::ofstream&,const LinOp&) const = 0;
 
@@ -157,18 +152,11 @@ namespace OpenMEEG {
                 return false;
             }
 
-            //  An ugly hack to insert TrivialBinIO at the end of the IO list. 
-            //  Remove when TrivialBinIo is deleted.
-
-            static void InsertTrivialBinIO();
+            bool operator<(const MathsIOBase& io) const { return priority<io.priority; }
 
         protected:
 
-            //  This constructor is only needed for the ugly hack for TrivialBinIo.
-            //  Remove when TrivialBinIo is deleted.
-            MathsIOBase() { }
-
-            MathsIOBase(IOs& ios) { base::ios().push_back(this); }
+            MathsIOBase(const unsigned pr): MathsIO(pr) { base::ios().insert(this); }
             ~MathsIOBase() {};
         };
 
@@ -211,6 +199,8 @@ namespace OpenMEEG {
 
         inline maths::ifstream& operator>>(maths::ifstream &is,const format& f) { f.set(); return is; }
         inline maths::ofstream& operator<<(maths::ofstream &os,const format& f) { f.set(); return os; }
+
+        LinOpInfo info(const char* name);
     }
 }
 #endif  //! OPENMEEG_MATRIXIO_H

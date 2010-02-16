@@ -1,12 +1,5 @@
-/* FILE: $Id$ */
-
 /*
 Project Name : OpenMEEG
-
-version           : $Revision$
-last revision     : $Date$
-modified by       : $LastChangedBy$
-last modified     : $LastChangedDate$
 
 © INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre
 GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU, Théodore PAPADOPOULO,
@@ -65,15 +58,16 @@ namespace OpenMEEG {
 
     public:
 
-        Vector(): LinOp(0,1,FULL,ONE),value() { }
+        Vector(): LinOp(0,1,FULL,1),value() { }
 
-        Vector(const size_t N): LinOp(N,1,FULL,ONE),value(new LinOpValue(size())) { }
-        Vector(const Vector& A,const DeepCopy): LinOp(A.nlin(),1,FULL,ONE),value(new LinOpValue(A.size(),A.data())) { }
+        Vector(const size_t N): LinOp(N,1,FULL,1),value(new LinOpValue(size())) { }
+        Vector(const Vector& A,const DeepCopy): LinOp(A.nlin(),1,FULL,1),value(new LinOpValue(A.size(),A.data())) { }
 
         explicit Vector(Matrix& A);
         explicit Vector(SymMatrix& A);
 
         void alloc_data() { value = new LinOpValue(size()); }
+        void reference_data(const double* array) { value = new LinOpValue(size(),array); }
 
         size_t size() const { return nlin(); }
 
@@ -113,10 +107,6 @@ namespace OpenMEEG {
         double mean() const { return sum()/size(); }
 
         void set(double x);
-        void saveTxt( const char* filename) const;
-        void saveBin( const char* filename) const;
-        void loadTxt( const char* filename);
-        void loadBin( const char* filename);
         void save( const char *filename ) const ;
         void load( const char *filename ) ;
 

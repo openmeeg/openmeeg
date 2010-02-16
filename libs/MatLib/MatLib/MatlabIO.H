@@ -1,12 +1,5 @@
-// FILE: $Id$
-
 /*
 Project Name : OpenMEEG
-
-version           : $Revision$
-last revision     : $Date$
-modified by       : $LastChangedBy$
-last modified     : $LastChangedDate$
 
 © INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre
 GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU, Théodore PAPADOPOULO,
@@ -46,9 +39,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #ifndef OPENMEEG_MATLABIO_H
 #define OPENMEEG_MATLABIO_H
 
-#ifdef USE_MATIO
 #include <matio.h>
-#endif
 
 #include <Exceptions.H>
 #include "MathsIO.H"
@@ -56,8 +47,100 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include "matrix.h"
 
 namespace OpenMEEG {
-
     namespace maths {
+
+        namespace details {
+            template <typename T> class helper { };
+
+            template <>
+            struct helper<Vector> {
+                static const int dim = 1;
+                static int* dims(const Vector& m) {
+                    static int dims[1];
+                    dims[0] = m.nlin();
+                    return dims;
+                }
+                static matvar_t* set_type(matvar_t* matvar,LinOpInfo& linop) {
+                    linop.dimension()   = 1;
+                    linop.storageType() = LinOpInfo::FULL;
+                    linop.nlin()        = matvar->dims[0];
+                    return matvar;
+                }
+                static bool good_type(const matvar_t* matvar) {
+                    return matvar->rank==1 && matvar->class_type==MAT_C_DOUBLE && matvar->data_type==MAT_T_DOUBLE;
+                }
+                static const char message[];
+            };
+            const char helper<Vector>::message[] = "double Vector";
+
+            template <>
+            struct helper<Matrix> {
+                static const int dim = 2;
+                static int* dims(const Matrix& m) {
+                    static int dims[2];
+                    dims[0] = m.nlin();
+                    dims[1] = m.ncol();
+                    return dims;
+                }
+                static matvar_t* set_type(matvar_t* matvar,LinOpInfo& linop) {
+                    linop.dimension()   = 2;
+                    linop.storageType() = LinOpInfo::FULL;
+                    linop.nlin()        = matvar->dims[0];
+                    linop.ncol()        = matvar->dims[1];
+                    return matvar;
+                }
+                static bool good_type(const matvar_t* matvar) {
+                    return matvar->rank==2 && matvar->class_type==MAT_C_DOUBLE && matvar->data_type==MAT_T_DOUBLE;
+                }
+                static const char message[];
+            };
+            const char helper<Matrix>::message[] = "2D full double Matrix";
+
+            template <>
+            struct helper<SymMatrix> {
+                static const int dim = 1;
+                static int* dims(const Matrix& m) {
+                    static int dims[1];
+                    dims[0] = (m.nlin()*(m.nlin()+1))/2;
+                    return dims;
+                }
+                static matvar_t* set_type(matvar_t* matvar,LinOpInfo& linop) {
+                    static const void* size = "size";
+                    linop.dimension()   = 2;
+                    linop.storageType() = LinOpInfo::SYMMETRIC;
+                    const matvar_t* sizevar = Mat_VarGetStructField(matvar,const_cast<void*>(size),BY_NAME,0);
+                    linop.nlin() = linop.ncol() = *static_cast<int*>(sizevar->data);
+                    return adjust(matvar);
+                }
+                static bool good_type(const matvar_t* matvar) {
+                    return matvar->rank==2 && matvar->class_type==MAT_C_STRUCT && matvar->data_type==MAT_T_STRUCT;
+                }
+                static matvar_t* adjust(matvar_t* structvar) {
+                    static const void* data = "data";
+                    matvar_t* matvar = Mat_VarGetStructField(structvar,const_cast<void*>(data),BY_NAME,0);
+                    return matvar;
+                }
+                static const char message[];
+            };
+            const char helper<SymMatrix>::message[] = "symmetric double Matrix";
+
+            template <>
+            struct helper<SparseMatrix> {
+                static const int dim = 2;
+                static matvar_t* set_type(matvar_t* matvar,LinOpInfo& linop) {
+                    linop.dimension()   = 2;
+                    linop.storageType() = LinOpInfo::SPARSE;
+                    linop.nlin()        = matvar->dims[0];
+                    linop.ncol()        = matvar->dims[1];
+                    return matvar;
+                }
+                static bool good_type(const matvar_t* matvar) {
+                    return matvar->rank==2 && matvar->data_type==MAT_T_DOUBLE && matvar->class_type==MAT_C_SPARSE;
+                }
+                static const char message[];
+            };
+            const char helper<SparseMatrix>::message[] = "2D full double Matrix";
+        }
 
         struct OPENMEEGMATHS_EXPORT MatlabIO: public MathsIOBase {
 
@@ -71,43 +154,118 @@ namespace OpenMEEG {
             }
 
             bool known(const LinOp& linop) const {
-                return linop.storageType()==LinOp::FULL || linop.storageType()==LinOp::SPARSE;
+                const unsigned st = linop.storageType();
+                return st==LinOpInfo::FULL || st==LinOpInfo::SYMMETRIC || st==LinOpInfo::SPARSE;
             }
 
-    #ifdef USE_MATIO
+            LinOpInfo info(std::ifstream& is) const throw(std::exception) {
+                if (is.is_open())
+                    is.close();
 
-            void read_full(mat_t* mat,LinOp& linop) const throw(std::exception) {
-                matvar_t* matvar = Mat_VarReadNext(mat);
-                while (matvar!=NULL && (matvar->rank!=2 || matvar->data_type!=MAT_T_DOUBLE || matvar->class_type!=MAT_C_DOUBLE))
-                    matvar = Mat_VarReadNext(mat);
-                if (matvar==NULL)
-                    throw maths::BadContent(identity(),"2D full double Matrix");
+                LinOpInfo linop;
+                mat_t* mat = Mat_Open(name().c_str(),MAT_ACC_RDONLY);
+                if (mat) {
+                    try { read_header<Vector>(mat,linop);       goto finish; } catch(...) { Mat_Rewind(mat); }
+                    try { read_header<Matrix>(mat,linop);       goto finish; } catch(...) { Mat_Rewind(mat); }
+                    try { read_header<SymMatrix>(mat,linop);    goto finish; } catch(...) { Mat_Rewind(mat); }
+                    try { read_header<SparseMatrix>(mat,linop); goto finish; } catch(...) { }
+                    throw ImpossibleObjectIdentification(name());
+                } else {
+                    throw BadFileOpening(name(),maths::BadFileOpening::READ);
+                }
 
-                Matrix& m = dynamic_cast<Matrix&>(linop);
+                finish:
+                Mat_Close(mat);
+                return linop;
+            }
 
-                m.nlin() = matvar->dims[0];
-                m.ncol() = matvar->dims[1];
-                double* data = m.data();
-                data = static_cast<double*>(matvar->data);
-                matvar->mem_conserve = 1;
-                Mat_VarFree(matvar);
+            void read(std::ifstream& is,LinOp& linop) const throw(std::exception) {
+                if (is.is_open()) {
+                    is.close();
+                }
+                mat_t* mat = Mat_Open(name().c_str(),MAT_ACC_RDONLY);
+                if (!mat)
+                    throw BadFileOpening(name(),maths::BadFileOpening::READ);
+
+                if (linop.dimension()==1)
+                    read<Vector>(mat,linop);
+                else {
+                    switch (linop.storageType()) {
+                        case LinOp::SPARSE:
+                            read_sparse(mat,linop);
+                            break;
+                        case LinOp::SYMMETRIC:
+                            read<SymMatrix>(mat,linop);
+                            break;
+                        case LinOp::FULL:
+                            read<Matrix>(mat,linop);
+                            break;
+                        default:
+                            throw BadStorageType(name());
+                    }
+                }
+
                 Mat_Close(mat);
             }
 
-            void read_sparse(mat_t* mat,LinOp& linop) const throw(std::exception) {
-                SparseMatrix& m = dynamic_cast<SparseMatrix&>(linop);
+            void write(std::ofstream& os, const LinOp& linop) const throw(std::exception) {
+                if (os.is_open()) {
+                    os.close();
+                    std::remove(name().c_str());
+                }
+                mat_t* mat = Mat_Open(name().c_str(),MAT_ACC_RDWR);
+                if (!mat)
+                    throw BadFileOpening(name(),maths::BadFileOpening::WRITE);
 
+                if (linop.dimension()==1)
+                    write<Vector>(mat,linop);
+                else {
+                    switch (linop.storageType()) {
+                        case LinOp::SPARSE:
+                            write_sparse(mat,linop);
+                            break;
+                        case LinOp::SYMMETRIC:
+                            write_symmetric(mat,linop);
+                            break;
+                        case LinOp::FULL:
+                            write<Matrix>(mat,linop);
+                            break;
+                        default:
+                            throw BadStorageType(name());
+                    }
+                }
+
+                Mat_Close(mat);
+            }
+
+        private:
+
+            MatlabIO(): MathsIOBase(5) { }
+            ~MatlabIO() {};
+
+            template <typename TYPE>
+            matvar_t* read_header(mat_t* mat,LinOpInfo& linop) const throw(maths::BadContent) {
                 matvar_t* matvar = Mat_VarReadNext(mat);
-
-                while( matvar!=NULL && (matvar->rank!=2 || matvar->data_type!=MAT_T_DOUBLE || matvar->class_type!=MAT_C_SPARSE) )
+                while (matvar!=NULL && !details::helper<TYPE>::good_type(matvar))
                     matvar = Mat_VarReadNext(mat);
                 if (matvar==NULL)
-                    throw maths::BadContent(identity(),"2D sparse double Matrix");
+                    throw maths::BadContent(identity(),details::helper<TYPE>::message);
+                return details::helper<TYPE>::set_type(matvar,linop);
+            }
 
+            template <typename TYPE>
+            void read(mat_t* mat,LinOp& linop) const throw(std::exception) {
+                matvar_t* matvar = read_header<TYPE>(mat,linop);
+                TYPE& O = dynamic_cast<TYPE&>(linop);
+                O.reference_data(static_cast<double*>(matvar->data));
+                matvar->mem_conserve = 1;
+                Mat_VarFree(matvar);
+            }
+
+            void read_sparse(mat_t* mat,LinOp& linop) const throw(std::exception) {
+                matvar_t*     matvar = read_header<SparseMatrix>(mat,linop);
+                SparseMatrix& m      = dynamic_cast<SparseMatrix&>(linop);
                 std::cout << "Using variable with name : " << matvar->name << std::endl;
-
-                m.nlin() = matvar->dims[0];
-                m.ncol() = matvar->dims[1];
 
                 sparse_t* sparse = static_cast<sparse_t*>(matvar->data);
                 size_t _nz = sparse->nzmax;
@@ -127,17 +285,31 @@ namespace OpenMEEG {
                 }
                 matvar->mem_conserve = 1;
                 Mat_VarFree(matvar);
-                Mat_Close(mat);
             }
 
-            void write_full(mat_t* mat,const LinOp& linop) const {
-                const Matrix& m = dynamic_cast<const Matrix&>(linop);
-                matvar_t* matvar;
-                int dims[2] = { m.nlin(), m.ncol() };
-                matvar = Mat_VarCreate("linop",MAT_C_DOUBLE,MAT_T_DOUBLE,2,dims,m.data(),0);
+            template <typename TYPE>
+            void write(mat_t* mat,const LinOp& linop) const {
+                const TYPE& m = dynamic_cast<const TYPE&>(linop);
+                int* dims = details::helper<TYPE>::dims(m);
+                matvar_t* matvar = Mat_VarCreate("linop",MAT_C_DOUBLE,MAT_T_DOUBLE,details::helper<TYPE>::dim,dims,m.data(),MEM_CONSERVE);
                 Mat_VarWrite(mat,matvar,COMPRESSION_ZLIB);
                 Mat_VarFree(matvar);
-                Mat_Close(mat);
+            }
+
+            void write_symmetric(mat_t* mat,const LinOp& linop) const {
+                const SymMatrix& m  = dynamic_cast<const SymMatrix&>(linop);
+                int dims[2] = { m.size(),1 };
+                int dims1[2] = { 1, 1 };
+                int size[1]  = { m.nlin() };
+                matvar_t** matvar = new matvar_t*[3];
+                matvar[0] = Mat_VarCreate("size",MAT_C_UINT32,MAT_T_UINT32,2,dims1,size,0);
+                matvar[1] = Mat_VarCreate("data",MAT_C_DOUBLE,MAT_T_DOUBLE,2,dims,m.data(),MEM_CONSERVE);
+                matvar[2] = NULL;
+                matvar_t* structvar = Mat_VarCreate("symmatrix",MAT_C_STRUCT,MAT_T_STRUCT,2,dims1,matvar,0);
+                Mat_VarWrite(mat,structvar,COMPRESSION_NONE);
+                //Mat_VarWrite(mat,structvar,COMPRESSION_ZLIB); Does not work
+                delete[] matvar;
+                Mat_VarFree(structvar);
             }
 
             void write_sparse(mat_t* mat,const LinOp& linop) const {
@@ -177,74 +349,18 @@ namespace OpenMEEG {
 
                 int dims[2] = { linop.nlin(), linop.ncol() };
                 matvar_t *matvar;
-                sparse_t  sparse = {0,};
-                sparse.nzmax = linop.size();
-                sparse.nir   = linop.size();
-                sparse.ir    = ir;
-                sparse.njc   = linop.ncol()+1;
-                sparse.jc    = jc;
-                sparse.ndata = linop.size();
-                sparse.data  = t;
+                const int sz = linop.size();
+                sparse_t  sparse = { sz, ir, sz, jc, linop.ncol()+1, sz, t};
 
                 matvar = Mat_VarCreate("matrix",MAT_C_SPARSE,MAT_T_DOUBLE,2,dims,&sparse,MEM_CONSERVE);
                 Mat_VarWrite(mat,matvar,COMPRESSION_ZLIB);
                 Mat_VarFree(matvar);
-                Mat_Close(mat);
             }
-
-    #endif
-
-            void read(std::ifstream& is,LinOp& linop) const throw(std::exception) {
-                #ifdef USE_MATIO
-                    if (is.is_open()) {
-                        is.close();
-                    }
-                    mat_t* mat = Mat_Open(name().c_str(),MAT_ACC_RDONLY);
-                    if (mat) {
-                        if (linop.storageType()==LinOp::SPARSE) {
-                            read_sparse(mat,linop);
-                        } else {
-                            read_full(mat,linop);
-                        }
-                    } else {
-                        throw BadFileOpening(name(),maths::BadFileOpening::READ);
-                    }
-                #else
-                    std::cerr << "You have to compile OpenMEEG with MATIO to load matlab files" << std::endl;
-                #endif
-            }
-
-            void write(std::ofstream& os, const LinOp& linop) const throw(std::exception) {
-                #ifdef USE_MATIO
-                    if (os.is_open()) {
-                        // std::cout << "closing stream" << std::endl;
-                        os.close();
-                        std::remove(name().c_str());
-                    }
-                    mat_t* mat = Mat_Open(name().c_str(),MAT_ACC_RDWR);
-                    if (mat) {
-                        if (linop.storageType()==LinOp::SPARSE) {
-                            write_sparse(mat,linop);
-                        } else {
-                            write_full(mat,linop);
-                        }
-                    } else {
-                        throw BadFileOpening(name(),maths::BadFileOpening::WRITE);
-                    }
-                #else
-                    std::cerr << "You have to compile OpenMEEG with MATIO to save matlab files" << std::endl;
-                #endif
-            }
-
-        private:
-
-            MatlabIO(): MathsIOBase(MathsIO::ios()) { }
-            ~MatlabIO() {};
 
             static Suffixes init() {
-                Suffixes suffs;
-                suffs.push_back("mat");
-                return suffs;
+                Suffixes suffxes;
+                suffxes.push_back("mat");
+                return suffxes;
             }
 
             static const MatlabIO    prototype;

@@ -35,15 +35,6 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#define SAVEBIN
-
-#ifdef SAVEBIN
-    #define SAVE saveBin
-#else
-    #define SAVE saveTxt
-#endif
-
-
 #include <fstream>
 #include <cstring>
 
@@ -106,7 +97,7 @@ int main(int argc, char** argv)
 
         // Assembling Matrix from discretization :
         HeadMat HM(geo,GaussOrder);
-        HM.SAVE(argv[4]);
+        HM.save(argv[4]);
     }
 
     /*********************************************************************************************
@@ -136,7 +127,7 @@ int main(int argc, char** argv)
 
         // Assembling Matrix from discretization :
         SurfSourceMat ssm(geo,mesh_sources,GaussOrder);
-        ssm.SAVE(argv[5]); // if outfile is specified
+        ssm.save(argv[5]); // if outfile is specified
     }
 
     /*********************************************************************************************
@@ -175,11 +166,11 @@ int main(int argc, char** argv)
         if (!strcmp(argv[1],"-DipSourceMatNoAdapt")|(!strcmp(argv[1],"-DSMNA"))|(!strcmp(argv[1],"-dsmna"))){
             DipSourceMat dsm(geo, dipoles, GaussOrder,false);
             // Saving RHS Matrix for dipolar case :
-            dsm.SAVE(argv[5]);
+            dsm.save(argv[5]);
         } else {
             DipSourceMat dsm(geo, dipoles, GaussOrder,true);
             // Saving RHS Matrix for dipolar case :
-            dsm.SAVE(argv[5]);
+            dsm.save(argv[5]);
         }
     }
 
@@ -226,8 +217,8 @@ int main(int argc, char** argv)
 
         assemble_EITsource( geo, source, airescalp, GaussOrder);
 
-        source.SAVE(argv[4]);
-        airescalp.SAVE(argv[5]);
+        source.save(argv[4]);
+        airescalp.save(argv[5]);
     }
 
     /*********************************************************************************************
@@ -253,12 +244,12 @@ int main(int argc, char** argv)
             exit(1);
         }
         Matrix source;
-        source.loadBin(argv[2]);
+        source.load(argv[2]);
         SparseMatrix stimelec;
-        stimelec.loadBin(argv[3]);
+        stimelec.load(argv[3]);
         Matrix stim(source.nlin(),stimelec.ncol());
         stim = source*stimelec;
-        stim.saveBin(argv[4]);
+        stim.save(argv[4]);
     }
 
     /*********************************************************************************************
@@ -295,7 +286,7 @@ int main(int argc, char** argv)
         // Head2EEG is the linear application which maps x |----> v
         Head2EEGMat mat(geo,patches);
         // Saving Head2EEG Matrix :
-        mat.SAVE(argv[5]);
+        mat.save(argv[5]);
     }
 
     /*********************************************************************************************
@@ -331,7 +322,7 @@ int main(int argc, char** argv)
         // Assembling Matrix from discretization :
         Head2MEGMat mat(geo,sensors);
         // Saving Head2MEG Matrix :
-        mat.SAVE(argv[5]); // if outfile is specified
+        mat.save(argv[5]); // if outfile is specified
     }
 
     /*********************************************************************************************
@@ -361,7 +352,7 @@ int main(int argc, char** argv)
         // Assembling Matrix from discretization :
         SurfSource2MEGMat mat(mesh_sources, sensors);
         // Saving SurfSource2MEG Matrix :
-        mat.SAVE(argv[4]);
+        mat.save(argv[4]);
     }
 
     /*********************************************************************************************
@@ -391,7 +382,7 @@ int main(int argc, char** argv)
         Sensors sensors(argv[3]);
 
         DipSource2MEGMat mat( dipoles, sensors );
-        mat.SAVE(argv[4]);
+        mat.save(argv[4]);
     }
     /*********************************************************************************************
     * Computation of the discrete linear application which maps x (the unknown vector in a symmetric system)
@@ -427,7 +418,7 @@ int main(int argc, char** argv)
         Matrix points(argv[4]);
         Surf2VolMat mat(geo,points);
         // Saving SurfToVol Matrix :
-        mat.SAVE(argv[5]);
+        mat.save(argv[5]);
     }
 
     else cerr << "unknown argument: " << argv[1] << endl;

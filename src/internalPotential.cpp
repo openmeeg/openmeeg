@@ -64,13 +64,13 @@ int main(int argc, char** argv)
     geo.read(argv[1],argv[2]);
 
     Matrix dipoles;
-    dipoles.loadTxt(argv[3]);
+    dipoles.load(argv[3]);
 
     Matrix SourceMatrix;
-    SourceMatrix.loadBin(argv[4]);
+    SourceMatrix.load(argv[4]);
 
     SymMatrix HeadMatInv;
-    HeadMatInv.loadBin(argv[5]);
+    HeadMatInv.load(argv[5]);
 
     Matrix Points;
     std::string extension = getNameExtension(argv[6]); // We check whether it is a mesh file or not
@@ -88,7 +88,7 @@ int main(int argc, char** argv)
     }
     else{ //else we suppose it is a Txt file, with coordinates
         std::cout << "points" << std::endl;
-        Points.loadTxt(argv[6]);
+        Points.load(argv[6]);
         if (Points.ncol()!=3){
             std::cerr << "Not a correct file with points coordinates " << argv[6] << std::endl;
             exit(1);
@@ -104,7 +104,7 @@ int main(int argc, char** argv)
     Matrix Vinfinite(EEGGainMatrix.nlin(),EEGGainMatrix.ncol()); // We must substract the contribution of the dipole at infinity
     PotAtInfinity(geo,Points,dipoles,Vinfinite);
     EEGGainMatrix+=Vinfinite;
-    EEGGainMatrix.saveTxt(argv[7]);
+    EEGGainMatrix.save(argv[7]);
 }
 
 void getHelp(char** argv)

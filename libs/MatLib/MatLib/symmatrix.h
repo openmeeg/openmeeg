@@ -1,12 +1,5 @@
-/* FILE: $Id$ */
-
 /*
 Project Name : OpenMEEG
-
-version           : $Revision$
-last revision     : $Date$
-modified by       : $LastChangedBy$
-last modified     : $LastChangedDate$
 
 © INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre
 GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU, Théodore PAPADOPOULO,
@@ -66,11 +59,11 @@ namespace OpenMEEG {
 
     public:
 
-        SymMatrix(): LinOp(0,0,SYMMETRIC,TWO),value() {}
+        SymMatrix(): LinOp(0,0,SYMMETRIC,2),value() {}
 
-        SymMatrix(const char* fname): LinOp(0,0,SYMMETRIC,TWO),value() { this->load(fname); }
-        SymMatrix(size_t N): LinOp(N,N,SYMMETRIC,TWO),value(new LinOpValue(size())) { }
-        SymMatrix(const SymMatrix& S,const DeepCopy): LinOp(S.nlin(),S.nlin(),SYMMETRIC,TWO),value(new LinOpValue(S.size(),S.data())) { }
+        SymMatrix(const char* fname): LinOp(0,0,SYMMETRIC,2),value() { this->load(fname); }
+        SymMatrix(size_t N): LinOp(N,N,SYMMETRIC,2),value(new LinOpValue(size())) { }
+        SymMatrix(const SymMatrix& S,const DeepCopy): LinOp(S.nlin(),S.nlin(),SYMMETRIC,2),value(new LinOpValue(S.size(),S.data())) { }
 
         explicit SymMatrix(const Vector& v);
 
@@ -81,6 +74,7 @@ namespace OpenMEEG {
         size_t& ncol()       { return nlin(); }
 
         void alloc_data() { value = new LinOpValue(size()); }
+        void reference_data(const double* array) { value = new LinOpValue(size(),array); }
 
         bool empty() const { return value->empty(); }
         void set(double x) ;
@@ -113,12 +107,8 @@ namespace OpenMEEG {
         double det();
         // void eigen(Matrix & Z, Vector & D );
 
-        void save( const char *filename ) const;
-        void load( const char *filename );
-        void saveTxt( const char *filename ) const;
-        void saveBin( const char *filename ) const;
-        void loadTxt( const char *filename );
-        void loadBin( const char *filename );
+        void save(const char *filename) const;
+        void load(const char *filename);
 
         friend class Matrix;
     };
@@ -147,12 +137,12 @@ namespace OpenMEEG {
     #ifdef HAVE_LAPACK
         // Bunch Kaufman Factorization
         int *pivots=new int[nlin()];
-        int info;
-        DSPTRF('U',invA.nlin(),invA.data(),pivots,info);
+        int Info;
+        DSPTRF('U',invA.nlin(),invA.data(),pivots,Info);
         // Inverse
-        int size=(int)invA.nlin()*64;
-        double *work=new double[size];
-        DSPTRS('U',invA.nlin(),1,invA.data(),pivots,X.data(),invA.nlin(),info);
+        int sz=(int)invA.nlin()*64;
+        double *work=new double[sz];
+        DSPTRS('U',invA.nlin(),1,invA.data(),pivots,X.data(),invA.nlin(),Info);
 
         delete[] pivots;
         delete[] work;
@@ -169,14 +159,14 @@ namespace OpenMEEG {
     #ifdef HAVE_LAPACK
         // Bunch Kaufman Factorization
         int *pivots=new int[nlin()];
-        int info;
+        int Info;
         //char *uplo="U";
-        DSPTRF('U',invA.nlin(),invA.data(),pivots,info);
+        DSPTRF('U',invA.nlin(),invA.data(),pivots,Info);
         // Inverse
-        int size=(int) invA.nlin()*64;
-        double *work=new double[size];
+        int sz=(int) invA.nlin()*64;
+        double *work=new double[sz];
         for(int i = 0; i < nbvect; i++)
-            DSPTRS('U',invA.nlin(),1,invA.data(),pivots,B[i].data(),invA.nlin(),info);
+            DSPTRS('U',invA.nlin(),1,invA.data(),pivots,B[i].data(),invA.nlin(),Info);
 
         delete[] pivots;
         delete[] work;
@@ -210,9 +200,9 @@ namespace OpenMEEG {
         SymMatrix invA(*this,DEEP_COPY);
     #ifdef HAVE_LAPACK
         // U'U factorization then inverse
-        int info;
-        DPPTRF('U',nlin(),invA.data(),info);
-        DPPTRI('U',nlin(),invA.data(),info);
+        int Info;
+        DPPTRF('U',nlin(),invA.data(),Info);
+        DPPTRI('U',nlin(),invA.data(),Info);
     #else
         std::cerr << "Positive definite inverse not defined" << std::endl;
     #endif
@@ -225,10 +215,10 @@ namespace OpenMEEG {
     #ifdef HAVE_LAPACK
         // Bunch Kaufmqn
         int *pivots=new int[nlin()];
-        int info;
+        int Info;
         // TUDUtTt
-        DSPTRF('U',invA.nlin(),invA.data(),pivots,info);
-        if(info<0)
+        DSPTRF('U',invA.nlin(),invA.data(),pivots,Info);
+        if(Info<0)
             std::cout << "Big problem in det (DSPTRF)" << std::endl;
         for(int i = 0; i<(int) nlin(); i++){
             if(pivots[i] >= 0)
@@ -328,12 +318,12 @@ namespace OpenMEEG {
         SymMatrix invA(*this,DEEP_COPY);
         // LU
         int *pivots=new int[nlin()];
-        int info;
-        DSPTRF('U',invA.nlin(),invA.data(),pivots,info);
+        int Info;
+        DSPTRF('U',invA.nlin(),invA.data(),pivots,Info);
         // Inverse
-        int size=(int)invA.nlin()*64;
-        double *work=new double[size];
-        DSPTRI('U',invA.nlin(),invA.data(),pivots,work,info);
+        int sz=(int)invA.nlin()*64;
+        double *work=new double[sz];
+        DSPTRI('U',invA.nlin(),invA.data(),pivots,work,Info);
 
         delete[] pivots;
         delete[] work;

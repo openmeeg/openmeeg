@@ -1,12 +1,5 @@
-/* FILE: $Id$ */
-
 /*
 Project Name : OpenMEEG
-
-version           : $Revision$
-last revision     : $Date$
-modified by       : $LastChangedBy$
-last modified     : $LastChangedDate$
 
 © INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre 
 GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU, Théodore PAPADOPOULO,
@@ -79,7 +72,7 @@ int main( int argc, char **argv)
     if(sym) {
         if(txt) {
             SymMatrix M;
-            M.loadTxt(filename);
+            M.load(filename);
             cout << "Format : ASCII" << endl;
             print_infos(M);
         } else if(mat) {
@@ -87,41 +80,41 @@ int main( int argc, char **argv)
             exit(1);
         } else {
             SymMatrix M;
-            M.loadBin(filename);
+            M.load(filename);
             cout << "Format : BINARY" << endl;
             print_infos(M);
         }
     } else if(sparse) {
         if(txt) {
             SparseMatrix M;
-            M.loadTxt(filename);
+            M.load(filename);
             cout << "Format : ASCII" << endl;
             print_infos(M);
         } else if(mat) {
             SparseMatrix M;
-            M.loadMat(filename);
+            M.load(filename);
             cout << "Format : MAT" << endl;
             print_infos(M);
         } else {
             SparseMatrix M;
-            M.loadBin(filename);
+            M.load(filename);
             cout << "Format : BINARY" << endl;
             print_infos(M);
         }
     } else {
         if(txt) {
             Matrix M;
-            M.loadTxt(filename);
+            M.load(filename);
             cout << "Format : ASCII" << endl;
             print_infos(M);
         } else if(mat) {
             Matrix M;
-            M.loadMat(filename);
+            M.load(filename);
             cout << "Format : MAT" << endl;
             print_infos(M);
         } else {
             Matrix M;
-            M.loadBin(filename);
+            M.load(filename);
             cout << "Format : BINARY" << endl;
             print_infos(M);
         }

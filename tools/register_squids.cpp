@@ -1,12 +1,5 @@
-/* FILE: $Id: register_squids.cpp 208 2008-02-29 13:28:33Z gramfort $ */
-
 /*
 Project Name : OpenMEEG
-
-version           : $Revision: 208 $
-last revision     : $Date: 2008-02-29 14:28:33 +0100 (Fri, 29 Feb 2008) $
-modified by       : $LastChangedBy: gramfort $
-last modified     : $LastChangedDate: 2008-02-29 14:28:33 +0100 (Fri, 29 Feb 2008) $
 
 © INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre
 GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU, Théodore PAPADOPOULO,
@@ -86,7 +79,7 @@ int main( int argc, char** argv)
     squids.load(squids_filename);
     size_t nb_positions = squids.getNumberOfPositions();
 
-    Matrix fiducials; fiducials.loadTxt(fiducials_filename);
+    Matrix fiducials; fiducials.load(fiducials_filename);
 
     assert(fiducials.nlin() == 3);
     assert(fiducials.ncol() == 3);
@@ -126,6 +119,6 @@ int main( int argc, char** argv)
     }
 
     squids.save(squids_output_filename);
-    if(rotation_filename) R.saveTxt(rotation_filename);
-    if(translation_filename) T.saveTxt(translation_filename);
+    if(rotation_filename) R.save(rotation_filename);
+    if(translation_filename) T.save(translation_filename);
 }

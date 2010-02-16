@@ -50,8 +50,7 @@ int main(int argc, char** argv)
 {
     print_version(argv[0]);
 
-    if(argc < 2)
-    {
+    if (argc < 2) {
         std::cerr << "Not enough arguments \nPlease try \"" << argv[0] << " -h\" or \"" << argv[0] << " --help \" \n" << std::endl;
         return 0;
     }
@@ -76,14 +75,14 @@ int main(int argc, char** argv)
         Tb=rand() % geo.getM(geo.nb()-1).nbTrgs();
     
     Matrix dipoles;
-    dipoles.loadTxt(argv[3]);
+    dipoles.load(argv[3]);
     int ndip=dipoles.nlin();
 
     Matrix SourceMatrix;
-    SourceMatrix.loadBin(argv[4]);
+    SourceMatrix.load(argv[4]);
 
     SymMatrix HeadMatInv;
-    HeadMatInv.loadBin(argv[5]);
+    HeadMatInv.load(argv[5]);
 
     Matrix PotExt=HeadMatInv(newsize-geo.getM(geo.nb()-1).nbPts(),newsize-1,0,newsize-1);// We want the potential on the external surface
     PotExt=PotExt*SourceMatrix;
@@ -156,12 +155,11 @@ int main(int argc, char** argv)
     gradVj.setcol(2,((VR0dz-VR0)/delta));
     Matrix qgradVj(1,ndip);
     Matrix diffVf(1,ndip);
-    for (int i =0;i<ndip;i++){
+    for (int i =0;i<ndip;i++)
         qgradVj(0,i)=dipoles(i,3)*gradVj(i,0)+dipoles(i,4)*gradVj(i,1)+dipoles(i,5)*gradVj(i,2);
-    }
     diffVf.setlin(0,VRi-VRe);
-    qgradVj.saveTxt(argv[6]);
-    diffVf.saveTxt(argv[7]);
+    qgradVj.save(argv[6]);
+    diffVf.save(argv[7]);
     return 0;
 }
 

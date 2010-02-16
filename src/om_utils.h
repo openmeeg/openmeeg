@@ -57,6 +57,12 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #include "OpenMEEGConfigure.h"
 
+#ifdef USE_PROGRESSBAR
+    #define PROGRESSBAR(a,b) progressbar((a),(b))
+#else
+    #define PROGRESSBAR(a,b)
+#endif
+
 namespace OpenMEEG {
 
     #ifndef M_PI
@@ -111,8 +117,8 @@ namespace OpenMEEG {
         std::cout << "| -----------------------" << std::endl;
     }
 
+#ifdef USE_PROGRESSBAR
     inline void progressbar(int n, int N, int w = 20) {
-    #ifdef USE_PROGRESSBAR
         // w : nb of steps
         const char* cprog = ".";
         const char* cprog1 = "*";
@@ -146,8 +152,8 @@ namespace OpenMEEG {
             std::cout<<"\n";
         }
         std::cout.flush();
-    #endif
     }
+#endif
 
     inline void warning(std::string message) {
         std::cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;

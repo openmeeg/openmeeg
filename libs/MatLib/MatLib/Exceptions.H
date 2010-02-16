@@ -15,7 +15,8 @@ namespace OpenMEEG {
 
         typedef enum { UNEXPECTED = 128, IO_EXCPT,
                        BAD_FILE, BAD_FILE_OPEN, BAD_CONTENT, NO_SUFFIX, BAD_HDR, BAD_DATA, BAD_VECT, UNKN_DIM, BAD_SYMM_MAT,
-                       NO_IO, UNKN_FILE_FMT, UNKN_FILE_SUFFIX, NO_FILE_FMT, UNKN_NAMED_FILE_FMT } ExceptionCode;
+                       BAD_STORAGE_TYPE, NO_IO, UNKN_FILE_FMT, UNKN_FILE_SUFFIX, NO_FILE_FMT, UNKN_NAMED_FILE_FMT,
+                       IMPOSSIBLE_IDENTIFICATION } ExceptionCode;
 
 
         class OPENMEEGMATHS_EXPORT Exception: public std::exception {
@@ -116,6 +117,30 @@ namespace OpenMEEG {
         private:
 
             static std::string message() { return std::string("Bad file header."); }
+        };
+
+        struct OPENMEEGMATHS_EXPORT ImpossibleObjectIdentification: public IOException {
+
+            ImpossibleObjectIdentification(const std::string& file):                  IOException(message(file))    { }
+            ImpossibleObjectIdentification(std::istream& is,const std::string& file): IOException(is,message(file)) { }
+
+            ExceptionCode code() const throw() { return IMPOSSIBLE_IDENTIFICATION; }
+
+        private:
+
+            static std::string message(const std::string& name) { return std::string("Impossible to identify the object in this file: ")+name; }
+        };
+
+        struct OPENMEEGMATHS_EXPORT BadStorageType: public IOException {
+
+            BadStorageType(const std::string& file):                  IOException(message(file))    { }
+            BadStorageType(std::istream& is,const std::string& file): IOException(is,message(file)) { }
+
+            ExceptionCode code() const throw() { return BAD_STORAGE_TYPE; }
+
+        private:
+
+            static std::string message(const std::string& file) { return std::string("Bad storage type in file ")+file+"."; }
         };
 
         struct OPENMEEGMATHS_EXPORT BadData: public IOException {

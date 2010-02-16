@@ -1,12 +1,5 @@
-/* FILE: $Id$ */
-
 /*
 Project Name : OpenMEEG
-
-version           : $Revision$
-last revision     : $Date$
-modified by       : $LastChangedBy$
-last modified     : $LastChangedDate$
 
 © INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre
 GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU, Théodore PAPADOPOULO,
@@ -72,13 +65,13 @@ void genericTest(T &M)
 
     // Test IO
     cout << endl << "BIN :" << endl;
-    M.saveBin("tmp.bin");
-    M.loadBin("tmp.bin");
+    M.save("tmp.bin");
+    M.load("tmp.bin");
     M.info();
 
     cout << endl << "TXT :" << endl;
-    M.saveTxt("tmp.txt");
-    M.loadTxt("tmp.txt");
+    M.save("tmp.txt");
+    M.load("tmp.txt");
     M.info();
 
     cout << "   operator * OK" << endl;
@@ -91,12 +84,12 @@ int main ()
     cout<<endl<<"========== vectors =========="<<endl;
     Vector v(8);
     v.set(0);
-    v.saveBin("tmp.bin");
+    v.save("tmp.bin");
     for(int i=0;i<8;i++) v(i)=i;
-    v.saveTxt("tmp.txt");
-    v.loadBin("tmp.bin");
+    v.save("tmp.txt");
+    v.load("tmp.bin");
     cout<<"v= "<<endl<<v<<endl;
-    v.loadTxt("tmp.txt");
+    v.load("tmp.txt");
     cout<<"v= "<<endl<<v<<endl;
 
     // section Matrix
@@ -143,14 +136,14 @@ int main ()
 
 #ifdef USE_MATIO
     cout << "MAT :" << endl;
-    M.saveMat("tmp_matrix.mat");
-    M.loadMat("tmp_matrix.mat");
+    M.save("tmp_matrix.mat");
+    M.load("tmp_matrix.mat");
     M.info();
 #endif
 
     cout << endl << "BRAINVISA :" << endl;
-    M.saveBrainvisa("tmp.tex");
-    M.loadBrainvisa("tmp.tex");
+    M.save("tmp.tex");
+    M.load("tmp.tex");
     M.info();
 
     // section SymMatrix
@@ -179,8 +172,8 @@ int main ()
 
 #ifdef USE_MATIO
     cout << "MAT :" << endl;
-    spM.saveMat("tmp_SparseMatrix.mat");
-    spM.loadMat("tmp_SparseMatrix.mat");
+    spM.save("tmp_SparseMatrix.mat");
+    spM.load("tmp_SparseMatrix.mat");
     cout << spM;
 #endif
 

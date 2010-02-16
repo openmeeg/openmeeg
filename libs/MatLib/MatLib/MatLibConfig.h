@@ -92,8 +92,8 @@ knowledge of the CeCILL-B license and that you accept its terms.
     #define LAPACK(x,X) x ## _
 #else
     extern "C" {
-        #include <atlas/cblas.h>
-        #include <atlas/clapack.h>
+        #include <cblas.h>
+        #include <clapack.h>
     }
     #define BLAS(x,X) cblas_ ## x
     #define LAPACK(x,X) clapack_ ## x

@@ -1,12 +1,5 @@
-/* FILE: $Id: mesh_convert.cpp 229 2008-04-23 12:23:15Z gramfort $ */
-
 /*
 Project Name : OpenMEEG
-
-version           : $Revision: 229 $
-last revision     : $Date: 2008-04-23 14:23:15 +0200 (Wed, 23 Apr 2008) $
-modified by       : $LastChangedBy: gramfort $
-last modified     : $LastChangedDate: 2008-04-23 14:23:15 +0200 (Wed, 23 Apr 2008) $
 
 © INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre
 GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU, Théodore PAPADOPOULO,
@@ -87,7 +80,7 @@ int main( int argc, char **argv)
     if(transfmat)
     {
         Matrix m;
-        m.loadTxt(transfmat);
+        m.load(transfmat);
 
         assert(m.nlin() == 4);
         assert(m.ncol() == 4);

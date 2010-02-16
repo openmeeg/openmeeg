@@ -198,7 +198,7 @@ namespace OpenMEEG {
         inline void setOrder(int n)
         {
             if(n>=0 && n<4) order=n;
-            else {std::cout<<"Unavalaible Gauss Order: "<<n<<std::endl; order = (n<1)?order=1:order;}
+            else {std::cout<<"Unavailable Gauss Order: "<<n<<std::endl; order = (n<1)?order=1:order;}
         }
 
         virtual inline T integrate ( const I &fc, const Triangle& Trg ,const Mesh& M)

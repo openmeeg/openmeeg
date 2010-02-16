@@ -1,12 +1,5 @@
-/* FILE: $Id: assembleSensors.cpp 222 2008-04-08 06:14:41Z gramfort $ */
-
 /*
 Project Name : OpenMEEG
-
-version           : $Revision: 222 $
-last revision     : $Date: 2008-04-08 08:14:41 +0200 (Tue, 08 Apr 2008) $
-modified by       : $LastChangedBy: gramfort $
-last modified     : $LastChangedDate: 2008-04-08 08:14:41 +0200 (Tue, 08 Apr 2008) $
 
 © INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre
 GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU, Théodore PAPADOPOULO,
@@ -130,7 +123,7 @@ namespace OpenMEEG {
 
         for(size_t i=0;i<nbIntegrationPoints;i++)
         {
-            progressbar(i,nbIntegrationPoints);
+            PROGRESSBAR(i,nbIntegrationPoints);
             #ifdef USE_OMP
             #pragma omp parallel for
             #endif
@@ -177,7 +170,7 @@ namespace OpenMEEG {
         }
 
         for(size_t i=0;i<mat.nlin();i++) {
-            progressbar(i,mat.nlin());
+            PROGRESSBAR(i,mat.nlin());
             operatorFerguson(positionsVectArray[i],sources_mesh,myFergusonMatrix,3*(int)i,0);
         }
 
