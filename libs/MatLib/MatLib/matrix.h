@@ -297,7 +297,7 @@ namespace OpenMEEG {
         __CLPK_integer nlin_local = invA.nlin();
         __CLPK_integer nlin_local2 = invA.nlin();
         __CLPK_integer ncol_local = invA.ncol();
-        __CLPK_integer size = invA.ncol()*64;
+        __CLPK_integer sz = invA.ncol()*64;
         #else
         int *pivots=new int[ncol()];
         int Info;
