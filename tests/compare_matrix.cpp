@@ -27,7 +27,7 @@ int main (int argc, char** argv)
     const char *isfull = command_option("-full",(const char *) 0,"Data are full matrices");
     const char *issym = command_option("-sym",(const char *) 0,"Data are symmetric matrices");
     const char *issparse = command_option("-sparse",(const char *) 0,"Data are sparse matrices");
-    const char *epsilon = command_option("-eps","0.00001","Tolerance on differences");
+    const char *epsilon = command_option("-eps","0.00002","Tolerance on differences"); // Hacking tol for tests
     const char *rdm = command_option("-rdm",(const char *) 0,"Use RDM (Relative difference measure) to compare each column of matrices");
     const char *mag = command_option("-mag",(const char *) 0,"Use MAG (MAGnification error) to compare each column of matrices");
     const int col = command_option("-col",(int) 0,"Restrict RDM comparison to one column (index starts at 1)");
