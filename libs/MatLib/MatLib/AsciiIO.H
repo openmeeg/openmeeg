@@ -156,6 +156,13 @@ namespace OpenMEEG {
                 std::string line;
                 std::getline(is,line,'\n');
 
+                if (is.eof()) {
+                    linop.storageType() = LinOp::FULL;
+                    linop.dimension() = 2;
+                    linop.nlin()      = 1;
+                    return;
+                }
+
                 const unsigned len1 = length(line);
 
                 if (len1==len)
@@ -165,7 +172,7 @@ namespace OpenMEEG {
                 else if (len ==2 && len1==3)
                     linop.storageType() = LinOp::SPARSE;
                 else {
-                    ;;
+                    throw "Should never happen";
                 }
 
                 linop.dimension() = (linop.storageType()==LinOp::FULL && len==1) ? 1 : 2;
