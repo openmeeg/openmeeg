@@ -98,6 +98,10 @@ namespace OpenMEEG {
 
             template <>
             struct helper<SymMatrix> {
+                static matvar_t* saved;
+
+                ~helper() { Mat_VarFree(saved); }
+
                 static const int dim = 1;
                 static int* dims(const Matrix& m) {
                     static int dims[1];
@@ -118,10 +122,12 @@ namespace OpenMEEG {
                 static matvar_t* adjust(matvar_t* structvar) {
                     static const void* data = "data";
                     matvar_t* matvar = Mat_VarGetStructField(structvar,const_cast<void*>(data),BY_NAME,0);
+                    saved = structvar;
                     return matvar;
                 }
                 static const char message[];
             };
+            matvar_t* helper<SymMatrix>::saved;
             const char helper<SymMatrix>::message[] = "symmetric double Matrix";
 
             template <>
@@ -246,8 +252,10 @@ namespace OpenMEEG {
             template <typename TYPE>
             matvar_t* read_header(mat_t* mat,LinOpInfo& linop) const throw(maths::BadContent) {
                 matvar_t* matvar = Mat_VarReadNext(mat);
-                while (matvar!=NULL && !details::helper<TYPE>::good_type(matvar))
+                while (matvar!=NULL && !details::helper<TYPE>::good_type(matvar)) {
+                    Mat_VarFree(matvar);
                     matvar = Mat_VarReadNext(mat);
+                }
                 if (matvar==NULL)
                     throw maths::BadContent(identity(),details::helper<TYPE>::message);
                 return details::helper<TYPE>::set_type(matvar,linop);
@@ -291,7 +299,7 @@ namespace OpenMEEG {
             void write(mat_t* mat,const LinOp& linop) const {
                 const TYPE& m = dynamic_cast<const TYPE&>(linop);
                 int* dims = details::helper<TYPE>::dims(m);
-                matvar_t* matvar = Mat_VarCreate("linop",MAT_C_DOUBLE,MAT_T_DOUBLE,details::helper<TYPE>::dim,dims,m.data(),MEM_CONSERVE);
+                matvar_t* matvar = Mat_VarCreate("linop",MAT_C_DOUBLE,MAT_T_DOUBLE,details::helper<TYPE>::dim,dims,m.data(),0);
                 Mat_VarWrite(mat,matvar,COMPRESSION_ZLIB);
                 Mat_VarFree(matvar);
             }
@@ -355,6 +363,9 @@ namespace OpenMEEG {
                 matvar = Mat_VarCreate("matrix",MAT_C_SPARSE,MAT_T_DOUBLE,2,dims,&sparse,MEM_CONSERVE);
                 Mat_VarWrite(mat,matvar,COMPRESSION_ZLIB);
                 Mat_VarFree(matvar);
+                delete[] t;
+                delete[] ir;
+                delete[] jc;
             }
 
             static Suffixes init() {
