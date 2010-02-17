@@ -204,10 +204,8 @@ namespace OpenMEEG {
         size_t minj = 0;
         size_t maxj = 0;
 
-        for(size_t i = 0; i < nlin(); ++i)
-        {
-            for(size_t j = 0; j < ncol(); ++j)
-            {
+        for(size_t i = 0; i < nlin(); ++i) {
+            for(size_t j = 0; j < ncol(); ++j) {
                 if (minv > this->operator()(i,j)) {
                     minv = this->operator()(i,j);
                     mini = i;
@@ -222,12 +220,9 @@ namespace OpenMEEG {
         std::cout << "Min Value : " << minv << " (" << mini << "," << minj << ")" << std::endl;
         std::cout << "Max Value : " << maxv << " (" << maxi << "," << maxj << ")" << std::endl;
         std::cout << "First Values" << std::endl;
-        for(size_t i = 0; i < std::min(nlin(),(size_t) 5); ++i)
-        {
+        for(size_t i = 0; i < std::min(nlin(),(size_t) 5); ++i) {
             for(size_t j = 0; j < std::min(ncol(),(size_t) 5); ++j)
-            {
                 std::cout << this->operator()(i,j) << " " ;
-            }
             std::cout << std::endl ;
         }
     }
