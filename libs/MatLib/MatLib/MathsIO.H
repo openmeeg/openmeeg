@@ -200,7 +200,7 @@ namespace OpenMEEG {
         inline maths::ifstream& operator>>(maths::ifstream &is,const format& f) { f.set(); return is; }
         inline maths::ofstream& operator<<(maths::ofstream &os,const format& f) { f.set(); return os; }
 
-        LinOpInfo info(const char* name);
+        OPENMEEGMATHS_EXPORT LinOpInfo info(const char* name);
     }
 }
 #endif  //! OPENMEEG_MATRIXIO_H
