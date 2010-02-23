@@ -142,7 +142,6 @@ int main ()
 #endif
 
     cout << endl << "BRAINVISA :" << endl;
-    M.info();
     M.save("tmp.tex");
     M.load("tmp.tex");
     M.info();
