@@ -403,7 +403,7 @@ int main(int argc, char** argv)
     *    Vinf(r)=1/(4*pi*sigma)*(r-r0).q/(||r-r0||^3)
     **********************************************************************************************/
 
-    else if((!strcmp(argv[1],"-Source2InternalPotMat"))|(!strcmp(argv[1],"-S2IPM"))|(!strcmp(argv[1],"-s2ipm"))) {
+    else if((!strcmp(argv[1],"-DipSource2InternalPotMat"))|(!strcmp(argv[1],"-DS2IPM"))|(!strcmp(argv[1],"-ds2ipm"))) {
         if (argc < 3)
         {
             cerr << "Please set geom filepath !" << endl;
@@ -568,7 +568,7 @@ void getHelp(char** argv) {
     cout << "               a mesh file or a file with point positions at which to evaluate the potential" << endl;
     cout << "               output matrix" << endl << endl;
 
-    cout << "   -Source2InternalPotMat, -S2IPM -s2ipm :   Compute the linear application which maps the current dipoles" << endl;
+    cout << "   -DipSource2InternalPotMat, -DS2IPM -ds2ipm :   Compute the linear application which maps the current dipoles" << endl;
     cout << "            to the value of the internal potential at a set of points within a volume" << endl;
     cout << "            Arguments :" << endl;
     cout << "               geometry file (.geom)" << endl;

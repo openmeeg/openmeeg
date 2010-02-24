@@ -38,7 +38,7 @@ FUNCTION(TESTHEAD HEADNUM)
     SET(H2MMMAT-NORADIAL    ${GENERATEDBASE}-noradial.h2mm)
     SET(SS2MMMAT            ${GENERATEDBASE}.ss2mm)
     SET(SGMMMAT             ${GENERATEDBASE}.sgmm)
-    SET(S2IPMAT             ${GENERATEDBASE}.s2ip)
+    SET(DS2IPMAT             ${GENERATEDBASE}.ds2ip)
     SET(DSMMAT              ${GENERATEDBASE}.dsm)
     SET(DS2MMMAT            ${GENERATEDBASE}.ds2mm)
     SET(DS2MMMAT-TANGENTIAL ${GENERATEDBASE}-tangential.ds2mm)
@@ -131,9 +131,9 @@ FUNCTION(TESTHEAD HEADNUM)
     
     ADD_TEST(H2IPM-${SUBJECT} ${ASSEMBLE} -H2IPM ${GEOM} ${COND} ${POINTS} ${H2IPMAT})
 
-    # om_assemble -S2IPM geometry.geom conductivity.cond dipoles.dip internalpoints.txt s2ip.bin
+    # om_assemble -DS2IPM geometry.geom conductivity.cond dipoles.dip internalpoints.txt ds2ip.bin
 
-    ADD_TEST(S2IPM-${SUBJECT} ${ASSEMBLE} -S2IPM ${GEOM} ${COND} ${DIPPOS} ${POINTS} ${S2IPMAT})
+    ADD_TEST(S2IPM-${SUBJECT} ${ASSEMBLE} -DS2IPM ${GEOM} ${COND} ${DIPPOS} ${POINTS} ${DS2IPMAT})
 
     ADD_TEST(DipGainEEG-${SUBJECT} ${GAIN} -EEG ${HMINVMAT} ${DSMMAT} ${H2EMMAT} ${SURFMEGMAT})
 
@@ -143,7 +143,7 @@ FUNCTION(TESTHEAD HEADNUM)
 
     ADD_TEST(DipGainMEG-${SUBJECT}-noradial ${GAIN} -MEG ${HMINVMAT} ${DSMMAT} ${H2MMMAT-NORADIAL} ${DS2MMMAT-NORADIAL} ${DGMMMAT-NORADIAL})
 
-    ADD_TEST(DipGainInternalPot-${SUBJECT} ${GAIN} -IP ${HMINVMAT} ${DSMMAT} ${H2IPMAT} ${S2IPMAT} ${DGIPMAT})
+    ADD_TEST(DipGainInternalPot-${SUBJECT} ${GAIN} -IP ${HMINVMAT} ${DSMMAT} ${H2IPMAT} ${DS2IPMAT} ${DGIPMAT})
 
     # forward gainmatrix.bin dipoleActivation.src estimatedeegdata.txt noiselevel
 
