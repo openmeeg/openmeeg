@@ -49,22 +49,22 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 namespace OpenMEEG {
 
-    void operatorDinternal(const Mesh &m,Matrix &mat,const int offsetJ,const Matrix &points)
+    void operatorDinternal(const Mesh &m,Matrix &mat,const int offsetI,const int offsetJ,const Matrix &points)
     {
         std::cout<<"INTERNAL OPERATOR D..."<<std::endl;
-        for(size_t i=0;i<points.nlin();i++)  {
-            Vect3 pt(points(i,0),points(i,1),points(i,2));
+        for(size_t i=offsetI;i<offsetI+points.nlin();i++)  {
+            Vect3 pt(points(i-offsetI,0),points(i-offsetI,1),points(i-offsetI,2));
             for(int j=offsetJ;j<offsetJ+m.nbTrgs();j++){
                 _operatorDinternal(i,j-offsetJ,m,mat,offsetJ,pt);
             }
         }
     }
 
-    void operatorSinternal(const Mesh &m,Matrix &mat,const int offsetJ,const Matrix &points)
+    void operatorSinternal(const Mesh &m,Matrix &mat,const int offsetI,const int offsetJ,const Matrix &points)
     {
         std::cout<<"INTERNAL OPERATOR S..."<<std::endl;
-        for(size_t i=0;i<points.nlin();i++) {
-            Vect3 pt(points(i,0),points(i,1),points(i,2));
+        for(size_t i=offsetI;i<offsetI+points.nlin();i++) {
+            Vect3 pt(points(i-offsetI,0),points(i-offsetI,1),points(i-offsetI,2));
             for(int j=offsetJ;j<offsetJ+m.nbTrgs();j++)
             {
                 mat(i,j)=_operatorSinternal(j-offsetJ,m,pt);

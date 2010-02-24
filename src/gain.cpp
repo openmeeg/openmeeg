@@ -84,27 +84,16 @@ int main(int argc, char **argv)
             cerr << "Not enough arguments \nPlease try \"" << argv[0] << " -h\" or \"" << argv[0] << " --help \" \n" << endl;
             return 0;
         }
+        LinOpInfo matinfo = OpenMEEG::maths::info(argv[3]);
+        SymMatrix HeadMatInv;
+        HeadMatInv.load(argv[2]);
+        SparseMatrix Head2EEGMat;
+        Head2EEGMat.load(argv[4]);
+        Matrix SourceMat;
+        SourceMat.load(argv[3]);
 
-        Matrix EEGGainMatrix;
-
-        { // Avoiding to store all matrices at the same time
-            LinOpInfo matinfo = OpenMEEG::maths::info(argv[3]);
-            SymMatrix HeadMatInv;
-            HeadMatInv.load(argv[2]);
-            EEGGainMatrix = HeadMatInv(0,HeadMatInv.nlin()-1,0,matinfo.nlin()-1); // reducedHeadInvMatrix
-        }
-        {
-            SparseMatrix Head2EEGMatrix;
-            Head2EEGMatrix.load(argv[4]);
-            EEGGainMatrix = Head2EEGMatrix*EEGGainMatrix;
-        }
-        {
-            Matrix SourceMatrix;
-            SourceMatrix.load(argv[3]);
-            EEGGainMatrix = EEGGainMatrix*SourceMatrix;
-        }
-
-        EEGGainMatrix.save(argv[5]);
+        GainEEG EEGGainMat(HeadMatInv,SourceMat,Head2EEGMat);
+        EEGGainMat.save(argv[5]);
     }
     // for use with MEG DATA
     else if(!strcmp(argv[1],"-MEG"))
@@ -114,54 +103,37 @@ int main(int argc, char **argv)
             cerr << "Not enough arguments \nPlease try \"" << argv[0] << " -h\" or \"" << argv[0] << " --help \" \n" << endl;
             return 0;
         }
-        Matrix MEGGainMatrix;
+        LinOpInfo matinfo = OpenMEEG::maths::info(argv[3]);
+        SymMatrix HeadMatInv;
+        HeadMatInv.load(argv[2]);
+        Matrix SourceMat;
+        SourceMat.load(argv[3]);
+        Matrix Head2MEGMat;
+        Head2MEGMat.load(argv[4]);
+        Matrix Source2MEGMat;
+        Source2MEGMat.load(argv[5]);
 
-        { // Avoiding to store all matrices at the same time
-            LinOpInfo matinfo = OpenMEEG::maths::info(argv[3]);
-            SymMatrix HeadMatInv;
-            HeadMatInv.load(argv[2]);
-            MEGGainMatrix = HeadMatInv(0,HeadMatInv.nlin()-1,0,matinfo.nlin()-1); // reducedLhsInvMatrix
-        }
-        {
-            Matrix Head2MEGMatrix;
-            Head2MEGMatrix.load(argv[4]);
-            MEGGainMatrix = Head2MEGMatrix*MEGGainMatrix;
-        }
-        {
-            Matrix SourceMatrix;
-            SourceMatrix.load(argv[3]);
-            MEGGainMatrix = MEGGainMatrix*SourceMatrix;
-        }
-        {
-            Matrix Source2MEGMatrix;
-            Source2MEGMatrix.load(argv[5]);
-            MEGGainMatrix += Source2MEGMatrix;
-        }
-
-        MEGGainMatrix.save(argv[6]);
+        GainMEG MEGGainMat(HeadMatInv,SourceMat,Head2MEGMat,Source2MEGMat);
+        MEGGainMat.save(argv[6]);
     }
-    else if(!strcmp(argv[1],"-VolEEG"))
+    else if((!strcmp(argv[1],"-InternalPotential"))|(!strcmp(argv[1],"-IP")))
     {
-        if(argc<6)
+        if(argc<7)
         {
             cerr << "Not enough arguments \nPlease try \"" << argv[0] << " -h\" or \"" << argv[0] << " --help \" \n" << endl;
             return 0;
         }
-        Matrix VolEEGGainMatrix;
+        SymMatrix HeadMatInv;
+        HeadMatInv.load(argv[2]);
+        Matrix SourceMat;
+        SourceMat.load(argv[3]);
+        Matrix Head2IPMat;
+        Head2IPMat.load(argv[4]); 
+        Matrix Source2IPMat;
+        Source2IPMat.load(argv[5]);
 
-        { // Avoiding to store all matrices at the same time
-            Matrix Surf2Vol;
-            Surf2Vol.load(argv[4]); 
-            SymMatrix HeadMatInv;
-            HeadMatInv.load(argv[2]);
-            VolEEGGainMatrix = Surf2Vol*HeadMatInv(0,Surf2Vol.ncol()-1,0,HeadMatInv.ncol()-1);
-        }
-        {
-            Matrix EITStim;
-            EITStim.load(argv[3]);
-            VolEEGGainMatrix = VolEEGGainMatrix*EITStim;
-        }
-        VolEEGGainMatrix.save(argv[5]);
+        GainInternalPot InternalPotGainMat(HeadMatInv,SourceMat,Head2IPMat,Source2IPMat);
+        InternalPotGainMat.save(argv[6]);
     }
     else
     {
@@ -190,10 +162,10 @@ void getHelp(char** argv)
     cout << "            HeadMatInv, SourceMat, Head2MEGMatrix, Source2MEGMatrix, MEGGainMatrix" << endl;
     cout << "            Matrix (.bin or .txt)" << endl << endl;
 
-    cout << "   -VolEEG :   Compute the gain for EEG, measured within the volume " << endl;
+    cout << "   -InternalPotential or -IP :   Compute the gain for internal potentials, measured within the volume " << endl;
     cout << "            Filepaths are in order :" << endl;
-    cout << "            inputs: HeadMatInv, SourceMat, Surf2VolMat" << endl;
-    cout << "            output: VolEEGgain Matrix (.txt)" << endl << endl;
+    cout << "            HeadMatInv, SourceMat, Head2IPMat, Source2IPMat" << endl;
+    cout << "            VolEEGgain Matrix (.txt)" << endl << endl;
 
     exit(0);
 }

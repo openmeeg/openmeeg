@@ -101,9 +101,8 @@ int main(int argc, char** argv)
     Injection(Ta,0)=dirac/(geo.getM(geo.nb()-1).getTrg(Ta).getArea());
     Injection(Tb,0)=-dirac/(geo.getM(geo.nb()-1).getTrg(Tb).getArea());
 
-    Matrix EITsource(newsize,sourcesize);
-    Matrix airescalp(newsize,sourcesize);
-    assemble_EITsource(geo,EITsource,airescalp,GaussOrder);
+    Matrix triangleArea(newsize,sourcesize);
+    EITSourceMat EITsource(geo, triangleArea, GaussOrder);
     rhsEIT=EITsource*Injection;
 
     Matrix EEGGainMatrix;

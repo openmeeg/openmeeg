@@ -67,6 +67,12 @@ namespace OpenMEEG {
         virtual ~DipSourceMat () {};
     };
 
+    class OPENMEEG_EXPORT EITSourceMat: public virtual Matrix {
+    public:
+        EITSourceMat(const Geometry &geo, Matrix& triangleArea, const int GaussOrder);
+        virtual ~EITSourceMat () {};
+    };
+
     class OPENMEEG_EXPORT Surf2VolMat: public virtual Matrix {
     public:
         Surf2VolMat (const Geometry &geo, const Matrix &points);
@@ -96,8 +102,6 @@ namespace OpenMEEG {
         DipSource2MEGMat(const Matrix &dipoles, const Sensors &sensors);
         virtual ~DipSource2MEGMat () {};
     };
-
-    OPENMEEG_EXPORT void assemble_EITsource(const Geometry &geo, Matrix &mat, Matrix &airescalp, const int GaussOrder);
 }
 
 #endif /* OPENMEEG_ASSEMBLE_H */

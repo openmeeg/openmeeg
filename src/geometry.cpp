@@ -3,11 +3,6 @@
 /*
 Project Name : OpenMEEG
 
-version           : $Revision$
-last revision     : $Date$
-modified by       : $LastChangedBy$
-last modified     : $LastChangedDate$
-
 © INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre 
 GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU, Théodore PAPADOPOULO,
 Maureen.Clerc.AT.sophia.inria.fr, keriven.AT.certis.enpc.fr,
@@ -163,4 +158,13 @@ namespace OpenMEEG {
         }
         return OK;
     }
+
+    int Geometry::getDomain(const Vect3& p) {
+        for (int i=0;i<nb();i++)
+            if ((this->getM(i)).containsPoint(p))
+                return i;
+            else if (i==nb()-1)
+                return nb();
+    }
+
 }

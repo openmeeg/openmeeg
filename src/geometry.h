@@ -3,11 +3,6 @@
 /*
 Project Name : OpenMEEG
 
-version           : $Revision$
-last revision     : $Date$
-modified by       : $LastChangedBy$
-last modified     : $LastChangedDate$
-
 © INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre 
 GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU, Théodore PAPADOPOULO,
 Maureen.Clerc.AT.sophia.inria.fr, keriven.AT.certis.enpc.fr,
@@ -91,6 +86,8 @@ namespace OpenMEEG {
 
         bool selfCheck() const;
         bool check(const Mesh& m) const;
+        int  getDomain(const Vect3& p);
+
     private:
         void destroy() {
             if (n!=0){

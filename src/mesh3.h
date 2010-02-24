@@ -208,6 +208,11 @@ namespace OpenMEEG {
          * Compute the surfacic gradient
         **/
         SparseMatrix gradient() const;
+        
+        /**
+         * Compute the total solid angle of a surface for a point v and tell whether v is inside the mesh or not.
+        **/
+        bool containsPoint(const Vect3&);
 
         /**
          * Return the area of each triangle

@@ -64,5 +64,15 @@ namespace OpenMEEG {
         }
         ~GainEEG () {};
     };
+
+    class GainInternalPot : public Matrix {
+    public:
+        using Matrix::operator=;
+        GainInternalPot (const SymMatrix& HeadMatInv, const Matrix& SourceMat, const Matrix& Head2IPMat, const Matrix& Source2IPMat) {
+            Matrix reducedHeadMatInv = HeadMatInv(0,HeadMatInv.nlin()-1,0,SourceMat.nlin()-1);
+            *this = Source2IPMat+(Head2IPMat*reducedHeadMatInv)*SourceMat;
+        }
+        ~GainInternalPot () {};
+    };
 }
 #endif  //! OPENMEEG_GAIN_H

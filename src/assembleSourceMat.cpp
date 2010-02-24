@@ -137,12 +137,14 @@ namespace OpenMEEG {
         assemble_DipSourceMat(*this,geo,Rs,Qs,GaussOrder,adapt_rhs);
     }
 
-    void assemble_EITsource(const Geometry &geo, Matrix &mat, Matrix &airescalp, const int GaussOrder)
+    void assemble_EITSourceMat(Matrix &mat, const Geometry &geo, Matrix& triangleArea, const int GaussOrder)
     {
         // a Matrix to be applied to the scalp-injected current (modulo multiplicative constants)
         // to obtain the Source Term of the EIT foward problem
-        int newsize = mat.nlin();
-        int sourcesize = mat.ncol();
+        int totalsize=geo.size();
+        int sourcesize = (geo.getM(geo.nb()-1)).nbTrgs();
+        int newsize=totalsize-sourcesize;
+        mat=Matrix(newsize,sourcesize);
         // transmat = a big  Matrix of which mat = part of its transpose
         SymMatrix transmat(newsize+sourcesize);
         // airemat = a Matrix to store the surface of triangles on the scalp, for normalizing the injected current
@@ -184,8 +186,13 @@ namespace OpenMEEG {
         for(int i=0;i<newsize;i++) {
             for(int j=0;j<sourcesize;j++) {
                 mat(i,j) = transmat(newsize+j,i);
-                airescalp(i,j) = transairescalp(newsize+j,i);
+                triangleArea(i,j) = transairescalp(newsize+j,i);
             }
         }
     }
+
+    EITSourceMat::EITSourceMat (const Geometry &geo, Matrix& triangleArea, const int GaussOrder) {
+        assemble_EITSourceMat(*this,geo, triangleArea, GaussOrder);
+    }
+
 }

@@ -23,14 +23,13 @@ OPENMEEG_EXECUTABLE(om_inverse inverse.cpp ${OPENMEEG_HEADERS})
 OPENMEEG_EXECUTABLE(om_gain gain.cpp ${OPENMEEG_HEADERS})
 OPENMEEG_EXECUTABLE(om_forward forward.cpp ${OPENMEEG_HEADERS})
 OPENMEEG_EXECUTABLE(om_assemble assemble.cpp)
-OPENMEEG_EXECUTABLE(om_internalPotential internalPotential.cpp ${OPEMEEG_HEADERS})
 
 # ================
 # = INSTALLATION =
 # ================
 
 INSTALL(TARGETS OpenMEEG om_assemble om_forward om_gain om_inverse
-    om_minverser om_presmooth om_internalPotential
+    om_minverser om_presmooth
         RUNTIME DESTINATION bin
         LIBRARY DESTINATION lib
         ARCHIVE DESTINATION lib)

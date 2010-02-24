@@ -794,6 +794,26 @@ namespace OpenMEEG {
         return A;
     }
 
+    /**
+     * Computes the total solid angle of a surface for a point p and tells whether p is inside the mesh or not.
+     **/
+    bool Mesh::containsPoint(const Vect3& p) {
+
+        bool contains=false;
+        double solangle=0.0;
+        for (int itrg=0;itrg<ntrgs;itrg++)
+            solangle+=p.solangl(pts[trgs[itrg][0]],pts[trgs[itrg][1]],pts[trgs[itrg][2]]);
+
+        if (std::abs(solangle)<1000*std::numeric_limits<double>::epsilon()){
+            return false;
+        } else if ((std::abs(solangle-4*M_PI)<1000*std::numeric_limits<double>::epsilon())||(std::abs(solangle+4*M_PI)<1000*std::numeric_limits<double>::epsilon())) {
+            return true;
+        } else {
+            std::cerr<<"Mesh::containsPoint(p) Error. Are you sure the mesh is closed ?\n"<<std::abs(solangle)<<std::endl;
+            exit(1);
+        }
+    }
+
     Vector Mesh::areas() const {
         Vector areas(nbTrgs());
         for(int i = 0; i < nbTrgs(); ++i)

@@ -175,12 +175,10 @@ int main(int argc, char** argv)
     }
 
     /*********************************************************************************************
-    * Computation of RHS for EIT
+    * Computation of the RHS for EIT
     **********************************************************************************************/
 
-
-    else if(!strcmp(argv[1],"-EITsource")) {
-
+    else if((!strcmp(argv[1],"-EITSourceMat"))|(!strcmp(argv[1],"-EITSM"))|(!strcmp(argv[1],"-EITsm"))) {
         if(argc < 3)
         {
             cerr << "Please set geometry filepath !" << endl;
@@ -193,12 +191,12 @@ int main(int argc, char** argv)
         }
         if (argc < 5)
         {
-            std::cerr << "Please set output filepath !" << endl;
+            std::cerr << "Please set StimElec filepath !" << endl;
             exit(1);
         }
         if (argc < 6)
         {
-            std::cerr << "Please set output filepath !" << endl;
+            std::cerr << "Please set output EITSourceMat filepath !" << endl;
             exit(1);
         }
 
@@ -210,46 +208,20 @@ int main(int argc, char** argv)
         int sourcetaille = (geo.getM(geo.nb()-1)).nbTrgs();
         int newtaille=taille-sourcetaille;
 
-        Matrix source(newtaille,sourcetaille);
-        Matrix airescalp(newtaille,sourcetaille);
-        source.set(0.0);
-        airescalp.set(0.0);
+        Matrix triangleArea(newtaille,sourcetaille);
+        triangleArea.set(0.0);
 
-        assemble_EITsource( geo, source, airescalp, GaussOrder);
-
-        source.save(argv[4]);
-        airescalp.save(argv[5]);
-    }
-
-    /*********************************************************************************************
-    * Computation of RHS for EIT
-    **********************************************************************************************/
-
-
-    else if(!strcmp(argv[1],"-EITstim")) {
-
-        if (argc < 3)
-        {
-            std::cerr << "Please set EITsource filepath !" << endl;
-            exit(1);
-        }
-        if (argc < 4)
-        {
-            std::cerr << "Please set stimelec filepath !" << endl;
-            exit(1);
-        }
-        if (argc < 5)
-        {
-            std::cerr << "Please set output filepath !" << endl;
-            exit(1);
-        }
-        Matrix source;
-        source.load(argv[2]);
+        EITSourceMat EITso(geo,triangleArea ,GaussOrder);
         SparseMatrix stimelec;
-        stimelec.load(argv[3]);
-        Matrix stim(source.nlin(),stimelec.ncol());
-        stim = source*stimelec;
-        stim.save(argv[4]);
+        stimelec.load(argv[4]);
+        Matrix EITSourceMat(EITso.nlin(),stimelec.ncol());
+        EITSourceMat = EITso*stimelec;
+        EITSourceMat.save(argv[5]);
+        
+        if (argc < 7)
+        {
+            triangleArea.save(argv[6]);
+        }
     }
 
     /*********************************************************************************************
@@ -388,10 +360,8 @@ int main(int argc, char** argv)
     * Computation of the discrete linear application which maps x (the unknown vector in a symmetric system)
     * |----> v, potential at a set of prescribed points within the 3D volume
     **********************************************************************************************/
-    // arguments are the geom file
-    // a tri-like file of point positions at which to evaluate the potential" << endl;
 
-    else if(!strcmp(argv[1],"-Surf2Vol")) {
+    else if((!strcmp(argv[1],"-Head2InternalPotMat"))|(!strcmp(argv[1],"-H2IPM"))|(!strcmp(argv[1],"-h2ipm"))) {
         if (argc < 3)
         {
             cerr << "Please set geom filepath !" << endl;
@@ -416,9 +386,88 @@ int main(int argc, char** argv)
         Geometry geo;
         geo.read(argv[2],argv[3]);
         Matrix points(argv[4]);
-        Surf2VolMat mat(geo,points);
+        // Points with one more column for the index of the domain they belong
+        Matrix pointsLabelled(points.nlin(),4);
+        for (int i=0;i<points.nlin();i++){
+            pointsLabelled(i,3)=geo.getDomain(Vect3(points(i,0),points(i,1),points(i,2)));
+            for (int j=0;j<3;j++)
+                pointsLabelled(i,j)=points(i,j);
+        }
+        Surf2VolMat mat(geo,pointsLabelled);
         // Saving SurfToVol Matrix :
         mat.save(argv[5]);
+    }
+    /*********************************************************************************************
+    * Computation of the discrete linear application which maps the dipoles
+    * |----> Vinf, potential at a set of prescribed points within the volume, in an infinite medium
+    *    Vinf(r)=1/(4*pi*sigma)*(r-r0).q/(||r-r0||^3)
+    **********************************************************************************************/
+
+    else if((!strcmp(argv[1],"-Source2InternalPotMat"))|(!strcmp(argv[1],"-S2IPM"))|(!strcmp(argv[1],"-s2ipm"))) {
+        if (argc < 3)
+        {
+            cerr << "Please set geom filepath !" << endl;
+            exit(1);
+        }
+        if (argc < 4)
+        {
+            cerr << "Please set cond filepath !" << endl;
+            exit(1);
+        }
+        if (argc < 5)
+        {
+            cerr << "Please set dipoles filepath !" << endl;
+            exit(1);
+        }
+        if (argc < 6)
+        {
+            cerr << "Please set point positions filepath !" << endl;
+            exit(1);
+        }
+        if (argc < 7)
+        {
+            std::cerr << "Please set output filepath !" << endl;
+            exit(1);
+        }
+        // Loading surfaces from geometry file
+        Geometry geo;
+        geo.read(argv[2],argv[3]);
+        // Loading dipoles :
+        Matrix dipoles(argv[4]);
+        Matrix points(argv[5]);
+        // Points with one more column for the index of the domain they belong
+        Matrix pointsLabelled(points.nlin(),4);
+        for (int i=0;i<points.nlin();i++){
+            pointsLabelled(i,3)=geo.getDomain(Vect3(points(i,0),points(i,1),points(i,2)));
+            for (int j=0;j<3;j++)
+                pointsLabelled(i,j)=points(i,j);
+        }
+        double K = 1/(4*M_PI);
+        Matrix Vinfinite(points.nlin(),dipoles.nlin());
+        Vinfinite.set(0.0);
+
+        // TODO only computes Vinf for the points in the first 1st Domain (i.e
+        // the brain where the sources are)
+        for (int iDIP=0;iDIP<dipoles.nlin();iDIP++){ 
+            Vect3 r0;
+            r0(0)=dipoles(iDIP,0);
+            r0(1)=dipoles(iDIP,1);
+            r0(2)=dipoles(iDIP,2);
+            Vect3 q;
+            q(0)=dipoles(iDIP,3);
+            q(1)=dipoles(iDIP,4);
+            q(2)=dipoles(iDIP,5);
+            for (int iPTS=0;iPTS<points.nlin();iPTS++){
+                if ((pointsLabelled(iPTS,3))==0){
+                    Vect3 r;
+                    r(0)=points(iPTS,0);
+                    r(1)=points(iPTS,1);
+                    r(2)=points(iPTS,2);
+                    Vinfinite(iPTS,iDIP)=K*1.0/geo.sigma_in(0)*((r-r0)*q)/(pow((r-r0).norm(),3));
+                }
+            }
+        }
+        Vinfinite.save(argv[6]);
     }
 
     else cerr << "unknown argument: " << argv[1] << endl;
@@ -469,19 +518,14 @@ void getHelp(char** argv) {
     cout << "               dipoles positions and orientations" << endl;
     cout << "               output matrix" << endl << endl;
 
-    cout << "   -EITsource :  Compute RHS for scalp current injection. " << endl;
+    cout << "   -EITSourceMat, -EITSM -EITsm : " << endl;
+    cout << "  Compute the EIT Source Matrix from an injected current (right-hand side of linear system). " << endl;
     cout << "            Arguments :" << endl;
     cout << "               geometry file (.geom)" << endl;
     cout << "               conductivity file (.cond)" << endl;
-    cout << "               output EITsource" << endl;
-    cout << "               output matrix" << endl << endl;
-
-    cout << "   -EITstim :  Compute Matrix directly mapping injected current values to EIT RHS. " << endl;
-    cout << "            Arguments :" << endl;
-    cout << "               input EITsource" << endl;
-    cout << "               input stimelec" << endl;
-    cout << "               output matrix" << endl << endl;
-
+    cout << "               stimelec" << endl;
+    cout << "               output EITSourceOp" << endl;
+    cout << "               output area of triangles (optional)" << endl << endl;
 
     cout << "   -Head2EEGMat, -H2EM, -h2em : " << endl;
     cout << "        Compute the linear application which maps the potential" << endl;
@@ -514,15 +558,24 @@ void getHelp(char** argv) {
     cout << "            Arguments :" << endl;
     cout << "               dipoles positions and orientations" << endl;
     cout << "               positions and orientations of the MEG sensors (.squids)" << endl;
-    cout << "               name of the output matrix" << endl << endl;
+    cout << "               output matrix" << endl << endl;
 
-    cout << "   -Surf2Vol :   Compute the linear application which maps the surface potential" << endl;
-    cout << "            and normal current to the value of the potential at a set of points in the volume" << endl;
+    cout << "   -Head2InternalPotMat, -H2IPM -h2ipm :   Compute the linear application which maps the surface potential" << endl;
+    cout << "            and normal current to the value of the internal potential at a set of points within a volume" << endl;
     cout << "            Arguments :" << endl;
-    cout << "               geom file" << endl;
-    cout << "               cond file" << endl;
-    cout << "               a tri file of point positions at which to evaluate the potential" << endl;
-    cout << "               name of the output matrix" << endl << endl;
+    cout << "               geometry file (.geom)" << endl;
+    cout << "               conductivity file (.cond)" << endl;
+    cout << "               a mesh file or a file with point positions at which to evaluate the potential" << endl;
+    cout << "               output matrix" << endl << endl;
+
+    cout << "   -Source2InternalPotMat, -S2IPM -s2ipm :   Compute the linear application which maps the current dipoles" << endl;
+    cout << "            to the value of the internal potential at a set of points within a volume" << endl;
+    cout << "            Arguments :" << endl;
+    cout << "               geometry file (.geom)" << endl;
+    cout << "               conductivity file (.cond)" << endl;
+    cout << "               dipoles positions and orientations" << endl;
+    cout << "               a mesh file or a file with point positions at which to evaluate the potential" << endl;
+    cout << "               output matrix" << endl << endl;
 
     exit(0);
 }

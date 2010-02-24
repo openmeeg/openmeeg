@@ -1,13 +1,12 @@
 FUNCTION(TESTHEAD HEADNUM)
     SET(SUBJECT "Head${HEADNUM}")
 
-    SET(ASSEMBLE  om_assemble)
-    SET(INVERSER  om_minverser)
-    SET(PRESMOOTH om_presmooth)
-    SET(GAIN      om_gain)
-    SET(FORWARD   om_forward)
-    SET(INVERSE   om_inverse)
-    SET(INTPOT    om_internalPotential)
+    SET(ASSEMBLE  ${CMAKE_CURRENT_BINARY_DIR}/om_assemble)
+    SET(INVERSER  ${CMAKE_CURRENT_BINARY_DIR}/om_minverser)
+    SET(PRESMOOTH ${CMAKE_CURRENT_BINARY_DIR}/om_presmooth)
+    SET(GAIN      ${CMAKE_CURRENT_BINARY_DIR}/om_gain)
+    SET(FORWARD   ${CMAKE_CURRENT_BINARY_DIR}/om_forward)
+    SET(INVERSE   ${CMAKE_CURRENT_BINARY_DIR}/om_inverse)
 
     SET(MODELBASE     ${OpenMEEG_SOURCE_DIR}/data/Models/${SUBJECT}/${SUBJECT})
     SET(GENERATEDBASE ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT})
@@ -33,16 +32,19 @@ FUNCTION(TESTHEAD HEADNUM)
     SET(SSMMAT              ${GENERATEDBASE}.ssm)
     SET(H2EMMAT             ${GENERATEDBASE}.h2em)
     SET(SGEMMAT             ${GENERATEDBASE}.sgem)
+    SET(H2IPMAT             ${GENERATEDBASE}.h2ip)
     SET(H2MMMAT             ${GENERATEDBASE}.h2mm)
     SET(H2MMMAT-TANGENTIAL  ${GENERATEDBASE}-tangential.h2mm)
     SET(H2MMMAT-NORADIAL    ${GENERATEDBASE}-noradial.h2mm)
     SET(SS2MMMAT            ${GENERATEDBASE}.ss2mm)
     SET(SGMMMAT             ${GENERATEDBASE}.sgmm)
+    SET(S2IPMAT             ${GENERATEDBASE}.s2ip)
     SET(DSMMAT              ${GENERATEDBASE}.dsm)
     SET(DS2MMMAT            ${GENERATEDBASE}.ds2mm)
     SET(DS2MMMAT-TANGENTIAL ${GENERATEDBASE}-tangential.ds2mm)
     SET(DS2MMMAT-NORADIAL   ${GENERATEDBASE}-noradial.ds2mm)
     SET(SURFMEGMAT          ${GENERATEDBASE}.SurfSource2MEGMat)
+    SET(DGIPMAT             ${GENERATEDBASE}.dgip)
     SET(DGMMMAT             ${GENERATEDBASE}.dgmm)
     SET(DGMMMAT-TANGENTIAL  ${GENERATEDBASE}-tangential.dgmm)
     SET(DGMMMAT-NORADIAL    ${GENERATEDBASE}-noradial.dgmm)
@@ -125,6 +127,14 @@ FUNCTION(TESTHEAD HEADNUM)
 
     ADD_TEST(DS2MM-${SUBJECT}-noradial ${ASSEMBLE} -DS2MM ${DIPPOS} ${SQUIDS-NORADIAL} ${DS2MMMAT-NORADIAL})
 
+    # om_assemble -H2IPM geometry.geom conductivity.cond internalpoints.txt h2ip.bin
+    
+    ADD_TEST(H2IPM-${SUBJECT} ${ASSEMBLE} -H2IPM ${GEOM} ${COND} ${POINTS} ${H2IPMAT})
+
+    # om_assemble -S2IPM geometry.geom conductivity.cond dipoles.dip internalpoints.txt s2ip.bin
+
+    ADD_TEST(S2IPM-${SUBJECT} ${ASSEMBLE} -S2IPM ${GEOM} ${COND} ${DIPPOS} ${POINTS} ${S2IPMAT})
+
     ADD_TEST(DipGainEEG-${SUBJECT} ${GAIN} -EEG ${HMINVMAT} ${DSMMAT} ${H2EMMAT} ${SURFMEGMAT})
 
     ADD_TEST(DipGainMEG-${SUBJECT} ${GAIN} -MEG ${HMINVMAT} ${DSMMAT} ${H2MMMAT} ${DS2MMMAT} ${DGMMMAT})
@@ -133,7 +143,9 @@ FUNCTION(TESTHEAD HEADNUM)
 
     ADD_TEST(DipGainMEG-${SUBJECT}-noradial ${GAIN} -MEG ${HMINVMAT} ${DSMMAT} ${H2MMMAT-NORADIAL} ${DS2MMMAT-NORADIAL} ${DGMMMAT-NORADIAL})
 
-    # forward -EEG gainmatrix.bin dipoleActivation.src estimatedeegdata.txt noiselevel
+    ADD_TEST(DipGainInternalPot-${SUBJECT} ${GAIN} -IP ${HMINVMAT} ${DSMMAT} ${H2IPMAT} ${S2IPMAT} ${DGIPMAT})
+
+    # forward gainmatrix.bin dipoleActivation.src estimatedeegdata.txt noiselevel
 
     ADD_TEST(EEG-dipoles-${SUBJECT} ${FORWARD} ${SURFMEGMAT} ${DIPSOURCES} ${ESTDIPBASE}.est_eeg 0.0)
 
@@ -142,10 +154,8 @@ FUNCTION(TESTHEAD HEADNUM)
     ADD_TEST(MEG-dipoles-${SUBJECT}-tangential ${FORWARD} ${DGMMMAT-TANGENTIAL} ${DIPSOURCES} ${ESTDIPBASE}-tangential.est_meg 0.0)
 
     ADD_TEST(MEG-dipoles-${SUBJECT}-noradial ${FORWARD} ${DGMMMAT-NORADIAL} ${DIPSOURCES} ${ESTDIPBASE}-noradial.est_meg 0.0)
+    
+    ADD_TEST(InternalPot-dipoles-${SUBJECT} ${FORWARD} ${DGIPMAT} ${DIPSOURCES} ${ESTDIPBASE}.est_eeginternal 0.0)
 
-    IF (${HEADNUM} LESS 3)
-        # internalPotential geometry.geom conductivity.cond dipoles.dip source.dsm headmatinv.bin internalpoints.txt outputPotential.txt
-        ADD_TEST(EEGinternal-dipoles-${SUBJECT} ${INTPOT} ${GEOM} ${COND} ${DIPPOS} ${DSMMAT} ${HMINVMAT} ${POINTS} ${ESTDIPBASE}.est_eeginternal)
-    ENDIF()
 
 ENDFUNCTION()

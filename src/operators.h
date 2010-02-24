@@ -73,8 +73,8 @@ namespace OpenMEEG {
     template<class T>
     void operatorP1P0(const Mesh &,T &mat,const int offsetI,const int offsetJ);
 
-    void operatorSinternal(const Mesh &, Matrix &,const int,const Matrix &);
-    void operatorDinternal(const Mesh &, Matrix &,const int,const Matrix &);
+    void operatorSinternal(const Mesh &, Matrix &,const int,const int,const Matrix &);
+    void operatorDinternal(const Mesh &, Matrix &,const int,const int,const Matrix &);
     void operatorFerguson(const Vect3& x, const Mesh &m1, Matrix &mat, int offsetI, int offsetJ);
     void operatorDipolePotDer(const Vect3 &r0, const Vect3 &q,const Mesh &inner_layer, Vector &rhs, int offsetIdx,const int,const bool);
     void operatorDipolePot(const Vect3 &r0, const Vect3 &q,const Mesh &inner_layer, Vector &rhs, int offsetIdx,const int,const bool);
@@ -196,7 +196,7 @@ namespace OpenMEEG {
       
         analyD.init( m, nT2);
 
-            Vect3 total=analyD.f(pt);
+        Vect3 total=analyD.f(pt);
             
         mat(nT,offsetJ+((Triangle)T2).som(1))+=total.x();
         mat(nT,offsetJ+((Triangle)T2).som(2))+=total.y();

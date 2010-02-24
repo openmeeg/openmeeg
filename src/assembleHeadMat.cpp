@@ -145,30 +145,79 @@ namespace OpenMEEG {
         mat = mat.submat(0,newsize-1);
     }
 
-    void assemble_Surf2Vol(const Geometry &geo,Matrix &mat,const Matrix &points)
+    void assemble_Surf2Vol(const Geometry &geo, Matrix &mat, const Matrix &points)
     {
-     // only consider innermost surface points and triangles
-      // (for the moment Surf2Vol only works for the innermost surface and volume)
-      int c=0;
-      int offset=0;
-      int offset0=offset;
-      int offset1=offset+geo.getM(c).nbPts();
-      int nbpoints=geo.getM(0).nbPts();
-      int nbtriangles = geo.getM(0).nbTrgs();
-      double K = 1/(4*M_PI);
-      std::cout<<" nbpoints= " << nbpoints <<std::endl;
-      std::cout<<" nbtriangles= " << nbtriangles <<std::endl;
-      std::cout<< "observation points: " << points.nlin() << std::endl;
+        double K = 1/(4*M_PI);
 
-      mat = Matrix(points.nlin(),nbpoints+nbtriangles);
-      mat.set(0.0);
-      // compute S blocks
-      operatorSinternal(geo.getM(c),mat,offset1,points);
-      mult(mat,offset0,offset1,offset0+points.nlin(),offset1+geo.getM(0).nbTrgs(),(1.0/geo.sigma_in(0))*K);
-      // compute D blocks
-      operatorDinternal(geo.getM(c),mat,offset0,points);
-      mult(mat,offset0,offset0,offset0+points.nlin(),offset1,-1.0*K);
+        if (points.ncol()!=4){
+            std::cerr<<" Surf2Vol: Warning ! points are considered to be in the inner volume"<<std::endl;
+        }
 
+        // Count number of points per domains
+        std::vector<int> nb_pts_per_dom(geo.nb(),0);
+        for (int i=0;i<points.nlin();i++){
+            (points.ncol()==3)?nb_pts_per_dom[0]++:nb_pts_per_dom[points(i,3)]++;
+        }
+
+        std::vector<Matrix> vect_PtsInDom(geo.nb());
+        Vector tempVector(3);
+        for (int c=0;c<geo.nb();c++){
+            vect_PtsInDom[c]=Matrix(nb_pts_per_dom[c],3);
+            int iptd=0;
+            for (int ipt=0;ipt<points.nlin();ipt++){ // get the points in the domain c
+                if (((points.ncol()==4)&&(points(ipt,3)==c))||((points.ncol()==3)&&(c==0))){ 
+                    vect_PtsInDom[c](iptd,0)=points(ipt,0);
+                    vect_PtsInDom[c](iptd,1)=points(ipt,1);
+                    vect_PtsInDom[c](iptd++,2)=points(ipt,2);
+                }
+            }
+        }
+
+        mat = Matrix(points.nlin(),geo.size()-geo.getM(geo.nb()-1).nbTrgs());
+        mat.set(0.0);
+
+        int offset=0;
+        int offsetA0=0;
+        for (int c=0;c<geo.nb()-1;c++){
+            
+            int offset0=offset;
+            int offsetA=offsetA0;
+            int offsetB=offsetA+nb_pts_per_dom[c];
+            int offset1=offset+geo.getM(c).nbPts();
+            int offset2=offset+geo.getM(c).nbPts()+geo.getM(c).nbTrgs();
+            int offset3=offset+geo.getM(c).nbPts()+geo.getM(c).nbTrgs()+geo.getM(c+1).nbPts();
+            int offset4=offset+geo.getM(c).nbPts()+geo.getM(c).nbTrgs()+geo.getM(c+1).nbPts()+geo.getM(c+1).nbTrgs();
+            int nbpoints=geo.getM(c).nbPts();
+            int nbtriangles = geo.getM(c).nbTrgs();
+
+            if (c==0){
+                // compute DI,i block
+                operatorDinternal(geo.getM(c),mat,offsetA,offset0,vect_PtsInDom[c]);
+                mult(mat,offsetA,offset0,offsetB,offset1,-1.0*K);
+            }
+            // compute DI+1,i block
+            operatorDinternal(geo.getM(c),mat,offsetA+nb_pts_per_dom[c],offset0,vect_PtsInDom[c+1]);
+            mult(mat,offsetB,offset0,offsetB+nb_pts_per_dom[c+1],offset1,1.0*K);
+            // compute DI+1,i+1 block
+            operatorDinternal(geo.getM(c+1),mat,offsetB,offset2,vect_PtsInDom[c+1]);
+            mult(mat,offsetB,offset2,offsetB+nb_pts_per_dom[c+1],offset3,-1.0*K);
+
+            if (c==0){
+                // compute SI,i block
+                operatorSinternal(geo.getM(c),mat,offsetA,offset1,vect_PtsInDom[c]);
+                mult(mat,offsetA,offset1,offsetA+nb_pts_per_dom[c],offset2,(1.0/geo.sigma_in(c))*K);
+            }
+            // compute SI+1,i block
+            operatorSinternal(geo.getM(c),mat,offsetA+nb_pts_per_dom[c],offset1,vect_PtsInDom[c+1]);
+            mult(mat,offsetA+nb_pts_per_dom[c],offset1,offsetA+nb_pts_per_dom[c]+nb_pts_per_dom[c+1],offset2,(-1.0/geo.sigma_in(c+1))*K);
+            if (c<geo.nb()-2){
+                // compute SI+1,i block
+                operatorSinternal(geo.getM(c+1),mat,offsetB,offset3,vect_PtsInDom[c+1]);
+                mult(mat,offsetB,offset3,offsetB+nb_pts_per_dom[c+1],offset4,(1.0/geo.sigma_in(c+1))*K);
+            }
+            offset=offset2;
+            offsetA0=offsetA+nb_pts_per_dom[c];
+        }
     }
 
     HeadMat::HeadMat (const Geometry &geo, const int GaussOrder) {
@@ -176,6 +225,6 @@ namespace OpenMEEG {
     }
 
     Surf2VolMat::Surf2VolMat (const Geometry &geo, const Matrix &points) {
-      assemble_Surf2Vol(geo,*this,points);
+        assemble_Surf2Vol(geo,*this,points);
     }
 }
