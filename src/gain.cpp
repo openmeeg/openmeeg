@@ -165,7 +165,7 @@ void getHelp(char** argv)
     cout << "   -InternalPotential or -IP :   Compute the gain for internal potentials, measured within the volume " << endl;
     cout << "            Filepaths are in order :" << endl;
     cout << "            HeadMatInv, SourceMat, Head2IPMat, Source2IPMat" << endl;
-    cout << "            VolEEGgain Matrix (.txt)" << endl << endl;
+    cout << "            InternalPotEGgain Matrix (.txt)" << endl << endl;
 
     exit(0);
 }
