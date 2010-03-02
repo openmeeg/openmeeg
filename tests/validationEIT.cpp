@@ -68,11 +68,9 @@ int main(int argc, char** argv)
     int newsize=totalsize-sourcesize;
     double delta=0.001;// For the discretization of Grad V
     double dirac=1.; // The injection current
-    // We choose by random two triangles on which we inject the currents
-    int Ta=rand() % geo.getM(geo.nb()-1).nbTrgs();
-    int Tb=Ta;
-    while (Tb==Ta)
-        Tb=rand() % geo.getM(geo.nb()-1).nbTrgs();
+    // We choose two triangles on which we inject the currents
+    int Ta=24;
+    int Tb=42;
     
     Matrix dipoles;
     dipoles.load(argv[3]);
