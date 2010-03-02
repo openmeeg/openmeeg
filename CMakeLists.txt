@@ -113,7 +113,7 @@ ENDIF (BUILD_TOOLS)
 INCLUDE(TestOption)
 
 #-----------------------------------------------
-# Dart 
+# Dart
 #-----------------------------------------------
 
 INCLUDE(Dart)
@@ -203,13 +203,7 @@ SET (OPENMEEG_LIBRARY_DIRECTORIES
 
 SET(OPENMEEG_SOURCE_DIRECTORIES ${OpenMEEG_SOURCE_DIR})
 
-FIND_LIBRARY(OpenMEEG_LIB OpenMEEG)
-FIND_LIBRARY(OpenMEEGMaths_LIB OpenMEEGMaths)
-
-SET (OPENMEEG_LIBRARIES
-    ${OpenMEEG_LIB}
-    ${OpenMEEGMaths_LIB}
-)
+SET (OPENMEEG_LIBRARIES OpenMEEG OpenMEEGMaths)
 
 # This section uses the OPENMEEG_INCLUDE_DIRECTORIES variable.
 # Copy the UseOpenMEEG.cmake file to the binary tree for backward compatability.
@@ -224,3 +218,23 @@ SET(OPENMEEG_USE_FILE ${OpenMEEG_BINARY_DIR}/UseOpenMEEG.cmake)
 CONFIGURE_FILE(
     ${OpenMEEG_SOURCE_DIR}/macros/OpenMEEGConfig.cmake.in
     ${OpenMEEG_BINARY_DIR}/OpenMEEGConfig.cmake @ONLY IMMEDIATE)
+
+# Generate another configure for installation
+
+SET (OPENMEEG_LIBRARY_DIRECTORIES
+    ${CMAKE_INSTALL_PREFIX}/lib
+)
+
+# The "use" file.
+SET(OPENMEEG_USE_FILE ${CMAKE_INSTALL_PREFIX}/lib/UseOpenMEEG.cmake)
+
+# Configure OpenMEEGConfig.cmake for the install tree.
+CONFIGURE_FILE(
+    ${OpenMEEG_SOURCE_DIR}/macros/OpenMEEGConfig.cmake.in
+    ${OpenMEEG_BINARY_DIR}/macros/OpenMEEGConfig.cmake @ONLY IMMEDIATE)
+
+INSTALL(FILES ${OpenMEEG_BINARY_DIR}/UseOpenMEEG.cmake
+    DESTINATION lib)
+
+INSTALL(FILES ${OpenMEEG_BINARY_DIR}/macros/OpenMEEGConfig.cmake
+    DESTINATION lib)
