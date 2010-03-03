@@ -560,7 +560,7 @@ void getHelp(char** argv) {
     cout << "               positions and orientations of the MEG sensors (.squids)" << endl;
     cout << "               output matrix" << endl << endl;
 
-    cout << "   -Head2InternalPotMat, -H2IPM -h2ipm :   Compute the linear application which maps the surface potential" << endl;
+    cout << "   -Head2InternalPotMat, -H2IPM -h2ipm :   Compute the linear transformation which maps the surface potential" << endl;
     cout << "            and normal current to the value of the internal potential at a set of points within a volume" << endl;
     cout << "            Arguments :" << endl;
     cout << "               geometry file (.geom)" << endl;
@@ -568,8 +568,8 @@ void getHelp(char** argv) {
     cout << "               a mesh file or a file with point positions at which to evaluate the potential" << endl;
     cout << "               output matrix" << endl << endl;
 
-    cout << "   -DipSource2InternalPotMat, -DS2IPM -ds2ipm :   Compute the linear application which maps the current dipoles" << endl;
-    cout << "            to the value of the internal potential at a set of points within a volume" << endl;
+    cout << "   -DipSource2InternalPotMat, -DS2IPM -ds2ipm :   Computes the linear transformation  which maps the current dipoles" << endl;
+    cout << "            to the value of the infinite potential at a set of points within a volume" << endl;
     cout << "            Arguments :" << endl;
     cout << "               geometry file (.geom)" << endl;
     cout << "               conductivity file (.cond)" << endl;
