@@ -100,7 +100,14 @@ namespace OpenMEEG {
             }
 
             void read(std::ifstream& is,LinOp& linop) const {
-                static_cast<LinOpInfo&>(linop) = info(is);
+                const LinOpInfo& inforead = info(is);
+                
+                if (linop.storageType()!=inforead.storageType())
+                    throw BadStorageType(name());
+
+                linop.nlin() = inforead.nlin();
+                linop.ncol() = inforead.ncol();
+
                 switch (linop.storageType()) {
                     case LinOp::SPARSE :
                         read_sparse(is,linop);
