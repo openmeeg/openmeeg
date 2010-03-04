@@ -58,10 +58,11 @@ namespace OpenMEEG {
 
             const char* buffer = Internal::ReadTag(is);
 
-            if (maths::MathsIO::IO dio = maths::MathsIO::default_io()) {
+            if (maths::MathsIO::IO dio = maths::MathsIO::GetCurrentFormat()) {
                 if (dio->identify(std::string(buffer))) {
                     dio->setName(mio.name());
                     dio->read(is,linop);
+                    linop.default_io() = dio;
                     return mio;
                 }
             } else {
@@ -69,6 +70,7 @@ namespace OpenMEEG {
                     if ((*io)->identify(std::string(buffer))) {
                         (*io)->setName(mio.name());
                         (*io)->read(is,linop);
+                        linop.default_io() = *io;
                         return mio;
                     }
                 }
@@ -82,7 +84,7 @@ namespace OpenMEEG {
             if(os.fail())
                 throw BadFileOpening(mio.name(),BadFileOpening::WRITE);
 
-            if (maths::MathsIO::IO dio = maths::MathsIO::default_io()) {
+            if (maths::MathsIO::IO dio = maths::MathsIO::GetCurrentFormat()) {
                 if (dio->known(linop)) {
                     dio->setName(mio.name());
                     dio->write(os,linop);

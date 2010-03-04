@@ -47,7 +47,15 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 namespace OpenMEEG {
 
-    struct OPENMEEGMATHS_EXPORT LinOpInfo {
+    namespace maths {
+        struct OPENMEEGMATHS_EXPORT MathsIO;
+    }
+
+    class OPENMEEGMATHS_EXPORT LinOpInfo {
+
+        typedef maths::MathsIO* IO;
+
+    public:
 
         typedef enum { FULL, SYMMETRIC, SPARSE } StorageType;
         typedef unsigned                         Dimension;
@@ -78,12 +86,15 @@ namespace OpenMEEG {
         Dimension   dimension()   const { return dim;     }
         Dimension&  dimension()         { return dim;     }
 
+        IO& default_io() { return DefaultIO; }
+
     protected:
 
         size_t            num_lines;
         size_t            num_cols;
         StorageType       storage;
         Dimension         dim;
+        IO                DefaultIO;
     };
 
     class OPENMEEGMATHS_EXPORT LinOp: public LinOpInfo {
