@@ -70,8 +70,6 @@ namespace OpenMEEG {
 
         utils::RCPtr<LinOpValue> value;
 
-        std::string identity() const;
-
         explicit Matrix(const Matrix& A,const size_t M): LinOp(A.nlin(),M,FULL,2),value(A.value) { }
 
     public:

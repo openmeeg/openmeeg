@@ -55,8 +55,6 @@ namespace OpenMEEG {
 
         utils::RCPtr<LinOpValue> value;
 
-        std::string identity() const;
-
     public:
 
         SymMatrix(): LinOp(0,0,SYMMETRIC,2),value() {}
