@@ -75,11 +75,11 @@ namespace OpenMEEG {
                 std::istringstream buffer(line);
                 std::string s;
                 buffer >> s;
-                assert(s == "ascii");
+                assert(s==MagicTag.c_str());
 
-                std::getline(is, line, '\n'); // skip keyword FLOAT
+                std::getline(is,line,'\n'); // skip keyword FLOAT
 
-                std::getline(is, line, '\n');
+                std::getline(is,line,'\n');
                 buffer.clear();
                 buffer.str(line);
                 buffer >> m.ncol();
