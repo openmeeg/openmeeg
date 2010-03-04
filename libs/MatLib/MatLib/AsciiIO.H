@@ -105,7 +105,13 @@ namespace OpenMEEG {
 
             void read(std::ifstream& is,LinOp& linop) const throw(std::exception) {
 
-                static_cast<LinOpInfo&>(linop) = info(is);
+                const LinOpInfo& inforead = info(is);
+                
+                if (linop.storageType()!=inforead.storageType())
+                    throw BadStorageType(name());
+
+                linop.nlin() = inforead.nlin();
+                linop.ncol() = inforead.ncol();
 
                 //  Read the data according to the type of the matrix.
 
