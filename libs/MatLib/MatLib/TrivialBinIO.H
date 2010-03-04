@@ -196,7 +196,7 @@ namespace OpenMEEG {
                 os.write(reinterpret_cast<const char*>(l.data()),l.size()*sizeof(double));
             }
 
-            TrivialBinIO(): MathsIOBase(1) { }
+            TrivialBinIO(): MathsIOBase(20) { }
             ~TrivialBinIO() {};
 
             static Suffixes init() {
