@@ -132,7 +132,7 @@ namespace OpenMEEG {
     void SparseMatrix::load(const char *filename) {
         maths::ifstream ifs(filename);
         try {
-            ifs >> maths::format(filename,maths::format::FromSuffix) << *this;
+            ifs >> maths::format(filename,maths::format::FromSuffix) >> *this;
         }
         catch (maths::Exception& e) {
             std::cout << e.what() << " Doing my best...." << std::endl;
