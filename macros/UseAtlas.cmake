@@ -69,6 +69,8 @@ IF(USE_ATLAS)
                 /usr/lib/gcc/i486-linux-gnu/4.2.4/
                 /usr/lib/gcc/i386-redhat-linux/4.3.2/
                 /usr/lib/gcc/x86_64-manbo-linux-gnu/4.3.2/
+                /usr/lib/gcc/x86_64-redhat-linux/4.4.3/
+                /usr/lib/gcc/x86_64-redhat-linux/4.4.3/32/
             )
     #	    SET(GFORTRAN_LIB
     #    /usr/lib/gcc/i486-linux-gnu/4.2.4/libgfortran.a)
