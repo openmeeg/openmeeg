@@ -1,12 +1,5 @@
-/* FILE: $Id$ */
-
 /*
 Project Name : OpenMEEG
-
-version           : $Revision$
-last revision     : $Date$
-modified by       : $LastChangedBy$
-last modified     : $LastChangedDate$
 
 © INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre 
 GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU, Théodore PAPADOPOULO,
@@ -45,32 +38,18 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #ifndef OPENMEEG_MATLIBCONFIG_H
 #define OPENMEEG_MATLIBCONFIG_H
-
 //  cmake configuration.
 #include <OpenMEEGConfigure.h>
-
-#include "DLLDefinesOpenMEEGMaths.h"
+#include <DLLDefinesOpenMEEGMaths.h>
+#include <FC.h>
 
 #ifdef USE_MATIO
 #include "matio.h"
 #endif
 
-#ifdef __APPLE__
-#define F77_FUNC(name,NAME) name
-#define F77_FUNC_(name,NAME) name ## _
-#else
-#define F77_FUNC(name,NAME) name ## _
-#define F77_FUNC_(name,NAME) name ## _
-#endif
-
-#if defined(USE_ATLAS) || defined(USE_MKL)
+#if defined(USE_MKL)
 #define HAVE_BLAS
 #define HAVE_LAPACK
-#endif
-
-#ifdef WIN32
-    #pragma inline_recursion (on)
-    #pragma inline_depth (255)
 #endif
 
 //#define inline __forceinline
@@ -78,6 +57,8 @@ knowledge of the CeCILL-B license and that you accept its terms.
 //#define inline __attribute__((weak)) inline
 
 #if WIN32
+    #pragma inline_recursion (on)
+    #pragma inline_depth (255)
     #pragma warning( disable : 4530)    //MSVC standard library can't be inlined
     #pragma warning( disable : 4996)    //MSVC warning C4996: declared deprecated
 #endif
@@ -89,7 +70,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
         #include <clapack.h>
     }
     #define BLAS(x,X) cblas_ ## x
-    #define LAPACK(x,X) x ## _
+    #define LAPACK(x,X) FC_GLOBAL(x,X)
 #else
     extern "C" {
         #include <cblas.h>
@@ -112,7 +93,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
     #include <acml.h>
     //  Those macros are not used yet
     #define BLAS(x,X) x
-    #define LAPACK(x,X) F77_FUNC(x,X)
+    #define LAPACK(x,X) FC_GLOBAL(x,X)
     extern "C" void vrda_sin (int n, double *t, double *p);
     extern "C" void vrda_cos (int n, double *t, double *p);
     extern "C" void vrda_exp (int n, double *t, double *p);
@@ -127,9 +108,10 @@ knowledge of the CeCILL-B license and that you accept its terms.
     #define CblasRight 'R'
     #define CblasLeft 'L'
     #define CblasUpper 'U'
-    #define BLAS(x,X) F77_FUNC(x,X)
-    #define LAPACK(x,X) F77_FUNC(x,X)
+    #define BLAS(x,X) FC_GLOBAL(x,X)
+    #define LAPACK(x,X) FC_GLOBAL(x,X)
 #endif
+
     extern "C" {
 #ifndef USE_MKL
         void BLAS(dcopy,DCOPY)(const int&,const double*,const int&,double*,const int);
@@ -149,27 +131,27 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #if defined(HAVE_LAPACK)
     extern "C" {
-        void F77_FUNC(dgesdd,DGESDD)(const char&,const int&,const int&,double*,const int&,double*,double*,const int&,double*,const int&,double*,const int&,int*,int&);
-        void F77_FUNC(dpotf2,DPOTF2)(const char&,const int&,double*,const int&,int&);
-        double F77_FUNC(dlange,DLANGE)(const char&,const int&,const int&,double*,const int&,double*);
-        void F77_FUNC(dsptrf,DSPTRF)(const char&,const int&,double*,int*,int&);
-        void F77_FUNC(dsptri,DSPTRI)(const char&,const int&,double*,int*,double*,int&);
-        void F77_FUNC(dpptrf,DPPTRF)(const char&,const int&,double*,int&);
-        void F77_FUNC(dpptri,DPPTRI)(const char&,const int&,double*,int&);
-        void F77_FUNC(dspevd,DSPEVD)(const char&,const char&,const int&,double*,double*,double*,const int&,double*,const int&,int*,const int&,int&);
-        void F77_FUNC(dsptrs,DSPTRS)(const char&,const int&,const int&,double*,int*,double*,const int&,int&);
+        void FC_GLOBAL(dgesdd,DGESDD)(const char&,const int&,const int&,double*,const int&,double*,double*,const int&,double*,const int&,double*,const int&,int*,int&);
+        void FC_GLOBAL(dpotf2,DPOTF2)(const char&,const int&,double*,const int&,int&);
+        double FC_GLOBAL(dlange,DLANGE)(const char&,const int&,const int&,double*,const int&,double*);
+        void FC_GLOBAL(dsptrf,DSPTRF)(const char&,const int&,double*,int*,int&);
+        void FC_GLOBAL(dsptri,DSPTRI)(const char&,const int&,double*,int*,double*,int&);
+        void FC_GLOBAL(dpptrf,DPPTRF)(const char&,const int&,double*,int&);
+        void FC_GLOBAL(dpptri,DPPTRI)(const char&,const int&,double*,int&);
+        void FC_GLOBAL(dspevd,DSPEVD)(const char&,const char&,const int&,double*,double*,double*,const int&,double*,const int&,int*,const int&,int&);
+        void FC_GLOBAL(dsptrs,DSPTRS)(const char&,const int&,const int&,double*,int*,double*,const int&,int&);
     }
 #endif
 
-#define DGESDD F77_FUNC(dgesdd,DGESDD)
-#define DPOTF2 F77_FUNC(dpotf2,DPOTF2)
-#define DLANGE F77_FUNC(dlange,DLANGE)
+#define DGESDD FC_GLOBAL(dgesdd,DGESDD)
+#define DPOTF2 FC_GLOBAL(dpotf2,DPOTF2)
+#define DLANGE FC_GLOBAL(dlange,DLANGE)
 
-#define DSPTRF F77_FUNC(dsptrf,DSPTRF)
-#define DPPTRF F77_FUNC(dpptrf,DPPTRF)
-#define DPPTRI F77_FUNC(dpptri,DPPTRI)
-#define DSPEVD F77_FUNC(dspevd,DSPEVD)
-#define DSPTRS F77_FUNC(dsptrs,DSPTRS)
+#define DSPTRF FC_GLOBAL(dsptrf,DSPTRF)
+#define DPPTRF FC_GLOBAL(dpptrf,DPPTRF)
+#define DPPTRI FC_GLOBAL(dpptri,DPPTRI)
+#define DSPEVD FC_GLOBAL(dspevd,DSPEVD)
+#define DSPTRS FC_GLOBAL(dsptrs,DSPTRS)
 
 #if defined(USE_ATLAS) || defined(USE_MKL)
     #define DSPMV(X1,X2,X3,X4,X5,X6,X7,X8,X9) BLAS(dspmv,DSPMV)(CblasColMajor,X1,X2,X3,X4,X5,X6,X7,X8,X9)
@@ -190,7 +172,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
         #define DGETRF(X1,X2,X3,X4,X5,X6) LAPACK(dgetrf,DGETRF)(X1,X2,X3,X4,X5,X6)
         #define DGETRI(X1,X2,X3,X4,X5,X6,X7) LAPACK(dgetri,DGETRI)(X1,X2,X3,X4,X5,X6,X7)
     #endif
-    #define DSPTRI(X1,X2,X3,X4,X5,X6) F77_FUNC(dsptri,DSPTRI)(X1,X2,X3,X4,X5,X6)
+    #define DSPTRI(X1,X2,X3,X4,X5,X6) FC_GLOBAL(dsptri,DSPTRI)(X1,X2,X3,X4,X5,X6)
 #else
     #define DSPMV(X1,X2,X3,X4,X5,X6,X7,X8,X9) BLAS(dspmv,DSPMV)(X1,X2,X3,X4,X5,X6,X7,X8,X9)
     #define DSYMM(X1,X2,X3,X4,X5,X6,X7,X8,X9,X10,X11,X12) BLAS(dsymm,DSYMM)(X1,X2,X3,X4,X5,X6,X7,X8,X9,X10,X11,X12)

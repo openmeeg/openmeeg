@@ -16,7 +16,9 @@ SET(PACKAGE_VERSION_MAJOR "1")
 SET(PACKAGE_VERSION_MINOR "1")
 SET(PACKAGE_VERSION_PATCH "svn")
 
-SET(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/macros")
+#   The second path is temporary untill these are integrated in cmake...
+
+SET(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/macros;${CMAKE_SOURCE_DIR}/macros/FortranCInterface")
 
 #   The next two lines are a kludge to make rpm generation work. If you change this,
 #   please check that rpm generation still works.
@@ -54,6 +56,11 @@ INCLUDE(VtkOption)
 INCLUDE(UseMatio)
 INCLUDE(UseAtlas)
 INCLUDE(UseOpenMP)
+
+#   Detect Fortran to C interface.
+
+INCLUDE(FortranCInterface)
+FortranCInterface_HEADER(FC.h MACRO_NAMESPACE "FC_" FROM_LIBRARY blas[daxpy])
 
 #######################################################################
 # Configure files with settings for use by the build.
