@@ -39,7 +39,7 @@ INSTALL(TARGETS OpenMEEG om_assemble om_forward om_gain om_inverse
 # ===========
 
 INCLUDE(TestHead.txt)
-IF(BUILD_TEST)
+IF(BUILD_TESTING)
     TESTHEAD(1)
     TESTHEAD(2)
 
