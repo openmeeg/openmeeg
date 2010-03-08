@@ -2,16 +2,16 @@
 # tests
 #-----------------------------------------------
 
-OPTION(BUILD_TEST "Build tests" OFF)
+OPTION(BUILD_TESTING "Build tests" OFF)
 
-IF (BUILD_TEST)
+IF (BUILD_TESTING)
     INCLUDE(CTest)
     ENABLE_TESTING()
     MARK_AS_ADVANCED(BUILD_TESTING)
     SUBDIRS(tests)
 ENDIF()
 
-IF (USE_GCC AND BUILD_TEST)
+IF (USE_GCC AND BUILD_TESTING)
     OPTION(ENABLE_COVERAGE "Enable coverage" OFF)
     MARK_AS_ADVANCED(ENABLE_COVERAGE)
 ENDIF()

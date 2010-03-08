@@ -47,7 +47,7 @@ IF (PYTHON_WRAP)
             PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ)
 
     # Test Python wrapping
-    IF(BUILD_TEST)
+    IF(BUILD_TESTING)
         ADD_TEST(NAME openmeeg_python_aux
             COMMAND ${CMAKE_COMMAND} -E copy ${OpenMEEG_SOURCE_DIR}/data/demo.py ${OpenMEEG_BINARY_DIR}/Wrapping/src/)
         ADD_TEST(NAME openmeeg_python
