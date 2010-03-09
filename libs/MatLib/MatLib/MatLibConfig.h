@@ -70,7 +70,8 @@ knowledge of the CeCILL-B license and that you accept its terms.
         #include <clapack.h>
     }
     #define BLAS(x,X) cblas_ ## x
-    #define LAPACK(x,X) FC_GLOBAL(x,X)
+    #define LAPACK(x,X) x ## _
+    // #define LAPACK(x,X) FC_GLOBAL(x,X)
 #else
     extern "C" {
         #include <cblas.h>
