@@ -136,6 +136,8 @@ ELSE()
         ENDIF()
     ELSE() # Assume APPLE
         SET(LAPACK_LIBRARIES "-framework vecLib")
+        SET(HAVE_LAPACK TRUE)
+        SET(HAVE_BLAS TRUE)
         INCLUDE_DIRECTORIES(/System/Library/Frameworks/vecLib.framework/Headers)
     ENDIF()
 ENDIF()
