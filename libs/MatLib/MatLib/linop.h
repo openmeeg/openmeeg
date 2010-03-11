@@ -53,9 +53,9 @@ namespace OpenMEEG {
 
     class OPENMEEGMATHS_EXPORT LinOpInfo {
 
-        typedef maths::MathsIO* IO;
-
     public:
+
+        typedef maths::MathsIO* IO;
 
         typedef enum { FULL, SYMMETRIC, SPARSE } StorageType;
         typedef unsigned                         Dimension;
