@@ -44,8 +44,10 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #include "vector.h"
 #include "matrix.h"
+#include "danielsson.h"
 #include "operators.h"
 #include "assemble.h"
+#include "sensors.h"
 #include <fstream>
 
 namespace OpenMEEG {
@@ -137,18 +139,15 @@ namespace OpenMEEG {
         assemble_DipSourceMat(*this,geo,Rs,Qs,GaussOrder,adapt_rhs);
     }
 
-    void assemble_EITSourceMat(Matrix &mat, const Geometry &geo, Matrix& triangleArea, const int GaussOrder)
+    void assemble_EITSourceMat(Matrix &mat, const Geometry &geo, Matrix &positions, const int GaussOrder)
     {
-        // a Matrix to be applied to the scalp-injected current (modulo multiplicative constants)
+        // a Matrix to be applied to the scalp-injected current
         // to obtain the Source Term of the EIT foward problem
-        int totalsize=geo.size();
-        int sourcesize = (geo.getM(geo.nb()-1)).nbTrgs();
-        int newsize=totalsize-sourcesize;
-        mat=Matrix(newsize,sourcesize);
-        // transmat = a big  Matrix of which mat = part of its transpose
-        SymMatrix transmat(newsize+sourcesize);
-        // airemat = a Matrix to store the surface of triangles on the scalp, for normalizing the injected current
-        SymMatrix transairescalp(newsize+sourcesize);
+        int newsize=geo.size()-(geo.getM(geo.nb()-1)).nbTrgs();
+        mat=Matrix(newsize,positions.nlin());
+        // transmat = a big  SymMatrix of which mat = part of its transpose
+        SymMatrix transmat(geo.size());
+ 
         int c;
         int offset=0;
         int offset0;
@@ -180,19 +179,22 @@ namespace OpenMEEG {
         mult(transmat,offset3,offset2,offset4,offset3,-2.0*K);
         operatorP1P0(geo.getM(c+1), transmat,offset3,offset2);
         mult(transmat,offset3,offset2,offset4,offset3,-1/2.0);
-        operatorP1P0(geo.getM(c+1), transairescalp,offset3,offset2);
-        // extracting the transpose of the last block of lines of transmat
-        // transposing the Matrix
-        for(int i=0;i<newsize;i++) {
-            for(int j=0;j<sourcesize;j++) {
-                mat(i,j) = transmat(newsize+j,i);
-                triangleArea(i,j) = transairescalp(newsize+j,i);
-            }
-        }
+         // extracting the transpose of the last block of lines of transmat
+         // transposing the Matrix
+	Vect3 current_position; // buffer for electrode positions
+	Vect3 current_alphas; //not used here
+	int current_nearest_triangle; // buffer for closest triangle to electrode
+	  for(int ielec=0;ielec<positions.nlin();ielec++) {
+	    for(int k=0;k<3;k++) current_position(k)=positions(ielec,k);
+	    dist_point_mesh(current_position,geo.getM(geo.nb()-1),current_alphas,current_nearest_triangle);
+	    for(int i=0;i<newsize;i++) {
+	      mat(i,ielec) = transmat(newsize+current_nearest_triangle,i)/(geo.getM(geo.nb()-1).getTrg(current_nearest_triangle).getArea());
+	    }
+	  }
     }
 
-    EITSourceMat::EITSourceMat (const Geometry &geo, Matrix& triangleArea, const int GaussOrder) {
-        assemble_EITSourceMat(*this,geo, triangleArea, GaussOrder);
+    EITSourceMat::EITSourceMat (const Geometry &geo, Matrix  &positions, const int GaussOrder) {
+        assemble_EITSourceMat(*this, geo, positions, GaussOrder);
     }
 
 }

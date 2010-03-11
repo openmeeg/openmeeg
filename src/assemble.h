@@ -69,7 +69,7 @@ namespace OpenMEEG {
 
     class OPENMEEG_EXPORT EITSourceMat: public virtual Matrix {
     public:
-        EITSourceMat(const Geometry &geo, Matrix& triangleArea, const int GaussOrder);
+        EITSourceMat(const Geometry &geo, Matrix &positions, const int GaussOrder);
         virtual ~EITSourceMat () {};
     };
 

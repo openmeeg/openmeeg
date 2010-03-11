@@ -191,7 +191,7 @@ int main(int argc, char** argv)
         }
         if (argc < 5)
         {
-            std::cerr << "Please set StimElec filepath !" << endl;
+            std::cerr << "Please set electrode positions filepath !" << endl;
             exit(1);
         }
         if (argc < 6)
@@ -204,24 +204,12 @@ int main(int argc, char** argv)
         Geometry geo;
         geo.read(argv[2],argv[3]);
 
-        int taille=geo.size();
-        int sourcetaille = (geo.getM(geo.nb()-1)).nbTrgs();
-        int newtaille=taille-sourcetaille;
+	Matrix electrodes(argv[4]);
 
-        Matrix triangleArea(newtaille,sourcetaille);
-        triangleArea.set(0.0);
-
-        EITSourceMat EITso(geo,triangleArea ,GaussOrder);
-        SparseMatrix stimelec;
-        stimelec.load(argv[4]);
-        Matrix EITSourceMat(EITso.nlin(),stimelec.ncol());
-        EITSourceMat = EITso*stimelec;
-        EITSourceMat.save(argv[5]);
+        EITSourceMat EITsource(geo,electrodes,GaussOrder);
+        EITsource.save(argv[5]);
         
-        if (argc < 7)
-        {
-            triangleArea.save(argv[6]);
-        }
+ 
     }
 
     /*********************************************************************************************
@@ -243,7 +231,7 @@ int main(int argc, char** argv)
         }
         if(argc < 5)
         {
-            cerr << "Please set patches filepath !" << endl;
+            cerr << "Please set electrode positions filepath !" << endl;
             exit(1);
         }
 
@@ -496,14 +484,14 @@ void getHelp(char** argv) {
 
     cout << "option :" << endl;
     cout << "   -HeadMat, -HM, -hm :   " << endl;
-    cout << "    Compute Head Matrix for Symmetric BEM (left-hand side of linear system)." << endl;
+    cout << "       Compute Head Matrix for Symmetric BEM (left-hand side of linear system)." << endl;
     cout << "             Arguments :" << endl;
     cout << "               geometry file (.geom)" << endl;
     cout << "               conductivity file (.cond)" << endl;
     cout << "               output matrix" << endl << endl;
 
     cout << "   -SurfSourceMat, -SSM, -ssm :   " << endl;
-    cout << "   Compute Surfacic Source Matrix for Symmetric BEM (right-hand side of linear system). " << endl;
+    cout << "       Compute Surfacic Source Matrix for Symmetric BEM (right-hand side of linear system). " << endl;
     cout << "            Arguments :" << endl;
     cout << "               geometry file (.geom)" << endl;
     cout << "               conductivity file (.cond)" << endl;
@@ -511,7 +499,7 @@ void getHelp(char** argv) {
     cout << "               output matrix" << endl << endl;
 
     cout << "   -DipSourceMat, -DSM, -dsm:    " << endl;
-    cout << "  Compute Dipolar Source Matrix for Symmetric BEM (right-hand side of linear system). " << endl;
+    cout << "      Compute Dipolar Source Matrix for Symmetric BEM (right-hand side of linear system). " << endl;
     cout << "            Arguments :" << endl;
     cout << "               geometry file (.geom)" << endl;
     cout << "               conductivity file (.cond)" << endl;
@@ -519,26 +507,25 @@ void getHelp(char** argv) {
     cout << "               output matrix" << endl << endl;
 
     cout << "   -EITSourceMat, -EITSM -EITsm : " << endl;
-    cout << "  Compute the EIT Source Matrix from an injected current (right-hand side of linear system). " << endl;
+    cout << "       Compute the EIT Source Matrix from an injected current (right-hand side of linear system). " << endl;
     cout << "            Arguments :" << endl;
     cout << "               geometry file (.geom)" << endl;
     cout << "               conductivity file (.cond)" << endl;
-    cout << "               stimelec" << endl;
+    cout << "               file containing the positions of EEG electrodes (.patches)" << endl;
     cout << "               output EITSourceOp" << endl;
-    cout << "               output area of triangles (optional)" << endl << endl;
-
+   
     cout << "   -Head2EEGMat, -H2EM, -h2em : " << endl;
     cout << "        Compute the linear application which maps the potential" << endl;
-    cout << "            on the scalp to the EEG electrodes"  << endl;
+    cout << "        on the scalp to the EEG electrodes"  << endl;
     cout << "            Arguments :" << endl;
     cout << "               geometry file (.geom)" << endl;
     cout << "               conductivity file (.cond)" << endl;
-    cout << "               file containing the positions of EEG patches (.patches)" << endl;
+    cout << "               file containing the positions of EEG electrodes (.patches)" << endl;
     cout << "               output matrix" << endl << endl;
 
     cout << "   -Head2MEGMat, -H2MM, -h2mm : " << endl;
-    cout << "          Compute the linear application which maps the potential" << endl;
-    cout << "            on the scalp to the MEG sensors"  << endl;
+    cout << "        Compute the linear application which maps the potential" << endl;
+    cout << "        on the scalp to the MEG sensors"  << endl;
     cout << "            Arguments :" << endl;
     cout << "               geometry file (.geom)" << endl;
     cout << "               conductivity file (.cond)" << endl;
@@ -546,30 +533,33 @@ void getHelp(char** argv) {
     cout << "               output matrix" << endl << endl;
 
     cout << "   -SurfSource2MEGMat, -SS2MM, -ss2mm : " << endl;
-    cout << "         Compute the linear application which maps the " << endl;
-    cout << "            distributed source  to the MEG sensors" << endl;
+    cout << "        Compute the linear application which maps the " << endl;
+    cout << "        distributed source  to the MEG sensors" << endl;
     cout << "            Arguments :" << endl;
     cout << "               mesh file for distributed sources (.tri .vtk .mesh .bnd)" << endl;
     cout << "               positions and orientations of the MEG sensors (.squids)" << endl;
     cout << "               output matrix" << endl << endl;
 
-    cout << "   -DipSource2MEGMat, -DS2MM, -ds2mm :   Compute the linear application which maps the current" << endl;
-    cout << "            dipoles to the MEG sensors" << endl;
+    cout << "   -DipSource2MEGMat, -DS2MM, -ds2mm :  " << endl;
+    cout << "        Compute the linear application which maps the current dipoles" << endl;
+    cout << "        to the MEG sensors" << endl;
     cout << "            Arguments :" << endl;
     cout << "               dipoles positions and orientations" << endl;
     cout << "               positions and orientations of the MEG sensors (.squids)" << endl;
     cout << "               output matrix" << endl << endl;
 
-    cout << "   -Head2InternalPotMat, -H2IPM -h2ipm :   Compute the linear transformation which maps the surface potential" << endl;
-    cout << "            and normal current to the value of the internal potential at a set of points within a volume" << endl;
+    cout << "   -Head2InternalPotMat, -H2IPM -h2ipm :  " << endl;
+    cout << "        Compute the linear transformation which maps the surface potential" << endl;
+    cout << "        and normal current to the value of the internal potential at a set of points within a volume" << endl;
     cout << "            Arguments :" << endl;
     cout << "               geometry file (.geom)" << endl;
     cout << "               conductivity file (.cond)" << endl;
     cout << "               a mesh file or a file with point positions at which to evaluate the potential" << endl;
     cout << "               output matrix" << endl << endl;
 
-    cout << "   -DipSource2InternalPotMat, -DS2IPM -ds2ipm :   Computes the linear transformation  which maps the current dipoles" << endl;
-    cout << "            to the value of the infinite potential at a set of points within a volume" << endl;
+    cout << "   -DipSource2InternalPotMat, -DS2IPM -ds2ipm :   " << endl;
+    cout << "        Compute the linear transformation  which maps the current dipoles" << endl;
+    cout << "        to the value of the infinite potential at a set of points within a volume" << endl;
     cout << "            Arguments :" << endl;
     cout << "               geometry file (.geom)" << endl;
     cout << "               conductivity file (.cond)" << endl;

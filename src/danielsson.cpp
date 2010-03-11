@@ -44,15 +44,17 @@ knowledge of the CeCILL-B license and that you accept its terms.
 */
 
 #include "danielsson.h"
-
+/* implements an algorithm  proposed in Danielsson, P.-E. Euclidean Distance Mapping. Computer Graphics and Image
+Processing 14, 3 (Nov. 1980), 227-248.
+*/ 
 namespace OpenMEEG {
 
-    // Distance de m a cell (indices vers pts)
+    // Distance from m to a cell (indices to pts)
     // alpha-> barycentric coordinates of closest point
     // sum(alpha_i)=1
     // inside: closest point is inside (alpha_i!=0 for all i)
 
-    // Auxilary Fn : nb points left (pour the others alpha=0)
+    // Auxilary Fn : nb points left (for the others alpha=0)
 
     using namespace std;
 
@@ -63,7 +65,7 @@ namespace OpenMEEG {
             alphas(idx[0])=1;
             return (m-pts[cell[idx[0]]]).norm();
         }
-        // Resoud H=sum(alpha_i A_i), sum(alpha_i)=1, et HM.(A_i-A_0)=0
+        // Solves H=sum(alpha_i A_i), sum(alpha_i)=1, et HM.(A_i-A_0)=0
         Vect3 A0Ai[3]; // A_i-A_0
         for( int i=1; i<nb; i++ )
         {
@@ -77,7 +79,7 @@ namespace OpenMEEG {
         }
         else if (nb==3) 
         {
-            // Systeme ci dessous resolution directe (systeme 2x2)
+            // direct inversion (2x2 linear system)
             double a00=A0Ai[1]*A0Ai[1];
             double a10=A0Ai[1]*A0Ai[2];
             double a11=A0Ai[2]*A0Ai[2];
@@ -91,13 +93,13 @@ namespace OpenMEEG {
         }
         else
         {
-            // 3 inconnues ou plus -> systeme
-            // Resoud Ax=b avec: A(i,j)=A0Ai.AjA0, x=(alpha_1,alpha_2, ...), b=A0M.A0Ai
+            // 3 unknowns or more -> solve system
+            //  Ax=b with: A(i,j)=A0Ai.AjA0, x=(alpha_1,alpha_2, ...), b=A0M.A0Ai
             cerr << "Error : dim>=4 in danielsson !" << endl;
             exit(0);
         }
-        // Si alpha_i<0 -> le ramene a 0 et recursion
-        // NB: traite le cas > 0 car si alpha_i>1 alors alpha_j<0 pour un j
+        // If alpha_i<0 -> brought to 0 and recursion
+        // NB: also takes care of alpha > 1 because if alpha_i>1 then alpha_j<0 for at least one j
         for (int i=0;i<nb;i++)
         {
             if (alphas(idx[i])<0)
@@ -117,7 +119,7 @@ namespace OpenMEEG {
         return MH.norm();
     }
 
-    // Principal Fn
+    // Main Function
     double dist_point_cell(const Vect3& m, const Vect3 *pts, const Triangle& cell, Vect3& alphas, bool& inside)
     {
         int idx[3] = {0,1,2};
