@@ -41,6 +41,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 // Vf solution of classical forward problem for a dipole of momentum q at r0 whereas Vj is the solution of the EIT problem for injections at ri and re
 
 #include "assemble.h"
+#include "danielsson.h"
 
 using namespace OpenMEEG;
 
@@ -68,9 +69,6 @@ int main(int argc, char** argv)
     int newsize=totalsize-sourcesize;
     double delta=0.001;// For the discretization of Grad V
     double dirac=1.; // The injection current
-    // We choose two triangles on which we inject the currents
-    int Ta=24;
-    int Tb=42;
     
     Matrix dipoles;
     dipoles.load(argv[3]);
@@ -82,26 +80,43 @@ int main(int argc, char** argv)
     SymMatrix HeadMatInv;
     HeadMatInv.load(argv[5]);
 
+    // We choose two electordes on which we inject the currents
+    int nelec=2;
+    Matrix Electrodes(nelec,3); // set nelec electrode positions
+    Electrodes(0,0)=0.886556;
+    Electrodes(0,1)=0.278249;
+    Electrodes(0,2)=-0.166667; 
+    Electrodes(1,0)=0.547922;
+    Electrodes(1,1)=-0.269672;
+    Electrodes(1,2)=-0.719889;
+
     Matrix PotExt=HeadMatInv(newsize-geo.getM(geo.nb()-1).nbPts(),newsize-1,0,newsize-1);// We want the potential on the external surface
     PotExt=PotExt*SourceMatrix;
 
-    Vector VRi,VRe; // Potential at the vertices of the two triangles Ta and Tb and then the mean
-    Vect3 PointTa=(geo.getM(geo.nb()-1).getPt(geo.getM(geo.nb()-1).getTrg(Ta).s1())+geo.getM(geo.nb()-1).getPt(geo.getM(geo.nb()-1).getTrg(Ta).s2())+geo.getM(geo.nb()-1).getPt(geo.getM(geo.nb()-1).getTrg(Ta).s3()))/3.0;
-    Vect3 PointTb=(geo.getM(geo.nb()-1).getPt(geo.getM(geo.nb()-1).getTrg(Tb).s1())+geo.getM(geo.nb()-1).getPt(geo.getM(geo.nb()-1).getTrg(Tb).s2())+geo.getM(geo.nb()-1).getPt(geo.getM(geo.nb()-1).getTrg(Tb).s3()))/3.0;
-    std::cout << "Center of triangle Ta=" << Ta <<" : [ " << PointTa(0) << " " << PointTa(1) << " " <<PointTa(2) << " ]"<< std::endl;
-    std::cout << "Center of triangle Tb=" << Tb <<" : [ " << PointTb(0) << " " << PointTb(1) << " " <<PointTb(2) << " ]"<< std::endl;
-    VRi=(PotExt.getlin(geo.getM(geo.nb()-1).getTrg(Ta).s1())+PotExt.getlin(geo.getM(geo.nb()-1).getTrg(Ta).s2())+PotExt.getlin(geo.getM(geo.nb()-1).getTrg(Ta).s3()))/3.0;
-    VRe=(PotExt.getlin(geo.getM(geo.nb()-1).getTrg(Tb).s1())+PotExt.getlin(geo.getM(geo.nb()-1).getTrg(Tb).s2())+PotExt.getlin(geo.getM(geo.nb()-1).getTrg(Tb).s3()))/3.0;
+    Vect3 current_position; //buffer for electrodes positions
+    Vect3 current_alphas;
+    int current_nearest_triangle; // buffer for closest triangle to electrode
+    SparseMatrix matH2E(Electrodes.nlin(),(geo.getM(geo.nb()-1)).nbPts()); // Matrices Head2Electrodes
 
-    Matrix rhsEIT(newsize,1);
-    rhsEIT.set(0.0);
-    SparseMatrix Injection(geo.getM(geo.nb()-1).nbTrgs(),1);
-    Injection(Ta,0)=dirac/(geo.getM(geo.nb()-1).getTrg(Ta).getArea());
-    Injection(Tb,0)=-dirac/(geo.getM(geo.nb()-1).getTrg(Tb).getArea());
+    // find triangle closest to the Electrodes
+    for(int ielec=0;ielec<nelec;ielec++){
+        for(int k=0;k<3;k++) current_position(k)=Electrodes(ielec,k);
+        dist_point_mesh(current_position,geo.getM(geo.nb()-1),current_alphas,current_nearest_triangle);
+            matH2E(ielec,geo.getM(geo.nb()-1).getTrg(current_nearest_triangle).s1()) = current_alphas(0);
+            matH2E(ielec,geo.getM(geo.nb()-1).getTrg(current_nearest_triangle).s2()) = current_alphas(1);
+            matH2E(ielec,geo.getM(geo.nb()-1).getTrg(current_nearest_triangle).s3()) = current_alphas(2);
+    }
 
-    Matrix triangleArea(newsize,sourcesize);
-    EITSourceMat EITsource(geo, triangleArea, GaussOrder);
-    rhsEIT=EITsource*Injection;
+    Vector VRi,VRe; // Potential at the electrodes positions
+    VRi=(matH2E*PotExt).getlin(0);
+    VRe=(matH2E*PotExt).getlin(1);
+
+    Matrix Injection(nelec,1);
+    Injection(0,0)=dirac;
+    Injection(1,0)=-1.0*dirac;
+
+    EITSourceMat EITsource(geo, Electrodes, GaussOrder);
+    Matrix rhsEIT=EITsource*Injection;
 
     Matrix EEGGainMatrix;
     // Surf2Vol
@@ -162,7 +177,7 @@ int main(int argc, char** argv)
 
 void getHelp(char** argv)
 {
-    std::cout << "Testing the SurfToVol : \nCompute the potential at points located in the first volume, with coordinates described in the mesh file." << std::endl;
+    std::cout << "Testing the EIT : \n using the Helmholtz reciprocity principle." << std::endl;
 
     std::cout << argv[0] << " [filepaths...]" << std::endl;
     std::cout << "Arguments :"                << std::endl;
