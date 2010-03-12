@@ -76,8 +76,6 @@ namespace OpenMEEG {
         Triangle* trgs; //!< Triangles of the mesh
         intSet* links; //!< links[i] are the triangles that contain point i : each point knows each triangle it is a part of
         Vect3* normals; //!< Normals at each point
-        int ncomponents; //!< Number of connexe components
-        int ninversions; //!< Number of triangles with inverted orientations
 
         void load_tri(std::istream &);
         void load_tri(const char*);

@@ -725,8 +725,6 @@ namespace OpenMEEG {
         std::cout << "\t# points : " << npts << std::endl;
         std::cout << "\t# triangles : " << ntrgs << std::endl;
         std::cout << "\tEuler characteristic : " << npts - 3*ntrgs/2 + ntrgs << std::endl;
-        // std::cout << "\tNb of connexe components : " << ncomponents << std::endl;
-        // std::cout << "\tNb of Triangles inversions : " << ninversions << std::endl;
 
         double min_area = trgs[0].area();
         double max_area = trgs[0].area();
