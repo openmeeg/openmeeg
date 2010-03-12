@@ -8,7 +8,7 @@ last revision     : $Date$
 modified by       : $LastChangedBy$
 last modified     : $LastChangedDate$
 
-© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre 
+© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre
 GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU, Théodore PAPADOPOULO,
 Maureen.Clerc.AT.sophia.inria.fr, keriven.AT.certis.enpc.fr,
 kybic.AT.fel.cvut.cz, papadop.AT.sophia.inria.fr)
@@ -178,7 +178,7 @@ namespace OpenMEEG {
             \sa
         **/
         void append(const Mesh* m);
-        
+
         /** \brief Print info
 
                 Print to std::cout some info about the mesh
@@ -188,7 +188,7 @@ namespace OpenMEEG {
             \sa
         **/
         void info() const;
-        
+
         /** \brief Smooth Mesh
 
                 Smooth Mesh
@@ -199,14 +199,14 @@ namespace OpenMEEG {
             \sa
         **/
         void smooth(double smoothing_intensity, size_t niter);
-        
+
         int getNeighTrg(int a, int b, int c) const;
-        
+
         /**
          * Compute the surfacic gradient
         **/
         SparseMatrix gradient() const;
-        
+
         /**
          * Compute the total solid angle of a surface for a point v and tell whether v is inside the mesh or not.
         **/
@@ -229,7 +229,7 @@ namespace OpenMEEG {
                 default: std::cout << "Unknown file format" << std::endl;
             }
         }
-        
+
         /**
          * Check intersection between two triangles
         **/
@@ -254,7 +254,7 @@ namespace OpenMEEG {
 
         bool selfIntersection() const;
         bool intersection(const Mesh& m) const;
-	bool correct_orientation() const;
+        bool correct_orientation() const;
 
 
     private:

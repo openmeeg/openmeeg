@@ -796,15 +796,15 @@ namespace OpenMEEG {
      * Computes the total solid angle of a surface for a point p and tells whether p is inside the mesh or not.
      **/
     bool Mesh::containsPoint(const Vect3& p) {
-
-        bool contains=false;
-        double solangle=0.0;
+        bool contains = false;
+        double solangle = 0.0;
         for (int itrg=0;itrg<ntrgs;itrg++)
-            solangle+=p.solangl(pts[trgs[itrg][0]],pts[trgs[itrg][1]],pts[trgs[itrg][2]]);
+            solangle += p.solangl(pts[trgs[itrg][0]], pts[trgs[itrg][1]], pts[trgs[itrg][2]]);
 
-        if (std::abs(solangle)<1000*std::numeric_limits<double>::epsilon()){
+        if (std::abs(solangle)<1000*std::numeric_limits<double>::epsilon()) {
             return false;
-        } else if ((std::abs(solangle-4*M_PI)<1000*std::numeric_limits<double>::epsilon())||(std::abs(solangle+4*M_PI)<1000*std::numeric_limits<double>::epsilon())) {
+        } else if ( (std::abs(solangle-4*M_PI) < 1000*std::numeric_limits<double>::epsilon())
+                 || (std::abs(solangle+4*M_PI) < 1000*std::numeric_limits<double>::epsilon()) ) {
             return true;
         } else {
             std::cerr<<"Mesh::containsPoint(p) Error. Are you sure the mesh is closed ?\n"<<std::abs(solangle)<<std::endl;
@@ -873,28 +873,28 @@ namespace OpenMEEG {
         return intersects;
     }
 
-  bool Mesh::correct_orientation() const {
-
+    bool Mesh::correct_orientation() const {
     // define the triangle edges as (first point,second point)
     // if a triangle edge is ordered with (lower index, higher index) keep it in a edge_list
     // if not, exchange the two indices and put in a flipped_edge_list (lower index, higher index)
-    // Transform the edge_list and flipped_edge_list unambigously into lists of  numbers
-    list<int> edge_list;
-    list<int> flipped_edge_list;
-    int radix = 10^(int(log2(npts)/log2(10))+1);
-    for(int i = 0; i < ntrgs; ++i){
-      for(int j=1; j<=3; ++j){
-	if(trgs[i].som(j) <trgs[i].next(j)){
-	  edge_list.push_back(trgs[i].som(j) * radix + trgs[i].next(j));
-	  }
-	else flipped_edge_list.push_back(trgs[i].next(j) * radix + trgs[i].som(j));
-      }
+    // Transform the edge_list and flipped_edge_list unambigously into lists of numbers
+        list<int> edge_list;
+        list<int> flipped_edge_list;
+        int radix = 10^(int(log2(npts)/log2(10))+1);
+        for(int i = 0; i < ntrgs; ++i)
+        {
+            for(int j=1; j<=3; ++j)
+            {
+                if (trgs[i].som(j) < trgs[i].next(j)) {
+                    edge_list.push_back(trgs[i].som(j) * radix + trgs[i].next(j));
+                }
+                else flipped_edge_list.push_back(trgs[i].next(j) * radix + trgs[i].som(j));
+            }
+        }
+    // Sort these two lists: they should be identical: if not, there is an orientation problem.
+        edge_list.sort();
+        flipped_edge_list.sort();
+        return (flipped_edge_list == edge_list);
     }
-   // Sort these two lists: they should be identical: if not, there is an orientation problem. 
-    edge_list.sort();
-    flipped_edge_list.sort();
-    return (flipped_edge_list == edge_list);
-  }
 
-   
 }
