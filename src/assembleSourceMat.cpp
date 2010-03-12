@@ -179,18 +179,18 @@ namespace OpenMEEG {
         mult(transmat,offset3,offset2,offset4,offset3,-2.0*K);
         operatorP1P0(geo.getM(c+1), transmat,offset3,offset2);
         mult(transmat,offset3,offset2,offset4,offset3,-1/2.0);
-         // extracting the transpose of the last block of lines of transmat
-         // transposing the Matrix
-	Vect3 current_position; // buffer for electrode positions
-	Vect3 current_alphas; //not used here
-	int current_nearest_triangle; // buffer for closest triangle to electrode
-	  for(int ielec=0;ielec<positions.nlin();ielec++) {
-	    for(int k=0;k<3;k++) current_position(k)=positions(ielec,k);
-	    dist_point_mesh(current_position,geo.getM(geo.nb()-1),current_alphas,current_nearest_triangle);
-	    for(int i=0;i<newsize;i++) {
-	      mat(i,ielec) = transmat(newsize+current_nearest_triangle,i)/(geo.getM(geo.nb()-1).getTrg(current_nearest_triangle).getArea());
-	    }
-	  }
+        // extracting the transpose of the last block of lines of transmat
+        // transposing the Matrix
+        Vect3 current_position; // buffer for electrode positions
+        Vect3 current_alphas; //not used here
+        int current_nearest_triangle; // buffer for closest triangle to electrode
+        for(int ielec=0;ielec<positions.nlin();ielec++) {
+            for(int k=0;k<3;k++) current_position(k)=positions(ielec,k);
+            dist_point_mesh(current_position,geo.getM(geo.nb()-1),current_alphas,current_nearest_triangle);
+            for(int i=0;i<newsize;i++) {
+                mat(i,ielec) = transmat(newsize+current_nearest_triangle,i)/(geo.getM(geo.nb()-1).getTrg(current_nearest_triangle).getArea());
+            }
+        }
     }
 
     EITSourceMat::EITSourceMat (const Geometry &geo, Matrix  &positions, const int GaussOrder) {
