@@ -1,3 +1,5 @@
+ADD_TEST(CLEAN-TESTS ${CMAKE_COMMAND} -P ${OpenMEEG_SOURCE_DIR}/tests/clean_tests.cmake)
+
 FUNCTION(TESTHEAD HEADNUM)
     SET(SUBJECT "Head${HEADNUM}")
 
@@ -54,11 +56,6 @@ FUNCTION(TESTHEAD HEADNUM)
     SET(EEGINVBASE         ${GENERATEDBASE}-eeg)
     SET(MEGINVBASE         ${GENERATEDBASE}-meg)
     SET(ESTDIPBASE         ${GENERATEDBASE}-dip)
-
-    ############ START BY DELETING OLD FILES ##############
-
-    FILE(GLOB OLD_FILES "${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}*")
-    ADD_TEST(CLEAN-${SUBJECT} ${CMAKE_COMMAND} -E remove "${OLD_FILES}")
 
     ############ ASSEMBLE TEST ##############
 
