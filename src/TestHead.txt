@@ -55,6 +55,11 @@ FUNCTION(TESTHEAD HEADNUM)
     SET(MEGINVBASE         ${GENERATEDBASE}-meg)
     SET(ESTDIPBASE         ${GENERATEDBASE}-dip)
 
+    ############ START BY DELETING OLD FILES ##############
+
+    FILE(GLOB OLD_FILES "${OpenMEEG_BINARY_DIR}/tests/${SUBJECT}*")
+    ADD_TEST(CLEAN-${SUBJECT} ${CMAKE_COMMAND} -E remove "${OLD_FILES}")
+
     ############ ASSEMBLE TEST ##############
 
     ADD_TEST(HM-${SUBJECT} ${ASSEMBLE} -HM ${GEOM} ${COND} ${HMMAT})
@@ -128,7 +133,7 @@ FUNCTION(TESTHEAD HEADNUM)
     ADD_TEST(DS2MM-${SUBJECT}-noradial ${ASSEMBLE} -DS2MM ${DIPPOS} ${SQUIDS-NORADIAL} ${DS2MMMAT-NORADIAL})
 
     # om_assemble -H2IPM geometry.geom conductivity.cond internalpoints.txt h2ip.bin
-    
+
     ADD_TEST(H2IPM-${SUBJECT} ${ASSEMBLE} -H2IPM ${GEOM} ${COND} ${POINTS} ${H2IPMAT})
 
     # om_assemble -DS2IPM geometry.geom conductivity.cond dipoles.dip internalpoints.txt ds2ip.bin
@@ -154,7 +159,7 @@ FUNCTION(TESTHEAD HEADNUM)
     ADD_TEST(MEG-dipoles-${SUBJECT}-tangential ${FORWARD} ${DGMMMAT-TANGENTIAL} ${DIPSOURCES} ${ESTDIPBASE}-tangential.est_meg 0.0)
 
     ADD_TEST(MEG-dipoles-${SUBJECT}-noradial ${FORWARD} ${DGMMMAT-NORADIAL} ${DIPSOURCES} ${ESTDIPBASE}-noradial.est_meg 0.0)
-    
+
     ADD_TEST(InternalPot-dipoles-${SUBJECT} ${FORWARD} ${DGIPMAT} ${DIPSOURCES} ${ESTDIPBASE}.est_eeginternal 0.0)
 
 
