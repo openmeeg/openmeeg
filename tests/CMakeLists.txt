@@ -54,6 +54,7 @@ FOREACH(DIP 1 2 3 4 5)
             # Compare EEG result with analytical solution obtained with Matlab
             OPENMEEG_COMPARISON_TEST("EEGEST-dip-${HEAD}-dip${DIP}-${COMP}"
                                      ${BASE_FILE_NAME} analytic/eeg_head${HEADNUM}_analytic.txt -${COMP} -eps ${EPSILON} -col ${DIP} -full)
+            SET_TESTS_PROPERTIES("cmp-EEGEST-dip-${HEAD}-dip${DIP}-${COMP}" PROPERTIES DEPENDS EEG-dipoles-${HEAD})
         ENDFOREACH()
     ENDFOREACH()
 ENDFOREACH()
@@ -78,6 +79,10 @@ FOREACH(HEADNUM 1 2 ${HEAD3})
         ${VALIDATION_EIT} ${MODELPREFIX}.geom ${MODELPREFIX}.cond
         ${DATADIR}/Computations/${HEAD}/${HEAD}.dip
         ${TESTPREFIX}.dsm ${TESTPREFIX}.hm_inv ${TESTPREFIX}.eit_qgradVj ${TESTPREFIX}.eit_diffVf)
+
+    SET_TESTS_PROPERTIES(EITvalidation-dipoles-${HEAD} PROPERTIES DEPENDS HMINV-${HEAD})
+    SET_PROPERTY(TEST EITvalidation-dipoles-${HEAD} APPEND PROPERTY DEPENDS DSM-${HEAD})
+
 ENDFOREACH()
 
 FOREACH(DIP 1 2 3 4 5)
@@ -88,9 +93,14 @@ FOREACH(DIP 1 2 3 4 5)
         OPENMEEG_COMPARISON_TEST("EEGinternal-dip-${HEAD}-dip${DIP}"
                                  ${HEAD}-dip.est_eeginternal analytic/eeg_internal_analytic.txt -eps ${EPSILON} -col ${DIP} -full)
 
+        SET_TESTS_PROPERTIES("cmp-EEGinternal-dip-${HEAD}-dip${DIP}" PROPERTIES DEPENDS InternalPot-dipoles-${HEAD})
+
         # Compare the q.gradVj to diffVf in order to validate the EIT problem
         OPENMEEG_COMPARISON_TEST("EIT-${HEAD}-dip${DIP}"
                                  ${HEAD}.eit_qgradVj ${OpenMEEG_BINARY_DIR}/tests/${HEAD}.eit_diffVf -eps ${EPSILON} -col ${DIP} -full)
+
+        SET_TESTS_PROPERTIES("cmp-EIT-${HEAD}-dip${DIP}" PROPERTIES DEPENDS EITvalidation-dipoles-${HEAD})
+
     ENDFOREACH()
 ENDFOREACH()
 # set tests that are expected to fail :
@@ -104,12 +114,21 @@ FOREACH(SENSORORIENT "" "-tangential" "-noradial")
                 # Compare MEG result with analytical solution obtained with Matlab
                 OPENMEEG_COMPARISON_TEST("MEGEST-dip-${HEAD}-dip${DIP}${SENSORORIENT}-${COMP}"
                     ${HEAD}-dip${SENSORORIENT}.est_meg analytic/meg_analytic${SENSORORIENT}.txt -${COMP} -eps ${EPSILON} -col ${DIP} -full)
+
+                SET_TESTS_PROPERTIES("cmp-MEGEST-dip-${HEAD}-dip${DIP}${SENSORORIENT}-${COMP}"
+                    PROPERTIES DEPENDS MEG-dipoles-${HEAD}${SENSORORIENT})
+
             ENDFOREACH()
         ENDFOREACH()
         OPENMEEG_COMPARISON_TEST("MEGEST-dip${SENSORORIENT}-${HEAD}-dip6"
             ${HEAD}-dip${SENSORORIENT}.est_meg analytic/meg_analytic${SENSORORIENT}.txt -eps 0.001 -col 6 -full)
+
+        SET_TESTS_PROPERTIES("cmp-MEGEST-dip${SENSORORIENT}-${HEAD}-dip6"
+            PROPERTIES DEPENDS MEG-dipoles-${HEAD}${SENSORORIENT})
+
     ENDFOREACH()
 ENDFOREACH()
+
 # set tests that are expected to fail :
 SET_TESTS_PROPERTIES(cmp-MEGEST-dip-Head1-dip2-tangential-mag PROPERTIES WILL_FAIL TRUE)
 SET_TESTS_PROPERTIES(cmp-MEGEST-dip-Head1-dip2-tangential-rdm PROPERTIES WILL_FAIL TRUE)
