@@ -59,8 +59,10 @@ INCLUDE(UseOpenMP)
 
 #   Detect Fortran to C interface.
 
-INCLUDE(FortranCInterface)
-FortranCInterface_HEADER(FC.h MACRO_NAMESPACE "FC_" FROM_LIBRARY blas[daxpy])
+IF(USE_ATLAS)
+    INCLUDE(FortranCInterface)
+    FortranCInterface_HEADER(FC.h MACRO_NAMESPACE "FC_" FROM_LIBRARY blas[daxpy])
+ENDIF()
 
 #######################################################################
 # Configure files with settings for use by the build.
