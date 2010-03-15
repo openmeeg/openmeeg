@@ -7,15 +7,13 @@ IF (WIN32)       # WINDOWS
             set(CMAKE_FIND_LIBRARY_SUFFIXES ".lib;.dll")
         ENDIF()
 ELSE()
+    OPTION(USE_ATLAS "Build the project using ATLAS" ON)
+    OPTION(USE_MKL "Build the project with MKL" OFF)
     IF (APPLE)   # MACOSX
-        OPTION(USE_ATLAS "Build the project using ATLAS" OFF)
-        OPTION(USE_MKL "Build the project with MKL" ON)
         IF (NOT BUILD_SHARED)
             set(CMAKE_FIND_LIBRARY_SUFFIXES ".a;.so;.dylib")
         ENDIF()
     ELSE() # LINUX
-        OPTION(USE_ATLAS "Build the project using ATLAS" ON)
-        OPTION(USE_MKL "Build the project with MKL" OFF)
         IF (NOT BUILD_SHARED)
             set(CMAKE_FIND_LIBRARY_SUFFIXES ".a;.so")
         ENDIF()
