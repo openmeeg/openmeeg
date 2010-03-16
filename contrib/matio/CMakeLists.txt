@@ -1,0 +1,150 @@
+SET(PACKAGE_VERSION_MAJOR "1")
+SET(PACKAGE_VERSION_MINOR "3")
+SET(PACKAGE_VERSION_PATCH "4")
+
+SET(CMAKE_MODULE_PATH  "${CMAKE_CURRENT_SOURCE_DIR}/cmake;${CMAKE_SOURCE_DIR}/cmake/FortranCInterface")
+
+# ===========
+# = Options =
+# ===========
+
+OPTION(ENABLE_FORTRAN "Enable fortran interface to mat library" OFF)
+SET(EXTRA_LANGAGE)
+IF (ENABLE_FORTRAN)
+    SET(EXTRA_LANGAGE Fortran)
+    SET(MATIO_FORTRAN TRUE)
+ENDIF()
+
+PROJECT(MATIO C ${EXTRA_LANGAGE})
+
+CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
+
+SET(MATIO_PLATFORM ${CMAKE_SYSTEM_PROCESSOR}--${CMAKE_SYSTEM_NAME})
+
+# INCLUDE(FindLibrary) # FIXME : makes cmake crash !
+
+# =======================
+# = HANDLE DEFINITTIONS =
+# =======================
+
+INCLUDE(Boolean)
+BOOLEAN(LINUX UNIX AND NOT APPLE)
+BOOLEAN(WINNT WIN32)
+BOOLEAN(SUN XXXX)
+
+# ===========
+# = Options =
+# ===========
+
+OPTION(ENABLE_PROFILE "Turn on profile")
+IF (ENABLE_PROFILE)
+ENDIF()
+
+OPTION(EXTENDED_SP "Enable extended sparse matrix data types not supported in Matlab" ON)
+IF (EXTENDED_SP)
+    SET(EXTENDED_SPARSE 1)
+ENDIF()
+
+INCLUDE (Documentation OPTIONAL)
+IF (BUILD_DOCUMENTATION)
+    SUBDIRS(doxygen)
+ENDIF()
+
+# =================
+# = Check headers =
+# =================
+
+INCLUDE(CheckIncludeFiles)
+INCLUDE(CheckHeaderSTDC)
+
+CHECK_INCLUDE_FILES(inttypes.h HAVE_INTTYPES_H)
+CHECK_INCLUDE_FILES(stdint.h   HAVE_STDINT_H)
+CHECK_INCLUDE_FILES(strings.h  HAVE_STRINGS_H)
+CHECK_HEADER_STDC()
+
+# ===================
+# = Check type size =
+# ===================
+
+include(CheckTypeSize)
+SET(TYPES double float long int short char)
+FOREACH(TYPE ${TYPES})
+    string(TOUPPER ${TYPE} TYPE_UPPER)
+    CHECK_TYPE_SIZE(${TYPE} SIZEOF_${TYPE_UPPER})
+    SET(HAVE_${TYPE_UPPER} 1)
+ENDFOREACH()
+CHECK_TYPE_SIZE(void* SIZEOF_VOID_PTR)
+
+SET(TYPES uint8_t uint16_t uint32_t uint64_t int8_t int16_t int32_t int64_t)
+FOREACH(TYPE ${TYPES})
+    string(TOUPPER ${TYPE} TYPE_UPPER)
+    CHECK_TYPE_SIZE(${TYPE} SIZEOF_${TYPE_UPPER})
+    SET(HAVE_MAT_${TYPE_UPPER} 1)
+    IF(NOT "${SIZEOF_${TYPE_UPPER}}")
+        MESSAGE(FATAL_ERROR "Unknown type ${TYPE}")
+    ENDIF()
+ENDFOREACH()
+
+# ===================
+# = Check functions =
+# ===================
+
+INCLUDE(CheckFunctionExists)
+CHECK_FUNCTION_EXISTS(vsnprintf HAVE_VSNPRINTF)
+CHECK_FUNCTION_EXISTS(snprintf  HAVE_SNPRINTF)
+CHECK_FUNCTION_EXISTS(vasprintf HAVE_VASPRINTF)
+CHECK_FUNCTION_EXISTS(asprintf  HAVE_ASPRINTF)
+
+INCLUDE(VA_COPY)
+VA_COPY()
+
+# =========
+# = Z Lib =
+# =========
+FIND_LIBRARY(Z_LIB z)
+IF(Z_LIB)
+    SET(HAVE_ZLIB 1)
+ENDIF()
+
+SET(Z_PREFIX)
+
+INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR}/src)
+INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/src)
+SUBDIRS(src)
+
+# ==============
+# = pkg-config =
+# ==============
+
+SET(prefix ${CMAKE_INSTALL_PREFIX})
+SET(VERSION ${PACKAGE_VERSION_MAJOR}.${PACKAGE_VERSION_MINOR}.${PACKAGE_VERSION_PATCH})
+SET(exec_prefix "\${prefix}")
+SET(libdir "\${exec_prefix}/lib")
+SET(includedir "\${prefix}/include")
+SET(ZLIB_LIBS ${Z_LIB})
+
+CONFIGURE_FILE(
+    "${CMAKE_CURRENT_SOURCE_DIR}/matio.pc.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/matio.pc"
+    IMMEDIATE @ONLY)
+
+# ===========
+# = Testing =
+# ===========
+OPTION(BUILD_TESTING "Build tests" ON)
+IF (BUILD_TESTING)
+    INCLUDE(CTest)
+    ENABLE_TESTING()
+    SUBDIRS(test)
+ENDIF()
+
+# =============
+# = Uninstall =
+# =============
+CONFIGURE_FILE(
+    "${CMAKE_CURRENT_SOURCE_DIR}/cmake_uninstall.cmake.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
+    IMMEDIATE @ONLY)
+
+ADD_CUSTOM_TARGET(uninstall_matio
+    "${CMAKE_COMMAND}" -P "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake")

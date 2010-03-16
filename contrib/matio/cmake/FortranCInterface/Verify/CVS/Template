@@ -1,0 +1,9 @@
+CVS: ----------------------------------------------------------------------
+CVS: CMake commit messages must be formatted as follows:
+CVS:
+CVS:   - The first line must have at least 8 characters.
+CVS:   - The first line must not have leading whitespace.
+CVS:   - The second line, if any, must be empty.
+CVS:
+CVS: (We no longer require prefixes like "ENH:", "BUG:", etc.)
+CVS: ----------------------------------------------------------------------

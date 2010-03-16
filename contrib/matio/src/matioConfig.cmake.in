@@ -1,0 +1,65 @@
+#ifndef MATIOCONFIGURE_H
+#define MATIOCONFIGURE_H
+
+#cmakedefine MATIO_FORTRAN
+#ifdef MATIO_FORTRAN
+#include <fortran.h>
+#define FC_FUNC_(name,NAME) FC_GLOBAL(name,NAME)
+#endif
+
+#define MATIO_PLATFORM "@MATIO_PLATFORM@"
+#define MATIO_MAJOR_VERSION "@PACKAGE_VERSION_MAJOR@"
+#define MATIO_MINOR_VERSION "@PACKAGE_VERSION_MINOR@"
+#define MATIO_RELEASE_LEVEL "@PACKAGE_VERSION_PATCH@"
+
+#define SIZEOF_DOUBLE @SIZEOF_DOUBLE@
+#define SIZEOF_FLOAT @SIZEOF_FLOAT@
+#define SIZEOF_LONG @SIZEOF_LONG@
+#define SIZEOF_INT @SIZEOF_INT@
+#define SIZEOF_SHORT @SIZEOF_SHORT@
+#define SIZEOF_CHAR @SIZEOF_CHAR@
+#define SIZEOF_VOID_PTR @CMAKE_SIZEOF_VOID_P@
+
+#cmakedefine HAVE_VA_COPY 1
+#cmakedefine HAVE_VSNPRINTF 1
+#cmakedefine HAVE_SNPRINTF 1
+#cmakedefine HAVE_VASPRINTF 1
+#cmakedefine HAVE_ASPRINTF 1
+
+#cmakedefine01 HAVE_ZLIB
+#cmakedefine01 HAVE_INTTYPES_H
+#cmakedefine01 HAVE_STRINGS_H
+#cmakedefine01 HAVE_STDINT_H
+#cmakedefine01 STDC_HEADERS
+
+#cmakedefine FC_FUNC
+#cmakedefine FC_FUNC_
+
+#cmakedefine LINUX
+#cmakedefine WINNT
+#cmakedefine SUN
+
+#cmakedefine01 HAVE_MAT_INT64_T
+#cmakedefine01 HAVE_MAT_INT32_T
+#cmakedefine01 HAVE_MAT_INT16_T
+#cmakedefine01 HAVE_MAT_INT8_T
+#cmakedefine01 HAVE_MAT_UINT64_T
+#cmakedefine01 HAVE_MAT_UINT32_T
+#cmakedefine01 HAVE_MAT_UINT16_T
+#cmakedefine01 HAVE_MAT_UINT8_T
+
+#define _mat_uint8_t     uint8_t
+#define _mat_uint16_t    uint16_t
+#define _mat_uint32_t    uint32_t
+#define _mat_uint64_t    uint64_t
+#define _mat_int8_t      int8_t
+#define _mat_int16_t     int16_t
+#define _mat_int32_t     int32_t
+#define _mat_int64_t     int64_t
+
+#cmakedefine01 EXTENDED_SPARSE
+
+#cmakedefine Z_PREFIX
+
+#endif  //  ! MATIOCONFIGURE_H
+

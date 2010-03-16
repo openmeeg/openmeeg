@@ -1,0 +1,3 @@
+IF(USE_MATIO)
+    SUBDIRS(matio)
+ENDIF()

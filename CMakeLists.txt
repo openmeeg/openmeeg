@@ -18,7 +18,9 @@ SET(PACKAGE_VERSION_PATCH "svn")
 
 #   The second path is temporary untill these are integrated in cmake...
 
-SET(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/macros;${CMAKE_SOURCE_DIR}/macros/FortranCInterface")
+# SET(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/macros;${CMAKE_SOURCE_DIR}/macros/FortranCInterface;")
+SET(CMAKE_MODULE_PATH
+"${CMAKE_SOURCE_DIR}/macros;${CMAKE_SOURCE_DIR}/macros/FortranCInterface;${CMAKE_SOURCE_DIR}/contrib/matio/cmake/")
 
 #   The next two lines are a kludge to make rpm generation work. If you change this,
 #   please check that rpm generation still works.
@@ -90,7 +92,7 @@ INCLUDE_DIRECTORIES(${OPENMEEG_INCLUDE_DIRECTORIES})
 # Setting sources and libraries
 #---------------------------------------------------------------
 
-SUBDIRS(libs src)
+SUBDIRS(contrib libs src)
 
 IF(UNIX)
     INCLUDE(AddDemoTarget)
