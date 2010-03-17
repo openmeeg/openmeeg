@@ -54,6 +54,12 @@ ENDIF()
 # = Check headers =
 # =================
 
+# Provide stdint.h for windows.
+
+IF (WIN32)
+    INCLUDE_DIRECTORIES(contrib/Windows)
+ENDIF()
+
 INCLUDE(CheckIncludeFiles)
 INCLUDE(CheckHeaderSTDC)
 
