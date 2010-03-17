@@ -7,6 +7,7 @@ OPTION(USE_MATIO "Build the project using MATIO" OFF)
 IF (USE_MATIO)
 
     INCLUDE_DIRECTORIES(${OpenMEEG_SOURCE_DIR}/contrib/matio/src)
+    INCLUDE_DIRECTORIES(${OpenMEEG_BINARY_DIR}/contrib/matio/src)
 
     SET(MATIO_LIBRARIES matio)
 
