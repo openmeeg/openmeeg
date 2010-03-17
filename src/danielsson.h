@@ -61,7 +61,7 @@ namespace OpenMEEG {
     const double UnknownDist=DBL_MAX;
 
     double dist_point_cell(const Vect3& m, const Vect3 *pts, const Triangle& cell, Vect3& alphas,bool& inside);
-    double dist_point_mesh(const Vect3& m, const Mesh& mesh, Vect3& alphas, int& nearestNumber);
+    OPENMEEG_EXPORT double dist_point_mesh(const Vect3& m, const Mesh& mesh, Vect3& alphas, int& nearestNumber);
 }
 
 #endif  //! OPENMEEG_DANIELSSON_H

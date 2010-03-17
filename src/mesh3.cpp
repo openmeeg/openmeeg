@@ -77,6 +77,14 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <vtkCleanPolyData.h>
 #endif
 
+#ifdef WIN32
+	inline double log2( double n )  
+	{  
+		// log(n)/log(2) is log2.  
+		return log( n ) / log( 2.0 );  
+	}
+#endif
+
 namespace OpenMEEG {
 
     using namespace std;
@@ -880,7 +888,7 @@ namespace OpenMEEG {
     // Transform the edge_list and flipped_edge_list unambigously into lists of numbers
         list<int> edge_list;
         list<int> flipped_edge_list;
-        int radix = 10^(int(log2(npts)/log2(10))+1);
+        int radix = 10^(int(log2((double)npts)/log2(10.0))+1);
         for(int i = 0; i < ntrgs; ++i)
         {
             for(int j=1; j<=3; ++j)

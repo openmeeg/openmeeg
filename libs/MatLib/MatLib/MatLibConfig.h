@@ -42,7 +42,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <OpenMEEGConfigure.h>
 #include <DLLDefinesOpenMEEGMaths.h>
 
-#if USE_ATLAS
+#ifdef USE_ATLAS
 #include <FC.h>
 #endif
 
