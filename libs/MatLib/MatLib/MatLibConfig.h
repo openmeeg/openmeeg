@@ -41,7 +41,10 @@ knowledge of the CeCILL-B license and that you accept its terms.
 //  cmake configuration.
 #include <OpenMEEGConfigure.h>
 #include <DLLDefinesOpenMEEGMaths.h>
+
+#if USE_ATLAS
 #include <FC.h>
+#endif
 
 #ifdef USE_MATIO
 #include "matio.h"
@@ -88,6 +91,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
     #include <mkl.h>
     #define BLAS(x,X) cblas_ ## x
     #define LAPACK(x,X) x
+    #define FC_GLOBAL(x,X) x
 #endif
 
 #ifdef USE_ACML
