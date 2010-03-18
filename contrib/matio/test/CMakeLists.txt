@@ -2,7 +2,7 @@ set(TESTS test_mat test_snprintf)
 
 FOREACH(test ${TESTS})
     ADD_EXECUTABLE(${test} ${test}.c)
-    TARGET_LINK_LIBRARIES(${test} matio m)
+    TARGET_LINK_LIBRARIES(${test} matio)
 ENDFOREACH()
 
 ADD_TEST(test_snprintf test_snprintf)
