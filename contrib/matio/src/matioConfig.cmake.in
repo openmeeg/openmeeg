@@ -26,11 +26,11 @@
 #cmakedefine HAVE_VASPRINTF 1
 #cmakedefine HAVE_ASPRINTF 1
 
-#cmakedefine01 HAVE_ZLIB
-#cmakedefine01 HAVE_INTTYPES_H
-#cmakedefine01 HAVE_STRINGS_H
-#cmakedefine01 HAVE_STDINT_H
-#cmakedefine01 STDC_HEADERS
+#cmakedefine HAVE_ZLIB 1
+#cmakedefine HAVE_INTTYPES_H 1
+#cmakedefine HAVE_STRINGS_H 1
+#cmakedefine HAVE_STDINT_H 1
+#cmakedefine STDC_HEADERS 1
 
 #cmakedefine FC_FUNC
 #cmakedefine FC_FUNC_
@@ -39,14 +39,14 @@
 #cmakedefine WINNT
 #cmakedefine SUN
 
-#cmakedefine01 HAVE_MAT_INT64_T
-#cmakedefine01 HAVE_MAT_INT32_T
-#cmakedefine01 HAVE_MAT_INT16_T
-#cmakedefine01 HAVE_MAT_INT8_T
-#cmakedefine01 HAVE_MAT_UINT64_T
-#cmakedefine01 HAVE_MAT_UINT32_T
-#cmakedefine01 HAVE_MAT_UINT16_T
-#cmakedefine01 HAVE_MAT_UINT8_T
+#cmakedefine HAVE_MAT_INT64_T 1
+#cmakedefine HAVE_MAT_INT32_T 1
+#cmakedefine HAVE_MAT_INT16_T 1
+#cmakedefine HAVE_MAT_INT8_T 1
+#cmakedefine HAVE_MAT_UINT64_T 1
+#cmakedefine HAVE_MAT_UINT32_T 1
+#cmakedefine HAVE_MAT_UINT16_T 1
+#cmakedefine HAVE_MAT_UINT8_T 1
 
 #define _mat_uint8_t     uint8_t
 #define _mat_uint16_t    uint16_t
@@ -57,7 +57,7 @@
 #define _mat_int32_t     int32_t
 #define _mat_int64_t     int64_t
 
-#cmakedefine01 EXTENDED_SPARSE
+#cmakedefine EXTENDED_SPARSE 1
 
 #cmakedefine Z_PREFIX
 
