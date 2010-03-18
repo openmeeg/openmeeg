@@ -156,15 +156,19 @@ namespace OpenMEEG {
         // Count number of points per domains
 
         std::vector<int> nb_pts_per_dom(geo.nb(),0);
-        for (int i=0;i<points.nlin();i++)
+        for (int i=0;i<points.nlin();i++) {
             if (points.ncol()==3)
-                nb_pts_per_dom[0]++;
+                ++nb_pts_per_dom[0];
             else {
-                if (points(i,3)>=geo.nb())
-                    std::cerr<<" Surf2Vol: Point " << points.getlin(i) << " is outside the head. Ignoring it." << std::endl;
-                else
-                    nb_pts_per_dom[points(i,3)]++;
+                int domain = points(i,3);
+                std::cout<<points.getlin(i)<<std::endl;
+                if (domain>=geo.nb()) {
+                    std::cerr<<" Surf2Vol: Point " << points.getlin(i) << " is outside the head. Point is considered to be in the scalp." << std::endl;
+                    domain = geo.nb()-1;
+                }
+                ++nb_pts_per_dom[domain];
             }
+        }
 
         std::vector<Matrix> vect_PtsInDom(geo.nb());
         Vector tempVector(3);

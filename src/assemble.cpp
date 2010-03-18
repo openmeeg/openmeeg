@@ -376,10 +376,10 @@ int main(int argc, char** argv)
         Matrix points(argv[4]);
         // Points with one more column for the index of the domain they belong
         Matrix pointsLabelled(points.nlin(),4);
-        for (int i=0;i<points.nlin();i++){
-            pointsLabelled(i,3)=geo.getDomain(Vect3(points(i,0),points(i,1),points(i,2)));
+        for (int i=0;i<points.nlin();i++) {
+            pointsLabelled(i,3) = geo.getDomain(Vect3(points(i,0),points(i,1),points(i,2)));
             for (int j=0;j<3;j++)
-                pointsLabelled(i,j)=points(i,j);
+                pointsLabelled(i,j) = points(i,j);
         }
         Surf2VolMat mat(geo,pointsLabelled);
         // Saving SurfToVol Matrix :
