@@ -161,7 +161,6 @@ namespace OpenMEEG {
                 ++nb_pts_per_dom[0];
             else {
                 int domain = points(i,3);
-                std::cout<<points.getlin(i)<<std::endl;
                 if (domain>=geo.nb()) {
                     std::cerr<<" Surf2Vol: Point " << points.getlin(i) << " is outside the head. Point is considered to be in the scalp." << std::endl;
                     domain = geo.nb()-1;
