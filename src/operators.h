@@ -238,9 +238,9 @@ namespace OpenMEEG {
 
     inline double _operatorSinternal(const int nT, const Mesh &m,const Vect3 pt)
     {
-    static analyticS analyS;
-    analyS.init(nT,m);
-    return analyS.f(pt);
+        static analyticS analyS;
+        analyS.init(nT,m);
+        return analyS.f(pt);
     }
 
     template<class T> 
