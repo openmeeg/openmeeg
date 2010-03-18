@@ -145,30 +145,37 @@ namespace OpenMEEG {
         mat = mat.submat(0,newsize-1);
     }
 
-    void assemble_Surf2Vol(const Geometry &geo, Matrix &mat, const Matrix &points)
-    {
+    void assemble_Surf2Vol(const Geometry &geo, Matrix &mat,const Matrix &points) {
+
         double K = 1/(4*M_PI);
 
-        if (points.ncol()!=4){
-            std::cerr<<" Surf2Vol: Warning ! points are considered to be in the inner volume"<<std::endl;
+        if (points.ncol()!=4) {
+            std::cerr<<" Surf2Vol: Warning no domain information provided! Points are considered to be in the inner volume" << std::endl;
         }
 
         // Count number of points per domains
+
         std::vector<int> nb_pts_per_dom(geo.nb(),0);
-        for (int i=0;i<points.nlin();i++){
-            (points.ncol()==3)?nb_pts_per_dom[0]++:nb_pts_per_dom[points(i,3)]++;
-        }
+        for (int i=0;i<points.nlin();i++)
+            if (points.ncol()==3)
+                nb_pts_per_dom[0]++;
+            else {
+                if (points(i,3)>=geo.nb())
+                    std::cerr<<" Surf2Vol: Point " << points.getlin(i) << " is outside the head. Ignoring it." << std::endl;
+                else
+                    nb_pts_per_dom[points(i,3)]++;
+            }
 
         std::vector<Matrix> vect_PtsInDom(geo.nb());
         Vector tempVector(3);
         for (int c=0;c<geo.nb();c++){
-            vect_PtsInDom[c]=Matrix(nb_pts_per_dom[c],3);
+            vect_PtsInDom[c] = Matrix(nb_pts_per_dom[c],3);
             int iptd=0;
-            for (int ipt=0;ipt<points.nlin();ipt++){ // get the points in the domain c
-                if (((points.ncol()==4)&&(points(ipt,3)==c))||((points.ncol()==3)&&(c==0))){ 
-                    vect_PtsInDom[c](iptd,0)=points(ipt,0);
-                    vect_PtsInDom[c](iptd,1)=points(ipt,1);
-                    vect_PtsInDom[c](iptd++,2)=points(ipt,2);
+            for (int ipt=0;ipt<points.nlin();ipt++) { // get the points in the domain c
+                if (((points.ncol()==4) && (points(ipt,3)==c)) || ((points.ncol()==3) && (c==0))) {
+                    vect_PtsInDom[c](iptd,0)   = points(ipt,0);
+                    vect_PtsInDom[c](iptd,1)   = points(ipt,1);
+                    vect_PtsInDom[c](iptd++,2) = points(ipt,2);
                 }
             }
         }
@@ -176,21 +183,21 @@ namespace OpenMEEG {
         mat = Matrix(points.nlin(),geo.size()-geo.getM(geo.nb()-1).nbTrgs());
         mat.set(0.0);
 
-        int offset=0;
-        int offsetA0=0;
-        for (int c=0;c<geo.nb()-1;c++){
+        int offset = 0;
+        int offsetA0 = 0;
+        for (int c=0;c<geo.nb()-1;c++) {
             
-            int offset0=offset;
-            int offsetA=offsetA0;
-            int offsetB=offsetA+nb_pts_per_dom[c];
-            int offset1=offset+geo.getM(c).nbPts();
-            int offset2=offset+geo.getM(c).nbPts()+geo.getM(c).nbTrgs();
-            int offset3=offset+geo.getM(c).nbPts()+geo.getM(c).nbTrgs()+geo.getM(c+1).nbPts();
-            int offset4=offset+geo.getM(c).nbPts()+geo.getM(c).nbTrgs()+geo.getM(c+1).nbPts()+geo.getM(c+1).nbTrgs();
-            int nbpoints=geo.getM(c).nbPts();
-            int nbtriangles = geo.getM(c).nbTrgs();
+            const int offset0     = offset;
+            const int offsetA     = offsetA0;
+            const int offsetB     = offsetA+nb_pts_per_dom[c];
+            const int offset1     = offset+geo.getM(c).nbPts();
+            const int offset2     = offset1+geo.getM(c).nbTrgs();
+            const int offset3     = offset2+geo.getM(c+1).nbPts();
+            const int offset4     = offset3+geo.getM(c+1).nbTrgs();
+            const int nbpoints    = geo.getM(c).nbPts();
+            const int nbtriangles = geo.getM(c).nbTrgs();
 
-            if (c==0){
+            if (c==0) {
                 // compute DI,i block
                 operatorDinternal(geo.getM(c),mat,offsetA,offset0,vect_PtsInDom[c]);
                 mult(mat,offsetA,offset0,offsetB,offset1,-1.0*K);
@@ -202,7 +209,7 @@ namespace OpenMEEG {
             operatorDinternal(geo.getM(c+1),mat,offsetB,offset2,vect_PtsInDom[c+1]);
             mult(mat,offsetB,offset2,offsetB+nb_pts_per_dom[c+1],offset3,-1.0*K);
 
-            if (c==0){
+            if (c==0) {
                 // compute SI,i block
                 operatorSinternal(geo.getM(c),mat,offsetA,offset1,vect_PtsInDom[c]);
                 mult(mat,offsetA,offset1,offsetA+nb_pts_per_dom[c],offset2,(1.0/geo.sigma_in(c))*K);
@@ -210,13 +217,13 @@ namespace OpenMEEG {
             // compute SI+1,i block
             operatorSinternal(geo.getM(c),mat,offsetA+nb_pts_per_dom[c],offset1,vect_PtsInDom[c+1]);
             mult(mat,offsetA+nb_pts_per_dom[c],offset1,offsetA+nb_pts_per_dom[c]+nb_pts_per_dom[c+1],offset2,(-1.0/geo.sigma_in(c+1))*K);
-            if (c<geo.nb()-2){
+            if (c<geo.nb()-2) {
                 // compute SI+1,i block
                 operatorSinternal(geo.getM(c+1),mat,offsetB,offset3,vect_PtsInDom[c+1]);
                 mult(mat,offsetB,offset3,offsetB+nb_pts_per_dom[c+1],offset4,(1.0/geo.sigma_in(c+1))*K);
             }
-            offset=offset2;
-            offsetA0=offsetA+nb_pts_per_dom[c];
+            offset = offset2;
+            offsetA0 = offsetA+nb_pts_per_dom[c];
         }
     }
 
