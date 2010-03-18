@@ -1,8 +1,12 @@
 set(TESTS test_mat test_snprintf)
 
+IF(NOT WIN32)
+	SET(MATIO_EXTERNAL_LIBRARIES m) 
+ENDIF()
+
 FOREACH(test ${TESTS})
     ADD_EXECUTABLE(${test} ${test}.c)
-    TARGET_LINK_LIBRARIES(${test} matio m)
+    TARGET_LINK_LIBRARIES(${test} matio ${MATIO_EXTERNAL_LIBRARIES})
 ENDFOREACH()
 
 ADD_TEST(test_snprintf test_snprintf)

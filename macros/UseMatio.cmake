@@ -8,6 +8,9 @@ IF (USE_MATIO)
 
     INCLUDE_DIRECTORIES(${OpenMEEG_SOURCE_DIR}/contrib/matio/src)
     INCLUDE_DIRECTORIES(${OpenMEEG_BINARY_DIR}/contrib/matio/src)
+    IF(WIN32) 
+	INCLUDE_DIRECTORIES(${OpenMEEG_SOURCE_DIR}/contrib/matio/contrib/Windows)
+    ENDIF()
 
     SET(MATIO_LIBRARIES matio)
 
