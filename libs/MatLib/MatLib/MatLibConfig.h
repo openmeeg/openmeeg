@@ -119,7 +119,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
     extern "C" {
 #ifndef USE_MKL
-        void BLAS(dcopy,DCOPY)(const int&,const double*,const int&,double*,const int);
+        void BLAS(dcopy,DCOPY)(const int&,const double*,const int&,double*,const int&);
         void BLAS(daxpy,DAXPY)(const int&,const double&,const double*,const int&,double*,const int&);
         double BLAS(ddot,DDOT)(const int&,const double*,const int&,const double*,const int&);
         double BLAS(dnrm2,DNRM2)(const int&,const double*,const int&);
