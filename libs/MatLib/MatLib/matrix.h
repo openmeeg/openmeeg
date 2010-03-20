@@ -217,7 +217,8 @@ namespace OpenMEEG {
 
         Matrix a(isize,jsize);
         const int sz = static_cast<int>(isize);
-        for (size_t j=0; j<jsize; j++)
+        
+        for (size_t j=0; j<jsize; j++) {
     #ifdef HAVE_BLAS
             BLAS(dcopy,DCOPY)(sz,data()+istart+(jstart+j)*nlin(),1,a.data()+j*isize,1);
     #elif USE_ACML
@@ -226,6 +227,7 @@ namespace OpenMEEG {
             for (size_t i=0; i<isize; i++)
                 a(i,j) = (*this)(istart+i,jstart+j);
     #endif
+        }
         return a;
     }
 
