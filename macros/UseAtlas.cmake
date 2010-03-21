@@ -79,8 +79,6 @@ ELSE()
 
     #   ATLAS OR LAPACK/BLAS
     IF (UNIX AND NOT APPLE)
-        SET(ATLAS_LIB_SEARCHPATH /usr/lib64/ /usr/lib/)
-        SET(ATLAS_LIBS lapack blas)
         IF (USE_ATLAS)
             SET(ATLAS_LIB_SEARCHPATH
                 /usr/lib64/
@@ -93,39 +91,59 @@ ELSE()
                 /usr/lib/sse3
                 /usr/lib/
                 /usr/lib/atlas
-            )
+                )
             SET(ATLAS_LIBS atlas cblas f77blas clapack lapack blas)
 
             FIND_PATH(ATLAS_INCLUDE_PATH cblas.h /usr/include/ /usr/include/atlas)
             MARK_AS_ADVANCED(ATLAS_INCLUDE_PATH)
             INCLUDE_DIRECTORIES(${ATLAS_INCLUDE_PATH})
-        ENDIF()
-
-        FOREACH (LIB ${ATLAS_LIBS})
-            SET(LIBNAMES ${LIB})
-            IF (${LIB} STREQUAL "clapack")
-                SET(LIBNAMES ${LIB} lapack_atlas)
+            FOREACH (LIB ${ATLAS_LIBS})
+                SET(LIBNAMES ${LIB})
+                IF (${LIB} STREQUAL "clapack")
+                    SET(LIBNAMES ${LIB} lapack_atlas)
+                ENDIF()
+                FIND_LIBRARY(${LIB}_PATH
+                    NAMES ${LIBNAMES}
+                    PATHS ${ATLAS_LIB_SEARCHPATH}
+                    NO_DEFAULT_PATH
+                    NO_CMAKE_ENVIRONMENT_PATH
+                    NO_CMAKE_PATH
+                    NO_SYSTEM_ENVIRONMENT_PATH
+                    NO_CMAKE_SYSTEM_PATH)
+                IF(${LIB}_PATH)
+                    SET(LAPACK_LIBRARIES ${LAPACK_LIBRARIES} ${${LIB}_PATH})
+                    MARK_AS_ADVANCED(${LIB}_PATH)
+                ELSE()
+                    MESSAGE(WARNING "Could not find ${LIB}")
+                ENDIF()
+            ENDFOREACH()
+        ELSE() 
+            IF (lapack_PATH AND blas_PATH)
+                SET(LAPACKBLAS_LIB_SEARCHPATH
+                    /usr/lib64/
+                    /usr/lib/
+                    )
+                #FOREACH (LIB cblas f77blas clapack lapack blas)
+                FOREACH (LIB lapack blas)
+                    FIND_LIBRARY(${LIB}_PATH
+                        NAMES ${LIB}
+                        PATHS ${LAPACKBLAS_LIB_SEARCHPATH}
+                        NO_DEFAULT_PATH
+                        NO_CMAKE_ENVIRONMENT_PATH
+                        NO_CMAKE_PATH
+                        NO_SYSTEM_ENVIRONMENT_PATH
+                        NO_CMAKE_SYSTEM_PATH)
+                    IF(${LIB}_PATH)
+                        SET(LAPACK_LIBRARIES ${LAPACK_LIBRARIES} ${${LIB}_PATH})
+                        MARK_AS_ADVANCED(${LIB}_PATH)
+                    ELSE()
+                        MESSAGE(WARNING "Could not find ${LIB}")
+                    ENDIF()
+                ENDFOREACH()
             ENDIF()
-            FIND_LIBRARY(${LIB}_PATH
-                NAMES ${LIBNAMES}
-                PATHS ${ATLAS_LIB_SEARCHPATH}
-                NO_DEFAULT_PATH
-                NO_CMAKE_ENVIRONMENT_PATH
-                NO_CMAKE_PATH
-                NO_SYSTEM_ENVIRONMENT_PATH
-                NO_CMAKE_SYSTEM_PATH)
-            IF(${LIB}_PATH)
-                SET(LAPACK_LIBRARIES ${LAPACK_LIBRARIES} ${${LIB}_PATH})
-                MARK_AS_ADVANCED(${LIB}_PATH)
-            ELSE()
-                MESSAGE(WARNING "Could not find ${LIB}")
-            ENDIF()
-        ENDFOREACH()
-
-        IF (lapack_PATH AND blas_PATH)
-           SET(HAVE_LAPACK TRUE)
-           SET(HAVE_BLAS TRUE)
         ENDIF()
+        SET(HAVE_LAPACK TRUE)
+        SET(HAVE_BLAS TRUE)
 
         IF (NOT BUILD_SHARED)
             FILE(GLOB GCC_FILES "/usr/lib/gcc/*/*")

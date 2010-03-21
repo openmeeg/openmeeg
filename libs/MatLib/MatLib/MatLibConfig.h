@@ -42,10 +42,6 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <OpenMEEGConfigure.h>
 #include <DLLDefinesOpenMEEGMaths.h>
 
-#ifdef USE_ATLAS
-#include <FC.h>
-#endif
-
 #ifdef USE_MATIO
 #include "matio.h"
 #endif
@@ -53,6 +49,8 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #if defined(USE_MKL)
 #define HAVE_BLAS
 #define HAVE_LAPACK
+#else
+#include <FC.h>
 #endif
 
 //#define inline __forceinline
