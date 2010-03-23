@@ -5,7 +5,7 @@ ENDIF()
 ADD_EXECUTABLE(test_mat test_mat.c)
 TARGET_LINK_LIBRARIES(test_mat matio ${MATIO_EXTERNAL_LIBRARIES})
 
-ADD_EXECUTABLE(test_snprintf test_snprintf.c ${CMAKE_SOURCE_DIR}/src/snprintf.c)
+ADD_EXECUTABLE(test_snprintf test_snprintf.c ${CMAKE_CURRENT_SOURCE_DIR}/../src/snprintf.c)
 TARGET_LINK_LIBRARIES(test_snprintf ${MATIO_EXTERNAL_LIBRARIES})
 
 MACRO(MATIO_TEST NAME PROG_NAME)

@@ -2,13 +2,14 @@ SET(PACKAGE_VERSION_MAJOR "1")
 SET(PACKAGE_VERSION_MINOR "3")
 SET(PACKAGE_VERSION_PATCH "4")
 
-SET(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake;${CMAKE_CURRENT_SOURCE_DIR}/cmake/FortranCInterface")
+# SET(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake;${CMAKE_CURRENT_SOURCE_DIR}/cmake/FortranCInterface")
+SET(CMAKE_MODULE_PATH  "${CMAKE_CURRENT_SOURCE_DIR}/cmake;${CMAKE_SOURCE_DIR}/cmake/FortranCInterface")
 
 # ===========
 # = Options =
 # ===========
 
-OPTION(ENABLE_FORTRAN "Enable fortran interface to mat library")
+OPTION(ENABLE_FORTRAN "Enable fortran interface to mat library" OFF)
 SET(EXTRA_LANGAGE)
 IF (ENABLE_FORTRAN)
     SET(EXTRA_LANGAGE Fortran)
@@ -21,7 +22,7 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
 SET(MATIO_PLATFORM ${CMAKE_SYSTEM_PROCESSOR}--${CMAKE_SYSTEM_NAME})
 
-INCLUDE(FindLibrary)
+# INCLUDE(FindLibrary) # FIXME : makes cmake crash with used with OpenMEEG!
 
 # =======================
 # = HANDLE DEFINITTIONS =
@@ -194,5 +195,5 @@ CONFIGURE_FILE(
     "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
     IMMEDIATE @ONLY)
 
-ADD_CUSTOM_TARGET(uninstall
+ADD_CUSTOM_TARGET(uninstall_matio
     "${CMAKE_COMMAND}" -P "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake")
