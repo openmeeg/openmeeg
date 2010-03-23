@@ -1,0 +1,14 @@
+build-vc6/config.h:#define MATIO_PLATFORM "PCWIN"
+build-vc7/matioConfig.h:#define MATIO_PLATFORM "i686-pc-win32"
+build-windows/matioConfig.h:#define MATIO_PLATFORM "i686-pc-win32"
+CMakeLists.txt:SET(MATIO_PLATFORM "Matio CMake build")
+CMakeLists.txt:#define MATIO_PLATFORM "i386-apple-darwin9.4.0"
+configure.ac:AC_DEFINE_UNQUOTED([MATIO_PLATFORM],["${host}"])
+src/mat.c:                "Created By: libmatio v%d.%d.%d on %s", MATIO_PLATFORM,
+src/matioConfig.h.in:#undef MATIO_PLATFORM
+test/test_mat.c:               __DATE__, __TIME__, MATIO_PLATFORM );
+typescript:>         err = mat_snprintf(mat->header,116,"MATLAB 5.0 MAT-file, Platform: %s, "                "Created By: libmatio v%d.%d.%d on %s", MATIO_PLATFORM,
+typescript:<                 "Created By: libmatio v%d.%d.%d on %s", MATIO_PLATFORM,
+zlib/config.log:| #define MATIO_PLATFORM "i686-pc-linux-gnu"
+zlib/config.log:| #define MATIO_PLATFORM "i686-pc-linux-gnu"
+zlib/config.log:#define MATIO_PLATFORM "i686-pc-linux-gnu"
