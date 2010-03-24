@@ -22,6 +22,8 @@ SET(PACKAGE_VERSION_PATCH "svn")
 SET(CMAKE_MODULE_PATH
 "${CMAKE_SOURCE_DIR}/macros;${CMAKE_SOURCE_DIR}/macros/FortranCInterface;${CMAKE_SOURCE_DIR}/contrib/matio/cmake/")
 
+SET(CMAKE_REQUIRED_INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/contrib/matio/contrib/Windows)
+
 #   The next two lines are a kludge to make rpm generation work. If you change this,
 #   please check that rpm generation still works.
 
