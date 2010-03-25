@@ -19,10 +19,10 @@ IF (WIN32)
     TARGET_LINK_LIBRARIES(OpenMEEGMaths ${LAPACK_LIBRARIES})
 ENDIF()
 
-#SET_TARGET_PROPERTIES(OpenMEEGMaths PROPERTIES
-#                      VERSION 0.1.0
-#                      SOVERSION 0
-#                      CLEAN_DIRECT_OUTPUT 1)
+SET_TARGET_PROPERTIES(OpenMEEGMaths PROPERTIES
+                      VERSION 1.1.0
+                      SOVERSION 1
+                      CLEAN_DIRECT_OUTPUT 1)
 
 INSTALL(TARGETS OpenMEEGMaths
         RUNTIME DESTINATION bin
