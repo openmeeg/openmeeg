@@ -18,7 +18,10 @@ ENDIF()
 
 PROJECT(MATIO C ${EXTRA_LANGAGE})
 
-CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
+SET(MATIO_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+SET(MATIO_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR})
+
+CMAKE_MINIMUM_REQUIRED(VERSION 2.6.4)
 
 SET(MATIO_PLATFORM ${CMAKE_SYSTEM_PROCESSOR}--${CMAKE_SYSTEM_NAME})
 
@@ -195,5 +198,11 @@ CONFIGURE_FILE(
     "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
     IMMEDIATE @ONLY)
 
-ADD_CUSTOM_TARGET(uninstall_matio
+ADD_CUSTOM_TARGET(uninstall-matio
     "${CMAKE_COMMAND}" -P "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake")
+
+#-----------------------------------------------
+# packaging
+#-----------------------------------------------
+
+#INCLUDE(Packaging)

@@ -5,7 +5,7 @@ ENDIF()
 ADD_EXECUTABLE(test_mat test_mat.c)
 TARGET_LINK_LIBRARIES(test_mat matio ${MATIO_EXTERNAL_LIBRARIES})
 
-ADD_EXECUTABLE(test_snprintf test_snprintf.c ${CMAKE_CURRENT_SOURCE_DIR}/../src/snprintf.c)
+ADD_EXECUTABLE(test_snprintf test_snprintf.c ${MATIO_SOURCE_DIR}/src/snprintf.c)
 TARGET_LINK_LIBRARIES(test_snprintf ${MATIO_EXTERNAL_LIBRARIES})
 
 MACRO(MATIO_TEST NAME PROG_NAME)
@@ -21,8 +21,8 @@ MACRO(MATIO_TEST NAME PROG_NAME)
              ${CMAKE_COMMAND} -D TEST_PROGRAM=${EXECUTABLE}
                               -D TEST_ARGS=${PROG_ARGS}
                               -D TEST_OUTPUT=${TEST_DIR}/${NAME}.out
-                              -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/test/results/${NAME}.out
-                              -P ${CMAKE_SOURCE_DIR}/test/runTest.cmake ) # To compare output to reference file
+                              -D TEST_REFERENCE=${MATIO_SOURCE_DIR}/test/results/${NAME}.out
+                              -P ${MATIO_SOURCE_DIR}/test/runTest.cmake ) # To compare output to reference file
     ADD_TEST(${NAME} ${EXECUTABLE} ${PROG_ARGS}) # To perform memcheck tests
     #SET_TESTS_PROPERTIES(${NAME} PROPERTIES DEPENDS ${EXECUTABLE})
     SET_TESTS_PROPERTIES(${NAME}-COMPARISON PROPERTIES
