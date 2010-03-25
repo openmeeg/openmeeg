@@ -27,8 +27,8 @@ IF (PYTHON_WRAP)
         SET(CMAKE_SWIG_FLAGS ${CMAKE_SWIG_FLAGS} -DDOCSTRINGS)
         ADD_CUSTOM_TARGET(docstrings
                           COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/doxy2swig.py ${PROJECT_BINARY_DIR}/documentation/reference/xml/index.xml docstrings.i)
-        ADD_DEPENDENCIES(docstrings doxygen_outputs)
-        ADD_DEPENDENCIES(documentation docstrings)
+        ADD_DEPENDENCIES(docstrings OpenMEEG-doxygen_outputs)
+        ADD_DEPENDENCIES(OpenMEEG-documentation docstrings)
         SET (SWIG_MODULE_${MODULE_NAME}_EXTRA_DEPS ${SWIG_MODULE_${MODULE_NAME}_EXTRA_DEPS} ${PROJECT_BINARY_DIR}/Wrapping/src/docstrings.i)
     ENDIF (BUILD_DOCUMENTATION)
 
