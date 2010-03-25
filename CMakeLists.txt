@@ -22,7 +22,9 @@ SET(PACKAGE_VERSION_PATCH "svn")
 SET(CMAKE_MODULE_PATH
 "${CMAKE_SOURCE_DIR}/macros;${CMAKE_SOURCE_DIR}/macros/FortranCInterface;${CMAKE_SOURCE_DIR}/contrib/matio/cmake/")
 
-SET(CMAKE_REQUIRED_INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/contrib/matio/contrib/Windows)
+IF (WIN32)
+    SET(CMAKE_REQUIRED_INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/contrib/matio/contrib/Windows)
+ENDIF()
 
 #   The next two lines are a kludge to make rpm generation work. If you change this,
 #   please check that rpm generation still works.
@@ -65,6 +67,7 @@ INCLUDE(UseOpenMP)
 
 IF(USE_ATLAS)
     INCLUDE(FortranCInterface)
+    #FortranCInterface_HEADER(FC.h MACRO_NAMESPACE "FC_" FROM_LIBRARY blas[daxpy] HINTS /usr/lib64 /usr/lib64/atlas /usr/lib64/sse2 /usr/lib /usr/lib/atals /usr/lib/sse2)
     FortranCInterface_HEADER(FC.h MACRO_NAMESPACE "FC_" FROM_LIBRARY blas[daxpy])
 ENDIF()
 
@@ -171,7 +174,7 @@ ADD_CUSTOM_TARGET(uninstall
 OPTION(CHECK_SYNTAX "Checking code syntax using KWStyle" OFF)
 MARK_AS_ADVANCED(CHECK_SYNTAX)
 
-IF ( CHECK_SYNTAX )
+IF (CHECK_SYNTAX)
     ADD_CUSTOM_TARGET(check_syntax
         COMMAND KWStyle -xml ${OpenMEEG_SOURCE_DIR}/OpenMEEGConfig.kws.xml -html ${OpenMEEG_BINARY_DIR}/KWStyleCheck -D KWStyleFilesToCheck.txt -v
         WORKING_DIRECTORY ${OpenMEEG_SOURCE_DIR})
