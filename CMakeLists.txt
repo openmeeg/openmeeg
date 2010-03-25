@@ -12,9 +12,9 @@
 # Project Name
 #------------------------------------------------------------
 
-SET(PACKAGE_VERSION_MAJOR "1")
-SET(PACKAGE_VERSION_MINOR "1")
-SET(PACKAGE_VERSION_PATCH "svn")
+SET(PACKAGE_VERSION_MAJOR "2")
+SET(PACKAGE_VERSION_MINOR "0")
+SET(PACKAGE_VERSION_PATCH "0")
 
 #   The second path is temporary untill these are integrated in cmake...
 
