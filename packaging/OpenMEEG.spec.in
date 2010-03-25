@@ -78,6 +78,10 @@ rm -rf %{srcdirname}
 %defattr(-,root,root,-)
 %{_bindir}/*
 %{_libdir}/lib@PROJECT_NAME@*
+%{_libdir}/*.cmake
+%{_libdir}/libmatio.so
+%{_includedir}/matio*.h
+
 
 %files python
 %{_libdir}/python/*
