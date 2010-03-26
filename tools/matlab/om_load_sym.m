@@ -10,11 +10,6 @@ function [data] = om_load_sym(filename,format)
 %       FORMAT : can be 'ascii' or 'binary' (default)
 %
 
-% $Id$
-% $LastChangedBy$
-% $LastChangedDate$
-% $Revision$
-
 me = 'OM_LOAD_SYM';
 
 if nargin == 0

@@ -10,11 +10,6 @@ function [data] = om_load_sparse(filename,format)
 %       FORMAT : can be 'ascii' or 'binary' (default)
 %
 
-% $Id$
-% $LastChangedBy$
-% $LastChangedDate$
-% $Revision$
-
 me = 'OM_LOAD_SPARSE';
 
 if nargin == 0

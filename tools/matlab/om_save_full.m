@@ -10,11 +10,6 @@ function om_save_full(data,filename,format)
 %       FORMAT : can be 'ascii' or 'binary' (default)
 %
 
-% $Id$
-% $LastChangedBy$
-% $LastChangedDate$
-% $Revision$
-
 me = 'OM_SAVE_FULL';
 
 if nargin == 0

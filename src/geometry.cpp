@@ -1,5 +1,3 @@
-/* FILE: $Id$ */
-
 /*
 Project Name : OpenMEEG
 
