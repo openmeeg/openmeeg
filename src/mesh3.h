@@ -58,7 +58,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 namespace OpenMEEG {
 
     typedef std::set<int> intSet;
-    bool tri_tri_overlap_test_3d(double p1[3], double q1[3], double r1[3],double p2[3], double q2[3], double r2[3]);
+    OPENMEEG_EXPORT bool tri_tri_overlap_test_3d(double p1[3], double q1[3], double r1[3],double p2[3], double q2[3], double r2[3]);
 
 
     class OPENMEEG_EXPORT Mesh
