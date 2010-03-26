@@ -1,12 +1,5 @@
-/* FILE: $Id$ */
-
 /*
 Project Name : OpenMEEG
-
-version           : $Revision$
-last revision     : $Date$
-modified by       : $LastChangedBy$
-last modified     : $LastChangedDate$
 
 © INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre 
 GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU, Théodore PAPADOPOULO,
@@ -98,7 +91,7 @@ namespace OpenMEEG {
 
     /* function prototype */
 
-    bool tri_tri_overlap_test_3d(double p1[3], double q1[3], double r1[3],
+	OPENMEEG_EXPORT bool tri_tri_overlap_test_3d(double p1[3], double q1[3], double r1[3],
                                 double p2[3], double q2[3], double r2[3]);
 
 
