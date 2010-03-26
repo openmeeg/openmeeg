@@ -17,11 +17,6 @@ function u = om_spher_pot_iso(x,q,p,sigmas,rk)
 %
 % PROBLEM: Getting imaginary numbers solved ad hoc by real()
 
-% $Id$
-% $LastChangedBy$
-% $LastChangedDate$
-% $Revision$
-
 [n,m] = size(x);
 if m~=3
     error('x should be a set of row 3D vectors.')
