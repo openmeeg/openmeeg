@@ -1,6 +1,7 @@
 #
 # Build the documentation
 #
+
 INCLUDE (Documentation OPTIONAL)
 
 IF (BUILD_DOCUMENTATION)
@@ -19,11 +20,11 @@ IF (BUILD_DOCUMENTATION)
     #   The ALL in the next directive is necessary to cope with a CMake bug !!!
     #   Otherwise the target is never activated.
 
-    ADD_CUSTOM_TARGET(documentation ALL)
+    ADD_CUSTOM_TARGET(OpenMEEG-documentation ALL)
 
-    ADD_DEPENDENCIES(documentation doxygen_outputs)
+    ADD_DEPENDENCIES(OpenMEEG-documentation OpenMEEG-doxygen_outputs)
 
-    ADD_CUSTOM_TARGET(doxygen_outputs
+    ADD_CUSTOM_TARGET(OpenMEEG-doxygen_outputs
                       COMMAND ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/doxyfile
                       DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/doxyfile)
 

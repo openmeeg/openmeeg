@@ -1,12 +1,5 @@
-// FILE: $Id: BrainVisaTextureIO.H 252 2008-06-27 14:43:17Z papadop $
-
 /*
 Project Name : OpenMEEG
-
-version           : $Revision: 252 $
-last revision     : $Date: 2008-06-27 16:43:17 +0200 (Ven, 27 jui 2008) $
-modified by       : $LastChangedBy: papadop $
-last modified     : $LastChangedDate: 2008-06-27 16:43:17 +0200 (Ven, 27 jui 2008) $
 
 © INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre
 GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU, Théodore PAPADOPOULO,
