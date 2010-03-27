@@ -3,9 +3,11 @@
 \usepackage{subfig}
 \usepackage{amsmath,amsthm,amssymb,pifont,makeidx,geometry}
 \usepackage{makeidx}
+\usepackage{calc}
 \usepackage{color}
 \usepackage{verbatim}
-\usepackage{fancyvrb}\usepackage[pagebackref=true,breaklinks=true,colorlinks,bookmarks=false]{hyperref}
+\usepackage{fancyvrb}
+\usepackage[pagebackref=true,breaklinks=true,colorlinks,bookmarks=false]{hyperref}
 \usepackage{graphicx}
 \usepackage{wasysym,pifont}
 \usepackage{ulem}
@@ -15,17 +17,17 @@
 %\newcommand{\command}[1]{\framebox[\textwidth][l]{\parbox[t]{\textwidth}{\tt \$ #1}}}
 \newcommand{\command}[1]{\framebox[\textwidth][l]{\tt \$ #1}}
 \newcommand{\fileName}[1]{{\tt #1}}
-\newcommand{\commandTitle}[1]{\paragraph*{\textbf{#1}}}
+\newcommand{\commandTitle}[1]{\paragraph*{\textbf{#1}}\mbox{ }\\}
 \newcommand{\commandName}[1]{\textcolor{red}{\tt #1}}
 \newcommand{\optionName}[1]{\textcolor{OliveGreen}{\tt #1}}
 \newcommand{\outputName}[1]{\textcolor{blue}{\tt #1}}
 \newcommand{\Param}[1]{{\tt #1}}
+\newcommand*\OptionsLabel[1]{\optionName{#1}}
 \newenvironment{Options}{
     \begin{list}{}{
         \let\makelabel\OptionsLabel\setlength\labelwidth{30pt}%
         \setlength\leftmargin{\labelwidth+\labelsep}}}
     {\end{list}}
-\newcommand*\OptionsLabel[1]{\optionName{#1}}
 
 \newcounter{thenote}
 \newenvironment{note}{\stepcounter{thenote} \noindent \textcolor{red}{\textbf{Note \arabic{thenote}}~:}}{\par}
@@ -209,39 +211,43 @@ OpenMEEG handles several file formats corresponding to several type of objects: 
 This section reviews the main OpenMEEG command line tools. The general syntax and main options of each command is briefly provided.
 Full details are available in OpenMEEG documentation. \emph{In this section, command names are in \commandName{red}, options are in \optionName{green} and produced files are shown in \outputName{blue}.}
 
+    \newpage
+
     \commandTitle{om\_assemble}
         General syntax:\\[2mm]
-        \command{\centerline{\commandName{om\_assemble} \optionName{Option} \optionName{Parameters} \outputName{Matrix}}}\\[2mm]
+        \command{\commandName{om\_assemble} \optionName{Option} \optionName{Parameters} \outputName{Matrix}}\\[2mm]
         This program assembles the different matrices that will be used in
-        later stages. It uses the head description, the sources and the sensors information. \optionName{Option} selects the type of matrice to assemble. \optionName{Parameters} depends on the specific option \optionName{Option}.
+        later stages. It uses the head description, the sources and the sensors information. \optionName{Option} selects the type of matrice to assemble.
+        \optionName{Parameters} depends on the specific option \optionName{Option}.
         Except if otherwise noted, it takes the form:\\
         \centerline{\Param{subject.geom} \Param{subject.cond} \optionName{OptParam}}\\
         where subject.geom and subject.cond are files describing respectively the geometrical model and the conductivities of the head (see section ???
         for a short description of these files). \optionName{OptParam} depends on the actual \optionName{Option}. \outputName{Matrix} is the name of the output file
         containing the computed matrix.
 
-    We now detail the possible \optionName{Options} (with their abbreviated versions given in parentheses), allowing to define various matrices to assemble:
+        We now detail the possible \optionName{Options} (with their abbreviated versions given in parentheses), allowing to define various matrices to assemble:
 
-        \section{General options for \commandName{om\_assemble}}
+        \paragraph*{General options for \commandName{om\_assemble}}
             \begin{Options}
                 \item[-help] (\optionName{-h},\optionName{--help}):  summarizes all possible options.
             \end{Options}
 
-        \section{Head modelling options for  \commandName{om\_assemble}} produce matrices linked to the propagation of electrical signals in the head.
+        \paragraph*{Head modelling options for \commandName{om\_assemble}} produce matrices linked to the propagation of electrical signals in the head.
             \begin{Options}
                 \item[-HeadMat] (\optionName{-HM}, \optionName{-hm}): \commandName{om\_assemble} computes the Head matrix for Symmetric BEM (left-hand side
-                        of the linear system presented in Section~\ref{sec:symmBEM}). This matrix corresponds to the propagation of electrical signals within the head.
+                        of the linear system). This matrix corresponds to the propagation of electrical signals within the head.
                         There is no \optionName{OptParam} in this case.
                          % \optionName{OptParam} is a file describing the internal points.
             \end{Options}
 
-        \section{Source modelling options for \commandName{om\_assemble}} compute the source matrix for Symmetric BEM (right-hand side of the linear system).
-            This matrix maps the representation of the sources to their associated electric potential in an infinite medium ($v_{\Omega_1}$ in
-            Appendix~\ref{app:symmBEM}).  Different options exist for the 2 types of source models:
+        \paragraph*{Source modelling options for \commandName{om\_assemble}} compute the source matrix for Symmetric BEM (right-hand side of the linear system).
+            This matrix maps the representation of the sources to their associated electric potential in an infinite medium ($v_{\Omega_1}$.
+            Different options exist for the 2 types of source models:
             \begin{Options}
                 \item[-SurfSourceMat] (\optionName{-SSM}, \optionName{-ssm}): should be used for continuous surfacic distributions of dipoles.
                         \optionName{OptParam} is a file containing a mesh that describes the surface.
-                \item[-DipSourceMat] (\optionName{-DSM}, \optionName{-dsm}): should be used when considering several isolated dipoles. This model is the most commonly used and should be used by default even if the dipoles correspond to the vertices of a cortical mesh.
+                \item[-DipSourceMat] (\optionName{-DSM}, \optionName{-dsm}): should be used when considering several isolated dipoles. This model is the most commonly
+                        used and should be used by default even if the dipoles correspond to the vertices of a cortical mesh.
                         \optionName{OptParam} is a file containing the dipole descriptions.
         % \item[-DipSource2InternalPotMat] (\optionName{-DS2IPM}, \optionName{-ds2ipm}): computes the linear transformation which maps the current dipoles
         %     to the value of the infinite potential at a set of points within a volume.  \optionName{OptParam} should contain two files: a dipole description file, and a file
@@ -249,7 +255,7 @@ Full details are available in OpenMEEG documentation. \emph{In this section, com
 
             \end{Options}
 
-        \section{Sensor modelling options for \commandName{om\_assemble}} compute matrices that integrate source information and computed potentials to
+        \paragraph*{Sensor modelling options for \commandName{om\_assemble}} compute matrices that integrate source information and computed potentials to
             provide the actual solution of the forward problem. The situation is slightly different for EEG, which only needs to compute the electric potential,
             and for MEG, which depends both on the electric potential and on the sources:
             \begin{Options}
@@ -257,9 +263,9 @@ Full details are available in OpenMEEG documentation. \emph{In this section, com
                         computed on the scalp to EEG sensors. \optionName{OptParam} is a file describing the EEG sensor positions.
                 \item[-Head2MEGMat] (\optionName{-H2MM}, \optionName{-h2mm}): \commandName{om\_assemble} computes the contribution of Ohmic currents to the MEG
                         sensors. \optionName{OptParam} is a file describing the SQUIDS geometries and characteristics.
-              \item[-Head2InternalPotMat] (\optionName{-H2IPM}, \optionName{-h2ipm}): \commandName{om\_assemble} computes the matrix that allows
+                \item[-Head2InternalPotMat] (\optionName{-H2IPM}, \optionName{-h2ipm}): \commandName{om\_assemble} computes the matrix that allows
                         the computation of potentials at internal positions from potentials and normal currents on head interfaces, as computed by the symmetric BEM.
-                 \item[-SurfSource2MEGMat] (\optionName{-SS2MM}, \optionName{-ss2mm}): \commandName{om\_assemble} computes the source contribution to the MEG
+                \item[-SurfSource2MEGMat] (\optionName{-SS2MM}, \optionName{-ss2mm}): \commandName{om\_assemble} computes the source contribution to the MEG
                         sensors using the same source model as the one used for the option \optionName{-SurfSourceMat}, i.e. surfacic distribution of dipoles.
                         For this option, \optionName{OptParam} takes the form:\\
                         \centerline{\Param{mesh squids}}\\
@@ -278,7 +284,7 @@ Full details are available in OpenMEEG documentation. \emph{In this section, com
                         where \Param{dipoles} contains the dipole description and \Param{internalPoints} is a file describing the points locations.
             \end{Options}
 
-        \section{EIT options for \commandName{om\_assemble}}
+        \paragraph*{EIT options for \commandName{om\_assemble}}
             \begin{Options}
                 \item[-EITSourceMat] (\optionName{-EITSM}, \optionName{-EITsm},): \commandName{om\_assemble} computes the right-hand side for scalp current injection.
                         This usage of \commandName{om\_assemble} outputs the right-hand side vector for a given set of EIT electrode.
@@ -287,9 +293,11 @@ Full details are available in OpenMEEG documentation. \emph{In this section, com
                        
             \end{Options}
 
+    \newpage
+
     \commandTitle{om\_minverser}
         General syntax:\\[2mm]
-        \command{\centerline{\commandName{om\_minverser} HeadMat \outputName{HeadMatInv}}}\\[2mm]
+        \command{\commandName{om\_minverser} HeadMat \outputName{HeadMatInv}}\\[2mm]
         This program is used to invert the symmetric matrix as provided by the command \commandName{om\_assemble} with the option \optionName{-HeadMat}.
         This command has only one option.
         \begin{Options}
@@ -297,7 +305,9 @@ Full details are available in OpenMEEG documentation. \emph{In this section, com
         \end{Options}
 
 
-    \section{\commandTitle{om\_gain}}
+    \newpage
+
+    \commandTitle{om\_gain}
         General syntax:\\[2mm]
         \command{\commandName{om\_gain} \optionName{Option} HeadMatInv \optionName{Parameters} SourceMat Head2EEGMat \outputName{GainMatrix}}\\
 
@@ -305,12 +315,12 @@ Full details are available in OpenMEEG documentation. \emph{In this section, com
         \commandName{om\_minverser}). The resulting gain matrix is stored in the file \outputName{GainMatrix}.
         \optionName{Option} selects the type of matrice to build. \optionName{Parameters} depend on the specific option \optionName{Option}.
        
-        \subsection{General options}
+        \paragraph*{General options}
             \begin{Options}
                 \item[-help] (\optionName{-h},\optionName{--help}): summarizes the usage of \commandName{om\_gain} for all its possible options.
             \end{Options}
 
-        \subsection{Gain matrix type options} select the type of gain matrix to be computed by  \commandName{om\_gain}.
+        \paragraph*{Gain matrix type options} select the type of gain matrix to be computed by  \commandName{om\_gain}.
             \begin{Options}
                 \item[-EEG]: allows to compute an EEG gain matrix.\\
                         \optionName{Parameters} are then:\\
@@ -347,22 +357,22 @@ Full details are available in OpenMEEG documentation. \emph{In this section, com
      by the file \Param{sources.tri} is done via the following set of commands:\\
 
     \example{
-        \command{\commandName{om\_assemble} \optionName{-HeadMat} head.geom head.cond \outputName{head.hm}}\\
-        \command{\commandName{om\_assemble} \optionName{-SSM} head.geom head.cond sources.tri \outputName{head.ssm}}\\
-        \command{\commandName{om\_assemble} \optionName{-h2em} head.geom head.cond head.eegsensors \outputName{head.h2em}}\\
-        \command{\commandName{om\_minverser} head.hm \outputName{head.hm\_inv}}\\
-        \command{\commandName{om\_gain} \optionName{-EEG} head.hm\_inv head.ssm head.h2em \outputName{head.gain}}\\
+        \commandName{om\_assemble} \optionName{-HeadMat} head.geom head.cond \outputName{head.hm}\\
+        \commandName{om\_assemble} \optionName{-SSM} head.geom head.cond sources.tri \outputName{head.ssm}\\
+        \commandName{om\_assemble} \optionName{-h2em} head.geom head.cond head.eegsensors \outputName{head.h2em}\\
+        \commandName{om\_minverser} head.hm \outputName{head.hm\_inv}\\
+        \commandName{om\_gain} \optionName{-EEG} head.hm\_inv head.ssm head.h2em \outputName{head.gain}
     }
     \\
     \\
     Considering now isolated dipolar sources detailed in the file \Param{sources.dip} with MEG sensors depicted in the file \Param{head.squids}. Using the same head model, the MEG gain matrix is obtained via the following set of commands:\\
 
     \example{
-        \command{\commandName{om\_assemble} \optionName{-HeadMat} head.geom head.cond \outputName{head.hm}}\\
-        \command{\commandName{om\_assemble} \optionName{-DSM} head.geom head.cond sources.dip \outputName{head.dsm}}\\
-        \command{\commandName{om\_assemble} \optionName{-h2mm} head.geom head.cond head.squids \outputName{head.h2mm}}\\
-        \command{\commandName{om\_assemble} \optionName{-ds2mm} sources.dip head.squids \outputName{head.ds2mm}}\\
-        \command{\commandName{om\_minverser} head.hm \outputName{head.hm\_inv}}\\
-        \command{\commandName{om\_gain} \optionName{-MEG} head.hm\_inv head.dsm head.h2mm head.ds2mm \outputName{head.gain}}\\
+        \commandName{om\_assemble} \optionName{-HeadMat} head.geom head.cond \outputName{head.hm}\\
+        \commandName{om\_assemble} \optionName{-DSM} head.geom head.cond sources.dip \outputName{head.dsm}\\
+        \commandName{om\_assemble} \optionName{-h2mm} head.geom head.cond head.squids \outputName{head.h2mm}\\
+        \commandName{om\_assemble} \optionName{-ds2mm} sources.dip head.squids \outputName{head.ds2mm}\\
+        \commandName{om\_minverser} head.hm \outputName{head.hm\_inv}\\
+        \commandName{om\_gain} \optionName{-MEG} head.hm\_inv head.dsm head.h2mm head.ds2mm \outputName{head.gain}
     }
 \end{document}
