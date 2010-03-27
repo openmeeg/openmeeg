@@ -1,3 +1,6 @@
+%{!?python_sitearch: %define python_sitearch %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib(1)")}
+# eval to 2.3 if python isn't yet present, workaround for no python in fc4 minimal buildroot
+%{!?python_version: %define python_version %(%{__python} -c 'import sys; print sys.version.split(" ")[0]' || echo "2.3")}
 %define _cmake_skip_rpath %{nil}
 #%define _cmake_skip_rpath -DCMAKE_SKIP_RPATH:BOOL=OFF
 %define version @PACKAGE_VERSION_MAJOR@.@PACKAGE_VERSION_MINOR@
@@ -82,11 +85,12 @@ rm -rf %{srcdirname}
 %{_libdir}/libmatio.so
 %{_includedir}/matio*.h
 
-
 %files python
-%{_libdir}/python/*
+%defattr(644,root,root,-)
+%{python_sitearch}/*
 
 %files doc
+%defattr(-,root,root,-)
 %{_docdir}/OpenMEEG/*
 
 %changelog
