@@ -145,13 +145,12 @@ namespace OpenMEEG {
         mat = mat.submat(0,newsize-1);
     }
 
-    void assemble_Surf2Vol(const Geometry &geo, Matrix &mat,const Matrix &points) {
+    void assemble_Surf2Vol(const Geometry& geo,Matrix& mat,Matrix& points) {
 
         double K = 1/(4*M_PI);
 
-        if (points.ncol()!=4) {
+        if (points.ncol()!=4)
             std::cerr<<" Surf2Vol: Warning no domain information provided! Points are considered to be in the inner volume" << std::endl;
-        }
 
         // Count number of points per domains
 
@@ -163,24 +162,22 @@ namespace OpenMEEG {
                 int domain = points(i,3);
                 if (domain>=geo.nb()) {
                     std::cerr<<" Surf2Vol: Point " << points.getlin(i) << " is outside the head. Point is considered to be in the scalp." << std::endl;
-                    domain = geo.nb()-1;
+                    points(i,3) = domain = geo.nb()-1;
                 }
                 ++nb_pts_per_dom[domain];
             }
         }
 
         std::vector<Matrix> vect_PtsInDom(geo.nb());
-        Vector tempVector(3);
-        for (int c=0;c<geo.nb();c++){
+        for (int c=0;c<geo.nb();++c) {
             vect_PtsInDom[c] = Matrix(nb_pts_per_dom[c],3);
             int iptd=0;
-            for (int ipt=0;ipt<points.nlin();ipt++) { // get the points in the domain c
+            for (int ipt=0;ipt<points.nlin();ipt++) // get the points in the domain c
                 if (((points.ncol()==4) && (points(ipt,3)==c)) || ((points.ncol()==3) && (c==0))) {
                     vect_PtsInDom[c](iptd,0)   = points(ipt,0);
                     vect_PtsInDom[c](iptd,1)   = points(ipt,1);
                     vect_PtsInDom[c](iptd++,2) = points(ipt,2);
                 }
-            }
         }
 
         mat = Matrix(points.nlin(),geo.size()-geo.getM(geo.nb()-1).nbTrgs());
@@ -200,26 +197,35 @@ namespace OpenMEEG {
             const int nbpoints    = geo.getM(c).nbPts();
             const int nbtriangles = geo.getM(c).nbTrgs();
 
+            // compute DI,i block if necessary.
+
             if (c==0) {
-                // compute DI,i block
                 operatorDinternal(geo.getM(c),mat,offsetA,offset0,vect_PtsInDom[c]);
                 mult(mat,offsetA,offset0,offsetB,offset1,-1.0*K);
             }
-            // compute DI+1,i block
-            operatorDinternal(geo.getM(c),mat,offsetA+nb_pts_per_dom[c],offset0,vect_PtsInDom[c+1]);
+
+            // compute DI+1,i block.
+
+            operatorDinternal(geo.getM(c),mat,offsetB,offset0,vect_PtsInDom[c+1]);
             mult(mat,offsetB,offset0,offsetB+nb_pts_per_dom[c+1],offset1,1.0*K);
+
             // compute DI+1,i+1 block
+
             operatorDinternal(geo.getM(c+1),mat,offsetB,offset2,vect_PtsInDom[c+1]);
             mult(mat,offsetB,offset2,offsetB+nb_pts_per_dom[c+1],offset3,-1.0*K);
 
+            // compute SI,i block if necessary.
+
             if (c==0) {
-                // compute SI,i block
                 operatorSinternal(geo.getM(c),mat,offsetA,offset1,vect_PtsInDom[c]);
                 mult(mat,offsetA,offset1,offsetA+nb_pts_per_dom[c],offset2,(1.0/geo.sigma_in(c))*K);
             }
+
             // compute SI+1,i block
-            operatorSinternal(geo.getM(c),mat,offsetA+nb_pts_per_dom[c],offset1,vect_PtsInDom[c+1]);
-            mult(mat,offsetA+nb_pts_per_dom[c],offset1,offsetA+nb_pts_per_dom[c]+nb_pts_per_dom[c+1],offset2,(-1.0/geo.sigma_in(c+1))*K);
+
+            operatorSinternal(geo.getM(c),mat,offsetB,offset1,vect_PtsInDom[c+1]);
+            mult(mat,offsetA+nb_pts_per_dom[c],offset1,offsetB+nb_pts_per_dom[c+1],offset2,(-1.0/geo.sigma_in(c+1))*K);
+
             if (c<geo.nb()-2) {
                 // compute SI+1,i block
                 operatorSinternal(geo.getM(c+1),mat,offsetB,offset3,vect_PtsInDom[c+1]);
@@ -230,11 +236,11 @@ namespace OpenMEEG {
         }
     }
 
-    HeadMat::HeadMat (const Geometry &geo, const int GaussOrder) {
+    HeadMat::HeadMat (const Geometry& geo,const int GaussOrder) {
         assemble_HM(geo,*this,GaussOrder);
     }
 
-    Surf2VolMat::Surf2VolMat (const Geometry &geo, const Matrix &points) {
+    Surf2VolMat::Surf2VolMat (const Geometry& geo,Matrix& points) {
         assemble_Surf2Vol(geo,*this,points);
     }
 }
