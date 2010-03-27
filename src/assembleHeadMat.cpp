@@ -71,7 +71,7 @@ namespace OpenMEEG {
 
         mat = SymMatrix(geo.size());
         mat.set(0.0);
-        
+
         if (geo.nb()==1)
             operatorN(geo.getM(0),geo.getM(0),mat,0,0,GaussOrder,offset,offset);
 
@@ -187,7 +187,7 @@ namespace OpenMEEG {
         int offset = 0;
         int offsetA0 = 0;
         for (int c=0;c<geo.nb()-1;c++) {
-            
+
             const int offset0     = offset;
             const int offsetA     = offsetA0;
             const int offsetB     = offsetA+nb_pts_per_dom[c];
@@ -244,4 +244,5 @@ namespace OpenMEEG {
     Surf2VolMat::Surf2VolMat (const Geometry& geo,Matrix& points) {
         assemble_Surf2Vol(geo,*this,points);
     }
+
 }

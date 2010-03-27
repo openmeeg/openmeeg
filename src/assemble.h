@@ -103,6 +103,13 @@ namespace OpenMEEG {
         DipSource2MEGMat(const Matrix& dipoles,const Sensors& sensors);
         virtual ~DipSource2MEGMat () {};
     };
+
+    class OPENMEEG_EXPORT DipSource2InternalPotMat: public virtual Matrix {
+    public:
+        DipSource2InternalPotMat(Geometry& geo, const Matrix& dipoles,
+                                 const Matrix& points);
+        virtual ~DipSource2InternalPotMat () {};
+    };
 }
 
 #endif /* OPENMEEG_ASSEMBLE_H */
