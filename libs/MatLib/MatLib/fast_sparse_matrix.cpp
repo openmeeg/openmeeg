@@ -10,7 +10,6 @@ last modified     : $LastChangedDate: 2008-07-24 23:56:52 +0200 (jeu., 24 juil. 
 
 © INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre 
 GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU, Théodore PAPADOPOULO,
-Emmanuel OLIVI
 Maureen.Clerc.AT.sophia.inria.fr, keriven.AT.certis.enpc.fr,
 kybic.AT.fel.cvut.cz, papadop.AT.sophia.inria.fr)
 
