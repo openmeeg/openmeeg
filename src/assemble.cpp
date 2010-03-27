@@ -350,23 +350,19 @@ int main(int argc, char** argv)
     **********************************************************************************************/
 
     else if((!strcmp(argv[1],"-Head2InternalPotMat"))|(!strcmp(argv[1],"-H2IPM"))|(!strcmp(argv[1],"-h2ipm"))) {
-        if (argc < 3)
-        {
+        if (argc<3) {
             cerr << "Please set geom filepath !" << endl;
             exit(1);
         }
-        if (argc < 4)
-        {
+        if (argc<4) {
             cerr << "Please set cond filepath !" << endl;
             exit(1);
         }
-        if (argc < 5)
-        {
+        if (argc<5) {
             cerr << "Please set point positions filepath !" << endl;
             exit(1);
         }
-        if (argc < 6)
-        {
+        if (argc<6) {
             std::cerr << "Please set output filepath !" << endl;
             exit(1);
         }
