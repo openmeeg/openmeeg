@@ -104,7 +104,7 @@ namespace OpenMEEG {
             if(geo.nb()>1) {
                 operatorDipolePot(Rs[s],Qs[s],geo.getM(0),prov,nVertexFirstLayer,GaussOrder,adapt_rhs);
             }
-            for (size_t i=0; i<rhs.nlin(); i++) {              
+            for (size_t i=0; i<rhs.nlin(); i++) {
                 rhs(i,s) = prov(i);
             }
         }
@@ -148,7 +148,7 @@ namespace OpenMEEG {
         mat=Matrix(newsize,positions.nlin());
         // transmat = a big  SymMatrix of which mat = part of its transpose
         SymMatrix transmat(geo.size());
- 
+
         int c;
         int offset=0;
         int offset0;
@@ -194,8 +194,50 @@ namespace OpenMEEG {
         }
     }
 
-    EITSourceMat::EITSourceMat (const Geometry &geo, Matrix  &positions, const int GaussOrder) {
+    EITSourceMat::EITSourceMat(const Geometry &geo, Matrix  &positions, const int GaussOrder) {
         assemble_EITSourceMat(*this, geo, positions, GaussOrder);
+    }
+
+    void assemble_DipSource2InternalPotMat(Matrix &mat, Geometry& geo, const Matrix& dipoles,
+                                                       const Matrix& points) {
+        // Points with one more column for the index of the domain they belong
+        Matrix pointsLabelled(points.nlin(),4);
+        for (int i=0; i<points.nlin(); i++){
+            pointsLabelled(i,3) = geo.getDomain(Vect3(points(i,0), points(i,1), points(i,2)));
+            for (int j=0;j<3;j++)
+                pointsLabelled(i,j) = points(i,j);
+        }
+        double K = 1/(4*M_PI);
+        mat = Matrix(points.nlin(),dipoles.nlin());
+        mat.set(0.0);
+
+        // TODO only computes Vinf for the points in the first 1st Domain (i.e
+        // the brain where the sources are)
+        for (int iDIP=0; iDIP<dipoles.nlin(); iDIP++){
+            Vect3 r0;
+            r0(0) = dipoles(iDIP,0);
+            r0(1) = dipoles(iDIP,1);
+            r0(2) = dipoles(iDIP,2);
+            Vect3 q;
+            q(0) = dipoles(iDIP,3);
+            q(1) = dipoles(iDIP,4);
+            q(2) = dipoles(iDIP,5);
+            for (int iPTS=0; iPTS<points.nlin(); iPTS++){
+                if ((pointsLabelled(iPTS,3)) == 0){
+                    Vect3 r;
+                    r(0) = points(iPTS,0);
+                    r(1) = points(iPTS,1);
+                    r(2) = points(iPTS,2);
+                    mat(iPTS,iDIP) = K*1.0/geo.sigma_in(0)*((r-r0)*q)/(pow((r-r0).norm(),3));
+                }
+            }
+        }
+
+    }
+
+    DipSource2InternalPotMat::DipSource2InternalPotMat(Geometry& geo, const Matrix& dipoles,
+                                                       const Matrix& points) {
+        assemble_DipSource2InternalPotMat(*this, geo, dipoles, points);
     }
 
 }
