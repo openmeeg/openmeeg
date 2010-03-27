@@ -4,6 +4,16 @@
 
 IF (PYTHON_WRAP)
 
+    INCLUDE(FindPythonInterp)
+
+    IF (PYTHON_EXECUTABLE)
+        EXEC_PROGRAM("${PYTHON_EXECUTABLE}"
+          ARGS "-c \"from distutils.sysconfig import get_python_lib; print get_python_lib(1)\""
+          OUTPUT_VARIABLE PYTHON_SITE_ARCH
+          RETURN_VALUE PYTHON_SITEARCH_NOT_FOUND)
+        STRING(REGEX REPLACE "^.*/(lib|lib64)(/python.*)$" "\\1\\2" PYTHON_REL_SITE_ARCH ${PYTHON_SITE_ARCH})
+    ENDIF()
+
     INCLUDE(FindNumpy.cmake)
 
     SET (MODULE_NAME openmeeg)
@@ -39,12 +49,12 @@ IF (PYTHON_WRAP)
     ENDIF (PYTHON_LIBRARIES)
 
     INSTALL(TARGETS  "_${MODULE_NAME}"
-            DESTINATION lib/python
-            PERMISSIONS OWNER_WRITE OWNER_READ GROUP_READ)
+            DESTINATION ${PYTHON_REL_SITE_ARCH}
+            PERMISSIONS OWNER_WRITE OWNER_READ GROUP_READ WORLD_READ)
 
     INSTALL(FILES  ${OpenMEEG_BINARY_DIR}/Wrapping/src/${MODULE_NAME}.py
-            DESTINATION lib/python
-            PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ)
+            DESTINATION ${PYTHON_REL_SITE_ARCH}
+            PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ)
 
     # Test Python wrapping
     IF(BUILD_TESTING)
@@ -55,4 +65,3 @@ IF (PYTHON_WRAP)
     ENDIF()
 
 ENDIF (PYTHON_WRAP)
-
