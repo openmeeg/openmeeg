@@ -47,6 +47,14 @@ Requires:     %{name} = %{epoch}:%{version}-%{release}
 %description doc
 Documentation for @PROJECT_NAME@.
 
+%package matio
+Summary:      Development files for the matio library used in @PROJECT_NAME@.
+Group:        Development/Libraries
+
+%description matio
+This package provides the matio library which allows reading/writing matlab files, which
+is used in @PROJECT_NAME@.
+
 %prep
 %setup -q -n %{srcdirname}
 
@@ -82,6 +90,8 @@ rm -rf %{srcdirname}
 %{_bindir}/*
 %{_libdir}/lib@PROJECT_NAME@*
 %{_libdir}/*.cmake
+
+%files matio
 %{_libdir}/libmatio.so
 %{_includedir}/matio*.h
 
