@@ -59,19 +59,23 @@ int main( int argc, char **argv)
         return 1;
     }
 
+    int status = 0;
     Geometry g;
     g.read(geom_filename);
     if (g.selfCheck()) {
         cout << ".geom : OK" << endl;
+    } else {
+        status = 1;
     }
     if(mesh_filename)
     {
         Mesh m;
         m.load(mesh_filename);
-        if(g.check(m))
-        {
+        if(g.check(m)) {
             cout << ".geom and mesh : OK" << endl;
+        } else {
+            status = 1;
         }
     }
-    return 0;
+    return status;
 }
