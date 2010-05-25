@@ -121,6 +121,7 @@ namespace OpenMEEG {
                 warning(std::string("Mesh is self intersecting !"));
                 m1.info();
                 OK = false;
+		std::cout << "Self intersection for mesh number " << i << std:: endl;
             }
             for(int j = i+1; j < nb(); ++j)
             {

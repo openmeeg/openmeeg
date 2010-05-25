@@ -243,7 +243,7 @@ namespace OpenMEEG {
             double pp2[3] = {p2.x(),p2.y(),p2.z()};
             double qq2[3] = {q2.x(),q2.y(),q2.z()};
             double rr2[3] = {r2.x(),r2.y(),r2.z()};
-            return tri_tri_overlap_test_3d(pp1,qq1,rr1,pp2,qq2,rr2);
+	      return tri_tri_overlap_test_3d(pp1,qq1,rr1,pp2,qq2,rr2);
         }
 
         bool selfIntersection() const;

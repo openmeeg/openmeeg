@@ -1,42 +1,3 @@
-/*
-Project Name : OpenMEEG
-
-© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre 
-GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU, Théodore PAPADOPOULO,
-Emmanuel OLIVI
-Maureen.Clerc.AT.sophia.inria.fr, keriven.AT.certis.enpc.fr,
-kybic.AT.fel.cvut.cz, papadop.AT.sophia.inria.fr)
-
-The OpenMEEG software is a C++ package for solving the forward/inverse
-problems of electroencephalography and magnetoencephalography.
-
-This software is governed by the CeCILL-B license under French law and
-abiding by the rules of distribution of free software.  You can  use,
-modify and/ or redistribute the software under the terms of the CeCILL-B
-license as circulated by CEA, CNRS and INRIA at the following URL
-"http://www.cecill.info".
-
-As a counterpart to the access to the source code and  rights to copy,
-modify and redistribute granted by the license, users are provided only
-with a limited warranty  and the software's authors,  the holders of the
-economic rights,  and the successive licensors  have only  limited
-liability.
-
-In this respect, the user's attention is drawn to the risks associated
-with loading,  using,  modifying and/or developing or reproducing the
-software by the user in light of its specific status of free software,
-that may mean  that it is complicated to manipulate,  and  that  also
-therefore means  that it is reserved for developers  and  experienced
-professionals having in-depth computer knowledge. Users are therefore
-encouraged to load and test the software's suitability as regards their
-requirements in conditions enabling the security of their systems and/or
-data to be ensured and,  more generally, to use and operate it in the
-same conditions as regards security.
-
-The fact that you are presently reading this means that you have had
-knowledge of the CeCILL-B license and that you accept its terms.
-*/
-
 #ifndef OPENMEEG_TRIANGTRIANG_H
 #define OPENMEEG_TRIANGTRIANG_H
 /*****************************************************************************/
@@ -107,7 +68,7 @@ namespace OpenMEEG {
 
     bool tri_tri_intersection_test_3d(double p1[3], double q1[3], double r1[3],
                                      double p2[3], double q2[3], double r2[3],
-                                     int * coplanar, double source[3],double target[3]);
+				      int * coplanar, double source[3],double target[3]);
 
     double triangle_area(double p[3], double q[3], double r[3]);
 
@@ -190,11 +151,12 @@ namespace OpenMEEG {
 
 
     bool tri_tri_overlap_test_3d(double p1[3], double q1[3], double r1[3],
-                                double p2[3], double q2[3], double r2[3])
+				 double p2[3], double q2[3], double r2[3])
     {
       double dp1, dq1, dr1, dp2, dq2, dr2;
       double v1[3], v2[3];
       double N1[3], N2[3];
+      const double eps=1e-16;
 
       // Compute distance signs  of p1, q1 and r1 to the plane of triangle(p2,q2,r2)
 
@@ -227,27 +189,26 @@ namespace OpenMEEG {
       if (((dp2 * dq2) > 0.0f) && ((dp2 * dr2) > 0.0f)) return 0;
 
       // Permutation in a canonical form of T1's vertices
-
-      if (dp1 > 0.0f) {
-        if (dq1 > 0.0f) TRI_TRI_3D(r1,p1,q1,p2,r2,q2,dp2,dr2,dq2)
-        else if (dr1 > 0.0f) TRI_TRI_3D(q1,r1,p1,p2,r2,q2,dp2,dr2,dq2)
+      if (dp1 > eps) {
+        if (dq1 > eps) TRI_TRI_3D(r1,p1,q1,p2,r2,q2,dp2,dr2,dq2)
+        else if (dr1 > eps) TRI_TRI_3D(q1,r1,p1,p2,r2,q2,dp2,dr2,dq2)
         else TRI_TRI_3D(p1,q1,r1,p2,q2,r2,dp2,dq2,dr2)
-      } else if (dp1 < 0.0f) {
-        if (dq1 < 0.0f) TRI_TRI_3D(r1,p1,q1,p2,q2,r2,dp2,dq2,dr2)
-        else if (dr1 < 0.0f) TRI_TRI_3D(q1,r1,p1,p2,q2,r2,dp2,dq2,dr2)
+      } else if (dp1 < -eps) {
+        if (dq1 < -eps) TRI_TRI_3D(r1,p1,q1,p2,q2,r2,dp2,dq2,dr2)
+        else if (dr1 < -eps) TRI_TRI_3D(q1,r1,p1,p2,q2,r2,dp2,dq2,dr2)
         else TRI_TRI_3D(p1,q1,r1,p2,r2,q2,dp2,dr2,dq2)
       } else {
-        if (dq1 < 0.0f) {
+        if (dq1 < -eps) {
           if (dr1 >= 0.0f) TRI_TRI_3D(q1,r1,p1,p2,r2,q2,dp2,dr2,dq2)
           else TRI_TRI_3D(p1,q1,r1,p2,q2,r2,dp2,dq2,dr2)
         }
-        else if (dq1 > 0.0f) {
-          if (dr1 > 0.0f) TRI_TRI_3D(p1,q1,r1,p2,r2,q2,dp2,dr2,dq2)
+        else if (dq1 > eps) {
+          if (dr1 > eps) TRI_TRI_3D(p1,q1,r1,p2,r2,q2,dp2,dr2,dq2)
           else TRI_TRI_3D(q1,r1,p1,p2,q2,r2,dp2,dq2,dr2)
         }
         else  {
-          if (dr1 > 0.0f) TRI_TRI_3D(r1,p1,q1,p2,q2,r2,dp2,dq2,dr2)
-          else if (dr1 < 0.0f) TRI_TRI_3D(r1,p1,q1,p2,r2,q2,dp2,dr2,dq2)
+          if (dr1 > eps) TRI_TRI_3D(r1,p1,q1,p2,q2,r2,dp2,dq2,dr2)
+          else if (dr1 < -eps) TRI_TRI_3D(r1,p1,q1,p2,r2,q2,dp2,dr2,dq2)
           else return coplanar_tri_tri3d(p1,q1,r1,p2,q2,r2,N1,N2);
         }
       }
@@ -430,7 +391,7 @@ namespace OpenMEEG {
     bool tri_tri_intersection_test_3d(double p1[3], double q1[3], double r1[3],
                                      double p2[3], double q2[3], double r2[3],
                                      int * coplanar,
-                                     double source[3], double target[3] )
+				      double source[3], double target[3])
 
     {
       double dp1, dq1, dr1, dp2, dq2, dr2;
@@ -469,7 +430,6 @@ namespace OpenMEEG {
       if (((dp2 * dq2) > 0.0f) && ((dp2 * dr2) > 0.0f)) return 0;
 
       // Permutation in a canonical form of T1's vertices
-
       if (dp1 > 0.0f) {
         if (dq1 > 0.0f) TRI_TRI_INTER_3D(r1,p1,q1,p2,r2,q2,dp2,dr2,dq2)
         else if (dr1 > 0.0f) TRI_TRI_INTER_3D(q1,r1,p1,p2,r2,q2,dp2,dr2,dq2)
@@ -488,6 +448,7 @@ namespace OpenMEEG {
           else TRI_TRI_INTER_3D(q1,r1,p1,p2,q2,r2,dp2,dq2,dr2)
         }
         else  {
+	  
           if (dr1 > 0.0f) TRI_TRI_INTER_3D(r1,p1,q1,p2,q2,r2,dp2,dq2,dr2)
           else if (dr1 < 0.0f) TRI_TRI_INTER_3D(r1,p1,q1,p2,r2,q2,dp2,dr2,dq2)
           else {

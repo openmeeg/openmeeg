@@ -856,6 +856,7 @@ namespace OpenMEEG {
                 {
                     if(triangle_intersection(*this,i,*this,j)) {
                         selfIntersects = true;
+			cout<< "triangles "<< i << " and " << j << "are intersecting" << endl;
                     }
                 }
             }
@@ -876,6 +877,7 @@ namespace OpenMEEG {
     }
 
     bool Mesh::correct_orientation() const {
+      // First : check the global orientation (that all the triangles are all oriented in the same way)
     // define the triangle edges as (first point,second point)
     // if a triangle edge is ordered with (lower index, higher index) keep it in a edge_list
     // if not, exchange the two indices and put in a flipped_edge_list (lower index, higher index)
@@ -893,10 +895,34 @@ namespace OpenMEEG {
                 else flipped_edge_list.push_back(trgs[i].next(j) * radix + trgs[i].som(j));
             }
         }
-    // Sort these two lists: they should be identical: if not, there is an orientation problem.
+    // Sort these two lists: they should be identical: if not, there is a local orientation problem.
         edge_list.sort();
         flipped_edge_list.sort();
         return (flipped_edge_list == edge_list);
-    }
+	// In progress: check the global orientation: that the triangles are correctly oriented
+	// compute the bounding box:
+	double xmax=-10000;
+	double ymax=-10000;
+	double zmax=-10000;
+	double xmin=-10000;
+	double ymin=-10000;
+	double zmin=-10000;
+	for(int i=0; i<npts; ++i)
+	  {
+	    xmin=min(xmin,getPt(i).x());
+	    ymin=min(ymin,getPt(i).y());
+	    zmin=min(zmin,getPt(i).z());
+	    xmax=max(xmax,getPt(i).x());
+	    ymax=max(ymax,getPt(i).y());
+	    zmax=max(zmax,getPt(i).z());
+	  }
+	Vect3 bbmin(xmin,ymin,zmin);
+	Vect3 bbmax(xmax,ymax,zmax);
+	Vect3 bbcenter=0.5*(bbmin+bbmax);
 
+	// a point ouside the bounding box:
+        Vect3 Pout=bbcenter+1.1*(bbmin-bbcenter);
+	// solid angle computation from this point:
+	// to be continued...
+    }
 }
