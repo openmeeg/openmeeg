@@ -6,6 +6,8 @@
  
 #cmakedefine USE_VTK
 
+#cmakedefine USE_GIFTI
+
 #cmakedefine HAVE_BLAS
 
 #cmakedefine HAVE_LAPACK

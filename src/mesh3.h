@@ -54,6 +54,12 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <vtkPolyDataReader.h>
 #endif
 
+#ifdef USE_GIFTI
+extern "C" {
+#include <gifti_io.h>
+}
+#endif
+
 namespace OpenMEEG {
 
     typedef std::set<int> intSet;
@@ -94,6 +100,25 @@ namespace OpenMEEG {
             }
         #endif
 
+        #ifdef USE_GIFTI
+            void load_gifti(std::istream &is);
+            void load_gifti(const char*);
+            void save_gifti(const char*);
+            gifti_image* toGiftiImage();
+            void fromGiftiImage(gifti_image* gim);
+        #else
+            template <typename T>
+            void load_gifti(T) {
+                std::cerr << "You have to compile OpenMEEG with GIFTI to read GIFTI files" << std::endl;
+                exit(1);
+            }
+            template <typename T>
+            void save_gifti(T) {
+                std::cerr << "You have to compile OpenMEEG with GIFTI to save GIFTI files" << std::endl;
+                exit(1);
+            }
+        #endif
+
         void save_vtk(const char*);
         void save_bnd(const char*);
         void save_tri(const char*);
@@ -105,7 +130,7 @@ namespace OpenMEEG {
 
     public:
 
-        enum Filetype { VTK, TRI, BND, MESH, OFF };
+        enum Filetype { VTK, TRI, BND, MESH, OFF, GIFTI };
 
         Mesh();
         Mesh(int, int); // npts, ntrgs
@@ -220,6 +245,9 @@ namespace OpenMEEG {
     #endif
                 case BND:       m.load_bnd(ifs); break;
                 case MESH:      m.load_mesh(ifs); break;
+    #ifdef USE_VTK
+                case GIFTI:      m.load_gifti(ifs); break;
+    #endif
                 default: std::cout << "Unknown file format" << std::endl;
             }
         }

@@ -72,10 +72,10 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #endif
 
 #ifdef WIN32
-	inline double log2( double n )  
-	{  
-		// log(n)/log(2) is log2.  
-		return log( n ) / log( 2.0 );  
+	inline double log2( double n )
+	{
+		// log(n)/log(2) is log2.
+		return log( n ) / log( 2.0 );
 	}
 #endif
 
@@ -155,6 +155,7 @@ namespace OpenMEEG {
         else if(extension==std::string("bnd"))  streamFormat = Mesh::BND;
         else if(extension==std::string("mesh")) streamFormat = Mesh::MESH;
         else if(extension==std::string("off"))  streamFormat = Mesh::OFF;
+        else if(extension==std::string("gii"))  streamFormat = Mesh::GIFTI;
         else {
             cerr << "Unknown mesh file format for " << filename << endl;
             exit(1);
@@ -169,6 +170,7 @@ namespace OpenMEEG {
         else if(extension==std::string("bnd"))  load_bnd(filename);
         else if(extension==std::string("mesh")) load_mesh(filename);
         else if(extension==std::string("off"))  load_off(filename);
+        else if(extension==std::string("gii"))  load_gifti(filename);
         else {
             cerr << "Load : Unknown mesh file format for " << filename << endl;
             exit(1);
@@ -273,6 +275,39 @@ namespace OpenMEEG {
         }
 
         Mesh::getDataFromVTKReader(reader);
+        make_links();
+        update_triangles();
+    }
+    #endif
+
+    #ifdef USE_GIFTI
+    /*
+    FIXME : implement GIFTI IOs
+    */
+    void fromGiftiImage(gifti_image* gim) {
+        std::cerr << "GIFTI reader : Not yet implemented" << std::endl;
+        exit(1);
+        return;
+    }
+
+    void Mesh::load_gifti(std::istream &is) {
+        std::cerr << "GIFTI reader : Not yet implemented" << std::endl;
+        exit(1);
+        kill();
+        // gifti_image* gim = gifti_read_image(filename);
+        // Mesh::fromGiftiImage(gim)
+        // make_links();
+        // update_triangles();
+    }
+
+    void Mesh::load_gifti(const char* filename) {
+        kill();
+        int read_data = 0;
+        gifti_image* gim = gifti_read_image(filename, read_data);
+        // Mesh::fromGiftiImage(gim);
+        make_links();
+        update_triangles();
+        return;
     }
     #endif
 
@@ -662,6 +697,24 @@ namespace OpenMEEG {
         os.close();
     }
 
+#ifdef USE_GIFTI
+    gifti_image* Mesh::toGiftiImage() {
+        gifti_image* gim;
+        return gim;
+    }
+
+    void Mesh::save_gifti(const char* filename) {
+        std::cerr << "GIFTI writer : Not yet implemented" << std::endl;
+        gifti_image* gim = Mesh::toGiftiImage();
+        int write_data = 1;
+        if (gifti_write_image(gim, filename, write_data)) {
+            std::cerr << "Error while writing GIFTI file" << std::endl;
+            exit(1);
+        }
+        exit(1);
+    }
+#endif
+
     /**
      * Append another Mesh to on instance of Mesh
     **/
@@ -856,7 +909,7 @@ namespace OpenMEEG {
                 {
                     if(triangle_intersection(*this,i,*this,j)) {
                         selfIntersects = true;
-			cout<< "triangles "<< i << " and " << j << "are intersecting" << endl;
+                        cout<< "triangles "<< i << " and " << j << "are intersecting" << endl;
                     }
                 }
             }

@@ -59,9 +59,11 @@ TEST_BIG_ENDIAN(WORDS_BIGENDIAN)
 #######################################################################
 
 INCLUDE(VtkOption)
+INCLUDE(GiftiOption)
 INCLUDE(UseMatio)
 INCLUDE(UseAtlas)
 INCLUDE(UseOpenMP)
+
 
 #   Detect Fortran to C interface.
 
