@@ -2,7 +2,7 @@ INCLUDE(ComparisonTest)
 
 SET_FILE_PROPERTIES(Suffix
     "HeadMat .hm" "HeadMatInv .hm_inv" "SurfSourceMat .ssm" "v2eeg .h2em" "SurfGainEEG .sgem"
-    "EEGEST .est_eeg" "EEG-HEAT -eeg-heat.est_src" "EEG-MN -eeg-mn.est_src" "EEG-TV -eeg-tv.est_src"
+    "EEGEST .est_eeg" "EEGadjointEST .est_eegadjoint" "EEG-HEAT -eeg-heat.est_src" "EEG-MN -eeg-mn.est_src" "EEG-TV -eeg-tv.est_src"
     "Head2MEGMat .h2mm" "SurfSource2MEGMat .ss2mm" "SurfGainMEG .sgmm" "MEGEST .est_meg"
     "MEG-HEAT -meg-heat.est_src" "MEG-MN -meg-mn.est_src" "MEG-TV -meg-tv.est_src"
 )
@@ -50,11 +50,13 @@ FOREACH(DIP 1 2 3 4 5)
     FOREACH(HEADNUM 1 2 ${HEAD3})
         FOREACH(COMP mag rdm)
             SET(HEAD "Head${HEADNUM}")
-            SET(BASE_FILE_NAME "${HEAD}-dip.est_eeg")
-            # Compare EEG result with analytical solution obtained with Matlab
-            OPENMEEG_COMPARISON_TEST("EEGEST-dip-${HEAD}-dip${DIP}-${COMP}"
-                                     ${BASE_FILE_NAME} analytic/eeg_head${HEADNUM}_analytic.txt -${COMP} -eps ${EPSILON} -col ${DIP} -full)
-            SET_TESTS_PROPERTIES("cmp-EEGEST-dip-${HEAD}-dip${DIP}-${COMP}" PROPERTIES DEPENDS EEG-dipoles-${HEAD})
+            FOREACH(ADJOINT "" adjoint)
+                SET(BASE_FILE_NAME "${HEAD}-dip.est_eeg${ADJOINT}")
+                # Compare EEG result with analytical solution obtained with Matlab
+                OPENMEEG_COMPARISON_TEST("EEG${ADJOINT}EST-dip-${HEAD}-dip${DIP}-${COMP}"
+                    ${BASE_FILE_NAME} analytic/eeg_head${HEADNUM}_analytic.txt -${COMP} -eps ${EPSILON} -col ${DIP} -full)
+                SET_TESTS_PROPERTIES("cmp-EEG${ADJOINT}EST-dip-${HEAD}-dip${DIP}-${COMP}" PROPERTIES DEPENDS EEG-dipoles-${HEAD})
+            ENDFOREACH()
         ENDFOREACH()
     ENDFOREACH()
 ENDFOREACH()
@@ -62,6 +64,9 @@ ENDFOREACH()
 SET_TESTS_PROPERTIES(cmp-EEGEST-dip-Head1-dip1-mag PROPERTIES WILL_FAIL TRUE)
 SET_TESTS_PROPERTIES(cmp-EEGEST-dip-Head1-dip4-rdm PROPERTIES WILL_FAIL TRUE)
 SET_TESTS_PROPERTIES(cmp-EEGEST-dip-Head1-dip5-rdm PROPERTIES WILL_FAIL TRUE)
+SET_TESTS_PROPERTIES(cmp-EEGadjointEST-dip-Head1-dip1-mag PROPERTIES WILL_FAIL TRUE)
+SET_TESTS_PROPERTIES(cmp-EEGadjointEST-dip-Head1-dip4-rdm PROPERTIES WILL_FAIL TRUE)
+SET_TESTS_PROPERTIES(cmp-EEGadjointEST-dip-Head1-dip5-rdm PROPERTIES WILL_FAIL TRUE)
 
 IF (WIN32)
     SET(VALIDATION_EIT "${EXECUTABLE_OUTPUT_PATH}/om_validationEIT")

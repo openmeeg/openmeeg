@@ -40,7 +40,6 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <cstring>
 
 #include "matrix.h"
-#include "matrix.h"
 #include "symmatrix.h"
 #include "vector.h"
 #include "cpuChrono.h"
@@ -96,6 +95,25 @@ int main(int argc, char **argv)
         GainEEG EEGGainMat(HeadMatInv,SourceMat,Head2EEGMat);
         EEGGainMat.save(argv[5]);
     }
+    // compute the gain matrix with the adjoint method for use with EEG DATA
+    if(!strcmp(argv[1],"-EEGadjoint"))
+    {
+        if(argc<6)
+        {
+            cerr << "Not enough arguments \nPlease try \"" << argv[0] << " -h\" or \"" << argv[0] << " --help \" \n" << endl;
+            return 0;
+        }
+        LinOpInfo matinfo = OpenMEEG::maths::info(argv[3]);
+        SymMatrix HeadMat;
+        HeadMat.load(argv[2]);
+        SparseMatrix Head2EEGMat;
+        Head2EEGMat.load(argv[4]);
+        Matrix SourceMat;
+        SourceMat.load(argv[3]);
+
+        GainEEGadjoint EEGGainMat(HeadMat,SourceMat,Head2EEGMat);
+        EEGGainMat.save(argv[5]);
+    }        
     // for use with MEG DATA
     else if(!strcmp(argv[1],"-MEG"))
     {
@@ -156,6 +174,11 @@ void getHelp(char** argv)
     cout << "   -EEG :   Compute the gain for EEG " << endl;
     cout << "            Filepaths are in order :" << endl;
     cout << "            HeadMatInv, SourceMat, Head2EEGMat, EEGGainMatrix" << endl;
+    cout << "            bin Matrix" << endl << endl;
+
+    cout << "   -EEGadjoint :   Compute the gain for EEG " << endl;
+    cout << "            Filepaths are in order :" << endl;
+    cout << "            HeadMat, SourceMat, Head2EEGMat, EEGGainMatrix" << endl;
     cout << "            bin Matrix" << endl << endl;
 
     cout << "   -MEG :   Compute the gain for MEG " << endl;

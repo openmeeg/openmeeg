@@ -43,6 +43,8 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include "matrix.h"
 #include "sparse_matrix.h"
 #include "symmatrix.h"
+#include "inversers.h"
+#include "conditioning.h"
 
 namespace OpenMEEG {
 
@@ -64,6 +66,25 @@ namespace OpenMEEG {
             *this = (Head2EEGMat*reducedHeadMatInv)*SourceMat;
         }
         ~GainEEG () {};
+    };
+
+    class GainEEGadjoint : public Matrix {
+        public:
+            using Matrix::operator=;
+            GainEEGadjoint (const SymMatrix& HeadMat,const Matrix& SourceMat, const SparseMatrix& Head2EEGMat) {
+                Matrix reducedHeadMat = HeadMat(0,HeadMat.nlin()-1,0,SourceMat.nlin()-1);
+                Matrix L(Head2EEGMat.nlin(),SourceMat.ncol());
+                Vector vtemp(SourceMat.nlin());
+                Matrix mtemp(1,SourceMat.nlin());
+                Preconditioner::Jacobi<SymMatrix> M(HeadMat);// Jacobi preconditionner
+                for (int i=0;i<L.nlin();i++) {
+                    GMRes(HeadMat,M,vtemp,Head2EEGMat.getlin(i),1e4,1e-8);
+                    mtemp.setlin(0,vtemp);
+                    L.setlin(i,(mtemp*SourceMat).getlin(0)); // TODO compute line of the operator source instead of loading the full SourceMat
+                }
+                *this = L;
+            }
+            ~GainEEGadjoint () {};
     };
 
     class GainInternalPot : public Matrix {

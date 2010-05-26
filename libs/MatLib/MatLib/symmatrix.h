@@ -62,6 +62,7 @@ namespace OpenMEEG {
 
         SymMatrix(const char* fname): LinOp(0,0,SYMMETRIC,2),value() { this->load(fname); }
         SymMatrix(size_t N): LinOp(N,N,SYMMETRIC,2),value(new LinOpValue(size())) { }
+        SymMatrix(size_t M,size_t N): LinOp(N,N,SYMMETRIC,2),value(new LinOpValue(size())) { assert(N==M); }
         SymMatrix(const SymMatrix& S,const DeepCopy): LinOp(S.nlin(),S.nlin(),SYMMETRIC,2),value(new LinOpValue(S.size(),S.data())) { }
 
         explicit SymMatrix(const Vector& v);

@@ -101,6 +101,8 @@ namespace OpenMEEG {
 
         const Tank& tank() const {return m_tank;}
 
+        Vector getlin(size_t i) const;
+
         void save(const char *filename) const;
         void load(const char *filename);
 
@@ -113,5 +115,16 @@ namespace OpenMEEG {
 
         Tank m_tank;
     };
+
+    inline Vector SparseMatrix::getlin(size_t i) const {
+        assert(i<nlin());
+        Vector v(ncol());
+        for (size_t j=0;j<ncol();j++){
+            const_iterator it = m_tank.find(std::make_pair<size_t, size_t>(i, j));
+            if (it != m_tank.end()) v(j)=it->second;
+            else v(j)=0.0;
+        }
+        return v;
+    }
 }
 #endif  //! OPENMEEG_SPARSE_MATRIX_H
