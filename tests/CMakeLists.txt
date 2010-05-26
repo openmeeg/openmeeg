@@ -55,7 +55,7 @@ FOREACH(DIP 1 2 3 4 5)
                 # Compare EEG result with analytical solution obtained with Matlab
                 OPENMEEG_COMPARISON_TEST("EEG${ADJOINT}EST-dip-${HEAD}-dip${DIP}-${COMP}"
                     ${BASE_FILE_NAME} analytic/eeg_head${HEADNUM}_analytic.txt -${COMP} -eps ${EPSILON} -col ${DIP} -full)
-                SET_TESTS_PROPERTIES("cmp-EEG${ADJOINT}EST-dip-${HEAD}-dip${DIP}-${COMP}" PROPERTIES DEPENDS EEG-dipoles-${HEAD})
+                SET_TESTS_PROPERTIES("cmp-EEG${ADJOINT}EST-dip-${HEAD}-dip${DIP}-${COMP}" PROPERTIES DEPENDS EEGadjoint-dipoles-${HEAD})
             ENDFOREACH()
         ENDFOREACH()
     ENDFOREACH()
