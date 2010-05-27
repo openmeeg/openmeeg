@@ -84,6 +84,8 @@ namespace OpenMEEG {
                     GMRes(HeadMat,M,vtemp,Head2EEGMat.getlin(i),1e4,1e-8);
                     mtemp.setlin(0,vtemp);
                     L.setlin(i,(mtemp*SourceMat).getlin(0)); // TODO compute line of the operator source instead of loading the full SourceMat
+                    #pragma omp critical
+                    PROGRESSBAR(i,L.nlin());
                 }
                 *this = L;
             }
