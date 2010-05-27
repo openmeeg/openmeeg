@@ -74,10 +74,13 @@ namespace OpenMEEG {
             GainEEGadjoint (const SymMatrix& HeadMat,const Matrix& SourceMat, const SparseMatrix& Head2EEGMat) {
                 Matrix reducedHeadMat = HeadMat(0,HeadMat.nlin()-1,0,SourceMat.nlin()-1);
                 Matrix L(Head2EEGMat.nlin(),SourceMat.ncol());
-                Vector vtemp(SourceMat.nlin());
-                Matrix mtemp(1,SourceMat.nlin());
                 Preconditioner::Jacobi<SymMatrix> M(HeadMat);// Jacobi preconditionner
+                #ifdef USE_OMP
+                #pragma omp parallel for
+                #endif
                 for (int i=0;i<L.nlin();i++) {
+                    Vector vtemp(SourceMat.nlin());
+                    Matrix mtemp(1,SourceMat.nlin());
                     GMRes(HeadMat,M,vtemp,Head2EEGMat.getlin(i),1e4,1e-8);
                     mtemp.setlin(0,vtemp);
                     L.setlin(i,(mtemp*SourceMat).getlin(0)); // TODO compute line of the operator source instead of loading the full SourceMat
