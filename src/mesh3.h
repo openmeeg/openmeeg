@@ -245,7 +245,7 @@ namespace OpenMEEG {
     #endif
                 case BND:       m.load_bnd(ifs); break;
                 case MESH:      m.load_mesh(ifs); break;
-    #ifdef USE_VTK
+    #ifdef USE_GIFTI
                 case GIFTI:      m.load_gifti(ifs); break;
     #endif
                 default: std::cout << "Unknown file format" << std::endl;
