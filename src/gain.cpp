@@ -154,6 +154,23 @@ int main(int argc, char **argv)
         GainInternalPot InternalPotGainMat(HeadMatInv,SourceMat,Head2IPMat,Source2IPMat);
         InternalPotGainMat.save(argv[6]);
     }
+    else if((!strcmp(argv[1],"-StimInternalPotential"))|(!strcmp(argv[1],"-SIP")))
+    {
+        if(argc<6)
+        {
+            cerr << "Not enough arguments \nPlease try \"" << argv[0] << " -h\" or \"" << argv[0] << " --help \" \n" << endl;
+            return 0;
+        }
+        SymMatrix HeadMatInv;
+        HeadMatInv.load(argv[2]);
+        Matrix SourceMat;
+        SourceMat.load(argv[3]);
+        Matrix Head2IPMat;
+        Head2IPMat.load(argv[4]); 
+   
+        GainStimInternalPot StimInternalPotGainMat(HeadMatInv,SourceMat,Head2IPMat);
+        StimInternalPotGainMat.save(argv[5]);
+    }
     else
     {
         cerr << "Error: unknown option. \nPlease try \"" << argv[0] << " -h\" or \"" << argv[0] << " --help \" \n" << endl;
