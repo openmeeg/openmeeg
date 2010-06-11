@@ -28,8 +28,7 @@ OPENMEEG_EXECUTABLE(om_assemble assemble.cpp)
 # = INSTALLATION =
 # ================
 
-INSTALL(TARGETS OpenMEEG om_assemble om_forward om_gain om_inverse
-    om_minverser om_presmooth
+INSTALL(TARGETS OpenMEEG om_assemble om_forward om_gain om_inverse om_minverser om_presmooth
         RUNTIME DESTINATION bin
         LIBRARY DESTINATION lib
         ARCHIVE DESTINATION lib)
