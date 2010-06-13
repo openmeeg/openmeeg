@@ -227,6 +227,8 @@ CONFIGURE_FILE(
 # The "use" file.
 SET(OPENMEEG_USE_FILE ${OpenMEEG_BINARY_DIR}/UseOpenMEEG.cmake)
 
+SET(OPENMEEG_HEADER_INSTALLDIR include/openmeeg)
+
 # Configure OpenMEEGConfig.cmake for the build tree.
 CONFIGURE_FILE(
     ${OpenMEEG_SOURCE_DIR}/macros/OpenMEEGConfig.cmake.in
