@@ -163,7 +163,7 @@ int main(int argc, char** argv)
             exit(1);
         }
 
-        // Choosing between adaptative integration or not for the RHS
+        // Choosing between adaptive integration or not for the RHS
         if (!strcmp(argv[1],"-DipSourceMatNoAdapt")|(!strcmp(argv[1],"-DSMNA"))|(!strcmp(argv[1],"-dsmna"))){
             DipSourceMat dsm(geo, dipoles, GaussOrder,false);
             // Saving RHS Matrix for dipolar case :
