@@ -366,6 +366,7 @@ int cylindre (char namesurf[],char namepatches[],float L,float R,float dt,int*E,
     }
     fclose(F);
   }
+  return 0;
 }
 int main(int argc, char** argv)
 {
