@@ -82,9 +82,9 @@ void permute (Triangle *t)
   (*t)[2]=temp;
 }
 
-int cylindre (char namesurf[],char namepatches[],float L,float R,float dt,int*E,int*Nteta,int*Nz,float Ea,float Eb,float Eb2)
+int cylindre (char namesurf[],char namepatches[],char namepatchcount[],float L,float R,float dt,int*E,int*Nteta,int*Nz,float Ea,float Eb,float Eb2)
 {
-  FILE *F;
+  FILE *F, *G;
   int i,j,g,k,save;                       //counters
   float decal_teta;                       // gap along teta.
   float z=-L/2.0f;
@@ -356,15 +356,18 @@ int cylindre (char namesurf[],char namepatches[],float L,float R,float dt,int*E,
      for (i= (nl-1)*2*nteta +3*nteta + 2*2*nteta*(3*nez+3*niz+niz2)+1;i<nt;i++){
       trianglecounter++;
     }
-    // find the barycenters of the triangles corresponding to each electrode
-    F = fopen(namepatches,"w");   
+    // compute and store the electrodes, represented as a collection of 3D positions (patches)
+     F = fopen(namepatches,"w");   // a file for storing the patch coordinates (for all the electrodes)
+     G = fopen(namepatchcount,"w"); // a file for storing the number of patches per electrode (12 lines)
     for (j=0;j<12;j++){
-       for (i=0; i<maxelectrodetriangles;i++){
+      for (i=0; i<maxelectrodetriangles;i++){ // compute the barycenters of the triangles corresponding to each electrode
 	electrodecenter=(P[T[electrodetriangles[j][i]].s1()]+P[T[electrodetriangles[j][i]].s2()]+P[T[electrodetriangles[j][i]].s3()])/3;
-	fprintf(F,"%f %f %f\n",electrodecenter.x(),electrodecenter.y(),electrodecenter.z());
+	fprintf(F,"%f %f %f\n",electrodecenter.x(),electrodecenter.y(),electrodecenter.z());	
       }
+      fprintf(G,"%d\n",i); // the number of patches used to represent electrode j
     }
     fclose(F);
+    fclose(G);
   }
   return 0;
 }
@@ -459,7 +462,7 @@ int main(int argc, char** argv)
   fprintf(Fgeom,"Interfaces %d Mesh\n\n",Nc);
   fprintf(Fcond,"# Properties Description 1.0 (Conductivities)\n\n");
   for (i=0;i<Nc;i++){
-    cylindre(argv[5+i],argv[7],L[i],R[i],dt[i],(i==Nc-1)?(Elec):(E),&Nteta[i],&Nz[i],Ea,Eb,Eb2);
+    cylindre(argv[5+i],argv[7],argv[8],L[i],R[i],dt[i],(i==Nc-1)?(Elec):(E),&Nteta[i],&Nz[i],Ea,Eb,Eb2);
     name = argv[5+i];
     name = name.substr(name.rfind("/")+1); // only keep the file name without the directories (after the last /)
     fprintf(Fgeom,"%s\n",name.c_str());    // c_str to convert string back to char
@@ -486,14 +489,15 @@ void getHelp(char** argv) {
   cout << "               Output cond file " << endl;
   cout << "               Output surf1 tri mesh " << endl;
   cout << "               Output surf2 tri mesh " << endl;
-  cout << "               Output stimelec sparse Matrix" << endl << endl;
+  cout << "               Output patches Matrix" << endl;
+  cout << "               Output patchcount Matrix" << endl << endl;
   cout << "         -makeparameters       " <<endl;
   cout << "               Output parameter file" << endl;
   cout << "               Output geom file " << endl;
   cout << "               Output cond file " << endl;
   cout << "               Output surf1 tri mesh " << endl;
   cout << "               Output surf2 tri mesh " << endl;
-  cout << "               Output stimelec sparse Matrix" << endl << endl;
-
+  cout << "               Output patches Matrix" << endl;
+  cout << "               Output patchcount Matrix" << endl << endl;
   exit(0);
 }
