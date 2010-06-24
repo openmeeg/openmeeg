@@ -17,6 +17,13 @@ IF (UNIX AND NOT APPLE) # LINUX
     OPTION(BUILD_RPM "Enable RPM Packaging" OFF)
 ENDIF()
 
+# Install README
+INSTALL(FILES
+    LICENSE.txt
+    README.txt
+    DESTINATION
+    doc)
+
 IF(ENABLE_PACKAGING OR BUILD_RPM)
 
     INCLUDE(InstallRequiredSystemLibraries)
@@ -76,11 +83,17 @@ IF(ENABLE_PACKAGING OR BUILD_RPM)
     IF (WIN32)
         # There is a bug in NSIS that does not handle full unix paths properly. Make
         # sure there is at least one set of four (4) backlasshes.
-        SET(CPACK_NSIS_DISPLAY_NAME "OpenMEEG Project")
-        SET(CPACK_NSIS_HELP_LINK "https:\\\\\\\\gforge.inria.fr/projects/openmeeg/")
-        SET(CPACK_NSIS_URL_INFO_ABOUT "https:\\\\\\\\gforge.inria.fr/projects/openmeeg/")
+        SET(CPACK_NSIS_DISPLAY_NAME "OpenMEEG")
+        SET(CPACK_NSIS_HELP_LINK "http:\\\\\\\\openmeeg.gforge.inria.fr")
+        SET(CPACK_NSIS_URL_INFO_ABOUT "http:\\\\\\\\openmeeg.gforge.inria.fr")
         SET(CPACK_NSIS_CONTACT "openmeeg-info@lists.gforge.inria.fr")
         SET(CPACK_NSIS_MODIFY_PATH ON)
+	SET(CPACK_PACKAGE_EXECUTABLES "om_assemble" "OpenMEEG (Ignore)")
+	SET(CPACK_NSIS_MENU_LINKS
+	    "doc/LICENSE.txt" "README"
+	    "http://openmeeg.gforge.inria.fr" "OpenMEEG homepage"
+   	)
+
     ENDIF()
 
     SET(CPACK_SOURCE_STRIP_FILES "")
