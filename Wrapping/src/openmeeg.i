@@ -82,6 +82,20 @@
 import_array(); 
 %}
 
+%exception {
+    try {
+        $action
+    }
+    catch (char* e) {
+        PyErr_SetString(PyExc_IndexError,e);
+        return NULL;
+    }
+    catch (std::exception& e) {
+        PyErr_SetString(PyExc_IndexError,e.what());
+        return NULL;
+    }
+}
+
 /* DLL Exports handling on Windows */
 #define OPENMEEGMATHS_EXPORT
 #define OPENMEEG_EXPORT
