@@ -836,9 +836,9 @@ namespace OpenMEEG {
         // loop on triangles
         for (int t=0;t<ntrgs;t++) {
             const Triangle& trg = getTrg(t);
-            Vect3 pts[3] = {getPt(trg[0]), getPt(trg[1]), getPt(trg[2])};
+            Vect3 points[3] = {getPt(trg[0]), getPt(trg[1]), getPt(trg[2])};
             for(int j=0;j<3;j++) {
-                Vect3 grads = P1Vector(pts[0], pts[1], pts[2], j);
+                Vect3 grads = P1Vector(points[0], points[1], points[2], j);
                 for(int i=0;i<3;i++) {
                     A(3*t+i,trg[j]) = grads(i);
                 }
@@ -851,7 +851,6 @@ namespace OpenMEEG {
      * Computes the total solid angle of a surface for a point p and tells whether p is inside the mesh or not.
      **/
     bool Mesh::containsPoint(const Vect3& p) {
-        bool contains = false;
         double solangle = 0.0;
         for (int itrg=0;itrg<ntrgs;itrg++)
             solangle += p.solangl(pts[trgs[itrg][0]], pts[trgs[itrg][1]], pts[trgs[itrg][2]]);
@@ -868,12 +867,12 @@ namespace OpenMEEG {
     }
 
     Vector Mesh::areas() const {
-        Vector areas(nbTrgs());
+        Vector my_areas(nbTrgs());
         for(int i = 0; i < nbTrgs(); ++i)
         {
-            areas(i) = getTrg(i).getArea();
+            my_areas(i) = getTrg(i).getArea();
         }
-        return areas;
+        return my_areas;
     }
 
     void Mesh::update_triangles() {
@@ -887,13 +886,13 @@ namespace OpenMEEG {
     void Mesh::recompute_normals() {
         for(int p = 0; p < nbPts(); ++p)
         {
-            Vect3 normal(0);
+            Vect3 my_normal(0);
             for(intSet::iterator it = links[p].begin(); it != links[p].end(); ++it)
             {
-                normal += trgs[*it].normal().normalize();
+                my_normal += trgs[*it].normal().normalize();
             }
-            normal.normalize();
-            normals[p] = normal;
+            my_normal.normalize();
+            normals[p] = my_normal;
         }
     }
 
@@ -952,30 +951,33 @@ namespace OpenMEEG {
         edge_list.sort();
         flipped_edge_list.sort();
         return (flipped_edge_list == edge_list);
-	// In progress: check the global orientation: that the triangles are correctly oriented
-	// compute the bounding box:
-	double xmax=-10000;
-	double ymax=-10000;
-	double zmax=-10000;
-	double xmin=-10000;
-	double ymin=-10000;
-	double zmin=-10000;
-	for(int i=0; i<npts; ++i)
-	  {
-	    xmin=min(xmin,getPt(i).x());
-	    ymin=min(ymin,getPt(i).y());
-	    zmin=min(zmin,getPt(i).z());
-	    xmax=max(xmax,getPt(i).x());
-	    ymax=max(ymax,getPt(i).y());
-	    zmax=max(zmax,getPt(i).z());
-	  }
-	Vect3 bbmin(xmin,ymin,zmin);
-	Vect3 bbmax(xmax,ymax,zmax);
-	Vect3 bbcenter=0.5*(bbmin+bbmax);
 
-	// a point ouside the bounding box:
-        Vect3 Pout=bbcenter+1.1*(bbmin-bbcenter);
-	// solid angle computation from this point:
-	// to be continued...
+    // =========================================================================================
+    // XXX: In progress: check the global orientation: that the triangles are correctly oriented
+    // =========================================================================================
+    // // compute the bounding box:
+    //     double xmax=-10000;
+    //     double ymax=-10000;
+    //     double zmax=-10000;
+    //     double xmin=-10000;
+    //     double ymin=-10000;
+    //     double zmin=-10000;
+    //     for(int i=0; i<npts; ++i)
+    //     {
+    //         xmin=min(xmin,getPt(i).x());
+    //         ymin=min(ymin,getPt(i).y());
+    //         zmin=min(zmin,getPt(i).z());
+    //         xmax=max(xmax,getPt(i).x());
+    //         ymax=max(ymax,getPt(i).y());
+    //         zmax=max(zmax,getPt(i).z());
+    //     }
+    //     Vect3 bbmin(xmin,ymin,zmin);
+    //     Vect3 bbmax(xmax,ymax,zmax);
+    //     Vect3 bbcenter=0.5*(bbmin+bbmax);
+    // 
+    // // a point ouside the bounding box:
+    //     Vect3 Pout=bbcenter+1.1*(bbmin-bbcenter);
+    // // solid angle computation from this point:
+    // // to be continued...
     }
 }

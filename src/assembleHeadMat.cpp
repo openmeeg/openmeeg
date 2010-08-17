@@ -195,8 +195,8 @@ namespace OpenMEEG {
             const int offset2     = offset1+geo.getM(c).nbTrgs();
             const int offset3     = offset2+geo.getM(c+1).nbPts();
             const int offset4     = offset3+geo.getM(c+1).nbTrgs();
-            const int nbpoints    = geo.getM(c).nbPts();
-            const int nbtriangles = geo.getM(c).nbTrgs();
+            // const int nbpoints    = geo.getM(c).nbPts();
+            // const int nbtriangles = geo.getM(c).nbTrgs();
 
             // compute DI,i block if necessary.
 

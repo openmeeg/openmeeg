@@ -165,6 +165,7 @@ namespace OpenMEEG {
                 return i;
             else if (i==nb()-1)
                 return nb();
+        return -1; // should never be reached
     }
 
 }

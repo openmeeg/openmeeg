@@ -126,7 +126,7 @@ namespace io_utils {
 
 		char separator;
 
-		while (is.get(separator) && ((separator==' ') || (separator=='\t')));
+		while (is.get(separator) && ((separator==' ') || (separator=='\t'))) ;
 		return is.putback(separator);
 	}
 

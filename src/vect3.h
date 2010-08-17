@@ -65,7 +65,7 @@ namespace OpenMEEG {
         double m_x,m_y,m_z; //!< Coordinates of the vector
 
     public:
-        inline Vect3 (const double &x, const double &y, const double &z) : m_x(x),m_y(y),m_z(z) {}
+        inline Vect3 (const double &xx, const double &yy, const double &zz) : m_x(xx),m_y(yy),m_z(zz) {}
         inline Vect3 (const double &a) : m_x(a),m_y(a),m_z(a) {}
         inline Vect3() {}
         inline ~Vect3() {}

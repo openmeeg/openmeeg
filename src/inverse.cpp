@@ -70,7 +70,7 @@ int main(int argc, char **argv)
     SparseMatrix SmoothMatrix;
     Vector AiVector;
     Matrix Data;
-    Matrix EstimatedSourcesData;
+    // Matrix EstimatedSourcesData;
     double SmoothWeight;
     string SmoothType;
     
