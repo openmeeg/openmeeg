@@ -53,12 +53,12 @@ namespace OpenMEEG {
 
             public:
             Jacobi (const M m): v(m.nlin()) { 
-                for (int i=0;i<m.nlin();i++) 
+                for (unsigned i=0;i<m.nlin();i++) 
                     v(i)=1.0/m(i,i);
             }
             Vector operator()(const Vector& g) const {
                 Vector result(g.nlin());
-                for (int i=0;i<v.nlin();i++) result(i)=v(i)*g(i);
+                for (unsigned i=0;i<v.nlin();i++) result(i)=v(i)*g(i);
                 return result;
             }
 
