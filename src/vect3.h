@@ -89,27 +89,23 @@ namespace OpenMEEG {
         inline Vect3 operator* (const double &d) const {return Vect3(d*m_x, d*m_y, d*m_z);}
         inline Vect3 operator/ (const double &d) const {double d2 = 1.0/d; return Vect3(d2*m_x, d2*m_y, d2*m_z);}
 
-        inline double operator() (const int i) const
-        {
+        inline double operator() (const int i) const {
             assert(i>=0 && i<3);
-            switch(i)
-            {
-                case 0 : return m_x;
-                case 1 : return m_y;
-                case 2 : return m_z;
-                default : exit(1);
+            switch(i) {
+                case 0: return m_x;
+                case 1: return m_y;
+                case 2: return m_z;
+                default: exit(1);
             }
         }
 
-        inline double& operator() (const int i)
-        {
+        inline double& operator() (const int i) {
             assert(i>=0 && i<3);
-            switch(i)
-            {
-                case 0 : return m_x;
-                case 1 : return m_y;
-                case 2 : return m_z;
-                default : exit(1);
+            switch(i) {
+                case 0: return m_x;
+                case 1: return m_y;
+                case 2: return m_z;
+                default: exit(1);
             }
         }
 
