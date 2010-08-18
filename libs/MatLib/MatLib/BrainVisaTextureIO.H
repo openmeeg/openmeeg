@@ -64,7 +64,7 @@ namespace OpenMEEG {
                 return linop.storageType()==LinOp::FULL && linop.dimension()==2;
             }
 
-            LinOpInfo info(std::ifstream& is) const throw(std::exception) {
+            LinOpInfo info(std::ifstream&) const throw(std::exception) {
                 throw "TODO: this is a dummy exception to allow compilation on windows.";
             }
 
