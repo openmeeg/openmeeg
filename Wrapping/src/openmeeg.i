@@ -40,7 +40,7 @@
             ar_dim[1] = _mat->nlin();
             
             /* create numpy array */
-            matarray = (PyArrayObject*) PyArray_FromDimsAndData ( ndims, ar_dim, PyArray_DOUBLE, ( char* ) _mat->data() );
+            matarray = (PyArrayObject*) PyArray_FromDimsAndData(ndims,ar_dim,PyArray_DOUBLE,(char*) _mat->data());
             int tmp = matarray->strides[0];
             matarray->strides[0] = matarray->strides[1];
             matarray->strides[1] = tmp;
@@ -49,7 +49,7 @@
             matarray->dimensions[0] = matarray->dimensions[1];
             matarray->dimensions[1] = tmp;
             
-            return PyArray_Return ( (PyArrayObject*) matarray  );
+            return PyArray_Return((PyArrayObject*) matarray);
         }
 
         static PyObject* asarray(Vector* _vec) {
@@ -68,9 +68,9 @@
             ar_dim[0] = _vec->size();
             
             /* create numpy array */
-            matarray = (PyArrayObject*) PyArray_FromDimsAndData ( ndims, ar_dim, PyArray_DOUBLE, ( char* ) _vec->data() );
+            matarray = (PyArrayObject*) PyArray_FromDimsAndData (ndims,ar_dim,PyArray_DOUBLE,(char*) _vec->data());
             
-            return PyArray_Return ( (PyArrayObject*) matarray  );
+            return PyArray_Return ((PyArrayObject*) matarray);
         }
 
     #endif
@@ -87,7 +87,7 @@ import_array();
         $action
     }
     catch (std::exception& e) {
-        PyErr_SetString(PyExc_IndexError,e.what());
+        PyErr_SetString(PyExc_RuntimeError,e.what());
         return NULL;
     }
 }
@@ -116,6 +116,5 @@ import_array();
 %include "forward.h"
 %include "inversers.h"
 
-static PyObject * asarray(Matrix* _mat);
-static PyObject * asarray(Vector* _vec);
-
+static PyObject* asarray(Matrix* _mat);
+static PyObject* asarray(Vector* _vec);
