@@ -62,7 +62,16 @@ int main (int argc, char** argv)
     std::cout << "- " << argv[2] << std::endl;
 
     maths::ifstream ifs1(argv[1]);
+    if (!ifs1) {
+        std::cerr << "Cannot open file " << argv[1] << " !" << std::endl;
+        return 1;
+    }
+
     maths::ifstream ifs2(argv[2]);
+    if (!ifs2) {
+        std::cerr << "Cannot open file " << argv[2] << " !" << std::endl;
+        return 1;
+    }
 
 #if 0
     if(input_format1) {

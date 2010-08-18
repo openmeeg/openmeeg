@@ -118,6 +118,11 @@ namespace OpenMEEG {
                 SetCurrentFormat(format_from_suffix(name),perm);
             }
 
+            operator bool() const {
+                std::ifstream ifs(file_name.c_str());
+                return ifs;
+            }
+
         protected:
 
             std::string    file_name;
