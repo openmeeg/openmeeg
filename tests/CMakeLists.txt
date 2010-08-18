@@ -1,14 +1,14 @@
 INCLUDE(ComparisonTest)
 
 SET_FILE_PROPERTIES(Suffix
-    "HeadMat .hm" "HeadMatInv .hm_inv" "SurfSourceMat .ssm" "v2eeg .h2em" "SurfGainEEG .sgem"
+    "HM .hm" "HMInv .hm_inv" "SSM .ssm" "v2eeg .h2em" "SurfGainEEG .sgem"
     "EEGEST .est_eeg" "EEGadjointEST .est_eegadjoint" "EEG-HEAT -eeg-heat.est_src" "EEG-MN -eeg-mn.est_src" "EEG-TV -eeg-tv.est_src"
     "Head2MEGMat .h2mm" "SurfSource2MEGMat .ss2mm" "SurfGainMEG .sgmm" "MEGEST .est_meg"
     "MEG-HEAT -meg-heat.est_src" "MEG-MN -meg-mn.est_src" "MEG-TV -meg-tv.est_src"
 )
 
 SET_FILE_PROPERTIES(CompareOptions
-    "HeadMat -sym" "HeadMatInv -sym" "SurfSourceMat -full:-if1:binary:-if2:binary" "v2eeg -if:binary:-sparse"
+    "HM -sym" "HMInv -sym" "SSM -full:-if1:binary:-if2:binary" "v2eeg -if:binary:-sparse"
     "SurfGainEEG -full" "EEGEST -full" "EEG-HEAT -full:-eps:0.02" "EEG-MN -full" "EEG-TV -full:-eps:0.0001"
     "Head2MEGMat -full" "SurfSource2MEGMat -full" "SurfGainMEG -full" "MEGEST -full"
     "MEG-HEAT -full:-eps:0.02" "MEG-MN -full" "MEG-TV -full"
@@ -29,14 +29,15 @@ NEW_EXECUTABLE(om_validationEIT validationEIT.cpp ${OPEMEEG_HEADERS}
 
 ############ TEST COMMON RESULTS ON HEAD1 (Regression test) ##############
 
-SET(COMPARISONS HeadMat HeadMatInv SurfSourceMat v2eeg SurfGainEEG EEGEST EEG-HEAT EEG-MN EEG-TV
+SET(COMPARISONS HM HMInv SSM v2eeg SurfGainEEG EEGEST EEG-HEAT EEG-MN EEG-TV
                 Head2MEGMat SurfSource2MEGMat SurfGainMEG MEGEST MEG-HEAT MEG-MN MEG-TV
 )
 
 FOREACH (COMPARISON ${COMPARISONS})
     SET(BASE_FILE_NAME Head1${Suffix_${COMPARISON}})
     SET(TEST_NAME ${COMPARISON}-Head1)
-    OPENMEEG_COMPARISON_TEST(${COMPARISON}-Head1 ${BASE_FILE_NAME} initialTest/${BASE_FILE_NAME} ${CompareOptions_${COMPARISON}})
+    OPENMEEG_COMPARISON_TEST(${COMPARISON}-Head1
+        ${BASE_FILE_NAME} initialTest/${BASE_FILE_NAME} ${CompareOptions_${COMPARISON}})
 ENDFOREACH()
 
 ############ TEST EEG RESULTS ON DIPOLES ##############
@@ -54,8 +55,8 @@ FOREACH(DIP 1 2 3 4 5)
                 SET(BASE_FILE_NAME "${HEAD}-dip.est_eeg${ADJOINT}")
                 # Compare EEG result with analytical solution obtained with Matlab
                 OPENMEEG_COMPARISON_TEST("EEG${ADJOINT}EST-dip-${HEAD}-dip${DIP}-${COMP}"
-                    ${BASE_FILE_NAME} analytic/eeg_head${HEADNUM}_analytic.txt -${COMP} -eps ${EPSILON} -col ${DIP} -full)
-                SET_TESTS_PROPERTIES("cmp-EEG${ADJOINT}EST-dip-${HEAD}-dip${DIP}-${COMP}" PROPERTIES DEPENDS EEG${ADJOINT}-dipoles-${HEAD})
+                    ${BASE_FILE_NAME} analytic/eeg_head${HEADNUM}_analytic.txt -${COMP} -eps ${EPSILON} -col ${DIP} -full
+                    DEPENDS EEG${ADJOINT}-dipoles-${HEAD})
             ENDFOREACH()
         ENDFOREACH()
     ENDFOREACH()
@@ -78,14 +79,11 @@ FOREACH(HEADNUM 1 2 ${HEAD3})
     SET(MODELPREFIX ${DATADIR}/Models/${HEAD}/${HEAD})
     SET(TESTPREFIX ${OpenMEEG_BINARY_DIR}/tests/${HEAD})
     # validationEIT geometry.geom conductivity.cond dipoles.dip source.dsm headmatinv.bin out.eit_qgradVj out.eit_diffVf
-    ADD_TEST(EITvalidation-dipoles-${HEAD}
+    OPENMEEG_TEST(EITvalidation-dipoles-${HEAD}
         ${VALIDATION_EIT} ${MODELPREFIX}.geom ${MODELPREFIX}.cond
         ${DATADIR}/Computations/${HEAD}/${HEAD}.dip
-        ${TESTPREFIX}.dsm ${TESTPREFIX}.hm_inv ${TESTPREFIX}.eit_qgradVj ${TESTPREFIX}.eit_diffVf)
-
-    SET_TESTS_PROPERTIES(EITvalidation-dipoles-${HEAD} PROPERTIES DEPENDS HMINV-${HEAD})
-    SET_PROPERTY(TEST EITvalidation-dipoles-${HEAD} APPEND PROPERTY DEPENDS DSM-${HEAD})
-
+        ${TESTPREFIX}.dsm ${TESTPREFIX}.hm_inv ${TESTPREFIX}.eit_qgradVj ${TESTPREFIX}.eit_diffVf
+        DEPENDS HMINV-${HEAD} DSM-${HEAD})
 ENDFOREACH()
 
 FOREACH(DIP 1 2 3 4 5)
@@ -94,16 +92,13 @@ FOREACH(DIP 1 2 3 4 5)
         # Compare the potential results in a interior sphere of the Surf2Vol operator with analytical solution
         # obtained with Sphere (V.Hedou Modified)
         OPENMEEG_COMPARISON_TEST("EEGinternal-dip-${HEAD}-dip${DIP}"
-                                 ${HEAD}-dip.est_eeginternal analytic/eeg_internal_analytic.txt -eps ${EPSILON} -col ${DIP} -full)
-
-        SET_TESTS_PROPERTIES("cmp-EEGinternal-dip-${HEAD}-dip${DIP}" PROPERTIES DEPENDS InternalPot-dipoles-${HEAD})
+             ${HEAD}-dip.est_eeginternal analytic/eeg_internal_analytic.txt -eps ${EPSILON} -col ${DIP} -full
+             DEPENDS InternalPot-dipoles-${HEAD})
 
         # Compare the q.gradVj to diffVf in order to validate the EIT problem
         OPENMEEG_COMPARISON_TEST("EIT-${HEAD}-dip${DIP}"
-                                 ${HEAD}.eit_qgradVj ${OpenMEEG_BINARY_DIR}/tests/${HEAD}.eit_diffVf -eps ${EPSILON} -col ${DIP} -full)
-
-        SET_TESTS_PROPERTIES("cmp-EIT-${HEAD}-dip${DIP}" PROPERTIES DEPENDS EITvalidation-dipoles-${HEAD})
-
+             ${HEAD}.eit_qgradVj ${OpenMEEG_BINARY_DIR}/tests/${HEAD}.eit_diffVf -eps ${EPSILON} -col ${DIP} -full
+             DEPENDS EITvalidation-dipoles-${HEAD})
     ENDFOREACH()
 ENDFOREACH()
 # set tests that are expected to fail :
@@ -116,19 +111,13 @@ FOREACH(SENSORORIENT "" "-tangential" "-noradial")
             FOREACH(COMP mag rdm)
                 # Compare MEG result with analytical solution obtained with Matlab
                 OPENMEEG_COMPARISON_TEST("MEGEST-dip-${HEAD}-dip${DIP}${SENSORORIENT}-${COMP}"
-                    ${HEAD}-dip${SENSORORIENT}.est_meg analytic/meg_analytic${SENSORORIENT}.txt -${COMP} -eps ${EPSILON} -col ${DIP} -full)
-
-                SET_TESTS_PROPERTIES("cmp-MEGEST-dip-${HEAD}-dip${DIP}${SENSORORIENT}-${COMP}"
-                    PROPERTIES DEPENDS MEG-dipoles-${HEAD}${SENSORORIENT})
-
+                    ${HEAD}-dip${SENSORORIENT}.est_meg analytic/meg_analytic${SENSORORIENT}.txt -${COMP} -eps ${EPSILON} -col ${DIP} -full
+                    DEPENDS MEG-dipoles-${HEAD}${SENSORORIENT})
             ENDFOREACH()
         ENDFOREACH()
         OPENMEEG_COMPARISON_TEST("MEGEST-dip${SENSORORIENT}-${HEAD}-dip6"
-            ${HEAD}-dip${SENSORORIENT}.est_meg analytic/meg_analytic${SENSORORIENT}.txt -eps 0.001 -col 6 -full)
-
-        SET_TESTS_PROPERTIES("cmp-MEGEST-dip${SENSORORIENT}-${HEAD}-dip6"
-            PROPERTIES DEPENDS MEG-dipoles-${HEAD}${SENSORORIENT})
-
+            ${HEAD}-dip${SENSORORIENT}.est_meg analytic/meg_analytic${SENSORORIENT}.txt -eps 0.001 -col 6 -full
+            DEPENDS MEG-dipoles-${HEAD}${SENSORORIENT})
     ENDFOREACH()
 ENDFOREACH()
 

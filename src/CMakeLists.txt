@@ -46,8 +46,9 @@ INSTALL(FILES ${OPENMEEG_HEADERS}
 # = TESTING =
 # ===========
 
-INCLUDE(TestHead.txt)
 IF(BUILD_TESTING)
+    INCLUDE(TestHead.txt)
+
     TESTHEAD(1)
     TESTHEAD(2)
 
