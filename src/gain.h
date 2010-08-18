@@ -78,7 +78,7 @@ namespace OpenMEEG {
                 #ifdef USE_OMP
                 #pragma omp parallel for
                 #endif
-                for (int i=0;i<L.nlin();i++) {
+                for (unsigned i=0;i<L.nlin();i++) {
                     Vector vtemp(SourceMat.nlin());
                     Matrix mtemp(1,SourceMat.nlin());
                     GMRes(HeadMat,M,vtemp,Head2EEGMat.getlin(i),1e4,1e-8);

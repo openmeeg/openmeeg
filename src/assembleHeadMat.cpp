@@ -156,7 +156,7 @@ namespace OpenMEEG {
         // Count number of points per domains
 
         std::vector<int> nb_pts_per_dom(geo.nb(),0);
-        for (int i=0;i<points.nlin();i++) {
+        for (unsigned i=0;i<points.nlin();i++) {
             if (points.ncol()==3)
                 ++nb_pts_per_dom[0];
             else {
@@ -173,7 +173,7 @@ namespace OpenMEEG {
         for (int c=0;c<geo.nb();++c) {
             vect_PtsInDom[c] = Matrix(nb_pts_per_dom[c],3);
             int iptd=0;
-            for (int ipt=0;ipt<points.nlin();ipt++) // get the points in the domain c
+            for (unsigned ipt=0;ipt<points.nlin();ipt++) // get the points in the domain c
                 if (((points.ncol()==4) && (points(ipt,3)==c)) || ((points.ncol()==3) && (c==0))) {
                     vect_PtsInDom[c](iptd,0)   = points(ipt,0);
                     vect_PtsInDom[c](iptd,1)   = points(ipt,1);
