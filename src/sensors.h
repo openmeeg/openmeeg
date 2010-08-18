@@ -116,7 +116,7 @@ namespace OpenMEEG {
 
     public:
         Sensors(): m_nb(0) {} /*!< Default constructor. Number of sensors = 0. */
-        Sensors(char* filename); /*!< Construct from file. Option 't' is for text file, and 'b' is for binary file. */
+        Sensors(const char* filename); /*!< Construct from file. Option 't' is for text file, and 'b' is for binary file. */
         Sensors(const Sensors& S) { copy(S); }        /*!< Copy constructor. */
         ~Sensors() { m_nb=0; }                        /*!< Destructor. Number of sensors = 0. */
 
