@@ -278,6 +278,11 @@ namespace OpenMEEG {
         bool intersection(const Mesh& m) const;
         bool correct_orientation() const;
 
+        /**
+         * Postprocessing after loading meshes (empty).
+        **/
+
+        void normalize() const { }
 
     private:
         Filetype streamFormat;

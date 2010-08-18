@@ -42,7 +42,6 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #include <iostream>
 #include <fstream>
-#include <sstream>
 #include <vector>
 #include <new>
 #include <IOUtils.H>
@@ -87,6 +86,10 @@ namespace MeshDescription {
                     throw MeshDescription::OpenError(full_name);
 
                 ifs >> interfaces()[i];
+
+                //  Verify that the outer pixels are positive, otherwise invert the levelset image.
+
+                interfaces()[i].normalize();
             }
         }
 
@@ -106,7 +109,7 @@ namespace MeshDescription {
                 while (iss >> number) {
                     const unsigned index = abs(number);
                     if ((index==0) || (index>interfaces().size()))
-                        throw 2;
+                        throw MeshDescription::NonExistingDomain(i->name(),index);
                     i->push_back(HalfSpace(number));
                 }
                 iss.clear();
@@ -140,7 +143,7 @@ namespace MeshDescription {
 
         Reader(const char* geometry);
 
-        Domains& domains()       { return doms; }
+              Domains& domains()       { return doms; }
         const Domains& domains() const { return doms; }
 
         Names domain_names() const {
@@ -156,16 +159,16 @@ namespace MeshDescription {
         const Names&       interface_names() const                { return names;      }
         const std::string& interface_name(const unsigned i) const { return names[i-1]; }
 
-        Interfaces& interfaces()       { return interfs; }
+              Interfaces& interfaces()       { return interfs; }
         const Interfaces& interfaces() const { return interfs; }
-
-        Normals&    normals()          { return nrmls; }
+   
+              Normals&    normals()          { return nrmls; }
         const Normals&    normals()    const { return nrmls; }
 
         void stats() const {
             std::cerr << "There are:" << std::endl
-                << interfaces().size() << " interfaces" << std::endl
-                << doms.size()         << " domains"    << std::endl;
+                      << interfaces().size() << " interfaces" << std::endl
+                      << doms.size()         << " domains"    << std::endl;
         }
 
     private:
@@ -224,7 +227,7 @@ namespace MeshDescription {
         ifs >> io_utils::match("# Domain Description 1.0");
 
         if (ifs.fail())
-            throw "Wrong file format!";
+            throw WrongFileFormat(geometry);
 
         GEOMETRY::Load(ifs);
 
@@ -235,7 +238,7 @@ namespace MeshDescription {
             >> io_utils::match("Interfaces") >> num_interfaces >> io_utils::match(INTERFACES::keyword);
 
         if (ifs.fail())
-            throw "Wrong file format!";
+            throw WrongFileFormat(geometry);
 
         names.reserve(num_interfaces);
         names.resize(num_interfaces);
@@ -249,14 +252,14 @@ namespace MeshDescription {
         ifs >> io_utils::skip_comments('#') >> io_utils::match("Domains") >> num_domains;
 
         if (ifs.fail())
-            throw "Wrong file format!";
+            throw WrongFileFormat(geometry);
 
         domains().reserve(num_domains);
         domains().resize(num_domains);
         LoadDomains(ifs);
 
         if (ifs.fail())
-            throw "Wrong file format!";
+            throw WrongFileFormat(geometry);
 
         //  Process normals (optional).
 
@@ -266,7 +269,7 @@ namespace MeshDescription {
         if (hasnormals) {
             LoadNormals(ifs);
             if (ifs.fail())
-                throw "Wrong file format!";
+                throw WrongFileFormat(geometry);
         }
         
         //  Close the input file.

@@ -86,10 +86,6 @@ import_array();
     try {
         $action
     }
-    catch (char* e) {
-        PyErr_SetString(PyExc_IndexError,e);
-        return NULL;
-    }
     catch (std::exception& e) {
         PyErr_SetString(PyExc_IndexError,e.what());
         return NULL;
