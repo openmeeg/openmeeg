@@ -169,8 +169,8 @@ knowledge of the CeCILL-B license and that you accept its terms.
             #define DGETRI(X1,X2,X3,X4,X5,X6,X7) LAPACK(dgetri,DGETRI)(&X1,X2,&X3,X4,X5,&X6,&X7)
             // #define DGETRI(X1,X2,X3,X4,X5,X6,X7) LAPACK(dgetri,DGETRI)(CblasColMajor,X1,X2,X3,X4)
         #else
-            #define DGETRF(X1,X2,X3,X4,X5,X6) LAPACK(dgetrf,DGETRF)(CblasColMajor,X1,X2,X3,X4,X5)
-            #define DGETRI(X1,X2,X3,X4,X5,X6,X7) LAPACK(dgetri,DGETRI)(CblasColMajor,X1,X2,X3,X4)
+            #define DGETRF(X1,X2,X3,X4,X5) LAPACK(dgetrf,DGETRF)(CblasColMajor,X1,X2,X3,X4,X5)
+            #define DGETRI(X1,X2,X3,X4)    LAPACK(dgetri,DGETRI)(CblasColMajor,X1,X2,X3,X4)
         #endif
     #else
         #define DGETRF(X1,X2,X3,X4,X5,X6) LAPACK(dgetrf,DGETRF)(X1,X2,X3,X4,X5,X6)

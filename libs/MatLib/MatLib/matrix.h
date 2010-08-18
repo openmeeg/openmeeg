@@ -293,29 +293,35 @@ namespace OpenMEEG {
         assert(nlin()==ncol());
         Matrix invA(*this,DEEP_COPY);
         // LU
-        #if defined(USE_ATLAS) & defined(__APPLE__) // Apple Veclib Framework (Handles 32 and 64 Bits)
-        __CLPK_integer *pivots = new __CLPK_integer[ncol()];
-        __CLPK_integer Info;
-        __CLPK_integer nlin_local = invA.nlin();
-        __CLPK_integer nlin_local2 = invA.nlin();
-        __CLPK_integer ncol_local = invA.ncol();
-        __CLPK_integer sz = invA.ncol()*64;
+        #if defined(USE_ATLAS)
+            #if defined(__APPLE__) // Apple Veclib Framework (Handles 32 and 64 Bits)
+                __CLPK_integer *pivots = new __CLPK_integer[ncol()];
+                __CLPK_integer Info;
+                __CLPK_integer nlin_local = invA.nlin();
+                __CLPK_integer nlin_local2 = invA.nlin();
+                __CLPK_integer ncol_local = invA.ncol();
+                __CLPK_integer sz = invA.ncol()*64;
+                DGETRF(nlin_local,ncol_local,invA.data(),nlin_local2,pivots,Info);
+                double *work=new double[sz];
+                DGETRI(ncol_local,invA.data(),ncol_local,pivots,work,sz,Info);
+                delete[] pivots;
+                delete[] work;
+            #else
+                int *pivots=new int[ncol()];
+                DGETRF(invA.nlin(),invA.ncol(),invA.data(),invA.nlin(),pivots);
+                DGETRI(invA.ncol(),invA.data(),invA.ncol(),pivots);
+                delete[] pivots;
+            #endif
         #else
-        int *pivots=new int[ncol()];
-        int Info;
-        int nlin_local = invA.nlin();
-        int nlin_local2 = invA.nlin();
-        int ncol_local = invA.ncol();
-        int sz = (int)invA.ncol()*64;
+            int Info;
+            int *pivots=new int[ncol()];
+            DGETRF(invA.nlin(),invA.ncol(),invA.data(),invA.nlin(),pivots,Info);
+            const unsigned sz = invA.ncol()*64;
+            double *work=new double[sz];
+            DGETRI(invA.ncol(),invA.data(),invA.ncol(),pivots,work,sz,Info);
+            delete[] pivots;
+            delete[] work;
         #endif
-        DGETRF(nlin_local,ncol_local,invA.data(),nlin_local2,pivots,Info);
-        // DGETRF(invA.nlin(),invA.ncol(),invA.data(),invA.nlin(),pivots,Info);
-        // Inverse
-        double *work=new double[sz];
-        DGETRI(ncol_local,invA.data(),ncol_local,pivots,work,sz,Info);
-        // DGETRI(invA.ncol(),invA.data(),invA.ncol(),pivots,work,sz,Info);
-        delete[] pivots;
-        delete[] work;
         return invA;
     #else
         std::cerr << "!!!!! Inverse not implemented !!!!!" << std::endl;
