@@ -37,21 +37,16 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#include <cstring>
-#include "matrix.h"
-#include "symmatrix.h"
 #include "vector.h"
 
-using namespace std;
 using namespace OpenMEEG;
 
 namespace OpenMEEG {
     namespace Preconditioner {
 
-        template <class M>
+        template <typename M>
         class Jacobi {
-
-            public:
+        public:
             Jacobi (const M m): v(m.nlin()) { 
                 for (unsigned i=0;i<m.nlin();i++) 
                     v(i)=1.0/m(i,i);
@@ -63,7 +58,7 @@ namespace OpenMEEG {
             }
 
             ~Jacobi () {};
-            private:
+        private:
             Vector v;
         };
     }
