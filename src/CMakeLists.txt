@@ -3,7 +3,7 @@ SET(OPENMEEG_HEADERS
     mesh3.h PropertiesSpecialized.h inversers.h conditioning.h
 #   These files are imported from another repository.
 #   Please do not update them in this repository.
-    DataTag.H FileExceptions.H IOUtils.H MeshDescription/Reader.H MeshDescription/Normals.H MeshDescription/Domains.H MeshDescription/Exceptions.H
+    DataTag.H FileExceptions.H MeshDescription/Reader.H MeshDescription/Normals.H MeshDescription/Domains.H MeshDescription/Exceptions.H
     Properties.H
 )
 
@@ -22,11 +22,11 @@ MACRO(OPENMEEG_EXECUTABLE EXECUTABLE)
     NEW_EXECUTABLE(${EXECUTABLE} ${ARGN} LIBRARIES OpenMEEG ${OPENMEEG_OTHER_LIBRARIES})
 ENDMACRO()
 
-OPENMEEG_EXECUTABLE(om_presmooth presmooth.cpp ${OPENMEEG_HEADERS})
-OPENMEEG_EXECUTABLE(om_minverser minverser.cpp ${OPENMEEG_HEADERS})
-OPENMEEG_EXECUTABLE(om_inverse inverse.cpp ${OPENMEEG_HEADERS})
-OPENMEEG_EXECUTABLE(om_gain gain.cpp ${OPENMEEG_HEADERS})
-OPENMEEG_EXECUTABLE(om_forward forward.cpp ${OPENMEEG_HEADERS})
+OPENMEEG_EXECUTABLE(om_presmooth presmooth.cpp)
+OPENMEEG_EXECUTABLE(om_minverser minverser.cpp)
+OPENMEEG_EXECUTABLE(om_inverse inverse.cpp)
+OPENMEEG_EXECUTABLE(om_gain gain.cpp)
+OPENMEEG_EXECUTABLE(om_forward forward.cpp)
 OPENMEEG_EXECUTABLE(om_assemble assemble.cpp)
 
 # ================
