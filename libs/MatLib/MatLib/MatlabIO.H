@@ -165,7 +165,7 @@ namespace OpenMEEG {
                 return st==LinOpInfo::FULL || st==LinOpInfo::SYMMETRIC || st==LinOpInfo::SPARSE;
             }
 
-            LinOpInfo info(std::ifstream& is) const throw(std::exception) {
+            LinOpInfo info(std::ifstream& is) const {
                 if (is.is_open())
                     is.close();
 
@@ -186,7 +186,7 @@ namespace OpenMEEG {
                 return linop;
             }
 
-            void read(std::ifstream& is,LinOp& linop) const throw(std::exception) {
+            void read(std::ifstream& is,LinOp& linop) const {
                 if (is.is_open()) {
                     is.close();
                 }
@@ -215,7 +215,7 @@ namespace OpenMEEG {
                 Mat_Close(mat);
             }
 
-            void write(std::ofstream& os, const LinOp& linop) const throw(std::exception) {
+            void write(std::ofstream& os, const LinOp& linop) const {
                 if (os.is_open()) {
                     os.close();
                     std::remove(name().c_str());
@@ -251,7 +251,7 @@ namespace OpenMEEG {
             ~MatlabIO() {};
 
             template <typename TYPE>
-            matvar_t* read_header(mat_t* mat,LinOpInfo& linop) const throw(maths::BadContent) {
+            matvar_t* read_header(mat_t* mat,LinOpInfo& linop) const {
                 matvar_t* matvar = Mat_VarReadNext(mat);
                 while (matvar!=NULL && !details::helper<TYPE>::good_type(matvar)) {
                     Mat_VarFree(matvar);
@@ -263,7 +263,7 @@ namespace OpenMEEG {
             }
 
             template <typename TYPE>
-            void read(mat_t* mat,LinOp& linop) const throw(std::exception) {
+            void read(mat_t* mat,LinOp& linop) const {
                 matvar_t* matvar = read_header<TYPE>(mat,linop);
                 TYPE& O = dynamic_cast<TYPE&>(linop);
                 O.reference_data(static_cast<double*>(matvar->data));
@@ -271,7 +271,7 @@ namespace OpenMEEG {
                 Mat_VarFree(matvar);
             }
 
-            void read_sparse(mat_t* mat,LinOp& linop) const throw(std::exception) {
+            void read_sparse(mat_t* mat,LinOp& linop) const {
                 matvar_t*     matvar = read_header<SparseMatrix>(mat,linop);
                 SparseMatrix& m      = dynamic_cast<SparseMatrix&>(linop);
                 std::cout << "Using variable with name : " << matvar->name << std::endl;
