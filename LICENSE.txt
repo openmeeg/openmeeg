@@ -1,25 +1,30 @@
-Copyright INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre 
-GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU, Emmanuel OLIVI,
-Theodore PAPADOPOULO,
-Maureen.Clerc.AT.sophia.inria.fr, keriven.AT.certis.enpc.fr,
-kybic.AT.fel.cvut.cz, papadop.AT.sophia.inria.fr, Alexandre.Gramfort.AT.inria.fr,
-Emmanuel.Olivi.AT.sophia.inria.fr)
+Copyright INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC,
+Alexandre GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU,
+Emmanuel OLIVI, Theodore PAPADOPOULO, Maureen.Clerc.AT.sophia.inria.fr, keriven.AT.certis.enpc.fr, kybic.AT.fel.cvut.cz, papadop.AT.sophia.inria.fr, Alexandre.Gramfort.AT.inria.fr, Emmanuel.Olivi.AT.sophia.inria.fr)
 
 Contact : openmeeg-info@lists.gforge.inria.fr
+Web : http://openmeeg.gforge.inria.fr
 
-The OpenMEEG software is a C++ package for solving the forward/inverse
-problems of electroencephalography and magnetoencephalography.
+The OpenMEEG software is a C++ package for solving the forward
+problems of electroencephalography (EEG) and magnetoencephalography (MEG).
 
-BibTex Citation:
+OpenMEEG is distributed under the French opensource license CeCILL-B. It is
+intended to give users the freedom to modify and redistribute the software.
+It is therefore compatible with popular opensource licenses such as the GPL
+and BSD licenses. The CeCILL-B license imposes to anybody distributing a
+software incorporating OpenMEEG the obligation to give credits (by citing the
+appropriate publications), in order for all contributions to be properly
+identified and acknowledged.
 
-@MISC{OpenMEEG,
-  author = {A Gramfort and T Papadopoulo and E Olivi and M Clerc},
-  title = {OpenMEEG},
-  month = {January},
-  year = {2010},
-  timestamp = {2010.01.01},
-  url = { http://openmeeg.gforge.inria.fr/ }
-}
+The references to be acknowledged are :
+
+Gramfort et al. OpenMEEG: opensource software for quasistatic
+bioelectromagnetics. Biomedical engineering online (2010) vol. 9 (1) pp. 45
+
+Kybic et al. Generalized head models for MEG/EEG: boundary element method
+beyond nested volumes. Phys. Med. Biol. (2006) vol. 51 pp. 1333-1346
+
+-- CeCILL-B full license
 
 This software is governed by the CeCILL-B license under French law and
 abiding by the rules of distribution of free software.  You can  use,
