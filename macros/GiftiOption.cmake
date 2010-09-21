@@ -3,7 +3,7 @@
 #------------------------------------------------------------
 
 OPTION(USE_GIFTI "Build the project using GIFTI IO support" OFF)
-# MARK_AS_ADVANCED(USE_GIFTI)
+MARK_AS_ADVANCED(USE_GIFTI)
 
 IF (USE_GIFTI)
     FIND_LIBRARY(GIFTI_LIBRARY giftiio)
