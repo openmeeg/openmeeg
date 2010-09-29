@@ -455,7 +455,7 @@ help_test(const char *test)
     else if ( !strcmp(test,"writesparse") )
         Mat_Help(helptest_writesparse);
     else if ( !strcmp(test,"write_compressed_sparse") )
-        Mat_Help(helptest_writesparse);
+        Mat_Help(helptest_write_compressed_sparse);
     else if ( !strcmp(test,"write_struct") )
         Mat_Help(helptest_write_struct);
     else if ( !strcmp(test,"write_compressed_struct") )
@@ -499,7 +499,7 @@ test_write( void )
 #ifdef HAVE_MAT_UINT64_T
     mat_uint64_t ui64[50];
 #endif
-    char *str = "This is a string";
+    const char *str = "This is a string";
     mat_t *mat;
     matvar_t *matvar;
 
@@ -576,7 +576,7 @@ test_write_compressed( void )
 #ifdef HAVE_MAT_UINT64_T
     mat_uint64_t ui64[50];
 #endif
-    char *str = "This is a string";
+    const char *str = "This is a string";
     mat_t *mat;
     matvar_t *matvar;
 
@@ -726,7 +726,7 @@ test_write_struct()
     double  data[50]={0.0,};
     float  fdata[50]={0.0,};
     int    idata[50]={0.0,};
-    char  *str = "This is a string";
+    const char  *str = "This is a string";
     int    err = 0, i;
     mat_t     *mat;
     matvar_t **matvar, *struct_matvar, *substruct_matvar;
@@ -782,7 +782,7 @@ test_write_compressed_struct()
     double  data[50]={0.0,};
     float  fdata[50]={0.0,};
     int    idata[50]={0.0,};
-    char  *str = "This is a string";
+    const char  *str = "This is a string";
     int    err = 0, i;
     mat_t     *mat;
     matvar_t **matvar, *struct_matvar, *substruct_matvar;
@@ -1087,7 +1087,7 @@ test_get_struct_field(const char *file,const char *structname,
 {
     mat_t *mat;
     matvar_t *matvar, *field;
-    int index = 1, err = 0;
+    int ind = 1, err = 0;
 
     mat = Mat_Open(file,MAT_ACC_RDONLY);
     if ( mat ) {
@@ -1104,8 +1104,8 @@ test_get_struct_field(const char *file,const char *structname,
                 case '7':
                 case '8':
                 case '9':
-                    index = atoi(fieldname);
-                    field = Mat_VarGetStructField(matvar,&index,BY_INDEX,0);
+                    ind = atoi(fieldname);
+                    field = Mat_VarGetStructField(matvar,&ind,BY_INDEX,0);
                     err = (field == NULL) ? 1 : 0;
                     if ( !err )
                         Mat_VarPrint( field, 0);
@@ -1284,14 +1284,14 @@ test_writeinf(void)
 static int
 test_writesparse( void )
 {
-    int dims[2] = {5,10}, err = 0, i;
+    int dims[2] = {5,10}, err = 0;
     double    d[50] = {1,5,7,8,9,11,15,17,18,19,21,25,27,28,29,31,35,37,38,39,
                        41,45,47,48,49};
     mat_int32_t  ir[25] = {0,4,1,2,3,0,4,1,2,3,0,4,1,2,3,0,4,1,2,3,0,4,1,2,3};
     mat_int32_t  jc[11] = {0,2,5,7,10,12,15,17,20,22,25};
     mat_t *mat;
     matvar_t *matvar;
-    sparse_t  sparse = {0,};
+    sparse_t  sparse;
 
     sparse.nzmax = 25;
     sparse.nir   = 25;
@@ -1322,14 +1322,14 @@ test_writesparse( void )
 static int
 test_write_compressed_sparse( void )
 {
-    int dims[2] = {5,10}, err = 0, i;
+    int dims[2] = {5,10}, err = 0;
     double    d[50] = {1,5,7,8,9,11,15,17,18,19,21,25,27,28,29,31,35,37,38,39,
                        41,45,47,48,49};
     mat_int32_t  ir[25] = {0,4,1,2,3,0,4,1,2,3,0,4,1,2,3,0,4,1,2,3,0,4,1,2,3};
     mat_int32_t  jc[11] = {0,2,5,7,10,12,15,17,20,22,25};
     mat_t *mat;
     matvar_t *matvar;
-    sparse_t  sparse = {0,};
+    sparse_t  sparse;
 
     sparse.nzmax = 25;
     sparse.nir   = 25;
@@ -1377,10 +1377,10 @@ test_delete(char *file,char *name)
 
 int main (int argc, char *argv[])
 {
-    char *prog_name = "test_mat";
+    const char *prog_name = "test_mat";
     int   i, k, err = 0, ntests = 0;
     mat_t *mat, *mat2;
-    matvar_t *matvar, *matvar2, *matvar3;
+    matvar_t *matvar;
 
     Mat_LogInit(prog_name);
 
@@ -1393,7 +1393,7 @@ int main (int argc, char *argv[])
     } else if  ( (argc == 3) && !strcmp(argv[1],"--help") ) {
         help_test(argv[2]);
     } else if  ( (argc == 2) && !strcmp(argv[1],"--version") ) {
-        printf("%s v%d.%d.%d (compiled %s, %s for %s)\n", prog_name,
+        printf("%s v%s.%s.%s (compiled %s, %s for %s)\n", prog_name,
                MATIO_MAJOR_VERSION, MATIO_MINOR_VERSION, MATIO_RELEASE_LEVEL,
                __DATE__, __TIME__, MATIO_PLATFORM );
         exit(EXIT_SUCCESS);
@@ -1575,10 +1575,10 @@ int main (int argc, char *argv[])
             k++;
             ntests++;
         } else if ( !strcasecmp(argv[k],"sub2ind") ) {
-            int  dims[3] = {256,256,124}, index[3] = {233,74,1};
+            int  dims[3] = {256,256,124}, ind[3] = {233,74,1};
             int  linear_index;
 
-            linear_index = Mat_CalcSingleSubscript(3,dims,index);
+            linear_index = Mat_CalcSingleSubscript(3,dims,ind);
             Mat_Message("%d",linear_index);
             k++;
             ntests++;

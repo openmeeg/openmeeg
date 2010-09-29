@@ -805,7 +805,7 @@ Mat_VarFree2(matvar_t *matvar)
 int
 Mat_CalcSingleSubscript(int rank,int *dims,int *subs)
 {
-    int index = 0, i, j, k, err = 0;
+    int ind = 0, i, j, k, err = 0;
 
     for ( i = 0; i < rank; i++ ) {
         k = subs[i];
@@ -820,12 +820,12 @@ Mat_CalcSingleSubscript(int rank,int *dims,int *subs)
         k--;
         for ( j = i; j--; )
             k *= dims[j];
-        index += k;
+        ind += k;
     }
     if ( err )
-        index = -1;
+        ind = -1;
 
-    return index;
+    return ind;
 }
 
 
@@ -844,17 +844,17 @@ Mat_CalcSingleSubscript(int rank,int *dims,int *subs)
  * @ingroup MAT
  * @param rank Rank of the variable
  * @param dims dimensions of the variable
- * @param index linear index
+ * @param ind linear index
  * @return Array of dimension subscripts
  */
 int *
-Mat_CalcSubscripts(int rank,int *dims,int index)
+Mat_CalcSubscripts(int rank,int *dims,int ind)
 {
     int i, j, k, *subs;
     double l;
 
     subs = malloc(rank*sizeof(int));
-    l = index;
+    l = ind;
     for ( i = rank; i--; ) {
         k = 1;
         for ( j = i; j--; )
@@ -873,11 +873,11 @@ Mat_CalcSubscripts(int rank,int *dims,int index)
  * MAT file must be a version 5 matlab file.
  * @ingroup MAT
  * @param matvar Pointer to the Cell Array MAT variable
- * @param index linear index of cell to return
+ * @param ind linear index of cell to return
  * @return Pointer to the Cell Array Field on success, NULL on error
  */
 matvar_t *
-Mat_VarGetCell(matvar_t *matvar,int index)
+Mat_VarGetCell(matvar_t *matvar,int ind)
 {
     int       nmemb = 1, i;
     matvar_t *cell = NULL;
@@ -888,8 +888,8 @@ Mat_VarGetCell(matvar_t *matvar,int index)
     for ( i = 0; i < matvar->rank; i++ )
         nmemb *= matvar->dims[i];
 
-    if ( index < nmemb )
-        cell = *((matvar_t **)matvar->data + index);
+    if ( ind < nmemb )
+        cell = *((matvar_t **)matvar->data + ind);
 
     return cell;
 }
@@ -978,7 +978,7 @@ Mat_VarGetCells(matvar_t *matvar,int *start,
  * @returns an array of pointers to the cells
  */
 matvar_t **
-Mat_VarGetCellsLinear(matvar_t *matvar,int start,int stride,int edge)
+Mat_VarGetCellsLinear(matvar_t *matvar,int UNUSED(start),int stride,int edge)
 {
     int i, I = 0;
     matvar_t **cells;
@@ -1110,11 +1110,11 @@ Mat_VarGetNumberOfFields(matvar_t *matvar)
  * value is the index number.
  * @param opt BY_NAME if the name_or_index is the name or BY_INDEX if the index
  * was passed.
- * @param index linear index of the structure to find the field of
+ * @param ind linear index of the structure to find the field of
  * @return Pointer to the Structure Field on success, NULL on error
  */
 matvar_t *
-Mat_VarGetStructField(matvar_t *matvar,void *name_or_index,int opt,int index)
+Mat_VarGetStructField(matvar_t *matvar,void *name_or_index,int opt,int ind)
 {
     int       i, err = 0, nfields, nmemb;
     matvar_t *field = NULL;
@@ -1125,7 +1125,7 @@ Mat_VarGetStructField(matvar_t *matvar,void *name_or_index,int opt,int index)
 
     nfields = matvar->nbytes / (nmemb*sizeof(matvar_t *));
 
-    if ( index >= nmemb || index < 0)
+    if ( ind >= nmemb || ind < 0)
         err = 1;
 
     if ( !err && (opt == BY_INDEX) ) {
@@ -1136,14 +1136,14 @@ Mat_VarGetStructField(matvar_t *matvar,void *name_or_index,int opt,int index)
         if ( field_index > nfields || field_index < 1 )
             Mat_Critical("Mat_VarGetStructField: field index out of bounds");
         else
-            field = *((matvar_t **)matvar->data+index*nfields+field_index - 1);
+            field = *((matvar_t **)matvar->data+ind*nfields+field_index - 1);
     } else if ( !err && (opt == BY_NAME) ) {
         char *field_name;
 
         field_name = (char *)name_or_index;
 
         for ( i = 0; i < nfields; i++ ) {
-            field = *((matvar_t **)matvar->data+index*nfields+i);
+            field = *((matvar_t **)matvar->data+ind*nfields+i);
             if ( !strcmp(field->name,field_name) )
                 break;
             else
@@ -1263,7 +1263,7 @@ Mat_VarGetStructs(matvar_t *matvar,int *start,int *stride,int *edge,
  * MAT File version must be 5.
  * @ingroup MAT
  * @param matvar Structure matlab variable
- * @param start starting index
+ * @param start starting index (not used)
  * @param stride stride
  * @param edge Number of structures to get
  * @param copy_fields 1 to copy the fields, 0 to just set pointers to them.
@@ -1271,7 +1271,7 @@ Mat_VarGetStructs(matvar_t *matvar,int *start,int *stride,int *edge,
  * @returns A new structure with fields indexed from matvar
  */
 matvar_t *
-Mat_VarGetStructsLinear(matvar_t *matvar,int start,int stride,int edge,
+Mat_VarGetStructsLinear(matvar_t *matvar,int UNUSED(start),int stride,int edge,
     int copy_fields)
 {
     int i, I = 0, field, nfields;
@@ -1785,17 +1785,17 @@ Mat_VarWriteData(mat_t *mat,matvar_t *matvar,void *data,
  * @ingroup MAT
  * @param mat MAT file to write to
  * @param matvar MAT variable information to write
- * @param compress Whether or not to compress the data
+ * @param comp Whether or not to compress the data
  *        (Only valid for version 5 MAT files and variables with numeric data)
  * @retval 0 on success
  */
 int
-Mat_VarWrite( mat_t *mat, matvar_t *matvar, int compress )
+Mat_VarWrite( mat_t *mat, matvar_t *matvar, int comp )
 {
     if ( mat == NULL || matvar == NULL )
         return -1;
     else if ( mat->version != MAT_FT_MAT4 )
-        Write5(mat,matvar,compress);
+        Write5(mat,matvar,comp);
 
     return 0;
 }
