@@ -194,8 +194,8 @@ namespace OpenMEEG {
         }
     }
 
-    EITSourceMat::EITSourceMat(const Geometry &geo, Matrix  &positions, const int GaussOrder) {
-        assemble_EITSourceMat(*this, geo, positions, GaussOrder);
+    EITSourceMat::EITSourceMat(const Geometry &geo, Sensors &electrodes, const int GaussOrder) {
+        assemble_EITSourceMat(*this, geo, electrodes.getPositions(), GaussOrder);
     }
 
     void assemble_DipSource2InternalPotMat(Matrix &mat, Geometry& geo, const Matrix& dipoles,

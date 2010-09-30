@@ -78,8 +78,8 @@ namespace OpenMEEG {
         }
     }
 
-    Head2EEGMat::Head2EEGMat(const Geometry &geo, const Matrix &positions) {
-        assemble_Head2EEG(*this, geo, positions);
+    Head2EEGMat::Head2EEGMat(const Geometry &geo, const Sensors &electrodes) {
+        assemble_Head2EEG(*this, geo, electrodes.getPositions());
     }
 
     // MEG patches positions are reported line by line in the positions Matrix (same for positions)

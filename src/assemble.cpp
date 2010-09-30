@@ -92,7 +92,7 @@ int main(int argc, char** argv)
         Geometry geo;
         geo.read(argv[2],argv[3]);
         // Check for intersecting meshes
-        if (!geo.selfCheck()) { 
+        if (!geo.selfCheck()) {
             exit(1);
         }
 
@@ -203,14 +203,12 @@ int main(int argc, char** argv)
 
         // Loading surfaces from geometry file.
         Geometry geo;
-        geo.read(argv[2],argv[3]);
+        geo.read(argv[2], argv[3]);
 
-	Matrix electrodes(argv[4]);
-
-        EITSourceMat EITsource(geo,electrodes,GaussOrder);
+        Sensors electrodes(argv[4]);
+        EITSourceMat EITsource(geo, electrodes, GaussOrder);
         EITsource.save(argv[5]);
-        
- 
+
     }
 
     /*********************************************************************************************
@@ -241,11 +239,11 @@ int main(int argc, char** argv)
         geo.read(argv[2],argv[3]);
 
         // read the file containing the positions of the EEG patches
-        Matrix patches(argv[4]);
+        Sensors electrodes(argv[4]);
 
         // Assembling Matrix from discretization :
         // Head2EEG is the linear application which maps x |----> v
-        Head2EEGMat mat(geo,patches);
+        Head2EEGMat mat(geo, electrodes);
         // Saving Head2EEG Matrix :
         mat.save(argv[5]);
     }
@@ -479,7 +477,7 @@ void getHelp(char** argv) {
     cout << "               conductivity file (.cond)" << endl;
     cout << "               file containing the positions of EEG electrodes (.patches)" << endl;
     cout << "               output EITSourceOp" << endl;
-   
+
     cout << "   -Head2EEGMat, -H2EM, -h2em : " << endl;
     cout << "        Compute the linear application which maps the potential" << endl;
     cout << "        on the scalp to the EEG electrodes"  << endl;

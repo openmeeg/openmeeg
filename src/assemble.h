@@ -70,7 +70,7 @@ namespace OpenMEEG {
 
     class OPENMEEG_EXPORT EITSourceMat: public virtual Matrix {
     public:
-        EITSourceMat(const Geometry& geo,Matrix& positions,const int GaussOrder);
+        EITSourceMat(const Geometry& geo, Sensors& electrodes, const int GaussOrder);
         virtual ~EITSourceMat () {};
     };
 
@@ -82,7 +82,7 @@ namespace OpenMEEG {
 
     class OPENMEEG_EXPORT Head2EEGMat: public virtual SparseMatrix {
     public:
-        Head2EEGMat (const Geometry& geo, const Matrix& patches);
+        Head2EEGMat (const Geometry& geo, const Sensors& electrodes);
         virtual ~Head2EEGMat () {};
     };
 
