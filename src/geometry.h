@@ -85,7 +85,7 @@ namespace OpenMEEG {
 
         bool selfCheck() const;
         bool check(const Mesh& m) const;
-        int  getDomain(const Vect3& p);
+        int  getDomain(const Vect3& p) const;
 
     private:
         void destroy() {

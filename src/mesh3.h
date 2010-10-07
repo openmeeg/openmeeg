@@ -229,7 +229,7 @@ namespace OpenMEEG {
         /**
          * Compute the total solid angle of a surface for a point v and tell whether v is inside the mesh or not.
         **/
-        bool containsPoint(const Vect3&);
+        bool containsPoint(const Vect3&) const;
 
         /**
          * Return the area of each triangle
