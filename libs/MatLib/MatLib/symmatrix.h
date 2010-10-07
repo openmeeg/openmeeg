@@ -93,13 +93,14 @@ namespace OpenMEEG {
 
         SymMatrix operator+(const SymMatrix& B) const;
         SymMatrix operator-(const SymMatrix& B) const;
+        SymMatrix operator*(const SymMatrix& B) const;
         SymMatrix operator*(double x) const;
         SymMatrix operator/(double x) const {return (*this)*(1/x);}
         void operator +=(const SymMatrix& B);
         void operator -=(const SymMatrix& B);
         void operator *=(double x);
         void operator /=(double x) { (*this)*=(1/x); }
-        // Matrix operator*(const Matrix& B) const; // faux !!
+        Matrix operator*(const Matrix& B) const; // -1-- (faux !!)  -2-- ca n'a pas l'air faux
         Vector operator*(const Vector& v) const; // faux ?
 
         SymMatrix inverse() const;
@@ -263,29 +264,6 @@ namespace OpenMEEG {
     //     delete[] work;
     //     delete[] iwork;
     // #endif
-    // }
-
-    // inline Matrix SymMatrix::operator *(const Matrix &B) const {
-    //     assert(nlin()==B.nlin());
-    //     Matrix C(nlin(),B.ncol());
-    // 
-    // #ifdef HAVE_BLAS
-    //     Matrix D(*this);
-    //     DSYMM(CblasLeft,  CblasUpper
-    //         , (int)nlin(), (int)B.ncol(),
-    //         1. , D.data(), (int)D.ncol(),
-    //         B.data(), (int)B.nlin(),
-    //         0, C.data(),(int)C.nlin());
-    // #else
-    //     for (size_t j=0;j<B.ncol();j++)
-    //         for (size_t i=0;i<ncol();i++)
-    //         {
-    //             C(i,j)=0;
-    //             for (size_t k=0;k<ncol();k++)
-    //                 C(i,j)+=(*this)(i,k)*B(k,j);
-    //         }
-    // #endif
-    //     return C;
     // }
 
     inline SymMatrix SymMatrix::operator +(const SymMatrix &B) const {

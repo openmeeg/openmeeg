@@ -127,6 +127,7 @@ namespace OpenMEEG {
         Matrix operator*(const Matrix& B) const;
         Matrix operator*(const SymMatrix& B) const;
         Matrix operator*(const SparseMatrix& B) const;
+        Matrix operator+(const Vector& x) const;
         Matrix operator+(const Matrix& B) const;
         Matrix operator-(const Matrix& B) const;
         Matrix operator*(double x) const;
@@ -145,7 +146,9 @@ namespace OpenMEEG {
         Vector mean() const;
         Vector tmean() const;
 
-        Matrix transpose () const;
+        SymMatrix symmetrize() const;
+
+        Matrix transpose() const;
         Matrix inverse() const;
         // Matrix pinverse(double reltol=0) const;
         // void svd(Matrix &U,Matrix &S, Matrix &V) const;
@@ -435,6 +438,18 @@ namespace OpenMEEG {
     #endif
             return C;
     }
+    
+    inline Matrix Matrix::operator+(const Vector& x) const { // Matrix + a diagonal Matrix (vector)
+        assert(nlin()==x.nlin());
+    // #ifdef HAVE_BLAS // TODO try a BLAS, but which one ?
+    // #else
+        Matrix S(*this);
+        for(size_t i=0; i<nlin();i++)
+            S(i,i)+=x.data()[i];
+        return S;
+    // #endif
+    }
+
     
     inline Matrix Matrix::operator+(const Matrix &B) const {
         assert(ncol()==B.ncol());

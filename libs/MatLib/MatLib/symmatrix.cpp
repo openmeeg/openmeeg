@@ -71,6 +71,48 @@ namespace OpenMEEG {
         return C;
     }
 
+    SymMatrix SymMatrix::operator*(const SymMatrix &m) const {
+        assert(nlin()==m.nlin());
+    #ifdef HAVE_BLAS
+        Matrix D(*this);
+        Matrix B(m);
+        Matrix C(nlin());
+        DSYMM(CblasLeft,CblasUpper,(int)nlin(),(int)B.ncol(),1.,D.data(),(int)D.ncol(),B.data(),(int)B.nlin(),0,C.data(),(int)C.nlin());
+        return C.symmetrize();
+    #else
+        SymMatrix C(nlin());
+        for (size_t j=0;j<m.ncol();j++){
+            for (size_t i=0;i<ncol();i++)
+            {
+                C(i,j)=0;
+                for (size_t k=0;k<ncol();k++)
+                    C(i,j)+=(*this)(i,k)*m(k,j);
+            }
+        }
+        return C;
+    #endif
+    }
+
+    Matrix SymMatrix::operator*(const Matrix &B) const {
+        assert(ncol()==B.nlin());
+        Matrix C(nlin(),B.ncol());
+
+    #ifdef HAVE_BLAS
+        Matrix D(*this);
+        DSYMM(CblasLeft,CblasUpper ,(int)nlin(), (int)B.ncol(), 1. , D.data(), (int)D.ncol(), B.data(), (int)B.nlin(), 0, C.data(),(int)C.nlin());
+    #else
+        for (size_t j=0;j<B.ncol();j++){
+            for (size_t i=0;i<ncol();i++)
+            {
+                C(i,j)=0;
+                for (size_t k=0;k<ncol();k++)
+                    C(i,j)+=(*this)(i,k)*B(k,j);
+            }
+        }
+    #endif
+        return C;
+    }
+
     void SymMatrix::operator *=(double x) {
         for (size_t k=0; k<nlin()*(nlin()+1)/2; k++) data()[k] *= x;
     }

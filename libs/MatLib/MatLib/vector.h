@@ -86,6 +86,7 @@ namespace OpenMEEG {
             return value->data[i];
         }
 
+        Vector subvect(size_t istart, size_t isize) const;
         Vector operator+(const Vector& v) const;
         Vector operator-(const Vector& v) const;
         void operator+=(const Vector& v);
@@ -97,6 +98,7 @@ namespace OpenMEEG {
         Vector operator*(double x) const;
         Vector operator/(double x) const { return (*this)*(1.0/x); }
         double operator*(const Vector& v) const;
+        Vector operator*(const Matrix& m) const;
 
         Vector kmult(const Vector& x) const;
         // Vector conv(const Vector& v) const;
@@ -121,6 +123,14 @@ namespace OpenMEEG {
 
     OPENMEEGMATHS_EXPORT std::ostream& operator<<(std::ostream& f,const Vector &M);
     OPENMEEGMATHS_EXPORT std::istream& operator>>(std::istream& f,Vector &M);
+
+    inline Vector Vector::subvect(size_t istart, size_t isize) const {
+        assert (istart+isize<=nlin());
+        Vector a(isize);
+        for (size_t i=0; i<isize; i++)
+            a(i) = (*this)(istart+i);
+        return a;
+    }
 
     inline Vector Vector::operator+(const Vector& v) const {
         assert(nlin()==v.nlin());

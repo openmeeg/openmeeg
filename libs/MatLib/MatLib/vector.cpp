@@ -79,6 +79,12 @@ namespace OpenMEEG {
         return p;
     }
 
+    Vector Vector::operator*(const Matrix& m) const {
+        assert(nlin()==m.nlin());
+        Vector c(m.ncol());
+        return m.transpose()*(*this);
+    }
+
     void Vector::set(double x) {
         assert(nlin()>0);
         for( size_t i=0; i<nlin(); i++ )

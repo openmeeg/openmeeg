@@ -97,6 +97,16 @@ namespace OpenMEEG {
     // #endif
     // }
 
+    SymMatrix Matrix::symmetrize() const {
+        assert(nlin()==ncol());
+        SymMatrix result(nlin());
+        result.set(0.);
+        for(size_t i=0;i<nlin();i++) 
+            for(size_t j=i;j<nlin();j++)
+                result(i,j)=(*this)(i,j); //TODO check a BLAS operation for that
+        return result;
+    }
+
     Matrix Matrix::transpose() const {
         Matrix result(ncol(),nlin());
         for(size_t i=0;i<nlin();i++) for(size_t j=0;j<ncol();j++) result(j,i)=(*this)(i,j);
