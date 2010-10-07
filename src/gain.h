@@ -72,24 +72,23 @@ namespace OpenMEEG {
         public:
             using Matrix::operator=;
             GainEEGadjoint (const SymMatrix& HeadMat,const Matrix& SourceMat, const SparseMatrix& Head2EEGMat) {
-                Matrix reducedHeadMat = HeadMat(0,HeadMat.nlin()-1,0,SourceMat.nlin()-1);
-                Matrix L(Head2EEGMat.nlin(),SourceMat.ncol());
-                Preconditioner::Jacobi<SymMatrix> M(HeadMat);// Jacobi preconditionner
+                Matrix LeadField(Head2EEGMat.nlin(),SourceMat.ncol());
+                // Preconditioner::None<SymMatrix> M(HeadMat);   // None preconditionner
+                // Preconditioner::Jacobi<SymMatrix> M(HeadMat); // Jacobi preconditionner
+                Preconditioner::SSOR M(HeadMat,1.);              // SSOR preconditionner
                 #ifdef USE_OMP
                 #pragma omp parallel for
                 #endif
-                for (unsigned i=0;i<L.nlin();i++) {
+                for (unsigned i=0;i<LeadField.nlin();i++) {
                     Vector vtemp(SourceMat.nlin());
-                    Matrix mtemp(1,SourceMat.nlin());
-                    GMRes(HeadMat,M,vtemp,Head2EEGMat.getlin(i),1e4,1e-8);
-                    mtemp.setlin(0,vtemp);
-                    L.setlin(i,(mtemp*SourceMat).getlin(0));// TODO compute line of the operator source instead of loading the full SourceMat
+                    GMRes(HeadMat,M,vtemp,Head2EEGMat.getlin(i),1e3,1e-7);
+                    LeadField.setlin(i,vtemp*SourceMat);// TODO compute line of the operator source instead of loading the full SourceMat
                     #ifdef USE_OMP
                     #pragma omp critical
                     #endif
-                    PROGRESSBAR(i,L.nlin());
+                    PROGRESSBAR(i,LeadField.nlin());
                 }
-                *this = L;
+                *this = LeadField;
             }
             ~GainEEGadjoint () {};
     };

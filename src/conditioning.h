@@ -45,6 +45,17 @@ namespace OpenMEEG {
     namespace Preconditioner {
 
         template <typename M>
+        class None {
+        public:
+            None (const M m) { }
+            Vector operator()(const Vector& g) const {
+                return g;
+            }
+
+            ~None () {};
+        };
+
+        template <typename M>
         class Jacobi {
         public:
             Jacobi (const M m): v(m.nlin()) { 
@@ -60,6 +71,50 @@ namespace OpenMEEG {
             ~Jacobi () {};
         private:
             Vector v;
+        };
+
+        class SSOR {
+            Matrix prodMdiagM(const Matrix& m,const Vector& v) {
+                Matrix C(m.nlin(),m.ncol()); //TODO improve this multiplication
+                for (unsigned i=0;i<m.nlin();++i){
+                    C(i,i) = v(i);
+                }
+                return m*C;
+            }
+        public:
+            SSOR (const SymMatrix m, double _omega): omega(_omega) {
+                // we split M into E = lower triangular part+D/omega, and D = the diagonal
+                Vector D(m.nlin());
+                Vector Dinv(m.nlin());
+                for (int i=0;i<m.nlin();i++) {
+                    D(i)=m(i,i);
+                    Dinv(i)=omega/D(i);
+                }
+
+                Matrix E(m.nlin());
+                E.set(0.0);
+                for (int i=0;i<m.nlin();i++) {
+                    for (int j=0;j<=i;j++) {
+                        E(i,j)=m(i,j);
+                    }
+                }
+                for (int i=0;i<m.nlin();i++) {
+                        E(i,i)+=D(i)/omega;
+                }
+
+                // SSor = ((Lower+D*1./omega)*Dinv)*((Lower+D*1./omega).transpose()*1./(2-omega));
+                SSor = ((prodMdiagM(E,Dinv))*(E.transpose()*1./(2.-omega))).symmetrize().inverse();
+            }
+           
+            Vector operator()(const Vector& g) const {
+                Vector result=SSor*g;
+                return result;
+            }
+
+            ~SSOR () {};
+        private:
+            double omega;
+            SymMatrix SSor;
         };
     }
 }

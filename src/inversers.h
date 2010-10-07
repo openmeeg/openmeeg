@@ -303,74 +303,74 @@ namespace OpenMEEG {
 
     // code taken from http://math.nist.gov/iml++/ and modified
     template<class T,class P> // T should be a linear operator, and P a preconditionner
-        size_t GMRes(const T& A, const P& M, Vector &x, const Vector& b, int max_iter, double tol) {
+    size_t GMRes(const T& A, const P& M, Vector &x, const Vector& b, int max_iter, double tol) {
 
-            int m=60; // TODO check this parameter: size of the Krylov subspace
-            Matrix H(m+1,m);
-            x.set(0.0);
+        int m=A.nlin();//70 // TODO check this parameter: size of the Krylov subspace
+        Matrix H(m+1,m);
+        x.set(0.0);
 
-            double resid;
-            int i, j = 1, k;
-            Vector s(m+1), cs(m+1), sn(m+1), w;
+        double resid;
+        int i, j = 1, k;
+        Vector s(m+1), cs(m+1), sn(m+1), w;
 
-            double normb = (M(b)).norm();//(M*b).norm()
-            Vector r = M(b-A*x);//M.solve(b - A * x);
-            double beta = r.norm();
+        double normb = (M(b)).norm();//(M*b).norm()
+        Vector r = M(b-A*x);//M.solve(b - A * x);
+        double beta = r.norm();
 
-            if (normb == 0.0)
-                normb = 1;
+        if (normb == 0.0)
+            normb = 1;
 
-            if ((resid = r.norm() / normb) <= tol) {
-                tol = resid;
-                max_iter = 0;
-                return 0;
-            }
-            Vector *v = new Vector[m+1];
+        if ((resid = r.norm() / normb) <= tol) {
+            tol = resid;
+            max_iter = 0;
+            return 0;
+        }
+        Vector *v = new Vector[m+1];
 
-            while (j <= max_iter) {
-                v[0] = r * (1.0 / beta);
-                s.set(0.0);
-                s(0) = beta;
+        while (j <= max_iter) {
+            v[0] = r * (1.0 / beta);
+            s.set(0.0);
+            s(0) = beta;
 
-                for (i = 0; i < m && j <= max_iter; i++, j++) {
-                    w = M(A*v[i]); //M.solve(A * v[i]);
-                    for (k = 0; k <= i; k++) {
-                        H(k, i) = w*v[k];
-                        w -= H(k, i) * v[k];
-                    }
-                    H(i+1, i) = w.norm();
-                    v[i+1] = (w / H(i+1, i));
-
-                    for (k = 0; k < i; k++)
-                        ApplyPlaneRotation(H(k,i), H(k+1,i), cs(k), sn(k));
-
-                    GeneratePlaneRotation(H(i,i), H(i+1,i), cs(i), sn(i));
-                    ApplyPlaneRotation(H(i,i), H(i+1,i), cs(i), sn(i));
-                    ApplyPlaneRotation(s(i), s(i+1), cs(i), sn(i));
-
-                    if ((resid = std::abs(s(i+1)) / normb) < tol) {
-                        Update(x, i, H, s, v);
-                        tol = resid;
-                        max_iter = j;
-                        delete [] v;
-                        return 0;
-                    }
+            for (i = 0; i < m && j <= max_iter; i++, j++) {
+                w = M(A*v[i]); //M.solve(A * v[i]);
+                for (k = 0; k <= i; k++) {
+                    H(k, i) = w*v[k];
+                    w -= H(k, i) * v[k];
                 }
-                Update(x, i - 1, H, s, v);
-                r = M(b-A*x);//M.solve(b - A * x);
-                beta = r.norm();
-                if ((resid = beta / normb) < tol) {
+                H(i+1, i) = w.norm();
+                v[i+1] = (w / H(i+1, i));
+
+                for (k = 0; k < i; k++)
+                    ApplyPlaneRotation(H(k,i), H(k+1,i), cs(k), sn(k));
+
+                GeneratePlaneRotation(H(i,i), H(i+1,i), cs(i), sn(i));
+                ApplyPlaneRotation(H(i,i), H(i+1,i), cs(i), sn(i));
+                ApplyPlaneRotation(s(i), s(i+1), cs(i), sn(i));
+
+                if ((resid = std::abs(s(i+1)) / normb) < tol) {
+                    Update(x, i, H, s, v);
                     tol = resid;
                     max_iter = j;
                     delete [] v;
                     return 0;
                 }
             }
-
-            tol = resid;
-            delete [] v;
-            return 1;
+            Update(x, i - 1, H, s, v);
+            r = M(b-A*x);//M.solve(b - A * x);
+            beta = r.norm();
+            if ((resid = beta / normb) < tol) {
+                tol = resid;
+                max_iter = j;
+                delete [] v;
+                return 0;
+            }
         }
+
+        tol = resid;
+        delete [] v;
+        return 1;
+    }
 
     // ===========================================
     // = Define all the linear inversion methods =
