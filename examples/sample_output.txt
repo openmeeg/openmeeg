@@ -1,0 +1,311 @@
+om_assemble version 2.0.svn (616M) compiled at Aug 23 2010 15:15:04
+
+
+| ------ om_assemble
+| -HM
+| head_model.geom
+| head_model.cond
+| tmp/tmp.hm
+| -----------------------
+Sorted List : 	1 0 2 
+Sorted Domains : 	Brain	Skull	Scalp	Air	
+Total number of points    : 2497
+Total number of triangles : 4982
+
+Checking
+	Mesh 0 : internal conductivity = 1 and external conductivity = 0.01
+	Mesh 1 : internal conductivity = 0.01 and external conductivity = 1
+	Mesh 2 : internal conductivity = 1 and external conductivity = 0
+OPERATOR S... (arg : mesh m1, mesh m2)
+[********************]
+OPERATOR S... (arg : mesh m1, mesh m2)
+[********************]
+OPERATOR S... (arg : mesh m1, mesh m2)
+[********************]
+OPERATOR N... (arg : mesh m1, mesh m2)
+[********************]
+OPERATOR N... (arg : mesh m1, mesh m2)
+[********************]
+OPERATOR N... (arg : mesh m1, mesh m2)
+[********************]
+OPERATOR D... (arg : mesh m1, mesh m2)
+[********************]
+OPERATOR D... (arg : mesh m1, mesh m2)
+[********************]
+OPERATOR D... (arg : mesh m1, mesh m2)
+[********************]
+OPERATOR D... (arg : mesh m1, mesh m2)
+[********************]
+OPERATOR S... (arg : mesh m1, mesh m2)
+[********************]
+OPERATOR S... (arg : mesh m1, mesh m2)
+[********************]
+OPERATOR N... (arg : mesh m1, mesh m2)
+[********************]
+OPERATOR N... (arg : mesh m1, mesh m2)
+[********************]
+OPERATOR D... (arg : mesh m1, mesh m2)
+[********************]
+Exception: Unknown hm suffix. Doing my best....
+-------------------------------------------
+| Elapsed Time: 343.2 s.
+-------------------------------------------
+om_minverser version 2.0.svn (616M) compiled at Aug 23 2010 15:15:04
+
+
+| ------ om_minverser
+| tmp/tmp.hm
+| tmp/tmp.hm_inv
+| -----------------------
+Exception: Unknown hm suffix. Doing my best....
+Exception: Unknown hm_inv suffix. Doing my best....
+-------------------------------------------
+| Elapsed Time: 269.32 s.
+-------------------------------------------
+om_assemble version 2.0.svn (616M) compiled at Aug 23 2010 15:15:04
+
+
+| ------ om_assemble
+| -DSM
+| head_model.geom
+| head_model.cond
+| cortex_dipoles.txt
+| tmp/tmp.dsm
+| -----------------------
+Sorted List : 	1 0 2 
+Sorted Domains : 	Brain	Skull	Scalp	Air	
+Total number of points    : 2497
+Total number of triangles : 4982
+
+Checking
+	Mesh 0 : internal conductivity = 1 and external conductivity = 0.01
+	Mesh 1 : internal conductivity = 0.01 and external conductivity = 1
+	Mesh 2 : internal conductivity = 1 and external conductivity = 0
+[********************]
+Exception: Unknown dsm suffix. Doing my best....
+-------------------------------------------
+| Elapsed Time: 570.2 s.
+-------------------------------------------
+om_assemble version 2.0.svn (616M) compiled at Aug 23 2010 15:15:04
+
+
+| ------ om_assemble
+| -H2EM
+| head_model.geom
+| head_model.cond
+| eeg_channels_locations.txt
+| tmp/tmp.h2em
+| -----------------------
+Sorted List : 	1 0 2 
+Sorted Domains : 	Brain	Skull	Scalp	Air	
+Total number of points    : 2497
+Total number of triangles : 4982
+
+Checking
+	Mesh 0 : internal conductivity = 1 and external conductivity = 0.01
+	Mesh 1 : internal conductivity = 0.01 and external conductivity = 1
+	Mesh 2 : internal conductivity = 1 and external conductivity = 0
+Exception: Unknown h2em suffix. Doing my best....
+-------------------------------------------
+| Elapsed Time: 0.02 s.
+-------------------------------------------
+om_gain version 2.0.svn (616M) compiled at Aug 23 2010 15:15:05
+
+
+| ------ om_gain
+| -EEG
+| tmp/tmp.hm_inv
+| tmp/tmp.dsm
+| tmp/tmp.h2em
+| eeg_leadfield.mat
+| -----------------------
+Exception: Unknown hm_inv suffix. Doing my best....
+Exception: Unknown h2em suffix. Doing my best....
+Using variable with name : matrix
+Exception: Unknown dsm suffix. Doing my best....
+Error: unknown option. 
+Please try "om_gain -h" or "om_gain --help " 
+
+-------------------------------------------
+| Elapsed Time: 15.65 s.
+-------------------------------------------
+om_assemble version 2.0.svn (616M) compiled at Aug 23 2010 15:15:04
+
+
+| ------ om_assemble
+| -H2MM
+| head_model.geom
+| head_model.cond
+| meg_channels_locations.squids
+| tmp/tmp.h2mm
+| -----------------------
+Sorted List : 	1 0 2 
+Sorted Domains : 	Brain	Skull	Scalp	Air	
+Total number of points    : 2497
+Total number of triangles : 4982
+
+Checking
+	Mesh 0 : internal conductivity = 1 and external conductivity = 0.01
+	Mesh 1 : internal conductivity = 0.01 and external conductivity = 1
+	Mesh 2 : internal conductivity = 1 and external conductivity = 0
+[********************]
+Exception: Unknown h2mm suffix. Doing my best....
+-------------------------------------------
+| Elapsed Time: 2.1 s.
+-------------------------------------------
+om_assemble version 2.0.svn (616M) compiled at Aug 23 2010 15:15:04
+
+
+| ------ om_assemble
+| -DS2MM
+| cortex_dipoles.txt
+| meg_channels_locations.squids
+| tmp/tmp.ds2mm
+| -----------------------
+Exception: Unknown ds2mm suffix. Doing my best....
+-------------------------------------------
+| Elapsed Time: 2.11 s.
+-------------------------------------------
+om_gain version 2.0.svn (616M) compiled at Aug 23 2010 15:15:05
+
+
+| ------ om_gain
+| -MEG
+| tmp/tmp.hm_inv
+| tmp/tmp.dsm
+| tmp/tmp.h2mm
+| tmp/tmp.ds2mm
+| meg_leadfield.mat
+| -----------------------
+Exception: Unknown hm_inv suffix. Doing my best....
+Exception: Unknown dsm suffix. Doing my best....
+Exception: Unknown h2mm suffix. Doing my best....
+Exception: Unknown ds2mm suffix. Doing my best....
+-------------------------------------------
+| Elapsed Time: 19.34 s.
+-------------------------------------------
+om_assemble version 2.0.svn (616M) compiled at Aug 23 2010 15:15:04
+
+
+| ------ om_assemble
+| -EITSM
+| head_model.geom
+| head_model.cond
+| eeg_channels_locations.txt
+| tmp/tmp.eitsm
+| -----------------------
+Sorted List : 	1 0 2 
+Sorted Domains : 	Brain	Skull	Scalp	Air	
+Total number of points    : 2497
+Total number of triangles : 4982
+
+Checking
+	Mesh 0 : internal conductivity = 1 and external conductivity = 0.01
+	Mesh 1 : internal conductivity = 0.01 and external conductivity = 1
+	Mesh 2 : internal conductivity = 1 and external conductivity = 0
+OPERATOR S... (arg : mesh m1, mesh m2)
+[********************]
+OPERATOR D... (arg : mesh m1, mesh m2)
+[********************]
+OPERATOR D... (arg : mesh m1, mesh m2)
+[********************]
+OPERATOR P1P0...
+Exception: Unknown eitsm suffix. Doing my best....
+-------------------------------------------
+| Elapsed Time: 136.15 s.
+-------------------------------------------
+om_gain version 2.0.svn (616M) compiled at Aug 23 2010 15:15:05
+
+
+| ------ om_gain
+| -EEG
+| tmp/tmp.hm_inv
+| tmp/tmp.eitsm
+| tmp/tmp.h2em
+| eit_leadfield.mat
+| -----------------------
+Exception: Unknown hm_inv suffix. Doing my best....
+Exception: Unknown h2em suffix. Doing my best....
+Using variable with name : matrix
+Exception: Unknown eitsm suffix. Doing my best....
+Error: unknown option. 
+Please try "om_gain -h" or "om_gain --help " 
+
+-------------------------------------------
+| Elapsed Time: 1.09 s.
+-------------------------------------------
+om_assemble version 2.0.svn (616M) compiled at Aug 23 2010 15:15:04
+
+
+| ------ om_assemble
+| -H2IPM
+| head_model.geom
+| head_model.cond
+| internal_electrodes_locations.txt
+| tmp/tmp.iphm
+| -----------------------
+Sorted List : 	1 0 2 
+Sorted Domains : 	Brain	Skull	Scalp	Air	
+Total number of points    : 2497
+Total number of triangles : 4982
+
+Checking
+	Mesh 0 : internal conductivity = 1 and external conductivity = 0.01
+	Mesh 1 : internal conductivity = 0.01 and external conductivity = 1
+	Mesh 2 : internal conductivity = 1 and external conductivity = 0
+INTERNAL OPERATOR D...
+INTERNAL OPERATOR D...
+INTERNAL OPERATOR D...
+INTERNAL OPERATOR S...
+INTERNAL OPERATOR S...
+INTERNAL OPERATOR S...
+INTERNAL OPERATOR D...
+INTERNAL OPERATOR D...
+INTERNAL OPERATOR S...
+Exception: Unknown iphm suffix. Doing my best....
+-------------------------------------------
+| Elapsed Time: 0.06 s.
+-------------------------------------------
+om_assemble version 2.0.svn (616M) compiled at Aug 23 2010 15:15:04
+
+
+| ------ om_assemble
+| -DS2IPM
+| head_model.geom
+| head_model.cond
+| cortex_dipoles.txt
+| internal_electrodes_locations.txt
+| tmp/tmp.ipsm
+| -----------------------
+Sorted List : 	1 0 2 
+Sorted Domains : 	Brain	Skull	Scalp	Air	
+Total number of points    : 2497
+Total number of triangles : 4982
+
+Checking
+	Mesh 0 : internal conductivity = 1 and external conductivity = 0.01
+	Mesh 1 : internal conductivity = 0.01 and external conductivity = 1
+	Mesh 2 : internal conductivity = 1 and external conductivity = 0
+Exception: Unknown ipsm suffix. Doing my best....
+-------------------------------------------
+| Elapsed Time: 0.16 s.
+-------------------------------------------
+om_gain version 2.0.svn (616M) compiled at Aug 23 2010 15:15:05
+
+
+| ------ om_gain
+| -IP
+| tmp/tmp.hm_inv
+| tmp/tmp.dsm
+| tmp/tmp.iphm
+| tmp/tmp.ipsm
+| ip_leadfield.mat
+| -----------------------
+Exception: Unknown hm_inv suffix. Doing my best....
+Exception: Unknown dsm suffix. Doing my best....
+Exception: Unknown iphm suffix. Doing my best....
+Exception: Unknown ipsm suffix. Doing my best....
+-------------------------------------------
+| Elapsed Time: 5.59 s.
+-------------------------------------------
+
