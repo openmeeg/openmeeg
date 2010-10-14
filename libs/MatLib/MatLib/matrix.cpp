@@ -48,6 +48,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include "symmatrix.h"
 #include "sparse_matrix.h"
 #include "vector.h"
+#include "triangularmatrix.h"
 
 namespace OpenMEEG {
 
@@ -59,6 +60,20 @@ namespace OpenMEEG {
     Matrix::Matrix(const SymMatrix& A): LinOp(A.nlin(),A.ncol(),FULL,2),value(new LinOpValue(size())) {
         for (size_t j=0; j<ncol();++j)
             for (size_t i=0; i<nlin();++i)
+                (*this)(i,j) = A(i,j);
+    }
+
+    Matrix::Matrix(const UpperTriangularMatrix& A): LinOp(A.nlin(),A.ncol(),FULL,2),value(new LinOpValue(size())) {
+        this->set(0.0);
+        for (size_t i=0; i<nlin();++i)
+            for (size_t j=i; j<nlin();++j)
+                (*this)(i,j) = A(i,j);
+    }
+
+    Matrix::Matrix(const LowerTriangularMatrix& A): LinOp(A.nlin(),A.ncol(),FULL,2),value(new LinOpValue(size())) {
+        this->set(0.0);
+        for (size_t i=0; i<nlin();++i)
+            for (size_t j=0; j<=i;++j)
                 (*this)(i,j) = A(i,j);
     }
 
@@ -96,16 +111,6 @@ namespace OpenMEEG {
     //     exit(1);
     // #endif
     // }
-
-    SymMatrix Matrix::symmetrize() const {
-        assert(nlin()==ncol());
-        SymMatrix result(nlin());
-        result.set(0.);
-        for(size_t i=0;i<nlin();i++) 
-            for(size_t j=i;j<nlin();j++)
-                result(i,j)=(*this)(i,j); //TODO check a BLAS operation for that
-        return result;
-    }
 
     Matrix Matrix::transpose() const {
         Matrix result(ncol(),nlin());

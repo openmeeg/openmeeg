@@ -60,6 +60,13 @@ namespace OpenMEEG {
         value = v.value;
     }
 
+    SymMatrix::SymMatrix(const Matrix& M): LinOp(M.nlin(),M.nlin(),SYMMETRIC,2),value(new LinOpValue(size())){
+        assert(nlin() == M.nlin());
+        for (size_t i=0; i<nlin();++i)
+            for (size_t j=i; j<nlin();++j)
+                (*this)(i,j) = M(i,j);
+    }
+
     void SymMatrix::set(double x) {
         for (size_t i=0;i<(nlin()*(nlin()+1))/2;i++)
             data()[i]=x;
@@ -68,48 +75,6 @@ namespace OpenMEEG {
     SymMatrix SymMatrix::operator *(double x) const {
         SymMatrix C(nlin());
         for (size_t k=0; k<nlin()*(nlin()+1)/2; k++) C.data()[k] = data()[k]*x;
-        return C;
-    }
-
-    SymMatrix SymMatrix::operator*(const SymMatrix &m) const {
-        assert(nlin()==m.nlin());
-    #ifdef HAVE_BLAS
-        Matrix D(*this);
-        Matrix B(m);
-        Matrix C(nlin());
-        DSYMM(CblasLeft,CblasUpper,(int)nlin(),(int)B.ncol(),1.,D.data(),(int)D.ncol(),B.data(),(int)B.nlin(),0,C.data(),(int)C.nlin());
-        return C.symmetrize();
-    #else
-        SymMatrix C(nlin());
-        for (size_t j=0;j<m.ncol();j++){
-            for (size_t i=0;i<ncol();i++)
-            {
-                C(i,j)=0;
-                for (size_t k=0;k<ncol();k++)
-                    C(i,j)+=(*this)(i,k)*m(k,j);
-            }
-        }
-        return C;
-    #endif
-    }
-
-    Matrix SymMatrix::operator*(const Matrix &B) const {
-        assert(ncol()==B.nlin());
-        Matrix C(nlin(),B.ncol());
-
-    #ifdef HAVE_BLAS
-        Matrix D(*this);
-        DSYMM(CblasLeft,CblasUpper ,(int)nlin(), (int)B.ncol(), 1. , D.data(), (int)D.ncol(), B.data(), (int)B.nlin(), 0, C.data(),(int)C.nlin());
-    #else
-        for (size_t j=0;j<B.ncol();j++){
-            for (size_t i=0;i<ncol();i++)
-            {
-                C(i,j)=0;
-                for (size_t k=0;k<ncol();k++)
-                    C(i,j)+=(*this)(i,k)*B(k,j);
-            }
-        }
-    #endif
         return C;
     }
 

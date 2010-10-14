@@ -59,6 +59,8 @@ namespace OpenMEEG {
     class SparseMatrix;
     class SymMatrix;
     class Vector;
+    class UpperTriangularMatrix;
+    class LowerTriangularMatrix;
 
     /** \brief  Matrix class
 
@@ -81,6 +83,9 @@ namespace OpenMEEG {
         Matrix(const Matrix& A,const DeepCopy): LinOp(A.nlin(),A.ncol(),FULL,2),value(new LinOpValue(A.size(),A.data())) { }
 
         explicit Matrix(const SymMatrix& A);
+        explicit Matrix(const UpperTriangularMatrix& A);
+        explicit Matrix(const LowerTriangularMatrix& A);
+
         Matrix(const Vector& v,const size_t M,const size_t N);
 
         void alloc_data()                       { value = new LinOpValue(size());      }
@@ -127,7 +132,6 @@ namespace OpenMEEG {
         Matrix operator*(const Matrix& B) const;
         Matrix operator*(const SymMatrix& B) const;
         Matrix operator*(const SparseMatrix& B) const;
-        Matrix operator+(const Vector& x) const;
         Matrix operator+(const Matrix& B) const;
         Matrix operator-(const Matrix& B) const;
         Matrix operator*(double x) const;
@@ -145,8 +149,6 @@ namespace OpenMEEG {
 
         Vector mean() const;
         Vector tmean() const;
-
-        SymMatrix symmetrize() const;
 
         Matrix transpose() const;
         Matrix inverse() const;
@@ -438,18 +440,6 @@ namespace OpenMEEG {
     #endif
             return C;
     }
-    
-    inline Matrix Matrix::operator+(const Vector& x) const { // Matrix + a diagonal Matrix (vector)
-        assert(nlin()==x.nlin());
-    // #ifdef HAVE_BLAS // TODO try a BLAS, but which one ?
-    // #else
-        Matrix S(*this);
-        for(size_t i=0; i<nlin();i++)
-            S(i,i)+=x.data()[i];
-        return S;
-    // #endif
-    }
-
     
     inline Matrix Matrix::operator+(const Matrix &B) const {
         assert(ncol()==B.ncol());

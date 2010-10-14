@@ -124,8 +124,10 @@ knowledge of the CeCILL-B license and that you accept its terms.
         double BLAS(dnrm2,DNRM2)(const int&,const double*,const int&);
         void BLAS(dscal,DSCAL)(const int&,const double&,double*,const int&);
         void BLAS(dspmv,DSPMV)(const char&,const int&,const double&,const double*,const double*,const int&,const double&,double*,const int&);
+        void BLAS(dtpmv,DTPMV)(const char&,const char&,const char&,const int&,const double*,double*,const int&);
         void BLAS(dsymm,DSYMM)(const char&,const char&,const int&,const int&,const double&,const double*,const int&,const double*,const int&, const double*,double*,const int&);
         void BLAS(dgemm,DGEMM)(const char&,const char&,const int&,const int&,const int&,const double&,const double*,const int&,const double*,const int&,const double&,double*,const int&);
+        void BLAS(dtrmm,DTRMM)(const char&,const char&,const char&,const char&,const int&,const int&,const double&,const double*,const int&,const double*,const int&);
         void BLAS(dgemv,DGEMV)(const char&,const int&,const int&,const double&,const double*,const int&,const double*,const int&,const double&,double*,const int&);
 #endif
         void LAPACK(dgetrf,DGETRF)(const int&,const int&,double*,const int&,int*,int&);
@@ -139,6 +141,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
         void FC_GLOBAL(dpotf2,DPOTF2)(const char&,const int&,double*,const int&,int&);
         double FC_GLOBAL(dlange,DLANGE)(const char&,const int&,const int&,double*,const int&,double*);
         void FC_GLOBAL(dsptrf,DSPTRF)(const char&,const int&,double*,int*,int&);
+        void FC_GLOBAL(dtptri,DTPTRI)(const char&,const char&,const int&,double*,int&,int&);
         void FC_GLOBAL(dsptri,DSPTRI)(const char&,const int&,double*,int*,double*,int&);
         void FC_GLOBAL(dpptrf,DPPTRF)(const char&,const int&,double*,int&);
         void FC_GLOBAL(dpptri,DPPTRI)(const char&,const int&,double*,int&);
@@ -152,6 +155,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #define DLANGE FC_GLOBAL(dlange,DLANGE)
 
 #define DSPTRF FC_GLOBAL(dsptrf,DSPTRF)
+#define DTPTRI FC_GLOBAL(dtptri,DTPTRI)
 #define DPPTRF FC_GLOBAL(dpptrf,DPPTRF)
 #define DPPTRI FC_GLOBAL(dpptri,DPPTRI)
 #define DSPEVD FC_GLOBAL(dspevd,DSPEVD)
@@ -159,9 +163,11 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #if defined(USE_ATLAS) || defined(USE_MKL)
     #define DSPMV(X1,X2,X3,X4,X5,X6,X7,X8,X9) BLAS(dspmv,DSPMV)(CblasColMajor,X1,X2,X3,X4,X5,X6,X7,X8,X9)
+    #define DTPMV(X1,X2,X3,X4,X5,X6,X7) BLAS(dtpmv,DTPMV)(CblasColMajor,X1,X2,X3,X4,X5,X6,X7)
     #define DSYMM(X1,X2,X3,X4,X5,X6,X7,X8,X9,X10,X11,X12) BLAS(dsymm,DSYMM)(CblasColMajor,X1,X2,X3,X4,X5,X6,X7,X8,X9,X10,X11,X12)
     #define DGEMV(X1,X2,X3,X4,X5,X6,X7,X8,X9,X10,X11) BLAS(dgemv,DGEMV)(CblasColMajor,X1,X2,X3,X4,X5,X6,X7,X8,X9,X10,X11)
     #define DGEMM(X1,X2,X3,X4,X5,X6,X7,X8,X9,X10,X11,X12,X13) BLAS(dgemm,DGEMM)(CblasColMajor,X1,X2,X3,X4,X5,X6,X7,X8,X9,X10,X11,X12,X13)
+    #define DTRMM(X1,X2,X3,X4,X5,X6,X7,X8,X9,X10,X11) BLAS(dtrmm,DTRMM)(CblasColMajor,X1,X2,X3,X4,X5,X6,X7,X8,X9,X10,X11)
     #if defined(USE_ATLAS)
         #ifdef __APPLE__
             #define DGETRF(X1,X2,X3,X4,X5,X6) LAPACK(dgetrf,DGETRF)(&X1,&X2,X3,&X4,X5,&X6)
@@ -179,9 +185,11 @@ knowledge of the CeCILL-B license and that you accept its terms.
     #define DSPTRI(X1,X2,X3,X4,X5,X6) FC_GLOBAL(dsptri,DSPTRI)(X1,X2,X3,X4,X5,X6)
 #else
     #define DSPMV(X1,X2,X3,X4,X5,X6,X7,X8,X9) BLAS(dspmv,DSPMV)(X1,X2,X3,X4,X5,X6,X7,X8,X9)
+    #define DTPMV(X1,X2,X3,X4,X5,X6,X7) BLAS(dtpmv,DTPMV)(X1,X2,X3,X4,X5,X6,X7)
     #define DSYMM(X1,X2,X3,X4,X5,X6,X7,X8,X9,X10,X11,X12) BLAS(dsymm,DSYMM)(X1,X2,X3,X4,X5,X6,X7,X8,X9,X10,X11,X12)
     #define DGEMV(X1,X2,X3,X4,X5,X6,X7,X8,X9,X10,X11) BLAS(dgemv,DGEMV)(X1,X2,X3,X4,X5,X6,X7,X8,X9,X10,X11)
     #define DGEMM(X1,X2,X3,X4,X5,X6,X7,X8,X9,X10,X11,X12,X13) BLAS(dgemm,DGEMM)(X1,X2,X3,X4,X5,X6,X7,X8,X9,X10,X11,X12,X13)
+    #define DTRMM(X1,X2,X3,X4,X5,X6,X7,X8,X9,X10,X11) BLAS(dtrmm,DTRMM)(X1,X2,X3,X4,X5,X6,X7,X8,X9,X10,X11)
     #define DGETRF LAPACK(dgetrf,DGETRF)
     #if defined(USE_ACML)
         #define DGETRI(X1,X2,X3,X4,X5,X6,X7) LAPACK(dgetri,DGETRI)(X1,X2,X3,X4,X7)

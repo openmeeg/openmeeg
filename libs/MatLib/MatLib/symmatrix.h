@@ -66,6 +66,7 @@ namespace OpenMEEG {
         SymMatrix(const SymMatrix& S,const DeepCopy): LinOp(S.nlin(),S.nlin(),SYMMETRIC,2),value(new LinOpValue(S.size(),S.data())) { }
 
         explicit SymMatrix(const Vector& v);
+        explicit SymMatrix(const Matrix& A);
 
         size_t size() const { return nlin()*(nlin()+1)/2; };
         void info() const ;
@@ -94,14 +95,14 @@ namespace OpenMEEG {
         SymMatrix operator+(const SymMatrix& B) const;
         SymMatrix operator-(const SymMatrix& B) const;
         SymMatrix operator*(const SymMatrix& B) const;
+        Matrix    operator*(const Matrix& B) const;
+        Vector    operator*(const Vector& v) const;
         SymMatrix operator*(double x) const;
         SymMatrix operator/(double x) const {return (*this)*(1/x);}
         void operator +=(const SymMatrix& B);
         void operator -=(const SymMatrix& B);
         void operator *=(double x);
         void operator /=(double x) { (*this)*=(1/x); }
-        Matrix operator*(const Matrix& B) const; // -1-- (faux !!)  -2-- ca n'a pas l'air faux
-        Vector operator*(const Vector& v) const; // faux ?
 
         SymMatrix inverse() const;
         SymMatrix posdefinverse() const;
