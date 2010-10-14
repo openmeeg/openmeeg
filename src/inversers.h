@@ -352,6 +352,7 @@ namespace OpenMEEG {
                     Update(x, i, H, s, v);
                     tol = resid;
                     max_iter = j;
+                    // std::cout<<max_iter <<std::endl;
                     delete [] v;
                     return 0;
                 }
@@ -362,6 +363,7 @@ namespace OpenMEEG {
             if ((resid = beta / normb) < tol) {
                 tol = resid;
                 max_iter = j;
+                // std::cout<<max_iter <<std::endl;
                 delete [] v;
                 return 0;
             }

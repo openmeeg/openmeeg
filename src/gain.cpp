@@ -96,7 +96,7 @@ int main(int argc, char **argv)
         EEGGainMat.save(argv[5]);
     }
     // compute the gain matrix with the adjoint method for use with EEG DATA
-    if(!strcmp(argv[1],"-EEGadjoint"))
+    else if(!strcmp(argv[1],"-EEGadjoint"))
     {
         if(argc<6)
         {

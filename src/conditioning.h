@@ -38,6 +38,8 @@ knowledge of the CeCILL-B license and that you accept its terms.
 */
 
 #include "vector.h"
+#include "triangularmatrix.h"
+#include "diagmatrix.h"
 
 using namespace OpenMEEG;
 
@@ -74,36 +76,29 @@ namespace OpenMEEG {
         };
 
         class SSOR {
-            Matrix prodMdiagM(const Matrix& m,const Vector& v) {
-                Matrix C(m.nlin(),m.ncol()); //TODO improve this multiplication
-                for (unsigned i=0;i<m.nlin();++i){
-                    C(i,i) = v(i);
-                }
-                return m*C;
-            }
+
         public:
             SSOR (const SymMatrix m, double _omega): omega(_omega) {
                 // we split M into E = lower triangular part+D/omega, and D = the diagonal
-                Vector D(m.nlin());
-                Vector Dinv(m.nlin());
+                DiagMatrix D(m.nlin());
                 for (int i=0;i<m.nlin();i++) {
-                    D(i)=m(i,i);
-                    Dinv(i)=omega/D(i);
+                    D(i)=m(i,i)/omega;
                 }
 
-                Matrix E(m.nlin());
-                E.set(0.0);
+                LowerTriangularMatrix E(m.nlin());
                 for (int i=0;i<m.nlin();i++) {
                     for (int j=0;j<=i;j++) {
                         E(i,j)=m(i,j);
                     }
                 }
                 for (int i=0;i<m.nlin();i++) {
-                        E(i,i)+=D(i)/omega;
+                        E(i,i)/=omega;
                 }
 
-                // SSor = ((Lower+D*1./omega)*Dinv)*((Lower+D*1./omega).transpose()*1./(2-omega));
-                SSor = ((prodMdiagM(E,Dinv))*(E.transpose()*1./(2.-omega))).symmetrize().inverse();
+                LowerTriangularMatrix Einv=E.inverse();
+                
+                // SSor = (((Lower+D*1./omega)*Dinv)*((Lower+D*1./omega).transpose()*1./(2-omega))).inverse();
+                SSor = ((Einv.transpose()*D)*Einv)*1./(2.-omega);
             }
            
             Vector operator()(const Vector& g) const {

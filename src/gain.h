@@ -74,8 +74,8 @@ namespace OpenMEEG {
             GainEEGadjoint (const SymMatrix& HeadMat,const Matrix& SourceMat, const SparseMatrix& Head2EEGMat) {
                 Matrix LeadField(Head2EEGMat.nlin(),SourceMat.ncol());
                 // Preconditioner::None<SymMatrix> M(HeadMat);   // None preconditionner
-                // Preconditioner::Jacobi<SymMatrix> M(HeadMat); // Jacobi preconditionner
-                Preconditioner::SSOR M(HeadMat,1.);              // SSOR preconditionner
+                Preconditioner::Jacobi<SymMatrix> M(HeadMat); // Jacobi preconditionner
+                // Preconditioner::SSOR M(HeadMat,1.);              // SSOR preconditionner
                 #ifdef USE_OMP
                 #pragma omp parallel for
                 #endif
