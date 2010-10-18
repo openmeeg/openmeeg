@@ -98,21 +98,22 @@ int main(int argc, char **argv)
     // compute the gain matrix with the adjoint method for use with EEG DATA
     else if(!strcmp(argv[1],"-EEGadjoint"))
     {
-        if(argc<6)
+        if(argc<8)
         {
             cerr << "Not enough arguments \nPlease try \"" << argv[0] << " -h\" or \"" << argv[0] << " --help \" \n" << endl;
             return 0;
         }
         LinOpInfo matinfo = OpenMEEG::maths::info(argv[3]);
+        Geometry geo;
+        geo.read(argv[2],argv[3]);
+        Matrix dipoles(argv[4]);
         SymMatrix HeadMat;
-        HeadMat.load(argv[2]);
+        HeadMat.load(argv[5]);
         SparseMatrix Head2EEGMat;
-        Head2EEGMat.load(argv[4]);
-        Matrix SourceMat;
-        SourceMat.load(argv[3]);
+        Head2EEGMat.load(argv[6]);
 
-        GainEEGadjoint EEGGainMat(HeadMat,SourceMat,Head2EEGMat);
-        EEGGainMat.save(argv[5]);
+        GainEEGadjoint EEGGainMat(geo,dipoles,HeadMat,Head2EEGMat);
+        EEGGainMat.save(argv[7]);
     }        
     // for use with MEG DATA
     else if(!strcmp(argv[1],"-MEG"))
@@ -195,7 +196,10 @@ void getHelp(char** argv)
 
     cout << "   -EEGadjoint :   Compute the gain for EEG " << endl;
     cout << "            Filepaths are in order :" << endl;
-    cout << "            HeadMat, SourceMat, Head2EEGMat, EEGGainMatrix" << endl;
+    cout << "            geometry file (.geom)" << endl;
+    cout << "            conductivity file (.cond)" << endl;
+    cout << "            dipoles positions and orientations" << endl;
+    cout << "            HeadMat, Head2EEGMat, EEGGainMatrix" << endl;
     cout << "            bin Matrix" << endl << endl;
 
     cout << "   -MEG :   Compute the gain for MEG " << endl;

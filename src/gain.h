@@ -40,10 +40,14 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #ifndef OPENMEEG_GAIN_H
 #define OPENMEEG_GAIN_H
 
+#define USE_GMRES 0
+
 #include "matrix.h"
 #include "sparse_matrix.h"
 #include "symmatrix.h"
 #include "inversers.h"
+#include "geometry.h"
+#include "assemble.h"
 #include "conditioning.h"
 
 namespace OpenMEEG {
@@ -71,22 +75,33 @@ namespace OpenMEEG {
     class GainEEGadjoint : public Matrix {
         public:
             using Matrix::operator=;
-            GainEEGadjoint (const SymMatrix& HeadMat,const Matrix& SourceMat, const SparseMatrix& Head2EEGMat) {
-                Matrix LeadField(Head2EEGMat.nlin(),SourceMat.ncol());
+            GainEEGadjoint (const Geometry& geo,const Matrix& dipoles,const SymMatrix& HeadMat, const SparseMatrix& Head2EEGMat) {
+                Matrix LeadField(Head2EEGMat.nlin(),dipoles.nlin());
+                int GaussOrder=3;
+                #if USE_GMRES
+                Matrix mtemp(Head2EEGMat.nlin(),HeadMat.nlin());
                 // Preconditioner::None<SymMatrix> M(HeadMat);   // None preconditionner
-                Preconditioner::Jacobi<SymMatrix> M(HeadMat); // Jacobi preconditionner
-                // Preconditioner::SSOR M(HeadMat,1.);              // SSOR preconditionner
+                Preconditioner::Jacobi<SymMatrix> M(HeadMat);    // Jacobi preconditionner
+                // Preconditioner::SSOR M(HeadMat,1.);           // SSOR preconditionner
                 #ifdef USE_OMP
                 #pragma omp parallel for
                 #endif
                 for (unsigned i=0;i<LeadField.nlin();i++) {
-                    Vector vtemp(SourceMat.nlin());
+                    Vector vtemp(HeadMat.nlin());
                     GMRes(HeadMat,M,vtemp,Head2EEGMat.getlin(i),1e3,1e-7);
-                    LeadField.setlin(i,vtemp*SourceMat);// TODO compute line of the operator source instead of loading the full SourceMat
+                    mtemp.setlin(i,vtemp);
                     #ifdef USE_OMP
                     #pragma omp critical
                     #endif
                     PROGRESSBAR(i,LeadField.nlin());
+                }
+                #else
+                Matrix mtemp(Head2EEGMat.transpose());
+                HeadMat.solve(mtemp); // solving the system AX=B with LAPACK
+                mtemp=mtemp.transpose();
+                #endif
+                for (unsigned i=0;i<LeadField.ncol();i++) {
+                    LeadField.setcol(i,mtemp*DipSourceMat(geo, dipoles.submat(i,1,0,dipoles.ncol()), GaussOrder, true).getcol(0));
                 }
                 *this = LeadField;
             }

@@ -37,9 +37,7 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#include "vector.h"
 #include "triangularmatrix.h"
-#include "diagmatrix.h"
 
 using namespace OpenMEEG;
 
@@ -76,7 +74,6 @@ namespace OpenMEEG {
         };
 
         class SSOR {
-
         public:
             SSOR (const SymMatrix m, double _omega): omega(_omega) {
                 // we split M into E = lower triangular part+D/omega, and D = the diagonal
@@ -84,7 +81,6 @@ namespace OpenMEEG {
                 for (int i=0;i<m.nlin();i++) {
                     D(i)=m(i,i)/omega;
                 }
-
                 LowerTriangularMatrix E(m.nlin());
                 for (int i=0;i<m.nlin();i++) {
                     for (int j=0;j<=i;j++) {
@@ -94,11 +90,10 @@ namespace OpenMEEG {
                 for (int i=0;i<m.nlin();i++) {
                         E(i,i)/=omega;
                 }
-
                 LowerTriangularMatrix Einv=E.inverse();
-                
+                //
                 // SSor = (((Lower+D*1./omega)*Dinv)*((Lower+D*1./omega).transpose()*1./(2-omega))).inverse();
-                SSor = ((Einv.transpose()*D)*Einv)*1./(2.-omega);
+                SSor = ((Einv.transpose()*D)*Einv)*(2.-omega);
             }
            
             Vector operator()(const Vector& g) const {
