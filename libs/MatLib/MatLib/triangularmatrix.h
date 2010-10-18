@@ -57,7 +57,6 @@ knowledge of the CeCILL-B license and that you accept its terms.
 namespace OpenMEEG {
 
     class LowerTriangularMatrix;
-    class UpperTriangularMatrix;
 
     class OPENMEEGMATHS_EXPORT TriangularMatrix : public LinOp {
 
@@ -111,17 +110,17 @@ namespace OpenMEEG {
             return data()[i+j*(j+1)/2];
         }
 
-        UpperTriangularMatrix operator*(const DiagMatrix& M) const;
+        inline UpperTriangularMatrix operator*(const DiagMatrix& M) const;
 
-        SymMatrix operator*(const LowerTriangularMatrix& L) const;
+        inline SymMatrix operator*(const LowerTriangularMatrix& L) const;
 
-        Vector operator*(const Vector& v) const;
+        inline Vector operator*(const Vector& v) const;
 
         inline UpperTriangularMatrix inverse() const;
 
-        LowerTriangularMatrix transpose() const;
+        inline LowerTriangularMatrix transpose() const;
         
-        void info() const;
+        inline void info() const;
     };
 
     class OPENMEEGMATHS_EXPORT LowerTriangularMatrix : public TriangularMatrix {
@@ -149,7 +148,7 @@ namespace OpenMEEG {
             return data()[j+i*(i+1)/2];
         }
 
-        Vector operator*(const Vector& v) const;
+        inline Vector operator*(const Vector& v) const;
 
         UpperTriangularMatrix transpose() const {
             UpperTriangularMatrix trans(nlin());
@@ -160,7 +159,7 @@ namespace OpenMEEG {
 
         inline LowerTriangularMatrix inverse() const ;
 
-        void info() const;
+        inline void info() const;
     };
 
     Vector UpperTriangularMatrix::operator*(const Vector& v) const {
@@ -332,3 +331,4 @@ namespace OpenMEEG {
     }
 }
 #endif  //! OPENMEEG_TRIANGULAR_MATRIX_H
+

@@ -94,8 +94,8 @@ namespace OpenMEEG {
 
         SymMatrix operator+(const SymMatrix& B) const;
         SymMatrix operator-(const SymMatrix& B) const;
-        //SymMatrix operator*(const SymMatrix& B) const;
-	//Matrix    operator*(const Matrix& B) const;
+        SymMatrix operator*(const SymMatrix& B) const;
+        Matrix    operator*(const Matrix& B) const;
         Vector    operator*(const Vector& v) const;
         SymMatrix operator*(double x) const;
         SymMatrix operator/(double x) const {return (*this)*(1/x);}
@@ -105,6 +105,7 @@ namespace OpenMEEG {
         void operator /=(double x) { (*this)*=(1/x); }
 
         SymMatrix inverse() const;
+        Matrix solve(Matrix& B) const;
         SymMatrix posdefinverse() const;
         double det();
         // void eigen(Matrix & Z, Vector & D );
@@ -327,6 +328,5 @@ namespace OpenMEEG {
     #endif
         return y;
     }
-
 }
 #endif  //! OPENMEEG_SYMMATRIX_H

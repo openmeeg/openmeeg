@@ -46,7 +46,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 namespace OpenMEEG {
 
-    SymMatrix SymMatrix::operator*(const SymMatrix &m) const {
+    inline SymMatrix SymMatrix::operator*(const SymMatrix &m) const {
         assert(nlin()==m.nlin());
     #ifdef HAVE_BLAS
         Matrix D(*this);
@@ -68,7 +68,7 @@ namespace OpenMEEG {
     #endif
     }
 
-    Matrix SymMatrix::operator*(const Matrix &B) const {
+    inline Matrix SymMatrix::operator*(const Matrix &B) const {
         assert(ncol()==B.nlin());
         Matrix C(nlin(),B.ncol());
 
@@ -89,3 +89,4 @@ namespace OpenMEEG {
     }
 
 }
+

@@ -49,6 +49,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include "sparse_matrix.h"
 #include "vector.h"
 #include "triangularmatrix.h"
+#include "matvectOps.h"
 
 namespace OpenMEEG {
 
@@ -61,6 +62,13 @@ namespace OpenMEEG {
         for (size_t j=0; j<ncol();++j)
             for (size_t i=0; i<nlin();++i)
                 (*this)(i,j) = A(i,j);
+    }
+
+    Matrix::Matrix(const SparseMatrix& A): LinOp(A.nlin(),A.ncol(),FULL,2),value(new LinOpValue(size())) {
+        this->set(0.);
+        for(SparseMatrix::const_iterator it = A.begin(); it != A.end(); ++it) {
+            (*this)(it->first.first,it->first.second) = it->second;
+        }
     }
 
     Matrix::Matrix(const UpperTriangularMatrix& A): LinOp(A.nlin(),A.ncol(),FULL,2),value(new LinOpValue(size())) {

@@ -109,6 +109,64 @@ namespace OpenMEEG {
         return mat;
     }
 
+    SymMatrix SymMatrix::operator*(const SymMatrix &m) const {
+        assert(nlin()==m.nlin());
+    #ifdef HAVE_BLAS
+        Matrix D(*this);
+        Matrix B(m);
+        Matrix C(nlin(),nlin());
+        DSYMM(CblasLeft,CblasUpper,(int)nlin(),(int)B.ncol(),1.,D.data(),(int)D.ncol(),B.data(),(int)B.nlin(),0,C.data(),(int)C.nlin());
+        return SymMatrix(C);
+    #else
+        SymMatrix C(nlin());
+        for (size_t j=0;j<m.ncol();j++){
+            for (size_t i=0;i<ncol();i++)
+            {
+                C(i,j)=0;
+                for (size_t k=0;k<ncol();k++)
+                    C(i,j)+=(*this)(i,k)*m(k,j);
+            }
+        }
+        return C;
+    #endif
+    }
+
+    Matrix SymMatrix::operator*(const Matrix &B) const {
+        assert(ncol()==B.nlin());
+        Matrix C(nlin(),B.ncol());
+
+    #ifdef HAVE_BLAS
+        Matrix D(*this);
+        DSYMM(CblasLeft,CblasUpper ,(int)nlin(), (int)B.ncol(), 1. , D.data(), (int)D.ncol(), B.data(), (int)B.nlin(), 0, C.data(),(int)C.nlin());
+    #else
+        for (size_t j=0;j<B.ncol();j++){
+            for (size_t i=0;i<ncol();i++)
+            {
+                C(i,j)=0;
+                for (size_t k=0;k<ncol();k++)
+                    C(i,j)+=(*this)(i,k)*B(k,j);
+            }
+        }
+    #endif
+        return C;
+    }
+
+    Matrix SymMatrix::solve(Matrix &RHS) const {
+    #ifdef HAVE_LAPACK
+        SymMatrix A(*this,DEEP_COPY);
+        // LU
+        int *pivots=new int[nlin()];
+        int Info;
+        DSPTRF('U',A.nlin(),A.data(),pivots,Info);
+        // Solve the linear system AX=B
+        DSPTRS('U',A.nlin(),RHS.ncol(),A.data(),pivots,RHS.data(),A.nlin(),Info);
+        return RHS;
+    #else
+        std::cerr << "!!!!! Not implemented : Try a GMres !!!!!" << std::endl;
+        exit(1);
+    #endif
+    }
+
     void SymMatrix::info() const {
         if (nlin() == 0) {
             std::cout << "Matrix Empty" << std::endl;

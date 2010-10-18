@@ -83,6 +83,7 @@ namespace OpenMEEG {
         Matrix(const Matrix& A,const DeepCopy): LinOp(A.nlin(),A.ncol(),FULL,2),value(new LinOpValue(A.size(),A.data())) { }
 
         explicit Matrix(const SymMatrix& A);
+        explicit Matrix(const SparseMatrix& A);
         explicit Matrix(const UpperTriangularMatrix& A);
         explicit Matrix(const LowerTriangularMatrix& A);
 

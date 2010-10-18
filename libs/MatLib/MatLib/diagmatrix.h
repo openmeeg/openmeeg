@@ -84,7 +84,7 @@ namespace OpenMEEG {
         inline Vector operator*(const Vector& v) const ;
 
         size_t ncol() const {return nlin();}
-        void info() const;
+        inline void info() const;
 
         DiagMatrix inverse() const {
             DiagMatrix inv(nlin());
@@ -101,7 +101,7 @@ namespace OpenMEEG {
         return result;
     }
 
-    void DiagMatrix::info() const {
+    inline void DiagMatrix::info() const {
         if (size() == 0) {
             std::cout << "DiagMatrix Empty" << std::endl;
             return;
@@ -137,3 +137,4 @@ namespace OpenMEEG {
 }
 
 #endif //! OPENMEEG_DIAG_MATRIX_H
+
