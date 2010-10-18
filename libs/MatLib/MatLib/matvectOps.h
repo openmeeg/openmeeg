@@ -37,6 +37,9 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
+#ifndef OPENMEEG_MATVECTOPS_H
+#define OPENMEEG_MATVECTOPS_H
+
 #include "vector.h"
 #include "matrix.h"
 #include "symmatrix.h"
@@ -71,7 +74,6 @@ namespace OpenMEEG {
     inline Matrix SymMatrix::operator*(const Matrix &B) const {
         assert(ncol()==B.nlin());
         Matrix C(nlin(),B.ncol());
-
     #ifdef HAVE_BLAS
         Matrix D(*this);
         DSYMM(CblasLeft,CblasUpper ,(int)nlin(), (int)B.ncol(), 1. , D.data(), (int)D.ncol(), B.data(), (int)B.nlin(), 0, C.data(),(int)C.nlin());
@@ -88,5 +90,20 @@ namespace OpenMEEG {
         return C;
     }
 
+    inline Matrix SymMatrix::solve(Matrix &RHS) const {
+    #ifdef HAVE_LAPACK
+        SymMatrix A(*this,DEEP_COPY);
+        // LU
+        int *pivots=new int[nlin()];
+        int Info;
+        DSPTRF('U',A.nlin(),A.data(),pivots,Info);
+        // Solve the linear system AX=B
+        DSPTRS('U',A.nlin(),RHS.ncol(),A.data(),pivots,RHS.data(),A.nlin(),Info);
+        return RHS;
+    #else
+        std::cerr << "!!!!! Not implemented : Try a GMres !!!!!" << std::endl;
+        exit(1);
+    #endif
+    }
 }
-
+#endif // ! OPENMEEG_MATVECTOPS_H

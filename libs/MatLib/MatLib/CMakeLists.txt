@@ -7,7 +7,7 @@ IF (USE_MATIO)
     SET(MATLABIO MatlabIO.C)
 ENDIF()
 
-ADD_LIBRARY(OpenMEEGMaths ${LIB_TYPE}
+ADD_LIBRARY(OpenMEEGMaths SHARED
     vector.cpp matrix.cpp symmatrix.cpp sparse_matrix.cpp fast_sparse_matrix.cpp
     MathsIO.C ${MATLABIO} AsciiIO.C BrainVisaTextureIO.C TrivialBinIO.C)
 
