@@ -58,7 +58,7 @@ gain_meg_surf       = om.GainMEG(hminv, ssm, h2mm, ss2mm)
 gain_eeg_surf       = om.GainEEG(hminv, ssm, h2em)
 gain_meg_dip        = om.GainMEG(hminv, dsm, h2mm, ds2mm)
 gain_eeg_dip        = om.GainEEG(hminv, dsm, h2em)
-gainadjoint_eeg_dip = om.GainEEGadjoint(hminv, dsm, h2em)
+gainadjoint_eeg_dip = om.GainEEGadjoint(geom,dipoles,hm, h2em)
 
 print "hm                  : %d x %d" % (hm.nlin(), hm.ncol())
 print "hminv               : %d x %d" % (hminv.nlin(), hminv.ncol())
