@@ -45,12 +45,13 @@ patches.load(patches_file)
 
 gauss_order = 3
 use_adaptive_integration = True
+dipole_in_cortex = True
 
 hm                  = om.HeadMat(geom, gauss_order)
 hminv               = hm.inverse()
 ssm                 = om.SurfSourceMat(geom, mesh, gauss_order)
 ss2mm               = om.SurfSource2MEGMat(mesh, sensors)
-dsm                 = om.DipSourceMat(geom, dipoles, gauss_order, use_adaptive_integration)
+dsm                 = om.DipSourceMat(geom, dipoles, gauss_order, use_adaptive_integration, dipole_in_cortex)
 ds2mm               = om.DipSource2MEGMat(dipoles, sensors)
 h2mm                = om.Head2MEGMat(geom, sensors)
 h2em                = om.Head2EEGMat(geom, patches)

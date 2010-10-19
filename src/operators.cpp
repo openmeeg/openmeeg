@@ -82,7 +82,7 @@ namespace OpenMEEG {
         }
     }
 
-    void operatorDipolePotDer(const Vect3 &r0,const Vect3 &q,const Mesh &inner_layer,Vector &rhs,const int offsetIdx,const int GaussOrder,const bool adapt_rhs)
+    void operatorDipolePotDer(const Vect3 &r0,const Vect3 &q,const Mesh &layer,Vector &rhs,const int offsetIdx,const int GaussOrder,const bool adapt_rhs)
     {
         static analyticDipPotDer anaDPD;
 
@@ -97,22 +97,22 @@ namespace OpenMEEG {
         #ifdef USE_OMP
         #pragma omp parallel for private(anaDPD)
         #endif
-        for(int i=0;i<inner_layer.nbTrgs();i++)
+        for(int i=0;i<layer.nbTrgs();i++)
         {
-            anaDPD.init(inner_layer,i,q,r0);
-            Vect3 v=gauss->integrate(anaDPD,inner_layer.getTrg(i),inner_layer);
+            anaDPD.init(layer,i,q,r0);
+            Vect3 v=gauss->integrate(anaDPD,layer.getTrg(i),layer);
             #ifdef USE_OMP
             #pragma omp critical
             #endif
             {
-                rhs(inner_layer.getTrg(i-offsetIdx).s1()+offsetIdx)+=v(0);
-                rhs(inner_layer.getTrg(i-offsetIdx).s2()+offsetIdx)+=v(1);
-                rhs(inner_layer.getTrg(i-offsetIdx).s3()+offsetIdx)+=v(2);
+                rhs(layer.getTrg(i).s1()+offsetIdx)+=v(0);
+                rhs(layer.getTrg(i).s2()+offsetIdx)+=v(1);
+                rhs(layer.getTrg(i).s3()+offsetIdx)+=v(2);
             }
         }
     }
 
-    void operatorDipolePot(const Vect3 &r0, const Vect3 &q, const Mesh &inner_layer, Vector &rhs,const int offsetIdx,const int GaussOrder,const bool adapt_rhs)
+    void operatorDipolePot(const Vect3 &r0, const Vect3 &q, const Mesh &layer, Vector &rhs,const int offsetIdx,const int GaussOrder,const bool adapt_rhs)
     {
         static analyticDipPot anaDP;
 
@@ -128,9 +128,9 @@ namespace OpenMEEG {
         #ifdef USE_OMP
         #pragma omp parallel for
         #endif
-        for(int i=offsetIdx;i<offsetIdx+inner_layer.nbTrgs();i++)
+        for(int i=offsetIdx;i<offsetIdx+layer.nbTrgs();i++)
         {
-            double d = gauss->integrate(anaDP,inner_layer.getTrg(i-offsetIdx),inner_layer);
+            double d = gauss->integrate(anaDP,layer.getTrg(i-offsetIdx),layer);
             #ifdef USE_OMP
             #pragma omp critical
             #endif

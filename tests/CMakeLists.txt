@@ -61,6 +61,18 @@ FOREACH(DIP 1 2 3 4 5)
         ENDFOREACH()
     ENDFOREACH()
 ENDFOREACH()
+IF (TEST_HEAD3)
+    FOREACH(DIP 1 2)
+        FOREACH(COMP mag rdm)
+            SET(BASE_FILE_NAME "Head3-dip-skullscalp.est_eeg")
+            # Compare EEG result with a numerical solution obtained with the tetrahedral FEM
+            OPENMEEG_COMPARISON_TEST("EEGEST-dipSkullScalp-Head3-dip${DIP}-${COMP}"
+                ${BASE_FILE_NAME} analytic/eeg_head3-skullscalp_FEM.txt -${COMP} -eps ${EPSILON} -col ${DIP} -full
+                DEPENDS EEG-dipolesSkullScalp-Head3)
+        ENDFOREACH()
+    ENDFOREACH()
+ENDIF()
+
 # set tests that are expected to fail :
 SET_TESTS_PROPERTIES(cmp-EEGEST-dip-Head1-dip4-rdm PROPERTIES WILL_FAIL TRUE)
 SET_TESTS_PROPERTIES(cmp-EEGEST-dip-Head1-dip5-rdm PROPERTIES WILL_FAIL TRUE)
@@ -92,7 +104,7 @@ FOREACH(DIP 1 2 3 4 5)
         # Compare the potential results in a interior sphere of the Surf2Vol operator with analytical solution
         # obtained with Sphere (V.Hedou Modified)
         OPENMEEG_COMPARISON_TEST("EEGinternal-dip-${HEAD}-dip${DIP}"
-             ${HEAD}-dip.est_eeginternal analytic/eeg_internal_analytic.txt -eps ${EPSILON} -col ${DIP} -full
+             ${HEAD}-dip-internal.est_eeg analytic/eeg_internal_analytic.txt -eps ${EPSILON} -col ${DIP} -full
              DEPENDS InternalPot-dipoles-${HEAD})
 
         # Compare the q.gradVj to diffVf in order to validate the EIT problem

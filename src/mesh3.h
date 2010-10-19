@@ -139,6 +139,7 @@ namespace OpenMEEG {
         ~Mesh(){kill();}
         inline int nbPts() const { return npts; }
         inline int nbTrgs() const { return ntrgs; }
+        inline int size() const { return npts+ntrgs; }
         inline const Vect3& getPt(int i) const { return pts[i]; }
         inline const Triangle& getTrg(int i) const { return trgs[i]; }
         inline Triangle& getTrg(int i) { return trgs[i]; }

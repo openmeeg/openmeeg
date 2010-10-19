@@ -134,8 +134,8 @@ int main(int argc, char** argv)
     /*********************************************************************************************
     * Computation of RHS for discrete dipolar case
     **********************************************************************************************/
-    else if((!strcmp(argv[1],"-DipSourceMat")) |(!strcmp(argv[1],"-DSM"))|(!strcmp(argv[1],"-dsm"))|(!strcmp(argv[1],"-DipSourceMatNoAdapt"))|(!strcmp(argv[1],"-DSMNA"))|(!strcmp(argv[1],"-dsmna")))  {
-             if(argc < 3)
+    else if((!strcmp(argv[1],"-DipSourceMat")) |(!strcmp(argv[1],"-DSM"))|(!strcmp(argv[1],"-dsm"))|(!strcmp(argv[1],"-DipSourceMatNoAdapt"))|(!strcmp(argv[1],"-DSMNA"))|(!strcmp(argv[1],"-dsmna"))|(!strcmp(argv[1],"-DipSourceMatNotInCortex")) |(!strcmp(argv[1],"-DSMNIC"))|(!strcmp(argv[1],"-dsmnic")))  {
+        if(argc < 3)
         {
             cerr << "Please set geometry filepath !" << endl;
             exit(1);
@@ -162,17 +162,22 @@ int main(int argc, char** argv)
             cerr << "Dipoles File Format Error" << endl;
             exit(1);
         }
+        
+        bool adapt_rhs     = true;
+        bool dipoles_in_cortex = true;
 
         // Choosing between adaptive integration or not for the RHS
         if (!strcmp(argv[1],"-DipSourceMatNoAdapt")|(!strcmp(argv[1],"-DSMNA"))|(!strcmp(argv[1],"-dsmna"))){
-            DipSourceMat dsm(geo, dipoles, GaussOrder,false);
-            // Saving RHS Matrix for dipolar case :
-            dsm.save(argv[5]);
-        } else {
-            DipSourceMat dsm(geo, dipoles, GaussOrder,true);
-            // Saving RHS Matrix for dipolar case :
-            dsm.save(argv[5]);
+            adapt_rhs=false;
+        }   
+        // Choosing if all dipoles are inside the inner layer (cortex) or some may not be inside the inner layer
+        if (!strcmp(argv[1],"-DipSourceMatNotInCortex")|(!strcmp(argv[1],"-DSMNIC"))|(!strcmp(argv[1],"-dsmnic"))){
+            dipoles_in_cortex=false;
         }
+
+        DipSourceMat dsm(geo, dipoles, GaussOrder,adapt_rhs,dipoles_in_cortex);
+        // Saving RHS Matrix for dipolar case :
+        dsm.save(argv[5]);
     }
 
     /*********************************************************************************************

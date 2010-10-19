@@ -84,13 +84,11 @@ namespace OpenMEEG {
         assemble_SurfSourceMat(*this,geo,sources,GaussOrder);
     }
 
-    void assemble_DipSourceMat(Matrix &rhs,const Geometry &geo,vector<Vect3> Rs,vector<Vect3> Qs,const int GaussOrder, const bool adapt_rhs)
+    void assemble_DipSourceMat(Matrix &rhs,const Geometry &geo,vector<Vect3> Rs,vector<Vect3> Qs,const int GaussOrder,const bool adapt_rhs,const bool dipoles_in_cortex)
     {
         int newsize=geo.size()-(geo.getM(geo.nb()-1)).nbTrgs();
         rhs = Matrix(newsize, Qs.size());
-        int nVertexFirstLayer=geo.getM(0).nbPts();
 
-        int nFacesFirstLayer=geo.getM(0).nbTrgs();
         double K = 1.0 / (4*M_PI);
 
         // First block is nVertexFistLayer
@@ -98,33 +96,40 @@ namespace OpenMEEG {
         Vector prov(rhs.nlin());
         for (size_t s=0; s<Qs.size(); s++) {
             PROGRESSBAR(s,Qs.size());
+            unsigned domainID=0;
+            if (!dipoles_in_cortex){
+                domainID = geo.getDomain(Rs[s]); // domain containing the dipole
+            }
+            double sigma = geo.sigma_in(domainID);
+            int istart = 0;
             prov.set(0);
-            operatorDipolePotDer(Rs[s],Qs[s],geo.getM(0),prov,0,GaussOrder,adapt_rhs);
-            // Second block is nFaceFistLayer
-            if(geo.nb()>1) {
-                operatorDipolePot(Rs[s],Qs[s],geo.getM(0),prov,nVertexFirstLayer,GaussOrder,adapt_rhs);
+            if (domainID != 0) {
+                for (unsigned id = 0;id < (domainID-1);id++) istart += geo.getM(id).size();
+                // -first we treat the internal surface
+                int nVertexLayer = geo.getM(domainID-1).nbPts();
+                int nFacesLayer = geo.getM(domainID-1).nbTrgs();
+                operatorDipolePotDer(Rs[s],Qs[s],geo.getM(domainID-1),prov,istart,GaussOrder,adapt_rhs);
+                for(unsigned i = istart; i < istart+nVertexLayer; i++) prov(i) *= -K;
+                operatorDipolePot(Rs[s],Qs[s],geo.getM(domainID-1),prov,istart+nVertexLayer,GaussOrder,adapt_rhs);
+                for(unsigned i = istart+nVertexLayer; i < istart+nVertexLayer+nFacesLayer; i++) prov(i) *= (K/sigma);
+                istart+=nVertexLayer+nFacesLayer;
             }
-            for (size_t i=0; i<rhs.nlin(); i++) {
-                rhs(i,s) = prov(i);
+            // -second we treat the external surface
+            int nVertexLayer = geo.getM(domainID).nbPts();
+            int nFacesLayer = geo.getM(domainID).nbTrgs();
+            // Block is nVertexLayer
+            operatorDipolePotDer(Rs[s],Qs[s],geo.getM(domainID),prov,istart,GaussOrder,adapt_rhs);
+            for(unsigned i = istart; i < istart+nVertexLayer; i++) prov(i) *= K;
+            // Block is nFaceLayer
+            if(geo.nb() > (domainID+1)) {
+                operatorDipolePot(Rs[s],Qs[s],geo.getM(domainID),prov,istart+nVertexLayer,GaussOrder,adapt_rhs);
+                for(unsigned i = istart+nVertexLayer; i < istart+nVertexLayer+nFacesLayer; i++) prov(i) *= (-K/sigma);
             }
-        }
-        // Blocks multiplication
-        double s1i=geo.sigma_in(0);
-        for( int i=0; i<nVertexFirstLayer; i++ ) {
-            for (unsigned j=0; j<rhs.ncol(); j++) {
-                rhs(i,j) *= K;
-            }
-        }
-        if (geo.nb()>1) {
-            for( int i=0; i<nFacesFirstLayer; i++ ) {
-                for (unsigned j=0; j<rhs.ncol(); j++) {
-                    rhs(i+nVertexFirstLayer, j) *= (-K/s1i);
-                }
-            }
+            rhs.setcol(s,prov);
         }
     }
 
-    DipSourceMat::DipSourceMat (const Geometry &geo, const Matrix& dipoles, const int GaussOrder, const bool adapt_rhs=true) {
+    DipSourceMat::DipSourceMat (const Geometry &geo, const Matrix& dipoles, const int GaussOrder, const bool adapt_rhs=true, const bool dipoles_in_cortex=true) {
         vector<Vect3> Rs, Qs;
 
         // Assembling Matrix from discretization :
@@ -137,7 +142,7 @@ namespace OpenMEEG {
             Rs.push_back(r); Qs.push_back(q);
         }
 
-        assemble_DipSourceMat(*this,geo,Rs,Qs,GaussOrder,adapt_rhs);
+        assemble_DipSourceMat(*this,geo,Rs,Qs,GaussOrder,adapt_rhs,dipoles_in_cortex);
     }
 
     void assemble_EITSourceMat(Matrix &mat, const Geometry &geo, Matrix &positions, const int GaussOrder)
