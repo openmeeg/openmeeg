@@ -43,7 +43,7 @@ dipole_in_cortex = True
 hm            = om.HeadMat(geom, gauss_order)
 hminv         = hm.inverse()
 dsm           = om.DipSourceMat(geom, dipoles, gauss_order,
-                                            use_adaptive_integration,dipole_in_cortex)
+                                 use_adaptive_integration, dipole_in_cortex)
 
 # For EEG
 h2em          = om.Head2EEGMat(geom, eeg_electrodes)
@@ -73,7 +73,7 @@ print "h2mm           : %d x %d" % (h2mm.nlin(), h2mm.ncol())
 print "eeg_leadfield  : %d x %d" % (eeg_leadfield.nlin(), eeg_leadfield.ncol())
 print "meg_leadfield  : %d x %d" % (meg_leadfield.nlin(), meg_leadfield.ncol())
 print "eit_leadfield  : %d x %d" % (eit_leadfield.nlin(), eit_leadfield.ncol())
-print "ip_leadfield   : %d x %d" % (ip_leadfield.nlin(),ip_leadfield.ncol())
+print "ip_leadfield   : %d x %d" % (ip_leadfield.nlin(), ip_leadfield.ncol())
 
 eeg_leadfield.save('eeg_leadfield.mat')
 meg_leadfield.save('meg_leadfield.mat')
