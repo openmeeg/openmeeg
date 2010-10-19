@@ -38,11 +38,12 @@ int_electrodes.load(internal_electrodes_file)
 # Compute Leadfields
 gauss_order = 3
 use_adaptive_integration = True
+dipole_in_cortex = True
 
 hm            = om.HeadMat(geom, gauss_order)
 hminv         = hm.inverse()
 dsm           = om.DipSourceMat(geom, dipoles, gauss_order,
-                                            use_adaptive_integration)
+                                            use_adaptive_integration,dipole_in_cortex)
 
 # For EEG
 h2em          = om.Head2EEGMat(geom, eeg_electrodes)
