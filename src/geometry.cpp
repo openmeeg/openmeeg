@@ -104,7 +104,8 @@ namespace OpenMEEG {
 
             std::cout << "\nChecking" << std::endl;
             for(int i=0;i<n;i++)
-                std::cout << "\tMesh " << i << " : internal conductivity = " << sigin[i] << " and external conductivity = " << sigout[i] << std::endl;
+                std::cout << "\tMesh " << i << " : internal conductivity = " << sigin[i]
+                          << " and external conductivity = " << sigout[i] << std::endl;
         }
 
         m_size = npts + ntrgs;
@@ -116,12 +117,15 @@ namespace OpenMEEG {
         for(int i = 0; i < nb(); ++i)
         {
             const Mesh& m1 = getM(i);
+            if (!m1.has_correct_orientation()) {
+                warning(std::string("A mesh does not seem to be properly oriented"));
+            }
             if(m1.selfIntersection())
             {
                 warning(std::string("Mesh is self intersecting !"));
                 m1.info();
                 OK = false;
-		std::cout << "Self intersection for mesh number " << i << std:: endl;
+                std::cout << "Self intersection for mesh number " << i << std:: endl;
             }
             for(int j = i+1; j < nb(); ++j)
             {

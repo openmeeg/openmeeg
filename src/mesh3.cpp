@@ -852,16 +852,19 @@ namespace OpenMEEG {
      **/
     bool Mesh::containsPoint(const Vect3& p) const {
         double solangle = 0.0;
-        for (int itrg=0;itrg<ntrgs;itrg++)
+        for (int itrg=0; itrg<ntrgs; itrg++)
             solangle += p.solangl(pts[trgs[itrg][0]], pts[trgs[itrg][1]], pts[trgs[itrg][2]]);
 
-        if (std::abs(solangle)<1000*std::numeric_limits<double>::epsilon()) {
+        if (std::abs(solangle) < 1e3*std::numeric_limits<double>::epsilon()) {
             return false;
-        } else if ( (std::abs(solangle-4*M_PI) < 1000*std::numeric_limits<double>::epsilon())
-                 || (std::abs(solangle+4*M_PI) < 1000*std::numeric_limits<double>::epsilon()) ) {
+        } else if (std::abs(solangle + 4*M_PI) < 1e3*std::numeric_limits<double>::epsilon()) {
             return true;
+        } else if (std::abs(solangle - 4*M_PI) < 1e3*std::numeric_limits<double>::epsilon()) {
+            std::cerr << "Mesh::containsPoint(p) Error. Are you sure the mesh is properly oriented?\n";
+            return false;
         } else {
-            std::cerr<<"Mesh::containsPoint(p) Error. Are you sure the mesh is closed ?\n"<<std::abs(solangle)<<std::endl;
+            std::cerr << "Mesh::containsPoint(p) Error. Are you sure the mesh is closed?\n"
+                      << std::abs(solangle) << std::endl;
             exit(1);
         }
     }
@@ -928,15 +931,15 @@ namespace OpenMEEG {
         return intersects;
     }
 
-    bool Mesh::correct_orientation() const {
-      // First : check the global orientation (that all the triangles are all oriented in the same way)
-    // define the triangle edges as (first point,second point)
-    // if a triangle edge is ordered with (lower index, higher index) keep it in a edge_list
-    // if not, exchange the two indices and put in a flipped_edge_list (lower index, higher index)
-    // Transform the edge_list and flipped_edge_list unambigously into lists of numbers
+    bool Mesh::has_correct_orientation() const {
+        // First : check the global orientation (that all the triangles are all oriented in the same way)
+        // define the triangle edges as (first point,second point)
+        // if a triangle edge is ordered with (lower index, higher index) keep it in a edge_list
+        // if not, exchange the two indices and put in a flipped_edge_list (lower index, higher index)
+        // Transform the edge_list and flipped_edge_list unambigously into lists of numbers
         list<int> edge_list;
         list<int> flipped_edge_list;
-        int radix = 10^(int(log2((double)npts)/log2(10.0))+1);
+        int radix = 10^(int(log2((double)npts) / log2(10.0)) + 1);
         for(int i = 0; i < ntrgs; ++i)
         {
             for(int j=1; j<=3; ++j)
@@ -947,37 +950,32 @@ namespace OpenMEEG {
                 else flipped_edge_list.push_back(trgs[i].next(j) * radix + trgs[i].som(j));
             }
         }
-    // Sort these two lists: they should be identical: if not, there is a local orientation problem.
+        // Sort these two lists: they should be identical: if not, there is a local orientation problem.
         edge_list.sort();
         flipped_edge_list.sort();
-        return (flipped_edge_list == edge_list);
 
-    // =========================================================================================
-    // XXX: In progress: check the global orientation: that the triangles are correctly oriented
-    // =========================================================================================
-    // // compute the bounding box:
-    //     double xmax=-10000;
-    //     double ymax=-10000;
-    //     double zmax=-10000;
-    //     double xmin=-10000;
-    //     double ymin=-10000;
-    //     double zmin=-10000;
-    //     for(int i=0; i<npts; ++i)
-    //     {
-    //         xmin=min(xmin,getPt(i).x());
-    //         ymin=min(ymin,getPt(i).y());
-    //         zmin=min(zmin,getPt(i).z());
-    //         xmax=max(xmax,getPt(i).x());
-    //         ymax=max(ymax,getPt(i).y());
-    //         zmax=max(zmax,getPt(i).z());
-    //     }
-    //     Vect3 bbmin(xmin,ymin,zmin);
-    //     Vect3 bbmax(xmax,ymax,zmax);
-    //     Vect3 bbcenter=0.5*(bbmin+bbmax);
-    // 
-    // // a point ouside the bounding box:
-    //     Vect3 Pout=bbcenter+1.1*(bbmin-bbcenter);
-    // // solid angle computation from this point:
-    // // to be continued...
+        // check the global orientation: that the triangles are correctly oriented
+        // compute the bounding box:
+        double xmax = std::numeric_limits<int>::min();
+        double ymax = std::numeric_limits<int>::min();
+        double zmax = std::numeric_limits<int>::min();
+        double xmin = std::numeric_limits<int>::max();
+        double ymin = std::numeric_limits<int>::max();
+        double zmin = std::numeric_limits<int>::max();
+        for(int i=0; i<npts; ++i) {
+            xmin = min(xmin, getPt(i).x());
+            ymin = min(ymin, getPt(i).y());
+            zmin = min(zmin, getPt(i).z());
+            xmax = max(xmax, getPt(i).x());
+            ymax = max(ymax, getPt(i).y());
+            zmax = max(zmax, getPt(i).z());
+        }
+        Vect3 bbmin(xmin,ymin,zmin);
+        Vect3 bbmax(xmax,ymax,zmax);
+        Vect3 bbcenter = 0.5*(bbmin+bbmax);
+
+        // check the center of the bounding box in the mesh
+        bool in_mesh = this->containsPoint(bbcenter);
+        return in_mesh && (flipped_edge_list == edge_list);
     }
 }

@@ -277,7 +277,7 @@ namespace OpenMEEG {
 
         bool selfIntersection() const;
         bool intersection(const Mesh& m) const;
-        bool correct_orientation() const;
+        bool has_correct_orientation() const;
 
         /**
          * Postprocessing after loading meshes (empty).

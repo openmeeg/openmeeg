@@ -1,7 +1,7 @@
 /*
 Project Name : OpenMEEG
 
-© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre 
+© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre
 GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU, Théodore PAPADOPOULO,
 Emmanuel OLIVI
 Maureen.Clerc.AT.sophia.inria.fr, keriven.AT.certis.enpc.fr,
@@ -62,8 +62,9 @@ int main( int argc, char **argv)
         warning(std::string("Mesh is self intersecting !"));
     }
     // for closed mesh
-        if(!M.correct_orientation())
-     warning(std::string("Mesh is not well-oriented (valid for closed mesh) !"));
+    if (!M.has_correct_orientation()) {
+        warning(std::string("Mesh is not well-oriented (valid for closed mesh) !"));
+    }
     else std::cout << "Mesh orientation correct (valid for closed mesh)." << std::endl;
     return 0;
 }
