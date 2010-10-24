@@ -31,7 +31,7 @@ meg_sensors.load(squids_file)
 eeg_electrodes = om.Sensors()
 eeg_electrodes.load(electrodes_file)
 
-int_electrodes = om.Matrix()
+int_electrodes = om.Sensors()
 int_electrodes.load(internal_electrodes_file)
 
 ###############################################################################
