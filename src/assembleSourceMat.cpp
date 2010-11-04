@@ -129,7 +129,7 @@ namespace OpenMEEG {
         }
     }
 
-    DipSourceMat::DipSourceMat (const Geometry &geo, const Matrix& dipoles, const int GaussOrder, const bool adapt_rhs=true, const bool dipoles_in_cortex=true) {
+    DipSourceMat::DipSourceMat (const Geometry &geo, const Matrix& dipoles, const int GaussOrder, const bool adapt_rhs, const bool dipoles_in_cortex) {
         vector<Vect3> Rs, Qs;
 
         // Assembling Matrix from discretization :

@@ -105,6 +105,7 @@ namespace OpenMEEG {
         void operator /=(double x) { (*this)*=(1/x); }
 
         SymMatrix inverse() const;
+        void invert();
         Matrix solve(Matrix& B) const;
         SymMatrix posdefinverse() const;
         double det();
@@ -295,19 +296,39 @@ namespace OpenMEEG {
 
     inline SymMatrix SymMatrix::inverse() const {
     #ifdef HAVE_LAPACK
-        SymMatrix invA(*this,DEEP_COPY);
+        SymMatrix invA(*this, DEEP_COPY);
         // LU
-        int *pivots=new int[nlin()];
+        int *pivots = new int[nlin()];
         int Info;
-        DSPTRF('U',invA.nlin(),invA.data(),pivots,Info);
+        DSPTRF('U', nlin(), invA.data(), pivots, Info);
         // Inverse
-        int sz=(int)invA.nlin()*64;
-        double *work=new double[sz];
-        DSPTRI('U',invA.nlin(),invA.data(),pivots,work,Info);
+        int sz = (int) this->nlin() * 64;
+        double *work = new double[sz];
+        DSPTRI('U', nlin(), invA.data(), pivots, work, Info);
 
         delete[] pivots;
         delete[] work;
         return invA;
+    #else
+        std::cerr << "!!!!! Inverse not implemented !!!!!" << std::endl;
+        exit(1);
+    #endif
+    }
+
+    inline void SymMatrix::invert() {
+    #ifdef HAVE_LAPACK
+        // LU
+        int *pivots = new int[nlin()];
+        int Info;
+        DSPTRF('U', nlin(), data(), pivots, Info);
+        // Inverse
+        int sz = (int) this->nlin() * 64;
+        double *work = new double[sz];
+        DSPTRI('U', nlin(), data(), pivots, work, Info);
+
+        delete[] pivots;
+        delete[] work;
+        return;
     #else
         std::cerr << "!!!!! Inverse not implemented !!!!!" << std::endl;
         exit(1);

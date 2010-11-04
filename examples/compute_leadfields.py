@@ -40,24 +40,25 @@ gauss_order = 3
 use_adaptive_integration = True
 dipole_in_cortex = True
 
-hm            = om.HeadMat(geom, gauss_order)
-hminv         = hm.inverse()
-dsm           = om.DipSourceMat(geom, dipoles, gauss_order,
+hm = om.HeadMat(geom, gauss_order)
+hm.invert()
+hminv = hm
+dsm = om.DipSourceMat(geom, dipoles, gauss_order,
                                  use_adaptive_integration, dipole_in_cortex)
 
 # For EEG
-h2em          = om.Head2EEGMat(geom, eeg_electrodes)
+h2em = om.Head2EEGMat(geom, eeg_electrodes)
 
 # For MEG
-ds2mm         = om.DipSource2MEGMat(dipoles, meg_sensors)
-h2mm          = om.Head2MEGMat(geom, meg_sensors)
+ds2mm = om.DipSource2MEGMat(dipoles, meg_sensors)
+h2mm = om.Head2MEGMat(geom, meg_sensors)
 
 # For EIT (using the same electrodes as EEG)
-eitsm         = om.EITSourceMat(geom, eeg_electrodes, gauss_order)
+eitsm = om.EITSourceMat(geom, eeg_electrodes, gauss_order)
 
 # For Internal Potential
-iphm          = om.Surf2VolMat(geom, int_electrodes)
-ipsm          = om.DipSource2InternalPotMat(geom, dipoles, int_electrodes)
+iphm = om.Surf2VolMat(geom, int_electrodes)
+ipsm = om.DipSource2InternalPotMat(geom, dipoles, int_electrodes)
 
 eeg_leadfield = om.GainEEG(hminv, dsm, h2em)
 meg_leadfield = om.GainMEG(hminv, dsm, h2mm, ds2mm)

@@ -90,7 +90,7 @@ namespace OpenMEEG {
                 for (int i=0;i<m.nlin();i++) {
                         E(i,i)/=omega;
                 }
-                LowerTriangularMatrix Einv=E.inverse();
+                LowerTriangularMatrix Einv=E.inverse(); // XXX: can this be done inplace with invert() ?
                 //
                 // SSor = (((Lower+D*1./omega)*Dinv)*((Lower+D*1./omega).transpose()*1./(2-omega))).inverse();
                 SSor = ((Einv.transpose()*D)*Einv)*(2.-omega);

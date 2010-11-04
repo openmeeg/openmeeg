@@ -69,11 +69,10 @@ int main(int argc, char **argv)
     C.start();
 
     SymMatrix HeadMat;
-    SymMatrix HeadMatInv;
 
     HeadMat.load(argv[1]);
-    HeadMatInv=HeadMat.inverse();
-    HeadMatInv.save(argv[2]);
+    HeadMat.invert(); // invert inplace
+    HeadMat.save(argv[2]);
 
     // Stop Chrono
     C.stop();
