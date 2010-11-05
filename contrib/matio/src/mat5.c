@@ -2352,10 +2352,11 @@ WriteCompressedCellArrayField(mat_t *mat,matvar_t *matvar,z_stream *z)
         {
             char     **fieldnames;
             unsigned char *padzero;
-            int        fieldname_size, nfields;
+			matvar_t **fields;
+			int        fieldname_size, nfields;
             size_t     maxlen = 0;
             array_name_type = MAT_T_INT8;
-            matvar_t **fields = (matvar_t **)matvar->data;
+            fields = (matvar_t **)matvar->data;
 
             /* Check for a structure with no fields */
             if ( matvar->nbytes == 0 || matvar->data_size == 0 ||
@@ -2762,9 +2763,10 @@ WriteCompressedStructField(mat_t *mat,matvar_t *matvar,z_stream *z)
             char     **fieldnames;
             unsigned char *padzero;
             int        fieldname_size, nfields;
+			matvar_t **fields;
             size_t     maxlen = 0;
             array_name_type = MAT_T_INT8;
-            matvar_t **fields = (matvar_t **)matvar->data;
+            fields = (matvar_t **)matvar->data;
 
             /* Check for a structure with no fields */
             if ( matvar->nbytes == 0 || matvar->data_size == 0 ||
