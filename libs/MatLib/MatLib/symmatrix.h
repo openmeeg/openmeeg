@@ -89,6 +89,7 @@ namespace OpenMEEG {
         SymMatrix submat(size_t istart, size_t iend) const;
         Vector solveLin(const Vector &B) const;
         void solveLin(Vector * B, int nbvect);
+        Matrix solveLin(Matrix& B) const;
 
         const SymMatrix& operator=(const double d);
 
@@ -106,7 +107,6 @@ namespace OpenMEEG {
 
         SymMatrix inverse() const;
         void invert();
-        Matrix solve(Matrix& B) const;
         SymMatrix posdefinverse() const;
         double det();
         // void eigen(Matrix & Z, Vector & D );
@@ -144,12 +144,9 @@ namespace OpenMEEG {
         int Info;
         DSPTRF('U',invA.nlin(),invA.data(),pivots,Info);
         // Inverse
-        int sz=(int)invA.nlin()*64;
-        double *work=new double[sz];
         DSPTRS('U',invA.nlin(),1,invA.data(),pivots,X.data(),invA.nlin(),Info);
 
         delete[] pivots;
-        delete[] work;
     #else
         std::cout << "solveLin not defined" << std::endl;
     #endif
@@ -167,13 +164,10 @@ namespace OpenMEEG {
         //char *uplo="U";
         DSPTRF('U',invA.nlin(),invA.data(),pivots,Info);
         // Inverse
-        int sz=(int) invA.nlin()*64;
-        double *work=new double[sz];
         for(int i = 0; i < nbvect; i++)
             DSPTRS('U',invA.nlin(),1,invA.data(),pivots,B[i].data(),invA.nlin(),Info);
 
         delete[] pivots;
-        delete[] work;
     #else
         std::cout << "solveLin not defined" << std::endl;
     #endif

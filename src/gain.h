@@ -96,7 +96,7 @@ namespace OpenMEEG {
                 }
                 #else
                 Matrix mtemp(Head2EEGMat.transpose());
-                HeadMat.solve(mtemp); // solving the system AX=B with LAPACK
+                HeadMat.solveLin(mtemp); // solving the system AX=B with LAPACK
                 mtemp=mtemp.transpose();
                 #endif
                 for (unsigned i=0;i<LeadField.ncol();i++) {

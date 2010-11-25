@@ -89,7 +89,7 @@ namespace OpenMEEG {
         return C;
     }
 
-    inline Matrix SymMatrix::solve(Matrix &RHS) const {
+    inline Matrix SymMatrix::solveLin(Matrix &RHS) const {
     #ifdef HAVE_LAPACK
         SymMatrix A(*this,DEEP_COPY);
         // LU
@@ -100,7 +100,7 @@ namespace OpenMEEG {
         DSPTRS('U',A.nlin(),RHS.ncol(),A.data(),pivots,RHS.data(),A.nlin(),Info);
         return RHS;
     #else
-        std::cerr << "!!!!! Not implemented : Try a GMres !!!!!" << std::endl;
+        std::cerr << "!!!!! solveLin not defined : Try a GMres !!!!!" << std::endl;
         exit(1);
     #endif
     }
