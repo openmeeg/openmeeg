@@ -218,45 +218,60 @@ namespace OpenMEEG {
     };
 
     // ========================================================
-
     template<class T> // T should be a linear operator
     size_t MinRes2(const T& A,const Vector& b,Vector& x0,double tol) {
 
-        size_t n_max=10000;
-        size_t n=1; size_t N=x0.size();
-        Vector v(N); v.set(0.0);
-        Vector v_hat=b-A*x0;
-        double beta=v_hat.norm();
+        size_t n_max = 10000;
+        size_t n = 1;
+        size_t N = x0.size();
+        Vector v(N);
+        v.set(0.0);
+        Vector v_hat = b-A*x0;
+        double beta = v_hat.norm();
         Vector v_old(v.size());
         Vector Av(v.size());
-        double c=1; double c_old=1; double s_old=0; double s=0;
-        Vector w(N); w.set(0.0);
-        Vector w_oold(N); Vector w_old(w,DEEP_COPY);
-        double eta=beta;
-        Vector xMR=x0;
-        double norm_rMR=beta; double norm_r0=beta;
+        double c = 1;
+        double c_old = 1;
+        double s_old = 0;
+        double s = 0;
+        Vector w(N);
+        w.set(0.0);
+        Vector w_oold(N);
+        Vector w_old(w,DEEP_COPY);
+        double eta = beta;
+        Vector xMR = x0;
+        double norm_rMR = beta;
+        double norm_r0 = beta;
         double c_oold,s_oold,r1_hat,r1,r2,r3,alpha,beta_old;
         while ((n < n_max+1) && (norm_rMR/norm_r0 > tol) ) {
-            n=n+1;
+            n = n+1;
             //Lanczos
-            v_old=v;
-            v=v_hat*(1.0/beta); Av=A*v; alpha=v*Av;
-            v_hat=Av-alpha*v-beta*v_old;
-            beta_old=beta; beta=v_hat.norm();
+            v_old = v;
+            v = v_hat*(1.0/beta);
+            Av = A*v;
+            alpha = v*Av;
+            v_hat = Av-alpha*v-beta*v_old;
+            beta_old = beta;
+            beta = v_hat.norm();
             //QR factorization
-            c_oold=c_old; c_old=c;  s_oold=s_old; s_old=s;
-            r1_hat=c_old*alpha-c_oold*s_old*beta_old;
-            r1 = sqrt(r1_hat*r1_hat+beta*beta);
-            r2 = s_old*alpha+c_oold*c_old*beta_old;
-            r3 = s_oold*beta_old;
+            c_oold = c_old;
+            c_old = c;
+            s_oold = s_old;
+            s_old = s;
+            r1_hat = c_old*alpha-c_oold*s_old*beta_old;
+            r1  =  sqrt(r1_hat*r1_hat+beta*beta);
+            r2  =  s_old*alpha+c_oold*c_old*beta_old;
+            r3  =  s_oold*beta_old;
             //Givens rotation
-            c=r1_hat/r1;
-            s=beta/r1;
+            c = r1_hat/r1;
+            s = beta/r1;
             //update
-            w_oold=w_old; w_old=w;
-            w=(v-r3*w_oold-r2*w_old)*(1.0/r1);
-            xMR+=c*eta*w; norm_rMR=norm_rMR*fabs(s);
-            eta=-s*eta;
+            w_oold = w_old;
+            w_old = w;
+            w = (v-r3*w_oold-r2*w_old)*(1.0/r1);
+            xMR += c*eta*w;
+            norm_rMR *= fabs(s);
+            eta *= -s;
         }
         std::cout<<"\r";
         return n;
@@ -301,11 +316,11 @@ namespace OpenMEEG {
                 x += v[j] * y(j);
         }
 
-    // code taken from http://math.nist.gov/iml++/ and modified
+    // code taken from http://www.netlib.org/templates/cpp/gmres.h and modified
     template<class T,class P> // T should be a linear operator, and P a preconditionner
-    size_t GMRes(const T& A, const P& M, Vector &x, const Vector& b, int max_iter, double tol) {
+    size_t GMRes(const T& A, const P& M, Vector &x, const Vector& b, int max_iter, double tol,unsigned m) {
 
-        int m=A.nlin();//70 // TODO check this parameter: size of the Krylov subspace
+        // m is the size of the Krylov subspace, if m<A.nlin(), it is a restarted GMRes (for saving memory)
         Matrix H(m+1,m);
         x.set(0.0);
 

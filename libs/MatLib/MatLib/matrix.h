@@ -59,8 +59,6 @@ namespace OpenMEEG {
     class SparseMatrix;
     class SymMatrix;
     class Vector;
-    class UpperTriangularMatrix;
-    class LowerTriangularMatrix;
 
     /** \brief  Matrix class
 
@@ -84,8 +82,6 @@ namespace OpenMEEG {
 
         explicit Matrix(const SymMatrix& A);
         explicit Matrix(const SparseMatrix& A);
-        explicit Matrix(const UpperTriangularMatrix& A);
-        explicit Matrix(const LowerTriangularMatrix& A);
 
         Matrix(const Vector& v,const size_t M,const size_t N);
 

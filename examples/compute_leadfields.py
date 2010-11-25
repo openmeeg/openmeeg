@@ -43,6 +43,7 @@ dipole_in_cortex = True
 hm = om.HeadMat(geom, gauss_order)
 hm.invert()
 hminv = hm
+# hminv = hm.inverse() # for the adjoint method comment the 2 previous line, and uncomment this one
 dsm = om.DipSourceMat(geom, dipoles, gauss_order,
                                  use_adaptive_integration, dipole_in_cortex)
 
@@ -64,6 +65,7 @@ eeg_leadfield = om.GainEEG(hminv, dsm, h2em)
 meg_leadfield = om.GainMEG(hminv, dsm, h2mm, ds2mm)
 eit_leadfield = om.GainEEG(hminv, eitsm, h2em)
 ip_leadfield  = om.GainInternalPot(hminv, dsm, iphm, ipsm)
+#eeg_leadfield_adjoint = om.GainEEGadjoint(geom,dipoles,hm, h2em)
 
 print "hm             : %d x %d" % (hm.nlin(), hm.ncol())
 print "hminv          : %d x %d" % (hminv.nlin(), hminv.ncol())
@@ -77,6 +79,7 @@ print "eit_leadfield  : %d x %d" % (eit_leadfield.nlin(), eit_leadfield.ncol())
 print "ip_leadfield   : %d x %d" % (ip_leadfield.nlin(), ip_leadfield.ncol())
 
 eeg_leadfield.save('eeg_leadfield.mat')
+#eeg_leadfield_adjoint.save('eeg_leadfield_adjoint.mat')
 meg_leadfield.save('meg_leadfield.mat')
 eit_leadfield.save('eit_leadfield.mat')
 ip_leadfield.save('ip_leadfield.mat')

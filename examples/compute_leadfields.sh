@@ -9,6 +9,7 @@ INTERNAL_ELECTRODES=internal_electrodes_locations.txt
 
 # Leadfields
 EEG_LEADFIELD=eeg_leadfield.mat
+#EEG_LEADFIELD_ADJOINT=eeg_leadfieldAdjoint.mat
 MEG_LEADFIELD=meg_leadfield.mat
 EIT_LEADFIELD=eit_leadfield.mat
 IP_LEADFIELD=ip_leadfield.mat
@@ -32,6 +33,7 @@ om_minverser ${HM} ${HMINV}
 om_assemble -DSM ${GEOMETRY} ${CONDUCTIVITIES} ${DIPOLES} ${DSM}
 om_assemble -H2EM ${GEOMETRY} ${CONDUCTIVITIES} ${EEG_ELECTRODES} ${H2EM}
 om_gain -EEG ${HMINV} ${DSM} ${H2EM} ${EEG_LEADFIELD}
+# om_gain -EEGadjoint ${GEOMETRY} ${CONDUCTIVITIES} ${DIPOLES} ${HM} ${H2EM} ${EEG_LEADFIELD_ADJOINT}
 
 # Compute MEG gain matrix
 om_assemble -H2MM ${GEOMETRY} ${CONDUCTIVITIES} ${SQUIDS} ${H2MM}
@@ -46,4 +48,3 @@ om_gain -EEG ${HMINV} ${EITSM} ${H2EM} ${EIT_LEADFIELD}
 om_assemble -H2IPM ${GEOMETRY} ${CONDUCTIVITIES} ${INTERNAL_ELECTRODES} ${IPHM}
 om_assemble -DS2IPM ${GEOMETRY} ${CONDUCTIVITIES} ${DIPOLES} ${INTERNAL_ELECTRODES} ${IPSM}
 om_gain -IP ${HMINV} ${DSM} ${IPHM} ${IPSM} ${IP_LEADFIELD}
-

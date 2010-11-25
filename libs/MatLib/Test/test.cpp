@@ -41,9 +41,8 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include "vector.h"
 #include "matrix.h"
 #include "symmatrix.h"
-#include "sparse_matrix.h"
-#include "triangularmatrix.h"
 #include "diagmatrix.h"
+#include "sparse_matrix.h"
 #include "fast_sparse_matrix.h"
 #include "chrono.h"
 
@@ -160,41 +159,6 @@ int main ()
     Matrix R = S(1,2,0,2); // extract submatrix
     cout << "Matrice R : " << endl;
     R.info();
-
-    // section UpperTriangularMatrix
-    cout<<endl<<"========== upper triangular matrices =========="<<endl;
-    {
-        UpperTriangularMatrix utM(4);
-        for(unsigned int i=0; i<4; i++)
-            for(unsigned int j=i; j<4; j++)
-                utM(i,j)=pow(2.0,(double)i)+pow(3.0,(double)j);
-
-        // genericTest(utM); //operator load and save not done
-        utM.info();
-        Matrix(utM).info();
-        Matrix(utM.transpose()).info();
-        Vector v(utM.ncol());
-        v.set(1);
-        v = utM*v;
-        v.info();
-        (utM*utM.transpose()).info();
-    }
-
-    // section LowerTriangularMatrix
-    cout<<endl<<"========== lower triangular matrices =========="<<endl;
-    {
-        LowerTriangularMatrix ltM(4);
-        for(unsigned int i=0; i<4; i++)
-            for(unsigned int j=0; j<=i; j++)
-                ltM(i,j)=pow(2.0,(double)j)+pow(3.0,(double)i);
-
-        // genericTest(ltM); //operator load and save not done
-        ltM.info();
-        Vector v(ltM.ncol());
-        v.set(1);
-        v = ltM*v;
-        v.info();
-    }
 
     // section DiagMatrix
     cout<<endl<<"========== diag matrices =========="<<endl;

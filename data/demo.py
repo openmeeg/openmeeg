@@ -48,9 +48,9 @@ use_adaptive_integration = True
 dipole_in_cortex = True
 
 hm                  = om.HeadMat(geom, gauss_order)
-hm.invert() # invert hm inplace (no copy)
-hminv               = hm
-# hminv               = hm.inverse() # invert hm with a copy
+#hm.invert() # invert hm inplace (no copy)
+#hminv               = hm
+hminv               = hm.inverse() # invert hm with a copy
 ssm                 = om.SurfSourceMat(geom, mesh)
 ss2mm               = om.SurfSource2MEGMat(mesh, sensors)
 dsm                 = om.DipSourceMat(geom, dipoles, gauss_order, use_adaptive_integration, dipole_in_cortex)
