@@ -128,31 +128,33 @@ namespace OpenMEEG {
         int p = (int)std::min( (int)floor(1.f*n*(w+1)/N), w);
 
         static int pprev = -1;
-        if (n == 0) {
-            pprev = -1;
-        }
-
-        if (p != pprev) {
-            if (n>1) {
-                // clear previous string
-                for(int i = 0; i < (w+2); ++i)
-                    std::cout<< "\b";
-
-                std::cout<< cbeg;
-                for(int i = 0; i < p; ++i) {
-                    std::cout<< cprog1;
-                }
-                for(int i = p; i < w; ++i) {
-                    std::cout<< cprog;
-                }
-                std::cout<< cend;
+        if (N>1) {
+            if (n == 0) {
+                pprev = -1;
             }
+
+            if (p != pprev) {
+                if (n>1) {
+                    // clear previous string
+                    for(int i = 0; i < (w+2); ++i)
+                        std::cout<< "\b";
+
+                    std::cout<< cbeg;
+                    for(int i = 0; i < p; ++i) {
+                        std::cout<< cprog1;
+                    }
+                    for(int i = p; i < w; ++i) {
+                        std::cout<< cprog;
+                    }
+                    std::cout<< cend;
+                }
+            }
+            pprev = p;
+            if (n >= (N-1)) {
+                std::cout<<"\n";
+            }
+            std::cout.flush();
         }
-        pprev = p;
-        if (n >= (N-1)) {
-            std::cout<<"\n";
-        }
-        std::cout.flush();
     }
 #endif
 
