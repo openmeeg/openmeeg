@@ -22,6 +22,22 @@ if nargin == 1
 end
 
 switch format
+case 'mat'
+    data_raw = load(filename);
+    if isfield(data_raw, 'symmatrix')
+        sym = data_raw.symmatrix;
+    elseif isfield(data_raw, 'data') && isfield(data_raw, 'size')
+        sym = data_raw;
+    end
+    clear data_raw;
+    if length(sym.data) ~= sym.size * (sym.size+1) / 2
+        error('Number of entries in symmatrix doesn''t fit to the size of the matrix.');
+    end
+    data = zeros(sym.size);
+    data(triu(ones(sym.size,sym.size)) > 0) = sym.data;
+    data = data';
+    data(triu(ones(sym.size,sym.size)) > 0) = sym.data;
+    clear sym;
 case 'binary'
     file = fopen(filename,'r');
     dim = fread(file,1,'uint32','ieee-le');
