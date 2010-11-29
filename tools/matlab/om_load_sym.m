@@ -18,44 +18,44 @@ if nargin == 0
 end
 
 if nargin == 1
-    format = 'binary';
+    format = 'mat';
 end
 
 switch format
-case 'mat'
-    data_raw = load(filename);
-    if isfield(data_raw, 'symmatrix')
-        sym = data_raw.symmatrix;
-    elseif isfield(data_raw, 'data') && isfield(data_raw, 'size')
-        sym = data_raw;
-    end
-    clear data_raw;
-    if length(sym.data) ~= sym.size * (sym.size+1) / 2
-        error('Number of entries in symmatrix doesn''t fit to the size of the matrix.');
-    end
-    data = zeros(sym.size);
-    data(triu(ones(sym.size,sym.size)) > 0) = sym.data;
-    data = data';
-    data(triu(ones(sym.size,sym.size)) > 0) = sym.data;
-    clear sym;
-case 'binary'
-    file = fopen(filename,'r');
-    dim = fread(file,1,'uint32','ieee-le');
-    data = zeros(dim,dim);
-    data(triu(ones(dim,dim)) > 0) = fread(file,dim*(dim+1)/2,'double','ieee-le');
-    data = data + data' - diag(diag(data));
-    fclose(file);
-case 'ascii'
-    file = fopen(filename);
-    rawdata = textscan(file,'%f');
-    rawdata = cell2mat(rawdata);
-    dim = (-1 + sqrt(1+8*length(rawdata)))/2;
-    assert(dim == ceil(dim),'Bad dimension for a symmetric Matrix')
-    data = zeros(dim,dim);
-    data(tril(ones(dim,dim)) > 0) = rawdata;
-    data = data + data' - diag(diag(data));
-    fclose(file);
-otherwise
-    error([me,' : Unknown file format'])
+    case 'mat'
+        data_raw = load(filename,'-mat');
+        if isfield(data_raw, 'symmatrix')
+            sym = data_raw.symmatrix;
+        elseif isfield(data_raw, 'data') && isfield(data_raw, 'size')
+            sym = data_raw;
+        end
+        clear data_raw;
+        if length(sym.data) ~= sym.size * (sym.size+1) / 2
+            error('Number of entries in symmatrix doesn''t fit to the size of the matrix.');
+        end
+        data = zeros(sym.size);
+        data(triu(ones(sym.size,sym.size)) > 0) = sym.data;
+        data = data';
+        data(triu(ones(sym.size,sym.size)) > 0) = sym.data;
+        clear sym;
+    case 'binary'
+        file = fopen(filename,'r');
+        dim = fread(file,1,'uint32','ieee-le');
+        data = zeros(dim,dim);
+        data(triu(ones(dim,dim)) > 0) = fread(file,dim*(dim+1)/2,'double','ieee-le');
+        data = data + data' - diag(diag(data));
+        fclose(file);
+    case 'ascii'
+        file = fopen(filename);
+        rawdata = textscan(file,'%f');
+        rawdata = cell2mat(rawdata);
+        dim = (-1 + sqrt(1+8*length(rawdata)))/2;
+        assert(dim == ceil(dim),'Bad dimension for a symmetric Matrix')
+        data = zeros(dim,dim);
+        data(tril(ones(dim,dim)) > 0) = rawdata;
+        data = data + data' - diag(diag(data));
+        fclose(file);
+    otherwise
+        error([me,' : Unknown file format'])
 end
 

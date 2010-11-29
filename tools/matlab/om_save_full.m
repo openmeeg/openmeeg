@@ -18,21 +18,27 @@ if nargin == 0
 end
 
 if nargin < 3
-    format = 'binary';
+    format = 'mat';
 end
 
 switch format
-case 'binary'
-    disp(['Saving file ',filename])
-    file = fopen(filename,'w');
-    dims = size(data);
-    fwrite(file,dims,'uint32','ieee-le');
-    fwrite(file,data(:),'double','ieee-le');
-    fclose(file);
-case 'ascii'
-    data = double(data);
-    save(filename,'data','-ASCII','-double','-v6')
-otherwise
-    error([me,' : Unknown file format'])
+    case 'mat'
+        file = fopen(filename,'w');
+        data_raw=struct('linop',data);
+        save(filename,'-MAT','-struct','data_raw','-v7')
+        fclose(file);
+        clear data_raw;
+    case 'binary'
+        disp(['Saving file ',filename])
+        file = fopen(filename,'w');
+        dims = size(data);
+        fwrite(file,dims,'uint32','ieee-le');
+        fwrite(file,data(:),'double','ieee-le');
+        fclose(file);
+    case 'ascii'
+        data = double(data);
+        save(filename,'data','-ASCII','-double','-v6')
+    otherwise
+        error([me,' : Unknown file format'])
 end
 

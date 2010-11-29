@@ -18,19 +18,22 @@ if nargin == 0
 end
 
 if nargin == 1
-    format = 'binary';
+    format = 'mat';
 end
 
 switch format
-case 'binary'
-    file = fopen(filename,'r');
-    dims = fread(file,2,'uint32','ieee-le');
-    data = fread(file,prod(dims),'double','ieee-le');
-    data = reshape(data,dims');
-    fclose(file);
-case 'ascii'
-    data = load(filename);
-otherwise
-    error([me,' : Unknown file format'])
+    case 'mat'
+        data_raw = load(filename,'-mat');
+        data = data_raw.linop;
+        clear data_raw;
+    case 'binary'
+        file = fopen(filename,'r');
+        dims = fread(file,2,'uint32','ieee-le');
+        data = fread(file,prod(dims),'double','ieee-le');
+        data = reshape(data,dims');
+        fclose(file);
+    case 'ascii'
+        data = load(filename);
+    otherwise
+        error([me,' : Unknown file format'])
 end
-

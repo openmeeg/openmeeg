@@ -18,7 +18,7 @@ if nargin == 0
 end
 
 if nargin < 3
-    format = 'binary';
+    format = 'mat';
 end
 
 dims = size(data);
@@ -26,22 +26,29 @@ assert(dims(1) == dims(2),'Matrix non square')
 assert(isempty(find(data ~= data')),'Matrix non symmetric')
 
 switch format
-case 'binary'
-    disp(['Saving file ',filename])
-    file = fopen(filename,'w');
-    dim = dims(1);
-    fwrite(file,dim,'uint32','ieee-le');
-    fwrite(file,data(triu(ones(dim,dim)) > 0),'double','ieee-le');
-    fclose(file);
-case 'ascii'
-    for i=1:dims(1)
-        if i == 1
-            dlmwrite(filename, data(i,i:end), 'delimiter', '\t','precision',18);
-        else
-            dlmwrite(filename, data(i,i:end), 'delimiter', '\t','-append','precision',18);
+    case 'mat'
+        file = fopen(filename,'w');
+        dim=length(data);
+        data_raw=struct('symmatrix',struct('size',dim,'data',data(triu(ones(dim))>0)));
+        save(filename,'-MAT','-struct','data_raw','-v5')
+        fclose(file);
+        clear data_raw;
+    case 'binary'
+        disp(['Saving file ',filename])
+        file = fopen(filename,'w');
+        dim = dims(1);
+        fwrite(file,dim,'uint32','ieee-le');
+        fwrite(file,data(triu(ones(dim,dim)) > 0),'double','ieee-le');
+        fclose(file);
+    case 'ascii'
+        for i=1:dims(1)
+            if i == 1
+                dlmwrite(filename, data(i,i:end), 'delimiter', '\t','precision',18);
+            else
+                dlmwrite(filename, data(i,i:end), 'delimiter', '\t','-append','precision',18);
+            end
         end
-    end
-otherwise
-    error([me,' : Unknown file format'])
+    otherwise
+        error([me,' : Unknown file format'])
 end
 
