@@ -4,12 +4,14 @@ function b=om_spher_mag_iso(x,q,p)
 % p. The norm of x must be equal to the last rk, at least.
 %
 % All vectors (x,q,p) should be in 3D.
-% 
+%
 % Based on
-% MOSHER & Al. : EEG and MEG: Forward solutions for inverse methods 
+% MOSHER & Al. : EEG and MEG: Forward solutions for inverse methods
 % Ilmoniemi & Al
 % Sarvas
 % E.Olivi 2008/11/18
+
+% $Id$
 
 mu0 = 4*pi*1e-7;
 %mu0 = 1;
@@ -25,10 +27,10 @@ for ipos=1:n;
     xx=norm(xi);
     d=xi-p;
     dd=norm(d);
-    
+
     F=dd*(xx*dd+xx^2-dot(xi,p));
 
     gradF=(dd^2/xx+dot(d,xi)/dd+2*dd+2*xx)*xi-(dd+2*xx+dot(d,xi)/dd)*p;
-    
-    b(ipos,:)=mu0/(4*pi*F^2)*(F*cross(q,p)-(dot(cross(q,p),xi)*gradF));   
+
+    b(ipos,:)=mu0/(4*pi*F^2)*(F*cross(q,p)-(dot(cross(q,p),xi)*gradF));
 end;

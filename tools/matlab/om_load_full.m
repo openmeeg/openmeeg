@@ -7,8 +7,10 @@ function [data] = om_load_full(filename,format)
 %   SYNTAX
 %       [DATA] = OM_LOAD_FULL(FILENAME,FORMAT)
 %
-%       FORMAT : can be 'ascii' or 'binary' (default)
+%       FORMAT : can be 'ascii' or 'binary' or 'matlab' (default)
 %
+
+% $Id$
 
 me = 'OM_LOAD_FULL';
 

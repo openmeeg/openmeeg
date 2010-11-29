@@ -7,7 +7,7 @@ function [data] = om_load_sym(filename,format)
 %   SYNTAX
 %       [DATA] = OM_LOAD_SYM(FILENAME,FORMAT)
 %
-%       FORMAT : can be 'ascii' or 'binary' (default)
+%       FORMAT : can be 'ascii' or 'binary' or 'matlab' (default)
 %
 
 me = 'OM_LOAD_SYM';

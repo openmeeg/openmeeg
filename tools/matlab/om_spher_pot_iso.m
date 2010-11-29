@@ -17,6 +17,8 @@ function u = om_spher_pot_iso(x,q,p,sigmas,rk)
 %
 % PROBLEM: Getting imaginary numbers solved ad hoc by real()
 
+% $Id$
+
 [n,m] = size(x);
 if m~=3
     error('x should be a set of row 3D vectors.')
@@ -30,9 +32,9 @@ matq = ones(n,1)*q;
 N=length(sigmas); % number of levels
 
 % calculate angles
-alpha=om_vangle(matp,matq); cosgamma=cos(om_vangle(matp,x));
-beta=om_vangle(cross(matp,matq),cross(matp,x));
-relerr=1e-20; % keep adding terms as longer as the term to be added is greater
+alpha = om_vangle(matp,matq); cosgamma=cos(om_vangle(matp,x));
+beta = om_vangle(cross(matp,matq),cross(matp,x));
+relerr = 1e-20; % keep adding terms as longer as the term to be added is greater
 
 n=1; counter=0;
 
@@ -43,15 +45,16 @@ while 1,
     for k=1:N-1,
         rsigma=sigmas(k)/sigmas(k+1);
         rerk=(rk(N)/rk(k))^(2*n+1);
-        M=M*[ n+(n+1)*rsigma (n+1)*(rsigma-1)*rerk ; n*(rsigma-1)/rerk (n+1)+n*rsigma ];
+        M=M*[ n+(n+1)*rsigma (n+1)*(rsigma-1)*rerk; ...
+              n*(rsigma-1)/rerk (n+1)+n*rsigma ];
     end;
-    f=n/(n*M(2,2)+(1+n)*M(2,1));
-    P=legendre(n,cosgamma);
+    f = n/(n*M(2,2)+(1+n)*M(2,1));
+    P = legendre(n,cosgamma);
     % Attention! Matlab's definition of Legendre includes (-1)^m, unlike
     % the definition supposed for the following formula
-    term=term*f*(n*cos(alpha).*P(1,:)'-cos(beta).*sin(alpha).*P(2,:)');
+    term = term*f*(n*cos(alpha).*P(1,:)'-cos(beta).*sin(alpha).*P(2,:)');
     % disp(['Adding term n=' num2str(n) ' value=' num2str(term) ]);
-    counter=counter+term;
+    counter = counter+term;
     % finish if contribution is small or if something goes wrong
     if ((abs(term)<abs(counter)*relerr) & n>20)  | n>200
         break;

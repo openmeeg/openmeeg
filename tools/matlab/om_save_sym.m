@@ -7,8 +7,10 @@ function om_save_sym(data,filename,format)
 %   SYNTAX
 %       OM_SAVE_SYM(DATA,FILENAME,FORMAT)
 %
-%       FORMAT : can be 'ascii' or 'binary' (default)
+%       FORMAT : can be 'ascii' or 'binary' or 'matlab' (default)
 %
+
+% $Id$
 
 me = 'OM_SAVE_SYM';
 

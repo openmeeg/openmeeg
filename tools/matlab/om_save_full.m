@@ -7,8 +7,10 @@ function om_save_full(data,filename,format)
 %   SYNTAX
 %       OM_SAVE_FULL(DATA,FILENAME,FORMAT)
 %
-%       FORMAT : can be 'ascii' or 'binary' (default)
+%       FORMAT : can be 'ascii' or 'binary' or 'matlab' (default)
 %
+
+% $Id$
 
 me = 'OM_SAVE_FULL';
 
