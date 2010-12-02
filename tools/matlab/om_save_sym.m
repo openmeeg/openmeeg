@@ -20,7 +20,7 @@ if nargin == 0
 end
 
 if nargin < 3
-    format = 'mat';
+    format = 'matlab';
 end
 
 dims = size(data);
@@ -28,7 +28,7 @@ assert(dims(1) == dims(2),'Matrix non square')
 assert(isempty(find(data ~= data')),'Matrix non symmetric')
 
 switch format
-    case 'mat'
+    case 'matlab'
         file = fopen(filename,'w');
         dim=length(data);
         data_raw=struct('symmatrix',struct('size',dim,'data',data(triu(ones(dim))>0)));

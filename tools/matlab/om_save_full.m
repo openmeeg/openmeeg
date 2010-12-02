@@ -20,11 +20,11 @@ if nargin == 0
 end
 
 if nargin < 3
-    format = 'mat';
+    format = 'matlab';
 end
 
 switch format
-    case 'mat'
+    case 'matlab'
         file = fopen(filename,'w');
         data_raw=struct('linop',data);
         save(filename,'-MAT','-struct','data_raw','-v7')

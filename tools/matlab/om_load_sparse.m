@@ -20,11 +20,11 @@ if nargin == 0
 end
 
 if nargin == 1
-    format = 'mat';
+    format = 'matlab';
 end
 
 switch format
-    case 'mat'
+    case 'matlab'
         data_raw = load(filename,'-mat');
         if isfield(data_raw, 'matrix')
             data = sparse(data_raw.matrix);

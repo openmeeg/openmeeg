@@ -22,7 +22,7 @@ if nargin == 1
 end
 
 switch format
-    case 'mat'
+    case 'matlab'
         data_raw = load(filename,'-mat');
         if isfield(data_raw, 'symmatrix')
             sym = data_raw.symmatrix;
