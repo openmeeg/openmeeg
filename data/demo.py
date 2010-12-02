@@ -9,7 +9,7 @@ parser = OptionParser()
 parser.add_option("-p", "--path", dest="data_path",
                   help="path to data folder", metavar="FILE",
                   default=data_path)
-(options, args) = parser.parse_args()
+options, args = parser.parse_args()
 data_path = options.data_path
 
 ###############################################################################
@@ -62,7 +62,7 @@ gain_meg_surf = om.GainMEG(hminv, ssm, h2mm, ss2mm)
 gain_eeg_surf = om.GainEEG(hminv, ssm, h2em)
 gain_meg_dip = om.GainMEG(hminv, dsm, h2mm, ds2mm)
 gain_eeg_dip = om.GainEEG(hminv, dsm, h2em)
-gainadjoint_eeg_dip = om.GainEEGadjoint(geom, dipoles, hm, h2em)
+gain_adjoint_eeg_dip = om.GainEEGadjoint(geom, dipoles, hm, h2em)
 
 print "hm                  : %d x %d" % (hm.nlin(), hm.ncol())
 print "hminv               : %d x %d" % (hminv.nlin(), hminv.ncol())
@@ -80,7 +80,7 @@ print "gain_meg_dip        : %d x %d" % (gain_meg_dip.nlin(),
                                          gain_meg_dip.ncol())
 print "gain_eeg_dip        : %d x %d" % (gain_eeg_dip.nlin(),
                                          gain_eeg_dip.ncol())
-print "gainadjoint_eeg_dip : %d x %d" % (gain_eeg_dip.nlin(),
+print "gain_adjoint_eeg_dip : %d x %d" % (gain_eeg_dip.nlin(),
                                          gain_eeg_dip.ncol())
 
 # Leadfield MEG in one line :
@@ -100,32 +100,32 @@ srcFile = op.join(data_path, 'Computations', subject, subject + '.src')
 sources = om.Matrix()
 sources.load(srcFile)
 
-noiseLevel = 0.0
-est_meg = om.Forward(gain_meg_dip, sources, noiseLevel)
+noise_level = 0.0
+est_meg = om.Forward(gain_meg_dip, sources, noise_level)
 print "est_meg    : %d x %d" % (est_meg.nlin(), est_meg.ncol())
 
-est_eeg = om.Forward(gain_eeg_dip, sources, noiseLevel)
+est_eeg = om.Forward(gain_eeg_dip, sources, noise_level)
 print "est_eeg    : %d x %d" % (est_eeg.nlin(), est_eeg.ncol())
 
-est_eegadjoint = om.Forward(gainadjoint_eeg_dip, sources, noiseLevel)
-print "est_eegadjoint    : %d x %d" % (est_eegadjoint.nlin(),
-                                       est_eegadjoint.ncol())
+est_eeg_adjoint = om.Forward(gain_adjoint_eeg_dip, sources, noise_level)
+print "est_eeg_adjoint    : %d x %d" % (est_eeg_adjoint.nlin(),
+                                       est_eeg_adjoint.ncol())
 
 ###############################################################################
 # Compute inverse problems
 
 smooth_weight = 0.0001
-maxIter = 300
+max_iter = 300
 tol = 0
 
 smooth_matrix = mesh.gradient()
-aiVector = mesh.areas()
+ai_vector = mesh.areas()
 
 meg_inverse_mn = om.MN_inverse(est_meg, gain_meg_dip, smooth_weight)
 meg_inverse_heat = om.HEAT_inverse(est_meg, gain_meg_dip, smooth_matrix,
                                     smooth_weight)
-meg_inverse_tv = om.TV_inverse(est_meg, gain_meg_dip, smooth_matrix, aiVector,
-                                                smooth_weight, maxIter, tol)
+meg_inverse_tv = om.TV_inverse(est_meg, gain_meg_dip, smooth_matrix, ai_vector,
+                                                smooth_weight, max_iter, tol)
 
 ###############################################################################
 # Example of basic manipulations
@@ -137,23 +137,23 @@ v3 = om.Vect3(0, 0, 1)
 print v1.norm()
 print (v1+v2).norm()
 
-normale = om.Vect3(1, 0, 0)
-t = om.Triangle(0, 1, 2, normale)
+normal = om.Vect3(1, 0, 0)
+t = om.Triangle(0, 1, 2, normal)
 
-hmFile = subject + '.hm'
-hm.save(hmFile)
+hm_file = subject + '.hm'
+hm.save(hm_file)
 
-ssmFile = subject + '.ssm'
-ssm.save(ssmFile)
+ssm_file = subject + '.ssm'
+ssm.save(ssm_file)
 
 m1 = om.SymMatrix()
-m1.load(hmFile)
+m1.load(hm_file)
 print m1(0, 0)
 print m1.nlin()
 print m1.ncol()
 
 m2 = om.Matrix()
-m2.load(ssmFile)
+m2.load(ssm_file)
 print m2(0, 0)
 print m2.nlin()
 print m2.ncol()
@@ -163,7 +163,7 @@ print m2.ncol()
 
 # For a Vector
 
-vec = om.asarray(aiVector)
+vec = om.asarray(ai_vector)
 print vec.size
 print vec[0:5]
 print vec
