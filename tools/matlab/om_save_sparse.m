@@ -28,6 +28,8 @@ dims = size(data);
 ii = ii - 1;
 jj = jj - 1;
 
+isOctave = exist('OCTAVE_VERSION') ~= 0;
+
 switch format
     case 'matlab'
         file = fopen(filename,'w');
@@ -46,9 +48,13 @@ switch format
         end
         fclose(file);
     case 'ascii'
-        dlmwrite(filename, dims, 'delimiter', '\t','precision','%d')
+        dlmwrite(filename, dims, 'delimiter', '\t', 'precision', '%d')
         data = double([ii jj vv]);
-        dlmwrite(filename, data, '-append', 'delimiter', '\t','precision',18)
+        if isOctave
+            dlmwrite(filename, data, '-append', 'delimiter', '\t')
+        else
+            dlmwrite(filename, data, '-append', 'delimiter', '\t', 'precision','%.18e')
+        end
     otherwise
         error([me,' : Unknown file format'])
 end

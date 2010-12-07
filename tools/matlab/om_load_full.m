@@ -23,9 +23,15 @@ if nargin == 1
     format = 'matlab';
 end
 
+isOctave = exist('OCTAVE_VERSION') ~= 0;
+
 switch format
     case 'matlab'
-        data_raw = load(filename,'-mat');
+        if isOctave
+            data_raw = load(filename);
+        else
+            data_raw = load(filename,'-mat');
+        end
         data = data_raw.linop;
         clear data_raw;
     case 'binary'

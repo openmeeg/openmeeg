@@ -21,9 +21,15 @@ if nargin == 1
     format = 'mat';
 end
 
+isOctave = exist('OCTAVE_VERSION') ~= 0;
+
 switch format
     case 'matlab'
-        data_raw = load(filename,'-mat');
+        if isOctave
+            data_raw = load(filename);
+        else
+            data_raw = load(filename,'-mat');
+        end
         if isfield(data_raw, 'symmatrix')
             sym = data_raw.symmatrix;
         elseif isfield(data_raw, 'data') && isfield(data_raw, 'size')
@@ -47,8 +53,8 @@ switch format
         fclose(file);
     case 'ascii'
         file = fopen(filename);
-        rawdata = textscan(file,'%f');
-        rawdata = cell2mat(rawdata);
+        rawdata = fscanf(file,'%f');
+        % rawdata = cell2mat(rawdata);
         dim = (-1 + sqrt(1+8*length(rawdata)))/2;
         assert(dim == ceil(dim),'Bad dimension for a symmetric Matrix')
         data = zeros(dim,dim);

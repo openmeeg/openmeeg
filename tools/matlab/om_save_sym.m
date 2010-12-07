@@ -45,9 +45,9 @@ switch format
     case 'ascii'
         for i=1:dims(1)
             if i == 1
-                dlmwrite(filename, data(i,i:end), 'delimiter', '\t','precision',18);
+                dlmwrite(filename, data(i,i:end), 'delimiter', '\t','precision','%.18e');
             else
-                dlmwrite(filename, data(i,i:end), 'delimiter', '\t','-append','precision',18);
+                dlmwrite(filename, data(i,i:end), 'delimiter', '\t','-append','precision','%.18e');
             end
         end
     otherwise

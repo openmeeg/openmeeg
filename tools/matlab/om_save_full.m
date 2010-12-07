@@ -39,7 +39,7 @@ switch format
         fclose(file);
     case 'ascii'
         data = double(data);
-        save(filename,'data','-ascii','-double','-v6')
+        save(filename,'data','-ascii','-double')
     otherwise
         error([me,' : Unknown file format'])
 end

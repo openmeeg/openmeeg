@@ -23,9 +23,15 @@ if nargin == 1
     format = 'matlab';
 end
 
+isOctave = exist('OCTAVE_VERSION') ~= 0;
+
 switch format
     case 'matlab'
-        data_raw = load(filename,'-mat');
+        if isOctave
+            data_raw = load(filename);
+        else
+            data_raw = load(filename,'-mat');
+        end
         if isfield(data_raw, 'matrix')
             data = sparse(data_raw.matrix);
         end
@@ -46,7 +52,7 @@ switch format
     case 'ascii'
         file = fopen(filename,'r');
         dims = fscanf(file, '%d',2);
-        data = fscanf(file, '%d %d %f');
+        data = fscanf(file, '%f %f %f');
         data = reshape(data,3,[])';
         data = sparse(data(:,1)+1,data(:,2)+1,data(:,3),dims(1),dims(2));
         fclose(file);
