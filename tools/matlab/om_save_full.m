@@ -27,7 +27,7 @@ switch format
     case 'matlab'
         file = fopen(filename,'w');
         data_raw=struct('linop',data);
-        save(filename,'-MAT','-struct','data_raw','-v7')
+        save(filename,'-mat','-struct','data_raw','-v7')
         fclose(file);
         clear data_raw;
     case 'binary'
@@ -39,7 +39,7 @@ switch format
         fclose(file);
     case 'ascii'
         data = double(data);
-        save(filename,'data','-ASCII','-double','-v6')
+        save(filename,'data','-ascii','-double','-v6')
     otherwise
         error([me,' : Unknown file format'])
 end

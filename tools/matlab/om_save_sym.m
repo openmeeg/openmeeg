@@ -32,7 +32,7 @@ switch format
         file = fopen(filename,'w');
         dim=length(data);
         data_raw=struct('symmatrix',struct('size',dim,'data',data(triu(ones(dim))>0)));
-        save(filename,'-MAT','-struct','data_raw','-v6')
+        save(filename,'-mat','-struct','data_raw','-v6')
         fclose(file);
         clear data_raw;
     case 'binary'

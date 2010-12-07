@@ -32,7 +32,7 @@ switch format
     case 'matlab'
         file = fopen(filename,'w');
         data_raw=struct('matrix',data);
-        save(filename,'-MAT','-struct','data_raw','-v7')
+        save(filename,'-mat','-struct','data_raw','-v7')
         fclose(file);
         clear data_raw;
     case 'binary'
