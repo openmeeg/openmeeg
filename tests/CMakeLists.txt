@@ -2,7 +2,7 @@ INCLUDE(ComparisonTest)
 
 SET_FILE_PROPERTIES(Suffix
     "HM .hm" "HMInv .hm_inv" "SSM .ssm" "v2eeg .h2em" "SurfGainEEG .sgem"
-    "EEGEST .est_eeg" "EEGadjointEST .est_eegadjoint" "EEG-HEAT -eeg-heat.est_src" "EEG-MN -eeg-mn.est_src" "EEG-TV -eeg-tv.est_src"
+    "EEGEST .est_eeg" "EEGadjointEST .est_eegadjoint" "MEGadjointEST .est_megadjoint" "EEG-HEAT -eeg-heat.est_src" "EEG-MN -eeg-mn.est_src" "EEG-TV -eeg-tv.est_src"
     "Head2MEGMat .h2mm" "SurfSource2MEGMat .ss2mm" "SurfGainMEG .sgmm" "MEGEST .est_meg"
     "MEG-HEAT -meg-heat.est_src" "MEG-MN -meg-mn.est_src" "MEG-TV -meg-tv.est_src"
 )
@@ -117,19 +117,23 @@ ENDFOREACH()
 SET_TESTS_PROPERTIES(cmp-EEGinternal-dip-Head1-dip5 PROPERTIES WILL_FAIL TRUE)
 
 FOREACH(SENSORORIENT "" "-tangential" "-noradial")
-    FOREACH(HEADNUM 1 2 ${HEAD3})
-        SET(HEAD "Head${HEADNUM}")
-        FOREACH(DIP 1 2 3 4 5)
-            FOREACH(COMP mag rdm)
-                # Compare MEG result with analytical solution obtained with Matlab
-                OPENMEEG_COMPARISON_TEST("MEGEST-dip-${HEAD}-dip${DIP}${SENSORORIENT}-${COMP}"
-                    ${HEAD}-dip${SENSORORIENT}.est_meg analytic/meg_analytic${SENSORORIENT}.txt -${COMP} -eps ${EPSILON} -col ${DIP} -full
+    FOREACH(ADJOINT "" adjoint)
+        IF (NOT(${ADJOINT} STREQUAL "adjoint") OR (SENSORORIENT STREQUAL ""))
+            FOREACH(HEADNUM 1 2 ${HEAD3})
+                SET(HEAD "Head${HEADNUM}")
+                FOREACH(DIP 1 2 3 4 5)
+                    FOREACH(COMP mag rdm)
+                        # Compare MEG result with analytical solution obtained with Matlab
+                        OPENMEEG_COMPARISON_TEST("MEG${ADJOINT}EST-dip-${HEAD}-dip${DIP}${SENSORORIENT}-${COMP}"
+                            ${HEAD}-dip${SENSORORIENT}.est_meg analytic/meg_analytic${SENSORORIENT}.txt -${COMP} -eps ${EPSILON} -col ${DIP} -full
+                            DEPENDS MEG${ADJOINT}-dipoles-${HEAD}${SENSORORIENT})
+                    ENDFOREACH()
+                ENDFOREACH()
+                OPENMEEG_COMPARISON_TEST("MEGEST-dip${SENSORORIENT}-${HEAD}-dip6"
+                    ${HEAD}-dip${SENSORORIENT}.est_meg analytic/meg_analytic${SENSORORIENT}.txt -eps 0.001 -col 6 -full
                     DEPENDS MEG-dipoles-${HEAD}${SENSORORIENT})
             ENDFOREACH()
-        ENDFOREACH()
-        OPENMEEG_COMPARISON_TEST("MEGEST-dip${SENSORORIENT}-${HEAD}-dip6"
-            ${HEAD}-dip${SENSORORIENT}.est_meg analytic/meg_analytic${SENSORORIENT}.txt -eps 0.001 -col 6 -full
-            DEPENDS MEG-dipoles-${HEAD}${SENSORORIENT})
+        ENDIF()
     ENDFOREACH()
 ENDFOREACH()
 

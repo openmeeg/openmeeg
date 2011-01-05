@@ -136,6 +136,28 @@ int main(int argc, char **argv)
         GainMEG MEGGainMat(HeadMatInv,SourceMat,Head2MEGMat,Source2MEGMat);
         MEGGainMat.save(argv[6]);
     }
+    // compute the gain matrix with the adjoint method for use with MEG DATA
+    else if(!strcmp(argv[1],"-MEGadjoint"))
+    {
+        if(argc<9)
+        {
+            cerr << "Not enough arguments \nPlease try \"" << argv[0] << " -h\" or \"" << argv[0] << " --help \" \n" << endl;
+            return 0;
+        }
+        LinOpInfo matinfo = OpenMEEG::maths::info(argv[3]);
+        Geometry geo;
+        geo.read(argv[2],argv[3]);
+        Matrix dipoles(argv[4]);
+        SymMatrix HeadMat;
+        HeadMat.load(argv[5]);
+        Matrix Head2MEGMat;
+        Head2MEGMat.load(argv[6]);
+        Matrix Source2MEGMat;
+        Source2MEGMat.load(argv[7]);
+
+        GainMEGadjoint MEGGainMat(geo,dipoles,HeadMat,Head2MEGMat,Source2MEGMat);
+        MEGGainMat.save(argv[8]);
+    }        
     else if((!strcmp(argv[1],"-InternalPotential"))|(!strcmp(argv[1],"-IP")))
     {
         if(argc<7)
@@ -200,6 +222,14 @@ void getHelp(char** argv)
     cout << "            conductivity file (.cond)" << endl;
     cout << "            dipoles positions and orientations" << endl;
     cout << "            HeadMat, Head2EEGMat, EEGGainMatrix" << endl;
+    cout << "            bin Matrix" << endl << endl;
+
+    cout << "   -MEGadjoint :   Compute the gain for MEG " << endl;
+    cout << "            Filepaths are in order :" << endl;
+    cout << "            geometry file (.geom)" << endl;
+    cout << "            conductivity file (.cond)" << endl;
+    cout << "            dipoles positions and orientations" << endl;
+    cout << "            HeadMat, Head2MEGMat, Source2MEGMat, MEGGainMatrix" << endl;
     cout << "            bin Matrix" << endl << endl;
 
     cout << "   -MEG :   Compute the gain for MEG " << endl;

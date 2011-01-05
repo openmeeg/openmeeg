@@ -108,6 +108,41 @@ namespace OpenMEEG {
             ~GainEEGadjoint () {};
     };
 
+    class GainMEGadjoint : public Matrix {
+        public:
+            using Matrix::operator=;
+            GainMEGadjoint (const Geometry& geo,const Matrix& dipoles,const SymMatrix& HeadMat, const Matrix& Head2MEGMat, const Matrix& Source2MEGMat) {
+                Matrix LeadField(Head2MEGMat.nlin(),dipoles.nlin());
+                int GaussOrder=3;
+                #if USE_GMRES
+                Matrix mtemp(Head2MEGMat.nlin(),HeadMat.nlin()); // Consider the GMRes solver for problem with dimension > 15,000 (3,000 vertices per interface) else use LAPACK solver
+                Preconditioner::Jacobi<SymMatrix> M(HeadMat);    // Jacobi preconditionner
+                #ifdef USE_OMP
+                #pragma omp parallel for
+                #endif
+                for (unsigned i=0;i<LeadField.nlin();i++) {
+                    Vector vtemp(HeadMat.nlin());
+                    GMRes(HeadMat,M,vtemp,Head2MEGMat.getlin(i),1e3,1e-7,HeadMat.nlin()); // max number of iteration = 1000, and precision=1e-7 (1e-5 for faster resolution)
+                    mtemp.setlin(i,vtemp);
+                    #ifdef USE_OMP
+                    #pragma omp critical
+                    #endif
+                    PROGRESSBAR(i,LeadField.nlin());
+                }
+                #else
+                Matrix mtemp(Head2MEGMat.transpose());
+                HeadMat.solveLin(mtemp); // solving the system AX=B with LAPACK
+                mtemp=mtemp.transpose();
+                #endif
+                for (unsigned i=0;i<LeadField.ncol();i++) {
+                    LeadField.setcol(i,mtemp*DipSourceMat(geo,dipoles.submat(i,1,0,dipoles.ncol()),GaussOrder,true,true).getcol(0)+Source2MEGMat.getcol(i));
+                    PROGRESSBAR(i,LeadField.ncol());
+                }
+                *this = LeadField;
+            }
+            ~GainMEGadjoint () {};
+    };
+
     class GainInternalPot : public Matrix {
     public:
         using Matrix::operator=;

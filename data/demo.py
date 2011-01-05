@@ -61,6 +61,7 @@ h2em = om.Head2EEGMat(geom, patches)
 gain_meg_surf = om.GainMEG(hminv, ssm, h2mm, ss2mm)
 gain_eeg_surf = om.GainEEG(hminv, ssm, h2em)
 gain_meg_dip = om.GainMEG(hminv, dsm, h2mm, ds2mm)
+gain_adjoint_meg_dip = om.GainMEGadjoint(geom, dipoles, hm, h2em, ds2mm)
 gain_eeg_dip = om.GainEEG(hminv, dsm, h2em)
 gain_adjoint_eeg_dip = om.GainEEGadjoint(geom, dipoles, hm, h2em)
 
@@ -78,10 +79,12 @@ print "gain_eeg_surf       : %d x %d" % (gain_eeg_surf.nlin(),
                                          gain_eeg_surf.ncol())
 print "gain_meg_dip        : %d x %d" % (gain_meg_dip.nlin(),
                                          gain_meg_dip.ncol())
+print "gain_adjoint_meg_dip: %d x %d" % (gain_adjoint_eeg_dip.nlin(),
+                                         gain_adjoint_eeg_dip.ncol())
 print "gain_eeg_dip        : %d x %d" % (gain_eeg_dip.nlin(),
                                          gain_eeg_dip.ncol())
-print "gain_adjoint_eeg_dip : %d x %d" % (gain_eeg_dip.nlin(),
-                                         gain_eeg_dip.ncol())
+print "gain_adjoint_eeg_dip: %d x %d" % (gain_adjoint_eeg_dip.nlin(),
+                                         gain_adjoint_eeg_dip.ncol())
 
 # Leadfield MEG in one line :
 
@@ -103,6 +106,10 @@ sources.load(srcFile)
 noise_level = 0.0
 est_meg = om.Forward(gain_meg_dip, sources, noise_level)
 print "est_meg    : %d x %d" % (est_meg.nlin(), est_meg.ncol())
+
+est_meg_adjoint = om.Forward(gain_adjoint_meg_dip, sources, noise_level)
+print "est_meg_adjoint    : %d x %d" % (est_meg_adjoint.nlin(),
+                                       est_meg_adjoint.ncol())
 
 est_eeg = om.Forward(gain_eeg_dip, sources, noise_level)
 print "est_eeg    : %d x %d" % (est_eeg.nlin(), est_eeg.ncol())
