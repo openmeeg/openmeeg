@@ -1,7 +1,7 @@
 /*
 Project Name : OpenMEEG
 
-© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre 
+© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre
 GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU, Théodore PAPADOPOULO,
 Emmanuel OLIVI
 Maureen.Clerc.AT.sophia.inria.fr, keriven.AT.certis.enpc.fr,
@@ -114,7 +114,7 @@ int main(int argc, char **argv)
 
         GainEEGadjoint EEGGainMat(geo,dipoles,HeadMat,Head2EEGMat);
         EEGGainMat.save(argv[7]);
-    }        
+    }
     // for use with MEG DATA
     else if(!strcmp(argv[1],"-MEG"))
     {
@@ -157,7 +157,7 @@ int main(int argc, char **argv)
 
         GainMEGadjoint MEGGainMat(geo,dipoles,HeadMat,Head2MEGMat,Source2MEGMat);
         MEGGainMat.save(argv[8]);
-    }        
+    }
     else if((!strcmp(argv[1],"-InternalPotential"))|(!strcmp(argv[1],"-IP")))
     {
         if(argc<7)
@@ -170,7 +170,7 @@ int main(int argc, char **argv)
         Matrix SourceMat;
         SourceMat.load(argv[3]);
         Matrix Head2IPMat;
-        Head2IPMat.load(argv[4]); 
+        Head2IPMat.load(argv[4]);
         Matrix Source2IPMat;
         Source2IPMat.load(argv[5]);
 
@@ -189,8 +189,8 @@ int main(int argc, char **argv)
         Matrix SourceMat;
         SourceMat.load(argv[3]);
         Matrix Head2IPMat;
-        Head2IPMat.load(argv[4]); 
-   
+        Head2IPMat.load(argv[4]);
+
         GainStimInternalPot StimInternalPotGainMat(HeadMatInv,SourceMat,Head2IPMat);
         StimInternalPotGainMat.save(argv[5]);
     }

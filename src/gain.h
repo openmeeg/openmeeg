@@ -111,7 +111,10 @@ namespace OpenMEEG {
     class GainMEGadjoint : public Matrix {
         public:
             using Matrix::operator=;
-            GainMEGadjoint (const Geometry& geo,const Matrix& dipoles,const SymMatrix& HeadMat, const Matrix& Head2MEGMat, const Matrix& Source2MEGMat) {
+            GainMEGadjoint (const Geometry& geo, const Matrix& dipoles,
+                            const SymMatrix& HeadMat,
+                            const Matrix& Head2MEGMat,
+                            const Matrix& Source2MEGMat) {
                 Matrix LeadField(Head2MEGMat.nlin(),dipoles.nlin());
                 int GaussOrder=3;
                 #if USE_GMRES
