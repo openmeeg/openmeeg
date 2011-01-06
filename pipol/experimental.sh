@@ -27,3 +27,5 @@ ctest -D ExperimentalBuild
 ctest -D ExperimentalTest
 ctest -D ExperimentalSubmit
 make clean
+
+mv OpenMEEG* ~/.pipol/packages

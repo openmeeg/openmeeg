@@ -27,23 +27,12 @@ else
 	    sudo yum -y install wget
 	    sudo yum -y install perl
         sudo yum -y install atlas-devel
+        sudo yum -y install blas-devel
         sudo yum -y install numpy
         sudo yum -y install python-devel
 	else
 		if [ x$arch = xDarwin ] ; then
-		    sudo fink -y install svn
-		    sudo fink -y install gcc42
-		    sudo fink -y install make
-		    sudo fink -y install java-1.6.0-openjdk
-		    sudo fink -y install lua51-dev lua51
-		    sudo fink -y install ruby18-dev ruby
-		    sudo fink -y install unzip
-		    sudo fink -y install cmake
-		    sudo fink -y install wget
-		    sudo fink -y install perl
-		    sudo fink -y install graphviz-dev graphviz
-		    sudo fink -y install pcre
-		    sudo fink -y install f2c
+		    ###
 		fi
 	fi
 fi
