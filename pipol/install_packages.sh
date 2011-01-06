@@ -30,11 +30,11 @@ else
         sudo yum -y install blas-devel
         sudo yum -y install numpy
         sudo yum -y install python-devel
-	else
-		if [ x$arch = xDarwin ] ; then
-		    ###
-		fi
-	fi
+    # else
+    #   if [ x$arch = xDarwin ] ; then
+    #       ###
+    #   fi
+    fi
 fi
 
 which_svn=`which svn`		#svn necessary
