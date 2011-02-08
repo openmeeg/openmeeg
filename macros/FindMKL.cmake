@@ -129,12 +129,24 @@ find_library(MKL_LAPACK_LIBRARY
     ${MKL_ROOT_DIR}/lib/${MKL_ARCH_DIR}
 )
 
+IF(NOT MKL_LAPACK_LIBRARY)
+    find_library(MKL_LAPACK_LIBRARY
+      mkl_lapack95_lp64
+      PATHS
+        ${MKL_ROOT_DIR}/lib/${MKL_ARCH_DIR}
+    )
+ENDIF()
+
 # iomp5
-find_library(MKL_IOMP5_LIBRARY
-  iomp5
-  PATHS
-    ${MKL_ROOT_DIR}/../lib/intel64
-)
+IF(UNIX AND NOT APPLE)
+    find_library(MKL_IOMP5_LIBRARY
+      iomp5
+      PATHS
+        ${MKL_ROOT_DIR}/../lib/intel64
+    )
+ELSE()
+    SET(MKL_IOMP5_LIBRARY "") # no need for mac
+ENDIF()
 
 foreach (MODEVAR ${MKL_MODE_VARIANTS})
     foreach (THREADVAR ${MKL_THREAD_VARIANTS})
@@ -142,7 +154,7 @@ foreach (MODEVAR ${MKL_MODE_VARIANTS})
             set(MKL_${MODEVAR}_${THREADVAR}_LIBRARIES
                 ${MKL_${MODEVAR}_LIBRARY} ${MKL_${THREADVAR}_LIBRARY} ${MKL_CORE_LIBRARY}
                 ${MKL_LAPACK_LIBRARY} ${MKL_IOMP5_LIBRARY})
-            # message("${MODEVAR} ${THREADVAR} ${MKL_${MODEVAR}_${THREADVAR}_LIBRARIES}") # for debug
+            message("${MODEVAR} ${THREADVAR} ${MKL_${MODEVAR}_${THREADVAR}_LIBRARIES}") # for debug
         endif()
     endforeach()
 endforeach()
