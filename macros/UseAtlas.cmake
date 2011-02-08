@@ -31,49 +31,38 @@ IF (USE_MKL)
             SET(MKL_LIBS mkl_solver mkl_c libguide mkl_lapack mkl_ia32)
         ENDIF ()
     ELSE()
-        FIND_PATH(MKL_INCLUDE_PATH mkl.h "${MKL_PATH}/include")
-        IF (APPLE)
-            SET(MKL_LIB_SEARCHPATH # add here some paths to look for mkl libs
-                /Library/Frameworks/Intel_MKL.framework/Versions/Current/lib/universal
-                /Library/Frameworks/Intel_MKL.framework/Versions/Current/lib/32
-                /Library/Frameworks/Intel_MKL.framework/Versions/Current/lib/64
-                #/Library/Frameworks/Intel_MKL.framework/Libraries/32
-                #/Library/Frameworks/Intel_MKL.framework/Libraries/universal
-                /opt/intel/Compiler/11.0/056/lib
-            )
+        FIND_PACKAGE(MKL)
+        IF (MKL_FOUND)
+            INCLUDE_DIRECTORIES(${MKL_INCLUDE_DIR})
+            SET(LAPACK_LIBRARIES ${MKL_LIBRARIES})
+            MESSAGE(${LAPACK_LIBRARIES})
+
+            IF(UNIX AND NOT APPLE) # MKL on linux requires to link with the pthread library
+                SET(LAPACK_LIBRARIES "${LAPACK_LIBRARIES} pthread")
+            ENDIF()
         ELSE()
-            SET(MKL_LIB_SEARCHPATH # add here some paths to look for mkl libs
-                ""
-            )
+            MESSAGE(FATAL_ERROR "MKL not found. Please set environment variable MKLDIR")
         ENDIF()
-        SET(MKL_LIBS mkl_intel mkl_intel_thread mkl_core iomp5 pthread)
-        #SET(MKL_LIBS mkl_intel mkl_intel_thread mkl_core iomp5md pthread)
-        #SET(MKL_LIBS mkl_intel mkl_core mkl_lapack)
-        #SET(MKL_LIBS mkl_intel_lp64 mkl_core mkl_lapack)
-        #SET(MKL_LIBS mkl guide mkl_lapack) % for old MKL
     ENDIF()
 
-    IF (MKL_INCLUDE_PATH)
-        INCLUDE_DIRECTORIES(${MKL_INCLUDE_PATH})
-    ELSE()
-        MESSAGE("Can not find mkl.h")
-    ENDIF()
+    # IF (MKL_INCLUDE_PATH)
+    #     INCLUDE_DIRECTORIES(${MKL_INCLUDE_PATH})
+    # ELSE()
+    #     MESSAGE("Can not find mkl.h")
+    # ENDIF()
+    # 
+    # FOREACH (LIB ${MKL_LIBS})
+    #     FIND_LIBRARY(${LIB}_PATH ${LIB} PATHS ${MKL_LIB_SEARCHPATH} ENV LIBRARY_PATH)
+    # 
+    #     IF(${LIB}_PATH)
+    #         SET(LAPACK_LIBRARIES ${LAPACK_LIBRARIES} ${${LIB}_PATH})
+    #         #MESSAGE("${LIB} found in ${${LIB}_PATH}")
+    #         MARK_AS_ADVANCED(${LIB}_PATH)
+    #     ELSE()
+    #         MESSAGE("Could not find ${LIB}")
+    #     ENDIF()
+    # ENDFOREACH()
 
-    FOREACH (LIB ${MKL_LIBS})
-        FIND_LIBRARY(${LIB}_PATH ${LIB} PATHS ${MKL_LIB_SEARCHPATH} ENV LIBRARY_PATH)
-
-        IF(${LIB}_PATH)
-            SET(LAPACK_LIBRARIES ${LAPACK_LIBRARIES} ${${LIB}_PATH})
-            #MESSAGE("${LIB} found in ${${LIB}_PATH}")
-            MARK_AS_ADVANCED(${LIB}_PATH)
-        ELSE()
-            MESSAGE("Could not find ${LIB}")
-        ENDIF()
-    ENDFOREACH()
-
-    IF(UNIX AND NOT APPLE) # MKL on linux requires to link with the pthread library
-        SET(LAPACK_LIBRARIES "${LAPACK_LIBRARIES} pthread")
-    ENDIF()
 
 ELSE()
 
@@ -117,7 +106,7 @@ ELSE()
                     MESSAGE(WARNING "Could not find ${LIB}")
                 ENDIF()
             ENDFOREACH()
-        ELSE() 
+        ELSE()
             IF (lapack_PATH AND blas_PATH)
                 SET(LAPACKBLAS_LIB_SEARCHPATH
                     /usr/lib64/

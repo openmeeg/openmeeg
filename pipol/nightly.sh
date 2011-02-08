@@ -40,7 +40,7 @@ cd openmeeg-trunk
 rm CMakeCache.txt
 
 #ucontext and pthread
-cmake -DBUILD_TESTING=True -DENABLE_PACKAGING=True -DPYTHON_WRAP=True .
+cmake -DBUILD_TESTING=True -DENABLE_PACKAGING=True -DENABLE_PYTHON=True .
 ctest -D NightlyStart
 ctest -D NightlyConfigure
 ctest -D NightlyBuild

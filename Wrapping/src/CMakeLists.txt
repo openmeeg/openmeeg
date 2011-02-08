@@ -2,7 +2,7 @@
 # SWIG Embedding
 #######################################################################
 
-IF (PYTHON_WRAP)
+IF (ENABLE_PYTHON)
 
     INCLUDE(FindPythonInterp)
 
@@ -64,4 +64,4 @@ IF (PYTHON_WRAP)
                  ${PYTHON_EXECUTABLE} ${OpenMEEG_BINARY_DIR}/Wrapping/src/demo.py --path ${OpenMEEG_SOURCE_DIR}/data)
     ENDIF()
 
-ENDIF (PYTHON_WRAP)
+ENDIF (ENABLE_PYTHON)

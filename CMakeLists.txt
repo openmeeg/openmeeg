@@ -144,16 +144,18 @@ SUBDIRS(${OpenMEEG_SOURCE_DIR}/documentation)
 # Wrapping
 #-----------------------------------------------
 
-OPTION(PYTHON_WRAP "Enable Python Wrapping" OFF)
+OPTION(ENABLE_PYTHON "Enable Python Wrapping" OFF)
 
-IF (PYTHON_WRAP AND NOT BUILD_SHARED)
+IF (ENABLE_PYTHON AND NOT BUILD_SHARED)
     MESSAGE(SEND_ERROR "Python wrapping does not work with static build, consider changing the BUILD_SHARED option.")
 ENDIF ()
 
-IF (PYTHON_WRAP AND APPLE AND USE_ICC) # Builtin Python2.5 on Mac OS X in 32 bits...
-    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m32")
-    SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -m32")
-ENDIF ()
+IF(APPLE AND ENABLE_PYTHON)
+    IF (NOT FORCE_BUILD_32BITS) # Builtin Python2.5 on Mac OS X in 32 bits...
+        MESSAGE("You may have a 32bits Python installed.
+                 In case of compilation problem try to force 32 bits compilation.")
+    ENDIF()
+ENDIF()
 
 SUBDIRS(Wrapping)
 

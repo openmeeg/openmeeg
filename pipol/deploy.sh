@@ -21,7 +21,7 @@ ssh pipol pipol-sub esn amd64_kvm-linux-debian-lenny none 02:00 "~/experimental.
 ssh pipol pipol-sub esn amd64_kvm-linux-debian-testing none 02:00 "~/experimental.sh"
 
 ssh pipol pipol-sub esn x86_64_mac-mac-osx-server-snow-leopard none 02:00 "~/experimental.sh"
-ssh pipol pipol-sub esn x86_mac-mac-osx-server-snow-leopard none 02:00 "~/experimental.sh"
+# ssh pipol pipol-sub esn x86_mac-mac-osx-server-snow-leopard none 02:00 "~/experimental.sh"
 
 ssh pipol pipol-sub esn i386-linux-centos-5 none 02:00 "~/experimental.sh"
 ssh pipol pipol-sub esn amd64-linux-centos-5 none 02:00 "~/experimental.sh"

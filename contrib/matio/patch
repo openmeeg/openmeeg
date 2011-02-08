@@ -817,7 +817,7 @@ Index: cmake/Packaging.cmake
 +    ENDIF()
 +
 +    IF(BUILD_SHARED)
-+        IF(PYTHON_WRAP)
++        IF(ENABLE_PYTHON)
 +            SET(PACKAGE_NAME ${PACKAGE_NAME}-python)
 +        ENDIF()
 +        SET(PACKAGE_NAME ${PACKAGE_NAME}-shared)

@@ -1,6 +1,7 @@
 #!/bin/bash
 
 SYSTEM=`uname`
+ARCH=`arch`
 
 if [ -e ./pipol ] ; then
 	rm -rf ./pipol/$PIPOL_HOST
@@ -19,13 +20,42 @@ perl ./openmeeg-trunk/pipol/cmake.pl
 
 cd openmeeg-trunk
 
-cmake -DBUILD_TESTING=True -DENABLE_PACKAGING=True -DPYTHON_WRAP=True .
-# cmake -DBUILD_TESTING=True -DENABLE_PACKAGING=True -DBUILD_SHARED=False -DCMAKE_CXX_FLAGS="-fPIC"  -DCMAKE_C_FLAGS="-fPIC" .
-ctest -D ExperimentalStart
-ctest -D ExperimentalConfigure
-ctest -D ExperimentalBuild
-ctest -D ExperimentalTest
-ctest -D ExperimentalSubmit
-make clean
+# Handle MKL
+if [ x$SYSTEM = xDarwin ] ; then
+    export MKLDIR=/netshare/i386_mac/icc/11.0.074/Frameworks/mkl/ # mac 32
+fi
+if [ x$SYSTEM = xLinux ] ; then
+    if [ x$ARCH = xx86_64 ]; then
+        export MKLDIR=/netshare/amd64/icc/11.0.074/mkl/ # linux 64
+    else
+        export MKLDIR=/netshare/i386/icc/11.0.074/mkl/ # linux 32
+    fi
+fi
 
-mv OpenMEEG* ~/.pipol/packages
+function build {
+    ctest -D ExperimentalConfigure
+    ctest -D ExperimentalBuild
+    ctest -D ExperimentalTest
+    ctest -D ExperimentalSubmit
+
+    make package
+
+    make clean
+
+    mv OpenMEEG*tar.gz ~/.pipol/packages
+    mv OpenMEEG*dmg* ~/.pipol/packages
+    mv OpenMEEG*rpm* ~/.pipol/packages
+    mv OpenMEEG*deb* ~/.pipol/packages
+}
+
+# Blas Lapack
+rm -f CMakeCache.txt
+cmake -DBUILD_TESTING=ON -DENABLE_PACKAGING=ON -DENABLE_PYTHON=ON .
+build()
+
+# MKL
+rm -f CMakeCache.txt
+# cmake -DBUILD_TESTING=ON -DENABLE_PACKAGING=ON -DENABLE_PYTHON=OFF -DFORCE_BUILD_32BITS=ON -DUSE_ATLAS=OFF -DUSE_MKL=ON -DBUILD_SHARED=OFF
+cmake -DBUILD_TESTING=ON -DENABLE_PACKAGING=ON -DENABLE_PYTHON=ON -DUSE_ATLAS=OFF -DUSE_MKL=ON -DBUILD_SHARED=OFF
+build()
+
