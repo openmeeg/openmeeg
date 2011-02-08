@@ -35,35 +35,15 @@ IF (USE_MKL)
         IF (MKL_FOUND)
             INCLUDE_DIRECTORIES(${MKL_INCLUDE_DIR})
             SET(LAPACK_LIBRARIES ${MKL_LIBRARIES})
-            MESSAGE(${LAPACK_LIBRARIES})
+            # MESSAGE(${LAPACK_LIBRARIES}) # for debug
 
             IF(UNIX AND NOT APPLE) # MKL on linux requires to link with the pthread library
-                SET(LAPACK_LIBRARIES "${LAPACK_LIBRARIES} pthread")
+                SET(LAPACK_LIBRARIES ${LAPACK_LIBRARIES} pthread)
             ENDIF()
         ELSE()
             MESSAGE(FATAL_ERROR "MKL not found. Please set environment variable MKLDIR")
         ENDIF()
     ENDIF()
-
-    # IF (MKL_INCLUDE_PATH)
-    #     INCLUDE_DIRECTORIES(${MKL_INCLUDE_PATH})
-    # ELSE()
-    #     MESSAGE("Can not find mkl.h")
-    # ENDIF()
-    # 
-    # FOREACH (LIB ${MKL_LIBS})
-    #     FIND_LIBRARY(${LIB}_PATH ${LIB} PATHS ${MKL_LIB_SEARCHPATH} ENV LIBRARY_PATH)
-    # 
-    #     IF(${LIB}_PATH)
-    #         SET(LAPACK_LIBRARIES ${LAPACK_LIBRARIES} ${${LIB}_PATH})
-    #         #MESSAGE("${LIB} found in ${${LIB}_PATH}")
-    #         MARK_AS_ADVANCED(${LIB}_PATH)
-    #     ELSE()
-    #         MESSAGE("Could not find ${LIB}")
-    #     ENDIF()
-    # ENDFOREACH()
-
-
 ELSE()
 
     #   ATLAS OR LAPACK/BLAS
