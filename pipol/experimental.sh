@@ -1,7 +1,7 @@
 #!/bin/bash
 
 SYSTEM=`uname`
-ARCH=`arch`
+ARCH=`uname -m`
 
 if [ -e ./pipol ] ; then
 	rm -rf ./pipol/$PIPOL_HOST
@@ -37,11 +37,8 @@ function build {
     ctest -D ExperimentalBuild
     ctest -D ExperimentalTest
     ctest -D ExperimentalSubmit
-
     make package
-
     make clean
-
     mv OpenMEEG*tar.gz ~/.pipol/packages
     mv OpenMEEG*dmg* ~/.pipol/packages
     mv OpenMEEG*rpm* ~/.pipol/packages
@@ -49,13 +46,12 @@ function build {
 }
 
 # Blas Lapack
-rm -f CMakeCache.txt
 cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON -DENABLE_PACKAGING=ON -DENABLE_PYTHON=ON -DUSE_PROGRESSBAR=ON .
-build()
+build
 
 # MKL (static mode)
 rm -f CMakeCache.txt
 # cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON -DENABLE_PACKAGING=ON -DENABLE_PYTHON=ON -DUSE_ATLAS=OFF -DUSE_MKL=ON -DBUILD_SHARED=OFF -DUSE_PROGRESSBAR=ON .
 cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON -DENABLE_PACKAGING=ON -DUSE_ATLAS=OFF -DUSE_MKL=ON -DBUILD_SHARED=OFF -DUSE_PROGRESSBAR=ON .
-build()
+build
 
