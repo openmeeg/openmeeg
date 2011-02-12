@@ -138,14 +138,26 @@ IF(NOT MKL_LAPACK_LIBRARY)
 ENDIF()
 
 # iomp5
-IF(UNIX AND NOT APPLE)
-    find_library(MKL_IOMP5_LIBRARY
-      iomp5
-      PATHS
-        ${MKL_ROOT_DIR}/../lib/intel64
-    )
-ELSE()
-    SET(MKL_IOMP5_LIBRARY "") # no need for mac
+IF("${MKL_ARCH_DIR}" STREQUAL "32")
+    IF(UNIX AND NOT APPLE)
+        find_library(MKL_IOMP5_LIBRARY
+          iomp5
+          PATHS
+            ${MKL_ROOT_DIR}/../lib/ia32
+        )
+    ELSE()
+        SET(MKL_IOMP5_LIBRARY "") # no need for mac
+    ENDIF()
+else()
+    IF(UNIX AND NOT APPLE)
+        find_library(MKL_IOMP5_LIBRARY
+          iomp5
+          PATHS
+            ${MKL_ROOT_DIR}/../lib/intel64
+        )
+    ELSE()
+        SET(MKL_IOMP5_LIBRARY "") # no need for mac
+    ENDIF()
 ENDIF()
 
 foreach (MODEVAR ${MKL_MODE_VARIANTS})
