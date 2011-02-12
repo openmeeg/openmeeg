@@ -88,11 +88,11 @@ IF(ENABLE_PACKAGING OR BUILD_RPM)
         SET(CPACK_NSIS_URL_INFO_ABOUT "http:\\\\\\\\openmeeg.gforge.inria.fr")
         SET(CPACK_NSIS_CONTACT "openmeeg-info@lists.gforge.inria.fr")
         SET(CPACK_NSIS_MODIFY_PATH ON)
-	SET(CPACK_PACKAGE_EXECUTABLES "om_assemble" "OpenMEEG (Ignore)")
-	SET(CPACK_NSIS_MENU_LINKS
-	    "doc/LICENSE.txt" "README"
-	    "http://openmeeg.gforge.inria.fr" "OpenMEEG homepage"
-   	)
+        SET(CPACK_PACKAGE_EXECUTABLES "om_assemble" "OpenMEEG (Ignore)")
+        SET(CPACK_NSIS_MENU_LINKS
+            "doc/LICENSE.txt" "README"
+            "http://openmeeg.gforge.inria.fr" "OpenMEEG homepage"
+        )
 
     ENDIF()
 
