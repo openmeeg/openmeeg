@@ -44,8 +44,10 @@ function build {
     make NightlyBuild
     make NightlyTest
     if [ x$SYSTEM = xLinux ] ; then
-        make NightlyCoverage
-        make NightlyMemCheck
+        if [ x$ARCH = xx86_64 ]; then
+            make NightlyCoverage
+            make NightlyMemCheck
+        fi
     fi
     make NightlySubmit
     make clean
@@ -53,11 +55,15 @@ function build {
 
 
 if [ x$SYSTEM = xLinux ] ; then
-    cmake -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTING=ON -DENABLE_PACKAGING=ON -DENABLE_PYTHON=ON -DUSE_PROGRESSBAR=ON -DENABLE_COVERAGE=ON .
+    if [ x$ARCH = xx86_64 ]; then
+        cmake -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTING=ON -DENABLE_PACKAGING=ON -DENABLE_PYTHON=ON.
+    else
+        cmake -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTING=ON -DENABLE_PACKAGING=ON -DENABLE_COVERAGE=ON .
+    fi
 fi
 
 if [ x$SYSTEM = xDarwin ] ; then
-    cmake -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTING=ON -DENABLE_PACKAGING=ON -DUSE_PROGRESSBAR=ON -DENABLE_COVERAGE=ON .
+    cmake -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTING=ON .
 fi
 
 build
