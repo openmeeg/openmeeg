@@ -56,9 +56,9 @@ function build {
 
 if [ x$SYSTEM = xLinux ] ; then
     if [ x$ARCH = xx86_64 ]; then
-        cmake -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTING=ON -DENABLE_PACKAGING=ON -DENABLE_PYTHON=ON.
-    else
         cmake -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTING=ON -DENABLE_PACKAGING=ON -DENABLE_COVERAGE=ON .
+    else
+        cmake -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTING=ON -DENABLE_PACKAGING=ON -DENABLE_PYTHON=ON .
     fi
 fi
 
