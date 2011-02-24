@@ -135,6 +135,9 @@ namespace OpenMEEG {
             }
         }
 
+        inline bool operator== (const Triangle &t ) const {return (m_s1==t[0] && m_s2==t[1] && m_s3==t[2]);}
+        inline bool operator!= (const Triangle &t ) const {return (m_s1!=t[0] || m_s2!=t[1] || m_s3!=t[2]);}
+
         friend std::istream& operator>>(std::istream &is,Triangle &t);
     };
 

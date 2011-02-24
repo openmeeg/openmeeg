@@ -79,7 +79,8 @@ namespace OpenMEEG {
         inline double operator* (const Vect3 &v) const {return m_x*v.x() + m_y*v.y() + m_z*v.z();}
         inline double norm() const {return sqrt(m_x*m_x+m_y*m_y+m_z*m_z);}
         inline double norm2() const {return m_x*m_x+m_y*m_y+m_z*m_z;}
-        inline bool operator== (const Vect3 &v ) const {return (m_x==v.x() &&  m_y==v.y() && m_z==v.z());}
+        inline bool operator== (const Vect3 &v ) const {return (m_x==v.x() && m_y==v.y() && m_z==v.z());}
+        inline bool operator!= (const Vect3 &v ) const {return (m_x!=v.x() || m_y!=v.y() || m_z!=v.z());}
         inline void operator+= (const Vect3 &v) {m_x+=v.x(); m_y+=v.y(); m_z+=v.z();}
         inline void operator*= (const double &d) {m_x*=d; m_y*=d; m_z*=d;}
         inline void multadd(const double &d, const Vect3&v) {m_x = m_x+d*v.x(); m_y = m_y+d*v.y(); m_z = m_z+d*v.z();}

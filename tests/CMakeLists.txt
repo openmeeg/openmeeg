@@ -20,6 +20,11 @@ OPENMEEG_UNIT_TEST(load_geo
     LIBRARIES OpenMEEG OpenMEEGMaths "${OPENMEEG_OTHER_LIBRARIES}"
     PARAMETERS ${OpenMEEG_SOURCE_DIR}/data/Models/Head1/Head1.geom ${OpenMEEG_SOURCE_DIR}/data/Models/Head1/Head1.cond)
 
+OPENMEEG_UNIT_TEST(test_mesh_ios
+    SOURCES test_mesh_ios.cpp
+    LIBRARIES OpenMEEG OpenMEEGMaths "${OPENMEEG_OTHER_LIBRARIES}"
+    PARAMETERS ${OpenMEEG_SOURCE_DIR}/data/Models/Head1/Head1.tri)
+
 NEW_EXECUTABLE(test_sensors test_sensors.cpp
                LIBRARIES OpenMEEG "${OPENMEEG_OTHER_LIBRARIES}")
 NEW_EXECUTABLE(compare_matrix compare_matrix.cpp

@@ -72,11 +72,11 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #endif
 
 #ifdef WIN32
-	inline double log2( double n )
-	{
-		// log(n)/log(2) is log2.
-		return log( n ) / log( 2.0 );
-	}
+inline double log2( double n )
+{
+    // log(n)/log(2) is log2.
+    return log( n ) / log( 2.0 );
+}
 #endif
 
 namespace OpenMEEG {
@@ -116,6 +116,7 @@ namespace OpenMEEG {
             for(int i=0;i<npts;i++){
                 pts[i] = M.pts[i];
                 links[i] = M.links[i];
+                normals[i] = M.normals[i];
             }
             for(int i=0;i<ntrgs;i++)
                 trgs[i] = M.trgs[i];
