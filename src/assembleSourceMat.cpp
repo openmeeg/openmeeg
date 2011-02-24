@@ -101,7 +101,7 @@ namespace OpenMEEG {
                 domainID = geo.getDomain(Rs[s]); // domain containing the dipole
             }
             double sigma = geo.sigma_in(domainID);
-            int istart = 0;
+            unsigned istart = 0;
             prov.set(0);
             if (domainID != 0) {
                 for (unsigned id = 0;id < (domainID-1);id++) istart += geo.getM(id).size();

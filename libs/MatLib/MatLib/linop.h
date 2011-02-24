@@ -79,7 +79,7 @@ namespace OpenMEEG {
         size_t& nlin()       { return num_lines; }
 
         virtual size_t  ncol() const { return num_cols; }
-        virtual size_t& ncol()       { return num_cols; }
+                size_t& ncol()       { return num_cols; }
 
         StorageType  storageType() const { return storage; }
         StorageType& storageType()       { return storage; }
