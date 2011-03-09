@@ -191,8 +191,17 @@ namespace OpenMEEG {
         inline ~Integrator() {}
         inline void setOrder(int n)
         {
-            if(n>=0 && n<4) order=n;
-            else {std::cout<<"Unavailable Gauss Order: "<<n<<std::endl; order = (n<1)?order=1:order;}
+            if(n>=0 && n<4) 
+            {
+                order=n;
+            } else {
+                std::cout<<"Unavailable Gauss order: min is 1, max is 3"<<n<<std::endl; 
+                if (n<1) {
+                    order=1;
+                } else {
+                    order=3;
+                }
+            }
         }
 
         virtual inline T integrate ( const I &fc, const Triangle& Trg ,const Mesh& M)
