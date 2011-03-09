@@ -117,10 +117,8 @@ namespace OpenMEEG {
             return (*this)*(y2^y3); // y1.det(y2,y3):= y1/(y2^y3)
         }
 
-        inline double solangl(const Vect3 &v1,const Vect3 &v2,const Vect3 &v3,double *omega_i = NULL) const
+        inline double solangl(const Vect3 &v1,const Vect3 &v2,const Vect3 &v3) const
         {
-            double omega;
-
             // De Munck : Good sign directly
             Vect3 Y1 = v1-*this;
             Vect3 Y2 = v2-*this;
@@ -129,31 +127,7 @@ namespace OpenMEEG {
             double y2 = Y2.norm();
             double y3 = Y3.norm();
             double d = Y1*(Y2^Y3);
-            omega = 2*atan2(d,(y1*y2*y3+y1*(Y2*Y3)+y2*(Y3*Y1)+y3*(Y1*Y2)));
-
-            if (omega_i==NULL)
-                return omega;
-
-            Vect3 Z1 = Y2^Y3;
-            Vect3 Z2 = Y3^Y1;
-            Vect3 Z3 = Y1^Y2;
-            Vect3 D1 = Y2-Y1;
-            Vect3 D2 = Y3-Y2;
-            Vect3 D3 = Y1-Y3;
-            double d1 = D1.norm();
-            double d2 = D2.norm();
-            double d3 = D3.norm();
-            double g1 = -1/d1*log((y1*d1+Y1*D1)/(y2*d1+Y2*D1));
-            double g2 = -1/d2*log((y2*d2+Y2*D2)/(y3*d2+Y3*D2));
-            double g3 = -1/d3*log((y3*d3+Y3*D3)/(y1*d3+Y1*D3));
-            Vect3 N = Z1+Z2+Z3;
-            double A = N.norm();
-            Vect3 S = D1*g1+D2*g2+D3*g3;
-            omega_i[0] = 1/A/A*(Z1*N*omega+d*(D2*S));
-            omega_i[1] = 1/A/A*(Z2*N*omega+d*(D3*S));
-            omega_i[2] = 1/A/A*(Z3*N*omega+d*(D1*S));
-
-            return omega;
+            return 2.*atan2(d,(y1*y2*y3+y1*(Y2*Y3)+y2*(Y3*Y1)+y3*(Y1*Y2)));
         }
 
         inline Vect3 normal(const Vect3 &v2, const Vect3 &v3) const
