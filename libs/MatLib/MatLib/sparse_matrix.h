@@ -64,6 +64,8 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 namespace OpenMEEG {
 
+    class SymMatrix;
+
     class OPENMEEGMATHS_EXPORT SparseMatrix : public LinOp {
 
     public:
@@ -110,6 +112,7 @@ namespace OpenMEEG {
 
         Vector operator*( const Vector &x ) const;
         Matrix operator*( const Matrix &m ) const;
+        Matrix operator*( const SymMatrix &m ) const;
 
     private:
 

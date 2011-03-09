@@ -57,8 +57,7 @@ namespace OpenMEEG {
     public:
         using Matrix::operator=;
         GainMEG (const SymMatrix& HeadMatInv,const Matrix& SourceMat, const Matrix& Head2MEGMat, const Matrix& Source2MEGMat) {
-            Matrix reducedHeadMatInv = HeadMatInv(0,HeadMatInv.nlin()-1,0,SourceMat.nlin()-1);
-            *this = Source2MEGMat+(Head2MEGMat*reducedHeadMatInv)*SourceMat;
+            *this = Source2MEGMat+(Head2MEGMat*HeadMatInv)*SourceMat;
         }
         ~GainMEG () {};
     };
@@ -67,8 +66,7 @@ namespace OpenMEEG {
     public:
         using Matrix::operator=;
         GainEEG (const SymMatrix& HeadMatInv,const Matrix& SourceMat, const SparseMatrix& Head2EEGMat) {
-            Matrix reducedHeadMatInv = HeadMatInv(0,HeadMatInv.nlin()-1,0,SourceMat.nlin()-1);
-            *this = (Head2EEGMat*reducedHeadMatInv)*SourceMat;
+            *this = (Head2EEGMat*HeadMatInv)*SourceMat;
         }
         ~GainEEG () {};
     };
@@ -150,8 +148,7 @@ namespace OpenMEEG {
     public:
         using Matrix::operator=;
         GainInternalPot (const SymMatrix& HeadMatInv, const Matrix& SourceMat, const Matrix& Head2IPMat, const Matrix& Source2IPMat) {
-            Matrix reducedHeadMatInv = HeadMatInv(0,HeadMatInv.nlin()-1,0,SourceMat.nlin()-1);
-            *this = Source2IPMat+(Head2IPMat*reducedHeadMatInv)*SourceMat;
+            *this = Source2IPMat+(Head2IPMat*HeadMatInv)*SourceMat;
         }
         ~GainInternalPot () {};
     };
@@ -160,8 +157,7 @@ namespace OpenMEEG {
     public:
         using Matrix::operator=;
         GainStimInternalPot (const SymMatrix& HeadMatInv, const Matrix& SourceMat, const Matrix& Head2IPMat) {
-            Matrix reducedHeadMatInv = HeadMatInv(0,HeadMatInv.nlin()-1,0,SourceMat.nlin()-1);
-            *this = (Head2IPMat*reducedHeadMatInv)*SourceMat;
+            *this = (Head2IPMat*HeadMatInv)*SourceMat;
         }
         ~GainStimInternalPot () {};
     };

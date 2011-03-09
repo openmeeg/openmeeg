@@ -89,6 +89,25 @@ namespace OpenMEEG {
         return C;
     }
 
+    inline Matrix SparseMatrix::operator*(const SymMatrix &mat) const
+    {
+        assert(ncol()==mat.nlin());
+        Matrix out(nlin(),mat.ncol());
+        out.set(0.0);
+
+        Tank::const_iterator it;
+        for(it = m_tank.begin(); it != m_tank.end(); ++it) {
+            size_t i = it->first.first;
+            size_t j = it->first.second;
+            double val = it->second;
+            for(size_t k = 0; k < mat.ncol(); ++k) {
+                out(i,k) += val * mat(j,k);
+            }
+        }
+
+        return out;
+    }
+
     inline Matrix SymMatrix::solveLin(Matrix &RHS) const {
     #ifdef HAVE_LAPACK
         SymMatrix A(*this,DEEP_COPY);
