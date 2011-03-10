@@ -203,8 +203,7 @@ namespace OpenMEEG {
         assemble_EITSourceMat(*this, geo, electrodes.getPositions(), GaussOrder);
     }
 
-    void assemble_DipSource2InternalPotMat(Matrix &mat, Geometry& geo, const Matrix& dipoles,
-                                                       const Matrix& points) {
+    void assemble_DipSource2InternalPotMat(Matrix &mat, Geometry& geo, const Matrix& dipoles, const Matrix& points, const bool dipoles_in_cortex) {
         // Points with one more column for the index of the domain they belong
         Matrix pointsLabelled(points.nlin(),4);
         for (unsigned i=0; i<points.nlin(); i++){
@@ -216,33 +215,27 @@ namespace OpenMEEG {
         mat = Matrix(points.nlin(),dipoles.nlin());
         mat.set(0.0);
 
-        // TODO only computes Vinf for the points in the first 1st Domain (i.e
-        // the brain where the sources are)
         for (unsigned iDIP=0; iDIP<dipoles.nlin(); iDIP++){
-            Vect3 r0;
-            r0(0) = dipoles(iDIP,0);
-            r0(1) = dipoles(iDIP,1);
-            r0(2) = dipoles(iDIP,2);
-            Vect3 q;
-            q(0) = dipoles(iDIP,3);
-            q(1) = dipoles(iDIP,4);
-            q(2) = dipoles(iDIP,5);
+            Vect3 r0(dipoles(iDIP,0),dipoles(iDIP,1),dipoles(iDIP,2));
+            Vect3 q(dipoles(iDIP,3),dipoles(iDIP,4),dipoles(iDIP,5));
+            unsigned domainID=0;
+            if (!dipoles_in_cortex){
+                domainID = geo.getDomain(r0); // domain containing the dipole
+            }
+            double sigma = geo.sigma_in(domainID);
+            static analyticDipPot anaDP;
+            anaDP.init(q,r0);
             for (unsigned iPTS=0; iPTS<points.nlin(); iPTS++){
-                if ((pointsLabelled(iPTS,3)) == 0){
-                    Vect3 r;
-                    r(0) = points(iPTS,0);
-                    r(1) = points(iPTS,1);
-                    r(2) = points(iPTS,2);
-                    mat(iPTS,iDIP) = K*1.0/geo.sigma_in(0)*((r-r0)*q)/(pow((r-r0).norm(),3));
+                if ((pointsLabelled(iPTS,3)) == domainID){
+                    Vect3 r(points(iPTS,0),points(iPTS,1),points(iPTS,2));
+                    mat(iPTS,iDIP) = K*1./sigma*anaDP.f(r);
                 }
             }
         }
-
     }
 
     DipSource2InternalPotMat::DipSource2InternalPotMat(Geometry& geo, const Matrix& dipoles,
-                                                       const Matrix& points) {
-        assemble_DipSource2InternalPotMat(*this, geo, dipoles, points);
+                                                       const Matrix& points, const bool dipoles_in_cortex) {
+        assemble_DipSource2InternalPotMat(*this, geo, dipoles, points,dipoles_in_cortex);
     }
-
 }

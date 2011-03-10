@@ -391,7 +391,7 @@ int main(int argc, char** argv)
     *    Vinf(r)=1/(4*pi*sigma)*(r-r0).q/(||r-r0||^3)
     **********************************************************************************************/
 
-    else if((!strcmp(argv[1],"-DipSource2InternalPotMat"))|(!strcmp(argv[1],"-DS2IPM"))|(!strcmp(argv[1],"-ds2ipm"))) {
+    else if((!strcmp(argv[1],"-DipSource2InternalPotMat"))|(!strcmp(argv[1],"-DS2IPM"))|(!strcmp(argv[1],"-ds2ipm"))|(!strcmp(argv[1],"-DipSource2InternalPotMatNotInCortex"))|(!strcmp(argv[1],"-DS2IPNIC"))|(!strcmp(argv[1],"-ds2ipnic"))) {
         if (argc < 3)
         {
             cerr << "Please set geom filepath !" << endl;
@@ -417,13 +417,17 @@ int main(int argc, char** argv)
             std::cerr << "Please set output filepath !" << endl;
             exit(1);
         }
+        bool dipoles_in_cortex = true;
+        if (!strcmp(argv[1],"-DipSource2InternalPotMatNotInCortex")|(!strcmp(argv[1],"-DS2IPNIC"))|(!strcmp(argv[1],"-ds2ipnic"))){
+            dipoles_in_cortex=false;
+        }
         // Loading surfaces from geometry file
         Geometry geo;
         geo.read(argv[2],argv[3]);
         // Loading dipoles :
         Matrix dipoles(argv[4]);
         Matrix points(argv[5]);
-        DipSource2InternalPotMat mat(geo, dipoles, points);
+        DipSource2InternalPotMat mat(geo, dipoles, points, dipoles_in_cortex);
         mat.save(argv[6]);
     }
 
