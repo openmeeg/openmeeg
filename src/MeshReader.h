@@ -1,7 +1,7 @@
 /*
 Project Name : OpenMEEG
 
-© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre 
+© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre
 GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU, Théodore PAPADOPOULO,
 Emmanuel OLIVI
 Maureen.Clerc.AT.sophia.inria.fr, keriven.AT.certis.enpc.fr,
@@ -69,7 +69,7 @@ namespace OpenMEEG {
             typedef base::Domains       Domains;
 
             Reader(const char* geometry): base(geometry) { }
-            
+
             std::vector<int> sortInterfaceIDAndDomains();
         };
 

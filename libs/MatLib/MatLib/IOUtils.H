@@ -1,7 +1,7 @@
 /*
 Project Name : OpenMEEG
 
-© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre 
+© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre
 GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU, Théodore PAPADOPOULO,
 Emmanuel OLIVI
 Maureen.Clerc.AT.sophia.inria.fr, keriven.AT.certis.enpc.fr,
@@ -112,27 +112,27 @@ namespace io_utils {
         friend std::ostream& operator<< <>(std::ostream& i,const omanip2<T1,T2>& m);
     };
 
-	//  Ignoring the istream till the end of the line.
+    //  Ignoring the istream till the end of the line.
 
-	inline std::istream&
-	skip_line(std::istream& is) {
-		return is.ignore(std::numeric_limits<int>::max(),'\n');
-	}
+    inline std::istream&
+    skip_line(std::istream& is) {
+        return is.ignore(std::numeric_limits<int>::max(),'\n');
+    }
 
-	//	Eat pure white spaces (' ' and '\t')
+    //  Eat pure white spaces (' ' and '\t')
 
-	inline std::istream&
-	skip_spaces(std::istream& is) {
+    inline std::istream&
+    skip_spaces(std::istream& is) {
 
-		char separator;
+        char separator;
 
-		while (is.get(separator) && ((separator==' ') || (separator=='\t'))) ;
-		return is.putback(separator);
-	}
+        while (is.get(separator) && ((separator==' ') || (separator=='\t'))) ;
+        return is.putback(separator);
+    }
 
-	//  Eat up comments starting with the given character.
-	//	Example: To remove the lines begining with a '#' then read data.
-	//		cin >> skip_comments('#') >> data;
+    //  Eat up comments starting with the given character.
+    //  Example: To remove the lines begining with a '#' then read data.
+    //      cin >> skip_comments('#') >> data;
 
 
     inline std::istream&
@@ -144,13 +144,13 @@ namespace io_utils {
         }
         return is;
     }
-        
-	inline imanip<const unsigned char>
-	skip_comments(const unsigned char c) {
-		return imanip<const unsigned char>(skip_lines_internal,c);
-	}
 
-    //	Test if the input character stream is equal to s.
+    inline imanip<const unsigned char>
+    skip_comments(const unsigned char c) {
+        return imanip<const unsigned char>(skip_lines_internal,c);
+    }
+
+    //  Test if the input character stream is equal to s.
 
     inline bool
     match_string(std::istream& is,const char*& s)
@@ -164,9 +164,9 @@ namespace io_utils {
         return *s=='\0';
     }
 
-	//  Eat up comments beginning with the given string.
-	//	Example: To remove the lines begining with a "//" then read data.
-	//		cin >> skip_comments("//") >> data;
+    //  Eat up comments beginning with the given string.
+    //  Example: To remove the lines begining with a "//" then read data.
+    //      cin >> skip_comments("//") >> data;
 
     inline std::istream&
     skip_lines_internal(std::istream& is,const char* s)
@@ -180,14 +180,14 @@ namespace io_utils {
         return is;
     }
 
-	inline imanip<const char*>
-	skip_comments(const char* s) {
-		return imanip<const char*>(skip_lines_internal,s);
-	}
+    inline imanip<const char*>
+    skip_comments(const char* s) {
+        return imanip<const char*>(skip_lines_internal,s);
+    }
 
-	//	Match the given string with an input stream.
-	//	Example: To parse lines such as "x=156 y=34".
-	//		cin >> match("x=") >> x >> match("y=") >> y;
+    //  Match the given string with an input stream.
+    //  Example: To parse lines such as "x=156 y=34".
+    //      cin >> match("x=") >> x >> match("y=") >> y;
 
     inline std::istream&
     match_internal(std::istream& is,const char* s) {
@@ -228,15 +228,15 @@ namespace io_utils {
         return is;
     }
 
-	inline imanip<const char*>
-	match(const char* str) {
-		return imanip<const char*>(match_internal,str);	
-	}
+    inline imanip<const char*>
+    match(const char* str) {
+        return imanip<const char*>(match_internal,str);
+    }
 
     inline imanip<const char*>
-	match(const std::string& str) {
-		return imanip<const char*>(match_internal,str.c_str());	
-	}
+    match(const std::string& str) {
+        return imanip<const char*>(match_internal,str.c_str());
+    }
 
     inline imanip<const char>
     match(const char c) {
@@ -253,7 +253,7 @@ namespace io_utils {
         return imanip<const unsigned>(match_internal,i);
     }
 
-    //	Restore the string [s,s1[ to the input stream.
+    //  Restore the string [s,s1[ to the input stream.
 
     inline void
     restore_string(std::istream& is,const char* s,const char *s1) {
@@ -286,25 +286,25 @@ namespace io_utils {
         return is;
     }
 
-	inline imanip2<const char*,bool&>
-	match_optional(const char* str,bool& res) {
-		return imanip2<const char*,bool&>(match_string_internal,str,res);	
-	}
+    inline imanip2<const char*,bool&>
+    match_optional(const char* str,bool& res) {
+        return imanip2<const char*,bool&>(match_string_internal,str,res);
+    }
 
-	inline imanip2<const char*,bool&>
-	match_optional(const std::string& str,bool& res) {
-		return imanip2<const char*,bool&>(match_string_internal,str.c_str(),res);	
-	}
+    inline imanip2<const char*,bool&>
+    match_optional(const std::string& str,bool& res) {
+        return imanip2<const char*,bool&>(match_string_internal,str.c_str(),res);
+    }
 
-	//	Eat the given string if present on an input stream.
-	//	Example: To parse lines such as "x=156 y=34".
-	//		cin >> eat("x=") >> x >> eat("y=") >> y;
-	//	The difference with match is that it will silently
-	//	ignore the strings if they are not on the stream
-	//	and the stream will remain in the good state.
-	//	So 156 34 will also be accepted as an input line.
-	//	Note that x156 34 or any other variation will not
-	//	be accepted.
+    //  Eat the given string if present on an input stream.
+    //  Example: To parse lines such as "x=156 y=34".
+    //      cin >> eat("x=") >> x >> eat("y=") >> y;
+    //  The difference with match is that it will silently
+    //  ignore the strings if they are not on the stream
+    //  and the stream will remain in the good state.
+    //  So 156 34 will also be accepted as an input line.
+    //  Note that x156 34 or any other variation will not
+    //  be accepted.
 
 
     inline std::istream&
@@ -318,20 +318,20 @@ namespace io_utils {
         return is;
     }
 
-	inline imanip<const char*>
-	eat(const char* str) {
-		return imanip<const char*>(eat_string_internal,str);
-	}
+    inline imanip<const char*>
+    eat(const char* str) {
+        return imanip<const char*>(eat_string_internal,str);
+    }
 
-	inline imanip<const char*>
-	eat(const std::string& str) {
-		return imanip<const char*>(eat_string_internal,str.c_str());
-	}
+    inline imanip<const char*>
+    eat(const std::string& str) {
+        return imanip<const char*>(eat_string_internal,str.c_str());
+    }
 
-    //	Skip everything until string s is found on the stream.
+    //  Skip everything until string s is found on the stream.
 
     inline std::istream&
-    skip_to_internal(std::istream& is,const char* s)
+        skip_to_internal(std::istream& is,const char* s)
     {
         const char* s1 = s;
 
@@ -346,15 +346,15 @@ namespace io_utils {
         return is;
     }
 
-	inline imanip<const char*>
-	skip_to(const char* str) {
-		return imanip<const char*>(skip_to_internal,str);	
-	}
+    inline imanip<const char*>
+    skip_to(const char* str) {
+        return imanip<const char*>(skip_to_internal,str);
+    }
 
-	inline imanip<const char*>
-	skip_to(const std::string& str) {
-		return imanip<const char*>(skip_to_internal,str.c_str());	
-	}
+    inline imanip<const char*>
+    skip_to(const std::string& str) {
+        return imanip<const char*>(skip_to_internal,str.c_str());
+    }
 
     //  An optional input is a field eventually put before the
     //  end of the line.
@@ -390,7 +390,7 @@ namespace io_utils {
         t = static_cast<char>(i);
         return is;
     }
-    
+
     inline std::istream&
     numeric_internal(std::istream& is,unsigned char& t) {
         unsigned i;
