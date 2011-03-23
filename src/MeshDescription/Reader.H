@@ -1,7 +1,7 @@
 /*
 Project Name : OpenMEEG
 
-© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre 
+© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre
 GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU, Théodore PAPADOPOULO,
 Emmanuel OLIVI
 Maureen.Clerc.AT.sophia.inria.fr, keriven.AT.certis.enpc.fr,
@@ -58,7 +58,7 @@ namespace MeshDescription {
     template <typename INTERFACE,typename GEOMETRY,typename NORMALS=NoNormals>
     class Reader: public GEOMETRY {
     public:
-        
+
         typedef typename INTERFACE::Type Interface;
         typedef std::vector<std::string> Names;
         typedef std::vector<Interface>   Interfaces;
@@ -75,10 +75,11 @@ namespace MeshDescription {
             for (unsigned i=0;i<interfaces().size();++i) {
 
                 std::string name;
-                is >> io_utils::skip_comments("#") >> name;
+                // is >> io_utils::skip_comments("#") >> name;
+                is >> io_utils::skip_comments("#");
+                std::getline(is, name); // XXX : HACK to make things work when filenames contains spaces
                 INTERFACE::set_file_format(interfaces()[i],name);
-
-                //  Load the interface and check that it is compatible with the first one.
+                // Load the interface and check that it is compatible with the first one.
 
                 const std::string& full_name = file_name(name);
                 std::ifstream ifs(full_name.c_str());
@@ -134,7 +135,7 @@ namespace MeshDescription {
         void InterfaceOrder() const {
             for (Interfaces::const_iterator i=interfaces().begin();i!=interfaces().end();++i)
                 for (Domain::const_iterator j=i->begin();j!=i->end();++j) {
-                    
+
                 }
         }
 #endif
@@ -161,7 +162,7 @@ namespace MeshDescription {
 
               Interfaces& interfaces()       { return interfs; }
         const Interfaces& interfaces() const { return interfs; }
-   
+
               Normals&    normals()          { return nrmls; }
         const Normals&    normals()    const { return nrmls; }
 
@@ -271,7 +272,7 @@ namespace MeshDescription {
             if (ifs.fail())
                 throw WrongFileFormat(geometry);
         }
-        
+
         //  Close the input file.
 
         ifs.close();
