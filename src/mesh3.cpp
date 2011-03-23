@@ -151,7 +151,7 @@ namespace OpenMEEG {
     void Mesh::getFileFormat(const char* filename) {
         std::string extension = getNameExtension(filename);
         std::transform(extension.begin(), extension.end(), extension.begin(), (int(*)(int))std::tolower);
-        if     (extension==std::string("vtk"))  streamFormat = Mesh::VTK ;
+        if     (extension==std::string("vtk"))  streamFormat = Mesh::VTK;
         else if(extension==std::string("tri"))  streamFormat = Mesh::TRI;
         else if(extension==std::string("bnd"))  streamFormat = Mesh::BND;
         else if(extension==std::string("mesh")) streamFormat = Mesh::MESH;

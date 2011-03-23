@@ -1,7 +1,7 @@
 /*
 Project Name : OpenMEEG
 
-© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre 
+© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre
 GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU, Théodore PAPADOPOULO,
 Emmanuel OLIVI
 Maureen.Clerc.AT.sophia.inria.fr, keriven.AT.certis.enpc.fr,
@@ -70,12 +70,12 @@ namespace OpenMEEG {
         #define M_PI 3.14159265358979323846
     #endif
 
-    #define MU0 (4*M_PI*1e-7) 
+    #define MU0 (4*M_PI*1e-7)
 
     inline std::string getNameExtension ( const std::string& name )
     {
         std::string::size_type idx = name.find('.');
-        if (idx == std::string::npos) { 
+        if (idx == std::string::npos) {
             return std::string("");
         } else if (name.substr(idx+1).find('.') != std::string::npos) {
             return getNameExtension( name.substr(idx+1) );

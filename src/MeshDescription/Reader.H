@@ -77,7 +77,9 @@ namespace MeshDescription {
                 std::string name;
                 // is >> io_utils::skip_comments("#") >> name;
                 is >> io_utils::skip_comments("#");
-                std::getline(is, name); // XXX : HACK to make things work when filenames contains spaces
+                // XXX : HACK to make things work when filenames contains spaces
+                std::getline(is, name);
+                name = io_utils::trim(name);
                 INTERFACE::set_file_format(interfaces()[i],name);
                 // Load the interface and check that it is compatible with the first one.
 

@@ -13,8 +13,8 @@ IF (NOT MATIO_LIBRARIES)
     INCLUDE_DIRECTORIES(${OpenMEEG_SOURCE_DIR}/contrib/matio/zlib)
     INCLUDE_DIRECTORIES(${OpenMEEG_BINARY_DIR}/contrib/matio/src)
     INCLUDE_DIRECTORIES(${OpenMEEG_BINARY_DIR}/contrib/matio/zlib)
-    
-    IF(WIN32) 
+
+    IF(WIN32)
         INCLUDE_DIRECTORIES(${OpenMEEG_SOURCE_DIR}/contrib/matio/contrib/Windows)
     ENDIF()
 
