@@ -120,7 +120,7 @@ namespace OpenMEEG {
             if (!m1.has_correct_orientation()) {
                 warning(std::string("A mesh does not seem to be properly oriented"));
             }
-            if(m1.selfIntersection())
+            if(m1.has_self_intersection())
             {
                 warning(std::string("Mesh is self intersecting !"));
                 m1.info();
@@ -144,7 +144,7 @@ namespace OpenMEEG {
 
     bool Geometry::check(const Mesh& m) const {
         bool OK = true;
-        if(m.selfIntersection())
+        if(m.has_self_intersection())
         {
             warning(std::string("Mesh is self intersecting !"));
             m.info();
@@ -165,7 +165,7 @@ namespace OpenMEEG {
 
     int Geometry::getDomain(const Vect3& p) const {
         for (int i=0;i<nb();i++)
-            if ((this->getM(i)).containsPoint(p))
+            if ((this->getM(i)).contains_point(p))
                 return i;
             else if (i==nb()-1)
                 return nb();

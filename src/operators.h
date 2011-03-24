@@ -139,7 +139,7 @@ namespace OpenMEEG {
 
         double total = 0;
 
-        const intSet& Tadj = m2.getTrianglesForPoint(nP2); // loop on triangles of which nP2 is a vertex
+        const intSet& Tadj = m2.get_triangles_for_point(nP2); // loop on triangles of which nP2 is a vertex
         for(intSet::const_iterator it = Tadj.begin(); it != Tadj.end(); ++it)
         {
             analyD.init( m2, *it, nP2);
@@ -253,8 +253,8 @@ namespace OpenMEEG {
         double Iqr,Aqr;
         double result=0.0;
 
-        const intSet& trgs1 = m1.getTrianglesForPoint(nP1);
-        const intSet& trgs2 = m2.getTrianglesForPoint(nP2);
+        const intSet& trgs1 = m1.get_triangles_for_point(nP1);
+        const intSet& trgs2 = m2.get_triangles_for_point(nP2);
         for(intSet::const_iterator it1 = trgs1.begin(); it1 != trgs1.end(); ++it1)
             for(intSet::const_iterator it2 = trgs2.begin(); it2 != trgs2.end(); ++it2)
             {
@@ -463,7 +463,7 @@ namespace OpenMEEG {
         result.z()=0;
 
         //loop over triangles of which P1 is a vertex
-        const intSet& trgs1 = m1.getTrianglesForPoint(nP1);
+        const intSet& trgs1 = m1.get_triangles_for_point(nP1);
         for(intSet::const_iterator it = trgs1.begin(); it != trgs1.end(); ++it)
         {
             const Triangle& T1=m1.getTrg(*it);

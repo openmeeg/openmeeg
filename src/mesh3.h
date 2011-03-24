@@ -60,257 +60,296 @@ extern "C" {
 }
 #endif
 
-namespace OpenMEEG {
+namespace OpenMEEG
+{
 
-    typedef std::set<int> intSet;
-    OPENMEEG_EXPORT bool tri_tri_overlap_test_3d(double p1[3], double q1[3], double r1[3],double p2[3], double q2[3], double r2[3]);
+typedef std::set<int> intSet;
+OPENMEEG_EXPORT bool tri_tri_overlap_test_3d(double p1[3], double q1[3], double r1[3],double p2[3], double q2[3], double r2[3]);
 
 
-    class OPENMEEG_EXPORT Mesh
-    {
+class OPENMEEG_EXPORT Mesh
+{
 
-    private:
-        int npts; //!< Number of points in the mesh.
-        int ntrgs; //!< Number of triangles in the mesh.
-        Vect3* pts; //!< Points of the mesh
-        Triangle* trgs; //!< Triangles of the mesh
-        intSet* links; //!< links[i] are the triangles that contain point i : each point knows each triangle it is a part of
-        Vect3* normals; //!< Normals at each point
+private:
+    int npts; //!< Number of points in the mesh.
+    int ntrgs; //!< Number of triangles in the mesh.
+    Vect3* pts; //!< Points of the mesh
+    Triangle* trgs; //!< Triangles of the mesh
+    intSet* links; //!< links[i] are the triangles that contain point i : each point knows each triangle it is a part of
+    Vect3* normals; //!< Normals at each point
 
-        void load_tri(std::istream &);
-        void load_tri(const char*);
+    void load_tri(std::istream &);
+    void load_tri(const char*);
 
-        void load_bnd(std::istream &);
-        void load_bnd(const char*);
+    void load_bnd(std::istream &);
+    void load_bnd(const char*);
 
-        void load_off(std::istream &);
-        void load_off(const char*);
+    void load_off(std::istream &);
+    void load_off(const char*);
 
-        void load_mesh(std::istream &is);
-        void load_mesh(const char*);
+    void load_mesh(std::istream &is);
+    void load_mesh(const char*);
 
-        #ifdef USE_VTK
-            void load_vtk(std::istream &is);
-            void load_vtk(const char*);
-        #else
-            template <typename T>
-            void load_vtk(T) {
-                std::cerr << "You have to compile OpenMEEG with VTK to read VTK files" << std::endl;
-                exit(1);
-            }
-        #endif
+#ifdef USE_VTK
+    void load_vtk(std::istream &is);
+    void load_vtk(const char*);
+#else
+    template <typename T>
+    void load_vtk(T) {
+        std::cerr << "You have to compile OpenMEEG with VTK to read VTK files" << std::endl;
+        exit(1);
+    }
+#endif
 
-        #ifdef USE_GIFTI
-            void load_gifti(std::istream &is);
-            void load_gifti(const char*);
-            void save_gifti(const char*);
-            gifti_image* toGiftiImage();
-            void fromGiftiImage(gifti_image* gim);
-        #else
-            template <typename T>
-            void load_gifti(T) {
-                std::cerr << "You have to compile OpenMEEG with GIFTI to read GIFTI files" << std::endl;
-                exit(1);
-            }
-            template <typename T>
-            void save_gifti(T) {
-                std::cerr << "You have to compile OpenMEEG with GIFTI to save GIFTI files" << std::endl;
-                exit(1);
-            }
-        #endif
+#ifdef USE_GIFTI
+    void load_gifti(std::istream &is);
+    void load_gifti(const char*);
+    void save_gifti(const char*);
+    gifti_image* to_gifti_image();
+    void from_gifti_image(gifti_image* gim);
+#else
+    template <typename T>
+    void load_gifti(T) {
+        std::cerr << "You have to compile OpenMEEG with GIFTI to read GIFTI files" << std::endl;
+        exit(1);
+    }
+    template <typename T>
+    void save_gifti(T) {
+        std::cerr << "You have to compile OpenMEEG with GIFTI to save GIFTI files" << std::endl;
+        exit(1);
+    }
+#endif
 
-        void save_vtk(const char*);
-        void save_bnd(const char*);
-        void save_tri(const char*);
-        void save_off(const char*);
-        void save_mesh(const char*);
+    void save_vtk(const char*);
+    void save_bnd(const char*);
+    void save_tri(const char*);
+    void save_off(const char*);
+    void save_mesh(const char*);
 
-        void update_triangles();
-        void recompute_normals();
+    void update_triangles();
+    void recompute_normals();
 
-    public:
+public:
 
-        enum Filetype { VTK, TRI, BND, MESH, OFF, GIFTI };
+    enum Filetype { VTK, TRI, BND, MESH, OFF, GIFTI };
 
-        Mesh();
-        Mesh(int, int); // npts, ntrgs
-        Mesh(const Mesh& M);
-        Mesh& operator=(const Mesh& M);
-        ~Mesh(){kill();}
-        inline int nbPts() const { return npts; }
-        inline int nbTrgs() const { return ntrgs; }
-        inline int size() const { return npts+ntrgs; }
-        inline const Vect3& getPt(int i) const { return pts[i]; }
-        inline const Triangle& getTrg(int i) const { return trgs[i]; }
-        inline Triangle& getTrg(int i) { return trgs[i]; }
-        inline const intSet& getTrianglesForPoint(int i) const { return links[i]; }
-        inline intSet* getTrianglesForPoints() const { return links; }
+    Mesh();
+    Mesh(int, int); // npts, ntrgs
+    Mesh(const Mesh& M);
+    Mesh& operator=(const Mesh& M);
+    ~Mesh() {
+        kill();
+    }
+    inline int nbPts() const {
+        return npts;
+    }
+    inline int nbTrgs() const {
+        return ntrgs;
+    }
+    inline int size() const {
+        return npts+ntrgs;
+    }
+    inline const Vect3& getPt(int i) const {
+        return pts[i];
+    }
+    inline const Triangle& getTrg(int i) const {
+        return trgs[i];
+    }
+    inline Triangle& getTrg(int i) {
+        return trgs[i];
+    }
+    inline const intSet& get_triangles_for_point(int i) const {
+        return links[i];
+    }
+    inline intSet* get_triangles_for_points() const {
+        return links;
+    }
 
-        inline Vect3 normal(int i) const { return normals[i]; }
-        inline Vect3& normal(int i) { return normals[i]; }
+    inline Vect3 normal(int i) const {
+        return normals[i];
+    }
+    inline Vect3& normal(int i) {
+        return normals[i];
+    }
 
-        inline Vect3& operator[](int i) {
-            assert(i<npts);
-            return pts[i];
-        }
+    inline Vect3& operator[](int i) {
+        assert(i<npts);
+        return pts[i];
+    }
 
-        inline void setPt(int i,const Vect3& v) { pts[i]=v;}
-        inline void setTrg(int i,const Triangle& t) { trgs[i]=t;}
+    inline void setPt(int i,const Vect3& v) {
+        pts[i]=v;
+    }
+    inline void setTrg(int i,const Triangle& t) {
+        trgs[i]=t;
+    }
 
-        void make_links();
-
-        /**
-           * Get center of triangle
-           * \param i index of the triangle
-           */
-        // Vect3 center(int) const;
-
-        /**
-           * Read mesh from file
-           * \param filename can be .vtk, .tri (ascii), .bnd
-           * \param verbose true or false
-           */
-        void load(const char* filename, bool verbose=true);
-
-        /**
-           * Save mesh to file
-           * \param filename can be .vtk, .tri (ascii), .bnd or .mesh
-           */
-        void save(const char* filename);
-
-        /** \brief Get file format based on file extension
-
-                A list of supported file formats is in variable "Filetype"
-
-            \param filename
-            \return void
-            \sa
-        **/
-        void getFileFormat(const char* filename);
-
-        /** \brief append a mesh
-
-                append a mesh to the current Mesh.
-                Used to concat two meshes
-
-            \param m Mesh to append
-            \return void
-            \sa
-        **/
-        void append(const Mesh* m);
-
-        /** \brief Print info
-
-                Print to std::cout some info about the mesh
-
-            \param m Mesh to append
-            \return void
-            \sa
-        **/
-        void info() const;
-
-        /** \brief Smooth Mesh
-
-                Smooth Mesh
-
-            \param smoothing_intensity
-            \param niter
-            \return void
-            \sa
-        **/
-        void smooth(double smoothing_intensity, size_t niter);
-
-        int getNeighTrg(int a, int b, int c) const;
-
-        /**
-         * Compute the surfacic gradient
-        **/
-        SparseMatrix gradient() const;
-
-        /**
-         * Compute the total solid angle of a surface for a point v and tell whether v is inside the mesh or not.
-        **/
-        bool containsPoint(const Vect3&) const;
-
-        /**
-         * Return the area of each triangle
-        **/
-        Vector areas() const;
-
-        inline friend void operator>>(std::istream &ifs,Mesh &m){
-            Filetype format = m.streamFormat;
-            switch (format){
-                case TRI:       m.load_tri(ifs); break;
-    #ifdef USE_VTK
-                case VTK:       m.load_vtk(ifs); break;
-    #endif
-                case BND:       m.load_bnd(ifs); break;
-                case MESH:      m.load_mesh(ifs); break;
-    #ifdef USE_GIFTI
-                case GIFTI:      m.load_gifti(ifs); break;
-    #endif
-                default: std::cout << "Unknown file format" << std::endl;
-            }
-        }
-
-        /**
-         * Check intersection between two triangles
-        **/
-        static inline bool triangle_intersection( const Mesh& m1, int nT1, const Mesh& m2, int nT2 ) {
-            const Triangle& T1 = m1.getTrg(nT1);
-            const Vect3& p1 = m1.getPt(T1.s1());
-            const Vect3& q1 = m1.getPt(T1.s2());
-            const Vect3& r1 = m1.getPt(T1.s3());
-            const Triangle& T2 = m2.getTrg(nT2);
-            const Vect3& p2 = m2.getPt(T2.s1());
-            const Vect3& q2 = m2.getPt(T2.s2());
-            const Vect3& r2 = m2.getPt(T2.s3());
-
-            double pp1[3] = {p1.x(),p1.y(),p1.z()};
-            double qq1[3] = {q1.x(),q1.y(),q1.z()};
-            double rr1[3] = {r1.x(),r1.y(),r1.z()};
-            double pp2[3] = {p2.x(),p2.y(),p2.z()};
-            double qq2[3] = {q2.x(),q2.y(),q2.z()};
-            double rr2[3] = {r2.x(),r2.y(),r2.z()};
-	      return tri_tri_overlap_test_3d(pp1,qq1,rr1,pp2,qq2,rr2);
-        }
-
-        bool selfIntersection() const;
-        bool intersection(const Mesh& m) const;
-        bool has_correct_orientation() const;
-
-        /**
-         * Postprocessing after loading meshes (empty).
-        **/
-
-        void normalize() const { }
-
-    private:
-        Filetype streamFormat;
-        void kill();
-        void copy(const Mesh& M);
-    #ifdef USE_VTK
-        void getDataFromVTKReader(vtkPolyDataReader* vtkMesh);
-    #endif
-    };
+    void make_links();
 
     /**
-     * P1Vector : aux function to compute the surfacic gradient
-    **/
-    inline Vect3 P1Vector( const Vect3 &p0, const Vect3 &p1, const Vect3 &p2, const int idx )
-    {
-        assert(idx>-1 && idx<3);
-        int i = idx+1;
-        Vect3 pts[5] = {p2,p0,p1,p2,p0};
-        Vect3 ret(0,0,0);
-        Vect3 pim1pi = pts[i]-pts[i-1];
-        Vect3 pim1pip1 = pts[i+1]-pts[i-1];
-        Vect3 pim1H = ( (1.0/pim1pip1.norm2()) * ( pim1pi*pim1pip1 ) ) * pim1pip1;
-        Vect3 piH = pim1H-pim1pi;
-        ret = -1.0/piH.norm2()*piH;
+       * Get center of triangle
+       * \param i index of the triangle
+       */
+    // Vect3 center(int) const;
 
-        return ret;
+    /**
+       * Read mesh from file
+       * \param filename can be .vtk, .tri (ascii), .bnd
+       * \param verbose true or false
+       */
+    void load(const char* filename, bool verbose=true);
+
+    /**
+       * Save mesh to file
+       * \param filename can be .vtk, .tri (ascii), .bnd or .mesh
+       */
+    void save(const char* filename);
+
+    /** \brief Get file format based on file extension
+
+            A list of supported file formats is in variable "Filetype"
+
+        \param filename
+        \return void
+        \sa
+    **/
+    void get_file_format(const char* filename);
+
+    /** \brief append a mesh
+
+            append a mesh to the current Mesh.
+            Used to concat two meshes
+
+        \param m Mesh to append
+        \return void
+        \sa
+    **/
+    void append(const Mesh* m);
+
+    /** \brief Print info
+
+            Print to std::cout some info about the mesh
+
+        \param m Mesh to append
+        \return void
+        \sa
+    **/
+    void info() const;
+
+    /** \brief Smooth Mesh
+
+            Smooth Mesh
+
+        \param smoothing_intensity
+        \param niter
+        \return void
+        \sa
+    **/
+    void smooth(double smoothing_intensity, size_t niter);
+
+    int neighbor_triangle(int a, int b, int c) const;
+
+    /**
+     * Compute the surfacic gradient
+    **/
+    SparseMatrix gradient() const;
+
+    /**
+     * Compute the total solid angle of a surface for a point v and tell whether v is inside the mesh or not.
+    **/
+    bool contains_point(const Vect3&) const;
+
+    /**
+     * Return the area of each triangle
+    **/
+    Vector areas() const;
+
+    inline friend void operator>>(std::istream &ifs,Mesh &m) {
+        Filetype format = m.streamFormat;
+        switch (format) {
+        case TRI:
+            m.load_tri(ifs);
+            break;
+#ifdef USE_VTK
+        case VTK:
+            m.load_vtk(ifs);
+            break;
+#endif
+        case BND:
+            m.load_bnd(ifs);
+            break;
+        case MESH:
+            m.load_mesh(ifs);
+            break;
+#ifdef USE_GIFTI
+        case GIFTI:
+            m.load_gifti(ifs);
+            break;
+#endif
+        default:
+            std::cout << "Unknown file format" << std::endl;
+        }
     }
+
+    /**
+     * Check intersection between two triangles
+    **/
+    static inline bool triangle_intersection( const Mesh& m1, int nT1, const Mesh& m2, int nT2 ) {
+        const Triangle& T1 = m1.getTrg(nT1);
+        const Vect3& p1 = m1.getPt(T1.s1());
+        const Vect3& q1 = m1.getPt(T1.s2());
+        const Vect3& r1 = m1.getPt(T1.s3());
+        const Triangle& T2 = m2.getTrg(nT2);
+        const Vect3& p2 = m2.getPt(T2.s1());
+        const Vect3& q2 = m2.getPt(T2.s2());
+        const Vect3& r2 = m2.getPt(T2.s3());
+
+        double pp1[3] = {p1.x(),p1.y(),p1.z()};
+        double qq1[3] = {q1.x(),q1.y(),q1.z()};
+        double rr1[3] = {r1.x(),r1.y(),r1.z()};
+        double pp2[3] = {p2.x(),p2.y(),p2.z()};
+        double qq2[3] = {q2.x(),q2.y(),q2.z()};
+        double rr2[3] = {r2.x(),r2.y(),r2.z()};
+        return tri_tri_overlap_test_3d(pp1,qq1,rr1,pp2,qq2,rr2);
+    }
+
+    bool has_self_intersection() const;
+    bool intersection(const Mesh& m) const;
+    bool has_correct_orientation() const;
+
+    /**
+     * Postprocessing after loading meshes (empty).
+    **/
+
+    void normalize() const { }
+
+private:
+    Filetype streamFormat;
+    void kill();
+    void copy(const Mesh& M);
+#ifdef USE_VTK
+    void get_data_from_vtk_reader(vtkPolyDataReader* vtkMesh);
+#endif
+};
+
+/**
+ * P1Vector : aux function to compute the surfacic gradient
+**/
+inline Vect3 P1Vector( const Vect3 &p0, const Vect3 &p1, const Vect3 &p2, const int idx )
+{
+    assert(idx>-1 && idx<3);
+    int i = idx+1;
+    Vect3 pts[5] = {p2,p0,p1,p2,p0};
+    Vect3 ret(0,0,0);
+    Vect3 pim1pi = pts[i]-pts[i-1];
+    Vect3 pim1pip1 = pts[i+1]-pts[i-1];
+    Vect3 pim1H = ( (1.0/pim1pip1.norm2()) * ( pim1pi*pim1pip1 ) ) * pim1pip1;
+    Vect3 piH = pim1H-pim1pi;
+    ret = -1.0/piH.norm2()*piH;
+
+    return ret;
 }
+
+} // end namespace OpenMEEG
 
 #endif  //! OPENMEEG_MESH_H

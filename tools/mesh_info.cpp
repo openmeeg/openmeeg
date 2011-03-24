@@ -58,7 +58,7 @@ int main( int argc, char **argv)
 
     Mesh M;
     M.load(input_filename,true);
-    if(M.selfIntersection()) {
+    if(M.has_self_intersection()) {
         warning(std::string("Mesh is self intersecting !"));
     }
     // for closed mesh

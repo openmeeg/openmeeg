@@ -54,7 +54,7 @@ namespace OpenMEEG {
 
         struct MeshInterface {
             typedef Mesh Type;
-            static void set_file_format(Type& interface,const std::string& name) { interface.getFileFormat(name.c_str()); }
+            static void set_file_format(Type& interface,const std::string& name) { interface.get_file_format(name.c_str()); }
             static const char keyword[];
         };
         const char MeshInterface::keyword[] = "Mesh";
