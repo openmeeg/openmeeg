@@ -22,10 +22,20 @@ ENDIF()
 
 IF (USE_MKL)
     IF (WIN32)
-        FILE(GLOB MKL_PATH "C:/Program Files/Intel/MKL/*")
-        SET(MKL_LIB_SEARCHPATH "${MKL_PATH}/ia32/lib")
-        FIND_PATH(MKL_INCLUDE_PATH mkl.h "${MKL_PATH}/include")
+        FIND_PATH(MKL_ROOT_DIR
+            include/mkl.h
+            PATHS
+            $ENV{MKL_DIR}
+            "C:/Program Files/Intel/MKL/*/"
+        )
+        #MESSAGE(${CMAKE_HOST_SYSTEM_PROCESSOR})
+        SET(MKL_LIB_SEARCHPATH $ENV{MKL_LIB_DIR} "${MKL_ROOT_DIR}/ia32/lib")
+
+        FIND_PATH(MKL_INCLUDE_PATH mkl.h ${MKL_ROOT_DIR}/include)
+
         IF (MKL_INCLUDE_PATH MATCHES "10.")
+            SET(MKL_LIBS mkl_solver mkl_core mkl_intel_c mkl_intel_s mkl_intel_thread libguide mkl_lapack95 mkl_blas95)
+        ELSEIF (MKL_INCLUDE_PATH MATCHES "11.")
             SET(MKL_LIBS mkl_solver mkl_core mkl_intel_c mkl_intel_s mkl_intel_thread libguide mkl_lapack95 mkl_blas95)
         ELSE()
             SET(MKL_LIBS mkl_solver mkl_c libguide mkl_lapack mkl_ia32)
@@ -58,7 +68,6 @@ IF (USE_MKL)
         ENDIF()
     ENDIF()
 ELSE()
-
     #   ATLAS OR LAPACK/BLAS
     IF (UNIX AND NOT APPLE)
         IF (USE_ATLAS)
