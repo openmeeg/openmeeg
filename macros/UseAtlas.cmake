@@ -29,7 +29,7 @@ IF (USE_MKL)
             "C:/Program Files/Intel/MKL/*/"
         )
         #MESSAGE(${CMAKE_HOST_SYSTEM_PROCESSOR})
-        SET(MKL_LIB_SEARCHPATH $ENV{MKL_LIB_DIR} "${MKL_ROOT_DIR}/ia32/lib")
+        SET(MKL_LIB_SEARCHPATH $ENV{ICC_LIB_DIR} $ENV{MKL_LIB_DIR} "${MKL_ROOT_DIR}/ia32/lib")
 
         FIND_PATH(MKL_INCLUDE_PATH mkl.h ${MKL_ROOT_DIR}/include)
 

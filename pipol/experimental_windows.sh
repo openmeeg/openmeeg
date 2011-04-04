@@ -9,10 +9,16 @@ if expr $PIPOL_IMAGE : ".*amd64.*"; then
     SYSTEMOS=" Win64"
     SYSTEMCOMPILE="x64"
     export PROCESSOR_ARCHITECTURE=AMD64
+    export MKL_DIR=Y:/amd64/icc-windows-2008/Compiler/11.1/046/mkl
+    export ICC_LIB_DIR=Y:amd64/icc-windows-2008/Compiler/11.1/046/lib/intel64/
+    export MKL_LIB_DIR=Y:amd64/icc-windows-2008/Compiler/11.1/046/mkl/em64t/lib
 else
     SYSTEMCONF=""
     SYSTEMCOMPILE="win32"
     export PROCESSOR_ARCHITECTURE=x86
+    export MKL_DIR=Y:i386/icc-windows-xp/Compiler/11.1/046/mkl/
+    export ICC_LIB_DIR=Y:i386/icc-windows-xp/Compiler/11.1/046/lib/ia32/
+    export MKL_LIB_DIR=Y:i386/icc-windows-xp/Compiler/11.1/046/mkl/ia32/lib/
 fi
 
 # 4) Detectioon of cmake version
@@ -34,8 +40,6 @@ mkdir build
 cd build
 
 # 6) Making VISUAL project with cmake 2.6 - 2.8
-export MKL_DIR=Y:i386/icc-windows-xp/Compiler/11.1/046/mkl/
-export MKL_LIB_DIR=Y:i386/icc-windows-xp/Compiler/11.1/046/lib/ia32/
 /cygdrive/c/CMake\ $VERSION/bin/cmake.exe -DBUILD_TESTING=ON -DENABLE_PACKAGING=ON -G "$PIPOL_WIN_COMPILER$SYSTEMOS" ..
 
 # 7) Setting environment
