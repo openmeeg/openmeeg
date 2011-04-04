@@ -1,10 +1,12 @@
 #!/bin/bash
 
-# 2) Creation of temporary repertory
-mkdir /cygdrive/c/Temp
+# 2) Creation of temporary repertory where to build
+export TEMP=/cygdrive/c/Temp
+
+rm -rf ${TEMP}
+mkdir ${TEMP}
 
 # 3) Configuration of the variables for matlab
-export TEMP=/cygdrive/c/Temp
 if expr $PIPOL_IMAGE : ".*amd64.*"; then
     SYSTEMOS=" Win64"
     SYSTEMCOMPILE="x64"
@@ -31,8 +33,8 @@ fi
 # 5) Cleaning the projet
 cd ${TEMP}
 
-svn checkout svn://scm.gforge.inria.fr/svn/openmeeg/trunk openmeeg-trunk
-svn checkout svn://scm.gforge.inria.fr/svn/openmeeg/win32addons win32addons
+svn checkout svn://scm.gforge.inria.fr/svn/openmeeg/trunk openmeeg-trunk --quiet
+svn checkout svn://scm.gforge.inria.fr/svn/openmeeg/win32addons win32addons --quiet
 
 cd openmeeg-trunk
 rm -Rf ./build
@@ -63,6 +65,8 @@ fi
 
 # 13) To make a Windows Package Installer
 /cygdrive/c/CMake\ $VERSION/bin/cpack.exe -G "NSIS"
+/cygdrive/c/CMake\ $VERSION/bin/cpack.exe -G "ZIP"
+/cygdrive/c/CMake\ $VERSION/bin/cpack.exe -G "TGZ"
 
 # 14) Save the package
-cp OpenMEEG-*.exe $PIPOL_HOMEDIR/packages/
+cp OpenMEEG-*.* $PIPOL_HOMEDIR/.pipol/packages/
