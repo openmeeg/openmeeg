@@ -82,7 +82,7 @@ namespace OpenMEEG {
         }
     }
 
-    void operatorDipolePotDer(const Vect3 &r0,const Vect3 &q,const Mesh &layer,Vector &rhs,const int offsetIdx,const int GaussOrder,const bool adapt_rhs)
+    void operatorDipolePotDer(const Vect3 &r0,const Vect3 &q,const Mesh &layer,Vector &rhs,const int offsetIdx,const int gauss_order,const bool adapt_rhs)
     {
         static analyticDipPotDer anaDPD;
 
@@ -93,7 +93,7 @@ namespace OpenMEEG {
             gauss= new Integrator<Vect3,analyticDipPotDer>;
         }
 
-        gauss->setOrder(GaussOrder);
+        gauss->setOrder(gauss_order);
         #ifdef USE_OMP
         #pragma omp parallel for private(anaDPD)
         #endif
@@ -112,7 +112,7 @@ namespace OpenMEEG {
         }
     }
 
-    void operatorDipolePot(const Vect3 &r0, const Vect3 &q, const Mesh &layer, Vector &rhs,const int offsetIdx,const int GaussOrder,const bool adapt_rhs)
+    void operatorDipolePot(const Vect3 &r0, const Vect3 &q, const Mesh &layer, Vector &rhs,const int offsetIdx,const int gauss_order,const bool adapt_rhs)
     {
         static analyticDipPot anaDP;
 
@@ -124,7 +124,7 @@ namespace OpenMEEG {
             gauss= new Integrator<double,analyticDipPot>;
         }
 
-        gauss->setOrder(GaussOrder);
+        gauss->setOrder(gauss_order);
         #ifdef USE_OMP
         #pragma omp parallel for
         #endif

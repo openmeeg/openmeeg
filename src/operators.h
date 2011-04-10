@@ -113,7 +113,7 @@ namespace OpenMEEG {
     }
 
     #ifndef OPTIMIZED_OPERATOR_D
-    inline double _operatorD(const int nT1,const int nP2,const Mesh &m1,const Mesh &m2,const int GaussOrder)    
+    inline double _operatorD(const int nT1,const int nP2,const Mesh &m1,const Mesh &m2,const int gauss_order)    
     {
         // consider varying order of quadrature with the distance between T1 and T2
         const Triangle &T1=m1.getTrg(nT1);
@@ -128,12 +128,12 @@ namespace OpenMEEG {
         #else
             static AdaptiveIntegrator<double,analyticD> gauss(0.005);
         #endif
-        gauss.setOrder(GaussOrder);
+        gauss.setOrder(gauss_order);
     #else
         #ifdef USE_OMP
-            Integrator<double,analyticD> gauss(GaussOrder);
+            Integrator<double,analyticD> gauss(gauss_order);
         #else
-            static Integrator<double,analyticD> gauss(GaussOrder);
+            static Integrator<double,analyticD> gauss(gauss_order);
         #endif
     #endif //ADAPT_LHS
 
@@ -151,7 +151,7 @@ namespace OpenMEEG {
     #else
 
     template<class T>
-    inline void _operatorD(const int nT1,const int nT2,const Mesh &m1,const Mesh &m2,T &mat,const int offsetI,const int offsetJ,const int GaussOrder)
+    inline void _operatorD(const int nT1,const int nT2,const Mesh &m1,const Mesh &m2,T &mat,const int offsetI,const int offsetJ,const int gauss_order)
     {
         //this version of _operatorD add in the Matrix the contribution of T2 on T1
         // for all the P1 functions it gets involved
@@ -169,13 +169,13 @@ namespace OpenMEEG {
         analyD.init( m2, nT2);
     #ifdef ADAPT_LHS
         AdaptiveIntegrator<Vect3,analyticD3> gauss(0.005);
-        gauss.setOrder(GaussOrder);
+        gauss.setOrder(gauss_order);
         Vect3 total = gauss.integrate(analyD,T1,m1);
     #else
         #ifdef USE_OMP
-            Integrator<Vect3,analyticD3> gauss(GaussOrder);
+            Integrator<Vect3,analyticD3> gauss(gauss_order);
         #else
-            static Integrator<Vect3,analyticD3> gauss(GaussOrder);
+            static Integrator<Vect3,analyticD3> gauss(gauss_order);
         #endif
 
         Vect3 total = gauss.integrate(analyD,T1,m1);
@@ -204,7 +204,7 @@ namespace OpenMEEG {
         mat(nT,offsetJ+((Triangle)T2).som(3))+=total.z();
      }
 
-    inline double _operatorS(const int nT1,const int nT2,const Mesh &m1,const Mesh &m2,const int GaussOrder)
+    inline double _operatorS(const int nT1,const int nT2,const Mesh &m1,const Mesh &m2,const int gauss_order)
     {
         const Triangle &T1=m1.getTrg(nT1);
         const Triangle &T2=m2.getTrg(nT2);
@@ -224,7 +224,7 @@ namespace OpenMEEG {
         }
     #ifdef ADAPT_LHS
         AdaptiveIntegrator<double,analyticS> gauss(0.005);
-        gauss.setOrder(GaussOrder);
+        gauss.setOrder(gauss_order);
         return gauss.integrate(analyS,T2,m2);
     #else
         #ifdef USE_OMP
@@ -232,7 +232,7 @@ namespace OpenMEEG {
         #else
             static Integrator<double,analyticS> gauss;
         #endif
-        gauss.setOrder(GaussOrder);
+        gauss.setOrder(gauss_order);
         return gauss.integrate(analyS,T2,m2);
     #endif //ADAPT_LHS
     }
@@ -245,7 +245,7 @@ namespace OpenMEEG {
     }
 
     template<class T> 
-    inline double _operatorN(const int nP1,const int nP2,const Mesh &m1,const Mesh &m2,const int GaussOrder,const int IopS,const int JopS,const T &mat)
+    inline double _operatorN(const int nP1,const int nP2,const Mesh &m1,const Mesh &m2,const int gauss_order,const int IopS,const int JopS,const T &mat)
     {
         const Vect3 P1=m1.getPt(nP1);
         const Vect3 P2=m2.getPt(nP2);
@@ -262,7 +262,7 @@ namespace OpenMEEG {
                 const Triangle& T2 = m2.getTrg(*it2);
 
                 // A1 , B1 , A2, B2 are the two opposite vertices to P1 and P2 (triangles A1,B1,P1 and A2,B2,P2)
-                if(IopS!=0 || JopS!=0) Iqr=mat(IopS + *it1,JopS + *it2); else Iqr=_operatorS(*it1,*it2,m1,m2,GaussOrder);
+                if(IopS!=0 || JopS!=0) Iqr=mat(IopS + *it1,JopS + *it2); else Iqr=_operatorS(*it1,*it2,m1,m2,gauss_order);
                 int nP1T=T1.contains(nP1);    //index of P1 in current triangle of mesh m1
                 int nP2T=T2.contains(nP2);    //index of P2 in current triangle of mesh m2
     #ifndef OPTIMIZED_OPERATOR_N
@@ -304,7 +304,7 @@ namespace OpenMEEG {
     }
 
     template<class T>
-    void operatorN(const Mesh &m1,const Mesh &m2,T &mat,const int offsetI,const int offsetJ,const int GaussOrder,const int IopS,const int JopS)
+    void operatorN(const Mesh &m1,const Mesh &m2,T &mat,const int offsetI,const int offsetJ,const int gauss_order,const int IopS,const int JopS)
     {
         // This function has the following arguments:
         //    One geometry
@@ -323,7 +323,7 @@ namespace OpenMEEG {
                 #endif
                 for(int j=i;j<offsetJ+m2.nbPts();j++)
                 {
-                    mat(i,j)=_operatorN(i-offsetI,j-offsetJ,m1,m2,GaussOrder,IopS,JopS,mat);
+                    mat(i,j)=_operatorN(i-offsetI,j-offsetJ,m1,m2,gauss_order,IopS,JopS,mat);
                 }
             }
         } else {
@@ -334,14 +334,14 @@ namespace OpenMEEG {
                 #endif
                 for(int j=offsetJ;j<offsetJ+m2.nbPts();j++)
                 {
-                    mat(i,j)=_operatorN(i-offsetI,j-offsetJ,m1,m2,GaussOrder,IopS,JopS,mat);
+                    mat(i,j)=_operatorN(i-offsetI,j-offsetJ,m1,m2,gauss_order,IopS,JopS,mat);
                 }
             }
         }
     }
 
     template<class T> 
-    void operatorS(const Mesh &m1,const Mesh &m2,T &mat,const int offsetI,const int offsetJ,const int GaussOrder)
+    void operatorS(const Mesh &m1,const Mesh &m2,T &mat,const int offsetI,const int offsetJ,const int gauss_order)
     {
         // This function has the following arguments:
         //    One geometry
@@ -360,7 +360,7 @@ namespace OpenMEEG {
                 #endif
                 for(int j=i;j<offsetJ+m2.nbTrgs();j++)
                 {
-                    mat(i,j)=_operatorS(i-offsetI,j-offsetJ,m1,m2,GaussOrder);
+                    mat(i,j)=_operatorS(i-offsetI,j-offsetJ,m1,m2,gauss_order);
                 }
             }
         else
@@ -372,7 +372,7 @@ namespace OpenMEEG {
                 #endif
                 for(int j=offsetJ;j<offsetJ+m2.nbTrgs();j++)
                 {
-                    mat(i,j)=_operatorS(i-offsetI,j-offsetJ,m1,m2,GaussOrder);
+                    mat(i,j)=_operatorS(i-offsetI,j-offsetJ,m1,m2,gauss_order);
                 }
             }
         }
@@ -381,7 +381,7 @@ namespace OpenMEEG {
     #ifndef OPTIMIZED_OPERATOR_D
 
     template<class T>
-    void operatorD(const Mesh &m1,const Mesh &m2,T &mat,const int offsetI,const int offsetJ,const int GaussOrder)
+    void operatorD(const Mesh &m1,const Mesh &m2,T &mat,const int offsetI,const int offsetJ,const int gauss_order)
     // This function (NON OPTIMIZED VERSION) has the following arguments:
     //    One geometry
     //    the indices of the treated layers I and J
@@ -398,7 +398,7 @@ namespace OpenMEEG {
             for(int j=offsetJ;j<offsetJ+m2.nbPts();j++)
             {
                 // P1 functions are tested thus looping on vertices
-                mat(i,j)=_operatorD(i-offsetI,j-offsetJ,m1,m2,GaussOrder);
+                mat(i,j)=_operatorD(i-offsetI,j-offsetJ,m1,m2,gauss_order);
             }
         }
     }
@@ -406,7 +406,7 @@ namespace OpenMEEG {
     #else // OPTIMIZED_OPERATOR_D
 
     template<class T>
-    void operatorD(const Mesh &m1,const Mesh &m2,T &mat,const int offsetI,const int offsetJ,const int GaussOrder)
+    void operatorD(const Mesh &m1,const Mesh &m2,T &mat,const int offsetI,const int offsetJ,const int gauss_order)
     {
         // This function (OPTIMIZED VERSION) has the following arguments:
         //    One geometry
@@ -423,7 +423,7 @@ namespace OpenMEEG {
                 //In this version of the funtcion, in order to skip multiple computations of the same quantities
                 //    loops are run over the triangles but the Matrix cannot be filled in this function anymore
                 //    That's why the filling is done is function _operatorD
-                _operatorD(i-offsetI,j-offsetJ,m1,m2,mat,offsetI,offsetJ,GaussOrder);
+                _operatorD(i-offsetI,j-offsetJ,m1,m2,mat,offsetI,offsetJ,gauss_order);
             }
         }
     }

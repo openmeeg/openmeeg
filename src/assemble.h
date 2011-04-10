@@ -52,26 +52,26 @@ namespace OpenMEEG {
 
     class OPENMEEG_EXPORT HeadMat: public virtual SymMatrix {
     public:
-        HeadMat (const Geometry& geo, const int GaussOrder=3);
+        HeadMat (const Geometry& geo, const int gauss_order=3);
         virtual ~HeadMat () {};
     };
 
     class OPENMEEG_EXPORT SurfSourceMat: public virtual Matrix {
     public:
-        SurfSourceMat (const Geometry& geo,const Mesh& sources,const int GaussOrder=3);
+        SurfSourceMat (const Geometry& geo,const Mesh& sources,const int gauss_order=3);
         virtual ~SurfSourceMat () {};
     };
 
     class OPENMEEG_EXPORT DipSourceMat: public virtual Matrix {
     public:
-        DipSourceMat (const Geometry& geo,const Matrix& dipoles,const int GaussOrder=3,
+        DipSourceMat (const Geometry& geo,const Matrix& dipoles,const int gauss_order=3,
                       const bool adapt_rhs=true,const bool dipoles_in_cortex=true);
         virtual ~DipSourceMat () {};
     };
 
     class OPENMEEG_EXPORT EITSourceMat: public virtual Matrix {
     public:
-        EITSourceMat(const Geometry& geo, Sensors& electrodes, const int GaussOrder=3);
+        EITSourceMat(const Geometry& geo, Sensors& electrodes, const int gauss_order=3);
         virtual ~EITSourceMat () {};
     };
 

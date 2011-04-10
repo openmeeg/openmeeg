@@ -48,201 +48,215 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include "operators.h"
 #include "assemble.h"
 
-namespace OpenMEEG {
+namespace OpenMEEG
+{
 
-    template<class T>
-    void deflat(T &M, int start, int end, double coef)
-    {// deflate the Matrix
-        for(int i=start;i<=end;i++)
-        {
-            #ifdef USE_OMP
-            #pragma omp parallel for
-            #endif
-            for(int j=i;j<=end;j++)
-            {
-                M(i,j)+=coef;
-            }
+template<class T>
+void deflat(T &M, int start, int end, double coef)
+{
+    // deflate the Matrix
+    for(int i=start; i<=end; i++) {
+#ifdef USE_OMP
+        #pragma omp parallel for
+#endif
+        for(int j=i; j<=end; j++) {
+            M(i, j)+=coef;
         }
     }
-
-    void assemble_HM(const Geometry &geo,SymMatrix &mat,const int GaussOrder)
-    {
-        int offset=0;
-
-        mat = SymMatrix(geo.size());
-        mat.set(0.0);
-
-        if (geo.nb()==1)
-            operatorN(geo.getM(0),geo.getM(0),mat,0,0,GaussOrder,offset,offset);
-
-        for(int c=0;c<geo.nb()-1;c++)
-        {
-            int offset0=offset;
-            int offset1=offset+geo.getM(c).nbPts();
-            int offset2=offset+geo.getM(c).nbPts()+geo.getM(c).nbTrgs();
-            int offset3=offset+geo.getM(c).nbPts()+geo.getM(c).nbTrgs()+geo.getM(c+1).nbPts();
-
-            //Computing S block first because it's needed for the corresponding N block
-            if(c==0) operatorS(geo.getM(c),geo.getM(c),mat,offset1,offset1,GaussOrder);
-            operatorS(geo.getM(c+1),geo.getM(c),mat,offset3,offset1,GaussOrder);
-            operatorS(geo.getM(c+1),geo.getM(c+1),mat,offset3,offset3,GaussOrder);
-
-            //Computing N block
-            if(c==0) operatorN(geo.getM(c),geo.getM(c),mat,offset0,offset0,GaussOrder,offset1,offset1);
-            operatorN(geo.getM(c+1),geo.getM(c),mat,offset2,offset0,GaussOrder,offset3,offset1);
-            operatorN(geo.getM(c+1),geo.getM(c+1),mat,offset2,offset2,GaussOrder,offset3,offset3);
-
-            //Computing D block
-            if(c==0) operatorD(geo.getM(c),geo.getM(c),mat,offset1,offset0,GaussOrder);
-            if(c!=geo.nb()-2) operatorD(geo.getM(c+1),geo.getM(c),mat,offset3,offset0,GaussOrder);
-            operatorD(geo.getM(c),geo.getM(c+1),mat,offset1,offset2,GaussOrder);
-            if(c!=geo.nb()-2) operatorD(geo.getM(c+1),geo.getM(c+1),mat,offset3,offset2,GaussOrder);
-
-            offset=offset2;
-        }
-
-        //Block multiplications
-        //Because only half the Matrix is stored, only the lower part of the Matrix is treated
-        offset=0;
-        double K = 1 / (4*M_PI);
-        for(int c=0;c<geo.nb()-1;c++)
-        {
-            int offset0=offset;
-            int offset1=offset+geo.getM(c).nbPts();
-            int offset2=offset+geo.getM(c).nbPts()+geo.getM(c).nbTrgs();
-            int offset3=offset+geo.getM(c).nbPts()+geo.getM(c).nbTrgs()+geo.getM(c+1).nbPts();
-            int offset4=offset+geo.getM(c).nbPts()+geo.getM(c).nbTrgs()+geo.getM(c+1).nbPts()+geo.getM(c+1).nbTrgs();
-
-            //Each operator is scaled with the appropriate constant
-
-            //Column 1
-            if(c==0) mult(mat,offset0,offset0,offset1,offset1,(geo.sigma_in(c)+geo.sigma_out(c))*K);
-            if(c==0) mult(mat,offset1,offset0,offset2,offset1,-2.0*K);
-            mult(mat,offset2,offset0,offset3,offset1,(-geo.sigma_out(c))*K);
-            mult(mat,offset3,offset0,offset4,offset1,K);
-
-            //Column 2
-            if(c==0) mult(mat,offset1,offset1,offset2,offset2,(1.0/geo.sigma_in(c)+1.0/geo.sigma_out(c))*K);
-            mult(mat,offset2,offset1,offset3,offset2,K);
-            mult(mat,offset3,offset1,offset4,offset2,(-1.0/geo.sigma_out(c))*K);
-
-            //Column 3
-            mult(mat,offset2,offset2,offset3,offset3,(geo.sigma_in(c+1)+geo.sigma_out(c+1))*K);
-            mult(mat,offset3,offset2,offset4,offset3,-2.0*K);
-
-            //Column 4
-            mult(mat,offset3,offset3,offset4,offset4,(1.0/geo.sigma_in(c+1)+1.0/geo.sigma_out(c+1))*K);
-
-            offset=offset2;
-        }
-        if (geo.nb()==1)
-            mult(mat,0,0,geo.getM(0).nbPts(),geo.getM(0).nbPts(),geo.sigma_in(0)*K);
-
-        // Deflate the last diagonal block of new 'mat' :
-        int newsize = geo.size()-(geo.getM(geo.nb()-1)).nbTrgs();
-        offset = newsize-(geo.getM(geo.nb()-1)).nbPts();
-        deflat(mat,offset,newsize-1,mat(offset,offset)/(newsize-offset));
-
-        mat = mat.submat(0,newsize-1);
-    }
-
-    void assemble_Surf2Vol(const Geometry& geo,Matrix& mat,Matrix& points) {
-
-        double K = 1/(4*M_PI);
-
-        if (points.ncol()!=4)
-            std::cerr<<" Surf2Vol: Warning no domain information provided! Points are considered to be in the inner volume" << std::endl;
-
-        // Count number of points per domains
-
-        std::vector<int> nb_pts_per_dom(geo.nb(),0);
-        for (unsigned i=0;i<points.nlin();i++) {
-            if (points.ncol()==3)
-                ++nb_pts_per_dom[0];
-            else {
-                int domain = points(i,3);
-                if (domain>=geo.nb()) {
-                    std::cerr<<" Surf2Vol: Point " << points.getlin(i) << " is outside the head. Point is considered to be in the scalp." << std::endl;
-                    points(i,3) = domain = geo.nb()-1;
-                }
-                ++nb_pts_per_dom[domain];
-            }
-        }
-
-        std::vector<Matrix> vect_PtsInDom(geo.nb());
-        for (int c=0;c<geo.nb();++c) {
-            vect_PtsInDom[c] = Matrix(nb_pts_per_dom[c],3);
-            int iptd=0;
-            for (unsigned ipt=0;ipt<points.nlin();ipt++) // get the points in the domain c
-                if (((points.ncol()==4) && (points(ipt,3)==c)) || ((points.ncol()==3) && (c==0))) {
-                    vect_PtsInDom[c](iptd,0)   = points(ipt,0);
-                    vect_PtsInDom[c](iptd,1)   = points(ipt,1);
-                    vect_PtsInDom[c](iptd++,2) = points(ipt,2);
-                }
-        }
-
-        mat = Matrix(points.nlin(),geo.size()-geo.getM(geo.nb()-1).nbTrgs());
-        mat.set(0.0);
-
-        int offset = 0;
-        int offsetA0 = 0;
-        for (int c=0;c<geo.nb()-1;c++) {
-
-            const int offset0     = offset;
-            const int offsetA     = offsetA0;
-            const int offsetB     = offsetA+nb_pts_per_dom[c];
-            const int offset1     = offset+geo.getM(c).nbPts();
-            const int offset2     = offset1+geo.getM(c).nbTrgs();
-            const int offset3     = offset2+geo.getM(c+1).nbPts();
-            const int offset4     = offset3+geo.getM(c+1).nbTrgs();
-            // const int nbpoints    = geo.getM(c).nbPts();
-            // const int nbtriangles = geo.getM(c).nbTrgs();
-
-            // compute DI,i block if necessary.
-
-            if (c==0) {
-                operatorDinternal(geo.getM(c),mat,offsetA,offset0,vect_PtsInDom[c]);
-                mult(mat,offsetA,offset0,offsetB,offset1,-1.0*K);
-            }
-
-            // compute DI+1,i block.
-
-            operatorDinternal(geo.getM(c),mat,offsetB,offset0,vect_PtsInDom[c+1]);
-            mult(mat,offsetB,offset0,offsetB+nb_pts_per_dom[c+1],offset1,1.0*K);
-
-            // compute DI+1,i+1 block
-
-            operatorDinternal(geo.getM(c+1),mat,offsetB,offset2,vect_PtsInDom[c+1]);
-            mult(mat,offsetB,offset2,offsetB+nb_pts_per_dom[c+1],offset3,-1.0*K);
-
-            // compute SI,i block if necessary.
-
-            if (c==0) {
-                operatorSinternal(geo.getM(c),mat,offsetA,offset1,vect_PtsInDom[c]);
-                mult(mat,offsetA,offset1,offsetA+nb_pts_per_dom[c],offset2,(1.0/geo.sigma_in(c))*K);
-            }
-
-            // compute SI+1,i block
-
-            operatorSinternal(geo.getM(c),mat,offsetB,offset1,vect_PtsInDom[c+1]);
-            mult(mat,offsetA+nb_pts_per_dom[c],offset1,offsetB+nb_pts_per_dom[c+1],offset2,(-1.0/geo.sigma_in(c+1))*K);
-
-            if (c<geo.nb()-2) {
-                // compute SI+1,i block
-                operatorSinternal(geo.getM(c+1),mat,offsetB,offset3,vect_PtsInDom[c+1]);
-                mult(mat,offsetB,offset3,offsetB+nb_pts_per_dom[c+1],offset4,(1.0/geo.sigma_in(c+1))*K);
-            }
-            offset = offset2;
-            offsetA0 = offsetA+nb_pts_per_dom[c];
-        }
-    }
-
-    HeadMat::HeadMat (const Geometry& geo,const int GaussOrder) {
-        assemble_HM(geo,*this,GaussOrder);
-    }
-
-    Surf2VolMat::Surf2VolMat (const Geometry& geo,Matrix& points) {
-        assemble_Surf2Vol(geo,*this,points);
-    }
-
 }
+
+void assemble_HM(const Geometry &geo, SymMatrix &mat, const int gauss_order)
+{
+    int offset = 0;
+
+    mat = SymMatrix(geo.size());
+    mat.set(0.0);
+
+    if (geo.nb()==1) {
+        operatorN(geo.getM(0), geo.getM(0), mat, 0, 0, gauss_order, offset, offset);
+    }
+
+    for (int c=0; c<geo.nb()-1; c++) {
+        int offset0 = offset;
+        int offset1 = offset+geo.getM(c).nbPts();
+        int offset2 = offset+geo.getM(c).nbPts() + geo.getM(c).nbTrgs();
+        int offset3 = offset+geo.getM(c).nbPts() + geo.getM(c).nbTrgs() + geo.getM(c+1).nbPts();
+
+        // Computing S block first because it's needed for the corresponding N block
+        if (c == 0) {
+            operatorS(geo.getM(c), geo.getM(c), mat, offset1, offset1, gauss_order);
+        }
+        operatorS(geo.getM(c+1), geo.getM(c), mat, offset3, offset1, gauss_order);
+        operatorS(geo.getM(c+1), geo.getM(c+1), mat, offset3, offset3, gauss_order);
+
+        // Computing N block
+        if (c == 0) {
+            operatorN(geo.getM(c), geo.getM(c), mat, offset0, offset0, gauss_order, offset1, offset1);
+        }
+        operatorN(geo.getM(c+1), geo.getM(c), mat, offset2, offset0, gauss_order, offset3, offset1);
+        operatorN(geo.getM(c+1), geo.getM(c+1), mat, offset2, offset2, gauss_order, offset3, offset3);
+
+        // Computing D block
+        if (c == 0) {
+            operatorD(geo.getM(c), geo.getM(c), mat, offset1, offset0, gauss_order);
+        }
+        if (c != geo.nb()-2) {
+            operatorD(geo.getM(c+1), geo.getM(c), mat, offset3, offset0, gauss_order);
+        }
+        operatorD(geo.getM(c), geo.getM(c+1), mat, offset1, offset2, gauss_order);
+        if (c != geo.nb()-2) {
+            operatorD(geo.getM(c+1), geo.getM(c+1), mat, offset3, offset2, gauss_order);
+        }
+
+        offset = offset2;
+    }
+
+    //Block multiplications
+    //Because only half the Matrix is stored, only the lower part of the Matrix is treated
+    offset=0;
+    double K = 1.0 / (4.0 * M_PI);
+    for(int c=0; c < geo.nb()-1; c++) {
+        int offset0 = offset;
+        int offset1 = offset0 + geo.getM(c).nbPts();
+        int offset2 = offset1 + geo.getM(c).nbTrgs();
+        int offset3 = offset2 + geo.getM(c+1).nbPts();
+        int offset4 = offset3 + geo.getM(c+1).nbTrgs();
+
+        //Each operator is scaled with the appropriate constant
+
+        //Column 1
+        if(c==0) {
+            mult(mat, offset0, offset0, offset1, offset1, (geo.sigma_in(c)+geo.sigma_out(c))*K);
+        }
+        if(c==0) {
+            mult(mat, offset1, offset0, offset2, offset1, -2.0*K);
+        }
+        mult(mat, offset2, offset0, offset3, offset1, (-geo.sigma_out(c))*K);
+        mult(mat, offset3, offset0, offset4, offset1, K);
+
+        //Column 2
+        if(c==0) {
+            mult(mat, offset1, offset1, offset2, offset2, K / geo.sigma_in(c) + K / geo.sigma_out(c));
+        }
+        mult(mat, offset2, offset1, offset3, offset2, K);
+        mult(mat, offset3, offset1, offset4, offset2, -K / geo.sigma_out(c));
+
+        //Column 3
+        mult(mat, offset2, offset2, offset3, offset3, (geo.sigma_in(c+1) + geo.sigma_out(c+1))*K);
+        mult(mat, offset3, offset2, offset4, offset3, -2.0*K);
+
+        //Column 4
+        mult(mat, offset3, offset3, offset4, offset4, K / geo.sigma_in(c+1) + K / geo.sigma_out(c+1));
+
+        offset=offset2;
+    }
+    if (geo.nb()==1) {
+        mult(mat, 0, 0, geo.getM(0).nbPts(), geo.getM(0).nbPts(), geo.sigma_in(0)*K);
+    }
+
+    // Deflate the last diagonal block of new 'mat' :
+    int newsize = geo.size() - geo.getM(geo.nb() - 1).nbTrgs();
+    offset = newsize - geo.getM(geo.nb() - 1).nbPts();
+    deflat(mat, offset, newsize-1, mat(offset, offset) / (newsize - offset));
+
+    mat = mat.submat(0, newsize-1);
+}
+
+void assemble_Surf2Vol(const Geometry& geo, Matrix& mat, Matrix& points)
+{
+    double K = 1.0 / (4.0 * M_PI);
+
+    if (points.ncol() != 4) {
+        std::cerr << " Surf2Vol: Warning no domain information provided! ";
+        std::cerr << "Points are considered to be in the inner volume" << std::endl;
+    }
+
+    // Count number of points per domains
+
+    std::vector<int> nb_pts_per_dom(geo.nb(), 0);
+    for (unsigned i=0; i<points.nlin(); i++) {
+        if (points.ncol() == 3) {
+            ++nb_pts_per_dom[0];
+        } else {
+            int domain = points(i, 3);
+            if (domain >= geo.nb()) {
+                std::cerr << " Surf2Vol: Point " << points.getlin(i);
+                std::cerr << " is outside the head. Point is considered to be in the scalp." << std::endl;
+                points(i, 3) = domain = geo.nb() - 1;
+            }
+            ++nb_pts_per_dom[domain];
+        }
+    }
+
+    std::vector<Matrix> vect_PtsInDom(geo.nb());
+    for (int c=0; c<geo.nb(); ++c) {
+        vect_PtsInDom[c] = Matrix(nb_pts_per_dom[c], 3);
+        int iptd=0;
+        for (unsigned ipt=0; ipt<points.nlin(); ipt++) { // get the points in the domain c
+            if (((points.ncol()==4) && (points(ipt, 3)==c)) || ((points.ncol()==3) && (c==0))) {
+                vect_PtsInDom[c](iptd, 0) = points(ipt, 0);
+                vect_PtsInDom[c](iptd, 1) = points(ipt, 1);
+                vect_PtsInDom[c](iptd++, 2) = points(ipt, 2);
+            }
+        }
+    }
+
+    mat = Matrix(points.nlin(), geo.size() - geo.getM(geo.nb()-1).nbTrgs());
+    mat.set(0.0);
+
+    int offset = 0;
+    int offsetA0 = 0;
+    for (int c=0; c<geo.nb()-1; c++) {
+        const int offset0 = offset;
+        const int offsetA = offsetA0;
+        const int offsetB = offsetA + nb_pts_per_dom[c];
+        const int offset1 = offset + geo.getM(c).nbPts();
+        const int offset2 = offset1 + geo.getM(c).nbTrgs();
+        const int offset3 = offset2 + geo.getM(c+1).nbPts();
+        const int offset4 = offset3 + geo.getM(c+1).nbTrgs();
+
+        // compute DI, i block if necessary.
+        if (c==0) {
+            operatorDinternal(geo.getM(c), mat, offsetA, offset0, vect_PtsInDom[c]);
+            mult(mat, offsetA, offset0, offsetB, offset1,-1.0*K);
+        }
+
+        // compute DI+1, i block.
+        operatorDinternal(geo.getM(c), mat, offsetB, offset0, vect_PtsInDom[c+1]);
+        mult(mat, offsetB, offset0, offsetB+nb_pts_per_dom[c+1], offset1, K);
+
+        // compute DI+1, i+1 block
+        operatorDinternal(geo.getM(c+1), mat, offsetB, offset2, vect_PtsInDom[c+1]);
+        mult(mat, offsetB, offset2, offsetB+nb_pts_per_dom[c+1], offset3, -K);
+
+        // compute SI, i block if necessary.
+        if (c==0) {
+            operatorSinternal(geo.getM(c), mat, offsetA, offset1, vect_PtsInDom[c]);
+            mult(mat, offsetA, offset1, offsetA+nb_pts_per_dom[c], offset2, K / geo.sigma_in(c));
+        }
+
+        // compute SI+1, i block
+        operatorSinternal(geo.getM(c), mat, offsetB, offset1, vect_PtsInDom[c+1]);
+        mult(mat, offsetA+nb_pts_per_dom[c], offset1, offsetB+nb_pts_per_dom[c+1], offset2, -K / geo.sigma_in(c+1));
+
+        if (c<geo.nb()-2) {
+            // compute SI+1, i block
+            operatorSinternal(geo.getM(c+1), mat, offsetB, offset3, vect_PtsInDom[c+1]);
+            mult(mat, offsetB, offset3, offsetB+nb_pts_per_dom[c+1], offset4, K / geo.sigma_in(c+1));
+        }
+        offset = offset2;
+        offsetA0 = offsetA + nb_pts_per_dom[c];
+    }
+}
+
+HeadMat::HeadMat (const Geometry& geo, const int gauss_order)
+{
+    assemble_HM(geo, *this, gauss_order);
+}
+
+Surf2VolMat::Surf2VolMat (const Geometry& geo, Matrix& points)
+{
+    assemble_Surf2Vol(geo, *this, points);
+}
+
+} // namespace OpenMEEG

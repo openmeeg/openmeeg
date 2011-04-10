@@ -49,8 +49,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 using namespace std;
 using namespace OpenMEEG;
 
-int GaussOrder=3;
-//int GaussOrder=0;
+int gauss_order = 3;
 
 void getOutputFilepath(char* ref_filepath, char* output_filename, char* path);
 void getHelp(char** argv);
@@ -97,7 +96,7 @@ int main(int argc, char** argv)
         }
 
         // Assembling Matrix from discretization :
-        HeadMat HM(geo,GaussOrder);
+        HeadMat HM(geo,gauss_order);
         HM.save(argv[4]);
     }
 
@@ -127,7 +126,7 @@ int main(int argc, char** argv)
         mesh_sources.load(argv[4]);
 
         // Assembling Matrix from discretization :
-        SurfSourceMat ssm(geo,mesh_sources,GaussOrder);
+        SurfSourceMat ssm(geo,mesh_sources,gauss_order);
         ssm.save(argv[5]); // if outfile is specified
     }
 
@@ -175,7 +174,7 @@ int main(int argc, char** argv)
             dipoles_in_cortex=false;
         }
 
-        DipSourceMat dsm(geo, dipoles, GaussOrder,adapt_rhs,dipoles_in_cortex);
+        DipSourceMat dsm(geo, dipoles, gauss_order,adapt_rhs,dipoles_in_cortex);
         // Saving RHS Matrix for dipolar case :
         dsm.save(argv[5]);
     }
@@ -211,7 +210,7 @@ int main(int argc, char** argv)
         geo.read(argv[2], argv[3]);
 
         Sensors electrodes(argv[4]);
-        EITSourceMat EITsource(geo, electrodes, GaussOrder);
+        EITSourceMat EITsource(geo, electrodes, gauss_order);
         EITsource.save(argv[5]);
 
     }

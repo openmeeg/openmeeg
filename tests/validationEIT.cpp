@@ -67,7 +67,7 @@ int main(int argc, char** argv)
     Geometry geo;
     geo.read(argv[1],argv[2]);
 
-    int GaussOrder=3;
+    int gauss_order=3;
     int totalsize=geo.size();
     int sourcesize = (geo.getM(geo.nb()-1)).nbTrgs();
     int newsize=totalsize-sourcesize;
@@ -121,7 +121,7 @@ int main(int argc, char** argv)
     injection(0,0) = dirac;
     injection(1,0) = -1.0*dirac;
     
-    EITSourceMat EITsource(geo, electrodes, GaussOrder);
+    EITSourceMat EITsource(geo, electrodes, gauss_order);
     Matrix rhsEIT = EITsource * injection;
     
     Matrix EEGGainMatrix;

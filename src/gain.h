@@ -76,7 +76,7 @@ namespace OpenMEEG {
             using Matrix::operator=;
             GainEEGadjoint (const Geometry& geo,const Matrix& dipoles,const SymMatrix& HeadMat, const SparseMatrix& Head2EEGMat) {
                 Matrix LeadField(Head2EEGMat.nlin(),dipoles.nlin());
-                int GaussOrder=3;
+                int gauss_order=3;
                 #if USE_GMRES
                 Matrix mtemp(Head2EEGMat.nlin(),HeadMat.nlin()); // Consider the GMRes solver for problem with dimension > 15,000 (3,000 vertices per interface) else use LAPACK solver
                 Preconditioner::Jacobi<SymMatrix> M(HeadMat);    // Jacobi preconditionner
@@ -98,7 +98,7 @@ namespace OpenMEEG {
                 mtemp=mtemp.transpose();
                 #endif
                 for (unsigned i=0;i<LeadField.ncol();i++) {
-                    LeadField.setcol(i,mtemp*DipSourceMat(geo,dipoles.submat(i,1,0,dipoles.ncol()),GaussOrder,true,true).getcol(0));
+                    LeadField.setcol(i,mtemp*DipSourceMat(geo,dipoles.submat(i,1,0,dipoles.ncol()),gauss_order,true,true).getcol(0));
                     PROGRESSBAR(i,LeadField.ncol());
                 }
                 *this = LeadField;
@@ -114,7 +114,7 @@ namespace OpenMEEG {
                             const Matrix& Head2MEGMat,
                             const Matrix& Source2MEGMat) {
                 Matrix LeadField(Head2MEGMat.nlin(),dipoles.nlin());
-                int GaussOrder=3;
+                int gauss_order=3;
                 #if USE_GMRES
                 Matrix mtemp(Head2MEGMat.nlin(),HeadMat.nlin()); // Consider the GMRes solver for problem with dimension > 15,000 (3,000 vertices per interface) else use LAPACK solver
                 Preconditioner::Jacobi<SymMatrix> M(HeadMat);    // Jacobi preconditionner
@@ -136,7 +136,7 @@ namespace OpenMEEG {
                 mtemp=mtemp.transpose();
                 #endif
                 for (unsigned i=0;i<LeadField.ncol();i++) {
-                    LeadField.setcol(i,mtemp*DipSourceMat(geo,dipoles.submat(i,1,0,dipoles.ncol()),GaussOrder,true,true).getcol(0)+Source2MEGMat.getcol(i));
+                    LeadField.setcol(i,mtemp*DipSourceMat(geo,dipoles.submat(i,1,0,dipoles.ncol()),gauss_order,true,true).getcol(0)+Source2MEGMat.getcol(i));
                     PROGRESSBAR(i,LeadField.ncol());
                 }
                 *this = LeadField;
