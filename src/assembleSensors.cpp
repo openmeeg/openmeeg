@@ -46,14 +46,14 @@ knowledge of the CeCILL-B license and that you accept its terms.
 namespace OpenMEEG
 {
 
-void assemble_ferguson(const Geometry &geo, Matrix &mat, const Vect3* pts, const int n);
+void assemble_ferguson(const Geometry &geo, Matrix &mat, const Matrix& pts);
 
 // EEG patches positions are reported line by line in the positions Matrix
 // mat is supposed to be filled with zeros
 // mat is the linear application which maps x (the unknown vector in symmetric system) -> v (potential at the electrodes)
 void assemble_Head2EEG(SparseMatrix &mat, const Geometry &geo, const Matrix &positions )
 {
-    int newsize = geo.size()-(geo.getM(geo.nb()-1)).nbTrgs();
+    int newsize = geo.size() - geo.getM(geo.nb()-1).nbTrgs();
     mat = SparseMatrix(positions.nlin(), newsize);
 
     const Mesh& extLayer = geo.getM(geo.nb()-1);
@@ -92,7 +92,7 @@ void assemble_Head2MEG(Matrix &mat, const Geometry &geo, const Sensors &sensors)
     Matrix positions = sensors.getPositions();
     Matrix orientations = sensors.getOrientations();
     const size_t nbIntegrationPoints = sensors.getNumberOfPositions();
-    int p0_p1_size = geo.size()-(geo.getM(geo.nb()-1)).nbTrgs();
+    int p0_p1_size = geo.size() - geo.getM(geo.nb()-1).nbTrgs();
     int geo_number_points = geo.getNumberOfPoints();
 
     mat = Matrix(nbIntegrationPoints, p0_p1_size);
@@ -101,14 +101,7 @@ void assemble_Head2MEG(Matrix &mat, const Geometry &geo, const Sensors &sensors)
     Matrix myFergusonMatrix(3*nbIntegrationPoints, geo_number_points);
     myFergusonMatrix.set(0.0);
 
-    Vect3 *positionsVectArray = new Vect3[nbIntegrationPoints];
-    for(size_t i=0; i<nbIntegrationPoints; i++) {
-        positionsVectArray[i](0) = positions(i,0);
-        positionsVectArray[i](1) = positions(i,1);
-        positionsVectArray[i](2) = positions(i,2);
-    }
-
-    assemble_ferguson(geo, myFergusonMatrix, positionsVectArray, nbIntegrationPoints);
+    assemble_ferguson(geo, myFergusonMatrix, positions);
 
     // Compute indexes of V indexes (P1 elements)
     int* vindex = new int[geo_number_points];
@@ -116,7 +109,7 @@ void assemble_Head2MEG(Matrix &mat, const Geometry &geo, const Sensors &sensors)
     int offset = 0;
     for(int i=0; i<geo.nb(); i++) {
         for(int j=0; j<geo.getM(i).nbPts(); j++) {
-            vindex[count] = count+offset;
+            vindex[count] = count + offset;
             count++;
         }
         offset += geo.getM(i).nbTrgs();
@@ -124,20 +117,16 @@ void assemble_Head2MEG(Matrix &mat, const Geometry &geo, const Sensors &sensors)
 
     for(size_t i=0; i<nbIntegrationPoints; i++) {
         PROGRESSBAR(i, nbIntegrationPoints);
-        #ifdef USE_OMP
-        #pragma omp parallel for
-        #endif
         for(int j=0; j<geo_number_points; j++) {
             Vect3 fergusonField(myFergusonMatrix(3*i, j), myFergusonMatrix(3*i+1, j), myFergusonMatrix(3*i+2, j));
             Vect3 normalizedDirection(orientations(i,0), orientations(i,1), orientations(i,2));
             normalizedDirection.normalize();
-            mat(i, vindex[j]) = fergusonField*normalizedDirection;
+            mat(i, vindex[j]) = fergusonField * normalizedDirection;
         }
     }
 
     mat = sensors.getWeightsMatrix() * mat; // Apply weights
 
-    delete[] positionsVectArray;
     delete[] vindex;
 }
 
