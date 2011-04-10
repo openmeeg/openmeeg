@@ -1,7 +1,7 @@
 /*
 Project Name : OpenMEEG
 
-© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre 
+© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre
 GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU, Théodore PAPADOPOULO,
 Emmanuel OLIVI
 Maureen.Clerc.AT.sophia.inria.fr, keriven.AT.certis.enpc.fr,
@@ -49,13 +49,14 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include "vect3.h"
 #include "mesh3.h"
 
-namespace OpenMEEG {
+namespace OpenMEEG
+{
 
-    const int UnknownPoint=INT_MAX;
-    const double UnknownDist=DBL_MAX;
+const int UnknownPoint = INT_MAX;
+const double UnknownDist = DBL_MAX;
 
-    double dist_point_cell(const Vect3& m, const Vect3 *pts, const Triangle& cell, Vect3& alphas,bool& inside);
-    OPENMEEG_EXPORT double dist_point_mesh(const Vect3& m, const Mesh& mesh, Vect3& alphas, int& nearestNumber);
+double dist_point_cell(const Vect3& m, const Vect3 *pts, const Triangle& cell, Vect3& alphas,bool& inside);
+OPENMEEG_EXPORT double dist_point_mesh(const Vect3& m, const Mesh& mesh, Vect3& alphas, int& nearestNumber);
 }
 
 #endif  //! OPENMEEG_DANIELSSON_H

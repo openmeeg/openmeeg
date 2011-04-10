@@ -1,7 +1,7 @@
 /*
 Project Name : OpenMEEG
 
-© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre 
+© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre
 GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU, Théodore PAPADOPOULO,
 Emmanuel OLIVI
 Maureen.Clerc.AT.sophia.inria.fr, keriven.AT.certis.enpc.fr,
@@ -40,110 +40,103 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include "danielsson.h"
 /* implements an algorithm  proposed in Danielsson, P.-E. Euclidean Distance Mapping. Computer Graphics and Image
 Processing 14, 3 (Nov. 1980), 227-248.
-*/ 
-namespace OpenMEEG {
+*/
+namespace OpenMEEG
+{
 
-    // Distance from m to a cell (indices to pts)
-    // alpha-> barycentric coordinates of closest point
-    // sum(alpha_i)=1
-    // inside: closest point is inside (alpha_i!=0 for all i)
+// Distance from m to a cell (indices to pts)
+// alpha-> barycentric coordinates of closest point
+// sum(alpha_i)=1
+// inside: closest point is inside (alpha_i!=0 for all i)
 
-    // Auxilary Fn : nb points left (for the others alpha=0)
+// Auxilary Fn : nb points left (for the others alpha=0)
 
-    using namespace std;
+using namespace std;
 
-    static double dpc(const Vect3& m, const Vect3 *pts, const Triangle& cell, Vect3& alphas, int nb, int* idx, bool& inside)
-    {
-        if(nb == 1)
-        {
-            alphas(idx[0])=1;
-            return (m-pts[cell[idx[0]]]).norm();
-        }
-        // Solves H=sum(alpha_i A_i), sum(alpha_i)=1, et HM.(A_i-A_0)=0
-        Vect3 A0Ai[3]; // A_i-A_0
-        for( int i=1; i<nb; i++ )
-        {
-            A0Ai[i]=pts[cell[idx[i]]]-pts[cell[idx[0]]];
-        }
-        Vect3 A0M=m-pts[cell[idx[0]]]; // M-A_0
-        if(nb == 2)
-        {
-            alphas(idx[1])=(A0M*A0Ai[1])/(A0Ai[1]*A0Ai[1]);
-            alphas(idx[0])=1-alphas(idx[1]);
-        }
-        else if (nb==3) 
-        {
-            // direct inversion (2x2 linear system)
-            double a00=A0Ai[1]*A0Ai[1];
-            double a10=A0Ai[1]*A0Ai[2];
-            double a11=A0Ai[2]*A0Ai[2];
-            double b0=A0M*A0Ai[1];
-            double b1=A0M*A0Ai[2];
-            double d=a00*a11-a10*a10;
-            assert(d!=0);
-            alphas(idx[1])=(b0*a11-b1*a10)/d;
-            alphas(idx[2])=(a00*b1-a10*b0)/d;
-            alphas(idx[0])=1-alphas(idx[1])-alphas(idx[2]);
-        }
-        else
-        {
-            // 3 unknowns or more -> solve system
-            //  Ax=b with: A(i,j)=A0Ai.AjA0, x=(alpha_1,alpha_2, ...), b=A0M.A0Ai
-            cerr << "Error : dim>=4 in danielsson !" << endl;
-            exit(0);
-        }
-        // If alpha_i<0 -> brought to 0 and recursion
-        // NB: also takes care of alpha > 1 because if alpha_i>1 then alpha_j<0 for at least one j
-        for (int i=0;i<nb;i++)
-        {
-            if (alphas(idx[i])<0)
-            {
-                inside=false;
-                alphas(idx[i])=0;
-                swap(idx[i],idx[nb-1]);
-                return dpc(m,pts,cell,alphas,nb-1,idx,inside);
-            }
-        }
-        // Sinon: distance HM
-        Vect3 MH=-A0M;
-        for (int i=1;i<nb;i++)
-        {
-            MH=MH+alphas(idx[i])*A0Ai[i];
-        }
-        return MH.norm();
+static double dpc(const Vect3& m, const Vect3 *pts, const Triangle& cell, Vect3& alphas, int nb, int* idx, bool& inside)
+{
+    if(nb == 1) {
+        alphas(idx[0]) = 1.0;
+        return (m - pts[cell[idx[0]]]).norm();
     }
-
-    // Main Function
-    double dist_point_cell(const Vect3& m, const Vect3 *pts, const Triangle& cell, Vect3& alphas, bool& inside)
-    {
-        int idx[3] = {0,1,2};
-        inside = true;
-        return dpc(m,pts,cell,alphas,3,idx,inside);
+    // Solves H=sum(alpha_i A_i), sum(alpha_i)=1, et HM.(A_i-A_0)=0
+    Vect3 A0Ai[3]; // A_i-A_0
+    for(int i=1; i<nb; i++) {
+        A0Ai[i] = pts[cell[idx[i]]] - pts[cell[idx[0]]];
     }
-
-    static inline int sgn(double s) { return (s>0)?1:(s<0)?-1:0; }
-
-    double dist_point_mesh(const Vect3& m, const Mesh& mesh, Vect3& alphas, int& nearestNumber)
-    {
-        double distmin = DBL_MAX;
-        Triangle t;
-        bool inside;
-        double distance;
-        Vect3 alphasLoop;
-
-        for(int i=0; i<mesh.nbTrgs(); i++)
-        {
-            t = mesh.getTrg(i);
-            distance = dist_point_cell(m,&mesh.getPt(0),t,alphasLoop,inside);
-            if(distance < distmin)
-            {
-                distmin = distance;
-                nearestNumber = i;
-                alphas = alphasLoop;
-            }
+    Vect3 A0M = m - pts[cell[idx[0]]]; // M-A_0
+    if(nb == 2) {
+        alphas(idx[1]) = (A0M * A0Ai[1]) / (A0Ai[1] * A0Ai[1]);
+        alphas(idx[0]) = 1.0 - alphas(idx[1]);
+    } else if (nb==3) {
+        // direct inversion (2x2 linear system)
+        double a00 = A0Ai[1] * A0Ai[1];
+        double a10 = A0Ai[1] * A0Ai[2];
+        double a11 = A0Ai[2] * A0Ai[2];
+        double b0 = A0M * A0Ai[1];
+        double b1 = A0M * A0Ai[2];
+        double d = a00 * a11 - a10 * a10;
+        assert(d != 0);
+        alphas(idx[1]) = (b0 * a11 - b1 * a10) / d;
+        alphas(idx[2]) = (a00 * b1 - a10 * b0) / d;
+        alphas(idx[0]) = 1.0 - alphas(idx[1]) - alphas(idx[2]);
+    } else {
+        // 3 unknowns or more -> solve system
+        //  Ax=b with: A(i, j)=A0Ai.AjA0, x=(alpha_1, alpha_2, ...), b=A0M.A0Ai
+        cerr << "Error : dim>=4 in danielsson !" << endl;
+        exit(0);
+    }
+    // If alpha_i<0 -> brought to 0 and recursion
+    // NB: also takes care of alpha > 1 because if alpha_i>1 then alpha_j<0 for at least one j
+    for (int i=0; i<nb; i++) {
+        if (alphas(idx[i])<0) {
+            inside = false;
+            alphas(idx[i]) = 0;
+            swap(idx[i], idx[nb-1]);
+            return dpc(m, pts, cell, alphas, nb-1, idx, inside);
         }
-
-        return distmin;
     }
+    // Sinon: distance HM
+    Vect3 MH = -A0M;
+    for (int i=1; i<nb; i++) {
+        MH = MH + alphas(idx[i]) * A0Ai[i];
+    }
+    return MH.norm();
 }
+
+// Main Function
+double dist_point_cell(const Vect3& m, const Vect3 *pts, const Triangle& cell, Vect3& alphas, bool& inside)
+{
+    int idx[3] = {0, 1, 2};
+    inside = true;
+    return dpc(m, pts, cell, alphas, 3, idx, inside);
+}
+
+static inline int sgn(double s)
+{
+    return (s>0) ? 1 : (s<0) ? -1: 0;
+}
+
+double dist_point_mesh(const Vect3& m, const Mesh& mesh, Vect3& alphas, int& nearestNumber)
+{
+    double distmin = DBL_MAX;
+    Triangle t;
+    bool inside;
+    double distance;
+    Vect3 alphasLoop;
+
+    for(int i=0; i<mesh.nbTrgs(); i++) {
+        t = mesh.getTrg(i);
+        distance = dist_point_cell(m, &mesh.getPt(0), t, alphasLoop, inside);
+        if(distance < distmin) {
+            distmin = distance;
+            nearestNumber = i;
+            alphas = alphasLoop;
+        }
+    }
+
+    return distmin;
+}
+
+} // end namespace OpenMEEG
 

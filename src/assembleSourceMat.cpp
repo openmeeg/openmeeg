@@ -246,4 +246,5 @@ DipSource2InternalPotMat::DipSource2InternalPotMat(Geometry& geo, const Matrix& 
 {
     assemble_DipSource2InternalPotMat(*this, geo, dipoles, points, dipoles_in_cortex);
 }
-}
+
+} // end namespace OpenMEEG
