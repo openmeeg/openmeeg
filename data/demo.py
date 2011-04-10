@@ -131,8 +131,6 @@ ai_vector = mesh.areas()
 meg_inverse_mn = om.MN_inverse(est_meg, gain_meg_dip, smooth_weight)
 meg_inverse_heat = om.HEAT_inverse(est_meg, gain_meg_dip, smooth_matrix,
                                     smooth_weight)
-meg_inverse_tv = om.TV_inverse(est_meg, gain_meg_dip, smooth_matrix, ai_vector,
-                                                smooth_weight, max_iter, tol)
 
 ###############################################################################
 # Example of basic manipulations

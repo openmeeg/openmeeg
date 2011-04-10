@@ -107,8 +107,6 @@ FUNCTION(TESTHEAD HEADNUM)
                       DEPENDS ${DEPENDENCIES})
         OPENMEEG_TEST(EEG-MN-${SUBJECT}   ${INVERSE} ${SGEMMAT} ${SMOOTH} ${AREAS} ${ESTEEG} ${EEGINVBASE}-mn.est_src 1e-4 MN
                       DEPENDS ${DEPENDENCIES})
-        OPENMEEG_TEST(EEG-TV-${SUBJECT}   ${INVERSE} ${SGEMMAT} ${SMOOTH} ${AREAS} ${ESTEEG} ${EEGINVBASE}-tv.est_src 1e-4 TV 10000 0.0
-                      DEPENDS ${DEPENDENCIES})
     ENDIF()
 
     ############ MEG TEST ##############
@@ -131,13 +129,11 @@ FUNCTION(TESTHEAD HEADNUM)
                       DEPENDS SurfGainMEG-${SUBJECT})
 
         #------ INVERSE -----#
-        #
+
         SET(DEPENDENCIES AI-${SUBJECT} ESTMEG-${SUBJECT})
         OPENMEEG_TEST(MEG-HEAT-${SUBJECT} ${INVERSE} ${SGMMMAT} ${SMOOTH} ${AREAS} ${ESTMEG} ${MEGINVBASE}-heat.est_src 1e-4 HEAT
                       DEPENDS ${DEPENDENCIES})
         OPENMEEG_TEST(MEG-MN-${SUBJECT}   ${INVERSE} ${SGMMMAT} ${SMOOTH} ${AREAS} ${ESTMEG} ${MEGINVBASE}-mn.est_src 1e-4 MN
-                      DEPENDS ${DEPENDENCIES})
-        OPENMEEG_TEST(MEG-TV-${SUBJECT}   ${INVERSE} ${SGMMMAT} ${SMOOTH} ${AREAS} ${ESTMEG} ${MEGINVBASE}-tv.est_src 1e-4 TV 10000 0.0
                       DEPENDS ${DEPENDENCIES})
     ENDIF()
 

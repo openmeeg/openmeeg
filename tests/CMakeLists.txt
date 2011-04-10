@@ -2,16 +2,16 @@ INCLUDE(ComparisonTest)
 
 SET_FILE_PROPERTIES(Suffix
     "HM .hm" "HMInv .hm_inv" "SSM .ssm" "v2eeg .h2em" "SurfGainEEG .sgem"
-    "EEGEST .est_eeg" "EEGadjointEST .est_eegadjoint" "MEGadjointEST .est_megadjoint" "EEG-HEAT -eeg-heat.est_src" "EEG-MN -eeg-mn.est_src" "EEG-TV -eeg-tv.est_src"
+    "EEGEST .est_eeg" "EEGadjointEST .est_eegadjoint" "MEGadjointEST .est_megadjoint" "EEG-HEAT -eeg-heat.est_src" "EEG-MN -eeg-mn.est_src"
     "Head2MEGMat .h2mm" "SurfSource2MEGMat .ss2mm" "SurfGainMEG .sgmm" "MEGEST .est_meg"
-    "MEG-HEAT -meg-heat.est_src" "MEG-MN -meg-mn.est_src" "MEG-TV -meg-tv.est_src"
+    "MEG-HEAT -meg-heat.est_src" "MEG-MN -meg-mn.est_src"
 )
 
 SET_FILE_PROPERTIES(CompareOptions
     "HM -sym" "HMInv -sym" "SSM -full:-if1:binary:-if2:binary" "v2eeg -if:binary:-sparse"
-    "SurfGainEEG -full" "EEGEST -full" "EEG-HEAT -full:-eps:0.02" "EEG-MN -full" "EEG-TV -full:-eps:0.0001"
+    "SurfGainEEG -full" "EEGEST -full" "EEG-HEAT -full:-eps:0.02" "EEG-MN -full"
     "Head2MEGMat -full" "SurfSource2MEGMat -full" "SurfGainMEG -full" "MEGEST -full"
-    "MEG-HEAT -full:-eps:0.02" "MEG-MN -full" "MEG-TV -full"
+    "MEG-HEAT -full:-eps:0.02" "MEG-MN -full"
 )
 
 ############ IO TEST ##############
@@ -34,8 +34,8 @@ NEW_EXECUTABLE(om_validationEIT validationEIT.cpp ${OPEMEEG_HEADERS}
 
 ############ TEST COMMON RESULTS ON HEAD1 (Regression test) ##############
 
-SET(COMPARISONS HM HMInv SSM v2eeg SurfGainEEG EEGEST EEG-HEAT EEG-MN EEG-TV
-                Head2MEGMat SurfSource2MEGMat SurfGainMEG MEGEST MEG-HEAT MEG-MN MEG-TV
+SET(COMPARISONS HM HMInv SSM v2eeg SurfGainEEG EEGEST EEG-HEAT EEG-MN
+                Head2MEGMat SurfSource2MEGMat SurfGainMEG MEGEST MEG-HEAT MEG-MN
 )
 
 FOREACH (COMPARISON ${COMPARISONS})
