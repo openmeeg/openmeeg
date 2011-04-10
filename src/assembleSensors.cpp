@@ -199,67 +199,35 @@ namespace OpenMEEG {
     //MEG patches positions are reported line by line in the positions Matrix (same for positions)
     //mat is supposed to be filled with zeros
     //sources is the name of a file containing the description of the sources - one dipole per line: x1 x2 x3 n1 n2 n3, x being the position and n the orientation.
-    void assemble_DipSource2MEG( Matrix &mat, const Matrix& dipoles, const Sensors &sensors)
+    void assemble_DipSource2MEG(Matrix &mat, const Matrix& dipoles, const Sensors &sensors)
     {
         Matrix positions = sensors.getPositions();
         Matrix orientations = sensors.getOrientations();
 
-        mat = Matrix(positions.nlin(),dipoles.nlin());
-
-        if(dipoles.ncol()!=6) {std::cerr<<"Dipoles File Format Error"<<std::endl; exit(1);}
-        int nd=(int)dipoles.nlin();
-        std::vector<Vect3> Rs,Qs;
-        for(int i=0;i<nd;i++)
-        {
-            Vect3 r(3),q(3);
-            for(int j=0;j<3;j++) r(j)=dipoles(i,j);
-            for(int j=3;j<6;j++) q(j-3)=dipoles(i,j);
-            Rs.push_back(r); Qs.push_back(q);
+        if (dipoles.ncol() != 6) {
+            std::cerr << "Dipoles File Format Error" << std::endl;
+            exit(1);
         }
-        //Rs and Qs respectively contains positions and orientations of the dipoles.
 
-        //this Matrix will contain the field generated at the location of the i-th squid by the j-th source
-        Matrix SignalMatrix(3*mat.nlin(),mat.ncol());
-        SignalMatrix.set(0.0);
-        const int nsquids=(int)positions.nlin();
-        Vect3 *positionsVectArray=new Vect3[nsquids];
-
-        for(int i=0;i<nsquids;i++)
-        {
-            positionsVectArray[i](0)=positions(i,0);
-            positionsVectArray[i](1)=positions(i,1);
-            positionsVectArray[i](2)=positions(i,2);
-        }
+        // this Matrix will contain the field generated at the location of the i-th squid by the j-th source
+        mat = Matrix(positions.nlin(), dipoles.nlin());
 
         // the following routine is the equivalent of operatorFerguson for pointlike dipoles.
-        for(size_t i=0;i<mat.nlin();i++)
-        {
-            for(unsigned int j=0;j<mat.ncol();j++)
-            {
-                Vect3 diff = positionsVectArray[i]-Rs[j];
+        for(size_t i=0; i < mat.nlin(); i++) {
+            for(size_t j=0; j < mat.ncol(); j++) {
+                Vect3 r(dipoles(j,0), dipoles(j,1), dipoles(j,2));
+                Vect3 q(dipoles(j,3), dipoles(j,4), dipoles(j,5));
+                Vect3 diff(positions(i,0), positions(i,1), positions(i,2));
+                diff -= r;
                 double norm_diff = diff.norm();
-                Vect3 v = Qs[j] ^ diff/(norm_diff*norm_diff*norm_diff);
-
-                SignalMatrix(3*i+0,j) = v.x();
-                SignalMatrix(3*i+1,j) = v.y();
-                SignalMatrix(3*i+2,j) = v.z();
-            }
-        }
-
-        for(size_t i=0;i<mat.nlin();i++)
-        {
-            for(size_t j=0;j<mat.ncol();j++)
-            {
-                Vect3 fergusonField(SignalMatrix(3*i,j),SignalMatrix(3*i+1,j),SignalMatrix(3*i+2,j));
-                Vect3 normalizedDirection(orientations(i,0),orientations(i,1),orientations(i,2));
+                Vect3 fergusonField = q ^ diff / (norm_diff * norm_diff * norm_diff);
+                Vect3 normalizedDirection(orientations(i,0), orientations(i,1), orientations(i,2));
                 normalizedDirection.normalize();
-                mat(i,j)=fergusonField*normalizedDirection*MU0/(4*M_PI);
+                mat(i,j) = fergusonField * normalizedDirection * MU0 / (4.0 * M_PI);
             }
         }
 
         mat = sensors.getWeightsMatrix() * mat; // Apply weights
-
-        delete[] positionsVectArray;
     }
 
     DipSource2MEGMat::DipSource2MEGMat(const Matrix &dipoles, const Sensors &sensors) {
