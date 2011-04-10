@@ -154,41 +154,28 @@ namespace OpenMEEG {
     {
         Matrix positions = sensors.getPositions();
         Matrix orientations = sensors.getOrientations();
+        const int nsquids = (int) positions.nlin();
 
-        mat = Matrix(positions.nlin(),sources_mesh.nbPts());
+        mat = Matrix(nsquids, sources_mesh.nbPts());
         mat.set(0.0);
 
-        Matrix myFergusonMatrix(3*mat.nlin(),mat.ncol());
+        Matrix myFergusonMatrix(3, mat.ncol());
         myFergusonMatrix.set(0.0);
-        const int nsquids=(int)positions.nlin();
-        Vect3 *positionsVectArray=new Vect3[nsquids];
 
-        for(int i=0;i<nsquids;i++)
-        {
-            positionsVectArray[i](0)=positions(i,0);
-            positionsVectArray[i](1)=positions(i,1);
-            positionsVectArray[i](2)=positions(i,2);
-        }
-
-        for(size_t i=0;i<mat.nlin();i++) {
-            PROGRESSBAR(i,mat.nlin());
-            operatorFerguson(positionsVectArray[i],sources_mesh,myFergusonMatrix,3*(int)i,0);
-        }
-
-        for(size_t i=0;i<mat.nlin();i++)
-        {
+        for(size_t i=0; i < nsquids; i++) {
+            PROGRESSBAR(i, nsquids);
+            Vect3 p(positions(i,0), positions(i,1), positions(i,2));
+            operatorFerguson(p, sources_mesh, myFergusonMatrix, 0, 0);
             for(size_t j=0;j<mat.ncol();j++)
             {
-                Vect3 fergusonField(myFergusonMatrix(3*i,j),myFergusonMatrix(3*i+1,j),myFergusonMatrix(3*i+2,j));
-                Vect3 normalizedDirection(orientations(i,0),orientations(i,1),orientations(i,2));
+                Vect3 fergusonField(myFergusonMatrix(0,j),myFergusonMatrix(1,j),myFergusonMatrix(2,j));
+                Vect3 normalizedDirection(orientations(i,0), orientations(i,1), orientations(i,2));
                 normalizedDirection.normalize();
-                mat(i,j)=fergusonField*normalizedDirection;
+                mat(i,j) = fergusonField * normalizedDirection;
             }
         }
 
         mat = sensors.getWeightsMatrix() * mat; // Apply weights
-
-        delete[] positionsVectArray;
     }
 
     SurfSource2MEGMat::SurfSource2MEGMat(const Mesh &sources_mesh, const Sensors &sensors) {
