@@ -1,7 +1,7 @@
 /*
 OpenMEEG
 
-© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre 
+© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre
 GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU, Théodore PAPADOPOULO,
 Emmanuel OLIVI
 Maureen.Clerc.AT.sophia.inria.fr, keriven.AT.certis.enpc.fr,
@@ -39,7 +39,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 */
 // This program is a test used to validate the EIT.
 // see 'Boundary Element Method for Electrical Impedance Tomography' for more details.
-// We check if q.Grad(Vj(r0)) equals Vf(ri)-Vf(re) 
+// We check if q.Grad(Vj(r0)) equals Vf(ri)-Vf(re)
 // Vf solution of classical forward problem for a dipole of momentum q at r0 whereas
 // Vj is the solution of the EIT problem for injections at ri and re
 
@@ -59,21 +59,21 @@ int main(int argc, char** argv)
         std::cerr << " -h\" or \"" << argv[0] << " --help \" \n" << std::endl;
         return 0;
     }
-    if ((!strcmp(argv[1],"-h")) | (!strcmp(argv[1],"--help"))) {
+    if ((!strcmp(argv[1], "-h")) | (!strcmp(argv[1], "--help"))) {
         getHelp(argv);
         return 0;
     }
 
     Geometry geo;
-    geo.read(argv[1],argv[2]);
+    geo.read(argv[1], argv[2]);
 
-    int gauss_order=3;
-    int totalsize=geo.size();
-    int sourcesize = (geo.getM(geo.nb()-1)).nbTrgs();
-    int newsize=totalsize-sourcesize;
-    double delta=0.001;// For the discretization of Grad V
-    double dirac=1.; // The injection current
-    
+    int gauss_order = 3;
+    int totalsize = geo.size();
+    int sourcesize = geo.getM(geo.nb()-1).nbTrgs();
+    int newsize = totalsize - sourcesize;
+    double delta = 0.001;// For the discretization of Grad V
+    double dirac = 1.0; // The injection current
+
     Matrix dipoles;
     dipoles.load(argv[3]);
     int ndip=dipoles.nlin();
@@ -94,95 +94,95 @@ int main(int argc, char** argv)
     Matrix& electrodes_positions = electrodes.getPositions();
 
     // We want the potential on the external surface
-    Matrix PotExt = HeadMatInv(newsize-geo.getM(geo.nb()-1).nbPts(),newsize-1,0,newsize-1);
+    Matrix PotExt = HeadMatInv(newsize-geo.getM(geo.nb()-1).nbPts(), newsize-1, 0, newsize-1);
     PotExt = PotExt*SourceMatrix;
-    
+
     Vect3 current_position; //buffer for electrodes positions
     Vect3 current_alphas;
     int current_nearest_triangle; // buffer for closest triangle to electrode
-    SparseMatrix matH2E(electrodes.getNumberOfSensors(), (geo.getM(geo.nb()-1)).nbPts()); // Matrices Head2Electrodes
-    
+    SparseMatrix matH2E(electrodes.getNumberOfSensors(), geo.getM(geo.nb()-1).nbPts()); // Matrices Head2Electrodes
+
     // find triangle closest to the electrodes
-    for(int ielec=0;ielec<nelec;ielec++){
-        for(int k=0;k<3;k++) {
+    for(int ielec=0; ielec<nelec; ielec++) {
+        for(int k=0; k<3; k++) {
             current_position(k) = electrodes_positions(ielec, k);
         }
-        dist_point_mesh(current_position,geo.getM(geo.nb()-1),current_alphas,current_nearest_triangle);
-        matH2E(ielec,geo.getM(geo.nb()-1).getTrg(current_nearest_triangle).s1()) = current_alphas(0);
-        matH2E(ielec,geo.getM(geo.nb()-1).getTrg(current_nearest_triangle).s2()) = current_alphas(1);
-        matH2E(ielec,geo.getM(geo.nb()-1).getTrg(current_nearest_triangle).s3()) = current_alphas(2);
+        dist_point_mesh(current_position, geo.getM(geo.nb()-1), current_alphas, current_nearest_triangle);
+        matH2E(ielec, geo.getM(geo.nb()-1).getTrg(current_nearest_triangle).s1()) = current_alphas(0);
+        matH2E(ielec, geo.getM(geo.nb()-1).getTrg(current_nearest_triangle).s2()) = current_alphas(1);
+        matH2E(ielec, geo.getM(geo.nb()-1).getTrg(current_nearest_triangle).s3()) = current_alphas(2);
     }
-    
-    Vector VRi,VRe; // Potential at the electrodes positions
+
+    Vector VRi, VRe; // Potential at the electrodes positions
     VRi=(matH2E*PotExt).getlin(0);
     VRe=(matH2E*PotExt).getlin(1);
-    
-    Matrix injection(nelec,1);
-    injection(0,0) = dirac;
-    injection(1,0) = -1.0*dirac;
-    
+
+    Matrix injection(nelec, 1);
+    injection(0, 0) = dirac;
+    injection(1, 0) = -1.0*dirac;
+
     EITSourceMat EITsource(geo, electrodes, gauss_order);
     Matrix rhsEIT = EITsource * injection;
-    
+
     Matrix EEGGainMatrix;
     // Surf2Vol
-    Matrix points(ndip,3);
-    points.setcol(0,dipoles.getcol(0));
-    points.setcol(1,dipoles.getcol(1));
-    points.setcol(2,dipoles.getcol(2));
+    Matrix points(ndip, 3);
+    points.setcol(0, dipoles.getcol(0));
+    points.setcol(1, dipoles.getcol(1));
+    points.setcol(2, dipoles.getcol(2));
     {
-        Surf2VolMat mat(geo,points);
+        Surf2VolMat mat(geo, points);
         EEGGainMatrix.set(0.0);
-        EEGGainMatrix = mat*HeadMatInv(0,mat.ncol()-1,0,HeadMatInv.ncol()-1);
+        EEGGainMatrix = mat*HeadMatInv(0, mat.ncol()-1, 0, HeadMatInv.ncol()-1);
     }
-    Vector VR0 = (EEGGainMatrix*rhsEIT).getcol(0);
-    
-    Matrix pointsdelta(ndip,3);
+    Vector VR0 = (EEGGainMatrix * rhsEIT).getcol(0);
+
+    Matrix pointsdelta(ndip, 3);
     // Surf2Vol en dx
-    for (int j=0;j<3;j++) {
-        pointsdelta.setcol(j,points.getcol(j));
+    for (int j=0; j<3; j++) {
+        pointsdelta.setcol(j, points.getcol(j));
     }
-    pointsdelta.setcol(0,points.getcol(0)+delta);
+    pointsdelta.setcol(0, points.getcol(0)+delta);
     {
-        Surf2VolMat matdx(geo,pointsdelta);
+        Surf2VolMat matdx(geo, pointsdelta);
         EEGGainMatrix.set(0.0);
-        EEGGainMatrix = matdx*HeadMatInv(0,matdx.ncol()-1,0,HeadMatInv.ncol()-1);
+        EEGGainMatrix = matdx*HeadMatInv(0, matdx.ncol()-1, 0, HeadMatInv.ncol()-1);
     }
-    Vector VR0dx = (EEGGainMatrix*rhsEIT).getcol(0);
+    Vector VR0dx = (EEGGainMatrix * rhsEIT).getcol(0);
     // Surf2Vol en dy
     pointsdelta.set(0.0);
-    for (int j=0;j<3;j++) {
-        pointsdelta.setcol(j,points.getcol(j));
+    for (int j=0; j<3; j++) {
+        pointsdelta.setcol(j, points.getcol(j));
     }
-    pointsdelta.setcol(1,points.getcol(1)+delta);
+    pointsdelta.setcol(1, points.getcol(1)+delta);
     {
-        Surf2VolMat matdy(geo,pointsdelta);
+        Surf2VolMat matdy(geo, pointsdelta);
         EEGGainMatrix.set(0.0);
-        EEGGainMatrix = matdy*HeadMatInv(0,matdy.ncol()-1,0,HeadMatInv.ncol()-1);
+        EEGGainMatrix = matdy * HeadMatInv(0, matdy.ncol()-1, 0, HeadMatInv.ncol()-1);
     }
-    Vector VR0dy = (EEGGainMatrix*rhsEIT).getcol(0);
+    Vector VR0dy = (EEGGainMatrix * rhsEIT).getcol(0);
     // Surf2Vol en dz
-    for (int j=0;j<3;j++) {
-        pointsdelta.setcol(j,points.getcol(j));
+    for (int j=0; j<3; j++) {
+        pointsdelta.setcol(j, points.getcol(j));
     }
-    pointsdelta.setcol(2,points.getcol(2)+delta);
+    pointsdelta.setcol(2, points.getcol(2)+delta);
     {
-        Surf2VolMat matdz(geo,pointsdelta);
+        Surf2VolMat matdz(geo, pointsdelta);
         EEGGainMatrix.set(0.0);
-        EEGGainMatrix = matdz*HeadMatInv(0,matdz.ncol()-1,0,HeadMatInv.ncol()-1);
+        EEGGainMatrix = matdz*HeadMatInv(0, matdz.ncol()-1, 0, HeadMatInv.ncol()-1);
     }
-    Vector VR0dz = (EEGGainMatrix*rhsEIT).getcol(0);
-    
-    Matrix gradVj(ndip,3);
-    gradVj.setcol(0,((VR0dx-VR0)/delta));
-    gradVj.setcol(1,((VR0dy-VR0)/delta));
-    gradVj.setcol(2,((VR0dz-VR0)/delta));
-    Matrix qgradVj(1,ndip);
-    Matrix diffVf(1,ndip);
-    for (int i =0;i<ndip;i++) {
-        qgradVj(0,i)=dipoles(i,3)*gradVj(i,0)+dipoles(i,4)*gradVj(i,1)+dipoles(i,5)*gradVj(i,2);
+    Vector VR0dz = (EEGGainMatrix * rhsEIT).getcol(0);
+
+    Matrix gradVj(ndip, 3);
+    gradVj.setcol(0, ((VR0dx-VR0)/delta));
+    gradVj.setcol(1, ((VR0dy-VR0)/delta));
+    gradVj.setcol(2, ((VR0dz-VR0)/delta));
+    Matrix qgradVj(1, ndip);
+    Matrix diffVf(1, ndip);
+    for (int i =0; i<ndip; i++) {
+        qgradVj(0, i) = dipoles(i, 3) * gradVj(i, 0) + dipoles(i, 4) * gradVj(i, 1) + dipoles(i, 5) * gradVj(i, 2);
     }
-    diffVf.setlin(0,VRi-VRe);
+    diffVf.setlin(0, VRi-VRe);
     qgradVj.save(argv[6]);
     diffVf.save(argv[7]);
     return 0;
