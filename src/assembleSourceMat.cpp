@@ -37,7 +37,6 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#include <vector>
 #if WIN32
 #define _USE_MATH_DEFINES
 #endif
@@ -86,22 +85,25 @@ SurfSourceMat::SurfSourceMat (const Geometry &geo, const Mesh& sources, const in
     assemble_SurfSourceMat(*this, geo, sources, gauss_order);
 }
 
-void assemble_DipSourceMat(Matrix &rhs, const Geometry &geo, vector<Vect3> Rs, vector<Vect3> Qs,
+void assemble_DipSourceMat(Matrix &rhs, const Geometry &geo, const Matrix &dipoles,
                            const int gauss_order, const bool adapt_rhs, const bool dipoles_in_cortex)
 {
     int newsize = geo.size()-(geo.getM(geo.nb()-1)).nbTrgs();
-    rhs = Matrix(newsize, Qs.size());
+    size_t n_dipoles = dipoles.nlin();
+    rhs = Matrix(newsize, n_dipoles);
 
-    double K = 1.0 / (4*M_PI);
+    double K = 1.0 / (4 * M_PI);
 
     // First block is nVertexFistLayer
     rhs.set(0);
     Vector prov(rhs.nlin());
-    for (size_t s=0; s < Qs.size(); s++) {
-        PROGRESSBAR(s, Qs.size());
+    for (size_t s=0; s < n_dipoles; s++) {
+        PROGRESSBAR(s, n_dipoles);
+        Vect3 r(dipoles(s, 0), dipoles(s, 1), dipoles(s, 2));
+        Vect3 q(dipoles(s, 3), dipoles(s, 4), dipoles(s, 5));
         unsigned domainID = 0;
         if (!dipoles_in_cortex) {
-            domainID = geo.getDomain(Rs[s]); // domain containing the dipole
+            domainID = geo.getDomain(r); // domain containing the dipole
         }
         double sigma = geo.sigma_in(domainID);
         unsigned istart = 0;
@@ -113,27 +115,27 @@ void assemble_DipSourceMat(Matrix &rhs, const Geometry &geo, vector<Vect3> Rs, v
             // -first we treat the internal surface
             int nVertexLayer = geo.getM(domainID-1).nbPts();
             int nFacesLayer = geo.getM(domainID-1).nbTrgs();
-            operatorDipolePotDer(Rs[s], Qs[s], geo.getM(domainID-1), prov, istart, gauss_order, adapt_rhs);
+            operatorDipolePotDer(r, q, geo.getM(domainID-1), prov, istart, gauss_order, adapt_rhs);
             for(unsigned i = istart; i < istart+nVertexLayer; i++) {
                 prov(i) *= -K;
             }
-            operatorDipolePot(Rs[s], Qs[s], geo.getM(domainID-1), prov, istart+nVertexLayer, gauss_order, adapt_rhs);
-            for(unsigned i = istart+nVertexLayer; i < istart+nVertexLayer+nFacesLayer; i++) {
-                prov(i) *= (K/sigma);
+            operatorDipolePot(r, q, geo.getM(domainID-1), prov, istart + nVertexLayer, gauss_order, adapt_rhs);
+            for(unsigned i = istart + nVertexLayer; i < istart + nVertexLayer + nFacesLayer; i++) {
+                prov(i) *= (K / sigma);
             }
-            istart+=nVertexLayer+nFacesLayer;
+            istart += nVertexLayer + nFacesLayer;
         }
         // -second we treat the external surface
         int nVertexLayer = geo.getM(domainID).nbPts();
         int nFacesLayer = geo.getM(domainID).nbTrgs();
         // Block is nVertexLayer
-        operatorDipolePotDer(Rs[s], Qs[s], geo.getM(domainID), prov, istart, gauss_order, adapt_rhs);
+        operatorDipolePotDer(r, q, geo.getM(domainID), prov, istart, gauss_order, adapt_rhs);
         for(unsigned i = istart; i < istart+nVertexLayer; i++) {
             prov(i) *= K;
         }
         // Block is nFaceLayer
-        if(geo.nb() > (domainID+1)) {
-            operatorDipolePot(Rs[s], Qs[s], geo.getM(domainID), prov, istart+nVertexLayer, gauss_order, adapt_rhs);
+        if(geo.nb() > (domainID + 1)) {
+            operatorDipolePot(r, q, geo.getM(domainID), prov, istart+nVertexLayer, gauss_order, adapt_rhs);
             for(unsigned i = istart+nVertexLayer; i < istart+nVertexLayer+nFacesLayer; i++) {
                 prov(i) *= (-K/sigma);
             }
@@ -145,18 +147,7 @@ void assemble_DipSourceMat(Matrix &rhs, const Geometry &geo, vector<Vect3> Rs, v
 DipSourceMat::DipSourceMat(const Geometry &geo, const Matrix& dipoles, const int gauss_order,
                             const bool adapt_rhs, const bool dipoles_in_cortex)
 {
-    vector<Vect3> Rs, Qs;
-
-    // Assembling Matrix from discretization :
-    unsigned int nd = (unsigned int) dipoles.nlin();
-    for( unsigned int i=0; i < nd; i++ ) {
-        Vect3 r(dipoles(i, 0), dipoles(i, 1), dipoles(i, 2));
-        Vect3 q(dipoles(i, 3), dipoles(i, 4), dipoles(i, 5));
-        Rs.push_back(r);
-        Qs.push_back(q);
-    }
-
-    assemble_DipSourceMat(*this, geo, Rs, Qs, gauss_order, adapt_rhs, dipoles_in_cortex);
+    assemble_DipSourceMat(*this, geo, dipoles, gauss_order, adapt_rhs, dipoles_in_cortex);
 }
 
 void assemble_EITSourceMat(Matrix &mat, const Geometry &geo, Matrix &positions, const int gauss_order)
