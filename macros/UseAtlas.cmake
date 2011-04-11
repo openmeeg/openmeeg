@@ -33,11 +33,13 @@ IF (USE_MKL)
 
         FIND_PATH(MKL_INCLUDE_PATH mkl.h ${MKL_ROOT_DIR}/include)
 
-        IF (MKL_INCLUDE_PATH MATCHES "10.")
-            SET(MKL_LIBS mkl_solver mkl_core mkl_intel_c mkl_intel_s mkl_intel_thread libguide mkl_lapack95 mkl_blas95)
-        ELSEIF (MKL_INCLUDE_PATH MATCHES "11.")
-            SET(MKL_LIBS mkl_solver mkl_core mkl_intel_c mkl_intel_s mkl_intel_thread libguide mkl_lapack95 mkl_blas95)
-        ELSE()
+        IF (MKL_INCLUDE_PATH MATCHES "10." OR MKL_INCLUDE_PATH MATCHES "11.")
+            IF(CMAKE_CL_64)
+                SET(MKL_LIBS mkl_solver_lp64 mkl_core mkl_intel_lp64 mkl_intel_thread libguide mkl_lapack95_lp64 mkl_blas95_lp64)
+            ELSE()
+                SET(MKL_LIBS mkl_solver mkl_core mkl_intel_c mkl_intel_s mkl_intel_thread libguide mkl_lapack95 mkl_blas95)
+            ENDIF()
+        ELSE() # old MKL 9
             SET(MKL_LIBS mkl_solver mkl_c libguide mkl_lapack mkl_ia32)
         ENDIF()
         INCLUDE_DIRECTORIES(${MKL_INCLUDE_PATH})
