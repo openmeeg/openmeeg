@@ -187,7 +187,9 @@ OPTION(BUILD_TESTING "Build tests" ON)
 IF (BUILD_TESTING)
     INCLUDE(CTest)
     ENABLE_TESTING()
-    ADD_SUBDIRECTORY(test)
+    IF(NOT WIN32) # XXX : comparison of output files do not work on windows
+        ADD_SUBDIRECTORY(test)
+    ENDIF()
 ENDIF()
 
 # =============
