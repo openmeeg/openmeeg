@@ -42,7 +42,11 @@ mkdir build
 cd build
 
 # 6) Making VISUAL project with cmake 2.6 - 2.8
-/cygdrive/c/CMake\ $VERSION/bin/cmake.exe -DBUILD_TESTING=ON -DENABLE_PACKAGING=ON -G "$PIPOL_WIN_COMPILER$SYSTEMOS" ..
+if expr $PIPOL_IMAGE : ".*amd64.*"; then
+    /cygdrive/c/CMake\ $VERSION/bin/cmake.exe -DBUILD_TESTING=ON -DENABLE_PACKAGING=ON -G "$PIPOL_WIN_COMPILER$SYSTEMOS" ..
+else
+    /cygdrive/c/CMake\ $VERSION/bin/cmake.exe -DBUILD_TESTING=ON -DENABLE_PACKAGING=ON -DUSE_OMP=ON -G "$PIPOL_WIN_COMPILER$SYSTEMOS" ..
+fi
 
 # 7) Setting environment
 if expr $PIPOL_IMAGE : ".*amd64.*"; then
@@ -61,7 +65,8 @@ fi
 # "$VCBUILD" INSTALL.vcproj "Release"
 
 # 12) CDASH submision
-/cygdrive/c/CMake\ $VERSION/bin/ctest.exe -D "Nightly"
+/cygdrive/c/CMake\ $VERSION/bin/ctest.exe -D "Experimental"
+# /cygdrive/c/CMake\ $VERSION/bin/ctest.exe -D "Nightly"
 
 # 13) To make a Windows Package Installer
 /cygdrive/c/CMake\ $VERSION/bin/cpack.exe -G "NSIS"
