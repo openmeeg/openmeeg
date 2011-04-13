@@ -51,7 +51,7 @@ int main (int argc, char** argv)
 
     // TRI
     mesh.save("tmp.tri");
-    mesh.load("tmp.tri");
+    // mesh.load("tmp.tri");
     assert(are_equal(mesh, mesh_orig));
 
     // VTK

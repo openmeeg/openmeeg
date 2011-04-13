@@ -64,7 +64,8 @@ namespace OpenMEEG
 {
 
 typedef std::set<int> intSet;
-OPENMEEG_EXPORT bool tri_tri_overlap_test_3d(double p1[3], double q1[3], double r1[3],double p2[3], double q2[3], double r2[3]);
+OPENMEEG_EXPORT bool tri_tri_overlap_test_3d(double p1[3], double q1[3], double r1[3],
+        double p2[3], double q2[3], double r2[3]);
 
 
 class OPENMEEG_EXPORT Mesh
@@ -177,10 +178,10 @@ public:
         return pts[i];
     }
 
-    inline void setPt(int i,const Vect3& v) {
+    inline void setPt(int i, const Vect3& v) {
         pts[i]=v;
     }
-    inline void setTrg(int i,const Triangle& t) {
+    inline void setTrg(int i, const Triangle& t) {
         trgs[i]=t;
     }
 
@@ -264,7 +265,7 @@ public:
     **/
     Vector areas() const;
 
-    inline friend void operator>>(std::istream &ifs,Mesh &m) {
+    inline friend void operator>>(std::istream &ifs, Mesh &m) {
         Filetype format = m.streamFormat;
         switch (format) {
         case TRI:
@@ -304,13 +305,13 @@ public:
         const Vect3& q2 = m2.getPt(T2.s2());
         const Vect3& r2 = m2.getPt(T2.s3());
 
-        double pp1[3] = {p1.x(),p1.y(),p1.z()};
-        double qq1[3] = {q1.x(),q1.y(),q1.z()};
-        double rr1[3] = {r1.x(),r1.y(),r1.z()};
-        double pp2[3] = {p2.x(),p2.y(),p2.z()};
-        double qq2[3] = {q2.x(),q2.y(),q2.z()};
-        double rr2[3] = {r2.x(),r2.y(),r2.z()};
-        return tri_tri_overlap_test_3d(pp1,qq1,rr1,pp2,qq2,rr2);
+        double pp1[3] = {p1.x(), p1.y(), p1.z()};
+        double qq1[3] = {q1.x(), q1.y(), q1.z()};
+        double rr1[3] = {r1.x(), r1.y(), r1.z()};
+        double pp2[3] = {p2.x(), p2.y(), p2.z()};
+        double qq2[3] = {q2.x(), q2.y(), q2.z()};
+        double rr2[3] = {r2.x(), r2.y(), r2.z()};
+        return tri_tri_overlap_test_3d(pp1, qq1, rr1, pp2, qq2, rr2);
     }
 
     bool has_self_intersection() const;
@@ -339,8 +340,8 @@ inline Vect3 P1Vector( const Vect3 &p0, const Vect3 &p1, const Vect3 &p2, const 
 {
     assert(idx>-1 && idx<3);
     int i = idx+1;
-    Vect3 pts[5] = {p2,p0,p1,p2,p0};
-    Vect3 ret(0,0,0);
+    Vect3 pts[5] = {p2, p0, p1, p2, p0};
+    Vect3 ret(0, 0, 0);
     Vect3 pim1pi = pts[i]-pts[i-1];
     Vect3 pim1pip1 = pts[i+1]-pts[i-1];
     Vect3 pim1H = ( (1.0/pim1pip1.norm2()) * ( pim1pi*pim1pip1 ) ) * pim1pip1;

@@ -106,7 +106,7 @@ Mesh::Mesh(const Mesh& M)
 
 Mesh& Mesh::operator=(const Mesh& M)
 {
-    if (this!=&M) {
+    if (this != &M) {
         copy(M);
     }
     return *this;
@@ -115,7 +115,7 @@ Mesh& Mesh::operator=(const Mesh& M)
 void Mesh::copy(const Mesh& M)
 {
     npts = M.npts;
-    if (npts!=0) {
+    if (npts != 0) {
         ntrgs = M.ntrgs;
         pts = new Vect3[npts];
         trgs = new Triangle[ntrgs];
@@ -126,7 +126,7 @@ void Mesh::copy(const Mesh& M)
             links[i] = M.links[i];
             normals[i] = M.normals[i];
         }
-        for(int i=0; i<ntrgs; i++) {
+        for(int i=0; i < ntrgs; i++) {
             trgs[i] = M.trgs[i];
         }
     }
@@ -135,10 +135,10 @@ void Mesh::copy(const Mesh& M)
 void Mesh::kill()
 {
     if (npts!=0) {
-        delete []pts;
-        delete []trgs;
-        delete []links;
-        delete []normals;
+        delete [] pts;
+        delete [] trgs;
+        delete [] links;
+        delete [] normals;
 
         npts = 0;
         ntrgs = 0;
@@ -274,7 +274,7 @@ void Mesh::load_vtk(std::istream &is)
 
     // held buffer by the array buf:
     vtkCharArray* buf = vtkCharArray::New();
-    buf->SetArray(buffer, length,1);
+    buf->SetArray(buffer, length, 1);
 
     vtkPolyDataReader* reader = vtkPolyDataReader::New();
     reader->SetInputArray(buf); // Specify 'buf' to be used when reading from a string
@@ -480,6 +480,7 @@ void Mesh::load_tri(std::istream &f)
     make_links();
     update_triangles();
 }
+
 
 void Mesh::load_tri(const char* filename)
 {
@@ -955,7 +956,7 @@ void Mesh::update_triangles()
 {
     for(int i = 0; i < ntrgs; ++i) {
         trgs[i].normal() = pts[trgs[i][0]].normal( pts[trgs[i][1]] , pts[trgs[i][2]] );
-        trgs[i].area() = trgs[i].normal().norm()/2.0;
+        trgs[i].area() = trgs[i].normal().norm() / 2.0;
     }
 }
 
@@ -979,7 +980,7 @@ bool Mesh::has_self_intersection() const
         for(int j = i+1; j < ntrgs; ++j) {
             const Triangle& T2 = getTrg(j);
             if (!T1.contains(T2.s1()) && !T1.contains(T2.s2()) && !T1.contains(T2.s3())) {
-                if (triangle_intersection(*this, i,*this, j)) {
+                if (triangle_intersection(*this, i, *this, j)) {
                     selfIntersects = true;
                     cout<< "triangles "<< i << " and " << j << " are intersecting" << endl;
                 }

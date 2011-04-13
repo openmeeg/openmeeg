@@ -56,7 +56,7 @@ namespace OpenMEEG {
     private:
         int m_s1,m_s2,m_s3; //!< index of vertices of the triangle
         double m_area; //!< area of the triangle
-        Vect3 n; // Normale
+        Vect3 n; // Normal
 
     public:
         inline Triangle(int a, int b, int c, Vect3 m) {
@@ -138,15 +138,15 @@ namespace OpenMEEG {
         inline bool operator== (const Triangle &t ) const {return (m_s1==t[0] && m_s2==t[1] && m_s3==t[2]);}
         inline bool operator!= (const Triangle &t ) const {return (m_s1!=t[0] || m_s2!=t[1] || m_s3!=t[2]);}
 
-        friend std::istream& operator>>(std::istream &is,Triangle &t);
+        friend std::istream& operator>>(std::istream &is, Triangle &t);
     };
 
-    inline std::istream& operator>>(std::istream &is,Triangle &t)
+    inline std::istream& operator>>(std::istream &is, Triangle &t)
     {
         return is >> t.m_s1 >> t.m_s2 >> t.m_s3;
     }
 
-    inline std::ostream& operator<<(std::ostream &os,const Triangle &t)
+    inline std::ostream& operator<<(std::ostream &os, const Triangle &t)
     {
         return os << t[0] << " " << t[1] << " " << t[2];
     }
