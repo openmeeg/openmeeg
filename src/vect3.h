@@ -1,7 +1,7 @@
 /*
 Project Name : OpenMEEG
 
-© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre 
+© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre
 GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU, Théodore PAPADOPOULO,
 Emmanuel OLIVI
 Maureen.Clerc.AT.sophia.inria.fr, keriven.AT.certis.enpc.fr,
@@ -65,10 +65,21 @@ namespace OpenMEEG {
         double m_x, m_y, m_z; //!< Coordinates of the vector
 
     public:
-        inline Vect3 (const double &xx, const double &yy, const double &zz) : m_x(xx),m_y(yy),m_z(zz) {}
-        inline Vect3 (const double &a) : m_x(a),m_y(a),m_z(a) {}
+        inline Vect3(const double &xx, const double &yy, const double &zz) : m_x(xx), m_y(yy), m_z(zz) {}
+        inline Vect3(const double &a) : m_x(a), m_y(a), m_z(a) {}
         inline Vect3() {}
         inline ~Vect3() {}
+
+        Vect3& operator= (const Vect3 &v); // assigment operator
+
+        // Copy constructor
+        Vect3(const Vect3 &v)
+        {
+            m_x = v.x();
+            m_y = v.y();
+            m_z = v.z();
+        }
+
         inline double & x(){return m_x;}
         inline double & y(){return m_y;}
         inline double & z(){return m_z;}
@@ -142,6 +153,17 @@ namespace OpenMEEG {
         friend std::ostream& operator<<(std::ostream &os, const Vect3 &v);
         friend std::istream& operator>>(std::istream &is, Vect3 &v);
     };
+
+    // assigment operator
+    inline Vect3& Vect3::operator= (const Vect3 &v)
+    {
+        // do the copy
+        m_x = v.m_x;
+        m_y = v.m_y;
+        m_z = v.m_z;
+        // return the existing object
+        return *this;
+    }
 
     inline Vect3 operator * (const double &d, const Vect3 &v) {return v*d;}
 

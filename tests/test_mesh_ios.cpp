@@ -26,7 +26,7 @@ int are_equal(const Mesh& M1, const Mesh& M2, double tol=1e12) {
             return 0;
         }
     }
-    for(int i = 0; i < M1.nbTrgs(); ++i) {
+    for(int i = 0; i < M1.nbPts(); ++i) {
         if (!are_equal(M1.normal(i), M2.normal(i), tol)) {
             return 0;
         }
@@ -42,16 +42,17 @@ int main (int argc, char** argv)
         exit(1);
     }
 
-    std::cerr << "Mesh : " << argv[1] << std::endl;
+    std::cout << "Mesh : " << argv[1] << std::endl;
 
     Mesh mesh_orig;
     mesh_orig.load(argv[1]);
 
     Mesh mesh = mesh_orig;
 
-    // TRI
+    // // TRI
     mesh.save("tmp.tri");
-    // mesh.load("tmp.tri");
+    mesh.load("tmp.tri");
+
     assert(are_equal(mesh, mesh_orig));
 
     // VTK

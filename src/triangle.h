@@ -1,7 +1,7 @@
 /*
 Project Name : OpenMEEG
 
-© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre 
+© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre
 GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU, Théodore PAPADOPOULO,
 Emmanuel OLIVI
 Maureen.Clerc.AT.sophia.inria.fr, keriven.AT.certis.enpc.fr,
@@ -46,9 +46,9 @@ knowledge of the CeCILL-B license and that you accept its terms.
 namespace OpenMEEG {
 
     /** \brief  Triangle
-        
+
         Triangle class
-        
+
     **/
 
     class OPENMEEG_EXPORT Triangle {
@@ -65,7 +65,20 @@ namespace OpenMEEG {
 
         inline Triangle() {}
 
+        // Copy constructor
+        Triangle(const Triangle &v)
+        {
+            // do the copy
+            m_s1 = v.m_s1;
+            m_s2 = v.m_s2;
+            m_s3 = v.m_s3;
+            m_area = v.m_area;
+            n = v.n;
+        }
+
         inline ~Triangle() {}
+
+        Triangle& operator= (const Triangle &t); // assigment operator
 
         inline int som(int i) const {
             switch (i){
@@ -150,6 +163,24 @@ namespace OpenMEEG {
     {
         return os << t[0] << " " << t[1] << " " << t[2];
     }
+
+    // assigment operator
+    inline Triangle& Triangle::operator= (const Triangle &t)
+    {
+        // check for self-assignment
+        if (this == &t)
+            return *this;
+
+        // do the copy
+        m_s1 = t.m_s1;
+        m_s2 = t.m_s2;
+        m_s3 = t.m_s3;
+        m_area = t.m_area;
+        n = t.n;
+        // return the existing object
+        return *this;
+    }
+
 }
 
 #endif  //! OPENMEEG_TRIANGLE_H

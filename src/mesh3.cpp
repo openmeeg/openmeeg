@@ -84,10 +84,7 @@ namespace OpenMEEG
 
 using namespace std;
 
-Mesh::Mesh()
-{
-    npts = 0;
-}
+Mesh::Mesh() : npts(0) {};
 
 Mesh::Mesh(int a, int b)
 {
@@ -99,12 +96,15 @@ Mesh::Mesh(int a, int b)
     normals = new Vect3[npts];
 }
 
+// Copy constructor
 Mesh::Mesh(const Mesh& M)
 {
-    *this = M;
+    this->npts = 0;
+    *this = M; // calls the assigment operator
 }
 
-Mesh& Mesh::operator=(const Mesh& M)
+// Assignment operator
+Mesh& Mesh::operator= (const Mesh& M)
 {
     if (this != &M) {
         copy(M);
@@ -114,14 +114,15 @@ Mesh& Mesh::operator=(const Mesh& M)
 
 void Mesh::copy(const Mesh& M)
 {
-    npts = M.npts;
-    if (npts != 0) {
+    if (M.npts != 0) {
+        kill();
+        npts = M.npts;
         ntrgs = M.ntrgs;
         pts = new Vect3[npts];
         trgs = new Triangle[ntrgs];
         links = new intSet[npts];
         normals = new Vect3[npts];
-        for(int i=0; i<npts; i++) {
+        for(int i=0; i < npts; i++) {
             pts[i] = M.pts[i];
             links[i] = M.links[i];
             normals[i] = M.normals[i];
@@ -129,12 +130,15 @@ void Mesh::copy(const Mesh& M)
         for(int i=0; i < ntrgs; i++) {
             trgs[i] = M.trgs[i];
         }
+    } else {
+        kill();
+        npts = 0;
     }
 }
 
 void Mesh::kill()
 {
-    if (npts!=0) {
+    if (this->npts != 0) {
         delete [] pts;
         delete [] trgs;
         delete [] links;
@@ -185,7 +189,7 @@ void Mesh::load(const char* filename, bool verbose)
 {
     std::string extension = getNameExtension(filename);
     std::transform(extension.begin(), extension.end(), extension.begin(), (int(*)(int))std::tolower);
-    if     (extension==std::string("vtk")) {
+    if (extension==std::string("vtk")) {
         load_vtk(filename);
     } else if(extension==std::string("tri")) {
         load_tri(filename);
@@ -343,6 +347,8 @@ void Mesh::load_gifti(const char* filename)
 
 void Mesh::load_mesh(std::istream &is)
 {
+    kill();
+
     unsigned char* uc = new unsigned char[5]; // File format
     is.read((char*)uc, sizeof(unsigned char)*5);
     delete[] uc;
@@ -444,43 +450,29 @@ void Mesh::load_mesh(const char* filename)
 
 void Mesh::load_tri(std::istream &f)
 {
+    kill();
+
+    f.seekg( 0, std::ios_base::beg );
+
     char ch;
-    f>>ch;
-    f>>npts;
-
-    char myline[256];
-    f.seekg( 0, std::ios_base::beg );
-    f.getline(myline,256);
-    f.getline(myline,256);
-    int nread = 0;
-
-    float r;
-    nread = sscanf(myline, "%f %f %f %f %f %f",&r,&r,&r,&r,&r,&r);
-
-    f.seekg( 0, std::ios_base::beg );
-    f.getline(myline,256);
+    f >> ch;
+    f >> npts;
 
     pts = new Vect3[npts];
     normals = new Vect3[npts];
     links = new intSet[npts];
     for (int i=0; i<npts; i++) {
-        f>>pts[i];
-        pts[i] = pts[i];
-        f >> normals[i];
+        f >> pts[i] >> normals[i];
     }
-    f>>ch;
-    f>>ntrgs;
-    f>>ntrgs;
-    f>>ntrgs; // This number is repeated 3 times
+    f >> ch >> ntrgs >> ntrgs >> ntrgs; // This number is repeated 3 times
     trgs = new Triangle[ntrgs];
     for (int i=0; i<ntrgs; i++) {
-        f>>trgs[i];
+        f >> trgs[i];
     }
 
     make_links();
     update_triangles();
 }
-
 
 void Mesh::load_tri(const char* filename)
 {
@@ -497,6 +489,8 @@ void Mesh::load_tri(const char* filename)
 
 void Mesh::load_bnd(std::istream &f)
 {
+    kill();
+
     std::string line;
     string st;
 
@@ -566,8 +560,8 @@ void Mesh::load_bnd(const char* filename)
 
 void Mesh::load_off(std::istream &f)
 {
-
     kill();
+
     char tmp[128];
     int trash;
     f>>tmp;        // put the "OFF" string
