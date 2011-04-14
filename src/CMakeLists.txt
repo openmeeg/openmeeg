@@ -1,6 +1,6 @@
 SET(OPENMEEG_HEADERS
-    analytics.h assemble.h cpuChrono.h mesh3.h danielsson.h om_utils.h operators.h sensors.h MeshReader.h geometry.h triangle.h integrator.h vect3.h
-    mesh3.h PropertiesSpecialized.h inversers.h conditioning.h
+    analytics.h assemble.h conditioning.h cpuChrono.h danielsson.h DLLDefinesOpenMEEG.h forward.h gain.h geometry.h integrator.h 
+    inversers.h mesh3.h MeshReader.h om_utils.h operators.h options.h PropertiesSpecialized.h sensors.h triangle.h Triangle_triangle_intersection.h vect3.h
 #   These files are imported from another repository.
 #   Please do not update them in this repository.
     DataTag.H FileExceptions.H MeshDescription/Reader.H MeshDescription/Normals.H MeshDescription/Domains.H MeshDescription/Exceptions.H

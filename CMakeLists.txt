@@ -64,12 +64,9 @@ INCLUDE(UseMatio)
 INCLUDE(UseAtlas)
 INCLUDE(UseOpenMP)
 
-
 #   Detect Fortran to C interface.
-
 IF(USE_ATLAS)
     INCLUDE(FortranCInterface)
-    #FortranCInterface_HEADER(FC.h MACRO_NAMESPACE "FC_" FROM_LIBRARY blas[daxpy] HINTS /usr/lib64 /usr/lib64/atlas /usr/lib64/sse2 /usr/lib /usr/lib/atals /usr/lib/sse2)
     FortranCInterface_HEADER(FC.h MACRO_NAMESPACE "FC_" FROM_LIBRARY blas[daxpy])
 ENDIF()
 
@@ -85,13 +82,12 @@ CONFIGURE_FILE(${OpenMEEG_SOURCE_DIR}/OpenMEEGConfigure.h.in
 #---------------------------------------------------------------
 
 # Include the file with all source tree directories for OpenMEEG
-
 SET (OPENMEEG_INCLUDE_DIRECTORIES
     ${OpenMEEG_BINARY_DIR}
     ${OpenMEEG_SOURCE_DIR}
     ${OpenMEEG_SOURCE_DIR}/src
     ${OpenMEEG_SOURCE_DIR}/libs/MatLib/MatLib
-    ${OPENMEEG_INCLUDE_DIRECTORIES}
+    ${OPENMEEG_OTHER_INCLUDE_DIRECTORIES}
 )
 
 INCLUDE_DIRECTORIES(${OPENMEEG_INCLUDE_DIRECTORIES})
@@ -215,6 +211,7 @@ INCLUDE(Packaging)
 SET (OPENMEEG_LIBRARY_DIRECTORIES
     ${OpenMEEG_BINARY_DIR}/src
     ${OpenMEEG_BINARY_DIR}/libs/MatLib/MatLib
+    ${OPENMEEG_OTHER_LIBRARY_DIRECTORIES}
 )
 
 SET(OPENMEEG_SOURCE_DIRECTORIES ${OpenMEEG_SOURCE_DIR})
@@ -238,9 +235,13 @@ CONFIGURE_FILE(
     ${OpenMEEG_BINARY_DIR}/OpenMEEGConfig.cmake @ONLY IMMEDIATE)
 
 # Generate another configure for installation
-
+SET (OPENMEEG_INCLUDE_DIRECTORIES
+    ${CMAKE_INSTALL_PREFIX}/${OPENMEEG_HEADER_INSTALLDIR}
+    ${OPENMEEG_OTHER_INCLUDE_DIRECTORIES}
+)
 SET (OPENMEEG_LIBRARY_DIRECTORIES
     ${CMAKE_INSTALL_PREFIX}/lib
+    ${OPENMEEG_OTHER_LIBRARY_DIRECTORIES}
 )
 
 # The "use" file.
@@ -256,3 +257,12 @@ INSTALL(FILES ${OpenMEEG_BINARY_DIR}/UseOpenMEEG.cmake
 
 INSTALL(FILES ${OpenMEEG_BINARY_DIR}/macros/OpenMEEGConfig.cmake
     DESTINATION lib)
+
+# install generated headers OpenMEEGConfigure and FC
+INSTALL(FILES ${OpenMEEG_BINARY_DIR}/OpenMEEGConfigure.h
+    DESTINATION ${OPENMEEG_HEADER_INSTALLDIR} COMPONENT Development)
+
+IF(USE_ATLAS)
+    INSTALL(FILES ${OpenMEEG_BINARY_DIR}/FC.h
+        DESTINATION ${OPENMEEG_HEADER_INSTALLDIR} COMPONENT Development)
+ENDIF()
