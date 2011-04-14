@@ -17,20 +17,20 @@ SET_FILE_PROPERTIES(CompareOptions
 ############ IO TEST ##############
 OPENMEEG_UNIT_TEST(load_geo
     SOURCES load_geo.cpp
-    LIBRARIES OpenMEEG OpenMEEGMaths "${OPENMEEG_OTHER_LIBRARIES}"
+    LIBRARIES OpenMEEG OpenMEEGMaths
     PARAMETERS ${OpenMEEG_SOURCE_DIR}/data/Models/Head1/Head1.geom ${OpenMEEG_SOURCE_DIR}/data/Models/Head1/Head1.cond)
 
 OPENMEEG_UNIT_TEST(test_mesh_ios
     SOURCES test_mesh_ios.cpp
-    LIBRARIES OpenMEEG OpenMEEGMaths "${OPENMEEG_OTHER_LIBRARIES}"
+    LIBRARIES OpenMEEG OpenMEEGMaths
     PARAMETERS ${OpenMEEG_SOURCE_DIR}/data/Models/Head1/Head1.tri)
 
 NEW_EXECUTABLE(test_sensors test_sensors.cpp
-               LIBRARIES OpenMEEG "${OPENMEEG_OTHER_LIBRARIES}")
+               LIBRARIES OpenMEEG)
 NEW_EXECUTABLE(compare_matrix compare_matrix.cpp
-               LIBRARIES OpenMEEGMaths "${OPENMEEG_OTHER_LIBRARIES}" ${LAPACK_LIBRARIES})
+               LIBRARIES OpenMEEGMaths ${LAPACK_LIBRARIES})
 NEW_EXECUTABLE(om_validationEIT validationEIT.cpp ${OPEMEEG_HEADERS}
-               LIBRARIES OpenMEEG OpenMEEGMaths "${OPENMEEG_OTHER_LIBRARIES}" ${LAPACK_LIBRARIES})
+               LIBRARIES OpenMEEG OpenMEEGMaths ${LAPACK_LIBRARIES})
 
 ############ TEST COMMON RESULTS ON HEAD1 (Regression test) ##############
 

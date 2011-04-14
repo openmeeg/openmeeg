@@ -5,11 +5,11 @@
 
 using namespace OpenMEEG;
 
-int are_equal(const Vect3& v1, const Vect3& v2, double tol=1e12) {
+int are_equal(const Vect3& v1, const Vect3& v2, double tol=1e-12) {
     return (v1 - v2).norm2() < tol;
 }
 
-int are_equal(const Mesh& M1, const Mesh& M2, double tol=1e12) {
+int are_equal(const Mesh& M1, const Mesh& M2, double tol=1e-12) {
     if (M1.nbPts() != M2.nbPts()) {
         return 0;
     }

@@ -296,7 +296,8 @@ void Mesh::load_vtk(std::istream &is)
 void Mesh::load_vtk(const char* filename)
 {
     kill();
-
+    string s = filename;
+    cout << "load_vtk : " << filename << endl;
     vtkPolyDataReader *reader = vtkPolyDataReader::New();
     reader->SetFileName(filename); // Specify file name of vtk data file to read
     if (!reader->IsFilePolyData()) {

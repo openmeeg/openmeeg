@@ -11,7 +11,7 @@ ADD_LIBRARY(OpenMEEG ${LIB_TYPE}
     assembleFerguson.cpp assembleHeadMat.cpp assembleSourceMat.cpp assembleSensors.cpp
     danielsson.cpp geometry.cpp mesh3.cpp operators.cpp sensors.cpp inversers.cpp cpuChrono.cpp ${OPENMEEG_HEADERS}
 )
-TARGET_LINK_LIBRARIES(OpenMEEG OpenMEEGMaths ${OPENMEEG_OTHER_LIBRARIES} ${LAPACK_LIBRARIES})
+TARGET_LINK_LIBRARIES(OpenMEEG OpenMEEGMaths ${OPENMEEG_LIBRARIES} ${LAPACK_LIBRARIES})
 
 SET_TARGET_PROPERTIES(OpenMEEG PROPERTIES
                          VERSION 1.1.0
@@ -19,7 +19,7 @@ SET_TARGET_PROPERTIES(OpenMEEG PROPERTIES
                          CLEAN_DIRECT_OUTPUT 1)
 
 MACRO(OPENMEEG_EXECUTABLE EXECUTABLE)
-    NEW_EXECUTABLE(${EXECUTABLE} ${ARGN} LIBRARIES OpenMEEG ${OPENMEEG_OTHER_LIBRARIES})
+    NEW_EXECUTABLE(${EXECUTABLE} ${ARGN} LIBRARIES OpenMEEG)
 ENDMACRO()
 
 OPENMEEG_EXECUTABLE(om_presmooth presmooth.cpp)
