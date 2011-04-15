@@ -135,55 +135,33 @@ public:
     enum Filetype { VTK, TRI, BND, MESH, OFF, GIFTI };
 
     Mesh();
-    Mesh(int, int); // npts, ntrgs
+    Mesh(const int,const int); // npts, ntrgs
     Mesh(const Mesh& M);
     Mesh& operator=(const Mesh& M);
-    ~Mesh() {
-        kill();
-    }
-    inline int nbPts() const {
-        return npts;
-    }
-    inline int nbTrgs() const {
-        return ntrgs;
-    }
-    inline int size() const {
-        return npts+ntrgs;
-    }
-    inline const Vect3& getPt(int i) const {
-        return pts[i];
-    }
-    inline const Triangle& getTrg(int i) const {
-        return trgs[i];
-    }
-    inline Triangle& getTrg(int i) {
-        return trgs[i];
-    }
-    inline const intSet& get_triangles_for_point(int i) const {
-        return links[i];
-    }
-    inline intSet* get_triangles_for_points() const {
-        return links;
-    }
 
-    inline Vect3 normal(int i) const {
-        return normals[i];
-    }
-    inline Vect3& normal(int i) {
-        return normals[i];
-    }
+    ~Mesh() { destroy(); }
 
-    inline Vect3& operator[](int i) {
+    int nbPts()  const { return npts;       }
+    int nbTrgs() const { return ntrgs;      }
+    int size()   const { return npts+ntrgs; }
+
+    const Vect3&    getPt(const int i)  const { return pts[i];  }
+    const Triangle& getTrg(const int i) const { return trgs[i]; }
+          Triangle& getTrg(const int i)       { return trgs[i]; }
+
+    const intSet& get_triangles_for_point(const int i) const { return links[i]; }
+          intSet* get_triangles_for_points()           const { return links;    }
+
+    Vect3  normal(const int i) const { return normals[i]; }
+    Vect3& normal(const int i)       { return normals[i]; }
+
+    Vect3& operator[](int i) {
         assert(i<npts);
         return pts[i];
     }
 
-    inline void setPt(int i, const Vect3& v) {
-        pts[i]=v;
-    }
-    inline void setTrg(int i, const Triangle& t) {
-        trgs[i]=t;
-    }
+    void setPt(const int i,const Vect3& v)     { pts[i]  = v; }
+    void setTrg(const int i,const Triangle& t) { trgs[i] = t; }
 
     void make_links();
 
@@ -325,8 +303,9 @@ public:
     void normalize() const { }
 
 private:
+
     Filetype streamFormat;
-    void kill();
+    void destroy();
     void copy(const Mesh& M);
 #ifdef USE_VTK
     void get_data_from_vtk_reader(vtkPolyDataReader* vtkMesh);
