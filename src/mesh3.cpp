@@ -83,8 +83,9 @@ namespace OpenMEEG {
 
     Mesh::Mesh(): npts(0) {};
 
-    Mesh::Mesh(const int a,const int b): npts(a),ntrgs(b),pts(new Vect3[npts]),
-        trgs(new Triangle[ntrgs]),links(new intSet[npts]),normals(new Vect3[npts]) { }
+    Mesh::Mesh(const int a, const int b): npts(a), ntrgs(b), pts(new Vect3[npts]),
+                            trgs(new Triangle[ntrgs]), links(new intSet[npts]),
+                            normals(new Vect3[npts]) { }
 
     Mesh::Mesh(const Mesh& M): npts(0) { *this = M; }
 
@@ -996,4 +997,4 @@ namespace OpenMEEG {
         return in_mesh && (flipped_edge_list == edge_list);
     }
 
-    } // end namespace OpenMeeg
+} // end namespace OpenMeeg
