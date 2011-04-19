@@ -180,7 +180,7 @@ endif()
 
 add_executable(example example.c)
 target_link_libraries(example zlib)
-add_test(example example)
+add_test(example ${EXECUTABLE_OUTPUT_PATH}/example)
 
 add_executable(minigzip minigzip.c)
 target_link_libraries(minigzip zlib)
@@ -189,7 +189,7 @@ if(HAVE_OFF64_T)
     add_executable(example64 example.c)
     target_link_libraries(example64 zlib)
     set_target_properties(example64 PROPERTIES COMPILE_FLAGS "-D_FILE_OFFSET_BITS=64")
-    add_test(example64 example64)
+    add_test(example64 ${EXECUTABLE_OUTPUT_PATH}/example64)
 
     add_executable(minigzip64 minigzip.c)
     target_link_libraries(minigzip64 zlib)
