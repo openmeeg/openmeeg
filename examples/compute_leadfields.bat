@@ -7,8 +7,9 @@ set INTERNAL_ELECTRODES=internal_electrodes_locations.txt
 
 rem Leadfields
 set EEG_LEADFIELD=eeg_leadfield.mat
-rem set EEG_LEADFIELD_ADJOINT=eeg_leadfield_adjoint.mat
+set EEG_LEADFIELD_ADJOINT=eeg_leadfield_adjoint.mat
 set MEG_LEADFIELD=meg_leadfield.mat
+set MEG_LEADFIELD_ADJOINT=meg_leadfield_adjoint.mat
 set EIT_LEADFIELD=eit_leadfield.mat
 set IP_LEADFIELD=ip_leadfield.mat
 
@@ -41,12 +42,15 @@ om_minverser %HM% %HMINV%
 om_assemble -DSM %GEOMETRY% %CONDUCTIVITIES% %DIPOLES% %DSM%
 om_assemble -H2EM %GEOMETRY% %CONDUCTIVITIES% %EEG_ELECTRODES% %H2EM%
 om_gain -EEG %HMINV% %DSM% %H2EM% %EEG_LEADFIELD%
-rem om_gain -EEGadjoint %GEOMETRY% %CONDUCTIVITIES% %DIPOLES% %HM% %H2EM% %EEG_LEADFIELD_ADJOINT%
+rem with adjoint
+om_gain -EEGadjoint %GEOMETRY% %CONDUCTIVITIES% %DIPOLES% %HM% %H2EM% %EEG_LEADFIELD_ADJOINT%
 
 rem Compute MEG gain matrix
 om_assemble -H2MM %GEOMETRY% %CONDUCTIVITIES% %SQUIDS% %H2MM%
 om_assemble -DS2MM %DIPOLES% %SQUIDS% %DS2MEG%
 om_gain -MEG %HMINV% %DSM% %H2MM% %DS2MEG% %MEG_LEADFIELD%
+rem with adjoint
+om_gain -MEGadjoint %GEOMETRY% %CONDUCTIVITIES% %DIPOLES% %HM% %H2MM% %DS2MEG% %MEG_LEADFIELD_ADJOINT%
 
 rem Compute EIT gain matrix
 om_assemble -EITSM %GEOMETRY% %CONDUCTIVITIES% %EEG_ELECTRODES% %EITSM%
