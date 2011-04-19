@@ -124,8 +124,10 @@ namespace OpenMEEG {
         LinOpValue(): data(0) { }
 
         LinOpValue(const size_t n) {
-            this->data = new double[n];
-            if (this->data == NULL) {
+            try {
+                this->data = new double[n];
+            }
+            catch (std::bad_alloc&) {
                 std::cerr << "Error memory allocation failed... " << std::endl;
                 exit(1);
             }
