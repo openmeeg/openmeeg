@@ -305,10 +305,10 @@ int cylindre (char namesurf[],char namepatches[],char namepatchcount[],float L,f
   }
   Mesh surf(np,nt);
   for  (i=0;i<np;i++) {
-    surf.setPt(i,P[i]);
+    surf.Pt(i)=P[i];
   }
   for (i=0;i<nt;i++) {
-    surf.setTrg(i,T[i]);
+    surf.Trg(i)=T[i];
   }
   surf.save(namesurf);
 

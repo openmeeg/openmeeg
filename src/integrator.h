@@ -206,7 +206,7 @@ namespace OpenMEEG {
 
         virtual inline T integrate ( const I &fc, const Triangle& Trg ,const Mesh& M)
         {
-            Vect3 sommets[3]={M.getPt(Trg.s1()),M.getPt(Trg.s2()),M.getPt(Trg.s3())};
+            Vect3 sommets[3]={M.Pt(Trg.s1()),M.Pt(Trg.s2()),M.Pt(Trg.s3())};
             return triangle_integration(fc,sommets);
         }
 
@@ -248,7 +248,7 @@ namespace OpenMEEG {
         virtual inline T integrate(const I &fc, const Triangle& Trg ,const Mesh& M)
         {
             int n=0;
-            Vect3 vertices[3]={M.getPt(Trg.s1()),M.getPt(Trg.s2()),M.getPt(Trg.s3())};
+            Vect3 vertices[3]={M.Pt(Trg.s1()),M.Pt(Trg.s2()),M.Pt(Trg.s3())};
             T I0=triangle_integration(fc,vertices);
             return adaptive_integration(fc,vertices,I0,n);
         }

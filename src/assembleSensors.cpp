@@ -73,9 +73,9 @@ void assemble_Head2EEG(SparseMatrix &mat, const Geometry &geo, const Matrix &pos
             current_position(k) = positions(i, k);
         }
         dist_point_mesh(current_position, extLayer, current_alphas, current_nearestNumber);
-        mat(i, extLayer.getTrg(current_nearestNumber).s1()+offset) = current_alphas(0);
-        mat(i, extLayer.getTrg(current_nearestNumber).s2()+offset) = current_alphas(1);
-        mat(i, extLayer.getTrg(current_nearestNumber).s3()+offset) = current_alphas(2);
+        mat(i, extLayer.Trg(current_nearestNumber).s1()+offset) = current_alphas(0);
+        mat(i, extLayer.Trg(current_nearestNumber).s2()+offset) = current_alphas(1);
+        mat(i, extLayer.Trg(current_nearestNumber).s3()+offset) = current_alphas(2);
     }
 }
 

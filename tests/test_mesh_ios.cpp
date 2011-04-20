@@ -17,12 +17,12 @@ int are_equal(const Mesh& M1, const Mesh& M2, double tol=1e-12) {
         return 0;
     }
     for(int i = 0; i < M1.nbPts(); ++i) {
-        if (!are_equal(M1.getPt(i), M2.getPt(i), tol)) {
+        if (!are_equal(M1.Pt(i), M2.Pt(i), tol)) {
             return 0;
         }
     }
     for(int i = 0; i < M1.nbTrgs(); ++i) {
-        if (M1.getTrg(i) != M2.getTrg(i)) {
+        if (M1.Trg(i) != M2.Trg(i)) {
             return 0;
         }
     }

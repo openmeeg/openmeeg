@@ -145,9 +145,10 @@ public:
     int nbTrgs() const { return ntrgs;      }
     int size()   const { return npts+ntrgs; }
 
-    const Vect3&    getPt(const int i)  const { return pts[i];  }
-    const Triangle& getTrg(const int i) const { return trgs[i]; }
-          Triangle& getTrg(const int i)       { return trgs[i]; }
+    const Vect3&    Pt(const int i)  const { return pts[i];  }
+          Vect3&    Pt(const int i)        { return pts[i];  }
+    const Triangle& Trg(const int i) const { return trgs[i]; }
+          Triangle& Trg(const int i)       { return trgs[i]; }
 
     const intSet& get_triangles_for_point(const int i) const { return links[i]; }
           intSet* get_triangles_for_points()           const { return links;    }
@@ -159,9 +160,6 @@ public:
         assert(i<npts);
         return pts[i];
     }
-
-    void setPt(const int i,const Vect3& v)     { pts[i]  = v; }
-    void setTrg(const int i,const Triangle& t) { trgs[i] = t; }
 
     void make_links();
 
@@ -274,14 +272,14 @@ public:
      * Check intersection between two triangles
     **/
     static inline bool triangle_intersection( const Mesh& m1, int nT1, const Mesh& m2, int nT2 ) {
-        const Triangle& T1 = m1.getTrg(nT1);
-        const Vect3& p1 = m1.getPt(T1.s1());
-        const Vect3& q1 = m1.getPt(T1.s2());
-        const Vect3& r1 = m1.getPt(T1.s3());
-        const Triangle& T2 = m2.getTrg(nT2);
-        const Vect3& p2 = m2.getPt(T2.s1());
-        const Vect3& q2 = m2.getPt(T2.s2());
-        const Vect3& r2 = m2.getPt(T2.s3());
+        const Triangle& T1 = m1.Trg(nT1);
+        const Vect3& p1 = m1.Pt(T1.s1());
+        const Vect3& q1 = m1.Pt(T1.s2());
+        const Vect3& r1 = m1.Pt(T1.s3());
+        const Triangle& T2 = m2.Trg(nT2);
+        const Vect3& p2 = m2.Pt(T2.s1());
+        const Vect3& q2 = m2.Pt(T2.s2());
+        const Vect3& r2 = m2.Pt(T2.s3());
 
         double pp1[3] = {p1.x(), p1.y(), p1.z()};
         double qq1[3] = {q1.x(), q1.y(), q1.z()};
