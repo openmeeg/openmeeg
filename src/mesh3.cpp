@@ -752,12 +752,12 @@ namespace OpenMEEG {
         Triangle *newTrgs = new Triangle[new_ntrgs];
 
         for(int i = 0; i < old_npts; ++i) {
-            newPts[i] = Pt(i);
+            newPts[i] = point(i);
             newNormals[i] = normal(i);
         }
 
         for(int i = 0; i < m->nbPts(); ++i) {
-            newPts[i + old_npts] = m->Pt(i);
+            newPts[i + old_npts] = m->point(i);
             newNormals[i + old_npts] = m->normal(i);
         }
 
@@ -765,7 +765,7 @@ namespace OpenMEEG {
             newTrgs[i] = trgs[i];
 
         for(int i = 0; i < m->nbTrgs(); ++i) {
-            const Triangle t = m->Trg(i);
+            const Triangle t = m->triangle(i);
             Triangle* new_t = new Triangle(t[0] + old_npts, t[1] + old_npts, t[2] + old_npts, t.normal());
             newTrgs[i + old_ntrgs] = *new_t;
         }
@@ -788,7 +788,7 @@ namespace OpenMEEG {
         intSet possible_triangles = links[a];
         intSet::iterator it;
         for(it = possible_triangles.begin(); it != possible_triangles.end(); ++it) {
-            Triangle t = Trg(*it);
+            Triangle t = triangle(*it);
             if (t.contains(b) && !t.contains(c)) {
                 return *it;
             }
@@ -825,7 +825,7 @@ namespace OpenMEEG {
         std::vector< intSet > neighbors(npts);
         for(int i = 0; i < npts; ++i) {
             for(intSet::iterator it = links[i].begin(); it != links[i].end(); ++it) {
-                Triangle nt = Trg(*it);
+                Triangle nt = triangle(*it);
                 for(size_t k = 0; k < 3; ++k) {
                     if (nt[k] != i) {
                         neighbors[i].insert(nt[k]);
@@ -859,8 +859,8 @@ namespace OpenMEEG {
         SparseMatrix A(3*ntrgs, npts); // nb edges x points
         // loop on triangles
         for (int t=0; t<ntrgs; t++) {
-            const Triangle& trg = Trg(t);
-            Vect3 points[3] = {Pt(trg[0]), Pt(trg[1]), Pt(trg[2])};
+            const Triangle& trg = triangle(t);
+            Vect3 points[3] = {point(trg[0]), point(trg[1]), point(trg[2])};
             for(int j=0; j<3; j++) {
                 Vect3 grads = P1Vector(points[0], points[1], points[2], j);
                 for(int i=0; i<3; i++) {
@@ -899,7 +899,7 @@ namespace OpenMEEG {
 
         Vector my_areas(nbTrgs());
         for(int i = 0; i < nbTrgs(); ++i)
-            my_areas(i) = Trg(i).getArea();
+            my_areas(i) = triangle(i).getArea();
 
         return my_areas;
     }
@@ -926,9 +926,9 @@ namespace OpenMEEG {
     bool Mesh::has_self_intersection() const {
         bool selfIntersects = false;
         for(int i = 0; i < ntrgs; ++i) {
-            const Triangle& T1 = Trg(i);
+            const Triangle& T1 = triangle(i);
             for(int j = i+1; j < ntrgs; ++j) {
-                const Triangle& T2 = Trg(j);
+                const Triangle& T2 = triangle(j);
                 if (!T1.contains(T2.s1()) && !T1.contains(T2.s2()) && !T1.contains(T2.s3())) {
                     if (triangle_intersection(*this, i, *this, j)) {
                         selfIntersects = true;
@@ -981,12 +981,12 @@ namespace OpenMEEG {
         double ymin = std::numeric_limits<int>::max();
         double zmin = std::numeric_limits<int>::max();
         for(int i=0; i<npts; ++i) {
-            xmin = std::min(xmin, Pt(i).x());
-            ymin = std::min(ymin, Pt(i).y());
-            zmin = std::min(zmin, Pt(i).z());
-            xmax = std::max(xmax, Pt(i).x());
-            ymax = std::max(ymax, Pt(i).y());
-            zmax = std::max(zmax, Pt(i).z());
+            xmin = std::min(xmin, point(i).x());
+            ymin = std::min(ymin, point(i).y());
+            zmin = std::min(zmin, point(i).z());
+            xmax = std::max(xmax, point(i).x());
+            ymax = std::max(ymax, point(i).y());
+            zmax = std::max(zmax, point(i).z());
         }
         Vect3 bbmin(xmin, ymin, zmin);
         Vect3 bbmax(xmax, ymax, zmax);

@@ -99,14 +99,14 @@ void operatorDipolePotDer(const Vect3 &r0,const Vect3 &q,const Mesh &layer, Vect
     #endif
     for(int i=0; i<layer.nbTrgs(); i++) {
         anaDPD.init(layer, i, q, r0);
-        Vect3 v = gauss->integrate(anaDPD, layer.Trg(i), layer);
+        Vect3 v = gauss->integrate(anaDPD, layer.triangle(i), layer);
         #ifdef USE_OMP
         #pragma omp critical
         #endif
         {
-            rhs(layer.Trg(i).s1() + offsetIdx) += v(0);
-            rhs(layer.Trg(i).s2() + offsetIdx) += v(1);
-            rhs(layer.Trg(i).s3() + offsetIdx) += v(2);
+            rhs(layer.triangle(i).s1() + offsetIdx) += v(0);
+            rhs(layer.triangle(i).s2() + offsetIdx) += v(1);
+            rhs(layer.triangle(i).s3() + offsetIdx) += v(2);
         }
     }
     delete gauss;
@@ -130,7 +130,7 @@ void operatorDipolePot(const Vect3 &r0, const Vect3 &q, const Mesh &layer, Vecto
     #pragma omp parallel for
     #endif
     for(int i=offsetIdx; i<offsetIdx+layer.nbTrgs(); i++) {
-        double d = gauss->integrate(anaDP,layer.Trg(i-offsetIdx),layer);
+        double d = gauss->integrate(anaDP,layer.triangle(i-offsetIdx),layer);
         #ifdef USE_OMP
         #pragma omp critical
         #endif

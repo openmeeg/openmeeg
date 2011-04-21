@@ -126,8 +126,8 @@ double dist_point_mesh(const Vect3& m, const Mesh& mesh, Vect3& alphas, int& nea
     Vect3 alphasLoop;
 
     for(int i=0; i<mesh.nbTrgs(); i++) {
-        t = mesh.Trg(i);
-        distance = dist_point_cell(m, &mesh.Pt(0), t, alphasLoop, inside);
+        t = mesh.triangle(i);
+        distance = dist_point_cell(m, &mesh.point(0), t, alphasLoop, inside);
         if(distance < distmin) {
             distmin = distance;
             nearestNumber = i;

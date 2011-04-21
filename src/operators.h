@@ -130,7 +130,7 @@ inline double _operatorD(const int nT1, const int nP2, const Mesh &m1, const Mes
                          const int gauss_order)
 {
     // consider varying order of quadrature with the distance between T1 and T2
-    const Triangle &T1 = m1.Trg(nT1);
+    const Triangle &T1 = m1.triangle(nT1);
     #ifdef USE_OMP
     analyticD analyD;
     #else
@@ -171,8 +171,8 @@ inline void _operatorD(const int nT1, const int nT2, const Mesh &m1, const Mesh 
     // for all the P1 functions it gets involved
 
     // consider varying order of quadrature with the distance between T1 and T2
-    const Triangle &T1 = m1.Trg(nT1);
-    const Triangle &T2 = m2.Trg(nT2);
+    const Triangle &T1 = m1.triangle(nT1);
+    const Triangle &T2 = m2.triangle(nT2);
 
 #ifdef USE_OMP
     analyticD3 analyD;
@@ -204,7 +204,7 @@ inline void _operatorD(const int nT1, const int nT2, const Mesh &m1, const Mesh 
 inline void _operatorDinternal(const int nT, const int nT2, const Mesh &m, Matrix  &mat,
                                const int offsetJ, const Vect3 pt)
 {
-    const Triangle &T2 = m.Trg(nT2);
+    const Triangle &T2 = m.triangle(nT2);
     static analyticD3 analyD;
 
     analyD.init(m, nT2);
@@ -218,8 +218,8 @@ inline void _operatorDinternal(const int nT, const int nT2, const Mesh &m, Matri
 
 inline double _operatorS(const int nT1, const int nT2, const Mesh &m1, const Mesh &m2, const int gauss_order)
 {
-    const Triangle &T1 = m1.Trg(nT1);
-    const Triangle &T2 = m2.Trg(nT2);
+    const Triangle &T1 = m1.triangle(nT1);
+    const Triangle &T2 = m2.triangle(nT2);
 
     #ifdef USE_OMP
     Triangle *oldT = NULL;
@@ -259,8 +259,8 @@ template<class T>
 inline double _operatorN(const int nP1, const int nP2, const Mesh &m1, const Mesh &m2,
                          const int gauss_order, const int IopS, const int JopS, const T &mat)
 {
-    const Vect3 P1 = m1.Pt(nP1);
-    const Vect3 P2 = m2.Pt(nP2);
+    const Vect3 P1 = m1.point(nP1);
+    const Vect3 P2 = m2.point(nP2);
 
     double Iqr, Aqr;
     double result = 0.0;
@@ -269,8 +269,8 @@ inline double _operatorN(const int nP1, const int nP2, const Mesh &m1, const Mes
     const intSet& trgs2 = m2.get_triangles_for_point(nP2);
     for(intSet::const_iterator it1 = trgs1.begin(); it1 != trgs1.end(); ++it1)
         for(intSet::const_iterator it2 = trgs2.begin(); it2 != trgs2.end(); ++it2) {
-            const Triangle& T1 = m1.Trg(*it1);
-            const Triangle& T2 = m2.Trg(*it2);
+            const Triangle& T1 = m1.triangle(*it1);
+            const Triangle& T2 = m2.triangle(*it2);
 
             // A1 , B1 , A2, B2 are the two opposite vertices to P1 and P2 (triangles A1, B1, P1 and A2, B2, P2)
             if(IopS != 0 || JopS != 0) {
@@ -281,10 +281,10 @@ inline double _operatorN(const int nP1, const int nP2, const Mesh &m1, const Mes
             int nP1T = T1.contains(nP1);    //index of P1 in current triangle of mesh m1
             int nP2T = T2.contains(nP2);    //index of P2 in current triangle of mesh m2
 #ifndef OPTIMIZED_OPERATOR_N
-            Vect3 A1 = m1.Pt(((Triangle)T1).next(nP1T));
-            Vect3 B1 = m1.Pt(((Triangle)T1).prev(nP1T));
-            Vect3 A2 = m2.Pt(((Triangle)T2).next(nP2T));
-            Vect3 B2 = m2.Pt(((Triangle)T2).prev(nP2T));
+            Vect3 A1 = m1.point(((Triangle)T1).next(nP1T));
+            Vect3 B1 = m1.point(((Triangle)T1).prev(nP1T));
+            Vect3 A2 = m2.point(((Triangle)T2).next(nP2T));
+            Vect3 B2 = m2.point(((Triangle)T2).prev(nP2T));
             Vect3 A1B1 = B1 - A1;
             Vect3 A2B2 = B2 - A2;
             Vect3 A1P1 = P1 - A1;
@@ -298,8 +298,8 @@ inline double _operatorN(const int nP1, const int nP2, const Mesh &m1, const Mes
 
             Aqr = -0.25 / T1.getArea() / T2.getArea() * ((aq ^ T1.normal()) * (br ^ T2.normal()));
 #else
-            Vect3 CB1 = m1.Pt(((Triangle)T1).next(nP1T)) - m1.Pt(((Triangle)T1).prev(nP1T));
-            Vect3 CB2 = m2.Pt(((Triangle)T2).next(nP2T)) - m2.Pt(((Triangle)T2).prev(nP2T));
+            Vect3 CB1 = m1.point(((Triangle)T1).next(nP1T)) - m1.point(((Triangle)T1).prev(nP1T));
+            Vect3 CB2 = m2.point(((Triangle)T2).next(nP2T)) - m2.point(((Triangle)T2).prev(nP2T));
 
             Aqr = -0.25 / T1.getArea() / T2.getArea() * (CB1 * CB2);
 #endif
@@ -311,7 +311,7 @@ inline double _operatorN(const int nP1, const int nP2, const Mesh &m1, const Mes
 
 inline double _operatorP1P0(int nT2, int nP1, const Mesh &m)
 {
-    const Triangle &T2 = m.Trg(nT2);
+    const Triangle &T2 = m.triangle(nT2);
     if(T2.contains(nP1) == 0) {
         return 0.0;
     } else {
@@ -457,7 +457,7 @@ void operatorP1P0(const Mesh &m, T &mat, const int offsetI, const int offsetJ)
 
 inline Vect3 _operatorFerguson(const Vect3 x, const int nP1, const Mesh &m1)
 {
-    const Vect3 P1 = m1.Pt(nP1);
+    const Vect3 P1 = m1.point(nP1);
 
     double opS;
     Vect3  v;
@@ -477,13 +477,13 @@ inline Vect3 _operatorFerguson(const Vect3 x, const int nP1, const Mesh &m1)
     //loop over triangles of which P1 is a vertex
     const intSet& trgs1 = m1.get_triangles_for_point(nP1);
     for(intSet::const_iterator it = trgs1.begin(); it != trgs1.end(); ++it) {
-        const Triangle& T1 = m1.Trg(*it);
+        const Triangle& T1 = m1.triangle(*it);
 
         // A1 , B1  are the two opposite vertices to P1 (triangles A1, B1, P1)
         int nP1T = T1.contains(nP1);    //index of P1 in current triangle of mesh m1
 
-        Vect3 A1 = m1.Pt(T1.next(nP1T));
-        Vect3 B1 = m1.Pt(T1.prev(nP1T));
+        Vect3 A1 = m1.point(T1.next(nP1T));
+        Vect3 B1 = m1.point(T1.prev(nP1T));
         Vect3 A1B1 = B1 - A1;    // actually, B1A1 is needed
         v = A1B1 * (-0.5 / T1.getArea());
 

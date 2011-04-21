@@ -116,7 +116,7 @@ int main( int argc, char **argv)
 
         for( int i = 0; i < M.nbTrgs(); ++i )
         {
-            Triangle& t = M.Trg(i);
+            Triangle& t = M.triangle(i);
             int tmp = t[1];
             t[1] = t[0];
             t[0] = tmp;

@@ -108,9 +108,9 @@ int main(int argc, char** argv)
             current_position(k) = electrodes_positions(ielec, k);
         }
         dist_point_mesh(current_position, geo.getM(geo.nb()-1), current_alphas, current_nearest_triangle);
-        matH2E(ielec, geo.getM(geo.nb()-1).Trg(current_nearest_triangle).s1()) = current_alphas(0);
-        matH2E(ielec, geo.getM(geo.nb()-1).Trg(current_nearest_triangle).s2()) = current_alphas(1);
-        matH2E(ielec, geo.getM(geo.nb()-1).Trg(current_nearest_triangle).s3()) = current_alphas(2);
+        matH2E(ielec, geo.getM(geo.nb()-1).triangle(current_nearest_triangle).s1()) = current_alphas(0);
+        matH2E(ielec, geo.getM(geo.nb()-1).triangle(current_nearest_triangle).s2()) = current_alphas(1);
+        matH2E(ielec, geo.getM(geo.nb()-1).triangle(current_nearest_triangle).s3()) = current_alphas(2);
     }
 
     Vector VRi, VRe; // Potential at the electrodes positions

@@ -195,7 +195,7 @@ void assemble_EITSourceMat(Matrix &mat, const Geometry &geo, Matrix &positions, 
             current_position(k) = positions(ielec, k);
         }
         dist_point_mesh(current_position, geo.getM(geo.nb()-1), current_alphas, current_nearest_triangle);
-        double area = geo.getM(geo.nb()-1).Trg(current_nearest_triangle).getArea();
+        double area = geo.getM(geo.nb()-1).triangle(current_nearest_triangle).getArea();
         for(int i=0; i<newsize; i++) {
             mat(i, ielec) = transmat(newsize + current_nearest_triangle, i) / area;
         }

@@ -64,9 +64,9 @@ int main( int argc, char **argv)
     Matrix mat(M.nbPts(),6);
     for(int i = 0; i < M.nbPts(); ++i)
     {
-        mat(i,0) = M.Pt(i).x();
-        mat(i,1) = M.Pt(i).y();
-        mat(i,2) = M.Pt(i).z();
+        mat(i,0) = M.point(i).x();
+        mat(i,1) = M.point(i).y();
+        mat(i,2) = M.point(i).z();
         mat(i,3) = M.normal(i).x();
         mat(i,4) = M.normal(i).y();
         mat(i,5) = M.normal(i).z();

@@ -72,11 +72,11 @@ namespace OpenMEEG {
         void init( int nT, const Mesh &m )
         {
             // all computations needed when the first triangle of integration is changed
-            Triangle& T = (Triangle&) m.Trg(nT);
+            Triangle& T = (Triangle&) m.triangle(nT);
 
-            p0 = m.Pt(T.s1());
-            p1 = m.Pt(T.s2());
-            p2 = m.Pt(T.s3());
+            p0 = m.point(T.s1());
+            p1 = m.point(T.s2());
+            p2 = m.point(T.s3());
 
             p1p0 = p1-p0; p2p1 = p2-p1; p0p2 = p0-p2;
             norm2p1p0 = p1p0.norm(); norm2p2p1 = p2p1.norm(); norm2p0p2 = p0p2.norm();
@@ -137,11 +137,11 @@ namespace OpenMEEG {
         ~analyticD(){}
         inline void init( const Mesh& m1, const int trg, const int noeud)
         {
-            v1 = m1.Pt(m1.Trg(trg).s1());
-            v2 = m1.Pt(m1.Trg(trg).s2());
-            v3 = m1.Pt(m1.Trg(trg).s3());
-            i = m1.Trg(trg).contains(noeud);
-            aire = m1.Trg(trg).getArea();
+            v1 = m1.point(m1.triangle(trg).s1());
+            v2 = m1.point(m1.triangle(trg).s2());
+            v3 = m1.point(m1.triangle(trg).s3());
+            i = m1.triangle(trg).contains(noeud);
+            aire = m1.triangle(trg).getArea();
         }
 
         inline double f(const Vect3& x) const
@@ -197,10 +197,10 @@ namespace OpenMEEG {
         ~analyticD3(){}
         inline void init( const Mesh& m1, const int trg)
         {
-            v1 = m1.Pt(m1.Trg(trg).s1());
-            v2 = m1.Pt(m1.Trg(trg).s2());
-            v3 = m1.Pt(m1.Trg(trg).s3());
-            aire = m1.Trg(trg).getArea();
+            v1 = m1.point(m1.triangle(trg).s1());
+            v2 = m1.point(m1.triangle(trg).s2());
+            v3 = m1.point(m1.triangle(trg).s3());
+            aire = m1.triangle(trg).getArea();
         }
 
         inline Vect3 f(const Vect3& x) const
@@ -281,12 +281,12 @@ namespace OpenMEEG {
             q = _q;
             r0 = _r0;
 
-            Triangle& T = (Triangle&)m.Trg(nT);
+            Triangle& T = (Triangle&)m.triangle(nT);
 
             Vect3 p0,p1,p2,p1p0,p2p1,p0p2,p1p0n,p2p1n,p0p2n,p1H0,p2H1,p0H2;
-            p0 = m.Pt(T.s1());
-            p1 = m.Pt(T.s2());
-            p2 = m.Pt(T.s3());
+            p0 = m.point(T.s1());
+            p1 = m.point(T.s2());
+            p2 = m.point(T.s3());
 
             p1p0 = p0-p1; p2p1 = p1-p2; p0p2 = p2-p0;
             p1p0n = p1p0; p1p0n.normalize(); p2p1n = p2p1; p2p1n.normalize(); p0p2n = p0p2; p0p2n.normalize();
