@@ -4,7 +4,8 @@
 #PIPOL esn amd64-linux-fedora-core11.dd.gz none 2:00 --silent --root
 #PIPOL esn i386_kvm-linux-debian-lenny  none 2:00 --silent --root
 #PIPOL esn i386-linux-fedora-core11.dd.gz none 2:00 --silent --root
-#PIPOL esn mac-osx-server-snow-leopard none 0:40 --silent --root
+#PIPOL esn x86_64_mac-mac-osx-server-snow-leopard none 0:40 --silent --root
+#PIPOL esn i386_mac-mac-osx-server-leopard none 00:40 --silent --root
 
 SYSTEM=`uname`
 ARCH=`uname -m`
