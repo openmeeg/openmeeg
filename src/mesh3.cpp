@@ -990,14 +990,16 @@ namespace OpenMEEG {
         }
         Vect3 bbmin(xmin, ymin, zmin);
         Vect3 bbmax(xmax, ymax, zmax);
-        Vect3 bbcenter = 0.5*(bbmin+bbmax);
+        Vect3 bbcenter = 0.5 * (bbmin + bbmax);
 
         // check the center of the bounding box is inside the mesh
         bool in_mesh = contains_point(bbcenter);
-        if (!(in_mesh))
-	    std::cerr << "Global orientation problem...\n"<< std::endl;
-	if (!(flipped_edge_list == edge_list))
-	  std::cerr << "Local orientation problem...\n" << std::endl;
+        if (!in_mesh) {
+            std::cerr << "Global orientation problem..." << std::endl << std::endl;
+        }
+        if (flipped_edge_list != edge_list) {
+            std::cerr << "Local orientation problem..." << std::endl << std::endl;
+        }
         return in_mesh && (flipped_edge_list == edge_list);
     }
 

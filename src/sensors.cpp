@@ -1,13 +1,5 @@
-/* FILE: $Id:$ */
-
 /*
 Project Name : OpenMEEG
-
-author            : $Author:$
-version           : $Revision:$
-last revision     : $Date:$
-modified by       : $LastChangedBy:$
-last modified     : $LastChangedDate:$
 
 © INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre
 GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU, Théodore PAPADOPOULO,
@@ -132,9 +124,10 @@ namespace OpenMEEG {
             std::getline(in,s);
             num_of_lines++;
         }
-	if(s.empty())
-	  { num_of_lines--;}
-	
+        if (s.empty()) {
+            num_of_lines--;
+        }
+
         // init private members :
         m_positions = Matrix( num_of_lines, 3);
         m_weights = Vector( num_of_lines );

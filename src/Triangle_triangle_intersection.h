@@ -151,12 +151,12 @@ namespace OpenMEEG {
 
 
     bool tri_tri_overlap_test_3d(double p1[3], double q1[3], double r1[3],
-				 double p2[3], double q2[3], double r2[3])
+                                 double p2[3], double q2[3], double r2[3])
     {
       double dp1, dq1, dr1, dp2, dq2, dr2;
       double v1[3], v2[3];
       double N1[3], N2[3];
-      const double eps=1e-16;  
+      const double eps=1e-16;
 
       // Compute distance signs  of p1, q1 and r1 to the plane of triangle(p2,q2,r2)
 
@@ -448,7 +448,7 @@ namespace OpenMEEG {
           else TRI_TRI_INTER_3D(q1,r1,p1,p2,q2,r2,dp2,dq2,dr2)
         }
         else  {
-	  
+
           if (dr1 > 0.0f) TRI_TRI_INTER_3D(r1,p1,q1,p2,q2,r2,dp2,dq2,dr2)
           else if (dr1 < 0.0f) TRI_TRI_INTER_3D(r1,p1,q1,p2,r2,q2,dp2,dr2,dq2)
           else {
