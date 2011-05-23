@@ -132,8 +132,9 @@ namespace OpenMEEG {
             std::getline(in,s);
             num_of_lines++;
         }
-        num_of_lines--;
-
+	if(s.empty())
+	  { num_of_lines--;}
+	
         // init private members :
         m_positions = Matrix( num_of_lines, 3);
         m_weights = Vector( num_of_lines );

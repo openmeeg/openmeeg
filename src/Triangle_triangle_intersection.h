@@ -156,7 +156,7 @@ namespace OpenMEEG {
       double dp1, dq1, dr1, dp2, dq2, dr2;
       double v1[3], v2[3];
       double N1[3], N2[3];
-      const double eps=1e-16;
+      const double eps=1e-16;  
 
       // Compute distance signs  of p1, q1 and r1 to the plane of triangle(p2,q2,r2)
 
@@ -199,7 +199,7 @@ namespace OpenMEEG {
         else TRI_TRI_3D(p1,q1,r1,p2,r2,q2,dp2,dr2,dq2)
       } else {
         if (dq1 < -eps) {
-          if (dr1 >= 0.0f) TRI_TRI_3D(q1,r1,p1,p2,r2,q2,dp2,dr2,dq2)
+          if (dr1 >= eps) TRI_TRI_3D(q1,r1,p1,p2,r2,q2,dp2,dr2,dq2)
           else TRI_TRI_3D(p1,q1,r1,p2,q2,r2,dp2,dq2,dr2)
         }
         else if (dq1 > eps) {
