@@ -113,46 +113,44 @@ namespace OpenMEEG {
         std::getline(in, s);
         std::stringstream is(s);
         size_t num_of_columns = 0;
-        while( is >> buf )
+        while(is >> buf)
             num_of_columns++;
 
         // Determine the number of lines
         in.seekg(0,std::ios::beg);
         size_t num_of_lines = 0;
-        while(!in.fail())
-        {
+        while(!in.fail()) {
             std::getline(in,s);
+            if (s=="") break; // Skip blank line
             num_of_lines++;
         }
-        if (s.empty()) {
+        if (s.empty())
             num_of_lines--;
-        }
 
         // init private members :
-        m_positions = Matrix( num_of_lines, 3);
-        m_weights = Vector( num_of_lines );
-        m_pointSensorIdx = std::vector<size_t>( num_of_lines );
+        m_positions = Matrix(num_of_lines,3);
+        m_weights = Vector(num_of_lines);
+        m_pointSensorIdx = std::vector<size_t>(num_of_lines);
 
-        if ( num_of_columns > 4 ) {
-            m_orientations = Matrix( num_of_lines, 3);
-        }
+        if (num_of_columns>4)
+            m_orientations = Matrix(num_of_lines,3);
 
         m_nb = 0;
         size_t current_line_id = 0;
         in.clear();
         in.seekg(0,std::ios::beg); // move the get pointer to the beginning of the file.
-        while ( !in.fail() ) {
+        while (!in.fail()) {
             // Tokenize line
             std::getline(in,s);
 
-            if( s == "" ) break; // Skip blank line
+            if (s=="") break; // Skip blank line
+
             std::stringstream iss(s);
             tokens.clear();
-            while( iss >> buf)
+            while (iss >> buf)
                 tokens.push_back(buf);
 
-            if(tokens.size() != num_of_columns)
-            {
+            if(tokens.size()!= num_of_columns) {
                 std::cout << tokens.size() << " != " << num_of_columns << std::endl;
                 std::cerr << "Problem while reading Sensors file" << std::endl;
                 std::cerr << "Each line should have the same number of elements" << std::endl;
@@ -163,7 +161,7 @@ namespace OpenMEEG {
 
             size_t sensor_idx = m_nb;
             // See if it's actually a new sensor or just a new integration point
-            if ( (num_of_columns >= 7) || (num_of_columns == 4) ) { // Get label
+            if ((num_of_columns >= 7) || (num_of_columns == 4)) { // Get label
                 std::string sensor_name = *tokensIterator;
                 tokensIterator++;
                 if(hasSensor(sensor_name)) {
@@ -179,7 +177,7 @@ namespace OpenMEEG {
             m_pointSensorIdx[current_line_id] = sensor_idx;
 
             // read position
-            for(size_t i=0; i<3; i++){
+            for(size_t i=0;i<3;++i){
                 std::stringstream tmp_is(*tokensIterator);
                 double tmp;
                 tmp_is >> tmp;
@@ -187,10 +185,10 @@ namespace OpenMEEG {
                 tokensIterator++;
             }
 
-            if ( num_of_columns > 4 ) {
+            if (num_of_columns>4) {
                 // read orientation
                 std::vector<double> coord;
-                for(size_t i=0; i<3; i++){
+                for(size_t i=0;i<3;++i){
                     std::stringstream tmp_is(*tokensIterator);
                     double tmp;
                     tmp_is >> tmp;
@@ -200,7 +198,7 @@ namespace OpenMEEG {
             }
 
             // Try to read weight
-            if(tokensIterator != tokens.end()) {
+            if (tokensIterator!=tokens.end()) {
                 std::stringstream ss(*tokensIterator);
                 tokensIterator++;
                 double tmp;
@@ -210,7 +208,7 @@ namespace OpenMEEG {
                 m_weights(current_line_id) = 1.0;
             }
 
-            assert(tokensIterator == tokens.end()); // Check if everything has been read
+            assert(tokensIterator==tokens.end()); // Check if everything has been read
 
             current_line_id++;
         }
