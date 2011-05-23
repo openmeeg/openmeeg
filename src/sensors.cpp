@@ -121,11 +121,9 @@ namespace OpenMEEG {
         size_t num_of_lines = 0;
         while(!in.fail()) {
             std::getline(in,s);
-            if (s=="") break; // Skip blank line
+            if (s.empty()) break; // Skip blank line
             num_of_lines++;
         }
-        if (s.empty())
-            num_of_lines--;
 
         // init private members :
         m_positions = Matrix(num_of_lines,3);
