@@ -38,10 +38,17 @@ IF(FORCE_BUILD_32BITS)
     set(MKL_ARCH_DIR "32")
 ENDIF()
 
+if (WIN32)
+    if(${CMAKE_SIZEOF_VOID_P} EQUAL 8)
+        set(MKL_ARCH_DIR "intel64")
+    else()
+        set(MKL_ARCH_DIR "ia32")
+    endif()
+endif()
+
 set (MKL_THREAD_VARIANTS SEQUENTIAL GNUTHREAD INTELTHREAD)
 set (MKL_MODE_VARIANTS ILP LP)
 set (MKL_MPI_VARIANTS NOMPI INTELMPI OPENMPI SGIMPT)
-
 
 find_path(MKL_ROOT_DIR
     include/mkl_cblas.h
@@ -50,9 +57,10 @@ find_path(MKL_ROOT_DIR
     /opt/intel/mkl/*/
     /opt/intel/cmkl/*/
     /Library/Frameworks/Intel_MKL.framework/Versions/Current/lib/universal
+    "Program Files (x86)/Intel/ComposerXE-2011/mkl"
 )
 
-# MESSAGE("MKL_ROOT_DIR : ${MKL_ROOT_DIR}") # for debug
+MESSAGE("MKL_ROOT_DIR : ${MKL_ROOT_DIR}") # for debug
 
 find_path(MKL_INCLUDE_DIR
   mkl_cblas.h
