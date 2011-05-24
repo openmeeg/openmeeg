@@ -27,9 +27,19 @@ IF (USE_MKL)
             PATHS
             $ENV{MKL_DIR}
             "C:/Program Files/Intel/MKL/*/"
+            "C:/Program Files/Intel/ComposerXE-2011/mkl"
+            "C:/Program Files (x86)/Intel/ComposerXE-2011/mkl"
         )
-        #MESSAGE(${CMAKE_HOST_SYSTEM_PROCESSOR})
-        SET(MKL_LIB_SEARCHPATH $ENV{ICC_LIB_DIR} $ENV{MKL_LIB_DIR} "${MKL_ROOT_DIR}/ia32/lib")
+
+        if (WIN32)
+            if(${CMAKE_SIZEOF_VOID_P} EQUAL 8)
+                set(MKL_ARCH_DIR "intel64")
+            else()
+                set(MKL_ARCH_DIR "ia32")
+            endif()
+        endif()
+
+        SET(MKL_LIB_SEARCHPATH $ENV{ICC_LIB_DIR} $ENV{MKL_LIB_DIR} "${MKL_ROOT_DIR}/lib/${MKL_ARCH_DIR}" "${MKL_ROOT_DIR}/../compiler")
 
         FIND_PATH(MKL_INCLUDE_PATH mkl.h ${MKL_ROOT_DIR}/include)
 
@@ -42,6 +52,11 @@ IF (USE_MKL)
         ELSE() # old MKL 9
             SET(MKL_LIBS mkl_solver mkl_c libguide mkl_lapack mkl_ia32)
         ENDIF()
+
+        IF (MKL_INCLUDE_PATH MATCHES "10.3")
+            SET(MKL_LIBS ${MKL_LIBS} libiomp5md)
+        ENDIF()
+
         INCLUDE_DIRECTORIES(${MKL_INCLUDE_PATH})
 
         FOREACH (LIB ${MKL_LIBS})
