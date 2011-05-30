@@ -212,18 +212,15 @@ namespace OpenMEEG {
 
     protected:
 
-        inline T triangle_integration( const I &fc, Vect3 *vertices)
+        inline T triangle_integration(const I &fc,const Vect3* vertices)
         {// compute double area of triangle defined by vertices
             Vect3 crossprod=(vertices[1]-vertices[0])^(vertices[2]-vertices[0]);
             double S = crossprod.norm();
             T result = 0;
-            static Vect3 zero(0.0,0.0,0.0);
-            for(int i=0;i<nbPts[order];i++)
-            {
-                Vect3 v=zero;
-                for(int j=0;j<3;j++) {
+            for (int i=0;i<nbPts[order];i++) {
+                Vect3 v(0.0,0.0,0.0);
+                for (int j=0;j<3;j++)
                     v.multadd(cordBars[order][i][j],vertices[j]);
-                }
                 multadd(result,cordBars[order][i][3],fc.f(v));
             }
             return result*S;
@@ -268,17 +265,17 @@ namespace OpenMEEG {
             Vect3 newpoint2(0.0,0.0,0.0);
             multadd(newpoint2,0.5,vertices[2]);
             multadd(newpoint2,0.5,vertices[0]);
-            Vect3 vertices1[3]={vertices[0],newpoint0,newpoint2};
-            Vect3 vertices2[3]={vertices[1],newpoint1,newpoint0};
-            Vect3 vertices3[3]={vertices[2],newpoint2,newpoint1};
-            Vect3 vertices4[3]={newpoint0,newpoint1,newpoint2};
-            T I1=triangle_integration(fc,vertices1);
-            T I2=triangle_integration(fc,vertices2);
-            T I3=triangle_integration(fc,vertices3);
-            T I4=triangle_integration(fc,vertices4);
-            T sum=I1+I2+I3+I4;
+            Vect3 vertices1[3] = {vertices[0],newpoint0,newpoint2};
+            Vect3 vertices2[3] = {vertices[1],newpoint1,newpoint0};
+            Vect3 vertices3[3] = {vertices[2],newpoint2,newpoint1};
+            Vect3 vertices4[3] = {newpoint0,newpoint1,newpoint2};
+            T I1 = triangle_integration(fc,vertices1);
+            T I2 = triangle_integration(fc,vertices2);
+            T I3 = triangle_integration(fc,vertices3);
+            T I4 = triangle_integration(fc,vertices4);
+            T sum = I1+I2+I3+I4;
             if (norm(I0-sum)>tolerance*norm(I0)){
-                n=n+1;
+                n = n+1;
                 if (n<10) {
                     I1 = adaptive_integration(fc,vertices1,I1,n);
                     I2 = adaptive_integration(fc,vertices2,I2,n);
