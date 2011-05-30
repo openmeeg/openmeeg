@@ -142,7 +142,7 @@ void assemble_SurfSource2MEG(Matrix &mat, const Mesh &sources_mesh, const Sensor
 {
     Matrix positions = sensors.getPositions();
     Matrix orientations = sensors.getOrientations();
-    const int nsquids = (int) positions.nlin();
+    const size_t nsquids = positions.nlin();
 
     mat = Matrix(nsquids, sources_mesh.nbPts());
     mat.set(0.0);
