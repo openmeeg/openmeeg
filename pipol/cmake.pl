@@ -29,9 +29,9 @@ if ( -f "$cmake" )
 		if($my_cmake_version =~ /.*2.6.[1-9].*$/) 
 		{
 			print "version > 2.6.0\n";
-			system "wget http://www.cmake.org/files/v2.8/cmake-2.8.2.tar.gz";
-			system "tar zxvf cmake-2.8.2.tar.gz";
-			chdir("./cmake-2.8.2");
+			system "wget http://www.cmake.org/files/v2.8/cmake-2.8.4.tar.gz";
+			system "tar zxvf cmake-2.8.4.tar.gz";
+			chdir("./cmake-2.8.4");
 			system "cmake .";
 			system "make";
 			if (-f "./bin/cmake"){
@@ -49,7 +49,7 @@ if ( -f "$cmake" )
 		{
 			print "version < 2.6.1\n";
 			system "wget http://www.cmake.org/files/v2.6/cmake-2.6.4.tar.gz";
-			system "wget http://www.cmake.org/files/v2.8/cmake-2.8.2.tar.gz";
+			system "wget http://www.cmake.org/files/v2.8/cmake-2.8.4.tar.gz";
 	
 			system "tar zxvf cmake-2.6.4.tar.gz";
 			chdir("./cmake-2.6.4/");
@@ -78,8 +78,8 @@ if ( -f "$cmake" )
 			chomp $ctest;
 			chomp $cpack;
 	
-			system "tar zxvf cmake-2.8.2.tar.gz";
-			chdir("./cmake-2.8.2/");
+			system "tar zxvf cmake-2.8.4.tar.gz";
+			chdir("./cmake-2.8.4/");
 			system "cmake .";
 			system "make";
 			if (-f "./bin/cmake"){
