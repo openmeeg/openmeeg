@@ -37,6 +37,12 @@ PROJECT(OpenMEEG C CXX)
 
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6 FATAL_ERROR)
 
+# By default, do not warn when built on machines using only VS Express:
+
+IF (NOT DEFINED CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_NO_WARNINGS)
+    SET(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_NO_WARNINGS ON)
+ENDIF()
+
 INCLUDE(NewExecutable)
 INCLUDE(FindLibrary)
 INCLUDE(UnitTest)
@@ -70,13 +76,6 @@ IF(USE_ATLAS)
     FortranCInterface_HEADER(FC.h MACRO_NAMESPACE "FC_" FROM_LIBRARY blas[daxpy])
 ENDIF()
 
-#######################################################################
-# Configure files with settings for use by the build.
-#######################################################################
-
-CONFIGURE_FILE(${OpenMEEG_SOURCE_DIR}/OpenMEEGConfigure.h.in
-               ${OpenMEEG_BINARY_DIR}/OpenMEEGConfigure.h)
-
 #---------------------------------------------------------------
 # Include OpenMEEG Directories
 #---------------------------------------------------------------
@@ -97,6 +96,13 @@ INCLUDE_DIRECTORIES(${OPENMEEG_INCLUDE_DIRECTORIES})
 #---------------------------------------------------------------
 
 SUBDIRS(contrib libs src)
+
+#######################################################################
+# Configure files with settings for use by the build.
+#######################################################################
+
+CONFIGURE_FILE(${OpenMEEG_SOURCE_DIR}/OpenMEEGConfigure.h.in
+               ${OpenMEEG_BINARY_DIR}/OpenMEEGConfigure.h)
 
 IF(UNIX)
     INCLUDE(AddDemoTarget)
