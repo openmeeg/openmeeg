@@ -47,11 +47,12 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include "matio.h"
 #endif
 
-#if defined(USE_MKL)
-#define HAVE_BLAS
-#define HAVE_LAPACK
-#else
-#include <FC.h>
+#if !defined(USE_MKL)
+    #if defined (WIN32)
+        #define FC_GLOBAL(x,X) x ## _
+    #else
+        #include <FC.h>
+    #endif
 #endif
 
 //#define inline __forceinline
