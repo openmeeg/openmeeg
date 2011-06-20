@@ -1,0 +1,2 @@
+file(GLOB HEADER_FILES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.h) 
+install_files(/include FILES ${HEADER_FILES} )
