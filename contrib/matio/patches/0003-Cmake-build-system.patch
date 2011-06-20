@@ -1,0 +1,2656 @@
+From eb888c2bc1afd67dad2833cc9508892279e07bc3 Mon Sep 17 00:00:00 2001
+From: Theo Papadopoulo <Theodore.Papadopoulo@sophia.inria.fr>
+Date: Fri, 20 Aug 2010 19:07:30 +0200
+Subject: [PATCH 3/4] Cmake build system.
+
+---
+ CMakeLists.txt                                     |  209 +++++++++++++
+ cmake/Boolean.cmake                                |    7 +
+ cmake/CMakeFortranCompiler.cmake.in                |   29 ++
+ cmake/CheckHeaderSTDC.c                            |   20 ++
+ cmake/CheckHeaderSTDC.cmake                        |   65 ++++
+ cmake/DefaultFileVersion.cmake                     |   11 +
+ cmake/FindLibrary.cmake                            |   24 ++
+ cmake/FortranCInterface.cmake                      |  309 ++++++++++++++++++++
+ cmake/FortranCInterface/CMakeLists.txt             |   95 ++++++
+ cmake/FortranCInterface/CreateOutput.cmake         |   65 ++++
+ cmake/FortranCInterface/Detect.cmake               |  123 ++++++++
+ cmake/FortranCInterface/DetectFromLibrary.cmake    |   86 ++++++
+ cmake/FortranCInterface/Input.cmake.in             |    3 +
+ cmake/FortranCInterface/Macro.h.in                 |    4 +
+ cmake/FortranCInterface/Output.cmake.in            |   33 ++
+ cmake/FortranCInterface/Verify/CMakeLists.txt      |   32 ++
+ cmake/FortranCInterface/Verify/VerifyC.c           |    5 +
+ cmake/FortranCInterface/Verify/VerifyCXX.cxx       |    4 +
+ cmake/FortranCInterface/Verify/VerifyFortran.f     |    3 +
+ cmake/FortranCInterface/Verify/main.c              |   16 +
+ cmake/FortranCInterface/call_mod.f90               |    6 +
+ cmake/FortranCInterface/call_sub.f                 |    4 +
+ cmake/FortranCInterface/main.F                     |    6 +
+ cmake/FortranCInterface/my_module.f90              |    8 +
+ cmake/FortranCInterface/my_module_.c               |    8 +
+ cmake/FortranCInterface/my_sub.f                   |    2 +
+ cmake/FortranCInterface/mymodule.f90               |    8 +
+ cmake/FortranCInterface/mymodule_.c                |    8 +
+ cmake/FortranCInterface/mysub.f                    |    2 +
+ cmake/FortranCInterface/symbol.c.in                |    4 +
+ cmake/Packaging.cmake                              |  115 ++++++++
+ cmake/UseWin32dlls.cmake                           |   21 ++
+ cmake/VA_COPY.cmake                                |   42 +++
+ cmake_uninstall.cmake.in                           |   20 ++
+ doxygen/CMakeLists.txt                             |   11 +
+ src/CMakeLists.txt                                 |   42 +++
+ src/fortran/CMakeLists.txt                         |    5 +
+ src/matioConfig.cmake.in                           |   70 +++++
+ test/CMakeLists.txt                                |  103 +++++++
+ test/results/MATIO-copy-write.out                  |    1 +
+ test/results/MATIO-copy-write_compressed.out       |    1 +
+ test/results/MATIO-copy-write_compressed_cell.out  |    1 +
+ .../results/MATIO-copy-write_compressed_sparse.out |    1 +
+ .../results/MATIO-copy-write_compressed_struct.out |    1 +
+ test/results/MATIO-copy-write_null.out             |    1 +
+ test/results/MATIO-copy-write_struct.out           |    1 +
+ test/results/MATIO-copy-writecell.out              |    1 +
+ test/results/MATIO-copy-writeinf.out               |    1 +
+ test/results/MATIO-copy-writenan.out               |    1 +
+ test/results/MATIO-copy-writeslab.out              |    1 +
+ test/results/MATIO-copy-writesparse.out            |    1 +
+ ...IO-getstructfield-write_compressed_struct-1.out |    1 +
+ ...IO-getstructfield-write_compressed_struct-2.out |    1 +
+ ...IO-getstructfield-write_compressed_struct-3.out |    1 +
+ ...IO-getstructfield-write_compressed_struct-4.out |    1 +
+ ...getstructfield-write_compressed_struct-data.out |    1 +
+ .../MATIO-getstructfield-write_struct-1.out        |    1 +
+ .../MATIO-getstructfield-write_struct-2.out        |    1 +
+ .../MATIO-getstructfield-write_struct-3.out        |    1 +
+ .../MATIO-getstructfield-write_struct-4.out        |    1 +
+ .../MATIO-getstructfield-write_struct-data.out     |    1 +
+ test/results/MATIO-ind2sub.out                     |    2 +
+ test/results/MATIO-readslab-d.out                  |    1 +
+ test/results/MATIO-readslab-f.out                  |    1 +
+ test/results/MATIO-readslab-i.out                  |    1 +
+ test/results/MATIO-readvar-write-d.out             |    1 +
+ test/results/MATIO-readvar-write-f.out             |    1 +
+ test/results/MATIO-readvar-write-i16.out           |    1 +
+ test/results/MATIO-readvar-write-i32.out           |    1 +
+ test/results/MATIO-readvar-write-i64.out           |    1 +
+ test/results/MATIO-readvar-write-i8.out            |    1 +
+ test/results/MATIO-readvar-write-str.out           |    1 +
+ test/results/MATIO-readvar-write-ui64.out          |    1 +
+ test/results/MATIO-readvar-write_compressed-d.out  |    1 +
+ test/results/MATIO-readvar-write_compressed-f.out  |    1 +
+ .../results/MATIO-readvar-write_compressed-i16.out |    1 +
+ .../results/MATIO-readvar-write_compressed-i32.out |    1 +
+ .../results/MATIO-readvar-write_compressed-i64.out |    1 +
+ test/results/MATIO-readvar-write_compressed-i8.out |    1 +
+ .../results/MATIO-readvar-write_compressed-str.out |    1 +
+ .../MATIO-readvar-write_compressed-ui64.out        |    1 +
+ .../MATIO-readvar-write_compressed_cell.out        |    1 +
+ test/results/MATIO-readvar-writecell.out           |    1 +
+ test/results/MATIO-readvarinfo-write-d.out         |    1 +
+ test/results/MATIO-readvarinfo-write-f.out         |    1 +
+ test/results/MATIO-readvarinfo-write-i16.out       |    1 +
+ test/results/MATIO-readvarinfo-write-i32.out       |    1 +
+ test/results/MATIO-readvarinfo-write-i64.out       |    1 +
+ test/results/MATIO-readvarinfo-write-i8.out        |    1 +
+ test/results/MATIO-readvarinfo-write-str.out       |    1 +
+ test/results/MATIO-readvarinfo-write-ui64.out      |    1 +
+ .../MATIO-readvarinfo-write_compressed-d.out       |    1 +
+ .../MATIO-readvarinfo-write_compressed-f.out       |    1 +
+ .../MATIO-readvarinfo-write_compressed-i16.out     |    1 +
+ .../MATIO-readvarinfo-write_compressed-i32.out     |    1 +
+ .../MATIO-readvarinfo-write_compressed-i64.out     |    1 +
+ .../MATIO-readvarinfo-write_compressed-i8.out      |    1 +
+ .../MATIO-readvarinfo-write_compressed-str.out     |    1 +
+ .../MATIO-readvarinfo-write_compressed-ui64.out    |    1 +
+ .../MATIO-readvarinfo-write_compressed_cell.out    |    1 +
+ test/results/MATIO-readvarinfo-writecell.out       |    1 +
+ test/results/MATIO-sub2ind.out                     |    2 +
+ test/results/MATIO-write.out                       |    1 +
+ test/results/MATIO-write_compressed_cell.out       |    1 +
+ test/results/MATIO-write_compressed_sparse.out     |    1 +
+ test/results/MATIO-write_compressed_struct.out     |    1 +
+ test/results/MATIO-write_struct.out                |    1 +
+ test/results/MATIO-writecell.out                   |    1 +
+ test/results/MATIO-writecompressed.out             |    1 +
+ test/results/MATIO-writeinf.out                    |    1 +
+ test/results/MATIO-writenan.out                    |    1 +
+ test/results/MATIO-writeslab.out                   |    1 +
+ test/results/MATIO-writesparse.out                 |    1 +
+ test/results/TEST_SNPRINTF.out                     |    4 +
+ test/runTest.cmake                                 |   17 +
+ 115 files changed, 1725 insertions(+), 0 deletions(-)
+ create mode 100644 CMakeLists.txt
+ create mode 100644 cmake/Boolean.cmake
+ create mode 100644 cmake/CMakeFortranCompiler.cmake.in
+ create mode 100644 cmake/CheckHeaderSTDC.c
+ create mode 100644 cmake/CheckHeaderSTDC.cmake
+ create mode 100644 cmake/DefaultFileVersion.cmake
+ create mode 100644 cmake/FindLibrary.cmake
+ create mode 100644 cmake/FortranCInterface.cmake
+ create mode 100644 cmake/FortranCInterface/CMakeLists.txt
+ create mode 100644 cmake/FortranCInterface/CreateOutput.cmake
+ create mode 100644 cmake/FortranCInterface/Detect.cmake
+ create mode 100644 cmake/FortranCInterface/DetectFromLibrary.cmake
+ create mode 100644 cmake/FortranCInterface/Input.cmake.in
+ create mode 100644 cmake/FortranCInterface/Macro.h.in
+ create mode 100644 cmake/FortranCInterface/Output.cmake.in
+ create mode 100644 cmake/FortranCInterface/Verify/CMakeLists.txt
+ create mode 100644 cmake/FortranCInterface/Verify/VerifyC.c
+ create mode 100644 cmake/FortranCInterface/Verify/VerifyCXX.cxx
+ create mode 100644 cmake/FortranCInterface/Verify/VerifyFortran.f
+ create mode 100644 cmake/FortranCInterface/Verify/main.c
+ create mode 100644 cmake/FortranCInterface/call_mod.f90
+ create mode 100644 cmake/FortranCInterface/call_sub.f
+ create mode 100644 cmake/FortranCInterface/main.F
+ create mode 100644 cmake/FortranCInterface/my_module.f90
+ create mode 100644 cmake/FortranCInterface/my_module_.c
+ create mode 100644 cmake/FortranCInterface/my_sub.f
+ create mode 100644 cmake/FortranCInterface/mymodule.f90
+ create mode 100644 cmake/FortranCInterface/mymodule_.c
+ create mode 100644 cmake/FortranCInterface/mysub.f
+ create mode 100644 cmake/FortranCInterface/symbol.c.in
+ create mode 100644 cmake/Packaging.cmake
+ create mode 100644 cmake/UseWin32dlls.cmake
+ create mode 100644 cmake/VA_COPY.cmake
+ create mode 100644 cmake_uninstall.cmake.in
+ create mode 100644 doxygen/CMakeLists.txt
+ create mode 100644 src/CMakeLists.txt
+ create mode 100644 src/fortran/CMakeLists.txt
+ create mode 100644 src/matioConfig.cmake.in
+ create mode 100644 test/CMakeLists.txt
+ create mode 100644 test/results/MATIO-copy-write.out
+ create mode 100644 test/results/MATIO-copy-write_compressed.out
+ create mode 100644 test/results/MATIO-copy-write_compressed_cell.out
+ create mode 100644 test/results/MATIO-copy-write_compressed_sparse.out
+ create mode 100644 test/results/MATIO-copy-write_compressed_struct.out
+ create mode 100644 test/results/MATIO-copy-write_null.out
+ create mode 100644 test/results/MATIO-copy-write_struct.out
+ create mode 100644 test/results/MATIO-copy-writecell.out
+ create mode 100644 test/results/MATIO-copy-writeinf.out
+ create mode 100644 test/results/MATIO-copy-writenan.out
+ create mode 100644 test/results/MATIO-copy-writeslab.out
+ create mode 100644 test/results/MATIO-copy-writesparse.out
+ create mode 100644 test/results/MATIO-getstructfield-write_compressed_struct-1.out
+ create mode 100644 test/results/MATIO-getstructfield-write_compressed_struct-2.out
+ create mode 100644 test/results/MATIO-getstructfield-write_compressed_struct-3.out
+ create mode 100644 test/results/MATIO-getstructfield-write_compressed_struct-4.out
+ create mode 100644 test/results/MATIO-getstructfield-write_compressed_struct-data.out
+ create mode 100644 test/results/MATIO-getstructfield-write_struct-1.out
+ create mode 100644 test/results/MATIO-getstructfield-write_struct-2.out
+ create mode 100644 test/results/MATIO-getstructfield-write_struct-3.out
+ create mode 100644 test/results/MATIO-getstructfield-write_struct-4.out
+ create mode 100644 test/results/MATIO-getstructfield-write_struct-data.out
+ create mode 100644 test/results/MATIO-ind2sub.out
+ create mode 100644 test/results/MATIO-readslab-d.out
+ create mode 100644 test/results/MATIO-readslab-f.out
+ create mode 100644 test/results/MATIO-readslab-i.out
+ create mode 100644 test/results/MATIO-readvar-write-d.out
+ create mode 100644 test/results/MATIO-readvar-write-f.out
+ create mode 100644 test/results/MATIO-readvar-write-i16.out
+ create mode 100644 test/results/MATIO-readvar-write-i32.out
+ create mode 100644 test/results/MATIO-readvar-write-i64.out
+ create mode 100644 test/results/MATIO-readvar-write-i8.out
+ create mode 100644 test/results/MATIO-readvar-write-str.out
+ create mode 100644 test/results/MATIO-readvar-write-ui64.out
+ create mode 100644 test/results/MATIO-readvar-write_compressed-d.out
+ create mode 100644 test/results/MATIO-readvar-write_compressed-f.out
+ create mode 100644 test/results/MATIO-readvar-write_compressed-i16.out
+ create mode 100644 test/results/MATIO-readvar-write_compressed-i32.out
+ create mode 100644 test/results/MATIO-readvar-write_compressed-i64.out
+ create mode 100644 test/results/MATIO-readvar-write_compressed-i8.out
+ create mode 100644 test/results/MATIO-readvar-write_compressed-str.out
+ create mode 100644 test/results/MATIO-readvar-write_compressed-ui64.out
+ create mode 100644 test/results/MATIO-readvar-write_compressed_cell.out
+ create mode 100644 test/results/MATIO-readvar-writecell.out
+ create mode 100644 test/results/MATIO-readvarinfo-write-d.out
+ create mode 100644 test/results/MATIO-readvarinfo-write-f.out
+ create mode 100644 test/results/MATIO-readvarinfo-write-i16.out
+ create mode 100644 test/results/MATIO-readvarinfo-write-i32.out
+ create mode 100644 test/results/MATIO-readvarinfo-write-i64.out
+ create mode 100644 test/results/MATIO-readvarinfo-write-i8.out
+ create mode 100644 test/results/MATIO-readvarinfo-write-str.out
+ create mode 100644 test/results/MATIO-readvarinfo-write-ui64.out
+ create mode 100644 test/results/MATIO-readvarinfo-write_compressed-d.out
+ create mode 100644 test/results/MATIO-readvarinfo-write_compressed-f.out
+ create mode 100644 test/results/MATIO-readvarinfo-write_compressed-i16.out
+ create mode 100644 test/results/MATIO-readvarinfo-write_compressed-i32.out
+ create mode 100644 test/results/MATIO-readvarinfo-write_compressed-i64.out
+ create mode 100644 test/results/MATIO-readvarinfo-write_compressed-i8.out
+ create mode 100644 test/results/MATIO-readvarinfo-write_compressed-str.out
+ create mode 100644 test/results/MATIO-readvarinfo-write_compressed-ui64.out
+ create mode 100644 test/results/MATIO-readvarinfo-write_compressed_cell.out
+ create mode 100644 test/results/MATIO-readvarinfo-writecell.out
+ create mode 100644 test/results/MATIO-sub2ind.out
+ create mode 100644 test/results/MATIO-write.out
+ create mode 100644 test/results/MATIO-write_compressed_cell.out
+ create mode 100644 test/results/MATIO-write_compressed_sparse.out
+ create mode 100644 test/results/MATIO-write_compressed_struct.out
+ create mode 100644 test/results/MATIO-write_struct.out
+ create mode 100644 test/results/MATIO-writecell.out
+ create mode 100644 test/results/MATIO-writecompressed.out
+ create mode 100644 test/results/MATIO-writeinf.out
+ create mode 100644 test/results/MATIO-writenan.out
+ create mode 100644 test/results/MATIO-writeslab.out
+ create mode 100644 test/results/MATIO-writesparse.out
+ create mode 100644 test/results/TEST_SNPRINTF.out
+ create mode 100644 test/runTest.cmake
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+new file mode 100644
+index 0000000..1fcb922
+--- /dev/null
++++ b/CMakeLists.txt
+@@ -0,0 +1,209 @@
++SET(PACKAGE_VERSION_MAJOR "1")
++SET(PACKAGE_VERSION_MINOR "3")
++SET(PACKAGE_VERSION_PATCH "4")
++
++SET(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake;${CMAKE_CURRENT_SOURCE_DIR}/cmake/FortranCInterface")
++
++# ===========
++# = Options =
++# ===========
++
++OPTION(ENABLE_FORTRAN "Enable fortran interface to mat library")
++SET(EXTRA_LANGAGE)
++IF (ENABLE_FORTRAN)
++    SET(EXTRA_LANGAGE Fortran)
++    SET(MATIO_FORTRAN TRUE)
++ENDIF()
++
++PROJECT(MATIO C ${EXTRA_LANGAGE})
++
++SET(MATIO_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
++SET(MATIO_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR})
++
++CMAKE_MINIMUM_REQUIRED(VERSION 2.6.4)
++
++SET(MATIO_PLATFORM ${CMAKE_SYSTEM_PROCESSOR}--${CMAKE_SYSTEM_NAME})
++
++INCLUDE(FindLibrary)
++
++# =======================
++# = HANDLE DEFINITTIONS =
++# =======================
++
++INCLUDE(Boolean)
++BOOLEAN(LINUX UNIX AND NOT APPLE)
++BOOLEAN(WINNT WIN32)
++BOOLEAN(SUN XXXX)
++
++# ===========
++# = Options =
++# ===========
++
++INCLUDE(DefaultFileVersion)
++
++OPTION(ENABLE_PROFILE "Turn on profile")
++IF (ENABLE_PROFILE)
++ENDIF()
++
++OPTION(EXTENDED_SP "Enable extended sparse matrix data types not supported in Matlab" ON)
++IF (EXTENDED_SP)
++    SET(EXTENDED_SPARSE 1)
++ENDIF()
++
++INCLUDE (Documentation OPTIONAL)
++IF (BUILD_DOCUMENTATION)
++    ADD_SUBDIRECTORY(doxygen)
++ENDIF()
++
++# =================
++# = Check headers =
++# =================
++
++# Provide stdint.h for windows.
++
++IF (WIN32 AND NOT CYGWIN_INSTALL_PATH)
++    SET(CMAKE_REQUIRED_INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/contrib/Windows)
++    INCLUDE_DIRECTORIES(contrib/Windows)
++ENDIF()
++
++INCLUDE(CheckIncludeFile)
++INCLUDE(CheckHeaderSTDC)
++
++CHECK_INCLUDE_FILE(inttypes.h HAVE_INTTYPES_H)
++CHECK_INCLUDE_FILE(stdint.h   HAVE_STDINT_H)
++CHECK_INCLUDE_FILE(strings.h  HAVE_STRINGS_H)
++CHECK_INCLUDE_FILE(ctype.h    HAVE_CTYPE_H)
++CHECK_INCLUDE_FILE(string.h   HAVE_STRING_H)
++CHECK_INCLUDE_FILE(malloc.h   HAVE_MALLOC_H)
++CHECK_HEADER_STDC()
++
++# ===================
++# = Check type size =
++# ===================
++
++INCLUDE(CheckTypeSize)
++SET(TYPES double float long int short char)
++FOREACH(TYPE ${TYPES})
++    string(TOUPPER ${TYPE} TYPE_UPPER)
++    CHECK_TYPE_SIZE(${TYPE} SIZEOF_${TYPE_UPPER})
++    SET(HAVE_${TYPE_UPPER} 1)
++ENDFOREACH()
++CHECK_TYPE_SIZE(void* SIZEOF_VOID_PTR)
++
++SET(TYPES uint8_t uint16_t uint32_t uint64_t int8_t int16_t int32_t int64_t)
++FOREACH(TYPE ${TYPES})
++    string(TOUPPER ${TYPE} TYPE_UPPER)
++    CHECK_TYPE_SIZE(${TYPE} SIZEOF_${TYPE_UPPER})
++    SET(HAVE_MAT_${TYPE_UPPER} 1)
++    IF(NOT "${SIZEOF_${TYPE_UPPER}}")
++        MESSAGE(FATAL_ERROR "Unknown type ${TYPE}")
++    ENDIF()
++ENDFOREACH()
++
++# ===================
++# = Check functions =
++# ===================
++
++INCLUDE(CheckFunctionExists)
++CHECK_FUNCTION_EXISTS(vsnprintf HAVE_VSNPRINTF)
++CHECK_FUNCTION_EXISTS(snprintf  HAVE_SNPRINTF)
++CHECK_FUNCTION_EXISTS(vasprintf HAVE_VASPRINTF)
++CHECK_FUNCTION_EXISTS(asprintf  HAVE_ASPRINTF)
++
++INCLUDE(VA_COPY)
++VA_COPY()
++
++IF (WIN32)
++    SET(LIBRARY_OUTPUT_PATH    "${CMAKE_BINARY_DIR}")
++    SET(EXECUTABLE_OUTPUT_PATH "${CMAKE_BINARY_DIR}")
++ENDIF()
++
++# =========
++# = Z Lib =
++# =========
++
++OPTION(USE_SYSTEM_ZLIB "Use installed zlib if possible" ON)
++MARK_AS_ADVANCED(USE_SYSTEM_ZLIB)
++
++STRING(COMPARE NOTEQUAL "${USE_SYSTEM_ZLIB_STATUS}" "" USE_SYSTEM_ZLIB_STATUS_NOT_EMPTY)
++IF(USE_SYSTEM_ZLIB_STATUS_NOT_EMPTY)
++    STRING(COMPARE NOTEQUAL "${USE_SYSTEM_ZLIB_STATUS}" "${USE_SYSTEM_ZLIB}" RESET)
++ENDIF()
++
++# Store in cache previous value of BUILD_SHARED
++SET(USE_SYSTEM_ZLIB_STATUS "${USE_SYSTEM_ZLIB}" CACHE INTERNAL "Previous system zlib status" FORCE)
++
++IF (${RESET})
++    UNSET(SYSTEM_ZLIB)
++    UNSET(SYSTEM_ZLIB CACHE)
++    UNSET(Z_LIBRARY)
++    UNSET(Z_LIBRARY CACHE)
++ENDIF()
++
++IF (USE_SYSTEM_ZLIB)
++    FIND_LIBRARY(SYSTEM_ZLIB z)
++    IF (SYSTEM_ZLIB)
++        SET(Z_LIBRARY ${SYSTEM_ZLIB} CACHE STRING "TEST")
++    ELSE()
++        SET(USE_LOCAL_ZLIB 1)
++    ENDIF()
++ENDIF()
++
++IF (NOT USE_SYSTEM_ZLIB OR USE_LOCAL_ZLIB)
++    ADD_SUBDIRECTORY(zlib)
++    INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/zlib ${CMAKE_CURRENT_BINARY_DIR}/zlib)
++    IF (NOT BUILD_SHARED)
++        SET(TARGET_SUFFIX -static)
++    ENDIF()
++    SET(Z_LIBRARY zlib)
++ENDIF()
++
++SET(HAVE_ZLIB 1)
++SET(Z_PREFIX)
++
++INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR}/src)
++INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/src)
++ADD_SUBDIRECTORY(src)
++
++# ==============
++# = pkg-config =
++# ==============
++
++SET(prefix ${CMAKE_INSTALL_PREFIX})
++SET(VERSION ${PACKAGE_VERSION_MAJOR}.${PACKAGE_VERSION_MINOR}.${PACKAGE_VERSION_PATCH})
++SET(exec_prefix "\${prefix}")
++SET(libdir "\${exec_prefix}/lib")
++SET(includedir "\${prefix}/include")
++SET(ZLIB_LIBS ${Z_LIBRARY})
++
++CONFIGURE_FILE(
++    "${CMAKE_CURRENT_SOURCE_DIR}/matio.pc.in"
++    "${CMAKE_CURRENT_BINARY_DIR}/matio.pc"
++    IMMEDIATE @ONLY)
++
++# ===========
++# = Testing =
++# ===========
++OPTION(BUILD_TESTING "Build tests" ON)
++IF (BUILD_TESTING)
++    INCLUDE(CTest)
++    ENABLE_TESTING()
++    ADD_SUBDIRECTORY(test)
++ENDIF()
++
++# =============
++# = Uninstall =
++# =============
++CONFIGURE_FILE(
++    "${CMAKE_CURRENT_SOURCE_DIR}/cmake_uninstall.cmake.in"
++    "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
++    IMMEDIATE @ONLY)
++
++ADD_CUSTOM_TARGET(uninstall
++    "${CMAKE_COMMAND}" -P "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake")
++
++#-----------------------------------------------
++# packaging
++#-----------------------------------------------
++
++INCLUDE(Packaging)
+diff --git a/cmake/Boolean.cmake b/cmake/Boolean.cmake
+new file mode 100644
+index 0000000..165674e
+--- /dev/null
++++ b/cmake/Boolean.cmake
+@@ -0,0 +1,7 @@
++MACRO(BOOLEAN name)
++    IF (${ARGN})
++        SET(${name} 1)
++    ELSE()
++        UNSET(${name})
++    ENDIF()
++ENDMACRO()
+diff --git a/cmake/CMakeFortranCompiler.cmake.in b/cmake/CMakeFortranCompiler.cmake.in
+new file mode 100644
+index 0000000..65cfda7
+--- /dev/null
++++ b/cmake/CMakeFortranCompiler.cmake.in
+@@ -0,0 +1,29 @@
++SET(CMAKE_Fortran_COMPILER "@CMAKE_Fortran_COMPILER@")
++SET(CMAKE_Fortran_COMPILER_ARG1 "@CMAKE_Fortran_COMPILER_ARG1@")
++SET(CMAKE_Fortran_COMPILER_ID "@CMAKE_Fortran_COMPILER_ID@")
++SET(CMAKE_Fortran_PLATFORM_ID "@CMAKE_Fortran_PLATFORM_ID@")
++SET(CMAKE_AR "@CMAKE_AR@")
++SET(CMAKE_RANLIB "@CMAKE_RANLIB@")
++SET(CMAKE_COMPILER_IS_GNUG77 @CMAKE_COMPILER_IS_GNUG77@)
++SET(CMAKE_Fortran_COMPILER_LOADED 1)
++SET(CMAKE_COMPILER_IS_MINGW @CMAKE_COMPILER_IS_MINGW@)
++SET(CMAKE_COMPILER_IS_CYGWIN @CMAKE_COMPILER_IS_CYGWIN@)
++IF(CMAKE_COMPILER_IS_CYGWIN)
++  SET(CYGWIN 1)
++  SET(UNIX 1)
++ENDIF(CMAKE_COMPILER_IS_CYGWIN)
++
++SET(CMAKE_Fortran_COMPILER_ENV_VAR "FC")
++
++IF(CMAKE_COMPILER_IS_MINGW)
++  SET(MINGW 1)
++ENDIF(CMAKE_COMPILER_IS_MINGW)
++SET(CMAKE_Fortran_COMPILER_ID_RUN 1)
++SET(CMAKE_Fortran_SOURCE_FILE_EXTENSIONS f;F;f77;F77;f90;F90;for;For;FOR;f95;F95)
++SET(CMAKE_Fortran_IGNORE_EXTENSIONS h;H;o;O;obj;OBJ;def;DEF;rc;RC)
++SET(CMAKE_Fortran_LINKER_PREFERENCE 20)
++IF(UNIX)
++  SET(CMAKE_Fortran_OUTPUT_EXTENSION .o)
++ELSE(UNIX)
++  SET(CMAKE_Fortran_OUTPUT_EXTENSION .obj)
++ENDIF(UNIX)
+diff --git a/cmake/CheckHeaderSTDC.c b/cmake/CheckHeaderSTDC.c
+new file mode 100644
+index 0000000..cba0810
+--- /dev/null
++++ b/cmake/CheckHeaderSTDC.c
+@@ -0,0 +1,20 @@
++#include <stdlib.h>
++#include <stdarg.h>
++#include <string.h>
++#include <ctype.h>
++
++#define ISLOWER(c) ('a' <= (c) && (c) <= 'z')
++#define TOUPPER(c) (ISLOWER(c) ? 'A' + ((c) - 'a') : (c))
++#define XOR(e, f) (((e) && !(f)) || (!(e) && (f)))
++
++int
++main()
++{
++  int i;
++
++  for (i = 0; i < 256; i++) {
++    if (XOR(islower(i), ISLOWER(i)) || toupper(i) != TOUPPER(i))
++      return 2;
++  }
++  return 0;
++}
+diff --git a/cmake/CheckHeaderSTDC.cmake b/cmake/CheckHeaderSTDC.cmake
+new file mode 100644
+index 0000000..1137c2d
+--- /dev/null
++++ b/cmake/CheckHeaderSTDC.cmake
+@@ -0,0 +1,65 @@
++#
++# - Check if the system has the ANSI C files
++# CHECK_HEADER_STDC
++#
++# The following variables may be set before calling this macro to
++# modify the way the check is run:
++#
++#  CMAKE_REQUIRED_FLAGS = string of compile command line flags
++#  CMAKE_REQUIRED_DEFINITIONS = list of macros to define (-DFOO=bar)
++#  CMAKE_REQUIRED_INCLUDES = list of include directories
++# Copyright (c) 2009, Michihiro NAKAJIMA
++#
++# Redistribution and use is allowed according to the terms of the BSD license.
++# For details see the accompanying COPYING-CMAKE-SCRIPTS file.
++
++
++MACRO (CHECK_HEADER_STDC)
++  IF(NOT DEFINED STDC_HEADERS)
++    IF(CMAKE_REQUIRED_INCLUDES)
++      SET(CHECK_HEADER_STDC_C_INCLUDE_DIRS "-DINCLUDE_DIRECTORIES=${CMAKE_REQUIRED_INCLUDES}")
++    ELSE(CMAKE_REQUIRED_INCLUDES)
++      SET(CHECK_HEADER_STDC_C_INCLUDE_DIRS)
++    ENDIF(CMAKE_REQUIRED_INCLUDES)
++    SET(MACRO_CHECK_HEADER_STDC_FLAGS ${CMAKE_REQUIRED_FLAGS})
++
++    MESSAGE(STATUS "Cheking for ANSI C header files")
++    TRY_RUN(CHECK_HEADER_STDC_result
++      CHECK_HEADER_STDC_compile_result
++      ${CMAKE_BINARY_DIR}
++      ${CMAKE_CURRENT_SOURCE_DIR}/cmake/CheckHeaderSTDC.c
++      COMPILE_DEFINITIONS ${CMAKE_REQUIRED_DEFINITIONS}
++      CMAKE_FLAGS
++      -DCOMPILE_DEFINITIONS:STRING=${MACRO_CHECK_HEADER_STDC_FLAGS}
++      "${CHECK_HEADER_STDC_C_INCLUDE_DIRS}"
++      OUTPUT_VARIABLE OUTPUT)
++
++    IF(CHECK_HEADER_STDC_compile_result AND CHECK_HEADER_STDC_result EQUAL 0)
++      FIND_PATH(CHECK_HEADER_STDC_path "string.h")
++      IF (CHECK_HEADER_STDC_path)
++        FILE(STRINGS "${CHECK_HEADER_STDC_path}/string.h" CHECK_HEADER_STDC_result REGEX "[^a-zA-Z_]memchr[^a-zA-Z_]")
++	IF (CHECK_HEADER_STDC_result)
++          FILE(STRINGS "${CHECK_HEADER_STDC_path}/stdlib.h" CHECK_HEADER_STDC_result REGEX "[^a-zA-Z_]free[^a-zA-Z_]")
++	ENDIF (CHECK_HEADER_STDC_result)
++      ENDIF (CHECK_HEADER_STDC_path)
++    ENDIF(CHECK_HEADER_STDC_compile_result AND CHECK_HEADER_STDC_result EQUAL 0)
++
++    IF(CHECK_HEADER_STDC_result)
++      MESSAGE(STATUS "Cheking for ANSI C header files - found")
++      SET(STDC_HEADERS 1 CACHE INTERNAL "Have ANSI C headers")
++      FILE(APPEND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeOutput.log
++        "Determining if the include file ${INCLUDE} "
++        "exists passed with the following output:\n"
++        "${OUTPUT}\n\n")
++    ELSE(CHECK_HEADER_STDC_result)
++      MESSAGE(STATUS "Cheking for ANSI C header files - not found")
++      SET(STDC_HEADERS "" CACHE INTERNAL "Have ANSI C headers")
++      FILE(APPEND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeError.log
++        "Determining if the include file ${INCLUDE} "
++        "exists failed with the following output:\n"
++        "${OUTPUT}\n\n")
++    ENDIF(CHECK_HEADER_STDC_result)
++
++  ENDIF(NOT DEFINED STDC_HEADERS)
++ENDMACRO (CHECK_HEADER_STDC)
++
+diff --git a/cmake/DefaultFileVersion.cmake b/cmake/DefaultFileVersion.cmake
+new file mode 100644
+index 0000000..91b1715
+--- /dev/null
++++ b/cmake/DefaultFileVersion.cmake
+@@ -0,0 +1,11 @@
++SET(DEFAULT_FILE_VERSION "5" CACHE STRING "Default MAT file version (4,5,7.3)")
++
++IF (DEFAULT_FILE_VERSION STREQUAL "4")
++    SET(MAT_FT_DEFAULT MAT_FT_MAT4)
++ELSEIF (DEFAULT_FILE_VERSION STREQUAL "5")
++    SET(MAT_FT_DEFAULT MAT_FT_MAT5)
++ELSEIF (DEFAULT_FILE_VERSION STREQUAL "7.3")
++    SET(MAT_FT_DEFAULT MAT_FT_MAT73)
++ELSE()
++    MESSAGE(ERROR "Unrecognized MAT file version")
++ENDIF()
+diff --git a/cmake/FindLibrary.cmake b/cmake/FindLibrary.cmake
+new file mode 100644
+index 0000000..7a0f7c6
+--- /dev/null
++++ b/cmake/FindLibrary.cmake
+@@ -0,0 +1,24 @@
++OPTION(BUILD_SHARED "Build shared libs" ON)
++MARK_AS_ADVANCED(BUILD_SHARED)
++
++IF (BUILD_SHARED)
++    SET(LIB_TYPE SHARED)
++ELSE()
++    SET(LIB_TYPE STATIC)
++ENDIF()
++
++STRING(COMPARE NOTEQUAL "${BUILD_SHARED_STATUS}" "" BUILD_SHARED_STATUS_NOT_EMPTY)
++IF(BUILD_SHARED_STATUS_NOT_EMPTY)
++    STRING(COMPARE NOTEQUAL "${BUILD_SHARED_STATUS}" "${BUILD_SHARED}" RESET)
++ENDIF()
++
++# Store in cache previous value of BUILD_SHARED
++SET(BUILD_SHARED_STATUS "${BUILD_SHARED}" CACHE INTERNAL "Previous shared status" FORCE)
++
++FUNCTION(FIND_LIBRARY VAR)
++    IF(${RESET})
++        SET(${VAR} NOTFOUND CACHE STRING "Atlas Lib" FORCE)
++    ENDIF()
++    _FIND_LIBRARY(${VAR} ${ARGN})
++    MARK_AS_ADVANCED(${VAR})
++ENDFUNCTION()
+diff --git a/cmake/FortranCInterface.cmake b/cmake/FortranCInterface.cmake
+new file mode 100644
+index 0000000..213437c
+--- /dev/null
++++ b/cmake/FortranCInterface.cmake
+@@ -0,0 +1,309 @@
++# - Fortran/C Interface Detection
++# This module automatically detects the API by which C and Fortran
++# languages interact.  Variables indicate if the mangling is found:
++#   FortranCInterface_GLOBAL_FOUND = Global subroutines and functions
++#   FortranCInterface_MODULE_FOUND = Module subroutines and functions
++#                                    (declared by "MODULE PROCEDURE")
++# A function is provided to generate a C header file containing macros
++# to mangle symbol names:
++#   FortranCInterface_HEADER(<file>
++#                            [MACRO_NAMESPACE <macro-ns>]
++#                            [SYMBOL_NAMESPACE <ns>]
++#                            [SYMBOLS [<module>:]<function> ...])
++# It generates in <file> definitions of the following macros:
++#   #define FortranCInterface_GLOBAL (name,NAME) ...
++#   #define FortranCInterface_GLOBAL_(name,NAME) ...
++#   #define FortranCInterface_MODULE (mod,name, MOD,NAME) ...
++#   #define FortranCInterface_MODULE_(mod,name, MOD,NAME) ...
++# These macros mangle four categories of Fortran symbols,
++# respectively:
++#   - Global symbols without '_': call mysub()
++#   - Global symbols with '_'   : call my_sub()
++#   - Module symbols without '_': use mymod; call mysub()
++#   - Module symbols with '_'   : use mymod; call my_sub()
++# If mangling for a category is not known, its macro is left undefined.
++# All macros require raw names in both lower case and upper case.
++# The MACRO_NAMESPACE option replaces the default "FortranCInterface_"
++# prefix with a given namespace "<macro-ns>".
++#
++# The SYMBOLS option lists symbols to mangle automatically with C
++# preprocessor definitions:
++#   <function>          ==> #define <ns><function> ...
++#   <module>:<function> ==> #define <ns><module>_<function> ...
++# If the mangling for some symbol is not known then no preprocessor
++# definition is created, and a warning is displayed.
++# The SYMBOL_NAMESPACE option prefixes all preprocessor definitions
++# generated by the SYMBOLS option with a given namespace "<ns>".
++#
++# Example usage:
++#   include(FortranCInterface)
++#   FortranCInterface_HEADER(FC.h MACRO_NAMESPACE "FC_")
++# This creates a "FC.h" header that defines mangling macros
++# FC_GLOBAL(), FC_GLOBAL_(), FC_MODULE(), and FC_MODULE_().
++#
++# Example usage:
++#   include(FortranCInterface)
++#   FortranCInterface_HEADER(FCMangle.h
++#                            MACRO_NAMESPACE "FC_"
++#                            SYMBOL_NAMESPACE "FC_"
++#                            SYMBOLS mysub mymod:my_sub)
++# This creates a "FCMangle.h" header that defines the same FC_*() mangling
++# macros as the previous example plus preprocessor symbols FC_mysub
++# and FC_mymod_my_sub.
++#
++# Another function is provided to verify that the Fortran and C/C++
++# compilers work together:
++#   FortranCInterface_VERIFY([CXX] [QUIET])
++# It tests whether a simple test executable using Fortran and C (and
++# C++ when the CXX option is given) compiles and links successfully.
++# The result is stored in the cache entry FortranCInterface_VERIFIED_C
++# (or FortranCInterface_VERIFIED_CXX if CXX is given) as a boolean.
++# If the check fails and QUIET is not given the function terminates
++# with a FATAL_ERROR message describing the problem.  The purpose of
++# this check is to stop a build early for incompatible compiler
++# combinations.
++#
++# FortranCInterface is aware of possible GLOBAL and MODULE manglings
++# for many Fortran compilers, but it also provides an interface to
++# specify new possible manglings.  Set the variables
++#   FortranCInterface_GLOBAL_SYMBOLS
++#   FortranCInterface_MODULE_SYMBOLS
++# before including FortranCInterface to specify manglings of the
++# symbols "MySub", "My_Sub", "MyModule:MySub", and "My_Module:My_Sub".
++# For example, the code:
++#   set(FortranCInterface_GLOBAL_SYMBOLS mysub_ my_sub__ MYSUB_)
++#     #                                  ^^^^^  ^^^^^^   ^^^^^
++#   set(FortranCInterface_MODULE_SYMBOLS
++#       __mymodule_MOD_mysub __my_module_MOD_my_sub)
++#     #   ^^^^^^^^     ^^^^^   ^^^^^^^^^     ^^^^^^
++#   include(FortranCInterface)
++# tells FortranCInterface to try given GLOBAL and MODULE manglings.
++# (The carets point at raw symbol names for clarity in this example
++# but are not needed.)
++
++#=============================================================================
++# Copyright 2008-2009 Kitware, Inc.
++#
++# Distributed under the OSI-approved BSD License (the "License");
++# see accompanying file Copyright.txt for details.
++#
++# This software is distributed WITHOUT ANY WARRANTY; without even the
++# implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
++# See the License for more information.
++#=============================================================================
++# (To distributed this file outside of CMake, substitute the full
++#  License text for the above reference.)
++
++#-----------------------------------------------------------------------------
++# Execute at most once in a project.
++if(FortranCInterface_INCLUDED)
++  return()
++endif()
++
++set(FortranCInterface_INCLUDED TRUE)
++
++# Use CMake 2.6.0 behavior for this module regardless of including context.
++cmake_policy(PUSH)
++cmake_policy(VERSION 2.6.0)
++
++#-----------------------------------------------------------------------------
++
++#-----------------------------------------------------------------------------
++function(FortranCInterface_HEADER file)
++  # Parse arguments.
++  if(IS_ABSOLUTE "${file}")
++    set(FILE "${file}")
++  else()
++    set(FILE "${CMAKE_CURRENT_BINARY_DIR}/${file}")
++  endif()
++  set(MACRO_NAMESPACE "FortranCInterface_")
++  set(SYMBOL_NAMESPACE)
++  set(SYMBOLS)
++  set(doing)
++  foreach(arg ${ARGN})
++    if("x${arg}" MATCHES "^x(SYMBOLS|SYMBOL_NAMESPACE|MACRO_NAMESPACE|FROM_LIBRARY)$")
++      set(doing "${arg}")
++    elseif("x${doing}" MATCHES "^x(SYMBOLS|FROM_LIBRARY)$")
++      list(APPEND "${doing}" "${arg}")
++    elseif("x${doing}" MATCHES "^x(SYMBOL_NAMESPACE|MACRO_NAMESPACE)$")
++      set("${doing}" "${arg}")
++      set(doing)
++    else()
++      message(AUTHOR_WARNING "Unknown argument: \"${arg}\"")
++    endif()
++  endforeach()
++
++  #set(FortranCInterface_SOURCE_DIR ${CMAKE_ROOT}/Modules/FortranCInterface)
++  set(FortranCInterface_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/cmake/FortranCInterface)
++
++  # Create the interface detection project if it does not exist.
++  if(NOT FortranCInterface_BINARY_DIR)
++    set(FortranCInterface_BINARY_DIR ${CMAKE_BINARY_DIR}/CMakeFiles/FortranCInterface)
++    set(FortranCInterface_BINARY_DIR_Created true)
++  endif()
++
++  if (FROM_LIBRARY)
++    foreach (spec ${FROM_LIBRARY})
++      string(REGEX REPLACE "(.*)\\[(.*)]" "\\1" libname ${spec})
++      string(REGEX REPLACE "(.*)\\[(.*)]" "\\2" funcs ${spec})
++      string(REGEX REPLACE "," ";" funcs ${funcs})
++      find_library(library ${libname})
++      include(DetectFromLibrary)
++      foreach (func ${funcs})
++        detect_fortran_function(${libname} ${library} ${func})
++      endforeach()
++      unset(library CACHE)
++    endforeach()
++    CreateCFortranOutput()
++  else()
++
++    # Verify that C and Fortran are available.
++    foreach(lang C Fortran)
++      if(NOT CMAKE_${lang}_COMPILER_LOADED)
++        message(FATAL_ERROR
++          "FortranCInterface requires the ${lang} language to be enabled.")
++      endif()
++    endforeach()
++
++    # Detection of fortran mangling.
++    if(FortranCInterface_BINARY_DIR_Created)
++      include(${FortranCInterface_SOURCE_DIR}/Detect.cmake)
++    endif()
++  endif()
++
++  # Load the detection results.
++  include(${FortranCInterface_BINARY_DIR}/Output.cmake)
++
++  # Generate macro definitions.
++  set(HEADER_CONTENT)
++  set(_desc_GLOBAL  "/* Mangling for Fortran global symbols without underscores. */")
++  set(_desc_GLOBAL_ "/* Mangling for Fortran global symbols with underscores. */")
++  set(_desc_MODULE  "/* Mangling for Fortran module symbols without underscores. */")
++  set(_desc_MODULE_ "/* Mangling for Fortran module symbols with underscores. */")
++  foreach(macro GLOBAL GLOBAL_ MODULE MODULE_)
++    if(FortranCInterface_${macro}_MACRO)
++      set(HEADER_CONTENT "${HEADER_CONTENT}
++${_desc_${macro}}
++#define ${MACRO_NAMESPACE}${macro}${FortranCInterface_${macro}_MACRO}
++")
++    endif()
++  endforeach()
++
++  # Generate symbol mangling definitions.
++  if(SYMBOLS)
++    set(HEADER_CONTENT "${HEADER_CONTENT}
++/*--------------------------------------------------------------------------*/
++/* Mangle some symbols automatically.                                       */
++")
++  endif()
++  foreach(f ${SYMBOLS})
++    if("${f}" MATCHES ":")
++      # Module symbol name.  Parse "<module>:<function>" syntax.
++      string(REPLACE ":" ";" pieces "${f}")
++      list(GET pieces 0 module)
++      list(GET pieces 1 function)
++      string(TOUPPER "${module}" m_upper)
++      string(TOLOWER "${module}" m_lower)
++      string(TOUPPER "${function}" f_upper)
++      string(TOLOWER "${function}" f_lower)
++      if("${function}" MATCHES "_")
++        set(form "_")
++      else()
++        set(form "")
++      endif()
++      if(FortranCInterface_MODULE${form}_MACRO)
++        set(HEADER_CONTENT "${HEADER_CONTENT}#define ${SYMBOL_NAMESPACE}${module}_${function} ${MACRO_NAMESPACE}MODULE${form}(${m_lower},${f_lower}, ${m_upper},${f_upper})\n")
++      else()
++        message(AUTHOR_WARNING "No FortranCInterface mangling known for ${f}")
++      endif()
++    else()
++      # Global symbol name.
++      if("${f}" MATCHES "_")
++        set(form "_")
++      else()
++        set(form "")
++      endif()
++      string(TOUPPER "${f}" f_upper)
++      string(TOLOWER "${f}" f_lower)
++      if(FortranCInterface_GLOBAL${form}_MACRO)
++        set(HEADER_CONTENT "${HEADER_CONTENT}#define ${SYMBOL_NAMESPACE}${f} ${MACRO_NAMESPACE}GLOBAL${form}(${f_lower}, ${f_upper})\n")
++      else()
++        message(AUTHOR_WARNING "No FortranCInterface mangling known for ${f}")
++      endif()
++    endif()
++  endforeach(f)
++
++  # Store the content.
++  configure_file(${FortranCInterface_SOURCE_DIR}/Macro.h.in ${FILE} @ONLY)
++endfunction()
++
++function(FortranCInterface_VERIFY)
++  # Check arguments.
++
++  set(lang C)
++  set(quiet 0)
++  set(verify_cxx 0)
++  foreach(arg ${ARGN})
++    if("${arg}" STREQUAL "QUIET")
++      set(quiet 1)
++    elseif("${arg}" STREQUAL "CXX")
++      set(lang CXX)
++      set(verify_cxx 1)
++    else()
++      message(FATAL_ERROR
++        "FortranCInterface_VERIFY - called with unknown argument:\n  ${arg}")
++    endif()
++  endforeach()
++
++  if(NOT CMAKE_${lang}_COMPILER_LOADED)
++    message(FATAL_ERROR
++      "FortranCInterface_VERIFY(${lang}) requires ${lang} to be enabled.")
++  endif()
++
++  # Build the verification project if not yet built.
++  if(NOT DEFINED FortranCInterface_VERIFIED_${lang})
++    set(_desc "Verifying Fortran/${lang} Compiler Compatibility")
++    message(STATUS "${_desc}")
++
++    # Build a sample project which reports symbols.
++    try_compile(FortranCInterface_VERIFY_${lang}_COMPILED
++      ${FortranCInterface_BINARY_DIR}/Verify${lang}
++      ${FortranCInterface_SOURCE_DIR}/Verify
++      VerifyFortranC
++      CMAKE_FLAGS -DVERIFY_CXX=${verify_cxx}
++                  -DCMAKE_VERBOSE_MAKEFILE=ON
++                 "-DCMAKE_C_FLAGS:STRING=${CMAKE_C_FLAGS}"
++                 "-DCMAKE_CXX_FLAGS:STRING=${CMAKE_CXX_FLAGS}"
++                 "-DCMAKE_Fortran_FLAGS:STRING=${CMAKE_Fortran_FLAGS}"
++      OUTPUT_VARIABLE _output)
++    file(WRITE "${FortranCInterface_BINARY_DIR}/Verify${lang}/output.txt" "${_output}")
++
++    # Report results.
++    if(FortranCInterface_VERIFY_${lang}_COMPILED)
++      message(STATUS "${_desc} - Success")
++      file(APPEND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeOutput.log
++        "${_desc} passed with the following output:\n${_output}\n\n")
++      set(FortranCInterface_VERIFIED_${lang} 1 CACHE INTERNAL "Fortran/${lang} compatibility")
++    else()
++      message(STATUS "${_desc} - Failed")
++      file(APPEND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeError.log
++        "${_desc} failed with the following output:\n${_output}\n\n")
++      set(FortranCInterface_VERIFIED_${lang} 0 CACHE INTERNAL "Fortran/${lang} compatibility")
++    endif()
++    unset(FortranCInterface_VERIFY_${lang}_COMPILED CACHE)
++  endif()
++
++  # Error if compilers are incompatible.
++  if(NOT FortranCInterface_VERIFIED_${lang} AND NOT quiet)
++    file(READ "${FortranCInterface_BINARY_DIR}/Verify${lang}/output.txt" _output)
++    string(REGEX REPLACE "\n" "\n  " _output "${_output}")
++    message(FATAL_ERROR
++      "The Fortran compiler:\n  ${CMAKE_Fortran_COMPILER}\n"
++      "and the ${lang} compiler:\n  ${CMAKE_${lang}_COMPILER}\n"
++      "failed to compile a simple test project using both languages.  "
++      "The output was:\n  ${_output}")
++  endif()
++endfunction()
++
++# Restore including context policies.
++cmake_policy(POP)
+diff --git a/cmake/FortranCInterface/CMakeLists.txt b/cmake/FortranCInterface/CMakeLists.txt
+new file mode 100644
+index 0000000..18014af
+--- /dev/null
++++ b/cmake/FortranCInterface/CMakeLists.txt
+@@ -0,0 +1,95 @@
++#=============================================================================
++# Copyright 2009 Kitware, Inc.
++#
++# Distributed under the OSI-approved BSD License (the "License");
++# see accompanying file Copyright.txt for details.
++#
++# This software is distributed WITHOUT ANY WARRANTY; without even the
++# implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
++# See the License for more information.
++#=============================================================================
++
++cmake_minimum_required(VERSION 2.6.3)
++project(FortranCInterface C Fortran)
++include(${FortranCInterface_BINARY_DIR}/Input.cmake OPTIONAL)
++
++# Check if the C compiler supports '$' in identifiers.
++include(CheckCSourceCompiles)
++check_c_source_compiles("
++extern int dollar$(void);
++int main() { return 0; }
++" C_SUPPORTS_DOLLAR)
++
++# List manglings of global symbol names to try.
++set(global_symbols
++  my_sub    # VisualAge
++  my_sub_   # GNU, Intel, HP, SunPro, MIPSpro
++  my_sub__  # GNU g77
++  MY_SUB    # Intel on Windows
++  mysub     # VisualAge
++  mysub_    # GNU, Intel, HP, SunPro, MIPSpro
++  MYSUB     # Intel on Windows
++  ${FortranCInterface_GLOBAL_SYMBOLS}
++  )
++list(REMOVE_DUPLICATES global_symbols)
++
++# List manglings of module symbol names to try.
++set(module_symbols
++  __my_module_MOD_my_sub  # GNU 4.3
++  __my_module_NMOD_my_sub # VisualAge
++  __my_module__my_sub     # GNU 4.2
++  __mymodule_MOD_mysub    # GNU 4.3
++  __mymodule_NMOD_mysub   # VisualAge
++  __mymodule__mysub       # GNU 4.2
++  my_module$my_sub        # HP
++  my_module_mp_my_sub_    # Intel
++  MY_MODULE_mp_MY_SUB     # Intel on Windows
++  my_module_my_sub_       # PGI
++  mymodule$mysub          # HP
++  mymodule_mp_mysub_      # Intel
++  MYMODULE_mp_MYSUB       # Intel on Windows
++  mymodule_mysub_         # PGI
++  ${FortranCInterface_MODULE_SYMBOLS}
++  )
++list(REMOVE_DUPLICATES module_symbols)
++
++# Note that some compiler manglings cannot be invoked from C:
++#   MIPSpro uses "MY_SUB.in.MY_MODULE"
++#   SunPro uses "my_module.my_sub_"
++#   PathScale uses "MY_SUB.in.MY_MODULE"
++
++# Add module symbols only with Fortran90.
++if(CMAKE_Fortran_COMPILER_SUPPORTS_F90)
++  set(myfort_modules mymodule.f90 my_module.f90)
++  set(call_mod call_mod.f90)
++  set_property(SOURCE main.F PROPERTY COMPILE_DEFINITIONS CALL_MOD)
++else()
++  set(module_symbols)
++endif()
++
++# Generate C symbol sources.
++foreach(symbol IN LISTS global_symbols module_symbols)
++  # Skip symbols with '$' if C cannot handle them.
++  if(C_SUPPORTS_DOLLAR OR NOT "${symbol}" MATCHES "\\$")
++    if("${symbol}" MATCHES "SUB")
++      set(upper "-UPPER")
++    else()
++      set(upper)
++    endif()
++    string(REPLACE "$" "S" name "${symbol}")
++    set(source ${CMAKE_CURRENT_BINARY_DIR}/symbols/${name}${upper}.c)
++    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/symbol.c.in ${source} @ONLY)
++    list(APPEND symbol_sources ${source})
++  endif()
++endforeach()
++
++# Provide symbols through Fortran.
++add_library(myfort STATIC mysub.f my_sub.f ${myfort_modules})
++
++# Provide symbols through C but fall back to Fortran.
++add_library(symbols STATIC mymodule_.c my_module_.c ${symbol_sources})
++target_link_libraries(symbols myfort)
++
++# Require symbols through Fortran.
++add_executable(FortranCInterface main.F call_sub.f ${call_mod})
++target_link_libraries(FortranCInterface symbols)
+diff --git a/cmake/FortranCInterface/CreateOutput.cmake b/cmake/FortranCInterface/CreateOutput.cmake
+new file mode 100644
+index 0000000..72ec8b1
+--- /dev/null
++++ b/cmake/FortranCInterface/CreateOutput.cmake
+@@ -0,0 +1,65 @@
++macro(CreateCFortranOutput)
++  # Construct mangling macro definitions.
++  set(_name_LOWER "name")
++  set(_name_UPPER "NAME")
++  foreach(form "" "_")
++    if(FortranCInterface_GLOBAL_${form}SYMBOL)
++      if(FortranCInterface_GLOBAL_${form}PREFIX)
++        set(_prefix "${FortranCInterface_GLOBAL_${form}PREFIX}##")
++      else()
++        set(_prefix "")
++      endif()
++      if(FortranCInterface_GLOBAL_${form}SUFFIX)
++        set(_suffix "##${FortranCInterface_GLOBAL_${form}SUFFIX}")
++      else()
++        set(_suffix "")
++      endif()
++      set(_name "${_name_${FortranCInterface_GLOBAL_${form}CASE}}")
++      set(FortranCInterface_GLOBAL${form}_MACRO
++        "(name,NAME) ${_prefix}${_name}${_suffix}")
++    endif()
++    if(FortranCInterface_MODULE_${form}SYMBOL)
++      if(FortranCInterface_MODULE_${form}PREFIX)
++        set(_prefix "${FortranCInterface_MODULE_${form}PREFIX}##")
++      else()
++        set(_prefix "")
++      endif()
++      if(FortranCInterface_MODULE_${form}SUFFIX)
++        set(_suffix "##${FortranCInterface_MODULE_${form}SUFFIX}")
++      else()
++        set(_suffix "")
++      endif()
++      set(_name "${_name_${FortranCInterface_MODULE_${form}CASE}}")
++      set(_middle "##${FortranCInterface_MODULE_${form}MIDDLE}##")
++      set(FortranCInterface_MODULE${form}_MACRO
++        "(mod_name,name, mod_NAME,NAME) ${_prefix}mod_${_name}${_middle}${_name}${_suffix}")
++    endif()
++  endforeach()
++
++  # Summarize what is available.
++  foreach(scope GLOBAL MODULE)
++    if(FortranCInterface_${scope}_SYMBOL AND
++        FortranCInterface_${scope}__SYMBOL)
++      set(FortranCInterface_${scope}_FOUND 1)
++    else()
++      set(FortranCInterface_${scope}_FOUND 0)
++    endif()
++  endforeach()
++
++  # Record the detection results.
++  configure_file(${FortranCInterface_SOURCE_DIR}/Output.cmake.in
++                 ${FortranCInterface_BINARY_DIR}/Output.cmake @ONLY)
++  file(APPEND ${FortranCInterface_BINARY_DIR}/Output.cmake "\n")
++
++  # Report the results.
++  if(FortranCInterface_GLOBAL_FOUND)
++    if(FortranCInterface_MODULE_FOUND)
++      set(_result "Found GLOBAL and MODULE mangling")
++    else(FortranCInterface_MODULE_FOUND)
++      set(_result "Found GLOBAL but not MODULE mangling")
++    endif()
++  elseif(NOT _result)
++    set(_result "Failed to recognize symbols")
++  endif()
++  message(STATUS "Detecting Fortran/C Interface - ${_result}")
++endmacro()
+diff --git a/cmake/FortranCInterface/Detect.cmake b/cmake/FortranCInterface/Detect.cmake
+new file mode 100644
+index 0000000..7c0ce69
+--- /dev/null
++++ b/cmake/FortranCInterface/Detect.cmake
+@@ -0,0 +1,123 @@
++#=============================================================================
++# Copyright 2009 Kitware, Inc.
++#
++# Distributed under the OSI-approved BSD License (the "License");
++# see accompanying file Copyright.txt for details.
++#
++# This software is distributed WITHOUT ANY WARRANTY; without even the
++# implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
++# See the License for more information.
++#=============================================================================
++
++include(CreateOutput)
++
++configure_file(${FortranCInterface_SOURCE_DIR}/Input.cmake.in
++               ${FortranCInterface_BINARY_DIR}/Input.cmake @ONLY)
++
++# Detect the Fortran/C interface on the first run or when the
++# configuration changes.
++if(${FortranCInterface_BINARY_DIR}/Input.cmake
++    IS_NEWER_THAN ${FortranCInterface_BINARY_DIR}/Output.cmake
++    OR ${FortranCInterface_SOURCE_DIR}/Output.cmake.in
++    IS_NEWER_THAN ${FortranCInterface_BINARY_DIR}/Output.cmake
++    OR ${FortranCInterface_SOURCE_DIR}/CMakeLists.txt
++    IS_NEWER_THAN ${FortranCInterface_BINARY_DIR}/Output.cmake
++    OR ${CMAKE_CURRENT_LIST_FILE}
++    IS_NEWER_THAN ${FortranCInterface_BINARY_DIR}/Output.cmake
++    )
++  message(STATUS "Detecting Fortran/C Interface")
++else()
++  return()
++endif()
++
++# Invalidate verification results.
++unset(FortranCInterface_VERIFIED_C CACHE)
++unset(FortranCInterface_VERIFIED_CXX CACHE)
++
++set(_result)
++
++# Build a sample project which reports symbols.
++try_compile(FortranCInterface_COMPILED
++  ${FortranCInterface_BINARY_DIR}
++  ${FortranCInterface_SOURCE_DIR}
++  FortranCInterface
++  CMAKE_FLAGS
++    "-DCMAKE_C_FLAGS:STRING=${CMAKE_C_FLAGS}"
++    "-DCMAKE_Fortran_FLAGS:STRING=${CMAKE_Fortran_FLAGS}"
++  OUTPUT_VARIABLE FortranCInterface_OUTPUT)
++set(FortranCInterface_COMPILED ${FortranCInterface_COMPILED})
++unset(FortranCInterface_COMPILED CACHE)
++
++# Locate the sample project executable.
++if(FortranCInterface_COMPILED)
++  find_program(FortranCInterface_EXE
++    NAMES FortranCInterface
++    PATHS ${FortranCInterface_BINARY_DIR} ${FortranCInterface_BINARY_DIR}/Debug
++    NO_DEFAULT_PATH
++    )
++  set(FortranCInterface_EXE ${FortranCInterface_EXE})
++  unset(FortranCInterface_EXE CACHE)
++else()
++  set(_result "Failed to compile")
++  set(FortranCInterface_EXE)
++  file(APPEND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeError.log
++    "Fortran/C interface test project failed with the following output:\n"
++    "${FortranCInterface_OUTPUT}\n")
++endif()
++
++# Load symbols from INFO:symbol[] strings in the executable.
++set(FortranCInterface_SYMBOLS)
++if(FortranCInterface_EXE)
++  file(STRINGS "${FortranCInterface_EXE}" _info_strings
++    LIMIT_COUNT 8 REGEX "INFO:[^[]*\\[")
++  foreach(info ${_info_strings})
++    if("${info}" MATCHES ".*INFO:symbol\\[([^]]*)\\].*")
++      string(REGEX REPLACE ".*INFO:symbol\\[([^]]*)\\].*" "\\1" symbol "${info}")
++      list(APPEND FortranCInterface_SYMBOLS ${symbol})
++    endif()
++  endforeach()
++elseif(NOT _result)
++  set(_result "Failed to load sample executable")
++endif()
++
++set(_case_mysub "LOWER")
++set(_case_my_sub "LOWER")
++set(_case_MYSUB "UPPER")
++set(_case_MY_SUB "UPPER")
++set(_global_regex  "^(_*)(mysub|MYSUB)([_$]*)$")
++set(_global__regex "^(_*)(my_sub|MY_SUB)([_$]*)$")
++set(_module_regex  "^(_*)(mymodule|MYMODULE)([A-Za-z_$]*)(mysub|MYSUB)([_$]*)$")
++set(_module__regex "^(_*)(my_module|MY_MODULE)([A-Za-z_$]*)(my_sub|MY_SUB)([_$]*)$")
++
++# Parse the symbol names.
++foreach(symbol ${FortranCInterface_SYMBOLS})
++  foreach(form "" "_")
++    # Look for global symbols.
++    string(REGEX REPLACE "${_global_${form}regex}"
++                         "\\1;\\2;\\3" pieces "${symbol}")
++    list(LENGTH pieces len)
++    if(len EQUAL 3)
++      set(FortranCInterface_GLOBAL_${form}SYMBOL "${symbol}")
++      list(GET pieces 0 FortranCInterface_GLOBAL_${form}PREFIX)
++      list(GET pieces 1 name)
++      list(GET pieces 2 FortranCInterface_GLOBAL_${form}SUFFIX)
++      set(FortranCInterface_GLOBAL_${form}CASE "${_case_${name}}")
++    endif()
++
++    # Look for module symbols.
++    string(REGEX REPLACE "${_module_${form}regex}"
++                         "\\1;\\2;\\3;\\4;\\5" pieces "${symbol}")
++    list(LENGTH pieces len)
++    if(len EQUAL 5)
++      set(FortranCInterface_MODULE_${form}SYMBOL "${symbol}")
++      list(GET pieces 0 FortranCInterface_MODULE_${form}PREFIX)
++      list(GET pieces 1 module)
++      list(GET pieces 2 FortranCInterface_MODULE_${form}MIDDLE)
++      list(GET pieces 3 name)
++      list(GET pieces 4 FortranCInterface_MODULE_${form}SUFFIX)
++      set(FortranCInterface_MODULE_${form}CASE "${_case_${name}}")
++    endif()
++  endforeach()
++endforeach()
++
++CreateCFortranOutput()
+diff --git a/cmake/FortranCInterface/DetectFromLibrary.cmake b/cmake/FortranCInterface/DetectFromLibrary.cmake
+new file mode 100644
+index 0000000..1ee6667
+--- /dev/null
++++ b/cmake/FortranCInterface/DetectFromLibrary.cmake
+@@ -0,0 +1,86 @@
++#=============================================================================
++# Copyright 2009 Kitware, Inc.
++#
++# Distributed under the OSI-approved BSD License (the "License");
++# see accompanying file Copyright.txt for details.
++#
++# This software is distributed WITHOUT ANY WARRANTY; without even the
++# implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
++# See the License for more information.
++#=============================================================================
++
++include(CheckLibraryExists)
++include(CreateOutput)
++
++function(detect_fortran_function libname library func)
++
++#  configure_file(${FortranCInterface_SOURCE_DIR}/Input.cmake.in
++#                 ${FortranCInterface_BINARY_DIR}/Input.cmake @ONLY)
++
++#  # Detect the Fortran/C interface on the first run or when the
++#  # configuration changes.
++#  if(${FortranCInterface_BINARY_DIR}/Input.cmake
++#      IS_NEWER_THAN ${FortranCInterface_BINARY_DIR}/Output.cmake
++#      OR ${FortranCInterface_SOURCE_DIR}/Output.cmake.in
++#      IS_NEWER_THAN ${FortranCInterface_BINARY_DIR}/Output.cmake
++#      OR ${FortranCInterface_SOURCE_DIR}/CMakeLists.txt
++#      IS_NEWER_THAN ${FortranCInterface_BINARY_DIR}/Output.cmake
++#      OR ${CMAKE_CURRENT_LIST_FILE}
++#      IS_NEWER_THAN ${FortranCInterface_BINARY_DIR}/Output.cmake
++#      )
++#    message(STATUS "Detecting Fortran/C Interface")
++#  else()
++#    return()
++#  endif()
++
++  # Invalidate verification results.
++  unset(FortranCInterface_VERIFIED_C CACHE)
++  unset(FortranCInterface_VERIFIED_CXX CACHE)
++
++  # Detect the underscore/non underscore functions.
++
++  string(REGEX MATCH "^.*_.*$" output ${func})
++  if ("${output}" STREQUAL ${func})
++    set(form "_")
++  else()
++    set(form "")
++  endif()
++
++  # Detect global/module functions.
++
++  string(REGEX MATCH "^.*:.*$" output ${func})
++  if ("${output}" STREQUAL ${func})
++    # How to deal with with MIDDLE ??
++    MESSAGE(WARNING "Modules not fully implemented yet!!")
++    set(type "MODULE")
++  else()
++    set(type "GLOBAL")
++  endif()
++
++  string(TOUPPER "${func}" subup)
++  string(TOLOWER "${func}" sublo)
++  foreach(suffix "_" "")
++    foreach(base ${subup} ${sublo})
++      foreach(prefix "" "_" "__")
++        set(symbol "${prefix}${base}${suffix}")
++        set(doc "function")
++        message(STATUS "checking Fortran ${doc} linkage: ${symbol}")
++        unset(worked CACHE)
++        check_library_exists(${library} ${symbol} "" worked)
++        if(worked)
++          message(STATUS "found Fortran function linkage")
++          set(FortranCInterface_${type}_${form}SYMBOL "${symbol}" PARENT_SCOPE)
++          set(FortranCInterface_${type}_${form}PREFIX "${prefix}" PARENT_SCOPE)
++          set(FortranCInterface_${type}_${form}SUFFIX "${suffix}" PARENT_SCOPE)
++          if (${base} STREQUAL ${subup})
++              set(FortranCInterface_${type}_${form}CASE "UPPER" PARENT_SCOPE)
++          else()
++              set(FortranCInterface_${type}_${form}CASE "LOWER" PARENT_SCOPE)
++          endif()
++          return()
++        endif()
++      endforeach()
++    endforeach()
++  endforeach()
++  MESSAGE(ERROR "Function ${func} cannot be found in library ${libname}")
++endfunction()
+diff --git a/cmake/FortranCInterface/Input.cmake.in b/cmake/FortranCInterface/Input.cmake.in
+new file mode 100644
+index 0000000..f261e3b
+--- /dev/null
++++ b/cmake/FortranCInterface/Input.cmake.in
+@@ -0,0 +1,3 @@
++set(CMAKE_Fortran_COMPILER_ID "@CMAKE_Fortran_COMPILER_ID@")
++set(FortranCInterface_GLOBAL_SYMBOLS "@FortranCInterface_GLOBAL_SYMBOLS@")
++set(FortranCInterface_MODULE_SYMBOLS "@FortranCInterface_MODULE_SYMBOLS@")
+diff --git a/cmake/FortranCInterface/Macro.h.in b/cmake/FortranCInterface/Macro.h.in
+new file mode 100644
+index 0000000..d015a62
+--- /dev/null
++++ b/cmake/FortranCInterface/Macro.h.in
+@@ -0,0 +1,4 @@
++#ifndef @MACRO_NAMESPACE@HEADER_INCLUDED
++#define @MACRO_NAMESPACE@HEADER_INCLUDED
++@HEADER_CONTENT@
++#endif
+diff --git a/cmake/FortranCInterface/Output.cmake.in b/cmake/FortranCInterface/Output.cmake.in
+new file mode 100644
+index 0000000..bce410e
+--- /dev/null
++++ b/cmake/FortranCInterface/Output.cmake.in
+@@ -0,0 +1,33 @@
++# Global symbol without underscore.
++set(FortranCInterface_GLOBAL_SYMBOL  "@FortranCInterface_GLOBAL_SYMBOL@")
++set(FortranCInterface_GLOBAL_PREFIX  "@FortranCInterface_GLOBAL_PREFIX@")
++set(FortranCInterface_GLOBAL_SUFFIX  "@FortranCInterface_GLOBAL_SUFFIX@")
++set(FortranCInterface_GLOBAL_CASE    "@FortranCInterface_GLOBAL_CASE@")
++set(FortranCInterface_GLOBAL_MACRO   "@FortranCInterface_GLOBAL_MACRO@")
++
++# Global symbol with underscore.
++set(FortranCInterface_GLOBAL__SYMBOL "@FortranCInterface_GLOBAL__SYMBOL@")
++set(FortranCInterface_GLOBAL__PREFIX "@FortranCInterface_GLOBAL__PREFIX@")
++set(FortranCInterface_GLOBAL__SUFFIX "@FortranCInterface_GLOBAL__SUFFIX@")
++set(FortranCInterface_GLOBAL__CASE   "@FortranCInterface_GLOBAL__CASE@")
++set(FortranCInterface_GLOBAL__MACRO  "@FortranCInterface_GLOBAL__MACRO@")
++
++# Module symbol without underscore.
++set(FortranCInterface_MODULE_SYMBOL  "@FortranCInterface_MODULE_SYMBOL@")
++set(FortranCInterface_MODULE_PREFIX  "@FortranCInterface_MODULE_PREFIX@")
++set(FortranCInterface_MODULE_MIDDLE  "@FortranCInterface_MODULE_MIDDLE@")
++set(FortranCInterface_MODULE_SUFFIX  "@FortranCInterface_MODULE_SUFFIX@")
++set(FortranCInterface_MODULE_CASE    "@FortranCInterface_MODULE_CASE@")
++set(FortranCInterface_MODULE_MACRO   "@FortranCInterface_MODULE_MACRO@")
++
++# Module symbol with underscore.
++set(FortranCInterface_MODULE__SYMBOL "@FortranCInterface_MODULE__SYMBOL@")
++set(FortranCInterface_MODULE__PREFIX "@FortranCInterface_MODULE__PREFIX@")
++set(FortranCInterface_MODULE__MIDDLE "@FortranCInterface_MODULE__MIDDLE@")
++set(FortranCInterface_MODULE__SUFFIX "@FortranCInterface_MODULE__SUFFIX@")
++set(FortranCInterface_MODULE__CASE   "@FortranCInterface_MODULE__CASE@")
++set(FortranCInterface_MODULE__MACRO  "@FortranCInterface_MODULE__MACRO@")
++
++# Summarize what was found.
++set(FortranCInterface_GLOBAL_FOUND @FortranCInterface_GLOBAL_FOUND@)
++set(FortranCInterface_MODULE_FOUND @FortranCInterface_MODULE_FOUND@)
+diff --git a/cmake/FortranCInterface/Verify/CMakeLists.txt b/cmake/FortranCInterface/Verify/CMakeLists.txt
+new file mode 100644
+index 0000000..052dd59
+--- /dev/null
++++ b/cmake/FortranCInterface/Verify/CMakeLists.txt
+@@ -0,0 +1,32 @@
++#=============================================================================
++# Copyright 2009 Kitware, Inc.
++#
++# Distributed under the OSI-approved BSD License (the "License");
++# see accompanying file Copyright.txt for details.
++#
++# This software is distributed WITHOUT ANY WARRANTY; without even the
++# implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
++# See the License for more information.
++#=============================================================================
++
++cmake_minimum_required(VERSION 2.7)
++project(VerifyFortranC C Fortran)
++
++option(VERIFY_CXX "Whether to verify C++ and Fortran" OFF)
++if(VERIFY_CXX)
++  enable_language(CXX)
++  set(VerifyCXX VerifyCXX.cxx)
++  add_definitions(-DVERIFY_CXX)
++endif()
++
++include(FortranCInterface)
++
++FortranCInterface_HEADER(VerifyFortran.h SYMBOLS VerifyFortran)
++include_directories(${VerifyFortranC_BINARY_DIR})
++
++add_executable(VerifyFortranC main.c VerifyC.c VerifyFortran.f ${VerifyCXX})
++
++if(NOT VERIFY_CXX)
++  # The entry point (main) is defined in C; link with the C compiler.
++  set_property(TARGET VerifyFortranC PROPERTY LINKER_LANGUAGE C)
++endif()
+diff --git a/cmake/FortranCInterface/Verify/VerifyC.c b/cmake/FortranCInterface/Verify/VerifyC.c
+new file mode 100644
+index 0000000..7f847ef
+--- /dev/null
++++ b/cmake/FortranCInterface/Verify/VerifyC.c
+@@ -0,0 +1,5 @@
++#include <stdio.h>
++void VerifyC(void)
++{
++  printf("VerifyC\n");
++}
+diff --git a/cmake/FortranCInterface/Verify/VerifyCXX.cxx b/cmake/FortranCInterface/Verify/VerifyCXX.cxx
+new file mode 100644
+index 0000000..689fac5
+--- /dev/null
++++ b/cmake/FortranCInterface/Verify/VerifyCXX.cxx
+@@ -0,0 +1,4 @@
++extern "C" void VerifyCXX(void)
++{
++  delete new int;
++}
+diff --git a/cmake/FortranCInterface/Verify/VerifyFortran.f b/cmake/FortranCInterface/Verify/VerifyFortran.f
+new file mode 100644
+index 0000000..a17e48d
+--- /dev/null
++++ b/cmake/FortranCInterface/Verify/VerifyFortran.f
+@@ -0,0 +1,3 @@
++      subroutine VerifyFortran
++        print *, 'VerifyFortran'
++      end
+diff --git a/cmake/FortranCInterface/Verify/main.c b/cmake/FortranCInterface/Verify/main.c
+new file mode 100644
+index 0000000..582ef1d
+--- /dev/null
++++ b/cmake/FortranCInterface/Verify/main.c
+@@ -0,0 +1,16 @@
++extern void VerifyC(void);
++#ifdef VERIFY_CXX
++extern void VerifyCXX(void);
++#endif
++#include "VerifyFortran.h"
++extern void VerifyFortran(void);
++
++int main(void)
++{
++  VerifyC();
++#ifdef VERIFY_CXX
++  VerifyCXX();
++#endif
++  VerifyFortran();
++  return 0;
++}
+diff --git a/cmake/FortranCInterface/call_mod.f90 b/cmake/FortranCInterface/call_mod.f90
+new file mode 100644
+index 0000000..9b6af64
+--- /dev/null
++++ b/cmake/FortranCInterface/call_mod.f90
+@@ -0,0 +1,6 @@
++subroutine call_mod
++  use mymodule
++  use my_module
++  call mysub()
++  call my_sub()
++end subroutine call_mod
+diff --git a/cmake/FortranCInterface/call_sub.f b/cmake/FortranCInterface/call_sub.f
+new file mode 100644
+index 0000000..ce3d50b
+--- /dev/null
++++ b/cmake/FortranCInterface/call_sub.f
+@@ -0,0 +1,4 @@
++        subroutine call_sub
++          call mysub()
++          call my_sub()
++        end
+diff --git a/cmake/FortranCInterface/main.F b/cmake/FortranCInterface/main.F
+new file mode 100644
+index 0000000..84991b0
+--- /dev/null
++++ b/cmake/FortranCInterface/main.F
+@@ -0,0 +1,6 @@
++        program main
++          call call_sub()
++#ifdef CALL_MOD
++          call call_mod()
++#endif
++        end
+diff --git a/cmake/FortranCInterface/my_module.f90 b/cmake/FortranCInterface/my_module.f90
+new file mode 100644
+index 0000000..82713b4
+--- /dev/null
++++ b/cmake/FortranCInterface/my_module.f90
+@@ -0,0 +1,8 @@
++module my_module
++  interface my_interface
++     module procedure my_sub
++  end interface
++contains
++  subroutine my_sub
++  end subroutine my_sub
++end module my_module
+diff --git a/cmake/FortranCInterface/my_module_.c b/cmake/FortranCInterface/my_module_.c
+new file mode 100644
+index 0000000..364b214
+--- /dev/null
++++ b/cmake/FortranCInterface/my_module_.c
+@@ -0,0 +1,8 @@
++#if defined(__PATHSCALE__)
++/* PathScale Fortran wants my_module_ when calling any my_module symbol,
++   but module symbols use '.in.' so we cannot provide them anyway.  */
++void pathscale_my_module_(void) {}
++#else
++/* PGI Fortran wants my_module_ when calling any my_module symbol.  */
++void my_module_(void) {}
++#endif
+diff --git a/cmake/FortranCInterface/my_sub.f b/cmake/FortranCInterface/my_sub.f
+new file mode 100644
+index 0000000..247ba06
+--- /dev/null
++++ b/cmake/FortranCInterface/my_sub.f
+@@ -0,0 +1,2 @@
++      subroutine my_sub
++      end
+diff --git a/cmake/FortranCInterface/mymodule.f90 b/cmake/FortranCInterface/mymodule.f90
+new file mode 100644
+index 0000000..ef6281a
+--- /dev/null
++++ b/cmake/FortranCInterface/mymodule.f90
+@@ -0,0 +1,8 @@
++module mymodule
++  interface myinterface
++     module procedure mysub
++  end interface
++contains
++  subroutine mysub
++  end subroutine mysub
++end module mymodule
+diff --git a/cmake/FortranCInterface/mymodule_.c b/cmake/FortranCInterface/mymodule_.c
+new file mode 100644
+index 0000000..b5feda6
+--- /dev/null
++++ b/cmake/FortranCInterface/mymodule_.c
+@@ -0,0 +1,8 @@
++#if defined(__PATHSCALE__)
++/* PathScale Fortran wants mymodule_ when calling any mymodule symbol,
++   but module symbols use '.in.' so we cannot provide them anyway.  */
++void pathscale_mymodule_(void) {}
++#else
++/* PGI Fortran wants mymodule_ when calling any mymodule symbol.  */
++void mymodule_(void) {}
++#endif
+diff --git a/cmake/FortranCInterface/mysub.f b/cmake/FortranCInterface/mysub.f
+new file mode 100644
+index 0000000..1c27ff4
+--- /dev/null
++++ b/cmake/FortranCInterface/mysub.f
+@@ -0,0 +1,2 @@
++      subroutine mysub
++      end
+diff --git a/cmake/FortranCInterface/symbol.c.in b/cmake/FortranCInterface/symbol.c.in
+new file mode 100644
+index 0000000..369fa45
+--- /dev/null
++++ b/cmake/FortranCInterface/symbol.c.in
+@@ -0,0 +1,4 @@
++const char* @symbol@(void)
++{
++  return "INFO:symbol[@symbol@]";
++}
+diff --git a/cmake/Packaging.cmake b/cmake/Packaging.cmake
+new file mode 100644
+index 0000000..4a69165
+--- /dev/null
++++ b/cmake/Packaging.cmake
+@@ -0,0 +1,115 @@
++#-----------------------------------------------
++# packaging
++#-----------------------------------------------
++
++OPTION(ENABLE_PACKAGING "Enable Packaging" ON)
++
++IF(CMAKE_C_COMPILER MATCHES gcc)
++    EXEC_PROGRAM(${CMAKE_C_COMPILER}
++        ARGS -dumpversion
++        OUTPUT_VARIABLE PACKAGE_COMPILER)
++    SET(PACKAGE_COMPILER gcc-${PACKAGE_COMPILER})
++ELSE()
++    SET(PACKAGE_COMPILER ${CMAKE_CXX_COMPILER})
++ENDIF()
++
++IF (UNIX AND NOT APPLE) # LINUX
++    OPTION(BUILD_RPM "Enable RPM Packaging" OFF)
++ENDIF()
++
++IF(ENABLE_PACKAGING OR BUILD_RPM)
++
++    INCLUDE(InstallRequiredSystemLibraries)
++
++    CONFIGURE_FILE(${MATIO_SOURCE_DIR}/README  README.txt  COPYONLY)
++    CONFIGURE_FILE(${MATIO_SOURCE_DIR}/COPYING COPYING.txt COPYONLY)
++
++    SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY "matio library for matlab IOs")
++    SET(CPACK_PACKAGE_VENDOR "Christopher Hulbert")
++    SET(CPACK_PACKAGE_DESCRIPTION_FILE "${MATIO_BINARY_DIR}/README.txt")
++    SET(CPACK_RESOURCE_FILE_LICENSE "${MATIO_BINARY_DIR}/COPYING.txt")
++    SET(CPACK_PACKAGE_INSTALL_DIRECTORY "matio")
++    SET(CPACK_PACKAGE_CONTACT "cch@isl-inc.com")
++
++    IF(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "x86_64")
++        SET(CPACK_DEBIAN_PACKAGE_ARCHITECTURE amd64)
++        SET(CPACK_RPM_PACKAGE_ARCHITECTURE x86_64)
++    ELSE()
++        SET(CPACK_DEBIAN_PACKAGE_ARCHITECTURE i386)
++        SET(CPACK_RPM_PACKAGE_ARCHITECTURE i386)
++    ENDIF()
++
++    SET(PACKAGE_NAME "matio-${PACKAGE_VERSION_MAJOR}.${PACKAGE_VERSION_MINOR}.${PACKAGE_VERSION_PATCH}")
++    IF(UNIX)
++        IF (APPLE)
++            SET(PACKAGE_NAME ${PACKAGE_NAME}-MacOSX-Intel)
++            IF(BUILD_UNIVERSAL)
++                SET(PACKAGE_NAME ${PACKAGE_NAME}-Universal)
++            ENDIF()
++        ELSE()
++            SET(PACKAGE_NAME ${PACKAGE_NAME}-Linux.${CPACK_RPM_PACKAGE_ARCHITECTURE})
++        ENDIF()
++    ELSE()
++        SET(PACKAGE_NAME ${PACKAGE_NAME}-win32-x86)
++    ENDIF()
++
++    SET(PACKAGE_NAME ${PACKAGE_NAME}-${PACKAGE_COMPILER})
++
++    IF (USE_OMP)
++        SET(PACKAGE_NAME ${PACKAGE_NAME}-OpenMP)
++    ENDIF()
++
++    IF(BUILD_SHARED)
++        IF(PYTHON_WRAP)
++            SET(PACKAGE_NAME ${PACKAGE_NAME}-python)
++        ENDIF()
++        SET(PACKAGE_NAME ${PACKAGE_NAME}-shared)
++    ELSE()
++        SET(PACKAGE_NAME ${PACKAGE_NAME}-static)
++    ENDIF()
++
++    SET(CPACK_PACKAGE_FILE_NAME ${PACKAGE_NAME})
++
++    IF (WIN32)
++        # There is a bug in NSIS that does not handle full unix paths properly. Make
++        # sure there is at least one set of four (4) backlasshes.
++        SET(CPACK_NSIS_DISPLAY_NAME "matio library for matlab IOs")
++        SET(CPACK_NSIS_HELP_LINK "http:\\\\\\\\sourceforge.net/projects/matio/support")
++        SET(CPACK_NSIS_URL_INFO_ABOUT "https:\\\\\\\\gforge.inria.fr/projects/openmeeg/")
++        SET(CPACK_NSIS_CONTACT "cch@isl-inc.com")
++        SET(CPACK_NSIS_MODIFY_PATH ON)
++    ENDIF()
++
++    SET(CPACK_SOURCE_STRIP_FILES "")
++
++    IF(UNIX AND NOT APPLE)
++        SET(CPACK_GENERATOR "TGZ")
++    ENDIF()
++
++    IF(APPLE)
++        SET(CPACK_GENERATOR "PackageMaker;TGZ")
++    ENDIF()
++
++    INCLUDE(CPack)
++
++    IF(UNIX AND BUILD_RPM) # linux
++        SET(CPACK_GENERATOR "${CPACK_GENERATOR};RPM")
++        IF (CMAKE_MAJOR_VERSION EQUAL 2 AND CMAKE_MINOR_VERSION LESS 8)
++            INCLUDE(UseRPMTools)
++            IF (RPMTools_FOUND)
++                RPMTools_ADD_RPM_TARGETS(${PROJECT_NAME} "${PROJECT_SOURCE_DIR}/packaging/${PROJECT_NAME}.spec.in")
++            ENDIF()
++        ELSE()
++            SET(CPACK_RPM_PACKAGE_LICENSE "LGPL")
++            SET(CPACK_RPM_PACKAGE_DESCRIPTION  "libmatio is an open-source library for reading/writing Matlab MAT files.  This
++library is designed for use by programs/libraries that do not have access or
++do not want to rely on Matlab's libmat shared library.")
++            SET(CPACK_RPM_PACKAGE_GROUP "Libraries")
++        ENDIF()
++    ENDIF()
++
++ENDIF()
++
++#IF (ENABLE_PACKAGING AND WIN32)
++#    INCLUDE(UseWin32dlls)
++#ENDIF()
+diff --git a/cmake/UseWin32dlls.cmake b/cmake/UseWin32dlls.cmake
+new file mode 100644
+index 0000000..2fb5437
+--- /dev/null
++++ b/cmake/UseWin32dlls.cmake
+@@ -0,0 +1,21 @@
++IF (WIN32 AND ENABLE_PACKAGING)
++
++     # TODO.
++
++#    SET(WIN32_MANIFEST "${CMAKE_SOURCE_DIR}/../win32addons/Microsoft.VC80.CRT.manifest")
++#    SET(MSVCP80 "${OpenMEEG_SOURCE_DIR}/../win32addons/msvcp80.dll")
++#    SET(MSVCR80 "${OpenMEEG_SOURCE_DIR}/../win32addons/msvcr80.dll")
++
++    ADD_CUSTOM_TARGET(copy_dlls ALL
++        COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/win32depends/
++        COMMAND ${CMAKE_COMMAND} -E copy ${MSVCP80} ${CMAKE_BINARY_DIR}/win32depends/
++        COMMAND ${CMAKE_COMMAND} -E copy ${MSVCR80} ${CMAKE_BINARY_DIR}/win32depends/
++        COMMAND ${CMAKE_COMMAND} -E copy ${WIN32_MANIFEST} ${CMAKE_BINARY_DIR}/win32depends/
++    )
++
++    INSTALL(DIRECTORY ${MATIO_BINARY_DIR}/win32depends/ DESTINATION bin
++              PATTERN "${MATIO_BINARY_DIR}/win32depends/*"
++              PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ
++                          GROUP_EXECUTE GROUP_READ)
++
++ENDIF()
+diff --git a/cmake/VA_COPY.cmake b/cmake/VA_COPY.cmake
+new file mode 100644
+index 0000000..55fe031
+--- /dev/null
++++ b/cmake/VA_COPY.cmake
+@@ -0,0 +1,42 @@
++MACRO(VA_COPY)
++    write_file("${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeTmp/cmake_try_compile.c"
++    "#include <stdarg.h>
++    void f (int i, ...) {
++        va_list args1, args2;
++        va_start (args1, i);
++        va_copy (args2, args1);
++        if (va_arg (args2, int) != 42 || va_arg (args1, int) != 42)
++            exit (1);
++        va_end (args1); va_end (args2);
++    }
++    int main() {
++        f (0, 42);
++        return 0;
++    }
++    ")
++    try_compile(HAVE_VA_COPY ${CMAKE_BINARY_DIR} ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeTmp/cmake_try_compile.c)
++
++    if(HAVE_VA_COPY)
++        SET(VA_COPY va_copy CACHE STRING "va_copy function")
++    else()
++        write_file("${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeTmp/cmake_try_compile.c"
++        "#include <stdarg.h>
++        void f (int i, ...) {
++            va_list args1, args2;
++            va_start (args1, i);
++            __va_copy (args2, args1);
++            if (va_arg (args2, int) != 42 || va_arg (args1, int) != 42)
++                exit (1);
++            va_end (args1); va_end (args2);
++        }
++        int main() {
++            f (0, 42);
++            return 0;
++        }
++        ")
++        try_compile(HAVE_VA_COPY ${CMAKE_BINARY_DIR} ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeTmp/cmake_try_compile.c)
++        if(HAVE___VA_COPY)
++            SET(_VA_COPY __va_copy CACHE STRING "va_copy function")
++        endif()
++    endif()
++ENDMACRO()
+diff --git a/cmake_uninstall.cmake.in b/cmake_uninstall.cmake.in
+new file mode 100644
+index 0000000..4b3ae7d
+--- /dev/null
++++ b/cmake_uninstall.cmake.in
+@@ -0,0 +1,20 @@
++IF(NOT EXISTS "@CMAKE_CURRENT_BINARY_DIR@/install_manifest.txt")
++    MESSAGE(FATAL_ERROR "Cannot find install manifest: \"@CMAKE_CURRENT_BINARY_DIR@/install_manifest.txt\"")
++ENDIF(NOT EXISTS "@CMAKE_CURRENT_BINARY_DIR@/install_manifest.txt")
++
++FILE(READ "@CMAKE_CURRENT_BINARY_DIR@/install_manifest.txt" files)
++STRING(REGEX REPLACE "\n" ";" files "${files}")
++FOREACH(file ${files})
++    MESSAGE(STATUS "Uninstalling \"$ENV{DESTDIR}${file}\"")
++    IF(EXISTS "$ENV{DESTDIR}${file}")
++        EXEC_PROGRAM(
++            "@CMAKE_COMMAND@" ARGS "-E remove \"$ENV{DESTDIR}${file}\""
++            OUTPUT_VARIABLE rm_out
++            RETURN_VALUE rm_retval)
++        IF(NOT "${rm_retval}" STREQUAL 0)
++            MESSAGE(FATAL_ERROR "Problem when removing \"$ENV{DESTDIR}${file}\"")
++        ENDIF(NOT "${rm_retval}" STREQUAL 0)
++    ELSE(EXISTS "$ENV{DESTDIR}${file}")
++        MESSAGE(STATUS "File \"$ENV{DESTDIR}${file}\" does not exist.")
++    ENDIF(EXISTS "$ENV{DESTDIR}${file}")
++ENDFOREACH(file)
+diff --git a/doxygen/CMakeLists.txt b/doxygen/CMakeLists.txt
+new file mode 100644
+index 0000000..8997323
+--- /dev/null
++++ b/doxygen/CMakeLists.txt
+@@ -0,0 +1,11 @@
++INCLUDE (Documentation OPTIONAL)
++
++ADD_CUSTOM_TARGET(documentation ALL)
++
++ADD_DEPENDENCIES(documentation doxygen_outputs)
++
++ADD_CUSTOM_TARGET(doxygen_outputs
++                  COMMAND ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/doxygen.config
++                  DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/doxygen.config)
++
++INSTALL(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/html/ DESTINATION share/doc/OpenMEEG/reference)
+diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
+new file mode 100644
+index 0000000..6b7f245
+--- /dev/null
++++ b/src/CMakeLists.txt
+@@ -0,0 +1,42 @@
++SET(HEADERS matio_private.h mat4.h mat5.h matio.h matioConfig.h)
++SET(SRC_FILES mat.c mat4.c mat5.c io.c endian.c read_data.c snprintf.c)
++IF (Z_LIBRARY)
++    SET(SRC_FILES ${SRC_FILES} inflate.c)
++ENDIF()
++
++IF (WIN32)
++    SET(SRC_FILES ${SRC_FILES} matio.rc)
++ENDIF()
++
++IF (ENABLE_FORTRAN)
++    INCLUDE(FortranCInterface)
++    FortranCInterface_HEADER(fortran.h MACRO_NAMESPACE "FC_" FROM_LIBRARY blas[daxpy])
++    SET(SIZEOF_VOID_P ${SIZEOF_VOID_PTR})
++    CONFIGURE_FILE(fortran/matio_t.inc.in fortran/matio_t.inc IMMEDIATE @ONLY)
++    SET(SRC_FILES ${SRC_FILES} fortran/matio_internal.c fortran/matio.f90)
++    #set(HEADERS ${HEADERS} fortran/create.f90 fortran/read_data.f90 fortran/write_data.f90 fortran/write.f90)
++    INCLUDE_DIRECTORIES(fortran ${CMAKE_CURRENT_BINARY_DIR}/fortran)
++ENDIF()
++
++ADD_LIBRARY(matio ${LIB_TYPE} ${SRC_FILES} ${HEADERS})
++
++IF (Z_LIBRARY)
++    TARGET_LINK_LIBRARIES(matio ${Z_LIBRARY})
++ENDIF()
++
++CONFIGURE_FILE(
++    "${CMAKE_CURRENT_SOURCE_DIR}/matioConfig.cmake.in"
++    "${CMAKE_CURRENT_BINARY_DIR}/matioConfig.h"
++    IMMEDIATE @ONLY)
++
++# ================
++# = INSTALLATION =
++# ================
++
++INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/matioConfig.h ${CMAKE_CURRENT_SOURCE_DIR}/matio.h
++        DESTINATION include)
++
++INSTALL(TARGETS matio
++        RUNTIME DESTINATION bin
++        LIBRARY DESTINATION lib
++        ARCHIVE DESTINATION lib)
+diff --git a/src/fortran/CMakeLists.txt b/src/fortran/CMakeLists.txt
+new file mode 100644
+index 0000000..43568a4
+--- /dev/null
++++ b/src/fortran/CMakeLists.txt
+@@ -0,0 +1,5 @@
++INCLUDE(FortranCInterface)
++FortranCInterface_HEADER(fortran.h MACRO_NAMESPACE "FC_" FROM_LIBRARY blas[daxpy])
++
++SET(SIZEOF_VOID_P ${SIZEOF_VOID_PTR})
++Configure_File(matio_t.inc.in matio_t.inc IMMEDIATE @ONLY)
+diff --git a/src/matioConfig.cmake.in b/src/matioConfig.cmake.in
+new file mode 100644
+index 0000000..b179e1a
+--- /dev/null
++++ b/src/matioConfig.cmake.in
+@@ -0,0 +1,70 @@
++#ifndef MATIOCONFIGURE_H
++#define MATIOCONFIGURE_H
++
++#cmakedefine MATIO_FORTRAN
++#ifdef MATIO_FORTRAN
++#include <fortran.h>
++#define FC_FUNC_(name,NAME) FC_GLOBAL(name,NAME)
++#endif
++
++#define MATIO_PLATFORM "@MATIO_PLATFORM@"
++#define MATIO_MAJOR_VERSION @PACKAGE_VERSION_MAJOR@
++#define MATIO_MINOR_VERSION @PACKAGE_VERSION_MINOR@
++#define MATIO_RELEASE_LEVEL @PACKAGE_VERSION_PATCH@
++
++#define SIZEOF_DOUBLE @SIZEOF_DOUBLE@
++#define SIZEOF_FLOAT @SIZEOF_FLOAT@
++#define SIZEOF_LONG @SIZEOF_LONG@
++#define SIZEOF_INT @SIZEOF_INT@
++#define SIZEOF_SHORT @SIZEOF_SHORT@
++#define SIZEOF_CHAR @SIZEOF_CHAR@
++#define SIZEOF_VOID_PTR @CMAKE_SIZEOF_VOID_P@
++
++#cmakedefine HAVE_VA_COPY 1
++#cmakedefine HAVE_VSNPRINTF 1
++#cmakedefine HAVE_SNPRINTF 1
++#cmakedefine HAVE_VASPRINTF 1
++#cmakedefine HAVE_ASPRINTF 1
++
++#cmakedefine HAVE_ZLIB 1
++#cmakedefine HAVE_INTTYPES_H 1
++#cmakedefine HAVE_STRINGS_H 1
++#cmakedefine HAVE_STDINT_H 1
++#cmakedefine STDC_HEADERS 1
++#cmakedefine HAVE_CTYPE_H 1
++#cmakedefine HAVE_STRING_H 1
++#cmakedefine HAVE_MALLOC_H 1
++
++#cmakedefine FC_FUNC
++#cmakedefine FC_FUNC_
++
++#cmakedefine LINUX
++#cmakedefine WINNT
++#cmakedefine SUN
++
++#cmakedefine MAT_FT_DEFAULT @MAT_FT_DEFAULT@
++
++#cmakedefine HAVE_MAT_INT64_T 1
++#cmakedefine HAVE_MAT_INT32_T 1
++#cmakedefine HAVE_MAT_INT16_T 1
++#cmakedefine HAVE_MAT_INT8_T 1
++#cmakedefine HAVE_MAT_UINT64_T 1
++#cmakedefine HAVE_MAT_UINT32_T 1
++#cmakedefine HAVE_MAT_UINT16_T 1
++#cmakedefine HAVE_MAT_UINT8_T 1
++
++#define _mat_uint8_t     uint8_t
++#define _mat_uint16_t    uint16_t
++#define _mat_uint32_t    uint32_t
++#define _mat_uint64_t    uint64_t
++#define _mat_int8_t      int8_t
++#define _mat_int16_t     int16_t
++#define _mat_int32_t     int32_t
++#define _mat_int64_t     int64_t
++
++#cmakedefine EXTENDED_SPARSE 1
++
++#cmakedefine Z_PREFIX
++
++#endif  //  ! MATIOCONFIGURE_H
++
+diff --git a/test/CMakeLists.txt b/test/CMakeLists.txt
+new file mode 100644
+index 0000000..dd24dc7
+--- /dev/null
++++ b/test/CMakeLists.txt
+@@ -0,0 +1,103 @@
++IF(NOT WIN32)
++    SET(MATIO_EXTERNAL_LIBRARIES m) 
++ENDIF()
++
++ADD_EXECUTABLE(test_mat test_mat.c)
++TARGET_LINK_LIBRARIES(test_mat matio ${MATIO_EXTERNAL_LIBRARIES})
++
++ADD_EXECUTABLE(test_snprintf test_snprintf.c ${MATIO_SOURCE_DIR}/src/snprintf.c)
++TARGET_LINK_LIBRARIES(test_snprintf ${MATIO_EXTERNAL_LIBRARIES})
++
++MACRO(MATIO_TEST NAME PROG_NAME)
++    SET(PROG_ARGS ${ARGN})
++    IF (WIN32)
++        SET (TEST_DIR ${EXECUTABLE_OUTPUT_PATH})
++    ELSE ()
++        SET (TEST_DIR ${CMAKE_CURRENT_BINARY_DIR})
++    ENDIF ()
++
++    SET (EXECUTABLE ${TEST_DIR}/${PROG_NAME}${CMAKE_EXECUTABLE_SUFFIX})
++    ADD_TEST(${NAME}-COMPARISON
++             ${CMAKE_COMMAND} -D TEST_PROGRAM=${EXECUTABLE}
++                              -D TEST_ARGS=${PROG_ARGS}
++                              -D TEST_OUTPUT=${TEST_DIR}/${NAME}.out
++                              -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/test/results/${NAME}.out
++                              -P ${MATIO_SOURCE_DIR}/test/runTest.cmake ) # To compare output to reference file
++    ADD_TEST(${NAME} ${EXECUTABLE} ${PROG_ARGS}) # To perform memcheck tests
++    #SET_TESTS_PROPERTIES(${NAME} PROPERTIES DEPENDS ${EXECUTABLE})
++    SET_TESTS_PROPERTIES(${NAME}-COMPARISON PROPERTIES
++                         DEPENDS ${NAME}
++                         PASS_REGULAR_EXPRESSION "Success")
++ENDMACRO()
++
++MATIO_TEST(TEST_SNPRINTF test_snprintf)
++
++SET(MATIO_WRITE_TESTS write writecompressed writesparse write_compressed_sparse
++    write_struct write_compressed_struct writecell write_compressed_cell
++    writeinf writenan writenull writeslab)
++
++FOREACH(arg ${MATIO_WRITE_TESTS})
++    MATIO_TEST(MATIO-${arg} test_mat ${arg})
++ENDFOREACH()
++
++SET(MATIO_IND_TESTS ind2sub sub2ind)
++FOREACH(arg ${MATIO_IND_TESTS})
++    MATIO_TEST(MATIO-${arg} test_mat ${arg})
++ENDFOREACH()
++
++SET(MATIO_FILES write write_compressed writesparse write_compressed_sparse
++    write_struct write_compressed_struct writecell write_compressed_cell
++    writeinf writenan write_null writeslab)
++FOREACH(file ${MATIO_FILES})
++    MATIO_TEST(MATIO-copy-${file} test_mat copy test_mat_${file}.mat ${file}.mat)
++ENDFOREACH()
++
++SET(MATIO_OTHER_FILES writeinf writenan write_null)
++FOREACH(file ${MATIO_FILES})
++    MATIO_TEST(MATIO-copy-${file} test_mat copy test_${file}.mat ${file}.mat)
++ENDFOREACH()
++
++#   Record the output and compare it with stored values ??
++
++SET(MATIO_WRITE_VARS d f i64 ui64 i32 i16 i8 str)
++FOREACH(file write write_compressed)
++    FOREACH(var ${MATIO_WRITE_VARS})
++        MATIO_TEST(MATIO-readvarinfo-${file}-${var} test_mat readvarinfo test_${file}.mat ${var})
++        MATIO_TEST(MATIO-readvar-${file}-${var} test_mat readvar test_${file}.mat ${var})
++    ENDFOREACH()
++ENDFOREACH()
++
++FOREACH(file writecell write_compressed_cell)
++    MATIO_TEST(MATIO-readvarinfo-${file} test_mat readvarinfo test_mat_${file}.mat cell)
++    MATIO_TEST(MATIO-readvar-${file} test_mat readvar test_mat_${file}.mat cell)
++ENDFOREACH()
++
++SET(MATIO_WRITESLAB_VARS d f i)
++FOREACH(var ${MATIO_WRITESLAB_VARS})
++    MATIO_TEST(MATIO-readslab-${var} test_mat readslab test_mat_writeslab.mat ${var})
++ENDFOREACH()
++
++FOREACH(file write_struct write_compressed_struct)
++    FOREACH(field 1 2 3 4 data)
++        MATIO_TEST(MATIO-getstructfield-${file}-${field} test_mat getstructfield test_mat_${file}.mat structure ${var})
++    ENDFOREACH()
++ENDFOREACH()
++
++# Add more tests for these.
++
++SET(MATIO_READ_TESTS readvar4 readslab4)
++
++# Set tests that are expected to fail (TO BE CORRECTED).
++
++SET_TESTS_PROPERTIES(MATIO-writenull PROPERTIES WILL_FAIL TRUE)
++SET_TESTS_PROPERTIES(MATIO-writenull-COMPARISON PROPERTIES WILL_FAIL TRUE)
++SET_TESTS_PROPERTIES(MATIO-copy-write_null PROPERTIES WILL_FAIL TRUE)
++SET_TESTS_PROPERTIES(MATIO-readvarinfo-write_compressed_cell PROPERTIES WILL_FAIL TRUE)
++SET_TESTS_PROPERTIES(MATIO-readvar-write_compressed_cell PROPERTIES WILL_FAIL TRUE)
++
++IF (ENABLE_FORTRAN)
++    INCLUDE_DIRECTORIES(${MATIO_SOURCE_DIR}/src/fortran ${MATIO_BINARY_DIR}/src/fortran)
++    ADD_EXECUTABLE(test_matf test_matf.f90)
++    TARGET_LINK_LIBRARIES(test_matf matio m)
++    # TESTS
++ENDIF()
+diff --git a/test/results/MATIO-copy-write.out b/test/results/MATIO-copy-write.out
+new file mode 100644
+index 0000000..d4236fb
+--- /dev/null
++++ b/test/results/MATIO-copy-write.out
+@@ -0,0 +1 @@
++1 of 1 tests completed successfully
+diff --git a/test/results/MATIO-copy-write_compressed.out b/test/results/MATIO-copy-write_compressed.out
+new file mode 100644
+index 0000000..d4236fb
+--- /dev/null
++++ b/test/results/MATIO-copy-write_compressed.out
+@@ -0,0 +1 @@
++1 of 1 tests completed successfully
+diff --git a/test/results/MATIO-copy-write_compressed_cell.out b/test/results/MATIO-copy-write_compressed_cell.out
+new file mode 100644
+index 0000000..d4236fb
+--- /dev/null
++++ b/test/results/MATIO-copy-write_compressed_cell.out
+@@ -0,0 +1 @@
++1 of 1 tests completed successfully
+diff --git a/test/results/MATIO-copy-write_compressed_sparse.out b/test/results/MATIO-copy-write_compressed_sparse.out
+new file mode 100644
+index 0000000..d4236fb
+--- /dev/null
++++ b/test/results/MATIO-copy-write_compressed_sparse.out
+@@ -0,0 +1 @@
++1 of 1 tests completed successfully
+diff --git a/test/results/MATIO-copy-write_compressed_struct.out b/test/results/MATIO-copy-write_compressed_struct.out
+new file mode 100644
+index 0000000..d4236fb
+--- /dev/null
++++ b/test/results/MATIO-copy-write_compressed_struct.out
+@@ -0,0 +1 @@
++1 of 1 tests completed successfully
+diff --git a/test/results/MATIO-copy-write_null.out b/test/results/MATIO-copy-write_null.out
+new file mode 100644
+index 0000000..d4236fb
+--- /dev/null
++++ b/test/results/MATIO-copy-write_null.out
+@@ -0,0 +1 @@
++1 of 1 tests completed successfully
+diff --git a/test/results/MATIO-copy-write_struct.out b/test/results/MATIO-copy-write_struct.out
+new file mode 100644
+index 0000000..d4236fb
+--- /dev/null
++++ b/test/results/MATIO-copy-write_struct.out
+@@ -0,0 +1 @@
++1 of 1 tests completed successfully
+diff --git a/test/results/MATIO-copy-writecell.out b/test/results/MATIO-copy-writecell.out
+new file mode 100644
+index 0000000..d4236fb
+--- /dev/null
++++ b/test/results/MATIO-copy-writecell.out
+@@ -0,0 +1 @@
++1 of 1 tests completed successfully
+diff --git a/test/results/MATIO-copy-writeinf.out b/test/results/MATIO-copy-writeinf.out
+new file mode 100644
+index 0000000..d4236fb
+--- /dev/null
++++ b/test/results/MATIO-copy-writeinf.out
+@@ -0,0 +1 @@
++1 of 1 tests completed successfully
+diff --git a/test/results/MATIO-copy-writenan.out b/test/results/MATIO-copy-writenan.out
+new file mode 100644
+index 0000000..d4236fb
+--- /dev/null
++++ b/test/results/MATIO-copy-writenan.out
+@@ -0,0 +1 @@
++1 of 1 tests completed successfully
+diff --git a/test/results/MATIO-copy-writeslab.out b/test/results/MATIO-copy-writeslab.out
+new file mode 100644
+index 0000000..d4236fb
+--- /dev/null
++++ b/test/results/MATIO-copy-writeslab.out
+@@ -0,0 +1 @@
++1 of 1 tests completed successfully
+diff --git a/test/results/MATIO-copy-writesparse.out b/test/results/MATIO-copy-writesparse.out
+new file mode 100644
+index 0000000..d4236fb
+--- /dev/null
++++ b/test/results/MATIO-copy-writesparse.out
+@@ -0,0 +1 @@
++1 of 1 tests completed successfully
+diff --git a/test/results/MATIO-getstructfield-write_compressed_struct-1.out b/test/results/MATIO-getstructfield-write_compressed_struct-1.out
+new file mode 100644
+index 0000000..88b9d33
+--- /dev/null
++++ b/test/results/MATIO-getstructfield-write_compressed_struct-1.out
+@@ -0,0 +1 @@
++0 of 1 tests completed successfully
+diff --git a/test/results/MATIO-getstructfield-write_compressed_struct-2.out b/test/results/MATIO-getstructfield-write_compressed_struct-2.out
+new file mode 100644
+index 0000000..88b9d33
+--- /dev/null
++++ b/test/results/MATIO-getstructfield-write_compressed_struct-2.out
+@@ -0,0 +1 @@
++0 of 1 tests completed successfully
+diff --git a/test/results/MATIO-getstructfield-write_compressed_struct-3.out b/test/results/MATIO-getstructfield-write_compressed_struct-3.out
+new file mode 100644
+index 0000000..88b9d33
+--- /dev/null
++++ b/test/results/MATIO-getstructfield-write_compressed_struct-3.out
+@@ -0,0 +1 @@
++0 of 1 tests completed successfully
+diff --git a/test/results/MATIO-getstructfield-write_compressed_struct-4.out b/test/results/MATIO-getstructfield-write_compressed_struct-4.out
+new file mode 100644
+index 0000000..88b9d33
+--- /dev/null
++++ b/test/results/MATIO-getstructfield-write_compressed_struct-4.out
+@@ -0,0 +1 @@
++0 of 1 tests completed successfully
+diff --git a/test/results/MATIO-getstructfield-write_compressed_struct-data.out b/test/results/MATIO-getstructfield-write_compressed_struct-data.out
+new file mode 100644
+index 0000000..88b9d33
+--- /dev/null
++++ b/test/results/MATIO-getstructfield-write_compressed_struct-data.out
+@@ -0,0 +1 @@
++0 of 1 tests completed successfully
+diff --git a/test/results/MATIO-getstructfield-write_struct-1.out b/test/results/MATIO-getstructfield-write_struct-1.out
+new file mode 100644
+index 0000000..88b9d33
+--- /dev/null
++++ b/test/results/MATIO-getstructfield-write_struct-1.out
+@@ -0,0 +1 @@
++0 of 1 tests completed successfully
+diff --git a/test/results/MATIO-getstructfield-write_struct-2.out b/test/results/MATIO-getstructfield-write_struct-2.out
+new file mode 100644
+index 0000000..88b9d33
+--- /dev/null
++++ b/test/results/MATIO-getstructfield-write_struct-2.out
+@@ -0,0 +1 @@
++0 of 1 tests completed successfully
+diff --git a/test/results/MATIO-getstructfield-write_struct-3.out b/test/results/MATIO-getstructfield-write_struct-3.out
+new file mode 100644
+index 0000000..88b9d33
+--- /dev/null
++++ b/test/results/MATIO-getstructfield-write_struct-3.out
+@@ -0,0 +1 @@
++0 of 1 tests completed successfully
+diff --git a/test/results/MATIO-getstructfield-write_struct-4.out b/test/results/MATIO-getstructfield-write_struct-4.out
+new file mode 100644
+index 0000000..88b9d33
+--- /dev/null
++++ b/test/results/MATIO-getstructfield-write_struct-4.out
+@@ -0,0 +1 @@
++0 of 1 tests completed successfully
+diff --git a/test/results/MATIO-getstructfield-write_struct-data.out b/test/results/MATIO-getstructfield-write_struct-data.out
+new file mode 100644
+index 0000000..88b9d33
+--- /dev/null
++++ b/test/results/MATIO-getstructfield-write_struct-data.out
+@@ -0,0 +1 @@
++0 of 1 tests completed successfully
+diff --git a/test/results/MATIO-ind2sub.out b/test/results/MATIO-ind2sub.out
+new file mode 100644
+index 0000000..bef9bf8
+--- /dev/null
++++ b/test/results/MATIO-ind2sub.out
+@@ -0,0 +1,2 @@
++233,74,1
++1 of 1 tests completed successfully
+diff --git a/test/results/MATIO-readslab-d.out b/test/results/MATIO-readslab-d.out
+new file mode 100644
+index 0000000..d4236fb
+--- /dev/null
++++ b/test/results/MATIO-readslab-d.out
+@@ -0,0 +1 @@
++1 of 1 tests completed successfully
+diff --git a/test/results/MATIO-readslab-f.out b/test/results/MATIO-readslab-f.out
+new file mode 100644
+index 0000000..d4236fb
+--- /dev/null
++++ b/test/results/MATIO-readslab-f.out
+@@ -0,0 +1 @@
++1 of 1 tests completed successfully
+diff --git a/test/results/MATIO-readslab-i.out b/test/results/MATIO-readslab-i.out
+new file mode 100644
+index 0000000..d4236fb
+--- /dev/null
++++ b/test/results/MATIO-readslab-i.out
+@@ -0,0 +1 @@
++1 of 1 tests completed successfully
+diff --git a/test/results/MATIO-readvar-write-d.out b/test/results/MATIO-readvar-write-d.out
+new file mode 100644
+index 0000000..88b9d33
+--- /dev/null
++++ b/test/results/MATIO-readvar-write-d.out
+@@ -0,0 +1 @@
++0 of 1 tests completed successfully
+diff --git a/test/results/MATIO-readvar-write-f.out b/test/results/MATIO-readvar-write-f.out
+new file mode 100644
+index 0000000..88b9d33
+--- /dev/null
++++ b/test/results/MATIO-readvar-write-f.out
+@@ -0,0 +1 @@
++0 of 1 tests completed successfully
+diff --git a/test/results/MATIO-readvar-write-i16.out b/test/results/MATIO-readvar-write-i16.out
+new file mode 100644
+index 0000000..88b9d33
+--- /dev/null
++++ b/test/results/MATIO-readvar-write-i16.out
+@@ -0,0 +1 @@
++0 of 1 tests completed successfully
+diff --git a/test/results/MATIO-readvar-write-i32.out b/test/results/MATIO-readvar-write-i32.out
+new file mode 100644
+index 0000000..88b9d33
+--- /dev/null
++++ b/test/results/MATIO-readvar-write-i32.out
+@@ -0,0 +1 @@
++0 of 1 tests completed successfully
+diff --git a/test/results/MATIO-readvar-write-i64.out b/test/results/MATIO-readvar-write-i64.out
+new file mode 100644
+index 0000000..88b9d33
+--- /dev/null
++++ b/test/results/MATIO-readvar-write-i64.out
+@@ -0,0 +1 @@
++0 of 1 tests completed successfully
+diff --git a/test/results/MATIO-readvar-write-i8.out b/test/results/MATIO-readvar-write-i8.out
+new file mode 100644
+index 0000000..88b9d33
+--- /dev/null
++++ b/test/results/MATIO-readvar-write-i8.out
+@@ -0,0 +1 @@
++0 of 1 tests completed successfully
+diff --git a/test/results/MATIO-readvar-write-str.out b/test/results/MATIO-readvar-write-str.out
+new file mode 100644
+index 0000000..88b9d33
+--- /dev/null
++++ b/test/results/MATIO-readvar-write-str.out
+@@ -0,0 +1 @@
++0 of 1 tests completed successfully
+diff --git a/test/results/MATIO-readvar-write-ui64.out b/test/results/MATIO-readvar-write-ui64.out
+new file mode 100644
+index 0000000..88b9d33
+--- /dev/null
++++ b/test/results/MATIO-readvar-write-ui64.out
+@@ -0,0 +1 @@
++0 of 1 tests completed successfully
+diff --git a/test/results/MATIO-readvar-write_compressed-d.out b/test/results/MATIO-readvar-write_compressed-d.out
+new file mode 100644
+index 0000000..88b9d33
+--- /dev/null
++++ b/test/results/MATIO-readvar-write_compressed-d.out
+@@ -0,0 +1 @@
++0 of 1 tests completed successfully
+diff --git a/test/results/MATIO-readvar-write_compressed-f.out b/test/results/MATIO-readvar-write_compressed-f.out
+new file mode 100644
+index 0000000..88b9d33
+--- /dev/null
++++ b/test/results/MATIO-readvar-write_compressed-f.out
+@@ -0,0 +1 @@
++0 of 1 tests completed successfully
+diff --git a/test/results/MATIO-readvar-write_compressed-i16.out b/test/results/MATIO-readvar-write_compressed-i16.out
+new file mode 100644
+index 0000000..88b9d33
+--- /dev/null
++++ b/test/results/MATIO-readvar-write_compressed-i16.out
+@@ -0,0 +1 @@
++0 of 1 tests completed successfully
+diff --git a/test/results/MATIO-readvar-write_compressed-i32.out b/test/results/MATIO-readvar-write_compressed-i32.out
+new file mode 100644
+index 0000000..88b9d33
+--- /dev/null
++++ b/test/results/MATIO-readvar-write_compressed-i32.out
+@@ -0,0 +1 @@
++0 of 1 tests completed successfully
+diff --git a/test/results/MATIO-readvar-write_compressed-i64.out b/test/results/MATIO-readvar-write_compressed-i64.out
+new file mode 100644
+index 0000000..88b9d33
+--- /dev/null
++++ b/test/results/MATIO-readvar-write_compressed-i64.out
+@@ -0,0 +1 @@
++0 of 1 tests completed successfully
+diff --git a/test/results/MATIO-readvar-write_compressed-i8.out b/test/results/MATIO-readvar-write_compressed-i8.out
+new file mode 100644
+index 0000000..88b9d33
+--- /dev/null
++++ b/test/results/MATIO-readvar-write_compressed-i8.out
+@@ -0,0 +1 @@
++0 of 1 tests completed successfully
+diff --git a/test/results/MATIO-readvar-write_compressed-str.out b/test/results/MATIO-readvar-write_compressed-str.out
+new file mode 100644
+index 0000000..88b9d33
+--- /dev/null
++++ b/test/results/MATIO-readvar-write_compressed-str.out
+@@ -0,0 +1 @@
++0 of 1 tests completed successfully
+diff --git a/test/results/MATIO-readvar-write_compressed-ui64.out b/test/results/MATIO-readvar-write_compressed-ui64.out
+new file mode 100644
+index 0000000..88b9d33
+--- /dev/null
++++ b/test/results/MATIO-readvar-write_compressed-ui64.out
+@@ -0,0 +1 @@
++0 of 1 tests completed successfully
+diff --git a/test/results/MATIO-readvar-write_compressed_cell.out b/test/results/MATIO-readvar-write_compressed_cell.out
+new file mode 100644
+index 0000000..88b9d33
+--- /dev/null
++++ b/test/results/MATIO-readvar-write_compressed_cell.out
+@@ -0,0 +1 @@
++0 of 1 tests completed successfully
+diff --git a/test/results/MATIO-readvar-writecell.out b/test/results/MATIO-readvar-writecell.out
+new file mode 100644
+index 0000000..88b9d33
+--- /dev/null
++++ b/test/results/MATIO-readvar-writecell.out
+@@ -0,0 +1 @@
++0 of 1 tests completed successfully
+diff --git a/test/results/MATIO-readvarinfo-write-d.out b/test/results/MATIO-readvarinfo-write-d.out
+new file mode 100644
+index 0000000..88b9d33
+--- /dev/null
++++ b/test/results/MATIO-readvarinfo-write-d.out
+@@ -0,0 +1 @@
++0 of 1 tests completed successfully
+diff --git a/test/results/MATIO-readvarinfo-write-f.out b/test/results/MATIO-readvarinfo-write-f.out
+new file mode 100644
+index 0000000..88b9d33
+--- /dev/null
++++ b/test/results/MATIO-readvarinfo-write-f.out
+@@ -0,0 +1 @@
++0 of 1 tests completed successfully
+diff --git a/test/results/MATIO-readvarinfo-write-i16.out b/test/results/MATIO-readvarinfo-write-i16.out
+new file mode 100644
+index 0000000..88b9d33
+--- /dev/null
++++ b/test/results/MATIO-readvarinfo-write-i16.out
+@@ -0,0 +1 @@
++0 of 1 tests completed successfully
+diff --git a/test/results/MATIO-readvarinfo-write-i32.out b/test/results/MATIO-readvarinfo-write-i32.out
+new file mode 100644
+index 0000000..88b9d33
+--- /dev/null
++++ b/test/results/MATIO-readvarinfo-write-i32.out
+@@ -0,0 +1 @@
++0 of 1 tests completed successfully
+diff --git a/test/results/MATIO-readvarinfo-write-i64.out b/test/results/MATIO-readvarinfo-write-i64.out
+new file mode 100644
+index 0000000..88b9d33
+--- /dev/null
++++ b/test/results/MATIO-readvarinfo-write-i64.out
+@@ -0,0 +1 @@
++0 of 1 tests completed successfully
+diff --git a/test/results/MATIO-readvarinfo-write-i8.out b/test/results/MATIO-readvarinfo-write-i8.out
+new file mode 100644
+index 0000000..88b9d33
+--- /dev/null
++++ b/test/results/MATIO-readvarinfo-write-i8.out
+@@ -0,0 +1 @@
++0 of 1 tests completed successfully
+diff --git a/test/results/MATIO-readvarinfo-write-str.out b/test/results/MATIO-readvarinfo-write-str.out
+new file mode 100644
+index 0000000..88b9d33
+--- /dev/null
++++ b/test/results/MATIO-readvarinfo-write-str.out
+@@ -0,0 +1 @@
++0 of 1 tests completed successfully
+diff --git a/test/results/MATIO-readvarinfo-write-ui64.out b/test/results/MATIO-readvarinfo-write-ui64.out
+new file mode 100644
+index 0000000..88b9d33
+--- /dev/null
++++ b/test/results/MATIO-readvarinfo-write-ui64.out
+@@ -0,0 +1 @@
++0 of 1 tests completed successfully
+diff --git a/test/results/MATIO-readvarinfo-write_compressed-d.out b/test/results/MATIO-readvarinfo-write_compressed-d.out
+new file mode 100644
+index 0000000..88b9d33
+--- /dev/null
++++ b/test/results/MATIO-readvarinfo-write_compressed-d.out
+@@ -0,0 +1 @@
++0 of 1 tests completed successfully
+diff --git a/test/results/MATIO-readvarinfo-write_compressed-f.out b/test/results/MATIO-readvarinfo-write_compressed-f.out
+new file mode 100644
+index 0000000..88b9d33
+--- /dev/null
++++ b/test/results/MATIO-readvarinfo-write_compressed-f.out
+@@ -0,0 +1 @@
++0 of 1 tests completed successfully
+diff --git a/test/results/MATIO-readvarinfo-write_compressed-i16.out b/test/results/MATIO-readvarinfo-write_compressed-i16.out
+new file mode 100644
+index 0000000..88b9d33
+--- /dev/null
++++ b/test/results/MATIO-readvarinfo-write_compressed-i16.out
+@@ -0,0 +1 @@
++0 of 1 tests completed successfully
+diff --git a/test/results/MATIO-readvarinfo-write_compressed-i32.out b/test/results/MATIO-readvarinfo-write_compressed-i32.out
+new file mode 100644
+index 0000000..88b9d33
+--- /dev/null
++++ b/test/results/MATIO-readvarinfo-write_compressed-i32.out
+@@ -0,0 +1 @@
++0 of 1 tests completed successfully
+diff --git a/test/results/MATIO-readvarinfo-write_compressed-i64.out b/test/results/MATIO-readvarinfo-write_compressed-i64.out
+new file mode 100644
+index 0000000..88b9d33
+--- /dev/null
++++ b/test/results/MATIO-readvarinfo-write_compressed-i64.out
+@@ -0,0 +1 @@
++0 of 1 tests completed successfully
+diff --git a/test/results/MATIO-readvarinfo-write_compressed-i8.out b/test/results/MATIO-readvarinfo-write_compressed-i8.out
+new file mode 100644
+index 0000000..88b9d33
+--- /dev/null
++++ b/test/results/MATIO-readvarinfo-write_compressed-i8.out
+@@ -0,0 +1 @@
++0 of 1 tests completed successfully
+diff --git a/test/results/MATIO-readvarinfo-write_compressed-str.out b/test/results/MATIO-readvarinfo-write_compressed-str.out
+new file mode 100644
+index 0000000..88b9d33
+--- /dev/null
++++ b/test/results/MATIO-readvarinfo-write_compressed-str.out
+@@ -0,0 +1 @@
++0 of 1 tests completed successfully
+diff --git a/test/results/MATIO-readvarinfo-write_compressed-ui64.out b/test/results/MATIO-readvarinfo-write_compressed-ui64.out
+new file mode 100644
+index 0000000..88b9d33
+--- /dev/null
++++ b/test/results/MATIO-readvarinfo-write_compressed-ui64.out
+@@ -0,0 +1 @@
++0 of 1 tests completed successfully
+diff --git a/test/results/MATIO-readvarinfo-write_compressed_cell.out b/test/results/MATIO-readvarinfo-write_compressed_cell.out
+new file mode 100644
+index 0000000..88b9d33
+--- /dev/null
++++ b/test/results/MATIO-readvarinfo-write_compressed_cell.out
+@@ -0,0 +1 @@
++0 of 1 tests completed successfully
+diff --git a/test/results/MATIO-readvarinfo-writecell.out b/test/results/MATIO-readvarinfo-writecell.out
+new file mode 100644
+index 0000000..88b9d33
+--- /dev/null
++++ b/test/results/MATIO-readvarinfo-writecell.out
+@@ -0,0 +1 @@
++0 of 1 tests completed successfully
+diff --git a/test/results/MATIO-sub2ind.out b/test/results/MATIO-sub2ind.out
+new file mode 100644
+index 0000000..c96bb47
+--- /dev/null
++++ b/test/results/MATIO-sub2ind.out
+@@ -0,0 +1,2 @@
++18920
++1 of 1 tests completed successfully
+diff --git a/test/results/MATIO-write.out b/test/results/MATIO-write.out
+new file mode 100644
+index 0000000..d4236fb
+--- /dev/null
++++ b/test/results/MATIO-write.out
+@@ -0,0 +1 @@
++1 of 1 tests completed successfully
+diff --git a/test/results/MATIO-write_compressed_cell.out b/test/results/MATIO-write_compressed_cell.out
+new file mode 100644
+index 0000000..d4236fb
+--- /dev/null
++++ b/test/results/MATIO-write_compressed_cell.out
+@@ -0,0 +1 @@
++1 of 1 tests completed successfully
+diff --git a/test/results/MATIO-write_compressed_sparse.out b/test/results/MATIO-write_compressed_sparse.out
+new file mode 100644
+index 0000000..d4236fb
+--- /dev/null
++++ b/test/results/MATIO-write_compressed_sparse.out
+@@ -0,0 +1 @@
++1 of 1 tests completed successfully
+diff --git a/test/results/MATIO-write_compressed_struct.out b/test/results/MATIO-write_compressed_struct.out
+new file mode 100644
+index 0000000..d4236fb
+--- /dev/null
++++ b/test/results/MATIO-write_compressed_struct.out
+@@ -0,0 +1 @@
++1 of 1 tests completed successfully
+diff --git a/test/results/MATIO-write_struct.out b/test/results/MATIO-write_struct.out
+new file mode 100644
+index 0000000..d4236fb
+--- /dev/null
++++ b/test/results/MATIO-write_struct.out
+@@ -0,0 +1 @@
++1 of 1 tests completed successfully
+diff --git a/test/results/MATIO-writecell.out b/test/results/MATIO-writecell.out
+new file mode 100644
+index 0000000..d4236fb
+--- /dev/null
++++ b/test/results/MATIO-writecell.out
+@@ -0,0 +1 @@
++1 of 1 tests completed successfully
+diff --git a/test/results/MATIO-writecompressed.out b/test/results/MATIO-writecompressed.out
+new file mode 100644
+index 0000000..d4236fb
+--- /dev/null
++++ b/test/results/MATIO-writecompressed.out
+@@ -0,0 +1 @@
++1 of 1 tests completed successfully
+diff --git a/test/results/MATIO-writeinf.out b/test/results/MATIO-writeinf.out
+new file mode 100644
+index 0000000..d4236fb
+--- /dev/null
++++ b/test/results/MATIO-writeinf.out
+@@ -0,0 +1 @@
++1 of 1 tests completed successfully
+diff --git a/test/results/MATIO-writenan.out b/test/results/MATIO-writenan.out
+new file mode 100644
+index 0000000..d4236fb
+--- /dev/null
++++ b/test/results/MATIO-writenan.out
+@@ -0,0 +1 @@
++1 of 1 tests completed successfully
+diff --git a/test/results/MATIO-writeslab.out b/test/results/MATIO-writeslab.out
+new file mode 100644
+index 0000000..d4236fb
+--- /dev/null
++++ b/test/results/MATIO-writeslab.out
+@@ -0,0 +1 @@
++1 of 1 tests completed successfully
+diff --git a/test/results/MATIO-writesparse.out b/test/results/MATIO-writesparse.out
+new file mode 100644
+index 0000000..d4236fb
+--- /dev/null
++++ b/test/results/MATIO-writesparse.out
+@@ -0,0 +1 @@
++1 of 1 tests completed successfully
+diff --git a/test/results/TEST_SNPRINTF.out b/test/results/TEST_SNPRINTF.out
+new file mode 100644
+index 0000000..93b4e7f
+--- /dev/null
++++ b/test/results/TEST_SNPRINTF.out
+@@ -0,0 +1,4 @@
++Testing snprintf format codes against system sprintf...
++0 tests failed out of 285.
++seeing how many digits we support
++we seem to support 18 digits
+diff --git a/test/runTest.cmake b/test/runTest.cmake
+new file mode 100644
+index 0000000..e2082f0
+--- /dev/null
++++ b/test/runTest.cmake
+@@ -0,0 +1,17 @@
++EXECUTE_PROCESS(COMMAND ${TEST_PROGRAM} ${TEST_ARGS}
++		        RESULT_VARIABLE RESULT
++                OUTPUT_FILE     ${TEST_OUTPUT})
++#                OUTPUT_ERROR    ERROR)
++
++EXECUTE_PROCESS(COMMAND ${CMAKE_COMMAND} -E compare_files ${TEST_OUTPUT} ${TEST_REFERENCE}
++                RESULT_VARIABLE RESULT_COMPARE)
++
++MESSAGE("Result " ${RESULT})
++MESSAGE("Result:" ${RESULT_COMPARE})
++
++IF (${RESULT} STREQUAL "0" AND ${RESULT_COMPARE} STREQUAL "0")
++    MESSAGE("Success")
++    EXECUTE_PROCESS(COMMAND ${CMAKE_COMMAND} -E remove ${TEST_OUTPUT})
++ELSE()
++    MESSAGE("FAILURE")
++ENDIF()
+-- 
+1.7.2.1
+

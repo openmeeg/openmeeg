@@ -1,0 +1,25 @@
+#
+# Linux objects files
+#
+*.loT
+*.lo
+*.la
+*.o
+
+#
+# Linux autotool files
+#
+.deps
+.libs
+Makefile
+Makefile.in
+config.log
+config.status
+configure
+libtool
+src/stamp-h1
+src/matioConfig.h
+autom4te.cache/
+aclocal.m4
+config/lt*
+config/libtool.m4
