@@ -1,0 +1,49 @@
+# Copyright (C) 2010   Christopher C. Hulbert
+#
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License, or (at your option) any later version.
+#
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+
+AT_INIT([matio testsuite])
+
+AT_COLOR_TESTS
+
+AT_BANNER(Read [MAT version 4])
+m4_include([mat4_read.at])
+
+AT_BANNER([Read Uncompressed MAT version 5 (Little Endian)])
+m4_include([mat5_uncompressed_read_le.at])
+
+AT_BANNER([Read Compressed MAT version 5 (Little Endian)])
+m4_include([mat5_compressed_read_le.at])
+
+AT_BANNER([Read Uncompressed MAT version 5 (Big Endian)])
+m4_include([mat5_uncompressed_read_be.at])
+
+AT_BANNER([Read Compressed MAT version 5 (Big Endian)])
+m4_include([mat5_compressed_read_be.at])
+
+AT_BANNER([Read MAT version 7.3 (HDF5 Schema 1) (Little Endian)])
+m4_include([mat73_read_le.at])
+
+AT_BANNER([Read MAT version 7.3 (HDF5 Schema 1) (Big Endian)])
+m4_include([mat73_read_be.at])
+
+AT_BANNER([Write Uncompressed MAT version 5])
+m4_include([mat5_uncompressed_write.at])
+
+AT_BANNER([Write Compressed MAT version 5])
+m4_include([mat5_compressed_write.at])
+
+AT_BANNER([Write MAT version 7.3])
+m4_include([mat73_write.at])

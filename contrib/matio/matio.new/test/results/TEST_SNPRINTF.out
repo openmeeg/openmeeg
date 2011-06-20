@@ -1,0 +1,4 @@
+Testing snprintf format codes against system sprintf...
+0 tests failed out of 285.
+seeing how many digits we support
+we seem to support 18 digits

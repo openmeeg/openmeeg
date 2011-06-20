@@ -1,0 +1,85 @@
+From 1782ee8e5abb52c271bfb28c7c7797d5b3b1f619 Mon Sep 17 00:00:00 2001
+From: Theo Papadopoulo <Theodore.Papadopoulo@sophia.inria.fr>
+Date: Fri, 20 Aug 2010 20:39:57 +0200
+Subject: [PATCH 4/4] Added some directions to compile with cmake.
+
+---
+ README |   53 +++++++++++++++++++++++++++++++++++++++++------------
+ 1 files changed, 41 insertions(+), 12 deletions(-)
+
+diff --git a/README b/README
+index 2f99ce3..5edff48 100644
+--- a/README
++++ b/README
+@@ -38,20 +38,12 @@ Acknowledgements:
+         and more than likely will include them in future releases. If you are
+         interested in collaborations, contact me via email (see Section 1.1).
+ 
+-2.0 Building
+-        Four of the builds currently supported make use of the GNU autotools,
+-    and thus you should have them. There is a build script in the top-level
+-    directory for the four builds including the following supported platforms:
+-    cygwin, mingw, linux, and solaris. You can of course configure and build
+-    your own way. A Visual C 7 Solution has been created in the build-vc7
+-    direcotry and a Visual C 6 workspace in the build-vc6 directory.
+-    These should be self containing, just open and build. There are multiple
+-    configurations supported, but I recommend the LIB Release or the
+-    DLL Release. The build-windows directory contains a batch file to build
+-    using nmake. This makes it easier to set variables and install the software.
++2.0 Requirements and targets
++
+     Doxygen is required to build the documentation. Since not all platforms
+     support doxygen (mingw and Visual C come to mind) I have included the API
+-    documentation in the top-level directory as a pdf.
++    documentation in the top-level directory as a pdf. Currently, there are
++    two possible ways of building matio
+ 
+     2.1 zlib
+         To support compressed MAT files, zlib 1.2.2 or greater is required.
+@@ -88,6 +80,43 @@ Acknowledgements:
+         using a big-endian system and providing some test files for that as
+         well as testing reading little-endian files on a big-endian system.
+ 
++3.0 Building
++        There are currently two ways of building matio: the traditional one and 
++    a new experimental one using cmake.
++
++    3.1 Traditional build
++        Four of the builds currently supported make use of the GNU autotools,
++    and thus you should have them. There is a build script in the top-level
++    directory for the four builds including the following supported platforms:
++    cygwin, mingw, linux, and solaris. You can of course configure and build
++    your own way. A Visual C 7 Solution has been created in the build-vc7
++    direcotry and a Visual C 6 workspace in the build-vc6 directory.
++    These should be self containing, just open and build. There are multiple
++    configurations supported, but I recommend the LIB Release or the
++    DLL Release. The build-windows directory contains a batch file to build
++    using nmake. This makes it easier to set variables and install the software.
++
++    3.2 Building with cmake
++        You will need cmake version 2.6.4 or better. To compile with cmake
++    create a new build directory BUILD (change the name as you wish). The best
++    is to have this directory in a different place from the sources. Go to this
++    directory and type:
++
++        cmake PATH_TO_THE_SOURCE_DIRECTORY
++
++    An interface will pop up that will allow to customize the build (testing,
++    packaging, fortran version, zlib to use, extended sparse matrix, etc).
++    Then type c (configure) until there is not configuration marked with a *
++    -- with means its value changed -- and then type g (generate).
++
++    Then the build just proceeds with:
++    For unix and MAC: 
++        make
++        make test
++
++    For windows, depending on the generator you will choose, proceed with
++    the chosen environment (nmake, Visual Studio, MinGW, Borland or Watcom).
++       
+ 3.0 License
+     Copyright (C) 2005-2008   Christopher C. Hulbert
+ 
+-- 
+1.7.2.1
+

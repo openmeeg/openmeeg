@@ -1,0 +1,115 @@
+LIBMATIO Matlab MAT file I/O library
+
+Table of Contents
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+1.0 Introduction
+  1.1 Contact
+  1.2 Acknowledgements
+  1.3 Contributing
+2.0 Building
+  2.1 zlib
+  2.2 HDF-5
+  2.3 Targets
+3.0 License
+
+1.0 Introduction
+
+Acknowledgements:
+    libmatio is an open-source library for reading/writing Matlab MAT files.
+    This library is designed for use by programs/libraries that do not have
+    access or do not want to rely on Matlab's shared library.
+
+    1.1 Contact
+        You can contact me (Christopher Hulbert) through email at
+        chulbe1@mac.com
+
+    1.2 Acknowledgements
+        The following people/organizations have helped in the development of
+        matio through patches, bug reports, and/or testing:
+          * Jacco van Beek
+          * SGI in support of Interactive Supercomputing, Inc.
+          * SciLab
+          * Steven Leibman <sleibman@alum.mit.edu>
+
+    1.3 Contributing
+        Part of my reason for releasing this software is I have many other
+        projects to work on and have many features I would still like to
+        implement. If you make changes, I would appreciate your contributions
+        and more than likely will include them in future releases. If you are
+        interested in collaborations, contact me via email (see Section 1.1).
+
+2.0 Requirements and targets
+
+    Doxygen is required to build the documentation. Since not all platforms
+    support doxygen (mingw and Visual C come to mind) I have included the API
+    documentation in the top-level directory as a pdf. Currently, there are
+    two possible ways of building matio
+
+    2.1 zlib
+        To support compressed MAT files, zlib 1.2.3 or greater is required.
+        The zlib software can be downloaded from http://zlib.net.
+
+    2.2 HDF5
+        Support for MAT file version 7.3 requires the HDF5 library. This
+        library can be downloaded from The HDF Group website
+        (http://www.hdfgroup.org/). MATIO requires HDF5 version 1.8.x, and must
+        be built with default API version 1.8 (i.e.
+        '--with-default-api-version=v18').
+
+    2.3 Targets
+        The library has been tested/used on Linux, Windows, Mac OS X, and AIX
+        including both little-endian and big-endian architecture.
+
+3.0 Building
+        There are currently two ways of building matio: the traditional one and 
+    a new experimental one using cmake.
+
+    3.1 Traditional build
+        Four of the builds currently supported make use of the GNU autotools,
+    and thus you should have them. There is a build script in the top-level
+    directory for the four builds including the following supported platforms:
+    cygwin, mingw, linux, and solaris. You can of course configure and build
+    your own way. A Visual C 7 Solution has been created in the build-vc7
+    direcotry and a Visual C 6 workspace in the build-vc6 directory.
+    These should be self containing, just open and build. There are multiple
+    configurations supported, but I recommend the LIB Release or the
+    DLL Release. The build-windows directory contains a batch file to build
+    using nmake. This makes it easier to set variables and install the software.
+
+    3.2 Building with cmake
+        You will need cmake version 2.6.4 or better. To compile with cmake
+    create a new build directory BUILD (change the name as you wish). The best
+    is to have this directory in a different place from the sources. Go to this
+    directory and type:
+
+        cmake PATH_TO_THE_SOURCE_DIRECTORY
+
+    An interface will pop up that will allow to customize the build (testing,
+    packaging, fortran version, zlib to use, extended sparse matrix, etc).
+    Then type c (configure) until there is not configuration marked with a *
+    -- with means its value changed -- and then type g (generate).
+
+    Then the build just proceeds with:
+    For unix and MAC: 
+        make
+        make test
+
+    For windows, depending on the generator you will choose, proceed with
+    the chosen environment (nmake, Visual Studio, MinGW, Borland or Watcom).
+       
+3.0 License
+    Copyright (C) 2005-2008   Christopher C. Hulbert
+
+     This library is free software; you can redistribute it and/or
+     modify it under the terms of the GNU Lesser General Public
+     License as published by the Free Software Foundation; either
+     version 2.1 of the License, or (at your option) any later version.
+
+     This library is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+     Lesser General Public License for more details.
+
+     You should have received a copy of the GNU Lesser General Public
+     License along with this library; if not, write to the Free Software
+     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
