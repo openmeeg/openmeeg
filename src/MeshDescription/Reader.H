@@ -75,12 +75,10 @@ namespace MeshDescription {
             for (unsigned i=0;i<interfaces().size();++i) {
 
                 std::string name;
-                // is >> io_utils::skip_comments("#") >> name;
-                is >> io_utils::skip_comments("#");
-                // XXX : HACK to make things work when filenames contains spaces
-                std::getline(is, name);
-                name = io_utils::trim(name);
+                is >> io_utils::skip_comments("#") >> io_utils::file(name,'"',false);
+                std::cerr << "Read name: " << name << std::endl;
                 INTERFACE::set_file_format(interfaces()[i],name);
+
                 // Load the interface and check that it is compatible with the first one.
 
                 const std::string& full_name = file_name(name);

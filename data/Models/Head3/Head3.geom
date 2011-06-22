@@ -2,9 +2,9 @@
 
 Interfaces 3 Mesh
 
-skull.3.tri
-cortex.3.tri
-scalp.3.tri
+"skull.3.tri"
+"cortex.3.tri"
+"scalp.3.tri"
 
 Domains 4
 

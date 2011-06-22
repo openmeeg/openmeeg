@@ -83,6 +83,22 @@ namespace io_utils {
         friend std::istream& operator>> <>(std::istream&,const imanip2<T1,T2>&);
     };
 
+    template <typename,typename,typename> class imanip3;
+
+    template <typename T1,typename T2,typename T3>
+    inline std::istream& operator>>(std::istream& i,const imanip3<T1,T2,T3>& m) { return (*m.func)(i,m.obj1,m.obj2,m.obj3); }
+
+    template <typename T1,typename T2,typename T3>
+    class imanip3 {
+        std::istream& (*func)(std::istream&,T1,T2,T3);
+        T1 obj1;
+        T2 obj2;
+        T3 obj3;
+    public:
+        imanip3(std::istream& (*f)(std::istream&,T1,T2,T3),T1 a,T2 b,T3 c): func(f), obj1(a),obj2(b),obj3(c) {}
+        friend std::istream& operator>> <>(std::istream&,const imanip3<T1,T2,T3>&);
+    };
+
     template <typename> class omanip;
 
     template <typename TP>
@@ -408,6 +424,44 @@ namespace io_utils {
     inline std::string trim(std::string& s,const std::string& drop=" ") {
         std::string r = s.erase(s.find_last_not_of(drop) + 1);
         return r.erase(0, r.find_first_not_of(drop));
+    }
+
+        //  File reading.
+
+    inline std::istream&
+    file_internal(std::istream& is,std::string& filename,const char delimiter,const bool force_delimiter) {
+        skip_spaces(is);
+
+        //  Read the initial delimiter if necessary.
+
+        char c;
+        bool delimiter_seen = false;
+
+        if (is.peek()!=delimiter) {
+            if (force_delimiter) {
+                is.setstate(std::ios::failbit);
+                return is;
+            } else {
+                std::getline(is,filename);
+                filename = trim(filename);
+                return is;
+            }
+        } else {
+            is.get(c);
+            delimiter_seen = true;
+        }
+            
+        //  Read the string content.
+
+        while (is.get(c) && c!=delimiter)
+            filename += c;
+
+        return is;
+    }
+
+    inline imanip3<std::string&,const char,const bool>
+    file(std::string& filename,const char delimiter='"',const bool force_delimiter=true) {
+        return imanip3<std::string&,const char,const bool>(file_internal,filename,delimiter,force_delimiter);
     }
 }
 
