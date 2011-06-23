@@ -89,6 +89,8 @@ IF (USE_MKL)
             MESSAGE(FATAL_ERROR "MKL not found. Please set environment variable MKLDIR")
         ENDIF()
     ENDIF()
+    SET(HAVE_LAPACK TRUE)
+    SET(HAVE_BLAS TRUE)
 ENDIF()
 
 IF (NOT USE_MKL)
