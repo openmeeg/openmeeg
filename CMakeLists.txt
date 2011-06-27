@@ -149,8 +149,8 @@ SUBDIRS(${OpenMEEG_SOURCE_DIR}/documentation)
 
 OPTION(ENABLE_PYTHON "Enable Python Wrapping" OFF)
 
-IF (ENABLE_PYTHON AND NOT BUILD_SHARED)
-    MESSAGE(SEND_ERROR "Python wrapping does not work with static build, consider changing the BUILD_SHARED option.")
+IF (ENABLE_PYTHON AND NOT BUILD_SHARED_LIBS)
+    MESSAGE(SEND_ERROR "Python wrapping does not work with static build, consider changing the BUILD_SHARED_LIBS option.")
 ENDIF ()
 
 IF(APPLE AND ENABLE_PYTHON)
