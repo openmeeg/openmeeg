@@ -76,7 +76,7 @@ namespace OpenMEEG {
             using Matrix::operator=;
             GainEEGadjoint (const Geometry& geo,const Matrix& dipoles,const SymMatrix& HeadMat, const SparseMatrix& Head2EEGMat) {
                 Matrix LeadField(Head2EEGMat.nlin(),dipoles.nlin());
-                int gauss_order=3;
+                int gauss_order = 3;
                 #if USE_GMRES
                 Matrix mtemp(Head2EEGMat.nlin(),HeadMat.nlin()); // Consider the GMRes solver for problem with dimension > 15,000 (3,000 vertices per interface) else use LAPACK solver
                 Preconditioner::Jacobi<SymMatrix> M(HeadMat);    // Jacobi preconditionner
@@ -114,7 +114,7 @@ namespace OpenMEEG {
                             const Matrix& Head2MEGMat,
                             const Matrix& Source2MEGMat) {
                 Matrix LeadField(Head2MEGMat.nlin(),dipoles.nlin());
-                int gauss_order=3;
+                int gauss_order = 3;
                 #if USE_GMRES
                 Matrix mtemp(Head2MEGMat.nlin(),HeadMat.nlin()); // Consider the GMRes solver for problem with dimension > 15,000 (3,000 vertices per interface) else use LAPACK solver
                 Preconditioner::Jacobi<SymMatrix> M(HeadMat);    // Jacobi preconditionner
@@ -142,6 +142,59 @@ namespace OpenMEEG {
                 *this = LeadField;
             }
             ~GainMEGadjoint () {};
+    };
+
+    class GainEEGMEGadjoint {
+        public:
+            GainEEGMEGadjoint (const Geometry& geo,const Matrix& dipoles,const SymMatrix& HeadMat, const SparseMatrix& Head2EEGMat, const Matrix& Head2MEGMat, const Matrix& Source2MEGMat) {
+                int gauss_order = 3;
+                this->EEGleadfield = Matrix(Head2EEGMat.nlin(),dipoles.nlin());
+                this->MEGleadfield = Matrix(Head2MEGMat.nlin(),dipoles.nlin());
+                Matrix RHS(Head2EEGMat.nlin()+Head2MEGMat.nlin(),HeadMat.nlin());
+
+                for (unsigned i=0;i<Head2EEGMat.nlin();i++) {
+                    RHS.setlin(i,Head2EEGMat.getlin(i));
+                }
+                for (unsigned i=0;i<Head2MEGMat.nlin();i++) {
+                    RHS.setlin(i+Head2EEGMat.nlin(),Head2MEGMat.getlin(i));
+                }
+
+                #if USE_GMRES
+                Matrix mtemp(RHS.nlin(),HeadMat.nlin()); // Consider the GMRes solver for problem with dimension > 15,000 (3,000 vertices per interface) else use LAPACK solver
+                Preconditioner::Jacobi<SymMatrix> M(HeadMat); // Jacobi preconditionner
+                #ifdef USE_OMP
+                #pragma omp parallel for
+                #endif
+                for (unsigned i=0;i<RHS.nlin();i++) {
+                    Vector vtemp(HeadMat.nlin());
+                    GMRes(HeadMat,M,vtemp,RHS.getlin(i),1e3,1e-7,HeadMat.nlin()); // max number of iteration = 1000, and precision=1e-7 (1e-5 for faster resolution)
+                    mtemp.setlin(i,vtemp);
+                    #ifdef USE_OMP
+                    #pragma omp critical
+                    #endif
+                    PROGRESSBAR(i,RHS.nlin());
+                }
+                #else
+                Matrix mtemp(RHS.transpose());
+                HeadMat.solveLin(mtemp); // solving the system AX=B with LAPACK
+                mtemp=mtemp.transpose();
+                #endif
+                for (unsigned i=0;i<dipoles.nlin();i++) {
+                    Vector dsm = DipSourceMat(geo,dipoles.submat(i,1,0,dipoles.ncol()), gauss_order, true, true).getcol(0);
+                    EEGleadfield.setcol(i,mtemp.submat(0,Head2EEGMat.nlin(),0,HeadMat.nlin())*dsm);
+                    MEGleadfield.setcol(i,mtemp.submat(Head2EEGMat.nlin(),Head2MEGMat.nlin(),0,HeadMat.nlin())*dsm+Source2MEGMat.getcol(i));
+                    PROGRESSBAR(i,dipoles.nlin());
+                }
+            }
+            
+            void saveEEG( const char *filename ) const {EEGleadfield.save(filename);};
+
+            void saveMEG( const char *filename ) const {MEGleadfield.save(filename);};
+            
+            ~GainEEGMEGadjoint () {};
+        private:
+            Matrix EEGleadfield;
+            Matrix MEGleadfield;
     };
 
     class GainInternalPot : public Matrix {

@@ -158,6 +158,31 @@ int main(int argc, char **argv)
         GainMEGadjoint MEGGainMat(geo,dipoles,HeadMat,Head2MEGMat,Source2MEGMat);
         MEGGainMat.save(argv[8]);
     }
+    // compute the gain matrices with the adjoint method for use with EEG and MEG DATA
+    else if(!strcmp(argv[1],"-EEGMEGadjoint"))
+    {
+        if(argc<11)
+        {
+            cerr << "Not enough arguments \nPlease try \"" << argv[0] << " -h\" or \"" << argv[0] << " --help \" \n" << endl;
+            return 0;
+        }
+        LinOpInfo matinfo = OpenMEEG::maths::info(argv[3]);
+        Geometry geo;
+        geo.read(argv[2],argv[3]);
+        Matrix dipoles(argv[4]);
+        SymMatrix HeadMat;
+        HeadMat.load(argv[5]);
+        SparseMatrix Head2EEGMat;
+        Head2EEGMat.load(argv[6]);
+        Matrix Head2MEGMat;
+        Head2MEGMat.load(argv[7]);
+        Matrix Source2MEGMat;
+        Source2MEGMat.load(argv[8]);
+
+        GainEEGMEGadjoint EEGMEGGainMat(geo,dipoles,HeadMat,Head2EEGMat,Head2MEGMat,Source2MEGMat);
+        EEGMEGGainMat.saveEEG(argv[9]);
+        EEGMEGGainMat.saveMEG(argv[10]);
+    }
     else if((!strcmp(argv[1],"-InternalPotential"))|(!strcmp(argv[1],"-IP")))
     {
         if(argc<7)
@@ -216,6 +241,16 @@ void getHelp(char** argv)
     cout << "            HeadMatInv, SourceMat, Head2EEGMat, EEGGainMatrix" << endl;
     cout << "            bin Matrix" << endl << endl;
 
+    cout << "   -MEG :   Compute the gain for MEG " << endl;
+    cout << "            Filepaths are in order :" << endl;
+    cout << "            HeadMatInv, SourceMat, Head2MEGMat, Source2MEGMat, MEGGainMatrix" << endl;
+    cout << "            Matrix (.bin or .txt)" << endl << endl;
+
+    cout << "   -InternalPotential or -IP :   Compute the gain for internal potentials, measured within the volume " << endl;
+    cout << "            Filepaths are in order :" << endl;
+    cout << "            HeadMatInv, SourceMat, Head2IPMat, Source2IPMat" << endl;
+    cout << "            InternalPotEGgain Matrix (.txt)" << endl << endl;
+
     cout << "   -EEGadjoint :   Compute the gain for EEG " << endl;
     cout << "            Filepaths are in order :" << endl;
     cout << "            geometry file (.geom)" << endl;
@@ -232,15 +267,13 @@ void getHelp(char** argv)
     cout << "            HeadMat, Head2MEGMat, Source2MEGMat, MEGGainMatrix" << endl;
     cout << "            bin Matrix" << endl << endl;
 
-    cout << "   -MEG :   Compute the gain for MEG " << endl;
+    cout << "   -EEGMEGadjoint :   Compute the gain for EEG and MEG at the same time" << endl;
     cout << "            Filepaths are in order :" << endl;
-    cout << "            HeadMatInv, SourceMat, Head2MEGMatrix, Source2MEGMatrix, MEGGainMatrix" << endl;
-    cout << "            Matrix (.bin or .txt)" << endl << endl;
-
-    cout << "   -InternalPotential or -IP :   Compute the gain for internal potentials, measured within the volume " << endl;
-    cout << "            Filepaths are in order :" << endl;
-    cout << "            HeadMatInv, SourceMat, Head2IPMat, Source2IPMat" << endl;
-    cout << "            InternalPotEGgain Matrix (.txt)" << endl << endl;
+    cout << "            geometry file (.geom)" << endl;
+    cout << "            conductivity file (.cond)" << endl;
+    cout << "            dipoles positions and orientations" << endl;
+    cout << "            HeadMat, Head2EEGMat, Head2MEGMat, Source2MEGMat, EEGGainMatrix, MEGGainMatrix" << endl;
+    cout << "            bin Matrix" << endl << endl;
 
     exit(0);
 }
