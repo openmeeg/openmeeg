@@ -107,7 +107,11 @@ ENDFOREACH()
 
 SET(MATIO_IND_TESTS ind2sub sub2ind)
 FOREACH(arg ${MATIO_IND_TESTS})
-    MATIO_TEST(MATIO-${arg} NONE MATIO-${arg}.out test_mat ${arg})
+    SET(TEST_REFERENCE MATIO-${arg}.out)
+    IF (WIN32)
+        SET(TEST_REFERENCE MATIO-${arg}-win.out)
+    ENDIF()
+    MATIO_TEST(MATIO-${arg} NONE ${TEST_REFERENCE} test_mat ${arg})
 ENDFOREACH()
 
 #SET(DATASETS d f i64 ui64 i32 i16 i8 str)
