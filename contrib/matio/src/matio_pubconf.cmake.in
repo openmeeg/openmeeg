@@ -38,13 +38,8 @@
 #cmakedefine HAVE_MAT_UINT16_T 1
 #cmakedefine HAVE_MAT_UINT8_T 1
 
-#if MATIO_HAVE_INTTYPES_H
-#   include <inttypes.h>
-#endif
-
-#if MATIO_HAVE_STDINT_H
-#   include <stdint.h>
-#endif
+#include <inttypes.h>
+#include <stdint.h>
 
 typedef int64_t  mat_int64_t;
 typedef uint64_t mat_uint64_t;
