@@ -59,6 +59,18 @@ ENDIF()
 # = Check headers =
 # =================
 
+#   For public header
+
+# Provide stdint.h for windows, if it is not already there.
+# MSVC starts to include stddint.h only from MSVC10 !!!
+# Append after in order to use the system includes if they are provided.
+
+IF (WIN32 AND NOT CYGWIN_INSTALL_PATH)
+    SET(INTTYPES_INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/contrib/msinttypes-r26)
+    SET(CMAKE_REQUIRED_INCLUDES ${INTTYPES_INCLUDES})
+    INCLUDE_DIRECTORIES(AFTER SYSTEM ${INTTYPES_INCLUDES})
+ENDIF()
+
 INCLUDE(CheckIncludeFile)
 INCLUDE(CheckHeaderSTDC)
 
@@ -69,18 +81,6 @@ CHECK_INCLUDE_FILE(ctype.h    HAVE_CTYPE_H)
 CHECK_INCLUDE_FILE(string.h   HAVE_STRING_H)
 CHECK_INCLUDE_FILE(malloc.h   HAVE_MALLOC_H)
 CHECK_HEADER_STDC()
-
-#   For public header
-
-# Provide stdint.h for windows, if it is not already there.
-# MSVC starts to include stddint.h only from MSVC10 !!!
-
-IF (WIN32 AND NOT CYGWIN_INSTALL_PATH)
-    IF (NOT HAVE_INTTYPES_H OR NOT HAVE_STDINT_H)
-        SET(CMAKE_REQUIRED_INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/contrib/msinttypes-r26)
-        INCLUDE_DIRECTORIES(contrib/msinttypes-r26)
-    ENDIF()
-ENDIF()
 
 # ===================
 # = Check type size =
