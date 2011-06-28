@@ -131,31 +131,31 @@ FOREACH(SENSORORIENT "" "-tangential" "-noradial")
                 FOREACH(DIP 1 2 3 4 5)
                     FOREACH(COMP mag rdm)
                         # Compare MEG result with analytical solution obtained with Matlab
-                        OPENMEEG_COMPARISON_TEST("ESTMEG${ADJOINT}-dip-${HEAD}-dip${DIP}${SENSORORIENT}-${COMP}"
-                            ${HEAD}-dip${SENSORORIENT}.est_meg analytic/meg_analytic${SENSORORIENT}.txt -${COMP} -eps ${EPSILON} -col ${DIP} -full
+                        OPENMEEG_COMPARISON_TEST("MEG${ADJOINT}EST-dip-${HEAD}-dip${DIP}${SENSORORIENT}-${COMP}"
+                            ${HEAD}-dip${SENSORORIENT}.est_meg${ADJOINT} analytic/meg_analytic${SENSORORIENT}.txt -${COMP} -eps ${EPSILON} -col ${DIP} -full
                             DEPENDS MEG${ADJOINT}-dipoles-${HEAD}${SENSORORIENT})
                     ENDFOREACH()
                 ENDFOREACH()
-                OPENMEEG_COMPARISON_TEST("ESTMEG-dip${SENSORORIENT}-${HEAD}-dip6"
-                    ${HEAD}-dip${SENSORORIENT}.est_meg analytic/meg_analytic${SENSORORIENT}.txt -eps 0.001 -col 6 -full
-                    DEPENDS MEG-dipoles-${HEAD}${SENSORORIENT})
+                OPENMEEG_COMPARISON_TEST("MEG${ADJOINT}EST-dip${SENSORORIENT}-${HEAD}-dip6"
+                    ${HEAD}-dip${SENSORORIENT}.est_meg${ADJOINT} analytic/meg_analytic${SENSORORIENT}.txt -eps 0.001 -col 6 -full
+                    DEPENDS MEG${ADJOINT}-dipoles-${HEAD}${SENSORORIENT})
             ENDFOREACH()
         ENDIF()
     ENDFOREACH()
 ENDFOREACH()
 
 # set tests that are expected to fail :
-SET_TESTS_PROPERTIES(cmp-ESTMEG-dip-Head1-dip2-tangential-mag PROPERTIES WILL_FAIL TRUE)
-SET_TESTS_PROPERTIES(cmp-ESTMEG-dip-Head1-dip2-tangential-rdm PROPERTIES WILL_FAIL TRUE)
-SET_TESTS_PROPERTIES(cmp-ESTMEG-dip-Head1-dip3-tangential-mag PROPERTIES WILL_FAIL TRUE)
-SET_TESTS_PROPERTIES(cmp-ESTMEG-dip-Head1-dip3-tangential-rdm PROPERTIES WILL_FAIL TRUE)
-SET_TESTS_PROPERTIES(cmp-ESTMEG-dip-Head1-dip4-tangential-mag PROPERTIES WILL_FAIL TRUE)
-SET_TESTS_PROPERTIES(cmp-ESTMEG-dip-Head1-dip4-tangential-rdm PROPERTIES WILL_FAIL TRUE)
-SET_TESTS_PROPERTIES(cmp-ESTMEG-dip-Head1-dip5-tangential-mag PROPERTIES WILL_FAIL TRUE)
-SET_TESTS_PROPERTIES(cmp-ESTMEG-dip-Head1-dip5-tangential-rdm PROPERTIES WILL_FAIL TRUE)
-SET_TESTS_PROPERTIES(cmp-ESTMEG-dip-Head2-dip4-tangential-mag PROPERTIES WILL_FAIL TRUE)
-SET_TESTS_PROPERTIES(cmp-ESTMEG-dip-Head2-dip4-tangential-rdm PROPERTIES WILL_FAIL TRUE)
-SET_TESTS_PROPERTIES(cmp-ESTMEG-dip-Head2-dip5-tangential-mag PROPERTIES WILL_FAIL TRUE)
-SET_TESTS_PROPERTIES(cmp-ESTMEG-dip-Head2-dip5-tangential-rdm PROPERTIES WILL_FAIL TRUE)
-SET_TESTS_PROPERTIES(cmp-ESTMEG-dip-Head1-dip4-noradial-mag PROPERTIES   WILL_FAIL TRUE)
-SET_TESTS_PROPERTIES(cmp-ESTMEG-dip-Head1-dip5-noradial-mag PROPERTIES   WILL_FAIL TRUE)
+SET_TESTS_PROPERTIES(cmp-MEGEST-dip-Head1-dip2-tangential-mag PROPERTIES WILL_FAIL TRUE)
+SET_TESTS_PROPERTIES(cmp-MEGEST-dip-Head1-dip2-tangential-rdm PROPERTIES WILL_FAIL TRUE)
+SET_TESTS_PROPERTIES(cmp-MEGEST-dip-Head1-dip3-tangential-mag PROPERTIES WILL_FAIL TRUE)
+SET_TESTS_PROPERTIES(cmp-MEGEST-dip-Head1-dip3-tangential-rdm PROPERTIES WILL_FAIL TRUE)
+SET_TESTS_PROPERTIES(cmp-MEGEST-dip-Head1-dip4-tangential-mag PROPERTIES WILL_FAIL TRUE)
+SET_TESTS_PROPERTIES(cmp-MEGEST-dip-Head1-dip4-tangential-rdm PROPERTIES WILL_FAIL TRUE)
+SET_TESTS_PROPERTIES(cmp-MEGEST-dip-Head1-dip5-tangential-mag PROPERTIES WILL_FAIL TRUE)
+SET_TESTS_PROPERTIES(cmp-MEGEST-dip-Head1-dip5-tangential-rdm PROPERTIES WILL_FAIL TRUE)
+SET_TESTS_PROPERTIES(cmp-MEGEST-dip-Head2-dip4-tangential-mag PROPERTIES WILL_FAIL TRUE)
+SET_TESTS_PROPERTIES(cmp-MEGEST-dip-Head2-dip4-tangential-rdm PROPERTIES WILL_FAIL TRUE)
+SET_TESTS_PROPERTIES(cmp-MEGEST-dip-Head2-dip5-tangential-mag PROPERTIES WILL_FAIL TRUE)
+SET_TESTS_PROPERTIES(cmp-MEGEST-dip-Head2-dip5-tangential-rdm PROPERTIES WILL_FAIL TRUE)
+SET_TESTS_PROPERTIES(cmp-MEGEST-dip-Head1-dip4-noradial-mag PROPERTIES   WILL_FAIL TRUE)
+SET_TESTS_PROPERTIES(cmp-MEGEST-dip-Head1-dip5-noradial-mag PROPERTIES   WILL_FAIL TRUE)
