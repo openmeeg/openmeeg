@@ -22,10 +22,10 @@ SET(PACKAGE_VERSION_PATCH "dev")
 SET(CMAKE_MODULE_PATH
 "${CMAKE_SOURCE_DIR}/macros;${CMAKE_SOURCE_DIR}/macros/FortranCInterface;${CMAKE_SOURCE_DIR}/contrib/matio/cmake/")
 
-#   Why do we have to tell this here ???
+#   Why do we have to tell this here ??? (see matio/CMakeLists.txt for details).
 
 IF (WIN32 AND NOT CYGWIN_INSTALL_PATH)
-    SET(INTTYPES_INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/matio/contrib/msinttypes-r26)
+    SET(INTTYPES_INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/contrib/matio/contrib/msinttypes-r26)
     SET(CMAKE_REQUIRED_INCLUDES ${INTTYPES_INCLUDES})
     INCLUDE_DIRECTORIES(AFTER SYSTEM ${INTTYPES_INCLUDES})
 ENDIF()
