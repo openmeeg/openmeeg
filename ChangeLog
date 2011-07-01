@@ -6,6 +6,15 @@ New features:
 Improvements:
 	- better ordering in computations when inverting the matrix for the memory footprint.
 	- storage now more effective using the matio library even for symmetric matrices.
+	- reducing memory footprint of DSM, Head2MEG, SurfSource2MEG and DipSource2MEG computations
+    - improve MKL detection
+
+Bug computations:
+    - bug when loading sensor file with no empty line at the end
+    - fix leak in Mesh class
+
+Removed features:
+    - TV inverse solver
 
 Release 2.0:
 
