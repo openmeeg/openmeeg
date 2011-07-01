@@ -12,7 +12,7 @@ IF (USE_MATIO)
         #   This is the modification of matio for OpenMEEG.
 
         IF (UNIX AND NOT APPLE)
-            FIND_LIBRARY(SYSTEM_ZLIB z NAMES libz.so)
+            FIND_LIBRARY(SYSTEM_ZLIB libz.so)
         ELSE()
             FIND_LIBRARY(SYSTEM_ZLIB z)
         ENDIF()
