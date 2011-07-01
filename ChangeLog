@@ -1,5 +1,12 @@
 Release 2.1:
 
+New features:
+	- added the adjoint way for computing a leadfield for either EEG, MEG or
+	  MEEG simultaneously. This save a lot of time and memory for big systems (>1000 pts/surfaces).
+Improvements:
+	- better ordering in computations when inverting the matrix for the memory footprint.
+	- storage now more effective using the matio library even for symmetric matrices.
+
 Release 2.0:
 
 Release 1.1:
