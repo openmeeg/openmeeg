@@ -50,7 +50,7 @@ dipole_in_cortex = True
 hm = om.HeadMat(geom, gauss_order)
 #hm.invert() # invert hm inplace (no copy)
 #hminv = hm
-hminv = hm.inverse() # invert hm with a copy
+hminv = hm.inverse()  # invert hm with a copy
 ssm = om.SurfSourceMat(geom, mesh)
 ss2mm = om.SurfSource2MEGMat(mesh, sensors)
 dsm = om.DipSourceMat(geom, dipoles, gauss_order,
@@ -64,6 +64,9 @@ gain_meg_dip = om.GainMEG(hminv, dsm, h2mm, ds2mm)
 gain_adjoint_meg_dip = om.GainMEGadjoint(geom, dipoles, hm, h2mm, ds2mm)
 gain_eeg_dip = om.GainEEG(hminv, dsm, h2em)
 gain_adjoint_eeg_dip = om.GainEEGadjoint(geom, dipoles, hm, h2em)
+gain_adjoint_eeg_meg_dip = om.GainEEGMEGadjoint(geom, dipoles,
+                                                hm, h2em, h2mm, ds2mm)
+
 
 print "hm                  : %d x %d" % (hm.nlin(), hm.ncol())
 print "hminv               : %d x %d" % (hminv.nlin(), hminv.ncol())
@@ -140,7 +143,7 @@ v2 = om.Vect3(0, 1, 0)
 v3 = om.Vect3(0, 0, 1)
 
 print v1.norm()
-print (v1+v2).norm()
+print (v1 + v2).norm()
 
 normal = om.Vect3(1, 0, 0)
 t = om.Triangle(0, 1, 2, normal)
