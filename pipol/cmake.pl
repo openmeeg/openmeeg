@@ -2,18 +2,22 @@
 use strict;
 
 my($my_cmake_version);
+my($ccmake);
 my($cmake);
 my($ctest);
 my($cpack);
 
 $my_cmake_version = `cmake --version`;
+$ccmake = `which ccmake`;
 $cmake = `which cmake`;
 $ctest = `which ctest`;
 $cpack = `which cpack`;
+print "$ccmake";
 print "$cmake";
 print "$ctest";
 print "$cpack";
 
+chomp $ccmake;
 chomp $cmake;
 chomp $ctest;
 chomp $cpack;
@@ -35,6 +39,7 @@ if ( -f "$cmake" )
 			system "cmake .";
 			system "make";
 			if (-f "./bin/cmake"){
+				system "sudo ln -sf `pwd`/bin/ccmake $ccmake";
 				system "sudo ln -sf `pwd`/bin/cmake $cmake";
 				system "sudo ln -sf `pwd`/bin/cpack $cpack";
 				system "sudo ln -sf `pwd`/bin/ctest $ctest";
@@ -56,6 +61,7 @@ if ( -f "$cmake" )
 			system "cmake .";
 			system "make";
 			if (-f "./bin/cmake"){
+				system "sudo ln -sf `pwd`/bin/ccmake $ccmake";
 				system "sudo ln -sf `pwd`/bin/cmake $cmake";
 				system "sudo ln -sf `pwd`/bin/cpack $cpack";
 				system "sudo ln -sf `pwd`/bin/ctest $ctest";
@@ -83,6 +89,7 @@ if ( -f "$cmake" )
 			system "cmake .";
 			system "make";
 			if (-f "./bin/cmake"){
+				system "sudo ln -sf `pwd`/bin/ccmake $ccmake";
 				system "sudo ln -sf `pwd`/bin/cmake $cmake";
 				system "sudo ln -sf `pwd`/bin/cpack $cpack";
 				system "sudo ln -sf `pwd`/bin/ctest $ctest";
