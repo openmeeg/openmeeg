@@ -38,8 +38,10 @@ if ( -f "$cmake" )
 			chdir("./cmake-2.8.4");
 			system "cmake .";
 			system "make";
-			if (-f "./bin/cmake"){
+            if (-f "./bin/ccmake") {
 				system "sudo ln -sf `pwd`/bin/ccmake $ccmake";
+            }
+			if (-f "./bin/cmake"){
 				system "sudo ln -sf `pwd`/bin/cmake $cmake";
 				system "sudo ln -sf `pwd`/bin/cpack $cpack";
 				system "sudo ln -sf `pwd`/bin/ctest $ctest";
@@ -60,8 +62,10 @@ if ( -f "$cmake" )
 			chdir("./cmake-2.6.4/");
 			system "cmake .";
 			system "make";
-			if (-f "./bin/cmake"){
+            if (-f "./bin/ccmake") {
 				system "sudo ln -sf `pwd`/bin/ccmake $ccmake";
+            }
+			if (-f "./bin/cmake"){
 				system "sudo ln -sf `pwd`/bin/cmake $cmake";
 				system "sudo ln -sf `pwd`/bin/cpack $cpack";
 				system "sudo ln -sf `pwd`/bin/ctest $ctest";
@@ -88,8 +92,10 @@ if ( -f "$cmake" )
 			chdir("./cmake-2.8.4/");
 			system "cmake .";
 			system "make";
-			if (-f "./bin/cmake"){
+            if (-f "./bin/ccmake") {
 				system "sudo ln -sf `pwd`/bin/ccmake $ccmake";
+            }
+			if (-f "./bin/cmake"){
 				system "sudo ln -sf `pwd`/bin/cmake $cmake";
 				system "sudo ln -sf `pwd`/bin/cpack $cpack";
 				system "sudo ln -sf `pwd`/bin/ctest $ctest";
