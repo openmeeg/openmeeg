@@ -6,10 +6,15 @@ New features:
 Improvements:
 	- better ordering in computations when inverting the matrix for the memory footprint.
 	- storage now more effective using the matio library even for symmetric matrices.
+	- support for matlab7.3 file format.
 	- reducing memory footprint of DSM, Head2MEG, SurfSource2MEG and DipSource2MEG computations
-    - improve MKL detection
+    - improved MKL detection
+	- lapack inclusion (experimental) to ease the build on architectures were
+	there is no alternative.
 
-Bug computations:
+Bug corrections:
+    - allowance of spaces in mesh file names with a new .geom format (old
+	format is still accepted).
     - bug when loading sensor file with no empty line at the end
     - fix leak in Mesh class
 
@@ -46,4 +51,3 @@ Code clean up:
 	- use namespaces everywhere, prefix include guard variables by OPENMEEG_.
 	- removed unnecessary info in file headers.
 	- matlab io files.
-
