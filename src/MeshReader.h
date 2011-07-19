@@ -107,7 +107,8 @@ namespace OpenMEEG {
 
             unsigned int currentExternalSurfaceId = firstSurfId;
 
-            while (sortedDomainsId.size()!=domains().size())
+            // while (sortedDomainsId.size()!=domains().size())
+            for (Interfaces::const_iterator k=interfaces().begin();k!=interfaces().end();++k)
                 for (Domains::const_iterator i=domains().begin();i!=domains().end();++i) {
                     const unsigned ind = domains().index(*i);
                     if (!domainSeen[ind])
@@ -121,7 +122,8 @@ namespace OpenMEEG {
                                 sortedDomainsId.push_back(ind);
                                 domainSeen[ind] = true;
                                 if (i->size()==2)
-                                    currentExternalSurfaceId = (j+1!=i->end()) ? j->interface() : i->begin()->interface();
+                                    currentExternalSurfaceId = (++j!=i->end()) ? j->interface() : i->begin()->interface();
+                                    // currentExternalSurfaceId = (j+1!=i->end()) ? j->interface() : i->begin()->interface();
                             }
                         }
                 }
