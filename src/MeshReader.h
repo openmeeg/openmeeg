@@ -85,6 +85,7 @@ namespace OpenMEEG {
     #endif
 
             // Look for first internal surface :
+
             int firstSurfId = -1;
             for (Domains::iterator i=domains().begin();i!=domains().end();++i) {
                 MeshDescription::Domain& domain = *i;
@@ -95,11 +96,12 @@ namespace OpenMEEG {
                 }
             }
 
-            assert(firstSurfId >= 0);
+            assert(firstSurfId>=0);
 
             std::vector<int> sortedListOfSurfId;
 
             // Sort surfaces from first internal to the most external :
+
             std::vector<bool> domainSeen(domains().size(),false);
             domainSeen[0] = true;
             std::vector<int> sortedDomainsId;
@@ -107,23 +109,25 @@ namespace OpenMEEG {
 
             unsigned int currentExternalSurfaceId = firstSurfId;
 
-            // while (sortedDomainsId.size()!=domains().size())
-            for (Interfaces::const_iterator k=interfaces().begin();k!=interfaces().end();++k)
+            while (sortedDomainsId.size()!=domains().size())
                 for (Domains::const_iterator i=domains().begin();i!=domains().end();++i) {
                     const unsigned ind = domains().index(*i);
                     if (!domainSeen[ind])
                         for (MeshDescription::Domain::const_iterator j=i->begin();j!=i->end();++j) {
+
                             // find the shared surface which is :
                             //   ** external for the last domain added
                             //   ** internal for the current domain
                             //   ** add the external surface to the list
-                            if((j->inout()==MeshDescription::Outside) && (j->interface()==currentExternalSurfaceId)) {
+
+                            if ((j->inout()==MeshDescription::Outside) && (j->interface()==currentExternalSurfaceId)) {
                                 sortedListOfSurfId.push_back(currentExternalSurfaceId);
                                 sortedDomainsId.push_back(ind);
                                 domainSeen[ind] = true;
-                                if (i->size()==2)
+                                if (i->size()==2) {
                                     currentExternalSurfaceId = (++j!=i->end()) ? j->interface() : i->begin()->interface();
-                                    // currentExternalSurfaceId = (j+1!=i->end()) ? j->interface() : i->begin()->interface();
+                                    break;
+                                }
                             }
                         }
                 }
@@ -138,6 +142,7 @@ namespace OpenMEEG {
             }
 
             // Reordering domains
+
             std::vector<MeshDescription::Domain> oldDomains = domains();
             for (Domains::iterator i=domains().begin();i!=domains().end();++i)
                 *i = oldDomains[sortedDomainsId[domains().index(*i)]];
