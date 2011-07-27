@@ -68,7 +68,7 @@ fi
 # "$VCBUILD" INSTALL.vcproj "Release"
 
 # 12) CDASH submision
-/cygdrive/c/CMake\ $VERSION/bin/ctest.exe -D "Nightly"
+/cygdrive/c/CMake\ $VERSION/bin/ctest.exe -D "$1"
 
 # 13) To make a Windows Package Installer
 /cygdrive/c/CMake\ $VERSION/bin/cpack.exe -G "NSIS"
