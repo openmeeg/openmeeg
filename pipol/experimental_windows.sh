@@ -1,8 +1,5 @@
 #!/bin/bash
 
-#PIPOL esn i386_kvm-windows-xp-pro-sp3 none 02:00 --silent --root
-#PIPOL esn amd64_kvm-windows-7 none 02:00 --silent --root
-
 # 2) Creation of temporary repertory where to build
 export TEMP=/cygdrive/c/Temp
 
