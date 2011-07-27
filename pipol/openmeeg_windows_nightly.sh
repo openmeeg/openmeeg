@@ -46,9 +46,9 @@ cd build
 
 # 6) Making VISUAL project with cmake 2.6 - 2.8
 if expr $PIPOL_IMAGE : ".*amd64.*"; then
-    /cygdrive/c/CMake\ $VERSION/bin/cmake.exe -DBUILD_TESTING=ON -DENABLE_PACKAGING=ON -DUSE_OMP=ON -G "$PIPOL_WIN_COMPILER$SYSTEMOS" ..
+    /cygdrive/c/CMake\ $VERSION/bin/cmake.exe -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON -DENABLE_PACKAGING=ON -DUSE_OMP=ON -G "$PIPOL_WIN_COMPILER$SYSTEMOS" ..
 else
-    /cygdrive/c/CMake\ $VERSION/bin/cmake.exe -DBUILD_TESTING=ON -DENABLE_PACKAGING=ON -G "$PIPOL_WIN_COMPILER$SYSTEMOS" ..
+    /cygdrive/c/CMake\ $VERSION/bin/cmake.exe -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON -DENABLE_PACKAGING=ON -G "$PIPOL_WIN_COMPILER$SYSTEMOS" ..
 fi
 
 # 7) Setting environment
