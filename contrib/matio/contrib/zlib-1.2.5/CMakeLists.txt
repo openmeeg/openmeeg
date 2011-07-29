@@ -172,8 +172,17 @@ endif()
 #============================================================================
 
 add_executable(example example.c)
+IF (WIN32)
+    IF (NOT CMAKE_BUILD_TYPE)
+        SET(CMAKE_BUILD_TYPE Debug)
+    ENDIF()
+    SET (TEST_DIR ${EXECUTABLE_OUTPUT_PATH}/${CMAKE_BUILD_TYPE})
+ELSE ()
+    SET (TEST_DIR ${CMAKE_CURRENT_BINARY_DIR})
+ENDIF ()
+
 target_link_libraries(example zlib)
-add_test(example example)
+add_test(example ${TEST_DIR}/example${CMAKE_EXECUTABLE_SUFFIX})
 
 add_executable(minigzip minigzip.c)
 target_link_libraries(minigzip zlib)
@@ -182,7 +191,7 @@ if(HAVE_OFF64_T)
     add_executable(example64 example.c)
     target_link_libraries(example64 zlib)
     set_target_properties(example64 PROPERTIES COMPILE_FLAGS "-D_FILE_OFFSET_BITS=64")
-    add_test(example64 example64)
+    add_test(example64 ${TEST_DIR}/example64${CMAKE_EXECUTABLE_SUFFIX})
 
     add_executable(minigzip64 minigzip.c)
     target_link_libraries(minigzip64 zlib)
