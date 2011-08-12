@@ -121,11 +121,11 @@ private:
     }
 #endif
 
-    void save_vtk(const char*);
-    void save_bnd(const char*);
-    void save_tri(const char*);
-    void save_off(const char*);
-    void save_mesh(const char*);
+    void save_vtk(const char*) const;
+    void save_bnd(const char*) const;
+    void save_tri(const char*) const;
+    void save_off(const char*) const;
+    void save_mesh(const char*) const;
 
     void update_triangles();
     void recompute_normals();
@@ -180,7 +180,7 @@ public:
        * Save mesh to file
        * \param filename can be .vtk, .tri (ascii), .bnd or .mesh
        */
-    void save(const char* filename);
+    void save(const char* filename) const;
 
     /** \brief Get file format based on file extension
 
