@@ -863,9 +863,8 @@ namespace OpenMEEG {
             Vect3 points[3] = {point(trg[0]), point(trg[1]), point(trg[2])};
             for(int j=0; j<3; j++) {
                 Vect3 grads = P1Vector(points[0], points[1], points[2], j);
-                for(int i=0; i<3; i++) {
-                    A(3*t+i, trg[j]) = grads(i);
-                }
+                for(int i=0; i<3; i++)
+                    A(3*t+i,trg[j]) = grads(i);
             }
         }
         return A;
@@ -877,19 +876,18 @@ namespace OpenMEEG {
     bool Mesh::contains_point(const Vect3& p) const {
 
         double solangle = 0.0;
-        for (int itrg=0; itrg<ntrgs; itrg++) {
-            solangle += p.solangl(pts[trgs[itrg][0]], pts[trgs[itrg][1]], pts[trgs[itrg][2]]);
-        }
+        for (int itrg=0;itrg<ntrgs;itrg++)
+            solangle += p.solangl(pts[trgs[itrg][0]],pts[trgs[itrg][1]],pts[trgs[itrg][2]]);
 
         if (std::abs(solangle) < 1e3*std::numeric_limits<double>::epsilon()) {
             return false;
         } else if (std::abs(solangle + 4*M_PI) < 1e3*std::numeric_limits<double>::epsilon()) {
             return true;
         } else if (std::abs(solangle - 4*M_PI) < 1e3*std::numeric_limits<double>::epsilon()) {
-            std::cerr << "Mesh::contains_point(p) Error. Are you sure the mesh is properly oriented?\n";
+            std::cerr << "Mesh::contains_point(" << p << ") Error. Are you sure the mesh is properly oriented?\n";
             return false;
         } else {
-            std::cerr << "Mesh::contains_point(p) Error. Are you sure the mesh is closed?\n"
+            std::cerr << "Mesh::contains_point(" << p << ") Error. Are you sure the mesh is closed?\n"
                       << std::abs(solangle) << std::endl;
             exit(1);
         }
@@ -958,14 +956,13 @@ namespace OpenMEEG {
         // Transform the edge_list and flipped_edge_list unambigously into lists of numbers
         std::list<int> edge_list;
         std::list<int> flipped_edge_list;
-        int radix = 10^(int(log2((double)npts) / log2(10.0)) + 1);
-        for(int i = 0; i < ntrgs; ++i) {
-            for(int j=1; j<=3; ++j) {
-                if (trgs[i].som(j) < trgs[i].next(j)) {
-                    edge_list.push_back(trgs[i].som(j) * radix + trgs[i].next(j));
-                } else {
-                    flipped_edge_list.push_back(trgs[i].next(j) * radix + trgs[i].som(j));
-                }
+        int radix = 10^(int(log2((double)npts)/log2(10.0))+1);
+        for(int i=0;i<ntrgs;++i) {
+            for(int j=1;j<=3;++j) {
+                if (trgs[i].som(j)<trgs[i].next(j))
+                    edge_list.push_back(trgs[i].som(j)*radix+trgs[i].next(j));
+                else
+                    flipped_edge_list.push_back(trgs[i].next(j)*radix+trgs[i].som(j));
             }
         }
         // Sort these two lists: they should be identical: if not, there is a local orientation problem.
@@ -994,12 +991,12 @@ namespace OpenMEEG {
 
         // check the center of the bounding box is inside the mesh
         bool in_mesh = contains_point(bbcenter);
-        if (!in_mesh) {
+        if (!in_mesh)
             std::cerr << "Global orientation problem..." << std::endl << std::endl;
-        }
-        if (flipped_edge_list != edge_list) {
+
+        if (flipped_edge_list != edge_list)
             std::cerr << "Local orientation problem..." << std::endl << std::endl;
-        }
+
         return in_mesh && (flipped_edge_list == edge_list);
     }
 
