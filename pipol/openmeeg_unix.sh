@@ -39,10 +39,10 @@ function build {
     ctest -D ExperimentalSubmit
     make package
     make clean
-    mv OpenMEEG*tar.gz ~/.pipol/packages
-    mv OpenMEEG*dmg* ~/.pipol/packages
-    mv OpenMEEG*rpm* ~/.pipol/packages
-    mv OpenMEEG*deb* ~/.pipol/packages
+    mv OpenMEEG*tar.gz ~/.pipol/packages/openmeeg-trunk
+    mv OpenMEEG*dmg* ~/.pipol/packages/openmeeg-trunk
+    mv OpenMEEG*rpm* ~/.pipol/packages/openmeeg-trunk
+    mv OpenMEEG*deb* ~/.pipol/packages/openmeeg-trunk
 }
 
 OMP=OFF
