@@ -90,10 +90,12 @@ rm -rf %{srcdirname}
 %{_bindir}/*
 %{_libdir}/lib@PROJECT_NAME@*
 %{_libdir}/*.cmake
+%{_includedir}/openmeeg/*
 
 %files matio
 %{_libdir}/libmatio.so
 %{_includedir}/matio*.h
+%{_docdir}/matio/*
 
 %files python
 %defattr(644,root,root,-)
