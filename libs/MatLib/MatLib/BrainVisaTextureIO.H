@@ -43,6 +43,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <sstream>
 
 #include <Exceptions.H>
+#include <IOUtils.H>
 #include "MathsIO.H"
 #include "matrix.h"
 
@@ -64,51 +65,35 @@ namespace OpenMEEG {
                 return linop.storageType()==LinOp::FULL && linop.dimension()==2;
             }
 
-            LinOpInfo info(std::ifstream& is) const throw(std::exception) {
-                throw "TODO: this is a dummy exception to allow compilation on windows.";
+            LinOpInfo info(std::ifstream& is) const {
+                size_t nlin,ncol;
+                read_header(is,nlin,ncol);
+                is.seekg(0,std::ios_base::beg);
+                return LinOpInfo(nlin,ncol,LinOpInfo::FULL,2);
             }
 
-            void read(std::ifstream& is,LinOp& linop) const throw(std::exception) {
+            void read(std::ifstream& is,LinOp& linop) const {
                 Matrix& m = dynamic_cast<Matrix&>(linop);
-
-                std::string line;
-                std::getline(is, line, '\n');
-                std::istringstream buffer(line);
-                std::string s;
-                buffer >> s;
-                assert(s==MagicTag.c_str());
-
-                std::getline(is,line,'\n'); // skip keyword FLOAT
-
-                std::getline(is,line,'\n');
-                buffer.clear();
-                buffer.str(line);
-                buffer >> m.ncol();
-
+                read_header(is,m.nlin(),m.ncol());
                 if (linop.dimension()==1 && m.ncol()!=1)
                     throw maths::BadVector(m.ncol());
+                m.alloc_data();
 
-                size_t j = 0; // column index
-                do {
-                    std::getline(is, line, '\n'); // skip column index
-                    std::getline(is, line, '\n');
-                    buffer.clear();
-                    buffer.str(line);
-                    buffer >> m.nlin();
-                    if(m.nlin() == 0) {
-                        buffer >> m.nlin(); // Hack for certain tex files
-                    }
+                for (size_t j=0;j<m.ncol();++j) {
+                    unsigned ind;
+                    is >> io_utils::skip_line;   // skip column index
+                    is >> ind;
+                    if(ind==0)
+                        is >> ind; // Hack for certain tex files
 
-                    if (j==0) {
-                        m.alloc_data();
-                    }
-                    for (size_t i = 0; i < m.nlin(); ++i)
-                        buffer >> m(i,j);
-                    j++;
-                } while (j<m.ncol());
+                    for (size_t i=0;i<m.nlin();++i)
+                        is >> m(i,j);
+
+                    is >> io_utils::skip_line;
+                }
             }
 
-            void write(std::ofstream& os, const LinOp& linop) const {
+            void write(std::ofstream& os,const LinOp& linop) const {
                 const Matrix& m = dynamic_cast<const Matrix&>(linop);
 
                 os << "ascii" << std::endl << "FLOAT" << std::endl << static_cast<unsigned>(m.ncol()) << std::endl;
@@ -124,6 +109,18 @@ namespace OpenMEEG {
 
             BrainVisaTextureIO(): MathsIOBase(8) { }
             ~BrainVisaTextureIO() {};
+
+            static void read_header(std::ifstream& is,size_t& nlin,size_t& ncol) {
+                is >> io_utils::match(MagicTag) >> io_utils::skip_line;
+                is >> io_utils::skip_line;         // skip keyword FLOAT
+                is >> ncol >> io_utils::skip_line;
+                const std::ifstream::pos_type pos = is.tellg();
+                is >> io_utils::skip_line;         // skip column index
+                is >> nlin; 
+                if (nlin==0)
+                    is >> nlin;
+                is.seekg(pos);
+            }
 
             static Suffixes init() {
                 Suffixes suffixes;

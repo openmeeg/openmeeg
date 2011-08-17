@@ -56,8 +56,8 @@ namespace OpenMEEG {
             template <>
             struct helper<Vector> {
                 static const int dim = 1;
-                static int* dims(const Vector& m) {
-                    static int dims[1];
+                static size_t* dims(const Vector& m) {
+                    static size_t dims[1];
                     dims[0] = m.nlin();
                     return dims;
                 }
@@ -77,8 +77,8 @@ namespace OpenMEEG {
             template <>
             struct helper<Matrix> {
                 static const int dim = 2;
-                static int* dims(const Matrix& m) {
-                    static int dims[2];
+                static size_t* dims(const Matrix& m) {
+                    static size_t dims[2];
                     dims[0] = m.nlin();
                     dims[1] = m.ncol();
                     return dims;
@@ -104,8 +104,8 @@ namespace OpenMEEG {
                 ~helper() { Mat_VarFree(saved); }
 
                 static const int dim = 1;
-                static int* dims(const Matrix& m) {
-                    static int dims[1];
+                static size_t* dims(const Matrix& m) {
+                    static size_t dims[1];
                     dims[0] = (m.nlin()*(m.nlin()+1))/2;
                     return dims;
                 }
@@ -113,7 +113,7 @@ namespace OpenMEEG {
                     static const void* size = "size";
                     linop.dimension()   = 2;
                     linop.storageType() = LinOpInfo::SYMMETRIC;
-                    const matvar_t* sizevar = Mat_VarGetStructField(matvar,const_cast<void*>(size),BY_NAME,0);
+                    const matvar_t* sizevar = Mat_VarGetStructField(matvar,const_cast<void*>(size),MAT_BY_NAME,0);
                     linop.nlin() = linop.ncol() = *static_cast<int*>(sizevar->data);
                     return adjust(matvar);
                 }
@@ -122,7 +122,7 @@ namespace OpenMEEG {
                 }
                 static matvar_t* adjust(matvar_t* structvar) {
                     static const void* data = "data";
-                    matvar_t* matvar = Mat_VarGetStructField(structvar,const_cast<void*>(data),BY_NAME,0);
+                    matvar_t* matvar = Mat_VarGetStructField(structvar,const_cast<void*>(data),MAT_BY_NAME,0);
                     saved = structvar;
                     return matvar;
                 }
@@ -165,7 +165,7 @@ namespace OpenMEEG {
                 return st==LinOpInfo::FULL || st==LinOpInfo::SYMMETRIC || st==LinOpInfo::SPARSE;
             }
 
-            LinOpInfo info(std::ifstream& is) const throw(std::exception) {
+            LinOpInfo info(std::ifstream& is) const {
                 if (is.is_open())
                     is.close();
 
@@ -186,7 +186,7 @@ namespace OpenMEEG {
                 return linop;
             }
 
-            void read(std::ifstream& is,LinOp& linop) const throw(std::exception) {
+            void read(std::ifstream& is,LinOp& linop) const {
                 if (is.is_open()) {
                     is.close();
                 }
@@ -215,7 +215,7 @@ namespace OpenMEEG {
                 Mat_Close(mat);
             }
 
-            void write(std::ofstream& os, const LinOp& linop) const throw(std::exception) {
+            void write(std::ofstream& os, const LinOp& linop) const {
                 if (os.is_open()) {
                     os.close();
                     std::remove(name().c_str());
@@ -251,7 +251,7 @@ namespace OpenMEEG {
             ~MatlabIO() {};
 
             template <typename TYPE>
-            matvar_t* read_header(mat_t* mat,LinOpInfo& linop) const throw(maths::BadContent) {
+            matvar_t* read_header(mat_t* mat,LinOpInfo& linop) const {
                 matvar_t* matvar = Mat_VarReadNext(mat);
                 while (matvar!=NULL && !details::helper<TYPE>::good_type(matvar)) {
                     Mat_VarFree(matvar);
@@ -263,7 +263,7 @@ namespace OpenMEEG {
             }
 
             template <typename TYPE>
-            void read(mat_t* mat,LinOp& linop) const throw(std::exception) {
+            void read(mat_t* mat,LinOp& linop) const {
                 matvar_t* matvar = read_header<TYPE>(mat,linop);
                 TYPE& O = dynamic_cast<TYPE&>(linop);
                 O.reference_data(static_cast<double*>(matvar->data));
@@ -271,7 +271,7 @@ namespace OpenMEEG {
                 Mat_VarFree(matvar);
             }
 
-            void read_sparse(mat_t* mat,LinOp& linop) const throw(std::exception) {
+            void read_sparse(mat_t* mat,LinOp& linop) const {
                 matvar_t*     matvar = read_header<SparseMatrix>(mat,linop);
                 SparseMatrix& m      = dynamic_cast<SparseMatrix&>(linop);
                 std::cout << "Using variable with name : " << matvar->name << std::endl;
@@ -299,7 +299,7 @@ namespace OpenMEEG {
             template <typename TYPE>
             void write(mat_t* mat,const LinOp& linop) const {
                 const TYPE& m = dynamic_cast<const TYPE&>(linop);
-                int* dims = details::helper<TYPE>::dims(m);
+                size_t* dims = details::helper<TYPE>::dims(m);
                 matvar_t* matvar = Mat_VarCreate("linop",MAT_C_DOUBLE,MAT_T_DOUBLE,details::helper<TYPE>::dim,dims,m.data(),0);
                 Mat_VarWrite(mat,matvar,COMPRESSION_ZLIB);
                 Mat_VarFree(matvar);
@@ -307,16 +307,15 @@ namespace OpenMEEG {
 
             void write_symmetric(mat_t* mat,const LinOp& linop) const {
                 const SymMatrix& m  = dynamic_cast<const SymMatrix&>(linop);
-                int dims[2] = { m.size(),1 };
-                int dims1[2] = { 1, 1 };
+                size_t dims[2] = { m.size(),1 };
+                size_t dims1[2] = { 1, 1 };
                 int size[1]  = { m.nlin() };
                 matvar_t** matvar = new matvar_t*[3];
                 matvar[0] = Mat_VarCreate("size",MAT_C_UINT32,MAT_T_UINT32,2,dims1,size,0);
-                matvar[1] = Mat_VarCreate("data",MAT_C_DOUBLE,MAT_T_DOUBLE,2,dims,m.data(),MEM_CONSERVE);
+                matvar[1] = Mat_VarCreate("data",MAT_C_DOUBLE,MAT_T_DOUBLE,2,dims,m.data(),MAT_F_DONT_COPY_DATA);
                 matvar[2] = NULL;
                 matvar_t* structvar = Mat_VarCreate("symmatrix",MAT_C_STRUCT,MAT_T_STRUCT,2,dims1,matvar,0);
-                Mat_VarWrite(mat,structvar,COMPRESSION_NONE);
-                //Mat_VarWrite(mat,structvar,COMPRESSION_ZLIB); Does not work
+                Mat_VarWrite(mat,structvar,COMPRESSION_ZLIB);
                 delete[] matvar;
                 Mat_VarFree(structvar);
             }
@@ -356,12 +355,12 @@ namespace OpenMEEG {
                 for (size_t k = current_col+1; k <= linop.ncol(); ++k)
                     jc[k] = linop.size();
 
-                int dims[2] = { linop.nlin(), linop.ncol() };
+                size_t dims[2] = { linop.nlin(), linop.ncol() };
                 matvar_t *matvar;
                 const int sz = linop.size();
                 sparse_t  sparse = { sz, ir, sz, jc, linop.ncol()+1, sz, t};
 
-                matvar = Mat_VarCreate("matrix",MAT_C_SPARSE,MAT_T_DOUBLE,2,dims,&sparse,MEM_CONSERVE);
+                matvar = Mat_VarCreate("matrix",MAT_C_SPARSE,MAT_T_DOUBLE,2,dims,&sparse,MAT_F_DONT_COPY_DATA);
                 Mat_VarWrite(mat,matvar,COMPRESSION_ZLIB);
                 Mat_VarFree(matvar);
                 delete[] t;

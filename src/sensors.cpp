@@ -62,7 +62,7 @@ namespace OpenMEEG {
         }
     }
 
-    Sensors::Sensors(char* filename) {
+    Sensors::Sensors(const char* filename) {
         this->load(filename,'t');
     }
 

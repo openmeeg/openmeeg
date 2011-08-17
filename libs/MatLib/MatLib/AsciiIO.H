@@ -68,7 +68,7 @@ namespace OpenMEEG {
 
             bool known(const LinOp&) const { return true; }
 
-            LinOpInfo info(std::ifstream& is) const throw(std::exception) {
+            LinOpInfo info(std::ifstream& is) const {
                 is.clear();
                 is.seekg(0,std::ios::beg);
 
@@ -104,7 +104,7 @@ namespace OpenMEEG {
                 return linop;
             }
 
-            void read(std::ifstream& is,LinOp& linop) const throw(std::exception) {
+            void read(std::ifstream& is,LinOp& linop) const {
 
                 const LinOpInfo& inforead = info(is);
                 
@@ -179,7 +179,7 @@ namespace OpenMEEG {
                 else if (len ==2 && len1==3)
                     linop.storageType() = LinOp::SPARSE;
                 else {
-                    throw "Should never happen";
+                    throw UnexpectedException("Should never happen",__FILE__,__LINE__);
                 }
 
                 linop.dimension() = (linop.storageType()==LinOp::FULL && len==1) ? 1 : 2;
@@ -215,7 +215,7 @@ namespace OpenMEEG {
                     throw BadData(identity()+" sparse matrix");
             }
 
-            void read_full(std::ifstream& is,LinOp& linop) const throw(BadData) {
+            void read_full(std::ifstream& is,LinOp& linop) const {
                 is.clear();
                 is.seekg(0,std::ios::beg);
 
@@ -246,7 +246,7 @@ namespace OpenMEEG {
                 }
             }
 
-            void read_symmetric(std::ifstream& is,LinOp& linop) const throw(BadData) {
+            void read_symmetric(std::ifstream& is,LinOp& linop) const {
                 SymMatrix& m = dynamic_cast<SymMatrix&>(linop);
                 m.alloc_data();
 

@@ -185,7 +185,7 @@ namespace OpenMEEG {
         Vect3 current_position; // buffer for electrode positions
         Vect3 current_alphas; //not used here
         int current_nearest_triangle; // buffer for closest triangle to electrode
-        for(int ielec=0;ielec<positions.nlin();ielec++) {
+        for(unsigned ielec=0;ielec<positions.nlin();ielec++) {
             for(int k=0;k<3;k++) current_position(k)=positions(ielec,k);
             dist_point_mesh(current_position,geo.getM(geo.nb()-1),current_alphas,current_nearest_triangle);
             for(int i=0;i<newsize;i++) {
@@ -202,7 +202,7 @@ namespace OpenMEEG {
                                                        const Matrix& points) {
         // Points with one more column for the index of the domain they belong
         Matrix pointsLabelled(points.nlin(),4);
-        for (int i=0; i<points.nlin(); i++){
+        for (unsigned i=0; i<points.nlin(); i++){
             pointsLabelled(i,3) = geo.getDomain(Vect3(points(i,0), points(i,1), points(i,2)));
             for (int j=0;j<3;j++)
                 pointsLabelled(i,j) = points(i,j);
@@ -213,7 +213,7 @@ namespace OpenMEEG {
 
         // TODO only computes Vinf for the points in the first 1st Domain (i.e
         // the brain where the sources are)
-        for (int iDIP=0; iDIP<dipoles.nlin(); iDIP++){
+        for (unsigned iDIP=0; iDIP<dipoles.nlin(); iDIP++){
             Vect3 r0;
             r0(0) = dipoles(iDIP,0);
             r0(1) = dipoles(iDIP,1);
@@ -222,7 +222,7 @@ namespace OpenMEEG {
             q(0) = dipoles(iDIP,3);
             q(1) = dipoles(iDIP,4);
             q(2) = dipoles(iDIP,5);
-            for (int iPTS=0; iPTS<points.nlin(); iPTS++){
+            for (unsigned iPTS=0; iPTS<points.nlin(); iPTS++){
                 if ((pointsLabelled(iPTS,3)) == 0){
                     Vect3 r;
                     r(0) = points(iPTS,0);

@@ -54,9 +54,9 @@ namespace MeshDescription {
 #endif
 
     typedef enum { UNEXPECTED = 128, IO_EXCPT, OPEN_ERROR,
-                   BAD_FMT, NO_SUFFIX, NON_MATCH_FMT, BAD_HDR, BAD_DATA, BAD_DIM, UNKN_DIM, BAD_SIZE_SPEC, UNKN_PIX, UNKN_PIX_TYPE,
+                   BAD_FMT, NO_SUFFIX, NON_MATCH_FMT, BAD_HDR, BAD_DATA, WRONG_FILE_FMT, BAD_DIM, UNKN_DIM, BAD_SIZE_SPEC, UNKN_PIX, UNKN_PIX_TYPE,
                    UNKN_FILE_FMT, UNKN_FILE_SUFFIX, UNKN_NAMED_FILE_FMT, NON_MATCH_NAMED_FILE_FMT, NO_FILE_FMT,
-                   BAD_PLGIN_LIST, BAD_PLGIN_FILE, BAD_PLGIN, ALREADY_KN_TAG,
+                   BAD_PLGIN_LIST, BAD_PLGIN_FILE, BAD_PLGIN, ALREADY_KN_TAG, NON_EXISTING_DOMAIN,
                    NO_IMG_ARG, DIFF_IMG } ExceptionCode;
 
     class Exception: public std::exception {
@@ -174,6 +174,13 @@ namespace MeshDescription {
         static std::string message(const std::string& fmtname) { return std::string("Bad ")+fmtname+" file data."; }
     };
 
+    struct WrongFileFormat: public IOException {
+
+        WrongFileFormat(const std::string& file): IOException(std::string("Wrong format for file ")+file+".") { }
+
+        ExceptionCode code() const throw() { return WRONG_FILE_FMT; }
+    };
+
     struct UnknownFileFormat: public IOException {
 
         UnknownFileFormat(const std::string& fmt): IOException(std::string("Unknown ")+fmt+" format.") { }
@@ -204,6 +211,21 @@ namespace MeshDescription {
         NoMatchingFileFormat(std::ostream& os): IOException(os,std::string("No IO is able to write this type of image.")) { }
 
         ExceptionCode code() const throw() { return NO_FILE_FMT; }
+    };
+
+    struct NonExistingDomain: public std::exception {
+        NonExistingDomain(const std::string& dom,const unsigned iid): domain(dom),interface(iid) { }
+
+        const char* what() const throw() {
+            std::ostringstream oss;
+            oss << "Definition of domain " << domain << ": interface " << interface << " does not exist";
+            return oss.str().c_str();
+        }
+
+        ExceptionCode code() const throw() { return NON_EXISTING_DOMAIN; }
+
+        const std::string& domain;
+        unsigned           interface;
     };
 
     //  Revisit (TODO).

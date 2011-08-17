@@ -45,7 +45,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 using namespace OpenMEEG;
 
-int main(int argc, char** argv) {
+int main(const int,const char** argv) {
 // usage : sensors sensors_file_description.txt
 
     /*** tests on sensors file ****/

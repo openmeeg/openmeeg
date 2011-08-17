@@ -103,10 +103,10 @@ namespace OpenMEEG {
                 permanent = perm;
             }
 
-            static const IO& format(const std::string&)             throw(UnknownFileFormat);
-            static const IO& format_from_suffix(const std::string&) throw(NoSuffix,UnknownFileSuffix);
+            static const IO& format(const std::string&);
+            static const IO& format_from_suffix(const std::string&);
 
-            static void SetCurrentFormat(const std::string& fmt,const bool perm) throw(UnknownFileFormat) {
+            static void SetCurrentFormat(const std::string& fmt,const bool perm) {
                 if (fmt=="default") {
                     SetCurrentFormat(0,perm);
                     return;
@@ -114,8 +114,13 @@ namespace OpenMEEG {
                 SetCurrentFormat(format(fmt),perm);
             }
 
-            static void SetCurrentFormatFromSuffix(const std::string& name,const bool perm) throw(NoSuffix,UnknownFileSuffix) {
+            static void SetCurrentFormatFromSuffix(const std::string& name,const bool perm) {
                 SetCurrentFormat(format_from_suffix(name),perm);
+            }
+
+            operator bool() const {
+                std::ifstream ifs(file_name.c_str());
+                return ifs;
             }
 
         protected:
@@ -164,8 +169,8 @@ namespace OpenMEEG {
         typedef MathsIO ifstream;
         typedef MathsIO ofstream;
 
-        OPENMEEGMATHS_EXPORT maths::ifstream& operator>>(maths::ifstream&,LinOp&) throw(BadFileOpening,NoIO);
-        OPENMEEGMATHS_EXPORT maths::ofstream& operator<<(maths::ofstream&,const LinOp&) throw(BadFileOpening,NoIO);
+        OPENMEEGMATHS_EXPORT maths::ifstream& operator>>(maths::ifstream&,LinOp&);
+        OPENMEEGMATHS_EXPORT maths::ofstream& operator<<(maths::ofstream&,const LinOp&);
 
         // The manip format() used to specify explicitely a format.
         // Almost similar to Images::format. How to fuse those.

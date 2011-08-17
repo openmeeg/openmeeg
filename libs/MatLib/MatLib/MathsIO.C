@@ -10,7 +10,7 @@ namespace OpenMEEG {
             static const unsigned maxtagsize = 32;
 
             static const char*
-            ReadTag(std::istream& is) throw(BadHeader) {
+            ReadTag(std::istream& is) {
 
                 static char buffer[maxtagsize];
 
@@ -30,7 +30,7 @@ namespace OpenMEEG {
         MathsIO::IO MathsIO::DefaultIO = 0;
         bool MathsIO::permanent = false;
 
-        const MathsIO::IO& MathsIO::format(const std::string& fmt) throw(UnknownFileFormat) {
+        const MathsIO::IO& MathsIO::format(const std::string& fmt) {
             for (IOs::const_iterator i=ios().begin();i!=ios().end();++i) {
                 if (fmt==(*i)->identity())
                     return *i;
@@ -38,7 +38,7 @@ namespace OpenMEEG {
             throw UnknownFileFormat(fmt);
         }
 
-        const MathsIO::IO& MathsIO::format_from_suffix(const std::string& name) throw(NoSuffix,UnknownFileSuffix) {
+        const MathsIO::IO& MathsIO::format_from_suffix(const std::string& name) {
             const std::string::size_type pos = name.find_last_of(".");
             if (pos==std::string::npos)
                 throw NoSuffix(name);
@@ -51,7 +51,7 @@ namespace OpenMEEG {
             throw UnknownFileSuffix(suffix);
         }
 
-        maths::ifstream& operator>>(maths::ifstream& mio,LinOp& linop) throw(BadFileOpening,NoIO) {
+        maths::ifstream& operator>>(maths::ifstream& mio,LinOp& linop) {
             std::ifstream is(mio.name().c_str(),std::ios::binary);
             if(is.fail())
                 throw BadFileOpening(mio.name(),BadFileOpening::READ);
@@ -78,7 +78,7 @@ namespace OpenMEEG {
             throw NoIO(mio.name(),NoIO::READ);
         }
 
-        maths::ofstream& operator<<(maths::ofstream& mio,const LinOp& linop) throw(BadFileOpening,NoIO) {
+        maths::ofstream& operator<<(maths::ofstream& mio,const LinOp& linop) {
 
             std::ofstream os(mio.name().c_str(),std::ios::binary);
             if(os.fail())
