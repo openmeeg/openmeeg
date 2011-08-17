@@ -77,5 +77,6 @@ function build_and_test() {
     /cygdrive/c/CMake\ $VERSION/bin/cpack.exe -G "TGZ"
 
     # 14) Save the package
-    cp OpenMEEG-*.* $PIPOL_HOMEDIR/.pipol/packages/
+    mkdir -p $PIPOL_HOMEDIR/.pipol/packages/openmeeg-trunk
+    cp OpenMEEG-*.* $PIPOL_HOMEDIR/.pipol/packages/openmeeg-trunk
 }

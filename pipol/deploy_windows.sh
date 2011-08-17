@@ -6,6 +6,16 @@ cat >> $file <<EOF
 build_and_test "Experimental"
 EOF
 
+if [ x$1 == "x-release" ]; then
+    # usage : ./deploy_windows.sh -release 2.1
+    file2=`mktemp`
+    file3=`mktemp`
+    sed "s/openmeeg\/trunk/openmeeg\/branches\/release-$2/g" $file > $file2
+    sed "s/openmeeg-trunk/openmeeg-release-$2/g" $file2 > $file3
+    rm $file2
+    mv $file3 $file
+fi
+
 chmod +x $file
 scp $file pipol:experimental_windows.sh
 rm $file
