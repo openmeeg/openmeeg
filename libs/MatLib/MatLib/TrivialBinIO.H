@@ -70,7 +70,7 @@ namespace OpenMEEG {
 
                 std::ifstream::pos_type pos = is.tellg();
                 is.seekg(0, std::ios::end);
-                const unsigned size = static_cast<unsigned>(is.tellg())-sizeof(unsigned int);
+                const std::streamoff size = static_cast<std::streamoff>(is.tellg())-sizeof(unsigned int);
                 is.seekg(pos);
 
                 //  Attempt to find the type of the file from its size.
@@ -92,7 +92,8 @@ namespace OpenMEEG {
                     } else {
                         is.read(reinterpret_cast<char*>(&ui),sizeof(unsigned int));
                         linop.ncol()        = ui;
-                        linop.storageType() = (size-sizeof(unsigned int)==linop.nlin()*linop.ncol()*sizeof(double)) ?
+                        const std::streamoff n_elmts = linop.nlin()*linop.ncol();
+                        linop.storageType() = (size-sizeof(unsigned int)==n_elmts*sizeof(double)) ?
                                                 LinOp::FULL : LinOp::SPARSE;
                     }
                 }
