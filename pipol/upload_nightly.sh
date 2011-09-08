@@ -2,7 +2,7 @@
 
 # script to update the openmeeg nightly build config on pipol
 
-file=`mktemp`
+file=`mktemp -t tmp`
 cp openmeeg_windows.sh $file
 cat >> $file <<EOF
 build_and_test "Nightly"
