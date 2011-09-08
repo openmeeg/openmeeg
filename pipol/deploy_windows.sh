@@ -1,6 +1,6 @@
 #!/bin/bash
 
-file=`mktemp`
+file=`mktemp -t tmp`
 cp openmeeg_windows.sh $file
 cat >> $file <<EOF
 build_and_test "Experimental"
@@ -8,8 +8,8 @@ EOF
 
 if [ x$1 == "x-release" ]; then
     # usage : ./deploy_windows.sh -release 2.1
-    file2=`mktemp`
-    file3=`mktemp`
+    file2=`mktemp -t tmp`
+    file3=`mktemp -t tmp`
     sed "s/openmeeg\/trunk/openmeeg\/branches\/release-$2/g" $file > $file2
     sed "s/openmeeg-trunk/openmeeg-release-$2/g" $file2 > $file3
     rm $file2
