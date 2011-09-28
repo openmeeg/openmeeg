@@ -178,7 +178,7 @@ void assemble_Surf2Vol(const Geometry& geo, Matrix& mat, Matrix& points)
         if (points.ncol() == 3) {
             ++nb_pts_per_dom[0];
         } else {
-            int domain = points(i, 3);
+            int domain = static_cast<int>(points(i, 3));
             if (domain >= geo.nb()) {
                 std::cerr << " Surf2Vol: Point " << points.getlin(i);
                 std::cerr << " is outside the head. Point is considered to be in the scalp." << std::endl;
@@ -193,7 +193,7 @@ void assemble_Surf2Vol(const Geometry& geo, Matrix& mat, Matrix& points)
         vect_PtsInDom[c] = Matrix(nb_pts_per_dom[c], 3);
         int iptd=0;
         for (unsigned ipt=0; ipt<points.nlin(); ipt++) { // get the points in the domain c
-            if (((points.ncol()==4) && (points(ipt, 3)==c)) || ((points.ncol()==3) && (c==0))) {
+            if (((points.ncol()==4) && (static_cast<int>(points(ipt, 3))==c)) || ((points.ncol()==3) && (c==0))) {
                 vect_PtsInDom[c](iptd, 0) = points(ipt, 0);
                 vect_PtsInDom[c](iptd, 1) = points(ipt, 1);
                 vect_PtsInDom[c](iptd++, 2) = points(ipt, 2);
