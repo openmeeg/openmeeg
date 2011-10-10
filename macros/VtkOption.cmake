@@ -8,7 +8,6 @@ MARK_AS_ADVANCED(USE_VTK)
 IF (USE_VTK)
     FIND_PACKAGE(VTK)
     IF (VTK_FOUND)
-        SET(USE_VTK 1)
         INCLUDE(${VTK_USE_FILE})
         SET (VTK_LIBRARIES
             # vtkRendering
