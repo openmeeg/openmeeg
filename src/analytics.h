@@ -101,28 +101,21 @@ namespace OpenMEEG {
         inline double f(const Vect3& x) const
         {
             // analytical value of the internal integral of S operator at point X
-            Vect3 p1x = p1-x, p2x = p2-x, p0x = p0-x ;
-            double norm2p0x = p0x.norm();
-            double norm2p1x = p1x.norm();
-            double norm2p2x = p2x.norm();
-            double alpha = (x-p0)*n ;
-            double g0,g1,g2;
+            const Vect3 p1x = p1-x, p2x = p2-x, p0x = p0-x ;
+            const double norm2p0x = p0x.norm();
+            const double norm2p1x = p1x.norm();
+            const double norm2p2x = p2x.norm();
 
-            if ((p0x^p1p0).norm() > .00000001)
-                g0 = -log(norm2p1x-p1x*p1p0*(1.0/norm2p1p0) )+log(norm2p0x-p0x*p1p0*(1.0/norm2p1p0) );
-            else
-                g0= fabs(log(norm2p1x)-log(norm2p0x));
+            const double arg0 = (norm2p0x*norm2p1p0-p0x*p1p0)/(norm2p1x*norm2p1p0-p1x*p1p0);
+            const double g0 = (std::isnormal(arg0) && arg0>0.0) ? log(arg0) : fabs(log(norm2p1x/norm2p0x));
 
-            if ((p1x^p2p1).norm() > .00000001)
-                g1 = -log(norm2p2x-p2x*p2p1*(1.0/norm2p2p1) )+log(norm2p1x-p1x*p2p1*(1.0/norm2p2p1) );
-            else
-                g1= fabs(log(norm2p2x)-log(norm2p1x));
+            const double arg1 = (norm2p1x*norm2p2p1-p1x*p2p1)/(norm2p2x*norm2p2p1-p2x*p2p1);
+            const double g1 = (std::isnormal(arg1) && arg1>0.0) ? log(arg1) : fabs(log(norm2p2x/norm2p1x));
 
-            if ((p2x^p0p2).norm() > .00000001)
-                g2 = -log(norm2p0x-p0x*p0p2*(1.0/norm2p0p2) )+log(norm2p2x-p2x*p0p2*(1.0/norm2p0p2) );
-            else
-                g2 = fabs(log(norm2p0x)-log(norm2p2x));
+            const double arg2 = (norm2p2x*norm2p0p2-p2x*p0p2)/(norm2p0x*norm2p0p2-p0x*p0p2);
+            const double g2 = (std::isnormal(arg2) && arg2>0.0) ? log(arg2) : fabs(log(norm2p0x/norm2p2x));
 
+            const double alpha = (x-p0)*n ;
             return ((p0x*nu0)*g0+(p1x*nu1)*g1+(p2x*nu2)*g2)-alpha*x.solangl(p0,p1,p2);
         }
     };
@@ -171,16 +164,16 @@ namespace OpenMEEG {
             double d1 = D1.norm();
             double d2 = D2.norm();
             double d3 = D3.norm();
-            double g1 = -1/d1*log((y1*d1+Y1*D1)/(y2*d1+Y2*D1));
-            double g2 = -1/d2*log((y2*d2+Y2*D2)/(y3*d2+Y3*D2));
-            double g3 = -1/d3*log((y3*d3+Y3*D3)/(y1*d3+Y1*D3));
+            double g1 = -1.0/d1*log((y1*d1+Y1*D1)/(y2*d1+Y2*D1));
+            double g2 = -1.0/d2*log((y2*d2+Y2*D2)/(y3*d2+Y3*D2));
+            double g3 = -1.0/d3*log((y3*d3+Y3*D3)/(y1*d3+Y1*D3));
             Vect3 N = Z1+Z2+Z3;
-            double A = N.norm2();
+            const double Ainv = 1.0/N.norm2();
             Vect3 S = D1*g1+D2*g2+D3*g3;
             double omega_i[3];
-            omega_i[0] = 1/A*(Z1*N*omega+d*(D2*S));
-            omega_i[1] = 1/A*(Z2*N*omega+d*(D3*S));
-            omega_i[2] = 1/A*(Z3*N*omega+d*(D1*S));
+            omega_i[0] = Ainv*(Z1*N*omega+d*(D2*S));
+            omega_i[1] = Ainv*(Z2*N*omega+d*(D3*S));
+            omega_i[2] = Ainv*(Z3*N*omega+d*(D1*S));
             double result = omega_i[i-1];
 
             return result;
@@ -231,16 +224,16 @@ namespace OpenMEEG {
             double d1 = D1.norm();
             double d2 = D2.norm();
             double d3 = D3.norm();
-            double g1 = -1/d1*log((y1*d1+Y1*D1)/(y2*d1+Y2*D1));
-            double g2 = -1/d2*log((y2*d2+Y2*D2)/(y3*d2+Y3*D2));
-            double g3 = -1/d3*log((y3*d3+Y3*D3)/(y1*d3+Y1*D3));
+            double g1 = -1.0/d1*log((y1*d1+Y1*D1)/(y2*d1+Y2*D1));
+            double g2 = -1.0/d2*log((y2*d2+Y2*D2)/(y3*d2+Y3*D2));
+            double g3 = -1.0/d3*log((y3*d3+Y3*D3)/(y1*d3+Y1*D3));
             Vect3 N = Z1+Z2+Z3;
-            double A = N.norm2();
+            double invA = 1.0/N.norm2();
             Vect3 S = D1*g1+D2*g2+D3*g3;
             Vect3 omega_i;
-            omega_i.x() = 1/A*(Z1*N*omega+d*(D2*S));
-            omega_i.y() = 1/A*(Z2*N*omega+d*(D3*S));
-            omega_i.z() = 1/A*(Z3*N*omega+d*(D1*S));
+            omega_i.x() = invA*(Z1*N*omega+d*(D2*S));
+            omega_i.y() = invA*(Z2*N*omega+d*(D3*S));
+            omega_i.z() = invA*(Z3*N*omega+d*(D1*S));
 
             return omega_i;
         }

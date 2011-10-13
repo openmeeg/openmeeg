@@ -218,8 +218,8 @@ inline void _operatorDinternal(const int nT, const int nT2, const Mesh &m, Matri
 
 inline double _operatorS(const int nT1, const int nT2, const Mesh &m1, const Mesh &m2, const int gauss_order)
 {
-    const Triangle &T1 = m1.triangle(nT1);
-    const Triangle &T2 = m2.triangle(nT2);
+    const Triangle& T1 = m1.triangle(nT1);
+    const Triangle& T2 = m2.triangle(nT2);
 
     #ifdef USE_OMP
     Triangle *oldT = NULL;
@@ -356,8 +356,8 @@ void operatorN(const Mesh &m1, const Mesh &m2, T &mat, const int offsetI,
 }
 
 template<class T>
-void operatorS(const Mesh &m1, const Mesh &m2, T &mat, const int offsetI,
-               const int offsetJ, const int gauss_order)
+void operatorS(const Mesh& m1,const Mesh& m2,T& mat,const int offsetI,
+               const int offsetJ,const int gauss_order)
 {
     // This function has the following arguments:
     //    One geometry
