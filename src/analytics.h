@@ -46,6 +46,18 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 namespace OpenMEEG {
 
+    inline double integral_simplified_green(const Vect3& p0x, const double norm2p0x,
+                                            const Vect3& p1x, const double norm2p1x,
+                                            const Vect3& p1p0,const double norm2p1p0) {
+
+        //  The quantity arg is normally >= 1, verifying this relates to a triangular inequality
+        //  between p0, p1 and x.
+        //  Consequently, there is no need of an absolute value in the first case.
+
+        const double arg = (norm2p0x*norm2p1p0-p0x*p1p0)/(norm2p1x*norm2p1p0-p1x*p1p0);
+        return (std::isnormal(arg) && arg>0.0) ? log(arg) : fabs(log(norm2p1x/norm2p0x));
+    }
+
     class OPENMEEG_EXPORT analyticS {
     private:
         Vect3 p0,p1,p2; //!< vertices of the triangle
@@ -101,19 +113,16 @@ namespace OpenMEEG {
         inline double f(const Vect3& x) const
         {
             // analytical value of the internal integral of S operator at point X
-            const Vect3 p1x = p1-x, p2x = p2-x, p0x = p0-x ;
+            const Vect3& p1x = p1-x;
+            const Vect3& p2x = p2-x;
+            const Vect3& p0x = p0-x;
             const double norm2p0x = p0x.norm();
             const double norm2p1x = p1x.norm();
             const double norm2p2x = p2x.norm();
 
-            const double arg0 = (norm2p0x*norm2p1p0-p0x*p1p0)/(norm2p1x*norm2p1p0-p1x*p1p0);
-            const double g0 = (std::isnormal(arg0) && arg0>0.0) ? log(arg0) : fabs(log(norm2p1x/norm2p0x));
-
-            const double arg1 = (norm2p1x*norm2p2p1-p1x*p2p1)/(norm2p2x*norm2p2p1-p2x*p2p1);
-            const double g1 = (std::isnormal(arg1) && arg1>0.0) ? log(arg1) : fabs(log(norm2p2x/norm2p1x));
-
-            const double arg2 = (norm2p2x*norm2p0p2-p2x*p0p2)/(norm2p0x*norm2p0p2-p0x*p0p2);
-            const double g2 = (std::isnormal(arg2) && arg2>0.0) ? log(arg2) : fabs(log(norm2p0x/norm2p2x));
+            const double g0 = integral_simplified_green(p0x,norm2p0x,p1x,norm2p1x,p1p0,norm2p1p0);
+            const double g1 = integral_simplified_green(p1x,norm2p1x,p2x,norm2p2x,p2p1,norm2p2p1);
+            const double g2 = integral_simplified_green(p2x,norm2p2x,p0x,norm2p0x,p0p2,norm2p0p2);
 
             const double alpha = (x-p0)*n ;
             return ((p0x*nu0)*g0+(p1x*nu1)*g1+(p2x*nu2)*g2)-alpha*x.solangl(p0,p1,p2);
@@ -142,41 +151,35 @@ namespace OpenMEEG {
             //Analytical value of the inner integral in operator D. See DeMunck article for further details.
             //  for non-optimized version of operator D
             //  returns the value of the inner integral of operator D on a triangle used for a P1 function
-            Vect3 Y1 = v1-x;
-            Vect3 Y2 = v2-x;
-            Vect3 Y3 = v3-x;
-            double y1 = Y1.norm();
-            double y2 = Y2.norm();
-            double y3 = Y3.norm();
-            double d = Y1*(Y2^Y3);
+            const Vect3& Y1 = v1-x;
+            const Vect3& Y2 = v2-x;
+            const Vect3& Y3 = v3-x;
 
-            double derr = 1e-10;
+            const double y1 = Y1.norm();
+            const double y2 = Y2.norm();
+            const double y3 = Y3.norm();
+            const double d = Y1*(Y2^Y3);
+
+            const double derr = 1e-10;
             if(fabs(d)<derr) return 0.0;
 
-            double omega = 2*atan2(d,(y1*y2*y3+y1*(Y2*Y3)+y2*(Y3*Y1)+y3*(Y1*Y2)));
+            const Vect3 D[3] = { Y1-Y2, Y2-Y3, Y3-Y1 };
+            const double d0 = D[0].norm();
+            const double d1 = D[1].norm();
+            const double d2 = D[2].norm();
 
-            Vect3 Z1 = Y2^Y3;
-            Vect3 Z2 = Y3^Y1;
-            Vect3 Z3 = Y1^Y2;
-            Vect3 D1 = Y2-Y1;
-            Vect3 D2 = Y3-Y2;
-            Vect3 D3 = Y1-Y3;
-            double d1 = D1.norm();
-            double d2 = D2.norm();
-            double d3 = D3.norm();
-            double g1 = -1.0/d1*log((y1*d1+Y1*D1)/(y2*d1+Y2*D1));
-            double g2 = -1.0/d2*log((y2*d2+Y2*D2)/(y3*d2+Y3*D2));
-            double g3 = -1.0/d3*log((y3*d3+Y3*D3)/(y1*d3+Y1*D3));
-            Vect3 N = Z1+Z2+Z3;
-            const double Ainv = 1.0/N.norm2();
-            Vect3 S = D1*g1+D2*g2+D3*g3;
-            double omega_i[3];
-            omega_i[0] = Ainv*(Z1*N*omega+d*(D2*S));
-            omega_i[1] = Ainv*(Z2*N*omega+d*(D3*S));
-            omega_i[2] = Ainv*(Z3*N*omega+d*(D1*S));
-            double result = omega_i[i-1];
+            const double g0 = integral_simplified_green(Y2,y2,Y1,y1,D[0],d0)/d0;
+            const double g1 = integral_simplified_green(Y3,y3,Y2,y2,D[1],d1)/d1;
+            const double g2 = integral_simplified_green(Y1,y1,Y3,y3,D[2],d2)/d2;
 
-            return result;
+            const Vect3 Z[3] = { Y2^Y3, Y3^Y1, Y1^Y2 };
+            const Vect3& N = Z[0]+Z[1]+Z[2];
+
+            const Vect3& S = D[0]*g0+D[1]*g1+D[2]*g2;
+
+            const double omega = 2*atan2(d,(y1*y2*y3+y1*(Y2*Y3)+y2*(Y3*Y1)+y3*(Y1*Y2)));
+
+            return (omega*(Z[i-1]*N)+d*(D[i%3]*S))/N.norm2();
         }
     };
 
