@@ -96,6 +96,13 @@ SET (OPENMEEG_INCLUDE_DIRECTORIES
 INCLUDE_DIRECTORIES(${OPENMEEG_INCLUDE_DIRECTORIES})
 
 #---------------------------------------------------------------
+# Test the C++ compiler features
+#---------------------------------------------------------------
+
+INCLUDE(CheckCXXFeatures)
+CHECK_CXX_STANDARD_LIBRARY()
+
+#---------------------------------------------------------------
 # Setting sources and libraries
 #---------------------------------------------------------------
 

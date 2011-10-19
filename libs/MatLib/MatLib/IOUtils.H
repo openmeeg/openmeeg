@@ -142,7 +142,7 @@ namespace io_utils {
 
         char separator;
 
-        while (is.get(separator) && ((separator==' ') || (separator=='\t'))) ;
+        while (is.get(separator) && ((separator==' ') || (separator=='\t')));
         return is.putback(separator);
     }
 
@@ -347,7 +347,7 @@ namespace io_utils {
     //  Skip everything until string s is found on the stream.
 
     inline std::istream&
-        skip_to_internal(std::istream& is,const char* s)
+    skip_to_internal(std::istream& is,const char* s)
     {
         const char* s1 = s;
 

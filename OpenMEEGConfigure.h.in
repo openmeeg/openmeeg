@@ -22,6 +22,8 @@
    first (like Motorola and SPARC, unlike Intel and VAX). */
 #cmakedefine WORDS_BIGENDIAN
 
+#cmakedefine HAVE_ISNORMAL_IN_NAMESPACE_STD
+
 static const char version[] = "@VERSION_STRING@";
 
 #endif  //  ! OPENMEEGCONFIGURE_H
