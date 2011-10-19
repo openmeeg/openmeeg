@@ -40,9 +40,14 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #ifndef OPENMEEG_ANALYTICS_H
 #define OPENMEEG_ANALYTICS_H
 
-#include <stdio.h>
+#include <mesh3.h>
 
-#include "mesh3.h"
+#ifndef HAVE_ISNORMAL_IN_NAMESPACE_STD
+#include <math.h>
+namespace std {
+    inline bool isnormal(const double x) { return isnormal(x); }
+}
+#endif
 
 namespace OpenMEEG {
 
