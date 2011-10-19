@@ -62,21 +62,20 @@ int main( int argc, char **argv)
     const char *mat = command_option("-mat",(const char *) 0,"Data are matlab format");
     if (command_option("-h",(const char *)0,0)) return 0;
 
-    if(!filename)
-    {
+    if (!filename) {
         cerr << "Please set Matrix File" << endl;
         exit(1);
     }
 
     cout << "Loading : " << filename << endl;
 
-    if(sym) {
-        if(txt) {
+    if (sym) {
+        if (txt) {
             SymMatrix M;
             M.load(filename);
             cout << "Format : ASCII" << endl;
             print_infos(M);
-        } else if(mat) {
+        } else if (mat) {
             cerr << "Unsupported Format : MAT for symmetric matrices" << endl;
             exit(1);
         } else {
@@ -85,13 +84,13 @@ int main( int argc, char **argv)
             cout << "Format : BINARY" << endl;
             print_infos(M);
         }
-    } else if(sparse) {
-        if(txt) {
+    } else if (sparse) {
+        if (txt) {
             SparseMatrix M;
             M.load(filename);
             cout << "Format : ASCII" << endl;
             print_infos(M);
-        } else if(mat) {
+        } else if (mat) {
             SparseMatrix M;
             M.load(filename);
             cout << "Format : MAT" << endl;
@@ -103,12 +102,12 @@ int main( int argc, char **argv)
             print_infos(M);
         }
     } else {
-        if(txt) {
+        if (txt) {
             Matrix M;
             M.load(filename);
             cout << "Format : ASCII" << endl;
             print_infos(M);
-        } else if(mat) {
+        } else if (mat) {
             Matrix M;
             M.load(filename);
             cout << "Format : MAT" << endl;
@@ -126,7 +125,7 @@ int main( int argc, char **argv)
 
 template<class T>
 void print_infos(const T& M) {
-    if ((M.nlin() == 0) && (M.ncol() == 0)) {
+    if ((M.nlin()==0) && (M.ncol()==0)) {
         cout << "Matrix Empty" << endl;
         return;
     }
@@ -140,15 +139,13 @@ void print_infos(const T& M) {
     size_t minj = 0;
     size_t maxj = 0;
 
-    for(size_t i = 0; i < M.nlin(); ++i)
-    {
-        for(size_t j = 0; j < M.ncol(); ++j)
-        {
+    for(size_t i = 0; i<M.nlin(); ++i) {
+        for(size_t j = 0; j<M.ncol(); ++j) {
             if (minv > M(i,j)) {
                 minv = M(i,j);
                 mini = i;
                 minj = j;
-            } else if (maxv < M(i,j)) {
+            } else if (maxv<M(i,j)) {
                 maxv = M(i,j);
                 maxi = i;
                 maxj = j;
@@ -159,10 +156,8 @@ void print_infos(const T& M) {
     cout << "Max Value : " << maxv << " (" << maxi << "," << maxj << ")" << endl;
 
     cout << "First Values" << endl;
-    for(size_t i = 0; i < std::min(M.nlin(),(size_t) 10); ++i)
-    {
-        for(size_t j = 0; j < std::min(M.ncol(),(size_t) 10); ++j)
-        {
+    for(size_t i = 0; i<std::min(M.nlin(),(size_t) 10); ++i) {
+        for(size_t j = 0; j<std::min(M.ncol(),(size_t) 10); ++j) {
             cout << M(i,j) << " " ;
         }
         cout << endl ;
