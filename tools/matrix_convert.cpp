@@ -37,25 +37,39 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#include "symmatrix.h"
-#include "matrix.h"
-#include "sparse_matrix.h"
-#include "fast_sparse_matrix.h"
-
-#include "options.h"
+#include <symmatrix.h>
+#include <matrix.h>
+#include <sparse_matrix.h>
+#include <fast_sparse_matrix.h>
+#include <fstream>
+#include <options.h>
 
 using namespace std;
 using namespace OpenMEEG;
 
-int main( int argc, char **argv)
-{
+template <typename MATRIX>
+void conversion(maths::ifstream& ifs,const char* input_format,maths::ofstream& ofs,const char* output_format,const char* output_filename) {
+    MATRIX M;
+    if (input_format)
+        ifs >> maths::format(input_format) >> M;
+    else
+        ifs >> M;
+
+    if (output_format)
+        ofs << maths::format(output_format) << M;
+    else
+        ofs << maths::format(output_filename,maths::format::FromSuffix) << M;
+}
+
+int main(int argc, char **argv) try {
+
     print_version(argv[0]);
 
-    command_usage("Convert full matrices between different formats");
-    const char *input_filename = command_option("-i",(const char *) NULL,"Input full Matrix");
-    const char *output_filename = command_option("-o",(const char *) NULL,"Output full Matrix");
-    const char *input_format = command_option("-if",(const char *) NULL,"Input file format : ascii, binary, tex, matlab");
-    const char *output_format = command_option("-of",(const char *) NULL,"Output file format : ascii, binary, tex, matlab");
+    command_usage("Convert full/sparse/symmetric vectors/matrices between different formats");
+    const char* input_filename = command_option("-i",(const char *) NULL,"Input matrix/vector");
+    const char* output_filename = command_option("-o",(const char *) NULL,"Output matrix/vector");
+    const char* input_format = command_option("-if",(const char *) NULL,"Input file format : ascii, binary, tex, matlab");
+    const char* output_format = command_option("-of",(const char *) NULL,"Output file format : ascii, binary, tex, matlab");
     if (command_option("-h",(const char *)0,0)) return 0;
 
     if(argc<2 || !input_filename || !output_filename) {
@@ -63,26 +77,49 @@ int main( int argc, char **argv)
         return 1;
     }
 
-    Matrix M;
     maths::ifstream ifs(input_filename);
     maths::ofstream ofs(output_filename);
 
-    try
-    {
-        if(input_format) {
-            ifs >> maths::format(input_format) >> M;
-        } else {
-            ifs >> M;
-        }
-
-        if(output_format) {
-            ofs << maths::format(output_format) << M;
-        } else {
-            ofs << maths::format(output_filename,maths::format::FromSuffix) << M;
-        }
-    } catch (std::string s) {
-        std::cerr << s << std::endl;
+    try {
+        conversion<Vector>(ifs,input_format,ofs,output_format,output_filename);
+        return 0;
+    } catch (OpenMEEG::maths::BadStorageType&) {
+        //  Ignore storage type problems as they will tried in sequence.
+    } catch (...) {
+        throw;
     }
 
-    return 0;
+    try {
+        conversion<Matrix>(ifs,input_format,ofs,output_format,output_filename);
+        return 0;
+    } catch (OpenMEEG::maths::BadStorageType&) {
+        //  Ignore storage type problems as they will tried in sequence.
+    } catch (...) {
+        throw;
+    }
+
+    try {
+        conversion<SymMatrix>(ifs,input_format,ofs,output_format,output_filename);
+        return 0;
+    } catch (OpenMEEG::maths::BadStorageType&) {
+    } catch (...) {
+        throw;
+    }
+
+    try {
+        conversion<SparseMatrix>(ifs,input_format,ofs,output_format,output_filename);
+        return 0;
+    } catch (OpenMEEG::maths::BadStorageType&) {
+    } catch (...) {
+        throw;
+    }
+
+    throw OpenMEEG::maths::ImpossibleObjectIdentification(input_filename);
+
+} catch(OpenMEEG::maths::Exception& e) {
+    std::cerr << e.what() << std::endl;
+    return e.code();
+} catch (std::exception& e) {
+    std::cerr << e.what() << std::endl;
+    return -1;
 }
