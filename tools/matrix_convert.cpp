@@ -85,6 +85,8 @@ int main(int argc, char **argv) try {
         return 0;
     } catch (OpenMEEG::maths::BadStorageType&) {
         //  Ignore storage type problems as they will tried in sequence.
+    } catch (OpenMEEG::maths::BadContent&) {
+        //  Bad content type may mean that this another type of matrix/vector.
     } catch (...) {
         throw;
     }
@@ -94,6 +96,8 @@ int main(int argc, char **argv) try {
         return 0;
     } catch (OpenMEEG::maths::BadStorageType&) {
         //  Ignore storage type problems as they will tried in sequence.
+    } catch (OpenMEEG::maths::BadContent&) {
+        //  Bad content type may mean that this another type of matrix/vector.
     } catch (...) {
         throw;
     }
@@ -102,6 +106,9 @@ int main(int argc, char **argv) try {
         conversion<SymMatrix>(ifs,input_format,ofs,output_format,output_filename);
         return 0;
     } catch (OpenMEEG::maths::BadStorageType&) {
+        //  Ignore storage type problems as they will tried in sequence.
+    } catch (OpenMEEG::maths::BadContent&) {
+        //  Bad content type may mean that this another type of matrix/vector.
     } catch (...) {
         throw;
     }
@@ -110,6 +117,9 @@ int main(int argc, char **argv) try {
         conversion<SparseMatrix>(ifs,input_format,ofs,output_format,output_filename);
         return 0;
     } catch (OpenMEEG::maths::BadStorageType&) {
+        //  Ignore storage type problems as they will tried in sequence.
+    } catch (OpenMEEG::maths::BadContent&) {
+        //  Bad content type may mean that this another type of matrix/vector.
     } catch (...) {
         throw;
     }
