@@ -31,4 +31,10 @@ TARGET_LINK_LIBRARIES (om_check_geom OpenMEEG)
 ADD_EXECUTABLE(om_mesh_to_dip mesh_to_dip.cpp)
 TARGET_LINK_LIBRARIES (om_mesh_to_dip OpenMEEG)
 
+IF(USE_CGAL)
+    ADD_EXECUTABLE(om_cgal_mesh_create cgal_mesh_create.cpp)
+    TARGET_LINK_LIBRARIES (om_cgal_mesh_create OpenMEEG ${CGAL_LIBRARIES})
+    INSTALL(TARGETS om_cgal_mesh_create DESTINATION bin)
+ENDIF()
+
 INSTALL(TARGETS om_make_nerve om_mesh_convert om_mesh_concat om_mesh_info om_mesh_smooth om_register_squids om_squids2vtk om_matrix_info om_matrix_convert om_check_geom om_mesh_to_dip DESTINATION bin)

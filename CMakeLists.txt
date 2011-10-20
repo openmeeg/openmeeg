@@ -68,6 +68,7 @@ TEST_BIG_ENDIAN(WORDS_BIGENDIAN)
 # External Libraries
 #######################################################################
 
+INCLUDE(CgalOption)
 INCLUDE(VtkOption)
 INCLUDE(GiftiOption)
 INCLUDE(UseMatio)

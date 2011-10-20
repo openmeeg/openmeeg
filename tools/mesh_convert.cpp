@@ -113,14 +113,7 @@ int main( int argc, char **argv)
     if(invert)
     {
         cout << "Running face flipping" << endl;
-
-        for( int i = 0; i < M.nbTrgs(); ++i )
-        {
-            Triangle& t = M.triangle(i);
-            int tmp = t[1];
-            t[1] = t[0];
-            t[0] = tmp;
-        }
+        M.flip_faces();
     }
 
     M.save(output_filename);

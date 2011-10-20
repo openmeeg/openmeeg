@@ -127,10 +127,12 @@ private:
     void save_off(const char*) const;
     void save_mesh(const char*) const;
 
+public:
+
     void update_triangles();
     void recompute_normals();
+    void flip_faces();
 
-public:
 
     enum Filetype { VTK, TRI, BND, MESH, OFF, GIFTI };
 

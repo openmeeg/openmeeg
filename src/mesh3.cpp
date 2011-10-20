@@ -137,6 +137,16 @@ namespace OpenMEEG {
         }
     }
 
+    void Mesh::flip_faces() {
+        for( int i = 0; i < ntrgs; ++i )
+        {
+            Triangle& t = trgs[i];
+            int tmp = t[1];
+            t[1] = t[0];
+            t[0] = tmp;
+        }
+    }
+
     void Mesh::get_file_format(const char* filename) {
 
         std::string extension = getNameExtension(filename);
@@ -204,6 +214,7 @@ namespace OpenMEEG {
         }
 
         vtkDataArray *normalsData = vtkMesh->GetPointData()->GetNormals();
+
         assert(npts == normalsData->GetNumberOfTuples());
 
         assert(3 == normalsData->GetNumberOfComponents());
@@ -894,7 +905,6 @@ namespace OpenMEEG {
     }
 
     Vector Mesh::areas() const {
-
         Vector my_areas(nbTrgs());
         for(int i = 0; i < nbTrgs(); ++i)
             my_areas(i) = triangle(i).getArea();
@@ -903,7 +913,6 @@ namespace OpenMEEG {
     }
 
     void Mesh::update_triangles() {
-
         for(int i = 0; i < ntrgs; ++i) {
             trgs[i].normal() = pts[trgs[i][0]].normal( pts[trgs[i][1]] , pts[trgs[i][2]] );
             trgs[i].area() = trgs[i].normal().norm() / 2.0;
