@@ -119,6 +119,7 @@ namespace OpenMEEG {
         inline double& operator()(size_t i,size_t j) ;
 
         Matrix submat(size_t istart, size_t isize, size_t jstart, size_t jsize) const;
+        void insertmat(size_t istart, size_t jstart, const Matrix& B);
         Vector getcol(size_t j) const;
         void setcol(size_t j, const Vector& v);
         Vector getlin(size_t i) const;
@@ -232,6 +233,15 @@ namespace OpenMEEG {
     #endif
         }
         return a;
+    }
+
+    inline void Matrix::insertmat(size_t istart, size_t jstart, const Matrix& B) {
+        assert (istart+B.nlin()<=nlin() && jstart+B.ncol()<=ncol() );
+        for (size_t j=0; j<B.ncol(); j++) {
+            for (size_t i=0; i<B.nlin(); i++) {
+                (*this)(istart+i,jstart+j)=B(i,j);
+            }
+        }
     }
 
     inline Vector Matrix::getcol(size_t j) const {

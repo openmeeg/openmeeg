@@ -86,6 +86,7 @@ namespace OpenMEEG {
         bool selfCheck() const;
         bool check(const Mesh& m) const;
         int  getDomain(const Vect3& p) const;
+        Geometry getSubGeom(int i) const; // needed for using domain decomposition methods
 
     private:
         void destroy() {

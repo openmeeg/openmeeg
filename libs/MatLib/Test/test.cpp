@@ -108,6 +108,13 @@ int main ()
     cout << "Matrice Q : " << endl;
     Q.info();
 
+    Matrix M1 = M;
+    M1.insertmat(3,1,Q); // insert submatrix
+    if(abs((M1-M).frobenius_norm()) > 1e-10) {
+        cerr << "Error: insert matrix is WRONG" << endl;
+        exit(1);
+    }
+
     Matrix P(3,3);
     P(0,0) = 25 ; P(0,1) = 3 ; P(0,2) = 6 ;
     P(1,0) = 12 ; P(1,1) = 5 ; P(1,2) = 32 ;

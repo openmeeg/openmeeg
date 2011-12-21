@@ -172,4 +172,23 @@ namespace OpenMEEG {
         return -1; // should never be reached
     }
 
+    Geometry Geometry::getSubGeom(int i) const {
+
+        assert(i>-1 && i<=n);
+
+        Geometry subgeom;
+        subgeom.n = i;
+        subgeom.m_size = 0;
+        subgeom.sigin  = new double[subgeom.n];
+        subgeom.sigout = new double[subgeom.n];
+        subgeom.M = new Mesh[subgeom.n];
+        for (int j = 0 ; j < i ; j++) {
+            subgeom.sigin[j] = sigin[j];
+            subgeom.sigout[j] = sigout[j];
+            subgeom.M[j] = M[j];
+            subgeom.m_size += M[j].nbPts()+M[j].nbTrgs(); // Number of triangles + Number of points
+        }
+        subgeom.has_cond = this->has_cond;
+        return subgeom;
+    }
 }
