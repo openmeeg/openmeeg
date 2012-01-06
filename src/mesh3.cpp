@@ -215,10 +215,16 @@ namespace OpenMEEG {
 
         vtkDataArray *normalsData = vtkMesh->GetPointData()->GetNormals();
 
-        assert(npts == normalsData->GetNumberOfTuples());
+        if (npts!=normalsData->GetNumberOfTuples()) {
+            std::cerr << "Error: number of points is not equal to number of normals in vtk file, correct or remove the normals." << std::endl;
+            exit(1);
+        }
 
-        assert(3 == normalsData->GetNumberOfComponents());
-
+        if (normalsData->GetNumberOfComponents()!=3) {
+            std::cerr << "Error: wrong number of components of normals in vtk file, correct or remove the normals." << std::endl;
+            exit(1);
+        }
+            
         for (int i = 0; i<npts; i++) {
             pts[i].x() = vtkMesh->GetPoint(i)[0];
             pts[i].y() = vtkMesh->GetPoint(i)[1];
