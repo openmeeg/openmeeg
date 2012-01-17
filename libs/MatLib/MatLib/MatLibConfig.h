@@ -106,6 +106,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #endif
 
 #if defined(HAVE_BLAS) && !defined(USE_ATLAS) && !defined(USE_ACML)
+
 #ifndef USE_MKL
     #define CblasColMajor
     #define CblasTrans 'T'
@@ -115,10 +116,8 @@ knowledge of the CeCILL-B license and that you accept its terms.
     #define CblasUpper 'U'
     #define BLAS(x,X) FC_GLOBAL(x,X)
     #define LAPACK(x,X) FC_GLOBAL(x,X)
-#endif
 
     extern "C" {
-#ifndef USE_MKL
         void BLAS(dcopy,DCOPY)(const int&,const double*,const int&,double*,const int&);
         void BLAS(daxpy,DAXPY)(const int&,const double&,const double*,const int&,double*,const int&);
         double BLAS(ddot,DDOT)(const int&,const double*,const int&,const double*,const int&);
@@ -126,14 +125,18 @@ knowledge of the CeCILL-B license and that you accept its terms.
         void BLAS(dscal,DSCAL)(const int&,const double&,double*,const int&);
         void BLAS(dspmv,DSPMV)(const char&,const int&,const double&,const double*,const double*,const int&,const double&,double*,const int&);
         void BLAS(dtpmv,DTPMV)(const char&,const char&,const char&,const int&,const double*,double*,const int&);
-        void BLAS(dsymm,DSYMM)(const char&,const char&,const int&,const int&,const double&,const double*,const int&,const double*,const int&, const double*,double*,const int&);
+        void BLAS(dsymm,DSYMM)(const char&,const char&,const int&,const int&,const double&,const double*,const int&,const double*,const int&, const double&,double*,const int&);
         void BLAS(dgemm,DGEMM)(const char&,const char&,const int&,const int&,const int&,const double&,const double*,const int&,const double*,const int&,const double&,double*,const int&);
         void BLAS(dtrmm,DTRMM)(const char&,const char&,const char&,const char&,const int&,const int&,const double&,const double*,const int&,const double*,const int&);
         void BLAS(dgemv,DGEMV)(const char&,const int&,const int&,const double&,const double*,const int&,const double*,const int&,const double&,double*,const int&);
+    }
 #endif
+
+    extern "C" {
         void LAPACK(dgetrf,DGETRF)(const int&,const int&,double*,const int&,int*,int&);
         void LAPACK(dgetri,DGETRI)(const int&,double*,const int&,int*,double*,const int&,int&);
     }
+
 #endif
 
 #if defined(HAVE_LAPACK)

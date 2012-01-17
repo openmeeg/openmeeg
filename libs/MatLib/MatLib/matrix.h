@@ -431,15 +431,13 @@ namespace OpenMEEG {
 
     #ifdef HAVE_BLAS
         Matrix D(B);
-        DSYMM(CblasRight,  CblasUpper
-            , (int)nlin(), (int)D.ncol(),
-            1. , D.data(), (int)D.ncol(),
-            data(), (int)nlin(),
-            0, C.data(),(int)C.nlin());
+        const int n = nlin();
+        const int m = D.ncol();
+        const int l = C.nlin();
+        DSYMM(CblasRight,CblasUpper,n,m,1.,D.data(),m,data(),n,0.,C.data(),l);
     #else
         for (size_t j=0;j<B.ncol();j++)
-            for (size_t i=0;i<ncol();i++)
-            {
+            for (size_t i=0;i<ncol();i++) {
                 C(i,j)=0;
                 for (size_t k=0;k<ncol();k++)
                     C(i,j)+=(*this)(i,k)*B(k,j);
