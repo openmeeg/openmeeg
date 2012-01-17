@@ -166,7 +166,7 @@ namespace OpenMEEG {
     }
 
     inline void print_version(const char* cmd) {
-        std::cout << cmd <<" version " << version << " compiled at " << __DATE__ << " " << __TIME__ << std::endl << std::endl;
+        std::cout << cmd << " version " << version << " compiled at " << __DATE__ << " " << __TIME__ << std::endl << std::endl;
     }
 }
 

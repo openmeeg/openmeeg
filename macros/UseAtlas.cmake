@@ -1,4 +1,4 @@
-IF (WIN32)       # WINDOWS
+IF (WIN32)
 #        OPTION(USE_ATLAS "Build the project using ATLAS" OFF)
         OPTION(USE_MKL "Build the project with MKL" ON)
         MARK_AS_ADVANCED(USE_MKL)
