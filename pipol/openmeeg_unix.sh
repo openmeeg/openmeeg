@@ -52,7 +52,7 @@ if [ x$SYSTEM = xLinux ] ; then
     fi
 fi
 
-# Blas Lapack
+# Blas Lapack (Atlas)
 cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON -DENABLE_PACKAGING=ON -DENABLE_PYTHON=ON -DUSE_PROGRESSBAR=ON -DUSE_OMP=${OMP} .
 build
 
