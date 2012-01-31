@@ -3,7 +3,7 @@
 arch=`uname`
 
 if [ -e /usr/bin/apt-get ] ; then
-    sudo apt-get -y install subversion
+    sudo apt-get -y install git-core
     sudo apt-get -y install gcc
     sudo apt-get -y install g++
     sudo apt-get -y install make
@@ -20,7 +20,7 @@ if [ -e /usr/bin/apt-get ] ; then
 else
 	if [ -e /usr/bin/yum ] ; then
 		sudo yum -y update
-	    sudo yum -y install subversion
+	    sudo yum -y install git-core
 	    sudo yum -y install gcc
 	    sudo yum -y install make
 	    sudo yum -y install cmake
@@ -37,7 +37,7 @@ else
     fi
 fi
 
-which_svn=`which svn`		#svn necessary
+which_git=`which git`		#git necessary
 which_gcc=`which gcc`		#gcc gcc necessary
 which_gpp=`which g++`		#gcc g++ necessary
 which_make=`which make`		#make necessary
@@ -49,6 +49,6 @@ echo $which_unzip
 echo $which_make
 echo $which_gcc
 echo $which_gpp
-echo $which_svn
+echo $which_git
 echo $which_wget
 echo $which_perl

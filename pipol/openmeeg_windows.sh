@@ -37,10 +37,11 @@ function build_and_test() {
     # 5) Cleaning the projet
     cd ${TEMP}
 
-    svn checkout svn://scm.gforge.inria.fr/svn/openmeeg/trunk openmeeg-trunk --quiet
-    svn checkout svn://scm.gforge.inria.fr/svn/openmeeg/win32addons win32addons --quiet
+    BRANCH=master
+    git clone git://github.com/openmeeg/openmeeg.git
+    git checkout ${BRANCH}
 
-    cd openmeeg-trunk
+    cd openmeeg
     rm -Rf ./build
     mkdir build
     cd build
@@ -77,6 +78,6 @@ function build_and_test() {
     /cygdrive/c/CMake\ $VERSION/bin/cpack.exe -G "TGZ"
 
     # 14) Save the package
-    mkdir -p $PIPOL_HOMEDIR/.pipol/packages/openmeeg-trunk
-    cp OpenMEEG-*.* $PIPOL_HOMEDIR/.pipol/packages/openmeeg-trunk
+    mkdir -p $PIPOL_HOMEDIR/.pipol/packages/openmeeg-${BRANCH}
+    cp OpenMEEG-*.* $PIPOL_HOMEDIR/.pipol/packages/openmeeg-${BRANCH}
 }

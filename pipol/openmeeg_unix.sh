@@ -13,12 +13,14 @@ else
 fi
 cd ./pipol/$PIPOL_HOST
 
-svn checkout svn://scm.gforge.inria.fr/svn/openmeeg/trunk openmeeg-trunk --quiet
+BRANCH=master
+git clone git://github.com/openmeeg/openmeeg.git
+git checkout ${BRANCH}
 
-sh ./openmeeg-trunk/pipol/install_packages.sh
-perl ./openmeeg-trunk/pipol/cmake.pl
+sh ./openmeeg/pipol/install_packages.sh
+perl ./openmeeg/pipol/cmake.pl
 
-cd openmeeg-trunk
+cd openmeeg
 
 # Handle MKL
 if [ x$SYSTEM = xDarwin ] ; then
@@ -39,10 +41,10 @@ function build {
     ctest -D ExperimentalSubmit
     make package
     make clean
-    mv OpenMEEG*tar.gz ~/.pipol/packages/openmeeg-trunk
-    mv OpenMEEG*dmg* ~/.pipol/packages/openmeeg-trunk
-    mv OpenMEEG*rpm* ~/.pipol/packages/openmeeg-trunk
-    mv OpenMEEG*deb* ~/.pipol/packages/openmeeg-trunk
+    mv OpenMEEG*tar.gz ~/.pipol/packages/openmeeg-${BRANCH}
+    mv OpenMEEG*dmg* ~/.pipol/packages/openmeeg-${BRANCH}
+    mv OpenMEEG*rpm* ~/.pipol/packages/openmeeg-${BRANCH}
+    mv OpenMEEG*deb* ~/.pipol/packages/openmeeg-${BRANCH}
 }
 
 OMP=OFF
