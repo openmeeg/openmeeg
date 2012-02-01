@@ -11,8 +11,8 @@ cp openmeeg_unix.sh $file
 if [ x$1 == "x-release" ]; then
     file2=`mktemp -t tmp`
     file3=`mktemp -t tmp`
-    sed "s/openmeeg\/trunk/openmeeg\/branches\/release-$2/g" $file > $file2
-    sed "s/openmeeg-trunk/openmeeg-release-$2/g" $file2 > $file3
+    sed "s/master/$2/g" $file > $file2
+    sed "s/master/$2/g" $file2 > $file3
     rm $file2
     mv $file3 $file
 fi
