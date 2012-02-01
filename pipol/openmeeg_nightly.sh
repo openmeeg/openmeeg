@@ -20,12 +20,12 @@ else
 fi
 cd ./pipol/$PIPOL_HOST
 
-svn checkout svn://scm.gforge.inria.fr/svn/openmeeg/trunk openmeeg-trunk --quiet
+git clone git://github.com/openmeeg/openmeeg.git
 
-sh ./openmeeg-trunk/pipol/install_packages.sh
-perl ./openmeeg-trunk/pipol/cmake.pl
+sh ./openmeeg/pipol/install_packages.sh
+perl ./openmeeg/pipol/cmake.pl
 
-cd openmeeg-trunk
+cd openmeeg
 
 # Handle MKL
 if [ x$SYSTEM = xDarwin ] ; then
