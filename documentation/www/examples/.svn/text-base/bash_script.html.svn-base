@@ -1,0 +1,130 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+   "http://www.w3.org/TR/html4/strict.dtd">
+
+<html>
+<head>
+  <title></title>
+  <meta http-equiv="content-type" content="text/html; charset=latin1">
+  <style type="text/css">
+td.linenos { background-color: #f0f0f0; padding-right: 10px; }
+span.lineno { background-color: #f0f0f0; padding: 0 5px 0 5px; }
+pre { line-height: 125%; }
+body .hll { background-color: #ffffcc }
+body  { background: #f8f8f8; }
+body .c { color: #408080; font-style: italic } /* Comment */
+body .err { border: 1px solid #FF0000 } /* Error */
+body .k { color: #008000; font-weight: bold } /* Keyword */
+body .o { color: #666666 } /* Operator */
+body .cm { color: #408080; font-style: italic } /* Comment.Multiline */
+body .cp { color: #BC7A00 } /* Comment.Preproc */
+body .c1 { color: #408080; font-style: italic } /* Comment.Single */
+body .cs { color: #408080; font-style: italic } /* Comment.Special */
+body .gd { color: #A00000 } /* Generic.Deleted */
+body .ge { font-style: italic } /* Generic.Emph */
+body .gr { color: #FF0000 } /* Generic.Error */
+body .gh { color: #000080; font-weight: bold } /* Generic.Heading */
+body .gi { color: #00A000 } /* Generic.Inserted */
+body .go { color: #808080 } /* Generic.Output */
+body .gp { color: #000080; font-weight: bold } /* Generic.Prompt */
+body .gs { font-weight: bold } /* Generic.Strong */
+body .gu { color: #800080; font-weight: bold } /* Generic.Subheading */
+body .gt { color: #0040D0 } /* Generic.Traceback */
+body .kc { color: #008000; font-weight: bold } /* Keyword.Constant */
+body .kd { color: #008000; font-weight: bold } /* Keyword.Declaration */
+body .kn { color: #008000; font-weight: bold } /* Keyword.Namespace */
+body .kp { color: #008000 } /* Keyword.Pseudo */
+body .kr { color: #008000; font-weight: bold } /* Keyword.Reserved */
+body .kt { color: #B00040 } /* Keyword.Type */
+body .m { color: #666666 } /* Literal.Number */
+body .s { color: #BA2121 } /* Literal.String */
+body .na { color: #7D9029 } /* Name.Attribute */
+body .nb { color: #008000 } /* Name.Builtin */
+body .nc { color: #0000FF; font-weight: bold } /* Name.Class */
+body .no { color: #880000 } /* Name.Constant */
+body .nd { color: #AA22FF } /* Name.Decorator */
+body .ni { color: #999999; font-weight: bold } /* Name.Entity */
+body .ne { color: #D2413A; font-weight: bold } /* Name.Exception */
+body .nf { color: #0000FF } /* Name.Function */
+body .nl { color: #A0A000 } /* Name.Label */
+body .nn { color: #0000FF; font-weight: bold } /* Name.Namespace */
+body .nt { color: #008000; font-weight: bold } /* Name.Tag */
+body .nv { color: #19177C } /* Name.Variable */
+body .ow { color: #AA22FF; font-weight: bold } /* Operator.Word */
+body .w { color: #bbbbbb } /* Text.Whitespace */
+body .mf { color: #666666 } /* Literal.Number.Float */
+body .mh { color: #666666 } /* Literal.Number.Hex */
+body .mi { color: #666666 } /* Literal.Number.Integer */
+body .mo { color: #666666 } /* Literal.Number.Oct */
+body .sb { color: #BA2121 } /* Literal.String.Backtick */
+body .sc { color: #BA2121 } /* Literal.String.Char */
+body .sd { color: #BA2121; font-style: italic } /* Literal.String.Doc */
+body .s2 { color: #BA2121 } /* Literal.String.Double */
+body .se { color: #BB6622; font-weight: bold } /* Literal.String.Escape */
+body .sh { color: #BA2121 } /* Literal.String.Heredoc */
+body .si { color: #BB6688; font-weight: bold } /* Literal.String.Interpol */
+body .sx { color: #008000 } /* Literal.String.Other */
+body .sr { color: #BB6688 } /* Literal.String.Regex */
+body .s1 { color: #BA2121 } /* Literal.String.Single */
+body .ss { color: #19177C } /* Literal.String.Symbol */
+body .bp { color: #008000 } /* Name.Builtin.Pseudo */
+body .vc { color: #19177C } /* Name.Variable.Class */
+body .vg { color: #19177C } /* Name.Variable.Global */
+body .vi { color: #19177C } /* Name.Variable.Instance */
+body .il { color: #666666 } /* Literal.Number.Integer.Long */
+
+  </style>
+</head>
+<body>
+<h2></h2>
+
+<div class="highlight"><pre><span class="c">#!/usr/bin/env bash</span>
+
+<span class="nv">GEOMETRY</span><span class="o">=</span>head_model.geom
+<span class="nv">CONDUCTIVITIES</span><span class="o">=</span>head_model.cond
+<span class="nv">DIPOLES</span><span class="o">=</span>cortex_dipoles.txt
+<span class="nv">EEG_ELECTRODES</span><span class="o">=</span>eeg_channels_locations.txt
+<span class="nv">SQUIDS</span><span class="o">=</span>meg_channels_locations.squids
+<span class="nv">INTERNAL_ELECTRODES</span><span class="o">=</span>internal_electrodes_locations.txt
+
+<span class="c"># Leadfields</span>
+<span class="nv">EEG_LEADFIELD</span><span class="o">=</span>eeg_leadfield.mat
+<span class="nv">MEG_LEADFIELD</span><span class="o">=</span>meg_leadfield.mat
+<span class="nv">EIT_LEADFIELD</span><span class="o">=</span>eit_leadfield.mat
+<span class="nv">IP_LEADFIELD</span><span class="o">=</span>ip_leadfield.mat
+
+<span class="c"># Name temporary matrices</span>
+<span class="nv">HM</span><span class="o">=</span>tmp/tmp.hm           <span class="c"># For EEG and MEG</span>
+<span class="nv">HMINV</span><span class="o">=</span>tmp/tmp.hm_inv    <span class="c"># For EEG and MEG</span>
+<span class="nv">DSM</span><span class="o">=</span>tmp/tmp.dsm         <span class="c"># For EEG and MEG</span>
+<span class="nv">H2EM</span><span class="o">=</span>tmp/tmp.h2em       <span class="c"># For EEG</span>
+<span class="nv">H2MM</span><span class="o">=</span>tmp/tmp.h2mm       <span class="c"># For MEG</span>
+<span class="nv">DS2MEG</span><span class="o">=</span>tmp/tmp.ds2mm    <span class="c"># For MEG</span>
+<span class="nv">EITSM</span><span class="o">=</span>tmp/tmp.eitsm     <span class="c"># For EIT</span>
+<span class="nv">IPHM</span><span class="o">=</span>tmp/tmp.iphm       <span class="c"># For IP</span>
+<span class="nv">IPSM</span><span class="o">=</span>tmp/tmp.ipsm       <span class="c"># For IP</span>
+
+mkdir -p tmp
+
+<span class="c"># Compute EEG gain matrix</span>
+om_assemble -HM <span class="k">${</span><span class="nv">GEOMETRY</span><span class="k">}</span> <span class="k">${</span><span class="nv">CONDUCTIVITIES</span><span class="k">}</span> <span class="k">${</span><span class="nv">HM</span><span class="k">}</span>
+om_minverser <span class="k">${</span><span class="nv">HM</span><span class="k">}</span> <span class="k">${</span><span class="nv">HMINV</span><span class="k">}</span>
+om_assemble -DSM <span class="k">${</span><span class="nv">GEOMETRY</span><span class="k">}</span> <span class="k">${</span><span class="nv">CONDUCTIVITIES</span><span class="k">}</span> <span class="k">${</span><span class="nv">DIPOLES</span><span class="k">}</span> <span class="k">${</span><span class="nv">DSM</span><span class="k">}</span>
+om_assemble -H2EM <span class="k">${</span><span class="nv">GEOMETRY</span><span class="k">}</span> <span class="k">${</span><span class="nv">CONDUCTIVITIES</span><span class="k">}</span> <span class="k">${</span><span class="nv">EEG_ELECTRODES</span><span class="k">}</span> <span class="k">${</span><span class="nv">H2EM</span><span class="k">}</span>
+om_gain -EEG <span class="k">${</span><span class="nv">HMINV</span><span class="k">}</span> <span class="k">${</span><span class="nv">DSM</span><span class="k">}</span> <span class="k">${</span><span class="nv">H2EM</span><span class="k">}</span> <span class="k">${</span><span class="nv">EEG_LEADFIELD</span><span class="k">}</span>
+
+<span class="c"># Compute MEG gain matrix</span>
+om_assemble -H2MM <span class="k">${</span><span class="nv">GEOMETRY</span><span class="k">}</span> <span class="k">${</span><span class="nv">CONDUCTIVITIES</span><span class="k">}</span> <span class="k">${</span><span class="nv">SQUIDS</span><span class="k">}</span> <span class="k">${</span><span class="nv">H2MM</span><span class="k">}</span>
+om_assemble -DS2MM <span class="k">${</span><span class="nv">DIPOLES</span><span class="k">}</span> <span class="k">${</span><span class="nv">SQUIDS</span><span class="k">}</span> <span class="k">${</span><span class="nv">DS2MEG</span><span class="k">}</span>
+om_gain -MEG <span class="k">${</span><span class="nv">HMINV</span><span class="k">}</span> <span class="k">${</span><span class="nv">DSM</span><span class="k">}</span> <span class="k">${</span><span class="nv">H2MM</span><span class="k">}</span> <span class="k">${</span><span class="nv">DS2MEG</span><span class="k">}</span> <span class="k">${</span><span class="nv">MEG_LEADFIELD</span><span class="k">}</span>
+
+<span class="c"># Compute EIT gain matrix</span>
+om_assemble -EITSM <span class="k">${</span><span class="nv">GEOMETRY</span><span class="k">}</span> <span class="k">${</span><span class="nv">CONDUCTIVITIES</span><span class="k">}</span> <span class="k">${</span><span class="nv">EEG_ELECTRODES</span><span class="k">}</span> <span class="k">${</span><span class="nv">EITSM</span><span class="k">}</span>
+om_gain -EEG <span class="k">${</span><span class="nv">HMINV</span><span class="k">}</span> <span class="k">${</span><span class="nv">EITSM</span><span class="k">}</span> <span class="k">${</span><span class="nv">H2EM</span><span class="k">}</span> <span class="k">${</span><span class="nv">EIT_LEADFIELD</span><span class="k">}</span>
+
+<span class="c"># Compute Internal Potential</span>
+om_assemble -H2IPM <span class="k">${</span><span class="nv">GEOMETRY</span><span class="k">}</span> <span class="k">${</span><span class="nv">CONDUCTIVITIES</span><span class="k">}</span> <span class="k">${</span><span class="nv">INTERNAL_ELECTRODES</span><span class="k">}</span> <span class="k">${</span><span class="nv">IPHM</span><span class="k">}</span>
+om_assemble -DS2IPM <span class="k">${</span><span class="nv">GEOMETRY</span><span class="k">}</span> <span class="k">${</span><span class="nv">CONDUCTIVITIES</span><span class="k">}</span> <span class="k">${</span><span class="nv">DIPOLES</span><span class="k">}</span> <span class="k">${</span><span class="nv">INTERNAL_ELECTRODES</span><span class="k">}</span> <span class="k">${</span><span class="nv">IPSM</span><span class="k">}</span>
+om_gain -IP <span class="k">${</span><span class="nv">HMINV</span><span class="k">}</span> <span class="k">${</span><span class="nv">DSM</span><span class="k">}</span> <span class="k">${</span><span class="nv">IPHM</span><span class="k">}</span> <span class="k">${</span><span class="nv">IPSM</span><span class="k">}</span> <span class="k">${</span><span class="nv">IP_LEADFIELD</span><span class="k">}</span>
+</pre></div>
+</body>
+</html>

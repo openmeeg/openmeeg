@@ -1,0 +1,240 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN">
+<html xmlns:mwsh="http://www.mathworks.com/namespace/mcode/v1/syntaxhighlight.dtd">
+   <head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   
+      <!--
+This HTML is auto-generated from an M-file.
+To make changes, update the M-file and republish this document.
+      -->
+      <title>OpenMEEG for MEG from Fieldtrip demo script</title>
+      <meta name="generator" content="MATLAB 7.7">
+      <meta name="date" content="2010-10-28">
+      <meta name="m-file" content="openmeeg_meg_leadfield_example">
+      <LINK REL="stylesheet" HREF="style.css" TYPE="text/css">
+   </head>
+   <body>
+      <div class="content">
+         <h1>OpenMEEG for MEG from Fieldtrip demo script</h1>
+         <introduction>
+            <p>This script provides an example of how to compute an MEG leadfield with OpenMEEG in the Fieldtrip toolbox.</p>
+            <p>This demo uses spherical head models and compares the OpenMEEG result with the solution provided by the solution from Nolte.</p>
+         </introduction>
+         <h2>Contents</h2>
+         <div>
+            <ul>
+               <li><a href="#1">Set the radius and conductivities of each of the compartments</a></li>
+               <li><a href="#2">Description of the spherical mesh</a></li>
+               <li><a href="#3">Create a set of magnetometers outside the outer surface</a></li>
+               <li><a href="#4">Set the position of the probe dipole</a></li>
+               <li><a href="#5">Create a BEM volume conduction model</a></li>
+               <li><a href="#6">choose MEG implementation (Nolte, OpenMEEG)</a></li>
+               <li><a href="#7">Plot both OpenMEEG and analytic leadfield for visual inspection</a></li>
+            </ul>
+         </div>
+         <h2>Set the radius and conductivities of each of the compartments<a name="1"></a></h2><pre class="codeinput">addpath(cd) <span class="comment">% Make sure current folder is in the path</span>
+
+close <span class="string">all</span>
+clear
+clc
+
+<span class="comment">% 3 Layers</span>
+r = [88 92 100];
+c = [1 1/80 1];
+
+<span class="comment">% % 2 Layers</span>
+<span class="comment">% r = [92 100];</span>
+<span class="comment">% c = [1/4 1];</span>
+
+<span class="comment">% % 1 Layers</span>
+<span class="comment">% r = [100];</span>
+<span class="comment">% c = [1];</span>
+</pre><h2>Description of the spherical mesh<a name="2"></a></h2><pre class="codeinput">[pnt, tri] = icosahedron42;
+<span class="comment">% [pnt, tri] = icosahedron162;</span>
+<span class="comment">% [pnt, tri] = icosahedron642;</span>
+</pre><h2>Create a set of magnetometers outside the outer surface<a name="3"></a></h2><pre class="codeinput">sens.pnt = max(r) * pnt * 1.2;
+sens.ori = pnt;
+sens.label = {};
+nsens = size(sens.pnt, 1);
+<span class="keyword">for</span> ii=1:nsens
+    sens.label{ii} = sprintf(<span class="string">'vertex%03d'</span>, ii);
+<span class="keyword">end</span>
+</pre><h2>Set the position of the probe dipole<a name="4"></a></h2><pre class="codeinput">pos = [0 0 70];
+</pre><h2>Create a BEM volume conduction model<a name="5"></a></h2><pre class="codeinput">vol = [];
+vol1 = [];
+<span class="keyword">for</span> ii=1:length(r)
+    vol.bnd(ii).pnt = pnt * r(ii);
+    vol.bnd(ii).tri = tri;
+    <span class="keyword">if</span> (ii==1);
+        vol1.bnd(ii).pnt = pnt * r(ii);
+        vol1.bnd(ii).tri = tri;
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+vol.cond = c;
+vol1.cond = c(1);
+</pre><h2>choose MEG implementation (Nolte, OpenMEEG)<a name="6"></a></h2><pre class="codeinput"><span class="comment">% Compute the BEM</span>
+cfg.method = <span class="string">'openmeeg'</span>;
+vol = ft_prepare_bemmodel(cfg, vol);
+
+cfg.vol = vol;
+cfg.grid.pos = pos;
+cfg.grad = sens;
+cfg.reducerank = <span class="string">'no'</span>;
+grid = ft_prepare_leadfield(cfg);
+lf_openmeeg = grid.leadfield{1};
+
+<span class="comment">% choose MEG Nolte</span>
+clear <span class="string">cfg</span>;
+cfg.method = <span class="string">'nolte'</span>;
+cfg.grid.pos = pos;
+cfg.grad = sens;
+vol1.type = <span class="string">'nolte'</span>;
+[vol1,sens] = prepare_vol_sens(vol1, sens);
+cfg.vol = vol1;
+cfg.reducerank = <span class="string">'no'</span>;
+grid = ft_prepare_leadfield(cfg);
+lf_nolte = grid.leadfield{1};
+</pre><pre class="codeoutput">using the mesh specified in the input volume conductor
+determining source compartment (1)
+determining skin compartment (3)
+not using the isolated source approach
+using headmodel specified in the configuration
+using gradiometers specified in the configuration
+Warning: could be Yokogawa system 
+Warning: could be Yokogawa system 
+Warning: could be Yokogawa system 
+creating dipole grid based on user specified dipole positions
+1 dipoles inside, 0 dipoles outside brain
+calculating leadfield for all positions at once, this may take a while...
+Assembling OpenMEEG DSM matrix
+Elapsed time is 0.044761 seconds.
+Assembling OpenMEEG H2MM and S2MM matrices
+Elapsed time is 0.038352 seconds.
+Warning: could be Yokogawa system 
+Warning: could be Yokogawa system 
+Warning: could be Yokogawa system 
+computing surface normals
+Warning: Matrix is close to singular or badly scaled.
+         Results may be inaccurate. RCOND = 2.735165e-54. 
+using headmodel specified in the configuration
+using gradiometers specified in the configuration
+Warning: could be Yokogawa system 
+Warning: could be Yokogawa system 
+Warning: could be Yokogawa system 
+Warning: Matrix is close to singular or badly scaled.
+         Results may be inaccurate. RCOND = 2.735165e-54. 
+creating dipole grid based on user specified dipole positions
+1 dipoles inside, 0 dipoles outside brain
+computing leadfield
+computing leadfield 1/1
+</pre><h2>Plot both OpenMEEG and analytic leadfield for visual inspection<a name="7"></a></h2><pre class="codeinput">figure
+hold <span class="string">on</span>
+plot(lf_openmeeg(:,1),<span class="string">'bx-'</span>,<span class="string">'linewidth'</span>,2)
+plot(lf_nolte(:,1)*1e-10,<span class="string">'r--'</span>,<span class="string">'linewidth'</span>,2)
+hold <span class="string">off</span>
+legend({<span class="string">'OpenMEEG'</span> <span class="string">'Nolte'</span>})
+</pre><div class="div-img"><img vspace="5" hspace="5" src="openmeeg_meg_leadfield_example_01.png"> </div>
+         <p class="footer"><br>
+            see <a href="openmeeg_copying.html">COPYING</a> for license<br>
+            Copyright  &reg; 2009 INRIA <a href="http://www-sop.inria.fr/members/Alexandre.Gramfort/">Alexandre Gramfort</a><br></p>
+      </div>
+      <!--
+##### SOURCE BEGIN #####
+%% OpenMEEG for MEG from Fieldtrip demo script
+%
+% This script provides an example of how to compute an MEG leadfield with
+% OpenMEEG in the Fieldtrip toolbox.
+%
+% This demo uses spherical head models and compares the OpenMEEG result
+% with the solution provided by the solution from Nolte.
+
+%% Set the radius and conductivities of each of the compartments
+
+addpath(cd) % Make sure current folder is in the path
+
+close all
+clear
+clc
+
+% 3 Layers
+r = [88 92 100];
+c = [1 1/80 1];
+
+% % 2 Layers
+% r = [92 100];
+% c = [1/4 1];
+
+% % 1 Layers
+% r = [100];
+% c = [1];
+
+%% Description of the spherical mesh
+[pnt, tri] = icosahedron42;
+% [pnt, tri] = icosahedron162;
+% [pnt, tri] = icosahedron642;
+
+%% Create a set of magnetometers outside the outer surface
+sens.pnt = max(r) * pnt * 1.2;
+sens.ori = pnt;
+sens.label = {};
+nsens = size(sens.pnt, 1);
+for ii=1:nsens
+    sens.label{ii} = sprintf('vertex%03d', ii);
+end
+
+%% Set the position of the probe dipole
+pos = [0 0 70];
+
+%% Create a BEM volume conduction model
+vol = [];
+vol1 = [];
+for ii=1:length(r)
+    vol.bnd(ii).pnt = pnt * r(ii);
+    vol.bnd(ii).tri = tri;
+    if (ii==1);
+        vol1.bnd(ii).pnt = pnt * r(ii);
+        vol1.bnd(ii).tri = tri;
+    end
+end
+vol.cond = c;
+vol1.cond = c(1);
+
+%% choose MEG implementation (Nolte, OpenMEEG)
+
+% Compute the BEM
+cfg.method = 'openmeeg';
+vol = ft_prepare_bemmodel(cfg, vol);
+
+cfg.vol = vol;
+cfg.grid.pos = pos;
+cfg.grad = sens;
+cfg.reducerank = 'no';
+grid = ft_prepare_leadfield(cfg);
+lf_openmeeg = grid.leadfield{1};
+
+% choose MEG Nolte
+clear cfg;
+cfg.method = 'nolte';
+cfg.grid.pos = pos;
+cfg.grad = sens;
+vol1.type = 'nolte';
+[vol1,sens] = prepare_vol_sens(vol1, sens);
+cfg.vol = vol1;
+cfg.reducerank = 'no';
+grid = ft_prepare_leadfield(cfg);
+lf_nolte = grid.leadfield{1};
+
+%% Plot both OpenMEEG and analytic leadfield for visual inspection
+figure
+hold on
+plot(lf_openmeeg(:,1),'bx-','linewidth',2)
+plot(lf_nolte(:,1)*1e-10,'rREPLACE_WITH_DASH_DASH','linewidth',2)
+hold off
+legend({'OpenMEEG' 'Nolte'})
+
+##### SOURCE END #####
+-->
+   </body>
+</html>

@@ -1,0 +1,162 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+   "http://www.w3.org/TR/html4/strict.dtd">
+
+<html>
+<head>
+  <title></title>
+  <meta http-equiv="content-type" content="text/html; charset=latin1">
+  <style type="text/css">
+td.linenos { background-color: #f0f0f0; padding-right: 10px; }
+span.lineno { background-color: #f0f0f0; padding: 0 5px 0 5px; }
+pre { line-height: 125%; }
+body .hll { background-color: #ffffcc }
+body  { background: #f8f8f8; }
+body .c { color: #408080; font-style: italic } /* Comment */
+body .err { border: 1px solid #FF0000 } /* Error */
+body .k { color: #008000; font-weight: bold } /* Keyword */
+body .o { color: #666666 } /* Operator */
+body .cm { color: #408080; font-style: italic } /* Comment.Multiline */
+body .cp { color: #BC7A00 } /* Comment.Preproc */
+body .c1 { color: #408080; font-style: italic } /* Comment.Single */
+body .cs { color: #408080; font-style: italic } /* Comment.Special */
+body .gd { color: #A00000 } /* Generic.Deleted */
+body .ge { font-style: italic } /* Generic.Emph */
+body .gr { color: #FF0000 } /* Generic.Error */
+body .gh { color: #000080; font-weight: bold } /* Generic.Heading */
+body .gi { color: #00A000 } /* Generic.Inserted */
+body .go { color: #808080 } /* Generic.Output */
+body .gp { color: #000080; font-weight: bold } /* Generic.Prompt */
+body .gs { font-weight: bold } /* Generic.Strong */
+body .gu { color: #800080; font-weight: bold } /* Generic.Subheading */
+body .gt { color: #0040D0 } /* Generic.Traceback */
+body .kc { color: #008000; font-weight: bold } /* Keyword.Constant */
+body .kd { color: #008000; font-weight: bold } /* Keyword.Declaration */
+body .kn { color: #008000; font-weight: bold } /* Keyword.Namespace */
+body .kp { color: #008000 } /* Keyword.Pseudo */
+body .kr { color: #008000; font-weight: bold } /* Keyword.Reserved */
+body .kt { color: #B00040 } /* Keyword.Type */
+body .m { color: #666666 } /* Literal.Number */
+body .s { color: #BA2121 } /* Literal.String */
+body .na { color: #7D9029 } /* Name.Attribute */
+body .nb { color: #008000 } /* Name.Builtin */
+body .nc { color: #0000FF; font-weight: bold } /* Name.Class */
+body .no { color: #880000 } /* Name.Constant */
+body .nd { color: #AA22FF } /* Name.Decorator */
+body .ni { color: #999999; font-weight: bold } /* Name.Entity */
+body .ne { color: #D2413A; font-weight: bold } /* Name.Exception */
+body .nf { color: #0000FF } /* Name.Function */
+body .nl { color: #A0A000 } /* Name.Label */
+body .nn { color: #0000FF; font-weight: bold } /* Name.Namespace */
+body .nt { color: #008000; font-weight: bold } /* Name.Tag */
+body .nv { color: #19177C } /* Name.Variable */
+body .ow { color: #AA22FF; font-weight: bold } /* Operator.Word */
+body .w { color: #bbbbbb } /* Text.Whitespace */
+body .mf { color: #666666 } /* Literal.Number.Float */
+body .mh { color: #666666 } /* Literal.Number.Hex */
+body .mi { color: #666666 } /* Literal.Number.Integer */
+body .mo { color: #666666 } /* Literal.Number.Oct */
+body .sb { color: #BA2121 } /* Literal.String.Backtick */
+body .sc { color: #BA2121 } /* Literal.String.Char */
+body .sd { color: #BA2121; font-style: italic } /* Literal.String.Doc */
+body .s2 { color: #BA2121 } /* Literal.String.Double */
+body .se { color: #BB6622; font-weight: bold } /* Literal.String.Escape */
+body .sh { color: #BA2121 } /* Literal.String.Heredoc */
+body .si { color: #BB6688; font-weight: bold } /* Literal.String.Interpol */
+body .sx { color: #008000 } /* Literal.String.Other */
+body .sr { color: #BB6688 } /* Literal.String.Regex */
+body .s1 { color: #BA2121 } /* Literal.String.Single */
+body .ss { color: #19177C } /* Literal.String.Symbol */
+body .bp { color: #008000 } /* Name.Builtin.Pseudo */
+body .vc { color: #19177C } /* Name.Variable.Class */
+body .vg { color: #19177C } /* Name.Variable.Global */
+body .vi { color: #19177C } /* Name.Variable.Instance */
+body .il { color: #666666 } /* Literal.Number.Integer.Long */
+
+  </style>
+</head>
+<body>
+<h2></h2>
+
+<div class="highlight"><pre><span class="c">#!/usr/bin/env python</span>
+
+<span class="sd">&quot;&quot;&quot;Compute the 4 types of leadfields supported by OpenMEEG</span>
+<span class="sd">    - EEG</span>
+<span class="sd">    - MEG</span>
+<span class="sd">    - EIT</span>
+<span class="sd">    - Internal Potential</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="k">print</span> <span class="n">__doc__</span>
+
+<span class="kn">import</span> <span class="nn">openmeeg</span> <span class="kn">as</span> <span class="nn">om</span>
+
+<span class="c">###############################################################################</span>
+<span class="c"># Load data</span>
+<span class="n">geom_file</span>                    <span class="o">=</span> <span class="s">&#39;head_model.geom&#39;</span>
+<span class="n">cond_file</span>                    <span class="o">=</span> <span class="s">&#39;head_model.cond&#39;</span>
+<span class="n">dipoles_file</span>                 <span class="o">=</span> <span class="s">&#39;cortex_dipoles.txt&#39;</span>
+<span class="n">squids_file</span>                  <span class="o">=</span> <span class="s">&#39;meg_channels_locations.squids&#39;</span>
+<span class="n">electrodes_file</span>              <span class="o">=</span> <span class="s">&#39;eeg_channels_locations.txt&#39;</span>
+<span class="n">internal_electrodes_file</span>     <span class="o">=</span> <span class="s">&#39;internal_electrodes_locations.txt&#39;</span>
+
+<span class="n">geom</span> <span class="o">=</span> <span class="n">om</span><span class="o">.</span><span class="n">Geometry</span><span class="p">()</span>
+<span class="n">geom</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">geom_file</span><span class="p">,</span> <span class="n">cond_file</span><span class="p">)</span>
+
+<span class="n">dipoles</span> <span class="o">=</span> <span class="n">om</span><span class="o">.</span><span class="n">Matrix</span><span class="p">()</span>
+<span class="n">dipoles</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">dipoles_file</span><span class="p">)</span>
+
+<span class="n">meg_sensors</span> <span class="o">=</span> <span class="n">om</span><span class="o">.</span><span class="n">Sensors</span><span class="p">()</span>
+<span class="n">meg_sensors</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">squids_file</span><span class="p">)</span>
+
+<span class="n">eeg_electrodes</span> <span class="o">=</span> <span class="n">om</span><span class="o">.</span><span class="n">Sensors</span><span class="p">()</span>
+<span class="n">eeg_electrodes</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">electrodes_file</span><span class="p">)</span>
+
+<span class="n">int_electrodes</span> <span class="o">=</span> <span class="n">om</span><span class="o">.</span><span class="n">Matrix</span><span class="p">()</span>
+<span class="n">int_electrodes</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">internal_electrodes_file</span><span class="p">)</span>
+
+<span class="c">###############################################################################</span>
+<span class="c"># Compute Leadfields</span>
+<span class="n">gauss_order</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="n">use_adaptive_integration</span> <span class="o">=</span> <span class="bp">True</span>
+
+<span class="n">hm</span>            <span class="o">=</span> <span class="n">om</span><span class="o">.</span><span class="n">HeadMat</span><span class="p">(</span><span class="n">geom</span><span class="p">,</span> <span class="n">gauss_order</span><span class="p">)</span>
+<span class="n">hminv</span>         <span class="o">=</span> <span class="n">hm</span><span class="o">.</span><span class="n">inverse</span><span class="p">()</span>
+<span class="n">dsm</span>           <span class="o">=</span> <span class="n">om</span><span class="o">.</span><span class="n">DipSourceMat</span><span class="p">(</span><span class="n">geom</span><span class="p">,</span> <span class="n">dipoles</span><span class="p">,</span> <span class="n">gauss_order</span><span class="p">,</span>
+                                            <span class="n">use_adaptive_integration</span><span class="p">)</span>
+
+<span class="c"># For EEG</span>
+<span class="n">h2em</span>          <span class="o">=</span> <span class="n">om</span><span class="o">.</span><span class="n">Head2EEGMat</span><span class="p">(</span><span class="n">geom</span><span class="p">,</span> <span class="n">eeg_electrodes</span><span class="p">)</span>
+
+<span class="c"># For MEG</span>
+<span class="n">ds2mm</span>         <span class="o">=</span> <span class="n">om</span><span class="o">.</span><span class="n">DipSource2MEGMat</span><span class="p">(</span><span class="n">dipoles</span><span class="p">,</span> <span class="n">meg_sensors</span><span class="p">)</span>
+<span class="n">h2mm</span>          <span class="o">=</span> <span class="n">om</span><span class="o">.</span><span class="n">Head2MEGMat</span><span class="p">(</span><span class="n">geom</span><span class="p">,</span> <span class="n">meg_sensors</span><span class="p">)</span>
+
+<span class="c"># For EIT (using the same electrodes as EEG)</span>
+<span class="n">eitsm</span>         <span class="o">=</span> <span class="n">om</span><span class="o">.</span><span class="n">EITSourceMat</span><span class="p">(</span><span class="n">geom</span><span class="p">,</span> <span class="n">eeg_electrodes</span><span class="p">,</span> <span class="n">gauss_order</span><span class="p">)</span>
+
+<span class="c"># For Internal Potential</span>
+<span class="n">iphm</span>          <span class="o">=</span> <span class="n">om</span><span class="o">.</span><span class="n">Surf2VolMat</span><span class="p">(</span><span class="n">geom</span><span class="p">,</span> <span class="n">int_electrodes</span><span class="p">)</span>
+<span class="n">ipsm</span>          <span class="o">=</span> <span class="n">om</span><span class="o">.</span><span class="n">DipSource2InternalPotMat</span><span class="p">(</span><span class="n">geom</span><span class="p">,</span> <span class="n">dipoles</span><span class="p">,</span> <span class="n">int_electrodes</span><span class="p">)</span>
+
+<span class="n">eeg_leadfield</span> <span class="o">=</span> <span class="n">om</span><span class="o">.</span><span class="n">GainEEG</span><span class="p">(</span><span class="n">hminv</span><span class="p">,</span> <span class="n">dsm</span><span class="p">,</span> <span class="n">h2em</span><span class="p">)</span>
+<span class="n">meg_leadfield</span> <span class="o">=</span> <span class="n">om</span><span class="o">.</span><span class="n">GainMEG</span><span class="p">(</span><span class="n">hminv</span><span class="p">,</span> <span class="n">dsm</span><span class="p">,</span> <span class="n">h2mm</span><span class="p">,</span> <span class="n">ds2mm</span><span class="p">)</span>
+<span class="n">eit_leadfield</span> <span class="o">=</span> <span class="n">om</span><span class="o">.</span><span class="n">GainEEG</span><span class="p">(</span><span class="n">hminv</span><span class="p">,</span> <span class="n">eitsm</span><span class="p">,</span> <span class="n">h2em</span><span class="p">)</span>
+<span class="n">ip_leadfield</span>  <span class="o">=</span> <span class="n">om</span><span class="o">.</span><span class="n">GainInternalPot</span><span class="p">(</span><span class="n">hminv</span><span class="p">,</span> <span class="n">dsm</span><span class="p">,</span> <span class="n">iphm</span><span class="p">,</span> <span class="n">ipsm</span><span class="p">)</span>
+
+<span class="k">print</span> <span class="s">&quot;hm             : </span><span class="si">%d</span><span class="s"> x </span><span class="si">%d</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">hm</span><span class="o">.</span><span class="n">nlin</span><span class="p">(),</span> <span class="n">hm</span><span class="o">.</span><span class="n">ncol</span><span class="p">())</span>
+<span class="k">print</span> <span class="s">&quot;hminv          : </span><span class="si">%d</span><span class="s"> x </span><span class="si">%d</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">hminv</span><span class="o">.</span><span class="n">nlin</span><span class="p">(),</span> <span class="n">hminv</span><span class="o">.</span><span class="n">ncol</span><span class="p">())</span>
+<span class="k">print</span> <span class="s">&quot;dsm            : </span><span class="si">%d</span><span class="s"> x </span><span class="si">%d</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">dsm</span><span class="o">.</span><span class="n">nlin</span><span class="p">(),</span> <span class="n">dsm</span><span class="o">.</span><span class="n">ncol</span><span class="p">())</span>
+<span class="k">print</span> <span class="s">&quot;h2em           : </span><span class="si">%d</span><span class="s"> x </span><span class="si">%d</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">h2em</span><span class="o">.</span><span class="n">nlin</span><span class="p">(),</span> <span class="n">h2em</span><span class="o">.</span><span class="n">ncol</span><span class="p">())</span>
+<span class="k">print</span> <span class="s">&quot;ds2mm          : </span><span class="si">%d</span><span class="s"> x </span><span class="si">%d</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">ds2mm</span><span class="o">.</span><span class="n">nlin</span><span class="p">(),</span> <span class="n">ds2mm</span><span class="o">.</span><span class="n">ncol</span><span class="p">())</span>
+<span class="k">print</span> <span class="s">&quot;h2mm           : </span><span class="si">%d</span><span class="s"> x </span><span class="si">%d</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">h2mm</span><span class="o">.</span><span class="n">nlin</span><span class="p">(),</span> <span class="n">h2mm</span><span class="o">.</span><span class="n">ncol</span><span class="p">())</span>
+<span class="k">print</span> <span class="s">&quot;eeg_leadfield  : </span><span class="si">%d</span><span class="s"> x </span><span class="si">%d</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">eeg_leadfield</span><span class="o">.</span><span class="n">nlin</span><span class="p">(),</span> <span class="n">eeg_leadfield</span><span class="o">.</span><span class="n">ncol</span><span class="p">())</span>
+<span class="k">print</span> <span class="s">&quot;meg_leadfield  : </span><span class="si">%d</span><span class="s"> x </span><span class="si">%d</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">meg_leadfield</span><span class="o">.</span><span class="n">nlin</span><span class="p">(),</span> <span class="n">meg_leadfield</span><span class="o">.</span><span class="n">ncol</span><span class="p">())</span>
+<span class="k">print</span> <span class="s">&quot;eit_leadfield  : </span><span class="si">%d</span><span class="s"> x </span><span class="si">%d</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">eit_leadfield</span><span class="o">.</span><span class="n">nlin</span><span class="p">(),</span> <span class="n">eit_leadfield</span><span class="o">.</span><span class="n">ncol</span><span class="p">())</span>
+<span class="k">print</span> <span class="s">&quot;ip_leadfield   : </span><span class="si">%d</span><span class="s"> x </span><span class="si">%d</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">ip_leadfield</span><span class="o">.</span><span class="n">nlin</span><span class="p">(),</span><span class="n">ip_leadfield</span><span class="o">.</span><span class="n">ncol</span><span class="p">())</span>
+
+<span class="n">eeg_leadfield</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s">&#39;eeg_leadfield.mat&#39;</span><span class="p">)</span>
+<span class="n">meg_leadfield</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s">&#39;meg_leadfield.mat&#39;</span><span class="p">)</span>
+<span class="n">eit_leadfield</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s">&#39;eit_leadfield.mat&#39;</span><span class="p">)</span>
+<span class="n">ip_leadfield</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s">&#39;ip_leadfield.mat&#39;</span><span class="p">)</span>
+</pre></div>
+</body>
+</html>
