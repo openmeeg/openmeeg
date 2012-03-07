@@ -197,11 +197,15 @@ namespace OpenMEEG {
                 LINOP& l = dynamic_cast<LINOP&>(linop);
                 l.alloc_data();
 
+#ifdef NOBUG
+                is.read(reinterpret_cast<char*>(l.data()),l.size()*sizeof(double));
+#else
+                // There seems to be a bug in the C++ library on MAC
                 // XXX : Read line by line to avoid overflow on MAC Grrr !!!
                 size_t buffer_size = l.ncol()*sizeof(double);
-                for(size_t i = 0; i < linop.nlin(); ++i) {
+                for(size_t i = 0; i < linop.nlin(); ++i)
                     is.read(reinterpret_cast<char*>(l.data()) + i*buffer_size, buffer_size);
-                }
+#endif
             }
 
             template <typename LINOP>
