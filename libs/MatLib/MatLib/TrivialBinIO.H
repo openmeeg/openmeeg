@@ -103,7 +103,7 @@ namespace OpenMEEG {
 
             void read(std::ifstream& is,LinOp& linop) const {
                 const LinOpInfo& inforead = info(is);
-                
+
                 if (linop.storageType()!=inforead.storageType())
                     throw BadStorageType(name());
 
@@ -139,7 +139,7 @@ namespace OpenMEEG {
                     const unsigned ncol = linop.ncol();
                     os.write(reinterpret_cast<const char*>(&ncol),sizeof(unsigned));
                 }
-                
+
                 //  Write the data.
 
                 switch (linop.storageType()) {
@@ -196,7 +196,12 @@ namespace OpenMEEG {
             static void read_internal(std::ifstream& is,LinOp& linop) {
                 LINOP& l = dynamic_cast<LINOP&>(linop);
                 l.alloc_data();
-                is.read(reinterpret_cast<char*>(l.data()),l.size()*sizeof(double));
+
+                // XXX : Read line by line to avoid overflow on MAC Grrr !!!
+                size_t buffer_size = l.ncol()*sizeof(double);
+                for(size_t i = 0; i < linop.nlin(); ++i) {
+                    is.read(reinterpret_cast<char*>(l.data()) + i*buffer_size, buffer_size);
+                }
             }
 
             template <typename LINOP>
