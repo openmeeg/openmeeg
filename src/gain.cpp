@@ -233,7 +233,13 @@ void getHelp(char** argv)
     cout << "   -InternalPotential or -IP :   Compute the gain for internal potentials, measured within the volume " << endl;
     cout << "            Filepaths are in order :" << endl;
     cout << "            HeadMatInv, SourceMat, Head2IPMat, Source2IPMat" << endl;
-    cout << "            InternalPotEGgain Matrix (.txt)" << endl << endl;
+    cout << "            InternalPotential gain Matrix (.txt)" << endl << endl;
+
+    cout << "   -StimInternalPotential or -SIP : Compute the gain for internal potential," << endl;
+    cout << "            when source is current injection on outer surface " << endl;
+    cout << "            Filepaths are in order :" << endl;
+    cout << "            HeadMatInv, SourceMat, Head2IPMat" << endl;
+    cout << "            StimInternalPotential gain Matrix (.txt)" << endl << endl;
 
     cout << "   -EEGadjoint :   Compute the gain for EEG " << endl;
     cout << "            Filepaths are in order :" << endl;
