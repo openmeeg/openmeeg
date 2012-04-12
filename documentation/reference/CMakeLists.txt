@@ -14,7 +14,8 @@ IF (BUILD_DOCUMENTATION)
     ENDIF(NOT DOT_PATH)
 
     IF (NOT USE_CGAL)
-	SET(OpenMEEG_EXCLUDE_FROM_DOCUMENTATION "${OpenMEEG_EXCLUDE_FROM_DOCUMENTATION} ${CMAKE_SOURCE_DIR}/tools/cgal_mesh_create.cpp ${CMAKE_SOURCE_DIR}/tools/cgal_mesh_include.h")
+        SET(OpenMEEG_EXCLUDE_FROM_DOCUMENTATION
+            "${OpenMEEG_EXCLUDE_FROM_DOCUMENTATION} ${CMAKE_SOURCE_DIR}/tools/cgal_mesh_create.cpp ${CMAKE_SOURCE_DIR}/tools/cgal_mesh_include.h")
     ENDIF()
     CONFIGURE_FILE(
         ${OpenMEEG_SOURCE_DIR}/documentation/reference/doxyfile.in
