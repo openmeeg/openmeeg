@@ -45,7 +45,7 @@ INPUT                = \
         "@OpenMEEG_SOURCE_DIR@/libs/MatLib/Test"
 
 # EXCLUDE_PATTERNS     =
-# EXCLUDE              = \
+EXCLUDE              = @OpenMEEG_EXCLUDE_FROM_DOCUMENTATION@
 #         "@OpenMEEG_BINARY_DIR@/src/.h" \
 #         "@OpenMEEG_BINARY_DIR@/src/.h"
 

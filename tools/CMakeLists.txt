@@ -31,7 +31,7 @@ TARGET_LINK_LIBRARIES (om_check_geom OpenMEEG)
 ADD_EXECUTABLE(om_mesh_to_dip mesh_to_dip.cpp)
 TARGET_LINK_LIBRARIES (om_mesh_to_dip OpenMEEG)
 
-IF(USE_CGAL)
+IF (USE_CGAL)
     ADD_EXECUTABLE(om_cgal_mesh_create cgal_mesh_create.cpp)
     TARGET_LINK_LIBRARIES (om_cgal_mesh_create OpenMEEG ${CGAL_LIBRARIES})
     INSTALL(TARGETS om_cgal_mesh_create DESTINATION bin)
