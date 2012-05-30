@@ -56,8 +56,11 @@ rem Compute EIT gain matrix
 om_assemble -EITSM %GEOMETRY% %CONDUCTIVITIES% %EEG_ELECTRODES% %EITSM%
 om_gain -EEG %HMINV% %EITSM% %H2EM% %EIT_LEADFIELD%
 
-rem Compute Internal Potential
+rem Compute Internal Potential ...
 om_assemble -H2IPM %GEOMETRY% %CONDUCTIVITIES% %INTERNAL_ELECTRODES% %IPHM%
+rem ...for internal dipoles
 om_assemble -DS2IPM %GEOMETRY% %CONDUCTIVITIES% %DIPOLES% %INTERNAL_ELECTRODES% %IPSM%
 om_gain -IP %HMINV% %DSM% %IPHM% %IPSM% %IP_LEADFIELD%
+rem ...for boundary-injected current
+om_gain -SIP %HMINV%  %EITSM% %IPHM% %SIP_LEADFIELD%
 
