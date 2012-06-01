@@ -167,9 +167,7 @@ namespace OpenMEEG {
         for (int i=0;i<nb();i++)
             if ((this->getM(i)).contains_point(p))
                 return i;
-            else if (i==nb()-1)
-                return nb();
-        return -1; // should never be reached
+        return nb();
     }
 
     Geometry Geometry::getSubGeom(int i) const {
