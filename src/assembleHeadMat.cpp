@@ -179,7 +179,7 @@ void assemble_Surf2Vol(const Geometry& geo, Matrix& mat, Matrix& points)
             ++nb_pts_per_dom[0];
         } else {
             int domain = static_cast<int>(points(i, 3));
-            if (domain >= geo.nb()) {
+            if (domain>=geo.nb()) {
                 std::cerr << " Surf2Vol: Point " << points.getlin(i);
                 std::cerr << " is outside the head. Point is considered to be in the scalp." << std::endl;
                 points(i, 3) = domain = geo.nb() - 1;
