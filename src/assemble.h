@@ -77,7 +77,7 @@ namespace OpenMEEG {
 
     class OPENMEEG_EXPORT Surf2VolMat: public virtual Matrix {
     public:
-        Surf2VolMat (const Geometry& geo,Matrix& points);
+        Surf2VolMat(const Geometry& geo,const Matrix& points);
         virtual ~Surf2VolMat () {};
     };
 
