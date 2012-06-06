@@ -238,7 +238,7 @@ Surf2VolMat::Surf2VolMat(const Geometry& geo,const Matrix& points) {
     //  Split the point array into multiple arrays (one array per domain).
 
     std::vector<Matrix> vect_PtsInDom(geo.nb());
-    for (unsigned c=0;c<geo.nb();++c) {
+    for (unsigned c=0;c<static_cast<unsigned>(geo.nb());++c) {
         vect_PtsInDom[c] = Matrix(nb_pts_per_dom[c],3);
         for (unsigned ipt=0,iptd=0;ipt<points.nlin();++ipt) { // get the points in the domain c
             if (labels[ipt]==c) {

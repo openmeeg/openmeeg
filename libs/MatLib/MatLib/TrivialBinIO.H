@@ -76,17 +76,17 @@ namespace OpenMEEG {
                 //  Attempt to find the type of the file from its size.
 
                 LinOpInfo linop;
-                unsigned int ui;
-                is.read(reinterpret_cast<char*>(&ui),sizeof(unsigned int));
+                unsigned ui;
+                is.read(reinterpret_cast<char*>(&ui),sizeof(unsigned));
                 linop.nlin() = ui;
 
-                if (size==ui*sizeof(double)) {
+                if (size==static_cast<std::streamoff>(ui*sizeof(double))) {
                     linop.storageType() = LinOp::FULL;
                     linop.dimension()   = 1;
                     linop.ncol()        = 1;
                 } else {
                     linop.dimension()   = 2;
-                    if (size==ui*(ui+1)*sizeof(double)/2) {
+                    if (size==static_cast<std::streamoff>(ui*(ui+1)*sizeof(double)/2)) {
                         linop.storageType() = LinOp::SYMMETRIC;
                         linop.ncol()        = ui;
                     } else {
