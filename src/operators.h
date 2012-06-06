@@ -52,450 +52,399 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include "integrator.h"
 #include "analytics.h"
 
-namespace OpenMEEG
-{
+namespace OpenMEEG {
 
-#define OPTIMIZED_OPERATOR_N
+    #define OPTIMIZED_OPERATOR_N
 
-#ifdef USE_OMP
-#undef OPTIMIZED_OPERATOR_D
-#else
-#define OPTIMIZED_OPERATOR_D
-#endif
+    #ifdef USE_OMP
+    #undef OPTIMIZED_OPERATOR_D
+    #else
+    #define OPTIMIZED_OPERATOR_D
+    #endif
 
-//#define ADAPT_LHS
+    //#define ADAPT_LHS
 
-// T can be a Matrix or SymMatrix
-template<class T>
-void operatorN(const Mesh &m1, const Mesh &m2, T &mat, const int offsetI,
-               const int offsetJ, const int, const int IopS=0, const int JopS=0);
-template<class T>
-void operatorS(const Mesh &m1, const Mesh &m2, T &mat, const int offsetI,
-               const int offsetJ, const int);
-template<class T>
-void operatorD(const Mesh &m1, const Mesh &m2, T &mat, const int offsetI,
-               const int offsetJ, const int);
-template<class T>
-void operatorP1P0(const Mesh &, T &mat, const int offsetI, const int offsetJ);
+    // T can be a Matrix or SymMatrix
+    template<class T>
+    void operatorN(const Mesh &m1, const Mesh &m2, T &mat, const int offsetI,
+                   const int offsetJ, const int, const int IopS=0, const int JopS=0);
+    template<class T>
+    void operatorS(const Mesh &m1, const Mesh &m2, T &mat, const int offsetI,
+                   const int offsetJ, const int);
+    template<class T>
+    void operatorD(const Mesh &m1, const Mesh &m2, T &mat, const int offsetI,
+                   const int offsetJ, const int);
+    template<class T>
+    void operatorP1P0(const Mesh &, T &mat, const int offsetI, const int offsetJ);
 
-void operatorSinternal(const Mesh &, Matrix &, const int, const int, const Matrix &);
-void operatorDinternal(const Mesh &, Matrix &, const int, const int, const Matrix &);
-void operatorFerguson(const Vect3& x, const Mesh &m1, Matrix &mat, int offsetI, int offsetJ);
-void operatorDipolePotDer(const Vect3 &r0, const Vect3 &q, const Mesh &inner_layer,
-                          Vector &rhs, int offsetIdx, const int, const bool);
-void operatorDipolePot(const Vect3 &r0, const Vect3 &q, const Mesh &inner_layer,
-                       Vector &rhs, int offsetIdx, const int, const bool);
+    void operatorSinternal(const Mesh &, Matrix &, const int, const int, const Matrix &);
+    void operatorDinternal(const Mesh &, Matrix &, const int, const int, const Matrix &);
+    void operatorFerguson(const Vect3& x, const Mesh &m1, Matrix &mat, int offsetI, int offsetJ);
+    void operatorDipolePotDer(const Vect3 &r0, const Vect3 &q, const Mesh &inner_layer,
+                              Vector &rhs, int offsetIdx, const int, const bool);
+    void operatorDipolePot(const Vect3 &r0, const Vect3 &q, const Mesh &inner_layer,
+                           Vector &rhs, int offsetIdx, const int, const bool);
 
-inline void mult(SymMatrix &mat, int Istart, int Jstart, int Istop, int Jstop, double coeff)
-{
-    //If the upper left corner of the block is on the diagonal line of the Matrix
-    //Only the half of the block has to be treated because of the symmetric storage
-    if (Istart!=Jstart) {
-        for(int i=Istart; i<Istop; i++) {
-            #ifdef USE_OMP
-            #pragma omp parallel for
-            #endif
-            for(int j=Jstart; j<Jstop; j++) {
-                mat(i, j)*=coeff;
+    inline void mult(SymMatrix &mat, int Istart, int Jstart, int Istop, int Jstop, double coeff)
+    {
+        //If the upper left corner of the block is on the diagonal line of the Matrix
+        //Only the half of the block has to be treated because of the symmetric storage
+        if (Istart!=Jstart) {
+            for(int i=Istart; i<Istop; i++) {
+                #pragma omp parallel for
+                for(int j=Jstart; j<Jstop; j++) {
+                    mat(i, j)*=coeff;
+                }
+            }
+        } else {
+            for(int i=Istart; i<Istop; i++) {
+                #pragma omp parallel for
+                for(int j=Jstart; j<=i; j++) {
+                    mat(i, j) *= coeff;
+                }
             }
         }
-    } else {
+    }
+
+    inline void mult(Matrix &mat, int Istart, int Jstart, int Istop, int Jstop, double coeff)
+    {
+        //If the upper left corner of the block is on the diagonal line of the Matrix
+        //Only the half of the block has to be treated because of the symmetric storage
         for(int i=Istart; i<Istop; i++) {
-            #ifdef USE_OMP
             #pragma omp parallel for
-            #endif
-            for(int j=Jstart; j<=i; j++) {
+            for(int j=Jstart; j<Jstop; j++) {
                 mat(i, j) *= coeff;
             }
         }
     }
-}
 
-inline void mult(Matrix &mat, int Istart, int Jstart, int Istop, int Jstop, double coeff)
-{
-    //If the upper left corner of the block is on the diagonal line of the Matrix
-    //Only the half of the block has to be treated because of the symmetric storage
-    for(int i=Istart; i<Istop; i++) {
-        #ifdef USE_OMP
-        #pragma omp parallel for
-        #endif
-        for(int j=Jstart; j<Jstop; j++) {
-            mat(i, j) *= coeff;
+    #ifndef OPTIMIZED_OPERATOR_D
+    inline double _operatorD(const int nT1, const int nP2, const Mesh &m1, const Mesh &m2,
+                             const int gauss_order)
+    {
+        // consider varying order of quadrature with the distance between T1 and T2
+        const Triangle &T1 = m1.triangle(nT1);
+        STATIC_OMP analyticD analyD;
+    #ifdef ADAPT_LHS
+        STATIC_OMP AdaptiveIntegrator<double, analyticD> gauss(0.005);
+        gauss.setOrder(gauss_order);
+    #else
+        STATIC_OMP Integrator<double, analyticD> gauss(gauss_order);
+    #endif //ADAPT_LHS
+
+        double total = 0;
+
+        const intSet& Tadj = m2.get_triangles_for_point(nP2); // loop on triangles of which nP2 is a vertex
+        for(intSet::const_iterator it = Tadj.begin(); it != Tadj.end(); ++it) {
+            analyD.init(m2, *it, nP2);
+            total += gauss.integrate(analyD, T1, m1);
         }
+
+        return total;
     }
-}
-
-#ifndef OPTIMIZED_OPERATOR_D
-inline double _operatorD(const int nT1, const int nP2, const Mesh &m1, const Mesh &m2,
-                         const int gauss_order)
-{
-    // consider varying order of quadrature with the distance between T1 and T2
-    const Triangle &T1 = m1.triangle(nT1);
-    #ifdef USE_OMP
-    analyticD analyD;
     #else
-    static analyticD analyD;
-    #endif
-#ifdef ADAPT_LHS
-    #ifdef USE_OMP
-    AdaptiveIntegrator<double, analyticD> gauss(0.005);
-    #else
-    static AdaptiveIntegrator<double, analyticD> gauss(0.005);
-    #endif
-    gauss.setOrder(gauss_order);
-#else
-    #ifdef USE_OMP
-    Integrator<double, analyticD> gauss(gauss_order);
-    #else
-    static Integrator<double, analyticD> gauss(gauss_order);
-    #endif
-#endif //ADAPT_LHS
 
-    double total = 0;
+    template<class T>
+    inline void _operatorD(const int nT1, const int nT2, const Mesh &m1, const Mesh &m2,
+                           T &mat, const int offsetI, const int offsetJ, const int gauss_order)
+    {
+        //this version of _operatorD add in the Matrix the contribution of T2 on T1
+        // for all the P1 functions it gets involved
 
-    const intSet& Tadj = m2.get_triangles_for_point(nP2); // loop on triangles of which nP2 is a vertex
-    for(intSet::const_iterator it = Tadj.begin(); it != Tadj.end(); ++it) {
-        analyD.init(m2, *it, nP2);
-        total += gauss.integrate(analyD, T1, m1);
+        // consider varying order of quadrature with the distance between T1 and T2
+        const Triangle &T1 = m1.triangle(nT1);
+        const Triangle &T2 = m2.triangle(nT2);
+
+        STATIC_OMP analyticD3 analyD;
+
+        analyD.init(m2, nT2);
+    #ifdef ADAPT_LHS
+        AdaptiveIntegrator<Vect3, analyticD3> gauss(0.005);
+        gauss.setOrder(gauss_order);
+        Vect3 total = gauss.integrate(analyD, T1, m1);
+    #else
+        STATIC_OMP Integrator<Vect3, analyticD3> gauss(gauss_order);
+        Vect3 total = gauss.integrate(analyD, T1, m1);
+    #endif //ADAPT_LHS
+
+        mat(offsetI + nT1, offsetJ + ((Triangle)T2).s1()) += total.x();
+        mat(offsetI + nT1, offsetJ + ((Triangle)T2).s2()) += total.y();
+        mat(offsetI + nT1, offsetJ + ((Triangle)T2).s3()) += total.z();
+    }
+    #endif //OPTIMIZED_OPERATOR_D
+
+
+    inline void _operatorDinternal(const int nT, const int nT2, const Mesh &m, Matrix  &mat,
+                                   const int offsetJ, const Vect3 pt)
+    {
+        const Triangle &T2 = m.triangle(nT2);
+        static analyticD3 analyD;
+
+        analyD.init(m, nT2);
+
+        Vect3 total = analyD.f(pt);
+
+        mat(nT, offsetJ + ((Triangle)T2).s1()) += total.x();
+        mat(nT, offsetJ + ((Triangle)T2).s2()) += total.y();
+        mat(nT, offsetJ + ((Triangle)T2).s3()) += total.z();
     }
 
-    return total;
-}
-#else
+    inline double _operatorS(const int nT1, const int nT2, const Mesh &m1, const Mesh &m2, const int gauss_order)
+    {
+        const Triangle& T1 = m1.triangle(nT1);
+        const Triangle& T2 = m2.triangle(nT2);
 
-template<class T>
-inline void _operatorD(const int nT1, const int nT2, const Mesh &m1, const Mesh &m2,
-                       T &mat, const int offsetI, const int offsetJ, const int gauss_order)
-{
-    //this version of _operatorD add in the Matrix the contribution of T2 on T1
-    // for all the P1 functions it gets involved
+        STATIC_OMP Triangle *oldT = NULL;
+        STATIC_OMP analyticS analyS;
 
-    // consider varying order of quadrature with the distance between T1 and T2
-    const Triangle &T1 = m1.triangle(nT1);
-    const Triangle &T2 = m2.triangle(nT2);
-
-#ifdef USE_OMP
-    analyticD3 analyD;
-#else
-    static analyticD3 analyD;
-#endif
-
-    analyD.init(m2, nT2);
-#ifdef ADAPT_LHS
-    AdaptiveIntegrator<Vect3, analyticD3> gauss(0.005);
-    gauss.setOrder(gauss_order);
-    Vect3 total = gauss.integrate(analyD, T1, m1);
-#else
-    #ifdef USE_OMP
-    Integrator<Vect3, analyticD3> gauss(gauss_order);
+        if(oldT != &T1) { // a few computations are needed only when changing triangle T1
+            oldT = (Triangle*)&T1;
+            analyS.init(nT1, m1);
+        }
+    #ifdef ADAPT_LHS
+        AdaptiveIntegrator<double, analyticS> gauss(0.005);
+        gauss.setOrder(gauss_order);
+        return gauss.integrate(analyS, T2, m2);
     #else
-    static Integrator<Vect3, analyticD3> gauss(gauss_order);
-    #endif
-    Vect3 total = gauss.integrate(analyD, T1, m1);
-#endif //ADAPT_LHS
-
-    mat(offsetI + nT1, offsetJ + ((Triangle)T2).s1()) += total.x();
-    mat(offsetI + nT1, offsetJ + ((Triangle)T2).s2()) += total.y();
-    mat(offsetI + nT1, offsetJ + ((Triangle)T2).s3()) += total.z();
-}
-#endif //OPTIMIZED_OPERATOR_D
-
-
-inline void _operatorDinternal(const int nT, const int nT2, const Mesh &m, Matrix  &mat,
-                               const int offsetJ, const Vect3 pt)
-{
-    const Triangle &T2 = m.triangle(nT2);
-    static analyticD3 analyD;
-
-    analyD.init(m, nT2);
-
-    Vect3 total = analyD.f(pt);
-
-    mat(nT, offsetJ + ((Triangle)T2).s1()) += total.x();
-    mat(nT, offsetJ + ((Triangle)T2).s2()) += total.y();
-    mat(nT, offsetJ + ((Triangle)T2).s3()) += total.z();
-}
-
-inline double _operatorS(const int nT1, const int nT2, const Mesh &m1, const Mesh &m2, const int gauss_order)
-{
-    const Triangle& T1 = m1.triangle(nT1);
-    const Triangle& T2 = m2.triangle(nT2);
-
-    #ifdef USE_OMP
-    Triangle *oldT = NULL;
-    analyticS analyS;
-    #else
-    static Triangle *oldT = NULL;
-    static analyticS analyS;
-    #endif
-
-    if(oldT != &T1) { // a few computations are needed only when changing triangle T1
-        oldT = (Triangle*)&T1;
-        analyS.init(nT1, m1);
+        STATIC_OMP Integrator<double, analyticS> gauss;
+        gauss.setOrder(gauss_order);
+        return gauss.integrate(analyS, T2, m2);
+    #endif //ADAPT_LHS
     }
-#ifdef ADAPT_LHS
-    AdaptiveIntegrator<double, analyticS> gauss(0.005);
-    gauss.setOrder(gauss_order);
-    return gauss.integrate(analyS, T2, m2);
-#else
-    #ifdef USE_OMP
-    Integrator<double, analyticS> gauss;
+
+    inline double _operatorSinternal(const int nT, const Mesh &m, const Vect3 pt)
+    {
+        static analyticS analyS;
+        analyS.init(nT, m);
+        return analyS.f(pt);
+    }
+
+    template<class T>
+    inline double _operatorN(const int nP1, const int nP2, const Mesh &m1, const Mesh &m2,
+                             const int gauss_order, const int IopS, const int JopS, const T &mat)
+    {
+        const Vect3 P1 = m1.point(nP1);
+        const Vect3 P2 = m2.point(nP2);
+
+        double Iqr, Aqr;
+        double result = 0.0;
+
+        const intSet& trgs1 = m1.get_triangles_for_point(nP1);
+        const intSet& trgs2 = m2.get_triangles_for_point(nP2);
+        for(intSet::const_iterator it1 = trgs1.begin(); it1 != trgs1.end(); ++it1)
+            for(intSet::const_iterator it2 = trgs2.begin(); it2 != trgs2.end(); ++it2) {
+                const Triangle& T1 = m1.triangle(*it1);
+                const Triangle& T2 = m2.triangle(*it2);
+
+                // A1 , B1 , A2, B2 are the two opposite vertices to P1 and P2 (triangles A1, B1, P1 and A2, B2, P2)
+                if(IopS != 0 || JopS != 0) {
+                    Iqr = mat(IopS + *it1, JopS + *it2);
+                } else {
+                    Iqr = _operatorS(*it1, *it2, m1, m2, gauss_order);
+                }
+                int nP1T = T1.contains(nP1);    //index of P1 in current triangle of mesh m1
+                int nP2T = T2.contains(nP2);    //index of P2 in current triangle of mesh m2
+    #ifndef OPTIMIZED_OPERATOR_N
+                Vect3 A1 = m1.point(((Triangle)T1).next(nP1T));
+                Vect3 B1 = m1.point(((Triangle)T1).prev(nP1T));
+                Vect3 A2 = m2.point(((Triangle)T2).next(nP2T));
+                Vect3 B2 = m2.point(((Triangle)T2).prev(nP2T));
+                Vect3 A1B1 = B1 - A1;
+                Vect3 A2B2 = B2 - A2;
+                Vect3 A1P1 = P1 - A1;
+                Vect3 A2P2 = P2 - A2;
+                double coef1 = A1P1 * A1B1 / A1B1.norm2();
+                double coef2 = A2P2 * A2B2 / A2B2.norm2();
+                Vect3 aq = P1 - (A1 + A1B1 * coef1);
+                Vect3 br = P2 - (A2 + A2B2 * coef2);
+                aq /= aq.norm2();
+                br /= br.norm2();
+
+                Aqr = -0.25 / T1.getArea() / T2.getArea() * ((aq ^ T1.normal()) * (br ^ T2.normal()));
     #else
-    static Integrator<double, analyticS> gauss;
+                Vect3 CB1 = m1.point(((Triangle)T1).next(nP1T)) - m1.point(((Triangle)T1).prev(nP1T));
+                Vect3 CB2 = m2.point(((Triangle)T2).next(nP2T)) - m2.point(((Triangle)T2).prev(nP2T));
+
+                Aqr = -0.25 / T1.getArea() / T2.getArea() * (CB1 * CB2);
     #endif
-    gauss.setOrder(gauss_order);
-    return gauss.integrate(analyS, T2, m2);
-#endif //ADAPT_LHS
-}
-
-inline double _operatorSinternal(const int nT, const Mesh &m, const Vect3 pt)
-{
-    static analyticS analyS;
-    analyS.init(nT, m);
-    return analyS.f(pt);
-}
-
-template<class T>
-inline double _operatorN(const int nP1, const int nP2, const Mesh &m1, const Mesh &m2,
-                         const int gauss_order, const int IopS, const int JopS, const T &mat)
-{
-    const Vect3 P1 = m1.point(nP1);
-    const Vect3 P2 = m2.point(nP2);
-
-    double Iqr, Aqr;
-    double result = 0.0;
-
-    const intSet& trgs1 = m1.get_triangles_for_point(nP1);
-    const intSet& trgs2 = m2.get_triangles_for_point(nP2);
-    for(intSet::const_iterator it1 = trgs1.begin(); it1 != trgs1.end(); ++it1)
-        for(intSet::const_iterator it2 = trgs2.begin(); it2 != trgs2.end(); ++it2) {
-            const Triangle& T1 = m1.triangle(*it1);
-            const Triangle& T2 = m2.triangle(*it2);
-
-            // A1 , B1 , A2, B2 are the two opposite vertices to P1 and P2 (triangles A1, B1, P1 and A2, B2, P2)
-            if(IopS != 0 || JopS != 0) {
-                Iqr = mat(IopS + *it1, JopS + *it2);
-            } else {
-                Iqr = _operatorS(*it1, *it2, m1, m2, gauss_order);
+                result += Aqr * Iqr;
             }
-            int nP1T = T1.contains(nP1);    //index of P1 in current triangle of mesh m1
-            int nP2T = T2.contains(nP2);    //index of P2 in current triangle of mesh m2
-#ifndef OPTIMIZED_OPERATOR_N
-            Vect3 A1 = m1.point(((Triangle)T1).next(nP1T));
-            Vect3 B1 = m1.point(((Triangle)T1).prev(nP1T));
-            Vect3 A2 = m2.point(((Triangle)T2).next(nP2T));
-            Vect3 B2 = m2.point(((Triangle)T2).prev(nP2T));
-            Vect3 A1B1 = B1 - A1;
-            Vect3 A2B2 = B2 - A2;
-            Vect3 A1P1 = P1 - A1;
-            Vect3 A2P2 = P2 - A2;
-            double coef1 = A1P1 * A1B1 / A1B1.norm2();
-            double coef2 = A2P2 * A2B2 / A2B2.norm2();
-            Vect3 aq = P1 - (A1 + A1B1 * coef1);
-            Vect3 br = P2 - (A2 + A2B2 * coef2);
-            aq /= aq.norm2();
-            br /= br.norm2();
 
-            Aqr = -0.25 / T1.getArea() / T2.getArea() * ((aq ^ T1.normal()) * (br ^ T2.normal()));
-#else
-            Vect3 CB1 = m1.point(((Triangle)T1).next(nP1T)) - m1.point(((Triangle)T1).prev(nP1T));
-            Vect3 CB2 = m2.point(((Triangle)T2).next(nP2T)) - m2.point(((Triangle)T2).prev(nP2T));
-
-            Aqr = -0.25 / T1.getArea() / T2.getArea() * (CB1 * CB2);
-#endif
-            result += Aqr * Iqr;
-        }
-
-    return result;
-}
-
-inline double _operatorP1P0(int nT2, int nP1, const Mesh &m)
-{
-    const Triangle &T2 = m.triangle(nT2);
-    if(T2.contains(nP1) == 0) {
-        return 0.0;
-    } else {
-        return T2.getArea() / 3.0;
+        return result;
     }
-}
 
-template<class T>
-void operatorN(const Mesh &m1, const Mesh &m2, T &mat, const int offsetI,
-               const int offsetJ, const int gauss_order, const int IopS, const int JopS)
-{
-    // This function has the following arguments:
+    inline double _operatorP1P0(int nT2, int nP1, const Mesh &m)
+    {
+        const Triangle &T2 = m.triangle(nT2);
+        if(T2.contains(nP1) == 0) {
+            return 0.0;
+        } else {
+            return T2.getArea() / 3.0;
+        }
+    }
+
+    template<class T>
+    void operatorN(const Mesh &m1, const Mesh &m2, T &mat, const int offsetI,
+                   const int offsetJ, const int gauss_order, const int IopS, const int JopS)
+    {
+        // This function has the following arguments:
+        //    One geometry
+        //    the indices of the treated layers I and J
+        //    the storage Matrix for the result
+        //    the upper left corner of the submatrix to be written is the Matrix
+        //  the upper left corner of the corresponding S block
+
+        std::cout<<"OPERATOR N... (arg : mesh m1, mesh m2)"<<std::endl;
+
+        if(&m1==&m2) {
+            for(int i=offsetI; i < offsetI + m1.nbPts(); i++) {
+                PROGRESSBAR(i-offsetI, m1.nbPts());
+                #pragma omp parallel for
+                for(int j=i; j < offsetJ + m2.nbPts(); j++) {
+                    mat(i, j) = _operatorN(i-offsetI, j-offsetJ, m1, m2, gauss_order, IopS, JopS, mat);
+                }
+            }
+        } else {
+            for(int i=offsetI; i < offsetI + m1.nbPts(); i++) {
+                PROGRESSBAR(i-offsetI, m1.nbPts());
+                #pragma omp parallel for
+                for(int j=offsetJ; j < offsetJ + m2.nbPts(); j++) {
+                    mat(i, j) = _operatorN(i-offsetI, j-offsetJ, m1, m2, gauss_order, IopS, JopS, mat);
+                }
+            }
+        }
+    }
+
+    template<class T>
+    void operatorS(const Mesh& m1,const Mesh& m2,T& mat,const int offsetI,
+                   const int offsetJ,const int gauss_order)
+    {
+        // This function has the following arguments:
+        //    One geometry
+        //    the indices of the treated layers I and J
+        //    the storage Matrix for the result
+        //    the upper left corner of the submatrix to be written is the Matrix
+
+        std::cout << "OPERATOR S... (arg : mesh m1, mesh m2)" << std::endl;
+
+        // The operator S is given by Sij=\Int G*PSI(I, i)*Psi(J, j) with
+        // PSI(A, a) is a P0 test function on layer A and triangle a
+        if (&m1 == &m2)
+            for(int i=offsetI; i < offsetI + m1.nbTrgs(); i++) {
+                PROGRESSBAR(i-offsetI, m1.nbTrgs());
+                #pragma omp parallel for
+                for(int j=i; j < offsetJ + m2.nbTrgs(); j++) {
+                    mat(i, j) = _operatorS(i-offsetI, j-offsetJ, m1, m2, gauss_order);
+                }
+            }
+        else {
+            for(int i=offsetI; i < offsetI + m1.nbTrgs(); i++) {
+                PROGRESSBAR(i-offsetI, m1.nbTrgs());
+                #pragma omp parallel for
+                for(int j=offsetJ; j < offsetJ + m2.nbTrgs(); j++) {
+                    mat(i, j) = _operatorS(i-offsetI, j-offsetJ, m1, m2, gauss_order);
+                }
+            }
+        }
+    }
+
+    #ifndef OPTIMIZED_OPERATOR_D
+
+    template<class T>
+    void operatorD(const Mesh &m1, const Mesh &m2, T &mat, const int offsetI, const int offsetJ, const int gauss_order)
+    {
+    // This function (NON OPTIMIZED VERSION) has the following arguments:
     //    One geometry
     //    the indices of the treated layers I and J
     //    the storage Matrix for the result
     //    the upper left corner of the submatrix to be written is the Matrix
-    //  the upper left corner of the corresponding S block
+        std::cout << "OPERATOR D... (arg : mesh m1, mesh m2)" << std::endl;
 
-    std::cout<<"OPERATOR N... (arg : mesh m1, mesh m2)"<<std::endl;
-
-    if(&m1==&m2) {
-        for(int i=offsetI; i < offsetI + m1.nbPts(); i++) {
-            PROGRESSBAR(i-offsetI, m1.nbPts());
-            #ifdef USE_OMP
+        for(int i=offsetI; i < offsetI + m1.nbTrgs(); i++) {
+            PROGRESSBAR(i-offsetI, m1.nbTrgs());
             #pragma omp parallel for
-            #endif
-            for(int j=i; j < offsetJ + m2.nbPts(); j++) {
-                mat(i, j) = _operatorN(i-offsetI, j-offsetJ, m1, m2, gauss_order, IopS, JopS, mat);
-            }
-        }
-    } else {
-        for(int i=offsetI; i < offsetI + m1.nbPts(); i++) {
-            PROGRESSBAR(i-offsetI, m1.nbPts());
-            #ifdef USE_OMP
-            #pragma omp parallel for
-            #endif
             for(int j=offsetJ; j < offsetJ + m2.nbPts(); j++) {
-                mat(i, j) = _operatorN(i-offsetI, j-offsetJ, m1, m2, gauss_order, IopS, JopS, mat);
+                // P1 functions are tested thus looping on vertices
+                mat(i, j) = _operatorD(i-offsetI, j-offsetJ, m1, m2, gauss_order);
             }
         }
     }
-}
 
-template<class T>
-void operatorS(const Mesh& m1,const Mesh& m2,T& mat,const int offsetI,
-               const int offsetJ,const int gauss_order)
-{
-    // This function has the following arguments:
-    //    One geometry
-    //    the indices of the treated layers I and J
-    //    the storage Matrix for the result
-    //    the upper left corner of the submatrix to be written is the Matrix
+    #else // OPTIMIZED_OPERATOR_D
 
-    std::cout << "OPERATOR S... (arg : mesh m1, mesh m2)" << std::endl;
+    template<class T>
+    void operatorD(const Mesh &m1, const Mesh &m2, T &mat, const int offsetI, const int offsetJ, const int gauss_order)
+    {
+        // This function (OPTIMIZED VERSION) has the following arguments:
+        //    One geometry
+        //    the indices of the treated layers I and J
+        //    the storage Matrix for the result
+        //    the upper left corner of the submatrix to be written is the Matrix
 
-    // The operator S is given by Sij=\Int G*PSI(I, i)*Psi(J, j) with
-    // PSI(A, a) is a P0 test function on layer A and triangle a
-    if (&m1 == &m2)
+        std::cout << "OPERATOR D (Optimized) ... (arg : mesh m1, mesh m2)" << std::endl;
+
         for(int i=offsetI; i < offsetI + m1.nbTrgs(); i++) {
             PROGRESSBAR(i-offsetI, m1.nbTrgs());
-            #ifdef USE_OMP
-            #pragma omp parallel for
-            #endif
-            for(int j=i; j < offsetJ + m2.nbTrgs(); j++) {
-                mat(i, j) = _operatorS(i-offsetI, j-offsetJ, m1, m2, gauss_order);
-            }
-        }
-    else {
-        for(int i=offsetI; i < offsetI + m1.nbTrgs(); i++) {
-            PROGRESSBAR(i-offsetI, m1.nbTrgs());
-            #ifdef USE_OMP
-            #pragma omp parallel for
-            #endif
             for(int j=offsetJ; j < offsetJ + m2.nbTrgs(); j++) {
-                mat(i, j) = _operatorS(i-offsetI, j-offsetJ, m1, m2, gauss_order);
+                //In this version of the function, in order to skip multiple computations of the same quantities
+                //    loops are run over the triangles but the Matrix cannot be filled in this function anymore
+                //    That's why the filling is done is function _operatorD
+                _operatorD(i-offsetI, j-offsetJ, m1, m2, mat, offsetI, offsetJ, gauss_order);
             }
         }
     }
-}
 
-#ifndef OPTIMIZED_OPERATOR_D
+    #endif // OPTIMIZED_OPERATOR_D
 
-template<class T>
-void operatorD(const Mesh &m1, const Mesh &m2, T &mat, const int offsetI, const int offsetJ, const int gauss_order)
-{
-// This function (NON OPTIMIZED VERSION) has the following arguments:
-//    One geometry
-//    the indices of the treated layers I and J
-//    the storage Matrix for the result
-//    the upper left corner of the submatrix to be written is the Matrix
-    std::cout << "OPERATOR D... (arg : mesh m1, mesh m2)" << std::endl;
-
-    for(int i=offsetI; i < offsetI + m1.nbTrgs(); i++) {
-        PROGRESSBAR(i-offsetI, m1.nbTrgs());
-        #ifdef USE_OMP
-        #pragma omp parallel for
-        #endif
-        for(int j=offsetJ; j < offsetJ + m2.nbPts(); j++) {
-            // P1 functions are tested thus looping on vertices
-            mat(i, j) = _operatorD(i-offsetI, j-offsetJ, m1, m2, gauss_order);
+    template<class T>
+    void operatorP1P0(const Mesh &m, T &mat, const int offsetI, const int offsetJ)
+    {
+        // This time mat(i, j)+= ... the Matrix is incremented by the P1P0 operator
+        std::cout << "OPERATOR P1P0..." << std::endl;
+        for(int i=offsetI; i < offsetI + m.nbTrgs(); i++) {
+            for(int j=offsetJ; j < offsetJ + m.nbPts(); j++) {
+                mat(i, j) += _operatorP1P0(i-offsetI, j-offsetJ, m);
+            }
         }
     }
-}
 
-#else // OPTIMIZED_OPERATOR_D
 
-template<class T>
-void operatorD(const Mesh &m1, const Mesh &m2, T &mat, const int offsetI, const int offsetJ, const int gauss_order)
-{
-    // This function (OPTIMIZED VERSION) has the following arguments:
-    //    One geometry
-    //    the indices of the treated layers I and J
-    //    the storage Matrix for the result
-    //    the upper left corner of the submatrix to be written is the Matrix
+    inline Vect3 _operatorFerguson(const Vect3 x, const int nP1, const Mesh &m1)
+    {
+        const Vect3 P1 = m1.point(nP1);
 
-    std::cout << "OPERATOR D (Optimized) ... (arg : mesh m1, mesh m2)" << std::endl;
+        double opS;
+        Vect3  v;
 
-    for(int i=offsetI; i < offsetI + m1.nbTrgs(); i++) {
-        PROGRESSBAR(i-offsetI, m1.nbTrgs());
-        for(int j=offsetJ; j < offsetJ + m2.nbTrgs(); j++) {
-            //In this version of the funtcion, in order to skip multiple computations of the same quantities
-            //    loops are run over the triangles but the Matrix cannot be filled in this function anymore
-            //    That's why the filling is done is function _operatorD
-            _operatorD(i-offsetI, j-offsetJ, m1, m2, mat, offsetI, offsetJ, gauss_order);
+        STATIC_OMP Vect3 result;
+        STATIC_OMP analyticS analyS;
+
+        result.x() = 0.0;
+        result.y() = 0.0;
+        result.z() = 0.0;
+
+        //loop over triangles of which P1 is a vertex
+        const intSet& trgs1 = m1.get_triangles_for_point(nP1);
+        for(intSet::const_iterator it = trgs1.begin(); it != trgs1.end(); ++it) {
+            const Triangle& T1 = m1.triangle(*it);
+
+            // A1 , B1  are the two opposite vertices to P1 (triangles A1, B1, P1)
+            int nP1T = T1.contains(nP1);    //index of P1 in current triangle of mesh m1
+
+            Vect3 A1 = m1.point(T1.next(nP1T));
+            Vect3 B1 = m1.point(T1.prev(nP1T));
+            Vect3 A1B1 = B1 - A1;    // actually, B1A1 is needed
+            v = A1B1 * (-0.5 / T1.getArea());
+
+            analyS.init(P1, A1, B1);
+            opS = analyS.f(x);
+
+            result += (v * opS);
         }
-    }
-}
 
-#endif // OPTIMIZED_OPERATOR_D
-
-template<class T>
-void operatorP1P0(const Mesh &m, T &mat, const int offsetI, const int offsetJ)
-{
-    // This time mat(i, j)+= ... the Matrix is incremented by the P1P0 operator
-    std::cout << "OPERATOR P1P0..." << std::endl;
-    for(int i=offsetI; i < offsetI + m.nbTrgs(); i++) {
-        for(int j=offsetJ; j < offsetJ + m.nbPts(); j++) {
-            mat(i, j) += _operatorP1P0(i-offsetI, j-offsetJ, m);
-        }
-    }
-}
-
-
-inline Vect3 _operatorFerguson(const Vect3 x, const int nP1, const Mesh &m1)
-{
-    const Vect3 P1 = m1.point(nP1);
-
-    double opS;
-    Vect3  v;
-
-    #ifdef USE_OMP
-    Vect3 result;
-    analyticS analyS;
-    #else
-    static Vect3 result;
-    static analyticS analyS;
-    #endif
-
-    result.x() = 0.0;
-    result.y() = 0.0;
-    result.z() = 0.0;
-
-    //loop over triangles of which P1 is a vertex
-    const intSet& trgs1 = m1.get_triangles_for_point(nP1);
-    for(intSet::const_iterator it = trgs1.begin(); it != trgs1.end(); ++it) {
-        const Triangle& T1 = m1.triangle(*it);
-
-        // A1 , B1  are the two opposite vertices to P1 (triangles A1, B1, P1)
-        int nP1T = T1.contains(nP1);    //index of P1 in current triangle of mesh m1
-
-        Vect3 A1 = m1.point(T1.next(nP1T));
-        Vect3 B1 = m1.point(T1.prev(nP1T));
-        Vect3 A1B1 = B1 - A1;    // actually, B1A1 is needed
-        v = A1B1 * (-0.5 / T1.getArea());
-
-        analyS.init(P1, A1, B1);
-        opS = analyS.f(x);
-
-        result += (v * opS);
+        return result;
     }
 
-    return result;
 }
-
-} // namespace OpenMEEG
 
 #endif  //! OPENMEEG_OPERATORS_H

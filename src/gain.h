@@ -80,16 +80,12 @@ namespace OpenMEEG {
                 #if USE_GMRES
                 Matrix mtemp(Head2EEGMat.nlin(),HeadMat.nlin()); // Consider the GMRes solver for problem with dimension > 15,000 (3,000 vertices per interface) else use LAPACK solver
                 Preconditioner::Jacobi<SymMatrix> M(HeadMat);    // Jacobi preconditionner
-                #ifdef USE_OMP
                 #pragma omp parallel for
-                #endif
                 for (unsigned i=0;i<LeadField.nlin();i++) {
                     Vector vtemp(HeadMat.nlin());
                     GMRes(HeadMat,M,vtemp,Head2EEGMat.getlin(i),1e3,1e-7,HeadMat.nlin()); // max number of iteration = 1000, and precision=1e-7 (1e-5 for faster resolution)
                     mtemp.setlin(i,vtemp);
-                    #ifdef USE_OMP
                     #pragma omp critical
-                    #endif
                     PROGRESSBAR(i,LeadField.nlin());
                 }
                 #else
@@ -118,16 +114,12 @@ namespace OpenMEEG {
                 #if USE_GMRES
                 Matrix mtemp(Head2MEGMat.nlin(),HeadMat.nlin()); // Consider the GMRes solver for problem with dimension > 15,000 (3,000 vertices per interface) else use LAPACK solver
                 Preconditioner::Jacobi<SymMatrix> M(HeadMat);    // Jacobi preconditionner
-                #ifdef USE_OMP
                 #pragma omp parallel for
-                #endif
                 for (unsigned i=0;i<LeadField.nlin();i++) {
                     Vector vtemp(HeadMat.nlin());
                     GMRes(HeadMat,M,vtemp,Head2MEGMat.getlin(i),1e3,1e-7,HeadMat.nlin()); // max number of iteration = 1000, and precision=1e-7 (1e-5 for faster resolution)
                     mtemp.setlin(i,vtemp);
-                    #ifdef USE_OMP
                     #pragma omp critical
-                    #endif
                     PROGRESSBAR(i,LeadField.nlin());
                 }
                 #else
@@ -162,16 +154,12 @@ namespace OpenMEEG {
                 #if USE_GMRES
                 Matrix mtemp(RHS.nlin(),HeadMat.nlin()); // Consider the GMRes solver for problem with dimension > 15,000 (3,000 vertices per interface) else use LAPACK solver
                 Preconditioner::Jacobi<SymMatrix> M(HeadMat); // Jacobi preconditionner
-                #ifdef USE_OMP
                 #pragma omp parallel for
-                #endif
                 for (unsigned i=0;i<RHS.nlin();i++) {
                     Vector vtemp(HeadMat.nlin());
                     GMRes(HeadMat,M,vtemp,RHS.getlin(i),1e3,1e-7,HeadMat.nlin()); // max number of iteration = 1000, and precision=1e-7 (1e-5 for faster resolution)
                     mtemp.setlin(i,vtemp);
-                    #ifdef USE_OMP
                     #pragma omp critical
-                    #endif
                     PROGRESSBAR(i,RHS.nlin());
                 }
                 #else

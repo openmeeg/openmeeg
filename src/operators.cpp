@@ -70,9 +70,7 @@ void operatorSinternal(const Mesh &m, Matrix &mat, const int offsetI, const int 
 // to an entire mesh, and storing coordinates of the output in a Matrix.
 void operatorFerguson(const Vect3& x, const Mesh &m, Matrix &mat, int offsetI, int offsetJ)
 {
-    #ifdef USE_OMP
     #pragma omp parallel for
-    #endif
     for(int j=offsetJ; j < offsetJ + m.nbPts(); j++) {
         Vect3 v = _operatorFerguson(x, j-offsetJ, m);
         mat(offsetI+0,j) = v.x();
@@ -94,15 +92,11 @@ void operatorDipolePotDer(const Vect3 &r0,const Vect3 &q,const Mesh &layer, Vect
     }
 
     gauss->setOrder(gauss_order);
-    #ifdef USE_OMP
     #pragma omp parallel for private(anaDPD)
-    #endif
     for(int i=0; i<layer.nbTrgs(); i++) {
         anaDPD.init(layer, i, q, r0);
         Vect3 v = gauss->integrate(anaDPD, layer.triangle(i), layer);
-        #ifdef USE_OMP
         #pragma omp critical
-        #endif
         {
             rhs(layer.triangle(i).s1() + offsetIdx) += v(0);
             rhs(layer.triangle(i).s2() + offsetIdx) += v(1);
@@ -126,14 +120,10 @@ void operatorDipolePot(const Vect3 &r0, const Vect3 &q, const Mesh &layer, Vecto
     }
 
     gauss->setOrder(gauss_order);
-    #ifdef USE_OMP
     #pragma omp parallel for
-    #endif
     for(int i=offsetIdx; i<offsetIdx+layer.nbTrgs(); i++) {
         double d = gauss->integrate(anaDP,layer.triangle(i-offsetIdx),layer);
-        #ifdef USE_OMP
         #pragma omp critical
-        #endif
         rhs(i) += d;
     }
     delete gauss;

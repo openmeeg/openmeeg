@@ -26,4 +26,10 @@
 
 static const char version[] = "@VERSION_STRING@";
 
+#ifdef USE_OMP
+#define STATIC_OMP
+#else
+#define STATIC_OMP static
+#endif
+
 #endif  //  ! OPENMEEGCONFIGURE_H

@@ -293,9 +293,7 @@ namespace OpenMEEG {
         size_t nT = Data.ncol();
         EstimatedData = Matrix(GainMatrix.ncol(),nT);
 
-        #ifdef USE_OMP
         #pragma omp parallel for
-        #endif
         for(long frame=0;frame<(long)nT;frame++) { // loop over frame
             Vector m = Data.getcol((size_t) frame);
             Vector v(GainMatrix.ncol()); v.set(0.0);
@@ -305,9 +303,7 @@ namespace OpenMEEG {
 
             for(size_t i=0;i<EstimatedData.nlin();i++) EstimatedData(i,(size_t) frame) = v(i);
 
-            #ifdef USE_OMP
             #pragma omp critical
-            #endif
             std::cout << ">> Frame " << frame+1 << " / " << nT
                       << " : Rel. Err. = " << (GainMatrix*v-m).norm()/m.norm()
                       << " : Nb. iter. MinRes = " << niter
