@@ -1,0 +1,21 @@
+try
+    load '@FILENAME@'
+    expdata1 = zeros(6,10);
+    expdata1(1:2:6,1:2:10) = reshape(1:15,3,5);
+    expdata2 = single(expdata1);
+    expdata3 = int32(expdata1);
+    pass = true;
+    pass = pass && isa(d,class(expdata1));
+    pass = pass && isa(f,class(expdata2));
+    pass = pass && isa(i,class(expdata3));
+    pass = pass && isequal(d,expdata1);
+    pass = pass && isequal(f,expdata2);
+    pass = pass && isequal(i,expdata3);
+catch me
+    pass = false;
+end
+if pass
+    fprintf('PASSED\n');
+else
+    fprintf('FAILED\n');
+end

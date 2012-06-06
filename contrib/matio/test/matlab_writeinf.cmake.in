@@ -1,0 +1,16 @@
+try
+    load '@FILENAME@'
+    expdata = reshape(1:25,5,5);
+    expdata = expdata-diag(diag(expdata))+diag(inf(1,5));
+    pass = true;
+    pass = pass && isa(d,class(expdata));
+    pass = pass && all(size(d)==size(expdata));
+    pass = pass && all(d(:)==expdata(:));
+catch me
+    pass = false;
+end
+if pass
+    fprintf('PASSED\n');
+else
+    fprintf('FAILED\n');
+end

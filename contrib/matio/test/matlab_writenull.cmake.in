@@ -1,0 +1,38 @@
+try
+    load '@FILENAME@'
+    expdata1 = zeros(0,1,10);
+    expdata2 = complex(zeros(0,1,10));
+    expdata3 = blanks(0)';
+    expdata4 = struct(expdata3);
+    expdata5 = struct('d_null',cell(0,1,10),'cd_null',cell(0,1,10),'char_null',cell(0,1,10));
+    expdata6 = struct('d_null',expdata1,'cd_null',expdata1,'char_null',char(zeros(0,1)));
+    expdata7 = cell(0,1);
+    expdata8 = {zeros(0,1,10),complex(zeros(0,1,10)),char(zeros(0,1))}';
+
+    pass = true;
+
+    pass = pass && isa(d_null,class(expdata1));
+    pass = pass && isa(cd_null,class(expdata2));
+    pass = pass && isa(char_null,class(expdata3));
+    pass = pass && isa(struct_null,class(expdata4));
+    pass = pass && isa(struct_empty_with_fields,class(expdata5));
+    pass = pass && isa(struct_null_fields,class(expdata6));
+    pass = pass && isa(cell_null,class(expdata7));
+    pass = pass && isa(cell_null_cells,class(expdata8));
+
+    pass = pass && isequal(d_null,expdata1);
+    pass = pass && isequal(cd_null,expdata2);
+    pass = pass && isequal(char_null,expdata3);
+    pass = pass && isequal(struct_null,expdata4);
+    pass = pass && isequal(struct_empty_with_fields,expdata5);
+    pass = pass && isequal(struct_null_fields,expdata6);
+    pass = pass && isequal(cell_null,expdata7);
+    pass = pass && isequal(cell_null_cells,expdata8);
+catch me
+    pass = false;
+end
+if pass
+    fprintf('PASSED\n');
+else
+    fprintf('FAILED\n');
+end

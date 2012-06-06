@@ -1,0 +1,26 @@
+try
+    load '@FILENAME@'
+    expdata = reshape(1:25,5,5);
+    expdata = expdata-diag(diag(expdata))+diag(nan(1,5));
+
+    pass = true;
+    pass = pass && isa(d,class(expdata));
+    pass = pass && all(size(d)==size(expdata));
+    pass = pass && isequal(isnan(d),isnan(expdata));
+
+    n = size(expdata,1);
+    ind = 1:n+1:n^2;
+
+    d(ind) = 0;
+    expdata(ind) = 0;
+
+    pass = pass && isequal(d,expdata);
+
+catch me
+    pass = false;
+end
+if pass
+    fprintf('PASSED\n');
+else
+    fprintf('FAILED\n');
+end
