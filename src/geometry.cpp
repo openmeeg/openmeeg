@@ -164,7 +164,7 @@ namespace OpenMEEG {
     }
 
     int Geometry::getDomain(const Vect3& p) const {
-        for (int i=0;i<nb();i++)
+        for (int i=0;i<nb();++i)
             if ((this->getM(i)).contains_point(p))
                 return i;
         return nb();
