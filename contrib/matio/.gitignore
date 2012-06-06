@@ -6,6 +6,9 @@
 *.la
 *.o
 
+# Vim files
+*.swp *.swo
+
 #
 # Linux autotool files
 #
@@ -23,3 +26,6 @@ autom4te.cache/
 aclocal.m4
 config/lt*
 config/libtool.m4
+config/texinfo.tex
+test/package.m4
+test/testsuite
