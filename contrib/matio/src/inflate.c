@@ -3,24 +3,36 @@
  * @ingroup MAT
  */
 /*
- * Copyright (C) 2005-2010   Christopher C. Hulbert
+ * Copyright (C) 2005-2011   Christopher C. Hulbert
  *
- *  This library is free software; you can redistribute it and/or
- *  modify it under the terms of the GNU Lesser General Public
- *  License as published by the Free Software Foundation; either
- *  version 2.1 of the License, or (at your option) any later version.
+ * All rights reserved.
  *
- *  This library is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- *  Lesser General Public License for more details.
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
  *
- *  You should have received a copy of the GNU Lesser General Public
- *  License along with this library; if not, write to the Free Software
- *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ *    1. Redistributions of source code must retain the above copyright notice,
+ *       this list of conditions and the following disclaimer.
+ *
+ *    2. Redistributions in binary form must reproduce the above copyright
+ *       notice, this list of conditions and the following disclaimer in the
+ *       documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY CHRISTOPHER C. HULBERT ``AS IS'' AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL CHRISTOPHER C. HULBERT OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
  */
 #include <stdlib.h>
 #include "matio_private.h"
+
+#if HAVE_ZLIB
 
 /** @cond mat_devman */
 
@@ -33,7 +45,7 @@
  * @param nbytes Number of uncompressed bytes to skip
  * @return Number of bytes read from the file
  */
-int 
+int
 InflateSkip(mat_t *mat, z_stream *z, int nbytes)
 {
     mat_uint8_t comp_buf[512],uncomp_buf[512];
@@ -45,7 +57,7 @@ InflateSkip(mat_t *mat, z_stream *z, int nbytes)
     n = (nbytes<512) ? nbytes : 512;
     if ( !z->avail_in ) {
         z->next_in = comp_buf;
-        z->avail_in += matio_read(comp_buf,1,n,mat->fp);
+        z->avail_in += fread(comp_buf,1,n,mat->fp);
         bytesread   += z->avail_in;
     }
     z->avail_out = n;
@@ -66,7 +78,7 @@ InflateSkip(mat_t *mat, z_stream *z, int nbytes)
     while ( cnt < nbytes ) {
         if ( !z->avail_in ) {
             z->next_in   = comp_buf;
-            z->avail_in += matio_read(comp_buf,1,n,mat->fp);
+            z->avail_in += fread(comp_buf,1,n,mat->fp);
             bytesread   += z->avail_in;
         }
         err = inflate(z,Z_FULL_FLUSH);
@@ -86,7 +98,7 @@ InflateSkip(mat_t *mat, z_stream *z, int nbytes)
 
     if ( z->avail_in ) {
         long offset = -(long)z->avail_in;
-        matio_seek(mat->fp,offset,SEEK_CUR);
+        fseek(mat->fp,offset,SEEK_CUR);
         bytesread -= z->avail_in;
         z->avail_in = 0;
     }
@@ -112,7 +124,7 @@ InflateSkip2(mat_t *mat, matvar_t *matvar, int nbytes)
     if ( !matvar->internal->z->avail_in ) {
         matvar->internal->z->avail_in = 1;
         matvar->internal->z->next_in = comp_buf;
-        bytesread += matio_read(comp_buf,1,1,mat->fp);
+        bytesread += fread(comp_buf,1,1,mat->fp);
     }
     matvar->internal->z->avail_out = 1;
     matvar->internal->z->next_out = uncomp_buf;
@@ -129,7 +141,7 @@ InflateSkip2(mat_t *mat, matvar_t *matvar, int nbytes)
         if ( !matvar->internal->z->avail_in ) {
             matvar->internal->z->avail_in = 1;
             matvar->internal->z->next_in = comp_buf;
-            bytesread += matio_read(comp_buf,1,1,mat->fp);
+            bytesread += fread(comp_buf,1,1,mat->fp);
             cnt++;
         }
         err = inflate(matvar->internal->z,Z_NO_FLUSH);
@@ -144,7 +156,7 @@ InflateSkip2(mat_t *mat, matvar_t *matvar, int nbytes)
     }
 
     if ( matvar->internal->z->avail_in ) {
-        matio_seek(mat->fp,-(int)matvar->internal->z->avail_in,SEEK_CUR);
+        fseek(mat->fp,-(int)matvar->internal->z->avail_in,SEEK_CUR);
         bytesread -= matvar->internal->z->avail_in;
         matvar->internal->z->avail_in = 0;
     }
@@ -207,8 +219,6 @@ InflateSkipData(mat_t *mat,z_stream *z,enum matio_types data_type,int len)
         case MAT_T_INT8:
             data_size = sizeof(mat_int8_t);
             break;
-        default:
-            break;
     }
     InflateSkip(mat,z,len*data_size);
     return len;
@@ -220,7 +230,7 @@ InflateSkipData(mat_t *mat,z_stream *z,enum matio_types data_type,int len)
  * @ingroup mat_internal
  * @param mat Pointer to the MAT file
  * @param matvar Pointer to the MAT variable
- * @param buf Pointer to store the 8-byte variable tag 
+ * @param buf Pointer to store the 8-byte variable tag
  * @return Number of bytes read from the file
  */
 int
@@ -235,7 +245,7 @@ InflateVarTag(mat_t *mat, matvar_t *matvar, void *buf)
     if ( !matvar->internal->z->avail_in ) {
         matvar->internal->z->avail_in = 1;
         matvar->internal->z->next_in = comp_buf;
-        bytesread += matio_read(comp_buf,1,1,mat->fp);
+        bytesread += fread(comp_buf,1,1,mat->fp);
     }
     matvar->internal->z->avail_out = 8;
     matvar->internal->z->next_out = buf;
@@ -247,7 +257,7 @@ InflateVarTag(mat_t *mat, matvar_t *matvar, void *buf)
     while ( matvar->internal->z->avail_out && !matvar->internal->z->avail_in ) {
         matvar->internal->z->avail_in = 1;
         matvar->internal->z->next_in = comp_buf;
-        bytesread += matio_read(comp_buf,1,1,mat->fp);
+        bytesread += fread(comp_buf,1,1,mat->fp);
         err = inflate(matvar->internal->z,Z_NO_FLUSH);
         if ( err != Z_OK ) {
             Mat_Critical("InflateVarTag: inflate returned %d",err);
@@ -256,7 +266,7 @@ InflateVarTag(mat_t *mat, matvar_t *matvar, void *buf)
     }
 
     if ( matvar->internal->z->avail_in ) {
-        matio_seek(mat->fp,-(int)matvar->internal->z->avail_in,SEEK_CUR);
+        fseek(mat->fp,-(int)matvar->internal->z->avail_in,SEEK_CUR);
         bytesread -= matvar->internal->z->avail_in;
         matvar->internal->z->avail_in = 0;
     }
@@ -270,7 +280,7 @@ InflateVarTag(mat_t *mat, matvar_t *matvar, void *buf)
  * @ingroup mat_internal
  * @param mat Pointer to the MAT file
  * @param matvar Pointer to the MAT variable
- * @param buf Pointer to store the 16-byte array flags tag and data 
+ * @param buf Pointer to store the 16-byte array flags tag and data
  * @return Number of bytes read from the file
  */
 int
@@ -284,7 +294,7 @@ InflateArrayFlags(mat_t *mat, matvar_t *matvar, void *buf)
     if ( !matvar->internal->z->avail_in ) {
         matvar->internal->z->avail_in = 1;
         matvar->internal->z->next_in = comp_buf;
-        bytesread += matio_read(comp_buf,1,1,mat->fp);
+        bytesread += fread(comp_buf,1,1,mat->fp);
     }
     matvar->internal->z->avail_out = 16;
     matvar->internal->z->next_out = buf;
@@ -296,7 +306,7 @@ InflateArrayFlags(mat_t *mat, matvar_t *matvar, void *buf)
     while ( matvar->internal->z->avail_out && !matvar->internal->z->avail_in ) {
         matvar->internal->z->avail_in = 1;
         matvar->internal->z->next_in = comp_buf;
-        bytesread += matio_read(comp_buf,1,1,mat->fp);
+        bytesread += fread(comp_buf,1,1,mat->fp);
         err = inflate(matvar->internal->z,Z_NO_FLUSH);
         if ( err != Z_OK ) {
             Mat_Critical("InflateArrayFlags: inflate returned %d",err);
@@ -305,7 +315,7 @@ InflateArrayFlags(mat_t *mat, matvar_t *matvar, void *buf)
     }
 
     if ( matvar->internal->z->avail_in ) {
-        matio_seek(mat->fp,-(int)matvar->internal->z->avail_in,SEEK_CUR);
+        fseek(mat->fp,-(int)matvar->internal->z->avail_in,SEEK_CUR);
         bytesread -= matvar->internal->z->avail_in;
         matvar->internal->z->avail_in = 0;
     }
@@ -321,7 +331,7 @@ InflateArrayFlags(mat_t *mat, matvar_t *matvar, void *buf)
  * @ingroup mat_internal
  * @param mat Pointer to the MAT file
  * @param matvar Pointer to the MAT variable
- * @param buf Pointer to store the dimensions flag and data 
+ * @param buf Pointer to store the dimensions flag and data
  * @return Number of bytes read from the file
  */
 int
@@ -337,7 +347,7 @@ InflateDimensions(mat_t *mat, matvar_t *matvar, void *buf)
     if ( !matvar->internal->z->avail_in ) {
         matvar->internal->z->avail_in = 1;
         matvar->internal->z->next_in = comp_buf;
-        bytesread += matio_read(comp_buf,1,1,mat->fp);
+        bytesread += fread(comp_buf,1,1,mat->fp);
     }
     matvar->internal->z->avail_out = 8;
     matvar->internal->z->next_out = buf;
@@ -349,7 +359,7 @@ InflateDimensions(mat_t *mat, matvar_t *matvar, void *buf)
     while ( matvar->internal->z->avail_out && !matvar->internal->z->avail_in ) {
         matvar->internal->z->avail_in = 1;
         matvar->internal->z->next_in = comp_buf;
-        bytesread += matio_read(comp_buf,1,1,mat->fp);
+        bytesread += fread(comp_buf,1,1,mat->fp);
         err = inflate(matvar->internal->z,Z_NO_FLUSH);
         if ( err != Z_OK ) {
             Mat_Critical("InflateDimensions: inflate returned %d",err);
@@ -376,7 +386,7 @@ InflateDimensions(mat_t *mat, matvar_t *matvar, void *buf)
     if ( !matvar->internal->z->avail_in ) {
         matvar->internal->z->avail_in = 1;
         matvar->internal->z->next_in = comp_buf;
-        bytesread += matio_read(comp_buf,1,1,mat->fp);
+        bytesread += fread(comp_buf,1,1,mat->fp);
     }
     matvar->internal->z->avail_out = rank;
     matvar->internal->z->next_out = (void *)((mat_int32_t *)buf+2);
@@ -388,7 +398,7 @@ InflateDimensions(mat_t *mat, matvar_t *matvar, void *buf)
     while ( matvar->internal->z->avail_out && !matvar->internal->z->avail_in ) {
         matvar->internal->z->avail_in = 1;
         matvar->internal->z->next_in = comp_buf;
-        bytesread += matio_read(comp_buf,1,1,mat->fp);
+        bytesread += fread(comp_buf,1,1,mat->fp);
         err = inflate(matvar->internal->z,Z_NO_FLUSH);
         if ( err != Z_OK ) {
             Mat_Critical("InflateDimensions: inflate returned %d",err);
@@ -397,7 +407,7 @@ InflateDimensions(mat_t *mat, matvar_t *matvar, void *buf)
     }
 
     if ( matvar->internal->z->avail_in ) {
-        matio_seek(mat->fp,-(int)matvar->internal->z->avail_in,SEEK_CUR);
+        fseek(mat->fp,-(int)matvar->internal->z->avail_in,SEEK_CUR);
         bytesread -= matvar->internal->z->avail_in;
         matvar->internal->z->avail_in = 0;
     }
@@ -410,7 +420,7 @@ InflateDimensions(mat_t *mat, matvar_t *matvar, void *buf)
  * @ingroup mat_internal
  * @param mat Pointer to the MAT file
  * @param matvar Pointer to the MAT variable
- * @param buf Pointer to store the variables name tag 
+ * @param buf Pointer to store the variables name tag
  * @return Number of bytes read from the file
  */
 int
@@ -425,7 +435,7 @@ InflateVarNameTag(mat_t *mat, matvar_t *matvar, void *buf)
     if ( !matvar->internal->z->avail_in ) {
         matvar->internal->z->avail_in = 1;
         matvar->internal->z->next_in = comp_buf;
-        bytesread += matio_read(comp_buf,1,1,mat->fp);
+        bytesread += fread(comp_buf,1,1,mat->fp);
     }
     matvar->internal->z->avail_out = 8;
     matvar->internal->z->next_out = buf;
@@ -437,7 +447,7 @@ InflateVarNameTag(mat_t *mat, matvar_t *matvar, void *buf)
     while ( matvar->internal->z->avail_out && !matvar->internal->z->avail_in ) {
         matvar->internal->z->avail_in = 1;
         matvar->internal->z->next_in = comp_buf;
-        bytesread += matio_read(comp_buf,1,1,mat->fp);
+        bytesread += fread(comp_buf,1,1,mat->fp);
         err = inflate(matvar->internal->z,Z_NO_FLUSH);
         if ( err != Z_OK ) {
             Mat_Critical("InflateVarNameTag: inflate returned %d",err);
@@ -446,7 +456,7 @@ InflateVarNameTag(mat_t *mat, matvar_t *matvar, void *buf)
     }
 
     if ( matvar->internal->z->avail_in ) {
-        matio_seek(mat->fp,-(int)matvar->internal->z->avail_in,SEEK_CUR);
+        fseek(mat->fp,-(int)matvar->internal->z->avail_in,SEEK_CUR);
         bytesread -= matvar->internal->z->avail_in;
         matvar->internal->z->avail_in = 0;
     }
@@ -459,7 +469,7 @@ InflateVarNameTag(mat_t *mat, matvar_t *matvar, void *buf)
  * @ingroup mat_internal
  * @param mat Pointer to the MAT file
  * @param matvar Pointer to the MAT variable
- * @param buf Pointer to store the variables name 
+ * @param buf Pointer to store the variables name
  * @param N Number of characters in the name
  * @return Number of bytes read from the file
  */
@@ -475,7 +485,7 @@ InflateVarName(mat_t *mat, matvar_t *matvar, void *buf, int N)
     if ( !matvar->internal->z->avail_in ) {
         matvar->internal->z->avail_in = 1;
         matvar->internal->z->next_in = comp_buf;
-        bytesread += matio_read(comp_buf,1,1,mat->fp);
+        bytesread += fread(comp_buf,1,1,mat->fp);
     }
     matvar->internal->z->avail_out = N;
     matvar->internal->z->next_out = buf;
@@ -487,7 +497,7 @@ InflateVarName(mat_t *mat, matvar_t *matvar, void *buf, int N)
     while ( matvar->internal->z->avail_out && !matvar->internal->z->avail_in ) {
         matvar->internal->z->avail_in = 1;
         matvar->internal->z->next_in = comp_buf;
-        bytesread += matio_read(comp_buf,1,1,mat->fp);
+        bytesread += fread(comp_buf,1,1,mat->fp);
         err = inflate(matvar->internal->z,Z_NO_FLUSH);
         if ( err != Z_OK ) {
             Mat_Critical("InflateVarName: inflate returned %d",err);
@@ -496,7 +506,7 @@ InflateVarName(mat_t *mat, matvar_t *matvar, void *buf, int N)
     }
 
     if ( matvar->internal->z->avail_in ) {
-        matio_seek(mat->fp,-(int)matvar->internal->z->avail_in,SEEK_CUR);
+        fseek(mat->fp,-(int)matvar->internal->z->avail_in,SEEK_CUR);
         bytesread -= matvar->internal->z->avail_in;
         matvar->internal->z->avail_in = 0;
     }
@@ -510,7 +520,7 @@ InflateVarName(mat_t *mat, matvar_t *matvar, void *buf, int N)
  * @ingroup mat_internal
  * @param mat Pointer to the MAT file
  * @param matvar Pointer to the MAT variable
- * @param buf Pointer to store the data tag 
+ * @param buf Pointer to store the data tag
  * @return Number of bytes read from the file
  */
 int
@@ -525,7 +535,7 @@ InflateDataTag(mat_t *mat, matvar_t *matvar, void *buf)
    if ( !matvar->internal->z->avail_in ) {
         matvar->internal->z->avail_in = 1;
         matvar->internal->z->next_in = comp_buf;
-        bytesread += matio_read(comp_buf,1,1,mat->fp);
+        bytesread += fread(comp_buf,1,1,mat->fp);
     }
     matvar->internal->z->avail_out = 8;
     matvar->internal->z->next_out = buf;
@@ -539,7 +549,7 @@ InflateDataTag(mat_t *mat, matvar_t *matvar, void *buf)
     while ( matvar->internal->z->avail_out && !matvar->internal->z->avail_in ) {
         matvar->internal->z->avail_in = 1;
         matvar->internal->z->next_in = comp_buf;
-        bytesread += matio_read(comp_buf,1,1,mat->fp);
+        bytesread += fread(comp_buf,1,1,mat->fp);
         err = inflate(matvar->internal->z,Z_NO_FLUSH);
         if ( err == Z_STREAM_END ) {
             break;
@@ -550,7 +560,7 @@ InflateDataTag(mat_t *mat, matvar_t *matvar, void *buf)
     }
 
     if ( matvar->internal->z->avail_in ) {
-        matio_seek(mat->fp,-(int)matvar->internal->z->avail_in,SEEK_CUR);
+        fseek(mat->fp,-(int)matvar->internal->z->avail_in,SEEK_CUR);
         bytesread -= matvar->internal->z->avail_in;
         matvar->internal->z->avail_in = 0;
     }
@@ -564,7 +574,7 @@ InflateDataTag(mat_t *mat, matvar_t *matvar, void *buf)
  * @ingroup mat_internal
  * @param mat Pointer to the MAT file
  * @param matvar Pointer to the MAT variable
- * @param buf Pointer to store the data type 
+ * @param buf Pointer to store the data type
  * @return Number of bytes read from the file
  */
 int
@@ -579,7 +589,7 @@ InflateDataType(mat_t *mat, z_stream *z, void *buf)
     if ( !z->avail_in ) {
         z->avail_in = 1;
         z->next_in = comp_buf;
-        bytesread += matio_read(comp_buf,1,1,mat->fp);
+        bytesread += fread(comp_buf,1,1,mat->fp);
     }
     z->avail_out = 4;
     z->next_out = buf;
@@ -591,7 +601,7 @@ InflateDataType(mat_t *mat, z_stream *z, void *buf)
     while ( z->avail_out && !z->avail_in ) {
         z->avail_in = 1;
         z->next_in = comp_buf;
-        bytesread += matio_read(comp_buf,1,1,mat->fp);
+        bytesread += fread(comp_buf,1,1,mat->fp);
         err = inflate(z,Z_NO_FLUSH);
         if ( err != Z_OK ) {
             Mat_Critical("InflateDataType: inflate returned %d",err);
@@ -600,7 +610,7 @@ InflateDataType(mat_t *mat, z_stream *z, void *buf)
     }
 
     if ( z->avail_in ) {
-        matio_seek(mat->fp,-(int)z->avail_in,SEEK_CUR);
+        fseek(mat->fp,-(int)z->avail_in,SEEK_CUR);
         bytesread -= z->avail_in;
         z->avail_in = 0;
     }
@@ -614,7 +624,7 @@ InflateDataType(mat_t *mat, z_stream *z, void *buf)
  * @ingroup mat_internal
  * @param mat Pointer to the MAT file
  * @param z zlib compression stream
- * @param buf Pointer to store the data type 
+ * @param buf Pointer to store the data type
  * @param nBytes Number of bytes to inflate
  * @return Number of bytes read from the file
  */
@@ -633,11 +643,11 @@ InflateData(mat_t *mat, z_stream *z, void *buf, int nBytes)
 
     if ( !z->avail_in ) {
         if ( nBytes > 1024 ) {
-            z->avail_in = matio_read(comp_buf,1,1024,mat->fp);
+            z->avail_in = fread(comp_buf,1,1024,mat->fp);
             bytesread += z->avail_in;
             z->next_in = comp_buf;
         } else {
-            z->avail_in = matio_read(comp_buf,1,nBytes,mat->fp);
+            z->avail_in = fread(comp_buf,1,nBytes,mat->fp);
             bytesread  += z->avail_in;
             z->next_in  = comp_buf;
         }
@@ -653,15 +663,15 @@ InflateData(mat_t *mat, z_stream *z, void *buf, int nBytes)
     }
     while ( z->avail_out && !z->avail_in ) {
         if ( (nBytes-bytesread) > 1024 ) {
-            z->avail_in = matio_read(comp_buf,1,1024,mat->fp);
+            z->avail_in = fread(comp_buf,1,1024,mat->fp);
             bytesread += z->avail_in;
             z->next_in = comp_buf;
         } else if ( (nBytes-bytesread) < 1 ) { /* Read a byte at a time */
-            z->avail_in = matio_read(comp_buf,1,1,mat->fp);
+            z->avail_in = fread(comp_buf,1,1,mat->fp);
             bytesread  += z->avail_in;
             z->next_in  = comp_buf;
         } else {
-            z->avail_in = matio_read(comp_buf,1,nBytes-bytesread,mat->fp);
+            z->avail_in = fread(comp_buf,1,nBytes-bytesread,mat->fp);
             bytesread  += z->avail_in;
             z->next_in  = comp_buf;
         }
@@ -676,7 +686,7 @@ InflateData(mat_t *mat, z_stream *z, void *buf, int nBytes)
 
     if ( z->avail_in ) {
         long offset = -(long)z->avail_in;
-        matio_seek(mat->fp,offset,SEEK_CUR);
+        fseek(mat->fp,offset,SEEK_CUR);
         bytesread -= z->avail_in;
         z->avail_in = 0;
     }
@@ -690,7 +700,7 @@ InflateData(mat_t *mat, z_stream *z, void *buf, int nBytes)
  * @ingroup mat_internal
  * @param mat Pointer to the MAT file
  * @param matvar Pointer to the MAT variable
- * @param buf Pointer to store the fieldname length 
+ * @param buf Pointer to store the fieldname length
  * @return Number of bytes read from the file
  */
 int
@@ -705,7 +715,7 @@ InflateFieldNameLength(mat_t *mat, matvar_t *matvar, void *buf)
     if ( !matvar->internal->z->avail_in ) {
         matvar->internal->z->avail_in = 1;
         matvar->internal->z->next_in = comp_buf;
-        bytesread += matio_read(comp_buf,1,1,mat->fp);
+        bytesread += fread(comp_buf,1,1,mat->fp);
     }
     matvar->internal->z->avail_out = 8;
     matvar->internal->z->next_out = buf;
@@ -717,7 +727,7 @@ InflateFieldNameLength(mat_t *mat, matvar_t *matvar, void *buf)
     while ( matvar->internal->z->avail_out && !matvar->internal->z->avail_in ) {
         matvar->internal->z->avail_in = 1;
         matvar->internal->z->next_in = comp_buf;
-        bytesread += matio_read(comp_buf,1,1,mat->fp);
+        bytesread += fread(comp_buf,1,1,mat->fp);
         err = inflate(matvar->internal->z,Z_NO_FLUSH);
         if ( err != Z_OK ) {
             Mat_Critical("InflateFieldNameLength: inflate returned %d",err);
@@ -726,7 +736,7 @@ InflateFieldNameLength(mat_t *mat, matvar_t *matvar, void *buf)
     }
 
     if ( matvar->internal->z->avail_in ) {
-        matio_seek(mat->fp,-(int)matvar->internal->z->avail_in,SEEK_CUR);
+        fseek(mat->fp,-(int)matvar->internal->z->avail_in,SEEK_CUR);
         bytesread -= matvar->internal->z->avail_in;
         matvar->internal->z->avail_in = 0;
     }
@@ -740,7 +750,7 @@ InflateFieldNameLength(mat_t *mat, matvar_t *matvar, void *buf)
  * @ingroup mat_internal
  * @param mat Pointer to the MAT file
  * @param matvar Pointer to the MAT variable
- * @param buf Pointer to store the fieldname tag 
+ * @param buf Pointer to store the fieldname tag
  * @return Number of bytes read from the file
  */
 int
@@ -755,7 +765,7 @@ InflateFieldNamesTag(mat_t *mat, matvar_t *matvar, void *buf)
     if ( !matvar->internal->z->avail_in ) {
         matvar->internal->z->avail_in = 1;
         matvar->internal->z->next_in = comp_buf;
-        bytesread += matio_read(comp_buf,1,1,mat->fp);
+        bytesread += fread(comp_buf,1,1,mat->fp);
     }
     matvar->internal->z->avail_out = 8;
     matvar->internal->z->next_out = buf;
@@ -767,7 +777,7 @@ InflateFieldNamesTag(mat_t *mat, matvar_t *matvar, void *buf)
     while ( matvar->internal->z->avail_out && !matvar->internal->z->avail_in ) {
         matvar->internal->z->avail_in = 1;
         matvar->internal->z->next_in = comp_buf;
-        bytesread += matio_read(comp_buf,1,1,mat->fp);
+        bytesread += fread(comp_buf,1,1,mat->fp);
         err = inflate(matvar->internal->z,Z_NO_FLUSH);
         if ( err != Z_OK ) {
             Mat_Critical("InflateFieldNamesTag: inflate returned %d",err);
@@ -776,7 +786,7 @@ InflateFieldNamesTag(mat_t *mat, matvar_t *matvar, void *buf)
     }
 
     if ( matvar->internal->z->avail_in ) {
-        matio_seek(mat->fp,-(int)matvar->internal->z->avail_in,SEEK_CUR);
+        fseek(mat->fp,-(int)matvar->internal->z->avail_in,SEEK_CUR);
         bytesread -= matvar->internal->z->avail_in;
         matvar->internal->z->avail_in = 0;
     }
@@ -794,7 +804,7 @@ InflateFieldNamesTag(mat_t *mat, matvar_t *matvar, void *buf)
  * @ingroup mat_internal
  * @param mat Pointer to the MAT file
  * @param matvar Pointer to the MAT variable
- * @param buf Pointer to store the fieldnames 
+ * @param buf Pointer to store the fieldnames
  * @param nfields Number of fields
  * @param fieldname_length Maximum length in bytes of each field
  * @param padding Number of padding bytes
@@ -813,7 +823,7 @@ InflateFieldNames(mat_t *mat,matvar_t *matvar,void *buf,int nfields,
     if ( !matvar->internal->z->avail_in ) {
         matvar->internal->z->avail_in = 1;
         matvar->internal->z->next_in = comp_buf;
-        bytesread += matio_read(comp_buf,1,1,mat->fp);
+        bytesread += fread(comp_buf,1,1,mat->fp);
     }
     matvar->internal->z->avail_out = nfields*fieldname_length+padding;
     matvar->internal->z->next_out = buf;
@@ -825,7 +835,7 @@ InflateFieldNames(mat_t *mat,matvar_t *matvar,void *buf,int nfields,
     while ( matvar->internal->z->avail_out && !matvar->internal->z->avail_in ) {
         matvar->internal->z->avail_in = 1;
         matvar->internal->z->next_in = comp_buf;
-        bytesread += matio_read(comp_buf,1,1,mat->fp);
+        bytesread += fread(comp_buf,1,1,mat->fp);
         err = inflate(matvar->internal->z,Z_NO_FLUSH);
         if ( err != Z_OK ) {
             Mat_Critical("InflateFieldNames: inflate returned %d",err);
@@ -834,7 +844,7 @@ InflateFieldNames(mat_t *mat,matvar_t *matvar,void *buf,int nfields,
     }
 
     if ( matvar->internal->z->avail_in ) {
-        matio_seek(mat->fp,-(int)matvar->internal->z->avail_in,SEEK_CUR);
+        fseek(mat->fp,-(int)matvar->internal->z->avail_in,SEEK_CUR);
         bytesread -= matvar->internal->z->avail_in;
         matvar->internal->z->avail_in = 0;
     }
@@ -843,3 +853,5 @@ InflateFieldNames(mat_t *mat,matvar_t *matvar,void *buf,int nfields,
 }
 
 /** @endcond */
+
+#endif

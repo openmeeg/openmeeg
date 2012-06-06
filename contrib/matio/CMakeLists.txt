@@ -1,8 +1,8 @@
 SET(PACKAGE_VERSION_MAJOR "1")
-SET(PACKAGE_VERSION_MINOR "3")
-SET(PACKAGE_VERSION_PATCH "4")
+SET(PACKAGE_VERSION_MINOR "5")
+SET(PACKAGE_VERSION_PATCH "0")
 
-SET(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake;${CMAKE_CURRENT_SOURCE_DIR}/cmake/FortranCInterface")
+SET(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH}")
 
 # ===========
 # = Options =
@@ -20,20 +20,17 @@ PROJECT(MATIO C ${EXTRA_LANGAGE})
 SET(MATIO_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 SET(MATIO_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR})
 
-CMAKE_MINIMUM_REQUIRED(VERSION 2.6.4)
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
-SET(MATIO_PLATFORM ${CMAKE_SYSTEM_PROCESSOR}--${CMAKE_SYSTEM_NAME})
+# It may seem that ${CMAKE_ARCH_TRIPLET} might appear in a future cmake release.
+# For now, do for the best.
+SET(MATIO_PLATFORM ${CMAKE_SYSTEM_PROCESSOR}-unknown-${CMAKE_SYSTEM_NAME})
 
 INCLUDE(FindLibrary)
 
 # =======================
 # = HANDLE DEFINITTIONS =
 # =======================
-
-INCLUDE(Boolean)
-BOOLEAN(LINUX UNIX AND NOT APPLE)
-BOOLEAN(WINNT WIN32)
-BOOLEAN(SUN XXXX)
 
 # ===========
 # = Options =
@@ -52,7 +49,7 @@ ENDIF()
 
 INCLUDE (Documentation OPTIONAL)
 IF (BUILD_DOCUMENTATION)
-    ADD_SUBDIRECTORY(doxygen)
+    ADD_SUBDIRECTORY(documentation)
 ENDIF()
 
 # =================
@@ -78,8 +75,9 @@ CHECK_INCLUDE_FILE(inttypes.h HAVE_INTTYPES_H)
 CHECK_INCLUDE_FILE(stdint.h   HAVE_STDINT_H)
 CHECK_INCLUDE_FILE(strings.h  HAVE_STRINGS_H)
 CHECK_INCLUDE_FILE(ctype.h    HAVE_CTYPE_H)
+CHECK_INCLUDE_FILE(stdlib.h   HAVE_STDLIB_H)
 CHECK_INCLUDE_FILE(string.h   HAVE_STRING_H)
-CHECK_INCLUDE_FILE(malloc.h   HAVE_MALLOC_H)
+#CHECK_INCLUDE_FILE(malloc.h   HAVE_MALLOC_H)
 CHECK_HEADER_STDC()
 
 # ===================
@@ -87,14 +85,17 @@ CHECK_HEADER_STDC()
 # ===================
 
 INCLUDE(CheckTypeSize)
-SET(TYPES double float long int short char)
+SET(TYPES double float long int short char size_t)
 FOREACH(TYPE ${TYPES})
     string(TOUPPER ${TYPE} TYPE_UPPER)
-    CHECK_TYPE_SIZE(${TYPE} ${TYPE_UPPER})
-    SET(SIZEOF_${TYPE_UPPER} ${${TYPE_UPPER}})
+    CHECK_TYPE_SIZE(${TYPE} SIZEOF_${TYPE_UPPER})
 ENDFOREACH()
-CHECK_TYPE_SIZE(void* VOID_PTR)
-SET(SIZEOF_VOID_PTR ${VOID_PTR})
+CHECK_TYPE_SIZE("long long" LONG_LONG)
+SET(HAVE_LONG_LONG ${HAVE_${LONG_LONG}})
+SET(SIZEOF_LONG_LONG ${LONG_LONG})
+CHECK_TYPE_SIZE("long double" LONG_DOUBLE)
+SET(HAVE_LONG_DOUBLE ${HAVE_${LONG_DOUBLE}})
+CHECK_TYPE_SIZE(void* SIZEOF_VOID_P)
 
 SET(TYPES uint8_t uint16_t uint32_t uint64_t int8_t int16_t int32_t int64_t)
 FOREACH(TYPE ${TYPES})
@@ -112,11 +113,12 @@ ENDFOREACH()
 # ===================
 
 INCLUDE(CheckFunctionExists)
-CHECK_FUNCTION_EXISTS(vsnprintf HAVE_VSNPRINTF)
-CHECK_FUNCTION_EXISTS(snprintf  HAVE_SNPRINTF)
-CHECK_FUNCTION_EXISTS(vasprintf HAVE_VASPRINTF)
-CHECK_FUNCTION_EXISTS(asprintf  HAVE_ASPRINTF)
-CHECK_FUNCTION_EXISTS(getopt    HAVE_GETOPT)
+CHECK_FUNCTION_EXISTS(vsnprintf  HAVE_VSNPRINTF)
+CHECK_FUNCTION_EXISTS(snprintf   HAVE_SNPRINTF)
+CHECK_FUNCTION_EXISTS(vasprintf  HAVE_VASPRINTF)
+CHECK_FUNCTION_EXISTS(asprintf   HAVE_ASPRINTF)
+CHECK_FUNCTION_EXISTS(strcasecmp HAVE_STRCASECMP)
+CHECK_FUNCTION_EXISTS(getopt     HAVE_GETOPT)
 
 INCLUDE(VA_COPY)
 VA_COPY()
@@ -168,13 +170,17 @@ IF (USE_SYSTEM_ZLIB)
 ENDIF()
 
 IF (NOT USE_SYSTEM_ZLIB OR USE_LOCAL_ZLIB)
-    SET(ZLIBDIR contrib/zlib-1.2.5)
-    ADD_SUBDIRECTORY(${ZLIBDIR})
-    INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/${ZLIBDIR} ${CMAKE_CURRENT_BINARY_DIR}/${ZLIBDIR})
-    IF (NOT BUILD_SHARED_LIBS)
-        SET(TARGET_SUFFIX -static)
+    SET(ZLIBDIR contrib/zlib-1.2.6)
+    IF (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/${ZLIBDIR})
+        ADD_SUBDIRECTORY(${ZLIBDIR})
+        INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/${ZLIBDIR} ${CMAKE_CURRENT_BINARY_DIR}/${ZLIBDIR})
+        IF (NOT BUILD_SHARED_LIBS)
+            SET(TARGET_SUFFIX -static)
+        ENDIF()
+        SET(Z_LIBRARY zlib)
+    ELSE()
+        MESSAGE(FATAL_ERROR "zlib is required by matio")
     ENDIF()
-    SET(Z_LIBRARY zlib)
 ENDIF()
 
 SET(HAVE_ZLIB 1)
@@ -191,30 +197,53 @@ ENDIF()
 SET(MAT73_STATUS "${MAT73}" CACHE INTERNAL "Previous matlab 7.3 support status" FORCE)
 
 IF (${RESET})
-    UNSET(HDF5_LIB)
-    UNSET(HDF5_LIB CACHE)
+    UNSET(HDF5_FOUND)
+    UNSET(HDF5_FOUND CACHE)
 ENDIF()
 
 IF (MAT73)
-    MATIO_FIND_LIBRARY(HDF5_LIB hdf5)
-    IF (NOT HDF5_LIB)
-
-        # Tell hdf5 that we are manually overriding certain settings
-
-        SET(HDF5_EXTERNALLY_CONFIGURED 1)
-
-        # Avoid duplicating names of installed libraries
-
-        SET(HDF5_EXTERNAL_LIB_PREFIX "matio")
-
-        SET(HDF5LIBDIR contrib/hdf5-1.8.7)
-        ADD_SUBDIRECTORY(${HDF5LIBDIR})
-        INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/${HDF5LIBDIR}/src ${CMAKE_CURRENT_BINARY_DIR}/${HDF5LIBDIR})
+    FIND_PACKAGE(HDF5 1.8)
+    IF (HDF5_FOUND)
+        SET(HAVE_HDF5 1)
+        INCLUDE(HDF5Version)
+        HDF5_VERIFY_VERSION(1.8.0 HDF5_OK)
+        IF (HDF5_OK EQUAL 1)
+            MESSAGE(WARNING "hdf5 library must be 1.8.0 or higher")
+            SET(HDF5_FOUND FALSE)
+            SET(HDF5_INCLUDE_DIRS)
+            SET(HDF5_LIBRARIES)
+            UNSET(HAVE_HDF5)
+        ENDIF()
     ENDIF()
-    IF (NOT BUILD_SHARED_LIBS)
-        SET(TARGET_SUFFIX -static)
+    SET(HDF5_FOUND 0)
+    IF (NOT HDF5_FOUND)
+        SET(HDF5LIBDIR contrib/hdf5-1.8.8)
+        IF (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/${HDF5LIBDIR})
+
+            # Tell hdf5 that we are manually overriding certain settings
+
+            SET(HDF5_EXTERNALLY_CONFIGURED 1)
+
+            # Avoid duplicating names of installed libraries
+
+            SET(HDF5_EXTERNAL_LIB_PREFIX "matio")
+
+            ADD_SUBDIRECTORY(${HDF5LIBDIR})
+            SET(HDF5_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/${HDF5LIBDIR}/src ${CMAKE_CURRENT_BINARY_DIR}/${HDF5LIBDIR})
+            SET(HDF5_LIBRARIES hdf5)
+            SET(HAVE_HDF5 1)
+        ELSE()
+            MESSAGE(WARNING "hdf5 not found, mat7.3 format disabled")
+            SET(MAT73 OFF CACHE BOOL "Matlab 7.3 support disabled because hdf5 was not found" FORCE)
+        ENDIF()
     ENDIF()
-    SET(HDF5_LIB hdf5)
+    IF (MAT73 AND HAVE_HDF5)
+        INCLUDE_DIRECTORIES(${HDF5_INCLUDE_DIRS})
+        IF (NOT BUILD_SHARED_LIBS)
+            SET(TARGET_SUFFIX -static)
+        ENDIF()
+        SET(HDF5_LIB ${HDF5_LIBRARIES})
+    ENDIF()
 ENDIF()
 
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR}/src)
@@ -256,12 +285,12 @@ ENDIF()
 # =============
 
 CONFIGURE_FILE(
-    "${CMAKE_CURRENT_SOURCE_DIR}/cmake_uninstall.cmake.in"
-    "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
+    "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cmake_uninstall.cmake.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/cmake/cmake_uninstall.cmake"
     IMMEDIATE @ONLY)
 
 ADD_CUSTOM_TARGET(uninstall-${PROJECT-NAME}
-    "${CMAKE_COMMAND}" -P "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake")
+    "${CMAKE_COMMAND}" -P "${CMAKE_CURRENT_BINARY_DIR}/cmake/cmake_uninstall.cmake")
 
 #-----------------------------------------------
 # packaging

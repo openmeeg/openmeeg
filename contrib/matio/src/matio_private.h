@@ -1,28 +1,35 @@
 /*
- * Copyright (C) 2008-2010   Christopher C. Hulbert
+ * Copyright (C) 2008-2011   Christopher C. Hulbert
  *
- *  This library is free software; you can redistribute it and/or
- *  modify it under the terms of the GNU Lesser General Public
- *  License as published by the Free Software Foundation; either
- *  version 2.1 of the License, or (at your option) any later version.
+ * All rights reserved.
  *
- *  This library is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- *  Lesser General Public License for more details.
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
  *
- *  You should have received a copy of the GNU Lesser General Public
- *  License along with this library; if not, write to the Free Software
- *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ *    1. Redistributions of source code must retain the above copyright notice,
+ *       this list of conditions and the following disclaimer.
+ *
+ *    2. Redistributions in binary form must reproduce the above copyright
+ *       notice, this list of conditions and the following disclaimer in the
+ *       documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY CHRISTOPHER C. HULBERT ``AS IS'' AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL CHRISTOPHER C. HULBERT OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
  */
 #ifndef MATIO_PRIVATE_H
 #define MATIO_PRIVATE_H
 
-#define MATIO_INTERNAL
-
 #include "matioConfig.h"
 #include "matio.h"
-#include "matio_io.h"
 #if defined(HAVE_ZLIB)
 #   include <zlib.h>
 #endif
@@ -52,7 +59,7 @@
  * @ingroup mat_internal
  * @endif
  */
-struct MATIO_EXPORT _mat_t {
+struct _mat_t {
     void *fp;               /**< File pointer for the MAT file */
     char *header;           /**< MAT File header string */
     char *subsys_offset;    /**< offset */
@@ -63,6 +70,7 @@ struct MATIO_EXPORT _mat_t {
     long  bof;              /**< Beginning of file not including any header */
     long  next_index;       /**< Index/File position of next variable to read */
     long  num_datasets;     /**< Number of datasets in the file */
+    hid_t refs_id;          /**< Id of the /#refs# group in HDF5 */
 };
 
 /** @if mat_devman
@@ -77,19 +85,12 @@ struct matvar_internal {
     long  fpos;         /**< Offset from the beginning of the MAT file to the variable */
     long  datapos;      /**< Offset from the beginning of the MAT file to the data */
      mat_t    *fp;      /**< Pointer to the MAT file structure (mat_t) */
+    unsigned num_fields;
+    char **fieldnames;
 #if defined(HAVE_ZLIB)
     z_stream *z;        /**< zlib compression state */
 #endif
 };
-
-#ifdef UNUSED
-#elif defined(__GNUC__)
-# define UNUSED(x) UNUSED_ ## x __attribute__((unused))
-#elif defined(__LCLINT__)
-# define UNUSED(x) /*@unused@*/ x
-#else
-# define UNUSED(x) x
-#endif
 
 /*    snprintf.c    */
 EXTERN int mat_snprintf(char *str,size_t count,const char *fmt,...);
@@ -116,9 +117,15 @@ EXTERN int ReadDoubleData(mat_t *mat,double  *data,enum matio_types data_type,
                int len);
 EXTERN int ReadSingleData(mat_t *mat,float   *data,enum matio_types data_type,
                int len);
-EXTERN int ReadInt32Data (mat_t *mat,mat_int32_t *data,
+#ifdef HAVE_MAT_INT64_T
+EXTERN int ReadInt64Data (mat_t *mat,mat_int64_t *data,
                enum matio_types data_type,int len);
-EXTERN int ReadInt64Data(mat_t *mat,mat_int64_t *data,
+#endif /* HAVE_MAT_INT64_T */
+#ifdef HAVE_MAT_UINT64_T
+EXTERN int ReadUInt64Data(mat_t *mat,mat_uint64_t *data,
+               enum matio_types data_type,int len);
+#endif /* HAVE_MAT_UINT64_T */
+EXTERN int ReadInt32Data (mat_t *mat,mat_int32_t *data,
                enum matio_types data_type,int len);
 EXTERN int ReadUInt32Data(mat_t *mat,mat_uint32_t *data,
                enum matio_types data_type,int len);
@@ -145,9 +152,15 @@ EXTERN int ReadCompressedDoubleData(mat_t *mat,z_stream *z,double  *data,
                enum matio_types data_type,int len);
 EXTERN int ReadCompressedSingleData(mat_t *mat,z_stream *z,float   *data,
                enum matio_types data_type,int len);
-EXTERN int ReadCompressedInt32Data(mat_t *mat,z_stream *z,mat_int32_t *data,
-               enum matio_types data_type,int len);
+#ifdef HAVE_MAT_INT64_T
 EXTERN int ReadCompressedInt64Data(mat_t *mat,z_stream *z,mat_int64_t *data,
+               enum matio_types data_type,int len);
+#endif /* HAVE_MAT_INT64_T */
+#ifdef HAVE_MAT_UINT64_T
+EXTERN int ReadCompressedUInt64Data(mat_t *mat,z_stream *z,mat_uint64_t *data,
+               enum matio_types data_type,int len);
+#endif /* HAVE_MAT_UINT64_T */
+EXTERN int ReadCompressedInt32Data(mat_t *mat,z_stream *z,mat_int32_t *data,
                enum matio_types data_type,int len);
 EXTERN int ReadCompressedUInt32Data(mat_t *mat,z_stream *z,mat_uint32_t *data,
                enum matio_types data_type,int len);

@@ -1,4 +1,30 @@
-/* src/matioConfig.h.in.  Generated from configure.ac by autoheader.  */
+/*
+ * Copyright (C) 2012   Christopher C. Hulbert
+ *
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    1. Redistributions of source code must retain the above copyright notice,
+ *       this list of conditions and the following disclaimer.
+ *
+ *    2. Redistributions in binary form must reproduce the above copyright
+ *       notice, this list of conditions and the following disclaimer in the
+ *       documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY CHRISTOPHER C. HULBERT ``AS IS'' AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL CHRISTOPHER C. HULBERT OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ */
 
 /* Debug enabled */
 #undef DEBUG
@@ -23,18 +49,8 @@
 /* Have asprintf */
 #undef HAVE_ASPRINTF
 
-/* Define to 1 if you have the declaration of `getenv', and to 0 if you don't.
-   */
-#undef HAVE_DECL_GETENV
-
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #undef HAVE_DLFCN_H
-
-/* Define to 1 if you have the <getopt.h> header file. */
-#undef HAVE_GETOPT_H
-
-/* Define to 1 if you have the `getopt_long_only' function. */
-#undef HAVE_GETOPT_LONG_ONLY
 
 /* Have HDF5 */
 #undef HAVE_HDF5
@@ -115,17 +131,8 @@
 /* MAT v7.3 file support */
 #undef MAT73
 
-/* Matio major version number */
-#undef MATIO_MAJOR_VERSION
-
-/* Matio minor version number */
-#undef MATIO_MINOR_VERSION
-
 /* Platform */
 #undef MATIO_PLATFORM
-
-/* Matio release level number */
-#undef MATIO_RELEASE_LEVEL
 
 /* Debug disabled */
 #undef NODEBUG
@@ -192,31 +199,3 @@
 
 /* Z prefix */
 #undef Z_PREFIX
-
-/* Define to rpl_ if the getopt replacement functions and variables should be
-   used. */
-#undef __GETOPT_PREFIX
-
-/* int16 type */
-#undef _mat_int16_t
-
-/* int32 type */
-#undef _mat_int32_t
-
-/* int64 type */
-#undef _mat_int64_t
-
-/* int8 type */
-#undef _mat_int8_t
-
-/* int16 type */
-#undef _mat_uint16_t
-
-/* int32 type */
-#undef _mat_uint32_t
-
-/* int64 type */
-#undef _mat_uint64_t
-
-/* int8 type */
-#undef _mat_uint8_t

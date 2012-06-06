@@ -1,19 +1,29 @@
 /*
- * Copyright (C) 2005-2010   Christopher C. Hulbert
+ * Copyright (C) 2005-2012   Christopher C. Hulbert
  *
- *  This library is free software; you can redistribute it and/or
- *  modify it under the terms of the GNU Lesser General Public
- *  License as published by the Free Software Foundation; either
- *  version 2.1 of the License, or (at your option) any later version.
+ * All rights reserved.
  *
- *  This library is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- *  Lesser General Public License for more details.
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
  *
- *  You should have received a copy of the GNU Lesser General Public
- *  License along with this library; if not, write to the Free Software
- *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ *    1. Redistributions of source code must retain the above copyright notice,
+ *       this list of conditions and the following disclaimer.
+ *
+ *    2. Redistributions in binary form must reproduce the above copyright
+ *       notice, this list of conditions and the following disclaimer in the
+ *       documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY CHRISTOPHER C. HULBERT ``AS IS'' AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL CHRISTOPHER C. HULBERT OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
  */
 #include <stdlib.h>
 #include <stdarg.h>
@@ -57,11 +67,12 @@ static const char *helpstr[] = {
 NULL
 };
 
-static const char *mxclass[13] = { "mxCELL_CLASS", "mxSTRUCT_CLASS", "mxOBJECT_CLASS",
+static char *byteswapping[2] = {"No","Yes"};
+static char *mxclass[15] = { "mxCELL_CLASS", "mxSTRUCT_CLASS", "mxOBJECT_CLASS",
                              "mxCHAR_CLASS", "mxSPARSE_CLASS", "mxDOUBLE_CLASS",
                              "mxSINGLE_CLASS", "mxINT8_CLASS", "mxUINT8_CLASS",
                              "mxINT16_CLASS", "mxUINT16_CLASS", "mxINT32_CLASS",
-                             "mxUINT32_CLASS"
+                             "mxUINT32_CLASS","mxINT64_CLASS","mxUINT64_CLASS",
                             };
 static int printdata = 0;
 static int human_readable = 0;
@@ -109,7 +120,7 @@ print_whos(matvar_t *matvar)
         else
             printf(" %10dB",nbytes);
     } else {
-        printf("% 10d",nbytes);
+        printf("  %10d",nbytes);
     }
     printf("  %-18s\n",mxclass[matvar->class_type-1]);
 
@@ -152,8 +163,9 @@ print_default(matvar_t *matvar)
         case MAT_C_STRUCT:
         {
             matvar_t **fields = (matvar_t **)matvar->data;
-            int        nfields = matvar->nbytes / matvar->data_size;
+            int        nfields;
             int        i;
+            size_t     nmemb;
 
             if ( matvar->name )
                 Mat_Message("      Name: %s", matvar->name);
@@ -161,18 +173,32 @@ print_default(matvar_t *matvar)
             if ( matvar->rank == 0 )
                 return;
             Mat_Message("Class Type: Structure");
-            Mat_Message("Fields[%d] {", nfields);
-            indent++;
-            for ( i = 0; i < nfields; i++ )
-                print_default(fields[i]);
-            indent--;
-            Mat_Message("}");
+            nfields = Mat_VarGetNumberOfFields(matvar);
+            nmemb = matvar->dims[0];
+            for ( i = 1; i < matvar->rank; i++ )
+                nmemb *= matvar->dims[i];
+            if ( nfields > 0 && nmemb < 1 ) {
+                char * const *fieldnames = Mat_VarGetStructFieldnames(matvar);
+                Mat_Message("Fields[%d] {", nfields);
+                indent++;
+                for ( i = 0; i < nfields; i++ )
+                    Mat_Message("    Name: %s", matvar->name);
+                indent--;
+                Mat_Message("}");
+            } else if ( nfields > 0 && nmemb > 0 ) {
+                Mat_Message("Fields[%d] {", nfields);
+                indent++;
+                for ( i = 0; i < nfields*nmemb; i++ )
+                    print_default(fields[i]);
+                indent--;
+                Mat_Message("}");
+            }
             break;
         }
         case MAT_C_CELL:
         {
             matvar_t **cells = (matvar_t **)matvar->data;
-            int        ncells = matvar->nbytes / matvar->data_size;
+            size_t     ncells;
             int        i;
 
             if ( matvar->name )
@@ -180,6 +206,9 @@ print_default(matvar_t *matvar)
             Mat_Message("      Rank: %d", matvar->rank);
             if ( matvar->rank == 0 )
                 return;
+            ncells = matvar->dims[0];
+            for ( i = 1; i < matvar->rank; i++ )
+                ncells *= matvar->dims[i];
             Mat_Message("Class Type: Cell Array");
             Mat_Message("{");
             indent++;
@@ -197,10 +226,20 @@ print_default(matvar_t *matvar)
 int
 main (int argc, char *argv[])
 {
-    const char *prog_name = "matdump";
-    int   i, c, err = EXIT_SUCCESS;
+    char *prog_name = "matdump";
+    int   i, k, c, err = EXIT_SUCCESS;
     mat_t    *mat;
     matvar_t *matvar;
+    int version[3];
+
+    Mat_GetLibraryVersion(version, version+1, version+2);
+    if ( MATIO_MAJOR_VERSION != version[0] ||
+         MATIO_MINOR_VERSION != version[1] ||
+         MATIO_RELEASE_LEVEL != version[2] ) {
+        fprintf(stderr,"matio version in header does not match runtime "
+                "version\n");
+        return EXIT_FAILURE;
+    }
 
     Mat_LogInitFunc(prog_name,default_printf_func);
 
@@ -219,7 +258,7 @@ main (int argc, char *argv[])
                 }
                 Mat_Warning("%s is not a recognized output format. "
                               "Using default\n", optarg);
-                break; 
+                break;
             case 'h':
                 human_readable = 1;
                 break;
@@ -230,11 +269,9 @@ main (int argc, char *argv[])
                 Mat_Help(helpstr);
                 exit(EXIT_SUCCESS);
             case 'V':
-                printf("%s %d.%d.%d\n"
-                       "Written by Christopher Hulbert\n"
-                       "Copyright(C) 2006 Christopher C. Hulbert\n",
-                       prog_name,MATIO_MAJOR_VERSION,MATIO_MINOR_VERSION,
-                       MATIO_RELEASE_LEVEL);
+                printf("%s %s\nWritten by Christopher Hulbert\n\n"
+                       "Copyright(C) 2006-2012 Christopher C. Hulbert\n",
+                       prog_name,PACKAGE_VERSION);
                 exit(EXIT_SUCCESS);
             default:
                 printf("%c not a valid option\n", c);
@@ -246,8 +283,10 @@ main (int argc, char *argv[])
         Mat_Error("Must specify at least one argument");
 
     mat = Mat_Open( argv[optind],MAT_ACC_RDONLY );
-    if ( NULL == mat )
+    if ( NULL == mat ) {
         Mat_Error("Error opening %s\n", argv[optind]);
+        return EXIT_FAILURE;
+    }
 
     optind++;
 
@@ -278,7 +317,7 @@ main (int argc, char *argv[])
                 }
             }
         }
-    } else { 
+    } else {
         /* print all variables */
         if ( printdata ) {
             while ( (matvar = Mat_VarReadNext(mat)) != NULL ) {

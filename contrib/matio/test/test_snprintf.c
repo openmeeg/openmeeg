@@ -1,15 +1,13 @@
 #include <stdlib.h>
 #include <stdio.h>
-#include <string.h>
 #include <math.h>
 #include <matio.h>
-#include <matio_private.h>
 
 int main (void)
 {
         char buf1[1024];
         char buf2[1024];
-        const char *fp_fmt[] = {
+        char *fp_fmt[] = {
                 "%1.1f", 
                 "%-1.5f",
                 "%1.5f",
@@ -30,7 +28,7 @@ int main (void)
         double fp_nums[] = { 6442452944.1234, -1.5, 134.21, 91340.2, 341.1234, 203.9, 0.96, 0.996, 
                              0.9996, 1.996, 4.136, 5.030201, 0.00205,
                              /* END LIST */ 0};
-        const char *int_fmt[] = {
+        char *int_fmt[] = {
                 "%-1.5d", 
                 "%1.5d",
                 "%123.9d",
@@ -44,7 +42,7 @@ int main (void)
                 NULL
         };
         long int_nums[] = { -1, 134, 91340, 341, 0203, 0};
-        const char *str_fmt[] = {
+        char *str_fmt[] = {
                 "10.5s",
                 "5.10s",
                 "10.1s",
@@ -57,7 +55,7 @@ int main (void)
                 "%10s",
                 NULL
         };
-        const char *str_vals[] = {"hello", "a", "", "a longer string", NULL};
+        char *str_vals[] = {"hello", "a", "", "a longer string", NULL};
         int x, y;
         int fail = 0;
         int num = 0;

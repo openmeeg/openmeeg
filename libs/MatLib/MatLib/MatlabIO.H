@@ -220,7 +220,7 @@ namespace OpenMEEG {
                     os.close();
                     std::remove(name().c_str());
                 }
-                mat_t* mat = Mat_Open(name().c_str(),MAT_ACC_RDWR);
+                mat_t* mat = Mat_CreateVer(name().c_str(),NULL,MAT_FT_MAT73);
                 if (!mat)
                     throw BadFileOpening(name(),maths::BadFileOpening::WRITE);
 
@@ -276,7 +276,7 @@ namespace OpenMEEG {
                 SparseMatrix& m      = dynamic_cast<SparseMatrix&>(linop);
                 std::cout << "Using variable with name : " << matvar->name << std::endl;
 
-                sparse_t* sparse = static_cast<sparse_t*>(matvar->data);
+                mat_sparse_t* sparse = static_cast<mat_sparse_t*>(matvar->data);
                 size_t _nz = sparse->nzmax;
 
                 double *data = static_cast<double*>(sparse->data);
@@ -301,7 +301,7 @@ namespace OpenMEEG {
                 const TYPE& m = dynamic_cast<const TYPE&>(linop);
                 size_t* dims = details::helper<TYPE>::dims(m);
                 matvar_t* matvar = Mat_VarCreate("linop",MAT_C_DOUBLE,MAT_T_DOUBLE,details::helper<TYPE>::dim,dims,m.data(),0);
-                Mat_VarWrite(mat,matvar,COMPRESSION_ZLIB);
+                Mat_VarWrite(mat,matvar,MAT_COMPRESSION_ZLIB);
                 Mat_VarFree(matvar);
             }
 
@@ -315,7 +315,7 @@ namespace OpenMEEG {
                 matvar[1] = Mat_VarCreate("data",MAT_C_DOUBLE,MAT_T_DOUBLE,2,dims,m.data(),MAT_F_DONT_COPY_DATA);
                 matvar[2] = NULL;
                 matvar_t* structvar = Mat_VarCreate("symmatrix",MAT_C_STRUCT,MAT_T_STRUCT,2,dims1,matvar,0);
-                Mat_VarWrite(mat,structvar,COMPRESSION_ZLIB);
+                Mat_VarWrite(mat,structvar,MAT_COMPRESSION_ZLIB);
                 delete[] matvar;
                 Mat_VarFree(structvar);
             }
@@ -358,10 +358,10 @@ namespace OpenMEEG {
                 size_t dims[2] = { linop.nlin(), linop.ncol() };
                 matvar_t *matvar;
                 const int sz = linop.size();
-                sparse_t  sparse = { sz, ir, sz, jc, linop.ncol()+1, sz, t};
+                mat_sparse_t  sparse = { sz, ir, sz, jc, linop.ncol()+1, sz, t};
 
                 matvar = Mat_VarCreate("matrix",MAT_C_SPARSE,MAT_T_DOUBLE,2,dims,&sparse,MAT_F_DONT_COPY_DATA);
-                Mat_VarWrite(mat,matvar,COMPRESSION_ZLIB);
+                Mat_VarWrite(mat,matvar,MAT_COMPRESSION_ZLIB);
                 Mat_VarFree(matvar);
                 delete[] t;
                 delete[] ir;

@@ -1,5 +1,11 @@
-INCLUDE(FortranCInterface)
-FortranCInterface_HEADER(fortran.h MACRO_NAMESPACE "FC_" FROM_LIBRARY blas[daxpy])
+CONFIGURE_FILE(matio_t.inc.in matio_t.inc IMMEDIATE @ONLY)
+INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR})
 
-SET(SIZEOF_VOID_P ${SIZEOF_VOID_PTR})
-Configure_File(matio_t.inc.in matio_t.inc IMMEDIATE @ONLY)
+ADD_LIBRARY(fmatio matio_internal.c matio.f90)
+
+INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/matio.mod DESTINATION include)
+
+INSTALL(TARGETS fmatio
+        RUNTIME DESTINATION bin
+        LIBRARY DESTINATION lib
+        ARCHIVE DESTINATION lib)

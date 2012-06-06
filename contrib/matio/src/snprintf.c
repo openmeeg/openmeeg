@@ -87,7 +87,6 @@
  *    if the C library has some snprintf functions already.
  =============================================================*/
 
-#define _GNU_SOURCE
 #include "matioConfig.h"
 #if defined(HAVE_STRING_H) || defined(STDC_HEADERS)
 #include <string.h>
@@ -103,9 +102,6 @@
 #include <stdarg.h>
 #if defined(HAVE_STDLIB_H) || defined(STDC_HEADERS)
 #include <stdlib.h>
-#endif
-#if defined(HAVE_MALLOC_H)
-#include <malloc.h>
 #endif
 #include <stdio.h>
 
@@ -171,7 +167,7 @@
 static size_t dopr(char *buffer, size_t maxlen, const char *format, 
                    va_list args_in);
 static void fmtstr(char *buffer, size_t *currlen, size_t maxlen,
-                   const char *value, int flags, int min, int max);
+                    char *value, int flags, int min, int max);
 static void fmtint(char *buffer, size_t *currlen, size_t maxlen,
                     long value, int base, int min, int max, int flags);
 static void fmtfp(char *buffer, size_t *currlen, size_t maxlen,
@@ -183,7 +179,7 @@ static size_t dopr(char *buffer, size_t maxlen, const char *format, va_list args
         char ch;
         LLONG value;
         LDOUBLE fvalue;
-        const char *strvalue;
+        char *strvalue;
         int min;
         int max;
         int state;
@@ -442,7 +438,7 @@ static size_t dopr(char *buffer, size_t maxlen, const char *format, va_list args
 }
 
 static void fmtstr(char *buffer, size_t *currlen, size_t maxlen,
-                   const char *value, int flags, int min, int max)
+                    char *value, int flags, int min, int max)
 {
         int padlen, strln;     /* amount to pad */
         int cnt = 0;

@@ -3,21 +3,31 @@
  * @ingroup MAT
  */
 /*
- * Copyright (C) 2005-2010   Christopher C. Hulbert
+ * Copyright (C) 2005-2011   Christopher C. Hulbert
  *
- *  This library is free software; you can redistribute it and/or
- *  modify it under the terms of the GNU Lesser General Public
- *  License as published by the Free Software Foundation; either
- *  version 2.1 of the License, or (at your option) any later version.
+ * All rights reserved.
  *
- *  This library is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- *  Lesser General Public License for more details.
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
  *
- *  You should have received a copy of the GNU Lesser General Public
- *  License along with this library; if not, write to the Free Software
- *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ *    1. Redistributions of source code must retain the above copyright notice,
+ *       this list of conditions and the following disclaimer.
+ *
+ *    2. Redistributions in binary form must reproduce the above copyright
+ *       notice, this list of conditions and the following disclaimer in the
+ *       documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY CHRISTOPHER C. HULBERT ``AS IS'' AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL CHRISTOPHER C. HULBERT OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
  */
 
 /* FIXME: Implement Unicode support */
@@ -64,12 +74,12 @@ ReadDoubleData(mat_t *mat,double *data,enum matio_types data_type,int len)
         {
             data_size = sizeof(double);
             if ( mat->byteswap ) {
-                bytesread += matio_read(data,data_size,len,mat->fp);
+                bytesread += fread(data,data_size,len,mat->fp);
                 for ( i = 0; i < len; i++ ) {
                     (void)Mat_doubleSwap(data+i);
                 }
             } else {
-                bytesread += matio_read(data,data_size,len,mat->fp);
+                bytesread += fread(data,data_size,len,mat->fp);
             }
             break;
         }
@@ -80,12 +90,12 @@ ReadDoubleData(mat_t *mat,double *data,enum matio_types data_type,int len)
             data_size = sizeof(float);
             if ( mat->byteswap ) {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&f,data_size,1,mat->fp);
+                    bytesread += fread(&f,data_size,1,mat->fp);
                     data[i] = Mat_floatSwap(&f);
                 }
             } else {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&f,data_size,1,mat->fp);
+                    bytesread += fread(&f,data_size,1,mat->fp);
                     data[i] = f;
                 }
             }
@@ -98,12 +108,12 @@ ReadDoubleData(mat_t *mat,double *data,enum matio_types data_type,int len)
             data_size = sizeof(mat_int32_t);
             if ( mat->byteswap ) {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&i32,data_size,1,mat->fp);
+                    bytesread += fread(&i32,data_size,1,mat->fp);
                     data[i] = Mat_int32Swap(&i32);
                 }
             } else {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&i32,data_size,1,mat->fp);
+                    bytesread += fread(&i32,data_size,1,mat->fp);
                     data[i] = i32;
                 }
             }
@@ -116,12 +126,12 @@ ReadDoubleData(mat_t *mat,double *data,enum matio_types data_type,int len)
             data_size = sizeof(mat_uint32_t);
             if ( mat->byteswap ) {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&ui32,data_size,1,mat->fp);
+                    bytesread += fread(&ui32,data_size,1,mat->fp);
                     data[i] = Mat_uint32Swap(&ui32);
                 }
             } else {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&ui32,data_size,1,mat->fp);
+                    bytesread += fread(&ui32,data_size,1,mat->fp);
                     data[i] = ui32;
                 }
             }
@@ -134,12 +144,12 @@ ReadDoubleData(mat_t *mat,double *data,enum matio_types data_type,int len)
             data_size = sizeof(mat_int16_t);
             if ( mat->byteswap ) {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&i16,data_size,1,mat->fp);
+                    bytesread += fread(&i16,data_size,1,mat->fp);
                     data[i] = Mat_int16Swap(&i16);
                 }
             } else {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&i16,data_size,1,mat->fp);
+                    bytesread += fread(&i16,data_size,1,mat->fp);
                     data[i] = i16;
                 }
             }
@@ -152,12 +162,12 @@ ReadDoubleData(mat_t *mat,double *data,enum matio_types data_type,int len)
             data_size = sizeof(mat_uint16_t);
             if ( mat->byteswap ) {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&ui16,data_size,1,mat->fp);
+                    bytesread += fread(&ui16,data_size,1,mat->fp);
                     data[i] = Mat_uint16Swap(&ui16);
                 }
             } else {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&ui16,data_size,1,mat->fp);
+                    bytesread += fread(&ui16,data_size,1,mat->fp);
                     data[i] = ui16;
                 }
             }
@@ -170,12 +180,12 @@ ReadDoubleData(mat_t *mat,double *data,enum matio_types data_type,int len)
             data_size = sizeof(mat_int8_t);
             if ( mat->byteswap ) {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&i8,data_size,1,mat->fp);
+                    bytesread += fread(&i8,data_size,1,mat->fp);
                     data[i] = i8;
                 }
             } else {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&i8,data_size,1,mat->fp);
+                    bytesread += fread(&i8,data_size,1,mat->fp);
                     data[i] = i8;
                 }
             }
@@ -188,19 +198,17 @@ ReadDoubleData(mat_t *mat,double *data,enum matio_types data_type,int len)
             data_size = sizeof(mat_uint8_t);
             if ( mat->byteswap ) {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&ui8,data_size,1,mat->fp);
+                    bytesread += fread(&ui8,data_size,1,mat->fp);
                     data[i] = ui8;
                 }
             } else {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&ui8,data_size,1,mat->fp);
+                    bytesread += fread(&ui8,data_size,1,mat->fp);
                     data[i] = ui8;
                 }
             }
             break;
         }
-        default:
-            break;
     }
     bytesread *= data_size;
     return bytesread;
@@ -240,7 +248,7 @@ ReadCompressedDoubleData(mat_t *mat,z_stream *z,double *data,
         mat_uint8_t   ui8[1024];
     } buf;
 
-    
+
     switch ( data_type ) {
         case MAT_T_DOUBLE:
         {
@@ -466,8 +474,6 @@ ReadCompressedDoubleData(mat_t *mat,z_stream *z,double *data,
             }
             break;
         }
-        default:
-            break;
     }
     nBytes = len*data_size;
     return nBytes;
@@ -502,12 +508,12 @@ ReadSingleData(mat_t *mat,float *data,enum matio_types data_type,int len)
             data_size = sizeof(double);
             if ( mat->byteswap ) {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&d,data_size,1,mat->fp);
+                    bytesread += fread(&d,data_size,1,mat->fp);
                     data[i] = Mat_doubleSwap(&d);
                 }
             } else {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&d,data_size,1,mat->fp);
+                    bytesread += fread(&d,data_size,1,mat->fp);
                     data[i] = d;
                 }
             }
@@ -520,12 +526,12 @@ ReadSingleData(mat_t *mat,float *data,enum matio_types data_type,int len)
             data_size = sizeof(float);
             if ( mat->byteswap ) {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&f,data_size,1,mat->fp);
+                    bytesread += fread(&f,data_size,1,mat->fp);
                     data[i] = Mat_floatSwap(&f);
                 }
             } else {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&f,data_size,1,mat->fp);
+                    bytesread += fread(&f,data_size,1,mat->fp);
                     data[i] = f;
                 }
             }
@@ -538,12 +544,12 @@ ReadSingleData(mat_t *mat,float *data,enum matio_types data_type,int len)
             data_size = sizeof(mat_int32_t);
             if ( mat->byteswap ) {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&i32,data_size,1,mat->fp);
+                    bytesread += fread(&i32,data_size,1,mat->fp);
                     data[i] = Mat_int32Swap(&i32);
                 }
             } else {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&i32,data_size,1,mat->fp);
+                    bytesread += fread(&i32,data_size,1,mat->fp);
                     data[i] = i32;
                 }
             }
@@ -556,12 +562,12 @@ ReadSingleData(mat_t *mat,float *data,enum matio_types data_type,int len)
             data_size = sizeof(mat_uint32_t);
             if ( mat->byteswap ) {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&ui32,data_size,1,mat->fp);
+                    bytesread += fread(&ui32,data_size,1,mat->fp);
                     data[i] = Mat_uint32Swap(&ui32);
                 }
             } else {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&ui32,data_size,1,mat->fp);
+                    bytesread += fread(&ui32,data_size,1,mat->fp);
                     data[i] = ui32;
                 }
             }
@@ -574,12 +580,12 @@ ReadSingleData(mat_t *mat,float *data,enum matio_types data_type,int len)
             data_size = sizeof(mat_int16_t);
             if ( mat->byteswap ) {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&i16,data_size,1,mat->fp);
+                    bytesread += fread(&i16,data_size,1,mat->fp);
                     data[i] = Mat_int16Swap(&i16);
                 }
             } else {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&i16,data_size,1,mat->fp);
+                    bytesread += fread(&i16,data_size,1,mat->fp);
                     data[i] = i16;
                 }
             }
@@ -592,12 +598,12 @@ ReadSingleData(mat_t *mat,float *data,enum matio_types data_type,int len)
             data_size = sizeof(mat_uint16_t);
             if ( mat->byteswap ) {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&ui16,data_size,1,mat->fp);
+                    bytesread += fread(&ui16,data_size,1,mat->fp);
                     data[i] = Mat_uint16Swap(&ui16);
                 }
             } else {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&ui16,data_size,1,mat->fp);
+                    bytesread += fread(&ui16,data_size,1,mat->fp);
                     data[i] = ui16;
                 }
             }
@@ -610,12 +616,12 @@ ReadSingleData(mat_t *mat,float *data,enum matio_types data_type,int len)
             data_size = sizeof(mat_int8_t);
             if ( mat->byteswap ) {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&i8,data_size,1,mat->fp);
+                    bytesread += fread(&i8,data_size,1,mat->fp);
                     data[i] = i8;
                 }
             } else {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&i8,data_size,1,mat->fp);
+                    bytesread += fread(&i8,data_size,1,mat->fp);
                     data[i] = i8;
                 }
             }
@@ -628,19 +634,17 @@ ReadSingleData(mat_t *mat,float *data,enum matio_types data_type,int len)
             data_size = sizeof(mat_uint8_t);
             if ( mat->byteswap ) {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&ui8,data_size,1,mat->fp);
+                    bytesread += fread(&ui8,data_size,1,mat->fp);
                     data[i] = ui8;
                 }
             } else {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&ui8,data_size,1,mat->fp);
+                    bytesread += fread(&ui8,data_size,1,mat->fp);
                     data[i] = ui8;
                 }
             }
             break;
         }
-        default:
-            break;
     }
     bytesread *= data_size;
     return bytesread;
@@ -799,8 +803,6 @@ ReadCompressedSingleData(mat_t *mat,z_stream *z,float *data,
             }
             break;
         }
-        default:
-            break;
     }
     nBytes = len*data_size;
     return nBytes;
@@ -837,12 +839,12 @@ ReadInt64Data(mat_t *mat,mat_int64_t *data,enum matio_types data_type,int len)
             data_size = sizeof(double);
             if ( mat->byteswap ) {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&d,data_size,1,mat->fp);
+                    bytesread += fread(&d,data_size,1,mat->fp);
                     data[i] = Mat_doubleSwap(&d);
                 }
             } else {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&d,data_size,1,mat->fp);
+                    bytesread += fread(&d,data_size,1,mat->fp);
                     data[i] = d;
                 }
             }
@@ -855,12 +857,12 @@ ReadInt64Data(mat_t *mat,mat_int64_t *data,enum matio_types data_type,int len)
             data_size = sizeof(float);
             if ( mat->byteswap ) {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&f,data_size,1,mat->fp);
+                    bytesread += fread(&f,data_size,1,mat->fp);
                     data[i] = Mat_floatSwap(&f);
                 }
             } else {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&f,data_size,1,mat->fp);
+                    bytesread += fread(&f,data_size,1,mat->fp);
                     data[i] = f;
                 }
             }
@@ -873,12 +875,12 @@ ReadInt64Data(mat_t *mat,mat_int64_t *data,enum matio_types data_type,int len)
             data_size = sizeof(mat_int64_t);
             if ( mat->byteswap ) {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&i64,data_size,1,mat->fp);
+                    bytesread += fread(&i64,data_size,1,mat->fp);
                     data[i] = Mat_int64Swap(&i64);
                 }
             } else {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&i64,data_size,1,mat->fp);
+                    bytesread += fread(&i64,data_size,1,mat->fp);
                     data[i] = i64;
                 }
             }
@@ -891,12 +893,12 @@ ReadInt64Data(mat_t *mat,mat_int64_t *data,enum matio_types data_type,int len)
             data_size = sizeof(mat_uint64_t);
             if ( mat->byteswap ) {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&ui64,data_size,1,mat->fp);
+                    bytesread += fread(&ui64,data_size,1,mat->fp);
                     data[i] = Mat_uint64Swap(&ui64);
                 }
             } else {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&ui64,data_size,1,mat->fp);
+                    bytesread += fread(&ui64,data_size,1,mat->fp);
                     data[i] = ui64;
                 }
             }
@@ -909,12 +911,12 @@ ReadInt64Data(mat_t *mat,mat_int64_t *data,enum matio_types data_type,int len)
             data_size = sizeof(mat_int32_t);
             if ( mat->byteswap ) {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&i32,data_size,1,mat->fp);
+                    bytesread += fread(&i32,data_size,1,mat->fp);
                     data[i] = Mat_int32Swap(&i32);
                 }
             } else {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&i32,data_size,1,mat->fp);
+                    bytesread += fread(&i32,data_size,1,mat->fp);
                     data[i] = i32;
                 }
             }
@@ -927,12 +929,12 @@ ReadInt64Data(mat_t *mat,mat_int64_t *data,enum matio_types data_type,int len)
             data_size = sizeof(mat_uint32_t);
             if ( mat->byteswap ) {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&ui32,data_size,1,mat->fp);
+                    bytesread += fread(&ui32,data_size,1,mat->fp);
                     data[i] = Mat_uint32Swap(&ui32);
                 }
             } else {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&ui32,data_size,1,mat->fp);
+                    bytesread += fread(&ui32,data_size,1,mat->fp);
                     data[i] = ui32;
                 }
             }
@@ -945,12 +947,12 @@ ReadInt64Data(mat_t *mat,mat_int64_t *data,enum matio_types data_type,int len)
             data_size = sizeof(mat_int16_t);
             if ( mat->byteswap ) {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&i16,data_size,1,mat->fp);
+                    bytesread += fread(&i16,data_size,1,mat->fp);
                     data[i] = Mat_int16Swap(&i16);
                 }
             } else {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&i16,data_size,1,mat->fp);
+                    bytesread += fread(&i16,data_size,1,mat->fp);
                     data[i] = i16;
                 }
             }
@@ -963,12 +965,12 @@ ReadInt64Data(mat_t *mat,mat_int64_t *data,enum matio_types data_type,int len)
             data_size = sizeof(mat_uint16_t);
             if ( mat->byteswap ) {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&ui16,data_size,1,mat->fp);
+                    bytesread += fread(&ui16,data_size,1,mat->fp);
                     data[i] = Mat_uint16Swap(&ui16);
                 }
             } else {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&ui16,data_size,1,mat->fp);
+                    bytesread += fread(&ui16,data_size,1,mat->fp);
                     data[i] = ui16;
                 }
             }
@@ -981,12 +983,12 @@ ReadInt64Data(mat_t *mat,mat_int64_t *data,enum matio_types data_type,int len)
             data_size = sizeof(mat_int8_t);
             if ( mat->byteswap ) {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&i8,data_size,1,mat->fp);
+                    bytesread += fread(&i8,data_size,1,mat->fp);
                     data[i] = i8;
                 }
             } else {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&i8,data_size,1,mat->fp);
+                    bytesread += fread(&i8,data_size,1,mat->fp);
                     data[i] = i8;
                 }
             }
@@ -999,19 +1001,17 @@ ReadInt64Data(mat_t *mat,mat_int64_t *data,enum matio_types data_type,int len)
             data_size = sizeof(mat_uint8_t);
             if ( mat->byteswap ) {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&ui8,data_size,1,mat->fp);
+                    bytesread += fread(&ui8,data_size,1,mat->fp);
                     data[i] = ui8;
                 }
             } else {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&ui8,data_size,1,mat->fp);
+                    bytesread += fread(&ui8,data_size,1,mat->fp);
                     data[i] = ui8;
                 }
             }
             break;
         }
-        default:
-            break;
     }
     bytesread *= data_size;
     return bytesread;
@@ -1208,8 +1208,6 @@ ReadCompressedInt64Data(mat_t *mat,z_stream *z,mat_int64_t *data,
             }
             break;
         }
-        default:
-            break;
     }
     nBytes = len*data_size;
     return nBytes;
@@ -1247,12 +1245,12 @@ ReadUInt64Data(mat_t *mat,mat_uint64_t *data,enum matio_types data_type,int len)
             data_size = sizeof(double);
             if ( mat->byteswap ) {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&d,data_size,1,mat->fp);
+                    bytesread += fread(&d,data_size,1,mat->fp);
                     data[i] = Mat_doubleSwap(&d);
                 }
             } else {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&d,data_size,1,mat->fp);
+                    bytesread += fread(&d,data_size,1,mat->fp);
                     data[i] = d;
                 }
             }
@@ -1265,12 +1263,12 @@ ReadUInt64Data(mat_t *mat,mat_uint64_t *data,enum matio_types data_type,int len)
             data_size = sizeof(float);
             if ( mat->byteswap ) {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&f,data_size,1,mat->fp);
+                    bytesread += fread(&f,data_size,1,mat->fp);
                     data[i] = Mat_floatSwap(&f);
                 }
             } else {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&f,data_size,1,mat->fp);
+                    bytesread += fread(&f,data_size,1,mat->fp);
                     data[i] = f;
                 }
             }
@@ -1283,12 +1281,12 @@ ReadUInt64Data(mat_t *mat,mat_uint64_t *data,enum matio_types data_type,int len)
             data_size = sizeof(mat_int64_t);
             if ( mat->byteswap ) {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&i64,data_size,1,mat->fp);
+                    bytesread += fread(&i64,data_size,1,mat->fp);
                     data[i] = Mat_int64Swap(&i64);
                 }
             } else {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&i64,data_size,1,mat->fp);
+                    bytesread += fread(&i64,data_size,1,mat->fp);
                     data[i] = i64;
                 }
             }
@@ -1301,12 +1299,12 @@ ReadUInt64Data(mat_t *mat,mat_uint64_t *data,enum matio_types data_type,int len)
             data_size = sizeof(mat_uint64_t);
             if ( mat->byteswap ) {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&ui64,data_size,1,mat->fp);
+                    bytesread += fread(&ui64,data_size,1,mat->fp);
                     data[i] = Mat_uint64Swap(&ui64);
                 }
             } else {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&ui64,data_size,1,mat->fp);
+                    bytesread += fread(&ui64,data_size,1,mat->fp);
                     data[i] = ui64;
                 }
             }
@@ -1319,12 +1317,12 @@ ReadUInt64Data(mat_t *mat,mat_uint64_t *data,enum matio_types data_type,int len)
             data_size = sizeof(mat_int32_t);
             if ( mat->byteswap ) {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&i32,data_size,1,mat->fp);
+                    bytesread += fread(&i32,data_size,1,mat->fp);
                     data[i] = Mat_int32Swap(&i32);
                 }
             } else {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&i32,data_size,1,mat->fp);
+                    bytesread += fread(&i32,data_size,1,mat->fp);
                     data[i] = i32;
                 }
             }
@@ -1337,12 +1335,12 @@ ReadUInt64Data(mat_t *mat,mat_uint64_t *data,enum matio_types data_type,int len)
             data_size = sizeof(mat_uint32_t);
             if ( mat->byteswap ) {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&ui32,data_size,1,mat->fp);
+                    bytesread += fread(&ui32,data_size,1,mat->fp);
                     data[i] = Mat_uint32Swap(&ui32);
                 }
             } else {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&ui32,data_size,1,mat->fp);
+                    bytesread += fread(&ui32,data_size,1,mat->fp);
                     data[i] = ui32;
                 }
             }
@@ -1355,12 +1353,12 @@ ReadUInt64Data(mat_t *mat,mat_uint64_t *data,enum matio_types data_type,int len)
             data_size = sizeof(mat_int16_t);
             if ( mat->byteswap ) {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&i16,data_size,1,mat->fp);
+                    bytesread += fread(&i16,data_size,1,mat->fp);
                     data[i] = Mat_int16Swap(&i16);
                 }
             } else {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&i16,data_size,1,mat->fp);
+                    bytesread += fread(&i16,data_size,1,mat->fp);
                     data[i] = i16;
                 }
             }
@@ -1373,12 +1371,12 @@ ReadUInt64Data(mat_t *mat,mat_uint64_t *data,enum matio_types data_type,int len)
             data_size = sizeof(mat_uint16_t);
             if ( mat->byteswap ) {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&ui16,data_size,1,mat->fp);
+                    bytesread += fread(&ui16,data_size,1,mat->fp);
                     data[i] = Mat_uint16Swap(&ui16);
                 }
             } else {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&ui16,data_size,1,mat->fp);
+                    bytesread += fread(&ui16,data_size,1,mat->fp);
                     data[i] = ui16;
                 }
             }
@@ -1391,12 +1389,12 @@ ReadUInt64Data(mat_t *mat,mat_uint64_t *data,enum matio_types data_type,int len)
             data_size = sizeof(mat_int8_t);
             if ( mat->byteswap ) {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&i8,data_size,1,mat->fp);
+                    bytesread += fread(&i8,data_size,1,mat->fp);
                     data[i] = i8;
                 }
             } else {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&i8,data_size,1,mat->fp);
+                    bytesread += fread(&i8,data_size,1,mat->fp);
                     data[i] = i8;
                 }
             }
@@ -1409,19 +1407,17 @@ ReadUInt64Data(mat_t *mat,mat_uint64_t *data,enum matio_types data_type,int len)
             data_size = sizeof(mat_uint8_t);
             if ( mat->byteswap ) {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&ui8,data_size,1,mat->fp);
+                    bytesread += fread(&ui8,data_size,1,mat->fp);
                     data[i] = ui8;
                 }
             } else {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&ui8,data_size,1,mat->fp);
+                    bytesread += fread(&ui8,data_size,1,mat->fp);
                     data[i] = ui8;
                 }
             }
             break;
         }
-        default:
-            break;
     }
     bytesread *= data_size;
     return bytesread;
@@ -1618,8 +1614,6 @@ ReadCompressedUInt64Data(mat_t *mat,z_stream *z,mat_uint64_t *data,
             }
             break;
         }
-        default:
-            break;
     }
     nBytes = len*data_size;
     return nBytes;
@@ -1656,12 +1650,12 @@ ReadInt32Data(mat_t *mat,mat_int32_t *data,enum matio_types data_type,int len)
             data_size = sizeof(double);
             if ( mat->byteswap ) {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&d,data_size,1,mat->fp);
+                    bytesread += fread(&d,data_size,1,mat->fp);
                     data[i] = Mat_doubleSwap(&d);
                 }
             } else {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&d,data_size,1,mat->fp);
+                    bytesread += fread(&d,data_size,1,mat->fp);
                     data[i] = d;
                 }
             }
@@ -1674,12 +1668,12 @@ ReadInt32Data(mat_t *mat,mat_int32_t *data,enum matio_types data_type,int len)
             data_size = sizeof(float);
             if ( mat->byteswap ) {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&f,data_size,1,mat->fp);
+                    bytesread += fread(&f,data_size,1,mat->fp);
                     data[i] = Mat_floatSwap(&f);
                 }
             } else {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&f,data_size,1,mat->fp);
+                    bytesread += fread(&f,data_size,1,mat->fp);
                     data[i] = f;
                 }
             }
@@ -1692,12 +1686,12 @@ ReadInt32Data(mat_t *mat,mat_int32_t *data,enum matio_types data_type,int len)
             data_size = sizeof(mat_int32_t);
             if ( mat->byteswap ) {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&i32,data_size,1,mat->fp);
+                    bytesread += fread(&i32,data_size,1,mat->fp);
                     data[i] = Mat_int32Swap(&i32);
                 }
             } else {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&i32,data_size,1,mat->fp);
+                    bytesread += fread(&i32,data_size,1,mat->fp);
                     data[i] = i32;
                 }
             }
@@ -1710,12 +1704,12 @@ ReadInt32Data(mat_t *mat,mat_int32_t *data,enum matio_types data_type,int len)
             data_size = sizeof(mat_uint32_t);
             if ( mat->byteswap ) {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&ui32,data_size,1,mat->fp);
+                    bytesread += fread(&ui32,data_size,1,mat->fp);
                     data[i] = Mat_uint32Swap(&ui32);
                 }
             } else {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&ui32,data_size,1,mat->fp);
+                    bytesread += fread(&ui32,data_size,1,mat->fp);
                     data[i] = ui32;
                 }
             }
@@ -1728,12 +1722,12 @@ ReadInt32Data(mat_t *mat,mat_int32_t *data,enum matio_types data_type,int len)
             data_size = sizeof(mat_int16_t);
             if ( mat->byteswap ) {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&i16,data_size,1,mat->fp);
+                    bytesread += fread(&i16,data_size,1,mat->fp);
                     data[i] = Mat_int16Swap(&i16);
                 }
             } else {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&i16,data_size,1,mat->fp);
+                    bytesread += fread(&i16,data_size,1,mat->fp);
                     data[i] = i16;
                 }
             }
@@ -1746,12 +1740,12 @@ ReadInt32Data(mat_t *mat,mat_int32_t *data,enum matio_types data_type,int len)
             data_size = sizeof(mat_uint16_t);
             if ( mat->byteswap ) {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&ui16,data_size,1,mat->fp);
+                    bytesread += fread(&ui16,data_size,1,mat->fp);
                     data[i] = Mat_uint16Swap(&ui16);
                 }
             } else {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&ui16,data_size,1,mat->fp);
+                    bytesread += fread(&ui16,data_size,1,mat->fp);
                     data[i] = ui16;
                 }
             }
@@ -1764,12 +1758,12 @@ ReadInt32Data(mat_t *mat,mat_int32_t *data,enum matio_types data_type,int len)
             data_size = sizeof(mat_int8_t);
             if ( mat->byteswap ) {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&i8,data_size,1,mat->fp);
+                    bytesread += fread(&i8,data_size,1,mat->fp);
                     data[i] = i8;
                 }
             } else {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&i8,data_size,1,mat->fp);
+                    bytesread += fread(&i8,data_size,1,mat->fp);
                     data[i] = i8;
                 }
             }
@@ -1782,19 +1776,17 @@ ReadInt32Data(mat_t *mat,mat_int32_t *data,enum matio_types data_type,int len)
             data_size = sizeof(mat_uint8_t);
             if ( mat->byteswap ) {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&ui8,data_size,1,mat->fp);
+                    bytesread += fread(&ui8,data_size,1,mat->fp);
                     data[i] = ui8;
                 }
             } else {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&ui8,data_size,1,mat->fp);
+                    bytesread += fread(&ui8,data_size,1,mat->fp);
                     data[i] = ui8;
                 }
             }
             break;
         }
-        default:
-            break;
     }
     bytesread *= data_size;
     return bytesread;
@@ -1955,8 +1947,6 @@ ReadCompressedInt32Data(mat_t *mat,z_stream *z,mat_int32_t *data,
             }
             break;
         }
-        default:
-            break;
     }
     nBytes = len*data_size;
     return nBytes;
@@ -1992,12 +1982,12 @@ ReadUInt32Data(mat_t *mat,mat_uint32_t *data,enum matio_types data_type,int len)
             data_size = sizeof(double);
             if ( mat->byteswap ) {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&d,data_size,1,mat->fp);
+                    bytesread += fread(&d,data_size,1,mat->fp);
                     data[i] = Mat_doubleSwap(&d);
                 }
             } else {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&d,data_size,1,mat->fp);
+                    bytesread += fread(&d,data_size,1,mat->fp);
                     data[i] = d;
                 }
             }
@@ -2010,12 +2000,12 @@ ReadUInt32Data(mat_t *mat,mat_uint32_t *data,enum matio_types data_type,int len)
             data_size = sizeof(float);
             if ( mat->byteswap ) {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&f,data_size,1,mat->fp);
+                    bytesread += fread(&f,data_size,1,mat->fp);
                     data[i] = Mat_floatSwap(&f);
                 }
             } else {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&f,data_size,1,mat->fp);
+                    bytesread += fread(&f,data_size,1,mat->fp);
                     data[i] = f;
                 }
             }
@@ -2028,12 +2018,12 @@ ReadUInt32Data(mat_t *mat,mat_uint32_t *data,enum matio_types data_type,int len)
             data_size = sizeof(mat_int32_t);
             if ( mat->byteswap ) {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&i32,data_size,1,mat->fp);
+                    bytesread += fread(&i32,data_size,1,mat->fp);
                     data[i] = Mat_int32Swap(&i32);
                 }
             } else {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&i32,data_size,1,mat->fp);
+                    bytesread += fread(&i32,data_size,1,mat->fp);
                     data[i] = i32;
                 }
             }
@@ -2046,12 +2036,12 @@ ReadUInt32Data(mat_t *mat,mat_uint32_t *data,enum matio_types data_type,int len)
             data_size = sizeof(mat_uint32_t);
             if ( mat->byteswap ) {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&ui32,data_size,1,mat->fp);
+                    bytesread += fread(&ui32,data_size,1,mat->fp);
                     data[i] = Mat_uint32Swap(&ui32);
                 }
             } else {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&ui32,data_size,1,mat->fp);
+                    bytesread += fread(&ui32,data_size,1,mat->fp);
                     data[i] = ui32;
                 }
             }
@@ -2064,12 +2054,12 @@ ReadUInt32Data(mat_t *mat,mat_uint32_t *data,enum matio_types data_type,int len)
             data_size = sizeof(mat_int16_t);
             if ( mat->byteswap ) {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&i16,data_size,1,mat->fp);
+                    bytesread += fread(&i16,data_size,1,mat->fp);
                     data[i] = Mat_int16Swap(&i16);
                 }
             } else {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&i16,data_size,1,mat->fp);
+                    bytesread += fread(&i16,data_size,1,mat->fp);
                     data[i] = i16;
                 }
             }
@@ -2082,12 +2072,12 @@ ReadUInt32Data(mat_t *mat,mat_uint32_t *data,enum matio_types data_type,int len)
             data_size = sizeof(mat_uint16_t);
             if ( mat->byteswap ) {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&ui16,data_size,1,mat->fp);
+                    bytesread += fread(&ui16,data_size,1,mat->fp);
                     data[i] = Mat_uint16Swap(&ui16);
                 }
             } else {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&ui16,data_size,1,mat->fp);
+                    bytesread += fread(&ui16,data_size,1,mat->fp);
                     data[i] = ui16;
                 }
             }
@@ -2100,12 +2090,12 @@ ReadUInt32Data(mat_t *mat,mat_uint32_t *data,enum matio_types data_type,int len)
             data_size = sizeof(mat_int8_t);
             if ( mat->byteswap ) {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&i8,data_size,1,mat->fp);
+                    bytesread += fread(&i8,data_size,1,mat->fp);
                     data[i] = i8;
                 }
             } else {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&i8,data_size,1,mat->fp);
+                    bytesread += fread(&i8,data_size,1,mat->fp);
                     data[i] = i8;
                 }
             }
@@ -2118,19 +2108,17 @@ ReadUInt32Data(mat_t *mat,mat_uint32_t *data,enum matio_types data_type,int len)
             data_size = sizeof(mat_uint8_t);
             if ( mat->byteswap ) {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&ui8,data_size,1,mat->fp);
+                    bytesread += fread(&ui8,data_size,1,mat->fp);
                     data[i] = ui8;
                 }
             } else {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&ui8,data_size,1,mat->fp);
+                    bytesread += fread(&ui8,data_size,1,mat->fp);
                     data[i] = ui8;
                 }
             }
             break;
         }
-        default:
-            break;
     }
     bytesread *= data_size;
     return bytesread;
@@ -2291,8 +2279,6 @@ ReadCompressedUInt32Data(mat_t *mat,z_stream *z,mat_uint32_t *data,
             }
             break;
         }
-        default:
-            break;
     }
     nBytes = len*data_size;
     return nBytes;
@@ -2328,12 +2314,12 @@ ReadInt16Data(mat_t *mat,mat_int16_t *data,enum matio_types data_type,int len)
             data_size = sizeof(double);
             if ( mat->byteswap ) {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&d,data_size,1,mat->fp);
+                    bytesread += fread(&d,data_size,1,mat->fp);
                     data[i] = Mat_doubleSwap(&d);
                 }
             } else {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&d,data_size,1,mat->fp);
+                    bytesread += fread(&d,data_size,1,mat->fp);
                     data[i] = d;
                 }
             }
@@ -2346,12 +2332,12 @@ ReadInt16Data(mat_t *mat,mat_int16_t *data,enum matio_types data_type,int len)
             data_size = sizeof(float);
             if ( mat->byteswap ) {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&f,data_size,1,mat->fp);
+                    bytesread += fread(&f,data_size,1,mat->fp);
                     data[i] = Mat_floatSwap(&f);
                 }
             } else {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&f,data_size,1,mat->fp);
+                    bytesread += fread(&f,data_size,1,mat->fp);
                     data[i] = f;
                 }
             }
@@ -2364,12 +2350,12 @@ ReadInt16Data(mat_t *mat,mat_int16_t *data,enum matio_types data_type,int len)
             data_size = sizeof(mat_int32_t);
             if ( mat->byteswap ) {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&i32,data_size,1,mat->fp);
+                    bytesread += fread(&i32,data_size,1,mat->fp);
                     data[i] = Mat_int32Swap(&i32);
                 }
             } else {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&i32,data_size,1,mat->fp);
+                    bytesread += fread(&i32,data_size,1,mat->fp);
                     data[i] = i32;
                 }
             }
@@ -2382,12 +2368,12 @@ ReadInt16Data(mat_t *mat,mat_int16_t *data,enum matio_types data_type,int len)
             data_size = sizeof(mat_uint32_t);
             if ( mat->byteswap ) {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&ui32,data_size,1,mat->fp);
+                    bytesread += fread(&ui32,data_size,1,mat->fp);
                     data[i] = Mat_uint32Swap(&ui32);
                 }
             } else {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&ui32,data_size,1,mat->fp);
+                    bytesread += fread(&ui32,data_size,1,mat->fp);
                     data[i] = ui32;
                 }
             }
@@ -2400,12 +2386,12 @@ ReadInt16Data(mat_t *mat,mat_int16_t *data,enum matio_types data_type,int len)
             data_size = sizeof(mat_int16_t);
             if ( mat->byteswap ) {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&i16,data_size,1,mat->fp);
+                    bytesread += fread(&i16,data_size,1,mat->fp);
                     data[i] = Mat_int16Swap(&i16);
                 }
             } else {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&i16,data_size,1,mat->fp);
+                    bytesread += fread(&i16,data_size,1,mat->fp);
                     data[i] = i16;
                 }
             }
@@ -2418,12 +2404,12 @@ ReadInt16Data(mat_t *mat,mat_int16_t *data,enum matio_types data_type,int len)
             data_size = sizeof(mat_uint16_t);
             if ( mat->byteswap ) {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&ui16,data_size,1,mat->fp);
+                    bytesread += fread(&ui16,data_size,1,mat->fp);
                     data[i] = Mat_uint16Swap(&ui16);
                 }
             } else {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&ui16,data_size,1,mat->fp);
+                    bytesread += fread(&ui16,data_size,1,mat->fp);
                     data[i] = ui16;
                 }
             }
@@ -2436,12 +2422,12 @@ ReadInt16Data(mat_t *mat,mat_int16_t *data,enum matio_types data_type,int len)
             data_size = sizeof(mat_int8_t);
             if ( mat->byteswap ) {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&i8,data_size,1,mat->fp);
+                    bytesread += fread(&i8,data_size,1,mat->fp);
                     data[i] = i8;
                 }
             } else {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&i8,data_size,1,mat->fp);
+                    bytesread += fread(&i8,data_size,1,mat->fp);
                     data[i] = i8;
                 }
             }
@@ -2454,19 +2440,17 @@ ReadInt16Data(mat_t *mat,mat_int16_t *data,enum matio_types data_type,int len)
             data_size = sizeof(mat_uint8_t);
             if ( mat->byteswap ) {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&ui8,data_size,1,mat->fp);
+                    bytesread += fread(&ui8,data_size,1,mat->fp);
                     data[i] = ui8;
                 }
             } else {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&ui8,data_size,1,mat->fp);
+                    bytesread += fread(&ui8,data_size,1,mat->fp);
                     data[i] = ui8;
                 }
             }
             break;
         }
-        default:
-            break;
     }
     bytesread *= data_size;
     return bytesread;
@@ -2627,8 +2611,6 @@ ReadCompressedInt16Data(mat_t *mat,z_stream *z,mat_int16_t *data,
             }
             break;
         }
-        default:
-            break;
     }
     nBytes = len*data_size;
     return nBytes;
@@ -2664,12 +2646,12 @@ ReadUInt16Data(mat_t *mat,mat_uint16_t *data,enum matio_types data_type,int len)
             data_size = sizeof(double);
             if ( mat->byteswap ) {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&d,data_size,1,mat->fp);
+                    bytesread += fread(&d,data_size,1,mat->fp);
                     data[i] = Mat_doubleSwap(&d);
                 }
             } else {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&d,data_size,1,mat->fp);
+                    bytesread += fread(&d,data_size,1,mat->fp);
                     data[i] = d;
                 }
             }
@@ -2682,12 +2664,12 @@ ReadUInt16Data(mat_t *mat,mat_uint16_t *data,enum matio_types data_type,int len)
             data_size = sizeof(float);
             if ( mat->byteswap ) {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&f,data_size,1,mat->fp);
+                    bytesread += fread(&f,data_size,1,mat->fp);
                     data[i] = Mat_floatSwap(&f);
                 }
             } else {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&f,data_size,1,mat->fp);
+                    bytesread += fread(&f,data_size,1,mat->fp);
                     data[i] = f;
                 }
             }
@@ -2700,12 +2682,12 @@ ReadUInt16Data(mat_t *mat,mat_uint16_t *data,enum matio_types data_type,int len)
             data_size = sizeof(mat_int32_t);
             if ( mat->byteswap ) {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&i32,data_size,1,mat->fp);
+                    bytesread += fread(&i32,data_size,1,mat->fp);
                     data[i] = Mat_int32Swap(&i32);
                 }
             } else {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&i32,data_size,1,mat->fp);
+                    bytesread += fread(&i32,data_size,1,mat->fp);
                     data[i] = i32;
                 }
             }
@@ -2718,12 +2700,12 @@ ReadUInt16Data(mat_t *mat,mat_uint16_t *data,enum matio_types data_type,int len)
             data_size = sizeof(mat_uint32_t);
             if ( mat->byteswap ) {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&ui32,data_size,1,mat->fp);
+                    bytesread += fread(&ui32,data_size,1,mat->fp);
                     data[i] = Mat_uint32Swap(&ui32);
                 }
             } else {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&ui32,data_size,1,mat->fp);
+                    bytesread += fread(&ui32,data_size,1,mat->fp);
                     data[i] = ui32;
                 }
             }
@@ -2736,12 +2718,12 @@ ReadUInt16Data(mat_t *mat,mat_uint16_t *data,enum matio_types data_type,int len)
             data_size = sizeof(mat_int16_t);
             if ( mat->byteswap ) {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&i16,data_size,1,mat->fp);
+                    bytesread += fread(&i16,data_size,1,mat->fp);
                     data[i] = Mat_int16Swap(&i16);
                 }
             } else {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&i16,data_size,1,mat->fp);
+                    bytesread += fread(&i16,data_size,1,mat->fp);
                     data[i] = i16;
                 }
             }
@@ -2754,12 +2736,12 @@ ReadUInt16Data(mat_t *mat,mat_uint16_t *data,enum matio_types data_type,int len)
             data_size = sizeof(mat_uint16_t);
             if ( mat->byteswap ) {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&ui16,data_size,1,mat->fp);
+                    bytesread += fread(&ui16,data_size,1,mat->fp);
                     data[i] = Mat_uint16Swap(&ui16);
                 }
             } else {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&ui16,data_size,1,mat->fp);
+                    bytesread += fread(&ui16,data_size,1,mat->fp);
                     data[i] = ui16;
                 }
             }
@@ -2772,12 +2754,12 @@ ReadUInt16Data(mat_t *mat,mat_uint16_t *data,enum matio_types data_type,int len)
             data_size = sizeof(mat_int8_t);
             if ( mat->byteswap ) {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&i8,data_size,1,mat->fp);
+                    bytesread += fread(&i8,data_size,1,mat->fp);
                     data[i] = i8;
                 }
             } else {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&i8,data_size,1,mat->fp);
+                    bytesread += fread(&i8,data_size,1,mat->fp);
                     data[i] = i8;
                 }
             }
@@ -2790,19 +2772,17 @@ ReadUInt16Data(mat_t *mat,mat_uint16_t *data,enum matio_types data_type,int len)
             data_size = sizeof(mat_uint8_t);
             if ( mat->byteswap ) {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&ui8,data_size,1,mat->fp);
+                    bytesread += fread(&ui8,data_size,1,mat->fp);
                     data[i] = ui8;
                 }
             } else {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&ui8,data_size,1,mat->fp);
+                    bytesread += fread(&ui8,data_size,1,mat->fp);
                     data[i] = ui8;
                 }
             }
             break;
         }
-        default:
-            break;
     }
     bytesread *= data_size;
     return bytesread;
@@ -2963,8 +2943,6 @@ ReadCompressedUInt16Data(mat_t *mat,z_stream *z,mat_uint16_t *data,
             }
             break;
         }
-        default:
-            break;
     }
     nBytes = len*data_size;
     return nBytes;
@@ -3000,12 +2978,12 @@ ReadInt8Data(mat_t *mat,mat_int8_t *data,enum matio_types data_type,int len)
             data_size = sizeof(double);
             if ( mat->byteswap ) {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&d,data_size,1,mat->fp);
+                    bytesread += fread(&d,data_size,1,mat->fp);
                     data[i] = Mat_doubleSwap(&d);
                 }
             } else {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&d,data_size,1,mat->fp);
+                    bytesread += fread(&d,data_size,1,mat->fp);
                     data[i] = d;
                 }
             }
@@ -3018,12 +2996,12 @@ ReadInt8Data(mat_t *mat,mat_int8_t *data,enum matio_types data_type,int len)
             data_size = sizeof(float);
             if ( mat->byteswap ) {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&f,data_size,1,mat->fp);
+                    bytesread += fread(&f,data_size,1,mat->fp);
                     data[i] = Mat_floatSwap(&f);
                 }
             } else {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&f,data_size,1,mat->fp);
+                    bytesread += fread(&f,data_size,1,mat->fp);
                     data[i] = f;
                 }
             }
@@ -3036,12 +3014,12 @@ ReadInt8Data(mat_t *mat,mat_int8_t *data,enum matio_types data_type,int len)
             data_size = sizeof(mat_int32_t);
             if ( mat->byteswap ) {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&i32,data_size,1,mat->fp);
+                    bytesread += fread(&i32,data_size,1,mat->fp);
                     data[i] = Mat_int32Swap(&i32);
                 }
             } else {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&i32,data_size,1,mat->fp);
+                    bytesread += fread(&i32,data_size,1,mat->fp);
                     data[i] = i32;
                 }
             }
@@ -3054,12 +3032,12 @@ ReadInt8Data(mat_t *mat,mat_int8_t *data,enum matio_types data_type,int len)
             data_size = sizeof(mat_uint32_t);
             if ( mat->byteswap ) {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&ui32,data_size,1,mat->fp);
+                    bytesread += fread(&ui32,data_size,1,mat->fp);
                     data[i] = Mat_uint32Swap(&ui32);
                 }
             } else {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&ui32,data_size,1,mat->fp);
+                    bytesread += fread(&ui32,data_size,1,mat->fp);
                     data[i] = ui32;
                 }
             }
@@ -3072,12 +3050,12 @@ ReadInt8Data(mat_t *mat,mat_int8_t *data,enum matio_types data_type,int len)
             data_size = sizeof(mat_int16_t);
             if ( mat->byteswap ) {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&i16,data_size,1,mat->fp);
+                    bytesread += fread(&i16,data_size,1,mat->fp);
                     data[i] = Mat_int16Swap(&i16);
                 }
             } else {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&i16,data_size,1,mat->fp);
+                    bytesread += fread(&i16,data_size,1,mat->fp);
                     data[i] = i16;
                 }
             }
@@ -3090,12 +3068,12 @@ ReadInt8Data(mat_t *mat,mat_int8_t *data,enum matio_types data_type,int len)
             data_size = sizeof(mat_uint16_t);
             if ( mat->byteswap ) {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&ui16,data_size,1,mat->fp);
+                    bytesread += fread(&ui16,data_size,1,mat->fp);
                     data[i] = Mat_uint16Swap(&ui16);
                 }
             } else {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&ui16,data_size,1,mat->fp);
+                    bytesread += fread(&ui16,data_size,1,mat->fp);
                     data[i] = ui16;
                 }
             }
@@ -3108,12 +3086,12 @@ ReadInt8Data(mat_t *mat,mat_int8_t *data,enum matio_types data_type,int len)
             data_size = sizeof(mat_int8_t);
             if ( mat->byteswap ) {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&i8,data_size,1,mat->fp);
+                    bytesread += fread(&i8,data_size,1,mat->fp);
                     data[i] = i8;
                 }
             } else {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&i8,data_size,1,mat->fp);
+                    bytesread += fread(&i8,data_size,1,mat->fp);
                     data[i] = i8;
                 }
             }
@@ -3126,19 +3104,17 @@ ReadInt8Data(mat_t *mat,mat_int8_t *data,enum matio_types data_type,int len)
             data_size = sizeof(mat_uint8_t);
             if ( mat->byteswap ) {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&ui8,data_size,1,mat->fp);
+                    bytesread += fread(&ui8,data_size,1,mat->fp);
                     data[i] = ui8;
                 }
             } else {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&ui8,data_size,1,mat->fp);
+                    bytesread += fread(&ui8,data_size,1,mat->fp);
                     data[i] = ui8;
                 }
             }
             break;
         }
-        default:
-            break;
     }
     bytesread *= data_size;
     return bytesread;
@@ -3299,8 +3275,6 @@ ReadCompressedInt8Data(mat_t *mat,z_stream *z,mat_int8_t *data,
             }
             break;
         }
-        default:
-            break;
     }
     nBytes = len*data_size;
     return nBytes;
@@ -3336,12 +3310,12 @@ ReadUInt8Data(mat_t *mat,mat_uint8_t *data,enum matio_types data_type,int len)
             data_size = sizeof(double);
             if ( mat->byteswap ) {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&d,data_size,1,mat->fp);
+                    bytesread += fread(&d,data_size,1,mat->fp);
                     data[i] = Mat_doubleSwap(&d);
                 }
             } else {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&d,data_size,1,mat->fp);
+                    bytesread += fread(&d,data_size,1,mat->fp);
                     data[i] = d;
                 }
             }
@@ -3354,12 +3328,12 @@ ReadUInt8Data(mat_t *mat,mat_uint8_t *data,enum matio_types data_type,int len)
             data_size = sizeof(float);
             if ( mat->byteswap ) {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&f,data_size,1,mat->fp);
+                    bytesread += fread(&f,data_size,1,mat->fp);
                     data[i] = Mat_floatSwap(&f);
                 }
             } else {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&f,data_size,1,mat->fp);
+                    bytesread += fread(&f,data_size,1,mat->fp);
                     data[i] = f;
                 }
             }
@@ -3372,12 +3346,12 @@ ReadUInt8Data(mat_t *mat,mat_uint8_t *data,enum matio_types data_type,int len)
             data_size = sizeof(mat_int32_t);
             if ( mat->byteswap ) {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&i32,data_size,1,mat->fp);
+                    bytesread += fread(&i32,data_size,1,mat->fp);
                     data[i] = Mat_int32Swap(&i32);
                 }
             } else {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&i32,data_size,1,mat->fp);
+                    bytesread += fread(&i32,data_size,1,mat->fp);
                     data[i] = i32;
                 }
             }
@@ -3390,12 +3364,12 @@ ReadUInt8Data(mat_t *mat,mat_uint8_t *data,enum matio_types data_type,int len)
             data_size = sizeof(mat_uint32_t);
             if ( mat->byteswap ) {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&ui32,data_size,1,mat->fp);
+                    bytesread += fread(&ui32,data_size,1,mat->fp);
                     data[i] = Mat_uint32Swap(&ui32);
                 }
             } else {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&ui32,data_size,1,mat->fp);
+                    bytesread += fread(&ui32,data_size,1,mat->fp);
                     data[i] = ui32;
                 }
             }
@@ -3408,12 +3382,12 @@ ReadUInt8Data(mat_t *mat,mat_uint8_t *data,enum matio_types data_type,int len)
             data_size = sizeof(mat_int16_t);
             if ( mat->byteswap ) {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&i16,data_size,1,mat->fp);
+                    bytesread += fread(&i16,data_size,1,mat->fp);
                     data[i] = Mat_int16Swap(&i16);
                 }
             } else {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&i16,data_size,1,mat->fp);
+                    bytesread += fread(&i16,data_size,1,mat->fp);
                     data[i] = i16;
                 }
             }
@@ -3426,12 +3400,12 @@ ReadUInt8Data(mat_t *mat,mat_uint8_t *data,enum matio_types data_type,int len)
             data_size = sizeof(mat_uint16_t);
             if ( mat->byteswap ) {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&ui16,data_size,1,mat->fp);
+                    bytesread += fread(&ui16,data_size,1,mat->fp);
                     data[i] = Mat_uint16Swap(&ui16);
                 }
             } else {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&ui16,data_size,1,mat->fp);
+                    bytesread += fread(&ui16,data_size,1,mat->fp);
                     data[i] = ui16;
                 }
             }
@@ -3444,12 +3418,12 @@ ReadUInt8Data(mat_t *mat,mat_uint8_t *data,enum matio_types data_type,int len)
             data_size = sizeof(mat_int8_t);
             if ( mat->byteswap ) {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&i8,data_size,1,mat->fp);
+                    bytesread += fread(&i8,data_size,1,mat->fp);
                     data[i] = i8;
                 }
             } else {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&i8,data_size,1,mat->fp);
+                    bytesread += fread(&i8,data_size,1,mat->fp);
                     data[i] = i8;
                 }
             }
@@ -3462,19 +3436,17 @@ ReadUInt8Data(mat_t *mat,mat_uint8_t *data,enum matio_types data_type,int len)
             data_size = sizeof(mat_uint8_t);
             if ( mat->byteswap ) {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&ui8,data_size,1,mat->fp);
+                    bytesread += fread(&ui8,data_size,1,mat->fp);
                     data[i] = ui8;
                 }
             } else {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&ui8,data_size,1,mat->fp);
+                    bytesread += fread(&ui8,data_size,1,mat->fp);
                     data[i] = ui8;
                 }
             }
             break;
         }
-        default:
-            break;
     }
     bytesread *= data_size;
     return bytesread;
@@ -3635,8 +3607,6 @@ ReadCompressedUInt8Data(mat_t *mat,z_stream *z,mat_uint8_t *data,
             }
             break;
         }
-        default:
-            break;
     }
     nBytes = len*data_size;
     return nBytes;
@@ -3717,12 +3687,12 @@ ReadCharData(mat_t *mat,char *data,enum matio_types data_type,int len)
     switch ( data_type ) {
         case MAT_T_UTF8:
             for ( i = 0; i < len; i++ )
-                bytesread += matio_read(data+i,1,1,mat->fp);
+                bytesread += fread(data+i,1,1,mat->fp);
             break;
         case MAT_T_INT8:
         case MAT_T_UINT8:
             for ( i = 0; i < len; i++ )
-                bytesread += matio_read(data+i,1,1,mat->fp);
+                bytesread += fread(data+i,1,1,mat->fp);
             break;
         case MAT_T_INT16:
         case MAT_T_UINT16:
@@ -3731,12 +3701,12 @@ ReadCharData(mat_t *mat,char *data,enum matio_types data_type,int len)
 
             if ( mat->byteswap ) {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&i16,2,1,mat->fp);
+                    bytesread += fread(&i16,2,1,mat->fp);
                     data[i] = Mat_uint16Swap(&i16);
                 }
             } else {
                 for ( i = 0; i < len; i++ ) {
-                    bytesread += matio_read(&i16,2,1,mat->fp);
+                    bytesread += fread(&i16,2,1,mat->fp);
                     data[i] = i16;
                 }
             }
@@ -3779,11 +3749,14 @@ ReadDataSlabN(mat_t *mat,void *data,enum matio_classes class_type,
     int inc[10] = {0,}, cnt[10] = {0,}, dimp[10] = {0,};
     size_t data_size;
 
+    int (*read_data_func)(mat_t *mat,void *data,enum matio_types data_type,
+                          int len) = NULL;
+
     if ( (mat   == NULL) || (data   == NULL) || (mat->fp == NULL) ||
          (start == NULL) || (stride == NULL) || (edge    == NULL) ) {
         return -1;
     } else if ( rank > 10 ) {
-        return -1; 
+        return -1;
     }
 
     data_size = Mat_SizeOf(data_type);
@@ -3805,34 +3778,34 @@ ReadDataSlabN(mat_t *mat,void *data,enum matio_classes class_type,
                 N *= edge[i];
                 I += dimp[i-1]*start[i];
             }
-            matio_seek(mat->fp,I*data_size,SEEK_CUR);
+            fseek(mat->fp,I*data_size,SEEK_CUR);
             if ( stride[0] == 1 ) {
                 for ( i = 0; i < N; i+=edge[0] ) {
                     if ( start[0] ) {
-                        matio_seek(mat->fp,start[0]*data_size,SEEK_CUR);
+                        fseek(mat->fp,start[0]*data_size,SEEK_CUR);
                         I += start[0];
                     }
                     ReadDoubleData(mat,ptr+i,data_type,edge[0]);
                     I += dims[0]-start[0];
-                    matio_seek(mat->fp,data_size*(dims[0]-edge[0]-start[0]),
+                    fseek(mat->fp,data_size*(dims[0]-edge[0]-start[0]),
                           SEEK_CUR);
                     for ( j = 1; j < rank; j++ ) {
                         cnt[j]++;
                         if ( (cnt[j] % edge[j]) == 0 ) {
                             cnt[j] = 0;
                             if ( (I % dimp[j]) != 0 ) {
-                                matio_seek(mat->fp,data_size*
+                                fseek(mat->fp,data_size*
                                       (dimp[j]-(I % dimp[j])+
                                        dimp[j-1]*start[j]),SEEK_CUR);
                                 I += dimp[j]-(I % dimp[j]) + dimp[j-1]*start[j];
                             } else if ( start[j] ) {
-                                matio_seek(mat->fp,data_size*(dimp[j-1]*start[j]),
+                                fseek(mat->fp,data_size*(dimp[j-1]*start[j]),
                                       SEEK_CUR);
                                 I += dimp[j-1]*start[j];
                             }
                         } else {
                             I += inc[j];
-                            matio_seek(mat->fp,data_size*inc[j],SEEK_CUR);
+                            fseek(mat->fp,data_size*inc[j],SEEK_CUR);
                             break;
                         }
                     }
@@ -3840,34 +3813,34 @@ ReadDataSlabN(mat_t *mat,void *data,enum matio_classes class_type,
             } else {
                 for ( i = 0; i < N; i+=edge[0] ) {
                     if ( start[0] ) {
-                        matio_seek(mat->fp,start[0]*data_size,SEEK_CUR);
+                        fseek(mat->fp,start[0]*data_size,SEEK_CUR);
                         I += start[0];
                     }
                     for ( j = 0; j < edge[0]; j++ ) {
                         ReadDoubleData(mat,ptr+i+j,data_type,1);
-                        matio_seek(mat->fp,data_size*(stride[0]-1),SEEK_CUR);
+                        fseek(mat->fp,data_size*(stride[0]-1),SEEK_CUR);
                         I += stride[0];
                     }
                     I += dims[0]-edge[0]*stride[0]-start[0];
-                    matio_seek(mat->fp,data_size*
+                    fseek(mat->fp,data_size*
                           (dims[0]-edge[0]*stride[0]-start[0]),SEEK_CUR);
                     for ( j = 1; j < rank; j++ ) {
                         cnt[j]++;
                         if ( (cnt[j] % edge[j]) == 0 ) {
                             cnt[j] = 0;
                             if ( (I % dimp[j]) != 0 ) {
-                                matio_seek(mat->fp,data_size*
+                                fseek(mat->fp,data_size*
                                       (dimp[j]-(I % dimp[j]) +
                                        dimp[j-1]*start[j]),SEEK_CUR);
                                 I += dimp[j]-(I % dimp[j]) + dimp[j-1]*start[j];
                             } else if ( start[j] ) {
-                                matio_seek(mat->fp,data_size*(dimp[j-1]*start[j]),
+                                fseek(mat->fp,data_size*(dimp[j-1]*start[j]),
                                       SEEK_CUR);
                                 I += dimp[j-1]*start[j];
                             }
                         } else {
                             I += inc[j];
-                            matio_seek(mat->fp,data_size*inc[j],SEEK_CUR);
+                            fseek(mat->fp,data_size*inc[j],SEEK_CUR);
                             break;
                         }
                     }
@@ -3892,34 +3865,34 @@ ReadDataSlabN(mat_t *mat,void *data,enum matio_classes class_type,
                 N *= edge[i];
                 I += dimp[i-1]*start[i];
             }
-            matio_seek(mat->fp,I*data_size,SEEK_CUR);
+            fseek(mat->fp,I*data_size,SEEK_CUR);
             if ( stride[0] == 1 ) {
                 for ( i = 0; i < N; i+=edge[0] ) {
                     if ( start[0] ) {
-                        matio_seek(mat->fp,start[0]*data_size,SEEK_CUR);
+                        fseek(mat->fp,start[0]*data_size,SEEK_CUR);
                         I += start[0];
                     }
                     ReadSingleData(mat,ptr+i,data_type,edge[0]);
                     I += dims[0]-start[0];
-                    matio_seek(mat->fp,data_size*(dims[0]-edge[0]-start[0]),
+                    fseek(mat->fp,data_size*(dims[0]-edge[0]-start[0]),
                           SEEK_CUR);
                     for ( j = 1; j < rank; j++ ) {
                         cnt[j]++;
                         if ( (cnt[j] % edge[j]) == 0 ) {
                             cnt[j] = 0;
                             if ( (I % dimp[j]) != 0 ) {
-                                matio_seek(mat->fp,data_size*
+                                fseek(mat->fp,data_size*
                                       (dimp[j]-(I % dimp[j])+
                                        dimp[j-1]*start[j]),SEEK_CUR);
                                 I += dimp[j]-(I % dimp[j]) + dimp[j-1]*start[j];
                             } else if ( start[j] ) {
-                                matio_seek(mat->fp,data_size*(dimp[j-1]*start[j]),
+                                fseek(mat->fp,data_size*(dimp[j-1]*start[j]),
                                       SEEK_CUR);
                                 I += dimp[j-1]*start[j];
                             }
                         } else {
                             I += inc[j];
-                            matio_seek(mat->fp,data_size*inc[j],SEEK_CUR);
+                            fseek(mat->fp,data_size*inc[j],SEEK_CUR);
                             break;
                         }
                     }
@@ -3927,34 +3900,34 @@ ReadDataSlabN(mat_t *mat,void *data,enum matio_classes class_type,
             } else {
                 for ( i = 0; i < N; i+=edge[0] ) {
                     if ( start[0] ) {
-                        matio_seek(mat->fp,start[0]*data_size,SEEK_CUR);
+                        fseek(mat->fp,start[0]*data_size,SEEK_CUR);
                         I += start[0];
                     }
                     for ( j = 0; j < edge[0]; j++ ) {
                         ReadSingleData(mat,ptr+i+j,data_type,1);
-                        matio_seek(mat->fp,data_size*(stride[0]-1),SEEK_CUR);
+                        fseek(mat->fp,data_size*(stride[0]-1),SEEK_CUR);
                         I += stride[0];
                     }
                     I += dims[0]-edge[0]*stride[0]-start[0];
-                    matio_seek(mat->fp,data_size*
+                    fseek(mat->fp,data_size*
                           (dims[0]-edge[0]*stride[0]-start[0]),SEEK_CUR);
                     for ( j = 1; j < rank; j++ ) {
                         cnt[j]++;
                         if ( (cnt[j] % edge[j]) == 0 ) {
                             cnt[j] = 0;
                             if ( (I % dimp[j]) != 0 ) {
-                                matio_seek(mat->fp,data_size*
+                                fseek(mat->fp,data_size*
                                       (dimp[j]-(I % dimp[j]) +
                                        dimp[j-1]*start[j]),SEEK_CUR);
                                 I += dimp[j]-(I % dimp[j]) + dimp[j-1]*start[j];
                             } else if ( start[j] ) {
-                                matio_seek(mat->fp,data_size*(dimp[j-1]*start[j]),
+                                fseek(mat->fp,data_size*(dimp[j-1]*start[j]),
                                       SEEK_CUR);
                                 I += dimp[j-1]*start[j];
                             }
                         } else {
                             I += inc[j];
-                            matio_seek(mat->fp,data_size*inc[j],SEEK_CUR);
+                            fseek(mat->fp,data_size*inc[j],SEEK_CUR);
                             break;
                         }
                     }
@@ -3980,34 +3953,34 @@ ReadDataSlabN(mat_t *mat,void *data,enum matio_classes class_type,
                 N *= edge[i];
                 I += dimp[i-1]*start[i];
             }
-            matio_seek(mat->fp,I*data_size,SEEK_CUR);
+            fseek(mat->fp,I*data_size,SEEK_CUR);
             if ( stride[0] == 1 ) {
                 for ( i = 0; i < N; i+=edge[0] ) {
                     if ( start[0] ) {
-                        matio_seek(mat->fp,start[0]*data_size,SEEK_CUR);
+                        fseek(mat->fp,start[0]*data_size,SEEK_CUR);
                         I += start[0];
                     }
                     ReadInt64Data(mat,ptr+i,data_type,edge[0]);
                     I += dims[0]-start[0];
-                    matio_seek(mat->fp,data_size*(dims[0]-edge[0]-start[0]),
+                    fseek(mat->fp,data_size*(dims[0]-edge[0]-start[0]),
                           SEEK_CUR);
                     for ( j = 1; j < rank; j++ ) {
                         cnt[j]++;
                         if ( (cnt[j] % edge[j]) == 0 ) {
                             cnt[j] = 0;
                             if ( (I % dimp[j]) != 0 ) {
-                                matio_seek(mat->fp,data_size*
+                                fseek(mat->fp,data_size*
                                       (dimp[j]-(I % dimp[j])+
                                        dimp[j-1]*start[j]),SEEK_CUR);
                                 I += dimp[j]-(I % dimp[j]) + dimp[j-1]*start[j];
                             } else if ( start[j] ) {
-                                matio_seek(mat->fp,data_size*(dimp[j-1]*start[j]),
+                                fseek(mat->fp,data_size*(dimp[j-1]*start[j]),
                                       SEEK_CUR);
                                 I += dimp[j-1]*start[j];
                             }
                         } else {
                             I += inc[j];
-                            matio_seek(mat->fp,data_size*inc[j],SEEK_CUR);
+                            fseek(mat->fp,data_size*inc[j],SEEK_CUR);
                             break;
                         }
                     }
@@ -4015,34 +3988,34 @@ ReadDataSlabN(mat_t *mat,void *data,enum matio_classes class_type,
             } else {
                 for ( i = 0; i < N; i+=edge[0] ) {
                     if ( start[0] ) {
-                        matio_seek(mat->fp,start[0]*data_size,SEEK_CUR);
+                        fseek(mat->fp,start[0]*data_size,SEEK_CUR);
                         I += start[0];
                     }
                     for ( j = 0; j < edge[0]; j++ ) {
                         ReadInt64Data(mat,ptr+i+j,data_type,1);
-                        matio_seek(mat->fp,data_size*(stride[0]-1),SEEK_CUR);
+                        fseek(mat->fp,data_size*(stride[0]-1),SEEK_CUR);
                         I += stride[0];
                     }
                     I += dims[0]-edge[0]*stride[0]-start[0];
-                    matio_seek(mat->fp,data_size*
+                    fseek(mat->fp,data_size*
                           (dims[0]-edge[0]*stride[0]-start[0]),SEEK_CUR);
                     for ( j = 1; j < rank; j++ ) {
                         cnt[j]++;
                         if ( (cnt[j] % edge[j]) == 0 ) {
                             cnt[j] = 0;
                             if ( (I % dimp[j]) != 0 ) {
-                                matio_seek(mat->fp,data_size*
+                                fseek(mat->fp,data_size*
                                       (dimp[j]-(I % dimp[j]) +
                                        dimp[j-1]*start[j]),SEEK_CUR);
                                 I += dimp[j]-(I % dimp[j]) + dimp[j-1]*start[j];
                             } else if ( start[j] ) {
-                                matio_seek(mat->fp,data_size*(dimp[j-1]*start[j]),
+                                fseek(mat->fp,data_size*(dimp[j-1]*start[j]),
                                       SEEK_CUR);
                                 I += dimp[j-1]*start[j];
                             }
                         } else {
                             I += inc[j];
-                            matio_seek(mat->fp,data_size*inc[j],SEEK_CUR);
+                            fseek(mat->fp,data_size*inc[j],SEEK_CUR);
                             break;
                         }
                     }
@@ -4069,34 +4042,34 @@ ReadDataSlabN(mat_t *mat,void *data,enum matio_classes class_type,
                 N *= edge[i];
                 I += dimp[i-1]*start[i];
             }
-            matio_seek(mat->fp,I*data_size,SEEK_CUR);
+            fseek(mat->fp,I*data_size,SEEK_CUR);
             if ( stride[0] == 1 ) {
                 for ( i = 0; i < N; i+=edge[0] ) {
                     if ( start[0] ) {
-                        matio_seek(mat->fp,start[0]*data_size,SEEK_CUR);
+                        fseek(mat->fp,start[0]*data_size,SEEK_CUR);
                         I += start[0];
                     }
                     ReadUInt64Data(mat,ptr+i,data_type,edge[0]);
                     I += dims[0]-start[0];
-                    matio_seek(mat->fp,data_size*(dims[0]-edge[0]-start[0]),
+                    fseek(mat->fp,data_size*(dims[0]-edge[0]-start[0]),
                           SEEK_CUR);
                     for ( j = 1; j < rank; j++ ) {
                         cnt[j]++;
                         if ( (cnt[j] % edge[j]) == 0 ) {
                             cnt[j] = 0;
                             if ( (I % dimp[j]) != 0 ) {
-                                matio_seek(mat->fp,data_size*
+                                fseek(mat->fp,data_size*
                                       (dimp[j]-(I % dimp[j])+
                                        dimp[j-1]*start[j]),SEEK_CUR);
                                 I += dimp[j]-(I % dimp[j]) + dimp[j-1]*start[j];
                             } else if ( start[j] ) {
-                                matio_seek(mat->fp,data_size*(dimp[j-1]*start[j]),
+                                fseek(mat->fp,data_size*(dimp[j-1]*start[j]),
                                       SEEK_CUR);
                                 I += dimp[j-1]*start[j];
                             }
                         } else {
                             I += inc[j];
-                            matio_seek(mat->fp,data_size*inc[j],SEEK_CUR);
+                            fseek(mat->fp,data_size*inc[j],SEEK_CUR);
                             break;
                         }
                     }
@@ -4104,34 +4077,34 @@ ReadDataSlabN(mat_t *mat,void *data,enum matio_classes class_type,
             } else {
                 for ( i = 0; i < N; i+=edge[0] ) {
                     if ( start[0] ) {
-                        matio_seek(mat->fp,start[0]*data_size,SEEK_CUR);
+                        fseek(mat->fp,start[0]*data_size,SEEK_CUR);
                         I += start[0];
                     }
                     for ( j = 0; j < edge[0]; j++ ) {
                         ReadUInt64Data(mat,ptr+i+j,data_type,1);
-                        matio_seek(mat->fp,data_size*(stride[0]-1),SEEK_CUR);
+                        fseek(mat->fp,data_size*(stride[0]-1),SEEK_CUR);
                         I += stride[0];
                     }
                     I += dims[0]-edge[0]*stride[0]-start[0];
-                    matio_seek(mat->fp,data_size*
+                    fseek(mat->fp,data_size*
                           (dims[0]-edge[0]*stride[0]-start[0]),SEEK_CUR);
                     for ( j = 1; j < rank; j++ ) {
                         cnt[j]++;
                         if ( (cnt[j] % edge[j]) == 0 ) {
                             cnt[j] = 0;
                             if ( (I % dimp[j]) != 0 ) {
-                                matio_seek(mat->fp,data_size*
+                                fseek(mat->fp,data_size*
                                       (dimp[j]-(I % dimp[j]) +
                                        dimp[j-1]*start[j]),SEEK_CUR);
                                 I += dimp[j]-(I % dimp[j]) + dimp[j-1]*start[j];
                             } else if ( start[j] ) {
-                                matio_seek(mat->fp,data_size*(dimp[j-1]*start[j]),
+                                fseek(mat->fp,data_size*(dimp[j-1]*start[j]),
                                       SEEK_CUR);
                                 I += dimp[j-1]*start[j];
                             }
                         } else {
                             I += inc[j];
-                            matio_seek(mat->fp,data_size*inc[j],SEEK_CUR);
+                            fseek(mat->fp,data_size*inc[j],SEEK_CUR);
                             break;
                         }
                     }
@@ -4157,34 +4130,34 @@ ReadDataSlabN(mat_t *mat,void *data,enum matio_classes class_type,
                 N *= edge[i];
                 I += dimp[i-1]*start[i];
             }
-            matio_seek(mat->fp,I*data_size,SEEK_CUR);
+            fseek(mat->fp,I*data_size,SEEK_CUR);
             if ( stride[0] == 1 ) {
                 for ( i = 0; i < N; i+=edge[0] ) {
                     if ( start[0] ) {
-                        matio_seek(mat->fp,start[0]*data_size,SEEK_CUR);
+                        fseek(mat->fp,start[0]*data_size,SEEK_CUR);
                         I += start[0];
                     }
                     ReadInt32Data(mat,ptr+i,data_type,edge[0]);
                     I += dims[0]-start[0];
-                    matio_seek(mat->fp,data_size*(dims[0]-edge[0]-start[0]),
+                    fseek(mat->fp,data_size*(dims[0]-edge[0]-start[0]),
                           SEEK_CUR);
                     for ( j = 1; j < rank; j++ ) {
                         cnt[j]++;
                         if ( (cnt[j] % edge[j]) == 0 ) {
                             cnt[j] = 0;
                             if ( (I % dimp[j]) != 0 ) {
-                                matio_seek(mat->fp,data_size*
+                                fseek(mat->fp,data_size*
                                       (dimp[j]-(I % dimp[j])+
                                        dimp[j-1]*start[j]),SEEK_CUR);
                                 I += dimp[j]-(I % dimp[j]) + dimp[j-1]*start[j];
                             } else if ( start[j] ) {
-                                matio_seek(mat->fp,data_size*(dimp[j-1]*start[j]),
+                                fseek(mat->fp,data_size*(dimp[j-1]*start[j]),
                                       SEEK_CUR);
                                 I += dimp[j-1]*start[j];
                             }
                         } else {
                             I += inc[j];
-                            matio_seek(mat->fp,data_size*inc[j],SEEK_CUR);
+                            fseek(mat->fp,data_size*inc[j],SEEK_CUR);
                             break;
                         }
                     }
@@ -4192,34 +4165,34 @@ ReadDataSlabN(mat_t *mat,void *data,enum matio_classes class_type,
             } else {
                 for ( i = 0; i < N; i+=edge[0] ) {
                     if ( start[0] ) {
-                        matio_seek(mat->fp,start[0]*data_size,SEEK_CUR);
+                        fseek(mat->fp,start[0]*data_size,SEEK_CUR);
                         I += start[0];
                     }
                     for ( j = 0; j < edge[0]; j++ ) {
                         ReadInt32Data(mat,ptr+i+j,data_type,1);
-                        matio_seek(mat->fp,data_size*(stride[0]-1),SEEK_CUR);
+                        fseek(mat->fp,data_size*(stride[0]-1),SEEK_CUR);
                         I += stride[0];
                     }
                     I += dims[0]-edge[0]*stride[0]-start[0];
-                    matio_seek(mat->fp,data_size*
+                    fseek(mat->fp,data_size*
                           (dims[0]-edge[0]*stride[0]-start[0]),SEEK_CUR);
                     for ( j = 1; j < rank; j++ ) {
                         cnt[j]++;
                         if ( (cnt[j] % edge[j]) == 0 ) {
                             cnt[j] = 0;
                             if ( (I % dimp[j]) != 0 ) {
-                                matio_seek(mat->fp,data_size*
+                                fseek(mat->fp,data_size*
                                       (dimp[j]-(I % dimp[j]) +
                                        dimp[j-1]*start[j]),SEEK_CUR);
                                 I += dimp[j]-(I % dimp[j]) + dimp[j-1]*start[j];
                             } else if ( start[j] ) {
-                                matio_seek(mat->fp,data_size*(dimp[j-1]*start[j]),
+                                fseek(mat->fp,data_size*(dimp[j-1]*start[j]),
                                       SEEK_CUR);
                                 I += dimp[j-1]*start[j];
                             }
                         } else {
                             I += inc[j];
-                            matio_seek(mat->fp,data_size*inc[j],SEEK_CUR);
+                            fseek(mat->fp,data_size*inc[j],SEEK_CUR);
                             break;
                         }
                     }
@@ -4244,34 +4217,34 @@ ReadDataSlabN(mat_t *mat,void *data,enum matio_classes class_type,
                 N *= edge[i];
                 I += dimp[i-1]*start[i];
             }
-            matio_seek(mat->fp,I*data_size,SEEK_CUR);
+            fseek(mat->fp,I*data_size,SEEK_CUR);
             if ( stride[0] == 1 ) {
                 for ( i = 0; i < N; i+=edge[0] ) {
                     if ( start[0] ) {
-                        matio_seek(mat->fp,start[0]*data_size,SEEK_CUR);
+                        fseek(mat->fp,start[0]*data_size,SEEK_CUR);
                         I += start[0];
                     }
                     ReadUInt32Data(mat,ptr+i,data_type,edge[0]);
                     I += dims[0]-start[0];
-                    matio_seek(mat->fp,data_size*(dims[0]-edge[0]-start[0]),
+                    fseek(mat->fp,data_size*(dims[0]-edge[0]-start[0]),
                           SEEK_CUR);
                     for ( j = 1; j < rank; j++ ) {
                         cnt[j]++;
                         if ( (cnt[j] % edge[j]) == 0 ) {
                             cnt[j] = 0;
                             if ( (I % dimp[j]) != 0 ) {
-                                matio_seek(mat->fp,data_size*
+                                fseek(mat->fp,data_size*
                                       (dimp[j]-(I % dimp[j])+
                                        dimp[j-1]*start[j]),SEEK_CUR);
                                 I += dimp[j]-(I % dimp[j]) + dimp[j-1]*start[j];
                             } else if ( start[j] ) {
-                                matio_seek(mat->fp,data_size*(dimp[j-1]*start[j]),
+                                fseek(mat->fp,data_size*(dimp[j-1]*start[j]),
                                       SEEK_CUR);
                                 I += dimp[j-1]*start[j];
                             }
                         } else {
                             I += inc[j];
-                            matio_seek(mat->fp,data_size*inc[j],SEEK_CUR);
+                            fseek(mat->fp,data_size*inc[j],SEEK_CUR);
                             break;
                         }
                     }
@@ -4279,34 +4252,34 @@ ReadDataSlabN(mat_t *mat,void *data,enum matio_classes class_type,
             } else {
                 for ( i = 0; i < N; i+=edge[0] ) {
                     if ( start[0] ) {
-                        matio_seek(mat->fp,start[0]*data_size,SEEK_CUR);
+                        fseek(mat->fp,start[0]*data_size,SEEK_CUR);
                         I += start[0];
                     }
                     for ( j = 0; j < edge[0]; j++ ) {
                         ReadUInt32Data(mat,ptr+i+j,data_type,1);
-                        matio_seek(mat->fp,data_size*(stride[0]-1),SEEK_CUR);
+                        fseek(mat->fp,data_size*(stride[0]-1),SEEK_CUR);
                         I += stride[0];
                     }
                     I += dims[0]-edge[0]*stride[0]-start[0];
-                    matio_seek(mat->fp,data_size*
+                    fseek(mat->fp,data_size*
                           (dims[0]-edge[0]*stride[0]-start[0]),SEEK_CUR);
                     for ( j = 1; j < rank; j++ ) {
                         cnt[j]++;
                         if ( (cnt[j] % edge[j]) == 0 ) {
                             cnt[j] = 0;
                             if ( (I % dimp[j]) != 0 ) {
-                                matio_seek(mat->fp,data_size*
+                                fseek(mat->fp,data_size*
                                       (dimp[j]-(I % dimp[j]) +
                                        dimp[j-1]*start[j]),SEEK_CUR);
                                 I += dimp[j]-(I % dimp[j]) + dimp[j-1]*start[j];
                             } else if ( start[j] ) {
-                                matio_seek(mat->fp,data_size*(dimp[j-1]*start[j]),
+                                fseek(mat->fp,data_size*(dimp[j-1]*start[j]),
                                       SEEK_CUR);
                                 I += dimp[j-1]*start[j];
                             }
                         } else {
                             I += inc[j];
-                            matio_seek(mat->fp,data_size*inc[j],SEEK_CUR);
+                            fseek(mat->fp,data_size*inc[j],SEEK_CUR);
                             break;
                         }
                     }
@@ -4331,34 +4304,34 @@ ReadDataSlabN(mat_t *mat,void *data,enum matio_classes class_type,
                 N *= edge[i];
                 I += dimp[i-1]*start[i];
             }
-            matio_seek(mat->fp,I*data_size,SEEK_CUR);
+            fseek(mat->fp,I*data_size,SEEK_CUR);
             if ( stride[0] == 1 ) {
                 for ( i = 0; i < N; i+=edge[0] ) {
                     if ( start[0] ) {
-                        matio_seek(mat->fp,start[0]*data_size,SEEK_CUR);
+                        fseek(mat->fp,start[0]*data_size,SEEK_CUR);
                         I += start[0];
                     }
                     ReadInt16Data(mat,ptr+i,data_type,edge[0]);
                     I += dims[0]-start[0];
-                    matio_seek(mat->fp,data_size*(dims[0]-edge[0]-start[0]),
+                    fseek(mat->fp,data_size*(dims[0]-edge[0]-start[0]),
                           SEEK_CUR);
                     for ( j = 1; j < rank; j++ ) {
                         cnt[j]++;
                         if ( (cnt[j] % edge[j]) == 0 ) {
                             cnt[j] = 0;
                             if ( (I % dimp[j]) != 0 ) {
-                                matio_seek(mat->fp,data_size*
+                                fseek(mat->fp,data_size*
                                       (dimp[j]-(I % dimp[j])+
                                        dimp[j-1]*start[j]),SEEK_CUR);
                                 I += dimp[j]-(I % dimp[j]) + dimp[j-1]*start[j];
                             } else if ( start[j] ) {
-                                matio_seek(mat->fp,data_size*(dimp[j-1]*start[j]),
+                                fseek(mat->fp,data_size*(dimp[j-1]*start[j]),
                                       SEEK_CUR);
                                 I += dimp[j-1]*start[j];
                             }
                         } else {
                             I += inc[j];
-                            matio_seek(mat->fp,data_size*inc[j],SEEK_CUR);
+                            fseek(mat->fp,data_size*inc[j],SEEK_CUR);
                             break;
                         }
                     }
@@ -4366,34 +4339,34 @@ ReadDataSlabN(mat_t *mat,void *data,enum matio_classes class_type,
             } else {
                 for ( i = 0; i < N; i+=edge[0] ) {
                     if ( start[0] ) {
-                        matio_seek(mat->fp,start[0]*data_size,SEEK_CUR);
+                        fseek(mat->fp,start[0]*data_size,SEEK_CUR);
                         I += start[0];
                     }
                     for ( j = 0; j < edge[0]; j++ ) {
                         ReadInt16Data(mat,ptr+i+j,data_type,1);
-                        matio_seek(mat->fp,data_size*(stride[0]-1),SEEK_CUR);
+                        fseek(mat->fp,data_size*(stride[0]-1),SEEK_CUR);
                         I += stride[0];
                     }
                     I += dims[0]-edge[0]*stride[0]-start[0];
-                    matio_seek(mat->fp,data_size*
+                    fseek(mat->fp,data_size*
                           (dims[0]-edge[0]*stride[0]-start[0]),SEEK_CUR);
                     for ( j = 1; j < rank; j++ ) {
                         cnt[j]++;
                         if ( (cnt[j] % edge[j]) == 0 ) {
                             cnt[j] = 0;
                             if ( (I % dimp[j]) != 0 ) {
-                                matio_seek(mat->fp,data_size*
+                                fseek(mat->fp,data_size*
                                       (dimp[j]-(I % dimp[j]) +
                                        dimp[j-1]*start[j]),SEEK_CUR);
                                 I += dimp[j]-(I % dimp[j]) + dimp[j-1]*start[j];
                             } else if ( start[j] ) {
-                                matio_seek(mat->fp,data_size*(dimp[j-1]*start[j]),
+                                fseek(mat->fp,data_size*(dimp[j-1]*start[j]),
                                       SEEK_CUR);
                                 I += dimp[j-1]*start[j];
                             }
                         } else {
                             I += inc[j];
-                            matio_seek(mat->fp,data_size*inc[j],SEEK_CUR);
+                            fseek(mat->fp,data_size*inc[j],SEEK_CUR);
                             break;
                         }
                     }
@@ -4418,34 +4391,34 @@ ReadDataSlabN(mat_t *mat,void *data,enum matio_classes class_type,
                 N *= edge[i];
                 I += dimp[i-1]*start[i];
             }
-            matio_seek(mat->fp,I*data_size,SEEK_CUR);
+            fseek(mat->fp,I*data_size,SEEK_CUR);
             if ( stride[0] == 1 ) {
                 for ( i = 0; i < N; i+=edge[0] ) {
                     if ( start[0] ) {
-                        matio_seek(mat->fp,start[0]*data_size,SEEK_CUR);
+                        fseek(mat->fp,start[0]*data_size,SEEK_CUR);
                         I += start[0];
                     }
                     ReadUInt16Data(mat,ptr+i,data_type,edge[0]);
                     I += dims[0]-start[0];
-                    matio_seek(mat->fp,data_size*(dims[0]-edge[0]-start[0]),
+                    fseek(mat->fp,data_size*(dims[0]-edge[0]-start[0]),
                           SEEK_CUR);
                     for ( j = 1; j < rank; j++ ) {
                         cnt[j]++;
                         if ( (cnt[j] % edge[j]) == 0 ) {
                             cnt[j] = 0;
                             if ( (I % dimp[j]) != 0 ) {
-                                matio_seek(mat->fp,data_size*
+                                fseek(mat->fp,data_size*
                                       (dimp[j]-(I % dimp[j])+
                                        dimp[j-1]*start[j]),SEEK_CUR);
                                 I += dimp[j]-(I % dimp[j]) + dimp[j-1]*start[j];
                             } else if ( start[j] ) {
-                                matio_seek(mat->fp,data_size*(dimp[j-1]*start[j]),
+                                fseek(mat->fp,data_size*(dimp[j-1]*start[j]),
                                       SEEK_CUR);
                                 I += dimp[j-1]*start[j];
                             }
                         } else {
                             I += inc[j];
-                            matio_seek(mat->fp,data_size*inc[j],SEEK_CUR);
+                            fseek(mat->fp,data_size*inc[j],SEEK_CUR);
                             break;
                         }
                     }
@@ -4453,34 +4426,34 @@ ReadDataSlabN(mat_t *mat,void *data,enum matio_classes class_type,
             } else {
                 for ( i = 0; i < N; i+=edge[0] ) {
                     if ( start[0] ) {
-                        matio_seek(mat->fp,start[0]*data_size,SEEK_CUR);
+                        fseek(mat->fp,start[0]*data_size,SEEK_CUR);
                         I += start[0];
                     }
                     for ( j = 0; j < edge[0]; j++ ) {
                         ReadUInt16Data(mat,ptr+i+j,data_type,1);
-                        matio_seek(mat->fp,data_size*(stride[0]-1),SEEK_CUR);
+                        fseek(mat->fp,data_size*(stride[0]-1),SEEK_CUR);
                         I += stride[0];
                     }
                     I += dims[0]-edge[0]*stride[0]-start[0];
-                    matio_seek(mat->fp,data_size*
+                    fseek(mat->fp,data_size*
                           (dims[0]-edge[0]*stride[0]-start[0]),SEEK_CUR);
                     for ( j = 1; j < rank; j++ ) {
                         cnt[j]++;
                         if ( (cnt[j] % edge[j]) == 0 ) {
                             cnt[j] = 0;
                             if ( (I % dimp[j]) != 0 ) {
-                                matio_seek(mat->fp,data_size*
+                                fseek(mat->fp,data_size*
                                       (dimp[j]-(I % dimp[j]) +
                                        dimp[j-1]*start[j]),SEEK_CUR);
                                 I += dimp[j]-(I % dimp[j]) + dimp[j-1]*start[j];
                             } else if ( start[j] ) {
-                                matio_seek(mat->fp,data_size*(dimp[j-1]*start[j]),
+                                fseek(mat->fp,data_size*(dimp[j-1]*start[j]),
                                       SEEK_CUR);
                                 I += dimp[j-1]*start[j];
                             }
                         } else {
                             I += inc[j];
-                            matio_seek(mat->fp,data_size*inc[j],SEEK_CUR);
+                            fseek(mat->fp,data_size*inc[j],SEEK_CUR);
                             break;
                         }
                     }
@@ -4505,34 +4478,34 @@ ReadDataSlabN(mat_t *mat,void *data,enum matio_classes class_type,
                 N *= edge[i];
                 I += dimp[i-1]*start[i];
             }
-            matio_seek(mat->fp,I*data_size,SEEK_CUR);
+            fseek(mat->fp,I*data_size,SEEK_CUR);
             if ( stride[0] == 1 ) {
                 for ( i = 0; i < N; i+=edge[0] ) {
                     if ( start[0] ) {
-                        matio_seek(mat->fp,start[0]*data_size,SEEK_CUR);
+                        fseek(mat->fp,start[0]*data_size,SEEK_CUR);
                         I += start[0];
                     }
                     ReadInt8Data(mat,ptr+i,data_type,edge[0]);
                     I += dims[0]-start[0];
-                    matio_seek(mat->fp,data_size*(dims[0]-edge[0]-start[0]),
+                    fseek(mat->fp,data_size*(dims[0]-edge[0]-start[0]),
                           SEEK_CUR);
                     for ( j = 1; j < rank; j++ ) {
                         cnt[j]++;
                         if ( (cnt[j] % edge[j]) == 0 ) {
                             cnt[j] = 0;
                             if ( (I % dimp[j]) != 0 ) {
-                                matio_seek(mat->fp,data_size*
+                                fseek(mat->fp,data_size*
                                       (dimp[j]-(I % dimp[j])+
                                        dimp[j-1]*start[j]),SEEK_CUR);
                                 I += dimp[j]-(I % dimp[j]) + dimp[j-1]*start[j];
                             } else if ( start[j] ) {
-                                matio_seek(mat->fp,data_size*(dimp[j-1]*start[j]),
+                                fseek(mat->fp,data_size*(dimp[j-1]*start[j]),
                                       SEEK_CUR);
                                 I += dimp[j-1]*start[j];
                             }
                         } else {
                             I += inc[j];
-                            matio_seek(mat->fp,data_size*inc[j],SEEK_CUR);
+                            fseek(mat->fp,data_size*inc[j],SEEK_CUR);
                             break;
                         }
                     }
@@ -4540,34 +4513,34 @@ ReadDataSlabN(mat_t *mat,void *data,enum matio_classes class_type,
             } else {
                 for ( i = 0; i < N; i+=edge[0] ) {
                     if ( start[0] ) {
-                        matio_seek(mat->fp,start[0]*data_size,SEEK_CUR);
+                        fseek(mat->fp,start[0]*data_size,SEEK_CUR);
                         I += start[0];
                     }
                     for ( j = 0; j < edge[0]; j++ ) {
                         ReadInt8Data(mat,ptr+i+j,data_type,1);
-                        matio_seek(mat->fp,data_size*(stride[0]-1),SEEK_CUR);
+                        fseek(mat->fp,data_size*(stride[0]-1),SEEK_CUR);
                         I += stride[0];
                     }
                     I += dims[0]-edge[0]*stride[0]-start[0];
-                    matio_seek(mat->fp,data_size*
+                    fseek(mat->fp,data_size*
                           (dims[0]-edge[0]*stride[0]-start[0]),SEEK_CUR);
                     for ( j = 1; j < rank; j++ ) {
                         cnt[j]++;
                         if ( (cnt[j] % edge[j]) == 0 ) {
                             cnt[j] = 0;
                             if ( (I % dimp[j]) != 0 ) {
-                                matio_seek(mat->fp,data_size*
+                                fseek(mat->fp,data_size*
                                       (dimp[j]-(I % dimp[j]) +
                                        dimp[j-1]*start[j]),SEEK_CUR);
                                 I += dimp[j]-(I % dimp[j]) + dimp[j-1]*start[j];
                             } else if ( start[j] ) {
-                                matio_seek(mat->fp,data_size*(dimp[j-1]*start[j]),
+                                fseek(mat->fp,data_size*(dimp[j-1]*start[j]),
                                       SEEK_CUR);
                                 I += dimp[j-1]*start[j];
                             }
                         } else {
                             I += inc[j];
-                            matio_seek(mat->fp,data_size*inc[j],SEEK_CUR);
+                            fseek(mat->fp,data_size*inc[j],SEEK_CUR);
                             break;
                         }
                     }
@@ -4592,34 +4565,34 @@ ReadDataSlabN(mat_t *mat,void *data,enum matio_classes class_type,
                 N *= edge[i];
                 I += dimp[i-1]*start[i];
             }
-            matio_seek(mat->fp,I*data_size,SEEK_CUR);
+            fseek(mat->fp,I*data_size,SEEK_CUR);
             if ( stride[0] == 1 ) {
                 for ( i = 0; i < N; i+=edge[0] ) {
                     if ( start[0] ) {
-                        matio_seek(mat->fp,start[0]*data_size,SEEK_CUR);
+                        fseek(mat->fp,start[0]*data_size,SEEK_CUR);
                         I += start[0];
                     }
                     ReadUInt8Data(mat,ptr+i,data_type,edge[0]);
                     I += dims[0]-start[0];
-                    matio_seek(mat->fp,data_size*(dims[0]-edge[0]-start[0]),
+                    fseek(mat->fp,data_size*(dims[0]-edge[0]-start[0]),
                           SEEK_CUR);
                     for ( j = 1; j < rank; j++ ) {
                         cnt[j]++;
                         if ( (cnt[j] % edge[j]) == 0 ) {
                             cnt[j] = 0;
                             if ( (I % dimp[j]) != 0 ) {
-                                matio_seek(mat->fp,data_size*
+                                fseek(mat->fp,data_size*
                                       (dimp[j]-(I % dimp[j])+
                                        dimp[j-1]*start[j]),SEEK_CUR);
                                 I += dimp[j]-(I % dimp[j]) + dimp[j-1]*start[j];
                             } else if ( start[j] ) {
-                                matio_seek(mat->fp,data_size*(dimp[j-1]*start[j]),
+                                fseek(mat->fp,data_size*(dimp[j-1]*start[j]),
                                       SEEK_CUR);
                                 I += dimp[j-1]*start[j];
                             }
                         } else {
                             I += inc[j];
-                            matio_seek(mat->fp,data_size*inc[j],SEEK_CUR);
+                            fseek(mat->fp,data_size*inc[j],SEEK_CUR);
                             break;
                         }
                     }
@@ -4627,34 +4600,34 @@ ReadDataSlabN(mat_t *mat,void *data,enum matio_classes class_type,
             } else {
                 for ( i = 0; i < N; i+=edge[0] ) {
                     if ( start[0] ) {
-                        matio_seek(mat->fp,start[0]*data_size,SEEK_CUR);
+                        fseek(mat->fp,start[0]*data_size,SEEK_CUR);
                         I += start[0];
                     }
                     for ( j = 0; j < edge[0]; j++ ) {
                         ReadUInt8Data(mat,ptr+i+j,data_type,1);
-                        matio_seek(mat->fp,data_size*(stride[0]-1),SEEK_CUR);
+                        fseek(mat->fp,data_size*(stride[0]-1),SEEK_CUR);
                         I += stride[0];
                     }
                     I += dims[0]-edge[0]*stride[0]-start[0];
-                    matio_seek(mat->fp,data_size*
+                    fseek(mat->fp,data_size*
                           (dims[0]-edge[0]*stride[0]-start[0]),SEEK_CUR);
                     for ( j = 1; j < rank; j++ ) {
                         cnt[j]++;
                         if ( (cnt[j] % edge[j]) == 0 ) {
                             cnt[j] = 0;
                             if ( (I % dimp[j]) != 0 ) {
-                                matio_seek(mat->fp,data_size*
+                                fseek(mat->fp,data_size*
                                       (dimp[j]-(I % dimp[j]) +
                                        dimp[j-1]*start[j]),SEEK_CUR);
                                 I += dimp[j]-(I % dimp[j]) + dimp[j-1]*start[j];
                             } else if ( start[j] ) {
-                                matio_seek(mat->fp,data_size*(dimp[j-1]*start[j]),
+                                fseek(mat->fp,data_size*(dimp[j-1]*start[j]),
                                       SEEK_CUR);
                                 I += dimp[j-1]*start[j];
                             }
                         } else {
                             I += inc[j];
-                            matio_seek(mat->fp,data_size*inc[j],SEEK_CUR);
+                            fseek(mat->fp,data_size*inc[j],SEEK_CUR);
                             break;
                         }
                     }
@@ -4691,7 +4664,7 @@ ReadCompressedDataSlabN(mat_t *mat,z_stream *z,void *data,
 {
     int nBytes = 0, i, j, N, I = 0;
     int inc[10] = {0,}, cnt[10] = {0,}, dimp[10] = {0,};
-    z_stream z_copy;
+    z_stream z_copy = {0,};
 
     if ( (mat   == NULL) || (data   == NULL) || (mat->fp == NULL) ||
          (start == NULL) || (stride == NULL) || (edge    == NULL) ) {
@@ -5651,7 +5624,7 @@ ReadDataSlab1(mat_t *mat,void *data,enum matio_classes class_type,
     int    bytesread = 0;
 
     data_size = Mat_SizeOf(data_type);
-    matio_seek(mat->fp,start*data_size,SEEK_CUR);
+    fseek(mat->fp,start*data_size,SEEK_CUR);
 
     stride = data_size*(stride-1);
     switch(class_type) {
@@ -5661,7 +5634,7 @@ ReadDataSlab1(mat_t *mat,void *data,enum matio_classes class_type,
             } else {
                 for ( i = 0; i < edge; i++ ) {
                     bytesread+=ReadDoubleData(mat,(double*)data+i,data_type,1);
-                    matio_seek(mat->fp,stride,SEEK_CUR);
+                    fseek(mat->fp,stride,SEEK_CUR);
                 }
             }
             break;
@@ -5671,7 +5644,7 @@ ReadDataSlab1(mat_t *mat,void *data,enum matio_classes class_type,
             } else {
                 for ( i = 0; i < edge; i++ ) {
                     bytesread+=ReadSingleData(mat,(float*)data+i,data_type,1);
-                    matio_seek(mat->fp,stride,SEEK_CUR);
+                    fseek(mat->fp,stride,SEEK_CUR);
                 }
             }
             break;
@@ -5682,7 +5655,7 @@ ReadDataSlab1(mat_t *mat,void *data,enum matio_classes class_type,
             } else {
                 for ( i = 0; i < edge; i++ ) {
                     bytesread+=ReadInt64Data(mat,(mat_int64_t*)data+i,data_type,1);
-                    matio_seek(mat->fp,stride,SEEK_CUR);
+                    fseek(mat->fp,stride,SEEK_CUR);
                 }
             }
             break;
@@ -5694,7 +5667,7 @@ ReadDataSlab1(mat_t *mat,void *data,enum matio_classes class_type,
             } else {
                 for ( i = 0; i < edge; i++ ) {
                     bytesread+=ReadUInt64Data(mat,(mat_uint64_t*)data+i,data_type,1);
-                    matio_seek(mat->fp,stride,SEEK_CUR);
+                    fseek(mat->fp,stride,SEEK_CUR);
                 }
             }
             break;
@@ -5705,7 +5678,7 @@ ReadDataSlab1(mat_t *mat,void *data,enum matio_classes class_type,
             } else {
                 for ( i = 0; i < edge; i++ ) {
                     bytesread+=ReadInt32Data(mat,(mat_int32_t*)data+i,data_type,1);
-                    matio_seek(mat->fp,stride,SEEK_CUR);
+                    fseek(mat->fp,stride,SEEK_CUR);
                 }
             }
             break;
@@ -5715,7 +5688,7 @@ ReadDataSlab1(mat_t *mat,void *data,enum matio_classes class_type,
             } else {
                 for ( i = 0; i < edge; i++ ) {
                     bytesread+=ReadUInt32Data(mat,(mat_uint32_t*)data+i,data_type,1);
-                    matio_seek(mat->fp,stride,SEEK_CUR);
+                    fseek(mat->fp,stride,SEEK_CUR);
                 }
             }
             break;
@@ -5725,7 +5698,7 @@ ReadDataSlab1(mat_t *mat,void *data,enum matio_classes class_type,
             } else {
                 for ( i = 0; i < edge; i++ ) {
                     bytesread+=ReadInt16Data(mat,(mat_int16_t*)data+i,data_type,1);
-                    matio_seek(mat->fp,stride,SEEK_CUR);
+                    fseek(mat->fp,stride,SEEK_CUR);
                 }
             }
             break;
@@ -5735,7 +5708,7 @@ ReadDataSlab1(mat_t *mat,void *data,enum matio_classes class_type,
             } else {
                 for ( i = 0; i < edge; i++ ) {
                     bytesread+=ReadUInt16Data(mat,(mat_uint16_t*)data+i,data_type,1);
-                    matio_seek(mat->fp,stride,SEEK_CUR);
+                    fseek(mat->fp,stride,SEEK_CUR);
                 }
             }
             break;
@@ -5745,7 +5718,7 @@ ReadDataSlab1(mat_t *mat,void *data,enum matio_classes class_type,
             } else {
                 for ( i = 0; i < edge; i++ ) {
                     bytesread+=ReadInt8Data(mat,(mat_int8_t*)data+i,data_type,1);
-                    matio_seek(mat->fp,stride,SEEK_CUR);
+                    fseek(mat->fp,stride,SEEK_CUR);
                 }
             }
             break;
@@ -5755,11 +5728,9 @@ ReadDataSlab1(mat_t *mat,void *data,enum matio_classes class_type,
             } else {
                 for ( i = 0; i < edge; i++ ) {
                     bytesread+=ReadUInt8Data(mat,(mat_uint8_t*)data+i,data_type,1);
-                    matio_seek(mat->fp,stride,SEEK_CUR);
+                    fseek(mat->fp,stride,SEEK_CUR);
                 }
             }
-            break;
-        default:
             break;
     }
 
@@ -5803,16 +5774,16 @@ ReadDataSlab2(mat_t *mat,void *data,enum matio_classes class_type,
             row_stride = (stride[0]-1)*data_size;
             col_stride = stride[1]*dims[0]*data_size;
             pos = ftell(mat->fp);
-            matio_seek(mat->fp,start[1]*dims[0]*data_size,SEEK_CUR);
+            fseek(mat->fp,start[1]*dims[0]*data_size,SEEK_CUR);
             for ( i = 0; i < edge[1]; i++ ) {
                 pos = ftell(mat->fp);
-                matio_seek(mat->fp,start[0]*data_size,SEEK_CUR);
+                fseek(mat->fp,start[0]*data_size,SEEK_CUR);
                 for ( j = 0; j < edge[0]; j++ ) {
                     ReadDoubleData(mat,ptr++,data_type,1);
-                    matio_seek(mat->fp,row_stride,SEEK_CUR);
+                    fseek(mat->fp,row_stride,SEEK_CUR);
                 }
                 pos = pos+col_stride-ftell(mat->fp);
-                matio_seek(mat->fp,pos,SEEK_CUR);
+                fseek(mat->fp,pos,SEEK_CUR);
             }
             break;
         }
@@ -5824,16 +5795,16 @@ ReadDataSlab2(mat_t *mat,void *data,enum matio_classes class_type,
             row_stride = (stride[0]-1)*data_size;
             col_stride = stride[1]*dims[0]*data_size;
             pos = ftell(mat->fp);
-            matio_seek(mat->fp,start[1]*dims[0]*data_size,SEEK_CUR);
+            fseek(mat->fp,start[1]*dims[0]*data_size,SEEK_CUR);
             for ( i = 0; i < edge[1]; i++ ) {
                 pos = ftell(mat->fp);
-                matio_seek(mat->fp,start[0]*data_size,SEEK_CUR);
+                fseek(mat->fp,start[0]*data_size,SEEK_CUR);
                 for ( j = 0; j < edge[0]; j++ ) {
                     ReadSingleData(mat,ptr++,data_type,1);
-                    matio_seek(mat->fp,row_stride,SEEK_CUR);
+                    fseek(mat->fp,row_stride,SEEK_CUR);
                 }
                 pos = pos+col_stride-ftell(mat->fp);
-                matio_seek(mat->fp,pos,SEEK_CUR);
+                fseek(mat->fp,pos,SEEK_CUR);
             }
             break;
         }
@@ -5846,16 +5817,16 @@ ReadDataSlab2(mat_t *mat,void *data,enum matio_classes class_type,
             row_stride = (stride[0]-1)*data_size;
             col_stride = stride[1]*dims[0]*data_size;
             pos = ftell(mat->fp);
-            matio_seek(mat->fp,start[1]*dims[0]*data_size,SEEK_CUR);
+            fseek(mat->fp,start[1]*dims[0]*data_size,SEEK_CUR);
             for ( i = 0; i < edge[1]; i++ ) {
                 pos = ftell(mat->fp);
-                matio_seek(mat->fp,start[0]*data_size,SEEK_CUR);
+                fseek(mat->fp,start[0]*data_size,SEEK_CUR);
                 for ( j = 0; j < edge[0]; j++ ) {
                     ReadInt64Data(mat,ptr++,data_type,1);
-                    matio_seek(mat->fp,row_stride,SEEK_CUR);
+                    fseek(mat->fp,row_stride,SEEK_CUR);
                 }
                 pos = pos+col_stride-ftell(mat->fp);
-                matio_seek(mat->fp,pos,SEEK_CUR);
+                fseek(mat->fp,pos,SEEK_CUR);
             }
             break;
         }
@@ -5869,16 +5840,16 @@ ReadDataSlab2(mat_t *mat,void *data,enum matio_classes class_type,
             row_stride = (stride[0]-1)*data_size;
             col_stride = stride[1]*dims[0]*data_size;
             pos = ftell(mat->fp);
-            matio_seek(mat->fp,start[1]*dims[0]*data_size,SEEK_CUR);
+            fseek(mat->fp,start[1]*dims[0]*data_size,SEEK_CUR);
             for ( i = 0; i < edge[1]; i++ ) {
                 pos = ftell(mat->fp);
-                matio_seek(mat->fp,start[0]*data_size,SEEK_CUR);
+                fseek(mat->fp,start[0]*data_size,SEEK_CUR);
                 for ( j = 0; j < edge[0]; j++ ) {
                     ReadUInt64Data(mat,ptr++,data_type,1);
-                    matio_seek(mat->fp,row_stride,SEEK_CUR);
+                    fseek(mat->fp,row_stride,SEEK_CUR);
                 }
                 pos = pos+col_stride-ftell(mat->fp);
-                matio_seek(mat->fp,pos,SEEK_CUR);
+                fseek(mat->fp,pos,SEEK_CUR);
             }
             break;
         }
@@ -5891,16 +5862,16 @@ ReadDataSlab2(mat_t *mat,void *data,enum matio_classes class_type,
             row_stride = (stride[0]-1)*data_size;
             col_stride = stride[1]*dims[0]*data_size;
             pos = ftell(mat->fp);
-            matio_seek(mat->fp,start[1]*dims[0]*data_size,SEEK_CUR);
+            fseek(mat->fp,start[1]*dims[0]*data_size,SEEK_CUR);
             for ( i = 0; i < edge[1]; i++ ) {
                 pos = ftell(mat->fp);
-                matio_seek(mat->fp,start[0]*data_size,SEEK_CUR);
+                fseek(mat->fp,start[0]*data_size,SEEK_CUR);
                 for ( j = 0; j < edge[0]; j++ ) {
                     ReadInt32Data(mat,ptr++,data_type,1);
-                    matio_seek(mat->fp,row_stride,SEEK_CUR);
+                    fseek(mat->fp,row_stride,SEEK_CUR);
                 }
                 pos = pos+col_stride-ftell(mat->fp);
-                matio_seek(mat->fp,pos,SEEK_CUR);
+                fseek(mat->fp,pos,SEEK_CUR);
             }
             break;
         }
@@ -5912,16 +5883,16 @@ ReadDataSlab2(mat_t *mat,void *data,enum matio_classes class_type,
             row_stride = (stride[0]-1)*data_size;
             col_stride = stride[1]*dims[0]*data_size;
             pos = ftell(mat->fp);
-            matio_seek(mat->fp,start[1]*dims[0]*data_size,SEEK_CUR);
+            fseek(mat->fp,start[1]*dims[0]*data_size,SEEK_CUR);
             for ( i = 0; i < edge[1]; i++ ) {
                 pos = ftell(mat->fp);
-                matio_seek(mat->fp,start[0]*data_size,SEEK_CUR);
+                fseek(mat->fp,start[0]*data_size,SEEK_CUR);
                 for ( j = 0; j < edge[0]; j++ ) {
                     ReadUInt32Data(mat,ptr++,data_type,1);
-                    matio_seek(mat->fp,row_stride,SEEK_CUR);
+                    fseek(mat->fp,row_stride,SEEK_CUR);
                 }
                 pos = pos+col_stride-ftell(mat->fp);
-                matio_seek(mat->fp,pos,SEEK_CUR);
+                fseek(mat->fp,pos,SEEK_CUR);
             }
             break;
         }
@@ -5933,16 +5904,16 @@ ReadDataSlab2(mat_t *mat,void *data,enum matio_classes class_type,
             row_stride = (stride[0]-1)*data_size;
             col_stride = stride[1]*dims[0]*data_size;
             pos = ftell(mat->fp);
-            matio_seek(mat->fp,start[1]*dims[0]*data_size,SEEK_CUR);
+            fseek(mat->fp,start[1]*dims[0]*data_size,SEEK_CUR);
             for ( i = 0; i < edge[1]; i++ ) {
                 pos = ftell(mat->fp);
-                matio_seek(mat->fp,start[0]*data_size,SEEK_CUR);
+                fseek(mat->fp,start[0]*data_size,SEEK_CUR);
                 for ( j = 0; j < edge[0]; j++ ) {
                     ReadInt16Data(mat,ptr++,data_type,1);
-                    matio_seek(mat->fp,row_stride,SEEK_CUR);
+                    fseek(mat->fp,row_stride,SEEK_CUR);
                 }
                 pos = pos+col_stride-ftell(mat->fp);
-                matio_seek(mat->fp,pos,SEEK_CUR);
+                fseek(mat->fp,pos,SEEK_CUR);
             }
             break;
         }
@@ -5954,16 +5925,16 @@ ReadDataSlab2(mat_t *mat,void *data,enum matio_classes class_type,
             row_stride = (stride[0]-1)*data_size;
             col_stride = stride[1]*dims[0]*data_size;
             pos = ftell(mat->fp);
-            matio_seek(mat->fp,start[1]*dims[0]*data_size,SEEK_CUR);
+            fseek(mat->fp,start[1]*dims[0]*data_size,SEEK_CUR);
             for ( i = 0; i < edge[1]; i++ ) {
                 pos = ftell(mat->fp);
-                matio_seek(mat->fp,start[0]*data_size,SEEK_CUR);
+                fseek(mat->fp,start[0]*data_size,SEEK_CUR);
                 for ( j = 0; j < edge[0]; j++ ) {
                     ReadUInt16Data(mat,ptr++,data_type,1);
-                    matio_seek(mat->fp,row_stride,SEEK_CUR);
+                    fseek(mat->fp,row_stride,SEEK_CUR);
                 }
                 pos = pos+col_stride-ftell(mat->fp);
-                matio_seek(mat->fp,pos,SEEK_CUR);
+                fseek(mat->fp,pos,SEEK_CUR);
             }
             break;
         }
@@ -5975,16 +5946,16 @@ ReadDataSlab2(mat_t *mat,void *data,enum matio_classes class_type,
             row_stride = (stride[0]-1)*data_size;
             col_stride = stride[1]*dims[0]*data_size;
             pos = ftell(mat->fp);
-            matio_seek(mat->fp,start[1]*dims[0]*data_size,SEEK_CUR);
+            fseek(mat->fp,start[1]*dims[0]*data_size,SEEK_CUR);
             for ( i = 0; i < edge[1]; i++ ) {
                 pos = ftell(mat->fp);
-                matio_seek(mat->fp,start[0]*data_size,SEEK_CUR);
+                fseek(mat->fp,start[0]*data_size,SEEK_CUR);
                 for ( j = 0; j < edge[0]; j++ ) {
                     ReadInt8Data(mat,ptr++,data_type,1);
-                    matio_seek(mat->fp,row_stride,SEEK_CUR);
+                    fseek(mat->fp,row_stride,SEEK_CUR);
                 }
                 pos = pos+col_stride-ftell(mat->fp);
-                matio_seek(mat->fp,pos,SEEK_CUR);
+                fseek(mat->fp,pos,SEEK_CUR);
             }
             break;
         }
@@ -5996,16 +5967,16 @@ ReadDataSlab2(mat_t *mat,void *data,enum matio_classes class_type,
             row_stride = (stride[0]-1)*data_size;
             col_stride = stride[1]*dims[0]*data_size;
             pos = ftell(mat->fp);
-            matio_seek(mat->fp,start[1]*dims[0]*data_size,SEEK_CUR);
+            fseek(mat->fp,start[1]*dims[0]*data_size,SEEK_CUR);
             for ( i = 0; i < edge[1]; i++ ) {
                 pos = ftell(mat->fp);
-                matio_seek(mat->fp,start[0]*data_size,SEEK_CUR);
+                fseek(mat->fp,start[0]*data_size,SEEK_CUR);
                 for ( j = 0; j < edge[0]; j++ ) {
                     ReadUInt8Data(mat,ptr++,data_type,1);
-                    matio_seek(mat->fp,row_stride,SEEK_CUR);
+                    fseek(mat->fp,row_stride,SEEK_CUR);
                 }
                 pos = pos+col_stride-ftell(mat->fp);
-                matio_seek(mat->fp,pos,SEEK_CUR);
+                fseek(mat->fp,pos,SEEK_CUR);
             }
             break;
         }
@@ -6035,10 +6006,10 @@ int
 ReadCompressedDataSlab1(mat_t *mat,z_stream *z,void *data,
     enum matio_classes class_type,enum matio_types data_type,int start,
     int stride,int edge)
-{   
+{
     int nBytes = 0, i, err;
-    z_stream z_copy;
-    
+    z_stream z_copy = {0,};
+
     if ( (mat   == NULL) || (data   == NULL) || (mat->fp == NULL) )
         return 0;
 
@@ -6180,8 +6151,6 @@ ReadCompressedDataSlab1(mat_t *mat,z_stream *z,void *data,
             }
             break;
         }
-        default:
-            break;
     }
     inflateEnd(&z_copy);
     return nBytes;
@@ -6209,7 +6178,7 @@ ReadCompressedDataSlab2(mat_t *mat,z_stream *z,void *data,
 {
     int nBytes = 0, data_size, i, j, err;
     int pos, row_stride, col_stride;
-    z_stream z_copy;
+    z_stream z_copy = {0,};
 
     if ( (mat   == NULL) || (data   == NULL) || (mat->fp == NULL) ||
          (start == NULL) || (stride == NULL) || (edge    == NULL) ) {
@@ -6233,7 +6202,7 @@ ReadCompressedDataSlab2(mat_t *mat,z_stream *z,void *data,
              * to speed up the code
              */
 #if 0
-            if ( (stride[0] == 1 && edge[0] == dims[0]) && 
+            if ( (stride[0] == 1 && edge[0] == dims[0]) &&
                  (stride[1] == 1) ) {
                 ReadCompressedDoubleData(mat,&z_copy,ptr,data_type,
                                          edge[0]*edge[1]);

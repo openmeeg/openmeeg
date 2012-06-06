@@ -1,19 +1,29 @@
 /*
- * Copyright (C) 2008   Christopher C. Hulbert
+ * Copyright (C) 2008-2011   Christopher C. Hulbert
  *
- *  This library is free software; you can redistribute it and/or
- *  modify it under the terms of the GNU Lesser General Public
- *  License as published by the Free Software Foundation; either
- *  version 2.1 of the License, or (at your option) any later version.
+ * All rights reserved.
  *
- *  This library is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- *  Lesser General Public License for more details.
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
  *
- *  You should have received a copy of the GNU Lesser General Public
- *  License along with this library; if not, write to the Free Software
- *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ *    1. Redistributions of source code must retain the above copyright notice,
+ *       this list of conditions and the following disclaimer.
+ *
+ *    2. Redistributions in binary form must reproduce the above copyright
+ *       notice, this list of conditions and the following disclaimer in the
+ *       documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY CHRISTOPHER C. HULBERT ``AS IS'' AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL CHRISTOPHER C. HULBERT OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
  */
 #ifndef MAT5_H
 #define MAT5_H
@@ -22,6 +32,35 @@
 #   define EXTERN extern "C"
 #else
 #   define EXTERN extern
+#endif
+
+static size_t GetStructFieldBufSize(matvar_t *matvar);
+static size_t GetCellArrayFieldBufSize(matvar_t *matvar);
+static size_t GetMatrixMaxBufSize(matvar_t *matvar);
+static size_t GetEmptyMatrixMaxBufSize(const char *name,int rank);
+static int WriteEmptyCharData(mat_t *mat, int N, enum matio_types data_type);
+static int WriteEmptyData(mat_t *mat,int N,enum matio_types data_type);
+static int ReadNextCell( mat_t *mat, matvar_t *matvar );
+static int ReadNextStructField( mat_t *mat, matvar_t *matvar );
+static int ReadNextFunctionHandle(mat_t *mat, matvar_t *matvar);
+static int WriteCellArrayFieldInfo(mat_t *mat,matvar_t *matvar);
+static int WriteCellArrayField(mat_t *mat,matvar_t *matvar );
+static int WriteStructField(mat_t *mat,matvar_t *matvar);
+static size_t Mat_WriteEmptyVariable5(mat_t *mat,const char *name,int rank,
+                  size_t *dims);
+#if defined(HAVE_ZLIB)
+static size_t WriteCompressedCharData(mat_t *mat,z_stream *z,void *data,int N,
+                  enum matio_types data_type);
+static int    WriteCompressedEmptyData(mat_t *mat,z_stream *z,int N,
+                  enum matio_types data_type);
+static size_t WriteCompressedData(mat_t *mat,z_stream *z,void *data,int N,
+                  enum matio_types data_type);
+static size_t WriteCompressedCellArrayField(mat_t *mat,matvar_t *matvar,
+                  z_stream *z);
+static size_t WriteCompressedStructField(mat_t *mat,matvar_t *matvar,
+                  z_stream *z);
+static size_t Mat_WriteCompressedEmptyVariable5(mat_t *mat,const char *name,
+                  int rank,size_t *dims,z_stream *z);
 #endif
 
 /*   mat5.c    */

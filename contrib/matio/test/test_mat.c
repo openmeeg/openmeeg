@@ -1,19 +1,29 @@
 /*
- * Copyright (C) 2005-2011   Christopher C. Hulbert
+ * Copyright (C) 2005-2012   Christopher C. Hulbert
  *
- *  This library is free software; you can redistribute it and/or
- *  modify it under the terms of the GNU Lesser General Public
- *  License as published by the Free Software Foundation; either
- *  version 2.1 of the License, or (at your option) any later version.
+ * All rights reserved.
  *
- *  This library is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- *  Lesser General Public License for more details.
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
  *
- *  You should have received a copy of the GNU Lesser General Public
- *  License along with this library; if not, write to the Free Software
- *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ *    1. Redistributions of source code must retain the above copyright notice,
+ *       this list of conditions and the following disclaimer.
+ *
+ *    2. Redistributions in binary form must reproduce the above copyright
+ *       notice, this list of conditions and the following disclaimer in the
+ *       documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY CHRISTOPHER C. HULBERT ``AS IS'' AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL CHRISTOPHER C. HULBERT OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
  */
 #include <stdlib.h>
 #include <stdarg.h>
@@ -40,7 +50,7 @@ static struct option options[] = {
 };
 
 static enum mat_ft            mat_file_ver = MAT_FT_DEFAULT;
-static enum matio_compression compression  = COMPRESSION_NONE;
+static enum matio_compression compression  = MAT_COMPRESSION_NONE;
 
 static const char *helpstr[] = {
     "",
@@ -599,8 +609,16 @@ help_test(const char *test)
         exit(EXIT_FAILURE);
 }
 
+static void
+redirect_output(const char* output)
+{
+    if (output!=NULL)
+        if (freopen(output,"w",stdout)==NULL)
+            fprintf(stderr, "Unable to open %s for writing. Using stdout instead.");
+}
+
 static int
-test_write_2d_numeric(enum matio_classes matvar_class,const char *output_name)
+test_write_2d_numeric(enum matio_classes matvar_class, char *output_name)
 {
     size_t dims[2] = {5,10};
     int    err = 0, i;
@@ -618,7 +636,8 @@ test_write_2d_numeric(enum matio_classes matvar_class,const char *output_name)
 #ifdef HAVE_MAT_UINT64_T
     mat_uint64_t ui64[50];
 #endif
-    struct ComplexSplit z = {NULL,NULL},s = {NULL,NULL};
+    mat_complex_split_t z = {NULL,NULL},s = {NULL,NULL};
+    char *str = "This is a string";
     mat_t *mat;
     matvar_t *matvar;
 
@@ -704,8 +723,6 @@ test_write_2d_numeric(enum matio_classes matvar_class,const char *output_name)
             Mat_VarWrite(mat,matvar,compression);
             Mat_VarFree(matvar);
             break;
-        default:
-            break;
     }
 
     Mat_Close(mat);
@@ -714,7 +731,7 @@ test_write_2d_numeric(enum matio_classes matvar_class,const char *output_name)
 }
 
 static int
-test_write_complex_2d_numeric(enum matio_classes matvar_class,const char *output_name)
+test_write_complex_2d_numeric(enum matio_classes matvar_class,char *output_name)
 {
     size_t dims[2] = {5,10};
     int    err = 0, i;
@@ -732,7 +749,7 @@ test_write_complex_2d_numeric(enum matio_classes matvar_class,const char *output
 #ifdef HAVE_MAT_UINT64_T
     mat_uint64_t ui64_real[50], ui64_imag[50];
 #endif
-    struct ComplexSplit z = {NULL,NULL};
+    mat_complex_split_t z = {NULL,NULL};
     mat_t *mat;
     matvar_t *matvar;
 
@@ -853,8 +870,6 @@ test_write_complex_2d_numeric(enum matio_classes matvar_class,const char *output
             Mat_VarWrite(mat,matvar,compression);
             Mat_VarFree(matvar);
             break;
-        default:
-            break;
     }
 
     Mat_Close(mat);
@@ -863,13 +878,15 @@ test_write_complex_2d_numeric(enum matio_classes matvar_class,const char *output
 }
 
 static int
-test_write_empty_2d_numeric(enum matio_classes matvar_class,const char *output_name)
+test_write_empty_2d_numeric(enum matio_classes matvar_class,char *name)
 {
     int       err = 0;
     mat_t    *mat;
     matvar_t *matvar;
     size_t    dims[2] = {0,10};
     enum matio_types matvar_datatype = MAT_T_UNKNOWN;
+
+    const char* filename = (name==NULL) ? "test_write_empty_2d_numeric.mat" : name;
 
     switch ( matvar_class ) {
         case MAT_C_DOUBLE:
@@ -902,11 +919,9 @@ test_write_empty_2d_numeric(enum matio_classes matvar_class,const char *output_n
         case MAT_C_UINT8:
             matvar_datatype = MAT_T_UINT8;
             break;
-        default:
-            break;
     }
 
-    mat = Mat_CreateVer("test_write_empty_2d_numeric.mat",NULL,mat_file_ver);
+    mat = Mat_CreateVer(filename,NULL,mat_file_ver);
     if ( mat != NULL ) {
         matvar = Mat_VarCreate("empty",matvar_class,matvar_datatype,2,dims,
                      NULL,0);
@@ -921,11 +936,11 @@ test_write_empty_2d_numeric(enum matio_classes matvar_class,const char *output_n
 }
 
 static int
-test_write_char(const char *output_name)
+test_write_char(char *output_name)
 {
-    const char *str = "aA1[bB2{cC3]dD4}eE5\\fF6|gG7;hH8:iI9'jJ0\"kK!,lL@<"
+    char     *str = "aA1[bB2{cC3]dD4}eE5\\fF6|gG7;hH8:iI9'jJ0\"kK!,lL@<"
                     "mM#.nN$>oO%/pP^?qQ& rR* sS( tT) uU- vV_ wW= xX+ yY` zZ~ ";
-    int       err = 0;
+    int       err = 0, i;
     size_t    dims[2];
     mat_t    *mat;
     matvar_t *matvar;
@@ -935,7 +950,7 @@ test_write_char(const char *output_name)
         dims[0]   = 4;
         dims[1]   = 26;
         matvar = Mat_VarCreate("a",MAT_C_CHAR,MAT_T_UINT8,2,
-                    dims,(void*) str,MAT_F_DONT_COPY_DATA);
+                    dims,str,MAT_F_DONT_COPY_DATA);
         Mat_VarWrite(mat,matvar,compression);
         Mat_Close(mat);
     }
@@ -943,11 +958,13 @@ test_write_char(const char *output_name)
 }
 
 static int
-test_readvar(const char *inputfile, const char *var)
+test_readvar(const char *inputfile, const char *var, const char* output)
 {
     int err = 0;
     mat_t *mat;
     matvar_t *matvar;
+
+    redirect_output(output);
 
     mat = Mat_Open(inputfile,MAT_ACC_RDONLY);
     if ( mat ) {
@@ -962,6 +979,7 @@ test_readvar(const char *inputfile, const char *var)
     } else {
         err = 1;
     }
+
     return err;
 }
 
@@ -989,12 +1007,12 @@ test_readvar4(const char *inputfile, const char *var)
 }
 
 static int
-test_write_empty_struct(const char *output_name)
+test_write_empty_struct(char *output_name)
 {
     size_t  dims[2] = {0,0};
-    int    err = 0;
+    int    err = 0, i;
     mat_t     *mat;
-    matvar_t *matvar[5], *struct_matvar;
+    matvar_t *matvar[5], *struct_matvar, *substruct_matvar;
 
     mat = Mat_CreateVer(output_name,NULL,mat_file_ver);
     if ( mat ) {
@@ -1059,7 +1077,7 @@ test_write_empty_struct(const char *output_name)
 
 static int
 test_write_struct_2d_numeric(enum matio_classes matvar_class,
-    const char *output_name)
+    char *output_name)
 {
     size_t dims[2] = {5,10};
     int    err = 0, i;
@@ -1173,8 +1191,6 @@ test_write_struct_2d_numeric(enum matio_classes matvar_class,
             data[2] = ui8+24;
             data[3] = ui8+36;
             data_type = MAT_T_UINT8;
-            break;
-        default:
             break;
     }
 
@@ -1208,7 +1224,7 @@ test_write_struct_2d_numeric(enum matio_classes matvar_class,
 
 static int
 test_write_struct_complex_2d_numeric(enum matio_classes matvar_class,
-    const char *output_name)
+    char *output_name)
 {
     size_t dims[2] = {5,10};
     int    err = 0, i;
@@ -1226,7 +1242,7 @@ test_write_struct_complex_2d_numeric(enum matio_classes matvar_class,
 #ifdef HAVE_MAT_UINT64_T
     mat_uint64_t ui64_real[50], ui64_imag[50];
 #endif
-    struct ComplexSplit data[4] = {{NULL,NULL},{NULL,NULL},{NULL,NULL},{NULL,NULL}};
+    mat_complex_split_t data[4] = {NULL,NULL};
     mat_t *mat;
     matvar_t *matvar[5], *struct_matvar;
     enum matio_types data_type;
@@ -1373,8 +1389,6 @@ test_write_struct_complex_2d_numeric(enum matio_classes matvar_class,
             data[3].Im = ui8_imag+36;
             data_type = MAT_T_UINT8;
             break;
-        default:
-            break;
     }
 
     mat = Mat_CreateVer(output_name,NULL,mat_file_ver);
@@ -1406,12 +1420,12 @@ test_write_struct_complex_2d_numeric(enum matio_classes matvar_class,
 }
 
 static int
-test_write_empty_cell(const char *output_name)
+test_write_empty_cell(char *output_name)
 {
     size_t  dims[2] = {0,0};
-    int    err = 0;
+    int    err = 0, i;
     mat_t     *mat;
-    matvar_t *matvar[5], *cell_matvar;
+    matvar_t *matvar[5], *cell_matvar, *struct_matvar, *substruct_matvar;
 
     mat = Mat_CreateVer(output_name,NULL,mat_file_ver);
     if ( mat ) {
@@ -1443,7 +1457,7 @@ test_write_empty_cell(const char *output_name)
 
 static int
 test_write_cell_2d_numeric(enum matio_classes matvar_class,
-    const char *output_name)
+    char *output_name)
 {
     size_t dims[2] = {5,10};
     int    err = 0, i;
@@ -1558,8 +1572,6 @@ test_write_cell_2d_numeric(enum matio_classes matvar_class,
             data[3] = ui8+36;
             data_type = MAT_T_UINT8;
             break;
-        default:
-            break;
     }
 
     mat = Mat_CreateVer(output_name,NULL,mat_file_ver);
@@ -1592,7 +1604,7 @@ test_write_cell_2d_numeric(enum matio_classes matvar_class,
 
 static int
 test_write_cell_complex_2d_numeric(enum matio_classes matvar_class,
-    const char *output_name)
+    char *output_name)
 {
     size_t dims[2] = {5,10};
     int    err = 0, i;
@@ -1610,7 +1622,7 @@ test_write_cell_complex_2d_numeric(enum matio_classes matvar_class,
 #ifdef HAVE_MAT_UINT64_T
     mat_uint64_t ui64_real[50], ui64_imag[50];
 #endif
-    struct ComplexSplit data[4] = {{NULL,NULL},{NULL,NULL},{NULL,NULL},{NULL,NULL}};
+    mat_complex_split_t data[4] = {NULL,NULL};
     mat_t *mat;
     matvar_t *matvar[5], *cell_matvar;
     enum matio_types data_type;
@@ -1757,8 +1769,6 @@ test_write_cell_complex_2d_numeric(enum matio_classes matvar_class,
             data[3].Im = ui8_imag+36;
             data_type = MAT_T_UINT8;
             break;
-        default:
-            break;
     }
 
     mat = Mat_CreateVer(output_name,NULL,mat_file_ver);
@@ -1789,7 +1799,7 @@ test_write_cell_complex_2d_numeric(enum matio_classes matvar_class,
 }
 
 static int
-test_write_null(void)
+test_write_null(const char *name)
 {
     int       err = 0;
     mat_t    *mat;
@@ -1797,7 +1807,9 @@ test_write_null(void)
     matvar_t *struct_fields[5] = {NULL,NULL,NULL,NULL,NULL};
     size_t    dims[3] = {0,1,10};
 
-    mat = Mat_CreateVer("test_write_null.mat",NULL,mat_file_ver);
+    const char* filename = (name==NULL) ? "test_write_null.mat" : name;
+
+    mat = Mat_CreateVer(filename,NULL,mat_file_ver);
     if ( mat != NULL ) {
         struct_fields[0] = Mat_VarCreate("d_null",MAT_C_DOUBLE,MAT_T_DOUBLE,3,
                             dims,NULL,0);
@@ -1851,12 +1863,445 @@ test_write_null(void)
 }
 
 static int
+test_struct_api_create(const char *name)
+{
+    size_t dims[2] = {5,10};
+    int    err = 0;
+    mat_t *mat;
+    matvar_t *matvar;
+    size_t num_fields = 2;
+    const char *fieldnames[2] = {"field1","field2"};
+
+    redirect_output(name);
+
+    dims[0] = 2;
+    dims[1] = 1;
+    matvar = Mat_VarCreateStruct("a", 2, dims, fieldnames, num_fields);
+    Mat_VarPrint(matvar, 1);
+    Mat_VarFree(matvar);
+
+    matvar = Mat_VarCreateStruct("b", 2, dims, NULL, 0);
+    Mat_VarPrint(matvar, 1);
+    Mat_VarFree(matvar);
+
+    dims[0] = 0; dims[1] = 0;
+    matvar = Mat_VarCreateStruct("c", 2, dims, fieldnames, num_fields);
+    Mat_VarPrint(matvar, 1);
+    Mat_VarFree(matvar);
+
+    return err;
+}
+
+static int
+test_struct_api_setfield(const char *name)
+{
+    size_t dims[2];
+    int    err = 0;
+    double    data1[2] = {0,1}, data2[3] = {2,3,4}, data3[3] = {5,6,7},
+              data4[2] = {8,9};
+    matvar_t *fields[5], *matvar;
+    const size_t num_fields = 2;
+    const char *fieldnames[2] = {"field1","field2"};
+
+    redirect_output(name);
+
+    dims[0] = 2; dims[1] = 1;
+    fields[0] = Mat_VarCreate(NULL,MAT_C_DOUBLE,MAT_T_DOUBLE,2,
+                              dims,data1,MAT_F_DONT_COPY_DATA);
+    dims[0] = 3; dims[1] = 1;
+    fields[1] = Mat_VarCreate(NULL,MAT_C_DOUBLE,MAT_T_DOUBLE,2,
+                              dims,data2,MAT_F_DONT_COPY_DATA);
+    dims[0] = 1; dims[1] = 3;
+    fields[2] = Mat_VarCreate(NULL,MAT_C_DOUBLE,MAT_T_DOUBLE,2,
+                              dims,data3,MAT_F_DONT_COPY_DATA);
+    dims[0] = 1; dims[1] = 2;
+    fields[3] = Mat_VarCreate(NULL,MAT_C_DOUBLE,MAT_T_DOUBLE,2,
+                              dims,data4,MAT_F_DONT_COPY_DATA);
+    dims[0] = 2; dims[1] = 1;
+    matvar = Mat_VarCreateStruct("a", 2, dims, fieldnames, num_fields);
+    Mat_VarSetStructFieldByName(matvar, "field1", 0, fields[0]);
+    Mat_VarSetStructFieldByName(matvar, "field2", 0, fields[1]);
+    Mat_VarSetStructFieldByName(matvar, "field1", 1, fields[2]);
+    Mat_VarSetStructFieldByName(matvar, "field2", 1, fields[3]);
+    Mat_VarPrint(matvar,1);
+    /* Set data to NULL so the fields are not free'd */
+    matvar->data = NULL;
+    Mat_VarFree(matvar);
+
+    dims[0] = 2; dims[1] = 1;
+    matvar = Mat_VarCreateStruct("b", 2, dims, fieldnames, num_fields);
+    Mat_VarSetStructFieldByIndex(matvar, 0, 0, fields[3]);
+    Mat_VarSetStructFieldByIndex(matvar, 1, 0, fields[2]);
+    Mat_VarSetStructFieldByIndex(matvar, 0, 1, fields[1]);
+    Mat_VarSetStructFieldByIndex(matvar, 1, 1, fields[0]);
+    Mat_VarPrint(matvar,1);
+    Mat_VarFree(matvar);
+
+    return err;
+}
+
+static int
+test_struct_api_getfieldnames(const char *name)
+{
+    size_t dims[2];
+    int    err = 0;
+    matvar_t *matvar;
+    const unsigned num_fields = 4;
+    const char *fieldnames[4] = {"field1","field2","field3","field4"};
+    unsigned nfields, i;
+    char * const *fieldnames2;
+
+    redirect_output(name);
+
+    dims[0] = 2; dims[1] = 1;
+    matvar      = Mat_VarCreateStruct("a", 2, dims, fieldnames, num_fields);
+    nfields     = Mat_VarGetNumberOfFields(matvar);
+    fieldnames2 = Mat_VarGetStructFieldnames(matvar);
+    printf("Fieldnames of \"a\":\n");
+    if ( nfields < 1 ) {
+        printf("  None\n");
+    } else {
+        for ( i = 0; i < nfields; i++ )
+            printf("  %3d. %s\n",i, fieldnames2[i]);
+    }
+    Mat_VarFree(matvar);
+
+    matvar      = Mat_VarCreateStruct("b", 2, dims, NULL, 0);
+    nfields     = Mat_VarGetNumberOfFields(matvar);
+    fieldnames2 = Mat_VarGetStructFieldnames(matvar);
+    printf("Fieldnames of \"b\":\n");
+    if ( nfields < 1 ) {
+        printf("  None\n");
+    } else {
+        for ( i = 0; i < nfields; i++ )
+            printf("  %3d. %s\n",i, fieldnames2[i]);
+    }
+    Mat_VarFree(matvar);
+
+    nfields     = Mat_VarGetNumberOfFields(matvar);
+    fieldnames2 = Mat_VarGetStructFieldnames(NULL);
+    printf("Fieldnames of \"NULL\":\n");
+    if ( nfields < 1 ) {
+        printf("  None\n");
+    } else {
+        for ( i = 0; i < nfields; i++ )
+            printf("  %3d. %s\n",i, fieldnames2[i]);
+    }
+
+    return err;
+}
+
+static int
+test_struct_api_addfield(const char *name)
+{
+    size_t    dims[2];
+    double    data1[2] = {0,1}, data2[3] = {2,3,4}, data3[3] = {5,6,7},
+              data4[2] = {8,9};
+    matvar_t *fields[5], *matvar;
+
+    redirect_output(name);
+
+    dims[0] = 2; dims[1] = 1;
+    matvar = Mat_VarCreateStruct("a", 2, dims, NULL, 0);
+
+    dims[0] = 2; dims[1] = 1;
+    fields[0] = Mat_VarCreate(NULL,MAT_C_DOUBLE,MAT_T_DOUBLE,2,
+                              dims,data1,MAT_F_DONT_COPY_DATA);
+    dims[0] = 3; dims[1] = 1;
+    fields[1] = Mat_VarCreate(NULL,MAT_C_DOUBLE,MAT_T_DOUBLE,2,
+                              dims,data2,MAT_F_DONT_COPY_DATA);
+    dims[0] = 1; dims[1] = 3;
+    fields[2] = Mat_VarCreate(NULL,MAT_C_DOUBLE,MAT_T_DOUBLE,2,
+                              dims,data3,MAT_F_DONT_COPY_DATA);
+    dims[0] = 1; dims[1] = 2;
+    fields[3] = Mat_VarCreate(NULL,MAT_C_DOUBLE,MAT_T_DOUBLE,2,
+                              dims,data4,MAT_F_DONT_COPY_DATA);
+    Mat_VarAddStructField(matvar, "field1");
+    Mat_VarSetStructFieldByName(matvar, "field1", 0, fields[0]);
+    Mat_VarSetStructFieldByName(matvar, "field1", 1, fields[2]);
+    Mat_VarAddStructField(matvar, "field2");
+    Mat_VarSetStructFieldByName(matvar, "field2", 0, fields[1]);
+    Mat_VarSetStructFieldByName(matvar, "field2", 1, fields[3]);
+    Mat_VarPrint(matvar,1);
+
+    Mat_VarFree(matvar);
+
+    return 0;
+}
+
+static int
+test_struct_api_getlinear(const char *name)
+{
+    size_t dims[2];
+    int    err = 0, i;
+    double    r[12] = {0,1,2,3,4,5,6,7,8,9,10,11},
+              c[12] = {12,13,14,15,16,17,18,19,20,21,22,23};
+    mat_complex_split_t z[12];
+    matvar_t *field, *matvar, *matvar2;
+    const size_t num_fields = 3;
+    const char *fieldnames[3] = {"r","c","z"};
+
+    redirect_output(name);
+
+    dims[0] = 3;
+    dims[1] = 4;
+    matvar = Mat_VarCreateStruct("a", 2, dims, fieldnames, num_fields);
+
+    dims[0] = 1; dims[1] = 1;
+
+    for ( i = 0; i < 12; i++ ) {
+        field = Mat_VarCreate(NULL,MAT_C_DOUBLE,MAT_T_DOUBLE,2,
+                              dims,r+i,MAT_F_DONT_COPY_DATA);
+        Mat_VarSetStructFieldByName(matvar, "r", i, field);
+        field = Mat_VarCreate(NULL,MAT_C_DOUBLE,MAT_T_DOUBLE,2,
+                              dims,c+i,MAT_F_DONT_COPY_DATA);
+        Mat_VarSetStructFieldByName(matvar, "c", i, field);
+        z[i].Re = r+i;
+        z[i].Im = c+i;
+        field = Mat_VarCreate(NULL,MAT_C_DOUBLE,MAT_T_DOUBLE,2,
+                              dims,z+i,MAT_F_DONT_COPY_DATA|MAT_F_COMPLEX);
+        Mat_VarSetStructFieldByName(matvar, "z", i, field);
+    }
+
+    /* Read the second row of data */
+    matvar2 = Mat_VarGetStructsLinear(matvar, 1, 3, 4, 0);
+    Mat_VarPrint(matvar2,1);
+    Mat_VarFree(matvar2);
+
+    /* Read the first column of data */
+    matvar2 = Mat_VarGetStructsLinear(matvar, 0, 1, 3, 0);
+    Mat_VarPrint(matvar2,1);
+    Mat_VarFree(matvar2);
+
+    /* Read diagonal */
+    matvar2 = Mat_VarGetStructsLinear(matvar, 0, 4, 3, 0);
+    Mat_VarPrint(matvar2,1);
+    Mat_VarFree(matvar2);
+
+    Mat_VarFree(matvar);
+
+    return err;
+}
+
+static int
+test_struct_api_get(const char *name)
+{
+    size_t dims[4];
+    int    err = 0, i, start[4], stride[4], edge[4];
+    double    r[360] = {0,}, c[360] = {0,};
+    matvar_t *field, *matvar, *matvar2;
+    const size_t num_fields = 2;
+    const char *fieldnames[3] = {"r","c"};
+
+    redirect_output(name);
+
+    dims[0] = 3;
+    dims[1] = 4;
+    dims[2] = 5;
+    dims[3] = 6;
+    matvar = Mat_VarCreateStruct("a", 4, dims, fieldnames, num_fields);
+
+    dims[0] = 1; dims[1] = 1;
+
+    for ( i = 0; i < 360; i++ ) {
+        r[i] = i+1;
+        c[i] = -(i+1);
+        field = Mat_VarCreate(NULL,MAT_C_DOUBLE,MAT_T_DOUBLE,2,
+                              dims,r+i,MAT_F_DONT_COPY_DATA);
+        Mat_VarSetStructFieldByName(matvar, "r", i, field);
+        field = Mat_VarCreate(NULL,MAT_C_DOUBLE,MAT_T_DOUBLE,2,
+                              dims,c+i,MAT_F_DONT_COPY_DATA);
+        Mat_VarSetStructFieldByName(matvar, "c", i, field);
+    }
+
+    /* Read a(2,2:3,1:2:5,2:4:end) - MATLAB 1-relative indices */
+    start[0]  = 1; start[1]  = 1; start[2]  = 0; start[3]  = 1;
+    stride[0] = 0; stride[1] = 1; stride[2] = 2; stride[3] = 4;
+    edge[0]   = 1; edge[1]   = 2; edge[2]   = 3; edge[3]   = 2;
+    matvar2 = Mat_VarGetStructs(matvar, start,stride,edge,0);
+    Mat_VarPrint(matvar2,1);
+    Mat_VarFree(matvar2);
+
+    Mat_VarFree(matvar);
+
+    return err;
+}
+
+static int
+test_cell_api_set(const char *name)
+{
+    size_t dims[2];
+    double    data[10] = {0,1,2,3,4,5,6,7,8,9};
+    matvar_t *cells[10], *matvar, *prev_cell;
+
+    redirect_output(name);
+
+    dims[0] = 2; dims[1] = 3;
+    matvar = Mat_VarCreate("a", MAT_C_CELL, MAT_T_CELL, 2, dims, NULL, 0);
+    dims[0] = 1; dims[1] = 1;
+    cells[0] = Mat_VarCreate(NULL,MAT_C_DOUBLE,MAT_T_DOUBLE,2,
+                              dims,data,MAT_F_DONT_COPY_DATA);
+    cells[1] = Mat_VarCreate(NULL,MAT_C_DOUBLE,MAT_T_DOUBLE,2,
+                             dims,data+1,MAT_F_DONT_COPY_DATA);
+    cells[2] = Mat_VarCreate(NULL,MAT_C_DOUBLE,MAT_T_DOUBLE,2,
+                             dims,data+2,MAT_F_DONT_COPY_DATA);
+    cells[3] = Mat_VarCreate(NULL,MAT_C_DOUBLE,MAT_T_DOUBLE,2,
+                             dims,data+3,MAT_F_DONT_COPY_DATA);
+    cells[4] = Mat_VarCreate(NULL,MAT_C_DOUBLE,MAT_T_DOUBLE,2,
+                             dims,data+4,MAT_F_DONT_COPY_DATA);
+    cells[5] = Mat_VarCreate(NULL,MAT_C_DOUBLE,MAT_T_DOUBLE,2,
+                             dims,data+5,MAT_F_DONT_COPY_DATA);
+    cells[6] = Mat_VarCreate(NULL,MAT_C_DOUBLE,MAT_T_DOUBLE,2,
+                             dims,data+6,MAT_F_DONT_COPY_DATA);
+    cells[7] = Mat_VarCreate(NULL,MAT_C_DOUBLE,MAT_T_DOUBLE,2,
+                             dims,data+7,MAT_F_DONT_COPY_DATA);
+    cells[8] = Mat_VarCreate(NULL,MAT_C_DOUBLE,MAT_T_DOUBLE,2,
+                             dims,data+8,MAT_F_DONT_COPY_DATA);
+    cells[9] = Mat_VarCreate(NULL,MAT_C_DOUBLE,MAT_T_DOUBLE,2,
+                             dims,data+9,MAT_F_DONT_COPY_DATA);
+    Mat_VarSetCell(matvar, 0, cells[0]);
+    Mat_VarSetCell(matvar, 1, cells[1]);
+    Mat_VarSetCell(matvar, 2, cells[2]);
+    Mat_VarSetCell(matvar, 3, cells[3]);
+    Mat_VarSetCell(matvar, 4, cells[4]);
+    Mat_VarSetCell(matvar, 5, cells[5]);
+    Mat_VarSetCell(matvar, 6, cells[6]);
+    Mat_VarPrint(matvar,1);
+    /* Change the first row */
+    prev_cell = Mat_VarSetCell(matvar, 0, cells[7]);
+    if ( prev_cell != cells[0] ) {
+        fprintf(stderr, "Previous cell element is not expected element\n");
+        Mat_VarFree(matvar);
+        return 1;
+    }
+    Mat_VarFree(prev_cell);
+    prev_cell = Mat_VarSetCell(matvar, 2, cells[8]);
+    if ( prev_cell != cells[2] ) {
+        fprintf(stderr, "Previous cell element is not expected element\n");
+        Mat_VarFree(matvar);
+        return 1;
+    }
+    Mat_VarFree(prev_cell);
+    prev_cell = Mat_VarSetCell(matvar, 4, cells[9]);
+    if ( prev_cell != cells[4] ) {
+        fprintf(stderr, "Previous cell element is not expected element\n");
+        Mat_VarFree(matvar);
+        return 1;
+    }
+    Mat_VarFree(prev_cell);
+    Mat_VarPrint(matvar, 1);
+    Mat_VarFree(matvar);
+
+    return 0;
+}
+
+static int
+test_cell_api_getlinear(const char *name)
+{
+    size_t dims[2], i;
+    double    r[4] = {0,1,2,3},c[4] = {4,5,6,7};
+    mat_complex_split_t z[4];
+    matvar_t *cell, *matvar, **cells;
+
+    redirect_output(name);
+
+    dims[0] = 3; dims[1] = 4;
+    matvar = Mat_VarCreate("a", MAT_C_CELL, MAT_T_CELL, 2, dims, NULL, 0);
+    dims[0] = 1; dims[1] = 1;
+    for ( i = 0; i < 4; i++ ) {
+        cell = Mat_VarCreate(NULL,MAT_C_DOUBLE,MAT_T_DOUBLE,2,
+                             dims,r+i,MAT_F_DONT_COPY_DATA);
+        Mat_VarSetCell(matvar, 3*i, cell);
+        cell = Mat_VarCreate(NULL,MAT_C_DOUBLE,MAT_T_DOUBLE,2,
+                             dims,c+i,MAT_F_DONT_COPY_DATA);
+        Mat_VarSetCell(matvar, 3*i+1, cell);
+        z[i].Re = r+i;
+        z[i].Im = c+i;
+        cell = Mat_VarCreate(NULL,MAT_C_DOUBLE,MAT_T_DOUBLE,2,
+                             dims,z+i,MAT_F_COMPLEX|MAT_F_DONT_COPY_DATA);
+        Mat_VarSetCell(matvar, 3*i+2, cell);
+    }
+    /* Get the first row */
+    cells = Mat_VarGetCellsLinear(matvar, 0, 3, 4);
+    if ( NULL != cells ) {
+        for (i = 0; i < 4; i++ )
+            Mat_VarPrint(cells[i], 1);
+        free(cells);
+    }
+
+    /* Get the second row */
+    cells = Mat_VarGetCellsLinear(matvar, 1, 3, 4);
+    if ( NULL != cells ) {
+        for (i = 0; i < 4; i++ )
+            Mat_VarPrint(cells[i], 1);
+        free(cells);
+    }
+    /* Get the third row */
+    cells = Mat_VarGetCellsLinear(matvar, 2, 3, 4);
+    if ( NULL != cells ) {
+        for (i = 0; i < 4; i++ )
+            Mat_VarPrint(cells[i], 1);
+        free(cells);
+    }
+    /* Get the middle two columns */
+    cells = Mat_VarGetCellsLinear(matvar, 3, 1, 6);
+    if ( NULL != cells ) {
+        for (i = 0; i < 6; i++ )
+            Mat_VarPrint(cells[i], 1);
+        free(cells);
+    }
+
+    Mat_VarFree(matvar);
+    return 0;
+}
+
+static int
+test_cell_api_getcells(const char *name)
+{
+    size_t dims[4];
+    int    i, start[4], stride[4], edge[4];
+    double    x[360] = {0,};
+    matvar_t *cell, *matvar, **matvar2;
+
+    redirect_output(name);
+
+    dims[0] = 3;
+    dims[1] = 4;
+    dims[2] = 5;
+    dims[3] = 6;
+    matvar = Mat_VarCreate("a", MAT_C_CELL, MAT_T_CELL, 4, dims, NULL, 0);
+
+    dims[0] = 1; dims[1] = 1;
+
+    for ( i = 0; i < 360; i++ ) {
+        x[i] = i+1;
+        cell = Mat_VarCreate(NULL,MAT_C_DOUBLE,MAT_T_DOUBLE,2,
+                              dims,x+i,MAT_F_DONT_COPY_DATA);
+        Mat_VarSetCell(matvar, i, cell);
+    }
+
+    /* Read a(2,2:3,1:2:5,2:4:end) - MATLAB 1-relative indices */
+    start[0]  = 1; start[1]  = 1; start[2]  = 0; start[3]  = 1;
+    stride[0] = 0; stride[1] = 1; stride[2] = 2; stride[3] = 4;
+    edge[0]   = 1; edge[1]   = 2; edge[2]   = 3; edge[3]   = 2;
+    matvar2 = Mat_VarGetCells(matvar, start, stride, edge);
+    if ( NULL != matvar2 ) {
+        for ( i = 0; i < 12; i++ )
+            Mat_VarPrint(matvar2[i],1);
+        free(matvar2);
+    }
+    Mat_VarFree(matvar);
+
+    return 0;
+}
+
+static int
 test_get_struct_field(const char *file,const char *structname,
     const char *fieldname)
 {
     mat_t *mat;
     matvar_t *matvar, *field;
-    int ind = 1, err = 0;
+    int index = 1, err = 0;
 
     mat = Mat_Open(file,MAT_ACC_RDONLY);
     if ( mat ) {
@@ -1873,8 +2318,8 @@ test_get_struct_field(const char *file,const char *structname,
                 case '7':
                 case '8':
                 case '9':
-                    ind = atoi(fieldname);
-                    field = Mat_VarGetStructField(matvar,&ind,MAT_BY_INDEX,0);
+                    index = atoi(fieldname);
+                    field = Mat_VarGetStructField(matvar,&index,MAT_BY_INDEX,0);
                     err = (field == NULL) ? 1 : 0;
                     if ( !err )
                         Mat_VarPrint( field, 0);
@@ -1953,7 +2398,7 @@ test_readslab4(const char *file, const char *var)
 }
 
 static int
-test_writeslab(void)
+test_writeslab(const char *name)
 {
     int        err = 0, i;
     size_t     dims[2] = {6,10};
@@ -1963,14 +2408,16 @@ test_writeslab(void)
     int       idata[60]={0.0,};
     mat_t    *mat;
     matvar_t *matvar, *matvar2, *matvar3;
-    
+
+    const char* filename = (name==NULL) ? "test_mat_writeslab.mat" : name;
+
     for ( i = 0; i < 60; i++ ) {
          data[i] = i+1;
         fdata[i] = i+1;
         idata[i] = i+1;
     }
 
-    mat = Mat_CreateVer("test_mat_writeslab.mat",NULL,mat_file_ver);
+    mat = Mat_CreateVer(filename,NULL,mat_file_ver);
     if ( mat != NULL ) {
         matvar = Mat_VarCreate("d",MAT_C_DOUBLE,MAT_T_DOUBLE,2,
                        dims,NULL,0);
@@ -1995,7 +2442,7 @@ test_writeslab(void)
 }
 
 static int
-test_writenan(void)
+test_writenan(const char *name)
 {
     int        err = 0, i;
     size_t     dims[2] = {5,5};
@@ -2003,14 +2450,16 @@ test_writenan(void)
     double     zero = 0.0;
     mat_t    *mat;
     matvar_t *matvar;
-    
+
+    const char* filename = (name==NULL) ? "test_writenan.mat" : name;
+
     for ( i = 0; i < 25; i++ )
          data[i] = i+1;
 
     for ( i = 0; i < 25; i+= 6 )
         data[i] = 0.0/zero;
 
-    mat = Mat_CreateVer("test_writenan.mat",NULL,mat_file_ver);
+    mat = Mat_CreateVer(filename,NULL,mat_file_ver);
     if ( mat != NULL ) {
         matvar = Mat_VarCreate("d",MAT_C_DOUBLE,MAT_T_DOUBLE,2,
                        dims,data,MAT_F_DONT_COPY_DATA);
@@ -2024,7 +2473,7 @@ test_writenan(void)
 }
 
 static int
-test_writeinf(void)
+test_writeinf(const char *name)
 {
     int        err = 0, i;
     size_t     dims[2] = {5,5};
@@ -2032,14 +2481,16 @@ test_writeinf(void)
     double     zero = 0.0;
     mat_t    *mat;
     matvar_t *matvar;
-    
+
+    const char* filename = (name==NULL) ? "test_writeinf.mat" : name;
+
     for ( i = 0; i < 25; i++ )
          data[i] = i+1;
 
     for ( i = 0; i < 25; i+= 6 )
         data[i] = 1.0/zero;
 
-    mat = Mat_CreateVer("test_writeinf.mat",NULL,mat_file_ver);
+    mat = Mat_CreateVer(filename,NULL,mat_file_ver);
     if ( mat != NULL ) {
         matvar = Mat_VarCreate("d",MAT_C_DOUBLE,MAT_T_DOUBLE,2,
                        dims,data,MAT_F_DONT_COPY_DATA);
@@ -2053,48 +2504,17 @@ test_writeinf(void)
 }
 
 static int
-test_write_sparse(enum matio_classes matvar_class,const char *output_name)
+test_write_sparse(enum matio_classes matvar_class,char *output_name)
 {
-    int    i;
-    int    err = 0;
+    int    err = 0, i;
     size_t dims[2] = {5,10};
-    double    d[50];
-    float     f[50];
-    mat_int32_t   i32[50] = {1,5,7,8,9,11,15,17,18,19,21,25,27,28,29,31,35,37,38,39,
+    double    d[50] = {1,5,7,8,9,11,15,17,18,19,21,25,27,28,29,31,35,37,38,39,
                        41,45,47,48,49};
-    mat_uint32_t ui32[50];
-    mat_int16_t   i16[50];
-    mat_uint16_t ui16[50];
-    mat_int8_t    i8[50];
-    mat_uint8_t  ui8[50];
-#ifdef HAVE_MAT_INT64_T
-    mat_int64_t i64[50];
-#endif
-#ifdef HAVE_MAT_UINT64_T
-    mat_uint64_t ui64[50];
-#endif
     mat_int32_t  ir[25] = {0,4,1,2,3,0,4,1,2,3,0,4,1,2,3,0,4,1,2,3,0,4,1,2,3};
     mat_int32_t  jc[11] = {0,2,5,7,10,12,15,17,20,22,25};
     mat_t *mat;
     matvar_t *matvar;
-    sparse_t  sparse;
-    enum matio_types matvar_datatype = MAT_T_UNKNOWN;
-
-    for (i=0;i<50;++i) {
-        d[i]    = i32[i];
-        f[i]    = i32[i];
-        ui32[i] = i32[i];
-        i16[i]  = i32[i];
-        ui16[i] = i32[i];
-        i8[i]   = i32[i];
-        ui8[i]  = i32[i];
-#ifdef HAVE_MAT_INT64_T
-        i64[i]  = i32[i];
-#endif
-#ifdef HAVE_MAT_UINT64_T
-        ui64[i] = i32[i];
-#endif
-    }
+    mat_sparse_t  sparse = {0,};
 
     sparse.nzmax = 25;
     sparse.nir   = 25;
@@ -2109,53 +2529,14 @@ test_write_sparse(enum matio_classes matvar_class,const char *output_name)
         return 1;
 
     switch (matvar_class) {
-        case MAT_C_SINGLE:
-            sparse.data  = f;
-            matvar_datatype = MAT_T_SINGLE;
-            break;
         case MAT_C_DOUBLE:
             sparse.data  = d;
-            matvar_datatype = MAT_T_DOUBLE;
-            break;
-        case MAT_C_INT64:
-            sparse.data  = i64;
-            matvar_datatype = MAT_T_INT64;
-            break;
-        case MAT_C_UINT64:
-            sparse.data  = ui64;
-            matvar_datatype = MAT_T_UINT64;
-            break;
-        case MAT_C_INT32:
-            sparse.data  = i32;
-            matvar_datatype = MAT_T_INT32;
-            break;
-        case MAT_C_UINT32:
-            sparse.data  = ui32;
-            matvar_datatype = MAT_T_UINT32;
-            break;
-        case MAT_C_INT16:
-            sparse.data  = i16;
-            matvar_datatype = MAT_T_INT16;
-            break;
-        case MAT_C_UINT16:
-            sparse.data  = ui16;
-            matvar_datatype = MAT_T_UINT16;
-            break;
-        case MAT_C_INT8:
-            sparse.data  = i8;
-            matvar_datatype = MAT_T_INT8;
-            break;
-        case MAT_C_UINT8:
-            sparse.data  = ui8;
-            matvar_datatype = MAT_T_UINT8;
-            break;
-        default:
             break;
     }
 
     if ( NULL != sparse.data) {
         matvar = Mat_VarCreate("sparse_matrix",MAT_C_SPARSE,
-                       matvar_datatype,2,dims,&sparse,MAT_F_DONT_COPY_DATA);
+                       MAT_T_DOUBLE,2,dims,&sparse,MAT_F_DONT_COPY_DATA);
         if ( matvar != NULL ) {
             Mat_VarWrite(mat,matvar,compression);
             Mat_VarFree(matvar);
@@ -2173,51 +2554,20 @@ test_write_sparse(enum matio_classes matvar_class,const char *output_name)
 }
 
 static int
-test_write_complex_sparse(enum matio_classes matvar_class,const char *output_name)
+test_write_complex_sparse(enum matio_classes matvar_class,char *output_name)
 {
-    int    i;
-    int    err = 0;
+    int    err = 0, i;
     size_t dims[2] = {5,10};
-    double    d_real[25], d_imag[25];
-    float     f_real[25], f_imag[25];
-    mat_int32_t   i32_real[25] = {1,5,7,8,9,11,15,17,18,19,21,25,27,28,29,31,35,37,
+    double    d_real[25] = {1,5,7,8,9,11,15,17,18,19,21,25,27,28,29,31,35,37,
                             38,39,41,45,47,48,49},
-                  i32_imag[25] = {51,55,57,58,59,61,65,67,68,69,71,75,77,78,79,81,85,
+              d_imag[25] = {51,55,57,58,59,61,65,67,68,69,71,75,77,78,79,81,85,
                             87,88,89,91,95,97,98,99};
-    mat_uint32_t ui32_real[25],ui32_imag[25];
-    mat_int16_t   i16_real[25],i16_imag[25];
-    mat_uint16_t ui16_real[25],ui16_imag[25];
-    mat_int8_t    i8_real[25],i8_imag[25];
-    mat_uint8_t  ui8_real[25],ui8_imag[25];
-#ifdef HAVE_MAT_INT64_T
-    mat_int64_t i64_real[25],i64_imag[25];
-#endif
-#ifdef HAVE_MAT_UINT64_T
-    mat_uint64_t ui64_real[25],ui64_imag[25];
-#endif
     mat_int32_t  ir[25] = {0,4,1,2,3,0,4,1,2,3,0,4,1,2,3,0,4,1,2,3,0,4,1,2,3};
     mat_int32_t  jc[11] = {0,2,5,7,10,12,15,17,20,22,25};
     mat_t *mat;
     matvar_t *matvar;
-    sparse_t  sparse = {0,NULL,0,NULL,0,0,NULL};
-    struct ComplexSplit z = {NULL,NULL};
-    enum matio_types matvar_datatype = MAT_T_UNKNOWN;
-
-    for (i=0;i<25;++i) {
-        d_real[i]    = i32_real[i]; d_imag[i]    = i32_imag[i];
-        f_real[i]    = i32_real[i]; f_imag[i]    = i32_imag[i];
-        ui32_real[i] = i32_real[i]; ui32_imag[i] = i32_imag[i];
-        i16_real[i]  = i32_real[i]; i16_imag[i]  = i32_imag[i];
-        ui16_real[i] = i32_real[i]; ui16_imag[i] = i32_imag[i];
-        i8_real[i]   = i32_real[i]; i8_imag[i]   = i32_imag[i];
-        ui8_real[i]  = i32_real[i]; ui8_imag[i]  = i32_imag[i];
-#ifdef HAVE_MAT_INT64_T
-        i64_real[i]  = i32_real[i]; i64_imag[i]  = i32_imag[i];
-#endif
-#ifdef HAVE_MAT_UINT64_T
-        ui64_real[i] = i32_real[i]; ui64_imag[i] = i32_imag[i];
-#endif
-    }
+    mat_sparse_t  sparse = {0,};
+    mat_complex_split_t z = {NULL,NULL};
 
     sparse.nzmax = 25;
     sparse.nir   = 25;
@@ -2232,82 +2582,15 @@ test_write_complex_sparse(enum matio_classes matvar_class,const char *output_nam
         return 1;
 
     switch (matvar_class) {
-        case MAT_C_SINGLE:
-            break;
-        case MAT_C_DOUBLE:
-            sparse.data  = &z;
-            break;
-        default:
-            break;
-    }
-
-    switch (matvar_class) {
-        case MAT_C_SINGLE:
-            z.Re = f_real;
-            z.Im = f_imag;
-            sparse.data  = &z;
-            matvar_datatype = MAT_T_SINGLE;
-            break;
         case MAT_C_DOUBLE:
             z.Re = d_real;
             z.Im = d_imag;
             sparse.data  = &z;
-            matvar_datatype = MAT_T_DOUBLE;
-            break;
-        case MAT_C_INT64:
-            z.Re = i64_real;
-            z.Im = i64_imag;
-            sparse.data  = &z;
-            matvar_datatype = MAT_T_INT64;
-            break;
-        case MAT_C_UINT64:
-            z.Re = ui64_real;
-            z.Im = ui64_imag;
-            sparse.data  = &z;
-            matvar_datatype = MAT_T_UINT64;
-            break;
-        case MAT_C_INT32:
-            z.Re = i32_real;
-            z.Im = i32_imag;
-            sparse.data  = &z;
-            matvar_datatype = MAT_T_INT32;
-            break;
-        case MAT_C_UINT32:
-            z.Re = ui32_real;
-            z.Im = ui32_imag;
-            sparse.data  = &z;
-            matvar_datatype = MAT_T_UINT32;
-            break;
-        case MAT_C_INT16:
-            z.Re = i16_real;
-            z.Im = i16_imag;
-            sparse.data  = &z;
-            matvar_datatype = MAT_T_INT16;
-            break;
-        case MAT_C_UINT16:
-            z.Re = ui16_real;
-            z.Im = ui16_imag;
-            sparse.data  = &z;
-            matvar_datatype = MAT_T_UINT16;
-            break;
-        case MAT_C_INT8:
-            z.Re = i8_real;
-            z.Im = i8_imag;
-            sparse.data  = &z;
-            matvar_datatype = MAT_T_INT8;
-            break;
-        case MAT_C_UINT8:
-            z.Re = ui8_real;
-            z.Im = ui8_imag;
-            sparse.data  = &z;
-            matvar_datatype = MAT_T_UINT8;
-            break;
-        default:
             break;
     }
 
     if ( NULL != sparse.data ) {
-        matvar = Mat_VarCreate("sparse_matrix",MAT_C_SPARSE,matvar_datatype,2,
+        matvar = Mat_VarCreate("sparse_matrix",MAT_C_SPARSE,MAT_T_DOUBLE,2,
                                dims,&sparse,MAT_F_COMPLEX | MAT_F_DONT_COPY_DATA);
         if ( matvar != NULL ) {
             Mat_VarWrite(mat,matvar,compression);
@@ -2345,12 +2628,22 @@ test_delete(char *file,char *name)
 
 int main (int argc, char *argv[])
 {
-    const char *prog_name = "test_mat";
+    char *prog_name = "test_mat";
     int   c,i, k, err = 0, ntests = 0;
     mat_t *mat, *mat2;
-    matvar_t *matvar;
+    matvar_t *matvar, *matvar2, *matvar3;
     enum matio_classes matvar_class = MAT_C_DOUBLE;
-    const char *output_name = NULL;
+    char *output_name = NULL;
+    int version[3];
+
+    Mat_GetLibraryVersion(version, version+1, version+2);
+    if ( MATIO_MAJOR_VERSION != version[0] ||
+         MATIO_MINOR_VERSION != version[1] ||
+         MATIO_RELEASE_LEVEL != version[2] ) {
+        fprintf(stderr,"matio version in header does not match runtime "
+                "version\n");
+        return EXIT_FAILURE;
+    }
 
     Mat_LogInit(prog_name);
 
@@ -2378,7 +2671,7 @@ int main (int argc, char *argv[])
                 else if ( !strcmp(optarg,"uint8") )
                     matvar_class = MAT_C_UINT8;
                 else {
-                    fprintf(stderr,"Unrecognized MAT variable class '%s'\n",
+                    fprintf(stderr,"Unrecognized MAT variable class '%s'",
                             optarg);
                     exit(EXIT_FAILURE);
                 }
@@ -2387,14 +2680,12 @@ int main (int argc, char *argv[])
                 output_name = optarg;
                 break;
             case 'v':
-                if ( !strcmp(optarg,"4") ) {
-                    mat_file_ver = MAT_FT_MAT4;
-                } else if ( !strcmp(optarg,"5") ) {
+                if ( !strcmp(optarg,"5") ) {
                     mat_file_ver = MAT_FT_MAT5;
                 } else if ( !strcmp(optarg,"7.3") ) {
                     mat_file_ver = MAT_FT_MAT73;
                 } else {
-                    fprintf(stderr,"Unrecognized MAT file version %s\n",optarg);
+                    fprintf(stderr,"Unrecognized MAT file version %s",argv[2]);
                     exit(EXIT_FAILURE);
                 }
                 break;
@@ -2408,14 +2699,12 @@ int main (int argc, char *argv[])
                 help_test(optarg);
                 exit(EXIT_SUCCESS);
             case 'V':
-                printf("%s %d.%d.%d\n"
-                       "Written by Christopher Hulbert\n\n"
-                       "Copyright(C) 2006-2008 Christopher C. Hulbert\n",
-                       prog_name,MATIO_MAJOR_VERSION,MATIO_MINOR_VERSION,
-                       MATIO_RELEASE_LEVEL);
+                printf("%s %s\nWritten by Christopher Hulbert\n\n"
+                       "Copyright(C) 2006-2012 Christopher C. Hulbert\n",
+                       prog_name,PACKAGE_VERSION);
                 exit(EXIT_SUCCESS);
             case 'z':
-                compression = COMPRESSION_ZLIB;
+                compression = MAT_COMPRESSION_ZLIB;
                 break;
             case '?':
                 exit(EXIT_FAILURE);
@@ -2434,7 +2723,7 @@ int main (int argc, char *argv[])
             mat2 = Mat_Open(argv[k++],MAT_ACC_RDONLY);
             if ( mat && mat2 ) {
                 while ( NULL != (matvar = Mat_VarReadNext(mat2)) )
-                    Mat_VarWrite( mat, matvar, 0);
+                    Mat_VarWrite( mat, matvar, compression);
                 Mat_Close(mat);
                 Mat_Close(mat2);
             }
@@ -2470,15 +2759,15 @@ int main (int argc, char *argv[])
             ntests++;
         } else if ( !strcasecmp(argv[k],"writenull") ) {
             k++;
-            err += test_write_null();
+            err += test_write_null(output_name);
             ntests++;
         } else if ( !strcasecmp(argv[k],"writenan") ) {
             k++;
-            err += test_writenan();
+            err += test_writenan(output_name);
             ntests++;
         } else if ( !strcasecmp(argv[k],"writeinf") ) {
             k++;
-            err += test_writeinf();
+            err += test_writeinf(output_name);
             ntests++;
         } else if ( !strcasecmp(argv[k],"readvar") ) {
             k++;
@@ -2486,7 +2775,7 @@ int main (int argc, char *argv[])
                 Mat_Critical("Must specify the input file and variable respectively");
                 err++;
             } else {
-                err += test_readvar(argv[k],argv[k+1]);
+                err += test_readvar(argv[k],argv[k+1],output_name);
                 k+=2;
             }
             ntests++;
@@ -2538,6 +2827,42 @@ int main (int argc, char *argv[])
                 output_name = "test_write_empty_cell.mat";
             err += test_write_empty_cell(output_name);
             ntests++;
+        } else if ( !strcasecmp(argv[k],"struct_api_create") ) {
+            k++;
+            err += test_struct_api_create(output_name);
+            ntests++;
+        } else if ( !strcasecmp(argv[k],"struct_api_setfield") ) {
+            k++;
+            err += test_struct_api_setfield(output_name);
+            ntests++;
+        } else if ( !strcasecmp(argv[k],"struct_api_getfieldnames") ) {
+            k++;
+            err += test_struct_api_getfieldnames(output_name);
+            ntests++;
+        } else if ( !strcasecmp(argv[k],"struct_api_addfield") ) {
+            k++;
+            err += test_struct_api_addfield(output_name);
+            ntests++;
+        } else if ( !strcasecmp(argv[k],"struct_api_getlinear") ) {
+            k++;
+            err += test_struct_api_getlinear(output_name);
+            ntests++;
+        } else if ( !strcasecmp(argv[k],"struct_api_get") ) {
+            k++;
+            err += test_struct_api_get(output_name);
+            ntests++;
+        } else if ( !strcasecmp(argv[k],"cell_api_set") ) {
+            k++;
+            err += test_cell_api_set(output_name);
+            ntests++;
+        } else if ( !strcasecmp(argv[k],"cell_api_getlinear") ) {
+            k++;
+            err += test_cell_api_getlinear(output_name);
+            ntests++;
+        } else if ( !strcasecmp(argv[k],"cell_api_getcells") ) {
+            k++;
+            err += test_cell_api_getcells(output_name);
+            ntests++;
         } else if ( !strcasecmp(argv[k],"getstructfield") ) {
             k++;
             if ( argc-k < 3 ) {
@@ -2566,11 +2891,10 @@ int main (int argc, char *argv[])
             ntests++;
         } else if ( !strcasecmp(argv[k],"writeslab") ) {
            k++;
-           err += test_writeslab();
-           ntests++;
+           err += test_writeslab(output_name);
+            ntests++;
     #if 0
         } else if ( !strcasecmp(argv[1],"cellslab") ) {
-            matvar_t *matvar2, *matvar3;
             matvar_t *cellmatvar, **cellfields;
                 cellfields = malloc(6*sizeof(matvar_t *));
                 cellfields[0] = matvar;
@@ -2603,7 +2927,7 @@ int main (int argc, char *argv[])
             int   start[3]={1,1,1},stride[3]={1,1,1},edge[3]={1,1,1};
             int j, l;
             double ptr[150] = {0,};
-    
+
             k++;
             mat = Mat_Open("test_slab_d3.mat",MAT_ACC_RDONLY);
             if ( mat ) {
@@ -2636,26 +2960,27 @@ int main (int argc, char *argv[])
         } else if ( !strcasecmp(argv[k],"ind2sub") ) {
             int *subs, dims[3] = {256,256,124};
 
+            redirect_output(output_name);
             subs = Mat_CalcSubscripts(3,dims,18921-1);
             Mat_Message("%d,%d,%d",subs[0],subs[1],subs[2]);
             free(subs);
             k++;
             ntests++;
         } else if ( !strcasecmp(argv[k],"sub2ind") ) {
-            int  dims[3] = {256,256,124}, ind[3] = {233,74,1};
+            int  dims[3] = {256,256,124}, index[3] = {233,74,1};
             int  linear_index;
 
-            linear_index = Mat_CalcSingleSubscript(3,dims,ind);
+            redirect_output(output_name);
+            linear_index = Mat_CalcSingleSubscript(3,dims,index);
             Mat_Message("%d",linear_index);
             k++;
             ntests++;
         } else {
             Mat_Critical("Unrecognized test %s", argv[k]);
             k++;
-            err++;
             break;
         }
     }
 
-    return err;
+    return 0;
 }
