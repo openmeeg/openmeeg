@@ -275,9 +275,11 @@ CONFIGURE_FILE(
 
 OPTION(MATIO_BUILD_TESTING "Build matio tests" ON)
 IF (MATIO_BUILD_TESTING)
-    INCLUDE(CTest)
-    ENABLE_TESTING()
-    ADD_SUBDIRECTORY(test)
+    IF (IS_DIRECTORY ${CMAKE_CURREMT_SOURCE_DIR}/test/datasets)
+        INCLUDE(CTest)
+        ENABLE_TESTING()
+        ADD_SUBDIRECTORY(test)
+    ENDIF()
 ENDIF()
 
 # =============
