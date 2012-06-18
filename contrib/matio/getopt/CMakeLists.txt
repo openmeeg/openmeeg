@@ -1,11 +1,7 @@
 PROJECT(GETOPT C)
 
-CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/getopt_.h getopt.h)
-
-INCLUDE(CheckIncludeFiles)
-Check_Include_Files(unistd.h HAVE_UNISTD_H)
-
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR})
+add_definitions(-DREPLACE_GETOPT)
 ADD_LIBRARY(gnu STATIC getopt_long.c)
 
 INSTALL(TARGETS gnu
