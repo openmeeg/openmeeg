@@ -1,8 +1,8 @@
 #!/bin/bash
 
-file=`mktemp -t tmp`
+file=`mktemp -t tmpXXXX`
 cp openmeeg_windows.sh $file
-cat >> $file <<EOF
+cat >> ${file} <<EOF
 build_and_test "Experimental"
 EOF
 
