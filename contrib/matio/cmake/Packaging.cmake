@@ -97,7 +97,7 @@ IF (NOT PACKAGE_NAME)
 
         IF(UNIX AND BUILD_RPM) # linux
             SET(CPACK_GENERATOR "${CPACK_GENERATOR};RPM")
-            IF (CMAKE_MAJOR_VERSION EQUAL 2 AND CMAKE_MINOR_VERSION LESS 8)
+            IF (CMAKE_VERSION VERSION_LESS "2.8")
                 INCLUDE(UseRPMTools)
                 IF (RPMTools_FOUND)
                     RPMTools_ADD_RPM_TARGETS(${PROJECT_NAME} "${PROJECT_SOURCE_DIR}/packaging/${PROJECT_NAME}.spec.in")
