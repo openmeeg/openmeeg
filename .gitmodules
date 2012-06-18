@@ -1,0 +1,3 @@
+[submodule "contrib/matio/tests/datasets"]
+	path = contrib/matio/tests/datasets
+	url = git://matio.git.sourceforge.net/gitroot/matio/matio_test_datasets
