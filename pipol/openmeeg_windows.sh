@@ -42,6 +42,9 @@ function build_and_test() {
     git checkout ${BRANCH}
 
     cd openmeeg
+    git submodule init
+    git submodule update
+
     rm -Rf ./build
     mkdir build
     cd build

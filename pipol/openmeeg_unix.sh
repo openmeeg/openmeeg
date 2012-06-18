@@ -21,6 +21,8 @@ sh ./openmeeg/pipol/install_packages.sh
 perl ./openmeeg/pipol/cmake.pl
 
 cd openmeeg
+git submodule init
+git submodule update
 
 # Handle MKL
 if [ x$SYSTEM = xDarwin ] ; then

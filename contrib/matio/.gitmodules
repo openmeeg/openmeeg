@@ -1,3 +1,6 @@
 [submodule "test/datasets"]
 	path = test/datasets
 	url = git://matio.git.sourceforge.net/gitroot/matio/matio_test_datasets
+[submodule "contrib/matio/test/datasets"]
+	path = contrib/matio/test/datasets
+	url = git://github.com/openmeeg/matio_test_data.git
