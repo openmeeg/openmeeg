@@ -37,7 +37,13 @@ if( NOT SETUP_COMPILER_FLAGS_HAS_RUN )
     set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${WARN_FLAGS}"
          CACHE STRING "Flags used by the C compiler during all build types." FORCE )
     set( CMAKE_DEBUG_POSTFIX "d" CACHE STRING "Append this string to debug lib names")
-  endif(MSVC)
+  elseif (CMAKE_COMPILER_IS_GNUCC)
+        set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC"
+             CACHE STRING "Flags used by the C compiler during all build types." FORCE )
+  elseif (CMAKE_COMPILER_IS_GNUCXX)
+        set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC"
+             CACHE STRING "Flags used by the C compiler during all build types." FORCE )
+  endif()
   set( SETUP_COMPILER_FLAGS_HAS_RUN TRUE CACHE INTERNAL "one-time setup of compiler options" FORCE)
 endif( NOT SETUP_COMPILER_FLAGS_HAS_RUN )
 
