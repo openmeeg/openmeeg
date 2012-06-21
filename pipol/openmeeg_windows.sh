@@ -39,9 +39,8 @@ function build_and_test() {
 
     BRANCH=master
     git clone git://github.com/openmeeg/openmeeg.git
-    git checkout ${BRANCH}
-
     cd openmeeg
+    git checkout ${BRANCH}
     git submodule init
     git submodule update
 

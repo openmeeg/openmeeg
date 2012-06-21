@@ -15,14 +15,16 @@ cd ./pipol/$PIPOL_HOST
 
 BRANCH=master
 git clone git://github.com/openmeeg/openmeeg.git
-git checkout ${BRANCH}
-
-sh ./openmeeg/pipol/install_packages.sh
-perl ./openmeeg/pipol/cmake.pl
-
 cd openmeeg
+git checkout ${BRANCH}
 git submodule init
 git submodule update
+
+sh ./pipol/install_packages.sh
+
+cd ..
+perl ./openmeeg/pipol/cmake.pl
+cd openmeeg
 
 # Handle MKL
 if [ x$SYSTEM = xDarwin ] ; then
