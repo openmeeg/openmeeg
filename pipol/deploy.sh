@@ -9,8 +9,8 @@ file=`mktemp -t tmpXXXX`
 cp openmeeg_unix.sh $file
 
 if [ x$1 == "x-release" ]; then
-    file2=`mktemp -t tmp`
-    file3=`mktemp -t tmp`
+    file2=`mktemp -t tmpXXXX`
+    file3=`mktemp -t tmpXXXX`
     sed "s/master/$2/g" $file > $file2
     sed "s/master/$2/g" $file2 > $file3
     rm $file2
@@ -50,16 +50,24 @@ if [ x$1 == "x-full" ]; then
     ssh pipol pipol-sub esn i386-linux-ubuntu-lucid.dd.gz none 02:00 "~/openmeeg_unix.sh"
     ssh pipol pipol-sub esn amd64-linux-ubuntu-lucid.dd.gz none 02:00 "~/openmeeg_unix.sh"
 
+    ssh pipol pipol-sub esn i386-linux-ubuntu-maverick.dd.gz none 02:00 "~/openmeeg_unix.sh"
+    ssh pipol pipol-sub esn amd64-linux-ubuntu-maverick.dd.gz none 02:00 "~/openmeeg_unix.sh"
+
+    ssh pipol pipol-sub esn i386-linux-ubuntu-natty.dd.gz none 02:00 "~/openmeeg_unix.sh"
+    ssh pipol pipol-sub esn amd64-linux-ubuntu-natty.dd.gz none 02:00 "~/openmeeg_unix.sh"
+
     ssh pipol pipol-sub esn i386_kvm-linux-debian-testing none 02:00 "~/openmeeg_unix.sh"
     ssh pipol pipol-sub esn amd64_kvm-linux-debian-testing none 02:00 "~/openmeeg_unix.sh"
 
     ssh pipol pipol-sub esn i386-linux-fedora-core12.dd.gz none 02:00 "~/openmeeg_unix.sh"
     ssh pipol pipol-sub esn i386-linux-fedora-core13.dd.gz none 02:00 "~/openmeeg_unix.sh"
     ssh pipol pipol-sub esn i386_2010-linux-fedora-core14.dd.gz none 02:00 "~/openmeeg_unix.sh"
+    ssh pipol pipol-sub esn i386_2010-linux-fedora-core16.dd.gz none 02:00 "~/openmeeg_unix.sh"
 
     ssh pipol pipol-sub esn amd64-linux-fedora-core12.dd.gz none 02:00 "~/openmeeg_unix.sh"
     ssh pipol pipol-sub esn amd64-linux-fedora-core13.dd.gz none 02:00 "~/openmeeg_unix.sh"
     ssh pipol pipol-sub esn amd64_2010-linux-fedora-core14.dd.gz none 02:00 "~/openmeeg_unix.sh"
+    ssh pipol pipol-sub esn amd64_2010-linux-fedora-core16.dd.gz none 02:00 "~/openmeeg_unix.sh"
 
     ssh pipol pipol-sub esn amd64-linux-opensuse-11.dd.gz none 02:00 "~/openmeeg_unix.sh"
 
