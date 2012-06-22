@@ -30,10 +30,11 @@ else
         sudo yum -y install blas-devel
         sudo yum -y install numpy
         sudo yum -y install python-devel
-    # else
-    #   if [ x$arch = xDarwin ] ; then
-    #       ###
-    #   fi
+    else
+       if [ x$arch = xDarwin ] ; then
+            /usr/bin/ruby -e "$(/usr/bin/curl -fsSL https://raw.github.com/mxcl/homebrew/master/Library/Contributions/install_homebrew.rb)"
+            brew install git
+       fi
     fi
 fi
 
