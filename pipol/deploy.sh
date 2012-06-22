@@ -5,7 +5,7 @@
 #         ./deploy.sh -release 2.1  # for a release
 
 
-file=`mktemp -t tmp`
+file=`mktemp -t tmpXXXX`
 cp openmeeg_unix.sh $file
 
 if [ x$1 == "x-release" ]; then
