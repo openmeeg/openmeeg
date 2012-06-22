@@ -48,7 +48,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #endif
 
 #if !defined(USE_MKL)
-    #if defined (WIN32)
+    #if defined (WIN32) || !defined(USE_ATLAS)
         #define FC_GLOBAL(x,X) x ## _
     #else
         #include <FC.h>
