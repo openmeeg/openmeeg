@@ -172,17 +172,16 @@ namespace OpenMEEG {
                 LinOpInfo linop;
                 mat_t* mat = Mat_Open(name().c_str(),MAT_ACC_RDONLY);
                 if (mat) {
-                    try { read_header<Vector>(mat,linop);       goto finish; } catch(...) { Mat_Rewind(mat); }
-                    try { read_header<Matrix>(mat,linop);       goto finish; } catch(...) { Mat_Rewind(mat); }
-                    try { read_header<SymMatrix>(mat,linop);    goto finish; } catch(...) { Mat_Rewind(mat); }
-                    try { read_header<SparseMatrix>(mat,linop); goto finish; } catch(...) { }
+                    try { read_header<Vector>(mat,linop);       finish(mat,linop); } catch(...) { Mat_Rewind(mat); }
+                    try { read_header<Matrix>(mat,linop);       finish(mat,linop); } catch(...) { Mat_Rewind(mat); }
+                    try { read_header<SymMatrix>(mat,linop);    finish(mat,linop); } catch(...) { Mat_Rewind(mat); }
+                    try { read_header<SparseMatrix>(mat,linop); finish(mat,linop); } catch(...) { }
+                    Mat_Close(mat);
                     throw ImpossibleObjectIdentification(name());
                 } else {
                     throw BadFileOpening(name(),maths::BadFileOpening::READ);
                 }
 
-                finish:
-                Mat_Close(mat);
                 return linop;
             }
 
@@ -207,8 +206,10 @@ namespace OpenMEEG {
                         case LinOp::FULL:
                             read<Matrix>(mat,linop);
                             break;
-                        default:
+                        default: {
+                            Mat_Close(mat);
                             throw BadStorageType(name());
+                        }
                     }
                 }
 
@@ -366,6 +367,11 @@ namespace OpenMEEG {
                 delete[] t;
                 delete[] ir;
                 delete[] jc;
+            }
+
+            static LinOpInfo finish(mat_t* mat,LinOpInfo linop) {
+                Mat_Close(mat);
+                return linop;
             }
 
             static Suffixes init() {
