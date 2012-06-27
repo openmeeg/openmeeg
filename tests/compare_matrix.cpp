@@ -12,9 +12,9 @@ using namespace OpenMEEG;
 template<class T> bool compare(const T& mat1, const T& mat2, double eps, size_t col = 0);
 template<class T> bool compare_rdm(const T& mat1, const T& mat2, double eps, size_t col = 0);
 template<class T> bool compare_mag(const T& mat1, const T& mat2, double eps, size_t col = 0);
-template<class T> double normInf(const T& mat);
 template<class T> bool compare_matrix(maths::ifstream& ifs1,T& mat1,maths::ifstream& ifs2,T& mat2,
         double eps,const char* rdm,const char* mag,size_t col);
+bool compare(maths::ifstream& ifs1,Vector& V1,maths::ifstream& ifs2,Vector& V2,const double eps);
 
 int main (int argc, char** argv)
 {
@@ -24,13 +24,18 @@ int main (int argc, char** argv)
     // const char *input_format2 = command_option("-if2",(const char *) NULL,
     //         "Input file format for Matrix 2 : ascii, binary, tex, matlab");
 
-    const char *isfull = command_option("-full",(const char *) 0,"Data are full matrices");
-    const char *issym = command_option("-sym",(const char *) 0,"Data are symmetric matrices");
-    const char *issparse = command_option("-sparse",(const char *) 0,"Data are sparse matrices");
-    const char *epsilon = command_option("-eps","0.00002","Tolerance on differences"); // Hacking tol for tests
-    const char *rdm = command_option("-rdm",(const char *) 0,"Use RDM (Relative difference measure) to compare each column of matrices");
-    const char *mag = command_option("-mag",(const char *) 0,"Use MAG (MAGnification error) to compare each column of matrices");
+    const char* isfull   = command_option("-full",(const char *) 0,"Data are full matrices");
+    const char* issym    = command_option("-sym",(const char *) 0,"Data are symmetric matrices");
+    const char* issparse = command_option("-sparse",(const char *) 0,"Data are sparse matrices");
+    const char* isvector = command_option("-vector",(const char *) 0,"Data are vectors");
+
+    const char* epsilon = command_option("-eps","0.00002","Tolerance on differences"); // Hacking tol for tests
+
+    const char* rdm = command_option("-rdm",(const char *) 0,"Use RDM (Relative difference measure) to compare each column of matrices");
+    const char* mag = command_option("-mag",(const char *) 0,"Use MAG (MAGnification error) to compare each column of matrices");
+
     const int col = command_option("-col",(int) 0,"Restrict RDM comparison to one column (index starts at 1)");
+
     if (command_option("-h",(const char *)0,0)) return 0;
 
     if (argc<3) {
@@ -38,8 +43,8 @@ int main (int argc, char** argv)
         return 1;
     }
 
-    if (!isfull && !issym && !issparse) {
-        std::cout << "Please set Matrix type using : -full, -sym or -sparse" << std::endl;
+    if (!isfull && !issym && !issparse && !isvector) {
+        std::cout << "Please set Matrix type using : -vector, -full, -sym or -sparse" << std::endl;
         return 1;
     }
 
@@ -48,7 +53,7 @@ int main (int argc, char** argv)
         return 1;
     }
 
-    if (rdm&&mag) {
+    if (rdm && mag) {
         std::cerr << "Choose either -rdm OR -mag but not both" << std::endl;
         return 1;
     }
@@ -96,10 +101,14 @@ int main (int argc, char** argv)
         ifs1 >> mat1;
         ifs2 >> mat2;
         flag = compare(mat1,mat2,eps,col);
-    } else { // assumes isfull
+    } else if (isfull) {
         Matrix mat1;
         Matrix mat2;
         flag = compare_matrix(ifs1,mat1,ifs2,mat2,eps,rdm,mag,col);
+    } else {
+        Vector V1;
+        Vector V2;
+        flag = compare(ifs1,V1,ifs2,V2,eps);
     }
 
     if (!flag){
@@ -110,6 +119,28 @@ int main (int argc, char** argv)
     std::cout.flush();
 
     return 0;
+}
+
+template<class T>
+double normInf(const T& mat){ // compute the max of the norm 1 of each line
+    double max = 0.0;
+    double sum;
+    for(unsigned int i=0;i<mat.nlin();++i){
+        sum = 0.0;
+        for(unsigned int j=0;j<mat.ncol();++j) {
+            sum += std::abs(mat(i,j));
+        }
+        if (max<sum)
+            max = sum;
+    }
+    return max;
+}
+
+double normInf(const Vector& V) { // compute the norm 1 of a vector
+    double sum = 0.0;
+    for (unsigned i=0;i<V.size();++i)
+        sum += std::abs(V(i));
+    return sum;
 }
 
 template<class T>
@@ -213,6 +244,57 @@ bool compare(const T& mat1, const T& mat2, double eps, size_t col){
     return flag;
 }
 
+bool compare(maths::ifstream& ifs1,Vector& V1,maths::ifstream& ifs2,Vector& V2,const double eps) {
+
+    try {
+        ifs1 >> V1;
+        ifs2 >> V2;
+    } catch (std::string s) {
+        std::cerr << s << std::endl;
+        exit(1);
+    }
+
+    if (V1.size()!=V2.size()) {
+        std::cerr << "ERROR : Dimension mismatch !" << std::endl;
+        exit(1);
+    }
+
+    bool flag = true;
+
+    const double norm1 = normInf(V1);
+    const double norm2 = normInf(V2);
+
+    if ((norm1>1e-4) && (norm2>1e-4)) {
+        for (unsigned i=0;i<V1.size();++i) {
+            const double diff = std::abs(V1(i)/norm1-V2(i)/norm2);
+            flag = flag && (diff<eps);
+            if (!(diff<eps)) {
+                std::cout << "ERROR NORM  " << V1(i) << "  " << V2(i) << "  " << diff << std::endl;
+                std::cout.flush();
+            }
+        }
+    } else {
+        for (unsigned i=0;i<V1.size();++i) {
+            if (std::abs(V2(i))>1e-4) {
+                const double diff = std::abs(V1(i)-V2(i))/std::abs(V2(i));
+                flag = flag && (diff<eps);
+                if (!(diff<eps)) {
+                    std::cout << "ERROR RELATIVE  " << V1(i) << "  " << V2(i) << "  " << diff << std::endl;
+                    std::cout.flush();
+                }
+            } else {
+                const double diff = std::abs(V1(i)-V2(i));
+                flag = flag && (diff<eps);
+                if (!(diff<eps)) {
+                    std::cout << "ERROR DIFF  " << V1(i) << "  " << V2(i) << "  " << diff << std::endl;
+                    std::cout.flush();
+                }
+            }
+        }
+    }
+    return flag;
+}
+
 template<class T>
 bool compare_rdm(const T& mat1, const T& mat2, double eps, size_t col){
     // T is a Matrix
@@ -299,19 +381,4 @@ bool compare_mag(const T& mat1, const T& mat2, double eps, size_t col){
         }
     }
     return flag;
-}
-
-template<class T>
-double normInf(const T& mat){ // compute the max of the norm 1 of each line
-    double max = 0.0;
-    double sum;
-    for(unsigned int i=0;i<mat.nlin();++i){
-        sum = 0.0;
-        for(unsigned int j=0;j<mat.ncol();++j) {
-            sum += std::abs(mat(i,j));
-        }
-        if (max<sum)
-            max = sum;
-    }
-    return max;
 }
