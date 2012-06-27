@@ -172,10 +172,10 @@ namespace OpenMEEG {
                 LinOpInfo linop;
                 mat_t* mat = Mat_Open(name().c_str(),MAT_ACC_RDONLY);
                 if (mat) {
-                    try { read_header<Vector>(mat,linop);       finish(mat,linop); } catch(...) { Mat_Rewind(mat); }
-                    try { read_header<Matrix>(mat,linop);       finish(mat,linop); } catch(...) { Mat_Rewind(mat); }
-                    try { read_header<SymMatrix>(mat,linop);    finish(mat,linop); } catch(...) { Mat_Rewind(mat); }
-                    try { read_header<SparseMatrix>(mat,linop); finish(mat,linop); } catch(...) { }
+                    try { read_header<Vector>(mat,linop);       return finish(mat,linop); } catch(...) { Mat_Rewind(mat); }
+                    try { read_header<Matrix>(mat,linop);       return finish(mat,linop); } catch(...) { Mat_Rewind(mat); }
+                    try { read_header<SymMatrix>(mat,linop);    return finish(mat,linop); } catch(...) { Mat_Rewind(mat); }
+                    try { read_header<SparseMatrix>(mat,linop); return finish(mat,linop); } catch(...) { }
                     Mat_Close(mat);
                     throw ImpossibleObjectIdentification(name());
                 } else {
