@@ -107,6 +107,9 @@ namespace OpenMEEG {
                 if (linop.storageType()!=inforead.storageType())
                     throw BadStorageType(name());
 
+                if (linop.dimension()!=inforead.dimension())
+                    throw BadStorageType(name());
+
                 linop.nlin() = inforead.nlin();
                 linop.ncol() = inforead.ncol();
 
@@ -115,7 +118,7 @@ namespace OpenMEEG {
                         read_sparse(is,linop);
                         return;
                     case LinOp::FULL :
-                        if(linop.dimension()==1) {
+                        if (linop.dimension()==1) {
                             read_internal<Vector>(is,linop);
                         } else {
                             read_internal<Matrix>(is,linop);
