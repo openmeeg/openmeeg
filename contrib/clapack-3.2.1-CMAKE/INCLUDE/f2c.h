@@ -10,18 +10,18 @@
 typedef int integer;
 typedef unsigned int uinteger;
 typedef char *address;
-typedef short int shortint;
+typedef short shortint;
 typedef float real;
 typedef double doublereal;
 typedef struct { real r, i; } complex;
 typedef struct { doublereal r, i; } doublecomplex;
-typedef long int logical;
-typedef short int shortlogical;
+typedef int logical;
+typedef short shortlogical;
 typedef char logical1;
 typedef char integer1;
 #ifdef INTEGER_STAR_8	/* Adjust for integer*8. */
-typedef long long longint;		/* system-dependent */
-typedef unsigned long long ulongint;	/* system-dependent */
+typedef long longint;		/* system-dependent */
+typedef unsigned long ulongint;	/* system-dependent */
 #define qbit_clear(a,b)	((a) & ~((ulongint)1 << (b)))
 #define qbit_set(a,b)	((a) |  ((ulongint)1 << (b)))
 #endif
@@ -42,9 +42,9 @@ typedef short flag;
 typedef short ftnlen;
 typedef short ftnint;
 #else
-typedef long int flag;
-typedef long int ftnlen;
-typedef long int ftnint;
+typedef int flag;
+typedef int ftnlen;
+typedef int ftnint;
 #endif
 
 /*external read, write*/
