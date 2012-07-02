@@ -133,7 +133,7 @@ IF (NOT USE_MKL)
                 ENDIF()
             ENDFOREACH()
         ELSE()
-            IF (lapack_PATH AND blas_PATH)
+            IF (NOT (lapack_PATH AND blas_PATH))
                 SET(LAPACKBLAS_LIB_SEARCHPATH
                     /usr/lib64/
                     /usr/lib/
