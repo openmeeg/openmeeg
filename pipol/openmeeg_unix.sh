@@ -41,6 +41,7 @@ fi
 function build {
     ctest -D ExperimentalConfigure
     ctest -D ExperimentalBuild
+    limit stacksize unlimited # For integrated lapack testing
     ctest -D ExperimentalTest
     ctest -D ExperimentalSubmit
     make package
