@@ -40,11 +40,13 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #ifndef OPENMEEG_SYMMATRIX_H
 #define OPENMEEG_SYMMATRIX_H
 
-#include <fstream>
+#include <iostream>
 #include <cassert>
+#include <cstdlib>
+#include <string>
 
-#include "vector.h"
-#include "linop.h"
+#include <vector.h>
+#include <linop.h>
 
 namespace OpenMEEG {
 
@@ -113,6 +115,9 @@ namespace OpenMEEG {
 
         void save(const char *filename) const;
         void load(const char *filename);
+
+        void save(const std::string& s) const { save(s.c_str()); }
+        void load(const std::string& s)       { load(s.c_str()); }
 
         friend class Matrix;
     };

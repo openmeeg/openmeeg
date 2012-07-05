@@ -40,13 +40,15 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #ifndef OPENMEEG_VECTOR_H
 #define OPENMEEG_VECTOR_H
 
-#include "MatLibConfig.h"
-#include "linop.h"
-#include "RC.H"
-#include "MathsIO.H"
-
 #include <iostream>
 #include <cassert>
+#include <cstdlib>
+#include <string>
+
+#include <MatLibConfig.h>
+#include <linop.h>
+#include <RC.H>
+#include <MathsIO.H>
 
 namespace OpenMEEG {
 
@@ -110,8 +112,11 @@ namespace OpenMEEG {
         double mean() const { return sum()/size(); }
 
         void set(double x);
-        void save( const char *filename ) const ;
-        void load( const char *filename ) ;
+        void save(const char *filename) const;
+        void load(const char *filename);
+
+        void save(const std::string& s) const { save(s.c_str()); }
+        void load(const std::string& s)       { load(s.c_str()); }
 
         void info() const;
 

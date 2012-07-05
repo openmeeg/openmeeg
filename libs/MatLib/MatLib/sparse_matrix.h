@@ -40,24 +40,19 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #ifndef OPENMEEG_SPARSE_MATRIX_H
 #define OPENMEEG_SPARSE_MATRIX_H
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <assert.h>
-#include <fstream>
-#include <iostream>
+#include <cassert>
 #include <map>
 #include <utility>
 
-#include "om_utils.h"
-#include "linop.h"
-#include "vector.h"
-#include "matrix.h"
+#include <om_utils.h>
+#include <linop.h>
+#include <vector.h>
+#include <matrix.h>
 
 // #ifdef WIN32
 // #pragma warning( disable : 4251)    //MSVC warning C4251 : DLL exports of STL templates
 // #endif
 
-//template class OPENMEEGMATHS_EXPORT std::pair< size_t, size_t >;
 #ifdef WIN32
     template class OPENMEEGMATHS_EXPORT std::map< std::pair< size_t, size_t >, double >;
 #endif
@@ -107,6 +102,9 @@ namespace OpenMEEG {
 
         void save(const char *filename) const;
         void load(const char *filename);
+
+        void save(const std::string& s) const { save(s.c_str()); }
+        void load(const std::string& s)       { load(s.c_str()); }
 
         void info() const;
 

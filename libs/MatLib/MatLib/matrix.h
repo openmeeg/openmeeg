@@ -42,8 +42,8 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #include <MatLibConfig.h>
 #include <iostream>
-#include <fstream>
 #include <cassert>
+#include <cstdlib>
 #include <string>
 
 #ifdef USE_MATIO
@@ -163,12 +163,15 @@ namespace OpenMEEG {
         /** \brief Save Matrix to file (Format set using file name extension)
             \sa
         **/
-        void save( const char *filename ) const;
+        void save(const char *filename) const;
 
         /** \brief Load Matrix from file (Format set using file name extension)
             \sa
         **/
-        void load( const char *filename );
+        void load(const char *filename);
+
+        void save(const std::string& s) const { save(s.c_str()); }
+        void load(const std::string& s)       { load(s.c_str()); }
 
         /** \brief Print info on Matrix
             \sa

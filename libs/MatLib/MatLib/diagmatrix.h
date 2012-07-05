@@ -40,16 +40,15 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #ifndef OPENMEEG_DIAG_MATRIX_H
 #define OPENMEEG_DIAG_MATRIX_H
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <assert.h>
+#include <cassert>
 #include <fstream>
 #include <iostream>
 #include <utility>
+#include <string>
 
-#include "om_utils.h"
-#include "linop.h"
-#include "vector.h"
+#include <om_utils.h>
+#include <linop.h>
+#include <vector.h>
 
 namespace OpenMEEG {
 
