@@ -38,11 +38,8 @@ function build_and_test() {
     cd ${TEMP}
 
     BRANCH=master
-    git clone git://github.com/openmeeg/openmeeg.git
+    git clone --recursive git://github.com/openmeeg/openmeeg.git
     cd openmeeg
-    git checkout ${BRANCH}
-    git submodule init
-    git submodule update
 
     rm -Rf ./build
     mkdir build

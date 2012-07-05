@@ -20,14 +20,12 @@ else
 fi
 cd ./pipol/$PIPOL_HOST
 
-git clone git://github.com/openmeeg/openmeeg.git
+git clone --recursive git://github.com/openmeeg/openmeeg.git
 
 sh ./openmeeg/pipol/install_packages.sh
 perl ./openmeeg/pipol/cmake.pl
 
 cd openmeeg
-git submodule init
-git submodule update
 
 # Handle MKL
 if [ x$SYSTEM = xDarwin ] ; then
