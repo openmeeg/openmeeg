@@ -133,19 +133,16 @@ int main(int argc, char** argv)
     /*********************************************************************************************
     * Computation of RHS for discrete dipolar case
     **********************************************************************************************/
-    else if((!strcmp(argv[1],"-DipSourceMat")) |(!strcmp(argv[1],"-DSM"))|(!strcmp(argv[1],"-dsm"))|(!strcmp(argv[1],"-DipSourceMatNoAdapt"))|(!strcmp(argv[1],"-DSMNA"))|(!strcmp(argv[1],"-dsmna"))|(!strcmp(argv[1],"-DipSourceMatNotInCortex")) |(!strcmp(argv[1],"-DSMNIC"))|(!strcmp(argv[1],"-dsmnic")))  {
-        if(argc < 3)
-        {
+    else if ((!strcmp(argv[1],"-DipSourceMat")) |(!strcmp(argv[1],"-DSM"))|(!strcmp(argv[1],"-dsm"))|(!strcmp(argv[1],"-DipSourceMatNoAdapt"))|(!strcmp(argv[1],"-DSMNA"))|(!strcmp(argv[1],"-dsmna"))|(!strcmp(argv[1],"-DipSourceMatNotInCortex")) |(!strcmp(argv[1],"-DSMNIC"))|(!strcmp(argv[1],"-dsmnic")))  {
+        if (argc < 3) {
             cerr << "Please set geometry filepath !" << endl;
             exit(1);
         }
-        if (argc < 4)
-        {
+        if (argc < 4) {
             std::cerr << "Please set conductivities filepath !" << endl;
             exit(1);
         }
-        if(argc < 5)
-        {
+        if (argc < 5) {
             cerr << "Please set dipoles filepath!" << endl;
             exit(1);
         }
@@ -156,8 +153,7 @@ int main(int argc, char** argv)
 
         // Loading Matrix of dipoles :
         Matrix dipoles(argv[4]);
-        if(dipoles.ncol()!=6)
-        {
+        if (dipoles.ncol()!=6) {
             cerr << "Dipoles File Format Error" << endl;
             exit(1);
         }
@@ -183,24 +179,20 @@ int main(int argc, char** argv)
     * Computation of the RHS for EIT
     **********************************************************************************************/
 
-    else if((!strcmp(argv[1],"-EITSourceMat"))|(!strcmp(argv[1],"-EITSM"))|(!strcmp(argv[1],"-EITsm"))) {
-        if(argc < 3)
-        {
+    else if ((!strcmp(argv[1],"-EITSourceMat"))|(!strcmp(argv[1],"-EITSM"))|(!strcmp(argv[1],"-EITsm"))) {
+        if (argc < 3) {
             cerr << "Please set geometry filepath !" << endl;
             exit(1);
         }
-        if (argc < 4)
-        {
+        if (argc < 4) {
             std::cerr << "Please set conductivities filepath !" << endl;
             exit(1);
         }
-        if (argc < 5)
-        {
+        if (argc < 5) {
             std::cerr << "Please set electrode positions filepath !" << endl;
             exit(1);
         }
-        if (argc < 6)
-        {
+        if (argc < 6) {
             std::cerr << "Please set output EITSourceMat filepath !" << endl;
             exit(1);
         }
@@ -220,20 +212,17 @@ int main(int argc, char** argv)
     * (i.e. the potential and the normal current on all interfaces)
     * |----> v (potential at the electrodes)
     **********************************************************************************************/
-    else if((!strcmp(argv[1],"-Head2EEGMat")) | (!strcmp(argv[1],"-H2EM"))| (!strcmp(argv[1],"-h2em"))) {
+    else if ((!strcmp(argv[1],"-Head2EEGMat")) | (!strcmp(argv[1],"-H2EM"))| (!strcmp(argv[1],"-h2em"))) {
 
-        if(argc < 3)
-        {
+        if (argc < 3) {
             cerr << "Please set geometry filepath !" << endl;
             exit(1);
         }
-        if (argc < 4)
-        {
+        if (argc < 4) {
             std::cerr << "Please set conductivities filepath !" << endl;
             exit(1);
         }
-        if(argc < 5)
-        {
+        if (argc < 5) {
             cerr << "Please set electrode positions filepath !" << endl;
             exit(1);
         }
@@ -257,20 +246,17 @@ int main(int argc, char** argv)
     * (i.e. the potential and the normal current on all interfaces)
     * |----> bFerguson (contrib to MEG response)
     **********************************************************************************************/
-    else if((!strcmp(argv[1],"-Head2MEGMat"))|(!strcmp(argv[1],"-H2MM"))|(!strcmp(argv[1],"-h2mm"))) {
+    else if ((!strcmp(argv[1],"-Head2MEGMat"))|(!strcmp(argv[1],"-H2MM"))|(!strcmp(argv[1],"-h2mm"))) {
 
-        if(argc < 3)
-        {
+        if (argc < 3) {
             cerr << "Please set geometry filepath !" << endl;
             exit(1);
         }
-        if (argc < 4)
-        {
+        if (argc < 4) {
             std::cerr << "Please set conductivities filepath !" << endl;
             exit(1);
         }
-        if(argc < 5)
-        {
+        if (argc < 5) {
             cerr << "Please set squids filepath !" << endl;
             exit(1);
         }
@@ -292,15 +278,13 @@ int main(int argc, char** argv)
     * Computation of the linear application which maps the distributed source
     * |----> binf (contrib to MEG response)
     **********************************************************************************************/
-    else if((!strcmp(argv[1],"-SurfSource2MEGMat"))|(!strcmp(argv[1],"-SS2MM"))|(!strcmp(argv[1],"-ss2mm"))) {
+    else if ((!strcmp(argv[1],"-SurfSource2MEGMat"))|(!strcmp(argv[1],"-SS2MM"))|(!strcmp(argv[1],"-ss2mm"))) {
 
-        if(argc < 3)
-        {
+        if (argc < 3) {
             cerr << "Please set 'mesh sources' filepath !" << endl;
             exit(1);
         }
-        if(argc < 4)
-        {
+        if (argc < 4) {
             cerr << "Please set squids filepath !" << endl;
             exit(1);
         }
@@ -325,15 +309,13 @@ int main(int argc, char** argv)
     // arguments are the positions and orientations of the squids,
     // the position and orientations of the sources and the output name.
 
-    else if((!strcmp(argv[1],"-DipSource2MEGMat"))|(!strcmp(argv[1],"-DS2MM"))|(!strcmp(argv[1],"-ds2mm"))) {
+    else if ((!strcmp(argv[1],"-DipSource2MEGMat"))|(!strcmp(argv[1],"-DS2MM"))|(!strcmp(argv[1],"-ds2mm"))) {
 
-        if (argc < 3)
-        {
+        if (argc < 3) {
             cerr << "Please set dipoles filepath !" << endl;
             exit(1);
         }
-        if (argc < 4)
-        {
+        if (argc < 4) {
             cerr << "Please set squids filepath !" << endl;
             exit(1);
         }
@@ -352,7 +334,7 @@ int main(int argc, char** argv)
     * |----> v, potential at a set of prescribed points within the 3D volume
     **********************************************************************************************/
 
-    else if((!strcmp(argv[1],"-Head2InternalPotMat"))|(!strcmp(argv[1],"-H2IPM"))|(!strcmp(argv[1],"-h2ipm"))) {
+    else if ((!strcmp(argv[1],"-Head2InternalPotMat"))|(!strcmp(argv[1],"-H2IPM"))|(!strcmp(argv[1],"-h2ipm"))) {
         if (argc<3) {
             cerr << "Please set geom filepath !" << endl;
             exit(1);
@@ -383,29 +365,24 @@ int main(int argc, char** argv)
     *    Vinf(r)=1/(4*pi*sigma)*(r-r0).q/(||r-r0||^3)
     **********************************************************************************************/
 
-    else if((!strcmp(argv[1],"-DipSource2InternalPotMat"))|(!strcmp(argv[1],"-DS2IPM"))|(!strcmp(argv[1],"-ds2ipm"))|(!strcmp(argv[1],"-DipSource2InternalPotMatNotInCortex"))|(!strcmp(argv[1],"-DS2IPNIC"))|(!strcmp(argv[1],"-ds2ipnic"))) {
-        if (argc < 3)
-        {
+    else if ((!strcmp(argv[1],"-DipSource2InternalPotMat"))|(!strcmp(argv[1],"-DS2IPM"))|(!strcmp(argv[1],"-ds2ipm"))|(!strcmp(argv[1],"-DipSource2InternalPotMatNotInCortex"))|(!strcmp(argv[1],"-DS2IPNIC"))|(!strcmp(argv[1],"-ds2ipnic"))) {
+        if (argc < 3) {
             cerr << "Please set geom filepath !" << endl;
             exit(1);
         }
-        if (argc < 4)
-        {
+        if (argc < 4) {
             cerr << "Please set cond filepath !" << endl;
             exit(1);
         }
-        if (argc < 5)
-        {
+        if (argc < 5) {
             cerr << "Please set dipoles filepath !" << endl;
             exit(1);
         }
-        if (argc < 6)
-        {
+        if (argc < 6) {
             cerr << "Please set point positions filepath !" << endl;
             exit(1);
         }
-        if (argc < 7)
-        {
+        if (argc < 7) {
             std::cerr << "Please set output filepath !" << endl;
             exit(1);
         }
