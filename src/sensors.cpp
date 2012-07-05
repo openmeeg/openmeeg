@@ -119,11 +119,9 @@ namespace OpenMEEG {
         // Determine the number of lines
         in.seekg(0,std::ios::beg);
         size_t num_of_lines = 0;
-        while(!in.fail()) {
-            std::getline(in,s);
-            if (s.empty()) break; // Skip blank line
-            num_of_lines++;
-        }
+        while (std::getline(in,s))
+            if (!s.empty())
+                ++num_of_lines;
 
         // init private members :
         m_positions = Matrix(num_of_lines,3);
@@ -137,91 +135,88 @@ namespace OpenMEEG {
         size_t current_line_id = 0;
         in.clear();
         in.seekg(0,std::ios::beg); // move the get pointer to the beginning of the file.
-        while (!in.fail()) {
-            // Tokenize line
-            std::getline(in,s);
+        while (std::getline(in,s))
+            if (!s.empty()) {
 
-            if (s=="") break; // Skip blank line
+                //  Tokenize the line.
 
-            std::stringstream iss(s);
-            tokens.clear();
-            while (iss >> buf)
-                tokens.push_back(buf);
+                std::stringstream iss(s);
+                tokens.clear();
+                while (iss >> buf)
+                    tokens.push_back(buf);
 
-            if(tokens.size()!= num_of_columns) {
-                std::cout << tokens.size() << " != " << num_of_columns << std::endl;
-                std::cerr << "Problem while reading Sensors file" << std::endl;
-                std::cerr << "Each line should have the same number of elements" << std::endl;
-                exit(1);
-            }
+                if(tokens.size()!= num_of_columns) {
+                    std::cout << tokens.size() << " != " << num_of_columns << std::endl;
+                    std::cerr << "Problem while reading Sensors file" << std::endl;
+                    std::cerr << "Each line should have the same number of elements" << std::endl;
+                    exit(1);
+                }
 
-            tokensIterator =  tokens.begin();
+                tokensIterator =  tokens.begin();
 
-            size_t sensor_idx = m_nb;
-            // See if it's actually a new sensor or just a new integration point
-            if ((num_of_columns >= 7) || (num_of_columns == 4)) { // Get label
-                std::string sensor_name = *tokensIterator;
-                tokensIterator++;
-                if(hasSensor(sensor_name)) {
-                    sensor_idx = getSensorIdx(sensor_name);
+                size_t sensor_idx = m_nb;
+                // See if it's actually a new sensor or just a new integration point
+                if ((num_of_columns >= 7) || (num_of_columns == 4)) { // Get label
+                    std::string sensor_name = *tokensIterator;
+                    tokensIterator++;
+                    if(hasSensor(sensor_name)) {
+                        sensor_idx = getSensorIdx(sensor_name);
+                    } else {
+                        m_nb++;
+                        m_names.push_back(sensor_name);
+                    }
                 } else {
                     m_nb++;
-                    m_names.push_back(sensor_name);
                 }
-            } else {
-                m_nb++;
-            }
 
-            m_pointSensorIdx[current_line_id] = sensor_idx;
+                m_pointSensorIdx[current_line_id] = sensor_idx;
 
-            // read position
-            for(size_t i=0;i<3;++i){
-                std::stringstream tmp_is(*tokensIterator);
-                double tmp;
-                tmp_is >> tmp;
-                m_positions(current_line_id,i) = tmp;
-                tokensIterator++;
-            }
-
-            if (num_of_columns>4) {
-                // read orientation
-                std::vector<double> coord;
+                // read position
                 for(size_t i=0;i<3;++i){
                     std::stringstream tmp_is(*tokensIterator);
                     double tmp;
                     tmp_is >> tmp;
-                    m_orientations(current_line_id,i) = tmp;
+                    m_positions(current_line_id,i) = tmp;
                     tokensIterator++;
                 }
+
+                if (num_of_columns>4) {
+                    // read orientation
+                    std::vector<double> coord;
+                    for(size_t i=0;i<3;++i){
+                        std::stringstream tmp_is(*tokensIterator);
+                        double tmp;
+                        tmp_is >> tmp;
+                        m_orientations(current_line_id,i) = tmp;
+                        tokensIterator++;
+                    }
+                }
+
+                // Try to read weight
+                if (tokensIterator!=tokens.end()) {
+                    std::stringstream ss(*tokensIterator);
+                    tokensIterator++;
+                    double tmp;
+                    ss >> tmp;
+                    m_weights(current_line_id) = tmp;
+                } else {
+                    m_weights(current_line_id) = 1.0;
+                }
+
+                assert(tokensIterator==tokens.end()); // Check if everything has been read
+
+                current_line_id++;
             }
-
-            // Try to read weight
-            if (tokensIterator!=tokens.end()) {
-                std::stringstream ss(*tokensIterator);
-                tokensIterator++;
-                double tmp;
-                ss >> tmp;
-                m_weights(current_line_id) = tmp;
-            } else {
-                m_weights(current_line_id) = 1.0;
-            }
-
-            assert(tokensIterator==tokens.end()); // Check if everything has been read
-
-            current_line_id++;
-        }
     }
 
     void Sensors::save(const char* filename) {
         std::ofstream outfile(filename);
         for(size_t i = 0; i < getNumberOfPositions(); ++i) {
-            if(hasNames()) {
+            if (hasNames())
                 outfile << m_names[m_pointSensorIdx[i]] << " ";
-            }
             outfile << m_positions.getlin(i) << " ";
-            if(hasOrientations()) {
+            if (hasOrientations())
                 outfile << m_orientations.getlin(i) << " ";
-            }
             outfile << m_weights(i) << std::endl;
         }
         return;
