@@ -1,22 +1,22 @@
 %module(docstring="OpenMEEG bindings for python") openmeeg
 %{
     #define SWIG_FILE_WITH_INIT
-    #include "vect3.h"
-    #include "triangle.h"
-    #include "linop.h"
-    #include "vector.h"
-    #include "matrix.h"
-    #include "symmatrix.h"
-    #include "sparse_matrix.h"
-    #include "fast_sparse_matrix.h"
-    #include "diagmatrix.h"
-    #include "sensors.h"
-    #include "geometry.h"
-    #include "mesh3.h"
-    #include "assemble.h"
-    #include "gain.h"
-    #include "forward.h"
-    #include "inversers.h"
+    #include <vect3.h>
+    #include <triangle.h>
+    #include <linop.h>
+    #include <vector.h>
+    #include <matrix.h>
+    #include <symmatrix.h>
+    #include <sparse_matrix.h>
+    #include <fast_sparse_matrix.h>
+    #include <diagmatrix.h>
+    #include <sensors.h>
+    #include <geometry.h>
+    #include <mesh3.h>
+    #include <assemble.h>
+    #include <gain.h>
+    #include <forward.h>
+    #include <inversers.h>
 
     using namespace OpenMEEG;
 
@@ -81,6 +81,7 @@
 
 %init %{
 import_array();
+//import_array1(NULL); For future python 3.x
 %}
 
 %exception {
@@ -98,25 +99,25 @@ import_array();
 #define OPENMEEG_EXPORT
 
 #ifdef DOCSTRINGS
-%include "docstrings.i"
+%include <docstrings.i>
 #endif
 
-%include "vect3.h"
-%include "triangle.h"
-%include "linop.h"
-%include "vector.h"
-%include "matrix.h"
-%include "symmatrix.h"
-%include "sparse_matrix.h"
-%include "fast_sparse_matrix.h"
-%include "diagmatrix.h"
-%include "geometry.h"
-%include "sensors.h"
-%include "mesh3.h"
-%include "assemble.h"
-%include "gain.h"
-%include "forward.h"
-%include "inversers.h"
+%include <vect3.h>
+%include <triangle.h>
+%include <linop.h>
+%include <vector.h>
+%include <matrix.h>
+%include <symmatrix.h>
+%include <sparse_matrix.h>
+%include <fast_sparse_matrix.h>
+%include <diagmatrix.h>
+%include <geometry.h>
+%include <sensors.h>
+%include <mesh3.h>
+%include <assemble.h>
+%include <gain.h>
+%include <forward.h>
+%include <inversers.h>
 
 static PyObject* asarray(OpenMEEG::Matrix* _mat);
 static PyObject* asarray(OpenMEEG::Vector* _vec);
