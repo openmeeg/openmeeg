@@ -62,7 +62,7 @@ is used in @PROJECT_NAME@.
 rm -rf %{builddirname}
 mkdir %{builddirname}
 cd %{builddirname}
-%cmake -DBUILD_DOCUMENTATION=ON -DENABLE_PYTHON=ON -DUSE_MATIO=ON -DBUILD_TESTING=ON -DCMAKE_BUILD_TYPE=Release -DBUILD_DOCUMENTATION=ON -DBUILD_TUTORIALS=ON -DUSE_PROGRESSBAR=ON -DUSE_OMP=ON @CMAKE_SOURCE_DIR@
+%cmake -DBUILD_DOCUMENTATION=ON -DCMAKE_INSTALL_PREFIX=/usr -DENABLE_PYTHON=ON -DUSE_MATIO=ON -DBUILD_TESTING=ON -DCMAKE_BUILD_TYPE=Release -DBUILD_DOCUMENTATION=ON -DBUILD_TUTORIALS=ON -DUSE_PROGRESSBAR=ON -DUSE_OMP=ON @CMAKE_SOURCE_DIR@
 make
 
 %check
@@ -73,12 +73,6 @@ make test
 rm -rf $RPM_BUILD_ROOT
 cd %{builddirname}
 make DESTDIR=$RPM_BUILD_ROOT install
-
-%ifarch x86_64
-#   The following lines are because of the buggy installation point of CMake for x86_64 for libraries.
-mkdir -p $RPM_BUILD_ROOT%{_libdir}
-mv $RPM_BUILD_ROOT/usr/lib/* $RPM_BUILD_ROOT%{_libdir}
-%endif
 
 %clean
 rm -rf %{builddirname}
