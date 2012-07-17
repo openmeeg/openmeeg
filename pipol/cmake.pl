@@ -22,96 +22,48 @@ chomp $cmake;
 chomp $ctest;
 chomp $cpack;
 
-if ( -f "$cmake" )
-{
-	if($my_cmake_version =~ /.*2.8.[0-9].*$/) 
-	{
+sub compile_cmake {
+    my $major = shift;
+    my $minor = shift;
+    my $rel   = shift;
+    system "wget http://www.cmake.org/files/v$major.$minor/cmake-$major.$minor.$rel.tar.gz";
+    system "tar zxvf cmake-$major.$minor.$rel.tar.gz";
+    chdir("./cmake-$major.$minor.$rel");
+    system "cmake .";
+    system "make";
+    if (-f "./bin/ccmake") {
+        system "sudo ln -sf `pwd`/bin/ccmake $ccmake";
+    }
+    if (-f "./bin/cmake") {
+        system "sudo ln -sf `pwd`/bin/cmake $cmake";
+        system "sudo ln -sf `pwd`/bin/cpack $cpack";
+        system "sudo ln -sf `pwd`/bin/ctest $ctest";
+    } else {
+        exit;
+    }
+}
+
+if ( -f "$cmake" ) {
+	if ($my_cmake_version =~ /.*2.[8-9].[6-9].*$/) {
 		print "cmake version : $my_cmake_version";
-	}
-	else
-	{
-		if($my_cmake_version =~ /.*2.6.[1-9].*$/) 
-		{
+	} else {
+		if ($my_cmake_version =~ /.*2.6.[1-9].*$/) {
 			print "version > 2.6.0\n";
-			system "wget http://www.cmake.org/files/v2.8/cmake-2.8.4.tar.gz";
-			system "tar zxvf cmake-2.8.4.tar.gz";
-			chdir("./cmake-2.8.4");
-			system "cmake .";
-			system "make";
-            if (-f "./bin/ccmake") {
-				system "sudo ln -sf `pwd`/bin/ccmake $ccmake";
-            }
-			if (-f "./bin/cmake"){
-				system "sudo ln -sf `pwd`/bin/cmake $cmake";
-				system "sudo ln -sf `pwd`/bin/cpack $cpack";
-				system "sudo ln -sf `pwd`/bin/ctest $ctest";
-			}
-			else
-			{
-				return;
-			}
-	
-		}
-		else
-		{
+            compile_cmake(2,8,8);
+		} else {
 			print "version < 2.6.1\n";
-			system "wget http://www.cmake.org/files/v2.6/cmake-2.6.4.tar.gz";
-			system "wget http://www.cmake.org/files/v2.8/cmake-2.8.4.tar.gz";
-	
-			system "tar zxvf cmake-2.6.4.tar.gz";
-			chdir("./cmake-2.6.4/");
-			system "cmake .";
-			system "make";
-            if (-f "./bin/ccmake") {
-				system "sudo ln -sf `pwd`/bin/ccmake $ccmake";
-            }
-			if (-f "./bin/cmake"){
-				system "sudo ln -sf `pwd`/bin/cmake $cmake";
-				system "sudo ln -sf `pwd`/bin/cpack $cpack";
-				system "sudo ln -sf `pwd`/bin/ctest $ctest";
-			}
-			else
-			{
-				return;
-			}
-			chdir("./..");
-	
-			$my_cmake_version = `cmake --version`;
-			print "cmake version : $my_cmake_version";
-			$cmake = `which cmake`;
-			$ctest = `which ctest`;
-			$cpack = `which cpack`;
-			print "$cmake";
-			print "$ctest";
-			print "$cpack";
-			chomp $cmake;
-			chomp $ctest;
-			chomp $cpack;
-	
-			system "tar zxvf cmake-2.8.4.tar.gz";
-			chdir("./cmake-2.8.4/");
-			system "cmake .";
-			system "make";
-            if (-f "./bin/ccmake") {
-				system "sudo ln -sf `pwd`/bin/ccmake $ccmake";
-            }
-			if (-f "./bin/cmake"){
-				system "sudo ln -sf `pwd`/bin/cmake $cmake";
-				system "sudo ln -sf `pwd`/bin/cpack $cpack";
-				system "sudo ln -sf `pwd`/bin/ctest $ctest";
-			}
-			else
-			{
-				return;
-			}
+            compile_cmake(2,6,4);
+			chdir("..");
+            compile_cmake(2,8,8);
 		}
-	$my_cmake_version = `cmake --version`;
-	print "cmake version : $my_cmake_version";
-	$cmake = `which cmake`;
-	$ctest = `which ctest`;
-	$cpack = `which cpack`;
-	print "$cmake";
-	print "$ctest";
-	print "$cpack";
+
+        $my_cmake_version = `cmake --version`;
+        print "cmake version : $my_cmake_version";
+        $cmake = `which cmake`;
+        $ctest = `which ctest`;
+        $cpack = `which cpack`;
+        print "$cmake";
+        print "$ctest";
+        print "$cpack";
 	}
 }
