@@ -4,12 +4,10 @@
 
 IF (ENABLE_PYTHON)
 
-    #   For now force the use of Python 2.7, numpy is not yet well adapted to python3.
+    #   For now force the use of Python 2.{5,6,7}, numpy is not yet well adapted to python3.
     #   Reconsider this choice later.
 
-    set(PythonInterp_FIND_VERSION 2.7)
-    set(PythonLibs_FIND_VERSION ${PythonInterp_FIND_VERSION})
-
+    set(Python_ADDITIONAL_VERSIONS 2.5 2.6 2.7)
     INCLUDE(FindPythonInterp)
 
     IF (PYTHON_EXECUTABLE)
