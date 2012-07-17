@@ -69,8 +69,10 @@ case $my_git_version in
         make prefix=/usr all
         if [ -e /usr/bin/apt-get ] ; then
             sudo apt-get -y remove git-core
-        else if [ -e /usr/bin/yum ] ; then
-            sudo yum -y remove git-core
+        else
+            if [ -e /usr/bin/yum ] ; then
+                sudo yum -y remove git-core
+            fi
         fi
         sudo make prefix=/usr install;;
 esac
