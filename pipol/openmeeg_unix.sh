@@ -18,7 +18,6 @@ sh ~/install_packages.sh
 BRANCH=master
 
 git clone --recursive git://github.com/openmeeg/openmeeg.git
-
 perl ./openmeeg/pipol/cmake.pl
 cd openmeeg
 
