@@ -16,6 +16,7 @@ fi
 
 chmod +x $file
 scp $file pipol:openmeeg_unix.sh
+scp install_packages.sh pipol:install_packages.sh
 rm $file
 
 # linux 32

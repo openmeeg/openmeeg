@@ -13,12 +13,13 @@ else
 fi
 cd ./pipol/$PIPOL_HOST
 
+sh ~/install_packages.sh
+
 BRANCH=master
+
 git clone --recursive git://github.com/openmeeg/openmeeg.git
 
-sh openmeeg/pipol/install_packages.sh
 perl ./openmeeg/pipol/cmake.pl
-
 cd openmeeg
 
 # Handle MKL
