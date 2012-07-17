@@ -31,16 +31,14 @@ sub compile_cmake {
     chdir("./cmake-$major.$minor.$rel");
     system "cmake .";
     system "make";
-    if (-f "./bin/ccmake") {
-        system "sudo ln -sf `pwd`/bin/ccmake $ccmake";
-    }
-    if (-f "./bin/cmake") {
-        system "sudo ln -sf `pwd`/bin/cmake $cmake";
-        system "sudo ln -sf `pwd`/bin/cpack $cpack";
-        system "sudo ln -sf `pwd`/bin/ctest $ctest";
+    if ( -e "/usr/bin/apt-get" ) {
+        system "sudo apt-get -y remove git-core";
     } else {
-        exit;
+        if ( -e "/usr/bin/yum" ) {
+            system "sudo yum -y remove git-core";
+        }
     }
+    system "sudo make install";
 }
 
 if ( -f "$cmake" ) {
