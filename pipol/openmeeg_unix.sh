@@ -17,6 +17,23 @@ sh ~/install_packages.sh
 
 BRANCH=master
 
+#   Attempt to determine package type.
+
+if [ x$SYSTEM = xLinux ] ; then
+    PACKAGING_OPTION =
+    if [ -e /usr/bin/yum ] ; then
+        PACKAGE_TYPE = rpm
+        PACKAGING_OPTION = "-DBUILD_RPM = ON"
+    else
+        if [ -e /usr/bin/apt-get ] ; then
+            PACKAGE_TYPE = deb
+            #PACKAGING_OPTION = "-DBUILD_DEB = ON"
+        else
+            PACKAGE_TYPE = dmg
+        fi
+    fi
+fi
+
 git clone --recursive git://github.com/openmeeg/openmeeg.git
 perl ./openmeeg/pipol/cmake.pl
 cd openmeeg
@@ -40,11 +57,13 @@ function build {
     ctest -D ExperimentalTest
     ctest -D ExperimentalSubmit
     make package
-    make clean
     mv OpenMEEG*tar.gz ~/.pipol/packages/openmeeg-${BRANCH}
-    mv OpenMEEG*dmg* ~/.pipol/packages/openmeeg-${BRANCH}
-    mv OpenMEEG*rpm* ~/.pipol/packages/openmeeg-${BRANCH}
-    mv OpenMEEG*deb* ~/.pipol/packages/openmeeg-${BRANCH}
+    make OpenMEEG_${PACKAGE_TYPE}
+    mv OpenMEEG*${PACKAGE_TYPE}* ~/.pipol/packages/openmeeg-${BRANCH}
+    mkdir -p ~/.pipol/$PIPOL_HOST/
+    file=`mktemp -d --tmpdir= ~/.pipol/$PIPOL_HOST/ tmpXXXX`
+    cp contrib/matio/test/MATIO* $file
+    make clean
 }
 
 OMP=OFF
@@ -55,15 +74,15 @@ if [ x$SYSTEM = xLinux ] ; then
 fi
 
 # Blas Lapack (Atlas)
-cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON -DENABLE_PACKAGING=ON -DENABLE_PYTHON=ON -DUSE_PROGRESSBAR=ON -DUSE_OMP=${OMP} .
+cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON -DENABLE_PACKAGING=ON ${PACKAGING_OPTION} -DENABLE_PYTHON=ON -DUSE_PROGRESSBAR=ON -DUSE_OMP=${OMP} .
 build
 
 # MKL (static mode)
 rm -f CMakeCache.txt
-cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON -DENABLE_PACKAGING=ON -DUSE_ATLAS=OFF -DUSE_MKL=ON -DBUILD_SHARED_LIBS=OFF -DUSE_PROGRESSBAR=ON -DUSE_OMP=${OMP} .
+cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON -DENABLE_PACKAGING=ON ${PACKAGING_OPTION} -DUSE_ATLAS=OFF -DUSE_MKL=ON -DBUILD_SHARED_LIBS=OFF -DUSE_PROGRESSBAR=ON -DUSE_OMP=${OMP} .
 build
 
 # Pure blas/Lapack (No atlas)
 rm -f CMakeCache.txt
-cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON -DENABLE_PACKAGING=ON -DENABLE_PYTHON=ON -DUSE_ATLAS=OFF -DUSE_MKL=OFF -DUSE_PROGRESSBAR=ON -DUSE_OMP=${OMP} .
+cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON -DENABLE_PACKAGING=ON ${PACKAGING_OPTION} -DENABLE_PYTHON=ON -DUSE_ATLAS=OFF -DUSE_MKL=OFF -DUSE_PROGRESSBAR=ON -DUSE_OMP=${OMP} .
 build
