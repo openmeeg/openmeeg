@@ -27,12 +27,13 @@ function build_and_test() {
         export MKL_LIB_DIR=Y:i386/icc-windows-xp/Compiler/11.1/046/mkl/ia32/lib/
     fi
 
-    # 4) Detectioon of cmake version
-    if [ -e "/cygdrive/c/CMake 2.8/bin/cmake.exe" ]; then
-        VERSION="2.8"
-    else
-        VERSION="2.6"
-    fi
+    # 4) Detection of cmake version
+
+    wget http://www.cmake.org/files/v2.8/cmake-2.8.8-win32-x86.zip
+    unzip cmake-2.8.8-win32-x86.zip
+    CMAKE = `pwd`/make-2.8.8-win32-xc86/bin/cmake.exe
+    CPACK = `pwd`/make-2.8.8-win32-xc86/bin/cpack.exe
+    CTEST = `pwd`/make-2.8.8-win32-xc86/bin/ctest.exe
 
     # 5) Cleaning the projet
     cd ${TEMP}
@@ -46,11 +47,7 @@ function build_and_test() {
     cd build
 
     # 6) Making VISUAL project with cmake 2.6 - 2.8
-    if expr $PIPOL_IMAGE : ".*amd64.*"; then
-        /cygdrive/c/CMake\ $VERSION/bin/cmake.exe -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON -DENABLE_PACKAGING=ON -DUSE_OMP=ON -G "$PIPOL_WIN_COMPILER$SYSTEMOS" ..
-    else
-        /cygdrive/c/CMake\ $VERSION/bin/cmake.exe -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON -DENABLE_PACKAGING=ON -G "$PIPOL_WIN_COMPILER$SYSTEMOS" ..
-    fi
+    ${CMAKE} -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON -DENABLE_PACKAGING=ON -DUSE_OMP=ON -G "$PIPOL_WIN_COMPILER$SYSTEMOS" ..
 
     # 7) Setting environment
     if expr $PIPOL_IMAGE : ".*amd64.*"; then
@@ -69,12 +66,12 @@ function build_and_test() {
     # "$VCBUILD" INSTALL.vcproj "Release"
 
     # 12) CDASH submision
-    /cygdrive/c/CMake\ $VERSION/bin/ctest.exe -D "$1"
+    ${CTEST} -D "$1"
 
     # 13) To make a Windows Package Installer
-    /cygdrive/c/CMake\ $VERSION/bin/cpack.exe -G "NSIS"
-    /cygdrive/c/CMake\ $VERSION/bin/cpack.exe -G "ZIP"
-    /cygdrive/c/CMake\ $VERSION/bin/cpack.exe -G "TGZ"
+    ${CPACK} -G "NSIS"
+    ${CPACK} -G "ZIP"
+    ${CPACK} -G "TGZ"
 
     # 14) Save the package
     mkdir -p $PIPOL_HOMEDIR/.pipol/packages/openmeeg-${BRANCH}
