@@ -2,6 +2,7 @@
 
 SYSTEM=`uname`
 ARCH=`uname -m`
+HOME=`pwd`
 
 if [ -e ./pipol ] ; then
 	rm -rf ./pipol/$PIPOL_HOST
@@ -57,13 +58,13 @@ function build {
     ctest -D ExperimentalTest
     ctest -D ExperimentalSubmit
     make package
-    mv OpenMEEG*tar.gz ~/.pipol/packages/openmeeg-${BRANCH}
+    mv OpenMEEG*.tar.* ~/.pipol/packages/openmeeg-${BRANCH}
     if [ x$PACKAGE_TYPE != x ] ; then
         make OpenMEEG_${PACKAGE_TYPE}
         mv OpenMEEG*${PACKAGE_TYPE}* ~/.pipol/packages/openmeeg-${BRANCH}
     fi
     mkdir -p ~/.pipol/$PIPOL_HOST/
-    file=`mktemp -d --tmpdir=~/.pipol/$PIPOL_HOST/ tmpXXXX`
+    file=`mktemp -d --tmpdir=${HOME}/.pipol/$PIPOL_HOST/ tmpXXXX`
     cp contrib/matio/test/MATIO* $file
     make clean
 }
