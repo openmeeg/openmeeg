@@ -19,6 +19,7 @@ BRANCH=master
 
 #   Attempt to determine package type.
 
+PACKAGE_TYPE=
 if [ x$SYSTEM = xLinux ] ; then
     PACKAGING_OPTION =
     if [ -e /usr/bin/yum ] ; then
@@ -53,15 +54,16 @@ fi
 function build {
     ctest -D ExperimentalConfigure
     ctest -D ExperimentalBuild
-    limit stacksize unlimited # For integrated lapack testing
     ctest -D ExperimentalTest
     ctest -D ExperimentalSubmit
     make package
     mv OpenMEEG*tar.gz ~/.pipol/packages/openmeeg-${BRANCH}
-    make OpenMEEG_${PACKAGE_TYPE}
-    mv OpenMEEG*${PACKAGE_TYPE}* ~/.pipol/packages/openmeeg-${BRANCH}
+    if [ x$PACKAGE_TYPE != x ] ; then
+        make OpenMEEG_${PACKAGE_TYPE}
+        mv OpenMEEG*${PACKAGE_TYPE}* ~/.pipol/packages/openmeeg-${BRANCH}
+    fi
     mkdir -p ~/.pipol/$PIPOL_HOST/
-    file=`mktemp -d --tmpdir= ~/.pipol/$PIPOL_HOST/ tmpXXXX`
+    file=`mktemp -d --tmpdir=~/.pipol/$PIPOL_HOST/ tmpXXXX`
     cp contrib/matio/test/MATIO* $file
     make clean
 }
