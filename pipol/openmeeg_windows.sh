@@ -31,9 +31,9 @@ function build_and_test() {
 
     wget http://www.cmake.org/files/v2.8/cmake-2.8.8-win32-x86.zip
     unzip cmake-2.8.8-win32-x86.zip
-    CMAKE = `pwd`/make-2.8.8-win32-xc86/bin/cmake.exe
-    CPACK = `pwd`/make-2.8.8-win32-xc86/bin/cpack.exe
-    CTEST = `pwd`/make-2.8.8-win32-xc86/bin/ctest.exe
+    CMAKE = `pwd`/cmake-2.8.8-win32-xc86/bin/cmake.exe
+    CPACK = `pwd`/cmake-2.8.8-win32-xc86/bin/cpack.exe
+    CTEST = `pwd`/cmake-2.8.8-win32-xc86/bin/ctest.exe
 
     # 5) Cleaning the projet
     cd ${TEMP}
