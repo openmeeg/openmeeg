@@ -21,17 +21,17 @@ BRANCH=master
 #   Attempt to determine package type.
 
 PACKAGE_TYPE=
+PACKAGING_OPTION=
 if [ x$SYSTEM = xLinux ] ; then
-    PACKAGING_OPTION =
     if [ -e /usr/bin/yum ] ; then
-        PACKAGE_TYPE = rpm
-        PACKAGING_OPTION = "-DBUILD_RPM = ON"
+        PACKAGE_TYPE=rpm
+        PACKAGING_OPTION="-DBUILD_RPM=ON"
     else
         if [ -e /usr/bin/apt-get ] ; then
-            PACKAGE_TYPE = deb
-            #PACKAGING_OPTION = "-DBUILD_DEB = ON"
+            PACKAGE_TYPE=deb
+            #PACKAGING_OPTION="-DBUILD_DEB=ON"
         else
-            PACKAGE_TYPE = dmg
+            PACKAGE_TYPE=dmg
         fi
     fi
 fi
@@ -52,6 +52,10 @@ if [ x$SYSTEM = xLinux ] ; then
     fi
 fi
 
+# Needed for lapack tests.
+
+ulimit -s unlimited
+
 function build {
     ctest -D ExperimentalConfigure
     ctest -D ExperimentalBuild
@@ -59,6 +63,8 @@ function build {
     ctest -D ExperimentalSubmit
     make package
     mv OpenMEEG*.tar.* ~/.pipol/packages/openmeeg-${BRANCH}
+    echo "OpenMEEG*.tar.*"
+    ls -l ~/.pipol/packages/openmeeg-${BRANCH}
     if [ x$PACKAGE_TYPE != x ] ; then
         make OpenMEEG_${PACKAGE_TYPE}
         mv OpenMEEG*${PACKAGE_TYPE}* ~/.pipol/packages/openmeeg-${BRANCH}
