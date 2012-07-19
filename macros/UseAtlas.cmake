@@ -133,29 +133,12 @@ IF (NOT USE_MKL)
                 ENDIF()
             ENDFOREACH()
         ELSE()
-            IF (NOT (lapack_PATH AND blas_PATH))
-                SET(LAPACKBLAS_LIB_SEARCHPATH
-                    /usr/lib64/
-                    /usr/lib/
-                    )
-                #FOREACH (LIB cblas f77blas clapack lapack blas)
-                FOREACH (LIB lapack blas)
-                    FIND_LIBRARY(${LIB}_PATH
-                        NAMES ${LIB}
-                        PATHS ${LAPACKBLAS_LIB_SEARCHPATH}
-                        NO_DEFAULT_PATH
-                        NO_CMAKE_ENVIRONMENT_PATH
-                        NO_CMAKE_PATH
-                        NO_SYSTEM_ENVIRONMENT_PATH
-                        NO_CMAKE_SYSTEM_PATH)
-                    IF(${LIB}_PATH)
-                        SET(LAPACK_LIBRARIES ${LAPACK_LIBRARIES} ${${LIB}_PATH})
-                        MARK_AS_ADVANCED(${LIB}_PATH)
-                    ELSE()
-                        MESSAGE(WARNING "Could not find ${LIB}")
-                    ENDIF()
-                ENDFOREACH()
-            ENDIF()
+            FIND_PACKAGE(lapack QUIET PATHS /usr/lib64/ /usr/lib/
+                         NO_DEFAULT_PATH
+                         NO_CMAKE_ENVIRONMENT_PATH
+                         NO_CMAKE_PATH
+                         NO_SYSTEM_ENVIRONMENT_PATH
+                         NO_CMAKE_SYSTEM_PATH)
         ENDIF()
 
         IF (NOT BUILD_SHARED_LIBS)
