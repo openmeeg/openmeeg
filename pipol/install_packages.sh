@@ -20,6 +20,7 @@ if [ -e /usr/bin/apt-get ] ; then
     sudo apt-get -y install libcurl4-openssl-dev
     sudo apt-get -y install libexpat1-dev
     sudo apt-get -y install perl-modules
+    sudo apt-get -y install gettext
 
     # For memory checking
 
