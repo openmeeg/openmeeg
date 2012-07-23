@@ -3,4 +3,4 @@
 	url = git://github.com/openmeeg/matio-openmeeg.git
 [submodule "contrib/clapack"]
 	path = contrib/clapack
-	url = git@github.com:openmeeg/clapack.git
+	url = git://github.com/openmeeg/clapack.git
