@@ -12,6 +12,15 @@ IF (USE_SYSTEM_MATIO)
 ENDIF()
 
 IF (NOT MATIO_LIBRARIES)
+
     SET(MATIO_LIBRARIES matio)
     SET(USE_MATIO 1)
+
+    #   Not sure to understand why those should be here (this should be made by the matio
+    #   subdir). But they are.
+
+    INCLUDE_DIRECTORIES(${OpenMEEG_SOURCE_DIR}/contrib/matio/src)
+    INCLUDE_DIRECTORIES(${OpenMEEG_SOURCE_DIR}/contrib/matio/zlib)
+    INCLUDE_DIRECTORIES(${OpenMEEG_BINARY_DIR}/contrib/matio/src)
+    INCLUDE_DIRECTORIES(${OpenMEEG_BINARY_DIR}/contrib/matio/zlib)
 ENDIF()
