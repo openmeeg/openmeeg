@@ -29,7 +29,7 @@ if [ -e /usr/bin/apt-get ] ; then
 else
 	if [ -e /usr/bin/yum ] ; then
 		sudo yum -y update
-	    sudo yum -y install git-core
+	    sudo yum -y install git
 	    sudo yum -y install gcc
 	    sudo yum -y install make
 	    sudo yum -y install cmake
@@ -65,15 +65,18 @@ case $my_git_version in
         wget http://git-core.googlecode.com/files/git-1.7.11.2.tar.gz
         tar zxvf git-1.7.11.2.tar.gz
         cd ./git-1.7.11.2
-        NO_PERL= ;make prefix=/usr all
+        export NO_PERL="yes"
+        make prefix=/usr all
         if [ -e /usr/bin/apt-get ] ; then
             sudo apt-get -y remove git-core
         else
             if [ -e /usr/bin/yum ] ; then
-                sudo yum -y remove git-core
+                sudo yum -y remove git
             fi
         fi
-        sudo env NOPERL="" make prefix=/usr install;;
+        #   -k is necessary due to the nfs mounting !!!
+        chmod a+w GIT-BUILD-OPTIONS
+        sudo env NO_PERL="yes" make prefix=/usr install;;
 esac
 
 which_git=`which git`		#git necessary
