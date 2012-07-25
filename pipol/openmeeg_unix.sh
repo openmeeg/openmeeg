@@ -39,9 +39,10 @@ if [ x$SYSTEM = xLinux ] ; then
     fi
 fi
 
-git clone --recursive git://github.com/openmeeg/openmeeg.git $BRANCH
-perl $PIPOL_HOMEDIR/openmeeg/pipol/cmake.pl
+git clone --recursive git://github.com/openmeeg/openmeeg.git
+perl ./openmeeg/pipol/cmake.pl
 cd openmeeg
+git checkout $BRANCH
 
 # Handle MKL
 if [ x$SYSTEM = xDarwin ] ; then

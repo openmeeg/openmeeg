@@ -43,9 +43,9 @@ function build_and_test() {
     # 5) Cleaning the projet
     cd ${TEMP}
 
-    BRANCH=master
     git clone --recursive git://github.com/openmeeg/openmeeg.git
     cd openmeeg
+    git checkout $BRANCH
 
     rm -Rf ./build
     mkdir build
