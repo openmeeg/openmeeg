@@ -4,19 +4,22 @@ SYSTEM=`uname`
 ARCH=`uname -m`
 HOME=`pwd`
 
-if [ -e ./pipol ] ; then
-	rm -rf ./pipol/$PIPOL_HOST
-	mkdir ./pipol/$PIPOL_HOST
+if [ -e $PIPOL_HOMEDIR/pipol ] ; then
+	rm -rf $PIPOL_HOMEDIR/pipol/$PIPOL_HOST
+	mkdir $PIPOL_HOMEDIR/pipol/$PIPOL_HOST
 else
-	mkdir ./pipol
-	rm -rf ./pipol/$PIPOL_HOST
-	mkdir ./pipol/$PIPOL_HOST
+	mkdir $PIPOL_HOMEDIR/pipol
+	rm -rf $PIPOL_HOMEDIR/pipol/$PIPOL_HOST
+	mkdir $PIPOL_HOMEDIR/pipol/$PIPOL_HOST
 fi
-cd ./pipol/$PIPOL_HOST
+cd $PIPOL_HOMEDIR/pipol/$PIPOL_HOST
 
-sh ~/install_packages.sh
+sh $PIPOL_HOMEDIR/install_packages.sh
 
 BRANCH=master
+if [ x$1 != "x" ]
+    BRANCH=$1
+fi
 
 #   Attempt to determine package type.
 
@@ -36,8 +39,8 @@ if [ x$SYSTEM = xLinux ] ; then
     fi
 fi
 
-git clone --recursive git://github.com/openmeeg/openmeeg.git
-perl ./openmeeg/pipol/cmake.pl
+git clone --recursive git://github.com/openmeeg/openmeeg.git $BRANCH
+perl $PIPOL_HOMEDIR/openmeeg/pipol/cmake.pl
 cd openmeeg
 
 # Handle MKL
@@ -62,15 +65,15 @@ function build {
     ctest -D ExperimentalTest
     ctest -D ExperimentalSubmit
     make package
-    mv OpenMEEG*.tar.* ~/.pipol/packages/openmeeg-${BRANCH}
+    mv OpenMEEG*.tar.* $PIPOL_HOMEDIR/.pipol/packages/openmeeg-${BRANCH}
     echo "OpenMEEG*.tar.*"
-    ls -l ~/.pipol/packages/openmeeg-${BRANCH}
+    ls -l $PIPOL_HOMEDIR/.pipol/packages/openmeeg-${BRANCH}
     if [ x$PACKAGE_TYPE != x ] ; then
         make OpenMEEG_${PACKAGE_TYPE}
-        mv OpenMEEG*${PACKAGE_TYPE}* ~/.pipol/packages/openmeeg-${BRANCH}
+        mv OpenMEEG*${PACKAGE_TYPE}* $PIPOL_HOMEDIR/.pipol/packages/openmeeg-${BRANCH}
     fi
-    mkdir -p ~/.pipol/$PIPOL_HOST/
-    file=`mktemp -d --tmpdir=${HOME}/.pipol/$PIPOL_HOST/ tmpXXXX`
+    mkdir -p $PIPOL_HOMEDIR/.pipol/$PIPOL_HOST/
+    file=`mktemp -d --tmpdir=$PIPOL_HOMEDIR/.pipol/$PIPOL_HOST/ tmpXXXX`
     cp contrib/matio/test/MATIO* $file
     make clean
 }

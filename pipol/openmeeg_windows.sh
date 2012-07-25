@@ -3,6 +3,11 @@
 #PIPOL esn i386_kvm-windows-xp-pro-sp3 none 02:00 --silent --root
 #PIPOL esn amd64_kvm-windows-7 none 02:00 --silent --root
 
+BRANCH=master
+if [ x$1 != "x" ]
+    BRANCH=$1
+fi
+
 function build_and_test() {
     # 2) Creation of temporary repertory where to build
     export TEMP=/cygdrive/c/Temp
@@ -65,6 +70,8 @@ function build_and_test() {
     # # 11) Project build
     # "$VCBUILD" INSTALL.vcproj "Release"
 
+    ${CTEST} -V -N"HM-Head1"
+
     # 12) CDASH submision
     ${CTEST} -D "$1"
 
@@ -77,3 +84,5 @@ function build_and_test() {
     mkdir -p $PIPOL_HOMEDIR/.pipol/packages/openmeeg-${BRANCH}
     cp OpenMEEG-*.* $PIPOL_HOMEDIR/.pipol/packages/openmeeg-${BRANCH}
 }
+
+build_and_test "Experimental"
