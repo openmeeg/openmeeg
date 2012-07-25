@@ -17,7 +17,7 @@ cd $PIPOL_HOMEDIR/pipol/$PIPOL_HOST
 sh $PIPOL_HOMEDIR/install_packages.sh
 
 BRANCH=master
-if [ x$1 != "x" ]
+if [ x$1 != "x" ]; then
     BRANCH=$1
 fi
 

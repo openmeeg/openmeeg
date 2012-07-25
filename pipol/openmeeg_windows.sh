@@ -4,7 +4,7 @@
 #PIPOL esn amd64_kvm-windows-7 none 02:00 --silent --root
 
 BRANCH=master
-if [ x$1 != "x" ]
+if [ x$1 != "x" ]; then
     BRANCH=$1
 fi
 
