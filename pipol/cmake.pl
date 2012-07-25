@@ -42,10 +42,10 @@ sub compile_cmake {
 }
 
 if ( -f "$cmake" ) {
-	if ($my_cmake_version =~ /.*2.[8-9].[6-9].*$/) {
+	if ($my_cmake_version =~ /.*2.(8.[6-9]|9.[0-9]).*$/) {
 		print "cmake version : $my_cmake_version";
 	} else {
-		if ($my_cmake_version =~ /.*2.6.[1-9].*$/) {
+		if ($my_cmake_version =~ /.*2.(6(.|-patch )?[1-9]|[7-9]).*$/) {
 			print "version > 2.6.0\n";
             compile_cmake(2,8,8);
 		} else {
