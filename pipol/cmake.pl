@@ -38,6 +38,8 @@ sub compile_cmake {
             system "sudo yum -y remove git-core";
         }
     }
+    #   Needed for nfs root permissions !!!
+    chmod a+w .
     system "sudo make install";
 }
 
