@@ -19,7 +19,6 @@ if [ -e /usr/bin/apt-get ] ; then
     sudo apt-get -y install libssl-dev
     sudo apt-get -y install libcurl4-openssl-dev
     sudo apt-get -y install libexpat1-dev
-    sudo apt-get -y install perl-modules
     sudo apt-get -y install gettext
 
     # For memory checking
@@ -46,7 +45,6 @@ else
         sudo yum -y install openssl-devel
         sudo yum -y install libcurl-devel
         sudo yum -y install expat-devel
-        sudo yum -y install perl-ExtUtils-MakeMaker
     else
        if [ x$arch = xDarwin ] ; then
             /usr/bin/ruby -e "$(/usr/bin/curl -fsSL https://raw.github.com/mxcl/homebrew/master/Library/Contributions/install_homebrew.rb)"
@@ -67,7 +65,7 @@ case $my_git_version in
         wget http://git-core.googlecode.com/files/git-1.7.11.2.tar.gz
         tar zxvf git-1.7.11.2.tar.gz
         cd ./git-1.7.11.2
-        make prefix=/usr all
+        NO_PERL= ;make prefix=/usr all
         if [ -e /usr/bin/apt-get ] ; then
             sudo apt-get -y remove git-core
         else
@@ -75,7 +73,7 @@ case $my_git_version in
                 sudo yum -y remove git-core
             fi
         fi
-        sudo make prefix=/usr install;;
+        sudo env NOPERL="" make prefix=/usr install;;
 esac
 
 which_git=`which git`		#git necessary
