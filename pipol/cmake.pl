@@ -39,7 +39,7 @@ sub compile_cmake {
         }
     }
     #   Needed for nfs root permissions !!!
-    system "chmod a+w ."
+    system "chmod a+w .";
     system "sudo make install";
 }
 
