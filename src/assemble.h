@@ -107,8 +107,8 @@ namespace OpenMEEG {
 
     class OPENMEEG_EXPORT DipSource2InternalPotMat: public virtual Matrix {
     public:
-        DipSource2InternalPotMat(Geometry& geo, const Matrix& dipoles,
-                                 const Matrix& points, const bool dipoles_in_cortex=true);
+        DipSource2InternalPotMat(const Geometry& geo,const Matrix& dipoles,
+                                 const Matrix& points,const bool dipoles_in_cortex=true);
         virtual ~DipSource2InternalPotMat () {};
     };
 }
