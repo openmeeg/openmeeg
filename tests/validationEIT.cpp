@@ -48,148 +48,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 using namespace OpenMEEG;
 
-void getHelp(char** argv);
-
-int main(int argc, char** argv)
-{
-    print_version(argv[0]);
-
-    if (argc < 2) {
-        std::cerr << "Not enough arguments \nPlease try \"" << argv[0];
-        std::cerr << " -h\" or \"" << argv[0] << " --help \" \n" << std::endl;
-        return 0;
-    }
-    if ((!strcmp(argv[1], "-h")) | (!strcmp(argv[1], "--help"))) {
-        getHelp(argv);
-        return 0;
-    }
-
-    Geometry geo;
-    geo.read(argv[1], argv[2]);
-
-    int gauss_order = 3;
-    int totalsize = geo.size();
-    int sourcesize = geo.getM(geo.nb()-1).nbTrgs();
-    int newsize = totalsize - sourcesize;
-    double delta = 0.001;// For the discretization of Grad V
-    double dirac = 1.0; // The injection current
-
-    Matrix dipoles;
-    dipoles.load(argv[3]);
-    int ndip=dipoles.nlin();
-
-    Matrix SourceMatrix;
-    SourceMatrix.load(argv[4]);
-
-    SymMatrix HeadMatInv;
-    HeadMatInv.load(argv[5]);
-
-    // We choose two electordes on which we inject the currents
-    int nelec=2;
-    Sensors electrodes; // set nelec electrode positions
-    std::stringstream ss;
-    ss << "0.886556 0.278249 -0.166667" << std::endl;
-    ss << "0.547922 -0.269672 -0.719889" << std::endl;
-    electrodes.load(ss);
-    Matrix& electrodes_positions = electrodes.getPositions();
-
-    // We want the potential on the external surface
-    Matrix PotExt = HeadMatInv(newsize-geo.getM(geo.nb()-1).nbPts(), newsize-1, 0, newsize-1);
-    PotExt = PotExt*SourceMatrix;
-
-    Vect3 current_position; //buffer for electrodes positions
-    Vect3 current_alphas;
-    int current_nearest_triangle; // buffer for closest triangle to electrode
-    SparseMatrix matH2E(electrodes.getNumberOfSensors(), geo.getM(geo.nb()-1).nbPts()); // Matrices Head2Electrodes
-
-    // find triangle closest to the electrodes
-    for(int ielec=0; ielec<nelec; ielec++) {
-        for(int k=0; k<3; k++) {
-            current_position(k) = electrodes_positions(ielec, k);
-        }
-        dist_point_mesh(current_position, geo.getM(geo.nb()-1), current_alphas, current_nearest_triangle);
-        matH2E(ielec, geo.getM(geo.nb()-1).triangle(current_nearest_triangle).s1()) = current_alphas(0);
-        matH2E(ielec, geo.getM(geo.nb()-1).triangle(current_nearest_triangle).s2()) = current_alphas(1);
-        matH2E(ielec, geo.getM(geo.nb()-1).triangle(current_nearest_triangle).s3()) = current_alphas(2);
-    }
-
-    Vector VRi, VRe; // Potential at the electrodes positions
-    VRi=(matH2E*PotExt).getlin(0);
-    VRe=(matH2E*PotExt).getlin(1);
-
-    Matrix injection(nelec, 1);
-    injection(0, 0) = dirac;
-    injection(1, 0) = -1.0*dirac;
-
-    EITSourceMat EITsource(geo, electrodes, gauss_order);
-    Matrix rhsEIT = EITsource * injection;
-
-    Matrix EEGGainMatrix;
-    // Surf2Vol
-    Matrix points(ndip, 3);
-    points.setcol(0, dipoles.getcol(0));
-    points.setcol(1, dipoles.getcol(1));
-    points.setcol(2, dipoles.getcol(2));
-    {
-        Surf2VolMat mat(geo, points);
-        EEGGainMatrix.set(0.0);
-        EEGGainMatrix = mat*HeadMatInv(0, mat.ncol()-1, 0, HeadMatInv.ncol()-1);
-    }
-    Vector VR0 = (EEGGainMatrix * rhsEIT).getcol(0);
-
-    Matrix pointsdelta(ndip, 3);
-    // Surf2Vol en dx
-    for (int j=0; j<3; j++) {
-        pointsdelta.setcol(j, points.getcol(j));
-    }
-    pointsdelta.setcol(0, points.getcol(0)+delta);
-    {
-        Surf2VolMat matdx(geo, pointsdelta);
-        EEGGainMatrix.set(0.0);
-        EEGGainMatrix = matdx*HeadMatInv(0, matdx.ncol()-1, 0, HeadMatInv.ncol()-1);
-    }
-    Vector VR0dx = (EEGGainMatrix * rhsEIT).getcol(0);
-    // Surf2Vol en dy
-    pointsdelta.set(0.0);
-    for (int j=0; j<3; j++) {
-        pointsdelta.setcol(j, points.getcol(j));
-    }
-    pointsdelta.setcol(1, points.getcol(1)+delta);
-    {
-        Surf2VolMat matdy(geo, pointsdelta);
-        EEGGainMatrix.set(0.0);
-        EEGGainMatrix = matdy * HeadMatInv(0, matdy.ncol()-1, 0, HeadMatInv.ncol()-1);
-    }
-    Vector VR0dy = (EEGGainMatrix * rhsEIT).getcol(0);
-    // Surf2Vol en dz
-    for (int j=0; j<3; j++) {
-        pointsdelta.setcol(j, points.getcol(j));
-    }
-    pointsdelta.setcol(2, points.getcol(2)+delta);
-    {
-        Surf2VolMat matdz(geo, pointsdelta);
-        EEGGainMatrix.set(0.0);
-        EEGGainMatrix = matdz*HeadMatInv(0, matdz.ncol()-1, 0, HeadMatInv.ncol()-1);
-    }
-    Vector VR0dz = (EEGGainMatrix * rhsEIT).getcol(0);
-
-    Matrix gradVj(ndip, 3);
-    gradVj.setcol(0, ((VR0dx-VR0)/delta));
-    gradVj.setcol(1, ((VR0dy-VR0)/delta));
-    gradVj.setcol(2, ((VR0dz-VR0)/delta));
-    Matrix qgradVj(1, ndip);
-    Matrix diffVf(1, ndip);
-    for (int i =0; i<ndip; i++) {
-        qgradVj(0, i) = dipoles(i, 3) * gradVj(i, 0) + dipoles(i, 4) * gradVj(i, 1) + dipoles(i, 5) * gradVj(i, 2);
-    }
-    diffVf.setlin(0, VRi-VRe);
-    qgradVj.save(argv[6]);
-    diffVf.save(argv[7]);
-    return 0;
-}
-
-void getHelp(char** argv)
-{
+void getHelp(const char* argv[]) {
     std::cout << "Testing the EIT : \n using the Helmholtz reciprocity principle." << std::endl;
 
     std::cout << argv[0] << " [filepaths...]" << std::endl;
@@ -202,4 +61,131 @@ void getHelp(char** argv)
     std::cout << "               output q.grad(Vj)         " << std::endl;
     std::cout << "               output Vf(ri)-Vf(re)      " << std::endl;
     exit(0);
+}
+
+Vector VR(const Geometry& geo,const Matrix& points,const SymMatrix& HeadMatInv,const Matrix& rhsEIT) {
+
+    Surf2VolMat matdx(geo,points);
+
+    Matrix EEGGainMatrix;
+    EEGGainMatrix.set(0.0);  // Not useful ?
+    EEGGainMatrix = matdx*HeadMatInv(0,matdx.ncol()-1,0,HeadMatInv.ncol()-1);
+
+    return (EEGGainMatrix*rhsEIT).getcol(0);
+}
+
+int main(const int argc,const char* argv[]) {
+    print_version(argv[0]);
+
+    if (argc<2) {
+        std::cerr << "Not enough arguments \nPlease try \"" << argv[0];
+        std::cerr << " -h\" or \"" << argv[0] << " --help \" \n" << std::endl;
+        return 0;
+    }
+
+    if ((!strcmp(argv[1],"-h")) || (!strcmp(argv[1],"--help"))) {
+        getHelp(argv);
+        return 0;
+    }
+
+    Geometry geo;
+    geo.read(argv[1],argv[2]);
+
+    const int gauss_order = 3;
+    const int totalsize = geo.size();
+    const int sourcesize = geo.getM(geo.nb()-1).nbTrgs();
+    const int newsize = totalsize - sourcesize;
+
+    const double delta = 0.001;// For the discretization of Grad V
+    const double dirac = 1.0; // The injection current
+
+    const Matrix    dipoles(argv[3]);
+    const Matrix    SourceMatrix(argv[4]);
+    const SymMatrix HeadMatInv(argv[5]);
+
+    const int ndip = dipoles.nlin();
+
+    // We choose two electordes on which we inject the currents
+
+    const int nelec = 2;
+    Sensors electrodes; // set nelec electrode positions
+
+    std::stringstream ss;
+    ss << "0.886556 0.278249 -0.166667" << std::endl;
+    ss << "0.547922 -0.269672 -0.719889" << std::endl;
+    electrodes.load(ss);
+
+    const Matrix& electrodes_positions = electrodes.getPositions();
+
+    // We want the potential on the external surface
+
+    Matrix PotExt = HeadMatInv(newsize-geo.getM(geo.nb()-1).nbPts(),newsize-1,0,newsize-1);
+    PotExt = PotExt*SourceMatrix;
+
+    Vect3 current_position; //buffer for electrodes positions
+    Vect3 current_alphas;
+    int current_nearest_triangle; // buffer for closest triangle to electrode
+    SparseMatrix matH2E(electrodes.getNumberOfSensors(), geo.getM(geo.nb()-1).nbPts()); // Matrices Head2Electrodes
+
+    // Find the triangle closest to the electrodes
+
+    for (int ielec=0;ielec<nelec;++ielec) {
+        for (int k=0;k<3;++k)
+            current_position(k) = electrodes_positions(ielec, k);
+        dist_point_mesh(current_position,geo.getM(geo.nb()-1),current_alphas,current_nearest_triangle);
+        matH2E(ielec,geo.getM(geo.nb()-1).triangle(current_nearest_triangle).s1()) = current_alphas(0);
+        matH2E(ielec,geo.getM(geo.nb()-1).triangle(current_nearest_triangle).s2()) = current_alphas(1);
+        matH2E(ielec,geo.getM(geo.nb()-1).triangle(current_nearest_triangle).s3()) = current_alphas(2);
+    }
+
+    // Potential at the electrodes positions
+
+    const Vector& VRi = (matH2E*PotExt).getlin(0);
+    const Vector& VRe = (matH2E*PotExt).getlin(1);
+
+    Matrix injection(nelec,1);
+    injection(0,0) = dirac;
+    injection(1,0) = -1.0*dirac;
+
+    EITSourceMat EITsource(geo,electrodes,gauss_order);
+    const Matrix& rhsEIT = EITsource*injection;
+
+    // Surf2Vol
+
+    Matrix points(ndip,3);
+    points.setcol(0,dipoles.getcol(0));
+    points.setcol(1,dipoles.getcol(1));
+    points.setcol(2,dipoles.getcol(2));
+    const Vector& VR0 = VR(geo,points,HeadMatInv,rhsEIT);
+
+    // Surf2Vol en dx.
+
+    points.setcol(0,points.getcol(0)+delta);
+    const Vector& VR0dx = VR(geo,points,HeadMatInv,rhsEIT);
+    points.setcol(0,dipoles.getcol(0));
+
+    // Surf2Vol en dy.
+
+    points.setcol(1,points.getcol(1)+delta);
+    const Vector& VR0dy = VR(geo,points,HeadMatInv,rhsEIT);
+    points.setcol(1,dipoles.getcol(1));
+
+    // Surf2Vol en dz.
+
+    points.setcol(2,points.getcol(2)+delta);
+    const Vector& VR0dz = VR(geo,points,HeadMatInv,rhsEIT);
+    points.setcol(2,dipoles.getcol(2));
+
+    Matrix gradVj(ndip, 3);
+    gradVj.setcol(0,((VR0dx-VR0)/delta));
+    gradVj.setcol(1,((VR0dy-VR0)/delta));
+    gradVj.setcol(2,((VR0dz-VR0)/delta));
+    Matrix qgradVj(1,ndip);
+    Matrix diffVf(1,ndip);
+    for (int i=0;i<ndip;++i)
+        qgradVj(0,i) = dipoles(i,3)*gradVj(i,0)+dipoles(i,4)*gradVj(i,1)+dipoles(i,5)*gradVj(i,2);
+    diffVf.setlin(0,VRi-VRe);
+    qgradVj.save(argv[6]);
+    diffVf.save(argv[7]);
+    return 0;
 }
