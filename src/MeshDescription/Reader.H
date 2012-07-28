@@ -174,15 +174,34 @@ namespace MeshDescription {
 
     private:
 
-        static const char PathSeparator = '/';
+#       if WIN32
+        static const char PathSeparator[];
+#       else
+        static const char PathSeparator   = '/';
+#       endif
 
-        static std::string set_path(const std::string& name) {
+        static bool IsRelativePath(const std::string& name) {
+#           if WIN32
+            const char c0 = name[0];
+            if (c0=='/' || c0=='\\')
+                return false;
+            const char c1 = name[1];
+            const char c2 = name[2];
+            return !(std::isalpha(c0) && c1==':' && (c2=='/' || c2=='\\'));
+#           else
+            return (name[0]==PathSeparator);
+#           endif
+        }
+
+        static std::string find_path(const std::string& name) {
             const std::string::size_type pos = name.find_last_of(PathSeparator);
             return (pos==std::string::npos) ? "" : name.substr(0,pos+1);
         }
 
         std::string file_name(const std::string& name) const {
-            return (name[0]==PathSeparator) ? name : path+name;
+            if (!IsRelativePath(name))
+                return name;
+            return path+name;
         }
 
         const std::string path;    //  Path of the initial geometry file.
@@ -192,8 +211,13 @@ namespace MeshDescription {
         Normals           nrmls;   //  Eventually stores a normal information for each voxel.
     };
 
-    template <typename INTERFACES,typename GEOMETRY,typename NORMALS>
-    Reader<INTERFACES,GEOMETRY,NORMALS>::Reader(const char* geometry): path(set_path(geometry)) {
+#   if WIN32
+    template <typename INTERFACE,typename GEOMETRY,typename NORMALS>
+    const char Reader<INTERFACE,GEOMETRY,NORMALS>::PathSeparator[] = "/\\";
+#   endif
+
+    template <typename INTERFACE,typename GEOMETRY,typename NORMALS>
+    Reader<INTERFACE,GEOMETRY,NORMALS>::Reader(const char* geometry): path(find_path(geometry)) {
 
         //  Read the head file description and load the information into temporary data structures.
 
@@ -236,7 +260,7 @@ namespace MeshDescription {
 
         unsigned num_interfaces;
         ifs >> io_utils::skip_comments('#')
-            >> io_utils::match("Interfaces") >> num_interfaces >> io_utils::match(INTERFACES::keyword);
+            >> io_utils::match("Interfaces") >> num_interfaces >> io_utils::match(INTERFACE::keyword);
 
         if (ifs.fail())
             throw WrongFileFormat(geometry);
