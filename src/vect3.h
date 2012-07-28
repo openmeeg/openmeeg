@@ -45,9 +45,9 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #define _CRT_SECURE_NO_DEPRECATE 1
 #endif
 #include <cstdlib>
-#include <math.h>
+#include <cmath>
 #include <iostream>
-#include <assert.h>
+#include <cassert>
 
 #include "DLLDefinesOpenMEEG.h"
 
@@ -61,120 +61,105 @@ namespace OpenMEEG {
 
     class OPENMEEG_EXPORT Vect3 {
 
-    private:
-        double m_x, m_y, m_z; //!< Coordinates of the vector
+        double m[3]; //!< Coordinates of the vector
 
     public:
-        inline Vect3(const double &xx, const double &yy, const double &zz) : m_x(xx), m_y(yy), m_z(zz) {}
-        inline Vect3(const double &a) : m_x(a), m_y(a), m_z(a) {}
-        inline Vect3() {}
-        inline ~Vect3() {}
 
-        Vect3& operator= (const Vect3 &v); // assigment operator
+        inline Vect3(const double& xx,const double& yy,const double& zz) { m[0] = xx; m[1] = yy; m[2] = zz; }
+        inline Vect3(const double& a) { std::fill(&m[0],&m[3],a); }
+        inline Vect3()  { }
+        inline ~Vect3() { }
 
-        // Copy constructor
-        Vect3(const Vect3 &v)
-        {
-            m_x = v.x();
-            m_y = v.y();
-            m_z = v.z();
-        }
-
-        inline double & x(){return m_x;}
-        inline double & y(){return m_y;}
-        inline double & z(){return m_z;}
-        inline const double& x() const {return m_x;}
-        inline const double& y() const {return m_y;}
-        inline const double& z() const {return m_z;}
-
-        inline double operator* (const Vect3 &v) const {return m_x*v.x() + m_y*v.y() + m_z*v.z();}
-        inline double norm() const {return sqrt(m_x*m_x + m_y*m_y + m_z*m_z);}
-        inline double norm2() const {return m_x*m_x + m_y*m_y + m_z*m_z;}
-        inline bool operator== (const Vect3 &v ) const {return (m_x==v.x() && m_y==v.y() && m_z==v.z());}
-        inline bool operator!= (const Vect3 &v ) const {return (m_x!=v.x() || m_y!=v.y() || m_z!=v.z());}
-        inline void operator+= (const Vect3 &v) {m_x+=v.x(); m_y+=v.y(); m_z+=v.z();}
-        inline void operator-= (const Vect3 &v) {m_x-=v.x(); m_y-=v.y(); m_z-=v.z();}
-        inline void operator*= (const double &d) {m_x*=d; m_y*=d; m_z*=d;}
-        inline void multadd(const double &d, const Vect3&v) {m_x = m_x+d*v.x(); m_y = m_y+d*v.y(); m_z = m_z+d*v.z();}
-        inline Vect3 operator+ (const Vect3&v) const {return Vect3(m_x+v.x(), m_y+v.y(), m_z+v.z());}
-        inline Vect3 operator- (const Vect3 &v) const {return Vect3(m_x-v.x(), m_y-v.y(), m_z-v.z());}
-        inline Vect3 operator^ (const Vect3 &v) const {return Vect3( m_y*v.z()-m_z*v.y(), m_z*v.x()-m_x*v.z(), m_x*v.y()-m_y*v.x());}
-        inline Vect3 operator* (const double &d) const {return Vect3(d*m_x, d*m_y, d*m_z);}
-        inline Vect3 operator/ (const double &d) const {double d2 = 1.0/d; return Vect3(d2*m_x, d2*m_y, d2*m_z);}
-
-        inline double operator() (const int i) const {
-            assert(i>=0 && i<3);
-            switch(i) {
-                case 0: return m_x;
-                case 1: return m_y;
-                case 2: return m_z;
-                default: exit(1);
-            }
-        }
-
-        inline double& operator() (const int i) {
-            assert(i>=0 && i<3);
-            switch(i) {
-                case 0: return m_x;
-                case 1: return m_y;
-                case 2: return m_z;
-                default: exit(1);
-            }
-        }
-
-        inline Vect3 operator- () {return Vect3(-m_x, -m_y, -m_z);}
-
-        inline double det(const Vect3 &y2, const Vect3 &y3) const {
-            return (*this) * (y2 ^ y3); // y1.det(y2,y3):= y1/(y2^y3)
-        }
-
-        inline double solangl(const Vect3 &v1,const Vect3 &v2,const Vect3 &v3) const {
-            // De Munck : Good sign directly
-            Vect3 Y1 = v1 - *this;
-            Vect3 Y2 = v2 - *this;
-            Vect3 Y3 = v3 - *this;
-            double y1 = Y1.norm();
-            double y2 = Y2.norm();
-            double y3 = Y3.norm();
-            double d = Y1*(Y2^Y3);
-            return 2.*atan2(d,(y1*y2*y3+y1*(Y2*Y3)+y2*(Y3*Y1)+y3*(Y1*Y2)));
-        }
-
-        inline Vect3 normal(const Vect3 &v2, const Vect3 &v3) const {
-            Vect3 v=*this;
-            return ( (v-v2)^(v-v3) ) ;
-        }
-
-        inline Vect3& normalize() {
-            *this = *this * (1 / (*this).norm());
+        Vect3& operator=(const Vect3& v) {
+            std::copy(&v.m[0],&v.m[3],&m[0]);
             return *this;
         }
 
-        friend std::ostream& operator<<(std::ostream &os, const Vect3 &v);
-        friend std::istream& operator>>(std::istream &is, Vect3 &v);
+        Vect3(const Vect3 &v) {
+            m[0] = v.x();
+            m[1] = v.y();
+            m[2] = v.z();
+        }
+
+        inline       double& x()       { return m[0]; }
+        inline const double& x() const { return m[0]; }
+
+        inline       double& y()       { return m[1]; }
+        inline const double& y() const { return m[1]; }
+
+        inline       double& z()       { return m[2]; }
+        inline const double& z() const { return m[2]; }
+
+        inline double operator*(const Vect3& v) const { return m[0]*v.x()+m[1]*v.y()+m[2]*v.z(); }
+
+        inline double norm()  const { return sqrt(norm2()); }
+        inline double norm2() const { return m[0]*m[0]+m[1]*m[1]+m[2]*m[2]; }
+
+        inline bool operator==(const Vect3& v ) const { return (m[0]==v.x() && m[1]==v.y() && m[2]==v.z()); }
+        inline bool operator!=(const Vect3& v ) const { return (m[0]!=v.x() || m[1]!=v.y() || m[2]!=v.z()); }
+
+        inline void operator+=(const Vect3& v)  { m[0] += v.x(); m[1] += v.y(); m[2] += v.z(); }
+        inline void operator-=(const Vect3& v)  { m[0] -= v.x(); m[1] -= v.y(); m[2] -= v.z(); }
+        inline void operator*=(const double& d) { m[0] *= d; m[1] *= d; m[2] *= d; }
+
+        inline void multadd(const double& d,const Vect3& v) {m[0] += d*v.x(); m[1] += d*v.y(); m[2] += d*v.z();}
+
+        inline Vect3 operator+(const Vect3& v)  const { return Vect3(m[0]+v.x(),m[1]+v.y(),m[2]+v.z()); }
+        inline Vect3 operator-(const Vect3& v)  const { return Vect3(m[0]-v.x(),m[1]-v.y(),m[2]-v.z()); }
+        inline Vect3 operator^(const Vect3& v)  const { return Vect3(m[1]*v.z()-m[2]*v.y(),m[2]*v.x()-m[0]*v.z(),m[0]*v.y()-m[1]*v.x()); }
+        inline Vect3 operator*(const double& d) const { return Vect3(d*m[0],d*m[1],d*m[2]); }
+        inline Vect3 operator/(const double& d) const { const double d2 = 1.0/d; return Vect3(d2*m[0],d2*m[1],d2*m[2]); }
+
+        inline double operator() (const int i) const {
+            assert(i>=0 && i<3);
+            return m[i];
+        }
+
+        inline double& operator()(const int i) {
+            assert(i>=0 && i<3);
+            return m[i];
+        }
+
+        inline Vect3 operator-() { return Vect3(-m[0],-m[1],-m[2]); }
+
+        inline double det(const Vect3& y2,const Vect3& y3) const {
+            return (*this)*(y2^y3); // y1.det(y2,y3):= y1/(y2^y3)
+        }
+
+        inline double solangl(const Vect3& v1,const Vect3& v2,const Vect3& v3) const {
+            // De Munck : Good sign directly
+            const Vect3 Y1 = v1-*this;
+            const Vect3 Y2 = v2-*this;
+            const Vect3 Y3 = v3-*this;
+            const double y1 = Y1.norm();
+            const double y2 = Y2.norm();
+            const double y3 = Y3.norm();
+            const double d = Y1*(Y2^Y3);
+            return 2.*atan2(d,(y1*y2*y3+y1*(Y2*Y3)+y2*(Y3*Y1)+y3*(Y1*Y2)));
+        }
+
+        inline Vect3 normal(const Vect3& v2,const Vect3& v3) const {
+            const Vect3 v=*this;
+            return ((v-v2)^(v-v3));
+        }
+
+        inline Vect3& normalize() {
+            *this = *this*(1.0/(*this).norm());
+            return *this;
+        }
+
+        friend std::ostream& operator<<(std::ostream& os,const Vect3& v);
+        friend std::istream& operator>>(std::istream& is,Vect3& v);
     };
 
-    // assigment operator
-    inline Vect3& Vect3::operator= (const Vect3 &v)
-    {
-        // do the copy
-        m_x = v.m_x;
-        m_y = v.m_y;
-        m_z = v.m_z;
-        // return the existing object
-        return *this;
-    }
+    inline Vect3 operator*(const double& d,const Vect3& v) { return v*d; }
 
-    inline Vect3 operator * (const double &d, const Vect3 &v) {return v*d;}
-
-    inline std::istream& operator>>(std::istream &is, Vect3 &v)
-    {
+    inline std::istream& operator>>(std::istream& is,Vect3& v) {
         return is >> v.x() >> v.y() >> v.z();
     }
 
-    inline std::ostream& operator<<(std::ostream &os, const Vect3 &v)
-    {
-        return os << v.x() << " " << v.y() << " " << v.z() ;
+    inline std::ostream& operator<<(std::ostream& os,const Vect3& v) {
+        return os << v.x() << ' ' << v.y() << ' ' << v.z() ;
     }
 }
 
