@@ -150,55 +150,61 @@ DipSourceMat::DipSourceMat(const Geometry &geo, const Matrix& dipoles, const int
     assemble_DipSourceMat(*this, geo, dipoles, gauss_order, adapt_rhs, dipoles_in_cortex);
 }
 
-void assemble_EITSourceMat(Matrix &mat, const Geometry &geo, Matrix &positions, const int gauss_order)
+void assemble_EITSourceMat(Matrix& mat,const Geometry& geo,const Matrix& positions,const int gauss_order)
 {
-    // a Matrix to be applied to the scalp-injected current
-    // to obtain the Source Term of the EIT foward problem
-    int newsize = geo.size() - geo.getM(geo.nb()-1).nbTrgs();
-    mat = Matrix(newsize, positions.nlin());
-    // transmat = a big SymMatrix of which mat = part of its transpose
+    //  A Matrix to be applied to the scalp-injected current to obtain the Source Term of the EIT foward problem.
+
+    const int newsize = geo.size()-geo.getM(geo.nb()-1).nbTrgs();
+    mat = Matrix(newsize,positions.nlin());
+
+    //  transmat = a big SymMatrix of which mat = part of its transpose.
+
     SymMatrix transmat(geo.size());
+    transmat.set(0.0);
 
-    int c;
-    int offset = 0;
-    int offset0, offset1, offset2, offset3, offset4;
+    int offset0,offset1,offset2,offset3,offset4;
 
-    double K = 1.0 / (4*M_PI);
+    const double K = 1.0/(4*M_PI);
 
-    for(c=0; c<geo.nb()-1; c++) {
+    for(int c=0,offset=0;c<geo.nb()-1;++c) {
         offset0 = offset;
-        offset1 = offset0 + geo.getM(c).nbPts();
-        offset2 = offset1 + geo.getM(c).nbTrgs();
-        offset3 = offset2 + geo.getM(c+1).nbPts();
-        offset4 = offset3 + geo.getM(c+1).nbTrgs();
-        offset = offset2;
+        offset1 = offset0+geo.getM(c).nbPts();
+        offset2 = offset1+geo.getM(c).nbTrgs();
+        offset3 = offset2+geo.getM(c+1).nbPts();
+        offset4 = offset3+geo.getM(c+1).nbTrgs();
+        offset  = offset2;
     }
-    c = geo.nb()-2;
+    const int c = geo.nb()-2;
 
-    // compute S
-    operatorS(geo.getM(c+1), geo.getM(c), transmat, offset3, offset1, gauss_order);
-    mult(transmat, offset3, offset1, offset4, offset2, K / geo.sigma_in(c+1));
-    // first compute D, then it will be transposed
-    operatorD(geo.getM(c+1), geo.getM(c), transmat, offset3, offset0, gauss_order);
-    mult(transmat, offset3, offset0, offset4, offset1, -K);
-    operatorD(geo.getM(c+1), geo.getM(c+1), transmat, offset3, offset2, gauss_order);
-    mult(transmat, offset3, offset2, offset4, offset3, -2.0*K);
-    operatorP1P0(geo.getM(c+1), transmat, offset3, offset2);
-    mult(transmat, offset3, offset2, offset4, offset3, -0.5);
-    // extracting the transpose of the last block of lines of transmat
-    // transposing the Matrix
+    //  Compute S.
+
+    operatorS(geo.getM(c+1),geo.getM(c),transmat,offset3,offset1,gauss_order);
+    mult(transmat,offset3,offset1,offset4,offset2,K/geo.sigma_in(c+1));
+    transmat.save("toto1.txt");
+
+    //  First compute D, then it will be transposed.
+
+    operatorD(geo.getM(c+1),geo.getM(c),transmat,offset3,offset0,gauss_order);
+    mult(transmat,offset3,offset0,offset4,offset1,-K);
+    operatorD(geo.getM(c+1),geo.getM(c+1),transmat,offset3,offset2,gauss_order);
+    mult(transmat,offset3,offset2,offset4,offset3,-2.0*K);
+    operatorP1P0(geo.getM(c+1),transmat,offset3,offset2);
+    mult(transmat,offset3,offset2,offset4,offset3,-0.5);
+    transmat.save("toto2.txt");
+
+    //  Extracting the transpose of the last block of lines of transmat.
+    //  Transposing the Matrix.
+
     Vect3 current_position; // buffer for electrode positions
     Vect3 current_alphas; //not used here
-    int current_nearest_triangle; // buffer for closest triangle to electrode
-    for(unsigned ielec=0; ielec<positions.nlin(); ielec++) {
-        for(int k=0; k<3; k++) {
-            current_position(k) = positions(ielec, k);
-        }
-        dist_point_mesh(current_position, geo.getM(geo.nb()-1), current_alphas, current_nearest_triangle);
-        double area = geo.getM(geo.nb()-1).triangle(current_nearest_triangle).getArea();
-        for(int i=0; i<newsize; i++) {
-            mat(i, ielec) = transmat(newsize + current_nearest_triangle, i) / area;
-        }
+    for (unsigned ielec=0;ielec<positions.nlin();++ielec) {
+        for (int k=0;k<3;++k)
+            current_position(k) = positions(ielec,k);
+        int current_nearest_triangle; //    To hold the index of the closest triangle to electrode.
+        dist_point_mesh(current_position,geo.getM(geo.nb()-1),current_alphas,current_nearest_triangle);
+        const double inv_area = 1.0/geo.getM(geo.nb()-1).triangle(current_nearest_triangle).getArea();
+        for (int i=0;i<newsize;++i)
+            mat(i,ielec) = transmat(newsize+current_nearest_triangle,i)*inv_area;
     }
 }
 
