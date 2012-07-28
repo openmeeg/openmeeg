@@ -23,6 +23,7 @@
 #cmakedefine WORDS_BIGENDIAN
 
 #cmakedefine HAVE_ISNORMAL_IN_NAMESPACE_STD
+#cmakedefine HAVE_ISNORMAL_IN_MATH_H
 
 static const char version[] = "@VERSION_STRING@";
 

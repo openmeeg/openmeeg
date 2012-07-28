@@ -42,11 +42,23 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #include <mesh3.h>
 
-#ifndef HAVE_ISNORMAL_IN_NAMESPACE_STD
+#ifdef HAVE_ISNORMAL_IN_NAMESPACE_STD
+#include <cmath>
+#else
+#ifdef HAVE_ISNORMAL_IN_MATH_H
 #include <math.h>
 namespace std {
-    inline bool isnormal(const double x) { return isnormal(x); }
+    inline bool isnormal(const double x) { return ::isnormal(x); }
 }
+#else
+#include <limits>
+namespace std {
+    inline bool isnormal(double x) {
+        if (x<0) x = -x;
+        return x>=std::numeric_limits<double>::min() && x<=std::numeric_limits<double>::max();
+    }
+}
+#endif
 #endif
 
 namespace OpenMEEG {

@@ -1,3 +1,8 @@
+IF (NOT HAVE_ISNORMAL_IN_NAMESPACE_STD)
+    INCLUDE(CheckSymbolExists)
+    CHECK_SYMBOL_EXISTS(isnormal math.h HAVE_ISNORMAL_IN_MATH_H)
+ENDIF()
+
 SET(OPENMEEG_HEADERS
     analytics.h assemble.h conditioning.h cpuChrono.h danielsson.h DLLDefinesOpenMEEG.h forward.h gain.h geometry.h integrator.h 
     inversers.h mesh3.h MeshReader.h om_utils.h operators.h options.h PropertiesSpecialized.h sensors.h triangle.h Triangle_triangle_intersection.h vect3.h
