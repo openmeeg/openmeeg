@@ -189,7 +189,7 @@ namespace MeshDescription {
             const char c2 = name[2];
             return !(std::isalpha(c0) && c1==':' && (c2=='/' || c2=='\\'));
 #           else
-            return (name[0]==PathSeparator);
+            return (name[0]!=PathSeparator);
 #           endif
         }
 
