@@ -101,8 +101,8 @@ namespace OpenMEEG {
         Vector prov(rhs.nlin());
         for (size_t s=0;s<n_dipoles;++s) {
             PROGRESSBAR(s, n_dipoles);
-            Vect3 r(dipoles(s,0),dipoles(s,1),dipoles(s,2));
-            Vect3 q(dipoles(s,3),dipoles(s,4),dipoles(s,5));
+            const Vect3 r(dipoles(s,0),dipoles(s,1),dipoles(s,2));
+            const Vect3 q(dipoles(s,3),dipoles(s,4),dipoles(s,5));
 
             const unsigned domainID = (dipoles_in_cortex) ? 0 : geo.getDomain(r);
             const double   sigma    = geo.sigma_in(domainID);
@@ -203,9 +203,7 @@ namespace OpenMEEG {
         //  Transposing the Matrix.
 
         for (unsigned ielec=0;ielec<positions.nlin();++ielec) {
-            Vect3 current_position;
-            for (int k=0;k<3;++k)
-                current_position(k) = positions(ielec,k);
+            const Vect3 current_position(positions(ielec,0),positions(ielec,1),positions(ielec,2));
             Vect3 current_alphas; //not used here
             int current_nearest_triangle; //    To hold the index of the closest triangle to electrode.
             dist_point_mesh(current_position,geo.getM(geo.nb()-1),current_alphas,current_nearest_triangle);
@@ -244,7 +242,7 @@ namespace OpenMEEG {
             anaDP.init(q,r0);
             for (unsigned iPTS=0;iPTS<points.nlin();++iPTS) {
                 if ((pointsLabelled(iPTS,3))==domainID) {
-                    Vect3 r(points(iPTS,0),points(iPTS,1),points(iPTS,2));
+                    const Vect3 r(points(iPTS,0),points(iPTS,1),points(iPTS,2));
                     mat(iPTS, iDIP) = K/sigma*anaDP.f(r);
                 }
             }
