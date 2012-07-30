@@ -153,15 +153,15 @@ namespace OpenMEEG {
         std::transform(extension.begin(), extension.end(), extension.begin(), (int(*)(int))std::tolower);
         if     (extension==std::string("vtk")) {
             streamFormat = Mesh::VTK;
-        } else if(extension==std::string("tri")) {
+        } else if (extension==std::string("tri")) {
             streamFormat = Mesh::TRI;
-        } else if(extension==std::string("bnd")) {
+        } else if (extension==std::string("bnd")) {
             streamFormat = Mesh::BND;
-        } else if(extension==std::string("mesh")) {
+        } else if (extension==std::string("mesh")) {
             streamFormat = Mesh::MESH;
-        } else if(extension==std::string("off")) {
+        } else if (extension==std::string("off")) {
             streamFormat = Mesh::OFF;
-        } else if(extension==std::string("gii")) {
+        } else if (extension==std::string("gii")) {
             streamFormat = Mesh::GIFTI;
         } else {
             std::cerr << "Unknown mesh file format for " << filename << std::endl;
@@ -175,22 +175,22 @@ namespace OpenMEEG {
         std::transform(extension.begin(), extension.end(), extension.begin(), (int(*)(int))std::tolower);
         if (extension==std::string("vtk")) {
             load_vtk(filename);
-        } else if(extension==std::string("tri")) {
+        } else if (extension==std::string("tri")) {
             load_tri(filename);
-        } else if(extension==std::string("bnd")) {
+        } else if (extension==std::string("bnd")) {
             load_bnd(filename);
-        } else if(extension==std::string("mesh")) {
+        } else if (extension==std::string("mesh")) {
             load_mesh(filename);
-        } else if(extension==std::string("off")) {
+        } else if (extension==std::string("off")) {
             load_off(filename);
-        } else if(extension==std::string("gii")) {
+        } else if (extension==std::string("gii")) {
             load_gifti(filename);
         } else {
             std::cerr << "Load : Unknown mesh file format for " << filename << std::endl;
             exit(1);
         }
 
-        if(verbose)
+        if (verbose)
             info();
     }
 
@@ -206,7 +206,7 @@ namespace OpenMEEG {
         normals = new Vect3[npts]; // normals on each point
         links = new intSet[npts];
 
-        if(reader->GetNumberOfNormalsInFile()==0) {
+        if (reader->GetNumberOfNormalsInFile()==0) {
             vtkPolyDataNormals *newNormals = vtkPolyDataNormals::New();
             newNormals->SetInput(vtkMesh);
             newNormals->Update();
@@ -420,10 +420,9 @@ namespace OpenMEEG {
     }
 
     void Mesh::load_mesh(const char* filename) {
-        std::string s = filename;
         std::cout << "load_mesh : " << filename << std::endl;
-        std::ifstream f(filename);
-        if(!f.is_open()) {
+        std::ifstream f(filename,std::ios::binary);
+        if (!f.is_open()) {
             std::cerr << "Error opening MESH file: " << filename << std::endl;
             exit(1);
         }
@@ -462,7 +461,7 @@ namespace OpenMEEG {
         std::string s = filename;
         std::cout << "load_tri : " << filename << std::endl;
         std::ifstream f(filename);
-        if(!f.is_open()) {
+        if (!f.is_open()) {
             std::cerr << "Error opening TRI file: " << filename << std::endl;
             exit(1);
         }
@@ -480,7 +479,7 @@ namespace OpenMEEG {
         f.seekg( 0, std::ios_base::beg );
 
         f >> io_utils::skip_comments('#') >> st;
-        if(st == "Type=") {
+        if (st == "Type=") {
             io_utils::skip_line(f);
             f >> io_utils::skip_comments('#') >> st;
         }
@@ -489,7 +488,7 @@ namespace OpenMEEG {
         f >> npts;
 
         f >> io_utils::skip_comments('#') >> st;
-        if(st == "UnitPosition") {
+        if (st == "UnitPosition") {
             io_utils::skip_line(f); // skip : "UnitPosition mm"
         }
 
@@ -532,7 +531,7 @@ namespace OpenMEEG {
         std::cout << "load_bnd : " << filename << std::endl;
         std::ifstream f(filename);
 
-        if(!f.is_open()) {
+        if (!f.is_open()) {
             std::cerr << "Error opening BND file: " << filename << std::endl;
             exit(1);
         }
@@ -574,7 +573,7 @@ namespace OpenMEEG {
         std::string s = filename;
         std::cout << "load_off : " << filename << std::endl;
         std::ifstream f(filename);
-        if(!f.is_open()) {
+        if (!f.is_open()) {
             std::cerr << "Error opening OFF file: " << filename << std::endl;
             exit(1);
         }
@@ -586,15 +585,15 @@ namespace OpenMEEG {
 
         std::string extension = getNameExtension(filename);
         std::transform(extension.begin(), extension.end(), extension.begin(), (int(*)(int))std::tolower);
-        if     (extension==std::string("vtk")) {
+        if (extension==std::string("vtk")) {
             save_vtk(filename);
-        } else if(extension==std::string("tri")) {
+        } else if (extension==std::string("tri")) {
             save_tri(filename);
-        } else if(extension==std::string("bnd")) {
+        } else if (extension==std::string("bnd")) {
             save_bnd(filename);
-        } else if(extension==std::string("mesh")) {
+        } else if (extension==std::string("mesh")) {
             save_mesh(filename);
-        } else if(extension==std::string("off")) {
+        } else if (extension==std::string("off")) {
             save_off(filename);
         } else {
             std::cerr << "Unknown file format for : " << filename << std::endl;
@@ -676,7 +675,7 @@ namespace OpenMEEG {
 
     void Mesh::save_mesh(const char* filename) const {
 
-        std::ofstream os(filename);
+        std::ofstream os(filename,std::ios::binary);
 
         unsigned char format[5] = {'b','i','n','a','r'}; // File format
         os.write((char*)format, sizeof(unsigned char)*5);
