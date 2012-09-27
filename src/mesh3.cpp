@@ -943,7 +943,7 @@ namespace OpenMEEG {
                 const Triangle& T2 = triangle(j);
                 if (!T1.contains(T2.s1()) && !T1.contains(T2.s2()) && !T1.contains(T2.s3())) {
                     if (triangle_intersection(*this, i, *this, j)) {
-                        selfIntersects = true;
+		      //                      selfIntersects = true;
                         std::cout << "triangles " << i << " and " << j << " are intersecting" <<std::endl;
                     }
                 }

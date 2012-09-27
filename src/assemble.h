@@ -77,6 +77,7 @@ namespace OpenMEEG {
 
     class OPENMEEG_EXPORT Surf2VolMat: public virtual Matrix {
     public:
+        using Matrix::operator=;
         Surf2VolMat(const Geometry& geo,const Matrix& points);
         virtual ~Surf2VolMat () {};
     };
@@ -85,6 +86,12 @@ namespace OpenMEEG {
     public:
         Head2EEGMat (const Geometry& geo, const Sensors& electrodes);
         virtual ~Head2EEGMat () {};
+    };
+
+    class OPENMEEG_EXPORT Head2ECoGMat: public virtual SparseMatrix {
+    public:
+        Head2ECoGMat (const Geometry& geo, const Sensors& electrodes);
+        virtual ~Head2ECoGMat () {};
     };
 
     class OPENMEEG_EXPORT Head2MEGMat: public virtual Matrix {

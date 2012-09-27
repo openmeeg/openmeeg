@@ -244,6 +244,43 @@ int main(int argc, char** argv)
     /*********************************************************************************************
     * Computation of the linear application which maps the unknown vector in symmetric system,
     * (i.e. the potential and the normal current on all interfaces)
+    * |----> v (potential at the ECoG electrodes)
+    **********************************************************************************************/
+    else if((!strcmp(argv[1],"-Head2ECoGMat")) | (!strcmp(argv[1],"-H2ECoGM"))| (!strcmp(argv[1],"-h2ecogm"))) {
+
+        if(argc < 3)
+        {
+            cerr << "Please set geometry filepath !" << endl;
+            exit(1);
+        }
+        if (argc < 4)
+        {
+            std::cerr << "Please set conductivities filepath !" << endl;
+            exit(1);
+        }
+        if(argc < 5)
+        {
+            cerr << "Please set ECoG electrode positions filepath !" << endl;
+            exit(1);
+        }
+
+        // Loading surfaces from geometry file.
+        Geometry geo;
+        geo.read(argv[2],argv[3]);
+
+        // read the file containing the positions of the EEG patches
+        Sensors electrodes(argv[4]);
+
+        // Assembling Matrix from discretization :
+        // Head2ECoG is the linear application which maps x |----> v
+        Head2ECoGMat mat(geo, electrodes);
+        // Saving Head2ECoG Matrix :
+        mat.save(argv[5]);
+    }
+
+    /*********************************************************************************************
+    * Computation of the linear application which maps the unknown vector in symmetric system,
+    * (i.e. the potential and the normal current on all interfaces)
     * |----> bFerguson (contrib to MEG response)
     **********************************************************************************************/
     else if ((!strcmp(argv[1],"-Head2MEGMat"))|(!strcmp(argv[1],"-H2MM"))|(!strcmp(argv[1],"-h2mm"))) {
@@ -463,6 +500,15 @@ void getHelp(char** argv) {
     cout << "               geometry file (.geom)" << endl;
     cout << "               conductivity file (.cond)" << endl;
     cout << "               file containing the positions of EEG electrodes (.patches)" << endl;
+    cout << "               output matrix" << endl << endl;
+
+    cout << "   -Head2ECoGMat, -H2ECogM, -h2ecogm : " << endl;
+    cout << "        Compute the linear application which maps the potential" << endl;
+    cout << "        on the scalp to the ECoG electrodes"  << endl;
+    cout << "            Arguments :" << endl;
+    cout << "               geometry file (.geom)" << endl;
+    cout << "               conductivity file (.cond)" << endl;
+    cout << "               file containing the positions of ECoG electrodes (.patches)" << endl;
     cout << "               output matrix" << endl << endl;
 
     cout << "   -Head2MEGMat, -H2MM, -h2mm : " << endl;
