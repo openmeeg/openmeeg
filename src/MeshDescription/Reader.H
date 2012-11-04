@@ -75,11 +75,10 @@ namespace MeshDescription {
             for (unsigned i=0;i<interfaces().size();++i) {
 
                 std::string name;
-                is >> io_utils::skip_comments("#") >> io_utils::file(name,'"',false);
-                std::cerr << "Read name: " << name << std::endl;
+                is >> io_utils::skip_comments("#") >> io_utils::filename(name,'"',false);
                 INTERFACE::set_file_format(interfaces()[i],name);
 
-                // Load the interface and check that it is compatible with the first one.
+                //  Load the interface and check that it is compatible with the first one.
 
                 const std::string& full_name = file_name(name);
                 std::ifstream ifs(full_name.c_str());
