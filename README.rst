@@ -55,6 +55,13 @@ On Mac OS X, you'll need `CMake <http://www.cmake.org>`_ (install it with `Homeb
 Then from a terminal::
 
     $ git clone --recursive git://github.com:openmeeg/openmeeg.git
+
+or if it does not work try:
+
+    $ git clone --recursive https://github.com/openmeeg/openmeeg.git
+
+then:
+
     $ cd openmeeg
     $ mkdir build
     $ cd build
