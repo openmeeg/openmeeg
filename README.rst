@@ -56,11 +56,11 @@ Then from a terminal::
 
     $ git clone --recursive git://github.com:openmeeg/openmeeg.git
 
-or if it does not work try:
+or if it does not work try::
 
     $ git clone --recursive https://github.com/openmeeg/openmeeg.git
 
-then:
+then::
 
     $ cd openmeeg
     $ mkdir build
