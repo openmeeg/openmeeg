@@ -19,6 +19,7 @@
     #include <inversers.h>
 
     using namespace OpenMEEG;
+%include "scipy.i"
 
     #ifdef SWIGPYTHON
 
@@ -73,7 +74,19 @@
 
             return PyArray_Return ((PyArrayObject*) matarray);
         }
-
+        static PyObject* loadmat(string matrix_name) {
+	  try {
+	    %pythoncode %{
+	      scipy.io.loadmat(matrix_name)['linop']
+		%}
+	  }
+	  catch {
+	    %pythoncode %{
+	      import h5py
+		h5py.File(matrix_name)['linop'].value.T
+		%}
+	  }
+	}
     #endif
 %}
 
@@ -92,7 +105,10 @@ import_array();
         PyErr_SetString(PyExc_RuntimeError,e.what());
         return NULL;
     }
-}
+ }
+
+
+
 
 /* DLL Exports handling on Windows */
 #define OPENMEEGMATHS_EXPORT
@@ -121,3 +137,4 @@ import_array();
 
 static PyObject* asarray(OpenMEEG::Matrix* _mat);
 static PyObject* asarray(OpenMEEG::Vector* _vec);
+static PyObject* loadmat(string matrix_name);
