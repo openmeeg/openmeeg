@@ -14,18 +14,12 @@ squids = np.loadtxt('meg_channels_locations.squids')
 
 ##############################################################################
 # Load 4 leadfields
-try:
-    G_meg = io.loadmat('meg_leadfield.mat')['linop']
-    G_eeg = io.loadmat('eeg_leadfield.mat')['linop']
-    G_eit = io.loadmat('eit_leadfield.mat')['linop']
-    G_ip = io.loadmat('ip_leadfield.mat')['linop']
-except:
-    import h5py
-    G_meg = h5py.File('meg_leadfield.mat')['linop'].value.T
-    G_eeg = h5py.File('eeg_leadfield.mat')['linop'].value.T
-    G_eit = h5py.File('eit_leadfield.mat')['linop'].value.T
-    G_ip = h5py.File('ip_leadfield.mat')['linop'].value.T
-
+import openmeeg as om
+G_meg = om.loadmat('meg_leadfield.mat')
+G_eeg = om.loadmat('eeg_leadfield.mat')
+G_eit = om.loadmat('eit_leadfield.mat')
+G_ip = om.loadmat('ip_leadfield.mat')
+G_ecog = om.loadmat('ecog_leadfield.mat')
 
 ###############################################################################
 # EEG leadfield
@@ -40,19 +34,19 @@ cortex.plot(opacity=1, scalars=G_eeg[eeg_chan_idx, :])
 mlab.points3d(eeg_electrodes[[eeg_chan_idx],0], eeg_electrodes[[eeg_chan_idx],1],
             eeg_electrodes[[eeg_chan_idx],2],
             opacity=0.5, scale_factor=12, color=(1,0,0))
+
 ###############################################################################
 # ECoG leadfield
 mlab.figure(2)
 mlab.clf()
-eeg_chan_idx = 28
-cortex.plot(opacity=1, scalars=G_ecog[eeg_chan_idx,:])
+ecog_chan_idx = 0
+cortex.plot(opacity=1, scalars=G_ecog[ecog_chan_idx, :])
 
 # view EEG electrodes
-mlab.points3d(ecog_electrodes[[eeg_chan_idx],0], ecog_electrodes[[ecog_chan_idx],1],
-            ecog_electrodes[[eeg_chan_idx],2],
-            opacity=0.5, scale_factor=12, color=(1,0,0))
-
-
+mlab.points3d(ecog_electrodes[[ecog_chan_idx],0],
+              ecog_electrodes[[ecog_chan_idx],1],
+              ecog_electrodes[[ecog_chan_idx],2],
+              opacity=0.5, scale_factor=8, color=(1,0,0))
 
 ###############################################################################
 # MEG leadfield

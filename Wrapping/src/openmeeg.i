@@ -77,6 +77,16 @@
     #endif
 %}
 
+%pythoncode {
+def loadmat(fname):
+    try:
+        from scipy import io
+        io.loadmat(fname)['linop']
+    except:
+        import h5py
+        return h5py.File(fname)['linop'].value.T
+}
+
 %include "numpy.i"
 
 %init %{
