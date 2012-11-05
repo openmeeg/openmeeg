@@ -55,10 +55,17 @@ On Mac OS X, you'll need `CMake <http://www.cmake.org>`_ (install it with `Homeb
 Then from a terminal::
 
     $ git clone --recursive git://github.com:openmeeg/openmeeg.git
+
+or if it does not work try::
+
+    $ git clone --recursive https://github.com/openmeeg/openmeeg.git
+
+then::
+
     $ cd openmeeg
     $ mkdir build
     $ cd build
-    $ cmake -DENABLE_TESTING=ON -DCMAKE_BUILD_TYPE=Release -DUSE_PROGRESSBAR=ON ..
+    $ cmake -DBUILD_TESTING=ON -DCMAKE_BUILD_TYPE=Release -DUSE_PROGRESSBAR=ON ..
     $ make
 
 If you want the support for Python, you will need to add "-DENABLE_PYTHON=ON" to the cmake line above and if you want to enable parallel computation with OpenMP add "-DUSE_OMP=ON".

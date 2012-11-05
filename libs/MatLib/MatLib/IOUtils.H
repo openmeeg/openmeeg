@@ -42,7 +42,9 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #include <iostream>
 #include <string>
+#include <vector>
 #include <limits>
+#include <locale>
 
 //  Various stream manipulators to handle various kinds of token
 //  in the input stream (comments, strings, white spaces,
@@ -172,7 +174,7 @@ namespace io_utils {
     match_string(std::istream& is,const char*& s)
     {
         is >> std::ws;
-        while (*s && is.peek()==static_cast<unsigned char>(*s)) {
+        while (*s && is.peek()==static_cast<const unsigned char>(*s)) {
             is.get();
             s++;
         }
@@ -312,6 +314,30 @@ namespace io_utils {
         return imanip2<const char*,bool&>(match_string_internal,str.c_str(),res);
     }
 
+    //  Like match_optional but the matching is chosen in a list of alternatives and the
+    //  presence of one alternative string is given in index (index=-1 if no alternatives were found).
+
+    inline std::istream&
+    match_string_in_alternatives(std::istream& is,const std::vector<const char*>& alternatives,int& index) {
+        typedef std::vector<const char*> Alternatives;
+        index = -1;
+        for (Alternatives::const_iterator i=alternatives.begin();i!=alternatives.end();++i) {
+            bool found;
+            is >> match_optional(*i,found);
+            if (found) {
+                index = i-alternatives.begin();
+                return is;
+            }
+        }
+
+        return is;
+    }
+
+    inline imanip2<const std::vector<const char*>&,int&>
+    match_alternative(const std::vector<const char*>& alternatives,int& index) {
+        return imanip2<const std::vector<const char*>&,int&>(match_string_in_alternatives,alternatives,index);
+    }
+
     //  Eat the given string if present on an input stream.
     //  Example: To parse lines such as "x=156 y=34".
     //      cin >> eat("x=") >> x >> eat("y=") >> y;
@@ -426,7 +452,7 @@ namespace io_utils {
         return r.erase(0, r.find_first_not_of(drop));
     }
 
-        //  File reading.
+    //  File reading.
 
     inline std::istream&
     file_internal(std::istream& is,std::string& filename,const char delimiter,const bool force_delimiter) {
@@ -450,17 +476,22 @@ namespace io_utils {
             is.get(c);
             delimiter_seen = true;
         }
-            
+
         //  Read the string content.
 
-        while (is.get(c) && c!=delimiter)
+        while (is.get(c)) {
+            if (delimiter_seen && c==delimiter)
+                break;
+            if (!delimiter_seen && std::isspace(c,is.getloc()))
+                break;
             filename += c;
+        }
 
         return is;
     }
 
     inline imanip3<std::string&,const char,const bool>
-    file(std::string& filename,const char delimiter='"',const bool force_delimiter=true) {
+    filename(std::string& filename,const char delimiter='"',const bool force_delimiter=true) {
         return imanip3<std::string&,const char,const bool>(file_internal,filename,delimiter,force_delimiter);
     }
 }

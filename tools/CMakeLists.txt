@@ -38,4 +38,10 @@ IF (USE_CGAL)
     INSTALL(TARGETS om_cgal_mesh_create DESTINATION bin)
 ENDIF()
 
+IF (USE_VTK)
+    ADD_EXECUTABLE(om_add_vtk_dataset AddDataSetToVtk.cpp)
+    TARGET_LINK_LIBRARIES (om_add_vtk_dataset ${VTK_LIBRARIES})
+    INSTALL(TARGETS om_add_vtk_dataset DESTINATION bin)
+ENDIF()
+
 INSTALL(TARGETS om_make_nerve om_mesh_convert om_mesh_concat om_mesh_info om_mesh_smooth om_register_squids om_squids2vtk om_matrix_info om_matrix_convert om_check_geom om_mesh_to_dip DESTINATION bin)

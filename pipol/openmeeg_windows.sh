@@ -83,6 +83,7 @@ function build_and_test() {
     # 14) Save the package
     mkdir -p $PIPOL_HOMEDIR/.pipol/packages/openmeeg-${BRANCH}
     cp OpenMEEG-*.* $PIPOL_HOMEDIR/.pipol/packages/openmeeg-${BRANCH}
+    cp -r $TEMP $PIPOL_HOMEDIR/.pipol/packages/openmeeg-${BRANCH}
 }
 
 build_and_test "Experimental"

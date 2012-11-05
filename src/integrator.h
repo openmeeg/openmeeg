@@ -179,41 +179,35 @@ namespace OpenMEEG {
 
     static const int nbPts[4]={3,6,7,16};
 
-    template<class T,class I>
-    class OPENMEEG_EXPORT Integrator
-    {
-    private:
+    template <class T,class I>
+    class OPENMEEG_EXPORT Integrator {
+
         int order;
 
     public:
+
         inline Integrator() {setOrder(3);}
         inline Integrator(int ord) {setOrder(ord);}
         inline ~Integrator() {}
-        inline void setOrder(int n)
-        {
-            if(n>=0 && n<4) 
-            {
-                order=n;
+
+        inline void setOrder(const int n) {
+            if (n>=0 && n<4) {
+                order = n;
             } else {
                 std::cout<<"Unavailable Gauss order: min is 1, max is 3"<<n<<std::endl; 
-                if (n<1) {
-                    order=1;
-                } else {
-                    order=3;
-                }
+                order = (n<1) ? 1 : 3;
             }
         }
 
-        virtual inline T integrate ( const I &fc, const Triangle& Trg ,const Mesh& M)
-        {
-            Vect3 sommets[3]={M.point(Trg.s1()),M.point(Trg.s2()),M.point(Trg.s3())};
+        virtual inline T integrate(const I& fc,const Triangle& Trg,const Mesh& M) {
+            const Vect3 sommets[3] = { M.point(Trg.s1()), M.point(Trg.s2()), M.point(Trg.s3()) };
             return triangle_integration(fc,sommets);
         }
 
     protected:
 
-        inline T triangle_integration(const I &fc,const Vect3* vertices)
-        {// compute double area of triangle defined by vertices
+        inline T triangle_integration(const I& fc,const Vect3 vertices[3]) {
+            // compute double area of triangle defined by vertices
             Vect3 crossprod=(vertices[1]-vertices[0])^(vertices[2]-vertices[0]);
             double S = crossprod.norm();
             T result = 0;
@@ -227,27 +221,24 @@ namespace OpenMEEG {
         }
     };
 
-    template<class T,class I>
-    class OPENMEEG_EXPORT AdaptiveIntegrator : public Integrator<T,I>
-    {
+    template <class T,class I>
+    class OPENMEEG_EXPORT AdaptiveIntegrator: public Integrator<T,I> {
+
+        typedef Integrator<T,I> base;
 
     public:
 
         inline AdaptiveIntegrator() : tolerance(0.0001) {}
         inline AdaptiveIntegrator(double tol) : tolerance(tol) {}
         inline ~AdaptiveIntegrator() {}
-        inline double norm(double a) {
-            return fabs(a);
-        }
-        inline double norm(Vect3 a) {
-            return a.norm();
-        }
-        virtual inline T integrate(const I &fc, const Triangle& Trg ,const Mesh& M)
-        {
-            int n=0;
-            Vect3 vertices[3]={M.point(Trg.s1()),M.point(Trg.s2()),M.point(Trg.s3())};
-            T I0=triangle_integration(fc,vertices);
-            return adaptive_integration(fc,vertices,I0,n);
+
+        inline double norm(const double a) { return fabs(a);  }
+        inline double norm(const Vect3& a) { return a.norm(); }
+
+        virtual inline T integrate(const I& fc,const Triangle& Trg,const Mesh& M) {
+            const Vect3 vertices[3] = { M.point(Trg.s1()), M.point(Trg.s2()), M.point(Trg.s3()) };
+            T I0 = base::triangle_integration(fc,vertices);
+            return adaptive_integration(fc,vertices,I0,0);
         }
 
     private:
@@ -269,10 +260,10 @@ namespace OpenMEEG {
             Vect3 vertices2[3] = {vertices[1],newpoint1,newpoint0};
             Vect3 vertices3[3] = {vertices[2],newpoint2,newpoint1};
             Vect3 vertices4[3] = {newpoint0,newpoint1,newpoint2};
-            T I1 = triangle_integration(fc,vertices1);
-            T I2 = triangle_integration(fc,vertices2);
-            T I3 = triangle_integration(fc,vertices3);
-            T I4 = triangle_integration(fc,vertices4);
+            T I1 = base::triangle_integration(fc,vertices1);
+            T I2 = base::triangle_integration(fc,vertices2);
+            T I3 = base::triangle_integration(fc,vertices3);
+            T I4 = base::triangle_integration(fc,vertices4);
             T sum = I1+I2+I3+I4;
             if (norm(I0-sum)>tolerance*norm(I0)){
                 n = n+1;
