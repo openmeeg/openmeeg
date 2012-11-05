@@ -4,12 +4,14 @@ GEOMETRY=head_model.geom
 CONDUCTIVITIES=head_model.cond
 DIPOLES=cortex_dipoles.txt
 EEG_ELECTRODES=eeg_channels_locations.txt
+ECOG_ELECTRODES=ecog_electrodes_locations.txt
 SQUIDS=meg_channels_locations.squids
 INTERNAL_ELECTRODES=internal_electrodes_locations.txt
 
 # Leadfields
 EEG_LEADFIELD=eeg_leadfield.mat
 EEG_LEADFIELD_ADJOINT=eeg_leadfield_adjoint.mat
+ECOG_LEADFIELD=ecog_leadfield.mat
 MEG_LEADFIELD=meg_leadfield.mat
 MEG_LEADFIELD_ADJOINT=meg_leadfield_adjoint.mat
 EIT_LEADFIELD=eit_leadfield.mat
@@ -21,6 +23,7 @@ HM=tmp/tmp.hm           # For EEG and MEG
 HMINV=tmp/tmp.hm_inv    # For EEG and MEG
 DSM=tmp/tmp.dsm         # For EEG and MEG
 H2EM=tmp/tmp.h2em       # For EEG
+H2ECOGM=tmp/tmp.h2ecogm # For ECoG
 H2MM=tmp/tmp.h2mm       # For MEG
 DS2MEG=tmp/tmp.ds2mm    # For MEG
 EITSM=tmp/tmp.eitsm     # For EIT
@@ -37,6 +40,10 @@ om_assemble -H2EM ${GEOMETRY} ${CONDUCTIVITIES} ${EEG_ELECTRODES} ${H2EM}
 om_gain -EEG ${HMINV} ${DSM} ${H2EM} ${EEG_LEADFIELD}
 # or with the adjoint
 om_gain -EEGadjoint ${GEOMETRY} ${CONDUCTIVITIES} ${DIPOLES} ${HM} ${H2EM} ${EEG_LEADFIELD_ADJOINT}
+
+# Compute ECoG gain matrix
+om_assemble -H2ECOGM ${GEOMETRY} ${CONDUCTIVITIES} ${ECOG_ELECTRODES} ${H2ECOGM}
+om_gain -EEG ${HMINV} ${DSM} ${H2ECOGM} ${ECOG_LEADFIELD}
 
 # Compute MEG gain matrix
 om_assemble -H2MM ${GEOMETRY} ${CONDUCTIVITIES} ${SQUIDS} ${H2MM}

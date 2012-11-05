@@ -8,16 +8,17 @@ from mesh import Mesh
 
 # Load data
 cortex = Mesh("cortex.tri")
-electrodes = np.loadtxt('eeg_channels_locations.txt')
+eeg_electrodes = np.loadtxt('eeg_channels_locations.txt')
+ecog_electrodes = np.loadtxt('ecog_electrodes_locations.txt')
 squids = np.loadtxt('meg_channels_locations.squids')
 
 ###############################################################################
-# Load 4 leadfields
+# Load 5 leadfields
 G_meg = io.loadmat('meg_leadfield.mat')['linop']
 G_eeg = io.loadmat('eeg_leadfield.mat')['linop']
 G_eit = io.loadmat('eit_leadfield.mat')['linop']
 G_ip = io.loadmat('ip_leadfield.mat')['linop']
-
+G_ecog = io.loadmat('ecog_leadfield.mat')['linop']
 ###############################################################################
 # EEG leadfield
 mlab.figure(1)
@@ -27,13 +28,25 @@ eeg_chan_idx = 28
 cortex.plot(opacity=1, scalars=G_eeg[eeg_chan_idx,:])
 
 # view EEG electrodes
-mlab.points3d(electrodes[[eeg_chan_idx],0], electrodes[[eeg_chan_idx],1],
-            electrodes[[eeg_chan_idx],2],
+mlab.points3d(eeg_electrodes[[eeg_chan_idx],0], eeg_electrodes[[eeg_chan_idx],1],
+            eeg_electrodes[[eeg_chan_idx],2],
+            opacity=0.5, scale_factor=12, color=(1,0,0))
+###############################################################################
+# ECoG leadfield
+mlab.figure(2)
+mlab.clf()
+eeg_chan_idx = 28
+cortex.plot(opacity=1, scalars=G_ecog[eeg_chan_idx,:])
+
+# view EEG electrodes
+mlab.points3d(ecog_electrodes[[eeg_chan_idx],0], eeg_electrodes[[ecog_chan_idx],1],
+            ecog_electrodes[[eeg_chan_idx],2],
             opacity=0.5, scale_factor=12, color=(1,0,0))
 
-            ###############################################################################
+
+###############################################################################
 # MEG leadfield
-mlab.figure(2)
+mlab.figure(3)
 mlab.clf()
 
 meg_chan_idx = 30
@@ -46,11 +59,11 @@ mlab.quiver3d(squids[[meg_chan_idx],0], squids[[meg_chan_idx],1], squids[[meg_ch
 
 ###############################################################################
 # EIT leadfield
-mlab.figure(3)
+mlab.figure(4)
 mlab.clf()
 
 # Generate sample current injection set up
-n_electrodes = electrodes.shape[0]
+n_electrodes = eeg_electrodes.shape[0]
 j_eit = np.zeros(n_electrodes)
 idx_in = 10
 idx_out = 13
@@ -63,14 +76,14 @@ v_eit = np.dot(G_eit, j_eit)
 # View results
 electrodes_mesh = Mesh("eeg_channels_mesh.tri")
 electrodes_mesh.plot(scalars=v_eit)
-mlab.points3d(electrodes[[idx_in, idx_out],0], electrodes[[idx_in, idx_out],1],
-            electrodes[[idx_in, idx_out],2],
+mlab.points3d(eeg_electrodes[[idx_in, idx_out],0], eeg_electrodes[[idx_in, idx_out],1],
+            eeg_electrodes[[idx_in, idx_out],2],
             opacity=0.5, scale_factor=12, color=(1,0,0))
 
 ###############################################################################
 # Internal potential leadfield
 int_elecs = np.loadtxt('internal_electrodes_locations.txt')
-mlab.figure(4)
+mlab.figure(5)
 mlab.clf()
 
 # Generate sample current generator configuration

@@ -2,12 +2,14 @@ set GEOMETRY=head_model.geom
 set CONDUCTIVITIES=head_model.cond
 set DIPOLES=cortex_dipoles_small.txt
 set EEG_ELECTRODES=eeg_channels_locations.txt
+set ECOG_ELECTRODES=ecog_electrodes_locations.txt
 set SQUIDS=meg_channels_locations.squids
 set INTERNAL_ELECTRODES=internal_electrodes_locations.txt
 
 rem Leadfields
 set EEG_LEADFIELD=eeg_leadfield.mat
 set EEG_LEADFIELD_ADJOINT=eeg_leadfield_adjoint.mat
+set ECOG_LEADFIELD=ecog_leadfield.mat
 set MEG_LEADFIELD=meg_leadfield.mat
 set MEG_LEADFIELD_ADJOINT=meg_leadfield_adjoint.mat
 set EIT_LEADFIELD=eit_leadfield.mat
@@ -20,8 +22,11 @@ set HM=tmp\tmp.hm
 set HMINV=tmp\tmp.hm_inv
 set DSM=tmp\tmp.dsm
 
-rem For EEG
+rem for EEG
 set H2EM=tmp\tmp.h2em
+
+rem for ECoG
+set H2ECOGM=tmp\tmp.h2ecogm
 
 rem for MEG
 set H2MM=tmp\tmp.h2mm
@@ -44,6 +49,10 @@ om_assemble -H2EM %GEOMETRY% %CONDUCTIVITIES% %EEG_ELECTRODES% %H2EM%
 om_gain -EEG %HMINV% %DSM% %H2EM% %EEG_LEADFIELD%
 rem with adjoint
 om_gain -EEGadjoint %GEOMETRY% %CONDUCTIVITIES% %DIPOLES% %HM% %H2EM% %EEG_LEADFIELD_ADJOINT%
+
+rem Compute ECoG gain matrix
+om_assemble -H2ECOGM %GEOMETRY% %CONDUCTIVITIES% %ECOG_ELECTRODES% %H2ECOGM%
+om_gain -EEG %HMINV% %DSM% %H2ECOGM% %ECOG_LEADFIELD%
 
 rem Compute MEG gain matrix
 om_assemble -H2MM %GEOMETRY% %CONDUCTIVITIES% %SQUIDS% %H2MM%

@@ -246,7 +246,7 @@ int main(int argc, char** argv)
     * (i.e. the potential and the normal current on all interfaces)
     * |----> v (potential at the ECoG electrodes)
     **********************************************************************************************/
-    else if((!strcmp(argv[1],"-Head2ECoGMat")) | (!strcmp(argv[1],"-H2ECoGM"))| (!strcmp(argv[1],"-h2ecogm"))) {
+    else if((!strcmp(argv[1],"-Head2ECoGMat")) | (!strcmp(argv[1],"-H2ECOGM")) | (!strcmp(argv[1],"-H2ECoGM"))| (!strcmp(argv[1],"-h2ecogm"))) {
 
         if(argc < 3)
         {
@@ -502,7 +502,7 @@ void getHelp(char** argv) {
     cout << "               file containing the positions of EEG electrodes (.patches)" << endl;
     cout << "               output matrix" << endl << endl;
 
-    cout << "   -Head2ECoGMat, -H2ECogM, -h2ecogm : " << endl;
+    cout << "   -Head2ECoGMat, -H2ECogM, -h2ecogm, -H2ECOGM : " << endl;
     cout << "        Compute the linear application which maps the potential" << endl;
     cout << "        on the scalp to the ECoG electrodes"  << endl;
     cout << "            Arguments :" << endl;
