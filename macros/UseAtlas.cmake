@@ -109,7 +109,7 @@ IF (NOT USE_MKL)
                 )
             SET(ATLAS_LIBS atlas cblas f77blas clapack lapack blas)
 
-            FIND_PATH(ATLAS_INCLUDE_PATH cblas.h /usr/include/atlas /usr/include/)
+            FIND_PATH(ATLAS_INCLUDE_PATH clapack.h /usr/include/atlas /usr/include/)
             MARK_AS_ADVANCED(ATLAS_INCLUDE_PATH)
             INCLUDE_DIRECTORIES(${ATLAS_INCLUDE_PATH})
             FOREACH (LIB ${ATLAS_LIBS})
