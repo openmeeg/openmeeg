@@ -11,7 +11,12 @@ cd build
 cmake -DUSE_ATLAS=ON -DUSE_MKL=OFF -DENABLE_PYTHON=ON -DBUILD_TESTING=ON -DENABLE_PACKAGING=ON -DMATLAB_TESTING=OFF ..
 ctest -D ExperimentalConfigure
 ctest -D ExperimentalBuild
-ctest -D ExperimentalTest
-ctest -D ExperimentalSubmit
+ctest -D ExperimentalTest --no-compress-output || true
 
-xsltproc ${basedir}/CTest2JUnit.xsl Testing/`head -n 1 < Testing/TAG`/Test.xml > JUnitTestResults.xml
+if [ -f Testing/TAG ]; then
+    xsltproc ${basedir}/CTest2JUnit.xsl Testing/`head -n 1 < Testing/TAG`/Test.xml > JUnitTestResults.xml
+fi
+
+# cdash backward compatibility.
+
+ctest -D ExperimentalSubmit
