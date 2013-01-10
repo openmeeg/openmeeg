@@ -14,7 +14,7 @@ ctest -D ExperimentalBuild
 ctest -D ExperimentalTest --no-compress-output || true
 
 if [ -f Testing/TAG ]; then
-    xsltproc ${basedir}/CTest2JUnit.xsl Testing/`head -n 1 < Testing/TAG`/Test.xml > JUnitTestResults.xml
+    xsltproc ../${basedir}/CTest2JUnit.xsl Testing/`head -n 1 < Testing/TAG`/Test.xml > JUnitTestResults.xml
 fi
 
 # cdash backward compatibility.
