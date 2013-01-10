@@ -14,4 +14,4 @@ ctest -D ExperimentalBuild
 ctest -D ExperimentalTest
 ctest -D ExperimentalSubmit
 
-xsltproc ${basedir}/ci/ctest2junix.xsl Testing/`head -n 1 < Testing/TAG`/Test.xml > JUnitTestResults.xml
+xsltproc ${basedir}/CTest2JUnit.xsl Testing/`head -n 1 < Testing/TAG`/Test.xml > JUnitTestResults.xml
