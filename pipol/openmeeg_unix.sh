@@ -66,6 +66,7 @@ function build {
     ctest -D ExperimentalTest
     ctest -D ExperimentalSubmit
     make package
+    mkdir -p $PIPOL_HOMEDIR/.pipol/packages/openmeeg-${BRANCH}
     mv OpenMEEG*.tar.* $PIPOL_HOMEDIR/.pipol/packages/openmeeg-${BRANCH}
     echo "OpenMEEG*.tar.*"
     ls -l $PIPOL_HOMEDIR/.pipol/packages/openmeeg-${BRANCH}
