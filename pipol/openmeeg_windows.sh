@@ -52,7 +52,11 @@ function build_and_test() {
     cd build
 
     # 6) Making VISUAL project with cmake 2.6 - 2.8
-    ${CMAKE} -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON -DENABLE_PACKAGING=ON -DUSE_OMP=ON -G "$PIPOL_WIN_COMPILER$SYSTEMOS" ..
+    if [ $SYSTEMCOMPILE -eq "win32" ]; then  # don't use OpenMP on windows 32bits
+        ${CMAKE} -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON -DENABLE_PACKAGING=ON -DUSE_OMP=OFF -G "$PIPOL_WIN_COMPILER$SYSTEMOS" ..
+    else
+        ${CMAKE} -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON -DENABLE_PACKAGING=ON -DUSE_OMP=ON -G "$PIPOL_WIN_COMPILER$SYSTEMOS" ..
+    fi
 
     # 7) Setting environment
     if expr $PIPOL_IMAGE : ".*amd64.*"; then
