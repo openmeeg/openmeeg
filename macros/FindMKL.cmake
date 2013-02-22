@@ -82,6 +82,7 @@ find_library(MKL_CORE_LIBRARY
   mkl_core
   PATHS
     ${MKL_ROOT_DIR}/lib/${MKL_ARCH_DIR}
+    ${MKL_ROOT_DIR}/lib/
 )
 
 # Threading libraries
@@ -89,18 +90,21 @@ find_library(MKL_SEQUENTIAL_LIBRARY
   mkl_sequential
   PATHS
     ${MKL_ROOT_DIR}/lib/${MKL_ARCH_DIR}
+    ${MKL_ROOT_DIR}/lib/
 )
 
 find_library(MKL_INTELTHREAD_LIBRARY
   mkl_intel_thread
   PATHS
     ${MKL_ROOT_DIR}/lib/${MKL_ARCH_DIR}
+    ${MKL_ROOT_DIR}/lib/
 )
 
 find_library(MKL_GNUTHREAD_LIBRARY
   mkl_gnu_thread
   PATHS
     ${MKL_ROOT_DIR}/lib/${MKL_ARCH_DIR}
+    ${MKL_ROOT_DIR}/lib/
 )
 
 # Intel Libraries
@@ -109,24 +113,28 @@ IF("${MKL_ARCH_DIR}" STREQUAL "32")
       mkl_intel
       PATHS
         ${MKL_ROOT_DIR}/lib/${MKL_ARCH_DIR}
+        ${MKL_ROOT_DIR}/lib/
     )
 
     find_library(MKL_ILP_LIBRARY
       mkl_intel
       PATHS
         ${MKL_ROOT_DIR}/lib/${MKL_ARCH_DIR}
+        ${MKL_ROOT_DIR}/lib/
     )
 else()
     find_library(MKL_LP_LIBRARY
       mkl_intel_lp64
       PATHS
         ${MKL_ROOT_DIR}/lib/${MKL_ARCH_DIR}
+        ${MKL_ROOT_DIR}/lib/
     )
 
     find_library(MKL_ILP_LIBRARY
       mkl_intel_ilp64
       PATHS
         ${MKL_ROOT_DIR}/lib/${MKL_ARCH_DIR}
+        ${MKL_ROOT_DIR}/lib/
     )
 ENDIF()
 
@@ -135,6 +143,7 @@ find_library(MKL_LAPACK_LIBRARY
   mkl_lapack
   PATHS
     ${MKL_ROOT_DIR}/lib/${MKL_ARCH_DIR}
+    ${MKL_ROOT_DIR}/lib/
 )
 
 IF(NOT MKL_LAPACK_LIBRARY)
@@ -142,6 +151,7 @@ IF(NOT MKL_LAPACK_LIBRARY)
       mkl_lapack95_lp64
       PATHS
         ${MKL_ROOT_DIR}/lib/${MKL_ARCH_DIR}
+        ${MKL_ROOT_DIR}/lib/
     )
 ENDIF()
 
