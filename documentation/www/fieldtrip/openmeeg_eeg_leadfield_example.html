@@ -1,0 +1,225 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN">
+<html xmlns:mwsh="http://www.mathworks.com/namespace/mcode/v1/syntaxhighlight.dtd">
+   <head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   
+      <!--
+This HTML is auto-generated from an M-file.
+To make changes, update the M-file and republish this document.
+      -->
+      <title>OpenMEEG for EEG from Fieldtrip demo script</title>
+      <meta name="generator" content="MATLAB 7.7">
+      <meta name="date" content="2010-10-28">
+      <meta name="m-file" content="openmeeg_eeg_leadfield_example">
+      <LINK REL="stylesheet" HREF="style.css" TYPE="text/css">
+   </head>
+   <body>
+      <div class="content">
+         <h1>OpenMEEG for EEG from Fieldtrip demo script</h1>
+         <introduction>
+            <p>This script provides an example of how to compute an EEG leadfield with OpenMEEG in the Fieldtrip toolbox.</p>
+            <p>This demo uses spherical head models and compares the OpenMEEG result with the analytical solution.</p>
+         </introduction>
+         <h2>Contents</h2>
+         <div>
+            <ul>
+               <li><a href="#1">Set the radius and conductivities of each of the compartments</a></li>
+               <li><a href="#2">Description of the spherical mesh</a></li>
+               <li><a href="#3">Create a set of electrodes on the outer surface</a></li>
+               <li><a href="#4">Set the position of the probe dipole</a></li>
+               <li><a href="#5">Create a BEM volume conduction model</a></li>
+               <li><a href="#6">Compute the BEM</a></li>
+               <li><a href="#7">Plot result</a></li>
+               <li><a href="#8">Compute the analytic leadfield</a></li>
+               <li><a href="#9">Evaluate the quality of the result using RDM and MAG</a></li>
+               <li><a href="#10">Plot both OpenMEEG and analytic leadfield for visual inspection</a></li>
+            </ul>
+         </div>
+         <h2>Set the radius and conductivities of each of the compartments<a name="1"></a></h2><pre class="codeinput">addpath(cd) <span class="comment">% Make sure current folder is in the path</span>
+
+close <span class="string">all</span>
+clear
+clc
+
+<span class="comment">% % 4 Layers</span>
+<span class="comment">% r = [85 88 92 100];</span>
+<span class="comment">% c = [1 1/20 1/80 1];</span>
+
+<span class="comment">% 3 Layers</span>
+r = [88 92 100];
+c = [1 1/80 1];
+
+<span class="comment">% % 2 Layers</span>
+<span class="comment">% r = [100 92];</span>
+<span class="comment">% c = [1 1/4];</span>
+<span class="comment">%</span>
+<span class="comment">% % 1 Layers</span>
+<span class="comment">% r = [100];</span>
+<span class="comment">% c = [1];</span>
+</pre><h2>Description of the spherical mesh<a name="2"></a></h2><pre class="codeinput">[pnt, tri] = icosahedron42;
+<span class="comment">% [pnt, tri] = icosahedron162;</span>
+<span class="comment">% [pnt, tri] = icosahedron642;</span>
+</pre><h2>Create a set of electrodes on the outer surface<a name="3"></a></h2><pre class="codeinput">sens.pnt = max(r) * pnt;
+sens.label = {};
+nsens = size(sens.pnt,1);
+<span class="keyword">for</span> ii=1:nsens
+    sens.label{ii} = sprintf(<span class="string">'vertex%03d'</span>, ii);
+<span class="keyword">end</span>
+</pre><h2>Set the position of the probe dipole<a name="4"></a></h2><pre class="codeinput">pos = [0 0 70];
+</pre><h2>Create a BEM volume conduction model<a name="5"></a></h2><pre class="codeinput">vol = [];
+<span class="keyword">for</span> ii=1:length(r)
+    vol.bnd(ii).pnt = pnt * r(ii);
+    vol.bnd(ii).tri = tri;
+<span class="keyword">end</span>
+vol.cond = c;
+</pre><h2>Compute the BEM<a name="6"></a></h2><pre class="codeinput"><span class="comment">% choose BEM implementation (OpenMEEG, bemcp or dipoli)</span>
+cfg.method = <span class="string">'openmeeg'</span>;
+
+vol = ft_prepare_bemmodel(cfg, vol);
+
+cfg.vol = vol;
+cfg.grid.pos = pos;
+cfg.elec = sens;
+grid = ft_prepare_leadfield(cfg);
+
+lf_openmeeg = grid.leadfield{1};
+</pre><pre class="codeoutput">using the mesh specified in the input volume conductor
+determining source compartment (1)
+determining skin compartment (3)
+not using the isolated source approach
+using headmodel specified in the configuration
+using electrodes specified in the configuration
+projecting electrodes on skin surface
+combining electrode transfer and system matrix
+creating dipole grid based on user specified dipole positions
+1 dipoles inside, 0 dipoles outside brain
+calculating leadfield for all positions at once, this may take a while...
+Assembling OpenMEEG DSM matrix
+Elapsed time is 0.048371 seconds.
+</pre><h2>Plot result<a name="7"></a></h2><pre class="codeinput">figure; triplot(pnt, tri, lf_openmeeg(:,1), <span class="string">'surface'</span>);
+figure; triplot(pnt, tri, lf_openmeeg(:,2), <span class="string">'surface'</span>);
+figure; triplot(pnt, tri, lf_openmeeg(:,3), <span class="string">'surface'</span>);
+</pre><div class="div-img"><img vspace="5" hspace="5" src="openmeeg_eeg_leadfield_example_01.png"> </div>
+         <div class="div-img"><img vspace="5" hspace="5" src="openmeeg_eeg_leadfield_example_02.png"> </div>
+         <div class="div-img"><img vspace="5" hspace="5" src="openmeeg_eeg_leadfield_example_03.png"> </div>
+         <h2>Compute the analytic leadfield<a name="8"></a></h2><pre class="codeinput">vol_sphere.r = r;
+vol_sphere.c = c;
+
+lf_sphere = ft_compute_leadfield(pos, sens, vol_sphere);
+</pre><h2>Evaluate the quality of the result using RDM and MAG<a name="9"></a></h2><pre class="codeinput">rdms = zeros(1,size(lf_openmeeg,2));
+<span class="keyword">for</span> ii=1:size(lf_openmeeg,2)
+    rdms(ii) = norm(lf_openmeeg(:,ii)/norm(lf_openmeeg(:,ii)) - lf_sphere(:,ii)/norm(lf_sphere(:,ii)));
+<span class="keyword">end</span>
+mags = sqrt(sum(lf_openmeeg.^2))./sqrt(sum(lf_sphere.^2));
+disp([<span class="string">'RDMs: '</span>,num2str(rdms)]);
+disp([<span class="string">'MAGs: '</span>,num2str(mags)]);
+</pre><pre class="codeoutput">RDMs: 0.064093    0.064092     0.13532
+MAGs: 1.0498      1.0498      1.0207
+</pre><h2>Plot both OpenMEEG and analytic leadfield for visual inspection<a name="10"></a></h2><pre class="codeinput">figure
+plot([lf_openmeeg(:,1), lf_sphere(:,1)])
+legend({<span class="string">'OpenMEEG'</span> <span class="string">'Analytic'</span>})
+</pre><div class="div-img"><img vspace="5" hspace="5" src="openmeeg_eeg_leadfield_example_04.png"> </div>
+         <p class="footer"><br>
+            see <a href="openmeeg_copying.html">COPYING</a> for license<br>
+            Copyright  &reg; 2009 INRIA <a href="http://www-sop.inria.fr/members/Alexandre.Gramfort/">Alexandre Gramfort</a><br></p>
+      </div>
+      <!--
+##### SOURCE BEGIN #####
+%% OpenMEEG for EEG from Fieldtrip demo script
+% This script provides an example of how to compute an EEG leadfield with OpenMEEG in the Fieldtrip toolbox.
+%
+% This demo uses spherical head models and compares the OpenMEEG result with the analytical solution.
+
+%% Set the radius and conductivities of each of the compartments
+
+addpath(cd) % Make sure current folder is in the path
+
+close all
+clear
+clc
+
+% % 4 Layers
+% r = [85 88 92 100];
+% c = [1 1/20 1/80 1];
+
+% 3 Layers
+r = [88 92 100];
+c = [1 1/80 1];
+
+% % 2 Layers
+% r = [100 92];
+% c = [1 1/4];
+% 
+% % 1 Layers
+% r = [100];
+% c = [1];
+
+%% Description of the spherical mesh
+[pnt, tri] = icosahedron42;
+% [pnt, tri] = icosahedron162;
+% [pnt, tri] = icosahedron642;
+
+%% Create a set of electrodes on the outer surface
+sens.pnt = max(r) * pnt;
+sens.label = {};
+nsens = size(sens.pnt,1);
+for ii=1:nsens
+    sens.label{ii} = sprintf('vertex%03d', ii);
+end
+
+%% Set the position of the probe dipole
+pos = [0 0 70];
+
+%% Create a BEM volume conduction model
+vol = [];
+for ii=1:length(r)
+    vol.bnd(ii).pnt = pnt * r(ii);
+    vol.bnd(ii).tri = tri;
+end
+vol.cond = c;
+
+%% Compute the BEM
+
+% choose BEM implementation (OpenMEEG, bemcp or dipoli)
+cfg.method = 'openmeeg';
+
+vol = ft_prepare_bemmodel(cfg, vol);
+
+cfg.vol = vol;
+cfg.grid.pos = pos;
+cfg.elec = sens;
+grid = ft_prepare_leadfield(cfg);
+
+lf_openmeeg = grid.leadfield{1};
+
+%% Plot result
+figure; triplot(pnt, tri, lf_openmeeg(:,1), 'surface');
+figure; triplot(pnt, tri, lf_openmeeg(:,2), 'surface');
+figure; triplot(pnt, tri, lf_openmeeg(:,3), 'surface');
+
+%% Compute the analytic leadfield
+
+vol_sphere.r = r;
+vol_sphere.c = c;
+
+lf_sphere = ft_compute_leadfield(pos, sens, vol_sphere);
+
+%% Evaluate the quality of the result using RDM and MAG
+rdms = zeros(1,size(lf_openmeeg,2));
+for ii=1:size(lf_openmeeg,2)
+    rdms(ii) = norm(lf_openmeeg(:,ii)/norm(lf_openmeeg(:,ii)) - lf_sphere(:,ii)/norm(lf_sphere(:,ii)));
+end
+mags = sqrt(sum(lf_openmeeg.^2))./sqrt(sum(lf_sphere.^2));
+disp(['RDMs: ',num2str(rdms)]);
+disp(['MAGs: ',num2str(mags)]);
+
+%% Plot both OpenMEEG and analytic leadfield for visual inspection
+figure
+plot([lf_openmeeg(:,1), lf_sphere(:,1)])
+legend({'OpenMEEG' 'Analytic'})
+##### SOURCE END #####
+-->
+   </body>
+</html>

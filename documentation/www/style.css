@@ -1,0 +1,268 @@
+body {
+    font-family: Verdana, Arial, "MS Trebuchet", sans-serif;
+    background-color: #CCC;
+}
+
+img	{
+    border: 0px solid #999;
+}
+
+a, a:visited {
+    color: #003399;
+    background-color: transparent;
+    text-decoration: none
+}
+
+a:hover {
+    background-color: transparent;
+    text-decoration: underline
+}
+
+h3 a:hover {
+    font-style: italic;
+    text-decoration: none
+}
+
+#full {
+    text-align: center;
+}
+
+#main {
+    border: 1px solid #999;
+    border-top: 10px solid #003399;
+    background-color: #FFF;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: left;
+    background-image: url('img/brain.jpg');
+    background-repeat: no-repeat;
+    background-position: bottom right;
+}
+
+#picture {
+    float:  left;
+    margin: 10px 0px 0px 10px;
+}
+
+#lang {
+    float: right;
+    margin: 10px;
+}
+
+#title {
+    text-align: center;
+    padding: 30px 0px;
+    font-size: 130%;
+    font-weight: bold;
+    line-height: 2em;
+    margin-right: 180px;
+}
+
+#subtitle {
+    font-size: 70%;
+    line-height: 1.4em;
+}
+
+#top_right {
+    float: right;
+    font-size: 70%;
+    margin:5px;
+    text-align: right;
+}
+
+#menu {
+    margin:5px 0px;
+    font-size: 160%;
+    font-weight: bold;
+}
+
+ul {
+    margin:0px;
+    padding-left:20px;
+}
+
+li {
+    margin-bottom:4px;
+}
+
+.selected_heading{
+    letter-spacing: 4px;
+    font-style: italic;
+    margin: 0px 10px;
+    margin-bottom: 10;
+    font-weight: bold;
+    font-size: 130%;
+    color: #003399;
+    clear: both;
+}
+
+.part_title {
+    padding: 5px 10px;
+    margin: 0px 180px 10px 0px;
+    font-weight: bold;
+    border-bottom: 1px solid #999;
+    font-size: 110%;
+    clear: both;
+}
+
+.part_subtitle {
+    padding: 10px 0px;
+    margin: 0px 10px;
+    font-weight: bold;
+    font-size: 100%;
+    color: #003399;
+}
+
+.part_subtitle:before {
+    content: url('img/bullet2.gif');
+}
+
+.part_content {
+    padding: 10px 0px;
+    margin: 0px 10px;
+    margin-right : 180px;
+}
+
+.publication {
+    font-size: 90%;
+    font-style: italic;
+    margin-bottom: 10px;
+}
+
+.publication:before {
+    content:"- ";
+}
+
+.warning {
+    margin: 0px 180px 10px 0px;
+    padding-top: 150px;
+    padding-bottom: 150px;
+    color: #003399;
+    text-align: center;
+}
+
+.warning:before {
+    content: url('img/caution4.gif');
+}
+
+#footer {
+    font-size: 80%;
+    padding-top: 8px;
+}
+
+/****************************************************
+                NEWS PART
+*****************************************************/
+.news {
+    width: 31%;
+    /*height: 300px;
+    border: 1px solid #003399;*/
+    float: left;
+    margin: 10px;
+    
+}
+
+.news .title {
+    color: #003399;
+    text-align: center;
+}
+
+.news .date {
+    color: #003399;
+    text-align: right;
+    font-family: monospace;
+}
+
+.news .txt {
+    width: 100%;
+    /*height: 88%;*/
+    font-weight: normal;
+    font-family: sans-serif;
+    margin-left: 1px;
+    //overflow: auto;
+}
+
+
+/****************************************************
+                FLOATTING WINDOW PART
+*****************************************************/
+#window
+{
+	position: absolute;
+	left: 400px;
+	top: 450px;
+	width: 400px;
+	height: 300px;
+	overflow: hidden;
+	display: none;
+}
+#windowTop
+{
+	height: 30px;
+	overflow: 30px;
+	background-image: url(images/window_top_end.png);
+	background-position: right top;
+	background-repeat: no-repeat;
+	position: relative;
+	overflow: hidden;
+	cursor: move;
+}
+#windowTopContent
+{
+	margin-right: 13px;
+	background-image:url(images/window_top_start.png);
+	background-position:left top;
+	background-repeat: no-repeat;
+	overflow: hidden;
+	height: 30px;
+	line-height: 30px;
+	text-indent: 10px;
+	font-family:Arial, Helvetica, sans-serif;
+	font-weight: bold;
+	font-size: 14px;
+	color: #6caf00;
+}
+#windowClose
+{
+	position: absolute;
+	right: 10px;
+	top: 10px;
+	cursor: pointer;
+}
+#windowResize
+{
+	position: absolute;
+	right: 3px;
+	bottom: 5px;
+	cursor: se-resize;
+}
+#windowContent
+{
+	position:absolute;
+	top: 30px;
+	left: 10px;
+	width: auto;
+	height: auto;
+	overflow: auto;
+	margin-right: 10px;
+	border: 1px solid #6caf00;
+	height: 255px;
+	width: 375px;
+	font-family:Arial, Helvetica, sans-serif;
+	font-size: 13px;
+	background-color: #fff;
+}
+#windowContent *
+{
+	margin: 10px;
+}
+.transferer2
+{
+	border: 1px solid #6BAF04;
+	background-color: #B4F155;
+	filter:alpha(opacity=30); 
+	-moz-opacity: 0.3; 
+	opacity: 0.3;
+}
+
+

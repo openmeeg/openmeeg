@@ -1,0 +1,310 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<title>demo_om.sh</title>
+	<style type="text/css">
+/* Stylesheet generated from TextMate theme
+ *
+ * Cobalt
+ * Created by Jacob Rus.  Based on ‘Slate’ by Wilson Miner
+ *
+ */
+
+/* Mostly to improve view within the TextMate HTML viewer */
+body {
+	margin: 0;
+	padding: 0;
+}
+
+pre.textmate-source {
+	margin: 0;
+	padding: 0 0 0 2px;
+	font-family: Monaco, monospace;
+	font-size: 11px;
+	line-height: 1.3em;
+	word-wrap: break-word;
+	white-space: pre;
+	white-space: pre-wrap;
+	white-space: -moz-pre-wrap;
+	white-space: -o-pre-wrap;
+}
+
+pre.textmate-source.cobalt {
+	color: #FFFFFF;
+	background-color: #002240;
+}
+
+pre.textmate-source .linenum {
+	width: 75px;
+	padding: 0.1em 1em 0.2em 0;
+	color: #888;
+	background-color: #eee;
+}
+pre.textmate-source.cobalt span {
+   padding-top: 0.2em;
+   padding-bottom: 0.1em;
+}
+pre.textmate-source.cobalt ::selection {
+	background-color: rgba(179, 101, 57, 0.75);
+}
+/* Punctuation */
+pre.textmate-source.cobalt .punctuation .- .(punctuation_definition_string .|| .punctuation_definition_comment) {
+	color: #E1EFFF;
+}
+
+/* Constant */
+pre.textmate-source.cobalt .constant {
+	color: #FF628C;
+}
+
+/* Entity */
+pre.textmate-source.cobalt .entity {
+	color: #FFDD00;
+}
+
+/* Keyword */
+pre.textmate-source.cobalt .keyword {
+	color: #FF9D00;
+}
+
+/* Storage */
+pre.textmate-source.cobalt .storage {
+	color: #FFEE80;
+}
+
+/* String */
+pre.textmate-source.cobalt .string .string_unquoted_heredoc .string {
+	color: #3AD900;
+}
+
+/* Comment */
+pre.textmate-source.cobalt .comment {
+	color: #0088FF;
+	font-style: italic;
+}
+
+/* Support */
+pre.textmate-source.cobalt .support {
+	color: #80FFBB;
+}
+
+/* Variable */
+pre.textmate-source.cobalt .variable {
+	color: #CCCCCC;
+}
+
+/* Lang Variable */
+pre.textmate-source.cobalt .variable_language {
+	color: #FF80E1;
+}
+
+/* Function Call */
+pre.textmate-source.cobalt .meta_function-call {
+	color: #FFEE80;
+}
+
+/* Invalid */
+pre.textmate-source.cobalt .invalid {
+	color: #F8F8F8;
+	background-color: #800F00;
+}
+
+/* Embedded Source */
+pre.textmate-source.cobalt .text .source, pre.textmate-source.cobalt .string_unquoted_heredoc, pre.textmate-source.cobalt .source .source {
+	color: #FFFFFF;
+	background-color: #223545;
+}
+
+/* Entity inherited-class */
+pre.textmate-source.cobalt .entity_other_inherited-class {
+	color: #80FCFF;
+	font-style: italic;
+}
+
+/* String embedded-source */
+pre.textmate-source.cobalt .string_quoted .source {
+	color: #9EFF80;
+}
+
+/* String constant */
+pre.textmate-source.cobalt .string .constant {
+	color: #80FF82;
+}
+
+/* String.regexp */
+pre.textmate-source.cobalt .string_regexp {
+	color: #80FFC2;
+}
+
+/* String variable */
+pre.textmate-source.cobalt .string .variable {
+	color: #EDEF7D;
+}
+
+/* Support.function */
+pre.textmate-source.cobalt .support_function {
+	color: #FFB054;
+}
+
+/* Support.constant */
+pre.textmate-source.cobalt .support_constant {
+	color: #EB939A;
+}
+
+/* Exception */
+pre.textmate-source.cobalt .support_class_exception {
+	color: #FF1E00;
+}
+
+/* C/C++ Preprocessor Line */
+pre.textmate-source.cobalt .meta_preprocessor_c {
+	color: #8996A8;
+}
+
+/* C/C++ Preprocessor Directive */
+pre.textmate-source.cobalt .meta_preprocessor_c .keyword {
+	color: #AFC4DB;
+}
+
+/* Doctype/XML Processing */
+pre.textmate-source.cobalt .meta_sgml_html .meta_doctype, pre.textmate-source.cobalt .meta_sgml_html .meta_doctype .entity, pre.textmate-source.cobalt .meta_sgml_html .meta_doctype .string, pre.textmate-source.cobalt .meta_xml-processing, pre.textmate-source.cobalt .meta_xml-processing .entity, pre.textmate-source.cobalt .meta_xml-processing .string {
+	color: #73817D;
+}
+
+/* Meta.tag.A */
+pre.textmate-source.cobalt .meta_tag, pre.textmate-source.cobalt .meta_tag .entity {
+	color: #9EFFFF;
+}
+
+/* css tag-name */
+pre.textmate-source.cobalt .meta_selector_css .entity_name_tag {
+	color: #9EFFFF;
+}
+
+/* css#id */
+pre.textmate-source.cobalt .meta_selector_css .entity_other_attribute-name_id {
+	color: #FFB454;
+}
+
+/* css.class */
+pre.textmate-source.cobalt .meta_selector_css .entity_other_attribute-name_class {
+	color: #5FE461;
+}
+
+/* css property-name: */
+pre.textmate-source.cobalt .support_type_property-name_css {
+	color: #9DF39F;
+}
+
+/* css property-value; */
+pre.textmate-source.cobalt .meta_property-group .support_constant_property-value_css, pre.textmate-source.cobalt .meta_property-value .support_constant_property-value_css {
+	color: #F6F080;
+}
+
+/* css @at-rule */
+pre.textmate-source.cobalt .meta_preprocessor_at-rule .keyword_control_at-rule {
+	color: #F6AA11;
+}
+
+/* css additional-constants */
+pre.textmate-source.cobalt .meta_property-value .support_constant_named-color_css, pre.textmate-source.cobalt .meta_property-value .constant {
+	color: #EDF080;
+}
+
+/* css constructor.argument */
+pre.textmate-source.cobalt .meta_constructor_argument_css {
+	color: #EB939A;
+}
+
+/* diff.header */
+pre.textmate-source.cobalt .meta_diff, pre.textmate-source.cobalt .meta_diff_header {
+	color: #F8F8F8;
+	background-color: #000E1A;
+}
+
+/* diff.deleted */
+pre.textmate-source.cobalt .markup_deleted {
+	color: #F8F8F8;
+	background-color: #4C0900;
+}
+
+/* diff.changed */
+pre.textmate-source.cobalt .markup_changed {
+	color: #F8F8F8;
+	background-color: #806F00;
+}
+
+/* diff.inserted */
+pre.textmate-source.cobalt .markup_inserted {
+	color: #F8F8F8;
+	background-color: #154F00;
+}
+
+/* Raw Markup */
+pre.textmate-source.cobalt .markup_raw {
+	background-color: rgba(143, 221, 246, 0.19);
+}
+
+/* Block Quote */
+pre.textmate-source.cobalt .markup_quote {
+	background-color: #004480;
+}
+
+/* List */
+pre.textmate-source.cobalt .markup_list {
+	background-color: #130D26;
+}
+
+/* Bold Markup */
+pre.textmate-source.cobalt .markup_bold {
+	color: #C1AFFF;
+	font-weight: bold;
+}
+
+/* Italic Markup */
+pre.textmate-source.cobalt .markup_italic {
+	color: #B8FFD9;
+	font-style: italic;
+}
+
+/* Heading Markup */
+pre.textmate-source.cobalt .markup_heading {
+	color: #C8E4FD;
+	font-weight: bold;
+	background-color: #001221;
+}
+
+
+
+	</style>
+</head>
+
+<body><pre class="textmate-source cobalt"><span class="source source_shell"><span class="comment comment_line comment_line_number-sign comment_line_number-sign_shell"><span class="punctuation punctuation_definition punctuation_definition_comment punctuation_definition_comment_shell">#</span>!/usr/bin/env bash
+</span>
+GEOM=head_model.geom
+COND=head_model.cond
+EEG_ELECTRODES=eeg_electrodes_positions.txt
+DSM=dsm.bin
+H2EM=h2em.bin
+S2EEG=s2em.bin
+DS2MM=ds2mm.bin
+H2MM=h2mm.bin
+SQUIDS=meg_squids_positions.txt
+DIPOLES=cortex_dipoles.txt
+EEG_GAIN=gain_eeg.bin
+MEG_GAIN=gain_meg.bin
+
+<span class="comment comment_line comment_line_number-sign comment_line_number-sign_shell"><span class="punctuation punctuation_definition punctuation_definition_comment punctuation_definition_comment_shell">#</span> Compute EEG gain matrix
+</span>om_assemble -HM <span class="variable variable_other variable_other_bracket variable_other_bracket_shell"><span class="punctuation punctuation_definition punctuation_definition_variable punctuation_definition_variable_shell">${</span>GEOM<span class="punctuation punctuation_definition punctuation_definition_variable punctuation_definition_variable_shell">}</span></span> <span class="variable variable_other variable_other_bracket variable_other_bracket_shell"><span class="punctuation punctuation_definition punctuation_definition_variable punctuation_definition_variable_shell">${</span>COND<span class="punctuation punctuation_definition punctuation_definition_variable punctuation_definition_variable_shell">}</span></span> headmat.bin
+om_minverser headmat.bin headmat_inv.bin
+om_assemble -H2EM <span class="variable variable_other variable_other_bracket variable_other_bracket_shell"><span class="punctuation punctuation_definition punctuation_definition_variable punctuation_definition_variable_shell">${</span>GEOM<span class="punctuation punctuation_definition punctuation_definition_variable punctuation_definition_variable_shell">}</span></span> <span class="variable variable_other variable_other_bracket variable_other_bracket_shell"><span class="punctuation punctuation_definition punctuation_definition_variable punctuation_definition_variable_shell">${</span>COND<span class="punctuation punctuation_definition punctuation_definition_variable punctuation_definition_variable_shell">}</span></span> <span class="variable variable_other variable_other_bracket variable_other_bracket_shell"><span class="punctuation punctuation_definition punctuation_definition_variable punctuation_definition_variable_shell">${</span>EEG_ELECTRODES<span class="punctuation punctuation_definition punctuation_definition_variable punctuation_definition_variable_shell">}</span></span> <span class="variable variable_other variable_other_bracket variable_other_bracket_shell"><span class="punctuation punctuation_definition punctuation_definition_variable punctuation_definition_variable_shell">${</span>H2EM<span class="punctuation punctuation_definition punctuation_definition_variable punctuation_definition_variable_shell">}</span></span>
+om_assemble -DSM <span class="variable variable_other variable_other_bracket variable_other_bracket_shell"><span class="punctuation punctuation_definition punctuation_definition_variable punctuation_definition_variable_shell">${</span>GEOM<span class="punctuation punctuation_definition punctuation_definition_variable punctuation_definition_variable_shell">}</span></span> <span class="variable variable_other variable_other_bracket variable_other_bracket_shell"><span class="punctuation punctuation_definition punctuation_definition_variable punctuation_definition_variable_shell">${</span>COND<span class="punctuation punctuation_definition punctuation_definition_variable punctuation_definition_variable_shell">}</span></span> <span class="variable variable_other variable_other_bracket variable_other_bracket_shell"><span class="punctuation punctuation_definition punctuation_definition_variable punctuation_definition_variable_shell">${</span>DIPOLES<span class="punctuation punctuation_definition punctuation_definition_variable punctuation_definition_variable_shell">}</span></span> <span class="variable variable_other variable_other_bracket variable_other_bracket_shell"><span class="punctuation punctuation_definition punctuation_definition_variable punctuation_definition_variable_shell">${</span>DSM<span class="punctuation punctuation_definition punctuation_definition_variable punctuation_definition_variable_shell">}</span></span>
+om_gain -EEG headmat_inv.bin <span class="variable variable_other variable_other_bracket variable_other_bracket_shell"><span class="punctuation punctuation_definition punctuation_definition_variable punctuation_definition_variable_shell">${</span>DSM<span class="punctuation punctuation_definition punctuation_definition_variable punctuation_definition_variable_shell">}</span></span> <span class="variable variable_other variable_other_bracket variable_other_bracket_shell"><span class="punctuation punctuation_definition punctuation_definition_variable punctuation_definition_variable_shell">${</span>H2EM<span class="punctuation punctuation_definition punctuation_definition_variable punctuation_definition_variable_shell">}</span></span> <span class="variable variable_other variable_other_bracket variable_other_bracket_shell"><span class="punctuation punctuation_definition punctuation_definition_variable punctuation_definition_variable_shell">${</span>EEG_GAIN<span class="punctuation punctuation_definition punctuation_definition_variable punctuation_definition_variable_shell">}</span></span>
+
+<span class="comment comment_line comment_line_number-sign comment_line_number-sign_shell"><span class="punctuation punctuation_definition punctuation_definition_comment punctuation_definition_comment_shell">#</span> Compute MEG gain matrix
+</span>om_assemble -H2MM <span class="variable variable_other variable_other_bracket variable_other_bracket_shell"><span class="punctuation punctuation_definition punctuation_definition_variable punctuation_definition_variable_shell">${</span>GEOM<span class="punctuation punctuation_definition punctuation_definition_variable punctuation_definition_variable_shell">}</span></span> <span class="variable variable_other variable_other_bracket variable_other_bracket_shell"><span class="punctuation punctuation_definition punctuation_definition_variable punctuation_definition_variable_shell">${</span>COND<span class="punctuation punctuation_definition punctuation_definition_variable punctuation_definition_variable_shell">}</span></span> <span class="variable variable_other variable_other_bracket variable_other_bracket_shell"><span class="punctuation punctuation_definition punctuation_definition_variable punctuation_definition_variable_shell">${</span>SQUIDS<span class="punctuation punctuation_definition punctuation_definition_variable punctuation_definition_variable_shell">}</span></span> <span class="variable variable_other variable_other_bracket variable_other_bracket_shell"><span class="punctuation punctuation_definition punctuation_definition_variable punctuation_definition_variable_shell">${</span>H2MM<span class="punctuation punctuation_definition punctuation_definition_variable punctuation_definition_variable_shell">}</span></span>
+om_assemble -DS2MM <span class="variable variable_other variable_other_bracket variable_other_bracket_shell"><span class="punctuation punctuation_definition punctuation_definition_variable punctuation_definition_variable_shell">${</span>DIPOLES<span class="punctuation punctuation_definition punctuation_definition_variable punctuation_definition_variable_shell">}</span></span> <span class="variable variable_other variable_other_bracket variable_other_bracket_shell"><span class="punctuation punctuation_definition punctuation_definition_variable punctuation_definition_variable_shell">${</span>SQUIDS<span class="punctuation punctuation_definition punctuation_definition_variable punctuation_definition_variable_shell">}</span></span> <span class="variable variable_other variable_other_bracket variable_other_bracket_shell"><span class="punctuation punctuation_definition punctuation_definition_variable punctuation_definition_variable_shell">${</span>DS2MM<span class="punctuation punctuation_definition punctuation_definition_variable punctuation_definition_variable_shell">}</span></span>
+om_gain -MEG headmat_inv.bin <span class="variable variable_other variable_other_bracket variable_other_bracket_shell"><span class="punctuation punctuation_definition punctuation_definition_variable punctuation_definition_variable_shell">${</span>DSM<span class="punctuation punctuation_definition punctuation_definition_variable punctuation_definition_variable_shell">}</span></span> <span class="variable variable_other variable_other_bracket variable_other_bracket_shell"><span class="punctuation punctuation_definition punctuation_definition_variable punctuation_definition_variable_shell">${</span>H2MM<span class="punctuation punctuation_definition punctuation_definition_variable punctuation_definition_variable_shell">}</span></span> <span class="variable variable_other variable_other_bracket variable_other_bracket_shell"><span class="punctuation punctuation_definition punctuation_definition_variable punctuation_definition_variable_shell">${</span>DS2MM<span class="punctuation punctuation_definition punctuation_definition_variable punctuation_definition_variable_shell">}</span></span> <span class="variable variable_other variable_other_bracket variable_other_bracket_shell"><span class="punctuation punctuation_definition punctuation_definition_variable punctuation_definition_variable_shell">${</span>MEG_GAIN<span class="punctuation punctuation_definition punctuation_definition_variable punctuation_definition_variable_shell">}</span></span>
+</span></pre>
+</body>
+</html>
