@@ -106,6 +106,8 @@ IF (NOT USE_MKL)
                 /usr/lib/sse3
                 /usr/lib/
                 /usr/lib/atlas
+                /usr/lib/atlas-base
+                /usr/lib64/atlas-base
                 )
             SET(ATLAS_LIBS atlas cblas f77blas clapack lapack blas)
 
