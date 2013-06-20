@@ -41,67 +41,249 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #define OPENMEEG_GEOMETRY_H
 
 #include <assert.h>
-#include "mesh3.h"
+#include <set>
+#include <vector>
+#include "vertex.h"
+#include "triangle.h"
+#include "mesh.h"
+#include "interface.h"
+#include "domain.h"
+
+// for IO:s
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <new>
+#include <string>
+#ifdef USE_VTK
+#include <vtkPolyData.h>
+#include <vtkPoints.h>
+#include <vtkPolyDataReader.h>
+#include <vtkXMLPolyDataReader.h>
+#include <vtkDataReader.h>
+#include <vtkCellArray.h>
+#include <vtkCharArray.h>
+#include <vtkProperty.h>
+#include <vtkPolyDataNormals.h>
+#include <vtkPointData.h>
+#include <vtkDataArray.h>
+#include <vtkCleanPolyData.h>
+#endif
 
 namespace OpenMEEG {
 
     /** \brief  Geometry
-        
         Geometry Class
-        
     **/
 
-    class OPENMEEG_EXPORT Geometry
-    {
-        int n;
-        double *sigin;
-        double *sigout;
-        Mesh *M;
-        size_t m_size; // Number of triangles + Number of points
-        bool has_cond;
+    enum Filetype { VTP, VTK, TRI, BND, MESH, OFF, GIFTI };
+
+
+    class OPENMEEG_EXPORT Geometry {
+
+        // Geometry types
+        typedef std::vector<Vect3>       Normals;
+        // typedef std::vector<std::string> Names;
 
     public:
-        Geometry() {n=0;}
-        ~Geometry() {destroy();}
-        int read(const char* geomFileName, const char* condFileName = NULL);
-        inline int nb() const {return n;}
-        inline size_t size() const {return m_size;}
-        inline double sigma_in(int i) const {return (i<n)?sigin[i]:0;} // 0 for sig(n)
-        inline double sigma_out(int i) const {return (i<n)?sigout[i]:0;} // 0 for sig(n)
-        inline double sigma(int i) const {return (i<n)?sigin[i]:0;} // 0 for sig(n)
-        inline const Mesh &surf(int i) const {return M[i];}
 
-        inline       Mesh& getM(const int i)       {assert(i>-1 && i<n); return M[i];}
-        inline const Mesh& getM(const int i) const {assert(i>-1 && i<n); return M[i];}
+        friend class Reader;
 
-        inline int getNumberOfPoints() const {
-            int number_points_total = 0;
-            for(int i = 0; i < n; ++i)
-            {
-                number_points_total += M[i].nbPts();
-            }
-            return number_points_total;
+        // Default iterator of a Geometry is an Iterator on the meshes
+        typedef Meshes::iterator       iterator;
+        typedef Meshes::const_iterator const_iterator;
+
+        // Iterators
+              iterator             begin()                 { return meshes().begin();    }
+        const_iterator             begin()           const { return meshes().begin();    }
+              iterator             end()                   { return meshes().end();      }
+        const_iterator             end()             const { return meshes().end();      }
+        Vertices::iterator         vertex_begin()          { return vertices().begin();  }
+        Vertices::const_iterator   vertex_begin()    const { return vertices().begin();  }
+        Vertices::iterator         vertex_end()            { return vertices().end();    }
+        Vertices::const_iterator   vertex_end()      const { return vertices().end();    }
+        Domains::iterator          domain_begin()          { return domains().begin();   }
+        Domains::const_iterator    domain_begin()    const { return domains().begin();   }
+        Domains::iterator          domain_end()            { return domains().end();     }
+        Domains::const_iterator    domain_end()      const { return domains().end();     }
+        Interfaces::iterator       interface_begin()       { return interfaces().begin();}
+        Interfaces::const_iterator interface_begin() const { return interfaces().begin();}
+        Interfaces::iterator       interface_end()         { return interfaces().end();  }
+        Interfaces::const_iterator interface_end()   const { return interfaces().end();  }
+
+        Geometry():  _has_cond(false)   { }
+        ~Geometry()                     { destroy(); }
+        void          read(const char* geomFileName, const char* condFileName = NULL);
+
+              bool&         has_cond()                    { return _has_cond; }
+        const bool&         has_cond()              const { return _has_cond; }
+              Vertices&     vertices()                    { return _vertices; }
+        const Vertices&     vertices()              const { return _vertices; }
+              Normals&      normals()                     { return _normals; }
+        const Normals&      normals()               const { return _normals; }
+              Meshes&       meshes()                      { return _meshes; }
+        const Meshes&       meshes()                const { return _meshes; }
+              Interfaces&   interfaces()                  { return _interfaces; }
+        const Interfaces&   interfaces()            const { return _interfaces; }
+              Domains&      domains()                     { return _domains; }
+        const Domains&      domains()               const { return _domains; }
+              size_t&       size()                        { return _size; }
+        const size_t        size()                  const { return _size; }
+        const size_t        nb_domains()            const { return _domains.size(); }
+        
+        inline double sigma      (const Domain d)                 const { return (d.sigma()); }
+        inline double sigma      (const Mesh& m1, const Mesh& m2) const { return funct_on_domains(m1, m2, '+');} // return the (sum) conductivity(ies) of the shared domain(s).
+        inline double sigma_diff (const Mesh& m1, const Mesh& m2) const { return funct_on_domains(m1, m2, '-');} // return the (difference) of conductivity(ies) of the shared domain(s).
+        inline double sigma_inv  (const Mesh& m1, const Mesh& m2) const { return funct_on_domains(m1, m2, '/');} // return the (sum) inverse of conductivity(ies) of the shared domain(s).
+        inline double indicatrice(const Mesh& m1, const Mesh& m2) const { return funct_on_domains(m1, m2, '1');} // return the (sum) indicatrice function of the shared domain(s).
+        inline double sigma      (const std::string&) const;
+        // bool selfCheck() const;
+        // bool check(const Mesh& m) const;
+        const Domain  get_domain(const Vect3&) const;
+        double oriented(const Mesh&, const Mesh&) const;
+
+        // for IO:s
+        void load_tri(std::istream &, Mesh &);
+        void load_tri(const char*, Mesh &);
+        void load_bnd(std::istream &, Mesh &);
+        void load_bnd(const char*, Mesh &);
+        void load_off(std::istream &, Mesh &);
+        void load_off(const char*, Mesh &);
+        void load_mesh(std::istream &, Mesh &);
+        void load_mesh(const char*, Mesh &);
+        #ifdef USE_VTK
+        void load_vtp(std::istream &);
+        void load_vtp(const char*);
+        void load_vtk(std::istream &, Mesh &);
+        void load_vtk(const char*, Mesh &);
+        void get_data_from_vtk_reader(vtkPolyDataReader* vtkMesh, Mesh &);
+        #else
+        template <typename T>
+        void load_vtp(T) {
+            std::cerr << "You have to compile OpenMEEG with VTK to read VTK/VTP files" << std::endl;
+            exit(1);
         }
-
-        bool selfCheck() const;
-        bool check(const Mesh& m) const;
-        int  getDomain(const Vect3& p) const;
-        Geometry getSubGeom(int i) const; // needed for using domain decomposition methods
+        template <typename T>
+        void load_vtk(T, Mesh &) {
+            std::cerr << "You have to compile OpenMEEG with VTK to read VTK/VTP files" << std::endl;
+            exit(1);
+        }
+        #endif
+        #ifdef USE_GIFTI
+        void load_gifti(std::istream &, Mesh &);
+        void load_gifti(const char*, Mesh &);
+        void save_gifti(const char*, Mesh &);
+        gifti_image* to_gifti_image();
+        void from_gifti_image(gifti_image* gim);
+        #else
+        template <typename T>
+        void load_gifti(T, Mesh &) {
+            std::cerr << "You have to compile OpenMEEG with GIFTI to read GIFTI files" << std::endl;
+            exit(1);
+        }
+        template <typename T>
+        void save_gifti(T, Mesh &) {
+            std::cerr << "You have to compile OpenMEEG with GIFTI to save GIFTI files" << std::endl;
+            exit(1);
+        }
+        #endif
+        void save_vtk(const char*)  const;
+        void save_bnd(const char*)  const;
+        void save_tri(const char*)  const;
+        void save_off(const char*)  const;
+        void save_mesh(const char*) const;
+        void mesh_load(const char* filename, Mesh &m) {
+            std::string extension = getNameExtension(filename);
+            std::transform(extension.begin(), extension.end(), extension.begin(), (int(*)(int))std::tolower);
+            if (extension == std::string("vtk")) {
+                load_vtk(filename, m);
+            } else if (extension == std::string("vtp")) {
+                load_vtp(filename);
+            } else if (extension == std::string("tri")) {
+                load_tri(filename, m);
+            } else if (extension == std::string("bnd")) {
+                load_bnd(filename, m);
+            } else if (extension == std::string("mesh")) {
+                load_mesh(filename, m);
+            } else if (extension == std::string("off")) {
+                load_off(filename, m);
+            } else if (extension == std::string("gii")) {
+                load_gifti(filename, m);
+            } else {
+                std::cerr << "IO: load: Unknown mesh file format for " << filename << std::endl;
+                exit(1);
+            }
+        }
 
     private:
-        void destroy() {
-            if (n!=0){
-                n=0;
-                delete []M;
-                if(has_cond)
-                {
-                    delete []sigin;
-                    delete []sigout;
-                }
-            }
+
+        // Members
+        Vertices   _vertices;
+        Normals    _normals;
+        Meshes     _meshes;
+        Interfaces _interfaces;
+        Domains    _domains;
+        size_t     _size;   // total number = nb of vertices + nb of triangles
+        bool       _has_cond;
+
+        void read_geom(const std::string&);
+        void read_cond(const char*);
+        void geom_generate_indices();
+
+        bool is_relative_path(const std::string& name);
+        #if WIN32
+        static const char PathSeparator[] = "/\\";
+        #else
+        static const char PathSeparator   = '/';
+        #endif
+
+        inline Domains common_domains(const Mesh& m1, const Mesh& m2) const {
+            // std::set<Domain&> sdom1;
+            // std::set<Domain&> sdom2;
+            // Domains doms;
+            // Domains::iterator dit;
+            // for (dit = domains.begin(); dit != domains.end(); dit++) {
+                // if (dit->meshOrient(m1) != 0) {
+                    // sdom1.insert(std::abs(dit->second));
+                // }
+                // if (dit->meshOrient(m2) != 0) {
+                    // sdom2.insert(std::abs(dit->second));
+                // }
+            // }
+            // dit = std::set_intersection(sdom1.begin(), sdom1.end(), sdom2.begin(), sdom2.end(), doms );
+            // return doms;
         }
 
+        inline double funct_on_domains(const Mesh& m1, const Mesh& m2, char f) const {       // return the (sum) conductivity(ies) of the shared domain(s).
+            Domains doms = common_domains(m1, m2);
+            double ans=0.;
+            for (Domains::iterator dit = doms.begin(); dit != doms.end(); dit++) {
+                if (f=='+') {
+                    ans += dit->sigma();
+                } else if (f == '-') {
+                    ans -= -1.*dit->sigma();
+                } else if (f == '/') {
+                    ans += 1./dit->sigma();
+                } else {
+                    ans += 1.;
+                }
+            }
+            return ans;
+        }
+
+        void destroy() {
+            // if (n!=0) {
+                // n=0;
+                // delete []M;
+                // if(has_cond)
+                // {
+                    // delete []sigin;
+                    // delete []sigout;
+                // }
+            // }
+        }
     };
+
 }
 
 #endif  //! OPENMEEG_GEOMETRY_H

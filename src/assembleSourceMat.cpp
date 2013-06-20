@@ -54,205 +54,182 @@ namespace OpenMEEG {
 
     using namespace std;
 
-    void assemble_SurfSourceMat(Matrix& mat,const Geometry& geo,const Mesh& sources,const int gauss_order) {
-
-        const int newsize = geo.size()-geo.getM(geo.nb()-1).nbTrgs();
-        mat = Matrix(newsize,sources.nbPts());
+    void assemble_SurfSourceMat(Matrix& mat, const Geometry& geo, const Mesh& sources, const int gauss_order) {
+/*
+        const int newsize = geo.size() - geo.end()->nb_triangles();
+        mat = Matrix(newsize, sources.nb_vertices());
         mat.set(0.0);
 
-        const unsigned nVertexSources = sources.nbPts();
-        const unsigned nVertexFirstLayer = geo.getM(0).nbPts();
-        const unsigned nFacesFirstLayer = geo.getM(0).nbTrgs();
+        const unsigned nVertexSources    = sources.nb_vertices();
+        const unsigned nVertexFirstLayer = geo.begin()->nb_vertices();
+        const unsigned nFacesFirstLayer  = geo.begin()->nb_triangles();
         std::cout << std::endl << "assemble SurfSourceMat with " << nVertexSources << " sources" << std::endl << std::endl;
 
         //  First block is nVertexFistLayer*nVertexSources.
 
-        operatorN(geo.getM(0),sources,mat,0,0,gauss_order);
+        operatorN(*geo.begin(), sources, mat, 0, 0, gauss_order);
 
         //  Second block is nFacesFistLayer*nVertexSources.
 
-        operatorD(geo.getM(0),sources,mat,static_cast<int>(nVertexFirstLayer),0,gauss_order);
+        operatorD(*geo.begin(), sources, mat, static_cast<int>(nVertexFirstLayer), 0, gauss_order);
 
         //  First block*=(-1/sigma_inside).
 
-        const double K = 1.0/(4.0*M_PI);
-        const double s1i = geo.sigma_in(0);
+        const double K = 1.0/(4.*M_PI);
+        const double s1i = geo.sigma("Brain");
 
-        mult(mat,nVertexFirstLayer,0,nVertexFirstLayer+nFacesFirstLayer-1,nVertexSources-1,-K/s1i);
-        mult(mat,0,0,nVertexFirstLayer-1,nVertexSources-1,K);
+        mult(mat, nVertexFirstLayer, 0, nVertexFirstLayer + nFacesFirstLayer-1, nVertexSources-1, -K/s1i);
+        mult(mat, 0, 0, nVertexFirstLayer-1, nVertexSources-1, K); 
+        */
     }
 
-    SurfSourceMat::SurfSourceMat(const Geometry& geo,const Mesh& sources,const int gauss_order) {
-        assemble_SurfSourceMat(*this,geo,sources,gauss_order);
+    SurfSourceMat::SurfSourceMat(const Geometry& geo, const Mesh& sources, const int gauss_order) {
+        assemble_SurfSourceMat(*this, geo, sources, gauss_order);
     }
 
-    void assemble_DipSourceMat(Matrix& rhs,const Geometry& geo,const Matrix& dipoles,
-                               const int gauss_order,const bool adapt_rhs,const bool dipoles_in_cortex)
-    {
-        const int newsize = geo.size()-(geo.getM(geo.nb()-1)).nbTrgs();
+    void assemble_DipSourceMat(Matrix& rhs, const Geometry& geo, const Matrix& dipoles,
+            const int gauss_order, const bool adapt_rhs, const bool dipoles_innermost) {
+
+        const double K         = 1.0/(4.*M_PI);
+        const int    newsize   = geo.size()-geo.end()->nb_triangles();
         const size_t n_dipoles = dipoles.nlin();
-        rhs = Matrix(newsize,n_dipoles);
-        rhs.set(0);
-
-        const double K = 1.0/(4*M_PI);
+        rhs = Matrix(newsize, n_dipoles);
+        rhs.set(0.);
 
         //  First block is nVertexFistLayer.
 
-        Vector prov(rhs.nlin());
-        for (size_t s=0;s<n_dipoles;++s) {
+        Vector rhs_col(rhs.nlin());
+        for (size_t s = 0; s < n_dipoles; s++) {
             PROGRESSBAR(s, n_dipoles);
-            const Vect3 r(dipoles(s,0),dipoles(s,1),dipoles(s,2));
-            const Vect3 q(dipoles(s,3),dipoles(s,4),dipoles(s,5));
+            const Vect3 r(dipoles(s, 0), dipoles(s, 1), dipoles(s, 2));
+            const Vect3 q(dipoles(s, 3), dipoles(s, 4), dipoles(s, 5));
 
-            const unsigned domainID = (dipoles_in_cortex) ? 0 : geo.getDomain(r);
-            const double   sigma    = geo.sigma_in(domainID);
+            const Domain domain = (dipoles_innermost && geo.domains()[0].innermost()) ? geo.domains()[0] : geo.get_domain(r); // TODO check
+            // TODO add conditions on Air domain : dipoles inside scalp ?
+            const double sigma  = domain.sigma();
 
-            unsigned istart = 0;
-            prov.set(0);
-            if (domainID!=0) {
-                for (unsigned id=0;id<(domainID-1);++id)
-                    istart += geo.getM(id).size();
+            rhs_col.set(0.);
+            // iterate over the domain's interfaces (half-spaces)
+            for (Domain::const_iterator hit = domain.begin(); hit != domain.end(); hit++ ) {
+                // iterate over the meshes of the interface
+                for (Interface::const_iterator mit = hit->interface().begin(); mit != hit->interface().end(); mit++ ) {
+                    //  Treat the mesh.
+                    operatorDipolePotDer(r, q, **mit, rhs_col, gauss_order, adapt_rhs);
 
-                //  Treat the internal surface.
+                    for (Mesh::const_vertex_iterator vit = (*mit)->vertex_begin(); vit!= (*mit)->vertex_end(); mit++) {
+                        rhs_col((*vit)->index()) *= (hit->inside())?K:-K; // TODO check signs
+                    }
 
-                const int nVertexLayer = geo.getM(domainID-1).nbPts();
-                const int nFacesLayer = geo.getM(domainID-1).nbTrgs();
-                operatorDipolePotDer(r,q,geo.getM(domainID-1),prov,istart,gauss_order,adapt_rhs);
+                    if (!(*mit)->outermost()) {
+                        operatorDipolePot(r, q, **mit, rhs_col, gauss_order, adapt_rhs);
 
-                for(unsigned i=istart;i<istart+nVertexLayer;++i)
-                    prov(i) *= -K;
-
-                operatorDipolePot(r,q,geo.getM(domainID-1),prov,istart+nVertexLayer,gauss_order,adapt_rhs);
-
-                for(unsigned i = istart+nVertexLayer;i<istart+nVertexLayer+nFacesLayer;++i)
-                    prov(i) *= (K/sigma);
-
-                istart += nVertexLayer+nFacesLayer;
+                        for (Mesh::const_iterator tit = (*mit)->begin(); tit!= (*mit)->end(); tit++) {
+                            rhs_col(tit->index()) *= (hit->inside())?-K/sigma:(K/sigma);
+                        }
+                    }
+                }
             }
-
-            //  Treat the external surface.
-
-            const int nVertexLayer = geo.getM(domainID).nbPts();
-            const int nFacesLayer = geo.getM(domainID).nbTrgs();
-
-            //  Block is nVertexLayer.
-
-            operatorDipolePotDer(r, q, geo.getM(domainID), prov, istart, gauss_order, adapt_rhs);
-
-            for (unsigned i=istart;i<istart+nVertexLayer;++i)
-                prov(i) *= K;
-
-            //  Block is nFaceLayer.
-
-            if (geo.nb()>(domainID+1)) {
-                operatorDipolePot(r,q,geo.getM(domainID),prov,istart+nVertexLayer,gauss_order,adapt_rhs);
-                for(unsigned i=istart+nVertexLayer;i<istart+nVertexLayer+nFacesLayer;++i)
-                    prov(i) *= (-K/sigma);
-            }
-            rhs.setcol(s,prov);
+            rhs.setcol(s, rhs_col);
         }
     }
 
-    DipSourceMat::DipSourceMat(const Geometry& geo,const Matrix& dipoles,const int gauss_order,
-                                const bool adapt_rhs,const bool dipoles_in_cortex)
-    {
-        assemble_DipSourceMat(*this,geo,dipoles,gauss_order,adapt_rhs,dipoles_in_cortex);
+    DipSourceMat::DipSourceMat(const Geometry& geo, const Matrix& dipoles, const int gauss_order,
+                                const bool adapt_rhs, const bool dipoles_innermost) {
+
+        assemble_DipSourceMat(*this, geo, dipoles, gauss_order, adapt_rhs, dipoles_innermost);
     }
 
-    void assemble_EITSourceMat(Matrix& mat,const Geometry& geo,const Matrix& positions,const int gauss_order) {
+    void assemble_EITSourceMat(Matrix& mat, const Geometry& geo, const Matrix& positions, const int gauss_order) {
 
+        /*
         //  A Matrix to be applied to the scalp-injected current to obtain the Source Term of the EIT foward problem.
 
-        const int newsize = geo.size()-geo.getM(geo.nb()-1).nbTrgs();
-        mat = Matrix(newsize,positions.nlin());
+        const double K = 1.0/(4.*M_PI);
+        const int newsize = geo.size()-geo.end()->nb_triangles();
+        mat = Matrix(newsize, positions.nlin());
 
         //  transmat = a big SymMatrix of which mat = part of its transpose.
-
         SymMatrix transmat(geo.size());
         transmat.set(0.0);
 
-        int offset0,offset1,offset2,offset3,offset4;
+        int offset0, offset1, offset2, offset3, offset4;
 
-        const double K = 1.0/(4*M_PI);
-
-        for(int c=0,offset=0;c<geo.nb()-1;++c) {
+        // We iterate over the meshes (or pair of domains)
+        for (Geometry::const_iterator mit = geo.begin(); mit != geo.end(); mit++) {
             offset0 = offset;
-            offset1 = offset0+geo.getM(c).nbPts();
-            offset2 = offset1+geo.getM(c).nbTrgs();
-            offset3 = offset2+geo.getM(c+1).nbPts();
-            offset4 = offset3+geo.getM(c+1).nbTrgs();
+            offset1 = offset0 + mit->nb_vertices();
+            offset2 = offset1 + mit->nb_triangles();
+            offset3 = offset2 + geo.getM(c+1).nb_vertices();  // TODO
+            offset4 = offset3 + geo.getM(c+1).nb_triangles(); // TODO
             offset  = offset2;
         }
-        const int c = geo.nb()-2;
 
         //  Compute S.
 
-        operatorS(geo.getM(c+1),geo.getM(c),transmat,offset3,offset1,gauss_order);
-        mult(transmat,offset3,offset1,offset4,offset2,K/geo.sigma_in(c+1));
+        operatorS(geo.getM(c+1), geo.getM(c), transmat, offset3, offset1, gauss_order);
+        mult(transmat, offset3, offset1, offset4, offset2, K/geo.sigma_in(c+1));
 
         //  First compute D, then it will be transposed.
 
-        operatorD(geo.getM(c+1),geo.getM(c),transmat,offset3,offset0,gauss_order);
-        mult(transmat,offset3,offset0,offset4,offset1,-K);
-        operatorD(geo.getM(c+1),geo.getM(c+1),transmat,offset3,offset2,gauss_order);
-        mult(transmat,offset3,offset2,offset4,offset3,-2.0*K);
-        operatorP1P0(geo.getM(c+1),transmat,offset3,offset2);
-        mult(transmat,offset3,offset2,offset4,offset3,-0.5);
+        operatorD(geo.getM(c+1), geo.getM(c), transmat, offset3, offset0, gauss_order);
+        mult(transmat, offset3, offset0, offset4, offset1, -K);
+        operatorD(geo.getM(c+1), geo.getM(c+1), transmat, offset3, offset2, gauss_order);
+        mult(transmat, offset3, offset2, offset4, offset3, -2.0*K);
+        operatorP1P0(geo.getM(c+1), transmat, offset3, offset2);
+        mult(transmat, offset3, offset2, offset4, offset3, -0.5);
 
         //  Extracting the transpose of the last block of lines of transmat.
         //  Transposing the Matrix.
 
-        for (unsigned ielec=0;ielec<positions.nlin();++ielec) {
-            const Vect3 current_position(positions(ielec,0),positions(ielec,1),positions(ielec,2));
+        for (unsigned ielec = 0; ielec < positions.nlin(); ++ielec) {
+            const Vect3 current_position(positions(ielec, 0), positions(ielec, 1), positions(ielec, 2));
             Vect3 current_alphas; //not used here
             int current_nearest_triangle; //    To hold the index of the closest triangle to electrode.
-            dist_point_mesh(current_position,geo.getM(geo.nb()-1),current_alphas,current_nearest_triangle);
-            const double inv_area = 1.0/geo.getM(geo.nb()-1).triangle(current_nearest_triangle).getArea();
-            for (int i=0;i<newsize;++i)
-                mat(i,ielec) = transmat(newsize+current_nearest_triangle,i)*inv_area;
+            dist_point_mesh(current_position, geo.getM(geo.nb()-1), current_alphas, current_nearest_triangle);
+            const double inv_area = 1.0/geo.getM(geo.nb()-1).triangle(current_nearest_triangle).area();
+            for (int i = 0; i < newsize; ++i) {
+                mat(i, ielec) = transmat(newsize+current_nearest_triangle, i)*inv_area;
+            }
         }
+        */
     }
 
-    EITSourceMat::EITSourceMat(const Geometry& geo,Sensors& electrodes,const int gauss_order) {
+    EITSourceMat::EITSourceMat(const Geometry& geo, Sensors& electrodes, const int gauss_order) {
         assemble_EITSourceMat(*this, geo, electrodes.getPositions(), gauss_order);
     }
 
-    void assemble_DipSource2InternalPotMat(Matrix& mat,const Geometry& geo,const Matrix& dipoles,
-                                           const Matrix& points,const bool dipoles_in_cortex)
-    {
+    void assemble_DipSource2InternalPotMat(Matrix& mat, const Geometry& geo, const Matrix& dipoles,
+                                           const Matrix& points, const bool dipoles_innermost)     {
         // Points with one more column for the index of the domain they belong
-        Matrix pointsLabelled(points.nlin(),4);
-        for (unsigned i=0;i<points.nlin();++i) {
-            pointsLabelled(i,3) = geo.getDomain(Vect3(points(i,0),points(i,1),points(i,2)));
-            for (int j=0;j<3;++j)
-                pointsLabelled(i, j) = points(i,j);
+        std::vector<Domain> points_domain;
+        for (unsigned i = 0; i < points.nlin(); ++i) {
+            points_domain.push_back(geo.get_domain(Vect3(points(i, 0), points(i, 1), points(i, 2))));
         }
-        const double K = 1.0/(4.0*M_PI);
-        mat = Matrix(points.nlin(),dipoles.nlin());
+        const double K = 1.0/(4.*M_PI);
+        mat = Matrix(points.nlin(), dipoles.nlin());
         mat.set(0.0);
 
-        for (unsigned iDIP=0;iDIP<dipoles.nlin();++iDIP) {
-            const Vect3 r0(dipoles(iDIP,0),dipoles(iDIP,1),dipoles(iDIP,2));
-            const Vect3  q(dipoles(iDIP,3),dipoles(iDIP,4),dipoles(iDIP,5));
+        for (unsigned iDIP = 0; iDIP < dipoles.nlin(); ++iDIP) {
+            const Vect3 r0(dipoles(iDIP, 0), dipoles(iDIP, 1), dipoles(iDIP, 2));
+            const Vect3  q(dipoles(iDIP, 3), dipoles(iDIP, 4), dipoles(iDIP, 5));
 
-            const unsigned domainID = (dipoles_in_cortex) ? 0 : geo.getDomain(r0);
-            const double   sigma    = geo.sigma_in(domainID);
+            const Domain domain = (dipoles_innermost && geo.domains()[0].innermost()) ? geo.domains()[0] : geo.get_domain(r0); // TODO check
+            const double sigma  = domain.sigma();
 
             static analyticDipPot anaDP;
-            anaDP.init(q,r0);
-            for (unsigned iPTS=0;iPTS<points.nlin();++iPTS) {
-                if ((pointsLabelled(iPTS,3))==domainID) {
-                    const Vect3 r(points(iPTS,0),points(iPTS,1),points(iPTS,2));
+            anaDP.init(q, r0);
+            for (size_t iPTS = 0; iPTS < points.nlin(); ++iPTS) {
+                if (points_domain[iPTS] == domain) {
+                    const Vect3 r(points(iPTS, 0), points(iPTS, 1), points(iPTS, 2));
                     mat(iPTS, iDIP) = K/sigma*anaDP.f(r);
                 }
             }
         }
     }
 
-    DipSource2InternalPotMat::DipSource2InternalPotMat(const Geometry& geo,const Matrix& dipoles,
-                                                       const Matrix& points,const bool dipoles_in_cortex)
+    DipSource2InternalPotMat::DipSource2InternalPotMat(const Geometry& geo, const Matrix& dipoles,
+                                                       const Matrix& points, const bool dipoles_innermost)
     {
-        assemble_DipSource2InternalPotMat(*this,geo,dipoles,points,dipoles_in_cortex);
+        assemble_DipSource2InternalPotMat(*this, geo, dipoles, points, dipoles_innermost);
     }
-
 }

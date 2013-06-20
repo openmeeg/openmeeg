@@ -41,6 +41,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #define OPENMEEG_INTERFACE_H
 
 #include <string>
+#include <sstream>
 #include <vector>
 #include "mesh.h"
 
@@ -52,35 +53,42 @@ namespace OpenMEEG {
 
     **/
 
-    class OPENMEEG_EXPORT Interface: protected std::vector<Mesh *> {
+    class OPENMEEG_EXPORT Interface: public std::vector<Mesh *> {
+
+        typedef std::vector<Mesh *> PMeshes;
 
     public:
 
-        // static void set_file_format(Mesh& mesh, const std::string& name) { 
-            // mesh.get_file_format(name.c_str()); 
-            // this->name = name;
-        // }
-        typedef std::vector<Mesh *> base;
+        Interface()                                    { }
 
-        std::string keyword;
+        const std::string   name() const               { return _name; }
+              std::string & name()                     { return _name; }
 
-        Interface(std::string name): base(), keyword("Interface") {
-            // this->push_back(&Mesh(name)); // TODO error: taking address of temporary
-        }
+        PMeshes       meshes() const                   { return _meshes; }
+        PMeshes     & meshes()                         { return _meshes; }
 
-        inline std::string   name() const   { return _name; }
-        inline std::string & name()         { return _name; } // TODO maybe remove
+        bool  contains_point(const Vect3) const;
 
-        // inline std::istream& operator>>(std::istream &is, Mesh &m) {
-            // if (strcmp(keyword, "Mesh") == 0) {
-            // }
-        // }
-
+        static std::string keyword;     // keyword to be matched in the geometry file
     private:
-        std::string _name; // might be "i0" by default
+        std::string _name;       // might be "i0" by default
+        PMeshes     _meshes;
     };
 
+    typedef std::vector<Interface> Interfaces;
 }
 
 #endif  //  ! OPENMEEG_INTERFACE_H
+
+        // std::istream& operator>> (std::istream &is) {
+            // std::string a_mesh_name;
+            // while (is >> a_mesh_name) {
+                // for (Meshes::const_iterator mit = meshes().begin(); mit != meshes().end(); mit++) {
+                    // if (mit->name() == a_mesh_name) {
+                        // this->push_back(&*mit);
+                    // }
+                // }
+            // }
+            // delete _meshes;
+        // } 
 

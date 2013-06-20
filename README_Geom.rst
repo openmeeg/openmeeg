@@ -3,76 +3,104 @@ OpenMEEG: Taking into account non-nested geometries
 
 Definitions:
 ------------
--Domain: Volume separated between interfaces
+-Vertex: 3D vector of real                                                     Vect3
+ vertices: collection of vertex                                                Vect3* vertices   OR    Vertex vertices
+ 
+-Triangle: vector of 3 indices                                                 Triangle
 
--Interface: A closed-connexed shape, e.g a mesh homeomorphe to a sphere.
+-Mesh: collection of triangles                                                 Triangle* triangles
 
--Mesh: collection of points and cells (triangles)
+-Interface: A closed-connexed shape, e.g a mesh homeomorphe to a sphere.       vector<Mesh&> interface
 
+-OrientedInterface: An Oriented (with normals) Interface                       vector<pair< interface, vector<bool> > > Ointerface
+                    the boolean tell wheater the direct product is well 
+                    oriented or not with regard to the interior domain.
+
+-Domain: 3D volume separated by 2-(or more) interfaces (or 1 OrientedInterface, e.g the Air domain)
+
+(words we do not used: layers, face, cells, surface )
 
 Features:
 ---------
 We would like to get a description of the geometry such that this API gives us access to the following features::
-    - Given a domain ID, define the interfaces enclosing this domain
-    - Given a point, give the Id of the domain where this point lie
-    - Able to iterate over the triangles/points of an interface
-    - Read/write mesh files in different format
+    - Given a domain ID::
+            - define the interfaces enclosing this domain: RETURN std::vector<Interface> 
+            - define the domain conductivity, and if a reference to a triangle is also given, gives the conductivity over the triangle
+
+    - Given a 3D point, gives the ID of the domain which contains the point
+
+    - Given an Interface, able to iterate over the triangles/points of this interface
+
     - Acquire geometry description through .geom and .cond files as well as more general VTK format.
+    - Read/write mesh files in different format
     - Test wheather or not a mesh is closed, self intersecting,...
     - Determine gradient of P1 functions, and surface of triangles
     - ...
 
-
-Example of Non-Nested Geometry:
--------------------------------
-     ____________
-    /            \
-   /              \
-   |   ___ ___    |
-   |  /   ||  \   |
-   |  \_1_||_2/   |
-   |              |
-   \      3      /
-    \___________/
+    - Creates Interface from meshes
 
 
-VTK based format:
------------------
-Vertices::
-    x1 y1 z1
-    x2 y2 z2
-    .. .. ..
-    xN yN zN
-Triangles::
-    p1 p2 p3
-    p3 p7 p6
-    p7 p8 p9
-    .. .. ..
-    .. .. ..
-Interfaces::
-   i0: (GrayMatter_Left)
-        t1
-        t2
-        t3
-        t4
-        ..
-   i1: (GrayMatter_Right)
-        t1
-        t2
-        t9
-        t14
-        ..
-   i2: (Inner Skull)
-        ..
-        ..
-   ..:
-Domains(??? or in the .geom file)::
-    GrayMatter_Left:    -i0
-    GrayMatter_Right:   -i1
-    CSF:                 i0 i1 -i2
-    ..............................
+Examples of Non-Nested Geometry:
+--------------------------------
+     ____________              _____________
+    /            \            /             \
+   /              \          /               \
+   |   ______     |          |   ___   ___   |
+   |  /   |  \    |          |  /   |  |  \  |
+   |  | 1 | 2 |   |    OR    |  | 1 |  |2  | |
+   |  \___|__/    |          |  \___|  |__/  |
+   |              |          |               |
+   \      3      /           \      3       /
+    \___________/             \____________/
+                          
 
-
+VTK based format::
+==================                                       _
+                                                ||      /    Vertices:                             ||
+                                                ||      |        x1 y1 z1                          ||
+                                                ||      |        x2 y2 z2                          ||
+                                                ||      |        .. .. ..                          ||
+                                                ||      |        xN yN zN                          ||
+                                                ||      |    Triangles:                            ||
+                                                ||      |        p1 p2 p3                          ||
+                                                ||      |        p3 p7 p6                          ||
+                                                ||      |        p7 p8 p9                          ||
+                                                ||      |        .. .. ..                          ||
+                                                ||      |    Meshes:                               ||
+                                                ||      |       m0:                                ||
+                                                ||      |         t0                               ||
+                                                ||      |         t1                               ||
+                                                ||  VTK |         ..                               ||
+                                                ||      |       m1:                                ||
+                                                ||      |         t12                              ||
+                                                ||      |         t37                              ||
+                                                ||      |         t78                              ||
+                                                ||      |         ...                              ||
+                                                ||      |       ..:                                ||
+                                                ||      \_        ...                              ||
+# Domain Description 1.0                        ||      /    # Domain Description 1.1              ||      /    # Domain Description 1.1
+                                                ||      |                                          ||      |
+Interfaces 3 Mesh                               ||      |    MeshFile file.vtp                     ||      |                 
+                                                ||      |                                          ||      |    
+"skull.1.tri"                                   ||      |    Interfaces 3 NamedInterface           ||      |                   
+"cortex.1.tri"                                  ||      |       i0:                                ||      |                    
+"scalp.1.tri"                                   ||      |            m0                            ||      |                    
+                                                ||      |            m1                            ||      |            
+Domains 4                                       ||      |            ..                            ||      |    Interfaces 3 NamedInterface
+                                                ||      |       i1:                                ||      |       i0: skull.1.tri
+Domain Scalp 1 -3                               ||      |            m1                            ||      |       i1: cortex.1.tri
+Domain Brain -2                                 ||      |            m2                            ||      |       i2: scalp.1.tri
+Domain Air 3                                    ||      |            ..                            ||      |     
+                                                || GEOM |       i2:                                || GEOM |    Domains 4                          
+Domain Skull 2 -1                               ||      |            ..                            ||      |        Domain Scalp -i1
+                                                ||      |            ..                            ||      |        Domain Brain -i2
+                                                ||      |       ..:                                ||      |        Domain Air    i0 i1 -i2
+                                                ||      |    Domains 4                             ||      |                          Domain Air i2
+                                                ||      |        GrayMatter_Left:    -i0           ||      |        Domain Skull 2 -1 
+                                                ||      |        GrayMatter_Right:   -i1           ||      |    
+                                                ||      |        CSF:                 i0 i1 -i2    ||      |    
+                                                ||      |                                          ||      |        
+                                                ||      \_                                         ||      \_     
 
 Design of the reconstruction:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -80,3 +108,40 @@ Design of the reconstruction:
     Add files from (Odyssee++/)FMesh, like Face.H, Triangle.H ... ??
     Replace the current geometry class by something for general
 
+
+    class Reader
+    class geometry, which construct domains
+    TODO: specify that 2 meshes can have only one domain shared or zero, if they have 2 shared domains, then they are the same mesh.
+
+
+Reading process of the geom file:
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+read header: ()
+    Domain Description: version 1.0
+if (version == 1.0)
+    read Interfaces nb_meshes Mesh
+        for i in nb_meshes
+            [p,t] = meshReader(mesh%i)
+            points.pushback_ (p, from mesh %i)
+            meshes.pushback_ (t, from mesh %i)
+         end
+         for i in meshes
+             interfaces.pushback_ (&meshes[i])
+         end
+    
+    read Domains nb_domains
+        for i in nb_domains
+            domains.pushback_ (name%i, +/- interface )
+        end
+else (version == 2.0) 
+    read VTK file 
+        points.pushback_ (VTK)
+        meshes.pushback_ (VTK)
+    read Interfaces nb_interfaces
+        for i in nb_interfaces
+            interfaces.pushback_ (&meshes[j])
+        end
+    read Domains nb_domains
+        for i in nb_domains
+            domains.pushback_ (name%i, +/- interface )
+        end

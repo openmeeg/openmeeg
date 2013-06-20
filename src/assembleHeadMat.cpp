@@ -48,209 +48,193 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include "operators.h"
 #include "assemble.h"
 
-namespace OpenMEEG
-{
+namespace OpenMEEG {
 
-template<class T>
-void deflat(T &M, int start, int end, double coef)
-{
-    // deflate the Matrix
-    for(int i=start; i<=end; i++) {
-        #pragma omp parallel for
-        for(int j=i; j<=end; j++) {
-            M(i, j)+=coef;
-        }
-    }
-}
-
-void assemble_HM(const Geometry &geo, SymMatrix &mat, const int gauss_order)
-{
-    int offset = 0;
-
-    mat = SymMatrix(geo.size());
-    mat.set(0.0);
-
-    if (geo.nb()==1) {
-        operatorN(geo.getM(0), geo.getM(0), mat, 0, 0, gauss_order, offset, offset);
-    }
-
-    for (int c=0; c<geo.nb()-1; c++) {
-        int offset0 = offset;
-        int offset1 = offset+geo.getM(c).nbPts();
-        int offset2 = offset+geo.getM(c).nbPts() + geo.getM(c).nbTrgs();
-        int offset3 = offset+geo.getM(c).nbPts() + geo.getM(c).nbTrgs() + geo.getM(c+1).nbPts();
-
-        // Computing S block first because it's needed for the corresponding N block
-        if (c == 0) {
-            operatorS(geo.getM(c), geo.getM(c), mat, offset1, offset1, gauss_order);
-        }
-        operatorS(geo.getM(c+1), geo.getM(c), mat, offset3, offset1, gauss_order);
-        operatorS(geo.getM(c+1), geo.getM(c+1), mat, offset3, offset3, gauss_order);
-
-        // Computing N block
-        if (c == 0) {
-            operatorN(geo.getM(c), geo.getM(c), mat, offset0, offset0, gauss_order, offset1, offset1);
-        }
-        operatorN(geo.getM(c+1), geo.getM(c), mat, offset2, offset0, gauss_order, offset3, offset1);
-        operatorN(geo.getM(c+1), geo.getM(c+1), mat, offset2, offset2, gauss_order, offset3, offset3);
-
-        // Computing D block
-        if (c == 0) {
-            operatorD(geo.getM(c), geo.getM(c), mat, offset1, offset0, gauss_order);
-        }
-        if (c != geo.nb()-2) {
-            operatorD(geo.getM(c+1), geo.getM(c), mat, offset3, offset0, gauss_order);
-        }
-        operatorD(geo.getM(c), geo.getM(c+1), mat, offset1, offset2, gauss_order);
-        if (c != geo.nb()-2) {
-            operatorD(geo.getM(c+1), geo.getM(c+1), mat, offset3, offset2, gauss_order);
-        }
-
-        offset = offset2;
-    }
-
-    //Block multiplications
-    //Because only half the Matrix is stored, only the lower part of the Matrix is treated
-    offset=0;
-    double K = 1.0 / (4.0 * M_PI);
-    for(int c=0; c < geo.nb()-1; c++) {
-        int offset0 = offset;
-        int offset1 = offset0 + geo.getM(c).nbPts();
-        int offset2 = offset1 + geo.getM(c).nbTrgs();
-        int offset3 = offset2 + geo.getM(c+1).nbPts();
-        int offset4 = offset3 + geo.getM(c+1).nbTrgs();
-
-        //Each operator is scaled with the appropriate constant
-
-        //Column 1
-        if(c==0) {
-            mult(mat, offset0, offset0, offset1, offset1, (geo.sigma_in(c)+geo.sigma_out(c))*K);
-        }
-        if(c==0) {
-            mult(mat, offset1, offset0, offset2, offset1, -2.0*K);
-        }
-        mult(mat, offset2, offset0, offset3, offset1, (-geo.sigma_out(c))*K);
-        mult(mat, offset3, offset0, offset4, offset1, K);
-
-        //Column 2
-        if(c==0) {
-            mult(mat, offset1, offset1, offset2, offset2, K / geo.sigma_in(c) + K / geo.sigma_out(c));
-        }
-        mult(mat, offset2, offset1, offset3, offset2, K);
-        mult(mat, offset3, offset1, offset4, offset2, -K / geo.sigma_out(c));
-
-        //Column 3
-        mult(mat, offset2, offset2, offset3, offset3, (geo.sigma_in(c+1) + geo.sigma_out(c+1))*K);
-        mult(mat, offset3, offset2, offset4, offset3, -2.0*K);
-
-        //Column 4
-        mult(mat, offset3, offset3, offset4, offset4, K / geo.sigma_in(c+1) + K / geo.sigma_out(c+1));
-
-        offset=offset2;
-    }
-    if (geo.nb()==1) {
-        mult(mat, 0, 0, geo.getM(0).nbPts(), geo.getM(0).nbPts(), geo.sigma_in(0)*K);
-    }
-
-    // Deflate the last diagonal block of new 'mat' :
-    int newsize = geo.size() - geo.getM(geo.nb() - 1).nbTrgs();
-    offset = newsize - geo.getM(geo.nb() - 1).nbPts();
-    deflat(mat, offset, newsize-1, mat(offset, offset) / (newsize - offset));
-
-    mat = mat.submat(0, newsize-1);
-}
-
-void assemble_Surf2Vol(const unsigned N,const Geometry& geo,Matrix& mat,const std::vector<Matrix>& points) {
-
-    const double K = 1.0/(4.0*M_PI);
-
-    mat = Matrix(N,geo.size()-geo.getM(geo.nb()-1).nbTrgs());
-    mat.set(0.0);
-
-    int offset = 0;
-    int offsetA0 = 0;
-    for (int c=0;c<geo.nb()-1;++c) {
-        const int offset0 = offset;
-        const int offsetA = offsetA0;
-        const int offsetB = offsetA+points[c].nlin();
-        const int offset1 = offset +geo.getM(c).nbPts();
-        const int offset2 = offset1+geo.getM(c).nbTrgs();
-        const int offset3 = offset2+geo.getM(c+1).nbPts();
-        const int offset4 = offset3+geo.getM(c+1).nbTrgs();
-
-        // compute DI, i block if necessary.
-        if (c==0) {
-            operatorDinternal(geo.getM(c),mat,offsetA,offset0,points[c]);
-            mult(mat,offsetA,offset0,offsetB,offset1,-K);
-        }
-
-        // compute DI+1, i block.
-        operatorDinternal(geo.getM(c),mat,offsetB,offset0,points[c+1]);
-        mult(mat,offsetB,offset0,offsetB+points[c+1].nlin(),offset1,K);
-
-        // compute DI+1, i+1 block
-        operatorDinternal(geo.getM(c+1), mat, offsetB, offset2, points[c+1]);
-        mult(mat,offsetB,offset2,offsetB+points[c+1].nlin(),offset3,-K);
-
-        // compute SI, i block if necessary.
-        if (c==0) {
-            operatorSinternal(geo.getM(c), mat, offsetA, offset1, points[c]);
-            mult(mat,offsetA,offset1,offsetA+points[c].nlin(),offset2,K/geo.sigma_in(c));
-        }
-
-        // compute SI+1, i block
-        const double inv_sig = K/geo.sigma_in(c+1);
-        operatorSinternal(geo.getM(c),mat,offsetB,offset1,points[c+1]);
-        mult(mat,offsetA+points[c].nlin(),offset1,offsetB+points[c+1].nlin(),offset2,-inv_sig);
-
-        if (c<geo.nb()-2) {
-            // compute SI+1, i block
-            operatorSinternal(geo.getM(c+1),mat,offsetB,offset3,points[c+1]);
-            mult(mat,offsetB,offset3,offsetB+points[c+1].nlin(),offset4,inv_sig);
-        }
-        offset   = offset2;
-        offsetA0 = offsetA+points[c].nlin();
-    }
-}
-
-HeadMat::HeadMat (const Geometry& geo, const int gauss_order)
-{
-    assemble_HM(geo, *this, gauss_order);
-}
-
-Surf2VolMat::Surf2VolMat(const Geometry& geo,const Matrix& points) {
-
-    //  Find and count the points per domain.
-
-    std::vector<unsigned> labels(points.nlin());
-    std::vector<int> nb_pts_per_dom(geo.nb(),0);
-    for (unsigned i=0;i<points.nlin();++i) {
-        int domain = geo.getDomain(Vect3(points(i,0),points(i,1),points(i,2)));
-        if (domain>=geo.nb()) {
-            std::cerr << " Surf2Vol: Point " << points.getlin(i);
-            std::cerr << " is outside the head. Point is considered to be in the scalp." << std::endl;
-            domain = geo.nb()-1;
-        }
-        labels[i] = domain;
-        ++nb_pts_per_dom[domain];
-    }
-
-    //  Split the point array into multiple arrays (one array per domain).
-
-    std::vector<Matrix> vect_PtsInDom(geo.nb());
-    for (unsigned c=0;c<static_cast<unsigned>(geo.nb());++c) {
-        vect_PtsInDom[c] = Matrix(nb_pts_per_dom[c],3);
-        for (unsigned ipt=0,iptd=0;ipt<points.nlin();++ipt) { // get the points in the domain c
-            if (labels[ipt]==c) {
-                vect_PtsInDom[c](iptd,0) = points(ipt,0);
-                vect_PtsInDom[c](iptd,1) = points(ipt,1);
-                vect_PtsInDom[c](iptd,2) = points(ipt,2);
-                ++iptd;
+    template<class T>
+    void deflat(T &M, int start, int end, double coef) {
+        // deflate the Matrix
+        for(int i=start; i<=end; i++) {
+            #pragma omp parallel for
+            for(int j=i; j<=end; j++) {
+                M(i, j)+=coef;
             }
         }
     }
 
-    assemble_Surf2Vol(points.nlin(),geo,*this,vect_PtsInDom);
-}
+    void assemble_HM(const Geometry &geo, SymMatrix &mat, const int gauss_order) {
+        mat = SymMatrix(geo.size()- geo.end()->nb_triangles()); // TODO only work for the last mesh outermost
+        mat.set(0.0);
+
+        int offset = 0;
+
+        // We iterate over the meshes (or pair of domains)
+        for (Geometry::const_iterator mit1 = geo.begin(); mit1 != geo.end(); mit1++) {
+
+            int offset0 = offset;
+            int offset1 = offset0  + mit1->nb_vertices();
+
+            for (Geometry::const_iterator mit2 = mit1; mit2 != geo.end(); mit2++) {
+
+                // if mit1 and mit2 communicate, i.e they are used for the definition of a domain
+                const double orientation = geo.oriented(*mit1, *mit2); // equals  0, if they don't have any domains in common
+
+                if (std::abs(orientation) > 10.*std::numeric_limits<double>::epsilon() ) {
+                    if (offset1 < mat.ncol()) {
+                        // Computing S block first because it's needed for the corresponding N block
+                        operatorS(*mit1, *mit2, mat, offset1, offset1, gauss_order);
+
+                        // Computing D block
+                        operatorD(*mit1, *mit2, mat, offset1, offset0, gauss_order);
+                    }
+                    else {
+                        offset1=0;
+                    }
+
+                    // Computing N block
+                    operatorN(*mit1, *mit2, mat, offset0, offset0, gauss_order, offset1, offset1);
+                }
+
+            }
+            offset = offset1 + mit1->nb_triangles();
+        }
+
+        // Block multiplications
+        // Because only half the Matrix is stored, only the lower part of the Matrix is treated
+        offset=0;
+        double K = 1.0 / (4.0 * M_PI);
+
+        // We iterate over the meshes (or pair of domains)
+        for (Geometry::const_iterator mit1 = geo.begin(); mit1 != geo.end(); mit1++) {
+
+            int offset0 = offset;
+            int offset1 = offset0  + mit1->nb_vertices();
+            int offset2 = offset1  + mit1->nb_triangles();
+
+            for (Geometry::const_iterator mit2 = mit1; mit2 != geo.end(); mit2++) {
+
+                double orientation = geo.oriented(*mit1, *mit2); // equals  0, if they don't have any domains in common
+                                                           // equals  1, if they are both oriented toward the same domain
+                                                           // equals -1, if they are not
+
+                if (std::abs(orientation) > 10.*std::numeric_limits<double>::epsilon() ) {
+
+                    // if mit1 and mit2 communicate, i.e they are used for the definition of a domain
+                    double Ncoeff = - orientation * geo.sigma(*mit1, *mit2) * K;
+                    double Scoeff =   orientation * geo.sigma_inv(*mit1, *mit2) * K;
+                    double Dcoeff = - orientation * geo.indicatrice(*mit1, *mit2) * K;
+
+                    // N
+                    mult(mat, offset0, offset0, offset1, offset1, Ncoeff);
+                    // S
+                    mult(mat, offset1, offset1, offset2, offset2, Scoeff);
+                    // D
+                    mult(mat, offset1, offset0, offset1, offset2, Dcoeff);
+
+                }
+            }
+            offset = offset2;
+        }
+
+        // Deflate the last diagonal block of new 'mat' : 
+        offset = mat.ncol() - geo.end()->nb_vertices();
+        deflat(mat, offset, mat.ncol()-1, mat(offset, offset) / (mat.ncol() - offset));
+    }
+
+    void assemble_Surf2Vol(const unsigned N, const Geometry& geo, Matrix& mat, const std::vector<Matrix>& points) {
+
+        /*
+        const double K = 1.0/(4.0*M_PI);
+
+        mat = Matrix(N, geo.size()-geo.end()->size());
+        mat.set(0.0);
+
+        int offset = 0;
+        int offsetA0 = 0;
+        int c = 0;
+        for (Geometry::const_iterator mit = geo.begin(); mit != geo.end(); mit++, c++) {
+            const int offset0 = offset;
+            const int offsetA = offsetA0;
+            const int offsetB = offsetA + points[c].nlin();
+            const int offset1 = offset  + mit->nb_vertices();
+            const int offset2 = offset1 + mit->size();
+            const int offset3 = offset2 + (mit+1)->nb_vertices();
+            const int offset4 = offset3 + (mit+1)->size();
+
+            // compute DI, i block if necessary. // TODO check les orientations
+            if (c==0) {
+                operatorDinternal(*mit, mat, offsetA, offset0, points[c]);
+                mult(mat, offsetA, offset0, offsetB, offset1, -K);
+            }
+
+            // compute DI+1, i block.
+            operatorDinternal(*mit, mat, offsetB, offset0, points[c+1]);
+            mult(mat, offsetB, offset0, offsetB+points[c+1].nlin(), offset1, K);
+
+            // compute DI+1, i+1 block
+            operatorDinternal(*mit, mat, offsetB, offset2, points[c+1]);
+            mult(mat, offsetB, offset2, offsetB+points[c+1].nlin(), offset3,-K);
+
+            // compute SI, i block if necessary.
+            if (c==0) {
+                operatorSinternal(*mit, mat, offsetA, offset1, points[c]);
+                mult(mat, offsetA, offset1, offsetA+points[c].nlin(), offset2, K/geo.sigma_in(c));
+            }
+
+            // compute SI+1, i block
+            const double inv_sig = K/geo.sigma_in(c+1);
+            operatorSinternal(*mit, mat, offsetB, offset1, points[c+1]);
+            mult(mat, offsetA+points[c].nlin(), offset1, offsetB+points[c+1].nlin(), offset2, -inv_sig);
+
+            if (c<geo.nb_domains()-2) {
+                // compute SI+1, i block
+                operatorSinternal(*(mit+1), mat, offsetB, offset3, points[c+1]);
+                mult(mat, offsetB, offset3, offsetB+points[c+1].nlin(), offset4, inv_sig);
+            }
+            offset   = offset2;
+            offsetA0 = offsetA + points[c].nlin();
+        }
+        */
+    }
+
+    HeadMat::HeadMat (const Geometry& geo, const int gauss_order)
+    {
+        assemble_HM(geo, *this, gauss_order);
+    }
+
+    Surf2VolMat::Surf2VolMat(const Geometry& geo, const Matrix& points) {
+/*
+        //  Find and count the points per domain.
+
+        std::vector<unsigned> labels(points.nlin());
+        std::vector<int> nb_pts_per_dom(geo.nb_domains(), 0);
+        for (unsigned i = 0; i < points.nlin(); ++i) {
+            int domain = geo.getDomain(Vect3(points(i, 0), points(i, 1), points(i, 2)));
+            if (domain >= geo.nb_domains()) {
+                std::cerr << " Surf2Vol: Point " << points.getlin(i);
+                std::cerr << " is outside the head. Point is considered to be in the scalp." << std::endl;
+                domain = geo.nb_domains()-1;
+            }
+            labels[i] = domain;
+            ++nb_pts_per_dom[domain];
+        }
+
+        //  Split the point array into multiple arrays (one array per domain).
+
+        std::vector<Matrix> vect_PtsInDom(geo.nb_domains());
+        for (unsigned c = 0; c < static_cast<unsigned>(geo.nb_domains()); ++c) {
+            vect_PtsInDom[c] = Matrix(nb_pts_per_dom[c], 3);
+            for (unsigned ipt = 0, iptd = 0; ipt < points.nlin(); ++ipt) { // get the points in the domain c
+                if (labels[ipt] == c) {
+                    for (int ic = 0; ic < 3; ic++) {
+                        vect_PtsInDom[c](iptd, ic) = points(ipt, ic);
+                    }
+                    ++iptd;
+                }
+            }
+        }
+
+        assemble_Surf2Vol(points.nlin(), geo, *this, vect_PtsInDom);
+        */
+    }
 
 } // namespace OpenMEEG

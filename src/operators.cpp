@@ -38,96 +38,90 @@ knowledge of the CeCILL-B license and that you accept its terms.
 */
 
 #include "operators.h"
-#include "integrator.h"
-#include "analytics.h"
 
-namespace OpenMEEG
-{
+namespace OpenMEEG {
 
-void operatorDinternal(const Mesh &m, Matrix &mat, const int offsetI, const int offsetJ, const Matrix &points)
-{
-    std::cout<<"INTERNAL OPERATOR D..."<<std::endl;
-    for(size_t i=offsetI; i<offsetI+points.nlin(); i++)  {
-        Vect3 pt(points(i-offsetI,0),points(i-offsetI,1),points(i-offsetI,2));
-        for(int j=offsetJ; j<offsetJ+m.nbTrgs(); j++) {
-            _operatorDinternal(i,j-offsetJ,m,mat,offsetJ,pt);
+    void operatorDinternal(const Mesh &m, Matrix &mat, const size_t offsetI, const size_t offsetJ, const Matrix &points) {
+
+        std::cout<<"INTERNAL OPERATOR D..."<<std::endl;
+        for(size_t i = offsetI; i < offsetI + points.nlin(); i++)  {
+            Vect3 pt(points(i-offsetI, 0), points(i-offsetI, 1), points(i-offsetI, 2));
+            for(size_t j = offsetJ; j < offsetJ + m.nbTrgs(); j++) {
+                _operatorDinternal(i, j-offsetJ, m, mat, offsetJ, pt);
+            }
         }
     }
-}
 
-void operatorSinternal(const Mesh &m, Matrix &mat, const int offsetI, const int offsetJ, const Matrix &points)
-{
-    std::cout<<"INTERNAL OPERATOR S..."<<std::endl;
-    for(size_t i=offsetI; i < offsetI + points.nlin(); i++) {
-        Vect3 pt(points(i-offsetI,0), points(i-offsetI,1), points(i-offsetI,2));
-        for(int j=offsetJ; j<offsetJ+m.nbTrgs(); j++) {
-            mat(i,j) = _operatorSinternal(j - offsetJ, m, pt);
+    void operatorSinternal(const Mesh &m, Matrix &mat, const size_t offsetI, const size_t offsetJ, const Matrix &points) {
+
+        std::cout<<"INTERNAL OPERATOR S..."<<std::endl;
+        for(size_t i=offsetI; i < offsetI + points.nlin(); i++) {
+            Vect3 pt(points(i-offsetI, 0), points(i-offsetI, 1), points(i-offsetI, 2));
+            for(size_t j=offsetJ; j<offsetJ+m.nbTrgs(); j++) {
+                mat(i, j) = _operatorSinternal(j - offsetJ, m, pt);
+            }
         }
     }
-}
 
-// general routine for applying _operatorFerguson (see this function for further comments)
-// to an entire mesh, and storing coordinates of the output in a Matrix.
-void operatorFerguson(const Vect3& x, const Mesh &m, Matrix &mat, int offsetI, int offsetJ)
-{
-    #pragma omp parallel for
-    for(int j=offsetJ; j < offsetJ + m.nbPts(); j++) {
-        Vect3 v = _operatorFerguson(x, j-offsetJ, m);
-        mat(offsetI+0,j) = v.x();
-        mat(offsetI+1,j) = v.y();
-        mat(offsetI+2,j) = v.z();
-    }
-}
+    // general routine for applying _operatorFerguson (see this function for further comments)
+    // to an entire mesh, and storing coordinates of the output in a Matrix.
+    void operatorFerguson(const Vect3& x, const Mesh &m, Matrix &mat, size_t offsetI, size_t offsetJ) {
 
-void operatorDipolePotDer(const Vect3 &r0,const Vect3 &q,const Mesh &layer, Vector &rhs,
-                          const int offsetIdx,const int gauss_order,const bool adapt_rhs)
-{
-    static analyticDipPotDer anaDPD;
-
-    Integrator<Vect3,analyticDipPotDer>* gauss;
-    if (adapt_rhs) {
-        gauss = new AdaptiveIntegrator<Vect3,analyticDipPotDer>(0.001);
-    } else {
-        gauss = new Integrator<Vect3,analyticDipPotDer>;
-    }
-
-    gauss->setOrder(gauss_order);
-    #pragma omp parallel for private(anaDPD)
-    for(int i=0; i<layer.nbTrgs(); i++) {
-        anaDPD.init(layer, i, q, r0);
-        Vect3 v = gauss->integrate(anaDPD, layer.triangle(i), layer);
-        #pragma omp critical
-        {
-            rhs(layer.triangle(i).s1() + offsetIdx) += v(0);
-            rhs(layer.triangle(i).s2() + offsetIdx) += v(1);
-            rhs(layer.triangle(i).s3() + offsetIdx) += v(2);
+        #pragma omp parallel for
+        for(size_t j=offsetJ; j < offsetJ + m.nbPts(); j++) {
+            Vect3 v = _operatorFerguson(x, j-offsetJ, m);
+            mat(offsetI+0, j) = v.x();
+            mat(offsetI+1, j) = v.y();
+            mat(offsetI+2, j) = v.z();
         }
     }
-    delete gauss;
-}
 
-void operatorDipolePot(const Vect3 &r0, const Vect3 &q, const Mesh &layer, Vector &rhs,
-                       const int offsetIdx,const int gauss_order,const bool adapt_rhs)
-{
-    static analyticDipPot anaDP;
+    void operatorDipolePotDer(const Vect3 &r0, const Vect3 &q, const Mesh &m, Vector &rhs, const int gauss_order, const bool adapt_rhs) {
 
-    anaDP.init(q, r0);
-    Integrator<double,analyticDipPot> *gauss;
-    if (adapt_rhs) {
-        gauss = new AdaptiveIntegrator<double,analyticDipPot>(0.001);
-    } else {
-        gauss = new Integrator<double,analyticDipPot>;
+        static analyticDipPotDer anaDPD;
+
+        Integrator<Vect3, analyticDipPotDer>* gauss;
+        if (adapt_rhs) {
+            gauss = new AdaptiveIntegrator<Vect3, analyticDipPotDer>(0.001);
+        } else {
+            gauss = new Integrator<Vect3, analyticDipPotDer>;
+        }
+
+        gauss->setOrder(gauss_order);
+        #pragma omp parallel for private(anaDPD)
+        for (Mesh::const_iterator tit = m.begin(); tit != m.end(); tit++) {
+            anaDPD.init(*tit, q, r0);
+            Vect3 v = gauss->integrate(anaDPD, *tit);
+            #pragma omp critical
+            {
+                rhs(tit->s1()->index() ) += v(0);
+                rhs(tit->s2()->index() ) += v(1);
+                rhs(tit->s3()->index() ) += v(2);
+            }
+        }
+        delete gauss;
     }
 
-    gauss->setOrder(gauss_order);
-    #pragma omp parallel for
-    for(int i=offsetIdx; i<offsetIdx+layer.nbTrgs(); i++) {
-        double d = gauss->integrate(anaDP,layer.triangle(i-offsetIdx),layer);
-        #pragma omp critical
-        rhs(i) += d;
+    void operatorDipolePot(const Vect3 &r0, const Vect3 &q, const Mesh &m, Vector &rhs, const int gauss_order, const bool adapt_rhs) {
+
+        static analyticDipPot anaDP;
+
+        anaDP.init(q, r0);
+        Integrator<double, analyticDipPot> *gauss;
+        if (adapt_rhs) {
+            gauss = new AdaptiveIntegrator<double, analyticDipPot>(0.001);
+        } else {
+            gauss = new Integrator<double, analyticDipPot>;
+        }
+
+        gauss->setOrder(gauss_order);
+        #pragma omp parallel for
+        for (Mesh::const_iterator tit = m.begin(); tit != m.end(); tit++) {
+            double d = gauss->integrate(anaDP, *tit);
+            #pragma omp critical
+            rhs(tit->index()) += d;
+        }
+        delete gauss;
     }
-    delete gauss;
-}
 
 } // namespace OpenMEEG
-

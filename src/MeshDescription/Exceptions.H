@@ -47,7 +47,8 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 namespace MeshDescription {
 
-#if 0
+    //TODO  remove all unused exception
+#if 0 
     struct ReturnCode {
         static const unsigned code = 
     };

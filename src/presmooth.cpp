@@ -48,7 +48,7 @@ using namespace OpenMEEG;
 
 void getHelp(char** argv);
 
-int main(int argc, char **argv)
+int main(int argc, char **argv) // TODO a quoi ça sert ?
 {
     print_version(argv[0]);
 

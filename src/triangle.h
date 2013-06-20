@@ -41,8 +41,10 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #define OPENMEEG_TRIANGLE_H
 
 #include <cstdlib>
+#include <vector>
+#include <set>
 #include "vect3.h"
-#include "point.h"
+#include "vertex.h"
 
 
 namespace OpenMEEG {
@@ -53,43 +55,48 @@ namespace OpenMEEG {
 
     **/
 
-    //  The default class to handle pointers to a point.
+    //  The default class to handle pointers to a vertex.
     //  This is simply a pointer here, but sometimes we want to attach
-    //  some information to this pointer, this is why this class can be
-    //  user defined in the Triangle structure.
+    //  some information to this pointer.
+
     class Reference {
+
     public:
 
         Reference() { }
 
-        Reference& operator=(Reference v) { vref = v.vref; return * this; }
-        Reference& operator=(Point* v)    { vref = v;      return * this; }
+        Reference&    operator=(Reference v) { vref = v.vref; return * this; }
+        Reference&    operator=(Vertex* v)   { vref = v;      return * this; }
 
-              Point& point()       { return *vref; }
-        const Point& point() const { return *vref; }
+              Vertex& vertex()               { return *vref; }
+        const Vertex& vertex() const         { return *vref; }
+
+              size_t& index()                { return vref->index(); }
+        const size_t& index()  const         { return vref->index(); }
 
     private:
 
-        Point* vref;
+        Vertex* vref;
     };
 
     class Triangle {
 
     public:
 
-        typedef unsigned         Index;
-        typedef Reference*       iterator;
+        typedef       Reference*       iterator;
         typedef const Reference* const_iterator;
 
-        //  Create a new face from a set of points.
-        Triangle(Point *pts[3]) {
+        Triangle() {}
+
+        //  Create a new face from a set of vertices.
+        Triangle(Vertex *pts[3]): _index(-1) {
             Triangle& f = *this;
             for (unsigned i = 0; i < 3; i++) {
                 f(i) = pts[i];
             }
         }
 
-        Triangle(Point& p1, Point& p2, Point& p3) {
+        Triangle(Vertex& p1, Vertex& p2, Vertex& p3): _index(-1) {
             Triangle& f = *this;
             f(0) = &p1;
             f(1) = &p2;
@@ -97,70 +104,69 @@ namespace OpenMEEG {
         }
 
         //  0 <= 'index' <= '2'
-              Reference& operator()(const Index index)       { return points[index]; }
-        const Reference& operator()(const Index index) const { return points[index]; }
+              Reference& operator()(const size_t vindex)       { return vertices[vindex]; }
+        const Reference& operator()(const size_t vindex) const { return vertices[vindex]; }
 
-              Point& point(const Index index)       { return operator()(index).point(); }
-        const Point& point(const Index index) const { return operator()(index).point(); }
+              Vertex&        vertex(const size_t vindex)       { return operator()(vindex).vertex(); }
+        const Vertex&        vertex(const size_t vindex) const { return operator()(vindex).vertex(); }
 
-        //  Iterator.
-              iterator begin()       { return iterator(points);       }
-        const_iterator begin() const { return const_iterator(points); }
+        //  Iterators.
+              iterator       begin()                           { return iterator(vertices);       }
+              const_iterator begin()                     const { return const_iterator(vertices); }
+              iterator       end()                             { return iterator(vertices+3);       }
+              const_iterator end()                       const { return const_iterator(vertices+3); }
 
-              iterator end()       { return iterator(points+3);       }
-        const_iterator end() const { return const_iterator(points+3); }
+        const Vertex&        next(const size_t i)        const { return operator()((1+i)%3).vertex(); }
+        const Vertex&        prev(const size_t i)        const { return operator()((i-1)%3).vertex(); }
+        const Vertex&        next(const Vertex V)        const { return next(vertex_index(V)); }
+        const Vertex&        prev(const Vertex V)        const { return prev(vertex_index(V)); }
 
-        Index index(const iterator i)       const { return i-begin(); }
-        Index index(const const_iterator i) const { return i-begin(); }
+              Reference&     s1()                              { return vertices[0]; }
+              Reference&     s2()                              { return vertices[1]; }
+              Reference&     s3()                              { return vertices[2]; }
+                                 
+              Reference      s1()                        const { return vertices[0]; }
+              Reference      s2()                        const { return vertices[1]; }
+              Reference      s3()                        const { return vertices[2]; }
 
-        Point center() const {
-            Point sum(0., 0., 0.);
-            for (Triangle::const_iterator v = begin(); v != end(); ++v) {
-                sum += v->point();
-            }
-            return static_cast<Point>(sum/static_cast<double>(3.));
-        }
+              Vect3&         normal()                          { return _normal; }
+        const Vect3&         normal()                    const { return _normal; }
+                                     
+              double&        area()                            { return _area; }
+        const double&        area()                      const { return _area; }
+                                     
+              size_t&        index()                           { return _index; }
+        const size_t&        index()                     const { return _index; }
 
-        const Point& next(const Index i) const {
-            return operator()((1+i)%3).point();
-        }
-
-        const Point& prev(const Index i) const {
-            return operator()((i-1)%3).point();
-        }
-
-        Reference&   s1()           { return points[0]; }
-        Reference&   s2()           { return points[1]; }
-        Reference&   s3()           { return points[2]; }
-                         
-        Reference    s1()     const { return points[0]; }
-        Reference    s2()     const { return points[1]; }
-        Reference    s3()     const { return points[2]; }
-
-        const Vect3& normal() const { return n; }
-        Vect3&       normal()       { return n; }
-
-        bool contains(const Point& p) const {
+        bool contains(const Vertex& p) const {
             for (Triangle::const_iterator tit = this->begin(); tit != this->end(); tit++) {
-                if (tit->point() == p) {
+                if (tit->vertex() == p) {
                     return true;
                 }
             }
             return false;
         }
 
-        inline double  getArea() const   { return _area; };
-        inline void    setArea(double a) { _area = a; };
-        inline double& area()            { return _area; }
     private:
 
-        Reference points[3];
-        double    _area;    // Area
-        Vect3     n;        // Normal
+        Reference vertices[3]; // Vertex-triplet defining the triangle
+        double    _area;       // Area
+        Vect3     _normal;     // Normal
+        size_t    _index;      // Index of the triangle
+
+        size_t vertex_index(const Vertex& p) const { // returns 0, 1, or 2 (or the size_t MAX VALUE)
+            size_t vindex = 0;
+            for (Triangle::const_iterator tit = this->begin(); tit != this->end(); tit++, vindex++) {
+                if (tit->vertex() == p) {
+                    return vindex;
+                }
+            }
+            return -1;
+        }
     };
 
-    bool operator==(const Triangle& F1, const Triangle& F2) {
-        for (Triangle::const_iterator i1 = F1.begin(), i2 = F2.begin(); i1 != F1.end(); ++i1, ++i2) {
+    bool operator==(const Triangle& T1, const Triangle& T2) {
+        for (Triangle::const_iterator i1 = T1.begin(), i2 = T2.begin(); i1 != T1.end(); ++i1, ++i2) {
             if (&*i1 != &*i2) {
                 return false;
             }
@@ -168,50 +174,17 @@ namespace OpenMEEG {
         return true;
     }
 
-    // template <typename MESH,typename CONTEXT>
-    // std::istream& operator>>(std::istream& is,TriangleReader<MESH,CONTEXT>& reader) {
-        // typedef typename MESH::Point Point;
-        // typedef typename MESH::Triangle   Triangle;
-        // Point *facePoints[Triangle::Dim+1];
-        // for (unsigned j=0;j<=Triangle::Dim;++j) {
-            // Index pointIndex;
-            // is >> pointIndex;
-            // Maths::minmax(--pointIndex,reader.min_point,reader.max_point);
-            // facePoints[j] = &reader.mesh.point(pointIndex);
-        // }
-        // reader.face_ptr = new (&*(reader.mesh.faces().end())) Triangle(is,facePoints,reader.context);
-        // return is;
-    // }
+    bool operator<(const Triangle& T1, const Triangle& T2) {
+        for (Triangle::const_iterator i1 = T1.begin(), i2 = T2.begin(); i1 != T1.end(); ++i1, ++i2) {
+            if (i1->vertex() < i2->vertex()) {
+                return true;
+            }
+        }
+        return false;
+    }
 
-
-        // inline bool operator!= (const Triangle &t ) const {return (m_s1!=t[0] || m_s2!=t[1] || m_s3!=t[2]);}
-
-        // friend std::istream& operator>>(std::istream &is, Triangle &t);
-
-    // inline std::istream& operator>>(std::istream &is, Triangle &t) {
-        // return is >> t.m_s1 >> t.m_s2 >> t.m_s3;
-    // }
-
-    // inline std::ostream& operator<<(std::ostream &os, const Triangle &t) {
-        // return os << t[0] << " " << t[1] << " " << t[2];
-    // }
-
-    // assigment operator
-    // inline Triangle& Triangle::operator= (const Triangle &t) {
-        // check for self-assignment
-        // if (this == &t) {
-            // return *this;
-        // }
-
-        // do the copy
-        // m_s1 = t.m_s1;
-        // m_s2 = t.m_s2;
-        // m_s3 = t.m_s3;
-        // m_area = t.m_area;
-        // n = t.n;
-        // return the existing object
-        // return *this;
-    // }
-
+    typedef std::vector<Triangle> Triangles;
+    typedef std::set<Triangle>    SetTriangle;
 }
+
 #endif  //! OPENMEEG_TRIANGLE_H

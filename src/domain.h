@@ -52,36 +52,57 @@ namespace OpenMEEG {
 
     typedef enum { Inside, Outside } InOut;
 
-    //  A simple domain (HalfSpace) is given by an id (of type Interface) identifying a closed surface and a side (of type InOut) information.
+    //  A simple domain (HalfSpace) is given by an interface (of type Interface) identifying a closed surface and a side (of type InOut) information.
     //  The closed surface split the space into two components. The side depicts which of these two components is the simple domain.
 
-    typedef std::string                 Id;
+    class HalfSpace: private std::pair<Interface *, InOut> {
 
-    class HalfSpace: private std::pair<Id, InOut> {
-        typedef std::pair<Id, InOut> base;
+        typedef std::pair<Interface *, InOut> base;
+
     public:
-        HalfSpace(Id id): base((id[0] == '-')?id.substr(1, id.npos):id, ((id[0] == '-') ? Inside : Outside)) { }
-        Interface   interface() const { return base::first;  }
-        InOut       inout()     const { return base::second; }
+
+        HalfSpace(Interface * interface, bool inside) { base(std::make_pair<Interface *, InOut>(interface, inside?Inside:Outside)); }
+
+        Interface interface() const { return (*base::first);  }
+        bool      inside()    const { return (base::second == Inside); }
     };
 
     //  A Domain is the intersection of simple domains (of type HalfSpace).
     //  In addition the domain is named, has conductivity
+
     class Domain: public std::vector<HalfSpace> {
+
+        typedef std::vector<HalfSpace> base;
 
     public:
 
-        Domain() { }
+        Domain(): _name(""), _conductivity(0.), _innermost(false) { }
 
+        //  The interfaces of the domain.
+        // const std::vector<Interface *> interfaces() const  {
+            // std::vector<Interface *> _interfaces(this->size());
+            // size_t i = 0;
+            // for (base::const_iterator hit = this->begin(); hit != this->end(); hit++, i++) {
+                // _interfaces[i] = this->first;
+            // }
+            // return _interfaces;
+        // }
+        
         //  The name of the domain.
-              std::string& name()        { return name_; }
-        const std::string& name() const  { return name_; }
+              std::string& name()            { return _name; }
+        const std::string& name()      const { return _name; }
         
         //  The conductivity of the domain.
-              double&      sigma()       { return conductivity_; }
-        const double&      sigma() const { return conductivity_; }
+              double&      sigma()           { return _conductivity; }
+        const double&      sigma()     const { return _conductivity; }
 
-        int meshOrient(Mesh * m) { 
+        //  Returns the innermost state of the domain.
+              bool&        innermost()       { return _innermost; }
+        const bool&        innermost() const { return _innermost; }
+
+        bool contains_point(const Vect3&) const;
+
+        int meshOrient(const Mesh& m) { 
             // return 1 if the mesh is oriented toward the domain
                   // -1 if not
                   //  0 else (the mesh is not part of the domain boundary)
@@ -94,14 +115,21 @@ namespace OpenMEEG {
         }
     private:
 
-        std::string name_;       // Name of the domain.
-        double      conductivity_;    // Conductivity of the domain.
+        std::string _name;         // Name of the domain.
+        double      _conductivity; // Conductivity of the domain.
+        bool        _innermost;    // Innermost domain ?
     };
 
-    //  Domains is just a collection of Domain (here a simple vector).
-    struct Domains: public std::vector<Domain> {
-        unsigned index(const Domain& dom) const { return &dom-&*begin(); }
-    };
+    bool operator==(const Domain& d1, const Domain& d2) {
+        for (Domain::const_iterator dit1 = d1.begin(), dit2 = d2.begin(); dit1 != d1.end(); ++dit1, ++dit2) {
+            if (&*dit1 != &*dit2) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    typedef std::vector<Domain >     Domains;
 
     /*
         class OPENMEEG_EXPORT Domain {

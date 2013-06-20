@@ -42,62 +42,114 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #include <iostream>
 #include <fstream>
+#include <string>
+#include <stringstream>
 #include <vector>
 #include <new>
 #include <IOUtils.H>
 
-#include <MeshDescription/Domains.H>
+#include <vertex.h>
+#include <triangle.h>
+#include <meshes.h>
+#include <interfaces.h>
+#include <domain.h>
 #include <MeshDescription/Exceptions.H>
-#include <MeshDescription/Normals.H>
 
 namespace MeshDescription {
 
-    //  Parsing of the head description file.
-    //  See comments for the syntax of the file.
+    // Parsing of the head description file.
+    // See comments for the syntax of the file.
+    class Reader {
 
-    template <typename INTERFACE,typename GEOMETRY,typename NORMALS=NoNormals>
-    class Reader: public GEOMETRY {
     public:
 
-        typedef typename INTERFACE::Type Interface;
-        typedef std::vector<std::string> Names;
-        typedef std::vector<Interface>   Interfaces;
-        typedef NORMALS                  Normals;
-        typedef MeshDescription::Domains Domains;
 
     private:
 
-        //  Read the interface section of the description file.
-        //  Check their compatibility and create a data structure indexing all these interfaces.
+        // Read the mesh section of the description file.
+        bool LoadMeshFile(std::istream& is) { //TODO
 
-        void LoadInterfaces(std::istream& is) {
+            bool found;
 
-            for (unsigned i=0;i<interfaces().size();++i) {
+            is >> io_utils::skip_comments("#") >> io_utils::match_optional("MeshFile", found);
+
+            if ( found ) {
 
                 std::string name;
-                is >> io_utils::skip_comments("#") >> io_utils::filename(name,'"',false);
-                INTERFACE::set_file_format(interfaces()[i],name);
+                is >> io_utils::skip_comments("#") >> io_utils::filename(name, '"', false);
+                // Interface::set_file_format(meshes()[i], name);
 
-                //  Load the interface and check that it is compatible with the first one.
-
+                //  Load the mesh and check that it is compatible with the first one.
                 const std::string& full_name = file_name(name);
                 std::ifstream ifs(full_name.c_str());
-                if (!ifs.is_open())
+                if (!ifs.is_open()) {
                     throw MeshDescription::OpenError(full_name);
+                }
+                load_vtp(ifs);
+            }
+            return found;
+        }
 
-                ifs >> interfaces()[i];
-
-                //  Verify that the outer pixels are positive, otherwise invert the levelset image.
-
-                interfaces()[i].normalize();
+        // Read the interface section of the description file.
+        // Check their compatibility and create a data structure indexing all these interfaces.
+        void LoadInterfaces(std::istream& is) {
+            for (size_t i = 0; i < interfaces().size(); ++i) {
+                if (keyword == "Mesh") {
+                    std::string name;
+                    is >> io_utils::skip_comments("#") >> io_utils::filename(name, '"', false);
+                    stringstream ss;
+                    ss << i;
+                    interfaces()[i].name() = ss.str();
+                    meshes[i].mesh_vertices() = vertices; 
+                    // Load the mesh
+                    const std::string& full_name = file_name(name);
+                    std::ifstream ifs(full_name.c_str());
+                    if (!ifs.is_open()) {
+                        throw MeshDescription::OpenError(full_name);
+                    }
+                } else if (keyword == "NamedMesh") { // TODO
+                    std::string name;
+                    is >> io_utils::skip_comments("#") >> io_utils::filename(name, '"', false);
+                    stringstream ss;
+                    ss << i;
+                    interfaces()[i].name() = ss.str();
+                    // Load the mesh
+                    const std::string& full_name = file_name(name);
+                    std::ifstream ifs(full_name.c_str());
+                    if (!ifs.is_open()) {
+                        throw MeshDescription::OpenError(full_name);
+                    }
+                } else if (keyword == "Interface") {
+                    interfaces()[i].meshes(meshes);
+                    std::stringstream ss;
+                    ss << i;
+                    interfaces()[i].name() = ss.str();
+                    getline(ifs, line);
+                    std::istringstream iss(line);
+                    iss >> interfaces()[i];
+                } else { // then NamedInterface
+                    interfaces()[i].meshes(meshes);
+                    getline(ifs, line);
+                    std::istringstream iss(line);
+                    std::string i_name;
+                    iss >> i_name;
+                    if (*i_name.end() == ':') {
+                        i_name.substr(0, i_name::npos-1);
+                        interfaces()[i].name() = i_name;
+                    } else {
+                        throw WrongFileFormat(geometry);
+                    }
+                    iss >> interfaces()[i];
+                }
+                // unsigned offset_vertices  = vertices.size(); // TODO does it go here ?
+                // unsigned offset_triangles = triangles.size();
             }
         }
 
-        //  Load the domain part of the description file.
-
+        // Load the domain part of the description file.
         void LoadDomains(std::istream& is) {
 
-            for (typename Domains::iterator i=domains().begin();i!=domains().end();++i) {
+            for (typename Domains::iterator i = domains().begin(); i! = domains().end(); ++i) {
 
                 std::string line;
 
@@ -108,36 +160,15 @@ namespace MeshDescription {
                 int number;
                 while (iss >> number) {
                     const unsigned index = abs(number);
-                    if ((index==0) || (index>interfaces().size()))
-                        throw MeshDescription::NonExistingDomain(i->name(),index);
+                    if ((index==0) || (index>interfaces().size())) {
+                        throw MeshDescription::NonExistingDomain(i->name(), index);
+                    }
                     i->push_back(HalfSpace(number));
                 }
                 iss.clear();
                 iss >> line;
             }
         }
-
-        void LoadNormals(std::istream& is) {
-            std::string normal_name;
-            is >> io_utils::skip_comments('#') >> normal_name;
-            const std::string& full_name = file_name(normal_name);
-            std::ifstream ifs(full_name.c_str());
-            if (!ifs.is_open())
-                throw MeshDescription::OpenError(full_name);
-            ifs >> nrmls;
-            ifs.close();
-        }
-
-#if 0
-        //  Ordering of domains (partial order) from the most outer domain to the most inner domain.
-
-        void InterfaceOrder() const {
-            for (Interfaces::const_iterator i=interfaces().begin();i!=interfaces().end();++i)
-                for (Domain::const_iterator j=i->begin();j!=i->end();++j) {
-
-                }
-        }
-#endif
 
     public:
 
@@ -149,8 +180,9 @@ namespace MeshDescription {
         Names domain_names() const {
             Names nms;
             nms.reserve(domains().size());
-            for (Domains::const_iterator i=domains().begin();i!=domains().end();++i)
+            for (Domains::const_iterator i = domains().begin(); i!= domains().end(); ++i) {
                 nms.push_back(i->name());
+            }
             return nms;
         }
 
@@ -162,13 +194,10 @@ namespace MeshDescription {
               Interfaces& interfaces()       { return interfs; }
         const Interfaces& interfaces() const { return interfs; }
 
-              Normals&    normals()          { return nrmls; }
-        const Normals&    normals()    const { return nrmls; }
-
         void stats() const {
-            std::cerr << "There are:" << std::endl
-                      << interfaces().size() << " interfaces" << std::endl
-                      << doms.size()         << " domains"    << std::endl;
+             std::cerr << "There are:" << std::endl
+                       << interfaces().size() << " interfaces" << std::endl
+                       << doms.size()         << " domains"    << std::endl;
         }
 
     private:
@@ -203,101 +232,121 @@ namespace MeshDescription {
             return path+name;
         }
 
-        const std::string path;    //  Path of the initial geometry file.
-        Names             names;   //  The file names for the different interfaces.
-        Interfaces        interfs; //  The various levelsets depicting interfaces between domains.
-        Domains           doms;    //  Domain descriptions in terms of interfaces.
-        Normals           nrmls;   //  Eventually stores a normal information for each voxel.
+        const std::string path;      // Path of the initial geometry file.
+        Names             names;     // The file names for the different interfaces.
+        Vertices          vertices;  // Vertices descriptions.
+        Normals           normals;   // Normals descriptions.
+        Triangles         triangles; // Triangles descriptions.
+        Meshes            meshes;    // The various meshes composed of triangles.
+        Interfaces        interfs;   // The various interfaces between domains composed of meshes.
+        Domains           doms;      // Domain descriptions in terms of interfaces.
     };
 
 #   if WIN32
-    template <typename INTERFACE,typename GEOMETRY,typename NORMALS>
-    const char Reader<INTERFACE,GEOMETRY,NORMALS>::PathSeparator[] = "/\\";
+    const char Reader::PathSeparator[] = "/\\";
 #   endif
 
-    template <typename INTERFACE,typename GEOMETRY,typename NORMALS>
-    Reader<INTERFACE,GEOMETRY,NORMALS>::Reader(const char* geometry): path(find_path(geometry)) {
+    Reader::Reader(const char* geometry): path(find_path(geometry)) {
 
-        //  Read the head file description and load the information into temporary data structures.
+        // Read the head file description and load the information into temporary data structures.
 
-        //  The syntax of the head description is a header ("# Domain Description (1.0):") followed
-        //  by three sections:
+        // The syntax of the head description is a header ("# Domain Description (1.0):") followed
+        // by three sections:
         //
-        //      - The first section is made of two fields and defines the geometry of the rectangular
-        //        domain. First the origin of the domain is given by the keyword "Origin" and the
-        //        vector specifying the coordinates of the upper corner of the domain. Then, the size
-        //        of the domain is given by another vector and introduced by the keyword "DomainSize".
+        //     - The first section is made of two fields and defines the geometry of the rectangular
+        //       domain. First the origin of the domain is given by the keyword "Origin" and the
+        //       vector specifying the coordinates of the upper corner of the domain. Then, the size
+        //       of the domain is given by another vector and introduced by the keyword "DomainSize".
         //
-        //      - the second section is introduced by the keyword "Interfaces" followed by a number
-        //        (the number of interfaces) and a type (currently only "LevelSet" is possible).
-        //        The section just contains a list of names (one per line, the remainder of the line
-        //        being ignored).
+        //     - the second section is introduced by the keyword "Interfaces" followed by a number
+        //       (the number of interfaces) and a type (currently Mesh, NamedMesh, Interface, NamedInterface are possible).
+        //       The section just contains a list of names (one per line, the remainder of the line
+        //       being ignored).
         //
-        //      - the third section is introduced by the keyword "Domains" and the number of domains
-        //        (everything else on the line containing the keyword is currently ignored). The section
-        //        contains domains descriptions, one per line. Each domain consist of:
+        //     - the third section is introduced by the keyword "Domains" and the number of domains
+        //       (everything else on the line containing the keyword is currently ignored). The section
+        //       contains domains descriptions, one per line. Each domain consist of:
         //
-        //          o a domain name.
-        //          o a list of signed numbers: the absolute value of the number gives describes an
-        //            interface by its index in the "Interfaces" list (indices are starting at one so
-        //            that the sign is meaningful), the sign of the number depicts whether the interior
-        //            or the exterior of the interface should be used to select the domain.
+        //         o a domain name.
+        //         o a list of signed numbers: the absolute value of the number gives describes an
+        //           interface by its index in the "Interfaces" list (indices are starting at one so
+        //           that the sign is meaningful), the sign of the number depicts whether the interior
+        //           or the exterior of the interface should be used to select the domain.
         //
-        //  Any line starting with # is considered a comment and is silently ignored.
+        // Any line starting with # is considered a comment and is silently ignored.
 
         std::ifstream ifs(geometry);
-        if (!ifs.is_open())
+        if (!ifs.is_open()) {
             throw MeshDescription::OpenError(geometry);
-        ifs >> io_utils::match("# Domain Description 1.0");
+        }
 
-        if (ifs.fail())
+        int version[2];
+        ifs >> io_utils::match("# Domain Description ") >> version[0] >> io_utils::match(".") >> version[1];
+        if (ifs.fail()) {
             throw WrongFileFormat(geometry);
+        }
 
-        GEOMETRY::Load(ifs);
+        // Process meshes.
+        bool meshfile = false;
+        if (version[0] == 1) {
+            if (version[1] == 0) {
+                std::cerr << "Please cpnsider updating the version of the domain description to 1.1 in : " << geometry << std::endl;
+            } else if (version[1] == 1) {
+                meshfile = LoadMeshFile(ifs);
+            } else {
+                std::cerr << "Domain Description version not available !" << std::endl;
+                throw WrongFileFormat(geometry);
+            }
+        } else {
+            std::cerr << "Domain Description version not available !" << std::endl;
+            throw WrongFileFormat(geometry);
+        }
 
-        //  Process interfaces.
-
+        // Process interfaces.
         unsigned num_interfaces;
+        std::string InterfaceType;
+
         ifs >> io_utils::skip_comments('#')
-            >> io_utils::match("Interfaces") >> num_interfaces >> io_utils::match(INTERFACE::keyword);
+            >> io_utils::match("Interfaces") >> num_interfaces >> InterfaceType;
 
-        if (ifs.fail())
+        if ((InterfaceType == "Mesh")|(InterfaceType == "NamedMesh")|(InterfaceType == "NamedInterface")|(InterfaceType == "Interface")) {
+            Interface::keyword = InterfaceType;
+        } else {
             throw WrongFileFormat(geometry);
+        }
 
-        names.reserve(num_interfaces);
+        if (ifs.fail()) {
+            throw WrongFileFormat(geometry);
+        }
+
         names.resize(num_interfaces);
-        interfaces().reserve(num_interfaces);
         interfaces().resize(num_interfaces);
+        if (!meshfile) {
+            meshes().resize(num_interfaces);
+            size_t i=0;
+            for (Interface::iterator mit = interfaces().begin(); mit != interfaces().end(); mit++, i++ ) {
+                mit = &meshes()[i];
+            }
+        }
+
         LoadInterfaces(ifs);
 
-        //  Process domains.
-
+        // Process domains.
         unsigned num_domains;
         ifs >> io_utils::skip_comments('#') >> io_utils::match("Domains") >> num_domains;
 
-        if (ifs.fail())
+        if (ifs.fail()) {
             throw WrongFileFormat(geometry);
+        }
 
-        domains().reserve(num_domains);
         domains().resize(num_domains);
         LoadDomains(ifs);
 
-        if (ifs.fail())
+        if (ifs.fail()) {
             throw WrongFileFormat(geometry);
-
-        //  Process normals (optional).
-
-        bool hasnormals = true;
-        ifs >> io_utils::skip_comments('#') >> io_utils::match_optional("Normals",hasnormals);
-
-        if (hasnormals) {
-            LoadNormals(ifs);
-            if (ifs.fail())
-                throw WrongFileFormat(geometry);
         }
 
-        //  Close the input file.
-
+        // Close the input file.
         ifs.close();
     }
 }

@@ -52,29 +52,20 @@ namespace OpenMEEG {
     // mat is the linear application which maps x (the unknown vector in symmetric system) -> v (potential at the electrodes)
     void assemble_Head2EEG(SparseMatrix &mat, const Geometry &geo, const Matrix &positions )
     {
-        int newsize = geo.size() - geo.getM(geo.nb()-1).nbTrgs();
+        int newsize = geo.size() - geo.end()->nb_triangles();
         mat = SparseMatrix(positions.nlin(), newsize);
-
-        const Mesh& extLayer = geo.getM(geo.nb()-1);
-
-        //first we calculate the offset of the potential on the external layer in the unknown vector x
-        int offset=0;
-        for(int l=0; l < geo.nb()-1; l++) {
-            offset += geo.getM(l).nbPts();
-            offset += geo.getM(l).nbTrgs();
-        }
 
         Vect3 current_position;
         Vect3 current_alphas;
-        int current_nearestNumber;
-        for(size_t i=0; i < positions.nlin(); i++) {
-            for(int k=0; k<3; k++) {
+        Triangle current_triangle;
+        for(size_t i = 0; i < positions.nlin(); i++) {
+            for(int k = 0; k < 3; k++) {
                 current_position(k) = positions(i, k);
             }
-            dist_point_mesh(current_position, extLayer, current_alphas, current_nearestNumber);
-            mat(i, extLayer.triangle(current_nearestNumber).s1()+offset) = current_alphas(0);
-            mat(i, extLayer.triangle(current_nearestNumber).s2()+offset) = current_alphas(1);
-            mat(i, extLayer.triangle(current_nearestNumber).s3()+offset) = current_alphas(2);
+            dist_point_mesh(current_position, *geo.end(), current_alphas, current_triangle);
+            mat(i, current_triangle.s1().index()) = current_alphas(0);
+            mat(i, current_triangle.s2().index()) = current_alphas(1);
+            mat(i, current_triangle.s3().index()) = current_alphas(2);
         }
     }
 
@@ -83,39 +74,41 @@ namespace OpenMEEG {
         assemble_Head2EEG(*this, geo, electrodes.getPositions());
     }
 
-// ECoG positions are reported line by line in the positions Matrix
-// mat is supposed to be filled with zeros
-// mat is the linear application which maps x (the unknown vector in symmetric system) -> v (potential at the ECoG electrodes)
-// difference with Head2EEG is that it interpolates the inner skull layer instead of the scalp layer. 
+    // ECoG positions are reported line by line in the positions Matrix
+    // mat is supposed to be filled with zeros
+    // mat is the linear application which maps x (the unknown vector in symmetric system) -> v (potential at the ECoG electrodes)
+    // difference with Head2EEG is that it interpolates the inner skull layer instead of the scalp layer. 
 
-///////////////////////////////////////////////////////////////////////////////////////////////
-// WARNING The following supposes that the inner skull is the first layer in the head model////
-///////////////////////////////////////////////////////////////////////////////////////////////
-void assemble_Head2ECoG(SparseMatrix &mat, const Geometry &geo, const Matrix &positions )
-{
-    int newsize = geo.size() - geo.getM(geo.nb()-1).nbTrgs();
-    mat = SparseMatrix(positions.nlin(), newsize);
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    // WARNING The following supposes that the inner skull is the first layer in the head model//// TODO
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    void assemble_Head2ECoG(SparseMatrix &mat, const Geometry &geo, const Matrix &positions )
+    {
+        /*
+        int newsize = geo.size() - geo.end()->nb_triangles();
+        mat = SparseMatrix(positions.nlin(), newsize);
 
-    const Mesh& innerSkullLayer = geo.getM(0);
+        const Mesh& innerSkullLayer = geo.interior_mesh(); // TODO
 
-    Vect3 current_position;
-    Vect3 current_alphas;
-    int current_nearestNumber;
-    for(size_t i=0; i < positions.nlin(); i++) {
-        for(int k=0; k<3; k++) {
-            current_position(k) = positions(i, k);
+        Vect3 current_position;
+        Vect3 current_alphas;
+        Triangle current_triangle;
+        for(size_t i=0; i < positions.nlin(); i++) {
+            for(int k=0; k<3; k++) {
+                current_position(k) = positions(i, k);
+            }
+            dist_point_mesh(current_position, innerSkullLayer, current_alphas, current_triangle);
+            mat(i, current_triangle.s1().index()) = current_alphas(0);
+            mat(i, current_triangle.s2().index()) = current_alphas(1);
+            mat(i, current_triangle.s3().index()) = current_alphas(2);
         }
-        dist_point_mesh(current_position, innerSkullLayer, current_alphas, current_nearestNumber);
-        mat(i, innerSkullLayer.triangle(current_nearestNumber).s1()) = current_alphas(0);
-        mat(i, innerSkullLayer.triangle(current_nearestNumber).s2()) = current_alphas(1);
-        mat(i, innerSkullLayer.triangle(current_nearestNumber).s3()) = current_alphas(2);
+        */
     }
-}
 
-Head2ECoGMat::Head2ECoGMat(const Geometry &geo, const Sensors &electrodes)
-{
-    assemble_Head2ECoG(*this, geo, electrodes.getPositions());
-}
+    Head2ECoGMat::Head2ECoGMat(const Geometry &geo, const Sensors &electrodes)
+    {
+        assemble_Head2ECoG(*this, geo, electrodes.getPositions());
+    }
 
 
 
@@ -123,39 +116,39 @@ Head2ECoGMat::Head2ECoGMat(const Geometry &geo, const Sensors &electrodes)
     // MEG patches positions are reported line by line in the positions Matrix (same for positions)
     // mat is supposed to be filled with zeros
     // mat is the linear application which maps x (the unknown vector in symmetric system) -> bFerguson (contrib to MEG response)
-    void assemble_Head2MEG(Matrix &mat, const Geometry &geo, const Sensors &sensors)
-    {
+    void assemble_Head2MEG(Matrix &mat, const Geometry &geo, const Sensors &sensors) {
+/*
         Matrix positions = sensors.getPositions();
         Matrix orientations = sensors.getOrientations();
         const size_t nbIntegrationPoints = sensors.getNumberOfPositions();
-        int p0_p1_size = geo.size() - geo.getM(geo.nb()-1).nbTrgs();
-        int geo_number_points = geo.getNumberOfPoints();
+        int p0_p1_size = geo.size() - geo.end()->nb_triangles();
+        int geo_number_vertices = geo.getNumberOfVertices();
 
         mat = Matrix(nbIntegrationPoints, p0_p1_size);
         mat.set(0.0);
 
-        Matrix myFergusonMatrix(3*nbIntegrationPoints, geo_number_points);
+        Matrix myFergusonMatrix(3*nbIntegrationPoints, geo_number_vertices);
         myFergusonMatrix.set(0.0);
 
         assemble_ferguson(geo, myFergusonMatrix, positions);
 
         // Compute indexes of V indexes (P1 elements)
-        int* vindex = new int[geo_number_points];
+        int* vindex = new int[geo_number_vertices];
         int count = 0;
         int offset = 0;
-        for(int i=0; i<geo.nb(); i++) {
-            for(int j=0; j<geo.getM(i).nbPts(); j++) {
+        for (Geometry::const_iterator mit = geo.begin(); mit != geo.end(); mit++) {
+            for(Mesh::const_point_iterator pit = mit->begin(); pit != mit->end(); pit++) {
                 vindex[count] = count + offset;
                 count++;
             }
-            offset += geo.getM(i).nbTrgs();
+            offset += mit->nbTrgs();
         }
 
-        for(size_t i=0; i<nbIntegrationPoints; i++) {
+        for(size_t i = 0; i < nbIntegrationPoints; i++) {
             PROGRESSBAR(i, nbIntegrationPoints);
-            for(int j=0; j<geo_number_points; j++) {
+            for(size_t j = 0; j < geo_number_vertices; j++) {
                 Vect3 fergusonField(myFergusonMatrix(3*i, j), myFergusonMatrix(3*i+1, j), myFergusonMatrix(3*i+2, j));
-                Vect3 normalizedDirection(orientations(i,0), orientations(i,1), orientations(i,2));
+                Vect3 normalizedDirection(orientations(i, 0), orientations(i, 1), orientations(i, 2));
                 normalizedDirection.normalize();
                 mat(i, vindex[j]) = fergusonField * normalizedDirection;
             }
@@ -164,6 +157,7 @@ Head2ECoGMat::Head2ECoGMat(const Geometry &geo, const Sensors &electrodes)
         mat = sensors.getWeightsMatrix() * mat; // Apply weights
 
         delete[] vindex;
+        */
     }
 
     Head2MEGMat::Head2MEGMat(const Geometry &geo, const Sensors &sensors)
@@ -180,19 +174,19 @@ Head2ECoGMat::Head2ECoGMat(const Geometry &geo, const Sensors &electrodes)
         Matrix orientations = sensors.getOrientations();
         const size_t nsquids = positions.nlin();
 
-        mat = Matrix(nsquids, sources_mesh.nbPts());
+        mat = Matrix(nsquids, sources_mesh.nb_vertices());
         mat.set(0.0);
 
         Matrix myFergusonMatrix(3, mat.ncol());
         myFergusonMatrix.set(0.0);
 
-        for(size_t i=0; i < nsquids; i++) {
+        for(size_t i = 0; i < nsquids; i++) {
             PROGRESSBAR(i, nsquids);
-            Vect3 p(positions(i,0), positions(i,1), positions(i,2));
+            Vect3 p(positions(i, 0), positions(i, 1), positions(i, 2));
             operatorFerguson(p, sources_mesh, myFergusonMatrix, 0, 0);
-            for(size_t j=0; j<mat.ncol(); j++) {
+            for(size_t j = 0; j < mat.ncol(); j++) {
                 Vect3 fergusonField(myFergusonMatrix(0, j), myFergusonMatrix(1, j), myFergusonMatrix(2, j));
-                Vect3 normalizedDirection(orientations(i,0), orientations(i,1), orientations(i,2));
+                Vect3 normalizedDirection(orientations(i, 0), orientations(i, 1), orientations(i, 2));
                 normalizedDirection.normalize();
                 mat(i, j) = fergusonField * normalizedDirection;
             }
@@ -224,15 +218,15 @@ Head2ECoGMat::Head2ECoGMat(const Geometry &geo, const Sensors &electrodes)
         mat = Matrix(positions.nlin(), dipoles.nlin());
 
         // the following routine is the equivalent of operatorFerguson for pointlike dipoles.
-        for(size_t i=0; i < mat.nlin(); i++) {
-            for(size_t j=0; j < mat.ncol(); j++) {
-                Vect3 r(dipoles(j,0), dipoles(j,1), dipoles(j,2));
-                Vect3 q(dipoles(j,3), dipoles(j,4), dipoles(j,5));
-                Vect3 diff(positions(i,0), positions(i,1), positions(i,2));
+        for(size_t i = 0; i < mat.nlin(); i++) {
+            for(size_t j = 0; j < mat.ncol(); j++) {
+                Vect3 r(dipoles(j, 0), dipoles(j, 1), dipoles(j, 2));
+                Vect3 q(dipoles(j, 3), dipoles(j, 4), dipoles(j,5));
+                Vect3 diff(positions(i, 0), positions(i, 1), positions(i, 2));
                 diff -= r;
                 double norm_diff = diff.norm();
                 Vect3 fergusonField = q ^ diff / (norm_diff * norm_diff * norm_diff);
-                Vect3 normalizedDirection(orientations(i,0), orientations(i,1), orientations(i,2));
+                Vect3 normalizedDirection(orientations(i, 0), orientations(i, 1), orientations(i, 2));
                 normalizedDirection.normalize();
                 mat(i, j) = fergusonField * normalizedDirection * MU0 / (4.0 * M_PI);
             }
@@ -247,4 +241,3 @@ Head2ECoGMat::Head2ECoGMat(const Geometry &geo, const Sensors &electrodes)
     }
 
 } // end namespace OpenMEEG
-

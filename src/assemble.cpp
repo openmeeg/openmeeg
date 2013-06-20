@@ -39,7 +39,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <fstream>
 #include <cstring>
 
-#include "mesh3.h"
+#include "mesh.h"
 #include "integrator.h"
 #include "cpuChrono.h"
 #include "assemble.h"
@@ -65,7 +65,7 @@ int main(int argc, char** argv)
 
     if ((!strcmp(argv[1],"-h")) | (!strcmp(argv[1],"--help"))) getHelp(argv);
 
-    disp_argv(argc,argv);
+    disp_argv(argc, argv);
 
     // Start Chrono
     cpuChrono C;
@@ -89,14 +89,14 @@ int main(int argc, char** argv)
         }
         // Loading surfaces from geometry file
         Geometry geo;
-        geo.read(argv[2],argv[3]);
+        geo.read(argv[2], argv[3]);
         // Check for intersecting meshes
         if (!geo.selfCheck()) {
             exit(1);
         }
 
         // Assembling Matrix from discretization :
-        HeadMat HM(geo,gauss_order);
+        HeadMat HM(geo, gauss_order);
         HM.save(argv[4]);
     }
 
@@ -119,21 +119,21 @@ int main(int argc, char** argv)
 
         // Loading surfaces from geometry file.
         Geometry geo;
-        geo.read(argv[2],argv[3]);
+        geo.read(argv[2], argv[3]);
 
         // Loading mesh for distributed sources
         Mesh  mesh_sources;
         mesh_sources.load(argv[4]);
 
         // Assembling Matrix from discretization :
-        SurfSourceMat ssm(geo,mesh_sources,gauss_order);
+        SurfSourceMat ssm(geo, mesh_sources, gauss_order);
         ssm.save(argv[5]); // if outfile is specified
     }
 
     /*********************************************************************************************
     * Computation of RHS for discrete dipolar case
     **********************************************************************************************/
-    else if ((!strcmp(argv[1],"-DipSourceMat")) |(!strcmp(argv[1],"-DSM"))|(!strcmp(argv[1],"-dsm"))|(!strcmp(argv[1],"-DipSourceMatNoAdapt"))|(!strcmp(argv[1],"-DSMNA"))|(!strcmp(argv[1],"-dsmna"))|(!strcmp(argv[1],"-DipSourceMatNotInCortex")) |(!strcmp(argv[1],"-DSMNIC"))|(!strcmp(argv[1],"-dsmnic")))  {
+    else if ((!strcmp(argv[1],"-DipSourceMat")) |(!strcmp(argv[1],"-DSM"))|(!strcmp(argv[1],"-dsm"))|(!strcmp(argv[1],"-DipSourceMatNoAdapt"))|(!strcmp(argv[1],"-DSMNA"))|(!strcmp(argv[1],"-dsmna"))|(!strcmp(argv[1],"-DipSourceMatNotInnermost")) |(!strcmp(argv[1],"-DSMNI"))|(!strcmp(argv[1],"-dsmni")))  {
         if (argc < 3) {
             cerr << "Please set geometry filepath !" << endl;
             exit(1);
@@ -149,28 +149,28 @@ int main(int argc, char** argv)
 
         // Loading surfaces from geometry file.
         Geometry geo;
-        geo.read(argv[2],argv[3]);
+        geo.read(argv[2], argv[3]);
 
         // Loading Matrix of dipoles :
         Matrix dipoles(argv[4]);
-        if (dipoles.ncol()!=6) {
+        if (dipoles.ncol() != 6) {
             cerr << "Dipoles File Format Error" << endl;
             exit(1);
         }
         
-        bool adapt_rhs     = true;
-        bool dipoles_in_cortex = true;
+        bool adapt_rhs         = true;
+        bool dipoles_innermost = true;
 
         // Choosing between adaptive integration or not for the RHS
-        if (!strcmp(argv[1],"-DipSourceMatNoAdapt")|(!strcmp(argv[1],"-DSMNA"))|(!strcmp(argv[1],"-dsmna"))){
-            adapt_rhs=false;
+        if (!strcmp(argv[1], "-DipSourceMatNoAdapt")|(!strcmp(argv[1], "-DSMNA"))|(!strcmp(argv[1], "-dsmna"))){
+            adapt_rhs = false;
         }   
         // Choosing if all dipoles are inside the inner layer (cortex) or some may not be inside the inner layer
-        if (!strcmp(argv[1],"-DipSourceMatNotInCortex")|(!strcmp(argv[1],"-DSMNIC"))|(!strcmp(argv[1],"-dsmnic"))){
-            dipoles_in_cortex=false;
+        if (!strcmp(argv[1], "-DipSourceMatNotInnermost")|(!strcmp(argv[1], "-DSMNI"))|(!strcmp(argv[1], "-dsmni"))){
+            dipoles_innermost = false;
         }
 
-        DipSourceMat dsm(geo, dipoles, gauss_order,adapt_rhs,dipoles_in_cortex);
+        DipSourceMat dsm(geo, dipoles, gauss_order, adapt_rhs, dipoles_innermost);
         // Saving RHS Matrix for dipolar case :
         dsm.save(argv[5]);
     }
@@ -229,7 +229,7 @@ int main(int argc, char** argv)
 
         // Loading surfaces from geometry file.
         Geometry geo;
-        geo.read(argv[2],argv[3]);
+        geo.read(argv[2], argv[3]);
 
         // read the file containing the positions of the EEG patches
         Sensors electrodes(argv[4]);
@@ -266,7 +266,7 @@ int main(int argc, char** argv)
 
         // Loading surfaces from geometry file.
         Geometry geo;
-        geo.read(argv[2],argv[3]);
+        geo.read(argv[2], argv[3]);
 
         // read the file containing the positions of the EEG patches
         Sensors electrodes(argv[4]);
@@ -300,13 +300,13 @@ int main(int argc, char** argv)
 
         // Loading surfaces from geometry file.
         Geometry geo;
-        geo.read(argv[2],argv[3]);
+        geo.read(argv[2], argv[3]);
 
         // Load positions and orientations of sensors  :
         Sensors sensors(argv[4]);
 
         // Assembling Matrix from discretization :
-        Head2MEGMat mat(geo,sensors);
+        Head2MEGMat mat(geo, sensors);
         // Saving Head2MEG Matrix :
         mat.save(argv[5]); // if outfile is specified
     }
@@ -390,9 +390,9 @@ int main(int argc, char** argv)
         }
         // Loading surfaces from geometry file
         Geometry geo;
-        geo.read(argv[2],argv[3]);
+        geo.read(argv[2], argv[3]);
         Matrix points(argv[4]);
-        Surf2VolMat mat(geo,points);
+        Surf2VolMat mat(geo, points);
         // Saving SurfToVol Matrix :
         mat.save(argv[5]);
     }
@@ -423,17 +423,17 @@ int main(int argc, char** argv)
             std::cerr << "Please set output filepath !" << endl;
             exit(1);
         }
-        bool dipoles_in_cortex = true;
-        if (!strcmp(argv[1],"-DipSource2InternalPotMatNotInCortex")|(!strcmp(argv[1],"-DS2IPNIC"))|(!strcmp(argv[1],"-ds2ipnic"))){
-            dipoles_in_cortex=false;
+        bool dipoles_innermost = true;
+        if (!strcmp(argv[1],"-DipSource2InternalPotMatNotInnermost")|(!strcmp(argv[1],"-DS2IPNI"))|(!strcmp(argv[1],"-ds2ipni"))){
+            dipoles_innermost=false;
         }
         // Loading surfaces from geometry file
         Geometry geo;
-        geo.read(argv[2],argv[3]);
+        geo.read(argv[2], argv[3]);
         // Loading dipoles :
         Matrix dipoles(argv[4]);
         Matrix points(argv[5]);
-        DipSource2InternalPotMat mat(geo, dipoles, points, dipoles_in_cortex);
+        DipSource2InternalPotMat mat(geo, dipoles, points, dipoles_innermost);
         mat.save(argv[6]);
     }
 
@@ -450,11 +450,11 @@ void getOutputFilepath(char* ref_filepath, char* output_filename, char* path) {
     // go in search on all platform of path less filename included in ref_filepath.
     char* p = strrchr(ref_filepath, '/' );
     if (p == NULL)
-        strcpy(path,output_filename);
+        strcpy(path, output_filename);
     else
     {
-        strncpy(path,ref_filepath,p-ref_filepath+1);
-        strcat(path,output_filename);
+        strncpy(path, ref_filepath, p-ref_filepath+1);
+        strcat(path, output_filename);
     }
 }
 

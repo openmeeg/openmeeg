@@ -45,31 +45,33 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 namespace OpenMEEG {
 
+    /*
     // geo = geometry 
-    // mat = storage for ferguson Matrix
+    // mat = storage for Ferguson Matrix
     // pts = where the magnetic field is to be computed 
     // n   = numbers of places where magnetic field is to be computed
     void assemble_ferguson(const Geometry &geo, Matrix &mat, const Matrix &pts)
     {
         int offsetJ = 0;
         // Computation of blocks of Ferguson's Matrix
-        for(int c=0; c < geo.nb(); c++) {
+        for (Geometry::const_iterator mit = geo.begin(); mit != geo.end(); mit++) {
             int offsetI = 0;
             int n = pts.nlin();
             for (int i=0; i < n; i++) {
-                PROGRESSBAR(c*i, geo.nb()*n);
-                Vect3 p(pts(i,0), pts(i,1), pts(i,2));
-                operatorFerguson(p, geo.getM(c), mat, offsetI, offsetJ);
+                // PROGRESSBAR(c*i, geo.nb_domains()*n);
+                Vect3 p(pts(i, 0), pts(i, 1), pts(i, 2));
+                operatorFerguson(p, *mit, mat, offsetI, offsetJ);
                 offsetI += 3;
             }
-            offsetJ += geo.getM(c).nbPts();
+            offsetJ += mit->nbPts();
         }
 
         // Blocks multiplications
         offsetJ = 0;
-        for(int c=0;c<geo.nb();c++) {
-            mult(mat,0,offsetJ,mat.nlin(),offsetJ+geo.getM(c).nbPts(),(geo.sigma_in(c)-geo.sigma_out(c))*MU0/(4*M_PI));
-            offsetJ += geo.getM(c).nbPts();
+        for (Geometry::const_iterator mit = geo.begin(); mit != geo.end(); mit++) {
+            mult(mat, 0, offsetJ, mat.nlin(), offsetJ + m->nbPts(), geo.sigma_diff(mit, mit)*MU0/(4*M_PI)); // TODO sign
+            offsetJ += mit->nbPts();
         }
     }
+    */
 }

@@ -65,9 +65,9 @@ namespace OpenMEEG {
 
     public:
 
-        inline Vect3(const double& xx,const double& yy,const double& zz) { m[0] = xx; m[1] = yy; m[2] = zz; }
-        inline Vect3(const double& a) { std::fill(&m[0],&m[3],a); }
-        inline Vect3()  { }
+        inline  Vect3(const double& xx, const double& yy, const double& zz) { m[0] = xx; m[1] = yy; m[2] = zz; }
+        inline  Vect3(const double& a) { std::fill(&m[0], &m[3], a); }
+        inline  Vect3()  { }
         inline ~Vect3() { }
 
         Vect3& operator=(const Vect3& v) {
@@ -91,6 +91,7 @@ namespace OpenMEEG {
         inline const double& z() const { return m[2]; }
 
         inline double operator*(const Vect3& v) const { return m[0]*v.x()+m[1]*v.y()+m[2]*v.z(); }
+        inline double operator<(const Vect3& v) const { return ((m[0] != v.x())?(m[0] < v.x()):((m[1] != v.y())? (m[1] < v.y()):(m[2] < v.z()))); }
 
         inline double norm()  const { return sqrt(norm2()); }
         inline double norm2() const { return m[0]*m[0]+m[1]*m[1]+m[2]*m[2]; }
@@ -102,13 +103,13 @@ namespace OpenMEEG {
         inline void operator-=(const Vect3& v)  { m[0] -= v.x(); m[1] -= v.y(); m[2] -= v.z(); }
         inline void operator*=(const double& d) { m[0] *= d; m[1] *= d; m[2] *= d; }
 
-        inline void multadd(const double& d,const Vect3& v) {m[0] += d*v.x(); m[1] += d*v.y(); m[2] += d*v.z();}
+        inline void multadd(const double& d, const Vect3& v) {m[0] += d*v.x(); m[1] += d*v.y(); m[2] += d*v.z();}
 
-        inline Vect3 operator+(const Vect3& v)  const { return Vect3(m[0]+v.x(),m[1]+v.y(),m[2]+v.z()); }
-        inline Vect3 operator-(const Vect3& v)  const { return Vect3(m[0]-v.x(),m[1]-v.y(),m[2]-v.z()); }
-        inline Vect3 operator^(const Vect3& v)  const { return Vect3(m[1]*v.z()-m[2]*v.y(),m[2]*v.x()-m[0]*v.z(),m[0]*v.y()-m[1]*v.x()); }
-        inline Vect3 operator*(const double& d) const { return Vect3(d*m[0],d*m[1],d*m[2]); }
-        inline Vect3 operator/(const double& d) const { const double d2 = 1.0/d; return Vect3(d2*m[0],d2*m[1],d2*m[2]); }
+        inline Vect3 operator+(const Vect3& v)  const { return Vect3(m[0]+v.x(), m[1]+v.y(), m[2]+v.z()); }
+        inline Vect3 operator-(const Vect3& v)  const { return Vect3(m[0]-v.x(), m[1]-v.y(), m[2]-v.z()); }
+        inline Vect3 operator^(const Vect3& v)  const { return Vect3(m[1]*v.z()-m[2]*v.y(), m[2]*v.x()-m[0]*v.z(), m[0]*v.y()-m[1]*v.x()); }
+        inline Vect3 operator*(const double& d) const { return Vect3(d*m[0], d*m[1], d*m[2]); }
+        inline Vect3 operator/(const double& d) const { const double d2 = 1.0/d; return Vect3(d2*m[0], d2*m[1], d2*m[2]); }
 
         inline double operator() (const int i) const {
             assert(i>=0 && i<3);
@@ -122,11 +123,11 @@ namespace OpenMEEG {
 
         inline Vect3 operator-() { return Vect3(-m[0],-m[1],-m[2]); }
 
-        inline double det(const Vect3& y2,const Vect3& y3) const {
-            return (*this)*(y2^y3); // y1.det(y2,y3):= y1/(y2^y3)
+        inline double det(const Vect3& y2, const Vect3& y3) const {
+            return (*this)*(y2^y3); // y1.det(y2, y3):= y1/(y2^y3)
         }
 
-        inline double solangl(const Vect3& v1,const Vect3& v2,const Vect3& v3) const {
+        inline double solangl(const Vect3& v1, const Vect3& v2, const Vect3& v3) const {
             // De Munck : Good sign directly
             const Vect3 Y1 = v1-*this;
             const Vect3 Y2 = v2-*this;
@@ -138,7 +139,7 @@ namespace OpenMEEG {
             return 2.*atan2(d,(y1*y2*y3+y1*(Y2*Y3)+y2*(Y3*Y1)+y3*(Y1*Y2)));
         }
 
-        inline Vect3 normal(const Vect3& v2,const Vect3& v3) const {
+        inline Vect3 normal(const Vect3& v2, const Vect3& v3) const {
             const Vect3 v=*this;
             return ((v-v2)^(v-v3));
         }
@@ -148,19 +149,19 @@ namespace OpenMEEG {
             return *this;
         }
 
-        friend std::ostream& operator<<(std::ostream& os,const Vect3& v);
-        friend std::istream& operator>>(std::istream& is,Vect3& v);
+        friend std::ostream& operator<<(std::ostream& os, const Vect3& v);
+        friend std::istream& operator>>(std::istream& is, Vect3& v);
     };
 
-    inline Vect3 operator*(const double& d,const Vect3& v) { return v*d; }
+    inline Vect3 operator*(const double& d, const Vect3& v) { return v*d; }
 
-    inline std::istream& operator>>(std::istream& is,Vect3& v) {
+    inline std::istream& operator>>(std::istream& is, Vect3& v) {
         return is >> v.x() >> v.y() >> v.z();
     }
 
-    inline std::ostream& operator<<(std::ostream& os,const Vect3& v) {
+    inline std::ostream& operator<<(std::ostream& os, const Vect3& v) {
         return os << v.x() << ' ' << v.y() << ' ' << v.z() ;
     }
 }
 
-#endif  //! OPENMEEG_VECT3#_H
+#endif  //! OPENMEEG_VECT3_H
