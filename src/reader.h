@@ -124,7 +124,7 @@ namespace OpenMEEG {
                     if (!ifs.is_open()) {
                         throw MeshDescription::OpenError(full_name);
                     }
-                    load_vtp(ifs);
+                    // load_vtp(ifs);
         }
             } else {
                 std::cerr << "Domain Description version not available !" << std::endl;
@@ -169,49 +169,44 @@ namespace OpenMEEG {
                 ss << i+1;
                 interfaces()[i].name() = ss.str();
                 meshes()[i].name()     = ss.str();
-                meshes()[i].vertices() = &(this->vertices());
+                this->vertices().reserve(100);
+                // meshes()[i].all_vertices() = &this->vertices();
                 // Load the mesh
                 const std::string full_name = (is_relative_path(filename))?path+filename:filename;
-                std::ifstream ifs(full_name.c_str());
-                if (!ifs.is_open()) {
-                    throw MeshDescription::OpenError(full_name);
-                }
-                mesh_load(ifs, meshes()[i]);
+                mesh_load(full_name.c_str(), meshes()[i]);
             } else if (Interface::keyword == "NamedMesh") { // TODO
                 std::string meshname;
                 std::string filename;
                 ifs >> io_utils::skip_comments("#") >> meshname >> io_utils::filename(filename, '"', false);
-                if (meshname.end() == ':') {
-                    meshname = meshname.substr(0, meshname::npos-1);
+                if (*meshname.end() == ':') {
+                    meshname = meshname.substr(0, meshname.npos-1);
                 } else {
                     throw MeshDescription::WrongFileFormat(geometry);
                 }
                 interfaces()[i].name() = meshname;
                 meshes()[i].name()     = meshname;
-                meshes()[i].vertices() = &vertices(); 
+                meshes()[i].all_vertices(&vertices()); 
                 // Load the mesh
                 const std::string full_name = (is_relative_path(filename))?path+filename:filename;
-                std::ifstream ifs(full_name.c_str());
-                if (!ifs.is_open()) {
-                    throw MeshDescription::OpenError(full_name);
-                }
-                mesh_load(ifs, meshes()[i]);
+                mesh_load(full_name.c_str(), meshes()[i]);
             } else if (Interface::keyword == "Interface") {
                 // interfaces()[i].meshes(meshes);
                 std::stringstream ss;
                 ss << i+1;
                 interfaces()[i].name() = ss.str();
-                getline(ifs, line);
+                std::string line;
+                std::getline(ifs, line);
                 std::istringstream iss(line);
                 iss >> interfaces()[i];
             } else { // then NamedInterface
-                interfaces()[i].meshes(meshes);
+                // interfaces()[i].meshes()=meshes;
+                std::string line;
                 getline(ifs, line);
                 std::istringstream iss(line);
                 std::string i_name;
                 iss >> i_name;
-                if (i_name.end() == ':') {
-                    i_name = i_name.substr(0, i_name::npos-1);
+                if (*i_name.end() == ':') {
+                    i_name = i_name.substr(0, i_name.npos-1);
                     interfaces()[i].name() = i_name;
                 } else {
                     throw MeshDescription::WrongFileFormat(geometry);
@@ -262,11 +257,11 @@ namespace OpenMEEG {
                 break;
             }
         }
-        std::swap(*dit, domains()[domains.size()-1]);
-        for (Domain::const_iterator hit = domain_end().begin(); hit != domain_end().end(); ++hit) {
-            if (domain_end().size() == 1) {
-                for (Interface::const_iterator mit = hit->first->begin(); mit != hit->first->end(); mit++ ) {
-                    mit->outermost() = true;
+        std::swap(*dit, domains()[domains().size()-1]);
+        for (Domains::const_iterator hit = domain_end(); hit != domain_end(); ++hit) {
+            if (domain_end()->size() == 1) {
+                for (Domain::const_iterator mit = hit->begin(); mit != hit->end(); mit++ ) {
+                    mit->interface()[0]->outermost() = true;
                 }
             }
             else {
@@ -279,7 +274,7 @@ namespace OpenMEEG {
         // Search for an innermost domain and place it as the first domain in the vector
         // An innermost domain is (here) defined as the only domain represented by only one interface
         bool only_one = false;
-        for (Domains::iterator dit2 = domain_begin(); dit2 != domain_end(); ++dit2) {
+    /*    for (Domains::iterator dit2 = domain_begin(); dit2 != domain_end(); ++dit2) {
             if ( (dit2->size() == 1) && dit2->inside() ) {
                 if (only_one) {
                     only_one = false;
@@ -296,7 +291,7 @@ namespace OpenMEEG {
             std::cout << "Innermost domain \"" << dit->name() << "\" found." << std::endl;
             std::swap(*dit, domains()[0]);
         }
-
+*/
         if (ifs.fail()) {
             throw MeshDescription::WrongFileFormat(geometry);
         }

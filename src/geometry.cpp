@@ -204,10 +204,11 @@ namespace OpenMEEG {
         reader->Update();
         vtkPolyData *vtkMesh = reader->GetOutput();
 
+        size_t npts;
         npts = vtkMesh->GetNumberOfPoints();
 
-        vertices().resize(npts + vertices().size()); // vertices
-        normals().resize(npts  + normals().size()); // normals on each point
+        vertices().reserve(npts + vertices().size()); // vertices
+        normals().reserve(npts  + normals().size()); // normals on each point
 
         if (reader->GetNumberOfNormalsInFile()==0) {
             vtkPolyDataNormals *newNormals = vtkPolyDataNormals::New();
@@ -229,16 +230,16 @@ namespace OpenMEEG {
         }
 
         for (int i = 0; i < npts; i++) {
-            vertices().push_back(vtkMesh->GetPoint(i)[0], vtkMesh->GetPoint(i)[1], vtkMesh->GetPoint(i)[2]);
-            normals().push_back(normalsData->GetTuple(i)[0], normalsData->GetTuple(i)[1], normalsData->GetTuple(i)[2]);
+            vertices().push_back(Vertex(vtkMesh->GetPoint(i)[0], vtkMesh->GetPoint(i)[1], vtkMesh->GetPoint(i)[2]));
+            normals()[i](normalsData->GetTuple(i)[0], normalsData->GetTuple(i)[1], normalsData->GetTuple(i)[2]);
         }
         ntrgs = vtkMesh->GetNumberOfCells();
-        m.resize(ntrgs);
+        m.reserve(ntrgs);
         vtkIdList *l;
         for (int i = 0; i<ntrgs; i++) {
             if (vtkMesh->GetCellType(i) == VTK_TRIANGLE) {
                 l = vtkMesh->GetCell(i)->GetPointIds();
-                m.push_back(Triangle(vertices()[l->GetId(0)+vertices().size()], vertices()[l->GetId(1)+vertices().size()], vertices()[l->GetId(2)+vertices().size()]))  ;
+                m.push_back(Triangle(vertices()[l->GetId(0)+vertices().size()]-npts, vertices()[l->GetId(1)+vertices().size()-npts], vertices()[l->GetId(2)+vertices().size()-npts]))  ;
             } else {
                 std::cerr << "This is not a triangulation" << std::endl;
                 exit(1);
@@ -273,7 +274,7 @@ namespace OpenMEEG {
         delete[] buffer;
         reader->Delete();
 
-        update_triangles();
+        m.update();
     }
 
     void Geometry::load_vtk(const char* filename, Mesh &m) {
@@ -288,7 +289,7 @@ namespace OpenMEEG {
             exit(1);
         }
         get_data_from_vtk_reader(reader);
-        update_triangles();
+        m.update();
     }
 
     void Geometry::load_vtp(std::istream &is) {
@@ -317,7 +318,6 @@ namespace OpenMEEG {
         delete[] buffer;
         reader->Delete();
 
-        update_triangles();
     }
 
     void Geometry::load_vtp(const char* filename) {
@@ -333,7 +333,6 @@ namespace OpenMEEG {
         }
 
         get_data_from_vtk_reader(reader);
-        update_triangles();
     }
     #endif
 
@@ -353,7 +352,7 @@ namespace OpenMEEG {
         destroy();
         // gifti_image* gim = gifti_read_image(filename);
         // from_gifti_image(gim)
-        // update_triangles();
+        // update();
     }
 
     void Geometry::load_gifti(const char* filename, Mesh &m) {
@@ -361,7 +360,7 @@ namespace OpenMEEG {
         int read_data = 0;
         gifti_image* gim = gifti_read_image(filename, read_data);
         // from_gifti_image(gim);
-        update_triangles();
+        m.update();
         return;
     }
     #endif
@@ -402,7 +401,7 @@ namespace OpenMEEG {
 
         ui = new unsigned int[1]; // vertex number
         is.read((char*)ui, sizeof(unsigned int));
-        npts = ui[0];
+        size_t npts = ui[0];
         delete[] ui;
 
         assert(vertex_per_face == 3); // Support only for triangulations
@@ -424,27 +423,28 @@ namespace OpenMEEG {
 
         ui = new unsigned int[1]; // number of faces
         is.read((char*)ui, sizeof(unsigned int));
+        size_t ntrgs;
         ntrgs = ui[0];
         delete[] ui;
 
         unsigned int* faces_raw = new unsigned int[ntrgs*3]; // Faces
         is.read((char*)faces_raw, sizeof(unsigned int)*ntrgs*3);
 
-        vertices().resize(npts + vertices().size()); // vertices
-        normals().resize(npts+ vertices().size()); // normals on each point
-        for(int i = 0; i < npts; ++i) {
-            vertices().push_back(pts_raw[i*3+0], pts_raw[i*3+1], pts_raw[i*3+2]);
-            normals().push_back(normals_raw[i*3+0], normals_raw[i*3+1], normals_raw[i*3+2]);
+        vertices().reserve(npts + vertices().size()); // vertices
+        normals().reserve(npts + normals().size()); // normals on each point
+        for(int i = 0; i < m.nb_vertices(); ++i) {
+            vertices().push_back(Vertex(pts_raw[i*3+0], pts_raw[i*3+1], pts_raw[i*3+2]));
+            normals().push_back(Normal(normals_raw[i*3+0], normals_raw[i*3+1], normals_raw[i*3+2]));
         }
-        m.resize(ntrgs);
+        m.reserve(ntrgs);
         for(int i = 0; i < ntrgs; ++i) {
-            m[i] = Triangle(vertices()[faces_raw[i*3+0]+vertices().size()], vertices()[face_raw[i*3+1]+vertices().size()], vertices()[face_raw[i*3+2]+vertices().size()] );
+            m.push_back(Triangle(vertices()[faces_raw[i*3+0]+vertices().size()-npts], vertices()[faces_raw[i*3+1]+vertices().size()-npts], vertices()[faces_raw[i*3+2]+vertices().size()-npts] ));
         }
         delete[] faces_raw;
         delete[] normals_raw;
         delete[] pts_raw;
 
-        // update_triangles();
+        // update();
     }
 
     void Geometry::load_mesh(const char* filename, Mesh &m) {
@@ -454,7 +454,7 @@ namespace OpenMEEG {
             std::cerr << "Error opening MESH file: " << filename << std::endl;
             exit(1);
         }
-        load_mesh(f);
+        load_mesh(f, m);
         f.close();
     }
 
@@ -465,27 +465,28 @@ namespace OpenMEEG {
         f.seekg( 0, std::ios_base::beg );
 
         char ch;
+        size_t npts, ntrgs;
         f >> ch;
         f >> npts;
 
-        vertices().resize(npts + vertices().size()); // vertices
-        normals().resize(npts+ vertices().size()); // normals on each point
+        vertices().reserve(npts + vertices().size()); // vertices
+        normals().reserve(npts + normals().size()); // normals on each point
         for (int i = 0; i < npts; i++) {
-            Point p;
+            Vertex p;
             Normal n;
             f >> p >> n;
             vertices().push_back(p);
             normals().push_back(n);
         }
         f >> ch >> ntrgs >> ntrgs >> ntrgs; // This number is repeated 3 times
-        m.resize(ntrgs);
+        m.reserve(ntrgs);
         for (int i = 0; i < ntrgs; i++) {
             Triangle t;
-            f >> t;
-            m.push_back(t);
+            // f >> t;
+            // TODO m[t];
         }
 
-        update_triangles();
+        m.update();
     }
 
     void Geometry::load_tri(const char* filename, Mesh &m) {
@@ -497,7 +498,7 @@ namespace OpenMEEG {
             std::cerr << "Error opening TRI file: " << filename << std::endl;
             exit(1);
         }
-        load_tri(f);
+        load_tri(f, m);
         f.close();
     }
 
@@ -517,6 +518,7 @@ namespace OpenMEEG {
         }
 
         assert(st == "NumberPositions=");
+        size_t npts, ntrgs;
         f >> npts;
 
         f >> io_utils::skip_comments('#') >> st;
@@ -527,10 +529,12 @@ namespace OpenMEEG {
         f >> io_utils::skip_comments('#') >> st;
         assert(st == "Positions");
 
-        vertices().resize(npts + vertices().size()); // vertices
+        vertices().reserve(npts + vertices().size()); // vertices
 
         for( int i = 0; i < npts; i++ ) {
-            f >> io_utils::skip_comments('#') >> vertices()[i + vertices().size()];
+            Vertex v;
+            f >> io_utils::skip_comments('#') >> v;
+            vertices().push_back(v);
         }
 
         f >> io_utils::skip_comments('#') >> st;
@@ -545,15 +549,15 @@ namespace OpenMEEG {
         f >> io_utils::skip_comments('#') >> st;
         assert(st == "Polygons");
 
-        m.resize(ntrgs);
+        m.reserve(ntrgs);
         for (int i=0; i<ntrgs; i++) {
-            f >> io_utils::skip_comments('#') >> m[i];
+             //TODO f >> io_utils::skip_comments('#') >> m[i];
         }
 
-        update_triangles();
+        m.update();
 
-        normals().resize(npts + vertices().size()); // normals on each point
-        recompute_normals(); // Compute normals since bnd files don't have any !
+        normals().reserve(npts + normals().size()); // normals on each point
+        // recompute_normals(); // Compute normals since bnd files don't have any !
     }
 
     void Geometry::load_bnd(const char* filename, Mesh &m) {
@@ -565,7 +569,7 @@ namespace OpenMEEG {
             std::cerr << "Error opening BND file: " << filename << std::endl;
             exit(1);
         }
-        load_bnd(f);
+        load_bnd(f, m);
         f.close();
     }
 
@@ -575,25 +579,28 @@ namespace OpenMEEG {
         char tmp[128];
         int trash;
         f>>tmp;        // put the "OFF" string
+        size_t npts, ntrgs;
         f>>npts;
         f>>ntrgs;
         f>>trash;
 
-        vertices().resize(npts + vertices().size()); // vertices
-        for (int i=0; i<npts; i++) {
-            f>>vertices()[i + vertices().size()];
+        vertices().reserve(npts + vertices().size()); // vertices
+        for (int i = 0; i < npts; i++) {
+            Vertex v;
+            f >> v;
+            vertices().push_back(v);
         }
 
-        m.resize(ntrgs);
+        m.reserve(ntrgs);
         for (int i=0; i<ntrgs; i++) {
             f>>trash;        // put the "3" to trash
-            f>>m[i];
+            // TODO f>>m[i];
         }
 
-        update_triangles();
+        m.update();
 
-        normals().resize(npts + vertices().size()); // normals on each point
-        recompute_normals(); // Compute normals since off files don't have any !
+        normals().reserve(npts + normals().size()); // normals on each point
+        // recompute_normals(); // Compute normals since off files don't have any !
     }
 
     void Geometry::load_off(const char* filename, Mesh &m) {
@@ -605,103 +612,103 @@ namespace OpenMEEG {
             std::cerr << "Error opening OFF file: " << filename << std::endl;
             exit(1);
         }
-        load_off(f);
+        load_off(f, m);
         f.close();
     }
 
-    void Geometry::save(const char* filename) const {
+    void Geometry::save(const char* filename, const Mesh& m) const {
 
         std::string extension = getNameExtension(filename);
         std::transform(extension.begin(), extension.end(), extension.begin(), (int(*)(int))std::tolower);
         if (extension==std::string("vtk")) {
-            save_vtk(filename);
+            save_vtk(filename, m);
         } else if (extension==std::string("tri")) {
-            save_tri(filename);
+            save_tri(filename, m);
         } else if (extension==std::string("bnd")) {
-            save_bnd(filename);
+            save_bnd(filename, m);
         } else if (extension==std::string("mesh")) {
-            save_mesh(filename);
+            save_mesh(filename, m);
         } else if (extension==std::string("off")) {
-            save_off(filename);
+            save_off(filename, m);
         } else {
             std::cerr << "Unknown file format for : " << filename << std::endl;
             exit(1);
         }
     }
 
-    void Geometry::save_vtk(const char* filename) const {
+    void Geometry::save_vtk(const char* filename, const Mesh& m) const {
 
         std::ofstream os(filename);
         os << "# vtk DataFile Version 2.0" << std::endl;
         os << "File " << filename << " generated by OpenMEEG" << std::endl;
         os << "ASCII" << std::endl;
         os << "DATASET POLYDATA" << std::endl;
-        os << "POINTS " << npts << " float" << std::endl;
-        for(int i=0; i<npts; i++)
-            os << vertices()[i] << std::endl;
-        os << "POLYGONS " << ntrgs << " " << ntrgs*4 << std::endl;
-        for(int i=0; i<ntrgs; i++)
+        os << "POINTS " << m.nb_vertices() << " float" << std::endl;
+        for(int i = 0; i < m.nb_vertices(); i++)
+            os << m.vertices()[i] << std::endl;
+        os << "POLYGONS " << m.nb_triangles() << " " << m.nb_triangles()*4 << std::endl;
+        for(int i = 0; i < m.nb_triangles(); i++)
             os << 3 << " " << m[i] << std::endl;
 
-        os << "CELL_DATA " << ntrgs << std::endl;
-        os << "POINT_DATA " << npts << std::endl;
+        os << "CELL_DATA " << m.nb_triangles() << std::endl;
+        os << "POINT_DATA " << m.nb_vertices() << std::endl;
         os << "NORMALS normals float" << std::endl;
-        for(int i=0; i<npts; i++)
+        for(int i = 0; i < m.nb_vertices(); i++)
             os << normals()[i] << std::endl;
 
         os.close();
     }
 
-    void Geometry::save_bnd(const char* filename) const {
+    void Geometry::save_bnd(const char* filename, const Mesh& m) const {
 
         std::ofstream os(filename);
         os << "# Bnd mesh file generated by OpenMeeg" << std::endl;
         os << "Type= Unknown" << std::endl;
-        os << "NumberPositions= " << npts << std::endl;
+        os << "NumberPositions= " << m.nb_vertices() << std::endl;
         os << "UnitPosition\tmm" << std::endl;
         os << "Positions" << std::endl;
-        for(int i=0; i<npts; i++)
-            os << vertices()[i] << std::endl;
+        for(int i = 0; i < m.nb_vertices(); i++)
+            os << m.vertices()[i] << std::endl;
 
-        os << "NumberPolygons= " << ntrgs << std::endl;
+        os << "NumberPolygons= " << m.nb_triangles() << std::endl;
         os << "TypePolygons=\t3" << std::endl;
         os << "Polygons" << std::endl;
-        for(int i=0; i<ntrgs; i++)
+        for(int i=0; i<m.nb_triangles(); i++)
             os << m[i] << std::endl;
 
         os.close();
     }
 
-    void Geometry::save_tri(const char* filename) const {
+    void Geometry::save_tri(const char* filename, const Mesh& m) const {
 
         std::ofstream os(filename);
-        os << "- " << npts << std::endl;
-        for(int i=0; i<npts; i++) {
-            os << vertices()[i] << " ";
+        os << "- " << m.nb_vertices() << std::endl;
+        for(int i=0; i<m.nb_vertices(); i++) {
+            os << m.vertices()[i] << " ";
             os << normals()[i] << std::endl;
         }
-        os << "- " << ntrgs << " " << ntrgs << " " << ntrgs << std::endl;
-        for(int i=0; i<ntrgs; i++)
+        os << "- " << m.nb_triangles() << " " << m.nb_triangles() << " " << m.nb_triangles() << std::endl;
+        for(int i=0; i<m.nb_triangles(); i++)
             os << m[i] << std::endl;
 
         os.close();
     }
 
-    void Geometry::save_off(const char* filename) const {
+    void Geometry::save_off(const char* filename, const Mesh& m) const {
 
         std::ofstream os(filename);
         os << "OFF" << std::endl;
-        os << npts << " " << ntrgs << " 0" << std::endl;
-        for(int i=0; i<npts; i++)
-            os << vertices()[i] << std::endl;
+        os << m.nb_vertices() << " " << m.nb_triangles() << " 0" << std::endl;
+        for(int i=0; i<m.nb_vertices(); i++)
+            os << m.vertices()[i] << std::endl;
 
-        for(int i=0; i<ntrgs; i++)
+        for(int i=0; i<m.nb_triangles(); i++)
             os << "3 " << m[i] << std::endl;
 
         os.close();
     }
 
-    void Geometry::save_mesh(const char* filename) const {
+    void Geometry::save_mesh(const char* filename, const Mesh& m) const {
 
         std::ofstream os(filename, std::ios::binary);
 
@@ -726,35 +733,35 @@ namespace OpenMEEG {
         unsigned int mesh_step[1] = {0}; // mesh_step
         os.write((char*)mesh_step, sizeof(unsigned int));
 
-        unsigned int vertex_number[1] = {npts}; // vertex number
+        unsigned int vertex_number[1] = {m.nb_vertices()}; // vertex number
         os.write((char*)vertex_number, sizeof(unsigned int));
 
-        float* pts_raw = new float[npts*3]; // Points
-        float* normals_raw = new float[npts*3]; // Normals
-        unsigned int* faces_raw = new unsigned int[ntrgs*3]; // Faces
+        float* pts_raw = new float[m.nb_vertices()*3]; // Points
+        float* normals_raw = new float[m.nb_vertices()*3]; // Normals
+        unsigned int* faces_raw = new unsigned int[m.nb_triangles()*3]; // Faces
 
-        for(int i = 0; i < npts; ++i) {
-            pts_raw[i*3+0] = (float)vertices()[i].x();
-            pts_raw[i*3+1] = (float)vertices()[i].y();
-            pts_raw[i*3+2] = (float)vertices()[i].z();
-            normals_raw[i*3+0] = (float)normals()[i].x();
-            normals_raw[i*3+1] = (float)normals()[i].y();
-            normals_raw[i*3+2] = (float)normals()[i].z();
+        for(int i = 0; i < m.nb_vertices(); ++i) {
+            pts_raw[i*3+0] = (float)(m.vertices()[i]->x());
+            pts_raw[i*3+1] = (float)(m.vertices()[i]->y());
+            pts_raw[i*3+2] = (float)(m.vertices()[i]->z());
+//            normals_raw[i*3+0] = (float)(m.normals()[i]->x());
+//            normals_raw[i*3+1] = (float)(m.normals()[i]->y());
+//            normals_raw[i*3+2] = (float)(m.normals()[i]->z());
         }
-        for(int i = 0; i < ntrgs; ++i) {
-            faces_raw[i*3+0] = m[i][0];
-            faces_raw[i*3+1] = m[i][1];
-            faces_raw[i*3+2] = m[i][2];
+        for(int i = 0; i < m.nb_triangles(); ++i) {
+ //           faces_raw[i*3+0] = m[i][0];
+ //           faces_raw[i*3+1] = m[i][1];
+ //           faces_raw[i*3+2] = m[i][2];
         }
 
-        os.write((char*)pts_raw, sizeof(float)*npts*3);          // vertices
+        os.write((char*)pts_raw, sizeof(float)*m.nb_vertices()*3);          // vertices
         os.write((char*)vertex_number, sizeof(unsigned int));    // arg size : npts
-        os.write((char*)normals_raw, sizeof(float)*npts*3);      // normals
+        os.write((char*)normals_raw, sizeof(float)*m.nb_vertices()*3);      // normals
         unsigned char zero[1] = {0};
         os.write((char*)zero, sizeof(unsigned int));             // arg size : 0
-        unsigned int faces_number[1] = {ntrgs};
+        unsigned int faces_number[1] = {m.nb_triangles()};
         os.write((char*)faces_number, sizeof(unsigned int));     // ntrgs
-        os.write((char*)faces_raw, sizeof(unsigned int)*ntrgs*3); // triangles
+        os.write((char*)faces_raw, sizeof(unsigned int)*m.nb_triangles()*3); // triangles
 
         delete[] faces_raw;
         delete[] normals_raw;
@@ -768,7 +775,7 @@ namespace OpenMEEG {
         return gim;
     }
 
-    void Geometry::save_gifti(const char* filename) {
+    void Geometry::save_gifti(const char* filename, const Mesh& m) {
         std::cerr << "GIFTI writer : Not yet implemented" << std::endl;
         gifti_image* gim = to_gifti_image();
         int write_data = 1;

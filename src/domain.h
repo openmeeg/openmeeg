@@ -55,16 +55,16 @@ namespace OpenMEEG {
     //  A simple domain (HalfSpace) is given by an interface (of type Interface) identifying a closed surface and a side (of type InOut) information.
     //  The closed surface split the space into two components. The side depicts which of these two components is the simple domain.
 
-    class HalfSpace: private std::pair<Interface *, InOut> {
+    class HalfSpace: private std::pair<const Interface *, bool> {
 
-        typedef std::pair<Interface *, InOut> base;
+        typedef std::pair<const Interface *, bool> base;
 
     public:
 
-        HalfSpace(Interface * interface, bool inside) { base(std::make_pair<Interface *, InOut>(interface, inside?Inside:Outside)); }
+        HalfSpace(const Interface * interface, bool inside) { base(std::make_pair<const Interface *, bool>(interface, inside)); }
 
         Interface interface() const { return (*base::first);  }
-        bool      inside()    const { return (base::second == Inside); }
+        bool      inside()    const { return (base::second); }
     };
 
     //  A Domain is the intersection of simple domains (of type HalfSpace).

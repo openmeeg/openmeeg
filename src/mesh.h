@@ -62,17 +62,17 @@ namespace OpenMEEG {
         typedef VectPVertex::iterator                       vertex_iterator;
         typedef VectPVertex::const_iterator                 const_vertex_iterator;
 
-        Mesh(): _name(""), _vertices(NULL), _outermost(false) {};
+        Mesh(): _name(""), _all_vertices(NULL), _outermost(false) {};
 
-        Mesh(Vertices *vertices, const std::string name = ""): _vertices(vertices), _name(name), _outermost(false) { }
+        Mesh(Vertices *all_vertices, const std::string name = ""): _all_vertices(all_vertices), _name(name), _outermost(false) { }
 
-        Mesh(std::string name): _name(name), _vertices(NULL), _outermost(false) { }
+        Mesh(std::string name): _name(name), _all_vertices(NULL), _outermost(false) { }
 
         // Iterators on vertices
-              vertex_iterator      vertex_begin()                { return mesh_vertices().begin(); }
-        const_vertex_iterator      vertex_begin()  const         { return mesh_vertices().begin(); }
-              vertex_iterator      vertex_end()                  { return mesh_vertices().end(); }
-        const_vertex_iterator      vertex_end()    const         { return mesh_vertices().end(); }
+              vertex_iterator      vertex_begin()                { return vertices().begin(); }
+        const_vertex_iterator      vertex_begin()  const         { return vertices().begin(); }
+              vertex_iterator      vertex_end()                  { return vertices().end(); }
+        const_vertex_iterator      vertex_end()    const         { return vertices().end(); }
 
         std::vector<SetTriangle>   links()         const         { return _links; }
         std::vector<SetTriangle> & links()                       { return _links; }
@@ -80,14 +80,14 @@ namespace OpenMEEG {
         std::string                name()          const         { return _name; }
         std::string &              name()                        { return _name; }
 
-        VectPVertex                mesh_vertices() const         { return _mesh_vertices; }
-        VectPVertex &              mesh_vertices()               { return _mesh_vertices; }
+        VectPVertex                vertices()      const         { return _vertices; }
+        VectPVertex &              vertices()                    { return _vertices; }
 
-        const size_t               nb_vertices()   const         { return _mesh_vertices.size(); }
+        const size_t               nb_vertices()   const         { return _vertices.size(); }
         const size_t               nb_triangles()  const         { return this->size(); }
 
-        const Vertices *           vertices()      const         { return _vertices; }
-              Vertices *           vertices()                    { return _vertices; }
+          Vertices *           all_vertices()      const         { return _all_vertices; }
+          void           all_vertices(Vertices *v)                    { _all_vertices = v; }
 
         // mesh state
         void mesh_info() const ;
@@ -99,7 +99,7 @@ namespace OpenMEEG {
 
         const SetTriangle& get_triangles_for_point(const Vertex& V) const {
             size_t i = 0;
-            for (const_vertex_iterator vit = mesh_vertices().begin(); vit != mesh_vertices().end(); vit++, i++) {
+            for (const_vertex_iterator vit = vertices().begin(); vit != vertices().end(); vit++, i++) {
                 if (*vit == &V) {
                     return links()[i];
                 }
@@ -114,8 +114,8 @@ namespace OpenMEEG {
         
         std::string                 _name;
         std::vector<SetTriangle>    _links;
-        Vertices *                  _vertices;
-        VectPVertex                 _mesh_vertices;
+        Vertices *                  _all_vertices;
+        VectPVertex                 _vertices;
         bool                        _outermost;
 
     };

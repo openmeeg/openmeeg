@@ -69,26 +69,29 @@ namespace OpenMEEG {
 
         bool  contains_point(const Vect3) const;
 
+        friend std::istream& operator>> (std::istream &, Interface &);
+
         static std::string keyword;     // keyword to be matched in the geometry file
     private:
         std::string _name;       // might be "i0" by default
         PMeshes     _meshes;
     };
 
+    std::istream& operator>> (std::istream &is, Interface &i) {
+            std::string a_mesh_name;
+            while (is >> a_mesh_name) {
+                    for (Interface::PMeshes::const_iterator mit = i.meshes().begin(); mit != i.meshes().end(); mit++) {
+                            if ((*mit)->name() == a_mesh_name) {
+                                    i.push_back(&(**mit));
+                            }
+                    }
+            }
+        return is;
+    } 
+
     typedef std::vector<Interface> Interfaces;
 }
 
 #endif  //  ! OPENMEEG_INTERFACE_H
 
-        // std::istream& operator>> (std::istream &is) {
-            // std::string a_mesh_name;
-            // while (is >> a_mesh_name) {
-                // for (Meshes::const_iterator mit = meshes().begin(); mit != meshes().end(); mit++) {
-                    // if (mit->name() == a_mesh_name) {
-                        // this->push_back(&*mit);
-                    // }
-                // }
-            // }
-            // delete _meshes;
-        // } 
 

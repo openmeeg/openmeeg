@@ -82,7 +82,8 @@ namespace OpenMEEG {
     class OPENMEEG_EXPORT Geometry {
 
         // Geometry types
-        typedef std::vector<Vect3>       Normals;
+        typedef Vect3       Normal;
+        typedef std::vector<Normal>       Normals;
         // typedef std::vector<std::string> Names;
 
     public:
@@ -111,7 +112,7 @@ namespace OpenMEEG {
         Interfaces::iterator       interface_end()         { return interfaces().end();  }
         Interfaces::const_iterator interface_end()   const { return interfaces().end();  }
 
-        Geometry():  _has_cond(false)   { }
+        Geometry(): _vertices(), _has_cond(false)   { }
         ~Geometry()                     { destroy(); }
         void          read(const char* geomFileName, const char* condFileName = NULL);
 
@@ -172,7 +173,7 @@ namespace OpenMEEG {
         #ifdef USE_GIFTI
         void load_gifti(std::istream &, Mesh &);
         void load_gifti(const char*, Mesh &);
-        void save_gifti(const char*, Mesh &);
+        void save_gifti(const char*, const Mesh &);
         gifti_image* to_gifti_image();
         void from_gifti_image(gifti_image* gim);
         #else
@@ -182,16 +183,17 @@ namespace OpenMEEG {
             exit(1);
         }
         template <typename T>
-        void save_gifti(T, Mesh &) {
+        void save_gifti(T, Mesh &, const Mesh &) {
             std::cerr << "You have to compile OpenMEEG with GIFTI to save GIFTI files" << std::endl;
             exit(1);
         }
         #endif
-        void save_vtk(const char*)  const;
-        void save_bnd(const char*)  const;
-        void save_tri(const char*)  const;
-        void save_off(const char*)  const;
-        void save_mesh(const char*) const;
+        void save_vtk(const char*, const Mesh &)  const;
+        void save_bnd(const char*, const Mesh &)  const;
+        void save_tri(const char*, const Mesh &)  const;
+        void save_off(const char*, const Mesh &)  const;
+        void save_mesh(const char*, const Mesh &) const;
+        void save(const char*, const Mesh&) const ;
         void mesh_load(const char* filename, Mesh &m) {
             std::string extension = getNameExtension(filename);
             std::transform(extension.begin(), extension.end(), extension.begin(), (int(*)(int))std::tolower);

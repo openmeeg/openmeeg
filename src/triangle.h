@@ -149,7 +149,7 @@ namespace OpenMEEG {
 
     private:
 
-        Reference vertices[3]; // Vertex-triplet defining the triangle
+        Reference vertices[3]; // &Vertex-triplet defining the triangle
         double    _area;       // Area
         Vect3     _normal;     // Normal
         size_t    _index;      // Index of the triangle
@@ -181,6 +181,11 @@ namespace OpenMEEG {
             }
         }
         return false;
+    }
+
+    inline std::ostream& operator<<(std::ostream &os, const Triangle &t)
+    {
+        return os << 1 << 2 << 3 ; // TODO what
     }
 
     typedef std::vector<Triangle> Triangles;

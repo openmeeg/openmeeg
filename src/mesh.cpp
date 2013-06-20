@@ -94,9 +94,9 @@ namespace OpenMEEG {
             vset.insert(&tit->s2().vertex());
             vset.insert(&tit->s3().vertex());
         }
-        mesh_vertices().insert(vertex_begin(), vset.begin(), vset.end()); // copy the set of mesh vertices into a vector
+        vertices().insert(vertex_begin(), vset.begin(), vset.end()); // copy the set of mesh vertices into a vector
         vset.clear();
-        links().reserve(mesh_vertices().size());
+        links().reserve(vertices().size());
         size_t i = 0;
         for (const_vertex_iterator vit = vertex_begin(); vit != vertex_end(); vit++, i++) {
             for (const_iterator tit = this->begin(); tit != this->end(); tit++) {

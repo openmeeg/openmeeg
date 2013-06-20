@@ -377,7 +377,7 @@ namespace OpenMEEG {
         // This time mat(i, j)+= ... the Matrix is incremented by the P1P0 operator
         std::cout << "OPERATOR P1P0..." << std::endl;
         for (Mesh::const_iterator tit = m.begin(); tit != m.end(); tit++) {
-            for (Mesh::VectPVertex::const_iterator pit = m.mesh_vertices().begin(); pit != m.mesh_vertices().end(); pit++) {
+            for (Mesh::VectPVertex::const_iterator pit = m.vertices().begin(); pit != m.vertices().end(); pit++) {
                 mat(tit->index(), (*pit)->index()) += _operatorP1P0(*tit, **pit);
             }
         }
