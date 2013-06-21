@@ -46,7 +46,6 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include "vect3.h"
 #include "vertex.h"
 
-
 namespace OpenMEEG {
 
     /** \brief  Triangle
@@ -91,7 +90,7 @@ namespace OpenMEEG {
         //  Create a new face from a set of vertices.
         Triangle(Vertex *pts[3]): _index(-1) {
             Triangle& f = *this;
-            for (unsigned i = 0; i < 3; i++) {
+            for (size_t i = 0; i < 3; i++) {
                 f(i) = pts[i];
             }
         }
@@ -116,10 +115,8 @@ namespace OpenMEEG {
               iterator       end()                             { return iterator(vertices+3);       }
               const_iterator end()                       const { return const_iterator(vertices+3); }
 
-        const Vertex&        next(const size_t i)        const { return operator()((1+i)%3).vertex(); }
-        const Vertex&        prev(const size_t i)        const { return operator()((i-1)%3).vertex(); }
-        const Vertex&        next(const Vertex V)        const { return next(vertex_index(V)); }
-        const Vertex&        prev(const Vertex V)        const { return prev(vertex_index(V)); }
+        const Vertex&        next(const Vertex V)        const { return ((s1().vertex() == V)?s2().vertex():(s2().vertex() == V)?s3().vertex():s1().vertex()); }
+        const Vertex&        prev(const Vertex V)        const { return ((s1().vertex() == V)?s3().vertex():(s2().vertex() == V)?s1().vertex():s2().vertex()); }
 
               Reference&     s1()                              { return vertices[0]; }
               Reference&     s2()                              { return vertices[1]; }
@@ -139,13 +136,14 @@ namespace OpenMEEG {
         const size_t&        index()                     const { return _index; }
 
         bool contains(const Vertex& p) const {
-            for (Triangle::const_iterator tit = this->begin(); tit != this->end(); tit++) {
-                if (tit->vertex() == p) {
+            for (Triangle::const_iterator vit = this->begin(); vit != this->end(); vit++) {
+                if (vit->vertex() == p) {
                     return true;
                 }
             }
             return false;
         }
+        inline bool operator==(const Triangle& T) const;
 
     private:
 
@@ -153,20 +151,10 @@ namespace OpenMEEG {
         double    _area;       // Area
         Vect3     _normal;     // Normal
         size_t    _index;      // Index of the triangle
-
-        size_t vertex_index(const Vertex& p) const { // returns 0, 1, or 2 (or the size_t MAX VALUE)
-            size_t vindex = 0;
-            for (Triangle::const_iterator tit = this->begin(); tit != this->end(); tit++, vindex++) {
-                if (tit->vertex() == p) {
-                    return vindex;
-                }
-            }
-            return -1;
-        }
     };
 
-    bool operator==(const Triangle& T1, const Triangle& T2) {
-        for (Triangle::const_iterator i1 = T1.begin(), i2 = T2.begin(); i1 != T1.end(); ++i1, ++i2) {
+    inline bool Triangle::operator==(const Triangle& T) const {
+        for (Triangle::const_iterator i1 = this->begin(), i2 = T.begin(); i1 != this->end(); ++i1, ++i2) {
             if (&*i1 != &*i2) {
                 return false;
             }
@@ -174,7 +162,7 @@ namespace OpenMEEG {
         return true;
     }
 
-    bool operator<(const Triangle& T1, const Triangle& T2) {
+    inline bool operator<(const Triangle& T1, const Triangle& T2) {
         for (Triangle::const_iterator i1 = T1.begin(), i2 = T2.begin(); i1 != T1.end(); ++i1, ++i2) {
             if (i1->vertex() < i2->vertex()) {
                 return true;
@@ -185,7 +173,7 @@ namespace OpenMEEG {
 
     inline std::ostream& operator<<(std::ostream &os, const Triangle &t)
     {
-        return os << 1 << 2 << 3 ; // TODO what
+        return os << 1 << 2 << 3 ; // TODO what ???
     }
 
     typedef std::vector<Triangle> Triangles;

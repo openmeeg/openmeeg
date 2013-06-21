@@ -81,18 +81,15 @@ namespace OpenMEEG {
 
     class OPENMEEG_EXPORT Geometry {
 
-        // Geometry types
-        typedef Vect3       Normal;
-        typedef std::vector<Normal>       Normals;
-        // typedef std::vector<std::string> Names;
-
     public:
 
-        friend class Reader;
+        // Geometry types
+        typedef Vect3                     Normal;
+        typedef std::vector<Normal>       Normals;
 
         // Default iterator of a Geometry is an Iterator on the meshes
-        typedef Meshes::iterator       iterator;
-        typedef Meshes::const_iterator const_iterator;
+        typedef Meshes::iterator          iterator;
+        typedef Meshes::const_iterator    const_iterator;
 
         // Iterators
               iterator             begin()                 { return meshes().begin();    }
@@ -112,9 +109,9 @@ namespace OpenMEEG {
         Interfaces::iterator       interface_end()         { return interfaces().end();  }
         Interfaces::const_iterator interface_end()   const { return interfaces().end();  }
 
+        // Constructors
         Geometry(): _vertices(), _has_cond(false)   { }
-        ~Geometry()                     { destroy(); }
-        void          read(const char* geomFileName, const char* condFileName = NULL);
+        ~Geometry()                                 { destroy(); }
 
               bool&         has_cond()                    { return _has_cond; }
         const bool&         has_cond()              const { return _has_cond; }
@@ -132,90 +129,71 @@ namespace OpenMEEG {
         const size_t        size()                  const { return _size; }
         const size_t        nb_domains()            const { return _domains.size(); }
         
+        void          read       (const char* geomFileName, const char* condFileName = NULL);
         inline double sigma      (const Domain d)                 const { return (d.sigma()); }
         inline double sigma      (const Mesh& m1, const Mesh& m2) const { return funct_on_domains(m1, m2, '+');} // return the (sum) conductivity(ies) of the shared domain(s).
         inline double sigma_diff (const Mesh& m1, const Mesh& m2) const { return funct_on_domains(m1, m2, '-');} // return the (difference) of conductivity(ies) of the shared domain(s).
         inline double sigma_inv  (const Mesh& m1, const Mesh& m2) const { return funct_on_domains(m1, m2, '/');} // return the (sum) inverse of conductivity(ies) of the shared domain(s).
         inline double indicatrice(const Mesh& m1, const Mesh& m2) const { return funct_on_domains(m1, m2, '1');} // return the (sum) indicatrice function of the shared domain(s).
         inline double sigma      (const std::string&) const;
-        // bool selfCheck() const;
-        // bool check(const Mesh& m) const;
+        bool selfCheck() const;
+        bool check(const Mesh& m) const;
+
         const Domain  get_domain(const Vect3&) const;
         double oriented(const Mesh&, const Mesh&) const;
 
         // for IO:s
-        void load_tri(std::istream &, Mesh &);
-        void load_tri(const char*, Mesh &);
-        void load_bnd(std::istream &, Mesh &);
-        void load_bnd(const char*, Mesh &);
-        void load_off(std::istream &, Mesh &);
-        void load_off(const char*, Mesh &);
-        void load_mesh(std::istream &, Mesh &);
-        void load_mesh(const char*, Mesh &);
+        void load_mesh(const char* filename, Mesh &, const bool &verbose = true);
+        void load_tri_file(std::istream &, Mesh &);
+        void load_tri_file(const char*, Mesh &);
+        void load_bnd_file(std::istream &, Mesh &);
+        void load_bnd_file(const char*, Mesh &);
+        void load_off_file(std::istream &, Mesh &);
+        void load_off_file(const char*, Mesh &);
+        void load_mesh_file(std::istream &, Mesh &);
+        void load_mesh_file(const char*, Mesh &);
         #ifdef USE_VTK
-        void load_vtp(std::istream &);
-        void load_vtp(const char*);
-        void load_vtk(std::istream &, Mesh &);
-        void load_vtk(const char*, Mesh &);
+        void load_vtp_file(std::istream &);
+        void load_vtp_file(const char*);
+        void load_vtk_file(std::istream &, Mesh &);
+        void load_vtk_file(const char*, Mesh &);
         void get_data_from_vtk_reader(vtkPolyDataReader* vtkMesh, Mesh &);
         #else
         template <typename T>
-        void load_vtp(T) {
+        void load_vtp_file(T) {
             std::cerr << "You have to compile OpenMEEG with VTK to read VTK/VTP files" << std::endl;
             exit(1);
         }
         template <typename T>
-        void load_vtk(T, Mesh &) {
+        void load_vtk_file(T, Mesh &) {
             std::cerr << "You have to compile OpenMEEG with VTK to read VTK/VTP files" << std::endl;
             exit(1);
         }
         #endif
         #ifdef USE_GIFTI
-        void load_gifti(std::istream &, Mesh &);
-        void load_gifti(const char*, Mesh &);
-        void save_gifti(const char*, const Mesh &);
+        void load_gifti_file(std::istream &, Mesh &);
+        void load_gifti_file(const char*, Mesh &);
+        void save_gifti_file(const char*, const Mesh &);
         gifti_image* to_gifti_image();
         void from_gifti_image(gifti_image* gim);
         #else
         template <typename T>
-        void load_gifti(T, Mesh &) {
+        void load_gifti_file(T, Mesh &) {
             std::cerr << "You have to compile OpenMEEG with GIFTI to read GIFTI files" << std::endl;
             exit(1);
         }
         template <typename T>
-        void save_gifti(T, Mesh &, const Mesh &) {
+        void save_gifti_file(T, Mesh &, const Mesh &) {
             std::cerr << "You have to compile OpenMEEG with GIFTI to save GIFTI files" << std::endl;
             exit(1);
         }
         #endif
-        void save_vtk(const char*, const Mesh &)  const;
-        void save_bnd(const char*, const Mesh &)  const;
-        void save_tri(const char*, const Mesh &)  const;
-        void save_off(const char*, const Mesh &)  const;
-        void save_mesh(const char*, const Mesh &) const;
-        void save(const char*, const Mesh&) const ;
-        void mesh_load(const char* filename, Mesh &m) {
-            std::string extension = getNameExtension(filename);
-            std::transform(extension.begin(), extension.end(), extension.begin(), (int(*)(int))std::tolower);
-            if (extension == std::string("vtk")) {
-                load_vtk(filename, m);
-            } else if (extension == std::string("vtp")) {
-                load_vtp(filename);
-            } else if (extension == std::string("tri")) {
-                load_tri(filename, m);
-            } else if (extension == std::string("bnd")) {
-                load_bnd(filename, m);
-            } else if (extension == std::string("mesh")) {
-                load_mesh(filename, m);
-            } else if (extension == std::string("off")) {
-                load_off(filename, m);
-            } else if (extension == std::string("gii")) {
-                load_gifti(filename, m);
-            } else {
-                std::cerr << "IO: load: Unknown mesh file format for " << filename << std::endl;
-                exit(1);
-            }
-        }
+        void save_vtk_file(const char*, const Mesh &)  const;
+        void save_bnd_file(const char*, const Mesh &)  const;
+        void save_tri_file(const char*, const Mesh &)  const;
+        void save_off_file(const char*, const Mesh &)  const;
+        void save_mesh_file(const char*, const Mesh &) const;
+        void save_mesh(const char*, const Mesh&) const ;
 
     private:
 

@@ -113,21 +113,17 @@ namespace OpenMEEG {
             // }
             return 0;
         }
+
+        inline bool operator==(const Domain& d) const;
+
+        // friend bool operator==(const Domain &d) const {return true;}
+
     private:
 
         std::string _name;         // Name of the domain.
         double      _conductivity; // Conductivity of the domain.
         bool        _innermost;    // Innermost domain ?
     };
-
-    bool operator==(const Domain& d1, const Domain& d2) {
-        for (Domain::const_iterator dit1 = d1.begin(), dit2 = d2.begin(); dit1 != d1.end(); ++dit1, ++dit2) {
-            if (&*dit1 != &*dit2) {
-                return false;
-            }
-        }
-        return true;
-    }
 
     typedef std::vector<Domain >     Domains;
 

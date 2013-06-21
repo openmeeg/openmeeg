@@ -124,7 +124,7 @@ namespace OpenMEEG {
                     if (!ifs.is_open()) {
                         throw MeshDescription::OpenError(full_name);
                     }
-                    // load_vtp(ifs);
+                    // load_vtp_file(ifs);
         }
             } else {
                 std::cerr << "Domain Description version not available !" << std::endl;
@@ -143,7 +143,7 @@ namespace OpenMEEG {
             >> io_utils::match("Interfaces") >> num_interfaces >> InterfaceType;
 
         if ((InterfaceType == "Mesh")|(InterfaceType == "NamedMesh")|(InterfaceType == "NamedInterface")|(InterfaceType == "Interface")) {
-            Interface::keyword = InterfaceType;
+            std::string Interface::keyword = InterfaceType;
         } else {
             throw MeshDescription::WrongFileFormat(geometry);
         }
@@ -169,11 +169,10 @@ namespace OpenMEEG {
                 ss << i+1;
                 interfaces()[i].name() = ss.str();
                 meshes()[i].name()     = ss.str();
-                this->vertices().reserve(100);
                 // meshes()[i].all_vertices() = &this->vertices();
                 // Load the mesh
                 const std::string full_name = (is_relative_path(filename))?path+filename:filename;
-                mesh_load(full_name.c_str(), meshes()[i]);
+                load_mesh(full_name.c_str(), meshes()[i]);
             } else if (Interface::keyword == "NamedMesh") { // TODO
                 std::string meshname;
                 std::string filename;
@@ -185,10 +184,11 @@ namespace OpenMEEG {
                 }
                 interfaces()[i].name() = meshname;
                 meshes()[i].name()     = meshname;
-                meshes()[i].all_vertices(&vertices()); 
+                // this->vertices().reserve(1);
+                // meshes()[i].all_vertices() = &(vertices()[0]);  // TODO only all_vertices(&vertices()) works not = !
                 // Load the mesh
                 const std::string full_name = (is_relative_path(filename))?path+filename:filename;
-                mesh_load(full_name.c_str(), meshes()[i]);
+                load_mesh(full_name.c_str(), meshes()[i]);
             } else if (Interface::keyword == "Interface") {
                 // interfaces()[i].meshes(meshes);
                 std::stringstream ss;
@@ -274,7 +274,7 @@ namespace OpenMEEG {
         // Search for an innermost domain and place it as the first domain in the vector
         // An innermost domain is (here) defined as the only domain represented by only one interface
         bool only_one = false;
-    /*    for (Domains::iterator dit2 = domain_begin(); dit2 != domain_end(); ++dit2) {
+    /*    for (Domains::iterator dit2 = domain_begin(); dit2 != domain_end(); ++dit2) { // TODO
             if ( (dit2->size() == 1) && dit2->inside() ) {
                 if (only_one) {
                     only_one = false;

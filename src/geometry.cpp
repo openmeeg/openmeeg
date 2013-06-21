@@ -127,6 +127,37 @@ namespace OpenMEEG {
         return (doms[0].meshOrient(m1) == doms[0].meshOrient(m2))?1.:-1.;
     }
 
+    bool Geometry::selfCheck() const { // TODO: something else
+        return true;
+        // bool OK = true;
+        // for(int i = 0; i < nb(); ++i)
+        // {
+            // const Mesh& m1 = getM(i);
+            // if (!m1.has_correct_orientation()) {
+                // warning(std::string("A mesh does not seem to be properly oriented"));
+            // }
+            // if(m1.has_self_intersection())
+            // {
+                // warning(std::string("Mesh is self intersecting !"));
+                // m1.info();
+                // OK = false;
+                // std::cout << "Self intersection for mesh number " << i << std:: endl;
+            // }
+            // for(int j = i+1; j < nb(); ++j)
+            // {
+                // const Mesh& m2 = getM(j);
+                // if(m1.intersection(m2))
+                // {
+                    // warning(std::string("2 meshes are intersecting !"));
+                    // m1.info();
+                    // m2.info();
+                    // OK = false;
+                // }
+            // }
+        // }
+        // return OK;
+    }
+
     /*
     // Mesh& Geometry::interior_mesh(const std::string& name) const {
         // for (std::vector<Domain>::const_iterator d = domain_begin(); d != domain_end(); d++) {
@@ -137,36 +168,6 @@ namespace OpenMEEG {
         // return -1.; // TODO throw error unknownDomain
     // }
 
-       bool Geometry::selfCheck() const { // TODO: something else
-
-       bool OK = true;
-       for(int i = 0; i < nb(); ++i)
-       {
-       const Mesh& m1 = getM(i);
-       if (!m1.has_correct_orientation()) {
-       warning(std::string("A mesh does not seem to be properly oriented"));
-       }
-       if(m1.has_self_intersection())
-       {
-       warning(std::string("Mesh is self intersecting !"));
-       m1.info();
-       OK = false;
-       std::cout << "Self intersection for mesh number " << i << std:: endl;
-       }
-       for(int j = i+1; j < nb(); ++j)
-       {
-       const Mesh& m2 = getM(j);
-       if(m1.intersection(m2))
-       {
-       warning(std::string("2 meshes are intersecting !"));
-       m1.info();
-       m2.info();
-       OK = false;
-       }
-       }
-       }
-       return OK;
-       }
 
        bool Geometry::check(const Mesh& m) const {
        bool OK = true;
@@ -365,7 +366,7 @@ namespace OpenMEEG {
     }
     #endif
 
-    void Geometry::load_mesh(std::istream &is, Mesh &m) {
+    void Geometry::load_mesh_file(std::istream &is, Mesh &m) {
         destroy();
 
         unsigned char* uc = new unsigned char[5]; // File format
@@ -447,18 +448,18 @@ namespace OpenMEEG {
         // update();
     }
 
-    void Geometry::load_mesh(const char* filename, Mesh &m) {
-        std::cout << "load_mesh : " << filename << std::endl;
+    void Geometry::load_mesh_file(const char* filename, Mesh &m) {
+        std::cout << "load_mesh_file : " << filename << std::endl;
         std::ifstream f(filename, std::ios::binary);
         if (!f.is_open()) {
             std::cerr << "Error opening MESH file: " << filename << std::endl;
             exit(1);
         }
-        load_mesh(f, m);
+        load_mesh_file(f, m);
         f.close();
     }
 
-    void Geometry::load_tri(std::istream &f, Mesh &m) {
+    void Geometry::load_tri_file(std::istream &f, Mesh &m) {
 
         destroy();
 
@@ -489,7 +490,7 @@ namespace OpenMEEG {
         m.update();
     }
 
-    void Geometry::load_tri(const char* filename, Mesh &m) {
+    void Geometry::load_tri_file(const char* filename, Mesh &m) {
 
         std::string s = filename;
         std::cout << "load_tri : " << filename << std::endl;
@@ -498,11 +499,11 @@ namespace OpenMEEG {
             std::cerr << "Error opening TRI file: " << filename << std::endl;
             exit(1);
         }
-        load_tri(f, m);
+        load_tri_file(f, m);
         f.close();
     }
 
-    void Geometry::load_bnd(std::istream &f, Mesh &m) {
+    void Geometry::load_bnd_file(std::istream &f, Mesh &m) {
 
         destroy();
 
@@ -560,7 +561,7 @@ namespace OpenMEEG {
         // recompute_normals(); // Compute normals since bnd files don't have any !
     }
 
-    void Geometry::load_bnd(const char* filename, Mesh &m) {
+    void Geometry::load_bnd_file(const char* filename, Mesh &m) {
         std::string s = filename;
         std::cout << "load_bnd : " << filename << std::endl;
         std::ifstream f(filename);
@@ -569,11 +570,11 @@ namespace OpenMEEG {
             std::cerr << "Error opening BND file: " << filename << std::endl;
             exit(1);
         }
-        load_bnd(f, m);
+        load_bnd_file(f, m);
         f.close();
     }
 
-    void Geometry::load_off(std::istream &f, Mesh &m) {
+    void Geometry::load_off_file(std::istream &f, Mesh &m) {
         destroy();
 
         char tmp[128];
@@ -603,7 +604,7 @@ namespace OpenMEEG {
         // recompute_normals(); // Compute normals since off files don't have any !
     }
 
-    void Geometry::load_off(const char* filename, Mesh &m) {
+    void Geometry::load_off_file(const char* filename, Mesh &m) {
 
         std::string s = filename;
         std::cout << "load_off : " << filename << std::endl;
@@ -612,31 +613,58 @@ namespace OpenMEEG {
             std::cerr << "Error opening OFF file: " << filename << std::endl;
             exit(1);
         }
-        load_off(f, m);
+        load_off_file(f, m);
         f.close();
     }
 
-    void Geometry::save(const char* filename, const Mesh& m) const {
+    void Geometry::load_mesh(const char* filename, Mesh &m, const bool &verbose) {
+        std::string extension = getNameExtension(filename);
+        std::transform(extension.begin(), extension.end(), extension.begin(), (int(*)(int))std::tolower);
+        if (extension == std::string("vtk")) {
+            load_vtk_file(filename, m);
+        } else if (extension == std::string("vtp")) {
+            load_vtp_file(filename);
+        } else if (extension == std::string("tri")) {
+            load_tri_file(filename, m);
+        } else if (extension == std::string("bnd")) {
+            load_bnd_file(filename, m);
+        } else if (extension == std::string("mesh")) {
+            load_mesh_file(filename, m);
+        } else if (extension == std::string("off")) {
+            load_off_file(filename, m);
+        } else if (extension == std::string("gii")) {
+            load_gifti_file(filename, m);
+        } else {
+            std::cerr << "IO: load: Unknown mesh file format for " << filename << std::endl;
+            exit(1);
+        }
+
+        if (verbose) {
+            m.info();
+        }
+    }
+
+    void Geometry::save_mesh(const char* filename, const Mesh& m) const {
 
         std::string extension = getNameExtension(filename);
         std::transform(extension.begin(), extension.end(), extension.begin(), (int(*)(int))std::tolower);
         if (extension==std::string("vtk")) {
-            save_vtk(filename, m);
+            save_vtk_file(filename, m);
         } else if (extension==std::string("tri")) {
-            save_tri(filename, m);
+            save_tri_file(filename, m);
         } else if (extension==std::string("bnd")) {
-            save_bnd(filename, m);
+            save_bnd_file(filename, m);
         } else if (extension==std::string("mesh")) {
-            save_mesh(filename, m);
+            save_mesh_file(filename, m);
         } else if (extension==std::string("off")) {
-            save_off(filename, m);
+            save_off_file(filename, m);
         } else {
             std::cerr << "Unknown file format for : " << filename << std::endl;
             exit(1);
         }
     }
 
-    void Geometry::save_vtk(const char* filename, const Mesh& m) const {
+    void Geometry::save_vtk_file(const char* filename, const Mesh& m) const {
 
         std::ofstream os(filename);
         os << "# vtk DataFile Version 2.0" << std::endl;
@@ -659,7 +687,7 @@ namespace OpenMEEG {
         os.close();
     }
 
-    void Geometry::save_bnd(const char* filename, const Mesh& m) const {
+    void Geometry::save_bnd_file(const char* filename, const Mesh& m) const {
 
         std::ofstream os(filename);
         os << "# Bnd mesh file generated by OpenMeeg" << std::endl;
@@ -679,7 +707,7 @@ namespace OpenMEEG {
         os.close();
     }
 
-    void Geometry::save_tri(const char* filename, const Mesh& m) const {
+    void Geometry::save_tri_file(const char* filename, const Mesh& m) const {
 
         std::ofstream os(filename);
         os << "- " << m.nb_vertices() << std::endl;
@@ -694,7 +722,7 @@ namespace OpenMEEG {
         os.close();
     }
 
-    void Geometry::save_off(const char* filename, const Mesh& m) const {
+    void Geometry::save_off_file(const char* filename, const Mesh& m) const {
 
         std::ofstream os(filename);
         os << "OFF" << std::endl;
@@ -708,7 +736,7 @@ namespace OpenMEEG {
         os.close();
     }
 
-    void Geometry::save_mesh(const char* filename, const Mesh& m) const {
+    void Geometry::save_mesh_file(const char* filename, const Mesh& m) const {
 
         std::ofstream os(filename, std::ios::binary);
 
@@ -775,7 +803,7 @@ namespace OpenMEEG {
         return gim;
     }
 
-    void Geometry::save_gifti(const char* filename, const Mesh& m) {
+    void Geometry::save_gifti_file(const char* filename, const Mesh& m) {
         std::cerr << "GIFTI writer : Not yet implemented" << std::endl;
         gifti_image* gim = to_gifti_image();
         int write_data = 1;

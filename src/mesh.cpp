@@ -42,49 +42,45 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 namespace OpenMEEG {
 
-    Mesh::Mesh(const int a, const int b): npts(a), ntrgs(b), pts(new Vect3[npts]),
-                            trgs(new Triangle[ntrgs]), links(new intSet[npts]),
-                            normals(new Vect3[npts]) { }
-
-    Mesh::Mesh(const Mesh& M): npts(0) { *this = M; }
+    // Mesh::Mesh(const Mesh& M) { *this = M; }
 
 
-    Mesh& Mesh::operator= (const Mesh& M) {
-        if (this != &M)
-            copy(M);
-        return *this;
-    }
+    // Mesh& Mesh::operator= (const Mesh& M) {
+        // if (this != &M)
+            // copy(M);
+        // return *this;
+    // }
 
-    void Mesh::copy(const Mesh& M) {
-        destroy();
-        if (M.npts != 0) {
-            npts    = M.npts;
-            ntrgs   = M.ntrgs;
-            pts     = new Vect3[npts];
-            trgs    = new Triangle[ntrgs];
-            links   = new intSet[npts];
-            normals = new Vect3[npts];
-            for (int i=0; i < npts; i++) {
-                pts[i]     = M.pts[i];
-                links[i]   = M.links[i];
-                normals[i] = M.normals[i];
-            }
-            for (int i=0; i < ntrgs; i++)
-                trgs[i] = M.trgs[i];
-        }
-    }
+    // void Mesh::copy(const Mesh& M) {
+        // destroy();
+        // if (M.npts != 0) {
+            // _all_vertices = M.all_vertices();
+            // ntrgs   = M.ntrgs;
+            // pts     = new Vect3[npts];
+            // trgs    = new Triangle[ntrgs];
+            // links   = new intSet[npts];
+            // normals = new Vect3[npts];
+            // for (int i=0; i < npts; i++) {
+                // pts[i]     = M.pts[i];
+                // links[i]   = M.links[i];
+                // normals[i] = M.normals[i];
+            // }
+            // for (int i=0; i < ntrgs; i++)
+                // trgs[i] = M.trgs[i];
+        // }
+    // }
 
-    void Mesh::destroy() {
+    // void Mesh::destroy() {
         // if (npts != 0) {
             // delete [] pts;
             // delete [] trgs;
             // delete [] links;
             // delete [] normals;
-// 
+
             // npts = 0;
             // ntrgs = 0;
         // }
-    }
+    // }
 
     void Mesh::update() {
         SetPVertex vset;
@@ -128,19 +124,19 @@ namespace OpenMEEG {
         std::cout << "\tMax Area : " << max_area << std::endl;
     }
 
-    void Mesh::update_triangles() {
-        for (const_iterator tit = this->begin(); tit != this->end(); tit++) {
-            tit->normal() = (*tit)(0)->vertex().normal( (*tit)(1) , (*tit)(2) ); // TODO: not Normalized
-            tit->area()   = tit->normal().norm() / 2.0;
-        }
-    }
+    // void Mesh::update_triangles() {
+        // for (const_iterator tit = this->begin(); tit != this->end(); tit++) {
+            // tit->normal() = (*tit)(0)->vertex().normal( (*tit)(1) , (*tit)(2) ); // TODO: not Normalized
+            // tit->area()   = tit->normal().norm() / 2.0;
+        // }
+    // }
 
     bool Mesh::has_self_intersection() const {
         bool selfIntersects = false;
         for (const_iterator tit1 = this->begin(); tit1 != this->end(); tit1++) {
             for (const_iterator tit2 = tit1; tit2 != this->end(); tit2++) {
-                if (!tit1->contains(tit2->s1()) && !tit1.contains(tit2->s2()) && !tit1->contains(tit->s3())) {
-                    if (triangle_intersection(*this, *tit1, *this, *tit2)) {
+                if (!tit1->contains(tit2->s1().vertex()) && !tit1->contains(tit2->s2().vertex()) && !tit1->contains(tit1->s3().vertex())) {
+                    if (triangle_intersection(*tit1, *tit2)) {
                         selfIntersects = true;
                         std::cout << "triangles " << tit1->index() << " and " << tit2->index() << " are intersecting" << std::endl;
                     }
@@ -153,20 +149,20 @@ namespace OpenMEEG {
     bool Mesh::intersection(const Mesh& m) const {
         bool intersects = false;
         for (const_iterator tit1 = this->begin(); tit1 != this->end(); tit1++) {
-            for (const_iterator tit2 = m->begin(); tit2 != m->end(); tit2++) {
-                intersects = intersects | triangle_intersection(*this, *tit1, m, *tit2);
+            for (const_iterator tit2 = m.begin(); tit2 != m.end(); tit2++) {
+                intersects = intersects | triangle_intersection(*tit1, *tit2);
             }
         }
         return intersects;
     }
 
-    bool Mesh::triangle_intersection( const Mesh& m1, const Triangle& T1, const Mesh& m2, const Triangle& T2 ) const {
-        const Vect3& p1 = m1.point(T1.s1());
-        const Vect3& q1 = m1.point(T1.s2());
-        const Vect3& r1 = m1.point(T1.s3());
-        const Vect3& p2 = m2.point(T2.s1());
-        const Vect3& q2 = m2.point(T2.s2());
-        const Vect3& r2 = m2.point(T2.s3());
+    bool Mesh::triangle_intersection(const Triangle& T1, const Triangle& T2 ) const {
+        const Vect3& p1 = T1.s1().vertex();
+        const Vect3& q1 = T1.s2().vertex();
+        const Vect3& r1 = T1.s3().vertex();
+        const Vect3& p2 = T2.s1().vertex();
+        const Vect3& q2 = T2.s2().vertex();
+        const Vect3& r2 = T2.s3().vertex();
 
         double pp1[3] = {p1.x(), p1.y(), p1.z()};
         double qq1[3] = {q1.x(), q1.y(), q1.z()};
@@ -177,6 +173,7 @@ namespace OpenMEEG {
         return tri_tri_overlap_test_3d(pp1, qq1, rr1, pp2, qq2, rr2);
     }
 
+    /* TODO
     bool Mesh::has_correct_orientation() const {
         // First : check the local orientation (that all the triangles are all oriented in the same way)
         // define the triangle edges as (first point, second point)
@@ -227,7 +224,7 @@ namespace OpenMEEG {
             std::cerr << "Local orientation problem..." << std::endl << std::endl;
 
         return in_mesh && (flipped_edge_list == edge_list);
-    }
+    } */
 
 } // end namespace OpenMeeg
 

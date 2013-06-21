@@ -86,14 +86,14 @@ namespace OpenMEEG {
         const size_t               nb_vertices()   const         { return _vertices.size(); }
         const size_t               nb_triangles()  const         { return this->size(); }
 
-          Vertices *           all_vertices()      const         { return _all_vertices; }
-          void           all_vertices(Vertices *v)                    { _all_vertices = v; }
+          Vertices *               all_vertices()  const         { return _all_vertices; }
+          Vertices *               all_vertices()                { return _all_vertices; }
 
         // mesh state
-        void mesh_info() const ;
-        bool triangle_intersection( const Mesh, const Triangle, const Mesh, const Triangle) const;
+        void info() const ;
+        bool triangle_intersection(const Triangle&, const Triangle&) const;
         bool has_self_intersection() const;
-        bool intersection(const Mesh) const;
+        bool intersection(const Mesh&) const;
         bool has_correct_orientation() const;
         void update();
 

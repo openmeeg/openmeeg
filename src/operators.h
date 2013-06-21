@@ -79,7 +79,7 @@ namespace OpenMEEG {
 
     void operatorSinternal(const Mesh &, Matrix &, const int, const int, const Matrix &);
     void operatorDinternal(const Mesh &, Matrix &, const int, const int, const Matrix &);
-    void operatorFerguson(const Vect3 &, const Mesh &, Matrix &, int, int);
+    void operatorFerguson(const Vect3 &, const Mesh &, Matrix &, size_t, size_t);
     void operatorDipolePotDer(const Vect3 &, const Vect3 &, const Mesh &, Vector &, const int, const bool);
     void operatorDipolePot   (const Vect3 &, const Vect3 &, const Mesh &, Vector &, const int, const bool);
 

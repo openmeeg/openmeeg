@@ -43,6 +43,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <string>
 #include <sstream>
 #include <vector>
+#include <limits>
 #include "mesh.h"
 
 namespace OpenMEEG {
@@ -55,9 +56,9 @@ namespace OpenMEEG {
 
     class OPENMEEG_EXPORT Interface: public std::vector<Mesh *> {
 
-        typedef std::vector<Mesh *> PMeshes;
-
     public:
+
+        typedef std::vector<Mesh *> PMeshes;
 
         Interface()                                    { }
 
@@ -67,17 +68,15 @@ namespace OpenMEEG {
         PMeshes       meshes() const                   { return _meshes; }
         PMeshes     & meshes()                         { return _meshes; }
 
-        bool  contains_point(const Vect3) const;
+        bool  contains_point(const Vect3&) const;
 
-        friend std::istream& operator>> (std::istream &, Interface &);
-
-        static std::string keyword;     // keyword to be matched in the geometry file
+        static std::string keyword;     // keyword to be matched in the geometry file static ? TODO
     private:
         std::string _name;       // might be "i0" by default
         PMeshes     _meshes;
     };
 
-    std::istream& operator>> (std::istream &is, Interface &i) {
+    inline std::istream& operator>> (std::istream &is, Interface &i) {
             std::string a_mesh_name;
             while (is >> a_mesh_name) {
                     for (Interface::PMeshes::const_iterator mit = i.meshes().begin(); mit != i.meshes().end(); mit++) {
@@ -89,6 +88,7 @@ namespace OpenMEEG {
         return is;
     } 
 
+    const std::string Interface::keyword[] = "";
     typedef std::vector<Interface> Interfaces;
 }
 

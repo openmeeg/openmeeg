@@ -46,8 +46,8 @@ namespace OpenMEEG {
         std::cout<<"INTERNAL OPERATOR D..."<<std::endl;
         for(size_t i = offsetI; i < offsetI + points.nlin(); i++)  {
             Vect3 pt(points(i-offsetI, 0), points(i-offsetI, 1), points(i-offsetI, 2));
-            for(size_t j = offsetJ; j < offsetJ + m.nbTrgs(); j++) {
-                _operatorDinternal(i, j-offsetJ, m, mat, offsetJ, pt);
+            for (Mesh::const_iterator tit = m.begin(); tit != m.end(); tit++) {
+                _operatorDinternal(*tit, pt, mat);
             }
         }
     }
@@ -57,19 +57,20 @@ namespace OpenMEEG {
         std::cout<<"INTERNAL OPERATOR S..."<<std::endl;
         for(size_t i=offsetI; i < offsetI + points.nlin(); i++) {
             Vect3 pt(points(i-offsetI, 0), points(i-offsetI, 1), points(i-offsetI, 2));
-            for(size_t j=offsetJ; j<offsetJ+m.nbTrgs(); j++) {
-                mat(i, j) = _operatorSinternal(j - offsetJ, m, pt);
+            // for (Mesh::const_iterator tit = m.begin(); tit != m.end(); tit++) {
+            for(size_t j=offsetJ; j<offsetJ+m.nb_triangles(); j++) {
+                mat(i, j) = _operatorSinternal(m[j-offsetJ], pt);
             }
         }
     }
 
-    // general routine for applying _operatorFerguson (see this function for further comments)
+    // General routine for applying _operatorFerguson (see this function for further comments)
     // to an entire mesh, and storing coordinates of the output in a Matrix.
     void operatorFerguson(const Vect3& x, const Mesh &m, Matrix &mat, size_t offsetI, size_t offsetJ) {
 
         #pragma omp parallel for
-        for(size_t j=offsetJ; j < offsetJ + m.nbPts(); j++) {
-            Vect3 v = _operatorFerguson(x, j-offsetJ, m);
+        for(size_t j=offsetJ; j < offsetJ + m.nb_vertices(); j++) {
+            Vect3 v = _operatorFerguson(x, *m.vertices()[j-offsetJ], m);
             mat(offsetI+0, j) = v.x();
             mat(offsetI+1, j) = v.y();
             mat(offsetI+2, j) = v.z();
@@ -94,9 +95,9 @@ namespace OpenMEEG {
             Vect3 v = gauss->integrate(anaDPD, *tit);
             #pragma omp critical
             {
-                rhs(tit->s1()->index() ) += v(0);
-                rhs(tit->s2()->index() ) += v(1);
-                rhs(tit->s3()->index() ) += v(2);
+                rhs(tit->s1().index() ) += v(0);
+                rhs(tit->s2().index() ) += v(1);
+                rhs(tit->s3().index() ) += v(2);
             }
         }
         delete gauss;

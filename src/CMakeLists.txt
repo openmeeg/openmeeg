@@ -4,8 +4,9 @@ IF (NOT HAVE_ISNORMAL_IN_NAMESPACE_STD)
 ENDIF()
 
 SET(OPENMEEG_HEADERS
-    analytics.h assemble.h conditioning.h cpuChrono.h danielsson.h DLLDefinesOpenMEEG.h forward.h gain.h geometry.h integrator.h 
-    inversers.h mesh3.h om_utils.h operators.h options.h PropertiesSpecialized.h sensors.h triangle.h Triangle_triangle_intersection.h vect3.h
+    analytics.h assemble.h conditioning.h cpuChrono.h danielsson.h DLLDefinesOpenMEEG.h domain.h forward.h gain.h geometry.h integrator.h
+    interface.h inversers.h mesh.h om_utils.h operators.h options.h PropertiesSpecialized.h reader.h sensors.h triangle.h
+    Triangle_triangle_intersection.h vect3.h vertex.h 
 #   These files are imported from another repository.
 #   Please do not update them in this repository.
     DataTag.H FileExceptions.H MeshDescription/Exceptions.H Properties.H
@@ -13,7 +14,7 @@ SET(OPENMEEG_HEADERS
 
 ADD_LIBRARY(OpenMEEG ${LIB_TYPE}
     assembleFerguson.cpp assembleHeadMat.cpp assembleSourceMat.cpp assembleSensors.cpp
-    danielsson.cpp geometry.cpp mesh3.cpp operators.cpp sensors.cpp inversers.cpp cpuChrono.cpp ${OPENMEEG_HEADERS}
+    danielsson.cpp geometry.cpp operators.cpp sensors.cpp inversers.cpp cpuChrono.cpp ${OPENMEEG_HEADERS}
 )
 TARGET_LINK_LIBRARIES(OpenMEEG OpenMEEGMaths ${OPENMEEG_LIBRARIES} ${LAPACK_LIBRARIES})
 

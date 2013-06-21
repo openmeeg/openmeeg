@@ -47,9 +47,9 @@ namespace OpenMEEG {
     bool Interface::contains_point(const Vect3& p) const {
 
         double solangle = 0.0;
-        for (const_iterator mit = this->begin(); mit != this->end(); mit++) {
-            for (const_iterator tit = mit->begin(); tit != mit->end(); tit++) {
-                solangle += p.solangl((*tit)(0), (*tit)(1), (*tit)(2));
+        for (Interface::const_iterator mit = this->begin(); mit != this->end(); mit++) {
+            for (Mesh::const_iterator tit = (*mit)->begin(); tit != (*mit)->end(); tit++) {
+                solangle += p.solangl((*tit)(0).vertex(), (*tit)(1).vertex(), (*tit)(2).vertex());
             }
         }
 

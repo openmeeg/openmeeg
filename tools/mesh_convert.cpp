@@ -37,7 +37,7 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#include "mesh3.h"
+#include "geometry.h"
 #include "options.h"
 
 using namespace std;
@@ -45,8 +45,7 @@ using namespace OpenMEEG;
 
 double determinant3x3(const Matrix& m);
 
-int main( int argc, char **argv)
-{
+int main( int argc, char **argv) {
     print_version(argv[0]);
 
     command_usage("Convert mesh between different formats");
@@ -68,7 +67,7 @@ int main( int argc, char **argv)
     }
 
     Mesh M;
-    M.load(input_filename,false);
+    M.load_mesh(input_filename);
 
     for( int i = 0; i < M.nbPts(); ++i )
     {
