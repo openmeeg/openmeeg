@@ -48,6 +48,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <cmath>
 #include <iostream>
 #include <cassert>
+#include <vector>
 
 #include "DLLDefinesOpenMEEG.h"
 
@@ -162,6 +163,9 @@ namespace OpenMEEG {
     inline std::ostream& operator<<(std::ostream& os, const Vect3& v) {
         return os << v.x() << ' ' << v.y() << ' ' << v.z() ;
     }
+
+    typedef Vect3                Normal;
+    typedef std::vector<Normal>  Normals;
 }
 
 #endif  //! OPENMEEG_VECT3_H

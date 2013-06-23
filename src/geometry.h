@@ -49,26 +49,9 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include "interface.h"
 #include "domain.h"
 
-// for IO:s
-#include <iostream>
-#include <fstream>
 #include <vector>
 #include <new>
 #include <string>
-#ifdef USE_VTK
-#include <vtkPolyData.h>
-#include <vtkPoints.h>
-#include <vtkPolyDataReader.h>
-#include <vtkXMLPolyDataReader.h>
-#include <vtkDataReader.h>
-#include <vtkCellArray.h>
-#include <vtkCharArray.h>
-#include <vtkProperty.h>
-#include <vtkPolyDataNormals.h>
-#include <vtkPointData.h>
-#include <vtkDataArray.h>
-#include <vtkCleanPolyData.h>
-#endif
 
 namespace OpenMEEG {
 
@@ -82,10 +65,6 @@ namespace OpenMEEG {
     class OPENMEEG_EXPORT Geometry {
 
     public:
-
-        // Geometry types
-        typedef Vect3                     Normal;
-        typedef std::vector<Normal>       Normals;
 
         // Default iterator of a Geometry is an Iterator on the meshes
         typedef Meshes::iterator          iterator;
@@ -110,13 +89,14 @@ namespace OpenMEEG {
         Interfaces::const_iterator interface_end()   const { return interfaces().end();  }
 
         // Constructors
-        Geometry(): _vertices(), _has_cond(false)   { }
+        Geometry(): _has_cond(false)   { }
         ~Geometry()                                 { destroy(); }
 
               bool&         has_cond()                    { return _has_cond; }
         const bool&         has_cond()              const { return _has_cond; }
               Vertices&     vertices()                    { return _vertices; }
         const Vertices&     vertices()              const { return _vertices; }
+        const size_t        nb_vertices()           const { return _vertices.size(); }
               Normals&      normals()                     { return _normals; }
         const Normals&      normals()               const { return _normals; }
               Meshes&       meshes()                      { return _meshes; }
@@ -130,6 +110,8 @@ namespace OpenMEEG {
         const size_t        nb_domains()            const { return _domains.size(); }
         
         void          read       (const char* geomFileName, const char* condFileName = NULL);
+        void          info       ()                         const;
+
         inline double sigma      (const Domain d)                 const { return (d.sigma()); }
         inline double sigma      (const Mesh& m1, const Mesh& m2) const { return funct_on_domains(m1, m2, '+');} // return the (sum) conductivity(ies) of the shared domain(s).
         inline double sigma_diff (const Mesh& m1, const Mesh& m2) const { return funct_on_domains(m1, m2, '-');} // return the (difference) of conductivity(ies) of the shared domain(s).
@@ -141,59 +123,6 @@ namespace OpenMEEG {
 
         const Domain  get_domain(const Vect3&) const;
         double oriented(const Mesh&, const Mesh&) const;
-
-        // for IO:s
-        void load_mesh(const char* filename, Mesh &, const bool &verbose = true);
-        void load_tri_file(std::istream &, Mesh &);
-        void load_tri_file(const char*, Mesh &);
-        void load_bnd_file(std::istream &, Mesh &);
-        void load_bnd_file(const char*, Mesh &);
-        void load_off_file(std::istream &, Mesh &);
-        void load_off_file(const char*, Mesh &);
-        void load_mesh_file(std::istream &, Mesh &);
-        void load_mesh_file(const char*, Mesh &);
-        #ifdef USE_VTK
-        void load_vtp_file(std::istream &);
-        void load_vtp_file(const char*);
-        void load_vtk_file(std::istream &, Mesh &);
-        void load_vtk_file(const char*, Mesh &);
-        void get_data_from_vtk_reader(vtkPolyDataReader* vtkMesh, Mesh &);
-        #else
-        template <typename T>
-        void load_vtp_file(T) {
-            std::cerr << "You have to compile OpenMEEG with VTK to read VTK/VTP files" << std::endl;
-            exit(1);
-        }
-        template <typename T>
-        void load_vtk_file(T, Mesh &) {
-            std::cerr << "You have to compile OpenMEEG with VTK to read VTK/VTP files" << std::endl;
-            exit(1);
-        }
-        #endif
-        #ifdef USE_GIFTI
-        void load_gifti_file(std::istream &, Mesh &);
-        void load_gifti_file(const char*, Mesh &);
-        void save_gifti_file(const char*, const Mesh &);
-        gifti_image* to_gifti_image();
-        void from_gifti_image(gifti_image* gim);
-        #else
-        template <typename T>
-        void load_gifti_file(T, Mesh &) {
-            std::cerr << "You have to compile OpenMEEG with GIFTI to read GIFTI files" << std::endl;
-            exit(1);
-        }
-        template <typename T>
-        void save_gifti_file(T, Mesh &, const Mesh &) {
-            std::cerr << "You have to compile OpenMEEG with GIFTI to save GIFTI files" << std::endl;
-            exit(1);
-        }
-        #endif
-        void save_vtk_file(const char*, const Mesh &)  const;
-        void save_bnd_file(const char*, const Mesh &)  const;
-        void save_tri_file(const char*, const Mesh &)  const;
-        void save_off_file(const char*, const Mesh &)  const;
-        void save_mesh_file(const char*, const Mesh &) const;
-        void save_mesh(const char*, const Mesh&) const ;
 
     private:
 

@@ -88,7 +88,6 @@ namespace OpenMEEG {
         return is;
     } 
 
-    const std::string Interface::keyword[] = "";
     typedef std::vector<Interface> Interfaces;
 }
 

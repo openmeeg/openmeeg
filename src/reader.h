@@ -143,7 +143,7 @@ namespace OpenMEEG {
             >> io_utils::match("Interfaces") >> num_interfaces >> InterfaceType;
 
         if ((InterfaceType == "Mesh")|(InterfaceType == "NamedMesh")|(InterfaceType == "NamedInterface")|(InterfaceType == "Interface")) {
-            std::string Interface::keyword = InterfaceType;
+            // std::string Interface::keyword = InterfaceType;
         } else {
             throw MeshDescription::WrongFileFormat(geometry);
         }
@@ -153,7 +153,7 @@ namespace OpenMEEG {
 
         interfaces().resize(num_interfaces);
         if (!meshfile) {
-            meshes().resize(num_interfaces);
+            meshes().reserve(num_interfaces);
             size_t i=0;
             for (Interfaces::iterator iit = interface_begin(); iit != interface_end(); iit++, i++ ) {
                 iit->push_back(&(meshes()[i]));
@@ -162,17 +162,18 @@ namespace OpenMEEG {
 
         //  load the interfaces
         for (size_t i = 0; i < interfaces().size(); ++i) {
-            if (Interface::keyword == "Mesh") {
+            if (true || Interface::keyword == "Mesh") {
+                if (i == 0 )
+                    meshes().reserve(num_interfaces);
                 std::string filename;
                 ifs >> io_utils::skip_comments("#") >> io_utils::filename(filename, '"', false);
-                std::stringstream ss;
-                ss << i+1;
-                interfaces()[i].name() = ss.str();
-                meshes()[i].name()     = ss.str();
-                // meshes()[i].all_vertices() = &this->vertices();
+                std::stringstream defaultname;
+                defaultname << i+1;
+                interfaces()[i].name() = defaultname.str();
+                meshes().push_back(Mesh(vertices(), normals(), defaultname.str()));
                 // Load the mesh
                 const std::string full_name = (is_relative_path(filename))?path+filename:filename;
-                load_mesh(full_name.c_str(), meshes()[i]);
+                meshes()[i].load_mesh(full_name.c_str());
             } else if (Interface::keyword == "NamedMesh") { // TODO
                 std::string meshname;
                 std::string filename;
@@ -188,12 +189,12 @@ namespace OpenMEEG {
                 // meshes()[i].all_vertices() = &(vertices()[0]);  // TODO only all_vertices(&vertices()) works not = !
                 // Load the mesh
                 const std::string full_name = (is_relative_path(filename))?path+filename:filename;
-                load_mesh(full_name.c_str(), meshes()[i]);
+                meshes()[i].load_mesh(full_name.c_str());
             } else if (Interface::keyword == "Interface") {
                 // interfaces()[i].meshes(meshes);
-                std::stringstream ss;
-                ss << i+1;
-                interfaces()[i].name() = ss.str();
+                std::stringstream defaultname;
+                defaultname << i+1;
+                interfaces()[i].name() = defaultname.str();
                 std::string line;
                 std::getline(ifs, line);
                 std::istringstream iss(line);

@@ -123,7 +123,7 @@ int main(int argc, char** argv)
 
         // Loading mesh for distributed sources
         Mesh mesh_sources;
-        geo.load_mesh(argv[4], mesh_sources);
+        mesh_sources.load_mesh(argv[4]);
 
         // Assembling Matrix from discretization :
         SurfSourceMat ssm(geo, mesh_sources, gauss_order);
@@ -329,7 +329,7 @@ int main(int argc, char** argv)
         // Loading mesh for distributed sources :
         Geometry geo;
         Mesh mesh_sources;
-        geo.load_mesh(argv[2], mesh_sources);
+        mesh_sources.load_mesh(argv[2]);
         // Load positions and orientations of sensors  :
         Sensors sensors(argv[3]);
 

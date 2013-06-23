@@ -44,6 +44,8 @@ namespace OpenMEEG {
     /**
      * Computes the total solid angle of a surface for a point p and tells whether p is inside the mesh or not.
      **/
+    std::string Interface::keyword = "Mesh";
+
     bool Interface::contains_point(const Vect3& p) const {
 
         double solangle = 0.0;

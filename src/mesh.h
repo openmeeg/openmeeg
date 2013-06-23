@@ -40,10 +40,31 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #ifndef OPENMEEG_MESH_H
 #define OPENMEEG_MESH_H
 
+// for IO:s
+#include <iostream>
+#include <fstream>
+
 #include <vector>
 #include <set>
 #include <string>
 #include "triangle.h"
+#include <IOUtils.H>
+#include "om_utils.h"
+
+#ifdef USE_VTK
+#include <vtkPolyData.h>
+#include <vtkPoints.h>
+#include <vtkPolyDataReader.h>
+#include <vtkXMLPolyDataReader.h>
+#include <vtkDataReader.h>
+#include <vtkCellArray.h>
+#include <vtkCharArray.h>
+#include <vtkProperty.h>
+#include <vtkPolyDataNormals.h>
+#include <vtkPointData.h>
+#include <vtkDataArray.h>
+#include <vtkCleanPolyData.h>
+#endif
 
 namespace OpenMEEG {
 
@@ -57,16 +78,20 @@ namespace OpenMEEG {
 
     public:
         
+        typedef Triangles                                   base;
         typedef std::set<Vertex *, std::less<Vertex *> >    SetPVertex;
         typedef std::vector<Vertex *>                       VectPVertex;
         typedef VectPVertex::iterator                       vertex_iterator;
         typedef VectPVertex::const_iterator                 const_vertex_iterator;
 
-        Mesh(): _name(""), _all_vertices(NULL), _outermost(false) {};
+        Mesh(): base(), _name(""), _all_vertices(NULL), _outermost(false) {};
 
-        Mesh(Vertices *all_vertices, const std::string name = ""): _all_vertices(all_vertices), _name(name), _outermost(false) { }
+        Mesh(Vertices &all_vertices, Normals &all_normals, const std::string name = ""): _all_vertices(&all_vertices), _all_normals(&all_normals), _name(name), _outermost(false) { }
+        Mesh(Vertices &all_vertices, const std::string name = ""): _all_vertices(&all_vertices), _name(name), _outermost(false) { }
 
         Mesh(std::string name): _name(name), _all_vertices(NULL), _outermost(false) { }
+
+        void recompute_normals();
 
         // Iterators on vertices
               vertex_iterator      vertex_begin()                { return vertices().begin(); }
@@ -80,14 +105,19 @@ namespace OpenMEEG {
         std::string                name()          const         { return _name; }
         std::string &              name()                        { return _name; }
 
+        void                       add_vertex(const Vertex &v)   { _all_vertices->push_back(v); _vertices.push_back(&*_all_vertices->end());}
+        void                       add_normal(const Normal &n)   { _all_normals->push_back(n);}
+
         VectPVertex                vertices()      const         { return _vertices; }
         VectPVertex &              vertices()                    { return _vertices; }
 
         const size_t               nb_vertices()   const         { return _vertices.size(); }
         const size_t               nb_triangles()  const         { return this->size(); }
 
-          Vertices *               all_vertices()  const         { return _all_vertices; }
-          Vertices *               all_vertices()                { return _all_vertices; }
+          Normals                all_normals()  const         { return *_all_normals; }
+          Normals                all_normals()                { return *_all_normals; }
+          Vertices                 all_vertices()  const         { return *_all_vertices; }
+          Vertices                 all_vertices()                { return *_all_vertices; }
 
         // mesh state
         void info() const ;
@@ -106,16 +136,73 @@ namespace OpenMEEG {
             }
         }
 
+        friend std::istream& operator>>(std::istream &is, Mesh &m);
+
         //  Returns True if it is an outermost mesh.
               bool&        outermost()       { return _outermost; }
         const bool&        outermost() const { return _outermost; }
 
+        // for IO:s
+        void load_mesh(const char* filename, const bool &verbose = true);
+        void load_tri_file(std::istream &);
+        void load_tri_file(const char*);
+        void load_bnd_file(std::istream &);
+        void load_bnd_file(const char*);
+        void load_off_file(std::istream &);
+        void load_off_file(const char*);
+        void load_mesh_file(std::istream &);
+        void load_mesh_file(const char*);
+        #ifdef USE_VTK
+        void load_vtp_file(std::istream &);
+        void load_vtp_file(const char*);
+        void load_vtk_file(std::istream &);
+        void load_vtk_file(const char*);
+        void get_data_from_vtk_reader(vtkPolyDataReader* vtkMesh);
+        #else
+        template <typename T>
+        void load_vtp_file(T) {
+            std::cerr << "You have to compile OpenMEEG with VTK to read VTK/VTP files" << std::endl;
+            exit(1);
+        }
+        template <typename T>
+        void load_vtk_file(T) {
+            std::cerr << "You have to compile OpenMEEG with VTK to read VTK/VTP files" << std::endl;
+            exit(1);
+        }
+        #endif
+        #ifdef USE_GIFTI
+        void load_gifti_file(std::istream &);
+        void load_gifti_file(const char*);
+        void save_gifti_file(const char*);
+        gifti_image* to_gifti_image();
+        void from_gifti_image(gifti_image* gim);
+        #else
+        template <typename T>
+        void load_gifti_file(T) {
+            std::cerr << "You have to compile OpenMEEG with GIFTI to read GIFTI files" << std::endl;
+            exit(1);
+        }
+        template <typename T>
+        void save_gifti_file(T) {
+            std::cerr << "You have to compile OpenMEEG with GIFTI to save GIFTI files" << std::endl;
+            exit(1);
+        }
+        #endif
+        void save_vtk_file(const char*)  const;
+        void save_bnd_file(const char*)  const;
+        void save_tri_file(const char*)  const;
+        void save_off_file(const char*)  const;
+        void save_mesh_file(const char*) const;
+        void save_mesh(const char*) const ;
+
+        void destroy() {}; // TODO
     private:
         
         std::string                 _name;
         std::vector<SetTriangle>    _links;
         Vertices *                  _all_vertices;
         VectPVertex                 _vertices;
+        Normals *                _all_normals;
         bool                        _outermost;
 
     };

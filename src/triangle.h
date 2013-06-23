@@ -136,13 +136,19 @@ namespace OpenMEEG {
         const size_t&        index()                     const { return _index; }
 
         bool contains(const Vertex& p) const {
-            for (Triangle::const_iterator vit = this->begin(); vit != this->end(); vit++) {
-                if (vit->vertex() == p) {
+            for (size_t i = 0; i < 3; i++) {
+                if (&vertex(i) == &p) {
                     return true;
                 }
             }
+            // for (Triangle::const_iterator vit = this->begin(); vit != this->end(); vit++) {
+            //     if (vit->vertex() == p) {
+            //         return true;
+            //     }
+            // }
             return false;
         }
+
         inline bool operator==(const Triangle& T) const;
 
     private:
@@ -169,6 +175,11 @@ namespace OpenMEEG {
             }
         }
         return false;
+    }
+
+    inline std::ostream& operator>>(std::ostream &os, const Triangle &t)
+    {
+        return os << 1 << 2 << 3 ; // TODO what ???
     }
 
     inline std::ostream& operator<<(std::ostream &os, const Triangle &t)

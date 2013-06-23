@@ -76,7 +76,7 @@ namespace OpenMEEG {
 
     public:
 
-        Domain(): _name(""), _conductivity(0.), _innermost(false) { }
+        Domain(): _name(""), _conductivity(0.), _innermost(false), _outermost(false) { }
 
         //  The interfaces of the domain.
         // const std::vector<Interface *> interfaces() const  {
@@ -99,6 +99,11 @@ namespace OpenMEEG {
         //  Returns the innermost state of the domain.
               bool&        innermost()       { return _innermost; }
         const bool&        innermost() const { return _innermost; }
+        //  Returns the outermost state of the domain.
+              bool&        outermost()       { return _outermost; }
+        const bool&        outermost() const { return _outermost; }
+
+        void info() const;
 
         bool contains_point(const Vect3&) const;
 
@@ -114,7 +119,7 @@ namespace OpenMEEG {
             return 0;
         }
 
-        inline bool operator==(const Domain& d) const;
+        bool operator==(const Domain& d) const;
 
         // friend bool operator==(const Domain &d) const {return true;}
 
@@ -122,7 +127,7 @@ namespace OpenMEEG {
 
         std::string _name;         // Name of the domain.
         double      _conductivity; // Conductivity of the domain.
-        bool        _innermost;    // Innermost domain ?
+        bool        _innermost, _outermost;    // Innermost domain ?
     };
 
     typedef std::vector<Domain >     Domains;

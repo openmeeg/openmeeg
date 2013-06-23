@@ -49,12 +49,26 @@ namespace OpenMEEG {
         return inside;
     }
 
-    inline bool Domain::operator==(const Domain& d) const {
+    bool Domain::operator==(const Domain& d) const {
         // for (Domain::const_iterator dit1 = d1.begin(), dit2 = d2.begin(); dit1 != d1.end(); ++dit1, ++dit2) { TODO
             // if (&dit1->interface() != &dit2->interface()) {
                 // return false;
             // }
         // }
         return true;
+    }
+
+    void Domain::info() const {
+
+        std::cout << "Domain Info : "     << std::endl;
+        std::cout << "\tName     : "  << name() << std::endl;
+        std::cout << "\tConductivity : "    << sigma() << std::endl;
+        if (innermost()) {
+            std::cout << "\tConsidered as the innermost domain." << std::endl;
+        }
+        if (outermost()) {
+            std::cout << "\tConsidered as the outermost domain." << std::endl;
+        }
+
     }
 }
