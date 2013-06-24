@@ -68,4 +68,11 @@ namespace OpenMEEG {
             exit(1);
         }
     }
+    
+    void  Interface::set_to_outermost() {
+        for (PMeshes::iterator mit = meshes().begin(); mit != meshes().end(); mit++) {
+            (*mit)->outermost() = true;
+        }
+        _outermost = true;
+    }
 }

@@ -112,10 +112,10 @@ namespace OpenMEEG {
                           << geometry << std::endl;
             } else if (version[1] == 1) {
                 // Read the mesh section of the description file.
-                // Try to load the meshfile ((VTK) vtp file)
+                // Try to load the meshfile (VTK::vtp file)
                 bool meshfile;
                 ifs >> io_utils::skip_comments("#") >> io_utils::match_optional("MeshFile", meshfile);
-                if ( meshfile ) { 
+                if ( meshfile ) {
                     std::string name;
                     ifs >> io_utils::skip_comments("#") >> io_utils::filename(name, '"', false);
                     //  Load the mesh and check that it is compatible with the first one.
@@ -125,7 +125,7 @@ namespace OpenMEEG {
                         throw MeshDescription::OpenError(full_name);
                     }
                     // load_vtp_file(ifs);
-        }
+                }
             } else {
                 std::cerr << "Domain Description version not available !" << std::endl;
                 throw MeshDescription::WrongFileFormat(geometry);
@@ -143,7 +143,7 @@ namespace OpenMEEG {
             >> io_utils::match("Interfaces") >> num_interfaces >> InterfaceType;
 
         if ((InterfaceType == "Mesh")|(InterfaceType == "NamedMesh")|(InterfaceType == "NamedInterface")|(InterfaceType == "Interface")) {
-            // std::string Interface::keyword = InterfaceType;
+            // std::string Interface::keyword = InterfaceType; TODO
         } else {
             throw MeshDescription::WrongFileFormat(geometry);
         }
@@ -151,26 +151,20 @@ namespace OpenMEEG {
             throw MeshDescription::WrongFileFormat(geometry);
         }
 
-        interfaces().resize(num_interfaces);
-        if (!meshfile) {
-            meshes().reserve(num_interfaces);
-            size_t i=0;
-            for (Interfaces::iterator iit = interface_begin(); iit != interface_end(); iit++, i++ ) {
-                iit->push_back(&(meshes()[i]));
-            }
-        }
-
         //  load the interfaces
-        for (size_t i = 0; i < interfaces().size(); ++i) {
-            if (true || Interface::keyword == "Mesh") {
-                if (i == 0 )
-                    meshes().reserve(num_interfaces);
+        interfaces().resize(num_interfaces);
+        size_t i = 0;
+        for (Interfaces::iterator iit = interface_begin(); iit != interface_end(); iit++, i++ ) {
+            if ( Interface::keyword == "Mesh") {
+                meshes().reserve(num_interfaces);
                 std::string filename;
                 ifs >> io_utils::skip_comments("#") >> io_utils::filename(filename, '"', false);
                 std::stringstream defaultname;
                 defaultname << i+1;
-                interfaces()[i].name() = defaultname.str();
                 meshes().push_back(Mesh(vertices(), normals(), defaultname.str()));
+                iit->name() = defaultname.str();
+                iit->resize(1); // one mesh per interface
+                *(iit->begin()) = &(meshes()[i]); // mesh at this adress
                 // Load the mesh
                 const std::string full_name = (is_relative_path(filename))?path+filename:filename;
                 meshes()[i].load_mesh(full_name.c_str());
@@ -228,7 +222,6 @@ namespace OpenMEEG {
         for (Domains::iterator dit = domain_begin(); dit != domain_end(); ++dit) {
 
             std::string line;
-
             ifs >> io_utils::skip_comments('#') >> io_utils::match("Domain") >> dit->name();
 
             getline(ifs, line);
@@ -236,11 +229,11 @@ namespace OpenMEEG {
             std::string id; // id = oriented interface name (starting with '-' if denotes inside )
             while (iss >> id) {
                 bool found = false;
-                for (Interfaces::const_iterator iit = interfaces().begin(); iit != interfaces().end() ; iit++) {
+                for (Interfaces::const_iterator iit = interface_begin(); iit != interface_end() ; iit++) {
                     bool inside = (id[0] == '-'); // does the id starts with a '-' ?
                     if (iit->name() == (inside?id.substr(1, id.npos):id)) {
                         found = true;
-                        dit->push_back(HalfSpace(&*iit, inside));
+                        dit->push_back(HalfSpace(*iit, inside));
                     }
                 }
                 if (!found) {
@@ -251,48 +244,38 @@ namespace OpenMEEG {
             iss >> line;
         }
 
-        // Search and place the Air domain as the last domain in the vector // TODO look for the outermost instead of "Air"
-        Domains::iterator dit;
-        for (dit = domain_begin(); dit != domain_end(); ++dit) {
-            if (dit->name() == "Air" ) {
-                break;
-            }
-        }
-        std::swap(*dit, domains()[domains().size()-1]);
-        for (Domains::const_iterator hit = domain_end(); hit != domain_end(); ++hit) {
-            if (domain_end()->size() == 1) {
-                for (Domain::const_iterator mit = hit->begin(); mit != hit->end(); mit++ ) {
-                    mit->interface()[0]->outermost() = true;
-                }
-            }
-            else {
-                throw MeshDescription::NonExistingDomain(dit->name(), 0); //TODO throw or treat, Air domain is defined by several interfaces
-            }
+        // Search for the innermost (resp. outermost) domain and set a boolean on the domain in the vector domains.
+        // An innermost (resp. outermost) domain is (here) defined as the only domain (inside/outside) represented by only one interface.
+        // Specials domain names can enforce which domain is innermost ("Innermost") or outermost: ("Outermost", "Air")
+        // TODO: this will probably not find the correct innermost domain in some cases of non nested geometry ...
 
-        }
-
-
-        // Search for an innermost domain and place it as the first domain in the vector
-        // An innermost domain is (here) defined as the only domain represented by only one interface
-        bool only_one = false;
-    /*    for (Domains::iterator dit2 = domain_begin(); dit2 != domain_end(); ++dit2) { // TODO
-            if ( (dit2->size() == 1) && dit2->inside() ) {
-                if (only_one) {
-                    only_one = false;
-                    break;
-                }
-                else {
-                    dit = dit2;
-                    only_one = true;
-                }
+        Domains::iterator dit_in, dit_out;
+        bool inner = false;
+        bool outer = false;
+        for (Domains::iterator dit = domain_begin(); dit != domain_end(); ++dit) {
+            if ((dit->name() == "Innermost" ) || ((dit->size() == 1) && ((dit->begin()->inside()) && (!inner) ))) {
+                inner = true;
+                dit_in = dit;
+            } 
+            if ((dit->name() == "Air" ) || (dit->name() == "Outermost" ) || ((dit->size() == 1) && (!dit->begin()->inside()) && (!outer))) {
+                outer = true;
+                dit_out = dit;
             }
         }
-        if (only_one) {
-            dit->innermost() = true;
-            std::cout << "Innermost domain \"" << dit->name() << "\" found." << std::endl;
-            std::swap(*dit, domains()[0]);
+
+        if (inner) {
+            dit_in->innermost() = true;
         }
-*/
+
+        if (outer) {
+            dit_out->outermost() = true;
+            for (Domain::iterator hit = dit_out->begin(); hit != dit_out->end(); ++hit) {
+                hit->interface().set_to_outermost();
+            }
+        }
+
+        // throw MeshDescription::NonExistingDomain(dit->name(), 0); //TODO throw or treat, Air domain is defined by several interfaces
+
         if (ifs.fail()) {
             throw MeshDescription::WrongFileFormat(geometry);
         }
@@ -302,8 +285,6 @@ namespace OpenMEEG {
 
         geom_generate_indices();
     }
-
-
 }
 
 #endif  //! OPENMEEG_READER_H

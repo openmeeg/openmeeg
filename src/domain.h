@@ -61,9 +61,9 @@ namespace OpenMEEG {
 
     public:
 
-        HalfSpace(const Interface * interface, bool inside) { base(std::make_pair<const Interface *, bool>(interface, inside)); }
+        HalfSpace(const Interface &interface, bool inside) { base::first = &interface; base::second = inside; }
 
-        Interface interface() const { return (*base::first);  }
+        Interface interface() const { return *(base::first);  }
         bool      inside()    const { return (base::second); }
     };
 
@@ -131,38 +131,6 @@ namespace OpenMEEG {
     };
 
     typedef std::vector<Domain >     Domains;
-
-    /*
-        class OPENMEEG_EXPORT Domain {
-            // A domain contains information about its surrounding meshes (which must defines a closed-shape) and its conductivity sigma
-            public:
-                Domain(char * _name, Map_MeshOriented _map_mesh, double _conductivity = 0.)    {
-                    this->nam()          = _name;
-                    this->conductivity() = _conductivity;
-                    this->map_mesh       = _map_mesh;
-                }
-                const   double  sigma()         {return conductivity;}
-                        char *  name()          {return nam;}
-                        int     meshOrient(Mesh * m);
-
-                // bool operator< (Domain d) {return (strcmp(this-> name(), d.name()) < 0); }
-
-            private:
-                double           conductivity;
-                char *           nam;
-                Map_MeshOriented map_mesh;
-
-                int meshOrient(Mesh * m) { // return 1 if the mesh is oriented toward the domain
-                                                 // -1 if not
-                                                 //  0 else (the mesh is not part of the domain boundary)
-                    Map_MeshOriented::const_iterator mit = map_mesh.find(m);
-                    if (mit != map_mesh.end() ) {
-                        return (mit.second)?1:-1;
-                    }
-                    return 0;
-                }
-        };
-        */
 }
 
 #endif  //  ! OPENMEEG_DOMAIN_H

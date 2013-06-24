@@ -68,12 +68,17 @@ namespace OpenMEEG {
         PMeshes       meshes() const                   { return _meshes; }
         PMeshes     & meshes()                         { return _meshes; }
 
-        bool  contains_point(const Vect3&) const;
+        bool          outermost()      const           {return _outermost;}
 
-        static std::string keyword;     // keyword to be matched in the geometry file static ? TODO
+        bool          contains_point(const Vect3&) const;
+        void          set_to_outermost();
+
+        static std::string keyword; // keyword to be matched in the geometry file static ? TODO
+
     private:
-        std::string _name;       // might be "i0" by default
+        std::string _name;        // might be "i0" by default
         PMeshes     _meshes;
+        bool        _outermost; // tell weather or not the interface touches the Air (Outermost) domain.
     };
 
     inline std::istream& operator>> (std::istream &is, Interface &i) {

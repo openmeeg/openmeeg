@@ -177,16 +177,6 @@ namespace OpenMEEG {
         return false;
     }
 
-    inline std::ostream& operator>>(std::ostream &os, const Triangle &t)
-    {
-        return os << 1 << 2 << 3 ; // TODO what ???
-    }
-
-    inline std::ostream& operator<<(std::ostream &os, const Triangle &t)
-    {
-        return os << 1 << 2 << 3 ; // TODO what ???
-    }
-
     typedef std::vector<Triangle> Triangles;
     typedef std::set<Triangle>    SetTriangle;
 }

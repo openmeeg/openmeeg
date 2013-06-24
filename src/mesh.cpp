@@ -58,11 +58,11 @@ namespace OpenMEEG {
         size_t i = 0;
         for (const_vertex_iterator vit = vertex_begin(); vit != vertex_end(); vit++, i++) {
             Normal normal(0);
-            // for (SetTriangle::iterator tit = links[i].begin(); tit != links[i].end(); tit++) { TODO
-            //     normal += tit->normal().normalize();
+            // for (SetTriangle::iterator tit = links[i].begin(); tit != links[i].end(); tit++) {
+                // normal += tit->normal().normalize();
             // }
             normal.normalize();
-            all_normals().push_back(normal);
+            // all_normals().push_back(normal);
         }
     }
 
@@ -105,15 +105,10 @@ namespace OpenMEEG {
     // }
 
     void Mesh::update() {
-        SetPVertex vset;
         for (Triangles::iterator tit = this->begin(); tit != this->end(); tit++) {
             tit->area()   = tit->normal().norm() / 2.0;
-            vset.insert(&tit->s1().vertex());
-            vset.insert(&tit->s2().vertex());
-            vset.insert(&tit->s3().vertex());
         }
-        // vertices().insert(vertex_begin(), vset.begin(), vset.end()); // copy the set of mesh vertices into a vector
-        vset.clear();
+        std::cout << (*this)[0].area() << std::endl;
         links().resize(vertices().size());
         size_t i = 0;
         for (const_vertex_iterator vit = vertex_begin(); vit != vertex_end(); vit++, i++) {
@@ -673,8 +668,10 @@ namespace OpenMEEG {
             os << all_vertices()[i] << std::endl;
         }
         os << "POLYGONS " << nb_triangles() << " " << nb_triangles()*4 << std::endl;
-        for(int i = 0; i < nb_triangles(); i++)
-            os << 3 << " " << (*this)[i] << std::endl;
+        for(int i = 0; i < nb_triangles(); i++) {
+            // os << 3 << " " << (*this)[i] << std::endl; // TODO
+            os << 3 << std::endl; // TODO
+        }
 
         os << "CELL_DATA " << nb_triangles() << std::endl;
         os << "POINT_DATA " << nb_vertices() << std::endl;
@@ -699,8 +696,10 @@ namespace OpenMEEG {
         os << "NumberPolygons= " << nb_triangles() << std::endl;
         os << "TypePolygons=\t3" << std::endl;
         os << "Polygons" << std::endl;
-        for(int i=0; i<nb_triangles(); i++)
-            os << (*this)[i] << std::endl;
+        for(int i=0; i<nb_triangles(); i++) {
+            // os << "3 " << (*this)[i] << std::endl; TODO
+            os << 3 << std::endl; // TODO
+        }
 
         os.close();
     }
@@ -714,8 +713,10 @@ namespace OpenMEEG {
             os << all_normals()[i] << std::endl;
         }
         os << "- " << nb_triangles() << " " << nb_triangles() << " " << nb_triangles() << std::endl;
-        for(int i=0; i<nb_triangles(); i++)
-            os << (*this)[i] << std::endl;
+        for(int i=0; i<nb_triangles(); i++) {
+            // os << "3 " << (*this)[i] << std::endl; TODO
+            os << 3 << std::endl; // TODO
+        }
 
         os.close();
     }
@@ -725,11 +726,14 @@ namespace OpenMEEG {
         std::ofstream os(filename);
         os << "OFF" << std::endl;
         os << nb_vertices() << " " << nb_triangles() << " 0" << std::endl;
-        for(int i=0; i<nb_vertices(); i++)
+        for(int i=0; i<nb_vertices(); i++) {
             os << all_vertices()[i] << std::endl;
+        }
 
-        for(int i=0; i<nb_triangles(); i++)
-            os << "3 " << (*this)[i] << std::endl;
+        for(int i=0; i<nb_triangles(); i++) {
+            // os << "3 " << (*this)[i] << std::endl; TODO
+            os << 3 << std::endl; // TODO
+        }
 
         os.close();
     }

@@ -63,6 +63,14 @@ namespace OpenMEEG {
         std::cout << "Domain Info : "     << std::endl;
         std::cout << "\tName     : "  << name() << std::endl;
         std::cout << "\tConductivity : "    << sigma() << std::endl;
+        std::cout << "\tComposed by interfaces : ";
+        for (base::const_iterator hit = this->begin(); hit != this->end(); hit++) {
+            if (!hit->inside()) {
+                std::cout << "-";
+            }
+            std::cout << hit->interface().name() << " ";
+        }
+        std::cout << std::endl;
         if (innermost()) {
             std::cout << "\tConsidered as the innermost domain." << std::endl;
         }

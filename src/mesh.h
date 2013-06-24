@@ -202,7 +202,7 @@ namespace OpenMEEG {
         std::vector<SetTriangle>    _links;
         Vertices *                  _all_vertices;
         VectPVertex                 _vertices;
-        Normals *                _all_normals;
+        Normals *                   _all_normals;
         bool                        _outermost;
 
     };
