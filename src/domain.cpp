@@ -41,6 +41,22 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 namespace OpenMEEG {
 
+    Domain::Domain(const Domain& d) { *this = d; }
+
+    Domain& Domain::operator= (const Domain& d) {
+        if (this != &d) {
+            copy(d);
+        }
+        return *this;
+    }
+
+    void Domain::copy(const Domain& d) {
+        base::operator=(d);
+        sigma_     = d.sigma_;
+        outermost_ = d.outermost_;
+        innermost_ = d.innermost_;
+    }
+
     bool Domain::contains_point(const Vect3& p) const {
         bool inside = true;
         for (Domain::const_iterator hit = this->begin(); hit != this->end(); hit++) {
@@ -58,6 +74,10 @@ namespace OpenMEEG {
         return true;
     }
 
+    void Domain::destroy() {
+        this->clear();
+    }
+
     void Domain::info() const {
 
         std::cout << "Domain Info : "     << std::endl;
@@ -65,8 +85,10 @@ namespace OpenMEEG {
         std::cout << "\tConductivity : "    << sigma() << std::endl;
         std::cout << "\tComposed by interfaces : ";
         for (base::const_iterator hit = this->begin(); hit != this->end(); hit++) {
-            if (!hit->inside()) {
+            if (hit->inside()) {
                 std::cout << "-";
+            } else {
+                std::cout << "+";
             }
             std::cout << hit->interface().name() << " ";
         }

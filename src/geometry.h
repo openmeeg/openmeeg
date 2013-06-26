@@ -89,28 +89,31 @@ namespace OpenMEEG {
         Interfaces::const_iterator interface_end()   const { return interfaces().end();  }
 
         // Constructors
-        Geometry(): _has_cond(false)   { }
+        Geometry(): has_cond_(false)   { }
         ~Geometry()                                 { destroy(); }
 
-              bool&         has_cond()                    { return _has_cond; }
-        const bool&         has_cond()              const { return _has_cond; }
-              Vertices&     vertices()                    { return _vertices; }
-        const Vertices&     vertices()              const { return _vertices; }
-        const size_t        nb_vertices()           const { return _vertices.size(); }
-              Normals&      normals()                     { return _normals; }
-        const Normals&      normals()               const { return _normals; }
-              Meshes&       meshes()                      { return _meshes; }
-        const Meshes&       meshes()                const { return _meshes; }
-              Interfaces&   interfaces()                  { return _interfaces; }
-        const Interfaces&   interfaces()            const { return _interfaces; }
-              Domains&      domains()                     { return _domains; }
-        const Domains&      domains()               const { return _domains; }
-              size_t&       size()                        { return _size; }
-        const size_t        size()                  const { return _size; }
-        const size_t        nb_domains()            const { return _domains.size(); }
+              bool&         has_cond()                    { return has_cond_; }
+        const bool&         has_cond()              const { return has_cond_; }
+              Vertices&     vertices()                    { return vertices_; }
+        const Vertices&     vertices()              const { return vertices_; }
+        const size_t        nb_vertices()           const { return vertices_.size(); }
+              Normals&      normals()                     { return normals_; }
+        const Normals&      normals()               const { return normals_; }
+              Meshes&       meshes()                      { return meshes_; }
+        const Meshes&       meshes()                const { return meshes_; }
+              Interfaces&   interfaces()                  { return interfaces_; }
+        const Interfaces&   interfaces()            const { return interfaces_; }
+              Domains&      domains()                     { return domains_; }
+        const Domains&      domains()               const { return domains_; }
+              size_t&       size()                        { return size_; }
+        const size_t        size()                  const { return size_; }
+        const size_t        nb_domains()            const { return domains_.size(); }
+        const size_t        nb_trianglesoutermost_() const;
         
         void          read       (const char* geomFileName, const char* condFileName = NULL);
-        void          info       ()                         const;
+        void          info       ()                      const;
+        const  Mesh&  mesh       (const std::string &id) const;
+               Mesh&  mesh       (const std::string &id)      ;
 
         inline double sigma      (const Domain d)                 const { return (d.sigma()); }
         inline double sigma      (const Mesh& m1, const Mesh& m2) const { return funct_on_domains(m1, m2, '+');} // return the (sum) conductivity(ies) of the shared domain(s).
@@ -127,13 +130,13 @@ namespace OpenMEEG {
     private:
 
         // Members
-        Vertices   _vertices;
-        Normals    _normals;
-        Meshes     _meshes;
-        Interfaces _interfaces;
-        Domains    _domains;
-        size_t     _size;   // total number = nb of vertices + nb of triangles
-        bool       _has_cond;
+        Vertices   vertices_;
+        Normals    normals_;
+        Meshes     meshes_;
+        Interfaces interfaces_;
+        Domains    domains_;
+        size_t     size_;   // total number = nb of vertices + nb of triangles
+        bool       has_cond_;
 
         void read_geom(const std::string&);
         void read_cond(const char*);

@@ -66,16 +66,14 @@ namespace OpenMEEG {
 
     // T can be a Matrix or SymMatrix
     template<class T>
-    void operatorN(const Mesh &m1, const Mesh &m2, T &mat, const int offsetI,
-                   const int offsetJ, const int, const int IopS=0, const int JopS=0);
+    void operatorN(const Mesh &m1, const Mesh &m2, T &mat, const int);
+
     template<class T>
-    void operatorS(const Mesh &m1, const Mesh &m2, T &mat, const int offsetI,
-                   const int offsetJ, const int);
+    void operatorS(const Mesh &m1, const Mesh &m2, T &mat, const int);
     template<class T>
-    void operatorD(const Mesh &m1, const Mesh &m2, T &mat, const int offsetI,
-                   const int offsetJ, const int);
+    void operatorD(const Mesh &m1, const Mesh &m2, T &mat, const int);
     template<class T>
-    void operatorP1P0(const Mesh &, T &mat, const int offsetI, const int offsetJ);
+    void operatorP1P0(const Mesh &, T &mat);
 
     void operatorSinternal(const Mesh &, Matrix &, const int, const int, const Matrix &);
     void operatorDinternal(const Mesh &, Matrix &, const int, const int, const Matrix &);
@@ -205,8 +203,7 @@ namespace OpenMEEG {
     }
 
     template<class T>
-    inline double _operatorN(const Vertex& V1, const Vertex& V2, const Mesh &m1, const Mesh &m2,
-                             const int gauss_order, const int IopS, const int JopS, const T &mat)
+    inline double _operatorN(const Vertex& V1, const Vertex& V2, const Mesh &m1, const Mesh &m2, const int gauss_order, const T &mat)
     {
         double Iqr, Aqr;
         double result = 0.0;
@@ -216,7 +213,7 @@ namespace OpenMEEG {
         for(SetTriangle::const_iterator tit1 = trgs1.begin(); tit1 != trgs1.end(); ++tit1)
             for(SetTriangle::const_iterator tit2 = trgs2.begin(); tit2 != trgs2.end(); ++tit2) {
                 // A1 , B1 , A2, B2 are the two opposite vertices to V1 and V2 (triangles A1, B1, V1 and A2, B2, V2)
-                if(IopS != 0 || JopS != 0) {
+                if (tit1->index() != -1 || tit2->index() != -1) {
                     Iqr = mat(tit1->index(), tit2->index());
                 } else {
                     Iqr = _operatorS(*tit1, *tit2, gauss_order);
@@ -260,8 +257,7 @@ namespace OpenMEEG {
     }
 
     template<class T>
-    void operatorN(const Mesh &m1, const Mesh &m2, T &mat, const int offsetI,
-                   const int offsetJ, const int gauss_order, const int IopS, const int JopS)
+    void operatorN(const Mesh &m1, const Mesh &m2, T &mat, const int gauss_order)
     {
         // This function has the following arguments:
         //    One geometry
@@ -272,12 +268,12 @@ namespace OpenMEEG {
 
         std::cout<<"OPERATOR N... (arg : mesh m1, mesh m2)"<<std::endl;
 
-        if(&m1==&m2) {
+        if ( &m1 == &m2 ) {
             for(Mesh::const_vertex_iterator vit1 = m1.vertex_begin(); vit1 != m1.vertex_end(); vit1++) {
                 // PROGRESSBAR(i-offsetI, m1.nbPts());
                 #pragma omp parallel for
                 for(Mesh::const_vertex_iterator vit2 = vit1; vit2 != m1.vertex_end(); vit2++) {
-                    mat((*vit1)->index(), (*vit2)->index()) = _operatorN(**vit1, **vit2, m1, m2, gauss_order, IopS, JopS, mat);
+                    mat((*vit1)->index(), (*vit2)->index()) = _operatorN(**vit1, **vit2, m1, m2, gauss_order, mat);
                 }
             }
         } else {
@@ -285,14 +281,14 @@ namespace OpenMEEG {
                 // PROGRESSBAR(i-offsetI, m1.nbPts());
                 #pragma omp parallel for
                 for(Mesh::const_vertex_iterator vit2 = m2.vertex_begin(); vit2 != m2.vertex_end(); vit2++) {
-                    mat((*vit1)->index(), (*vit2)->index()) = _operatorN(**vit1, **vit2, m1, m2, gauss_order, IopS, JopS, mat);
+                    mat((*vit1)->index(), (*vit2)->index()) = _operatorN(**vit1, **vit2, m1, m2, gauss_order, mat);
                 }
             }
         }
     }
 
     template<class T>
-    void operatorS(const Mesh& m1, const Mesh& m2, T& mat, const int offsetI, const int offsetJ, const int gauss_order)
+    void operatorS(const Mesh& m1, const Mesh& m2, T& mat, const int gauss_order)
     {
         // This function has the following arguments:
         //    One geometry
@@ -326,7 +322,7 @@ namespace OpenMEEG {
     #ifndef OPTIMIZED_OPERATOR_D
 
     template<class T>
-    void operatorD(const Mesh &m1, const Mesh &m2, T &mat, const int offsetI, const int offsetJ, const int gauss_order)
+    void operatorD(const Mesh &m1, const Mesh &m2, T &mat, const int gauss_order)
     {
     // This function (NON OPTIMIZED VERSION) has the following arguments:
     //    One geometry
@@ -348,7 +344,7 @@ namespace OpenMEEG {
     #else // OPTIMIZED_OPERATOR_D
 
     template<class T>
-    void operatorD(const Mesh &m1, const Mesh &m2, T &mat, const int offsetI, const int offsetJ, const int gauss_order)
+    void operatorD(const Mesh &m1, const Mesh &m2, T &mat, const int gauss_order)
     {
         // This function (OPTIMIZED VERSION) has the following arguments:
         //    One geometry
@@ -372,7 +368,7 @@ namespace OpenMEEG {
     #endif // OPTIMIZED_OPERATOR_D
 
     template<class T>
-    void operatorP1P0(const Mesh &m, T &mat, const int offsetI, const int offsetJ)
+    void operatorP1P0(const Mesh &m, T &mat)
     {
         // This time mat(i, j)+= ... the Matrix is incremented by the P1P0 operator
         std::cout << "OPERATOR P1P0..." << std::endl;

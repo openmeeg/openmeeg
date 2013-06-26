@@ -83,22 +83,22 @@ VTK based format::
 Interfaces 3 Mesh                               ||      |    MeshFile file.vtp                     ||      |                 
                                                 ||      |                                          ||      |    
 "skull.1.tri"                                   ||      |    Interfaces 3 NamedInterface           ||      |                   
-"cortex.1.tri"                                  ||      |       i0:                                ||      |                    
-"scalp.1.tri"                                   ||      |            m0                            ||      |                    
-                                                ||      |            m1                            ||      |            
-Domains 4                                       ||      |            ..                            ||      |    Interfaces 3 NamedInterface
-                                                ||      |       i1:                                ||      |       i0: skull.1.tri
-Domain Scalp 1 -3                               ||      |            m1                            ||      |       i1: cortex.1.tri
-Domain Brain -2                                 ||      |            m2                            ||      |       i2: scalp.1.tri
-Domain Air 3                                    ||      |            ..                            ||      |     
-                                                || GEOM |       i2:                                || GEOM |    Domains 4                          
-Domain Skull 2 -1                               ||      |            ..                            ||      |        Domain Scalp -i1
-                                                ||      |            ..                            ||      |        Domain Brain -i2
-                                                ||      |       ..:                                ||      |        Domain Air    i0 i1 -i2
-                                                ||      |    Domains 4                             ||      |                          Domain Air i2
-                                                ||      |        GrayMatter_Left:    -i0           ||      |        Domain Skull 2 -1 
-                                                ||      |        GrayMatter_Right:   -i1           ||      |    
-                                                ||      |        CSF:                 i0 i1 -i2    ||      |    
+"cortex.1.tri"                                  ||      |       i0:  m0 m1 m2 ..                   ||      |                    
+"scalp.1.tri"                                   ||      |       i1:  m1 m8 ..                      ||      |                    
+                                                ||      |       ..:  .. ..                         ||      |            
+Domains 4                                       ||      |    Domains 4                             ||      |    Interfaces 3 NamedMeshes   
+                                                ||      |        Domain GrayMatter_Left:  -i0           ||      |       i0: skull.1.tri
+Domain Scalp 1 -3                               ||      |        Domain GrayMatter_Right: -i1      ||      |       i1: cortex.1.tri
+Domain Brain -2                                 ||      |        Domain CSF:        i0 i1 -i2      ||      |       i2: scalp.1.tri
+Domain Air 3                                    ||      |        Domain Air:        i2             ||      |     
+                                                || GEOM |                                          || GEOM |    Domains 4                          
+Domain Skull 2 -1                               ||      |                                          ||      |        Domain Scalp -i1
+                                                ||      |                                          ||      |        Domain Brain -i2
+                                                ||      |                                          ||      |        Domain Air    i0 i1 -i2
+                                                ||      |                                          ||      |        
+                                                ||      |                                          ||      |        Domain Skull 2 -1 
+                                                ||      |                                          ||      |    
+                                                ||      |                                          ||      |    
                                                 ||      |                                          ||      |        
                                                 ||      \_                                         ||      \_     
 

@@ -44,14 +44,16 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <interface.h>
 #include <MeshDescription/Exceptions.H>
 #include <IOUtils.H>
+#include "PropertiesSpecialized.h"
 
 namespace OpenMEEG {
 
     bool Geometry::is_relative_path(const std::string& name) {
         #if WIN32
         const char c0 = name[0];
-        if (c0=='/' || c0=='\\')
+        if (c0=='/' || c0=='\\') {
             return false;
+        }
         const char c1 = name[1];
         const char c2 = name[2];
         return !(std::isalpha(c0) && c1==':' && (c2=='/' || c2=='\\'));
@@ -137,16 +139,11 @@ namespace OpenMEEG {
 
         // Process interfaces.
         unsigned num_interfaces;
-        std::string InterfaceType;
+        std::string interfaceType;
 
         ifs >> io_utils::skip_comments('#')
-            >> io_utils::match("Interfaces") >> num_interfaces >> InterfaceType;
+            >> io_utils::match("Interfaces") >> num_interfaces >> interfaceType;
 
-        if ((InterfaceType == "Mesh")|(InterfaceType == "NamedMesh")|(InterfaceType == "NamedInterface")|(InterfaceType == "Interface")) {
-            // std::string Interface::keyword = InterfaceType; TODO
-        } else {
-            throw MeshDescription::WrongFileFormat(geometry);
-        }
         if (ifs.fail()) {
             throw MeshDescription::WrongFileFormat(geometry);
         }
@@ -154,59 +151,53 @@ namespace OpenMEEG {
         //  load the interfaces
         interfaces().resize(num_interfaces);
         size_t i = 0;
+        std::string interfacename;
+        std::string id; // id of mesh/interface/domain
         for (Interfaces::iterator iit = interface_begin(); iit != interface_end(); iit++, i++ ) {
-            if ( Interface::keyword == "Mesh") {
-                meshes().reserve(num_interfaces);
+            if ( interfaceType == "Mesh"||"NamedMesh") {
                 std::string filename;
-                ifs >> io_utils::skip_comments("#") >> io_utils::filename(filename, '"', false);
-                std::stringstream defaultname;
-                defaultname << i+1;
-                meshes().push_back(Mesh(vertices(), normals(), defaultname.str()));
-                iit->name() = defaultname.str();
-                iit->resize(1); // one mesh per interface
-                *(iit->begin()) = &(meshes()[i]); // mesh at this adress
-                // Load the mesh
-                const std::string full_name = (is_relative_path(filename))?path+filename:filename;
-                meshes()[i].load_mesh(full_name.c_str());
-            } else if (Interface::keyword == "NamedMesh") { // TODO
-                std::string meshname;
-                std::string filename;
-                ifs >> io_utils::skip_comments("#") >> meshname >> io_utils::filename(filename, '"', false);
-                if (*meshname.end() == ':') {
-                    meshname = meshname.substr(0, meshname.npos-1);
+                if (interfaceType == "Mesh") {
+                    ifs >> io_utils::skip_comments("#") >> io_utils::filename(filename, '"', false);
+                    std::stringstream defaultname;
+                    defaultname << i+1;
+                    interfacename = defaultname.str();
                 } else {
-                    throw MeshDescription::WrongFileFormat(geometry);
+                    ifs >> io_utils::skip_comments("#") >> interfacename >> io_utils::filename(filename, '"', false);
+                    if (*interfacename.end() == ':') {
+                        interfacename = interfacename.substr(0, interfacename.npos-1);
+                    } else {
+                        throw MeshDescription::WrongFileFormat(geometry);
+                    }
                 }
-                interfaces()[i].name() = meshname;
-                meshes()[i].name()     = meshname;
-                // this->vertices().reserve(1);
-                // meshes()[i].all_vertices() = &(vertices()[0]);  // TODO only all_vertices(&vertices()) works not = !
+                Mesh m(vertices(), normals(), interfacename);
                 // Load the mesh
                 const std::string full_name = (is_relative_path(filename))?path+filename:filename;
-                meshes()[i].load_mesh(full_name.c_str());
-            } else if (Interface::keyword == "Interface") {
-                // interfaces()[i].meshes(meshes);
-                std::stringstream defaultname;
-                defaultname << i+1;
-                interfaces()[i].name() = defaultname.str();
-                std::string line;
+                m.load_mesh(full_name.c_str());
+                meshes().push_back(m);
+                iit->name() = interfacename;
+                iit->push_back(&(meshes()[i])); // one mesh per interface: mesh at this adress
+            } else if (interfaceType == "Interface"||"NamedInterface") {
+                std::string line; // extract a line and parse it
                 std::getline(ifs, line);
                 std::istringstream iss(line);
-                iss >> interfaces()[i];
-            } else { // then NamedInterface
-                // interfaces()[i].meshes()=meshes;
-                std::string line;
-                getline(ifs, line);
-                std::istringstream iss(line);
-                std::string i_name;
-                iss >> i_name;
-                if (*i_name.end() == ':') {
-                    i_name = i_name.substr(0, i_name.npos-1);
-                    interfaces()[i].name() = i_name;
+                if (interfaceType == "Interface") {
+                    std::stringstream defaultname;
+                    defaultname << i+1;
+                    interfacename = defaultname.str();
                 } else {
-                    throw MeshDescription::WrongFileFormat(geometry);
+                    iss >> interfacename;
+                    if (*interfacename.end() == ':') {
+                        interfacename = interfacename.substr(0, interfacename.npos-1);
+                    } else {
+                        throw MeshDescription::WrongFileFormat(geometry);
+                    }
                 }
-                iss >> interfaces()[i];
+                iit->name() = interfacename;
+                while (iss >> id) {
+                    iit->push_back(&mesh(id));
+                }
+            } else {
+                throw MeshDescription::WrongFileFormat(geometry);
             }
         }
 
@@ -220,16 +211,13 @@ namespace OpenMEEG {
 
         domains().resize(num_domains);
         for (Domains::iterator dit = domain_begin(); dit != domain_end(); ++dit) {
-
             std::string line;
             ifs >> io_utils::skip_comments('#') >> io_utils::match("Domain") >> dit->name();
-
             getline(ifs, line);
             std::istringstream iss(line);
-            std::string id; // id = oriented interface name (starting with '-' if denotes inside )
             while (iss >> id) {
                 bool found = false;
-                for (Interfaces::const_iterator iit = interface_begin(); iit != interface_end() ; iit++) {
+                for (Interfaces::iterator iit = interface_begin(); iit != interface_end() ; iit++) {
                     bool inside = (id[0] == '-'); // does the id starts with a '-' ?
                     if (iit->name() == (inside?id.substr(1, id.npos):id)) {
                         found = true;
@@ -240,41 +228,27 @@ namespace OpenMEEG {
                     throw MeshDescription::NonExistingDomain(dit->name(), 0); //TODO I don't want to give 0 index but name ! template Exceptions?
                 }
             }
-            iss.clear();
-            iss >> line;
         }
 
         // Search for the innermost (resp. outermost) domain and set a boolean on the domain in the vector domains.
         // An innermost (resp. outermost) domain is (here) defined as the only domain (inside/outside) represented by only one interface.
         // Specials domain names can enforce which domain is innermost ("Innermost") or outermost: ("Outermost", "Air")
-        // TODO: this will probably not find the correct innermost domain in some cases of non nested geometry ...
-
-        Domains::iterator dit_in, dit_out;
-        bool inner = false;
-        bool outer = false;
+        Domains::iterator dit_out;
+        bool outer;
         for (Domains::iterator dit = domain_begin(); dit != domain_end(); ++dit) {
-            if ((dit->name() == "Innermost" ) || ((dit->size() == 1) && ((dit->begin()->inside()) && (!inner) ))) {
-                inner = true;
-                dit_in = dit;
-            } 
-            if ((dit->name() == "Air" ) || (dit->name() == "Outermost" ) || ((dit->size() == 1) && (!dit->begin()->inside()) && (!outer))) {
-                outer = true;
+            outer = true;
+            for (Domain::iterator hit = dit->begin(); hit != dit->end(); ++hit) {
+                outer = outer && !(hit->inside());
                 dit_out = dit;
             }
-        }
-
-        if (inner) {
-            dit_in->innermost() = true;
-        }
-
-        if (outer) {
-            dit_out->outermost() = true;
-            for (Domain::iterator hit = dit_out->begin(); hit != dit_out->end(); ++hit) {
-                hit->interface().set_to_outermost();
+            if (outer) {
+                dit_out->outermost() = true;
+                for (Domain::iterator hit = dit_out->begin(); hit != dit_out->end(); ++hit) {
+                    NULL; //hit->interface().set_to_outermost();
+                }
+                break;
             }
         }
-
-        // throw MeshDescription::NonExistingDomain(dit->name(), 0); //TODO throw or treat, Air domain is defined by several interfaces
 
         if (ifs.fail()) {
             throw MeshDescription::WrongFileFormat(geometry);
@@ -282,8 +256,19 @@ namespace OpenMEEG {
 
         // Close the input file.
         ifs.close();
+    }
 
-        geom_generate_indices();
+    void Geometry::read_cond(const char* condFileName) {
+
+        typedef Utils::Properties::Named< std::string , Conductivity<double> > HeadProperties;
+        HeadProperties properties(condFileName);
+
+        // Store the internal conductivity of the external boundary of domain i
+        // and store the external conductivity of the internal boundary of domain i
+        for (Domains::iterator dit = this->domain_begin(); dit != domain_end(); dit++) {
+            const Conductivity<double>& cond = properties.find(dit->name());
+            dit->sigma() =  cond.sigma();
+        }
     }
 }
 

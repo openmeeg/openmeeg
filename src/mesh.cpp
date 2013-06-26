@@ -42,7 +42,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 namespace OpenMEEG {
 
-    // Mesh::Mesh(const Mesh& M) { *this = M; }
+    Mesh::Mesh(const Mesh& M) { *this = M; }
 
     std::istream& operator>>(std::istream &is, Mesh &m)
     {
@@ -66,49 +66,40 @@ namespace OpenMEEG {
         }
     }
 
+    Mesh& Mesh::operator= (const Mesh& M) {
+        if (this != &M) {
+            copy(M);
+        }
+        return *this;
+    }
 
-    // Mesh& Mesh::operator= (const Mesh& M) {
-        // if (this != &M)
-            // copy(M);
-        // return *this;
-    // }
+    // copy constructor
+    void Mesh::copy(const Mesh& M) {
+        name_         = M.name_;
+        all_vertices_ = M.all_vertices_;
+        all_normals_  = M.all_normals_;
+        links_        = M.links_;
+        vertices_     = M.vertices_;
+    }
 
-    // void Mesh::copy(const Mesh& M) {
-        // destroy();
-        // if (M.npts != 0) {
-            // _all_vertices = M.all_vertices();
-            // ntrgs   = M.ntrgs;
-            // pts     = new Vect3[npts];
-            // trgs    = new Triangle[ntrgs];
-            // links   = new intSet[npts];
-            // normals = new Vect3[npts];
-            // for (int i=0; i < npts; i++) {
-                // pts[i]     = M.pts[i];
-                // links[i]   = M.links[i];
-                // normals[i] = M.normals[i];
-            // }
-            // for (int i=0; i < ntrgs; i++)
-                // trgs[i] = M.trgs[i];
-        // }
-    // }
-
-    // void Mesh::destroy() {
-        // if (npts != 0) {
-            // delete [] pts;
-            // delete [] trgs;
-            // delete [] links;
-            // delete [] normals;
-
-            // npts = 0;
-            // ntrgs = 0;
-        // }
-    // }
+    void Mesh::destroy() {
+        links_.clear();
+        vertices_.clear();
+    }
 
     void Mesh::update() {
+        SetPVertex spv;
         for (Triangles::iterator tit = this->begin(); tit != this->end(); tit++) {
+            spv.insert(&tit->s1().vertex());
+            spv.insert(&tit->s2().vertex());
+            spv.insert(&tit->s3().vertex());
             tit->area()   = tit->normal().norm() / 2.0;
         }
-        std::cout << (*this)[0].area() << std::endl;
+
+        // for (SetPVertex::const_iterator sit = spv.begin(); sit != spv.end(); sit++) {
+            // vertices_.push_back(*sit);
+        // }
+
         links().resize(vertices().size());
         size_t i = 0;
         for (const_vertex_iterator vit = vertex_begin(); vit != vertex_end(); vit++, i++) {
@@ -429,11 +420,11 @@ namespace OpenMEEG {
             add_vertex(Vertex(pts_raw[i*3+0], pts_raw[i*3+1], pts_raw[i*3+2]));
             add_normal(Normal(normals_raw[i*3+0], normals_raw[i*3+1], normals_raw[i*3+2]));
         }
-        reserve(ntrgs);
+        // reserve(ntrgs);
         for(int i = 0; i < ntrgs; ++i) {
             push_back(Triangle(all_vertices()[faces_raw[i*3+0]+all_vertices().size()-npts], 
-                                 all_vertices()[faces_raw[i*3+1]+all_vertices().size()-npts],
-                                 all_vertices()[faces_raw[i*3+2]+all_vertices().size()-npts] ));
+                               all_vertices()[faces_raw[i*3+1]+all_vertices().size()-npts],
+                               all_vertices()[faces_raw[i*3+2]+all_vertices().size()-npts] ));
         }
         delete[] faces_raw;
         delete[] normals_raw;
@@ -455,7 +446,7 @@ namespace OpenMEEG {
 
     void Mesh::load_tri_file(std::istream &f) {
 
-        destroy();
+        // destroy();
 
         f.seekg( 0, std::ios_base::beg );
 
@@ -464,8 +455,9 @@ namespace OpenMEEG {
         f >> ch;
         f >> npts;
 
-        all_vertices().reserve(npts + all_vertices().size()); // vertices
-        all_normals().reserve(npts + all_normals().size()); // normals on each point
+
+        // reserve_vertices(npts); // vertices TODO
+        // reserve_normals(npts);  // normals on each point
         for (int i = 0; i < npts; i++) {
             Vertex v;
             Normal n;
@@ -474,7 +466,7 @@ namespace OpenMEEG {
             add_normal(n);
         }
         f >> ch >> ntrgs >> ntrgs >> ntrgs; // This number is repeated 3 times
-        reserve(ntrgs);
+
         for (int i = 0; i < ntrgs; i++) {
             f >> *this;
         }

@@ -58,38 +58,41 @@ namespace OpenMEEG {
 
     public:
 
-        typedef std::vector<Mesh *> PMeshes;
+        typedef std::vector<Mesh *> base;
 
         Interface()                                    { }
+        // copy constructor
+        Interface(const Interface& i);
+        Interface& operator=(const Interface& i);
 
-        const std::string   name() const               { return _name; }
-              std::string & name()                     { return _name; }
+        ~Interface() { destroy(); }
 
-        PMeshes       meshes() const                   { return _meshes; }
-        PMeshes     & meshes()                         { return _meshes; }
+        const std::string   name() const               { return name_; }
+              std::string & name()                     { return name_; }
 
-        bool          outermost()      const           {return _outermost;}
+        bool          outermost()      const           { return outermost_; }
 
         bool          contains_point(const Vect3&) const;
         void          set_to_outermost();
 
-        static std::string keyword; // keyword to be matched in the geometry file static ? TODO
-
     private:
-        std::string _name;        // might be "i0" by default
-        PMeshes     _meshes;
-        bool        _outermost; // tell weather or not the interface touches the Air (Outermost) domain.
+
+        void destroy();
+        void copy(const Interface& i);
+
+        std::string name_;      // might be "i0" by default
+        bool        outermost_; // tell weather or not the interface touches the Air (Outermost) domain.
     };
 
     inline std::istream& operator>> (std::istream &is, Interface &i) {
-            std::string a_mesh_name;
-            while (is >> a_mesh_name) {
-                    for (Interface::PMeshes::const_iterator mit = i.meshes().begin(); mit != i.meshes().end(); mit++) {
-                            if ((*mit)->name() == a_mesh_name) {
-                                    i.push_back(&(**mit));
-                            }
-                    }
+        std::string a_mesh_name;
+        while (is >> a_mesh_name) {
+            for (Interface::const_iterator mit = i.begin(); mit != i.end(); mit++) {
+                if ((*mit)->name() == a_mesh_name) {
+                    i.push_back(&(**mit));
+                }
             }
+        }
         return is;
     } 
 

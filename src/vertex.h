@@ -40,7 +40,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #ifndef OPENMEEG_VERTEX_H
 #define OPENMEEG_VERTEX_H
 
-#include <vector>
+#include <list>
 #include "vect3.h"
 
 namespace OpenMEEG {
@@ -55,7 +55,7 @@ namespace OpenMEEG {
 
     public:
 
-        inline Vertex() {};
+        inline Vertex(): _index(-1) {};
         
         inline Vertex(const double& x, const double& y, const double& z): Vect3(x, y, z), _index(-1) { }
 
@@ -67,10 +67,11 @@ namespace OpenMEEG {
         const size_t& index() const { return _index; }
 
     private:
+
         size_t _index;
     };
 
-    typedef std::vector<Vertex> Vertices;
+    typedef std::list<Vertex> Vertices;
 }
 
 #endif  //! OPENMEEG_VERTEX_H

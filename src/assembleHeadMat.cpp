@@ -62,7 +62,8 @@ namespace OpenMEEG {
     }
 
     void assemble_HM(const Geometry &geo, SymMatrix &mat, const int gauss_order) {
-        mat = SymMatrix(geo.size()- geo.end()->nb_triangles()); // TODO only work for the last mesh outermost
+
+        mat = SymMatrix(geo.size()- geo.nb_trianglesoutermost_());
         mat.set(0.0);
 
         int offset = 0;
@@ -70,8 +71,9 @@ namespace OpenMEEG {
         // We iterate over the meshes (or pair of domains)
         for (Geometry::const_iterator mit1 = geo.begin(); mit1 != geo.end(); mit1++) {
 
-            int offset0 = offset;
-            int offset1 = offset0  + mit1->nb_vertices();
+            size_t offset0 = offset;
+            size_t offset1 = offset0  + mit1->nb_vertices();
+            size_t offset2 = offset1  + mit1->nb_triangles();
 
             for (Geometry::const_iterator mit2 = mit1; mit2 != geo.end(); mit2++) {
 
@@ -79,19 +81,15 @@ namespace OpenMEEG {
                 const double orientation = geo.oriented(*mit1, *mit2); // equals  0, if they don't have any domains in common
 
                 if (std::abs(orientation) > 10.*std::numeric_limits<double>::epsilon() ) {
-                    if (offset1 < mat.ncol()) {
+                    if ( !mit1->outermost() && !mit2->outermost() ) {
                         // Computing S block first because it's needed for the corresponding N block
-                        operatorS(*mit1, *mit2, mat, offset1, offset1, gauss_order);
+                        operatorS(*mit1, *mit2, mat, gauss_order);
 
                         // Computing D block
-                        operatorD(*mit1, *mit2, mat, offset1, offset0, gauss_order);
+                        operatorD(*mit1, *mit2, mat, gauss_order);
                     }
-                    else {
-                        offset1=0;
-                    }
-
                     // Computing N block
-                    operatorN(*mit1, *mit2, mat, offset0, offset0, gauss_order, offset1, offset1);
+                    operatorN(*mit1, *mit2, mat, gauss_order);
                 }
 
             }

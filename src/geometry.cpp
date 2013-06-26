@@ -39,11 +39,37 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #include "geometry.h"
 #include "reader.h"
-#include "PropertiesSpecialized.h"
-#include <MeshDescription/Exceptions.H>
 
 
 namespace OpenMEEG {
+
+    const size_t Geometry::nb_trianglesoutermost_() const {
+        size_t nb_t = 0;
+        for (const_iterator mit = this->begin(); mit != this->end(); mit++) {
+            if (mit->outermost()) {
+                nb_t += mit->nb_triangles();
+            }
+        }
+        return nb_t;
+    }
+
+    const Mesh&  Geometry::mesh(const std::string &id) const {
+        for (Meshes::const_iterator mit = this->begin() ; mit != this->end(); mit++ ) {
+            if (id == mit->name()) {
+                return *mit;
+            }
+        }
+        std::cerr << "Error mesh id/name not found: " << id << std::endl;
+    }
+
+    Mesh&  Geometry::mesh(const std::string &id) {
+        for (Meshes::iterator mit = this->begin() ; mit != this->end(); mit++ ) {
+            if (id == mit->name()) {
+                return *mit;
+            }
+        }
+        std::cerr << "Error mesh id/name not found: " << id << std::endl;
+    }
 
     void Geometry::info() const {
         for (Domains::const_iterator dit = this->domain_begin(); dit != this->domain_end(); dit++) {
@@ -64,12 +90,31 @@ namespace OpenMEEG {
     void Geometry::read(const char* geomFileName, const char* condFileName) {
 
         destroy();
+
+        // vertices_.reserve(3000);
         has_cond() = false; // default parameter
 
         read_geom(geomFileName);
 
-        // updates ? TODO
+        // updates
         geom_generate_indices();
+
+        for (Vertices::const_iterator vit1 = this->vertex_begin(); vit1 != this->vertex_end(); vit1++) {
+            std::cout << "index1: " << vit1->index() << std::endl;
+        }
+
+        for (Geometry::const_iterator mit1 = this->begin(); mit1 != this->end(); mit1++) {
+            for(Mesh::const_iterator tit = mit1->begin(); tit != mit1->end(); tit++) {
+                std::cout << "indexTri: " << (tit)->index() << std::endl;
+            }
+            for(Vertices::const_iterator vit = mit1->all_vertices().begin(); vit != mit1->all_vertices().end(); vit++) {
+                std::cout << "index2: " << (vit)->index() << std::endl;
+            }
+            for(Mesh::const_vertex_iterator vit = mit1->vertex_begin(); vit != mit1->vertex_end(); vit++) {
+                std::cout << "index3: " << (*vit)->index() << std::endl;
+            }
+            std::cout << "\t\t\t\tDeuxieme" << std::endl;
+        }
 
         if(condFileName) {
             read_cond(condFileName);
@@ -86,34 +131,17 @@ namespace OpenMEEG {
         for ( Vertices::iterator pit = this->vertex_begin(); pit != this->vertex_end(); pit++, index++) {
             pit->index() = index;
         }
-        // for ( Triangles::iterator tit = this->triangle_begin(); tit != this->triangle_end(); tit++, index++) { // TODO better triangle iterator ?
+
         for (iterator mit = this->begin(); mit != this->end(); mit++) {
             for (Mesh::iterator tit = mit->begin(); tit != mit->end(); tit++, index++) {
                 tit->index() = index;
             }
+            for(Mesh::const_vertex_iterator vit = mit->vertex_begin(); vit != mit->vertex_end(); vit++) {
+                std::cout << "index3: " << (*vit)->index() << std::endl;
+            }
         }
         this->size() = index;
     }
-
-    void Geometry::read_cond(const char* condFileName) {
-
-        typedef Utils::Properties::Named< std::string , Conductivity<double> > HeadProperties;
-        HeadProperties properties(condFileName);
-
-        // Store the internal conductivity of the external boundary of domain i
-        // and store the external conductivity of the internal boundary of domain i
-        for (Domains::iterator dit = this->domain_begin(); dit != domain_end(); dit++) {
-            const Conductivity<double>& cond = properties.find(dit->name());
-            dit->sigma() =  cond.sigma();
-        }
-
-        // std::cout << "\nChecking" << std::endl; 
-        // for(int i = 0; i < nb_domains; i++) { // TODO print info on geom
-            // std::cout << "\tMesh "  << " : internal conductivity = "  << sigin[i]
-                // << " and external conductivity = " << sigout[i] << std::endl;
-        // }
-    }
-
 
     double Geometry::sigma(const std::string& name) const {
         for (std::vector<Domain>::const_iterator d = domain_begin(); d != domain_end(); d++) {
@@ -126,7 +154,7 @@ namespace OpenMEEG {
 
     double Geometry::oriented(const Mesh& m1, const Mesh& m2) const {
         Domains doms = common_domains(m1, m2);
-        double ans=0.;
+        double ans = 0.;
         if (doms.size() == 2) { // TODO Maureen comment on the cylinder
             return 1.;
         }

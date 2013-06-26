@@ -85,7 +85,7 @@ namespace OpenMEEG {
         typedef       Reference*       iterator;
         typedef const Reference* const_iterator;
 
-        Triangle() {}
+        Triangle(): _index(-1) {}
 
         //  Create a new face from a set of vertices.
         Triangle(Vertex *pts[3]): _index(-1) {
@@ -141,11 +141,6 @@ namespace OpenMEEG {
                     return true;
                 }
             }
-            // for (Triangle::const_iterator vit = this->begin(); vit != this->end(); vit++) {
-            //     if (vit->vertex() == p) {
-            //         return true;
-            //     }
-            // }
             return false;
         }
 
@@ -170,8 +165,8 @@ namespace OpenMEEG {
 
     inline bool operator<(const Triangle& T1, const Triangle& T2) {
         for (Triangle::const_iterator i1 = T1.begin(), i2 = T2.begin(); i1 != T1.end(); ++i1, ++i2) {
-            if (i1->vertex() < i2->vertex()) {
-                return true;
+            if (i1->vertex() != i2->vertex()) {
+                return ((i1->vertex() < i2->vertex()));
             }
         }
         return false;

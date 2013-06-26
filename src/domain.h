@@ -61,7 +61,8 @@ namespace OpenMEEG {
 
     public:
 
-        HalfSpace(const Interface &interface, bool inside) { base::first = &interface; base::second = inside; }
+        HalfSpace(const Interface &interface, bool inside): base(&interface, inside) {}
+        ~HalfSpace() {}
 
         Interface interface() const { return *(base::first);  }
         bool      inside()    const { return (base::second); }
@@ -76,32 +77,38 @@ namespace OpenMEEG {
 
     public:
 
-        Domain(): _name(""), _conductivity(0.), _innermost(false), _outermost(false) { }
+        Domain(): name_(""), sigma_(0.), innermost_(false), outermost_(false) { }
+
+        // copy constructor
+        Domain(const Domain& d);
+        Domain& operator=(const Domain& d);
+
+        ~Domain() { destroy(); }
 
         //  The interfaces of the domain.
         // const std::vector<Interface *> interfaces() const  {
-            // std::vector<Interface *> _interfaces(this->size());
+            // std::vector<Interface *> interfaces_(this->size());
             // size_t i = 0;
             // for (base::const_iterator hit = this->begin(); hit != this->end(); hit++, i++) {
-                // _interfaces[i] = this->first;
+                // interfaces_[i] = this->first;
             // }
-            // return _interfaces;
+            // return interfaces_;
         // }
         
         //  The name of the domain.
-              std::string& name()            { return _name; }
-        const std::string& name()      const { return _name; }
+              std::string& name()            { return name_; }
+        const std::string& name()      const { return name_; }
         
         //  The conductivity of the domain.
-              double&      sigma()           { return _conductivity; }
-        const double&      sigma()     const { return _conductivity; }
+              double&      sigma()           { return sigma_; }
+        const double&      sigma()     const { return sigma_; }
 
         //  Returns the innermost state of the domain.
-              bool&        innermost()       { return _innermost; }
-        const bool&        innermost() const { return _innermost; }
+              bool&        innermost()       { return innermost_; }
+        const bool&        innermost() const { return innermost_; }
         //  Returns the outermost state of the domain.
-              bool&        outermost()       { return _outermost; }
-        const bool&        outermost() const { return _outermost; }
+              bool&        outermost()       { return outermost_; }
+        const bool&        outermost() const { return outermost_; }
 
         void info() const;
 
@@ -125,9 +132,12 @@ namespace OpenMEEG {
 
     private:
 
-        std::string _name;         // Name of the domain.
-        double      _conductivity; // Conductivity of the domain.
-        bool        _innermost, _outermost;    // Innermost domain ?
+        void destroy();
+        void copy(const Domain& d);
+
+        std::string name_;         // Name of the domain.
+        double      sigma_; // Conductivity of the domain.
+        bool        innermost_, outermost_;    // Innermost domain ?
     };
 
     typedef std::vector<Domain >     Domains;
