@@ -87,7 +87,7 @@ Interfaces 3 Mesh                               ||      |    MeshFile file.vtp  
 "scalp.1.tri"                                   ||      |       i1:  m1 m8 ..                      ||      |                    
                                                 ||      |       ..:  .. ..                         ||      |            
 Domains 4                                       ||      |    Domains 4                             ||      |    Interfaces 3 NamedMeshes   
-                                                ||      |        Domain GrayMatter_Left:  -i0           ||      |       i0: skull.1.tri
+                                                ||      |        Domain GrayMatter_Left:  -i0      ||      |       i0: skull.1.tri
 Domain Scalp 1 -3                               ||      |        Domain GrayMatter_Right: -i1      ||      |       i1: cortex.1.tri
 Domain Brain -2                                 ||      |        Domain CSF:        i0 i1 -i2      ||      |       i2: scalp.1.tri
 Domain Air 3                                    ||      |        Domain Air:        i2             ||      |     

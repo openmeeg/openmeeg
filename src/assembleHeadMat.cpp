@@ -77,6 +77,7 @@ namespace OpenMEEG {
                 const double orientation = geo.oriented(*mit1, *mit2); // equals  0, if they don't have any domains in common
 
                 if (std::abs(orientation) > 10.*std::numeric_limits<double>::epsilon() ) {
+
                     if ( !(mit1->outermost() || mit2->outermost()) ) {
                         // Computing S block first because it's needed for the corresponding N block
                         operatorS(*mit1, *mit2, mat, gauss_order);
@@ -93,7 +94,6 @@ namespace OpenMEEG {
                     operatorN(*mit1, *mit2, mat, gauss_order);
                 }
             }
-            offset = offset1 + mit1->nb_triangles();
         }
 
         // Block multiplications
@@ -117,17 +117,27 @@ namespace OpenMEEG {
 
                 if (std::abs(orientation) > 10.*std::numeric_limits<double>::epsilon() ) {
 
-                    // if mit1 and mit2 communicate, i.e they are used for the definition of a domain
-                    double Ncoeff = - orientation * geo.sigma(*mit1, *mit2) * K;
-                    double Scoeff =   orientation * geo.sigma_inv(*mit1, *mit2) * K;
-                    double Dcoeff = - orientation * geo.indicatrice(*mit1, *mit2) * K;
+                    if ( !(mit1->outermost() || mit2->outermost()) ) {
+
+                        // if mit1 and mit2 communicate, i.e they are used for the definition of a domain
+                        double Scoeff =   orientation * geo.sigma_inv(*mit1, *mit2) * K;
+                        double Dcoeff = - orientation * geo.indicatrice(*mit1, *mit2) * K;
+
+                        // S
+                        mult(mat, offset1, offset1, offset2, offset2, Scoeff);
+                        // D*
+                        mult(mat, offset1, offset0, offset1, offset2, Dcoeff);
+                    }
+
+                    if ( *mit1 != *mit2 ) {
+                        // D
+                        double Dcoeff = - orientation * K;
+                        mult(mat, offset1, offset0, offset1, offset2, Dcoeff);
+                    }
 
                     // N
-                    mult(mat, offset0, offset0, offset1, offset1, Ncoeff); // TODO assign real index to offsets
-                    // S
-                    mult(mat, offset1, offset1, offset2, offset2, Scoeff);
-                    // D
-                    mult(mat, offset1, offset0, offset1, offset2, Dcoeff);
+                    double Ncoeff = - orientation * geo.sigma(*mit1, *mit2) * K;
+                    mult(mat, *(mit1->vertices().begin())->index(), *(mit2->vertices().begin())->index(), *(mit1->vertices().rbegin())->index(), *(mit2->vertices().rbegin())->index(), Ncoeff); // TODO assign real index to offsets
                 }
 
             }
