@@ -85,21 +85,34 @@ namespace OpenMEEG {
         typedef       Reference*       iterator;
         typedef const Reference* const_iterator;
 
-        Triangle(): _index(-1) {}
+        Triangle(): index_(-1) {}
+       
+        // copy constructor
+        Triangle(const Triangle& t);
+        Triangle& operator=(const Triangle& t);
 
+        ~Triangle() { destroy(); }
+        
         //  Create a new face from a set of vertices.
-        Triangle(Vertex *pts[3]): _index(-1) {
+        Triangle(Vertex *pts[3]): index_(-1) {
             Triangle& f = *this;
             for (size_t i = 0; i < 3; i++) {
                 f(i) = pts[i];
             }
         }
 
-        Triangle(Vertex& p1, Vertex& p2, Vertex& p3): _index(-1) {
+        Triangle(Vertex& p1, Vertex& p2, Vertex& p3): index_(-1) {
             Triangle& f = *this;
             f(0) = &p1;
             f(1) = &p2;
             f(2) = &p3;
+        }
+
+        Triangle(Vertex * p1, Vertex * p2, Vertex * p3): index_(-1) {
+            Triangle& f = *this;
+            f(0) = p1;
+            f(1) = p2;
+            f(2) = p3;
         }
 
         //  0 <= 'index' <= '2'
@@ -122,18 +135,18 @@ namespace OpenMEEG {
               Reference&     s2()                              { return vertices[1]; }
               Reference&     s3()                              { return vertices[2]; }
                                  
-              Reference      s1()                        const { return vertices[0]; }
-              Reference      s2()                        const { return vertices[1]; }
-              Reference      s3()                        const { return vertices[2]; }
+        const Reference&     s1()                        const { return vertices[0]; }
+        const Reference&     s2()                        const { return vertices[1]; }
+        const Reference&     s3()                        const { return vertices[2]; }
 
-              Vect3&         normal()                          { return _normal; }
-        const Vect3&         normal()                    const { return _normal; }
+              Vect3&         normal()                          { return normal_; }
+        const Vect3&         normal()                    const { return normal_; }
                                      
-              double&        area()                            { return _area; }
-        const double&        area()                      const { return _area; }
+              double&        area()                            { return area_; }
+        const double&        area()                      const { return area_; }
                                      
-              size_t&        index()                           { return _index; }
-        const size_t&        index()                     const { return _index; }
+              size_t&        index()                           { return index_; }
+        const size_t&        index()                     const { return index_; }
 
         bool contains(const Vertex& p) const {
             for (size_t i = 0; i < 3; i++) {
@@ -148,10 +161,13 @@ namespace OpenMEEG {
 
     private:
 
+        void copy(const Triangle &t);
+        void destroy();
+
         Reference vertices[3]; // &Vertex-triplet defining the triangle
-        double    _area;       // Area
-        Vect3     _normal;     // Normal
-        size_t    _index;      // Index of the triangle
+        double    area_;       // Area
+        Vect3     normal_;     // Normal
+        size_t    index_;      // Index of the triangle
     };
 
     inline bool Triangle::operator==(const Triangle& T) const {

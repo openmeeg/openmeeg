@@ -60,10 +60,11 @@ namespace OpenMEEG {
 
         typedef std::vector<Mesh *> base;
 
-        Interface()                                    { }
+        Interface(): name_(""), outermost_(false) { }
+        Interface(std::string name): name_(name), outermost_(false) { }
         // copy constructor
-        Interface(const Interface& i);
-        Interface& operator=(const Interface& i);
+        // Interface(const Interface& i);
+        // Interface& operator=(const Interface& i);
 
         ~Interface() { destroy(); }
 
@@ -72,13 +73,29 @@ namespace OpenMEEG {
 
         bool          outermost()      const           { return outermost_; }
 
+        const size_t  nb_triangles()    const          { 
+            size_t nb = 0;
+            for (const_iterator mit = begin(); mit != end(); mit++) {
+                nb += (*mit)->nb_triangles();
+            }
+            return nb;
+        }
+
+        const size_t  nb_vertices()    const          { 
+            size_t nb = 0;
+            for (const_iterator mit = begin(); mit != end(); mit++) {
+                nb += (*mit)->nb_vertices();
+            }
+            return nb;
+        }
+
         bool          contains_point(const Vect3&) const;
         void          set_to_outermost();
 
     private:
 
         void destroy();
-        void copy(const Interface& i);
+        // void copy(const Interface& i);
 
         std::string name_;      // might be "i0" by default
         bool        outermost_; // tell weather or not the interface touches the Air (Outermost) domain.

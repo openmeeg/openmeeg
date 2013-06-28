@@ -52,8 +52,7 @@ namespace OpenMEEG {
     // mat is the linear application which maps x (the unknown vector in symmetric system) -> v (potential at the electrodes)
     void assemble_Head2EEG(SparseMatrix &mat, const Geometry &geo, const Matrix &positions )
     {
-        int newsize = geo.size() - geo.end()->nb_triangles();
-        mat = SparseMatrix(positions.nlin(), newsize);
+        mat = SparseMatrix(positions.nlin(), geo.size());
 
         Vect3 current_position;
         Vect3 current_alphas;

@@ -42,71 +42,69 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 namespace OpenMEEG {
 
-    Mesh::Mesh(const Mesh& M) { *this = M; }
+    // Mesh::Mesh(const Mesh& M) { *this = M; }
 
-    std::istream& operator>>(std::istream &is, Mesh &m)
-    {
+    std::istream& operator>>(std::istream &is, Mesh &m) {
         size_t a, b, c;
         is >> a >> b >> c;
-        Triangle t(m.all_vertices()[a], m.all_vertices()[b], m.all_vertices()[c] );
+        Triangle t(m.vertices()[a], m.vertices()[b], m.vertices()[c] );
         m.push_back(t);
-        
         return is;
     }
 
-    void Mesh::recompute_normals() {
-        size_t i = 0;
-        for (const_vertex_iterator vit = vertex_begin(); vit != vertex_end(); vit++, i++) {
-            Normal normal(0);
-            // for (SetTriangle::iterator tit = links[i].begin(); tit != links[i].end(); tit++) {
-                // normal += tit->normal().normalize();
-            // }
-            normal.normalize();
-            // all_normals().push_back(normal);
-        }
-    }
-
-    Mesh& Mesh::operator= (const Mesh& M) {
-        if (this != &M) {
-            copy(M);
-        }
-        return *this;
-    }
+    // Mesh& Mesh::operator= (const Mesh& M) {
+        // if (this != &M) {
+            // copy(M);
+        // }
+        // return *this;
+    // }
 
     // copy constructor
-    void Mesh::copy(const Mesh& M) {
-        name_         = M.name_;
-        all_vertices_ = M.all_vertices_;
-        all_normals_  = M.all_normals_;
-        links_        = M.links_;
-        vertices_     = M.vertices_;
-    }
+    // void Mesh::copy(const Mesh& M) {
+        // name_         = M.name_;
+        // all_vertices_ = M.all_vertices_;
+        // all_normals_  = M.all_normals_;
+        // links_        = M.links_;
+        // vertices_     = M.vertices_;
+    // }
 
     void Mesh::destroy() {
-        links_.clear();
-        vertices_.clear();
+        // links_.clear();
+        // vertices_.clear();
+        // all_normals_  = NULL;
+        // all_vertices_ = NULL;
     }
 
     void Mesh::update() {
-        SetPVertex spv;
-        for (Triangles::iterator tit = this->begin(); tit != this->end(); tit++) {
-            spv.insert(&tit->s1().vertex());
-            spv.insert(&tit->s2().vertex());
-            spv.insert(&tit->s3().vertex());
-            tit->area()   = tit->normal().norm() / 2.0;
+        links_.clear();
+        // create the set of the mesh vertices out of the vertices in the triangles
+        for (iterator tit = this->begin(); tit != this->end(); tit++) {
+            tit->normal()  = (tit->s2().vertex() - tit->s1().vertex())^(tit->s3().vertex() - tit->s1().vertex());
+            tit->area()    = tit->normal().norm() / 2.0;
+            tit->normal() /= tit->normal().norm();
         }
-
-        // for (SetPVertex::const_iterator sit = spv.begin(); sit != spv.end(); sit++) {
-            // vertices_.push_back(*sit);
-        // }
-
-        links().resize(vertices().size());
+        links().resize(nb_vertices());
         size_t i = 0;
         for (const_vertex_iterator vit = vertex_begin(); vit != vertex_end(); vit++, i++) {
             for (const_iterator tit = this->begin(); tit != this->end(); tit++) {
                 if (tit->contains(**vit)) {
                     links()[i].insert(*tit); 
                 }
+            }
+        }
+
+        if ( all_normals().size() != all_vertices().size() ) {
+ 
+            // recompute the normals
+            std::cout << "// recompute the normals" << std::endl;
+            size_t i = 0;
+            for (const_vertex_iterator vit = vertex_begin(); vit != vertex_end(); vit++, i++) {
+                Normal normal(0);
+                for (SetTriangle::iterator tit = links_[i].begin(); tit != links_[i].end(); tit++) {
+                    normal += tit->normal();
+                }
+                normal.normalize();
+                add_normal(normal);
             }
         }
     }
@@ -116,11 +114,10 @@ namespace OpenMEEG {
     **/
     void Mesh::info() const {
 
-        std::cout << "Mesh Info : "     << std::endl;
-        std::cout << "\tName or ID : "  << name() << std::endl;
-        std::cout << "\t# points : "    << nb_vertices() << std::endl;
-        std::cout << "\t# triangles : " << nb_triangles() << std::endl;
-        std::cout << "\tEuler characteristic : " << nb_vertices() - 3.*nb_triangles()/2. + nb_triangles() << std::endl;
+        std::cout << "Info:: Mesh name or ID : "  << name() << std::endl;
+        std::cout << "\t\t# points : "    << nb_vertices() << std::endl;
+        std::cout << "\t\t# triangles : " << nb_triangles() << std::endl;
+        std::cout << "\t\tEuler characteristic : " << nb_vertices() - 3.*nb_triangles()/2. + nb_triangles() << std::endl;
 
         double min_area = std::numeric_limits<double>::max();
         double max_area = 0.;
@@ -128,16 +125,9 @@ namespace OpenMEEG {
             min_area = std::min(tit->area(), min_area);
             max_area = std::max(tit->area(), max_area);
         }
-        std::cout << "\tMin Area : " << min_area << std::endl;
-        std::cout << "\tMax Area : " << max_area << std::endl;
+        std::cout << "\t\tMin Area : " << min_area << std::endl;
+        std::cout << "\t\tMax Area : " << max_area << std::endl;
     }
-
-    // void Mesh::update_triangles() {
-        // for (const_iterator tit = this->begin(); tit != this->end(); tit++) {
-            // tit->normal() = (*tit)(0)->vertex().normal( (*tit)(1) , (*tit)(2) ); // TODO: not Normalized
-            // tit->area()   = tit->normal().norm() / 2.0;
-        // }
-    // }
 
     bool Mesh::has_self_intersection() const {
         bool selfIntersects = false;
@@ -183,7 +173,7 @@ namespace OpenMEEG {
 
     // For IO:s
     #ifdef USE_VTK
-    void Mesh::get_data_from_vtk_reader(vtkPolyDataReader* reader) {
+    size_t Mesh::get_data_from_vtk_reader(vtkPolyDataReader* reader, const bool &read_all) {
 
         reader->Update();
         vtkPolyData *vtkMesh = reader->GetOutput();
@@ -191,8 +181,9 @@ namespace OpenMEEG {
         size_t npts;
         npts = vtkMesh->GetNumberOfPoints();
 
-        all_vertices().reserve(npts + all_vertices().size()); // vertices
-        all_normals().reserve(npts  + all_normals().size()); // normals on each point
+        if (!read_all) {
+            return npts;
+        }
 
         if (reader->GetNumberOfNormalsInFile()==0) {
             vtkPolyDataNormals *newNormals = vtkPolyDataNormals::New();
@@ -217,8 +208,9 @@ namespace OpenMEEG {
             all_vertices().push_back(Vertex(vtkMesh->GetPoint(i)[0], vtkMesh->GetPoint(i)[1], vtkMesh->GetPoint(i)[2]));
             all_normals()[i](normalsData->GetTuple(i)[0], normalsData->GetTuple(i)[1], normalsData->GetTuple(i)[2]);
         }
+
         ntrgs = vtkMesh->GetNumberOfCells();
-        m.reserve(ntrgs);
+
         vtkIdList *l;
         for (int i = 0; i<ntrgs; i++) {
             if (vtkMesh->GetCellType(i) == VTK_TRIANGLE) {
@@ -229,9 +221,11 @@ namespace OpenMEEG {
                 exit(1);
             }
         }
+
+        return 0;
     }
 
-    void Mesh::load_vtk_file(std::istream &is) {
+    size_t Mesh::load_vtk_file(std::istream &is, const bool &read_all) {
         destroy();
 
         // get length of file:
@@ -253,18 +247,18 @@ namespace OpenMEEG {
         reader->SetInputArray(buf); // Specify 'buf' to be used when reading from a string
         reader->SetReadFromInputString(1);  // Enable reading from the InputArray 'buf' instead of the default, a file
 
-        get_data_from_vtk_reader(reader);
+        size_t return_value = 0;
+        return_value = get_data_from_vtk_reader(reader, read_all);
 
         delete[] buffer;
         reader->Delete();
 
-        m.update();
+        return return_value;
     }
 
-    void Mesh::load_vtk(const char* filename) {
+    size_t Mesh::load_vtk(const char* filename, const bool &read_all) {
         destroy();
         std::string s = filename;
-        std::cout << "load_vtk : " << filename << std::endl;
         vtkPolyDataReader *reader = vtkPolyDataReader::New();
         reader->SetFileName(filename); // Specify file name of vtk data file to read
         if (!reader->IsFilePolyData()) {
@@ -272,11 +266,13 @@ namespace OpenMEEG {
             reader->Delete();
             exit(1);
         }
-        get_data_from_vtk_reader(reader);
-        m.update();
+
+        size_t return_value = 0;
+        return_value = get_data_from_vtk_reader(reader, read_all);
+        return return_value;
     }
 
-    void Mesh::load_vtp(std::istream &is) {
+    size_t Mesh::load_vtp(std::istream &is, const bool &read_all) {
         destroy();
         // get length of file:
         is.seekg (0, ios::end);
@@ -297,17 +293,18 @@ namespace OpenMEEG {
         reader->SetInputArray(buf); // Specify 'buf' to be used when reading from a string
         reader->SetReadFromInputString(1);  // Enable reading from the InputArray 'buf' instead of the default, a file
 
-        get_data_from_vtk_reader(reader);
+        size_t return_value = 0;
+        return_value = get_data_from_vtk_reader(reader, read_all);
 
         delete[] buffer;
         reader->Delete();
 
+        return return_value;
     }
 
-    void Mesh::load_vtp(const char* filename) {
+    size_t Mesh::load_vtp(const char* filename, const bool &read_all) {
         destroy();
         std::string s = filename;
-        std::cout << "load_vtp : " << filename << std::endl;
         vtkXMLPolyDataReader *reader = vtkXMLPolyDataReader::New();
         reader->SetFileName(filename); // Specify file name of vtk data file to read
         if (!reader->IsFilePolyData()) {
@@ -316,7 +313,9 @@ namespace OpenMEEG {
             exit(1);
         }
 
-        get_data_from_vtk_reader(reader);
+        size_t return_value = 0;
+        return_value = get_data_from_vtk_reader(reader, read_all);
+        return return_value;
     }
     #endif
 
@@ -330,26 +329,24 @@ namespace OpenMEEG {
         return;
     }
 
-    void Mesh::load_gifti(std::istream &is) {
+    size_t Mesh::load_gifti(std::istream &is, const bool &read_all) {
         std::cerr << "GIFTI reader : Not yet implemented" << std::endl;
         exit(1);
         destroy();
         // gifti_image* gim = gifti_read_image(filename);
         // from_gifti_image(gim)
-        // update();
     }
 
-    void Mesh::load_gifti(const char* filename) {
+    size_t Mesh::load_gifti(const char* filename, const bool &read_all) {
         destroy();
         int read_data = 0;
         gifti_image* gim = gifti_read_image(filename, read_data);
         // from_gifti_image(gim);
-        m.update();
         return;
     }
     #endif
 
-    void Mesh::load_mesh_file(std::istream &is) {
+    size_t Mesh::load_mesh_file(std::istream &is, const bool &read_all) {
         destroy();
 
         unsigned char* uc = new unsigned char[5]; // File format
@@ -386,6 +383,11 @@ namespace OpenMEEG {
         ui = new unsigned int[1]; // vertex number
         is.read((char*)ui, sizeof(unsigned int));
         size_t npts = ui[0];
+        
+        if (!read_all) { 
+            return npts; 
+        }
+
         delete[] ui;
 
         assert(vertex_per_face == 3); // Support only for triangulations
@@ -414,14 +416,12 @@ namespace OpenMEEG {
         unsigned int* faces_raw = new unsigned int[ntrgs*3]; // Faces
         is.read((char*)faces_raw, sizeof(unsigned int)*ntrgs*3);
 
-        all_vertices().reserve(npts + all_vertices().size()); // vertices
-        all_normals().reserve(npts + all_normals().size()); // normals on each point
-        for(int i = 0; i < nb_vertices(); ++i) {
+        for (int i = 0; i < nb_vertices(); ++i) {
             add_vertex(Vertex(pts_raw[i*3+0], pts_raw[i*3+1], pts_raw[i*3+2]));
             add_normal(Normal(normals_raw[i*3+0], normals_raw[i*3+1], normals_raw[i*3+2]));
         }
-        // reserve(ntrgs);
-        for(int i = 0; i < ntrgs; ++i) {
+
+        for (int i = 0; i < ntrgs; ++i) {
             push_back(Triangle(all_vertices()[faces_raw[i*3+0]+all_vertices().size()-npts], 
                                all_vertices()[faces_raw[i*3+1]+all_vertices().size()-npts],
                                all_vertices()[faces_raw[i*3+2]+all_vertices().size()-npts] ));
@@ -429,24 +429,24 @@ namespace OpenMEEG {
         delete[] faces_raw;
         delete[] normals_raw;
         delete[] pts_raw;
-
-        // update();
+        return 0;
     }
 
-    void Mesh::load_mesh_file(const char* filename) {
-        std::cout << "load_mesh_file : " << filename << std::endl;
+    size_t Mesh::load_mesh_file(const char* filename, const bool &read_all) {
         std::ifstream f(filename, std::ios::binary);
         if (!f.is_open()) {
             std::cerr << "Error opening MESH file: " << filename << std::endl;
             exit(1);
         }
-        load_mesh_file(f);
+        size_t return_value = 0;
+        return_value = load_mesh_file(f, read_all);
         f.close();
+        return return_value;
     }
 
-    void Mesh::load_tri_file(std::istream &f) {
+    size_t Mesh::load_tri_file(std::istream &f, const bool &read_all) {
 
-        // destroy();
+        destroy();
 
         f.seekg( 0, std::ios_base::beg );
 
@@ -455,9 +455,10 @@ namespace OpenMEEG {
         f >> ch;
         f >> npts;
 
+        if ( !read_all ) {
+            return npts;
+        }
 
-        // reserve_vertices(npts); // vertices TODO
-        // reserve_normals(npts);  // normals on each point
         for (int i = 0; i < npts; i++) {
             Vertex v;
             Normal n;
@@ -471,23 +472,24 @@ namespace OpenMEEG {
             f >> *this;
         }
 
-        update();
+        return 0;
     }
 
-    void Mesh::load_tri_file(const char* filename) {
+    size_t Mesh::load_tri_file(const char* filename, const bool &read_all) {
 
         std::string s = filename;
-        std::cout << "load_tri : " << filename << std::endl;
         std::ifstream f(filename);
         if (!f.is_open()) {
             std::cerr << "Error opening TRI file: " << filename << std::endl;
             exit(1);
         }
-        load_tri_file(f);
+        size_t return_value = 0;
+        return_value = load_tri_file(f, read_all);
         f.close();
+        return return_value;
     }
 
-    void Mesh::load_bnd_file(std::istream &f) {
+    size_t Mesh::load_bnd_file(std::istream &f, const bool &read_all) {
 
         destroy();
 
@@ -506,6 +508,10 @@ namespace OpenMEEG {
         size_t npts, ntrgs;
         f >> npts;
 
+        if ( !read_all ) {
+            return npts;
+        }
+
         f >> io_utils::skip_comments('#') >> st;
         if (st == "UnitPosition") {
             io_utils::skip_line(f); // skip : "UnitPosition mm"
@@ -513,8 +519,6 @@ namespace OpenMEEG {
 
         f >> io_utils::skip_comments('#') >> st;
         assert(st == "Positions");
-
-        all_vertices().reserve(npts + all_vertices().size()); // vertices
 
         for( int i = 0; i < npts; i++ ) {
             Vertex v;
@@ -534,98 +538,107 @@ namespace OpenMEEG {
         f >> io_utils::skip_comments('#') >> st;
         assert(st == "Polygons");
 
-        reserve(ntrgs);
         for ( size_t i = 0; i < ntrgs; i++) {
              f >> io_utils::skip_comments('#') >> *this;
         }
 
-        update();
-
-        all_normals().reserve(npts + all_normals().size()); // normals on each point
-        recompute_normals(); // Compute normals since bnd files don't have any !
+        return 0;
     }
 
-    void Mesh::load_bnd_file(const char* filename) {
+    size_t Mesh::load_bnd_file(const char* filename, const bool &read_all) {
         std::string s = filename;
-        std::cout << "load_bnd : " << filename << std::endl;
         std::ifstream f(filename);
 
         if (!f.is_open()) {
             std::cerr << "Error opening BND file: " << filename << std::endl;
             exit(1);
         }
-        load_bnd_file(f);
+        size_t return_value = 0;
+        return_value = load_bnd_file(f, read_all);
         f.close();
+        return return_value;
     }
 
-    void Mesh::load_off_file(std::istream &f) {
+    size_t Mesh::load_off_file(std::istream &f, const bool &read_all) {
         destroy();
 
         char tmp[128];
         int trash;
-        f>>tmp;        // put the "OFF" string
+        f >> tmp;        // put the "OFF" string
         size_t npts, ntrgs;
-        f>>npts;
-        f>>ntrgs;
-        f>>trash;
+        f >> npts;
+        f >> ntrgs;
+        f >> trash;
 
-        all_vertices().reserve(npts + all_vertices().size()); // vertices
+        if ( !read_all ) {
+            return npts;
+        }
+
         for (size_t i = 0; i < npts; i++) {
             Vertex v;
             f >> v;
             add_vertex(v);
         }
 
-        reserve(ntrgs);
         for (size_t i = 0; i < ntrgs; i++) {
             f >> trash;        // put the "3" to trash
             f >> *this;
         }
 
-        update();
-
-        all_normals().reserve(npts + all_normals().size()); // normals on each point
-        recompute_normals(); // Compute normals since off files don't have any !
+        return 0;
     }
 
-    void Mesh::load_off_file(const char* filename) {
+    size_t Mesh::load_off_file(const char* filename, const bool &read_all) {
 
         std::string s = filename;
-        std::cout << "load_off : " << filename << std::endl;
         std::ifstream f(filename);
         if (!f.is_open()) {
             std::cerr << "Error opening OFF file: " << filename << std::endl;
             exit(1);
         }
-        load_off_file(f);
+        size_t return_value = 0;
+        return_value = load_off_file(f, read_all);
         f.close();
+        return return_value;
     }
 
-    void Mesh::load_mesh(const char* filename, const bool &verbose) {
+    size_t Mesh::load_mesh(const char* filename, const bool &verbose, const bool &read_all) {
         std::string extension = getNameExtension(filename);
         std::transform(extension.begin(), extension.end(), extension.begin(), (int(*)(int))std::tolower);
+        size_t return_value = 0;
+
+        if ( verbose ) {
+            std::cout << "loading : " << filename << " as a \"" << extension << "\" file."<< std::endl;
+        }
+
         if (extension == std::string("vtk")) {
-            load_vtk_file(filename);
+            return_value = load_vtk_file(filename, read_all);
         } else if (extension == std::string("vtp")) {
-            load_vtp_file(filename);
+            return_value = load_vtp_file(filename, read_all);
         } else if (extension == std::string("tri")) {
-            load_tri_file(filename);
+            return_value = load_tri_file(filename, read_all);
         } else if (extension == std::string("bnd")) {
-            load_bnd_file(filename);
+            return_value = load_bnd_file(filename, read_all);
         } else if (extension == std::string("mesh")) {
-            load_mesh_file(filename);
+            return_value = load_mesh_file(filename, read_all);
         } else if (extension == std::string("off")) {
-            load_off_file(filename);
+            return_value = load_off_file(filename, read_all);
         } else if (extension == std::string("gii")) {
-            load_gifti_file(filename);
+            return_value = load_gifti_file(filename, read_all);
         } else {
             std::cerr << "IO: load: Unknown mesh file format for " << filename << std::endl;
             exit(1);
         }
 
-        if (verbose) {
+        if ( read_all ) {
+            update();
+        }
+
+        if ( verbose ) {
             info();
         }
+
+        return return_value;
     }
 
     void Mesh::save_mesh(const char* filename) const {

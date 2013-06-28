@@ -92,30 +92,26 @@ namespace OpenMEEG {
         Mesh(std::string name): name_(name), all_vertices_(NULL), outermost_(false) { }
 
         // copy constructor
-        Mesh(const Mesh& M);
+        // Mesh(const Mesh& M);
 
         ~Mesh() { destroy(); }
         
-        Mesh& operator=(const Mesh& M);
-
-        void recompute_normals();
+        // Mesh& operator=(const Mesh& M);
 
         // Iterators on vertices
-              vertex_iterator      vertex_begin()                { return vertices().begin(); }
-        const_vertex_iterator      vertex_begin()  const         { return vertices().begin(); }
-              vertex_iterator      vertex_end()                  { return vertices().end(); }
-        const_vertex_iterator      vertex_end()    const         { return vertices().end(); }
+              vertex_iterator      vertex_begin()                { return vertices_.begin(); }
+        const_vertex_iterator      vertex_begin()  const         { return vertices_.begin(); }
+              vertex_iterator      vertex_end()                  { return vertices_.end(); }
+        const_vertex_iterator      vertex_end()    const         { return vertices_.end(); }
 
-        std::vector<SetTriangle>   links()         const         { return links_; }
         std::vector<SetTriangle> & links()                       { return links_; }
+        std::vector<SetTriangle>   links()         const         { return links_; }
 
         std::string                name()          const         { return name_; }
         std::string &              name()                        { return name_; }
 
-        void                       add_vertex(const Vertex &v)   { all_vertices_->push_back(v); vertices_.push_back(&(*all_vertices_->rbegin())); }
+        void                       add_vertex(const Vertex &v)   { all_vertices_->push_back(v); vertices_.push_back(&(*all_vertices_->rbegin()));}
         void                       add_normal(const Normal &n)   { all_normals_->push_back(n);  }
-        // void                 reserve_vertices(const size_t i)    { all_vertices_->reserve(all_vertices_->size() + i); vertices_.reserve(i);}
-        // void                  reserve_normals(const size_t i)    { all_normals_->reserve(all_normals_->size() + i);}
 
         VectPVertex                vertices()      const         { return vertices_; }
         VectPVertex &              vertices()                    { return vertices_; }
@@ -136,9 +132,9 @@ namespace OpenMEEG {
 
         const SetTriangle& get_triangles_for_point(const Vertex& V) const {
             size_t i = 0;
-            for (const_vertex_iterator vit = vertices().begin(); vit != vertices().end(); vit++, i++) {
+            for (const_vertex_iterator vit = vertex_begin(); vit != vertex_end(); vit++, i++) {
                 if (*vit == &V) {
-                    return links()[i];
+                    return links_[i];
                 }
             }
         }
@@ -150,42 +146,42 @@ namespace OpenMEEG {
         const bool&        outermost() const { return outermost_; }
 
         // for IO:s
-        void load_mesh(const char* filename, const bool &verbose = true);
-        void load_tri_file(std::istream &);
-        void load_tri_file(const char*);
-        void load_bnd_file(std::istream &);
-        void load_bnd_file(const char*);
-        void load_off_file(std::istream &);
-        void load_off_file(const char*);
-        void load_mesh_file(std::istream &);
-        void load_mesh_file(const char*);
+        size_t load_mesh(const char* filename, const bool &verbose = true, const bool &read_all = true);
+        size_t load_tri_file(std::istream &, const bool &read_all = true);
+        size_t load_tri_file(const char*, const bool &read_all = true);
+        size_t load_bnd_file(std::istream &, const bool &read_all = true);
+        size_t load_bnd_file(const char*, const bool &read_all = true);
+        size_t load_off_file(std::istream &, const bool &read_all = true);
+        size_t load_off_file(const char*, const bool &read_all = true);
+        size_t load_mesh_file(std::istream &, const bool &read_all = true);
+        size_t load_mesh_file(const char*, const bool &read_all = true);
         #ifdef USE_VTK
-        void load_vtp_file(std::istream &);
-        void load_vtp_file(const char*);
-        void load_vtk_file(std::istream &);
-        void load_vtk_file(const char*);
-        void get_data_from_vtk_reader(vtkPolyDataReader* vtkMesh);
+        size_t load_vtp_file(std::istream &, const bool &read_all = true);
+        size_t load_vtp_file(const char*, const bool &read_all = true);
+        size_t load_vtk_file(std::istream &, const bool &read_all = true);
+        size_t load_vtk_file(const char*, const bool &read_all = true);
+        size_t get_data_from_vtk_reader(vtkPolyDataReader* vtkMesh);
         #else
         template <typename T>
-        void load_vtp_file(T) {
+        size_t load_vtp_file(T, const bool &read_all = true) {
             std::cerr << "You have to compile OpenMEEG with VTK to read VTK/VTP files" << std::endl;
             exit(1);
         }
         template <typename T>
-        void load_vtk_file(T) {
+        size_t load_vtk_file(T, const bool &read_all = true) {
             std::cerr << "You have to compile OpenMEEG with VTK to read VTK/VTP files" << std::endl;
             exit(1);
         }
         #endif
         #ifdef USE_GIFTI
-        void load_gifti_file(std::istream &);
-        void load_gifti_file(const char*);
+        size_t load_gifti_file(std::istream &, const bool &read_all = true);
+        size_t load_gifti_file(const char*, const bool &read_all = true);
         void save_gifti_file(const char*);
         gifti_image* to_gifti_image();
         void from_gifti_image(gifti_image* gim);
         #else
         template <typename T>
-        void load_gifti_file(T) {
+        size_t load_gifti_file(T, const bool &read_all = true) {
             std::cerr << "You have to compile OpenMEEG with GIFTI to read GIFTI files" << std::endl;
             exit(1);
         }
@@ -205,7 +201,7 @@ namespace OpenMEEG {
     private:
 
         void destroy();
-        void copy(const Mesh& M);
+        // void copy(const Mesh& M);
         
         std::string                 name_;
         std::vector<SetTriangle>    links_;

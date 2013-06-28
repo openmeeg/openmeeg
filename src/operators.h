@@ -71,7 +71,7 @@ namespace OpenMEEG {
     template<class T>
     void operatorS(const Mesh &m1, const Mesh &m2, T &mat, const int);
     template<class T>
-    void operatorD(const Mesh &m1, const Mesh &m2, T &mat, const int);
+    void operatorD(const Mesh &m1, const Mesh &m2, T &mat, const int, const bool star = false);
     template<class T>
     void operatorP1P0(const Mesh &, T &mat);
 
@@ -138,7 +138,7 @@ namespace OpenMEEG {
     #else
 
     template<class T>
-    inline void _operatorD(const Triangle& T1, const Triangle& T2, T &mat, const int gauss_order)
+    inline void _operatorD(const Triangle& T1, const Triangle& T2, T &mat, const int gauss_order, const bool star)
     {
         //this version of _operatorD add in the Matrix the contribution of T2 on T1
         // for all the P1 functions it gets involved
@@ -155,9 +155,13 @@ namespace OpenMEEG {
         Vect3 total = gauss.integrate(analyD, T1);
     #endif //ADAPT_LHS
 
-        mat(T1.index(), T2.s1().index()) += total.x();
-        mat(T1.index(), T2.s2().index()) += total.y();
-        mat(T1.index(), T2.s3().index()) += total.z();
+        for (size_t i = 0; i < 3; i++) {
+            if (star) {
+                mat(T2(i).index(), T1.index()) += total(i);
+            } else {
+                mat(T1.index(), T2(i).index()) += total(i);
+            }
+        }
     }
     #endif //OPTIMIZED_OPERATOR_D
 
@@ -266,19 +270,20 @@ namespace OpenMEEG {
         //    the upper left corner of the submatrix to be written is the Matrix
         //  the upper left corner of the corresponding S block
 
-        std::cout<<"OPERATOR N... (arg : mesh m1, mesh m2)"<<std::endl;
+        std::cout << "OPERATOR N... (arg : mesh " << m1.name() << " , mesh " << m2.name() << " )" << std::endl;
 
+        size_t i = 0; // for the PROGRESSBAR
         if ( &m1 == &m2 ) {
-            for(Mesh::const_vertex_iterator vit1 = m1.vertex_begin(); vit1 != m1.vertex_end(); vit1++) {
-                // PROGRESSBAR(i-offsetI, m1.nbPts());
+            for(Mesh::const_vertex_iterator vit1 = m1.vertex_begin(); vit1 != m1.vertex_end(); vit1++, i++) {
+                PROGRESSBAR(i, m1.vertices().size());
                 #pragma omp parallel for
                 for(Mesh::const_vertex_iterator vit2 = vit1; vit2 != m1.vertex_end(); vit2++) {
                     mat((*vit1)->index(), (*vit2)->index()) = _operatorN(**vit1, **vit2, m1, m2, gauss_order, mat);
                 }
             }
         } else {
-            for(Mesh::const_vertex_iterator vit1 = m1.vertex_begin(); vit1 != m1.vertex_end(); vit1++) {
-                // PROGRESSBAR(i-offsetI, m1.nbPts());
+            for(Mesh::const_vertex_iterator vit1 = m1.vertex_begin(); vit1 != m1.vertex_end(); vit1++, i++) {
+                PROGRESSBAR(i, m1.vertices().size());
                 #pragma omp parallel for
                 for(Mesh::const_vertex_iterator vit2 = m2.vertex_begin(); vit2 != m2.vertex_end(); vit2++) {
                     mat((*vit1)->index(), (*vit2)->index()) = _operatorN(**vit1, **vit2, m1, m2, gauss_order, mat);
@@ -296,7 +301,7 @@ namespace OpenMEEG {
         //    the storage Matrix for the result
         //    the upper left corner of the submatrix to be written is the Matrix
 
-        std::cout << "OPERATOR S... (arg : mesh m1, mesh m2)" << std::endl;
+        std::cout << "OPERATOR S... (arg : mesh " << m1.name() << " , mesh " << m2.name() << " )" << std::endl;
 
         // The operator S is given by Sij=\Int G*PSI(I, i)*Psi(J, j) with
         // PSI(A, a) is a P0 test function on layer A and triangle a
@@ -322,14 +327,14 @@ namespace OpenMEEG {
     #ifndef OPTIMIZED_OPERATOR_D
 
     template<class T>
-    void operatorD(const Mesh &m1, const Mesh &m2, T &mat, const int gauss_order)
+    void operatorD(const Mesh &m1, const Mesh &m2, T &mat, const int gauss_order, const bool star)
     {
     // This function (NON OPTIMIZED VERSION) has the following arguments:
     //    One geometry
     //    the indices of the treated layers I and J
     //    the storage Matrix for the result
     //    the upper left corner of the submatrix to be written is the Matrix
-        std::cout << "OPERATOR D... (arg : mesh m1, mesh m2)" << std::endl;
+        std::cout << "OPERATOR D... (arg : mesh " << m1.name() << " , mesh " << m2.name() << " )" << std::endl;
 
         for(Mesh::const_iterator tit = m1.begin(); tit != m1.end(); tit++) {
             // PROGRESSBAR(i-offsetI, m1.nbTrgs());
@@ -344,7 +349,7 @@ namespace OpenMEEG {
     #else // OPTIMIZED_OPERATOR_D
 
     template<class T>
-    void operatorD(const Mesh &m1, const Mesh &m2, T &mat, const int gauss_order)
+    void operatorD(const Mesh &m1, const Mesh &m2, T &mat, const int gauss_order, const bool star)
     {
         // This function (OPTIMIZED VERSION) has the following arguments:
         //    One geometry
@@ -352,7 +357,11 @@ namespace OpenMEEG {
         //    the storage Matrix for the result
         //    the upper left corner of the submatrix to be written is the Matrix
 
-        std::cout << "OPERATOR D (Optimized) ... (arg : mesh m1, mesh m2)" << std::endl;
+        if (star) {
+            std::cout << "OPERATOR D*(Optimized) ... (arg : mesh " << m1.name() << " , mesh " << m2.name() << " )" << std::endl;
+        } else {
+            std::cout << "OPERATOR D (Optimized) ... (arg : mesh " << m1.name() << " , mesh " << m2.name() << " )" << std::endl;
+        }
 
         for (Mesh::const_iterator tit1 = m1.begin(); tit1 != m1.end(); tit1++) {
             // PROGRESSBAR(i-offsetI, m1.nbTrgs());
@@ -360,7 +369,11 @@ namespace OpenMEEG {
                 //In this version of the function, in order to skip multiple computations of the same quantities
                 //    loops are run over the triangles but the Matrix cannot be filled in this function anymore
                 //    That's why the filling is done is function _operatorD
-                _operatorD(*tit1, *tit2, mat, gauss_order);
+                if (star) {
+                    _operatorD(*tit2, *tit1, mat, gauss_order, star);
+                } else {
+                    _operatorD(*tit1, *tit2, mat, gauss_order, star);
+                }
             }
         }
     }
@@ -371,7 +384,7 @@ namespace OpenMEEG {
     void operatorP1P0(const Mesh &m, T &mat)
     {
         // This time mat(i, j)+= ... the Matrix is incremented by the P1P0 operator
-        std::cout << "OPERATOR P1P0..." << std::endl;
+        std::cout << "OPERATOR P1P0... (arg : mesh " << m.name() << " )" << std::endl;
         for (Mesh::const_iterator tit = m.begin(); tit != m.end(); tit++) {
             for (Mesh::VectPVertex::const_iterator pit = m.vertices().begin(); pit != m.vertices().end(); pit++) {
                 mat(tit->index(), (*pit)->index()) += _operatorP1P0(*tit, **pit);

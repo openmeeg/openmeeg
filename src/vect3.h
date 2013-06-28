@@ -103,6 +103,7 @@ namespace OpenMEEG {
         inline void operator+=(const Vect3& v)  { m[0] += v.x(); m[1] += v.y(); m[2] += v.z(); }
         inline void operator-=(const Vect3& v)  { m[0] -= v.x(); m[1] -= v.y(); m[2] -= v.z(); }
         inline void operator*=(const double& d) { m[0] *= d; m[1] *= d; m[2] *= d; }
+        inline void operator/=(const double& d) { m[0] /= d; m[1] /= d; m[2] /= d; }
 
         inline void multadd(const double& d, const Vect3& v) {m[0] += d*v.x(); m[1] += d*v.y(); m[2] += d*v.z();}
 
@@ -140,13 +141,8 @@ namespace OpenMEEG {
             return 2.*atan2(d,(y1*y2*y3+y1*(Y2*Y3)+y2*(Y3*Y1)+y3*(Y1*Y2)));
         }
 
-        inline Vect3 normal(const Vect3& v2, const Vect3& v3) const {
-            const Vect3 v=*this;
-            return ((v-v2)^(v-v3));
-        }
-
         inline Vect3& normalize() {
-            *this = *this*(1.0/(*this).norm());
+            *this /= (*this).norm();
             return *this;
         }
 

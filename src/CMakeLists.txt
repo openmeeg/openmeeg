@@ -13,7 +13,7 @@ SET(OPENMEEG_HEADERS
 )
 
 ADD_LIBRARY(OpenMEEG ${LIB_TYPE}
-    assembleFerguson.cpp assembleHeadMat.cpp assembleSourceMat.cpp assembleSensors.cpp domain.cpp mesh.cpp interface.cpp
+    assembleFerguson.cpp assembleHeadMat.cpp assembleSourceMat.cpp assembleSensors.cpp domain.cpp triangle.cpp mesh.cpp interface.cpp
     danielsson.cpp geometry.cpp operators.cpp sensors.cpp inversers.cpp cpuChrono.cpp ${OPENMEEG_HEADERS}
 )
 TARGET_LINK_LIBRARIES(OpenMEEG OpenMEEGMaths ${OPENMEEG_LIBRARIES} ${LAPACK_LIBRARIES})

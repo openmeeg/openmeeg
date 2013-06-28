@@ -2,14 +2,14 @@
 
 Interfaces 3 Mesh
 
-"skull.1.tri"
 "cortex.1.tri"
+"skull.1.tri"
 "scalp.1.tri"
 
 Domains 4
 
-Domain Scalp 1 -3
-Domain Brain -2
+Domain Scalp 2 -3
+Domain Brain -1
 Domain Air 3
-Domain Skull 2 -1
+Domain Skull 1 -2
 

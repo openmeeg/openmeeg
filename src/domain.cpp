@@ -41,21 +41,21 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 namespace OpenMEEG {
 
-    Domain::Domain(const Domain& d) { *this = d; }
+    // Domain::Domain(const Domain& d) { *this = d; }
 
-    Domain& Domain::operator= (const Domain& d) {
-        if (this != &d) {
-            copy(d);
-        }
-        return *this;
-    }
+    // Domain& Domain::operator= (const Domain& d) {
+        // if (this != &d) {
+            // copy(d);
+        // }
+        // return *this;
+    // }
 
-    void Domain::copy(const Domain& d) {
-        base::operator=(d);
-        sigma_     = d.sigma_;
-        outermost_ = d.outermost_;
-        innermost_ = d.innermost_;
-    }
+    // void Domain::copy(const Domain& d) {
+        // base::operator=(d);
+        // sigma_     = d.sigma_;
+        // outermost_ = d.outermost_;
+        // innermost_ = d.innermost_;
+    // }
 
     bool Domain::contains_point(const Vect3& p) const {
         bool inside = true;
@@ -80,10 +80,9 @@ namespace OpenMEEG {
 
     void Domain::info() const {
 
-        std::cout << "Domain Info : "     << std::endl;
-        std::cout << "\tName     : "  << name() << std::endl;
-        std::cout << "\tConductivity : "    << sigma() << std::endl;
-        std::cout << "\tComposed by interfaces : ";
+        std::cout << "Info:: Domain name : "  << name() << std::endl;
+        std::cout << "\t\tConductivity : "    << sigma() << std::endl;
+        std::cout << "\t\tComposed by interfaces : ";
         for (base::const_iterator hit = this->begin(); hit != this->end(); hit++) {
             if (hit->inside()) {
                 std::cout << "-";
@@ -94,11 +93,21 @@ namespace OpenMEEG {
         }
         std::cout << std::endl;
         if (innermost()) {
-            std::cout << "\tConsidered as the innermost domain." << std::endl;
+            std::cout << "\t\tConsidered as the innermost domain." << std::endl;
         }
         if (outermost()) {
-            std::cout << "\tConsidered as the outermost domain." << std::endl;
+            std::cout << "\t\tConsidered as the outermost domain." << std::endl;
         }
-
+        for (base::const_iterator hit = this->begin(); hit != this->end(); hit++) {
+            std::cout << "\t\tInterface \"" << hit->first.name() << "\"= { ";
+            for (Interface::const_iterator mit = hit->first.begin(); mit != hit->first.end(); mit++) {
+                std::cout << "Mesh \""<< (*mit)->name() << "\"";
+                if ((*mit)->outermost()) {
+                    std::cout << "(OUTERMOST)";
+                }
+                std::cout << ", ";
+            }
+            std::cout << " }" << std::endl;
+        }
     }
 }

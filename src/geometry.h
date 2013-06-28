@@ -71,22 +71,22 @@ namespace OpenMEEG {
         typedef Meshes::const_iterator    const_iterator;
 
         // Iterators
-              iterator             begin()                 { return meshes().begin();    }
-        const_iterator             begin()           const { return meshes().begin();    }
-              iterator             end()                   { return meshes().end();      }
-        const_iterator             end()             const { return meshes().end();      }
-        Vertices::iterator         vertex_begin()          { return vertices().begin();  }
-        Vertices::const_iterator   vertex_begin()    const { return vertices().begin();  }
-        Vertices::iterator         vertex_end()            { return vertices().end();    }
-        Vertices::const_iterator   vertex_end()      const { return vertices().end();    }
-        Domains::iterator          domain_begin()          { return domains().begin();   }
-        Domains::const_iterator    domain_begin()    const { return domains().begin();   }
-        Domains::iterator          domain_end()            { return domains().end();     }
-        Domains::const_iterator    domain_end()      const { return domains().end();     }
-        Interfaces::iterator       interface_begin()       { return interfaces().begin();}
-        Interfaces::const_iterator interface_begin() const { return interfaces().begin();}
-        Interfaces::iterator       interface_end()         { return interfaces().end();  }
-        Interfaces::const_iterator interface_end()   const { return interfaces().end();  }
+              iterator             begin()                 { return meshes_.begin();    }
+        const_iterator             begin()           const { return meshes_.begin();    }
+              iterator             end()                   { return meshes_.end();      }
+        const_iterator             end()             const { return meshes_.end();      }
+        Vertices::iterator         vertex_begin()          { return vertices_.begin();  }
+        Vertices::const_iterator   vertex_begin()    const { return vertices_.begin();  }
+        Vertices::iterator         vertex_end()            { return vertices_.end();    }
+        Vertices::const_iterator   vertex_end()      const { return vertices_.end();    }
+        Domains::iterator          domain_begin()          { return domains_.begin();   }
+        Domains::const_iterator    domain_begin()    const { return domains_.begin();   }
+        Domains::iterator          domain_end()            { return domains_.end();     }
+        Domains::const_iterator    domain_end()      const { return domains_.end();     }
+        Interfaces::iterator       interface_begin()       { return interfaces_.begin();}
+        Interfaces::const_iterator interface_begin() const { return interfaces_.begin();}
+        Interfaces::iterator       interface_end()         { return interfaces_.end();  }
+        Interfaces::const_iterator interface_end()   const { return interfaces_.end();  }
 
         // Constructors
         Geometry(): has_cond_(false)   { }
@@ -108,7 +108,8 @@ namespace OpenMEEG {
               size_t&       size()                        { return size_; }
         const size_t        size()                  const { return size_; }
         const size_t        nb_domains()            const { return domains_.size(); }
-        const size_t        nb_trianglesoutermost_() const;
+        const size_t        nb_trianglesoutermost() const;
+        const Interface     outermost_interface()   const; 
         
         void          read       (const char* geomFileName, const char* condFileName = NULL);
         void          info       ()                      const;
@@ -150,20 +151,19 @@ namespace OpenMEEG {
         #endif
 
         inline Domains common_domains(const Mesh& m1, const Mesh& m2) const {
-            // std::set<Domain&> sdom1;
-            // std::set<Domain&> sdom2;
-            // Domains doms;
-            // Domains::iterator dit;
-            // for (dit = domains.begin(); dit != domains.end(); dit++) {
-                // if (dit->meshOrient(m1) != 0) {
-                    // sdom1.insert(std::abs(dit->second));
-                // }
-                // if (dit->meshOrient(m2) != 0) {
-                    // sdom2.insert(std::abs(dit->second));
-                // }
-            // }
-            // dit = std::set_intersection(sdom1.begin(), sdom1.end(), sdom2.begin(), sdom2.end(), doms );
-            // return doms;
+            std::set<Domain> sdom1;
+            std::set<Domain> sdom2;
+            for (Domains::const_iterator dit = domain_begin(); dit != domain_end(); dit++) {
+                if (dit->meshOrient(m1) != 0) {
+                    sdom1.insert(*dit);
+                }
+                if (dit->meshOrient(m2) != 0) {
+                    sdom2.insert(*dit);
+                }
+            }
+            Domains doms;
+            std::set_intersection(sdom1.begin(), sdom1.end(), sdom2.begin(), sdom2.end(), std::back_inserter(doms) );
+            return doms;
         }
 
         inline double funct_on_domains(const Mesh& m1, const Mesh& m2, char f) const {       // return the (sum) conductivity(ies) of the shared domain(s).

@@ -3,23 +3,23 @@ if &cp | set nocp | endif
 let s:cpo_save=&cpo
 set cpo&vim
 map! <S-Insert> <MiddleMouse>
-nnoremap <silent> y :CCTreeWindowSaveCopy
 nnoremap <silent> w :CCTreeWindowToggle
+nnoremap <silent> y :CCTreeWindowSaveCopy
 vnoremap <silent> # :let old_reg=getreg('"')|let old_regtype=getregtype('"')gvy?=substitute(escape(@", '?\.*$^~['), '\_s\+', '\\_s\\+', 'g')gV:call setreg('"', old_reg, old_regtype)
 vnoremap <silent> * :let old_reg=getreg('"')|let old_regtype=getregtype('"')gvy/=substitute(escape(@", '/\.*$^~['), '\_s\+', '\\_s\\+', 'g')gV:call setreg('"', old_reg, old_regtype)
-map ,# :call CommentLineToEnd('#')+
-map ,* :call CommentLinePincer('/* ', ' */')+
-noremap <silent> ,/ :call CommentLineToEnd('// ')+
-noremap <silent> ,% :call CommentLineToEnd('% ')+
-map ,o ^istd::cout << $a << std::endl;+
-map ,p ^istd::cout << "$a =" << $a << std::endl;+
-map ,e ^istd::cerr << $a << std::endl;+
 map ,i ostd::cin.get();+
+map ,e ^istd::cerr << $a << std::endl;+
+map ,p ^istd::cout << "$a =" << $a << std::endl;+
+map ,o ^istd::cout << $a << std::endl;+
+noremap <silent> ,% :call CommentLineToEnd('% ')+
+noremap <silent> ,/ :call CommentLineToEnd('// ')+
+map ,* :call CommentLinePincer('/* ', ' */')+
+map ,# :call CommentLineToEnd('#')+
 nmap gx <Plug>NetrwBrowseX
-map <F4> I//+
-map <F3> ^xx+
-nnoremap <silent> <Plug>NetrwBrowseX :call netrw#NetrwBrowseX(expand("<cWORD>"),0)
 map <S-Insert> <MiddleMouse>
+nnoremap <silent> <Plug>NetrwBrowseX :call netrw#NetrwBrowseX(expand("<cWORD>"),0)
+map <F3> ^xx+
+map <F4> I//+
 let &cpo=s:cpo_save
 unlet s:cpo_save
 set autoindent
@@ -47,29 +47,30 @@ set suffixes=.bak,~,.swp,.o,.info,.aux,.log,.dvi,.bbl,.blg,.brf,.cb,.ind,.idx,.i
 set tabstop=4
 set termencoding=utf-8
 set viminfo='20,\"50
+set window=115
 let s:so_save = &so | let s:siso_save = &siso | set so=0 siso=0
 let v:this_session=expand("<sfile>:p")
 silent only
-cd ~/src/openmeegINRIA
+cd ~/src/openmeeg-geom
 if expand('%') == '' && !&modified && line('$') <= 1 && getline(1) == ''
   let s:wipebuf = bufnr('%')
 endif
 set shortmess=aoO
-badd +160 src/geometry.cpp
-badd +141 src/geometry.h
-badd +60 src/mesh3.cpp
-badd +139 src/mesh3.h
+badd +65 src/geometry.cpp
+badd +109 src/geometry.h
+badd +81 src/mesh3.cpp
+badd +19 src/mesh3.h
 badd +1 src/MeshReader.h
 badd +234 src/assembleHeadMat.cpp
 badd +1 README_Geom.rst
 badd +57 src/interface.h
 badd +1 src/meshes.h
 badd +155 src/vect3.h
-badd +1 src/triangle.h
+badd +187 src/triangle.h
 badd +64 ~/src/src_old/Odyssee++/trunk/Libs/FMesh/include/FMesh/Face.H
 badd +144 ~/src/src_old/Odyssee++/trunk/Libs/FMesh/include/FMesh/Defaults.H
-badd +1 src/assembleSourceMat.cpp
-badd +48 src/operators.h
+badd +224 src/assembleSourceMat.cpp
+badd +277 src/operators.h
 badd +48 src/operators.cpp
 badd +175 src/analytics.h
 badd +89 ../src_old/openmeeg/trunk/src/geometry.h
@@ -82,14 +83,14 @@ badd +115 src/assemble.cpp
 badd +41 src/CMakeLists.txt
 badd +72 src/assembleFerguson.cpp
 badd +60 src/points.h
-badd +1 ~/src/src_old/Odyssee++/trunk/Libs/FMesh/include/FMesh/Static.H
+badd +115 ~/src/src_old/Odyssee++/trunk/Libs/FMesh/include/FMesh/Static.H
 badd +81 src/domains.h
 badd +249 src/assembleSensors.cpp
-badd +89 ../src_old/openmeeg/trunk/src/assembleHeadMat.cpp
+badd +78 ../src_old/openmeeg/trunk/src/assembleHeadMat.cpp
 badd +1 src/MeshDescription/Normals.H
 badd +1 src/domain.h
 badd +55 src/reader.h
-badd +1 src/mesh.h
+badd +103 src/mesh.h
 badd +59 src/point.h
 badd +40 src/MeshDescription/file_formats.h
 badd +1 src/MeshDescription/io.h
@@ -97,11 +98,17 @@ badd +1 src/MeshDescription/io.cpp
 badd +499 libs/MatLib/MatLib/IOUtils.H
 badd +50 src/integrator.h
 badd +21 ~/src/src_old/Odyssee++/trunk/Libs/FMesh/include/FMesh/Mesh.H
-badd +1 src/vertex.h
+badd +58 src/vertex.h
 badd +89 ~/src/src_old/openmeeg/trunk/src/MeshDescription/Reader.H
 badd +1 src/mesh.cpp
 badd +1 src/interface.cpp
 badd +1 src/domain.cpp
+badd +144 ../src_old/openmeeg/trunk/src/mesh3.h
+badd +115 ../src_old/Odyssee++/trunk/Libs/FMesh/include/FMesh/Indexers.H
+badd +0 ../src_old/Odyssee++/trunk/Libs/FMesh/include/FMesh/Layer.H
+badd +81 ../src_old/Odyssee++/trunk/Libs/Utils/include/Utils/IteratorRange.H
+badd +0 src/triangle.cpp
+badd +14 data/Models/Head1/Head1.geom
 args src/geometry.cpp src/mesh3.cpp src/assembleHeadMat.cpp src/geometry.h src/mesh3.h src/MeshReader.h
 edit README_Geom.rst
 set splitbelow splitright
@@ -212,12 +219,12 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 47 - ((0 * winheight(0) + 24) / 49)
+let s:l = 90 - ((55 * winheight(0) + 57) / 115)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-47
-normal! 04l
+90
+normal! 098|
 tabedit src/CMakeLists.txt
 set splitbelow splitright
 set nosplitbelow
@@ -327,12 +334,129 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 1 - ((0 * winheight(0) + 24) / 49)
+let s:l = 16 - ((15 * winheight(0) + 57) / 115)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-1
-normal! 0
+16
+normal! 0111|
+tabedit src/vect3.h
+set splitbelow splitright
+set nosplitbelow
+set nosplitright
+wincmd t
+set winheight=1 winwidth=1
+argglobal
+edit src/vect3.h
+nnoremap <buffer> <silent> - :CCTreeRecurseDepthMinus
+nnoremap <buffer> <silent> = :CCTreeRecurseDepthPlus
+setlocal keymap=
+setlocal noarabic
+setlocal autoindent
+setlocal balloonexpr=
+setlocal nobinary
+setlocal bufhidden=
+setlocal buflisted
+setlocal buftype=
+setlocal cindent
+setlocal cinkeys=0{,0},0),:,0#,!^F,o,O,e
+setlocal cinoptions=
+setlocal cinwords=if,else,while,do,for,switch
+setlocal colorcolumn=
+setlocal comments=sO:*\ -,mO:*\ \ ,exO:*/,s1:/*,mb:*,ex:*/,://
+setlocal commentstring=/*%s*/
+setlocal complete=.,w,b,u,t,i
+setlocal concealcursor=
+setlocal conceallevel=0
+setlocal completefunc=
+setlocal nocopyindent
+setlocal cryptmethod=
+setlocal nocursorbind
+setlocal nocursorcolumn
+setlocal nocursorline
+setlocal define=
+setlocal dictionary=
+setlocal nodiff
+setlocal equalprg=
+setlocal errorformat=
+setlocal expandtab
+if &filetype != 'cpp'
+setlocal filetype=cpp
+endif
+setlocal foldcolumn=0
+setlocal foldenable
+setlocal foldexpr=0
+setlocal foldignore=#
+setlocal foldlevel=0
+setlocal foldmarker={{{,}}}
+setlocal foldmethod=manual
+setlocal foldminlines=1
+setlocal foldnestmax=20
+setlocal foldtext=foldtext()
+setlocal formatexpr=
+setlocal formatoptions=croql
+setlocal formatlistpat=^\\s*\\d\\+[\\]:.)}\\t\ ]\\s*
+setlocal grepprg=
+setlocal iminsert=0
+setlocal imsearch=0
+setlocal include=
+setlocal includeexpr=
+setlocal indentexpr=
+setlocal indentkeys=0{,0},:,0#,!^F,o,O,e
+setlocal noinfercase
+setlocal iskeyword=@,48-57,_,192-255
+setlocal keywordprg=
+setlocal nolinebreak
+setlocal nolisp
+setlocal nolist
+setlocal makeprg=
+setlocal matchpairs=(:),{:},[:]
+setlocal nomodeline
+setlocal modifiable
+setlocal nrformats=octal,hex
+setlocal nonumber
+setlocal numberwidth=4
+setlocal omnifunc=ccomplete#Complete
+setlocal path=
+setlocal nopreserveindent
+setlocal nopreviewwindow
+setlocal quoteescape=\\
+setlocal noreadonly
+setlocal norelativenumber
+setlocal norightleft
+setlocal rightleftcmd=search
+setlocal noscrollbind
+setlocal shiftwidth=4
+setlocal noshortname
+setlocal nosmartindent
+setlocal softtabstop=0
+setlocal nospell
+setlocal spellcapcheck=[.?!]\\_[\\])'\"\	\ ]\\+
+setlocal spellfile=
+setlocal spelllang=en
+setlocal statusline=
+setlocal suffixesadd=
+setlocal swapfile
+setlocal synmaxcol=3000
+if &syntax != 'cpp'
+setlocal syntax=cpp
+endif
+setlocal tabstop=4
+setlocal tags=
+setlocal textwidth=0
+setlocal thesaurus=
+setlocal noundofile
+setlocal nowinfixheight
+setlocal nowinfixwidth
+setlocal wrap
+setlocal wrapmargin=0
+silent! normal! zE
+let s:l = 145 - ((95 * winheight(0) + 57) / 115)
+if s:l < 1 | let s:l = 1 | endif
+exe s:l
+normal! zt
+145
+normal! 035|
 tabedit src/vertex.h
 set splitbelow splitright
 set nosplitbelow
@@ -342,8 +466,8 @@ set winheight=1 winwidth=1
 argglobal
 6argu
 edit src/vertex.h
-nnoremap <buffer> <silent> = :CCTreeRecurseDepthPlus
 nnoremap <buffer> <silent> - :CCTreeRecurseDepthMinus
+nnoremap <buffer> <silent> = :CCTreeRecurseDepthPlus
 setlocal keymap=
 setlocal noarabic
 setlocal autoindent
@@ -445,12 +569,12 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 58 - ((16 * winheight(0) + 24) / 49)
+let s:l = 77 - ((42 * winheight(0) + 57) / 115)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-58
-normal! 026l
+77
+normal! 0
 tabedit src/triangle.h
 set splitbelow splitright
 set nosplitbelow
@@ -458,10 +582,9 @@ set nosplitright
 wincmd t
 set winheight=1 winwidth=1
 argglobal
-4argu
 edit src/triangle.h
-nnoremap <buffer> <silent> = :CCTreeRecurseDepthPlus
 nnoremap <buffer> <silent> - :CCTreeRecurseDepthMinus
+nnoremap <buffer> <silent> = :CCTreeRecurseDepthPlus
 setlocal keymap=
 setlocal noarabic
 setlocal autoindent
@@ -563,12 +686,129 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 183 - ((15 * winheight(0) + 24) / 49)
+let s:l = 138 - ((24 * winheight(0) + 57) / 115)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-183
-normal! 030l
+138
+normal! 013|
+tabedit src/triangle.cpp
+set splitbelow splitright
+set nosplitbelow
+set nosplitright
+wincmd t
+set winheight=1 winwidth=1
+argglobal
+edit src/triangle.cpp
+nnoremap <buffer> <silent> - :CCTreeRecurseDepthMinus
+nnoremap <buffer> <silent> = :CCTreeRecurseDepthPlus
+setlocal keymap=
+setlocal noarabic
+setlocal autoindent
+setlocal balloonexpr=
+setlocal nobinary
+setlocal bufhidden=
+setlocal buflisted
+setlocal buftype=
+setlocal cindent
+setlocal cinkeys=0{,0},0),:,0#,!^F,o,O,e
+setlocal cinoptions=
+setlocal cinwords=if,else,while,do,for,switch
+setlocal colorcolumn=
+setlocal comments=sO:*\ -,mO:*\ \ ,exO:*/,s1:/*,mb:*,ex:*/,://
+setlocal commentstring=/*%s*/
+setlocal complete=.,w,b,u,t,i
+setlocal concealcursor=
+setlocal conceallevel=0
+setlocal completefunc=
+setlocal nocopyindent
+setlocal cryptmethod=
+setlocal nocursorbind
+setlocal nocursorcolumn
+setlocal nocursorline
+setlocal define=
+setlocal dictionary=
+setlocal nodiff
+setlocal equalprg=
+setlocal errorformat=
+setlocal expandtab
+if &filetype != 'cpp'
+setlocal filetype=cpp
+endif
+setlocal foldcolumn=0
+setlocal foldenable
+setlocal foldexpr=0
+setlocal foldignore=#
+setlocal foldlevel=0
+setlocal foldmarker={{{,}}}
+setlocal foldmethod=manual
+setlocal foldminlines=1
+setlocal foldnestmax=20
+setlocal foldtext=foldtext()
+setlocal formatexpr=
+setlocal formatoptions=croql
+setlocal formatlistpat=^\\s*\\d\\+[\\]:.)}\\t\ ]\\s*
+setlocal grepprg=
+setlocal iminsert=0
+setlocal imsearch=0
+setlocal include=
+setlocal includeexpr=
+setlocal indentexpr=
+setlocal indentkeys=0{,0},:,0#,!^F,o,O,e
+setlocal noinfercase
+setlocal iskeyword=@,48-57,_,192-255
+setlocal keywordprg=
+setlocal nolinebreak
+setlocal nolisp
+setlocal nolist
+setlocal makeprg=
+setlocal matchpairs=(:),{:},[:]
+setlocal nomodeline
+setlocal modifiable
+setlocal nrformats=octal,hex
+setlocal nonumber
+setlocal numberwidth=4
+setlocal omnifunc=ccomplete#Complete
+setlocal path=
+setlocal nopreserveindent
+setlocal nopreviewwindow
+setlocal quoteescape=\\
+setlocal noreadonly
+setlocal norelativenumber
+setlocal norightleft
+setlocal rightleftcmd=search
+setlocal noscrollbind
+setlocal shiftwidth=4
+setlocal noshortname
+setlocal nosmartindent
+setlocal softtabstop=0
+setlocal nospell
+setlocal spellcapcheck=[.?!]\\_[\\])'\"\	\ ]\\+
+setlocal spellfile=
+setlocal spelllang=en
+setlocal statusline=
+setlocal suffixesadd=
+setlocal swapfile
+setlocal synmaxcol=3000
+if &syntax != 'cpp'
+setlocal syntax=cpp
+endif
+setlocal tabstop=4
+setlocal tags=
+setlocal textwidth=0
+setlocal thesaurus=
+setlocal noundofile
+setlocal nowinfixheight
+setlocal nowinfixwidth
+setlocal wrap
+setlocal wrapmargin=0
+silent! normal! zE
+let s:l = 44 - ((43 * winheight(0) + 57) / 115)
+if s:l < 1 | let s:l = 1 | endif
+exe s:l
+normal! zt
+44
+normal! 05|
 tabedit src/mesh.h
 set splitbelow splitright
 set nosplitbelow
@@ -576,10 +816,9 @@ set nosplitright
 wincmd t
 set winheight=1 winwidth=1
 argglobal
-6argu
 edit src/mesh.h
-nnoremap <buffer> <silent> = :CCTreeRecurseDepthPlus
 nnoremap <buffer> <silent> - :CCTreeRecurseDepthMinus
+nnoremap <buffer> <silent> = :CCTreeRecurseDepthPlus
 setlocal keymap=
 setlocal noarabic
 setlocal autoindent
@@ -681,12 +920,12 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 103 - ((0 * winheight(0) + 24) / 49)
+let s:l = 94 - ((22 * winheight(0) + 57) / 115)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-103
-normal! 032l
+94
+normal! 09|
 tabedit src/mesh.cpp
 set splitbelow splitright
 set nosplitbelow
@@ -695,8 +934,8 @@ wincmd t
 set winheight=1 winwidth=1
 argglobal
 edit src/mesh.cpp
-nnoremap <buffer> <silent> = :CCTreeRecurseDepthPlus
 nnoremap <buffer> <silent> - :CCTreeRecurseDepthMinus
+nnoremap <buffer> <silent> = :CCTreeRecurseDepthPlus
 setlocal keymap=
 setlocal noarabic
 setlocal autoindent
@@ -798,12 +1037,12 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 85 - ((24 * winheight(0) + 24) / 49)
+let s:l = 56 - ((55 * winheight(0) + 57) / 115)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-85
-normal! 04l
+56
+normal! 0
 tabedit src/interface.h
 set splitbelow splitright
 set nosplitbelow
@@ -812,8 +1051,8 @@ wincmd t
 set winheight=1 winwidth=1
 argglobal
 edit src/interface.h
-nnoremap <buffer> <silent> = :CCTreeRecurseDepthPlus
 nnoremap <buffer> <silent> - :CCTreeRecurseDepthMinus
+nnoremap <buffer> <silent> = :CCTreeRecurseDepthPlus
 setlocal keymap=
 setlocal noarabic
 setlocal autoindent
@@ -915,12 +1154,12 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 73 - ((8 * winheight(0) + 24) / 49)
+let s:l = 84 - ((68 * winheight(0) + 57) / 115)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-73
-normal! 043l
+84
+normal! 047|
 tabedit src/interface.cpp
 set splitbelow splitright
 set nosplitbelow
@@ -929,8 +1168,8 @@ wincmd t
 set winheight=1 winwidth=1
 argglobal
 edit src/interface.cpp
-nnoremap <buffer> <silent> = :CCTreeRecurseDepthPlus
 nnoremap <buffer> <silent> - :CCTreeRecurseDepthMinus
+nnoremap <buffer> <silent> = :CCTreeRecurseDepthPlus
 setlocal keymap=
 setlocal noarabic
 setlocal autoindent
@@ -1032,12 +1271,12 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 47 - ((13 * winheight(0) + 24) / 49)
+let s:l = 90 - ((89 * winheight(0) + 57) / 115)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-47
-normal! 027l
+90
+normal! 0
 tabedit src/domain.h
 set splitbelow splitright
 set nosplitbelow
@@ -1046,8 +1285,8 @@ wincmd t
 set winheight=1 winwidth=1
 argglobal
 edit src/domain.h
-nnoremap <buffer> <silent> = :CCTreeRecurseDepthPlus
 nnoremap <buffer> <silent> - :CCTreeRecurseDepthMinus
+nnoremap <buffer> <silent> = :CCTreeRecurseDepthPlus
 setlocal keymap=
 setlocal noarabic
 setlocal autoindent
@@ -1149,12 +1388,12 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 63 - ((0 * winheight(0) + 24) / 49)
+let s:l = 112 - ((71 * winheight(0) + 57) / 115)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-63
-normal! 0
+112
+normal! 028|
 tabedit src/domain.cpp
 set splitbelow splitright
 set nosplitbelow
@@ -1163,8 +1402,8 @@ wincmd t
 set winheight=1 winwidth=1
 argglobal
 edit src/domain.cpp
-nnoremap <buffer> <silent> = :CCTreeRecurseDepthPlus
 nnoremap <buffer> <silent> - :CCTreeRecurseDepthMinus
+nnoremap <buffer> <silent> = :CCTreeRecurseDepthPlus
 setlocal keymap=
 setlocal noarabic
 setlocal autoindent
@@ -1266,12 +1505,12 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 52 - ((22 * winheight(0) + 24) / 49)
+let s:l = 105 - ((95 * winheight(0) + 57) / 115)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-52
-normal! 04l
+105
+normal! 029|
 tabedit src/geometry.h
 set splitbelow splitright
 set nosplitbelow
@@ -1280,8 +1519,8 @@ wincmd t
 set winheight=1 winwidth=1
 argglobal
 4argu
-nnoremap <buffer> <silent> = :CCTreeRecurseDepthPlus
 nnoremap <buffer> <silent> - :CCTreeRecurseDepthMinus
+nnoremap <buffer> <silent> = :CCTreeRecurseDepthPlus
 setlocal keymap=
 setlocal noarabic
 setlocal autoindent
@@ -1382,12 +1621,12 @@ setlocal nowinfixheight
 setlocal nowinfixwidth
 setlocal nowrap
 setlocal wrapmargin=0
-let s:l = 109 - ((33 * winheight(0) + 24) / 49)
+let s:l = 161 - ((82 * winheight(0) + 57) / 115)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-109
-normal! 030l
+161
+normal! 017|
 tabedit src/geometry.cpp
 set splitbelow splitright
 set nosplitbelow
@@ -1396,8 +1635,8 @@ wincmd t
 set winheight=1 winwidth=1
 argglobal
 edit src/geometry.cpp
-nnoremap <buffer> <silent> = :CCTreeRecurseDepthPlus
 nnoremap <buffer> <silent> - :CCTreeRecurseDepthMinus
+nnoremap <buffer> <silent> = :CCTreeRecurseDepthPlus
 setlocal keymap=
 setlocal noarabic
 setlocal autoindent
@@ -1499,12 +1738,12 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 65 - ((27 * winheight(0) + 24) / 49)
+let s:l = 52 - ((18 * winheight(0) + 57) / 115)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-65
-normal! 08l
+52
+normal! 05|
 tabedit src/reader.h
 set splitbelow splitright
 set nosplitbelow
@@ -1513,6 +1752,8 @@ wincmd t
 set winheight=1 winwidth=1
 argglobal
 edit src/reader.h
+nnoremap <buffer> <silent> - :CCTreeRecurseDepthMinus
+nnoremap <buffer> <silent> = :CCTreeRecurseDepthPlus
 setlocal keymap=
 setlocal noarabic
 setlocal autoindent
@@ -1614,13 +1855,13 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 165 - ((43 * winheight(0) + 24) / 49)
+let s:l = 257 - ((71 * winheight(0) + 57) / 115)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-165
-normal! 027l
-tabedit src/assembleSourceMat.cpp
+257
+normal! 038|
+tabedit src/assembleHeadMat.cpp
 set splitbelow splitright
 set nosplitbelow
 set nosplitright
@@ -1628,9 +1869,9 @@ wincmd t
 set winheight=1 winwidth=1
 argglobal
 2argu
-edit src/assembleSourceMat.cpp
-nnoremap <buffer> <silent> = :CCTreeRecurseDepthPlus
+edit src/assembleHeadMat.cpp
 nnoremap <buffer> <silent> - :CCTreeRecurseDepthMinus
+nnoremap <buffer> <silent> = :CCTreeRecurseDepthPlus
 setlocal keymap=
 setlocal noarabic
 setlocal autoindent
@@ -1732,12 +1973,129 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 224 - ((0 * winheight(0) + 24) / 49)
+let s:l = 139 - ((85 * winheight(0) + 57) / 115)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-224
-normal! 011l
+139
+normal! 033|
+tabedit src/assembleSourceMat.cpp
+set splitbelow splitright
+set nosplitbelow
+set nosplitright
+wincmd t
+set winheight=1 winwidth=1
+argglobal
+edit src/assembleSourceMat.cpp
+nnoremap <buffer> <silent> - :CCTreeRecurseDepthMinus
+nnoremap <buffer> <silent> = :CCTreeRecurseDepthPlus
+setlocal keymap=
+setlocal noarabic
+setlocal autoindent
+setlocal balloonexpr=
+setlocal nobinary
+setlocal bufhidden=
+setlocal buflisted
+setlocal buftype=
+setlocal cindent
+setlocal cinkeys=0{,0},0),:,0#,!^F,o,O,e
+setlocal cinoptions=
+setlocal cinwords=if,else,while,do,for,switch
+setlocal colorcolumn=
+setlocal comments=sO:*\ -,mO:*\ \ ,exO:*/,s1:/*,mb:*,ex:*/,://
+setlocal commentstring=/*%s*/
+setlocal complete=.,w,b,u,t,i
+setlocal concealcursor=
+setlocal conceallevel=0
+setlocal completefunc=
+setlocal nocopyindent
+setlocal cryptmethod=
+setlocal nocursorbind
+setlocal nocursorcolumn
+setlocal nocursorline
+setlocal define=
+setlocal dictionary=
+setlocal nodiff
+setlocal equalprg=
+setlocal errorformat=
+setlocal expandtab
+if &filetype != 'cpp'
+setlocal filetype=cpp
+endif
+setlocal foldcolumn=0
+setlocal foldenable
+setlocal foldexpr=0
+setlocal foldignore=#
+setlocal foldlevel=0
+setlocal foldmarker={{{,}}}
+setlocal foldmethod=manual
+setlocal foldminlines=1
+setlocal foldnestmax=20
+setlocal foldtext=foldtext()
+setlocal formatexpr=
+setlocal formatoptions=croql
+setlocal formatlistpat=^\\s*\\d\\+[\\]:.)}\\t\ ]\\s*
+setlocal grepprg=
+setlocal iminsert=0
+setlocal imsearch=0
+setlocal include=
+setlocal includeexpr=
+setlocal indentexpr=
+setlocal indentkeys=0{,0},:,0#,!^F,o,O,e
+setlocal noinfercase
+setlocal iskeyword=@,48-57,_,192-255
+setlocal keywordprg=
+setlocal nolinebreak
+setlocal nolisp
+setlocal nolist
+setlocal makeprg=
+setlocal matchpairs=(:),{:},[:]
+setlocal modeline
+setlocal modifiable
+setlocal nrformats=octal,hex
+setlocal nonumber
+setlocal numberwidth=4
+setlocal omnifunc=ccomplete#Complete
+setlocal path=
+setlocal nopreserveindent
+setlocal nopreviewwindow
+setlocal quoteescape=\\
+setlocal noreadonly
+setlocal norelativenumber
+setlocal norightleft
+setlocal rightleftcmd=search
+setlocal noscrollbind
+setlocal shiftwidth=4
+setlocal noshortname
+setlocal nosmartindent
+setlocal softtabstop=0
+setlocal nospell
+setlocal spellcapcheck=[.?!]\\_[\\])'\"\	\ ]\\+
+setlocal spellfile=
+setlocal spelllang=en
+setlocal statusline=
+setlocal suffixesadd=
+setlocal swapfile
+setlocal synmaxcol=3000
+if &syntax != 'cpp'
+setlocal syntax=cpp
+endif
+setlocal tabstop=4
+setlocal tags=
+setlocal textwidth=0
+setlocal thesaurus=
+setlocal noundofile
+setlocal nowinfixheight
+setlocal nowinfixwidth
+setlocal wrap
+setlocal wrapmargin=0
+silent! normal! zE
+let s:l = 206 - ((85 * winheight(0) + 57) / 115)
+if s:l < 1 | let s:l = 1 | endif
+exe s:l
+normal! zt
+206
+normal! 013|
 tabedit src/assembleSensors.cpp
 set splitbelow splitright
 set nosplitbelow
@@ -1746,8 +2104,8 @@ wincmd t
 set winheight=1 winwidth=1
 argglobal
 edit src/assembleSensors.cpp
-nnoremap <buffer> <silent> = :CCTreeRecurseDepthPlus
 nnoremap <buffer> <silent> - :CCTreeRecurseDepthMinus
+nnoremap <buffer> <silent> = :CCTreeRecurseDepthPlus
 setlocal keymap=
 setlocal noarabic
 setlocal autoindent
@@ -1849,129 +2207,12 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 130 - ((0 * winheight(0) + 24) / 49)
+let s:l = 55 - ((54 * winheight(0) + 57) / 115)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-130
-normal! 034l
-tabedit src/assembleHeadMat.cpp
-set splitbelow splitright
-set nosplitbelow
-set nosplitright
-wincmd t
-set winheight=1 winwidth=1
-argglobal
-edit src/assembleHeadMat.cpp
-nnoremap <buffer> <silent> = :CCTreeRecurseDepthPlus
-nnoremap <buffer> <silent> - :CCTreeRecurseDepthMinus
-setlocal keymap=
-setlocal noarabic
-setlocal autoindent
-setlocal balloonexpr=
-setlocal nobinary
-setlocal bufhidden=
-setlocal buflisted
-setlocal buftype=
-setlocal cindent
-setlocal cinkeys=0{,0},0),:,0#,!^F,o,O,e
-setlocal cinoptions=
-setlocal cinwords=if,else,while,do,for,switch
-setlocal colorcolumn=
-setlocal comments=sO:*\ -,mO:*\ \ ,exO:*/,s1:/*,mb:*,ex:*/,://
-setlocal commentstring=/*%s*/
-setlocal complete=.,w,b,u,t,i
-setlocal concealcursor=
-setlocal conceallevel=0
-setlocal completefunc=
-setlocal nocopyindent
-setlocal cryptmethod=
-setlocal nocursorbind
-setlocal nocursorcolumn
-setlocal nocursorline
-setlocal define=
-setlocal dictionary=
-setlocal nodiff
-setlocal equalprg=
-setlocal errorformat=
-setlocal expandtab
-if &filetype != 'cpp'
-setlocal filetype=cpp
-endif
-setlocal foldcolumn=0
-setlocal foldenable
-setlocal foldexpr=0
-setlocal foldignore=#
-setlocal foldlevel=0
-setlocal foldmarker={{{,}}}
-setlocal foldmethod=manual
-setlocal foldminlines=1
-setlocal foldnestmax=20
-setlocal foldtext=foldtext()
-setlocal formatexpr=
-setlocal formatoptions=croql
-setlocal formatlistpat=^\\s*\\d\\+[\\]:.)}\\t\ ]\\s*
-setlocal grepprg=
-setlocal iminsert=0
-setlocal imsearch=0
-setlocal include=
-setlocal includeexpr=
-setlocal indentexpr=
-setlocal indentkeys=0{,0},:,0#,!^F,o,O,e
-setlocal noinfercase
-setlocal iskeyword=@,48-57,_,192-255
-setlocal keywordprg=
-setlocal nolinebreak
-setlocal nolisp
-setlocal nolist
-setlocal makeprg=
-setlocal matchpairs=(:),{:},[:]
-setlocal modeline
-setlocal modifiable
-setlocal nrformats=octal,hex
-setlocal nonumber
-setlocal numberwidth=4
-setlocal omnifunc=ccomplete#Complete
-setlocal path=
-setlocal nopreserveindent
-setlocal nopreviewwindow
-setlocal quoteescape=\\
-setlocal noreadonly
-setlocal norelativenumber
-setlocal norightleft
-setlocal rightleftcmd=search
-setlocal noscrollbind
-setlocal shiftwidth=4
-setlocal noshortname
-setlocal nosmartindent
-setlocal softtabstop=0
-setlocal nospell
-setlocal spellcapcheck=[.?!]\\_[\\])'\"\	\ ]\\+
-setlocal spellfile=
-setlocal spelllang=en
-setlocal statusline=
-setlocal suffixesadd=
-setlocal swapfile
-setlocal synmaxcol=3000
-if &syntax != 'cpp'
-setlocal syntax=cpp
-endif
-setlocal tabstop=4
-setlocal tags=
-setlocal textwidth=0
-setlocal thesaurus=
-setlocal noundofile
-setlocal nowinfixheight
-setlocal nowinfixwidth
-setlocal wrap
-setlocal wrapmargin=0
-silent! normal! zE
-let s:l = 209 - ((0 * winheight(0) + 24) / 49)
-if s:l < 1 | let s:l = 1 | endif
-exe s:l
-normal! zt
-209
-normal! 052l
+55
+normal! 09|
 tabedit src/assembleFerguson.cpp
 set splitbelow splitright
 set nosplitbelow
@@ -1980,8 +2221,8 @@ wincmd t
 set winheight=1 winwidth=1
 argglobal
 edit src/assembleFerguson.cpp
-nnoremap <buffer> <silent> = :CCTreeRecurseDepthPlus
 nnoremap <buffer> <silent> - :CCTreeRecurseDepthMinus
+nnoremap <buffer> <silent> = :CCTreeRecurseDepthPlus
 setlocal keymap=
 setlocal noarabic
 setlocal autoindent
@@ -2083,12 +2324,12 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 48 - ((0 * winheight(0) + 24) / 49)
+let s:l = 29 - ((28 * winheight(0) + 57) / 115)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-48
-normal! 04l
+29
+normal! 029|
 tabedit src/assemble.cpp
 set splitbelow splitright
 set nosplitbelow
@@ -2097,8 +2338,8 @@ wincmd t
 set winheight=1 winwidth=1
 argglobal
 edit src/assemble.cpp
-nnoremap <buffer> <silent> = :CCTreeRecurseDepthPlus
 nnoremap <buffer> <silent> - :CCTreeRecurseDepthMinus
+nnoremap <buffer> <silent> = :CCTreeRecurseDepthPlus
 setlocal keymap=
 setlocal noarabic
 setlocal autoindent
@@ -2200,12 +2441,12 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 332 - ((24 * winheight(0) + 24) / 49)
+let s:l = 28 - ((27 * winheight(0) + 57) / 115)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-332
-normal! 08l
+28
+normal! 029|
 tabedit src/operators.h
 set splitbelow splitright
 set nosplitbelow
@@ -2214,8 +2455,8 @@ wincmd t
 set winheight=1 winwidth=1
 argglobal
 edit src/operators.h
-nnoremap <buffer> <silent> = :CCTreeRecurseDepthPlus
 nnoremap <buffer> <silent> - :CCTreeRecurseDepthMinus
+nnoremap <buffer> <silent> = :CCTreeRecurseDepthPlus
 setlocal keymap=
 setlocal noarabic
 setlocal autoindent
@@ -2317,12 +2558,12 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 258 - ((0 * winheight(0) + 24) / 49)
+let s:l = 165 - ((104 * winheight(0) + 57) / 115)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-258
-normal! 014l
+165
+normal! 05|
 tabedit src/operators.cpp
 set splitbelow splitright
 set nosplitbelow
@@ -2331,8 +2572,8 @@ wincmd t
 set winheight=1 winwidth=1
 argglobal
 edit src/operators.cpp
-nnoremap <buffer> <silent> = :CCTreeRecurseDepthPlus
 nnoremap <buffer> <silent> - :CCTreeRecurseDepthMinus
+nnoremap <buffer> <silent> = :CCTreeRecurseDepthPlus
 setlocal keymap=
 setlocal noarabic
 setlocal autoindent
@@ -2434,12 +2675,12 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 121 - ((0 * winheight(0) + 24) / 49)
+let s:l = 29 - ((28 * winheight(0) + 57) / 115)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-121
-normal! 0
+29
+normal! 029|
 tabedit src/analytics.h
 set splitbelow splitright
 set nosplitbelow
@@ -2448,8 +2689,8 @@ wincmd t
 set winheight=1 winwidth=1
 argglobal
 edit src/analytics.h
-nnoremap <buffer> <silent> = :CCTreeRecurseDepthPlus
 nnoremap <buffer> <silent> - :CCTreeRecurseDepthMinus
+nnoremap <buffer> <silent> = :CCTreeRecurseDepthPlus
 setlocal keymap=
 setlocal noarabic
 setlocal autoindent
@@ -2551,12 +2792,12 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 159 - ((0 * winheight(0) + 24) / 49)
+let s:l = 29 - ((28 * winheight(0) + 57) / 115)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-159
-normal! 056l
+29
+normal! 029|
 tabedit src/integrator.h
 set splitbelow splitright
 set nosplitbelow
@@ -2565,8 +2806,8 @@ wincmd t
 set winheight=1 winwidth=1
 argglobal
 edit src/integrator.h
-nnoremap <buffer> <silent> = :CCTreeRecurseDepthPlus
 nnoremap <buffer> <silent> - :CCTreeRecurseDepthMinus
+nnoremap <buffer> <silent> = :CCTreeRecurseDepthPlus
 setlocal keymap=
 setlocal noarabic
 setlocal autoindent
@@ -2668,13 +2909,13 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 198 - ((0 * winheight(0) + 24) / 49)
+let s:l = 1 - ((0 * winheight(0) + 57) / 115)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-198
-normal! 041l
-tabnext 2
+1
+normal! 0
+tabnext 16
 if exists('s:wipebuf')
   silent exe 'bwipe ' . s:wipebuf
 endif

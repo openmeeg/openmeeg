@@ -55,17 +55,18 @@ namespace OpenMEEG {
     //  A simple domain (HalfSpace) is given by an interface (of type Interface) identifying a closed surface and a side (of type InOut) information.
     //  The closed surface split the space into two components. The side depicts which of these two components is the simple domain.
 
-    class HalfSpace: private std::pair<const Interface *, bool> {
+    class HalfSpace: public std::pair<Interface, bool> {
 
-        typedef std::pair<const Interface *, bool> base;
+        typedef std::pair<Interface, bool> base;
 
     public:
 
-        HalfSpace(const Interface &interface, bool inside): base(&interface, inside) {}
+        HalfSpace(const Interface &interface, bool inside): base(interface, inside) {}
         ~HalfSpace() {}
 
-        Interface interface() const { return *(base::first);  }
-        bool      inside()    const { return (base::second); }
+              Interface interface()       { return this->first;  }
+        const Interface interface() const { return this->first;  }
+              bool      inside()    const { return this->second; }
     };
 
     //  A Domain is the intersection of simple domains (of type HalfSpace).
@@ -80,8 +81,8 @@ namespace OpenMEEG {
         Domain(): name_(""), sigma_(0.), innermost_(false), outermost_(false) { }
 
         // copy constructor
-        Domain(const Domain& d);
-        Domain& operator=(const Domain& d);
+        // Domain(const Domain& d);
+        // Domain& operator=(const Domain& d);
 
         ~Domain() { destroy(); }
 
@@ -106,6 +107,7 @@ namespace OpenMEEG {
         //  Returns the innermost state of the domain.
               bool&        innermost()       { return innermost_; }
         const bool&        innermost() const { return innermost_; }
+
         //  Returns the outermost state of the domain.
               bool&        outermost()       { return outermost_; }
         const bool&        outermost() const { return outermost_; }
@@ -114,15 +116,17 @@ namespace OpenMEEG {
 
         bool contains_point(const Vect3&) const;
 
-        int meshOrient(const Mesh& m) { 
+        int meshOrient(const Mesh& m) const { 
             // return 1 if the mesh is oriented toward the domain
                   // -1 if not
                   //  0 else (the mesh is not part of the domain boundary)
-            // for (Interface::const_iterator mit = interface().begin(); mit != interface().end(); mit++) {
-                // if (mit == m ) {
-                    // return (mit.second)?1:-1;
-                // }
-            // }
+            for (Domain::const_iterator hit = this->begin(); hit != this->end(); hit++) {
+                for (Interface::const_iterator mit = hit->first.begin(); mit != hit->first.end(); mit++) {
+                    if (&**mit == &m ) {
+                        return ((hit->inside())?1:-1);
+                    }
+                }
+            }
             return 0;
         }
 
@@ -133,7 +137,7 @@ namespace OpenMEEG {
     private:
 
         void destroy();
-        void copy(const Domain& d);
+        // void copy(const Domain& d);
 
         std::string name_;         // Name of the domain.
         double      sigma_; // Conductivity of the domain.

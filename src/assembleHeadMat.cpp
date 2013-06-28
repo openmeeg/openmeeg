@@ -51,29 +51,25 @@ knowledge of the CeCILL-B license and that you accept its terms.
 namespace OpenMEEG {
 
     template<class T>
-    void deflat(T &M, int start, int end, double coef) {
+    void deflat(T &M, const Interface i, double coef) {
         // deflate the Matrix
-        for(int i=start; i<=end; i++) {
-            #pragma omp parallel for
-            for(int j=i; j<=end; j++) {
-                M(i, j)+=coef;
+        for (Interface::const_iterator mit = i.begin(); mit != i.end(); mit++) {
+            for (Mesh::const_iterator vit1 = (*mit)->begin(); vit1 != (*mit)->end(); vit1++) {
+                #pragma omp parallel for
+                for (Mesh::const_iterator vit2 = vit1; vit2 != (*mit)->end(); vit2++) {
+                    M(vit1->index(), vit2->index()) += coef;
+                }
             }
         }
     }
 
     void assemble_HM(const Geometry &geo, SymMatrix &mat, const int gauss_order) {
 
-        mat = SymMatrix(geo.size()- geo.nb_trianglesoutermost_());
+        mat = SymMatrix(geo.size());
         mat.set(0.0);
-
-        int offset = 0;
 
         // We iterate over the meshes (or pair of domains)
         for (Geometry::const_iterator mit1 = geo.begin(); mit1 != geo.end(); mit1++) {
-
-            size_t offset0 = offset;
-            size_t offset1 = offset0  + mit1->nb_vertices();
-            size_t offset2 = offset1  + mit1->nb_triangles();
 
             for (Geometry::const_iterator mit2 = mit1; mit2 != geo.end(); mit2++) {
 
@@ -81,24 +77,29 @@ namespace OpenMEEG {
                 const double orientation = geo.oriented(*mit1, *mit2); // equals  0, if they don't have any domains in common
 
                 if (std::abs(orientation) > 10.*std::numeric_limits<double>::epsilon() ) {
-                    if ( !mit1->outermost() && !mit2->outermost() ) {
+                    if ( !(mit1->outermost() || mit2->outermost()) ) {
                         // Computing S block first because it's needed for the corresponding N block
                         operatorS(*mit1, *mit2, mat, gauss_order);
 
-                        // Computing D block
+                        // Computing D* block
+                        operatorD(*mit1, *mit2, mat, gauss_order, true);
+                    }
+                    // Computing D block
+                    if ( *mit1 != *mit2 ) {
                         operatorD(*mit1, *mit2, mat, gauss_order);
                     }
+
                     // Computing N block
                     operatorN(*mit1, *mit2, mat, gauss_order);
                 }
-
             }
             offset = offset1 + mit1->nb_triangles();
         }
 
         // Block multiplications
         // Because only half the Matrix is stored, only the lower part of the Matrix is treated
-        offset=0;
+        int offset = 0;
+
         double K = 1.0 / (4.0 * M_PI);
 
         // We iterate over the meshes (or pair of domains)
@@ -122,20 +123,22 @@ namespace OpenMEEG {
                     double Dcoeff = - orientation * geo.indicatrice(*mit1, *mit2) * K;
 
                     // N
-                    mult(mat, offset0, offset0, offset1, offset1, Ncoeff);
+                    mult(mat, offset0, offset0, offset1, offset1, Ncoeff); // TODO assign real index to offsets
                     // S
                     mult(mat, offset1, offset1, offset2, offset2, Scoeff);
                     // D
                     mult(mat, offset1, offset0, offset1, offset2, Dcoeff);
-
                 }
+
             }
             offset = offset2;
         }
 
-        // Deflate the last diagonal block of new 'mat' : 
-        offset = mat.ncol() - geo.end()->nb_vertices();
-        deflat(mat, offset, mat.ncol()-1, mat(offset, offset) / (mat.ncol() - offset));
+        // Deflate the last diagonal block of 'mat' : (in order to have a zero-mean potential for the outermost interface)
+        const Interface i = geo.outermost_interface();
+        std::cout << (i[0]->vertices()[0]->index()) << std::endl;
+        offset = i.nb_vertices();
+        deflat(mat, i, mat((i[0]->vertices()[0]->index()), i[0]->vertices()[0]->index()) / offset);
     }
 
     void assemble_Surf2Vol(const unsigned N, const Geometry& geo, Matrix& mat, const std::vector<Matrix>& points) {

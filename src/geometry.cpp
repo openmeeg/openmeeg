@@ -43,7 +43,15 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 namespace OpenMEEG {
 
-    const size_t Geometry::nb_trianglesoutermost_() const {
+    const Interface Geometry::outermost_interface() const {
+        for (Interfaces::const_iterator iit = this->interface_begin(); iit != this->interface_end(); iit++) {
+            if (iit->outermost()) {
+                return *iit;
+            }
+        }
+    }
+
+    const size_t Geometry::nb_trianglesoutermost() const {
         size_t nb_t = 0;
         for (const_iterator mit = this->begin(); mit != this->end(); mit++) {
             if (mit->outermost()) {
@@ -72,6 +80,9 @@ namespace OpenMEEG {
     }
 
     void Geometry::info() const {
+        // for (const_iterator mit = this->begin(); mit != this->end(); mit++) {
+            // mit->info();
+        // }
         for (Domains::const_iterator dit = this->domain_begin(); dit != this->domain_end(); dit++) {
             dit->info();
         }
@@ -91,30 +102,12 @@ namespace OpenMEEG {
 
         destroy();
 
-        // vertices_.reserve(3000);
         has_cond() = false; // default parameter
 
         read_geom(geomFileName);
 
         // updates
         geom_generate_indices();
-
-        for (Vertices::const_iterator vit1 = this->vertex_begin(); vit1 != this->vertex_end(); vit1++) {
-            std::cout << "index1: " << vit1->index() << std::endl;
-        }
-
-        for (Geometry::const_iterator mit1 = this->begin(); mit1 != this->end(); mit1++) {
-            for(Mesh::const_iterator tit = mit1->begin(); tit != mit1->end(); tit++) {
-                std::cout << "indexTri: " << (tit)->index() << std::endl;
-            }
-            for(Vertices::const_iterator vit = mit1->all_vertices().begin(); vit != mit1->all_vertices().end(); vit++) {
-                std::cout << "index2: " << (vit)->index() << std::endl;
-            }
-            for(Mesh::const_vertex_iterator vit = mit1->vertex_begin(); vit != mit1->vertex_end(); vit++) {
-                std::cout << "index3: " << (*vit)->index() << std::endl;
-            }
-            std::cout << "\t\t\t\tDeuxieme" << std::endl;
-        }
 
         if(condFileName) {
             read_cond(condFileName);
@@ -133,11 +126,10 @@ namespace OpenMEEG {
         }
 
         for (iterator mit = this->begin(); mit != this->end(); mit++) {
-            for (Mesh::iterator tit = mit->begin(); tit != mit->end(); tit++, index++) {
-                tit->index() = index;
-            }
-            for(Mesh::const_vertex_iterator vit = mit->vertex_begin(); vit != mit->vertex_end(); vit++) {
-                std::cout << "index3: " << (*vit)->index() << std::endl;
+            if ( !mit->outermost() ) {
+                for (Mesh::iterator tit = mit->begin(); tit != mit->end(); tit++) {
+                    tit->index() = index++;
+                }
             }
         }
         this->size() = index;
@@ -155,10 +147,13 @@ namespace OpenMEEG {
     double Geometry::oriented(const Mesh& m1, const Mesh& m2) const {
         Domains doms = common_domains(m1, m2);
         double ans = 0.;
-        if (doms.size() == 2) { // TODO Maureen comment on the cylinder
+        if ( doms.size() == 2 ) { // TODO Maureen comment on the cylinder
             return 1.;
+        } else if ( doms.size() == 1 ) {
+            return (doms[0].meshOrient(m1) == doms[0].meshOrient(m2))?1.:-1.;
+        } else {
+            return 0.;
         }
-        return (doms[0].meshOrient(m1) == doms[0].meshOrient(m2))?1.:-1.;
     }
 
     bool Geometry::selfCheck() const { // TODO: something else
