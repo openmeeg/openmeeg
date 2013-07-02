@@ -66,9 +66,9 @@ namespace OpenMEEG {
 
     public:
 
+        inline  Vect3() { }
         inline  Vect3(const double& xx, const double& yy, const double& zz) { m[0] = xx; m[1] = yy; m[2] = zz; }
         inline  Vect3(const double& a) { std::fill(&m[0], &m[3], a); }
-        inline  Vect3()  { }
         inline ~Vect3() { }
 
         Vect3& operator=(const Vect3& v) {
@@ -111,7 +111,7 @@ namespace OpenMEEG {
         inline Vect3 operator-(const Vect3& v)  const { return Vect3(m[0]-v.x(), m[1]-v.y(), m[2]-v.z()); }
         inline Vect3 operator^(const Vect3& v)  const { return Vect3(m[1]*v.z()-m[2]*v.y(), m[2]*v.x()-m[0]*v.z(), m[0]*v.y()-m[1]*v.x()); }
         inline Vect3 operator*(const double& d) const { return Vect3(d*m[0], d*m[1], d*m[2]); }
-        inline Vect3 operator/(const double& d) const { const double d2 = 1.0/d; return Vect3(d2*m[0], d2*m[1], d2*m[2]); }
+        inline Vect3 operator/(const double& d) const { return Vect3(m[0]/d, m[1]/d, m[2]/d); }
 
         inline double operator() (const int i) const {
             assert(i>=0 && i<3);

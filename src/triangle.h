@@ -85,68 +85,50 @@ namespace OpenMEEG {
         typedef       Reference*       iterator;
         typedef const Reference* const_iterator;
 
+        // Constructors
         Triangle(): index_(-1) {}
-       
-        // copy constructor
-        Triangle(const Triangle& t);
-        Triangle& operator=(const Triangle& t);
-
-        ~Triangle() { destroy(); }
+        Triangle(const Triangle& t); // copy constructor
+        Triangle(Vertex *pts[3]); // Create a new face from a set of vertices.
+        Triangle(Vertex& p1, Vertex& p2, Vertex& p3);
+        Triangle(Vertex * p1, Vertex * p2, Vertex * p3);
         
-        //  Create a new face from a set of vertices.
-        Triangle(Vertex *pts[3]): index_(-1) {
-            Triangle& f = *this;
-            for (size_t i = 0; i < 3; i++) {
-                f(i) = pts[i];
-            }
-        }
+        // Destructor
+        ~Triangle() { destroy(); }
 
-        Triangle(Vertex& p1, Vertex& p2, Vertex& p3): index_(-1) {
-            Triangle& f = *this;
-            f(0) = &p1;
-            f(1) = &p2;
-            f(2) = &p3;
-        }
+              Triangle&  operator=(const Triangle& t);
 
-        Triangle(Vertex * p1, Vertex * p2, Vertex * p3): index_(-1) {
-            Triangle& f = *this;
-            f(0) = p1;
-            f(1) = p2;
-            f(2) = p3;
-        }
+        // 0 <= 'index' <= '2'
+              Reference& operator()(const size_t& vindex)       { return vertices[vindex]; }
+        const Reference& operator()(const size_t& vindex) const { return vertices[vindex]; }
+                                                 
+              Vertex&        vertex(const size_t& vindex)       { return operator()(vindex).vertex(); }
+        const Vertex&        vertex(const size_t& vindex) const { return operator()(vindex).vertex(); }
 
-        //  0 <= 'index' <= '2'
-              Reference& operator()(const size_t vindex)       { return vertices[vindex]; }
-        const Reference& operator()(const size_t vindex) const { return vertices[vindex]; }
+        // Iterators.
+              iterator       begin()                     { return iterator(vertices);       }
+              const_iterator begin()               const { return const_iterator(vertices); }
+              iterator       end()                       { return iterator(vertices+3);       }
+              const_iterator end()                 const { return const_iterator(vertices+3); }
 
-              Vertex&        vertex(const size_t vindex)       { return operator()(vindex).vertex(); }
-        const Vertex&        vertex(const size_t vindex) const { return operator()(vindex).vertex(); }
+        const Vertex&        next(const Vertex& V) const { return (s1().vertex() == V)?s2().vertex():(s2().vertex() == V)?s3().vertex():s1().vertex(); }
+        const Vertex&        prev(const Vertex& V) const { return (s1().vertex() == V)?s3().vertex():(s2().vertex() == V)?s1().vertex():s2().vertex(); }
 
-        //  Iterators.
-              iterator       begin()                           { return iterator(vertices);       }
-              const_iterator begin()                     const { return const_iterator(vertices); }
-              iterator       end()                             { return iterator(vertices+3);       }
-              const_iterator end()                       const { return const_iterator(vertices+3); }
-
-        const Vertex&        next(const Vertex V)        const { return ((s1().vertex() == V)?s2().vertex():(s2().vertex() == V)?s3().vertex():s1().vertex()); }
-        const Vertex&        prev(const Vertex V)        const { return ((s1().vertex() == V)?s3().vertex():(s2().vertex() == V)?s1().vertex():s2().vertex()); }
-
-              Reference&     s1()                              { return vertices[0]; }
-              Reference&     s2()                              { return vertices[1]; }
-              Reference&     s3()                              { return vertices[2]; }
+              Reference&     s1()                        { return vertices[0]; }
+              Reference&     s2()                        { return vertices[1]; }
+              Reference&     s3()                        { return vertices[2]; }
                                  
-        const Reference&     s1()                        const { return vertices[0]; }
-        const Reference&     s2()                        const { return vertices[1]; }
-        const Reference&     s3()                        const { return vertices[2]; }
+        const Reference&     s1()                  const { return vertices[0]; }
+        const Reference&     s2()                  const { return vertices[1]; }
+        const Reference&     s3()                  const { return vertices[2]; }
 
-              Vect3&         normal()                          { return normal_; }
-        const Vect3&         normal()                    const { return normal_; }
+              Normal&        normal()                    { return normal_; }
+        const Normal&        normal()              const { return normal_; }
                                      
-              double&        area()                            { return area_; }
-        const double&        area()                      const { return area_; }
+              double&        area()                      { return area_; }
+        const double&        area()                const { return area_; }
                                      
-              size_t&        index()                           { return index_; }
-        const size_t&        index()                     const { return index_; }
+              size_t&        index()                     { return index_; }
+        const size_t&        index()               const { return index_; }
 
         bool contains(const Vertex& p) const {
             for (size_t i = 0; i < 3; i++) {
@@ -157,7 +139,7 @@ namespace OpenMEEG {
             return false;
         }
 
-        inline bool operator==(const Triangle& T) const;
+        bool operator==(const Triangle& T) const;
 
     private:
 
@@ -166,18 +148,9 @@ namespace OpenMEEG {
 
         Reference vertices[3]; // &Vertex-triplet defining the triangle
         double    area_;       // Area
-        Vect3     normal_;     // Normal
+        Normal    normal_;     // Normal
         size_t    index_;      // Index of the triangle
     };
-
-    inline bool Triangle::operator==(const Triangle& T) const {
-        for (Triangle::const_iterator i1 = this->begin(), i2 = T.begin(); i1 != this->end(); ++i1, ++i2) {
-            if (&*i1 != &*i2) {
-                return false;
-            }
-        }
-        return true;
-    }
 
     inline bool operator<(const Triangle& T1, const Triangle& T2) {
         for (Triangle::const_iterator i1 = T1.begin(), i2 = T2.begin(); i1 != T1.end(); ++i1, ++i2) {

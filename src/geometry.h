@@ -50,17 +50,13 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include "domain.h"
 
 #include <vector>
-#include <new>
 #include <string>
 
 namespace OpenMEEG {
 
     /** \brief  Geometry
-        Geometry Class
-    **/
-
-    enum Filetype { VTP, VTK, TRI, BND, MESH, OFF, GIFTI };
-
+      Geometry Class
+     **/
 
     class OPENMEEG_EXPORT Geometry {
 
@@ -71,9 +67,9 @@ namespace OpenMEEG {
         typedef Meshes::const_iterator    const_iterator;
 
         // Iterators
-              iterator             begin()                 { return meshes_.begin();    }
+        iterator                   begin()                 { return meshes_.begin();    }
         const_iterator             begin()           const { return meshes_.begin();    }
-              iterator             end()                   { return meshes_.end();      }
+        iterator                   end()                   { return meshes_.end();      }
         const_iterator             end()             const { return meshes_.end();      }
         Vertices::iterator         vertex_begin()          { return vertices_.begin();  }
         Vertices::const_iterator   vertex_begin()    const { return vertices_.begin();  }
@@ -89,16 +85,14 @@ namespace OpenMEEG {
         Interfaces::const_iterator interface_end()   const { return interfaces_.end();  }
 
         // Constructors
-        Geometry(): has_cond_(false)   { }
-        ~Geometry()                                 { destroy(); }
+        Geometry(): has_cond_(false), size_(0)  { }
+        ~Geometry() { }
 
               bool&         has_cond()                    { return has_cond_; }
         const bool&         has_cond()              const { return has_cond_; }
               Vertices&     vertices()                    { return vertices_; }
         const Vertices&     vertices()              const { return vertices_; }
         const size_t        nb_vertices()           const { return vertices_.size(); }
-              Normals&      normals()                     { return normals_; }
-        const Normals&      normals()               const { return normals_; }
               Meshes&       meshes()                      { return meshes_; }
         const Meshes&       meshes()                const { return meshes_; }
               Interfaces&   interfaces()                  { return interfaces_; }
@@ -109,12 +103,12 @@ namespace OpenMEEG {
         const size_t        size()                  const { return size_; }
         const size_t        nb_domains()            const { return domains_.size(); }
         const size_t        nb_trianglesoutermost() const;
-        const Interface     outermost_interface()   const; 
-        
+        const Interface&    outermost_interface()   const; 
+
         void          read       (const char* geomFileName, const char* condFileName = NULL);
         void          info       ()                      const;
         const  Mesh&  mesh       (const std::string &id) const;
-               Mesh&  mesh       (const std::string &id)      ;
+        Mesh&  mesh       (const std::string &id)      ;
 
         inline double sigma      (const Domain d)                 const { return (d.sigma()); }
         inline double sigma      (const Mesh& m1, const Mesh& m2) const { return funct_on_domains(m1, m2, '+');} // return the (sum) conductivity(ies) of the shared domain(s).
@@ -132,7 +126,6 @@ namespace OpenMEEG {
 
         // Members
         Vertices   vertices_;
-        Normals    normals_;
         Meshes     meshes_;
         Interfaces interfaces_;
         Domains    domains_;
@@ -144,58 +137,16 @@ namespace OpenMEEG {
         void geom_generate_indices();
 
         bool is_relative_path(const std::string& name);
-        #if WIN32
+#if WIN32
         static const char PathSeparator[] = "/\\";
-        #else
+#else
         static const char PathSeparator   = '/';
-        #endif
+#endif
 
-        inline Domains common_domains(const Mesh& m1, const Mesh& m2) const {
-            std::set<Domain> sdom1;
-            std::set<Domain> sdom2;
-            for (Domains::const_iterator dit = domain_begin(); dit != domain_end(); dit++) {
-                if (dit->meshOrient(m1) != 0) {
-                    sdom1.insert(*dit);
-                }
-                if (dit->meshOrient(m2) != 0) {
-                    sdom2.insert(*dit);
-                }
-            }
-            Domains doms;
-            std::set_intersection(sdom1.begin(), sdom1.end(), sdom2.begin(), sdom2.end(), std::back_inserter(doms) );
-            return doms;
-        }
+        Domains common_domains(const Mesh&, const Mesh&) const;
 
-        inline double funct_on_domains(const Mesh& m1, const Mesh& m2, char f) const {       // return the (sum) conductivity(ies) of the shared domain(s).
-            Domains doms = common_domains(m1, m2);
-            double ans=0.;
-            for (Domains::iterator dit = doms.begin(); dit != doms.end(); dit++) {
-                if (f=='+') {
-                    ans += dit->sigma();
-                } else if (f == '-') {
-                    ans -= -1.*dit->sigma();
-                } else if (f == '/') {
-                    ans += 1./dit->sigma();
-                } else {
-                    ans += 1.;
-                }
-            }
-            return ans;
-        }
-
-        void destroy() {
-            // if (n!=0) {
-                // n=0;
-                // delete []M;
-                // if(has_cond)
-                // {
-                    // delete []sigin;
-                    // delete []sigout;
-                // }
-            // }
-        }
+        double funct_on_domains(const Mesh&, const Mesh&, const char& ) const;
     };
-
 }
 
 #endif  //! OPENMEEG_GEOMETRY_H

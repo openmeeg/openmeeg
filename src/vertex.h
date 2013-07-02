@@ -48,6 +48,7 @@ namespace OpenMEEG {
     /** \brief  Vertex
 
         Vertex Class
+        derived from a Vect3 Class, has an index and a normal
 
     **/
 
@@ -55,20 +56,28 @@ namespace OpenMEEG {
 
     public:
 
-        inline Vertex(): _index(-1) {};
+        inline Vertex(): index_(-1), normal_(0.) {};
         
-        inline Vertex(const double& x, const double& y, const double& z): Vect3(x, y, z), _index(-1) { }
+        inline Vertex(const double& x, const double& y, const double& z): Vect3(x, y, z), index_(-1), normal_(0.) { }
 
-        inline Vertex(const Vect3& v): Vect3(v), _index(-1) { }
+        inline Vertex(const Vect3& v): Vect3(v), index_(-1), normal_(0.) { }
+
+        inline Vertex(const double& x, const double& y, const double& z, const double& nx, const double& ny, const double& nz): Vect3(x, y, z), index_(-1), normal_(nx, ny, nz) { }
+
+        inline Vertex(const Vect3& v, const Vect3& n): Vect3(v), index_(-1), normal_(n) { }
 
         inline ~Vertex() {};
 
-              size_t& index()       { return _index; }
-        const size_t& index() const { return _index; }
+              size_t& index()         { return index_; }
+        const size_t& index()   const { return index_; }
+
+              Normal&  normal()       { return normal_; }
+        const Normal&  normal() const { return normal_; }
 
     private:
 
-        size_t _index;
+        size_t index_;
+        Normal normal_;
     };
 
     typedef std::vector<Vertex> Vertices;

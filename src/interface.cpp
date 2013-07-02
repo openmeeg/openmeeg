@@ -41,23 +41,6 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 namespace OpenMEEG {
 
-    // Interface::Interface(const Interface& i) {
-        // *this = i;
-    // }
-
-    // Interface& Interface::operator= (const Interface& i) {
-        // if (this != &i) {
-            // copy(i);
-        // }
-        // return *this;
-    // }
-
-    // copy constructor
-    // void Interface::copy(const Interface& i) {
-        // name_         = i.name_;
-        // outermost_    = i.outermost_;
-    // }
-
     /**
      * Computes the total solid angle of a surface for a point p and tells whether p is inside the mesh or not.
      **/
@@ -84,10 +67,6 @@ namespace OpenMEEG {
         }
     }
     
-    void Interface::destroy() {
-        this->clear();
-    }
-
     void Interface::set_to_outermost() {
         for (Interface::iterator mit = this->begin(); mit != this->end(); mit++) {
             (*mit)->outermost() = true;

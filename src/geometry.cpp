@@ -40,10 +40,9 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include "geometry.h"
 #include "reader.h"
 
-
 namespace OpenMEEG {
 
-    const Interface Geometry::outermost_interface() const {
+    const Interface& Geometry::outermost_interface() const {
         for (Interfaces::const_iterator iit = this->interface_begin(); iit != this->interface_end(); iit++) {
             if (iit->outermost()) {
                 return *iit;
@@ -62,7 +61,7 @@ namespace OpenMEEG {
     }
 
     const Mesh&  Geometry::mesh(const std::string &id) const {
-        for (Meshes::const_iterator mit = this->begin() ; mit != this->end(); mit++ ) {
+        for (const_iterator mit = this->begin() ; mit != this->end(); mit++ ) {
             if (id == mit->name()) {
                 return *mit;
             }
@@ -71,7 +70,7 @@ namespace OpenMEEG {
     }
 
     Mesh&  Geometry::mesh(const std::string &id) {
-        for (Meshes::iterator mit = this->begin() ; mit != this->end(); mit++ ) {
+        for (iterator mit = this->begin() ; mit != this->end(); mit++ ) {
             if (id == mit->name()) {
                 return *mit;
             }
@@ -100,13 +99,11 @@ namespace OpenMEEG {
 
     void Geometry::read(const char* geomFileName, const char* condFileName) {
 
-        destroy();
-
         has_cond() = false; // default parameter
 
         read_geom(geomFileName);
 
-        // updates
+        // generate the indices of our unknowns
         geom_generate_indices();
 
         if(condFileName) {
@@ -119,13 +116,19 @@ namespace OpenMEEG {
     }
 
     void Geometry::geom_generate_indices() { // this generates unique indices for vertices and triangles which will correspond to our unknowns.
-
+#define CLASSIC_ORDERING 1
         size_t index = 0;
+#if !CLASSIC_ORDERING
         for ( Vertices::iterator pit = this->vertex_begin(); pit != this->vertex_end(); pit++, index++) {
             pit->index() = index;
         }
-
+#endif
         for (iterator mit = this->begin(); mit != this->end(); mit++) {
+#if CLASSIC_ORDERING
+            for (Mesh::const_vertex_iterator vit = mit->vertex_begin(); vit != mit->vertex_end(); vit++) {
+                (*vit)->index() = index++;
+            }
+#endif
             if ( !mit->outermost() ) {
                 for (Mesh::iterator tit = mit->begin(); tit != mit->end(); tit++) {
                     tit->index() = index++;
@@ -142,6 +145,40 @@ namespace OpenMEEG {
             }
         }
         return -1.; // TODO throw error unknownDomain
+    }
+
+    Domains Geometry::common_domains(const Mesh& m1, const Mesh& m2) const {
+        std::set<Domain> sdom1;
+        std::set<Domain> sdom2;
+        for (Domains::const_iterator dit = domain_begin(); dit != domain_end(); dit++) {
+            if (dit->meshOrient(m1) != 0) {
+                sdom1.insert(*dit);
+            }
+            if (dit->meshOrient(m2) != 0) {
+                sdom2.insert(*dit);
+            }
+        }
+        Domains doms;
+        std::set_intersection(sdom1.begin(), sdom1.end(), sdom2.begin(), sdom2.end(), std::back_inserter(doms) );
+        return doms;
+    }
+
+    // return the (sum) conductivity(ies) of the shared domain(s).
+    double Geometry::funct_on_domains(const Mesh& m1, const Mesh& m2, const char& f) const {
+        Domains doms = common_domains(m1, m2);
+        double ans=0.;
+        for (Domains::iterator dit = doms.begin(); dit != doms.end(); dit++) {
+            if (f=='+') {
+                ans += dit->sigma();
+            } else if (f == '-') {
+                ans -= -1.*dit->sigma();
+            } else if (f == '/') {
+                ans += 1./dit->sigma();
+            } else {
+                ans += 1.;
+            }
+        }
+        return ans;
     }
 
     double Geometry::oriented(const Mesh& m1, const Mesh& m2) const {
@@ -187,17 +224,7 @@ namespace OpenMEEG {
         // return OK;
     }
 
-    /*
-    // Mesh& Geometry::interior_mesh(const std::string& name) const {
-        // for (std::vector<Domain>::const_iterator d = domain_begin(); d != domain_end(); d++) {
-            // if ( name == d->name() ) {
-                // return (this->begin()); // TODO Correct that now
-            // }
-        // }
-        // return -1.; // TODO throw error unknownDomain
-    // }
-
-
+   /*
        bool Geometry::check(const Mesh& m) const {
        bool OK = true;
        if(m.has_self_intersection())
@@ -218,13 +245,5 @@ namespace OpenMEEG {
        }
        return OK;
        }
-
-       int Geometry::getDomain(const Vect3& p) const {
-       for (int i=0;i<nb();++i)
-       if ((this->getM(i)).contains_vertex(p))
-       return i;
-       return nb();
-       }
-       */
-
+   */
 }

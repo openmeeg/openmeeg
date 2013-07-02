@@ -74,70 +74,57 @@ namespace OpenMEEG {
 
     **/
 
+    enum Filetype { VTK, TRI, BND, MESH, OFF, GIFTI };
+
     class OPENMEEG_EXPORT Mesh: public Triangles {
 
     public:
         
-        typedef Triangles                                   base;
-        typedef std::set<Vertex *, std::less<Vertex *> >    SetPVertex;
         typedef std::vector<Vertex *>                       VectPVertex;
-        typedef VectPVertex::iterator                       vertex_iterator;
         typedef VectPVertex::const_iterator                 const_vertex_iterator;
+        typedef VectPVertex::const_reverse_iterator         const_vertex_reverse_iterator;
 
-        Mesh(): base(), name_(""), all_vertices_(NULL), outermost_(false) {};
+        // Constructors
+        Mesh(): Triangles(), name_(""), all_vertices_(NULL), outermost_(false) {};
 
-        Mesh(Vertices &all_vertices, Normals &all_normals, const std::string name = ""): all_vertices_(&all_vertices), all_normals_(&all_normals), name_(name), outermost_(false) { }
         Mesh(Vertices &all_vertices, const std::string name = ""): all_vertices_(&all_vertices), name_(name), outermost_(false) { }
 
         Mesh(std::string name): name_(name), all_vertices_(NULL), outermost_(false) { }
 
-        // copy constructor
-        // Mesh(const Mesh& M);
-
-        ~Mesh() { destroy(); }
-        
-        // Mesh& operator=(const Mesh& M);
+        // Destructor
+        ~Mesh() { }
 
         // Iterators on vertices
-              vertex_iterator      vertex_begin()                { return vertices_.begin(); }
-        const_vertex_iterator      vertex_begin()  const         { return vertices_.begin(); }
-              vertex_iterator      vertex_end()                  { return vertices_.end(); }
-        const_vertex_iterator      vertex_end()    const         { return vertices_.end(); }
+        const_vertex_reverse_iterator vertex_rbegin() const         { return vertices_.rbegin(); }
+        const_vertex_reverse_iterator vertex_rend()   const         { return vertices_.rend(); }
+        const_vertex_iterator         vertex_begin()  const         { return vertices_.begin(); }
+        const_vertex_iterator         vertex_end()    const         { return vertices_.end(); }
 
-        std::vector<SetTriangle> & links()                       { return links_; }
-        std::vector<SetTriangle>   links()         const         { return links_; }
+        std::vector<SetTriangle>&     links()                       { return links_; }
+        std::vector<SetTriangle>      links()         const         { return links_; }
 
-        std::string                name()          const         { return name_; }
-        std::string &              name()                        { return name_; }
+        std::string                   name()          const         { return name_; }
+        std::string &                 name()                        { return name_; }
 
-        void                       add_vertex(const Vertex &v)   { all_vertices_->push_back(v); vertices_.push_back(&(*all_vertices_->rbegin()));}
-        void                       add_normal(const Normal &n)   { all_normals_->push_back(n);  }
+        void                          add_vertex(const Vertex &v)   { all_vertices_->push_back(v); vertices_.push_back(&(*all_vertices_->rbegin())); }
 
-        VectPVertex                vertices()      const         { return vertices_; }
-        VectPVertex &              vertices()                    { return vertices_; }
+        VectPVertex                   vertices()      const         { return vertices_; }
+        VectPVertex &                 vertices()                    { return vertices_; }
 
-        const size_t               nb_vertices()   const         { return vertices_.size(); }
-        const size_t               nb_triangles()  const         { return this->size(); }
+        const size_t                  nb_vertices()   const         { return vertices_.size(); }
+        const size_t                  nb_triangles()  const         { return this->size(); }
 
-              Normals              all_normals()   const         { return *all_normals_;  }
-              Vertices             all_vertices()  const         { return *all_vertices_; }
+              Vertices                all_vertices()  const         { return *all_vertices_; }
 
-        // mesh state
+        // Mesh state
         void info() const ;
-        bool triangle_intersection(const Triangle&, const Triangle&) const;
         bool has_self_intersection() const;
         bool intersection(const Mesh&) const;
         bool has_correct_orientation() const;
+        bool triangle_intersection(const Triangle&, const Triangle&) const;
         void update();
 
-        const SetTriangle& get_triangles_for_point(const Vertex& V) const {
-            size_t i = 0;
-            for (const_vertex_iterator vit = vertex_begin(); vit != vertex_end(); vit++, i++) {
-                if (*vit == &V) {
-                    return links_[i];
-                }
-            }
-        }
+        const SetTriangle& get_triangles_for_point(const Vertex& V) const;
 
         friend std::istream& operator>>(std::istream &is, Mesh &m);
 
@@ -199,17 +186,12 @@ namespace OpenMEEG {
         void save_mesh(const char*) const ;
 
     private:
-
-        void destroy();
-        // void copy(const Mesh& M);
         
         std::string                 name_;
         std::vector<SetTriangle>    links_;
         Vertices *                  all_vertices_;
         VectPVertex                 vertices_;
-        Normals *                   all_normals_;
         bool                        outermost_;
-
     };
 
     typedef std::vector<Mesh>        Meshes;

@@ -55,18 +55,18 @@ namespace OpenMEEG {
     //  A simple domain (HalfSpace) is given by an interface (of type Interface) identifying a closed surface and a side (of type InOut) information.
     //  The closed surface split the space into two components. The side depicts which of these two components is the simple domain.
 
-    class HalfSpace: public std::pair<Interface, bool> {
+    class HalfSpace: public std::pair<Interface *, bool> {
 
-        typedef std::pair<Interface, bool> base;
+        typedef std::pair<Interface *, bool> base;
 
     public:
 
-        HalfSpace(const Interface &interface, bool inside): base(interface, inside) {}
+        HalfSpace(Interface &interface, bool inside): base(&interface, inside) {}
         ~HalfSpace() {}
 
-              Interface interface()       { return this->first;  }
-        const Interface interface() const { return this->first;  }
-              bool      inside()    const { return this->second; }
+              Interface& interface()       { return *this->first;  }
+        const Interface& interface() const { return *this->first;  }
+              bool      inside()     const { return this->second; }
     };
 
     //  A Domain is the intersection of simple domains (of type HalfSpace).
@@ -80,22 +80,8 @@ namespace OpenMEEG {
 
         Domain(): name_(""), sigma_(0.), innermost_(false), outermost_(false) { }
 
-        // copy constructor
-        // Domain(const Domain& d);
-        // Domain& operator=(const Domain& d);
+        ~Domain() { }
 
-        ~Domain() { destroy(); }
-
-        //  The interfaces of the domain.
-        // const std::vector<Interface *> interfaces() const  {
-            // std::vector<Interface *> interfaces_(this->size());
-            // size_t i = 0;
-            // for (base::const_iterator hit = this->begin(); hit != this->end(); hit++, i++) {
-                // interfaces_[i] = this->first;
-            // }
-            // return interfaces_;
-        // }
-        
         //  The name of the domain.
               std::string& name()            { return name_; }
         const std::string& name()      const { return name_; }
@@ -121,7 +107,7 @@ namespace OpenMEEG {
                   // -1 if not
                   //  0 else (the mesh is not part of the domain boundary)
             for (Domain::const_iterator hit = this->begin(); hit != this->end(); hit++) {
-                for (Interface::const_iterator mit = hit->first.begin(); mit != hit->first.end(); mit++) {
+                for (Interface::const_iterator mit = hit->first->begin(); mit != hit->first->end(); mit++) {
                     if (&**mit == &m ) {
                         return ((hit->inside())?1:-1);
                     }
@@ -130,18 +116,11 @@ namespace OpenMEEG {
             return 0;
         }
 
-        bool operator==(const Domain& d) const;
-
-        // friend bool operator==(const Domain &d) const {return true;}
-
     private:
 
-        void destroy();
-        // void copy(const Domain& d);
-
-        std::string name_;         // Name of the domain.
-        double      sigma_; // Conductivity of the domain.
-        bool        innermost_, outermost_;    // Innermost domain ?
+        std::string name_;                  // Name of the domain.
+        double      sigma_;                 // Conductivity of the domain.
+        bool        innermost_, outermost_; // Innermost domain ? TODO
     };
 
     typedef std::vector<Domain >     Domains;

@@ -41,41 +41,12 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 namespace OpenMEEG {
 
-    // Domain::Domain(const Domain& d) { *this = d; }
-
-    // Domain& Domain::operator= (const Domain& d) {
-        // if (this != &d) {
-            // copy(d);
-        // }
-        // return *this;
-    // }
-
-    // void Domain::copy(const Domain& d) {
-        // base::operator=(d);
-        // sigma_     = d.sigma_;
-        // outermost_ = d.outermost_;
-        // innermost_ = d.innermost_;
-    // }
-
     bool Domain::contains_point(const Vect3& p) const {
         bool inside = true;
         for (Domain::const_iterator hit = this->begin(); hit != this->end(); hit++) {
             inside = (inside &&  (hit->interface().contains_point(p) == hit->inside()));
         }
         return inside;
-    }
-
-    bool Domain::operator==(const Domain& d) const {
-        // for (Domain::const_iterator dit1 = d1.begin(), dit2 = d2.begin(); dit1 != d1.end(); ++dit1, ++dit2) { TODO
-            // if (&dit1->interface() != &dit2->interface()) {
-                // return false;
-            // }
-        // }
-        return true;
-    }
-
-    void Domain::destroy() {
-        this->clear();
     }
 
     void Domain::info() const {
@@ -99,8 +70,8 @@ namespace OpenMEEG {
             std::cout << "\t\tConsidered as the outermost domain." << std::endl;
         }
         for (base::const_iterator hit = this->begin(); hit != this->end(); hit++) {
-            std::cout << "\t\tInterface \"" << hit->first.name() << "\"= { ";
-            for (Interface::const_iterator mit = hit->first.begin(); mit != hit->first.end(); mit++) {
+            std::cout << "\t\tInterface \"" << hit->first->name() << "\"= { ";
+            for (Interface::const_iterator mit = hit->first->begin(); mit != hit->first->end(); mit++) {
                 std::cout << "Mesh \""<< (*mit)->name() << "\"";
                 if ((*mit)->outermost()) {
                     std::cout << "(OUTERMOST)";

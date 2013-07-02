@@ -58,7 +58,7 @@ namespace OpenMEEG {
         const char c2 = name[2];
         return !(std::isalpha(c0) && c1==':' && (c2=='/' || c2=='\\'));
         #else
-        return (name[0]!=PathSeparator);
+        return ( name[0] != PathSeparator );
         #endif
     }
 
@@ -175,10 +175,9 @@ namespace OpenMEEG {
                 nb_vertices += m.load_mesh(fullname[i].c_str(), false, false); 
             }
             vertices().reserve(nb_vertices);
-            normals().reserve(nb_vertices);
             // Second load the mesh
             for (size_t i = 0; i < num_interfaces; i++ ) {
-                Mesh m(vertices(), normals(), interfacename[i]);
+                Mesh m(vertices(), interfacename[i]);
                 m.load_mesh(fullname[i].c_str());
                 meshes().push_back(m);
                 interfaces().push_back( interfacename[i] );
@@ -227,7 +226,7 @@ namespace OpenMEEG {
             std::istringstream iss(line);
             while (iss >> id) {
                 bool found = false;
-                for (Interfaces::const_iterator iit = interface_begin(); iit != interface_end() ; iit++) {
+                for (Interfaces::iterator iit = interface_begin(); iit != interface_end() ; iit++) {
                     bool inside = (id[0] == '-'); // does the id starts with a '-' ?
                     if (iit->name() == (inside?id.substr(1, id.npos):id)) { // TODO (+)
                         found = true;
@@ -252,6 +251,7 @@ namespace OpenMEEG {
                 dit_out = dit;
             }
             if (outer) {
+                std::cout << "found an outer domain \t\t\t\t\touiahsuilahliauhd" << std::endl;
                 dit_out->outermost() = true;
                 for (Domain::iterator hit = dit_out->begin(); hit != dit_out->end(); ++hit) {
                     hit->interface().set_to_outermost();

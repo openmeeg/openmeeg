@@ -179,7 +179,7 @@ namespace OpenMEEG {
         mat(T2.index(), T2.s3().index()) += total.z();
     }
 
-    inline double _operatorS(const Triangle& T1, const Triangle& T2, const int gauss_order) // TODO here
+    inline double _operatorS(const Triangle& T1, const Triangle& T2, const int gauss_order)
     {
         STATIC_OMP Triangle *oldT = NULL;
         STATIC_OMP analyticS analyS;
@@ -214,12 +214,14 @@ namespace OpenMEEG {
 
         const SetTriangle& trgs1 = m1.get_triangles_for_point(V1);
         const SetTriangle& trgs2 = m2.get_triangles_for_point(V2);
+
         for(SetTriangle::const_iterator tit1 = trgs1.begin(); tit1 != trgs1.end(); ++tit1)
             for(SetTriangle::const_iterator tit2 = trgs2.begin(); tit2 != trgs2.end(); ++tit2) {
                 // A1 , B1 , A2, B2 are the two opposite vertices to V1 and V2 (triangles A1, B1, V1 and A2, B2, V2)
-                if (tit1->index() != -1 || tit2->index() != -1) {
+                if (tit1->index() < std::numeric_limits<size_t>::max() && tit2->index()  < std::numeric_limits<size_t>::max()) { // test weather or not S has already been computed TODO index are not well set
                     Iqr = mat(tit1->index(), tit2->index());
                 } else {
+                    std::cout << "TODO ";
                     Iqr = _operatorS(*tit1, *tit2, gauss_order);
                 }
     #ifndef OPTIMIZED_OPERATOR_N
@@ -275,7 +277,7 @@ namespace OpenMEEG {
         size_t i = 0; // for the PROGRESSBAR
         if ( &m1 == &m2 ) {
             for(Mesh::const_vertex_iterator vit1 = m1.vertex_begin(); vit1 != m1.vertex_end(); vit1++, i++) {
-                PROGRESSBAR(i, m1.vertices().size());
+                PROGRESSBAR(i, m1.nb_vertices());
                 #pragma omp parallel for
                 for(Mesh::const_vertex_iterator vit2 = vit1; vit2 != m1.vertex_end(); vit2++) {
                     mat((*vit1)->index(), (*vit2)->index()) = _operatorN(**vit1, **vit2, m1, m2, gauss_order, mat);
@@ -283,7 +285,7 @@ namespace OpenMEEG {
             }
         } else {
             for(Mesh::const_vertex_iterator vit1 = m1.vertex_begin(); vit1 != m1.vertex_end(); vit1++, i++) {
-                PROGRESSBAR(i, m1.vertices().size());
+                PROGRESSBAR(i, m1.nb_vertices());
                 #pragma omp parallel for
                 for(Mesh::const_vertex_iterator vit2 = m2.vertex_begin(); vit2 != m2.vertex_end(); vit2++) {
                     mat((*vit1)->index(), (*vit2)->index()) = _operatorN(**vit1, **vit2, m1, m2, gauss_order, mat);
@@ -386,12 +388,11 @@ namespace OpenMEEG {
         // This time mat(i, j)+= ... the Matrix is incremented by the P1P0 operator
         std::cout << "OPERATOR P1P0... (arg : mesh " << m.name() << " )" << std::endl;
         for (Mesh::const_iterator tit = m.begin(); tit != m.end(); tit++) {
-            for (Mesh::VectPVertex::const_iterator pit = m.vertices().begin(); pit != m.vertices().end(); pit++) {
+            for (Mesh::VectPVertex::const_iterator pit = m.vertex_begin(); pit != m.vertex_end(); pit++) {
                 mat(tit->index(), (*pit)->index()) += _operatorP1P0(*tit, **pit);
             }
         }
     }
-
 
     inline Vect3 _operatorFerguson(const Vect3& x, const Vertex& V1, const Mesh &m1)
     {

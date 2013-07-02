@@ -51,13 +51,13 @@ knowledge of the CeCILL-B license and that you accept its terms.
 namespace OpenMEEG {
 
     template<class T>
-    void deflat(T &M, const Interface i, double coef) {
+    void deflat(T &M, const Interface *i, double coef) {
         // deflate the Matrix
-        for (Interface::const_iterator mit = i.begin(); mit != i.end(); mit++) {
-            for (Mesh::const_iterator vit1 = (*mit)->begin(); vit1 != (*mit)->end(); vit1++) {
+        for (Interface::const_iterator mit = i->begin(); mit != i->end(); mit++) {
+            for (Mesh::const_vertex_iterator vit1 = ((*mit)->vertex_begin()); vit1 != ((*mit)->vertex_end()); vit1++) {
                 #pragma omp parallel for
-                for (Mesh::const_iterator vit2 = vit1; vit2 != (*mit)->end(); vit2++) {
-                    M(vit1->index(), vit2->index()) += coef;
+                for (Mesh::const_vertex_iterator vit2 = vit1; vit2 != ((*mit)->vertex_end()); vit2++) {
+                    M((*vit1)->index(), (*vit2)->index()) += coef;
                 }
             }
         }
@@ -101,15 +101,21 @@ namespace OpenMEEG {
         int offset = 0;
 
         double K = 1.0 / (4.0 * M_PI);
+        double deflat_coef = 0.;
 
         // We iterate over the meshes (or pair of domains)
         for (Geometry::const_iterator mit1 = geo.begin(); mit1 != geo.end(); mit1++) {
 
-            int offset0 = offset;
-            int offset1 = offset0  + mit1->nb_vertices();
-            int offset2 = offset1  + mit1->nb_triangles();
-
             for (Geometry::const_iterator mit2 = mit1; mit2 != geo.end(); mit2++) {
+
+                size_t i_m1_vf = (*mit1->vertex_begin())->index(); // index of the first vertex of mesh m1
+                size_t i_m2_vf = (*mit2->vertex_begin())->index();
+                size_t i_m1_vl = (*mit1->vertex_rbegin())->index(); // index of the last vertex of mesh m1
+                size_t i_m2_vl = (*mit2->vertex_rbegin())->index();
+                size_t i_m1_tf = (mit1->begin())->index();
+                size_t i_m2_tf = (mit2->begin())->index(); // index of the first triangle of mesh m2
+                size_t i_m1_tl = (mit1->rbegin())->index();
+                size_t i_m2_tl = (mit2->rbegin())->index();
 
                 double orientation = geo.oriented(*mit1, *mit2); // equals  0, if they don't have any domains in common
                                                            // equals  1, if they are both oriented toward the same domain
@@ -119,36 +125,35 @@ namespace OpenMEEG {
 
                     if ( !(mit1->outermost() || mit2->outermost()) ) {
 
-                        // if mit1 and mit2 communicate, i.e they are used for the definition of a domain
+                        // if mit1 and mit2 communicate, i.e they are used for the definition of a common domain
                         double Scoeff =   orientation * geo.sigma_inv(*mit1, *mit2) * K;
                         double Dcoeff = - orientation * geo.indicatrice(*mit1, *mit2) * K;
 
                         // S
-                        mult(mat, offset1, offset1, offset2, offset2, Scoeff);
+                        mult(mat, i_m1_tf, i_m2_tf, i_m1_tl, i_m2_tl, Scoeff);
                         // D*
-                        mult(mat, offset1, offset0, offset1, offset2, Dcoeff);
+                        mult(mat, i_m1_vf, i_m2_tf, i_m1_vl, i_m2_tl, Dcoeff);
                     }
 
                     if ( *mit1 != *mit2 ) {
                         // D
                         double Dcoeff = - orientation * K;
-                        mult(mat, offset1, offset0, offset1, offset2, Dcoeff);
+                        mult(mat, i_m1_tf, i_m2_vf, i_m1_tl, i_m2_vl, Dcoeff);
                     }
 
                     // N
                     double Ncoeff = - orientation * geo.sigma(*mit1, *mit2) * K;
-                    mult(mat, *(mit1->vertices().begin())->index(), *(mit2->vertices().begin())->index(), *(mit1->vertices().rbegin())->index(), *(mit2->vertices().rbegin())->index(), Ncoeff); // TODO assign real index to offsets
-                }
+                    mult(mat, i_m1_vf, i_m2_vf, i_m1_vl, i_m2_vl, Ncoeff);
 
+                }
             }
-            offset = offset2;
         }
 
         // Deflate the last diagonal block of 'mat' : (in order to have a zero-mean potential for the outermost interface)
-        const Interface i = geo.outermost_interface();
-        std::cout << (i[0]->vertices()[0]->index()) << std::endl;
-        offset = i.nb_vertices();
-        deflat(mat, i, mat((i[0]->vertices()[0]->index()), i[0]->vertices()[0]->index()) / offset);
+        const Interface * i = &geo.outermost_interface();
+        offset = i->nb_vertices();
+        size_t i_first = (*(*i->begin())->vertex_begin())->index();
+        deflat(mat, i, mat(i_first, i_first) / offset);
     }
 
     void assemble_Surf2Vol(const unsigned N, const Geometry& geo, Matrix& mat, const std::vector<Matrix>& points) {

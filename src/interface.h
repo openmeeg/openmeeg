@@ -58,15 +58,10 @@ namespace OpenMEEG {
 
     public:
 
-        typedef std::vector<Mesh *> base;
-
         Interface(): name_(""), outermost_(false) { }
         Interface(std::string name): name_(name), outermost_(false) { }
-        // copy constructor
-        // Interface(const Interface& i);
-        // Interface& operator=(const Interface& i);
 
-        ~Interface() { destroy(); }
+        ~Interface() { }
 
         const std::string   name() const               { return name_; }
               std::string & name()                     { return name_; }
@@ -94,24 +89,9 @@ namespace OpenMEEG {
 
     private:
 
-        void destroy();
-        // void copy(const Interface& i);
-
         std::string name_;      // might be "i0" by default
         bool        outermost_; // tell weather or not the interface touches the Air (Outermost) domain.
     };
-
-    inline std::istream& operator>> (std::istream &is, Interface &i) {
-        std::string a_mesh_name;
-        while (is >> a_mesh_name) {
-            for (Interface::const_iterator mit = i.begin(); mit != i.end(); mit++) {
-                if ((*mit)->name() == a_mesh_name) {
-                    i.push_back(&(**mit));
-                }
-            }
-        }
-        return is;
-    } 
 
     typedef std::vector<Interface> Interfaces;
 }
