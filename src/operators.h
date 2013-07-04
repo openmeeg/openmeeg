@@ -221,11 +221,7 @@ namespace OpenMEEG {
                 if ( (*tit1)->index() < std::numeric_limits<size_t>::max() && (*tit2)->index() < std::numeric_limits<size_t>::max() ) {
                     Iqr = mat((*tit1)->index(), (*tit2)->index());
                 } else {
-                    std::cout << (*tit1)->s1().vertex() << " | " << (*tit1)->s2().vertex() << " | " << (*tit1)->s3().vertex() << "\n";
-                    std::cout << (*tit2)->s1().vertex() << " | " << (*tit2)->s2().vertex() << " | " << (*tit2)->s3().vertex() << "\n";
                     Iqr = _operatorS(**tit1, **tit2, gauss_order);
-                    std::cout << Iqr << "\n";
-                    std::cin.get();
                 }
             #ifndef OPTIMIZED_OPERATOR_N
                 Vect3 A1 = (*tit1)->next(V1);
