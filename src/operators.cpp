@@ -41,8 +41,8 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 namespace OpenMEEG {
 
-    void operatorDinternal(const Mesh &m, Matrix &mat, const size_t offsetI, const size_t offsetJ, const Matrix &points) {
-
+    void operatorDinternal(const Mesh &m, Matrix &mat, const size_t offsetI, const size_t offsetJ, const Matrix &points) 
+    {
         std::cout<<"INTERNAL OPERATOR D..."<<std::endl;
         for(size_t i = offsetI; i < offsetI + points.nlin(); i++)  {
             Vect3 pt(points(i-offsetI, 0), points(i-offsetI, 1), points(i-offsetI, 2));
@@ -52,8 +52,8 @@ namespace OpenMEEG {
         }
     }
 
-    void operatorSinternal(const Mesh &m, Matrix &mat, const size_t offsetI, const size_t offsetJ, const Matrix &points) {
-
+    void operatorSinternal(const Mesh &m, Matrix &mat, const size_t offsetI, const size_t offsetJ, const Matrix &points) 
+    {
         std::cout<<"INTERNAL OPERATOR S..."<<std::endl;
         for(size_t i=offsetI; i < offsetI + points.nlin(); i++) {
             Vect3 pt(points(i-offsetI, 0), points(i-offsetI, 1), points(i-offsetI, 2));
@@ -66,8 +66,8 @@ namespace OpenMEEG {
 
     // General routine for applying _operatorFerguson (see this function for further comments)
     // to an entire mesh, and storing coordinates of the output in a Matrix.
-    void operatorFerguson(const Vect3& x, const Mesh &m, Matrix &mat, size_t offsetI, size_t offsetJ) {
-
+    void operatorFerguson(const Vect3& x, const Mesh &m, Matrix &mat, size_t offsetI, size_t offsetJ) 
+    {
         #pragma omp parallel for
         for(size_t j=offsetJ; j < offsetJ + m.nb_vertices(); j++) {
             Vect3 v = _operatorFerguson(x, *m.vertices()[j-offsetJ], m);
@@ -77,8 +77,8 @@ namespace OpenMEEG {
         }
     }
 
-    void operatorDipolePotDer(const Vect3 &r0, const Vect3 &q, const Mesh &m, Vector &rhs, const int gauss_order, const bool adapt_rhs) {
-
+    void operatorDipolePotDer(const Vect3 &r0, const Vect3 &q, const Mesh &m, Vector &rhs, const int gauss_order, const bool adapt_rhs) 
+    {
         static analyticDipPotDer anaDPD;
 
         Integrator<Vect3, analyticDipPotDer>* gauss;
@@ -103,8 +103,8 @@ namespace OpenMEEG {
         delete gauss;
     }
 
-    void operatorDipolePot(const Vect3 &r0, const Vect3 &q, const Mesh &m, Vector &rhs, const int gauss_order, const bool adapt_rhs) {
-
+    void operatorDipolePot(const Vect3 &r0, const Vect3 &q, const Mesh &m, Vector &rhs, const int gauss_order, const bool adapt_rhs) 
+    {
         static analyticDipPot anaDP;
 
         anaDP.init(q, r0);

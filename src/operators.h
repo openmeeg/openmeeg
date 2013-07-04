@@ -85,17 +85,17 @@ namespace OpenMEEG {
     {
         //If the upper left corner of the block is on the diagonal line of the Matrix
         //Only the half of the block has to be treated because of the symmetric storage
-        if (Istart!=Jstart) {
-            for(int i=Istart; i<Istop; i++) {
+        if ( Istart != Jstart) {
+            for(int i = Istart; i < Istop; i++) {
                 #pragma omp parallel for
-                for(int j=Jstart; j<Jstop; j++) {
-                    mat(i, j)*=coeff;
+                for(int j = Jstart; j < Jstop; j++) { // TODO '<' => '<=' ?
+                    mat(i, j) *= coeff;
                 }
             }
         } else {
-            for(int i=Istart; i<Istop; i++) {
+            for(int i = Istart; i < Istop; i++) { // TODO '<' => '<=' ?
                 #pragma omp parallel for
-                for(int j=Jstart; j<=i; j++) {
+                for(int j = Jstart; j < i; j++) {
                     mat(i, j) *= coeff;
                 }
             }
@@ -106,9 +106,9 @@ namespace OpenMEEG {
     {
         //If the upper left corner of the block is on the diagonal line of the Matrix
         //Only the half of the block has to be treated because of the symmetric storage
-        for(int i=Istart; i<Istop; i++) {
+        for(int i = Istart; i < Istop; i++) { // TODO '<' => '<=' ?
             #pragma omp parallel for
-            for(int j=Jstart; j<Jstop; j++) {
+            for(int j = Jstart; j < Jstop; j++) { // TODO '<' => '<=' ?
                 mat(i, j) *= coeff;
             }
         }
@@ -128,9 +128,9 @@ namespace OpenMEEG {
 
         double total = 0;
 
-        const SetTriangle& Tadj = m2.get_triangles_for_point(V2); // loop on triangles of which V2 is a vertex
-        for(SetTriangle::const_iterator tit = Tadj.begin(); tit != Tadj.end(); ++tit) {
-            analyD.init(*tit, V2);
+        const SetPTriangle& Tadj = m2.get_triangles_for_point(V2); // loop on triangles of which V2 is a vertex
+        for(SetPTriangle::const_iterator tit = Tadj.begin(); tit != Tadj.end(); ++tit) {
+            analyD.init(**tit, V2);
             total += gauss.integrate(analyD, T1);
         }
         return total;
@@ -212,23 +212,26 @@ namespace OpenMEEG {
         double Iqr, Aqr;
         double result = 0.0;
 
-        const SetTriangle& trgs1 = m1.get_triangles_for_point(V1);
-        const SetTriangle& trgs2 = m2.get_triangles_for_point(V2);
+        const SetPTriangle& trgs1 = m1.get_triangles_for_point(V1);
+        const SetPTriangle& trgs2 = m2.get_triangles_for_point(V2);
 
-        for(SetTriangle::const_iterator tit1 = trgs1.begin(); tit1 != trgs1.end(); ++tit1)
-            for(SetTriangle::const_iterator tit2 = trgs2.begin(); tit2 != trgs2.end(); ++tit2) {
+        for ( SetPTriangle::const_iterator tit1 = trgs1.begin(); tit1 != trgs1.end(); ++tit1 ) {
+            for ( SetPTriangle::const_iterator tit2 = trgs2.begin(); tit2 != trgs2.end(); ++tit2 ) {
                 // A1 , B1 , A2, B2 are the two opposite vertices to V1 and V2 (triangles A1, B1, V1 and A2, B2, V2)
-                if (tit1->index() < std::numeric_limits<size_t>::max() && tit2->index()  < std::numeric_limits<size_t>::max()) { // test weather or not S has already been computed TODO index are not well set
-                    Iqr = mat(tit1->index(), tit2->index());
+                if ( (*tit1)->index() < std::numeric_limits<size_t>::max() && (*tit2)->index() < std::numeric_limits<size_t>::max() ) {
+                    Iqr = mat((*tit1)->index(), (*tit2)->index());
                 } else {
-                    std::cout << "TODO ";
-                    Iqr = _operatorS(*tit1, *tit2, gauss_order);
+                    std::cout << (*tit1)->s1().vertex() << " | " << (*tit1)->s2().vertex() << " | " << (*tit1)->s3().vertex() << "\n";
+                    std::cout << (*tit2)->s1().vertex() << " | " << (*tit2)->s2().vertex() << " | " << (*tit2)->s3().vertex() << "\n";
+                    Iqr = _operatorS(**tit1, **tit2, gauss_order);
+                    std::cout << Iqr << "\n";
+                    std::cin.get();
                 }
-    #ifndef OPTIMIZED_OPERATOR_N
-                Vect3 A1 = tit1->prev(V1);
-                Vect3 B1 = tit1->next(V1);
-                Vect3 A2 = tit2->prev(V2);
-                Vect3 B2 = tit2->next(V2);
+            #ifndef OPTIMIZED_OPERATOR_N
+                Vect3 A1 = (*tit1)->next(V1);
+                Vect3 B1 = (*tit1)->prev(V1);
+                Vect3 A2 = (*tit2)->next(V2);
+                Vect3 B2 = (*tit2)->prev(V2);
                 Vect3 A1B1 = B1 - A1;
                 Vect3 A2B2 = B2 - A2;
                 Vect3 A1V1 = V1 - A1;
@@ -240,22 +243,22 @@ namespace OpenMEEG {
                 aq /= aq.norm2();
                 br /= br.norm2();
 
-                Aqr = -0.25 / tit1->area() / tit2->area() * ((aq ^ tit1->normal()) * (br ^ tit2->normal()));
-    #else
-                Vect3 CB1 = tit1->prev(V1)-tit1->next(V1);
-                Vect3 CB2 = tit2->prev(V2)-tit2->next(V2);
+                Aqr = -0.25 / (*tit1)->area() / (*tit2)->area() * ((aq ^ (*tit1)->normal()) * (br ^ (*tit2)->normal()));
+            #else
+                Vect3 CB1 = (*tit1)->next(V1) - (*tit1)->prev(V1);
+                Vect3 CB2 = (*tit2)->next(V2) - (*tit2)->prev(V2);
 
-                Aqr = -0.25 / tit1->area() / tit2->area() * (CB1 * CB2);
-    #endif
+                Aqr = -0.25 / (*tit1)->area() / (*tit2)->area() * (CB1 * CB2);
+            #endif
                 result += Aqr * Iqr;
             }
-
+        }
         return result;
     }
 
     inline double _operatorP1P0(const Triangle& T2, const Vertex& V1)
     {
-        if(T2.contains(V1)) {
+        if ( T2.contains(V1) ) {
             return 0.0;
         } else {
             return T2.area() / 3.0;
@@ -276,18 +279,19 @@ namespace OpenMEEG {
 
         size_t i = 0; // for the PROGRESSBAR
         if ( &m1 == &m2 ) {
-            for(Mesh::const_vertex_iterator vit1 = m1.vertex_begin(); vit1 != m1.vertex_end(); vit1++, i++) {
+            for (Mesh::const_vertex_iterator vit1 = m1.vertex_begin(); vit1 != m1.vertex_end(); vit1++, i++) {
                 PROGRESSBAR(i, m1.nb_vertices());
                 #pragma omp parallel for
-                for(Mesh::const_vertex_iterator vit2 = vit1; vit2 != m1.vertex_end(); vit2++) {
-                    mat((*vit1)->index(), (*vit2)->index()) = _operatorN(**vit1, **vit2, m1, m2, gauss_order, mat);
+                // for ( Mesh::const_vertex_iterator vit2 = m1.vertex_begin(); vit2 !=  vit1+1; vit2++ ) {
+                for ( Mesh::const_vertex_iterator vit2 = vit1; vit2 != m1.vertex_end(); vit2++) {
+                    mat((*vit1)->index(), (*vit2)->index()) = _operatorN(**vit1, **vit2, m1, m1, gauss_order, mat);
                 }
             }
         } else {
-            for(Mesh::const_vertex_iterator vit1 = m1.vertex_begin(); vit1 != m1.vertex_end(); vit1++, i++) {
+            for (Mesh::const_vertex_iterator vit1 = m1.vertex_begin(); vit1 != m1.vertex_end(); vit1++, i++) {
                 PROGRESSBAR(i, m1.nb_vertices());
                 #pragma omp parallel for
-                for(Mesh::const_vertex_iterator vit2 = m2.vertex_begin(); vit2 != m2.vertex_end(); vit2++) {
+                for (Mesh::const_vertex_iterator vit2 = m2.vertex_begin(); vit2 != m2.vertex_end(); vit2++) {
                     mat((*vit1)->index(), (*vit2)->index()) = _operatorN(**vit1, **vit2, m1, m2, gauss_order, mat);
                 }
             }
@@ -320,7 +324,7 @@ namespace OpenMEEG {
                 // PROGRESSBAR(i-offsetI, m1.nbTrgs());
                 #pragma omp parallel for
                 for (Mesh::const_iterator tit2 = m2.begin(); tit2 != m2.end(); tit2++) {
-                    mat(tit1->index(), tit2->index()) = _operatorS(*tit1, *tit2, gauss_order);
+                    mat(tit1->index(), tit2->index()) = _operatorS(*tit1, *tit2, gauss_order); // TODO inverser tit1/tit2
                 }
             }
         }
@@ -360,7 +364,7 @@ namespace OpenMEEG {
         //    the upper left corner of the submatrix to be written is the Matrix
 
         if (star) {
-            std::cout << "OPERATOR D*(Optimized) ... (arg : mesh " << m1.name() << " , mesh " << m2.name() << " )" << std::endl;
+            std::cout << "OPERATOR D*(Optimized) ... (arg : mesh " << m2.name() << " , mesh " << m1.name() << " )" << std::endl;
         } else {
             std::cout << "OPERATOR D (Optimized) ... (arg : mesh " << m1.name() << " , mesh " << m2.name() << " )" << std::endl;
         }
@@ -407,9 +411,9 @@ namespace OpenMEEG {
         result.z() = 0.0;
 
         //loop over triangles of which V1 is a vertex
-        const SetTriangle& trgs = m1.get_triangles_for_point(V1);
-        for(SetTriangle::const_iterator tit = trgs.begin(); tit != trgs.end(); tit++) {
-            const Triangle& T1 = *tit;
+        const SetPTriangle& trgs = m1.get_triangles_for_point(V1);
+        for(SetPTriangle::const_iterator tit = trgs.begin(); tit != trgs.end(); tit++) {
+            const Triangle& T1 = **tit;
 
             // A1 , B1  are the two opposite vertices to V1 (triangles A1, B1, V1)
             Vect3 A1   = T1.prev(V1);

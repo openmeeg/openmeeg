@@ -54,8 +54,8 @@ namespace std {
 #include <limits>
 namespace std {
     inline bool isnormal(double x) {
-        if (x<0) x = -x;
-        return x>=std::numeric_limits<double>::min() && x<=std::numeric_limits<double>::max();
+        if ( x < 0 ) x = -x;
+        return x >= std::numeric_limits<double>::min() && x <= std::numeric_limits<double>::max();
     }
 }
 #endif
@@ -304,7 +304,8 @@ namespace OpenMEEG {
             n.normalize();
         }
 
-        inline Vect3 f(const Vect3& x) const {
+        inline Vect3 f(const Vect3& x) const
+        {
             Vect3 P1part(H0p0DivNorm2*(x-H0), H1p1DivNorm2*(x-H1), H2p2DivNorm2*(x-H2));
 
             // RK: B = n.grad_x(A) with grad_x(A)= q/||^3 - 3r(q.r)/||^5

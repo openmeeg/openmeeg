@@ -110,8 +110,8 @@ namespace OpenMEEG {
               iterator       end()                       { return iterator(vertices+3);       }
               const_iterator end()                 const { return const_iterator(vertices+3); }
 
-        const Vertex&        next(const Vertex& V) const { return (s1().vertex() == V)?s2().vertex():(s2().vertex() == V)?s3().vertex():s1().vertex(); }
         const Vertex&        prev(const Vertex& V) const { return (s1().vertex() == V)?s3().vertex():(s2().vertex() == V)?s1().vertex():s2().vertex(); }
+        const Vertex&        next(const Vertex& V) const { return (s1().vertex() == V)?s2().vertex():(s2().vertex() == V)?s3().vertex():s1().vertex(); }
 
               Reference&     s1()                        { return vertices[0]; }
               Reference&     s2()                        { return vertices[1]; }
@@ -152,17 +152,8 @@ namespace OpenMEEG {
         size_t    index_;      // Index of the triangle
     };
 
-    inline bool operator<(const Triangle& T1, const Triangle& T2) {
-        for (Triangle::const_iterator i1 = T1.begin(), i2 = T2.begin(); i1 != T1.end(); ++i1, ++i2) {
-            if (i1->vertex() != i2->vertex()) {
-                return ((i1->vertex() < i2->vertex()));
-            }
-        }
-        return false;
-    }
-
-    typedef std::vector<Triangle> Triangles;
-    typedef std::set<Triangle>    SetTriangle;
+    typedef std::vector<Triangle>       Triangles;
+    typedef std::set<const Triangle *>  SetPTriangle;
 }
 
 #endif  //! OPENMEEG_TRIANGLE_H

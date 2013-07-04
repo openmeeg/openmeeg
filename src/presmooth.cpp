@@ -39,7 +39,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #include "symmatrix.h"
 #include "vector.h"
-#include "mesh3.h"
+#include "mesh.h"
 #include "sparse_matrix.h"
 #include "fast_sparse_matrix.h"
 

@@ -55,25 +55,26 @@ namespace OpenMEEG {
     //  A simple domain (HalfSpace) is given by an interface (of type Interface) identifying a closed surface and a side (of type InOut) information.
     //  The closed surface split the space into two components. The side depicts which of these two components is the simple domain.
 
-    class HalfSpace: public std::pair<Interface *, bool> {
-
-        typedef std::pair<Interface *, bool> base;
+    class HalfSpace: public std::pair<Interface, bool> 
+    {
+        typedef std::pair<Interface, bool> base;
 
     public:
 
-        HalfSpace(Interface &interface, bool inside): base(&interface, inside) {}
+        HalfSpace(Interface &interface, bool inside): base(interface, inside) {}
+
         ~HalfSpace() {}
 
-              Interface& interface()       { return *this->first;  }
-        const Interface& interface() const { return *this->first;  }
-              bool      inside()     const { return this->second; }
+              Interface& interface()       { return this->first;  }
+        const Interface& interface() const { return this->first;  }
+        const bool      inside()     const { return this->second; }
     };
 
     //  A Domain is the intersection of simple domains (of type HalfSpace).
     //  In addition the domain is named, has conductivity
 
-    class Domain: public std::vector<HalfSpace> {
-
+    class Domain: public std::vector<HalfSpace> 
+    {
         typedef std::vector<HalfSpace> base;
 
     public:
@@ -107,7 +108,7 @@ namespace OpenMEEG {
                   // -1 if not
                   //  0 else (the mesh is not part of the domain boundary)
             for (Domain::const_iterator hit = this->begin(); hit != this->end(); hit++) {
-                for (Interface::const_iterator mit = hit->first->begin(); mit != hit->first->end(); mit++) {
+                for (Interface::const_iterator mit = hit->interface().begin(); mit != hit->interface().end(); mit++) {
                     if (&**mit == &m ) {
                         return ((hit->inside())?1:-1);
                     }

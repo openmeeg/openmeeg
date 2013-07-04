@@ -97,5 +97,3 @@ namespace OpenMEEG {
 }
 
 #endif  //  ! OPENMEEG_INTERFACE_H
-
-

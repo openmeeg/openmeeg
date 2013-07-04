@@ -68,10 +68,10 @@ namespace OpenMEEG {
         mat = SymMatrix(geo.size());
         mat.set(0.0);
 
-        // We iterate over the meshes (or pair of domains)
+        // We iterate over the meshes (or pair of domains) to fill the lower half of the headmat (since its symmetry)
         for (Geometry::const_iterator mit1 = geo.begin(); mit1 != geo.end(); mit1++) {
 
-            for (Geometry::const_iterator mit2 = mit1; mit2 != geo.end(); mit2++) {
+            for (Geometry::const_iterator mit2 = geo.begin(); (mit2 != (mit1+1)); mit2++) {
 
                 // if mit1 and mit2 communicate, i.e they are used for the definition of a domain
                 const double orientation = geo.oriented(*mit1, *mit2); // equals  0, if they don't have any domains in common
@@ -82,12 +82,12 @@ namespace OpenMEEG {
                         // Computing S block first because it's needed for the corresponding N block
                         operatorS(*mit1, *mit2, mat, gauss_order);
 
-                        // Computing D* block
-                        operatorD(*mit1, *mit2, mat, gauss_order, true);
-                    }
-                    // Computing D block
-                    if ( *mit1 != *mit2 ) {
+                        // Computing D block
                         operatorD(*mit1, *mit2, mat, gauss_order);
+                    }
+                    // Computing D* block
+                    if ( *mit1 != *mit2 ) {
+                        operatorD(*mit1, *mit2, mat, gauss_order, true);
                     }
 
                     // Computing N block
@@ -95,6 +95,7 @@ namespace OpenMEEG {
                 }
             }
         }
+        mat.save("/user/eolivi/home/compiles/OpenMEEG/tests/Head11.hm");
 
         // Block multiplications
         // Because only half the Matrix is stored, only the lower part of the Matrix is treated
@@ -106,11 +107,11 @@ namespace OpenMEEG {
         // We iterate over the meshes (or pair of domains)
         for (Geometry::const_iterator mit1 = geo.begin(); mit1 != geo.end(); mit1++) {
 
-            for (Geometry::const_iterator mit2 = mit1; mit2 != geo.end(); mit2++) {
+            for (Geometry::const_iterator mit2 = geo.begin(); mit2 != (mit1 + 1); mit2++) {
 
                 size_t i_m1_vf = (*mit1->vertex_begin())->index(); // index of the first vertex of mesh m1
                 size_t i_m2_vf = (*mit2->vertex_begin())->index();
-                size_t i_m1_vl = (*mit1->vertex_rbegin())->index(); // index of the last vertex of mesh m1
+                size_t i_m1_vl = (*mit1->vertex_rbegin())->index();// index of the last vertex of mesh m1
                 size_t i_m2_vl = (*mit2->vertex_rbegin())->index();
                 size_t i_m1_tf = (mit1->begin())->index();
                 size_t i_m2_tf = (mit2->begin())->index(); // index of the first triangle of mesh m2
@@ -118,8 +119,8 @@ namespace OpenMEEG {
                 size_t i_m2_tl = (mit2->rbegin())->index();
 
                 double orientation = geo.oriented(*mit1, *mit2); // equals  0, if they don't have any domains in common
-                                                           // equals  1, if they are both oriented toward the same domain
-                                                           // equals -1, if they are not
+                                                                 // equals  1, if they are both oriented toward the same domain
+                                                                 // equals -1, if they are not
 
                 if (std::abs(orientation) > 10.*std::numeric_limits<double>::epsilon() ) {
 
@@ -132,7 +133,7 @@ namespace OpenMEEG {
                         // S
                         mult(mat, i_m1_tf, i_m2_tf, i_m1_tl, i_m2_tl, Scoeff);
                         // D*
-                        mult(mat, i_m1_vf, i_m2_tf, i_m1_vl, i_m2_tl, Dcoeff);
+                        mult(mat, i_m1_vf, i_m2_tf, i_m1_vl+1, i_m2_tl+1, Dcoeff); // TODO
                     }
 
                     if ( *mit1 != *mit2 ) {

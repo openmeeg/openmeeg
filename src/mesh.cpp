@@ -53,10 +53,10 @@ namespace OpenMEEG {
     /**
      * Update triangles area/normal, update links and vertices normals if needed
     **/
-    void Mesh::update() {
-
+    void Mesh::update() 
+    {
         links_.clear();
-        links().resize(nb_vertices());
+        links_.resize(nb_vertices());
         // create the set of the mesh vertices out of the vertices in the triangles
         for (iterator tit = this->begin(); tit != this->end(); tit++) {
             tit->normal()  = (tit->s2().vertex() - tit->s1().vertex())^(tit->s3().vertex() - tit->s1().vertex());
@@ -66,8 +66,8 @@ namespace OpenMEEG {
         size_t i = 0;
         for (const_vertex_iterator vit = vertex_begin(); vit != vertex_end(); vit++, i++) {
             for (const_iterator tit = this->begin(); tit != this->end(); tit++) {
-                if (tit->contains(**vit)) {
-                    links()[i].insert(*tit); 
+                if ( tit->contains(**vit) ) {
+                    links_[i].insert(&*tit); 
                 }
             }
         }
@@ -82,8 +82,8 @@ namespace OpenMEEG {
                     first_time = false;
                 }
                 Normal normal(0);
-                for (SetTriangle::iterator tit = links_[i].begin(); tit != links_[i].end(); tit++) {
-                    normal += tit->normal();
+                for (SetPTriangle::const_iterator tit = links_[i].begin(); tit != links_[i].end(); tit++) {
+                    normal += (*tit)->normal();
                 }
                 normal.normalize();
                 (*vit)->normal() = normal;
@@ -94,8 +94,8 @@ namespace OpenMEEG {
     /**
      * Print informations about the mesh
     **/
-    void Mesh::info() const {
-
+    void Mesh::info() const 
+    {
         std::cout << "Info:: Mesh name or ID : "  << name() << std::endl;
         std::cout << "\t\t# points : "    << nb_vertices() << std::endl;
         std::cout << "\t\t# triangles : " << nb_triangles() << std::endl;
@@ -111,7 +111,8 @@ namespace OpenMEEG {
         std::cout << "\t\tMax Area : " << max_area << std::endl;
     }
 
-    bool Mesh::has_self_intersection() const {
+    bool Mesh::has_self_intersection() const 
+    {
         bool selfIntersects = false;
         for (const_iterator tit1 = this->begin(); tit1 != this->end(); tit1++) {
             for (const_iterator tit2 = tit1; tit2 != this->end(); tit2++) {
@@ -126,7 +127,8 @@ namespace OpenMEEG {
         return selfIntersects;
     }
 
-    bool Mesh::intersection(const Mesh& m) const {
+    bool Mesh::intersection(const Mesh& m) const 
+    {
         bool intersects = false;
         for (const_iterator tit1 = this->begin(); tit1 != this->end(); tit1++) {
             for (const_iterator tit2 = m.begin(); tit2 != m.end(); tit2++) {
@@ -136,7 +138,8 @@ namespace OpenMEEG {
         return intersects;
     }
 
-    bool Mesh::triangle_intersection(const Triangle& T1, const Triangle& T2 ) const {
+    bool Mesh::triangle_intersection(const Triangle& T1, const Triangle& T2 ) const 
+    {
         const Vect3& p1 = T1.s1().vertex();
         const Vect3& q1 = T1.s2().vertex();
         const Vect3& r1 = T1.s3().vertex();
@@ -153,10 +156,11 @@ namespace OpenMEEG {
         return tri_tri_overlap_test_3d(pp1, qq1, rr1, pp2, qq2, rr2);
     }
 
-    const SetTriangle& Mesh::get_triangles_for_point(const Vertex& V) const {
+    const SetPTriangle& Mesh::get_triangles_for_point(const Vertex& V) const 
+    {
         size_t i = 0;
         for (const_vertex_iterator vit = vertex_begin(); vit != vertex_end(); vit++, i++) {
-            if (*vit == &V) {
+            if ( *vit == &V ) {
                 return links_[i];
             }
         }
@@ -196,14 +200,15 @@ namespace OpenMEEG {
         }
 
         for (int i = 0; i < npts; i++) {
-            all_vertices().push_back(Vertex(vtkMesh->GetPoint(i)[0], vtkMesh->GetPoint(i)[1], vtkMesh->GetPoint(i)[2]));
-            all_normals()[i](normalsData->GetTuple(i)[0], normalsData->GetTuple(i)[1], normalsData->GetTuple(i)[2]);
+            add_vertex(Vertex(vtkMesh->GetPoint(i)[0], vtkMesh->GetPoint(i)[1], vtkMesh->GetPoint(i)[2], normalsData->GetTuple(i)[0], normalsData->GetTuple(i)[1], normalsData->GetTuple(i)[2]));
         }
 
         ntrgs = vtkMesh->GetNumberOfCells();
 
         vtkIdList *l;
-        for (int i = 0; i<ntrgs; i++) {
+        this->reserve(ntrgs);
+
+        for ( int i = 0; i < ntrgs; i++) {
             if (vtkMesh->GetCellType(i) == VTK_TRIANGLE) {
                 l = vtkMesh->GetCell(i)->GetPointIds();
                 m.push_back(Triangle(all_vertices()[l->GetId(0)+all_vertices().size()]-npts, all_vertices()[l->GetId(1)+all_vertices().size()-npts], all_vertices()[l->GetId(2)+all_vertices().size()-npts]))  ;
@@ -404,6 +409,8 @@ namespace OpenMEEG {
             add_vertex(Vertex(pts_raw[i*3+0], pts_raw[i*3+1], pts_raw[i*3+2], normals_raw[i*3+0], normals_raw[i*3+1], normals_raw[i*3+2]));
         }
 
+        this->reserve(ntrgs);
+
         for (int i = 0; i < ntrgs; ++i) {
             push_back(Triangle(all_vertices()[faces_raw[i*3+0]+all_vertices().size()-npts], 
                                all_vertices()[faces_raw[i*3+1]+all_vertices().size()-npts],
@@ -447,6 +454,8 @@ namespace OpenMEEG {
             add_vertex(v);
         }
         f >> ch >> ntrgs >> ntrgs >> ntrgs; // This number is repeated 3 times
+
+        this->reserve(ntrgs);
 
         for (int i = 0; i < ntrgs; i++) {
             f >> *this;
@@ -516,6 +525,8 @@ namespace OpenMEEG {
         f >> io_utils::skip_comments('#') >> st;
         assert(st == "Polygons");
 
+        this->reserve(ntrgs);
+
         for ( size_t i = 0; i < ntrgs; i++) {
              f >> io_utils::skip_comments('#') >> *this;
         }
@@ -557,6 +568,8 @@ namespace OpenMEEG {
             f >> v;
             add_vertex(v);
         }
+
+        this->reserve(ntrgs);
 
         for (size_t i = 0; i < ntrgs; i++) {
             f >> trash;        // put the "3" to trash

@@ -44,8 +44,8 @@ namespace OpenMEEG {
     /**
      * Computes the total solid angle of a surface for a point p and tells whether p is inside the mesh or not.
      **/
-    bool Interface::contains_point(const Vect3& p) const {
-
+    bool Interface::contains_point(const Vect3& p) const 
+    {
         double solangle = 0.0;
         for (Interface::const_iterator mit = this->begin(); mit != this->end(); mit++) {
             for (Mesh::const_iterator tit = (*mit)->begin(); tit != (*mit)->end(); tit++) {
@@ -67,7 +67,8 @@ namespace OpenMEEG {
         }
     }
     
-    void Interface::set_to_outermost() {
+    void Interface::set_to_outermost() 
+    {
         for (Interface::iterator mit = this->begin(); mit != this->end(); mit++) {
             (*mit)->outermost() = true;
         }

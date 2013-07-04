@@ -42,15 +42,17 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 namespace OpenMEEG {
 
-    const Interface& Geometry::outermost_interface() const {
-        for (Interfaces::const_iterator iit = this->interface_begin(); iit != this->interface_end(); iit++) {
-            if (iit->outermost()) {
-                return *iit;
+    const Interface& Geometry::outermost_interface() const 
+    {
+        for (Domains::const_iterator dit = domain_begin(); dit != domain_end(); dit++) {
+            if (dit->outermost()) {
+                return dit->begin()->interface();
             }
         }
     }
 
-    const size_t Geometry::nb_trianglesoutermost() const {
+    const size_t Geometry::nb_trianglesoutermost() const 
+    {
         size_t nb_t = 0;
         for (const_iterator mit = this->begin(); mit != this->end(); mit++) {
             if (mit->outermost()) {
@@ -60,7 +62,8 @@ namespace OpenMEEG {
         return nb_t;
     }
 
-    const Mesh&  Geometry::mesh(const std::string &id) const {
+    const Mesh&  Geometry::mesh(const std::string &id) const 
+    {
         for (const_iterator mit = this->begin() ; mit != this->end(); mit++ ) {
             if (id == mit->name()) {
                 return *mit;
@@ -69,7 +72,8 @@ namespace OpenMEEG {
         std::cerr << "Error mesh id/name not found: " << id << std::endl;
     }
 
-    Mesh&  Geometry::mesh(const std::string &id) {
+    Mesh&  Geometry::mesh(const std::string &id) 
+    {
         for (iterator mit = this->begin() ; mit != this->end(); mit++ ) {
             if (id == mit->name()) {
                 return *mit;
@@ -78,7 +82,8 @@ namespace OpenMEEG {
         std::cerr << "Error mesh id/name not found: " << id << std::endl;
     }
 
-    void Geometry::info() const {
+    void Geometry::info() const 
+    {
         // for (const_iterator mit = this->begin(); mit != this->end(); mit++) {
             // mit->info();
         // }
@@ -87,18 +92,18 @@ namespace OpenMEEG {
         }
     }
 
-    const Domain Geometry::get_domain(const Vect3& p) const {
-
+    const Domain& Geometry::get_domain(const Vect3& p) const 
+    {
         for (Domains::const_iterator dit = this->domain_begin(); dit != this->domain_end(); dit++) {
             if (dit->contains_point(p)) {
                 return *dit;
             }
         }
-        return Domain(); // should never append
+        // should never append
     }
 
-    void Geometry::read(const char* geomFileName, const char* condFileName) {
-
+    void Geometry::read(const char* geomFileName, const char* condFileName) 
+    {
         has_cond() = false; // default parameter
 
         read_geom(geomFileName);
@@ -106,7 +111,7 @@ namespace OpenMEEG {
         // generate the indices of our unknowns
         geom_generate_indices();
 
-        if(condFileName) {
+        if (condFileName) {
             read_cond(condFileName);
             has_cond() = true;
         }
@@ -115,20 +120,22 @@ namespace OpenMEEG {
         info();
     }
 
-    void Geometry::geom_generate_indices() { // this generates unique indices for vertices and triangles which will correspond to our unknowns.
-#define CLASSIC_ORDERING 1
+    // this generates unique indices for vertices and triangles which will correspond to our unknowns.
+    void Geometry::geom_generate_indices() 
+    {
+        #define CLASSIC_ORDERING
         size_t index = 0;
-#if !CLASSIC_ORDERING
-        for ( Vertices::iterator pit = this->vertex_begin(); pit != this->vertex_end(); pit++, index++) {
-            pit->index() = index;
+        #ifndef CLASSIC_ORDERING
+        for ( Vertices::iterator pit = this->vertex_begin(); pit != this->vertex_end(); pit++, index) {
+            pit->index() = index++;
         }
-#endif
+        #endif
         for (iterator mit = this->begin(); mit != this->end(); mit++) {
-#if CLASSIC_ORDERING
+            #ifdef CLASSIC_ORDERING
             for (Mesh::const_vertex_iterator vit = mit->vertex_begin(); vit != mit->vertex_end(); vit++) {
                 (*vit)->index() = index++;
             }
-#endif
+            #endif
             if ( !mit->outermost() ) {
                 for (Mesh::iterator tit = mit->begin(); tit != mit->end(); tit++) {
                     tit->index() = index++;
@@ -138,16 +145,16 @@ namespace OpenMEEG {
         this->size() = index;
     }
 
-    double Geometry::sigma(const std::string& name) const {
+    const double Geometry::sigma(const std::string& name) const {
         for (std::vector<Domain>::const_iterator d = domain_begin(); d != domain_end(); d++) {
             if (name == d->name()) {
                 return (d->sigma());
             }
         }
-        return -1.; // TODO throw error unknownDomain
+        return 0.; // TODO throw error unknownDomain
     }
 
-    Domains Geometry::common_domains(const Mesh& m1, const Mesh& m2) const {
+    const Domains Geometry::common_domains(const Mesh& m1, const Mesh& m2) const {
         std::set<Domain> sdom1;
         std::set<Domain> sdom2;
         for (Domains::const_iterator dit = domain_begin(); dit != domain_end(); dit++) {
@@ -164,15 +171,15 @@ namespace OpenMEEG {
     }
 
     // return the (sum) conductivity(ies) of the shared domain(s).
-    double Geometry::funct_on_domains(const Mesh& m1, const Mesh& m2, const char& f) const {
+    const double Geometry::funct_on_domains(const Mesh& m1, const Mesh& m2, const char& f) const {
         Domains doms = common_domains(m1, m2);
         double ans=0.;
         for (Domains::iterator dit = doms.begin(); dit != doms.end(); dit++) {
-            if (f=='+') {
+            if ( f == '+' ) {
                 ans += dit->sigma();
-            } else if (f == '-') {
+            } else if ( f == '-' ) {
                 ans -= -1.*dit->sigma();
-            } else if (f == '/') {
+            } else if ( f == '/' ) {
                 ans += 1./dit->sigma();
             } else {
                 ans += 1.;
@@ -181,7 +188,7 @@ namespace OpenMEEG {
         return ans;
     }
 
-    double Geometry::oriented(const Mesh& m1, const Mesh& m2) const {
+    const double Geometry::oriented(const Mesh& m1, const Mesh& m2) const {
         Domains doms = common_domains(m1, m2);
         double ans = 0.;
         if ( doms.size() == 2 ) { // TODO Maureen comment on the cylinder

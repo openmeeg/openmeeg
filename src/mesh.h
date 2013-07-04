@@ -95,18 +95,15 @@ namespace OpenMEEG {
         ~Mesh() { }
 
         // Iterators on vertices
-        const_vertex_reverse_iterator vertex_rbegin() const         { return vertices_.rbegin(); }
-        const_vertex_reverse_iterator vertex_rend()   const         { return vertices_.rend(); }
         const_vertex_iterator         vertex_begin()  const         { return vertices_.begin(); }
+        const_vertex_reverse_iterator vertex_rbegin() const         { return vertices_.rbegin(); }
         const_vertex_iterator         vertex_end()    const         { return vertices_.end(); }
+        const_vertex_reverse_iterator vertex_rend()   const         { return vertices_.rend(); }
 
-        std::vector<SetTriangle>&     links()                       { return links_; }
-        std::vector<SetTriangle>      links()         const         { return links_; }
+        const std::vector<SetPTriangle>& links()      const         { return links_; }
 
-        std::string                   name()          const         { return name_; }
-        std::string &                 name()                        { return name_; }
-
-        void                          add_vertex(const Vertex &v)   { all_vertices_->push_back(v); vertices_.push_back(&(*all_vertices_->rbegin())); }
+        const std::string &               name()      const         { return name_; }
+              std::string &               name()                    { return name_; }
 
         VectPVertex                   vertices()      const         { return vertices_; }
         VectPVertex &                 vertices()                    { return vertices_; }
@@ -116,6 +113,8 @@ namespace OpenMEEG {
 
               Vertices                all_vertices()  const         { return *all_vertices_; }
 
+        void add_vertex(const Vertex &v) { all_vertices_->push_back(v); vertices_.push_back(&(*all_vertices_->rbegin())); }
+
         // Mesh state
         void info() const ;
         bool has_self_intersection() const;
@@ -124,7 +123,8 @@ namespace OpenMEEG {
         bool triangle_intersection(const Triangle&, const Triangle&) const;
         void update();
 
-        const SetTriangle& get_triangles_for_point(const Vertex& V) const;
+
+        const SetPTriangle& get_triangles_for_point(const Vertex& V) const;
 
         friend std::istream& operator>>(std::istream &is, Mesh &m);
 
@@ -188,7 +188,7 @@ namespace OpenMEEG {
     private:
         
         std::string                 name_;
-        std::vector<SetTriangle>    links_;
+        std::vector<SetPTriangle>   links_;
         Vertices *                  all_vertices_;
         VectPVertex                 vertices_;
         bool                        outermost_;
