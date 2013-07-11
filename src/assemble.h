@@ -52,33 +52,33 @@ namespace OpenMEEG {
 
     class OPENMEEG_EXPORT HeadMat: public virtual SymMatrix {
     public:
-        HeadMat (const Geometry& geo, const int gauss_order=3);
+        HeadMat (const Geometry& geo, const unsigned gauss_order=3);
         virtual ~HeadMat () {};
     };
 
     class OPENMEEG_EXPORT SurfSourceMat: public virtual Matrix {
     public:
-        SurfSourceMat (const Geometry& geo,const Mesh& sources,const int gauss_order=3);
+        SurfSourceMat (const Geometry& geo, Mesh& sources, const unsigned gauss_order=3);
         virtual ~SurfSourceMat () {};
     };
 
     class OPENMEEG_EXPORT DipSourceMat: public virtual Matrix {
     public:
-        DipSourceMat (const Geometry& geo,const Matrix& dipoles,const int gauss_order=3,
-                      const bool adapt_rhs=true,const bool dipoles_in_cortex=true);
+        DipSourceMat (const Geometry& geo, const Matrix& dipoles, const unsigned gauss_order=3,
+                      const bool adapt_rhs = true, const std::string& domain_name = "");
         virtual ~DipSourceMat () {};
     };
 
     class OPENMEEG_EXPORT EITSourceMat: public virtual Matrix {
     public:
-        EITSourceMat(const Geometry& geo, Sensors& electrodes, const int gauss_order=3);
+        EITSourceMat(const Geometry& geo, Sensors& electrodes, const unsigned gauss_order=3);
         virtual ~EITSourceMat () {};
     };
 
     class OPENMEEG_EXPORT Surf2VolMat: public virtual Matrix {
     public:
         using Matrix::operator=;
-        Surf2VolMat(const Geometry& geo,const Matrix& points);
+        Surf2VolMat(const Geometry& geo, const Matrix& points);
         virtual ~Surf2VolMat () {};
     };
 
@@ -90,32 +90,32 @@ namespace OpenMEEG {
 
     class OPENMEEG_EXPORT Head2ECoGMat: public virtual SparseMatrix {
     public:
-        Head2ECoGMat (const Geometry& geo, const Sensors& electrodes);
+        Head2ECoGMat (const Geometry& geo, const Sensors& electrodes, const Interface& i);
         virtual ~Head2ECoGMat () {};
     };
 
     class OPENMEEG_EXPORT Head2MEGMat: public virtual Matrix {
     public:
-        Head2MEGMat (const Geometry& geo,const Sensors& sensors);
+        Head2MEGMat (const Geometry& geo, const Sensors& sensors);
         virtual ~Head2MEGMat () {};
     };
 
     class OPENMEEG_EXPORT SurfSource2MEGMat: public virtual Matrix {
     public:
-        SurfSource2MEGMat (const Mesh& sources,const Sensors& sensors);
+        SurfSource2MEGMat (const Mesh& sources, const Sensors& sensors);
         virtual ~SurfSource2MEGMat () {};
     };
 
     class OPENMEEG_EXPORT DipSource2MEGMat: public virtual Matrix {
     public:
-        DipSource2MEGMat(const Matrix& dipoles,const Sensors& sensors);
+        DipSource2MEGMat(const Matrix& dipoles, const Sensors& sensors);
         virtual ~DipSource2MEGMat () {};
     };
 
     class OPENMEEG_EXPORT DipSource2InternalPotMat: public virtual Matrix {
     public:
-        DipSource2InternalPotMat(const Geometry& geo,const Matrix& dipoles,
-                                 const Matrix& points,const bool dipoles_in_cortex=true);
+        DipSource2InternalPotMat(const Geometry& geo, const Matrix& dipoles,
+                                 const Matrix& points, const std::string& domain_name = "");
         virtual ~DipSource2InternalPotMat () {};
     };
 }

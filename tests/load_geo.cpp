@@ -6,7 +6,8 @@ using namespace OpenMEEG;
 
 int main (int argc, char** argv)
 {
-	if(argc!=3) {
+	if ( argc != 3) 
+    {
         std::cerr << "Wrong nb of parameters" << std::endl;
         exit(1);
     }
@@ -15,7 +16,7 @@ int main (int argc, char** argv)
     std::cerr << "Cond : " << argv[2] << std::endl;
 
     Geometry geo;
-    geo.read(argv[1],argv[2]);
+    geo.read(argv[1], argv[2]);
 
     std::cerr << "Geometry Size : " << geo.size() << std::endl;
 

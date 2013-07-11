@@ -68,15 +68,15 @@ namespace OpenMEEG {
 
         inline ~Vertex() {};
 
-              size_t& index()         { return index_; }
-        const size_t& index()   const { return index_; }
+              unsigned& index()         { return index_; }
+        const unsigned& index()   const { return index_; }
 
               Normal&  normal()       { return normal_; }
         const Normal&  normal() const { return normal_; }
 
     private:
 
-        size_t index_;
+        unsigned index_;
         Normal normal_;
     };
 

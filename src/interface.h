@@ -63,22 +63,23 @@ namespace OpenMEEG {
 
         ~Interface() { }
 
-        const std::string   name() const               { return name_; }
+        const std::string   name()          const      { return name_; }
               std::string & name()                     { return name_; }
 
-        bool          outermost()      const           { return outermost_; }
+        const bool        & outermost()     const      { return outermost_; }
+        const bool          closed()        const;
 
-        const size_t  nb_triangles()    const          { 
-            size_t nb = 0;
-            for (const_iterator mit = begin(); mit != end(); mit++) {
+        const unsigned      nb_triangles()  const {
+            unsigned nb = 0;
+            for ( const_iterator mit = begin(); mit != end(); mit++) {
                 nb += (*mit)->nb_triangles();
             }
             return nb;
         }
 
-        const size_t  nb_vertices()    const          { 
-            size_t nb = 0;
-            for (const_iterator mit = begin(); mit != end(); mit++) {
+        const unsigned  nb_vertices()       const { 
+            unsigned nb = 0;
+            for ( const_iterator mit = begin(); mit != end(); mit++) {
                 nb += (*mit)->nb_vertices();
             }
             return nb;

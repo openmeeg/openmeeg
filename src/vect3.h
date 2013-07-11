@@ -103,7 +103,7 @@ namespace OpenMEEG {
         inline void operator+=(const Vect3& v)  { m[0] += v.x(); m[1] += v.y(); m[2] += v.z(); }
         inline void operator-=(const Vect3& v)  { m[0] -= v.x(); m[1] -= v.y(); m[2] -= v.z(); }
         inline void operator*=(const double& d) { m[0] *= d; m[1] *= d; m[2] *= d; }
-        inline void operator/=(const double& d) { m[0] /= d; m[1] /= d; m[2] /= d; }
+        inline void operator/=(const double& d) { operator*=(1.0/d); }
 
         inline void multadd(const double& d, const Vect3& v) {m[0] += d*v.x(); m[1] += d*v.y(); m[2] += d*v.z();}
 

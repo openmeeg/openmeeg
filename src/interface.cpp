@@ -47,17 +47,17 @@ namespace OpenMEEG {
     bool Interface::contains_point(const Vect3& p) const 
     {
         double solangle = 0.0;
-        for (Interface::const_iterator mit = this->begin(); mit != this->end(); mit++) {
-            for (Mesh::const_iterator tit = (*mit)->begin(); tit != (*mit)->end(); tit++) {
-                solangle += p.solangl((*tit)(0).vertex(), (*tit)(1).vertex(), (*tit)(2).vertex());
+        for ( Interface::const_iterator mit = this->begin(); mit != this->end(); mit++) {
+            for ( Mesh::const_iterator tit = (*mit)->begin(); tit != (*mit)->end(); tit++) {
+                solangle += p.solangl((*tit).s1(), (*tit).s2(), (*tit).s3());
             }
         }
 
-        if (std::abs(solangle) < 1e3*std::numeric_limits<double>::epsilon()) {
+        if ( std::abs(solangle) < 1.e3*std::numeric_limits<double>::epsilon() ) {
             return false;
-        } else if (std::abs(solangle + 4*M_PI) < 1e3*std::numeric_limits<double>::epsilon()) {
+        } else if (std::abs(solangle + 4.*M_PI) < 1.e3*std::numeric_limits<double>::epsilon()) {
             return true;
-        } else if (std::abs(solangle - 4*M_PI) < 1e3*std::numeric_limits<double>::epsilon()) {
+        } else if (std::abs(solangle - 4.*M_PI) < 1.e3*std::numeric_limits<double>::epsilon()) {
             std::cerr << "Mesh::contains_point(" << p << ") Error. Are you sure the mesh is properly oriented?\n";
             return false;
         } else {
@@ -69,9 +69,13 @@ namespace OpenMEEG {
     
     void Interface::set_to_outermost() 
     {
-        for (Interface::iterator mit = this->begin(); mit != this->end(); mit++) {
+        for ( Interface::iterator mit = this->begin(); mit != this->end(); mit++) {
             (*mit)->outermost() = true;
         }
         outermost_ = true;
+    }
+
+    const bool Interface::closed() const {
+        
     }
 }

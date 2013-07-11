@@ -55,20 +55,20 @@ namespace OpenMEEG
 
     static double dpc(const Vect3& p, const Triangle& triangle, Vect3& alphas, int nb, int* idx, bool& inside)
     {
-        if (nb == 1) {
+        if ( nb == 1 ) {
             alphas(idx[0]) = 1.0;
             return (p - triangle.vertex(idx[0])).norm();
         }
         // Solves H=sum(alpha_i A_i), sum(alpha_i)=1, et HM.(A_i-A_0)=0
         Vect3 A0Ai[3]; // A_i-A_0
-        for (int i = 1; i < nb; i++) {
+        for ( unsigned i = 1; i < nb; i++) {
             A0Ai[i] = triangle.vertex(idx[i]) - triangle.vertex(idx[0]);
         }
         Vect3 A0M = p - triangle.vertex(idx[0]); // M-A_0
-        if(nb == 2) {
+        if ( nb == 2 ) {
             alphas(idx[1]) = (A0M * A0Ai[1]) / (A0Ai[1] * A0Ai[1]);
             alphas(idx[0]) = 1.0 - alphas(idx[1]);
-        } else if (nb==3) {
+        } else if ( nb == 3 ) {
             // direct inversion (2x2 linear system)
             double a00 = A0Ai[1] * A0Ai[1];
             double a10 = A0Ai[1] * A0Ai[2];
@@ -88,8 +88,8 @@ namespace OpenMEEG
         }
         // If alpha_i<0 -> brought to 0 and recursion
         // NB: also takes care of alpha > 1 because if alpha_i>1 then alpha_j<0 for at least one j
-        for (int i=0; i<nb; i++) {
-            if (alphas(idx[i])<0) {
+        for ( unsigned i = 0; i < nb; i++) {
+            if ( alphas(idx[i]) < 0 ) {
                 inside = false;
                 alphas(idx[i]) = 0;
                 swap(idx[i], idx[nb-1]);
@@ -98,8 +98,8 @@ namespace OpenMEEG
         }
         // Sinon: distance HM
         Vect3 MH = -A0M;
-        for (int i=1; i<nb; i++) {
-            MH = MH + alphas(idx[i]) * A0Ai[i];
+        for ( unsigned i = 1; i < nb; i++) {
+            MH += alphas(idx[i]) * A0Ai[i];
         }
         return MH.norm();
     }
@@ -114,10 +114,11 @@ namespace OpenMEEG
 
     static inline int sgn(double s)
     {
-        return (s>0) ? 1 : (s<0) ? -1: 0;
+        return ( s > 0 ) ? 1 : ( s < 0 ) ? -1: 0;
     }
-
+#if 0
     double dist_point_mesh(const Vect3& p, const Mesh& mesh, Vect3& alphas, Triangle& nearestTriangle) {
+        
         double distmin = DBL_MAX;
         bool inside;
         double distance;
@@ -129,6 +130,26 @@ namespace OpenMEEG
                 distmin = distance;
                 alphas = alphasLoop;
                 nearestTriangle = *tit;
+            }
+        }
+        return distmin;
+    }
+#endif
+    double dist_point_interface(const Vect3& p, const Interface& i, Vect3& alphas, Triangle& nearestTriangle) {
+
+        double distmin = DBL_MAX;
+        bool inside;
+        double distance;
+        Vect3 alphasLoop;
+
+        for ( Interface::const_iterator mit = i.begin(); mit != i.end(); mit++ ) {
+            for ( Mesh::const_iterator tit = (*mit)->begin(); tit !=  (*mit)->end(); tit++) {
+                distance = dist_point_triangle(p, *tit, alphasLoop, inside);
+                if ( distance < distmin ) {
+                    distmin = distance;
+                    alphas = alphasLoop;
+                    nearestTriangle = *tit;
+                }
             }
         }
         return distmin;

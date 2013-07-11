@@ -54,36 +54,12 @@ namespace OpenMEEG {
 
     **/
 
-    //  The default class to handle pointers to a vertex.
-    //  This is simply a pointer here, but sometimes we want to attach
-    //  some information to this pointer.
-
-    class Reference {
-
-    public:
-
-        Reference() { }
-
-        Reference&    operator=(Reference v) { vref = v.vref; return * this; }
-        Reference&    operator=(Vertex* v)   { vref = v;      return * this; }
-
-              Vertex& vertex()               { return *vref; }
-        const Vertex& vertex() const         { return *vref; }
-
-              size_t& index()                { return vref->index(); }
-        const size_t& index()  const         { return vref->index(); }
-
-    private:
-
-        Vertex* vref;
-    };
-
     class Triangle {
 
     public:
 
-        typedef       Reference*       iterator;
-        typedef const Reference* const_iterator;
+        typedef       Vertex**       iterator;
+        typedef const Vertex** const_iterator;
 
         // Constructors
         Triangle(): index_(-1) {}
@@ -95,31 +71,34 @@ namespace OpenMEEG {
         // Destructor
         ~Triangle() { destroy(); }
 
-              Triangle&  operator=(const Triangle& t);
-
-        // 0 <= 'index' <= '2'
-              Reference& operator()(const size_t& vindex)       { return vertices[vindex]; }
-        const Reference& operator()(const size_t& vindex) const { return vertices[vindex]; }
+        // Operators
+              Triangle&  operator= (const Triangle& t);
+              Vertex *   operator[](const unsigned& vindex)       { return vertices_[vindex];  } // 0 <= 'index' <= '2'
+        const Vertex *   operator[](const unsigned& vindex) const { return vertices_[vindex];  }
+              Vertex &   operator()(const unsigned& vindex)       { return *vertices_[vindex]; } // 0 <= 'index' <= '2'
+        const Vertex &   operator()(const unsigned& vindex) const { return *vertices_[vindex]; }
+        const bool       operator==(const Triangle& T) const;
+        const bool       operator!=(const Triangle& T) const { return (!(*this == T)); } // TODO keep ?
                                                  
-              Vertex&        vertex(const size_t& vindex)       { return operator()(vindex).vertex(); }
-        const Vertex&        vertex(const size_t& vindex) const { return operator()(vindex).vertex(); }
+              Vertex&        vertex(const unsigned& vindex)       { return operator()(vindex); }
+        const Vertex&        vertex(const unsigned& vindex) const { return operator()(vindex); }
 
         // Iterators.
-              iterator       begin()                     { return iterator(vertices);       }
-              const_iterator begin()               const { return const_iterator(vertices); }
-              iterator       end()                       { return iterator(vertices+3);       }
-              const_iterator end()                 const { return const_iterator(vertices+3); }
+              iterator       begin()                     { return iterator(vertices_);       }
+              const_iterator begin()               const { return const_iterator(vertices_); }
+              iterator       end()                       { return iterator(vertices_+3);       }
+              const_iterator end()                 const { return const_iterator(vertices_+3); }
 
-        const Vertex&        prev(const Vertex& V) const { return (s1().vertex() == V)?s3().vertex():(s2().vertex() == V)?s1().vertex():s2().vertex(); }
-        const Vertex&        next(const Vertex& V) const { return (s1().vertex() == V)?s2().vertex():(s2().vertex() == V)?s3().vertex():s1().vertex(); }
+        const Vertex&        prev(const Vertex& V) const { return ( s1() == V )?s3():( s2() == V )?s1():s2(); }
+        const Vertex&        next(const Vertex& V) const { return ( s1() == V )?s2():( s2() == V )?s3():s1(); }
 
-              Reference&     s1()                        { return vertices[0]; }
-              Reference&     s2()                        { return vertices[1]; }
-              Reference&     s3()                        { return vertices[2]; }
-                                 
-        const Reference&     s1()                  const { return vertices[0]; }
-        const Reference&     s2()                  const { return vertices[1]; }
-        const Reference&     s3()                  const { return vertices[2]; }
+        const Vertex&        s1()                  const { return *vertices_[0]; }
+        const Vertex&        s2()                  const { return *vertices_[1]; }
+        const Vertex&        s3()                  const { return *vertices_[2]; }
+
+              Vertex&        s1()                        { return *vertices_[0]; }
+              Vertex&        s2()                        { return *vertices_[1]; }
+              Vertex&        s3()                        { return *vertices_[2]; }
 
               Normal&        normal()                    { return normal_; }
         const Normal&        normal()              const { return normal_; }
@@ -127,33 +106,32 @@ namespace OpenMEEG {
               double&        area()                      { return area_; }
         const double&        area()                const { return area_; }
                                      
-              size_t&        index()                     { return index_; }
-        const size_t&        index()               const { return index_; }
+              unsigned&      index()                     { return index_; }
+        const unsigned&      index()               const { return index_; }
 
         bool contains(const Vertex& p) const {
-            for (size_t i = 0; i < 3; i++) {
-                if (&vertex(i) == &p) {
+            for ( unsigned i = 0; i < 3; i++) {
+                if ( &vertex(i) == &p ) {
                     return true;
                 }
             }
             return false;
         }
 
-        bool operator==(const Triangle& T) const;
+        void flip(); // flip two of the three vertex address
 
     private:
 
         void copy(const Triangle &t);
         void destroy();
 
-        Reference vertices[3]; // &Vertex-triplet defining the triangle
+        Vertex *  vertices_[3]; // &Vertex-triplet defining the triangle
         double    area_;       // Area
         Normal    normal_;     // Normal
-        size_t    index_;      // Index of the triangle
+        unsigned  index_;      // Index of the triangle
     };
 
     typedef std::vector<Triangle>       Triangles;
-    typedef std::set<const Triangle *>  SetPTriangle;
 }
 
 #endif  //! OPENMEEG_TRIANGLE_H

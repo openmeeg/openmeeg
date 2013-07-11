@@ -94,7 +94,7 @@ namespace OpenMEEG {
                 mtemp=mtemp.transpose();
                 #endif
                 for (unsigned i=0;i<LeadField.ncol();i++) {
-                    LeadField.setcol(i,mtemp*DipSourceMat(geo,dipoles.submat(i,1,0,dipoles.ncol()),gauss_order,true,true).getcol(0));
+                    LeadField.setcol(i,mtemp * DipSourceMat(geo, dipoles.submat(i, 1, 0, dipoles.ncol()), gauss_order, true, "Brain").getcol(0)); // TODO ugly
                     PROGRESSBAR(i,LeadField.ncol());
                 }
                 *this = LeadField;
@@ -128,7 +128,7 @@ namespace OpenMEEG {
                 mtemp=mtemp.transpose();
                 #endif
                 for (unsigned i=0;i<LeadField.ncol();i++) {
-                    LeadField.setcol(i,mtemp*DipSourceMat(geo,dipoles.submat(i,1,0,dipoles.ncol()),gauss_order,true,true).getcol(0)+Source2MEGMat.getcol(i));
+                    LeadField.setcol(i, mtemp * DipSourceMat(geo, dipoles.submat(i, 1, 0, dipoles.ncol()), gauss_order, true, "Brain").getcol(0)+Source2MEGMat.getcol(i)); // TODO ugly
                     PROGRESSBAR(i,LeadField.ncol());
                 }
                 *this = LeadField;
@@ -168,16 +168,16 @@ namespace OpenMEEG {
                 mtemp=mtemp.transpose();
                 #endif
                 for (unsigned i=0;i<dipoles.nlin();i++) {
-                    Vector dsm = DipSourceMat(geo,dipoles.submat(i,1,0,dipoles.ncol()), gauss_order, true, true).getcol(0);
+                    Vector dsm = DipSourceMat(geo,dipoles.submat(i,1,0,dipoles.ncol()), gauss_order, true, "Brain").getcol(0); // TODO ugly
                     EEGleadfield.setcol(i,mtemp.submat(0,Head2EEGMat.nlin(),0,HeadMat.nlin())*dsm);
                     MEGleadfield.setcol(i,mtemp.submat(Head2EEGMat.nlin(),Head2MEGMat.nlin(),0,HeadMat.nlin())*dsm+Source2MEGMat.getcol(i));
                     PROGRESSBAR(i,dipoles.nlin());
                 }
             }
             
-            void saveEEG( const char *filename ) const {EEGleadfield.save(filename);};
+            void saveEEG( const std::string filename ) const { EEGleadfield.save(filename); }
 
-            void saveMEG( const char *filename ) const {MEGleadfield.save(filename);};
+            void saveMEG( const std::string filename ) const { MEGleadfield.save(filename); }
             
             ~GainEEGMEGadjoint () {};
         private:

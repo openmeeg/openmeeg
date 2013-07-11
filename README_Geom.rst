@@ -145,3 +145,10 @@ else (version == 2.0)
         for i in nb_domains
             domains.pushback_ (name%i, +/- interface )
         end
+
+
+TODO
+^^^^
+
+- Do we let the interfaces in the eometry class, or is it included in each Domain ?
+- Do we keep a Reference on the Triangle class or * is ok ?  

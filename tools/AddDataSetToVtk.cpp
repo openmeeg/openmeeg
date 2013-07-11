@@ -96,7 +96,7 @@ int main(int argc, char *argv[])
         std::cerr<<"You must give a data file !"<<std::endl;
         return usage(argv[0]);
     }
-    
+ 
     // Build a vtkDataArray with our data
     vtkSmartPointer<vtkFloatArray> array = vtkSmartPointer<vtkFloatArray>::New();
     array->SetArray(data, nbData, 0);

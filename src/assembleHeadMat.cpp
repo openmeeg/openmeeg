@@ -51,32 +51,32 @@ knowledge of the CeCILL-B license and that you accept its terms.
 namespace OpenMEEG {
 
     template<class T>
-    void deflat(T &M, const Interface *i, double coef) {
+    void deflat(T &M, const Interface& i, double coef) {
         // deflate the Matrix
-        for (Interface::const_iterator mit = i->begin(); mit != i->end(); mit++) {
-            for (Mesh::const_vertex_iterator vit1 = ((*mit)->vertex_begin()); vit1 != ((*mit)->vertex_end()); vit1++) {
+        for ( Interface::const_iterator mit = i.begin(); mit != i.end(); mit++) {
+            for ( Mesh::const_vertex_iterator vit1 = ((*mit)->vertex_begin()); vit1 != ((*mit)->vertex_end()); vit1++) {
                 #pragma omp parallel for
-                for (Mesh::const_vertex_iterator vit2 = vit1; vit2 != ((*mit)->vertex_end()); vit2++) {
-                    M((*vit1)->index(), (*vit2)->index()) += coef;
+                for ( Mesh::const_vertex_iterator vit2 = vit1; vit2 != ((*mit)->vertex_end()); vit2++) {
+                    M((*vit1)->index(), (*vit2)->index()) -= coef;
                 }
             }
         }
     }
 
-    void assemble_HM(const Geometry &geo, SymMatrix &mat, const int gauss_order) {
+    void assemble_HM(const Geometry &geo, SymMatrix &mat, const unsigned gauss_order) {
 
-        mat = SymMatrix(geo.size());
+        mat = SymMatrix((geo.size()-geo.outermost_interface().nb_triangles()));
         mat.set(0.0);
 
         // We iterate over the meshes (or pair of domains) to fill the lower half of the headmat (since its symmetry)
-        for (Geometry::const_iterator mit1 = geo.begin(); mit1 != geo.end(); mit1++) {
+        for ( Geometry::const_iterator mit1 = geo.begin(); mit1 != geo.end(); mit1++) {
 
-            for (Geometry::const_iterator mit2 = geo.begin(); (mit2 != (mit1+1)); mit2++) {
+            for ( Geometry::const_iterator mit2 = geo.begin(); (mit2 != (mit1+1)); mit2++) {
 
                 // if mit1 and mit2 communicate, i.e they are used for the definition of a domain
                 const double orientation = geo.oriented(*mit1, *mit2); // equals  0, if they don't have any domains in common
 
-                if (std::abs(orientation) > 10.*std::numeric_limits<double>::epsilon() ) {
+                if ( std::abs(orientation) > 10.*std::numeric_limits<double>::epsilon() ) {
 
                     if ( !(mit1->outermost() || mit2->outermost()) ) {
                         // Computing S block first because it's needed for the corresponding N block
@@ -95,87 +95,92 @@ namespace OpenMEEG {
                 }
             }
         }
-        mat.save("/user/eolivi/home/compiles/OpenMEEG/tests/Head11.hm");
 
         // Block multiplications
         // Because only half the Matrix is stored, only the lower part of the Matrix is treated
-        int offset = 0;
+        unsigned offset = 0;
 
         double K = 1.0 / (4.0 * M_PI);
-        double deflat_coef = 0.;
 
         // We iterate over the meshes (or pair of domains)
-        for (Geometry::const_iterator mit1 = geo.begin(); mit1 != geo.end(); mit1++) {
+        for ( Geometry::const_iterator mit1 = geo.begin(); mit1 != geo.end(); mit1++) {
 
-            for (Geometry::const_iterator mit2 = geo.begin(); mit2 != (mit1 + 1); mit2++) {
+            for ( Geometry::const_iterator mit2 = geo.begin(); mit2 != (mit1 + 1); mit2++) {
 
-                size_t i_m1_vf = (*mit1->vertex_begin())->index(); // index of the first vertex of mesh m1
-                size_t i_m2_vf = (*mit2->vertex_begin())->index();
-                size_t i_m1_vl = (*mit1->vertex_rbegin())->index();// index of the last vertex of mesh m1
-                size_t i_m2_vl = (*mit2->vertex_rbegin())->index();
-                size_t i_m1_tf = (mit1->begin())->index();
-                size_t i_m2_tf = (mit2->begin())->index(); // index of the first triangle of mesh m2
-                size_t i_m1_tl = (mit1->rbegin())->index();
-                size_t i_m2_tl = (mit2->rbegin())->index();
+                unsigned i_m1_vf = (*mit1->vertex_begin())->index(); // index of the first vertex of mesh m1
+                unsigned i_m2_vf = (*mit2->vertex_begin())->index();
+                unsigned i_m1_vl = (*mit1->vertex_rbegin())->index();// index of the last vertex of mesh m1
+                unsigned i_m2_vl = (*mit2->vertex_rbegin())->index();
+                unsigned i_m1_tf = (mit1->begin())->index();
+                unsigned i_m2_tf = (mit2->begin())->index(); // index of the first triangle of mesh m2
+                unsigned i_m1_tl = (mit1->rbegin())->index();
+                unsigned i_m2_tl = (mit2->rbegin())->index();
 
                 double orientation = geo.oriented(*mit1, *mit2); // equals  0, if they don't have any domains in common
                                                                  // equals  1, if they are both oriented toward the same domain
                                                                  // equals -1, if they are not
 
-                if (std::abs(orientation) > 10.*std::numeric_limits<double>::epsilon() ) {
+                if ( std::abs(orientation) > 10.*std::numeric_limits<double>::epsilon() ) {
 
                     if ( !(mit1->outermost() || mit2->outermost()) ) {
 
                         // if mit1 and mit2 communicate, i.e they are used for the definition of a common domain
                         double Scoeff =   orientation * geo.sigma_inv(*mit1, *mit2) * K;
                         double Dcoeff = - orientation * geo.indicatrice(*mit1, *mit2) * K;
-
                         // S
                         mult(mat, i_m1_tf, i_m2_tf, i_m1_tl, i_m2_tl, Scoeff);
-                        // D*
-                        mult(mat, i_m1_vf, i_m2_tf, i_m1_vl+1, i_m2_tl+1, Dcoeff); // TODO
-                    }
-
-                    if ( *mit1 != *mit2 ) {
                         // D
-                        double Dcoeff = - orientation * K;
                         mult(mat, i_m1_tf, i_m2_vf, i_m1_tl, i_m2_vl, Dcoeff);
                     }
 
-                    // N
-                    double Ncoeff = - orientation * geo.sigma(*mit1, *mit2) * K;
-                    mult(mat, i_m1_vf, i_m2_vf, i_m1_vl, i_m2_vl, Ncoeff);
+                    if ( *mit1 != *mit2 ) {
+                        // D*
+                        double Dcoeff = - orientation * K;
+                        mult(mat, i_m1_vf, i_m2_tf, i_m1_vl, i_m2_tl, Dcoeff);
+                    }
 
+                    // N
+                    double Ncoeff = orientation * geo.sigma(*mit1, *mit2) * K;
+                    mult(mat, i_m1_vf, i_m2_vf, i_m1_vl, i_m2_vl, Ncoeff);
                 }
             }
         }
 
+        mat.save("/user/eolivi/home/compiles/OpenMEEG/tests/Head11.hm"); // TODO
+
         // Deflate the last diagonal block of 'mat' : (in order to have a zero-mean potential for the outermost interface)
-        const Interface * i = &geo.outermost_interface();
-        offset = i->nb_vertices();
-        size_t i_first = (*(*i->begin())->vertex_begin())->index();
-        deflat(mat, i, mat(i_first, i_first) / offset);
+        const Interface i = geo.outermost_interface();
+        unsigned i_first = (*(*i.begin())->vertex_begin())->index();
+        deflat(mat, i, mat(i_first, i_first) / (geo.size()-geo.outermost_interface().nb_triangles()));
     }
 
-    void assemble_Surf2Vol(const unsigned N, const Geometry& geo, Matrix& mat, const std::vector<Matrix>& points) {
-
-        /*
+    void assemble_Surf2Vol(const unsigned N, const Geometry& geo, Matrix& mat, const std::vector<Matrix>& points) 
+    {
         const double K = 1.0/(4.0*M_PI);
 
-        mat = Matrix(N, geo.size()-geo.end()->size());
+        mat = Matrix(N, (geo.size()-geo.outermost_interface().nb_triangles()));
         mat.set(0.0);
 
-        int offset = 0;
-        int offsetA0 = 0;
-        int c = 0;
+#if 0
+        // We iterate over the meshes (or pair of domains) to fill the lower half of the headmat (since its symmetry)
+        for (Geometry::const_iterator mit1 = geo.begin(); mit1 != geo.end(); mit1++) {
+
+            for (Geometry::const_iterator mit2 = geo.begin(); (mit2 != (mit1+1)); mit2++) {
+
+                // if mit1 and mit2 communicate, i.e they are used for the definition of a domain
+                const double orientation = geo.oriented(*mit1, *mit2); // equals  0, if they don't have any domains in common
+
+        unsigned offset = 0;
+        unsigned offsetA0 = 0;
+        unsigned c = 0;
         for (Geometry::const_iterator mit = geo.begin(); mit != geo.end(); mit++, c++) {
-            const int offset0 = offset;
-            const int offsetA = offsetA0;
-            const int offsetB = offsetA + points[c].nlin();
-            const int offset1 = offset  + mit->nb_vertices();
-            const int offset2 = offset1 + mit->size();
-            const int offset3 = offset2 + (mit+1)->nb_vertices();
-            const int offset4 = offset3 + (mit+1)->size();
+            const unsigned offset0 = offset;
+            const unsigned offsetA = offsetA0;
+            const unsigned offsetB = offsetA + points[c].nlin();
+            const unsigned offset1 = offset  + mit->nb_vertices();
+            const unsigned offset2 = offset1 + mit->size();
+            const unsigned offset3 = offset2 + (mit+1)->nb_vertices();
+            const unsigned offset4 = offset3 + (mit+1)->size();
 
             // compute DI, i block if necessary. // TODO check les orientations
             if (c==0) {
@@ -192,7 +197,7 @@ namespace OpenMEEG {
             mult(mat, offsetB, offset2, offsetB+points[c+1].nlin(), offset3,-K);
 
             // compute SI, i block if necessary.
-            if (c==0) {
+            if ( c == 0 ) {
                 operatorSinternal(*mit, mat, offsetA, offset1, points[c]);
                 mult(mat, offsetA, offset1, offsetA+points[c].nlin(), offset2, K/geo.sigma_in(c));
             }
@@ -202,7 +207,7 @@ namespace OpenMEEG {
             operatorSinternal(*mit, mat, offsetB, offset1, points[c+1]);
             mult(mat, offsetA+points[c].nlin(), offset1, offsetB+points[c+1].nlin(), offset2, -inv_sig);
 
-            if (c<geo.nb_domains()-2) {
+            if ( c < geo.nb_domains()-2 ) {
                 // compute SI+1, i block
                 operatorSinternal(*(mit+1), mat, offsetB, offset3, points[c+1]);
                 mult(mat, offsetB, offset3, offsetB+points[c+1].nlin(), offset4, inv_sig);
@@ -210,23 +215,23 @@ namespace OpenMEEG {
             offset   = offset2;
             offsetA0 = offsetA + points[c].nlin();
         }
-        */
+#endif
     }
 
-    HeadMat::HeadMat (const Geometry& geo, const int gauss_order)
+    HeadMat::HeadMat (const Geometry& geo, const unsigned gauss_order)
     {
         assemble_HM(geo, *this, gauss_order);
     }
 
-    Surf2VolMat::Surf2VolMat(const Geometry& geo, const Matrix& points) {
-/*
+    Surf2VolMat::Surf2VolMat(const Geometry& geo, const Matrix& points) 
+    {
+#if 0
         //  Find and count the points per domain.
-
         std::vector<unsigned> labels(points.nlin());
-        std::vector<int> nb_pts_per_dom(geo.nb_domains(), 0);
-        for (unsigned i = 0; i < points.nlin(); ++i) {
-            int domain = geo.getDomain(Vect3(points(i, 0), points(i, 1), points(i, 2)));
-            if (domain >= geo.nb_domains()) {
+        std::vector<unsigned> nb_pts_per_dom(geo.nb_domains(), 0);
+        for ( unsigned i = 0; i < points.nlin(); ++i) {
+            unsigned domain = geo.domain(Vect3(points(i, 0), points(i, 1), points(i, 2)));
+            if ( domain >= geo.nb_domains() ) {
                 std::cerr << " Surf2Vol: Point " << points.getlin(i);
                 std::cerr << " is outside the head. Point is considered to be in the scalp." << std::endl;
                 domain = geo.nb_domains()-1;
@@ -238,11 +243,11 @@ namespace OpenMEEG {
         //  Split the point array into multiple arrays (one array per domain).
 
         std::vector<Matrix> vect_PtsInDom(geo.nb_domains());
-        for (unsigned c = 0; c < static_cast<unsigned>(geo.nb_domains()); ++c) {
+        for ( unsigned c = 0; c < static_cast<unsigned>(geo.nb_domains()); ++c) {
             vect_PtsInDom[c] = Matrix(nb_pts_per_dom[c], 3);
-            for (unsigned ipt = 0, iptd = 0; ipt < points.nlin(); ++ipt) { // get the points in the domain c
-                if (labels[ipt] == c) {
-                    for (int ic = 0; ic < 3; ic++) {
+            for ( unsigned ipt = 0, iptd = 0; ipt < points.nlin(); ++ipt) { // get the points in the domain c
+                if ( labels[ipt] == c ) {
+                    for ( unsigned ic = 0; ic < 3; ic++) {
                         vect_PtsInDom[c](iptd, ic) = points(ipt, ic);
                     }
                     ++iptd;
@@ -251,7 +256,7 @@ namespace OpenMEEG {
         }
 
         assemble_Surf2Vol(points.nlin(), geo, *this, vect_PtsInDom);
-        */
+#endif
     }
 
 } // namespace OpenMEEG

@@ -27,7 +27,6 @@ MACRO(OPENMEEG_EXECUTABLE EXECUTABLE)
     NEW_EXECUTABLE(${EXECUTABLE} ${ARGN} LIBRARIES OpenMEEG)
 ENDMACRO()
 
-OPENMEEG_EXECUTABLE(om_presmooth presmooth.cpp)
 OPENMEEG_EXECUTABLE(om_minverser minverser.cpp)
 OPENMEEG_EXECUTABLE(om_inverse inverse.cpp)
 OPENMEEG_EXECUTABLE(om_gain gain.cpp)
@@ -38,7 +37,7 @@ OPENMEEG_EXECUTABLE(om_assemble assemble.cpp)
 # = INSTALLATION =
 # ================
 
-INSTALL(TARGETS OpenMEEG om_assemble om_forward om_gain om_inverse om_minverser om_presmooth
+INSTALL(TARGETS OpenMEEG om_assemble om_forward om_gain om_inverse om_minverser
         RUNTIME DESTINATION bin
         LIBRARY DESTINATION lib
         ARCHIVE DESTINATION lib)

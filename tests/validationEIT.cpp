@@ -91,10 +91,10 @@ int main(const int argc,const char* argv[]) {
     Geometry geo;
     geo.read(argv[1],argv[2]);
 
-    const int gauss_order = 3;
-    const int totalsize = geo.size();
-    const int sourcesize = geo.getM(geo.nb()-1).nbTrgs();
-    const int newsize = totalsize - sourcesize;
+    const unsigned gauss_order = 3;
+    const unsigned totalsize = geo.size();
+    const unsigned sourcesize = geo.getM(geo.nb()-1).nbTrgs();
+    const unsigned newsize = totalsize - sourcesize;
 
     const double delta = 0.001;// For the discretization of Grad V
     const double dirac = 1.0; // The injection current
@@ -103,11 +103,11 @@ int main(const int argc,const char* argv[]) {
     const Matrix    SourceMatrix(argv[4]);
     const SymMatrix HeadMatInv(argv[5]);
 
-    const int ndip = dipoles.nlin();
+    const unsigned ndip = dipoles.nlin();
 
     // We choose two electordes on which we inject the currents
 
-    const int nelec = 2;
+    const unsigned nelec = 2;
     Sensors electrodes; // set nelec electrode positions
 
     std::stringstream ss;
@@ -124,13 +124,13 @@ int main(const int argc,const char* argv[]) {
 
     Vect3 current_position; //buffer for electrodes positions
     Vect3 current_alphas;
-    int current_nearest_triangle; // buffer for closest triangle to electrode
+    unsigned current_nearest_triangle; // buffer for closest triangle to electrode
     SparseMatrix matH2E(electrodes.getNumberOfSensors(), geo.getM(geo.nb()-1).nbPts()); // Matrices Head2Electrodes
 
     // Find the triangle closest to the electrodes
 
-    for (int ielec=0;ielec<nelec;++ielec) {
-        for (int k=0;k<3;++k)
+    for (unsigned ielec=0;ielec<nelec;++ielec) {
+        for (unsigned k=0;k<3;++k)
             current_position(k) = electrodes_positions(ielec, k);
         dist_point_mesh(current_position,geo.getM(geo.nb()-1),current_alphas,current_nearest_triangle);
         matH2E(ielec,geo.getM(geo.nb()-1).triangle(current_nearest_triangle).s1()) = current_alphas(0);
@@ -182,7 +182,7 @@ int main(const int argc,const char* argv[]) {
     gradVj.setcol(2,((VR0dz-VR0)/delta));
     Matrix qgradVj(1,ndip);
     Matrix diffVf(1,ndip);
-    for (int i=0;i<ndip;++i)
+    for (unsigned i=0;i<ndip;++i)
         qgradVj(0,i) = dipoles(i,3)*gradVj(i,0)+dipoles(i,4)*gradVj(i,1)+dipoles(i,5)*gradVj(i,2);
     diffVf.setlin(0,VRi-VRe);
     qgradVj.save(argv[6]);

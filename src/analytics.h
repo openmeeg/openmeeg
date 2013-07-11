@@ -85,7 +85,6 @@ namespace OpenMEEG {
         double tanTHETA0m, tanTHETA0p, tanTHETA1m, tanTHETA1p, tanTHETA2m, tanTHETA2p;
         
         void init_aux() {
-            n *= -(1/n.norm()) ;
             nu0 = (n^p1p0);
             nu1 = (n^p2p1);
             nu2 = (n^p0p2);
@@ -101,9 +100,9 @@ namespace OpenMEEG {
         void init(const Triangle &T)
         {
             // all computations needed when the first triangle of integration is changed
-            p0 = T.s1().vertex();
-            p1 = T.s2().vertex();
-            p2 = T.s3().vertex();
+            p0 = T.s1();
+            p1 = T.s2();
+            p2 = T.s3();
 
             p1p0 = p1-p0; p2p1 = p2-p1; p0p2 = p0-p2;
             norm2p1p0 = p1p0.norm(); norm2p2p1 = p2p1.norm(); norm2p0p2 = p0p2.norm();
@@ -128,9 +127,9 @@ namespace OpenMEEG {
         inline double f(const Vect3& x) const
         {
             // analytical value of the internal integral of S operator at point X
+            const Vect3& p0x = p0-x;
             const Vect3& p1x = p1-x;
             const Vect3& p2x = p2-x;
-            const Vect3& p0x = p0-x;
             const double norm2p0x = p0x.norm();
             const double norm2p1x = p1x.norm();
             const double norm2p2x = p2x.norm();
@@ -139,23 +138,23 @@ namespace OpenMEEG {
             const double g1 = integral_simplified_green(p1x, norm2p1x, p2x, norm2p2x, p2p1, norm2p2p1);
             const double g2 = integral_simplified_green(p2x, norm2p2x, p0x, norm2p0x, p0p2, norm2p0p2);
 
-            const double alpha = (x-p0)*n ;
-            return ((p0x*nu0)*g0+(p1x*nu1)*g1+(p2x*nu2)*g2)-alpha*x.solangl(p0, p1, p2);
+            const double alpha = p0x*n ;
+            return -(((p0x*nu0)*g0+(p1x*nu1)*g1+(p2x*nu2)*g2)+alpha*x.solangl(p0, p1, p2));
         }
     };
 
     class OPENMEEG_EXPORT analyticD {
     private:
         Vect3 v1, v2, v3;
-        int i;
+        unsigned i;
         double aire;
     public:
         analyticD()  {}
         ~analyticD() {}
         inline void init( const Triangle& T, const Vertex& V) {
-            v1 = T.s1().vertex();
-            v2 = T.s2().vertex();
-            v3 = T.s3().vertex();
+            v1 = T.s1();
+            v2 = T.s2();
+            v3 = T.s3();
             (V == v1) ? i = 1 : (V == v2) ? i = 2 : i = 3;
             aire = T.area();
         }
@@ -205,9 +204,9 @@ namespace OpenMEEG {
         analyticD3()  {}
         ~analyticD3() {}
         inline void init( const Triangle& T) {
-            v1 = T.s1().vertex();
-            v2 = T.s2().vertex();
-            v3 = T.s3().vertex();
+            v1 = T.s1();
+            v2 = T.s2();
+            v3 = T.s3();
             aire = T.area();
         }
 
@@ -289,9 +288,9 @@ namespace OpenMEEG {
             r0 = _r0;
 
             Vect3 p0, p1, p2, p1p0, p2p1, p0p2, p1p0n, p2p1n, p0p2n, p1H0, p2H1, p0H2;
-            p0 = T.s1().vertex();
-            p1 = T.s2().vertex();
-            p2 = T.s3().vertex();
+            p0 = T.s1();
+            p1 = T.s2();
+            p2 = T.s3();
 
             p1p0 = p0-p1; p2p1 = p1-p2; p0p2 = p2-p0;
             p1p0n = p1p0; p1p0n.normalize(); p2p1n = p2p1; p2p1n.normalize(); p0p2n = p0p2; p0p2n.normalize();

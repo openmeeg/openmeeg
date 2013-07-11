@@ -37,7 +37,7 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#include "mesh3.h"
+#include "mesh.h"
 #include "options.h"
 
 using namespace std;
@@ -51,20 +51,25 @@ int main( int argc, char **argv)
     const char *input_filename = command_option("-i",(const char *) NULL,"Input Mesh");
     if (command_option("-h",(const char *)0,0)) return 0;
 
-    if(!input_filename) {
+    if(!input_filename) 
+    {
         std::cout << "Not enough arguments, try the -h option" << std::endl;
         return 1;
     }
 
-    Mesh M;
-    M.load(input_filename,true);
-    if(M.has_self_intersection()) {
+    Mesh m(input_filename);
+
+    if ( m.has_self_intersection() ) 
+    {
         warning(std::string("Mesh is self intersecting !"));
     }
+
     // for closed mesh
-    if (!M.has_correct_orientation()) {
+    if ( !m.has_correct_orientation() ) 
+    {
         warning(std::string("Mesh is not well-oriented (valid for closed mesh) !"));
+    } else {
+        std::cout << "Mesh orientation correct (valid for closed mesh)." << std::endl;
     }
-    else std::cout << "Mesh orientation correct (valid for closed mesh)." << std::endl;
     return 0;
 }

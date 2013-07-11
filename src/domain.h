@@ -67,7 +67,7 @@ namespace OpenMEEG {
 
               Interface& interface()       { return this->first;  }
         const Interface& interface() const { return this->first;  }
-        const bool      inside()     const { return this->second; }
+        const bool       inside()    const { return this->second; }
     };
 
     //  A Domain is the intersection of simple domains (of type HalfSpace).
@@ -107,10 +107,10 @@ namespace OpenMEEG {
             // return 1 if the mesh is oriented toward the domain
                   // -1 if not
                   //  0 else (the mesh is not part of the domain boundary)
-            for (Domain::const_iterator hit = this->begin(); hit != this->end(); hit++) {
-                for (Interface::const_iterator mit = hit->interface().begin(); mit != hit->interface().end(); mit++) {
-                    if (&**mit == &m ) {
-                        return ((hit->inside())?1:-1);
+            for ( Domain::const_iterator hit = this->begin(); hit != this->end(); hit++) {
+                for ( Interface::const_iterator mit = hit->interface().begin(); mit != hit->interface().end(); mit++) {
+                    if ( &**mit == &m ) {
+                        return ( (hit->inside())?1:-1 );
                     }
                 }
             }
@@ -124,7 +124,7 @@ namespace OpenMEEG {
         bool        innermost_, outermost_; // Innermost domain ? TODO
     };
 
-    typedef std::vector<Domain >     Domains;
+    typedef std::vector<Domain > Domains;
 }
 
 #endif  //  ! OPENMEEG_DOMAIN_H

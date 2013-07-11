@@ -37,7 +37,7 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#include "mesh3.h"
+#include "mesh.h"
 #include "options.h"
 #include "matrix.h"
 
@@ -49,8 +49,9 @@ int main( int argc, char **argv)
     print_version(argv[0]);
 
     command_usage("Convert mesh file to a dipole file");
-    const char *input_filename = command_option("-i",(const char *) NULL,"Input Mesh");
-    const char *output_filename = command_option("-o",(const char *) NULL,"Output .dip file");
+    const char *input_filename  = command_option("-i", (const char *) NULL, "Input Mesh");
+    const char *output_filename = command_option("-o", (const char *) NULL, "Output .dip file");
+
     if (command_option("-h",(const char *)0,0)) return 0;
 
     if(!input_filename || !output_filename) {
@@ -58,19 +59,22 @@ int main( int argc, char **argv)
         return 1;
     }
 
-    Mesh M;
-    M.load(input_filename,false);
+    Mesh m(input_filename, false);
 
-    Matrix mat(M.nbPts(),6);
-    for(int i = 0; i < M.nbPts(); ++i)
+    Matrix mat(m.nb_vertices(), 6);
+
+    unsigned i = 0;
+
+    for ( Mesh::const_vertex_iterator vit = m.vertex_begin(); vit != m.vertex_end(); ++vit, ++i)
     {
-        mat(i,0) = M.point(i).x();
-        mat(i,1) = M.point(i).y();
-        mat(i,2) = M.point(i).z();
-        mat(i,3) = M.normal(i).x();
-        mat(i,4) = M.normal(i).y();
-        mat(i,5) = M.normal(i).z();
+        mat(i, 0) = (*vit)->x();
+        mat(i, 1) = (*vit)->y();
+        mat(i, 2) = (*vit)->z();
+        mat(i, 3) = (*vit)->normal().x();
+        mat(i, 4) = (*vit)->normal().y();
+        mat(i, 5) = (*vit)->normal().z();
     }
+
     mat.save(output_filename);
 
     return 0;

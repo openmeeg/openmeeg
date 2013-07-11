@@ -37,12 +37,11 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#include "mesh3.h"
+#include "mesh.h"
 #include "geometry.h"
 #include "options.h"
 #include <string>
 
-using namespace std;
 using namespace OpenMEEG;
 
 int main( int argc, char **argv)
@@ -54,7 +53,8 @@ int main( int argc, char **argv)
     const char *mesh_filename = command_option("-m",(const char *) NULL,"Mesh file (ex: to test .geom with cortex mesh)");
     if (command_option("-h",(const char *)0,0)) return 0;
 
-    if(!geom_filename) {
+    if(!geom_filename) 
+    {
         std::cout << "Not enough arguments, try the -h option" << std::endl;
         return 1;
     }
@@ -62,18 +62,21 @@ int main( int argc, char **argv)
     int status = 0;
     Geometry g;
     g.read(geom_filename);
-    if (g.selfCheck()) {
-        cout << ".geom : OK" << endl;
+    if ( g.selfCheck() )
+    {
+        std::cout << ".geom : OK" << std::endl;
     } else {
         status = 1;
     }
-    if(mesh_filename)
+    if ( mesh_filename )
     {
         Mesh m;
         m.load(mesh_filename);
-        if(g.check(m)) {
-            cout << ".geom and mesh : OK" << endl;
-        } else {
+        if ( g.check(m) )
+        {
+            std::cout << ".geom and mesh : OK" << std::endl;
+        } else
+        {
             status = 1;
         }
     }

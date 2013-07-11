@@ -66,56 +66,56 @@ namespace OpenMEEG {
 
     // T can be a Matrix or SymMatrix
     template<class T>
-    void operatorN(const Mesh &m1, const Mesh &m2, T &mat, const int);
+    void operatorN(const Mesh &m1, const Mesh &m2, T &mat, const unsigned);
 
     template<class T>
-    void operatorS(const Mesh &m1, const Mesh &m2, T &mat, const int);
+    void operatorS(const Mesh &m1, const Mesh &m2, T &mat, const unsigned);
     template<class T>
-    void operatorD(const Mesh &m1, const Mesh &m2, T &mat, const int, const bool star = false);
+    void operatorD(const Mesh &m1, const Mesh &m2, T &mat, const unsigned, const bool star = false);
     template<class T>
     void operatorP1P0(const Mesh &, T &mat);
 
-    void operatorSinternal(const Mesh &, Matrix &, const int, const int, const Matrix &);
-    void operatorDinternal(const Mesh &, Matrix &, const int, const int, const Matrix &);
-    void operatorFerguson(const Vect3 &, const Mesh &, Matrix &, size_t, size_t);
-    void operatorDipolePotDer(const Vect3 &, const Vect3 &, const Mesh &, Vector &, const int, const bool);
-    void operatorDipolePot   (const Vect3 &, const Vect3 &, const Mesh &, Vector &, const int, const bool);
+    void operatorSinternal(const Mesh &, Matrix &, const unsigned, const unsigned, const Matrix &);
+    void operatorDinternal(const Mesh &, Matrix &, const unsigned, const unsigned, const Matrix &);
+    void operatorFerguson(const Vect3 &, const Mesh &, Matrix &, unsigned, unsigned);
+    void operatorDipolePotDer(const Vect3 &, const Vect3 &, const Mesh &, Vector &, const unsigned, const bool);
+    void operatorDipolePot   (const Vect3 &, const Vect3 &, const Mesh &, Vector &, const unsigned, const bool);
 
-    inline void mult(SymMatrix &mat, int Istart, int Jstart, int Istop, int Jstop, double coeff)
+    inline void mult(SymMatrix &mat, unsigned Istart, unsigned Jstart, unsigned Istop, unsigned Jstop, double coeff)
     {
         //If the upper left corner of the block is on the diagonal line of the Matrix
         //Only the half of the block has to be treated because of the symmetric storage
         if ( Istart != Jstart) {
-            for(int i = Istart; i < Istop; i++) {
+            for ( unsigned i = Istart; i <= Istop; i++) {
                 #pragma omp parallel for
-                for(int j = Jstart; j < Jstop; j++) { // TODO '<' => '<=' ?
+                for ( unsigned j = Jstart; j <= Jstop; j++) {
                     mat(i, j) *= coeff;
                 }
             }
         } else {
-            for(int i = Istart; i < Istop; i++) { // TODO '<' => '<=' ?
+            for ( unsigned i = Istart; i <= Istop; i++) {
                 #pragma omp parallel for
-                for(int j = Jstart; j < i; j++) {
+                for ( unsigned j = Jstart; j <= i; j++) {
                     mat(i, j) *= coeff;
                 }
             }
         }
     }
 
-    inline void mult(Matrix &mat, int Istart, int Jstart, int Istop, int Jstop, double coeff)
+    inline void mult(Matrix &mat, unsigned Istart, unsigned Jstart, unsigned Istop, unsigned Jstop, double coeff)
     {
         //If the upper left corner of the block is on the diagonal line of the Matrix
         //Only the half of the block has to be treated because of the symmetric storage
-        for(int i = Istart; i < Istop; i++) { // TODO '<' => '<=' ?
+        for(unsigned i = Istart; i <= Istop; i++) {
             #pragma omp parallel for
-            for(int j = Jstart; j < Jstop; j++) { // TODO '<' => '<=' ?
+            for(unsigned j = Jstart; j <= Jstop; j++) {
                 mat(i, j) *= coeff;
             }
         }
     }
 
     #ifndef OPTIMIZED_OPERATOR_D
-    inline double _operatorD(const Triangle& T1, const Vertex& V2, const Mesh &m2, const int gauss_order)
+    inline double _operatorD(const Triangle& T1, const Vertex& V2, const Mesh &m2, const unsigned gauss_order)
     {
         // consider varying order of quadrature with the distance between T1 and T2
         STATIC_OMP analyticD analyD;
@@ -128,8 +128,8 @@ namespace OpenMEEG {
 
         double total = 0;
 
-        const SetPTriangle& Tadj = m2.get_triangles_for_point(V2); // loop on triangles of which V2 is a vertex
-        for(SetPTriangle::const_iterator tit = Tadj.begin(); tit != Tadj.end(); ++tit) {
+        const Mesh::SetPTriangle& Tadj = m2.get_triangles_for_point(V2); // loop on triangles of which V2 is a vertex
+        for ( Mesh::SetPTriangle::const_iterator tit = Tadj.begin(); tit != Tadj.end(); ++tit) {
             analyD.init(**tit, V2);
             total += gauss.integrate(analyD, T1);
         }
@@ -138,7 +138,7 @@ namespace OpenMEEG {
     #else
 
     template<class T>
-    inline void _operatorD(const Triangle& T1, const Triangle& T2, T &mat, const int gauss_order, const bool star)
+    inline void _operatorD(const Triangle& T1, const Triangle& T2, T &mat, const unsigned gauss_order, const bool star)
     {
         //this version of _operatorD add in the Matrix the contribution of T2 on T1
         // for all the P1 functions it gets involved
@@ -155,7 +155,7 @@ namespace OpenMEEG {
         Vect3 total = gauss.integrate(analyD, T1);
     #endif //ADAPT_LHS
 
-        for (size_t i = 0; i < 3; i++) {
+        for (unsigned i = 0; i < 3; i++) {
             if (star) {
                 mat(T2(i).index(), T1.index()) += total(i);
             } else {
@@ -179,12 +179,12 @@ namespace OpenMEEG {
         mat(T2.index(), T2.s3().index()) += total.z();
     }
 
-    inline double _operatorS(const Triangle& T1, const Triangle& T2, const int gauss_order)
+    inline double _operatorS(const Triangle& T1, const Triangle& T2, const unsigned gauss_order)
     {
-        STATIC_OMP Triangle *oldT = NULL;
+        STATIC_OMP Triangle *oldT = 0;
         STATIC_OMP analyticS analyS;
 
-        if(oldT != &T1) { // a few computations are needed only when changing triangle T1
+        if ( oldT != &T1 ) { // a few computations are needed only when changing triangle T1
             oldT = (Triangle*)&T1;
             analyS.init(T1);
         }
@@ -207,21 +207,21 @@ namespace OpenMEEG {
     }
 
     template<class T>
-    inline double _operatorN(const Vertex& V1, const Vertex& V2, const Mesh &m1, const Mesh &m2, const int gauss_order, const T &mat)
+    inline double _operatorN(const Vertex& V1, const Vertex& V2, const Mesh &m1, const Mesh &m2, const unsigned gauss_order, const T &mat)
     {
         double Iqr, Aqr;
         double result = 0.0;
 
-        const SetPTriangle& trgs1 = m1.get_triangles_for_point(V1);
-        const SetPTriangle& trgs2 = m2.get_triangles_for_point(V2);
+        const Mesh::SetPTriangle& trgs1 = m1.get_triangles_for_point(V1);
+        const Mesh::SetPTriangle& trgs2 = m2.get_triangles_for_point(V2);
 
-        for ( SetPTriangle::const_iterator tit1 = trgs1.begin(); tit1 != trgs1.end(); ++tit1 ) {
-            for ( SetPTriangle::const_iterator tit2 = trgs2.begin(); tit2 != trgs2.end(); ++tit2 ) {
+        for ( Mesh::SetPTriangle::const_iterator tit1 = trgs1.begin(); tit1 != trgs1.end(); ++tit1 ) {
+            for ( Mesh::SetPTriangle::const_iterator tit2 = trgs2.begin(); tit2 != trgs2.end(); ++tit2 ) {
                 // A1 , B1 , A2, B2 are the two opposite vertices to V1 and V2 (triangles A1, B1, V1 and A2, B2, V2)
-                if ( (*tit1)->index() < std::numeric_limits<size_t>::max() && (*tit2)->index() < std::numeric_limits<size_t>::max() ) {
-                    Iqr = mat((*tit1)->index(), (*tit2)->index());
-                } else {
+                if ( m1.outermost() || m2.outermost() ) {
                     Iqr = _operatorS(**tit1, **tit2, gauss_order);
+                } else {
+                    Iqr = mat((*tit1)->index(), (*tit2)->index());
                 }
             #ifndef OPTIMIZED_OPERATOR_N
                 Vect3 A1 = (*tit1)->next(V1);
@@ -262,7 +262,7 @@ namespace OpenMEEG {
     }
 
     template<class T>
-    void operatorN(const Mesh &m1, const Mesh &m2, T &mat, const int gauss_order)
+    void operatorN(const Mesh &m1, const Mesh &m2, T &mat, const unsigned gauss_order)
     {
         // This function has the following arguments:
         //    One geometry
@@ -273,7 +273,7 @@ namespace OpenMEEG {
 
         std::cout << "OPERATOR N... (arg : mesh " << m1.name() << " , mesh " << m2.name() << " )" << std::endl;
 
-        size_t i = 0; // for the PROGRESSBAR
+        unsigned i = 0; // for the PROGRESSBAR
         if ( &m1 == &m2 ) {
             for (Mesh::const_vertex_iterator vit1 = m1.vertex_begin(); vit1 != m1.vertex_end(); vit1++, i++) {
                 PROGRESSBAR(i, m1.nb_vertices());
@@ -295,7 +295,7 @@ namespace OpenMEEG {
     }
 
     template<class T>
-    void operatorS(const Mesh& m1, const Mesh& m2, T& mat, const int gauss_order)
+    void operatorS(const Mesh& m1, const Mesh& m2, T& mat, const unsigned gauss_order)
     {
         // This function has the following arguments:
         //    One geometry
@@ -329,7 +329,7 @@ namespace OpenMEEG {
     #ifndef OPTIMIZED_OPERATOR_D
 
     template<class T>
-    void operatorD(const Mesh &m1, const Mesh &m2, T &mat, const int gauss_order, const bool star)
+    void operatorD(const Mesh &m1, const Mesh &m2, T &mat, const unsigned gauss_order, const bool star)
     {
     // This function (NON OPTIMIZED VERSION) has the following arguments:
     //    One geometry
@@ -351,7 +351,7 @@ namespace OpenMEEG {
     #else // OPTIMIZED_OPERATOR_D
 
     template<class T>
-    void operatorD(const Mesh &m1, const Mesh &m2, T &mat, const int gauss_order, const bool star)
+    void operatorD(const Mesh &m1, const Mesh &m2, T &mat, const unsigned gauss_order, const bool star)
     {
         // This function (OPTIMIZED VERSION) has the following arguments:
         //    One geometry
@@ -407,15 +407,17 @@ namespace OpenMEEG {
         result.z() = 0.0;
 
         //loop over triangles of which V1 is a vertex
-        const SetPTriangle& trgs = m1.get_triangles_for_point(V1);
-        for(SetPTriangle::const_iterator tit = trgs.begin(); tit != trgs.end(); tit++) {
+        const Mesh::SetPTriangle& trgs = m1.get_triangles_for_point(V1);
+
+        for ( Mesh::SetPTriangle::const_iterator tit = trgs.begin(); tit != trgs.end(); tit++) {
+
             const Triangle& T1 = **tit;
 
             // A1 , B1  are the two opposite vertices to V1 (triangles A1, B1, V1)
             Vect3 A1   = T1.prev(V1);
             Vect3 B1   = T1.next(V1);
-            Vect3 A1B1 = B1 - A1;    // actually, B1A1 is needed
-            v = A1B1 * (-0.5 / T1.area());
+            Vect3 B1A1 = A1 - B1;
+            v = B1A1 * (0.5 / T1.area());
 
             analyS.init(V1, A1, B1);
             opS = analyS.f(x);

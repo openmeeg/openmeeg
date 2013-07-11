@@ -51,9 +51,9 @@ namespace OpenMEEG {
         }
     }
 
-    const size_t Geometry::nb_trianglesoutermost() const 
+    const unsigned Geometry::nb_trianglesoutermost() const 
     {
-        size_t nb_t = 0;
+        unsigned nb_t = 0;
         for (const_iterator mit = this->begin(); mit != this->end(); mit++) {
             if (mit->outermost()) {
                 nb_t += mit->nb_triangles();
@@ -69,7 +69,7 @@ namespace OpenMEEG {
                 return *mit;
             }
         }
-        std::cerr << "Error mesh id/name not found: " << id << std::endl;
+        warning(std::string("Error mesh id/name not found: ") + id);
     }
 
     Mesh&  Geometry::mesh(const std::string &id) 
@@ -79,7 +79,7 @@ namespace OpenMEEG {
                 return *mit;
             }
         }
-        std::cerr << "Error mesh id/name not found: " << id << std::endl;
+        warning(std::string("Error mesh id/name not found: ") + id);
     }
 
     void Geometry::info() const 
@@ -92,17 +92,40 @@ namespace OpenMEEG {
         }
     }
 
-    const Domain& Geometry::get_domain(const Vect3& p) const 
+    const Interface& Geometry::interface(const std::string& id) const 
     {
         for (Domains::const_iterator dit = this->domain_begin(); dit != this->domain_end(); dit++) {
-            if (dit->contains_point(p)) {
+            for (Domain::const_iterator hit = dit->begin(); hit != dit->end(); hit++) {
+                if ( hit->interface().name() == id )  {
+                    return hit->interface();
+                }
+            }
+        }
+        // should never append
+    }
+
+    const Domain& Geometry::domain(const Vect3& p) const 
+    {
+        for ( Domains::const_iterator dit = this->domain_begin(); dit != this->domain_end(); dit++) {
+            if ( dit->contains_point(p) ) {
                 return *dit;
             }
         }
         // should never append
     }
 
-    void Geometry::read(const char* geomFileName, const char* condFileName) 
+    const Domain& Geometry::domain(const std::string& dname) const
+    {
+        for (Domains::const_iterator dit = this->domain_begin(); dit != this->domain_end(); dit++) {
+            if ( dit->name() == dname ) {
+                return *dit;
+            }
+        }
+        // should never append
+        warning(std::string("Geometry::domain: Domain id/name \"") + dname + std::string("\" not found."));
+    }
+
+    void Geometry::read(const std::string geomFileName, const std::string condFileName) 
     {
         has_cond() = false; // default parameter
 
@@ -111,7 +134,7 @@ namespace OpenMEEG {
         // generate the indices of our unknowns
         geom_generate_indices();
 
-        if (condFileName) {
+        if ( condFileName != "" ) {
             read_cond(condFileName);
             has_cond() = true;
         }
@@ -123,45 +146,47 @@ namespace OpenMEEG {
     // this generates unique indices for vertices and triangles which will correspond to our unknowns.
     void Geometry::geom_generate_indices() 
     {
+        // Either unknowns (potentials and currents) are ordered by mesh (i.e. V_1, p_1, V_2, p_2,...) 
+        // or by type (V_1,V_2,V_3 .. p_1, p_2...)
         #define CLASSIC_ORDERING
-        size_t index = 0;
+        unsigned index = 0;
         #ifndef CLASSIC_ORDERING
         for ( Vertices::iterator pit = this->vertex_begin(); pit != this->vertex_end(); pit++, index) {
             pit->index() = index++;
         }
         #endif
-        for (iterator mit = this->begin(); mit != this->end(); mit++) {
+        for ( iterator mit = this->begin(); mit != this->end(); mit++) {
             #ifdef CLASSIC_ORDERING
-            for (Mesh::const_vertex_iterator vit = mit->vertex_begin(); vit != mit->vertex_end(); vit++) {
+            for ( Mesh::const_vertex_iterator vit = mit->vertex_begin(); vit != mit->vertex_end(); vit++) {
                 (*vit)->index() = index++;
             }
             #endif
-            if ( !mit->outermost() ) {
-                for (Mesh::iterator tit = mit->begin(); tit != mit->end(); tit++) {
-                    tit->index() = index++;
-                }
+            for ( Mesh::iterator tit = mit->begin(); tit != mit->end(); tit++) {
+                tit->index() = index++;
             }
         }
         this->size() = index;
     }
 
-    const double Geometry::sigma(const std::string& name) const {
-        for (std::vector<Domain>::const_iterator d = domain_begin(); d != domain_end(); d++) {
-            if (name == d->name()) {
-                return (d->sigma());
+    const double Geometry::sigma(const std::string& name) const 
+    {
+        for ( std::vector<Domain>::const_iterator d = domain_begin(); d != domain_end(); d++) {
+            if ( name == d->name() ) {
+                return d->sigma();
             }
         }
         return 0.; // TODO throw error unknownDomain
     }
 
-    const Domains Geometry::common_domains(const Mesh& m1, const Mesh& m2) const {
+    const Domains Geometry::common_domains(const Mesh& m1, const Mesh& m2) const 
+    {
         std::set<Domain> sdom1;
         std::set<Domain> sdom2;
-        for (Domains::const_iterator dit = domain_begin(); dit != domain_end(); dit++) {
-            if (dit->meshOrient(m1) != 0) {
+        for ( Domains::const_iterator dit = domain_begin(); dit != domain_end(); dit++) {
+            if ( dit->meshOrient(m1) != 0 ) {
                 sdom1.insert(*dit);
             }
-            if (dit->meshOrient(m2) != 0) {
+            if ( dit->meshOrient(m2) != 0 ) {
                 sdom2.insert(*dit);
             }
         }
@@ -171,10 +196,11 @@ namespace OpenMEEG {
     }
 
     // return the (sum) conductivity(ies) of the shared domain(s).
-    const double Geometry::funct_on_domains(const Mesh& m1, const Mesh& m2, const char& f) const {
+    const double Geometry::funct_on_domains(const Mesh& m1, const Mesh& m2, const char& f) const 
+    {
         Domains doms = common_domains(m1, m2);
         double ans=0.;
-        for (Domains::iterator dit = doms.begin(); dit != doms.end(); dit++) {
+        for ( Domains::iterator dit = doms.begin(); dit != doms.end(); dit++) {
             if ( f == '+' ) {
                 ans += dit->sigma();
             } else if ( f == '-' ) {
@@ -188,69 +214,59 @@ namespace OpenMEEG {
         return ans;
     }
 
-    const double Geometry::oriented(const Mesh& m1, const Mesh& m2) const {
+    const double Geometry::oriented(const Mesh& m1, const Mesh& m2) const 
+    {
         Domains doms = common_domains(m1, m2);
         double ans = 0.;
         if ( doms.size() == 2 ) { // TODO Maureen comment on the cylinder
             return 1.;
         } else if ( doms.size() == 1 ) {
-            return (doms[0].meshOrient(m1) == doms[0].meshOrient(m2))?1.:-1.;
+            return (( doms[0].meshOrient(m1) == doms[0].meshOrient(m2) ) ? 1. : -1.);
         } else {
             return 0.;
         }
     }
 
-    bool Geometry::selfCheck() const { // TODO: something else
-        return true;
-        // bool OK = true;
-        // for(int i = 0; i < nb(); ++i)
-        // {
-            // const Mesh& m1 = getM(i);
-            // if (!m1.has_correct_orientation()) {
-                // warning(std::string("A mesh does not seem to be properly oriented"));
-            // }
-            // if(m1.has_self_intersection())
-            // {
-                // warning(std::string("Mesh is self intersecting !"));
-                // m1.info();
-                // OK = false;
-                // std::cout << "Self intersection for mesh number " << i << std:: endl;
-            // }
-            // for(int j = i+1; j < nb(); ++j)
-            // {
-                // const Mesh& m2 = getM(j);
-                // if(m1.intersection(m2))
-                // {
-                    // warning(std::string("2 meshes are intersecting !"));
-                    // m1.info();
-                    // m2.info();
-                    // OK = false;
-                // }
-            // }
-        // }
-        // return OK;
+    bool Geometry::selfCheck() const  // TODO: general enough ?
+    {
+        bool OK = true;
+        for (const_iterator mit1 = this->begin() ; mit1 != this->end(); mit1++ ) {
+            if ( !mit1->has_correct_orientation() ) {
+                warning(std::string("A mesh does not seem to be properly oriented"));
+            }
+            if ( mit1->has_self_intersection() ) {
+                warning(std::string("Mesh is self intersecting !"));
+                mit1->info();
+                OK = false;
+                std::cout << "Self intersection for mesh \"" << mit1->name() << "\"" << std:: endl;
+            }
+            for ( const_iterator mit2 = mit1+1 ; mit2 != this->end(); mit2++ ) {
+                if ( mit1->intersection(*mit2) ) {
+                    warning(std::string("2 meshes are intersecting !"));
+                    mit1->info();
+                    mit2->info();
+                    OK = false;
+                }
+            }
+        }
+        return OK;
     }
 
-   /*
-       bool Geometry::check(const Mesh& m) const {
-       bool OK = true;
-       if(m.has_self_intersection())
-       {
-       warning(std::string("Mesh is self intersecting !"));
-       m.info();
-       OK = false;
-       }
-       for(int i = 0; i < nb(); ++i)
-       {
-       const Mesh& m1 = getM(i);
-       if(m1.intersection(m))
-       {
-       warning(std::string("Mesh is intersecting with one of the mesh in geom file !"));
-       m1.info();
-       OK = false;
-       }
-       }
-       return OK;
-       }
-   */
+    bool Geometry::check(const Mesh& m) const 
+    {
+        bool OK = true;
+        if ( m.has_self_intersection() ) {
+            warning(std::string("Mesh is self intersecting !"));
+            m.info();
+            OK = false;
+        }
+        for ( const_iterator mit = this->begin() ; mit != this->end(); mit++ ) {
+            if ( mit->intersection(m) ) {
+                warning(std::string("Mesh is intersecting with one of the mesh in geom file !"));
+                mit->info();
+                OK = false;
+            }
+        }
+        return OK;
+    }
 }

@@ -96,7 +96,7 @@ namespace OpenMEEG {
             throw MeshDescription::OpenError(geometry);
         }
 
-        int version[2];
+        unsigned version[2];
         ifs >> io_utils::match("# Domain Description ") >> version[0] >> io_utils::match(".") >> version[1];
         if (ifs.fail()) {
             throw MeshDescription::WrongFileFormat(geometry);
@@ -155,8 +155,8 @@ namespace OpenMEEG {
             meshes().reserve(num_interfaces);
             std::string interfacename[num_interfaces], filename[num_interfaces], fullname[num_interfaces]; // names
             // First read the total number of vertices
-            size_t nb_vertices = 0;
-            for (size_t i = 0; i < num_interfaces; i++ ) {
+            unsigned nb_vertices = 0;
+            for (unsigned i = 0; i < num_interfaces; i++ ) {
                 if (interfaceType == "Mesh") {
                     ifs >> io_utils::skip_comments("#") >> io_utils::filename(filename[i], '"', false);
                     std::stringstream defaultname;
@@ -172,20 +172,20 @@ namespace OpenMEEG {
                 }
                 Mesh m;
                 fullname[i] = (is_relative_path(filename[i]))?path+filename[i]:filename[i];
-                nb_vertices += m.load_mesh(fullname[i].c_str(), false, false); 
+                nb_vertices += m.load(fullname[i].c_str(), false, false); 
             }
             vertices().reserve(nb_vertices);
             // Second load the mesh
-            for (size_t i = 0; i < num_interfaces; i++ ) {
+            for (unsigned i = 0; i < num_interfaces; i++ ) {
                 Mesh m(vertices(), interfacename[i]);
                 meshes().push_back(m);
-                meshes()[i].load_mesh(fullname[i].c_str());
+                meshes()[i].load(fullname[i].c_str());
                 interf.push_back( Interface(interfacename[i]) );
                 interf[i].push_back(&(meshes()[i])); // one mesh per interface: mesh at this adress
             }
         } else if (interfaceType == "Interface"||"NamedInterface") { // -----------------------
             std::string interfacename;
-            for (size_t i = 0; i < num_interfaces; i++ ) {
+            for (unsigned i = 0; i < num_interfaces; i++ ) {
                 std::string line; // extract a line and parse it
                 std::getline(ifs, line);
                 std::istringstream iss(line);
@@ -267,10 +267,10 @@ namespace OpenMEEG {
         ifs.close();
     }
 
-    void Geometry::read_cond(const char* condFileName) {
+    void Geometry::read_cond(const std::string condFileName) {
 
         typedef Utils::Properties::Named< std::string , Conductivity<double> > HeadProperties;
-        HeadProperties properties(condFileName);
+        HeadProperties properties(condFileName.c_str());
 
         // Store the internal conductivity of the external boundary of domain i
         // and store the external conductivity of the internal boundary of domain i
