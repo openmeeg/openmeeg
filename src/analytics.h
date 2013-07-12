@@ -173,7 +173,7 @@ namespace OpenMEEG {
             const double d = Y1*(Y2^Y3);
 
             const double derr = 1e-10;
-            if(fabs(d)<derr) return 0.0;
+            if ( fabs(d) < derr ) return 0.0;
 
             const Vect3 D[3] = { Y1-Y2, Y2-Y3, Y3-Y1 };
             const double d0 = D[0].norm();
@@ -224,7 +224,7 @@ namespace OpenMEEG {
             double d = Y1*(Y2^Y3);
 
             double derr = 1e-10;
-            if (fabs(d) < derr) {
+            if ( fabs(d) < derr ) {
                 return 0.0;
             }
 

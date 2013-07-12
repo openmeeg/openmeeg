@@ -57,7 +57,7 @@ int main(int argc, char** argv)
 {
     print_version(argv[0]);
 
-    if (argc<2) {
+    if ( argc<2) {
         cerr << "Not enough arguments \nPlease try \"" << argv[0] << " -h\" or \"" << argv[0] << " --help \" \n" << endl;
         return 0;
     }
@@ -161,7 +161,7 @@ int main(int argc, char** argv)
         std::string domain_name = "Brain"; // TODO
 
         // Choosing between adaptive integration or not for the RHS
-        if (!strcmp(argv[1], "-DipSourceMatNoAdapt")|(!strcmp(argv[1], "-DSMNA"))|(!strcmp(argv[1], "-dsmna"))){
+        if ( !strcmp(argv[1], "-DipSourceMatNoAdapt")|(!strcmp(argv[1], "-DSMNA"))|(!strcmp(argv[1], "-dsmna"))){
             adapt_rhs = false;
         }   
 
@@ -285,15 +285,15 @@ int main(int argc, char** argv)
     **********************************************************************************************/
     else if ( !strcmp(argv[1], "-Head2MEGMat") | !strcmp(argv[1], "-H2MM") | !strcmp(argv[1], "-h2mm") ) {
 
-        if (argc < 3) {
+        if ( argc < 3) {
             cerr << "Please set geometry filepath !" << endl;
             exit(1);
         }
-        if (argc < 4) {
+        if ( argc < 4) {
             std::cerr << "Please set conductivities filepath !" << endl;
             exit(1);
         }
-        if (argc < 5) {
+        if ( argc < 5) {
             cerr << "Please set squids filepath !" << endl;
             exit(1);
         }

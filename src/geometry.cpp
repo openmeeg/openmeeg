@@ -45,7 +45,7 @@ namespace OpenMEEG {
     const Interface& Geometry::outermost_interface() const 
     {
         for (Domains::const_iterator dit = domain_begin(); dit != domain_end(); dit++) {
-            if (dit->outermost()) {
+            if ( dit->outermost()) {
                 return dit->begin()->interface();
             }
         }
@@ -55,7 +55,7 @@ namespace OpenMEEG {
     {
         unsigned nb_t = 0;
         for (const_iterator mit = this->begin(); mit != this->end(); mit++) {
-            if (mit->outermost()) {
+            if ( mit->outermost()) {
                 nb_t += mit->nb_triangles();
             }
         }
@@ -65,7 +65,7 @@ namespace OpenMEEG {
     const Mesh&  Geometry::mesh(const std::string &id) const 
     {
         for (const_iterator mit = this->begin() ; mit != this->end(); mit++ ) {
-            if (id == mit->name()) {
+            if ( id == mit->name()) {
                 return *mit;
             }
         }
@@ -75,7 +75,7 @@ namespace OpenMEEG {
     Mesh&  Geometry::mesh(const std::string &id) 
     {
         for (iterator mit = this->begin() ; mit != this->end(); mit++ ) {
-            if (id == mit->name()) {
+            if ( id == mit->name()) {
                 return *mit;
             }
         }

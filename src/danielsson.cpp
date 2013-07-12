@@ -126,7 +126,7 @@ namespace OpenMEEG
 
         for (Mesh::const_iterator tit = mesh.begin(); tit !=  mesh.end(); tit++) {
             distance = dist_point_triangle(p, *tit, alphasLoop, inside);
-            if (distance < distmin) {
+            if ( distance < distmin) {
                 distmin = distance;
                 alphas = alphasLoop;
                 nearestTriangle = *tit;

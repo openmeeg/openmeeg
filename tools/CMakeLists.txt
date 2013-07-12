@@ -28,6 +28,9 @@ TARGET_LINK_LIBRARIES (om_matrix_convert OpenMEEGMaths)
 ADD_EXECUTABLE(om_check_geom check_geom.cpp)
 TARGET_LINK_LIBRARIES (om_check_geom OpenMEEG)
 
+ADD_EXECUTABLE(om_mesh_to_vtp mesh_to_vtp.cpp)
+TARGET_LINK_LIBRARIES (om_mesh_to_vtp OpenMEEG)
+
 ADD_EXECUTABLE(om_mesh_to_dip mesh_to_dip.cpp)
 TARGET_LINK_LIBRARIES (om_mesh_to_dip OpenMEEG)
 
@@ -48,4 +51,7 @@ INSTALL(TARGETS
     #om_make_nerve
     om_mesh_convert 
     # om_mesh_concat
-    om_mesh_info om_mesh_smooth om_register_squids om_squids2vtk om_matrix_info om_matrix_convert om_check_geom om_mesh_to_dip DESTINATION bin)
+    om_mesh_info om_mesh_smooth om_register_squids
+    om_mesh_to_vtp
+    om_squids2vtk om_matrix_info om_matrix_convert om_check_geom om_mesh_to_dip DESTINATION bin
+    )

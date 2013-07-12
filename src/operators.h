@@ -85,7 +85,7 @@ namespace OpenMEEG {
     {
         //If the upper left corner of the block is on the diagonal line of the Matrix
         //Only the half of the block has to be treated because of the symmetric storage
-        if ( Istart != Jstart) {
+        if ( Istart != Jstart ) {
             for ( unsigned i = Istart; i <= Istop; i++) {
                 #pragma omp parallel for
                 for ( unsigned j = Jstart; j <= Jstop; j++) {
@@ -106,9 +106,9 @@ namespace OpenMEEG {
     {
         //If the upper left corner of the block is on the diagonal line of the Matrix
         //Only the half of the block has to be treated because of the symmetric storage
-        for(unsigned i = Istart; i <= Istop; i++) {
+        for ( unsigned i = Istart; i <= Istop; i++) {
             #pragma omp parallel for
-            for(unsigned j = Jstart; j <= Jstop; j++) {
+            for ( unsigned j = Jstart; j <= Jstop; j++) {
                 mat(i, j) *= coeff;
             }
         }
@@ -155,8 +155,8 @@ namespace OpenMEEG {
         Vect3 total = gauss.integrate(analyD, T1);
     #endif //ADAPT_LHS
 
-        for (unsigned i = 0; i < 3; i++) {
-            if (star) {
+        for ( unsigned i = 0; i < 3; i++) {
+            if ( star ) {
                 mat(T2(i).index(), T1.index()) += total(i);
             } else {
                 mat(T1.index(), T2(i).index()) += total(i);
@@ -275,7 +275,7 @@ namespace OpenMEEG {
 
         unsigned i = 0; // for the PROGRESSBAR
         if ( &m1 == &m2 ) {
-            for (Mesh::const_vertex_iterator vit1 = m1.vertex_begin(); vit1 != m1.vertex_end(); vit1++, i++) {
+            for ( Mesh::const_vertex_iterator vit1 = m1.vertex_begin(); vit1 != m1.vertex_end(); vit1++, i++) {
                 PROGRESSBAR(i, m1.nb_vertices());
                 #pragma omp parallel for
                 // for ( Mesh::const_vertex_iterator vit2 = m1.vertex_begin(); vit2 !=  vit1+1; vit2++ ) {
@@ -284,10 +284,10 @@ namespace OpenMEEG {
                 }
             }
         } else {
-            for (Mesh::const_vertex_iterator vit1 = m1.vertex_begin(); vit1 != m1.vertex_end(); vit1++, i++) {
+            for ( Mesh::const_vertex_iterator vit1 = m1.vertex_begin(); vit1 != m1.vertex_end(); vit1++, i++) {
                 PROGRESSBAR(i, m1.nb_vertices());
                 #pragma omp parallel for
-                for (Mesh::const_vertex_iterator vit2 = m2.vertex_begin(); vit2 != m2.vertex_end(); vit2++) {
+                for ( Mesh::const_vertex_iterator vit2 = m2.vertex_begin(); vit2 != m2.vertex_end(); vit2++) {
                     mat((*vit1)->index(), (*vit2)->index()) = _operatorN(**vit1, **vit2, m1, m2, gauss_order, mat);
                 }
             }
@@ -307,19 +307,19 @@ namespace OpenMEEG {
 
         // The operator S is given by Sij=\Int G*PSI(I, i)*Psi(J, j) with
         // PSI(A, a) is a P0 test function on layer A and triangle a
-        if (&m1 == &m2) {
-            for (Mesh::const_iterator tit1 = m1.begin(); tit1 != m1.end(); tit1++) {
+        if ( &m1 == &m2 ) {
+            for ( Mesh::const_iterator tit1 = m1.begin(); tit1 != m1.end(); tit1++) {
                 // PROGRESSBAR(i-offsetI, m1.nbTrgs());
                 #pragma omp parallel for
-                for (Mesh::const_iterator tit2 = tit1; tit2 != m1.end(); tit2++) {
+                for ( Mesh::const_iterator tit2 = tit1; tit2 != m1.end(); tit2++) {
                     mat(tit1->index(), tit2->index()) = _operatorS(*tit1, *tit2, gauss_order);
                 }
             }
         } else {
-            for (Mesh::const_iterator tit1 = m1.begin(); tit1 != m1.end(); tit1++) {
+            for ( Mesh::const_iterator tit1 = m1.begin(); tit1 != m1.end(); tit1++) {
                 // PROGRESSBAR(i-offsetI, m1.nbTrgs());
                 #pragma omp parallel for
-                for (Mesh::const_iterator tit2 = m2.begin(); tit2 != m2.end(); tit2++) {
+                for ( Mesh::const_iterator tit2 = m2.begin(); tit2 != m2.end(); tit2++) {
                     mat(tit1->index(), tit2->index()) = _operatorS(*tit1, *tit2, gauss_order); // TODO inverser tit1/tit2
                 }
             }
@@ -338,10 +338,10 @@ namespace OpenMEEG {
     //    the upper left corner of the submatrix to be written is the Matrix
         std::cout << "OPERATOR D... (arg : mesh " << m1.name() << " , mesh " << m2.name() << " )" << std::endl;
 
-        for(Mesh::const_iterator tit = m1.begin(); tit != m1.end(); tit++) {
+        for ( Mesh::const_iterator tit = m1.begin(); tit != m1.end(); tit++) {
             // PROGRESSBAR(i-offsetI, m1.nbTrgs());
             #pragma omp parallel for
-            for(Mesh::const_vertex_iterator vit = m2.vertices_begin(); vit != m2.vertices_end(); vit++) {
+            for ( Mesh::const_vertex_iterator vit = m2.vertices_begin(); vit != m2.vertices_end(); vit++) {
                 // P1 functions are tested thus looping on vertices
                 mat(tit->index(), vit->index()) = _operatorD(*tit, *vit, m2, gauss_order);
             }
@@ -359,19 +359,19 @@ namespace OpenMEEG {
         //    the storage Matrix for the result
         //    the upper left corner of the submatrix to be written is the Matrix
 
-        if (star) {
+        if ( star ) {
             std::cout << "OPERATOR D*(Optimized) ... (arg : mesh " << m2.name() << " , mesh " << m1.name() << " )" << std::endl;
         } else {
             std::cout << "OPERATOR D (Optimized) ... (arg : mesh " << m1.name() << " , mesh " << m2.name() << " )" << std::endl;
         }
 
-        for (Mesh::const_iterator tit1 = m1.begin(); tit1 != m1.end(); tit1++) {
+        for ( Mesh::const_iterator tit1 = m1.begin(); tit1 != m1.end(); tit1++) {
             // PROGRESSBAR(i-offsetI, m1.nbTrgs());
-            for (Mesh::const_iterator tit2 = m2.begin(); tit2 != m2.end(); tit2++) {
+            for ( Mesh::const_iterator tit2 = m2.begin(); tit2 != m2.end(); tit2++) {
                 //In this version of the function, in order to skip multiple computations of the same quantities
                 //    loops are run over the triangles but the Matrix cannot be filled in this function anymore
                 //    That's why the filling is done is function _operatorD
-                if (star) {
+                if ( star ) {
                     _operatorD(*tit2, *tit1, mat, gauss_order, star);
                 } else {
                     _operatorD(*tit1, *tit2, mat, gauss_order, star);

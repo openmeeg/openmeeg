@@ -300,11 +300,11 @@ namespace OpenMEEG {
         unsigned npts;
         npts = vtkMesh->GetNumberOfPoints();
 
-        if (!read_all) {
+        if ( !read_all ) {
             return npts;
         }
 
-        if (reader->GetNumberOfNormalsInFile()==0) {
+        if ( reader->GetNumberOfNormalsInFile()==0) {
             vtkPolyDataNormals *newNormals = vtkPolyDataNormals::New();
             newNormals->SetInput(vtkMesh);
             newNormals->Update();
@@ -313,12 +313,12 @@ namespace OpenMEEG {
 
         vtkDataArray *normalsData = vtkMesh->GetPointData()->GetNormals();
 
-        if (npts != normalsData->GetNumberOfTuples()) {
+        if ( npts != normalsData->GetNumberOfTuples()) {
             std::cerr << "Error: number of vertices is not equal to number of normals in vtk file, correct or remove the normals." << std::endl;
             exit(1);
         }
 
-        if (normalsData->GetNumberOfComponents() != 3) {
+        if ( normalsData->GetNumberOfComponents() != 3) {
             std::cerr << "Error: wrong number of components of normals in vtk file, correct or remove the normals." << std::endl;
             exit(1);
         }
@@ -333,7 +333,7 @@ namespace OpenMEEG {
         this->reserve(ntrgs);
 
         for ( unsigned i = 0; i < ntrgs; i++) {
-            if (vtkMesh->GetCellType(i) == VTK_TRIANGLE) {
+            if ( vtkMesh->GetCellType(i) == VTK_TRIANGLE) {
                 l = vtkMesh->GetCell(i)->GetPointIds();
                 m.push_back(Triangle(all_vertices()[l->GetId(0)+all_vertices().size()]-npts, all_vertices()[l->GetId(1)+all_vertices().size()-npts], all_vertices()[l->GetId(2)+all_vertices().size()-npts]))  ;
             } else {
@@ -379,7 +379,7 @@ namespace OpenMEEG {
         std::string s = filename;
         vtkPolyDataReader *reader = vtkPolyDataReader::New();
         reader->SetFileName(filename); // Specify file name of vtk data file to read
-        if (!reader->IsFilePolyData()) {
+        if ( !reader->IsFilePolyData()) {
             std::cerr << "This is not a valid vtk poly data file" << std::endl;
             reader->Delete();
             exit(1);
@@ -423,7 +423,7 @@ namespace OpenMEEG {
         std::string s = filename;
         vtkXMLPolyDataReader *reader = vtkXMLPolyDataReader::New();
         reader->SetFileName(filename); // Specify file name of vtk data file to read
-        if (!reader->IsFilePolyData()) {
+        if ( !reader->IsFilePolyData()) {
             std::cerr << "This is not a valid vtk poly data file" << std::endl;
             reader->Delete();
             exit(1);
@@ -497,7 +497,7 @@ namespace OpenMEEG {
         is.read((char*)ui, sizeof(unsigned int));
         unsigned npts = ui[0];
         
-        if (!read_all) { 
+        if ( !read_all ) { 
             return npts; 
         }
 
@@ -548,7 +548,7 @@ namespace OpenMEEG {
 
     unsigned Mesh::load_mesh(const std::string filename, const bool &read_all) {
         std::ifstream f(filename.c_str(), std::ios::binary);
-        if (!f.is_open()) {
+        if ( !f.is_open()) {
             std::cerr << "Error opening MESH file: " << filename << std::endl;
             exit(1);
         }
@@ -610,7 +610,7 @@ namespace OpenMEEG {
         f.seekg( 0, std::ios_base::beg );
 
         f >> io_utils::skip_comments('#') >> st;
-        if (st == "Type=") {
+        if ( st == "Type=") {
             io_utils::skip_line(f);
             f >> io_utils::skip_comments('#') >> st;
         }
@@ -624,7 +624,7 @@ namespace OpenMEEG {
         }
 
         f >> io_utils::skip_comments('#') >> st;
-        if (st == "UnitPosition") {
+        if ( st == "UnitPosition") {
             io_utils::skip_line(f); // skip : "UnitPosition mm"
         }
 
@@ -884,7 +884,7 @@ namespace OpenMEEG {
         std::cerr << "GIFTI writer : Not yet implemented" << std::endl;
         gifti_image* gim = to_gifti_image();
         int write_data = 1;
-        if (gifti_write_image(gim, filename, write_data)) {
+        if ( gifti_write_image(gim, filename, write_data)) {
             std::cerr << "Error while writing GIFTI file" << std::endl;
             exit(1);
         }
@@ -955,7 +955,7 @@ namespace OpenMEEG {
 
         // check the center of the bounding box is inside the mesh
         bool in_mesh = contains_point(bbcenter);
-        if (!in_mesh)
+        if ( !in_mesh )
             std::cerr << "Global orientation problem..." << std::endl << std::endl;
 
 

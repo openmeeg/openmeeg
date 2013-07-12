@@ -51,7 +51,7 @@ namespace OpenMEEG {
     bool Geometry::is_relative_path(const std::string& name) {
     #if WIN32
         const char c0 = name[0];
-        if (c0 == '/' || c0 == '\\') {
+        if ( c0 == '/' || c0 == '\\') {
             return false;
         }
         const char c1 = name[1];
@@ -92,13 +92,13 @@ namespace OpenMEEG {
         
         std::ifstream ifs(geometry.c_str());
 
-        if (!ifs.is_open()) {
+        if ( !ifs.is_open()) {
             throw MeshDescription::OpenError(geometry);
         }
 
         unsigned version[2];
         ifs >> io_utils::match("# Domain Description ") >> version[0] >> io_utils::match(".") >> version[1];
-        if (ifs.fail()) {
+        if ( ifs.fail()) {
             throw MeshDescription::WrongFileFormat(geometry);
         }
 
@@ -108,11 +108,11 @@ namespace OpenMEEG {
 
         // Process meshes. -----------------------------------------------------------------------------------
         bool meshfile = false;
-        if (version[0] == 1) {
-            if (version[1] == 0) {
+        if ( version[0] == 1) {
+            if ( version[1] == 0) {
                 std::cerr << "Please consider updating the version of the domain description to 1.1 in the geometry file: "
                           << geometry << std::endl;
-            } else if (version[1] == 1) {
+            } else if ( version[1] == 1) {
                 // Read the mesh section of the description file.
                 // Try to load the meshfile (VTK::vtp file)
                 bool meshfile;
@@ -123,7 +123,7 @@ namespace OpenMEEG {
                     //  Load the mesh and check that it is compatible with the first one.
                     const std::string& full_name = (is_relative_path(name))?path+name:name;
                     std::ifstream ifs(full_name.c_str());
-                    if (!ifs.is_open()) {
+                    if ( !ifs.is_open()) {
                         throw MeshDescription::OpenError(full_name);
                     }
                     // load_vtp_file(ifs);
@@ -144,7 +144,7 @@ namespace OpenMEEG {
         ifs >> io_utils::skip_comments('#')
             >> io_utils::match("Interfaces") >> num_interfaces >> interfaceType;
 
-        if (ifs.fail()) {
+        if ( ifs.fail()) {
             throw MeshDescription::WrongFileFormat(geometry);
         }
 
@@ -157,7 +157,7 @@ namespace OpenMEEG {
             // First read the total number of vertices
             unsigned nb_vertices = 0;
             for (unsigned i = 0; i < num_interfaces; i++ ) {
-                if (interfaceType == "Mesh") {
+                if ( interfaceType == "Mesh") {
                     ifs >> io_utils::skip_comments("#") >> io_utils::filename(filename[i], '"', false);
                     std::stringstream defaultname;
                     defaultname << i+1;
@@ -183,13 +183,13 @@ namespace OpenMEEG {
                 interf.push_back( Interface(interfacename[i]) );
                 interf[i].push_back(&(meshes()[i])); // one mesh per interface: mesh at this adress
             }
-        } else if (interfaceType == "Interface"||"NamedInterface") { // -----------------------
+        } else if ( interfaceType == "Interface"||"NamedInterface") { // -----------------------
             std::string interfacename;
             for (unsigned i = 0; i < num_interfaces; i++ ) {
                 std::string line; // extract a line and parse it
                 std::getline(ifs, line);
                 std::istringstream iss(line);
-                if (interfaceType == "Interface") {
+                if ( interfaceType == "Interface") {
                     std::stringstream defaultname;
                     defaultname << i+1;
                     interfacename = defaultname.str();
@@ -214,7 +214,7 @@ namespace OpenMEEG {
         unsigned num_domains;
         ifs >> io_utils::skip_comments('#') >> io_utils::match("Domains") >> num_domains;
 
-        if (ifs.fail()) {
+        if ( ifs.fail()) {
             throw MeshDescription::WrongFileFormat(geometry);
         }
 
@@ -228,12 +228,12 @@ namespace OpenMEEG {
                 bool found = false;
                 for (Interfaces::iterator iit = interf.begin(); iit != interf.end() ; iit++) {
                     bool inside = (id[0] == '-'); // does the id starts with a '-' ?
-                    if (iit->name() == (inside?id.substr(1, id.npos):id)) { // TODO (+)
+                    if ( iit->name() == (inside?id.substr(1, id.npos):id)) { // TODO (+)
                         found = true;
                         dit->push_back(HalfSpace(*iit, inside));
                     }
                 }
-                if (!found) {
+                if ( !found ) {
                     throw MeshDescription::NonExistingDomain(dit->name(), 0); //TODO I don't want to give 0 index but name ! template Exceptions?
                 }
             }
@@ -250,7 +250,7 @@ namespace OpenMEEG {
                 outer = outer && !(hit->inside());
                 dit_out = dit;
             }
-            if (outer) {
+            if ( outer ) {
                 dit_out->outermost() = true;
                 for (Domain::iterator hit = dit_out->begin(); hit != dit_out->end(); ++hit) {
                     hit->interface().set_to_outermost();
@@ -259,7 +259,7 @@ namespace OpenMEEG {
             }
         }
 
-        if (ifs.fail()) {
+        if ( ifs.fail()) {
             throw MeshDescription::WrongFileFormat(geometry);
         }
 

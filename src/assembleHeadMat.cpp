@@ -183,7 +183,7 @@ namespace OpenMEEG {
             const unsigned offset4 = offset3 + (mit+1)->size();
 
             // compute DI, i block if necessary. // TODO check les orientations
-            if (c==0) {
+            if ( c==0) {
                 operatorDinternal(*mit, mat, offsetA, offset0, points[c]);
                 mult(mat, offsetA, offset0, offsetB, offset1, -K);
             }

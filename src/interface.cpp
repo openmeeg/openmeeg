@@ -55,9 +55,9 @@ namespace OpenMEEG {
 
         if ( std::abs(solangle) < 1.e3*std::numeric_limits<double>::epsilon() ) {
             return false;
-        } else if (std::abs(solangle + 4.*M_PI) < 1.e3*std::numeric_limits<double>::epsilon()) {
+        } else if ( std::abs(solangle + 4.*M_PI) < 1.e3*std::numeric_limits<double>::epsilon()) {
             return true;
-        } else if (std::abs(solangle - 4.*M_PI) < 1.e3*std::numeric_limits<double>::epsilon()) {
+        } else if ( std::abs(solangle - 4.*M_PI) < 1.e3*std::numeric_limits<double>::epsilon()) {
             std::cerr << "Mesh::contains_point(" << p << ") Error. Are you sure the mesh is properly oriented?\n";
             return false;
         } else {

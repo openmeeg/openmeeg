@@ -195,7 +195,7 @@ namespace OpenMEEG {
         Matrix positions = sensors.getPositions();
         Matrix orientations = sensors.getOrientations();
 
-        if (dipoles.ncol() != 6) {
+        if ( dipoles.ncol() != 6) {
             std::cerr << "Dipoles File Format Error" << std::endl;
             exit(1);
         }
