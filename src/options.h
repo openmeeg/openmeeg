@@ -112,6 +112,7 @@ namespace OpenMEEG {
             }
             return -1;
         }
+
         inline int strncasecmp(const char *s1, const char *s2, const int l) {
             if ( s1 && s2 ) { 
                 int n = 0;
@@ -122,14 +123,19 @@ namespace OpenMEEG {
             }
             return 0;
         }
-        inline int strcmp(const char *s1, const char *s2) {
+
+        inline int strcmp(const char *s1, const char *s2) 
+        {
             const int l1 = command_line::strlen(s1), l2 = command_line::strlen(s2);
             return command_line::strncmp(s1, s2, 1+(l1<l2?l1:l2));
         }
-        inline int strcasecmp(const char *s1, const char *s2) {
+        
+        inline int strcasecmp(const char *s1, const char *s2) 
+        {
             const int l1 = command_line::strlen(s1), l2 = command_line::strlen(s2);
             return command_line::strncasecmp(s1, s2, 1 + (( l1 < l2 )?l1:l2));
         }
+        
         inline const char* basename(const char *s)
         {
             return ( command_line_OS != 2 )?(s?s+1+command_line::strfind(s, '/'):NULL):(s?s+1+command_line::strfind(s, '\\'):NULL);
@@ -168,7 +174,8 @@ namespace OpenMEEG {
         }
 
         inline bool option(const char *const name, const int argc, char **argv,
-                           const bool defaut, const char *const usage=NULL) {
+                           const bool defaut, const char *const usage=NULL) 
+        {
             const char *s = command_line::option(name, argc, argv, (const char*)NULL);
             const bool res = s?(command_line::strcasecmp(s,"false") && command_line::strcasecmp(s,"off") && command_line::strcasecmp(s,"0")):defaut;
             command_line::option(name, 0, NULL, res?"true":"false", usage);
@@ -176,7 +183,8 @@ namespace OpenMEEG {
         }
 
         inline int option(const char *const name, const int argc, char **argv,
-                          const int defaut, const char *const usage=NULL) {
+                          const int defaut, const char *const usage=NULL) 
+        {
             const char *s = command_line::option(name, argc, argv, (const char*)NULL);
             const int res = s?std::atoi(s):defaut;
             char tmp[256];
@@ -186,7 +194,8 @@ namespace OpenMEEG {
         }
 
         inline char option(const char *const name, const int argc, char **argv,
-                   const char defaut, const char *const usage=NULL) {
+                   const char defaut, const char *const usage=NULL) 
+        {
             const char *s = command_line::option(name, argc, argv, (const char*)NULL);
             const char res = s?s[0]:defaut;
             char tmp[8];
@@ -197,7 +206,8 @@ namespace OpenMEEG {
         }
 
         inline double option(const char *const name, const int argc, char **argv,
-                 const double defaut, const char *const usage=NULL) {
+                 const double defaut, const char *const usage=NULL) 
+        {
             const char *s = command_line::option(name, argc, argv, (const char*)NULL);
             const double res = s?command_line::atof(s):defaut;
             char tmp[256];

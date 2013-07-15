@@ -38,14 +38,15 @@ knowledge of the CeCILL-B license and that you accept its terms.
 */
 
 #include "geometry.h"
-#include "reader.h"
+#include "geometry_reader.h"
+#include "geometry_writer.h"
 
 namespace OpenMEEG {
 
     const Interface& Geometry::outermost_interface() const 
     {
-        for (Domains::const_iterator dit = domain_begin(); dit != domain_end(); dit++) {
-            if ( dit->outermost()) {
+        for ( Domains::const_iterator dit = domain_begin(); dit != domain_end(); dit++) {
+            if ( dit->outermost() ) {
                 return dit->begin()->interface();
             }
         }
@@ -54,8 +55,8 @@ namespace OpenMEEG {
     const unsigned Geometry::nb_trianglesoutermost() const 
     {
         unsigned nb_t = 0;
-        for (const_iterator mit = this->begin(); mit != this->end(); mit++) {
-            if ( mit->outermost()) {
+        for ( const_iterator mit = this->begin(); mit != this->end(); mit++) {
+            if ( mit->outermost() ) {
                 nb_t += mit->nb_triangles();
             }
         }
@@ -64,8 +65,8 @@ namespace OpenMEEG {
 
     const Mesh&  Geometry::mesh(const std::string &id) const 
     {
-        for (const_iterator mit = this->begin() ; mit != this->end(); mit++ ) {
-            if ( id == mit->name()) {
+        for ( const_iterator mit = this->begin() ; mit != this->end(); mit++ ) {
+            if ( id == mit->name() ) {
                 return *mit;
             }
         }
@@ -74,8 +75,8 @@ namespace OpenMEEG {
 
     Mesh&  Geometry::mesh(const std::string &id) 
     {
-        for (iterator mit = this->begin() ; mit != this->end(); mit++ ) {
-            if ( id == mit->name()) {
+        for ( iterator mit = this->begin() ; mit != this->end(); mit++ ) {
+            if ( id == mit->name() ) {
                 return *mit;
             }
         }
@@ -87,15 +88,15 @@ namespace OpenMEEG {
         // for (const_iterator mit = this->begin(); mit != this->end(); mit++) {
             // mit->info();
         // }
-        for (Domains::const_iterator dit = this->domain_begin(); dit != this->domain_end(); dit++) {
+        for ( Domains::const_iterator dit = this->domain_begin(); dit != this->domain_end(); dit++) {
             dit->info();
         }
     }
 
     const Interface& Geometry::interface(const std::string& id) const 
     {
-        for (Domains::const_iterator dit = this->domain_begin(); dit != this->domain_end(); dit++) {
-            for (Domain::const_iterator hit = dit->begin(); hit != dit->end(); hit++) {
+        for ( Domains::const_iterator dit = this->domain_begin(); dit != this->domain_end(); dit++) {
+            for ( Domain::const_iterator hit = dit->begin(); hit != dit->end(); hit++) {
                 if ( hit->interface().name() == id )  {
                     return hit->interface();
                 }
@@ -116,7 +117,7 @@ namespace OpenMEEG {
 
     const Domain& Geometry::domain(const std::string& dname) const
     {
-        for (Domains::const_iterator dit = this->domain_begin(); dit != this->domain_end(); dit++) {
+        for ( Domains::const_iterator dit = this->domain_begin(); dit != this->domain_end(); dit++) {
             if ( dit->name() == dname ) {
                 return *dit;
             }
@@ -125,7 +126,7 @@ namespace OpenMEEG {
         warning(std::string("Geometry::domain: Domain id/name \"") + dname + std::string("\" not found."));
     }
 
-    void Geometry::read(const std::string geomFileName, const std::string condFileName) 
+    void Geometry::read(const std::string& geomFileName, const std::string& condFileName) 
     {
         has_cond() = false; // default parameter
 
@@ -230,7 +231,7 @@ namespace OpenMEEG {
     bool Geometry::selfCheck() const  // TODO: general enough ?
     {
         bool OK = true;
-        for (const_iterator mit1 = this->begin() ; mit1 != this->end(); mit1++ ) {
+        for ( const_iterator mit1 = this->begin() ; mit1 != this->end(); mit1++ ) {
             if ( !mit1->has_correct_orientation() ) {
                 warning(std::string("A mesh does not seem to be properly oriented"));
             }
@@ -268,5 +269,36 @@ namespace OpenMEEG {
             }
         }
         return OK;
+    }
+
+    void Geometry::import_meshes(const Meshes& m)
+    {
+        unsigned nb_vertices = 0;
+        for ( Meshes::const_iterator mit = m.begin(); mit != m.end(); mit++) {
+            nb_vertices += mit->nb_vertices();
+        }
+
+        vertices_.clear();
+        meshes_.clear();
+        vertices_.reserve(nb_vertices);
+        std::map<const Vertex *, Vertex *> map;
+       
+        // Copy the vertices in the geometry.
+        unsigned iit = 0;
+        for ( Meshes::const_iterator mit = m.begin(); mit != m.end(); mit++, iit++) {
+            meshes_.push_back(Mesh(vertices_, mit->name()));
+            for ( Mesh::const_vertex_iterator vit = mit->vertex_begin(); vit != mit->vertex_end(); vit++) {
+                meshes_[iit].add_vertex(**vit);
+                map[*vit] = &(*vertices_.rbegin());
+            }
+            for ( Mesh::const_iterator tit = mit->begin(); tit != mit->end(); tit++) {
+                meshes_[iit].push_back(Triangle(map[(*tit)[0]], map[(*tit)[1]], map[(*tit)[2]]));
+            }
+        }
+    }
+
+    void Geometry::save(const std::string& filename) const { // TODO throw that function for write_vtp ?
+                std::cout << "c" << std::endl;
+        write_vtp(filename);
     }
 }

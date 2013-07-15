@@ -304,7 +304,7 @@ namespace OpenMEEG {
             return npts;
         }
 
-        if ( reader->GetNumberOfNormalsInFile()==0) {
+        if ( reader->GetNumberOfNormalsInFile() == 0 ) {
             vtkPolyDataNormals *newNormals = vtkPolyDataNormals::New();
             newNormals->SetInput(vtkMesh);
             newNormals->Update();
@@ -313,17 +313,17 @@ namespace OpenMEEG {
 
         vtkDataArray *normalsData = vtkMesh->GetPointData()->GetNormals();
 
-        if ( npts != normalsData->GetNumberOfTuples()) {
+        if ( npts != normalsData->GetNumberOfTuples() ) {
             std::cerr << "Error: number of vertices is not equal to number of normals in vtk file, correct or remove the normals." << std::endl;
             exit(1);
         }
 
-        if ( normalsData->GetNumberOfComponents() != 3) {
+        if ( normalsData->GetNumberOfComponents() != 3 ) {
             std::cerr << "Error: wrong number of components of normals in vtk file, correct or remove the normals." << std::endl;
             exit(1);
         }
 
-        for (unsigned i = 0; i < npts; i++) {
+        for ( unsigned i = 0; i < npts; i++) {
             add_vertex(Vertex(vtkMesh->GetPoint(i)[0], vtkMesh->GetPoint(i)[1], vtkMesh->GetPoint(i)[2], normalsData->GetTuple(i)[0], normalsData->GetTuple(i)[1], normalsData->GetTuple(i)[2]));
         }
 

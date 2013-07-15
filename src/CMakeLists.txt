@@ -5,8 +5,8 @@ ENDIF()
 
 SET(OPENMEEG_HEADERS
     analytics.h assemble.h conditioning.h cpuChrono.h danielsson.h DLLDefinesOpenMEEG.h domain.h forward.h gain.h geometry.h integrator.h
-    interface.h inversers.h mesh.h om_utils.h operators.h options.h PropertiesSpecialized.h reader.h sensors.h triangle.h
-    Triangle_triangle_intersection.h vect3.h vertex.h 
+    interface.h inversers.h mesh.h om_utils.h operators.h options.h PropertiesSpecialized.h geometry_reader.h geometry_writer.h sensors.h
+    triangle.h Triangle_triangle_intersection.h vect3.h vertex.h 
 #   These files are imported from another repository.
 #   Please do not update them in this repository.
     DataTag.H FileExceptions.H MeshDescription/Exceptions.H Properties.H

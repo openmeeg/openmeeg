@@ -103,7 +103,9 @@ namespace OpenMEEG {
         const Domain&       domain(const std::string&)       const;
         const Domain&       domain(const Vect3&)             const;
 
-        void                read(const std::string geomFileName, const std::string condFileName = "");
+        void                read(const std::string &geomFileName, const std::string &condFileName = "");
+        void                save(const std::string &filename) const;
+        void                import_meshes(const Meshes& m);
         void                info()                      const;
 
         const double  sigma      (const Domain& d)                const { return (d.sigma()); }
@@ -126,8 +128,9 @@ namespace OpenMEEG {
         bool       has_cond_;
 
         void read_geom(const std::string&);
-        void read_cond(const std::string);
+        void read_cond(const std::string&);
         void geom_generate_indices();
+        void write_vtp(const std::string&) const ; // TODO rename ?
 
         bool is_relative_path(const std::string& name);
 #if WIN32
@@ -144,6 +147,7 @@ namespace OpenMEEG {
 
 #endif  //! OPENMEEG_GEOMETRY_H
 
+        // Interfaces interfaces_ ???
 
         // typedef Meshes::const_reverse_iterator    const_reverse_iterator;
         // const_reverse_iterator     rend()            const { return meshes_.rend();      }
