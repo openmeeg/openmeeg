@@ -56,7 +56,6 @@ namespace OpenMEEG {
     const double UnknownDist = DBL_MAX;
 
     double dist_point_cell(const Vect3&, const Triangle& , Vect3&, bool&);
-    // OPENMEEG_EXPORT double dist_point_mesh(const Vect3&, const Mesh&, Vect3&, Triangle&);
     OPENMEEG_EXPORT double dist_point_interface(const Vect3&, const Interface&, Vect3&, Triangle&);
 }
 

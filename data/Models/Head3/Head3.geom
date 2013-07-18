@@ -1,4 +1,4 @@
-# Domain Description 1.0
+# Domain Description 1.1
 
 Interfaces 3 Mesh
 

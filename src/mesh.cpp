@@ -59,15 +59,15 @@ namespace OpenMEEG {
     {
         links_.clear();
         links_.resize(nb_vertices());
-        // create the set of the mesh vertices out of the vertices in the triangles
-        for (iterator tit = this->begin(); tit != this->end(); tit++) {
+        // computes the triangles normals
+        for ( iterator tit = this->begin(); tit != this->end(); tit++) {
             tit->normal()  = (tit->s1() - tit->s2())^(tit->s1() - tit->s3());
             tit->area()    = tit->normal().norm() / 2.0;
             tit->normal() /= tit->normal().norm();
         }
         unsigned i = 0;
-        for (const_vertex_iterator vit = vertex_begin(); vit != vertex_end(); vit++, i++) {
-            for (const_iterator tit = this->begin(); tit != this->end(); tit++) {
+        for ( const_vertex_iterator vit = vertex_begin(); vit != vertex_end(); vit++, i++) {
+            for ( const_iterator tit = this->begin(); tit != this->end(); tit++) {
                 if ( tit->contains(**vit) ) {
                     links_[i].insert(&*tit); 
                 }
@@ -229,8 +229,6 @@ namespace OpenMEEG {
 
         if ( extension == std::string("vtk") ) {
             return_value = load_vtk(filename, read_all);
-        } else if ( extension == std::string("vtp") ) {
-            return_value = load_vtp(filename, read_all);
         } else if ( extension == std::string("tri") ) {
             return_value = load_tri(filename, read_all);
         } else if ( extension == std::string("bnd") ) {
@@ -297,7 +295,7 @@ namespace OpenMEEG {
         reader->Update();
         vtkPolyData *vtkMesh = reader->GetOutput();
 
-        unsigned npts;
+        unsigned npts, ntrgs;
         npts = vtkMesh->GetNumberOfPoints();
 
         if ( !read_all ) {
@@ -335,7 +333,9 @@ namespace OpenMEEG {
         for ( unsigned i = 0; i < ntrgs; i++) {
             if ( vtkMesh->GetCellType(i) == VTK_TRIANGLE) {
                 l = vtkMesh->GetCell(i)->GetPointIds();
-                m.push_back(Triangle(all_vertices()[l->GetId(0)+all_vertices().size()]-npts, all_vertices()[l->GetId(1)+all_vertices().size()-npts], all_vertices()[l->GetId(2)+all_vertices().size()-npts]))  ;
+                push_back(Triangle(all_vertices()[l->GetId(0)+all_vertices().size()-npts],
+                                   all_vertices()[l->GetId(1)+all_vertices().size()-npts],
+                                   all_vertices()[l->GetId(2)+all_vertices().size()-npts]))  ;
             } else {
                 std::cerr << "This is not a triangulation" << std::endl;
                 exit(1);
@@ -378,51 +378,7 @@ namespace OpenMEEG {
     unsigned Mesh::load_vtk(const std::string filename, const bool &read_all) {
         std::string s = filename;
         vtkPolyDataReader *reader = vtkPolyDataReader::New();
-        reader->SetFileName(filename); // Specify file name of vtk data file to read
-        if ( !reader->IsFilePolyData()) {
-            std::cerr << "This is not a valid vtk poly data file" << std::endl;
-            reader->Delete();
-            exit(1);
-        }
-
-        unsigned return_value = 0;
-        return_value = get_data_from_vtk_reader(reader, read_all);
-        return return_value;
-    }
-
-    unsigned Mesh::load_vtp(std::istream &is, const bool &read_all) {
-        // get length of file:
-        is.seekg (0, ios::end);
-        int length = is.tellg();
-        is.seekg (0, ios::beg);
-
-        // allocate memory:
-        char * buffer = new char [length];
-
-        // read data as a block:
-        is.read (buffer, length);
-
-        // held buffer by the array buf:
-        vtkCharArray* buf = vtkCharArray::New();
-        buf->SetArray(buffer, length, 1);
-
-        vtkXMLPolyDataReader* reader = vtkXMLPolyDataReader::New();
-        reader->SetInputArray(buf); // Specify 'buf' to be used when reading from a string
-        reader->SetReadFromInputString(1);  // Enable reading from the InputArray 'buf' instead of the default, a file
-
-        unsigned return_value = 0;
-        return_value = get_data_from_vtk_reader(reader, read_all);
-
-        delete[] buffer;
-        reader->Delete();
-
-        return return_value;
-    }
-
-    unsigned Mesh::load_vtp(const std::string filename, const bool &read_all) {
-        std::string s = filename;
-        vtkXMLPolyDataReader *reader = vtkXMLPolyDataReader::New();
-        reader->SetFileName(filename); // Specify file name of vtk data file to read
+        reader->SetFileName(filename.c_str()); // Specify file name of vtk data file to read
         if ( !reader->IsFilePolyData()) {
             std::cerr << "This is not a valid vtk poly data file" << std::endl;
             reader->Delete();
@@ -783,7 +739,7 @@ namespace OpenMEEG {
         }
         os << "- " << nb_triangles() << " " << nb_triangles() << " " << nb_triangles() << std::endl;
         for ( const_iterator tit = begin(); tit != end(); tit++) {
-            os << "3 " << map[&(tit->s1())] << " " << map[&(tit->s2())] << " " << map[&(tit->s3())] << std::endl;
+            os << map[&(tit->s1())] << " " << map[&(tit->s2())] << " " << map[&(tit->s3())] << std::endl;
         }
 
         os.close();

@@ -90,6 +90,8 @@ namespace OpenMEEG {
 
     private:
 
+        double compute_solid_angle(const Vect3& p) const;
+
         std::string name_;      // might be "i0" by default
         bool        outermost_; // tell weather or not the interface touches the Air (Outermost) domain.
     };

@@ -104,7 +104,8 @@ namespace OpenMEEG {
         const Domain&       domain(const Vect3&)             const;
 
         void                read(const std::string &geomFileName, const std::string &condFileName = "");
-        void                save(const std::string &filename) const;
+        void                load_vtp(const std::string &filename);
+        void                write_vtp(const std::string &filename) const;
         void                import_meshes(const Meshes& m);
         void                info()                      const;
 
@@ -130,7 +131,6 @@ namespace OpenMEEG {
         void read_geom(const std::string&);
         void read_cond(const std::string&);
         void geom_generate_indices();
-        void write_vtp(const std::string&) const ; // TODO rename ?
 
         bool is_relative_path(const std::string& name);
 #if WIN32

@@ -54,7 +54,9 @@ IF(BUILD_TESTING)
     INCLUDE(TestHead.txt)
 
     TESTHEAD(1)
+    TESTHEAD(NN1)
     TESTHEAD(2)
+    TESTHEAD(NN2)
 
     OPTION(TEST_HEAD3 "Run tests on Head 3" OFF)
 

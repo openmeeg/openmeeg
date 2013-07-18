@@ -46,12 +46,7 @@ namespace OpenMEEG {
      **/
     bool Interface::contains_point(const Vect3& p) const 
     {
-        double solangle = 0.0;
-        for ( Interface::const_iterator mit = this->begin(); mit != this->end(); mit++) {
-            for ( Mesh::const_iterator tit = (*mit)->begin(); tit != (*mit)->end(); tit++) {
-                solangle += p.solangl((*tit).s1(), (*tit).s2(), (*tit).s3());
-            }
-        }
+        double solangle = compute_solid_angle(p);
 
         if ( std::abs(solangle) < 1.e3*std::numeric_limits<double>::epsilon() ) {
             return false;
@@ -67,6 +62,17 @@ namespace OpenMEEG {
         }
     }
     
+    double Interface::compute_solid_angle(const Vect3& p) const // compute the solid-angle which should be +/- 4 * Pi for a closed mesh
+    {
+        double solangle = 0.0;
+        for ( Interface::const_iterator mit = this->begin(); mit != this->end(); mit++) {
+            for ( Mesh::const_iterator tit = (*mit)->begin(); tit != (*mit)->end(); tit++) {
+                solangle += p.solangl((*tit).s1(), (*tit).s2(), (*tit).s3());
+            }
+        }
+        return solangle;
+    }
+
     void Interface::set_to_outermost() 
     {
         for ( Interface::iterator mit = this->begin(); mit != this->end(); mit++) {
@@ -75,7 +81,26 @@ namespace OpenMEEG {
         outermost_ = true;
     }
 
-    const bool Interface::closed() const {
-        
+    const bool Interface::closed() const 
+    {
+        // compute the bounding box:
+        double xmax = std::numeric_limits<double>::min();
+        double ymax = std::numeric_limits<double>::min();
+        double zmax = std::numeric_limits<double>::min();
+        for ( Interface::const_iterator mit = this->begin(); mit != this->end(); mit++) {
+            for ( Mesh::const_vertex_iterator vit = (*mit)->vertex_begin(); vit != (*mit)->vertex_end(); vit++) {
+                xmax = std::max(xmax, (**vit).x());
+                ymax = std::max(ymax, (**vit).y());
+                zmax = std::max(zmax, (**vit).z());
+            }
+        }
+
+        // compute the solid-angle:
+        double solangle = compute_solid_angle(2.*Vect3(xmax, ymax, zmax));
+
+        if ( std::abs(std::abs(solangle) - 4.*M_PI) < 1.e3*std::numeric_limits<double>::epsilon() ) {
+            return true;
+        }
+        return false;
     }
 }

@@ -163,7 +163,16 @@ namespace OpenMEEG {
             }
             #endif
             for ( Mesh::iterator tit = mit->begin(); tit != mit->end(); tit++) {
-                tit->index() = index++;
+                if ( !mit->outermost() ) {
+                    tit->index() = index++;
+                }
+            }
+        }
+        for ( iterator mit = this->begin(); mit != this->end(); mit++) {
+            for ( Mesh::iterator tit = mit->begin(); tit != mit->end(); tit++) {
+                if ( mit->outermost() ) {
+                    tit->index() = index++;
+                }
             }
         }
         this->size() = index;
@@ -295,10 +304,5 @@ namespace OpenMEEG {
                 meshes_[iit].push_back(Triangle(map[(*tit)[0]], map[(*tit)[1]], map[(*tit)[2]]));
             }
         }
-    }
-
-    void Geometry::save(const std::string& filename) const { // TODO throw that function for write_vtp ?
-                std::cout << "c" << std::endl;
-        write_vtp(filename);
     }
 }

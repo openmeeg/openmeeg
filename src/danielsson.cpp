@@ -116,25 +116,7 @@ namespace OpenMEEG
     {
         return ( s > 0 ) ? 1 : ( s < 0 ) ? -1: 0;
     }
-#if 0
-    double dist_point_mesh(const Vect3& p, const Mesh& mesh, Vect3& alphas, Triangle& nearestTriangle) {
-        
-        double distmin = DBL_MAX;
-        bool inside;
-        double distance;
-        Vect3 alphasLoop;
 
-        for (Mesh::const_iterator tit = mesh.begin(); tit !=  mesh.end(); tit++) {
-            distance = dist_point_triangle(p, *tit, alphasLoop, inside);
-            if ( distance < distmin) {
-                distmin = distance;
-                alphas = alphasLoop;
-                nearestTriangle = *tit;
-            }
-        }
-        return distmin;
-    }
-#endif
     double dist_point_interface(const Vect3& p, const Interface& i, Vect3& alphas, Triangle& nearestTriangle) {
 
         double distmin = DBL_MAX;

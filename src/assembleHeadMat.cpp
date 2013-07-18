@@ -128,19 +128,24 @@ namespace OpenMEEG {
                         double Scoeff =   orientation * geo.sigma_inv(*mit1, *mit2) * K;
                         double Dcoeff = - orientation * geo.indicatrice(*mit1, *mit2) * K;
                         // S
+                        // std::cout << "Scoeff " << std::endl;
                         mult(mat, i_m1_tf, i_m2_tf, i_m1_tl, i_m2_tl, Scoeff);
                         // D
+                        // std::cout << "Dcoeff " << std::endl;
                         mult(mat, i_m1_tf, i_m2_vf, i_m1_tl, i_m2_vl, Dcoeff);
                     }
 
                     if ( *mit1 != *mit2 ) {
                         // D*
                         double Dcoeff = - orientation * K;
+                        std::cout << "D*coeff<"<< mit1->name() << " , " << mit2->name() << ">  " << i_m1_vf << " " << i_m2_tf << " " << i_m1_vl << " " << i_m2_tl << std::endl;
                         mult(mat, i_m1_vf, i_m2_tf, i_m1_vl, i_m2_tl, Dcoeff);
+                        // mult(mat, i_m2_vf, i_m1_tf, i_m2_vl, i_m1_tl, Dcoeff); TODO check
                     }
 
                     // N
                     double Ncoeff = orientation * geo.sigma(*mit1, *mit2) * K;
+                    // std::cout << "Ncoeff " << std::endl;
                     mult(mat, i_m1_vf, i_m2_vf, i_m1_vl, i_m2_vl, Ncoeff);
                 }
             }
