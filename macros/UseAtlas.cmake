@@ -27,8 +27,10 @@ IF (USE_MKL)
             PATHS
             $ENV{MKL_DIR}
             "C:/Program Files/Intel/MKL/*/"
+            "C:/Program Files (x86)/Intel/ComposerXE/mkl"
             "C:/Program Files/Intel/ComposerXE-2011/mkl"
             "C:/Program Files (x86)/Intel/ComposerXE-2011/mkl"
+            "C:/Program Files (x86)/Intel/ComposerXE 2013/mkl"
         )
 
         IF (MKL_ROOT_DIR)
