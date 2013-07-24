@@ -60,6 +60,7 @@ FIND_PATH(MKL_ROOT_DIR
 	"C:/Program Files (x86)/Intel/Composer XE 2013/mkl"
 	"C:/Program Files/Intel/MKL/*/"
 	"C:/Program Files/Intel/ComposerXE-2011/mkl"
+	"C:/Program Files/Intel/Composer XE 2013/mkl"
 )
 
 IF( NOT MKL_ROOT_DIR)
