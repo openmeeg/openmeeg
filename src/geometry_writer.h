@@ -127,8 +127,8 @@ namespace OpenMEEG {
                     if ( vtkMesh->GetCellType(i) == VTK_TRIANGLE ) {
                         l = vtkMesh->GetCell(i)->GetPointIds();
                         mit->push_back(Triangle(vertices_[l->GetId(0)],
-                                                vertices_[l->GetId(1)],
-                                                vertices_[l->GetId(2)])); 
+                                    vertices_[l->GetId(1)],
+                                    vertices_[l->GetId(2)])); 
                         for ( unsigned vi = 0; vi < 3; vi++) {
                             if ( only_once.insert(&vertices_[l->GetId(vi)]).second ) {
                                 mit->vertices().push_back(&vertices_[l->GetId(vi)]);
@@ -139,8 +139,7 @@ namespace OpenMEEG {
                         exit(1);
                     }
                 }
-        }
-
+            }
             mit->update();
         }
     }

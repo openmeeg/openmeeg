@@ -814,13 +814,13 @@ namespace OpenMEEG {
             faces_raw[i*3+2] = map[&(tit->s3())];
         }
 
-        os.write((char*)pts_raw, sizeof(float)*nb_vertices()*3);          // vertices
-        os.write((char*)vertex_number, sizeof(unsigned int));    // arg size : npts
-        os.write((char*)normals_raw, sizeof(float)*nb_vertices()*3);      // normals
+        os.write((char*)pts_raw, sizeof(float)*nb_vertices()*3);           // vertices
+        os.write((char*)vertex_number, sizeof(unsigned int));              // arg size : npts
+        os.write((char*)normals_raw, sizeof(float)*nb_vertices()*3);       // normals
         unsigned char zero[1] = {0};
-        os.write((char*)zero, sizeof(unsigned int));             // arg size : 0
+        os.write((char*)zero, sizeof(unsigned int));                       // arg size : 0
         unsigned int faces_number[1] = {nb_triangles()};
-        os.write((char*)faces_number, sizeof(unsigned int));     // ntrgs
+        os.write((char*)faces_number, sizeof(unsigned int));               // ntrgs
         os.write((char*)faces_raw, sizeof(unsigned int)*nb_triangles()*3); // triangles
 
         delete[] faces_raw;
@@ -886,34 +886,3 @@ namespace OpenMEEG {
     }
 
 } // end namespace OpenMeeg
-
-// TODO throw
-#if 0
-        // check the global orientation: that the triangles are correctly oriented (outward-pointing normal)
-        // compute the bounding box:
-        double xmax = std::numeric_limits<int>::min();
-        double ymax = std::numeric_limits<int>::min();
-        double zmax = std::numeric_limits<int>::min();
-        double xmin = std::numeric_limits<int>::max();
-        double ymin = std::numeric_limits<int>::max();
-        double zmin = std::numeric_limits<int>::max();
-        for(int i=0; i<npts; ++i) {
-            xmin = std::min(xmin, point(i).x());
-            ymin = std::min(ymin, point(i).y());
-            zmin = std::min(zmin, point(i).z());
-            xmax = std::max(xmax, point(i).x());
-            ymax = std::max(ymax, point(i).y());
-            zmax = std::max(zmax, point(i).z());
-        }
-        Vect3 bbmin(xmin, ymin, zmin);
-        Vect3 bbmax(xmax, ymax, zmax);
-        Vect3 bbcenter = 0.5 * (bbmin + bbmax);
-
-        // check the center of the bounding box is inside the mesh
-        bool in_mesh = contains_point(bbcenter);
-        if ( !in_mesh )
-            std::cerr << "Global orientation problem..." << std::endl << std::endl;
-
-
-        return in_mesh && (flipped_edge_list == edge_list);
-#endif

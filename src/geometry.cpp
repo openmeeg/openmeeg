@@ -167,7 +167,7 @@ namespace OpenMEEG {
                     tit->index() = index++;
                 }
             }
-        }
+        } // even the last surface triangles (yes for EIT... TODO
         for ( iterator mit = this->begin(); mit != this->end(); mit++) {
             for ( Mesh::iterator tit = mit->begin(); tit != mit->end(); tit++) {
                 if ( mit->outermost() ) {
@@ -223,17 +223,16 @@ namespace OpenMEEG {
         }
         return ans;
     }
-
+    
+    // return 0. for non communicating meshes, 1. for same oriented meshes, -1. for different orientation
     const double Geometry::oriented(const Mesh& m1, const Mesh& m2) const 
     {
-        Domains doms = common_domains(m1, m2);
+        Domains doms = common_domains(m1, m2); // 2 meshes have either 0, 1 or 2 domains in common
         double ans = 0.;
-        if ( doms.size() == 2 ) { // TODO Maureen comment on the cylinder
-            return 1.;
-        } else if ( doms.size() == 1 ) {
-            return (( doms[0].meshOrient(m1) == doms[0].meshOrient(m2) ) ? 1. : -1.);
-        } else {
+        if ( doms.size() == 0 ) {
             return 0.;
+        } else {
+            return (( doms[0].meshOrient(m1) == doms[0].meshOrient(m2) ) ? 1. : -1.);
         }
     }
 
