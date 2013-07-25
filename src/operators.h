@@ -156,11 +156,7 @@ namespace OpenMEEG {
     #endif //ADAPT_LHS
 
         for ( unsigned i = 0; i < 3; i++) {
-            if ( star ) {
-                mat(T2(i).index(), T1.index()) += total(i);
-            } else {
-                mat(T1.index(), T2(i).index()) += total(i);
-            }
+            mat(T1.index(), T2(i).index()) += total(i);
         }
     }
     #endif //OPTIMIZED_OPERATOR_D
@@ -360,7 +356,7 @@ namespace OpenMEEG {
         //    the upper left corner of the submatrix to be written is the Matrix
 
         if ( star ) {
-            std::cout << "OPERATOR D*(Optimized) ... (arg : mesh " << m2.name() << " , mesh " << m1.name() << " )" << std::endl;
+            std::cout << "OPERATOR D*(Optimized) ... (arg : mesh " << m1.name() << " , mesh " << m2.name() << " )" << std::endl;
         } else {
             std::cout << "OPERATOR D (Optimized) ... (arg : mesh " << m1.name() << " , mesh " << m2.name() << " )" << std::endl;
         }
@@ -374,7 +370,7 @@ namespace OpenMEEG {
                 if ( star ) {
                     _operatorD(*tit2, *tit1, mat, gauss_order, star);
                 } else {
-                    _operatorD(*tit1, *tit2, mat, gauss_order, star);
+                    _operatorD(*tit1, *tit2, mat, gauss_order, star); // TODO star ?
                 }
             }
         }

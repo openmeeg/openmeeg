@@ -3,8 +3,8 @@ if &cp | set nocp | endif
 let s:cpo_save=&cpo
 set cpo&vim
 map! <S-Insert> <MiddleMouse>
-nnoremap <silent> y :CCTreeWindowSaveCopy
 nnoremap <silent> w :CCTreeWindowToggle
+nnoremap <silent> y :CCTreeWindowSaveCopy
 vnoremap <silent> # :let old_reg=getreg('"')|let old_regtype=getregtype('"')gvy?=substitute(escape(@", '?\.*$^~['), '\_s\+', '\\_s\\+', 'g')gV:call setreg('"', old_reg, old_regtype)
 vnoremap <silent> * :let old_reg=getreg('"')|let old_regtype=getregtype('"')gvy/=substitute(escape(@", '/\.*$^~['), '\_s\+', '\\_s\\+', 'g')gV:call setreg('"', old_reg, old_regtype)
 map ,i ostd::cin.get();+
@@ -56,12 +56,12 @@ if expand('%') == '' && !&modified && line('$') <= 1 && getline(1) == ''
   let s:wipebuf = bufnr('%')
 endif
 set shortmess=aoO
-badd +158 src/geometry.cpp
+badd +31 src/geometry.cpp
 badd +109 src/geometry.h
 badd +81 src/mesh3.cpp
 badd +19 src/mesh3.h
 badd +1 src/MeshReader.h
-badd +139 src/assembleHeadMat.cpp
+badd +152 src/assembleHeadMat.cpp
 badd +1 README_Geom.rst
 badd +57 src/interface.h
 badd +1 src/meshes.h
@@ -112,7 +112,7 @@ badd +14 data/Models/Head1/Head1.geom
 badd +70 ../src_old/openmeeg/trunk/src/assembleFerguson.cpp
 badd +1 src/danielsson.cpp
 badd +1 src/danielsson.h
-badd +0 src/assemble.h
+badd +1 src/assemble.h
 badd +43 src/inversers.h
 badd +43 src/inversers.cpp
 badd +97 src/inverse.cpp
@@ -128,8 +128,8 @@ badd +130 src/sensors.h
 badd +69 ../openmeeg-clone/src/assembleFerguson.cpp
 badd +200 ../openmeeg-clone/src/assembleSourceMat.cpp
 badd +57 tools/CMakeLists.txt
-badd +0 tools/mesh_to_vtp.cpp
-badd +0 tools/mesh_concat.cpp
+badd +1 tools/mesh_to_vtp.cpp
+badd +1 tools/mesh_concat.cpp
 badd +209 src/options.h
 badd +50 tools/cgal_mesh_create.cpp
 args src/geometry.cpp src/mesh3.cpp src/assembleHeadMat.cpp src/geometry.h src/mesh3.h src/MeshReader.h
@@ -242,12 +242,12 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 154 - ((93 * winheight(0) + 57) / 115)
+let s:l = 40 - ((39 * winheight(0) + 57) / 115)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-154
-normal! 061|
+40
+normal! 05|
 tabedit tools/mesh_to_vtp.cpp
 set splitbelow splitright
 set nosplitbelow
@@ -359,12 +359,12 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 101 - ((83 * winheight(0) + 57) / 115)
+let s:l = 102 - ((101 * winheight(0) + 57) / 115)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-101
-normal! 034|
+102
+normal! 05|
 tabedit src/options.h
 set splitbelow splitright
 set nosplitbelow
@@ -476,12 +476,12 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 141 - ((105 * winheight(0) + 57) / 115)
+let s:l = 115 - ((114 * winheight(0) + 57) / 115)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-141
-normal! 017|
+115
+normal! 0
 tabedit tools/CMakeLists.txt
 set splitbelow splitright
 set nosplitbelow
@@ -591,11 +591,11 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 57 - ((56 * winheight(0) + 57) / 115)
+let s:l = 58 - ((57 * winheight(0) + 57) / 115)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-57
+58
 normal! 05|
 tabedit src/CMakeLists.txt
 set splitbelow splitright
@@ -706,12 +706,12 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 17 - ((16 * winheight(0) + 57) / 115)
+let s:l = 18 - ((17 * winheight(0) + 57) / 115)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-17
-normal! 05|
+18
+normal! 0
 tabedit src/vect3.h
 set splitbelow splitright
 set nosplitbelow
@@ -823,12 +823,12 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 106 - ((74 * winheight(0) + 57) / 115)
+let s:l = 115 - ((114 * winheight(0) + 57) / 115)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-106
-normal! 070|
+115
+normal! 0
 tabedit src/vertex.h
 set splitbelow splitright
 set nosplitbelow
@@ -941,12 +941,12 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 78 - ((77 * winheight(0) + 57) / 115)
+let s:l = 79 - ((78 * winheight(0) + 57) / 115)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-78
-normal! 0
+79
+normal! 09|
 tabedit src/triangle.h
 set splitbelow splitright
 set nosplitbelow
@@ -1058,12 +1058,12 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 114 - ((87 * winheight(0) + 57) / 115)
+let s:l = 115 - ((114 * winheight(0) + 57) / 115)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-114
-normal! 031|
+115
+normal! 021|
 tabedit src/triangle.cpp
 set splitbelow splitright
 set nosplitbelow
@@ -1175,11 +1175,11 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 80 - ((79 * winheight(0) + 57) / 115)
+let s:l = 81 - ((80 * winheight(0) + 57) / 115)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-80
+81
 normal! 09|
 tabedit src/mesh.h
 set splitbelow splitright
@@ -1292,12 +1292,12 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 115 - ((113 * winheight(0) + 57) / 115)
+let s:l = 116 - ((113 * winheight(0) + 57) / 115)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-115
-normal! 0
+116
+normal! 09|
 tabedit src/mesh.cpp
 set splitbelow splitright
 set nosplitbelow
@@ -1409,12 +1409,12 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 899 - ((69 * winheight(0) + 57) / 115)
+let s:l = 900 - ((114 * winheight(0) + 57) / 115)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-899
-normal! 073|
+900
+normal! 09|
 tabedit src/interface.h
 set splitbelow splitright
 set nosplitbelow
@@ -1526,12 +1526,12 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 52 - ((51 * winheight(0) + 57) / 115)
+let s:l = 53 - ((52 * winheight(0) + 57) / 115)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-52
-normal! 0
+53
+normal! 09|
 tabedit src/interface.cpp
 set splitbelow splitright
 set nosplitbelow
@@ -1643,12 +1643,12 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 60 - ((59 * winheight(0) + 57) / 115)
+let s:l = 61 - ((60 * winheight(0) + 57) / 115)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-60
-normal! 048|
+61
+normal! 013|
 tabedit src/domain.h
 set splitbelow splitright
 set nosplitbelow
@@ -1760,12 +1760,12 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 55 - ((29 * winheight(0) + 57) / 115)
+let s:l = 56 - ((55 * winheight(0) + 57) / 115)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-55
-normal! 035|
+56
+normal! 05|
 tabedit src/domain.cpp
 set splitbelow splitright
 set nosplitbelow
@@ -1877,12 +1877,12 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 77 - ((76 * winheight(0) + 57) / 115)
+let s:l = 78 - ((77 * winheight(0) + 57) / 115)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-77
-normal! 027|
+78
+normal! 021|
 tabedit src/geometry.h
 set splitbelow splitright
 set nosplitbelow
@@ -1993,12 +1993,12 @@ setlocal nowinfixheight
 setlocal nowinfixwidth
 setlocal nowrap
 setlocal wrapmargin=0
-let s:l = 107 - ((81 * winheight(0) + 57) / 115)
+let s:l = 27 - ((26 * winheight(0) + 57) / 115)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-107
-normal! 015|
+27
+normal! 0
 tabedit src/geometry.cpp
 set splitbelow splitright
 set nosplitbelow
@@ -2345,7 +2345,7 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 123 - ((113 * winheight(0) + 57) / 115)
+let s:l = 123 - ((81 * winheight(0) + 57) / 115)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
@@ -2578,12 +2578,12 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 214 - ((113 * winheight(0) + 57) / 115)
+let s:l = 102 - ((101 * winheight(0) + 57) / 115)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-214
-normal! 084|
+102
+normal! 0
 tabedit src/assembleFerguson.cpp
 set splitbelow splitright
 set nosplitbelow
@@ -2928,7 +2928,7 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 65 - ((57 * winheight(0) + 57) / 115)
+let s:l = 65 - ((64 * winheight(0) + 57) / 115)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
@@ -3162,7 +3162,7 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 77 - ((48 * winheight(0) + 57) / 115)
+let s:l = 77 - ((70 * winheight(0) + 57) / 115)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
@@ -3279,12 +3279,12 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 242 - ((0 * winheight(0) + 57) / 115)
+let s:l = 60 - ((59 * winheight(0) + 57) / 115)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-242
-normal! 032|
+60
+normal! 0
 tabedit src/integrator.h
 set splitbelow splitright
 set nosplitbelow
@@ -3395,12 +3395,12 @@ setlocal nowinfixheight
 setlocal nowinfixwidth
 setlocal nowrap
 setlocal wrapmargin=0
-let s:l = 264 - ((114 * winheight(0) + 57) / 115)
+let s:l = 38 - ((37 * winheight(0) + 57) / 115)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-264
-normal! 029|
+38
+normal! 0
 tabedit src/danielsson.h
 set splitbelow splitright
 set nosplitbelow
@@ -3517,7 +3517,7 @@ if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
 60
-normal! 028|
+normal! 0
 tabedit src/danielsson.cpp
 set splitbelow splitright
 set nosplitbelow
@@ -3629,13 +3629,13 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 129 - ((96 * winheight(0) + 57) / 115)
+let s:l = 129 - ((114 * winheight(0) + 57) / 115)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
 129
 normal! 013|
-tabnext 2
+tabnext 1
 if exists('s:wipebuf')
   silent exe 'bwipe ' . s:wipebuf
 endif

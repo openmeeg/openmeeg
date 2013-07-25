@@ -53,15 +53,17 @@ ENDIF()
 
 SET(EPSILON 0.15)
 FOREACH(DIP 1 2 3 4 5)
-    FOREACH(HEADNUM 1 2 ${HEAD3})
-        FOREACH(COMP mag rdm)
-            SET(HEAD "Head${HEADNUM}")
-            FOREACH(ADJOINT "" adjoint adjoint2)
-                SET(BASE_FILE_NAME "${HEAD}-dip.est_eeg${ADJOINT}")
-                # Compare EEG result with analytical solution obtained with Matlab
-                OPENMEEG_COMPARISON_TEST("EEG${ADJOINT}EST-dip-${HEAD}-dip${DIP}-${COMP}"
-                    ${BASE_FILE_NAME} analytic/eeg_head${HEADNUM}_analytic.txt -${COMP} -eps ${EPSILON} -col ${DIP} -full
-                    DEPENDS EEG${ADJOINT}-dipoles-${HEAD})
+    FOREACH(HEADGEO "" "NN")
+        FOREACH(HEADNUM 1 2 ${HEAD3})
+            FOREACH(COMP mag rdm)
+                SET(HEAD "Head${HEADGEO}${HEADNUM}")
+                FOREACH(ADJOINT "" adjoint adjoint2)
+                    SET(BASE_FILE_NAME "${HEAD}-dip.est_eeg${ADJOINT}")
+                    # Compare EEG result with analytical solution obtained with Matlab
+                    OPENMEEG_COMPARISON_TEST("EEG${ADJOINT}EST-dip-${HEAD}-dip${DIP}-${COMP}"
+                        ${BASE_FILE_NAME} analytic/eeg_head${HEADNUM}_analytic.txt -${COMP} -eps ${EPSILON} -col ${DIP} -full
+                        DEPENDS EEG${ADJOINT}-dipoles-${HEAD})
+                ENDFOREACH()
             ENDFOREACH()
         ENDFOREACH()
     ENDFOREACH()
@@ -127,19 +129,21 @@ SET_TESTS_PROPERTIES(cmp-EEGinternal-dip-Head1-dip5 PROPERTIES WILL_FAIL TRUE)
 FOREACH(SENSORORIENT "" "-tangential" "-noradial")
     FOREACH(ADJOINT "" adjoint adjoint2)
         IF (NOT(${ADJOINT} STREQUAL "adjoint" OR ${ADJOINT} STREQUAL "adjoint2") OR (SENSORORIENT STREQUAL ""))
-            FOREACH(HEADNUM 1 2 ${HEAD3})
-                SET(HEAD "Head${HEADNUM}")
-                FOREACH(DIP 1 2 3 4 5)
-                    FOREACH(COMP mag rdm)
-                        # Compare MEG result with analytical solution obtained with Matlab
-                        OPENMEEG_COMPARISON_TEST("MEG${ADJOINT}EST-dip-${HEAD}-dip${DIP}${SENSORORIENT}-${COMP}"
-                            ${HEAD}-dip${SENSORORIENT}.est_meg${ADJOINT} analytic/meg_analytic${SENSORORIENT}.txt -${COMP} -eps ${EPSILON} -col ${DIP} -full
-                            DEPENDS MEG${ADJOINT}-dipoles-${HEAD}${SENSORORIENT})
+            FOREACH(HEADGEO "" "NN")
+                FOREACH(HEADNUM 1 2 ${HEAD3})
+                    SET(HEAD "Head${HEADGEO}${HEADNUM}")
+                    FOREACH(DIP 1 2 3 4 5)
+                        FOREACH(COMP mag rdm)
+                            # Compare MEG result with analytical solution obtained with Matlab
+                            OPENMEEG_COMPARISON_TEST("MEG${ADJOINT}EST-dip-${HEAD}-dip${DIP}${SENSORORIENT}-${COMP}"
+                                ${HEAD}-dip${SENSORORIENT}.est_meg${ADJOINT} analytic/meg_analytic${SENSORORIENT}.txt -${COMP} -eps ${EPSILON} -col ${DIP} -full
+                                DEPENDS MEG${ADJOINT}-dipoles-${HEAD}${SENSORORIENT})
+                        ENDFOREACH()
                     ENDFOREACH()
+                    OPENMEEG_COMPARISON_TEST("MEG${ADJOINT}EST-dip${SENSORORIENT}-${HEAD}-dip6"
+                        ${HEAD}-dip${SENSORORIENT}.est_meg${ADJOINT} analytic/meg_analytic${SENSORORIENT}.txt -eps 0.001 -col 6 -full
+                        DEPENDS MEG${ADJOINT}-dipoles-${HEAD}${SENSORORIENT})
                 ENDFOREACH()
-                OPENMEEG_COMPARISON_TEST("MEG${ADJOINT}EST-dip${SENSORORIENT}-${HEAD}-dip6"
-                    ${HEAD}-dip${SENSORORIENT}.est_meg${ADJOINT} analytic/meg_analytic${SENSORORIENT}.txt -eps 0.001 -col 6 -full
-                    DEPENDS MEG${ADJOINT}-dipoles-${HEAD}${SENSORORIENT})
             ENDFOREACH()
         ENDIF()
     ENDFOREACH()

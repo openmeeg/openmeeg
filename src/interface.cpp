@@ -53,10 +53,10 @@ namespace OpenMEEG {
         } else if ( std::abs(solangle + 4.*M_PI) < 1.e3*std::numeric_limits<double>::epsilon()) {
             return true;
         } else if ( std::abs(solangle - 4.*M_PI) < 1.e3*std::numeric_limits<double>::epsilon()) {
-            std::cerr << "Mesh::contains_point(" << p << ") Error. Are you sure the mesh is properly oriented?\n";
+            std::cerr << "Interface::contains_point(" << p << ") Error. Are you sure the mesh is properly oriented?\n";
             return false;
         } else {
-            std::cerr << "Mesh::contains_point(" << p << ") Error. Are you sure the mesh is closed?\n"
+            std::cerr << "Interface::contains_point(" << p << ") Error. Are you sure the mesh is closed?\n"
                 << std::abs(solangle) << std::endl;
             exit(1);
         }
@@ -67,7 +67,7 @@ namespace OpenMEEG {
         double solangle = 0.0;
         for ( Interface::const_iterator mit = this->begin(); mit != this->end(); mit++) {
             for ( Mesh::const_iterator tit = (*mit)->begin(); tit != (*mit)->end(); tit++) {
-                solangle += p.solangl((*tit).s1(), (*tit).s2(), (*tit).s3());
+                solangle += p.solangl((*tit).s1(), (*tit).s2(), (*tit).s3()); // TODO * by +/-1
             }
         }
         return solangle;

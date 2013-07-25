@@ -57,7 +57,7 @@ namespace OpenMEEG {
             for ( Mesh::const_vertex_iterator vit1 = ((*mit)->vertex_begin()); vit1 != ((*mit)->vertex_end()); vit1++) {
                 #pragma omp parallel for
                 for ( Mesh::const_vertex_iterator vit2 = vit1; vit2 != ((*mit)->vertex_end()); vit2++) {
-                    M((*vit1)->index(), (*vit2)->index()) -= coef;
+                    M((*vit1)->index(), (*vit2)->index()) += coef;
                 }
             }
         }
@@ -81,12 +81,13 @@ namespace OpenMEEG {
                     if ( !(mit1->outermost() || mit2->outermost()) ) {
                         // Computing S block first because it's needed for the corresponding N block
                         operatorS(*mit1, *mit2, mat, gauss_order);
-
+                    }
+                    if ( !mit1->outermost() ) {
                         // Computing D block
                         operatorD(*mit1, *mit2, mat, gauss_order);
                     }
                     // Computing D* block
-                    if ( *mit1 != *mit2 ) {
+                    if ( ( *mit1 != *mit2 ) && ( !mit2->outermost() ) ) {
                         operatorD(*mit1, *mit2, mat, gauss_order, true);
                     }
 
@@ -96,10 +97,10 @@ namespace OpenMEEG {
             }
         }
 
+        // mat.save("/user/eolivi/home/compiles/OpenMEEG/tests/Head11.hm"); // TODO
+
         // Block multiplications
         // Because only half the Matrix is stored, only the lower part of the Matrix is treated
-        unsigned offset = 0;
-
         double K = 1.0 / (4.0 * M_PI);
 
         // We iterate over the meshes (or pair of domains)
@@ -126,37 +127,34 @@ namespace OpenMEEG {
 
                         // if mit1 and mit2 communicate, i.e they are used for the definition of a common domain
                         double Scoeff =   orientation * geo.sigma_inv(*mit1, *mit2) * K;
-                        double Dcoeff = - orientation * geo.indicatrice(*mit1, *mit2) * K;
                         // S
-                        // std::cout << "Scoeff " << std::endl;
                         mult(mat, i_m1_tf, i_m2_tf, i_m1_tl, i_m2_tl, Scoeff);
+                    }
+                    if ( !mit1->outermost() ) {
                         // D
-                        // std::cout << "Dcoeff " << std::endl;
+                        double Dcoeff = - orientation * geo.indicatrice(*mit1, *mit2) * K;
                         mult(mat, i_m1_tf, i_m2_vf, i_m1_tl, i_m2_vl, Dcoeff);
                     }
 
-                    if ( *mit1 != *mit2 ) {
+                    if ( ( *mit1 != *mit2 ) && ( !mit2->outermost() ) ) {
                         // D*
                         double Dcoeff = - orientation * K;
-                        std::cout << "D*coeff<"<< mit1->name() << " , " << mit2->name() << ">  " << i_m1_vf << " " << i_m2_tf << " " << i_m1_vl << " " << i_m2_tl << std::endl;
                         mult(mat, i_m1_vf, i_m2_tf, i_m1_vl, i_m2_tl, Dcoeff);
-                        // mult(mat, i_m2_vf, i_m1_tf, i_m2_vl, i_m1_tl, Dcoeff); TODO check
                     }
 
                     // N
                     double Ncoeff = orientation * geo.sigma(*mit1, *mit2) * K;
-                    // std::cout << "Ncoeff " << std::endl;
                     mult(mat, i_m1_vf, i_m2_vf, i_m1_vl, i_m2_vl, Ncoeff);
                 }
             }
         }
 
-        mat.save("/user/eolivi/home/compiles/OpenMEEG/tests/Head11.hm"); // TODO
+        // mat.save("/user/eolivi/home/compiles/OpenMEEG/tests/Head111.hm"); // TODO
 
         // Deflate the last diagonal block of 'mat' : (in order to have a zero-mean potential for the outermost interface)
         const Interface i = geo.outermost_interface();
         unsigned i_first = (*(*i.begin())->vertex_begin())->index();
-        deflat(mat, i, mat(i_first, i_first) / (geo.size()-geo.outermost_interface().nb_triangles()));
+        deflat(mat, i, mat(i_first, i_first) / (geo.outermost_interface().nb_vertices()));
     }
 
     void assemble_Surf2Vol(const unsigned N, const Geometry& geo, Matrix& mat, const std::vector<Matrix>& points) 
