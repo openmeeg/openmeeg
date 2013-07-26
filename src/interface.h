@@ -56,7 +56,7 @@ namespace OpenMEEG {
 
     // An interface is a closed-shape composed of meshes (here pointer to meshes)
 
-    class OPENMEEG_EXPORT Interface: public std::vector<Mesh *> {
+    class OPENMEEG_EXPORT Interface: public std::vector<Mesh*> {
 
     public:
 

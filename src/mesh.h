@@ -107,8 +107,6 @@ namespace OpenMEEG {
         const_vertex_iterator         vertex_end()    const         { return vertices_.end(); }
         const_vertex_reverse_iterator vertex_rend()   const         { return vertices_.rend(); }
 
-        const std::vector<SetPTriangle>& links()      const         { return links_; }
-
         const std::string &               name()      const         { return name_; }
               std::string &               name()                    { return name_; }
 

@@ -63,14 +63,14 @@ namespace OpenMEEG {
         return nb_t;
     }
 
-    const Mesh&  Geometry::mesh(const std::string &id) const 
+    const Mesh& Geometry::mesh(const std::string &id) const 
     {
         for ( const_iterator mit = this->begin() ; mit != this->end(); mit++ ) {
             if ( id == mit->name() ) {
                 return *mit;
             }
         }
-        warning(std::string("Error mesh id/name not found: ") + id);
+        warning(std::string("Geometry::mesh: Error mesh id/name not found: ") + id); // TODO Exceptions 
     }
 
     Mesh&  Geometry::mesh(const std::string &id) 
@@ -80,7 +80,7 @@ namespace OpenMEEG {
                 return *mit;
             }
         }
-        warning(std::string("Error mesh id/name not found: ") + id);
+        warning(std::string("Geometry::mesh: Error mesh id/name not found: ") + id);
     }
 
     void Geometry::info() const 
@@ -102,6 +102,7 @@ namespace OpenMEEG {
                 }
             }
         }
+        warning(std::string("Geometry::interface: Interface id/name \"") + id + std::string("\" not found."));
         // should never append
     }
 
@@ -175,7 +176,7 @@ namespace OpenMEEG {
                 }
             }
         }
-        this->size() = index;
+        size_ = index;
     }
 
     const double Geometry::sigma(const std::string& name) const 
@@ -185,7 +186,8 @@ namespace OpenMEEG {
                 return d->sigma();
             }
         }
-        return 0.; // TODO throw error unknownDomain
+        warning(std::string("Geometry::sigma: Domain id/name \"") + name + std::string("\" not found."));
+        return 0.;
     }
 
     const Domains Geometry::common_domains(const Mesh& m1, const Mesh& m2) const 
@@ -205,7 +207,8 @@ namespace OpenMEEG {
         return doms;
     }
 
-    // return the (sum) conductivity(ies) of the shared domain(s).
+    // TODO template type enum : foreach ????
+    // return the (sum, difference, ..) conductivity(ies) of the shared domain(s).
     const double Geometry::funct_on_domains(const Mesh& m1, const Mesh& m2, const char& f) const 
     {
         Domains doms = common_domains(m1, m2);

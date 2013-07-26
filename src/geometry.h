@@ -83,6 +83,9 @@ namespace OpenMEEG {
         Geometry(): has_cond_(false), size_(0)  { }
         ~Geometry() { }
 
+        // TODO review priate/public
+        //string &filename TODO into string& filename
+        //
               bool&         has_cond()                             { return has_cond_; }
         const bool&         has_cond()                       const { return has_cond_; }
               Vertices&     vertices()                             { return vertices_; }
@@ -92,7 +95,6 @@ namespace OpenMEEG {
         const Meshes&       meshes()                         const { return meshes_; }
               Domains&      domains()                              { return domains_; }
         const Domains&      domains()                        const { return domains_; }
-              unsigned&     size()                                 { return size_; }
         const unsigned      size()                           const { return size_; }
         const unsigned      nb_domains()                     const { return domains_.size(); }
         const unsigned      nb_trianglesoutermost()          const;
@@ -103,9 +105,9 @@ namespace OpenMEEG {
         const Domain&       domain(const std::string&)       const;
         const Domain&       domain(const Vect3&)             const;
 
-        void                read(const std::string &geomFileName, const std::string &condFileName = "");
-        void                load_vtp(const std::string &filename);
-        void                write_vtp(const std::string &filename) const;
+        void                read(const std::string& geomFileName, const std::string& condFileName = ""); // friend ??
+        void                load_vtp(const std::string &filename); // friend ??
+        void                write_vtp(const std::string &filename) const; // friend ??
         void                import_meshes(const Meshes& m);
         void                info()                      const;
 
@@ -146,10 +148,3 @@ namespace OpenMEEG {
 }
 
 #endif  //! OPENMEEG_GEOMETRY_H
-
-        // Interfaces interfaces_ ???
-
-        // typedef Meshes::const_reverse_iterator    const_reverse_iterator;
-        // const_reverse_iterator     rend()            const { return meshes_.rend();      }
-        // const_reverse_iterator     rbegin()          const { return meshes_.rbegin();    }
-

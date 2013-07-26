@@ -81,7 +81,7 @@ namespace OpenMEEG {
         outermost_ = true;
     }
 
-    const bool Interface::closed() const 
+    const bool Interface::closed() const  // TODO 4PI or 0 ?
     {
         // compute the bounding box:
         double xmax = std::numeric_limits<double>::min();

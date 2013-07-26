@@ -64,6 +64,7 @@ namespace OpenMEEG {
 
     void Geometry::load_vtp(const std::string &filename)
     {
+    #ifdef USE_VTK
         vtkSmartPointer<vtkXMLPolyDataReader> reader = vtkSmartPointer<vtkXMLPolyDataReader>::New();
         reader->SetFileName(filename.c_str()); // Specify file name of vtp data file to read
         reader->Update();
@@ -142,6 +143,9 @@ namespace OpenMEEG {
             }
             mit->update();
         }
+    #else
+        std::cerr << "Error: please specify USE_VTK to cmake" << std::endl; // TODO in Legacy format ? // Exceptions
+    #endif
     }
     
     void Geometry::write_vtp(const std::string& filename) const
@@ -151,7 +155,7 @@ namespace OpenMEEG {
         vtkSmartPointer<vtkPolyData>    polydata  = vtkSmartPointer<vtkPolyData>::New();
         vtkSmartPointer<vtkPoints>      points    = vtkSmartPointer<vtkPoints>::New();      // vertices
         vtkSmartPointer<vtkDoubleArray> normals   = vtkSmartPointer<vtkDoubleArray>::New(); // normals
-        vtkSmartPointer<vtkStringArray> cell_id = vtkSmartPointer<vtkStringArray>::New(); // ids/mesh name
+        vtkSmartPointer<vtkStringArray> cell_id = vtkSmartPointer<vtkStringArray>::New();   // ids/mesh name
         
         normals->SetNumberOfComponents(3); //3d normals (ie x,y,z)
         normals->SetName("Normals");
@@ -197,7 +201,7 @@ namespace OpenMEEG {
         writer->Write();
 
     #else
-        std::cerr << "Error: please specify USE_VTK to cmake" << std::endl; // TODO write in Legacy format ?
+        std::cerr << "Error: please specify USE_VTK to cmake" << std::endl; // TODO write in Legacy format ? // Exceptions
     #endif
 
     }
