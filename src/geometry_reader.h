@@ -176,7 +176,7 @@ namespace OpenMEEG {
                 Mesh m(vertices(), interfacename[i]);
                 meshes().push_back(m);
                 meshes()[i].load(fullname[i].c_str());
-                interf.push_back( Interface(interfacename[i]) );
+                interf.push_back( Interface(interfacename[i]) ); // TODO here push_back pair ? mesh bool 
                 interf[i].push_back(&(meshes()[i])); // one mesh per interface: mesh at this adress
             }
         } else if ( (interfaceType == "Interface") || (interfaceType == "NamedInterface") ) { // -----------------------
@@ -231,7 +231,7 @@ namespace OpenMEEG {
                     }
                 }
                 if ( !found ) {
-                    throw MeshDescription::NonExistingDomain(dit->name(), 432); // TODO I don't want to give 0 index but name!template Exceptions?
+                    throw MeshDescription::NonExistingDomain(dit->name(), 9876543210); // TODO I don't want to give 0 index but name!template Exceptions?
                 }
             }
         }

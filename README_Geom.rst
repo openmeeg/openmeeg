@@ -152,3 +152,22 @@ TODO
 
 - Do we let the interfaces in the eometry class, or is it included in each Domain ?
 - Do we keep a Reference on the Triangle class or * is ok ?  
+
+
+
+Questions Theo:
+
+- Dans le geom:
+* Mot-clef: Interface pour les Interfaces ? comme Domain/Domains
+* Mettre un ":" apres le nom du domaine pour delimiter avec les noms des interfaces
+
+- Dans geometry:
+  * as t-on besoin de stocker les interfaces ? sachants qu'elles se trouvent en ce moment dans les domains.
+  * Est-ce qu'une ionterface est une collection de paire de mesh, bool, pour dire si oui/non la mesh est orienté correctement ?
+  * 
+
+- VTK:
+  * J'oblige à avoir VTK ? ou est-ce que ce sera que optionnel et avec des avantages en + (non nested) ?
+
+
+
