@@ -43,11 +43,11 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <assert.h>
 #include <set>
 #include <vector>
-#include "vertex.h"
-#include "triangle.h"
-#include "mesh.h"
-#include "interface.h"
-#include "domain.h"
+#include <vertex.h>
+#include <triangle.h>
+#include <mesh.h>
+#include <interface.h>
+#include <domain.h>
 
 #include <vector>
 #include <string>

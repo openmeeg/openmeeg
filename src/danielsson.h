@@ -46,9 +46,9 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <assert.h>
 #include <math.h>
 
-#include "vertex.h"
-#include "mesh.h"
-#include "interface.h"
+#include <vertex.h>
+#include <mesh.h>
+#include <interface.h>
 
 namespace OpenMEEG {
 

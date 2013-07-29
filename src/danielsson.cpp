@@ -37,7 +37,7 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#include "danielsson.h"
+#include <danielsson.h>
 /* implements an algorithm  proposed in Danielsson, P.-E. Euclidean Distance Mapping. Computer Graphics and Image
 Processing 14, 3 (Nov. 1980), 227-248.
 */

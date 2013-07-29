@@ -43,9 +43,9 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <cmath>
 #include <iostream>
 
-#include "vertex.h"
-#include "triangle.h"
-#include "mesh.h"
+#include <vertex.h>
+#include <triangle.h>
+#include <mesh.h>
 
 namespace OpenMEEG {
 

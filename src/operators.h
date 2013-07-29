@@ -45,12 +45,12 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #include <iostream>
 
-#include "vector.h"
-#include "matrix.h"
-#include "symmatrix.h"
-#include "geometry.h"
-#include "integrator.h"
-#include "analytics.h"
+#include <vector.h>
+#include <matrix.h>
+#include <symmatrix.h>
+#include <geometry.h>
+#include <integrator.h>
+#include <analytics.h>
 
 namespace OpenMEEG {
 

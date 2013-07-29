@@ -50,7 +50,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <cassert>
 #include <vector>
 
-#include "DLLDefinesOpenMEEG.h"
+#include <DLLDefinesOpenMEEG.h>
 
 namespace OpenMEEG {
 

@@ -41,7 +41,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #define OPENMEEG_DOMAIN_H
 
 #include <string>
-#include "interface.h"
+#include <interface.h>
 
 namespace OpenMEEG {
 

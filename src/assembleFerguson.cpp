@@ -40,8 +40,8 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #define _USE_MATH_DEFINES
 #include <math.h>
 
-#include "operators.h"
-#include "om_utils.h"
+#include <operators.h>
+#include <om_utils.h>
 
 namespace OpenMEEG {
 

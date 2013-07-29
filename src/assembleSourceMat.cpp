@@ -42,12 +42,12 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #endif
 #include <math.h>
 
-#include "vector.h"
-#include "matrix.h"
-#include "danielsson.h"
-#include "operators.h"
-#include "assemble.h"
-#include "sensors.h"
+#include <vector.h>
+#include <matrix.h>
+#include <danielsson.h>
+#include <operators.h>
+#include <assemble.h>
+#include <sensors.h>
 #include <fstream>
 
 namespace OpenMEEG {

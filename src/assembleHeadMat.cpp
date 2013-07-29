@@ -42,11 +42,11 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #include <math.h>
 
-#include "matrix.h"
-#include "symmatrix.h"
-#include "geometry.h"
-#include "operators.h"
-#include "assemble.h"
+#include <matrix.h>
+#include <symmatrix.h>
+#include <geometry.h>
+#include <operators.h>
+#include <assemble.h>
 
 namespace OpenMEEG {
 

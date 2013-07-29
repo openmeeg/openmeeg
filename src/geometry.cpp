@@ -37,9 +37,9 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#include "geometry.h"
-#include "geometry_reader.h"
-#include "geometry_writer.h"
+#include <geometry.h>
+#include <geometry_reader.h>
+#include <geometry_writer.h>
 
 namespace OpenMEEG {
 

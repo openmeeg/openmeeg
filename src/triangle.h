@@ -43,8 +43,8 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <cstdlib>
 #include <vector>
 #include <set>
-#include "vect3.h"
-#include "vertex.h"
+#include <vect3.h>
+#include <vertex.h>
 
 namespace OpenMEEG {
 

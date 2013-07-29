@@ -39,12 +39,12 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <fstream>
 #include <cstring>
 
-#include "mesh.h"
-#include "integrator.h"
-#include "cpuChrono.h"
-#include "assemble.h"
-#include "sensors.h"
-#include "geometry.h"
+#include <mesh.h>
+#include <integrator.h>
+#include <cpuChrono.h>
+#include <assemble.h>
+#include <sensors.h>
+#include <geometry.h>
 
 using namespace std;
 using namespace OpenMEEG;

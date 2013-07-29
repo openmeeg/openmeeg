@@ -47,9 +47,9 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <vector>
 #include <set>
 #include <string>
-#include "triangle.h"
+#include <triangle.h>
 #include <IOUtils.H>
-#include "om_utils.h"
+#include <om_utils.h>
 
 #ifdef USE_VTK
 #include <vtkPolyData.h>

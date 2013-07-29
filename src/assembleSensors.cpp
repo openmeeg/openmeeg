@@ -37,11 +37,11 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#include "assemble.h"
-#include "danielsson.h"
-#include "operators.h"
-#include "sensors.h"
-#include "om_utils.h"
+#include <assemble.h>
+#include <danielsson.h>
+#include <operators.h>
+#include <sensors.h>
+#include <om_utils.h>
 
 namespace OpenMEEG {
 
