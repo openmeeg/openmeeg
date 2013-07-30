@@ -496,6 +496,7 @@ namespace io_utils {
     }
 
     // token string with a given ending (ex: "Air:" called by token(name,':') returns the string name((='Air')) )
+    // TODO in case with space between string and delimiter ? "Air :"
     inline std::istream&
     token_internal(std::istream& is, std::string& name, const char& delimiter=':') {
         char c;

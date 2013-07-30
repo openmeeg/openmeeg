@@ -118,6 +118,7 @@ namespace OpenMEEG {
         const double  indicatrice(const Mesh& m1, const Mesh& m2) const { return funct_on_domains(m1, m2, '1'); } // return the (sum) indicatrice function of the shared domain(s).
         const double  sigma      (const std::string&) const;
               bool    selfCheck() const;
+              bool    nested() const; // TODO
               bool    check(const Mesh& m) const;
         const double  oriented(const Mesh&, const Mesh&) const;
 
