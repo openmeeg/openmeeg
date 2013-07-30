@@ -107,7 +107,7 @@ namespace OpenMEEG {
             p1p0 = p1-p0; p2p1 = p2-p1; p0p2 = p0-p2;
             norm2p1p0 = p1p0.norm(); norm2p2p1 = p2p1.norm(); norm2p0p2 = p0p2.norm();
 
-            n = T.normal();
+            n = -1.*T.normal(); // since triangle's normal are normalized
             init_aux();
         }
 
@@ -121,6 +121,7 @@ namespace OpenMEEG {
             norm2p1p0 = p1p0.norm(); norm2p2p1 = p2p1.norm(); norm2p0p2 = p0p2.norm();
 
             n = p1p0^p0p2;
+            n *= -(1./n.norm()) ;
             init_aux();
         }
 
@@ -138,8 +139,9 @@ namespace OpenMEEG {
             const double g1 = integral_simplified_green(p1x, norm2p1x, p2x, norm2p2x, p2p1, norm2p2p1);
             const double g2 = integral_simplified_green(p2x, norm2p2x, p0x, norm2p0x, p0p2, norm2p0p2);
 
-            const double alpha = p0x*n ;
-            return -(((p0x*nu0)*g0+(p1x*nu1)*g1+(p2x*nu2)*g2)+alpha*x.solangl(p0, p1, p2));
+            const double alpha = p0x*n;
+
+            return (((p0x*nu0)*g0+(p1x*nu1)*g1+(p2x*nu2)*g2)+alpha*x.solangl(p0, p1, p2));
         }
     };
 

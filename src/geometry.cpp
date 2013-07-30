@@ -217,7 +217,7 @@ namespace OpenMEEG {
             if ( f == '+' ) {
                 ans += dit->sigma();
             } else if ( f == '-' ) {
-                ans -= -1.*dit->sigma();
+                ans = -1.*ans - dit->sigma();
             } else if ( f == '/' ) {
                 ans += 1./dit->sigma();
             } else {

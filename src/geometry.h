@@ -97,6 +97,7 @@ namespace OpenMEEG {
         const Domains&      domains()                        const { return domains_; }
         const unsigned      size()                           const { return size_; }
         const unsigned      nb_domains()                     const { return domains_.size(); }
+        const unsigned      nb_meshes()                      const { return meshes_.size(); }
         const unsigned      nb_trianglesoutermost()          const;
         const Interface&    outermost_interface()            const; 
         const Interface&    interface(const std::string &id) const;

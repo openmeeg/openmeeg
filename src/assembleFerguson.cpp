@@ -47,28 +47,24 @@ namespace OpenMEEG {
 
     // geo = geometry 
     // mat = storage for Ferguson Matrix
-    // pts = where the magnetic field is to be computed 
+    // pts = where the magnetic field is to be computed
     // n   = numbers of places where magnetic field is to be computed
     void assemble_ferguson(const Geometry &geo, Matrix &mat, const Matrix &pts)
     {
         unsigned offsetJ = 0;
+        unsigned miit = 0; // for progressbar: mesh index iterator
         // Computation of blocks of Ferguson's Matrix
-        for ( Geometry::const_iterator mit = geo.begin(); mit != geo.end(); ++mit) {
+        for ( Geometry::const_iterator mit = geo.begin(); mit != geo.end(); ++mit, ++miit) {
             unsigned offsetI = 0;
             unsigned n = pts.nlin();
             for ( unsigned i = 0; i < n; ++i) {
-                // PROGRESSBAR(c*i, geo.nb_domains()*n);
+                PROGRESSBAR(miit*i, geo.nb_meshes()*n);
                 Vect3 p(pts(i, 0), pts(i, 1), pts(i, 2));
                 operatorFerguson(p, *mit, mat, offsetI, offsetJ);
                 offsetI += 3;
             }
-            offsetJ += mit->nb_vertices();
-        }
-
-        // Blocks multiplications
-        offsetJ = 0;
-        for ( Geometry::const_iterator mit = geo.begin(); mit != geo.end(); ++mit) {
-            mult(mat, 0, offsetJ, mat.nlin()-1, offsetJ + mit->nb_vertices()-1, geo.sigma_diff(*mit, *mit)*MU0/(4.*M_PI)); // TODO sign
+            // Blocks multiplications
+            mult(mat, 0, offsetJ, mat.nlin()-1, offsetJ + mit->nb_vertices()-1, std::abs(geo.sigma_diff(*mit, *mit))*MU0/(4.*M_PI)); // TODO sign
             offsetJ += mit->nb_vertices();
         }
     }

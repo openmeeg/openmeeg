@@ -109,41 +109,27 @@ namespace OpenMEEG {
         Matrix orientations = sensors.getOrientations();
         const unsigned nbIntegrationPoints = sensors.getNumberOfPositions();
         unsigned p0_p1_size = (geo.size()-geo.outermost_interface().nb_triangles());
-        unsigned geo_number_vertices = geo.nb_vertices();
 
-        Matrix myFergusonMatrix(3*nbIntegrationPoints, geo_number_vertices);
+        Matrix myFergusonMatrix(3*nbIntegrationPoints, geo.nb_vertices());
         myFergusonMatrix.set(0.0);
 
         assemble_ferguson(geo, myFergusonMatrix, positions);
+        myFergusonMatrix.info();
 
         mat = Matrix(nbIntegrationPoints, p0_p1_size);
         mat.set(0.0);
 
-        // Compute indexes of V indexes (P1 elements)
-        unsigned* vindex = new unsigned[geo_number_vertices];
-        unsigned count = 0;
-        unsigned offset = 0;
-        for ( Geometry::const_iterator mit = geo.begin(); mit != geo.end(); ++mit) {
-            for ( Mesh::const_vertex_iterator vit = mit->vertex_begin(); vit != mit->vertex_end(); ++vit) {
-                vindex[count] = count + offset;
-                count++;
-            }
-            offset += mit->nb_triangles();
-        }
-
         for ( unsigned i = 0; i < nbIntegrationPoints; ++i) {
             PROGRESSBAR(i, nbIntegrationPoints);
-            for ( unsigned j = 0; j < geo_number_vertices; ++j) {
-                Vect3 fergusonField(myFergusonMatrix(3*i, j), myFergusonMatrix(3*i+1, j), myFergusonMatrix(3*i+2, j));
-                Vect3 normalizedDirection(orientations(i, 0), orientations(i, 1), orientations(i, 2));
-                normalizedDirection.normalize();
-                mat(i, vindex[j]) = fergusonField * normalizedDirection;
+            unsigned j = 0;
+            for ( Vertices::const_iterator vit = geo.vertex_begin(); vit != geo.vertex_end(); ++vit, ++j) {
+                    Vect3 fergusonField(myFergusonMatrix(3*i, j), myFergusonMatrix(3*i+1, j), myFergusonMatrix(3*i+2, j));
+                    Vect3 normalizedDirection(orientations(i, 0), orientations(i, 1), orientations(i, 2));
+                    normalizedDirection.normalize();
+                    mat(i, vit->index()) = fergusonField * normalizedDirection;
+                }
             }
-        }
-
         mat = sensors.getWeightsMatrix() * mat; // Apply weights
-
-        delete[] vindex;
     }
 
     Head2MEGMat::Head2MEGMat(const Geometry &geo, const Sensors &sensors)
