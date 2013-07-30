@@ -58,12 +58,12 @@ namespace OpenMEEG {
     public:
         Vect3array() {};
         inline Vect3array(double x) {
-            for ( unsigned i = 0; i < d; i++)
+            for ( unsigned i = 0; i < d; ++i)
                 t[i] = Vect3(x);
         }
         inline Vect3array<d> operator*(double x) const {
             Vect3array<d> r;
-            for ( unsigned i = 0; i < d; i++)
+            for ( unsigned i = 0; i < d; ++i)
                 r.t[i] = t[i]*x;
             return r;
         }
@@ -73,7 +73,7 @@ namespace OpenMEEG {
 
     template <int d>
     inline void multadd (Vect3array<d> &target, const double scale,  const Vect3array<d> &incr) {
-        for ( unsigned i = 0; i < d; i++) {
+        for ( unsigned i = 0; i < d; ++i) {
             target(i) = target(i) + scale*incr(i);
         }
     }
@@ -207,9 +207,9 @@ namespace OpenMEEG {
             Vect3 crossprod = (points[1] - points[0])^(points[2] - points[0]);
             double S = crossprod.norm();
             T result = 0;
-            for ( unsigned i = 0; i < nbPts[order];i++) {
+            for ( unsigned i = 0; i < nbPts[order];++i) {
                 Vect3 v(0.0, 0.0, 0.0);
-                for ( unsigned j = 0; j < 3; j++) {
+                for ( unsigned j = 0; j < 3; ++j) {
                     v.multadd(cordBars[order][i][j], points[j]);
                 }
                 multadd(result, cordBars[order][i][3], fc.f(v));

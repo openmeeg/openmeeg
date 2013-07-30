@@ -61,7 +61,7 @@ namespace OpenMEEG
         }
         // Solves H=sum(alpha_i A_i), sum(alpha_i)=1, et HM.(A_i-A_0)=0
         Vect3 A0Ai[3]; // A_i-A_0
-        for ( unsigned i = 1; i < nb; i++) {
+        for ( unsigned i = 1; i < nb; ++i) {
             A0Ai[i] = triangle.vertex(idx[i]) - triangle.vertex(idx[0]);
         }
         Vect3 A0M = p - triangle.vertex(idx[0]); // M-A_0
@@ -88,7 +88,7 @@ namespace OpenMEEG
         }
         // If alpha_i<0 -> brought to 0 and recursion
         // NB: also takes care of alpha > 1 because if alpha_i>1 then alpha_j<0 for at least one j
-        for ( unsigned i = 0; i < nb; i++) {
+        for ( unsigned i = 0; i < nb; ++i) {
             if ( alphas(idx[i]) < 0 ) {
                 inside = false;
                 alphas(idx[i]) = 0;
@@ -98,7 +98,7 @@ namespace OpenMEEG
         }
         // Sinon: distance HM
         Vect3 MH = -A0M;
-        for ( unsigned i = 1; i < nb; i++) {
+        for ( unsigned i = 1; i < nb; ++i) {
             MH += alphas(idx[i]) * A0Ai[i];
         }
         return MH.norm();
@@ -124,8 +124,8 @@ namespace OpenMEEG
         double distance;
         Vect3 alphasLoop;
 
-        for ( Interface::const_iterator mit = i.begin(); mit != i.end(); mit++ ) {
-            for ( Mesh::const_iterator tit = (*mit)->begin(); tit !=  (*mit)->end(); tit++) {
+        for ( Interface::const_iterator mit = i.begin(); mit != i.end(); ++mit ) {
+            for ( Mesh::const_iterator tit = (*mit)->begin(); tit !=  (*mit)->end(); ++tit) {
                 distance = dist_point_triangle(p, *tit, alphasLoop, inside);
                 if ( distance < distmin ) {
                     distmin = distance;

@@ -44,7 +44,7 @@ namespace OpenMEEG {
     bool Domain::contains_point(const Vect3& p) const 
     {
         bool inside = true;
-        for (Domain::const_iterator hit = this->begin(); hit != this->end(); hit++) {
+        for (Domain::const_iterator hit = this->begin(); hit != this->end(); ++hit) {
             inside = (inside &&  (hit->interface().contains_point(p) == hit->inside()));
         }
         return inside;
@@ -55,7 +55,7 @@ namespace OpenMEEG {
         std::cout << "Info:: Domain name : "  << name() << std::endl;
         std::cout << "\t\tConductivity : "    << sigma() << std::endl;
         std::cout << "\t\tComposed by interfaces : ";
-        for ( const_iterator hit = this->begin(); hit != this->end(); hit++) {
+        for ( const_iterator hit = this->begin(); hit != this->end(); ++hit) {
             if ( hit->inside() ) {
                 std::cout << "-";
             } else {
@@ -70,9 +70,9 @@ namespace OpenMEEG {
         if ( outermost() ) {
             std::cout << "\t\tConsidered as the outermost domain." << std::endl;
         }
-        for ( const_iterator hit = this->begin(); hit != this->end(); hit++) {
+        for ( const_iterator hit = this->begin(); hit != this->end(); ++hit) {
             std::cout << "\t\tInterface \"" << hit->interface().name() << "\"= { ";
-            for ( Interface::const_iterator mit = hit->interface().begin(); mit != hit->interface().end(); mit++) {
+            for ( Interface::const_iterator mit = hit->interface().begin(); mit != hit->interface().end(); ++mit) {
                 std::cout << "Mesh \""<< (*mit)->name() << "\"";
                 if ( (*mit)->outermost() ) {
                     std::cout << "(OUTERMOST)";

@@ -39,11 +39,11 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #include <cstring>
 
-#include "matrix.h"
-#include "symmatrix.h"
-#include "vector.h"
-#include "cpuChrono.h"
-#include "gain.h"
+#include <matrix.h>
+#include <symmatrix.h>
+#include <vector.h>
+#include <cpuChrono.h>
+#include <gain.h>
 
 using namespace std;
 using namespace OpenMEEG;

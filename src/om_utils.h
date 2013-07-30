@@ -113,15 +113,15 @@ namespace OpenMEEG {
     }
 
 #ifdef USE_PROGRESSBAR
-    inline void progressbar(int n, int N, int w = 20) {
+    inline void progressbar(unsigned n, unsigned N, unsigned w = 20) {
         // w : nb of steps
         const char* cprog = ".";
         const char* cprog1 = "*";
         const char* cbeg = "[";
         const char* cend = "]";
-        int p = (int)std::min( (int)floor(1.f*n*(w+1)/N), w);
+        unsigned p = (unsigned)std::min( (unsigned)floor(1.f*n*(w+1)/N), w);
 
-        static int pprev = -1;
+        static unsigned pprev = -1;
         if (N>1) {
             if (n == 0) {
                 pprev = -1;
@@ -130,14 +130,14 @@ namespace OpenMEEG {
             if (p != pprev) {
                 if (n>1) {
                     // clear previous string
-                    for(int i = 0; i < (w+2); ++i)
+                    for(unsigned i = 0; i < (w+2); ++i)
                         std::cout<< "\b";
 
                     std::cout<< cbeg;
-                    for(int i = 0; i < p; ++i) {
+                    for(unsigned i = 0; i < p; ++i) {
                         std::cout<< cprog1;
                     }
-                    for(int i = p; i < w; ++i) {
+                    for(unsigned i = p; i < w; ++i) {
                         std::cout<< cprog;
                     }
                     std::cout<< cend;

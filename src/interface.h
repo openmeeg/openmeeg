@@ -73,7 +73,7 @@ namespace OpenMEEG {
 
         const unsigned      nb_triangles()  const {
             unsigned nb = 0;
-            for ( const_iterator mit = begin(); mit != end(); mit++) {
+            for ( const_iterator mit = begin(); mit != end(); ++mit) {
                 nb += (*mit)->nb_triangles();
             }
             return nb;
@@ -81,7 +81,7 @@ namespace OpenMEEG {
 
         const unsigned  nb_vertices()       const { 
             unsigned nb = 0;
-            for ( const_iterator mit = begin(); mit != end(); mit++) {
+            for ( const_iterator mit = begin(); mit != end(); ++mit) {
                 nb += (*mit)->nb_vertices();
             }
             return nb;

@@ -87,13 +87,13 @@ int main( int argc, char **argv) {
     while ( input[i] != 0 ) {
         Mesh m;
         nb_vertices += m.load(input[i++], false, false);
-        nb_inputs++;
+        ++nb_inputs;
     }
 
     vertices.reserve(nb_vertices); // important
     meshes.reserve(nb_inputs); // not important
 
-    for ( i = 0; i < nb_inputs; i++) {
+    for ( i = 0; i < nb_inputs; ++i) {
         Mesh m(vertices, name[i]);
         m.load(input[i], false, true);
         meshes.push_back(m);

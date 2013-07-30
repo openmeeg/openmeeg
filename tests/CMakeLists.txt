@@ -2,16 +2,13 @@ INCLUDE(ComparisonTest)
 
 SET_FILE_PROPERTIES(Suffix
     "HM .hm" "HMInv .hm_inv" "SSM .ssm" "v2eeg .h2em" "SurfGainEEG .sgem"
-    "ESTEEG .est_eeg" "EEGadjointEST .est_eegadjoint" "MEGadjointEST .est_megadjoint" "EEG-HEAT -eeg-heat.est_src" "EEG-MN -eeg-mn.est_src"
+    "ESTEEG .est_eeg" "EEGadjointEST .est_eegadjoint" "MEGadjointEST .est_megadjoint"
     "Head2MEGMat .h2mm" "SS2MM .ss2mm" "SurfGainMEG .sgmm" "ESTMEG .est_meg"
-    "MEG-HEAT -meg-heat.est_src" "MEG-MN -meg-mn.est_src"
 )
 
 SET_FILE_PROPERTIES(CompareOptions
     "HM -sym" "HMInv -sym" "SSM -full:-if1:binary:-if2:binary" "v2eeg -if:binary:-sparse"
-    "SurfGainEEG -full" "ESTEEG -full" "EEG-HEAT -full:-eps:0.02" "EEG-MN -full"
-    "Head2MEGMat -full" "SS2MM -full" "SurfGainMEG -full" "ESTMEG -full"
-    "MEG-HEAT -full:-eps:0.02" "MEG-MN -full"
+    "SurfGainEEG -full" "ESTEEG -full" "Head2MEGMat -full" "SS2MM -full" "SurfGainMEG -full" "ESTMEG -full"
 )
 
 ############ IO TEST ##############
@@ -34,8 +31,8 @@ NEW_EXECUTABLE(compare_matrix compare_matrix.cpp
 
 ############ TEST COMMON RESULTS ON HEAD1 (Regression test) ##############
 
-SET(COMPARISONS HM HMInv SSM v2eeg SurfGainEEG ESTEEG EEG-HEAT EEG-MN
-                Head2MEGMat SS2MM SurfGainMEG ESTMEG MEG-HEAT MEG-MN
+SET(COMPARISONS HM HMInv SSM v2eeg SurfGainEEG ESTEEG
+                Head2MEGMat SS2MM SurfGainMEG ESTMEG 
 )
 
 FOREACH (COMPARISON ${COMPARISONS})

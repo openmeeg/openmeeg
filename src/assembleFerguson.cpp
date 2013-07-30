@@ -53,7 +53,7 @@ namespace OpenMEEG {
     {
         unsigned offsetJ = 0;
         // Computation of blocks of Ferguson's Matrix
-        for ( Geometry::const_iterator mit = geo.begin(); mit != geo.end(); mit++) {
+        for ( Geometry::const_iterator mit = geo.begin(); mit != geo.end(); ++mit) {
             unsigned offsetI = 0;
             unsigned n = pts.nlin();
             for ( unsigned i = 0; i < n; ++i) {
@@ -67,7 +67,7 @@ namespace OpenMEEG {
 
         // Blocks multiplications
         offsetJ = 0;
-        for ( Geometry::const_iterator mit = geo.begin(); mit != geo.end(); mit++) {
+        for ( Geometry::const_iterator mit = geo.begin(); mit != geo.end(); ++mit) {
             mult(mat, 0, offsetJ, mat.nlin()-1, offsetJ + mit->nb_vertices()-1, geo.sigma_diff(*mit, *mit)*MU0/(4.*M_PI)); // TODO sign
             offsetJ += mit->nb_vertices();
         }

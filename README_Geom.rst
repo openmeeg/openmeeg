@@ -173,9 +173,12 @@ Questions Theo:
 
   TODO:
 
-  include <> instead <>
-  ++i instead i++
   doxygen avec ///
   regarder la memoire et temps de calculs
   oprofile
 
+  DONE:
+  (
+  include <> instead <>
+  ++i instead i++
+  )

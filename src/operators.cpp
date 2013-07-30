@@ -44,9 +44,9 @@ namespace OpenMEEG {
     void operatorDinternal(const Mesh &m, Matrix &mat, const unsigned offsetI, const unsigned offsetJ, const Matrix &points) 
     {
         std::cout<<"INTERNAL OPERATOR D..."<<std::endl;
-        for ( unsigned i = offsetI; i < offsetI + points.nlin(); i++)  {
+        for ( unsigned i = offsetI; i < offsetI + points.nlin(); ++i)  {
             Vect3 pt(points(i-offsetI, 0), points(i-offsetI, 1), points(i-offsetI, 2));
-            for ( Mesh::const_iterator tit = m.begin(); tit != m.end(); tit++) {
+            for ( Mesh::const_iterator tit = m.begin(); tit != m.end(); ++tit) {
                 _operatorDinternal(*tit, pt, mat);
             }
         }
@@ -55,10 +55,10 @@ namespace OpenMEEG {
     void operatorSinternal(const Mesh &m, Matrix &mat, const unsigned offsetI, const unsigned offsetJ, const Matrix &points) 
     {
         std::cout<<"INTERNAL OPERATOR S..."<<std::endl;
-        for ( unsigned i=offsetI; i < offsetI + points.nlin(); i++) {
+        for ( unsigned i=offsetI; i < offsetI + points.nlin(); ++i) {
             Vect3 pt(points(i-offsetI, 0), points(i-offsetI, 1), points(i-offsetI, 2));
-            // for (Mesh::const_iterator tit = m.begin(); tit != m.end(); tit++) {
-            for ( unsigned j=offsetJ; j<offsetJ+m.nb_triangles(); j++) {
+            // for (Mesh::const_iterator tit = m.begin(); tit != m.end(); ++tit) {
+            for ( unsigned j=offsetJ; j<offsetJ+m.nb_triangles(); ++j) {
                 mat(i, j) = _operatorSinternal(m[j-offsetJ], pt);
             }
         }
@@ -68,13 +68,14 @@ namespace OpenMEEG {
     // to an entire mesh, and storing coordinates of the output in a Matrix.
     void operatorFerguson(const Vect3& x, const Mesh &m, Matrix &mat, unsigned offsetI, unsigned offsetJ) 
     {
-        #pragma omp parallel for
         unsigned j = offsetJ;
-        for ( Mesh::const_vertex_iterator vit = m.vertex_begin(); vit != m.vertex_end(); ++vit, ++j) {
+        #pragma omp parallel for
+        for ( Mesh::const_vertex_iterator vit = m.vertex_begin(); vit < m.vertex_end(); ++vit) {
             Vect3 v = _operatorFerguson(x, **vit, m);
             mat(offsetI + 0, j) = v.x();
             mat(offsetI + 1, j) = v.y();
             mat(offsetI + 2, j) = v.z();
+            ++j;
         }
     }
 
@@ -91,7 +92,7 @@ namespace OpenMEEG {
 
         gauss->setOrder(gauss_order);
         #pragma omp parallel for private(anaDPD)
-        for ( Mesh::const_iterator tit = m.begin(); tit != m.end(); tit++) {
+        for ( Mesh::const_iterator tit = m.begin(); tit < m.end(); ++tit) {
             anaDPD.init(*tit, q, r0);
             Vect3 v = gauss->integrate(anaDPD, *tit);
             #pragma omp critical
@@ -118,7 +119,7 @@ namespace OpenMEEG {
 
         gauss->setOrder(gauss_order);
         #pragma omp parallel for
-        for ( Mesh::const_iterator tit = m.begin(); tit != m.end(); tit++) {
+        for ( Mesh::const_iterator tit = m.begin(); tit < m.end(); ++tit) {
             double d = gauss->integrate(anaDP, *tit);
             #pragma omp critical
             rhs(tit->index()) += d;

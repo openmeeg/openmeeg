@@ -73,15 +73,15 @@ namespace OpenMEEG {
         // We here generate the indices of this mesh vertices and 
         // (hack) set it as an outermost (to tell _operarorN it doesn't belong to the geometry)
         unsigned index = 0;
-        for ( Mesh::vertex_iterator vit = mesh_source.vertex_begin(); vit != mesh_source.vertex_end(); vit++) {
+        for ( Mesh::vertex_iterator vit = mesh_source.vertex_begin(); vit != mesh_source.vertex_end(); ++vit) {
             (*vit)->index() = index++;
         }
         mesh_source.outermost() = true;
 
         std::cout << std::endl << "assemble SurfSourceMat with " << nVertexSources << " mesh_source" << std::endl << std::endl;
 
-        for ( Domain::const_iterator hit = d.begin(); hit != d.end(); hit++) {
-            for ( Interface::const_iterator mit = hit->interface().begin(); mit != hit->interface().end(); mit++) {
+        for ( Domain::const_iterator hit = d.begin(); hit != d.end(); ++hit) {
+            for ( Interface::const_iterator mit = hit->interface().begin(); mit != hit->interface().end(); ++mit) {
                 // First block is nVertexFistLayer*nVertexSources.
                 operatorN( **mit, mesh_source, mat, gauss_order);
                 mult(mat, (*(*mit)->vertex_begin())->index(), (*mesh_source.vertex_begin())->index(), (*(*mit)->vertex_rbegin())->index(), (*mesh_source.vertex_rbegin())->index(), K);
@@ -111,7 +111,7 @@ namespace OpenMEEG {
         //  First block is nVertexFistLayer.
 
         Vector rhs_col(rhs.nlin());
-        for ( unsigned s = 0; s < n_dipoles; s++) {
+        for ( unsigned s = 0; s < n_dipoles; ++s) {
             PROGRESSBAR(s, n_dipoles);
             const Vect3 r(dipoles(s, 0), dipoles(s, 1), dipoles(s, 2));
             const Vect3 q(dipoles(s, 3), dipoles(s, 4), dipoles(s, 5));
@@ -128,20 +128,20 @@ namespace OpenMEEG {
 
             rhs_col.set(0.);
             // iterate over the domain's interfaces (half-spaces)
-            for ( Domain::const_iterator hit = domain.begin(); hit != domain.end(); hit++ ) {
+            for ( Domain::const_iterator hit = domain.begin(); hit != domain.end(); ++hit ) {
                 // iterate over the meshes of the interface
-                for ( Interface::const_iterator mit = hit->interface().begin(); mit != hit->interface().end(); mit++ ) {
+                for ( Interface::const_iterator mit = hit->interface().begin(); mit != hit->interface().end(); ++mit ) {
                     //  Treat the mesh.
                     operatorDipolePotDer(r, q, **mit, rhs_col, gauss_order, adapt_rhs);
 
-                    for ( Mesh::const_vertex_iterator vit = (*mit)->vertex_begin(); vit!= (*mit)->vertex_end(); vit++) {
+                    for ( Mesh::const_vertex_iterator vit = (*mit)->vertex_begin(); vit!= (*mit)->vertex_end(); ++vit) {
                         rhs_col((*vit)->index()) *= (hit->inside())?K:-K; // TODO check signs
                     }
 
                     if ( !(*mit)->outermost() ) {
                         operatorDipolePot(r, q, **mit, rhs_col, gauss_order, adapt_rhs);
 
-                        for (Mesh::const_iterator tit = (*mit)->begin(); tit!= (*mit)->end(); tit++) {
+                        for (Mesh::const_iterator tit = (*mit)->begin(); tit!= (*mit)->end(); ++tit) {
                             rhs_col(tit->index()) *= (hit->inside())?-K/sigma:(K/sigma);
                         }
                     }
@@ -171,8 +171,8 @@ namespace OpenMEEG {
         const Interface& i = geo.outermost_interface();
 
         // We iterate over the meshes (or pair of domains)
-        for ( Interface::const_iterator mit1 = i.begin(); mit1 != i.end(); mit1++) {
-            for ( Geometry::const_iterator mit2 = geo.begin(); mit2 != geo.end(); mit2++) {
+        for ( Interface::const_iterator mit1 = i.begin(); mit1 != i.end(); ++mit1) {
+            for ( Geometry::const_iterator mit2 = geo.begin(); mit2 != geo.end(); ++mit2) {
 
                 unsigned i_m1_vf = (*(*mit1)->vertex_begin())->index(); // index of the first vertex of mesh m1
                 unsigned i_m2_vf = (*mit2->vertex_begin())->index();

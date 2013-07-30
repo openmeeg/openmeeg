@@ -322,6 +322,7 @@ bool compare_rdm(const T& mat1, const T& mat2, double eps, size_t col){
         jmax = mat1.ncol();;
     }
 
+    std::cout.precision(20); // TODO
     for(unsigned int j=jmin;j<jmax;++j) {
         Vector col1 = mat1.getcol(j);
         Vector col2 = mat2.getcol(j);

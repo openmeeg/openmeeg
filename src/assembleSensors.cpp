@@ -57,8 +57,8 @@ namespace OpenMEEG {
         Vect3 current_position;
         Vect3 current_alphas;
         Triangle current_triangle;
-        for ( unsigned i = 0; i < positions.nlin(); i++) {
-            for ( unsigned k = 0; k < 3; k++) {
+        for ( unsigned i = 0; i < positions.nlin(); ++i) {
+            for ( unsigned k = 0; k < 3; ++k) {
                 current_position(k) = positions(i, k);
             }
             dist_point_interface(current_position, geo.outermost_interface(), current_alphas, current_triangle);
@@ -84,8 +84,8 @@ namespace OpenMEEG {
         Vect3 current_position;
         Vect3 current_alphas;
         Triangle current_triangle;
-        for ( unsigned it = 0; it < positions.nlin(); it++) {
-            for ( unsigned k = 0; k < 3; k++) {
+        for ( unsigned it = 0; it < positions.nlin(); ++it) {
+            for ( unsigned k = 0; k < 3; ++k) {
                 current_position(k) = positions(it, k);
             }
             dist_point_interface(current_position, i, current_alphas, current_triangle);
@@ -123,17 +123,17 @@ namespace OpenMEEG {
         unsigned* vindex = new unsigned[geo_number_vertices];
         unsigned count = 0;
         unsigned offset = 0;
-        for ( Geometry::const_iterator mit = geo.begin(); mit != geo.end(); mit++) {
-            for ( Mesh::const_vertex_iterator vit = mit->vertex_begin(); vit != mit->vertex_end(); vit++) {
+        for ( Geometry::const_iterator mit = geo.begin(); mit != geo.end(); ++mit) {
+            for ( Mesh::const_vertex_iterator vit = mit->vertex_begin(); vit != mit->vertex_end(); ++vit) {
                 vindex[count] = count + offset;
                 count++;
             }
             offset += mit->nb_triangles();
         }
 
-        for ( unsigned i = 0; i < nbIntegrationPoints; i++) {
+        for ( unsigned i = 0; i < nbIntegrationPoints; ++i) {
             PROGRESSBAR(i, nbIntegrationPoints);
-            for ( unsigned j = 0; j < geo_number_vertices; j++) {
+            for ( unsigned j = 0; j < geo_number_vertices; ++j) {
                 Vect3 fergusonField(myFergusonMatrix(3*i, j), myFergusonMatrix(3*i+1, j), myFergusonMatrix(3*i+2, j));
                 Vect3 normalizedDirection(orientations(i, 0), orientations(i, 1), orientations(i, 2));
                 normalizedDirection.normalize();
@@ -166,11 +166,11 @@ namespace OpenMEEG {
         Matrix myFergusonMatrix(3, mat.ncol());
         myFergusonMatrix.set(0.0);
 
-        for ( unsigned i = 0; i < nsquids; i++) {
+        for ( unsigned i = 0; i < nsquids; ++i) {
             PROGRESSBAR(i, nsquids);
             Vect3 p(positions(i, 0), positions(i, 1), positions(i, 2));
             operatorFerguson(p, sources_mesh, myFergusonMatrix, 0, 0);
-            for ( unsigned j = 0; j < mat.ncol(); j++) {
+            for ( unsigned j = 0; j < mat.ncol(); ++j) {
                 Vect3 fergusonField(myFergusonMatrix(0, j), myFergusonMatrix(1, j), myFergusonMatrix(2, j));
                 Vect3 normalizedDirection(orientations(i, 0), orientations(i, 1), orientations(i, 2));
                 normalizedDirection.normalize();
@@ -204,8 +204,8 @@ namespace OpenMEEG {
         mat = Matrix(positions.nlin(), dipoles.nlin());
 
         // the following routine is the equivalent of operatorFerguson for pointlike dipoles.
-        for ( unsigned i = 0; i < mat.nlin(); i++) {
-            for ( unsigned j = 0; j < mat.ncol(); j++) {
+        for ( unsigned i = 0; i < mat.nlin(); ++i) {
+            for ( unsigned j = 0; j < mat.ncol(); ++j) {
                 Vect3 r(dipoles(j, 0), dipoles(j, 1), dipoles(j, 2));
                 Vect3 q(dipoles(j, 3), dipoles(j, 4), dipoles(j,5));
                 Vect3 diff(positions(i, 0), positions(i, 1), positions(i, 2));

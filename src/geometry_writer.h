@@ -95,7 +95,7 @@ namespace OpenMEEG {
             exit(1);
         }
 
-        for ( unsigned i = 0; i < npts; i++) {
+        for ( unsigned i = 0; i < npts; ++i) {
             vertices_.push_back(Vertex(vtkMesh->GetPoint(i)[0], vtkMesh->GetPoint(i)[1], vtkMesh->GetPoint(i)[2],
                                        normals->GetTuple(i)[0], normals->GetTuple(i)[1], normals->GetTuple(i)[2]));
         }
@@ -107,7 +107,7 @@ namespace OpenMEEG {
         vtkSmartPointer<vtkStringArray> cell_id = vtkStringArray::SafeDownCast(vtkMesh->GetCellData()->GetAbstractArray("Names"));
 
         ntrgs = vtkMesh->GetNumberOfCells();
-        for ( unsigned i = 0; i < ntrgs; i++) {
+        for ( unsigned i = 0; i < ntrgs; ++i) {
             meshes_name.insert(cell_id->GetValue(i));
         }
 
@@ -120,9 +120,9 @@ namespace OpenMEEG {
         // insert the triangle and mesh vertices address into the right mesh
         vtkSmartPointer<vtkIdList>   l;
 
-        for ( iterator mit = begin(); mit != end(); mit++) {
+        for ( iterator mit = begin(); mit != end(); ++mit) {
             std::set<Vertex *> only_once;
-            for ( unsigned i = 0; i < ntrgs; i++) {
+            for ( unsigned i = 0; i < ntrgs; ++i) {
                 // get the mesh which has this name
                 if ( cell_id->GetValue(i) == mit->name() ) {
                     if ( vtkMesh->GetCellType(i) == VTK_TRIANGLE ) {
@@ -130,7 +130,7 @@ namespace OpenMEEG {
                         mit->push_back(Triangle(vertices_[l->GetId(0)],
                                     vertices_[l->GetId(1)],
                                     vertices_[l->GetId(2)])); 
-                        for ( unsigned vi = 0; vi < 3; vi++) {
+                        for ( unsigned vi = 0; vi < 3; ++vi) {
                             if ( only_once.insert(&vertices_[l->GetId(vi)]).second ) {
                                 mit->vertices().push_back(&vertices_[l->GetId(vi)]);
                             }
@@ -164,7 +164,7 @@ namespace OpenMEEG {
         std::map<const Vertex *, unsigned> map;
 
         unsigned i = 0;
-        for ( Vertices::const_iterator vit = vertex_begin(); vit != vertex_end(); vit++, i++) {
+        for ( Vertices::const_iterator vit = vertex_begin(); vit != vertex_end(); ++vit, ++i) {
             points->InsertNextPoint((*vit)(0), (*vit)(1), (*vit)(2));
             const double n[3] = { vit->normal()(0), vit->normal()(1), vit->normal()(2)};
             normals->InsertNextTupleValue(n);
@@ -177,8 +177,8 @@ namespace OpenMEEG {
         
         vtkSmartPointer<vtkCellArray> polys  = vtkSmartPointer<vtkCellArray>::New(); // the triangles
         
-        for ( Meshes::const_iterator mit = meshes_.begin(); mit != meshes_.end(); mit++) {
-            for ( Mesh::const_iterator tit = mit->begin(); tit != mit->end(); tit++) {
+        for ( Meshes::const_iterator mit = meshes_.begin(); mit != meshes_.end(); ++mit) {
+            for ( Mesh::const_iterator tit = mit->begin(); tit != mit->end(); ++tit) {
                 vtkIdType triangle[3] = { map[&(tit->s1())], map[&(tit->s2())], map[&(tit->s3())] };
                 polys->InsertNextCell(3, triangle);
                 cell_id->InsertNextValue(mit->name());

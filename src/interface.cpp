@@ -65,8 +65,8 @@ namespace OpenMEEG {
     double Interface::compute_solid_angle(const Vect3& p) const // compute the solid-angle which should be +/- 4 * Pi for a closed mesh
     {
         double solangle = 0.0;
-        for ( Interface::const_iterator mit = this->begin(); mit != this->end(); mit++) {
-            for ( Mesh::const_iterator tit = (*mit)->begin(); tit != (*mit)->end(); tit++) {
+        for ( Interface::const_iterator mit = this->begin(); mit != this->end(); ++mit) {
+            for ( Mesh::const_iterator tit = (*mit)->begin(); tit != (*mit)->end(); ++tit) {
                 solangle += p.solangl((*tit).s1(), (*tit).s2(), (*tit).s3()); // TODO * by +/-1
             }
         }
@@ -75,7 +75,7 @@ namespace OpenMEEG {
 
     void Interface::set_to_outermost() 
     {
-        for ( Interface::iterator mit = this->begin(); mit != this->end(); mit++) {
+        for ( Interface::iterator mit = this->begin(); mit != this->end(); ++mit) {
             (*mit)->outermost() = true;
         }
         outermost_ = true;
@@ -87,8 +87,8 @@ namespace OpenMEEG {
         double xmax = std::numeric_limits<double>::min();
         double ymax = std::numeric_limits<double>::min();
         double zmax = std::numeric_limits<double>::min();
-        for ( Interface::const_iterator mit = this->begin(); mit != this->end(); mit++) {
-            for ( Mesh::const_vertex_iterator vit = (*mit)->vertex_begin(); vit != (*mit)->vertex_end(); vit++) {
+        for ( Interface::const_iterator mit = this->begin(); mit != this->end(); ++mit) {
+            for ( Mesh::const_vertex_iterator vit = (*mit)->vertex_begin(); vit != (*mit)->vertex_end(); ++vit) {
                 xmax = std::max(xmax, (**vit).x());
                 ymax = std::max(ymax, (**vit).y());
                 zmax = std::max(zmax, (**vit).z());

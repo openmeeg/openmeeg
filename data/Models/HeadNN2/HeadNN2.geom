@@ -2,16 +2,16 @@
 
 MeshFile "HeadNN2.vtp"
 
-Interfaces 3 NamedInterface
+Interfaces 3 Interface
 
-Brain: Cortex
-Skull: Skull
-Scalp: Scalp
+Interface Brain: Cortex
+Interface Skull: Skull
+Interface Scalp: Scalp
 
 Domains 4
 
-Domain Scalp Skull -Scalp
-Domain Brain -Brain
-Domain Air Scalp
-Domain Skull Brain -Skull
+Domain Scalp: Skull -Scalp
+Domain Brain: -Brain
+Domain Air: Scalp
+Domain Skull: Brain -Skull
 

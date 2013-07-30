@@ -110,7 +110,7 @@ namespace OpenMEEG {
         const unsigned&      index()               const { return index_; }
 
         bool contains(const Vertex& p) const {
-            for ( unsigned i = 0; i < 3; i++) {
+            for ( unsigned i = 0; i < 3; ++i) {
                 if ( &vertex(i) == &p ) {
                     return true;
                 }

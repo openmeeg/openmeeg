@@ -46,7 +46,7 @@ namespace OpenMEEG {
     }
 
     Triangle::Triangle(Vertex *pts[3]): index_(-1) {
-        for ( unsigned i = 0; i < 3; i++) {
+        for ( unsigned i = 0; i < 3; ++i) {
             vertices_[i] = pts[i];
         }
     }
@@ -80,7 +80,7 @@ namespace OpenMEEG {
         area_   = t.area();
         normal_ = t.normal();
         index_  = t.index();
-        for ( unsigned i = 0; i < 3; i++) {
+        for ( unsigned i = 0; i < 3; ++i) {
             vertices_[i] = const_cast<Vertex *>(t[i]);
         }
     }

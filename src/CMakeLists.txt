@@ -5,7 +5,7 @@ ENDIF()
 
 SET(OPENMEEG_HEADERS
     analytics.h assemble.h conditioning.h cpuChrono.h danielsson.h DLLDefinesOpenMEEG.h domain.h forward.h gain.h geometry.h integrator.h
-    interface.h inversers.h mesh.h om_utils.h operators.h options.h PropertiesSpecialized.h geometry_reader.h geometry_writer.h sensors.h
+    interface.h mesh.h om_utils.h operators.h options.h PropertiesSpecialized.h geometry_reader.h geometry_writer.h sensors.h
     triangle.h Triangle_triangle_intersection.h vect3.h vertex.h 
 #   These files are imported from another repository.
 #   Please do not update them in this repository.
@@ -14,7 +14,7 @@ SET(OPENMEEG_HEADERS
 
 ADD_LIBRARY(OpenMEEG ${LIB_TYPE}
     assembleFerguson.cpp assembleHeadMat.cpp assembleSourceMat.cpp assembleSensors.cpp domain.cpp triangle.cpp mesh.cpp interface.cpp
-    danielsson.cpp geometry.cpp operators.cpp sensors.cpp inversers.cpp cpuChrono.cpp ${OPENMEEG_HEADERS}
+    danielsson.cpp geometry.cpp operators.cpp sensors.cpp cpuChrono.cpp ${OPENMEEG_HEADERS}
 )
 TARGET_LINK_LIBRARIES(OpenMEEG OpenMEEGMaths ${OPENMEEG_LIBRARIES} ${LAPACK_LIBRARIES})
 
@@ -28,7 +28,6 @@ MACRO(OPENMEEG_EXECUTABLE EXECUTABLE)
 ENDMACRO()
 
 OPENMEEG_EXECUTABLE(om_minverser minverser.cpp)
-OPENMEEG_EXECUTABLE(om_inverse inverse.cpp)
 OPENMEEG_EXECUTABLE(om_gain gain.cpp)
 OPENMEEG_EXECUTABLE(om_forward forward.cpp)
 OPENMEEG_EXECUTABLE(om_assemble assemble.cpp)
@@ -37,7 +36,7 @@ OPENMEEG_EXECUTABLE(om_assemble assemble.cpp)
 # = INSTALLATION =
 # ================
 
-INSTALL(TARGETS OpenMEEG om_assemble om_forward om_gain om_inverse om_minverser
+INSTALL(TARGETS OpenMEEG om_assemble om_forward om_gain om_minverser
         RUNTIME DESTINATION bin
         LIBRARY DESTINATION lib
         ARCHIVE DESTINATION lib)

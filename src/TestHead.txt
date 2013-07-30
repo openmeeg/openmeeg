@@ -6,13 +6,11 @@ SET(ASSEMBLE  ${CMAKE_CURRENT_BINARY_DIR}/om_assemble)
 SET(INVERSER  ${CMAKE_CURRENT_BINARY_DIR}/om_minverser)
 SET(GAIN      ${CMAKE_CURRENT_BINARY_DIR}/om_gain)
 SET(FORWARD   ${CMAKE_CURRENT_BINARY_DIR}/om_forward)
-SET(INVERSE   ${CMAKE_CURRENT_BINARY_DIR}/om_inverse)
 
 ADD_TEST(assemble-help ${ASSEMBLE} -h)
 ADD_TEST(inverser-help ${INVERSER} -h)
 ADD_TEST(gain-help ${GAIN} -h)
 ADD_TEST(forward-help ${FORWARD} -h)
-ADD_TEST(inverse-help ${INVERSE} -h)
 
 FUNCTION(TESTHEAD HEADNUM)
     SET(SUBJECT "Head${HEADNUM}")
@@ -99,13 +97,6 @@ FUNCTION(TESTHEAD HEADNUM)
         OPENMEEG_TEST(ESTEEG-${SUBJECT} ${FORWARD} ${SGEMMAT} ${SURFSOURCES} ${ESTEEG} 0.0
                       DEPENDS SurfGainEEG-${SUBJECT})
 
-        #------ INVERSE -----#
-
-        SET(DEPENDENCIES AI-${SUBJECT} ESTEEG-${SUBJECT})
-        OPENMEEG_TEST(EEG-HEAT-${SUBJECT} ${INVERSE} ${SGEMMAT} ${SMOOTH} ${AREAS} ${ESTEEG} ${EEGINVBASE}-heat.est_src 1e-4 HEAT
-                      DEPENDS ${DEPENDENCIES})
-        OPENMEEG_TEST(EEG-MN-${SUBJECT}   ${INVERSE} ${SGEMMAT} ${SMOOTH} ${AREAS} ${ESTEEG} ${EEGINVBASE}-mn.est_src 1e-4 MN
-                      DEPENDS ${DEPENDENCIES})
     ENDIF()
 
     ############ MEG TEST ##############
@@ -126,14 +117,6 @@ FUNCTION(TESTHEAD HEADNUM)
 
         OPENMEEG_TEST(ESTMEG-${SUBJECT} ${FORWARD} ${SGMMMAT} ${SURFSOURCES} ${ESTMEG} 0.0
                       DEPENDS SurfGainMEG-${SUBJECT})
-
-        #------ INVERSE -----#
-
-        SET(DEPENDENCIES AI-${SUBJECT} ESTMEG-${SUBJECT})
-        OPENMEEG_TEST(MEG-HEAT-${SUBJECT} ${INVERSE} ${SGMMMAT} ${SMOOTH} ${AREAS} ${ESTMEG} ${MEGINVBASE}-heat.est_src 1e-4 HEAT
-                      DEPENDS ${DEPENDENCIES})
-        OPENMEEG_TEST(MEG-MN-${SUBJECT}   ${INVERSE} ${SGMMMAT} ${SMOOTH} ${AREAS} ${ESTMEG} ${MEGINVBASE}-mn.est_src 1e-4 MN
-                      DEPENDS ${DEPENDENCIES})
     ENDIF()
 
     ############ TEST DIPOLE FORWARD RESULTS (Regression test) ##############

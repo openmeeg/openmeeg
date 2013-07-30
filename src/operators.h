@@ -86,16 +86,16 @@ namespace OpenMEEG {
         //If the upper left corner of the block is on the diagonal line of the Matrix
         //Only the half of the block has to be treated because of the symmetric storage
         if ( Istart != Jstart ) {
-            for ( unsigned i = Istart; i <= Istop; i++) {
+            for ( unsigned i = Istart; i <= Istop; ++i) {
                 #pragma omp parallel for
-                for ( unsigned j = Jstart; j <= Jstop; j++) {
+                for ( unsigned j = Jstart; j <= Jstop; ++j) {
                     mat(i, j) *= coeff;
                 }
             }
         } else {
-            for ( unsigned i = Istart; i <= Istop; i++) {
+            for ( unsigned i = Istart; i <= Istop; ++i) {
                 #pragma omp parallel for
-                for ( unsigned j = Jstart; j <= i; j++) {
+                for ( unsigned j = Jstart; j <= i; ++j) {
                     mat(i, j) *= coeff;
                 }
             }
@@ -106,9 +106,9 @@ namespace OpenMEEG {
     {
         //If the upper left corner of the block is on the diagonal line of the Matrix
         //Only the half of the block has to be treated because of the symmetric storage
-        for ( unsigned i = Istart; i <= Istop; i++) {
+        for ( unsigned i = Istart; i <= Istop; ++i) {
             #pragma omp parallel for
-            for ( unsigned j = Jstart; j <= Jstop; j++) {
+            for ( unsigned j = Jstart; j <= Jstop; ++j) {
                 mat(i, j) *= coeff;
             }
         }
@@ -129,6 +129,7 @@ namespace OpenMEEG {
         double total = 0;
 
         const Mesh::SetPTriangle& Tadj = m2.get_triangles_for_point(V2); // loop on triangles of which V2 is a vertex
+
         for ( Mesh::SetPTriangle::const_iterator tit = Tadj.begin(); tit != Tadj.end(); ++tit) {
             analyD.init(**tit, V2);
             total += gauss.integrate(analyD, T1);
@@ -138,7 +139,7 @@ namespace OpenMEEG {
     #else
 
     template<class T>
-    inline void _operatorD(const Triangle& T1, const Triangle& T2, T &mat, const unsigned gauss_order, const bool star)
+    inline void _operatorD(const Triangle& T1, const Triangle& T2, T &mat, const unsigned gauss_order)
     {
         //this version of _operatorD add in the Matrix the contribution of T2 on T1
         // for all the P1 functions it gets involved
@@ -155,7 +156,7 @@ namespace OpenMEEG {
         Vect3 total = gauss.integrate(analyD, T1);
     #endif //ADAPT_LHS
 
-        for ( unsigned i = 0; i < 3; i++) {
+        for ( unsigned i = 0; i < 3; ++i) {
             mat(T1.index(), T2(i).index()) += total(i);
         }
     }
@@ -213,13 +214,14 @@ namespace OpenMEEG {
 
         for ( Mesh::SetPTriangle::const_iterator tit1 = trgs1.begin(); tit1 != trgs1.end(); ++tit1 ) {
             for ( Mesh::SetPTriangle::const_iterator tit2 = trgs2.begin(); tit2 != trgs2.end(); ++tit2 ) {
-                // A1 , B1 , A2, B2 are the two opposite vertices to V1 and V2 (triangles A1, B1, V1 and A2, B2, V2)
                 if ( m1.outermost() || m2.outermost() ) {
-                    Iqr = _operatorS(**tit1, **tit2, gauss_order);
+                    Iqr = mat((*tit1)->index() - m1.begin()->index(), (*tit2)->index() - m2.begin()->index());
                 } else {
-                    Iqr = mat((*tit1)->index(), (*tit2)->index());
+                    // we here divided (precalculated) operatorS by the product of areas.
+                    Iqr = mat((*tit1)->index(), (*tit2)->index()) / ( (*tit1)->area() * (*tit2)->area());
                 }
             #ifndef OPTIMIZED_OPERATOR_N
+                // A1 , B1 , A2, B2 are the two opposite vertices to V1 and V2 (triangles A1, B1, V1 and A2, B2, V2)
                 Vect3 A1 = (*tit1)->next(V1);
                 Vect3 B1 = (*tit1)->prev(V1);
                 Vect3 A2 = (*tit2)->next(V2);
@@ -235,12 +237,12 @@ namespace OpenMEEG {
                 aq /= aq.norm2();
                 br /= br.norm2();
 
-                Aqr = -0.25 / (*tit1)->area() / (*tit2)->area() * ((aq ^ (*tit1)->normal()) * (br ^ (*tit2)->normal()));
+                Aqr = -0.25 * ((aq ^ (*tit1)->normal()) * (br ^ (*tit2)->normal()));
             #else
                 Vect3 CB1 = (*tit1)->next(V1) - (*tit1)->prev(V1);
                 Vect3 CB2 = (*tit2)->next(V2) - (*tit2)->prev(V2);
 
-                Aqr = -0.25 / (*tit1)->area() / (*tit2)->area() * (CB1 * CB2);
+                Aqr = -0.25 * (CB1 * CB2);
             #endif
                 result += Aqr * Iqr;
             }
@@ -271,20 +273,56 @@ namespace OpenMEEG {
 
         unsigned i = 0; // for the PROGRESSBAR
         if ( &m1 == &m2 ) {
-            for ( Mesh::const_vertex_iterator vit1 = m1.vertex_begin(); vit1 != m1.vertex_end(); vit1++, i++) {
-                PROGRESSBAR(i, m1.nb_vertices());
-                #pragma omp parallel for
-                // for ( Mesh::const_vertex_iterator vit2 = m1.vertex_begin(); vit2 !=  vit1+1; vit2++ ) {
-                for ( Mesh::const_vertex_iterator vit2 = vit1; vit2 != m1.vertex_end(); vit2++) {
-                    mat((*vit1)->index(), (*vit2)->index()) = _operatorN(**vit1, **vit2, m1, m1, gauss_order, mat);
+            if ( m1.outermost() ) {
+                // we thus precompute operator S divided by the product of triangles area.
+                Matrix matS(m1.nb_triangles(), m1.nb_triangles()); // TODO !!! it should be symmetric but doesnt give the same results !!
+                for ( Mesh::const_iterator tit1 = m1.begin(); tit1 != m1.end(); ++tit1) {
+                    #pragma omp parallel for
+                    for ( Mesh::const_iterator tit2 = m1.begin(); tit2 < m1.end(); ++tit2) {
+                        matS(tit1->index() - m1.begin()->index(), tit2->index() - m1.begin()->index()) = _operatorS(*tit1, *tit2, gauss_order) / ( tit1->area() * tit2->area());
+                    }
+                }
+                for ( Mesh::const_vertex_iterator vit1 = m1.vertex_begin(); vit1 != m1.vertex_end(); ++vit1) {
+                    PROGRESSBAR(++i, m1.nb_vertices());
+                    #pragma omp parallel for
+                    for ( Mesh::const_vertex_iterator vit2 = vit1; vit2 < m1.vertex_end(); ++vit2) {
+                        mat((*vit1)->index(), (*vit2)->index()) = _operatorN(**vit1, **vit2, m1, m1, gauss_order, matS);
+                    }
+                }
+            } else {
+                for ( Mesh::const_vertex_iterator vit1 = m1.vertex_begin(); vit1 != m1.vertex_end(); ++vit1) {
+                    PROGRESSBAR(++i, m1.nb_vertices());
+                    #pragma omp parallel for
+                    for ( Mesh::const_vertex_iterator vit2 = m1.vertex_begin(); vit2 <= vit1; ++vit2) {
+                        mat((*vit1)->index(), (*vit2)->index()) = _operatorN(**vit1, **vit2, m1, m1, gauss_order, mat);
+                    }
                 }
             }
         } else {
-            for ( Mesh::const_vertex_iterator vit1 = m1.vertex_begin(); vit1 != m1.vertex_end(); vit1++, i++) {
-                PROGRESSBAR(i, m1.nb_vertices());
-                #pragma omp parallel for
-                for ( Mesh::const_vertex_iterator vit2 = m2.vertex_begin(); vit2 != m2.vertex_end(); vit2++) {
-                    mat((*vit1)->index(), (*vit2)->index()) = _operatorN(**vit1, **vit2, m1, m2, gauss_order, mat);
+            if ( m1.outermost() || m2.outermost() ) {
+                // we thus precompute oprator S divided by the product of triangles area.
+                Matrix matS(m1.nb_triangles(), m2.nb_triangles());
+                for ( Mesh::const_iterator tit1 = m1.begin(); tit1 != m1.end(); ++tit1) {
+                    // PROGRESSBAR(i-offsetI, m1.nbTrgs());
+                    #pragma omp parallel for
+                    for ( Mesh::const_iterator tit2 = m2.begin(); tit2 < m2.end(); ++tit2) {
+                        matS(tit1->index() - m1.begin()->index(), tit2->index() - m2.begin()->index()) = _operatorS(*tit1, *tit2, gauss_order) / ( tit1->area() * tit2->area());
+                    }
+                }
+                for ( Mesh::const_vertex_iterator vit1 = m1.vertex_begin(); vit1 != m1.vertex_end(); ++vit1) {
+                    PROGRESSBAR(++i, m1.nb_vertices());
+                    #pragma omp parallel for
+                    for ( Mesh::const_vertex_iterator vit2 = m2.vertex_begin(); vit2 < m2.vertex_end(); ++vit2) {
+                        mat((*vit1)->index(), (*vit2)->index()) = _operatorN(**vit1, **vit2, m1, m2, gauss_order, matS);
+                    }
+                }
+            } else {
+                for ( Mesh::const_vertex_iterator vit1 = m1.vertex_begin(); vit1 != m1.vertex_end(); ++vit1) {
+                    PROGRESSBAR(++i, m1.nb_vertices());
+                    #pragma omp parallel for
+                    for ( Mesh::const_vertex_iterator vit2 = m2.vertex_begin(); vit2 < m2.vertex_end(); ++vit2) {
+                        mat((*vit1)->index(), (*vit2)->index()) = _operatorN(**vit1, **vit2, m1, m2, gauss_order, mat);
+                    }
                 }
             }
         }
@@ -304,18 +342,18 @@ namespace OpenMEEG {
         // The operator S is given by Sij=\Int G*PSI(I, i)*Psi(J, j) with
         // PSI(A, a) is a P0 test function on layer A and triangle a
         if ( &m1 == &m2 ) {
-            for ( Mesh::const_iterator tit1 = m1.begin(); tit1 != m1.end(); tit1++) {
+            for ( Mesh::const_iterator tit1 = m1.begin(); tit1 != m1.end(); ++tit1) {
                 // PROGRESSBAR(i-offsetI, m1.nbTrgs());
                 #pragma omp parallel for
-                for ( Mesh::const_iterator tit2 = tit1; tit2 != m1.end(); tit2++) {
+                for ( Mesh::const_iterator tit2 = tit1; tit2 < m1.end(); ++tit2) {
                     mat(tit1->index(), tit2->index()) = _operatorS(*tit1, *tit2, gauss_order);
                 }
             }
         } else {
-            for ( Mesh::const_iterator tit1 = m1.begin(); tit1 != m1.end(); tit1++) {
+            for ( Mesh::const_iterator tit1 = m1.begin(); tit1 != m1.end(); ++tit1) {
                 // PROGRESSBAR(i-offsetI, m1.nbTrgs());
                 #pragma omp parallel for
-                for ( Mesh::const_iterator tit2 = m2.begin(); tit2 != m2.end(); tit2++) {
+                for ( Mesh::const_iterator tit2 = m2.begin(); tit2 < m2.end(); ++tit2) {
                     mat(tit1->index(), tit2->index()) = _operatorS(*tit1, *tit2, gauss_order); // TODO inverser tit1/tit2
                 }
             }
@@ -323,23 +361,34 @@ namespace OpenMEEG {
     }
 
     #ifndef OPTIMIZED_OPERATOR_D
-
     template<class T>
     void operatorD(const Mesh &m1, const Mesh &m2, T &mat, const unsigned gauss_order, const bool star)
     {
-    // This function (NON OPTIMIZED VERSION) has the following arguments:
-    //    One geometry
-    //    the indices of the treated layers I and J
-    //    the storage Matrix for the result
-    //    the upper left corner of the submatrix to be written is the Matrix
-        std::cout << "OPERATOR D... (arg : mesh " << m1.name() << " , mesh " << m2.name() << " )" << std::endl;
+        // This function (NON OPTIMIZED VERSION) has the following arguments:
+        //    One geometry
+        //    the indices of the treated layers I and J
+        //    the storage Matrix for the result
+        //    the upper left corner of the submatrix to be written is the Matrix
 
-        for ( Mesh::const_iterator tit = m1.begin(); tit != m1.end(); tit++) {
-            // PROGRESSBAR(i-offsetI, m1.nbTrgs());
-            #pragma omp parallel for
-            for ( Mesh::const_vertex_iterator vit = m2.vertices_begin(); vit != m2.vertices_end(); vit++) {
-                // P1 functions are tested thus looping on vertices
-                mat(tit->index(), vit->index()) = _operatorD(*tit, *vit, m2, gauss_order);
+        if ( star ) {
+            std::cout << "OPERATOR D*(Optimized) ... (arg : mesh " << m1.name() << " , mesh " << m2.name() << " )" << std::endl;
+            for ( Mesh::const_iterator tit = m2.begin(); tit != m2.end(); ++tit) {
+                // PROGRESSBAR(i-offsetI, m1.nbTrgs());
+                #pragma omp parallel for
+                for ( Mesh::const_vertex_iterator vit = m1.vertex_begin(); vit < m1.vertex_end(); ++vit) {
+                    // P1 functions are tested thus looping on vertices
+                    mat((*vit)->index(), tit->index()) = _operatorD(*tit, **vit, m1, gauss_order);
+                }
+            }
+        } else {
+            std::cout << "OPERATOR D (Optimized) ... (arg : mesh " << m1.name() << " , mesh " << m2.name() << " )" << std::endl;
+            for ( Mesh::const_iterator tit = m1.begin(); tit != m1.end(); ++tit) {
+                // PROGRESSBAR(i-offsetI, m1.nbTrgs());
+                #pragma omp parallel for
+                for ( Mesh::const_vertex_iterator vit = m2.vertex_begin(); vit < m2.vertex_end(); ++vit) {
+                    // P1 functions are tested thus looping on vertices
+                    mat(tit->index(), (*vit)->index()) = _operatorD(*tit, **vit, m2, gauss_order);
+                }
             }
         }
     }
@@ -361,21 +410,20 @@ namespace OpenMEEG {
             std::cout << "OPERATOR D (Optimized) ... (arg : mesh " << m1.name() << " , mesh " << m2.name() << " )" << std::endl;
         }
 
-        for ( Mesh::const_iterator tit1 = m1.begin(); tit1 != m1.end(); tit1++) {
+        for ( Mesh::const_iterator tit1 = m1.begin(); tit1 != m1.end(); ++tit1) {
             // PROGRESSBAR(i-offsetI, m1.nbTrgs());
-            for ( Mesh::const_iterator tit2 = m2.begin(); tit2 != m2.end(); tit2++) {
+            for ( Mesh::const_iterator tit2 = m2.begin(); tit2 != m2.end(); ++tit2) {
                 //In this version of the function, in order to skip multiple computations of the same quantities
                 //    loops are run over the triangles but the Matrix cannot be filled in this function anymore
                 //    That's why the filling is done is function _operatorD
                 if ( star ) {
-                    _operatorD(*tit2, *tit1, mat, gauss_order, star);
+                    _operatorD(*tit2, *tit1, mat, gauss_order);
                 } else {
-                    _operatorD(*tit1, *tit2, mat, gauss_order, star); // TODO star ?
+                    _operatorD(*tit1, *tit2, mat, gauss_order);
                 }
             }
         }
     }
-
     #endif // OPTIMIZED_OPERATOR_D
 
     template<class T>
@@ -383,8 +431,8 @@ namespace OpenMEEG {
     {
         // This time mat(i, j)+= ... the Matrix is incremented by the P1P0 operator
         std::cout << "OPERATOR P1P0... (arg : mesh " << m.name() << " )" << std::endl;
-        for (Mesh::const_iterator tit = m.begin(); tit != m.end(); tit++) {
-            for (Mesh::VectPVertex::const_iterator pit = m.vertex_begin(); pit != m.vertex_end(); pit++) {
+        for (Mesh::const_iterator tit = m.begin(); tit != m.end(); ++tit) {
+            for (Mesh::VectPVertex::const_iterator pit = m.vertex_begin(); pit != m.vertex_end(); ++pit) {
                 mat(tit->index(), (*pit)->index()) += _operatorP1P0(*tit, **pit);
             }
         }
@@ -405,7 +453,7 @@ namespace OpenMEEG {
         //loop over triangles of which V1 is a vertex
         const Mesh::SetPTriangle& trgs = m1.get_triangles_for_point(V1);
 
-        for ( Mesh::SetPTriangle::const_iterator tit = trgs.begin(); tit != trgs.end(); tit++) {
+        for ( Mesh::SetPTriangle::const_iterator tit = trgs.begin(); tit != trgs.end(); ++tit) {
 
             const Triangle& T1 = **tit;
 

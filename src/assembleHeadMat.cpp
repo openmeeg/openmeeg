@@ -53,10 +53,10 @@ namespace OpenMEEG {
     template<class T>
     void deflat(T &M, const Interface& i, double coef) {
         // deflate the Matrix
-        for ( Interface::const_iterator mit = i.begin(); mit != i.end(); mit++) {
-            for ( Mesh::const_vertex_iterator vit1 = ((*mit)->vertex_begin()); vit1 != ((*mit)->vertex_end()); vit1++) {
+        for ( Interface::const_iterator mit = i.begin(); mit != i.end(); ++mit) {
+            for ( Mesh::const_vertex_iterator vit1 = ((*mit)->vertex_begin()); vit1 != ((*mit)->vertex_end()); ++vit1) {
                 #pragma omp parallel for
-                for ( Mesh::const_vertex_iterator vit2 = vit1; vit2 != ((*mit)->vertex_end()); vit2++) {
+                for ( Mesh::const_vertex_iterator vit2 = vit1; vit2 < ((*mit)->vertex_end()); ++vit2) {
                     M((*vit1)->index(), (*vit2)->index()) += coef;
                 }
             }
@@ -69,9 +69,9 @@ namespace OpenMEEG {
         mat.set(0.0);
 
         // We iterate over the meshes (or pair of domains) to fill the lower half of the headmat (since its symmetry)
-        for ( Geometry::const_iterator mit1 = geo.begin(); mit1 != geo.end(); mit1++) {
+        for ( Geometry::const_iterator mit1 = geo.begin(); mit1 != geo.end(); ++mit1) {
 
-            for ( Geometry::const_iterator mit2 = geo.begin(); (mit2 != (mit1+1)); mit2++) {
+            for ( Geometry::const_iterator mit2 = geo.begin(); (mit2 != (mit1+1)); ++mit2) {
 
                 // if mit1 and mit2 communicate, i.e they are used for the definition of a domain
                 const double orientation = geo.oriented(*mit1, *mit2); // equals  0, if they don't have any domains in common
@@ -97,16 +97,16 @@ namespace OpenMEEG {
             }
         }
 
-        // mat.save("/user/eolivi/home/compiles/OpenMEEG/tests/Head11.hm"); // TODO
+        mat.save("/user/eolivi/home/compiles/OpenMEEG/tests/Head11.hm"); // TODO
 
         // Block multiplications
         // Because only half the Matrix is stored, only the lower part of the Matrix is treated
         double K = 1.0 / (4.0 * M_PI);
 
         // We iterate over the meshes (or pair of domains)
-        for ( Geometry::const_iterator mit1 = geo.begin(); mit1 != geo.end(); mit1++) {
+        for ( Geometry::const_iterator mit1 = geo.begin(); mit1 != geo.end(); ++mit1) {
 
-            for ( Geometry::const_iterator mit2 = geo.begin(); mit2 != (mit1 + 1); mit2++) {
+            for ( Geometry::const_iterator mit2 = geo.begin(); mit2 != (mit1 + 1); ++mit2) {
 
                 unsigned i_m1_vf = (*mit1->vertex_begin())->index(); // index of the first vertex of mesh m1
                 unsigned i_m2_vf = (*mit2->vertex_begin())->index();
@@ -149,7 +149,7 @@ namespace OpenMEEG {
             }
         }
 
-        // mat.save("/user/eolivi/home/compiles/OpenMEEG/tests/Head111.hm"); // TODO
+        mat.save("/user/eolivi/home/compiles/OpenMEEG/tests/Head111.hm"); // TODO
 
         // Deflate the last diagonal block of 'mat' : (in order to have a zero-mean potential for the outermost interface)
         const Interface i = geo.outermost_interface();
@@ -166,9 +166,9 @@ namespace OpenMEEG {
 
 #if 0
         // We iterate over the meshes (or pair of domains) to fill the lower half of the headmat (since its symmetry)
-        for (Geometry::const_iterator mit1 = geo.begin(); mit1 != geo.end(); mit1++) {
+        for (Geometry::const_iterator mit1 = geo.begin(); mit1 != geo.end(); ++mit1) {
 
-            for (Geometry::const_iterator mit2 = geo.begin(); (mit2 != (mit1+1)); mit2++) {
+            for (Geometry::const_iterator mit2 = geo.begin(); (mit2 != (mit1+1)); ++mit2) {
 
                 // if mit1 and mit2 communicate, i.e they are used for the definition of a domain
                 const double orientation = geo.oriented(*mit1, *mit2); // equals  0, if they don't have any domains in common
@@ -176,7 +176,7 @@ namespace OpenMEEG {
         unsigned offset = 0;
         unsigned offsetA0 = 0;
         unsigned c = 0;
-        for (Geometry::const_iterator mit = geo.begin(); mit != geo.end(); mit++, c++) {
+        for (Geometry::const_iterator mit = geo.begin(); mit != geo.end(); ++mit, ++c) {
             const unsigned offset0 = offset;
             const unsigned offsetA = offsetA0;
             const unsigned offsetB = offsetA + points[c].nlin();
@@ -250,7 +250,7 @@ namespace OpenMEEG {
             vect_PtsInDom[c] = Matrix(nb_pts_per_dom[c], 3);
             for ( unsigned ipt = 0, iptd = 0; ipt < points.nlin(); ++ipt) { // get the points in the domain c
                 if ( labels[ipt] == c ) {
-                    for ( unsigned ic = 0; ic < 3; ic++) {
+                    for ( unsigned ic = 0; ic < 3; ++ic) {
                         vect_PtsInDom[c](iptd, ic) = points(ipt, ic);
                     }
                     ++iptd;
