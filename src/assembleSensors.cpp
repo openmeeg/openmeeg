@@ -114,7 +114,6 @@ namespace OpenMEEG {
         myFergusonMatrix.set(0.0);
 
         assemble_ferguson(geo, myFergusonMatrix, positions);
-        myFergusonMatrix.info();
 
         mat = Matrix(nbIntegrationPoints, p0_p1_size);
         mat.set(0.0);

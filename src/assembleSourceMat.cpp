@@ -124,7 +124,7 @@ namespace OpenMEEG {
                 domain = geo.domain(domain_name);
             }
             // TODO add conditions on Air domain : dipoles inside scalp ?
-            const double sigma  = domain.sigma();
+            const double sigma = domain.sigma();
 
             rhs_col.set(0.);
             // iterate over the domain's interfaces (half-spaces)
@@ -141,7 +141,7 @@ namespace OpenMEEG {
                     if ( !(*mit)->outermost() ) {
                         operatorDipolePot(r, q, **mit, rhs_col, gauss_order, adapt_rhs);
 
-                        for (Mesh::const_iterator tit = (*mit)->begin(); tit!= (*mit)->end(); ++tit) {
+                        for ( Mesh::const_iterator tit = (*mit)->begin(); tit != (*mit)->end(); ++tit) {
                             rhs_col(tit->index()) *= (hit->inside())?-K/sigma:(K/sigma);
                         }
                     }

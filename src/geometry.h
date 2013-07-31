@@ -114,9 +114,9 @@ namespace OpenMEEG {
 
         const double  sigma      (const Domain& d)                const { return (d.sigma()); }
         const double  sigma      (const Mesh& m1, const Mesh& m2) const { return funct_on_domains(m1, m2, '+'); } // return the (sum) conductivity(ies) of the shared domain(s).
-        const double  sigma_diff (const Mesh& m1, const Mesh& m2) const { return funct_on_domains(m1, m2, '-'); } // return the (difference) of conductivity(ies) of the shared domain(s).
         const double  sigma_inv  (const Mesh& m1, const Mesh& m2) const { return funct_on_domains(m1, m2, '/'); } // return the (sum) inverse of conductivity(ies) of the shared domain(s).
         const double  indicatrice(const Mesh& m1, const Mesh& m2) const { return funct_on_domains(m1, m2, '1'); } // return the (sum) indicatrice function of the shared domain(s).
+        const double  sigma_diff (const Mesh& m) const; // return the difference of conductivities of the 2 domains.
         const double  sigma      (const std::string&) const;
               bool    selfCheck() const;
               bool    nested() const; // TODO

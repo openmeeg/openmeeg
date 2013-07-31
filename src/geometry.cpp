@@ -216,13 +216,21 @@ namespace OpenMEEG {
         for ( Domains::iterator dit = doms.begin(); dit != doms.end(); ++dit) {
             if ( f == '+' ) {
                 ans += dit->sigma();
-            } else if ( f == '-' ) {
-                ans = -1.*ans - dit->sigma();
             } else if ( f == '/' ) {
                 ans += 1./dit->sigma();
             } else {
                 ans += 1.;
             }
+        }
+        return ans;
+    }
+
+    // return the difference of conductivities of the 2 domains.
+    const double  Geometry::sigma_diff(const Mesh& m) const {
+        Domains doms = common_domains(m, m); // Get the 2 domains surrounding mesh m
+        double  ans  = 0.;
+        for ( Domains::iterator dit = doms.begin(); dit != doms.end(); ++dit) {
+            ans += dit->sigma()*dit->meshOrient(m);
         }
         return ans;
     }

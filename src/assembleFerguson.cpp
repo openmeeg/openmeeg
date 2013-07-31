@@ -64,7 +64,7 @@ namespace OpenMEEG {
                 offsetI += 3;
             }
             // Blocks multiplications
-            mult(mat, 0, offsetJ, mat.nlin()-1, offsetJ + mit->nb_vertices()-1, std::abs(geo.sigma_diff(*mit, *mit))*MU0/(4.*M_PI)); // TODO sign
+            mult(mat, 0, offsetJ, mat.nlin()-1, offsetJ + mit->nb_vertices()-1, geo.sigma_diff(*mit)*MU0/(4.*M_PI));
             offsetJ += mit->nb_vertices();
         }
     }
