@@ -122,6 +122,7 @@ FOREACH(DIP 1 2 3 4 5)
 ENDFOREACH()
 # set tests that are expected to fail :
 SET_TESTS_PROPERTIES(cmp-EEGinternal-dip-Head1-dip5 PROPERTIES WILL_FAIL TRUE)
+#SET_TESTS_PROPERTIES(cmp-EEGinternal-dip-HeadNN1-dip5 PROPERTIES WILL_FAIL TRUE)
 
 FOREACH(SENSORORIENT "" "-tangential" "-noradial")
     FOREACH(ADJOINT "" adjoint adjoint2)

@@ -162,7 +162,7 @@ namespace OpenMEEG {
                 if ( !tit1->contains(tit2->s1()) && !tit1->contains(tit2->s2()) && !tit1->contains(tit1->s3()) ) {
                     if ( triangle_intersection(*tit1, *tit2) ) {
                         selfIntersects = true;
-                        std::cout << "triangles " << tit1->index() << " and " << tit2->index() << " are intersecting" << std::endl;
+                        std::cout << "Triangles " << tit1->index() << " and " << tit2->index() << " are intersecting." << std::endl;
                     }
                 }
             }

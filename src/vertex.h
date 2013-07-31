@@ -77,7 +77,7 @@ namespace OpenMEEG {
     private:
 
         unsigned index_;
-        Normal normal_;
+        Normal normal_; // TODO remove normals ?
     };
 
     typedef std::vector<Vertex> Vertices;

@@ -5,7 +5,7 @@ ENDIF()
 
 SET(OPENMEEG_HEADERS
     analytics.h assemble.h conditioning.h cpuChrono.h danielsson.h DLLDefinesOpenMEEG.h domain.h forward.h gain.h geometry.h integrator.h
-    interface.h mesh.h om_utils.h operators.h options.h PropertiesSpecialized.h geometry_reader.h geometry_writer.h sensors.h
+    interface.h mesh.h om_utils.h operators.h options.h PropertiesSpecialized.h geometry_reader.h geometry_io.h sensors.h
     triangle.h Triangle_triangle_intersection.h vect3.h vertex.h 
 #   These files are imported from another repository.
 #   Please do not update them in this repository.

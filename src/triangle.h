@@ -131,7 +131,7 @@ namespace OpenMEEG {
         unsigned  index_;      // Index of the triangle
     };
 
-    typedef std::vector<Triangle>       Triangles;
+    typedef std::vector<Triangle> Triangles;
 }
 
 #endif  //! OPENMEEG_TRIANGLE_H

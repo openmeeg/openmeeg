@@ -59,7 +59,6 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <vtkCleanPolyData.h>
 #endif
 
-
 namespace OpenMEEG {
 
     void Geometry::load_vtp(const std::string &filename)
