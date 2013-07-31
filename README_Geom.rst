@@ -178,6 +178,7 @@ Questions Theo:
   oprofile
 
   DONE:
+  :tabdo %g/ &[a-zA-Z,]/s/ &/\& /gc
   (
   include <> instead <>
   ++i instead i++

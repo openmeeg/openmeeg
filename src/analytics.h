@@ -85,9 +85,9 @@ namespace OpenMEEG {
         double tanTHETA0m, tanTHETA0p, tanTHETA1m, tanTHETA1p, tanTHETA2m, tanTHETA2p;
         
         void init_aux() {
-            nu0 = (n^p1p0);
-            nu1 = (n^p2p1);
-            nu2 = (n^p0p2);
+            nu0 = (p1p0^n);
+            nu1 = (p2p1^n);
+            nu2 = (p0p2^n);
             nu0.normalize();
             nu1.normalize();
             nu2.normalize();
@@ -97,7 +97,7 @@ namespace OpenMEEG {
 
         analyticS(){}
         ~analyticS(){}
-        void init(const Triangle &T)
+        void init(const Triangle& T)
         {
             // all computations needed when the first triangle of integration is changed
             p0 = T.s1();
@@ -107,7 +107,7 @@ namespace OpenMEEG {
             p1p0 = p1-p0; p2p1 = p2-p1; p0p2 = p0-p2;
             norm2p1p0 = p1p0.norm(); norm2p2p1 = p2p1.norm(); norm2p0p2 = p0p2.norm();
 
-            n = -1.*T.normal(); // since triangle's normal are normalized
+            n = T.normal(); // since triangle's normal is already normalized
             init_aux();
         }
 
@@ -121,7 +121,7 @@ namespace OpenMEEG {
             norm2p1p0 = p1p0.norm(); norm2p2p1 = p2p1.norm(); norm2p0p2 = p0p2.norm();
 
             n = p1p0^p0p2;
-            n *= -(1./n.norm()) ;
+            n /= n.norm();
             init_aux();
         }
 
@@ -141,7 +141,7 @@ namespace OpenMEEG {
 
             const double alpha = p0x*n;
 
-            return (((p0x*nu0)*g0+(p1x*nu1)*g1+(p2x*nu2)*g2)+alpha*x.solangl(p0, p1, p2));
+            return (((p0x*nu0)*g0+(p1x*nu1)*g1+(p2x*nu2)*g2)-alpha*x.solangl(p0, p1, p2));
         }
     };
 

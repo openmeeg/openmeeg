@@ -81,13 +81,13 @@ namespace OpenMEEG {
         std::cout << std::endl << "assemble SurfSourceMat with " << nVertexSources << " mesh_source" << std::endl << std::endl;
 
         for ( Domain::const_iterator hit = d.begin(); hit != d.end(); ++hit) {
-            for ( Interface::const_iterator mit = hit->interface().begin(); mit != hit->interface().end(); ++mit) {
+            for ( Interface::const_iterator omit = hit->interface().begin(); omit != hit->interface().end(); ++omit) {
                 // First block is nVertexFistLayer*nVertexSources.
-                operatorN( **mit, mesh_source, mat, gauss_order);
-                mult(mat, (*(*mit)->vertex_begin())->index(), (*mesh_source.vertex_begin())->index(), (*(*mit)->vertex_rbegin())->index(), (*mesh_source.vertex_rbegin())->index(), K);
+                operatorN( omit->mesh(), mesh_source, mat, gauss_order);
+                mult(mat, (*omit->mesh().vertex_begin())->index(), (*mesh_source.vertex_begin())->index(), (*omit->mesh().vertex_rbegin())->index(), (*mesh_source.vertex_rbegin())->index(), K);
                 // Second block is nFacesFistLayer*nVertexSources.
-                operatorD(**mit, mesh_source, mat, gauss_order);
-                mult(mat, (*mit)->begin()->index(), (*mesh_source.vertex_begin())->index(), (*mit)->rbegin()->index(), (*mesh_source.vertex_rbegin())->index(), -K/sigma);
+                operatorD(omit->mesh(), mesh_source, mat, gauss_order);
+                mult(mat, omit->mesh().begin()->index(), (*mesh_source.vertex_begin())->index(), omit->mesh().rbegin()->index(), (*mesh_source.vertex_rbegin())->index(), -K/sigma);
             }
         }
     }
@@ -130,18 +130,18 @@ namespace OpenMEEG {
             // iterate over the domain's interfaces (half-spaces)
             for ( Domain::const_iterator hit = domain.begin(); hit != domain.end(); ++hit ) {
                 // iterate over the meshes of the interface
-                for ( Interface::const_iterator mit = hit->interface().begin(); mit != hit->interface().end(); ++mit ) {
+                for ( Interface::const_iterator omit = hit->interface().begin(); omit != hit->interface().end(); ++omit ) {
                     //  Treat the mesh.
-                    operatorDipolePotDer(r, q, **mit, rhs_col, gauss_order, adapt_rhs);
+                    operatorDipolePotDer(r, q, omit->mesh(), rhs_col, gauss_order, adapt_rhs);
 
-                    for ( Mesh::const_vertex_iterator vit = (*mit)->vertex_begin(); vit!= (*mit)->vertex_end(); ++vit) {
+                    for ( Mesh::const_vertex_iterator vit = omit->mesh().vertex_begin(); vit!= omit->mesh().vertex_end(); ++vit) {
                         rhs_col((*vit)->index()) *= (hit->inside())?K:-K; // TODO check signs
                     }
 
-                    if ( !(*mit)->outermost() ) {
-                        operatorDipolePot(r, q, **mit, rhs_col, gauss_order, adapt_rhs);
+                    if ( !omit->mesh().outermost() ) {
+                        operatorDipolePot(r, q, omit->mesh(), rhs_col, gauss_order, adapt_rhs);
 
-                        for ( Mesh::const_iterator tit = (*mit)->begin(); tit != (*mit)->end(); ++tit) {
+                        for ( Mesh::const_iterator tit = omit->mesh().begin(); tit != omit->mesh().end(); ++tit) {
                             rhs_col(tit->index()) *= (hit->inside())?-K/sigma:(K/sigma);
                         }
                     }
@@ -171,33 +171,33 @@ namespace OpenMEEG {
         const Interface& i = geo.outermost_interface();
 
         // We iterate over the meshes (or pair of domains)
-        for ( Interface::const_iterator mit1 = i.begin(); mit1 != i.end(); ++mit1) {
+        for ( Interface::const_iterator omit1 = i.begin(); omit1 != i.end(); ++omit1) {
             for ( Geometry::const_iterator mit2 = geo.begin(); mit2 != geo.end(); ++mit2) {
 
-                unsigned i_m1_vf = (*(*mit1)->vertex_begin())->index(); // index of the first vertex of mesh m1
+                unsigned i_m1_vf = (*omit1->mesh().vertex_begin())->index(); // index of the first vertex of mesh m1
                 unsigned i_m2_vf = (*mit2->vertex_begin())->index();
-                unsigned i_m1_vl = (*(*mit1)->vertex_rbegin())->index();// index of the last vertex of mesh m1
+                unsigned i_m1_vl = (*omit1->mesh().vertex_rbegin())->index();// index of the last vertex of mesh m1
                 unsigned i_m2_vl = (*mit2->vertex_rbegin())->index();
-                unsigned i_m1_tf = ((*mit1)->begin())->index();
+                unsigned i_m1_tf = (omit1->mesh().begin())->index();
                 unsigned i_m2_tf = (mit2->begin())->index();            // index of the first triangle of mesh m2
-                unsigned i_m1_tl = ((*mit1)->rbegin())->index();
+                unsigned i_m1_tl = (omit1->mesh().rbegin())->index();
                 unsigned i_m2_tl = (mit2->rbegin())->index();
 
-                double orientation = geo.oriented(**mit1, *mit2); // equals  0, if they don't have any domains in common
+                double orientation = geo.oriented(omit1->mesh(), *mit2); // equals  0, if they don't have any domains in common
                                                                   // equals  1, if they are both oriented toward the same domain
                                                                   // equals -1, if they are not
 
                 if ( std::abs(orientation) > 10.*std::numeric_limits<double>::epsilon() ) {
                     //  Compute S.
-                    operatorS(**mit1, *mit2, transmat, gauss_order);
-                    mult(transmat, i_m1_tf, i_m2_tf, i_m1_tl, i_m2_tl, geo.sigma_inv(**mit1, *mit2) * (K * orientation));
+                    operatorS(omit1->mesh(), *mit2, transmat, gauss_order);
+                    mult(transmat, i_m1_tf, i_m2_tf, i_m1_tl, i_m2_tl, geo.sigma_inv(omit1->mesh(), *mit2) * (K * orientation));
 
                     //  First compute D, then it will be transposed.
-                    operatorD(**mit1, *mit2, transmat, gauss_order);
+                    operatorD(omit1->mesh(), *mit2, transmat, gauss_order);
                     mult(transmat, i_m1_tf, i_m2_vf, i_m1_tl, i_m2_vl, -(K * orientation));
-                    operatorD(**mit1, **mit1, transmat, gauss_order);
+                    operatorD(omit1->mesh(), omit1->mesh(), transmat, gauss_order);
                     mult(transmat, i_m1_tf, i_m1_vf, i_m1_tl, i_m1_vl, -2.0*(K * orientation));
-                    operatorP1P0(**mit1, transmat);
+                    operatorP1P0(omit1->mesh(), transmat);
                     mult(transmat, i_m1_tf, i_m1_vf, i_m1_tl, i_m1_vl, -0.5);
                 }
             }

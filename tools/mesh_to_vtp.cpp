@@ -38,6 +38,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 */
 
 #include <geometry.h>
+#include <geometry_io.h>
 #include <matrix.h>
 #include <options.h>
 

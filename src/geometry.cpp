@@ -63,7 +63,7 @@ namespace OpenMEEG {
         return nb_t;
     }
 
-    const Mesh& Geometry::mesh(const std::string &id) const 
+    const Mesh& Geometry::mesh(const std::string& id) const 
     {
         for ( const_iterator mit = this->begin() ; mit != this->end(); ++mit ) {
             if ( id == mit->name() ) {
@@ -73,7 +73,7 @@ namespace OpenMEEG {
         warning(std::string("Geometry::mesh: Error mesh id/name not found: ") + id); // TODO Exceptions 
     }
 
-    Mesh&  Geometry::mesh(const std::string &id) 
+    Mesh&  Geometry::mesh(const std::string& id) 
     {
         for ( iterator mit = this->begin() ; mit != this->end(); ++mit ) {
             if ( id == mit->name() ) {
@@ -131,16 +131,18 @@ namespace OpenMEEG {
     {
         has_cond() = false; // default parameter
 
-        read_geom(geomFileName);
+        Geometry::GeometryReader geoR(*this);
 
-        // generate the indices of our unknowns
-        geom_generate_indices();
+        geoR.read_geom(geomFileName);
 
         if ( condFileName != "" ) {
-            read_cond(condFileName);
+            geoR.read_cond(condFileName);
             has_cond() = true;
         }
         has_cond() = true;
+
+        // generate the indices of our unknowns
+        geom_generate_indices();
 
         info();
     }
@@ -168,7 +170,7 @@ namespace OpenMEEG {
                     tit->index() = index++;
                 }
             }
-        } // even the last surface triangles (yes for EIT... TODO
+        } // even the last surface triangles (yes for EIT... TODO)
         for ( iterator mit = this->begin(); mit != this->end(); ++mit) {
             for ( Mesh::iterator tit = mit->begin(); tit != mit->end(); ++tit) {
                 if ( mit->outermost() ) {

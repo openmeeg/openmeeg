@@ -45,10 +45,29 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <MeshDescription/Exceptions.H>
 #include <IOUtils.H>
 #include <PropertiesSpecialized.h>
+#include <geometry_io.h>
 
 namespace OpenMEEG {
 
-    bool Geometry::is_relative_path(const std::string& name) {
+    class Geometry::GeometryReader {
+        public:
+            GeometryReader(Geometry& geo): geo_(geo) {};
+
+            void read_geom(const std::string&);
+            void read_cond(const std::string&);
+
+        private:
+            Geometry& geo_;
+
+            bool is_relative_path(const std::string& name);
+        #if WIN32
+            static const char PathSeparator[] = "/\\";
+        #else
+            static const char PathSeparator   = '/';
+        #endif
+    };
+
+    bool Geometry::GeometryReader::is_relative_path(const std::string& name) {
     #if WIN32
         const char c0 = name[0];
         if ( c0 == '/' || c0 == '\\' ) {
@@ -62,7 +81,7 @@ namespace OpenMEEG {
     #endif
     }
 
-    void Geometry::read_geom(const std::string& geometry) {
+    void Geometry::GeometryReader::read_geom(const std::string& geometry) {
         // Read the head file description and load the information into temporary data structures.
 
         // The syntax of the head description is a header ("# Domain Description (1.0):") followed
@@ -122,7 +141,7 @@ namespace OpenMEEG {
                     ifs >> io_utils::skip_comments("#") >> io_utils::filename(name, '"', false);
                     // Load the mesh and check that it is compatible with the first one.
                     const std::string& full_name = (is_relative_path(name))?path+name:name;
-                    load_vtp(full_name);
+                    geo_.load_vtp(full_name);
                 }
             } else {
                 std::cerr << "Domain Description version not available !" << std::endl;
@@ -148,7 +167,7 @@ namespace OpenMEEG {
         std::string id; // id of mesh/interface/domain // TODO review
         Interfaces interf;
         if ( interfaceType == "Mesh" ) { // ---------------------------------------
-            meshes().reserve(num_interfaces);
+            geo_.meshes().reserve(num_interfaces);
             std::string interfacename[num_interfaces], filename[num_interfaces], fullname[num_interfaces]; // names
             // First read the total number of vertices
             unsigned nb_vertices = 0;
@@ -171,14 +190,14 @@ namespace OpenMEEG {
                 fullname[i] = (is_relative_path(filename[i]))?path+filename[i]:filename[i];
                 nb_vertices += m.load(fullname[i].c_str(), false, false); 
             }
-            vertices().reserve(nb_vertices);
+            geo_.vertices().reserve(nb_vertices);
             // Second load the mesh
             for ( unsigned i = 0; i < num_interfaces; ++i ) {
-                Mesh m(vertices(), interfacename[i]);
-                meshes().push_back(m);
-                meshes()[i].load(fullname[i].c_str());
+                Mesh m(geo_.vertices(), interfacename[i]);
+                geo_.meshes().push_back(m);
+                geo_.meshes()[i].load(fullname[i].c_str());
                 interf.push_back( Interface(interfacename[i]) ); // TODO here push_back pair ? mesh bool 
-                interf[i].push_back(&(meshes()[i])); // one mesh per interface: mesh at this adress
+                interf[i].push_back(OrientedMesh(geo_.meshes()[i], true)); // one mesh per interface: well oriented
             }
         } else if ( interfaceType == "Interface" ) { // -----------------------
             std::string interfacename;
@@ -199,7 +218,7 @@ namespace OpenMEEG {
                 }
                 interf.push_back( interfacename );
                 while ( iss >> id ) {
-                    interf[i].push_back(&mesh(id));
+                    interf[i].push_back(OrientedMesh(geo_.mesh(id), true)); // TODO TODO we set orientation to true, but ...
                 }
             }
         } else {
@@ -214,8 +233,8 @@ namespace OpenMEEG {
             throw MeshDescription::WrongFileFormat(geometry);
         }
 
-        domains().resize(num_domains);
-        for ( Domains::iterator dit = domain_begin(); dit != domain_end(); ++dit) {
+        geo_.domains().resize(num_domains);
+        for ( Domains::iterator dit = geo_.domain_begin(); dit != geo_.domain_end(); ++dit) {
             std::string line;
             ifs >> io_utils::skip_comments('#') >> io_utils::match("Domain") >> io_utils::token(dit->name(), ':');
             getline(ifs, line);
@@ -230,7 +249,7 @@ namespace OpenMEEG {
                     }
                 }
                 if ( !found ) {
-                    throw MeshDescription::NonExistingDomain(dit->name(), 9876543210); // TODO I don't want to give 0 index but name!template Exceptions?
+                    throw MeshDescription::NonExistingDomain(dit->name(), 543210); // TODO I don't want to give 0 index but name!template Exceptions?
                 }
             }
         }
@@ -240,7 +259,7 @@ namespace OpenMEEG {
         // Specials domain names can enforce which domain is innermost ("Innermost") or outermost: ("Outermost", "Air")
         Domains::iterator dit_out;
         bool outer;
-        for ( Domains::iterator dit = domain_begin(); dit != domain_end(); ++dit) {
+        for ( Domains::iterator dit = geo_.domain_begin(); dit != geo_.domain_end(); ++dit) {
             outer = true;
             for ( Domain::iterator hit = dit->begin(); hit != dit->end(); ++hit) {
                 outer = outer && !(hit->inside());
@@ -263,14 +282,14 @@ namespace OpenMEEG {
         ifs.close();
     }
 
-    void Geometry::read_cond(const std::string& condFileName) {
+    void Geometry::GeometryReader::read_cond(const std::string& condFileName) {
 
         typedef Utils::Properties::Named< std::string , Conductivity<double> > HeadProperties;
         HeadProperties properties(condFileName.c_str());
 
         // Store the internal conductivity of the external boundary of domain i
         // and store the external conductivity of the internal boundary of domain i
-        for ( Domains::iterator dit = this->domain_begin(); dit != domain_end(); ++dit) {
+        for ( Domains::iterator dit = geo_.domain_begin(); dit != geo_.domain_end(); ++dit) {
             const Conductivity<double>& cond = properties.find(dit->name());
             dit->sigma() =  cond.sigma();
         }

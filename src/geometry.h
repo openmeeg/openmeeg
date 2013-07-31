@@ -60,7 +60,11 @@ namespace OpenMEEG {
 
     class OPENMEEG_EXPORT Geometry 
     {
+        // nested classes for reading geom/cond files.
+        class GeometryReader;
+
     public:
+
         // Default iterator of a Geometry is an Iterator on the meshes
         typedef Meshes::iterator          iterator;
         typedef Meshes::const_iterator    const_iterator;
@@ -83,9 +87,7 @@ namespace OpenMEEG {
         Geometry(): has_cond_(false), size_(0)  { }
         ~Geometry() { }
 
-        // TODO review priate/public
-        //string &filename TODO into string& filename
-        //
+        // TODO review private/public
               bool&         has_cond()                             { return has_cond_; }
         const bool&         has_cond()                       const { return has_cond_; }
               Vertices&     vertices()                             { return vertices_; }
@@ -100,15 +102,12 @@ namespace OpenMEEG {
         const unsigned      nb_meshes()                      const { return meshes_.size(); }
         const unsigned      nb_trianglesoutermost()          const;
         const Interface&    outermost_interface()            const; 
-        const Interface&    interface(const std::string &id) const;
-        const Mesh&         mesh(const std::string &id)      const;
-              Mesh&         mesh(const std::string &id)           ;
+        const Interface&    interface(const std::string& id) const;
+        const Mesh&         mesh(const std::string& id)      const;
+              Mesh&         mesh(const std::string& id)           ;
         const Domain&       domain(const std::string&)       const;
         const Domain&       domain(const Vect3&)             const;
 
-        void                read(const std::string& geomFileName, const std::string& condFileName = ""); // friend ??
-        void                load_vtp(const std::string &filename); // friend ??
-        void                write_vtp(const std::string &filename) const; // friend ??
         void                import_meshes(const Meshes& m);
         void                info()                      const;
 
@@ -123,6 +122,10 @@ namespace OpenMEEG {
               bool    check(const Mesh& m) const;
         const double  oriented(const Mesh&, const Mesh&) const;
 
+        void read(const std::string& geomFileName, const std::string& condFileName = "");
+        void load_vtp(const std::string& filename);
+        void write_vtp(const std::string& filename) const;
+
     private:
 
         // Members
@@ -132,16 +135,7 @@ namespace OpenMEEG {
         unsigned   size_;   // total number = nb of vertices + nb of triangles
         bool       has_cond_;
 
-        void read_geom(const std::string&);
-        void read_cond(const std::string&);
         void geom_generate_indices();
-
-        bool is_relative_path(const std::string& name);
-#if WIN32
-        static const char PathSeparator[] = "/\\";
-#else
-        static const char PathSeparator   = '/';
-#endif
 
         const Domains common_domains(const Mesh&, const Mesh&) const;
 

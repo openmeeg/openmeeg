@@ -72,9 +72,9 @@ namespace OpenMEEG {
         }
         for ( const_iterator hit = this->begin(); hit != this->end(); ++hit) {
             std::cout << "\t\tInterface \"" << hit->interface().name() << "\"= { ";
-            for ( Interface::const_iterator mit = hit->interface().begin(); mit != hit->interface().end(); ++mit) {
-                std::cout << "Mesh \""<< (*mit)->name() << "\"";
-                if ( (*mit)->outermost() ) {
+            for ( Interface::const_iterator omit = hit->interface().begin(); omit != hit->interface().end(); ++omit) {
+                std::cout << "Mesh \""<< omit->mesh().name() << "\"";
+                if ( omit->mesh().outermost() ) {
                     std::cout << "(OUTERMOST)";
                 }
                 std::cout << ", ";

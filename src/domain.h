@@ -61,7 +61,7 @@ namespace OpenMEEG {
 
     public:
 
-        HalfSpace(Interface &interface, bool inside): base(interface, inside) {}
+        HalfSpace(Interface& interface, bool inside): base(interface, inside) {}
 
         ~HalfSpace() {}
 
@@ -108,10 +108,9 @@ namespace OpenMEEG {
                   // -1 if not
                   //  0 else (the mesh is not part of the domain boundary)
             for ( Domain::const_iterator hit = this->begin(); hit != this->end(); ++hit) {
-                for ( Interface::const_iterator mit = hit->interface().begin(); mit != hit->interface().end(); ++mit) {
-                    if ( &**mit == &m ) {
-                        // return ( 1 ); // TODO mesh orientation here
-                        return ( (hit->inside())?1:-1 ); // TODO mesh orientation here
+                for ( Interface::const_iterator omit = hit->interface().begin(); omit != hit->interface().end(); ++omit) {
+                    if ( &omit->mesh() == &m ) {
+                        return (( hit->inside() )?omit->orientation():-1.*omit->orientation() );
                     }
                 }
             }

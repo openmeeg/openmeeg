@@ -122,7 +122,7 @@ namespace OpenMEEG {
 
     private:
 
-        void copy(const Triangle &t);
+        void copy(const Triangle& t);
         void destroy();
 
         Vertex *  vertices_[3]; // &Vertex-triplet defining the triangle

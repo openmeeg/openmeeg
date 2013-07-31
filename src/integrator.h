@@ -51,7 +51,8 @@ namespace OpenMEEG {
 
     // light class containing d Vect3
     template <int d>
-    class OPENMEEG_EXPORT Vect3array {
+    class OPENMEEG_EXPORT Vect3array 
+    {
     private:
         Vect3 t[d];
 
@@ -72,17 +73,20 @@ namespace OpenMEEG {
     };
 
     template <int d>
-    inline void multadd (Vect3array<d> &target, const double scale,  const Vect3array<d> &incr) {
+    inline void multadd (Vect3array<d>& target, const double scale,  const Vect3array<d>& incr) 
+    {
         for ( unsigned i = 0; i < d; ++i) {
             target(i) = target(i) + scale*incr(i);
         }
     }
 
-    inline void multadd (double &target, const double scale, const double incr) {
+    inline void multadd (double& target, const double scale, const double incr) 
+    {
         target += scale*incr;
     }
 
-    inline void multadd (Vect3 &target, const double scale,  const Vect3 &incr) {
+    inline void multadd (Vect3& target, const double scale,  const Vect3& incr) 
+    {
         target = target + scale*incr;
     }
 
@@ -176,7 +180,8 @@ namespace OpenMEEG {
     static const unsigned nbPts[4] = {3, 6, 7, 16};
 
     template <class T, class I>
-    class OPENMEEG_EXPORT Integrator {
+    class OPENMEEG_EXPORT Integrator 
+    {
 
         unsigned order;
 
@@ -186,7 +191,8 @@ namespace OpenMEEG {
         inline Integrator(unsigned ord) { setOrder(ord); }
         inline ~Integrator() {}
 
-        inline void setOrder(const unsigned n) {
+        inline void setOrder(const unsigned n) 
+        {
             if ( (n >= 0) && (n < 4) ) {
                 order = n;
             } else {
@@ -195,14 +201,16 @@ namespace OpenMEEG {
             }
         }
 
-        virtual inline T integrate(const I& fc, const Triangle& Trg) {
+        virtual inline T integrate(const I& fc, const Triangle& Trg) 
+        {
             const Vect3 points[3] = { Trg.s1(), Trg.s2(), Trg.s3() };
             return triangle_integration(fc, points);
         }
 
     protected:
 
-        inline T triangle_integration(const I& fc, const Vect3 points[3]) {
+        inline T triangle_integration(const I& fc, const Vect3 points[3]) 
+        {
             // compute double area of triangle defined by points
             Vect3 crossprod = (points[1] - points[0])^(points[2] - points[0]);
             double S = crossprod.norm();
@@ -219,7 +227,8 @@ namespace OpenMEEG {
     };
 
     template <class T, class I>
-    class OPENMEEG_EXPORT AdaptiveIntegrator: public Integrator<T, I> {
+    class OPENMEEG_EXPORT AdaptiveIntegrator: public Integrator<T, I> 
+    {
 
         typedef Integrator<T, I> base;
 
@@ -242,7 +251,8 @@ namespace OpenMEEG {
 
         double tolerance;
 
-        inline T adaptive_integration(const I &fc, const Vect3 * points, T I0, unsigned n) {
+        inline T adaptive_integration(const I& fc, const Vect3 * points, T I0, unsigned n) 
+        {
             Vect3 newpoint0(0.0, 0.0, 0.0);
             multadd(newpoint0, 0.5, points[0]);
             multadd(newpoint0, 0.5, points[1]);

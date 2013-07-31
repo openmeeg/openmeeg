@@ -43,7 +43,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 namespace OpenMEEG {
 
-    std::istream& operator>>(std::istream &is, Mesh &m) 
+    std::istream& operator>>(std::istream& is, Mesh& m) 
     {
         unsigned a, b, c;
         is >> a >> b >> c;
@@ -211,7 +211,7 @@ namespace OpenMEEG {
 
     // For IO:s -------------------------------------------------------------------------------------------
 
-    unsigned Mesh::load(const std::string filename, const bool &verbose, const bool &read_all) 
+    unsigned Mesh::load(const std::string filename, const bool& verbose, const bool& read_all) 
     {
         if ( read_all && ( all_vertices_ == 0 ) ) {
             unsigned nb_v = load(filename, false, false); // first allocates memory for the vertices
@@ -290,7 +290,7 @@ namespace OpenMEEG {
     }
 
     #ifdef USE_VTK
-    unsigned Mesh::get_data_from_vtk_reader(vtkPolyDataReader* reader, const bool &read_all) {
+    unsigned Mesh::get_data_from_vtk_reader(vtkPolyDataReader* reader, const bool& read_all) {
 
         reader->Update();
         vtkPolyData *vtkMesh = reader->GetOutput();
@@ -345,7 +345,7 @@ namespace OpenMEEG {
         return 0;
     }
 
-    unsigned Mesh::load_vtk(std::istream &is, const bool &read_all) {
+    unsigned Mesh::load_vtk(std::istream& is, const bool& read_all) {
 
         // get length of file:
         is.seekg (0, ios::end);
@@ -375,7 +375,7 @@ namespace OpenMEEG {
         return return_value;
     }
 
-    unsigned Mesh::load_vtk(const std::string filename, const bool &read_all) {
+    unsigned Mesh::load_vtk(const std::string filename, const bool& read_all) {
         std::string s = filename;
         vtkPolyDataReader *reader = vtkPolyDataReader::New();
         reader->SetFileName(filename.c_str()); // Specify file name of vtk data file to read
@@ -401,14 +401,14 @@ namespace OpenMEEG {
         return;
     }
 
-    unsigned Mesh::load_gifti(std::istream &is, const bool &read_all) {
+    unsigned Mesh::load_gifti(std::istream& is, const bool& read_all) {
         std::cerr << "GIFTI reader : Not yet implemented" << std::endl;
         exit(1);
         // gifti_image* gim = gifti_read_image(filename);
         // from_gifti_image(gim)
     }
 
-    unsigned Mesh::load_gifti(const std::string filename, const bool &read_all) {
+    unsigned Mesh::load_gifti(const std::string filename, const bool& read_all) {
         int read_data = 0;
         gifti_image* gim = gifti_read_image(filename, read_data);
         // from_gifti_image(gim);
@@ -416,7 +416,7 @@ namespace OpenMEEG {
     }
     #endif
 
-    unsigned Mesh::load_mesh(std::istream &is, const bool &read_all) {
+    unsigned Mesh::load_mesh(std::istream& is, const bool& read_all) {
 
         unsigned char* uc = new unsigned char[5]; // File format
         is.read((char*)uc, sizeof(unsigned char)*5);
@@ -502,7 +502,7 @@ namespace OpenMEEG {
         return 0;
     }
 
-    unsigned Mesh::load_mesh(const std::string filename, const bool &read_all) {
+    unsigned Mesh::load_mesh(const std::string filename, const bool& read_all) {
         std::ifstream f(filename.c_str(), std::ios::binary);
         if ( !f.is_open()) {
             std::cerr << "Error opening MESH file: " << filename << std::endl;
@@ -514,7 +514,7 @@ namespace OpenMEEG {
         return return_value;
     }
 
-    unsigned Mesh::load_tri(std::istream &f, const bool &read_all) {
+    unsigned Mesh::load_tri(std::istream& f, const bool& read_all) {
 
         f.seekg( 0, std::ios_base::beg );
 
@@ -544,7 +544,7 @@ namespace OpenMEEG {
         return 0;
     }
 
-    unsigned Mesh::load_tri(const std::string filename, const bool &read_all) {
+    unsigned Mesh::load_tri(const std::string filename, const bool& read_all) {
 
         std::string s = filename;
         std::ifstream f(filename.c_str());
@@ -558,7 +558,7 @@ namespace OpenMEEG {
         return return_value;
     }
 
-    unsigned Mesh::load_bnd(std::istream &f, const bool &read_all) {
+    unsigned Mesh::load_bnd(std::istream& f, const bool& read_all) {
 
         std::string line;
         std::string st;
@@ -614,7 +614,7 @@ namespace OpenMEEG {
         return 0;
     }
 
-    unsigned Mesh::load_bnd(const std::string filename, const bool &read_all) {
+    unsigned Mesh::load_bnd(const std::string filename, const bool& read_all) {
         
         std::string s = filename;
         std::ifstream f(filename.c_str());
@@ -629,7 +629,7 @@ namespace OpenMEEG {
         return return_value;
     }
 
-    unsigned Mesh::load_off(std::istream &f, const bool &read_all) {
+    unsigned Mesh::load_off(std::istream& f, const bool& read_all) {
 
         char tmp[128];
         int trash;
@@ -659,7 +659,7 @@ namespace OpenMEEG {
         return 0;
     }
 
-    unsigned Mesh::load_off(const std::string filename, const bool &read_all) {
+    unsigned Mesh::load_off(const std::string filename, const bool& read_all) {
 
         std::string s = filename;
         std::ifstream f(filename.c_str());

@@ -51,19 +51,19 @@ knowledge of the CeCILL-B license and that you accept its terms.
 namespace OpenMEEG {
 
     template<class T>
-    void deflat(T &M, const Interface& i, double coef) {
+    void deflat(T& M, const Interface& i, double coef) {
         // deflate the Matrix
-        for ( Interface::const_iterator mit = i.begin(); mit != i.end(); ++mit) {
-            for ( Mesh::const_vertex_iterator vit1 = ((*mit)->vertex_begin()); vit1 != ((*mit)->vertex_end()); ++vit1) {
+        for ( Interface::const_iterator omit = i.begin(); omit != i.end(); ++omit) {
+            for ( Mesh::const_vertex_iterator vit1 = omit->mesh().vertex_begin(); vit1 != omit->mesh().vertex_end(); ++vit1) {
                 #pragma omp parallel for
-                for ( Mesh::const_vertex_iterator vit2 = vit1; vit2 < ((*mit)->vertex_end()); ++vit2) {
+                for ( Mesh::const_vertex_iterator vit2 = vit1; vit2 < omit->mesh().vertex_end(); ++vit2) {
                     M((*vit1)->index(), (*vit2)->index()) += coef;
                 }
             }
         }
     }
 
-    void assemble_HM(const Geometry &geo, SymMatrix &mat, const unsigned gauss_order) {
+    void assemble_HM(const Geometry& geo, SymMatrix& mat, const unsigned gauss_order) {
 
         mat = SymMatrix((geo.size()-geo.outermost_interface().nb_triangles()));
         mat.set(0.0);
@@ -153,7 +153,7 @@ namespace OpenMEEG {
 
         // Deflate the last diagonal block of 'mat' : (in order to have a zero-mean potential for the outermost interface)
         const Interface i = geo.outermost_interface();
-        unsigned i_first = (*(*i.begin())->vertex_begin())->index();
+        unsigned i_first = (*i.begin()->mesh().vertex_begin())->index();
         deflat(mat, i, mat(i_first, i_first) / (geo.outermost_interface().nb_vertices()));
     }
 

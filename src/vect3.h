@@ -76,7 +76,7 @@ namespace OpenMEEG {
             return *this;
         }
 
-        Vect3(const Vect3 &v) {
+        Vect3(const Vect3& v) {
             m[0] = v.x();
             m[1] = v.y();
             m[2] = v.z();

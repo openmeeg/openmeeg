@@ -76,7 +76,7 @@ namespace OpenMEEG {
         vertices_[1] = tmp;
     }
 
-    void Triangle::copy(const Triangle &t) {
+    void Triangle::copy(const Triangle& t) {
         area_   = t.area();
         normal_ = t.normal();
         index_  = t.index();

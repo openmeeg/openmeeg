@@ -40,6 +40,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #ifndef OPENMEEG_GEOMETRY_WRITER_H
 #define OPENMEEG_GEOMETRY_WRITER_H
 
+#include <map>
 #ifdef USE_VTK
 #include <vtkPolyData.h>
 #include <vtkPoints.h>
@@ -61,7 +62,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 namespace OpenMEEG {
 
-    void Geometry::load_vtp(const std::string &filename)
+    void Geometry::load_vtp(const std::string& filename)
     {
     #ifdef USE_VTK
         vtkSmartPointer<vtkXMLPolyDataReader> reader = vtkSmartPointer<vtkXMLPolyDataReader>::New();

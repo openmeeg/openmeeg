@@ -89,7 +89,7 @@ namespace OpenMEEG {
         // Constructors
         Mesh(): Triangles(), name_(""), all_vertices_(0), outermost_(false), allocate_(false) { }
 
-        Mesh(Vertices &all_vertices, const std::string name = ""): all_vertices_(&all_vertices), name_(name), outermost_(false), allocate_(false) { }
+        Mesh(Vertices& all_vertices, const std::string name = ""): all_vertices_(&all_vertices), name_(name), outermost_(false), allocate_(false) { }
         Mesh(std::string filename, const bool verbose = true): name_(""), outermost_(false), allocate_(true) { 
             unsigned nb_v = load(filename, false, false); 
             all_vertices_ = new Vertices(nb_v); // allocates space for the vertices
@@ -118,7 +118,7 @@ namespace OpenMEEG {
 
               Vertices                all_vertices()  const         { return *all_vertices_; }
 
-        void add_vertex(const Vertex &v) { all_vertices_->push_back(v); vertices_.push_back(&(*all_vertices_->rbegin())); }
+        void add_vertex(const Vertex& v) { all_vertices_->push_back(v); vertices_.push_back(&(*all_vertices_->rbegin())); }
 
         // Mesh state
         /** \brief Print info
@@ -155,40 +155,40 @@ namespace OpenMEEG {
          * \param filename can be .vtk, .tri (ascii), .bnd
          * \param verbose true or false
          */
-        unsigned load(const std::string filename, const bool &verbose = true, const bool &read_all = true);
-        unsigned load_tri(std::istream &, const bool &read_all = true);
-        unsigned load_tri(const std::string, const bool &read_all = true);
-        unsigned load_bnd(std::istream &, const bool &read_all = true);
-        unsigned load_bnd(const std::string, const bool &read_all = true);
-        unsigned load_off(std::istream &, const bool &read_all = true);
-        unsigned load_off(const std::string, const bool &read_all = true);
-        unsigned load_mesh(std::istream &, const bool &read_all = true);
-        unsigned load_mesh(const std::string, const bool &read_all = true);
+        unsigned load(const std::string filename, const bool& verbose = true, const bool& read_all = true);
+        unsigned load_tri(std::istream& , const bool& read_all = true);
+        unsigned load_tri(const std::string, const bool& read_all = true);
+        unsigned load_bnd(std::istream& , const bool& read_all = true);
+        unsigned load_bnd(const std::string, const bool& read_all = true);
+        unsigned load_off(std::istream& , const bool& read_all = true);
+        unsigned load_off(const std::string, const bool& read_all = true);
+        unsigned load_mesh(std::istream& , const bool& read_all = true);
+        unsigned load_mesh(const std::string, const bool& read_all = true);
         #ifdef USE_VTK
-        unsigned load_vtk(std::istream &, const bool &read_all = true);
-        unsigned load_vtk(const std::string, const bool &read_all = true);
-        unsigned get_data_from_vtk_reader(vtkPolyDataReader* vtkMesh, const bool &read_all);
+        unsigned load_vtk(std::istream& , const bool& read_all = true);
+        unsigned load_vtk(const std::string, const bool& read_all = true);
+        unsigned get_data_from_vtk_reader(vtkPolyDataReader* vtkMesh, const bool& read_all);
         #else
         template <typename T>
-        unsigned load_vtp(T, const bool &read_all = true) {
+        unsigned load_vtp(T, const bool& read_all = true) {
             std::cerr << "You have to compile OpenMEEG with VTK to read VTK/VTP files" << std::endl;
             exit(1);
         }
         template <typename T>
-        unsigned load_vtk(T, const bool &read_all = true) {
+        unsigned load_vtk(T, const bool& read_all = true) {
             std::cerr << "You have to compile OpenMEEG with VTK to read VTK/VTP files" << std::endl;
             exit(1);
         }
         #endif
         #ifdef USE_GIFTI
-        unsigned load_gifti(std::istream &, const bool &read_all = true);
-        unsigned load_gifti(const std::string, const bool &read_all = true);
+        unsigned load_gifti(std::istream& , const bool& read_all = true);
+        unsigned load_gifti(const std::string, const bool& read_all = true);
         void save_gifti(const std::string);
         gifti_image* to_gifti_image();
         void from_gifti_image(gifti_image* gim);
         #else
         template <typename T>
-        unsigned load_gifti(T, const bool &read_all = true) {
+        unsigned load_gifti(T, const bool& read_all = true) {
             std::cerr << "You have to compile OpenMEEG with GIFTI to read GIFTI files" << std::endl;
             exit(1);
         }
@@ -209,7 +209,7 @@ namespace OpenMEEG {
         void save_off(const std::string)  const;
         void save_mesh(const std::string) const;
 
-        friend std::istream& operator>>(std::istream &is, Mesh &m);
+        friend std::istream& operator>>(std::istream& is, Mesh& m);
 
     private:
 

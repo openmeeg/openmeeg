@@ -48,15 +48,31 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 namespace OpenMEEG {
 
+    class OrientedMesh: public std::pair<Mesh *, bool> 
+    {
+        typedef std::pair<Mesh *, bool> base;
+
+    public:
+
+        OrientedMesh(Mesh& mesh, bool inside): base(&mesh, inside) {}
+
+        ~OrientedMesh() {}
+
+              Mesh&  mesh()              { return *this->first;  }
+        const Mesh&  mesh()        const { return *this->first;  }
+        const bool   inside()      const { return this->second; }
+        const double orientation() const { return ( this->second )?1.:-1.; }
+    };
+
     /** \brief  Interface
 
         Interface class
 
     **/
 
-    // An interface is a closed-shape composed of meshes (here pointer to meshes)
+    // An interface is a closed-shape composed of oriented meshes (here pointer to meshes)
 
-    class OPENMEEG_EXPORT Interface: public std::vector<Mesh*> {
+    class OPENMEEG_EXPORT Interface: public std::vector<OrientedMesh> {
 
     public:
 
@@ -65,30 +81,28 @@ namespace OpenMEEG {
 
         ~Interface() { }
 
-        const std::string   name()          const      { return name_; }
-              std::string & name()                     { return name_; }
+        const std::string   name()                       const      { return name_; }
+              std::string&  name()                                  { return name_; }
+        const bool          outermost()                  const      { return outermost_; }
+        const bool          closed()                     const;
+        const bool          contains_point(const Vect3&) const;
+              void          set_to_outermost();
 
-        const bool        & outermost()     const      { return outermost_; }
-        const bool          closed()        const;
-
-        const unsigned      nb_triangles()  const {
+        const unsigned      nb_triangles()               const {
             unsigned nb = 0;
-            for ( const_iterator mit = begin(); mit != end(); ++mit) {
-                nb += (*mit)->nb_triangles();
+            for ( const_iterator omit = begin(); omit != end(); ++omit) {
+                nb += omit->mesh().nb_triangles();
             }
             return nb;
         }
 
-        const unsigned  nb_vertices()       const { 
+        const unsigned  nb_vertices()                    const { 
             unsigned nb = 0;
-            for ( const_iterator mit = begin(); mit != end(); ++mit) {
-                nb += (*mit)->nb_vertices();
+            for ( const_iterator omit = begin(); omit != end(); ++omit) {
+                nb += omit->mesh().nb_vertices();
             }
             return nb;
         }
-
-        bool          contains_point(const Vect3&) const;
-        void          set_to_outermost();
 
     private:
 

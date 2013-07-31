@@ -41,7 +41,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 namespace OpenMEEG {
 
-    void operatorDinternal(const Mesh &m, Matrix &mat, const unsigned offsetI, const unsigned offsetJ, const Matrix &points) 
+    void operatorDinternal(const Mesh& m, Matrix& mat, const unsigned offsetI, const unsigned offsetJ, const Matrix& points) 
     {
         std::cout<<"INTERNAL OPERATOR D..."<<std::endl;
         for ( unsigned i = offsetI; i < offsetI + points.nlin(); ++i)  {
@@ -52,7 +52,7 @@ namespace OpenMEEG {
         }
     }
 
-    void operatorSinternal(const Mesh &m, Matrix &mat, const unsigned offsetI, const unsigned offsetJ, const Matrix &points) 
+    void operatorSinternal(const Mesh& m, Matrix& mat, const unsigned offsetI, const unsigned offsetJ, const Matrix& points) 
     {
         std::cout<<"INTERNAL OPERATOR S..."<<std::endl;
         for ( unsigned i=offsetI; i < offsetI + points.nlin(); ++i) {
@@ -66,7 +66,7 @@ namespace OpenMEEG {
 
     // General routine for applying _operatorFerguson (see this function for further comments)
     // to an entire mesh, and storing coordinates of the output in a Matrix.
-    void operatorFerguson(const Vect3& x, const Mesh &m, Matrix &mat, unsigned offsetI, unsigned offsetJ) 
+    void operatorFerguson(const Vect3& x, const Mesh& m, Matrix& mat, unsigned offsetI, unsigned offsetJ) 
     {
         unsigned j = offsetJ;
         #pragma omp parallel for
@@ -79,7 +79,7 @@ namespace OpenMEEG {
         }
     }
 
-    void operatorDipolePotDer(const Vect3 &r0, const Vect3 &q, const Mesh &m, Vector &rhs, const unsigned gauss_order, const bool adapt_rhs) 
+    void operatorDipolePotDer(const Vect3& r0, const Vect3& q, const Mesh& m, Vector& rhs, const unsigned gauss_order, const bool adapt_rhs) 
     {
         static analyticDipPotDer anaDPD;
 
@@ -105,7 +105,7 @@ namespace OpenMEEG {
         delete gauss;
     }
 
-    void operatorDipolePot(const Vect3 &r0, const Vect3 &q, const Mesh &m, Vector &rhs, const unsigned gauss_order, const bool adapt_rhs) 
+    void operatorDipolePot(const Vect3& r0, const Vect3& q, const Mesh& m, Vector& rhs, const unsigned gauss_order, const bool adapt_rhs) 
     {
         static analyticDipPot anaDP;
 

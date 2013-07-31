@@ -44,7 +44,7 @@ namespace OpenMEEG {
     /**
      * Computes the total solid angle of a surface for a point p and tells whether p is inside the mesh or not.
      **/
-    bool Interface::contains_point(const Vect3& p) const 
+    const bool Interface::contains_point(const Vect3& p) const 
     {
         double solangle = compute_solid_angle(p);
 
@@ -65,9 +65,9 @@ namespace OpenMEEG {
     double Interface::compute_solid_angle(const Vect3& p) const // compute the solid-angle which should be +/- 4 * Pi for a closed mesh
     {
         double solangle = 0.0;
-        for ( Interface::const_iterator mit = this->begin(); mit != this->end(); ++mit) {
-            for ( Mesh::const_iterator tit = (*mit)->begin(); tit != (*mit)->end(); ++tit) {
-                solangle += p.solangl((*tit).s1(), (*tit).s2(), (*tit).s3()); // TODO * by +/-1
+        for ( Interface::const_iterator omit = this->begin(); omit != this->end(); ++omit) {
+            for ( Mesh::const_iterator tit = omit->mesh().begin(); tit != omit->mesh().end(); ++tit) {
+                solangle += p.solangl((*tit).s1(), (*tit).s2(), (*tit).s3()) * omit->orientation();
             }
         }
         return solangle;
@@ -75,30 +75,30 @@ namespace OpenMEEG {
 
     void Interface::set_to_outermost() 
     {
-        for ( Interface::iterator mit = this->begin(); mit != this->end(); ++mit) {
-            (*mit)->outermost() = true;
+        for ( Interface::iterator omit = this->begin(); omit != this->end(); ++omit) {
+            omit->mesh().outermost() = true;
         }
         outermost_ = true;
     }
 
-    const bool Interface::closed() const  // TODO 4PI or 0 ?
+    const bool Interface::closed() const
     {
         // compute the bounding box:
         double xmax = std::numeric_limits<double>::min();
         double ymax = std::numeric_limits<double>::min();
         double zmax = std::numeric_limits<double>::min();
-        for ( Interface::const_iterator mit = this->begin(); mit != this->end(); ++mit) {
-            for ( Mesh::const_vertex_iterator vit = (*mit)->vertex_begin(); vit != (*mit)->vertex_end(); ++vit) {
+        for ( Interface::const_iterator omit = this->begin(); omit != this->end(); ++omit) {
+            for ( Mesh::const_vertex_iterator vit = omit->mesh().vertex_begin(); vit != omit->mesh().vertex_end(); ++vit) {
                 xmax = std::max(xmax, (**vit).x());
                 ymax = std::max(ymax, (**vit).y());
                 zmax = std::max(zmax, (**vit).z());
             }
         }
 
-        // compute the solid-angle:
+        // compute the solid-angle from an outside point:
         double solangle = compute_solid_angle(2.*Vect3(xmax, ymax, zmax));
 
-        if ( std::abs(std::abs(solangle) - 4.*M_PI) < 1.e3*std::numeric_limits<double>::epsilon() ) {
+        if ( std::abs(solangle) < 1.e3*std::numeric_limits<double>::epsilon() ) {
             return true;
         }
         return false;

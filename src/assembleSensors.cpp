@@ -45,12 +45,12 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 namespace OpenMEEG {
 
-    void assemble_ferguson(const Geometry &geo, Matrix &mat, const Matrix& pts);
+    void assemble_ferguson(const Geometry& geo, Matrix& mat, const Matrix& pts);
 
     // EEG patches positions are reported line by line in the positions Matrix
     // mat is supposed to be filled with zeros
     // mat is the linear application which maps x (the unknown vector in symmetric system) -> v (potential at the electrodes)
-    void assemble_Head2EEG(SparseMatrix &mat, const Geometry &geo, const Matrix &positions )
+    void assemble_Head2EEG(SparseMatrix& mat, const Geometry& geo, const Matrix& positions )
     {
         mat = SparseMatrix(positions.nlin(), (geo.size()-geo.outermost_interface().nb_triangles()));
 
@@ -68,7 +68,7 @@ namespace OpenMEEG {
         }
     }
 
-    Head2EEGMat::Head2EEGMat(const Geometry &geo, const Sensors &electrodes)
+    Head2EEGMat::Head2EEGMat(const Geometry& geo, const Sensors& electrodes)
     {
         assemble_Head2EEG(*this, geo, electrodes.getPositions());
     }
@@ -77,7 +77,7 @@ namespace OpenMEEG {
     // mat is supposed to be filled with zeros
     // mat is the linear application which maps x (the unknown vector in symmetric system) -> v (potential at the ECoG electrodes)
     // difference with Head2EEG is that it interpolates the inner skull layer instead of the scalp layer. 
-    void assemble_Head2ECoG(SparseMatrix &mat, const Geometry &geo, const Matrix &positions, const Interface& i)
+    void assemble_Head2ECoG(SparseMatrix& mat, const Geometry& geo, const Matrix& positions, const Interface& i)
     {
         mat = SparseMatrix(positions.nlin(), (geo.size()-geo.outermost_interface().nb_triangles()));
 
@@ -95,7 +95,7 @@ namespace OpenMEEG {
         }
     }
 
-    Head2ECoGMat::Head2ECoGMat(const Geometry &geo, const Sensors &electrodes, const Interface& i)
+    Head2ECoGMat::Head2ECoGMat(const Geometry& geo, const Sensors& electrodes, const Interface& i)
     {
         assemble_Head2ECoG(*this, geo, electrodes.getPositions(), i);
     }
@@ -103,7 +103,7 @@ namespace OpenMEEG {
     // MEG patches positions are reported line by line in the positions Matrix (same for positions)
     // mat is supposed to be filled with zeros
     // mat is the linear application which maps x (the unknown vector in symmetric system) -> bFerguson (contrib to MEG response)
-    void assemble_Head2MEG(Matrix &mat, const Geometry &geo, const Sensors &sensors) 
+    void assemble_Head2MEG(Matrix& mat, const Geometry& geo, const Sensors& sensors) 
     {
         Matrix positions = sensors.getPositions();
         Matrix orientations = sensors.getOrientations();
@@ -131,7 +131,7 @@ namespace OpenMEEG {
         mat = sensors.getWeightsMatrix() * mat; // Apply weights
     }
 
-    Head2MEGMat::Head2MEGMat(const Geometry &geo, const Sensors &sensors)
+    Head2MEGMat::Head2MEGMat(const Geometry& geo, const Sensors& sensors)
     {
         assemble_Head2MEG(*this, geo, sensors);
     }
@@ -139,7 +139,7 @@ namespace OpenMEEG {
     // MEG patches positions are reported line by line in the positions Matrix (same for positions)
     // mat is supposed to be filled with zeros
     // mat is the linear application which maps x (the unknown vector in symmetric system) -> binf (contrib to MEG response)
-    void assemble_SurfSource2MEG(Matrix &mat, const Mesh &sources_mesh, const Sensors &sensors)
+    void assemble_SurfSource2MEG(Matrix& mat, const Mesh& sources_mesh, const Sensors& sensors)
     {
         Matrix positions = sensors.getPositions();
         Matrix orientations = sensors.getOrientations();
@@ -166,7 +166,7 @@ namespace OpenMEEG {
         mat = sensors.getWeightsMatrix() * mat; // Apply weights
     }
 
-    SurfSource2MEGMat::SurfSource2MEGMat(const Mesh &sources_mesh, const Sensors &sensors)
+    SurfSource2MEGMat::SurfSource2MEGMat(const Mesh& sources_mesh, const Sensors& sensors)
     {
         assemble_SurfSource2MEG(*this, sources_mesh, sensors);
     }
@@ -175,7 +175,7 @@ namespace OpenMEEG {
     // MEG patches positions are reported line by line in the positions Matrix (same for positions)
     // mat is supposed to be filled with zeros
     // sources is the name of a file containing the description of the sources - one dipole per line: x1 x2 x3 n1 n2 n3, x being the position and n the orientation.
-    void assemble_DipSource2MEG(Matrix &mat, const Matrix& dipoles, const Sensors &sensors)
+    void assemble_DipSource2MEG(Matrix& mat, const Matrix& dipoles, const Sensors& sensors)
     {
         Matrix positions = sensors.getPositions();
         Matrix orientations = sensors.getOrientations();
@@ -206,7 +206,7 @@ namespace OpenMEEG {
         mat = sensors.getWeightsMatrix() * mat; // Apply weights
     }
 
-    DipSource2MEGMat::DipSource2MEGMat(const Matrix &dipoles, const Sensors &sensors)
+    DipSource2MEGMat::DipSource2MEGMat(const Matrix& dipoles, const Sensors& sensors)
     {
         assemble_DipSource2MEG(*this, dipoles, sensors);
     }

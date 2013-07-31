@@ -49,7 +49,7 @@ namespace OpenMEEG {
     // mat = storage for Ferguson Matrix
     // pts = where the magnetic field is to be computed
     // n   = numbers of places where magnetic field is to be computed
-    void assemble_ferguson(const Geometry &geo, Matrix &mat, const Matrix &pts)
+    void assemble_ferguson(const Geometry& geo, Matrix& mat, const Matrix& pts)
     {
         unsigned offsetJ = 0;
         unsigned miit = 0; // for progressbar: mesh index iterator

@@ -66,22 +66,22 @@ namespace OpenMEEG {
 
     // T can be a Matrix or SymMatrix
     template<class T>
-    void operatorN(const Mesh &m1, const Mesh &m2, T &mat, const unsigned);
+    void operatorN(const Mesh& m1, const Mesh& m2, T& mat, const unsigned);
 
     template<class T>
-    void operatorS(const Mesh &m1, const Mesh &m2, T &mat, const unsigned);
+    void operatorS(const Mesh& m1, const Mesh& m2, T& mat, const unsigned);
     template<class T>
-    void operatorD(const Mesh &m1, const Mesh &m2, T &mat, const unsigned, const bool star = false);
+    void operatorD(const Mesh& m1, const Mesh& m2, T& mat, const unsigned, const bool star = false);
     template<class T>
-    void operatorP1P0(const Mesh &, T &mat);
+    void operatorP1P0(const Mesh& , T& mat);
 
-    void operatorSinternal(const Mesh &, Matrix &, const unsigned, const unsigned, const Matrix &);
-    void operatorDinternal(const Mesh &, Matrix &, const unsigned, const unsigned, const Matrix &);
-    void operatorFerguson(const Vect3 &, const Mesh &, Matrix &, unsigned, unsigned);
-    void operatorDipolePotDer(const Vect3 &, const Vect3 &, const Mesh &, Vector &, const unsigned, const bool);
-    void operatorDipolePot   (const Vect3 &, const Vect3 &, const Mesh &, Vector &, const unsigned, const bool);
+    void operatorSinternal(const Mesh& , Matrix& , const unsigned, const unsigned, const Matrix& );
+    void operatorDinternal(const Mesh& , Matrix& , const unsigned, const unsigned, const Matrix& );
+    void operatorFerguson(const Vect3& , const Mesh& , Matrix& , unsigned, unsigned);
+    void operatorDipolePotDer(const Vect3& , const Vect3& , const Mesh& , Vector& , const unsigned, const bool);
+    void operatorDipolePot   (const Vect3& , const Vect3& , const Mesh& , Vector& , const unsigned, const bool);
 
-    inline void mult(SymMatrix &mat, unsigned Istart, unsigned Jstart, unsigned Istop, unsigned Jstop, double coeff)
+    inline void mult(SymMatrix& mat, unsigned Istart, unsigned Jstart, unsigned Istop, unsigned Jstop, double coeff)
     {
         //If the upper left corner of the block is on the diagonal line of the Matrix
         //Only the half of the block has to be treated because of the symmetric storage
@@ -102,7 +102,7 @@ namespace OpenMEEG {
         }
     }
 
-    inline void mult(Matrix &mat, unsigned Istart, unsigned Jstart, unsigned Istop, unsigned Jstop, double coeff)
+    inline void mult(Matrix& mat, unsigned Istart, unsigned Jstart, unsigned Istop, unsigned Jstop, double coeff)
     {
         //If the upper left corner of the block is on the diagonal line of the Matrix
         //Only the half of the block has to be treated because of the symmetric storage
@@ -115,7 +115,7 @@ namespace OpenMEEG {
     }
 
     #ifndef OPTIMIZED_OPERATOR_D
-    inline double _operatorD(const Triangle& T1, const Vertex& V2, const Mesh &m2, const unsigned gauss_order)
+    inline double _operatorD(const Triangle& T1, const Vertex& V2, const Mesh& m2, const unsigned gauss_order)
     {
         // consider varying order of quadrature with the distance between T1 and T2
         STATIC_OMP analyticD analyD;
@@ -139,7 +139,7 @@ namespace OpenMEEG {
     #else
 
     template<class T>
-    inline void _operatorD(const Triangle& T1, const Triangle& T2, T &mat, const unsigned gauss_order)
+    inline void _operatorD(const Triangle& T1, const Triangle& T2, T& mat, const unsigned gauss_order)
     {
         //this version of _operatorD add in the Matrix the contribution of T2 on T1
         // for all the P1 functions it gets involved
@@ -163,7 +163,7 @@ namespace OpenMEEG {
     #endif //OPTIMIZED_OPERATOR_D
 
 
-    inline void _operatorDinternal(const Triangle& T2, const Vect3 P, Matrix  &mat)
+    inline void _operatorDinternal(const Triangle& T2, const Vect3 P, Matrix & mat)
     {
         static analyticD3 analyD;
 
@@ -204,7 +204,7 @@ namespace OpenMEEG {
     }
 
     template<class T>
-    inline double _operatorN(const Vertex& V1, const Vertex& V2, const Mesh &m1, const Mesh &m2, const unsigned gauss_order, const T &mat)
+    inline double _operatorN(const Vertex& V1, const Vertex& V2, const Mesh& m1, const Mesh& m2, const unsigned gauss_order, const T& mat)
     {
         double Iqr, Aqr;
         double result = 0.0;
@@ -260,7 +260,7 @@ namespace OpenMEEG {
     }
 
     template<class T>
-    void operatorN(const Mesh &m1, const Mesh &m2, T &mat, const unsigned gauss_order)
+    void operatorN(const Mesh& m1, const Mesh& m2, T& mat, const unsigned gauss_order)
     {
         // This function has the following arguments:
         //    One geometry
@@ -362,7 +362,7 @@ namespace OpenMEEG {
 
     #ifndef OPTIMIZED_OPERATOR_D
     template<class T>
-    void operatorD(const Mesh &m1, const Mesh &m2, T &mat, const unsigned gauss_order, const bool star)
+    void operatorD(const Mesh& m1, const Mesh& m2, T& mat, const unsigned gauss_order, const bool star)
     {
         // This function (NON OPTIMIZED VERSION) has the following arguments:
         //    One geometry
@@ -396,7 +396,7 @@ namespace OpenMEEG {
     #else // OPTIMIZED_OPERATOR_D
 
     template<class T>
-    void operatorD(const Mesh &m1, const Mesh &m2, T &mat, const unsigned gauss_order, const bool star)
+    void operatorD(const Mesh& m1, const Mesh& m2, T& mat, const unsigned gauss_order, const bool star)
     {
         // This function (OPTIMIZED VERSION) has the following arguments:
         //    One geometry
@@ -427,7 +427,7 @@ namespace OpenMEEG {
     #endif // OPTIMIZED_OPERATOR_D
 
     template<class T>
-    void operatorP1P0(const Mesh &m, T &mat)
+    void operatorP1P0(const Mesh& m, T& mat)
     {
         // This time mat(i, j)+= ... the Matrix is incremented by the P1P0 operator
         std::cout << "OPERATOR P1P0... (arg : mesh " << m.name() << " )" << std::endl;
@@ -438,7 +438,7 @@ namespace OpenMEEG {
         }
     }
 
-    inline Vect3 _operatorFerguson(const Vect3& x, const Vertex& V1, const Mesh &m1)
+    inline Vect3 _operatorFerguson(const Vect3& x, const Vertex& V1, const Mesh& m1)
     {
         double opS;
         Vect3  v;
