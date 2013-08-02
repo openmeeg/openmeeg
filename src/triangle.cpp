@@ -70,12 +70,6 @@ namespace OpenMEEG {
         return *this;
     }
 
-    void Triangle::flip() {
-        Vertex * tmp = vertices_[0];
-        vertices_[0] = vertices_[1];
-        vertices_[1] = tmp;
-    }
-
     void Triangle::copy(const Triangle& t) {
         area_   = t.area();
         normal_ = t.normal();
@@ -89,10 +83,16 @@ namespace OpenMEEG {
 
     const bool Triangle::operator==(const Triangle& T) const {
         for ( Triangle::const_iterator i1 = this->begin(), i2 = T.begin(); i1 != this->end(); ++i1, ++i2) {
-            if ( &*i1 != &*i2 ) {
+            if ( **i1 != **i2 ) {
                 return false;
             }
         }
         return true;
+    }
+
+    void Triangle::flip() {
+        Vertex * tmp = vertices_[0];
+        vertices_[0] = vertices_[1];
+        vertices_[1] = tmp;
     }
 }

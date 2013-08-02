@@ -78,7 +78,7 @@ namespace OpenMEEG {
               Vertex &   operator()(const unsigned& vindex)       { return *vertices_[vindex]; } // 0 <= 'index' <= '2'
         const Vertex &   operator()(const unsigned& vindex) const { return *vertices_[vindex]; }
         const bool       operator==(const Triangle& T) const;
-        const bool       operator!=(const Triangle& T) const { return (!(*this == T)); } // TODO keep ?
+        // const bool       operator!=(const Triangle& T) const { return (!(*this == T)); } // TODO keep ?
                                                  
               Vertex&        vertex(const unsigned& vindex)       { return operator()(vindex); }
         const Vertex&        vertex(const unsigned& vindex) const { return operator()(vindex); }

@@ -196,8 +196,8 @@ namespace OpenMEEG {
                 Mesh m(geo_.vertices(), interfacename[i]);
                 geo_.meshes().push_back(m);
                 geo_.meshes()[i].load(fullname[i].c_str());
-                interf.push_back( Interface(interfacename[i]) ); // TODO here push_back pair ? mesh bool 
-                interf[i].push_back(OrientedMesh(geo_.meshes()[i], true)); // one mesh per interface: well oriented
+                interf.push_back( Interface(interfacename[i]) );
+                interf[i].push_back(OrientedMesh(geo_.meshes()[i], true)); // one mesh per interface: thus well oriented
             }
         } else if ( interfaceType == "Interface" ) { // -----------------------
             std::string interfacename;
@@ -218,7 +218,12 @@ namespace OpenMEEG {
                 }
                 interf.push_back( interfacename );
                 while ( iss >> id ) {
-                    interf[i].push_back(OrientedMesh(geo_.mesh(id), true)); // TODO TODO we set orientation to true, but ...
+                    bool oriented = true; // does the id starts with a '-' or a '+' ?
+                    if ( ( id[0] == '-' ) || ( id[0] == '+' ) ) {
+                        oriented = ( id[0] == '+' );
+                        id = id.substr(1, id.size());
+                    }
+                    interf[i].push_back(OrientedMesh(geo_.mesh(id), oriented));
                 }
             }
         } else {
@@ -241,9 +246,13 @@ namespace OpenMEEG {
             std::istringstream iss(line);
             while ( iss >> id ) {
                 bool found = false;
-                bool inside = ( id[0] == '-' ); // does the id starts with a '-' ?
+                bool inside = false; // does the id starts with a '-' or a '+' ?
+                if ( ( id[0] == '-' ) || ( id[0] == '+' ) ) {
+                    inside = ( id[0] == '-' );
+                    id = id.substr(1, id.size());
+                }
                 for ( Interfaces::iterator iit = interf.begin(); iit != interf.end() ; ++iit) {
-                    if ( iit->name() == (inside?id.substr(1, id.size()):id) ) {
+                    if ( iit->name() == id ) {
                         found = true;
                         dit->push_back(HalfSpace(*iit, inside));
                     }

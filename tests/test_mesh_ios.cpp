@@ -1,7 +1,7 @@
 #include <iostream>
 #include <assert.h>
 
-#include "mesh.h"
+#include <mesh.h>
 
 using namespace OpenMEEG;
 
@@ -25,10 +25,12 @@ int are_equal(const Mesh& m1, const Mesh& m2, double tol = 1e-12) {
             return 0;
         }
     }
-    for ( Mesh::const_iterator tit1 = m1.begin(), tit2 = m2.begin(); tit1 != m1.end(); tit1++, tit2++)
+    for ( Mesh::const_iterator tit1 = m1.begin(), tit2 = m2.begin(); tit1 != m1.end(); ++tit1, ++tit2)
     {
-        if ( *tit1 != *tit2 ) {
-            return 0;
+        for ( Triangle::const_iterator sit1 = tit1->begin(), sit2 = tit2->begin(); sit1 != tit1->end(); ++sit1, ++sit2) {
+            if ( !are_equal(**sit1, **sit2) ) {
+                return 0;
+            }
         }
     }
     return 1;
@@ -71,6 +73,7 @@ int main (int argc, char** argv)
     // BND && OFF that do not store normals
     mesh.save("tmp.bnd");
     mesh.save("tmp.off");
+    mesh.info();
 
     Mesh mesh1;
     Mesh mesh2;

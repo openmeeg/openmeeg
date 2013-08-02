@@ -43,6 +43,58 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 namespace OpenMEEG {
 
+    Mesh::Mesh(const Mesh& m) {
+        *this = m;
+    }
+
+    Mesh& Mesh::operator=(const Mesh& m) {
+        if ( this != &m ) {
+            copy(m);
+        }
+        return *this;
+    }
+
+    void Mesh::copy(const Mesh& m) {
+        if ( m.allocate_ ) {
+            allocate_     = true;
+            all_vertices_ = new Vertices; // allocates space for the vertices and copy
+            all_vertices_->reserve(m.nb_vertices()); 
+            std::map<const Vertex *, Vertex *> map; // for the triangles
+            for ( Mesh::const_vertex_iterator vit = m.vertex_begin(); vit != m.vertex_end(); ++vit) {
+                add_vertex(**vit);
+                map[*vit] = *vertices_.rbegin();
+            }
+            for ( Triangles::const_iterator tit = m.begin(); tit != m.end(); ++tit) {
+                Triangle t(map[&tit->s1()], map[&tit->s2()], map[&tit->s3()]);
+                this->push_back(t);
+            }
+            update(); // TODO really really really ?
+        } else {
+            all_vertices_ = m.all_vertices_; // allocates space for the vertices and copy
+            allocate_ = false;
+            for ( Triangles::const_iterator tit = m.begin(); tit != m.end(); ++tit) {
+                this->push_back(*tit);
+            }
+        }
+        
+        // links_     = m.links_; // TODO really really really ?
+        outermost_ = m.outermost_;
+        name_      = m.name_;
+    }
+
+    void Mesh::destroy() {
+        if ( allocate_ ) {
+            delete all_vertices_;
+        }
+        this->clear();
+        this->all_vertices_ = 0;
+        this->vertices_.clear();
+        this->name_.clear();
+        this->links_.clear();
+        this->outermost_ = false;
+        this->allocate_ = false;
+    }
+
     std::istream& operator>>(std::istream& is, Mesh& m) 
     {
         unsigned a, b, c;
@@ -57,15 +109,20 @@ namespace OpenMEEG {
     **/
     void Mesh::update() 
     {
-        links_.clear();
-        links_.resize(nb_vertices());
+        // build the list of the mesh vertices
+        build_mesh_vertices();
+
         // computes the triangles normals
         for ( iterator tit = this->begin(); tit != this->end(); ++tit) {
             tit->normal()  = (tit->s1() - tit->s2())^(tit->s1() - tit->s3());
             tit->area()    = tit->normal().norm() / 2.0;
             tit->normal() /= tit->normal().norm();
         }
+
+        // make links
         unsigned i = 0;
+        links_.clear();
+        links_.resize(nb_vertices());
         for ( const_vertex_iterator vit = vertex_begin(); vit != vertex_end(); ++vit, ++i) {
             for ( const_iterator tit = this->begin(); tit != this->end(); ++tit) {
                 if ( tit->contains(**vit) ) {
@@ -74,7 +131,7 @@ namespace OpenMEEG {
             }
         }
 
-        // recompute the normals
+        // recompute the vertex normals // TODO useless are vertex normals
         i = 0;
         bool first_time = true;
         for ( const_vertex_iterator vit = vertex_begin(); vit != vertex_end(); ++vit, ++i) {
@@ -93,13 +150,28 @@ namespace OpenMEEG {
         }
     }
 
+    /// build the list of the mesh vertices
+    void Mesh::build_mesh_vertices()
+    {
+        // Sets do not preserve the order, and we would like to preserve it so we push_back in the vector as soon as the element is unique.
+        std::set<Vertex *> mesh_v;
+        vertices_.clear();
+        for ( iterator tit = begin(); tit != end(); ++tit) {
+            for ( Triangle::iterator sit = tit->begin(); sit != tit->end(); ++sit) {
+                if ( mesh_v.insert(*sit).second ) {
+                    vertices_.push_back(*sit);
+                }
+            }
+        }
+    }
+
     /**
      * Print informations about the mesh
     **/
     void Mesh::info() const 
     {
         std::cout << "Info:: Mesh name or ID : "  << name() << std::endl;
-        std::cout << "\t\t# points : "    << nb_vertices() << std::endl;
+        std::cout << "\t\t# vertices  : " << nb_vertices() << std::endl;
         std::cout << "\t\t# triangles : " << nb_triangles() << std::endl;
         std::cout << "\t\tEuler characteristic : " << nb_vertices() - 3.*nb_triangles()/2. + nb_triangles() << std::endl;
 
@@ -213,9 +285,14 @@ namespace OpenMEEG {
 
     unsigned Mesh::load(const std::string filename, const bool& verbose, const bool& read_all) 
     {
+        if ( this->size() != 0 ) {
+            destroy();
+        }
+
         if ( read_all && ( all_vertices_ == 0 ) ) {
             unsigned nb_v = load(filename, false, false); // first allocates memory for the vertices
-            all_vertices_ = new Vertices(nb_v); 
+            all_vertices_ = new Vertices;
+            all_vertices_->reserve(nb_v); 
             allocate_ = true;
         }            
 
@@ -333,9 +410,9 @@ namespace OpenMEEG {
         for ( unsigned i = 0; i < ntrgs; ++i) {
             if ( vtkMesh->GetCellType(i) == VTK_TRIANGLE) {
                 l = vtkMesh->GetCell(i)->GetPointIds();
-                push_back(Triangle(all_vertices()[l->GetId(0)+all_vertices().size()-npts],
-                                   all_vertices()[l->GetId(1)+all_vertices().size()-npts],
-                                   all_vertices()[l->GetId(2)+all_vertices().size()-npts]))  ;
+                push_back(Triangle(vertices()[l->GetId(0)],
+                                   vertices()[l->GetId(1)],
+                                   vertices()[l->GetId(2)]))  ;
             } else {
                 std::cerr << "This is not a triangulation" << std::endl;
                 exit(1);
@@ -485,17 +562,23 @@ namespace OpenMEEG {
         unsigned int* faces_raw = new unsigned int[ntrgs*3]; // Faces
         is.read((char*)faces_raw, sizeof(unsigned int)*ntrgs*3);
 
-        for ( unsigned i = 0; i < nb_vertices(); ++i) {
-            add_vertex(Vertex(pts_raw[i*3+0], pts_raw[i*3+1], pts_raw[i*3+2], normals_raw[i*3+0], normals_raw[i*3+1], normals_raw[i*3+2]));
+        for ( unsigned i = 0; i < npts; ++i) {
+            add_vertex(Vertex(pts_raw[i*3+0], 
+                              pts_raw[i*3+1], 
+                              pts_raw[i*3+2], 
+                              normals_raw[i*3+0], 
+                              normals_raw[i*3+1], 
+                              normals_raw[i*3+2]));
         }
 
         this->reserve(ntrgs);
 
         for ( unsigned i = 0; i < ntrgs; ++i) {
-            push_back(Triangle(all_vertices()[faces_raw[i*3+0]+all_vertices().size()-npts], 
-                               all_vertices()[faces_raw[i*3+1]+all_vertices().size()-npts],
-                               all_vertices()[faces_raw[i*3+2]+all_vertices().size()-npts] ));
+            push_back(Triangle(vertices()[faces_raw[i*3+0]], 
+                               vertices()[faces_raw[i*3+1]],
+                               vertices()[faces_raw[i*3+2]]));
         }
+
         delete[] faces_raw;
         delete[] normals_raw;
         delete[] pts_raw;
@@ -721,7 +804,7 @@ namespace OpenMEEG {
         os << "TypePolygons=\t3" << std::endl;
         os << "Polygons" << std::endl;
         for ( const_iterator tit = begin(); tit != end(); ++tit) {
-            os << "3 " << map[&(tit->s1())] << " " << map[&(tit->s2())] << " " << map[&(tit->s3())] << std::endl;
+            os << map[&(tit->s1())] << " " << map[&(tit->s2())] << " " << map[&(tit->s3())] << std::endl;
         }
 
         os.close();
@@ -808,7 +891,8 @@ namespace OpenMEEG {
             normals_raw[i*3+2] = (float)((*vit)->normal().z());
         }
 
-        for ( const_iterator tit = begin(); tit != end(); ++tit) {
+        i = 0;
+        for ( const_iterator tit = begin(); tit != end(); ++tit, ++i) {
             faces_raw[i*3+0] = map[&(tit->s1())];
             faces_raw[i*3+1] = map[&(tit->s2())];
             faces_raw[i*3+2] = map[&(tit->s3())];

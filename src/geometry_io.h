@@ -112,7 +112,6 @@ namespace OpenMEEG {
         }
 
         // create the meshes
-        
         for ( std::set<std::string>::const_iterator sit = meshes_name.begin(); sit != meshes_name.end(); ++sit) {
             meshes_.push_back(Mesh(vertices_, *sit));
         }
@@ -121,20 +120,14 @@ namespace OpenMEEG {
         vtkSmartPointer<vtkIdList>   l;
 
         for ( iterator mit = begin(); mit != end(); ++mit) {
-            std::set<Vertex *> only_once;
             for ( unsigned i = 0; i < ntrgs; ++i) {
                 // get the mesh which has this name
                 if ( cell_id->GetValue(i) == mit->name() ) {
                     if ( vtkMesh->GetCellType(i) == VTK_TRIANGLE ) {
                         l = vtkMesh->GetCell(i)->GetPointIds();
                         mit->push_back(Triangle(vertices_[l->GetId(0)],
-                                    vertices_[l->GetId(1)],
-                                    vertices_[l->GetId(2)])); 
-                        for ( unsigned vi = 0; vi < 3; ++vi) {
-                            if ( only_once.insert(&vertices_[l->GetId(vi)]).second ) {
-                                mit->vertices().push_back(&vertices_[l->GetId(vi)]);
-                            }
-                        }
+                                                vertices_[l->GetId(1)],
+                                                vertices_[l->GetId(2)])); 
                     } else {
                         std::cerr << "This is not a triangulation" << std::endl;
                         exit(1);
@@ -152,12 +145,12 @@ namespace OpenMEEG {
     {
 
     #ifdef USE_VTK
-        vtkSmartPointer<vtkPolyData>    polydata  = vtkSmartPointer<vtkPolyData>::New();
-        vtkSmartPointer<vtkPoints>      points    = vtkSmartPointer<vtkPoints>::New();      // vertices
-        vtkSmartPointer<vtkDoubleArray> normals   = vtkSmartPointer<vtkDoubleArray>::New(); // normals
-        vtkSmartPointer<vtkStringArray> cell_id = vtkSmartPointer<vtkStringArray>::New();   // ids/mesh name
+        vtkSmartPointer<vtkPolyData>    polydata = vtkSmartPointer<vtkPolyData>::New();
+        vtkSmartPointer<vtkPoints>      points   = vtkSmartPointer<vtkPoints>::New();      // vertices
+        vtkSmartPointer<vtkDoubleArray> normals  = vtkSmartPointer<vtkDoubleArray>::New(); // normals
+        vtkSmartPointer<vtkStringArray> cell_id  = vtkSmartPointer<vtkStringArray>::New();   // ids/mesh name
         
-        normals->SetNumberOfComponents(3); //3d normals (ie x,y,z)
+        normals->SetNumberOfComponents(3); // 3d normals (ie x,y,z)
         normals->SetName("Normals");
         cell_id->SetName("Names");
 

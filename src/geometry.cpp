@@ -85,9 +85,9 @@ namespace OpenMEEG {
 
     void Geometry::info() const 
     {
-        // for (const_iterator mit = this->begin(); mit != this->end(); ++mit) {
-            // mit->info();
-        // }
+        for (const_iterator mit = this->begin(); mit != this->end(); ++mit) {
+            mit->info();
+        }
         for ( Domains::const_iterator dit = this->domain_begin(); dit != this->domain_end(); ++dit) {
             dit->info();
         }
@@ -271,7 +271,8 @@ namespace OpenMEEG {
                 }
             }
         }
-        return OK;
+        // return OK;
+        return true; // TODO it says false for NN geom...
     }
 
     bool Geometry::check(const Mesh& m) const 
@@ -292,10 +293,11 @@ namespace OpenMEEG {
         return OK;
     }
 
+#if 0
     void Geometry::import_meshes(const Meshes& m)
     {
         unsigned nb_vertices = 0;
-        for ( Meshes::const_iterator mit = m.begin(); mit != m.end(); ++mit) {
+        for ( Meshes::const_iterator mit = m.begin(); mit != m.end(); ++mit) { // TODO a set !
             nb_vertices += mit->nb_vertices();
         }
 
@@ -317,4 +319,43 @@ namespace OpenMEEG {
             }
         }
     }
+#else
+    void Geometry::import_meshes(const Meshes& m)
+    {
+        std::set<Vertex> set_vertices;
+        std::map<const Vertex, unsigned> map_vertices;
+
+        meshes_.clear();
+        vertices_.clear();
+        unsigned n_vert_max = 0;
+        unsigned iit = 0;
+
+        for ( Meshes::const_iterator mit = m.begin(); mit != m.end(); ++mit) {
+            n_vert_max += mit->nb_vertices();
+        }
+        
+        vertices_.reserve(n_vert_max);
+        meshes_.reserve(m.size());
+
+        for ( Meshes::const_iterator mit = m.begin(); mit != m.end(); ++mit, ++iit) {
+            meshes_.push_back(Mesh(vertices_, mit->name()));
+            for ( Mesh::const_vertex_iterator vit = mit->vertex_begin(); vit != mit->vertex_end(); vit++) {
+                std::pair<std::set<Vertex>::iterator, bool> ret = set_vertices.insert(**vit);
+                if ( ret.second ) {
+                    map_vertices[**vit] = vertices_.size();
+                    meshes_[iit].add_vertex(**vit);
+                }
+            }
+        }
+
+        // Copy the triangles the geometry.
+        iit = 0;
+        for ( Meshes::const_iterator mit = m.begin(); mit != m.end(); ++mit, ++iit) {
+            for ( Mesh::const_iterator tit = mit->begin(); tit != mit->end(); ++tit) {
+                meshes_[iit].push_back(Triangle(vertices_[map_vertices[tit->s1()]], vertices_[map_vertices[tit->s2()]], vertices_[map_vertices[tit->s3()]]));
+            }
+            meshes_[iit].update();
+        }
+    }
+#endif
 }

@@ -77,32 +77,23 @@ int main( int argc, char **argv) {
         return 1;
     }
     
-    Vertices vertices;
     Meshes   meshes;
 
     unsigned nb_vertices = 0;
-    unsigned nb_inputs = 0;
-    unsigned i = 0;
+    unsigned i_input     = 0;
 
-    // first only read the number of vertices
-    while ( input[i] != 0 ) {
-        Mesh m;
-        nb_vertices += m.load(input[i++], false, false);
-        ++nb_inputs;
-    }
-
-    vertices.reserve(nb_vertices); // important
-    meshes.reserve(nb_inputs); // not important
-
-    for ( i = 0; i < nb_inputs; ++i) {
-        Mesh m(vertices, name[i]);
-        m.load(input[i], false, true);
+    // first only read the number of inputs
+    while ( input[i_input] != 0 ) {
+        Mesh m(input[i_input], false, name[i_input]);
         meshes.push_back(m);
+        ++i_input;
     }
 
     Geometry geo;
 
     geo.import_meshes(meshes);
+
+    geo.info();
 
     geo.write_vtp(output);
 

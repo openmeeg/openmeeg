@@ -89,8 +89,10 @@ namespace OpenMEEG {
         // Constructors
         Mesh(): Triangles(), name_(""), all_vertices_(0), outermost_(false), allocate_(false) { }
 
+        Mesh(const Mesh& m);
+
         Mesh(Vertices& all_vertices, const std::string name = ""): all_vertices_(&all_vertices), name_(name), outermost_(false), allocate_(false) { }
-        Mesh(std::string filename, const bool verbose = true): name_(""), outermost_(false), allocate_(true) { 
+        Mesh(std::string filename, const bool verbose = true, const std::string name = ""): name_(name), outermost_(false), allocate_(true) { 
             unsigned nb_v = load(filename, false, false); 
             all_vertices_ = new Vertices(nb_v); // allocates space for the vertices
             load(filename, verbose);
@@ -107,8 +109,8 @@ namespace OpenMEEG {
         const_vertex_iterator         vertex_end()    const         { return vertices_.end(); }
         const_vertex_reverse_iterator vertex_rend()   const         { return vertices_.rend(); }
 
-        const std::string &               name()      const         { return name_; }
-              std::string &               name()                    { return name_; }
+        const std::string &           name()          const         { return name_; }
+              std::string &           name()                        { return name_; }
 
         VectPVertex                   vertices()      const         { return vertices_; }
         VectPVertex &                 vertices()                    { return vertices_; }
@@ -118,7 +120,8 @@ namespace OpenMEEG {
 
               Vertices                all_vertices()  const         { return *all_vertices_; }
 
-        void add_vertex(const Vertex& v) { all_vertices_->push_back(v); vertices_.push_back(&(*all_vertices_->rbegin())); }
+        void add_vertex(const Vertex& v)     { all_vertices_->push_back(v); vertices_.push_back(&(*all_vertices_->rbegin())); }
+        // void add_vertex(const Vertex& v)     { all_vertices_->push_back(v); } // TODO
 
         // Mesh state
         /** \brief Print info
@@ -209,15 +212,14 @@ namespace OpenMEEG {
         void save_off(const std::string)  const;
         void save_mesh(const std::string) const;
 
+        Mesh& operator=(const Mesh& m);
         friend std::istream& operator>>(std::istream& is, Mesh& m);
 
     private:
 
-        void destroy() {
-            if ( allocate_ ) {
-                delete all_vertices_;
-            }
-        }
+        void destroy();
+        void copy(const Mesh&);
+        void build_mesh_vertices();
         
         std::string                 name_; //!< Name of the mesh.
         std::vector<SetPTriangle>   links_; //!< links[i] are the triangles that contain point i : each point knows each triangle it is a part of
