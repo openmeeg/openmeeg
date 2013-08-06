@@ -39,22 +39,24 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #include <mesh.h>
 #include <Triangle_triangle_intersection.h>
-#include <map>
 
 namespace OpenMEEG {
 
-    Mesh::Mesh(const Mesh& m) {
+    Mesh::Mesh(const Mesh& m) 
+    {
         *this = m;
     }
 
-    Mesh& Mesh::operator=(const Mesh& m) {
+    Mesh& Mesh::operator=(const Mesh& m) 
+    {
         if ( this != &m ) {
             copy(m);
         }
         return *this;
     }
 
-    void Mesh::copy(const Mesh& m) {
+    void Mesh::copy(const Mesh& m) 
+    {
         if ( m.allocate_ ) {
             allocate_     = true;
             all_vertices_ = new Vertices; // allocates space for the vertices and copy
@@ -82,7 +84,8 @@ namespace OpenMEEG {
         name_      = m.name_;
     }
 
-    void Mesh::destroy() {
+    void Mesh::destroy() 
+    {
         if ( allocate_ ) {
             delete all_vertices_;
         }
@@ -120,28 +123,23 @@ namespace OpenMEEG {
         }
 
         // make links
-        unsigned i = 0;
         links_.clear();
-        links_.resize(nb_vertices());
-        for ( const_vertex_iterator vit = vertex_begin(); vit != vertex_end(); ++vit, ++i) {
-            for ( const_iterator tit = this->begin(); tit != this->end(); ++tit) {
-                if ( tit->contains(**vit) ) {
-                    links_[i].insert(&*tit); 
-                }
+        for ( const_iterator tit = begin(); tit != end(); ++tit) {
+            for ( Triangle::const_iterator sit = tit->begin(); sit != tit->end(); ++sit) {
+                links_[*sit].push_back(const_cast<Triangle *>(&*tit));
             }
         }
 
         // recompute the vertex normals // TODO useless are vertex normals
-        i = 0;
         bool first_time = true;
-        for ( const_vertex_iterator vit = vertex_begin(); vit != vertex_end(); ++vit, ++i) {
+        for ( const_vertex_iterator vit = vertex_begin(); vit != vertex_end(); ++vit) {
             if ( (*vit)->normal().norm() < 1.e3*std::numeric_limits<double>::min() ) {
                 if ( first_time ) {
                     std::cout << "Recompute the normals for each vertex" << std::endl;
                     first_time = false;
                 }
                 Normal normal(0);
-                for ( SetPTriangle::const_iterator tit = links_[i].begin(); tit != links_[i].end(); ++tit) {
+                for ( VectPTriangle::const_iterator tit = links_[*vit].begin(); tit != links_[*vit].end(); ++tit) {
                     normal += (*tit)->normal();
                 }
                 normal.normalize();
@@ -154,12 +152,12 @@ namespace OpenMEEG {
     void Mesh::build_mesh_vertices()
     {
         // Sets do not preserve the order, and we would like to preserve it so we push_back in the vector as soon as the element is unique.
-        std::set<Vertex *> mesh_v;
+        std::set<const Vertex *> mesh_v;
         vertices_.clear();
-        for ( iterator tit = begin(); tit != end(); ++tit) {
-            for ( Triangle::iterator sit = tit->begin(); sit != tit->end(); ++sit) {
+        for ( const_iterator tit = begin(); tit != end(); ++tit) {
+            for ( Triangle::const_iterator sit = tit->begin(); sit != tit->end(); ++sit) {
                 if ( mesh_v.insert(*sit).second ) {
-                    vertices_.push_back(*sit);
+                    vertices_.push_back(const_cast<Vertex *>(*sit));
                 }
             }
         }
@@ -185,7 +183,8 @@ namespace OpenMEEG {
         std::cout << "\t\tMax Area : " << max_area << std::endl;
     }
 
-    void Mesh::flip_faces() {
+    void Mesh::flip_faces() 
+    {
         for ( iterator tit = this->begin(); tit != this->end(); ++tit)
         {
             tit->flip();
@@ -195,12 +194,12 @@ namespace OpenMEEG {
     /**
      * Smooth Mesh
     **/
-    void Mesh::smooth(const double& smoothing_intensity, const unsigned& niter) {
-
+    void Mesh::smooth(const double& smoothing_intensity, const unsigned& niter) 
+    {
         std::vector< std::set<Vertex> > neighbors(nb_vertices());
         unsigned i = 0;
         for ( const_vertex_iterator vit = vertex_begin(); vit != vertex_end(); ++vit, ++i) {
-            for ( SetPTriangle::const_iterator tit = links_[i].begin(); tit != links_[i].end(); ++tit) {
+            for ( VectPTriangle::const_iterator tit = links_[*vit].begin(); tit != links_[*vit].end(); ++tit) {
                 for ( unsigned  k = 0; k < 3; ++k) {
                     if ( (**tit)(k) == **vit ) {
                         neighbors[i].insert((**tit)(k));
@@ -271,14 +270,10 @@ namespace OpenMEEG {
         return tri_tri_overlap_test_3d(pp1, qq1, rr1, pp2, qq2, rr2);
     }
 
-    const Mesh::SetPTriangle& Mesh::get_triangles_for_point(const Vertex& V) const 
+    const Mesh::VectPTriangle& Mesh::get_triangles_for_vertex(const Vertex& V) const 
     {
-        unsigned i = 0;
-        for (const_vertex_iterator vit = vertex_begin(); vit != vertex_end(); ++vit, ++i) {
-            if ( *vit == &V ) {
-                return links_[i];
-            }
-        }
+        return links_.at(const_cast<Vertex *>(&V)); // const_cast here TODO
+        // using 'at' instead of '[]' for class-constness
     }
 
     // For IO:s -------------------------------------------------------------------------------------------
@@ -329,17 +324,16 @@ namespace OpenMEEG {
             info();
         }
 
-        /*
         if ( allocate_ ) { // we generates the indices of these mesh vertices
             unsigned index = 0;
-            for ( Mesh::vertex_iterator vit = vertex_begin(); vit != vertex_end(); ++vit) {
-                (*vit)->index() = ++index;
+            for ( Mesh::vertex_iterator vit = vertex_begin(); vit != vertex_end(); ++vit, ++index) {
+                (*vit)->index() = index;
             }
             index = 0;
-            for ( Mesh::iterator tit = begin(); tit!= end(); ++tit) {
-                tit->index() = index++;
+            for ( Mesh::iterator tit = begin(); tit!= end(); ++tit, ++index) {
+                tit->index() = index;
             }
-        }*/ // TODO 
+        } 
 
         return return_value;
     }
@@ -414,7 +408,7 @@ namespace OpenMEEG {
                                    vertices()[l->GetId(1)],
                                    vertices()[l->GetId(2)]))  ;
             } else {
-                std::cerr << "This is not a triangulation" << std::endl;
+                std::cerr << "Mesh \"" << name_ << "\" is not a triangulation" << std::endl;
                 exit(1);
             }
         }
@@ -457,7 +451,7 @@ namespace OpenMEEG {
         vtkPolyDataReader *reader = vtkPolyDataReader::New();
         reader->SetFileName(filename.c_str()); // Specify file name of vtk data file to read
         if ( !reader->IsFilePolyData()) {
-            std::cerr << "This is not a valid vtk poly data file" << std::endl;
+            std::cerr << "Mesh \"" << name_ << "\" is not a valid vtk poly data file" << std::endl;
             reader->Delete();
             exit(1);
         }
@@ -932,13 +926,12 @@ namespace OpenMEEG {
     }
     #endif
 
-    bool Mesh::has_correct_orientation() const 
+    Mesh::EdgeMap Mesh::compute_edge_map() const 
     {
-        // Check the local orientation (that all the triangles are all oriented in the same way)
         // define the triangle edges as (first vertex, second vertex)
         // if a triangle edge is ordered with (lower index, higher index) add 1 to its map else remove 1
         // in the end each mapping should be: 0 (well oriented), 1 for border edge (non closed), and 2 for non well oriented
-        std::map<std::pair<const Vertex *, const Vertex *>, unsigned> mape; // map the edges with an unsigned
+        EdgeMap mape; // map the edges with an unsigned
         for ( const_iterator tit = begin(); tit != end(); ++tit) {
             for ( unsigned j = 0; j < 3; ++j) {
                 if ( (*tit)(j).index() > (*tit)((j+1)%3).index() ) {
@@ -948,9 +941,83 @@ namespace OpenMEEG {
                 }
             }
         }
+        return mape;
+    }
+
+    // get the 3 adjacents triangles of a triangle t
+    Mesh::VectPTriangle Mesh::adjacent_triangles(const Triangle& t) const 
+    {
+        VectPTriangle tris;
+        std::map<Triangle *, unsigned> mapt;
+        for ( Triangle::const_iterator sit = t.begin(); sit != t.end(); ++sit) {
+            VectPTriangle tri1 = links_.at(*sit);
+            for ( VectPTriangle::const_iterator tit = tri1.begin(); tit != tri1.end(); ++tit) {
+                mapt[const_cast<Triangle *>(*tit)]++; // TODO const_cast are ugly ?
+            }
+        }
+        for ( std::map<Triangle *, unsigned>::iterator mit = mapt.begin(); mit != mapt.end(); ++mit) {
+            if ( mit->second == 2) {
+                tris.push_back(mit->first);
+            }
+        }
+        return tris;
+    }
+
+    unsigned Mesh::correct_local_orientation()
+    {
+
+        EdgeMap mape = compute_edge_map();
+
+        bool reorient = false;
+
+        for ( EdgeMap::const_iterator eit = mape.begin(); eit != mape.end(); ++eit) {
+            if ( std::abs(eit->second) == 2 ) {
+                std::cerr << "Local orientation problem..." << std::endl << std::endl;
+                reorient = true;
+                break;
+            }
+        }
+
+        if ( reorient ) {
+            std::cerr << "Reorienting..." << std::endl << std::endl;
+            std::stack<Triangle *>     tri_stack;
+            std::map<Triangle *, bool> tri_reoriented;
+            tri_stack.push(&*begin());
+            tri_reoriented[&*begin()] = true;
+            orient_adjacent_triangles(tri_stack, tri_reoriented);
+        }
+        return 0;
+    }
+
+    void Mesh::orient_adjacent_triangles(std::stack<Triangle *>& t_stack, std::map<Triangle *, bool>& tri_reoriented) 
+    {
+        while ( !t_stack.empty() ) {
+            Triangle * t = t_stack.top();
+            t_stack.pop();
+            VectPTriangle t_adj = adjacent_triangles(*t);
+            for ( std::vector<Triangle *>::iterator tit = t_adj.begin(); tit != t_adj.end(); ++tit) {
+                if ( tri_reoriented.count(*tit) == 0 ) {
+                    t_stack.push(*tit);
+                    for ( Triangle::iterator vit = (*tit)->begin(); vit != (*tit)->end(); ++vit) {
+                        if ( t->next(**vit) == (*tit)->next(**vit)) {
+                            (*tit)->flip();
+                            break;
+                        }
+                    }
+                    tri_reoriented[*tit] = true;
+                }
+            }
+        }
+    }
+
+    bool Mesh::has_correct_orientation() const 
+    {
+        // Check the local orientation (that all the triangles are all oriented in the same way)
+
+        EdgeMap mape = compute_edge_map();
 
         bool closed = true;
-        for ( std::map<std::pair<const Vertex *, const Vertex *>, unsigned>::const_iterator eit = mape.begin(); eit != mape.end(); ++eit) {
+        for ( EdgeMap::const_iterator eit = mape.begin(); eit != mape.end(); ++eit) {
             if ( std::abs(eit->second) == 2 ) {
                 std::cerr << "Local orientation problem..." << std::endl << std::endl;
                 return false;

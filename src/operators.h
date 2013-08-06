@@ -128,9 +128,9 @@ namespace OpenMEEG {
 
         double total = 0;
 
-        const Mesh::SetPTriangle& Tadj = m2.get_triangles_for_point(V2); // loop on triangles of which V2 is a vertex
+        const Mesh::VectPTriangle& Tadj = m2.get_triangles_for_vertex(V2); // loop on triangles of which V2 is a vertex
 
-        for ( Mesh::SetPTriangle::const_iterator tit = Tadj.begin(); tit != Tadj.end(); ++tit) {
+        for ( Mesh::VectPTriangle::const_iterator tit = Tadj.begin(); tit != Tadj.end(); ++tit) {
             analyD.init(**tit, V2);
             total += gauss.integrate(analyD, T1);
         }
@@ -209,11 +209,11 @@ namespace OpenMEEG {
         double Iqr, Aqr;
         double result = 0.0;
 
-        const Mesh::SetPTriangle& trgs1 = m1.get_triangles_for_point(V1);
-        const Mesh::SetPTriangle& trgs2 = m2.get_triangles_for_point(V2);
+        const Mesh::VectPTriangle& trgs1 = m1.get_triangles_for_vertex(V1);
+        const Mesh::VectPTriangle& trgs2 = m2.get_triangles_for_vertex(V2);
 
-        for ( Mesh::SetPTriangle::const_iterator tit1 = trgs1.begin(); tit1 != trgs1.end(); ++tit1 ) {
-            for ( Mesh::SetPTriangle::const_iterator tit2 = trgs2.begin(); tit2 != trgs2.end(); ++tit2 ) {
+        for ( Mesh::VectPTriangle::const_iterator tit1 = trgs1.begin(); tit1 != trgs1.end(); ++tit1 ) {
+            for ( Mesh::VectPTriangle::const_iterator tit2 = trgs2.begin(); tit2 != trgs2.end(); ++tit2 ) {
                 if ( m1.outermost() || m2.outermost() ) {
                     Iqr = mat((*tit1)->index() - m1.begin()->index(), (*tit2)->index() - m2.begin()->index());
                 } else {
@@ -451,9 +451,9 @@ namespace OpenMEEG {
         result.z() = 0.0;
 
         //loop over triangles of which V1 is a vertex
-        const Mesh::SetPTriangle& trgs = m1.get_triangles_for_point(V1);
+        const Mesh::VectPTriangle& trgs = m1.get_triangles_for_vertex(V1);
 
-        for ( Mesh::SetPTriangle::const_iterator tit = trgs.begin(); tit != trgs.end(); ++tit) {
+        for ( Mesh::VectPTriangle::const_iterator tit = trgs.begin(); tit != trgs.end(); ++tit) {
 
             const Triangle& T1 = **tit;
 

@@ -70,12 +70,7 @@ namespace OpenMEEG {
 
         const unsigned nVertexSources = mesh_source.nb_vertices();
         
-        // We here generate the indices of this mesh vertices and 
-        // (hack) set it as an outermost (to tell _operarorN it doesn't belong to the geometry)
-        unsigned index = 0;
-        for ( Mesh::vertex_iterator vit = mesh_source.vertex_begin(); vit != mesh_source.vertex_end(); ++vit) {
-            (*vit)->index() = index++;
-        }
+        // We here set it as an outermost (to tell _operarorN it doesn't belong to the geometry)
         mesh_source.outermost() = true;
 
         std::cout << std::endl << "assemble SurfSourceMat with " << nVertexSources << " mesh_source" << std::endl << std::endl;

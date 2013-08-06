@@ -2,17 +2,18 @@
 
 MeshFile "HeadNN2.vtp"
 
-Interfaces 4 Interface
+Interfaces 5 Interface
 
-Interface North: +north +cut 
-Interface South: +south -cut
-Interface Skull: north south skull
-Interface Scalp: skull scalp
+Interface North: +north -cut 
+Interface South: +south +cut
+Interface Cortex: north south
+Interface Skull: skull
+Interface Scalp: scalp
 
 Domains 5
 
 Domain NORTH: -North
 Domain SOUTH: -South
-Domain SKULL: -Skull +North +South
+Domain SKULL: -Skull +Cortex
 Domain SCALP: -Scalp +Skull
 Domain AIR: +Scalp

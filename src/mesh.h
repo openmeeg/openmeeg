@@ -46,6 +46,8 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #include <vector>
 #include <set>
+#include <map>
+#include <stack>
 #include <string>
 #include <triangle.h>
 #include <IOUtils.H>
@@ -80,11 +82,12 @@ namespace OpenMEEG {
 
     public:
         
-        typedef std::set<const Triangle *>                  SetPTriangle;
-        typedef std::vector<Vertex *>                       VectPVertex;
-        typedef VectPVertex::iterator                       vertex_iterator;
-        typedef VectPVertex::const_iterator                 const_vertex_iterator;
-        typedef VectPVertex::const_reverse_iterator         const_vertex_reverse_iterator;
+        typedef std::set<const Triangle *>                                    SetPTriangle;
+        typedef std::vector<Triangle *>                                 VectPTriangle;
+        typedef std::vector<Vertex *>                                         VectPVertex;
+        typedef VectPVertex::iterator                                         vertex_iterator;
+        typedef VectPVertex::const_iterator                                   const_vertex_iterator;
+        typedef VectPVertex::const_reverse_iterator                           const_vertex_reverse_iterator;
 
         // Constructors
         Mesh(): Triangles(), name_(""), all_vertices_(0), outermost_(false), allocate_(false) { }
@@ -116,7 +119,7 @@ namespace OpenMEEG {
         VectPVertex &                 vertices()                    { return vertices_; }
 
         const unsigned                nb_vertices()   const         { return vertices_.size(); }
-        const unsigned                nb_triangles()  const         { return this->size(); }
+        const unsigned                nb_triangles()  const         { return size(); }
 
               Vertices                all_vertices()  const         { return *all_vertices_; }
 
@@ -137,7 +140,8 @@ namespace OpenMEEG {
         bool  triangle_intersection(const Triangle&, const Triangle&) const;
         void  update();
         void  flip_faces();
-        const SetPTriangle& get_triangles_for_point(const Vertex& V) const;
+        const VectPTriangle& get_triangles_for_vertex(const Vertex& V) const;
+        unsigned  correct_local_orientation();
 
         //  Returns True if it is an outermost mesh.
               bool&        outermost()       { return outermost_; }
@@ -216,13 +220,19 @@ namespace OpenMEEG {
         friend std::istream& operator>>(std::istream& is, Mesh& m);
 
     private:
-
+        // map the edges with an unsigned
+        typedef std::map<std::pair<const Vertex *, const Vertex *>, unsigned> EdgeMap; 
         void destroy();
         void copy(const Mesh&);
-        void build_mesh_vertices();
+        void build_mesh_vertices();// TODO
+
+        // regarding mesh orientation
+        EdgeMap       compute_edge_map() const;
+        VectPTriangle adjacent_triangles(const Triangle&) const;
+        void orient_adjacent_triangles(std::stack<Triangle *>& t_stack, std::map<Triangle *, bool>& tri_reoriented);
         
         std::string                 name_; //!< Name of the mesh.
-        std::vector<SetPTriangle>   links_; //!< links[i] are the triangles that contain point i : each point knows each triangle it is a part of
+        std::map<const Vertex *, VectPTriangle>   links_; //!< links[&v] are the triangles that contain vertex v
         Vertices *                  all_vertices_; //!< Pointer to all the vertices.
         VectPVertex                 vertices_; //!< Vector of the adress of the mesh vertices
         bool                        outermost_; //!< Is it an outermost mesh ? (i.e does it touch the Air domain)

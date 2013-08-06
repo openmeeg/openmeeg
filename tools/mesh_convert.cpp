@@ -69,16 +69,14 @@ int main( int argc, char **argv) {
 
     Mesh m(input_filename);
 
-    for ( Mesh::vertex_iterator vit = m.vertex_begin(); vit != m.vertex_end(); ++vit)
-    {
+    for ( Mesh::vertex_iterator vit = m.vertex_begin(); vit != m.vertex_end(); ++vit) {
         Vertex& v = **vit;
         v(0) = v(0)*sx + tx;
         v(1) = v(1)*sy + ty;
         v(2) = v(2)*sz + tz;
     }
 
-    if(transfmat)
-    {
+    if ( transfmat ) {
         Matrix mat;
         mat.load(transfmat);
 
@@ -109,11 +107,12 @@ int main( int argc, char **argv) {
         }
     }
 
-    if(invert)
-    {
+    if ( invert ) {
         std::cout << "Running face flipping" << std::endl;
         m.flip_faces();
     }
+
+    m.correct_local_orientation();
 
     m.save(output_filename);
 

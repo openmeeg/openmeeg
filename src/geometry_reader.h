@@ -254,6 +254,10 @@ namespace OpenMEEG {
                 for ( Interfaces::iterator iit = interf.begin(); iit != interf.end() ; ++iit) {
                     if ( iit->name() == id ) {
                         found = true;
+                        if ( !iit->closed() ) {
+                            std::cerr << "Interface \"" << iit->name() << "\" is not closed !" << std::endl;
+                            exit(1);
+                        }
                         dit->push_back(HalfSpace(*iit, inside));
                     }
                 }

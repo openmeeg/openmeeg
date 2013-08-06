@@ -82,7 +82,7 @@ namespace OpenMEEG {
     void Triangle::destroy() { }
 
     const bool Triangle::operator==(const Triangle& T) const {
-        for ( Triangle::const_iterator i1 = this->begin(), i2 = T.begin(); i1 != this->end(); ++i1, ++i2) {
+        for ( Triangle::const_iterator i1 = begin(), i2 = T.begin(); i1 != end(); ++i1, ++i2) {
             if ( **i1 != **i2 ) {
                 return false;
             }

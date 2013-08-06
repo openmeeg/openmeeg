@@ -2,16 +2,18 @@
 
 MeshFile "HeadNN1.vtp"
 
-Interfaces 3 Interface
+Interfaces 5 Interface
 
-Interface Brain: Cortex
-Interface Skull: Skull
-Interface Scalp: Scalp
+Interface North: +north -cut 
+Interface South: +south +cut
+Interface Cortex: north south
+Interface Skull: skull
+Interface Scalp: scalp
 
-Domains 4
+Domains 5
 
-Domain Scalp: Skull -Scalp
-Domain Brain: -Brain
-Domain Air: Scalp
-Domain Skull: Brain -Skull
-
+Domain NORTH: -North
+Domain SOUTH: -South
+Domain SKULL: -Skull +Cortex
+Domain SCALP: -Scalp +Skull
+Domain AIR: +Scalp

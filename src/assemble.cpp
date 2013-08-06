@@ -158,7 +158,7 @@ int main(int argc, char** argv)
         }
         
         bool adapt_rhs          = true;
-        std::string domain_name = "Brain"; // TODO
+        std::string domain_name = ""; // TODO or "Brain" ?
 
         // Choosing between adaptive integration or not for the RHS
         if ( !strcmp(argv[1], "-DipSourceMatNoAdapt")|(!strcmp(argv[1], "-DSMNA"))|(!strcmp(argv[1], "-dsmna"))){

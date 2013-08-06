@@ -62,12 +62,13 @@ namespace OpenMEEG {
         }
     }
     
-    double Interface::compute_solid_angle(const Vect3& p) const // compute the solid-angle which should be +/- 4 * Pi for a closed mesh
+    double Interface::compute_solid_angle(const Vect3& p) const // compute the solid-angle which should be +/-4 * Pi for a closed mesh
     {
         double solangle = 0.0;
-        for ( Interface::const_iterator omit = this->begin(); omit != this->end(); ++omit) {
+        for ( Interface::const_iterator omit = begin(); omit != end(); ++omit) {
+            double temp = 0.;
             for ( Mesh::const_iterator tit = omit->mesh().begin(); tit != omit->mesh().end(); ++tit) {
-                solangle += p.solangl((*tit).s1(), (*tit).s2(), (*tit).s3()) * omit->orientation();
+                solangle += p.solangl((*tit).s1(), (*tit).s2(), (*tit).s3())*omit->orientation();
             }
         }
         return solangle;
@@ -75,7 +76,7 @@ namespace OpenMEEG {
 
     void Interface::set_to_outermost() 
     {
-        for ( Interface::iterator omit = this->begin(); omit != this->end(); ++omit) {
+        for ( Interface::iterator omit = begin(); omit != end(); ++omit) {
             omit->mesh().outermost() = true;
         }
         outermost_ = true;
@@ -87,7 +88,7 @@ namespace OpenMEEG {
         double xmax = std::numeric_limits<double>::min();
         double ymax = std::numeric_limits<double>::min();
         double zmax = std::numeric_limits<double>::min();
-        for ( Interface::const_iterator omit = this->begin(); omit != this->end(); ++omit) {
+        for ( Interface::const_iterator omit = begin(); omit != end(); ++omit) {
             for ( Mesh::const_vertex_iterator vit = omit->mesh().vertex_begin(); vit != omit->mesh().vertex_end(); ++vit) {
                 xmax = std::max(xmax, (**vit).x());
                 ymax = std::max(ymax, (**vit).y());
@@ -101,6 +102,7 @@ namespace OpenMEEG {
         if ( std::abs(solangle) < 1.e3*std::numeric_limits<double>::epsilon() ) {
             return true;
         }
+
         return false;
     }
 }

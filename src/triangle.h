@@ -84,13 +84,35 @@ namespace OpenMEEG {
         const Vertex&        vertex(const unsigned& vindex) const { return operator()(vindex); }
 
         // Iterators.
+        const const_iterator begin()               const { return const_iterator(vertices_); }
+        const const_iterator end()                 const { return const_iterator(vertices_+3); }
               iterator       begin()                     { return iterator(vertices_);       }
-              const_iterator begin()               const { return const_iterator(vertices_); }
               iterator       end()                       { return iterator(vertices_+3);       }
-              const_iterator end()                 const { return const_iterator(vertices_+3); }
 
-        const Vertex&        prev(const Vertex& V) const { return ( s1() == V )?s3():( s2() == V )?s1():s2(); }
-        const Vertex&        next(const Vertex& V) const { return ( s1() == V )?s2():( s2() == V )?s3():s1(); }
+        const Vertex& prev(const Vertex& V) const { 
+            if ( V == *vertices_[0]) {
+                return *vertices_[2];
+            } else if ( V == *vertices_[1] ) {
+                return *vertices_[0];
+            } else if ( V == *vertices_[2] ) {
+                return *vertices_[1];
+            } else {
+                static Vertex v;
+                return v;
+            }
+        }
+        const Vertex& next(const Vertex& V) const { 
+            if ( V == *vertices_[0]) {
+                return *vertices_[1];
+            } else if ( V == *vertices_[1] ) {
+                return *vertices_[2];
+            } else if ( V == *vertices_[2] ) {
+                return *vertices_[0];
+            } else {
+                static Vertex v;
+                return v;
+            }
+        }
 
         const Vertex&        s1()                  const { return *vertices_[0]; }
         const Vertex&        s2()                  const { return *vertices_[1]; }

@@ -85,6 +85,7 @@ int main( int argc, char **argv) {
     // first only read the number of inputs
     while ( input[i_input] != 0 ) {
         Mesh m(input[i_input], false, name[i_input]);
+        m.correct_local_orientation();
         meshes.push_back(m);
         ++i_input;
     }
