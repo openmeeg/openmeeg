@@ -18,7 +18,7 @@ cond_file                    = 'head_model.cond'
 dipoles_file                 = 'cortex_dipoles.txt'
 squids_file                  = 'meg_channels_locations.squids'
 eeg_electrodes_file          = 'eeg_channels_locations.txt'
-ecog_electrodes_file          = 'ecog_electrodes_locations.txt'
+ecog_electrodes_file         = 'ecog_electrodes_locations.txt'
 internal_electrodes_file     = 'internal_electrodes_locations.txt'
 
 geom = om.Geometry()
