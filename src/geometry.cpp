@@ -78,8 +78,7 @@ namespace OpenMEEG {
 
         std::vector<std::string> domainNames = reader.domain_names();
 
-        if(condFileName)
-        {
+        if (condFileName) {
             has_cond = true;
             typedef Utils::Properties::Named< std::string , Conductivity<double> > HeadProperties;
             HeadProperties properties(condFileName);

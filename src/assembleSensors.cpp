@@ -83,42 +83,39 @@ namespace OpenMEEG {
         assemble_Head2EEG(*this, geo, electrodes.getPositions());
     }
 
-// ECoG positions are reported line by line in the positions Matrix
-// mat is supposed to be filled with zeros
-// mat is the linear application which maps x (the unknown vector in symmetric system) -> v (potential at the ECoG electrodes)
-// difference with Head2EEG is that it interpolates the inner skull layer instead of the scalp layer. 
+    // ECoG positions are reported line by line in the positions Matrix
+    // mat is supposed to be filled with zeros
+    // mat is the linear application which maps x (the unknown vector in symmetric system) -> v (potential at the ECoG electrodes)
+    // difference with Head2EEG is that it interpolates the inner skull layer instead of the scalp layer. 
 
-///////////////////////////////////////////////////////////////////////////////////////////////
-// WARNING The following supposes that the inner skull is the first layer in the head model////
-///////////////////////////////////////////////////////////////////////////////////////////////
-void assemble_Head2ECoG(SparseMatrix &mat, const Geometry &geo, const Matrix &positions )
-{
-    int newsize = geo.size() - geo.getM(geo.nb()-1).nbTrgs();
-    mat = SparseMatrix(positions.nlin(), newsize);
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    // WARNING The following supposes that the inner skull is the first layer in the head model////
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    void assemble_Head2ECoG(SparseMatrix &mat, const Geometry &geo, const Matrix &positions )
+    {
+        int newsize = geo.size() - geo.getM(geo.nb()-1).nbTrgs();
+        mat = SparseMatrix(positions.nlin(), newsize);
 
-    const Mesh& innerSkullLayer = geo.getM(0);
+        const Mesh& innerSkullLayer = geo.getM(0);
 
-    Vect3 current_position;
-    Vect3 current_alphas;
-    int current_nearestNumber;
-    for(size_t i=0; i < positions.nlin(); i++) {
-        for(int k=0; k<3; k++) {
-            current_position(k) = positions(i, k);
+        Vect3 current_position;
+        Vect3 current_alphas;
+        int current_nearestNumber;
+        for(size_t i=0; i < positions.nlin(); i++) {
+            for(int k=0; k<3; k++) {
+                current_position(k) = positions(i, k);
+            }
+            dist_point_mesh(current_position, innerSkullLayer, current_alphas, current_nearestNumber);
+            mat(i, innerSkullLayer.triangle(current_nearestNumber).s1()) = current_alphas(0);
+            mat(i, innerSkullLayer.triangle(current_nearestNumber).s2()) = current_alphas(1);
+            mat(i, innerSkullLayer.triangle(current_nearestNumber).s3()) = current_alphas(2);
         }
-        dist_point_mesh(current_position, innerSkullLayer, current_alphas, current_nearestNumber);
-        mat(i, innerSkullLayer.triangle(current_nearestNumber).s1()) = current_alphas(0);
-        mat(i, innerSkullLayer.triangle(current_nearestNumber).s2()) = current_alphas(1);
-        mat(i, innerSkullLayer.triangle(current_nearestNumber).s3()) = current_alphas(2);
     }
-}
 
-Head2ECoGMat::Head2ECoGMat(const Geometry &geo, const Sensors &electrodes)
-{
-    assemble_Head2ECoG(*this, geo, electrodes.getPositions());
-}
-
-
-
+    Head2ECoGMat::Head2ECoGMat(const Geometry &geo, const Sensors &electrodes)
+    {
+        assemble_Head2ECoG(*this, geo, electrodes.getPositions());
+    }
 
     // MEG patches positions are reported line by line in the positions Matrix (same for positions)
     // mat is supposed to be filled with zeros
