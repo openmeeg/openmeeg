@@ -53,9 +53,11 @@ IF(BUILD_TESTING)
     INCLUDE(TestHead.txt)
 
     TESTHEAD(1)
-    TESTHEAD(NN1)
+    TESTHEAD(NNa1)
+    TESTHEAD(NNb1)
     TESTHEAD(2)
-    TESTHEAD(NN2)
+    TESTHEAD(NNa2)
+    TESTHEAD(NNb1)
 
     OPTION(TEST_HEAD3 "Run tests on Head 3" OFF)
 
