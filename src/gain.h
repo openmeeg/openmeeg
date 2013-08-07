@@ -127,7 +127,7 @@ namespace OpenMEEG {
                 mtemp=mtemp.transpose();
                 #endif
                 for (unsigned i=0;i<LeadField.ncol();i++) {
-                    LeadField.setcol(i, mtemp * DipSourceMat(geo, dipoles.submat(i, 1, 0, dipoles.ncol()), gauss_order, true, "Brain").getcol(0)+Source2MEGMat.getcol(i)); // TODO ugly
+                    LeadField.setcol(i, mtemp * DipSourceMat(geo, dipoles.submat(i, 1, 0, dipoles.ncol()), gauss_order, true, "").getcol(0)+Source2MEGMat.getcol(i)); // TODO ugly
                     PROGRESSBAR(i,LeadField.ncol());
                 }
                 *this = LeadField;
@@ -167,7 +167,7 @@ namespace OpenMEEG {
                 mtemp = mtemp.transpose();
                 #endif
                 for ( unsigned i = 0; i < dipoles.nlin(); ++i) {
-                    Vector dsm = DipSourceMat(geo,dipoles.submat(i, 1, 0, dipoles.ncol()), gauss_order, true, "Brain").getcol(0); // TODO ugly
+                    Vector dsm = DipSourceMat(geo,dipoles.submat(i, 1, 0, dipoles.ncol()), gauss_order, true, "").getcol(0); // TODO ugly
                     EEGleadfield.setcol(i, mtemp.submat(0, Head2EEGMat.nlin(), 0, HeadMat.nlin()) * dsm);
                     MEGleadfield.setcol(i, mtemp.submat(Head2EEGMat.nlin(), Head2MEGMat.nlin(), 0, HeadMat.nlin()) * dsm + Source2MEGMat.getcol(i));
                     PROGRESSBAR(i, dipoles.nlin());
