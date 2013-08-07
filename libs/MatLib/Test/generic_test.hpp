@@ -42,7 +42,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <vector.h>
 
 template <typename T>
-void genericTest(const std::string& basename,T &M) {
+void genericTest(const std::string& basename, T &M) {
 
     using namespace OpenMEEG;
 
@@ -69,6 +69,7 @@ void genericTest(const std::string& basename,T &M) {
     M.load(txtname);
     M.info();
 
+    // TODO Here for sparse matrix 
 #ifdef USE_MATIO
     const std::string matname = basename+".mat";
     std::cout << "MAT :" << std::endl;

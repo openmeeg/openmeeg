@@ -58,10 +58,10 @@ namespace OpenMEEG {
 
         ~OrientedMesh() {}
 
-              Mesh&  mesh()              { return *this->first;  }
-        const Mesh&  mesh()        const { return *this->first;  }
-        const bool   inside()      const { return this->second; }
-        const double orientation() const { return ( this->second )?1.:-1.; }
+              Mesh&  mesh()              { return *first;  }
+        const Mesh&  mesh()        const { return *first;  }
+        const bool   inside()      const { return second; }
+        const double orientation() const { return ( second )?1.:-1.; }
     };
 
     /** \brief  Interface
@@ -88,18 +88,18 @@ namespace OpenMEEG {
         const bool          contains_point(const Vect3&) const;
               void          set_to_outermost();
 
-        const unsigned      nb_triangles()               const {
+        const unsigned nb_vertices() const { 
             unsigned nb = 0;
             for ( const_iterator omit = begin(); omit != end(); ++omit) {
-                nb += omit->mesh().nb_triangles();
+                nb += omit->mesh().nb_vertices();
             }
             return nb;
         }
 
-        const unsigned  nb_vertices()                    const { 
+        const unsigned nb_triangles() const {
             unsigned nb = 0;
             for ( const_iterator omit = begin(); omit != end(); ++omit) {
-                nb += omit->mesh().nb_vertices();
+                nb += omit->mesh().nb_triangles();
             }
             return nb;
         }

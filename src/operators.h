@@ -48,6 +48,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <vector.h>
 #include <matrix.h>
 #include <symmatrix.h>
+#include <sparse_matrix.h>
 #include <geometry.h>
 #include <integrator.h>
 #include <analytics.h>
@@ -77,7 +78,7 @@ namespace OpenMEEG {
 
     void operatorSinternal(const Mesh& , Matrix& , const unsigned, const unsigned, const Matrix& );
     void operatorDinternal(const Mesh& , Matrix& , const unsigned, const unsigned, const Matrix& );
-    void operatorFerguson(const Vect3& , const Mesh& , Matrix& , unsigned, unsigned);
+    void operatorFerguson(const Vect3& , const Mesh& , SparseMatrix& , const unsigned&, const double&);
     void operatorDipolePotDer(const Vect3& , const Vect3& , const Mesh& , Vector& , const unsigned, const bool);
     void operatorDipolePot   (const Vect3& , const Vect3& , const Mesh& , Vector& , const unsigned, const bool);
 
@@ -438,7 +439,7 @@ namespace OpenMEEG {
         }
     }
 
-    inline Vect3 _operatorFerguson(const Vect3& x, const Vertex& V1, const Mesh& m1)
+    inline Vect3 _operatorFerguson(const Vect3& x, const Vertex& V1, const Mesh& m)
     {
         double opS;
         Vect3  v;
@@ -451,7 +452,7 @@ namespace OpenMEEG {
         result.z() = 0.0;
 
         //loop over triangles of which V1 is a vertex
-        const Mesh::VectPTriangle& trgs = m1.get_triangles_for_vertex(V1);
+        const Mesh::VectPTriangle& trgs = m.get_triangles_for_vertex(V1);
 
         for ( Mesh::VectPTriangle::const_iterator tit = trgs.begin(); tit != trgs.end(); ++tit) {
 

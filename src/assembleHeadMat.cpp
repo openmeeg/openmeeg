@@ -164,6 +164,7 @@ namespace OpenMEEG {
         mat = Matrix(N, (geo.size()-geo.outermost_interface().nb_triangles()));
         mat.set(0.0);
 
+// TODO
 #if 0
         // We iterate over the meshes (or pair of domains) to fill the lower half of the headmat (since its symmetry)
         for (Geometry::const_iterator mit1 = geo.begin(); mit1 != geo.end(); ++mit1) {

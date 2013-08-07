@@ -45,7 +45,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 namespace OpenMEEG {
 
-    void assemble_ferguson(const Geometry& geo, Matrix& mat, const Matrix& pts);
+    void assemble_ferguson(const Geometry& geo, SparseMatrix& mat, const Matrix& pts);
 
     // EEG patches positions are reported line by line in the positions Matrix
     // mat is supposed to be filled with zeros
@@ -108,10 +108,9 @@ namespace OpenMEEG {
         Matrix positions = sensors.getPositions();
         Matrix orientations = sensors.getOrientations();
         const unsigned nbIntegrationPoints = sensors.getNumberOfPositions();
-        unsigned p0_p1_size = (geo.size()-geo.outermost_interface().nb_triangles());
+        unsigned p0_p1_size = (geo.size() - geo.outermost_interface().nb_triangles());
 
-        Matrix myFergusonMatrix(3*nbIntegrationPoints, geo.nb_vertices());
-        myFergusonMatrix.set(0.0);
+        SparseMatrix myFergusonMatrix(3*nbIntegrationPoints, p0_p1_size);
 
         assemble_ferguson(geo, myFergusonMatrix, positions);
 
@@ -122,12 +121,12 @@ namespace OpenMEEG {
             PROGRESSBAR(i, nbIntegrationPoints);
             unsigned j = 0;
             for ( Vertices::const_iterator vit = geo.vertex_begin(); vit != geo.vertex_end(); ++vit, ++j) {
-                    Vect3 fergusonField(myFergusonMatrix(3*i, j), myFergusonMatrix(3*i+1, j), myFergusonMatrix(3*i+2, j));
-                    Vect3 normalizedDirection(orientations(i, 0), orientations(i, 1), orientations(i, 2));
-                    normalizedDirection.normalize();
-                    mat(i, vit->index()) = fergusonField * normalizedDirection;
-                }
+                Vect3 fergusonField(myFergusonMatrix(3*i, vit->index()), myFergusonMatrix(3*i+1, vit->index()), myFergusonMatrix(3*i+2, vit->index()));
+                Vect3 normalizedDirection(orientations(i, 0), orientations(i, 1), orientations(i, 2));
+                normalizedDirection.normalize();
+                mat(i, vit->index()) = fergusonField * normalizedDirection;
             }
+        }
         mat = sensors.getWeightsMatrix() * mat; // Apply weights
     }
 
@@ -148,8 +147,7 @@ namespace OpenMEEG {
         mat = Matrix(nsquids, sources_mesh.nb_vertices());
         mat.set(0.0);
 
-        Matrix myFergusonMatrix(3, mat.ncol());
-        myFergusonMatrix.set(0.0);
+        SparseMatrix myFergusonMatrix(3, mat.ncol());
 
         for ( unsigned i = 0; i < nsquids; ++i) {
             PROGRESSBAR(i, nsquids);

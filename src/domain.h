@@ -107,7 +107,7 @@ namespace OpenMEEG {
             // return 1 if the mesh is oriented toward the domain
                   // -1 if not
                   //  0 else (the mesh is not part of the domain boundary)
-            for ( Domain::const_iterator hit = this->begin(); hit != this->end(); ++hit) {
+            for ( Domain::const_iterator hit = begin(); hit != end(); ++hit) {
                 for ( Interface::const_iterator omit = hit->interface().begin(); omit != hit->interface().end(); ++omit) {
                     if ( &omit->mesh() == &m ) {
                         return (( hit->inside() )?omit->orientation():-1.*omit->orientation() );

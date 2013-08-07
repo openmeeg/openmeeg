@@ -55,7 +55,7 @@ namespace OpenMEEG {
     const unsigned Geometry::nb_trianglesoutermost() const 
     {
         unsigned nb_t = 0;
-        for ( const_iterator mit = this->begin(); mit != this->end(); ++mit) {
+        for ( const_iterator mit = begin(); mit != end(); ++mit) {
             if ( mit->outermost() ) {
                 nb_t += mit->nb_triangles();
             }
@@ -65,7 +65,7 @@ namespace OpenMEEG {
 
     const Mesh& Geometry::mesh(const std::string& id) const 
     {
-        for ( const_iterator mit = this->begin() ; mit != this->end(); ++mit ) {
+        for ( const_iterator mit = begin() ; mit != end(); ++mit ) {
             if ( id == mit->name() ) {
                 return *mit;
             }
@@ -75,7 +75,7 @@ namespace OpenMEEG {
 
     Mesh&  Geometry::mesh(const std::string& id) 
     {
-        for ( iterator mit = this->begin() ; mit != this->end(); ++mit ) {
+        for ( iterator mit = begin() ; mit != end(); ++mit ) {
             if ( id == mit->name() ) {
                 return *mit;
             }
@@ -85,17 +85,17 @@ namespace OpenMEEG {
 
     void Geometry::info() const 
     {
-        for (const_iterator mit = this->begin(); mit != this->end(); ++mit) {
+        for (const_iterator mit = begin(); mit != end(); ++mit) {
             mit->info();
         }
-        for ( Domains::const_iterator dit = this->domain_begin(); dit != this->domain_end(); ++dit) {
+        for ( Domains::const_iterator dit = domain_begin(); dit != domain_end(); ++dit) {
             dit->info();
         }
     }
 
     const Interface& Geometry::interface(const std::string& id) const 
     {
-        for ( Domains::const_iterator dit = this->domain_begin(); dit != this->domain_end(); ++dit) {
+        for ( Domains::const_iterator dit = domain_begin(); dit != domain_end(); ++dit) {
             for ( Domain::const_iterator hit = dit->begin(); hit != dit->end(); ++hit) {
                 if ( hit->interface().name() == id )  {
                     return hit->interface();
@@ -108,7 +108,7 @@ namespace OpenMEEG {
 
     const Domain& Geometry::domain(const Vect3& p) const 
     {
-        for ( Domains::const_iterator dit = this->domain_begin(); dit != this->domain_end(); ++dit) {
+        for ( Domains::const_iterator dit = domain_begin(); dit != domain_end(); ++dit) {
             if ( dit->contains_point(p) ) {
                 return *dit;
             }
@@ -118,7 +118,7 @@ namespace OpenMEEG {
 
     const Domain& Geometry::domain(const std::string& dname) const
     {
-        for ( Domains::const_iterator dit = this->domain_begin(); dit != this->domain_end(); ++dit) {
+        for ( Domains::const_iterator dit = domain_begin(); dit != domain_end(); ++dit) {
             if ( dit->name() == dname ) {
                 return *dit;
             }
@@ -152,14 +152,14 @@ namespace OpenMEEG {
     {
         // Either unknowns (potentials and currents) are ordered by mesh (i.e. V_1, p_1, V_2, p_2,...) 
         // or by type (V_1,V_2,V_3 .. p_1, p_2...)
-        #define CLASSIC_ORDERING
+        // #define CLASSIC_ORDERING // if we use classic_ordering make sure vertex do not overwrite index.. meshes have shared vertices..
         unsigned index = 0;
         #ifndef CLASSIC_ORDERING
-        for ( Vertices::iterator pit = this->vertex_begin(); pit != this->vertex_end(); ++pit, index) {
+        for ( Vertices::iterator pit = vertex_begin(); pit != vertex_end(); ++pit, index) {
             pit->index() = index++;
         }
         #endif
-        for ( iterator mit = this->begin(); mit != this->end(); ++mit) {
+        for ( iterator mit = begin(); mit != end(); ++mit) {
             #ifdef CLASSIC_ORDERING
             for ( Mesh::const_vertex_iterator vit = mit->vertex_begin(); vit != mit->vertex_end(); ++vit) {
                 (*vit)->index() = index++;
@@ -171,7 +171,7 @@ namespace OpenMEEG {
                 }
             }
         } // even the last surface triangles (yes for EIT... TODO)
-        for ( iterator mit = this->begin(); mit != this->end(); ++mit) {
+        for ( iterator mit = begin(); mit != end(); ++mit) {
             for ( Mesh::iterator tit = mit->begin(); tit != mit->end(); ++tit) {
                 if ( mit->outermost() ) {
                     tit->index() = index++;
@@ -252,7 +252,7 @@ namespace OpenMEEG {
     bool Geometry::selfCheck() const  // TODO: general enough ?
     {
         bool OK = true;
-        for ( const_iterator mit1 = this->begin() ; mit1 != this->end(); ++mit1 ) {
+        for ( const_iterator mit1 = begin() ; mit1 != end(); ++mit1 ) {
             if ( !mit1->has_correct_orientation() ) {
                 warning(std::string("A mesh does not seem to be properly oriented"));
             }
@@ -262,7 +262,7 @@ namespace OpenMEEG {
                 OK = false;
                 std::cout << "Self intersection for mesh \"" << mit1->name() << "\"" << std:: endl;
             }
-            for ( const_iterator mit2 = mit1+1 ; mit2 != this->end(); ++mit2 ) {
+            for ( const_iterator mit2 = mit1+1 ; mit2 != end(); ++mit2 ) {
                 if ( mit1->intersection(*mit2) ) {
                     warning(std::string("2 meshes are intersecting !"));
                     mit1->info();
@@ -283,7 +283,7 @@ namespace OpenMEEG {
             m.info();
             OK = false;
         }
-        for ( const_iterator mit = this->begin() ; mit != this->end(); ++mit ) {
+        for ( const_iterator mit = begin() ; mit != end(); ++mit ) {
             if ( mit->intersection(m) ) {
                 warning(std::string("Mesh is intersecting with one of the mesh in geom file !"));
                 mit->info();

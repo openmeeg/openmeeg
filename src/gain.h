@@ -93,7 +93,7 @@ namespace OpenMEEG {
                 mtemp=mtemp.transpose();
                 #endif
                 for ( unsigned i = 0; i < LeadField.ncol(); ++i) {
-                    LeadField.setcol(i,mtemp * DipSourceMat(geo, dipoles.submat(i, 1, 0, dipoles.ncol()), gauss_order, true, "Brain").getcol(0)); // TODO ugly
+                    LeadField.setcol(i,mtemp * DipSourceMat(geo, dipoles.submat(i, 1, 0, dipoles.ncol()), gauss_order, true, "").getcol(0)); // TODO ugly
                     PROGRESSBAR(i,LeadField.ncol());
                 }
                 *this = LeadField;

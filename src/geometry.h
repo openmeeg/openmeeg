@@ -135,10 +135,8 @@ namespace OpenMEEG {
         unsigned   size_;   // total number = nb of vertices + nb of triangles
         bool       has_cond_;
 
-        void geom_generate_indices();
-
+        void          geom_generate_indices();
         const Domains common_domains(const Mesh&, const Mesh&) const;
-
         const double  funct_on_domains(const Mesh&, const Mesh&, const char& ) const;
     };
 }
