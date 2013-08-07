@@ -963,11 +963,13 @@ namespace OpenMEEG {
     }
 
     bool Mesh::has_correct_orientation() const {
-        // First : check the local orientation (that all the triangles are all oriented in the same way)
-        // define the triangle edges as (first point, second point)
-        // if a triangle edge is ordered with (lower index, higher index) keep it in a edge_list
-        // if not, exchange the two indices and put in a flipped_edge_list (lower index, higher index)
-        // Transform the edge_list and flipped_edge_list unambigously into lists of numbers
+
+        //  First : check the local orientation (that all the triangles are all oriented in the same way)
+        //  define the triangle edges as (first point, second point)
+        //  if a triangle edge is ordered with (lower index, higher index) keep it in a edge_list
+        //  if not, exchange the two indices and put in a flipped_edge_list (lower index, higher index)
+        //  Transform the edge_list and flipped_edge_list unambigously into lists of numbers
+
         std::list<int> edge_list;
         std::list<int> flipped_edge_list;
         int radix = 10^(int(log2((double)npts)/log2(10.0))+1);
@@ -979,19 +981,27 @@ namespace OpenMEEG {
                     flipped_edge_list.push_back(trgs[i].next(j)*radix+trgs[i].som(j));
             }
         }
-        // Sort these two lists: they should be identical: if not, there is a local orientation problem.
+        //  Sort these two lists: they should be identical: if not, there is a local orientation problem.
         edge_list.sort();
         flipped_edge_list.sort();
 
-        // check the global orientation: that the triangles are correctly oriented (outward-pointing normal)
-        // compute the bounding box:
+        const bool local_orientation_problem = (flipped_edge_list!=edge_list);
+
+        if (local_orientation_problem) {
+            std::cerr << "Local orientation problem..." << std::endl << std::endl;
+            return false;
+        }
+
+        //  Check the global orientation: that the triangles are correctly oriented (outward-pointing normal)
+        //  compute the bounding box:
+
         double xmax = std::numeric_limits<int>::min();
         double ymax = std::numeric_limits<int>::min();
         double zmax = std::numeric_limits<int>::min();
         double xmin = std::numeric_limits<int>::max();
         double ymin = std::numeric_limits<int>::max();
         double zmin = std::numeric_limits<int>::max();
-        for(int i=0; i<npts; ++i) {
+        for (int i=0;i<npts;++i) {
             xmin = std::min(xmin, point(i).x());
             ymin = std::min(ymin, point(i).y());
             zmin = std::min(zmin, point(i).z());
@@ -1003,15 +1013,12 @@ namespace OpenMEEG {
         Vect3 bbmax(xmax, ymax, zmax);
         Vect3 bbcenter = 0.5 * (bbmin + bbmax);
 
-        // check the center of the bounding box is inside the mesh
-        bool in_mesh = contains_point(bbcenter);
+        //  Check the center of the bounding box is inside the mesh
+
+        const bool in_mesh = contains_point(bbcenter);
         if (!in_mesh)
             std::cerr << "Global orientation problem..." << std::endl << std::endl;
 
-        if (flipped_edge_list != edge_list)
-            std::cerr << "Local orientation problem..." << std::endl << std::endl;
-
-        return in_mesh && (flipped_edge_list == edge_list);
+        return in_mesh;
     }
-
-} // end namespace OpenMeeg
+}

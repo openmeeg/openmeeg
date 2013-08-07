@@ -62,9 +62,9 @@ int main( int argc, char **argv)
         warning(std::string("Mesh is self intersecting !"));
     }
     // for closed mesh
-    if (!M.has_correct_orientation()) {
+    if (!M.has_correct_orientation())
         warning(std::string("Mesh is not well-oriented (valid for closed mesh) !"));
-    }
-    else std::cout << "Mesh orientation correct (valid for closed mesh)." << std::endl;
+    else
+        std::cout << "Mesh orientation correct (valid for closed mesh)." << std::endl;
     return 0;
 }
