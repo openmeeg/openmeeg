@@ -97,7 +97,7 @@ namespace OpenMEEG {
             }
         }
 
-        mat.save("/user/eolivi/home/compiles/OpenMEEG/tests/Head11.hm"); // TODO
+        // mat.save("/user/eolivi/home/compiles/OpenMEEG/tests/Head11.hm"); // TODO
 
         // Block multiplications
         // Because only half the Matrix is stored, only the lower part of the Matrix is treated
@@ -149,7 +149,7 @@ namespace OpenMEEG {
             }
         }
 
-        mat.save("/user/eolivi/home/compiles/OpenMEEG/tests/Head111.hm"); // TODO
+        // mat.save("/user/eolivi/home/compiles/OpenMEEG/tests/Head111.hm"); // TODO
 
         // Deflate the last diagonal block of 'mat' : (in order to have a zero-mean potential for the outermost interface)
         const Interface i = geo.outermost_interface();

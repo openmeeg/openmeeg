@@ -84,12 +84,12 @@ namespace OpenMEEG {
         Domains::const_iterator    domain_end()      const { return domains_.end();    }
 
         // Constructors
-        Geometry(): has_cond_(false), size_(0)  { }
+        Geometry(): has_cond_(false), is_nested_(false), size_(0)  { }
         ~Geometry() { }
 
         // TODO review private/public
-              bool&         has_cond()                             { return has_cond_; }
         const bool&         has_cond()                       const { return has_cond_; }
+        const bool&         is_nested()                      const { return is_nested_; }
               Vertices&     vertices()                             { return vertices_; }
         const Vertices&     vertices()                       const { return vertices_; }
         const unsigned      nb_vertices()                    const { return vertices_.size(); }
@@ -118,7 +118,6 @@ namespace OpenMEEG {
         const double  sigma_diff (const Mesh& m) const; // return the difference of conductivities of the 2 domains.
         const double  sigma      (const std::string&) const;
               bool    selfCheck() const;
-              bool    nested() const; // TODO
               bool    check(const Mesh& m) const;
         const double  oriented(const Mesh&, const Mesh&) const;
 
@@ -134,6 +133,7 @@ namespace OpenMEEG {
         Domains    domains_;
         unsigned   size_;   // total number = nb of vertices + nb of triangles
         bool       has_cond_;
+        bool       is_nested_;
 
         void          geom_generate_indices();
         const Domains common_domains(const Mesh&, const Mesh&) const;

@@ -44,7 +44,7 @@ namespace OpenMEEG {
     bool Domain::contains_point(const Vect3& p) const 
     {
         bool inside = true;
-        for (Domain::const_iterator hit = begin(); hit != end(); ++hit) {
+        for ( Domain::const_iterator hit = begin(); hit != end(); ++hit) {
             inside = (inside &&  (hit->interface().contains_point(p) == hit->inside()));
         }
         return inside;
@@ -64,9 +64,6 @@ namespace OpenMEEG {
             std::cout << hit->interface().name() << " ";
         }
         std::cout << std::endl;
-        if ( innermost() ) {
-            std::cout << "\t\tConsidered as the innermost domain." << std::endl;
-        }
         if ( outermost() ) {
             std::cout << "\t\tConsidered as the outermost domain." << std::endl;
         }
@@ -75,11 +72,11 @@ namespace OpenMEEG {
             for ( Interface::const_iterator omit = hit->interface().begin(); omit != hit->interface().end(); ++omit) {
                 std::cout << "Mesh \""<< omit->mesh().name() << "\"";
                 if ( omit->mesh().outermost() ) {
-                    std::cout << "(OUTERMOST)";
+                    std::cout << "(outermost)";
                 }
                 std::cout << ", ";
             }
-            std::cout << " }" << std::endl;
+            std::cout << "\b\b }" << std::endl;
         }
     }
 }

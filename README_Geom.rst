@@ -4,15 +4,13 @@ OpenMEEG: Taking into account non-nested geometries
 Definitions:
 ------------
 -Vertex: 3D vector of real                                                     Vect3
- vertices: collection of vertex                                                Vect3* vertices   OR    Vertex vertices
+ Vertices: collection of Vertex                                                Vertices vertices
  
--Triangle: vector of 3 indices                                                 Triangle
+-Mesh: collection of Triangles                                                 Triangles triangles
 
--Mesh: collection of triangles                                                 Triangle* triangles
+-Interface: A closed-connexed shape, e.g a mesh homeomorphe to a sphere.       vector<Mesh * > Interface
 
--Interface: A closed-connexed shape, e.g a mesh homeomorphe to a sphere.       vector<Mesh&> interface
-
--OrientedInterface: An Oriented (with normals) Interface                       vector<pair< interface, vector<bool> > > Ointerface
+-OrientedInterface: An Oriented (with normals) Interface                       vector<pair< Interface, vector<bool> > > Ointerface
                     the boolean tell wheater the direct product is well 
                     oriented or not with regard to the interior domain.
 
@@ -145,7 +143,6 @@ else (version == 2.0)
         for i in nb_domains
             domains.pushback_ (name%i, +/- interface )
         end
-
 
 TODO
 ^^^^

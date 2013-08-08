@@ -129,17 +129,14 @@ namespace OpenMEEG {
 
     void Geometry::read(const std::string& geomFileName, const std::string& condFileName) 
     {
-        has_cond() = false; // default parameter
-
         Geometry::GeometryReader geoR(*this);
 
         geoR.read_geom(geomFileName);
 
         if ( condFileName != "" ) {
             geoR.read_cond(condFileName);
-            has_cond() = true;
+            has_cond_ = true;
         }
-        has_cond() = true;
 
         // generate the indices of our unknowns
         geom_generate_indices();

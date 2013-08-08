@@ -267,9 +267,8 @@ namespace OpenMEEG {
             }
         }
 
-        // Search for the innermost (resp. outermost) domain and set a boolean on the domain in the vector domains.
-        // An innermost (resp. outermost) domain is (here) defined as the only domain (inside/outside) represented by only one interface.
-        // Specials domain names can enforce which domain is innermost ("Innermost") or outermost: ("Outermost", "Air")
+        // Search for the outermost domain and set a boolean on the domain in the vector domains.
+        // An outermost domain is (here) defined as the only domain (inside/outside) represented by only one interface.
         Domains::iterator dit_out;
         bool outer;
         for ( Domains::iterator dit = geo_.domain_begin(); dit != geo_.domain_end(); ++dit) {

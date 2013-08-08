@@ -49,7 +49,7 @@ int main( int argc, char **argv) {
 
     print_version(argv[0]);
 
-    command_usage("Convert meshes into a single VTP file.");
+    command_usage("Convert meshes into a single VTK/VTP file.");
     const char * input[6];
     const char * output;
     const char * name[6];
@@ -67,7 +67,7 @@ int main( int argc, char **argv) {
     name[5]  = command_option("-n6", (const char *) NULL, "Mesh Name");
     output   = command_option("-o" , (const char *) NULL, "Output VTP file");
 
-    const char *output_filename = command_option("-o",(const char *) NULL,"Output VTP mesh");
+    const char *output_filename = command_option("-o", (const char *) NULL, "Output VTP mesh");
 
     if ( command_option("-h", (const char *)0, 0) )
         return 0;
@@ -77,7 +77,7 @@ int main( int argc, char **argv) {
         return 1;
     }
     
-    Meshes   meshes;
+    Meshes meshes;
 
     unsigned nb_vertices = 0;
     unsigned i_input     = 0;

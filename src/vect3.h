@@ -72,7 +72,7 @@ namespace OpenMEEG {
         inline ~Vect3() { }
 
         Vect3& operator=(const Vect3& v) {
-            std::copy(&v.m[0],&v.m[3],&m[0]);
+            std::copy(&v.m[0], &v.m[3], &m[0]);
             return *this;
         }
 
@@ -123,7 +123,7 @@ namespace OpenMEEG {
             return m[i];
         }
 
-        inline Vect3 operator-() { return Vect3(-m[0],-m[1],-m[2]); }
+        inline Vect3 operator-() { return Vect3(-m[0], -m[1], -m[2]); }
 
         inline double det(const Vect3& y2, const Vect3& y3) const {
             return (*this)*(y2^y3); // y1.det(y2, y3):= y1/(y2^y3)
@@ -138,7 +138,7 @@ namespace OpenMEEG {
             const double y2 = Y2.norm();
             const double y3 = Y3.norm();
             const double d = Y1*(Y2^Y3);
-            return 2.*atan2(d,(y1*y2*y3+y1*(Y2*Y3)+y2*(Y3*Y1)+y3*(Y1*Y2)));
+            return 2.*atan2(d, (y1*y2*y3+y1*(Y2*Y3)+y2*(Y3*Y1)+y3*(Y1*Y2)));
         }
 
         inline Vect3& normalize() {

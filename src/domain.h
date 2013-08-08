@@ -79,7 +79,7 @@ namespace OpenMEEG {
 
     public:
 
-        Domain(): name_(""), sigma_(0.), innermost_(false), outermost_(false) { }
+        Domain(): name_(""), sigma_(0.), outermost_(false) { }
 
         ~Domain() { }
 
@@ -90,10 +90,6 @@ namespace OpenMEEG {
         //  The conductivity of the domain.
               double&      sigma()           { return sigma_; }
         const double&      sigma()     const { return sigma_; }
-
-        //  Returns the innermost state of the domain.
-              bool&        innermost()       { return innermost_; }
-        const bool&        innermost() const { return innermost_; }
 
         //  Returns the outermost state of the domain.
               bool&        outermost()       { return outermost_; }
@@ -119,9 +115,9 @@ namespace OpenMEEG {
 
     private:
 
-        std::string name_;                  // Name of the domain.
-        double      sigma_;                 // Conductivity of the domain.
-        bool        innermost_, outermost_; // Innermost domain ? TODO
+        std::string name_;      // Name of the domain.
+        double      sigma_;     // Conductivity of the domain.
+        bool        outermost_; // Is it an outermost domain
     };
 
     typedef std::vector<Domain > Domains;

@@ -844,16 +844,16 @@ namespace OpenMEEG {
 
         std::ofstream os(filename.c_str(), std::ios::binary);
 
-        unsigned char format[5] = {'b','i','n','a','r'}; // File format
+        unsigned char format[5] = {'b', 'i', 'n', 'a', 'r'}; // File format
         os.write((char*)format, sizeof(unsigned char)*5);
 
-        unsigned char lbindian[4] = {'D','C','B','A'}; // lbindian
+        unsigned char lbindian[4] = {'D', 'C', 'B', 'A'}; // lbindian
         os.write((char*)lbindian, sizeof(unsigned char)*4);
 
         unsigned int arg_size[1] = {4}; // arg_size
         os.write((char*)arg_size, sizeof(unsigned int));
 
-        unsigned char VOID[4] = {'V','O','I','D'}; // Trash
+        unsigned char VOID[4] = {'V', 'O', 'I', 'D'}; // Trash
         os.write((char*)VOID, sizeof(unsigned char)*4);
 
         unsigned int vertex_per_face[1] = {3}; // vertex_per_face

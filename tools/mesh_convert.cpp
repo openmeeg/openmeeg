@@ -50,17 +50,17 @@ int main( int argc, char **argv) {
     print_version(argv[0]);
 
     command_usage("Convert mesh between different formats");
-    const char *input_filename = command_option("-i",(const char *) NULL,"Input Mesh");
-    const char *output_filename = command_option("-o",(const char *) NULL,"Output Mesh");
-    const double tx = command_option("-tx",0.0,"Translation along the x axis");
-    const double ty = command_option("-ty",0.0,"Translation along the y axis");
-    const double tz = command_option("-tz",0.0,"Translation along the z axis");
-    const double sx = command_option("-sx",1.0,"Scaling along the x axis");
-    const double sy = command_option("-sy",1.0,"Scaling along the y axis");
-    const double sz = command_option("-sz",1.0,"Scaling along the z axis");
-    const char* transfmat = command_option("-mat",(const char *) NULL,"4x4 Transformation Matrix (Assumed format ASCII)");
-    const char* invert = command_option("-invert",(const char *) NULL,"Invert triangles point order");
-    if (command_option("-h",(const char *)0,0)) return 0;
+    const char *input_filename = command_option("-i", (const char *) NULL, "Input Mesh");
+    const char *output_filename = command_option("-o", (const char *) NULL, "Output Mesh");
+    const double tx = command_option("-tx", 0.0, "Translation along the x axis");
+    const double ty = command_option("-ty", 0.0, "Translation along the y axis");
+    const double tz = command_option("-tz", 0.0, "Translation along the z axis");
+    const double sx = command_option("-sx", 1.0, "Scaling along the x axis");
+    const double sy = command_option("-sy", 1.0, "Scaling along the y axis");
+    const double sz = command_option("-sz", 1.0, "Scaling along the z axis");
+    const char* transfmat = command_option("-mat", (const char *) NULL, "4x4 Transformation Matrix (Assumed format ASCII)");
+    const char* invert = command_option("-invert", (const char *) NULL, "Invert triangles point order");
+    if (command_option("-h", (const char *)0, 0)) return 0;
 
     if(!input_filename || !output_filename) {
         std::cout << "Not enough arguments, try the -h option" << std::endl;
@@ -83,7 +83,7 @@ int main( int argc, char **argv) {
         assert(mat.nlin() == 4);
         assert(mat.ncol() == 4);
 
-        double mdet = determinant3x3(mat.submat(0,3,0,3));
+        double mdet = determinant3x3(mat.submat(0, 3, 0, 3));
         if(mdet < 0 && !invert) // transformation is indirect => should force face flipping
         {
             std::cout << "Warning : Transformation is indirect use -invert option to force face flipping" << std::endl;
@@ -124,12 +124,12 @@ double determinant3x3(const Matrix& mat) {
     assert(mat.nlin() == 3);
     double f = 0.0;
 
-    f += mat(0,0)*mat(1,1)*mat(2,2);
-    f += mat(0,2)*mat(1,0)*mat(2,1);
-    f += mat(0,1)*mat(1,2)*mat(2,0);
-    f -= mat(0,2)*mat(1,1)*mat(2,0);
-    f -= mat(0,0)*mat(1,2)*mat(2,1);
-    f -= mat(0,1)*mat(1,0)*mat(2,2);
+    f += mat(0, 0)*mat(1, 1)*mat(2, 2);
+    f += mat(0, 2)*mat(1, 0)*mat(2, 1);
+    f += mat(0, 1)*mat(1, 2)*mat(2, 0);
+    f -= mat(0, 2)*mat(1, 1)*mat(2, 0);
+    f -= mat(0, 0)*mat(1, 2)*mat(2, 1);
+    f -= mat(0, 1)*mat(1, 0)*mat(2, 2);
 
     return f;
 }

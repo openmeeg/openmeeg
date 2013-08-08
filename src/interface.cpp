@@ -61,8 +61,9 @@ namespace OpenMEEG {
             exit(1);
         }
     }
-    
-    double Interface::compute_solid_angle(const Vect3& p) const // compute the solid-angle which should be +/-4 * Pi for a closed mesh
+
+    // compute the solid-angle which should be +/-4 * Pi for a closed mesh if p is inside
+    double Interface::compute_solid_angle(const Vect3& p) const 
     {
         double solangle = 0.0;
         for ( Interface::const_iterator omit = begin(); omit != end(); ++omit) {
