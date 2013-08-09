@@ -55,6 +55,7 @@ void conversion(maths::ifstream& ifs,const char* input_format,maths::ofstream& o
     else
         ifs >> M;
 
+    M.info(); //TODO
     if (output_format)
         ofs << maths::format(output_format) << M;
     else

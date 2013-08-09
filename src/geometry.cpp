@@ -259,17 +259,18 @@ namespace OpenMEEG {
                 OK = false;
                 std::cout << "Self intersection for mesh \"" << mit1->name() << "\"" << std:: endl;
             }
-            for ( const_iterator mit2 = mit1+1 ; mit2 != end(); ++mit2 ) {
-                if ( mit1->intersection(*mit2) ) {
-                    warning(std::string("2 meshes are intersecting !"));
-                    mit1->info();
-                    mit2->info();
-                    OK = false;
+            if ( is_nested_ ) {
+                for ( const_iterator mit2 = mit1+1 ; mit2 != end(); ++mit2 ) {
+                    if ( mit1->intersection(*mit2) ) {
+                        warning(std::string("2 meshes are intersecting !"));
+                        mit1->info();
+                        mit2->info();
+                        OK = false;
+                    }
                 }
             }
         }
-        // return OK;
-        return true; // TODO it says false for NN geom...
+        return OK;
     }
 
     bool Geometry::check(const Mesh& m) const 

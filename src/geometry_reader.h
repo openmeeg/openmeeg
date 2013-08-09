@@ -126,7 +126,6 @@ namespace OpenMEEG {
         const std::string path = (pos == std::string::npos) ? "" : geometry.substr(0, pos+1);
 
         // Process meshes. -----------------------------------------------------------------------------------
-        bool meshfile = false;
         if ( version[0] == 1 ) {
             if ( version[1] == 0 ) {
                 std::cerr << "Please consider updating the version of the domain description to 1.1 in the geometry file: "
@@ -269,8 +268,8 @@ namespace OpenMEEG {
 
         // Search for the outermost domain and set a boolean on the domain in the vector domains.
         // An outermost domain is (here) defined as the only domain (inside/outside) represented by only one interface.
-        Domains::iterator dit_out;
         bool outer;
+        Domains::iterator dit_out;
         for ( Domains::iterator dit = geo_.domain_begin(); dit != geo_.domain_end(); ++dit) {
             outer = true;
             for ( Domain::iterator hit = dit->begin(); hit != dit->end(); ++hit) {
@@ -286,7 +285,55 @@ namespace OpenMEEG {
             }
         }
 
-        if ( ifs.fail()) {
+        bool nested = true;
+        // Determine if the geometry is nested or not
+        // The geometry is considered nested if (at least) one domain is defined as being outise two or more interfaces
+        // OR
+        // if 2 interfaces are composed by a same mesh oriented once correctly once wrongly.
+        for ( Domains::const_iterator dit = geo_.domain_begin(); dit != geo_.domain_end(); ++dit) {
+            unsigned out_interface = 0;
+            if ( dit != dit_out ) {
+                for ( Domain::const_iterator hit = dit->begin(); hit != dit->end(); ++hit) {
+                    if ( !hit->inside() ) {
+                        out_interface++;
+                    }
+                }
+            }
+            if ( out_interface >= 2 ) {
+                nested = false;
+                break;
+            }
+        }
+
+        if ( nested ) {
+            for ( Geometry::const_iterator mit = geo_.begin(); mit != geo_.end(); ++mit) {
+                unsigned m_oriented = 0;
+                for ( Domains::const_iterator dit = geo_.domain_begin(); dit != geo_.domain_end(); ++dit) {
+                    for ( Domain::const_iterator hit = dit->begin(); hit != dit->end(); ++hit) {
+                        for ( Interface::const_iterator iit = hit->first.begin(); iit != hit->first.end(); ++iit) {
+                            if ( iit->mesh() == *mit ) {
+                                m_oriented += (iit->orientation());
+                            }
+                        }
+                    }
+                }
+                if ( m_oriented == 0 ) {
+                    nested = false; // TODO or a mesh is unused ...
+                    break;
+                }
+            }
+        }
+
+        if ( nested ) {
+            std::cout << "Geometry file " << geometry << " defines a NESTED geometry." << std::endl;
+            geo_.is_nested_ = true;
+        } else {
+            std::cout << "Geometry file " << geometry << " defines a NON NESTED geometry." << std::endl;
+            geo_.is_nested_ = false;
+        }
+
+
+        if ( ifs.fail() ) {
             throw MeshDescription::WrongFileFormat(geometry);
         }
 

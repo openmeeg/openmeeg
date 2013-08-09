@@ -168,7 +168,7 @@ namespace OpenMEEG {
     **/
     void Mesh::info() const 
     {
-        std::cout << "Info:: Mesh name or ID : "  << name() << std::endl;
+        std::cout << "Info:: Mesh name/ID : "  << name() << std::endl;
         std::cout << "\t\t# vertices  : " << nb_vertices() << std::endl;
         std::cout << "\t\t# triangles : " << nb_triangles() << std::endl;
         std::cout << "\t\tEuler characteristic : " << nb_vertices() - 3.*nb_triangles()/2. + nb_triangles() << std::endl;

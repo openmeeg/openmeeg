@@ -56,10 +56,11 @@ namespace OpenMEEG {
         for ( Geometry::const_iterator mit = geo.begin(); mit != geo.end(); ++mit, ++miit) {
             unsigned offsetI = 0;
             unsigned n = pts.nlin();
+            double coeff = geo.sigma_diff(*mit)*MU0/(4.*M_PI);
             for ( unsigned i = 0; i < n; ++i) {
                 PROGRESSBAR(miit*i, geo.nb_meshes()*n);
                 Vect3 p(pts(i, 0), pts(i, 1), pts(i, 2));
-                operatorFerguson(p, *mit, mat, offsetI, geo.sigma_diff(*mit)*MU0/(4.*M_PI));
+                operatorFerguson(p, *mit, mat, offsetI, coeff);
                 offsetI += 3;
             }
         }

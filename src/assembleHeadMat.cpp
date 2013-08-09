@@ -97,7 +97,7 @@ namespace OpenMEEG {
             }
         }
 
-        // mat.save("/user/eolivi/home/compiles/OpenMEEG/tests/Head11.hm"); // TODO
+        mat.save("/user/eolivi/home/compiles/OpenMEEG/tests/Head11.hm"); // TODO
 
         // Block multiplications
         // Because only half the Matrix is stored, only the lower part of the Matrix is treated
@@ -144,12 +144,12 @@ namespace OpenMEEG {
 
                     // N
                     double Ncoeff = orientation * geo.sigma(*mit1, *mit2) * K;
-                    mult(mat, i_m1_vf, i_m2_vf, i_m1_vl, i_m2_vl, Ncoeff);
+                    mult(mat, i_m1_vf, i_m2_vf, i_m1_vl, i_m2_vl, Ncoeff); // TODO block multiplication aren't good for shared vertices
                 }
             }
         }
 
-        // mat.save("/user/eolivi/home/compiles/OpenMEEG/tests/Head111.hm"); // TODO
+        mat.save("/user/eolivi/home/compiles/OpenMEEG/tests/Head111.hm"); // TODO
 
         // Deflate the last diagonal block of 'mat' : (in order to have a zero-mean potential for the outermost interface)
         const Interface i = geo.outermost_interface();
