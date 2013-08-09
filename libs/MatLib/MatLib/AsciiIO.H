@@ -111,6 +111,9 @@ namespace OpenMEEG {
                 if (linop.storageType()!=inforead.storageType())
                     throw BadStorageType(name());
 
+                if (linop.dimension()!=inforead.dimension())
+                    throw BadVector(inforead.ncol());
+
                 linop.nlin() = inforead.nlin();
                 linop.ncol() = inforead.ncol();
 
@@ -118,7 +121,7 @@ namespace OpenMEEG {
 
                 if (linop.storageType()==LinOp::SPARSE) {
                     read_sparse(is,linop);
-                } else if (linop.storageType() == LinOp::SYMMETRIC) {
+                } else if (linop.storageType()==LinOp::SYMMETRIC) {
                     read_symmetric(is,linop);
                 } else {
                     read_full(is,linop);

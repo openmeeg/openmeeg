@@ -85,6 +85,8 @@ int main(int argc, char **argv) try {
         return 0;
     } catch (OpenMEEG::maths::BadStorageType&) {
         //  Ignore storage type problems as they will tried in sequence.
+    } catch (OpenMEEG::maths::BadVector&) {
+        //  Bad vector may mean that this is not a vector but a matrix (handled below).
     } catch (OpenMEEG::maths::BadContent&) {
         //  Bad content type may mean that this another type of matrix/vector.
     } catch (...) {
