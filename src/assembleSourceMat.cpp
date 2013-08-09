@@ -78,11 +78,11 @@ namespace OpenMEEG {
         for ( Domain::const_iterator hit = d.begin(); hit != d.end(); ++hit) {
             for ( Interface::const_iterator omit = hit->interface().begin(); omit != hit->interface().end(); ++omit) {
                 // First block is nVertexFistLayer*nVertexSources.
-                operatorN( omit->mesh(), mesh_source, mat, gauss_order);
-                mult(mat, (*omit->mesh().vertex_begin())->index(), (*mesh_source.vertex_begin())->index(), (*omit->mesh().vertex_rbegin())->index(), (*mesh_source.vertex_rbegin())->index(), K);
+                operatorN( omit->mesh(), mesh_source, mat, K, gauss_order);
+                // mult(mat, (*omit->mesh().vertex_begin())->index(), (*mesh_source.vertex_begin())->index(), (*omit->mesh().vertex_rbegin())->index(), (*mesh_source.vertex_rbegin())->index(), K); // TODO better with mult ??
                 // Second block is nFacesFistLayer*nVertexSources.
-                operatorD(omit->mesh(), mesh_source, mat, gauss_order);
-                mult(mat, omit->mesh().begin()->index(), (*mesh_source.vertex_begin())->index(), omit->mesh().rbegin()->index(), (*mesh_source.vertex_rbegin())->index(), -K/sigma);
+                operatorD(omit->mesh(), mesh_source, mat, -K/sigma, gauss_order);
+                // mult(mat, omit->mesh().begin()->index(), (*mesh_source.vertex_begin())->index(), omit->mesh().rbegin()->index(), (*mesh_source.vertex_rbegin())->index(), -K/sigma);
             }
         }
     }
@@ -184,13 +184,13 @@ namespace OpenMEEG {
 
                 if ( std::abs(orientation) > 10.*std::numeric_limits<double>::epsilon() ) {
                     //  Compute S.
-                    operatorS(omit1->mesh(), *mit2, transmat, gauss_order);
+                    operatorS(omit1->mesh(), *mit2, transmat, 1., gauss_order); // TODO coeff are not 1 !!!!  (3 times)
                     mult(transmat, i_m1_tf, i_m2_tf, i_m1_tl, i_m2_tl, geo.sigma_inv(omit1->mesh(), *mit2) * (K * orientation));
 
                     //  First compute D, then it will be transposed.
-                    operatorD(omit1->mesh(), *mit2, transmat, gauss_order);
+                    operatorD(omit1->mesh(), *mit2, transmat, 1., gauss_order);
                     mult(transmat, i_m1_tf, i_m2_vf, i_m1_tl, i_m2_vl, -(K * orientation));
-                    operatorD(omit1->mesh(), omit1->mesh(), transmat, gauss_order);
+                    operatorD(omit1->mesh(), omit1->mesh(), transmat, 1., gauss_order);
                     mult(transmat, i_m1_tf, i_m1_vf, i_m1_tl, i_m1_vl, -2.0*(K * orientation));
                     operatorP1P0(omit1->mesh(), transmat);
                     mult(transmat, i_m1_tf, i_m1_vf, i_m1_tl, i_m1_vl, -0.5);

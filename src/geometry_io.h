@@ -148,7 +148,7 @@ namespace OpenMEEG {
         vtkSmartPointer<vtkPolyData>    polydata = vtkSmartPointer<vtkPolyData>::New();
         vtkSmartPointer<vtkPoints>      points   = vtkSmartPointer<vtkPoints>::New();      // vertices
         vtkSmartPointer<vtkDoubleArray> normals  = vtkSmartPointer<vtkDoubleArray>::New(); // normals
-        vtkSmartPointer<vtkStringArray> cell_id  = vtkSmartPointer<vtkStringArray>::New();   // ids/mesh name
+        vtkSmartPointer<vtkStringArray> cell_id  = vtkSmartPointer<vtkStringArray>::New(); // ids/mesh name
         
         normals->SetNumberOfComponents(3); // 3d normals (ie x,y,z)
         normals->SetName("Normals");

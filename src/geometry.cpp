@@ -246,18 +246,11 @@ namespace OpenMEEG {
         }
     }
 
-    bool Geometry::selfCheck() const  // TODO (Maureen): general enough ?
+    bool Geometry::selfCheck() const
     {
         bool OK = true;
-        for ( Domains::const_iterator dit = domain_begin(); dit != domain_end(); ++dit) {
-            for ( Domain::const_iterator hit = dit->begin(); hit != dit->end(); ++hit) {
-                if ( !hit->interface().closed()) {
-                    OK = false;
-                    warning(std::string("Interface ") + hit->interface().name() + std::string(" is not closed !"));
-                }
-            }
-        }
 
+        // Test that all meshes are well oriented and not (self-)intersecting
         for ( const_iterator mit1 = begin() ; mit1 != end(); ++mit1 ) {
             if ( !mit1->has_correct_orientation() ) {
                 warning(std::string("A mesh does not seem to be properly oriented"));
@@ -275,6 +268,18 @@ namespace OpenMEEG {
                         mit1->info();
                         mit2->info();
                         OK = false;
+                    }
+                }
+            }
+        }
+
+        // Test that all interfaces are closed
+        if ( OK ) {
+            for ( Domains::const_iterator dit = domain_begin(); dit != domain_end(); ++dit) {
+                for ( Domain::const_iterator hit = dit->begin(); hit != dit->end(); ++hit) {
+                    if ( !hit->interface().closed()) {
+                        OK = false;
+                        warning(std::string("Interface ") + hit->interface().name() + std::string(" is not closed !"));
                     }
                 }
             }

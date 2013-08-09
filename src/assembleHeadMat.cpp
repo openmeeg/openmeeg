@@ -67,6 +67,7 @@ namespace OpenMEEG {
 
         mat = SymMatrix((geo.size()-geo.outermost_interface().nb_triangles()));
         mat.set(0.0);
+        double K = 1.0 / (4.0 * M_PI);
 
         // We iterate over the meshes (or pair of domains) to fill the lower half of the headmat (since its symmetry)
         for ( Geometry::const_iterator mit1 = geo.begin(); mit1 != geo.end(); ++mit1) {
@@ -75,81 +76,33 @@ namespace OpenMEEG {
 
                 // if mit1 and mit2 communicate, i.e they are used for the definition of a domain
                 const double orientation = geo.oriented(*mit1, *mit2); // equals  0, if they don't have any domains in common
+                                                                       // equals  1, if they are both oriented toward the same domain
+                                                                       // equals -1, if they are not
 
                 if ( std::abs(orientation) > 10.*std::numeric_limits<double>::epsilon() ) {
 
                     if ( !(mit1->outermost() || mit2->outermost()) ) {
                         // Computing S block first because it's needed for the corresponding N block
-                        operatorS(*mit1, *mit2, mat, gauss_order);
+                        double Scoeff =   orientation * geo.sigma_inv(*mit1, *mit2) * K;
+                        operatorS(*mit1, *mit2, mat, Scoeff, gauss_order);
                     }
                     if ( !mit1->outermost() ) {
                         // Computing D block
-                        operatorD(*mit1, *mit2, mat, gauss_order);
+                        double Dcoeff = - orientation * geo.indicatrice(*mit1, *mit2) * K;
+                        operatorD(*mit1, *mit2, mat, Dcoeff, gauss_order);
                     }
-                    // Computing D* block
                     if ( ( *mit1 != *mit2 ) && ( !mit2->outermost() ) ) {
-                        operatorD(*mit1, *mit2, mat, gauss_order, true);
+                        // Computing D* block
+                        double Dcoeff = - orientation * K;
+                        operatorD(*mit1, *mit2, mat, Dcoeff, gauss_order, true);
                     }
 
                     // Computing N block
-                    operatorN(*mit1, *mit2, mat, gauss_order);
-                }
-            }
-        }
-
-        // mat.save("/user/eolivi/home/compiles/OpenMEEG/tests/Head11.hm"); // TODO
-
-        // Block multiplications
-        // Because only half the Matrix is stored, only the lower part of the Matrix is treated
-        double K = 1.0 / (4.0 * M_PI);
-
-        // We iterate over the meshes (or pair of domains)
-        for ( Geometry::const_iterator mit1 = geo.begin(); mit1 != geo.end(); ++mit1) {
-
-            for ( Geometry::const_iterator mit2 = geo.begin(); mit2 != (mit1 + 1); ++mit2) {
-
-                unsigned i_m1_vf = (*mit1->vertex_begin())->index(); // index of the first vertex of mesh m1
-                unsigned i_m2_vf = (*mit2->vertex_begin())->index();
-                unsigned i_m1_vl = (*mit1->vertex_rbegin())->index();// index of the last vertex of mesh m1
-                unsigned i_m2_vl = (*mit2->vertex_rbegin())->index();
-                unsigned i_m1_tf = (mit1->begin())->index();
-                unsigned i_m2_tf = (mit2->begin())->index(); // index of the first triangle of mesh m2
-                unsigned i_m1_tl = (mit1->rbegin())->index();
-                unsigned i_m2_tl = (mit2->rbegin())->index();
-
-                double orientation = geo.oriented(*mit1, *mit2); // equals  0, if they don't have any domains in common
-                                                                 // equals  1, if they are both oriented toward the same domain
-                                                                 // equals -1, if they are not
-
-                if ( std::abs(orientation) > 10.*std::numeric_limits<double>::epsilon() ) {
-
-                    if ( !(mit1->outermost() || mit2->outermost()) ) {
-
-                        // if mit1 and mit2 communicate, i.e they are used for the definition of a common domain
-                        double Scoeff =   orientation * geo.sigma_inv(*mit1, *mit2) * K;
-                        // S
-                        mult(mat, i_m1_tf, i_m2_tf, i_m1_tl, i_m2_tl, Scoeff);
-                    }
-                    if ( !mit1->outermost() ) {
-                        // D
-                        double Dcoeff = - orientation * geo.indicatrice(*mit1, *mit2) * K;
-                        mult(mat, i_m1_tf, i_m2_vf, i_m1_tl, i_m2_vl, Dcoeff);
-                    }
-
-                    if ( ( *mit1 != *mit2 ) && ( !mit2->outermost() ) ) {
-                        // D*
-                        double Dcoeff = - orientation * K;
-                        mult(mat, i_m1_vf, i_m2_tf, i_m1_vl, i_m2_tl, Dcoeff);
-                    }
-
-                    // N
                     double Ncoeff = orientation * geo.sigma(*mit1, *mit2) * K;
-                    mult(mat, i_m1_vf, i_m2_vf, i_m1_vl, i_m2_vl, Ncoeff); // TODO block multiplication aren't good for shared vertices/meshes
+                    operatorN(*mit1, *mit2, mat, Ncoeff, gauss_order);
                 }
             }
         }
-
-        // mat.save("/user/eolivi/home/compiles/OpenMEEG/tests/Head111.hm"); // TODO
 
         // Deflate the last diagonal block of 'mat' : (in order to have a zero-mean potential for the outermost interface)
         const Interface i = geo.outermost_interface();
