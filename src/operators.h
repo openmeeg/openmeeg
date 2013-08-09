@@ -62,6 +62,8 @@ namespace OpenMEEG {
     #else
     #define OPTIMIZED_OPERATOR_D
     #endif
+    // TODO here for NaN
+    #undef OPTIMIZED_OPERATOR_D
 
     //#define ADAPT_LHS
 
@@ -159,6 +161,10 @@ namespace OpenMEEG {
 
         for ( unsigned i = 0; i < 3; ++i) {
             mat(T1.index(), T2(i).index()) += total(i)*coeff;
+            if (  mat(T1.index(), T2(i).index()) != mat(T1.index(), T2(i).index()) ) { // TODO why a NaN when using OPTIMIZED_OPERATOR_D for HeadNNa2
+                std::cout << total(i) << std::endl;
+                std::cin.get();
+            }
         }
     }
     #endif //OPTIMIZED_OPERATOR_D
