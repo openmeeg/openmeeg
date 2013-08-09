@@ -129,7 +129,7 @@ namespace OpenMEEG {
             const unsigned priority;
         };
 
-        class OPENMEEGMATHS_EXPORT MathsIOBase : public MathsIO {
+        class OPENMEEGMATHS_EXPORT MathsIOBase: public MathsIO {
 
             typedef MathsIO base;
 
