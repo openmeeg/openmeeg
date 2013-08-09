@@ -246,9 +246,18 @@ namespace OpenMEEG {
         }
     }
 
-    bool Geometry::selfCheck() const  // TODO: general enough ?
+    bool Geometry::selfCheck() const  // TODO (Maureen): general enough ?
     {
         bool OK = true;
+        for ( Domains::const_iterator dit = domain_begin(); dit != domain_end(); ++dit) {
+            for ( Domain::const_iterator hit = dit->begin(); hit != dit->end(); ++hit) {
+                if ( !hit->interface().closed()) {
+                    OK = false;
+                    warning(std::string("Interface ") + hit->interface().name() + std::string(" is not closed !"));
+                }
+            }
+        }
+
         for ( const_iterator mit1 = begin() ; mit1 != end(); ++mit1 ) {
             if ( !mit1->has_correct_orientation() ) {
                 warning(std::string("A mesh does not seem to be properly oriented"));
@@ -291,33 +300,6 @@ namespace OpenMEEG {
         return OK;
     }
 
-#if 0
-    void Geometry::import_meshes(const Meshes& m)
-    {
-        unsigned nb_vertices = 0;
-        for ( Meshes::const_iterator mit = m.begin(); mit != m.end(); ++mit) { // TODO a set !
-            nb_vertices += mit->nb_vertices();
-        }
-
-        vertices_.clear();
-        meshes_.clear();
-        vertices_.reserve(nb_vertices);
-        std::map<const Vertex *, Vertex *> map;
-       
-        // Copy the vertices in the geometry.
-        unsigned iit = 0;
-        for ( Meshes::const_iterator mit = m.begin(); mit != m.end(); ++mit, ++iit) {
-            meshes_.push_back(Mesh(vertices_, mit->name()));
-            for ( Mesh::const_vertex_iterator vit = mit->vertex_begin(); vit != mit->vertex_end(); ++vit) {
-                meshes_[iit].add_vertex(**vit);
-                map[*vit] = &(*vertices_.rbegin());
-            }
-            for ( Mesh::const_iterator tit = mit->begin(); tit != mit->end(); ++tit) {
-                meshes_[iit].push_back(Triangle(map[(*tit)[0]], map[(*tit)[1]], map[(*tit)[2]]));
-            }
-        }
-    }
-#else
     void Geometry::import_meshes(const Meshes& m)
     {
         std::set<Vertex> set_vertices;
@@ -350,10 +332,11 @@ namespace OpenMEEG {
         iit = 0;
         for ( Meshes::const_iterator mit = m.begin(); mit != m.end(); ++mit, ++iit) {
             for ( Mesh::const_iterator tit = mit->begin(); tit != mit->end(); ++tit) {
-                meshes_[iit].push_back(Triangle(vertices_[map_vertices[tit->s1()]], vertices_[map_vertices[tit->s2()]], vertices_[map_vertices[tit->s3()]]));
+                meshes_[iit].push_back(Triangle(vertices_[map_vertices[tit->s1()]], 
+                                                vertices_[map_vertices[tit->s2()]], 
+                                                vertices_[map_vertices[tit->s3()]]));
             }
             meshes_[iit].update();
         }
     }
-#endif
 }
