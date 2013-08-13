@@ -280,7 +280,7 @@ namespace OpenMEEG {
 
         unsigned i = 0; // for the PROGRESSBAR
         if ( &m1 == &m2 ) {
-            if ( true || m1.outermost() ) {
+            if ( true || m1.outermost() ) { // TODO
                 // we thus precompute operator S divided by the product of triangles area.
                 Matrix matS(m1.nb_triangles(), m1.nb_triangles()); // TODO !!! it should be a SymMatrix but doesnt give the same results !!
                 for ( Mesh::const_iterator tit1 = m1.begin(); tit1 != m1.end(); ++tit1) {
@@ -306,7 +306,7 @@ namespace OpenMEEG {
                 }
             }
         } else {
-            if ( true || m1.outermost() || m2.outermost() ) {
+            if ( true || m1.outermost() || m2.outermost() ) { // TODO
                 // we thus precompute operator S divided by the product of triangles area.
                 Matrix matS(m1.nb_triangles(), m2.nb_triangles());
                 for ( Mesh::const_iterator tit1 = m1.begin(); tit1 != m1.end(); ++tit1) {
@@ -378,7 +378,7 @@ namespace OpenMEEG {
         //    the upper left corner of the submatrix to be written is the Matrix
 
         if ( star ) {
-            std::cout << "OPERATOR D*(Optimized) ... (arg : mesh " << m1.name() << " , mesh " << m2.name() << " )" << std::endl;
+            std::cout << "OPERATOR D* ... (arg : mesh " << m1.name() << " , mesh " << m2.name() << " )" << std::endl;
             for ( Mesh::const_iterator tit = m2.begin(); tit != m2.end(); ++tit) {
                 // PROGRESSBAR(i-offsetI, m1.nbTrgs());
                 #pragma omp parallel for
@@ -388,7 +388,7 @@ namespace OpenMEEG {
                 }
             }
         } else {
-            std::cout << "OPERATOR D (Optimized) ... (arg : mesh " << m1.name() << " , mesh " << m2.name() << " )" << std::endl;
+            std::cout << "OPERATOR D  ... (arg : mesh " << m1.name() << " , mesh " << m2.name() << " )" << std::endl;
             for ( Mesh::const_iterator tit = m1.begin(); tit != m1.end(); ++tit) {
                 // PROGRESSBAR(i-offsetI, m1.nbTrgs());
                 #pragma omp parallel for

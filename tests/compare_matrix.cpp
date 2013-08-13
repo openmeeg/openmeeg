@@ -223,6 +223,9 @@ bool compare(const T& mat1, const T& mat2, double eps, size_t col){
                     break;
                 }
             }
+            if ( count >= 100 ) {
+                break;
+            }
         }
     } else {
         for(unsigned int i=0;i<mat1.nlin();++i) {
@@ -247,10 +250,13 @@ bool compare(const T& mat1, const T& mat2, double eps, size_t col){
                         std::cout.flush();
                     }
                     if ( count >= 100 ) {
-                        std::cout << "values from 1 to 100.... stopping display..." << std::endl;
+                        std::cout << "values from 1 to 100. Stopping the display..." << std::endl;
                         break;
                     }
                 }
+            }
+            if ( count >= 100 ) {
+                break;
             }
         }
     }

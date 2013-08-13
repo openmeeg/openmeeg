@@ -1,11 +1,11 @@
 # Domain Description 1.1
 
-MeshFile "HeadNNa2.vtp"
+MeshFile "HeadNNa3.vtp"
 
 Interfaces 5 Interface
 
-Interface North: +north +cut 
-Interface South: +south -cut
+Interface North: +north -cut 
+Interface South: +south +cut
 Interface Cortex: north south
 Interface Skull: skull
 Interface Scalp: scalp

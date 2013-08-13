@@ -59,9 +59,13 @@ IF(BUILD_TESTING)
     TESTHEAD(NNa2)
     TESTHEAD(NNb2)
 
+    TESTHEAD(NNc2)
+
     OPTION(TEST_HEAD3 "Run tests on Head 3" OFF)
 
     IF (TEST_HEAD3)
         TESTHEAD(3)
+        TESTHEAD(NNa3)
+        TESTHEAD(NNb3)
     ENDIF()
 ENDIF()
