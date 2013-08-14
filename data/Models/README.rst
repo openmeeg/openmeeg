@@ -67,7 +67,7 @@ which tells the name of the surface it belongs. (these files can easily be opene
 3. An Interface section:
 ------------------------
 
-Starting with the keyword "Interfaces", it follow the number of interfaces, and the keyword "Interface" or "Mesh".
+Starting with the keyword "Interfaces", it follows the number of interfaces, and the keyword "Interface" or "Mesh".
 
 In case no MeshFile section was found, "Mesh" must be the keyword. Else use "Interface".
 

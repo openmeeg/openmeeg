@@ -139,7 +139,7 @@ namespace OpenMEEG {
         bool  has_correct_orientation() const;
         bool  triangle_intersection(const Triangle&, const Triangle&) const;
         void  update();
-        void  flip_faces();
+        void  flip_triangles();
         const VectPTriangle& get_triangles_for_vertex(const Vertex& V) const;
         unsigned  correct_local_orientation();
 

@@ -183,7 +183,7 @@ namespace OpenMEEG {
         std::cout << "\t\tMax Area : " << max_area << std::endl;
     }
 
-    void Mesh::flip_faces() 
+    void Mesh::flip_triangles() 
     {
         for ( iterator tit = this->begin(); tit != this->end(); ++tit)
         {

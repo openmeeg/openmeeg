@@ -70,17 +70,6 @@ int main( int argc, char **argv)
         status = 1;
     }
     geo.info();
-    for ( Vertices::const_iterator vit = geo.vertex_begin(); vit != geo.vertex_end(); ++vit) {
-        if ( (vit->index() == 69)||(vit->index() == 79)||(vit->index() == 95)||(vit->index() == 108)||(vit->index() == 112)||(vit->index() == 127)||(vit->index() == 600)||(vit->index() == 600)||(vit->index() == 600)||(vit->index() == 606)||(vit->index() == 606)||(vit->index() == 606)) {
-            std::cout << "Index= " << vit->index() << "\t[" << *vit << "]" << std::endl;
-        }
-    }
-    for ( Geometry::const_iterator mit = geo.begin(); mit != geo.end(); ++mit) {
-        for ( Mesh::const_iterator tit = mit->begin(); tit != mit->end(); ++tit) {
-            if ( (tit->index() == 69)||(tit->index() == 79)||(tit->index() == 95)||(tit->index() == 108)||(tit->index() == 112)||(tit->index() == 127)||(tit->index() == 600)||(tit->index() == 600)||(tit->index() == 600)||(tit->index() == 606)||(tit->index() == 606)||(tit->index() == 606)) {
-                std::cout << "Triangle Index= " << tit->index() << "\t[" << tit->s1().index() << " , " << tit->s2().index() << " , " << tit->s3().index() << "]" << std::endl;
-            }
-        }
-    }
+
     return status;
 }

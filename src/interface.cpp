@@ -53,7 +53,7 @@ namespace OpenMEEG {
         } else if ( std::abs(solangle + 4.*M_PI) < 1.e3*std::numeric_limits<double>::epsilon()) {
             return true;
         } else if ( std::abs(solangle - 4.*M_PI) < 1.e3*std::numeric_limits<double>::epsilon()) {
-            std::cerr << "Interface::contains_point(" << p << ") Error. Are you sure the mesh is properly oriented?\n";
+            std::cerr << "Interface::contains_point(" << p << ") Error. This should not happen. Are you sure the mesh is properly oriented ?\n";
             return false;
         } else {
             std::cerr << "Interface::contains_point(" << p << ") Error. Are you sure the mesh is closed?\n"
@@ -62,7 +62,7 @@ namespace OpenMEEG {
         }
     }
 
-    // compute the solid-angle which should be +/-4 * Pi for a closed mesh if p is inside
+    /// compute the solid-angle which should be +/-4 * Pi for a closed mesh if p is inside, 0 if p is outside
     double Interface::compute_solid_angle(const Vect3& p) const 
     {
         double solangle = 0.0;
@@ -83,27 +83,52 @@ namespace OpenMEEG {
         outermost_ = true;
     }
 
-    const bool Interface::closed() const
+    /// Check the global orientation: that the triangles are correctly oriented (outward-pointing normal)
+    const bool Interface::check()
     {
-        // compute the bounding box:
+        /// compute the bounding box:
+        double xmin = std::numeric_limits<double>::max();
+        double ymin = std::numeric_limits<double>::max();
+        double zmin = std::numeric_limits<double>::max();
         double xmax = std::numeric_limits<double>::min();
         double ymax = std::numeric_limits<double>::min();
         double zmax = std::numeric_limits<double>::min();
+
         for ( Interface::const_iterator omit = begin(); omit != end(); ++omit) {
             for ( Mesh::const_vertex_iterator vit = omit->mesh().vertex_begin(); vit != omit->mesh().vertex_end(); ++vit) {
+                xmin = std::min(xmin, (**vit).x());
+                ymin = std::min(ymin, (**vit).y());
+                zmin = std::min(zmin, (**vit).z());
                 xmax = std::max(xmax, (**vit).x());
                 ymax = std::max(ymax, (**vit).y());
                 zmax = std::max(zmax, (**vit).z());
             }
         }
+        
+        Vect3 bbmin(xmin, ymin, zmin);
+        Vect3 bbmax(xmax, ymax, zmax);
+        Vect3 bbcenter = 0.5 * (bbmin + bbmax);
 
-        // compute the solid-angle from an outside point:
-        double solangle = compute_solid_angle(2.*Vect3(xmax, ymax, zmax));
+        // compute the solid-angle from an inside point:
+        double solangle = compute_solid_angle(bbcenter);
+        bool closed;
+
+        // TODO if it returns 0, then the center of BB is not inside, and thus we should randomly chose another insied point untill solid_anlge gives + or -4 PI ?
 
         if ( std::abs(solangle) < 1.e3*std::numeric_limits<double>::epsilon() ) {
-            return true;
+            closed = true;
+        } else if ( std::abs(solangle + 4.*M_PI) < 1.e3*std::numeric_limits<double>::epsilon()) {
+            closed = true;
+        } else if ( std::abs(solangle - 4.*M_PI) < 1.e3*std::numeric_limits<double>::epsilon()) {
+            std::cout << "Global Reorientation of interface " << name() << std::endl;
+            for ( Interface::iterator omit = begin(); omit != end(); ++omit) {
+                omit->second = !omit->second;
+            }
+            closed = true;
+        } else {
+            closed = false;
         }
 
-        return false;
+        return closed;
     }
 }

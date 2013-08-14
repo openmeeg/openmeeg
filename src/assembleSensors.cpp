@@ -147,7 +147,7 @@ namespace OpenMEEG {
         mat = Matrix(nsquids, sources_mesh.nb_vertices());
         mat.set(0.0);
 
-        SparseMatrix myFergusonMatrix(3, mat.ncol()); // TODO ?
+        SparseMatrix myFergusonMatrix(3, mat.ncol()); // TODO ? Fast ?
 
         for ( unsigned i = 0; i < nsquids; ++i) {
             PROGRESSBAR(i, nsquids);

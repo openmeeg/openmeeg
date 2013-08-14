@@ -84,9 +84,9 @@ namespace OpenMEEG {
         const std::string   name()                       const      { return name_; }
               std::string&  name()                                  { return name_; }
         const bool          outermost()                  const      { return outermost_; }
-        const bool          closed()                     const;
         const bool          contains_point(const Vect3&) const;
               void          set_to_outermost();
+        const bool          check();
 
         const unsigned nb_vertices() const { 
             unsigned nb = 0;
@@ -108,7 +108,7 @@ namespace OpenMEEG {
 
         double compute_solid_angle(const Vect3& p) const;
 
-        std::string name_;      // might be "i0" by default
+        std::string name_;      // is "" by default
         bool        outermost_; // tell weather or not the interface touches the Air (Outermost) domain.
     };
 

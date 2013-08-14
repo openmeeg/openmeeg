@@ -69,22 +69,25 @@ namespace OpenMEEG {
         mat.set(0.0);
         double K = 1.0 / (4.0 * M_PI);
 
-        // We iterate over the meshes (or pair of domains) to fill the lower half of the headmat (since its symmetry)
+        // We iterate over the meshes (or pair of domains) to fill the lower half of the HeadMat (since its symmetry)
         for ( Geometry::const_iterator mit1 = geo.begin(); mit1 != geo.end(); ++mit1) {
 
             for ( Geometry::const_iterator mit2 = geo.begin(); (mit2 != (mit1+1)); ++mit2) {
 
-                // if mit1 and mit2 communicate, i.e they are used for the definition of a domain
+                // if mit1 and mit2 communicate, i.e they are used for the definition of a common domain
                 const double orientation = geo.oriented(*mit1, *mit2); // equals  0, if they don't have any domains in common
                                                                        // equals  1, if they are both oriented toward the same domain
                                                                        // equals -1, if they are not
 
                 if ( std::abs(orientation) > 10.*std::numeric_limits<double>::epsilon() ) {
 
+                    double Ncoeff = orientation * geo.sigma(*mit1, *mit2) * K;
+
                     if ( !(mit1->outermost() || mit2->outermost()) ) {
                         // Computing S block first because it's needed for the corresponding N block
                         double Scoeff =   orientation * geo.sigma_inv(*mit1, *mit2) * K;
                         operatorS(*mit1, *mit2, mat, Scoeff, gauss_order);
+                        Ncoeff /= Scoeff;
                     }
                     if ( !mit1->outermost() ) {
                         // Computing D block
@@ -98,7 +101,6 @@ namespace OpenMEEG {
                     }
 
                     // Computing N block
-                    double Ncoeff = orientation * geo.sigma(*mit1, *mit2) * K;
                     operatorN(*mit1, *mit2, mat, Ncoeff, gauss_order);
                 }
             }
@@ -112,65 +114,61 @@ namespace OpenMEEG {
 
     void assemble_Surf2Vol(const unsigned N, const Geometry& geo, Matrix& mat, const std::vector<Matrix>& points) 
     {
+// TODO here continue
+#if 0
+        
         const double K = 1.0/(4.0*M_PI);
 
         mat = Matrix(N, (geo.size()-geo.outermost_interface().nb_triangles()));
         mat.set(0.0);
 
-// TODO
-#if 0
-        // We iterate over the meshes (or pair of domains) to fill the lower half of the headmat (since its symmetry)
-        for (Geometry::const_iterator mit1 = geo.begin(); mit1 != geo.end(); ++mit1) {
-
-            for (Geometry::const_iterator mit2 = geo.begin(); (mit2 != (mit1+1)); ++mit2) {
-
-                // if mit1 and mit2 communicate, i.e they are used for the definition of a domain
-                const double orientation = geo.oriented(*mit1, *mit2); // equals  0, if they don't have any domains in common
-
         unsigned offset = 0;
         unsigned offsetA0 = 0;
         unsigned c = 0;
-        for (Geometry::const_iterator mit = geo.begin(); mit != geo.end(); ++mit, ++c) {
-            const unsigned offset0 = offset;
-            const unsigned offsetA = offsetA0;
-            const unsigned offsetB = offsetA + points[c].nlin();
-            const unsigned offset1 = offset  + mit->nb_vertices();
-            const unsigned offset2 = offset1 + mit->size();
-            const unsigned offset3 = offset2 + (mit+1)->nb_vertices();
-            const unsigned offset4 = offset3 + (mit+1)->size();
 
-            // compute DI, i block if necessary. // TODO check les orientations
-            if ( c==0) {
-                operatorDinternal(*mit, mat, offsetA, offset0, points[c]);
-                mult(mat, offsetA, offset0, offsetB, offset1, -K);
-            }
+        for ( unsigned c = 0; c < geo.nb_domains() - 1; ++c) {
+            for (Geometry::const_iterator mit = geo.begin(); mit != geo.end(); ++mit) {
+                const unsigned offset0 = offset;
+                const unsigned offsetA = offsetA0;
+                const unsigned offsetB = offsetA + points[c].nlin();
+                const unsigned offset1 = offset  + mit->nb_vertices();
+                const unsigned offset2 = offset1 + mit->size();
+                const unsigned offset3 = offset2 + (mit+1)->nb_vertices();
+                const unsigned offset4 = offset3 + (mit+1)->size();
 
-            // compute DI+1, i block.
-            operatorDinternal(*mit, mat, offsetB, offset0, points[c+1]);
-            mult(mat, offsetB, offset0, offsetB+points[c+1].nlin(), offset1, K);
+                // compute DI, i block if necessary. // TODO check les orientations
+                if ( c == 0) {
+                    operatorDinternal(*mit, mat, offsetA, offset0, points[c]);
+                    mult(mat, offsetA, offset0, offsetB, offset1, -K);
+                }
 
-            // compute DI+1, i+1 block
-            operatorDinternal(*mit, mat, offsetB, offset2, points[c+1]);
-            mult(mat, offsetB, offset2, offsetB+points[c+1].nlin(), offset3,-K);
+                // compute DI+1, i block.
+                operatorDinternal(*mit, mat, offsetB, offset0, points[c+1]);
+                mult(mat, offsetB, offset0, offsetB+points[c+1].nlin(), offset1, K);
 
-            // compute SI, i block if necessary.
-            if ( c == 0 ) {
-                operatorSinternal(*mit, mat, offsetA, offset1, points[c]);
-                mult(mat, offsetA, offset1, offsetA+points[c].nlin(), offset2, K/geo.sigma_in(c));
-            }
+                // compute DI+1, i+1 block
+                operatorDinternal(*mit, mat, offsetB, offset2, points[c+1]);
+                mult(mat, offsetB, offset2, offsetB+points[c+1].nlin(), offset3,-K);
 
-            // compute SI+1, i block
-            const double inv_sig = K/geo.sigma_in(c+1);
-            operatorSinternal(*mit, mat, offsetB, offset1, points[c+1]);
-            mult(mat, offsetA+points[c].nlin(), offset1, offsetB+points[c+1].nlin(), offset2, -inv_sig);
+                // compute SI, i block if necessary.
+                if ( c == 0 ) {
+                    operatorSinternal(*mit, mat, offsetA, offset1, points[c]);
+                    mult(mat, offsetA, offset1, offsetA+points[c].nlin(), offset2, K/geo.sigma_in(c));
+                }
 
-            if ( c < geo.nb_domains()-2 ) {
                 // compute SI+1, i block
-                operatorSinternal(*(mit+1), mat, offsetB, offset3, points[c+1]);
-                mult(mat, offsetB, offset3, offsetB+points[c+1].nlin(), offset4, inv_sig);
+                const double inv_sig = K/geo.sigma_in(c+1);
+                operatorSinternal(*mit, mat, offsetB, offset1, points[c+1]);
+                mult(mat, offsetA+points[c].nlin(), offset1, offsetB+points[c+1].nlin(), offset2, -inv_sig);
+
+                if ( c < geo.nb_domains()-2 ) {
+                    // compute SI+1, i block
+                    operatorSinternal(*(mit+1), mat, offsetB, offset3, points[c+1]);
+                    mult(mat, offsetB, offset3, offsetB+points[c+1].nlin(), offset4, inv_sig);
+                }
+                offset   = offset2;
+                offsetA0 = offsetA + points[c].nlin();
             }
-            offset   = offset2;
-            offsetA0 = offsetA + points[c].nlin();
         }
 #endif
     }
@@ -182,6 +180,7 @@ namespace OpenMEEG {
 
     Surf2VolMat::Surf2VolMat(const Geometry& geo, const Matrix& points) 
     {
+// TODO here continue
 #if 0
         //  Find and count the points per domain.
         std::vector<unsigned> labels(points.nlin());
@@ -198,7 +197,6 @@ namespace OpenMEEG {
         }
 
         //  Split the point array into multiple arrays (one array per domain).
-
         std::vector<Matrix> vect_PtsInDom(geo.nb_domains());
         for ( unsigned c = 0; c < static_cast<unsigned>(geo.nb_domains()); ++c) {
             vect_PtsInDom[c] = Matrix(nb_pts_per_dom[c], 3);
@@ -211,7 +209,6 @@ namespace OpenMEEG {
                 }
             }
         }
-
         assemble_Surf2Vol(points.nlin(), geo, *this, vect_PtsInDom);
 #endif
     }

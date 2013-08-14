@@ -39,7 +39,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #include <operators.h>
 
-namespace OpenMEEG {
+namespace OpenMEEG { // TODO mv that to operator.h ?
 
     void operatorDinternal(const Mesh& m, Matrix& mat, const unsigned offsetI, const unsigned offsetJ, const Matrix& points) 
     {
@@ -66,18 +66,18 @@ namespace OpenMEEG {
 
     // General routine for applying _operatorFerguson (see this function for further comments)
     // to an entire mesh, and storing coordinates of the output in a Matrix.
-    void operatorFerguson(const Vect3& x, const Mesh& m, SparseMatrix& mat, const unsigned& offsetI, const double& coef)
+    void operatorFerguson(const Vect3& x, const Mesh& m, SparseMatrix& mat, const unsigned& offsetI, const double& coeff)
     {
         // #pragma omp parallel for // TODO
         for ( Mesh::const_vertex_iterator vit = m.vertex_begin(); vit < m.vertex_end(); ++vit) {
             Vect3 v = _operatorFerguson(x, **vit, m);
-            mat(offsetI + 0, (*vit)->index()) += v.x() * coef;
-            mat(offsetI + 1, (*vit)->index()) += v.y() * coef;
-            mat(offsetI + 2, (*vit)->index()) += v.z() * coef;
+            mat(offsetI + 0, (*vit)->index()) += v.x() * coeff;
+            mat(offsetI + 1, (*vit)->index()) += v.y() * coeff;
+            mat(offsetI + 2, (*vit)->index()) += v.z() * coeff;
         }
     }
 
-    void operatorDipolePotDer(const Vect3& r0, const Vect3& q, const Mesh& m, Vector& rhs, const unsigned gauss_order, const bool adapt_rhs) 
+    void operatorDipolePotDer(const Vect3& r0, const Vect3& q, const Mesh& m, Vector& rhs, const double& coeff, const unsigned gauss_order, const bool adapt_rhs) 
     {
         static analyticDipPotDer anaDPD;
 
@@ -95,15 +95,15 @@ namespace OpenMEEG {
             Vect3 v = gauss->integrate(anaDPD, *tit);
             #pragma omp critical
             {
-                rhs(tit->s1().index() ) += v(0);
-                rhs(tit->s2().index() ) += v(1);
-                rhs(tit->s3().index() ) += v(2);
+                rhs(tit->s1().index() ) += v(0) * coeff;
+                rhs(tit->s2().index() ) += v(1) * coeff;
+                rhs(tit->s3().index() ) += v(2) * coeff;
             }
         }
         delete gauss;
     }
 
-    void operatorDipolePot(const Vect3& r0, const Vect3& q, const Mesh& m, Vector& rhs, const unsigned gauss_order, const bool adapt_rhs) 
+    void operatorDipolePot(const Vect3& r0, const Vect3& q, const Mesh& m, Vector& rhs, const double& coeff, const unsigned gauss_order, const bool adapt_rhs) 
     {
         static analyticDipPot anaDP;
 
@@ -120,7 +120,7 @@ namespace OpenMEEG {
         for ( Mesh::const_iterator tit = m.begin(); tit < m.end(); ++tit) {
             double d = gauss->integrate(anaDP, *tit);
             #pragma omp critical
-            rhs(tit->index()) += d;
+            rhs(tit->index()) += d * coeff;
         }
         delete gauss;
     }

@@ -59,12 +59,14 @@ int main( int argc, char **argv) {
     input[3] = command_option("-i4", (const char *) NULL, "Input Mesh");
     input[4] = command_option("-i5", (const char *) NULL, "Input Mesh");
     input[5] = command_option("-i6", (const char *) NULL, "Input Mesh");
-    name[0]  = command_option("-n1", (const char *) NULL, "Mesh Name");
-    name[1]  = command_option("-n2", (const char *) NULL, "Mesh Name");
-    name[2]  = command_option("-n3", (const char *) NULL, "Mesh Name");
-    name[3]  = command_option("-n4", (const char *) NULL, "Mesh Name");
-    name[4]  = command_option("-n5", (const char *) NULL, "Mesh Name");
-    name[5]  = command_option("-n6", (const char *) NULL, "Mesh Name");
+    input[6] = command_option("-i7", (const char *) NULL, "Input Mesh");
+    name[0]  = command_option("-n1", (const char *) "1", "Mesh Name");
+    name[1]  = command_option("-n2", (const char *) "2", "Mesh Name");
+    name[2]  = command_option("-n3", (const char *) "3", "Mesh Name");
+    name[3]  = command_option("-n4", (const char *) "4", "Mesh Name");
+    name[4]  = command_option("-n5", (const char *) "5", "Mesh Name");
+    name[5]  = command_option("-n6", (const char *) "6", "Mesh Name");
+    name[6]  = command_option("-n7", (const char *) "7", "Mesh Name");
     output   = command_option("-o" , (const char *) NULL, "Output VTP file");
 
     const char *output_filename = command_option("-o", (const char *) NULL, "Output VTP mesh");

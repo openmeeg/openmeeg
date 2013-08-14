@@ -229,7 +229,7 @@ namespace OpenMEEG {
         Domains doms = common_domains(m, m); // Get the 2 domains surrounding mesh m
         double  ans  = 0.;
         for ( Domains::iterator dit = doms.begin(); dit != doms.end(); ++dit) {
-            ans += dit->sigma()*dit->meshOrient(m);
+            ans -= dit->sigma()*dit->meshOrient(m);
         }
         return ans;
     }
@@ -268,18 +268,6 @@ namespace OpenMEEG {
                         mit1->info();
                         mit2->info();
                         OK = false;
-                    }
-                }
-            }
-        }
-
-        // Test that all interfaces are closed
-        if ( OK ) {
-            for ( Domains::const_iterator dit = domain_begin(); dit != domain_end(); ++dit) {
-                for ( Domain::const_iterator hit = dit->begin(); hit != dit->end(); ++hit) {
-                    if ( !hit->interface().closed()) {
-                        OK = false;
-                        warning(std::string("Interface ") + hit->interface().name() + std::string(" is not closed !"));
                     }
                 }
             }

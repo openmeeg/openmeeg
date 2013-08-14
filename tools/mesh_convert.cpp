@@ -109,7 +109,7 @@ int main( int argc, char **argv) {
 
     if ( invert ) {
         std::cout << "Running face flipping" << std::endl;
-        m.flip_faces();
+        m.flip_triangles();
     }
 
     m.correct_local_orientation();

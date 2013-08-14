@@ -89,6 +89,7 @@ int main(int argc, char** argv)
         // Loading surfaces from geometry file
         Geometry geo;
         geo.read(argv[2], argv[3]);
+
         // Check for intersecting meshes
         if ( !geo.selfCheck() ) {
             exit(1);

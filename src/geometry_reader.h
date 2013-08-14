@@ -196,7 +196,7 @@ namespace OpenMEEG {
                 geo_.meshes().push_back(m);
                 geo_.meshes()[i].load(fullname[i].c_str());
                 interf.push_back( Interface(interfacename[i]) );
-                interf[i].push_back(OrientedMesh(geo_.meshes()[i], true)); // one mesh per interface: thus well oriented
+                interf[i].push_back(OrientedMesh(geo_.meshes()[i], true)); // one mesh per interface, (well oriented)
             }
         } else if ( interfaceType == "Interface" ) { // -----------------------
             std::string interfacename;
@@ -253,7 +253,7 @@ namespace OpenMEEG {
                 for ( Interfaces::iterator iit = interf.begin(); iit != interf.end() ; ++iit) {
                     if ( iit->name() == id ) {
                         found = true;
-                        if ( !iit->closed() ) {
+                        if ( !iit->check() ) { // check and correct global orientation
                             std::cerr << "Interface \"" << iit->name() << "\" is not closed !" << std::endl;
                             exit(1);
                         }

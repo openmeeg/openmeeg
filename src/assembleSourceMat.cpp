@@ -79,10 +79,8 @@ namespace OpenMEEG {
             for ( Interface::const_iterator omit = hit->interface().begin(); omit != hit->interface().end(); ++omit) {
                 // First block is nVertexFistLayer*nVertexSources.
                 operatorN( omit->mesh(), mesh_source, mat, K, gauss_order);
-                // mult(mat, (*omit->mesh().vertex_begin())->index(), (*mesh_source.vertex_begin())->index(), (*omit->mesh().vertex_rbegin())->index(), (*mesh_source.vertex_rbegin())->index(), K); // TODO better with mult ??
                 // Second block is nFacesFistLayer*nVertexSources.
                 operatorD(omit->mesh(), mesh_source, mat, -K/sigma, gauss_order);
-                // mult(mat, omit->mesh().begin()->index(), (*mesh_source.vertex_begin())->index(), omit->mesh().rbegin()->index(), (*mesh_source.vertex_rbegin())->index(), -K/sigma);
             }
         }
     }
@@ -95,15 +93,12 @@ namespace OpenMEEG {
     void assemble_DipSourceMat(Matrix& rhs, const Geometry& geo, const Matrix& dipoles,
             const unsigned gauss_order, const bool adapt_rhs, const std::string& domain_name = "") 
     {
-
         const double   K         = 1.0/(4.*M_PI);
         const unsigned newsize   = (geo.size()-geo.outermost_interface().nb_triangles());
         const unsigned n_dipoles = dipoles.nlin();
 
         rhs = Matrix(newsize, n_dipoles);
         rhs.set(0.);
-
-        //  First block is nVertexFistLayer.
 
         Vector rhs_col(rhs.nlin());
         for ( unsigned s = 0; s < n_dipoles; ++s) {
@@ -118,7 +113,6 @@ namespace OpenMEEG {
             } else {
                 domain = geo.domain(domain_name);
             }
-            // TODO add conditions on Air domain : dipoles inside scalp ?
             const double sigma = domain.sigma();
 
             rhs_col.set(0.);
@@ -127,18 +121,12 @@ namespace OpenMEEG {
                 // iterate over the meshes of the interface
                 for ( Interface::const_iterator omit = hit->interface().begin(); omit != hit->interface().end(); ++omit ) {
                     //  Treat the mesh.
-                    operatorDipolePotDer(r, q, omit->mesh(), rhs_col, gauss_order, adapt_rhs);
-
-                    for ( Mesh::const_vertex_iterator vit = omit->mesh().vertex_begin(); vit!= omit->mesh().vertex_end(); ++vit) {
-                        rhs_col((*vit)->index()) *= (hit->inside())?K:-K; // TODO check signs
-                    }
+                    double coeffD = (hit->inside())?K:-K;
+                    operatorDipolePotDer(r, q, omit->mesh(), rhs_col, coeffD, gauss_order, adapt_rhs);
 
                     if ( !omit->mesh().outermost() ) {
-                        operatorDipolePot(r, q, omit->mesh(), rhs_col, gauss_order, adapt_rhs);
-
-                        for ( Mesh::const_iterator tit = omit->mesh().begin(); tit != omit->mesh().end(); ++tit) {
-                            rhs_col(tit->index()) *= (hit->inside())?-K/sigma:(K/sigma);
-                        }
+                        double coeff = ( hit->inside() )?-1.*K/sigma:(K/sigma);
+                        operatorDipolePot(r, q, omit->mesh(), rhs_col, coeff, gauss_order, adapt_rhs);
                     }
                 }
             }
@@ -169,31 +157,18 @@ namespace OpenMEEG {
         for ( Interface::const_iterator omit1 = i.begin(); omit1 != i.end(); ++omit1) {
             for ( Geometry::const_iterator mit2 = geo.begin(); mit2 != geo.end(); ++mit2) {
 
-                unsigned i_m1_vf = (*omit1->mesh().vertex_begin())->index(); // index of the first vertex of mesh m1
-                unsigned i_m2_vf = (*mit2->vertex_begin())->index();
-                unsigned i_m1_vl = (*omit1->mesh().vertex_rbegin())->index();// index of the last vertex of mesh m1
-                unsigned i_m2_vl = (*mit2->vertex_rbegin())->index();
-                unsigned i_m1_tf = (omit1->mesh().begin())->index();
-                unsigned i_m2_tf = (mit2->begin())->index();            // index of the first triangle of mesh m2
-                unsigned i_m1_tl = (omit1->mesh().rbegin())->index();
-                unsigned i_m2_tl = (mit2->rbegin())->index();
-
                 double orientation = geo.oriented(omit1->mesh(), *mit2); // equals  0, if they don't have any domains in common
                                                                   // equals  1, if they are both oriented toward the same domain
                                                                   // equals -1, if they are not
 
                 if ( std::abs(orientation) > 10.*std::numeric_limits<double>::epsilon() ) {
                     //  Compute S.
-                    operatorS(omit1->mesh(), *mit2, transmat, 1., gauss_order); // TODO coeff are not 1 !!!!  (3 times)
-                    mult(transmat, i_m1_tf, i_m2_tf, i_m1_tl, i_m2_tl, geo.sigma_inv(omit1->mesh(), *mit2) * (K * orientation));
+                    operatorS(omit1->mesh(), *mit2, transmat, geo.sigma_inv(omit1->mesh(), *mit2) * (K * orientation), gauss_order);
 
                     //  First compute D, then it will be transposed.
-                    operatorD(omit1->mesh(), *mit2, transmat, 1., gauss_order);
-                    mult(transmat, i_m1_tf, i_m2_vf, i_m1_tl, i_m2_vl, -(K * orientation));
-                    operatorD(omit1->mesh(), omit1->mesh(), transmat, 1., gauss_order);
-                    mult(transmat, i_m1_tf, i_m1_vf, i_m1_tl, i_m1_vl, -2.0*(K * orientation));
-                    operatorP1P0(omit1->mesh(), transmat);
-                    mult(transmat, i_m1_tf, i_m1_vf, i_m1_tl, i_m1_vl, -0.5);
+                    operatorD(omit1->mesh(), *mit2, transmat, -(K * orientation), gauss_order);
+                    operatorD(omit1->mesh(), omit1->mesh(), transmat, (K * orientation), gauss_order);
+                    operatorP1P0(omit1->mesh(), transmat, -0.5);
                 }
             }
         }
