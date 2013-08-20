@@ -60,6 +60,8 @@ namespace OpenMEEG {
         
         inline Vertex(const double& x, const double& y, const double& z): Vect3(x, y, z), index_(-1), normal_(0.) { }
 
+        inline Vertex(const double& x, const double& y, const double& z, const unsigned& id): Vect3(x, y, z), index_(id), normal_(0.) { }
+
         inline Vertex(const Vect3& v): Vect3(v), index_(-1), normal_(0.) { }
 
         inline Vertex(const double& x, const double& y, const double& z, const double& nx, const double& ny, const double& nz): Vect3(x, y, z), index_(-1), normal_(nx, ny, nz) { }

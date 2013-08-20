@@ -148,7 +148,7 @@ namespace OpenMEEG {
         mat = Matrix((geo.size()-geo.outermost_interface().nb_triangles()), positions.nlin());
 
         //  transmat = a big SymMatrix of which mat = part of its transpose.
-        SymMatrix transmat((geo.size()-geo.outermost_interface().nb_triangles()));
+        SymMatrix transmat(geo.size());
         transmat.set(0.0);
 
         const Interface& i = geo.outermost_interface();
@@ -163,19 +163,19 @@ namespace OpenMEEG {
 
                 if ( std::abs(orientation) > 10.*std::numeric_limits<double>::epsilon() ) {
                     //  Compute S.
-                    operatorS(omit1->mesh(), *mit2, transmat, geo.sigma_inv(omit1->mesh(), *mit2) * (K * orientation), gauss_order);
+                    operatorS(omit1->mesh(), *mit2, transmat, geo.sigma_inv(omit1->mesh(), *mit2) * ( -1. * K * orientation), gauss_order);
 
-                    //  First compute D, then it will be transposed.
-                    operatorD(omit1->mesh(), *mit2, transmat, -(K * orientation), gauss_order);
-                    operatorD(omit1->mesh(), omit1->mesh(), transmat, (K * orientation), gauss_order);
-                    operatorP1P0(omit1->mesh(), transmat, -0.5);
+                    //  First compute D.
+                    operatorD(omit1->mesh(), *mit2, transmat, (K * orientation), gauss_order);
+                    if ( omit1->mesh() == *mit2 ) {
+                        operatorP1P0(omit1->mesh(), transmat, 0.5 * orientation);
+                    }
                 }
             }
         }
 
         //  Extracting the transpose of the last block of lines of transmat.
         //  Transposing the Matrix.
-
         for ( unsigned ielec = 0; ielec < positions.nlin(); ++ielec) {
             const Vect3 current_position(positions(ielec, 0), positions(ielec, 1), positions(ielec, 2));
             Vect3 current_alphas; //not used here
@@ -188,19 +188,30 @@ namespace OpenMEEG {
         }
     }
 
-    EITSourceMat::EITSourceMat(const Geometry& geo, Sensors& electrodes, const unsigned gauss_order) {
+    EITSourceMat::EITSourceMat(const Geometry& geo, Sensors& electrodes, const unsigned gauss_order) 
+    {
         assemble_EITSourceMat(*this, geo, electrodes.getPositions(), gauss_order);
     }
 
     void assemble_DipSource2InternalPotMat(Matrix& mat, const Geometry& geo, const Matrix& dipoles,
-                                           const Matrix& points, const std::string& domain_name)     {
+                                           const Matrix& points, const std::string& domain_name)     
+    {
         // Points with one more column for the index of the domain they belong
         std::vector<Domain> points_domain;
+        std::vector<Vect3>  points_;
         for ( unsigned i = 0; i < points.nlin(); ++i) {
-            points_domain.push_back(geo.domain(Vect3(points(i, 0), points(i, 1), points(i, 2))));
+            const Domain& d = geo.domain(Vect3(points(i, 0), points(i, 1), points(i, 2)));
+            if ( d.name() != "Air" ) {
+                points_domain.push_back(d);
+                points_.push_back(Vect3(points(i, 0), points(i, 1), points(i, 2)));
+            }
+            else {
+                std::cerr << " DipSource2InternalPot: Point [ " << points.getlin(i);
+                std::cerr << "] is outside the head. Point is dropped." << std::endl;
+            }
         }
         const double K = 1.0/(4.*M_PI);
-        mat = Matrix(points.nlin(), dipoles.nlin());
+        mat = Matrix(points_.size(), dipoles.nlin());
         mat.set(0.0);
 
         for ( unsigned iDIP = 0; iDIP < dipoles.nlin(); ++iDIP) {
@@ -217,10 +228,9 @@ namespace OpenMEEG {
 
             static analyticDipPot anaDP;
             anaDP.init(q, r0);
-            for ( unsigned iPTS = 0; iPTS < points.nlin(); ++iPTS) {
+            for ( unsigned iPTS = 0; iPTS < points_.size(); ++iPTS) {
                 if ( points_domain[iPTS] == domain ) {
-                    const Vect3 r(points(iPTS, 0), points(iPTS, 1), points(iPTS, 2));
-                    mat(iPTS, iDIP) = K/sigma*anaDP.f(r);
+                    mat(iPTS, iDIP) += K/sigma*anaDP.f(points_[iPTS]);
                 }
             }
         }

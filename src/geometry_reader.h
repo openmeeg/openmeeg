@@ -318,7 +318,7 @@ namespace OpenMEEG {
                     }
                 }
                 if ( m_oriented == 0 ) {
-                    nested = false; // TODO or a mesh is unused ...
+                    nested = false; // TODO or a mesh defined but unused ...
                     break;
                 }
             }

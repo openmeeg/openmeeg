@@ -26,8 +26,8 @@ NEW_EXECUTABLE(test_sensors test_sensors.cpp
                LIBRARIES OpenMEEG)
 NEW_EXECUTABLE(compare_matrix compare_matrix.cpp
                LIBRARIES OpenMEEGMaths ${LAPACK_LIBRARIES})
-#NEW_EXECUTABLE(om_validationEIT validationEIT.cpp ${OPEMEEG_HEADERS}
-               #LIBRARIES OpenMEEG OpenMEEGMaths ${LAPACK_LIBRARIES})
+NEW_EXECUTABLE(om_validationEIT validationEIT.cpp ${OPEMEEG_HEADERS}
+               LIBRARIES OpenMEEG OpenMEEGMaths ${LAPACK_LIBRARIES})
 
 ############ TEST COMMON RESULTS ON HEAD1 (Regression test) ##############
 
@@ -85,11 +85,11 @@ FOREACH(HEAD "1" "NNa1" "NNb1")
     ENDFOREACH()
 ENDFOREACH()
 
-#IF (WIN32)
-    #SET(VALIDATION_EIT "${EXECUTABLE_OUTPUT_PATH}/om_validationEIT")
-#ELSE()
-    #SET(VALIDATION_EIT "${CMAKE_CURRENT_BINARY_DIR}/om_validationEIT")
-#ENDIF()
+IF (WIN32)
+    SET(VALIDATION_EIT "${EXECUTABLE_OUTPUT_PATH}/om_validationEIT")
+ELSE()
+    SET(VALIDATION_EIT "${CMAKE_CURRENT_BINARY_DIR}/om_validationEIT")
+ENDIF()
 
 FOREACH(HEADNUM 1 2 ${HEAD3})
     SET(HEAD "Head${HEADNUM}")
@@ -97,12 +97,12 @@ FOREACH(HEADNUM 1 2 ${HEAD3})
     SET(MODELPREFIX ${DATADIR}/Models/${HEAD}/${HEAD})
     SET(TESTPREFIX ${OpenMEEG_BINARY_DIR}/tests/${HEAD})
     # validationEIT geometry.geom conductivity.cond dipoles.dip source.dsm headmatinv.bin out.eit_qgradVj out.eit_diffVf
-    #OPENMEEG_TEST(
-        #EITvalidation-dipoles-${HEAD}
-        #${VALIDATION_EIT} ${MODELPREFIX}.geom ${MODELPREFIX}.cond
-        #${DATADIR}/Computations/${HEAD}/${HEAD}.dip
-        #${TESTPREFIX}.dsm ${TESTPREFIX}.hm_inv ${TESTPREFIX}.eit_qgradVj ${TESTPREFIX}.eit_diffVf
-        #DEPENDS HMINV-${HEAD} DSM-${HEAD})
+    OPENMEEG_TEST(
+        EITvalidation-dipoles-${HEAD}
+        ${VALIDATION_EIT} ${MODELPREFIX}.geom ${MODELPREFIX}.cond
+        ${DATADIR}/Computations/${HEAD}/${HEAD}.dip
+        ${TESTPREFIX}.dsm ${TESTPREFIX}.hm_inv ${TESTPREFIX}.eit_qgradVj ${TESTPREFIX}.eit_diffVf
+        DEPENDS HMINV-${HEAD} DSM-${HEAD})
 ENDFOREACH()
 
 FOREACH(DIP 1 2 3 4 5)

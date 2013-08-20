@@ -41,25 +41,22 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 namespace OpenMEEG { // TODO mv that to operator.h ?
 
-    void operatorDinternal(const Mesh& m, Matrix& mat, const unsigned offsetI, const unsigned offsetJ, const Matrix& points) 
+    void operatorDinternal(const Mesh& m, Matrix& mat, const Vertices& points, const double& coeff)
     {
-        std::cout<<"INTERNAL OPERATOR D..."<<std::endl;
-        for ( unsigned i = offsetI; i < offsetI + points.nlin(); ++i)  {
-            Vect3 pt(points(i-offsetI, 0), points(i-offsetI, 1), points(i-offsetI, 2));
+        std::cout << "INTERNAL OPERATOR D..." << std::endl;
+        for ( Vertices::const_iterator vit = points.begin(); vit != points.end(); ++vit)  {
             for ( Mesh::const_iterator tit = m.begin(); tit != m.end(); ++tit) {
-                _operatorDinternal(*tit, pt, mat);
+                _operatorDinternal(*tit, *vit, mat, coeff);
             }
         }
     }
 
-    void operatorSinternal(const Mesh& m, Matrix& mat, const unsigned offsetI, const unsigned offsetJ, const Matrix& points) 
+    void operatorSinternal(const Mesh& m, Matrix& mat, const Vertices& points, const double& coeff) 
     {
-        std::cout<<"INTERNAL OPERATOR S..."<<std::endl;
-        for ( unsigned i=offsetI; i < offsetI + points.nlin(); ++i) {
-            Vect3 pt(points(i-offsetI, 0), points(i-offsetI, 1), points(i-offsetI, 2));
-            // for (Mesh::const_iterator tit = m.begin(); tit != m.end(); ++tit) {
-            for ( unsigned j=offsetJ; j<offsetJ+m.nb_triangles(); ++j) {
-                mat(i, j) = _operatorSinternal(m[j-offsetJ], pt);
+        std::cout << "INTERNAL OPERATOR S..." << std::endl;
+        for ( Vertices::const_iterator vit = points.begin(); vit != points.end(); ++vit)  {
+            for ( Mesh::const_iterator tit = m.begin(); tit != m.end(); ++tit) {
+                mat(vit->index(), tit->index()) = _operatorSinternal(*tit, *vit) * coeff;
             }
         }
     }

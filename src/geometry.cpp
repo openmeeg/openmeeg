@@ -52,17 +52,6 @@ namespace OpenMEEG {
         }
     }
 
-    const unsigned Geometry::nb_trianglesoutermost() const 
-    {
-        unsigned nb_t = 0;
-        for ( const_iterator mit = begin(); mit != end(); ++mit) {
-            if ( mit->outermost() ) {
-                nb_t += mit->nb_triangles();
-            }
-        }
-        return nb_t;
-    }
-
     const Mesh& Geometry::mesh(const std::string& id) const 
     {
         for ( const_iterator mit = begin() ; mit != end(); ++mit ) {

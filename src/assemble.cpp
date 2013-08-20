@@ -146,6 +146,11 @@ int main(int argc, char** argv)
             cerr << "Please set dipoles filepath!" << endl;
             exit(1);
         }
+        std::string domain_name = "";
+        if ( argc == 7 ) {
+            domain_name = argv[6];
+            std::cout << "Dipoles are considered to be in \"" << domain_name << "\" domain." << std::endl;
+        }
 
         // Loading surfaces from geometry file.
         Geometry geo;
@@ -159,7 +164,6 @@ int main(int argc, char** argv)
         }
         
         bool adapt_rhs          = true;
-        std::string domain_name = ""; // TODO or "Brain" ?
 
         // Choosing between adaptive integration or not for the RHS
         if ( !strcmp(argv[1], "-DipSourceMatNoAdapt")|(!strcmp(argv[1], "-DSMNA"))|(!strcmp(argv[1], "-dsmna"))){
@@ -367,6 +371,7 @@ int main(int argc, char** argv)
         DipSource2MEGMat mat( dipoles, sensors );
         mat.save(argv[4]);
     }
+
     /*********************************************************************************************
     * Computation of the discrete linear application which maps x (the unknown vector in a symmetric system)
     * |----> v, potential at a set of prescribed points within the 3D volume
@@ -403,7 +408,7 @@ int main(int argc, char** argv)
     *    Vinf(r)=1/(4*pi*sigma)*(r-r0).q/(||r-r0||^3)
     **********************************************************************************************/
 
-    else if ( !strcmp(argv[1], "-DipSource2InternalPotMat") | !strcmp(argv[1], "-DS2IPM") | !strcmp(argv[1], "-ds2ipm") | !strcmp(argv[1], "-DipSource2InternalPotMatNotInCortex") | !strcmp(argv[1], "-DS2IPNIC") | !strcmp(argv[1], "-ds2ipnic")) {
+    else if ( !strcmp(argv[1], "-DipSource2InternalPotMat") | !strcmp(argv[1], "-DS2IPM") | !strcmp(argv[1], "-ds2ipm") ) {
         if ( argc < 3 ) {
             cerr << "Please set geom filepath !" << endl;
             exit(1);
@@ -424,7 +429,11 @@ int main(int argc, char** argv)
             std::cerr << "Please set output filepath !" << endl;
             exit(1);
         }
-        std::string domain_name = "Brain"; // TODO
+        std::string domain_name = "";
+        if ( argc == 9 ) {
+            domain_name = argv[7];
+            std::cout << "Dipoles are considered to be in \"" << domain_name << "\" domain." << std::endl;
+        }
         // Loading surfaces from geometry file
         Geometry geo;
         geo.read(argv[2], argv[3]);
@@ -467,7 +476,8 @@ void getHelp(char** argv) {
     cout << "               geometry file (.geom)" << endl;
     cout << "               conductivity file (.cond)" << endl;
     cout << "               dipoles positions and orientations" << endl;
-    cout << "               output matrix" << endl << endl;
+    cout << "               output matrix" << endl;
+    cout << "               (Optional) domain name where lie all dipoles." << endl << endl;
 
     cout << "   -EITSourceMat, -EITSM -EITsm : " << endl;
     cout << "       Compute the EIT Source Matrix from an injected current (right-hand side of linear system). " << endl;
@@ -538,7 +548,8 @@ void getHelp(char** argv) {
     cout << "               conductivity file (.cond)" << endl;
     cout << "               dipoles positions and orientations" << endl;
     cout << "               a mesh file or a file with point positions at which to evaluate the potential" << endl;
-    cout << "               output matrix" << endl << endl;
+    cout << "               output matrix" << endl;
+    cout << "               (Optional) domain name where lie all dipoles." << endl << endl;
 
     exit(0);
 }

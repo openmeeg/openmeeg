@@ -100,7 +100,6 @@ namespace OpenMEEG {
         const unsigned      size()                           const { return size_; }
         const unsigned      nb_domains()                     const { return domains_.size(); }
         const unsigned      nb_meshes()                      const { return meshes_.size(); }
-        const unsigned      nb_trianglesoutermost()          const;
         const Interface&    outermost_interface()            const; 
         const Interface&    interface(const std::string& id) const;
         const Mesh&         mesh(const std::string& id)      const;

@@ -66,8 +66,8 @@ namespace OpenMEEG {
     //#define ADAPT_LHS
 
     // T can be a Matrix or SymMatrix
-    void operatorSinternal(const Mesh& , Matrix& , const unsigned, const unsigned, const Matrix& );
-    void operatorDinternal(const Mesh& , Matrix& , const unsigned, const unsigned, const Matrix& );
+    void operatorSinternal(const Mesh& , Matrix& , const Vertices&, const double& );
+    void operatorDinternal(const Mesh& , Matrix& , const Vertices&, const double& );
     void operatorFerguson(const Vect3& , const Mesh& , SparseMatrix& , const unsigned&, const double&);
     void operatorDipolePotDer(const Vect3& , const Vect3& , const Mesh& , Vector&, const double&, const unsigned, const bool);
     void operatorDipolePot   (const Vect3& , const Vect3& , const Mesh& , Vector&, const double&, const unsigned, const bool);
@@ -148,23 +148,22 @@ namespace OpenMEEG {
     #endif //ADAPT_LHS
 
         for ( unsigned i = 0; i < 3; ++i) {
-            mat(T1.index(), T2(i).index()) += total(i)*coeff;
+            mat(T1.index(), T2(i).index()) += total(i) * coeff;
         }
     }
     #endif //OPTIMIZED_OPERATOR_D
 
-
-    inline void _operatorDinternal(const Triangle& T2, const Vect3 P, Matrix & mat)
+    inline void _operatorDinternal(const Triangle& T2, const Vertex& P, Matrix & mat, const double& coeff)
     {
         static analyticD3 analyD;
 
-        analyD.init(T2); // TODO here ce n'est pas T2.index()
+        analyD.init(T2);
 
         Vect3 total = analyD.f(P);
 
-        mat(T2.index(), T2.s1().index()) += total.x();
-        mat(T2.index(), T2.s2().index()) += total.y();
-        mat(T2.index(), T2.s3().index()) += total.z();
+        for ( unsigned i = 0; i < 3; ++i) {
+            mat(P.index(), T2(i).index()) += total(i) * coeff;
+        }
     }
 
     inline double _operatorS(const Triangle& T1, const Triangle& T2, const unsigned gauss_order)
@@ -187,7 +186,7 @@ namespace OpenMEEG {
     #endif //ADAPT_LHS
     }
 
-    inline double _operatorSinternal(const Triangle& T, const Vect3 P)
+    inline double _operatorSinternal(const Triangle& T, const Vertex& P)
     {
         static analyticS analyS;
         analyS.init(T);
