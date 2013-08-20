@@ -163,10 +163,10 @@ namespace OpenMEEG {
 
                 if ( std::abs(orientation) > 10.*std::numeric_limits<double>::epsilon() ) {
                     //  Compute S.
-                    operatorS(omit1->mesh(), *mit2, transmat, geo.sigma_inv(omit1->mesh(), *mit2) * ( -1. * K * orientation), gauss_order);
+                    operatorS(*mit2, omit1->mesh(), transmat, geo.sigma_inv(omit1->mesh(), *mit2) * ( -1. * K * orientation), gauss_order);
 
                     //  First compute D.
-                    operatorD(omit1->mesh(), *mit2, transmat, (K * orientation), gauss_order);
+                    operatorD(*mit2, omit1->mesh(), transmat, (1.*K * orientation), gauss_order, true);
                     if ( omit1->mesh() == *mit2 ) {
                         operatorP1P0(omit1->mesh(), transmat, 0.5 * orientation);
                     }
@@ -182,7 +182,7 @@ namespace OpenMEEG {
             Triangle current_nearest_triangle; //    To hold the index of the closest triangle to electrode.
             dist_point_interface(current_position, geo.outermost_interface(), current_alphas, current_nearest_triangle);
             const double inv_area = 1.0/current_nearest_triangle.area();
-            for ( unsigned i = 0; i < (geo.size()-geo.outermost_interface().nb_triangles()); ++i) {
+            for ( unsigned i = 0; i < (geo.size() - geo.outermost_interface().nb_triangles()); ++i) {
                 mat(i, ielec) = transmat(current_nearest_triangle.index(), i)*inv_area;
             }
         }
