@@ -65,18 +65,18 @@ namespace OpenMEEG {
 
     inline double integral_simplified_green(const Vect3& p0x, const double norm2p0x,
                                             const Vect3& p1x, const double norm2p1x,
-                                            const Vect3& p1p0, const double norm2p1p0) {
-
+                                            const Vect3& p1p0, const double norm2p1p0) 
+    {
         //  The quantity arg is normally >= 1, verifying this relates to a triangular inequality
         //  between p0, p1 and x.
         //  Consequently, there is no need of an absolute value in the first case.
 
-        const double arg = (norm2p0x*norm2p1p0-p0x*p1p0)/(norm2p1x*norm2p1p0-p1x*p1p0);
-        return (std::isnormal(arg) && arg>0.0) ? log(arg) : fabs(log(norm2p1x/norm2p0x));
+        const double arg = (norm2p0x * norm2p1p0 - p0x * p1p0) / (norm2p1x * norm2p1p0 - p1x * p1p0);
+        return (std::isnormal(arg) && arg > 0.0) ? log(arg) : fabs(log(norm2p1x / norm2p0x));
     }
 
-    class OPENMEEG_EXPORT analyticS {
-    private:
+    class OPENMEEG_EXPORT analyticS
+    {
         Vect3 p0, p1, p2; //!< vertices of the triangle
         Vect3 p2p1, p1p0, p0p2;
         Vect3 nu0, nu1, nu2;
@@ -94,7 +94,6 @@ namespace OpenMEEG {
         }
 
     public:
-
         analyticS(){}
         ~analyticS(){}
         void init(const Triangle& T)
@@ -145,11 +144,12 @@ namespace OpenMEEG {
         }
     };
 
-    class OPENMEEG_EXPORT analyticD {
-    private:
+    class OPENMEEG_EXPORT analyticD
+    {
         Vect3 v1, v2, v3;
         unsigned i;
         double aire;
+
     public:
         analyticD()  {}
         ~analyticD() {}
@@ -198,10 +198,11 @@ namespace OpenMEEG {
     };
 
 
-    class OPENMEEG_EXPORT analyticD3 {
-    private:
+    class OPENMEEG_EXPORT analyticD3
+    {
         Vertex v1, v2, v3;
         double aire;
+
     public:
         analyticD3()  {}
         ~analyticD3() {}
@@ -256,10 +257,11 @@ namespace OpenMEEG {
         }
     };
 
-    class OPENMEEG_EXPORT analyticDipPot {
-    private:
+    class OPENMEEG_EXPORT analyticDipPot
+    {
         Vect3 r0;
         Vect3 q;
+
     public:
         analyticDipPot(){}
         ~analyticDipPot(){}
@@ -277,11 +279,12 @@ namespace OpenMEEG {
         }
     };
 
-    class OPENMEEG_EXPORT analyticDipPotDer {
-    private:
+    class OPENMEEG_EXPORT analyticDipPotDer
+    {
         Vect3 q, r0;
         Vect3 H0, H1, H2;
         Vect3 H0p0DivNorm2, H1p1DivNorm2, H2p2DivNorm2, n;
+
     public:
         analyticDipPotDer(){}
         ~analyticDipPotDer(){}

@@ -9,7 +9,7 @@ SET(OPENMEEG_HEADERS
     triangle.h Triangle_triangle_intersection.h vect3.h vertex.h 
 #   These files are imported from another repository.
 #   Please do not update them in this repository.
-    DataTag.H FileExceptions.H MeshDescription/Exceptions.H Properties.H
+DataTag.H FileExceptions.H GeometryExceptions.H Properties.H
 )
 
 ADD_LIBRARY(OpenMEEG ${LIB_TYPE}
@@ -59,7 +59,7 @@ IF(BUILD_TESTING)
     TESTHEAD(NNa2)
     TESTHEAD(NNb2)
 
-    # TESTHEAD(NNc2)
+    TESTHEAD(NNc2)
 
     OPTION(TEST_HEAD3 "Run tests on Head 3" OFF)
 
@@ -67,5 +67,7 @@ IF(BUILD_TESTING)
         TESTHEAD(3)
         TESTHEAD(NNa3)
         TESTHEAD(NNb3)
+        TESTHEAD(NNc3)
+        TESTHEAD(NNc4)
     ENDIF()
 ENDIF()

@@ -150,7 +150,8 @@ TODO
 - Do we let the interfaces in the eometry class, or is it included in each Domain ?
 - Do we keep a Reference on the Triangle class or * is ok ?  
 - Remove 'inverse' in header
-
+-Wreorder
+-Wunused-but-set-variable
 
 
 Questions Theo:

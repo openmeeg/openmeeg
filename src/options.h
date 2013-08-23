@@ -159,11 +159,10 @@ namespace OpenMEEG {
             }
             if ( name ) {
                 if ( argc > 0 ) {
-                    int k = 0, i;
+                    int k = 0;
                     while ( k < argc && command_line::strcmp(argv[k], name)) {
                         k++;
                     }
-                    i = k;
                     res = (( k++ == argc )?defaut:(( k == argc )?argv[--k]:argv[k]));
                     } else {
                         res = defaut;

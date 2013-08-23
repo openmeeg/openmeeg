@@ -51,7 +51,8 @@ knowledge of the CeCILL-B license and that you accept its terms.
 namespace OpenMEEG {
 
     template<class T>
-    void deflat(T& M, const Interface& i, double coef) {
+    void deflat(T& M, const Interface& i, double coef) 
+    {
         // deflate the Matrix
         for ( Interface::const_iterator omit = i.begin(); omit != i.end(); ++omit) {
             for ( Mesh::const_vertex_iterator vit1 = omit->mesh().vertex_begin(); vit1 != omit->mesh().vertex_end(); ++vit1) {
@@ -63,8 +64,8 @@ namespace OpenMEEG {
         }
     }
 
-    void assemble_HM(const Geometry& geo, SymMatrix& mat, const unsigned gauss_order) {
-
+    void assemble_HM(const Geometry& geo, SymMatrix& mat, const unsigned gauss_order) 
+    {
         mat = SymMatrix((geo.size()-geo.outermost_interface().nb_triangles()));
         mat.set(0.0);
         double K = 1.0 / (4.0 * M_PI);
@@ -91,7 +92,7 @@ namespace OpenMEEG {
                     }
                     if ( !mit1->outermost() ) {
                         // Computing D block
-                        double Dcoeff = - orientation * geo.indicatrice(*mit1, *mit2) * K;
+                        double Dcoeff = - orientation * geo.indicator(*mit1, *mit2) * K;
                         operatorD(*mit1, *mit2, mat, Dcoeff, gauss_order);
                     }
                     if ( ( *mit1 != *mit2 ) && ( !mit2->outermost() ) ) {
@@ -126,7 +127,7 @@ namespace OpenMEEG {
 
         for ( std::map<const Domain, Vertices>::const_iterator dvit = m_points.begin(); dvit != m_points.end(); ++dvit) {
             for ( Geometry::const_iterator mit = geo.begin(); mit != geo.end(); ++mit) {
-                int orientation = dvit->first.meshOrient(*mit);
+                int orientation = dvit->first.mesh_orientation(*mit);
                 if ( orientation != 0 ) {
                     operatorDinternal(*mit, mat, dvit->second, orientation * -1. * K);
                     if ( !mit->outermost() ) {

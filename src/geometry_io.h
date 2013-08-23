@@ -37,8 +37,8 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#ifndef OPENMEEG_GEOMETRY_WRITER_H
-#define OPENMEEG_GEOMETRY_WRITER_H
+#ifndef OPENMEEG_GEOMETRY_IO_H
+#define OPENMEEG_GEOMETRY_IO_H
 
 #include <map>
 #ifdef USE_VTK
@@ -46,6 +46,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <vtkPoints.h>
 #include <vtkXMLPolyDataReader.h>
 #include <vtkXMLPolyDataWriter.h>
+// #include <vtkPolyDataWriter.h>
 #include <vtkDataReader.h>
 #include <vtkCellArray.h>
 #include <vtkDoubleArray.h>
@@ -62,6 +63,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 namespace OpenMEEG {
 
+    /// \brief load a VTK\vtp file \param filename
     void Geometry::load_vtp(const std::string& filename)
     {
     #ifdef USE_VTK
@@ -134,6 +136,7 @@ namespace OpenMEEG {
                     }
                 }
             }
+            mit->build_mesh_vertices();
             mit->update();
         }
     #else
@@ -141,6 +144,7 @@ namespace OpenMEEG {
     #endif
     }
     
+    /// \brief write a VTK\vtp file \param filename
     void Geometry::write_vtp(const std::string& filename) const
     {
 
@@ -186,6 +190,9 @@ namespace OpenMEEG {
         vtkSmartPointer<vtkXMLPolyDataWriter> writer = vtkSmartPointer<vtkXMLPolyDataWriter>::New();
         writer->SetFileName(filename.c_str());
 
+        // writer->SetCompressorTypeToZLib();
+        // writer->SetCompressorTypeToNone();
+
         #if VTK_MAJOR_VERSION <= 5
         writer->SetInput(polydata);
         #else
@@ -200,4 +207,4 @@ namespace OpenMEEG {
     }
 }
 
-#endif  //! OPENMEEG_GEOMETRY_WRITER_H
+#endif  //! OPENMEEG_GEOMETRY_IO_H

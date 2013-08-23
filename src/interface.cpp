@@ -41,9 +41,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 namespace OpenMEEG {
 
-    /**
-     * Computes the total solid angle of a surface for a point p and tells whether p is inside the mesh or not.
-     **/
+    /// Computes the total solid angle of a surface for a point p and tells whether p is inside the mesh or not.
     const bool Interface::contains_point(const Vect3& p) const 
     {
         double solangle = compute_solid_angle(p);
@@ -113,7 +111,7 @@ namespace OpenMEEG {
         double solangle = compute_solid_angle(bbcenter);
         bool closed;
 
-        // TODO if it returns 0, then the center of BB is not inside, and thus we should randomly chose another insied point untill solid_anlge gives + or -4 PI ?
+        // TODO if it returns 0, then the center of BB is not inside, and thus we should randomly choose another insied point untill solid_anlge gives + or -4 PI ?
 
         if ( std::abs(solangle) < 1.e3*std::numeric_limits<double>::epsilon() ) {
             closed = true;

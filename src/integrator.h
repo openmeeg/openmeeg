@@ -53,7 +53,6 @@ namespace OpenMEEG {
     template <int d>
     class OPENMEEG_EXPORT Vect3array 
     {
-    private:
         Vect3 t[d];
 
     public:
@@ -182,7 +181,6 @@ namespace OpenMEEG {
     template <class T, class I>
     class OPENMEEG_EXPORT Integrator 
     {
-
         unsigned order;
 
     public:
@@ -196,7 +194,7 @@ namespace OpenMEEG {
             if ( (n >= 0) && (n < 4) ) {
                 order = n;
             } else {
-                std::cout << "Unavailable Gauss order: min is 1, max is 3" << n << std::endl; 
+                std::cout << "Unavailable Gauss order: min is 1, max is 3" << n << std::endl;
                 order = (n < 1) ? 1 : 3;
             }
         }
@@ -229,7 +227,6 @@ namespace OpenMEEG {
     template <class T, class I>
     class OPENMEEG_EXPORT AdaptiveIntegrator: public Integrator<T, I> 
     {
-
         typedef Integrator<T, I> base;
 
     public:

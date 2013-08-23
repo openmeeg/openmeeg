@@ -50,13 +50,13 @@ using namespace OpenMEEG;
 template <typename MATRIX>
 void conversion(maths::ifstream& ifs,const char* input_format,maths::ofstream& ofs,const char* output_format,const char* output_filename) {
     MATRIX M;
-    if (input_format)
+    if ( input_format )
         ifs >> maths::format(input_format) >> M;
     else
         ifs >> M;
 
     M.info(); //TODO
-    if (output_format)
+    if ( output_format )
         ofs << maths::format(output_format) << M;
     else
         ofs << maths::format(output_filename,maths::format::FromSuffix) << M;
@@ -71,9 +71,9 @@ int main(int argc, char **argv) try {
     const char* output_filename = command_option("-o",(const char *) NULL,"Output matrix/vector");
     const char* input_format = command_option("-if",(const char *) NULL,"Input file format : ascii, binary, tex, matlab");
     const char* output_format = command_option("-of",(const char *) NULL,"Output file format : ascii, binary, tex, matlab");
-    if (command_option("-h",(const char *)0,0)) return 0;
+    if ( command_option("-h",(const char *)0,0) ) { return 0; }
 
-    if(argc<2 || !input_filename || !output_filename) {
+    if ( argc < 2 || !input_filename || !output_filename ) {
         cout << "Not enough arguments, try the -h option" << endl;
         return 1;
     }

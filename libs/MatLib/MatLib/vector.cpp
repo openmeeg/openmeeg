@@ -99,9 +99,8 @@ namespace OpenMEEG {
         return s;
     }
 
-
     void Vector::info() const {
-        if (size() == 0) {
+        if ( size() == 0 ) {
             std::cout << "Vector Empty" << std::endl;
             return;
         }
@@ -113,20 +112,22 @@ namespace OpenMEEG {
         size_t mini = 0;
         size_t maxi = 0;
 
-        for(size_t i = 0; i < nlin(); ++i)
-            if (minv > this->operator()(i)) {
+        for ( size_t i = 0; i < nlin(); ++i) {
+            if ( minv > this->operator()(i) ) {
                 minv = this->operator()(i);
                 mini = i;
-            } else if (maxv < this->operator()(i)) {
+            } else if ( maxv < this->operator()(i) ) {
                 maxv = this->operator()(i);
                 maxi = i;
             }
+        }
 
         std::cout << "Min Value : " << minv << " (" << mini << ")" << std::endl;
         std::cout << "Max Value : " << maxv << " (" << maxi << ")" << std::endl;
         std::cout << "First Values" << std::endl;
-        for(size_t i = 0; i < std::min(nlin(),(size_t) 5); ++i)
+        for ( size_t i = 0; i < std::min(nlin(), (size_t) 5); ++i) {
             std::cout << this->operator()(i) << std::endl;
+        }
     }
 
     // =======
@@ -134,21 +135,23 @@ namespace OpenMEEG {
     // =======
 
     std::ostream& operator<<(std::ostream& f,const Vector &M) {
-        for (size_t i=0;i<M.size();i++)
+        for ( size_t i = 0; i < M.size(); i++) {
             f << M(i) << ' ';
+        }
         return f;
     }
 
     std::istream& operator>>(std::istream& f,Vector &M) {
-        for (size_t i=0;i<M.size();i++)
+        for ( size_t i = 0; i < M.size(); i++) {
             f >> M(i);
+        }
         return f;
     }
 
     void Vector::load(const char *filename) {
         maths::ifstream ifs(filename);
         try {
-            ifs >> maths::format(filename,maths::format::FromSuffix) << *this;
+            ifs >> maths::format(filename, maths::format::FromSuffix) << *this;
         }
         catch (maths::Exception& e) {
             std::cout << e.what() << " Doing my best...." << std::endl;

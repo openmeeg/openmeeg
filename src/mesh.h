@@ -70,38 +70,50 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 namespace OpenMEEG {
 
-    /** \brief  Mesh
-
-        Mesh class
-
-    **/
-
     enum Filetype { VTK, TRI, BND, MESH, OFF, GIFTI };
+
+    /** 
+        Mesh class
+        \brief Mesh is a collection of triangles
+    */
 
     class OPENMEEG_EXPORT Mesh: public Triangles {
 
     public:
         
-        typedef std::set<const Triangle *>                                    SetPTriangle;
-        typedef std::vector<Triangle *>                                 VectPTriangle;
+        typedef std::vector<Triangle *>                                       VectPTriangle;
         typedef std::vector<Vertex *>                                         VectPVertex;
         typedef VectPVertex::iterator                                         vertex_iterator;
         typedef VectPVertex::const_iterator                                   const_vertex_iterator;
         typedef VectPVertex::const_reverse_iterator                           const_vertex_reverse_iterator;
 
-        // Constructors
+        // Constructors:
+        /// default constructor
         Mesh(): Triangles(), name_(""), all_vertices_(0), outermost_(false), allocate_(false) { }
 
+        /** constructor from scratch (add vertices/triangles one by one) 
+            \param nb_vertices allocate space for vertices
+            \param nb_triangles allocate space for triangles */
+        Mesh(const unsigned& nb_vertices, const unsigned& nb_triangles): name_(""), outermost_(false), allocate_(true) {
+            all_vertices_ = new Vertices;
+            all_vertices_->reserve(nb_vertices); // allocates space for the vertices
+            reserve(nb_triangles);
+        }
+
+        /// constructor from another mesh \param m
         Mesh(const Mesh& m);
 
-        Mesh(Vertices& all_vertices, const std::string name = ""): all_vertices_(&all_vertices), name_(name), outermost_(false), allocate_(false) { }
+        /// constructor using an outisde storage for vertices \param all_vertices Where to store vertices \param name Mesh name
+        Mesh(Vertices& all_vertices, const std::string name = ""): name_(name), all_vertices_(&all_vertices), outermost_(false), allocate_(false) { set_vertices_.insert(all_vertices_->begin(), all_vertices_->end()); }
+
+        /// constructor loading directly a mesh file \param filename \param verbose \param name Mesh name
         Mesh(std::string filename, const bool verbose = true, const std::string name = ""): name_(name), outermost_(false), allocate_(true) { 
             unsigned nb_v = load(filename, false, false); 
             all_vertices_ = new Vertices(nb_v); // allocates space for the vertices
             load(filename, verbose);
         }
 
-        // Destructor
+        /// Destructor
         ~Mesh() { destroy(); }
 
         // Iterators on vertices
@@ -112,85 +124,72 @@ namespace OpenMEEG {
         const_vertex_iterator         vertex_end()    const         { return vertices_.end(); }
         const_vertex_reverse_iterator vertex_rend()   const         { return vertices_.rend(); }
 
-        const std::string &           name()          const         { return name_; }
-              std::string &           name()                        { return name_; }
+        const std::string &           name()          const         { return name_; } ///< \return the mesh name
 
-        VectPVertex                   vertices()      const         { return vertices_; }
-        VectPVertex &                 vertices()                    { return vertices_; }
-
+        VectPVertex &                 vertices()                    { return vertices_; } ///< \return the vector of pointers to the mesh vertices
         const unsigned                nb_vertices()   const         { return vertices_.size(); }
         const unsigned                nb_triangles()  const         { return size(); }
 
               Vertices                all_vertices()  const         { return *all_vertices_; }
 
-        void add_vertex(const Vertex& v)     { all_vertices_->push_back(v); vertices_.push_back(&(*all_vertices_->rbegin())); }
-        // void add_vertex(const Vertex& v)     { all_vertices_->push_back(v); } // TODO
+        /// \brief properly add vertex to the list.
+        void add_vertex(const Vertex& v);
 
-        // Mesh state
         /** \brief Print info
-         * Print to std::cout some info about the mesh
-         * \param m Mesh to append
-         * \return void
-         * \sa
-         **/
+          Print to std::cout some info about the mesh
+          \return void
+          \sa
+         */
         void  info() const ;
         bool  has_self_intersection() const;
         bool  intersection(const Mesh&) const;
         bool  has_correct_orientation() const;
         bool  triangle_intersection(const Triangle&, const Triangle&) const;
+        void  build_mesh_vertices();
         void  update();
         void  flip_triangles();
         const VectPTriangle& get_triangles_for_vertex(const Vertex& V) const;
         unsigned  correct_local_orientation();
 
-        //  Returns True if it is an outermost mesh.
-              bool&        outermost()       { return outermost_; }
+              bool&        outermost()       { return outermost_; } /// \brief Returns True if it is an outermost mesh.
         const bool&        outermost() const { return outermost_; }
 
         /** \brief Smooth Mesh
-         * Smooth Mesh
-         * \param smoothing_intensity
-         * \param niter
-         * \return void
-         * \sa
+          \param smoothing_intensity
+          \param niter
+          \return void
          **/
         void smooth(const double& smoothing_intensity, const unsigned& niter);
 
         // for IO:s
-        /**
-         * Read mesh from file
-         * \param filename can be .vtk, .tri (ascii), .bnd
-         * \param verbose true or false
-         */
-        unsigned load(const std::string filename, const bool& verbose = true, const bool& read_all = true);
+        /** Read mesh from file
+          \param filename can be .vtk, .tri (ascii), .off .bnd or .mesh
+          \param \optional verbose. 
+          \param \optional read_all. If False then it only returns the total number of vertices */
+        unsigned load(const std::string& filename, const bool& verbose = true, const bool& read_all = true);
         unsigned load_tri(std::istream& , const bool& read_all = true);
-        unsigned load_tri(const std::string, const bool& read_all = true);
+        unsigned load_tri(const std::string&, const bool& read_all = true);
         unsigned load_bnd(std::istream& , const bool& read_all = true);
-        unsigned load_bnd(const std::string, const bool& read_all = true);
+        unsigned load_bnd(const std::string&, const bool& read_all = true);
         unsigned load_off(std::istream& , const bool& read_all = true);
-        unsigned load_off(const std::string, const bool& read_all = true);
+        unsigned load_off(const std::string&, const bool& read_all = true);
         unsigned load_mesh(std::istream& , const bool& read_all = true);
-        unsigned load_mesh(const std::string, const bool& read_all = true);
+        unsigned load_mesh(const std::string&, const bool& read_all = true);
         #ifdef USE_VTK
         unsigned load_vtk(std::istream& , const bool& read_all = true);
-        unsigned load_vtk(const std::string, const bool& read_all = true);
+        unsigned load_vtk(const std::string&, const bool& read_all = true);
         unsigned get_data_from_vtk_reader(vtkPolyDataReader* vtkMesh, const bool& read_all);
         #else
         template <typename T>
-        unsigned load_vtp(T, const bool& read_all = true) {
-            std::cerr << "You have to compile OpenMEEG with VTK to read VTK/VTP files" << std::endl;
-            exit(1);
-        }
-        template <typename T>
         unsigned load_vtk(T, const bool& read_all = true) {
-            std::cerr << "You have to compile OpenMEEG with VTK to read VTK/VTP files" << std::endl;
+            std::cerr << "You have to compile OpenMEEG with VTK to read VTK/VTP files. (specify USE_VTK to cmake)" << std::endl;
             exit(1);
         }
         #endif
         #ifdef USE_GIFTI
         unsigned load_gifti(std::istream& , const bool& read_all = true);
-        unsigned load_gifti(const std::string, const bool& read_all = true);
-        void save_gifti(const std::string);
+        unsigned load_gifti(const std::string&, const bool& read_all = true);
+        void save_gifti(const std::string&);
         gifti_image* to_gifti_image();
         void from_gifti_image(gifti_image* gim);
         #else
@@ -205,38 +204,36 @@ namespace OpenMEEG {
             exit(1);
         }
         #endif
-        /**
-         * Save mesh to file
-         * \param filename can be .vtk, .tri (ascii), .bnd or .mesh
-         */
-        void save(const std::string) const ;
-        void save_vtk(const std::string)  const;
-        void save_bnd(const std::string)  const;
-        void save_tri(const std::string)  const;
-        void save_off(const std::string)  const;
-        void save_mesh(const std::string) const;
+        /** Save mesh to file
+         \param filename can be .vtk, .tri (ascii), .bnd, .off or .mesh */
+        void save(const std::string& filename) const ;
+        void save_vtk(const std::string&)  const;
+        void save_bnd(const std::string&)  const;
+        void save_tri(const std::string&)  const;
+        void save_off(const std::string&)  const;
+        void save_mesh(const std::string&) const;
 
         Mesh& operator=(const Mesh& m);
         friend std::istream& operator>>(std::istream& is, Mesh& m);
 
     private:
-        // map the edges with an unsigned
+        /// map the edges with an unsigned
         typedef std::map<std::pair<const Vertex *, const Vertex *>, unsigned> EdgeMap; 
+
         void destroy();
         void copy(const Mesh&);
-        void build_mesh_vertices();// TODO
-
         // regarding mesh orientation
         EdgeMap       compute_edge_map() const;
         VectPTriangle adjacent_triangles(const Triangle&) const;
         void orient_adjacent_triangles(std::stack<Triangle *>& t_stack, std::map<Triangle *, bool>& tri_reoriented);
         
-        std::string                 name_; //!< Name of the mesh.
-        std::map<const Vertex *, VectPTriangle>   links_; //!< links[&v] are the triangles that contain vertex v
-        Vertices *                  all_vertices_; //!< Pointer to all the vertices.
-        VectPVertex                 vertices_; //!< Vector of the adress of the mesh vertices
-        bool                        outermost_; //!< Is it an outermost mesh ? (i.e does it touch the Air domain)
-        bool                        allocate_; //!< Are the vertices allocate within the mesh or shared ?
+        std::string                 name_; ///< Name of the mesh.
+        std::map<const Vertex *, VectPTriangle>   links_; ///< links[&v] are the triangles that contain vertex v.
+        Vertices *                  all_vertices_; ///< Pointer to all the vertices.
+        VectPVertex                 vertices_; ///< Vector of pointers to the mesh vertices.
+        bool                        outermost_; ///< Is it an outermost mesh ? (i.e does it touch the Air domain)
+        bool                        allocate_; ///< Are the vertices allocate within the mesh or shared ?
+        std::set<Vertex>            set_vertices_;
     };
 
     typedef std::vector<Mesh>        Meshes;

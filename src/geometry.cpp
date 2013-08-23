@@ -50,16 +50,7 @@ namespace OpenMEEG {
                 return dit->begin()->interface();
             }
         }
-    }
-
-    const Mesh& Geometry::mesh(const std::string& id) const 
-    {
-        for ( const_iterator mit = begin() ; mit != end(); ++mit ) {
-            if ( id == mit->name() ) {
-                return *mit;
-            }
-        }
-        warning(std::string("Geometry::mesh: Error mesh id/name not found: ") + id); // TODO Exceptions 
+        // should never append
     }
 
     Mesh&  Geometry::mesh(const std::string& id) 
@@ -70,6 +61,7 @@ namespace OpenMEEG {
             }
         }
         warning(std::string("Geometry::mesh: Error mesh id/name not found: ") + id);
+        // should never append
     }
 
     void Geometry::info() const 
@@ -118,7 +110,7 @@ namespace OpenMEEG {
 
     void Geometry::read(const std::string& geomFileName, const std::string& condFileName) 
     {
-        Geometry::GeometryReader geoR(*this);
+        GeometryReader geoR(*this);
 
         geoR.read_geom(geomFileName);
 
@@ -128,13 +120,14 @@ namespace OpenMEEG {
         }
 
         // generate the indices of our unknowns
-        geom_generate_indices();
+        generate_indices();
 
+        // print info
         info();
     }
 
     // this generates unique indices for vertices and triangles which will correspond to our unknowns.
-    void Geometry::geom_generate_indices() 
+    void Geometry::generate_indices() 
     {
         // Either unknowns (potentials and currents) are ordered by mesh (i.e. V_1, p_1, V_2, p_2,...) 
         // or by type (V_1,V_2,V_3 .. p_1, p_2...)
@@ -156,7 +149,7 @@ namespace OpenMEEG {
                     tit->index() = index++;
                 }
             }
-        } // even the last surface triangles (yes for EIT... TODO)
+        } // even the last surface triangles (yes for EIT... )
         for ( iterator mit = begin(); mit != end(); ++mit) {
             for ( Mesh::iterator tit = mit->begin(); tit != mit->end(); ++tit) {
                 if ( mit->outermost() ) {
@@ -183,10 +176,10 @@ namespace OpenMEEG {
         std::set<Domain> sdom1;
         std::set<Domain> sdom2;
         for ( Domains::const_iterator dit = domain_begin(); dit != domain_end(); ++dit) {
-            if ( dit->meshOrient(m1) != 0 ) {
+            if ( dit->mesh_orientation(m1) != 0 ) {
                 sdom1.insert(*dit);
             }
-            if ( dit->meshOrient(m2) != 0 ) {
+            if ( dit->mesh_orientation(m2) != 0 ) {
                 sdom2.insert(*dit);
             }
         }
@@ -195,35 +188,36 @@ namespace OpenMEEG {
         return doms;
     }
 
-    // TODO template type enum : foreach ????
-    // return the (sum, difference, ..) conductivity(ies) of the shared domain(s).
-    const double Geometry::funct_on_domains(const Mesh& m1, const Mesh& m2, const char& f) const 
+    /// \return a function (sum, difference,...) of the conductivity(ies) of the shared domain(s).
+    const double Geometry::funct_on_domains(const Mesh& m1, const Mesh& m2, const Function& f) const 
     {
         Domains doms = common_domains(m1, m2);
         double ans=0.;
         for ( Domains::iterator dit = doms.begin(); dit != doms.end(); ++dit) {
-            if ( f == '+' ) {
+            if ( f == IDENTITY ) {
                 ans += dit->sigma();
-            } else if ( f == '/' ) {
+            } else if ( f == INVERSE ) {
                 ans += 1./dit->sigma();
-            } else {
+            } else if ( f == INDICATOR ) {
                 ans += 1.;
+            } else {
+                ans = 0;
             }
         }
         return ans;
     }
 
-    // return the difference of conductivities of the 2 domains.
+    /// \return the difference of conductivities of the 2 domains.
     const double  Geometry::sigma_diff(const Mesh& m) const {
         Domains doms = common_domains(m, m); // Get the 2 domains surrounding mesh m
         double  ans  = 0.;
         for ( Domains::iterator dit = doms.begin(); dit != doms.end(); ++dit) {
-            ans -= dit->sigma()*dit->meshOrient(m);
+            ans -= dit->sigma()*dit->mesh_orientation(m);
         }
         return ans;
     }
     
-    // return 0. for non communicating meshes, 1. for same oriented meshes, -1. for different orientation
+    /// \return 0. for non communicating meshes, 1. for same oriented meshes, -1. for different orientation
     const double Geometry::oriented(const Mesh& m1, const Mesh& m2) const 
     {
         Domains doms = common_domains(m1, m2); // 2 meshes have either 0, 1 or 2 domains in common
@@ -231,11 +225,11 @@ namespace OpenMEEG {
         if ( doms.size() == 0 ) {
             return 0.;
         } else {
-            return (( doms[0].meshOrient(m1) == doms[0].meshOrient(m2) ) ? 1. : -1.);
+            return (( doms[0].mesh_orientation(m1) == doms[0].mesh_orientation(m2) ) ? 1. : -1.);
         }
     }
 
-    bool Geometry::selfCheck() const
+    const bool Geometry::selfCheck() const
     {
         bool OK = true;
 
@@ -264,7 +258,7 @@ namespace OpenMEEG {
         return OK;
     }
 
-    bool Geometry::check(const Mesh& m) const 
+    const bool Geometry::check(const Mesh& m) const 
     {
         bool OK = true;
         if ( m.has_self_intersection() ) {
@@ -284,13 +278,11 @@ namespace OpenMEEG {
 
     void Geometry::import_meshes(const Meshes& m)
     {
-        std::set<Vertex> set_vertices;
-        std::map<const Vertex, unsigned> map_vertices;
-
         meshes_.clear();
         vertices_.clear();
         unsigned n_vert_max = 0;
         unsigned iit = 0;
+        std::map<const Vertex *, Vertex *> map_vertices;
 
         for ( Meshes::const_iterator mit = m.begin(); mit != m.end(); ++mit) {
             n_vert_max += mit->nb_vertices();
@@ -298,6 +290,29 @@ namespace OpenMEEG {
         
         vertices_.reserve(n_vert_max);
         meshes_.reserve(m.size());
+
+        for ( Meshes::const_iterator mit = m.begin(); mit != m.end(); ++mit, ++iit) {
+            meshes_.push_back(Mesh(vertices_, mit->name()));
+            for ( Mesh::const_vertex_iterator vit = mit->vertex_begin(); vit != mit->vertex_end(); vit++) {
+                meshes_[iit].add_vertex(**vit);
+                map_vertices[*vit] = *meshes_[iit].vertex_rbegin();
+            }
+        }
+
+        // Copy the triangles in the geometry.
+        iit = 0;
+        for ( Meshes::const_iterator mit = m.begin(); mit != m.end(); ++mit, ++iit) {
+            for ( Mesh::const_iterator tit = mit->begin(); tit != mit->end(); ++tit) {
+                meshes_[iit].push_back(Triangle(map_vertices[(*tit)[0]], 
+                                                map_vertices[(*tit)[1]], 
+                                                map_vertices[(*tit)[2]]));
+            }
+            meshes_[iit].update();
+        }
+    }
+#if 0
+        std::set<Vertex> set_vertices;
+        std::map<const Vertex, unsigned> map_vertices;
 
         for ( Meshes::const_iterator mit = m.begin(); mit != m.end(); ++mit, ++iit) {
             meshes_.push_back(Mesh(vertices_, mit->name()));
@@ -321,4 +336,5 @@ namespace OpenMEEG {
             meshes_[iit].update();
         }
     }
+#endif
 }

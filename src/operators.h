@@ -267,7 +267,7 @@ namespace OpenMEEG {
                 // we thus precompute operator S divided by the product of triangles area.
                 Matrix matS(m1.nb_triangles(), m1.nb_triangles()); // TODO !!! it should be a SymMatrix but doesnt give the same results !!
                 for ( Mesh::const_iterator tit1 = m1.begin(); tit1 != m1.end(); ++tit1) {
-                    PROGRESSBAR(++i, m1.nb_triangles());
+                    PROGRESSBAR(i++, m1.nb_triangles());
                     #pragma omp parallel for
                     for ( Mesh::const_iterator tit2 = m1.begin(); tit2 < m1.end(); ++tit2) { // TODO il en fait trop
                         matS(tit1->index() - m1.begin()->index(), tit2->index() - m1.begin()->index()) = _operatorS(*tit1, *tit2, gauss_order) / ( tit1->area() * tit2->area());
@@ -275,7 +275,7 @@ namespace OpenMEEG {
                 }
                 i = 0 ;
                 for ( Mesh::const_vertex_iterator vit1 = m1.vertex_begin(); vit1 != m1.vertex_end(); ++vit1) {
-                    PROGRESSBAR(++i, m1.nb_vertices());
+                    PROGRESSBAR(i++, m1.nb_vertices());
                     #pragma omp parallel for
                     for ( Mesh::const_vertex_iterator vit2 = vit1; vit2 < m1.vertex_end(); ++vit2) {
                         mat((*vit1)->index(), (*vit2)->index()) += _operatorN(**vit1, **vit2, m1, m1, gauss_order, matS) * coeff;
@@ -283,7 +283,7 @@ namespace OpenMEEG {
                 }
             } else {
                 for ( Mesh::const_vertex_iterator vit1 = m1.vertex_begin(); vit1 != m1.vertex_end(); ++vit1) {
-                    PROGRESSBAR(++i, m1.nb_vertices());
+                    PROGRESSBAR(i++, m1.nb_vertices());
                     #pragma omp parallel for
                     for ( Mesh::const_vertex_iterator vit2 = m1.vertex_begin(); vit2 <= vit1; ++vit2) {
                         mat((*vit1)->index(), (*vit2)->index()) += _operatorN(**vit1, **vit2, m1, m1, gauss_order, mat) * coeff;
@@ -295,7 +295,7 @@ namespace OpenMEEG {
                 // we thus precompute operator S divided by the product of triangles area.
                 Matrix matS(m1.nb_triangles(), m2.nb_triangles());
                 for ( Mesh::const_iterator tit1 = m1.begin(); tit1 != m1.end(); ++tit1) {
-                    PROGRESSBAR(++i, m1.nb_triangles());
+                    PROGRESSBAR(i++, m1.nb_triangles());
                     #pragma omp parallel for
                     for ( Mesh::const_iterator tit2 = m2.begin(); tit2 < m2.end(); ++tit2) {
                         matS(tit1->index() - m1.begin()->index(), tit2->index() - m2.begin()->index()) = _operatorS(*tit1, *tit2, gauss_order) / ( tit1->area() * tit2->area());
@@ -303,7 +303,7 @@ namespace OpenMEEG {
                 }
                 i = 0 ;
                 for ( Mesh::const_vertex_iterator vit1 = m1.vertex_begin(); vit1 != m1.vertex_end(); ++vit1) {
-                    PROGRESSBAR(++i, m1.nb_vertices());
+                    PROGRESSBAR(i++, m1.nb_vertices());
                     #pragma omp parallel for
                     for ( Mesh::const_vertex_iterator vit2 = m2.vertex_begin(); vit2 < m2.vertex_end(); ++vit2) {
                         mat((*vit1)->index(), (*vit2)->index()) += _operatorN(**vit1, **vit2, m1, m2, gauss_order, matS) * coeff;
@@ -311,7 +311,7 @@ namespace OpenMEEG {
                 }
             } else {
                 for ( Mesh::const_vertex_iterator vit1 = m1.vertex_begin(); vit1 != m1.vertex_end(); ++vit1) {
-                    PROGRESSBAR(++i, m1.nb_vertices());
+                    PROGRESSBAR(i++, m1.nb_vertices());
                     #pragma omp parallel for
                     for ( Mesh::const_vertex_iterator vit2 = m2.vertex_begin(); vit2 < m2.vertex_end(); ++vit2) {
                         mat((*vit1)->index(), (*vit2)->index()) += _operatorN(**vit1, **vit2, m1, m2, gauss_order, mat) * coeff;
@@ -337,7 +337,7 @@ namespace OpenMEEG {
         // PSI(A, a) is a P0 test function on layer A and triangle a
         if ( &m1 == &m2 ) {
             for ( Mesh::const_iterator tit1 = m1.begin(); tit1 != m1.end(); ++tit1) {
-                PROGRESSBAR(++i, m1.nb_triangles());
+                PROGRESSBAR(i++, m1.nb_triangles());
                 #pragma omp parallel for
                 for ( Mesh::const_iterator tit2 = tit1; tit2 < m1.end(); ++tit2) {
                     mat(tit1->index(), tit2->index()) = _operatorS(*tit1, *tit2, gauss_order) * coeff;
@@ -345,7 +345,7 @@ namespace OpenMEEG {
             }
         } else {
             for ( Mesh::const_iterator tit1 = m1.begin(); tit1 != m1.end(); ++tit1) {
-                PROGRESSBAR(++i, m1.nb_triangles());
+                PROGRESSBAR(i++, m1.nb_triangles());
                 #pragma omp parallel for
                 for ( Mesh::const_iterator tit2 = m2.begin(); tit2 < m2.end(); ++tit2) {
                     mat(tit1->index(), tit2->index()) = _operatorS(*tit1, *tit2, gauss_order) * coeff; // TODO inverser tit1/tit2 pour voir
@@ -368,7 +368,7 @@ namespace OpenMEEG {
         if ( star ) {
             std::cout << "OPERATOR D* ... (arg : mesh " << m1.name() << " , mesh " << m2.name() << " )" << std::endl;
             for ( Mesh::const_iterator tit = m2.begin(); tit != m2.end(); ++tit) {
-                PROGRESSBAR(++i, m1.nb_triangles());
+                PROGRESSBAR(i++, m1.nb_triangles());
                 #pragma omp parallel for
                 for ( Mesh::const_vertex_iterator vit = m1.vertex_begin(); vit < m1.vertex_end(); ++vit) {
                     // P1 functions are tested thus looping on vertices
@@ -378,7 +378,7 @@ namespace OpenMEEG {
         } else {
             std::cout << "OPERATOR D  ... (arg : mesh " << m1.name() << " , mesh " << m2.name() << " )" << std::endl;
             for ( Mesh::const_iterator tit = m1.begin(); tit != m1.end(); ++tit) {
-                PROGRESSBAR(++i, m1.nb_triangles());
+                PROGRESSBAR(i++, m1.nb_triangles());
                 #pragma omp parallel for
                 for ( Mesh::const_vertex_iterator vit = m2.vertex_begin(); vit < m2.vertex_end(); ++vit) {
                     // P1 functions are tested thus looping on vertices
@@ -407,7 +407,7 @@ namespace OpenMEEG {
         }
 
         for ( Mesh::const_iterator tit1 = m1.begin(); tit1 != m1.end(); ++tit1) {
-            PROGRESSBAR(++i, m1.nb_triangles());
+            PROGRESSBAR(i++, m1.nb_triangles());
             for ( Mesh::const_iterator tit2 = m2.begin(); tit2 != m2.end(); ++tit2) {
                 //In this version of the function, in order to skip multiple computations of the same quantities
                 //    loops are run over the triangles but the Matrix cannot be filled in this function anymore

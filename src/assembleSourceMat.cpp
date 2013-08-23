@@ -135,13 +135,14 @@ namespace OpenMEEG {
     }
 
     DipSourceMat::DipSourceMat(const Geometry& geo, const Matrix& dipoles, const unsigned gauss_order,
-                               const bool adapt_rhs, const std::string& domain_name) {
+                               const bool adapt_rhs, const std::string& domain_name)
+    {
 
         assemble_DipSourceMat(*this, geo, dipoles, gauss_order, adapt_rhs, domain_name);
     }
 
-    void assemble_EITSourceMat(Matrix& mat, const Geometry& geo, const Matrix& positions, const unsigned gauss_order) {
-
+    void assemble_EITSourceMat(Matrix& mat, const Geometry& geo, const Matrix& positions, const unsigned gauss_order)
+    {
         //  A Matrix to be applied to the scalp-injected current to obtain the Source Term of the EIT foward problem.
 
         const double K = 1.0/(4.*M_PI);

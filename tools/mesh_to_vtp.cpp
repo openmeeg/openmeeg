@@ -50,9 +50,9 @@ int main( int argc, char **argv) {
     print_version(argv[0]);
 
     command_usage("Convert meshes into a single VTK/VTP file.");
-    const char * input[6];
+    const char * input[7];
+    const char * name[7];
     const char * output;
-    const char * name[6];
     input[0] = command_option("-i1", (const char *) NULL, "Input Mesh");
     input[1] = command_option("-i2", (const char *) NULL, "Input Mesh");
     input[2] = command_option("-i3", (const char *) NULL, "Input Mesh");
