@@ -5,8 +5,8 @@ MeshFile "HeadNNc1.vtp"
 Interfaces 5 Interface
 
 Interface North: +north +cut 
-Interface South: -south -cut
-Interface Cortex: north south
+Interface South: +south -cut
+Interface Cortex: +north +south
 Interface Skull: skull
 Interface Scalp: scalp
 
