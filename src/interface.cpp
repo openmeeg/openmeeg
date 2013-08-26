@@ -105,11 +105,11 @@ namespace OpenMEEG {
         Vect3 bbmax(xmax, ymax, zmax);
         Vect3 bbcenter = 0.5 * (bbmin + bbmax);
 
+        // TODO if solidangle returns 0, then the center of BB is not inside, and thus we should randomly choose another inside point untill solid_anlge gives + or -4 PI ? else it causes a strange phenomenon for symmetric model, the point chosen for interface Cortex {north and south}, is on the surface...
         // compute the solid-angle from an inside point:
         double solangle = compute_solid_angle(bbcenter);
         bool closed;
 
-        // TODO if it returns 0, then the center of BB is not inside, and thus we should randomly choose another insied point untill solid_anlge gives + or -4 PI ?
         if ( std::abs(solangle) < 1.e3*std::numeric_limits<double>::epsilon() ) {
             closed = true;
         } else if ( std::abs(solangle + 4.*M_PI) < 1.e3*std::numeric_limits<double>::epsilon()) {

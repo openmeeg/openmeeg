@@ -259,7 +259,7 @@ namespace OpenMEEG {
                         found = true;
                         if ( !iit->check() ) { // check and correct global orientation
                             std::cerr << "Interface \"" << iit->name() << "\" is not closed !" << std::endl;
-                            std::cerr << "Correct mesh orientation before mesh name in the geometry file." << std::endl;
+                            std::cerr << "Please correct a mesh orientation when defining the interface in the geometry file." << std::endl;
                             exit(1);
                         }
                         dit->push_back(HalfSpace(*iit, inside));

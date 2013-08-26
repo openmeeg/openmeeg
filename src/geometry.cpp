@@ -74,7 +74,7 @@ namespace OpenMEEG {
                 shared += mit->nb_vertices();
             }
             // TODO correct those are not shared vertices, but already found vertices...
-            std::cout << "This geometry is a NON NESTED geometry with " << shared << " shared points." << std::endl;
+            std::cout << "This geometry is a NON NESTED geometry. (There was " << shared << " demands for adding the same points)." << std::endl;
         }
 
         for (const_iterator mit = begin(); mit != end(); ++mit) {
