@@ -54,8 +54,7 @@ namespace OpenMEEG {
             std::cerr << "Interface::contains_point(" << p << ") Error. This should not happen. Are you sure the mesh is properly oriented ?\n";
             return false;
         } else {
-            std::cerr << "Interface::contains_point(" << p << ") Error. Are you sure the mesh is closed?\n"
-                << std::abs(solangle) << std::endl;
+            std::cerr << "Interface::contains_point(" << p << ") Error. Are you sure the interface \"" << name_ << "\" is closed?" << std::abs(solangle) << std::endl;
             exit(1);
         }
     }
