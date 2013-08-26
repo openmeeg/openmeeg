@@ -78,7 +78,7 @@ namespace OpenMEEG {
         for ( Domain::const_iterator hit = d.begin(); hit != d.end(); ++hit) {
             for ( Interface::const_iterator omit = hit->interface().begin(); omit != hit->interface().end(); ++omit) {
                 // First block is nVertexFistLayer*nVertexSources.
-                operatorN( omit->mesh(), mesh_source, mat, K, gauss_order);
+                operatorN( omit->mesh(), mesh_source, mat, K, gauss_order); // TODO *omit->orientation() ?
                 // Second block is nFacesFistLayer*nVertexSources.
                 operatorD(omit->mesh(), mesh_source, mat, -K/sigma, gauss_order);
             }
@@ -94,7 +94,7 @@ namespace OpenMEEG {
             const unsigned gauss_order, const bool adapt_rhs, const std::string& domain_name = "") 
     {
         const double   K         = 1.0/(4.*M_PI);
-        const unsigned newsize   = (geo.size()-geo.outermost_interface().nb_triangles());
+        const unsigned newsize   = (geo.size() - geo.outermost_interface().nb_triangles());
         const unsigned n_dipoles = dipoles.nlin();
 
         rhs = Matrix(newsize, n_dipoles);
@@ -121,11 +121,11 @@ namespace OpenMEEG {
                 // iterate over the meshes of the interface
                 for ( Interface::const_iterator omit = hit->interface().begin(); omit != hit->interface().end(); ++omit ) {
                     //  Treat the mesh.
-                    double coeffD = (hit->inside())?K:-K;
+                    double coeffD = (hit->inside())?K*omit->orientation():-K*omit->orientation();
                     operatorDipolePotDer(r, q, omit->mesh(), rhs_col, coeffD, gauss_order, adapt_rhs);
 
                     if ( !omit->mesh().outermost() ) {
-                        double coeff = ( hit->inside() )?-1.*K/sigma:(K/sigma);
+                        double coeff = ( hit->inside() )?-1.*omit->orientation()*K/sigma:(omit->orientation()*K/sigma);
                         operatorDipolePot(r, q, omit->mesh(), rhs_col, coeff, gauss_order, adapt_rhs);
                     }
                 }
@@ -167,7 +167,7 @@ namespace OpenMEEG {
                     operatorS(*mit2, omit1->mesh(), transmat, geo.sigma_inv(omit1->mesh(), *mit2) * ( -1. * K * orientation), gauss_order);
 
                     //  First compute D.
-                    operatorD(*mit2, omit1->mesh(), transmat, (1.*K * orientation), gauss_order, true);
+                    operatorD(*mit2, omit1->mesh(), transmat, (K * orientation), gauss_order, true);
                     if ( omit1->mesh() == *mit2 ) {
                         operatorP1P0(omit1->mesh(), transmat, 0.5 * orientation);
                     }
@@ -184,7 +184,7 @@ namespace OpenMEEG {
             dist_point_interface(current_position, geo.outermost_interface(), current_alphas, current_nearest_triangle);
             const double inv_area = 1.0/current_nearest_triangle.area();
             for ( unsigned i = 0; i < (geo.size() - geo.outermost_interface().nb_triangles()); ++i) {
-                mat(i, ielec) = transmat(current_nearest_triangle.index(), i)*inv_area;
+                mat(i, ielec) = transmat(current_nearest_triangle.index(), i) * inv_area;
             }
         }
     }

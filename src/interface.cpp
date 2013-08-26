@@ -112,7 +112,6 @@ namespace OpenMEEG {
         bool closed;
 
         // TODO if it returns 0, then the center of BB is not inside, and thus we should randomly choose another insied point untill solid_anlge gives + or -4 PI ?
-
         if ( std::abs(solangle) < 1.e3*std::numeric_limits<double>::epsilon() ) {
             closed = true;
         } else if ( std::abs(solangle + 4.*M_PI) < 1.e3*std::numeric_limits<double>::epsilon()) {
@@ -120,7 +119,8 @@ namespace OpenMEEG {
         } else if ( std::abs(solangle - 4.*M_PI) < 1.e3*std::numeric_limits<double>::epsilon()) {
             std::cout << "Global Reorientation of interface " << name() << std::endl;
             for ( Interface::iterator omit = begin(); omit != end(); ++omit) {
-                omit->second = !omit->second;
+                // omit->mesh().flip_triangles();
+                omit->second = !omit->second; // TODO do we have to ?
             }
             closed = true;
         } else {

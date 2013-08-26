@@ -132,12 +132,6 @@ namespace OpenMEEG {
             all_vertices_->push_back(v);
             vertices_.push_back(&(*all_vertices_->rbegin()));
         } else {
-            if ( !said ) {
-                std::cout << "Duplicated points detected" << std::endl;
-                said = true;
-            } else {
-                std::cout << "name " << name_ << "  " << ++du  << "  /  " << set_vertices_.size() << std::endl;
-            }
             Vertices::iterator vit = std::find(all_vertices_->begin(), all_vertices_->end(), v);
             vertices_.push_back(&(*vit));
         }

@@ -368,7 +368,7 @@ namespace OpenMEEG {
         if ( star ) {
             std::cout << "OPERATOR D* ... (arg : mesh " << m1.name() << " , mesh " << m2.name() << " )" << std::endl;
             for ( Mesh::const_iterator tit = m2.begin(); tit != m2.end(); ++tit) {
-                PROGRESSBAR(i++, m1.nb_triangles());
+                PROGRESSBAR(i++, m2.nb_triangles());
                 #pragma omp parallel for
                 for ( Mesh::const_vertex_iterator vit = m1.vertex_begin(); vit < m1.vertex_end(); ++vit) {
                     // P1 functions are tested thus looping on vertices

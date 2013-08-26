@@ -259,6 +259,7 @@ namespace OpenMEEG {
                         found = true;
                         if ( !iit->check() ) { // check and correct global orientation
                             std::cerr << "Interface \"" << iit->name() << "\" is not closed !" << std::endl;
+                            std::cerr << "Correct mesh orientation before mesh name in the geometry file." << std::endl;
                             exit(1);
                         }
                         dit->push_back(HalfSpace(*iit, inside));
@@ -329,10 +330,10 @@ namespace OpenMEEG {
         }
 
         if ( nested ) {
-            std::cout << "Geometry file " << geometry << " defines a NESTED geometry." << std::endl;
+            // std::cout << "Geometry file " << geometry << " defines a NESTED geometry." << std::endl;
             geo_.is_nested_ = true;
         } else {
-            std::cout << "Geometry file " << geometry << " defines a NON NESTED geometry." << std::endl;
+            // std::cout << "Geometry file " << geometry << " defines a NON NESTED geometry." << std::endl;
             geo_.is_nested_ = false;
         }
 

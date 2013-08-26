@@ -66,6 +66,17 @@ namespace OpenMEEG {
 
     void Geometry::info() const 
     {
+        if ( is_nested_ ) {
+            std::cout << "This geometry is a NESTED geometry." << std::endl;
+        } else {
+            int shared = -1*vertices_.size();
+            for (const_iterator mit = begin(); mit != end(); ++mit) {
+                shared += mit->nb_vertices();
+            }
+            // TODO correct those are not shared vertices, but already found vertices...
+            std::cout << "This geometry is a NON NESTED geometry with " << shared << " shared points." << std::endl;
+        }
+
         for (const_iterator mit = begin(); mit != end(); ++mit) {
             mit->info();
         }
