@@ -404,7 +404,6 @@ namespace OpenMEEG {
     inline Vect3 _operatorFerguson(const Vect3& x, const Vertex& V1, const Mesh& m)
     {
         double opS;
-        Vect3  v;
 
         STATIC_OMP Vect3 result;
         STATIC_OMP analyticS analyS;
@@ -423,13 +422,12 @@ namespace OpenMEEG {
             // A1 , B1  are the two opposite vertices to V1 (triangles A1, B1, V1)
             Vect3 A1   = T1.next(V1);
             Vect3 B1   = T1.prev(V1);
-            Vect3 A1B1 = A1 - B1;
-            v = A1B1 * (0.5 / T1.area());
+            Vect3 A1B1 = (A1 - B1) * (0.5 / T1.area());
             
             analyS.init(V1, A1, B1);
             opS = analyS.f(x);
 
-            result += (v * opS);
+            result += (A1B1 * opS);
         }
         return result;
     }

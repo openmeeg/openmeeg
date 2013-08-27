@@ -110,18 +110,17 @@ namespace OpenMEEG {
         const unsigned nbIntegrationPoints = sensors.getNumberOfPositions();
         unsigned p0_p1_size = (geo.size() - geo.outermost_interface().nb_triangles());
 
-        Matrix myFergusonMatrix(3*nbIntegrationPoints, p0_p1_size);
+        Matrix FergusonMat(3*nbIntegrationPoints, geo.nb_vertices());
 
-        assemble_ferguson(geo, myFergusonMatrix, positions); // TODO ? FastSparseMatrix ?
+        assemble_ferguson(geo, FergusonMat, positions);
 
         mat = Matrix(nbIntegrationPoints, p0_p1_size);
         mat.set(0.0);
 
         for ( unsigned i = 0; i < nbIntegrationPoints; ++i) {
             PROGRESSBAR(i, nbIntegrationPoints);
-            unsigned j = 0;
-            for ( Vertices::const_iterator vit = geo.vertex_begin(); vit != geo.vertex_end(); ++vit, ++j) {
-                Vect3 fergusonField(myFergusonMatrix(3*i, vit->index()), myFergusonMatrix(3*i+1, vit->index()), myFergusonMatrix(3*i+2, vit->index()));
+            for ( Vertices::const_iterator vit = geo.vertex_begin(); vit != geo.vertex_end(); ++vit) {
+                Vect3 fergusonField(FergusonMat(3*i, vit->index()), FergusonMat(3*i+1, vit->index()), FergusonMat(3*i+2, vit->index()));
                 Vect3 normalizedDirection(orientations(i, 0), orientations(i, 1), orientations(i, 2));
                 normalizedDirection.normalize();
                 mat(i, vit->index()) = fergusonField * normalizedDirection;
@@ -147,15 +146,14 @@ namespace OpenMEEG {
         mat = Matrix(nsquids, sources_mesh.nb_vertices());
         mat.set(0.0);
 
-
         for ( unsigned i = 0; i < nsquids; ++i) {
             PROGRESSBAR(i, nsquids);
             Vect3 p(positions(i, 0), positions(i, 1), positions(i, 2));
-            Matrix myFergusonMatrix(3, mat.ncol());
-            myFergusonMatrix.set(0.0);
-            operatorFerguson(p, sources_mesh, myFergusonMatrix, 0, 1.);
+            Matrix FergusonMat(3, mat.ncol());
+            FergusonMat.set(0.0);
+            operatorFerguson(p, sources_mesh, FergusonMat, 0, 1.);
             for ( unsigned j = 0; j < mat.ncol(); ++j) {
-                Vect3 fergusonField(myFergusonMatrix(0, j), myFergusonMatrix(1, j), myFergusonMatrix(2, j));
+                Vect3 fergusonField(FergusonMat(0, j), FergusonMat(1, j), FergusonMat(2, j));
                 Vect3 normalizedDirection(orientations(i, 0), orientations(i, 1), orientations(i, 2));
                 normalizedDirection.normalize();
                 mat(i, j) = fergusonField * normalizedDirection;

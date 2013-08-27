@@ -127,7 +127,7 @@ namespace OpenMEEG {
                     operatorDipolePotDer(r, q, omit->mesh(), rhs_col, coeffD, gauss_order, adapt_rhs);
 
                     if ( !omit->mesh().outermost() ) {
-                        double coeff = ( hit->inside() )?-1.*omit->orientation()*K/sigma:(omit->orientation()*K/sigma);
+                        double coeff = ( hit->inside() )?-omit->orientation()*K/sigma:(omit->orientation()*K/sigma);
                         operatorDipolePot(r, q, omit->mesh(), rhs_col, coeff, gauss_order, adapt_rhs);
                     }
                 }

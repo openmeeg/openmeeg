@@ -65,7 +65,7 @@ namespace OpenMEEG { // TODO mv that to operator.h ?
     // to an entire mesh, and storing coordinates of the output in a Matrix.
     void operatorFerguson(const Vect3& x, const Mesh& m, Matrix& mat, const unsigned& offsetI, const double& coeff)
     {
-        // #pragma omp parallel for // TODO
+        #pragma omp parallel for
         for ( Mesh::const_vertex_iterator vit = m.vertex_begin(); vit < m.vertex_end(); ++vit) {
             Vect3 v = _operatorFerguson(x, **vit, m);
             mat(offsetI + 0, (*vit)->index()) += v.x() * coeff;
