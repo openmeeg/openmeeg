@@ -223,7 +223,7 @@ namespace OpenMEEG {
         Domains doms = common_domains(m, m); // Get the 2 domains surrounding mesh m
         double  ans  = 0.;
         for ( Domains::iterator dit = doms.begin(); dit != doms.end(); ++dit) {
-            ans -= dit->sigma()*dit->mesh_orientation(m);
+            ans += dit->sigma() * dit->mesh_orientation(m);
         }
         return ans;
     }

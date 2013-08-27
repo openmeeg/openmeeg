@@ -68,42 +68,9 @@ namespace OpenMEEG {
     // T can be a Matrix or SymMatrix
     void operatorSinternal(const Mesh& , Matrix& , const Vertices&, const double& );
     void operatorDinternal(const Mesh& , Matrix& , const Vertices&, const double& );
-    void operatorFerguson(const Vect3& , const Mesh& , SparseMatrix& , const unsigned&, const double&);
+    void operatorFerguson(const Vect3& , const Mesh& , Matrix& , const unsigned&, const double&);
     void operatorDipolePotDer(const Vect3& , const Vect3& , const Mesh& , Vector&, const double&, const unsigned, const bool);
     void operatorDipolePot   (const Vect3& , const Vect3& , const Mesh& , Vector&, const double&, const unsigned, const bool);
-
-    inline void mult(SymMatrix& mat, unsigned Istart, unsigned Jstart, unsigned Istop, unsigned Jstop, double coeff)
-    {
-        //If the upper left corner of the block is on the diagonal line of the Matrix
-        //Only the half of the block has to be treated because of the symmetric storage
-        if ( Istart != Jstart ) {
-            for ( unsigned i = Istart; i <= Istop; ++i) {
-                #pragma omp parallel for
-                for ( unsigned j = Jstart; j <= Jstop; ++j) {
-                    mat(i, j) *= coeff;
-                }
-            }
-        } else {
-            for ( unsigned i = Istart; i <= Istop; ++i) {
-                #pragma omp parallel for
-                for ( unsigned j = Jstart; j <= i; ++j) {
-                    mat(i, j) *= coeff;
-                }
-            }
-        }
-    }
-
-    inline void mult(Matrix& mat, unsigned Istart, unsigned Jstart, unsigned Istop, unsigned Jstop, double coeff)
-    {
-        //If the upper left corner of the block is on the diagonal line of the Matrix
-        //Only the half of the block has to be treated because of the symmetric storage
-        for ( unsigned i = Istart; i <= Istop; ++i) {
-            #pragma omp parallel for
-            for ( unsigned j = Jstart; j <= Jstop; ++j) {
-                mat(i, j) *= coeff;
-            }
-        }
-    }
 
     #ifndef OPTIMIZED_OPERATOR_D
     inline double _operatorD(const Triangle& T1, const Vertex& V2, const Mesh& m2, const unsigned gauss_order)
@@ -454,12 +421,11 @@ namespace OpenMEEG {
             const Triangle& T1 = **tit;
 
             // A1 , B1  are the two opposite vertices to V1 (triangles A1, B1, V1)
-            Vect3 A1   = T1.prev(V1);
-            Vect3 B1   = T1.next(V1);
-            Vect3 B1A1 = A1 - B1;
-            v = B1A1 * (0.5 / T1.area());
+            Vect3 A1   = T1.next(V1);
+            Vect3 B1   = T1.prev(V1);
+            Vect3 A1B1 = A1 - B1;
+            v = A1B1 * (0.5 / T1.area());
             
-
             analyS.init(V1, A1, B1);
             opS = analyS.f(x);
 

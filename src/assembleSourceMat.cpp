@@ -73,14 +73,16 @@ namespace OpenMEEG {
         // We here set it as an outermost (to tell _operarorN it doesn't belong to the geometry)
         mesh_source.outermost() = true;
 
-        std::cout << std::endl << "assemble SurfSourceMat with " << nVertexSources << " mesh_source" << std::endl << std::endl;
+        std::cout << std::endl << "assemble SurfSourceMat with " << nVertexSources << " mesh_source located in Domain \"" << d.name() << "\"." << std::endl << std::endl;
 
         for ( Domain::const_iterator hit = d.begin(); hit != d.end(); ++hit) {
             for ( Interface::const_iterator omit = hit->interface().begin(); omit != hit->interface().end(); ++omit) {
                 // First block is nVertexFistLayer*nVertexSources.
-                operatorN( omit->mesh(), mesh_source, mat, K, gauss_order); // TODO *omit->orientation() ?
+                double coeffN = (hit->inside())?K*omit->orientation():-K*omit->orientation();
+                operatorN( omit->mesh(), mesh_source, mat, coeffN, gauss_order);
                 // Second block is nFacesFistLayer*nVertexSources.
-                operatorD(omit->mesh(), mesh_source, mat, -K/sigma, gauss_order);
+                double coeffD = (hit->inside())?-omit->orientation() * K / sigma:omit->orientation() * K / sigma;
+                operatorD(omit->mesh(), mesh_source, mat, coeffD, gauss_order);
             }
         }
     }

@@ -45,7 +45,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 namespace OpenMEEG {
 
-    void assemble_ferguson(const Geometry& geo, SparseMatrix& mat, const Matrix& pts);
+    void assemble_ferguson(const Geometry& geo, Matrix& mat, const Matrix& pts);
 
     // EEG patches positions are reported line by line in the positions Matrix
     // mat is supposed to be filled with zeros
@@ -110,9 +110,9 @@ namespace OpenMEEG {
         const unsigned nbIntegrationPoints = sensors.getNumberOfPositions();
         unsigned p0_p1_size = (geo.size() - geo.outermost_interface().nb_triangles());
 
-        SparseMatrix myFergusonMatrix(3*nbIntegrationPoints, p0_p1_size);
+        Matrix myFergusonMatrix(3*nbIntegrationPoints, p0_p1_size);
 
-        assemble_ferguson(geo, myFergusonMatrix, positions);
+        assemble_ferguson(geo, myFergusonMatrix, positions); // TODO ? FastSparseMatrix ?
 
         mat = Matrix(nbIntegrationPoints, p0_p1_size);
         mat.set(0.0);
@@ -147,12 +147,13 @@ namespace OpenMEEG {
         mat = Matrix(nsquids, sources_mesh.nb_vertices());
         mat.set(0.0);
 
-        SparseMatrix myFergusonMatrix(3, mat.ncol()); // TODO ? FastSparseMatrix ?
 
         for ( unsigned i = 0; i < nsquids; ++i) {
             PROGRESSBAR(i, nsquids);
             Vect3 p(positions(i, 0), positions(i, 1), positions(i, 2));
-            operatorFerguson(p, sources_mesh, myFergusonMatrix, 0, 0);
+            Matrix myFergusonMatrix(3, mat.ncol());
+            myFergusonMatrix.set(0.0);
+            operatorFerguson(p, sources_mesh, myFergusonMatrix, 0, 1.);
             for ( unsigned j = 0; j < mat.ncol(); ++j) {
                 Vect3 fergusonField(myFergusonMatrix(0, j), myFergusonMatrix(1, j), myFergusonMatrix(2, j));
                 Vect3 normalizedDirection(orientations(i, 0), orientations(i, 1), orientations(i, 2));
