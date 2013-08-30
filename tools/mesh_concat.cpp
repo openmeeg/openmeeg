@@ -63,9 +63,10 @@ int main( int argc, char **argv)
     Mesh m1(input_filename1);
 
     Mesh m2(input_filename2);
+    Mesh m3;
 
-    m1->append(m2);
-    m1->save(output_filename);
+    m3.merge(m1, m2);
+    m3.save(output_filename);
 
     return 0;
 }

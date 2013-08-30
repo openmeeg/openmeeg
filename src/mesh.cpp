@@ -84,6 +84,24 @@ namespace OpenMEEG {
         name_      = m.name_;
     }
 
+    /// Print informations about the mesh 
+    void Mesh::info() const 
+    {
+        std::cout << "Info:: Mesh name/ID : "  << name() << std::endl;
+        std::cout << "\t\t# vertices  : " << nb_vertices() << std::endl;
+        std::cout << "\t\t# triangles : " << nb_triangles() << std::endl;
+        std::cout << "\t\tEuler characteristic : " << nb_vertices() - 3.*nb_triangles()/2. + nb_triangles() << std::endl;
+
+        double min_area = std::numeric_limits<double>::max();
+        double max_area = 0.;
+        for ( const_iterator tit = begin(); tit != end(); ++tit) {
+            min_area = std::min(tit->area(), min_area);
+            max_area = std::max(tit->area(), max_area);
+        }
+        std::cout << "\t\tMin Area : " << min_area << std::endl;
+        std::cout << "\t\tMax Area : " << max_area << std::endl;
+    }
+
     void Mesh::build_mesh_vertices()
     {
         // Sets do not preserve the order, and we would like to preserve it so we push_back in the vector as soon as the element is unique.
@@ -124,16 +142,20 @@ namespace OpenMEEG {
 
     /// properly add vertex to the list. (if not already added)
     void Mesh::add_vertex(const Vertex& v) 
-    {   
-        static bool said = false;
-        static unsigned du = 0;
+    {
+        // try to insert the vertex to the set
         std::pair<std::set<Vertex>::iterator, bool> ret = set_vertices_.insert(v);
         if ( ret.second ) {
+            // if inserted, then it is a new vertex, and we add it to both lists
             all_vertices_->push_back(v);
             vertices_.push_back(&(*all_vertices_->rbegin()));
         } else {
+            // if not inserted, Either it belongs to another mesh or it was dupplicated in the same mesh
+            // TODO this may take time for too big redundant mesh
             Vertices::iterator vit = std::find(all_vertices_->begin(), all_vertices_->end(), v);
-            vertices_.push_back(&(*vit));
+            if ( std::find(vertices_.begin(), vertices_.end(), &(*vit)) == vertices_.end() ) {
+                vertices_.push_back(&(*vit));
+            }
         }
     }
 
@@ -176,22 +198,35 @@ namespace OpenMEEG {
         }
     }
 
-    /// Print informations about the mesh 
-    void Mesh::info() const 
+    /// properly merge two meshes into one (it does not dupplicate vertices)
+    void  Mesh::merge(const Mesh& m1, const Mesh& m2) 
     {
-        std::cout << "Info:: Mesh name/ID : "  << name() << std::endl;
-        std::cout << "\t\t# vertices  : " << nb_vertices() << std::endl;
-        std::cout << "\t\t# triangles : " << nb_triangles() << std::endl;
-        std::cout << "\t\tEuler characteristic : " << nb_vertices() - 3.*nb_triangles()/2. + nb_triangles() << std::endl;
-
-        double min_area = std::numeric_limits<double>::max();
-        double max_area = 0.;
-        for ( const_iterator tit = begin(); tit != end(); ++tit) {
-            min_area = std::min(tit->area(), min_area);
-            max_area = std::max(tit->area(), max_area);
+        if ( size() != 0 ) {
+            warning("Mesh::merge Mesh must be empty.");
         }
-        std::cout << "\t\tMin Area : " << min_area << std::endl;
-        std::cout << "\t\tMax Area : " << max_area << std::endl;
+        allocate_ = true;
+        all_vertices_ = new Vertices;
+        all_vertices_->reserve(m1.nb_vertices() + m2.nb_vertices());
+        for ( Mesh::const_vertex_iterator vit = m1.vertex_begin(); vit != m1.vertex_end(); ++vit) {
+            add_vertex(**vit);
+        }
+        for ( Mesh::const_vertex_iterator vit = m2.vertex_begin(); vit != m2.vertex_end(); ++vit) {
+            add_vertex(**vit);
+        }
+        for ( const_iterator tit = m1.begin(); tit != m1.end(); ++tit) {
+            Vertices::iterator vit1 = std::find(all_vertices_->begin(), all_vertices_->end(), tit->s1());
+            Vertices::iterator vit2 = std::find(all_vertices_->begin(), all_vertices_->end(), tit->s2());
+            Vertices::iterator vit3 = std::find(all_vertices_->begin(), all_vertices_->end(), tit->s3());
+            push_back(Triangle(*vit1, *vit2, *vit3));
+        }
+        for ( const_iterator tit = m2.begin(); tit != m2.end(); ++tit) {
+            Vertices::iterator vit1 = std::find(all_vertices_->begin(), all_vertices_->end(), tit->s1());
+            Vertices::iterator vit2 = std::find(all_vertices_->begin(), all_vertices_->end(), tit->s2());
+            Vertices::iterator vit3 = std::find(all_vertices_->begin(), all_vertices_->end(), tit->s3());
+            push_back(Triangle(*vit1, *vit2, *vit3));
+        }
+        correct_local_orientation();
+        update();
     }
 
     /// Flip all triangles
@@ -1021,7 +1056,7 @@ namespace OpenMEEG {
 
     bool Mesh::has_correct_orientation() const 
     {
-        // Check the local orientation (that all the triangles are all oriented in the same way)
+        /// Check the local orientation (that all the triangles are all oriented in the same way)
 
         EdgeMap mape = compute_edge_map();
 

@@ -78,7 +78,7 @@ namespace OpenMEEG {
         for ( Domain::const_iterator hit = d.begin(); hit != d.end(); ++hit) {
             for ( Interface::const_iterator omit = hit->interface().begin(); omit != hit->interface().end(); ++omit) {
                 // First block is nVertexFistLayer*nVertexSources.
-                double coeffN = (hit->inside())?K*omit->orientation():-K*omit->orientation();
+                double coeffN = (hit->inside())?K * omit->orientation():-K * omit->orientation();
                 operatorN( omit->mesh(), mesh_source, mat, coeffN, gauss_order);
                 // Second block is nFacesFistLayer*nVertexSources.
                 double coeffD = (hit->inside())?-omit->orientation() * K / sigma:omit->orientation() * K / sigma;
@@ -123,11 +123,11 @@ namespace OpenMEEG {
                 // iterate over the meshes of the interface
                 for ( Interface::const_iterator omit = hit->interface().begin(); omit != hit->interface().end(); ++omit ) {
                     //  Treat the mesh.
-                    double coeffD = (hit->inside())?K*omit->orientation():-K*omit->orientation();
+                    double coeffD = (hit->inside())?(K * omit->orientation()):(-K * omit->orientation());
                     operatorDipolePotDer(r, q, omit->mesh(), rhs_col, coeffD, gauss_order, adapt_rhs);
 
                     if ( !omit->mesh().outermost() ) {
-                        double coeff = ( hit->inside() )?-omit->orientation()*K/sigma:(omit->orientation()*K/sigma);
+                        double coeff = ( hit->inside() )?(-omit->orientation() * K / sigma):(omit->orientation() * K / sigma);
                         operatorDipolePot(r, q, omit->mesh(), rhs_col, coeff, gauss_order, adapt_rhs);
                     }
                 }
@@ -139,7 +139,6 @@ namespace OpenMEEG {
     DipSourceMat::DipSourceMat(const Geometry& geo, const Matrix& dipoles, const unsigned gauss_order,
                                const bool adapt_rhs, const std::string& domain_name)
     {
-
         assemble_DipSourceMat(*this, geo, dipoles, gauss_order, adapt_rhs, domain_name);
     }
 

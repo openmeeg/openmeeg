@@ -137,19 +137,17 @@ namespace OpenMEEG {
 
         /** \brief Print info
           Print to std::cout some info about the mesh
-          \return void
-          \sa
-         */
-        void  info() const ;
-        bool  has_self_intersection() const;
-        bool  intersection(const Mesh&) const;
-        bool  has_correct_orientation() const;
-        bool  triangle_intersection(const Triangle&, const Triangle&) const;
-        void  build_mesh_vertices();
-        void  update();
-        void  flip_triangles();
-        const VectPTriangle& get_triangles_for_vertex(const Vertex& V) const;
-        unsigned  correct_local_orientation();
+          \return void \sa */
+        void  info() const;
+        bool  has_self_intersection() const; ///< \brief check if the mesh self-intersects
+        bool  intersection(const Mesh&) const; ///< \brief check if the mesh intersects another mesh
+        bool  has_correct_orientation() const; ///< \brief check the local orientation of the mesh triangles
+        void  build_mesh_vertices(); ///< \brief construct the list of the mesh vertices out of its triangles
+        void  update(); ///< \brief recompute triangles normals, area, and links
+        void  merge(const Mesh&, const Mesh&); ///< properly merge two meshes into one
+        void  flip_triangles(); ///< flip all triangles
+        const VectPTriangle& get_triangles_for_vertex(const Vertex& V) const; ///< \biref get the triangles associated with vertex V \return the links
+        unsigned  correct_local_orientation(); ///< \brief correct the local orientation of the mesh triangles
 
               bool&        outermost()       { return outermost_; } /// \brief Returns True if it is an outermost mesh.
         const bool&        outermost() const { return outermost_; }
@@ -161,7 +159,7 @@ namespace OpenMEEG {
          **/
         void smooth(const double& smoothing_intensity, const unsigned& niter);
 
-        // for IO:s
+        // for IO:s --------------------------------------------------------------------
         /** Read mesh from file
           \param filename can be .vtk, .tri (ascii), .off .bnd or .mesh
           \param \optional verbose. 
@@ -212,9 +210,10 @@ namespace OpenMEEG {
         void save_tri(const std::string&)  const;
         void save_off(const std::string&)  const;
         void save_mesh(const std::string&) const;
+        // IO:s ----------------------------------------------------------------------------
 
         Mesh& operator=(const Mesh& m);
-        friend std::istream& operator>>(std::istream& is, Mesh& m);
+        friend std::istream& operator>>(std::istream& is, Mesh& m); ///< \brief insert a triangle into the mesh
 
     private:
         /// map the edges with an unsigned
@@ -226,6 +225,7 @@ namespace OpenMEEG {
         EdgeMap       compute_edge_map() const;
         VectPTriangle adjacent_triangles(const Triangle&) const;
         void orient_adjacent_triangles(std::stack<Triangle *>& t_stack, std::map<Triangle *, bool>& tri_reoriented);
+        bool  triangle_intersection(const Triangle&, const Triangle&) const;
         
         std::string                 name_; ///< Name of the mesh.
         std::map<const Vertex *, VectPTriangle>   links_; ///< links[&v] are the triangles that contain vertex v.
@@ -236,6 +236,7 @@ namespace OpenMEEG {
         std::set<Vertex>            set_vertices_;
     };
 
+    /// A vector of Mesh is called Meshes
     typedef std::vector<Mesh>        Meshes;
 }
 

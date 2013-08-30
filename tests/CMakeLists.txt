@@ -1,13 +1,13 @@
 INCLUDE(ComparisonTest)
 
 SET_FILE_PROPERTIES(Suffix
-    "HM .hm" "HMInv .hm_inv" "SSM .ssm" "v2eeg .h2em" "SurfGainEEG .sgem"
+    "HM .hm" "HMInv .hm_inv" "DSM .dsm" "SSM .ssm" "v2eeg .h2em" "SurfGainEEG .sgem"
     "ESTEEG .est_eeg" "EEGadjointEST .est_eegadjoint" "MEGadjointEST .est_megadjoint"
     "Head2MEGMat .h2mm" "SS2MM .ss2mm" "SurfGainMEG .sgmm" "ESTMEG .est_meg"
 )
 
 SET_FILE_PROPERTIES(CompareOptions
-    "HM -sym" "HMInv -sym" "SSM -full:-if1:binary:-if2:binary" "v2eeg -if:binary:-sparse"
+    "HM -sym" "HMInv -sym" "DSM -full:-if1:binary:-if2:binary" "SSM -full:-if1:binary:-if2:binary" "v2eeg -if:binary:-sparse"
     "SurfGainEEG -full" "ESTEEG -full" "Head2MEGMat -full" "SS2MM -full" "SurfGainMEG -full" "ESTMEG -full"
 )
 
@@ -31,7 +31,7 @@ NEW_EXECUTABLE(om_validationEIT validationEIT.cpp ${OPEMEEG_HEADERS}
 
 ############ TEST COMMON RESULTS ON HEAD1 (Regression test) ##############
 
-SET(COMPARISONS HM HMInv SSM v2eeg SurfGainEEG ESTEEG
+SET(COMPARISONS HM HMInv SSM DSM v2eeg SurfGainEEG ESTEEG
                 Head2MEGMat SS2MM SurfGainMEG ESTMEG 
 )
 

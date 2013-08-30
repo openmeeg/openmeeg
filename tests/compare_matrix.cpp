@@ -396,7 +396,7 @@ bool compare_mag(const T& mat1, const T& mat2, double eps, size_t col){
 
         flag = flag && (diff<eps);
         if (diff>eps) {
-            std::cout << "ERROR MAG (column " << j << " ) " << diff << std::endl;
+            std::cout << "ERROR MAG (column " << j << " ) = " << col1.norm()/col2.norm() << "\trelMAG = "<< diff << std::endl;
             std::cout.flush();
         }
     }

@@ -52,7 +52,7 @@ namespace OpenMEEG {
             return true;
         } else if ( std::abs(solangle - 4.*M_PI) < 1.e3*std::numeric_limits<double>::epsilon()) {
             std::cerr << "Interface::contains_point(" << p << ") Error. This should not happen. Are you sure the mesh is properly oriented ?\n";
-            return false;
+            return true;
         } else {
             std::cerr << "Interface::contains_point(" << p << ") Error. Are you sure the interface \"" << name_ << "\" is closed?" << std::abs(solangle) << std::endl;
             exit(1);
@@ -115,11 +115,10 @@ namespace OpenMEEG {
         } else if ( std::abs(solangle + 4.*M_PI) < 1.e3*std::numeric_limits<double>::epsilon()) {
             closed = true;
         } else if ( std::abs(solangle - 4.*M_PI) < 1.e3*std::numeric_limits<double>::epsilon()) {
-            std::cout << "Global Reorientation of interface " << name() << std::endl;
-            for ( Interface::iterator omit = begin(); omit != end(); ++omit) {
-                // omit->mesh().flip_triangles();
-                omit->second = !omit->second; // TODO do we have to ?
-            }
+            // std::cout << "Global Reorientation of interface " << name() << std::endl;
+            // for ( Interface::iterator omit = begin(); omit != end(); ++omit) {
+                // omit->second = !omit->second; // TODO do we have to ?
+            // }
             closed = true;
         } else {
             closed = false;

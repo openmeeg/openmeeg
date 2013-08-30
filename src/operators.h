@@ -419,7 +419,7 @@ namespace OpenMEEG {
 
             const Triangle& T1 = **tit;
 
-            // A1 , B1  are the two opposite vertices to V1 (triangles A1, B1, V1)
+            // A1 , B1  are the two opposite vertices to V1 (triangle A1, B1, V1)
             Vect3 A1   = T1.next(V1);
             Vect3 B1   = T1.prev(V1);
             Vect3 A1B1 = (A1 - B1) * (0.5 / T1.area());

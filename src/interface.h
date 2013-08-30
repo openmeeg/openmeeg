@@ -81,21 +81,23 @@ namespace OpenMEEG {
         const bool          contains_point(const Vect3& p) const; ///< \param p a point \return true if point is inside interface
         const bool          check(); ///< Check the global orientation
 
+        /// \return the total number of the interface vertices
         const unsigned nb_vertices() const {
             unsigned nb = 0;
             for ( const_iterator omit = begin(); omit != end(); ++omit) {
                 nb += omit->mesh().nb_vertices();
             }
             return nb;
-        } ///< \return the total number of the interface vertices
-
+        }
+        
+        /// \return the total number of the interface triangles
         const unsigned nb_triangles() const {
             unsigned nb = 0;
             for ( const_iterator omit = begin(); omit != end(); ++omit) {
                 nb += omit->mesh().nb_triangles();
             }
             return nb;
-        } ///< \return the total number of the interface triangles
+        }
 
     private:
 

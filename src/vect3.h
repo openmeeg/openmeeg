@@ -131,9 +131,9 @@ namespace OpenMEEG {
 
         inline double solangl(const Vect3& v1, const Vect3& v2, const Vect3& v3) const {
             // De Munck : Good sign directly
-            const Vect3 Y1 = v1-*this;
-            const Vect3 Y2 = v2-*this;
-            const Vect3 Y3 = v3-*this;
+            const Vect3 Y1 = v1 - *this;
+            const Vect3 Y2 = v2 - *this;
+            const Vect3 Y3 = v3 - *this;
             const double y1 = Y1.norm();
             const double y2 = Y2.norm();
             const double y3 = Y3.norm();
