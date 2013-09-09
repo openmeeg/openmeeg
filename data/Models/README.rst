@@ -6,23 +6,27 @@ Nested models:
 ^^^^^^^^^^^^^^
 Head1, Head2, Head3 are 3 nested spheres as head models, with ratio 0.87, 0.92 and 1.
 
-Head1 model contains 42 vertices
-Head2 model contains 162 vertices
-Head3 model contains 642 vertices
+Head1 model contains 42 vertices per surface
+Head2 model contains 162 vertices per surface
+Head3 model contains 642 vertices per surface
 
 
-NonNested models:
-^^^^^^^^^^^^^^^^^
-HeadNNa1, HeadNNa2, HeadNNb1, HeadNNb2 are Non-Nested models.
-HeadNNaX is HeadX, where the inner sphere is splitted into two hemispheres: north & south. ( with X={1,2})
+Non-Nested models:
+^^^^^^^^^^^^^^^^^^
+- HeadNNa1, HeadNNa2, HeadNNa3, 
+- HeadNNb1, HeadNNb2, HeadNNb3,
+- HeadNNc1, HeadNNc2, HeadNNc3 are Non-Nested models.
 
-HeadNNbX is HeadX, where in the inner sphere were added two little spheres of radius 0.3 with center at (0., +/-0.4, 0.): spherenorth & spheresouth. ( with X={1,2})
+- HeadNNaX is HeadX, where the inner sphere is splitted into two hemispheres: north & south. ( with X={1,2,3})
+- HeadNNcX are the same models as HeadNNaX with a different(finer) discretization around the two hemispheres: north & south. ( with X={1,2,3})
+         HeadNNc1 and HeadNNc3 were generated using the CGAL tool provided, while model HeadNNc2 is one of the used model in article of Jan Kybic. "Beyond nested volume...". ( with X={1,2,3})
+
+- HeadNNbX is HeadX, where in the inner sphere were added two little spheres of radius 0.3 with center at (0., +/-0.4, 0.): spherenorth & spheresouth. ( with X={1,2,3})
 
 
 ================================
 = Writting geom and cond files =
 ================================
-
 
 \*.geom files:
 ^^^^^^^^^^^^^^
@@ -62,7 +66,7 @@ which shows a version >= 1.1 since non-nested geometries
 
 It tells which file contains the geometry.
 All meshes are in a single VTK/vtp file, where all polygons (triangles) have a string data associated
-which tells the name of the surface it belongs. (these files can easily be opened with Paraview www.paraview.org, select some triangles-> Cell Label-> check Visible )
+which tells the name of the surface it belongs. (these files can easily be opened with Paraview www.paraview.org, select some triangles-> Cell Label-> check Visible, see HeadNNa1/HeadNNa1.png for example )
 
 3. An Interface section:
 ------------------------
@@ -83,7 +87,6 @@ Interface can be named or not (in both case). If not named, it will be automatic
 
 When using "Interface" keyword (on the left), meshes are orientable with a plus or minus sign, the overall interface (composed by several meshes or only one) should be consistently oriented (OpenMEEG will complain in other cases). 
 
-
 3. A Domain section:
 --------------------
 
@@ -97,7 +100,6 @@ When using "Interface" keyword (on the left), meshes are orientable with a plus 
 
 Last, the definition of the domains using the previously defined interfaces.
 A Domain is defined as being OUTSIDE or INSIDE certains interfaces.
-
 
 
 
