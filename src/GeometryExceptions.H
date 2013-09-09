@@ -215,17 +215,23 @@ namespace OpenMEEG {
     };
 
     struct NonExistingDomain: public std::exception {
-        NonExistingDomain(const std::string& dom,const unsigned iid): domain(dom),interface(iid) { }
+        NonExistingDomain(const std::string& dom,const unsigned iid): domain(dom),interface(iid),interfacen("") { }
+        NonExistingDomain(const std::string& dom,const std::string id): domain(dom),interface(-1),interfacen(id) { }
 
         const char* what() const throw() {
             std::ostringstream oss;
-            oss << "Definition of domain " << domain << ": interface " << interface << " does not exist";
+            if ( interface != -1 ) { // TODO maybe ugly, but template didn't work ?
+                oss << "Definition of domain " << domain << ": interface " << interface << " does not exist";
+            } else {
+                oss << "Definition of domain " << domain << ": interface " << interfacen << " does not exist";
+            }
             return oss.str().c_str();
         }
 
         ExceptionCode code() const throw() { return NON_EXISTING_DOMAIN; }
 
         const std::string& domain;
+        const std::string& interfacen;
         unsigned           interface;
     };
 

@@ -266,7 +266,7 @@ namespace OpenMEEG {
                     }
                 }
                 if ( !found ) {
-                    throw OpenMEEG::NonExistingDomain(dit->name(), 543210); // TODO I don't want to give 0 index but name!template Exceptions?
+                    throw OpenMEEG::NonExistingDomain(dit->name(), id);
                 }
             }
         }
@@ -323,20 +323,12 @@ namespace OpenMEEG {
                     }
                 }
                 if ( m_oriented == 0 ) {
-                    nested = false; // TODO or a mesh is defined but unused ...
+                    nested = false; // TODO unless there is a mesh is defined but unused ...
                     break;
                 }
             }
         }
-
-        if ( nested ) {
-            // std::cout << "Geometry file " << geometry << " defines a NESTED geometry." << std::endl;
-            geo_.is_nested_ = true;
-        } else {
-            // std::cout << "Geometry file " << geometry << " defines a NON NESTED geometry." << std::endl;
-            geo_.is_nested_ = false;
-        }
-
+        geo_.is_nested_ = nested;
 
         if ( ifs.fail() ) {
             throw OpenMEEG::WrongFileFormat(geometry);

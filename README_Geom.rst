@@ -109,7 +109,6 @@ Design of the reconstruction:
 
     class Reader
     class geometry, which construct domains
-    TODO: specify that 2 meshes can have only one domain shared or zero, if they have 2 shared domains, then they are the same mesh.
 
 
 Reading process of the geom file:
@@ -147,8 +146,6 @@ else (version == 2.0)
 TODO
 ^^^^
 
-- Do we let the interfaces in the eometry class, or is it included in each Domain ?
-- Do we keep a Reference on the Triangle class or * is ok ?  
 - Remove 'inverse' in header
 -Wreorder
 -Wunused-but-set-variable

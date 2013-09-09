@@ -39,7 +39,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #include <operators.h>
 
-namespace OpenMEEG { // TODO mv that to operator.h ?
+namespace OpenMEEG {
 
     void operatorDinternal(const Mesh& m, Matrix& mat, const Vertices& points, const double& coeff)
     {

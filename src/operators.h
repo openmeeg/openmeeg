@@ -201,7 +201,12 @@ namespace OpenMEEG {
 
                 Aqr = -0.25 * (CB1 * CB2);
             #endif
-                result += Aqr * Iqr;
+                // if it is the same shared vertex
+                if ( (&m1 != &m2) && (V1 == V2) ) {
+                    result += 2. * Aqr * Iqr;
+                } else {
+                    result += Aqr * Iqr;
+                }
             }
         }
         return result;
@@ -220,11 +225,10 @@ namespace OpenMEEG {
     void operatorN(const Mesh& m1, const Mesh& m2, T& mat, const double& coeff, const unsigned gauss_order)
     {
         // This function has the following arguments:
-        //    One geometry
-        //    the indices of the treated layers I and J
+        //    the 2 interacting meshes
         //    the storage Matrix for the result
-        //    the upper left corner of the submatrix to be written is the Matrix
-        //  the upper left corner of the corresponding S block
+        //    the coefficient to be appleid to each matrix element (depending on conductivities, ...)
+        //    the gauss order parameter (for adaptive integration)
 
         std::cout << "OPERATOR N... (arg : mesh " << m1.name() << " , mesh " << m2.name() << " )" << std::endl;
 
@@ -232,11 +236,11 @@ namespace OpenMEEG {
         if ( &m1 == &m2 ) {
             if ( m1.outermost() ) {
                 // we thus precompute operator S divided by the product of triangles area.
-                Matrix matS(m1.nb_triangles(), m1.nb_triangles()); // TODO !!! it should be a SymMatrix but doesnt give the same results !!
+                SymMatrix matS(m1.nb_triangles());
                 for ( Mesh::const_iterator tit1 = m1.begin(); tit1 != m1.end(); ++tit1) {
                     PROGRESSBAR(i++, m1.nb_triangles());
                     #pragma omp parallel for
-                    for ( Mesh::const_iterator tit2 = m1.begin(); tit2 < m1.end(); ++tit2) { // TODO il en fait trop
+                    for ( Mesh::const_iterator tit2 = tit1; tit2 < m1.end(); ++tit2) {
                         matS(tit1->index() - m1.begin()->index(), tit2->index() - m1.begin()->index()) = _operatorS(*tit1, *tit2, gauss_order) / ( tit1->area() * tit2->area());
                     }
                 }
@@ -292,10 +296,10 @@ namespace OpenMEEG {
     void operatorS(const Mesh& m1, const Mesh& m2, T& mat, const double& coeff, const unsigned gauss_order)
     {
         // This function has the following arguments:
-        //    One geometry
-        //    the indices of the treated layers I and J
+        //    the 2 interacting meshes
         //    the storage Matrix for the result
-        //    the upper left corner of the submatrix to be written is the Matrix
+        //    the coefficient to be appleid to each matrix element (depending on conductivities, ...)
+        //    the gauss order parameter (for adaptive integration)
 
         std::cout << "OPERATOR S... (arg : mesh " << m1.name() << " , mesh " << m2.name() << " )" << std::endl;
 
@@ -315,7 +319,7 @@ namespace OpenMEEG {
                 PROGRESSBAR(i++, m1.nb_triangles());
                 #pragma omp parallel for
                 for ( Mesh::const_iterator tit2 = m2.begin(); tit2 < m2.end(); ++tit2) {
-                    mat(tit1->index(), tit2->index()) = _operatorS(*tit1, *tit2, gauss_order) * coeff; // TODO inverser tit1/tit2 pour voir
+                    mat(tit1->index(), tit2->index()) = _operatorS(*tit1, *tit2, gauss_order) * coeff;
                 }
             }
         }
@@ -326,10 +330,11 @@ namespace OpenMEEG {
     void operatorD(const Mesh& m1, const Mesh& m2, T& mat, const double& coeff, const unsigned gauss_order, const bool star = false)
     {
         // This function (NON OPTIMIZED VERSION) has the following arguments:
-        //    One geometry
-        //    the indices of the treated layers I and J
+        //    the 2 interacting meshes
         //    the storage Matrix for the result
-        //    the upper left corner of the submatrix to be written is the Matrix
+        //    the coefficient to be appleid to each matrix element (depending on conductivities, ...)
+        //    the gauss order parameter (for adaptive integration)
+        //    an optional star parameter, which denotes the adjoint of the operator
 
         unsigned i = 0; // for the PROGRESSBAR
         if ( star ) {
@@ -361,10 +366,11 @@ namespace OpenMEEG {
     void operatorD(const Mesh& m1, const Mesh& m2, T& mat, const double& coeff, const unsigned gauss_order, const bool star = false)
     {
         // This function (OPTIMIZED VERSION) has the following arguments:
-        //    One geometry
-        //    the indices of the treated layers I and J
+        //    the 2 interacting meshes
         //    the storage Matrix for the result
-        //    the upper left corner of the submatrix to be written is the Matrix
+        //    the coefficient to be appleid to each matrix element (depending on conductivities, ...)
+        //    the gauss order parameter (for adaptive integration)
+        //    an optional star parameter, which denotes the adjoint of the operator
 
         unsigned i = 0; // for the PROGRESSBAR
         if ( star ) {

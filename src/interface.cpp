@@ -115,6 +115,7 @@ namespace OpenMEEG {
         } else if ( std::abs(solangle + 4.*M_PI) < 1.e3*std::numeric_limits<double>::epsilon()) {
             closed = true;
         } else if ( std::abs(solangle - 4.*M_PI) < 1.e3*std::numeric_limits<double>::epsilon()) {
+            // Reorientation is not needed. If you really want all surfaces oriented inward, uncomment
             // std::cout << "Global Reorientation of interface " << name() << std::endl;
             // for ( Interface::iterator omit = begin(); omit != end(); ++omit) {
                 // omit->second = !omit->second; // TODO do we have to ?

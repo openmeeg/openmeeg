@@ -117,20 +117,20 @@ namespace OpenMEEG {
         ~Mesh() { destroy(); }
 
         // Iterators on vertices
-        vertex_iterator               vertex_begin()                { return vertices_.begin(); }
-        vertex_iterator               vertex_end()                  { return vertices_.end(); }
-        const_vertex_iterator         vertex_begin()  const         { return vertices_.begin(); }
-        const_vertex_reverse_iterator vertex_rbegin() const         { return vertices_.rbegin(); }
-        const_vertex_iterator         vertex_end()    const         { return vertices_.end(); }
-        const_vertex_reverse_iterator vertex_rend()   const         { return vertices_.rend(); }
+        vertex_iterator               vertex_begin()        { return vertices_.begin(); }
+        vertex_iterator               vertex_end()          { return vertices_.end(); }
+        const_vertex_iterator         vertex_begin()  const { return vertices_.begin(); }
+        const_vertex_reverse_iterator vertex_rbegin() const { return vertices_.rbegin(); }
+        const_vertex_iterator         vertex_end()    const { return vertices_.end(); }
+        const_vertex_reverse_iterator vertex_rend()   const { return vertices_.rend(); }
 
-        const std::string &           name()          const         { return name_; } ///< \return the mesh name
+        const std::string &           name()          const { return name_; } ///< \return the mesh name
 
-        VectPVertex &                 vertices()                    { return vertices_; } ///< \return the vector of pointers to the mesh vertices
-        const unsigned                nb_vertices()   const         { return vertices_.size(); }
-        const unsigned                nb_triangles()  const         { return size(); }
+        VectPVertex &                 vertices()            { return vertices_; } ///< \return the vector of pointers to the mesh vertices
+        const unsigned                nb_vertices()   const { return vertices_.size(); }
+        const unsigned                nb_triangles()  const { return size(); }
 
-              Vertices                all_vertices()  const         { return *all_vertices_; }
+              Vertices                all_vertices()  const { return *all_vertices_; }
 
         /// \brief properly add vertex to the list.
         void add_vertex(const Vertex& v);

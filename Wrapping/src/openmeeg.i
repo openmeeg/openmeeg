@@ -2,6 +2,7 @@
 %{
     #define SWIG_FILE_WITH_INIT
     #include <vect3.h>
+    #include <vertex.h>
     #include <triangle.h>
     #include <linop.h>
     #include <vector.h>
@@ -12,11 +13,12 @@
     #include <diagmatrix.h>
     #include <sensors.h>
     #include <geometry.h>
-    #include <mesh3.h>
+    #include <mesh.h>
+    #include <domain.h>
+    #include <interface.h>
     #include <assemble.h>
     #include <gain.h>
     #include <forward.h>
-    #include <inversers.h>
 
     using namespace OpenMEEG;
 
@@ -87,6 +89,8 @@ def loadmat(fname):
         return h5py.File(fname)['linop'].value.T
 }
 
+/* %include <std_string.i>*/
+
 %include "numpy.i"
 
 %init %{
@@ -113,6 +117,7 @@ import_array();
 #endif
 
 %include <vect3.h>
+%include <vertex.h>
 %include <triangle.h>
 %include <linop.h>
 %include <vector.h>
@@ -123,11 +128,12 @@ import_array();
 %include <diagmatrix.h>
 %include <geometry.h>
 %include <sensors.h>
-%include <mesh3.h>
+%include <mesh.h>
+%include <domain.h>
+%include <interface.h>
 %include <assemble.h>
 %include <gain.h>
 %include <forward.h>
-%include <inversers.h>
 
 static PyObject* asarray(OpenMEEG::Matrix* _mat);
 static PyObject* asarray(OpenMEEG::Vector* _vec);

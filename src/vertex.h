@@ -76,8 +76,6 @@ namespace OpenMEEG {
               Normal&  normal()       { return normal_; }
         const Normal&  normal() const { return normal_; }
 
-        using Vect3::operator==; // TODO
-
     private:
 
         unsigned index_; ///< Index of the vertex
