@@ -102,7 +102,7 @@ and generate the visual studio project. You can then open it and build the proje
 Using OpenMEEG
 --------------
 
-Have a look into data/Models/README.rst for defining your geometry.
+Have a look into data/README.rst for defining your geometry.
 
 CeCILL-B full license
 ---------------------

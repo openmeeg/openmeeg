@@ -1,6 +1,0 @@
-Strange bug (committed) in vtk with vtkXMLPolyDataWriter only for this case !
-if n5 is set to "scalp", the generated file is corrupted. This append when using ZLib compressor, it does not happen when not using compression for the vtkXMLPolyDataWriter.
-
-
-
-i=c4; /home/eolivi/compiles/OpenMEEG/tools/om_mesh_to_vtp -i1 ~/src/openmeeg-geom/data/Models/HeadNN${i}/north.vtk -i2 ~/src/openmeeg-geom/data/Models/HeadNN${i}/south.vtk -i3 ~/src/openmeeg-geom/data/Models/HeadNN${i}/cut.vtk -i4 ~/src/openmeeg-geom/data/Models/HeadNN${i}/skull.vtk -i5 ~/src/openmeeg-geom/data/Models/HeadNN${i}/scalp.vtk -n1 "north" -n2 "south" -n3 "cut" -n4 "skull" -o ~/src/openmeeg-geom/data/Models/HeadNN${i}/HeadNN${i}.vtp
