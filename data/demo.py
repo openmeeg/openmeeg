@@ -53,8 +53,7 @@ hm = om.HeadMat(geom, gauss_order)
 hminv = hm.inverse()  # invert hm with a copy
 ssm = om.SurfSourceMat(geom, mesh)
 ss2mm = om.SurfSource2MEGMat(mesh, sensors)
-dsm = om.DipSourceMat(geom, dipoles, gauss_order,
-                    use_adaptive_integration, dipole_in_cortex)
+dsm = om.DipSourceMat(geom, dipoles, gauss_order, use_adaptive_integration, "")
 ds2mm = om.DipSource2MEGMat(dipoles, sensors)
 h2mm = om.Head2MEGMat(geom, sensors)
 h2em = om.Head2EEGMat(geom, patches)
@@ -122,31 +121,17 @@ print "est_eeg_adjoint    : %d x %d" % (est_eeg_adjoint.nlin(),
                                        est_eeg_adjoint.ncol())
 
 ###############################################################################
-# Compute inverse problems
-
-smooth_weight = 0.0001
-max_iter = 300
-tol = 0
-
-smooth_matrix = mesh.gradient()
-ai_vector = mesh.areas()
-
-meg_inverse_mn = om.MN_inverse(est_meg, gain_meg_dip, smooth_weight)
-meg_inverse_heat = om.HEAT_inverse(est_meg, gain_meg_dip, smooth_matrix,
-                                    smooth_weight)
-
-###############################################################################
 # Example of basic manipulations
 
-v1 = om.Vect3(1, 0, 0)
-v2 = om.Vect3(0, 1, 0)
-v3 = om.Vect3(0, 0, 1)
+v1 = om.Vertex(1., 0., 0., 0)
+v2 = om.Vertex(0., 1., 0., 1)
+v3 = om.Vertex(0., 0., 1., 2)
 
 print v1.norm()
 print (v1 + v2).norm()
 
-normal = om.Vect3(1, 0, 0)
-t = om.Triangle(0, 1, 2, normal)
+normal = om.Vect3(1., 0., 0.)
+t = om.Triangle(v1, v2, v3)
 
 hm_file = subject + '.hm'
 hm.save(hm_file)
@@ -171,7 +156,7 @@ print m2.ncol()
 
 # For a Vector
 
-vec = om.asarray(ai_vector)
+vec = om.asarray(hm(1,10,1,1).getcol(0))
 print vec.size
 print vec[0:5]
 print vec
@@ -179,7 +164,6 @@ print vec
 # For a Matrix
 
 mat = om.asarray(m2)
-
 print mat.shape
 print mat.sum()
 mat[0:2, 1:3] = 0

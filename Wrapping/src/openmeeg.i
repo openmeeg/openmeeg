@@ -1,4 +1,7 @@
 %module(docstring="OpenMEEG bindings for python") openmeeg
+
+%include "std_string.i"
+
 %{
     #define SWIG_FILE_WITH_INIT
     #include <vect3.h>
@@ -88,8 +91,6 @@ def loadmat(fname):
         import h5py
         return h5py.File(fname)['linop'].value.T
 }
-
-/* %include <std_string.i>*/
 
 %include "numpy.i"
 

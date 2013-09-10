@@ -61,17 +61,17 @@ namespace OpenMEEG {
         typedef       Vertex**       iterator;
         typedef const Vertex** const_iterator;
 
-        // Constructors
+        /// Constructors
         Triangle(): index_(-1) {}
-        Triangle(const Triangle& t); // copy constructor
-        Triangle(Vertex *pts[3]); // Create a new face from a set of vertices.
-        Triangle(Vertex& p1, Vertex& p2, Vertex& p3);
-        Triangle(Vertex * p1, Vertex * p2, Vertex * p3);
+        Triangle(const Triangle& t); ///< copy constructor
+        Triangle(Vertex *pts[3]); ///< Create a new triangle from a set of vertices.
+        Triangle(Vertex& p1, Vertex& p2, Vertex& p3); ///< Create a new triangle from a 3 vertices.
+        Triangle(Vertex * p1, Vertex * p2, Vertex * p3); ///< Create a new triangle from a 3 vertex adresses.
         
-        // Destructor
+        /// Destructor
         ~Triangle() { destroy(); }
 
-        // Operators
+        /// Operators
               Triangle&  operator= (const Triangle& t);
               Vertex *   operator[](const unsigned& vindex)       { return vertices_[vindex];  } // 0 <= 'index' <= '2'
         const Vertex *   operator[](const unsigned& vindex) const { return vertices_[vindex];  }
@@ -82,7 +82,7 @@ namespace OpenMEEG {
               Vertex&        vertex(const unsigned& vindex)       { return operator()(vindex); }
         const Vertex&        vertex(const unsigned& vindex) const { return operator()(vindex); }
 
-        // Iterators.
+        /// Iterators.
         const const_iterator begin()               const { return const_iterator(vertices_); }
         const const_iterator end()                 const { return const_iterator(vertices_+3); }
               iterator       begin()                     { return iterator(vertices_);       }
@@ -139,17 +139,17 @@ namespace OpenMEEG {
             return false;
         }
 
-        void flip(); // flip two of the three vertex address
+        void flip(); ///< flip two of the three vertex address
 
     private:
 
         void copy(const Triangle& t);
         void destroy();
 
-        Vertex *  vertices_[3]; // &Vertex-triplet defining the triangle
-        double    area_;       // Area
-        Normal    normal_;     // Normal
-        unsigned  index_;      // Index of the triangle
+        Vertex *  vertices_[3]; ///< &Vertex-triplet defining the triangle
+        double    area_;       ///< Area
+        Normal    normal_;     ///< Normal
+        unsigned  index_;      ///< Index of the triangle
     };
 
     typedef std::vector<Triangle> Triangles;
