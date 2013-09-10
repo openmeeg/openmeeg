@@ -115,7 +115,7 @@ namespace OpenMEEG {
         const double  sigma     (const std::string&) const;
         const double  oriented(const Mesh&, const Mesh&) const;
 
-        void read(const std::string& geomFileName, const std::string& condFileName = "");
+        void read(const std::string& geomFileName, const std::string& condFileName = "", const bool OLD_ORDERING = false);
         void load_vtp(const std::string& filename);
         void write_vtp(const std::string& filename) const;
 
@@ -131,7 +131,7 @@ namespace OpenMEEG {
         bool       is_nested_;
         unsigned   size_;   // total number = nb of vertices + nb of triangles
 
-        void          generate_indices();
+        void          generate_indices(const bool);
         const Domains common_domains(const Mesh&, const Mesh&) const;
         const double  funct_on_domains(const Mesh&, const Mesh&, const Function& ) const;
     };

@@ -317,8 +317,14 @@ namespace OpenMEEG {
 
     const Mesh::VectPTriangle& Mesh::get_triangles_for_vertex(const Vertex& V) const 
     {
-        return links_.at(const_cast<Vertex *>(&V)); // const_cast here TODO
-        // using 'at' instead of '[]' for class-constness
+        std::map<const Vertex *, Mesh::VectPTriangle>::const_iterator it = links_.find(const_cast<Vertex *>(&V));
+        if ( it != links_.end() ) {
+            return it->second;
+        } else {
+            static Mesh::VectPTriangle a;
+            return a;
+        }
+        // TODO const_cast here
     }
 
     /// For IO:s -------------------------------------------------------------------------------------------

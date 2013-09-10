@@ -201,14 +201,36 @@ namespace OpenMEEG {
 
                 Aqr = -0.25 * (CB1 * CB2);
             #endif
-                // if it is the same shared vertex
-                if ( (&m1 != &m2) && (V1 == V2) ) {
-                    result += 2. * Aqr * Iqr;
-                } else {
-                    result += Aqr * Iqr;
+                result += Aqr * Iqr;
+            }
+        }
+        #if 1 
+        // TODO
+        // if V1 or V2 are shared vertices
+        if ( &m1 != &m2 ) {
+            const Mesh::VectPTriangle& trgs1 = m1.get_triangles_for_vertex(V2);
+            const Mesh::VectPTriangle& trgs2 = m2.get_triangles_for_vertex(V1);
+
+            if ( (trgs1.size() != 0)&&(trgs2.size() != 0) ) {
+                for ( Mesh::VectPTriangle::const_iterator tit1 = trgs1.begin(); tit1 != trgs1.end(); ++tit1 ) {
+                    for ( Mesh::VectPTriangle::const_iterator tit2 = trgs2.begin(); tit2 != trgs2.end(); ++tit2 ) {
+                        if ( m1.outermost() || m2.outermost() ) {
+                            Iqr = mat((*tit1)->index() - m1.begin()->index(), (*tit2)->index() - m2.begin()->index());
+                        } else {
+                            // we here divided (precalculated) operatorS by the product of areas.
+                            Iqr = mat((*tit1)->index(), (*tit2)->index()) / ( (*tit1)->area() * (*tit2)->area() );
+                        }
+                        Vect3 CB1 = (*tit1)->next(V2) - (*tit1)->prev(V2);
+                        Vect3 CB2 = (*tit2)->next(V1) - (*tit2)->prev(V1);
+
+                        Aqr = -0.25 * (CB1 * CB2);
+                        if ( V1 == V2 )
+                            result += Aqr * Iqr;
+                    }
                 }
             }
         }
+        #endif
         return result;
     }
 

@@ -119,7 +119,7 @@ namespace OpenMEEG {
         warning(std::string("Geometry::domain: Domain id/name \"") + dname + std::string("\" not found."));
     }
 
-    void Geometry::read(const std::string& geomFileName, const std::string& condFileName) 
+    void Geometry::read(const std::string& geomFileName, const std::string& condFileName, const bool OLD_ORDERING) 
     {
         GeometryReader geoR(*this);
 
@@ -131,30 +131,30 @@ namespace OpenMEEG {
         }
 
         // generate the indices of our unknowns
-        generate_indices();
+        generate_indices(OLD_ORDERING);
 
         // print info
         info();
     }
 
     // this generates unique indices for vertices and triangles which will correspond to our unknowns.
-    void Geometry::generate_indices() 
+    void Geometry::generate_indices(const bool OLD_ORDERING) 
     {
         // Either unknowns (potentials and currents) are ordered by mesh (i.e. V_1, p_1, V_2, p_2,...) 
         // or by type (V_1,V_2,V_3 .. p_1, p_2...)
         // #define CLASSIC_ORDERING // if we use classic_ordering make sure vertex do not overwrite index.. meshes have shared vertices..
         unsigned index = 0;
-        #ifndef CLASSIC_ORDERING
-        for ( Vertices::iterator pit = vertex_begin(); pit != vertex_end(); ++pit, index) {
-            pit->index() = index++;
-        }
-        #endif
-        for ( iterator mit = begin(); mit != end(); ++mit) {
-            #ifdef CLASSIC_ORDERING
-            for ( Mesh::const_vertex_iterator vit = mit->vertex_begin(); vit != mit->vertex_end(); ++vit) {
-                (*vit)->index() = index++;
+        if ( !OLD_ORDERING ) {
+            for ( Vertices::iterator pit = vertex_begin(); pit != vertex_end(); ++pit, index) {
+                pit->index() = index++;
             }
-            #endif
+        }
+        for ( iterator mit = begin(); mit != end(); ++mit) {
+            if ( OLD_ORDERING ) {
+                for ( Mesh::const_vertex_iterator vit = mit->vertex_begin(); vit != mit->vertex_end(); ++vit) {
+                    (*vit)->index() = index++;
+                }
+            }
             for ( Mesh::iterator tit = mit->begin(); tit != mit->end(); ++tit) {
                 if ( !mit->outermost() ) {
                     tit->index() = index++;

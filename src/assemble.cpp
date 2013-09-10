@@ -86,9 +86,13 @@ int main(int argc, char** argv)
             std::cerr << "Please set output filepath !" << endl;
             exit(1);
         }
+        bool OLD_ORDERING = false;
+        if ( argc == 6 ) {
+            OLD_ORDERING = (strcmp(argv[5], "-old-ordering") == 0);
+        }
         // Loading surfaces from geometry file
         Geometry geo;
-        geo.read(argv[2], argv[3]);
+        geo.read(argv[2], argv[3], OLD_ORDERING);
 
         // Check for intersecting meshes
         if ( !geo.selfCheck() ) {

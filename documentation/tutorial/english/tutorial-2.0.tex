@@ -68,14 +68,25 @@ OpenMEEG handles several file formats corresponding to several type of objects: 
     \section{Geometrical model,  mesh and conductivity files}\mbox{ }\\
     {\bf OpenMEEG geometrical models} are provided through several files. The toplevel file (generally ending with the extension {\tt .geom}) assembles various
     interface descriptions to build \emph{Domains} corresponding to head tissues. Empty lines or lines beginning with {\tt \#} are non-significant.
-    The file must start with a special comment line which allows its identification (see example in Figure~\ref{fig:geom}). Geometrical models globally contain 2 sections.
+    The file must start with a special comment line which allows its identification (see example in Figure~\ref{fig:geom}). 
+    Geometrical models globally contain 2 sections, one for describing the interfaces and one for describing the domains.
+    In OpenMEEG, we make the following distinction between Mesh and Interface, which helps defining non nested geometries. \\
+    "Mesh": a mesh is a collections of vertices and triangles all connected.\\
+    "Interface": an interface is a closed mesh.\\
+
+    \medskip
+    The section starting with the keyword {\tt MeshFile} is optional, if it is not found then the expected keyword of section {\tt Intefaces} is {\tt Mesh}. If found, it specifies the path to the VTK/vtp file containing the vertices, and annoted triangles of your geometry. (Annotaion of the triangles are labels which will define the mesh names).
 
     \medskip
 
-    The first section specifies the mesh descriptions of the interfaces between tissues. It is introduced by the keyword {\tt Interfaces} followed
-    by the number of such meshes followed by the keyword {\tt Mesh} (which gives the type of the mesh description, {\tt Mesh} being currently the only
-    possibility). This specification is then followed by the names of -- mesh -- files containing the description of each of the interfaces. Each interface
-    is assigned an index from its order in the list. These indices start at 1.
+    {\tt Interfaces} section specifies the mesh descriptions of the interfaces between tissues. It is introduced by the keyword {\tt Interfaces} followed
+    by the number of such interfaces followed by the keyword {\tt Mesh} or {\tt Interface}.
+    In both case an Interface is defined with the keyword {\tt Interface} followed by a name and {\tt :}.
+    In case no name is provided, the Interface will get an index as name (starting from 1).
+    If the chosen keyword was {\tt Mesh}, a path of a mesh file is expected.
+    If the chosen keyword was {\tt Interface}, a sequence of mesh names are expected.
+    These meshes will be concatenated to form a closed Interface. \\
+    '+' or '-' sign can precede mesh name in case, it would not form a consistently oriented interface.
 
     \medskip
 
@@ -85,8 +96,9 @@ OpenMEEG handles several file formats corresponding to several type of objects: 
     affected by a + or - sign depending on whether the domain is outside or inside the corresponding interface (as defined by the outward normal of the interface).
     See Figure~\ref{fig:geom} for a detailed example.
     \begin{figure}[ht!]
-    \includegraphics[width=9cm]{geom.png}
-    \caption{Sample geometry file.}
+    \includegraphics[width=9cm]{geom2.png}
+    \includegraphics[width=9cm]{geom1.png}
+    \caption{Sample (left) nested and (right) non nested geometry descriptions.}
     \label{fig:geom}
     \end{figure}
 %    For example, in:
@@ -152,7 +164,9 @@ OpenMEEG handles several file formats corresponding to several type of objects: 
 
     \medskip
 
-    The interface meshes are required to be closed in order for the Boundary Element Method to function correctly. This is also necessary for the source meshes when computing forward solutions using surfacic source models (see below). Moreover, the interface meshes must not intersect each other. Non-intersection can be checked with the command \commandName{om\_check\_geom}. The command \commandName{om\_mesh\_info} applied to a mesh provides its number of points, of triangles, minimum and maximum triangle area, and also its Euler characteristic. The Euler characteristic of a closed mesh of genus 0 (homotopic to a sphere) is equal to 2. The Euler characteristic gives an indication if a mesh is likely to be closed or not.\\
+    Interfaces are required to be closed in order for the Boundary Element Method to function correctly. This is also necessary for the source meshes when computing forward solutions using surfacic source models (see below). Moreover, the interface meshes must not intersect each other. Non-intersection can be checked with the command \commandName{om\_check\_geom}. The command \commandName{om\_mesh\_info} applied to a mesh provides its number of points, of triangles, minimum and maximum triangle area, and also its Euler characteristic. The Euler characteristic of a closed mesh of genus 0 (homotopic to a sphere) is equal to 2. The Euler characteristic gives an indication if a mesh is likely to be closed or not.\\
+    In order to generate a VTK/vtp file, one can use the tool provided \commandName{om\_mesh\_to\_vtp}, which from a list of (closed or not) meshes and names, remove dupplicated vertices and create an easily viewable file in VTK/Paraview.\\
+    In order to check a geometry file, one can use the tool provided \commandName{om\_check\_geom}, which display the read informations.
 
 \medskip
     A {\bf conductivity file} (generally ending with the extension {\tt .cond}) is a simple ASCII file that contains associations between tissue names and
