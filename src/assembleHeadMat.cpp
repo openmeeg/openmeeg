@@ -82,22 +82,24 @@ namespace OpenMEEG {
 
                 if ( std::abs(orientation) > 10.*std::numeric_limits<double>::epsilon() ) {
 
-                    double Ncoeff = orientation * geo.sigma(*mit1, *mit2) * K;
+                    double Dcoeff = - orientation * geo.indicator(*mit1, *mit2) * K;
+                    double Ncoeff;
 
                     if ( !(mit1->outermost() || mit2->outermost()) ) {
                         // Computing S block first because it's needed for the corresponding N block
                         double Scoeff =   orientation * geo.sigma_inv(*mit1, *mit2) * K;
                         operatorS(*mit1, *mit2, mat, Scoeff, gauss_order);
-                        Ncoeff /= Scoeff;
+                        Ncoeff = geo.sigma(*mit1, *mit2)/geo.sigma_inv(*mit1, *mit2);
+                    } else {
+                        Ncoeff = orientation * geo.sigma(*mit1, *mit2) * K;
                     }
+
                     if ( !mit1->outermost() ) {
                         // Computing D block
-                        double Dcoeff = - orientation * geo.indicator(*mit1, *mit2) * K;
                         operatorD(*mit1, *mit2, mat, Dcoeff, gauss_order);
                     }
                     if ( ( *mit1 != *mit2 ) && ( !mit2->outermost() ) ) {
                         // Computing D* block
-                        double Dcoeff = - orientation * K;
                         operatorD(*mit1, *mit2, mat, Dcoeff, gauss_order, true);
                     }
 

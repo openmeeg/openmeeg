@@ -88,7 +88,7 @@ namespace OpenMEEG {
         /// Constructors
         Geometry(): has_cond_(false), is_nested_(false), size_(0)  { }
 
-              void       info()                           const; ///< \brief Print information on the geometry
+              void       info(const bool verbous = false) const; ///< \brief Print information on the geometry
         const bool&      has_cond()                       const { return has_cond_; }
         const bool&      is_nested()                      const { return is_nested_; }
         const bool       selfCheck()                      const; ///< \brief the geometry meshes intersect each other

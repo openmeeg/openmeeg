@@ -103,19 +103,21 @@ namespace OpenMEEG {
         }
 
         // find the number of different meshes reading the string array associated with the cells
-        std::set<std::string> meshes_name;
+        std::vector<std::string> meshes_name;
 
         // ids/mesh name
         vtkSmartPointer<vtkStringArray> cell_id = vtkStringArray::SafeDownCast(vtkMesh->GetCellData()->GetAbstractArray("Names"));
 
         ntrgs = vtkMesh->GetNumberOfCells();
         for ( unsigned i = 0; i < ntrgs; ++i) {
-            meshes_name.insert(cell_id->GetValue(i));
+            if ( std::find(meshes_name.begin(), meshes_name.end(), cell_id->GetValue(i)) == meshes_name.end() ) {
+                meshes_name.push_back(cell_id->GetValue(i));
+            }
         }
 
         // create the meshes
-        for ( std::set<std::string>::const_iterator sit = meshes_name.begin(); sit != meshes_name.end(); ++sit) {
-            meshes_.push_back(Mesh(vertices_, *sit));
+        for ( std::vector<std::string>::const_iterator vit = meshes_name.begin(); vit != meshes_name.end(); ++vit) {
+            meshes_.push_back(Mesh(vertices_, *vit));
         }
 
         // insert the triangle and mesh vertices address into the right mesh

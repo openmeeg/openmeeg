@@ -64,16 +64,16 @@ namespace OpenMEEG {
         // should never append
     }
 
-    void Geometry::info() const 
+    void Geometry::info(const bool verbous) const 
     {
         if ( is_nested_ ) {
             std::cout << "This geometry is a NESTED geometry." << std::endl;
         } else {
-            int shared = -1*vertices_.size();
+            int shared = -vertices_.size();
             for (const_iterator mit = begin(); mit != end(); ++mit) {
                 shared += mit->nb_vertices();
             }
-            // TODO correct those are not the number of shared vertices, but the number of demands for adding the same vertex...
+            // TODO: those are not the number of shared vertices but the number of demands for adding the same vertex...
             std::cout << "This geometry is a NON NESTED geometry. (There was " << shared << " demands for adding same vertices)." << std::endl;
         }
 
@@ -82,6 +82,16 @@ namespace OpenMEEG {
         }
         for ( Domains::const_iterator dit = domain_begin(); dit != domain_end(); ++dit) {
             dit->info();
+        }
+        if ( verbous ) {
+            for ( Vertices::const_iterator vit = vertex_begin(); vit != vertex_end(); ++vit) {
+                std::cout << "[" << *vit << "] = " << vit->index() << std::endl;
+            }
+            for ( const_iterator mit = begin(); mit != end(); ++mit) {
+                for ( Mesh::const_iterator tit = mit->begin(); tit != mit->end(); ++tit) {
+                    std::cout << "[[" << tit->s1() << "] , [" << tit->s2() << "] , ["<< tit->s3() << "]] \t = " << tit->index() << std::endl;
+                }
+            }
         }
     }
 

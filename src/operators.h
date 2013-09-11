@@ -73,9 +73,9 @@ namespace OpenMEEG {
     void operatorDipolePot   (const Vect3& , const Vect3& , const Mesh& , Vector&, const double&, const unsigned, const bool);
 
     #ifndef OPTIMIZED_OPERATOR_D
-    inline double _operatorD(const Triangle& T1, const Vertex& V2, const Mesh& m2, const unsigned gauss_order)
+    inline double _operatorD(const Triangle& T, const Vertex& V, const Mesh& m, const unsigned gauss_order)
     {
-        // consider varying order of quadrature with the distance between T1 and T2
+        // consider varying order of quadrature with the distance between T and T2
         STATIC_OMP analyticD analyD;
     #ifdef ADAPT_LHS
         STATIC_OMP AdaptiveIntegrator<double, analyticD> gauss(0.005);
@@ -86,11 +86,11 @@ namespace OpenMEEG {
 
         double total = 0;
 
-        const Mesh::VectPTriangle& Tadj = m2.get_triangles_for_vertex(V2); // loop on triangles of which V2 is a vertex
+        const Mesh::VectPTriangle& Tadj = m.get_triangles_for_vertex(V); // loop on triangles of which V is a vertex
 
         for ( Mesh::VectPTriangle::const_iterator tit = Tadj.begin(); tit != Tadj.end(); ++tit) {
-            analyD.init(**tit, V2);
-            total += gauss.integrate(analyD, T1);
+            analyD.init(**tit, V);
+            total += gauss.integrate(analyD, T);
         }
         return total;
     }
@@ -201,36 +201,14 @@ namespace OpenMEEG {
 
                 Aqr = -0.25 * (CB1 * CB2);
             #endif
-                result += Aqr * Iqr;
-            }
-        }
-        #if 1 
-        // TODO
-        // if V1 or V2 are shared vertices
-        if ( &m1 != &m2 ) {
-            const Mesh::VectPTriangle& trgs1 = m1.get_triangles_for_vertex(V2);
-            const Mesh::VectPTriangle& trgs2 = m2.get_triangles_for_vertex(V1);
-
-            if ( (trgs1.size() != 0)&&(trgs2.size() != 0) ) {
-                for ( Mesh::VectPTriangle::const_iterator tit1 = trgs1.begin(); tit1 != trgs1.end(); ++tit1 ) {
-                    for ( Mesh::VectPTriangle::const_iterator tit2 = trgs2.begin(); tit2 != trgs2.end(); ++tit2 ) {
-                        if ( m1.outermost() || m2.outermost() ) {
-                            Iqr = mat((*tit1)->index() - m1.begin()->index(), (*tit2)->index() - m2.begin()->index());
-                        } else {
-                            // we here divided (precalculated) operatorS by the product of areas.
-                            Iqr = mat((*tit1)->index(), (*tit2)->index()) / ( (*tit1)->area() * (*tit2)->area() );
-                        }
-                        Vect3 CB1 = (*tit1)->next(V2) - (*tit1)->prev(V2);
-                        Vect3 CB2 = (*tit2)->next(V1) - (*tit2)->prev(V1);
-
-                        Aqr = -0.25 * (CB1 * CB2);
-                        if ( V1 == V2 )
-                            result += Aqr * Iqr;
-                    }
+                // if it is the same shared vertex
+                if ( (&m1 != &m2) && (V1 == V2) ) {
+                    result += 2. * Aqr * Iqr;
+                } else {
+                    result += Aqr * Iqr;
                 }
             }
         }
-        #endif
         return result;
     }
 
@@ -252,7 +230,7 @@ namespace OpenMEEG {
         //    the coefficient to be appleid to each matrix element (depending on conductivities, ...)
         //    the gauss order parameter (for adaptive integration)
 
-        std::cout << "OPERATOR N... (arg : mesh " << m1.name() << " , mesh " << m2.name() << " )" << std::endl;
+        std::cout << "OPERATOR N ... (arg : mesh " << m1.name() << " , mesh " << m2.name() << " )" << std::endl;
 
         unsigned i = 0; // for the PROGRESSBAR
         if ( &m1 == &m2 ) {
@@ -323,7 +301,7 @@ namespace OpenMEEG {
         //    the coefficient to be appleid to each matrix element (depending on conductivities, ...)
         //    the gauss order parameter (for adaptive integration)
 
-        std::cout << "OPERATOR S... (arg : mesh " << m1.name() << " , mesh " << m2.name() << " )" << std::endl;
+        std::cout << "OPERATOR S ... (arg : mesh " << m1.name() << " , mesh " << m2.name() << " )" << std::endl;
 
         unsigned i = 0; // for the PROGRESSBAR
         // The operator S is given by Sij=\Int G*PSI(I, i)*Psi(J, j) with
@@ -337,6 +315,9 @@ namespace OpenMEEG {
                 }
             }
         } else {
+            // TODO check the symmetry of _operatorS. 
+            // if we invert tit1 with tit2: results in HeadMat differs at 4.e-5 which is too big.
+            // using ADAPT_LHS with tolerance at 0.000005 (for _opS) drops this at 6.e-6. (but increase the computation time)
             for ( Mesh::const_iterator tit1 = m1.begin(); tit1 != m1.end(); ++tit1) {
                 PROGRESSBAR(i++, m1.nb_triangles());
                 #pragma omp parallel for
@@ -360,7 +341,7 @@ namespace OpenMEEG {
 
         unsigned i = 0; // for the PROGRESSBAR
         if ( star ) {
-            std::cout << "OPERATOR D* ... (arg : mesh " << m1.name() << " , mesh " << m2.name() << " )" << std::endl;
+            std::cout << "OPERATOR D*... (arg : mesh " << m1.name() << " , mesh " << m2.name() << " )" << std::endl;
             for ( Mesh::const_iterator tit = m2.begin(); tit != m2.end(); ++tit) {
                 PROGRESSBAR(i++, m2.nb_triangles());
                 #pragma omp parallel for
@@ -370,7 +351,7 @@ namespace OpenMEEG {
                 }
             }
         } else {
-            std::cout << "OPERATOR D  ... (arg : mesh " << m1.name() << " , mesh " << m2.name() << " )" << std::endl;
+            std::cout << "OPERATOR D ... (arg : mesh " << m1.name() << " , mesh " << m2.name() << " )" << std::endl;
             for ( Mesh::const_iterator tit = m1.begin(); tit != m1.end(); ++tit) {
                 PROGRESSBAR(i++, m1.nb_triangles());
                 #pragma omp parallel for
