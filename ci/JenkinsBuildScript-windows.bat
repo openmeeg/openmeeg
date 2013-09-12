@@ -1,6 +1,6 @@
-del build_32\JUnitTestResults.xml
-pushd build_32\Tests
-"C:\Program Files\CMake 2.8\bin\ctest.exe" -T Test -C RelWithDebInfo --output-on-failure
-popd
+del build\JUnitTestResults.xml
+pushd build
+ctest -T Test -C RelWithDebInfo --output-on-failure
 verify >nul
-C:\Python27\python.exe ci/CTest2JUnit.py build_32/Tests ci/CTest2JUnit.xsl > build_32/JUnitTestResults.xml
+popd
+"C:\Python27\python.exe" ci/CTest2JUnit.py build ci/CTest2JUnit.xsl > build/JUnitTestResults.xml

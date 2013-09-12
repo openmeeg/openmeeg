@@ -141,7 +141,7 @@ namespace OpenMEEG {
             const double g1 = integral_simplified_green(p1x,norm2p1x,p2x,norm2p2x,p2p1,norm2p2p1);
             const double g2 = integral_simplified_green(p2x,norm2p2x,p0x,norm2p0x,p0p2,norm2p0p2);
 
-            const double alpha = (x-p0)*n ;
+            const double alpha = (x-p0)*n;
             return ((p0x*nu0)*g0+(p1x*nu1)*g1+(p2x*nu2)*g2)-alpha*x.solangl(p0,p1,p2);
         }
     };

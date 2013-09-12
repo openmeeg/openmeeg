@@ -65,21 +65,21 @@ namespace OpenMEEG {
         const unsigned nFacesFirstLayer = geo.getM(0).nbTrgs();
         std::cout << std::endl << "assemble SurfSourceMat with " << nVertexSources << " sources" << std::endl << std::endl;
 
+        const double K = 1.0/(4.0*M_PI);
+        const double s1i = geo.sigma_in(0);
         //  First block is nVertexFistLayer*nVertexSources.
 
         operatorN(geo.getM(0),sources,mat,0,0,gauss_order);
 
+        mult(mat,0,0,nVertexFirstLayer,nVertexSources,K);
         //  Second block is nFacesFistLayer*nVertexSources.
 
-        operatorD(geo.getM(0),sources,mat,static_cast<int>(nVertexFirstLayer),0,gauss_order);
+        operatorD(geo.getM(0),sources,mat,nVertexFirstLayer, 0, gauss_order);
 
+        mult(mat,nVertexFirstLayer,0,nVertexFirstLayer + nFacesFirstLayer, nVertexSources,-K/s1i);
         //  First block*=(-1/sigma_inside).
 
-        const double K = 1.0/(4.0*M_PI);
-        const double s1i = geo.sigma_in(0);
 
-        mult(mat,nVertexFirstLayer,0,nVertexFirstLayer+nFacesFirstLayer-1,nVertexSources-1,-K/s1i);
-        mult(mat,0,0,nVertexFirstLayer-1,nVertexSources-1,K);
     }
 
     SurfSourceMat::SurfSourceMat(const Geometry& geo,const Mesh& sources,const int gauss_order) {
