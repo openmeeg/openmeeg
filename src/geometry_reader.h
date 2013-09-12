@@ -328,6 +328,7 @@ namespace OpenMEEG {
                 }
             }
         }
+        // TODO test model HeadNNa0 appears as non-nested even if it is nested
         geo_.is_nested_ = nested;
 
         if ( ifs.fail() ) {

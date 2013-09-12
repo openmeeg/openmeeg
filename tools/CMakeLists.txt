@@ -63,6 +63,8 @@ INSTALL(TARGETS
     om_squids2vtk om_matrix_info om_matrix_convert om_check_geom om_mesh_to_dip DESTINATION bin
     )
 
-OPENMEEG_TEST(Tool-om_meshes_to_vtp ${CMAKE_CURRENT_BINARY_DIR}/om_meshes_to_vtp -i1 ${CMAKE_SOURCE_DIR}/data/Models/Head1/cortex.1.tri -i2 ${CMAKE_SOURCE_DIR}/data/Models/Head1/skull.1.tri -i3 ${CMAKE_SOURCE_DIR}/data/Models/Head1/scalp.1.tri -n1 "cortex" -n2 "skull" -n3 "scalp" -o ${OpenMEEG_BINARY_DIR}/tests/Head1.vtp)
+IF (USE_VTK)
+    OPENMEEG_TEST(Tool-om_meshes_to_vtp ${CMAKE_CURRENT_BINARY_DIR}/om_meshes_to_vtp -i1 ${CMAKE_SOURCE_DIR}/data/Models/Head1/cortex.1.tri -i2 ${CMAKE_SOURCE_DIR}/data/Models/Head1/skull.1.tri -i3 ${CMAKE_SOURCE_DIR}/data/Models/Head1/scalp.1.tri -n1 "cortex" -n2 "skull" -n3 "scalp" -o ${OpenMEEG_BINARY_DIR}/tests/Head1.vtp)
 
-OPENMEEG_TEST(Tool-om_vtp_to_meshes ${CMAKE_CURRENT_BINARY_DIR}/om_vtp_to_meshes -i ${OpenMEEG_BINARY_DIR}/tests/Head1.vtp -o ${OpenMEEG_BINARY_DIR}/tests/meshes.tri)
+    OPENMEEG_TEST(Tool-om_vtp_to_meshes ${CMAKE_CURRENT_BINARY_DIR}/om_vtp_to_meshes -i ${OpenMEEG_BINARY_DIR}/tests/Head1.vtp -o ${OpenMEEG_BINARY_DIR}/tests/meshes.tri)
+ENDIF()
