@@ -133,7 +133,7 @@ namespace OpenMEEG {
         // Process meshes. -----------------------------------------------------------------------------------
         if ( Dd_version[0] == 1 ) {
             if ( Dd_version[1] == 0 ) {
-                std::cerr << "Please consider updating the version of the domain description to 1.1 in the geometry file: "
+                std::cerr << "(Deprecated) Please consider updating the version of the domain description to 1.1 in the geometry file: "
                           << geometry << std::endl;
             } else if ( Dd_version[1] == 1 ) {
                 // Read the mesh section of the description file.
@@ -184,6 +184,11 @@ namespace OpenMEEG {
                         std::stringstream defaultname;
                         defaultname << i+1;
                         interfacename[i] = defaultname.str();
+                    } else if ( Dd_version[1] == 0 ) { // backward compatibility
+                        std::stringstream defaultname;
+                        defaultname << i+1;
+                        interfacename[i] = defaultname.str();
+                        ifs >> io_utils::filename(filename[i], '"', false);
                     } else {
                         ifs >> io_utils::match("Interface") 
                             >> io_utils::token(interfacename[i], ':') 
@@ -244,7 +249,11 @@ namespace OpenMEEG {
         geo_.domains_.resize(num_domains);
         for ( Domains::iterator dit = geo_.domain_begin(); dit != geo_.domain_end(); ++dit) {
             std::string line;
-            ifs >> io_utils::skip_comments('#') >> io_utils::match("Domain") >> io_utils::token(dit->name(), ':');
+            if ( Dd_version[1] == 0 ) { // backward compatibility
+                ifs >> io_utils::skip_comments('#') >> io_utils::match("Domain") >> dit->name();
+            } else {
+                ifs >> io_utils::skip_comments('#') >> io_utils::match("Domain") >> io_utils::token(dit->name(), ':');
+            }
             getline(ifs, line);
             std::istringstream iss(line);
             while ( iss >> id ) {
