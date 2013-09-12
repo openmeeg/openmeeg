@@ -88,6 +88,23 @@ namespace OpenMEEG {
               iterator       begin()                     { return iterator(vertices_);       }
               iterator       end()                       { return iterator(vertices_+3);       }
 
+        const Vertex&   s1()     const { return *vertices_[0]; }
+        const Vertex&   s2()     const { return *vertices_[1]; }
+        const Vertex&   s3()     const { return *vertices_[2]; }
+
+              Vertex&   s1()           { return *vertices_[0]; }
+              Vertex&   s2()           { return *vertices_[1]; }
+              Vertex&   s3()           { return *vertices_[2]; }
+
+              Normal&   normal()       { return normal_; }
+        const Normal&   normal() const { return normal_; }
+                                
+              double&   area()         { return area_; }
+        const double&   area()   const { return area_; }
+                                
+              unsigned& index()        { return index_; }
+        const unsigned& index()  const { return index_; }
+
         const Vertex& prev(const Vertex& V) const { 
             if ( V == *vertices_[0]) {
                 return *vertices_[2];
@@ -112,23 +129,6 @@ namespace OpenMEEG {
                 return v;
             }
         }
-
-        const Vertex&        s1()                  const { return *vertices_[0]; }
-        const Vertex&        s2()                  const { return *vertices_[1]; }
-        const Vertex&        s3()                  const { return *vertices_[2]; }
-
-              Vertex&        s1()                        { return *vertices_[0]; }
-              Vertex&        s2()                        { return *vertices_[1]; }
-              Vertex&        s3()                        { return *vertices_[2]; }
-
-              Normal&        normal()                    { return normal_; }
-        const Normal&        normal()              const { return normal_; }
-                                     
-              double&        area()                      { return area_; }
-        const double&        area()                const { return area_; }
-                                     
-              unsigned&      index()                     { return index_; }
-        const unsigned&      index()               const { return index_; }
 
         bool contains(const Vertex& p) const {
             for ( unsigned i = 0; i < 3; ++i) {

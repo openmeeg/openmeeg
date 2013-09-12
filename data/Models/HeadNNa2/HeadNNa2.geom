@@ -8,7 +8,7 @@ Interface North: +north +cut
 Interface South: +south -cut
 Interface Cortex: north south
 Interface Skull: skull
-Interface Scalp: scalp
+Interface Scalp: -scalp
 
 Domains 5
 

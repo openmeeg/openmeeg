@@ -52,8 +52,9 @@ INSTALL(FILES ${OPENMEEG_HEADERS}
 IF(BUILD_TESTING)
     INCLUDE(TestHead.txt)
 
-    TESTHEAD(0)
-    TESTHEAD(NNa0)
+    # those models should give same results !
+    #TESTHEAD(0)
+    #TESTHEAD(NNa0)
     TESTHEAD(1)
     TESTHEAD(NNa1)
     TESTHEAD(NNb1)

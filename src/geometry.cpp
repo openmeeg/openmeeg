@@ -73,7 +73,7 @@ namespace OpenMEEG {
             for (const_iterator mit = begin(); mit != end(); ++mit) {
                 shared += mit->nb_vertices();
             }
-            // TODO: those are not the number of shared vertices but the number of demands for adding the same vertex...
+            // those are not the number of shared vertices but the number of demands for adding the same vertex...
             std::cout << "This geometry is a NON NESTED geometry. (There was " << shared << " demands for adding same vertices)." << std::endl;
         }
 

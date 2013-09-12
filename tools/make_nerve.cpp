@@ -75,13 +75,6 @@ void decoupe (double dt, double x, int*nx, double*dx)
     *dx = x/ *nx;
 }
 
-void permute (Triangle *t)
-{
-    int temp = (*t)[1];
-    (*t)[1] = (*t)[2];
-    (*t)[2] = temp;
-}
-
 int cylindre (char namesurf[], char namepatches[], char namepatchcount[], double L, double R, double dt, int*E, int*Nteta, int*Nz, double Ea, double Eb, double Eb2)
 {
     FILE *F, *G;
@@ -116,8 +109,8 @@ int cylindre (char namesurf[], char namepatches[], char namepatchcount[], double
     std::vector<double> ang(c);
 
     int max = (int) floor(nteta*(L/dt+2*c)*4);
-    Vect3* P = new Vect3[max];
-    Triangle* T = new Triangle[2*max];
+    Vertices P(max);
+    Triangles T(2*max);
 
     // indices and coordinates of points before electrode
     for (j=0;j<nl;j++)
@@ -174,78 +167,47 @@ int cylindre (char namesurf[], char namepatches[], char namepatchcount[], double
 
     // definition of triangles before electrode
     for (j=0;j<nl-1;j++) {
-        for (i=0;i<nteta;i++)
-        {
-            T[nt][0]=i+nteta*j;
-            T[nt][1]=(i+1)%nteta +nteta*j;
-            T[nt][2]= i+nteta*(j+1);
-
-            T[nt+1][0]=i+nteta*j;
-            T[nt+1][1]=i+nteta*(j+1);
-            T[nt+1][2]=(nteta+i-1)%nteta +nteta*(j+1);
-
+        for (i=0;i<nteta;i++) {
+            T[nt]=Triangle(P[i+nteta*j], P[(i+1)%nteta +nteta*j], P[i+nteta*(j+1)]);
+            T[nt+1]=Triangle(P[i+nteta*j], P[i+nteta*(j+1)], P[(nteta+i-1)%nteta +nteta*(j+1)]);
             nt += 2;
         }
     }
 
     // definition of transition triangles
     for (i=0;i<nteta;i++) {
-        T[nt][0]=i+nteta*(nl-1);
-        T[nt][1]=(2*i+1) + nteta*nl;
-        T[nt][2]=2*i + nteta*nl;
+        T[nt]=Triangle(P[i+nteta*(nl-1)], P[(2*i+1) + nteta*nl], P[2*i + nteta*nl]);
         nt++;
-        T[nt][0]=i+nteta*(nl-1);
-        T[nt][1]=(i+1)%nteta+nteta*(nl-1);
-        T[nt][2]=(2*i+1) + nteta*nl;
+        T[nt]=Triangle(P[i+nteta*(nl-1)], P[(i+1)%nteta + nteta*(nl-1)], P[2*i+1 + nteta*nl]);
         nt++;
-        T[nt][0]=(i+1)%nteta+nteta*(nl-1);
-        T[nt][1]=(2*i+2)%(2*nteta) + nteta*nl;
-        T[nt][2]=(2*i+1) + nteta*nl;
+        T[nt]=Triangle(P[(i+1)%nteta+nteta*(nl-1)], P[(2*i+2)%(2*nteta) + nteta*nl], P[(2*i+1) + nteta*nl]);
         nt++;
     }
 
     // definition of electrode triangles
     for (j=0;j<(3*nez+3*niz+niz2);j++) {
         for (i=0;i<2*nteta;i++) {
-            T[nt][0]=i+2*nteta*j +nteta*nl;
-            T[nt][1]=i+2*nteta*(j+1) +nteta*nl;
-            T[nt][2]=(2*nteta+i-1)%(2*nteta) +2*nteta*(j+1) +nteta*nl;
-
-            T[nt+1][0]=i+2*nteta*j +nteta*nl;
-            T[nt+1][1]=(i+1)%(2*nteta) +2*nteta*j +nteta*nl;
-            T[nt+1][2]= i+2*nteta*(j+1) +nteta*nl;
-
+            T[nt]=Triangle(P[i+2*nteta*j +nteta*nl], P[i+2*nteta*(j+1) +nteta*nl], P[(2*nteta+i-1)%(2*nteta) +2*nteta*(j+1) +nteta*nl]);
+            T[nt+1]=Triangle(P[i+2*nteta*j +nteta*nl], P[(i+1)%(2*nteta)+2*nteta*j +nteta*nl], P[i+2*nteta*(j+1) +nteta*nl]);
             nt += 2;
         }
     }
 
     // definition of transition triangles
     for (i=0;i<nteta;i++) {
-        T[nt][0]=i +save;
-        T[nt][1]=2*i  +save-2*nteta;
-        T[nt][2]=(2*i+1) +save-2*nteta;
+        T[nt]=Triangle(P[i +save], P[2*i  +save-2*nteta], P[(2*i+1) +save-2*nteta]);
         nt++;
-        T[nt][0]=i +save;
-        T[nt][1]=(2*i+1) +save-2*nteta;
-        T[nt][2]=(i+1)%nteta +save;
+        T[nt]=Triangle(P[i +save], P[(2*i+1) +save-2*nteta], P[(i+1)%nteta +save]);
         nt++;
-        T[nt][0]=(i+1)%nteta +save;
-        T[nt][1]=(2*i+1) +save-2*nteta;
-        T[nt][2]=(2*i+2)%(2*nteta) +save-2*nteta;
+        T[nt]=Triangle(P[(i+1)%nteta +save], P[(2*i+1) +save-2*nteta], P[(2*i+2)%(2*nteta) +save-2*nteta]);
         nt++;
     }
 
     // definition of triangles after electrode
     for (j=0;j<nl-1;j++) {
         for (i=0;i<nteta;i++) {
-            T[nt][0]=i+nteta*j +save;
-            T[nt][1]=(i+1)%nteta +nteta*j +save;
-            T[nt][2]= i+nteta*(j+1) +save;
-
-            T[nt+1][0]=i+nteta*j +save;
-            T[nt+1][1]=i+nteta*(j+1) +save;
-            T[nt+1][2]=(nteta+i-1)%nteta +nteta*(j+1) +save;
-
+            T[nt]=Triangle(P[i+nteta*j +save], P[(i+1)%nteta +nteta*j +save], P[i+nteta*(j+1) +save]);
+            T[nt+1]=Triangle(P[i+nteta*j +save], P[i+nteta*(j+1) +save], P[(nteta+i-1)%nteta +nteta*(j+1) +save]);
             nt += 2;
         }
     }
@@ -272,43 +234,40 @@ int cylindre (char namesurf[], char namepatches[], char namepatchcount[], double
         }
         for (j=2;j<c;j++) {
             k=0;
-            T[nt][0]=num[j];
-            T[nt][1]=num[j]+1;
-            T[nt][2]=num[j-1];
-            if (g == 0) permute(&T[nt]);
+            T[nt]=Triangle(P[num[j]], P[num[j]+1], P[num[j-1]]);
+            if (g == 0) {
+                T[nt].flip();
+            }
             nt ++;
             for (i=1;i<N[j];i++)
             {
                 if (ang[j-1]*(k+0.5) < ang[j]*(i+0.5))
                 {
-                    T[nt][0]=num[j]+i;
-                    T[nt][2]=num[j-1]+k;
-                    T[nt][1]=num[j-1]+(k+1)%N[j-1];
-                    if (g == 0) permute(&T[nt]);
+                    T[nt]=Triangle(P[num[j]+i], P[num[j-1]+(k+1)%N[j-1]], P[num[j-1]+k]);
+                    if (g == 0) { 
+                        T[nt].flip(); 
+                    }
                     k=(k+1)%N[j-1];
                     nt ++;
                 }
-                T[nt][0]=num[j]+i%N[j];
-                T[nt][1]=num[j]+(i+1)%N[j];
-                T[nt][2]=num[j-1]+k;
-                if (g == 0) permute(&T[nt]);
+                T[nt]=Triangle(P[num[j]+i%N[j]], P[num[j]+(i+1)%N[j]], P[num[j-1]+k]);
+                if (g == 0) { 
+                    T[nt].flip();
+                }
                 nt ++;
             }
         }
         for (i=0;i<N[1];i++) {
-            T[nt][0]=num[1]+i;
-            T[nt][1]=num[1]+(i+1)%N[1];
-            T[nt][2]=num[0];
-            if (g == 0) permute(&T[nt]);
+            T[nt]=Triangle(P[num[1]+i], P[num[1]+(i+1)%N[1]], P[num[0]]);
+            if (g == 0) {
+                T[nt].flip();
+            }
             nt ++;
         }
     }
-    Mesh surf(np, nt);
-    for  (i=0;i<np;i++) {
-        surf.point(i)=P[i];
-    }
+    Mesh surf(P);
     for (i=0;i<nt;i++) {
-        surf.triangle(i)=T[i];
+        surf.push_back(T[i]);
     }
     surf.save(namesurf);
 
@@ -361,7 +320,7 @@ int cylindre (char namesurf[], char namepatches[], char namepatchcount[], double
         G = fopen(namepatchcount, "w"); // a file for storing the number of patches per electrode (12 lines)
         for (j=0;j<12;j++){
             for (i=0; i<maxelectrodetriangles;i++){ // compute the barycenters of the triangles corresponding to each electrode
-                electrodecenter=(P[T[electrodetriangles[j][i]].s1()]+P[T[electrodetriangles[j][i]].s2()]+P[T[electrodetriangles[j][i]].s3()])/3;
+                electrodecenter = (T[electrodetriangles[j][i]].s1() + T[electrodetriangles[j][i]].s2() + T[electrodetriangles[j][i]].s3()) / 3.;
                 fprintf(F, "%f %f %f\n", electrodecenter.x(), electrodecenter.y(), electrodecenter.z());	
             }
             fprintf(G, "%d\n", i); // the number of patches used to represent electrode j

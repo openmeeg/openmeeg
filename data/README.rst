@@ -44,7 +44,6 @@ OpenMEEG definitions:
 
 namings:
 --------
-
 For ease of explanation, we consider the naming as follow:
 - meshes: are named in lower case
 - interfaces: in CamelCase
@@ -57,14 +56,12 @@ A *.geom file* contains:
 
 1. A header section: 
 --------------------
-
 |# Domain Description 1.1                             ||
 
-which shows a version >= 1.1 since non-nested geometries
+which shows a version 1.1 since non-nested geometries.
 
 2. A (optional) MeshFile section: 
 ---------------------------------
-
 |MeshFile Head.vtp                                    ||
 
 It tells which file contains the geometry.
@@ -73,7 +70,6 @@ which tells the name of the surface it belongs. (these files can easily be opene
 
 3. An Interface section:
 ------------------------
-
 Starting with the keyword "Interfaces", it follows the number of interfaces, and the keyword "Interface" or "Mesh".
 
 In case no MeshFile section was found, "Mesh" must be the keyword. Else use "Interface".
@@ -92,7 +88,6 @@ When using "Interface" keyword (on the left), meshes are orientable with a plus 
 
 3. A Domain section:
 --------------------
-
 |Domains 5                                  ||
 |                                           ||
 |Domain NORTH: -North                       ||
@@ -113,12 +108,10 @@ A *.cond file* contains:
 
 1. A header section: 
 --------------------
-
 |# Properties Description 1.0 (Conductivities) ||
 
 2. conductivities: 
 ------------------
-
 |AIR         0.0                             ||
 |NORTH       1                               ||
 |SOUTH       1                               ||
