@@ -122,6 +122,28 @@ namespace OpenMEEG {
         static std::string message(const std::string& fmtname) { return std::string("Unable to read the input as a "+fmtname+" image file."); }
     };
 
+    struct BadInterface: public Exception {
+
+        BadInterface(const std::string& str): Exception(message(str))    { }
+
+        ExceptionCode code() const throw() { return BAD_FMT; }
+
+    private:
+
+        static std::string message(const std::string& fmtname) { return std::string("Unable to find interface " + fmtname + "."); }
+    };
+
+    struct BadDomain: public Exception {
+
+        BadDomain(const std::string& str): Exception(message(str))    { }
+
+        ExceptionCode code() const throw() { return BAD_FMT; }
+
+    private:
+
+        static std::string message(const std::string& fmtname) { return std::string("Unable to find domain " + fmtname + "."); }
+    };
+
     struct BadInterfaceIndex: public Exception {
 
         BadInterfaceIndex(const std::string& str): Exception(message(str))    { }
@@ -214,25 +236,22 @@ namespace OpenMEEG {
         ExceptionCode code() const throw() { return NO_FILE_FMT; }
     };
 
+    template <typename T>
     struct NonExistingDomain: public std::exception {
-        NonExistingDomain(const std::string& dom,const unsigned iid): domain(dom),interface(iid),interfacen("") { }
-        NonExistingDomain(const std::string& dom,const std::string id): domain(dom),interface(-1),interfacen(id) { }
+        NonExistingDomain(const std::string& dom,const T& id): domain(dom), interface(id) { }
+
+        virtual ~NonExistingDomain() throw() { }
 
         const char* what() const throw() {
             std::ostringstream oss;
-            if ( interface != -1 ) { // TODO maybe ugly, but template didn't work ?
-                oss << "Definition of domain " << domain << ": interface " << interface << " does not exist";
-            } else {
-                oss << "Definition of domain " << domain << ": interface " << interfacen << " does not exist";
-            }
+            oss << "Definition of domain " << domain << ": interface " << interface << " does not exist";
             return oss.str().c_str();
         }
 
         ExceptionCode code() const throw() { return NON_EXISTING_DOMAIN; }
 
         const std::string domain;
-        const std::string interfacen;
-        unsigned          interface;
+        const T&          interface;
     };
 
     //  Revisit (TODO).

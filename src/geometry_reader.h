@@ -277,7 +277,7 @@ namespace OpenMEEG {
                     }
                 }
                 if ( !found ) {
-                    throw OpenMEEG::NonExistingDomain(dit->name(), id);
+                    throw OpenMEEG::NonExistingDomain<std::string>(dit->name(), id);
                 }
             }
         }
