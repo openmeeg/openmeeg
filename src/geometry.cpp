@@ -51,6 +51,8 @@ namespace OpenMEEG {
             }
         }
         // should never append
+        warning("Geometry::outermost_interface: Error outermost interface were not set.");
+        throw OpenMEEG::BadInterface("outermost");
     }
 
     Mesh&  Geometry::mesh(const std::string& id) 
@@ -61,6 +63,7 @@ namespace OpenMEEG {
             }
         }
         warning(std::string("Geometry::mesh: Error mesh id/name not found: ") + id);
+        throw OpenMEEG::BadInterface(id);
         // should never append
     }
 
@@ -105,6 +108,7 @@ namespace OpenMEEG {
             }
         }
         warning(std::string("Geometry::interface: Interface id/name \"") + id + std::string("\" not found."));
+        throw OpenMEEG::BadInterface(id);
         // should never append
     }
 
@@ -115,6 +119,7 @@ namespace OpenMEEG {
                 return *dit;
             }
         }
+        throw OpenMEEG::BadDomain("Impossible");
         // should never append
     }
 
@@ -127,6 +132,7 @@ namespace OpenMEEG {
         }
         // should never append
         warning(std::string("Geometry::domain: Domain id/name \"") + dname + std::string("\" not found."));
+        throw OpenMEEG::BadDomain(dname);
     }
 
     void Geometry::read(const std::string& geomFileName, const std::string& condFileName, const bool OLD_ORDERING) 
@@ -155,14 +161,14 @@ namespace OpenMEEG {
         // #define CLASSIC_ORDERING // if we use classic_ordering make sure vertex do not overwrite index.. meshes have shared vertices..
         unsigned index = 0;
         if ( !OLD_ORDERING ) {
-            for ( Vertices::iterator pit = vertex_begin(); pit != vertex_end(); ++pit, index) {
-                pit->index() = index++;
+            for ( Vertices::iterator pit = vertex_begin(); pit != vertex_end(); ++pit, ++index) {
+                pit->index() = index;
             }
         }
         for ( iterator mit = begin(); mit != end(); ++mit) {
             if ( OLD_ORDERING ) {
-                for ( Mesh::const_vertex_iterator vit = mit->vertex_begin(); vit != mit->vertex_end(); ++vit) {
-                    (*vit)->index() = index++;
+                for ( Mesh::const_vertex_iterator vit = mit->vertex_begin(); vit != mit->vertex_end(); ++vit, ++index) {
+                    (*vit)->index() = index;
                 }
             }
             for ( Mesh::iterator tit = mit->begin(); tit != mit->end(); ++tit) {
@@ -242,7 +248,6 @@ namespace OpenMEEG {
     const double Geometry::oriented(const Mesh& m1, const Mesh& m2) const 
     {
         Domains doms = common_domains(m1, m2); // 2 meshes have either 0, 1 or 2 domains in common
-        double ans = 0.;
         if ( doms.size() == 0 ) {
             return 0.;
         } else {

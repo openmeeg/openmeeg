@@ -172,7 +172,9 @@ namespace OpenMEEG {
         Interfaces interfaces;
         if ( interfaceType == "Mesh" ) { // ---------------------------------------
             geo_.meshes_.reserve(nb_interfaces);
-            std::string interfacename[nb_interfaces], filename[nb_interfaces], fullname[nb_interfaces]; // names
+            std::vector<std::string> interfacename(nb_interfaces);
+            std::vector<std::string> filename(nb_interfaces);
+            std::vector<std::string> fullname(nb_interfaces); // names
             // First read the total number of vertices
             unsigned nb_vertices = 0;
             for ( unsigned i = 0; i < nb_interfaces; ++i ) {
@@ -275,7 +277,7 @@ namespace OpenMEEG {
                     }
                 }
                 if ( !found ) {
-                    throw OpenMEEG::NonExistingDomain(dit->name(), id);
+                    throw OpenMEEG::NonExistingDomain<std::string>(dit->name(), id);
                 }
             }
         }
