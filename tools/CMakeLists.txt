@@ -31,8 +31,8 @@ TARGET_LINK_LIBRARIES (om_matrix_convert OpenMEEGMaths)
 ADD_EXECUTABLE(om_check_geom check_geom.cpp)
 TARGET_LINK_LIBRARIES (om_check_geom OpenMEEG)
 
-ADD_EXECUTABLE(om_vtp_to_meshes vtp_to_meshes.cpp)
-TARGET_LINK_LIBRARIES (om_vtp_to_meshes OpenMEEG)
+ADD_EXECUTABLE(om_mesh_to_dip mesh_to_dip.cpp)
+TARGET_LINK_LIBRARIES (om_mesh_to_dip OpenMEEG)
 
 INCLUDE(CgalOption)
 IF (USE_CGAL)
@@ -42,11 +42,11 @@ IF (USE_CGAL)
 ENDIF()
 
 IF (USE_VTK)
+    ADD_EXECUTABLE(om_vtp_to_meshes vtp_to_meshes.cpp)
+    TARGET_LINK_LIBRARIES (om_vtp_to_meshes OpenMEEG)
+
     ADD_EXECUTABLE(om_meshes_to_vtp meshes_to_vtp.cpp)
     TARGET_LINK_LIBRARIES (om_meshes_to_vtp OpenMEEG)
-
-    ADD_EXECUTABLE(om_mesh_to_dip mesh_to_dip.cpp)
-    TARGET_LINK_LIBRARIES (om_mesh_to_dip OpenMEEG)
 
     ADD_EXECUTABLE(om_add_vtk_dataset AddDataSetToVtk.cpp)
     TARGET_LINK_LIBRARIES (om_add_vtk_dataset ${VTK_LIBRARIES})
