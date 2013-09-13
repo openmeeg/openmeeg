@@ -1,11 +1,6 @@
 # Domain Description 1.1
 
-Meshes 5
-Mesh cut: "cut.tri"
-Mesh north: "north.tri"
-Mesh south: "south.tri"
-Mesh skull: "skull.tri"
-Mesh scalp: "scalp.tri"
+MeshFile "HeadNNa1.vtp"
 
 Interfaces 5
 

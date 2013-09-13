@@ -2,7 +2,7 @@
 
 MeshFile "HeadNNa0.vtp"
 
-Interfaces 3 Interface
+Interfaces 3
 
 Interface Cortex: north south
 Interface Skull: skull

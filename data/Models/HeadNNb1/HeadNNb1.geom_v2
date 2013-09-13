@@ -1,11 +1,6 @@
 # Domain Description 1.1
 
-Meshes 5
-Mesh spherenorth: "spherenorth.tri"
-Mesh spheresouth: "spheresouth.tri"
-Mesh cortex: "cortex.tri"
-Mesh skull: "skull.tri"
-Mesh scalp: "scalp.tri"
+MeshFile "HeadNNb1.vtp"
 
 Interfaces 5
 

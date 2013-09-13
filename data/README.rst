@@ -26,6 +26,7 @@ Non-Nested models:
 
 - HeadNNbX is HeadX, where in the inner sphere were added two little spheres of radius 0.3 with center at (0., +/-0.4, 0.): spherenorth & spheresouth. ( with X={1,2,3})
 
+- Head0 and HeadNNa0 are test case for regression purpose.
 
 ================================
 = Writting geom and cond files =
@@ -60,21 +61,35 @@ A *.geom file* contains:
 
 which shows a version 1.1 since non-nested geometries.
 
+2. A (optional) Meshes section: 
+-------------------------------
+|Meshes 3                                             ||
+|                                                     ||
+|Mesh north: "north.tri"                              ||
+|Mesh south: "south.tri"                              ||
+|Mesh skull: "skull.tri"                              ||
+|Mesh scalp: "scalp.tri"                              ||
+
+It tells which files contains the geometry.
+Meshes format supported are tri, off, bnd, mesh, vtk (if compile with USE_VTK=True).
+Meshes can be named or not. If not named, they will be automatically named '1', '2', ... following the order.
+
 2. A (optional) MeshFile section: 
 ---------------------------------
 |MeshFile Head.vtp                                    ||
 
+In case, you did not load the meshes, and we have VTK enabled, it is the best format to use (at least for Non nested geometries).
 It tells which file contains the geometry.
 All meshes are in a single VTK/vtp file, where all polygons (triangles) have a string data associated
 which tells the name of the surface it belongs. (these files can easily be opened with Paraview www.paraview.org, select some triangles-> Cell Label-> check Visible, see HeadNNa1/HeadNNa1.png for example )
 
-3. An Interface section:
-------------------------
+3. An Interfaces section:
+-------------------------
 Starting with the keyword "Interfaces", it follows the number of interfaces, and the keyword "Interface" or "Mesh".
 
-In case no MeshFile section was found, "Mesh" must be the keyword. Else use "Interface".
+In case no MeshFile section was found, and no Meshes section neither, you have to use the right hand side format.
 
-|Interfaces 5 Interface                     ||        |Interfaces 3 Mesh
+|Interfaces 5                               ||        |Interfaces 3
 |                                           ||        |
 |Interface North: +north +cut               ||        |Interface: "cortex.1.tri"
 |Interface South: +south -cut               ||        |Interface: "skull.1.tri"
@@ -84,10 +99,10 @@ In case no MeshFile section was found, "Mesh" must be the keyword. Else use "Int
 
 Interface can be named or not (in both case). If not named, it will be automatically named '1', '2', ... following the order.
 
-When using "Interface" keyword (on the left), meshes are orientable with a plus or minus sign, the overall interface (composed by several meshes or only one) should be consistently oriented (OpenMEEG will complain in other cases). 
+(on the left), meshes are orientable with a plus or minus sign, the overall interface (composed by several meshes or only one) should be consistently oriented (OpenMEEG will complain in other cases). 
 
-3. A Domain section:
---------------------
+3. A Domains section:
+---------------------
 |Domains 5                                  ||
 |                                           ||
 |Domain NORTH: -North                       ||

@@ -2,7 +2,7 @@
 
 MeshFile "HeadNNb3.vtp"
 
-Interfaces 5 Interface
+Interfaces 5
 
 Interface SphereNorth: spherenorth
 Interface SphereSouth: spheresouth

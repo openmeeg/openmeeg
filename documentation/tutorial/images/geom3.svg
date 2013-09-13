@@ -14,8 +14,8 @@
    inkscape:version="0.48.4 r9939"
    width="800"
    height="600"
-   sodipodi:docname="geom1.svg"
-   inkscape:export-filename="/home/eolivi/src/openmeeg-master/documentation/tutorial/images/geom1.png"
+   sodipodi:docname="geom3.svg"
+   inkscape:export-filename="/home/eolivi/src/openmeeg-master/documentation/tutorial/images/geom3.png"
    inkscape:export-xdpi="90"
    inkscape:export-ydpi="90">
   <metadata
@@ -27,6 +27,7 @@
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
         <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -45,13 +46,13 @@
      inkscape:window-height="1861"
      id="namedview4547"
      showgrid="false"
-     inkscape:zoom="1.1125147"
-     inkscape:cx="410.69448"
-     inkscape:cy="267.9287"
+     inkscape:zoom="0.78666667"
+     inkscape:cx="361.00972"
+     inkscape:cy="534.53955"
      inkscape:window-x="0"
      inkscape:window-y="27"
      inkscape:window-maximized="1"
-     inkscape:current-layer="g3875" />
+     inkscape:current-layer="svg4545" />
   <path
      style="fill:#00ff2b;fill-opacity:0.18431373;stroke:#00fd00;stroke-width:1.18469274px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
      d="m 396.21871,82.94915 246.20667,0"
@@ -102,32 +103,32 @@
        style="font-size:20px"># Domain Description 1.1</flowPara><flowPara
        id="flowPara5081"
        style="font-size:20px" /><flowPara
-       id="flowPara5083"
-       style="font-size:20px">MeshFile &quot;HeadNNa1.vtp&quot;</flowPara><flowPara
-       id="flowPara5085"
-       style="font-size:20px" /><flowPara
        id="flowPara5087"
-       style="font-size:20px">Interfaces 5</flowPara><flowPara
+       style="font-size:20px">Meshes 3</flowPara><flowPara
+       style="font-size:20px"
+       id="flowPara3409">Mesh: &quot;/home/cortex.off&quot;</flowPara><flowPara
+       style="font-size:20px"
+       id="flowPara3413">Mesh: &quot;/home/skull.off&quot;</flowPara><flowPara
+       style="font-size:20px"
+       id="flowPara3415">Mesh: &quot;/home/scalp.off&quot;</flowPara><flowPara
+       style="font-size:20px"
+       id="flowPara3417" /><flowPara
+       style="font-size:20px"
+       id="flowPara3411">Interfaces 3</flowPara><flowPara
        id="flowPara5089"
        style="font-size:20px" /><flowPara
-       id="flowPara5091"
-       style="font-size:20px">Interface North: +north +cut </flowPara><flowPara
        style="font-size:20px"
-       id="flowPara5119">Interface South: +south -cut</flowPara><flowPara
+       id="flowPara5121">Interface Cortex: 1</flowPara><flowPara
        style="font-size:20px"
-       id="flowPara5121">Interface Cortex: north south</flowPara><flowPara
+       id="flowPara5123">Interface Skull: 2</flowPara><flowPara
        style="font-size:20px"
-       id="flowPara5123">Interface Skull: skull</flowPara><flowPara
-       style="font-size:20px"
-       id="flowPara5125">Interface Scalp: scalp</flowPara><flowPara
+       id="flowPara5125">Interface Scalp: 3</flowPara><flowPara
        style="font-size:20px"
        id="flowPara5127" /><flowPara
        style="font-size:20px"
-       id="flowPara5129">Domains 5</flowPara><flowPara
+       id="flowPara5129">Domains 4</flowPara><flowPara
        style="font-size:20px"
-       id="flowPara5131">Domain NORTH: -North</flowPara><flowPara
-       style="font-size:20px"
-       id="flowPara5133">Domain SOUTH: -South</flowPara><flowPara
+       id="flowPara5133">Domain BRAIN: -Cortex</flowPara><flowPara
        style="font-size:20px"
        id="flowPara5135">Domain SKULL: -Skull +Cortex</flowPara><flowPara
        style="font-size:20px"
@@ -136,8 +137,6 @@
        id="flowPara5139">Domain AIR: +Scalp</flowPara><flowPara
        id="flowPara5093"
        style="font-size:20px" /><flowPara
-       style="font-size:20px"
-       id="flowPara3093" /><flowPara
        id="flowPara5095"
        style="font-size:20px" /><flowPara
        id="flowPara5097"
@@ -169,21 +168,14 @@
      x="148.87099"
      y="70.582207" />
   <rect
-     y="110.22427"
-     x="148.87099"
-     height="33.31266"
-     width="421.16721"
-     id="rect5161"
-     style="fill:#e5ae05;fill-opacity:0.18348622;stroke:none" />
-  <rect
      style="fill:#e5aee9;fill-opacity:0.18348622;stroke:none"
      id="rect5163"
      width="421.16721"
-     height="159.42488"
+     height="122.56047"
      x="148.87099"
-     y="155.14877" />
+     y="217.92844" />
   <rect
-     y="325.48752"
+     y="343.77563"
      x="148.87099"
      height="129.68143"
      width="421.16721"
@@ -204,34 +196,7 @@
          id="flowSpan3800"
          style="font-size:20px">*.geom</flowSpan><flowSpan
          style="font-size:17px"
-         id="flowSpan3806"> - Geometry description file</flowSpan></flowPara></flowRoot>  <path
-     inkscape:connector-curvature="0"
-     id="path5214"
-     d="m 393.67345,122.94915 229.72092,0"
-     style="fill:#e4ae05;fill-opacity:1;stroke:#e8c800;stroke-width:1.14434278px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
-  <text
-     sodipodi:linespacing="125%"
-     id="text5216"
-     y="118.05084"
-     x="593.93219"
-     style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#e4ae05;fill-opacity:1;stroke:none;font-family:Sans"
-     xml:space="preserve"><tspan
-       style="font-size:18px;fill:#e4ae05;fill-opacity:1"
-       y="118.05084"
-       x="593.93219"
-       id="tspan5218"
-       sodipodi:role="line">MeshFile section: a</tspan><tspan
-       style="font-size:18px;fill:#e4ae05;fill-opacity:1"
-       y="140.55084"
-       x="593.93219"
-       sodipodi:role="line"
-       id="tspan5221">VTK/vtp file containing </tspan><tspan
-       style="font-size:18px;fill:#e4ae05;fill-opacity:1"
-       y="163.05084"
-       x="593.93219"
-       sodipodi:role="line"
-       id="tspan5223">the geometry.</tspan></text>
-  <flowRoot
+         id="flowSpan3806"> - Geometry description file</flowSpan></flowPara></flowRoot>  <flowRoot
      xml:space="preserve"
      id="flowRoot5235"
      style="fill:black;stroke:none;stroke-opacity:1;stroke-width:1px;stroke-linejoin:miter;stroke-linecap:butt;fill-opacity:1;font-family:Sans;font-style:normal;font-weight:normal;font-size:15px;line-height:125%;letter-spacing:0px;word-spacing:0px"><flowRegion
@@ -254,7 +219,8 @@
          y="175.42372" /></flowRegion><flowPara
        id="flowPara5249">Interfaces section:5 interfaces</flowPara><flowPara
        id="flowPara5251" /></flowRoot>  <g
-     id="g3875">
+     id="g3875"
+     transform="translate(1.2711864,66.59322)">
     <path
        inkscape:connector-curvature="0"
        id="path5225"
@@ -275,14 +241,16 @@
          style="font-size:15px;fill:#e4aee9;fill-opacity:1"
          id="flowPara3055">Interfaces section:</flowPara><flowPara
          style="font-size:15px;fill:#e4aee9;fill-opacity:1"
-         id="flowPara3057">5 Interfaces</flowPara></flowRoot>  </g>
+         id="flowPara3057">3 interfaces</flowPara><flowPara
+         style="font-size:15px;fill:#e4aee9;fill-opacity:1"
+         id="flowPara3419" /></flowRoot>  </g>
   <path
      inkscape:connector-curvature="0"
      id="path3885"
-     d="m 148.81637,213.19267 -54.661045,0"
+     d="m 146.274,283.59945 -54.661048,0"
      style="fill:#e4aee9;fill-opacity:0.18431373;stroke:#e6baea;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
   <flowRoot
-     transform="translate(13.482968,14)"
+     transform="translate(12.211782,84.40678)"
      style="font-size:20px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#e4aee9;fill-opacity:1;stroke:none;font-family:Sans"
      id="flowRoot3887"
      xml:space="preserve"><flowRegion
@@ -296,11 +264,11 @@
        style="font-size:15px;fill:#e4aee9;fill-opacity:1"
        id="flowPara3893">First Interface is </flowPara><flowPara
        style="font-size:15px;fill:#e4aee9;fill-opacity:1"
-       id="flowPara3895">called North</flowPara></flowRoot>  <flowRoot
+       id="flowPara3895">called Cortex</flowPara></flowRoot>  <flowRoot
      xml:space="preserve"
      id="flowRoot3907"
      style="font-size:20px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#e4aee9;fill-opacity:1;stroke:none;font-family:Sans"
-     transform="translate(613.48297,14)"><flowRegion
+     transform="translate(613.48297,80)"><flowRegion
        id="flowRegion3909"><rect
          id="rect3911"
          width="604.93585"
@@ -308,41 +276,16 @@
          x="-11.685239"
          y="179.33139"
          style="font-size:20px;fill:#e4aee9;fill-opacity:1" /></flowRegion><flowPara
-       id="flowPara3915"
-       style="font-size:15px;fill:#e4aee9;fill-opacity:1">North: is defined as the </flowPara><flowPara
        style="font-size:15px;fill:#e4aee9;fill-opacity:1"
-       id="flowPara3921">union of mesh north &amp; cut</flowPara></flowRoot>  <path
-     style="fill:#e4aee9;fill-opacity:0.18431373;stroke:#e6baea;stroke-width:1.9494195px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-     d="m 607.66265,213.19267 -207.72487,0"
+       id="flowPara3921">Cortex: path to file can be </flowPara><flowPara
+       style="font-size:15px;fill:#e4aee9;fill-opacity:1"
+       id="flowPara4062">absolute or relative.</flowPara></flowRoot>  <path
+     style="fill:#e4aee9;fill-opacity:0.18431373;stroke:#e6baea;stroke-width:1.57701612px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     d="m 607.99948,279.19267 -135.94091,0"
      id="path3917"
      inkscape:connector-curvature="0" />
   <flowRoot
-     transform="translate(613.48297,74)"
-     style="font-size:20px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#e4aee9;fill-opacity:1;stroke:none;font-family:Sans"
-     id="flowRoot3923"
-     xml:space="preserve"><flowRegion
-       id="flowRegion3925"><rect
-         style="font-size:20px;fill:#e4aee9;fill-opacity:1"
-         y="179.33139"
-         x="-11.685239"
-         height="199.54794"
-         width="604.93585"
-         id="rect3927" /></flowRegion><flowPara
-       style="font-size:15px;fill:#e4aee9;fill-opacity:1"
-       id="flowPara3929">South: is defined as the </flowPara><flowPara
-       id="flowPara3931"
-       style="font-size:15px;fill:#e4aee9;fill-opacity:1">union of mesh south &amp; cut.</flowPara><flowPara
-       style="font-size:15px;fill:#e4aee9;fill-opacity:1"
-       id="flowPara3935">with cut being oriented </flowPara><flowPara
-       style="font-size:15px;fill:#e4aee9;fill-opacity:1"
-       id="flowPara3937">differently.</flowPara></flowRoot>  <path
-     inkscape:connector-curvature="0"
-     id="path3933"
-     d="M 608.10582,273.19267 403.85664,238.13695"
-     style="fill:#e4aee9;fill-opacity:0.18431373;stroke:#e6baea;stroke-width:1.5559895px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-     sodipodi:nodetypes="cc" />
-  <flowRoot
-     transform="translate(607.48297,164)"
+     transform="translate(607.48297,190)"
      style="font-size:20px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#2858e7;fill-opacity:1;stroke:none;font-family:Sans"
      id="flowRoot3939"
      xml:space="preserve"><flowRegion
@@ -354,19 +297,19 @@
          width="604.93585"
          id="rect3943" /></flowRegion><flowPara
        id="flowPara3947"
-       style="font-size:15px;fill:#2858e7;fill-opacity:1">NORTH: is defined as being </flowPara><flowPara
+       style="font-size:15px;fill:#2858e7;fill-opacity:1">BRAIN: is defined as being </flowPara><flowPara
        style="font-size:15px;fill:#2858e7;fill-opacity:1"
-       id="flowPara3953">inside interface North.</flowPara></flowRoot>  <path
+       id="flowPara3953">inside interface Cortex.</flowPara></flowRoot>  <path
      inkscape:connector-curvature="0"
      id="path3949"
-     d="M 601.49766,363.19267 349.61125,356.83674"
+     d="M 601.49766,389.19267 380.11972,382.83674"
      style="fill:#2858e7;fill-opacity:1;stroke:#285bea;stroke-width:2.11391044px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
      sodipodi:nodetypes="cc" />
   <flowRoot
      xml:space="preserve"
      id="flowRoot4001"
      style="font-size:20px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#2858e7;fill-opacity:1;stroke:none;font-family:Sans"
-     transform="translate(14.855851,138.61864)"><flowRegion
+     transform="translate(14.855851,162.61864)"><flowRegion
        id="flowRegion4003"><rect
          id="rect4005"
          width="604.93585"
@@ -379,15 +322,15 @@
        id="flowPara4009"
        style="font-size:15px;fill:#2858e7;fill-opacity:1">with 5 domains</flowPara></flowRoot>  <path
      sodipodi:nodetypes="cc"
-     style="fill:#2858e7;fill-opacity:1;stroke:#285bea;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none"
-     d="m 149.78647,337.21049 -39.39608,-0.46056"
+     style="fill:#2858e7;fill-opacity:1;stroke:#285bea;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+     d="m 149.78647,361.21049 -39.39608,-0.46056"
      id="path4011"
      inkscape:connector-curvature="0" />
   <flowRoot
      xml:space="preserve"
      id="flowRoot4013"
      style="font-size:20px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#2858e7;fill-opacity:1;stroke:none;font-family:Sans"
-     transform="translate(607.48297,224)"><flowRegion
+     transform="translate(614.56772,245.55932)"><flowRegion
        id="flowRegion4015"><rect
          id="rect4017"
          width="604.93585"
@@ -403,7 +346,66 @@
        id="flowPara4029">Skull but outside Cortex.</flowPara></flowRoot>  <path
      sodipodi:nodetypes="cc"
      style="fill:#2858e7;fill-opacity:1;stroke:#285bea;stroke-width:2.11391044px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-     d="M 601.49766,423.19267 407.13858,401.55604"
+     d="M 601.49766,452.92148 416.03689,407.13231"
      id="path4023"
      inkscape:connector-curvature="0" />
-</svg>
+  <rect
+     y="110.82513"
+     x="148.87099"
+     height="101.62637"
+     width="421.16721"
+     id="rect5161"
+     style="fill:#e5ae05;fill-opacity:0.18348622;stroke:none" />
+  <path
+     inkscape:connector-curvature="0"
+     id="path5214"
+     d="m 394.90163,123.55002 229.72092,0"
+     style="fill:#e4ae05;fill-opacity:1;stroke:#e8c800;stroke-width:1.14434278px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+  <text
+     sodipodi:linespacing="125%"
+     id="text5216"
+     y="118.65173"
+     x="595.1604"
+     style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#e4ae05;fill-opacity:1;stroke:none;font-family:Sans"
+     xml:space="preserve"><tspan
+       style="font-size:15px;fill:#e4ae05;fill-opacity:1"
+       y="118.65173"
+       x="595.1604"
+       sodipodi:role="line"
+       id="tspan5223">Meshes section: list </tspan><tspan
+       style="font-size:15px;fill:#e4ae05;fill-opacity:1"
+       y="141.15173"
+       x="595.1604"
+       sodipodi:role="line"
+       id="tspan3426">of the meshes to load.</tspan></text>
+  <flowRoot
+     xml:space="preserve"
+     id="flowRoot3428"
+     style="fill:black;stroke:none;stroke-opacity:1;stroke-width:1px;stroke-linejoin:miter;stroke-linecap:butt;fill-opacity:1;font-family:Sans;font-style:normal;font-weight:normal;font-size:40px;line-height:125%;letter-spacing:0px;word-spacing:0px"><flowRegion
+       id="flowRegion3430"><rect
+         id="rect3432"
+         width="172.582"
+         height="61.122787"
+         x="-19.775021"
+         y="263.82465" /></flowRegion><flowPara
+       id="flowPara3434" /></flowRoot>  <path
+     style="fill:#e4ae05;fill-opacity:0.18431373000000001;stroke:#e6ba14;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     d="m 146.274,163.59945 -54.661048,0"
+     id="path3452"
+     inkscape:connector-curvature="0" />
+  <flowRoot
+     xml:space="preserve"
+     id="flowRoot3454"
+     style="font-size:20px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#e4ae05;fill-opacity:1;stroke:none;font-family:Sans"
+     transform="translate(32.211782,-35.59322)"><flowRegion
+       id="flowRegion3456"><rect
+         id="rect3458"
+         width="604.93585"
+         height="199.54794"
+         x="-11.685239"
+         y="179.33139"
+         style="font-size:20px;fill:#e4ae05;fill-opacity:1" /></flowRegion><flowPara
+       id="flowPara3462"
+       style="font-size:15px;fill:#e4ae05;fill-opacity:1">Meshes are </flowPara><flowPara
+       style="font-size:15px;fill:#e4ae05;fill-opacity:1"
+       id="flowPara4234">unamed.</flowPara></flowRoot></svg>

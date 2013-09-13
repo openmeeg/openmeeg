@@ -1,6 +1,6 @@
 # Domain Description 1.1
 
-Interfaces 3 Mesh
+Interfaces 3
 
 Interface: "cortex.vtk"
 Interface: "skull.vtk"

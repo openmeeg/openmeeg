@@ -2,7 +2,7 @@
 
 MeshFile "HeadNNc3.vtp"
 
-Interfaces 5 Interface
+Interfaces 5
 
 Interface North: +north +cut 
 Interface South: +south -cut

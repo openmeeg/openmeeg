@@ -138,14 +138,41 @@ namespace OpenMEEG {
             } else if ( Dd_version[1] == 1 ) {
                 // Read the mesh section of the description file.
                 // Try to load the meshfile (VTK::vtp file)
-                bool meshfile;
-                ifs >> io_utils::skip_comments("#") >> io_utils::match_optional("MeshFile", meshfile);
-                if ( meshfile ) {
+                // or try to load the meshes
+                bool Is_MeshFile, Is_Meshes;
+                ifs >> io_utils::skip_comments("#") >> io_utils::match_optional("MeshFile", Is_MeshFile);
+                ifs >> io_utils::skip_comments("#") >> io_utils::match_optional("Meshes", Is_Meshes);
+                if ( Is_MeshFile ) {
                     std::string name;
                     ifs >> io_utils::skip_comments("#") >> io_utils::filename(name, '"', false);
                     // Load the mesh and check that it is compatible with the first one.
                     const std::string& full_name = (is_relative_path(name))?path+name:name;
                     geo_.load_vtp(full_name);
+                } else if ( Is_Meshes ) {
+                    unsigned nb_meshes;
+                    ifs >> nb_meshes;
+                    std::vector<std::string> meshname(nb_meshes); // names
+                    std::vector<std::string> filename(nb_meshes);
+                    std::vector<std::string> fullname(nb_meshes);
+                    Meshes meshes(nb_meshes);
+                    for ( unsigned i = 0; i < nb_meshes; ++i ) {
+                        bool unnamed;
+                        ifs >> io_utils::skip_comments("#") >> io_utils::match_optional("Mesh:", unnamed);
+                        if ( unnamed ) {
+                            ifs >> io_utils::filename(filename[i], '"', false);
+                            std::stringstream defaultname;
+                            defaultname << i+1;
+                            meshname[i] = defaultname.str();
+                        } else {
+                            ifs >> io_utils::match("Mesh") 
+                                >> io_utils::token(meshname[i], ':') 
+                                >> io_utils::filename(filename[i], '"', false);
+                        }
+                        fullname[i] = (is_relative_path(filename[i]))?path+filename[i]:filename[i];
+                        meshes[i] = Mesh(fullname[i].c_str(), false, meshname[i]);
+                    }
+                    // Now properly load the meshes into the geometry (not dupplicated vertices)
+                    geo_.import_meshes(meshes);
                 }
             } else {
                 std::cerr << "Domain Description version not available !" << std::endl;
@@ -158,10 +185,8 @@ namespace OpenMEEG {
 
         // Process interfaces. -----------------------------------------------------------------------------------
         unsigned nb_interfaces;
-        std::string interfaceType;
-
         ifs >> io_utils::skip_comments('#')
-            >> io_utils::match("Interfaces") >> nb_interfaces >> interfaceType;
+            >> io_utils::match("Interfaces") >> nb_interfaces;
 
         if ( ifs.fail() ) {
             throw OpenMEEG::WrongFileFormat(geometry);
@@ -170,32 +195,31 @@ namespace OpenMEEG {
         // load the interfaces/meshes
         std::string id; // id of mesh/interface/domain
         Interfaces interfaces;
-        if ( interfaceType == "Mesh" ) { // ---------------------------------------
+        // if meshes are not already loaded
+        if ( geo_.nb_meshes() == 0 ) { // ---------------------------------------
             geo_.meshes_.reserve(nb_interfaces);
             std::vector<std::string> interfacename(nb_interfaces);
             std::vector<std::string> filename(nb_interfaces);
-            std::vector<std::string> fullname(nb_interfaces); // names
+            std::vector<std::string> fullname(nb_interfaces);
             // First read the total number of vertices
             unsigned nb_vertices = 0;
             for ( unsigned i = 0; i < nb_interfaces; ++i ) {
                 bool unnamed;
-                if ( interfaceType == "Mesh") {
-                    ifs >> io_utils::skip_comments("#") >> io_utils::match_optional("Interface:", unnamed);
-                    if ( unnamed ) {
-                        ifs >> io_utils::filename(filename[i], '"', false);
-                        std::stringstream defaultname;
-                        defaultname << i+1;
-                        interfacename[i] = defaultname.str();
-                    } else if ( Dd_version[1] == 0 ) { // backward compatibility
-                        std::stringstream defaultname;
-                        defaultname << i+1;
-                        interfacename[i] = defaultname.str();
-                        ifs >> io_utils::filename(filename[i], '"', false);
-                    } else {
-                        ifs >> io_utils::match("Interface") 
-                            >> io_utils::token(interfacename[i], ':') 
-                            >> io_utils::filename(filename[i], '"', false);
-                    }
+                ifs >> io_utils::skip_comments("#") >> io_utils::match_optional("Interface:", unnamed);
+                if ( unnamed ) {
+                    ifs >> io_utils::filename(filename[i], '"', false);
+                    std::stringstream defaultname;
+                    defaultname << i+1;
+                    interfacename[i] = defaultname.str();
+                } else if ( Dd_version[1] == 0 ) { // backward compatibility
+                    std::stringstream defaultname;
+                    defaultname << i+1;
+                    interfacename[i] = defaultname.str();
+                    ifs >> io_utils::filename(filename[i], '"', false);
+                } else {
+                    ifs >> io_utils::match("Interface") 
+                        >> io_utils::token(interfacename[i], ':') 
+                        >> io_utils::filename(filename[i], '"', false);
                 }
                 Mesh m;
                 fullname[i] = (is_relative_path(filename[i]))?path+filename[i]:filename[i];
@@ -209,7 +233,7 @@ namespace OpenMEEG {
                 interfaces.push_back( Interface(interfacename[i]) );
                 interfaces[i].push_back(OrientedMesh(geo_.meshes_[i], true)); // one mesh per interface, (well oriented)
             }
-        } else if ( interfaceType == "Interface" ) { // -----------------------
+        } else { // -----------------------
             std::string interfacename;
             for ( unsigned i = 0; i < nb_interfaces; ++i ) {
                 bool unnamed;
@@ -236,8 +260,6 @@ namespace OpenMEEG {
                     interfaces[i].push_back(OrientedMesh(geo_.mesh(id), oriented));
                 }
             }
-        } else {
-            throw OpenMEEG::WrongFileFormat(geometry);
         }
 
         // Process domains. -----------------------------------------------------------------------------------

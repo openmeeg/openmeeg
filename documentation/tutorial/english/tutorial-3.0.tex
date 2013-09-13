@@ -75,13 +75,19 @@ OpenMEEG handles several file formats corresponding to several type of objects: 
     "Interface": an interface is a closed mesh.\\
 
     \medskip
-    The section starting with the keyword {\tt MeshFile} is optional, if it is not found then the expected keyword of section {\tt Intefaces} is {\tt Mesh}. If found, it specifies the path to the VTK/vtp file containing the vertices, and annoted triangles of your geometry. (Annotaion of the triangles are labels which will define the mesh names).
+    The section starting with the keyword {\tt MeshFile} is optional, as well as the section {\tt Meshes}.\\
+    If {\tt MeshFile} is found, it specifies the path to the VTK/vtp file containing the vertices, and annoted triangles of your geometry. (Annotaion of the triangles are labels which will define the mesh names).\\
+    If {\tt Meshes} is found, it specifies the path to the meshes that can be named or not. Mesh file formats supported are tri, bnd, mesh, off, and vtk (in case you use VTK).
+    An Mesh is defined with the keyword {\tt Mesh} followed by a name and "{\tt :}".
+    In case no name is provided, the Mesh will get an index as name (starting from 1).
+    
+    If both are not found, in section {\tt Intefaces} one will have to put the filenames of the meshes.
 
     \medskip
 
     {\tt Interfaces} section specifies the mesh descriptions of the interfaces between tissues. It is introduced by the keyword {\tt Interfaces} followed
-    by the number of such interfaces followed by the keyword {\tt Mesh} or {\tt Interface}.
-    In both case an Interface is defined with the keyword {\tt Interface} followed by a name and {\tt :}.
+    by the number of such interfaces.
+    An Interface is defined with the keyword {\tt Interface} followed by a name and "{\tt :}".
     In case no name is provided, the Interface will get an index as name (starting from 1).
     If the chosen keyword was {\tt Mesh}, a path of a mesh file is expected.
     If the chosen keyword was {\tt Interface}, a sequence of mesh names are expected.
@@ -96,9 +102,10 @@ OpenMEEG handles several file formats corresponding to several type of objects: 
     affected by a + or - sign depending on whether the domain is outside or inside the corresponding interface (as defined by the outward normal of the interface).
     See Figure~\ref{fig:geom} for a detailed example.
     \begin{figure}[ht!]
-    \includegraphics[width=9cm]{geom2.png}
     \includegraphics[width=9cm]{geom1.png}
-    \caption{Sample (left) nested and (right) non nested geometry descriptions.}
+    \includegraphics[width=9cm]{geom2.png}
+\centerline{\includegraphics[width=9cm]{geom3.png}}
+    \caption{Sample (left) non-nested and (right and bottom) nested geometry descriptions.}
     \label{fig:geom}
     \end{figure}
 %    For example, in:

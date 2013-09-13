@@ -1,10 +1,16 @@
 # Domain Description 1.1
 
+Meshes 3
+
+Mesh: "cortex.1.tri"
+Mesh: "skull.1.tri"
+Mesh: "scalp.1.tri"
+
 Interfaces 3
 
-Interface: "cortex.1.tri"
-Interface: "skull.1.tri"
-Interface: "scalp.1.tri"
+Interface: 1
+Interface: 2
+Interface: 3
 
 Domains 4
 

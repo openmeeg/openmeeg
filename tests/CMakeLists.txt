@@ -45,6 +45,7 @@ ENDFOREACH()
 ############ TEST EEG RESULTS ON DIPOLES ##############
 
 # defining variables for those who do not use VTK
+# TODO handle comparison test for NNX1 geom when not USE_VTK...
 IF (USE_VTK) 
     SET(NN "NNa" "NNb" "NNc")
     SET(NNa "NNa")

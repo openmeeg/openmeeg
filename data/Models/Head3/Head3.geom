@@ -1,6 +1,6 @@
 # Domain Description 1.1
 
-Interfaces 3 Mesh
+Interfaces 3
 
 Interface: "skull.3.tri"
 Interface: "cortex.3.tri"

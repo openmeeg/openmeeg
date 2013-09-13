@@ -14,8 +14,8 @@
    inkscape:version="0.48.4 r9939"
    width="800"
    height="600"
-   sodipodi:docname="geom1.svg"
-   inkscape:export-filename="/home/eolivi/src/openmeeg-geom/documentation/tutorial/images/geom2.png"
+   sodipodi:docname="geom2.svg"
+   inkscape:export-filename="/home/eolivi/src/openmeeg-master/documentation/tutorial/images/geom2.png"
    inkscape:export-xdpi="90"
    inkscape:export-ydpi="90">
   <metadata
@@ -27,7 +27,7 @@
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
         <dc:title></dc:title>
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -47,12 +47,12 @@
      id="namedview4547"
      showgrid="false"
      inkscape:zoom="0.78666667"
-     inkscape:cx="371.33607"
-     inkscape:cy="233.05609"
+     inkscape:cx="361.00972"
+     inkscape:cy="534.53955"
      inkscape:window-x="0"
      inkscape:window-y="27"
      inkscape:window-maximized="1"
-     inkscape:current-layer="svg4545" />
+     inkscape:current-layer="g3875" />
   <path
      style="fill:#00ff2b;fill-opacity:0.18431373;stroke:#00fd00;stroke-width:1.18469274px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
      d="m 396.21871,82.94915 246.20667,0"
@@ -104,7 +104,7 @@
        id="flowPara5081"
        style="font-size:20px" /><flowPara
        id="flowPara5087"
-       style="font-size:20px">Interfaces 3 Mesh</flowPara><flowPara
+       style="font-size:20px">Interfaces 3</flowPara><flowPara
        id="flowPara5089"
        style="font-size:20px" /><flowPara
        style="font-size:20px"
@@ -231,7 +231,7 @@
          style="font-size:15px;fill:#e4aee9;fill-opacity:1"
          id="flowPara3055">Interfaces section:</flowPara><flowPara
          style="font-size:15px;fill:#e4aee9;fill-opacity:1"
-         id="flowPara3057">3 of type Mesh</flowPara></flowRoot>  </g>
+         id="flowPara4394">3 Interfaces</flowPara></flowRoot>  </g>
   <path
      inkscape:connector-curvature="0"
      id="path3885"

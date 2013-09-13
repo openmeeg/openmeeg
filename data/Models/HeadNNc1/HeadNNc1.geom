@@ -1,8 +1,13 @@
 # Domain Description 1.1
 
-MeshFile "HeadNNc1.vtp"
+Meshes 5
+Mesh cut: "cut.tri"
+Mesh north: "north.tri"
+Mesh south: "south.tri"
+Mesh skull: "skull.tri"
+Mesh scalp: "scalp.tri"
 
-Interfaces 5 Interface
+Interfaces 5
 
 Interface North: +north +cut 
 Interface South: +south -cut

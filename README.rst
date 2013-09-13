@@ -70,11 +70,11 @@ then::
 
 If you want the support for:
 
--Non-nested geometries, you will need to add "-DUSE_VTK=ON" to the cmake line above.
+-VTK, you will need to add "-DUSE_VTK=ON" to the cmake line above.
 
 -Python, you will need to add "-DENABLE_PYTHON=ON".
 
--parallel computation with OpenMP, add "-DUSE_OMP=ON".
+-Parallel computation with OpenMP, add "-DUSE_OMP=ON".
 
 Then you can run the test suite with::
 

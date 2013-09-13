@@ -336,31 +336,4 @@ namespace OpenMEEG {
             meshes_[iit].update();
         }
     }
-#if 0
-        std::set<Vertex> set_vertices;
-        std::map<const Vertex, unsigned> map_vertices;
-
-        for ( Meshes::const_iterator mit = m.begin(); mit != m.end(); ++mit, ++iit) {
-            meshes_.push_back(Mesh(vertices_, mit->name()));
-            for ( Mesh::const_vertex_iterator vit = mit->vertex_begin(); vit != mit->vertex_end(); vit++) {
-                std::pair<std::set<Vertex>::iterator, bool> ret = set_vertices.insert(**vit);
-                if ( ret.second ) {
-                    map_vertices[**vit] = vertices_.size();
-                    meshes_[iit].add_vertex(**vit);
-                }
-            }
-        }
-
-        // Copy the triangles the geometry.
-        iit = 0;
-        for ( Meshes::const_iterator mit = m.begin(); mit != m.end(); ++mit, ++iit) {
-            for ( Mesh::const_iterator tit = mit->begin(); tit != mit->end(); ++tit) {
-                meshes_[iit].push_back(Triangle(vertices_[map_vertices[tit->s1()]], 
-                                                vertices_[map_vertices[tit->s2()]], 
-                                                vertices_[map_vertices[tit->s3()]]));
-            }
-            meshes_[iit].update();
-        }
-    }
-#endif
 }
