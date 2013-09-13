@@ -71,6 +71,9 @@ namespace OpenMEEG {
             static const char PathSeparator   = '/';
         #endif
     };
+    #if WIN32
+        const char PathSeparator[] = "/\\";
+    #endif
 
     bool GeometryReader::is_relative_path(const std::string& name) {
     #if WIN32

@@ -55,6 +55,9 @@ namespace OpenMEEG {
 
     public:
 
+        ///default constructors
+        OrientedMesh() {}
+
         OrientedMesh(Mesh& mesh, bool inside): base(&mesh, inside) {}
 
               Mesh&  mesh()              { return *first;  } ///< \brief access mesh
