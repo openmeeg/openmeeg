@@ -68,10 +68,10 @@ then::
     $ cmake -DBUILD_TESTING=ON -DCMAKE_BUILD_TYPE=Release -DUSE_PROGRESSBAR=ON ..
     $ make
 
-If you want the support for:
--Non-nested geometries, you will need to add "-DUSE_VTK=ON" to the cmake line above.
--Python, you will need to add "-DENABLE_PYTHON=ON".
--parallel computation with OpenMP, add "-DUSE_OMP=ON".
+If you want the support for::
+-Non-nested geometries, you will need to add "-DUSE_VTK=ON" to the cmake line above.:
+-Python, you will need to add "-DENABLE_PYTHON=ON".:
+-parallel computation with OpenMP, add "-DUSE_OMP=ON".:
 
 Then you can run the test suite with::
 
