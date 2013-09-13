@@ -6,5 +6,5 @@ else()
     set(LIBSUFFIX "")
 endif()
 
-set(INSTALL_LIB_DIR     lib${LIBSUFFIX}/Odyssee++ CACHE PATH "Installation directory for libraries")
+set(INSTALL_LIB_DIR     lib${LIBSUFFIX} CACHE PATH "Installation directory for libraries")
 mark_as_advanced(INSTALL_LIB_DIR)
