@@ -1021,7 +1021,7 @@ namespace OpenMEEG {
         bool reorient = false;
 
         for ( EdgeMap::const_iterator eit = mape.begin(); eit != mape.end(); ++eit) {
-            if ( std::abs(eit->second) == 2 ) {
+            if ( eit->second == 2 ) {
                 std::cerr << "Local orientation problem..." << std::endl << std::endl;
                 reorient = true;
                 break;
@@ -1067,7 +1067,7 @@ namespace OpenMEEG {
         EdgeMap mape = compute_edge_map();
 
         for ( EdgeMap::const_iterator eit = mape.begin(); eit != mape.end(); ++eit) {
-            if ( std::abs(eit->second) == 2 ) {
+            if ( eit->second == 2 ) {
                 std::cerr << "Local orientation problem..." << std::endl << std::endl;
                 return false;
             }
