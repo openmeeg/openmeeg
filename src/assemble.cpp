@@ -62,8 +62,10 @@ int main(int argc, char** argv)
         cerr << "Not enough arguments \nPlease try \"" << argv[0] << " -h\" or \"" << argv[0] << " --help \" \n" << endl;
         return 0;
     } else {
-        OLD_ORDERING = strcmp(argv[argc-1], "-old-ordering");
-        std::cout << "Using old ordering i.e using (V1, p1, V2, p2, V3) instead of (V1, V2, V3, p1, p2)" << std::endl;
+        OLD_ORDERING = (strcmp(argv[argc-1], "-old-ordering") == 0);
+        if ( OLD_ORDERING ) {
+            std::cout << "Using old ordering i.e using (V1, p1, V2, p2, V3) instead of (V1, V2, V3, p1, p2)" << std::endl;
+        }
     }
 
     if ((!strcmp(argv[1],"-h")) | (!strcmp(argv[1],"--help"))) getHelp(argv);
