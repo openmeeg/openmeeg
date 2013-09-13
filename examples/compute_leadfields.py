@@ -48,7 +48,7 @@ dipole_in_cortex = True
 hm = om.HeadMat(geom, gauss_order)
 hm.invert()
 hminv = hm
-# hminv = hm.inverse() # for the adjoint method comment the 2 previous line, and uncomment this one
+# hminv = hm.inverse() # to also test the adjoint method: comment the 2 previous lines, and uncomment this line, and the two others containing 'adjoint'
 dsm = om.DipSourceMat(geom, dipoles, gauss_order,
                                  use_adaptive_integration, dipole_in_cortex)
 
@@ -69,14 +69,14 @@ eitsm = om.EITSourceMat(geom, eeg_electrodes, gauss_order)
 iphm = om.Surf2VolMat(geom, int_electrodes)
 ipsm = om.DipSource2InternalPotMat(geom, dipoles, int_electrodes)
 
-eeg_leadfield = om.GainEEG(hminv, dsm, h2em)
+eeg_leadfield  = om.GainEEG(hminv, dsm, h2em)
 ecog_leadfield = om.GainEEG(hminv, dsm, h2ecogm)
-meg_leadfield = om.GainMEG(hminv, dsm, h2mm, ds2mm)
-eit_leadfield = om.GainEEG(hminv, eitsm, h2em)
-ip_leadfield  = om.GainInternalPot(hminv, dsm, iphm, ipsm)
-sip_leadfield = om.GainStimInternalPot(hminv, eitsm,  iphm)
+meg_leadfield  = om.GainMEG(hminv, dsm, h2mm, ds2mm)
+eit_leadfield  = om.GainEEG(hminv, eitsm, h2em)
+ip_leadfield   = om.GainInternalPot(hminv, dsm, iphm, ipsm)
+sip_leadfield  = om.GainStimInternalPot(hminv, eitsm,  iphm)
 
-eeg_leadfield_adjoint = om.GainEEGadjoint(geom,dipoles,hm, h2em)
+# eeg_leadfield_adjoint = om.GainEEGadjoint(geom,dipoles,hm, h2em)
 
 print "hm             : %d x %d" % (hm.nlin(), hm.ncol())
 print "hminv          : %d x %d" % (hminv.nlin(), hminv.ncol())
@@ -86,14 +86,14 @@ print "h2ecogm        : %d x %d" % (h2ecogm.nlin(), h2ecogm.ncol())
 print "ds2mm          : %d x %d" % (ds2mm.nlin(), ds2mm.ncol())
 print "h2mm           : %d x %d" % (h2mm.nlin(), h2mm.ncol())
 print "eeg_leadfield  : %d x %d" % (eeg_leadfield.nlin(), eeg_leadfield.ncol())
-print "ecog_leadfield  : %d x %d" % (ecog_leadfield.nlin(), ecog_leadfield.ncol())
+print "ecog_leadfield : %d x %d" % (ecog_leadfield.nlin(), ecog_leadfield.ncol())
 print "meg_leadfield  : %d x %d" % (meg_leadfield.nlin(), meg_leadfield.ncol())
 print "eit_leadfield  : %d x %d" % (eit_leadfield.nlin(), eit_leadfield.ncol())
 print "ip_leadfield   : %d x %d" % (ip_leadfield.nlin(), ip_leadfield.ncol())
 print "sip_leadfield  : %d x %d" % (sip_leadfield.nlin(), sip_leadfield.ncol())
 
 eeg_leadfield.save('eeg_leadfield.mat')
-#eeg_leadfield_adjoint.save('eeg_leadfield_adjoint.mat')
+# eeg_leadfield_adjoint.save('eeg_leadfield_adjoint.mat')
 ecog_leadfield.save('ecog_leadfield.mat')
 meg_leadfield.save('meg_leadfield.mat')
 eit_leadfield.save('eit_leadfield.mat')

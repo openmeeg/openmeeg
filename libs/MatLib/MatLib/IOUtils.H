@@ -494,6 +494,33 @@ namespace io_utils {
     filename(std::string& filename,const char delimiter='"',const bool force_delimiter=true) {
         return imanip3<std::string&,const char,const bool>(file_internal,filename,delimiter,force_delimiter);
     }
+
+    // token string with a given ending (ex: "Air:" called by token(name,':') returns the string name((='Air')) )
+    // TODO in case with space between string and delimiter ? "Air :"
+    inline std::istream&
+    token_internal(std::istream& is, std::string& name, const char& delimiter=':') {
+        char c;
+        name.clear();
+        bool started = false;
+        while (is.get(c)) {
+            if (std::isspace(c,is.getloc()) && started) {
+                is.setstate(std::ios::failbit);
+                break;
+            } else if (c == delimiter) {
+                break;
+            }
+            if ( !std::isspace(c,is.getloc()) ) {
+                name += c;
+            }
+            started = true;
+        }
+        return is;
+    }
+
+    inline imanip2<std::string&, const char&>
+    token(std::string& str,const char& del) {
+        return imanip2<std::string&, const char&>(token_internal,str,del);
+    }
 }
 
 #endif  //  !IOUTILS_H

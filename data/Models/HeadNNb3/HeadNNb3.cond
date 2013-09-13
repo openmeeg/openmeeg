@@ -1,0 +1,8 @@
+# Properties Description 1.0 (Conductivities)
+
+AIR         0.0
+SPHERENORTH 1
+SPHERESOUTH 1
+BRAIN       1
+SKULL       0.0125
+SCALP       1

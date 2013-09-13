@@ -42,7 +42,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #include "diagmatrix.h"
 
-using namespace OpenMEEG;
+// using namespace OpenMEEG;
 
 namespace OpenMEEG {
     namespace Preconditioner {

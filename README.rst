@@ -54,7 +54,7 @@ On Mac OS X, you'll need `CMake <http://www.cmake.org>`_ (install it with `Homeb
 
 Then from a terminal::
 
-    $ git clone --recursive git://github.com:openmeeg/openmeeg.git
+    $ git clone --recursive git://github.com/openmeeg/openmeeg.git
 
 or if it does not work try::
 
@@ -68,7 +68,10 @@ then::
     $ cmake -DBUILD_TESTING=ON -DCMAKE_BUILD_TYPE=Release -DUSE_PROGRESSBAR=ON ..
     $ make
 
-If you want the support for Python, you will need to add "-DENABLE_PYTHON=ON" to the cmake line above and if you want to enable parallel computation with OpenMP add "-DUSE_OMP=ON".
+If you want the support for:
+-Non-nested geometries, you will need to add "-DUSE_VTK=ON" to the cmake line above.
+-Python, you will need to add "-DENABLE_PYTHON=ON".
+-parallel computation with OpenMP, add "-DUSE_OMP=ON".
 
 Then you can run the test suite with::
 
@@ -95,6 +98,13 @@ You will need to install visual studio, `CMake <http://www.cmake.org>`_ and the
 `Intel MKL library <http://software.intel.com/en-us/intel-mkl/>`_.
 Then download the source from github, load the CMake.exe GUI, set the proper option
 and generate the visual studio project. You can then open it and build the project.
+
+Using OpenMEEG
+--------------
+
+Have a look into data/README.rst for defining your geometry.
+and/or
+specify to cmake "-DBUILD_TUTORIALS=ON", and read the tutorials in pdf.
 
 CeCILL-B full license
 ---------------------

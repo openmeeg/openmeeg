@@ -37,7 +37,7 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#include "mesh3.h"
+#include "mesh.h"
 #include "options.h"
 
 using namespace std;
@@ -48,27 +48,25 @@ int main( int argc, char **argv)
     print_version(argv[0]);
 
     command_usage("Concat 2 mesh and save the result");
-    const char *input_filename1 = command_option("-i1",(const char *) "","Input Mesh 1");
-    const char *input_filename2 = command_option("-i2",(const char *) "","Input Mesh 2");
-    const char *output_filename = command_option("-o",(const char *) "","Output Mesh");
-    if (command_option("-h",(const char *)0,0)) return 0;
+    
+    const char *input_filename1 = command_option("-i1", (const char *) "", "Input Mesh 1");
+    const char *input_filename2 = command_option("-i2", (const char *) "", "Input Mesh 2");
+    const char *output_filename = command_option("-o", (const char *) "", "Output Mesh");
 
-    if(argc<2) {
+    if ( command_option("-h", (const char *)0, 0)) return 0;
+
+    if ( argc < 2 ) {
         cout << "Not enough arguments, try the -h option" << endl;
         return 1;
     }
 
-    Mesh* M1 = new Mesh();
-    M1->load(input_filename1);
+    Mesh m1(input_filename1);
 
-    Mesh* M2 = new Mesh();
-    M2->load(input_filename2);
+    Mesh m2(input_filename2);
+    Mesh m3;
 
-    M1->append(M2);
-    M1->save(output_filename);
-
-    delete M1;
-    delete M2;
+    m3.merge(m1, m2);
+    m3.save(output_filename);
 
     return 0;
 }

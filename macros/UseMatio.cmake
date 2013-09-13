@@ -23,4 +23,5 @@ IF (NOT MATIO_LIBRARIES)
     INCLUDE_DIRECTORIES(${OpenMEEG_SOURCE_DIR}/contrib/matio/zlib)
     INCLUDE_DIRECTORIES(${OpenMEEG_BINARY_DIR}/contrib/matio/src)
     INCLUDE_DIRECTORIES(${OpenMEEG_BINARY_DIR}/contrib/matio/zlib)
+
 ENDIF()

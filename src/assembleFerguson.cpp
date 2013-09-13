@@ -40,36 +40,29 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #define _USE_MATH_DEFINES
 #include <math.h>
 
-#include "operators.h"
-#include "om_utils.h"
+#include <operators.h>
+#include <om_utils.h>
 
 namespace OpenMEEG {
 
     // geo = geometry 
-    // mat = storage for ferguson Matrix
-    // pts = where the magnetic field is to be computed 
+    // mat = storage for Ferguson Matrix
+    // pts = where the magnetic field is to be computed
     // n   = numbers of places where magnetic field is to be computed
-    void assemble_ferguson(const Geometry &geo, Matrix &mat, const Matrix &pts)
+    void assemble_ferguson(const Geometry& geo, Matrix& mat, const Matrix& pts)
     {
-        int offsetJ = 0;
+        unsigned miit = 0; // for progressbar: mesh index iterator
         // Computation of blocks of Ferguson's Matrix
-        for(int c=0; c < geo.nb(); c++) {
-            int offsetI = 0;
-            int n = pts.nlin();
-            for (int i=0; i < n; i++) {
-                PROGRESSBAR(c*i, geo.nb()*n);
-                Vect3 p(pts(i,0), pts(i,1), pts(i,2));
-                operatorFerguson(p, geo.getM(c), mat, offsetI, offsetJ);
+        for ( Geometry::const_iterator mit = geo.begin(); mit != geo.end(); ++mit, ++miit) {
+            unsigned offsetI = 0;
+            unsigned n = pts.nlin();
+            double coeff = geo.sigma_diff(*mit)*MU0/(4.*M_PI);
+            for ( unsigned i = 0; i < n; ++i) {
+                PROGRESSBAR(miit*n+i, geo.nb_meshes()*n);
+                Vect3 p(pts(i, 0), pts(i, 1), pts(i, 2));
+                operatorFerguson(p, *mit, mat, offsetI, coeff);
                 offsetI += 3;
             }
-            offsetJ += geo.getM(c).nbPts();
-        }
-
-        // Blocks multiplications
-        offsetJ = 0;
-        for(int c=0;c<geo.nb();c++) {
-            mult(mat,0,offsetJ,mat.nlin(),offsetJ+geo.getM(c).nbPts(),(geo.sigma_in(c)-geo.sigma_out(c))*MU0/(4*M_PI));
-            offsetJ += geo.getM(c).nbPts();
         }
     }
 }

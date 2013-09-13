@@ -37,155 +37,325 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#include "vect3.h"
-#include "triangle.h"
-#include "mesh3.h"
-#include "om_utils.h"
-#include "geometry.h"
-#include "MeshReader.h"
-#include "PropertiesSpecialized.h"
+#include <geometry.h>
+#include <geometry_reader.h>
+#include <geometry_io.h>
 
 namespace OpenMEEG {
 
-    int Geometry::read(const char* geomFileName, const char* condFileName) {
-
-        destroy();
-
-        has_cond = false; // default param
-
-        size_t npts = 0;
-        size_t ntrgs = 0;
-
-        MeshReader::Reader reader(geomFileName);
-
-        std::vector<Mesh>& Meshes = reader.interfaces();
-        std::vector<int> meshOrder = reader.sortInterfaceIDAndDomains();
-
-        n = Meshes.size();
-        M = new Mesh[n];
-
-        for (int i=0;i<n;i++)
-            M[i] = Meshes[meshOrder[i]];
-
-        for (int i=0;i<n;i++) {
-            M[i].make_links();
-            npts += M[i].nbPts();
-            ntrgs += M[i].nbTrgs();
-        }
-
-        std::cout << "Total number of points    : " << npts << std::endl;
-        std::cout << "Total number of triangles : " << ntrgs << std::endl;
-
-        std::vector<std::string> domainNames = reader.domain_names();
-
-        if (condFileName) {
-            has_cond = true;
-            typedef Utils::Properties::Named< std::string , Conductivity<double> > HeadProperties;
-            HeadProperties properties(condFileName);
-
-            sigin  = new double[n];
-            sigout = new double[n];
-
-            // Store the internal conductivity
-            const Conductivity<double>& cond_init=properties.find(domainNames[0]);
-            sigin[0] = cond_init.sigma();
-
-            // Store the internal conductivity of the external boundary of domain i
-            // and store the external conductivity of the internal boundary of domain i
-            for(size_t i=1;i<domainNames.size()-1;i++) {
-                const Conductivity<double>& cond=properties.find(domainNames[i]);
-                sigin[i] = cond.sigma();
-                sigout[i-1] = sigin[i];
+    const Interface& Geometry::outermost_interface() const 
+    {
+        for ( Domains::const_iterator dit = domain_begin(); dit != domain_end(); ++dit) {
+            if ( dit->outermost() ) {
+                return dit->begin()->interface();
             }
-
-            const Conductivity<double>& cond_final=properties.find(domainNames[domainNames.size()-1]);
-            sigout[n-1] = cond_final.sigma();
-
-            std::cout << "\nChecking" << std::endl;
-            for(int i=0;i<n;i++)
-                std::cout << "\tMesh " << i << " : internal conductivity = " << sigin[i]
-                          << " and external conductivity = " << sigout[i] << std::endl;
         }
-
-        m_size = npts + ntrgs;
-        return m_size;
+        // should never append
     }
 
-    bool Geometry::selfCheck() const {
+    Mesh&  Geometry::mesh(const std::string& id) 
+    {
+        for ( iterator mit = begin() ; mit != end(); ++mit ) {
+            if ( id == mit->name() ) {
+                return *mit;
+            }
+        }
+        warning(std::string("Geometry::mesh: Error mesh id/name not found: ") + id);
+        // should never append
+    }
+
+    void Geometry::info(const bool verbous) const 
+    {
+        if ( is_nested_ ) {
+            std::cout << "This geometry is a NESTED geometry." << std::endl;
+        } else {
+            int shared = -vertices_.size();
+            for (const_iterator mit = begin(); mit != end(); ++mit) {
+                shared += mit->nb_vertices();
+            }
+            // those are not the number of shared vertices but the number of demands for adding the same vertex...
+            std::cout << "This geometry is a NON NESTED geometry. (There was " << shared << " demands for adding same vertices)." << std::endl;
+        }
+
+        for (const_iterator mit = begin(); mit != end(); ++mit) {
+            mit->info();
+        }
+        for ( Domains::const_iterator dit = domain_begin(); dit != domain_end(); ++dit) {
+            dit->info();
+        }
+        if ( verbous ) {
+            for ( Vertices::const_iterator vit = vertex_begin(); vit != vertex_end(); ++vit) {
+                std::cout << "[" << *vit << "] = " << vit->index() << std::endl;
+            }
+            for ( const_iterator mit = begin(); mit != end(); ++mit) {
+                for ( Mesh::const_iterator tit = mit->begin(); tit != mit->end(); ++tit) {
+                    std::cout << "[[" << tit->s1() << "] , [" << tit->s2() << "] , ["<< tit->s3() << "]] \t = " << tit->index() << std::endl;
+                }
+            }
+        }
+    }
+
+    const Interface& Geometry::interface(const std::string& id) const 
+    {
+        for ( Domains::const_iterator dit = domain_begin(); dit != domain_end(); ++dit) {
+            for ( Domain::const_iterator hit = dit->begin(); hit != dit->end(); ++hit) {
+                if ( hit->interface().name() == id )  {
+                    return hit->interface();
+                }
+            }
+        }
+        warning(std::string("Geometry::interface: Interface id/name \"") + id + std::string("\" not found."));
+        // should never append
+    }
+
+    const Domain& Geometry::domain(const Vect3& p) const 
+    {
+        for ( Domains::const_iterator dit = domain_begin(); dit != domain_end(); ++dit) {
+            if ( dit->contains_point(p) ) {
+                return *dit;
+            }
+        }
+        // should never append
+    }
+
+    const Domain& Geometry::domain(const std::string& dname) const
+    {
+        for ( Domains::const_iterator dit = domain_begin(); dit != domain_end(); ++dit) {
+            if ( dit->name() == dname ) {
+                return *dit;
+            }
+        }
+        // should never append
+        warning(std::string("Geometry::domain: Domain id/name \"") + dname + std::string("\" not found."));
+    }
+
+    void Geometry::read(const std::string& geomFileName, const std::string& condFileName, const bool OLD_ORDERING) 
+    {
+        GeometryReader geoR(*this);
+
+        geoR.read_geom(geomFileName);
+
+        if ( condFileName != "" ) {
+            geoR.read_cond(condFileName);
+            has_cond_ = true;
+        }
+
+        // generate the indices of our unknowns
+        generate_indices(OLD_ORDERING);
+
+        // print info
+        info();
+    }
+
+    // this generates unique indices for vertices and triangles which will correspond to our unknowns.
+    void Geometry::generate_indices(const bool OLD_ORDERING) 
+    {
+        // Either unknowns (potentials and currents) are ordered by mesh (i.e. V_1, p_1, V_2, p_2,...) 
+        // or by type (V_1,V_2,V_3 .. p_1, p_2...)
+        // #define CLASSIC_ORDERING // if we use classic_ordering make sure vertex do not overwrite index.. meshes have shared vertices..
+        unsigned index = 0;
+        if ( !OLD_ORDERING ) {
+            for ( Vertices::iterator pit = vertex_begin(); pit != vertex_end(); ++pit, index) {
+                pit->index() = index++;
+            }
+        }
+        for ( iterator mit = begin(); mit != end(); ++mit) {
+            if ( OLD_ORDERING ) {
+                for ( Mesh::const_vertex_iterator vit = mit->vertex_begin(); vit != mit->vertex_end(); ++vit) {
+                    (*vit)->index() = index++;
+                }
+            }
+            for ( Mesh::iterator tit = mit->begin(); tit != mit->end(); ++tit) {
+                if ( !mit->outermost() ) {
+                    tit->index() = index++;
+                }
+            }
+        } // even the last surface triangles (yes for EIT... )
+        for ( iterator mit = begin(); mit != end(); ++mit) {
+            for ( Mesh::iterator tit = mit->begin(); tit != mit->end(); ++tit) {
+                if ( mit->outermost() ) {
+                    tit->index() = index++;
+                }
+            }
+        }
+        size_ = index;
+    }
+
+    const double Geometry::sigma(const std::string& name) const 
+    {
+        for ( std::vector<Domain>::const_iterator dit = domain_begin(); dit != domain_end(); ++dit) {
+            if ( name == dit->name() ) {
+                return dit->sigma();
+            }
+        }
+        warning(std::string("Geometry::sigma: Domain id/name \"") + name + std::string("\" not found."));
+        return 0.;
+    }
+
+    const Domains Geometry::common_domains(const Mesh& m1, const Mesh& m2) const 
+    {
+        std::set<Domain> sdom1;
+        std::set<Domain> sdom2;
+        for ( Domains::const_iterator dit = domain_begin(); dit != domain_end(); ++dit) {
+            if ( dit->mesh_orientation(m1) != 0 ) {
+                sdom1.insert(*dit);
+            }
+            if ( dit->mesh_orientation(m2) != 0 ) {
+                sdom2.insert(*dit);
+            }
+        }
+        Domains doms;
+        std::set_intersection(sdom1.begin(), sdom1.end(), sdom2.begin(), sdom2.end(), std::back_inserter(doms) );
+        return doms;
+    }
+
+    /// \return a function (sum, difference,...) of the conductivity(ies) of the shared domain(s).
+    const double Geometry::funct_on_domains(const Mesh& m1, const Mesh& m2, const Function& f) const 
+    {
+        Domains doms = common_domains(m1, m2);
+        double ans=0.;
+        for ( Domains::iterator dit = doms.begin(); dit != doms.end(); ++dit) {
+            if ( f == IDENTITY ) {
+                ans += dit->sigma();
+            } else if ( f == INVERSE ) {
+                ans += 1./dit->sigma();
+            } else if ( f == INDICATOR ) {
+                ans += 1.;
+            } else {
+                ans = 0;
+            }
+        }
+        return ans;
+    }
+
+    /// \return the difference of conductivities of the 2 domains.
+    const double  Geometry::sigma_diff(const Mesh& m) const {
+        Domains doms = common_domains(m, m); // Get the 2 domains surrounding mesh m
+        double  ans  = 0.;
+        for ( Domains::iterator dit = doms.begin(); dit != doms.end(); ++dit) {
+            ans += dit->sigma() * dit->mesh_orientation(m);
+        }
+        return ans;
+    }
+    
+    /// \return 0. for non communicating meshes, 1. for same oriented meshes, -1. for different orientation
+    const double Geometry::oriented(const Mesh& m1, const Mesh& m2) const 
+    {
+        Domains doms = common_domains(m1, m2); // 2 meshes have either 0, 1 or 2 domains in common
+        double ans = 0.;
+        if ( doms.size() == 0 ) {
+            return 0.;
+        } else {
+            return (( doms[0].mesh_orientation(m1) == doms[0].mesh_orientation(m2) ) ? 1. : -1.);
+        }
+    }
+
+    const bool Geometry::selfCheck() const
+    {
         bool OK = true;
-        for(int i = 0; i < nb(); ++i)
-        {
-            const Mesh& m1 = getM(i);
-            if (!m1.has_correct_orientation()) {
+
+        // Test that all meshes are well oriented and not (self-)intersecting
+        for ( const_iterator mit1 = begin() ; mit1 != end(); ++mit1 ) {
+            if ( !mit1->has_correct_orientation() ) {
                 warning(std::string("A mesh does not seem to be properly oriented"));
             }
-            if(m1.has_self_intersection())
-            {
+            if ( mit1->has_self_intersection() ) {
                 warning(std::string("Mesh is self intersecting !"));
-                m1.info();
+                mit1->info();
                 OK = false;
-                std::cout << "Self intersection for mesh number " << i << std:: endl;
+                std::cout << "Self intersection for mesh \"" << mit1->name() << "\"" << std:: endl;
             }
-            for(int j = i+1; j < nb(); ++j)
-            {
-                const Mesh& m2 = getM(j);
-                if(m1.intersection(m2))
-                {
-                    warning(std::string("2 meshes are intersecting !"));
-                    m1.info();
-                    m2.info();
-                    OK = false;
+            if ( is_nested_ && false ) { 
+                for ( const_iterator mit2 = mit1+1 ; mit2 != end(); ++mit2 ) {
+                    if ( mit1->intersection(*mit2) ) {
+                        warning(std::string("2 meshes are intersecting !"));
+                        mit1->info();
+                        mit2->info();
+                        OK = false;
+                    }
                 }
             }
         }
         return OK;
     }
 
-    bool Geometry::check(const Mesh& m) const {
+    const bool Geometry::check(const Mesh& m) const 
+    {
         bool OK = true;
-        if(m.has_self_intersection())
-        {
+        if ( m.has_self_intersection() ) {
             warning(std::string("Mesh is self intersecting !"));
             m.info();
             OK = false;
         }
-        for(int i = 0; i < nb(); ++i)
-        {
-            const Mesh& m1 = getM(i);
-            if(m1.intersection(m))
-            {
+        for ( const_iterator mit = begin() ; mit != end(); ++mit ) {
+            if ( mit->intersection(m) ) {
                 warning(std::string("Mesh is intersecting with one of the mesh in geom file !"));
-                m1.info();
+                mit->info();
                 OK = false;
             }
         }
         return OK;
     }
 
-    int Geometry::getDomain(const Vect3& p) const {
-        for (int i=0;i<nb();++i)
-            if ((this->getM(i)).contains_point(p))
-                return i;
-        return nb();
-    }
+    void Geometry::import_meshes(const Meshes& m)
+    {
+        meshes_.clear();
+        vertices_.clear();
+        unsigned n_vert_max = 0;
+        unsigned iit = 0;
+        std::map<const Vertex *, Vertex *> map_vertices;
 
-    Geometry Geometry::getSubGeom(int i) const {
-
-        assert(i>-1 && i<=n);
-
-        Geometry subgeom;
-        subgeom.n = i;
-        subgeom.m_size = 0;
-        subgeom.sigin  = new double[subgeom.n];
-        subgeom.sigout = new double[subgeom.n];
-        subgeom.M = new Mesh[subgeom.n];
-        for (int j = 0 ; j < i ; j++) {
-            subgeom.sigin[j] = sigin[j];
-            subgeom.sigout[j] = sigout[j];
-            subgeom.M[j] = M[j];
-            subgeom.m_size += M[j].nbPts()+M[j].nbTrgs(); // Number of triangles + Number of points
+        for ( Meshes::const_iterator mit = m.begin(); mit != m.end(); ++mit) {
+            n_vert_max += mit->nb_vertices();
         }
-        subgeom.has_cond = this->has_cond;
-        return subgeom;
+        
+        vertices_.reserve(n_vert_max);
+        meshes_.reserve(m.size());
+
+        for ( Meshes::const_iterator mit = m.begin(); mit != m.end(); ++mit, ++iit) {
+            meshes_.push_back(Mesh(vertices_, mit->name()));
+            for ( Mesh::const_vertex_iterator vit = mit->vertex_begin(); vit != mit->vertex_end(); vit++) {
+                meshes_[iit].add_vertex(**vit);
+                map_vertices[*vit] = *meshes_[iit].vertex_rbegin();
+            }
+        }
+
+        // Copy the triangles in the geometry.
+        iit = 0;
+        for ( Meshes::const_iterator mit = m.begin(); mit != m.end(); ++mit, ++iit) {
+            for ( Mesh::const_iterator tit = mit->begin(); tit != mit->end(); ++tit) {
+                meshes_[iit].push_back(Triangle(map_vertices[(*tit)[0]], 
+                                                map_vertices[(*tit)[1]], 
+                                                map_vertices[(*tit)[2]]));
+            }
+            meshes_[iit].update();
+        }
     }
+#if 0
+        std::set<Vertex> set_vertices;
+        std::map<const Vertex, unsigned> map_vertices;
+
+        for ( Meshes::const_iterator mit = m.begin(); mit != m.end(); ++mit, ++iit) {
+            meshes_.push_back(Mesh(vertices_, mit->name()));
+            for ( Mesh::const_vertex_iterator vit = mit->vertex_begin(); vit != mit->vertex_end(); vit++) {
+                std::pair<std::set<Vertex>::iterator, bool> ret = set_vertices.insert(**vit);
+                if ( ret.second ) {
+                    map_vertices[**vit] = vertices_.size();
+                    meshes_[iit].add_vertex(**vit);
+                }
+            }
+        }
+
+        // Copy the triangles the geometry.
+        iit = 0;
+        for ( Meshes::const_iterator mit = m.begin(); mit != m.end(); ++mit, ++iit) {
+            for ( Mesh::const_iterator tit = mit->begin(); tit != mit->end(); ++tit) {
+                meshes_[iit].push_back(Triangle(vertices_[map_vertices[tit->s1()]], 
+                                                vertices_[map_vertices[tit->s2()]], 
+                                                vertices_[map_vertices[tit->s3()]]));
+            }
+            meshes_[iit].update();
+        }
+    }
+#endif
 }

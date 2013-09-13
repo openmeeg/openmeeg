@@ -53,6 +53,7 @@ template<class T> void print_infos(const T& M);
 int main( int argc, char **argv)
 {
     print_version(argv[0]);
+    //TODO doesn't say txt, if you don't specify it
 
     command_usage("Provides informations on a Matrix generated with OpenMEEG");
     const char *filename = command_option("-i",(const char *) NULL,"Matrix file");
@@ -60,6 +61,7 @@ int main( int argc, char **argv)
     const char *sym = command_option("-sym",(const char *) 0,"Data are symmetric matrices");
     const char *sparse = command_option("-sparse",(const char *) 0,"Data are sparse matrices");
     const char *mat = command_option("-mat",(const char *) 0,"Data are matlab format");
+    const char *bin = command_option("-bin",(const char *) 0,"Data are binary format");
     if (command_option("-h",(const char *)0,0)) return 0;
 
     if (!filename) {
@@ -78,10 +80,14 @@ int main( int argc, char **argv)
         } else if (mat) {
             cerr << "Unsupported Format : MAT for symmetric matrices" << endl;
             exit(1);
-        } else {
+        } else if (bin) {
             SymMatrix M;
             M.load(filename);
             cout << "Format : BINARY" << endl;
+            print_infos(M);
+        } else {
+            SymMatrix M;
+            M.load(filename);
             print_infos(M);
         }
     } else if (sparse) {
@@ -95,10 +101,14 @@ int main( int argc, char **argv)
             M.load(filename);
             cout << "Format : MAT" << endl;
             print_infos(M);
-        } else {
+        } else if (bin) {
             SparseMatrix M;
             M.load(filename);
             cout << "Format : BINARY" << endl;
+            print_infos(M);
+        } else {
+            SparseMatrix M;
+            M.load(filename);
             print_infos(M);
         }
     } else {
@@ -112,10 +122,14 @@ int main( int argc, char **argv)
             M.load(filename);
             cout << "Format : MAT" << endl;
             print_infos(M);
-        } else {
+        } else if (bin) {
             Matrix M;
             M.load(filename);
             cout << "Format : BINARY" << endl;
+            print_infos(M);
+        } else {
+            Matrix M;
+            M.load(filename);
             print_infos(M);
         }
     }

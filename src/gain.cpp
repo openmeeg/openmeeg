@@ -39,11 +39,11 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #include <cstring>
 
-#include "matrix.h"
-#include "symmatrix.h"
-#include "vector.h"
-#include "cpuChrono.h"
-#include "gain.h"
+#include <matrix.h>
+#include <symmatrix.h>
+#include <vector.h>
+#include <cpuChrono.h>
+#include <gain.h>
 
 using namespace std;
 using namespace OpenMEEG;
@@ -54,29 +54,31 @@ int main(int argc, char **argv)
 {
     print_version(argv[0]);
 
-    if (argc<2) {
+    if ( argc<2 ) {
         cerr << "Not enough arguments \nPlease try \"" << argv[0] << " -h\" or \"" << argv[0] << " --help \" \n" << endl;
         return 0;
     }
 
-    if ((!strcmp(argv[1],"-h")) | (!strcmp(argv[1],"--help"))) getHelp(argv);
+    if ( (!strcmp(argv[1], "-h")) | (!strcmp(argv[1], "--help")) ) {
+        getHelp(argv);
+    }
 
     // Start Chrono
     cpuChrono C;
     C.start();
 
-    disp_argv(argc,argv);
+    disp_argv(argc, argv);
 
     // declaration of argument variables
     string Option=string(argv[1]);
-    if (argc<5) {
+    if ( argc<5 ) {
         cerr << "Not enough arguments \nPlease try \"" << argv[0] << " -h\" or \"" << argv[0] << " --help \" \n" << endl;
         return 0;
     }
 
     // for use with EEG DATA
-    if (!strcmp(argv[1],"-EEG")) {
-        if (argc<6) {
+    if ( !strcmp(argv[1], "-EEG") ) {
+        if ( argc<6 ) {
             cerr << "Not enough arguments \nPlease try \"" << argv[0] << " -h\" or \"" << argv[0] << " --help \" \n" << endl;
             return 0;
         }
@@ -88,30 +90,30 @@ int main(int argc, char **argv)
         Matrix SourceMat;
         SourceMat.load(argv[3]);
 
-        GainEEG EEGGainMat(HeadMatInv,SourceMat,Head2EEGMat);
+        GainEEG EEGGainMat(HeadMatInv, SourceMat, Head2EEGMat);
         EEGGainMat.save(argv[5]);
     }
     // compute the gain matrix with the adjoint method for use with EEG DATA
-    else if (!strcmp(argv[1],"-EEGadjoint")) {
-        if (argc<8) {
+    else if ( !strcmp(argv[1], "-EEGadjoint") ) {
+        if ( argc<8 ) {
             cerr << "Not enough arguments \nPlease try \"" << argv[0] << " -h\" or \"" << argv[0] << " --help \" \n" << endl;
             return 0;
         }
         LinOpInfo matinfo = OpenMEEG::maths::info(argv[3]);
         Geometry geo;
-        geo.read(argv[2],argv[3]);
+        geo.read(argv[2], argv[3]);
         Matrix dipoles(argv[4]);
         SymMatrix HeadMat;
         HeadMat.load(argv[5]);
         SparseMatrix Head2EEGMat;
         Head2EEGMat.load(argv[6]);
 
-        GainEEGadjoint EEGGainMat(geo,dipoles,HeadMat,Head2EEGMat);
+        GainEEGadjoint EEGGainMat(geo, dipoles, HeadMat, Head2EEGMat);
         EEGGainMat.save(argv[7]);
     }
     // for use with MEG DATA
-    else if (!strcmp(argv[1],"-MEG")) {
-        if (argc<7) {
+    else if ( !strcmp(argv[1], "-MEG") ) {
+        if ( argc<7 ) {
             cerr << "Not enough arguments \nPlease try \"" << argv[0] << " -h\" or \"" << argv[0] << " --help \" \n" << endl;
             return 0;
         }
@@ -125,18 +127,18 @@ int main(int argc, char **argv)
         Matrix Source2MEGMat;
         Source2MEGMat.load(argv[5]);
 
-        GainMEG MEGGainMat(HeadMatInv,SourceMat,Head2MEGMat,Source2MEGMat);
+        GainMEG MEGGainMat(HeadMatInv, SourceMat, Head2MEGMat, Source2MEGMat);
         MEGGainMat.save(argv[6]);
     }
     // compute the gain matrix with the adjoint method for use with MEG DATA
-    else if (!strcmp(argv[1],"-MEGadjoint")) {
-        if (argc<9) {
+    else if ( !strcmp(argv[1], "-MEGadjoint") ) {
+        if ( argc<9 ) {
             cerr << "Not enough arguments \nPlease try \"" << argv[0] << " -h\" or \"" << argv[0] << " --help \" \n" << endl;
             return 0;
         }
         LinOpInfo matinfo = OpenMEEG::maths::info(argv[3]);
         Geometry geo;
-        geo.read(argv[2],argv[3]);
+        geo.read(argv[2], argv[3]);
         Matrix dipoles(argv[4]);
         SymMatrix HeadMat;
         HeadMat.load(argv[5]);
@@ -145,18 +147,18 @@ int main(int argc, char **argv)
         Matrix Source2MEGMat;
         Source2MEGMat.load(argv[7]);
 
-        GainMEGadjoint MEGGainMat(geo,dipoles,HeadMat,Head2MEGMat,Source2MEGMat);
+        GainMEGadjoint MEGGainMat(geo, dipoles, HeadMat, Head2MEGMat, Source2MEGMat);
         MEGGainMat.save(argv[8]);
     }
     // compute the gain matrices with the adjoint method for use with EEG and MEG DATA
-    else if (!strcmp(argv[1],"-EEGMEGadjoint")) {
-        if (argc<11) {
+    else if ( !strcmp(argv[1], "-EEGMEGadjoint") ) {
+        if ( argc<11 ) {
             cerr << "Not enough arguments \nPlease try \"" << argv[0] << " -h\" or \"" << argv[0] << " --help \" \n" << endl;
             return 0;
         }
         LinOpInfo matinfo = OpenMEEG::maths::info(argv[3]);
         Geometry geo;
-        geo.read(argv[2],argv[3]);
+        geo.read(argv[2], argv[3]);
         Matrix dipoles(argv[4]);
         SymMatrix HeadMat;
         HeadMat.load(argv[5]);
@@ -167,12 +169,12 @@ int main(int argc, char **argv)
         Matrix Source2MEGMat;
         Source2MEGMat.load(argv[8]);
 
-        GainEEGMEGadjoint EEGMEGGainMat(geo,dipoles,HeadMat,Head2EEGMat,Head2MEGMat,Source2MEGMat);
+        GainEEGMEGadjoint EEGMEGGainMat(geo, dipoles, HeadMat, Head2EEGMat, Head2MEGMat, Source2MEGMat);
         EEGMEGGainMat.saveEEG(argv[9]);
         EEGMEGGainMat.saveMEG(argv[10]);
     }
-    else if ((!strcmp(argv[1],"-InternalPotential"))|(!strcmp(argv[1],"-IP"))) {
-        if (argc<7) {
+    else if ( (!strcmp(argv[1], "-InternalPotential"))|(!strcmp(argv[1], "-IP")) ) {
+        if ( argc<7 ) {
             cerr << "Not enough arguments \nPlease try \"" << argv[0] << " -h\" or \"" << argv[0] << " --help \" \n" << endl;
             return 0;
         }
@@ -185,11 +187,11 @@ int main(int argc, char **argv)
         Matrix Source2IPMat;
         Source2IPMat.load(argv[5]);
 
-        GainInternalPot InternalPotGainMat(HeadMatInv,SourceMat,Head2IPMat,Source2IPMat);
+        GainInternalPot InternalPotGainMat(HeadMatInv, SourceMat, Head2IPMat, Source2IPMat);
         InternalPotGainMat.save(argv[6]);
     }
-    else if ((!strcmp(argv[1],"-StimInternalPotential"))|(!strcmp(argv[1],"-SIP"))) {
-        if (argc<6) {
+    else if ( (!strcmp(argv[1], "-StimInternalPotential"))|(!strcmp(argv[1], "-SIP")) ) {
+        if ( argc<6 ) {
             cerr << "Not enough arguments \nPlease try \"" << argv[0] << " -h\" or \"" << argv[0] << " --help \" \n" << endl;
             return 0;
         }
@@ -200,7 +202,7 @@ int main(int argc, char **argv)
         Matrix Head2IPMat;
         Head2IPMat.load(argv[4]);
 
-        GainStimInternalPot StimInternalPotGainMat(HeadMatInv,SourceMat,Head2IPMat);
+        GainStimInternalPot StimInternalPotGainMat(HeadMatInv, SourceMat, Head2IPMat);
         StimInternalPotGainMat.save(argv[5]);
     }
     else

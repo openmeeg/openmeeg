@@ -1,17 +1,14 @@
 INCLUDE(ComparisonTest)
 
 SET_FILE_PROPERTIES(Suffix
-    "HM .hm" "HMInv .hm_inv" "SSM .ssm" "v2eeg .h2em" "SurfGainEEG .sgem"
-    "ESTEEG .est_eeg" "EEGadjointEST .est_eegadjoint" "MEGadjointEST .est_megadjoint" "EEG-HEAT -eeg-heat.est_src" "EEG-MN -eeg-mn.est_src"
+    "HM .hm" "HMInv .hm_inv" "DSM .dsm" "SSM .ssm" "v2eeg .h2em" "SurfGainEEG .sgem"
+    "ESTEEG .est_eeg" "EEGadjointEST .est_eegadjoint" "MEGadjointEST .est_megadjoint"
     "Head2MEGMat .h2mm" "SS2MM .ss2mm" "SurfGainMEG .sgmm" "ESTMEG .est_meg"
-    "MEG-HEAT -meg-heat.est_src" "MEG-MN -meg-mn.est_src"
 )
 
 SET_FILE_PROPERTIES(CompareOptions
-    "HM -sym" "HMInv -sym" "SSM -full:-if1:binary:-if2:binary" "v2eeg -if:binary:-sparse"
-    "SurfGainEEG -full" "ESTEEG -full" "EEG-HEAT -full:-eps:0.02" "EEG-MN -full"
-    "Head2MEGMat -full" "SS2MM -full" "SurfGainMEG -full" "ESTMEG -full"
-    "MEG-HEAT -full:-eps:0.02" "MEG-MN -full"
+    "HM -sym" "HMInv -sym" "DSM -full:-if1:binary:-if2:binary" "SSM -full:-if1:binary:-if2:binary" "v2eeg -if:binary:-sparse"
+    "SurfGainEEG -full" "ESTEEG -full" "Head2MEGMat -full" "SS2MM -full" "SurfGainMEG -full" "ESTMEG -full"
 )
 
 ############ IO TEST ##############
@@ -34,8 +31,8 @@ NEW_EXECUTABLE(om_validationEIT validationEIT.cpp ${OPEMEEG_HEADERS}
 
 ############ TEST COMMON RESULTS ON HEAD1 (Regression test) ##############
 
-SET(COMPARISONS HM HMInv SSM v2eeg SurfGainEEG ESTEEG EEG-HEAT EEG-MN
-                Head2MEGMat SS2MM SurfGainMEG ESTMEG MEG-HEAT MEG-MN
+SET(COMPARISONS HM HMInv SSM DSM v2eeg SurfGainEEG ESTEEG
+                Head2MEGMat SS2MM SurfGainMEG ESTMEG 
 )
 
 FOREACH (COMPARISON ${COMPARISONS})
@@ -47,21 +44,37 @@ ENDFOREACH()
 
 ############ TEST EEG RESULTS ON DIPOLES ##############
 
+# defining variables for those who do not use VTK
+IF (USE_VTK) 
+    SET(NN "NNa" "NNb" "NNc")
+    SET(NNa "NNa")
+    SET(NNb "NNb")
+    SET(NNc "NNc")
+    SET(NNa1 "NNa1")
+    SET(NNb1 "NNb1")
+    SET(NNc1 "NNc1")
+    SET(NNa2 "NNa2")
+    SET(NNb2 "NNb2")
+    SET(NNc2 "NNc2")
+ENDIF()
+
 IF (TEST_HEAD3)
     SET(HEAD3 3)
 ENDIF()
 
 SET(EPSILON 0.15)
 FOREACH(DIP 1 2 3 4 5)
-    FOREACH(HEADNUM 1 2 ${HEAD3})
-        FOREACH(COMP mag rdm)
-            SET(HEAD "Head${HEADNUM}")
-            FOREACH(ADJOINT "" adjoint adjoint2)
-                SET(BASE_FILE_NAME "${HEAD}-dip.est_eeg${ADJOINT}")
-                # Compare EEG result with analytical solution obtained with Matlab
-                OPENMEEG_COMPARISON_TEST("EEG${ADJOINT}EST-dip-${HEAD}-dip${DIP}-${COMP}"
-                    ${BASE_FILE_NAME} analytic/eeg_head${HEADNUM}_analytic.txt -${COMP} -eps ${EPSILON} -col ${DIP} -full
-                    DEPENDS EEG${ADJOINT}-dipoles-${HEAD})
+    FOREACH(HEADGEO "" ${NN})
+        FOREACH(HEADNUM 1 2 ${HEAD3})
+            FOREACH(COMP mag rdm)
+                SET(HEAD "Head${HEADGEO}${HEADNUM}")
+                FOREACH(ADJOINT "" adjoint adjoint2)
+                    SET(BASE_FILE_NAME "${HEAD}-dip.est_eeg${ADJOINT}")
+                    # Compare EEG result with analytical solution obtained with Matlab
+                    OPENMEEG_COMPARISON_TEST("EEG${ADJOINT}EST-dip-${HEAD}-dip${DIP}-${COMP}"
+                        ${BASE_FILE_NAME} analytic/eeg_head${HEADNUM}_analytic.txt -${COMP} -eps ${EPSILON} -col ${DIP} -full
+                        DEPENDS EEG${ADJOINT}-dipoles-${HEAD})
+                ENDFOREACH()
             ENDFOREACH()
         ENDFOREACH()
     ENDFOREACH()
@@ -79,12 +92,17 @@ IF (TEST_HEAD3)
 ENDIF()
 
 # set tests that are expected to fail :
-SET_TESTS_PROPERTIES(cmp-EEGEST-dip-Head1-dip4-rdm PROPERTIES WILL_FAIL TRUE)
-SET_TESTS_PROPERTIES(cmp-EEGEST-dip-Head1-dip5-rdm PROPERTIES WILL_FAIL TRUE)
-SET_TESTS_PROPERTIES(cmp-EEGadjointEST-dip-Head1-dip4-rdm PROPERTIES WILL_FAIL TRUE)
-SET_TESTS_PROPERTIES(cmp-EEGadjointEST-dip-Head1-dip5-rdm PROPERTIES WILL_FAIL TRUE)
-SET_TESTS_PROPERTIES(cmp-EEGadjoint2EST-dip-Head1-dip4-rdm PROPERTIES WILL_FAIL TRUE)
-SET_TESTS_PROPERTIES(cmp-EEGadjoint2EST-dip-Head1-dip5-rdm PROPERTIES WILL_FAIL TRUE)
+FOREACH(ADJOINT "" "adjoint" "adjoint2")
+    FOREACH(HEADGEO ${NNc1})
+        FOREACH(DIP 1 2 3 4 5)
+            SET_TESTS_PROPERTIES(cmp-EEG${ADJOINT}EST-dip-Head${HEADGEO}-dip${DIP}-mag PROPERTIES WILL_FAIL TRUE) # all cmp-EEG-mag NNc1 tests fail...
+        ENDFOREACH()
+    ENDFOREACH()
+    FOREACH(HEADGEO "1" ${NNa1} ${NNb1})
+        SET_TESTS_PROPERTIES(cmp-EEG${ADJOINT}EST-dip-Head${HEADGEO}-dip4-rdm PROPERTIES WILL_FAIL TRUE)
+        SET_TESTS_PROPERTIES(cmp-EEG${ADJOINT}EST-dip-Head${HEADGEO}-dip5-rdm PROPERTIES WILL_FAIL TRUE)
+    ENDFOREACH()
+ENDFOREACH()
 
 IF (WIN32)
     SET(VALIDATION_EIT "${EXECUTABLE_OUTPUT_PATH}/om_validationEIT")
@@ -92,70 +110,100 @@ ELSE()
     SET(VALIDATION_EIT "${CMAKE_CURRENT_BINARY_DIR}/om_validationEIT")
 ENDIF()
 
-FOREACH(HEADNUM 1 2 ${HEAD3})
-    SET(HEAD "Head${HEADNUM}")
-    SET(DATADIR ${OpenMEEG_SOURCE_DIR}/data)
-    SET(MODELPREFIX ${DATADIR}/Models/${HEAD}/${HEAD})
-    SET(TESTPREFIX ${OpenMEEG_BINARY_DIR}/tests/${HEAD})
-    # validationEIT geometry.geom conductivity.cond dipoles.dip source.dsm headmatinv.bin out.eit_qgradVj out.eit_diffVf
-    OPENMEEG_TEST(EITvalidation-dipoles-${HEAD}
-        ${VALIDATION_EIT} ${MODELPREFIX}.geom ${MODELPREFIX}.cond
-        ${DATADIR}/Computations/${HEAD}/${HEAD}.dip
-        ${TESTPREFIX}.dsm ${TESTPREFIX}.hm_inv ${TESTPREFIX}.eit_qgradVj ${TESTPREFIX}.eit_diffVf
-        DEPENDS HMINV-${HEAD} DSM-${HEAD})
+FOREACH(HEADGEO "" ${NN})
+    FOREACH(HEADNUM 1 2 ${HEAD3})
+        SET(HEAD "Head${HEADGEO}${HEADNUM}")
+        SET(DATADIR ${OpenMEEG_SOURCE_DIR}/data)
+        SET(MODELPREFIX ${DATADIR}/Models/${HEAD}/${HEAD})
+        SET(TESTPREFIX ${OpenMEEG_BINARY_DIR}/tests/${HEAD})
+        # validationEIT geometry.geom conductivity.cond dipoles.dip source.dsm headmatinv.bin out.eit_qgradVj out.eit_diffVf
+        OPENMEEG_TEST(
+            EITvalidation-dipoles-${HEAD}
+            ${VALIDATION_EIT} ${MODELPREFIX}.geom ${MODELPREFIX}.cond
+            ${DATADIR}/Computations/${HEAD}/${HEAD}.dip
+            ${TESTPREFIX}.dsm ${TESTPREFIX}.hm_inv ${TESTPREFIX}.eit_qgradVj ${TESTPREFIX}.eit_diffVf
+            DEPENDS HMINV-${HEAD} DSM-${HEAD})
+    ENDFOREACH()
 ENDFOREACH()
 
 FOREACH(DIP 1 2 3 4 5)
-    FOREACH(HEADNUM 1 2 ${HEAD3})
-        SET(HEAD "Head${HEADNUM}")
-        # Compare the potential results in a interior sphere of the Surf2Vol operator with analytical solution
-        # obtained with Sphere (V.Hedou Modified)
-        OPENMEEG_COMPARISON_TEST("EEGinternal-dip-${HEAD}-dip${DIP}"
-             ${HEAD}-dip-internal.est_eeg analytic/eeg_internal_analytic.txt -eps ${EPSILON} -col ${DIP} -full
-             DEPENDS InternalPot-dipoles-${HEAD})
+    FOREACH(HEADGEO "" ${NN})
+        FOREACH(HEADNUM 1 2 ${HEAD3})
+            SET(HEAD "Head${HEADGEO}${HEADNUM}")
+            # Compare the potential results in a interior sphere of the Surf2Vol operator with analytical solution
+            # obtained with Sphere (V.Hedou Modified)
+            OPENMEEG_COMPARISON_TEST("EEGinternal-dip-${HEAD}-dip${DIP}"
+                ${HEAD}-dip-internal.est_eeg analytic/eeg_internal_analytic.txt -eps ${EPSILON} -col ${DIP} -full
+                DEPENDS InternalPot-dipoles-${HEAD})
 
-        # Compare the q.gradVj to diffVf in order to validate the EIT problem
-        OPENMEEG_COMPARISON_TEST("EIT-${HEAD}-dip${DIP}"
-             ${HEAD}.eit_qgradVj ${OpenMEEG_BINARY_DIR}/tests/${HEAD}.eit_diffVf -eps ${EPSILON} -col ${DIP} -full
-             DEPENDS EITvalidation-dipoles-${HEAD})
+            # Compare the q.gradVj to diffVf in order to validate the EIT problem
+            OPENMEEG_COMPARISON_TEST("EIT-${HEAD}-dip${DIP}"
+                ${HEAD}.eit_qgradVj ${OpenMEEG_BINARY_DIR}/tests/${HEAD}.eit_diffVf -eps ${EPSILON} -col ${DIP} -full
+                DEPENDS EITvalidation-dipoles-${HEAD})
+        ENDFOREACH()
     ENDFOREACH()
 ENDFOREACH()
+
 # set tests that are expected to fail :
-SET_TESTS_PROPERTIES(cmp-EEGinternal-dip-Head1-dip5 PROPERTIES WILL_FAIL TRUE)
+FOREACH(HEADGEO "1" ${NNa1} ${NNb1})
+    SET_TESTS_PROPERTIES(cmp-EEGinternal-dip-Head${HEADGEO}-dip5 PROPERTIES WILL_FAIL TRUE)
+ENDFOREACH()
+FOREACH(HEADGEO ${NNa1})
+    SET_TESTS_PROPERTIES(cmp-EIT-Head${HEADGEO}-dip1 PROPERTIES WILL_FAIL TRUE) # all cmp-EIT-HeadNNa1 tests fail...
+    SET_TESTS_PROPERTIES(cmp-EIT-Head${HEADGEO}-dip2 PROPERTIES WILL_FAIL TRUE)
+ENDFOREACH()
+FOREACH(HEADGEO ${NNa1} ${NNa2})
+    FOREACH(DIP 3 4 5)
+        SET_TESTS_PROPERTIES(cmp-EIT-Head${HEADGEO}-dip${DIP} PROPERTIES WILL_FAIL TRUE)
+    ENDFOREACH()
+ENDFOREACH()
 
 FOREACH(SENSORORIENT "" "-tangential" "-noradial")
     FOREACH(ADJOINT "" adjoint adjoint2)
         IF (NOT(${ADJOINT} STREQUAL "adjoint" OR ${ADJOINT} STREQUAL "adjoint2") OR (SENSORORIENT STREQUAL ""))
-            FOREACH(HEADNUM 1 2 ${HEAD3})
-                SET(HEAD "Head${HEADNUM}")
-                FOREACH(DIP 1 2 3 4 5)
-                    FOREACH(COMP mag rdm)
-                        # Compare MEG result with analytical solution obtained with Matlab
-                        OPENMEEG_COMPARISON_TEST("MEG${ADJOINT}EST-dip-${HEAD}-dip${DIP}${SENSORORIENT}-${COMP}"
-                            ${HEAD}-dip${SENSORORIENT}.est_meg${ADJOINT} analytic/meg_analytic${SENSORORIENT}.txt -${COMP} -eps ${EPSILON} -col ${DIP} -full
-                            DEPENDS MEG${ADJOINT}-dipoles-${HEAD}${SENSORORIENT})
+            FOREACH(HEADGEO "" ${NN})
+                FOREACH(HEADNUM 1 2 ${HEAD3})
+                    SET(HEAD "Head${HEADGEO}${HEADNUM}")
+                    FOREACH(DIP 1 2 3 4 5)
+                        FOREACH(COMP mag rdm)
+                            # Compare MEG result with analytical solution obtained with Matlab
+                            OPENMEEG_COMPARISON_TEST("MEG${ADJOINT}EST-dip-${HEAD}-dip${DIP}${SENSORORIENT}-${COMP}"
+                                ${HEAD}-dip${SENSORORIENT}.est_meg${ADJOINT} analytic/meg_analytic${SENSORORIENT}.txt -${COMP} -eps ${EPSILON} -col ${DIP} -full
+                                DEPENDS MEG${ADJOINT}-dipoles-${HEAD}${SENSORORIENT})
+                        ENDFOREACH()
                     ENDFOREACH()
+                    OPENMEEG_COMPARISON_TEST("MEG${ADJOINT}EST-dip${SENSORORIENT}-${HEAD}-dip6"
+                        ${HEAD}-dip${SENSORORIENT}.est_meg${ADJOINT} analytic/meg_analytic${SENSORORIENT}.txt -eps 0.001 -col 6 -full
+                        DEPENDS MEG${ADJOINT}-dipoles-${HEAD}${SENSORORIENT})
                 ENDFOREACH()
-                OPENMEEG_COMPARISON_TEST("MEG${ADJOINT}EST-dip${SENSORORIENT}-${HEAD}-dip6"
-                    ${HEAD}-dip${SENSORORIENT}.est_meg${ADJOINT} analytic/meg_analytic${SENSORORIENT}.txt -eps 0.001 -col 6 -full
-                    DEPENDS MEG${ADJOINT}-dipoles-${HEAD}${SENSORORIENT})
             ENDFOREACH()
         ENDIF()
     ENDFOREACH()
 ENDFOREACH()
 
 # set tests that are expected to fail :
-SET_TESTS_PROPERTIES(cmp-MEGEST-dip-Head1-dip2-tangential-mag PROPERTIES WILL_FAIL TRUE)
-SET_TESTS_PROPERTIES(cmp-MEGEST-dip-Head1-dip2-tangential-rdm PROPERTIES WILL_FAIL TRUE)
-SET_TESTS_PROPERTIES(cmp-MEGEST-dip-Head1-dip3-tangential-mag PROPERTIES WILL_FAIL TRUE)
-SET_TESTS_PROPERTIES(cmp-MEGEST-dip-Head1-dip3-tangential-rdm PROPERTIES WILL_FAIL TRUE)
-SET_TESTS_PROPERTIES(cmp-MEGEST-dip-Head1-dip4-tangential-mag PROPERTIES WILL_FAIL TRUE)
-SET_TESTS_PROPERTIES(cmp-MEGEST-dip-Head1-dip4-tangential-rdm PROPERTIES WILL_FAIL TRUE)
-SET_TESTS_PROPERTIES(cmp-MEGEST-dip-Head1-dip5-tangential-mag PROPERTIES WILL_FAIL TRUE)
-SET_TESTS_PROPERTIES(cmp-MEGEST-dip-Head1-dip5-tangential-rdm PROPERTIES WILL_FAIL TRUE)
-SET_TESTS_PROPERTIES(cmp-MEGEST-dip-Head2-dip4-tangential-mag PROPERTIES WILL_FAIL TRUE)
-SET_TESTS_PROPERTIES(cmp-MEGEST-dip-Head2-dip4-tangential-rdm PROPERTIES WILL_FAIL TRUE)
-SET_TESTS_PROPERTIES(cmp-MEGEST-dip-Head2-dip5-tangential-mag PROPERTIES WILL_FAIL TRUE)
-SET_TESTS_PROPERTIES(cmp-MEGEST-dip-Head2-dip5-tangential-rdm PROPERTIES WILL_FAIL TRUE)
-SET_TESTS_PROPERTIES(cmp-MEGEST-dip-Head1-dip4-noradial-mag PROPERTIES   WILL_FAIL TRUE)
-SET_TESTS_PROPERTIES(cmp-MEGEST-dip-Head1-dip5-noradial-mag PROPERTIES   WILL_FAIL TRUE)
+FOREACH(HEADGEO ${NNc1})
+    SET_TESTS_PROPERTIES(cmp-MEGEST-dip-Head${HEADGEO}-dip4-tangential-rdm PROPERTIES WILL_FAIL TRUE)
+    SET_TESTS_PROPERTIES(cmp-MEGEST-dip-Head${HEADGEO}-dip5-tangential-rdm PROPERTIES WILL_FAIL TRUE)
+ENDFOREACH()
+FOREACH(HEADGEO "1" ${NNa1} ${NNb1})
+    FOREACH(DIP 2 3 4 5)
+        FOREACH(COMP mag rdm)
+            SET_TESTS_PROPERTIES(cmp-MEGEST-dip-Head${HEADGEO}-dip${DIP}-tangential-${COMP} PROPERTIES WILL_FAIL TRUE)
+        ENDFOREACH()
+    ENDFOREACH()
+    SET_TESTS_PROPERTIES(cmp-MEGEST-dip-Head${HEADGEO}-dip4-noradial-mag   PROPERTIES WILL_FAIL TRUE)
+    SET_TESTS_PROPERTIES(cmp-MEGEST-dip-Head${HEADGEO}-dip5-noradial-mag   PROPERTIES WILL_FAIL TRUE)
+ENDFOREACH()
+FOREACH(HEADGEO ${NNc2})
+    SET_TESTS_PROPERTIES(cmp-MEGEST-dip-Head${HEADGEO}-dip5-tangential-rdm PROPERTIES WILL_FAIL TRUE)
+ENDFOREACH()
+FOREACH(HEADGEO "2" ${NNa2} ${NNb2})
+    FOREACH(DIP 4 5)
+        FOREACH(COMP mag rdm)
+            IF (NOT(${HEADGEO} STREQUAL "NNa2") OR NOT(${DIP} STREQUAL 4) OR NOT(${COMP} STREQUAL mag))
+                SET_TESTS_PROPERTIES(cmp-MEGEST-dip-Head${HEADGEO}-dip${DIP}-tangential-${COMP} PROPERTIES WILL_FAIL TRUE)
+            ENDIF()
+        ENDFOREACH()
+    ENDFOREACH()
+ENDFOREACH()

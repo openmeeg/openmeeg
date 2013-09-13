@@ -43,29 +43,28 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <cmath>
 #include <iostream>
 
-#include "vect3.h"
-#include "triangle.h"
-#include "mesh3.h"
+#include <vertex.h>
+#include <triangle.h>
+#include <mesh.h>
 
 namespace OpenMEEG {
 
     // light class containing d Vect3
     template <int d>
-    class OPENMEEG_EXPORT Vect3array
+    class OPENMEEG_EXPORT Vect3array 
     {
-    private:
         Vect3 t[d];
 
     public:
         Vect3array() {};
         inline Vect3array(double x) {
-            for (int i=0;i<d;i++)
-                t[i]=Vect3(x);
+            for ( unsigned i = 0; i < d; ++i)
+                t[i] = Vect3(x);
         }
         inline Vect3array<d> operator*(double x) const {
             Vect3array<d> r;
-            for (int i=0;i<d;i++)
-                r.t[i]=t[i]*x;
+            for ( unsigned i = 0; i < d; ++i)
+                r.t[i] = t[i]*x;
             return r;
         }
         inline Vect3 operator()(int i) const { return t[i]; }
@@ -73,158 +72,162 @@ namespace OpenMEEG {
     };
 
     template <int d>
-    inline void multadd (Vect3array<d> &target, const double scale,  const Vect3array<d> &incr)
+    inline void multadd (Vect3array<d>& target, const double scale,  const Vect3array<d>& incr) 
     {
-        for (int i=0;i<d;i++) {
+        for ( unsigned i = 0; i < d; ++i) {
             target(i) = target(i) + scale*incr(i);
         }
     }
 
-    inline void multadd (double &target, const double scale, const double incr)
+    inline void multadd (double& target, const double scale, const double incr) 
     {
         target += scale*incr;
     }
 
-    inline void multadd (Vect3 &target, const double scale,  const Vect3 &incr)
+    inline void multadd (Vect3& target, const double scale,  const Vect3& incr) 
     {
         target = target + scale*incr;
     }
 
     // Quadrature rules are from Marc Bonnet's book: Equations integrales..., Appendix B.3
 
-    static const double cordBars[4][16][4]=
+    static const double cordBars[4][16][4] =
     {
         //parameters for N=3
         {
-            {0.166666666666667,0.166666666666667,0.666666666666667,0.166666666666667},
-            {0.166666666666667,0.666666666666667,0.166666666666667,0.166666666666667},
-            {0.666666666666667,0.166666666666667,0.166666666666667,0.166666666666667},
-            {0.0,0.0,0.0,0.0},
-            {0.0,0.0,0.0,0.0},
-            {0.0,0.0,0.0,0.0},
-            {0.0,0.0,0.0,0.0},
-            {0.0,0.0,0.0,0.0},
-            {0.0,0.0,0.0,0.0},
-            {0.0,0.0,0.0,0.0},
-            {0.0,0.0,0.0,0.0},
-            {0.0,0.0,0.0,0.0},
-            {0.0,0.0,0.0,0.0},
-            {0.0,0.0,0.0,0.0},
-            {0.0,0.0,0.0,0.0},
-            {0.0,0.0,0.0,0.0}
+            {0.166666666666667, 0.166666666666667, 0.666666666666667, 0.166666666666667},
+            {0.166666666666667, 0.666666666666667, 0.166666666666667, 0.166666666666667},
+            {0.666666666666667, 0.166666666666667, 0.166666666666667, 0.166666666666667},
+            {0.0, 0.0, 0.0, 0.0},
+            {0.0, 0.0, 0.0, 0.0},
+            {0.0, 0.0, 0.0, 0.0},
+            {0.0, 0.0, 0.0, 0.0},
+            {0.0, 0.0, 0.0, 0.0},
+            {0.0, 0.0, 0.0, 0.0},
+            {0.0, 0.0, 0.0, 0.0},
+            {0.0, 0.0, 0.0, 0.0},
+            {0.0, 0.0, 0.0, 0.0},
+            {0.0, 0.0, 0.0, 0.0},
+            {0.0, 0.0, 0.0, 0.0},
+            {0.0, 0.0, 0.0, 0.0},
+            {0.0, 0.0, 0.0, 0.0}
         }
         ,
         // parameters for N=6
         {
-            {0.445948490915965,0.445948490915965,0.10810301816807,0.111690794839005},
-            {0.445948490915965,0.10810301816807,0.445948490915965,0.111690794839005},
-            {0.10810301816807,0.445948490915965,0.445948490915965,0.111690794839005},
-            {0.091576213509771,0.091576213509771,0.81684757298045796,0.054975871827661},
-            {0.091576213509771,0.81684757298045796,0.091576213509771,0.054975871827661},
-            {0.816847572980458,0.091576213509771,0.091576213509771,0.054975871827661},
-            {0.0,0.0,0.0,0.0},
-            {0.0,0.0,0.0,0.0},
-            {0.0,0.0,0.0,0.0},
-            {0.0,0.0,0.0,0.0},
-            {0.0,0.0,0.0,0.0},
-            {0.0,0.0,0.0,0.0},
-            {0.0,0.0,0.0,0.0},
-            {0.0,0.0,0.0,0.0},
-            {0.0,0.0,0.0,0.0},
-            {0.0,0.0,0.0,0.0}
+            {0.445948490915965, 0.445948490915965, 0.108103018168070, 0.111690794839005},
+            {0.445948490915965, 0.108103018168070, 0.445948490915965, 0.111690794839005},
+            {0.108103018168070, 0.445948490915965, 0.445948490915965, 0.111690794839005},
+            {0.091576213509771, 0.091576213509771, 0.816847572980458, 0.054975871827661},
+            {0.091576213509771, 0.816847572980458, 0.091576213509771, 0.054975871827661},
+            {0.816847572980458, 0.091576213509771, 0.091576213509771, 0.054975871827661},
+            {0.0, 0.0, 0.0, 0.0},
+            {0.0, 0.0, 0.0, 0.0},
+            {0.0, 0.0, 0.0, 0.0},
+            {0.0, 0.0, 0.0, 0.0},
+            {0.0, 0.0, 0.0, 0.0},
+            {0.0, 0.0, 0.0, 0.0},
+            {0.0, 0.0, 0.0, 0.0},
+            {0.0, 0.0, 0.0, 0.0},
+            {0.0, 0.0, 0.0, 0.0},
+            {0.0, 0.0, 0.0, 0.0}
         }
         ,
             // parameters for N=7
         {
-            {0.333333333333333,0.333333333333333,0.333333333333333,0.1125},
-            {0.470142064105115,0.470142064105115,0.059715871789770,0.066197076394253},
-            {0.470142064105115,0.059715871789770,0.470142064105115,0.066197076394253},
-            {0.059715871789770,0.470142064105115,0.470142064105115,0.066197076394253},
-            {0.101286507323456,0.101286507323456,0.79742698535308798,0.062969590272414},
-            {0.101286507323456,0.7974269853530880,0.101286507323456,0.062969590272414},
-            {0.797426985353088,0.101286507323456,0.101286507323456,0.062969590272414},
-            {0.0,0.0,0.0,0.0},
-            {0.0,0.0,0.0,0.0},
-            {0.0,0.0,0.0,0.0},
-            {0.0,0.0,0.0,0.0},
-            {0.0,0.0,0.0,0.0},
-            {0.0,0.0,0.0,0.0},
-            {0.0,0.0,0.0,0.0},
-            {0.0,0.0,0.0,0.0},
-            {0.0,0.0,0.0,0.0}
+            {0.333333333333333, 0.333333333333333, 0.333333333333333, 0.1125},
+            {0.470142064105115, 0.470142064105115, 0.059715871789770, 0.066197076394253},
+            {0.470142064105115, 0.059715871789770, 0.470142064105115, 0.066197076394253},
+            {0.059715871789770, 0.470142064105115, 0.470142064105115, 0.066197076394253},
+            {0.101286507323456, 0.101286507323456, 0.797426985353088, 0.062969590272414},
+            {0.101286507323456, 0.797426985353088, 0.101286507323456, 0.062969590272414},
+            {0.797426985353088, 0.101286507323456, 0.101286507323456, 0.062969590272414},
+            {0.0, 0.0, 0.0, 0.0},
+            {0.0, 0.0, 0.0, 0.0},
+            {0.0, 0.0, 0.0, 0.0},
+            {0.0, 0.0, 0.0, 0.0},
+            {0.0, 0.0, 0.0, 0.0},
+            {0.0, 0.0, 0.0, 0.0},
+            {0.0, 0.0, 0.0, 0.0},
+            {0.0, 0.0, 0.0, 0.0},
+            {0.0, 0.0, 0.0, 0.0}
         }
         ,
 
             // parameters for N=16
         {
-            {0.333333333333333,0.333333333333333,0.3333333333333333,0.072157803838893},
-            {0.081414823414554,0.459292588292722,0.459292588292722,0.047545817133642},
-            {0.459292588292722,0.081414823414554,0.459292588292722,0.047545817133642},
-            {0.459292588292722,0.459292588292722,0.081414823414554,0.047545817133642},
-            {0.898905543365937,0.050547228317031,0.050547228317031,0.016229248811599},
-            {0.050547228317031,0.898905543365937,0.050547228317031,0.016229248811599},
-            {0.050547228317031,0.050547228317031,0.898905543365937,0.016229248811599},
-            {0.658861384496479,0.170569307751760,0.17056930775176099,0.051608685267359},
-            {0.170569307751760,0.658861384496479,0.17056930775176099,0.051608685267359},
-            {0.170569307751760,0.17056930775176099,0.658861384496479,0.051608685267359},
-            {0.008394777409957,0.728492392955404,0.263112829634639,0.013615157087217},
-            {0.728492392955404,0.008394777409957,0.263112829634639,0.013615157087217},
-            {0.728492392955404,0.263112829634639,0.008394777409957,0.013615157087217},
-            {0.008394777409957,0.263112829634639,0.728492392955404,0.013615157087217},
-            {0.263112829634639,0.008394777409957,0.728492392955404,0.013615157087217},
-            {0.263112829634639,0.728492392955404,0.008394777409957,0.013615157087217}
+            {0.333333333333333, 0.333333333333333, 0.333333333333333, 0.072157803838893},
+            {0.081414823414554, 0.459292588292722, 0.459292588292722, 0.047545817133642},
+            {0.459292588292722, 0.081414823414554, 0.459292588292722, 0.047545817133642},
+            {0.459292588292722, 0.459292588292722, 0.081414823414554, 0.047545817133642},
+            {0.898905543365937, 0.050547228317031, 0.050547228317031, 0.016229248811599},
+            {0.050547228317031, 0.898905543365937, 0.050547228317031, 0.016229248811599},
+            {0.050547228317031, 0.050547228317031, 0.898905543365937, 0.016229248811599},
+            {0.658861384496479, 0.170569307751760, 0.170569307751761, 0.051608685267359},
+            {0.170569307751760, 0.658861384496479, 0.170569307751761, 0.051608685267359},
+            {0.170569307751760, 0.170569307751761, 0.658861384496479, 0.051608685267359},
+            {0.008394777409957, 0.728492392955404, 0.263112829634639, 0.013615157087217},
+            {0.728492392955404, 0.008394777409957, 0.263112829634639, 0.013615157087217},
+            {0.728492392955404, 0.263112829634639, 0.008394777409957, 0.013615157087217},
+            {0.008394777409957, 0.263112829634639, 0.728492392955404, 0.013615157087217},
+            {0.263112829634639, 0.008394777409957, 0.728492392955404, 0.013615157087217},
+            {0.263112829634639, 0.728492392955404, 0.008394777409957, 0.013615157087217}
         }
 
     }; // end of gaussTriangleParams
 
-    static const int nbPts[4]={3,6,7,16};
+    static const unsigned nbPts[4] = {3, 6, 7, 16};
 
-    template <class T,class I>
-    class OPENMEEG_EXPORT Integrator {
-
-        int order;
+    template <class T, class I>
+    class OPENMEEG_EXPORT Integrator 
+    {
+        unsigned order;
 
     public:
 
-        inline Integrator() {setOrder(3);}
-        inline Integrator(int ord) {setOrder(ord);}
+        inline Integrator()             { setOrder(3);   }
+        inline Integrator(unsigned ord) { setOrder(ord); }
         inline ~Integrator() {}
 
-        inline void setOrder(const int n) {
-            if (n>=0 && n<4) {
+        inline void setOrder(const unsigned n) 
+        {
+            if ( (n >= 0) && (n < 4) ) {
                 order = n;
             } else {
-                std::cout<<"Unavailable Gauss order: min is 1, max is 3"<<n<<std::endl; 
-                order = (n<1) ? 1 : 3;
+                std::cout << "Unavailable Gauss order: min is 1, max is 3" << n << std::endl;
+                order = (n < 1) ? 1 : 3;
             }
         }
 
-        virtual inline T integrate(const I& fc,const Triangle& Trg,const Mesh& M) {
-            const Vect3 sommets[3] = { M.point(Trg.s1()), M.point(Trg.s2()), M.point(Trg.s3()) };
-            return triangle_integration(fc,sommets);
+        virtual inline T integrate(const I& fc, const Triangle& Trg) 
+        {
+            const Vect3 points[3] = { Trg.s1(), Trg.s2(), Trg.s3() };
+            return triangle_integration(fc, points);
         }
 
     protected:
 
-        inline T triangle_integration(const I& fc,const Vect3 vertices[3]) {
-            // compute double area of triangle defined by vertices
-            Vect3 crossprod=(vertices[1]-vertices[0])^(vertices[2]-vertices[0]);
+        inline T triangle_integration(const I& fc, const Vect3 points[3]) 
+        {
+            // compute double area of triangle defined by points
+            Vect3 crossprod = (points[1] - points[0])^(points[2] - points[0]);
             double S = crossprod.norm();
             T result = 0;
-            for (int i=0;i<nbPts[order];i++) {
-                Vect3 v(0.0,0.0,0.0);
-                for (int j=0;j<3;j++)
-                    v.multadd(cordBars[order][i][j],vertices[j]);
-                multadd(result,cordBars[order][i][3],fc.f(v));
+            for ( unsigned i = 0; i < nbPts[order];++i) {
+                Vect3 v(0.0, 0.0, 0.0);
+                for ( unsigned j = 0; j < 3; ++j) {
+                    v.multadd(cordBars[order][i][j], points[j]);
+                }
+                multadd(result, cordBars[order][i][3], fc.f(v));
             }
             return result*S;
         }
     };
 
-    template <class T,class I>
-    class OPENMEEG_EXPORT AdaptiveIntegrator: public Integrator<T,I> {
-
-        typedef Integrator<T,I> base;
+    template <class T, class I>
+    class OPENMEEG_EXPORT AdaptiveIntegrator: public Integrator<T, I> 
+    {
+        typedef Integrator<T, I> base;
 
     public:
 
@@ -235,43 +238,43 @@ namespace OpenMEEG {
         inline double norm(const double a) { return fabs(a);  }
         inline double norm(const Vect3& a) { return a.norm(); }
 
-        virtual inline T integrate(const I& fc,const Triangle& Trg,const Mesh& M) {
-            const Vect3 vertices[3] = { M.point(Trg.s1()), M.point(Trg.s2()), M.point(Trg.s3()) };
-            T I0 = base::triangle_integration(fc,vertices);
-            return adaptive_integration(fc,vertices,I0,0);
+        virtual inline T integrate(const I& fc, const Triangle& Trg) {
+            const Vect3 points[3] = { Trg.s1(), Trg.s2(), Trg.s3() };
+            T I0 = base::triangle_integration(fc, points);
+            return adaptive_integration(fc, points, I0, 0);
         }
 
     private:
 
         double tolerance;
 
-        inline T adaptive_integration(const I &fc,const Vect3 *vertices,T I0,int n)
+        inline T adaptive_integration(const I& fc, const Vect3 * points, T I0, unsigned n) 
         {
-            Vect3 newpoint0(0.0,0.0,0.0);
-            multadd(newpoint0,0.5,vertices[0]);
-            multadd(newpoint0,0.5,vertices[1]);
-            Vect3 newpoint1(0.0,0.0,0.0);
-            multadd(newpoint1,0.5,vertices[1]);
-            multadd(newpoint1,0.5,vertices[2]);
-            Vect3 newpoint2(0.0,0.0,0.0);
-            multadd(newpoint2,0.5,vertices[2]);
-            multadd(newpoint2,0.5,vertices[0]);
-            Vect3 vertices1[3] = {vertices[0],newpoint0,newpoint2};
-            Vect3 vertices2[3] = {vertices[1],newpoint1,newpoint0};
-            Vect3 vertices3[3] = {vertices[2],newpoint2,newpoint1};
-            Vect3 vertices4[3] = {newpoint0,newpoint1,newpoint2};
-            T I1 = base::triangle_integration(fc,vertices1);
-            T I2 = base::triangle_integration(fc,vertices2);
-            T I3 = base::triangle_integration(fc,vertices3);
-            T I4 = base::triangle_integration(fc,vertices4);
+            Vect3 newpoint0(0.0, 0.0, 0.0);
+            multadd(newpoint0, 0.5, points[0]);
+            multadd(newpoint0, 0.5, points[1]);
+            Vect3 newpoint1(0.0, 0.0, 0.0);
+            multadd(newpoint1, 0.5, points[1]);
+            multadd(newpoint1, 0.5, points[2]);
+            Vect3 newpoint2(0.0, 0.0, 0.0);
+            multadd(newpoint2, 0.5, points[2]);
+            multadd(newpoint2, 0.5, points[0]);
+            Vect3 points1[3] = {points[0], newpoint0, newpoint2};
+            Vect3 points2[3] = {points[1], newpoint1, newpoint0};
+            Vect3 points3[3] = {points[2], newpoint2, newpoint1};
+            Vect3 points4[3] = {newpoint0, newpoint1, newpoint2};
+            T I1 = base::triangle_integration(fc, points1);
+            T I2 = base::triangle_integration(fc, points2);
+            T I3 = base::triangle_integration(fc, points3);
+            T I4 = base::triangle_integration(fc, points4);
             T sum = I1+I2+I3+I4;
-            if (norm(I0-sum)>tolerance*norm(I0)){
+            if ( norm(I0-sum) > tolerance*norm(I0) ) {
                 n = n+1;
-                if (n<10) {
-                    I1 = adaptive_integration(fc,vertices1,I1,n);
-                    I2 = adaptive_integration(fc,vertices2,I2,n);
-                    I3 = adaptive_integration(fc,vertices3,I3,n);
-                    I4 = adaptive_integration(fc,vertices4,I4,n);
+                if ( n < 10 ) {
+                    I1 = adaptive_integration(fc, points1, I1, n);
+                    I2 = adaptive_integration(fc, points2, I2, n);
+                    I3 = adaptive_integration(fc, points3, I3, n);
+                    I4 = adaptive_integration(fc, points4, I4, n);
                     I0 = I1+I2+I3+I4;
                 }
             }

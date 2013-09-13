@@ -4,17 +4,17 @@ IF (NOT HAVE_ISNORMAL_IN_NAMESPACE_STD)
 ENDIF()
 
 SET(OPENMEEG_HEADERS
-    analytics.h assemble.h conditioning.h cpuChrono.h danielsson.h DLLDefinesOpenMEEG.h forward.h gain.h geometry.h integrator.h 
-    inversers.h mesh3.h MeshReader.h om_utils.h operators.h options.h PropertiesSpecialized.h sensors.h triangle.h Triangle_triangle_intersection.h vect3.h
+    analytics.h assemble.h conditioning.h cpuChrono.h danielsson.h DLLDefinesOpenMEEG.h domain.h forward.h gain.h geometry.h integrator.h
+    interface.h mesh.h om_utils.h operators.h options.h PropertiesSpecialized.h geometry_reader.h geometry_io.h sensors.h
+    triangle.h Triangle_triangle_intersection.h vect3.h vertex.h 
 #   These files are imported from another repository.
 #   Please do not update them in this repository.
-    DataTag.H FileExceptions.H MeshDescription/Reader.H MeshDescription/Normals.H MeshDescription/Domains.H MeshDescription/Exceptions.H
-    Properties.H
+DataTag.H FileExceptions.H GeometryExceptions.H Properties.H
 )
 
 ADD_LIBRARY(OpenMEEG ${LIB_TYPE}
-    assembleFerguson.cpp assembleHeadMat.cpp assembleSourceMat.cpp assembleSensors.cpp
-    danielsson.cpp geometry.cpp mesh3.cpp operators.cpp sensors.cpp inversers.cpp cpuChrono.cpp ${OPENMEEG_HEADERS}
+    assembleFerguson.cpp assembleHeadMat.cpp assembleSourceMat.cpp assembleSensors.cpp domain.cpp triangle.cpp mesh.cpp interface.cpp
+    danielsson.cpp geometry.cpp operators.cpp sensors.cpp cpuChrono.cpp ${OPENMEEG_HEADERS}
 )
 TARGET_LINK_LIBRARIES(OpenMEEG OpenMEEGMaths ${OPENMEEG_LIBRARIES} ${LAPACK_LIBRARIES})
 
@@ -27,9 +27,7 @@ MACRO(OPENMEEG_EXECUTABLE EXECUTABLE)
     NEW_EXECUTABLE(${EXECUTABLE} ${ARGN} LIBRARIES OpenMEEG)
 ENDMACRO()
 
-OPENMEEG_EXECUTABLE(om_presmooth presmooth.cpp)
 OPENMEEG_EXECUTABLE(om_minverser minverser.cpp)
-OPENMEEG_EXECUTABLE(om_inverse inverse.cpp)
 OPENMEEG_EXECUTABLE(om_gain gain.cpp)
 OPENMEEG_EXECUTABLE(om_forward forward.cpp)
 OPENMEEG_EXECUTABLE(om_assemble assemble.cpp)
@@ -38,7 +36,7 @@ OPENMEEG_EXECUTABLE(om_assemble assemble.cpp)
 # = INSTALLATION =
 # ================
 
-INSTALL(TARGETS OpenMEEG om_assemble om_forward om_gain om_inverse om_minverser om_presmooth
+INSTALL(TARGETS OpenMEEG om_assemble om_forward om_gain om_minverser
         RUNTIME DESTINATION bin
         LIBRARY DESTINATION lib
         ARCHIVE DESTINATION lib)
@@ -54,12 +52,31 @@ INSTALL(FILES ${OPENMEEG_HEADERS}
 IF(BUILD_TESTING)
     INCLUDE(TestHead.txt)
 
+    # those models should give same results !
+    #TESTHEAD(0)
+    #TESTHEAD(NNa0)
     TESTHEAD(1)
+    IF (USE_VTK)
+        TESTHEAD(NNa1)
+        TESTHEAD(NNb1)
+        TESTHEAD(NNc1)
+    ENDIF()
+
     TESTHEAD(2)
+    IF (USE_VTK)
+        TESTHEAD(NNa2)
+        TESTHEAD(NNb2)
+        TESTHEAD(NNc2)
+    ENDIF()
 
     OPTION(TEST_HEAD3 "Run tests on Head 3" OFF)
 
     IF (TEST_HEAD3)
         TESTHEAD(3)
+        IF (USE_VTK)
+            TESTHEAD(NNa3)
+            TESTHEAD(NNb3)
+            TESTHEAD(NNc3)
+        ENDIF()
     ENDIF()
 ENDIF()

@@ -4,6 +4,9 @@ TARGET_LINK_LIBRARIES (om_make_nerve OpenMEEG)
 ADD_EXECUTABLE(om_mesh_convert mesh_convert.cpp)
 TARGET_LINK_LIBRARIES (om_mesh_convert OpenMEEG)
 
+ADD_EXECUTABLE(om_geometry_info geometry_info.cpp)
+TARGET_LINK_LIBRARIES (om_geometry_info OpenMEEG)
+
 ADD_EXECUTABLE(om_mesh_info mesh_info.cpp)
 TARGET_LINK_LIBRARIES (om_mesh_info OpenMEEG)
 
@@ -28,6 +31,12 @@ TARGET_LINK_LIBRARIES (om_matrix_convert OpenMEEGMaths)
 ADD_EXECUTABLE(om_check_geom check_geom.cpp)
 TARGET_LINK_LIBRARIES (om_check_geom OpenMEEG)
 
+ADD_EXECUTABLE(om_vtp_to_meshes vtp_to_meshes.cpp)
+TARGET_LINK_LIBRARIES (om_vtp_to_meshes OpenMEEG)
+
+ADD_EXECUTABLE(om_meshes_to_vtp meshes_to_vtp.cpp)
+TARGET_LINK_LIBRARIES (om_meshes_to_vtp OpenMEEG)
+
 ADD_EXECUTABLE(om_mesh_to_dip mesh_to_dip.cpp)
 TARGET_LINK_LIBRARIES (om_mesh_to_dip OpenMEEG)
 
@@ -44,4 +53,18 @@ IF (USE_VTK)
     INSTALL(TARGETS om_add_vtk_dataset DESTINATION bin)
 ENDIF()
 
-INSTALL(TARGETS om_make_nerve om_mesh_convert om_mesh_concat om_mesh_info om_mesh_smooth om_register_squids om_squids2vtk om_matrix_info om_matrix_convert om_check_geom om_mesh_to_dip DESTINATION bin)
+INSTALL(TARGETS 
+    om_make_nerve
+    om_mesh_convert 
+    om_mesh_concat
+    om_mesh_info om_mesh_smooth om_register_squids
+    om_geometry_info
+    om_meshes_to_vtp om_vtp_to_meshes
+    om_squids2vtk om_matrix_info om_matrix_convert om_check_geom om_mesh_to_dip DESTINATION bin
+    )
+
+IF (USE_VTK)
+    OPENMEEG_TEST(Tool-om_meshes_to_vtp ${CMAKE_CURRENT_BINARY_DIR}/om_meshes_to_vtp -i1 ${CMAKE_SOURCE_DIR}/data/Models/Head1/cortex.1.tri -i2 ${CMAKE_SOURCE_DIR}/data/Models/Head1/skull.1.tri -i3 ${CMAKE_SOURCE_DIR}/data/Models/Head1/scalp.1.tri -n1 "cortex" -n2 "skull" -n3 "scalp" -o ${OpenMEEG_BINARY_DIR}/tests/Head1.vtp)
+
+    OPENMEEG_TEST(Tool-om_vtp_to_meshes ${CMAKE_CURRENT_BINARY_DIR}/om_vtp_to_meshes -i ${OpenMEEG_BINARY_DIR}/tests/Head1.vtp -o ${OpenMEEG_BINARY_DIR}/tests/meshes.tri)
+ENDIF()
