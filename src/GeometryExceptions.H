@@ -230,9 +230,9 @@ namespace OpenMEEG {
 
         ExceptionCode code() const throw() { return NON_EXISTING_DOMAIN; }
 
-        const std::string& domain;
-        const std::string& interfacen;
-        unsigned           interface;
+        const std::string domain;
+        const std::string interfacen;
+        unsigned          interface;
     };
 
     //  Revisit (TODO).
