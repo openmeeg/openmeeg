@@ -59,7 +59,6 @@ INSTALL(TARGETS
     om_mesh_concat
     om_mesh_info om_mesh_smooth om_register_squids
     om_geometry_info
-    om_meshes_to_vtp om_vtp_to_meshes
     om_squids2vtk om_matrix_info om_matrix_convert om_check_geom om_mesh_to_dip DESTINATION bin
     )
 
