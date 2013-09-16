@@ -1,4 +1,4 @@
-/*
+﻿/*
 Project Name : OpenMEEG
 
 © INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre
@@ -66,13 +66,13 @@ namespace OpenMEEG {
             /// \return true if name is a realtive path. \param name
             bool is_relative_path(const std::string& name);
         #if WIN32
-            static const char PathSeparator[] = "/\\";
+            static const char PathSeparator[];
         #else
             static const char PathSeparator   = '/';
         #endif
     };
     #if WIN32
-        const char PathSeparator[] = "/\\";
+        const char GeometryReader::PathSeparator[] = "/\\";
     #endif
 
     bool GeometryReader::is_relative_path(const std::string& name) {
@@ -172,7 +172,8 @@ namespace OpenMEEG {
                                 >> io_utils::filename(filename[i], '"', false);
                         }
                         fullname[i] = (is_relative_path(filename[i]))?path+filename[i]:filename[i];
-                        meshes[i] = Mesh(fullname[i].c_str(), false, meshname[i]);
+                        meshes[i].load(fullname[i], false);
+						meshes[i].name() = meshname[i];
                     }
                     // Now properly load the meshes into the geometry (not dupplicated vertices)
                     geo_.import_meshes(meshes);
@@ -226,13 +227,13 @@ namespace OpenMEEG {
                 }
                 Mesh m;
                 fullname[i] = (is_relative_path(filename[i]))?path+filename[i]:filename[i];
-                nb_vertices += m.load(fullname[i].c_str(), false, false); 
+                nb_vertices += m.load(fullname[i], false, false); 
             }
             geo_.vertices_.reserve(nb_vertices);
             // Second really load the meshes
             for ( unsigned i = 0; i < nb_interfaces; ++i ) {
                 geo_.meshes_.push_back(Mesh(geo_.vertices_, interfacename[i]));
-                geo_.meshes_[i].load(fullname[i].c_str(), false);
+                geo_.meshes_[i].load(fullname[i], false);
                 interfaces.push_back( Interface(interfacename[i]) );
                 interfaces[i].push_back(OrientedMesh(geo_.meshes_[i], true)); // one mesh per interface, (well oriented)
             }

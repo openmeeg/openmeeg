@@ -1,4 +1,4 @@
-/*
+﻿/*
 Project Name : OpenMEEG
 
 © INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre
@@ -54,7 +54,7 @@ namespace OpenMEEG {
 
     **/
 
-    class Triangle {
+    class OPENMEEG_EXPORT Triangle {
 
     public:
 
