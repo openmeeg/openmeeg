@@ -3,7 +3,6 @@
 #------------------------------------------------------------
 
 OPTION(USE_VTK "Build the project using VTK" OFF)
-MARK_AS_ADVANCED(USE_VTK)
 
 IF (USE_VTK)
     FIND_PACKAGE(VTK)
