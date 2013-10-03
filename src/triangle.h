@@ -1,4 +1,4 @@
-﻿/*
+/*
 Project Name : OpenMEEG
 
 © INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre
