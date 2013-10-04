@@ -90,30 +90,28 @@ namespace OpenMEEG {
     }
 
     void GeometryReader::read_geom(const std::string& geometry) {
-        // Read the head file description and load the information into temporary data structures.
+        // Read the head file description and load the information into the data structures.
 
-        // The syntax of the head description is a header ("# Domain Description (1.0):") followed
-        // by three sections:
+        // check file data/README.rst for complete details about the .geom format.
+        // The syntax of the head description is a header ("# Domain Description 1.1") followed
+        // by two or three sections:
         //
-        //     - The first section is made of two fields and defines the geometry of the rectangular
-        //       domain. First the origin of the domain is given by the keyword "Origin" and the
-        //       vector specifying the coordinates of the upper corner of the domain. Then, the size
-        //       of the domain is given by another vector and introduced by the keyword "DomainSize".
+        //     - The first section is optional (for backward compatibility).
+        //       Starting with the keyword "MeshFile", it follows the path to the VTK/vtp file containing the meshes.
+        //       OR
+        //       Starting with the keyword "Meshes", it follows the number of meshes, and the paths to the meshes (with the keyword "Mesh").
         //
         //     - the second section is introduced by the keyword "Interfaces" followed by a number
-        //       (the number of interfaces) and a type (currently Mesh, NamedMesh, Interface, NamedInterface are possible).
-        //       The section just contains a list of names (one per line, the remainder of the line
-        //       being ignored).
+        //       (the number of interfaces) and optionnally the keyword "Mesh" (for backward compatibility).
+        //       The section contains the list of interfaces preceded by keyword "Interface".
         //
         //     - the third section is introduced by the keyword "Domains" and the number of domains
         //       (everything else on the line containing the keyword is currently ignored). The section
         //       contains domains descriptions, one per line. Each domain consist of:
         //
         //         o a domain name.
-        //         o a list of signed numbers: the absolute value of the number gives describes an
-        //           interface by its index in the "Interfaces" list (indices are starting at one so
-        //           that the sign is meaningful), the sign of the number depicts whether the interior
-        //           or the exterior of the interface should be used to select the domain.
+        //         o a list of IDs (signed numbers or signed names): the sign ('+'by default) of the ID depicts 
+        //           whether the interior or the exterior of the interface should be used to select the domain.
         //
         // Any line starting with # is considered a comment and is silently ignored.
         
@@ -136,7 +134,7 @@ namespace OpenMEEG {
         // Process meshes. -----------------------------------------------------------------------------------
         if ( Dd_version[0] == 1 ) {
             if ( Dd_version[1] == 0 ) {
-                std::cerr << "(Deprecated) Please consider updating the version of the domain description to 1.1 in the geometry file: "
+                std::cerr << "(DEPRECATED) Please consider updating your geometry file to the new format 1.1 (see data/README.rst): "
                           << geometry << std::endl;
             } else if ( Dd_version[1] == 1 ) {
                 // Read the mesh section of the description file.
@@ -148,7 +146,6 @@ namespace OpenMEEG {
                 if ( Is_MeshFile ) {
                     std::string name;
                     ifs >> io_utils::skip_comments("#") >> io_utils::filename(name, '"', false);
-                    // Load the mesh and check that it is compatible with the first one.
                     const std::string& full_name = (is_relative_path(name))?path+name:name;
                     geo_.load_vtp(full_name);
                 } else if ( Is_Meshes ) {
@@ -172,6 +169,7 @@ namespace OpenMEEG {
                                 >> io_utils::filename(filename[i], '"', false);
                         }
                         fullname[i] = (is_relative_path(filename[i]))?path+filename[i]:filename[i];
+                        // Load the mesh.
                         meshes[i].load(fullname[i], false);
 						meshes[i].name() = meshname[i];
                     }
@@ -189,14 +187,15 @@ namespace OpenMEEG {
 
         // Process interfaces. -----------------------------------------------------------------------------------
         unsigned nb_interfaces;
+        bool trash; // backward compatibility, catch "Mesh" optionnally.
         ifs >> io_utils::skip_comments('#')
-            >> io_utils::match("Interfaces") >> nb_interfaces;
+            >> io_utils::match("Interfaces") >> nb_interfaces >> io_utils::match_optional("Mesh", trash);
 
         if ( ifs.fail() ) {
             throw OpenMEEG::WrongFileFormat(geometry);
         }
 
-        // load the interfaces/meshes
+        // load the interfaces
         std::string id; // id of mesh/interface/domain
         Interfaces interfaces;
         // if meshes are not already loaded
@@ -360,7 +359,7 @@ namespace OpenMEEG {
                     }
                 }
                 if ( m_oriented == 0 ) {
-                    nested = false; // TODO unless there is a mesh is defined but unused ...
+                    nested = false; // TODO unless a mesh is defined but unused ...
                     break;
                 }
             }
