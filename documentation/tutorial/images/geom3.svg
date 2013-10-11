@@ -26,7 +26,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
         <dc:title />
       </cc:Work>
     </rdf:RDF>
@@ -42,15 +42,15 @@
      guidetolerance="10"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:window-width="1200"
-     inkscape:window-height="1861"
+     inkscape:window-width="1440"
+     inkscape:window-height="841"
      id="namedview4547"
      showgrid="false"
      inkscape:zoom="0.78666667"
      inkscape:cx="361.00972"
-     inkscape:cy="534.53955"
+     inkscape:cy="283.31114"
      inkscape:window-x="0"
-     inkscape:window-y="27"
+     inkscape:window-y="1227"
      inkscape:window-maximized="1"
      inkscape:current-layer="svg4545" />
   <path
@@ -343,7 +343,7 @@
        id="flowPara4021"
        style="font-size:15px;fill:#2858e7;fill-opacity:1">as being inside interface </flowPara><flowPara
        style="font-size:15px;fill:#2858e7;fill-opacity:1"
-       id="flowPara4029">Skull but outside Cortex.</flowPara></flowRoot>  <path
+       id="flowPara4029">Skull and outside Cortex.</flowPara></flowRoot>  <path
      sodipodi:nodetypes="cc"
      style="fill:#2858e7;fill-opacity:1;stroke:#285bea;stroke-width:2.11391044px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
      d="M 601.49766,452.92148 416.03689,407.13231"
@@ -397,7 +397,7 @@
      xml:space="preserve"
      id="flowRoot3454"
      style="font-size:20px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#e4ae05;fill-opacity:1;stroke:none;font-family:Sans"
-     transform="translate(32.211782,-35.59322)"><flowRegion
+     transform="translate(42.381273,-35.59322)"><flowRegion
        id="flowRegion3456"><rect
          id="rect3458"
          width="604.93585"
@@ -408,4 +408,4 @@
        id="flowPara3462"
        style="font-size:15px;fill:#e4ae05;fill-opacity:1">Meshes are </flowPara><flowPara
        style="font-size:15px;fill:#e4ae05;fill-opacity:1"
-       id="flowPara4234">unamed.</flowPara></flowRoot></svg>
+       id="flowPara4234">unnamed.</flowPara></flowRoot></svg>

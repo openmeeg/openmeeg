@@ -26,7 +26,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -41,17 +41,17 @@
      guidetolerance="10"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:window-width="1200"
-     inkscape:window-height="1861"
+     inkscape:window-width="1440"
+     inkscape:window-height="841"
      id="namedview4547"
      showgrid="false"
      inkscape:zoom="1.1125147"
-     inkscape:cx="410.69448"
+     inkscape:cx="412.49221"
      inkscape:cy="267.9287"
      inkscape:window-x="0"
-     inkscape:window-y="27"
+     inkscape:window-y="1227"
      inkscape:window-maximized="1"
-     inkscape:current-layer="g3875" />
+     inkscape:current-layer="svg4545" />
   <path
      style="fill:#00ff2b;fill-opacity:0.18431373;stroke:#00fd00;stroke-width:1.18469274px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
      d="m 396.21871,82.94915 246.20667,0"
@@ -296,7 +296,7 @@
        style="font-size:15px;fill:#e4aee9;fill-opacity:1"
        id="flowPara3893">First Interface is </flowPara><flowPara
        style="font-size:15px;fill:#e4aee9;fill-opacity:1"
-       id="flowPara3895">called North</flowPara></flowRoot>  <flowRoot
+       id="flowPara3895">called North.</flowPara></flowRoot>  <flowRoot
      xml:space="preserve"
      id="flowRoot3907"
      style="font-size:20px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#e4aee9;fill-opacity:1;stroke:none;font-family:Sans"
@@ -308,10 +308,10 @@
          x="-11.685239"
          y="179.33139"
          style="font-size:20px;fill:#e4aee9;fill-opacity:1" /></flowRegion><flowPara
-       id="flowPara3915"
-       style="font-size:15px;fill:#e4aee9;fill-opacity:1">North: is defined as the </flowPara><flowPara
        style="font-size:15px;fill:#e4aee9;fill-opacity:1"
-       id="flowPara3921">union of mesh north &amp; cut</flowPara></flowRoot>  <path
+       id="flowPara3921">North: is the union of </flowPara><flowPara
+       style="font-size:15px;fill:#e4aee9;fill-opacity:1"
+       id="flowPara3096">meshes north &amp; cut</flowPara></flowRoot>  <path
      style="fill:#e4aee9;fill-opacity:0.18431373;stroke:#e6baea;stroke-width:1.9494195px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
      d="m 607.66265,213.19267 -207.72487,0"
      id="path3917"
@@ -328,14 +328,14 @@
          height="199.54794"
          width="604.93585"
          id="rect3927" /></flowRegion><flowPara
-       style="font-size:15px;fill:#e4aee9;fill-opacity:1"
-       id="flowPara3929">South: is defined as the </flowPara><flowPara
        id="flowPara3931"
-       style="font-size:15px;fill:#e4aee9;fill-opacity:1">union of mesh south &amp; cut.</flowPara><flowPara
+       style="font-size:15px;fill:#e4aee9;fill-opacity:1">South: is the union of </flowPara><flowPara
        style="font-size:15px;fill:#e4aee9;fill-opacity:1"
-       id="flowPara3935">with cut being oriented </flowPara><flowPara
+       id="flowPara3100">meshes south &amp; cut.</flowPara><flowPara
        style="font-size:15px;fill:#e4aee9;fill-opacity:1"
-       id="flowPara3937">differently.</flowPara></flowRoot>  <path
+       id="flowPara3937">with cut with the </flowPara><flowPara
+       style="font-size:15px;fill:#e4aee9;fill-opacity:1"
+       id="flowPara3104">opposite orientation.</flowPara></flowRoot>  <path
      inkscape:connector-curvature="0"
      id="path3933"
      d="M 608.10582,273.19267 403.85664,238.13695"
@@ -400,7 +400,7 @@
        id="flowPara4021"
        style="font-size:15px;fill:#2858e7;fill-opacity:1">as being inside interface </flowPara><flowPara
        style="font-size:15px;fill:#2858e7;fill-opacity:1"
-       id="flowPara4029">Skull but outside Cortex.</flowPara></flowRoot>  <path
+       id="flowPara4029">Skull and outside Cortex.</flowPara></flowRoot>  <path
      sodipodi:nodetypes="cc"
      style="fill:#2858e7;fill-opacity:1;stroke:#285bea;stroke-width:2.11391044px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
      d="M 601.49766,423.19267 407.13858,401.55604"
