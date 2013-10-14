@@ -87,7 +87,7 @@ Note that the individual  meshes can either be named or not. If no name is provi
 
 In case you did not load the meshes through the Meshes section, and if VTK is enabled, the best format to use is VTK/vtp (at least for non-nested geometries).
 In this format, all meshes are in a single VTK/vtp file, where all polygons (triangles) have a string data attached
-indicating the name of the surface it belongs to. (These files can easily be opened with Paraview www.paraview.org, select some triangles-> Cell Label-> check Visible, see HeadNNa1/HeadNNa1.png for an example of visualization.)
+indicating the name of the mesh it belongs to. (These files can easily be opened with Paraview www.paraview.org, select some triangles-> Cell Label-> check Visible, see HeadNNa1/HeadNNa1.png for an example of visualization.)
 
 3. An Interfaces section:
 -------------------------
