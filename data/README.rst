@@ -87,7 +87,7 @@ Note that the individual  meshes can either be named or not. If no name is provi
 
 In case you did not load the meshes through the Meshes section, and if VTK is enabled, the best format to use is VTK/vtp (at least for non-nested geometries).
 In this format, all meshes are in a single VTK/vtp file, where all polygons (triangles) have a string data attached
-indicating the name of the surface it belongs to. (These files can easily be opened with Paraview www.paraview.org, select some triangles-> Cell Label-> check Visible, see HeadNNa1/HeadNNa1.png for example )
+indicating the name of the surface it belongs to. (These files can easily be opened with Paraview www.paraview.org, select some triangles-> Cell Label-> check Visible, see HeadNNa1/HeadNNa1.png for an example of visualization.)
 
 3. An Interfaces section:
 -------------------------
@@ -116,7 +116,7 @@ Note that the interfaces can either be named or not. If no name is provided, the
 
 
 
-3. A Domains section:
+4. A Domains section:
 ---------------------
 The definition of the domains uses the previously defined interfaces::
 
@@ -161,20 +161,24 @@ Each domain name is followed by its conductivity value.
 Using the tools:
 ^^^^^^^^^^^^^^^^
 CGAL_  can generate surfacic meshes out of implicit functions, 3D image levelsets,...
-We here show how models such as HeadNNc1 and HeadNNc3 were generated, with the tool om_cgal_create using the implicit function hemisphere called using the option '-hr' which is the hemisphere radius::
+We here show how models such as *HeadNNc1* and *HeadNNc3* were generated, with the tool *om_cgal_create* using the implicit function hemisphere called using the option *'-hr'* which is the hemisphere radius::
 
     ./tools/om_cgal_mesh_create -hr 0.87 -fs 0.5 -fd 0.05 -o northhemisphere.vtk -ip 30
 
-this generates the northern hemisphere, which we rotate to create the southern hemisphere with matching vertices at their interface.
+this generates the northern hemisphere, which we create a mirror image to create the southern hemisphere with matching vertices at their interface.
 
-For more help on the tool om_cgal_create see::
+For more help on the tool *om_cgal_create* see::
 
    ./tools/om_cgal_mesh_create -h
 
-We substract from theses meshes their common interface (called cut), and merge all meshes into a single vtp file while naming these meshes::
 
-   ./tools/om_mesh_to_vtp -i1 north.vtk -i2 south.vtk -i3 skull.vtk -i4 scalp.vtk -n1 "north" -n2 "south" -n3 "skull" -n4 "scalp" -o HeadNNc.vtp
+
+Using a tool such as Paraview_  we substract from these meshes their common interface (called *cut.vtk*), and merge all meshes into a single vtp file while naming these meshes::
+ 
+  ./tools/om_mesh_to_vtp -i1 north.vtk -i2 south.vtk -i3 skull.vtk -i4 scalp.vtk -i5 cut.vtk -n1 "north" -n2 "south" -n3 "skull" -n4 "scalp" -n5 "cut" -o HeadNNc1.vtp
+   
 
 The files generated can easily be viewed using Paraview.
 
 .. _CGAL: http://www.cgal.org/
+.. _Paraview: http://www.paraview.org/
