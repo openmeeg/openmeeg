@@ -83,11 +83,13 @@ Note that the individual  meshes can either be named or not. If no name is provi
 
 2. An (optional) MeshFile section: 
 ----------------------------------
-| MeshFile Head.vtp                                    
+In case you did not load the meshes through the Meshes section, and if VTK is enabled, the best format to use is VTK/vtp (at least for non-nested geometries)::
 
-In case you did not load the meshes through the Meshes section, and if VTK is enabled, the best format to use is VTK/vtp (at least for non-nested geometries).
+  MeshFile Head.vtp
+
 In this format, all meshes are in a single VTK/vtp file, where all polygons (triangles) have a string data attached
 indicating the name of the surface it belongs to. (These files can easily be opened with Paraview www.paraview.org, select some triangles-> Cell Label-> check Visible, see HeadNNa1/HeadNNa1.png for an example of visualization.)
+
 
 3. An Interfaces section:
 -------------------------
@@ -95,22 +97,22 @@ Starting with the keyword "Interfaces", followed by the number of interfaces.
 
 In case no MeshFile section was found, and no Meshes section neither, you have to use the format in the example below::
 
-   Interfaces 3
-   
-   Interface: "cortex.1.tri"
-   Interface: "skull.1.tri"
-   Interface: "scalp.1.tri"
+  Interfaces 3
+  
+  Interface: "cortex.1.tri"
+  Interface: "skull.1.tri"
+  Interface: "scalp.1.tri"
   
 
 In the example below, meshes are re-oriented with a plus or minus sign, so that the overall interface (composed by several meshes or only one) is consistently oriented (OpenMEEG will complain if this is not the case)::
  
-   Interfaces 5                               
+  Interfaces 5                               
                                             
-   Interface North: +north +cut               
-   Interface South: +south -cut               
-   Interface Cortex: north south              
-   Interface Skull: skull                     
-   Interface Scalp: scalp                     
+  Interface North: +north +cut               
+  Interface South: +south -cut               
+  Interface Cortex: north south              
+  Interface Skull: skull                     
+  Interface Scalp: scalp                     
 
 Note that the interfaces can either be named or not. If no name is provided, they will be automatically named '1', '2', ... following its order in the list.
 
