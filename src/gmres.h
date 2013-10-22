@@ -49,8 +49,6 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #include "DLLDefinesOpenMEEG.h"
 
-// using namespace OpenMEEG;
-
 namespace OpenMEEG {
 
     // ===================================
