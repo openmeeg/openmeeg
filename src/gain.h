@@ -48,7 +48,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include "matvectOps.h"
 #include "geometry.h"
 #include "assemble.h"
-#include "conditioning.h"
+#include "gmres.h"
 
 namespace OpenMEEG {
 
@@ -76,9 +76,10 @@ namespace OpenMEEG {
             GainEEGadjoint (const Geometry& geo,const Matrix& dipoles,const SymMatrix& HeadMat, const SparseMatrix& Head2EEGMat) {
                 Matrix LeadField(Head2EEGMat.nlin(),dipoles.nlin());
                 int gauss_order = 3;
+                // Consider the GMRes solver for problem with dimension > 15,000 (3,000 vertices per interface) else use LAPACK solver
                 #if USE_GMRES
-                Matrix mtemp(Head2EEGMat.nlin(),HeadMat.nlin()); // Consider the GMRes solver for problem with dimension > 15,000 (3,000 vertices per interface) else use LAPACK solver
-                Preconditioner::Jacobi<SymMatrix> M(HeadMat);    // Jacobi preconditionner
+                Matrix mtemp(Head2EEGMat.nlin(),HeadMat.nlin());
+                Jacobi<SymMatrix> M(HeadMat);    // Jacobi preconditionner
                 #pragma omp parallel for
                 for ( unsigned i = 0; i < LeadField.nlin(); ++i) {
                     Vector vtemp(HeadMat.nlin());
@@ -110,9 +111,10 @@ namespace OpenMEEG {
                             const Matrix& Source2MEGMat) {
                 Matrix LeadField(Head2MEGMat.nlin(),dipoles.nlin());
                 int gauss_order = 3;
+                // Consider the GMRes solver for problem with dimension > 15,000 (3,000 vertices per interface) else use LAPACK solver
                 #if USE_GMRES
-                Matrix mtemp(Head2MEGMat.nlin(),HeadMat.nlin()); // Consider the GMRes solver for problem with dimension > 15,000 (3,000 vertices per interface) else use LAPACK solver
-                Preconditioner::Jacobi<SymMatrix> M(HeadMat);    // Jacobi preconditionner
+                Matrix mtemp(Head2MEGMat.nlin(),HeadMat.nlin()); 
+                Jacobi<SymMatrix> M(HeadMat);    // Jacobi preconditionner
                 #pragma omp parallel for
                 for ( unsigned i = 0; i < LeadField.nlin(); ++i) {
                     Vector vtemp(HeadMat.nlin());
@@ -149,10 +151,10 @@ namespace OpenMEEG {
                 for ( unsigned i = 0; i < Head2MEGMat.nlin(); ++i) {
                     RHS.setlin(i + Head2EEGMat.nlin(), Head2MEGMat.getlin(i));
                 }
-
+                // Consider the GMRes solver for problem with dimension > 15,000 (3,000 vertices per interface) else use LAPACK solver
                 #if USE_GMRES
-                Matrix mtemp(RHS.nlin(), HeadMat.nlin()); // Consider the GMRes solver for problem with dimension > 15,000 (3,000 vertices per interface) else use LAPACK solver
-                Preconditioner::Jacobi<SymMatrix> M(HeadMat); // Jacobi preconditionner
+                Matrix mtemp(RHS.nlin(), HeadMat.nlin()); 
+                Jacobi<SymMatrix> M(HeadMat); // Jacobi preconditionner
                 #pragma omp parallel for
                 for ( unsigned i = 0; i < RHS.nlin(); ++i) {
                     Vector vtemp(HeadMat.nlin());
