@@ -34,7 +34,6 @@ SET(MATLIB_HEADERS
     #   These files are imported from another repository.
     #   Please do not update them in this repository.
     AsciiIO.H BrainVisaTextureIO.H Exceptions.H IOUtils.H MathsIO.H MatlabIO.H RC.H 
-    TrivialBinIO.H
-)
+    TrivialBinIO.H)
 INSTALL(FILES ${MATLIB_HEADERS}
         DESTINATION ${OPENMEEG_HEADER_INSTALLDIR} COMPONENT Development)
