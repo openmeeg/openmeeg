@@ -43,6 +43,12 @@ knowledge of the CeCILL-B license and that you accept its terms.
 // for IO:s
 #include <iostream>
 #include <fstream>
+#include <iterator>
+#include <iomanip> 
+#include <string>
+#include <sstream>
+#include <iostream>
+
 
 #include <vector>
 #include <set>
@@ -176,6 +182,8 @@ namespace OpenMEEG {
         unsigned load_tri(const std::string&, const bool& read_all = true);
         unsigned load_bnd(std::istream& , const bool& read_all = true);
         unsigned load_bnd(const std::string&, const bool& read_all = true);
+        unsigned load_asc(std::istream& , const bool& read_all = true);
+        unsigned load_asc(const std::string&, const bool& read_all = true);
         unsigned load_off(std::istream& , const bool& read_all = true);
         unsigned load_off(const std::string&, const bool& read_all = true);
         unsigned load_mesh(std::istream& , const bool& read_all = true);
