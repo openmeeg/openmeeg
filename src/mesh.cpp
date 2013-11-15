@@ -270,6 +270,21 @@ namespace OpenMEEG {
         update(); // Updating triangles (areas + normals)
     }
 
+    /// Surface Gradient
+    SparseMatrix Mesh::gradient() const {
+        SparseMatrix A(3*nb_triangles(), nb_vertices()); // nb edges x vertices
+        // loop on triangles
+        for ( const_iterator tit = begin(); tit != end(); ++tit) {
+            for ( unsigned j = 0; j < 3; j++) {
+                Vect3 grads = P1Vector(tit->s1(), tit->s2(), tit->s3(), j);
+                for ( unsigned i = 0; i < 3; i++) {
+                    A(tit->index() + i*nb_triangles(), (*tit)(j).index()) = grads(i);
+                }
+            }
+        }
+        return A;
+    }
+
     bool Mesh::has_self_intersection() const 
     {
         bool selfIntersects = false;
@@ -499,7 +514,8 @@ namespace OpenMEEG {
     }
 
     unsigned Mesh::load_vtk(const std::string& filename, const bool& read_all)
-    {        std::string s = filename;
+    {
+        std::string s = filename;
         vtkPolyDataReader *reader = vtkPolyDataReader::New();
         reader->SetFileName(filename.c_str()); // Specify file name of vtk data file to read
         if ( !reader->IsFilePolyData()) {

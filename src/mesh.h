@@ -52,6 +52,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <triangle.h>
 #include <IOUtils.H>
 #include <om_utils.h>
+#include <sparse_matrix.h>
 
 #ifdef USE_VTK
 #include <vtkPolyData.h>
@@ -166,6 +167,9 @@ namespace OpenMEEG {
          **/
         void smooth(const double& smoothing_intensity, const unsigned& niter);
 
+        /// \brief Compute the surfacic gradient
+        SparseMatrix gradient() const;
+
         // for IO:s --------------------------------------------------------------------
         /** Read mesh from file
           \param filename can be .vtk, .tri (ascii), .off .bnd or .mesh
@@ -231,6 +235,21 @@ namespace OpenMEEG {
         void orient_adjacent_triangles(std::stack<Triangle *>& t_stack, std::map<Triangle *, bool>& tri_reoriented);
         bool triangle_intersection(const Triangle&, const Triangle&) const;
         
+        /// P1Vector : aux function to compute the surfacic gradient
+        inline Vect3 P1Vector( const Vect3 &p0, const Vect3 &p1, const Vect3 &p2, const int idx )
+        {
+            assert(idx > -1 && idx < 3);
+            unsigned i = idx+1;
+            Vect3 pts[5] = {p2, p0, p1, p2, p0};
+            Vect3 ret(0, 0, 0);
+            Vect3 pim1pi = pts[i]-pts[i-1];
+            Vect3 pim1pip1 = pts[i+1]-pts[i-1];
+            Vect3 pim1H = ( (1.0/pim1pip1.norm2()) * ( pim1pi*pim1pip1 ) ) * pim1pip1;
+            Vect3 piH = pim1H-pim1pi;
+            ret = -1.0/piH.norm2()*piH;
+            return ret;
+        }
+
         std::string                 name_; ///< Name of the mesh.
         std::map<const Vertex *, VectPTriangle>   links_; ///< links[&v] are the triangles that contain vertex v.
         Vertices *                  all_vertices_; ///< Pointer to all the vertices.
