@@ -1,6 +1,7 @@
 %module(docstring="OpenMEEG bindings for python") openmeeg
 
 %include "std_string.i"
+%include "std_vector.i"
 
 %{
     #define SWIG_FILE_WITH_INIT
@@ -135,6 +136,15 @@ import_array();
 %include <assemble.h>
 %include <gain.h>
 %include <forward.h>
+
+/*
+%include <cpointer.i>
+%pointer_class(Interface ,InterfaceP)
+We would like to have an Interface when asking for
+i=geom.outermost_interface()
+instead we have:
+<Swig Object of type 'Interface *' at 0xa1e1590>
+*/
 
 static PyObject* asarray(OpenMEEG::Matrix* _mat);
 static PyObject* asarray(OpenMEEG::Vector* _vec);

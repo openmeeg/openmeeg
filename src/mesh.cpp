@@ -374,6 +374,8 @@ namespace OpenMEEG {
             return_value = load_mesh(filename, read_all);
         } else if ( extension == std::string("off") ) {
             return_value = load_off(filename, read_all);
+        } else if ( extension == std::string("asc") ) {
+            return_value = load_asc(filename, read_all);
         } else if ( extension == std::string("gii") ) {
             return_value = load_gifti(filename, read_all);
         } else {
@@ -840,6 +842,71 @@ namespace OpenMEEG {
         }
         unsigned return_value = 0;
         return_value = load_off(f, read_all);
+        f.close();
+        return return_value;
+    }
+    
+    unsigned Mesh::load_asc(std::istream& f, const bool& read_all)
+    {
+        // new lines will be skipped unless we stop it from happening:    
+        f.unsetf(std::ios_base::skipws);
+
+        // count the newlines with an algorithm specialized for counting:
+        unsigned line_count = std::count(
+                std::istream_iterator<char>(f),
+                std::istream_iterator<char>(), 
+                '\n');
+        
+        unsigned ntrgs = line_count/4;
+        unsigned npts = ntrgs/2 + 2;
+
+        if ( !read_all ) {
+            return npts;
+        }
+        reserve(ntrgs);
+        
+        unsigned trash;
+        for ( unsigned i = 0; i < ntrgs; ++i) {
+            f >> trash;
+            unsigned ti[3];
+            for ( unsigned ii=0;ii<3;ii++) {
+                Vertex v;
+                f >> v;
+                std::pair<std::set<Vertex>::iterator, bool> ret = set_vertices_.insert(v);
+                if ( ret.second ) {
+                    // if inserted, then it is a new vertex, and we add it to both lists
+                    v.index() = vertices_.size();
+                    all_vertices_->push_back(v);
+                    vertices_.push_back(&(*all_vertices_->rbegin()));
+                    ti[ii] = v.index();
+                } else {
+                    // if not inserted, Either it belongs to another mesh or it was dupplicated in the same mesh
+                    // TODO this may take time for too big redundant mesh
+                    Vertices::iterator vit = std::find(all_vertices_->begin(), all_vertices_->end(), v);
+                    ti[ii] = vit->index();
+                    if ( std::find(vertices_.begin(), vertices_.end(), &(*vit)) == vertices_.end() ) {
+                        vertices_.push_back(&(*vit));
+                    }
+                }
+            }
+            std::stringstream at;
+            at << ti[0] << " " << ti[1] << " " << ti[2];
+            at >> *this;
+        }
+
+        return 0;
+    }
+
+    unsigned Mesh::load_asc(const std::string& filename, const bool& read_all) 
+    {
+        std::string s = filename;
+        std::ifstream f(filename.c_str());
+        if ( !f.is_open() ) {
+            std::cerr << "Error opening OFF file: " << filename << std::endl;
+            exit(1);
+        }
+        unsigned return_value = 0;
+        return_value = load_asc(f, read_all);
         f.close();
         return return_value;
     }

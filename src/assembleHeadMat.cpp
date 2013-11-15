@@ -140,6 +140,104 @@ namespace OpenMEEG {
         }
     }
 
+#if 0
+    void assemble_cortical(const Geometry& geo, Matrix& mat, const std::string& domain_name, const unsigned gauss_order) 
+    {
+        // Assumptions:
+        // - domain_name: the domain containing the sources is an innermost domain (defined as the interior of only one interface (called Cortex by default))
+        // -
+
+        const Domain& SourceDomain = geo.domain(domain_name);
+        const Interface& Cortex    = SourceDomain.begin()->interface();
+        // test the assumption
+        assert(SourceDomain.size() == 1);
+        double K = 1.0 / (4.0 * M_PI);
+        SymMatrix mat_temp(geo.size()-geo.outermost_interface().nb_triangles());
+        mat_temp.set(0.0);
+
+        // We iterate over the meshes (or pair of domains) to fill the CorticalMat
+        for ( Geometry::const_iterator mit1 = geo.begin(); mit1 != geo.end(); ++mit1) {
+
+            for ( Geometry::const_iterator mit2 = geo.begin(); mit2 != geo.end(); ++mit2) {
+
+                // if mit1 and mit2 communicate, i.e they are used for the definition of a common domain
+                const double orientation = geo.oriented(*mit1, *mit2); // equals  0, if they don't have any domains in common
+                                                                       // equals  1, if they are both oriented toward the same domain
+                                                                       // equals -1, if they are not
+                if ( std::abs(orientation) > 10.*std::numeric_limits<double>::epsilon() ) {
+
+                    double Scoeff =   orientation * geo.sigma_inv(*mit1, *mit2) * K;
+                    double Dcoeff = - orientation * geo.indicator(*mit1, *mit2) * K;
+                    double Ncoeff;
+
+                    if ( !(mit1->outermost() || mit2->outermost()) ) {
+                        // Computing S block first because it's needed for the corresponding N block
+                        operatorS(*mit1, *mit2, mat_temp, Scoeff, gauss_order);
+                        Ncoeff = geo.sigma(*mit1, *mit2)/geo.sigma_inv(*mit1, *mit2);
+                    } else {
+                        Ncoeff = orientation * geo.sigma(*mit1, *mit2) * K;
+                    }
+
+                    if ( !mit1->outermost() ) {
+                        // Computing D block
+                        operatorD(*mit1, *mit2, mat_temp, Dcoeff, gauss_order);
+                    }
+                    if ( ( *mit1 != *mit2 ) && ( !mit2->outermost() ) ) {
+                        // Computing D* block
+                        operatorD(*mit1, *mit2, mat_temp, Dcoeff, gauss_order, true);
+                    }
+
+                    // Computing N block
+                    if ( ( mit1 != mit2 ) || ( std::find(Cortex.begin(), Cortex.end(), OrientedMesh(*mit1, true)) != Cortex.end() &&
+                                             ( std::find(Cortex.begin(), Cortex.end(), OrientedMesh(*mit1, false)) != Cortex.end()) ) ) {
+                        operatorN(*mit1, *mit2, mat_temp, Ncoeff, gauss_order);
+                    }
+                }
+            }
+        }
+        // shape of the matrix:
+        unsigned Nl = geo.size()-geo.outermost_interface().nb_triangles()-Cortex.nb_vertices()-Cortex.nb_triangles();
+        unsigned Nc = geo.size()-geo.outermost_interface().nb_triangles();
+        mat = Matrix(Nl, Nc);
+        mat.set(0.0);
+        mat = mat_temp(Cortex.)// HERE
+    }
+#else
+    void assemble_cortical(const Geometry& geo, Matrix& mat, const std::string& domain_name, const unsigned gauss_order) 
+    {
+        // Assumptions:
+        // - domain_name: the domain containing the sources is an innermost domain (defined as the interior of only one interface (called Cortex by default))
+        const Domain& SourceDomain = geo.domain(domain_name);
+        const Interface& Cortex    = SourceDomain.begin()->interface();
+        // test the assumption
+        assert(SourceDomain.size() == 1);
+        // build the HeadMat
+        SymMatrix mat_temp(geo.size()-geo.outermost_interface().nb_triangles());
+        assemble_HM(geo, mat_temp, gauss_order); // TODO check: deflation is not a pb ?
+        // shape of the new matrix:
+        unsigned Nl = geo.size()-geo.outermost_interface().nb_triangles()-Cortex.nb_vertices()-Cortex.nb_triangles();
+        unsigned Nc = geo.size()-geo.outermost_interface().nb_triangles();
+        mat = Matrix(Nl, Nc);
+        mat.set(0.0);
+        // copy mat_temp into *this except the lines for Cortex vertices [i_vb_C, i_ve_C] and Cortex triangles [i_tb_C, i_te_C].
+        unsigned iNl = 0;
+        unsigned i_vb_C = (*Cortex.begin()->mesh().vertex_begin())->index();
+        unsigned i_ve_C = (*Cortex.begin()->mesh().vertex_rbegin())->index();
+        unsigned i_tb_C = Cortex.begin()->mesh().begin()->index();
+        unsigned i_te_C = Cortex.begin()->mesh().rbegin()->index();
+        for ( unsigned i = 0; i < Nl;++i) {
+            if ( (i<i_vb_C) || ((i>i_ve_C) && (i<i_tb_C || i>i_te_C)) ) {
+                mat.setlin(iNl, mat_temp.getlin(i));
+                ++iNl;
+            }
+        }
+        mat.info(); // TODO
+        Matrix U, S, W;
+        mat.svd(U, S, W);
+        mat = W;
+        mat.info();
+    }
+#endif
     HeadMat::HeadMat(const Geometry& geo, const unsigned gauss_order)
     {
         assemble_HM(geo, *this, gauss_order);
@@ -163,5 +261,40 @@ namespace OpenMEEG {
 
         assemble_Surf2Vol(geo, *this, m_points);
     }
+
+#if 1
+    CorticalMat::CorticalMat(const Geometry& geo, const std::string& domain_name, const unsigned gauss_order)
+    {
+        assemble_cortical(geo, *this, domain_name, gauss_order);
+    }
+#else
+    CorticalMat::CorticalMat(const Geometry& geo, const std::string& domain_name, const unsigned gauss_order)
+    {
+        // Assumptions:
+        // - domain_name: the domain containing the sources is an innermost domain (defined as the interior of only one interface (called Cortex by default))
+        const Domain& SourceDomain = geo.domain(domain_name);
+        const Interface& Cortex    = SourceDomain.begin()->interface();
+        // test the assumption
+        assert(SourceDomain.size() == 1);
+        // build the HeadMat
+        SymMatrix mat_temp(geo.size()-geo.outermost_interface().nb_triangles());
+        assemble_HM(geo, mat_temp, gauss_order); // deflation is not a pb ?
+        // shape of the new matrix:
+        unsigned Nl = geo.size()-geo.outermost_interface().nb_triangles()-Cortex.nb_vertices()-Cortex.nb_triangles();
+        unsigned Nc = geo.size()-geo.outermost_interface().nb_triangles();
+        *this = new Matrix(Nl, Nc);
+        this->set(0.0);
+        // copy mat_temp into *this except the lines for Cortex vertices and Cortex triangles.
+        unsigned iNl = 0;
+        for ( unsigned i = 0; i < Nl;++i) {
+            if ( (i<Cortex.begin()->mesh().vertex_begin()->index()) ||
+                ((i>Cortex.begin()->mesh().vertex_end()->index()) &&
+                (i<Cortex.begin()->mesh().begin()->index()) ||
+                (i>Cortex.begin()->mesh().end()->index())) ) {
+                this->setlin(iNl++, mat_temp.getlin(i));
+            }
+        }
+    }
+#endif
 
 } // namespace OpenMEEG
