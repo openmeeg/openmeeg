@@ -499,7 +499,8 @@ namespace OpenMEEG {
     }
 
     unsigned Mesh::load_vtk(const std::string& filename, const bool& read_all)
-    {        std::string s = filename;
+    {
+        std::string s = filename;
         vtkPolyDataReader *reader = vtkPolyDataReader::New();
         reader->SetFileName(filename.c_str()); // Specify file name of vtk data file to read
         if ( !reader->IsFilePolyData()) {
@@ -984,66 +985,6 @@ namespace OpenMEEG {
         delete[] pts_raw;
         os.close();
     }
-
-    #ifdef USE_GIFTI
-    void Mesh::save_gifti(const std::string& filename) const
-    {
-        std::cerr << "Warning: save_gifti is still in development." << std::endl;
-        #if 0
-        // TODO there is a problem, when reading a mesh previously saved by this, we get an error: 
-        /*
-         uncompress fails for DA[1]
-         (zlib failure, output buffer too short) 
-        */
-        /// Create the struct and allocate
-        int numDA = 2; // vertices and triangles
-        int ndim = 2;
-        const int dims[6] = {nb_triangles(), 3, 0, 0, 0, 0};
-        int alloc_data = 1; 
-        gifti_image* gim = gifti_create_image(numDA, NIFTI_INTENT_TRIANGLE, NIFTI_TYPE_INT32, ndim, dims, alloc_data);
-        gim->darray[0]->ind_ord  = GIFTI_IND_ORD_COL_MAJOR;
-        gim->darray[0]->encoding = GIFTI_ENCODING_B64GZ;
-        gim->darray[0]->endian   = 2;
-        gim->darray[0]->num_dim  = 2;
-        gim->darray[1]->intent   = NIFTI_INTENT_POINTSET;
-        gim->darray[1]->datatype = NIFTI_TYPE_FLOAT32;
-        gim->darray[1]->ind_ord  = GIFTI_IND_ORD_COL_MAJOR;
-        gim->darray[1]->encoding = GIFTI_ENCODING_B64GZ;
-        gim->darray[1]->endian   = 2;
-        gim->darray[1]->num_dim  = 2;
-        gim->darray[1]->dims[0]  = nb_vertices();
-        gim->darray[1]->numCS    = 1;
-        gim->darray[1]->coordsys = (giiCoordSystem **)realloc(gim->darray[1]->coordsys, sizeof(giiCoordSystem *));
-        gim->darray[1]->coordsys[0] = (giiCoordSystem *)malloc(sizeof(giiCoordSystem));
-        gifti_clear_CoordSystem(gim->darray[1]->coordsys[0]);
-        gim->darray[1]->coordsys[0]->dataspace  = (char *)"NIFTI_XFORM_UNKNOWN";
-        gim->darray[1]->coordsys[0]->xformspace = (char *)"NIFTI_XFORM_UNKNOWN";
-        for (unsigned i= 0; i<4; ++i) {
-            gim->darray[1]->coordsys[0]->xform[i][i] = 1.;
-        }
-
-        std::map<const Vertex *, int> map;
-        unsigned i = 0;
-        for ( const_vertex_iterator vit = vertex_begin(); vit != vertex_end(); ++vit, ++i) {
-            map[*vit] = i;
-            float * pts_data = (float *)gim->darray[1]->data;
-            pts_data[i]                 = (float)((*vit)->x());
-            pts_data[i+nb_vertices()]   = (float)((*vit)->y());
-            pts_data[i+2*nb_vertices()] = (float)((*vit)->z());
-        }
-
-        i = 0;
-        for ( const_iterator tit = begin(); tit != end(); ++tit, ++i) {
-            float * trgs_data = (float *)gim->darray[0]->data;
-            trgs_data[i]                  = map[&(tit->s1())];
-            trgs_data[i+  nb_triangles()] = map[&(tit->s2())];
-            trgs_data[i+2*nb_triangles()] = map[&(tit->s3())];
-        }
-        gifti_write_image(gim,filename.c_str(),1);
-        gifti_valid_gifti_image(gim,1);
-        #endif
-    }
-    #endif
 
     Mesh::EdgeMap Mesh::compute_edge_map() const 
     {

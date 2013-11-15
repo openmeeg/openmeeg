@@ -193,19 +193,18 @@ namespace OpenMEEG {
         #endif
         #ifdef USE_GIFTI
         unsigned load_gifti(const std::string&, const bool& read_all = true);
-        void save_gifti(const std::string&) const;
         #else
         template <typename T>
         unsigned load_gifti(T, const bool& read_all = true) {
             std::cerr << "You have to compile OpenMEEG with GIFTI to read GIFTI files" << std::endl;
             exit(1);
         }
+        #endif
         template <typename T>
         void save_gifti(T) const {
-            std::cerr << "You have to compile OpenMEEG with GIFTI to save GIFTI files" << std::endl;
+            std::cerr << "GIFTI writer : Not implemented" << std::endl;
             exit(1);
         }
-        #endif
         /** Save mesh to file
          \param filename can be .vtk, .tri (ascii), .bnd, .off or .mesh */
         void save(const std::string& filename) const ;
