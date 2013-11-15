@@ -68,6 +68,12 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <vtkCleanPolyData.h>
 #endif
 
+#ifdef USE_GIFTI
+extern "C" {
+#include <gifti_io.h>
+}
+#endif
+
 namespace OpenMEEG {
 
     enum Filetype { VTK, TRI, BND, MESH, OFF, GIFTI };
@@ -186,23 +192,19 @@ namespace OpenMEEG {
         }
         #endif
         #ifdef USE_GIFTI
-        unsigned load_gifti(std::istream& , const bool& read_all = true);
         unsigned load_gifti(const std::string&, const bool& read_all = true);
-        void save_gifti(const std::string&);
-        gifti_image* to_gifti_image();
-        void from_gifti_image(gifti_image* gim);
         #else
         template <typename T>
         unsigned load_gifti(T, const bool& read_all = true) {
             std::cerr << "You have to compile OpenMEEG with GIFTI to read GIFTI files" << std::endl;
             exit(1);
         }
+        #endif
         template <typename T>
-        void save_gifti(T) {
-            std::cerr << "You have to compile OpenMEEG with GIFTI to save GIFTI files" << std::endl;
+        void save_gifti(T) const {
+            std::cerr << "GIFTI writer : Not implemented" << std::endl;
             exit(1);
         }
-        #endif
         /** Save mesh to file
          \param filename can be .vtk, .tri (ascii), .bnd, .off or .mesh */
         void save(const std::string& filename) const ;
@@ -226,7 +228,7 @@ namespace OpenMEEG {
         EdgeMap       compute_edge_map() const;
         VectPTriangle adjacent_triangles(const Triangle&) const;
         void orient_adjacent_triangles(std::stack<Triangle *>& t_stack, std::map<Triangle *, bool>& tri_reoriented);
-        bool  triangle_intersection(const Triangle&, const Triangle&) const;
+        bool triangle_intersection(const Triangle&, const Triangle&) const;
         
         std::string                 name_; ///< Name of the mesh.
         std::map<const Vertex *, VectPTriangle>   links_; ///< links[&v] are the triangles that contain vertex v.

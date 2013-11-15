@@ -388,8 +388,8 @@ namespace OpenMEEG {
         return return_value;
     }
 
-    void Mesh::save(const std::string& filename) const {
-
+    void Mesh::save(const std::string& filename) const
+    {
         std::string extension = getNameExtension(filename);
 
         std::transform(extension.begin(), extension.end(), extension.begin(), (int(*)(int))std::tolower);
@@ -404,6 +404,8 @@ namespace OpenMEEG {
             save_mesh(filename);
         } else if ( extension==std::string("off") ) {
             save_off(filename);
+        } else if ( extension==std::string("gii") ) {
+            save_gifti(filename);
         } else {
             std::cerr << "Unknown file format for : " << filename << std::endl;
             exit(1);
@@ -411,8 +413,8 @@ namespace OpenMEEG {
     }
 
     #ifdef USE_VTK
-    unsigned Mesh::get_data_from_vtk_reader(vtkPolyDataReader* reader, const bool& read_all) {
-
+    unsigned Mesh::get_data_from_vtk_reader(vtkPolyDataReader* reader, const bool& read_all)
+    {
         reader->Update();
         vtkPolyData *vtkMesh = reader->GetOutput();
 
@@ -466,8 +468,8 @@ namespace OpenMEEG {
         return 0;
     }
 
-    unsigned Mesh::load_vtk(std::istream& is, const bool& read_all) {
-
+    unsigned Mesh::load_vtk(std::istream& is, const bool& read_all)
+    {
         // get length of file:
         is.seekg (0, ios::end);
         int length = is.tellg();
@@ -496,7 +498,8 @@ namespace OpenMEEG {
         return return_value;
     }
 
-    unsigned Mesh::load_vtk(const std::string& filename, const bool& read_all) {
+    unsigned Mesh::load_vtk(const std::string& filename, const bool& read_all)
+    {
         std::string s = filename;
         vtkPolyDataReader *reader = vtkPolyDataReader::New();
         reader->SetFileName(filename.c_str()); // Specify file name of vtk data file to read
@@ -513,32 +516,57 @@ namespace OpenMEEG {
     #endif
 
     #ifdef USE_GIFTI
-    /*
-    FIXME : implement GIFTI IOs
-    */
-    void from_gifti_image(gifti_image* gim) {
-        std::cerr << "GIFTI reader : Not yet implemented" << std::endl;
-        exit(1);
-        return;
-    }
+    unsigned Mesh::load_gifti(const std::string& filename, const bool& read_all)
+    {   
+        // Use gifti_io API
+        int read_data = 0; 
+        gifti_image* gim = gifti_read_image(filename.c_str(), read_data);
+        assert(gim->numDA >= 2);
+        // find which array contains the points and which the triangles
+        unsigned ipts, itrgs;
+        unsigned iit = 0;
+        while ( iit < gim->numDA ) {
+            if ( gim->darray[iit]->intent == NIFTI_INTENT_POINTSET ) {
+                ipts = iit;
+            } else if ( gim->darray[iit]->intent == NIFTI_INTENT_TRIANGLE ) {
+                itrgs = iit;
+            }
+            ++iit;
+        }
+        assert(gim->darray[ipts]->dims[1] == 3); // 3D points
+        assert(gim->darray[itrgs]->dims[1] == 3); // 3 indices per triangle
+        unsigned npts  = gim->darray[ipts]->dims[0];
+        unsigned ntrgs = gim->darray[itrgs]->dims[0];
+        if ( !read_all ) { 
+            gifti_free_image(gim);
+            return npts; 
+        }
+        read_data = 1; // now, load the data
+        gim = gifti_read_image(filename.c_str(), read_data);
+        
+        float * pts_data = (float *)gim->darray[ipts]->data;
+        for ( unsigned i = 0; i < npts; ++i) {
+           add_vertex(Vertex(pts_data[i],
+                             pts_data[i+npts], 
+                             pts_data[i+2*npts]));
+        }
 
-    unsigned Mesh::load_gifti(std::istream& is, const bool& read_all) {
-        std::cerr << "GIFTI reader : Not yet implemented" << std::endl;
-        exit(1);
-        // gifti_image* gim = gifti_read_image(filename);
-        // from_gifti_image(gim)
-    }
+        reserve(ntrgs);
+        unsigned * trgs_data = (unsigned *)gim->darray[itrgs]->data;
+        for ( unsigned i = 0; i < ntrgs; ++i) {
+            push_back(Triangle(vertices_[trgs_data[i]],
+                               vertices_[trgs_data[i+ntrgs]],
+                               vertices_[trgs_data[i+2*ntrgs]]));
+        }
 
-    unsigned Mesh::load_gifti(const std::string& filename, const bool& read_all) {
-        int read_data = 0;
-        gifti_image* gim = gifti_read_image(filename, read_data);
-        // from_gifti_image(gim);
-        return;
+        // free all
+        gifti_free_image(gim);
+        return 0;
     }
     #endif
 
-    unsigned Mesh::load_mesh(std::istream& is, const bool& read_all) {
-
+    unsigned Mesh::load_mesh(std::istream& is, const bool& read_all)
+    {
         unsigned char* uc = new unsigned char[5]; // File format
         is.read((char*)uc, sizeof(unsigned char)*5);
         delete[] uc;
@@ -618,9 +646,9 @@ namespace OpenMEEG {
         reserve(ntrgs);
 
         for ( unsigned i = 0; i < ntrgs; ++i) {
-            push_back(Triangle(vertices()[faces_raw[i*3+0]], 
-                               vertices()[faces_raw[i*3+1]],
-                               vertices()[faces_raw[i*3+2]]));
+            push_back(Triangle(vertices_[faces_raw[i*3+0]], 
+                               vertices_[faces_raw[i*3+1]],
+                               vertices_[faces_raw[i*3+2]]));
         }
 
         delete[] faces_raw;
@@ -629,7 +657,8 @@ namespace OpenMEEG {
         return 0;
     }
 
-    unsigned Mesh::load_mesh(const std::string& filename, const bool& read_all) {
+    unsigned Mesh::load_mesh(const std::string& filename, const bool& read_all)
+    {
         std::ifstream f(filename.c_str(), std::ios::binary);
         if ( !f.is_open()) {
             std::cerr << "Error opening MESH file: " << filename << std::endl;
@@ -641,8 +670,8 @@ namespace OpenMEEG {
         return return_value;
     }
 
-    unsigned Mesh::load_tri(std::istream& f, const bool& read_all) {
-
+    unsigned Mesh::load_tri(std::istream& f, const bool& read_all)
+    {
         f.seekg( 0, std::ios_base::beg );
 
         char ch;
@@ -671,8 +700,8 @@ namespace OpenMEEG {
         return 0;
     }
 
-    unsigned Mesh::load_tri(const std::string& filename, const bool& read_all) {
-
+    unsigned Mesh::load_tri(const std::string& filename, const bool& read_all)
+    {
         std::string s = filename;
         std::ifstream f(filename.c_str());
         if ( !f.is_open() ) {
@@ -685,8 +714,8 @@ namespace OpenMEEG {
         return return_value;
     }
 
-    unsigned Mesh::load_bnd(std::istream& f, const bool& read_all) {
-
+    unsigned Mesh::load_bnd(std::istream& f, const bool& read_all)
+    {
         std::string line;
         std::string st;
 
@@ -741,8 +770,8 @@ namespace OpenMEEG {
         return 0;
     }
 
-    unsigned Mesh::load_bnd(const std::string& filename, const bool& read_all) {
-        
+    unsigned Mesh::load_bnd(const std::string& filename, const bool& read_all)
+    {        
         std::string s = filename;
         std::ifstream f(filename.c_str());
 
@@ -756,8 +785,8 @@ namespace OpenMEEG {
         return return_value;
     }
 
-    unsigned Mesh::load_off(std::istream& f, const bool& read_all) {
-
+    unsigned Mesh::load_off(std::istream& f, const bool& read_all)
+    {
         char tmp[128];
         int trash;
         f >> tmp;        // put the "OFF" string
@@ -786,8 +815,8 @@ namespace OpenMEEG {
         return 0;
     }
 
-    unsigned Mesh::load_off(const std::string& filename, const bool& read_all) {
-
+    unsigned Mesh::load_off(const std::string& filename, const bool& read_all) 
+    {
         std::string s = filename;
         std::ifstream f(filename.c_str());
         if ( !f.is_open() ) {
@@ -800,8 +829,8 @@ namespace OpenMEEG {
         return return_value;
     }
 
-    void Mesh::save_vtk(const std::string& filename) const {
-
+    void Mesh::save_vtk(const std::string& filename) const 
+    {
         std::ofstream os(filename.c_str());
         os << "# vtk DataFile Version 2.0" << std::endl;
         os << "File " << filename << " generated by OpenMEEG" << std::endl;
@@ -830,8 +859,8 @@ namespace OpenMEEG {
         os.close();
     }
 
-    void Mesh::save_bnd(const std::string& filename) const {
-
+    void Mesh::save_bnd(const std::string& filename) const
+    {
         std::ofstream os(filename.c_str());
         os << "# Bnd mesh file generated by OpenMeeg" << std::endl;
         os << "Type= Unknown" << std::endl;
@@ -854,8 +883,8 @@ namespace OpenMEEG {
         os.close();
     }
 
-    void Mesh::save_tri(const std::string& filename) const {
-
+    void Mesh::save_tri(const std::string& filename) const
+    {
         std::ofstream os(filename.c_str());
         os << "- " << nb_vertices() << std::endl;
         std::map<const Vertex *, unsigned> map;
@@ -872,8 +901,8 @@ namespace OpenMEEG {
         os.close();
     }
 
-    void Mesh::save_off(const std::string& filename) const {
-
+    void Mesh::save_off(const std::string& filename) const
+    {
         std::ofstream os(filename.c_str());
         os << "OFF" << std::endl;
         os << nb_vertices() << " " << nb_triangles() << " 0" << std::endl;
@@ -890,8 +919,8 @@ namespace OpenMEEG {
         os.close();
     }
 
-    void Mesh::save_mesh(const std::string& filename) const {
-
+    void Mesh::save_mesh(const std::string& filename) const
+    {
         std::ofstream os(filename.c_str(), std::ios::binary);
 
         unsigned char format[5] = {'b', 'i', 'n', 'a', 'r'}; // File format
@@ -956,25 +985,6 @@ namespace OpenMEEG {
         delete[] pts_raw;
         os.close();
     }
-
-    #ifdef USE_GIFTI
-    gifti_image* to_gifti_image() {
-        gifti_image* gim;
-        return gim;
-    }
-
-    void Mesh::save_gifti(const std::string& filename) 
-    {
-        std::cerr << "GIFTI writer : Not yet implemented" << std::endl;
-        gifti_image* gim = to_gifti_image();
-        int write_data = 1;
-        if ( gifti_write_image(gim, filename, write_data)) {
-            std::cerr << "Error while writing GIFTI file" << std::endl;
-            exit(1);
-        }
-        exit(1);
-    }
-    #endif
 
     Mesh::EdgeMap Mesh::compute_edge_map() const 
     {
