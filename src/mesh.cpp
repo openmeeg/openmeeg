@@ -276,7 +276,7 @@ namespace OpenMEEG {
         // loop on triangles
         for ( const_iterator tit = begin(); tit != end(); ++tit) {
             for ( unsigned j = 0; j < 3; j++) {
-                Vect3 grads = P1Vector(tit->s1(), tit->s2(), tit->s3(), j);
+                Vect3 grads = Mesh::P1Vector(tit->s1(), tit->s2(), tit->s3(), j);
                 for ( unsigned i = 0; i < 3; i++) {
                     A(tit->index() + i*nb_triangles(), (*tit)(j).index()) = grads(i);
                 }

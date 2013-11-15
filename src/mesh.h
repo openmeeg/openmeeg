@@ -236,11 +236,11 @@ namespace OpenMEEG {
         bool triangle_intersection(const Triangle&, const Triangle&) const;
         
         /// P1Vector : aux function to compute the surfacic gradient
-        inline Vect3 P1Vector( const Vect3 &p0, const Vect3 &p1, const Vect3 &p2, const int idx )
+        inline Vect3 P1Vector( const Vect3 &p0, const Vect3 &p1, const Vect3 &p2, const unsigned idx ) const
         {
-            assert(idx > -1 && idx < 3);
+            assert(idx >= 0 && idx < 3);
             unsigned i = idx+1;
-            Vect3 pts[5] = {p2, p0, p1, p2, p0};
+            const Vect3& pts[5] = {p2, p0, p1, p2, p0};
             Vect3 ret(0, 0, 0);
             Vect3 pim1pi = pts[i]-pts[i-1];
             Vect3 pim1pip1 = pts[i+1]-pts[i-1];
