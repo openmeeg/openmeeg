@@ -73,14 +73,14 @@ namespace OpenMEEG {
 
         /// Operators
               Triangle&  operator= (const Triangle& t);
-              Vertex *   operator[](const unsigned& vindex)       { return vertices_[vindex];  } // 0 <= 'index' <= '2'
-        const Vertex *   operator[](const unsigned& vindex) const { return vertices_[vindex];  }
-              Vertex &   operator()(const unsigned& vindex)       { return *vertices_[vindex]; } // 0 <= 'index' <= '2'
-        const Vertex &   operator()(const unsigned& vindex) const { return *vertices_[vindex]; }
+              Vertex *   operator[](const unsigned& vindex)       { return vertices_[vindex%3];  } // 0 <= 'index' <= '2'
+        const Vertex *   operator[](const unsigned& vindex) const { return vertices_[vindex%3];  }
+              Vertex &   operator()(const unsigned& vindex)       { return *vertices_[vindex%3]; } // 0 <= 'index' <= '2'
+        const Vertex &   operator()(const unsigned& vindex) const { return *vertices_[vindex%3]; }
         const bool       operator==(const Triangle& T) const;
                                                  
-              Vertex&        vertex(const unsigned& vindex)       { return operator()(vindex); }
-        const Vertex&        vertex(const unsigned& vindex) const { return operator()(vindex); }
+              Vertex&        vertex(const unsigned& vindex)       { return operator()(vindex%3); }
+        const Vertex&        vertex(const unsigned& vindex) const { return operator()(vindex%3); }
 
         /// Iterators.
         const const_iterator begin()               const { return const_iterator(vertices_); }
