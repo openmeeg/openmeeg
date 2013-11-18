@@ -29,7 +29,7 @@ INSTALL(TARGETS OpenMEEGMaths
 
 # install headers
 SET(MATLIB_HEADERS 
-    diagmatrix.h DLLDefinesOpenMEEGMaths.h fast_sparse_matrix.h linop.h MatLibConfig.h 
+    DLLDefinesOpenMEEGMaths.h fast_sparse_matrix.h linop.h MatLibConfig.h 
     matrix.h RC.H matvectOps.h symmatrix.h sparse_matrix.h vector.h
     #   These files are imported from another repository.
     #   Please do not update them in this repository.

@@ -54,7 +54,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 // #endif
 
 #ifdef WIN32
-    template class OPENMEEGMATHS_EXPORT std::map< std::pair< size_t, size_t >, double >;
+    template class OPENMEEGMATHS_EXPORT std::map< std::pair< unsigned, unsigned >, double >;
 #endif
 
 namespace OpenMEEG {
@@ -65,15 +65,15 @@ namespace OpenMEEG {
 
     public:
 
-        typedef std::map< std::pair< size_t, size_t >, double > Tank;
-        typedef std::map< std::pair< size_t, size_t >, double >::const_iterator const_iterator;
-        typedef std::map< std::pair< size_t, size_t >, double >::iterator iterator;
+        typedef std::map< std::pair< unsigned, unsigned >, double > Tank;
+        typedef std::map< std::pair< unsigned, unsigned >, double >::const_iterator const_iterator;
+        typedef std::map< std::pair< unsigned, unsigned >, double >::iterator iterator;
 
         SparseMatrix() : LinOp(0,0,SPARSE,2) {};
-        SparseMatrix(size_t N,size_t M) : LinOp(N,M,SPARSE,2) {};
+        SparseMatrix(unsigned N,unsigned M) : LinOp(N,M,SPARSE,2) {};
         ~SparseMatrix() {};
 
-        inline double operator()( size_t i, size_t j ) const {
+        inline double operator()( unsigned i, unsigned j ) const {
             assert(i < nlin());
             assert(j < ncol());
             const_iterator it = m_tank.find(std::make_pair(i, j));
@@ -81,13 +81,13 @@ namespace OpenMEEG {
             else return 0.0;
         }
 
-        inline double& operator()( size_t i, size_t j ) {
+        inline double& operator()( unsigned i, unsigned j ) {
             assert(i < nlin());
             assert(j < ncol());
             return m_tank[ std::make_pair( i, j ) ];
         }
 
-        size_t size() const {
+        unsigned size() const {
             return m_tank.size();
         }
 
@@ -98,7 +98,7 @@ namespace OpenMEEG {
 
         const Tank& tank() const {return m_tank;}
 
-        Vector getlin(size_t i) const;
+        Vector getlin(unsigned i) const;
 
         void save(const char *filename) const;
         void load(const char *filename);
@@ -108,19 +108,20 @@ namespace OpenMEEG {
 
         void info() const;
 
-        Vector operator*( const Vector &x ) const;
-        Matrix operator*( const Matrix &m ) const;
-        Matrix operator*( const SymMatrix &m ) const;
+        Vector       operator*( const Vector &x ) const;
+        Matrix       operator*( const Matrix &m ) const;
+        Matrix       operator*( const SymMatrix &m ) const;
+        SparseMatrix operator*( const SparseMatrix &m ) const;  // test TODO ??
 
     private:
 
         Tank m_tank;
     };
 
-    inline Vector SparseMatrix::getlin(size_t i) const {
+    inline Vector SparseMatrix::getlin(unsigned i) const {
         assert(i<nlin());
         Vector v(ncol());
-        for (size_t j=0;j<ncol();j++){
+        for (unsigned j=0;j<ncol();j++){
             const_iterator it = m_tank.find(std::make_pair(i, j));
             if (it != m_tank.end()) v(j)=it->second;
             else v(j)=0.0;
