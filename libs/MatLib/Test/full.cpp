@@ -83,25 +83,46 @@ int main () {
     Pinv.info();
 
     Matrix unit = P*Pinv;
-    double eps = 0.01;
-    for (unsigned i=0;i<unit.nlin();++i)
-        for (unsigned j=0;j<unit.ncol();++j){
+    for (unsigned i=0;i<unit.nlin();++i) {
+        for (unsigned j=0;j<unit.ncol();++j) {
             if (i==j) {
                 if (abs(unit(i,j)-1)>eps) {
                     std::cerr << "Error: inverse is WRONG-1" << std::endl;
                     exit(1);
                 }
-            } else
+            } else {
                 if (abs(unit(i,j))>eps){
                     std::cerr << "Error: inverse is WRONG-2 " << "unit(" << i << "," << j << ") = " << unit(i,j) << std::endl;
                     exit(1);
                 }
+            }
         }
-
+    }
     std::cout << std::endl << "BRAINVISA :" << std::endl;
     M.save("tmp.tex");
     M.load("tmp.tex");
     M.info();
 
+    // SVD (wikipedia example)
+    M1 = Matrix(4,5);
+    M1(0, 0) = 1; M1(0, 4) = 2;
+    M1(1, 2) = 3; M1(3, 1) = 4;
+
+    Matrix U, S, W;
+    M1.svd(U, S, W);
+    std::cout << "SVD: M1 = U * S * W' " << std::endl;
+    std::cout << "M1 :" << std::endl;
+    M1.info();
+    std::cout << "U :" << std::endl;
+    U.info();
+    std::cout << "S :" << std::endl;
+    S.info();
+    std::cout << "W :" << std::endl;
+    W.info();
+    Matrix zero = M1 - U*S*W.transpose();
+    if ( zero.frobenius_norm() > eps) {
+        std::cerr << "Error: SVD is WRONG-1" << std::endl;
+        exit(1);
+    }
     return 0;
 }

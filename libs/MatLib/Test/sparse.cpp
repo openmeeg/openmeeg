@@ -53,21 +53,24 @@ int main () {
     std::cout << std::endl << "========== sparse matrices ==========" << std::endl;
 
     SparseMatrix spM(10,10);
-    size_t n = 0;
-    for(size_t i=0;i<5;++i) {
+    unsigned n = 0;
+    for ( unsigned i=0;i<5;++i) {
         n = (n*1237+1493)%1723;
         const int p = (n*1237+1493)%1723;
-        spM(n%10,p%10) = n;
+        spM(n%10, p%10) = n;
     }
     genericTest("sparse",spM);
 
     Matrix U(10,10);
     U.set(1.0);
-    Matrix T = spM*U;
-    T.info();
-    T = U*spM;
-    std::cout << "Matrice T : " << std::endl;
-    T.info();
+    Matrix zero = spM*U - Matrix(spM)*U - Matrix(spM)*SymMatrix(U) + spM*U;
+    if ( zero.frobenius_norm() > eps) {
+        std::cerr << "Error: Operator* is WRONG-1" << std::endl;
+        exit(1);
+    }
+
+
+
 
     std::cout << std::endl << "========== fast sparse matrices ==========" << std::endl;
     std::cout << spM;
