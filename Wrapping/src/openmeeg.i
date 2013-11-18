@@ -137,7 +137,7 @@ import_array();
 %include <gain.h>
 %include <forward.h>
 
-/*
+/* TODO
 %include <cpointer.i>
 %pointer_class(Interface ,InterfaceP)
 We would like to have an Interface when asking for
