@@ -152,19 +152,19 @@ namespace OpenMEEG {
         /** \brief Print info
           Print to std::cout some info about the mesh
           \return void \sa */
-        void  info() const;
-        bool  has_self_intersection() const; ///< \brief check if the mesh self-intersects
-        bool  intersection(const Mesh&) const; ///< \brief check if the mesh intersects another mesh
-        bool  has_correct_orientation() const; ///< \brief check the local orientation of the mesh triangles
-        void  build_mesh_vertices(); ///< \brief construct the list of the mesh vertices out of its triangles
-        void  update(); ///< \brief recompute triangles normals, area, and links
-        void  merge(const Mesh&, const Mesh&); ///< properly merge two meshes into one
-        void  flip_triangles(); ///< flip all triangles
+        void info() const;
+        bool has_self_intersection() const; ///< \brief check if the mesh self-intersects
+        bool intersection(const Mesh&) const; ///< \brief check if the mesh intersects another mesh
+        bool has_correct_orientation() const; ///< \brief check the local orientation of the mesh triangles
+        void build_mesh_vertices(); ///< \brief construct the list of the mesh vertices out of its triangles
+        void update(); ///< \brief recompute triangles normals, area, and links
+        void merge(const Mesh&, const Mesh&); ///< properly merge two meshes into one
+        void flip_triangles(); ///< flip all triangles
+        void correct_local_orientation(); ///< \brief correct the local orientation of the mesh triangles
         const VectPTriangle& get_triangles_for_vertex(const Vertex& V) const; ///< \biref get the triangles associated with vertex V \return the links
-        unsigned  correct_local_orientation(); ///< \brief correct the local orientation of the mesh triangles
 
-              bool&        outermost()       { return outermost_; } /// \brief Returns True if it is an outermost mesh.
-        const bool&        outermost() const { return outermost_; }
+              bool& outermost()       { return outermost_; } /// \brief Returns True if it is an outermost mesh.
+        const bool& outermost() const { return outermost_; }
 
         /** \brief Smooth Mesh
           \param smoothing_intensity
@@ -174,7 +174,7 @@ namespace OpenMEEG {
         void smooth(const double& smoothing_intensity, const unsigned& niter);
 
         /// \brief Compute the surfacic gradient
-        SparseMatrix gradient() const;
+        void gradient(SparseMatrix &A) const;
 
         // for IO:s --------------------------------------------------------------------
         /** Read mesh from file
@@ -242,24 +242,11 @@ namespace OpenMEEG {
         VectPTriangle adjacent_triangles(const Triangle&) const;
         void orient_adjacent_triangles(std::stack<Triangle *>& t_stack, std::map<Triangle *, bool>& tri_reoriented);
         bool triangle_intersection(const Triangle&, const Triangle&) const;
+        inline Vect3 P1Vector(const Vect3 &p0, const Vect3 &p1, const Vect3 &p2) const;
+        inline Vect3 P0Vector(const Triangle &t1, const Triangle &t2) const;
         
-        /// P1Vector : aux function to compute the surfacic gradient
-        inline Vect3 P1Vector( const Vect3 &p0, const Vect3 &p1, const Vect3 &p2, const unsigned idx ) const
-        {
-            assert(idx >= 0 && idx < 3);
-            unsigned i = idx+1;
-            const Vect3& pts[5] = {p2, p0, p1, p2, p0};
-            Vect3 ret(0, 0, 0);
-            Vect3 pim1pi = pts[i]-pts[i-1];
-            Vect3 pim1pip1 = pts[i+1]-pts[i-1];
-            Vect3 pim1H = ( (1.0/pim1pip1.norm2()) * ( pim1pi*pim1pip1 ) ) * pim1pip1;
-            Vect3 piH = pim1H-pim1pi;
-            ret = -1.0/piH.norm2()*piH;
-            return ret;
-        }
-
         std::string                 name_; ///< Name of the mesh.
-        std::map<const Vertex *, VectPTriangle>   links_; ///< links[&v] are the triangles that contain vertex v.
+        std::map<const Vertex *, VectPTriangle> links_; ///< links[&v] are the triangles that contain vertex v.
         Vertices *                  all_vertices_; ///< Pointer to all the vertices.
         VectPVertex                 vertices_; ///< Vector of pointers to the mesh vertices.
         bool                        outermost_; ///< Is it an outermost mesh ? (i.e does it touch the Air domain)

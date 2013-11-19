@@ -270,19 +270,50 @@ namespace OpenMEEG {
         update(); // Updating triangles (areas + normals)
     }
 
-    /// Surface Gradient
-    SparseMatrix Mesh::gradient() const {
-        SparseMatrix A(3*nb_triangles(), nb_vertices()); // nb edges x vertices
-        // loop on triangles
+    /// P0Vector : aux function to compute the surfacic gradient
+    inline Vect3 Mesh::P0Vector(const Triangle &t1, const Triangle &t2) const
+    {
+        Vect3 barycenter1 = 1./3.*(t1(0)+t1(1)+t1(2));
+        Vect3 barycenter2 = 1./3.*(t2(0)+t2(1)+t2(2));
+        Vect3 grad = -1.0/(barycenter1-barycenter2).norm2();
+        return grad;
+    }
+
+    /// P1Vector : aux function to compute the surfacic gradient
+    inline Vect3 Mesh::P1Vector( const Vect3 &p0, const Vect3 &p1, const Vect3 &p2) const
+    {
+        Vect3 pim1pi = p0-p2;
+        Vect3 pim1pip1 = p1-p2;
+        Vect3 pim1H = ( (1.0 / pim1pip1.norm2()) * ( pim1pi * pim1pip1 ) ) * pim1pip1;
+        Vect3 piH = pim1H - pim1pi;
+        piH *= -1.0/piH.norm2();
+        return piH;
+    }
+
+    /// Surface Gradient: surfacic gradient of the P1 and P0 elements
+    void Mesh::gradient(SparseMatrix &A) const 
+    {
+        // P1 gradients: loop on triangles
         for ( const_iterator tit = begin(); tit != end(); ++tit) {
             for ( unsigned j = 0; j < 3; j++) {
-                Vect3 grads = Mesh::P1Vector(tit->s1(), tit->s2(), tit->s3(), j);
+                Vect3 grads = P1Vector((*tit)(j), (*tit)(j+1), (*tit)(j+2));
                 for ( unsigned i = 0; i < 3; i++) {
-                    A(tit->index() + i*nb_triangles(), (*tit)(j).index()) = grads(i);
+                    A(3*tit->index() + i, (*tit)(j).index()) = grads(i);
                 }
             }
         }
-        return A;
+        // P0 gradients: loop on triangles
+        if ( !outermost_ ) { // if it is an outermost mesh: p=0 thus no need for computing it
+            for ( const_iterator tit = begin(); tit != end(); ++tit) {
+                VectPTriangle Tadj = adjacent_triangles(*tit);
+                for ( VectPTriangle::const_iterator tit2 = Tadj.begin(); tit2 != Tadj.end(); ++tit2) {
+                    Vect3 grads = P0Vector(*tit, **tit2);
+                    for ( unsigned i = 0; i < 3; i++) {
+                        A(3*(*tit2)->index() + i, tit->index()) = grads(i);
+                    }
+                }
+            }
+        }
     }
 
     bool Mesh::has_self_intersection() const 
@@ -1167,7 +1198,6 @@ namespace OpenMEEG {
 
     unsigned Mesh::correct_local_orientation()
     {
-
         EdgeMap mape = compute_edge_map();
 
         bool reorient = false;
@@ -1188,7 +1218,6 @@ namespace OpenMEEG {
             tri_reoriented[&*begin()] = true;
             orient_adjacent_triangles(tri_stack, tri_reoriented);
         }
-        return 0;
     }
 
     void Mesh::orient_adjacent_triangles(std::stack<Triangle *>& t_stack, std::map<Triangle *, bool>& tri_reoriented) 
