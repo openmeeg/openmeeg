@@ -14,7 +14,6 @@
     #include <symmatrix.h>
     #include <sparse_matrix.h>
     #include <fast_sparse_matrix.h>
-    #include <diagmatrix.h>
     #include <sensors.h>
     #include <geometry.h>
     #include <mesh.h>
@@ -127,7 +126,6 @@ import_array();
 %include <symmatrix.h>
 %include <sparse_matrix.h>
 %include <fast_sparse_matrix.h>
-%include <diagmatrix.h>
 %include <geometry.h>
 %include <sensors.h>
 %include <mesh.h>
