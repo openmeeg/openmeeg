@@ -16,6 +16,7 @@
     #include <fast_sparse_matrix.h>
     #include <sensors.h>
     #include <geometry.h>
+    #include <geometry_io.h>
     #include <mesh.h>
     #include <domain.h>
     #include <interface.h>
@@ -79,6 +80,21 @@
             return PyArray_Return ((PyArrayObject*) matarray);
         }
 
+        /* Create a Matrix or a Vector from an array
+           how to assign elements, ex: A(1,2)=4. ?
+        TODO:   check http://docs.scipy.org/doc/numpy/reference/c-api.types-and-structures.html at PyArray_GetPtr
+        static OpenMEEG::Vector* fomarray(PyArrayObject* vec) {
+            if (!vec) {
+                PyErr_SetString(PyExc_RuntimeError, "Zero pointer passed instead of valid array.");
+                return(NULL);
+            }
+            // create OM vector 
+            OpenMEEG::Vector vect(PyArray_Size(vec));
+            vect.data() = PyArray_GetPtr(vec,1); // this is not the correct way
+            return vect;
+        }
+        */
+
     #endif
 %}
 
@@ -127,6 +143,7 @@ import_array();
 %include <sparse_matrix.h>
 %include <fast_sparse_matrix.h>
 %include <geometry.h>
+%include <geometry_io.h>
 %include <sensors.h>
 %include <mesh.h>
 %include <domain.h>
