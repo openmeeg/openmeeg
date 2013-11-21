@@ -56,14 +56,6 @@ namespace OpenMEEG {
         virtual ~HeadMat () {};
     };
 
-#if 1
-    class OPENMEEG_EXPORT CorticalMat: public virtual Matrix {
-    public:
-        CorticalMat (const Geometry& geo, const std::string& domain_name = "CORTEX", const unsigned gauss_order=3);
-        virtual ~CorticalMat () {};
-    };
-#endif
-
     class OPENMEEG_EXPORT SurfSourceMat: public virtual Matrix {
     public:
         SurfSourceMat (const Geometry& geo, Mesh& sources, const unsigned gauss_order=3);
@@ -125,6 +117,12 @@ namespace OpenMEEG {
         DipSource2InternalPotMat(const Geometry& geo, const Matrix& dipoles,
                                  const Matrix& points, const std::string& domain_name = "");
         virtual ~DipSource2InternalPotMat () {};
+    };
+
+    class OPENMEEG_EXPORT CorticalMat: public virtual Matrix {
+    public:
+        CorticalMat (const Geometry& geo, const Head2EEGMat& M, const std::string& domain_name = "CORTEX", const unsigned gauss_order=3);
+        virtual ~CorticalMat () {};
     };
 }
 

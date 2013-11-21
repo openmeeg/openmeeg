@@ -119,10 +119,14 @@ int main(int argc, char** argv)
             exit(1);
         }
         if ( argc < 5 ) {
-            std::cerr << "Please set DOMAIN name !" << endl;
+            std::cerr << "Please set sensors !" << endl;
             exit(1);
         }
         if ( argc < 6 ) {
+            std::cerr << "Please set DOMAIN name !" << endl;
+            exit(1);
+        }
+        if ( argc < 7 ) {
             std::cerr << "Please set output filepath !" << endl;
             exit(1);
         }
@@ -135,9 +139,13 @@ int main(int argc, char** argv)
             exit(1);
         }
 
+        // read the file containing the positions of the EEG patches
+        Sensors electrodes(argv[4]);
+        Head2EEGMat M(geo, electrodes);
+
         // Assembling Matrix from discretization :
-        CorticalMat CM(geo, argv[4], gauss_order);
-        CM.save(argv[5]);
+        CorticalMat CM(geo, M, argv[5], gauss_order);
+        CM.save(argv[6]);
     }
 
     /*********************************************************************************************
@@ -507,6 +515,7 @@ void getHelp(char** argv) {
     cout << "             Arguments :" << endl;
     cout << "               geometry file (.geom)" << endl;
     cout << "               conductivity file (.cond)" << endl;
+    cout << "               file containing the positions of EEG electrodes (.patches)" << endl;
     cout << "               domain name (containing the sources)" << endl;
     cout << "               output matrix" << endl << endl;
 
