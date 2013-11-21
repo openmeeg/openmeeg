@@ -63,14 +63,25 @@ int main () {
 
     Matrix U(10,10);
     U.set(1.0);
-    Matrix zero = spM*U - Matrix(spM)*U - Matrix(spM)*SymMatrix(U) + spM*U;
-    if ( zero.frobenius_norm() > eps) {
+    U(2,3)=0.12;
+    U(1,9)=12.01;
+    U(4,8)=-2.1;
+    Vector v(10);
+    v.set(2.);
+    v(3)=v(8)=0.11;
+    // Mat & Sparse
+    Matrix Mzero = spM*U - Matrix(spM)*U - Matrix(spM)*U + spM*U;
+    // Sparse & Sparse
+    SparseMatrix spM2(10,10);
+    Mzero = Mzero + Matrix(spM*spM2) - Matrix(spM)*Matrix(spM2) - Matrix(spM2)*Matrix(spM) + Matrix(spM2*spM);
+    // Vectt & Sparse
+    Vector Vzero = (spM*v) - (Matrix(spM)*v);
+    if ( Mzero.frobenius_norm() + Vzero.norm() > eps) {
         std::cerr << "Error: Operator* is WRONG-1" << std::endl;
+        Mzero.info();
+        Vzero.info();
         exit(1);
     }
-
-
-
 
     std::cout << std::endl << "========== fast sparse matrices ==========" << std::endl;
     std::cout << spM;

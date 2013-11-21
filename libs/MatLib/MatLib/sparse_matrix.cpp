@@ -43,6 +43,14 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 namespace OpenMEEG {
 
+    double SparseMatrix::frobenius_norm() const {
+        double d=0;
+        for ( const_iterator it = m_tank.begin() ; it != m_tank.end(); ++it) {
+            d += it->second*it->second;
+        }
+        return sqrt(d);
+    }
+
     Vector SparseMatrix::operator*(const Vector &x) const
     {
         Vector ret(nlin());
@@ -79,18 +87,36 @@ namespace OpenMEEG {
 
     SparseMatrix SparseMatrix::operator*(const SparseMatrix &mat) const
     {
-        // TODO: test, and fast enough ?
+        // TODO: fast enough ?
         assert(ncol() == mat.nlin());
         SparseMatrix out(nlin(), mat.ncol());
 
         for ( Tank::const_iterator it1 = m_tank.begin(); it1 != m_tank.end(); ++it1) {
             unsigned i = it1->first.first;
             unsigned j = it1->first.second;
-            for ( Tank::const_iterator it2 = m_tank.begin(); it2 != m_tank.end(); ++it2) {
+            for ( Tank::const_iterator it2 = mat.begin(); it2 != mat.end(); ++it2) {
                 if ( it2->first.first == j ) {
                     out(i, it2->first.second) += it1->second * it2->second;
                 }
             }
+        }
+        return out;
+    }
+
+    SparseMatrix SparseMatrix::operator+(const SparseMatrix &mat) const
+    {
+        assert(nlin() == mat.nlin() && ncol() == mat.ncol());
+        SparseMatrix out(nlin(), ncol());
+
+        for ( Tank::const_iterator it = m_tank.begin(); it != m_tank.end(); ++it) {
+            unsigned i = it->first.first;
+            unsigned j = it->first.second;
+            out(i, j) += it->second;
+        }
+        for ( Tank::const_iterator it = mat.begin(); it != mat.end(); ++it) {
+            unsigned i = it->first.first;
+            unsigned j = it->first.second;
+            out(i, j) += it->second;
         }
         return out;
     }
