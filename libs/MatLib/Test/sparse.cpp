@@ -53,21 +53,35 @@ int main () {
     std::cout << std::endl << "========== sparse matrices ==========" << std::endl;
 
     SparseMatrix spM(10,10);
-    size_t n = 0;
-    for(size_t i=0;i<5;++i) {
+    unsigned n = 0;
+    for ( unsigned i=0;i<5;++i) {
         n = (n*1237+1493)%1723;
         const int p = (n*1237+1493)%1723;
-        spM(n%10,p%10) = n;
+        spM(n%10, p%10) = n;
     }
     genericTest("sparse",spM);
 
     Matrix U(10,10);
     U.set(1.0);
-    Matrix T = spM*U;
-    T.info();
-    T = U*spM;
-    std::cout << "Matrice T : " << std::endl;
-    T.info();
+    U(2,3)=0.12;
+    U(1,9)=12.01;
+    U(4,8)=-2.1;
+    Vector v(10);
+    v.set(2.);
+    v(3)=v(8)=0.11;
+    // Mat & Sparse
+    Matrix Mzero = spM*U - Matrix(spM)*U - Matrix(spM)*U + spM*U;
+    // Sparse & Sparse
+    SparseMatrix spM2(10,10);
+    Mzero = Mzero + Matrix(spM*spM2) - Matrix(spM)*Matrix(spM2) - Matrix(spM2)*Matrix(spM) + Matrix(spM2*spM);
+    // Vectt & Sparse
+    Vector Vzero = (spM*v) - (Matrix(spM)*v);
+    if ( Mzero.frobenius_norm() + Vzero.norm() > eps) {
+        std::cerr << "Error: Operator* is WRONG-1" << std::endl;
+        Mzero.info();
+        Vzero.info();
+        exit(1);
+    }
 
     std::cout << std::endl << "========== fast sparse matrices ==========" << std::endl;
     std::cout << spM;

@@ -107,6 +107,48 @@ int main(int argc, char** argv)
     }
 
     /*********************************************************************************************
+    * Computation of Cortical Matrix for BEM Symmetric formulation
+    **********************************************************************************************/
+    if ( ( !strcmp(argv[1], "-CorticalMat") ) | ( !strcmp(argv[1], "-CM" ) ) | ( !strcmp(argv[1], "-cm") ) ) {
+        if ( argc < 3 ) {
+            std::cerr << "Please set geometry filepath !" << endl;
+            exit(1);
+        }
+        if ( argc < 4 ) {
+            std::cerr << "Please set conductivities filepath !" << endl;
+            exit(1);
+        }
+        if ( argc < 5 ) {
+            std::cerr << "Please set sensors !" << endl;
+            exit(1);
+        }
+        if ( argc < 6 ) {
+            std::cerr << "Please set DOMAIN name !" << endl;
+            exit(1);
+        }
+        if ( argc < 7 ) {
+            std::cerr << "Please set output filepath !" << endl;
+            exit(1);
+        }
+        // Loading surfaces from geometry file
+        Geometry geo;
+        geo.read(argv[2], argv[3], OLD_ORDERING);
+
+        // Check for intersecting meshes
+        if ( !geo.selfCheck() ) {
+            exit(1);
+        }
+
+        // read the file containing the positions of the EEG patches
+        Sensors electrodes(argv[4]);
+        Head2EEGMat M(geo, electrodes);
+
+        // Assembling Matrix from discretization :
+        CorticalMat CM(geo, M, argv[5], gauss_order);
+        CM.save(argv[6]);
+    }
+
+    /*********************************************************************************************
     * Computation of general Surface Source Matrix for BEM Symmetric formulation
     **********************************************************************************************/
     else if ( ( !strcmp(argv[1], "-SurfSourceMat") ) | ( !strcmp(argv[1], "-SSM") ) | ( !strcmp(argv[1], "-ssm") ) ) {
@@ -466,6 +508,15 @@ void getHelp(char** argv) {
     cout << "             Arguments :" << endl;
     cout << "               geometry file (.geom)" << endl;
     cout << "               conductivity file (.cond)" << endl;
+    cout << "               output matrix" << endl << endl;
+
+    cout << "   -CorticalMat, -CM, -cm :   " << endl;
+    cout << "       Compute Cortical Matrix for Symmetric BEM (left-hand side of linear system)." << endl;
+    cout << "             Arguments :" << endl;
+    cout << "               geometry file (.geom)" << endl;
+    cout << "               conductivity file (.cond)" << endl;
+    cout << "               file containing the positions of EEG electrodes (.patches)" << endl;
+    cout << "               domain name (containing the sources)" << endl;
     cout << "               output matrix" << endl << endl;
 
     cout << "   -SurfSourceMat, -SSM, -ssm :   " << endl;

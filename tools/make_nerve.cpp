@@ -354,11 +354,11 @@ int main(int argc, char** argv)
         // fprintf(stdout, "number of cylinders (for the moment fixed to 2) :");fflush(stdout);
         // fscanf(stdin, "%d", &Nc);
         fprintf(stdout, "size of electrode contact along z :");fflush(stdout);
-        fscanf(stdin, "%f", &Ea);
+        fscanf(stdin, "%lf", &Ea);
         fprintf(stdout, "distance between first anode and cathode:");fflush(stdout);
-        fscanf(stdin, "%f", &Eb);
+        fscanf(stdin, "%lf", &Eb);
         fprintf(stdout, "distance between second anode and cathode :");fflush(stdout);
-        fscanf(stdin, "%f", &Eb2);
+        fscanf(stdin, "%lf", &Eb2);
 
         for (i=0;i<Nc;i++)
         {
@@ -367,24 +367,24 @@ int main(int argc, char** argv)
             if (i == 1)
             {printf(" nerve geometry (outer cylinder containing electrode)\n");}
             fprintf(stdout, "length :");fflush(stdout);
-            fscanf(stdin, "%f", &L[i]);
+            fscanf(stdin, "%lf", &L[i]);
             fprintf(stdout, "radius :");fflush(stdout);
-            fscanf(stdin, "%f", &R[i]);
+            fscanf(stdin, "%lf", &R[i]);
             fprintf(stdout, "discretization step :");fflush(stdout);
-            fscanf(stdin, "%f", &dt[i]);
+            fscanf(stdin, "%lf", &dt[i]);
             fprintf(stdout, "conductivity :");fflush(stdout);
-            fscanf(stdin, "%f", &sig[i]);
+            fscanf(stdin, "%lf", &sig[i]);
         }
         F = fopen (argv[2], "w");
-        fprintf(F, "%f\n", Ea);
-        fprintf(F, "%f\n", Eb);
-        fprintf(F, "%f\n", Eb2);
+        fprintf(F, "%lf\n", Ea);
+        fprintf(F, "%lf\n", Eb);
+        fprintf(F, "%lf\n", Eb2);
         for (i=0;i<Nc;i++)
         {
-            fprintf(F, "%f\n", L[i]);
-            fprintf(F, "%f\n", R[i]);
-            fprintf(F, "%f\n", dt[i]);
-            fprintf(F, "%f\n", sig[i]);
+            fprintf(F, "%lf\n", L[i]);
+            fprintf(F, "%lf\n", R[i]);
+            fprintf(F, "%lf\n", dt[i]);
+            fprintf(F, "%lf\n", sig[i]);
         }
         fclose(F);
     }
@@ -392,15 +392,15 @@ int main(int argc, char** argv)
         // Read parameter file :
         F = fopen (argv[2], "r");
         if (F == NULL) {perror ("error fopen: \n"); return -1;}
-        fscanf(F, "%f", &Ea);
-        fscanf(F, "%f", &Eb);;
-        fscanf(F, "%f", &Eb2);
+        fscanf(F, "%lf", &Ea);
+        fscanf(F, "%lf", &Eb);;
+        fscanf(F, "%lf", &Eb2);
         for (i=0;i<Nc;i++)
         {
-            fscanf(F, "%f", &L[i]);
-            fscanf(F, "%f", &R[i]);
-            fscanf(F, "%f", &dt[i]);
-            fscanf(F, "%f", &sig[i]);
+            fscanf(F, "%lf", &L[i]);
+            fscanf(F, "%lf", &R[i]);
+            fscanf(F, "%lf", &dt[i]);
+            fscanf(F, "%lf", &sig[i]);
             /*      fclose(F);*/
         }
         fclose(F);
@@ -427,8 +427,8 @@ int main(int argc, char** argv)
         fprintf(Fgeom, "%s\n", name.c_str());    // c_str to convert string back to char
     }
     fprintf(Fcond, "Air        0.0\n");
-    fprintf(Fcond, "CSF        %f\n", sig[1]);
-    fprintf(Fcond, "Nerve      %f\n", sig[0]);
+    fprintf(Fcond, "CSF        %lf\n", sig[1]);
+    fprintf(Fcond, "Nerve      %lf\n", sig[0]);
     fprintf(Fgeom, "\nDomains %d\n\n", Nc+1);
     fprintf(Fgeom, "Domain CSF 1 -2\n");
     fprintf(Fgeom, "Domain Nerve -1 shared\n");

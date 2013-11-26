@@ -43,6 +43,14 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 namespace OpenMEEG {
 
+    double SparseMatrix::frobenius_norm() const {
+        double d=0;
+        for ( const_iterator it = m_tank.begin() ; it != m_tank.end(); ++it) {
+            d += it->second*it->second;
+        }
+        return sqrt(d);
+    }
+
     Vector SparseMatrix::operator*(const Vector &x) const
     {
         Vector ret(nlin());
@@ -50,8 +58,8 @@ namespace OpenMEEG {
 
         Tank::const_iterator it;
         for(it = m_tank.begin(); it != m_tank.end(); ++it) {
-            size_t i = it->first.first;
-            size_t j = it->first.second;
+            unsigned i = it->first.first;
+            unsigned j = it->first.second;
             double val = it->second;
             ret(i) += val * x(j);
         }
@@ -65,16 +73,51 @@ namespace OpenMEEG {
         Matrix out(nlin(),mat.ncol());
         out.set(0.0);
 
-        Tank::const_iterator it;
-        for(it = m_tank.begin(); it != m_tank.end(); ++it) {
-            size_t i = it->first.first;
-            size_t j = it->first.second;
+        for( Tank::const_iterator it = m_tank.begin(); it != m_tank.end(); ++it) {
+            unsigned i = it->first.first;
+            unsigned j = it->first.second;
             double val = it->second;
-            for(size_t k = 0; k < mat.ncol(); ++k) {
-                out(i,k) += val * mat(j,k);
+            for ( unsigned k = 0; k < mat.ncol(); ++k) {
+                out(i, k) += val * mat(j, k);
             }
         }
 
+        return out;
+    }
+
+    SparseMatrix SparseMatrix::operator*(const SparseMatrix &mat) const
+    {
+        // TODO: fast enough ?
+        assert(ncol() == mat.nlin());
+        SparseMatrix out(nlin(), mat.ncol());
+
+        for ( Tank::const_iterator it1 = m_tank.begin(); it1 != m_tank.end(); ++it1) {
+            unsigned i = it1->first.first;
+            unsigned j = it1->first.second;
+            for ( Tank::const_iterator it2 = mat.begin(); it2 != mat.end(); ++it2) {
+                if ( it2->first.first == j ) {
+                    out(i, it2->first.second) += it1->second * it2->second;
+                }
+            }
+        }
+        return out;
+    }
+
+    SparseMatrix SparseMatrix::operator+(const SparseMatrix &mat) const
+    {
+        assert(nlin() == mat.nlin() && ncol() == mat.ncol());
+        SparseMatrix out(nlin(), ncol());
+
+        for ( Tank::const_iterator it = m_tank.begin(); it != m_tank.end(); ++it) {
+            unsigned i = it->first.first;
+            unsigned j = it->first.second;
+            out(i, j) += it->second;
+        }
+        for ( Tank::const_iterator it = mat.begin(); it != mat.end(); ++it) {
+            unsigned i = it->first.first;
+            unsigned j = it->first.second;
+            out(i, j) += it->second;
+        }
         return out;
     }
 
@@ -82,8 +125,8 @@ namespace OpenMEEG {
         SparseMatrix tsp(ncol(),nlin());
         const_iterator it;
         for(it = m_tank.begin(); it != m_tank.end(); ++it) {
-            size_t i = it->first.first;
-            size_t j = it->first.second;
+            unsigned i = it->first.first;
+            unsigned j = it->first.second;
             tsp(j,i) = it->second;
         }
         return tsp;
@@ -99,10 +142,10 @@ namespace OpenMEEG {
 
         double minv = m_tank.begin()->second;
         double maxv = m_tank.begin()->second;
-        size_t mini = 0;
-        size_t maxi = 0;
-        size_t minj = 0;
-        size_t maxj = 0;
+        unsigned mini = 0;
+        unsigned maxi = 0;
+        unsigned minj = 0;
+        unsigned maxj = 0;
 
         Tank::const_iterator it;
         for(it = m_tank.begin(); it != m_tank.end(); ++it) {
@@ -121,7 +164,7 @@ namespace OpenMEEG {
         std::cout << "Max Value : " << maxv << " (" << maxi << "," << maxj << ")" << std::endl;
         std::cout << "First Values" << std::endl;
 
-        size_t cnt = 0;
+        unsigned cnt = 0;
         for(it = m_tank.begin(); it != m_tank.end() && cnt < 5; ++it) {
             std::cout << "(" << it->first.first << "," << it->first.second << ") " << it->second << std::endl;
             cnt++;
