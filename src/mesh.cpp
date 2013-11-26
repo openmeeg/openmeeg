@@ -280,7 +280,7 @@ namespace OpenMEEG {
     }
 
     /// P1Vector : aux function to compute the surfacic gradient TODO: verify
-    inline Vect3 Mesh::P1Vector( const Vect3 &p0, const Vect3 &p1, const Vect3 &p2) const
+    inline Vect3 Mesh::P1Vector(const Vect3 &p0, const Vect3 &p1, const Vect3 &p2) const
     {
         Vect3 pim1pi = p0-p2;
         Vect3 pim1pip1 = p1-p2;
@@ -1081,7 +1081,7 @@ namespace OpenMEEG {
         return mape;
     }
 
-    // get the 3 adjacents triangles of a triangle t
+    /// get the 3 adjacents triangles of a triangle t
     Mesh::VectPTriangle Mesh::adjacent_triangles(const Triangle& t) const 
     {
         VectPTriangle tris;

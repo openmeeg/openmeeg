@@ -142,7 +142,7 @@ namespace OpenMEEG {
 
     void assemble_cortical(const Geometry& geo, Matrix& mat, const Head2EEGMat& M, const std::string& domain_name, const unsigned gauss_order) 
     {
-        // Following the article: M. Clerc, J. Kybic "Cortical mapping by Laplace–Cauchy transmission using a boundary element method"
+        // Following the article: M. Clerc, J. Kybic "Cortical mapping by Laplace–Cauchy transmission using a boundary element method".
         // Assumptions:
         // - domain_name: the domain containing the sources is an innermost domain (defined as the interior of only one interface (called Cortex by default))
         // - Cortex interface is composed of one mesh only (no shared vertices)
@@ -228,8 +228,8 @@ namespace OpenMEEG {
         }
         // ** Choose Regularization parameter **
         // l-curve ? no...
-        double alpha = 0.0674; // sum(diag(M'*M))/(3*162.) = 0.0674
-        double beta  = 0.0674;
+        double alpha = 9.28e-7;
+        double beta  = 8e-5;
         SparseMatrix alphas(Nc,Nc); // diagonal matrix
         for ( Vertices::const_iterator vit = geo.vertex_begin(); vit != geo.vertex_end(); ++vit) {
             alphas(vit->index(), vit->index()) = alpha;
