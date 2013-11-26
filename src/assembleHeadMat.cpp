@@ -154,7 +154,7 @@ namespace OpenMEEG {
         assert(SourceDomain.size() == 1);
         assert(Cortex.size() == 1);
         // build the HeadMat:
-        // The following is the same as assemble_HM except N_11, D_11 and S_11 are not computed. (And no deflation).
+        // The following is the same as assemble_HM except N_11, D_11 and S_11 are not computed. (and no deflation).
         SymMatrix mat_temp(geo.size() - geo.outermost_interface().nb_triangles());
         mat_temp.set(0.0);
         double K = 1.0 / (4.0 * M_PI);
@@ -215,11 +215,11 @@ namespace OpenMEEG {
             mat.svd(U, S, W);
         }
         SparseMatrix S(W.nlin(), W.nlin());
-        // we set S to 0 everywhere, except in the some part of the diag:
+        // we set S to 0 everywhere, except in the last part of the diag:
         for ( unsigned i = cortex.nb_vertices()+cortex.nb_triangles(); i < Nc;++i) {
             S(i, i) = 1.0;
         }
-        Matrix P = (W * S) * W.transpose(); // P is a projector: P^2 = P
+        Matrix P = (W * S) * W.transpose(); // P is a projector: P^2 = P and mat*P*X = 0
 
         // ** Get the gradient of P1&P0 elements on the meshes **
         SparseMatrix R(3*(geo.outermost_interface().rbegin()->mesh().rbegin()->index()+1), Nc); // nb_line = 3 * nb_triangles (or 3*(index of last triangle+1))
@@ -228,9 +228,9 @@ namespace OpenMEEG {
         }
         // ** Choose Regularization parameter **
         // l-curve ? no...
-        double alpha = 10.*1.28e-4;
-        double beta  = 10.*1.6e-4;
-        SparseMatrix alphas(Nc,Nc);
+        double alpha = 0.0674; // sum(diag(M'*M))/(3*162.) = 0.0674
+        double beta  = 0.0674;
+        SparseMatrix alphas(Nc,Nc); // diagonal matrix
         for ( Vertices::const_iterator vit = geo.vertex_begin(); vit != geo.vertex_end(); ++vit) {
             alphas(vit->index(), vit->index()) = alpha;
         }
@@ -242,19 +242,20 @@ namespace OpenMEEG {
             }
         }
 
-        std::cout << (P.transpose() * M.transpose() * M).frobenius_norm() << std::endl;
-        std::cout << ((alphas * R.transpose() ) * (R * P)).frobenius_norm() << std::endl;
         // ** PseudoInverse and return **
         // ( (M*P)' * (M*P) + (R*P)' * (R*P) ) * Y = (M*P)'m
         // ( (P' * M' * M * P) + (P' * R' * R * P) ) * Y = P' * M'm
         //  P' * ( M' * M + R' * R ) * P * Y = Z * Y = P' * M'm
         // X = P * Y = P * Z^(-1) * P' * M'm
+        Matrix MM (M.transpose() * M);
+        Matrix RR (R.transpose() * R);
         Matrix Z1 = P.transpose() * M.transpose() * M * P;
         Matrix Z2 = P.transpose() * (alphas * R.transpose() * R) * P;
         Matrix Z = P.transpose() * (M.transpose() * M + (alphas * R.transpose() ) * R) * P;
-        Z.save("Z.mat");
-        Z1.save("Z1.mat");
-        Z2.save("Z2.mat");
+        Z.save("Z.mat"); Z1.save("Z1.mat"); Z2.save("Z2.mat");
+        MM.save("MM.mat"); RR.save("RR.mat"); P.save("P.mat");
+        std::cout << "Z1.norm() = " << Z1.frobenius_norm() << std::endl;
+        std::cout << "Z2.norm() = " << Z2.frobenius_norm() << std::endl;
         mat = P * Z.pinverse() * P.transpose() * M.transpose();
         // mat = P * (P.transpose() * (M.transpose() * M + (alphas * R.transpose() ) * R) * P).pinverse() * P.transpose() * M.transpose();
     }

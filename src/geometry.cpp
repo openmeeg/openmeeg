@@ -137,6 +137,12 @@ namespace OpenMEEG {
 
     void Geometry::read(const std::string& geomFileName, const std::string& condFileName, const bool OLD_ORDERING) 
     {
+        // clear all first
+        vertices_.clear();
+        meshes_.clear();
+        domains_.clear();
+        is_nested_ = has_cond_ = false;
+
         GeometryReader geoR(*this);
 
         geoR.read_geom(geomFileName);

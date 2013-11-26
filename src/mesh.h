@@ -117,7 +117,9 @@ namespace OpenMEEG {
         Mesh(const Mesh& m);
 
         /// constructor using an outisde storage for vertices \param all_vertices Where to store vertices \param name Mesh name
-        Mesh(Vertices& all_vertices, const std::string name = ""): name_(name), all_vertices_(&all_vertices), outermost_(false), allocate_(false) { set_vertices_.insert(all_vertices_->begin(), all_vertices_->end()); }
+        Mesh(Vertices& all_vertices, const std::string name = ""): name_(name), all_vertices_(&all_vertices), outermost_(false), allocate_(false) { 
+            set_vertices_.insert(all_vertices_->begin(), all_vertices_->end()); 
+        }
 
         /// constructor loading directly a mesh file \param filename \param verbose \param name Mesh name
         Mesh(std::string filename, const bool verbose = true, const std::string name = ""): name_(name), outermost_(false), allocate_(true) { 
@@ -140,7 +142,7 @@ namespace OpenMEEG {
 		      std::string &           name()                { return name_; } ///< \return the mesh name
         const std::string &           name()          const { return name_; } ///< \return the mesh name
 
-        VectPVertex &                 vertices()            { return vertices_; } ///< \return the vector of pointers to the mesh vertices
+        const VectPVertex &           vertices()      const { return vertices_; } ///< \return the vector of pointers to the mesh vertices
         const unsigned                nb_vertices()   const { return vertices_.size(); }
         const unsigned                nb_triangles()  const { return size(); }
 
@@ -186,8 +188,6 @@ namespace OpenMEEG {
         unsigned load_tri(const std::string&, const bool& read_all = true);
         unsigned load_bnd(std::istream& , const bool& read_all = true);
         unsigned load_bnd(const std::string&, const bool& read_all = true);
-        unsigned load_asc(std::istream& , const bool& read_all = true);
-        unsigned load_asc(const std::string&, const bool& read_all = true);
         unsigned load_off(std::istream& , const bool& read_all = true);
         unsigned load_off(const std::string&, const bool& read_all = true);
         unsigned load_mesh(std::istream& , const bool& read_all = true);
