@@ -43,12 +43,6 @@ knowledge of the CeCILL-B license and that you accept its terms.
 // for IO:s
 #include <iostream>
 #include <fstream>
-#include <iterator>
-#include <iomanip> 
-#include <string>
-#include <sstream>
-#include <iostream>
-
 
 #include <vector>
 #include <set>
@@ -175,9 +169,6 @@ namespace OpenMEEG {
          **/
         void smooth(const double& smoothing_intensity, const unsigned& niter);
 
-        /// \brief Compute the surfacic gradient
-        void gradient(SparseMatrix &A) const;
-
         // for IO:s --------------------------------------------------------------------
         /** Read mesh from file
           \param filename can be .vtk, .tri (ascii), .off .bnd or .mesh
@@ -241,8 +232,6 @@ namespace OpenMEEG {
         VectPTriangle adjacent_triangles(const Triangle&) const;
         void orient_adjacent_triangles(std::stack<Triangle *>& t_stack, std::map<Triangle *, bool>& tri_reoriented);
         bool triangle_intersection(const Triangle&, const Triangle&) const;
-        inline Vect3 P1Vector(const Vect3 &p0, const Vect3 &p1, const Vect3 &p2) const;
-        inline Vect3 P0Vector(const Triangle &t1, const Triangle &t2) const;
         
         std::string                 name_; ///< Name of the mesh.
         std::map<const Vertex *, VectPTriangle> links_; ///< links[&v] are the triangles that contain vertex v.
