@@ -96,10 +96,10 @@ namespace OpenMEEG {
             const unsigned gauss_order, const bool adapt_rhs, const std::string& domain_name = "") 
     {
         const double   K         = 1.0/(4.*M_PI);
-        const unsigned newsize   = (geo.size() - geo.outermost_interface().nb_triangles());
+        const unsigned size      = (geo.size() - geo.outermost_interface().nb_triangles());
         const unsigned n_dipoles = dipoles.nlin();
 
-        rhs = Matrix(newsize, n_dipoles);
+        rhs = Matrix(size, n_dipoles);
         rhs.set(0.);
 
         Vector rhs_col(rhs.nlin());
