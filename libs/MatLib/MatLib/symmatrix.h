@@ -354,17 +354,13 @@ namespace OpenMEEG {
     inline Vector SymMatrix::getlin(size_t i) const {
         assert(i<nlin());
         Vector v(ncol());
-    // #ifdef HAVE_BLAS TODO ?
-    // #endif
-        for (size_t j=0;j<ncol();j++) v.data()[j]=this->operator()(i,j);
+        for ( size_t j = 0; j < ncol(); ++j) v.data()[j] = this->operator()(i,j);
         return v;
     }
 
     inline void SymMatrix::setlin(size_t i,const Vector& v) {
         assert(v.size()==nlin() && i<nlin());
-    // #ifdef HAVE_BLAS TODO ?
-    // #endif
-        for (unsigned j=0;j<ncol();j++) this->operator()(i,j)=v(j);
+        for ( size_t j = 0; j < ncol(); ++j) this->operator()(i,j) = v(j);
     }
 }
 #endif  //! OPENMEEG_SYMMATRIX_H

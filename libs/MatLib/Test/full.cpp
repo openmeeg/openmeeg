@@ -124,5 +124,14 @@ int main () {
         std::cerr << "Error: SVD is WRONG-1" << std::endl;
         exit(1);
     }
+    // PseudoInverse
+    M1 = Matrix(4,5);
+    M1(0, 0) = 1; M1(0, 4) = 2;
+    M1(1, 2) = 3; M1(3, 1) = 4;
+    zero = M1*M1.pinverse()*M1-M1;
+    if ( zero.frobenius_norm() > eps) {
+        std::cerr << "Error: PseudoInverse is WRONG-1" << std::endl;
+        exit(1);
+    }
     return 0;
 }

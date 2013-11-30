@@ -73,7 +73,12 @@ int main () {
     Matrix Mzero = spM*U - Matrix(spM)*U - Matrix(spM)*U + spM*U;
     // Sparse & Sparse
     SparseMatrix spM2(10,10);
-    Mzero = Mzero + Matrix(spM*spM2) - Matrix(spM)*Matrix(spM2) - Matrix(spM2)*Matrix(spM) + Matrix(spM2*spM);
+    for ( unsigned i=0;i<5;++i) {
+        n = (n*1007+1493)%2551;
+        const int p = (n*1007+1493)%2551;
+        spM2(n%10, p%10) = n;
+    }
+    Mzero += Matrix(spM*spM2) - Matrix(spM)*Matrix(spM2) - Matrix(spM2)*Matrix(spM) + Matrix(spM2*spM);
     // Vectt & Sparse
     Vector Vzero = (spM*v) - (Matrix(spM)*v);
     if ( Mzero.frobenius_norm() + Vzero.norm() > eps) {

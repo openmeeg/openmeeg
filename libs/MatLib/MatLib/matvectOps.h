@@ -58,10 +58,10 @@ namespace OpenMEEG {
         return SymMatrix(C);
     #else
         SymMatrix C(nlin());
-        for ( unsigned j = 0; j < m.ncol(); ++j) {
-            for ( unsigned i = 0; i < ncol(); ++i) {
+        for ( size_t j = 0; j < m.ncol(); ++j) {
+            for ( size_t i = 0; i < ncol(); ++i) {
                 C(i, j) = 0;
-                for ( unsigned k = 0; k < ncol(); ++k) {
+                for ( size_t k = 0; k < ncol(); ++k) {
                     C(i, j) += (*this)(i, k) * m(k, j);
                 }
             }
@@ -78,10 +78,10 @@ namespace OpenMEEG {
         Matrix D(*this);
         DSYMM(CblasLeft,CblasUpper ,(int)nlin(), (int)B.ncol(), 1. , D.data(), (int)D.ncol(), B.data(), (int)B.nlin(), 0, C.data(),(int)C.nlin());
     #else
-        for ( unsigned j = 0; j < B.ncol(); ++j) {
-            for ( unsigned i = 0; i < ncol(); ++i) {
+        for ( size_t j = 0; j < B.ncol(); ++j) {
+            for ( size_t i = 0; i < ncol(); ++i) {
                 C(i, j) = 0;
-                for ( unsigned k = 0; k < ncol(); ++k) {
+                for ( size_t k = 0; k < ncol(); ++k) {
                     C(i, j) += (*this)(i, k) * B(k, j);
                 }
             }
@@ -98,10 +98,10 @@ namespace OpenMEEG {
 
         Tank::const_iterator it;
         for(it = m_tank.begin(); it != m_tank.end(); ++it) {
-            unsigned i = it->first.first;
-            unsigned j = it->first.second;
+            size_t i = it->first.first;
+            size_t j = it->first.second;
             double val = it->second;
-            for(unsigned k = 0; k < mat.ncol(); ++k) {
+            for(size_t k = 0; k < mat.ncol(); ++k) {
                 out(i,k) += val * mat(j,k);
             }
         }
