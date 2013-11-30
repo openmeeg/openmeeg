@@ -167,7 +167,7 @@ int main(int argc, char** argv)
 
         // Loading surfaces from geometry file.
         Geometry geo;
-        geo.read(argv[2], argv[3]);
+        geo.read(argv[2], argv[3], OLD_ORDERING);
 
         // Loading mesh for distributed sources
         Mesh mesh_sources;
@@ -202,7 +202,7 @@ int main(int argc, char** argv)
 
         // Loading surfaces from geometry file.
         Geometry geo;
-        geo.read(argv[2], argv[3]);
+        geo.read(argv[2], argv[3], OLD_ORDERING);
 
         // Loading Matrix of dipoles :
         Matrix dipoles(argv[4]);
@@ -211,12 +211,12 @@ int main(int argc, char** argv)
             exit(1);
         }
         
-        bool adapt_rhs          = true;
+        bool adapt_rhs = true;
 
         // Choosing between adaptive integration or not for the RHS
         if ( !strcmp(argv[1], "-DipSourceMatNoAdapt")|(!strcmp(argv[1], "-DSMNA"))|(!strcmp(argv[1], "-dsmna"))){
             adapt_rhs = false;
-        }   
+        }
 
         DipSourceMat dsm(geo, dipoles, gauss_order, adapt_rhs, domain_name);
         // Saving RHS Matrix for dipolar case :
@@ -247,7 +247,7 @@ int main(int argc, char** argv)
 
         // Loading surfaces from geometry file.
         Geometry geo;
-        geo.read(argv[2], argv[3]);
+        geo.read(argv[2], argv[3], OLD_ORDERING);
 
         Sensors electrodes(argv[4]);
         EITSourceMat EITsource(geo, electrodes, gauss_order);
@@ -277,7 +277,7 @@ int main(int argc, char** argv)
 
         // Loading surfaces from geometry file.
         Geometry geo;
-        geo.read(argv[2], argv[3]);
+        geo.read(argv[2], argv[3], OLD_ORDERING);
 
         // read the file containing the positions of the EEG patches
         Sensors electrodes(argv[4]);
@@ -315,7 +315,7 @@ int main(int argc, char** argv)
 
         // Loading surfaces from geometry file.
         Geometry geo;
-        geo.read(argv[2], argv[3]);
+        geo.read(argv[2], argv[3], OLD_ORDERING);
 
         // Find the mesh of the Ecog electrodes
         const Interface i = geo.interface(argv[5]);
@@ -353,7 +353,7 @@ int main(int argc, char** argv)
 
         // Loading surfaces from geometry file.
         Geometry geo;
-        geo.read(argv[2], argv[3]);
+        geo.read(argv[2], argv[3], OLD_ORDERING);
 
         // Load positions and orientations of sensors  :
         Sensors sensors(argv[4]);
@@ -444,7 +444,7 @@ int main(int argc, char** argv)
         }
         // Loading surfaces from geometry file
         Geometry geo;
-        geo.read(argv[2], argv[3]);
+        geo.read(argv[2], argv[3], OLD_ORDERING);
         Matrix points(argv[4]);
         Surf2VolMat mat(geo, points);
         // Saving SurfToVol Matrix :
@@ -484,7 +484,7 @@ int main(int argc, char** argv)
         }
         // Loading surfaces from geometry file
         Geometry geo;
-        geo.read(argv[2], argv[3]);
+        geo.read(argv[2], argv[3], OLD_ORDERING);
         // Loading dipoles :
         Matrix dipoles(argv[4]);
         Matrix points(argv[5]);
