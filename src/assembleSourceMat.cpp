@@ -73,15 +73,15 @@ namespace OpenMEEG {
         // We here set it as an outermost (to tell _operarorN it doesn't belong to the geometry)
         mesh_source.outermost() = true;
 
-        std::cout << std::endl << "assemble SurfSourceMat with " << nVertexSources << " mesh_source located in Domain \"" << d.name() << "\"." << std::endl << std::endl;
+        std::cout << std::endl << "assemble SurfSourceMat with " << nVertexSources << " mesh_source located in domain \"" << d.name() << "\"." << std::endl << std::endl;
 
         for ( Domain::const_iterator hit = d.begin(); hit != d.end(); ++hit) {
             for ( Interface::const_iterator omit = hit->interface().begin(); omit != hit->interface().end(); ++omit) {
                 // First block is nVertexFistLayer*nVertexSources.
-                double coeffN = (hit->inside())?K * omit->orientation():-K * omit->orientation();
+                double coeffN = (hit->inside())?K * omit->orientation() : omit->orientation() * -K;
                 operatorN( omit->mesh(), mesh_source, mat, coeffN, gauss_order);
                 // Second block is nFacesFistLayer*nVertexSources.
-                double coeffD = (hit->inside())?-omit->orientation() * K / sigma:omit->orientation() * K / sigma;
+                double coeffD = (hit->inside())?-omit->orientation() * K / sigma : omit->orientation() * K / sigma;
                 operatorD(omit->mesh(), mesh_source, mat, coeffD, gauss_order);
             }
         }
@@ -159,11 +159,11 @@ namespace OpenMEEG {
         for ( Interface::const_iterator omit1 = i.begin(); omit1 != i.end(); ++omit1) {
             for ( Geometry::const_iterator mit2 = geo.begin(); mit2 != geo.end(); ++mit2) {
 
-                double orientation = geo.oriented(omit1->mesh(), *mit2); // equals  0, if they don't have any domains in common
+                const int orientation = geo.oriented(omit1->mesh(), *mit2); // equals  0, if they don't have any domains in common
                                                                   // equals  1, if they are both oriented toward the same domain
                                                                   // equals -1, if they are not
 
-                if ( std::abs(orientation) > 10.*std::numeric_limits<double>::epsilon() ) {
+                if ( orientation != 0 ) {
                     //  Compute S.
                     operatorS(*mit2, omit1->mesh(), transmat, geo.sigma_inv(omit1->mesh(), *mit2) * ( -1. * K * orientation), gauss_order);
 

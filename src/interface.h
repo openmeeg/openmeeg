@@ -62,7 +62,7 @@ namespace OpenMEEG {
 
               Mesh&  mesh()              { return *first;  } ///< \brief access mesh
         const Mesh&  mesh()        const { return *first;  } ///< \brief access mesh
-        const double orientation() const { return ( second )?1.:-1.; } ///< \brief orientation is +1 or -1 ?
+        const int    orientation() const { return ( second )?1:-1; } ///< \brief orientation is +1 or -1 ?
     };
 
     /** Interface class
