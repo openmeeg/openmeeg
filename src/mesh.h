@@ -223,15 +223,15 @@ namespace OpenMEEG {
 
     private:
         /// map the edges with an unsigned
-        typedef std::map<std::pair<const Vertex *, const Vertex *>, unsigned> EdgeMap; 
+        typedef std::map<std::pair<const Vertex *, const Vertex *>, int> EdgeMap; 
 
         void destroy();
         void copy(const Mesh&);
         // regarding mesh orientation
-        EdgeMap       compute_edge_map() const;
-        VectPTriangle adjacent_triangles(const Triangle&) const;
-        void orient_adjacent_triangles(std::stack<Triangle *>& t_stack, std::map<Triangle *, bool>& tri_reoriented);
-        bool triangle_intersection(const Triangle&, const Triangle&) const;
+        const EdgeMap compute_edge_map() const;
+        VectPTriangle adjacent_triangles(const Triangle&);
+        void          orient_adjacent_triangles(std::stack<Triangle *>& t_stack, std::map<Triangle *, bool>& tri_reoriented);
+        bool          triangle_intersection(const Triangle&, const Triangle&) const;
         
         std::string                 name_; ///< Name of the mesh.
         std::map<const Vertex *, VectPTriangle> links_; ///< links[&v] are the triangles that contain vertex v.
