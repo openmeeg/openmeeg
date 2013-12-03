@@ -114,7 +114,7 @@ namespace OpenMEEG {
         const double  indicator (const Mesh& m1, const Mesh& m2) const { return funct_on_domains(m1, m2, INDICATOR); } // return the (sum) indicator function of the shared domain(s).
         const double  sigma_diff(const Mesh& m) const; // return the difference of conductivities of the 2 domains.
         const double  sigma     (const std::string&) const;
-        const double  oriented(const Mesh&, const Mesh&) const;
+        const int     oriented(const Mesh&, const Mesh&) const;
 
         void read(const std::string& geomFileName, const std::string& condFileName = "", const bool OLD_ORDERING = false);
         void load_vtp(const std::string& filename);
