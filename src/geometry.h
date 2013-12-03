@@ -118,7 +118,7 @@ namespace OpenMEEG {
 
         void read(const std::string& geomFileName, const std::string& condFileName = "", const bool OLD_ORDERING = false);
         void load_vtp(const std::string& filename);
-        void write_vtp(const std::string& filename) const;
+        void write_vtp(const std::string& filename, const Matrix& data = Matrix()) const; // optional give a dataset
 
     private:
 

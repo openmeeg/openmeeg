@@ -147,7 +147,7 @@ namespace OpenMEEG {
     }
     
     /// \brief write a VTK\vtp file \param filename
-    void Geometry::write_vtp(const std::string& filename) const
+    void Geometry::write_vtp(const std::string& filename, const Matrix &data) const
     {
 
     #ifdef USE_VTK
@@ -155,10 +155,37 @@ namespace OpenMEEG {
         vtkSmartPointer<vtkPoints>      points   = vtkSmartPointer<vtkPoints>::New();      // vertices
         vtkSmartPointer<vtkDoubleArray> normals  = vtkSmartPointer<vtkDoubleArray>::New(); // normals
         vtkSmartPointer<vtkStringArray> cell_id  = vtkSmartPointer<vtkStringArray>::New(); // ids/mesh name
+        vtkSmartPointer<vtkDoubleArray> potentials[data.ncol()]; // potential on vestices
+        vtkSmartPointer<vtkDoubleArray> currents[data.ncol()]; // current on triangles
         
         normals->SetNumberOfComponents(3); // 3d normals (ie x,y,z)
         normals->SetName("Normals");
         cell_id->SetName("Names");
+
+        if ( data.nlin() != 0 ) {
+            // Check the data corresponds to the geometry
+            assert( data.nlin() == size() - outermost_interface().nb_triangles() );
+            for ( unsigned j = 0; j < data.ncol(); ++j) {
+                std::stringstream sdip;
+                sdip << j;
+                potentials[j]= vtkSmartPointer<vtkDoubleArray>::New();
+                currents[j]  = vtkSmartPointer<vtkDoubleArray>::New();
+                potentials[j]->SetName(("Potentials-" + sdip.str()).c_str());
+                currents[j]->SetName(("Currents-" + sdip.str()).c_str());
+                for ( Vertices::const_iterator vit = vertex_begin(); vit != vertex_end(); ++vit) {
+                    potentials[j]->InsertNextValue(data(vit->index(), j));
+                }
+                for ( Meshes::const_iterator mit = meshes_.begin(); mit != meshes_.end(); ++mit) {
+                    for ( Mesh::const_iterator tit = mit->begin(); tit != mit->end(); ++tit) {
+                        if ( mit->outermost() ) {
+                            currents[j]->InsertNextValue(0.);
+                        } else {
+                            currents[j]->InsertNextValue(data(tit->index(), j));
+                        }
+                    }
+                }
+            }
+        }
 
         std::map<const Vertex *, unsigned> map;
 
@@ -173,7 +200,7 @@ namespace OpenMEEG {
         polydata->SetPoints(points);
         // Add the normals to the points in the polydata
         polydata->GetPointData()->SetNormals(normals);
-        
+
         vtkSmartPointer<vtkCellArray> polys  = vtkSmartPointer<vtkCellArray>::New(); // the triangles
         
         for ( Meshes::const_iterator mit = meshes_.begin(); mit != meshes_.end(); ++mit) {
@@ -188,6 +215,13 @@ namespace OpenMEEG {
         polydata->SetPolys(polys);
         // Add the array of Names to polydata
         polydata->GetCellData()->AddArray(cell_id);
+        // Add optional potentials and currents
+        if ( data.nlin() != 0 ) {
+            for ( unsigned j = 0; j < data.ncol(); ++j) {
+                polydata->GetPointData()->AddArray(potentials[j]);
+                polydata->GetCellData()->AddArray(currents[j]);
+            }
+        }
         
         vtkSmartPointer<vtkXMLPolyDataWriter> writer = vtkSmartPointer<vtkXMLPolyDataWriter>::New();
         writer->SetFileName(filename.c_str());

@@ -40,12 +40,9 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #ifndef OPENMEEG_GMRES_H
 #define OPENMEEG_GMRES_H
 
-#include "matrix.h"
-#include "symmatrix.h"
-#include "diagmatrix.h"
 #include "vector.h"
+#include "matrix.h"
 #include "sparse_matrix.h"
-#include "fast_sparse_matrix.h"
 
 #include "DLLDefinesOpenMEEG.h"
 
@@ -59,7 +56,7 @@ namespace OpenMEEG {
     public:
         Jacobi (const M& m): J(m.nlin()) { 
             for ( unsigned i = 0; i < m.nlin(); ++i) {
-                J(i) = 1.0 / m(i,i);
+                J(i, i) = 1.0 / m(i,i);
             }
         }
 
@@ -69,7 +66,7 @@ namespace OpenMEEG {
     
         ~Jacobi () {};
     private:
-        DiagMatrix J;
+        SparseMatrix J; // diagonal
     };
 
     // =========================

@@ -828,7 +828,7 @@ namespace OpenMEEG {
         f.close();
         return return_value;
     }
-
+    
     void Mesh::save_vtk(const std::string& filename) const 
     {
         std::ofstream os(filename.c_str());
@@ -1004,7 +1004,7 @@ namespace OpenMEEG {
         return mape;
     }
 
-    // get the 3 adjacents triangles of a triangle t
+    /// get the 3 adjacents triangles of a triangle t
     Mesh::VectPTriangle Mesh::adjacent_triangles(const Triangle& t) const 
     {
         VectPTriangle tris;
@@ -1023,9 +1023,8 @@ namespace OpenMEEG {
         return tris;
     }
 
-    unsigned Mesh::correct_local_orientation()
+    void Mesh::correct_local_orientation()
     {
-
         EdgeMap mape = compute_edge_map();
 
         bool reorient = false;
@@ -1046,7 +1045,6 @@ namespace OpenMEEG {
             tri_reoriented[&*begin()] = true;
             orient_adjacent_triangles(tri_stack, tri_reoriented);
         }
-        return 0;
     }
 
     void Mesh::orient_adjacent_triangles(std::stack<Triangle *>& t_stack, std::map<Triangle *, bool>& tri_reoriented) 

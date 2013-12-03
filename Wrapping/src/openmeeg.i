@@ -1,6 +1,7 @@
 %module(docstring="OpenMEEG bindings for python") openmeeg
 
 %include "std_string.i"
+%include "std_vector.i"
 
 %{
     #define SWIG_FILE_WITH_INIT
@@ -13,9 +14,9 @@
     #include <symmatrix.h>
     #include <sparse_matrix.h>
     #include <fast_sparse_matrix.h>
-    #include <diagmatrix.h>
     #include <sensors.h>
     #include <geometry.h>
+    #include <geometry_io.h>
     #include <mesh.h>
     #include <domain.h>
     #include <interface.h>
@@ -79,6 +80,21 @@
             return PyArray_Return ((PyArrayObject*) matarray);
         }
 
+        /* Create a Matrix or a Vector from an array
+           how to assign elements, ex: A(1,2)=4. ?
+        TODO:   check http://docs.scipy.org/doc/numpy/reference/c-api.types-and-structures.html at PyArray_GetPtr
+        static OpenMEEG::Vector* fomarray(PyArrayObject* vec) {
+            if (!vec) {
+                PyErr_SetString(PyExc_RuntimeError, "Zero pointer passed instead of valid array.");
+                return(NULL);
+            }
+            // create OM vector 
+            OpenMEEG::Vector vect(PyArray_Size(vec));
+            vect.data() = PyArray_GetPtr(vec,1); // this is not the correct way
+            return vect;
+        }
+        */
+
     #endif
 %}
 
@@ -126,8 +142,8 @@ import_array();
 %include <symmatrix.h>
 %include <sparse_matrix.h>
 %include <fast_sparse_matrix.h>
-%include <diagmatrix.h>
 %include <geometry.h>
+%include <geometry_io.h>
 %include <sensors.h>
 %include <mesh.h>
 %include <domain.h>
@@ -135,6 +151,15 @@ import_array();
 %include <assemble.h>
 %include <gain.h>
 %include <forward.h>
+
+/* TODO
+%include <cpointer.i>
+%pointer_class(Interface ,InterfaceP)
+We would like to have an Interface when asking for
+i=geom.outermost_interface()
+instead we have:
+<Swig Object of type 'Interface *' at 0xa1e1590>
+*/
 
 static PyObject* asarray(OpenMEEG::Matrix* _mat);
 static PyObject* asarray(OpenMEEG::Vector* _vec);

@@ -163,5 +163,4 @@ namespace OpenMEEG {
 
         assemble_Surf2Vol(geo, *this, m_points);
     }
-
 } // namespace OpenMEEG
