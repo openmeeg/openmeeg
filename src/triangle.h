@@ -106,11 +106,11 @@ namespace OpenMEEG {
         const unsigned& index()  const { return index_; }
 
         const Vertex& prev(const Vertex& V) const { 
-            if ( V == *vertices_[0]) {
+            if ( &V == vertices_[0]) {
                 return *vertices_[2];
-            } else if ( V == *vertices_[1] ) {
+            } else if ( &V == vertices_[1] ) {
                 return *vertices_[0];
-            } else if ( V == *vertices_[2] ) {
+            } else if ( &V == vertices_[2] ) {
                 return *vertices_[1];
             } else {
                 static Vertex v;
@@ -118,11 +118,11 @@ namespace OpenMEEG {
             }
         }
         const Vertex& next(const Vertex& V) const { 
-            if ( V == *vertices_[0]) {
+            if ( &V == vertices_[0]) {
                 return *vertices_[1];
-            } else if ( V == *vertices_[1] ) {
+            } else if ( &V == vertices_[1] ) {
                 return *vertices_[2];
-            } else if ( V == *vertices_[2] ) {
+            } else if ( &V == vertices_[2] ) {
                 return *vertices_[0];
             } else {
                 static Vertex v;
