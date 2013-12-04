@@ -104,7 +104,7 @@ int main () {
     M.info();
 
     // SVD (wikipedia example)
-    M1 = Matrix(4,5);
+    M1 = Matrix(4,5); M1.set(0.0);
     M1(0, 0) = 1; M1(0, 4) = 2;
     M1(1, 2) = 3; M1(3, 1) = 4;
 
