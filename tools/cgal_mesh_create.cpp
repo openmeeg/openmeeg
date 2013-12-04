@@ -40,7 +40,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include "mesh.h"
 #include <assert.h>
 #include "options.h"
-#include "cgal_mesh_include.h"
+#include "cgal_mesh.h"
 
 #include <CGAL/IO/Complex_2_in_triangulation_3_file_writer.h>
 

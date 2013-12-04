@@ -37,32 +37,33 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#include "mesh.h"
+#include <mesh.h>
 #include <assert.h>
-#include "options.h"
+#include <options.h>
 #include "cgal_mesh.h"
-#include <CGAL/Polyhedral_mesh_domain_3.h>
+#include <CGAL/Gray_level_image_3.h>
+#include <CGAL/Implicit_mesh_domain_3.h>
 
 using namespace OpenMEEG;
 // To avoid verbose function and named parameters call
 using namespace CGAL::parameters;
 
-typedef CGAL::Polyhedron_3<K> Polyhedron;
-// Domain 
-typedef CGAL::Polyhedral_mesh_domain_3<Polyhedron, K> Mesh_domain;
+typedef CGAL::Gray_level_image_3<Geom_traits::FT, Geom_traits::Point_3> Gray_level_image;
+typedef CGAL::Implicit_mesh_domain_3<Gray_level_image, K> Mesh_domain;
 
-// Triangulation
 typedef CGAL::Mesh_triangulation_3<Mesh_domain>::type Tr;
 typedef CGAL::Mesh_complex_3_in_triangulation_3<Tr> C3t3;
 // Criteria
 typedef CGAL::Mesh_criteria_3<Tr> Mesh_criteria;
 
+typedef Tr::Vertex_handle Vertex_handle;
 typedef K::Point_3 Point_3;
 typedef K::FT FT;
 
 int main(int argc, char **argv) {
-    command_usage("Re-mesh a mesh:");
-    const char * input_filename  = command_option("-i",(const char *) NULL,"Input image or mesh");
+    command_usage("Create a BEM mesh from a 3D levelset image (.inr format v4):");
+    const char * input_filename  = command_option("-i",(const char *) NULL,"Input mesh");
+    const bool   inout           = command_option("-inout",false,"Inside out the image ?");
     const double radius_bound    = command_option("-fs",1e-1,"facet radius bound of elements");
     const double distance_bound  = command_option("-fd",1e-1,"facet distance bound to the input surface");
     const char * output_filename = command_option("-o",(const char *) NULL,"Output Mesh");
@@ -75,35 +76,30 @@ int main(int argc, char **argv) {
         return 0;
     }
 
-    // Mesh input
-    Mesh m_in(input_filename, false);
-    std::cout << "Input surface:\n nb of points: " << m_in.nb_vertices() << "\t nb of triangles:\t" << m_in.nb_triangles() << std::endl;
+    // Mesh criteria
+    bool   positive_inside  = inout;
+    double value_outside  = 1.;
+    double levelset_value = 0.;
+    Gray_level_image image(input_filename, levelset_value, positive_inside, value_outside); 
+    std::cout << "Input INR image:\n dimension: " << image.xdim() << "x"<< image.ydim() << "x"<< image.zdim() << "\n Positive values are " << (positive_inside?"Inside":"Outside") << std::endl;
+    // Carefully choose bounding sphere: the center must be inside the
+    // surface defined by 'image' and the radius must be high enough so that
+    // the sphere actually bounds the whole image.
+    Point_3 bounding_sphere_center(image.xdim()/2., image.ydim()/2., image.zdim()/2.);
+    K::FT bounding_sphere_squared_radius = image.xdim()*image.ydim()*2.;
+    K::Sphere_3 bounding_sphere(bounding_sphere_center, bounding_sphere_squared_radius);
+
+    // Domain
+    // definition of the surface, with 10^-8 as relative precision
+    Mesh_domain domain(image, bounding_sphere, 1e-3);
 
     // Mesh criteria
     Mesh_criteria criteria(facet_angle=30, facet_size=radius_bound, facet_distance=distance_bound);
 
-    // Create input polyhedron
-    Polyhedron polyhedron;
-    for ( Mesh::const_iterator tit = m_in.begin(); tit != m_in.end(); ++tit) {
-        const Vertex p1 = tit->s1();
-        const Vertex p2 = tit->s2();
-        const Vertex p3 = tit->s3();
-        polyhedron.make_triangle(Point_3(p1.x(), p1.y(), p1.z()), Point_3(p2.x(), p2.y(), p2.z()), Point_3(p3.x(), p3.y(), p3.z()));
-    }
-    // Create domain
-    Mesh_domain domain(polyhedron);
-
-    C3t3 c3t3;
-    unsigned i = 0;
-    unsigned nb_initial_points = 5;
-    for ( Polyhedron::Vertex_iterator it = polyhedron.vertices_begin(); it != polyhedron.vertices_end(); it++, i++) {
-        if ( i% (m_in.nb_vertices() / (1+nb_initial_points)) == 0 ) {
-            c3t3.triangulation().insert(it->point());
-        }
-    }
     // Meshing
-    CGAL::refine_mesh_3(c3t3, domain, criteria, no_exude(), no_perturb());
+    C3t3 c3t3 = CGAL::make_mesh_3<C3t3>(domain, criteria, no_exude(), no_perturb());
 
+    // Output
     Mesh m_out = CGAL_to_OM(c3t3);
     m_out.save(output_filename);
     m_out.info();
