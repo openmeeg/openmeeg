@@ -394,7 +394,7 @@ namespace OpenMEEG {
 
     const Mesh::VectPTriangle& Mesh::get_triangles_for_vertex(const Vertex& V) const 
     {
-        std::map<const Vertex *, Mesh::VectPTriangle>::const_iterator it = links_.find(const_cast<Vertex *>(&V));
+        std::map<const Vertex *, Mesh::VectPTriangle>::const_iterator it = links_.find(&V);
         if ( it != links_.end() ) {
             return it->second;
         } else {
@@ -1093,17 +1093,17 @@ namespace OpenMEEG {
     }
 
     /// get the 3 adjacents triangles of a triangle t
-    Mesh::VectPTriangle Mesh::adjacent_triangles(const Triangle& t)
+    Mesh::VectPTriangle Mesh::adjacent_triangles(const Triangle& t) const
     {
         VectPTriangle tris;
         std::map<Triangle *, unsigned> mapt;
         for ( Triangle::const_iterator sit = t.begin(); sit != t.end(); ++sit) {
-            VectPTriangle tri1 = links_[*sit];
+            VectPTriangle tri1 = links_.at(*sit);
             for ( VectPTriangle::const_iterator tit = tri1.begin(); tit != tri1.end(); ++tit) {
                 if ( mapt.count(*tit) == 0 ) {
                     mapt[*tit] = 1;
                 } else {
-                    mapt[*tit]++; // TODO const_cast are ugly ?
+                    mapt[*tit]++;
                 }
             }
         }
