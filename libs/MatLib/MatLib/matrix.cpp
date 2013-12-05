@@ -123,17 +123,20 @@ namespace OpenMEEG {
     void Matrix::svd(Matrix &U, Matrix &S, Matrix &V) const {
     #ifdef HAVE_LAPACK
         Matrix cpy(*this,DEEP_COPY);
-        int mimi = (int)std::min(nlin(),ncol());
-        U = Matrix(nlin(),ncol()); U.set(0);
+        int mini = (int)std::min(nlin(),ncol());
+        int maxi = (int)std::max(nlin(),ncol());
+        U = Matrix(nlin(),nlin()); U.set(0);
+        S = Matrix(nlin(),ncol()); S.set(0);
         V = Matrix(ncol(),ncol()); V.set(0);
-        S = Matrix(ncol(),ncol()); S.set(0);
-        double *s=new double[mimi];
-        int lwork=4 *mimi*mimi + (int)std::max(nlin(),ncol()) + 9*mimi;
-        double *work=new double[lwork];
-        int *iwork=new int[8*mimi];
+        double *s = new double[mini];
+        // int lwork = 4 *mini*mini + maxi + 9*mini; 
+        // http://www.netlib.no/netlib/lapack/double/dgesdd.f :
+        int lwork = 4 *mini*mini + std::max(maxi,4*mini*mini+4*mini);
+        double *work = new double[lwork];
+        int *iwork = new int[8*mini];
         int info;
-        DGESDD('S',nlin(),ncol(),cpy.data(),nlin(),s,U.data(),U.nlin(),V.data(),V.nlin(),work,lwork,iwork,info);
-        for ( size_t i = 0; i < mimi; ++i) S(i, i) = s[i];
+        DGESDD('A',nlin(),ncol(),cpy.data(),nlin(),s,U.data(),U.nlin(),V.data(),V.nlin(),work,lwork,iwork,info);
+        for ( size_t i = 0; i < mini; ++i) S(i, i) = s[i];
         V = V.transpose();
         delete[] s;
         delete[] work;
