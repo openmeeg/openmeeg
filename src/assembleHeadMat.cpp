@@ -137,10 +137,10 @@ namespace OpenMEEG {
         for ( Geometry::const_iterator mit1 = geo.begin(); mit1 != geo.end(); ++mit1) {
             for ( Geometry::const_iterator mit2 = geo.begin(); (mit2 != (mit1+1)); ++mit2) {
                 // if mit1 and mit2 communicate, i.e they are used for the definition of a common domain
-                const double orientation = geo.oriented(*mit1, *mit2); // equals  0, if they don't have any domains in common
-                // equals  1, if they are both oriented toward the same domain
-                // equals -1, if they are not
-                if ( std::abs(orientation) > 10.*std::numeric_limits<double>::epsilon() ) {
+                const int orientation = geo.oriented(*mit1, *mit2); // equals  0, if they don't have any domains in common
+                                                                    // equals  1, if they are both oriented toward the same domain
+                                                                    // equals -1, if they are not
+                if ( orientation != 0) {
                     double Scoeff =   orientation * geo.sigma_inv(*mit1, *mit2) * K;
                     double Dcoeff = - orientation * geo.indicator(*mit1, *mit2) * K;
                     double Ncoeff;
