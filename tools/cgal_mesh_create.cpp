@@ -40,7 +40,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include "mesh.h"
 #include <assert.h>
 #include "options.h"
-#include "cgal_mesh_include.h"
+#include "cgal_mesh.h"
 
 #include <CGAL/IO/Complex_2_in_triangulation_3_file_writer.h>
 
@@ -48,13 +48,14 @@ using namespace OpenMEEG;
 
 int main(int argc, char **argv) {
     command_usage("Create a BEM mesh from either a very fine mesh, a 3D image (.inr format v4), or sphere (no input file):");
-    const char *input_filename = command_option("-i",(const char *) NULL,"Input image or mesh");
-    const double radius_bound = command_option("-fs",1e-1,"facet radius bound of elements");
-    const double distance_bound = command_option("-fd",1e-1,"facet distance bound to the input surface");
-    const char *output_filename = command_option("-o",(const char *) NULL,"Output Mesh");
-    const double sphere_radius = command_option("-r", 0., "radius of the sphere");
+    const char * input_filename  = command_option("-i",(const char *) NULL,"Input image or mesh");
+    const bool   inout           = command_option("-inout",false,"Inside out the image ?");
+    const double radius_bound    = command_option("-fs",1e-1,"facet radius bound of elements");
+    const double distance_bound  = command_option("-fd",1e-1,"facet distance bound to the input surface");
+    const char * output_filename = command_option("-o",(const char *) NULL,"Output Mesh");
+    const double sphere_radius   = command_option("-r", 0., "radius of the sphere");
     const double hemisphere_radius = command_option("-hr", 0., "radius of the hemisphere");
-    const unsigned init_points = command_option("-ip", 10, "initial number of points");
+    const unsigned init_points   = command_option("-ip", 10, "initial number of points");
 
     if ( command_option("-h",(const char *)0,0) ) { 
         return 0; 
@@ -75,7 +76,7 @@ int main(int argc, char **argv) {
     if ( input_filename != NULL ) {
         std::string extension = getNameExtension(input_filename);
         if ( extension == "inr" || extension == "inr4" ) {
-            bool positive_inside  = false;
+            bool positive_inside  = inout;
             double value_outside  = 1.;
             double levelset_value = 0.;
             image = new Gray_level_image(input_filename,levelset_value,positive_inside,value_outside); 
@@ -101,8 +102,8 @@ int main(int argc, char **argv) {
                 const Vertex p3 = tit->s3();
                 polyhedron.make_triangle(Point_3(p1.x(), p1.y(), p1.z()), Point_3(p2.x(), p2.y(), p2.z()), Point_3(p3.x(), p3.y(), p3.z()));
             }
-
-            Input_surface input_surf(polyhedron);
+            // Create domain
+            Polyhedral_mesh_domain poly_mesh(polyhedron);
 
             unsigned nb_initial_points = 5;
             unsigned i = 0; 
@@ -113,7 +114,7 @@ int main(int argc, char **argv) {
             }
             // Mesh generation
             CGAL::Surface_mesh_default_criteria_3<Tr> criteria(angle_bound, radius_bound, distance_bound);
-            CGAL::make_surface_mesh(c2t3, input_surf, input_surf, criteria, CGAL::Manifold_tag()); // make the surfacic mesh with a manifold criteria
+            CGAL::make_surface_mesh(c2t3, poly_mesh, poly_mesh, criteria, CGAL::Manifold_tag()); // make the surfacic mesh with a manifold criteria
         }
     } else { // implicit functions (sphere or hemisphere)
         if ( sphere_radius > 0.0001 ) {

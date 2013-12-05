@@ -196,6 +196,7 @@ namespace OpenMEEG {
                 (*vit)->normal() = normal;
             }
         }
+        correct_local_orientation();
     }
 
     /// properly merge two meshes into one (it does not dupplicate vertices)
@@ -226,7 +227,6 @@ namespace OpenMEEG {
             push_back(Triangle(*vit1, *vit2, *vit3));
         }
         update();
-        correct_local_orientation();
     }
 
     /// Flip all triangles
@@ -445,7 +445,6 @@ namespace OpenMEEG {
 
         if ( read_all ) {
             update();
-            correct_local_orientation();
         }
 
         if ( verbose ) {
