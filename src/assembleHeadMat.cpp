@@ -184,17 +184,27 @@ namespace OpenMEEG {
             }
         }
         // ** Construct P: the null-space projector **
+        std::cout << "SVD" << std::endl;
         Matrix W;
         {
             Matrix U, S;
             mat.svd(U, S, W);
+            mat.save("H.mat");
+            U.save("U.mat");
+            S.save("S.mat");
+            W.save("W.mat");
         }
-        SparseMatrix S(W.nlin(), W.nlin());
+        Matrix S(W.nlin(), W.nlin());
+        S.set(0.);
         // we set S to 0 everywhere, except in the last part of the diag:
-        for ( unsigned i = cortex.nb_vertices()+cortex.nb_triangles(); i < Nc;++i) {
+        // for ( unsigned i = cortex.nb_vertices()+cortex.nb_triangles(); i < Nc;++i) {
+        for ( unsigned i = Nl; i < Nc; ++i) {
             S(i, i) = 1.0;
         }
+        std::cout << "P" << std::endl;
         Matrix P = (W * S) * W.transpose(); // P is a projector: P^2 = P and mat*P*X = 0
+        // Matrix P = W.submat(0,Nc,Nl,Nc-Nl); // Maureen
+        std::cout << "||P|| = " << P.frobenius_norm() << std::endl;
 
         // ** Get the gradient of P1&P0 elements on the meshes **
         SparseMatrix R(3*(geo.outermost_interface().rbegin()->mesh().rbegin()->index()+1), Nc); // nb_line = 3 * nb_triangles (or 3*(index 
@@ -222,15 +232,24 @@ namespace OpenMEEG {
         // ( (P' * M' * M * P) + (P' * R' * R * P) ) * Y = P' * M'm
         //  P' * ( M' * M + R' * R ) * P * Y = Z * Y = P' * M'm
         // X = P * Y = P * Z^(-1) * P' * M'm
+        std::cout << "MM" << std::endl;
         Matrix MM (M.transpose() * M);
+        std::cout << "RR" << std::endl;
         Matrix RR (R.transpose() * R);
-        Matrix Z1 = P.transpose() * M.transpose() * M * P;
-        Matrix Z2 = P.transpose() * (alphas * R.transpose() * R) * P;
-        Matrix Z = P.transpose() * (M.transpose() * M + (alphas * R.transpose() ) * R) * P;
+        std::cout << "Z1" << std::endl;
+        Matrix Z1 = P.transpose() * MM * P;
+        std::cout << "Z2" << std::endl;
+        Matrix Z2 = P.transpose() * RR * P;
+        std::cout << "Z" << std::endl;
+        // Matrix Z = P.transpose() * (MM + alphas * RR) * P;
+        Matrix Z = Z1 + alphas*Z2;
+        std::cout << "saves" << std::endl;
         Z.save("Z.mat"); Z1.save("Z1.mat"); Z2.save("Z2.mat");
-        MM.save("MM.mat"); RR.save("RR.mat"); P.save("P.mat");
+        M.save("M.mat");MM.save("MM.mat"); RR.save("RR.mat"); P.save("P.mat");
+        std::cout << "norms" << std::endl;
         std::cout << "Z1.norm() = " << Z1.frobenius_norm() << std::endl;
         std::cout << "Z2.norm() = " << Z2.frobenius_norm() << std::endl;
+        std::cout << "mat" << std::endl;
         mat = P * Z.pinverse() * P.transpose() * M.transpose();
         // mat = P * (P.transpose() * (M.transpose() * M + (alphas * R.transpose() ) * R) * P).pinverse() * P.transpose() * M.transpose();
     }
