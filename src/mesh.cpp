@@ -225,8 +225,8 @@ namespace OpenMEEG {
             Vertices::iterator vit3 = std::find(all_vertices_->begin(), all_vertices_->end(), tit->s3());
             push_back(Triangle(*vit1, *vit2, *vit3));
         }
-        correct_local_orientation();
         update();
+        correct_local_orientation();
     }
 
     /// Flip all triangles
@@ -445,6 +445,7 @@ namespace OpenMEEG {
 
         if ( read_all ) {
             update();
+            correct_local_orientation();
         }
 
         if ( verbose ) {
@@ -1063,7 +1064,7 @@ namespace OpenMEEG {
         os.close();
     }
 
-    Mesh::EdgeMap Mesh::compute_edge_map() const 
+    const Mesh::EdgeMap Mesh::compute_edge_map() const 
     {
         // define the triangle edges as (first vertex, second vertex)
         // if a triangle edge is ordered with (lower index, higher index) add 1 to its map else remove 1
@@ -1071,10 +1072,20 @@ namespace OpenMEEG {
         EdgeMap mape; // map the edges with an unsigned
         for ( const_iterator tit = begin(); tit != end(); ++tit) {
             for ( unsigned j = 0; j < 3; ++j) {
-                if ( (*tit)(j).index() > (*tit)((j+1)%3).index() ) {
-                    mape[std::make_pair((*tit)[j], (*tit)[(j+1)%3])]++;
+                if ( (*tit)[j]->index() > (*tit)[j+1]->index() ) {
+                    std::pair<const Vertex *, const Vertex *> pairv((*tit)[j], (*tit)[j+1]);
+                    if ( mape.count(pairv) == 0 ) {
+                        mape[pairv] = 1;
+                    } else {
+                        mape[pairv]++;
+                    }
                 } else {
-                    mape[std::make_pair((*tit)[(j+1)%3], (*tit)[j])]--;
+                    std::pair<const Vertex *, const Vertex *> pairv((*tit)[j+1], (*tit)[j]);
+                    if ( mape.count(pairv) == 0 ) {
+                        mape[pairv] = -1;
+                    } else {
+                        mape[pairv]--;
+                    }
                 }
             }
         }
@@ -1082,14 +1093,18 @@ namespace OpenMEEG {
     }
 
     /// get the 3 adjacents triangles of a triangle t
-    Mesh::VectPTriangle Mesh::adjacent_triangles(const Triangle& t) const 
+    Mesh::VectPTriangle Mesh::adjacent_triangles(const Triangle& t)
     {
         VectPTriangle tris;
         std::map<Triangle *, unsigned> mapt;
         for ( Triangle::const_iterator sit = t.begin(); sit != t.end(); ++sit) {
-            VectPTriangle tri1 = links_.at(*sit);
+            VectPTriangle tri1 = links_[*sit];
             for ( VectPTriangle::const_iterator tit = tri1.begin(); tit != tri1.end(); ++tit) {
-                mapt[const_cast<Triangle *>(*tit)]++; // TODO const_cast are ugly ?
+                if ( mapt.count(*tit) == 0 ) {
+                    mapt[*tit] = 1;
+                } else {
+                    mapt[*tit]++; // TODO const_cast are ugly ?
+                }
             }
         }
         for ( std::map<Triangle *, unsigned>::iterator mit = mapt.begin(); mit != mapt.end(); ++mit) {
@@ -1102,19 +1117,7 @@ namespace OpenMEEG {
 
     void Mesh::correct_local_orientation()
     {
-        EdgeMap mape = compute_edge_map();
-
-        bool reorient = false;
-
-        for ( EdgeMap::const_iterator eit = mape.begin(); eit != mape.end(); ++eit) {
-            if ( eit->second == 2 ) {
-                std::cerr << "Local orientation problem..." << std::endl << std::endl;
-                reorient = true;
-                break;
-            }
-        }
-
-        if ( reorient ) {
+        if ( !has_correct_orientation() ) {
             std::cerr << "Reorienting..." << std::endl << std::endl;
             std::stack<Triangle *>     tri_stack;
             std::map<Triangle *, bool> tri_reoriented;
@@ -1130,7 +1133,7 @@ namespace OpenMEEG {
             Triangle * t = t_stack.top();
             t_stack.pop();
             VectPTriangle t_adj = adjacent_triangles(*t);
-            for ( std::vector<Triangle *>::iterator tit = t_adj.begin(); tit != t_adj.end(); ++tit) {
+            for ( VectPTriangle::iterator tit = t_adj.begin(); tit != t_adj.end(); ++tit) {
                 if ( tri_reoriented.count(*tit) == 0 ) {
                     t_stack.push(*tit);
                     for ( Triangle::iterator vit = (*tit)->begin(); vit != (*tit)->end(); ++vit) {
@@ -1149,10 +1152,10 @@ namespace OpenMEEG {
     {
         /// Check the local orientation (that all the triangles are all oriented in the same way)
 
-        EdgeMap mape = compute_edge_map();
+        const EdgeMap mape = compute_edge_map();
 
         for ( EdgeMap::const_iterator eit = mape.begin(); eit != mape.end(); ++eit) {
-            if ( eit->second == 2 ) {
+            if ( std::abs(eit->second) == 2 ) {
                 std::cerr << "Local orientation problem..." << std::endl << std::endl;
                 return false;
             }

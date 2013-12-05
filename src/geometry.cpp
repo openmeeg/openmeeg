@@ -252,13 +252,13 @@ namespace OpenMEEG {
     }
     
     /// \return 0. for non communicating meshes, 1. for same oriented meshes, -1. for different orientation
-    const double Geometry::oriented(const Mesh& m1, const Mesh& m2) const 
+    const int Geometry::oriented(const Mesh& m1, const Mesh& m2) const 
     {
         Domains doms = common_domains(m1, m2); // 2 meshes have either 0, 1 or 2 domains in common
         if ( doms.size() == 0 ) {
-            return 0.;
+            return 0;
         } else {
-            return (( doms[0].mesh_orientation(m1) == doms[0].mesh_orientation(m2) ) ? 1. : -1.);
+            return (( doms[0].mesh_orientation(m1) == doms[0].mesh_orientation(m2) ) ? 1 : -1);
         }
     }
 

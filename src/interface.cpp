@@ -116,14 +116,15 @@ namespace OpenMEEG {
         } else if ( std::abs(solangle + 4.*M_PI) < 1.e3*std::numeric_limits<double>::epsilon()) {
             closed = true;
         } else if ( std::abs(solangle - 4.*M_PI) < 1.e3*std::numeric_limits<double>::epsilon()) {
-            // TODO We still have to reorient the interface, but the code should be able with very little work to
+            // TODO we still have to reorient the interface, but the code should be able with very little work to
             // be insensitive to global orientation of the interfaces, until that day, we reorient:
-            std::cout << "Global Reorientation of interface " << name() << std::endl;
+            std::cout << "Global reorientation of interface " << name() << std::endl;
             for ( Interface::iterator omit = begin(); omit != end(); ++omit) {
                 omit->second = !omit->second;
             }
             closed = true;
         } else {
+            std::cout << std::abs(solangle - 4.*M_PI)  << std::endl;
             closed = false;
         }
 
