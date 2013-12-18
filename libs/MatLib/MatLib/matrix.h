@@ -193,11 +193,14 @@ namespace OpenMEEG {
     
     inline double Matrix::frobenius_norm() const {
     #ifdef HAVE_LAPACK
+    if ( nlin()*ncol() != 0 ) {
         double Info;
-        Matrix b(*this,DEEP_COPY);
-        return DLANGE('F',nlin(),ncol(),b.data(),nlin(),&Info);
+        return DLANGE('F',nlin(),ncol(),data(),nlin(),&Info);
+    } else {
+        return 0;
+    }
     #else
-        double d=0;
+        double d = 0.;
         for (size_t i=0; i<nlin()*ncol(); i++) d+=data()[i]*data()[i];
         return sqrt(d);
     #endif
@@ -343,7 +346,7 @@ namespace OpenMEEG {
         exit(1);
     #endif
     }
-    
+
     inline Matrix Matrix::operator *(const Matrix &B) const {
         assert(ncol()==B.nlin());
         size_t p=ncol();

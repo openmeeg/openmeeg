@@ -134,8 +134,8 @@ namespace OpenMEEG {
         int lwork = 4 *mini*mini + std::max(maxi,4*mini*mini+4*mini);
         double *work = new double[lwork];
         int *iwork = new int[8*mini];
-        int info;
-        DGESDD('A',nlin(),ncol(),cpy.data(),nlin(),s,U.data(),U.nlin(),V.data(),V.nlin(),work,lwork,iwork,info);
+        int Info;
+        DGESDD('A',nlin(),ncol(),cpy.data(),nlin(),s,U.data(),U.nlin(),V.data(),V.nlin(),work,lwork,iwork,Info);
         for ( size_t i = 0; i < mini; ++i) S(i, i) = s[i];
         V = V.transpose();
         delete[] s;
@@ -144,6 +144,11 @@ namespace OpenMEEG {
     #else
         std::cerr<<"svd not implemented without blas/lapack"<<std::endl;
     #endif
+        if ( Info < 0) {
+            std::cout << "in svd: the "<< -Info << "-th argument had an illegal value." << std::endl;
+        } else if ( Info > 0) {
+            std::cout << "in svd: DBDSDC did not converge, updating process failed." << std::endl;
+        }
     }
 
     Matrix Matrix::operator *(const SparseMatrix &mat) const
