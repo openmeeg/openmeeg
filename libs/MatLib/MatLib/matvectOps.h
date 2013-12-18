@@ -119,6 +119,7 @@ namespace OpenMEEG {
         DSPTRF('U',A.nlin(),A.data(),pivots,Info);
         // Solve the linear system AX=B
         DSPTRS('U',A.nlin(),RHS.ncol(),A.data(),pivots,RHS.data(),A.nlin(),Info);
+        assert(Info == 0);
         return RHS;
     #else
         std::cerr << "!!!!! solveLin not defined : Try a GMres !!!!!" << std::endl;

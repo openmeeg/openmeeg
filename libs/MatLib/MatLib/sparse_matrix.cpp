@@ -44,9 +44,9 @@ knowledge of the CeCILL-B license and that you accept its terms.
 namespace OpenMEEG {
 
     double SparseMatrix::frobenius_norm() const {
-        double d=0;
+        double d = 0.;
         for ( const_iterator it = m_tank.begin() ; it != m_tank.end(); ++it) {
-            d += it->second*it->second;
+            d += std::pow(it->second,2);
         }
         return sqrt(d);
     }
@@ -130,6 +130,12 @@ namespace OpenMEEG {
             tsp(j,i) = it->second;
         }
         return tsp;
+    }
+
+    void SparseMatrix::set(double d) {
+        for( iterator it = m_tank.begin(); it != m_tank.end(); ++it) {
+            it->second = d;
+        }
     }
 
     void SparseMatrix::info() const {
