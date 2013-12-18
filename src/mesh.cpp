@@ -174,13 +174,6 @@ namespace OpenMEEG {
         // empty unessacary set
         set_vertices_.clear();
 
-        // computes the triangles normals
-        for ( iterator tit = begin(); tit != end(); ++tit) {
-            tit->normal()  = (tit->s1() - tit->s2())^(tit->s1() - tit->s3());
-            tit->area()    = tit->normal().norm() / 2.0;
-            tit->normal() /= tit->normal().norm();
-        }
-
         // make links
         links_.clear();
         for ( const_iterator tit = begin(); tit != end(); ++tit) {
@@ -189,31 +182,32 @@ namespace OpenMEEG {
             }
         }
 
-        // recompute the vertex normals // TODO useless are vertex normals
-        bool first_time = true;
-        for ( const_vertex_iterator vit = vertex_begin(); vit != vertex_end(); ++vit) {
-            if ( (*vit)->normal().norm() < 1.e3*std::numeric_limits<double>::min() ) {
-                if ( first_time ) {
-                    std::cout << "Recompute the normals for each vertex" << std::endl;
-                    first_time = false;
-                }
-                Normal normal(0);
-                for ( VectPTriangle::const_iterator tit = links_[*vit].begin(); tit != links_[*vit].end(); ++tit) {
-                    normal += (*tit)->normal();
-                }
-                normal.normalize();
-                (*vit)->normal() = normal;
-            }
-        }
         // If indices are not set, we generate them for sorting edge and testing orientation
         if ( (*vertex_begin())->index() == unsigned(-1) ) {
             generate_indices();
         }
         correct_local_orientation();
+
+        // computes the triangles normals (after having the mesh locally reoriented)
+        for ( iterator tit = begin(); tit != end(); ++tit) {
+            tit->normal()  = (tit->s1() - tit->s2())^(tit->s1() - tit->s3());
+            tit->area()    = tit->normal().norm() / 2.0;
+            tit->normal() /= tit->normal().norm();
+        }
+    }
+
+    /// compute the normal at vertex
+    Normal Mesh::normal(const Vertex& v) const {
+        Normal normal(0);
+        for ( VectPTriangle::const_iterator tit = links_.at(&v).begin(); tit != links_.at(&v).end(); ++tit) {
+            normal += (*tit)->normal();
+        }
+        normal.normalize();
+        return normal;
     }
 
     /// properly merge two meshes into one (it does not dupplicate vertices)
-    void  Mesh::merge(const Mesh& m1, const Mesh& m2) 
+    void Mesh::merge(const Mesh& m1, const Mesh& m2) 
     {
         if ( size() != 0 ) {
             warning("Mesh::merge Mesh must be empty.");
@@ -495,27 +489,8 @@ namespace OpenMEEG {
             return npts;
         }
 
-        if ( reader->GetNumberOfNormalsInFile() == 0 ) {
-            vtkPolyDataNormals *newNormals = vtkPolyDataNormals::New();
-            newNormals->SetInput(vtkMesh);
-            newNormals->Update();
-            vtkMesh = newNormals->GetOutput();
-        }
-
-        vtkDataArray *normalsData = vtkMesh->GetPointData()->GetNormals();
-
-        if ( npts != normalsData->GetNumberOfTuples() ) {
-            std::cerr << "Error: number of vertices is not equal to number of normals in vtk file, correct or remove the normals." << std::endl;
-            exit(1);
-        }
-
-        if ( normalsData->GetNumberOfComponents() != 3 ) {
-            std::cerr << "Error: wrong number of components of normals in vtk file, correct or remove the normals." << std::endl;
-            exit(1);
-        }
-
         for ( unsigned i = 0; i < npts; ++i) {
-            add_vertex(Vertex(vtkMesh->GetPoint(i)[0], vtkMesh->GetPoint(i)[1], vtkMesh->GetPoint(i)[2], normalsData->GetTuple(i)[0], normalsData->GetTuple(i)[1], normalsData->GetTuple(i)[2]));
+            add_vertex(Vertex(vtkMesh->GetPoint(i)[0], vtkMesh->GetPoint(i)[1], vtkMesh->GetPoint(i)[2]));
         }
 
         ntrgs = vtkMesh->GetNumberOfCells();
@@ -707,10 +682,7 @@ namespace OpenMEEG {
         for ( unsigned i = 0; i < npts; ++i) {
             add_vertex(Vertex(pts_raw[i*3+0], 
                               pts_raw[i*3+1], 
-                              pts_raw[i*3+2], 
-                              normals_raw[i*3+0], 
-                              normals_raw[i*3+1], 
-                              normals_raw[i*3+2]));
+                              pts_raw[i*3+2]));
         }
 
         reserve(ntrgs);
@@ -756,7 +728,7 @@ namespace OpenMEEG {
         for ( unsigned i = 0; i < npts; ++i) {
             Vertex v;
             Normal n;
-            f >> v >> v.normal();
+            f >> v >> n;
             add_vertex(v);
         }
         f >> ch >> ntrgs >> ntrgs >> ntrgs; // This number is repeated 3 times
@@ -923,7 +895,7 @@ namespace OpenMEEG {
         os << "POINT_DATA " << nb_vertices() << std::endl;
         os << "NORMALS normals float" << std::endl;
         for ( const_vertex_iterator vit = vertex_begin(); vit != vertex_end(); ++vit) {
-            os << (*vit)->normal() << std::endl;
+            os << normal(**vit) << std::endl;
         }
 
         os.close();
@@ -961,7 +933,7 @@ namespace OpenMEEG {
         unsigned i = 0;
         for ( const_vertex_iterator vit = vertex_begin(); vit != vertex_end(); ++vit, ++i) {
             map[*vit] = i;
-            os << **vit << " " << (*vit)->normal() << std::endl;
+            os << **vit << " " << normal(**vit) << std::endl;
         }
         os << "- " << nb_triangles() << " " << nb_triangles() << " " << nb_triangles() << std::endl;
         for ( const_iterator tit = begin(); tit != end(); ++tit) {
@@ -1029,9 +1001,10 @@ namespace OpenMEEG {
             pts_raw[i*3+0]     = (float)((*vit)->x());
             pts_raw[i*3+1]     = (float)((*vit)->y());
             pts_raw[i*3+2]     = (float)((*vit)->z());
-            normals_raw[i*3+0] = (float)((*vit)->normal().x());
-            normals_raw[i*3+1] = (float)((*vit)->normal().y());
-            normals_raw[i*3+2] = (float)((*vit)->normal().z());
+            Normal n = normal(**vit);
+            normals_raw[i*3+0] = (float)(n.x());
+            normals_raw[i*3+1] = (float)(n.y());
+            normals_raw[i*3+2] = (float)(n.z());
         }
 
         i = 0;

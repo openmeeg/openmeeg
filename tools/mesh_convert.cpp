@@ -97,13 +97,6 @@ int main( int argc, char **argv) {
             point(0) = v(0); point(1) = v(1); point(2) = v(2);
             Vector out_point = mat*point;
             v(0) = out_point(0); v(1) = out_point(1); v(2) = out_point(2);
-
-            Vect3& nm = (*vit)->normal();
-            Vector normal(4);
-            normal.set(0.0); // Hack to avoid the translation part
-            normal(0) = nm(0); normal(1) = nm(1); normal(2) = nm(2);
-            Vector out_normal = mat*normal;
-            nm(0) = out_normal(0); nm(1) = out_normal(1); nm(2) = out_normal(2);
         }
     }
 

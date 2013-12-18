@@ -21,9 +21,6 @@ int are_equal(const Mesh& m1, const Mesh& m2, double tol = 1e-12) {
         if ( !are_equal(**vit1, **vit2, tol)) {
             return 0;
         }
-        if ( !are_equal((*vit1)->normal(), (*vit2)->normal(), tol)) {
-            return 0;
-        }
     }
     for ( Mesh::const_iterator tit1 = m1.begin(), tit2 = m2.begin(); tit1 != m1.end(); ++tit1, ++tit2)
     {

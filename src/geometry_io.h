@@ -51,7 +51,6 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <vtkCellArray.h>
 #include <vtkDoubleArray.h>
 #include <vtkProperty.h>
-#include <vtkPolyDataNormals.h>
 #include <vtkPointData.h>
 #include <vtkCellData.h>
 #include <vtkDataArray.h>
@@ -77,29 +76,8 @@ namespace OpenMEEG {
         npts = vtkMesh->GetNumberOfPoints();
         vertices_.reserve(npts); // alocate memory for the vertices
 
-        if ( vtkMesh->GetPointData()->GetNormals()->GetNumberOfTuples() != vtkMesh->GetNumberOfPoints() ) {
-            std::cout << "Recomputes the vertices normals..." << std::endl;
-            vtkSmartPointer<vtkPolyDataNormals> newNormals = vtkSmartPointer<vtkPolyDataNormals>::New();
-            newNormals->SetInput(vtkMesh);
-            newNormals->Update();
-            vtkMesh = newNormals->GetOutput();
-        }
-
-        vtkSmartPointer<vtkDataArray> normals = vtkMesh->GetPointData()->GetNormals();
-
-        if ( npts != normals->GetNumberOfTuples() ) {
-            std::cerr << "Error: number of vertices is not equal to number of normals in vtp file, correct or remove the normals." << std::endl;
-            exit(1);
-        }
-
-        if ( normals->GetNumberOfComponents() != 3 ) {
-            std::cerr << "Error: wrong number of components of normals in vtp file, correct or remove the normals." << std::endl;
-            exit(1);
-        }
-
         for ( unsigned i = 0; i < npts; ++i) {
-            vertices_.push_back(Vertex(vtkMesh->GetPoint(i)[0], vtkMesh->GetPoint(i)[1], vtkMesh->GetPoint(i)[2],
-                                       normals->GetTuple(i)[0], normals->GetTuple(i)[1], normals->GetTuple(i)[2]));
+            vertices_.push_back(Vertex(vtkMesh->GetPoint(i)[0], vtkMesh->GetPoint(i)[1], vtkMesh->GetPoint(i)[2]));
         }
 
         // find the number of different meshes reading the string array associated with the cells
@@ -197,14 +175,10 @@ namespace OpenMEEG {
         unsigned i = 0;
         for ( Vertices::const_iterator vit = vertex_begin(); vit != vertex_end(); ++vit, ++i) {
             points->InsertNextPoint((*vit)(0), (*vit)(1), (*vit)(2));
-            const double n[3] = { vit->normal()(0), vit->normal()(1), vit->normal()(2)};
-            normals->InsertNextTupleValue(n);
             map[&*vit] = i;
         }
         // Add the vertices to polydata
         polydata->SetPoints(points);
-        // Add the normals to the points in the polydata
-        polydata->GetPointData()->SetNormals(normals);
 
         vtkSmartPointer<vtkCellArray> polys  = vtkSmartPointer<vtkCellArray>::New(); // the triangles
         

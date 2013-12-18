@@ -70,9 +70,10 @@ int main( int argc, char **argv)
         mat(i, 0) = (*vit)->x();
         mat(i, 1) = (*vit)->y();
         mat(i, 2) = (*vit)->z();
-        mat(i, 3) = (*vit)->normal().x();
-        mat(i, 4) = (*vit)->normal().y();
-        mat(i, 5) = (*vit)->normal().z();
+        Normal n = m.normal(**vit);
+        mat(i, 3) = n.x();
+        mat(i, 4) = n.y();
+        mat(i, 5) = n.z();
     }
 
     mat.save(output_filename);

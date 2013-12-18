@@ -160,6 +160,7 @@ namespace OpenMEEG {
         void flip_triangles(); ///< flip all triangles
         void correct_local_orientation(); ///< \brief correct the local orientation of the mesh triangles
         const VectPTriangle& get_triangles_for_vertex(const Vertex& V) const; ///< \biref get the triangles associated with vertex V \return the links
+        Normal normal(const Vertex& v) const; ///< \brief get the Normal at vertex
 
               bool& outermost()       { return outermost_; } /// \brief Returns True if it is an outermost mesh.
         const bool& outermost() const { return outermost_; }
