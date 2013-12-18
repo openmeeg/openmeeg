@@ -41,7 +41,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #include <vector.h>
 
-double eps = 0.01;
+double eps = 1.e-12;
 
 template <typename T>
 void genericTest(const std::string& basename, T &M) {
