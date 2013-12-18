@@ -81,15 +81,6 @@ namespace OpenMEEG {
     
     void Triangle::destroy() { }
 
-    const bool Triangle::operator==(const Triangle& T) const {
-        for ( Triangle::const_iterator i1 = begin(), i2 = T.begin(); i1 != end(); ++i1, ++i2) {
-            if ( **i1 != **i2 ) {
-                return false;
-            }
-        }
-        return true;
-    }
-
     void Triangle::flip() {
         Vertex * tmp = vertices_[0];
         vertices_[0] = vertices_[1];

@@ -92,15 +92,16 @@ namespace OpenMEEG {
               void       info(const bool verbous = false) const; ///< \brief Print information on the geometry
         const bool&      has_cond()                       const { return has_cond_; }
         const bool&      is_nested()                      const { return is_nested_; }
-        const bool       selfCheck()                      const; ///< \brief the geometry meshes intersect each other
-        const bool       check(const Mesh& m)             const; ///< \brief check if m intersect geometry meshes
+              bool       selfCheck()                      const; ///< \brief the geometry meshes intersect each other
+              bool       check(const Mesh& m)             const; ///< \brief check if m intersect geometry meshes
         const Vertices&  vertices()                       const { return vertices_; } ///< \brief returns the geometry vertices
         const Meshes&    meshes()                         const { return meshes_; } ///< \brief returns the geometry meshes
         const Domains&   domains()                        const { return domains_; } ///< \brief returns the geometry domains
-        const unsigned   size()                           const { return size_; } ///< \brief the total number of vertices + triangles
-        const unsigned   nb_vertices()                    const { return vertices_.size(); }
-        const unsigned   nb_domains()                     const { return domains_.size(); }
-        const unsigned   nb_meshes()                      const { return meshes_.size(); }
+              unsigned   size()                           const { return size_; } ///< \brief the total number of vertices + triangles
+              unsigned   nb_vertices()                    const { return vertices_.size(); }
+              unsigned   nb_triangles()                   const { return (size_-vertices_.size()); }
+              unsigned   nb_domains()                     const { return domains_.size(); }
+              unsigned   nb_meshes()                      const { return meshes_.size(); }
         const Interface& outermost_interface()            const; ///< \brief returns the outermost Interface of the geometry
         const Interface& interface(const std::string& id) const; ///< \brief returns the Interface called id \param id Interface name
         const Domain&    domain(const std::string&)       const; ///< \brief returns the Domain called id \param id Domain name
@@ -108,13 +109,13 @@ namespace OpenMEEG {
 
         void import_meshes(const Meshes& m); ///< \brief imports meshes from a list of meshes
 
-        const double  sigma     (const Domain& d)                const { return (d.sigma()); }
-        const double  sigma     (const Mesh& m1, const Mesh& m2) const { return funct_on_domains(m1, m2, IDENTITY); } // return the (sum) conductivity(ies) of the shared domain(s).
-        const double  sigma_inv (const Mesh& m1, const Mesh& m2) const { return funct_on_domains(m1, m2, INVERSE); } // return the (sum) inverse of conductivity(ies) of the shared domain(s).
-        const double  indicator (const Mesh& m1, const Mesh& m2) const { return funct_on_domains(m1, m2, INDICATOR); } // return the (sum) indicator function of the shared domain(s).
-        const double  sigma_diff(const Mesh& m) const; // return the difference of conductivities of the 2 domains.
-        const double  sigma     (const std::string&) const;
-        const int     oriented(const Mesh&, const Mesh&) const;
+        const double & sigma     (const Domain& d)                const { return (d.sigma()); }
+        double sigma     (const Mesh& m1, const Mesh& m2) const { return funct_on_domains(m1, m2, IDENTITY); } // return the (sum) conductivity(ies) of the shared domain(s).
+        double sigma_inv (const Mesh& m1, const Mesh& m2) const { return funct_on_domains(m1, m2, INVERSE); } // return the (sum) inverse of conductivity(ies) of the shared domain(s).
+        double indicator (const Mesh& m1, const Mesh& m2) const { return funct_on_domains(m1, m2, INDICATOR); } // return the (sum) indicator function of the shared domain(s).
+        double sigma_diff(const Mesh& m) const; // return the difference of conductivities of the 2 domains.
+        double sigma     (const std::string&) const;
+        int    oriented(const Mesh&, const Mesh&) const;
 
         void read(const std::string& geomFileName, const std::string& condFileName = "", const bool OLD_ORDERING = false);
         void load_vtp(const std::string& filename);
@@ -134,7 +135,7 @@ namespace OpenMEEG {
 
         void          generate_indices(const bool);
         const Domains common_domains(const Mesh&, const Mesh&) const;
-        const double  funct_on_domains(const Mesh&, const Mesh&, const Function& ) const;
+              double  funct_on_domains(const Mesh&, const Mesh&, const Function& ) const;
     };
 }
 

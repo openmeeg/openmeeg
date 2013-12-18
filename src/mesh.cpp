@@ -42,7 +42,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 namespace OpenMEEG {
 
-    Mesh::Mesh(const Mesh& m) 
+    Mesh::Mesh(const Mesh& m): Triangles()
     {
         *this = m;
     }
@@ -72,20 +72,20 @@ namespace OpenMEEG {
             }
             update();
         } else {
-            all_vertices_ = m.all_vertices_; // allocates space for the vertices and copy
+            all_vertices_ = m.all_vertices_;
             set_vertices_ = m.set_vertices_;
             allocate_ = false;
             for ( Triangles::const_iterator tit = m.begin(); tit != m.end(); ++tit) {
                 push_back(*tit);
             }
+            build_mesh_vertices();
         }
-        
         outermost_ = m.outermost_;
         name_      = m.name_;
     }
 
     /// Print informations about the mesh 
-    void Mesh::info() const 
+    void Mesh::info(const bool verbous) const 
     {
         std::cout << "Info:: Mesh name/ID : "  << name() << std::endl;
         std::cout << "\t\t# vertices  : " << nb_vertices() << std::endl;
@@ -100,6 +100,15 @@ namespace OpenMEEG {
         }
         std::cout << "\t\tMin Area : " << min_area << std::endl;
         std::cout << "\t\tMax Area : " << max_area << std::endl;
+        if ( verbous ) {
+            std::cout << "Indices :" << std::endl;
+            for ( const_vertex_iterator vit = vertex_begin(); vit != vertex_end(); ++vit) {
+                std::cout << "[" << **vit << "] = " << (*vit)->index() << std::endl;
+            }
+            for ( const_iterator tit = begin(); tit!= end(); ++tit) {
+                    std::cout << "[[" << tit->s1() << "] , [" << tit->s2() << "] , ["<< tit->s3() << "]] \t = " << tit->index() << std::endl;
+            }
+        }
     }
 
     void Mesh::build_mesh_vertices()
@@ -196,6 +205,10 @@ namespace OpenMEEG {
                 (*vit)->normal() = normal;
             }
         }
+        // If indices are not set, we generate them for sorting edge and testing orientation
+        if ( (*vertex_begin())->index() == unsigned(-1) ) {
+            generate_indices();
+        }
         correct_local_orientation();
     }
 
@@ -279,73 +292,50 @@ namespace OpenMEEG {
         return grad;
     }
 
-    /// P1Vector : aux function to compute the surfacic gradient TODO: verify
+    /// P1Vector : aux function to compute the surfacic gradient
     inline Vect3 Mesh::P1Vector(const Vect3 &p0, const Vect3 &p1, const Vect3 &p2) const
     {
-        Vect3 pim1pi = p0-p2;
-        Vect3 pim1pip1 = p1-p2;
-        Vect3 pim1H = ( (1.0 / pim1pip1.norm2()) * ( pim1pi * pim1pip1 ) ) * pim1pip1;
-        Vect3 piH = pim1H - pim1pi;
-        piH *= -1.0/piH.norm2();
-        return piH;
+        Vect3 a1 = p1^p2/(p0*(p1^p2));
+        return a1;
     }
 
-    /// Surface Gradient: surfacic gradient of the P1 and P0 elements TODO: verify
-    void Mesh::gradient(SparseMatrix &A) const 
+    /// Norm Surface Gradient: norm of the surfacic gradient of the P1 and P0 elements
+    void Mesh::gradient_norm(SymMatrix &A, double coeff) const 
     {
-        // P1 gradients: loop on triangles
-        for ( const_iterator tit = begin(); tit != end(); ++tit) {
-            for ( unsigned j = 0; j < 3; ++j) {
-                Vect3 grads = P1Vector((*tit)(j), (*tit)(j+1), (*tit)(j+2));
-                for ( unsigned i = 0; i < 3; ++i) {
-                    A(3*tit->index() + i, (*tit)(j).index()) = grads(i);
+        /// V
+        // self
+        for ( const_vertex_iterator vit = vertex_begin(); vit != vertex_end(); ++vit) {
+            for ( VectPTriangle::const_iterator tit = links_.at(*vit).begin(); tit != links_.at(*vit).end(); ++tit) {
+                Vertex * v2;
+                Vertex * v3;
+                if ( ((**tit)[0]) == *vit) {
+                    v2 = (**tit)[1]; v3 = (**tit)[2];
+                } else if ( (**tit)[1] == *vit) {
+                    v2 = (**tit)[2]; v3 = (**tit)[0];
+                } else {
+                    v2 = (**tit)[0]; v3 = (**tit)[1];
                 }
+                A((*vit)->index(), (*vit)->index()) += coeff * P1Vector(**vit, *v2, *v3).norm() * (*tit)->area();
             }
         }
+        // edges
+        for ( const_iterator tit = begin(); tit != end(); ++tit) {
+            for ( unsigned j = 0; j < 3; ++j) {
+                A(((*tit)(j)).index(), ((*tit)(j+1)).index()) += coeff * std::abs(P1Vector((*tit)(j), (*tit)(j+1), (*tit)(j+2)) * P1Vector((*tit)(j+1), (*tit)(j+2), (*tit)(j+3))) * tit->area();
+            }
+        }
+
         // P0 gradients: loop on triangles
         if ( !outermost_ ) { // if it is an outermost mesh: p=0 thus no need for computing it
             for ( const_iterator tit = begin(); tit != end(); ++tit) {
+                A(tit->index(), tit->index()) = 0.;
                 VectPTriangle Tadj = adjacent_triangles(*tit);
                 for ( VectPTriangle::const_iterator tit2 = Tadj.begin(); tit2 != Tadj.end(); ++tit2) {
-                    Vect3 grads = P0Vector(*tit, **tit2);
-                    for ( unsigned i = 0; i < 3; ++i) {
-                        A(3*tit->index() + i, (*tit2)->index()) = grads(i);
-                    }
+                    A(tit->index(), (*tit2)->index()) += coeff * P0Vector(*tit, **tit2).norm();
                 }
             }
         }
     }
-#if 0
-    // TODO: do
-    /// Norm Surface Gradient: norm of the surfacic gradient of the P1 and P0 elements
-    void Mesh::gradient_norm(SymMatrix &A) const 
-    {
-        for ( const_vertex_iterator vit1 = vertex_begin(); vit1 != vertex_end(); ++vit1) {
-            for ( const_vertex_iterator vit2 = vertex_begin(); vit2 != vertex_end(); ++vit2) {
-                A(vit->index(), tit->index()) = P1Vector((*tit)(j), (*tit)(j+1), (*tit)(j+2))
-            }
-        }
-        for ( const_iterator tit = begin(); tit != end(); ++tit) {
-            A(vit->index(), tit->index()) = 
-        }
-    }
-    // P1 gradients: loop on triangles
-    for ( const_iterator tit = begin(); tit != end(); ++tit) {
-        for ( unsigned j = 0; j < 3; ++j) {
-            Vect3 grads = P1Vector((*tit)(j), (*tit)(j+1), (*tit)(j+2));
-            A(3*tit->index() + i, (*tit)(j).index()) = grads(i);
-        }
-        // P0 gradients: loop on triangles
-        if ( !outermost_ ) { // if it is an outermost mesh: p=0 thus no need for computing it
-            VectPTriangle Tadj = adjacent_triangles(*tit);
-            for ( VectPTriangle::const_iterator tit2 = Tadj.begin(); tit2 != Tadj.end(); ++tit2) {
-                Vect3 grads = P0Vector(*tit, **tit2);
-                A(3*(*tit2)->index() + i, tit->index()) = grads(i);
-            }
-        }
-    }
-}
-#endif
 
     bool Mesh::has_self_intersection() const 
     {
@@ -452,17 +442,20 @@ namespace OpenMEEG {
         }
 
         if ( allocate_ && read_all ) { // we generates the indices of these mesh vertices
-            unsigned index = 0;
-            for ( Mesh::vertex_iterator vit = vertex_begin(); vit != vertex_end(); ++vit, ++index) {
-                (*vit)->index() = index;
-            }
-            index = 0;
-            for ( Mesh::iterator tit = begin(); tit!= end(); ++tit, ++index) {
-                tit->index() = index;
-            }
+            generate_indices();
         } 
 
         return return_value;
+    }
+
+    void Mesh::generate_indices() {
+        unsigned index = 0;
+        for ( vertex_iterator vit = vertex_begin(); vit != vertex_end(); ++vit, ++index) {
+            (*vit)->index() = index;
+        }
+        for ( iterator tit = begin(); tit!= end(); ++tit, ++index) {
+            tit->index() = index;
+        }
     }
 
     void Mesh::save(const std::string& filename) const
@@ -1071,7 +1064,7 @@ namespace OpenMEEG {
         EdgeMap mape; // map the edges with an unsigned
         for ( const_iterator tit = begin(); tit != end(); ++tit) {
             for ( unsigned j = 0; j < 3; ++j) {
-                if ( (*tit)[j]->index() > (*tit)[j+1]->index() ) {
+                if ( (*tit)(j).index() > (*tit)(j+1).index() ) {
                     std::pair<const Vertex *, const Vertex *> pairv((*tit)[j], (*tit)[j+1]);
                     if ( mape.count(pairv) == 0 ) {
                         mape[pairv] = 1;
@@ -1150,7 +1143,6 @@ namespace OpenMEEG {
     bool Mesh::has_correct_orientation() const 
     {
         /// Check the local orientation (that all the triangles are all oriented in the same way)
-
         const EdgeMap mape = compute_edge_map();
 
         for ( EdgeMap::const_iterator eit = mape.begin(); eit != mape.end(); ++eit) {

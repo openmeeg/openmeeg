@@ -42,7 +42,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 namespace OpenMEEG {
 
     /// Computes the total solid angle of a surface for a point p and tells whether p is inside the mesh or not.
-    const bool Interface::contains_point(const Vect3& p) const 
+    bool Interface::contains_point(const Vect3& p) const 
     {
         double solangle = compute_solid_angle(p);
 
@@ -80,7 +80,7 @@ namespace OpenMEEG {
     }
 
     /// Check the global orientation: that the triangles are correctly oriented (outward-pointing normal)
-    const bool Interface::check()
+    bool Interface::check()
     {
         /// compute the bounding box:
         double xmin = std::numeric_limits<double>::max();

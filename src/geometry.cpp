@@ -194,7 +194,7 @@ namespace OpenMEEG {
         size_ = index;
     }
 
-    const double Geometry::sigma(const std::string& name) const 
+    double Geometry::sigma(const std::string& name) const 
     {
         for ( std::vector<Domain>::const_iterator dit = domain_begin(); dit != domain_end(); ++dit) {
             if ( name == dit->name() ) {
@@ -223,7 +223,7 @@ namespace OpenMEEG {
     }
 
     /// \return a function (sum, difference,...) of the conductivity(ies) of the shared domain(s).
-    const double Geometry::funct_on_domains(const Mesh& m1, const Mesh& m2, const Function& f) const 
+    double Geometry::funct_on_domains(const Mesh& m1, const Mesh& m2, const Function& f) const 
     {
         Domains doms = common_domains(m1, m2);
         double ans=0.;
@@ -242,7 +242,7 @@ namespace OpenMEEG {
     }
 
     /// \return the difference of conductivities of the 2 domains.
-    const double  Geometry::sigma_diff(const Mesh& m) const {
+    double  Geometry::sigma_diff(const Mesh& m) const {
         Domains doms = common_domains(m, m); // Get the 2 domains surrounding mesh m
         double  ans  = 0.;
         for ( Domains::iterator dit = doms.begin(); dit != doms.end(); ++dit) {
@@ -252,7 +252,7 @@ namespace OpenMEEG {
     }
     
     /// \return 0. for non communicating meshes, 1. for same oriented meshes, -1. for different orientation
-    const int Geometry::oriented(const Mesh& m1, const Mesh& m2) const 
+    int Geometry::oriented(const Mesh& m1, const Mesh& m2) const 
     {
         Domains doms = common_domains(m1, m2); // 2 meshes have either 0, 1 or 2 domains in common
         if ( doms.size() == 0 ) {
@@ -262,7 +262,7 @@ namespace OpenMEEG {
         }
     }
 
-    const bool Geometry::selfCheck() const
+    bool Geometry::selfCheck() const
     {
         bool OK = true;
 
@@ -291,7 +291,7 @@ namespace OpenMEEG {
         return OK;
     }
 
-    const bool Geometry::check(const Mesh& m) const 
+    bool Geometry::check(const Mesh& m) const 
     {
         bool OK = true;
         if ( m.has_self_intersection() ) {

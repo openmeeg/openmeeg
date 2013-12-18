@@ -58,11 +58,11 @@ namespace OpenMEEG {
         ///default constructors
         OrientedMesh() {}
 
-        OrientedMesh(Mesh& mesh, bool inside): base(&mesh, inside) {}
+        OrientedMesh(Mesh& _mesh, bool _inside): base(&_mesh, _inside) {}
 
               Mesh&  mesh()              { return *first;  } ///< \brief access mesh
         const Mesh&  mesh()        const { return *first;  } ///< \brief access mesh
-        const int    orientation() const { return ( second )?1:-1; } ///< \brief orientation is +1 or -1 ?
+              int    orientation() const { return ( second )?1:-1; } ///< \brief orientation is +1 or -1 ?
     };
 
     /** Interface class
@@ -76,16 +76,16 @@ namespace OpenMEEG {
         Interface(): name_(""), outermost_(false) { }
         
         /// Constructor from a name
-        Interface(const std::string name): name_(name), outermost_(false) { }
+        Interface(const std::string _name): name_(_name), outermost_(false) { }
 
         const std::string   name()                       const      { return name_; } ///< \return Interface name
-        const bool          outermost()                  const      { return outermost_; } ///< \return true if it is the outermost interface.
+        const bool &        outermost()                  const      { return outermost_; } ///< \return true if it is the outermost interface.
               void          set_to_outermost(); ///< set all interface meshes to outermost state.
-        const bool          contains_point(const Vect3& p) const; ///< \param p a point \return true if point is inside interface
-        const bool          check(); ///< Check the global orientation
+              bool          contains_point(const Vect3& p) const; ///< \param p a point \return true if point is inside interface
+              bool          check(); ///< Check the global orientation
 
         /// \return the total number of the interface vertices
-        const unsigned nb_vertices() const {
+        unsigned nb_vertices() const {
             unsigned nb = 0;
             for ( const_iterator omit = begin(); omit != end(); ++omit) {
                 nb += omit->mesh().nb_vertices();
@@ -94,7 +94,7 @@ namespace OpenMEEG {
         }
         
         /// \return the total number of the interface triangles
-        const unsigned nb_triangles() const {
+        unsigned nb_triangles() const {
             unsigned nb = 0;
             for ( const_iterator omit = begin(); omit != end(); ++omit) {
                 nb += omit->mesh().nb_triangles();

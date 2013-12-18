@@ -77,30 +77,30 @@ namespace OpenMEEG {
         const Vertex *   operator[](const unsigned& vindex) const { return vertices_[vindex%3];  }
               Vertex &   operator()(const unsigned& vindex)       { return *vertices_[vindex%3]; } // 0 <= 'index' <= '2'
         const Vertex &   operator()(const unsigned& vindex) const { return *vertices_[vindex%3]; }
-        const bool       operator==(const Triangle& T) const;
+              bool       operator==(const Triangle& T)      const { return (T[0]==vertices_[0])&(T[1]==vertices_[1])&(T[2]==vertices_[2]); }
                                                  
               Vertex&        vertex(const unsigned& vindex)       { return operator()(vindex%3); }
         const Vertex&        vertex(const unsigned& vindex) const { return operator()(vindex%3); }
 
         /// Iterators.
-        const const_iterator begin()               const { return const_iterator(vertices_); }
-        const const_iterator end()                 const { return const_iterator(vertices_+3); }
-              iterator       begin()                     { return iterator(vertices_);       }
-              iterator       end()                       { return iterator(vertices_+3);       }
+        const_iterator begin() const { return const_iterator(vertices_); }
+        const_iterator end()   const { return const_iterator(vertices_+3); }
+        iterator       begin()       { return iterator(vertices_);       }
+        iterator       end()         { return iterator(vertices_+3);       }
 
-        const Vertex&   s1()     const { return *vertices_[0]; }
-        const Vertex&   s2()     const { return *vertices_[1]; }
-        const Vertex&   s3()     const { return *vertices_[2]; }
+        const Vertex&  s1()    const { return *vertices_[0]; }
+        const Vertex&  s2()    const { return *vertices_[1]; }
+        const Vertex&  s3()    const { return *vertices_[2]; }
 
-              Vertex&   s1()           { return *vertices_[0]; }
-              Vertex&   s2()           { return *vertices_[1]; }
-              Vertex&   s3()           { return *vertices_[2]; }
+              Vertex&  s1()          { return *vertices_[0]; }
+              Vertex&  s2()          { return *vertices_[1]; }
+              Vertex&  s3()          { return *vertices_[2]; }
 
-              Normal&   normal()       { return normal_; }
-        const Normal&   normal() const { return normal_; }
+              Normal&  normal()       { return normal_; }
+        const Normal&  normal() const { return normal_; }
                                 
-              double&   area()         { return area_; }
-        const double&   area()   const { return area_; }
+              double&  area()         { return area_; }
+        const double&  area()   const { return area_; }
                                 
               unsigned& index()        { return index_; }
         const unsigned& index()  const { return index_; }

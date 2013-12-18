@@ -164,7 +164,12 @@ namespace OpenMEEG {
 
         if ( data.nlin() != 0 ) {
             // Check the data corresponds to the geometry
-            assert( data.nlin() == size() - outermost_interface().nb_triangles() );
+            bool HAS_OUTERMOST = false; // data has last p values ?
+            if (data.nlin() == size()) {
+                HAS_OUTERMOST = true;
+            } else {
+                assert( data.nlin() == size() - outermost_interface().nb_triangles() );
+            }
             for ( unsigned j = 0; j < data.ncol(); ++j) {
                 std::stringstream sdip;
                 sdip << j;
@@ -177,7 +182,7 @@ namespace OpenMEEG {
                 }
                 for ( Meshes::const_iterator mit = meshes_.begin(); mit != meshes_.end(); ++mit) {
                     for ( Mesh::const_iterator tit = mit->begin(); tit != mit->end(); ++tit) {
-                        if ( mit->outermost() ) {
+                        if ( mit->outermost() && !HAS_OUTERMOST ) {
                             currents[j]->InsertNextValue(0.);
                         } else {
                             currents[j]->InsertNextValue(data(tit->index(), j));
