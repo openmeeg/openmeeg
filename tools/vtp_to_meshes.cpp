@@ -55,8 +55,9 @@ int main( int argc, char **argv) {
     input  = command_option("-i", (const char *) NULL, "Input VTK/VTP file");
     output = command_option("-o", (const char *) NULL, "Output mesh base name");
 
-    if ( command_option("-h", (const char *)0, 0) )
+    if ( command_option("-h", (const char *)0, 0) ) {
         return 0;
+    }
 
     if ( input.empty() || output.empty() ) {
         std::cout << "Not enough arguments, try the -h option" << std::endl;

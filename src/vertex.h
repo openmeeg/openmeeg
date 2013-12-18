@@ -48,7 +48,7 @@ namespace OpenMEEG {
     /** \brief  Vertex
 
         Vertex Class
-        derived from a Vect3 Class, has an index and a normal
+        derived from a Vect3 Class, has an index
 
     **/
 
@@ -56,30 +56,22 @@ namespace OpenMEEG {
 
     public:
 
-        inline Vertex(): index_(-1), normal_(0.) {};
+        inline Vertex(): index_(-1) {};
         
-        inline Vertex(const double& _x, const double& _y, const double& _z): Vect3(_x, _y, _z), index_(-1), normal_(0.) { }
+        inline Vertex(const double& _x, const double& _y, const double& _z): Vect3(_x, _y, _z), index_(-1) { }
 
-        inline Vertex(const double& _x, const double& _y, const double& _z, const unsigned& id): Vect3(_x, _y, _z), index_(id), normal_(0.) { }
+        inline Vertex(const double& _x, const double& _y, const double& _z, const unsigned& id): Vect3(_x, _y, _z), index_(id) { }
 
-        inline Vertex(const Vect3& v): Vect3(v), index_(-1), normal_(0.) { }
-
-        inline Vertex(const double& _x, const double& _y, const double& _z, const double& nx, const double& ny, const double& nz): Vect3(_x, _y, _z), index_(-1), normal_(nx, ny, nz) { }
-
-        inline Vertex(const Vect3& v, const Vect3& n): Vect3(v), index_(-1), normal_(n) { }
+        inline Vertex(const Vect3& v): Vect3(v), index_(-1) { }
 
         inline ~Vertex() {};
 
               unsigned& index()       { return index_; }
         const unsigned& index() const { return index_; }
 
-              Normal&  normal()       { return normal_; }
-        const Normal&  normal() const { return normal_; }
-
     private:
 
         unsigned index_; ///< Index of the vertex
-        Normal normal_; ///< Normal at the vertex TODO remove normals ?
     };
 
     typedef std::vector<Vertex> Vertices;
