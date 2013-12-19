@@ -176,7 +176,7 @@ namespace OpenMEEG {
         Matrix A(size(),v.size());
         A.set(0.);
     #ifdef HAVE_BLAS
-        BLAS(dger,DGER)(CblasColMajor,(int)size(),(int)v.size(),1.,data(),1,v.data(),1,A.data(),(int)size());
+        DGER((int)size(),(int)v.size(),1.,data(),1,v.data(),1,A.data(),(int)size());
     #else
         for( unsigned int j=0; j<nlin(); j++ )
             for ( unsigned int i=0; i<nlin(); i++)

@@ -123,7 +123,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
         double BLAS(ddot,DDOT)(const int&,const double*,const int&,const double*,const int&);
         double BLAS(dnrm2,DNRM2)(const int&,const double*,const int&);
         void BLAS(dscal,DSCAL)(const int&,const double&,double*,const int&);
-        void BLAS(dger,DGER)(const int&,const int&,const double&,const double*,const int&,const double*,const int&,double*,const int&);
+        void BLAS(dger,DGER)(const char&,const int&,const int&,const double&,const double*,const int&,const double*,const int&,double*,const int&);
         void BLAS(dspmv,DSPMV)(const char&,const int&,const double&,const double*,const double*,const int&,const double&,double*,const int&);
         void BLAS(dtpmv,DTPMV)(const char&,const char&,const char&,const int&,const double*,double*,const int&);
         void BLAS(dsymm,DSYMM)(const char&,const char&,const int&,const int&,const double&,const double*,const int&,const double*,const int&, const double&,double*,const int&);
@@ -167,6 +167,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #define DSPTRS FC_GLOBAL(dsptrs,DSPTRS)
 
 #if defined(USE_ATLAS) || defined(USE_MKL)
+    #define DGER(X1,X2,X3,X4,X5,X6,X7,X8,X9) BLAS(dger,DGER)(CblasColMajor,X1,X2,X3,X4,X5,X6,X7,X8,X9)
     #define DSPMV(X1,X2,X3,X4,X5,X6,X7,X8,X9) BLAS(dspmv,DSPMV)(CblasColMajor,X1,X2,X3,X4,X5,X6,X7,X8,X9)
     #define DTPMV(X1,X2,X3,X4,X5,X6,X7) BLAS(dtpmv,DTPMV)(CblasColMajor,X1,X2,X3,X4,X5,X6,X7)
     #define DSYMM(X1,X2,X3,X4,X5,X6,X7,X8,X9,X10,X11,X12) BLAS(dsymm,DSYMM)(CblasColMajor,X1,X2,X3,X4,X5,X6,X7,X8,X9,X10,X11,X12)
@@ -189,6 +190,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
     #endif
     #define DSPTRI(X1,X2,X3,X4,X5,X6) FC_GLOBAL(dsptri,DSPTRI)(X1,X2,X3,X4,X5,X6)
 #else
+    #define DGER(X1,X2,X3,X4,X5,X6,X7,X8,X9) BLAS(dger,DGER)(X1,X2,X3,X4,X5,X6,X7,X8,X9)
     #define DSPMV(X1,X2,X3,X4,X5,X6,X7,X8,X9) BLAS(dspmv,DSPMV)(X1,X2,X3,X4,X5,X6,X7,X8,X9)
     #define DTPMV(X1,X2,X3,X4,X5,X6,X7) BLAS(dtpmv,DTPMV)(X1,X2,X3,X4,X5,X6,X7)
     #define DSYMM(X1,X2,X3,X4,X5,X6,X7,X8,X9,X10,X11,X12) BLAS(dsymm,DSYMM)(X1,X2,X3,X4,X5,X6,X7,X8,X9,X10,X11,X12)
