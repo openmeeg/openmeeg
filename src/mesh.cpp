@@ -206,6 +206,16 @@ namespace OpenMEEG {
         return normal;
     }
 
+    /// compute the normal at vertex
+    Normal Mesh::normal(const Vertex& v) const {
+        Normal normal(0);
+        for ( VectPTriangle::const_iterator tit = links_.at(&v).begin(); tit != links_.at(&v).end(); ++tit) {
+            normal += (*tit)->normal();
+        }
+        normal.normalize();
+        return normal;
+    }
+
     /// properly merge two meshes into one (it does not dupplicate vertices)
     void Mesh::merge(const Mesh& m1, const Mesh& m2) 
     {
