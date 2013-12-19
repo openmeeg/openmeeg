@@ -94,6 +94,7 @@ int main(int argc, char **argv) {
     const double hemisphere_radius = command_option("-hr", 0., "radius of the hemisphere");
     const double radius_bound      = command_option("-fs",1e-1,"facet radius bound of elements");
     const double distance_bound    = command_option("-fd",1e-1,"facet distance bound to the input surface");
+    // const unsigned init_points     = command_option("-ip", 10, "initial number of points (for the hemisphere)");
     const char * output_filename   = command_option("-o",(const char *) NULL,"Output Mesh");
 
     if ( command_option("-h",(const char *)0,0) ) { 
@@ -120,7 +121,18 @@ int main(int argc, char **argv) {
     if ( sphere_radius > 0.0001 ) {
         c3t3 = CGAL::make_mesh_3<C3t3>(sdomain, criteria, no_exude(), no_perturb());
     } else {
+        // if you want want to add initial points on the hemisphere circle (for a better definition),
+        // have a look here (it probably needs to construct the facets also ).
+        # if 0
+        std::pair<Tr::Point,unsigned> p[init_points];
+        for ( unsigned iip = 0; iip < init_points; ++iip) {
+            p[iip] = std::make_pair(Tr::Point(hemisphere_radius*std::cos(2.*M_PI/init_points*iip), hemisphere_radius*std::sin(2.*M_PI/init_points*iip) , 0),0);
+        }
+        c3t3.insert_surface_points(&p[0],&p[init_points-1]);
+        CGAL::refine_mesh_3<C3t3>(c3t3, hdomain, criteria, no_exude(), no_perturb());
+        #else
         c3t3 = CGAL::make_mesh_3<C3t3>(hdomain, criteria, no_exude(), no_perturb());
+        #endif
     }
 
     Mesh m_out = CGAL_to_OM(c3t3);
