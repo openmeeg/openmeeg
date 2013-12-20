@@ -207,9 +207,11 @@ namespace OpenMEEG {
             std::cout << "P" << std::endl;
             P = (W * S) * W.transpose(); // P is a projector: P^2 = P and mat*P*X = 0
             if ( filename.length() != 0 ) {
+                std::cout << "Saving projector P (" << filename << ")." << std::endl;
                 P.save(filename);
             }
         } else {
+            std::cout << "Loading projector P (" << filename << ")." << std::endl;
             P.load(filename);
         }
 
