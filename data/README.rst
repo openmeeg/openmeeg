@@ -163,17 +163,18 @@ Each domain name is followed by its conductivity value.
 Using the tools:
 ^^^^^^^^^^^^^^^^
 CGAL_  can generate surfacic meshes out of implicit functions, 3D image levelsets,...
-We here show how models such as *HeadNNc1* and *HeadNNc3* were generated, with the tool *om_cgal_create* using the implicit function hemisphere called using the option *'-hr'* which is the hemisphere radius::
+We here show how models such as *HeadNNc1* and *HeadNNc3* were generated, with the tool *om_cgal_mesh_function* using the implicit function hemisphere called using the option *'-hr'* which is the hemisphere radius::
 
-    ./tools/om_cgal_mesh_create -hr 0.87 -fs 0.5 -fd 0.05 -o northhemisphere.vtk -ip 30
+    ./tools/om_cgal_mesh_function -hr 0.87 -fs 0.5 -fd 0.05 -o northhemisphere.vtk
 
 this generates the northern hemisphere, which we create a mirror image to create the southern hemisphere with matching vertices at their interface.
 
-For more help on the tool *om_cgal_create* see::
+For more help on the cgal tools *om_cgal_mesh_function* see::
 
-   ./tools/om_cgal_mesh_create -h
-
-
+   ./tools/om_cgal_mesh_function -h
+   ./tools/om_cgal_remesh -h
+   ./tools/om_cgal_mesh_3Dlabeled_image -h
+   ./tools/om_cgal_mesh_3Dlevelset_image -h
 
 Using a tool such as Paraview_  we substract from these meshes their common interface (called *cut.vtk*), and merge all meshes into a single vtp file while naming these meshes::
  
