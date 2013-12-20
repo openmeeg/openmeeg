@@ -58,7 +58,7 @@ typedef K::Point_3 Point_3;
 typedef K::FT FT;
 
 int main(int argc, char **argv) {
-    command_usage("Create a BEM mesh from a 3D labeled image (.inr(.gz) use MedINRIA for conversion) (e.g a mask):");
+    command_usage("Create a BEM mesh from a 3D labeled image (.inr(.gz)) (e.g a mask):");
     const char * input_filename  = command_option("-i",(const char *) NULL,"Input mesh");
     const double radius_bound    = command_option("-fs",1e-1,"facet radius bound of elements");
     const double distance_bound  = command_option("-fd",1e-1,"facet distance bound to the input surface");
