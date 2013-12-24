@@ -46,7 +46,6 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <vtkPoints.h>
 #include <vtkXMLPolyDataReader.h>
 #include <vtkXMLPolyDataWriter.h>
-// #include <vtkPolyDataWriter.h>
 #include <vtkDataReader.h>
 #include <vtkCellArray.h>
 #include <vtkDoubleArray.h>

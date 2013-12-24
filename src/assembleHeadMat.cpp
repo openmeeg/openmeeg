@@ -218,12 +218,13 @@ namespace OpenMEEG {
         // ** Get the gradient of P1&P0 elements on the meshes **
         Matrix MM (M.transpose() * M); // OK
         SymMatrix sRR(Nc, Nc); sRR.set(0.);
-        double coeff[3] = {1., 1., 1.};
-        unsigned ii = 0;
-        for ( Geometry::const_iterator mit = geo.begin(); mit != geo.end(); ++mit, ++ii) {
-            mit->gradient_norm(sRR, coeff[ii]);
+        for ( Geometry::const_iterator mit = geo.begin(); mit != geo.end(); ++mit) {
+            mit->gradient_norm(sRR);
         }
         Matrix RR(sRR);
+        RR.save("RR.mat");
+        MM.save("MM.mat");
+        M.save("M.mat");
 
         // ** Choose Regularization parameter **
         Matrix alphas(Nc,Nc); // diagonal matrix
@@ -238,19 +239,18 @@ namespace OpenMEEG {
                 }
             }
         }
-        Matrix PtRRP = P.transpose() * RR * P;
         Matrix Z1, Z2;
         std::cout << "Z1" << std::endl;
         Z1 = P.transpose() * MM * P;
-        Z2 = alphas * PtRRP;
+        Z2 = P.transpose() * (alphas *  RR) * P;
         if ( alpha < 0 ) {
             alphas.set(0.);
             for ( Vertices::const_iterator vit = geo.vertex_begin(); vit != geo.vertex_end(); ++vit) {
                 alphas(vit->index(), vit->index()) = 1.;
             }
             std::cout << "Z2" << std::endl;
-            Z2 = alphas * PtRRP;
-            alpha = Z1.frobenius_norm() / (Z2.frobenius_norm());
+            Z2 = P.transpose() * (alphas *  RR) * P;
+            alpha = Z1.frobenius_norm() / (1.e3*Z2.frobenius_norm());
             alphas.set(0.);
             std::cout << "alpha = " << alpha << std::endl;
             for ( Meshes::const_iterator mit = geo.begin(); mit != geo.end(); ++mit) {
@@ -261,8 +261,8 @@ namespace OpenMEEG {
                 }
             }
             std::cout << "Z2 2" << std::endl;
-            Z2 = alphas * PtRRP;
-            beta = Z1.frobenius_norm() / (Z2.frobenius_norm());
+            Z2 = P.transpose() * (alphas *  RR) * P;
+            beta = Z1.frobenius_norm() / (0.5e3*Z2.frobenius_norm());
             std::cout << "beta = " << beta << std::endl;
             for ( Vertices::const_iterator vit = geo.vertex_begin(); vit != geo.vertex_end(); ++vit) {
                 alphas(vit->index(), vit->index()) = alpha;
@@ -274,7 +274,7 @@ namespace OpenMEEG {
                     }
                 }
             }
-            Z2 = alphas * PtRRP;            
+            Z2 = P.transpose() * (alphas *  RR) * P;
             std::cout << "AUTOalphas = " << alpha << std::endl;
             std::cout << "AUTObeta = " << beta << std::endl;
         } else {
@@ -283,18 +283,18 @@ namespace OpenMEEG {
         }
 
         std::cout << "|Z1| :" << std::endl;
-        // std::cout << Z1.frobenius_norm() << std::endl;
+        std::cout << Z1.frobenius_norm() << std::endl;
         std::cout << "|Z2| :" << std::endl;
-        // std::cout << Z2.frobenius_norm() << std::endl;
+        std::cout << Z2.frobenius_norm() << std::endl;
         std::cout << "Z" << std::endl;
         Matrix Z = Z1 + Z2;
         // ** PseudoInverse and return **
-        // ( (M*P)' * (M*P) + (R*P)' * (R*P) ) * Y = (M*P)'m
-        // ( (P' * M' * M * P) + a * (P' * R' * R * P) ) * Y = P' * M'm
-        // ( P'*MM + a*P'RR )* (P * Y) = Z * X = P' * M'm
-        // X = Z^(-1) * P' * M'm
+        // X = P * { (M*P)' * (M*P) + (R*P)' * (R*P) }¡(-1) * (M*P)'m
+        // X = P * { P'*M'*M*P + P'*R'*R*P }¡(-1) * P'*M'm
+        // X = P * { P'*(MM + a*RR)*P }¡(-1) * P'*M'm
+        // X = P * Z¡(-1) * P' * M'm
         Matrix rhs = P.transpose() * M.transpose();
-        mat = P*Z.pinverse()*rhs;
+        mat = P * Z.pinverse() * rhs;
     }
 
     void assemble_Surf2Vol(const Geometry& geo, Matrix& mat, const std::map<const Domain, Vertices> m_points) 

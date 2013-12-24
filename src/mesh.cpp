@@ -198,12 +198,12 @@ namespace OpenMEEG {
 
     /// compute the normal at vertex
     Normal Mesh::normal(const Vertex& v) const {
-        Normal normal(0);
+        Normal _normal(0);
         for ( VectPTriangle::const_iterator tit = links_.at(&v).begin(); tit != links_.at(&v).end(); ++tit) {
-            normal += (*tit)->normal();
+            _normal += (*tit)->normal();
         }
-        normal.normalize();
-        return normal;
+        _normal.normalize();
+        return _normal;
     }
 
     /// properly merge two meshes into one (it does not dupplicate vertices)
@@ -282,7 +282,7 @@ namespace OpenMEEG {
     {
         Vect3 barycenter1 = 1./3.*(t1(0)+t1(1)+t1(2));
         Vect3 barycenter2 = 1./3.*(t2(0)+t2(1)+t2(2));
-        Vect3 grad = -1.0/(barycenter1-barycenter2).norm2();
+        Vect3 grad = 1.0/(barycenter1-barycenter2).norm();
         return grad;
     }
 
@@ -294,7 +294,7 @@ namespace OpenMEEG {
     }
 
     /// Norm Surface Gradient: norm of the surfacic gradient of the P1 and P0 elements
-    void Mesh::gradient_norm(SymMatrix &A, double coeff) const 
+    void Mesh::gradient_norm(SymMatrix &A) const 
     {
         /// V
         // self
@@ -309,13 +309,15 @@ namespace OpenMEEG {
                 } else {
                     v2 = (**tit)[0]; v3 = (**tit)[1];
                 }
-                A((*vit)->index(), (*vit)->index()) += coeff * P1Vector(**vit, *v2, *v3).norm() * (*tit)->area();
+                A((*vit)->index(), (*vit)->index()) += P1Vector(**vit, *v2, *v3).norm2() * std::pow((*tit)->area(),2);
             }
         }
         // edges
         for ( const_iterator tit = begin(); tit != end(); ++tit) {
             for ( unsigned j = 0; j < 3; ++j) {
-                A(((*tit)(j)).index(), ((*tit)(j+1)).index()) += coeff * std::abs(P1Vector((*tit)(j), (*tit)(j+1), (*tit)(j+2)) * P1Vector((*tit)(j+1), (*tit)(j+2), (*tit)(j+3))) * tit->area();
+                if ( ((*tit)(j)).index() < ((*tit)(j+1)).index() ) { // sym matrix only lower half
+                    A(((*tit)(j)).index(), ((*tit)(j+1)).index()) += P1Vector((*tit)(j), (*tit)(j+1), (*tit)(j+2)) * P1Vector((*tit)(j+1), (*tit)(j+2), (*tit)(j+3)) * std::pow(tit->area(),2);
+                }
             }
         }
 
@@ -325,7 +327,9 @@ namespace OpenMEEG {
                 A(tit->index(), tit->index()) = 0.;
                 VectPTriangle Tadj = adjacent_triangles(*tit);
                 for ( VectPTriangle::const_iterator tit2 = Tadj.begin(); tit2 != Tadj.end(); ++tit2) {
-                    A(tit->index(), (*tit2)->index()) += coeff * P0Vector(*tit, **tit2).norm();
+                    if ( tit->index() < (*tit2)->index() ) { // sym matrix only lower half
+                        A(tit->index(), (*tit2)->index()) += P0Vector(*tit, **tit2).norm2() * tit->area() * (*tit2)->area();
+                    }
                 }
             }
         }
@@ -345,6 +349,15 @@ namespace OpenMEEG {
             }
         }
         return selfIntersects;
+    }
+
+    double Mesh::compute_solid_angle(const Vect3& p) const 
+    {
+        double solangle = 0.0;
+        for ( const_iterator tit = begin(); tit != end(); ++tit) {
+            solangle += p.solangl(tit->s1(), tit->s2(), tit->s3());
+        }
+        return solangle;
     }
 
     bool Mesh::intersection(const Mesh& m) const 
@@ -1092,6 +1105,27 @@ namespace OpenMEEG {
         }
     }
 
+    /// warning: a mesh may not be closed (as opposite to an interface)
+    /// this function is mainly needed when meshing closed mesh with CGAL.
+    void Mesh::correct_global_orientation()
+    {
+        Vect3 center(0.,0.,0.);
+        for ( const_vertex_iterator vit = vertex_begin(); vit != vertex_end(); ++vit) {
+            center += **vit;
+        }
+        center /= nb_vertices();
+        double solangle = compute_solid_angle(center);
+        if ( std::abs(solangle) < 1.e3*std::numeric_limits<double>::epsilon()) {
+            std::cout << "Center point :" << center << " is on the mesh." << std::endl;
+        } else if ( std::abs(solangle + 4.*M_PI) < 1.e3*std::numeric_limits<double>::epsilon()) {
+            // mesh is ok
+        } else if ( std::abs(solangle - 4.*M_PI) < 1.e3*std::numeric_limits<double>::epsilon()) {
+            flip_triangles();
+        } else {
+            std::cout << "Not a closed mesh." << std::endl;
+        }
+    }
+
     void Mesh::orient_adjacent_triangles(std::stack<Triangle *>& t_stack, std::map<Triangle *, bool>& tri_reoriented) 
     {
         while ( !t_stack.empty() ) {
@@ -1127,5 +1161,4 @@ namespace OpenMEEG {
 
         return true;
     }
-
 } // end namespace OpenMeeg

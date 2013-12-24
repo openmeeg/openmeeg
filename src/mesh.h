@@ -159,7 +159,9 @@ namespace OpenMEEG {
         void merge(const Mesh&, const Mesh&); ///< properly merge two meshes into one
         void flip_triangles(); ///< flip all triangles
         void correct_local_orientation(); ///< \brief correct the local orientation of the mesh triangles
-        const VectPTriangle& get_triangles_for_vertex(const Vertex& V) const; ///< \biref get the triangles associated with vertex V \return the links
+        void correct_global_orientation(); ///< \brief correct the global orientation (if there is one)
+        double compute_solid_angle(const Vect3& p) const; ///< Given a point p, it computes the solid angle
+        const  VectPTriangle& get_triangles_for_vertex(const Vertex& V) const; ///< \biref get the triangles associated with vertex V \return the links
         Normal normal(const Vertex& v) const; ///< \brief get the Normal at vertex
 
               bool& outermost()       { return outermost_; } /// \brief Returns True if it is an outermost mesh.
@@ -173,7 +175,7 @@ namespace OpenMEEG {
         void smooth(const double& smoothing_intensity, const unsigned& niter);
 
         /// \brief Compute the surfacic gradient
-        void gradient_norm(SymMatrix &A, double coeff) const;
+        void gradient_norm(SymMatrix &A) const;
 
         // for IO:s --------------------------------------------------------------------
         /** Read mesh from file
@@ -234,10 +236,10 @@ namespace OpenMEEG {
         void destroy();
         void copy(const Mesh&);
         // regarding mesh orientation
-        const EdgeMap compute_edge_map() const;
         VectPTriangle adjacent_triangles(const Triangle&) const;
-        void orient_adjacent_triangles(std::stack<Triangle *>& t_stack, std::map<Triangle *, bool>& tri_reoriented);
-        bool triangle_intersection(const Triangle&, const Triangle&) const;
+        const EdgeMap compute_edge_map() const;
+        void  orient_adjacent_triangles(std::stack<Triangle *>& t_stack, std::map<Triangle *, bool>& tri_reoriented);
+        bool  triangle_intersection(const Triangle&, const Triangle&) const;
         inline Vect3 P1Vector(const Vect3 &p0, const Vect3 &p1, const Vect3 &p2) const;
         inline Vect3 P0Vector(const Triangle &t1, const Triangle &t2) const; 
 

@@ -82,6 +82,7 @@ namespace OpenMEEG {
         }
 
         m.update();
+        m.correct_global_orientation();
         return m;
     }
 }

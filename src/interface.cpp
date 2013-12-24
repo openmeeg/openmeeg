@@ -64,9 +64,7 @@ namespace OpenMEEG {
     {
         double solangle = 0.0;
         for ( Interface::const_iterator omit = begin(); omit != end(); ++omit) {
-            for ( Mesh::const_iterator tit = omit->mesh().begin(); tit != omit->mesh().end(); ++tit) {
-                solangle += p.solangl((*tit).s1(), (*tit).s2(), (*tit).s3())*omit->orientation();
-            }
+                solangle += omit->orientation() * omit->mesh().compute_solid_angle(p);
         }
         return solangle;
     }
