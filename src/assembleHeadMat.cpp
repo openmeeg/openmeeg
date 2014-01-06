@@ -133,7 +133,7 @@ namespace OpenMEEG {
         unsigned Nc = geo.size()-geo.outermost_interface().nb_triangles();
         std::fstream f(filename.c_str());
         Matrix P;
-        if (!f) {
+        if ( !f ) {
             // build the HeadMat:
             // The following is the same as assemble_HM except N_11, D_11 and S_11 are not computed.
             SymMatrix mat_temp(Nc);
@@ -222,9 +222,7 @@ namespace OpenMEEG {
             mit->gradient_norm(sRR);
         }
         Matrix RR(sRR);
-        RR.save("RR.mat");
-        MM.save("MM.mat");
-        M.save("M.mat");
+        RR.save("RR.mat"); MM.save("MM.mat"); M.save("M.mat");
 
         // ** Choose Regularization parameter **
         Matrix alphas(Nc,Nc); // diagonal matrix
@@ -239,30 +237,18 @@ namespace OpenMEEG {
                 }
             }
         }
-        Matrix Z1, Z2;
-        std::cout << "Z1" << std::endl;
-        Z1 = P.transpose() * MM * P;
-        Z2 = P.transpose() * (alphas *  RR) * P;
+        Matrix Z, Z1, Z2;
         if ( alpha < 0 ) {
+            std::cout << "Z1" << std::endl;
+            Z1 = P.transpose() * MM * P;
+            double nZ1_v = Z1.submat(0, geo.nb_vertices(), 0, geo.nb_vertices()).frobenius_norm();
+            double nZ1_p = Z1.submat(geo.nb_vertices(), Nc-geo.nb_vertices(), geo.nb_vertices(), Nc-geo.nb_vertices()).frobenius_norm();
+            double nRR_v = RR.submat(0, geo.nb_vertices(), 0, geo.nb_vertices()).frobenius_norm();
+            double nRR_p = RR.submat(geo.nb_vertices(), Nc-geo.nb_vertices(), geo.nb_vertices(), Nc-geo.nb_vertices()).frobenius_norm();
             alphas.set(0.);
-            for ( Vertices::const_iterator vit = geo.vertex_begin(); vit != geo.vertex_end(); ++vit) {
-                alphas(vit->index(), vit->index()) = 1.;
-            }
-            std::cout << "Z2" << std::endl;
-            Z2 = P.transpose() * (alphas *  RR) * P;
-            alpha = Z1.frobenius_norm() / (1.e3*Z2.frobenius_norm());
-            alphas.set(0.);
+            alpha = nZ1_v / (10.* nRR_v);
+            beta  = nZ1_p / (10.*nRR_p);
             std::cout << "alpha = " << alpha << std::endl;
-            for ( Meshes::const_iterator mit = geo.begin(); mit != geo.end(); ++mit) {
-                if ( !mit->outermost() ) {
-                    for ( Mesh::const_iterator tit = mit->begin(); tit != mit->end(); ++tit) {
-                        alphas(tit->index(), tit->index()) = 1.;
-                    }
-                }
-            }
-            std::cout << "Z2 2" << std::endl;
-            Z2 = P.transpose() * (alphas *  RR) * P;
-            beta = Z1.frobenius_norm() / (0.5e3*Z2.frobenius_norm());
             std::cout << "beta = " << beta << std::endl;
             for ( Vertices::const_iterator vit = geo.vertex_begin(); vit != geo.vertex_end(); ++vit) {
                 alphas(vit->index(), vit->index()) = alpha;
@@ -274,20 +260,20 @@ namespace OpenMEEG {
                     }
                 }
             }
+            std::cout << "Z2" << std::endl;
             Z2 = P.transpose() * (alphas *  RR) * P;
             std::cout << "AUTOalphas = " << alpha << std::endl;
             std::cout << "AUTObeta = " << beta << std::endl;
+            std::cout << "|Z1|_v = " << nZ1_v <<"\t|Z1|_p = " << nZ1_p <<"\t|RR|_v = " << nRR_v <<"\t|RR|_p = " << nRR_p << std::endl;
+            std::cout << "Z" << std::endl;
+            Z = Z1 + Z2;
         } else {
             std::cout << "alphas = " << alpha << std::endl;
             std::cout << "beta = " << beta << std::endl;
+            std::cout << "Z" << std::endl;
+            Z = P.transpose() * (MM + alphas*RR) * P;
         }
 
-        std::cout << "|Z1| :" << std::endl;
-        std::cout << Z1.frobenius_norm() << std::endl;
-        std::cout << "|Z2| :" << std::endl;
-        std::cout << Z2.frobenius_norm() << std::endl;
-        std::cout << "Z" << std::endl;
-        Matrix Z = Z1 + Z2;
         // ** PseudoInverse and return **
         // X = P * { (M*P)' * (M*P) + (R*P)' * (R*P) }¡(-1) * (M*P)'m
         // X = P * { P'*M'*M*P + P'*R'*R*P }¡(-1) * P'*M'm
