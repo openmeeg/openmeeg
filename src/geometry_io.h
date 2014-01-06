@@ -49,6 +49,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <vtkDataReader.h>
 #include <vtkCellArray.h>
 #include <vtkDoubleArray.h>
+#include <vtkUnsignedIntArray.h>
 #include <vtkProperty.h>
 #include <vtkPointData.h>
 #include <vtkCellData.h>
@@ -118,6 +119,8 @@ namespace OpenMEEG {
             mit->build_mesh_vertices();
             mit->update();
         }
+        // TODO: maybe read back the cell_indices and point_indices so that the user can specify its own variable order in the VTP file
+        // and thus, reorder the openmeeg matrices as he wants
     #else
         std::cerr << "Error: please specify USE_VTK to cmake" << std::endl; // TODO in Legacy format ? // Exceptions
     #endif
@@ -128,16 +131,20 @@ namespace OpenMEEG {
     {
 
     #ifdef USE_VTK
-        vtkSmartPointer<vtkPolyData>    polydata = vtkSmartPointer<vtkPolyData>::New();
-        vtkSmartPointer<vtkPoints>      points   = vtkSmartPointer<vtkPoints>::New();      // vertices
-        vtkSmartPointer<vtkDoubleArray> normals  = vtkSmartPointer<vtkDoubleArray>::New(); // normals
-        vtkSmartPointer<vtkStringArray> cell_id  = vtkSmartPointer<vtkStringArray>::New(); // ids/mesh name
-        vtkSmartPointer<vtkDoubleArray> potentials[data.ncol()]; // potential on vestices
-        vtkSmartPointer<vtkDoubleArray> currents[data.ncol()]; // current on triangles
+        vtkSmartPointer<vtkPolyData>         polydata = vtkSmartPointer<vtkPolyData>::New();
+        vtkSmartPointer<vtkPoints>           points   = vtkSmartPointer<vtkPoints>::New();      // vertices
+        vtkSmartPointer<vtkDoubleArray>      normals  = vtkSmartPointer<vtkDoubleArray>::New(); // normals
+        vtkSmartPointer<vtkStringArray>      cell_id  = vtkSmartPointer<vtkStringArray>::New(); // ids/mesh name
+        vtkSmartPointer<vtkUnsignedIntArray> cell_indices = vtkSmartPointer<vtkUnsignedIntArray>::New(); // indices
+        vtkSmartPointer<vtkUnsignedIntArray> point_indices = vtkSmartPointer<vtkUnsignedIntArray>::New(); // indices
+        vtkSmartPointer<vtkDoubleArray>      potentials[data.ncol()]; // potential on vestices
+        vtkSmartPointer<vtkDoubleArray>      currents[data.ncol()]; // current on triangles
         
         normals->SetNumberOfComponents(3); // 3d normals (ie x,y,z)
         normals->SetName("Normals");
         cell_id->SetName("Names");
+        cell_indices->SetName("Indices");
+        point_indices->SetName("Indices");
 
         if ( data.nlin() != 0 ) {
             // Check the data corresponds to the geometry
@@ -174,6 +181,7 @@ namespace OpenMEEG {
         unsigned i = 0;
         for ( Vertices::const_iterator vit = vertex_begin(); vit != vertex_end(); ++vit, ++i) {
             points->InsertNextPoint((*vit)(0), (*vit)(1), (*vit)(2));
+            point_indices->InsertNextValue(vit->index());
             map[&*vit] = i;
         }
         // Add the vertices to polydata
@@ -186,6 +194,7 @@ namespace OpenMEEG {
                 vtkIdType triangle[3] = { map[&(tit->s1())], map[&(tit->s2())], map[&(tit->s3())] };
                 polys->InsertNextCell(3, triangle);
                 cell_id->InsertNextValue(mit->name());
+                cell_indices->InsertNextValue(tit->index());
             }
         }
 
@@ -193,6 +202,10 @@ namespace OpenMEEG {
         polydata->SetPolys(polys);
         // Add the array of Names to polydata
         polydata->GetCellData()->AddArray(cell_id);
+        // Add the array of Indices to polydata cells
+        polydata->GetCellData()->AddArray(cell_indices);
+        // Add the array of Indices to polydata points
+        polydata->GetPointData()->AddArray(point_indices);
         // Add optional potentials and currents
         if ( data.nlin() != 0 ) {
             for ( unsigned j = 0; j < data.ncol(); ++j) {
