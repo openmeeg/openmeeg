@@ -69,7 +69,6 @@ int main( int argc, char **argv)
     } else {
         status = 1;
     }
-    geo.info();
 
     return status;
 }
