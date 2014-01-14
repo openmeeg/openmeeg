@@ -246,10 +246,8 @@ namespace OpenMEEG {
             double nRR_v = RR.submat(0, geo.nb_vertices(), 0, geo.nb_vertices()).frobenius_norm();
             double nRR_p = RR.submat(geo.nb_vertices(), Nc-geo.nb_vertices(), geo.nb_vertices(), Nc-geo.nb_vertices()).frobenius_norm();
             alphas.set(0.);
-            alpha = nZ1_v / (10.* nRR_v);
-            beta  = nZ1_p / (10.*nRR_p);
-            std::cout << "alpha = " << alpha << std::endl;
-            std::cout << "beta = " << beta << std::endl;
+            alpha = nZ1_v / nRR_v;
+            beta  = nZ1_p / nRR_p;
             for ( Vertices::const_iterator vit = geo.vertex_begin(); vit != geo.vertex_end(); ++vit) {
                 alphas(vit->index(), vit->index()) = alpha;
             }
@@ -262,14 +260,12 @@ namespace OpenMEEG {
             }
             std::cout << "Z2" << std::endl;
             Z2 = P.transpose() * (alphas *  RR) * P;
-            std::cout << "AUTOalphas = " << alpha << std::endl;
-            std::cout << "AUTObeta = " << beta << std::endl;
+            std::cout << "AUTOMATIC alphas = " << alpha << "\t" << "beta = " << beta << std::endl;
             std::cout << "|Z1|_v = " << nZ1_v <<"\t|Z1|_p = " << nZ1_p <<"\t|RR|_v = " << nRR_v <<"\t|RR|_p = " << nRR_p << std::endl;
             std::cout << "Z" << std::endl;
             Z = Z1 + Z2;
         } else {
-            std::cout << "alphas = " << alpha << std::endl;
-            std::cout << "beta = " << beta << std::endl;
+            std::cout << "alphas = " << alpha << "\t" << "beta = " << beta << std::endl;
             std::cout << "Z" << std::endl;
             Z = P.transpose() * (MM + alphas*RR) * P;
         }
