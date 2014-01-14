@@ -71,7 +71,7 @@ namespace OpenMEEG {
 
     class OPENMEEG_EXPORT EITSourceMat: public virtual Matrix {
     public:
-        EITSourceMat(const Geometry& geo, Sensors& electrodes, const unsigned gauss_order=3);
+        EITSourceMat(const Geometry& geo, const Sensors& electrodes, const unsigned gauss_order=3);
         virtual ~EITSourceMat () {};
     };
 
