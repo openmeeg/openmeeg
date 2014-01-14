@@ -52,9 +52,6 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 namespace OpenMEEG {
 
-    const int UnknownPoint = INT_MAX;
-    const double UnknownDist = DBL_MAX;
-
     double dist_point_cell(const Vect3&, const Triangle& , Vect3&, bool&);
     OPENMEEG_EXPORT double dist_point_interface(const Vect3&, const Interface&, Vect3&, Triangle&);
 }
