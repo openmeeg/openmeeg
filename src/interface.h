@@ -72,6 +72,8 @@ namespace OpenMEEG {
 
     public:
 
+        typedef Mesh::VectPTriangle VectPTriangle;
+
         /// Default Constructor
         Interface(): name_(""), outermost_(false) { }
         
@@ -100,6 +102,16 @@ namespace OpenMEEG {
                 nb += omit->mesh().nb_triangles();
             }
             return nb;
+        }
+
+        /// \return the adjacent triangles
+        VectPTriangle adjacent_triangles(const Triangle& t) const {
+            VectPTriangle triangles;
+            for ( const_iterator omit = begin(); omit != end(); ++omit) {
+                VectPTriangle tri = omit->mesh().adjacent_triangles(t);
+                triangles.insert(triangles.end(), tri.begin(), tri.end());
+            }
+            return triangles;
         }
 
     private:
