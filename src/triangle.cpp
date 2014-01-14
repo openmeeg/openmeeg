@@ -41,10 +41,6 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 namespace OpenMEEG {
 
-    Triangle::Triangle(const Triangle& t) {
-        *this = t;
-    }
-
     Triangle::Triangle(Vertex *pts[3]): index_(-1) {
         for ( unsigned i = 0; i < 3; ++i) {
             vertices_[i] = pts[i];
@@ -62,24 +58,6 @@ namespace OpenMEEG {
         vertices_[1] = p2;
         vertices_[2] = p3;
     }
-
-    Triangle& Triangle::operator=(const Triangle& t) {
-        if ( this != &t ) {
-            copy(t);
-        }
-        return *this;
-    }
-
-    void Triangle::copy(const Triangle& t) {
-        area_   = t.area();
-        normal_ = t.normal();
-        index_  = t.index();
-        for ( unsigned i = 0; i < 3; ++i) {
-            vertices_[i] = const_cast<Vertex *>(t[i]);
-        }
-    }
-    
-    void Triangle::destroy() { }
 
     void Triangle::flip() {
         Vertex * tmp = vertices_[0];

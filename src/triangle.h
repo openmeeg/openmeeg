@@ -63,16 +63,11 @@ namespace OpenMEEG {
 
         /// Constructors
         Triangle(): index_(-1) {}
-        Triangle(const Triangle& t); ///< copy constructor
         Triangle(Vertex *pts[3]); ///< Create a new triangle from a set of vertices.
         Triangle(Vertex& p1, Vertex& p2, Vertex& p3); ///< Create a new triangle from a 3 vertices.
         Triangle(Vertex * p1, Vertex * p2, Vertex * p3); ///< Create a new triangle from a 3 vertex adresses.
         
-        /// Destructor
-        ~Triangle() { destroy(); }
-
         /// Operators
-              Triangle&  operator= (const Triangle& t);
               Vertex *   operator[](const unsigned& vindex)       { return vertices_[vindex%3];  } // 0 <= 'index' <= '2'
         const Vertex *   operator[](const unsigned& vindex) const { return vertices_[vindex%3];  }
               Vertex &   operator()(const unsigned& vindex)       { return *vertices_[vindex%3]; } // 0 <= 'index' <= '2'
@@ -130,6 +125,10 @@ namespace OpenMEEG {
             }
         }
 
+        Vect3 center() const {
+            return 1./3.*(*vertices_[0]+*vertices_[1]+*vertices_[2]);
+        }
+
         bool contains(const Vertex& p) const {
             for ( unsigned i = 0; i < 3; ++i) {
                 if ( &vertex(i) == &p ) {
@@ -142,9 +141,6 @@ namespace OpenMEEG {
         void flip(); ///< flip two of the three vertex address
 
     private:
-
-        void copy(const Triangle& t);
-        void destroy();
 
         Vertex *  vertices_[3]; ///< &Vertex-triplet defining the triangle
         double    area_;       ///< Area
