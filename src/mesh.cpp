@@ -277,12 +277,10 @@ namespace OpenMEEG {
         update(); // Updating triangles (areas + normals)
     }
 
-    /// P0Vector : aux function to compute the surfacic gradient
+    /// P0Vector : aux function to compute the surfacic gradient TODO sure ? return a double ?
     inline Vect3 Mesh::P0Vector(const Triangle &t1, const Triangle &t2) const
     {
-        Vect3 barycenter1 = 1./3.*(t1(0)+t1(1)+t1(2));
-        Vect3 barycenter2 = 1./3.*(t2(0)+t2(1)+t2(2));
-        Vect3 grad = 1.0/(barycenter1-barycenter2).norm();
+        Vect3 grad = 1.0/(t1.center()-t2.center()).norm();
         return grad;
     }
 
