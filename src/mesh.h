@@ -161,7 +161,8 @@ namespace OpenMEEG {
         void correct_local_orientation(); ///< \brief correct the local orientation of the mesh triangles
         void correct_global_orientation(); ///< \brief correct the global orientation (if there is one)
         double compute_solid_angle(const Vect3& p) const; ///< Given a point p, it computes the solid angle
-        const  VectPTriangle& get_triangles_for_vertex(const Vertex& V) const; ///< \biref get the triangles associated with vertex V \return the links
+        const VectPTriangle& get_triangles_for_vertex(const Vertex& V) const; ///< \brief get the triangles associated with vertex V \return the links
+        VectPTriangle adjacent_triangles(const Triangle&) const; ///< \brief get the adjacent triangles
         Normal normal(const Vertex& v) const; ///< \brief get the Normal at vertex
 
               bool& outermost()       { return outermost_; } /// \brief Returns True if it is an outermost mesh.
@@ -236,7 +237,6 @@ namespace OpenMEEG {
         void destroy();
         void copy(const Mesh&);
         // regarding mesh orientation
-        VectPTriangle adjacent_triangles(const Triangle&) const;
         const EdgeMap compute_edge_map() const;
         void  orient_adjacent_triangles(std::stack<Triangle *>& t_stack, std::map<Triangle *, bool>& tri_reoriented);
         bool  triangle_intersection(const Triangle&, const Triangle&) const;
