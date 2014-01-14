@@ -57,13 +57,13 @@ int main(const int,const char** argv) {
     if (S.isEmpty())
         std::cout << "WARNING : empty sensors !" << std::endl;
     else{
-        std::cout << S << std::endl;
+        S.info();
 
         /**** test on copy constructor ****/
         Sensors Scopy(S);
         if(Scopy.getNumberOfSensors()!=n)
             std::cout << "ERROR in copy from copy constructor : incorrect number of sensors" << std::endl;
 
-        std::cout << Scopy << std::endl;
+        Scopy.info();
     }
 }
