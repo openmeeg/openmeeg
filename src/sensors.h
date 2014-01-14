@@ -54,30 +54,34 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <string>
 #include <vector>
 
-#include "IOUtils.H"
-#include "vector.h"
-#include "matrix.h"
-#include "symmatrix.h"
-#include "sparse_matrix.h"
+#include <IOUtils.H>
+#include <vector.h>
+#include <matrix.h>
+#include <symmatrix.h>
+#include <interface.h>
+#include <sparse_matrix.h>
 
-#include "DLLDefinesOpenMEEG.h"
+#include <DLLDefinesOpenMEEG.h>
 
 namespace OpenMEEG {
 
     /*!
      *  Sensors class for EEG and MEG sensors.
-     *  This class is made for reading sensors description file. This description file is a file text which can take the shape of :
+     *  This class is made for reading sensors description file. This description file is a file text. Sensors may have names (labels)
+     *  in the first column of the file (it has to contains at least one character to be considered as label)
+     *  the file can have the shape of (neglecting if present the first, label column):
      *  <ul>
      *    
-     *    <li> 1 line per sensor and 3 columns (EEG sensors or MEG sensors without orientation) :
+     *  <li> 1 line per sensor and 3 columns (EEG sensors or MEG sensors without orientation) 
      *        <ul TYPE="circle">
      *        <li> the 1st, 2nd and 3rd columns are respectively position coordinates x, y, z of sensor  </li>
      *        </ul>
      *  </li>
-     *    <li> 1 line per sensor and 4 columns (EEG sensors or MEG sensors without orientation) :
+     *  <li> 1 line per sensor and 5 columns (EEG EIT patches (circular patches with input intensity)) :
      *        <ul TYPE="circle">
-     *        <li> the 1st column is sensors names </li>
-     *        <li> the 2nd, 3rd and 4th are respectively position coordinates x, y, z of sensor  </li>
+     *        <li> the 1st, 2nd and 3rd are respectively position coordinates x, y, z of sensor  </li>
+     *        <li> the 4th is the patche radius (unit relative to the mesh)  </li>
+     *        <li> the 5th is the input intensity (a weight). Remark: mean(weights*surfaces) must be zero (no accumulation of currents)  </li>
      *        </ul>
      *  </li>
      *  <li> 1 line per sensor and 6 columns (MEG sensors) :
@@ -86,41 +90,23 @@ namespace OpenMEEG {
      *        <li> the 4th, 5th and 6th are coordinates of vector orientation </li>
      *        </ul>
      *  </li>
-     *  <li> 1 line per sensor and 7 columns (MEG sensors) :
+     *  <li> 1 line per integration point for each sensor and 7 columns (MEG sensors) :
      *        <ul TYPE="circle">
-     *        <li> the 1st column is sensors names </li>
-     *        <li> the 2nd, 3rd and 4th are respectively position coordinates x, y, z of sensor  </li>
-     *        <li> the 5th, 6th and 7th are coordinates of vector orientation </li>
-     *        </ul>
-     *  </li>
-     *    <li> 1 line per integration point for each sensor and 8 columns (MEG sensors) :
-     *        <ul TYPE="circle">
-     *        <li> the 1st column is sensors names </li>
-     *        <li> the 2nd, 3rd and 4th are respectively position coordinates x, y, z of sensor  </li>
-     *        <li> the 5th, 6th and 7th are coordinates of vector orientation </li>
-     *        <li> the 8th is the weight to apply for numerical integration (uses sensor name) </li>
+     *        <li> the 1st, 2nd and 3rd are respectively position coordinates x, y, z of sensor  </li>
+     *        <li> the 4th, 5th and 6th are coordinates of vector orientation </li>
+     *        <li> the 7th is the weight to apply for numerical integration (uses sensor name) </li>
      *        </ul>
      *  </li>
      *  </ul>
      */
 
     class OPENMEEG_EXPORT Sensors {
-    private:
-        size_t m_nb;                       /*!< Number of sensors. */
-        std::vector<std::string> m_names;  /*!< List of sensors names. */
-        Matrix m_positions;               /*!< Matrix of sensors positions. ex: positions(i,j) with  j in {0,1,2} for sensor i */
-        Matrix m_orientations;            /*!< Matrix of sensors orientations. ex: orientation(i,j) with  j in {0,1,2} for sensor i */
-        Vector m_weights;                 /*!< Weights of integration points */
-        std::vector<size_t> m_pointSensorIdx; /*!< Correspondance between point id and sensor id */
-        void copy(const Sensors& S);       /*!< Copy function. Copy sensor S in current sensor object. ex. senors S1; ...; sensors S2(S1); */
 
     public:
-        Sensors(): m_nb(0) {} /*!< Default constructor. Number of sensors = 0. */
-        Sensors(const char* filename); /*!< Construct from file. Option 't' is for text file, and 'b' is for binary file. */
-        Sensors(const Sensors& S) { copy(S); }        /*!< Copy constructor. */
-        ~Sensors() { m_nb=0; }                        /*!< Destructor. Number of sensors = 0. */
-
-        Sensors& operator=(const Sensors& S); /*!< Copy operator. Copy sensor S in current sensor object. ex. sensors S1; ...; sensors S2 = S1; */
+        Sensors(): m_nb(0), m_interface(NULL) {} /*!< Default constructor. Number of sensors = 0. */
+        Sensors(const Interface& i): m_nb(0), m_interface(&i) {} /*!< Default constructor with an interface. Number of sensors = 0. */
+        Sensors(const char* filename): m_interface(NULL) { this->load(filename,'t'); } /*!< Construct from file. Option 't' is for text file.*/
+        Sensors(const char* filename, const Interface& i): m_interface(&i) { this->load(filename,'t'); }; /*!< Construct from file and interface (for EIT). */
 
         void load(const char* filename, char filetype = 't' ); /*!< Load sensors from file. Filetype is 't' for text file or 'b' for binary file. */
         void load(std::istream &in); /*!< Load description file of sensors from stream. */
@@ -138,6 +124,7 @@ namespace OpenMEEG {
         std::vector<std::string>& getSensorsNames() {return m_names ; } /*!< Return a reference on sensors ids. */
         std::vector<std::string> getSensorsNames() const {return m_names ; } /*!< Return a copy of sensors ids. */
 
+        bool hasRadii() const { return m_radius.nlin() > 0 ;} /*!< Return true if contains radii */
         bool hasOrientations() const { return m_orientations.nlin() > 0 ;} /*!< Return true if contains orientations */
         bool hasNames() const { return m_names.size() == m_nb ;} /*!< Return true if contains all sensors names */
         Vector getPosition(size_t idx) const; /*!< Return the position (3D point) of the integration point i. */
@@ -147,10 +134,28 @@ namespace OpenMEEG {
 
         bool hasSensor(std::string name);
         size_t getSensorIdx(std::string name);
+        Triangles getInjectionTriangles(size_t idx) const { return m_triangles[idx]; } /*!< For EIT, get triangles under the current injection electrode. */
+        std::vector<unsigned> getInjectionTrianglesIndices(size_t idx) const; /*!< For EIT, get triangles under the current injection. */
+
+        Vector getRadius() const { return m_radius; }
+        Vector getWeights() const { return m_weights; }
 
         SparseMatrix getWeightsMatrix() const;
 
         bool isEmpty() { if(m_nb == 0) return true; else return false; } /*!< Return if the sensors object is empty. The sensors object is empty if its number of sensors is null. */
+        void info() const; /*!< \brief get info about sensors. */
+
+    private:
+        size_t m_nb;                       /*!< Number of sensors. */
+        std::vector<std::string> m_names;  /*!< List of sensors names. */
+        Matrix m_positions;               /*!< Matrix of sensors positions. ex: positions(i,j) with  j in {0,1,2} for sensor i */
+        Matrix m_orientations;            /*!< Matrix of sensors orientations. ex: orientation(i,j) with  j in {0,1,2} for sensor i */
+        Vector m_weights;                 /*!< Weights of integration points */
+        Vector m_radius;                   /*!< Areas of the EIT sensors */
+        std::vector<Triangles> m_triangles; /*!< Triangles under each EIT sensors */
+        const Interface * m_interface;              /*!< Interface on which are applied EIT sensors */
+        std::vector<size_t> m_pointSensorIdx; /*!< Correspondance between point id and sensor id */
+        void findInjectionTriangles(); /*!< Get the triangles under each EIT sensors */
     };
 
     inline Vector Sensors::getPosition(size_t idx) const {
@@ -167,44 +172,6 @@ namespace OpenMEEG {
 
     inline void Sensors::setOrientation(size_t idx, Vector& orient) {
         return m_orientations.setlin(idx,orient);
-    }
-
-    inline std::ostream& operator<<(std::ostream& f,const Sensors &S) {
-        size_t nb_to_display = (int)std::min((int)S.getNumberOfSensors(),(int)5);
-        f << "Nb of sensors : " << S.getNumberOfSensors() << std::endl;
-        f << "Positions" << std::endl;
-        const Matrix& positions = S.getPositions();
-        for(size_t i = 0; i < nb_to_display ; ++i) {
-            for (size_t j=0;j<positions.ncol();++j) {
-                f << positions(i,j) << " ";
-            }
-            f << std::endl;
-        }
-        if(S.getNumberOfSensors() > nb_to_display) {
-            f << "..." << std::endl;
-        }
-
-        if(S.hasOrientations()) {
-            f << "Orientations" << std::endl;
-            const Matrix& orientations = S.getOrientations();
-            for(size_t i = 0; i < nb_to_display ; ++i) {
-                for (size_t j=0;j<orientations.ncol();++j) {
-                    f << orientations(i,j) << " ";
-                }
-                f << std::endl;
-            }
-            if(S.getNumberOfSensors() > nb_to_display) {
-                f << "..." << std::endl;
-            }
-        }
-        if(S.hasNames()) {
-            f << "Names" << std::endl;
-            std::vector<std::string> names = S.getSensorsNames();
-            for(size_t i = 0; i < names.size(); ++i) {
-                f << names[i] << std::endl;
-            }
-        }
-        return f;
     }
 }
 
