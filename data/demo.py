@@ -127,8 +127,8 @@ v1 = om.Vertex(1., 0., 0., 0)
 v2 = om.Vertex(0., 1., 0., 1)
 v3 = om.Vertex(0., 0., 1., 2)
 
-print v1.norm()
-print (v1 + v2).norm()
+#print v1.norm()
+#print (v1 + v2).norm()
 
 normal = om.Vect3(1., 0., 0.)
 t = om.Triangle(v1, v2, v3)
@@ -141,30 +141,28 @@ ssm.save(ssm_file)
 
 m1 = om.SymMatrix()
 m1.load(hm_file)
-print m1(0, 0)
-print m1.nlin()
-print m1.ncol()
+#print m1(0, 0)
+#print m1.nlin()
+#print m1.ncol()
 
 m2 = om.Matrix()
 m2.load(ssm_file)
-print m2(0, 0)
-print m2.nlin()
-print m2.ncol()
+#m2.setvalue(2,3,-0.2) # m2(2,3)=-0.2
+#print m2(2,3)
+#print m2(0, 0)
+#print m2.nlin()
+#print m2.ncol()
 
 ###############################################################################
 # Numpy interface
 
 # For a Vector
-
 vec = om.asarray(hm(1,10,1,1).getcol(0))
-print vec.size
-print vec[0:5]
-print vec
 
 # For a Matrix
-
 mat = om.asarray(m2)
-print mat.shape
-print mat.sum()
-mat[0:2, 1:3] = 0
-print mat[0:5, 0:5]
+assert((m2-om.fromarray(mat)).frobenius_norm() < 1e-15)
+#print mat.shape
+#print mat.sum()
+#mat[0:2, 1:3] = 0
+#print mat[0:5, 0:5]

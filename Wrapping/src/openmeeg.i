@@ -80,21 +80,23 @@
             return PyArray_Return ((PyArrayObject*) matarray);
         }
 
-        /* Create a Matrix or a Vector from an array
-           how to assign elements, ex: A(1,2)=4. ?
-        TODO:   check http://docs.scipy.org/doc/numpy/reference/c-api.types-and-structures.html at PyArray_GetPtr
-        static OpenMEEG::Vector* fomarray(PyArrayObject* vec) {
-            if (!vec) {
+        /* Create a Matrix from an array
+           how to assign elements, ex: A(1,2)=4. ? setvalue ? TODO */
+        static OpenMEEG::Matrix fromarray(PyObject* mat) {
+            if (!mat) {
                 PyErr_SetString(PyExc_RuntimeError, "Zero pointer passed instead of valid array.");
                 return(NULL);
             }
-            // create OM vector 
-            OpenMEEG::Vector vect(PyArray_Size(vec));
-            vect.data() = PyArray_GetPtr(vec,1); // this is not the correct way
-            return vect;
+            PyArrayObject *matt;
+            matt = (PyArrayObject *)PyArray_FromObject(mat, NPY_DOUBLE, 1, 2);
+            size_t nl = matt->dimensions[0];
+            size_t nc = 1;
+            if (matt->nd ==2) nc = matt->dimensions[1];
+            OpenMEEG::Matrix omat(nl, nc);
+            omat.reference_data((double *)matt->data);
+            return omat;
         }
-        */
-
+        
     #endif
 %}
 
@@ -133,6 +135,13 @@ import_array();
 %include <docstrings.i>
 #endif
 
+namespace std {
+    %template(vector_int) vector<int>;
+    %template(vector_unsigned) vector<unsigned int>;
+    %template(vector_double) vector<double>;
+    %template(vector_triangle) vector<Triangle>;
+}
+
 %include <vect3.h>
 %include <vertex.h>
 %include <triangle.h>
@@ -152,14 +161,27 @@ import_array();
 %include <gain.h>
 %include <forward.h>
 
+%extend OpenMEEG::Vector {
+    // TODO almost.. v(2)=0. does not work, workaround:
+    void setvalue(unsigned int i, double d) {
+        (*($self))(i)=d;
+    }
+}
+
+%extend OpenMEEG::Matrix {
+    void setvalue(unsigned int i, unsigned int j, double d) {
+        (*($self))(i,j)=d;
+    }
+}
 /* TODO
 %include <cpointer.i>
 %pointer_class(Interface ,InterfaceP)
 We would like to have an Interface when asking for
 i=geom.outermost_interface()
-instead we have:
+instead we have a pointer to it:
 <Swig Object of type 'Interface *' at 0xa1e1590>
 */
 
 static PyObject* asarray(OpenMEEG::Matrix* _mat);
 static PyObject* asarray(OpenMEEG::Vector* _vec);
+static OpenMEEG::Matrix fromarray(PyObject* _mat);
