@@ -247,22 +247,14 @@ namespace OpenMEEG {
                 }
             }
             m_triangles.push_back(triangles);
+            // now set the weight as the ratio between the wanted sensor surface and the actual surface
+            // (should be close to 1)
             double triangles_area = 0.;
             for ( Triangles::const_iterator tit = triangles.begin(); tit != triangles.end(); ++tit) {
                 triangles_area += tit->area();
             }
             m_weights(idx) = M_PI * std::pow(m_radius(idx),2) / triangles_area;
         }
-    }
-
-    // TODO this function was written to overcome SWIG difficulties (if SWIG could return Triangles when calling getInjectionTriangles...)
-    std::vector<unsigned> Sensors::getInjectionTrianglesIndices(size_t idx) const {
-        Triangles triangles = getInjectionTriangles(idx);
-        std::vector<unsigned> indices;
-        for ( Triangles::const_iterator tit = triangles.begin(); tit != triangles.end(); ++tit) {
-            indices.push_back(tit->index());
-        }
-        return indices;
     }
 
     void Sensors::info() const {

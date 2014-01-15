@@ -93,7 +93,11 @@
             size_t nc = 1;
             if (matt->nd ==2) nc = matt->dimensions[1];
             OpenMEEG::Matrix omat(nl, nc);
-            omat.reference_data((double *)matt->data);
+            for (unsigned i = 0; i< nl; ++i) {
+                for (unsigned j = 0; j< nc; ++j) {
+                    omat(i,j)= *(double * )(matt->data + i*matt->strides[0] + j*matt->strides[1]);
+                }
+            }
             return omat;
         }
         
@@ -139,7 +143,11 @@ namespace std {
     %template(vector_int) vector<int>;
     %template(vector_unsigned) vector<unsigned int>;
     %template(vector_double) vector<double>;
-    %template(vector_triangle) vector<Triangle>;
+    %template(vector_triangle) vector<OpenMEEG::Triangle>;
+}
+
+namespace OpenMEEG {
+    %typedef std::vector<OpenMEEG::Triangle> Triangles;
 }
 
 %include <vect3.h>
@@ -160,6 +168,15 @@ namespace std {
 %include <assemble.h>
 %include <gain.h>
 %include <forward.h>
+
+%extend OpenMEEG::Triangle {
+    // TODO almost.. if I do: t.index() I get:
+    // <Swig Object of type 'unsigned int *' at 0x22129f0>
+    // I want simply an unsigned. workaround:
+    unsigned int getindex() {
+        return ($self)->index();
+    }
+}
 
 %extend OpenMEEG::Vector {
     // TODO almost.. v(2)=0. does not work, workaround:

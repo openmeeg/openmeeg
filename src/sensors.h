@@ -135,7 +135,6 @@ namespace OpenMEEG {
         bool hasSensor(std::string name);
         size_t getSensorIdx(std::string name);
         Triangles getInjectionTriangles(size_t idx) const { return m_triangles[idx]; } /*!< For EIT, get triangles under the current injection electrode. */
-        std::vector<unsigned> getInjectionTrianglesIndices(size_t idx) const; /*!< For EIT, get triangles under the current injection. */
 
         Vector getRadius() const { return m_radius; }
         Vector getWeights() const { return m_weights; }
