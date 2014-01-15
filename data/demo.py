@@ -157,7 +157,10 @@ m2.load(ssm_file)
 # Numpy interface
 
 # For a Vector
-vec = om.asarray(hm(1,10,1,1).getcol(0))
+v=hm(1,10,1,1).getcol(0)
+vec = om.asarray(v)
+m=om.fromarray(vec)
+assert((v-m.getcol(0)).norm() < 1e-15)
 
 # For a Matrix
 mat = om.asarray(m2)

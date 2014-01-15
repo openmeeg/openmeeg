@@ -41,20 +41,13 @@
 
             /* Get the number of dimensions from the Matrix
              */
-            int ar_dim[7], ndims;
+            long int ar_dim[7], ndims;
             ndims = 2;
-            ar_dim[0] = _mat->ncol();
-            ar_dim[1] = _mat->nlin();
+            ar_dim[0] = _mat->nlin();
+            ar_dim[1] = _mat->ncol();
 
             /* create numpy array */
-            matarray = (PyArrayObject*) PyArray_FromDimsAndData(ndims,ar_dim,PyArray_DOUBLE,(char*) _mat->data());
-            int tmp = matarray->strides[0];
-            matarray->strides[0] = matarray->strides[1];
-            matarray->strides[1] = tmp;
-
-            tmp = matarray->dimensions[0];
-            matarray->dimensions[0] = matarray->dimensions[1];
-            matarray->dimensions[1] = tmp;
+            matarray = (PyArrayObject*) PyArray_NewFromDescr(&PyArray_Type, PyArray_DescrFromType(PyArray_DOUBLE), ndims, ar_dim, NULL, (void *) _mat->data(),NPY_FARRAY,NULL);
 
             return PyArray_Return((PyArrayObject*) matarray);
         }
@@ -70,12 +63,12 @@
 
             /* Get the size of the Vector
              */
-            int ar_dim[7], ndims;
+            long int ar_dim[7], ndims;
             ndims = 1;
             ar_dim[0] = _vec->size();
 
             /* create numpy array */
-            matarray = (PyArrayObject*) PyArray_FromDimsAndData (ndims,ar_dim,PyArray_DOUBLE,(char*) _vec->data());
+            matarray = (PyArrayObject*) PyArray_NewFromDescr(&PyArray_Type, PyArray_DescrFromType(PyArray_DOUBLE), ndims, ar_dim, NULL, (void *) _vec->data(),NPY_FARRAY,NULL);
 
             return PyArray_Return ((PyArrayObject*) matarray);
         }
@@ -95,7 +88,7 @@
             OpenMEEG::Matrix omat(nl, nc);
             for (unsigned i = 0; i< nl; ++i) {
                 for (unsigned j = 0; j< nc; ++j) {
-                    omat(i,j)= *(double * )(matt->data + i*matt->strides[0] + j*matt->strides[1]);
+                    omat(i,j)= *(double * )(matt->data + i*matt->strides[0] + j*matt->strides[matt->nd-1]);
                 }
             }
             return omat;

@@ -41,7 +41,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <cmath>
 #include <string>
 #include <sstream>
-#include <cfloat>
+#include <limits>
 
 #include "om_utils.h"
 #include "matrix.h"
@@ -89,7 +89,7 @@ namespace OpenMEEG {
             for ( size_t i = 0; i < mimi; i++) {
                 maxs = std::max(S(i,i), maxs);
             }
-            if ( tolrel == 0 ) tolrel = DBL_EPSILON;
+            if ( tolrel == 0 ) tolrel = std::numeric_limits<double>::epsilon();
             double tol = std::max(nlin(), ncol()) * maxs * tolrel;
             unsigned r = 0;
             for ( size_t i = 0; i < mimi; i++) {
