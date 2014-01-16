@@ -9,13 +9,12 @@ SET(OPENMEEG_HEADERS
     triangle.h Triangle_triangle_intersection.h vect3.h vertex.h 
 #   These files are imported from another repository.
 #   Please do not update them in this repository.
-DataTag.H FileExceptions.H GeometryExceptions.H Properties.H
-)
+    DataTag.H FileExceptions.H GeometryExceptions.H Properties.H)
 
 ADD_LIBRARY(OpenMEEG ${LIB_TYPE}
     assembleFerguson.cpp assembleHeadMat.cpp assembleSourceMat.cpp assembleSensors.cpp domain.cpp triangle.cpp mesh.cpp interface.cpp
-    danielsson.cpp geometry.cpp operators.cpp sensors.cpp cpuChrono.cpp ${OPENMEEG_HEADERS}
-)
+    danielsson.cpp geometry.cpp operators.cpp sensors.cpp cpuChrono.cpp ${OPENMEEG_HEADERS})
+
 TARGET_LINK_LIBRARIES(OpenMEEG OpenMEEGMaths ${OPENMEEG_LIBRARIES} ${LAPACK_LIBRARIES})
 
 SET_TARGET_PROPERTIES(OpenMEEG PROPERTIES

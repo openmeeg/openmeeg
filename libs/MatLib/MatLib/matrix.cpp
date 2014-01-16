@@ -75,35 +75,44 @@ namespace OpenMEEG {
         value = v.value;
     }
 
-    // Matrix Matrix::pinverse(double tolrel) const {
-    // #if defined(HAVE_BLAS) && defined(HAVE_LAPACK)
-    //     if(ncol() > nlin()) return transpose().pinverse().transpose();
-    //     else {
-    //         Matrix result(ncol(),nlin());
-    //         Matrix U,S,V;
-    //         svd(U,S,V);
-    //         double maxs=0;
-    //         int mimi=(int)std::min(S.nlin(),S.ncol());
-    //         for(int i=0;i<mimi;i++) maxs=std::max(S(i,i),maxs);
-    //         if (tolrel==0) tolrel=DBL_EPSILON;
-    //         double tol = std::max(nlin(),ncol()) * maxs * tolrel;
-    //         int r=0; for(int i=0;i<mimi;i++) if(S(i,i)>tol) r++;
-    //         if (r == 0) {
-    //             result.set(0.);
-    //             return result;
-    //         } else {
-    //             Matrix s(r,r); s.set(0);
-    //             for(int i=0;i<r;i++) s(i,i)=1.0/S(i,i);
-    //             const Matrix Vbis(V,r);
-    //             const Matrix Ubis(U,r);
-    //             return Vbis*s*Ubis.transpose();
-    //         }
-    //     }
-    // #else
-    //     std::cerr << "pinv not implemented without blas/lapack" << std::endl;
-    //     exit(1);
-    // #endif
-    // }
+    /// pseudo inverse
+    Matrix Matrix::pinverse(double tolrel) const {
+    #ifdef HAVE_LAPACK
+        if (ncol() > nlin()) {
+            return transpose().pinverse().transpose();
+        } else {
+            Matrix result(ncol(), nlin());
+            Matrix U, S, V;
+            svd(U, S, V);
+            double maxs = 0;
+            unsigned mimi = std::min(S.nlin(), S.ncol());
+            for ( size_t i = 0; i < mimi; i++) {
+                maxs = std::max(S(i,i), maxs);
+            }
+            if ( tolrel == 0 ) tolrel = DBL_EPSILON;
+            double tol = std::max(nlin(), ncol()) * maxs * tolrel;
+            unsigned r = 0;
+            for ( size_t i = 0; i < mimi; i++) {
+                if ( S(i, i) > tol ) r++;
+            }
+            if ( r == 0 ) {
+                result.set(0.);
+                return result;
+            } else {
+                Matrix s(r, r); s.set(0);
+                for ( size_t i = 0; i < r; i++) {
+                    s(i, i) = 1.0 / S(i, i);
+                }
+                const Matrix Vbis(V,r); // keep only the first r columns
+                const Matrix Ubis(U,r);
+                return Vbis * s * Ubis.transpose();
+            }
+        }
+    #else
+        std::cerr << "pinv not implemented without blas/lapack" << std::endl;
+        exit(1);
+    #endif
+    }
 
     Matrix Matrix::transpose() const {
         Matrix result(ncol(),nlin());
@@ -111,28 +120,28 @@ namespace OpenMEEG {
         return result;
     }
 
-    // void Matrix::svd(Matrix &U,Matrix &S, Matrix &V) const {
-    // #ifdef HAVE_LAPACK
-    //     Matrix cpy(*this,DEEP_COPY);
-    //     int mimi = (int)std::min(nlin(),ncol());
-    //     U = Matrix(nlin(),ncol()); U.set(0);
-    //     V = Matrix(ncol(),ncol()); V.set(0);
-    //     S = Matrix(ncol(),ncol()); S.set(0);
-    //     double *s=new double[mimi];
-    //     int lwork=4 *mimi*mimi + (int)std::max(nlin(),ncol()) + 9*mimi;
-    //     double *work=new double[lwork];
-    //     int *iwork=new int[8*mimi];
-    //     int info;
-    //     DGESDD('S',nlin(),ncol(),cpy.data(),nlin(),s,U.data(),U.nlin(),V.data(),V.nlin(),work,lwork,iwork,info);
-    //     for(int i=0;i<mimi;i++) S(i,i)=s[i];
-    //     V=V.transpose();
-    //     delete[] s;
-    //     delete[] work;
-    //     delete[] iwork;
-    // #else
-    //     std::cerr<<"svd not implemented without blas/lapack"<<std::endl;
-    // #endif
-    // }
+    void Matrix::svd(Matrix &U, Matrix &S, Matrix &V) const {
+    #ifdef HAVE_LAPACK
+        Matrix cpy(*this,DEEP_COPY);
+        int mimi = (int)std::min(nlin(),ncol());
+        U = Matrix(nlin(),ncol()); U.set(0);
+        V = Matrix(ncol(),ncol()); V.set(0);
+        S = Matrix(ncol(),ncol()); S.set(0);
+        double *s=new double[mimi];
+        int lwork=4 *mimi*mimi + (int)std::max(nlin(),ncol()) + 9*mimi;
+        double *work=new double[lwork];
+        int *iwork=new int[8*mimi];
+        int info;
+        DGESDD('S',nlin(),ncol(),cpy.data(),nlin(),s,U.data(),U.nlin(),V.data(),V.nlin(),work,lwork,iwork,info);
+        for ( size_t i = 0; i < mimi; ++i) S(i, i) = s[i];
+        V = V.transpose();
+        delete[] s;
+        delete[] work;
+        delete[] iwork;
+    #else
+        std::cerr<<"svd not implemented without blas/lapack"<<std::endl;
+    #endif
+    }
 
     Matrix Matrix::operator *(const SparseMatrix &mat) const
     {

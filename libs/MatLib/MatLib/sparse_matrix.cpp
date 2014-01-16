@@ -43,6 +43,14 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 namespace OpenMEEG {
 
+    double SparseMatrix::frobenius_norm() const {
+        double d=0;
+        for ( const_iterator it = m_tank.begin() ; it != m_tank.end(); ++it) {
+            d += it->second*it->second;
+        }
+        return sqrt(d);
+    }
+
     Vector SparseMatrix::operator*(const Vector &x) const
     {
         Vector ret(nlin());
@@ -65,16 +73,51 @@ namespace OpenMEEG {
         Matrix out(nlin(),mat.ncol());
         out.set(0.0);
 
-        Tank::const_iterator it;
-        for(it = m_tank.begin(); it != m_tank.end(); ++it) {
+        for( Tank::const_iterator it = m_tank.begin(); it != m_tank.end(); ++it) {
             size_t i = it->first.first;
             size_t j = it->first.second;
             double val = it->second;
-            for(size_t k = 0; k < mat.ncol(); ++k) {
-                out(i,k) += val * mat(j,k);
+            for ( size_t k = 0; k < mat.ncol(); ++k) {
+                out(i, k) += val * mat(j, k);
             }
         }
 
+        return out;
+    }
+
+    SparseMatrix SparseMatrix::operator*(const SparseMatrix &mat) const
+    {
+        // fast enough ?
+        assert(ncol() == mat.nlin());
+        SparseMatrix out(nlin(), mat.ncol());
+
+        for ( Tank::const_iterator it1 = m_tank.begin(); it1 != m_tank.end(); ++it1) {
+            size_t i = it1->first.first;
+            size_t j = it1->first.second;
+            for ( Tank::const_iterator it2 = mat.begin(); it2 != mat.end(); ++it2) {
+                if ( it2->first.first == j ) {
+                    out(i, it2->first.second) += it1->second * it2->second;
+                }
+            }
+        }
+        return out;
+    }
+
+    SparseMatrix SparseMatrix::operator+(const SparseMatrix &mat) const
+    {
+        assert(nlin() == mat.nlin() && ncol() == mat.ncol());
+        SparseMatrix out(nlin(), ncol());
+
+        for ( Tank::const_iterator it = m_tank.begin(); it != m_tank.end(); ++it) {
+            size_t i = it->first.first;
+            size_t j = it->first.second;
+            out(i, j) += it->second;
+        }
+        for ( Tank::const_iterator it = mat.begin(); it != mat.end(); ++it) {
+            size_t i = it->first.first;
+            size_t j = it->first.second;
+            out(i, j) += it->second;
+        }
         return out;
     }
 

@@ -44,11 +44,11 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include "matrix.h"
 #include "symmatrix.h"
 #include "sparse_matrix.h"
-#include "diagmatrix.h"
 
 namespace OpenMEEG {
 
-    inline SymMatrix SymMatrix::operator*(const SymMatrix &m) const {
+    inline SymMatrix SymMatrix::operator*(const SymMatrix &m) const
+    {
         assert(nlin()==m.nlin());
     #ifdef HAVE_BLAS
         Matrix D(*this);
@@ -58,31 +58,32 @@ namespace OpenMEEG {
         return SymMatrix(C);
     #else
         SymMatrix C(nlin());
-        for (size_t j=0;j<m.ncol();j++){
-            for (size_t i=0;i<ncol();i++)
-            {
-                C(i,j)=0;
-                for (size_t k=0;k<ncol();k++)
-                    C(i,j)+=(*this)(i,k)*m(k,j);
+        for ( size_t j = 0; j < m.ncol(); ++j) {
+            for ( size_t i = 0; i < ncol(); ++i) {
+                C(i, j) = 0;
+                for ( size_t k = 0; k < ncol(); ++k) {
+                    C(i, j) += (*this)(i, k) * m(k, j);
+                }
             }
         }
         return C;
     #endif
     }
 
-    inline Matrix SymMatrix::operator*(const Matrix &B) const {
+    inline Matrix SymMatrix::operator*(const Matrix &B) const
+    {
         assert(ncol()==B.nlin());
         Matrix C(nlin(),B.ncol());
     #ifdef HAVE_BLAS
         Matrix D(*this);
         DSYMM(CblasLeft,CblasUpper ,(int)nlin(), (int)B.ncol(), 1. , D.data(), (int)D.ncol(), B.data(), (int)B.nlin(), 0, C.data(),(int)C.nlin());
     #else
-        for (size_t j=0;j<B.ncol();j++){
-            for (size_t i=0;i<ncol();i++)
-            {
-                C(i,j)=0;
-                for (size_t k=0;k<ncol();k++)
-                    C(i,j)+=(*this)(i,k)*B(k,j);
+        for ( size_t j = 0; j < B.ncol(); ++j) {
+            for ( size_t i = 0; i < ncol(); ++i) {
+                C(i, j) = 0;
+                for ( size_t k = 0; k < ncol(); ++k) {
+                    C(i, j) += (*this)(i, k) * B(k, j);
+                }
             }
         }
     #endif
@@ -108,7 +109,8 @@ namespace OpenMEEG {
         return out;
     }
 
-    inline Matrix SymMatrix::solveLin(Matrix &RHS) const {
+    inline Matrix SymMatrix::solveLin(Matrix &RHS) const
+    {
     #ifdef HAVE_LAPACK
         SymMatrix A(*this,DEEP_COPY);
         // LU

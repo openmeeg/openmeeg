@@ -150,8 +150,8 @@ namespace OpenMEEG {
 
         Matrix transpose() const;
         Matrix inverse() const;
-        // Matrix pinverse(double reltol=0) const;
-        // void svd(Matrix &U,Matrix &S, Matrix &V) const;
+        Matrix pinverse(double reltol=0) const;
+        void svd(Matrix &U,Matrix &S, Matrix &V) const;
 
         /** \brief Get Matrix Frobenius norm
             \return norm value

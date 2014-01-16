@@ -91,8 +91,8 @@ namespace OpenMEEG {
             return m_tank.size();
         }
 
-        const_iterator begin() const {return m_tank.begin();}
-        const_iterator end() const {return m_tank.end();}
+        const_iterator begin() const { return m_tank.begin(); }
+        const_iterator end()   const { return m_tank.end(); }
 
         SparseMatrix transpose() const;
 
@@ -107,10 +107,13 @@ namespace OpenMEEG {
         void load(const std::string& s)       { load(s.c_str()); }
 
         void info() const;
+        double frobenius_norm() const;
 
-        Vector operator*( const Vector &x ) const;
-        Matrix operator*( const Matrix &m ) const;
-        Matrix operator*( const SymMatrix &m ) const;
+        Vector       operator*( const Vector &x ) const;
+        Matrix       operator*( const Matrix &m ) const;
+        Matrix       operator*( const SymMatrix &m ) const;
+        SparseMatrix operator*( const SparseMatrix &m ) const;
+        SparseMatrix operator+( const SparseMatrix &m ) const;
 
     private:
 

@@ -137,6 +137,12 @@ namespace OpenMEEG {
 
     void Geometry::read(const std::string& geomFileName, const std::string& condFileName, const bool OLD_ORDERING) 
     {
+        // clear all first
+        vertices_.clear();
+        meshes_.clear();
+        domains_.clear();
+        is_nested_ = has_cond_ = false;
+
         GeometryReader geoR(*this);
 
         geoR.read_geom(geomFileName);
@@ -156,9 +162,9 @@ namespace OpenMEEG {
     // this generates unique indices for vertices and triangles which will correspond to our unknowns.
     void Geometry::generate_indices(const bool OLD_ORDERING) 
     {
-        // Either unknowns (potentials and currents) are ordered by mesh (i.e. V_1, p_1, V_2, p_2,...) 
-        // or by type (V_1,V_2,V_3 .. p_1, p_2...)
-        // #define CLASSIC_ORDERING // if we use classic_ordering make sure vertex do not overwrite index.. meshes have shared vertices..
+        // Either unknowns (potentials and currents) are ordered by mesh (i.e. V_1, p_1, V_2, p_2,...) (this is the OLD_ORDERING)
+        // or by type (V_1,V_2,V_3 .. p_1, p_2...) (by DEFAULT)
+        // if you use OLD_ORDERING make sure to iterate only once on each vertex: not to overwrite index (meshes have shared vertices).
         unsigned index = 0;
         if ( !OLD_ORDERING ) {
             for ( Vertices::iterator pit = vertex_begin(); pit != vertex_end(); ++pit, ++index) {
@@ -167,6 +173,7 @@ namespace OpenMEEG {
         }
         for ( iterator mit = begin(); mit != end(); ++mit) {
             if ( OLD_ORDERING ) {
+                assert(is_nested_); // OR non nested but without shared vertices
                 for ( Mesh::const_vertex_iterator vit = mit->vertex_begin(); vit != mit->vertex_end(); ++vit, ++index) {
                     (*vit)->index() = index;
                 }
@@ -245,13 +252,13 @@ namespace OpenMEEG {
     }
     
     /// \return 0. for non communicating meshes, 1. for same oriented meshes, -1. for different orientation
-    const double Geometry::oriented(const Mesh& m1, const Mesh& m2) const 
+    const int Geometry::oriented(const Mesh& m1, const Mesh& m2) const 
     {
         Domains doms = common_domains(m1, m2); // 2 meshes have either 0, 1 or 2 domains in common
         if ( doms.size() == 0 ) {
-            return 0.;
+            return 0;
         } else {
-            return (( doms[0].mesh_orientation(m1) == doms[0].mesh_orientation(m2) ) ? 1. : -1.);
+            return (( doms[0].mesh_orientation(m1) == doms[0].mesh_orientation(m2) ) ? 1 : -1);
         }
     }
 

@@ -29,12 +29,11 @@ INSTALL(TARGETS OpenMEEGMaths
 
 # install headers
 SET(MATLIB_HEADERS 
-    diagmatrix.h DLLDefinesOpenMEEGMaths.h fast_sparse_matrix.h linop.h MatLibConfig.h 
+    DLLDefinesOpenMEEGMaths.h fast_sparse_matrix.h linop.h MatLibConfig.h 
     matrix.h RC.H matvectOps.h symmatrix.h sparse_matrix.h vector.h
     #   These files are imported from another repository.
     #   Please do not update them in this repository.
     AsciiIO.H BrainVisaTextureIO.H Exceptions.H IOUtils.H MathsIO.H MatlabIO.H RC.H 
-    TrivialBinIO.H
-)
+    TrivialBinIO.H)
 INSTALL(FILES ${MATLIB_HEADERS}
         DESTINATION ${OPENMEEG_HEADER_INSTALLDIR} COMPONENT Development)

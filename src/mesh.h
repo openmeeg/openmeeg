@@ -52,6 +52,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <triangle.h>
 #include <IOUtils.H>
 #include <om_utils.h>
+#include <sparse_matrix.h>
 
 #ifdef USE_VTK
 #include <vtkPolyData.h>
@@ -66,6 +67,12 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <vtkPointData.h>
 #include <vtkDataArray.h>
 #include <vtkCleanPolyData.h>
+#endif
+
+#ifdef USE_GIFTI
+extern "C" {
+#include <gifti_io.h>
+}
 #endif
 
 namespace OpenMEEG {
@@ -104,7 +111,9 @@ namespace OpenMEEG {
         Mesh(const Mesh& m);
 
         /// constructor using an outisde storage for vertices \param all_vertices Where to store vertices \param name Mesh name
-        Mesh(Vertices& all_vertices, const std::string name = ""): name_(name), all_vertices_(&all_vertices), outermost_(false), allocate_(false) { set_vertices_.insert(all_vertices_->begin(), all_vertices_->end()); }
+        Mesh(Vertices& all_vertices, const std::string name = ""): name_(name), all_vertices_(&all_vertices), outermost_(false), allocate_(false) { 
+            set_vertices_.insert(all_vertices_->begin(), all_vertices_->end()); 
+        }
 
         /// constructor loading directly a mesh file \param filename \param verbose \param name Mesh name
         Mesh(std::string filename, const bool verbose = true, const std::string name = ""): name_(name), outermost_(false), allocate_(true) { 
@@ -127,7 +136,7 @@ namespace OpenMEEG {
 		      std::string &           name()                { return name_; } ///< \return the mesh name
         const std::string &           name()          const { return name_; } ///< \return the mesh name
 
-        VectPVertex &                 vertices()            { return vertices_; } ///< \return the vector of pointers to the mesh vertices
+        const VectPVertex &           vertices()      const { return vertices_; } ///< \return the vector of pointers to the mesh vertices
         const unsigned                nb_vertices()   const { return vertices_.size(); }
         const unsigned                nb_triangles()  const { return size(); }
 
@@ -139,19 +148,19 @@ namespace OpenMEEG {
         /** \brief Print info
           Print to std::cout some info about the mesh
           \return void \sa */
-        void  info() const;
-        bool  has_self_intersection() const; ///< \brief check if the mesh self-intersects
-        bool  intersection(const Mesh&) const; ///< \brief check if the mesh intersects another mesh
-        bool  has_correct_orientation() const; ///< \brief check the local orientation of the mesh triangles
-        void  build_mesh_vertices(); ///< \brief construct the list of the mesh vertices out of its triangles
-        void  update(); ///< \brief recompute triangles normals, area, and links
-        void  merge(const Mesh&, const Mesh&); ///< properly merge two meshes into one
-        void  flip_triangles(); ///< flip all triangles
+        void info() const;
+        bool has_self_intersection() const; ///< \brief check if the mesh self-intersects
+        bool intersection(const Mesh&) const; ///< \brief check if the mesh intersects another mesh
+        bool has_correct_orientation() const; ///< \brief check the local orientation of the mesh triangles
+        void build_mesh_vertices(); ///< \brief construct the list of the mesh vertices out of its triangles
+        void update(); ///< \brief recompute triangles normals, area, and links
+        void merge(const Mesh&, const Mesh&); ///< properly merge two meshes into one
+        void flip_triangles(); ///< flip all triangles
+        void correct_local_orientation(); ///< \brief correct the local orientation of the mesh triangles
         const VectPTriangle& get_triangles_for_vertex(const Vertex& V) const; ///< \biref get the triangles associated with vertex V \return the links
-        unsigned  correct_local_orientation(); ///< \brief correct the local orientation of the mesh triangles
 
-              bool&        outermost()       { return outermost_; } /// \brief Returns True if it is an outermost mesh.
-        const bool&        outermost() const { return outermost_; }
+              bool& outermost()       { return outermost_; } /// \brief Returns True if it is an outermost mesh.
+        const bool& outermost() const { return outermost_; }
 
         /** \brief Smooth Mesh
           \param smoothing_intensity
@@ -186,23 +195,19 @@ namespace OpenMEEG {
         }
         #endif
         #ifdef USE_GIFTI
-        unsigned load_gifti(std::istream& , const bool& read_all = true);
         unsigned load_gifti(const std::string&, const bool& read_all = true);
-        void save_gifti(const std::string&);
-        gifti_image* to_gifti_image();
-        void from_gifti_image(gifti_image* gim);
         #else
         template <typename T>
         unsigned load_gifti(T, const bool& read_all = true) {
             std::cerr << "You have to compile OpenMEEG with GIFTI to read GIFTI files" << std::endl;
             exit(1);
         }
+        #endif
         template <typename T>
-        void save_gifti(T) {
-            std::cerr << "You have to compile OpenMEEG with GIFTI to save GIFTI files" << std::endl;
+        void save_gifti(T) const {
+            std::cerr << "GIFTI writer : Not implemented" << std::endl;
             exit(1);
         }
-        #endif
         /** Save mesh to file
          \param filename can be .vtk, .tri (ascii), .bnd, .off or .mesh */
         void save(const std::string& filename) const ;
@@ -218,18 +223,18 @@ namespace OpenMEEG {
 
     private:
         /// map the edges with an unsigned
-        typedef std::map<std::pair<const Vertex *, const Vertex *>, unsigned> EdgeMap; 
+        typedef std::map<std::pair<const Vertex *, const Vertex *>, int> EdgeMap; 
 
         void destroy();
         void copy(const Mesh&);
         // regarding mesh orientation
-        EdgeMap       compute_edge_map() const;
-        VectPTriangle adjacent_triangles(const Triangle&) const;
-        void orient_adjacent_triangles(std::stack<Triangle *>& t_stack, std::map<Triangle *, bool>& tri_reoriented);
-        bool  triangle_intersection(const Triangle&, const Triangle&) const;
+        const EdgeMap compute_edge_map() const;
+        VectPTriangle adjacent_triangles(const Triangle&);
+        void          orient_adjacent_triangles(std::stack<Triangle *>& t_stack, std::map<Triangle *, bool>& tri_reoriented);
+        bool          triangle_intersection(const Triangle&, const Triangle&) const;
         
         std::string                 name_; ///< Name of the mesh.
-        std::map<const Vertex *, VectPTriangle>   links_; ///< links[&v] are the triangles that contain vertex v.
+        std::map<const Vertex *, VectPTriangle> links_; ///< links[&v] are the triangles that contain vertex v.
         Vertices *                  all_vertices_; ///< Pointer to all the vertices.
         VectPVertex                 vertices_; ///< Vector of pointers to the mesh vertices.
         bool                        outermost_; ///< Is it an outermost mesh ? (i.e does it touch the Air domain)

@@ -289,6 +289,9 @@ namespace OpenMEEG {
                 if ( ( id[0] == '-' ) || ( id[0] == '+' ) ) {
                     inside = ( id[0] == '-' );
                     id = id.substr(1, id.size());
+                } else if ( id == "shared" ) {
+                    std::cerr << "(DEPRECATED) Keyword shared is useless. Please consider updating your geometry file to the new format 1.1 (see data/README.rst): " << geometry << std::endl;
+                    break;                    
                 }
                 for ( Interfaces::iterator iit = interfaces.begin(); iit != interfaces.end() ; ++iit) {
                     if ( iit->name() == id ) {

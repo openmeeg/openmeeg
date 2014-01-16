@@ -86,12 +86,14 @@ namespace OpenMEEG {
         inline double operator()(size_t i,size_t j) const;
         inline double& operator()(size_t i,size_t j) ;
 
-        Matrix operator()(size_t i_start, size_t i_end, size_t j_start, size_t j_end) const;
-        Matrix submat(size_t istart, size_t isize, size_t jstart, size_t jsize) const;
+        Matrix    operator()(size_t i_start, size_t i_end, size_t j_start, size_t j_end) const;
+        Matrix    submat(size_t istart, size_t isize, size_t jstart, size_t jsize) const;
         SymMatrix submat(size_t istart, size_t iend) const;
-        Vector solveLin(const Vector &B) const;
-        void solveLin(Vector * B, int nbvect);
-        Matrix solveLin(Matrix& B) const;
+        Vector    getlin(size_t i) const;
+        void      setlin(size_t i, const Vector& v);
+        Vector    solveLin(const Vector &B) const;
+        void      solveLin(Vector * B, int nbvect);
+        Matrix    solveLin(Matrix& B) const;
 
         const SymMatrix& operator=(const double d);
 
@@ -347,6 +349,18 @@ namespace OpenMEEG {
         }
     #endif
         return y;
+    }
+
+    inline Vector SymMatrix::getlin(size_t i) const {
+        assert(i<nlin());
+        Vector v(ncol());
+        for ( size_t j = 0; j < ncol(); ++j) v.data()[j] = this->operator()(i,j);
+        return v;
+    }
+
+    inline void SymMatrix::setlin(size_t i,const Vector& v) {
+        assert(v.size()==nlin() && i<nlin());
+        for ( size_t j = 0; j < ncol(); ++j) this->operator()(i,j) = v(j);
     }
 }
 #endif  //! OPENMEEG_SYMMATRIX_H
