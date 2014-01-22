@@ -216,13 +216,11 @@ namespace OpenMEEG {
         }
 
         // ** Get the gradient of P1&P0 elements on the meshes **
-        Matrix MM (M.transpose() * M); // OK
-        SymMatrix sRR(Nc, Nc); sRR.set(0.);
+        Matrix MM(M.transpose() * M); // OK
+        SymMatrix RR(Nc, Nc); RR.set(0.);
         for ( Geometry::const_iterator mit = geo.begin(); mit != geo.end(); ++mit) {
-            mit->gradient_norm(sRR);
+            mit->gradient_norm2(RR);
         }
-        Matrix RR(sRR);
-        RR.save("RR.mat"); MM.save("MM.mat"); M.save("M.mat");
 
         // ** Choose Regularization parameter **
         Matrix alphas(Nc,Nc); // diagonal matrix
@@ -238,7 +236,8 @@ namespace OpenMEEG {
             }
         }
         Matrix Z, Z1, Z2;
-        if ( alpha < 0 ) {
+        if ( alpha < 0 ) { // try an automatic method...
+            PROGRESSBAR(0, 3);
             std::cout << "Z1" << std::endl;
             Z1 = P.transpose() * MM * P;
             double nZ1_v = Z1.submat(0, geo.nb_vertices(), 0, geo.nb_vertices()).frobenius_norm();
@@ -246,8 +245,8 @@ namespace OpenMEEG {
             double nRR_v = RR.submat(0, geo.nb_vertices(), 0, geo.nb_vertices()).frobenius_norm();
             double nRR_p = RR.submat(geo.nb_vertices(), Nc-geo.nb_vertices(), geo.nb_vertices(), Nc-geo.nb_vertices()).frobenius_norm();
             alphas.set(0.);
-            alpha = nZ1_v / nRR_v;
-            beta  = nZ1_p / nRR_p;
+            alpha = nZ1_v / (10.*nRR_v);
+            beta  = nZ1_p / (10.*nRR_p);
             for ( Vertices::const_iterator vit = geo.vertex_begin(); vit != geo.vertex_end(); ++vit) {
                 alphas(vit->index(), vit->index()) = alpha;
             }
@@ -266,7 +265,7 @@ namespace OpenMEEG {
             Z = Z1 + Z2;
         } else {
             std::cout << "alphas = " << alpha << "\t" << "beta = " << beta << std::endl;
-            std::cout << "Z" << std::endl;
+            PROGRESSBAR(0, 3);
             Z = P.transpose() * (MM + alphas*RR) * P;
         }
 
@@ -275,8 +274,11 @@ namespace OpenMEEG {
         // X = P * { P'*M'*M*P + P'*R'*R*P }¡(-1) * P'*M'm
         // X = P * { P'*(MM + a*RR)*P }¡(-1) * P'*M'm
         // X = P * Z¡(-1) * P' * M'm
+        PROGRESSBAR(1, 3);
         Matrix rhs = P.transpose() * M.transpose();
+        PROGRESSBAR(2, 3);
         mat = P * Z.pinverse() * rhs;
+        PROGRESSBAR(3, 3);
     }
 
     void assemble_Surf2Vol(const Geometry& geo, Matrix& mat, const std::map<const Domain, Vertices> m_points) 

@@ -40,7 +40,6 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #ifndef OPENMEEG_DANIELSSON_H
 #define OPENMEEG_DANIELSSON_H
 
-#include <list>
 #include <limits>
 #include <assert.h>
 #include <math.h>

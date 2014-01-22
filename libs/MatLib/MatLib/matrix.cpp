@@ -83,7 +83,7 @@ namespace OpenMEEG {
         } else {
             Matrix result(ncol(), nlin());
             Matrix U, S, V;
-            svd(U, S, V);
+            svd(U, S, V, false);
             double maxs = 0;
             unsigned mimi = std::min(S.nlin(), S.ncol());
             for ( size_t i = 0; i < mimi; i++) {
@@ -120,7 +120,7 @@ namespace OpenMEEG {
         return result;
     }
 
-    void Matrix::svd(Matrix &U, Matrix &S, Matrix &V) const {
+    void Matrix::svd(Matrix &U, Matrix &S, Matrix &V, bool complete) const {
     #ifdef HAVE_LAPACK
         Matrix cpy(*this,DEEP_COPY);
         int mini = (int)std::min(nlin(),ncol());
@@ -135,7 +135,11 @@ namespace OpenMEEG {
         double *work = new double[lwork];
         int *iwork = new int[8*mini];
         int Info;
-        DGESDD('A',nlin(),ncol(),cpy.data(),nlin(),s,U.data(),U.nlin(),V.data(),V.nlin(),work,lwork,iwork,Info);
+        if ( complete ) { // complete SVD
+            DGESDD('A',nlin(),ncol(),cpy.data(),nlin(),s,U.data(),U.nlin(),V.data(),V.nlin(),work,lwork,iwork,Info);
+        } else { // only first min(m,n)
+            DGESDD('S',nlin(),ncol(),cpy.data(),nlin(),s,U.data(),U.nlin(),V.data(),V.nlin(),work,lwork,iwork,Info);
+        }
         for ( size_t i = 0; i < mini; ++i) S(i, i) = s[i];
         V = V.transpose();
         delete[] s;
