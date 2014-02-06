@@ -112,8 +112,8 @@ namespace OpenMEEG {
         double frobenius_norm() const;
 
         Vector       operator*( const Vector &x ) const;
-        Matrix       operator*( const Matrix &m ) const;
         Matrix       operator*( const SymMatrix &m ) const;
+        Matrix       operator*( const Matrix &m ) const;
         SparseMatrix operator*( const SparseMatrix &m ) const;
         SparseMatrix operator+( const SparseMatrix &m ) const;
 
