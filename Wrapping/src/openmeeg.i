@@ -137,10 +137,12 @@ namespace std {
     %template(vector_unsigned) vector<unsigned int>;
     %template(vector_double) vector<double>;
     %template(vector_triangle) vector<OpenMEEG::Triangle>;
+    %template(vector_mesh) vector<OpenMEEG::Mesh>;
 }
 
 namespace OpenMEEG {
     %typedef std::vector<OpenMEEG::Triangle> Triangles;
+    %typedef std::vector<OpenMEEG::Mesh> Meshes;
 }
 
 %include <vect3.h>
