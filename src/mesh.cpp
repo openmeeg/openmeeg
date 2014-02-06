@@ -183,10 +183,12 @@ namespace OpenMEEG {
         }
 
         // If indices are not set, we generate them for sorting edge and testing orientation
-        if ( (*vertex_begin())->index() == unsigned(-1) ) {
-            generate_indices();
+        if ( allocate_ ) {
+            if ( (*vertex_begin())->index() == unsigned(-1) ) {
+                generate_indices();
+            }
+            correct_local_orientation();
         }
-        correct_local_orientation();
 
         // computes the triangles normals (after having the mesh locally reoriented)
         for ( iterator tit = begin(); tit != end(); ++tit) {
@@ -197,7 +199,8 @@ namespace OpenMEEG {
     }
 
     /// compute the normal at vertex
-    Normal Mesh::normal(const Vertex& v) const {
+    Normal Mesh::normal(const Vertex& v) const
+    {
         Normal _normal(0);
         for ( VectPTriangle::const_iterator tit = links_.at(&v).begin(); tit != links_.at(&v).end(); ++tit) {
             _normal += (*tit)->normal();
@@ -239,8 +242,7 @@ namespace OpenMEEG {
     /// Flip all triangles
     void Mesh::flip_triangles() 
     {
-        for ( iterator tit = begin(); tit != end(); ++tit)
-        {
+        for ( iterator tit = begin(); tit != end(); ++tit) {
             tit->flip();
         }
     }
@@ -289,7 +291,7 @@ namespace OpenMEEG {
         return p1^p2/(p0*(p1^p2));
     }
 
-    /// Norm Surface Gradient: norm of the surfacic gradient of the P1 and P0 elements
+    /// Sq. Norm Surface Gradient: square norm of the surfacic gradient of the P1 and P0 elements
     void Mesh::gradient_norm2(SymMatrix &A) const 
     {
         /// V
@@ -328,6 +330,24 @@ namespace OpenMEEG {
                     }
                 }
             }
+        }
+    }
+
+    /// Laplacian Mesh: good approximation of Laplace-Beltrami operator
+    // "Discrete Laplace Operator on Meshed Surfaces". by Belkin, Sun, Wang
+    void Mesh::laplacian(SymMatrix &A) const 
+    {
+        double h;
+        for ( const_iterator tit = begin(); tit != end(); ++tit) {
+            for ( unsigned j = 0; j < 3; ++j) {
+                if ( ((*tit)(j)).index() < ((*tit)(j+1)).index() ) { // sym matrix only lower half
+                    h = ((*tit)(j+1)-(*tit)(j)).norm();
+                    A(((*tit)(j)).index(), ((*tit)(j+1)).index()) += -tit->area()/(12.*M_PI*std::pow(h,2)) * exp(-((*tit)(j)-(*tit)(j+1)).norm2()/(4.*h));
+                }
+            }
+        }
+        for ( const_vertex_iterator vit = vertex_begin(); vit != vertex_end(); ++vit) {
+            A((*vit)->index(), (*vit)->index()) = -A.getlin((*vit)->index()).sum();
         }
     }
 

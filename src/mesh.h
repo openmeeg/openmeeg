@@ -164,6 +164,7 @@ namespace OpenMEEG {
         const VectPTriangle& get_triangles_for_vertex(const Vertex& V) const; ///< \brief get the triangles associated with vertex V \return the links
         VectPTriangle adjacent_triangles(const Triangle&) const; ///< \brief get the adjacent triangles
         Normal normal(const Vertex& v) const; ///< \brief get the Normal at vertex
+        void laplacian(SymMatrix &A) const; ///< \brief compute mesh laplacian
 
               bool& outermost()       { return outermost_; } /// \brief Returns True if it is an outermost mesh.
         const bool& outermost() const { return outermost_; }
