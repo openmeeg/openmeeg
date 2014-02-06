@@ -192,7 +192,6 @@ namespace OpenMEEG {
                 }
             }
             // ** Construct P: the null-space projector **
-            std::cout << "SVD" << std::endl;
             Matrix W;
             {
                 Matrix U, s;
@@ -204,7 +203,6 @@ namespace OpenMEEG {
             for ( unsigned i = Nl; i < Nc; ++i) {
                 S(i, i) = 1.0;
             }
-            std::cout << "P" << std::endl;
             P = (W * S) * W.transpose(); // P is a projector: P^2 = P and mat*P*X = 0
             if ( filename.length() != 0 ) {
                 std::cout << "Saving projector P (" << filename << ")." << std::endl;
@@ -216,37 +214,20 @@ namespace OpenMEEG {
         }
 
         // ** Get the gradient of P1&P0 elements on the meshes **
-        Matrix MM(M.transpose() * M); // OK
+        Matrix MM(M.transpose() * M);
         SymMatrix RR(Nc, Nc); RR.set(0.);
         for ( Geometry::const_iterator mit = geo.begin(); mit != geo.end(); ++mit) {
             mit->gradient_norm2(RR);
         }
 
         // ** Choose Regularization parameter **
-        Matrix alphas(Nc,Nc); // diagonal matrix
-        alphas.set(0.);
-        for ( Vertices::const_iterator vit = geo.vertex_begin(); vit != geo.vertex_end(); ++vit) {
-            alphas(vit->index(), vit->index()) = alpha;
-        }
-        for ( Meshes::const_iterator mit = geo.begin(); mit != geo.end(); ++mit) {
-            if ( !mit->outermost() ) {
-                for ( Mesh::const_iterator tit = mit->begin(); tit != mit->end(); ++tit) {
-                    alphas(tit->index(), tit->index()) = beta;
-                }
-            }
-        }
-        Matrix Z, Z1, Z2;
-        if ( alpha < 0 ) { // try an automatic method...
-            PROGRESSBAR(0, 3);
-            std::cout << "Z1" << std::endl;
-            Z1 = P.transpose() * MM * P;
-            double nZ1_v = Z1.submat(0, geo.nb_vertices(), 0, geo.nb_vertices()).frobenius_norm();
-            double nZ1_p = Z1.submat(geo.nb_vertices(), Nc-geo.nb_vertices(), geo.nb_vertices(), Nc-geo.nb_vertices()).frobenius_norm();
+        SparseMatrix alphas(Nc,Nc); // diagonal matrix
+        Matrix Z;
+        if ( alpha < 0 ) { // try an automatic method... TODO find better estimation
             double nRR_v = RR.submat(0, geo.nb_vertices(), 0, geo.nb_vertices()).frobenius_norm();
-            double nRR_p = RR.submat(geo.nb_vertices(), Nc-geo.nb_vertices(), geo.nb_vertices(), Nc-geo.nb_vertices()).frobenius_norm();
             alphas.set(0.);
-            alpha = nZ1_v / (10.*nRR_v);
-            beta  = nZ1_p / (10.*nRR_p);
+            alpha = MM.frobenius_norm() / (1.e3*nRR_v);
+            beta  = alpha * 50000.;
             for ( Vertices::const_iterator vit = geo.vertex_begin(); vit != geo.vertex_end(); ++vit) {
                 alphas(vit->index(), vit->index()) = alpha;
             }
@@ -257,28 +238,29 @@ namespace OpenMEEG {
                     }
                 }
             }
-            std::cout << "Z2" << std::endl;
-            Z2 = P.transpose() * (alphas *  RR) * P;
-            std::cout << "AUTOMATIC alphas = " << alpha << "\t" << "beta = " << beta << std::endl;
-            std::cout << "|Z1|_v = " << nZ1_v <<"\t|Z1|_p = " << nZ1_p <<"\t|RR|_v = " << nRR_v <<"\t|RR|_p = " << nRR_p << std::endl;
-            std::cout << "Z" << std::endl;
-            Z = Z1 + Z2;
+            std::cout << "AUTOMATIC alphas = " << alpha << "\tbeta = " << beta << std::endl;
         } else {
-            std::cout << "alphas = " << alpha << "\t" << "beta = " << beta << std::endl;
-            PROGRESSBAR(0, 3);
-            Z = P.transpose() * (MM + alphas*RR) * P;
+            for ( Vertices::const_iterator vit = geo.vertex_begin(); vit != geo.vertex_end(); ++vit) {
+                alphas(vit->index(), vit->index()) = alpha;
+            }
+            for ( Meshes::const_iterator mit = geo.begin(); mit != geo.end(); ++mit) {
+                if ( !mit->outermost() ) {
+                    for ( Mesh::const_iterator tit = mit->begin(); tit != mit->end(); ++tit) {
+                        alphas(tit->index(), tit->index()) = beta;
+                    }
+                }
+            }
+            std::cout << "alphas = " << alpha << "\tbeta = " << beta << std::endl;
         }
+        Z = P.transpose() * (MM + alphas*RR) * P;
 
         // ** PseudoInverse and return **
         // X = P * { (M*P)' * (M*P) + (R*P)' * (R*P) }¡(-1) * (M*P)'m
         // X = P * { P'*M'*M*P + P'*R'*R*P }¡(-1) * P'*M'm
         // X = P * { P'*(MM + a*RR)*P }¡(-1) * P'*M'm
         // X = P * Z¡(-1) * P' * M'm
-        PROGRESSBAR(1, 3);
         Matrix rhs = P.transpose() * M.transpose();
-        PROGRESSBAR(2, 3);
         mat = P * Z.pinverse() * rhs;
-        PROGRESSBAR(3, 3);
     }
 
     void assemble_Surf2Vol(const Geometry& geo, Matrix& mat, const std::map<const Domain, Vertices> m_points) 

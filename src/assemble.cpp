@@ -38,6 +38,8 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #include <fstream>
 #include <cstring>
+#include <sstream>
+#include <stdexcept>
 
 #include <mesh.h>
 #include <integrator.h>
@@ -123,12 +125,25 @@ int main(int argc, char** argv)
             exit(1);
         }
         if ( argc < 6 ) {
-            std::cerr << "Please set DOMAIN name !" << endl;
+            std::cerr << "Please set the domain name !" << endl;
             exit(1);
         }
         if ( argc < 7 ) {
             std::cerr << "Please set output filepath !" << endl;
             exit(1);
+        }
+        double alpha, beta;
+        if ( argc >= 9 ) {
+            std::stringstream ss(argv[7]);
+            if ( !(ss >> alpha) ) {
+                throw std::runtime_error("given parameter is not a number");
+            } else {
+                ss.clear();
+                ss.str(argv[8]);
+                if ( !(ss >> beta) ) {
+                    throw std::runtime_error("given parameter is not a number");
+                }
+            }
         }
         // Loading surfaces from geometry file
         Geometry geo;
@@ -144,8 +159,15 @@ int main(int argc, char** argv)
         Head2EEGMat M(geo, electrodes);
 
         // Assembling Matrix from discretization :
-        CorticalMat CM(geo, M, argv[5], gauss_order);
-        CM.save(argv[6]);
+        CorticalMat *CM;
+        if (argc == 9) {
+            CM = new CorticalMat(geo, M, argv[5], gauss_order, alpha, beta);
+        } else if (argc == 10) {
+            CM = new CorticalMat(geo, M, argv[5], gauss_order, alpha, beta, argv[9]);
+        } else {
+            CM = new CorticalMat(geo, M, argv[5], gauss_order);
+        }
+        CM->save(argv[6]);
     }
 
     /*********************************************************************************************
