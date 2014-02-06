@@ -164,34 +164,43 @@ namespace OpenMEEG {
     {
         // Either unknowns (potentials and currents) are ordered by mesh (i.e. V_1, p_1, V_2, p_2,...) (this is the OLD_ORDERING)
         // or by type (V_1,V_2,V_3 .. p_1, p_2...) (by DEFAULT)
+        // or by the user himself encoded into the vtp file.
         // if you use OLD_ORDERING make sure to iterate only once on each vertex: not to overwrite index (meshes have shared vertices).
-        unsigned index = 0;
-        if ( !OLD_ORDERING ) {
-            for ( Vertices::iterator pit = vertex_begin(); pit != vertex_end(); ++pit, ++index) {
-                pit->index() = index;
+        if ( begin()->begin()->index() == unsigned(-1) ) {
+            unsigned index = 0;
+            if ( !OLD_ORDERING ) {
+                for ( Vertices::iterator pit = vertex_begin(); pit != vertex_end(); ++pit, ++index) {
+                    pit->index() = index;
+                }
+            }
+            for ( iterator mit = begin(); mit != end(); ++mit) {
+                if ( OLD_ORDERING ) {
+                    assert(is_nested_); // OR non nested but without shared vertices
+                    for ( Mesh::const_vertex_iterator vit = mit->vertex_begin(); vit != mit->vertex_end(); ++vit, ++index) {
+                        (*vit)->index() = index;
+                    }
+                }
+                for ( Mesh::iterator tit = mit->begin(); tit != mit->end(); ++tit) {
+                    if ( !mit->outermost() ) {
+                        tit->index() = index++;
+                    }
+                }
+            } // even the last surface triangles (yes for EIT... )
+            for ( iterator mit = begin(); mit != end(); ++mit) {
+                for ( Mesh::iterator tit = mit->begin(); tit != mit->end(); ++tit) {
+                    if ( mit->outermost() ) {
+                        tit->index() = index++;
+                    }
+                }
+            }
+            size_ = index;
+        } else { 
+            std::cout << "vertex_begin()->index() " << vertex_begin()->index() << std::endl;
+            size_ = vertices_.size();
+            for ( iterator mit = begin(); mit != end(); ++mit) {
+                size_ += mit->size();
             }
         }
-        for ( iterator mit = begin(); mit != end(); ++mit) {
-            if ( OLD_ORDERING ) {
-                assert(is_nested_); // OR non nested but without shared vertices
-                for ( Mesh::const_vertex_iterator vit = mit->vertex_begin(); vit != mit->vertex_end(); ++vit, ++index) {
-                    (*vit)->index() = index;
-                }
-            }
-            for ( Mesh::iterator tit = mit->begin(); tit != mit->end(); ++tit) {
-                if ( !mit->outermost() ) {
-                    tit->index() = index++;
-                }
-            }
-        } // even the last surface triangles (yes for EIT... )
-        for ( iterator mit = begin(); mit != end(); ++mit) {
-            for ( Mesh::iterator tit = mit->begin(); tit != mit->end(); ++tit) {
-                if ( mit->outermost() ) {
-                    tit->index() = index++;
-                }
-            }
-        }
-        size_ = index;
     }
 
     double Geometry::sigma(const std::string& name) const 
@@ -317,6 +326,7 @@ namespace OpenMEEG {
         unsigned iit = 0;
         std::map<const Vertex *, Vertex *> map_vertices;
 
+        // count the vertices
         for ( Meshes::const_iterator mit = m.begin(); mit != m.end(); ++mit) {
             n_vert_max += mit->nb_vertices();
         }
