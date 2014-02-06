@@ -16,6 +16,9 @@ TARGET_LINK_LIBRARIES (om_mesh_smooth OpenMEEG)
 ADD_EXECUTABLE(om_mesh_concat mesh_concat.cpp)
 TARGET_LINK_LIBRARIES (om_mesh_concat OpenMEEG)
 
+ADD_EXECUTABLE(om_project_sensors project_sensors.cpp)
+TARGET_LINK_LIBRARIES (om_project_sensors OpenMEEG)
+
 ADD_EXECUTABLE(om_register_squids register_squids.cpp)
 TARGET_LINK_LIBRARIES (om_register_squids OpenMEEG)
 
@@ -63,6 +66,7 @@ INSTALL(TARGETS
     om_make_nerve
     om_mesh_convert 
     om_mesh_concat
+    om_project_sensors
     om_mesh_info om_mesh_smooth om_register_squids
     om_geometry_info
     om_squids2vtk om_matrix_info om_matrix_convert om_check_geom om_mesh_to_dip DESTINATION bin

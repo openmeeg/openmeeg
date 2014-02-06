@@ -197,12 +197,19 @@ namespace OpenMEEG {
     void Sensors::save(const char* filename) {
         std::ofstream outfile(filename);
         for(size_t i = 0; i < getNumberOfPositions(); ++i) {
+            // if it has names
             if (hasNames())
                 outfile << m_names[m_pointSensorIdx[i]] << " ";
             outfile << m_positions.getlin(i) << " ";
+            // if it has orientations
             if (hasOrientations())
                 outfile << m_orientations.getlin(i) << " ";
-            outfile << m_weights(i) << std::endl;
+            // if it has weights (other than 1)
+            if (std::abs(m_weights.sum() - m_weights.size()) > 1.e3*std::numeric_limits<double>::epsilon()) {
+                outfile << m_weights(i) << std::endl;
+            } else {
+                outfile << std::endl;
+            }
         }
         return;
     }
