@@ -88,7 +88,7 @@ In case you did not load the meshes through the Meshes section, and if VTK is en
   MeshFile Head.vtp
 
 In this format, all meshes are in a single VTK/vtp file, where all polygons (triangles) have a string data attached
-indicating the name of the surface it belongs to. (These files can easily be opened with Paraview www.paraview.org, select some triangles-> Cell Label-> check Visible, see HeadNNa1/HeadNNa1.png for an example of visualization.)
+indicating the name of the mesh it belongs to. (These files can easily be opened with Paraview www.paraview.org, select some triangles-> Cell Label-> check Visible, see HeadNNa1/HeadNNa1.png for an example of visualization.)
 
 
 3. An Interfaces section:
