@@ -118,7 +118,9 @@ namespace OpenMEEG {
         int    oriented(const Mesh&, const Mesh&) const;
 
         void read(const std::string& geomFileName, const std::string& condFileName = "", const bool OLD_ORDERING = false);
-        void load_vtp(const std::string& filename);
+        void load_vtp(const std::string& filename) { Matrix trash; load_vtp(filename, trash, false); }
+        void load_vtp(const std::string& filename, Matrix& data) { load_vtp(filename, data, true); }
+        void load_vtp(const std::string& filename, Matrix& data, const bool READ_DATA);
         void write_vtp(const std::string& filename, const Matrix& data = Matrix()) const; // optional give a dataset
 
     private:

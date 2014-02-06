@@ -63,9 +63,9 @@ namespace OpenMEEG {
 
         /// Constructors
         Triangle(): index_(-1) {}
-        Triangle(Vertex *pts[3]); ///< Create a new triangle from a set of vertices.
-        Triangle(Vertex& p1, Vertex& p2, Vertex& p3); ///< Create a new triangle from a 3 vertices.
-        Triangle(Vertex * p1, Vertex * p2, Vertex * p3); ///< Create a new triangle from a 3 vertex adresses.
+        Triangle(Vertex *pts[3], unsigned i = -1); ///< Create a new triangle from a set of vertices.
+        Triangle(Vertex& p1, Vertex& p2, Vertex& p3, unsigned i = -1); ///< Create a new triangle from a 3 vertices.
+        Triangle(Vertex * p1, Vertex * p2, Vertex * p3, unsigned i = -1); ///< Create a new triangle from a 3 vertex adresses.
         
         /// Operators
               Vertex *   operator[](const unsigned& vindex)       { return vertices_[vindex%3];  } // 0 <= 'index' <= '2'

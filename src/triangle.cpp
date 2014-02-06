@@ -41,19 +41,19 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 namespace OpenMEEG {
 
-    Triangle::Triangle(Vertex *pts[3]): index_(-1) {
+    Triangle::Triangle(Vertex *pts[3], unsigned i): index_(i) {
         for ( unsigned i = 0; i < 3; ++i) {
             vertices_[i] = pts[i];
         }
     }
 
-    Triangle::Triangle(Vertex& p1, Vertex& p2, Vertex& p3): index_(-1) {
+    Triangle::Triangle(Vertex& p1, Vertex& p2, Vertex& p3, unsigned i): index_(i) {
         vertices_[0] = &p1;
         vertices_[1] = &p2;
         vertices_[2] = &p3;
     }
 
-    Triangle::Triangle(Vertex * p1, Vertex * p2, Vertex * p3): index_(-1) {
+    Triangle::Triangle(Vertex * p1, Vertex * p2, Vertex * p3, unsigned i): index_(i) {
         vertices_[0] = p1;
         vertices_[1] = p2;
         vertices_[2] = p3;

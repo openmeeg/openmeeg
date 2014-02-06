@@ -141,9 +141,8 @@ namespace OpenMEEG {
             return 2.*atan2(d, (y1*y2*y3+y1*(Y2*Y3)+y2*(Y3*Y1)+y3*(Y1*Y2)));
         }
 
-        inline Vect3& normalize() {
+        inline void normalize() {
             *this /= (*this).norm();
-            return *this;
         }
 
         friend std::ostream& operator<<(std::ostream& os, const Vect3& v);

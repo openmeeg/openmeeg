@@ -183,21 +183,24 @@ namespace OpenMEEG {
         }
 
         // If indices are not set, we generate them for sorting edge and testing orientation
-        if ( (*vertex_begin())->index() == unsigned(-1) ) {
-            generate_indices();
+        if ( allocate_ ) {
+            if ( (*vertex_begin())->index() == unsigned(-1) ) {
+                generate_indices();
+            }
+            correct_local_orientation();
         }
-        correct_local_orientation();
 
         // computes the triangles normals (after having the mesh locally reoriented)
         for ( iterator tit = begin(); tit != end(); ++tit) {
             tit->normal()  = (tit->s1() - tit->s2())^(tit->s1() - tit->s3());
             tit->area()    = tit->normal().norm() / 2.0;
-            tit->normal() /= tit->normal().norm();
+            tit->normal().normalize();
         }
     }
 
     /// compute the normal at vertex
-    Normal Mesh::normal(const Vertex& v) const {
+    Normal Mesh::normal(const Vertex& v) const
+    {
         Normal _normal(0);
         for ( VectPTriangle::const_iterator tit = links_.at(&v).begin(); tit != links_.at(&v).end(); ++tit) {
             _normal += (*tit)->normal();
@@ -239,8 +242,7 @@ namespace OpenMEEG {
     /// Flip all triangles
     void Mesh::flip_triangles() 
     {
-        for ( iterator tit = begin(); tit != end(); ++tit)
-        {
+        for ( iterator tit = begin(); tit != end(); ++tit) {
             tit->flip();
         }
     }
@@ -277,22 +279,20 @@ namespace OpenMEEG {
         update(); // Updating triangles (areas + normals)
     }
 
-    /// P0Vector : aux function to compute the surfacic gradient TODO sure ? return a double ?
-    inline Vect3 Mesh::P0Vector(const Triangle &t1, const Triangle &t2) const
+    /// P0gradient_norm2 : aux function to compute the square norm of the surfacic gradient
+    inline double Mesh::P0gradient_norm2(const Triangle &t1, const Triangle &t2) const
     {
-        Vect3 grad = 1.0/(t1.center()-t2.center()).norm();
-        return grad;
+        return std::pow(t1.normal()*t2.normal(),2)/(t1.center()-t2.center()).norm2();
     }
 
-    /// P1Vector : aux function to compute the surfacic gradient
-    inline Vect3 Mesh::P1Vector(const Vect3 &p0, const Vect3 &p1, const Vect3 &p2) const
+    /// P1gradient : aux function to compute the surfacic gradient
+    inline Vect3 Mesh::P1gradient(const Vect3 &p0, const Vect3 &p1, const Vect3 &p2) const
     {
-        Vect3 a1 = p1^p2/(p0*(p1^p2));
-        return a1;
+        return p1^p2/(p0*(p1^p2));
     }
 
-    /// Norm Surface Gradient: norm of the surfacic gradient of the P1 and P0 elements
-    void Mesh::gradient_norm(SymMatrix &A) const 
+    /// Sq. Norm Surface Gradient: square norm of the surfacic gradient of the P1 and P0 elements
+    void Mesh::gradient_norm2(SymMatrix &A) const 
     {
         /// V
         // self
@@ -307,14 +307,14 @@ namespace OpenMEEG {
                 } else {
                     v2 = (**tit)[0]; v3 = (**tit)[1];
                 }
-                A((*vit)->index(), (*vit)->index()) += P1Vector(**vit, *v2, *v3).norm2() * std::pow((*tit)->area(),2);
+                A((*vit)->index(), (*vit)->index()) += P1gradient(**vit, *v2, *v3).norm2() * std::pow((*tit)->area(),2);
             }
         }
         // edges
         for ( const_iterator tit = begin(); tit != end(); ++tit) {
             for ( unsigned j = 0; j < 3; ++j) {
                 if ( ((*tit)(j)).index() < ((*tit)(j+1)).index() ) { // sym matrix only lower half
-                    A(((*tit)(j)).index(), ((*tit)(j+1)).index()) += P1Vector((*tit)(j), (*tit)(j+1), (*tit)(j+2)) * P1Vector((*tit)(j+1), (*tit)(j+2), (*tit)(j+3)) * std::pow(tit->area(),2);
+                    A(((*tit)(j)).index(), ((*tit)(j+1)).index()) += P1gradient((*tit)(j), (*tit)(j+1), (*tit)(j+2)) * P1gradient((*tit)(j+1), (*tit)(j+2), (*tit)(j+3)) * std::pow(tit->area(),2);
                 }
             }
         }
@@ -326,10 +326,28 @@ namespace OpenMEEG {
                 VectPTriangle Tadj = adjacent_triangles(*tit);
                 for ( VectPTriangle::const_iterator tit2 = Tadj.begin(); tit2 != Tadj.end(); ++tit2) {
                     if ( tit->index() < (*tit2)->index() ) { // sym matrix only lower half
-                        A(tit->index(), (*tit2)->index()) += P0Vector(*tit, **tit2).norm2() * tit->area() * (*tit2)->area();
+                        A(tit->index(), (*tit2)->index()) += P0gradient_norm2(*tit, **tit2) * tit->area() * (*tit2)->area();
                     }
                 }
             }
+        }
+    }
+
+    /// Laplacian Mesh: good approximation of Laplace-Beltrami operator
+    // "Discrete Laplace Operator on Meshed Surfaces". by Belkin, Sun, Wang
+    void Mesh::laplacian(SymMatrix &A) const 
+    {
+        double h;
+        for ( const_iterator tit = begin(); tit != end(); ++tit) {
+            for ( unsigned j = 0; j < 3; ++j) {
+                if ( ((*tit)(j)).index() < ((*tit)(j+1)).index() ) { // sym matrix only lower half
+                    h = ((*tit)(j+1)-(*tit)(j)).norm();
+                    A(((*tit)(j)).index(), ((*tit)(j+1)).index()) += -tit->area()/(12.*M_PI*std::pow(h,2)) * exp(-((*tit)(j)-(*tit)(j+1)).norm2()/(4.*h));
+                }
+            }
+        }
+        for ( const_vertex_iterator vit = vertex_begin(); vit != vertex_end(); ++vit) {
+            A((*vit)->index(), (*vit)->index()) = -A.getlin((*vit)->index()).sum();
         }
     }
 
