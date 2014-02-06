@@ -119,7 +119,7 @@ namespace OpenMEEG
 
     double dist_point_interface(const Vect3& p, const Interface& i, Vect3& alphas, Triangle& nearestTriangle) 
     {
-        double distmin = DBL_MAX;
+        double distmin = std::numeric_limits<double>::max();
         bool inside;
         double distance;
         Vect3 alphasLoop;

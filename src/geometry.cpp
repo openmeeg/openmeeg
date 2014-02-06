@@ -164,37 +164,46 @@ namespace OpenMEEG {
     {
         // Either unknowns (potentials and currents) are ordered by mesh (i.e. V_1, p_1, V_2, p_2,...) (this is the OLD_ORDERING)
         // or by type (V_1,V_2,V_3 .. p_1, p_2...) (by DEFAULT)
+        // or by the user himself encoded into the vtp file.
         // if you use OLD_ORDERING make sure to iterate only once on each vertex: not to overwrite index (meshes have shared vertices).
-        unsigned index = 0;
-        if ( !OLD_ORDERING ) {
-            for ( Vertices::iterator pit = vertex_begin(); pit != vertex_end(); ++pit, ++index) {
-                pit->index() = index;
+        if ( begin()->begin()->index() == unsigned(-1) ) {
+            unsigned index = 0;
+            if ( !OLD_ORDERING ) {
+                for ( Vertices::iterator pit = vertex_begin(); pit != vertex_end(); ++pit, ++index) {
+                    pit->index() = index;
+                }
+            }
+            for ( iterator mit = begin(); mit != end(); ++mit) {
+                if ( OLD_ORDERING ) {
+                    assert(is_nested_); // OR non nested but without shared vertices
+                    for ( Mesh::const_vertex_iterator vit = mit->vertex_begin(); vit != mit->vertex_end(); ++vit, ++index) {
+                        (*vit)->index() = index;
+                    }
+                }
+                for ( Mesh::iterator tit = mit->begin(); tit != mit->end(); ++tit) {
+                    if ( !mit->outermost() ) {
+                        tit->index() = index++;
+                    }
+                }
+            } // even the last surface triangles (yes for EIT... )
+            for ( iterator mit = begin(); mit != end(); ++mit) {
+                for ( Mesh::iterator tit = mit->begin(); tit != mit->end(); ++tit) {
+                    if ( mit->outermost() ) {
+                        tit->index() = index++;
+                    }
+                }
+            }
+            size_ = index;
+        } else { 
+            std::cout << "vertex_begin()->index() " << vertex_begin()->index() << std::endl;
+            size_ = vertices_.size();
+            for ( iterator mit = begin(); mit != end(); ++mit) {
+                size_ += mit->size();
             }
         }
-        for ( iterator mit = begin(); mit != end(); ++mit) {
-            if ( OLD_ORDERING ) {
-                assert(is_nested_); // OR non nested but without shared vertices
-                for ( Mesh::const_vertex_iterator vit = mit->vertex_begin(); vit != mit->vertex_end(); ++vit, ++index) {
-                    (*vit)->index() = index;
-                }
-            }
-            for ( Mesh::iterator tit = mit->begin(); tit != mit->end(); ++tit) {
-                if ( !mit->outermost() ) {
-                    tit->index() = index++;
-                }
-            }
-        } // even the last surface triangles (yes for EIT... )
-        for ( iterator mit = begin(); mit != end(); ++mit) {
-            for ( Mesh::iterator tit = mit->begin(); tit != mit->end(); ++tit) {
-                if ( mit->outermost() ) {
-                    tit->index() = index++;
-                }
-            }
-        }
-        size_ = index;
     }
 
-    const double Geometry::sigma(const std::string& name) const 
+    double Geometry::sigma(const std::string& name) const 
     {
         for ( std::vector<Domain>::const_iterator dit = domain_begin(); dit != domain_end(); ++dit) {
             if ( name == dit->name() ) {
@@ -223,7 +232,7 @@ namespace OpenMEEG {
     }
 
     /// \return a function (sum, difference,...) of the conductivity(ies) of the shared domain(s).
-    const double Geometry::funct_on_domains(const Mesh& m1, const Mesh& m2, const Function& f) const 
+    double Geometry::funct_on_domains(const Mesh& m1, const Mesh& m2, const Function& f) const 
     {
         Domains doms = common_domains(m1, m2);
         double ans=0.;
@@ -242,7 +251,7 @@ namespace OpenMEEG {
     }
 
     /// \return the difference of conductivities of the 2 domains.
-    const double  Geometry::sigma_diff(const Mesh& m) const {
+    double  Geometry::sigma_diff(const Mesh& m) const {
         Domains doms = common_domains(m, m); // Get the 2 domains surrounding mesh m
         double  ans  = 0.;
         for ( Domains::iterator dit = doms.begin(); dit != doms.end(); ++dit) {
@@ -252,7 +261,7 @@ namespace OpenMEEG {
     }
     
     /// \return 0. for non communicating meshes, 1. for same oriented meshes, -1. for different orientation
-    const int Geometry::oriented(const Mesh& m1, const Mesh& m2) const 
+    int Geometry::oriented(const Mesh& m1, const Mesh& m2) const 
     {
         Domains doms = common_domains(m1, m2); // 2 meshes have either 0, 1 or 2 domains in common
         if ( doms.size() == 0 ) {
@@ -262,7 +271,7 @@ namespace OpenMEEG {
         }
     }
 
-    const bool Geometry::selfCheck() const
+    bool Geometry::selfCheck() const
     {
         bool OK = true;
 
@@ -291,7 +300,7 @@ namespace OpenMEEG {
         return OK;
     }
 
-    const bool Geometry::check(const Mesh& m) const 
+    bool Geometry::check(const Mesh& m) const 
     {
         bool OK = true;
         if ( m.has_self_intersection() ) {
@@ -317,6 +326,7 @@ namespace OpenMEEG {
         unsigned iit = 0;
         std::map<const Vertex *, Vertex *> map_vertices;
 
+        // count the vertices
         for ( Meshes::const_iterator mit = m.begin(); mit != m.end(); ++mit) {
             n_vert_max += mit->nb_vertices();
         }

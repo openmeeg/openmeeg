@@ -63,44 +63,39 @@ namespace OpenMEEG {
 
         /// Constructors
         Triangle(): index_(-1) {}
-        Triangle(const Triangle& t); ///< copy constructor
-        Triangle(Vertex *pts[3]); ///< Create a new triangle from a set of vertices.
-        Triangle(Vertex& p1, Vertex& p2, Vertex& p3); ///< Create a new triangle from a 3 vertices.
-        Triangle(Vertex * p1, Vertex * p2, Vertex * p3); ///< Create a new triangle from a 3 vertex adresses.
+        Triangle(Vertex *pts[3], unsigned i = -1); ///< Create a new triangle from a set of vertices.
+        Triangle(Vertex& p1, Vertex& p2, Vertex& p3, unsigned i = -1); ///< Create a new triangle from a 3 vertices.
+        Triangle(Vertex * p1, Vertex * p2, Vertex * p3, unsigned i = -1); ///< Create a new triangle from a 3 vertex adresses.
         
-        /// Destructor
-        ~Triangle() { destroy(); }
-
         /// Operators
-              Triangle&  operator= (const Triangle& t);
               Vertex *   operator[](const unsigned& vindex)       { return vertices_[vindex%3];  } // 0 <= 'index' <= '2'
         const Vertex *   operator[](const unsigned& vindex) const { return vertices_[vindex%3];  }
               Vertex &   operator()(const unsigned& vindex)       { return *vertices_[vindex%3]; } // 0 <= 'index' <= '2'
         const Vertex &   operator()(const unsigned& vindex) const { return *vertices_[vindex%3]; }
-        const bool       operator==(const Triangle& T) const;
+              bool       operator==(const Triangle& T)      const { return (T[0]==vertices_[0])&(T[1]==vertices_[1])&(T[2]==vertices_[2]); }
                                                  
               Vertex&        vertex(const unsigned& vindex)       { return operator()(vindex%3); }
         const Vertex&        vertex(const unsigned& vindex) const { return operator()(vindex%3); }
 
         /// Iterators.
-        const const_iterator begin()               const { return const_iterator(vertices_); }
-        const const_iterator end()                 const { return const_iterator(vertices_+3); }
-              iterator       begin()                     { return iterator(vertices_);       }
-              iterator       end()                       { return iterator(vertices_+3);       }
+        const_iterator begin() const { return const_iterator(vertices_); }
+        const_iterator end()   const { return const_iterator(vertices_+3); }
+        iterator       begin()       { return iterator(vertices_);       }
+        iterator       end()         { return iterator(vertices_+3);       }
 
-        const Vertex&   s1()     const { return *vertices_[0]; }
-        const Vertex&   s2()     const { return *vertices_[1]; }
-        const Vertex&   s3()     const { return *vertices_[2]; }
+        const Vertex&  s1()    const { return *vertices_[0]; }
+        const Vertex&  s2()    const { return *vertices_[1]; }
+        const Vertex&  s3()    const { return *vertices_[2]; }
 
-              Vertex&   s1()           { return *vertices_[0]; }
-              Vertex&   s2()           { return *vertices_[1]; }
-              Vertex&   s3()           { return *vertices_[2]; }
+              Vertex&  s1()          { return *vertices_[0]; }
+              Vertex&  s2()          { return *vertices_[1]; }
+              Vertex&  s3()          { return *vertices_[2]; }
 
-              Normal&   normal()       { return normal_; }
-        const Normal&   normal() const { return normal_; }
+              Normal&  normal()       { return normal_; }
+        const Normal&  normal() const { return normal_; }
                                 
-              double&   area()         { return area_; }
-        const double&   area()   const { return area_; }
+              double&  area()         { return area_; }
+        const double&  area()   const { return area_; }
                                 
               unsigned& index()        { return index_; }
         const unsigned& index()  const { return index_; }
@@ -130,6 +125,10 @@ namespace OpenMEEG {
             }
         }
 
+        Vect3 center() const {
+            return 1./3.*(*vertices_[0]+*vertices_[1]+*vertices_[2]);
+        }
+
         bool contains(const Vertex& p) const {
             for ( unsigned i = 0; i < 3; ++i) {
                 if ( &vertex(i) == &p ) {
@@ -142,9 +141,6 @@ namespace OpenMEEG {
         void flip(); ///< flip two of the three vertex address
 
     private:
-
-        void copy(const Triangle& t);
-        void destroy();
 
         Vertex *  vertices_[3]; ///< &Vertex-triplet defining the triangle
         double    area_;       ///< Area

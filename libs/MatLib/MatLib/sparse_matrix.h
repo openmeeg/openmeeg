@@ -98,7 +98,9 @@ namespace OpenMEEG {
 
         const Tank& tank() const {return m_tank;}
 
+        void set( double t);
         Vector getlin(size_t i) const;
+        void setlin(Vector v, size_t i);
 
         void save(const char *filename) const;
         void load(const char *filename);
@@ -110,8 +112,8 @@ namespace OpenMEEG {
         double frobenius_norm() const;
 
         Vector       operator*( const Vector &x ) const;
-        Matrix       operator*( const Matrix &m ) const;
         Matrix       operator*( const SymMatrix &m ) const;
+        Matrix       operator*( const Matrix &m ) const;
         SparseMatrix operator*( const SparseMatrix &m ) const;
         SparseMatrix operator+( const SparseMatrix &m ) const;
 
@@ -129,6 +131,13 @@ namespace OpenMEEG {
             else v(j)=0.0;
         }
         return v;
+    }
+
+    inline void SparseMatrix::setlin(Vector v, size_t i) {
+        assert(i<nlin());
+        for (size_t j=0;j<v.nlin();j++){
+            (*this)(i,j) = v(j);
+        }
     }
 }
 #endif  //! OPENMEEG_SPARSE_MATRIX_H

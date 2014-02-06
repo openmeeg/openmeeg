@@ -39,14 +39,13 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #include "sparse_matrix.h"
 #include "symmatrix.h"
-#include "matvectOps.h"
 
 namespace OpenMEEG {
 
     double SparseMatrix::frobenius_norm() const {
-        double d=0;
+        double d = 0.;
         for ( const_iterator it = m_tank.begin() ; it != m_tank.end(); ++it) {
-            d += it->second*it->second;
+            d += std::pow(it->second,2);
         }
         return sqrt(d);
     }
@@ -65,6 +64,25 @@ namespace OpenMEEG {
         }
 
         return ret;
+    }
+
+    Matrix SparseMatrix::operator*(const SymMatrix &mat) const
+    {
+        assert(ncol()==mat.nlin());
+        Matrix out(nlin(),mat.ncol());
+        out.set(0.0);
+
+        Tank::const_iterator it;
+        for(it = m_tank.begin(); it != m_tank.end(); ++it) {
+            size_t i = it->first.first;
+            size_t j = it->first.second;
+            double val = it->second;
+            for(size_t k = 0; k < mat.ncol(); ++k) {
+                out(i,k) += val * mat(j,k);
+            }
+        }
+
+        return out;
     }
 
     Matrix SparseMatrix::operator*(const Matrix &mat) const
@@ -130,6 +148,12 @@ namespace OpenMEEG {
             tsp(j,i) = it->second;
         }
         return tsp;
+    }
+
+    void SparseMatrix::set(double d) {
+        for( iterator it = m_tank.begin(); it != m_tank.end(); ++it) {
+            it->second = d;
+        }
     }
 
     void SparseMatrix::info() const {

@@ -41,17 +41,18 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #define OPENMEEG_GEOMETRY_IO_H
 
 #include <map>
+#include <sstream>
+
 #ifdef USE_VTK
 #include <vtkPolyData.h>
 #include <vtkPoints.h>
 #include <vtkXMLPolyDataReader.h>
 #include <vtkXMLPolyDataWriter.h>
-// #include <vtkPolyDataWriter.h>
 #include <vtkDataReader.h>
 #include <vtkCellArray.h>
 #include <vtkDoubleArray.h>
+#include <vtkUnsignedIntArray.h>
 #include <vtkProperty.h>
-#include <vtkPolyDataNormals.h>
 #include <vtkPointData.h>
 #include <vtkCellData.h>
 #include <vtkDataArray.h>
@@ -64,7 +65,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 namespace OpenMEEG {
 
     /// \brief load a VTK\vtp file \param filename
-    void Geometry::load_vtp(const std::string& filename)
+    void Geometry::load_vtp(const std::string& filename, Matrix& data, const bool READ_DATA)
     {
     #ifdef USE_VTK
         vtkSmartPointer<vtkXMLPolyDataReader> reader = vtkSmartPointer<vtkXMLPolyDataReader>::New();
@@ -72,34 +73,21 @@ namespace OpenMEEG {
         reader->Update();
 
         vtkSmartPointer<vtkPolyData> vtkMesh = reader->GetOutput();
+        
+        int trash;
+        vtkSmartPointer<vtkUnsignedIntArray> v_indices = vtkUnsignedIntArray::SafeDownCast(vtkMesh->GetPointData()->GetArray("Indices", trash));
+        vtkSmartPointer<vtkUnsignedIntArray> c_indices = vtkUnsignedIntArray::SafeDownCast(vtkMesh->GetCellData()->GetArray("Indices", trash));
 
         unsigned npts, ntrgs;
         npts = vtkMesh->GetNumberOfPoints();
         vertices_.reserve(npts); // alocate memory for the vertices
 
-        if ( vtkMesh->GetPointData()->GetNormals()->GetNumberOfTuples() != vtkMesh->GetNumberOfPoints() ) {
-            std::cout << "Recomputes the vertices normals..." << std::endl;
-            vtkSmartPointer<vtkPolyDataNormals> newNormals = vtkSmartPointer<vtkPolyDataNormals>::New();
-            newNormals->SetInput(vtkMesh);
-            newNormals->Update();
-            vtkMesh = newNormals->GetOutput();
-        }
-
-        vtkSmartPointer<vtkDataArray> normals = vtkMesh->GetPointData()->GetNormals();
-
-        if ( npts != normals->GetNumberOfTuples() ) {
-            std::cerr << "Error: number of vertices is not equal to number of normals in vtp file, correct or remove the normals." << std::endl;
-            exit(1);
-        }
-
-        if ( normals->GetNumberOfComponents() != 3 ) {
-            std::cerr << "Error: wrong number of components of normals in vtp file, correct or remove the normals." << std::endl;
-            exit(1);
-        }
-
         for ( unsigned i = 0; i < npts; ++i) {
-            vertices_.push_back(Vertex(vtkMesh->GetPoint(i)[0], vtkMesh->GetPoint(i)[1], vtkMesh->GetPoint(i)[2],
-                                       normals->GetTuple(i)[0], normals->GetTuple(i)[1], normals->GetTuple(i)[2]));
+            if ( trash == -1 ) { // no indices provided
+                vertices_.push_back(Vertex(vtkMesh->GetPoint(i)[0], vtkMesh->GetPoint(i)[1], vtkMesh->GetPoint(i)[2]));
+            } else {
+                vertices_.push_back(Vertex(vtkMesh->GetPoint(i)[0], vtkMesh->GetPoint(i)[1], vtkMesh->GetPoint(i)[2], v_indices->GetValue(i)));
+            }
         }
 
         // find the number of different meshes reading the string array associated with the cells
@@ -129,9 +117,16 @@ namespace OpenMEEG {
                 if ( cell_id->GetValue(i) == mit->name() ) {
                     if ( vtkMesh->GetCellType(i) == VTK_TRIANGLE ) {
                         l = vtkMesh->GetCell(i)->GetPointIds();
-                        mit->push_back(Triangle(vertices_[l->GetId(0)],
-                                                vertices_[l->GetId(1)],
-                                                vertices_[l->GetId(2)])); 
+                        if ( trash != -1 ) { // no indices provided
+                            mit->push_back(Triangle(vertices_[l->GetId(0)],
+                                                    vertices_[l->GetId(1)],
+                                                    vertices_[l->GetId(2)],
+                                                    c_indices->GetValue(i))); 
+                        } else {
+                            mit->push_back(Triangle(vertices_[l->GetId(0)],
+                                                    vertices_[l->GetId(1)],
+                                                    vertices_[l->GetId(2)]));
+                        }
                     } else {
                         std::cerr << "This is not a triangulation" << std::endl;
                         exit(1);
@@ -140,6 +135,23 @@ namespace OpenMEEG {
             }
             mit->build_mesh_vertices();
             mit->update();
+            if ( READ_DATA ) {
+                unsigned nc = vtkMesh->GetPointData()->GetNumberOfArrays() - 1;
+                unsigned nl = vtkMesh->GetNumberOfPoints() + vtkMesh->GetNumberOfCells(); 
+                if ( nc != 0 ) {
+                    data = Matrix(nl, nc);
+                    for ( unsigned ic = 0; ic < nc; ++ic) {
+                        std::ostringstream sic;
+                        sic << ic;
+                        for ( unsigned iil = 0; iil < vtkMesh->GetPointData()->GetArray(("Potentials-"+sic.str()).c_str(), trash)->GetSize(); ++iil) {
+                            data(vtkUnsignedIntArray::SafeDownCast(vtkMesh->GetPointData()->GetArray("Indices", trash))->GetValue(iil), ic) = vtkDoubleArray::SafeDownCast(vtkMesh->GetPointData()->GetArray(("Potentials-"+sic.str()).c_str(), trash))->GetValue(iil);
+                        }
+                        for ( unsigned iil = 0; iil < vtkMesh->GetCellData()->GetArray(("Currents-"+sic.str()).c_str(), trash)->GetSize(); ++iil) {
+                            data(vtkUnsignedIntArray::SafeDownCast(vtkMesh->GetCellData()->GetArray("Indices", trash))->GetValue(iil), ic) = vtkDoubleArray::SafeDownCast(vtkMesh->GetCellData()->GetArray(("Currents-"+sic.str()).c_str(), trash))->GetValue(iil);
+                        }
+                    }
+                }
+            }
         }
     #else
         std::cerr << "Error: please specify USE_VTK to cmake" << std::endl; // TODO in Legacy format ? // Exceptions
@@ -151,20 +163,29 @@ namespace OpenMEEG {
     {
 
     #ifdef USE_VTK
-        vtkSmartPointer<vtkPolyData>    polydata = vtkSmartPointer<vtkPolyData>::New();
-        vtkSmartPointer<vtkPoints>      points   = vtkSmartPointer<vtkPoints>::New();      // vertices
-        vtkSmartPointer<vtkDoubleArray> normals  = vtkSmartPointer<vtkDoubleArray>::New(); // normals
-        vtkSmartPointer<vtkStringArray> cell_id  = vtkSmartPointer<vtkStringArray>::New(); // ids/mesh name
-        vtkSmartPointer<vtkDoubleArray> potentials[data.ncol()]; // potential on vestices
-        vtkSmartPointer<vtkDoubleArray> currents[data.ncol()]; // current on triangles
-        
+        vtkSmartPointer<vtkPolyData>         polydata = vtkSmartPointer<vtkPolyData>::New();
+        vtkSmartPointer<vtkPoints>           points   = vtkSmartPointer<vtkPoints>::New();      // vertices
+        vtkSmartPointer<vtkDoubleArray>      normals  = vtkSmartPointer<vtkDoubleArray>::New(); // normals
+        vtkSmartPointer<vtkStringArray>      cell_id  = vtkSmartPointer<vtkStringArray>::New(); // ids/mesh name
+        vtkSmartPointer<vtkUnsignedIntArray> cell_indices = vtkSmartPointer<vtkUnsignedIntArray>::New(); // indices
+        vtkSmartPointer<vtkUnsignedIntArray> point_indices = vtkSmartPointer<vtkUnsignedIntArray>::New(); // indices
+        vtkSmartPointer<vtkDoubleArray>      potentials[data.ncol()]; // potential on vestices
+        vtkSmartPointer<vtkDoubleArray>      currents[data.ncol()]; // current on triangles
+
         normals->SetNumberOfComponents(3); // 3d normals (ie x,y,z)
         normals->SetName("Normals");
         cell_id->SetName("Names");
+        cell_indices->SetName("Indices");
+        point_indices->SetName("Indices");
 
         if ( data.nlin() != 0 ) {
             // Check the data corresponds to the geometry
-            assert( data.nlin() == size() - outermost_interface().nb_triangles() );
+            bool HAS_OUTERMOST = false; // data has last p values ?
+            if (data.nlin() == size()) {
+                HAS_OUTERMOST = true;
+            } else {
+                assert( data.nlin() == size() - outermost_interface().nb_triangles() );
+            }
             for ( unsigned j = 0; j < data.ncol(); ++j) {
                 std::stringstream sdip;
                 sdip << j;
@@ -177,7 +198,7 @@ namespace OpenMEEG {
                 }
                 for ( Meshes::const_iterator mit = meshes_.begin(); mit != meshes_.end(); ++mit) {
                     for ( Mesh::const_iterator tit = mit->begin(); tit != mit->end(); ++tit) {
-                        if ( mit->outermost() ) {
+                        if ( mit->outermost() && !HAS_OUTERMOST ) {
                             currents[j]->InsertNextValue(0.);
                         } else {
                             currents[j]->InsertNextValue(data(tit->index(), j));
@@ -192,14 +213,11 @@ namespace OpenMEEG {
         unsigned i = 0;
         for ( Vertices::const_iterator vit = vertex_begin(); vit != vertex_end(); ++vit, ++i) {
             points->InsertNextPoint((*vit)(0), (*vit)(1), (*vit)(2));
-            const double n[3] = { vit->normal()(0), vit->normal()(1), vit->normal()(2)};
-            normals->InsertNextTupleValue(n);
+            point_indices->InsertNextValue(vit->index());
             map[&*vit] = i;
         }
         // Add the vertices to polydata
         polydata->SetPoints(points);
-        // Add the normals to the points in the polydata
-        polydata->GetPointData()->SetNormals(normals);
 
         vtkSmartPointer<vtkCellArray> polys  = vtkSmartPointer<vtkCellArray>::New(); // the triangles
         
@@ -208,6 +226,7 @@ namespace OpenMEEG {
                 vtkIdType triangle[3] = { map[&(tit->s1())], map[&(tit->s2())], map[&(tit->s3())] };
                 polys->InsertNextCell(3, triangle);
                 cell_id->InsertNextValue(mit->name());
+                cell_indices->InsertNextValue(tit->index());
             }
         }
 
@@ -215,6 +234,10 @@ namespace OpenMEEG {
         polydata->SetPolys(polys);
         // Add the array of Names to polydata
         polydata->GetCellData()->AddArray(cell_id);
+        // Add the array of Indices to polydata cells
+        polydata->GetCellData()->AddArray(cell_indices);
+        // Add the array of Indices to polydata points
+        polydata->GetPointData()->AddArray(point_indices);
         // Add optional potentials and currents
         if ( data.nlin() != 0 ) {
             for ( unsigned j = 0; j < data.ncol(); ++j) {

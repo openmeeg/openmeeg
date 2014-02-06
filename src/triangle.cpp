@@ -41,53 +41,22 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 namespace OpenMEEG {
 
-    Triangle::Triangle(const Triangle& t) {
-        *this = t;
-    }
-
-    Triangle::Triangle(Vertex *pts[3]): index_(-1) {
+    Triangle::Triangle(Vertex *pts[3], unsigned i): index_(i) {
         for ( unsigned i = 0; i < 3; ++i) {
             vertices_[i] = pts[i];
         }
     }
 
-    Triangle::Triangle(Vertex& p1, Vertex& p2, Vertex& p3): index_(-1) {
+    Triangle::Triangle(Vertex& p1, Vertex& p2, Vertex& p3, unsigned i): index_(i) {
         vertices_[0] = &p1;
         vertices_[1] = &p2;
         vertices_[2] = &p3;
     }
 
-    Triangle::Triangle(Vertex * p1, Vertex * p2, Vertex * p3): index_(-1) {
+    Triangle::Triangle(Vertex * p1, Vertex * p2, Vertex * p3, unsigned i): index_(i) {
         vertices_[0] = p1;
         vertices_[1] = p2;
         vertices_[2] = p3;
-    }
-
-    Triangle& Triangle::operator=(const Triangle& t) {
-        if ( this != &t ) {
-            copy(t);
-        }
-        return *this;
-    }
-
-    void Triangle::copy(const Triangle& t) {
-        area_   = t.area();
-        normal_ = t.normal();
-        index_  = t.index();
-        for ( unsigned i = 0; i < 3; ++i) {
-            vertices_[i] = const_cast<Vertex *>(t[i]);
-        }
-    }
-    
-    void Triangle::destroy() { }
-
-    const bool Triangle::operator==(const Triangle& T) const {
-        for ( Triangle::const_iterator i1 = begin(), i2 = T.begin(); i1 != end(); ++i1, ++i2) {
-            if ( **i1 != **i2 ) {
-                return false;
-            }
-        }
-        return true;
     }
 
     void Triangle::flip() {

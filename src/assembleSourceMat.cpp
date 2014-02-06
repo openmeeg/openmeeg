@@ -142,16 +142,19 @@ namespace OpenMEEG {
         assemble_DipSourceMat(*this, geo, dipoles, gauss_order, adapt_rhs, domain_name);
     }
 
-    void assemble_EITSourceMat(Matrix& mat, const Geometry& geo, const Matrix& positions, const unsigned gauss_order)
+    void assemble_EITSourceMat(Matrix& mat, const Geometry& geo, const Sensors& electrodes, const unsigned gauss_order)
     {
         //  A Matrix to be applied to the scalp-injected current to obtain the Source Term of the EIT foward problem.
 
+        unsigned n_sensors = electrodes.getNumberOfSensors();
+
         const double K = 1.0/(4.*M_PI);
-        mat = Matrix((geo.size()-geo.outermost_interface().nb_triangles()), positions.nlin());
 
         //  transmat = a big SymMatrix of which mat = part of its transpose.
         SymMatrix transmat(geo.size());
         transmat.set(0.0);
+        mat = Matrix((geo.size()-geo.outermost_interface().nb_triangles()), n_sensors);
+        mat.set(0.);
 
         const Interface& i = geo.outermost_interface();
 
@@ -162,7 +165,6 @@ namespace OpenMEEG {
                 const int orientation = geo.oriented(omit1->mesh(), *mit2); // equals  0, if they don't have any domains in common
                                                                   // equals  1, if they are both oriented toward the same domain
                                                                   // equals -1, if they are not
-
                 if ( orientation != 0 ) {
                     //  Compute S.
                     operatorS(*mit2, omit1->mesh(), transmat, geo.sigma_inv(omit1->mesh(), *mit2) * ( -1. * K * orientation), gauss_order);
@@ -176,23 +178,25 @@ namespace OpenMEEG {
             }
         }
 
-        //  Extracting the transpose of the last block of lines of transmat.
-        //  Transposing the Matrix.
-        for ( unsigned ielec = 0; ielec < positions.nlin(); ++ielec) {
-            const Vect3 current_position(positions(ielec, 0), positions(ielec, 1), positions(ielec, 2));
-            Vect3 current_alphas; //not used here
-            Triangle current_nearest_triangle; //    To hold the index of the closest triangle to electrode.
-            dist_point_interface(current_position, geo.outermost_interface(), current_alphas, current_nearest_triangle);
-            const double inv_area = 1.0/current_nearest_triangle.area();
-            for ( unsigned i = 0; i < (geo.size() - geo.outermost_interface().nb_triangles()); ++i) {
-                mat(i, ielec) = transmat(current_nearest_triangle.index(), i) * inv_area;
+        for ( unsigned ielec = 0; ielec < n_sensors; ++ielec) {
+            Triangles tris = electrodes.getInjectionTriangles(ielec);
+            for ( Triangles::const_iterator tit = tris.begin(); tit != tris.end(); ++tit) {
+                // to ensure exactly no accumulation of currents. w = elec_area/tris_area (~= 1)
+                double inv_area = electrodes.getWeights()(ielec);
+                // if no radius is given, we assume the user wants to specify an intensity not a density of current
+                if ( electrodes.getRadius()(0) < 1e3*std::numeric_limits<double>::epsilon() ) {
+                    inv_area = 1./tit->area();
+                }
+                for ( unsigned i = 0; i < (geo.size() - geo.outermost_interface().nb_triangles()); ++i) {
+                    mat(i, ielec) += transmat(tit->index(), i) * inv_area;
+                }
             }
         }
     }
 
-    EITSourceMat::EITSourceMat(const Geometry& geo, Sensors& electrodes, const unsigned gauss_order) 
+    EITSourceMat::EITSourceMat(const Geometry& geo, const Sensors& electrodes, const unsigned gauss_order) 
     {
-        assemble_EITSourceMat(*this, geo, electrodes.getPositions(), gauss_order);
+        assemble_EITSourceMat(*this, geo, electrodes, gauss_order);
     }
 
     void assemble_DipSource2InternalPotMat(Matrix& mat, const Geometry& geo, const Matrix& dipoles,

@@ -62,13 +62,13 @@ namespace OpenMEEG {
 
     public:
 
-        HalfSpace(Interface& interface, bool inside): base(interface, inside) {}
+        HalfSpace(Interface& _interface, bool _inside): base(_interface, _inside) {}
 
         ~HalfSpace() {}
 
               Interface& interface()       { return this->first;  }
         const Interface& interface() const { return this->first;  }
-        const bool       inside()    const { return this->second; }
+        const bool &     inside()    const { return this->second; }
     };
 
     /// \brief a Domain is a vector of HalfSpace
@@ -103,7 +103,7 @@ namespace OpenMEEG {
         /** \return 1 if the mesh is oriented toward the domain.
                    -1 if not
                     0 else (the mesh is not part of the domain boundary) */
-        const int mesh_orientation(const Mesh& m) const { 
+        int mesh_orientation(const Mesh& m) const { 
             for ( Domain::const_iterator hit = begin(); hit != end(); ++hit) {
                 for ( Interface::const_iterator omit = hit->interface().begin(); omit != hit->interface().end(); ++omit) {
                     if ( &omit->mesh() == &m ) {

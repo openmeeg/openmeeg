@@ -37,33 +37,58 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#include <fstream>
-#include <cstring>
-
-#include <matrix.h>
-#include <sensors.h>
+#include <mesh.h>
+#include <assert.h>
+#include <options.h>
+#include "cgal_mesh.h"
+#include <CGAL/Labeled_image_mesh_domain_3.h>
 
 using namespace OpenMEEG;
+// To avoid verbose function and named parameters call
+using namespace CGAL::parameters;
 
-int main(const int,const char** argv) {
-// usage : sensors sensors_file_description.txt
+typedef CGAL::Labeled_image_mesh_domain_3<CGAL::Image_3,K> Mesh_domain;
+typedef CGAL::Mesh_triangulation_3<Mesh_domain>::type Tr;
+typedef CGAL::Mesh_complex_3_in_triangulation_3<Tr> C3t3;
+// Criteria
+typedef CGAL::Mesh_criteria_3<Tr> Mesh_criteria;
 
-    /*** tests on sensors file ****/
-    Sensors S(argv[1]);
+typedef Tr::Vertex_handle Vertex_handle;
+typedef K::Point_3 Point_3;
+typedef K::FT FT;
 
-    size_t n = S.getNumberOfSensors();
-    std::cout << "Number of sensors of S : " << n << std::endl;
+int main(int argc, char **argv) {
+    command_usage("Create a BEM mesh from a 3D labeled image (.inr(.gz)) (e.g a mask):");
+    const char * input_filename  = command_option("-i",(const char *) NULL,"Input mesh");
+    const double radius_bound    = command_option("-fs",1e-1,"facet radius bound of elements");
+    const double distance_bound  = command_option("-fd",1e-1,"facet distance bound to the input surface");
+    const char * output_filename = command_option("-o",(const char *) NULL,"Output Mesh");
 
-    if (S.isEmpty())
-        std::cout << "WARNING : empty sensors !" << std::endl;
-    else{
-        S.info();
-
-        /**** test on copy constructor ****/
-        Sensors Scopy(S);
-        if(Scopy.getNumberOfSensors()!=n)
-            std::cout << "ERROR in copy from copy constructor : incorrect number of sensors" << std::endl;
-
-        Scopy.info();
+    if ( command_option("-h",(const char *)0,0) ) { 
+        return 0; 
     }
+    if ( output_filename == NULL ) {
+        std::cerr << "Set an output filename" << std::endl;
+        return 0;
+    }
+
+    // Mesh criteria
+    CGAL::Image_3 image;
+    image.read(input_filename);
+    std::cout << "Input image:\n dimension: " << image.xdim() << "x"<< image.ydim() << "x"<< image.zdim() << std::endl;
+
+    // Domain
+    Mesh_domain domain(image);
+
+    // Mesh criteria
+    Mesh_criteria criteria(facet_angle=30, facet_size=radius_bound, facet_distance=distance_bound);
+
+    // Meshing
+    C3t3 c3t3 = CGAL::make_mesh_3<C3t3>(domain, criteria, no_exude(), no_perturb());
+
+    // Output
+    Mesh m_out = CGAL_to_OM(c3t3);
+    m_out.save(output_filename);
+    m_out.info();
+    return 0;
 }

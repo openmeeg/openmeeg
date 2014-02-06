@@ -105,7 +105,7 @@ namespace OpenMEEG {
         Vector kmult(const Vector& x) const;
         // Vector conv(const Vector& v) const;
         // Vector conv_trunc(const Vector& v) const;
-        // Matrix outer_product(const Vector& v) const;
+        Matrix outer_product(const Vector& v) const;
 
         double norm() const;
         double sum() const;
@@ -260,23 +260,5 @@ namespace OpenMEEG {
     //  Operators.
 
     OPENMEEGMATHS_EXPORT inline Vector operator*(const double &d, const Vector &v) { return v*d; }
-
-    // inline Matrix Vector::outer_product(const Vector& v) const {
-    //     assert(nlin()==v.size());
-    //     Matrix A(nlin(),nlin());
-    // #ifdef HAVE_BLAS
-    //     DGEMM(CblasNoTrans,CblasNoTrans,
-    //         (int)nlin(),(int)nlin(),1,
-    //         1.,data(),(int)nlin(),
-    //         v.data(),(int)nlin(),
-    //         0.,A.data(),(int)nlin());
-    // #else
-    //     for( unsigned int j=0; j<nlin(); j++ )
-    //         for ( unsigned int i=0; i<nlin(); i++)
-    //             A(i,j)=v(i)*(*this)(j);
-    // #endif
-    //     return A;
-    // }
-
 }
 #endif  //! OPENMEEG_VECTOR_H

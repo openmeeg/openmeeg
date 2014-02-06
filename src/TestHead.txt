@@ -40,6 +40,7 @@ FUNCTION(TESTHEAD HEADNUM)
     SET(HMMAT                  ${GENERATEDBASE}.hm)
     SET(HMINVMAT               ${GENERATEDBASE}.hm_inv)
     SET(SSMMAT                 ${GENERATEDBASE}.ssm)
+    SET(CMMAT                  ${GENERATEDBASE}.cm)
     SET(H2EMMAT                ${GENERATEDBASE}.h2em)
     SET(SGEMMAT                ${GENERATEDBASE}.sgem)
     SET(H2IPMAT                ${GENERATEDBASE}.h2ip)
@@ -79,6 +80,7 @@ FUNCTION(TESTHEAD HEADNUM)
 
     IF (${HEADNUM} EQUAL 1)
         OPENMEEG_TEST(SSM-${SUBJECT} ${ASSEMBLE} -SSM ${GEOM} ${COND} ${SRCMESH} ${SSMMAT} DEPENDS CLEAN-TESTS)
+        OPENMEEG_TEST(CM-${SUBJECT}  ${ASSEMBLE} -CM ${GEOM} ${COND} ${PATCHES} "Brain" ${CMMAT} 1e-4 1.58e-2 DEPENDS CLEAN-TESTS)
     ENDIF()
 
     ############ EEG TEST ##############

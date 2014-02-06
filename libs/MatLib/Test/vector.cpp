@@ -41,6 +41,8 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #include <MatLibConfig.h>
 #include <vector.h>
+#include <matrix.h>
+#include <generic_test.hpp>
 
 int main () {
 
@@ -69,6 +71,15 @@ int main () {
     v.load("tmp_matrix.mat");
     v.info();
 #endif
+    v(0) = 115;
+    v(7) = 0.16;
+    v(3) = 0.22;
+    v(2) = 2.;
+    Matrix m(v,v.size(),1);
+    if ( (m*m.transpose() - v.outer_product(v)).frobenius_norm() > eps) {
+        std::cerr << "Error: Vector outerproduct is WRONG-1" << std::endl;
+        exit(1);
+    }
 
     return 0;
 }

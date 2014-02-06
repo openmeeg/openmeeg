@@ -42,7 +42,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 namespace OpenMEEG {
 
-    Mesh::Mesh(const Mesh& m) 
+    Mesh::Mesh(const Mesh& m): Triangles()
     {
         *this = m;
     }
@@ -72,20 +72,20 @@ namespace OpenMEEG {
             }
             update();
         } else {
-            all_vertices_ = m.all_vertices_; // allocates space for the vertices and copy
+            all_vertices_ = m.all_vertices_;
             set_vertices_ = m.set_vertices_;
             allocate_ = false;
             for ( Triangles::const_iterator tit = m.begin(); tit != m.end(); ++tit) {
                 push_back(*tit);
             }
+            build_mesh_vertices();
         }
-        
         outermost_ = m.outermost_;
         name_      = m.name_;
     }
 
     /// Print informations about the mesh 
-    void Mesh::info() const 
+    void Mesh::info(const bool verbous) const 
     {
         std::cout << "Info:: Mesh name/ID : "  << name() << std::endl;
         std::cout << "\t\t# vertices  : " << nb_vertices() << std::endl;
@@ -100,6 +100,15 @@ namespace OpenMEEG {
         }
         std::cout << "\t\tMin Area : " << min_area << std::endl;
         std::cout << "\t\tMax Area : " << max_area << std::endl;
+        if ( verbous ) {
+            std::cout << "Indices :" << std::endl;
+            for ( const_vertex_iterator vit = vertex_begin(); vit != vertex_end(); ++vit) {
+                std::cout << "[" << **vit << "] = " << (*vit)->index() << std::endl;
+            }
+            for ( const_iterator tit = begin(); tit!= end(); ++tit) {
+                    std::cout << "[[" << tit->s1() << "] , [" << tit->s2() << "] , ["<< tit->s3() << "]] \t = " << tit->index() << std::endl;
+            }
+        }
     }
 
     void Mesh::build_mesh_vertices()
@@ -165,13 +174,6 @@ namespace OpenMEEG {
         // empty unessacary set
         set_vertices_.clear();
 
-        // computes the triangles normals
-        for ( iterator tit = begin(); tit != end(); ++tit) {
-            tit->normal()  = (tit->s1() - tit->s2())^(tit->s1() - tit->s3());
-            tit->area()    = tit->normal().norm() / 2.0;
-            tit->normal() /= tit->normal().norm();
-        }
-
         // make links
         links_.clear();
         for ( const_iterator tit = begin(); tit != end(); ++tit) {
@@ -180,26 +182,35 @@ namespace OpenMEEG {
             }
         }
 
-        // recompute the vertex normals // TODO useless are vertex normals
-        bool first_time = true;
-        for ( const_vertex_iterator vit = vertex_begin(); vit != vertex_end(); ++vit) {
-            if ( (*vit)->normal().norm() < 1.e3*std::numeric_limits<double>::min() ) {
-                if ( first_time ) {
-                    std::cout << "Recompute the normals for each vertex" << std::endl;
-                    first_time = false;
-                }
-                Normal normal(0);
-                for ( VectPTriangle::const_iterator tit = links_[*vit].begin(); tit != links_[*vit].end(); ++tit) {
-                    normal += (*tit)->normal();
-                }
-                normal.normalize();
-                (*vit)->normal() = normal;
+        // If indices are not set, we generate them for sorting edge and testing orientation
+        if ( allocate_ ) {
+            if ( (*vertex_begin())->index() == unsigned(-1) ) {
+                generate_indices();
             }
+            correct_local_orientation();
+        }
+
+        // computes the triangles normals (after having the mesh locally reoriented)
+        for ( iterator tit = begin(); tit != end(); ++tit) {
+            tit->normal()  = (tit->s1() - tit->s2())^(tit->s1() - tit->s3());
+            tit->area()    = tit->normal().norm() / 2.0;
+            tit->normal().normalize();
         }
     }
 
+    /// compute the normal at vertex
+    Normal Mesh::normal(const Vertex& v) const
+    {
+        Normal _normal(0);
+        for ( VectPTriangle::const_iterator tit = links_.at(&v).begin(); tit != links_.at(&v).end(); ++tit) {
+            _normal += (*tit)->normal();
+        }
+        _normal.normalize();
+        return _normal;
+    }
+
     /// properly merge two meshes into one (it does not dupplicate vertices)
-    void  Mesh::merge(const Mesh& m1, const Mesh& m2) 
+    void Mesh::merge(const Mesh& m1, const Mesh& m2) 
     {
         if ( size() != 0 ) {
             warning("Mesh::merge Mesh must be empty.");
@@ -226,14 +237,12 @@ namespace OpenMEEG {
             push_back(Triangle(*vit1, *vit2, *vit3));
         }
         update();
-        correct_local_orientation();
     }
 
     /// Flip all triangles
     void Mesh::flip_triangles() 
     {
-        for ( iterator tit = begin(); tit != end(); ++tit)
-        {
+        for ( iterator tit = begin(); tit != end(); ++tit) {
             tit->flip();
         }
     }
@@ -270,6 +279,78 @@ namespace OpenMEEG {
         update(); // Updating triangles (areas + normals)
     }
 
+    /// P0gradient_norm2 : aux function to compute the square norm of the surfacic gradient
+    inline double Mesh::P0gradient_norm2(const Triangle &t1, const Triangle &t2) const
+    {
+        return std::pow(t1.normal()*t2.normal(),2)/(t1.center()-t2.center()).norm2();
+    }
+
+    /// P1gradient : aux function to compute the surfacic gradient
+    inline Vect3 Mesh::P1gradient(const Vect3 &p0, const Vect3 &p1, const Vect3 &p2) const
+    {
+        return p1^p2/(p0*(p1^p2));
+    }
+
+    /// Sq. Norm Surface Gradient: square norm of the surfacic gradient of the P1 and P0 elements
+    void Mesh::gradient_norm2(SymMatrix &A) const 
+    {
+        /// V
+        // self
+        for ( const_vertex_iterator vit = vertex_begin(); vit != vertex_end(); ++vit) {
+            for ( VectPTriangle::const_iterator tit = links_.at(*vit).begin(); tit != links_.at(*vit).end(); ++tit) {
+                Vertex * v2;
+                Vertex * v3;
+                if ( ((**tit)[0]) == *vit) {
+                    v2 = (**tit)[1]; v3 = (**tit)[2];
+                } else if ( (**tit)[1] == *vit) {
+                    v2 = (**tit)[2]; v3 = (**tit)[0];
+                } else {
+                    v2 = (**tit)[0]; v3 = (**tit)[1];
+                }
+                A((*vit)->index(), (*vit)->index()) += P1gradient(**vit, *v2, *v3).norm2() * std::pow((*tit)->area(),2);
+            }
+        }
+        // edges
+        for ( const_iterator tit = begin(); tit != end(); ++tit) {
+            for ( unsigned j = 0; j < 3; ++j) {
+                if ( ((*tit)(j)).index() < ((*tit)(j+1)).index() ) { // sym matrix only lower half
+                    A(((*tit)(j)).index(), ((*tit)(j+1)).index()) += P1gradient((*tit)(j), (*tit)(j+1), (*tit)(j+2)) * P1gradient((*tit)(j+1), (*tit)(j+2), (*tit)(j+3)) * std::pow(tit->area(),2);
+                }
+            }
+        }
+
+        // P0 gradients: loop on triangles
+        if ( !outermost_ ) { // if it is an outermost mesh: p=0 thus no need for computing it
+            for ( const_iterator tit = begin(); tit != end(); ++tit) {
+                A(tit->index(), tit->index()) = 0.;
+                VectPTriangle Tadj = adjacent_triangles(*tit);
+                for ( VectPTriangle::const_iterator tit2 = Tadj.begin(); tit2 != Tadj.end(); ++tit2) {
+                    if ( tit->index() < (*tit2)->index() ) { // sym matrix only lower half
+                        A(tit->index(), (*tit2)->index()) += P0gradient_norm2(*tit, **tit2) * tit->area() * (*tit2)->area();
+                    }
+                }
+            }
+        }
+    }
+
+    /// Laplacian Mesh: good approximation of Laplace-Beltrami operator
+    // "Discrete Laplace Operator on Meshed Surfaces". by Belkin, Sun, Wang
+    void Mesh::laplacian(SymMatrix &A) const 
+    {
+        double h;
+        for ( const_iterator tit = begin(); tit != end(); ++tit) {
+            for ( unsigned j = 0; j < 3; ++j) {
+                if ( ((*tit)(j)).index() < ((*tit)(j+1)).index() ) { // sym matrix only lower half
+                    h = ((*tit)(j+1)-(*tit)(j)).norm();
+                    A(((*tit)(j)).index(), ((*tit)(j+1)).index()) += -tit->area()/(12.*M_PI*std::pow(h,2)) * exp(-((*tit)(j)-(*tit)(j+1)).norm2()/(4.*h));
+                }
+            }
+        }
+        for ( const_vertex_iterator vit = vertex_begin(); vit != vertex_end(); ++vit) {
+            A((*vit)->index(), (*vit)->index()) = -A.getlin((*vit)->index()).sum();
+        }
+    }
+
     bool Mesh::has_self_intersection() const 
     {
         bool selfIntersects = false;
@@ -284,6 +365,15 @@ namespace OpenMEEG {
             }
         }
         return selfIntersects;
+    }
+
+    double Mesh::compute_solid_angle(const Vect3& p) const 
+    {
+        double solangle = 0.0;
+        for ( const_iterator tit = begin(); tit != end(); ++tit) {
+            solangle += p.solangl(tit->s1(), tit->s2(), tit->s3());
+        }
+        return solangle;
     }
 
     bool Mesh::intersection(const Mesh& m) const 
@@ -317,7 +407,7 @@ namespace OpenMEEG {
 
     const Mesh::VectPTriangle& Mesh::get_triangles_for_vertex(const Vertex& V) const 
     {
-        std::map<const Vertex *, Mesh::VectPTriangle>::const_iterator it = links_.find(const_cast<Vertex *>(&V));
+        std::map<const Vertex *, Mesh::VectPTriangle>::const_iterator it = links_.find(&V);
         if ( it != links_.end() ) {
             return it->second;
         } else {
@@ -368,7 +458,6 @@ namespace OpenMEEG {
 
         if ( read_all ) {
             update();
-            correct_local_orientation();
         }
 
         if ( verbose ) {
@@ -376,17 +465,20 @@ namespace OpenMEEG {
         }
 
         if ( allocate_ && read_all ) { // we generates the indices of these mesh vertices
-            unsigned index = 0;
-            for ( Mesh::vertex_iterator vit = vertex_begin(); vit != vertex_end(); ++vit, ++index) {
-                (*vit)->index() = index;
-            }
-            index = 0;
-            for ( Mesh::iterator tit = begin(); tit!= end(); ++tit, ++index) {
-                tit->index() = index;
-            }
+            generate_indices();
         } 
 
         return return_value;
+    }
+
+    void Mesh::generate_indices() {
+        unsigned index = 0;
+        for ( vertex_iterator vit = vertex_begin(); vit != vertex_end(); ++vit, ++index) {
+            (*vit)->index() = index;
+        }
+        for ( iterator tit = begin(); tit!= end(); ++tit, ++index) {
+            tit->index() = index;
+        }
     }
 
     void Mesh::save(const std::string& filename) const
@@ -426,27 +518,8 @@ namespace OpenMEEG {
             return npts;
         }
 
-        if ( reader->GetNumberOfNormalsInFile() == 0 ) {
-            vtkPolyDataNormals *newNormals = vtkPolyDataNormals::New();
-            newNormals->SetInput(vtkMesh);
-            newNormals->Update();
-            vtkMesh = newNormals->GetOutput();
-        }
-
-        vtkDataArray *normalsData = vtkMesh->GetPointData()->GetNormals();
-
-        if ( npts != normalsData->GetNumberOfTuples() ) {
-            std::cerr << "Error: number of vertices is not equal to number of normals in vtk file, correct or remove the normals." << std::endl;
-            exit(1);
-        }
-
-        if ( normalsData->GetNumberOfComponents() != 3 ) {
-            std::cerr << "Error: wrong number of components of normals in vtk file, correct or remove the normals." << std::endl;
-            exit(1);
-        }
-
         for ( unsigned i = 0; i < npts; ++i) {
-            add_vertex(Vertex(vtkMesh->GetPoint(i)[0], vtkMesh->GetPoint(i)[1], vtkMesh->GetPoint(i)[2], normalsData->GetTuple(i)[0], normalsData->GetTuple(i)[1], normalsData->GetTuple(i)[2]));
+            add_vertex(Vertex(vtkMesh->GetPoint(i)[0], vtkMesh->GetPoint(i)[1], vtkMesh->GetPoint(i)[2]));
         }
 
         ntrgs = vtkMesh->GetNumberOfCells();
@@ -638,10 +711,7 @@ namespace OpenMEEG {
         for ( unsigned i = 0; i < npts; ++i) {
             add_vertex(Vertex(pts_raw[i*3+0], 
                               pts_raw[i*3+1], 
-                              pts_raw[i*3+2], 
-                              normals_raw[i*3+0], 
-                              normals_raw[i*3+1], 
-                              normals_raw[i*3+2]));
+                              pts_raw[i*3+2]));
         }
 
         reserve(ntrgs);
@@ -687,7 +757,7 @@ namespace OpenMEEG {
         for ( unsigned i = 0; i < npts; ++i) {
             Vertex v;
             Normal n;
-            f >> v >> v.normal();
+            f >> v >> n;
             add_vertex(v);
         }
         f >> ch >> ntrgs >> ntrgs >> ntrgs; // This number is repeated 3 times
@@ -854,7 +924,7 @@ namespace OpenMEEG {
         os << "POINT_DATA " << nb_vertices() << std::endl;
         os << "NORMALS normals float" << std::endl;
         for ( const_vertex_iterator vit = vertex_begin(); vit != vertex_end(); ++vit) {
-            os << (*vit)->normal() << std::endl;
+            os << normal(**vit) << std::endl;
         }
 
         os.close();
@@ -892,7 +962,7 @@ namespace OpenMEEG {
         unsigned i = 0;
         for ( const_vertex_iterator vit = vertex_begin(); vit != vertex_end(); ++vit, ++i) {
             map[*vit] = i;
-            os << **vit << " " << (*vit)->normal() << std::endl;
+            os << **vit << " " << normal(**vit) << std::endl;
         }
         os << "- " << nb_triangles() << " " << nb_triangles() << " " << nb_triangles() << std::endl;
         for ( const_iterator tit = begin(); tit != end(); ++tit) {
@@ -960,9 +1030,10 @@ namespace OpenMEEG {
             pts_raw[i*3+0]     = (float)((*vit)->x());
             pts_raw[i*3+1]     = (float)((*vit)->y());
             pts_raw[i*3+2]     = (float)((*vit)->z());
-            normals_raw[i*3+0] = (float)((*vit)->normal().x());
-            normals_raw[i*3+1] = (float)((*vit)->normal().y());
-            normals_raw[i*3+2] = (float)((*vit)->normal().z());
+            Normal n = normal(**vit);
+            normals_raw[i*3+0] = (float)(n.x());
+            normals_raw[i*3+1] = (float)(n.y());
+            normals_raw[i*3+2] = (float)(n.z());
         }
 
         i = 0;
@@ -995,7 +1066,7 @@ namespace OpenMEEG {
         EdgeMap mape; // map the edges with an unsigned
         for ( const_iterator tit = begin(); tit != end(); ++tit) {
             for ( unsigned j = 0; j < 3; ++j) {
-                if ( (*tit)[j]->index() > (*tit)[j+1]->index() ) {
+                if ( (*tit)(j).index() > (*tit)(j+1).index() ) {
                     std::pair<const Vertex *, const Vertex *> pairv((*tit)[j], (*tit)[j+1]);
                     if ( mape.count(pairv) == 0 ) {
                         mape[pairv] = 1;
@@ -1016,17 +1087,17 @@ namespace OpenMEEG {
     }
 
     /// get the 3 adjacents triangles of a triangle t
-    Mesh::VectPTriangle Mesh::adjacent_triangles(const Triangle& t)
+    Mesh::VectPTriangle Mesh::adjacent_triangles(const Triangle& t) const
     {
         VectPTriangle tris;
         std::map<Triangle *, unsigned> mapt;
         for ( Triangle::const_iterator sit = t.begin(); sit != t.end(); ++sit) {
-            VectPTriangle tri1 = links_[*sit];
+            VectPTriangle tri1 = links_.at(*sit);
             for ( VectPTriangle::const_iterator tit = tri1.begin(); tit != tri1.end(); ++tit) {
                 if ( mapt.count(*tit) == 0 ) {
                     mapt[*tit] = 1;
                 } else {
-                    mapt[*tit]++; // TODO const_cast are ugly ?
+                    mapt[*tit]++;
                 }
             }
         }
@@ -1047,6 +1118,27 @@ namespace OpenMEEG {
             tri_stack.push(&*begin());
             tri_reoriented[&*begin()] = true;
             orient_adjacent_triangles(tri_stack, tri_reoriented);
+        }
+    }
+
+    /// warning: a mesh may not be closed (as opposite to an interface)
+    /// this function is mainly needed when meshing closed mesh with CGAL.
+    void Mesh::correct_global_orientation()
+    {
+        Vect3 center(0.,0.,0.);
+        for ( const_vertex_iterator vit = vertex_begin(); vit != vertex_end(); ++vit) {
+            center += **vit;
+        }
+        center /= nb_vertices();
+        double solangle = compute_solid_angle(center);
+        if ( std::abs(solangle) < 1.e3*std::numeric_limits<double>::epsilon()) {
+            std::cout << "Center point :" << center << " is on the mesh." << std::endl;
+        } else if ( std::abs(solangle + 4.*M_PI) < 1.e3*std::numeric_limits<double>::epsilon()) {
+            // mesh is ok
+        } else if ( std::abs(solangle - 4.*M_PI) < 1.e3*std::numeric_limits<double>::epsilon()) {
+            flip_triangles();
+        } else {
+            std::cout << "Not a closed mesh." << std::endl;
         }
     }
 
@@ -1074,7 +1166,6 @@ namespace OpenMEEG {
     bool Mesh::has_correct_orientation() const 
     {
         /// Check the local orientation (that all the triangles are all oriented in the same way)
-
         const EdgeMap mape = compute_edge_map();
 
         for ( EdgeMap::const_iterator eit = mape.begin(); eit != mape.end(); ++eit) {
@@ -1086,5 +1177,4 @@ namespace OpenMEEG {
 
         return true;
     }
-
 } // end namespace OpenMeeg

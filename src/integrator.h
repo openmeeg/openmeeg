@@ -191,7 +191,7 @@ namespace OpenMEEG {
 
         inline void setOrder(const unsigned n) 
         {
-            if ( (n >= 0) && (n < 4) ) {
+            if ( n < 4 ) {
                 order = n;
             } else {
                 std::cout << "Unavailable Gauss order: min is 1, max is 3" << n << std::endl;

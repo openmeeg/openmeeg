@@ -50,6 +50,7 @@ int main( int argc, char **argv)
 
     command_usage("Print Geometry information");
     const char *geom_filename = command_option("-g",(const char *) NULL,"Input .geom file");
+    const bool  verbous = command_option("-v", false, "Verbous mode");
 
     if (command_option("-h",(const char *)0,0)) return 0;
 
@@ -69,7 +70,9 @@ int main( int argc, char **argv)
     } else {
         status = 1;
     }
-    geo.info();
+    if ( verbous ) {
+        geo.info(verbous);
+    }
 
     return status;
 }

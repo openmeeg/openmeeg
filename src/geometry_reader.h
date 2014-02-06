@@ -331,7 +331,7 @@ namespace OpenMEEG {
 
         bool nested = true;
         // Determine if the geometry is nested or not
-        // The geometry is considered nested if (at least) one domain is defined as being outside two or more interfaces
+        // The geometry is considered non nested if (at least) one domain is defined as being outside two or more interfaces
         // OR
         // if 2 interfaces are composed by a same mesh oriented once correctly once wrongly.
         for ( Domains::const_iterator dit = geo_.domain_begin(); dit != geo_.domain_end(); ++dit) {

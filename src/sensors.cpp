@@ -38,30 +38,9 @@ knowledge of the CeCILL-B license and that you accept its terms.
 */
 
 #include <sensors.h>
+#include <danielsson.h>
 
 namespace OpenMEEG {
-
-    void Sensors::copy(const Sensors& S) {
-        m_nb = S.m_nb;
-        if ( m_nb != 0 ) {
-            if ( S.m_names.size() != 0 ) {
-                for( size_t i=0; i<m_nb; i++)
-                    m_names.push_back(S.m_names[i]);
-            }
-
-            m_positions = Matrix( S.m_positions );
-            m_orientations = Matrix( S.m_orientations );
-        }
-    }
-
-    Sensors::Sensors(const char* filename) {
-        this->load(filename,'t');
-    }
-
-    Sensors& Sensors::operator=(const Sensors& S) {
-        if ( this != &S ) copy(S);
-        return *this;
-    }
 
     bool Sensors::hasSensor(std::string name) {
         for(size_t i = 0; i < m_names.size(); ++i) {
@@ -85,17 +64,20 @@ namespace OpenMEEG {
 
     void Sensors::load(const char* filename, char filetype) {
         std::ifstream in;
-        if(filetype == 't')
+        if(filetype == 't') {
             in.open(filename,std::ios::in);
-        else
-            if(filetype == 'b')
+        } else {
+            if(filetype == 'b') {
                 in.open(filename,std::ios::in|std::ios::binary);
-            else
-                { std::cout << "ERROR: unkown filetype. " << std::endl; exit(1); }
+            } else {
+                std::cout << "ERROR: unkown filetype. " << std::endl; exit(1); 
+            }
+        }
 
-
-        if(!in.is_open())
-            { std::cerr<<"Error Reading File : " << filename << std::endl;  exit(1);  }
+        if ( !in.is_open() ) {
+            std::cerr<<"Error Reading File : " << filename << std::endl; 
+            exit(1);  
+        }
         Sensors::load(in);
         in.close();
     }
@@ -103,110 +85,113 @@ namespace OpenMEEG {
     void Sensors::load(std::istream &in) {
 
         in >> io_utils::skip_comments('#');
-
-        std::string buf;
+        std::string s, buf;
+        std::vector<std::string> names;
         std::vector<std::string> tokens;
         std::vector<std::string>::const_iterator tokensIterator;
-
-        // Get data type :
-        std::string s;
-        std::getline(in, s);
-        std::stringstream is(s);
-        size_t num_of_columns = 0;
-        while(is >> buf)
-            num_of_columns++;
-
-        // Determine the number of lines
-        in.seekg(0,std::ios::beg);
-        size_t num_of_lines = 0;
-        while (std::getline(in,s))
-            if (!s.empty())
-                ++num_of_lines;
-
-        // init private members :
-        m_positions = Matrix(num_of_lines,3);
-        m_weights = Vector(num_of_lines);
-        m_pointSensorIdx = std::vector<size_t>(num_of_lines);
-
-        if (num_of_columns>4)
-            m_orientations = Matrix(num_of_lines,3);
-
-        m_nb = 0;
-        size_t current_line_id = 0;
-        in.clear();
-        in.seekg(0,std::ios::beg); // move the get pointer to the beginning of the file.
-        while (std::getline(in,s))
-            if (!s.empty()) {
-
-                //  Tokenize the line.
-
+        bool labeled = false;
+        size_t nlin = 0;
+        size_t ncol = 0;
+        size_t i = 0;
+        // determine number of lines, columns and labeled or not
+        while ( std::getline(in,s) ) {
+            if ( !s.empty() ) {
+                // Tokenize the line.
                 std::stringstream iss(s);
                 tokens.clear();
-                while (iss >> buf)
+                while (iss >> buf) {
                     tokens.push_back(buf);
-
-                if(tokens.size()!= num_of_columns) {
-                    std::cout << tokens.size() << " != " << num_of_columns << std::endl;
+                    if ( i==0 ) {
+                        ncol++;
+                    }
+                }
+                tokensIterator = tokens.begin();
+                for ( size_t j = 0; j < tokens[0].size(); ++j) {
+                    if ( isalpha(tokens[0][j]) && (tokens[0][j] != 'e') && (tokens[0][j] != 'E' ) ) {
+                        labeled = true;
+                        // Labeled. Unless the labels are numbers.. TODO ?
+                    }
+                }
+                if ( tokens.size() != ncol ) {
+                    std::cout << tokens.size() << " != " << ncol << std::endl;
                     std::cerr << "Problem while reading Sensors file" << std::endl;
                     std::cerr << "Each line should have the same number of elements" << std::endl;
                     exit(1);
                 }
+                ++nlin;
+                ++i;
+            }
+        }
+        in.clear();
+        in.seekg(0,std::ios::beg); // move the get pointer to the beginning of the file.
+        in >> io_utils::skip_comments('#');
 
-                tokensIterator =  tokens.begin();
+        if ( labeled ) {
+            ncol--;
+        }
 
-                size_t sensor_idx = m_nb;
-                // See if it's actually a new sensor or just a new integration point
-                if ((num_of_columns >= 7) || (num_of_columns == 4)) { // Get label
-                    std::string sensor_name = *tokensIterator;
-                    tokensIterator++;
-                    if(hasSensor(sensor_name)) {
-                        sensor_idx = getSensorIdx(sensor_name);
-                    } else {
-                        m_nb++;
-                        m_names.push_back(sensor_name);
-                    }
+        Matrix mat(nlin, ncol);
+        i = 0;
+        while ( std::getline(in,s) ) {
+            if ( !s.empty() ) {
+                // Tokenize the line.
+                std::stringstream iss(s);
+                if ( labeled ) {
+                    iss >> buf;
+                    names.push_back(buf);
+                }
+                Vector v(ncol);
+                iss >> v;
+                mat.setlin(i, v);
+                ++i;
+            }
+        }
+
+        // init private members :
+        // positions
+        m_positions = mat.submat(0,nlin,0,3);
+        // weights
+        if (ncol == 4) { // EIT
+            m_radius = mat.getcol(mat.ncol()-1);
+            if ( m_interface == NULL ) {
+                std::cerr << "Sensors:: please specify at constructor stage an interface on which to apply the spatially extended EIT sensors." << std::endl;
+                exit(1);
+            } else {
+                // find triangles on which to inject the currents
+                // and compute weights
+                findInjectionTriangles();
+            }
+        } else if (ncol == 7) { // MEG
+            m_weights = mat.getcol(mat.ncol()-1);
+        } else { // Others
+            m_weights = Vector(nlin);
+            m_weights.set(1.);
+        }
+        m_pointSensorIdx = std::vector<size_t>(nlin);
+
+        // orientations
+        if ( ncol >= 6 ) {
+            m_orientations = mat.submat(0,nlin,3,3);
+        }
+
+        // Sensor index
+        m_nb = 0;
+        if ( labeled ) {
+            for ( i = 0; i < nlin; ++i) {
+                if ( hasSensor(names[i]) ) {
+                    m_pointSensorIdx[i] = getSensorIdx(names[i]);
                 } else {
+                    m_names.push_back(names[i]);
+                    m_pointSensorIdx[i] = m_nb;
                     m_nb++;
                 }
-
-                m_pointSensorIdx[current_line_id] = sensor_idx;
-
-                // read position
-                for(size_t i=0;i<3;++i){
-                    std::stringstream tmp_is(*tokensIterator);
-                    double tmp;
-                    tmp_is >> tmp;
-                    m_positions(current_line_id,i) = tmp;
-                    tokensIterator++;
-                }
-
-                if (num_of_columns>4) {
-                    // read orientation
-                    std::vector<double> coord;
-                    for(size_t i=0;i<3;++i){
-                        std::stringstream tmp_is(*tokensIterator);
-                        double tmp;
-                        tmp_is >> tmp;
-                        m_orientations(current_line_id,i) = tmp;
-                        tokensIterator++;
-                    }
-                }
-
-                // Try to read weight
-                if (tokensIterator!=tokens.end()) {
-                    std::stringstream ss(*tokensIterator);
-                    tokensIterator++;
-                    double tmp;
-                    ss >> tmp;
-                    m_weights(current_line_id) = tmp;
-                } else {
-                    m_weights(current_line_id) = 1.0;
-                }
-
-                assert(tokensIterator==tokens.end()); // Check if everything has been read
-
-                current_line_id++;
             }
+        } else {
+            for ( i = 0; i < nlin; ++i) {
+                m_pointSensorIdx[i] = m_nb;
+                m_nb++;
+            }
+        }
     }
 
     void Sensors::save(const char* filename) {
@@ -228,5 +213,93 @@ namespace OpenMEEG {
             weight_matrix(m_pointSensorIdx[i],i) = m_weights(i);
         }
         return weight_matrix;
+    }
+
+    void Sensors::findInjectionTriangles() {
+        assert(m_interface != NULL);
+        m_weights = Vector(m_positions.nlin());
+        m_weights.set(0.);
+        for ( size_t idx = 0; idx < m_positions.nlin(); ++idx) {
+            Triangles triangles;
+            const Vect3 current_position(m_positions(idx, 0), m_positions(idx, 1), m_positions(idx, 2));
+            Vect3 current_alphas; //not used here
+            Triangle current_nearest_triangle; // to hold the closest triangle to electrode.
+            dist_point_interface(current_position, *m_interface, current_alphas, current_nearest_triangle);
+            triangles.push_back(current_nearest_triangle);
+            std::set<size_t> index_seen; // to avoid infinite looping
+            index_seen.insert(current_nearest_triangle.index());
+            if ( std::abs(m_radius(idx)) > 1.e3*std::numeric_limits<double>::epsilon() ) {
+                // if the electrode is larger than the triangle, look for adjacent triangles
+                if ( current_nearest_triangle.area() < 4.*M_PI*std::pow(m_radius(idx),2) ) {
+                    std::stack<Triangle *> tri_stack;
+                    tri_stack.push(&current_nearest_triangle);
+                    while ( !tri_stack.empty() ) {
+                        Triangle * t = tri_stack.top();
+                        tri_stack.pop();
+                        if ( (t->center()-current_position).norm() < m_radius(idx) ) {
+                            triangles.push_back(*t);
+                            Interface::VectPTriangle t_adj = m_interface->adjacent_triangles(*t);
+                            if ( index_seen.insert(t_adj[0]->index()).second ) tri_stack.push(t_adj[0]);
+                            if ( index_seen.insert(t_adj[1]->index()).second ) tri_stack.push(t_adj[1]);
+                            if ( index_seen.insert(t_adj[2]->index()).second ) tri_stack.push(t_adj[2]);
+                        }
+                    }
+                }
+            }
+            m_triangles.push_back(triangles);
+            // now set the weight as the ratio between the wanted sensor surface and the actual surface
+            // (should be close to 1)
+            double triangles_area = 0.;
+            for ( Triangles::const_iterator tit = triangles.begin(); tit != triangles.end(); ++tit) {
+                triangles_area += tit->area();
+            }
+            m_weights(idx) = M_PI * std::pow(m_radius(idx),2) / triangles_area;
+        }
+    }
+
+    void Sensors::info() const {
+        size_t nb_to_display = (int)std::min((int)m_nb,(int)5);
+        std::cout << "Nb of sensors : " << m_nb << std::endl;
+        std::cout << "Positions" << std::endl;
+        for(size_t i = 0; i < nb_to_display ; ++i) {
+            for (size_t j=0;j<m_positions.ncol();++j) {
+                std::cout << m_positions(i,j) << " ";
+            }
+            std::cout << std::endl;
+        }
+        if(m_nb > nb_to_display) {
+            std::cout << "..." << std::endl;
+        }
+
+        if(hasOrientations()) {
+            std::cout << "Orientations" << std::endl;
+            for(size_t i = 0; i < nb_to_display ; ++i) {
+                for (size_t j=0;j<m_orientations.ncol();++j) {
+                    std::cout << m_orientations(i,j) << " ";
+                }
+                std::cout << std::endl;
+            }
+            if(m_nb > nb_to_display) {
+                std::cout << "..." << std::endl;
+            }
+        }
+        if(hasRadii()) {
+            std::cout << "Radii" << std::endl;
+            for(size_t i = 0; i < nb_to_display ; ++i) {
+                std::cout << m_radius(i) << " " << std::endl;
+            }
+            if(m_nb > nb_to_display) {
+                std::cout << "..." << std::endl;
+            }            
+        }
+        if(hasNames()) {
+            std::cout << "Names" << std::endl;
+            for(size_t i = 0; i < nb_to_display; ++i) {
+                std::cout << m_names[i] << std::endl;
+            }
+            if(m_nb > nb_to_display) {
+                std::cout << "..." << std::endl;
+            }
+        }
     }
 }

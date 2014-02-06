@@ -161,7 +161,7 @@ namespace OpenMEEG {
     }
 
     template<class T>
-    inline double _operatorN(const Vertex& V1, const Vertex& V2, const Mesh& m1, const Mesh& m2, const unsigned gauss_order, const T& mat)
+    inline double _operatorN(const Vertex& V1, const Vertex& V2, const Mesh& m1, const Mesh& m2, const T& mat)
     {
         double Iqr, Aqr;
         double result = 0.0;
@@ -249,7 +249,7 @@ namespace OpenMEEG {
                     PROGRESSBAR(i++, m1.nb_vertices());
                     #pragma omp parallel for
                     for ( Mesh::const_vertex_iterator vit2 = vit1; vit2 < m1.vertex_end(); ++vit2) {
-                        mat((*vit1)->index(), (*vit2)->index()) += _operatorN(**vit1, **vit2, m1, m1, gauss_order, matS) * coeff;
+                        mat((*vit1)->index(), (*vit2)->index()) += _operatorN(**vit1, **vit2, m1, m1, matS) * coeff;
                     }
                 }
             } else {
@@ -257,7 +257,7 @@ namespace OpenMEEG {
                     PROGRESSBAR(i++, m1.nb_vertices());
                     #pragma omp parallel for
                     for ( Mesh::const_vertex_iterator vit2 = m1.vertex_begin(); vit2 <= vit1; ++vit2) {
-                        mat((*vit1)->index(), (*vit2)->index()) += _operatorN(**vit1, **vit2, m1, m1, gauss_order, mat) * coeff;
+                        mat((*vit1)->index(), (*vit2)->index()) += _operatorN(**vit1, **vit2, m1, m1, mat) * coeff;
                     }
                 }
             }
@@ -277,7 +277,7 @@ namespace OpenMEEG {
                     PROGRESSBAR(i++, m1.nb_vertices());
                     #pragma omp parallel for
                     for ( Mesh::const_vertex_iterator vit2 = m2.vertex_begin(); vit2 < m2.vertex_end(); ++vit2) {
-                        mat((*vit1)->index(), (*vit2)->index()) += _operatorN(**vit1, **vit2, m1, m2, gauss_order, matS) * coeff;
+                        mat((*vit1)->index(), (*vit2)->index()) += _operatorN(**vit1, **vit2, m1, m2, matS) * coeff;
                     }
                 }
             } else {
@@ -285,7 +285,7 @@ namespace OpenMEEG {
                     PROGRESSBAR(i++, m1.nb_vertices());
                     #pragma omp parallel for
                     for ( Mesh::const_vertex_iterator vit2 = m2.vertex_begin(); vit2 < m2.vertex_end(); ++vit2) {
-                        mat((*vit1)->index(), (*vit2)->index()) += _operatorN(**vit1, **vit2, m1, m2, gauss_order, mat) * coeff;
+                        mat((*vit1)->index(), (*vit2)->index()) += _operatorN(**vit1, **vit2, m1, m2, mat) * coeff;
                     }
                 }
             }

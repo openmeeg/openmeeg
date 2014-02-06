@@ -40,9 +40,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #ifndef OPENMEEG_DANIELSSON_H
 #define OPENMEEG_DANIELSSON_H
 
-#include <list>
-#include <limits.h>
-#include <float.h>
+#include <limits>
 #include <assert.h>
 #include <math.h>
 
@@ -51,9 +49,6 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <interface.h>
 
 namespace OpenMEEG {
-
-    const int UnknownPoint = INT_MAX;
-    const double UnknownDist = DBL_MAX;
 
     double dist_point_cell(const Vect3&, const Triangle& , Vect3&, bool&);
     OPENMEEG_EXPORT double dist_point_interface(const Vect3&, const Interface&, Vect3&, Triangle&);

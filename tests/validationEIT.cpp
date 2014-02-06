@@ -107,13 +107,12 @@ int main(const int argc, const char* argv[]) {
     const unsigned ndip = dipoles.nlin();
 
     // We choose two electordes on which we inject the currents
-
     const unsigned nelec = 2;
-    Sensors electrodes; // set nelec electrode positions
+    Sensors electrodes(geo.outermost_interface()); // set nelec electrode positions
 
     std::stringstream ss;
-    ss << "0.886556 0.278249 -0.166667" << std::endl;
-    ss << "0.547922 -0.269672 -0.719889" << std::endl;
+    ss << "0.886556 0.278249 -0.166667 0" << std::endl;
+    ss << "0.547922 -0.269672 -0.719889 0" << std::endl;
     electrodes.load(ss);
 
     const Matrix& electrodes_positions = electrodes.getPositions();
@@ -128,7 +127,6 @@ int main(const int argc, const char* argv[]) {
     SparseMatrix matH2E(electrodes.getNumberOfSensors(), newsize); // Matrices Head2Electrodes
 
     // Find the triangle closest to the electrodes
-
     for ( unsigned ielec = 0; ielec < nelec; ++ielec) {
         for ( unsigned k = 0; k < 3; ++k) {
             current_position(k) = electrodes_positions(ielec, k);
@@ -140,7 +138,6 @@ int main(const int argc, const char* argv[]) {
     }
 
     // Potential at the electrodes positions
-
     const Vector& VRi = (matH2E * PotExt).getlin(0);
     const Vector& VRe = (matH2E * PotExt).getlin(1);
 

@@ -38,6 +38,8 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #include <fstream>
 #include <cstring>
+#include <sstream>
+#include <stdexcept>
 
 #include <mesh.h>
 #include <integrator.h>
@@ -104,6 +106,68 @@ int main(int argc, char** argv)
         // Assembling Matrix from discretization :
         HeadMat HM(geo, gauss_order);
         HM.save(argv[4]);
+    }
+
+    /*********************************************************************************************
+    * Computation of Cortical Matrix for BEM Symmetric formulation
+    **********************************************************************************************/
+    else if ( ( !strcmp(argv[1], "-CorticalMat") ) | ( !strcmp(argv[1], "-CM" ) ) | ( !strcmp(argv[1], "-cm") ) ) {
+        if ( argc < 3 ) {
+            std::cerr << "Please set geometry filepath !" << endl;
+            exit(1);
+        }
+        if ( argc < 4 ) {
+            std::cerr << "Please set conductivities filepath !" << endl;
+            exit(1);
+        }
+        if ( argc < 5 ) {
+            std::cerr << "Please set sensors !" << endl;
+            exit(1);
+        }
+        if ( argc < 6 ) {
+            std::cerr << "Please set the domain name !" << endl;
+            exit(1);
+        }
+        if ( argc < 7 ) {
+            std::cerr << "Please set output filepath !" << endl;
+            exit(1);
+        }
+        double alpha, beta;
+        if ( argc >= 9 ) {
+            std::stringstream ss(argv[7]);
+            if ( !(ss >> alpha) ) {
+                throw std::runtime_error("given parameter is not a number");
+            } else {
+                ss.clear();
+                ss.str(argv[8]);
+                if ( !(ss >> beta) ) {
+                    throw std::runtime_error("given parameter is not a number");
+                }
+            }
+        }
+        // Loading surfaces from geometry file
+        Geometry geo;
+        geo.read(argv[2], argv[3], OLD_ORDERING);
+
+        // Check for intersecting meshes
+        if ( !geo.selfCheck() ) {
+            exit(1);
+        }
+
+        // read the file containing the positions of the EEG patches
+        Sensors electrodes(argv[4]);
+        Head2EEGMat M(geo, electrodes);
+
+        // Assembling Matrix from discretization :
+        CorticalMat *CM;
+        if (argc == 9) {
+            CM = new CorticalMat(geo, M, argv[5], gauss_order, alpha, beta);
+        } else if (argc == 10) {
+            CM = new CorticalMat(geo, M, argv[5], gauss_order, alpha, beta, argv[9]);
+        } else {
+            CM = new CorticalMat(geo, M, argv[5], gauss_order);
+        }
+        CM->save(argv[6]);
     }
 
     /*********************************************************************************************
@@ -207,10 +271,9 @@ int main(int argc, char** argv)
         Geometry geo;
         geo.read(argv[2], argv[3], OLD_ORDERING);
 
-        Sensors electrodes(argv[4]);
+        Sensors electrodes(argv[4], geo.outermost_interface()); // special parameter for EIT electrodes: the interface
         EITSourceMat EITsource(geo, electrodes, gauss_order);
         EITsource.save(argv[5]);
-
     }
 
     /*********************************************************************************************
@@ -466,6 +529,15 @@ void getHelp(char** argv) {
     cout << "             Arguments :" << endl;
     cout << "               geometry file (.geom)" << endl;
     cout << "               conductivity file (.cond)" << endl;
+    cout << "               output matrix" << endl << endl;
+
+    cout << "   -CorticalMat, -CM, -cm :   " << endl;
+    cout << "       Compute Cortical Matrix for Symmetric BEM (left-hand side of linear system)." << endl;
+    cout << "             Arguments :" << endl;
+    cout << "               geometry file (.geom)" << endl;
+    cout << "               conductivity file (.cond)" << endl;
+    cout << "               file containing the positions of EEG electrodes (.patches)" << endl;
+    cout << "               domain name (containing the sources)" << endl;
     cout << "               output matrix" << endl << endl;
 
     cout << "   -SurfSourceMat, -SSM, -ssm :   " << endl;
