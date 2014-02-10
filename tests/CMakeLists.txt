@@ -63,7 +63,9 @@ IF (TEST_HEAD3)
     SET(HEAD3 3)
 ENDIF()
 
-SET(EPSILON 0.15)
+SET(EPSILON1 0.13)
+SET(EPSILON2 0.1)
+SET(EPSILON3 0.03)
 FOREACH(DIP 1 2 3 4 5)
     FOREACH(HEADGEO "" ${NN})
         FOREACH(HEADNUM 1 2 ${HEAD3})
@@ -73,13 +75,14 @@ FOREACH(DIP 1 2 3 4 5)
                     SET(BASE_FILE_NAME "${HEAD}-dip.est_eeg${ADJOINT}")
                     # Compare EEG result with analytical solution obtained with Matlab
                     OPENMEEG_COMPARISON_TEST("EEG${ADJOINT}EST-dip-${HEAD}-dip${DIP}-${COMP}"
-                        ${BASE_FILE_NAME} analytic/eeg_head${HEADNUM}_analytic.txt -${COMP} -eps ${EPSILON} -col ${DIP} -full
+                        ${BASE_FILE_NAME} analytic/eeg_head${HEADNUM}_analytic.txt -${COMP} -eps ${EPSILON${HEADNUM}} -col ${DIP} -full
                         DEPENDS EEG${ADJOINT}-dipoles-${HEAD})
                 ENDFOREACH()
             ENDFOREACH()
         ENDFOREACH()
     ENDFOREACH()
 ENDFOREACH()
+SET(EPSILON 0.13)
 IF (TEST_HEAD3)
     FOREACH(DIP 1 2)
         FOREACH(COMP mag rdm)
@@ -127,19 +130,19 @@ FOREACH(HEADGEO "" ${NN})
     ENDFOREACH()
 ENDFOREACH()
 
+
 FOREACH(DIP 1 2 3 4 5)
     FOREACH(HEADGEO "" ${NN})
         FOREACH(HEADNUM 1 2 ${HEAD3})
             SET(HEAD "Head${HEADGEO}${HEADNUM}")
             # Compare the potential results in a interior sphere of the Surf2Vol operator with analytical solution
             # obtained with Sphere (V.Hedou Modified)
-            OPENMEEG_COMPARISON_TEST("EEGinternal-dip-${HEAD}-dip${DIP}"
-                ${HEAD}-dip-internal.est_eeg analytic/eeg_internal_analytic.txt -eps ${EPSILON} -col ${DIP} -full
+             OPENMEEG_COMPARISON_TEST("EEGinternal-dip-${HEAD}-dip${DIP}"
+                ${HEAD}-dip-internal.est_eeg analytic/eeg_internal_analytic.txt -eps ${EPSILON${HEADNUM}} -col ${DIP} -full
                 DEPENDS InternalPot-dipoles-${HEAD})
-
-            # Compare the q.gradVj to diffVf in order to validate the EIT problem
+             # Compare the q.gradVj to diffVf in order to validate the EIT problem
             OPENMEEG_COMPARISON_TEST("EIT-${HEAD}-dip${DIP}"
-                ${HEAD}.eit_qgradVj ${OpenMEEG_BINARY_DIR}/tests/${HEAD}.eit_diffVf -eps ${EPSILON} -col ${DIP} -full
+                ${HEAD}.eit_qgradVj ${OpenMEEG_BINARY_DIR}/tests/${HEAD}.eit_diffVf -eps ${EPSILON${HEADNUM}} -col ${DIP} -full
                 DEPENDS EITvalidation-dipoles-${HEAD})
         ENDFOREACH()
     ENDFOREACH()
@@ -159,6 +162,9 @@ FOREACH(HEADGEO ${NNa1} ${NNa2})
     ENDFOREACH()
 ENDFOREACH()
 
+SET(EPSILON1 0.15)
+SET(EPSILON2 0.14)
+SET(EPSILON3 0.09)
 FOREACH(SENSORORIENT "" "-tangential" "-noradial")
     FOREACH(ADJOINT "" adjoint adjoint2)
         IF (NOT(${ADJOINT} STREQUAL "adjoint" OR ${ADJOINT} STREQUAL "adjoint2") OR (SENSORORIENT STREQUAL ""))
@@ -169,7 +175,7 @@ FOREACH(SENSORORIENT "" "-tangential" "-noradial")
                         FOREACH(COMP mag rdm)
                             # Compare MEG result with analytical solution obtained with Matlab
                             OPENMEEG_COMPARISON_TEST("MEG${ADJOINT}EST-dip-${HEAD}-dip${DIP}${SENSORORIENT}-${COMP}"
-                                ${HEAD}-dip${SENSORORIENT}.est_meg${ADJOINT} analytic/meg_analytic${SENSORORIENT}.txt -${COMP} -eps ${EPSILON} -col ${DIP} -full
+                                ${HEAD}-dip${SENSORORIENT}.est_meg${ADJOINT} analytic/meg_analytic${SENSORORIENT}.txt -${COMP} -eps ${EPSILON${HEADNUM}} -col ${DIP} -full
                                 DEPENDS MEG${ADJOINT}-dipoles-${HEAD}${SENSORORIENT})
                         ENDFOREACH()
                     ENDFOREACH()
