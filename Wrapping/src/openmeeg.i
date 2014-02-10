@@ -138,6 +138,7 @@ namespace std {
     %template(vector_double) vector<double>;
     %template(vector_triangle) vector<OpenMEEG::Triangle>;
     %template(vector_mesh) vector<OpenMEEG::Mesh>;
+    %template(vector_string) vector<std::string>;
 }
 
 namespace OpenMEEG {
