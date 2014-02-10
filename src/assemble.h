@@ -124,6 +124,12 @@ namespace OpenMEEG {
         CorticalMat (const Geometry& geo, const Head2EEGMat& M, const std::string& domain_name = "CORTEX", const unsigned gauss_order=3, double alpha=-1., double beta=-1., const std::string &filename="");
         virtual ~CorticalMat () {};
     };
+
+    class OPENMEEG_EXPORT CorticalMat2: public virtual Matrix {
+    public:
+        CorticalMat2(const Geometry& geo, const Head2EEGMat& M, const std::string& domain_name = "CORTEX", const unsigned gauss_order=3);
+        virtual ~CorticalMat2() {};
+    };
 }
 
 #endif /* OPENMEEG_ASSEMBLE_H */

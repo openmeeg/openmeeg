@@ -263,6 +263,100 @@ namespace OpenMEEG {
         mat = P * Z.pinverse() * rhs;
     }
 
+    void assemble_cortical2(const Geometry& geo, Matrix& mat, const Head2EEGMat& M, const std::string& domain_name, const unsigned gauss_order)
+    {
+        // Following the article: M. Clerc, J. Kybic "Cortical mapping by Laplace–Cauchy transmission using a boundary element method".
+        // Assumptions:
+        // - domain_name: the domain containing the sources is an innermost domain (defined as the interior of only one interface (called Cortex)
+        // - Cortex interface is composed of one mesh only (no shared vertices)
+        // TODO check orders of MxM products for efficiency ... delete intermediate matrices
+        const Domain& SourceDomain = geo.domain(domain_name);
+        const Interface& Cortex    = SourceDomain.begin()->interface();
+        const Mesh& cortex         = Cortex.begin()->mesh();
+        // test the assumption
+        assert(SourceDomain.size() == 1);
+        assert(Cortex.size() == 1);
+        // shape of the new matrix:
+        unsigned Nl = geo.size()-geo.outermost_interface().nb_triangles()-Cortex.nb_vertices()-Cortex.nb_triangles();
+        unsigned Nc = geo.size()-geo.outermost_interface().nb_triangles();
+        // build the HeadMat:
+        // The following is the same as assemble_HM except N_11, D_11 and S_11 are not computed.
+        SymMatrix mat_temp(Nc);
+        mat_temp.set(0.0);
+        double K = 1.0 / (4.0 * M_PI);
+        // We iterate over the meshes (or pair of domains) to fill the lower half of the HeadMat (since its symmetry)
+        for ( Geometry::const_iterator mit1 = geo.begin(); mit1 != geo.end(); ++mit1) {
+            for ( Geometry::const_iterator mit2 = geo.begin(); (mit2 != (mit1+1)); ++mit2) {
+                // if mit1 and mit2 communicate, i.e they are used for the definition of a common domain
+                const int orientation = geo.oriented(*mit1, *mit2); // equals  0, if they don't have any domains in common
+                // equals  1, if they are both oriented toward the same domain
+                // equals -1, if they are not
+                if ( orientation != 0) {
+                    double Scoeff =   orientation * geo.sigma_inv(*mit1, *mit2) * K;
+                    double Dcoeff = - orientation * geo.indicator(*mit1, *mit2) * K;
+                    double Ncoeff;
+                    if ( !(mit1->outermost() || mit2->outermost()) && ( (*mit1 != *mit2)||( *mit1 != cortex) ) ) {
+                        // Computing S block first because it's needed for the corresponding N block
+                        operatorS(*mit1, *mit2, mat_temp, Scoeff, gauss_order);
+                        Ncoeff = geo.sigma(*mit1, *mit2)/geo.sigma_inv(*mit1, *mit2);
+                    } else {
+                        Ncoeff = orientation * geo.sigma(*mit1, *mit2) * K;
+                    }
+                    if ( !mit1->outermost() && (( (*mit1 != *mit2)||( *mit1 != cortex) )) ) {
+                        // Computing D block
+                        operatorD(*mit1, *mit2, mat_temp, Dcoeff, gauss_order);
+                    }
+                    if ( ( *mit1 != *mit2 ) && ( !mit2->outermost() ) ) {
+                        // Computing D* block
+                        operatorD(*mit1, *mit2, mat_temp, Dcoeff, gauss_order, true);
+                    }
+                    // Computing N block
+                    if ( (*mit1 != *mit2)||( *mit1 != cortex) ) {
+                        operatorN(*mit1, *mit2, mat_temp, Ncoeff, gauss_order);
+                    }
+                }
+            }
+        }
+        // Deflate the diagonal block (N33) of 'mat' : (in order to have a zero-mean potential for the outermost interface)
+        const Interface i = geo.outermost_interface();
+        unsigned i_first = (*i.begin()->mesh().vertex_begin())->index();
+        deflat(mat_temp, i, mat_temp(i_first, i_first) / (geo.outermost_interface().nb_vertices()));
+
+        mat = Matrix(Nc, Nc);
+        mat.set(0.0);
+        // copy mat_temp into mat except the lines for cortex vertices [i_vb_c, i_ve_c] and cortex triangles [i_tb_c, i_te_c].
+        unsigned iNl = 0;
+        unsigned i_vb_c = (*cortex.vertex_begin())->index();
+        unsigned i_ve_c = (*cortex.vertex_rbegin())->index();
+        unsigned i_tb_c = cortex.begin()->index();
+        unsigned i_te_c = cortex.rbegin()->index();
+        for ( unsigned i = 0; i < Nc; ++i) {
+            if ( !(i_vb_c<=i && i<=i_ve_c) && !(i_tb_c<=i && i<=i_te_c) ) {
+                mat.setlin(iNl, mat_temp.getlin(i));
+                ++iNl;
+            }
+        }
+
+        // ** Get the gradient of P1&P0 elements on the meshes **
+        Matrix MM(M.transpose() * M);
+        SymMatrix RR(Nc, Nc); RR.set(0.);
+        for ( Geometry::const_iterator mit = geo.begin(); mit != geo.end(); ++mit) {
+            mit->gradient_norm2(RR);
+        }
+
+        for ( unsigned i = 0; i < M.nlin(); ++i) {
+            mat.setlin(iNl, M.getlin(i));
+            ++iNl;
+        }
+
+        for ( unsigned i = iNl; i < Nc; ++i) {
+            mat.setlin(iNl, RR.getlin(i-iNl));
+            ++iNl;
+        }
+
+        mat = mat.pinverse();
+    }
+
     void assemble_Surf2Vol(const Geometry& geo, Matrix& mat, const std::map<const Domain, Vertices> m_points) 
     {
         const double K = 1.0/(4.0*M_PI);
@@ -296,6 +390,11 @@ namespace OpenMEEG {
     CorticalMat::CorticalMat(const Geometry& geo, const Head2EEGMat& M, const std::string& domain_name, const unsigned gauss_order, double a, double b, const std::string &filename)
     {
         assemble_cortical(geo, *this, M, domain_name, gauss_order, a, b, filename);
+    }
+
+    CorticalMat2::CorticalMat2(const Geometry& geo, const Head2EEGMat& M, const std::string& domain_name, const unsigned gauss_order)
+    {
+        assemble_cortical2(geo, *this, M, domain_name, gauss_order);
     }
 
     Surf2VolMat::Surf2VolMat(const Geometry& geo, const Matrix& points) 
