@@ -41,7 +41,7 @@
 
             /* Get the number of dimensions from the Matrix
              */
-            long int ar_dim[7], ndims;
+            npy_intp ar_dim[7], ndims;
             ndims = 2;
             ar_dim[0] = _mat->nlin();
             ar_dim[1] = _mat->ncol();
@@ -63,7 +63,7 @@
 
             /* Get the size of the Vector
              */
-            long int ar_dim[7], ndims;
+            npy_intp ar_dim[7], ndims;
             ndims = 1;
             ar_dim[0] = _vec->size();
 
