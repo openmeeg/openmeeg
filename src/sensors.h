@@ -121,14 +121,15 @@ namespace OpenMEEG {
         Matrix& getOrientations() {return m_orientations ; } /*!< Return a reference on sensors orientations. */
         Matrix getOrientations() const {return m_orientations ; } /*!< Return a copy of sensors orientations. */
 
-        std::vector<std::string>& getSensorsNames() {return m_names ; } /*!< Return a reference on sensors ids. */
-        std::vector<std::string> getSensorsNames() const {return m_names ; } /*!< Return a copy of sensors ids. */
+        std::vector<std::string>& getNames() {return m_names ; } /*!< Return a reference on sensors names. */
+        std::vector<std::string> getNames() const {return m_names ; } /*!< Return a copy of sensors names. */
 
         bool hasRadii() const { return m_radius.nlin() > 0 ;} /*!< Return true if contains radii */
         bool hasOrientations() const { return m_orientations.nlin() > 0 ;} /*!< Return true if contains orientations */
         bool hasNames() const { return m_names.size() == m_nb ;} /*!< Return true if contains all sensors names */
         Vector getPosition(size_t idx) const; /*!< Return the position (3D point) of the integration point i. */
         Vector getOrientation(size_t idx) const; /*!< Return the orientations (3D point) of the integration point i. */
+        std::string getName(size_t idx) const{ return m_names[idx]; } /*!< Return the name of the idx_th sensor */
         void setPosition(size_t idx, Vector& pos); /*!< Set the position (3D point) of the integration point i. */
         void setOrientation(size_t idx, Vector& orient); /*!< Set the orientation (3D point) of the integration point i. */
 
