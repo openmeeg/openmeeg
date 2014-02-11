@@ -139,12 +139,14 @@ namespace std {
     %template(vector_triangle) vector<OpenMEEG::Triangle>;
     %template(vector_mesh) vector<OpenMEEG::Mesh>;
     %template(vector_string) vector<std::string>;
+    %template(vector_interface) vector<OpenMEEG::Interface>;
 }
 
 namespace OpenMEEG {
     %typedef std::vector<OpenMEEG::Triangle> Triangles;
     %typedef std::vector<OpenMEEG::Mesh> Meshes;
 }
+
 
 %include <vect3.h>
 %include <vertex.h>
@@ -184,6 +186,14 @@ namespace OpenMEEG {
 %extend OpenMEEG::Matrix {
     void setvalue(unsigned int i, unsigned int j, double d) {
         (*($self))(i,j)=d;
+    }
+}
+
+%extend OpenMEEG::Mesh {
+    // TODO almost.. if I do: m.name() I get:
+    // <Swig Object of type 'std::string *' at 0x2c92ea0>
+    const char* __str__() {
+        return ($self)->name().c_str();
     }
 }
 /* TODO
