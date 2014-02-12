@@ -11,7 +11,7 @@
 #include <vtkCellData.h>
 #include <vtkIntArray.h>
 #include <vtkDoubleArray.h>
-#include <vtkGenericDataObjectWriter.h>
+#include <vtkPolyDataWriter.h>
 
 #include <iostream>
 #include <string>
@@ -91,7 +91,7 @@ int main(int argc, char *argv[])
             array->InsertNextValue(data(i, j));
         }
         if (data.ncol() > 1) {
-            dataname << "-" << j;
+            dataname << "-" << std::setw(unsigned(log10(data.ncol())+1)) << std::setfill('0') << j;
         }
         array->SetName(dataname.str().c_str());
 
@@ -108,7 +108,7 @@ int main(int argc, char *argv[])
     }
 
     // save output to the input file
-    vtkSmartPointer<vtkGenericDataObjectWriter> writer = vtkSmartPointer<vtkGenericDataObjectWriter>::New();
+    vtkSmartPointer<vtkPolyDataWriter> writer = vtkSmartPointer<vtkPolyDataWriter>::New();
     writer->SetFileName(meshFileNameO.c_str());
     writer->SetInput(mesh);
     writer->Write();
