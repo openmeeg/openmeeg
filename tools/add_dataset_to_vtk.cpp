@@ -10,7 +10,7 @@
 #include <vtkPointData.h>
 #include <vtkCellData.h>
 #include <vtkIntArray.h>
-#include <vtkFloatArray.h>
+#include <vtkDoubleArray.h>
 #include <vtkGenericDataObjectWriter.h>
 
 #include <iostream>
@@ -18,18 +18,22 @@
 #include <vector>
 #include <fstream>
 #include <sstream>
+#include <matrix.h>
+
 
 int usage(const std::string progname)
 {
     std::cerr<<"Usage:"<<std::endl
-             <<"\t"<<progname<<" -m <vtk polydata file> -n <data field name> [data file]"<<std::endl
+             <<"\t"<<progname<<" -m <vtk polydata file> -n <data field name> [data file] (-o optional_output_filename) "<<std::endl
              <<""<<std::endl;
     return -1;
 }
 
+using namespace OpenMEEG;
+
 int main(int argc, char *argv[])
 {
-    if (argc != 6) {
+    if (argc < 6) {
         std::cerr<<"Wrong number of arguments !"<<std::endl;
         return usage(argv[0]);
     }
@@ -40,10 +44,10 @@ int main(int argc, char *argv[])
 
 
     std::string meshFileName;
+    std::string meshFileNameO = meshFileName;
     vtkSmartPointer<vtkPolyData> mesh;
     std::string dataName;
-    float *data = 0l;
-    unsigned long int nbData = 0;
+    Matrix data;
 
     // parse command line arguments
     for (int i=1; i<argc; ++i) {
@@ -58,32 +62,12 @@ int main(int argc, char *argv[])
             // read the new data field name
             dataName = argv[++i];
             std::cerr<<"DataName=<"<<dataName<<">"<<std::endl;
+        } else if (std::string(argv[i]) == "-o") {
+            // set an output filename
+            meshFileNameO = argv[++i];
         } else {
-            // read the data field
-            // Not Yet implemented !
             std::cerr<<"Opening data file <"<<argv[i]<<">"<<std::endl;
-            std::ifstream in(argv[i]);
-            float val = 0;
-            nbData = 0;
-            // read the file a first time to count the data
-            while (in.good()) {
-                in>>val;
-                if (in.good()) nbData++;
-            }
-            std::cerr<<"Got "<<nbData<<" data"<<std::endl;
-            data = new float[nbData];
-            
-            in.clear(); // clear the error bit
-            in.seekg(0, std::ios::beg); // rewind the file
-            //in.close();
-            //in.open();
-
-            // read the file a second time to actually get the values
-            unsigned long int idx=0;
-            while (in.good()) {
-              in>>val;
-              data[idx++] = val;
-            }
+            data.load(argv[i]);
         }
     }
 
@@ -92,32 +76,43 @@ int main(int argc, char *argv[])
         return usage(argv[0]);
     }
 
-    if (! data) {
-        std::cerr<<"You must give a data file !"<<std::endl;
+    if ( data.ncol() * data.nlin() == 0) {
+        std::cerr<<"You must give a correct matrix data file !"<<std::endl;
         return usage(argv[0]);
     }
  
-    // Build a vtkDataArray with our data
-    vtkSmartPointer<vtkFloatArray> array = vtkSmartPointer<vtkFloatArray>::New();
-    array->SetArray(data, nbData, 0);
-    array->SetName(dataName.c_str());
+    
+    for ( unsigned j = 0; j < data.ncol(); ++j) {
+        std::ostringstream dataname;
+        dataname << dataName;
+        // Build a vtkDataArray with our data
+        vtkSmartPointer<vtkDoubleArray> array = vtkSmartPointer<vtkDoubleArray>::New();
+        for ( unsigned i = 0; i < data.nlin(); ++i) {
+            array->InsertNextValue(data(i, j));
+        }
+        if (data.ncol() > 1) {
+            dataname << "-" << j;
+        }
+        array->SetName(dataname.str().c_str());
 
-    // get the number of cells and points so we can know where to add our data
-    vtkIdType nbPoints = mesh->GetNumberOfPoints();
-    vtkIdType nbCells = mesh->GetNumberOfCells();
+        // get the number of cells and points so we can know where to add our data
+        vtkIdType nbPoints = mesh->GetNumberOfPoints();
+        vtkIdType nbCells = mesh->GetNumberOfCells();
 
-    if (nbData == nbPoints) mesh->GetPointData()->AddArray(array);
-    else if (nbData == nbCells) mesh->GetCellData()->AddArray(array);
-    else {
-        std::cerr<<"Something's wrong ! got a mesh with "<<nbPoints<<" points and "<<nbCells<<" cells, and "<<nbData<<" data. Don't know what to do with them !"<<std::endl;
-        return usage(argv[0]);
+        if (data.nlin() == nbPoints) mesh->GetPointData()->AddArray(array);
+        else if (data.nlin() == nbCells) mesh->GetCellData()->AddArray(array);
+        else {
+            std::cerr << "Something's wrong ! got a mesh with " << nbPoints << " points and " << nbCells << " cells, and ("<< data.nlin() << ","<< data.ncol() <<") data. Don't know what to do with them !" << std::endl;
+            return usage(argv[0]);
+        }
     }
 
     // save output to the input file
     vtkSmartPointer<vtkGenericDataObjectWriter> writer = vtkSmartPointer<vtkGenericDataObjectWriter>::New();
-    writer->SetFileName(meshFileName.c_str());
+    writer->SetFileName(meshFileNameO.c_str());
     writer->SetInput(mesh);
     writer->Write();
+    std::cerr << "saved into " << meshFileNameO << "." << std::endl;
 
     return 0;
 }
