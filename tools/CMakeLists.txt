@@ -57,9 +57,9 @@ IF (USE_VTK)
     ADD_EXECUTABLE(om_meshes_to_vtp meshes_to_vtp.cpp)
     TARGET_LINK_LIBRARIES (om_meshes_to_vtp OpenMEEG)
 
-    ADD_EXECUTABLE(om_add_vtk_dataset AddDataSetToVtk.cpp)
-    TARGET_LINK_LIBRARIES (om_add_vtk_dataset ${VTK_LIBRARIES})
-    INSTALL(TARGETS om_vtp_to_meshes om_meshes_to_vtp om_add_vtk_dataset DESTINATION bin)
+    ADD_EXECUTABLE(om_add_dataset_to_vtk add_dataset_to_vtk.cpp)
+    TARGET_LINK_LIBRARIES (om_add_dataset_to_vtk OpenMEEG ${VTK_LIBRARIES})
+    INSTALL(TARGETS om_vtp_to_meshes om_meshes_to_vtp om_add_dataset_to_vtk DESTINATION bin)
 ENDIF()
 
 INSTALL(TARGETS 
