@@ -1,3 +1,5 @@
+INCLUDE(UseLATEX.cmake)
+
 ADD_LATEX_DOCUMENT(tutorial.tex
                    INPUTS tutorial.tex
                    IMAGE_DIRS images
