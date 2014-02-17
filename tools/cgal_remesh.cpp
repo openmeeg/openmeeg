@@ -37,9 +37,9 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#include "mesh.h"
+#include <mesh.h>
 #include <assert.h>
-#include "options.h"
+#include <options.h>
 #include "cgal_mesh.h"
 #include <CGAL/Polyhedral_mesh_domain_3.h>
 
@@ -60,12 +60,58 @@ typedef CGAL::Mesh_criteria_3<Tr> Mesh_criteria;
 typedef K::Point_3 Point_3;
 typedef K::FT FT;
 
+// Sizing field
+struct Planes
+{
+    typedef ::FT FT;
+    typedef Mesh_domain::Index Index;
+
+    Planes(const Matrix &_mat, double _fs): mat(_mat), fs(_fs) {}
+
+    FT operator()(const Point_3& p, const int, const Index&) const
+    {
+        bool inside = true;
+        for ( unsigned i = 0; i < mat.nlin(); ++i) {
+            Vect3 v(p.x()-mat(i,0), p.y() - mat(i,1), p.z() - mat(i,2));
+            if ( (v(0)*mat(i,3)+v(1)*mat(i,4)+v(2)*mat(i,5) < 0) ) {
+                inside = false;
+            }
+        }
+        return (inside)?fs*1./3.:fs;
+    }
+    const Matrix mat;
+    double fs;
+};
+
+struct Spheres
+{
+    typedef ::FT FT;
+    typedef Mesh_domain::Index Index;
+
+    Spheres(const Matrix &_mat, double _fs): mat(_mat), fs(_fs) {}
+
+    FT operator()(const Point_3& p, const int, const Index&) const
+    {
+        bool inside = false;
+        for ( unsigned i = 0; i < mat.nlin(); ++i) {
+            Vect3 v(p.x()-mat(i,0), p.y() - mat(i,1), p.z() - mat(i,2));
+            if ( v.norm() < mat(i,3) ) {
+                inside = true;
+            }
+        }
+        return (inside)?fs*1./3.:fs;
+    }
+    const Matrix mat;
+    double fs;
+};
+
 int main(int argc, char **argv) {
     command_usage("Re-mesh a mesh:");
     const char * input_filename  = command_option("-i",(const char *) NULL,"Input image or mesh");
     const double radius_bound    = command_option("-fs",1e-1,"facet radius bound of elements");
     const double distance_bound  = command_option("-fd",1e-1,"facet distance bound to the input surface");
     const char * output_filename = command_option("-o",(const char *) NULL,"Output Mesh");
+    const char * sizing_field    = command_option("-field",(const char *) NULL,"(OPTIONAL) definition of the space to be refined 3 times finer (a matrix file: with either: \"x y z nx ny nz\" per line to define planes (by intersection of domains), or \"x y z r\" to define spheres (by union of domains).)");
 
     if ( command_option("-h",(const char *)0,0) ) { 
         return 0; 
@@ -80,7 +126,21 @@ int main(int argc, char **argv) {
     std::cout << "Input surface:\n nb of points: " << m_in.nb_vertices() << "\t nb of triangles:\t" << m_in.nb_triangles() << std::endl;
 
     // Mesh criteria
-    Mesh_criteria criteria(facet_angle=30, facet_size=radius_bound, facet_distance=distance_bound);
+    Mesh_criteria * criteria;
+    if ( sizing_field ) {
+        Matrix field(sizing_field);
+        if ( field.ncol() == 6 ) {
+            Planes planes(field, radius_bound);
+            criteria = new Mesh_criteria(facet_angle=30, facet_size=planes, facet_distance=distance_bound);
+        } else if ( field.ncol() == 4 ) {
+            Spheres spheres(field, radius_bound);
+            criteria = new Mesh_criteria(facet_angle=30, facet_size=spheres, facet_distance=distance_bound);
+        } else {
+            std::cerr << "Error: file should contain either 4 or 6 columns" << std::endl;
+        }
+    } else {
+        criteria = new Mesh_criteria(facet_angle=30, facet_size=radius_bound, facet_distance=distance_bound);
+    }
 
     // Create input polyhedron
     Polyhedron polyhedron;
@@ -102,7 +162,7 @@ int main(int argc, char **argv) {
         }
     }
     // Meshing
-    CGAL::refine_mesh_3(c3t3, domain, criteria, no_exude(), no_perturb());
+    CGAL::refine_mesh_3(c3t3, domain, *criteria, no_exude(), no_perturb());
 
     Mesh m_out = CGAL_to_OM(c3t3);
     m_out.save(output_filename);
