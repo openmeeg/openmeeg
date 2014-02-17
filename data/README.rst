@@ -1,5 +1,4 @@
-- Directory "Models" contains the files needed for describing the head model geometry.
-- Directory "Computations" contains the files needed for describing the forward computation, i.e the sensors locations and the sources (dipoles..).
+Each directory contains the files needed for describing the head model geometry, and a forward computation, i.e the sensors locations and the sources (dipoles..).
 
 ==========
  Models 
@@ -79,7 +78,7 @@ It indicates which files contains the geometry::
 
 Supported mesh formats are tri, off, bnd, mesh, vtk (provided openmeeg was compiled with USE_VTK=True).
 
-Note that the individual  meshes can either be named or not. If no name is provided, they will be automatically named '1', '2', ... following the order.
+Note that the individual meshes can either be named or not. If no name is provided, they will be automatically named '1', '2', ... following the order.
 
 2. An (optional) MeshFile section: 
 ----------------------------------
