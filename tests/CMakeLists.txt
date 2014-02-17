@@ -15,12 +15,12 @@ SET_FILE_PROPERTIES(CompareOptions
 OPENMEEG_UNIT_TEST(load_geo
     SOURCES load_geo.cpp
     LIBRARIES OpenMEEG OpenMEEGMaths
-    PARAMETERS ${OpenMEEG_SOURCE_DIR}/data/Models/Head1/Head1.geom ${OpenMEEG_SOURCE_DIR}/data/Models/Head1/Head1.cond)
+    PARAMETERS ${OpenMEEG_SOURCE_DIR}/data/Head1/Head1.geom ${OpenMEEG_SOURCE_DIR}/data/Head1/Head1.cond)
 
 OPENMEEG_UNIT_TEST(test_mesh_ios
     SOURCES test_mesh_ios.cpp
     LIBRARIES OpenMEEG OpenMEEGMaths
-    PARAMETERS ${OpenMEEG_SOURCE_DIR}/data/Models/Head1/Head1.tri)
+    PARAMETERS ${OpenMEEG_SOURCE_DIR}/data/Head1/Head1.tri)
 
 NEW_EXECUTABLE(test_sensors test_sensors.cpp
                LIBRARIES OpenMEEG)
@@ -118,13 +118,13 @@ FOREACH(HEADGEO "" ${NN})
     FOREACH(HEADNUM 1 2 ${HEAD3})
         SET(HEAD "Head${HEADGEO}${HEADNUM}")
         SET(DATADIR ${OpenMEEG_SOURCE_DIR}/data)
-        SET(MODELPREFIX ${DATADIR}/Models/${HEAD}/${HEAD})
+        SET(MODELPREFIX ${DATADIR}/${HEAD}/${HEAD})
         SET(TESTPREFIX ${OpenMEEG_BINARY_DIR}/tests/${HEAD})
         # validationEIT geometry.geom conductivity.cond dipoles.dip source.dsm headmatinv.bin out.eit_qgradVj out.eit_diffVf
         OPENMEEG_TEST(
             EITvalidation-dipoles-${HEAD}
             ${VALIDATION_EIT} ${MODELPREFIX}.geom ${MODELPREFIX}.cond
-            ${DATADIR}/Computations/${HEAD}/${HEAD}.dip
+            ${DATADIR}/${HEAD}/${HEAD}.dip
             ${TESTPREFIX}.dsm ${TESTPREFIX}.hm_inv ${TESTPREFIX}.eit_qgradVj ${TESTPREFIX}.eit_diffVf
             DEPENDS HMINV-${HEAD} DSM-${HEAD})
     ENDFOREACH()
