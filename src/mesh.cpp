@@ -218,23 +218,21 @@ namespace OpenMEEG {
         allocate_ = true;
         all_vertices_ = new Vertices;
         all_vertices_->reserve(m1.nb_vertices() + m2.nb_vertices());
+        std::map<unsigned, Vertex *> map1;
+        std::map<unsigned, Vertex *> map2;
         for ( Mesh::const_vertex_iterator vit = m1.vertex_begin(); vit != m1.vertex_end(); ++vit) {
             add_vertex(**vit);
+            map1[(*vit)->index()] = *vertices_.rbegin();
         }
         for ( Mesh::const_vertex_iterator vit = m2.vertex_begin(); vit != m2.vertex_end(); ++vit) {
             add_vertex(**vit);
+            map2[(*vit)->index()] = *vertices_.rbegin();
         }
         for ( const_iterator tit = m1.begin(); tit != m1.end(); ++tit) {
-            Vertices::iterator vit1 = std::find(all_vertices_->begin(), all_vertices_->end(), tit->s1());
-            Vertices::iterator vit2 = std::find(all_vertices_->begin(), all_vertices_->end(), tit->s2());
-            Vertices::iterator vit3 = std::find(all_vertices_->begin(), all_vertices_->end(), tit->s3());
-            push_back(Triangle(*vit1, *vit2, *vit3));
+            push_back(Triangle(map1[tit->s1().index()], map1[tit->s2().index()], map1[tit->s3().index()]));
         }
         for ( const_iterator tit = m2.begin(); tit != m2.end(); ++tit) {
-            Vertices::iterator vit1 = std::find(all_vertices_->begin(), all_vertices_->end(), tit->s1());
-            Vertices::iterator vit2 = std::find(all_vertices_->begin(), all_vertices_->end(), tit->s2());
-            Vertices::iterator vit3 = std::find(all_vertices_->begin(), all_vertices_->end(), tit->s3());
-            push_back(Triangle(*vit1, *vit2, *vit3));
+            push_back(Triangle(map2[tit->s1().index()], map2[tit->s2().index()], map2[tit->s3().index()]));
         }
         update();
     }

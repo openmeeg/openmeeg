@@ -16,13 +16,13 @@ data_path = options.data_path
 # Load data
 
 subject = 'Head1'
-cond_file = op.join(data_path, 'Models', subject, subject + '.cond')
-geom_file = op.join(data_path, 'Models', subject, subject + '.geom')
-source_mesh_file = op.join(data_path, 'Models', subject, subject + '.tri')
-dipole_file = op.join(data_path, 'Models', subject, subject + '.dip')
-squidsFile = op.join(data_path, 'Computations', subject,
+cond_file = op.join(data_path, subject, subject + '.cond')
+geom_file = op.join(data_path, subject, subject + '.geom')
+source_mesh_file = op.join(data_path, subject, subject + '.tri')
+dipole_file = op.join(data_path, subject, subject + '.dip')
+squidsFile = op.join(data_path, subject,
                         subject + '.squids')
-patches_file = op.join(data_path, 'Computations', subject,
+patches_file = op.join(data_path, subject,
                         subject + '.patches')
 
 geom = om.Geometry()
@@ -101,7 +101,7 @@ print "gain_meg_surf_one_line : %d x %d" % (gain_meg_surf_one_line.nlin(),
 ###############################################################################
 # Compute forward data =
 
-srcFile = op.join(data_path, 'Computations', subject, subject + '.src')
+srcFile = op.join(data_path, subject, subject + '.src')
 sources = om.Matrix()
 sources.load(srcFile)
 
