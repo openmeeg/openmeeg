@@ -101,9 +101,8 @@ print "gain_meg_surf_one_line : %d x %d" % (gain_meg_surf_one_line.nlin(),
 ###############################################################################
 # Compute forward data =
 
-srcFile = op.join(data_path, subject, subject + '.src')
-sources = om.Matrix()
-sources.load(srcFile)
+srcFile = op.join(data_path, subject, subject + '.srcdip')
+sources = om.Matrix(srcFile)
 
 noise_level = 0.0
 est_meg = om.Forward(gain_meg_dip, sources, noise_level)

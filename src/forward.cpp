@@ -74,12 +74,10 @@ int main(int argc, char **argv)
     disp_argv(argc,argv);
 
     // declaration of argument variables======================================================================
-    Matrix GainMatrix;
-    Matrix RealSourcesData;
+    Matrix GainMatrix(argv[1]);
+    Matrix RealSourcesData(argv[2]);
     double NoiseLevel;
 
-    GainMatrix.load(argv[1]);
-    RealSourcesData.load(argv[2]);
     NoiseLevel = atof(argv[4]);
 
     Forward SimulatedData(GainMatrix,RealSourcesData,NoiseLevel);
