@@ -9,7 +9,7 @@
 #include <vtkPolyDataMapper.h>
 #include <vtkPointData.h>
 #include <vtkCellData.h>
-#include <vtkIntArray.h>
+#include <vtkUnsignedIntArray.h>
 #include <vtkDoubleArray.h>
 #include <vtkPolyDataWriter.h>
 
@@ -41,7 +41,6 @@ int main(int argc, char *argv[])
     if ( (std::string(argv[1]) == "--help") || (std::string(argv[1]) == "-h") ) {
         return usage(argv[0]);
     }
-
 
     std::string meshFileName;
     std::string meshFileNameO = meshFileName;
@@ -80,8 +79,12 @@ int main(int argc, char *argv[])
         std::cerr<<"You must give a correct matrix data file !"<<std::endl;
         return usage(argv[0]);
     }
- 
-    
+
+    // get the number of cells and points so we can know where to add our data
+    vtkIdType nbPoints = mesh->GetNumberOfPoints();
+    vtkIdType nbCells = mesh->GetNumberOfCells();
+
+    // Add the data set   
     for ( unsigned j = 0; j < data.ncol(); ++j) {
         std::ostringstream dataname;
         dataname << dataName;
@@ -91,13 +94,10 @@ int main(int argc, char *argv[])
             array->InsertNextValue(data(i, j));
         }
         if (data.ncol() > 1) {
-            dataname << "-" << std::setw(unsigned(log10(data.ncol())+1)) << std::setfill('0') << j;
+            // dataname << "-" << std::setw(unsigned(log10(data.ncol())+1)) << std::setfill('0') << j; with 001 instead of 1
+            dataname << "-" << j;
         }
         array->SetName(dataname.str().c_str());
-
-        // get the number of cells and points so we can know where to add our data
-        vtkIdType nbPoints = mesh->GetNumberOfPoints();
-        vtkIdType nbCells = mesh->GetNumberOfCells();
 
         if (data.nlin() == nbPoints) mesh->GetPointData()->AddArray(array);
         else if (data.nlin() == nbCells) mesh->GetCellData()->AddArray(array);
@@ -106,6 +106,23 @@ int main(int argc, char *argv[])
             return usage(argv[0]);
         }
     }
+
+    // Add a indices dataset
+    vtkSmartPointer<vtkUnsignedIntArray> cell_indices = vtkSmartPointer<vtkUnsignedIntArray>::New(); // indices
+    vtkSmartPointer<vtkUnsignedIntArray> point_indices = vtkSmartPointer<vtkUnsignedIntArray>::New(); // indices
+    cell_indices->SetName("Indices");
+    point_indices->SetName("Indices");
+
+    unsigned i = 0;
+    for ( i = 0; i < nbPoints; ++i) {
+        point_indices->InsertNextValue(i);
+    }
+    for (; i < nbPoints+nbCells; ++i) {
+        cell_indices->InsertNextValue(i);
+    }
+
+    mesh->GetPointData()->AddArray(point_indices);
+    mesh->GetCellData()->AddArray(cell_indices);
 
     // save output to the input file
     vtkSmartPointer<vtkPolyDataWriter> writer = vtkSmartPointer<vtkPolyDataWriter>::New();
