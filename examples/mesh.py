@@ -6,58 +6,47 @@ Created on Sun Feb 14 15:43:44 2010
 """
 
 import numpy as np
+import openmeeg as om
 
 class Mesh():
     '''
-    A class allowing to open .tri files, store the corresponding mesh
+    A class allowing to open meshes
     data (vertices and triangles), and plot their respective surfaces
-
-    To read a .tri file, call the function 'self.read_tri(filename)'
 
     Example:
     --------
-    head = Mesh()
-    head.read_tri("MyHeadFile.tri")
+    head = Mesh("MyHeadFile.tri")
 
     To plot the surface of the corresponding object, call the function
     'self.plot(**kwarg)'. The kwarg options are the one from
-    enthought.mayavi.mlab.triangular_mesh
+    mayavi.mlab.triangular_mesh
 
     '''
     def __init__(self, fname=None):
         self.points = []
         self.faces = []
-        self.normals = []
         if fname is not None:
-            self.read_tri(fname)
+            self.load(fname)
 
-    def read_tri(self, fname):
-        assert(fname.endswith('.tri'))
-        fid = file(fname,"r")
-        # read the number of vertices
-        npoints = int(fid.readline().split()[1])
-        # fills the vertices arrays
-        for _ in xrange(npoints):
-            vals = map(float,fid.readline().split())
-            self.points.append(vals[:3])
-            self.normals.append(vals[3:])
-
-        # Read the number of triangles
-        n_faces = int(fid.readline().split()[1])
-        # create the list of triangles
-        for _ in xrange(n_faces):
-            vals = map(int,fid.readline().split())
-            self.faces.append(vals[:3])
-
-        # Convert to numpy arrays
-        self.points = np.asarray(self.points)
-        self.normals = np.asarray(self.normals)
-        self.faces = np.asarray(self.faces)
+    def load(self, fname):
+        m = om.Mesh(fname)
+        self.points = np.zeros((m.nb_vertices(),3),dtype=float)
+        self.faces  = np.zeros((m.nb_triangles(),3),dtype=int)
+        vit = m.vertex_begin(); iit = 0
+        while vit != m.vertex_end():
+            self.points[iit,:] = [vit.value()(0), vit.value()(1), vit.value()(2)]
+            iit += 1
+            vit.incr()
+        tit = m.begin(); iit = 0
+        while tit != m.end():
+            self.faces[iit,:] = [tit.value().s1().getindex(), tit.value().s2().getindex(), tit.value().s3().getindex()]
+            iit += 1
+            tit.incr()
 
     def plot(self,**kwarg):
         '''Plot mesh with Mayavi
         '''
-        from enthought.mayavi import mlab
+        from mayavi import mlab
         f = mlab.triangular_mesh(self.points[:,0],self.points[:,1],self.points[:,2],self.faces, **kwarg)
         return f
 
