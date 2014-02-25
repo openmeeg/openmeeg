@@ -62,7 +62,7 @@ IF (ENABLE_PYTHON)
 
     # Test Python wrapping
     IF (BUILD_TESTING)
-        EXECUTE_PROCESS(COMMAND ${CMAKE_COMMAND} -E copy ${OpenMEEG_SOURCE_DIR}/data/demo.py ${OpenMEEG_BINARY_DIR}/Wrapping/src/)
+        EXECUTE_PROCESS(COMMAND ${CMAKE_COMMAND} -E copy ${OpenMEEG_SOURCE_DIR}/Wrapping/src/demo.py ${OpenMEEG_BINARY_DIR}/Wrapping/src/)
         ADD_TEST(openmeeg_python
                  ${PYTHON_EXECUTABLE} ${OpenMEEG_BINARY_DIR}/Wrapping/src/demo.py --path ${OpenMEEG_SOURCE_DIR}/data)
     ENDIF()
