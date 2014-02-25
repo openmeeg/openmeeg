@@ -18,8 +18,8 @@
     #include <geometry.h>
     #include <geometry_io.h>
     #include <mesh.h>
-    #include <domain.h>
     #include <interface.h>
+    #include <domain.h>
     #include <assemble.h>
     #include <gain.h>
     #include <forward.h>
@@ -165,8 +165,8 @@ namespace OpenMEEG {
 %include <geometry_io.h>
 %include <sensors.h>
 %include <mesh.h>
-%include <domain.h>
 %include <interface.h>
+%include <domain.h>
 %include <assemble.h>
 %include <gain.h>
 %include <forward.h>
