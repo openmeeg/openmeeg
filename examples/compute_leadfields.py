@@ -59,7 +59,7 @@ else:
     hm.invert()
     hm.save("tmp/hmi.mat")
     hminv = hm
-    # hminv = hm.inverse() # to also test the adjoint method: comment the 2 previous lines, and uncomment this line, and the two others containing 'adjoint'
+    # hminv = hm.inverse() # to also test the adjoint method: comment the 3 previous lines, and uncomment this line, and the two others containing 'adjoint'
 
 if op.exists("tmp/dsm.mat"):
     dsm = om.Matrix("tmp/dsm.mat")
