@@ -173,9 +173,9 @@ namespace OpenMEEG {
                 }
             }
             // Deflate the diagonal block (N33) of 'mat' : (in order to have a zero-mean potential for the outermost interface)
-            const Interface i = geo.outermost_interface();
-            unsigned i_first = (*i.begin()->mesh().vertex_begin())->index();
-            deflat(mat_temp, i, mat_temp(i_first, i_first) / (geo.outermost_interface().nb_vertices()));
+            const Interface interface = geo.outermost_interface();
+            unsigned i_first = (*interface.begin()->mesh().vertex_begin())->index();
+            deflat(mat_temp, interface, mat_temp(i_first, i_first) / (geo.outermost_interface().nb_vertices()));
 
             mat = Matrix(Nl, Nc);
             mat.set(0.0);

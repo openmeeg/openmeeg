@@ -88,6 +88,7 @@ namespace OpenMEEG {
 
         /// Constructors
         Geometry(): has_cond_(false), is_nested_(false), size_(0)  { }
+        Geometry(const std::string& geomFileName, const std::string& condFileName = "", const bool OLD_ORDERING = false): has_cond_(false), is_nested_(false), size_(0)  { read(geomFileName, condFileName, OLD_ORDERING); }
 
               void       info(const bool verbous = false) const; ///< \brief Print information on the geometry
         const bool&      has_cond()                       const { return has_cond_; }

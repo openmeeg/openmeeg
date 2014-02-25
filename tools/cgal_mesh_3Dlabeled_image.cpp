@@ -58,8 +58,8 @@ typedef K::Point_3 Point_3;
 typedef K::FT FT;
 
 int main(int argc, char **argv) {
-    command_usage("Create a BEM mesh from a 3D labeled image (.inr(.gz)) (e.g a mask):");
-    const char * input_filename  = command_option("-i",(const char *) NULL,"Input mesh");
+    command_usage("Create a BEM mesh from a 3D labeled image (e.g a mask):");
+    const char * input_filename  = command_option("-i",(const char *) NULL,"Input image");
     const double radius_bound    = command_option("-fs",1e-1,"facet radius bound of elements");
     const double distance_bound  = command_option("-fd",1e-1,"facet distance bound to the input surface");
     const char * output_filename = command_option("-o",(const char *) NULL,"Output Mesh");
@@ -78,7 +78,7 @@ int main(int argc, char **argv) {
     std::cout << "Input image:\n dimension: " << image.xdim() << "x"<< image.ydim() << "x"<< image.zdim() << std::endl;
 
     // Domain
-    Mesh_domain domain(image);
+    Mesh_domain domain(image, 0);
 
     // Mesh criteria
     Mesh_criteria criteria(facet_angle=30, facet_size=radius_bound, facet_distance=distance_bound);

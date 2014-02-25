@@ -100,6 +100,11 @@ namespace OpenMEEG {
         assemble_Head2ECoG(*this, geo, electrodes.getPositions(), i);
     }
 
+    Head2ECoGMat::Head2ECoGMat(const Geometry& geo, const Sensors& electrodes, const std::string& id)
+    {
+        assemble_Head2ECoG(*this, geo, electrodes.getPositions(), geo.interface(id));
+    }
+
     // MEG patches positions are reported line by line in the positions Matrix (same for positions)
     // mat is supposed to be filled with zeros
     // mat is the linear application which maps x (the unknown vector in symmetric system) -> bFerguson (contrib to MEG response)

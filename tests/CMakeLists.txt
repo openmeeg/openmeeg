@@ -15,12 +15,12 @@ SET_FILE_PROPERTIES(CompareOptions
 OPENMEEG_UNIT_TEST(load_geo
     SOURCES load_geo.cpp
     LIBRARIES OpenMEEG OpenMEEGMaths
-    PARAMETERS ${OpenMEEG_SOURCE_DIR}/data/Models/Head1/Head1.geom ${OpenMEEG_SOURCE_DIR}/data/Models/Head1/Head1.cond)
+    PARAMETERS ${OpenMEEG_SOURCE_DIR}/data/Head1/Head1.geom ${OpenMEEG_SOURCE_DIR}/data/Head1/Head1.cond)
 
 OPENMEEG_UNIT_TEST(test_mesh_ios
     SOURCES test_mesh_ios.cpp
     LIBRARIES OpenMEEG OpenMEEGMaths
-    PARAMETERS ${OpenMEEG_SOURCE_DIR}/data/Models/Head1/Head1.tri)
+    PARAMETERS ${OpenMEEG_SOURCE_DIR}/data/Head1/Head1.tri)
 
 NEW_EXECUTABLE(test_sensors test_sensors.cpp
                LIBRARIES OpenMEEG)
@@ -114,22 +114,27 @@ ELSE()
     SET(VALIDATION_EIT "${CMAKE_CURRENT_BINARY_DIR}/om_validationEIT")
 ENDIF()
 
-FOREACH(HEADGEO "" ${NN})
+FOREACH(HEADGEO "")
     FOREACH(HEADNUM 1 2 ${HEAD3})
         SET(HEAD "Head${HEADGEO}${HEADNUM}")
         SET(DATADIR ${OpenMEEG_SOURCE_DIR}/data)
-        SET(MODELPREFIX ${DATADIR}/Models/${HEAD}/${HEAD})
+        SET(MODELPREFIX ${DATADIR}/${HEAD}/${HEAD})
         SET(TESTPREFIX ${OpenMEEG_BINARY_DIR}/tests/${HEAD})
         # validationEIT geometry.geom conductivity.cond dipoles.dip source.dsm headmatinv.bin out.eit_qgradVj out.eit_diffVf
         OPENMEEG_TEST(
             EITvalidation-dipoles-${HEAD}
             ${VALIDATION_EIT} ${MODELPREFIX}.geom ${MODELPREFIX}.cond
-            ${DATADIR}/Computations/${HEAD}/${HEAD}.dip
+            ${DATADIR}/${HEAD}/${HEAD}.dip
             ${TESTPREFIX}.dsm ${TESTPREFIX}.hm_inv ${TESTPREFIX}.eit_qgradVj ${TESTPREFIX}.eit_diffVf
             DEPENDS HMINV-${HEAD} DSM-${HEAD})
+        FOREACH(DIP 1 2 3 4 5)
+             # Compare the q.gradVj to diffVf in order to validate the EIT problem
+            OPENMEEG_COMPARISON_TEST("EIT-${HEAD}-dip${DIP}"
+                ${HEAD}.eit_qgradVj ${OpenMEEG_BINARY_DIR}/tests/${HEAD}.eit_diffVf -eps ${EPSILON${HEADNUM}} -col ${DIP} -full
+                DEPENDS EITvalidation-dipoles-${HEAD})
+        ENDFOREACH()
     ENDFOREACH()
 ENDFOREACH()
-
 
 FOREACH(DIP 1 2 3 4 5)
     FOREACH(HEADGEO "" ${NN})
@@ -140,10 +145,6 @@ FOREACH(DIP 1 2 3 4 5)
              OPENMEEG_COMPARISON_TEST("EEGinternal-dip-${HEAD}-dip${DIP}"
                 ${HEAD}-dip-internal.est_eeg analytic/eeg_internal_analytic.txt -eps ${EPSILON${HEADNUM}} -col ${DIP} -full
                 DEPENDS InternalPot-dipoles-${HEAD})
-             # Compare the q.gradVj to diffVf in order to validate the EIT problem
-            OPENMEEG_COMPARISON_TEST("EIT-${HEAD}-dip${DIP}"
-                ${HEAD}.eit_qgradVj ${OpenMEEG_BINARY_DIR}/tests/${HEAD}.eit_diffVf -eps ${EPSILON${HEADNUM}} -col ${DIP} -full
-                DEPENDS EITvalidation-dipoles-${HEAD})
         ENDFOREACH()
     ENDFOREACH()
 ENDFOREACH()
@@ -151,15 +152,6 @@ ENDFOREACH()
 # set tests that are expected to fail :
 FOREACH(HEADGEO "1" ${NNa1} ${NNb1})
     SET_TESTS_PROPERTIES(cmp-EEGinternal-dip-Head${HEADGEO}-dip5 PROPERTIES WILL_FAIL TRUE)
-ENDFOREACH()
-FOREACH(HEADGEO ${NNa1})
-    SET_TESTS_PROPERTIES(cmp-EIT-Head${HEADGEO}-dip1 PROPERTIES WILL_FAIL TRUE) # all cmp-EIT-HeadNNa1 tests fail...
-    SET_TESTS_PROPERTIES(cmp-EIT-Head${HEADGEO}-dip2 PROPERTIES WILL_FAIL TRUE)
-ENDFOREACH()
-FOREACH(HEADGEO ${NNa1} ${NNa2})
-    FOREACH(DIP 3 4 5)
-        SET_TESTS_PROPERTIES(cmp-EIT-Head${HEADGEO}-dip${DIP} PROPERTIES WILL_FAIL TRUE)
-    ENDFOREACH()
 ENDFOREACH()
 
 SET(EPSILON1 0.15)

@@ -37,8 +37,8 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#ifndef OPENMEEG_CGAL_MESH_INCLUDE_H
-#define OPENMEEG_CGAL_MESH_INCLUDE_H
+#ifndef OPENMEEG_CGAL_MESH_H
+#define OPENMEEG_CGAL_MESH_H
 
 // for verbosity
 #define CGAL_MESH_3_VERBOSE
@@ -86,4 +86,4 @@ namespace OpenMEEG {
         return m;
     }
 }
-#endif  //! OPENMEEG_CGAL_MESH_INCLUDE_H
+#endif  //! OPENMEEG_CGAL_MESH_H

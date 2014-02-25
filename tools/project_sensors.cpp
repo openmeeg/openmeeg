@@ -91,4 +91,6 @@ int main( int argc, char** argv)
 
     sensors.getPositions() = output;
     sensors.save(output_filename);
+
+    return 0;
 }

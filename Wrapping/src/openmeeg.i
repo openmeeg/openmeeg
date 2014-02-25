@@ -18,8 +18,8 @@
     #include <geometry.h>
     #include <geometry_io.h>
     #include <mesh.h>
-    #include <domain.h>
     #include <interface.h>
+    #include <domain.h>
     #include <assemble.h>
     #include <gain.h>
     #include <forward.h>
@@ -136,6 +136,8 @@ namespace std {
     %template(vector_int) vector<int>;
     %template(vector_unsigned) vector<unsigned int>;
     %template(vector_double) vector<double>;
+    %template(vector_vertex) vector<OpenMEEG::Vertex>;
+    %template(vector_pvertex) vector<OpenMEEG::Vertex *>;
     %template(vector_triangle) vector<OpenMEEG::Triangle>;
     %template(vector_mesh) vector<OpenMEEG::Mesh>;
     %template(vector_string) vector<std::string>;
@@ -143,6 +145,8 @@ namespace std {
 }
 
 namespace OpenMEEG {
+    %typedef std::vector<OpenMEEG::Vertex> Vertices;
+    %typedef std::vector<OpenMEEG::Vertex *> PVertices;
     %typedef std::vector<OpenMEEG::Triangle> Triangles;
     %typedef std::vector<OpenMEEG::Mesh> Meshes;
 }
@@ -161,11 +165,20 @@ namespace OpenMEEG {
 %include <geometry_io.h>
 %include <sensors.h>
 %include <mesh.h>
-%include <domain.h>
 %include <interface.h>
+%include <domain.h>
 %include <assemble.h>
 %include <gain.h>
 %include <forward.h>
+
+%extend OpenMEEG::Vertex {
+    // TODO almost.. if I do: v.index() I get:
+    // <Swig Object of type 'unsigned int *' at 0x22129f0>
+    // I want simply an unsigned. workaround:
+    unsigned int getindex() {
+        return ($self)->index();
+    }
+}
 
 %extend OpenMEEG::Triangle {
     // TODO almost.. if I do: t.index() I get:

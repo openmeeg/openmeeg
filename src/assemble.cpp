@@ -339,7 +339,7 @@ int main(int argc, char** argv)
         geo.read(argv[2], argv[3], OLD_ORDERING);
 
         // Find the mesh of the Ecog electrodes
-        const Interface i = geo.interface(argv[5]);
+        const Interface &i = geo.interface(argv[5]);
 
         // read the file containing the positions of the EEG patches
         Sensors electrodes(argv[4]);
@@ -562,7 +562,7 @@ void getHelp(char** argv) {
     cout << "            Arguments :" << endl;
     cout << "               geometry file (.geom)" << endl;
     cout << "               conductivity file (.cond)" << endl;
-    cout << "               file containing the positions of EEG electrodes (.patches)" << endl;
+    cout << "               file containing the positions of EIT electrodes (.patches)" << endl;
     cout << "               output EITSourceOp" << endl;
 
     cout << "   -Head2EEGMat, -H2EM, -h2em : " << endl;

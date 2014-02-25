@@ -1,19 +1,20 @@
-set GEOMETRY=head_model.geom
-set CONDUCTIVITIES=head_model.cond
-set DIPOLES=cortex_dipoles_small.txt
-set EEG_ELECTRODES=eeg_channels_locations.txt
-set ECOG_ELECTRODES=ecog_electrodes_locations.txt
-set SQUIDS=meg_channels_locations.squids
-set INTERNAL_ELECTRODES=internal_electrodes_locations.txt
+set GEOMETRY=model\head_model.geom
+set CONDUCTIVITIES=model\head_model.cond
+set DIPOLES=model\cortex_dipoles_small.txt
+set EEG_ELECTRODES=model\eeg_channels_locations.txt
+set EIT_ELECTRODES=model\eit_locations.txt
+set ECOG_ELECTRODES=model\ecog_electrodes_locations.txt
+set SQUIDS=model\meg_channels_locations.squids
+set INTERNAL_ELECTRODES=model\internal_electrodes_locations.txt
 
 rem Leadfields
-set EEG_LEADFIELD=eeg_leadfield.mat
-set EEG_LEADFIELD_ADJOINT=eeg_leadfield_adjoint.mat
-set ECOG_LEADFIELD=ecog_leadfield.mat
-set MEG_LEADFIELD=meg_leadfield.mat
-set MEG_LEADFIELD_ADJOINT=meg_leadfield_adjoint.mat
-set EIT_LEADFIELD=eit_leadfield.mat
-set IP_LEADFIELD=ip_leadfield.mat
+set EEG_LEADFIELD=leadfields\eeg_leadfield.mat
+set EEG_LEADFIELD_ADJOINT=leadfields\eeg_leadfield_adjoint.mat
+set ECOG_LEADFIELD=leadfields\ecog_leadfield.mat
+set MEG_LEADFIELD=leadfields\meg_leadfield.mat
+set MEG_LEADFIELD_ADJOINT=leadfields\meg_leadfield_adjoint.mat
+set EIT_LEADFIELD=leadfields\eit_leadfield.mat
+set IP_LEADFIELD=leadfields\ip_leadfield.mat
 
 rem Name temporary matrices
 rem For EEG and MEG
@@ -40,6 +41,7 @@ set IPHM=tmp\tmp.iphm
 set IPSM=tmp\tmp.ipsm
 
 mkdir tmp
+mkdir leadfields
 
 rem Compute EEG gain matrix
 om_assemble -HM %GEOMETRY% %CONDUCTIVITIES% %HM%
@@ -51,7 +53,7 @@ rem with adjoint
 om_gain -EEGadjoint %GEOMETRY% %CONDUCTIVITIES% %DIPOLES% %HM% %H2EM% %EEG_LEADFIELD_ADJOINT%
 
 rem Compute ECoG gain matrix
-om_assemble -H2ECOGM %GEOMETRY% %CONDUCTIVITIES% %ECOG_ELECTRODES% %H2ECOGM%
+om_assemble -H2ECOGM %GEOMETRY% %CONDUCTIVITIES% %ECOG_ELECTRODES% "Cortex" %H2ECOGM%
 om_gain -EEG %HMINV% %DSM% %H2ECOGM% %ECOG_LEADFIELD%
 
 rem Compute MEG gain matrix
@@ -62,7 +64,7 @@ rem with adjoint
 om_gain -MEGadjoint %GEOMETRY% %CONDUCTIVITIES% %DIPOLES% %HM% %H2MM% %DS2MEG% %MEG_LEADFIELD_ADJOINT%
 
 rem Compute EIT gain matrix
-om_assemble -EITSM %GEOMETRY% %CONDUCTIVITIES% %EEG_ELECTRODES% %EITSM%
+om_assemble -EITSM %GEOMETRY% %CONDUCTIVITIES% %EIT_ELECTRODES% %EITSM%
 om_gain -EEG %HMINV% %EITSM% %H2EM% %EIT_LEADFIELD%
 
 rem Compute Internal Potential ...
