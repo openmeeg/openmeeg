@@ -69,12 +69,10 @@ int main( int argc, char **argv) {
     name[6]  = command_option("-n7", (const char *) "7", "Mesh Name");
     output   = command_option("-o" , (const char *) NULL, "Output VTP file");
 
-    const char *output_filename = command_option("-o", (const char *) NULL, "Output VTP mesh");
-
     if ( command_option("-h", (const char *)0, 0) )
         return 0;
 
-    if ( !input[0] || !output_filename ) {
+    if ( !input[0] || !output ) {
         std::cout << "Not enough arguments, try the -h option" << std::endl;
         return 1;
     }

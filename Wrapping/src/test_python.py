@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import openmeeg as om
+import os
 from os import path as op
 from optparse import OptionParser
 
@@ -168,3 +169,8 @@ assert((m2-om.fromarray(mat)).frobenius_norm() < 1e-15)
 #print mat.sum()
 #mat[0:2, 1:3] = 0
 #print mat[0:5, 0:5]
+
+
+#remove useless files
+os.remove(hm_file)
+os.remove(ssm_file)

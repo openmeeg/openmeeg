@@ -91,6 +91,7 @@ namespace OpenMEEG {
     class OPENMEEG_EXPORT Head2ECoGMat: public virtual SparseMatrix {
     public:
         Head2ECoGMat (const Geometry& geo, const Sensors& electrodes, const Interface& i);
+        Head2ECoGMat (const Geometry& geo, const Sensors& electrodes, const std::string& id); // mainly for SWIG
         virtual ~Head2ECoGMat () {};
     };
 

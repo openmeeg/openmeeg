@@ -61,8 +61,9 @@ typedef K::Point_3 Point_3;
 typedef K::FT FT;
 
 int main(int argc, char **argv) {
-    command_usage("Create a BEM mesh from a 3D levelset image (.inr format v4):");
-    const char * input_filename  = command_option("-i",(const char *) NULL,"Input mesh");
+    command_usage("Create a BEM mesh from a 3D levelset image:");
+    const char * input_filename  = command_option("-i",(const char *) NULL,"Input image");
+    const double levelset_value  = command_option("-v", 0.,"Levelset value");
     const bool   inout           = command_option("-inout",false,"Inside out the image ?");
     const double radius_bound    = command_option("-fs",1e-1,"facet radius bound of elements");
     const double distance_bound  = command_option("-fd",1e-1,"facet distance bound to the input surface");
@@ -79,7 +80,6 @@ int main(int argc, char **argv) {
     // Mesh criteria
     bool   positive_inside  = inout;
     double value_outside  = 1.;
-    double levelset_value = 0.;
     Gray_level_image image(input_filename, levelset_value, positive_inside, value_outside); 
     std::cout << "Input INR image:\n dimension: " << image.xdim() << "x"<< image.ydim() << "x"<< image.zdim() << "\n Positive values are " << (positive_inside?"Inside":"Outside") << std::endl;
     // Carefully choose bounding sphere: the center must be inside the
