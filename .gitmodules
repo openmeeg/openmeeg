@@ -4,3 +4,6 @@
 [submodule "contrib/clapack"]
 	path = contrib/clapack
 	url = git://github.com/openmeeg/clapack.git
+[submodule "examples"]
+	path = examples
+	url = git@github.com:openmeeg/openmeeg_sample_data.git
