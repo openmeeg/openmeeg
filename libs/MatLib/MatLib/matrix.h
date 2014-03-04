@@ -42,7 +42,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #include <MatLibConfig.h>
 #include <iostream>
-#include <cassert>
+#include <OMassert.H>
 #include <cstdlib>
 #include <string>
 

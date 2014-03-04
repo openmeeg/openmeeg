@@ -40,7 +40,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #ifndef OPENMEEG_SPARSE_MATRIX_H
 #define OPENMEEG_SPARSE_MATRIX_H
 
-#include <cassert>
+#include <OMassert.H>
 #include <map>
 #include <utility>
 

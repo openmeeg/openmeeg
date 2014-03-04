@@ -40,8 +40,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #ifndef OPENMEEG_VECTOR_H
 #define OPENMEEG_VECTOR_H
 
-#include <iostream>
-#include <cassert>
+#include <OMassert.H>
 #include <cstdlib>
 #include <string>
 

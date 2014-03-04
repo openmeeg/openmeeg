@@ -40,8 +40,8 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #ifndef OPENMEEG_SYMMATRIX_H
 #define OPENMEEG_SYMMATRIX_H
 
+#include <OMassert.H>
 #include <iostream>
-#include <cassert>
 #include <cstdlib>
 #include <string>
 
