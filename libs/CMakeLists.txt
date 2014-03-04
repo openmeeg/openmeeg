@@ -1,1 +1,1 @@
-SUBDIRS(MatLib)
+add_subdirectory(MatLib)
