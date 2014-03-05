@@ -1,5 +1,5 @@
 #include <iostream>
-#include <assert.h>
+#include <OMassert.H>
 
 #include <mesh.h>
 
@@ -53,19 +53,19 @@ int main (int argc, char** argv)
     mesh.save("tmp.tri");
     mesh.load("tmp.tri");
 
-    assert(are_equal(mesh, mesh_orig));
+    om_assert(are_equal(mesh, mesh_orig));
 
     // VTK
     mesh.save("tmp.vtk");
 #ifdef USE_VTK
     mesh.load("tmp.vtk");
-    assert(are_equal(mesh, mesh_orig));
+    om_assert(are_equal(mesh, mesh_orig));
 #endif
 
     // MESH
     mesh.save("tmp.mesh");
     mesh.load("tmp.mesh");
-    assert(are_equal(mesh, mesh_orig));
+    om_assert(are_equal(mesh, mesh_orig));
 
     // BND && OFF that do not store normals
     mesh.save("tmp.bnd");
@@ -76,7 +76,7 @@ int main (int argc, char** argv)
     Mesh mesh2;
     mesh1.load("tmp.bnd");
     mesh2.load("tmp.off");
-    assert(are_equal(mesh1, mesh2));
+    om_assert(are_equal(mesh1, mesh2));
 
     return 0;
 }

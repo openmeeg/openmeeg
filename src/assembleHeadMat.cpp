@@ -126,8 +126,8 @@ namespace OpenMEEG {
         const Interface& Cortex    = SourceDomain.begin()->interface();
         const Mesh& cortex         = Cortex.begin()->mesh();
         // test the assumption
-        assert(SourceDomain.size() == 1);
-        assert(Cortex.size() == 1);
+        om_assert(SourceDomain.size() == 1);
+        om_assert(Cortex.size() == 1);
         // shape of the new matrix:
         unsigned Nl = geo.size()-geo.outermost_interface().nb_triangles()-Cortex.nb_vertices()-Cortex.nb_triangles();
         unsigned Nc = geo.size()-geo.outermost_interface().nb_triangles();

@@ -74,16 +74,16 @@ namespace OpenMEEG {
         ~SparseMatrix() {};
 
         inline double operator()( size_t i, size_t j ) const {
-            assert(i < nlin());
-            assert(j < ncol());
+            om_assert(i < nlin());
+            om_assert(j < ncol());
             const_iterator it = m_tank.find(std::make_pair(i, j));
             if (it != m_tank.end()) return it->second;
             else return 0.0;
         }
 
         inline double& operator()( size_t i, size_t j ) {
-            assert(i < nlin());
-            assert(j < ncol());
+            om_assert(i < nlin());
+            om_assert(j < ncol());
             return m_tank[ std::make_pair( i, j ) ];
         }
 
@@ -123,7 +123,7 @@ namespace OpenMEEG {
     };
 
     inline Vector SparseMatrix::getlin(size_t i) const {
-        assert(i<nlin());
+        om_assert(i<nlin());
         Vector v(ncol());
         for (size_t j=0;j<ncol();j++){
             const_iterator it = m_tank.find(std::make_pair(i, j));
@@ -134,7 +134,7 @@ namespace OpenMEEG {
     }
 
     inline void SparseMatrix::setlin(Vector v, size_t i) {
-        assert(i<nlin());
+        om_assert(i<nlin());
         for (size_t j=0;j<v.nlin();j++){
             (*this)(i,j) = v(j);
         }

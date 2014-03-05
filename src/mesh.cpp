@@ -593,7 +593,7 @@ namespace OpenMEEG {
         // Use gifti_io API
         int read_data = 0; 
         gifti_image* gim = gifti_read_image(filename.c_str(), read_data);
-        assert(gim->numDA >= 2);
+        om_assert(gim->numDA >= 2);
         // find which array contains the points and which the triangles
         unsigned ipts, itrgs;
         unsigned iit = 0;
@@ -605,8 +605,8 @@ namespace OpenMEEG {
             }
             ++iit;
         }
-        assert(gim->darray[ipts]->dims[1] == 3); // 3D points
-        assert(gim->darray[itrgs]->dims[1] == 3); // 3 indices per triangle
+        om_assert(gim->darray[ipts]->dims[1] == 3); // 3D points
+        om_assert(gim->darray[itrgs]->dims[1] == 3); // 3 indices per triangle
         unsigned npts  = gim->darray[ipts]->dims[0];
         unsigned ntrgs = gim->darray[itrgs]->dims[0];
         if ( !read_all ) { 
@@ -680,8 +680,8 @@ namespace OpenMEEG {
 
         delete[] ui;
 
-        assert(vertex_per_face == 3); // Support only for triangulations
-        assert(mesh_time == 1); // Support only 1 time frame
+        om_assert(vertex_per_face == 3); // Support only for triangulations
+        om_assert(mesh_time == 1); // Support only 1 time frame
 
         float* pts_raw = new float[npts*3]; // Points
         is.read((char*)pts_raw, sizeof(float)*npts*3);
@@ -796,7 +796,7 @@ namespace OpenMEEG {
             f >> io_utils::skip_comments('#') >> st;
         }
 
-        assert(st == "NumberPositions=");
+        om_assert(st == "NumberPositions=");
         unsigned npts, ntrgs;
         f >> npts;
 
@@ -810,7 +810,7 @@ namespace OpenMEEG {
         }
 
         f >> io_utils::skip_comments('#') >> st;
-        assert(st == "Positions");
+        om_assert(st == "Positions");
 
         for( unsigned i = 0; i < npts; ++i ) {
             Vertex v;
@@ -819,16 +819,16 @@ namespace OpenMEEG {
         }
 
         f >> io_utils::skip_comments('#') >> st;
-        assert(st == "NumberPolygons=");
+        om_assert(st == "NumberPolygons=");
         f >> io_utils::skip_comments('#') >> ntrgs;
 
         f >> io_utils::skip_comments('#') >> st;
-        assert(st == "TypePolygons=");
+        om_assert(st == "TypePolygons=");
         f >> io_utils::skip_comments('#') >> st;
-        assert(st == "3");
+        om_assert(st == "3");
 
         f >> io_utils::skip_comments('#') >> st;
-        assert(st == "Polygons");
+        om_assert(st == "Polygons");
 
         reserve(ntrgs);
 

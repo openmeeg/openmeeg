@@ -60,7 +60,7 @@ int main( int argc, char** argv)
     }
 
     Matrix squids(input_filename);
-    assert(squids.nlin() == 151);
+    om_assert(squids.nlin() == 151);
 
     FILE* f = fopen(output_filename,"w");
     if (f==NULL)

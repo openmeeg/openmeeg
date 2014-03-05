@@ -49,8 +49,8 @@ using namespace OpenMEEG;
 
 Vector cross_product(const Vector &a, const Vector &b)
 {
-    assert(a.size() == 3);
-    assert(b.size() == 3);
+    om_assert(a.size() == 3);
+    om_assert(b.size() == 3);
     Vector p(3);
     p(0) = a(1)*b(2)-a(2)*b(1);
     p(1) = a(2)*b(0)-a(0)*b(2);
@@ -82,8 +82,8 @@ int main( int argc, char** argv)
 
     Matrix fiducials; fiducials.load(fiducials_filename);
 
-    assert(fiducials.nlin() == 3);
-    assert(fiducials.ncol() == 3);
+    om_assert(fiducials.nlin() == 3);
+    om_assert(fiducials.ncol() == 3);
 
     Vector nas = fiducials.getlin(0); // Nasion
     Vector lpa = fiducials.getlin(1); // Left preauricular

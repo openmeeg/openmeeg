@@ -78,12 +78,12 @@ namespace OpenMEEG {
         double* data() const { return value->data; }
 
         inline double operator()(const size_t i) const {
-            assert(i<nlin());
+            om_assert(i<nlin());
             return value->data[i];
         }
 
         inline double& operator()(const size_t i) {
-            assert(i<nlin());
+            om_assert(i<nlin());
             return value->data[i];
         }
 
@@ -129,7 +129,7 @@ namespace OpenMEEG {
     OPENMEEGMATHS_EXPORT std::istream& operator>>(std::istream& f,Vector &M);
 
     inline Vector Vector::subvect(size_t istart, size_t isize) const {
-        assert (istart+isize<=nlin());
+        om_assert (istart+isize<=nlin());
         Vector a(isize);
         for (size_t i=0; i<isize; i++)
             a(i) = (*this)(istart+i);
@@ -137,7 +137,7 @@ namespace OpenMEEG {
     }
 
     inline Vector Vector::operator+(const Vector& v) const {
-        assert(nlin()==v.nlin());
+        om_assert(nlin()==v.nlin());
         Vector p(*this,DEEP_COPY);
     #ifdef HAVE_BLAS
         BLAS(daxpy,DAXPY)((int)nlin(),1,v.data(),1,p.data(),1);
@@ -149,7 +149,7 @@ namespace OpenMEEG {
     }
 
     inline Vector Vector::operator-(const Vector& v) const {
-        assert(nlin()==v.nlin());
+        om_assert(nlin()==v.nlin());
         Vector p(*this,DEEP_COPY);
     #ifdef HAVE_BLAS
         BLAS(daxpy,DAXPY)((int)nlin(),-1,v.data(),1,p.data(),1);
@@ -161,7 +161,7 @@ namespace OpenMEEG {
     }
 
     inline void Vector::operator+=(const Vector& v) {
-        assert(nlin()==v.nlin());
+        om_assert(nlin()==v.nlin());
     #ifdef HAVE_BLAS
         BLAS(daxpy,DAXPY)((int)nlin(),1,v.data(),1,data(),1);
     #else
@@ -171,7 +171,7 @@ namespace OpenMEEG {
     }
 
     inline void Vector::operator-=(const Vector& v) {
-        assert(nlin()==v.nlin());
+        om_assert(nlin()==v.nlin());
     #ifdef HAVE_BLAS
         BLAS(daxpy,DAXPY)((int)nlin(),-1,v.data(),1,data(),1);
     #else
@@ -181,7 +181,7 @@ namespace OpenMEEG {
     }
 
     inline double Vector::operator*(const Vector& v) const {
-        assert(nlin()==v.nlin());
+        om_assert(nlin()==v.nlin());
     #ifdef HAVE_BLAS
         return BLAS(ddot,DDOT)((int)nlin(),data(),1,v.data(),1);
     #else

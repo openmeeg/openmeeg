@@ -49,7 +49,7 @@ namespace OpenMEEG {
 
     inline SymMatrix SymMatrix::operator*(const SymMatrix &m) const
     {
-        assert(nlin()==m.nlin());
+        om_assert(nlin()==m.nlin());
     #ifdef HAVE_BLAS
         Matrix D(*this);
         Matrix B(m);
@@ -72,7 +72,7 @@ namespace OpenMEEG {
 
     inline Matrix SymMatrix::operator*(const Matrix &B) const
     {
-        assert(ncol()==B.nlin());
+        om_assert(ncol()==B.nlin());
         Matrix C(nlin(),B.ncol());
     #ifdef HAVE_BLAS
         Matrix D(*this);
@@ -100,7 +100,7 @@ namespace OpenMEEG {
         DSPTRF('U',A.nlin(),A.data(),pivots,Info);
         // Solve the linear system AX=B
         DSPTRS('U',A.nlin(),RHS.ncol(),A.data(),pivots,RHS.data(),A.nlin(),Info);
-        assert(Info == 0);
+        om_assert(Info == 0);
         return RHS;
     #else
         std::cerr << "!!!!! solveLin not defined : Try a GMres !!!!!" << std::endl;

@@ -41,7 +41,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #define OPENMEEG_DANIELSSON_H
 
 #include <limits>
-#include <assert.h>
+#include <OMassert.H>
 #include <math.h>
 
 #include <vertex.h>

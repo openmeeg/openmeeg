@@ -287,7 +287,7 @@ namespace OpenMEEG {
                     size_t i = sparse->ir[k];
                     double val = data[k];
                     if (k < (size_t) sparse->jc[sparse->njc-1]) {
-                        assert(current_col < (size_t) sparse->njc);
+                        om_assert(current_col < (size_t) sparse->njc);
                         while((size_t) sparse->jc[current_col + 1] <= k) current_col++; // look for the last idx of jc such that jc[idx+1] > k
                         size_t j = current_col;
                         m(i,j) = val;

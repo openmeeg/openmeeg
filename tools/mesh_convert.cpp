@@ -80,8 +80,8 @@ int main( int argc, char **argv) {
         Matrix mat;
         mat.load(transfmat);
 
-        assert(mat.nlin() == 4);
-        assert(mat.ncol() == 4);
+        om_assert(mat.nlin() == 4);
+        om_assert(mat.ncol() == 4);
 
         double mdet = determinant3x3(mat.submat(0, 3, 0, 3));
         if(mdet < 0 && !invert) // transformation is indirect => should force face flipping
@@ -113,8 +113,8 @@ int main( int argc, char **argv) {
 }
 
 double determinant3x3(const Matrix& mat) {
-    assert(mat.nlin() == mat.ncol());
-    assert(mat.nlin() == 3);
+    om_assert(mat.nlin() == mat.ncol());
+    om_assert(mat.nlin() == 3);
     double f = 0.0;
 
     f += mat(0, 0)*mat(1, 1)*mat(2, 2);
