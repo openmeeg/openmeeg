@@ -46,6 +46,7 @@
 
 */
 
+#include <iostream>
 #include <fstream>
 #include <cstring>
 #include <vector>
@@ -54,7 +55,6 @@
 #include "sparse_matrix.h"
 #include "fast_sparse_matrix.h"
 #include "stdlib.h"
-#include "stdio.h"
 #include "math.h"
 #include "triangle.h"
 #include "options.h"
@@ -316,20 +316,38 @@ int cylindre (char namesurf[], char namepatches[], char namepatchcount[], double
             trianglecounter++;
         }
         // compute and store the electrodes, represented as a collection of 3D positions (patches)
-        F = fopen(namepatches, "w");   // a file for storing the patch coordinates (for all the electrodes)
-        G = fopen(namepatchcount, "w"); // a file for storing the number of patches per electrode (12 lines)
-        for (j=0;j<12;j++){
-            for (i=0; i<maxelectrodetriangles;i++){ // compute the barycenters of the triangles corresponding to each electrode
-                electrodecenter = (T[electrodetriangles[j][i]].s1() + T[electrodetriangles[j][i]].s2() + T[electrodetriangles[j][i]].s3()) / 3.;
-                fprintf(F, "%f %f %f\n", electrodecenter.x(), electrodecenter.y(), electrodecenter.z());	
-            }
-            fprintf(G, "%d\n", i); // the number of patches used to represent electrode j
+
+        // A file for storing the patch coordinates (for all the electrodes)
+        std::ofstream ofs1(namepatches);
+        if (!ofs1) {
+            std::cerr << "Cannot open file " << namepatches << " for writing." << std::endl;
+            exit(1);
         }
-        fclose(F);
-        fclose(G);
+
+        // A file for storing the number of patches per electrode (12 lines)
+        std::ofstream ofs2(namepatchcount);
+        if (!ofs2) {
+            std::cerr << "Cannot open file " << namepatchcount << " for writing." << std::endl;
+            exit(1);
+        }
+        for (j=0;j<12;j++){
+            for (i=0; i<maxelectrodetriangles;++i){ // compute the barycenters of the triangles corresponding to each electrode
+                electrodecenter = (T[electrodetriangles[j][i]].s1() + T[electrodetriangles[j][i]].s2() + T[electrodetriangles[j][i]].s3()) / 3.;
+                ofs1 << electrodecenter.x() << ' ' << electrodecenter.y() << ' ' << electrodecenter.z() << std::endl;
+            }
+            ofs2 << i << std::endl; // the number of patches used to represent electrode j
+        }
     }
     return 0;
 }
+
+template <typename T>
+void input(const char* message,T& value) {
+    std::cout << message;
+    std::cout.flush();
+    std::cin >> value;
+}
+
 int main(int argc, char** argv)
 {
     print_version(argv[0]);
@@ -337,9 +355,10 @@ int main(int argc, char** argv)
     command_usage("Make nerve geometry from existing parameters or make nerve geometry and parameter file from commandline user interface.");
     if ((!strcmp(argv[1], "-h")) | (!strcmp(argv[1], "--help"))) getHelp(argv);
     disp_argv(argc, argv);
-    FILE *F,*Fgeom,*Fcond;
+    FILE *F;
     // char nom[80], s[80];
-    int i, Nc=2, Elec[4], E[1]={-1};
+    const int Nc = 2;
+    int i, Elec[4], E[1]={-1};
     double Ea, Eb, Eb2;
     std::vector<int> Nteta(Nc);
     std::vector<int> Nz(Nc);
@@ -347,63 +366,48 @@ int main(int argc, char** argv)
     std::vector<double> R(Nc);
     std::vector<double> dt(Nc);
     std::vector<double> sig(Nc+1);
-    string name;
     sig[Nc]=0;
 
     if (!strcmp(argv[1], "-makeparameters")){
-        // fprintf(stdout, "number of cylinders (for the moment fixed to 2) :");fflush(stdout);
-        // fscanf(stdin, "%d", &Nc);
-        fprintf(stdout, "size of electrode contact along z :");fflush(stdout);
-        fscanf(stdin, "%lf", &Ea);
-        fprintf(stdout, "distance between first anode and cathode:");fflush(stdout);
-        fscanf(stdin, "%lf", &Eb);
-        fprintf(stdout, "distance between second anode and cathode :");fflush(stdout);
-        fscanf(stdin, "%lf", &Eb2);
+        // input("number of cylinders (for the moment fixed to 2) :",Nc);
+        input("Size of electrode contact along z :",Ea);
+        input("Distance between first anode and cathode:",Eb);
+        input("Distance between second anode and cathode :",Eb2);
 
-        for (i=0;i<Nc;i++)
-        {
-            if (i == 0)
-            {printf(" nerve geometry (inner cylinder)\n");}
-            if (i == 1)
-            {printf(" nerve geometry (outer cylinder containing electrode)\n");}
-            fprintf(stdout, "length :");fflush(stdout);
-            fscanf(stdin, "%lf", &L[i]);
-            fprintf(stdout, "radius :");fflush(stdout);
-            fscanf(stdin, "%lf", &R[i]);
-            fprintf(stdout, "discretization step :");fflush(stdout);
-            fscanf(stdin, "%lf", &dt[i]);
-            fprintf(stdout, "conductivity :");fflush(stdout);
-            fscanf(stdin, "%lf", &sig[i]);
+        for (i=0;i<Nc;++i) {
+            std::cout << " Nerve geometry (" << ((i==0) ? "inner cylinder" : "outer cylinder containing electrode") << std::endl;
+            input("Length :",L[1]);
+            input("Radius :",R[i]);
+            input("Discretization step :",dt[i]);
+            input("Conductivity :",sig[i]);
         }
-        F = fopen (argv[2], "w");
-        fprintf(F, "%lf\n", Ea);
-        fprintf(F, "%lf\n", Eb);
-        fprintf(F, "%lf\n", Eb2);
-        for (i=0;i<Nc;i++)
-        {
-            fprintf(F, "%lf\n", L[i]);
-            fprintf(F, "%lf\n", R[i]);
-            fprintf(F, "%lf\n", dt[i]);
-            fprintf(F, "%lf\n", sig[i]);
+
+        std::ofstream ofs(argv[2]);
+        if (!ofs) {
+            std::cerr << "Cannot open file " << argv[2] << " for writing." << std::endl;
+            return 1;
         }
-        fclose(F);
+        ofs << Ea << std::endl
+            << Eb << std::endl
+            << Eb2 << std::endl;
+        for (i=0;i<Nc;++i) {
+            ofs << L[i] << std::endl
+                << R[i] << std::endl
+                << dt[i] << std::endl
+                << sig[i] << std::endl;
+        }
     }
     else if (!strcmp(argv[1], "-useparameters")){
         // Read parameter file :
-        F = fopen (argv[2], "r");
-        if (F == NULL) {perror ("error fopen: \n"); return -1;}
-        fscanf(F, "%lf", &Ea);
-        fscanf(F, "%lf", &Eb);;
-        fscanf(F, "%lf", &Eb2);
-        for (i=0;i<Nc;i++)
-        {
-            fscanf(F, "%lf", &L[i]);
-            fscanf(F, "%lf", &R[i]);
-            fscanf(F, "%lf", &dt[i]);
-            fscanf(F, "%lf", &sig[i]);
-            /*      fclose(F);*/
+        std::ifstream ifs(argv[2]);
+        if (!ifs) {
+            std::cerr << "Cannot open file " << argv[2] << " for reading." << std::endl;
+            return 1;
         }
-        fclose(F);
+
+        ifs >> Ea >> Eb >> Eb2;
+        for (i=0;i<Nc;++i)
+            ifs >> L[i] >> R[i] >> dt[i] >> sig[i];
     }
 
     else  cerr << "unknown argument: " << argv[1] << endl;
@@ -413,50 +417,60 @@ int main(int argc, char** argv)
     Elec[2]=(int)((L[Nc-1]/2+Ea/2-Eb2/2)/dt[Nc-1] +0.5);
     Elec[3]=(int)(Eb2 /dt[Nc-1] +0.5);
     // saving the corresponding geom and cond files
-    Fgeom = fopen (argv[3], "w");
-    Fcond = fopen (argv[4], "w");
-    if (Fgeom == NULL) {perror ("error fopen: .geom\n"); return -1;}
-    if (Fcond == NULL) {perror ("error fopen: .cond\n"); return -1;}
-    fprintf(Fgeom, "# Domain Description 1.0\n\n");
-    fprintf(Fgeom, "Interfaces %d Mesh\n\n", Nc);
-    fprintf(Fcond, "# Properties Description 1.0 (Conductivities)\n\n");
+
+    std::ofstream ofgeom(argv[3]);
+    if (!ofgeom) {
+        std::cerr << "Cannot open file " << argv[3] << " for writing." << std::endl;
+        return 1;
+    }
+
+    ofgeom << "# Domain Description 1.0" << std::endl << std::endl
+           << "Interfaces " << Nc << " Mesh" << std::endl << std::endl;
     for (i=0;i<Nc;i++){
         cylindre(argv[5+i], argv[7], argv[8], L[i], R[i], dt[i], (i == Nc-1)?(Elec):(E), &Nteta[i], &Nz[i], Ea, Eb, Eb2);
-        name = argv[5+i];
-        name = name.substr(name.rfind("/")+1); // only keep the file name without the directories (after the last /)
-        fprintf(Fgeom, "%s\n", name.c_str());    // c_str to convert string back to char
+        const std::string& name = argv[5+i];
+        // only keep the file name without the directories (after the last /)
+        ofgeom << name.substr(name.rfind("/")+1) << std::endl;
     }
-    fprintf(Fcond, "Air        0.0\n");
-    fprintf(Fcond, "CSF        %lf\n", sig[1]);
-    fprintf(Fcond, "Nerve      %lf\n", sig[0]);
-    fprintf(Fgeom, "\nDomains %d\n\n", Nc+1);
-    fprintf(Fgeom, "Domain CSF 1 -2\n");
-    fprintf(Fgeom, "Domain Nerve -1 shared\n");
-    fprintf(Fgeom, "Domain Air 2\n");
-    fclose(Fgeom);
-    fclose(Fcond);
-    printf("New nerve geometry made.\n");
+    ofgeom << std::endl
+           << "Domains " << Nc+1 << std::endl << std::endl
+           << "Domain CSF 1 -2" << std::endl
+           << "Domain Nerve -1 shared" << std::endl
+           << "Domain Air 2" << std::endl;
+
+    std::ofstream ofcond(argv[4]);
+    if (!ofcond) {
+        std::cerr << "Cannot open file " << argv[4] << " for writing." << std::endl;
+        return 2;
+    }
+    ofcond << "# Properties Description 1.0 (Conductivities)" << std::endl << std::endl
+           << "Air        0.0" << std::endl
+           << "CSF        " << sig[1] << std::endl
+           << "Nerve      " << sig[0] << std::endl;
+
+    std::cerr << "New nerve geometry made." << std::endl;
+
     return 0;
 }
 
 void getHelp(char** argv) {
-    cout << argv[0] <<" [options] [filepaths...]" << endl << endl;
-    cout << "       Arguments :" << endl <<endl;
-    cout << "         -useparameters       " <<endl;
-    cout << "               Input parameter file" << endl;
-    cout << "               Output geom file " << endl;
-    cout << "               Output cond file " << endl;
-    cout << "               Output surf1 tri mesh " << endl;
-    cout << "               Output surf2 tri mesh " << endl;
-    cout << "               Output patches Matrix" << endl;
-    cout << "               Output patchcount Matrix" << endl << endl;
-    cout << "         -makeparameters       " <<endl;
-    cout << "               Output parameter file" << endl;
-    cout << "               Output geom file " << endl;
-    cout << "               Output cond file " << endl;
-    cout << "               Output surf1 tri mesh " << endl;
-    cout << "               Output surf2 tri mesh " << endl;
-    cout << "               Output patches Matrix" << endl;
-    cout << "               Output patchcount Matrix" << endl << endl;
+    std::cerr << argv[0] <<" [options] [filepaths...]"     << std::endl << std::endl
+              << "       Arguments :"                      << std::endl << std::endl
+              << "         -useparameters       "          << std::endl
+              << "               Input parameter file"     << std::endl
+              << "               Output geom file "        << std::endl
+              << "               Output cond file "        << std::endl
+              << "               Output surf1 tri mesh "   << std::endl
+              << "               Output surf2 tri mesh "   << std::endl
+              << "               Output patches Matrix"    << std::endl
+              << "               Output patchcount Matrix" << std::endl << std::endl
+              << "         -makeparameters       "         << std::endl
+              << "               Output parameter file"    << std::endl
+              << "               Output geom file "        << std::endl
+              << "               Output cond file "        << std::endl
+              << "               Output surf1 tri mesh "   << std::endl
+              << "               Output surf2 tri mesh "   << std::endl
+              << "               Output patches Matrix"    << std::endl
+              << "               Output patchcount Matrix" << std::endl << std::endl;
     exit(0);
 }
