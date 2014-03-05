@@ -38,7 +38,6 @@ knowledge of the CeCILL-B license and that you accept its terms.
 */
 
 #include <iostream>
-#include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 
