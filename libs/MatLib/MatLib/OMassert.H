@@ -8,10 +8,16 @@
 //  of cmake with makefile generation only ?)
 //  And throw an exception that can be caught nicely.
 
-#define om_assert(expr)\
+//  Error is the same thing as assert but it is not removed by NDEBUG
+
+#define om_error(expr) \
   ((expr)								\
    ? static_cast<void>(0)						\
    : Assert(__STRING(expr),__FILE__,__LINE__,__PRETTY_FUNCTION__))
+
+//  TODO: Remove om_assert wgen NDEBUG is defined.
+
+#define om_assert(expr) om_error(expr)
 
 inline void Assert(const char* assertion,const char* file,const unsigned line,const char* function) {
     std::cerr << file << ':' << line << ':' << function << ": Assertion `" << assertion << "' failed." << std::endl;

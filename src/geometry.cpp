@@ -175,7 +175,7 @@ namespace OpenMEEG {
             }
             for ( iterator mit = begin(); mit != end(); ++mit) {
                 if ( OLD_ORDERING ) {
-                    om_assert(is_nested_); // OR non nested but without shared vertices
+                    om_error(is_nested_); // OR non nested but without shared vertices
                     for ( Mesh::const_vertex_iterator vit = mit->vertex_begin(); vit != mit->vertex_end(); ++vit, ++index) {
                         (*vit)->index() = index;
                     }

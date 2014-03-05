@@ -53,19 +53,19 @@ int main (int argc, char** argv)
     mesh.save("tmp.tri");
     mesh.load("tmp.tri");
 
-    om_assert(are_equal(mesh, mesh_orig));
+    om_error(are_equal(mesh, mesh_orig));
 
     // VTK
     mesh.save("tmp.vtk");
 #ifdef USE_VTK
     mesh.load("tmp.vtk");
-    om_assert(are_equal(mesh, mesh_orig));
+    om_error(are_equal(mesh, mesh_orig));
 #endif
 
     // MESH
     mesh.save("tmp.mesh");
     mesh.load("tmp.mesh");
-    om_assert(are_equal(mesh, mesh_orig));
+    om_error(are_equal(mesh, mesh_orig));
 
     // BND && OFF that do not store normals
     mesh.save("tmp.bnd");
@@ -76,7 +76,7 @@ int main (int argc, char** argv)
     Mesh mesh2;
     mesh1.load("tmp.bnd");
     mesh2.load("tmp.off");
-    om_assert(are_equal(mesh1, mesh2));
+    om_error(are_equal(mesh1, mesh2));
 
     return 0;
 }

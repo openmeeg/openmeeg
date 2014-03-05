@@ -37,6 +37,7 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
+#include <OMassert.H>
 #include "geometry.h"
 #include "matrix.h"
 #include "options.h"
@@ -44,7 +45,17 @@ knowledge of the CeCILL-B license and that you accept its terms.
 using namespace std;
 using namespace OpenMEEG;
 
-double determinant3x3(const Matrix& mat);
+//  Should not be here...
+
+double determinant3x3(const Matrix& mat) {
+
+    om_assert(mat.nlin() == mat.ncol());
+    om_assert(mat.nlin() == 3);
+
+    return mat(0,0)*(mat(1,1)*mat(2,2)-mat(1,2)*mat(2,1))+
+           mat(0,2)*(mat(1,0)*mat(2,1)-mat(1,1)*mat(2,0))+
+           mat(0,1)*(mat(1,2)*mat(2,0)-mat(1,0)*mat(2,2));
+}
 
 int main( int argc, char **argv) {
     print_version(argv[0]);
@@ -80,17 +91,16 @@ int main( int argc, char **argv) {
         Matrix mat;
         mat.load(transfmat);
 
-        om_assert(mat.nlin() == 4);
-        om_assert(mat.ncol() == 4);
-
-        double mdet = determinant3x3(mat.submat(0, 3, 0, 3));
-        if(mdet < 0 && !invert) // transformation is indirect => should force face flipping
-        {
-            std::cout << "Warning : Transformation is indirect use -invert option to force face flipping" << std::endl;
+        if ((mat.nlin()!=4) || (mat.ncol()!=4)) {
+            std::cerr << "Transformation matrix are 4x4 matrices, the one provided is " << mat.nlin() << 'x' << mat.ncol() << std::endl;
+            return 2;
         }
 
-        for ( Mesh::vertex_iterator vit = m.vertex_begin(); vit != m.vertex_end(); ++vit)
-        {
+        double mdet = determinant3x3(mat.submat(0, 3, 0, 3));
+        if (mdet < 0 && !invert) // transformation is indirect => should force face flipping
+            std::cout << "Warning : Transformation is indirect use -invert option to force face flipping" << std::endl;
+
+        for ( Mesh::vertex_iterator vit = m.vertex_begin(); vit != m.vertex_end(); ++vit) {
             Vertex& v = **vit;
             Vector point(4);
             point.set(1.0);
@@ -111,19 +121,3 @@ int main( int argc, char **argv) {
 
     return 0;
 }
-
-double determinant3x3(const Matrix& mat) {
-    om_assert(mat.nlin() == mat.ncol());
-    om_assert(mat.nlin() == 3);
-    double f = 0.0;
-
-    f += mat(0, 0)*mat(1, 1)*mat(2, 2);
-    f += mat(0, 2)*mat(1, 0)*mat(2, 1);
-    f += mat(0, 1)*mat(1, 2)*mat(2, 0);
-    f -= mat(0, 2)*mat(1, 1)*mat(2, 0);
-    f -= mat(0, 0)*mat(1, 2)*mat(2, 1);
-    f -= mat(0, 1)*mat(1, 0)*mat(2, 2);
-
-    return f;
-}
-

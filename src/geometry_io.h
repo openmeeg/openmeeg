@@ -184,7 +184,7 @@ namespace OpenMEEG {
             if (data.nlin() == size()) {
                 HAS_OUTERMOST = true;
             } else {
-                om_assert( data.nlin() == size() - outermost_interface().nb_triangles() );
+                om_error(data.nlin()==size()-outermost_interface().nb_triangles());
             }
             for ( unsigned j = 0; j < data.ncol(); ++j) {
                 std::stringstream sdip;

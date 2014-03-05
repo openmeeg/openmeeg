@@ -47,6 +47,8 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 using namespace OpenMEEG;
 
+//  Should not be here.
+
 Vector cross_product(const Vector &a, const Vector &b)
 {
     om_assert(a.size() == 3);
@@ -82,8 +84,9 @@ int main( int argc, char** argv)
 
     Matrix fiducials; fiducials.load(fiducials_filename);
 
-    om_assert(fiducials.nlin() == 3);
-    om_assert(fiducials.ncol() == 3);
+    if ((fiducials.nlin()!=3) ||
+        (fiducials.ncol()!=3))
+        throw std::invalid_argument("OpenMEEG only handles 3 3D fiducial points.");
 
     Vector nas = fiducials.getlin(0); // Nasion
     Vector lpa = fiducials.getlin(1); // Left preauricular

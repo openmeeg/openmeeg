@@ -37,6 +37,7 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
+#include <sstream>
 #include <mesh.h>
 #include <Triangle_triangle_intersection.h>
 
@@ -593,7 +594,10 @@ namespace OpenMEEG {
         // Use gifti_io API
         int read_data = 0; 
         gifti_image* gim = gifti_read_image(filename.c_str(), read_data);
-        om_assert(gim->numDA >= 2);
+
+        if (gim->numDA!=2)
+            throw std::invalid_argument("OpenMEEG only handles gifti files containing two arrays.");
+
         // find which array contains the points and which the triangles
         unsigned ipts, itrgs;
         unsigned iit = 0;
@@ -605,8 +609,10 @@ namespace OpenMEEG {
             }
             ++iit;
         }
-        om_assert(gim->darray[ipts]->dims[1] == 3); // 3D points
-        om_assert(gim->darray[itrgs]->dims[1] == 3); // 3 indices per triangle
+        if ((gim->darray[ipts]->dims[1]!=3) || // 3D points
+            (gim->darray[itrgs]->dims[1]!=3))  // 3 indices per triangle
+            throw std::invalid_argument("OpenMEEG only handles 3D surfacic meshes.");
+
         unsigned npts  = gim->darray[ipts]->dims[0];
         unsigned ntrgs = gim->darray[itrgs]->dims[0];
         if ( !read_all ) { 
@@ -680,8 +686,10 @@ namespace OpenMEEG {
 
         delete[] ui;
 
-        om_assert(vertex_per_face == 3); // Support only for triangulations
-        om_assert(mesh_time == 1); // Support only 1 time frame
+        if (vertex_per_face!=3) // Support only for triangulations
+            throw std::invalid_argument("OpenMEEG only handles 3D surfacic meshes.");
+        if (mesh_time!=1) // Support only 1 time frame
+            throw std::invalid_argument("OpenMEEG only handles 3D surfacic meshes with one time frame.");
 
         float* pts_raw = new float[npts*3]; // Points
         is.read((char*)pts_raw, sizeof(float)*npts*3);
@@ -730,8 +738,9 @@ namespace OpenMEEG {
     {
         std::ifstream f(filename.c_str(), std::ios::binary);
         if ( !f.is_open()) {
-            std::cerr << "Error opening MESH file: " << filename << std::endl;
-            exit(1);
+            std::ostringstream ost;
+            ost << "Error opening MESH file: " << filename << std::endl;
+            throw std::invalid_argument(ost.str());
         }
         unsigned return_value = 0;
         return_value = load_mesh(f, read_all);
@@ -773,9 +782,10 @@ namespace OpenMEEG {
     {
         std::string s = filename;
         std::ifstream f(filename.c_str());
-        if ( !f.is_open() ) {
-            std::cerr << "Error opening TRI file: " << filename << std::endl;
-            exit(1);
+        if (!f.is_open()) {
+            std::ostringstream ost;
+            ost << "Error opening TRI file: " << filename << std::endl;
+            throw std::invalid_argument(ost.str());
         }
         unsigned return_value = 0;
         return_value = load_tri(f, read_all);
@@ -796,7 +806,7 @@ namespace OpenMEEG {
             f >> io_utils::skip_comments('#') >> st;
         }
 
-        om_assert(st == "NumberPositions=");
+        om_error(st == "NumberPositions=");
         unsigned npts, ntrgs;
         f >> npts;
 
@@ -810,7 +820,7 @@ namespace OpenMEEG {
         }
 
         f >> io_utils::skip_comments('#') >> st;
-        om_assert(st == "Positions");
+        om_error(st == "Positions");
 
         for( unsigned i = 0; i < npts; ++i ) {
             Vertex v;
@@ -819,16 +829,16 @@ namespace OpenMEEG {
         }
 
         f >> io_utils::skip_comments('#') >> st;
-        om_assert(st == "NumberPolygons=");
+        om_error(st == "NumberPolygons=");
         f >> io_utils::skip_comments('#') >> ntrgs;
 
         f >> io_utils::skip_comments('#') >> st;
-        om_assert(st == "TypePolygons=");
+        om_error(st == "TypePolygons=");
         f >> io_utils::skip_comments('#') >> st;
-        om_assert(st == "3");
+        om_error(st == "3");
 
         f >> io_utils::skip_comments('#') >> st;
-        om_assert(st == "Polygons");
+        om_error(st == "Polygons");
 
         reserve(ntrgs);
 
