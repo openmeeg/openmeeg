@@ -42,7 +42,15 @@ SetRevision(2 3 0 dev)
 #   * otherwise use download and compile locally the package as an external 
 #     module.
 
-#add_external_projects(zlib msinttypes hdf5 matio clapack OpenMEEG)
-add_external_projects(zlib hdf5)
+set(MSINTTYPES)
+if (WIN32 AND NOT CYGWIN_INSTALL_PATH)
+    set(MSINTTYPES msinttypes)
+    set(INTTYPES_INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/contrib/msinttypes-r26)
+    set(CMAKE_REQUIRED_INCLUDES ${INTTYPES_INCLUDES})
+    include_directories(AFTER SYSTEM ${INTTYPES_INCLUDES})
+endif()
+
+#add_external_projects(zlib ${MSINTTYPES} hdf5 matio clapack OpenMEEG)
+add_external_projects(zlib ${MSINTTYPES} hdf5)
 
 #include(Packaging)
