@@ -9,11 +9,11 @@
 // building a DLL on windows.
 
 #if defined (WIN32)
-  #if defined(OpenMEEG_EXPORTS)
-    #define  OPENMEEG_EXPORT __declspec(dllexport)
-  #else
-    #define  OPENMEEG_EXPORT __declspec(dllimport)
-  #endif /* OpenMEEG_EXPORTS */
+    #if defined(OpenMEEG_EXPORTS)
+        #define  OPENMEEG_EXPORT __declspec(dllexport)
+    #else
+        #define  OPENMEEG_EXPORT __declspec(dllimport)
+    #endif /* OpenMEEG_EXPORTS */
 #else /* defined (WIN32) */
- #define OPENMEEG_EXPORT
+    #define OPENMEEG_EXPORT
 #endif

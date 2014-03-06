@@ -37,8 +37,7 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#ifndef OPENMEEG_DOMAIN_H
-#define OPENMEEG_DOMAIN_H
+#pragma once
 
 /*! \file
     \brief file containing the definition of a Domain.
@@ -124,5 +123,3 @@ namespace OpenMEEG {
     /// A vector of Domain is called Domains
     typedef std::vector<Domain > Domains;
 }
-
-#endif  //  ! OPENMEEG_DOMAIN_H

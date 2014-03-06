@@ -37,8 +37,7 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#ifndef UTILS_PROPERTIES
-#define UTILS_PROPERTIES
+#pragma once
 
 #include <string>
 #include <map>
@@ -143,5 +142,3 @@ namespace Utils {
         }
     }
 }
-
-#endif  //  ! UTILS_PROPERTIES

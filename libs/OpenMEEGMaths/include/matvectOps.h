@@ -37,8 +37,7 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#ifndef OPENMEEG_MATVECTOPS_H
-#define OPENMEEG_MATVECTOPS_H
+#pragma once
 
 #include "vector.h"
 #include "matrix.h"
@@ -108,4 +107,3 @@ namespace OpenMEEG {
     #endif
     }
 }
-#endif // ! OPENMEEG_MATVECTOPS_H

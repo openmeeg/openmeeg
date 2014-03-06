@@ -37,8 +37,7 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#ifndef OPENMEEG_GEOMETRY_READER_H
-#define OPENMEEG_GEOMETRY_READER_H
+#pragma once
 
 #include <vector>
 #include <interface.h>
@@ -391,5 +390,3 @@ namespace OpenMEEG {
         }
     }
 }
-
-#endif  //! OPENMEEG_GEOMETRY_READER_H

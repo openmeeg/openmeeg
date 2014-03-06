@@ -37,8 +37,7 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#ifndef OPENMEEG_FAST_SPARSE_MATRIX_H
-#define OPENMEEG_FAST_SPARSE_MATRIX_H
+#pragma once
 
 #include "OpenMEEGMathsConfig.h"
 #include "vector.h"
@@ -257,4 +256,3 @@ namespace OpenMEEG {
         return result;
     }
 }
-#endif /* OPENMEEG_FAST_SPARSE_MATRIX_H */

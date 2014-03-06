@@ -37,8 +37,7 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#ifndef OPENMEEG_UTILS_H
-#define OPENMEEG_UTILS_H
+#pragma once
 
 #if WIN32
 #define _USE_MATH_DEFINES
@@ -163,5 +162,3 @@ namespace OpenMEEG {
         std::cout << cmd << " version " << version << " compiled at " << __DATE__ << " " << __TIME__ << std::endl << std::endl;
     }
 }
-
-#endif /* OPENMEEG_UTILS_H */

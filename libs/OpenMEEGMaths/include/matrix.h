@@ -37,8 +37,7 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#ifndef OPENMEEG_MATRIX_H
-#define OPENMEEG_MATRIX_H
+#pragma once
 
 #include <OpenMEEGMathsConfig.h>
 #include <iostream>
@@ -512,4 +511,3 @@ namespace OpenMEEG {
     #endif
     }
 }
-#endif  // ! OPENMEEG_MATRIX_H

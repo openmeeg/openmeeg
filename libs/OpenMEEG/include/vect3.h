@@ -37,8 +37,7 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#ifndef OPENMEEG_VECT3_H
-#define OPENMEEG_VECT3_H
+#pragma once
 
 #if WIN32
 #define _USE_MATH_DEFINES
@@ -162,5 +161,3 @@ namespace OpenMEEG {
     typedef Vect3                Normal;
     typedef std::vector<Normal>  Normals;
 }
-
-#endif  //! OPENMEEG_VECT3_H

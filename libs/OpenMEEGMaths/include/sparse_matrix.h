@@ -37,8 +37,7 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#ifndef OPENMEEG_SPARSE_MATRIX_H
-#define OPENMEEG_SPARSE_MATRIX_H
+#pragma once
 
 #include <OMassert.H>
 #include <map>
@@ -140,4 +139,3 @@ namespace OpenMEEG {
         }
     }
 }
-#endif  //! OPENMEEG_SPARSE_MATRIX_H

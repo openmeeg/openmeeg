@@ -37,8 +37,7 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#ifndef OPENMEEG_ASCIIIO_H
-#define OPENMEEG_ASCIIIO_H
+#pragma once
 
 #include <sstream>
 
@@ -313,5 +312,3 @@ namespace OpenMEEG {
         };
     }
 }
-
-#endif  //! OPENMEEG_ASCIIIO_H

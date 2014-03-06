@@ -37,8 +37,7 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#ifndef OPENMEEG_SENSORS_H
-#define OPENMEEG_SENSORS_H
+#pragma once
 
 #include <fstream>
 #include <sstream>
@@ -166,5 +165,3 @@ namespace OpenMEEG {
         return m_orientations.setlin(idx,orient);
     }
 }
-
-#endif  //! OPENMEEG_SENSORS_H

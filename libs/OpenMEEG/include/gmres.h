@@ -37,8 +37,7 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#ifndef OPENMEEG_GMRES_H
-#define OPENMEEG_GMRES_H
+#pragma once
 
 #include "vector.h"
 #include "matrix.h"
@@ -184,4 +183,3 @@ namespace OpenMEEG {
         return 1;
     }
 }
-#endif //!OPENMEEG_GMRES_H

@@ -37,8 +37,7 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#ifndef OPENMEEG_SYMMATRIX_H
-#define OPENMEEG_SYMMATRIX_H
+#pragma once
 
 #include <OMassert.H>
 #include <iostream>
@@ -363,4 +362,3 @@ namespace OpenMEEG {
         for ( size_t j = 0; j < ncol(); ++j) this->operator()(i,j) = v(j);
     }
 }
-#endif  //! OPENMEEG_SYMMATRIX_H

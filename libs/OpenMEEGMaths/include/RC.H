@@ -1,7 +1,6 @@
 //  This code is from the book "More Effective C++" by Scott Meyers (1996).
 
-#ifndef RC_H
-#define RC_H
+#pragma once
 
 namespace utils {
 
@@ -140,5 +139,3 @@ namespace utils {
         return *this;
     }
 }
-
-#endif  //  ! RC_H

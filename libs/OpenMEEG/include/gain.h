@@ -37,8 +37,7 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#ifndef OPENMEEG_GAIN_H
-#define OPENMEEG_GAIN_H
+#pragma once
 
 #define USE_GMRES 0
 
@@ -204,4 +203,3 @@ namespace OpenMEEG {
         ~GainStimInternalPot () {};
     };
 }
-#endif  //! OPENMEEG_GAIN_H

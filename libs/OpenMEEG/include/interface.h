@@ -37,8 +37,7 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#ifndef OPENMEEG_INTERFACE_H
-#define OPENMEEG_INTERFACE_H
+#pragma once
 
 #include <string>
 #include <sstream>
@@ -125,5 +124,3 @@ namespace OpenMEEG {
     /// A vector of Interface is called Interfaces
     typedef std::vector<Interface> Interfaces;
 }
-
-#endif  //  ! OPENMEEG_INTERFACE_H

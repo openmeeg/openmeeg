@@ -37,8 +37,7 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#ifndef OPENMEEG_MATRIXIO_H
-#define OPENMEEG_MATRIXIO_H
+#pragma once
 
 #include <iostream>
 #include <fstream>
@@ -209,4 +208,3 @@ namespace OpenMEEG {
         OPENMEEGMATHS_EXPORT LinOpInfo info(const char* name);
     }
 }
-#endif  //! OPENMEEG_MATRIXIO_H

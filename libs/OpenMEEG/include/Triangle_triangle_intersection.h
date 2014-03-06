@@ -1,5 +1,4 @@
-#ifndef OPENMEEG_TRIANGTRIANG_H
-#define OPENMEEG_TRIANGTRIANG_H
+#pragma once
 /*****************************************************************************/
 /*                                                                           */
 /*  Fast and Robust Triangle-Triangle Overlap Test                           */
@@ -568,5 +567,3 @@ namespace OpenMEEG {
         return sqrt(DOT(N,N)) / 2;
     }
 }
-
-#endif  //! OPENMEEG_TRIANGTRIANG_H

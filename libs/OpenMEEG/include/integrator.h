@@ -37,8 +37,7 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#ifndef OPENMEEG_INTEGRATOR_H
-#define OPENMEEG_INTEGRATOR_H
+#pragma once
 
 #include <cmath>
 #include <iostream>
@@ -282,5 +281,3 @@ namespace OpenMEEG {
         }
     };
 }
-
-#endif  //! OPENMEEG_INTEGRATOR_H

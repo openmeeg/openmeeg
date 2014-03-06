@@ -37,8 +37,7 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#ifndef OPENMEEG_TRIANGLE_H
-#define OPENMEEG_TRIANGLE_H
+#pragma once
 
 #include <cstdlib>
 #include <vector>
@@ -150,5 +149,3 @@ namespace OpenMEEG {
 
     typedef std::vector<Triangle> Triangles;
 }
-
-#endif  //! OPENMEEG_TRIANGLE_H

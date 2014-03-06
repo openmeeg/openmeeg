@@ -37,8 +37,7 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#ifndef OPENMEEG_GEOMETRY_H
-#define OPENMEEG_GEOMETRY_H
+#pragma once
 
 #include <OMassert.H>
 #include <set>
@@ -141,5 +140,3 @@ namespace OpenMEEG {
               double  funct_on_domains(const Mesh&, const Mesh&, const Function& ) const;
     };
 }
-
-#endif  //! OPENMEEG_GEOMETRY_H

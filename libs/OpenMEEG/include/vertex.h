@@ -37,8 +37,7 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#ifndef OPENMEEG_VERTEX_H
-#define OPENMEEG_VERTEX_H
+#pragma once
 
 #include <vector>
 #include <vect3.h>
@@ -76,5 +75,3 @@ namespace OpenMEEG {
 
     typedef std::vector<Vertex> Vertices;
 }
-
-#endif  //! OPENMEEG_VERTEX_H

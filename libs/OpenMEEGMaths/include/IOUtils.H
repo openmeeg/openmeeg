@@ -37,8 +37,7 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#ifndef IOUTILS_H
-#define IOUTILS_H
+#pragma once
 
 #include <iostream>
 #include <string>
@@ -522,5 +521,3 @@ namespace io_utils {
         return imanip2<std::string&, const char&>(token_internal,str,del);
     }
 }
-
-#endif  //  !IOUTILS_H

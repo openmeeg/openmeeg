@@ -37,8 +37,7 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#ifndef DATATAG_H
-#define DATATAG_H
+#pragma once
 
 #include <string>
 #include <iostream>
@@ -80,5 +79,3 @@ namespace Types {
         return is;
     }
 }
-
-#endif  // !DATATAG_H

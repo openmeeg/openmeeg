@@ -37,8 +37,7 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#ifndef OPENMEEG_TRIVIALBINIO_H
-#define OPENMEEG_TRIVIALBINIO_H
+#pragma once
 
 #include "MathsIO.H"
 #include "sparse_matrix.h"
@@ -232,4 +231,3 @@ namespace OpenMEEG {
         };
     }
 }
-#endif  //! OPENMEEG_TRIVIALBINIO_H

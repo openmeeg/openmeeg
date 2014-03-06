@@ -40,8 +40,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 /*! \file
     \brief file containing the integral operators
 */
-#ifndef OPENMEEG_OPERATORS_H
-#define OPENMEEG_OPERATORS_H
+#pragma once
 
 #include <iostream>
 
@@ -441,5 +440,3 @@ namespace OpenMEEG {
         return result;
     }
 }
-
-#endif  //! OPENMEEG_OPERATORS_H

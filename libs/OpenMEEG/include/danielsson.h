@@ -37,8 +37,7 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#ifndef OPENMEEG_DANIELSSON_H
-#define OPENMEEG_DANIELSSON_H
+#pragma once
 
 #include <limits>
 #include <OMassert.H>
@@ -53,5 +52,3 @@ namespace OpenMEEG {
     double dist_point_cell(const Vect3&, const Triangle& , Vect3&, bool&);
     OPENMEEG_EXPORT double dist_point_interface(const Vect3&, const Interface&, Vect3&, Triangle&);
 }
-
-#endif  //! OPENMEEG_DANIELSSON_H

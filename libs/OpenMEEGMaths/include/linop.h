@@ -37,8 +37,7 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#ifndef OPENMEEG_LINOP_H
-#define OPENMEEG_LINOP_H
+#pragma once
 
 #include <cstdlib>
 
@@ -146,4 +145,3 @@ namespace OpenMEEG {
         bool empty() const { return data==0; }
     };
 }
-#endif  //! OPENMEEG_LINOP_H

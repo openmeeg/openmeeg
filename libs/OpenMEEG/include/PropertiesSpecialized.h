@@ -37,8 +37,7 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#ifndef OPENMEEG_PROPERTIES_SPECIALIZED_H
-#define OPENMEEG_PROPERTIES_SPECIALIZED_H
+#pragma once
 
 #include "Properties.H"
 #include "DataTag.H"
@@ -71,5 +70,3 @@ namespace Types {
     };
     const char DataTrait<Utils::Properties::Named<std::string,OpenMEEG::Conductivity<double> > >::TAG[]= "Conductivities";
 };
-
-#endif  //! OPENMEEG_PROPERTIES_SPECIALIZED_H

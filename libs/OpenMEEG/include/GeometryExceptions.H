@@ -37,8 +37,7 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#ifndef OPENMEEG_GEOMETRYEXCEPTIONS_H
-#define OPENMEEG_GEOMETRYEXCEPTIONS_H
+#pragma once
 
 #include <string>
 #include <sstream>
@@ -268,5 +267,3 @@ namespace OpenMEEG {
         ExceptionCode code() const throw() { return DIFF_IMG; }
     };
 }
-
-#endif // !OPENMEEG_GEOMETRYEXCEPTIONS_H

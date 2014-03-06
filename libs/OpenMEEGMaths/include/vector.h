@@ -37,8 +37,7 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#ifndef OPENMEEG_VECTOR_H
-#define OPENMEEG_VECTOR_H
+#pragma once
 
 #include <OMassert.H>
 #include <cstdlib>
@@ -260,4 +259,3 @@ namespace OpenMEEG {
 
     OPENMEEGMATHS_EXPORT inline Vector operator*(const double &d, const Vector &v) { return v*d; }
 }
-#endif  //! OPENMEEG_VECTOR_H

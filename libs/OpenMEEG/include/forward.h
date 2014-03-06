@@ -37,8 +37,7 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#ifndef OPENMEEG_FORWARD_H
-#define OPENMEEG_FORWARD_H
+#pragma once
 
 #include "matrix.h"
 #include "symmatrix.h"
@@ -67,5 +66,3 @@ namespace OpenMEEG {
         compute_forward(*this, GainMatrix, RealSourcesData, NoiseLevel);
     }
 }
-
-#endif //OPENMEEG_FORWARD_H

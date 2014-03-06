@@ -1,5 +1,4 @@
-#ifndef _OpenMEEGMaths_DLLDEFINES_H_
-#define _OpenMEEGMaths_DLLDEFINES_H_
+#pragma once
 
 /* Cmake will define OpenMEEGMaths_EXPORTS on Windows when it
 configures to build a shared library. If you are going to use
@@ -33,5 +32,3 @@ building a DLL on windows.
 #else /* defined (WIN32) */
  #define OPENMEEGMATHS_EXPORT
 #endif
-
-#endif /* _OpenMEEGMaths_DLLDEFINES_H_ */

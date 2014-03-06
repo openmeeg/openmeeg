@@ -37,8 +37,7 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#ifndef OPENMEEG_MESH_H
-#define OPENMEEG_MESH_H
+#pragma once
 
 // for IO:s
 #include <iostream>
@@ -256,5 +255,3 @@ namespace OpenMEEG {
     /// A vector of Mesh is called Meshes
     typedef std::vector<Mesh>        Meshes;
 }
-
-#endif  //  ! OPENMEEG_MESH_H
