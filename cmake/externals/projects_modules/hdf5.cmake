@@ -39,9 +39,6 @@ function(hdf5_project)
         # Add specific cmake arguments for configuration step of the project
 
         set(ep_optional_args)
-        if (CTEST_USE_LAUNCHERS)
-            set(ep_optional_args "-DCMAKE_PROJECT_ITK_INCLUDE:FILEPATH=${CMAKE_ROOT}/Modules/CTestUseLaunchers.cmake")
-        endif()
 
         # set compilation flags
 
