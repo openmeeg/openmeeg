@@ -1,5 +1,5 @@
-SUBDIRS(MatLib)
+add_subdirectory(MatLib)
 
-IF (BUILD_TESTING)
-    SUBDIRS(Test)
-ENDIF ()
+if (BUILD_TESTING)
+    add_subdirectory(Test)
+endif()
