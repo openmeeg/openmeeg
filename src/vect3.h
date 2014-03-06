@@ -47,7 +47,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <cstdlib>
 #include <cmath>
 #include <iostream>
-#include <cassert>
+#include <OMassert.H>
 #include <vector>
 
 #include <DLLDefinesOpenMEEG.h>
@@ -114,12 +114,12 @@ namespace OpenMEEG {
         inline Vect3 operator/(const double& d) const { return Vect3(m[0]/d, m[1]/d, m[2]/d); }
 
         inline double operator() (const int i) const {
-            assert(i>=0 && i<3);
+            om_assert(i>=0 && i<3);
             return m[i];
         }
 
         inline double& operator()(const int i) {
-            assert(i>=0 && i<3);
+            om_assert(i>=0 && i<3);
             return m[i];
         }
 

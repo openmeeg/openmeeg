@@ -68,7 +68,7 @@ namespace OpenMEEG {
 
     Matrix SparseMatrix::operator*(const SymMatrix &mat) const
     {
-        assert(ncol()==mat.nlin());
+        om_assert(ncol()==mat.nlin());
         Matrix out(nlin(),mat.ncol());
         out.set(0.0);
 
@@ -87,7 +87,7 @@ namespace OpenMEEG {
 
     Matrix SparseMatrix::operator*(const Matrix &mat) const
     {
-        assert(ncol()==mat.nlin());
+        om_assert(ncol()==mat.nlin());
         Matrix out(nlin(),mat.ncol());
         out.set(0.0);
 
@@ -106,7 +106,7 @@ namespace OpenMEEG {
     SparseMatrix SparseMatrix::operator*(const SparseMatrix &mat) const
     {
         // fast enough ?
-        assert(ncol() == mat.nlin());
+        om_assert(ncol() == mat.nlin());
         SparseMatrix out(nlin(), mat.ncol());
 
         for ( Tank::const_iterator it1 = m_tank.begin(); it1 != m_tank.end(); ++it1) {
@@ -123,7 +123,7 @@ namespace OpenMEEG {
 
     SparseMatrix SparseMatrix::operator+(const SparseMatrix &mat) const
     {
-        assert(nlin() == mat.nlin() && ncol() == mat.ncol());
+        om_assert(nlin() == mat.nlin() && ncol() == mat.ncol());
         SparseMatrix out(nlin(), ncol());
 
         for ( Tank::const_iterator it = m_tank.begin(); it != m_tank.end(); ++it) {

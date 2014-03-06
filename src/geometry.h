@@ -40,7 +40,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #ifndef OPENMEEG_GEOMETRY_H
 #define OPENMEEG_GEOMETRY_H
 
-#include <assert.h>
+#include <OMassert.H>
 #include <set>
 #include <vector>
 #include <vertex.h>

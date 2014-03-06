@@ -76,7 +76,7 @@ namespace OpenMEEG
             double b0 = A0M * A0Ai[1];
             double b1 = A0M * A0Ai[2];
             double d = a00 * a11 - a10 * a10;
-            assert(d != 0);
+            om_error(d!=0);
             alphas(idx[1]) = (b0 * a11 - b1 * a10) / d;
             alphas(idx[2]) = (a00 * b1 - a10 * b0) / d;
             alphas(idx[0]) = 1.0 - alphas(idx[1]) - alphas(idx[2]);

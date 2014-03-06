@@ -55,7 +55,7 @@ namespace OpenMEEG {
     }
 
     Vector Vector::kmult(const Vector& v) const { // Kronecker multiplication
-        assert(nlin() == v.nlin());
+        om_assert(nlin() == v.nlin());
         Vector p(nlin());
         for( size_t i=0; i<nlin(); i++ )
             p(i) = v(i)*data()[i];
@@ -80,13 +80,13 @@ namespace OpenMEEG {
     }
 
     Vector Vector::operator*(const Matrix& m) const {
-        assert(nlin()==m.nlin());
+        om_assert(nlin()==m.nlin());
         Vector c(m.ncol());
         return m.transpose()*(*this);
     }
 
     void Vector::set(double x) {
-        assert(nlin()>0);
+        om_assert(nlin()>0);
         for( size_t i=0; i<nlin(); i++ )
             data()[i]=x;
     }
@@ -172,7 +172,7 @@ namespace OpenMEEG {
 
     Matrix Vector::outer_product(const Vector& v) const
     {
-        assert(size()==v.size());
+        om_assert(size()==v.size());
         Matrix A(size(),v.size());
         A.set(0.);
     #ifdef HAVE_BLAS

@@ -71,7 +71,7 @@ namespace OpenMEEG {
     }
 
     Matrix::Matrix(const Vector& v,const size_t M,const size_t N): LinOp(M,N,FULL,2) {
-        assert(M*N==v.size());
+        om_assert(M*N==v.size());
         value = v.value;
     }
 
@@ -157,7 +157,7 @@ namespace OpenMEEG {
 
     Matrix Matrix::operator *(const SparseMatrix &mat) const
     {
-        assert(ncol()==mat.nlin());
+        om_assert(ncol()==mat.nlin());
         Matrix out(nlin(),mat.ncol());
         out.set(0.0);
 

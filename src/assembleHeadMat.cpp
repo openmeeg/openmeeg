@@ -118,18 +118,21 @@ namespace OpenMEEG {
     void assemble_cortical(const Geometry& geo, Matrix& mat, const Head2EEGMat& M, const std::string& domain_name, const unsigned gauss_order, double alpha, double beta, const std::string &filename)
     {
         // Following the article: M. Clerc, J. Kybic "Cortical mapping by Laplace–Cauchy transmission using a boundary element method".
-        // Assumptions:
-        // - domain_name: the domain containing the sources is an innermost domain (defined as the interior of only one interface (called Cortex)
-        // - Cortex interface is composed of one mesh only (no shared vertices)
         // TODO check orders of MxM products for efficiency ... delete intermediate matrices
-        const Domain& SourceDomain = geo.domain(domain_name);
-        const Interface& Cortex    = SourceDomain.begin()->interface();
-        const Mesh& cortex         = Cortex.begin()->mesh();
-        // test the assumption
-        assert(SourceDomain.size() == 1);
-        assert(Cortex.size() == 1);
+
+        // Assumptions:
+        // - domain_name: the domain containing the sources is an innermost domain (defined as the interior of only one interface (called CortexIntf)
+        // - CortexIntf interface is composed of one mesh only (no shared vertices)
+
+        const Domain& SourceDomain  = geo.domain(domain_name);
+        const Interface& CortexIntf = SourceDomain.begin()->interface();
+        const Mesh& cortex          = CortexIntf.begin()->mesh();
+        
+        om_error(SourceDomain.size()==1);
+        om_error(CortexIntf.size()==1);
+
         // shape of the new matrix:
-        unsigned Nl = geo.size()-geo.outermost_interface().nb_triangles()-Cortex.nb_vertices()-Cortex.nb_triangles();
+        unsigned Nl = geo.size()-geo.outermost_interface().nb_triangles()-CortexIntf.nb_vertices()-CortexIntf.nb_triangles();
         unsigned Nc = geo.size()-geo.outermost_interface().nb_triangles();
         std::fstream f(filename.c_str());
         Matrix P;

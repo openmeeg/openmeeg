@@ -223,7 +223,7 @@ namespace OpenMEEG {
     }
 
     void Sensors::findInjectionTriangles() {
-        assert(m_interface != NULL);
+        om_error(m_interface!=NULL);
         m_weights = Vector(m_positions.nlin());
         m_weights.set(0.);
         for ( size_t idx = 0; idx < m_positions.nlin(); ++idx) {

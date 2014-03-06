@@ -57,12 +57,12 @@ namespace OpenMEEG {
     SymMatrix::SymMatrix(const Vector& v) {
         size_t N = v.size();
         nlin() = (size_t)((sqrt((double)(1+8*N))-1)/2+0.1);
-        assert(nlin()*(nlin()+1)/2==N);
+        om_assert(nlin()*(nlin()+1)/2==N);
         value = v.value;
     }
 
     SymMatrix::SymMatrix(const Matrix& M): LinOp(M.nlin(),M.nlin(),SYMMETRIC,2),value(new LinOpValue(size())){
-        assert(nlin() == M.nlin());
+        om_assert(nlin() == M.nlin());
         for (size_t i=0; i<nlin();++i)
             for (size_t j=i; j<nlin();++j)
                 (*this)(i,j) = M(i,j);
@@ -93,14 +93,14 @@ namespace OpenMEEG {
     }
 
     Matrix SymMatrix::submat(size_t istart, size_t isize, size_t jstart, size_t jsize) const {
-        assert ( istart+isize<=nlin() && jstart+jsize<=nlin() );
+        om_assert ( istart+isize<=nlin() && jstart+jsize<=nlin() );
         return (*this)(istart,istart+isize-1,jstart,jstart+jsize-1);
     }
 
     SymMatrix SymMatrix::submat(size_t istart, size_t iend) const {
-        assert( iend > istart);
+        om_assert( iend > istart);
         size_t isize = iend - istart + 1;
-        assert ( istart+isize<=nlin() );
+        om_assert ( istart+isize<=nlin() );
 
         SymMatrix mat(isize);
         for(size_t i=istart;i<=iend;i++)

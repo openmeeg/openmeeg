@@ -40,8 +40,8 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #ifndef OPENMEEG_SYMMATRIX_H
 #define OPENMEEG_SYMMATRIX_H
 
+#include <OMassert.H>
 #include <iostream>
-#include <cassert>
 #include <cstdlib>
 #include <string>
 
@@ -64,7 +64,7 @@ namespace OpenMEEG {
 
         SymMatrix(const char* fname): LinOp(0,0,SYMMETRIC,2),value() { this->load(fname); }
         SymMatrix(size_t N): LinOp(N,N,SYMMETRIC,2),value(new LinOpValue(size())) { }
-        SymMatrix(size_t M,size_t N): LinOp(N,N,SYMMETRIC,2),value(new LinOpValue(size())) { assert(N==M); }
+        SymMatrix(size_t M,size_t N): LinOp(N,N,SYMMETRIC,2),value(new LinOpValue(size())) { om_assert(N==M); }
         SymMatrix(const SymMatrix& S,const DeepCopy): LinOp(S.nlin(),S.nlin(),SYMMETRIC,2),value(new LinOpValue(S.size(),S.data())) { }
 
         explicit SymMatrix(const Vector& v);
@@ -125,7 +125,7 @@ namespace OpenMEEG {
     };
 
     inline double SymMatrix::operator()(size_t i,size_t j) const {
-        assert(i<nlin() && j<nlin());
+        om_assert(i<nlin() && j<nlin());
         if(i<=j)
             return data()[i+j*(j+1)/2];
         else
@@ -133,7 +133,7 @@ namespace OpenMEEG {
     }
 
     inline double& SymMatrix::operator()(size_t i,size_t j) {
-        assert(i<nlin() && j<nlin());
+        om_assert(i<nlin() && j<nlin());
         if(i<=j)
             return data()[i+j*(j+1)/2];
         else
@@ -181,7 +181,7 @@ namespace OpenMEEG {
     }
 
     inline void SymMatrix::operator -=(const SymMatrix &B) {
-        assert(nlin()==B.nlin());
+        om_assert(nlin()==B.nlin());
     #ifdef HAVE_BLAS
         BLAS(daxpy,DAXPY)((int)(nlin()*(nlin()+1)/2), -1.0, B.data(), 1, data() , 1);
     #else
@@ -191,7 +191,7 @@ namespace OpenMEEG {
     }
 
     inline void SymMatrix::operator +=(const SymMatrix &B) {
-        assert(nlin()==B.nlin());
+        om_assert(nlin()==B.nlin());
     #ifdef HAVE_BLAS
         BLAS(daxpy,DAXPY)((int)(nlin()*(nlin()+1)/2), 1.0, B.data(), 1, data() , 1);
     #else
@@ -271,7 +271,7 @@ namespace OpenMEEG {
     // }
 
     inline SymMatrix SymMatrix::operator +(const SymMatrix &B) const {
-        assert(nlin()==B.nlin());
+        om_assert(nlin()==B.nlin());
         SymMatrix C(*this,DEEP_COPY);
     #ifdef HAVE_BLAS
         BLAS(daxpy,DAXPY)((int)(nlin()*(nlin()+1)/2), 1.0, B.data(), 1, C.data() , 1);
@@ -284,7 +284,7 @@ namespace OpenMEEG {
 
     inline SymMatrix SymMatrix::operator -(const SymMatrix &B) const
     {
-        assert(nlin()==B.nlin());
+        om_assert(nlin()==B.nlin());
         SymMatrix C(*this,DEEP_COPY);
     #ifdef HAVE_BLAS
         BLAS(daxpy,DAXPY)((int)(nlin()*(nlin()+1)/2), -1.0, B.data(), 1, C.data() , 1);
@@ -337,7 +337,7 @@ namespace OpenMEEG {
     }
 
     inline Vector SymMatrix::operator *(const Vector &v) const {
-        assert(nlin()==v.size());
+        om_assert(nlin()==v.size());
         Vector y(nlin());
     #ifdef HAVE_BLAS
         DSPMV(CblasUpper,(int)nlin(),1.,data(),v.data(),1,0.,y.data(),1);
@@ -352,14 +352,14 @@ namespace OpenMEEG {
     }
 
     inline Vector SymMatrix::getlin(size_t i) const {
-        assert(i<nlin());
+        om_assert(i<nlin());
         Vector v(ncol());
         for ( size_t j = 0; j < ncol(); ++j) v.data()[j] = this->operator()(i,j);
         return v;
     }
 
     inline void SymMatrix::setlin(size_t i,const Vector& v) {
-        assert(v.size()==nlin() && i<nlin());
+        om_assert(v.size()==nlin() && i<nlin());
         for ( size_t j = 0; j < ncol(); ++j) this->operator()(i,j) = v(j);
     }
 }

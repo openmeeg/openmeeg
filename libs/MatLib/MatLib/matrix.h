@@ -42,7 +42,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #include <MatLibConfig.h>
 #include <iostream>
-#include <cassert>
+#include <OMassert.H>
 #include <cstdlib>
 #include <string>
 
@@ -183,11 +183,11 @@ namespace OpenMEEG {
     };
 
     inline double Matrix::operator()(size_t i,size_t j) const {
-        assert(i<nlin() && j<ncol());
+        om_assert(i<nlin() && j<ncol());
         return value->data[i+nlin()*j];
     }
     inline double& Matrix::operator()(size_t i,size_t j) {
-        assert(i<nlin() && j<ncol());
+        om_assert(i<nlin() && j<ncol());
         return value->data[i+nlin()*j];
     }
     
@@ -207,7 +207,7 @@ namespace OpenMEEG {
     }
 
     inline Vector Matrix::operator*(const Vector &v) const {
-        assert(ncol()==v.nlin());
+        om_assert(ncol()==v.nlin());
         Vector y(nlin());
     #ifdef HAVE_BLAS
         DGEMV(CblasNoTrans,(int)nlin(),(int)ncol(),1.0,data(),(int)nlin(),v.data(),1,0.,y.data(),1);
@@ -223,7 +223,7 @@ namespace OpenMEEG {
     }
 
     inline Matrix Matrix::submat(size_t istart, size_t isize, size_t jstart, size_t jsize) const {
-        assert (istart+isize<=nlin() && jstart+jsize<=ncol());
+        om_assert (istart+isize<=nlin() && jstart+jsize<=ncol());
 
         Matrix a(isize,jsize);
         const int sz = static_cast<int>(isize);
@@ -242,7 +242,7 @@ namespace OpenMEEG {
     }
 
     inline void Matrix::insertmat(size_t istart, size_t jstart, const Matrix& B) {
-        assert (istart+B.nlin()<=nlin() && jstart+B.ncol()<=ncol() );
+        om_assert (istart+B.nlin()<=nlin() && jstart+B.ncol()<=ncol() );
         for (size_t j=0; j<B.ncol(); j++) {
             for (size_t i=0; i<B.nlin(); i++) {
                 (*this)(istart+i,jstart+j)=B(i,j);
@@ -251,7 +251,7 @@ namespace OpenMEEG {
     }
 
     inline Vector Matrix::getcol(size_t j) const {
-        assert(j<ncol());
+        om_assert(j<ncol());
         Vector v(nlin());
     #ifdef HAVE_BLAS
         BLAS(dcopy,DCOPY)((int)nlin(),data()+nlin()*j,1,v.data(),1);
@@ -262,7 +262,7 @@ namespace OpenMEEG {
     }
 
     inline Vector Matrix::getlin(size_t i) const {
-        assert(i<nlin());
+        om_assert(i<nlin());
         Vector v(ncol());
     #ifdef HAVE_BLAS
         BLAS(dcopy,DCOPY)((int)ncol(),data()+i,(int)nlin(),v.data(),1);
@@ -273,7 +273,7 @@ namespace OpenMEEG {
     }
 
     inline void Matrix::setcol(size_t j,const Vector& v) {
-        assert(v.size()==nlin() && j<ncol());
+        om_assert(v.size()==nlin() && j<ncol());
     #ifdef HAVE_BLAS
         BLAS(dcopy,DCOPY)((int)nlin(),v.data(),1,data()+nlin()*j,1);
     #else
@@ -282,7 +282,7 @@ namespace OpenMEEG {
     }
 
     inline void Matrix::setlin(size_t i,const Vector& v) {
-        assert(v.size()==ncol() && i<nlin());
+        om_assert(v.size()==ncol() && i<nlin());
     #ifdef HAVE_BLAS
         BLAS(dcopy,DCOPY)((int)ncol(),v.data(),1,data()+i,(int)nlin());
     #else
@@ -291,7 +291,7 @@ namespace OpenMEEG {
     }
 
     inline Vector Matrix::tmult(const Vector &v) const {
-        assert(nlin()==v.nlin());
+        om_assert(nlin()==v.nlin());
         Vector y(ncol());
     #ifdef HAVE_BLAS
         DGEMV(CblasTrans,(int)nlin(),(int)ncol(),1.,data(),(int)nlin(),v.data(),1,0.,y.data(),1);
@@ -308,7 +308,7 @@ namespace OpenMEEG {
 
     inline Matrix Matrix::inverse() const {
     #ifdef HAVE_LAPACK
-        assert(nlin()==ncol());
+        om_assert(nlin()==ncol());
         Matrix invA(*this,DEEP_COPY);
         // LU
         #if defined(USE_ATLAS)
@@ -348,7 +348,7 @@ namespace OpenMEEG {
     }
 
     inline Matrix Matrix::operator *(const Matrix &B) const {
-        assert(ncol()==B.nlin());
+        om_assert(ncol()==B.nlin());
         size_t p=ncol();
         Matrix C(nlin(),B.ncol());
     #ifdef HAVE_BLAS
@@ -369,7 +369,7 @@ namespace OpenMEEG {
     }
     
     inline Matrix Matrix::tmult(const Matrix &B) const {
-        assert(nlin()==B.nlin());
+        om_assert(nlin()==B.nlin());
         size_t p=nlin();
         Matrix C(ncol(),B.ncol());
     #ifdef HAVE_BLAS
@@ -390,7 +390,7 @@ namespace OpenMEEG {
     }
 
     inline Matrix Matrix::multt(const Matrix &B) const {
-        assert(ncol()==B.ncol());
+        om_assert(ncol()==B.ncol());
         size_t p=ncol();
         Matrix C(nlin(),B.nlin());
     #ifdef HAVE_BLAS
@@ -411,7 +411,7 @@ namespace OpenMEEG {
     }
 
     inline Matrix Matrix::tmultt(const Matrix &B) const {
-        assert(nlin()==B.ncol());
+        om_assert(nlin()==B.ncol());
         size_t p=nlin();
         Matrix C(ncol(),B.nlin());
     #ifdef HAVE_BLAS
@@ -432,7 +432,7 @@ namespace OpenMEEG {
     }
 
     inline Matrix Matrix::operator*(const SymMatrix &B) const {
-        assert(ncol()==B.ncol());
+        om_assert(ncol()==B.ncol());
         Matrix C(nlin(),B.ncol());
 
     #ifdef HAVE_BLAS
@@ -453,8 +453,8 @@ namespace OpenMEEG {
     }
     
     inline Matrix Matrix::operator+(const Matrix &B) const {
-        assert(ncol()==B.ncol());
-        assert(nlin()==B.nlin());
+        om_assert(ncol()==B.ncol());
+        om_assert(nlin()==B.nlin());
         Matrix C(*this,DEEP_COPY);
     #ifdef HAVE_BLAS
         BLAS(daxpy,DAXPY)((int)(nlin()*ncol()), 1.0, B.data(), 1, C.data() , 1);
@@ -466,8 +466,8 @@ namespace OpenMEEG {
     }
 
     inline Matrix Matrix::operator-(const Matrix &B) const {
-        assert(ncol()==B.ncol());
-        assert(nlin()==B.nlin());
+        om_assert(ncol()==B.ncol());
+        om_assert(nlin()==B.nlin());
         Matrix C(*this,DEEP_COPY);
     #ifdef HAVE_BLAS
         BLAS(daxpy,DAXPY)((int)(nlin()*ncol()), -1.0, B.data(), 1, C.data() , 1);
@@ -479,8 +479,8 @@ namespace OpenMEEG {
     }
 
     inline void Matrix::operator+=(const Matrix &B) {
-        assert(ncol()==B.ncol());
-        assert(nlin()==B.nlin());
+        om_assert(ncol()==B.ncol());
+        om_assert(nlin()==B.nlin());
     #ifdef HAVE_BLAS
         BLAS(daxpy,DAXPY)((int)(nlin()*ncol()), 1.0, B.data(), 1, data() , 1);
     #else
@@ -490,8 +490,8 @@ namespace OpenMEEG {
     }
 
     inline void Matrix::operator-=(const Matrix &B) {
-        assert(ncol()==B.ncol());
-        assert(nlin()==B.nlin());
+        om_assert(ncol()==B.ncol());
+        om_assert(nlin()==B.nlin());
     #ifdef HAVE_BLAS
         BLAS(daxpy,DAXPY)((int)(nlin()*ncol()), -1.0, B.data(), 1, data() , 1);
     #else
@@ -501,7 +501,7 @@ namespace OpenMEEG {
     }
     
     inline double Matrix::dot(const Matrix& b) const {
-        assert(nlin()==b.nlin()&&ncol()==b.ncol());
+        om_assert(nlin()==b.nlin()&&ncol()==b.ncol());
     #ifdef HAVE_BLAS
         return BLAS(ddot,DDOT)((int)(nlin()*ncol()),data(),1,b.data(),1);
     #else

@@ -49,7 +49,6 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #include <fstream>
 #include <sstream>
-#include <stdio.h>
 #include <stdlib.h>
 #include <string>
 #include <vector>
