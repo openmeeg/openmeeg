@@ -43,6 +43,6 @@ SetRevision(2 3 0 dev)
 #     module.
 
 #add_external_projects(zlib msinttypes hdf5 matio clapack OpenMEEG)
-add_external_projects(zlib)
+add_external_projects(zlib hdf5)
 
 #include(Packaging)
