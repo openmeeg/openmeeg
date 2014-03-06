@@ -47,7 +47,6 @@ function(zlib_project)
 
         if (UNIX)
             set(${ep}_c_flags "${${ep}_c_flags} -w")
-            set(${ep}_cxx_flags "${${ep}_cxx_flags} -w -fpermissive")
         endif()
 
         set(cmake_args
