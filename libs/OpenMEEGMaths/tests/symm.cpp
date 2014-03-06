@@ -37,49 +37,32 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
+#include <cmath>
 #include <iostream>
 
-#include <MatLibConfig.h>
-#include <vector.h>
+#include <OpenMEEGMathsConfig.h>
+#include <symmatrix.h>
 #include <matrix.h>
 #include <generic_test.hpp>
 
-int main () {
+int main() {
 
     using namespace OpenMEEG;
 
-    // section Vector
+    // section SymMatrix
 
-    std::cout << std::endl << "========== vectors ==========" << std::endl;
+    std::cout << std::endl << "========== symmetric matrices ==========" << std::endl;
 
-    Vector v(8);
-    v.set(0);
-    v.save("tmp.bin");
+    SymMatrix S(4);
+    for (unsigned i=0;i<4;++i)
+        for (unsigned j=i; j<4;++j)
+            S(i,j) = pow(2.0,(double)i)+pow(3.0,(double)j);
 
-    for (int i=0;i<8;++i)
-        v(i) = i;
+    genericTest("symm",S);
 
-    v.save("tmp.txt");
-    v.load("tmp.bin");
-    std::cout << "v = " << std::endl << v << std::endl;
-    v.load("tmp.txt");
-    std::cout << "v = " << std::endl << v << std::endl;
-
-#ifdef USE_MATIO
-    std::cout << "MAT :" << std::endl;
-    v.save("tmp_matrix.mat");
-    v.load("tmp_matrix.mat");
-    v.info();
-#endif
-    v(0) = 115;
-    v(7) = 0.16;
-    v(3) = 0.22;
-    v(2) = 2.;
-    Matrix m(v,v.size(),1);
-    if ( (m*m.transpose() - v.outer_product(v)).frobenius_norm() > eps) {
-        std::cerr << "Error: Vector outerproduct is WRONG-1" << std::endl;
-        exit(1);
-    }
+    const Matrix R = S(1,2,0,2); // extract submatrix
+    std::cout << "Matrice R : " << std::endl;
+    R.info();
 
     return 0;
 }

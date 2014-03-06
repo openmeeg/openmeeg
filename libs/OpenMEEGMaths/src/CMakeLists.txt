@@ -1,23 +1,23 @@
 # =============
-# = Maths Lib =
+# = OpenMEEGMaths Lib =
 # =============
 
 function(create_library libname)
     add_library(${libname} SHARED ${ARGN})
 
+    set(NeededLibraries ${LAPACK_LIBRARIES})
     if (USE_MATIO)
-        target_link_libraries(${libname} ${MATIO_LIBRARIES})
+        set(NeededLibraries ${MATIO_LIBRARIES} ${NeededLibraries})
     endif()
-
-    target_link_libraries(${libname} ${LAPACK_LIBRARIES})
+    target_link_libraries(${libname} ${NeededLibraries})
 
     set_target_properties(${libname} PROPERTIES
                           VERSION 1.1.0
                           SOVERSION 1
+                          INTERFACE_LINK_LIBRARIES "${NeededLibraries}"
                           CLEAN_DIRECT_OUTPUT 1)
 
     install(TARGETS ${libname}
-            RUNTIME DESTINATION bin
             ARCHIVE DESTINATION lib
             LIBRARY DESTINATION lib)
 endfunction()

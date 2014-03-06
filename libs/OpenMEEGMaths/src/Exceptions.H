@@ -1,5 +1,4 @@
-#ifndef OPENMEEG_MATLIB_EXCEPTIONS_H
-#define OPENMEEG_MATLIB_EXCEPTIONS_H
+#pragma once
 
 //  Largely derivate work from Images/src/Exceptions.H (merge if possible).
 
@@ -230,5 +229,3 @@ namespace OpenMEEG {
         };
     }
 }
-
-#endif // !OPENMEEG_MATLIB_EXCEPTIONS_H

@@ -37,8 +37,8 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#ifndef OPENMEEG_MATLIBCONFIG_H
-#define OPENMEEG_MATLIBCONFIG_H
+#pragma once
+
 //  cmake configuration.
 #include <OpenMEEGConfigure.h>
 #include <DLLDefinesOpenMEEGMaths.h>
@@ -206,5 +206,3 @@ knowledge of the CeCILL-B license and that you accept its terms.
         #define DSPTRI(X1,X2,X3,X4,X5,X6) LAPACK(dsptri,DSPTRI)(X1,X2,X3,X4,X5,X6)
     #endif
 #endif
-
-#endif // !OPENMEEG_MATLIBCONFIG_H

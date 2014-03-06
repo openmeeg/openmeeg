@@ -40,7 +40,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #ifndef OPENMEEG_FAST_SPARSE_MATRIX_H
 #define OPENMEEG_FAST_SPARSE_MATRIX_H
 
-#include "MatLibConfig.h"
+#include "OpenMEEGMathsConfig.h"
 #include "vector.h"
 #include "sparse_matrix.h"
 

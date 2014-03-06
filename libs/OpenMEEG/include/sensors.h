@@ -1,12 +1,5 @@
-/* FILE: $Id: sensors.h 222 2008-04-08 06:14:41Z gramfort $ */
-
 /*
 Project Name : OpenMEEG
-
-version           : $Revision: 222 $
-last revision     : $Date: 2008-04-08 08:14:41 +0200 (Tue, 08 Apr 2008) $
-modified by       : $LastChangedBy: gramfort $
-last modified     : $LastChangedDate: 2008-04-08 08:14:41 +0200 (Tue, 08 Apr 2008) $
 
 © INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre
 GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU, Théodore PAPADOPOULO,
@@ -76,7 +69,7 @@ namespace OpenMEEG {
      *        <li> the 1st, 2nd and 3rd columns are respectively position coordinates x, y, z of sensor  </li>
      *        </ul>
      *  </li>
-     *  <li> 1 line per sensor and 5 columns (EEG EIT patches (circular patches with input intensity)) :
+     *  <li> 1 line per sensor and 5 columns (EEG EIT patches (circular patches with input intensity)) :
      *        <ul TYPE="circle">
      *        <li> the 1st, 2nd and 3rd are respectively position coordinates x, y, z of sensor  </li>
      *        <li> the 4th is the patche radius (unit relative to the mesh)  </li>

@@ -40,7 +40,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #ifndef OPENMEEG_MATRIX_H
 #define OPENMEEG_MATRIX_H
 
-#include <MatLibConfig.h>
+#include <OpenMEEGMathsConfig.h>
 #include <iostream>
 #include <OMassert.H>
 #include <cstdlib>

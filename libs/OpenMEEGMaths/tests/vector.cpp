@@ -39,59 +39,47 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #include <iostream>
 
-#include <MatLibConfig.h>
-#include <sparse_matrix.h>
-#include <fast_sparse_matrix.h>
+#include <OpenMEEGMathsConfig.h>
+#include <vector.h>
+#include <matrix.h>
 #include <generic_test.hpp>
 
 int main () {
 
     using namespace OpenMEEG;
 
-    // section SparseMatrix
+    // section Vector
 
-    std::cout << std::endl << "========== sparse matrices ==========" << std::endl;
+    std::cout << std::endl << "========== vectors ==========" << std::endl;
 
-    SparseMatrix spM(10,10);
-    unsigned n = 0;
-    for ( unsigned i=0;i<5;++i) {
-        n = (n*1237+1493)%1723;
-        const int p = (n*1237+1493)%1723;
-        spM(n%10, p%10) = n;
-    }
-    genericTest("sparse",spM);
+    Vector v(8);
+    v.set(0);
+    v.save("tmp.bin");
 
-    Matrix U(10,10);
-    U.set(1.0);
-    U(2,3)=0.12;
-    U(1,9)=12.01;
-    U(4,8)=-2.1;
-    Vector v(10);
-    v.set(2.);
-    v(3)=v(8)=0.11;
-    // Mat & Sparse
-    Matrix Mzero = spM*U - Matrix(spM)*U - Matrix(spM)*U + spM*U;
-    // Sparse & Sparse
-    SparseMatrix spM2(10,10);
-    for ( unsigned i=0;i<5;++i) {
-        n = (n*1007+1493)%2551;
-        const int p = (n*1007+1493)%2551;
-        spM2(n%10, p%10) = n;
-    }
-    Mzero += Matrix(spM*spM2) - Matrix(spM)*Matrix(spM2) - Matrix(spM2)*Matrix(spM) + Matrix(spM2*spM);
-    // Vectt & Sparse
-    Vector Vzero = (spM*v) - (Matrix(spM)*v);
-    if ( Mzero.frobenius_norm() + Vzero.norm() > eps) {
-        std::cerr << "Error: Operator* is WRONG-1" << std::endl;
-        Mzero.info();
-        Vzero.info();
+    for (int i=0;i<8;++i)
+        v(i) = i;
+
+    v.save("tmp.txt");
+    v.load("tmp.bin");
+    std::cout << "v = " << std::endl << v << std::endl;
+    v.load("tmp.txt");
+    std::cout << "v = " << std::endl << v << std::endl;
+
+#ifdef USE_MATIO
+    std::cout << "MAT :" << std::endl;
+    v.save("tmp_matrix.mat");
+    v.load("tmp_matrix.mat");
+    v.info();
+#endif
+    v(0) = 115;
+    v(7) = 0.16;
+    v(3) = 0.22;
+    v(2) = 2.;
+    Matrix m(v,v.size(),1);
+    if ( (m*m.transpose() - v.outer_product(v)).frobenius_norm() > eps) {
+        std::cerr << "Error: Vector outerproduct is WRONG-1" << std::endl;
         exit(1);
     }
-
-    std::cout << std::endl << "========== fast sparse matrices ==========" << std::endl;
-    std::cout << spM;
-    FastSparseMatrix fspM(spM);
-    std::cout << fspM;
 
     return 0;
 }

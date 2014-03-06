@@ -44,7 +44,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <cstdlib>
 #include <string>
 
-#include <MatLibConfig.h>
+#include <OpenMEEGMathsConfig.h>
 #include <linop.h>
 #include <RC.H>
 #include <MathsIO.H>
