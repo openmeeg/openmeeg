@@ -90,7 +90,7 @@ SET (OPENMEEG_INCLUDE_DIRECTORIES
     ${OpenMEEG_BINARY_DIR}
     ${OpenMEEG_SOURCE_DIR}
     ${OpenMEEG_SOURCE_DIR}/src
-    ${OpenMEEG_SOURCE_DIR}/libs/OpenMEEGMaths/src
+    ${OpenMEEG_SOURCE_DIR}/libs/OpenMEEGMaths/include
     ${OpenMEEG_SOURCE_DIR}/libs/OpenMEEG/include
     ${OpenMEEG_BINARY_DIR}/libs/OpenMEEG/include
     ${OPENMEEG_OTHER_INCLUDE_DIRECTORIES}
