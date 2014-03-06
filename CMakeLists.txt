@@ -51,6 +51,6 @@ if (WIN32 AND NOT CYGWIN_INSTALL_PATH)
 endif()
 
 #add_external_projects(zlib ${MSINTTYPES} hdf5 matio clapack OpenMEEG)
-add_external_projects(zlib ${MSINTTYPES} hdf5)
+add_external_projects(zlib ${MSINTTYPES} hdf5 matio)
 
 #include(Packaging)
