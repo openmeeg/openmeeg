@@ -39,15 +39,13 @@ OUTPUT_DIRECTORY     = "@OpenMEEG_BINARY_DIR@/documentation/reference"
 
 INPUT                = \
         "@OpenMEEG_SOURCE_DIR@/src" \
-        "@OpenMEEG_SOURCE_DIR@/tools" \
-        "@OpenMEEG_SOURCE_DIR@/tests" \
-        "@OpenMEEG_SOURCE_DIR@/libs/MatLib/MatLib" \
-        "@OpenMEEG_SOURCE_DIR@/libs/MatLib/Test"
+        "@OpenMEEG_SOURCE_DIR@/libs/OpenMEEG/include" \
+        "@OpenMEEG_SOURCE_DIR@/libs/OpenMEEG/src" \
+        "@OpenMEEG_SOURCE_DIR@/libs/OpenMEEGMaths/include" \
+        "@OpenMEEG_SOURCE_DIR@/libs/OpenMEEGMaths/src"
 
 # EXCLUDE_PATTERNS     =
 EXCLUDE              = @OpenMEEG_EXCLUDE_FROM_DOCUMENTATION@
-#         "@OpenMEEG_BINARY_DIR@/src/.h" \
-#         "@OpenMEEG_BINARY_DIR@/src/.h"
 
 EXTRACT_ALL           = YES
 # EXTRACT_PRIVATE       = NO

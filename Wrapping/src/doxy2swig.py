@@ -315,11 +315,12 @@ class Doxy2SWIG:
             self.pieces.extend(self.clean_pieces(p.pieces))
 
     def write(self, fname):
+        print fname
         o = my_open_write(fname)
         if self.multi:
-            o.write("".join(self.pieces))
+            o.write(u"".join(self.pieces).encode('utf-8').strip())
         else:
-            o.write("".join(self.clean_pieces(self.pieces)))
+            o.write(u"".join(self.clean_pieces(self.pieces)).encode('utf-8').strip())
         o.close()
 
     def clean_pieces(self, pieces):
