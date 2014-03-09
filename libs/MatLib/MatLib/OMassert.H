@@ -10,10 +10,17 @@
 
 //  Error is the same thing as assert but it is not removed by NDEBUG
 
+#define om_xstr(s) str(s)
+#define om_str(s) #s
+
+#if defined(_MSC_VER)
+    #define __PRETTY_FUNCTION__ __FUNCSIG__
+#endif
+
 #define om_error(expr) \
   ((expr)								\
    ? static_cast<void>(0)						\
-   : Assert(__STRING(expr),__FILE__,__LINE__,__PRETTY_FUNCTION__))
+   : Assert(om_str(expr),__FILE__,__LINE__,__PRETTY_FUNCTION__))
 
 //  Remove om_assert wgen NDEBUG is defined.
 //  Not clear this is useful...
