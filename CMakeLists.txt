@@ -20,15 +20,7 @@ SET(PACKAGE_VERSION_PATCH "dev")
 
 # SET(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/macros;${CMAKE_SOURCE_DIR}/macros/FortranCInterface;")
 SET(CMAKE_MODULE_PATH
-"${CMAKE_SOURCE_DIR}/macros;${CMAKE_SOURCE_DIR}/macros/FortranCInterface;${CMAKE_SOURCE_DIR}/contrib/matio/cmake/")
-
-#   Why do we have to tell this here ??? (see matio/CMakeLists.txt for details).
-
-IF (WIN32 AND NOT CYGWIN_INSTALL_PATH)
-    SET(INTTYPES_INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/contrib/matio/contrib/msinttypes-r26)
-    SET(CMAKE_REQUIRED_INCLUDES ${INTTYPES_INCLUDES})
-    INCLUDE_DIRECTORIES(AFTER SYSTEM ${INTTYPES_INCLUDES})
-ENDIF()
+"${CMAKE_SOURCE_DIR}/macros;${CMAKE_SOURCE_DIR}/macros/FortranCInterface")
 
 #   The next two lines are a kludge to make rpm generation work. If you change this,
 #   please check that rpm generation still works.
@@ -114,7 +106,7 @@ endif()
 # Setting sources and libraries
 #---------------------------------------------------------------
 
-SUBDIRS(contrib libs src)
+SUBDIRS(libs src)
 
 #######################################################################
 # Configure files with settings for use by the build.

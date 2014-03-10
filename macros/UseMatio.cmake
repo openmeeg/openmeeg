@@ -13,15 +13,15 @@ ENDIF()
 
 IF (NOT MATIO_LIBRARIES)
 
+    add_library(matio SHARED IMPORTED)
+    set_property(TARGET matio PROPERTY IMPORTED_LOCATION ${MATIO_DIR}/lib/libmatio.so)
     SET(MATIO_LIBRARIES matio)
     SET(USE_MATIO 1)
 
     #   Not sure to understand why those should be here (this should be made by the matio
     #   subdir). But they are.
 
-    INCLUDE_DIRECTORIES(${OpenMEEG_SOURCE_DIR}/contrib/matio/src)
-    INCLUDE_DIRECTORIES(${OpenMEEG_SOURCE_DIR}/contrib/matio/zlib)
-    INCLUDE_DIRECTORIES(${OpenMEEG_BINARY_DIR}/contrib/matio/src)
+    INCLUDE_DIRECTORIES(${MATIO_DIR}/include)
     INCLUDE_DIRECTORIES(${OpenMEEG_BINARY_DIR}/contrib/matio/zlib)
 
 ENDIF()
