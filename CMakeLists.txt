@@ -90,7 +90,9 @@ SET (OPENMEEG_INCLUDE_DIRECTORIES
     ${OpenMEEG_BINARY_DIR}
     ${OpenMEEG_SOURCE_DIR}
     ${OpenMEEG_SOURCE_DIR}/src
-    ${OpenMEEG_SOURCE_DIR}/libs/MatLib/MatLib
+    ${OpenMEEG_SOURCE_DIR}/libs/OpenMEEGMaths/include
+    ${OpenMEEG_SOURCE_DIR}/libs/OpenMEEG/include
+    ${OpenMEEG_BINARY_DIR}/libs/OpenMEEG/include
     ${OPENMEEG_OTHER_INCLUDE_DIRECTORIES}
 )
 
@@ -102,6 +104,11 @@ INCLUDE_DIRECTORIES(${OPENMEEG_INCLUDE_DIRECTORIES})
 
 INCLUDE(CheckCXXFeatures)
 CHECK_CXX_STANDARD_LIBRARY()
+
+if (NOT HAVE_ISNORMAL_IN_NAMESPACE_STD)
+    include(CheckSymbolExists)
+    CHECK_SYMBOL_EXISTS(isnormal math.h HAVE_ISNORMAL_IN_MATH_H)
+endif()
 
 #---------------------------------------------------------------
 # Setting sources and libraries
@@ -228,7 +235,8 @@ INCLUDE(Packaging)
 
 SET (OPENMEEG_LIBRARY_DIRECTORIES
     ${OpenMEEG_BINARY_DIR}/src
-    ${OpenMEEG_BINARY_DIR}/libs/MatLib/MatLib
+    ${OpenMEEG_BINARY_DIR}/libs/OpenMEEGMaths/src
+    ${OpenMEEG_BINARY_DIR}/libs/OpenMEEG/src
     ${OPENMEEG_OTHER_LIBRARY_DIRECTORIES}
 )
 
