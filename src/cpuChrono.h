@@ -41,11 +41,9 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <stdlib.h>
 #include <time.h>
 
-#include "DLLDefinesOpenMEEG.h"
-
 namespace OpenMEEG {
 
-    class OPENMEEG_EXPORT cpuChrono {
+    class cpuChrono {
 
         clock_t ellapsed;
         clock_t tstart;
