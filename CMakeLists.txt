@@ -42,6 +42,10 @@ SetRevision(2 3 0 dev)
 #   * otherwise use download and compile locally the package as an external 
 #     module.
 
+# See matio/CMakeLists.txt for details.
+# Provide stdint.h for windows, if it is not already there.
+# MSVC starts to include stddint.h only from MSVC10 !!!
+
 set(MSINTTYPES)
 if (WIN32 AND NOT CYGWIN_INSTALL_PATH)
     set(MSINTTYPES msinttypes)
@@ -50,7 +54,6 @@ if (WIN32 AND NOT CYGWIN_INSTALL_PATH)
     include_directories(AFTER SYSTEM ${INTTYPES_INCLUDES})
 endif()
 
-#add_external_projects(zlib ${MSINTTYPES} hdf5 matio clapack OpenMEEG)
-add_external_projects(zlib ${MSINTTYPES} hdf5 matio clapack)
+add_external_projects(zlib ${MSINTTYPES} hdf5 matio clapack OpenMEEG)
 
 #include(Packaging)

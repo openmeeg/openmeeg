@@ -13,7 +13,7 @@ function(hdf5_project)
 
     # List the dependencies of the project
 
-    set(${ep}_dependencies "")
+    set(${ep}_dependencies ${MSINTTYPES} zlib)
       
     # Prepare the project
 
@@ -49,7 +49,9 @@ function(hdf5_project)
         set(cmake_args
             ${ep_common_cache_args}
             ${ep_optional_args}
+            -DHDF5_ENABLE_Z_LIB_SUPPORT:BOOL=ON
             -DCMAKE_C_FLAGS:STRING=${${ep}_c_flags}
+            -DCMAKE_CXX_COMPILER:FILEPATH=${CMAKE_CXX_COMPILER}
             -DCMAKE_SHARED_LINKER_FLAGS:STRING=${${ep}_shared_linker_flags}  
             -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
             -DBUILD_SHARED_LIBS:BOOL=${BUILD_SHARED_LIBS_${ep}}
@@ -58,7 +60,7 @@ function(hdf5_project)
 
         # Check if patch has to be applied
 
-        ep_GeneratePatchCommand(hdf5 HDF5_PATCH_COMMAND)
+        ep_GeneratePatchCommand(${ep} PATCH_COMMAND)
 
         # Add external-project
 
@@ -66,21 +68,21 @@ function(hdf5_project)
             ${ep_dirs}
             ${location}
             UPDATE_COMMAND ""
-            ${HDF5_PATCH_COMMAND}
+            ${PATCH_COMMAND}
             CMAKE_GENERATOR ${gen}
             CMAKE_ARGS ${cmake_args}
-            INSTALL_COMMAND ""
+            DEPENDS ${${ep}_dependencies}
         )
 
         # Set variable to provide infos about the project
 
-        ExternalProject_Get_Property(hdf5 binary_dir)
+        ExternalProject_Get_Property(${ep} binary_dir)
         set(${ep}_DIR ${binary_dir} PARENT_SCOPE)
 
         # Add custom targets
 
         EP_AddCustomTargets(${ep})
 
-    endif() #NOT USE_SYSTEM_ep
+    endif()
 
 endfunction()

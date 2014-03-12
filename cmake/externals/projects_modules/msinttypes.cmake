@@ -47,7 +47,7 @@ function(msinttypes_project)
 
         # Check if patch has to be applied
 
-        ep_GeneratePatchCommand(msinttypes MSINTTYPES_PATCH_COMMAND)
+        ep_GeneratePatchCommand(${ep} PATCH_COMMAND)
 
         # Add external-project
 
@@ -55,21 +55,20 @@ function(msinttypes_project)
             ${ep_dirs}
             ${location}
             UPDATE_COMMAND ""
-            ${MSINTTYPES_PATCH_COMMAND}
+            ${PATCH_COMMAND}
             CONFIGURE_COMMAND ""
             BUILD_COMMAND ""
-            INSTALL_COMMAND ""
         )
 
         # Set variable to provide infos about the project
 
-        ExternalProject_Get_Property(msinttypes binary_dir)
+        ExternalProject_Get_Property(${ep} binary_dir)
         set(${ep}_DIR ${binary_dir} PARENT_SCOPE)
 
         # Add custom targets
 
         EP_AddCustomTargets(${ep})
 
-    endif() #NOT USE_SYSTEM_ep
+    endif()
 
 endfunction()

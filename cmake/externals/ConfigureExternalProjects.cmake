@@ -1,6 +1,6 @@
 ##############################################################################
 #
-# medInria
+# OpenMEEG
 #
 # Copyright (c) INRIA 2013. All rights reserved.
 # See LICENSE.txt for details.
@@ -28,7 +28,6 @@ set(ep_common_shared_linker_flags
 set(ep_common_cache_args
     -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
     -DCMAKE_C_COMPILER:FILEPATH=${CMAKE_C_COMPILER}
-    -DCMAKE_CXX_COMPILER:FILEPATH=${CMAKE_CXX_COMPILER}
 )
 
 set(gen "${CMAKE_GENERATOR}")
@@ -76,10 +75,10 @@ macro(add_external_projects)
         call(${external_project}_project)
         
         if(update-${external_project})
-          set(update_dependencies ${update_dependencies} update-${external_project})
+            set(update_dependencies ${update_dependencies} update-${external_project})
         endif()
         if(build-${external_project})
-          set(build_dependencies ${build_dependencies} build-${external_project})
+            set(build_dependencies ${build_dependencies} build-${external_project})
         endif()
     endforeach()
 

@@ -13,7 +13,7 @@ function(zlib_project)
 
     # List the dependencies of the project
 
-    set(${ep}_dependencies "")
+    set(${ep}_dependencies "${MSINTTYPES}")
       
     # Prepare the project
 
@@ -53,12 +53,11 @@ function(zlib_project)
             -DCMAKE_SHARED_LINKER_FLAGS:STRING=${${ep}_shared_linker_flags}  
             -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
             -DBUILD_SHARED_LIBS:BOOL=${BUILD_SHARED_LIBS_${ep}}
-            -DBUILD_TESTING:BOOL=OFF
         )
 
         # Check if patch has to be applied
 
-        ep_GeneratePatchCommand(zlib ZLIB_PATCH_COMMAND)
+        ep_GeneratePatchCommand(${ep} PATCH_COMMAND)
 
         # Add external-project
 
@@ -66,21 +65,21 @@ function(zlib_project)
             ${ep_dirs}
             ${location}
             UPDATE_COMMAND ""
-            ${ZLIB_PATCH_COMMAND}
+            ${PATCH_COMMAND}
             CMAKE_GENERATOR ${gen}
             CMAKE_ARGS ${cmake_args}
-            INSTALL_COMMAND ""
+            DEPENDS ${${ep}_dependencies}
         )
 
         # Set variable to provide infos about the project
 
-        ExternalProject_Get_Property(zlib binary_dir)
+        ExternalProject_Get_Property(${ep} binary_dir)
         set(${ep}_DIR ${binary_dir} PARENT_SCOPE)
 
         # Add custom targets
 
         EP_AddCustomTargets(${ep})
 
-    endif() #NOT USE_SYSTEM_ep
+    endif()
 
 endfunction()
