@@ -28,7 +28,7 @@ function(OpenMEEG_project)
         # Define repository where get the sources
 
         if (NOT DEFINED ${ep}_SOURCE_DIR)
-            set(location GIT_REPOSITORY "git@github.com:openmeeg/openmeeg.git")
+            set(location GIT_REPOSITORY "https://github.com/openmeeg/openmeeg.git")
         endif()
 
         # Add specific cmake arguments for configuration step of the project
@@ -52,8 +52,6 @@ function(OpenMEEG_project)
             -DCLAPACK_DIR:FILEPATH=${clapack_DIR}
             -DMATIO_DIR:FILEPATH=${matio_DIR}
         )
-
-        message("${clapack_DIR}:${matio_DIR}")
 
         # Check if patch has to be applied
 
