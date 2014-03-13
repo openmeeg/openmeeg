@@ -333,6 +333,10 @@ int main(int argc, char** argv)
             cerr << "Please set the name of the interface for EcoG" << endl;
             exit(1);
         }
+        if ( argc < 7 ) {
+            cerr << "Please set output matrix filepath !" << endl;
+            exit(1);
+        }
 
         // Loading surfaces from geometry file.
         Geometry geo;
