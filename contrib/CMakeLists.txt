@@ -7,9 +7,9 @@ IF (USE_MATIO)
 
     IF (USE_SYSTEM_ZLIB)
 
-        #   Always impose a dynamic libz because it is linked (via matio) to Matlib which needs to
+        #   Always impose a dynamic libz because it is linked (via matio) to OpenMEEGMaths which needs to
         #   be dynamic. Unfortunately, old linux systems offered libz.a which were not position independant.
-        #   This is the modification of matio for OpenMEEG.
+        #   This is a modification of matio for OpenMEEG.
 
         IF (UNIX AND NOT APPLE)
             FIND_LIBRARY(SYSTEM_ZLIB libz.so)

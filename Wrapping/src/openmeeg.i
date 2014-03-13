@@ -151,7 +151,6 @@ namespace OpenMEEG {
     %typedef std::vector<OpenMEEG::Mesh> Meshes;
 }
 
-
 %include <vect3.h>
 %include <vertex.h>
 %include <triangle.h>

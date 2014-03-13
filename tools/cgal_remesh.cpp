@@ -38,7 +38,6 @@ knowledge of the CeCILL-B license and that you accept its terms.
 */
 
 #include <mesh.h>
-#include <assert.h>
 #include <options.h>
 #include "cgal_mesh.h"
 #include <CGAL/Polyhedral_mesh_domain_3.h>
