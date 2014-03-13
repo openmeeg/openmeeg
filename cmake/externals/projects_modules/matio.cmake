@@ -31,7 +31,7 @@ function(matio_project)
         # Define repository where get the sources
 
         if (NOT DEFINED ${ep}_SOURCE_DIR)
-            set(location GIT_REPOSITORY "git@github.com:openmeeg/matio-openmeeg.git")
+            set(location GIT_REPOSITORY "https://github.com/openmeeg/matio-openmeeg.git")
         endif()
 
         # Add specific cmake arguments for configuration step of the project
