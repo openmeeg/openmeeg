@@ -20,18 +20,13 @@ set(HOME_PATH $ENV{HOME})
 # Look for windows specific programs
 
 if (WIN32)
-    # Check for Visual Studio 2008 or 2010
-    if (NOT MSVC9 AND NOT MSVC10)
-        message(SEND_ERROR "MedInria can only be compiled with Visual Studio 2008 or 2010 at this time.")
-    endif()
-
-    # Check for DirectX SDK (for VTK)
-    file(GLOB DIRECTX_SDK "C:/Program Files*/Microsoft DirectX SDK*")
-    if (NOT DIRECTX_SDK)
-        message(SEND_ERROR "You need to install Microsoft DirectX SDK.")
-    else()
-        mark_as_advanced(DIRECTX_SDK)
-    endif()
+#    # Check for DirectX SDK (for VTK)
+#    file(GLOB DIRECTX_SDK "C:/Program Files*/Microsoft DirectX SDK*")
+#    if (NOT DIRECTX_SDK)
+#        message(SEND_ERROR "You need to install Microsoft DirectX SDK.")
+#    else()
+#        mark_as_advanced(DIRECTX_SDK)
+#    endif()
 
     # GitBash
     find_program(BASH_BIN NAMES bash)
