@@ -55,6 +55,7 @@ function(msinttypes_project)
             ${PATCH_COMMAND}
             CONFIGURE_COMMAND ""
             BUILD_COMMAND ""
+            INSTALL_COMMAND ""
         )
 
         # Set variable to provide infos about the project

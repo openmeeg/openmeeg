@@ -50,7 +50,7 @@ function(hdf5_project)
             ${ep_common_cache_args}
             ${ep_optional_args}
             -DHDF5_ENABLE_Z_LIB_SUPPORT:BOOL=ON
-            -DZLIB_DIR:STRING=${zlib_DIR}
+            -DZLIB_ROOT:STRING=${zlib_DIR}
             -DCMAKE_C_FLAGS:STRING=${${ep}_c_flags}
             -DCMAKE_CXX_COMPILER:FILEPATH=${CMAKE_CXX_COMPILER}
             -DCMAKE_SHARED_LINKER_FLAGS:STRING=${${ep}_shared_linker_flags}  
