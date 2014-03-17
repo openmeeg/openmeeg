@@ -64,6 +64,7 @@ function(matio_project)
         ExternalProject_Add(${ep}
             ${ep_dirs}
             ${location}
+            GIT_TAG SuperProject
             UPDATE_COMMAND ""
             ${PATCH_COMMAND}
             CMAKE_GENERATOR ${gen}
