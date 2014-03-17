@@ -1,9 +1,11 @@
 cd build
 
-cmake -DUSE_ATLAS=ON -DUSE_MKL=OFF -DENABLE_PYTHON=ON -DBUILD_TESTING=ON -DENABLE_PACKAGING=ON -DMATLAB_TESTING=OFF ..
-cmake --build . --config RelWithDebInfo
-cmake --build . --config RelWithDebInfo --target update
-cmake --build . --config RelWithDebInfo --target build
+set CMAKE="C:\Program Files\CMake 2.8\bin\cmake.exe"
+
+%CMAKE% -DUSE_ATLAS=ON -DUSE_MKL=OFF -DENABLE_PYTHON=ON -DBUILD_TESTING=ON -DENABLE_PACKAGING=ON -DMATLAB_TESTING=OFF ..
+%CMAKE% --build . --config RelWithDebInfo
+%CMAKE% --build . --config RelWithDebInfo --target update
+%CMAKE% --build . --config RelWithDebInfo --target build
 
 del build\JUnitTestResults.xml
 pushd build
