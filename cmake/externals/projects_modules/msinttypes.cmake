@@ -17,10 +17,7 @@ function(msinttypes_project)
       
     # Prepare the project
 
-    EP_Initialisation(${ep} 
-        USE_SYSTEM OFF 
-        BUILD_SHARED_LIBS ON
-    )
+    EP_Initialisation(${ep} USE_SYSTEM OFF BUILD_SHARED_LIBS ON)
 
     if (NOT USE_SYSTEM_${ep})
 
@@ -51,6 +48,7 @@ function(msinttypes_project)
 
         # Add external-project
 
+        message("Adding msinttypes.")
         ExternalProject_Add(${ep}
             ${ep_dirs}
             ${location}
