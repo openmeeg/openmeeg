@@ -48,7 +48,6 @@ function(msinttypes_project)
 
         # Add external-project
 
-        message("Adding msinttypes.")
         ExternalProject_Add(${ep}
             ${ep_dirs}
             ${location}
