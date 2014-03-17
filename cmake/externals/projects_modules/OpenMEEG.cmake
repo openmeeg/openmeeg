@@ -13,7 +13,7 @@ function(OpenMEEG_project)
 
     # List the dependencies of the project
 
-    set(${ep}_dependencies clapack matio)
+    set(${ep}_dependencies clapack matio ${MSINTTYPES})
       
     # Prepare the project
 
