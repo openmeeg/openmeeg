@@ -37,6 +37,7 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
+#include <iostream>
 #include "options.h"
 #include "matrix.h"
 #include "symmatrix.h"
@@ -55,34 +56,32 @@ int main( int argc, char** argv)
     if (command_option("-h",(const char *)0,0)) return 0;
 
     if(!input_filename || !output_filename) {
-        std::cout << "Not enough arguments, try the -h option" << std::endl;
+        std::cerr << "Not enough arguments, try the -h option" << std::endl;
         return 1;
     }
 
     Matrix squids(input_filename);
-    assert(squids.nlin() == 151);
 
-    FILE* f = fopen(output_filename,"w");
-    if (f==NULL)
-    {
-        perror("fopen");
-        return -1;
+    std::ofstream ofs(output_filename);
+    if (!ofs) {
+        std::cerr << "Cannot open file " << output_filename << " for writing." << std::endl;
+        return 1;
     }
-    fprintf(f,"# vtk DataFile Version 3.0\n");
-    fprintf(f,"vtk output\n");
-    fprintf(f,"ASCII\n");
-    fprintf(f,"DATASET POLYDATA\n");
-    fprintf(f,"POINTS %d float\n",(int)squids.nlin());
-    for( unsigned int i = 0; i < squids.nlin(); i += 1 )
-    {
-        fprintf(f, "%f %f %f\n", squids(i,0), squids(i,1), squids(i,2));
-    }
-    fprintf(f,"POINT_DATA %d\n",(int)squids.nlin());
-    fprintf(f,"NORMALS normals float\n");
-    for( unsigned int i = 0; i < squids.nlin(); i += 1 )
-    {
-        fprintf(f, "%f %f %f\n", squids(i,3), squids(i,4), squids(i,5));
-    }
-    fclose(f);
+
+    ofs <<"# vtk DataFile Version 3.0" << std::endl
+        << "vtk output" << std::endl
+        << "ASCII" << std::endl
+        << "DATASET POLYDATA" << std::endl
+        << "POINTS " << squids.nlin() << " float" << std::endl;
+
+    for (unsigned int i = 0; i < squids.nlin();++i)
+        ofs << squids(i,0) << ' ' << squids(i,1) << ' ' << squids(i,2) << std::endl;
+
+    ofs << "POINT_DATA " << squids.nlin() << std::endl
+        << "NORMALS normals float" << std::endl;
+
+    for (unsigned int i = 0; i < squids.nlin();++i)
+        ofs << squids(i,3) << ' ' << squids(i,4) << ' ' << squids(i,5) << std::endl;
+
     return 0;
 }

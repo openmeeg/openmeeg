@@ -1,4 +1,4 @@
-#include "MatLibConfig.h"
+#include "OpenMEEGMathsConfig.h"
 #include "vector.h"
 #include "matrix.h"
 #include "symmatrix.h"
