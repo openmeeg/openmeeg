@@ -49,6 +49,7 @@ function(matio_project)
             ${ep_optional_args}
             -DCMAKE_C_FLAGS:STRING=${${ep}_c_flags}
             -DCMAKE_CXX_COMPILER:FILEPATH=${CMAKE_CXX_COMPILER}
+            -DZLIB_ROOT:STRING=${zlib_DIR}
             -DCMAKE_SHARED_LINKER_FLAGS:STRING=${${ep}_shared_linker_flags}  
             -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
             -DBUILD_SHARED_LIBS:BOOL=${BUILD_SHARED_LIBS_${ep}}
