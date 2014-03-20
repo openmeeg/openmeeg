@@ -50,6 +50,7 @@ function(matio_project)
             -DCMAKE_C_FLAGS:STRING=${${ep}_c_flags}
             -DCMAKE_CXX_COMPILER:FILEPATH=${CMAKE_CXX_COMPILER}
             -DZLIB_ROOT:STRING=${zlib_DIR}
+            -DHDF5_DIR:STRING=${hdf5_DIR}
             -DCMAKE_SHARED_LINKER_FLAGS:STRING=${${ep}_shared_linker_flags}  
             -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
             -DBUILD_SHARED_LIBS:BOOL=${BUILD_SHARED_LIBS_${ep}}
@@ -66,7 +67,6 @@ function(matio_project)
             ${ep_dirs}
             ${location}
             GIT_TAG SuperProject
-            UPDATE_COMMAND ""
             ${PATCH_COMMAND}
             CMAKE_GENERATOR ${gen}
             CMAKE_ARGS ${cmake_args}

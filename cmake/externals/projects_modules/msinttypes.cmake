@@ -51,7 +51,6 @@ function(msinttypes_project)
         ExternalProject_Add(${ep}
             ${ep_dirs}
             ${location}
-            UPDATE_COMMAND ""
             ${PATCH_COMMAND}
             CONFIGURE_COMMAND ""
             BUILD_COMMAND ""

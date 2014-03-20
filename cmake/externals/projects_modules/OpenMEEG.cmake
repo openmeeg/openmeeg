@@ -63,7 +63,6 @@ function(OpenMEEG_project)
             ${ep_dirs}
             ${location}
             GIT_TAG SuperProject
-            UPDATE_COMMAND ""
             ${PATCH_COMMAND}
             CMAKE_GENERATOR ${gen}
             CMAKE_ARGS ${cmake_args}
