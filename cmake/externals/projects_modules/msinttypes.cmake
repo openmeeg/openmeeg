@@ -42,17 +42,12 @@ function(msinttypes_project)
             set(${ep}_c_flags "${${ep}_c_flags} -w")
         endif()
 
-        # Check if patch has to be applied
-
-        ep_GeneratePatchCommand(${ep} PATCH_COMMAND "msinttypes.patch")
-        message("::: ${PATCH_COMMAND} :::")
-
         # Add external-project
 
         ExternalProject_Add(${ep}
             ${ep_dirs}
             ${location}
-            ${PATCH_COMMAND}
+            PATCH_COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_SOURCE_DIR}/patches/msinttypes.patch ${source_dir}
         )
 
         # Set variable to provide infos about the project
