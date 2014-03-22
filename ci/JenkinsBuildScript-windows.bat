@@ -1,8 +1,12 @@
+if not exist build (
+    mkdir build
+)
+
 cd build
 
 set CMAKE="C:\Program Files\CMake 2.8\bin\cmake.exe"
 
-%CMAKE% -DUSE_ATLAS=ON -DUSE_MKL=OFF -DENABLE_PYTHON=ON -DBUILD_TESTING=ON -DENABLE_PACKAGING=ON -DMATLAB_TESTING=OFF ..
+%CMAKE% -G"Visual Studio 11" -DUSE_MKL=OFF -DENABLE_PYTHON=ON -DBUILD_TESTING=ON -DENABLE_PACKAGING=ON -DMATLAB_TESTING=OFF ..
 %CMAKE% --build . --config RelWithDebInfo
 %CMAKE% --build . --config RelWithDebInfo --target update
 %CMAKE% --build . --config RelWithDebInfo --target build
