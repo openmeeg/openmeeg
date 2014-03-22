@@ -23,6 +23,8 @@ function(ep_SetDirectories ep  EP_DIRECTORIES ep_dirs)
         list(GET DIR_VAR_NAMES ${i} var)
         list(GET DIR_NAMES     ${i} dir)
         set(dirs ${dirs} ${var}_DIR ${ep}/${dir})
+        string(TOLOWER "${var}" varname)
+        set(${varname}_dir ${ep}/${dir} PARENT_SCOPE)
     endforeach()
 
     # Look for and define the source directory of the project 
