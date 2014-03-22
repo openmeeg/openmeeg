@@ -71,10 +71,11 @@ function(matio_project)
 
         # Add external-project
 
+        set(tag SuperProject)
         ExternalProject_Add(${ep}
             ${ep_dirs}
             ${location}
-            GIT_TAG SuperProject
+            GIT_TAG ${tag}
             ${PATCH_COMMAND}
             CMAKE_GENERATOR ${gen}
             CMAKE_ARGS ${cmake_args}
