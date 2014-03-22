@@ -58,7 +58,6 @@ function(matio_project)
             -DZLIB_ROOT:FILEPATH=${zlib_DIR}
             -DHDF5_DIR:FILEPATH=${hdf5_DIR}/cmake/hdf5
             ${MSINTTYPES_CMAKE_ARG}
-            -DINTTYPES_INCLUDES:FILEPATH=${msinttypes_DIR}/cmake/hdf5
             -DCMAKE_SHARED_LINKER_FLAGS:STRING=${${ep}_shared_linker_flags}  
             -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
             -DBUILD_SHARED_LIBS:BOOL=${BUILD_SHARED_LIBS_${ep}}
