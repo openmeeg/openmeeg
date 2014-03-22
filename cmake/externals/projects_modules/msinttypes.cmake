@@ -47,7 +47,7 @@ function(msinttypes_project)
         ExternalProject_Add(${ep}
             ${ep_dirs}
             ${location}
-            PATCH_COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_SOURCE_DIR}/patches/msinttypes.patch ${source_dir}
+            PATCH_COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_SOURCE_DIR}/patches/msinttypes.patch ${source_dir}/CMakeLists.txt
         )
 
         # Set variable to provide infos about the project
