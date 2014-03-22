@@ -58,6 +58,7 @@ function(hdf5_project)
             -DBUILD_SHARED_LIBS:BOOL=${BUILD_SHARED_LIBS_${ep}}
             -DBUILD_TESTING:BOOL=OFF
         )
+        message(":::${cmake_args}:::")
 
         # Check if patch has to be applied
 
