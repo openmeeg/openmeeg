@@ -44,7 +44,8 @@ function(msinttypes_project)
 
         # Check if patch has to be applied
 
-        ep_GeneratePatchCommand(${ep} PATCH_COMMAND msinttypes.patch)
+        ep_GeneratePatchCommand(${ep} PATCH_COMMAND "msinttypes.patch")
+        message("::: ${PATCH_COMMAND} :::")
 
         # Add external-project
 
