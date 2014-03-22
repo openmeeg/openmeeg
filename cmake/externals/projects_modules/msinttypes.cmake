@@ -54,13 +54,13 @@ function(msinttypes_project)
             ${PATCH_COMMAND}
             CONFIGURE_COMMAND ""
             BUILD_COMMAND ""
-            INSTALL_COMMAND ""
+            INSTALL_COMMAND ${CMAKE_COMMAND} -E copy_directory ${SOURCE_DIR} ${INSTALL_DIR} 
         )
 
         # Set variable to provide infos about the project
 
-        ExternalProject_Get_Property(${ep} binary_dir)
-        set(${ep}_DIR ${binary_dir} PARENT_SCOPE)
+        ExternalProject_Get_Property(${ep} install_dir)
+        set(${ep}_DIR ${install_dir} PARENT_SCOPE)
 
         # Add custom targets
 
