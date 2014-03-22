@@ -42,12 +42,20 @@ function(msinttypes_project)
             set(${ep}_c_flags "${${ep}_c_flags} -w")
         endif()
 
+        set(cmake_args
+            ${ep_common_cache_args}
+            ${ep_optional_args}
+            -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
+        )
+
         # Add external-project
 
         ExternalProject_Add(${ep}
             ${ep_dirs}
             ${location}
             PATCH_COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_SOURCE_DIR}/patches/msinttypes.patch ${source_dir}/CMakeLists.txt
+            CMAKE_GENERATOR ${gen}
+            CMAKE_ARGS ${cmake_args}
         )
 
         # Set variable to provide infos about the project
