@@ -54,7 +54,7 @@ function(msinttypes_project)
             ${PATCH_COMMAND}
             CONFIGURE_COMMAND ""
             BUILD_COMMAND ""
-            INSTALL_COMMAND ${CMAKE_COMMAND} -E copy_directory ${SOURCE_DIR} ${INSTALL_DIR} 
+            INSTALL_COMMAND ${CMAKE_COMMAND} -E copy_directory ${source_dir} ${install_dir}
         )
 
         # Set variable to provide infos about the project
