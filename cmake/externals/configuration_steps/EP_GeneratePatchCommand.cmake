@@ -11,7 +11,7 @@ function(ep_GeneratePatchCommand ep OutVar)
                         OUTPUT_QUIET
                         ERROR_QUIET)
         if (PATCH_OK EQUAL 0)
-            set(ITK_PATCHES_TO_APPLY ${PATCHES_TO_APPLY} ${CMAKE_SOURCE_DIR}/patches/${patch})
+            set(PATCHES_TO_APPLY ${PATCHES_TO_APPLY} ${CMAKE_SOURCE_DIR}/patches/${patch})
         endif()
     endforeach()
 
