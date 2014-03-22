@@ -44,6 +44,11 @@ function(matio_project)
             set(${ep}_c_flags "${${ep}_c_flags} -w")
         endif()
 
+        if (MSINTTYPES)
+            set(MSINTTYPES_CMAKE_ARG -DINTTYPES_INCLUDES:FILEPATH=${msinttypes_DIR})
+            message("${MSINTTYPES_CMAKE_ARG}")
+        endif()
+
         set(cmake_args
             ${ep_common_cache_args}
             ${ep_optional_args}
@@ -52,13 +57,14 @@ function(matio_project)
             -DUSE_SYSTEM_ZLIB:BOOL=OFF
             -DZLIB_ROOT:FILEPATH=${zlib_DIR}
             -DHDF5_DIR:FILEPATH=${hdf5_DIR}/cmake/hdf5
+            ${MSINTTYPES_CMAKE_ARG}
+            -DINTTYPES_INCLUDES:FILEPATH=${msinttypes_DIR}/cmake/hdf5
             -DCMAKE_SHARED_LINKER_FLAGS:STRING=${${ep}_shared_linker_flags}  
             -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
             -DBUILD_SHARED_LIBS:BOOL=${BUILD_SHARED_LIBS_${ep}}
             -DBUILD_TESTING:BOOL=OFF
         )
 
-        message("::${cmake_args}$::")
         # Check if patch has to be applied
 
         ep_GeneratePatchCommand(${ep} PATCH_COMMAND)
