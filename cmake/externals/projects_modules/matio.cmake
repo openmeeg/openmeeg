@@ -45,7 +45,7 @@ function(matio_project)
         endif()
 
         if (MSINTTYPES)
-            set(MSINTTYPES_CMAKE_ARG -DINTTYPES_INCLUDES:FILEPATH=${msinttypes_DIR})/include
+            set(MSINTTYPES_CMAKE_ARG -DINTTYPES_INCLUDES:FILEPATH=${msinttypes_DIR}/include)
             message("${MSINTTYPES_CMAKE_ARG}")
         endif()
 
