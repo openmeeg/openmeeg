@@ -118,21 +118,19 @@ namespace OpenMEEG {
     void assemble_cortical(const Geometry& geo, Matrix& mat, const Head2EEGMat& M, const std::string& domain_name, const unsigned gauss_order, double alpha, double beta, const std::string &filename)
     {
         // Following the article: M. Clerc, J. Kybic "Cortical mapping by Laplace–Cauchy transmission using a boundary element method".
-        // TODO check orders of MxM products for efficiency ... delete intermediate matrices
-
         // Assumptions:
-        // - domain_name: the domain containing the sources is an innermost domain (defined as the interior of only one interface (called CortexIntf)
-        // - CortexIntf interface is composed of one mesh only (no shared vertices)
+        // - domain_name: the domain containing the sources is an innermost domain (defined as the interior of only one interface (called Cortex)
+        // - Cortex interface is composed of one mesh only (no shared vertices)
 
         const Domain& SourceDomain  = geo.domain(domain_name);
-        const Interface& CortexIntf = SourceDomain.begin()->interface();
-        const Mesh& cortex          = CortexIntf.begin()->mesh();
+        const Interface& Cortex     = SourceDomain.begin()->interface();
+        const Mesh& cortex          = Cortex.begin()->mesh();
         
         om_error(SourceDomain.size()==1);
-        om_error(CortexIntf.size()==1);
+        om_error(Cortex.size()==1);
 
         // shape of the new matrix:
-        unsigned Nl = geo.size()-geo.outermost_interface().nb_triangles()-CortexIntf.nb_vertices()-CortexIntf.nb_triangles();
+        unsigned Nl = geo.size()-geo.outermost_interface().nb_triangles()-Cortex.nb_vertices()-Cortex.nb_triangles();
         unsigned Nc = geo.size()-geo.outermost_interface().nb_triangles();
         std::fstream f(filename.c_str());
         Matrix P;
@@ -270,24 +268,37 @@ namespace OpenMEEG {
         mat = P * Z.pinverse() * rhs;
     }
 
-    void assemble_cortical2(const Geometry& geo, Matrix& mat, const Head2EEGMat& M, const std::string& domain_name, const unsigned gauss_order, double alpha, const std::string &filename)
+    void assemble_cortical2(const Geometry& geo, Matrix& mat, const Head2EEGMat& M, const std::string& domain_name, const unsigned gauss_order, double gamma, const std::string &filename)
     {
-        // Following the article: M. Clerc, J. Kybic "Cortical mapping by Laplace–Cauchy transmission using a boundary element method".
+        // Re-writting of the optimization problem in M. Clerc, J. Kybic "Cortical mapping by Laplace–Cauchy transmission using a boundary element method".
+        // with a Lagrangian formulation as in see http://www.math.uh.edu/~rohop/fall_06/Chapter3.pdf eq3.3
+        // find argmin(norm(gradient(X)) under constraints: 
+        // H * X = 0 and M * X = m
+        // let G be the gradient norm matrix, l1, l2 the lagrange parameters
+        // 
+        // [ G  H' M'] [   X    ]   [ 0 ]
+        // | H  0    | |   l1   | = | 0 |
+        // [ M     0 ] [   l2   ]   [ m ]
+        //
+        // {----,----}
+        //      K
+        // we want a submat of the inverse of K (using blockwise inversion, (TODO maybe iterative solution better ?)).
         // Assumptions:
         // - domain_name: the domain containing the sources is an innermost domain (defined as the interior of only one interface (called Cortex)
         // - Cortex interface is composed of one mesh only (no shared vertices)
-        // TODO check orders of MxM products for efficiency ... delete intermediate matrices
+
         const Domain& SourceDomain = geo.domain(domain_name);
         const Interface& Cortex    = SourceDomain.begin()->interface();
         const Mesh& cortex         = Cortex.begin()->mesh();
-        // test the assumption
-        assert(SourceDomain.size() == 1);
-        assert(Cortex.size() == 1);
+        
+        om_error(SourceDomain.size()==1);
+        om_error(Cortex.size()==1);
+
         // shape of the new matrix:
         unsigned Nl = geo.size()-geo.outermost_interface().nb_triangles()-Cortex.nb_vertices()-Cortex.nb_triangles();
         unsigned Nc = geo.size()-geo.outermost_interface().nb_triangles();
         std::fstream f(filename.c_str());
-        SymMatrix KK;
+        Matrix H;
         if ( !f ) {
             // build the HeadMat:
             // The following is the same as assemble_HM except N_11, D_11 and S_11 are not computed.
@@ -332,74 +343,60 @@ namespace OpenMEEG {
             unsigned i_first = (*i.begin()->mesh().vertex_begin())->index();
             deflat(mat_temp, i, mat_temp(i_first, i_first) / (geo.outermost_interface().nb_vertices()));
 
-            mat = Matrix(Nl, Nc);
-            mat.set(0.0);
-            // copy mat_temp into mat except the lines for cortex vertices [i_vb_c, i_ve_c] and cortex triangles [i_tb_c, i_te_c].
+            H = Matrix(Nl + M.nlin(), Nc);
+            H.set(0.0);
+            // copy mat_temp into H except the lines for cortex vertices [i_vb_c, i_ve_c] and cortex triangles [i_tb_c, i_te_c].
             unsigned iNl = 0;
             for ( Geometry::const_iterator mit = geo.begin(); mit != geo.end(); ++mit) {
                 if ( *mit != cortex ) {
                     for ( Mesh::const_vertex_iterator vit = mit->vertex_begin(); vit != mit->vertex_end(); ++vit) {
-                        mat.setlin(iNl, mat_temp.getlin((*vit)->index()));
+                        H.setlin(iNl, mat_temp.getlin((*vit)->index()));
                         ++iNl;
                     }
                     if ( !mit->outermost() ) {
                         for ( Mesh::const_iterator tit = mit->begin(); tit != mit->end(); ++tit) {
-                            mat.setlin(iNl, mat_temp.getlin(tit->index()));
+                            H.setlin(iNl, mat_temp.getlin(tit->index()));
                             ++iNl;
                         }
                     }
                 }
             }
-
-            // ** Get the gradient of P1&P0 elements on the meshes **
-            KK = SymMatrix(Nc+Nl+M.nlin()); KK.set(0.);
-            for ( Geometry::const_iterator mit = geo.begin(); mit != geo.end(); ++mit) {
-                mit->gradient_norm2(KK);
-            }
-
-            for ( Meshes::const_iterator mit = geo.begin(); mit != geo.end(); ++mit) {
-                if ( !mit->outermost() ) {
-                    for ( Mesh::const_iterator tit1 = mit->begin(); tit1 != mit->end(); ++tit1) {
-                        for ( Mesh::const_iterator tit2 = mit->begin(); tit2 != mit->end(); ++tit2) {
-                            KK(tit1->index(), tit2->index()) *= alpha;
-                        }
-                    }
-                }
-            }
-            std::cout << "alpha = " << alpha << std::endl;
-
-            // concat H
-            for ( unsigned i = Nc; i < Nc+Nl; ++i) {
-                for ( unsigned j = 0; j < Nc; ++j) {
-                    KK(i,j) = mat(i-Nc, j);
-                }
-            }
             if ( filename.length() != 0 ) {
-                std::cout << "Saving matrix K (" << filename << ")." << std::endl;
-                KK.save(filename);
+                std::cout << "Saving matrix H (" << filename << ")." << std::endl;
+                H.save(filename);
             }
         } else {
-            std::cout << "Loading matrix K (" << filename << ")." << std::endl;
-            KK.load(filename);
-            for ( Meshes::const_iterator mit = geo.begin(); mit != geo.end(); ++mit) {
-                if ( !mit->outermost() ) {
-                    for ( Mesh::const_iterator tit1 = mit->begin(); tit1 != mit->end(); ++tit1) {
-                        for ( Mesh::const_iterator tit2 = mit->begin(); tit2 != mit->end(); ++tit2) {
-                            KK(tit1->index(), tit2->index()) *= alpha;
-                        }
+            std::cout << "Loading matrix H (" << filename << ")." << std::endl;
+            H.load(filename);
+        }
+
+        // concat M to H
+        for ( unsigned i = Nl; i < Nl + M.nlin(); ++i) {
+            for ( unsigned j = 0; j < Nc; ++j) {
+                H(i, j) = M(i-Nl, j);
+            }
+        }
+
+        // ** Get the gradient of P1&P0 elements on the meshes **
+        SymMatrix G(Nc);
+        G.set(0.);
+        for ( Geometry::const_iterator mit = geo.begin(); mit != geo.end(); ++mit) {
+            mit->gradient_norm2(G);
+        }
+        // multiply by gamma the submat of current gradient norm2
+        for ( Meshes::const_iterator mit = geo.begin(); mit != geo.end(); ++mit) {
+            if ( !mit->outermost() ) {
+                for ( Mesh::const_iterator tit1 = mit->begin(); tit1 != mit->end(); ++tit1) {
+                    for ( Mesh::const_iterator tit2 = mit->begin(); tit2 != mit->end(); ++tit2) {
+                        G(tit1->index(), tit2->index()) *= gamma;
                     }
                 }
             }
-            std::cout << "alpha = " << alpha << std::endl;
         }
+        std::cout << "gamma = " << gamma << std::endl;
         
-        // concat M
-        for ( unsigned i = Nc+Nl; i < Nc + Nl + M.nlin(); ++i) {
-            for ( unsigned j = 0; j < Nc; ++j) {
-                KK(i,j) = M(i-Nc-Nl, j);
-            }
-        }
-        mat = KK.inverse().submat(0, Nc, Nc+Nl, M.nlin());
+        G.invert();
+        mat = (G * H.transpose() * (H * G * H.transpose()).inverse()).submat(0, Nc, Nl, M.nlin());
     }
 
     void assemble_Surf2Vol(const Geometry& geo, Matrix& mat, const std::map<const Domain, Vertices> m_points) 
@@ -437,9 +434,9 @@ namespace OpenMEEG {
         assemble_cortical(geo, *this, M, domain_name, gauss_order, a, b, filename);
     }
 
-    CorticalMat2::CorticalMat2(const Geometry& geo, const Head2EEGMat& M, const std::string& domain_name, const unsigned gauss_order, double alpha, const std::string &filename)
+    CorticalMat2::CorticalMat2(const Geometry& geo, const Head2EEGMat& M, const std::string& domain_name, const unsigned gauss_order, double gamma, const std::string &filename)
     {
-        assemble_cortical2(geo, *this, M, domain_name, gauss_order, alpha, filename);
+        assemble_cortical2(geo, *this, M, domain_name, gauss_order, gamma, filename);
     }
 
     Surf2VolMat::Surf2VolMat(const Geometry& geo, const Matrix& points) 
