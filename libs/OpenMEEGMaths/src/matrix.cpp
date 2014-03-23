@@ -48,7 +48,6 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include "symmatrix.h"
 #include "sparse_matrix.h"
 #include "vector.h"
-#include "matvectOps.h"
 
 namespace OpenMEEG {
 
