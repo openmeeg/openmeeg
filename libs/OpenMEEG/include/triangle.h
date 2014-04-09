@@ -49,7 +49,7 @@ namespace OpenMEEG {
 
     /// \brief  Triangle
     ///
-    ///   Triangle class
+    /// Triangle class
 
     class OPENMEEG_EXPORT Triangle {
     public:
@@ -60,25 +60,31 @@ namespace OpenMEEG {
         /// Constructors
 
         Triangle(): index_(-1) { }
-        Triangle(Vertex *pts[3],unsigned i = -1); ///< Create a new triangle from a set of vertices.
-        Triangle(Vertex& p1, Vertex& p2, Vertex& p3, unsigned i = -1); ///< Create a new triangle from a 3 vertices.
-        Triangle(Vertex * p1, Vertex * p2, Vertex * p3, unsigned i = -1); ///< Create a new triangle from a 3 vertex adresses.
+        Triangle(Vertex *pts[3],const unsigned i=-1); ///< Create a new triangle from a set of vertices.
+        Triangle(Vertex& p1,Vertex& p2,Vertex& p3,const unsigned i=-1); ///< Create a new triangle from a 3 vertices.
+        Triangle(Vertex* p1,Vertex* p2,Vertex* p3,const unsigned i=-1); ///< Create a new triangle from a 3 vertex adresses.
         
         /// Operators
-              Vertex *   operator[](const unsigned& vindex)       { return vertices_[vindex%3];  } // 0 <= 'index' <= '2'
-        const Vertex *   operator[](const unsigned& vindex) const { return vertices_[vindex%3];  }
-              Vertex &   operator()(const unsigned& vindex)       { return *vertices_[vindex%3]; } // 0 <= 'index' <= '2'
-        const Vertex &   operator()(const unsigned& vindex) const { return *vertices_[vindex%3]; }
-              bool       operator==(const Triangle& T)      const { return (T[0]==vertices_[0])&(T[1]==vertices_[1])&(T[2]==vertices_[2]); }
+        // Having both [] and () doing different things is prone to errors. Also the %3 in indexing seems vety costly.
+
+              Vertex*   operator[](const unsigned& vindex)       { return vertices_[vindex%3];  } // 0 <= 'index' <= '2'
+        const Vertex*   operator[](const unsigned& vindex) const { return vertices_[vindex%3];  }
+              Vertex&   operator()(const unsigned& vindex)       { return *vertices_[vindex%3]; } // 0 <= 'index' <= '2'
+        const Vertex&   operator()(const unsigned& vindex) const { return *vertices_[vindex%3]; }
+
+              bool      operator==(const Triangle& T)     const { return (T[0]==vertices_[0])&(T[1]==vertices_[1])&(T[2]==vertices_[2]); }
                                                  
-              Vertex&        vertex(const unsigned& vindex)       { return operator()(vindex%3); }
-        const Vertex&        vertex(const unsigned& vindex) const { return operator()(vindex%3); }
+              Vertex&        vertex(const unsigned& vindex)       { return operator()(vindex); }
+        const Vertex&        vertex(const unsigned& vindex) const { return operator()(vindex); }
 
         /// Iterators.
-        const_iterator begin() const { return const_iterator(vertices_); }
+
+        const_iterator begin() const { return const_iterator(vertices_);   }
         const_iterator end()   const { return const_iterator(vertices_+3); }
-        iterator       begin()       { return iterator(vertices_);       }
+        iterator       begin()       { return iterator(vertices_);         }
         iterator       end()         { return iterator(vertices_+3);       }
+
+        //  These (s[1-3]) are ugly.. Remove ?
 
         const Vertex&  s1()    const { return *vertices_[0]; }
         const Vertex&  s2()    const { return *vertices_[1]; }
@@ -96,6 +102,8 @@ namespace OpenMEEG {
                                 
               unsigned& index()        { return index_; }
         const unsigned& index()  const { return index_; }
+
+        // These two methods are ugly and used exactly once. There is probably a better way.
 
         const Vertex& prev(const Vertex& V) const { 
             if ( &V == vertices_[0]) {
@@ -123,15 +131,13 @@ namespace OpenMEEG {
         }
 
         Vect3 center() const {
-            return 1./3.*(*vertices_[0]+*vertices_[1]+*vertices_[2]);
+            return (*vertices_[0]+*vertices_[1]+*vertices_[2])/3;
         }
 
         bool contains(const Vertex& p) const {
-            for ( unsigned i = 0; i < 3; ++i) {
-                if ( &vertex(i) == &p ) {
+            for (unsigned i=0;i<3;++i)
+                if (&vertex(i)==&p )
                     return true;
-                }
-            }
             return false;
         }
 
