@@ -47,40 +47,44 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 namespace OpenMEEG {
 
-    /** \brief  Triangle
-
-        Triangle class
-
-    **/
+    /// \brief  Triangle
+    ///
+    /// Triangle class
 
     class OPENMEEG_EXPORT Triangle {
-
     public:
 
         typedef       Vertex**       iterator;
         typedef const Vertex** const_iterator;
 
         /// Constructors
-        Triangle(): index_(-1) {}
+
+        Triangle(): ind(-1) { }
         Triangle(Vertex *pts[3], unsigned i = -1); ///< Create a new triangle from a set of vertices.
-        Triangle(Vertex& p1, Vertex& p2, Vertex& p3, unsigned i = -1); ///< Create a new triangle from a 3 vertices.
-        Triangle(Vertex * p1, Vertex * p2, Vertex * p3, unsigned i = -1); ///< Create a new triangle from a 3 vertex adresses.
+        Triangle(Vertex& p1,Vertex& p2,Vertex& p3,unsigned i=-1); ///< Create a new triangle from a 3 vertices.
+        Triangle(Vertex* p1,Vertex* p2,Vertex* p3,unsigned i=-1); ///< Create a new triangle from a 3 vertex adresses.
         
         /// Operators
-              Vertex *   operator[](const unsigned& vindex)       { return vertices_[vindex%3];  } // 0 <= 'index' <= '2'
-        const Vertex *   operator[](const unsigned& vindex) const { return vertices_[vindex%3];  }
-              Vertex &   operator()(const unsigned& vindex)       { return *vertices_[vindex%3]; } // 0 <= 'index' <= '2'
-        const Vertex &   operator()(const unsigned& vindex) const { return *vertices_[vindex%3]; }
-              bool       operator==(const Triangle& T)      const { return (T[0]==vertices_[0])&(T[1]==vertices_[1])&(T[2]==vertices_[2]); }
+
+              Vertex* operator[](const unsigned& vindex)       { return vertices_[vindex%3];  } // 0 <= 'index' <= '2'
+        const Vertex* operator[](const unsigned& vindex) const { return vertices_[vindex%3];  }
+
+              Vertex& operator()(const unsigned& vindex)       { return *vertices_[vindex%3]; } // 0 <= 'index' <= '2'
+        const Vertex& operator()(const unsigned& vindex) const { return *vertices_[vindex%3]; }
+
+              bool    operator==(const Triangle& T)      const { return (T[0]==vertices_[0])&(T[1]==vertices_[1])&(T[2]==vertices_[2]); }
                                                  
-              Vertex&        vertex(const unsigned& vindex)       { return operator()(vindex%3); }
-        const Vertex&        vertex(const unsigned& vindex) const { return operator()(vindex%3); }
+              Vertex& vertex(const unsigned& vindex)       { return operator()(vindex%3); }
+        const Vertex& vertex(const unsigned& vindex) const { return operator()(vindex%3); }
 
         /// Iterators.
+
         const_iterator begin() const { return const_iterator(vertices_); }
         const_iterator end()   const { return const_iterator(vertices_+3); }
         iterator       begin()       { return iterator(vertices_);       }
         iterator       end()         { return iterator(vertices_+3);       }
+
+        //  Ugly suppress !!!
 
         const Vertex&  s1()    const { return *vertices_[0]; }
         const Vertex&  s2()    const { return *vertices_[1]; }
@@ -96,8 +100,10 @@ namespace OpenMEEG {
               double&  area()         { return area_; }
         const double&  area()   const { return area_; }
                                 
-              unsigned& index()        { return index_; }
-        const unsigned& index()  const { return index_; }
+              unsigned& index()        { return ind; }
+        const unsigned& index()  const { return ind; }
+
+        //  Ugly suppress !!!
 
         const Vertex& prev(const Vertex& V) const { 
             if ( &V == vertices_[0]) {
@@ -129,11 +135,9 @@ namespace OpenMEEG {
         }
 
         bool contains(const Vertex& p) const {
-            for ( unsigned i = 0; i < 3; ++i) {
-                if ( &vertex(i) == &p ) {
+            for (unsigned i=0;i<3;++i)
+                if (&vertex(i)==&p)
                     return true;
-                }
-            }
             return false;
         }
 
@@ -141,10 +145,10 @@ namespace OpenMEEG {
 
     private:
 
-        Vertex *  vertices_[3]; ///< &Vertex-triplet defining the triangle
-        double    area_;       ///< Area
-        Normal    normal_;     ///< Normal
-        unsigned  index_;      ///< Index of the triangle
+        Vertex*   vertices_[3]; ///< &Vertex-triplet defining the triangle
+        double    area_;        ///< Area
+        Normal    normal_;      ///< Normal
+        unsigned  ind;          ///< Index of the triangle
     };
 
     typedef std::vector<Triangle> Triangles;

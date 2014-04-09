@@ -70,7 +70,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #ifdef USE_GIFTI
 extern "C" {
-#include <gifti_io.h>
+    #include <gifti_io.h>
 }
 #endif
 
@@ -84,7 +84,6 @@ namespace OpenMEEG {
     */
 
     class OPENMEEG_EXPORT Mesh: public Triangles {
-
     public:
         
         typedef std::vector<Triangle *>                                       VectPTriangle;
@@ -95,11 +94,13 @@ namespace OpenMEEG {
 
         // Constructors:
         /// default constructor
+
         Mesh(): Triangles(), name_(""), all_vertices_(0), outermost_(false), allocate_(false) { }
 
         /** constructor from scratch (add vertices/triangles one by one) 
             \param nb_vertices allocate space for vertices
             \param nb_triangles allocate space for triangles */
+
         Mesh(const unsigned& _nb_vertices, const unsigned& _nb_triangles): name_(""), outermost_(false), allocate_(true) {
             all_vertices_ = new Vertices;
             all_vertices_->reserve(_nb_vertices); // allocates space for the vertices
@@ -107,14 +108,17 @@ namespace OpenMEEG {
         }
 
         /// constructor from another mesh \param m
+
         Mesh(const Mesh& m);
 
         /// constructor using an outisde storage for vertices \param all_vertices Where to store vertices \param name Mesh name
+
         Mesh(Vertices& _all_vertices, const std::string _name = ""): name_(_name), all_vertices_(&_all_vertices), outermost_(false), allocate_(false) { 
             set_vertices_.insert(all_vertices_->begin(), all_vertices_->end()); 
         }
 
         /// constructor loading directly a mesh file \param filename \param verbose \param name Mesh name
+
         Mesh(std::string filename, const bool verbose = true, const std::string _name = ""): name_(_name), outermost_(false), allocate_(true) { 
             unsigned nb_v = load(filename, false, false); 
             all_vertices_ = new Vertices(nb_v); // allocates space for the vertices
@@ -122,9 +126,11 @@ namespace OpenMEEG {
         }
 
         /// Destructor
+
         ~Mesh() { destroy(); }
 
         // Iterators on vertices
+
         vertex_iterator               vertex_begin()        { return vertices_.begin(); }
         vertex_iterator               vertex_end()          { return vertices_.end(); }
         const_vertex_iterator         vertex_begin()  const { return vertices_.begin(); }
@@ -143,11 +149,13 @@ namespace OpenMEEG {
               unsigned                nb_all_vertices() const { return all_vertices_->size(); }
 
         /// \brief properly add vertex to the list.
+
         void add_vertex(const Vertex& v);
 
         /** \brief Print info
           Print to std::cout some info about the mesh
           \return void \sa */
+
         void info(const bool verbous = false) const;
         bool has_self_intersection() const; ///< \brief check if the mesh self-intersects
         bool intersection(const Mesh&) const; ///< \brief check if the mesh intersects another mesh
@@ -173,9 +181,11 @@ namespace OpenMEEG {
           \param niter
           \return void
          **/
+
         void smooth(const double& smoothing_intensity, const unsigned& niter);
 
         /// \brief Compute the square norm of the surfacic gradient
+
         void gradient_norm2(SymMatrix &A) const;
 
         // for IO:s --------------------------------------------------------------------
@@ -183,6 +193,7 @@ namespace OpenMEEG {
           \param filename can be .vtk, .tri (ascii), .off .bnd or .mesh
           \param \optional verbose. 
           \param \optional read_all. If False then it only returns the total number of vertices */
+
         unsigned load(const std::string& filename, const bool& verbose = true, const bool& read_all = true);
         unsigned load_tri(std::istream& , const bool& read_all = true);
         unsigned load_tri(const std::string&, const bool& read_all = true);
@@ -192,46 +203,54 @@ namespace OpenMEEG {
         unsigned load_off(const std::string&, const bool& read_all = true);
         unsigned load_mesh(std::istream& , const bool& read_all = true);
         unsigned load_mesh(const std::string&, const bool& read_all = true);
-        #ifdef USE_VTK
+
+    #ifdef USE_VTK
         unsigned load_vtk(std::istream& , const bool& read_all = true);
         unsigned load_vtk(const std::string&, const bool& read_all = true);
         unsigned get_data_from_vtk_reader(vtkPolyDataReader* vtkMesh, const bool& read_all);
-        #else
+    #else
         template <typename T>
         unsigned load_vtk(T, const bool& read_all = true) {
             std::cerr << "You have to compile OpenMEEG with VTK to read VTK/VTP files. (specify USE_VTK to cmake)" << std::endl;
             exit(1);
         }
-        #endif
-        #ifdef USE_GIFTI
+    #endif
+
+    #ifdef USE_GIFTI
         unsigned load_gifti(const std::string&, const bool& read_all = true);
-        #else
+    #else
         template <typename T>
         unsigned load_gifti(T, const bool&) {
             std::cerr << "You have to compile OpenMEEG with GIFTI to read GIFTI files" << std::endl;
             exit(1);
         }
-        #endif
+    #endif
+
         template <typename T>
         void save_gifti(T) const {
             std::cerr << "GIFTI writer : Not implemented" << std::endl;
             exit(1);
         }
+
         /** Save mesh to file
          \param filename can be .vtk, .tri (ascii), .bnd, .off or .mesh */
+
         void save(const std::string& filename) const ;
         void save_vtk(const std::string&)  const;
         void save_bnd(const std::string&)  const;
         void save_tri(const std::string&)  const;
         void save_off(const std::string&)  const;
         void save_mesh(const std::string&) const;
+
         // IO:s ----------------------------------------------------------------------------
 
         Mesh& operator=(const Mesh& m);
         friend std::istream& operator>>(std::istream& is, Mesh& m); ///< \brief insert a triangle into the mesh
 
     private:
+
         /// map the edges with an unsigned
+
         typedef std::map<std::pair<const Vertex *, const Vertex *>, int> EdgeMap; 
 
         void destroy();

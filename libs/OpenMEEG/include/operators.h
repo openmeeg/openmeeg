@@ -162,6 +162,7 @@ namespace OpenMEEG {
     template<class T>
     inline double _operatorN(const Vertex& V1, const Vertex& V2, const Mesh& m1, const Mesh& m2, const T& mat)
     {
+        std::cerr << "THERE" << std::endl;
         double Iqr, Aqr;
         double result = 0.0;
 
@@ -193,8 +194,11 @@ namespace OpenMEEG {
                 aq /= aq.norm2();
                 br /= br.norm2();
 
+                const Vect3 aa1 =  (aq ^ (*tit1)->normal())-A1B1/(*tit1)->area();
+                std::cerr << "DEBUG = " << aa1 << std::endl;
                 Aqr = -0.25 * ((aq ^ (*tit1)->normal()) * (br ^ (*tit2)->normal()));
             #else
+                std::cerr << "HERE" << std::endl;
                 Vect3 CB1 = (*tit1)->next(V1) - (*tit1)->prev(V1);
                 Vect3 CB2 = (*tit2)->next(V2) - (*tit2)->prev(V2);
 
@@ -233,7 +237,9 @@ namespace OpenMEEG {
 
         unsigned i = 0; // for the PROGRESSBAR
         if ( &m1 == &m2 ) {
+            std::cerr << "1" << std::endl;
             if ( m1.outermost() ) {
+                std::cerr << "A" << std::endl;
                 // we thus precompute operator S divided by the product of triangles area.
                 SymMatrix matS(m1.nb_triangles());
                 for ( Mesh::const_iterator tit1 = m1.begin(); tit1 != m1.end(); ++tit1) {
@@ -252,6 +258,7 @@ namespace OpenMEEG {
                     }
                 }
             } else {
+                std::cerr << "B" << std::endl;
                 for ( Mesh::const_vertex_iterator vit1 = m1.vertex_begin(); vit1 != m1.vertex_end(); ++vit1) {
                     PROGRESSBAR(i++, m1.nb_vertices());
                     #pragma omp parallel for
@@ -261,7 +268,9 @@ namespace OpenMEEG {
                 }
             }
         } else {
+            std::cerr << "2" << std::endl;
             if ( m1.outermost() || m2.outermost() ) {
+                std::cerr << "C" << std::endl;
                 // we thus precompute operator S divided by the product of triangles area.
                 Matrix matS(m1.nb_triangles(), m2.nb_triangles());
                 for ( Mesh::const_iterator tit1 = m1.begin(); tit1 != m1.end(); ++tit1) {
@@ -280,6 +289,7 @@ namespace OpenMEEG {
                     }
                 }
             } else {
+                std::cerr << "D" << std::endl;
                 for ( Mesh::const_vertex_iterator vit1 = m1.vertex_begin(); vit1 != m1.vertex_end(); ++vit1) {
                     PROGRESSBAR(i++, m1.nb_vertices());
                     #pragma omp parallel for
