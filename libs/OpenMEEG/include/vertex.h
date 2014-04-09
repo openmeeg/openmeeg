@@ -44,33 +44,30 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 namespace OpenMEEG {
 
-    /** \brief  Vertex
-
-        Vertex Class
-        derived from a Vect3 Class, has an index
-
-    **/
+    /// \brief  Vertex
+    ///
+    ///   Vertex Class
+    ///   derived from a Vect3 Class, has an index
 
     class OPENMEEG_EXPORT Vertex: public Vect3 {
-
     public:
 
-        inline Vertex(): index_(-1) {};
+        Vertex(): ind(-1) {};
         
-        inline Vertex(const double& _x, const double& _y, const double& _z): Vect3(_x, _y, _z), index_(-1) { }
+        Vertex(const double& x,const double& y,const double& z): Vect3(x,y,z),ind(-1) { }
 
-        inline Vertex(const double& _x, const double& _y, const double& _z, const unsigned& id): Vect3(_x, _y, _z), index_(id) { }
+        Vertex(const double& x,const double& y,const double& z,const unsigned& id): Vect3(x,y,z),ind(id) { }
 
-        inline Vertex(const Vect3& v): Vect3(v), index_(-1) { }
+        Vertex(const Vect3& v): Vect3(v),ind(-1) { }
 
-        inline ~Vertex() {};
+        ~Vertex() {};
 
-              unsigned& index()       { return index_; }
-        const unsigned& index() const { return index_; }
+              unsigned& index()       { return ind; }
+        const unsigned& index() const { return ind; }
 
     private:
 
-        unsigned index_; ///< Index of the vertex
+        unsigned ind; ///< Index of the vertex
     };
 
     typedef std::vector<Vertex> Vertices;
