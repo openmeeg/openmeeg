@@ -47,22 +47,20 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 namespace OpenMEEG {
 
-    /** \brief  Triangle
-
-        Triangle class
-
-    **/
+    /// \brief  Triangle
+    ///
+    ///   Triangle class
 
     class OPENMEEG_EXPORT Triangle {
-
     public:
 
         typedef       Vertex**       iterator;
         typedef const Vertex** const_iterator;
 
         /// Constructors
-        Triangle(): index_(-1) {}
-        Triangle(Vertex *pts[3], unsigned i = -1); ///< Create a new triangle from a set of vertices.
+
+        Triangle(): index_(-1) { }
+        Triangle(Vertex *pts[3],unsigned i = -1); ///< Create a new triangle from a set of vertices.
         Triangle(Vertex& p1, Vertex& p2, Vertex& p3, unsigned i = -1); ///< Create a new triangle from a 3 vertices.
         Triangle(Vertex * p1, Vertex * p2, Vertex * p3, unsigned i = -1); ///< Create a new triangle from a 3 vertex adresses.
         
@@ -141,10 +139,10 @@ namespace OpenMEEG {
 
     private:
 
-        Vertex *  vertices_[3]; ///< &Vertex-triplet defining the triangle
-        double    area_;       ///< Area
-        Normal    normal_;     ///< Normal
-        unsigned  index_;      ///< Index of the triangle
+        Vertex*  vertices_[3]; ///< &Vertex-triplet defining the triangle
+        double   area_;       ///< Area
+        Normal   normal_;     ///< Normal
+        unsigned index_;      ///< Index of the triangle
     };
 
     typedef std::vector<Triangle> Triangles;
