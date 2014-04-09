@@ -128,10 +128,17 @@ namespace OpenMEEG {
         allocate_ = false;
     }
 
+    //  This is not the input of a mesh. It should be renamed...
+
     std::istream& operator>>(std::istream& is,Mesh& m) {
-        unsigned a, b, c;
-        is >> a >> b >> c;
-        Triangle t(m.vertices_[a], m.vertices_[b], m.vertices_[c] );
+        unsigned vind[3];
+        is >> vind[0] >> vind[1] >> vind[2];
+        for (unsigned i=0;i<3;++i)
+            if (vind[i]>=m.vertices_.size()) {
+                std::cerr << "Unknown vertex: " << vind[i] << " (hint: vertex numbering often starts at 0). Aborting." << std::endl;
+                exit(1);
+            }
+        Triangle t(m.vertices_[vind[0]],m.vertices_[vind[1]],m.vertices_[vind[2]]);
         m.push_back(t);
         return is;
     }
@@ -824,10 +831,8 @@ namespace OpenMEEG {
 
         reserve(ntrgs);
 
-        for (unsigned i = 0; i < ntrgs; ++i) {
-            f >> trash;        // put the "3" to trash
-            f >> *this;
-        }
+        for (unsigned i = 0; i < ntrgs; ++i)
+            f >> trash >> *this;        // put the "3" to trash
 
         return 0;
     }
