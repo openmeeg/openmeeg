@@ -96,7 +96,7 @@ namespace OpenMEEG {
 
                     if ( !mit1->outermost() ) {
                         // Computing D block
-                        operatorD(*mit1, *mit2, mat, Dcoeff, gauss_order);
+                        operatorD(*mit1, *mit2, mat, Dcoeff, gauss_order,false);
                     }
                     if ( ( *mit1 != *mit2 ) && ( !mit2->outermost() ) ) {
                         // Computing D* block
@@ -162,7 +162,7 @@ namespace OpenMEEG {
                         }
                         if ( !mit1->outermost() && (( (*mit1 != *mit2)||( *mit1 != cortex) )) ) {
                             // Computing D block
-                            operatorD(*mit1, *mit2, mat_temp, Dcoeff, gauss_order);
+                            operatorD(*mit1, *mit2, mat_temp, Dcoeff, gauss_order,false);
                         }
                         if ( ( *mit1 != *mit2 ) && ( !mit2->outermost() ) ) {
                             // Computing D* block
