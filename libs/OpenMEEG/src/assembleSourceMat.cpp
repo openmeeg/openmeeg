@@ -82,7 +82,7 @@ namespace OpenMEEG {
                 operatorN( omit->mesh(), mesh_source, mat, coeffN, gauss_order);
                 // Second block is nFacesFistLayer*nVertexSources.
                 double coeffD = (hit->inside())?-omit->orientation() * K / sigma : omit->orientation() * K / sigma;
-                operatorD(omit->mesh(), mesh_source, mat, coeffD, gauss_order);
+                operatorD(omit->mesh(), mesh_source, mat, coeffD, gauss_order,false);
             }
         }
     }
