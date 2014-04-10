@@ -74,7 +74,7 @@ namespace OpenMEEG {
 
     /// Print informations about the mesh 
 
-    void Mesh::info(const bool verbous) const {
+    void Mesh::info(const bool verbose) const {
         std::cout << "Info:: Mesh name/ID : "  << name() << std::endl;
         std::cout << "\t\t# vertices  : " << nb_vertices() << std::endl;
         std::cout << "\t\t# triangles : " << nb_triangles() << std::endl;
@@ -88,7 +88,7 @@ namespace OpenMEEG {
         }
         std::cout << "\t\tMin Area : " << min_area << std::endl;
         std::cout << "\t\tMax Area : " << max_area << std::endl;
-        if (verbous) {
+        if (verbose) {
             std::cout << "Indices :" << std::endl;
             for (const_vertex_iterator vit = vertex_begin(); vit != vertex_end(); ++vit) {
                 std::cout << "[" << **vit << "] = " << (*vit)->index() << std::endl;
@@ -105,19 +105,15 @@ namespace OpenMEEG {
 
         std::set<const Vertex *> mesh_v;
         vertices_.clear();
-        for (const_iterator tit = begin(); tit != end(); ++tit) {
-            for (Triangle::const_iterator sit = tit->begin(); sit != tit->end(); ++sit) {
-                if (mesh_v.insert(*sit).second) {
+        for (const_iterator tit = begin(); tit != end(); ++tit)
+            for (Triangle::const_iterator sit = tit->begin(); sit != tit->end(); ++sit)
+                if (mesh_v.insert(*sit).second)
                     vertices_.push_back(const_cast<Vertex *>(*sit));
-                }
-            }
-        }
     }
 
     void Mesh::destroy() {
-        if (allocate_) {
+        if (allocate_)
             delete all_vertices_;
-        }
         clear();
         all_vertices_ = 0;
         vertices_.clear();
@@ -170,17 +166,14 @@ namespace OpenMEEG {
 
         // make links
         links_.clear();
-        for (const_iterator tit = begin(); tit != end(); ++tit) {
-            for (Triangle::const_iterator sit = tit->begin(); sit != tit->end(); ++sit) {
+        for (const_iterator tit = begin(); tit != end(); ++tit)
+            for (Triangle::const_iterator sit = tit->begin(); sit != tit->end(); ++sit)
                 links_[*sit].push_back(const_cast<Triangle *>(&*tit));
-            }
-        }
 
         // If indices are not set, we generate them for sorting edge and testing orientation
         if (allocate_) {
-            if ((*vertex_begin())->index() == unsigned(-1)) {
+            if ((*vertex_begin())->index() == unsigned(-1))
                 generate_indices();
-            }
             correct_local_orientation();
         }
 
@@ -196,9 +189,8 @@ namespace OpenMEEG {
     Normal Mesh::normal(const Vertex& v) const {
 
         Normal _normal(0);
-        for (VectPTriangle::const_iterator tit = links_.at(&v).begin(); tit != links_.at(&v).end(); ++tit) {
+        for (VectPTriangle::const_iterator tit = links_.at(&v).begin(); tit != links_.at(&v).end(); ++tit)
             _normal += (*tit)->normal();
-        }
         _normal.normalize();
         return _normal;
     }
@@ -241,24 +233,19 @@ namespace OpenMEEG {
 
         std::vector< std::set<Vertex> > neighbors(nb_vertices());
         unsigned i = 0;
-        for (const_vertex_iterator vit = vertex_begin(); vit != vertex_end(); ++vit, ++i) {
-            for (VectPTriangle::const_iterator tit = links_[*vit].begin(); tit != links_[*vit].end(); ++tit) {
-                for (unsigned  k = 0; k < 3; ++k) {
-                    if ((**tit)(k) == **vit) {
+        for (const_vertex_iterator vit = vertex_begin(); vit != vertex_end(); ++vit, ++i)
+            for (VectPTriangle::const_iterator tit = links_[*vit].begin(); tit != links_[*vit].end(); ++tit)
+                for (unsigned  k = 0; k < 3; ++k)
+                    if ((**tit)(k) == **vit)
                         neighbors[i].insert((**tit)(k));
-                    }
-                }
-            }
-        }
 
         Vertices new_pts(nb_vertices());
         for (unsigned n = 0; n < niter; ++n) {
             i = 0;
             for (const_vertex_iterator vit = vertex_begin(); vit != vertex_end(); ++vit, ++i) {
                 new_pts.push_back(**vit);
-                for (std::set<Vertex>::const_iterator it = neighbors[i].begin(); it != neighbors[i].end(); ++it) {
+                for (std::set<Vertex>::const_iterator it = neighbors[i].begin(); it != neighbors[i].end(); ++it)
                     new_pts[i] = new_pts[i] + (smoothing_intensity * (*it - **vit)) / neighbors[i].size();
-                }
             }
             for (vertex_iterator vit = vertex_begin(); vit != vertex_end(); ++vit) {
                 **vit = new_pts[i];
@@ -292,9 +279,8 @@ namespace OpenMEEG {
 
         for (const_iterator tit = begin(); tit != end(); ++tit)
             for (unsigned j = 0; j < 3; ++j)
-                if (((*tit)(j)).index() < ((*tit)(j+1)).index()) { // sym matrix only lower half
+                if (((*tit)(j)).index() < ((*tit)(j+1)).index()) // sym matrix only lower half
                     A(((*tit)(j)).index(), ((*tit)(j+1)).index()) += P1gradient((*tit)(j), (*tit)(j+1), (*tit)(j+2)) * P1gradient((*tit)(j+1), (*tit)(j+2), (*tit)(j+3)) * std::pow(tit->area(),2);
-                }
 
         // P0 gradients: loop on triangles
         if (!outermost_) // if it is an outermost mesh: p=0 thus no need for computing it
@@ -475,30 +461,25 @@ namespace OpenMEEG {
         unsigned npts, ntrgs;
         npts = vtkMesh->GetNumberOfPoints();
 
-        if (!read_all) {
+        if (!read_all)
             return npts;
-        }
 
-        for (unsigned i = 0; i < npts; ++i) {
+        for (unsigned i = 0; i < npts; ++i)
             add_vertex(Vertex(vtkMesh->GetPoint(i)[0], vtkMesh->GetPoint(i)[1], vtkMesh->GetPoint(i)[2]));
-        }
 
         ntrgs = vtkMesh->GetNumberOfCells();
 
         vtkIdList *l;
         reserve(ntrgs);
 
-        for (unsigned i = 0; i < ntrgs; ++i) {
+        for (unsigned i = 0; i < ntrgs; ++i)
             if (vtkMesh->GetCellType(i) == VTK_TRIANGLE) {
                 l = vtkMesh->GetCell(i)->GetPointIds();
-                push_back(Triangle(vertices()[l->GetId(0)],
-                                   vertices()[l->GetId(1)],
-                                   vertices()[l->GetId(2)]))  ;
+                push_back(Triangle(vertices()[l->GetId(0)],vertices()[l->GetId(1)],vertices()[l->GetId(2)]));
             } else {
                 std::cerr << "Mesh \"" << name_ << "\" is not a triangulation" << std::endl;
                 exit(1);
             }
-        }
 
         return 0;
     }
@@ -563,7 +544,7 @@ namespace OpenMEEG {
         // find which array contains the points and which the triangles
         unsigned ipts, itrgs;
         unsigned iit = 0;
-        while ( iit < gim->numDA) {
+        while (iit < gim->numDA) {
             if (gim->darray[iit]->intent == NIFTI_INTENT_POINTSET) {
                 ipts = iit;
             } else if (gim->darray[iit]->intent == NIFTI_INTENT_TRIANGLE) {
@@ -675,9 +656,7 @@ namespace OpenMEEG {
         reserve(ntrgs);
 
         for (unsigned i = 0; i < ntrgs; ++i)
-            push_back(Triangle(vertices_[faces_raw[i*3+0]], 
-                               vertices_[faces_raw[i*3+1]],
-                               vertices_[faces_raw[i*3+2]]));
+            push_back(Triangle(vertices_[faces_raw[i*3+0]],vertices_[faces_raw[i*3+1]],vertices_[faces_raw[i*3+2]]));
 
         delete[] faces_raw;
         delete[] normals_raw;
@@ -867,9 +846,8 @@ namespace OpenMEEG {
             os << **vit << std::endl;
         }
         os << "POLYGONS " << nb_triangles() << " " << nb_triangles()*4 << std::endl;
-        for (const_iterator tit = begin(); tit != end(); ++tit) {
+        for (const_iterator tit = begin(); tit != end(); ++tit)
             os << "3 " << map[&(tit->s1())] << " " << map[&(tit->s2())] << " " << map[&(tit->s3())] << std::endl;
-        }
 
         os << "CELL_DATA " << nb_triangles() << std::endl;
         os << "POINT_DATA " << nb_vertices() << std::endl;
@@ -1079,12 +1057,13 @@ namespace OpenMEEG {
             center += **vit;
 
         center /= nb_vertices();
+        const double eps = 1.e3*std::numeric_limits<double>::epsilon();
         double solangle = compute_solid_angle(center);
-        if (std::abs(solangle) < 1.e3*std::numeric_limits<double>::epsilon()) {
+        if (std::abs(solangle)<eps) {
             std::cout << "Center point :" << center << " is on the mesh." << std::endl;
-        } else if (std::abs(solangle + 4.*M_PI) < 1.e3*std::numeric_limits<double>::epsilon()) {
+        } else if (std::abs(solangle+4.*M_PI)<eps) {
             // mesh is ok
-        } else if (std::abs(solangle - 4.*M_PI) < 1.e3*std::numeric_limits<double>::epsilon()) {
+        } else if (std::abs(solangle-4.*M_PI)<eps) {
             flip_triangles();
         } else {
             std::cout << "Not a closed mesh." << std::endl;
@@ -1100,12 +1079,11 @@ namespace OpenMEEG {
             for (VectPTriangle::iterator tit = t_adj.begin(); tit != t_adj.end(); ++tit)
                 if (tri_reoriented.count(*tit) == 0) {
                     t_stack.push(*tit);
-                    for (Triangle::iterator vit = (*tit)->begin(); vit != (*tit)->end(); ++vit) {
+                    for (Triangle::iterator vit = (*tit)->begin(); vit != (*tit)->end(); ++vit)
                         if (t->next(**vit) == (*tit)->next(**vit)) {
                             (*tit)->flip();
                             break;
                         }
-                    }
                     tri_reoriented[*tit] = true;
                 }
         }
@@ -1125,4 +1103,4 @@ namespace OpenMEEG {
 
         return true;
     }
-} // end namespace OpenMeeg
+}

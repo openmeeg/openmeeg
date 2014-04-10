@@ -70,7 +70,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #ifdef USE_GIFTI
 extern "C" {
-#include <gifti_io.h>
+    #include <gifti_io.h>
 }
 #endif
 
@@ -209,27 +209,27 @@ namespace OpenMEEG {
         unsigned load_mesh(std::istream& , const bool& read_all = true);
         unsigned load_mesh(const std::string&, const bool& read_all = true);
 
-        #ifdef USE_VTK
+    #ifdef USE_VTK
         unsigned load_vtk(std::istream& , const bool& read_all = true);
         unsigned load_vtk(const std::string&, const bool& read_all = true);
         unsigned get_data_from_vtk_reader(vtkPolyDataReader* vtkMesh, const bool& read_all);
-        #else
+    #else
         template <typename T>
         unsigned load_vtk(T, const bool& read_all = true) {
             std::cerr << "You have to compile OpenMEEG with VTK to read VTK/VTP files. (specify USE_VTK to cmake)" << std::endl;
             exit(1);
         }
-        #endif
+    #endif
 
-        #ifdef USE_GIFTI
+    #ifdef USE_GIFTI
         unsigned load_gifti(const std::string&, const bool& read_all = true);
-        #else
+    #else
         template <typename T>
         unsigned load_gifti(T, const bool&) {
             std::cerr << "You have to compile OpenMEEG with GIFTI to read GIFTI files" << std::endl;
             exit(1);
         }
-        #endif
+    #endif
 
         template <typename T>
         void save_gifti(T) const {

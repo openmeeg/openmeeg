@@ -59,10 +59,30 @@ namespace OpenMEEG {
 
         /// Constructors
 
-        Triangle(): index_(-1) { }
-        Triangle(Vertex *pts[3],const unsigned i=-1); ///< Create a new triangle from a set of vertices.
-        Triangle(Vertex& p1,Vertex& p2,Vertex& p3,const unsigned i=-1); ///< Create a new triangle from a 3 vertices.
-        Triangle(Vertex* p1,Vertex* p2,Vertex* p3,const unsigned i=-1); ///< Create a new triangle from a 3 vertex adresses.
+        Triangle(): ind(-1) { }
+
+        /// Create a new triangle from a set of vertices.
+
+        Triangle(Vertex* pts[3],const unsigned i=-1): ind(i) {
+            for (unsigned i=0;i<3;++i)
+                vertices_[i] = pts[i];
+        }
+
+        /// Create a new triangle from a 3 vertices.
+
+        Triangle(Vertex& p1,Vertex& p2,Vertex& p3,const unsigned i=-1): ind(i) {
+            vertices_[0] = &p1;
+            vertices_[1] = &p2;
+            vertices_[2] = &p3;
+        }
+
+        /// Create a new triangle from a 3 vertex adresses.
+        
+        Triangle(Vertex* p1,Vertex* p2,Vertex* p3,const unsigned i=-1): ind(i) {
+            vertices_[0] = p1;
+            vertices_[1] = p2;
+            vertices_[2] = p3;
+        }
         
         /// Operators
         // Having both [] and () doing different things is prone to errors. Also the %3 in indexing seems vety costly.
@@ -100,8 +120,8 @@ namespace OpenMEEG {
               double&  area()         { return area_; }
         const double&  area()   const { return area_; }
                                 
-              unsigned& index()        { return index_; }
-        const unsigned& index()  const { return index_; }
+              unsigned& index()        { return ind; }
+        const unsigned& index()  const { return ind; }
 
         // These two methods are ugly and used exactly once. There is probably a better way.
 
@@ -141,14 +161,16 @@ namespace OpenMEEG {
             return false;
         }
 
-        void flip(); ///< flip two of the three vertex address
+        /// flip two of the three vertex address
+
+        void flip() { std::swap(vertices_[0].vertices_[1]); }
 
     private:
 
         Vertex*  vertices_[3]; ///< &Vertex-triplet defining the triangle
-        double   area_;       ///< Area
-        Normal   normal_;     ///< Normal
-        unsigned index_;      ///< Index of the triangle
+        double   area_;        ///< Area
+        Normal   normal_;      ///< Normal
+        unsigned ind;          ///< Index of the triangle
     };
 
     typedef std::vector<Triangle> Triangles;
