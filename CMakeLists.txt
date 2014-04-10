@@ -12,15 +12,13 @@
 # Project Name
 #------------------------------------------------------------
 
-SET(PACKAGE_VERSION_MAJOR "2")
-SET(PACKAGE_VERSION_MINOR "3")
-SET(PACKAGE_VERSION_PATCH "dev")
+set(PACKAGE_VERSION_MAJOR "2")
+set(PACKAGE_VERSION_MINOR "3")
+set(PACKAGE_VERSION_PATCH "dev")
 
 #   The second path is temporary untill these are integrated in cmake...
 
-# SET(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/macros;${CMAKE_SOURCE_DIR}/macros/FortranCInterface;")
-SET(CMAKE_MODULE_PATH
-"${CMAKE_SOURCE_DIR}/macros;${CMAKE_SOURCE_DIR}/macros/FortranCInterface")
+set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/macros ${CMAKE_SOURCE_DIR}/macros/FortranCInterface)
 
 #   The next two lines are a kludge to make rpm generation work. If you change this,
 #   please check that rpm generation still works.
