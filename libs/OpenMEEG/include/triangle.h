@@ -163,7 +163,7 @@ namespace OpenMEEG {
 
         /// flip two of the three vertex address
 
-        void flip() { std::swap(vertices_[0].vertices_[1]); }
+        void flip() { std::swap(vertices_[0],vertices_[1]); }
 
     private:
 
