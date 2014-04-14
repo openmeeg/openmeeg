@@ -311,7 +311,7 @@ namespace OpenMEEG {
         //    the gauss order parameter (for adaptive integration)
         //    an optional star parameter, which denotes the adjoint of the operator
 
-        std::cout << "OPERATOR D" << ((star) ? : "*" : "") << "... (arg : mesh " << m1.name() << " , mesh " << m2.name() << " )" << std::endl;
+        std::cout << "OPERATOR D" << ((star) ? "*" : "") << "... (arg : mesh " << m1.name() << " , mesh " << m2.name() << " )" << std::endl;
 
         unsigned i = 0; // for the PROGRESSBAR
         if ( star ) {
