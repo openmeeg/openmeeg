@@ -38,7 +38,7 @@ IF (NOT DEFINED CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_NO_WARNINGS)
 ENDIF()
 
 INCLUDE(NewExecutable)
-INCLUDE(LibCorrections)
+INCLUDE(GenerateConfigFile)
 INCLUDE(FindLibrary)
 INCLUDE(UnitTest)
 INCLUDE(Revision)
@@ -61,7 +61,6 @@ TEST_BIG_ENDIAN(WORDS_BIGENDIAN)
 
 INCLUDE(VtkOption)
 INCLUDE(GiftiOption)
-INCLUDE(UseMatio)
 INCLUDE(UseAtlas)
 INCLUDE(UseOpenMP)
 
@@ -70,6 +69,15 @@ IF (USE_ATLAS)
     INCLUDE(FortranCInterface)
     FortranCInterface_HEADER(FC.h MACRO_NAMESPACE "FC_" FROM_LIBRARY blas[daxpy])
 ENDIF()
+
+Dependencies(OpenMEEG matio)
+
+if (NOT matio_FOUND)
+    message(WARNING "Without matio OpenMEEG only generates ascii files which are big and can loose accuracy.")
+else()
+    set(USE_MATIO 1)
+    include_directories(${MATIO_INCLUDE_DIRS})
+endif()
 
 #---------------------------------------------------------------
 # Include OpenMEEG Directories
