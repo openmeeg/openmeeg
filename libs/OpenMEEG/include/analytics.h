@@ -178,7 +178,6 @@ namespace OpenMEEG {
         }
     };
 
-
     class OPENMEEG_EXPORT analyticD3
     {
         Vertex v1, v2, v3;

@@ -62,6 +62,10 @@ IF (USE_VTK)
     INSTALL(TARGETS om_vtp_to_meshes om_meshes_to_vtp om_add_dataset_to_vtk DESTINATION bin)
 ENDIF()
 
+IF (ENABLE_PYTHON)
+    SUBDIRS(python)
+ENDIF()
+
 INSTALL(TARGETS 
     om_make_nerve
     om_mesh_convert 

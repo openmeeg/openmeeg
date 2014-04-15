@@ -44,7 +44,6 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include "matrix.h"
 #include "sparse_matrix.h"
 #include "symmatrix.h"
-#include "matvectOps.h"
 #include "geometry.h"
 #include "assemble.h"
 #include "gmres.h"
