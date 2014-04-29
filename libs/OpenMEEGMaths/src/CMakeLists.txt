@@ -7,7 +7,7 @@ function(create_library libname)
 
     set(NeededLibraries ${LAPACK_LIBRARIES})
     if (USE_MATIO)
-        set(NeededLibraries ${MATIO_LIBRARIES} ${NeededLibraries})
+        set(NeededLibraries ${matio_LIBRARIES} ${NeededLibraries})
     endif()
     target_link_libraries(${libname} ${NeededLibraries})
 
@@ -18,8 +18,8 @@ function(create_library libname)
                           CLEAN_DIRECT_OUTPUT 1)
 
     install(TARGETS ${libname}
-            ARCHIVE DESTINATION lib
-            LIBRARY DESTINATION lib)
+            ARCHIVE DESTINATION ${INSTALL_LIB_DIR}
+            LIBRARY DESTINATION ${INSTALL_LIB_DIR})
 endfunction()
 
 set(MATLABIO "")
