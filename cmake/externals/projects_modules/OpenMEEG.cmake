@@ -17,7 +17,7 @@ function(OpenMEEG_project)
     # Define repository where get the sources
 
     if (NOT DEFINED ${ep}_SOURCE_DIR)
-        set(location GIT_REPOSITORY "github.com/openmeeg/openmeeg.git")
+        set(location GIT_REPOSITORY "https://github.com/openmeeg/openmeeg.git")
     endif()
 
     # Set compilation flags
@@ -34,6 +34,7 @@ function(OpenMEEG_project)
         -DCMAKE_SHARED_LINKER_FLAGS:STRING=${${ep}_shared_linker_flags}  
         -DBUILD_SHARED_LIBS:BOOL=${BUILD_SHARED_LIBS_${ep}}
         -DBUILD_TESTING:BOOL=ON
+        -Dmatio_DIR:PATH=/home/papadop/compiles/OM-sp/matio/install/share/matio/cmake
         ${clapack_CMAKE_FLAGS}
         ${zlib_CMAKE_FLAGS}
         ${hdf5_CMAKE_FLAGS}
