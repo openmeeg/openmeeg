@@ -47,14 +47,12 @@ include(ExternalProject)
 # Include common configuration steps
 
 include(EP_Initialisation)
-include(EP_SetDirectories)
 include(EP_AddCustomTargets) 
 include(EP_GeneratePatchCommand) 
 
 # Include specific module of each project
 
-file(GLOB projects_modules RELATIVE ${CMAKE_SOURCE_DIR} 
-    "cmake/externals/projects_modules/*.cmake")
+file(GLOB projects_modules RELATIVE ${CMAKE_SOURCE_DIR} "cmake/externals/projects_modules/*.cmake")
 foreach(module ${projects_modules})
     include(${module})
 endforeach()
@@ -70,15 +68,34 @@ endmacro()
 
 # Add custom targets update, and build to explicitly update and rebuild all.
 
-macro(add_external_projects)
-    foreach (external_project ${ARGN})
-        call(${external_project}_project)
-        
-        if(update-${external_project})
-            set(update_dependencies ${update_dependencies} update-${external_project})
+macro(subprojects)
+    
+    foreach (project ${ARGN})
+
+        set(use_system_def OFF)
+        if (USE_SYSTEM_${project})
+            set(use_system_def ON)
         endif()
-        if(build-${external_project})
-            set(build_dependencies ${build_dependencies} build-${external_project})
+
+        # Option: do we want use the system version ?
+
+        option(USE_SYSTEM_${project} "Use system installed version of ${project}" ${use_system_def})
+
+        if (USE_SYSTEM_${project})
+            if (COMMAND ${project}_find_package)
+                call(${project}_find_package)
+            else()
+                find_package(${project} REQUIRED)
+            endif()
+        else()
+            call(${project}_project)
+        endif()
+        
+        if (update-${project})
+            set(update_dependencies ${update_dependencies} update-${project})
+        endif()
+        if (build-${project})
+            set(build_dependencies ${build_dependencies} build-${project})
         endif()
     endforeach()
 

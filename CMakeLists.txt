@@ -53,6 +53,6 @@ if (WIN32 AND NOT CYGWIN_INSTALL_PATH)
 #    set(CMAKE_REQUIRED_INCLUDES ${INTTYPES_INCLUDES})
 endif()
 
-add_external_projects(${MSINTTYPES} zlib hdf5 matio clapack OpenMEEG)
+subprojects(${MSINTTYPES} zlib hdf5 matio clapack OpenMEEG)
 
 #include(Packaging)
