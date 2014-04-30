@@ -11,6 +11,8 @@ cd build
 cmake -DUSE_ATLAS=ON -DUSE_MKL=OFF -DENABLE_PYTHON=ON -DBUILD_TESTING=ON -DENABLE_PACKAGING=ON -DMATLAB_TESTING=OFF ..
 make
 
+#   Insert a check....
+
 cd OpenMEEG/build
 
 ctest -D ExperimentalConfigure
