@@ -34,7 +34,6 @@ function(OpenMEEG_project)
         -DCMAKE_SHARED_LINKER_FLAGS:STRING=${${ep}_shared_linker_flags}  
         -DBUILD_SHARED_LIBS:BOOL=${BUILD_SHARED_LIBS_${ep}}
         -DBUILD_TESTING:BOOL=ON
-        -Dmatio_DIR:PATH=/home/papadop/compiles/OM-sp/matio/install/share/matio/cmake
         ${clapack_CMAKE_FLAGS}
         ${zlib_CMAKE_FLAGS}
         ${hdf5_CMAKE_FLAGS}
