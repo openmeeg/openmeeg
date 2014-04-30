@@ -9,64 +9,46 @@
 
 function(msinttypes_project)
 
-    set(ep msinttypes)
-
-    # List the dependencies of the project
-
-    set(${ep}_dependencies "")
-      
     # Prepare the project
 
-    EP_Initialisation(${ep} USE_SYSTEM OFF BUILD_SHARED_LIBS ON)
+    EP_Initialisation(clapack USE_SYSTEM OFF BUILD_SHARED_LIBS ON)
 
-    if (NOT USE_SYSTEM_${ep})
+    # Define repository where get the sources
 
-        # Set directories
-
-        EP_SetDirectories(${ep} EP_DIRECTORIES ep_dirs)
-
-        # Define repository where get the sources
-
-        if (NOT DEFINED ${ep}_SOURCE_DIR)
-            set(location
-                SVN_REPOSITORY "http://msinttypes.googlecode.com/svn/trunk/")
-        endif()
-
-        # Add specific cmake arguments for configuration step of the project
-
-        set(ep_optional_args)
-
-        # set compilation flags
-
-        if (UNIX)
-            set(${ep}_c_flags "${${ep}_c_flags} -w")
-        endif()
-
-        set(cmake_args
-            ${ep_common_cache_args}
-            ${ep_optional_args}
-            -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
-        )
-
-        # Add external-project
-
-        ExternalProject_Add(${ep}
-            ${ep_dirs}
-            ${location}
-            PATCH_COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_SOURCE_DIR}/patches/msinttypes.patch ${source_dir}/CMakeLists.txt
-            CMAKE_GENERATOR ${gen}
-            CMAKE_ARGS ${cmake_args}
-        )
-
-        # Set variable to provide infos about the project
-
-        ExternalProject_Get_Property(${ep} install_dir)
-        set(${ep}_DIR ${install_dir} PARENT_SCOPE)
-
-        # Add custom targets
-
-        EP_AddCustomTargets(${ep})
-
+    if (NOT DEFINED ${ep}_SOURCE_DIR)
+        set(location
+            SVN_REPOSITORY "http://msinttypes.googlecode.com/svn/trunk/")
     endif()
+
+    # set compilation flags
+
+    if (UNIX)
+        set(${ep}_c_flags "${${ep}_c_flags} -w")
+    endif()
+
+    set(cmake_args
+        ${ep_common_cache_args}
+        ${ep_optional_args}
+        -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
+    )
+
+    # Add external-project
+
+    ExternalProject_Add(${ep}
+        ${ep_dirs}
+        ${location}
+        PATCH_COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_SOURCE_DIR}/patches/msinttypes.patch ${source_dir}/CMakeLists.txt
+        CMAKE_GENERATOR ${gen}
+        CMAKE_ARGS ${cmake_args}
+    )
+
+    # Set variable to provide infos about the project
+
+    ExternalProject_Get_Property(${ep} install_dir)
+    set(${ep}_CMAKE_FLAGS ${install_dir} PARENT_SCOPE)
+
+    # Add custom targets
+
+    EP_AddCustomTargets(${ep})
 
 endfunction()

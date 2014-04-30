@@ -12,109 +12,65 @@
 ################################################################################
 
 function(VTK_project)
-set(ep VTK)
 
+    # Prepare the project and list dependencies
 
-## #############################################################################
-## List the dependencies of the project
-## #############################################################################
+    EP_Initialisation(VTK BUILD_SHARED_LIBS ON)
+    set(${ep}_dependencies Qt4)
 
-list(APPEND ${ep}_dependencies 
-  Qt4
-  )
-  
+    # Define repository where get the sources
 
-## #############################################################################
-## Prepare the project
-## #############################################################################
+    # Set GIT_TAG to latest commit of origin/release-5.10 known to work
+    set(tag d3b66526624ba8e55addcddb0ec28c40982473ac)
+    if (NOT DEFINED ${ep}_SOURCE_DIR)
+        set(location GIT_REPOSITORY "git://vtk.org/VTK.git" GIT_TAG ${tag})
+    endif()
 
-EP_Initialisation(${ep} 
-  USE_SYSTEM OFF 
-  BUILD_SHARED_LIBS ON
-  REQUIRED_FOR_PLUGINS ON
-  )
+    # Add specific cmake arguments for configuration step of the project
 
+    # set compilation flags
+    if (UNIX)
+        set(${ep}_c_flags "${${ep}_c_flags} -w")
+        set(${ep}_cxx_flags "${${ep}_cxx_flags} -w")
+        set(unix_additional_args -DVTK_USE_NVCONTROL:BOOL=ON)
+    endif()
 
-if (NOT USE_SYSTEM_${ep})
-## #############################################################################
-## Set directories
-## #############################################################################
+    set(cmake_args
+        ${ep_common_cache_args}
+        -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
+        -DCMAKE_C_FLAGS:STRING=${${ep}_c_flags}
+        -DCMAKE_CXX_FLAGS:STRING=${${ep}_cxx_flags}
+        -DCMAKE_SHARED_LINKER_FLAGS:STRING=${${ep}_shared_linker_flags}  
+        -DBUILD_SHARED_LIBS:BOOL=${BUILD_SHARED_LIBS_${ep}}
+        -DQT_QMAKE_EXECUTABLE:FILEPATH=${QT_QMAKE_EXECUTABLE}
+        -DVTK_USE_QT:BOOL=ON
+        -DVTK_WRAP_TCL:BOOL=OFF
+        -DBUILD_TESTING:BOOL=OFF 
+    )
 
-EP_SetDirectories(${ep}
-  EP_DIRECTORIES ep_dirs
-  )
+    # Check if patch has to be applied
 
-## #############################################################################
-## Define repository where get the sources
-## #############################################################################
+    ep_GeneratePatchCommand(VTK VTK_PATCH_COMMAND VTK_WindowLevel.patch)
 
-# Set GIT_TAG to latest commit of origin/release-5.10 known to work
-set(tag d3b66526624ba8e55addcddb0ec28c40982473ac)
-if (NOT DEFINED ${ep}_SOURCE_DIR)
-    set(location GIT_REPOSITORY "git://vtk.org/VTK.git" GIT_TAG ${tag})
-endif()
+    # Add external-project
 
+    ExternalProject_Add(${ep}
+        ${ep_dirs}
+        ${location}
+        ${VTK_PATCH_COMMAND}
+        CMAKE_GENERATOR ${gen}
+        CMAKE_ARGS ${cmake_args}
+        DEPENDS ${${ep}_dependencies}
+        INSTALL_COMMAND ""
+    )
+      
+    # Set variable to provide infos about the project
 
-## #############################################################################
-## Add specific cmake arguments for configuration step of the project
-## #############################################################################
+    ExternalProject_Get_Property(${ep} binary_dir)
+    set(${ep}_DIR ${binary_dir} PARENT_SCOPE)
 
-# set compilation flags
-if (UNIX)
-  set(${ep}_c_flags "${${ep}_c_flags} -w")
-  set(${ep}_cxx_flags "${${ep}_cxx_flags} -w")
-  set(unix_additional_args -DVTK_USE_NVCONTROL:BOOL=ON)
-endif()
+    # Add custom targets
 
-set(cmake_args
-  ${ep_common_cache_args}
-  -DCMAKE_C_FLAGS:STRING=${${ep}_c_flags}
-  -DCMAKE_CXX_FLAGS:STRING=${${ep}_cxx_flags}
-  -DCMAKE_SHARED_LINKER_FLAGS:STRING=${${ep}_shared_linker_flags}  
-  -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>  
-  -DBUILD_SHARED_LIBS:BOOL=${BUILD_SHARED_LIBS_${ep}}
-  -DQT_QMAKE_EXECUTABLE:FILEPATH=${QT_QMAKE_EXECUTABLE}
-  -DVTK_USE_QT:BOOL=ON
-  -DVTK_WRAP_TCL:BOOL=OFF
-  -DBUILD_TESTING:BOOL=OFF 
-  )
-
-## #############################################################################
-## Check if patch has to be applied
-## #############################################################################
-
-ep_GeneratePatchCommand(VTK VTK_PATCH_COMMAND VTK_WindowLevel.patch)
-
-## #############################################################################
-## Add external-project
-## #############################################################################
-
-ExternalProject_Add(${ep}
-  ${ep_dirs}
-  ${location}
-  ${VTK_PATCH_COMMAND}
-  CMAKE_GENERATOR ${gen}
-  CMAKE_ARGS ${cmake_args}
-  DEPENDS ${${ep}_dependencies}
-  INSTALL_COMMAND ""
-  )
-  
-
-## #############################################################################
-## Set variable to provide infos about the project
-## #############################################################################
-
-ExternalProject_Get_Property(${ep} binary_dir)
-set(${ep}_DIR ${binary_dir} PARENT_SCOPE)
-
-
-## #############################################################################
-## Add custom targets
-## #############################################################################
-
-EP_AddCustomTargets(${ep})
-
-
-endif() #NOT USE_SYSTEM_ep
+    EP_AddCustomTargets(${ep})
 
 endfunction()

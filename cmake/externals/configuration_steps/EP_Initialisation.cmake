@@ -11,72 +11,69 @@
 #
 ################################################################################
 
-macro(ep_Initialisation ep USE_SYSTEM use_system_def BUILD_SHARED_LIBS build_shared_libs_def)
+macro(ep_Initialisation project BUILD_SHARED_LIBS build_shared_libs_def)
       
-    # Option: do we want use the system version ?
+    set(ep ${project})
 
-    option(USE_SYSTEM_${ep} "Use system installed version of ${ep}" ${use_system_def})
+    # Option: do we want a static or a dynamic build ?
+  
+    option(BUILD_SHARED_LIBS_${ep} "Build shared libs for ${ep}" ${build_shared_libs_def})
+    mark_as_advanced(BUILD_SHARED_LIBS_${ep})
+  
+    set(${ep}_c_flags ${ep_common_c_flags})
+    set(${ep}_cxx_flags ${ep_common_cxx_flags})
+    set(${ep}_shared_linker_flags ${ep_common_shared_linker_flags})
+  
+    # Add PIC flag if Static build on UNIX with amd64 arch
 
-    if (USE_SYSTEM_${ep})
-        find_package(${ep} REQUIRED)
-
-        # Complete superProjectConfig.cmake
-
-        if (${required_for_plugins})  
-            #  provide path of project needeed for Asclepios and visages plugins 
-            file(APPEND ${${PROJECT_NAME}_CONFIG_FILE} "find_package(${ep} REQUIRED PATHS ${${ep}_DIR})\n")
+    if (UNIX)
+        if (NOT BUILD_SHARED_LIBS_${ep} AND "${CMAKE_SYSTEM_PROCESSOR}" MATCHES 64)
+            set(${ep}_c_flags "${${ep}_c_flags} -fPIC")
+            set(${ep}_cxx_flags "${${ep}_cxx_flags} -fPIC")
         endif()
+    endif()  
 
-    else()
-
-        # This part will be run only if USED_SYSTEM_ep is set to OFF
-      
-        if (${required_for_plugins})  
-
-            #  provide path of project needeed for Asclepios and visages plugins 
-
-            file(APPEND ${${PROJECT_NAME}_CONFIG_FILE}
-                "find_package(${ep} REQUIRED PATHS \"${CMAKE_BINARY_DIR}/${ep}\" PATH_SUFFIXES install build)\n")
+    if (APPLE)
+        if (BUILD_SHARED_LIBS_${ep})
+            set(${ep}_shared_linker_flags "${${ep}_shared_linker_flags} -headerpad_max_install_names")
         endif()
-
-        # Option: do we want a static or a dynamic build ?
-      
-        option(BUILD_SHARED_LIBS_${ep} "Build shared libs for ${ep}" ${build_shared_libs_def})
-        mark_as_advanced(BUILD_SHARED_LIBS_${ep})
-      
-        set(${ep}_c_flags ${ep_common_c_flags})
-        set(${ep}_cxx_flags ${ep_common_cxx_flags})
-        set(${ep}_shared_linker_flags ${ep_common_shared_linker_flags})
-      
-        # Add PIC flag if Static build on UNIX with amd64 arch
-
-        if (UNIX)
-            if (NOT BUILD_SHARED_LIBS_${ep} AND "${CMAKE_SYSTEM_PROCESSOR}" MATCHES 64)
-                set(${ep}_c_flags "${${ep}_c_flags} -fPIC")
-                set(${ep}_cxx_flags "${${ep}_cxx_flags} -fPIC")
-            endif()
-        endif()  
-
-        if (APPLE)
-            if (BUILD_SHARED_LIBS_${ep})
-                set(${ep}_shared_linker_flags "${${ep}_shared_linker_flags} -headerpad_max_install_names")
-            endif()
-        endif()
-
-        # Remove dependencies with other external-project if a system version is used.
-
-        foreach(dependence ${${ep}_dependencies})
-            if (USE_SYSTEM_${dependence})
-                list(REMOVE_ITEM ${ep}_dependencies ${dependence})
-            endif()
-        endforeach()
-
-        # Add dependencies between the target of this project and the global target from the superproject
-
-        foreach (target ${global_targets})
-            add_dependencies(${target} ${ep}-${target})
-        endforeach() 
-
     endif()
 
+    # Remove dependencies with other external-project if a system version is used.
+
+    foreach(dependence ${${ep}_dependencies})
+        if (USE_SYSTEM_${dependence})
+            list(REMOVE_ITEM ${ep}_dependencies ${dependence})
+        endif()
+    endforeach()
+
+    # Add dependencies between the target of this project and the global target from the superproject
+
+    foreach (target ${global_targets})
+        add_dependencies(${target} ${ep}-${target})
+    endforeach() 
+
+    # Define a directory for each target of the project
+
+    set(DIR_VAR_NAMES DOWNLOAD BINARY STAMP INSTALL                     TMP)
+    set(DIR_NAMES     ""       build  stamp install/${CMAKE_CFG_INTDIR} tmp)
+
+    set(dirs PREFIX ${ep})
+    foreach(i RANGE 4)
+        list(GET DIR_VAR_NAMES ${i} var)
+        list(GET DIR_NAMES     ${i} dir)
+        set(dirs ${dirs} ${var}_DIR ${ep}/${dir})
+        string(TOLOWER "${var}" varname)
+        set(${varname}_dir ${ep}/${dir})
+    endforeach()
+
+    # Look for and define the source directory of the project 
+
+    if (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/${ep}/CMakeLists.txt 
+        OR EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/${ep}/configure)
+        set(${ep}_SOURCE_DIR SOURCE_DIR ${CMAKE_SOURCE_DIR}/${ep})
+    endif()
+
+    set(source_dir ${CMAKE_SOURCE_DIR}/${ep})
+    set(ep_dirs ${dirs} SOURCE_DIR ${source_dir})
 endmacro()
