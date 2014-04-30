@@ -23,6 +23,12 @@ set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
 
 project(OpenMEEG-superProject)
 
+option(GIT_HTTPS "Use https protocol to get git repositories." ON)
+set(GIT_PREFIX "git@")
+if (GIT_HTTPS)
+    set(GIT_PREFIX "https://")
+endif()
+
 # Setup everything (MODULE_PATH, check environment, basic targets
 
 include(Setup)

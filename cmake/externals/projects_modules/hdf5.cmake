@@ -17,7 +17,7 @@ function(hdf5_project)
     # Define repository where get the sources
 
     if (NOT DEFINED ${ep}_SOURCE_DIR)
-        set(location GIT_REPOSITORY "git@github.com:openmeeg/hdf5-matio.git")
+        set(location GIT_REPOSITORY "${GIT_PREFIX}github.com/openmeeg/hdf5-matio.git")
         #set(location
         #    URL "http://www.hdfgroup.org/ftp/HDF5/releases/hdf5-1.8.12/src/hdf5-1.8.12.tar.bz2"
         #    URL_MD5 "03ad766d225f5e872eb3e5ce95524a08")

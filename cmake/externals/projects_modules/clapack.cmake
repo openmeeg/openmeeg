@@ -16,7 +16,7 @@ function(clapack_project)
     # Define repository where get the sources
 
     if (NOT DEFINED ${ep}_SOURCE_DIR)
-        set(location GIT_REPOSITORY "https://github.com/openmeeg/clapack.git")
+        set(location GIT_REPOSITORY "${GIT_PREFIX}github.com/openmeeg/clapack.git")
     endif()
 
     # set compilation flags
