@@ -61,7 +61,7 @@ function(hdf5_project)
     # Set variable to provide infos about the project
 
     ExternalProject_Get_Property(${ep} install_dir)
-    set(${ep}_CMAKE_FLAGS -DHDF5_DIR:FILEPATH=${install_dir}/share/cmake/hdf5 PARENT_SCOPE)
+    set(${ep}_CMAKE_FLAGS -DHDF5_DIR:FILEPATH=${install_dir} PARENT_SCOPE)
 
     # Add custom targets
 
