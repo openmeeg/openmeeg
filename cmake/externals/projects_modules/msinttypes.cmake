@@ -7,7 +7,7 @@
 #  the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
 #  PURPOSE.
 
-function(msinttypes_project)
+function(msinttypes)
 
     # Prepare the project
 
