@@ -9,7 +9,7 @@ fi
 
 cd build
 cmake -DUSE_ATLAS=ON -DUSE_MKL=OFF -DENABLE_PYTHON=ON -DBUILD_TESTING=ON -DENABLE_PACKAGING=ON -DMATLAB_TESTING=OFF ..
-make
+make |& tee build.log
 
 #   Insert a check....
 
