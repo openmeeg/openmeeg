@@ -55,8 +55,8 @@ macro(ep_Initialisation project BUILD_SHARED_LIBS build_shared_libs_def)
 
     # Define a directory for each target of the project
 
-    set(DIR_VAR_NAMES DOWNLOAD BINARY STAMP INSTALL                     TMP)
-    set(DIR_NAMES     ""       build  stamp install/${CMAKE_CFG_INTDIR} tmp)
+    set(DIR_VAR_NAMES DOWNLOAD BINARY STAMP INSTALL TMP)
+    set(DIR_NAMES     ""       build  stamp install tmp)
 
     set(dirs PREFIX ${ep})
     foreach(i RANGE 4)
