@@ -3,8 +3,8 @@ macro(EP_AddCustomTargets ep)
     set(GIT_COMMAND git checkout master && git pull --ff-only)
     set(SVN_COMMAND svn update)
 
-    if(DEFINED tag)
-        set(GIT_COMMAND git fetch ${url} && git checkout ${tag})
+    if (DEFINED tag)
+        set(GIT_COMMAND git fetch ${url} && git stash && git checkout ${tag} && git stash pop)
         set(SVN_COMMAND svn switch ${url} && svn update -r ${tag})
     endif()
 
