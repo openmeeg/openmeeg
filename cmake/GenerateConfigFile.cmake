@@ -55,7 +55,7 @@ endmacro()
 
 macro(Dependencies ConfigName)
     PARSE_ARGUMENTS_GENERATE("OPTIONAL" "DEFAULT" ${ARGN})
-    set(DepFileName ${CMAKE_CURRENT_BINARY_DIR}/${ConfigName}Dependencies.cmake)
+    set(DepFileName ${INSTALL_DATA_DIR}/${ConfigName}Dependencies.cmake)
     set(DEPLIBS)
     set(DEPINCS)
     if (NOT "${DEFAULT}" STREQUAL "" OR NOT "${OPTIONAL}" STREQUAL "")
@@ -73,7 +73,7 @@ macro(Dependencies ConfigName)
             endif()
         endforeach()
         include(${DepFileName})
-        install(FILES ${DepFileName} DESTINATION ${INSTALL_LIB_DIR}/${ConfigName}/cmake)
+        install(FILES ${DepFileName} DESTINATION ${INSTALL_DATA_DIR}/${ConfigName}/cmake)
     endif()
 endmacro()
 
@@ -96,14 +96,14 @@ function(GenerateConfigFile ConfigName)
     set(LIB_DIRS   "${CMAKE_CURRENT_BINARY_DIR}/src")
     set(CONFIG_DIR "${CMAKE_CURRENT_BINARY_DIR}")
 
-    configure_package_config_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/XXXConfig.cmake.in "${CMAKE_CURRENT_BINARY_DIR}/${ConfigName}Config.cmake"
-                                  INSTALL_DESTINATION ${INSTALL_LIB_DIR}/${ConfigName}/cmake
+    configure_package_config_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/XXXConfig.cmake.in "${ConfigName}Config.cmake"
+                                  INSTALL_DESTINATION ${INSTALL_DATA_DIR}/${ConfigName}/cmake
                                   PATH_VARS INSTALL_INCLUDE_DIR INSTALL_DATA_DIR INSTALL_LIB_DIR)
-    write_basic_package_version_file("${CMAKE_CURRENT_BINARY_DIR}/${ConfigName}ConfigVersion.cmake"
+    write_basic_package_version_file("${ConfigName}ConfigVersion.cmake"
                                      VERSION ${version}
                                      COMPATIBILITY SameMajorVersion )
     install(FILES
             "${CMAKE_CURRENT_BINARY_DIR}/${ConfigName}Config.cmake"
             "${CMAKE_CURRENT_BINARY_DIR}/${ConfigName}ConfigVersion.cmake"
-            DESTINATION ${INSTALL_LIB_DIR}/${ConfigName}/cmake)
+            DESTINATION ${INSTALL_DATA_DIR}/${ConfigName}/cmake)
 endfunction()
