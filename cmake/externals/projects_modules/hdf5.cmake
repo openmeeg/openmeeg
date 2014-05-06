@@ -44,7 +44,7 @@ function(hdf5_project)
 
     # Check if patch has to be applied
 
-    ep_GeneratePatchCommand(${ep} PATCH_COMMAND hdf5-config.patch)
+    ep_GeneratePatchCommand(${ep} PATCH_COMMAND hdf5-config.patch hdf5-install-cmake.patch)
 
     # Add external-project
 
