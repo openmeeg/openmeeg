@@ -77,7 +77,6 @@ void decoupe (double dt, double x, int*nx, double*dx)
 
 int cylindre (char namesurf[], char namepatches[], char namepatchcount[], double L, double R, double dt, int*E, int*Nteta, int*Nz, double Ea, double Eb, double Eb2)
 {
-    FILE *F, *G;
     int i, j, g, k, save;                       //counters
     double decal_teta;                       // gap along teta.
     double z = -L/2.0f;
@@ -355,7 +354,6 @@ int main(int argc, char** argv)
     command_usage("Make nerve geometry from existing parameters or make nerve geometry and parameter file from commandline user interface.");
     if ((!strcmp(argv[1], "-h")) | (!strcmp(argv[1], "--help"))) getHelp(argv);
     disp_argv(argc, argv);
-    FILE *F;
     // char nom[80], s[80];
     const int Nc = 2;
     int i, Elec[4], E[1]={-1};
