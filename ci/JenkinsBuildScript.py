@@ -65,7 +65,7 @@ def cmake_configuration(args):
 
     cmake_command_line = [ CMAKE_COMMAND ]
     if sys.platform == 'win32':
-        cmake_command_line.extend(['-G"Visual Studio 11"', '-DCMAKE_BUILD_TYPE=RelWithDebInfo'])
+        cmake_command_line.extend(['-G', 'Visual Studio 11', '-DCMAKE_BUILD_TYPE=RelWithDebInfo'])
 
     add_cmake_parameter(args.python,'ENABLE_PYTHON',cmake_command_line)
     add_cmake_parameter(args.testing,'BUILD_TESTING',cmake_command_line)
