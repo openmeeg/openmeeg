@@ -13,8 +13,8 @@ from lxml import etree
 import StringIO
 
 if sys.platform == 'win32':
-    CMAKE_COMMAND = "C:\Program Files\CMake 2.8\bin\cmake.exe"
-    CTEST_COMMAND = "C:\Program Files\CMake 2.8\bin\ctest.exe"
+    CMAKE_COMMAND = "C:\Program Files\CMake 2.8\\bin\cmake.exe"
+    CTEST_COMMAND = "C:\Program Files\CMake 2.8\\bin\ctest.exe"
 else:
     CMAKE_COMMAND = "cmake"
     CTEST_COMMAND = "ctest"
