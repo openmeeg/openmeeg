@@ -35,6 +35,7 @@ function(zlib_project)
         -DCMAKE_C_FLAGS:STRING=${${ep}_c_flags}
         -DCMAKE_SHARED_LINKER_FLAGS:STRING=${${ep}_shared_linker_flags}  
         -DBUILD_SHARED_LIBS:BOOL=${BUILD_SHARED_LIBS_${ep}}
+        -DINSTALL_LIB_DIR:PATH=${INSTALL_LIB_DIR}
     )
 
     # Check if patch has to be applied
