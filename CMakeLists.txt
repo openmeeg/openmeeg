@@ -37,6 +37,8 @@ include(Setup)
 
 SetRevision(2 3 0 dev)
 
+OPTION(USE_ATLAS "Build the project using ATLAS" OFF)
+
 # Add packages
 
 # There are three possibilities:
@@ -59,7 +61,11 @@ if (WIN32 AND NOT CYGWIN_INSTALL_PATH)
 #    set(CMAKE_REQUIRED_INCLUDES ${INTTYPES_INCLUDES})
 endif()
 
-subprojects(${MSINTTYPES} zlib hdf5 matio clapack OpenMEEG)
+if (NOT USE_ATLAS)
+    set(LAPACK clapack)
+endif()
+
+subprojects(${MSINTTYPES} zlib hdf5 matio ${LAPACK} OpenMEEG)
 
 add_custom_target(test
     DEPENDS build-OpenMEEG
