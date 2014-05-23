@@ -46,7 +46,8 @@ function(matio_project)
         ${MSINTTYPES_CMAKE_ARG}
         -DCMAKE_SHARED_LINKER_FLAGS:STRING=${${ep}_shared_linker_flags}  
         -DBUILD_SHARED_LIBS:BOOL=${BUILD_SHARED_LIBS_${ep}}
-        -DBUILD_TESTING:BOOL=OFF
+        -DMATIO_BUILD_TESTING:BOOL=${MATIO_BUILD_TESTING}
+        -DMATLAB_TESTING:BOOL=${MATLAB_TESTING}
     )
 
     # Check if patch has to be applied

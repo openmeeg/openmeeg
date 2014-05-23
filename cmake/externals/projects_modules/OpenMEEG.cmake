@@ -35,6 +35,12 @@ function(OpenMEEG_project)
         -DBUILD_SHARED_LIBS:BOOL=${BUILD_SHARED_LIBS_${ep}}
         -DBUILD_TESTING:BOOL=ON
         -DUSE_ATLAS:BOOL=${USE_ATLAS}
+        -DUSE_MKL:BOOL=${USE_MKL}
+        -DUSE_OMP:BOOL=${USE_OMP}
+        -DENABLE_PACKAGING:BOOL=${ENABLE_PACKAGING}
+        -DENABLE_PYTHON:BOOL=${ENABLE_PYTHON}
+        -DBUILD_TESTING:BOOL=${BUILD_TESTING}
+        -DBUILD_DOCUMENTATION:BOOL=${BUILD_DOCUMENTATION}
         #-Dmatio_DIR:PATH=/home/papadop/compiles/OM-sp/matio/install/share/matio/cmake
         ${clapack_CMAKE_FLAGS}
         ${zlib_CMAKE_FLAGS}

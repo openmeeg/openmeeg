@@ -37,7 +37,20 @@ include(Setup)
 
 SetRevision(2 3 0 dev)
 
+#   Various OpenMEEG options that will be forwarded.
+
 OPTION(USE_ATLAS "Build the project using ATLAS" OFF)
+option(USE_MKL "Build the project with MKL" OFF)
+option(ENABLE_PACKAGING "Enable Packaging" OFF)
+option(ENABLE_PYTHON "Enable Python Wrapping" OFF)
+option(USE_OMP "Use OpenMP" OFF)
+option(BUILD_TESTING "Build the testing tree" OFF)
+option(BUILD_DOCUMENTATION "Build the documentation" OFF)
+
+#   Various matio options that will be forwarded.
+
+option(MATIO_BUILD_TESTING "Build matio tests" OFF)
+option(MATLAB_TESTING "Enable matlab read tests (requires a function matlab)" OFF)
 
 # Add packages
 
@@ -61,8 +74,9 @@ if (WIN32 AND NOT CYGWIN_INSTALL_PATH)
 #    set(CMAKE_REQUIRED_INCLUDES ${INTTYPES_INCLUDES})
 endif()
 
-if (NOT USE_ATLAS)
+if (NOT USE_ATLAS AND NOT USE_MKL)
     set(LAPACK clapack)
+    option(CLAPACK_BUILD_TESTING "Build CLAPACK tests" OFF)
 endif()
 
 subprojects(${MSINTTYPES} zlib hdf5 matio ${LAPACK} OpenMEEG)
