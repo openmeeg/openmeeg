@@ -41,7 +41,6 @@ function(OpenMEEG_project)
         -DENABLE_PYTHON:BOOL=${ENABLE_PYTHON}
         -DBUILD_TESTING:BOOL=${BUILD_TESTING}
         -DBUILD_DOCUMENTATION:BOOL=${BUILD_DOCUMENTATION}
-        #-Dmatio_DIR:PATH=/home/papadop/compiles/OM-sp/matio/install/share/matio/cmake
         ${clapack_CMAKE_FLAGS}
         ${zlib_CMAKE_FLAGS}
         ${hdf5_CMAKE_FLAGS}
