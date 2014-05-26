@@ -79,14 +79,12 @@ if (NOT USE_MKL)
                 endif()
             endforeach()
         else()
-            message("::${CMAKE_INSTALL_PREFIX}::")
-            find_package(lapack QUIET PATHS /usr/lib64/ /usr/lib/ ${CMAKE_INSTALL_PREFIX}/lib 
+            find_package(lapack QUIET PATHS /usr/lib64/ /usr/lib/ ${clapack_DIR}/lib 
                          NO_DEFAULT_PATH
                          NO_CMAKE_ENVIRONMENT_PATH
                          NO_CMAKE_PATH
                          NO_SYSTEM_ENVIRONMENT_PATH
                          NO_CMAKE_SYSTEM_PATH)
-            message("::${lapack_FOUND}::")
         endif()
 
         if (NOT BUILD_SHARED_LIBS)
@@ -103,9 +101,9 @@ if (NOT USE_MKL)
 endif()
 
 if (NOT LAPACK_LIBRARIES)
-    find_file(lapack liblapack.a  PATHS ${CMAKE_INSTALL_PREFIX}/lib)
-    find_file(blas libblas.a  PATHS ${CMAKE_INSTALL_PREFIX}/lib)
-    find_file(f2c libf2c.a  PATHS ${CMAKE_INSTALL_PREFIX}/lib)
+    find_file(lapack liblapack.a  PATHS ${clapack_DIR}/lib)
+    find_file(blas libblas.a  PATHS ${clapack_DIR}/lib)
+    find_file(f2c libf2c.a  PATHS ${clapack_DIR}/lib)
     if (NOT (lapack AND blas AND f2c))
         message(SEND_ERROR "clapack is needed")
     endif()
