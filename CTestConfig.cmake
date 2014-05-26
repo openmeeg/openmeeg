@@ -3,6 +3,8 @@ set(CTEST_NIGHTLY_START_TIME "00:00:00 EST")
 
 # Does not work currently.
 # set(CTEST_DROP_METHOD "https")
+
+set(CTEST_OUTPUT_ON_FAILURE 1)
 set(CTEST_DROP_METHOD "http")
 set(CTEST_DROP_SITE "cdash.inria.fr")
 set(CTEST_DROP_LOCATION "/CDash/submit.php?project=openMEEG")
