@@ -3,6 +3,12 @@ macro(find type arg)
     if (${guard})
         unset(${arg}_DIR)
     endif()
+
+    if (FIND_PACKAGE_DEBUG)
+        set(CMAKE_FIND_DEBUG_MODE 1)
+        message("[[Looking for ${type}: ${arg}]]")
+    endif()   
+
     if ("${type}" STREQUAL "package")
         find_package(${arg} ${ARGN})
     elseif ("${type}" STREQUAL "library")
@@ -11,3 +17,4 @@ macro(find type arg)
         message(SEND_ERROR "Unknown type ${type}")
     endif()
 endmacro()
+
