@@ -52,7 +52,7 @@ function(clapack_project)
     # Set variable to provide infos about the project
 
     ExternalProject_Get_Property(${ep} install_dir)
-    set(${ep}_CMAKE_FLAGS -Dlapack_DIR:FILEPATH=${install_dir} PARENT_SCOPE)
+    set(${ep}_CMAKE_FLAGS -DLAPACK_DIR:FILEPATH=${install_dir} PARENT_SCOPE)
 
     # Add custom targets
 
