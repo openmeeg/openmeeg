@@ -17,7 +17,6 @@ function(OpenMEEG_project)
     # Define repository where get the sources
 
     if (NOT DEFINED ${ep}_SOURCE_DIR)
-        set(tag SuperProject)
         set(location GIT_REPOSITORY "${GIT_PREFIX}github.com/openmeeg/openmeeg.git")
     endif()
 
@@ -54,6 +53,7 @@ function(OpenMEEG_project)
 
     # Add external-project
 
+    set(tag SuperProject)
     ExternalProject_Add(${ep}
         ${ep_dirs}
         ${location}
