@@ -17,7 +17,6 @@ function(hdf5_project)
     # Define repository where get the sources
 
     if (NOT DEFINED ${ep}_SOURCE_DIR)
-        set(tag 1.8.12)
         set(location GIT_REPOSITORY "${GIT_PREFIX}github.com/openmeeg/hdf5-matio.git")
         #set(location
         #    URL "http://www.hdfgroup.org/ftp/HDF5/releases/hdf5-1.8.12/src/hdf5-1.8.12.tar.bz2"
@@ -49,11 +48,12 @@ function(hdf5_project)
 
     # Add external-project
 
+    set(tag 1.8.12)
     ExternalProject_Add(${ep}
         ${ep_dirs}
         ${location}
-        GIT_TAG ${tag}
         ${PATCH_COMMAND}
+        GIT_TAG ${tag}
         CMAKE_GENERATOR ${gen}
         CMAKE_ARGS ${cmake_args}
         DEPENDS ${${ep}_dependencies}
