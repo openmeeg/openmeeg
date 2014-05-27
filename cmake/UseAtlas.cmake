@@ -79,7 +79,8 @@ if (NOT USE_MKL)
                 endif()
             endforeach()
         else()
-            find_package(lapack QUIET PATHS /usr/lib64/ /usr/lib/ ${lapack_DIR}/lib 
+            message("${lapack_DIR}")
+            find_package(lapack QUIET PATHS /usr/lib64/ /usr/lib/ ${LAPACK_DIR}/lib 
                          NO_DEFAULT_PATH
                          NO_CMAKE_ENVIRONMENT_PATH
                          NO_CMAKE_PATH
@@ -101,9 +102,9 @@ if (NOT USE_MKL)
 endif()
 
 if (NOT LAPACK_LIBRARIES)
-    find_file(lapack liblapack.a  PATHS ${lapack_DIR}/lib)
-    find_file(blas libblas.a  PATHS ${lapack_DIR}/lib)
-    find_file(f2c libf2c.a  PATHS ${lapack_DIR}/lib)
+    find_file(lapack liblapack.a  PATHS ${LAPACK_DIR}/lib)
+    find_file(blas libblas.a  PATHS ${LAPACK_DIR}/lib)
+    find_file(f2c libf2c.a  PATHS ${LAPACK_DIR}/lib)
     if (NOT (lapack AND blas AND f2c))
         message(SEND_ERROR "clapack is needed")
     endif()
