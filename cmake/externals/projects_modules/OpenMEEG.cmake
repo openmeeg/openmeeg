@@ -17,6 +17,7 @@ function(OpenMEEG_project)
     # Define repository where get the sources
 
     if (NOT DEFINED ${ep}_SOURCE_DIR)
+        set(tag SuperProject)
         set(location GIT_REPOSITORY "${GIT_PREFIX}github.com/openmeeg/openmeeg.git")
     endif()
 
@@ -56,7 +57,7 @@ function(OpenMEEG_project)
     ExternalProject_Add(${ep}
         ${ep_dirs}
         ${location}
-        GIT_TAG SuperProject
+        GIT_TAG ${tag}
         ${PATCH_COMMAND}
         CMAKE_GENERATOR ${gen}
         CMAKE_ARGS ${cmake_args}
