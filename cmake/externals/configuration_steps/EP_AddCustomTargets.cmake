@@ -4,7 +4,7 @@ macro(EP_AddCustomTargets ep)
     set(SVN_COMMAND svn update)
 
     if (DEFINED tag)
-        set(GIT_COMMAND git fetch ${url} && git stash && git checkout ${tag} && git stash pop)
+        set(GIT_COMMAND git fetch ${url} && git stash && git pull origin ${tag} && git stash pop)
         set(SVN_COMMAND svn switch ${url} && svn update -r ${tag})
     endif()
 
