@@ -1,6 +1,6 @@
 language: erlang
 install:
-  - apt-get install cmake doxygen python-numpy swig python-dev libatlas-base-dev libvtk5-dev libtiff4-dev libmatio-dev
+  - sudo apt-get install cmake doxygen python-numpy swig python-dev libatlas-base-dev libvtk5-dev libtiff4-dev libmatio-dev
   - mkdir build; cd build; cmake
               -DATLAS_INCLUDE_PATH:PATH=/usr/include/atlas
               -DBUILD_SHARED:BOOL=ON
