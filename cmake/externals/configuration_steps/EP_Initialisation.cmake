@@ -54,11 +54,14 @@ macro(ep_Initialisation project BUILD_SHARED_LIBS build_shared_libs_def)
     endforeach() 
 
     # Define a directory for each target of the project
+    # On Windows/Mac make a single install dir so that libraries can be found for testing.
 
-    set(DIR_VAR_NAMES DOWNLOAD BINARY STAMP INSTALL TMP)
-    set(DIR_NAMES     ""       build  stamp install tmp)
-    #set(DIR_VAR_NAMES DOWNLOAD BINARY STAMP TMP)
-    #set(DIR_NAMES     ""       build  stamp tmp)
+    set(DIR_VAR_NAMES DOWNLOAD BINARY STAMP TMP)
+    set(DIR_NAMES     ""       build  stamp tmp)
+    if (LINUX)
+        set(DIR_VAR_NAMES ${DIR_VAR_NAMES} INSTALL)
+        set(DIR_NAMES     ${DIR_NAMES}     install)
+    endif()
 
     set(dirs PREFIX ${ep})
     foreach(i RANGE 4)
@@ -69,6 +72,11 @@ macro(ep_Initialisation project BUILD_SHARED_LIBS build_shared_libs_def)
         set(${varname}_dir ${ep}/${dir})
     endforeach()
 
+    if (NOT LINUX)
+        set(install_dir install)
+        set(dirs ${dirs} INSTALL_DIR ${install_dir})
+    endif()
+
     # Look for and define the source directory of the project 
 
     if (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/${ep}/CMakeLists.txt 
@@ -77,8 +85,5 @@ macro(ep_Initialisation project BUILD_SHARED_LIBS build_shared_libs_def)
     endif()
 
     set(source_dir ${CMAKE_SOURCE_DIR}/${ep})
-    #set(install_dir install)
-
-    #set(ep_dirs ${dirs} SOURCE_DIR ${source_dir} INSTALL_DIR install)
     set(ep_dirs ${dirs} SOURCE_DIR ${source_dir})
 endmacro()
