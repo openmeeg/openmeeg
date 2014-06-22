@@ -14,4 +14,4 @@ install:
               ..
   - make
 script:
-  - cd build; ctest
+  - cd build; ctest -V
