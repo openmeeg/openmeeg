@@ -64,6 +64,7 @@ macro(ep_Initialisation project BUILD_SHARED_LIBS build_shared_libs_def)
     endif()
 
     list(LENGTH DIR_VAR_NAMES dirnum)
+    math(EXPR dirnum ${dirnum}-1)
     set(dirs PREFIX ${ep})
     foreach(i RANGE ${dirnum})
         list(GET DIR_VAR_NAMES ${i} var)
