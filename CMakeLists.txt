@@ -12,81 +12,80 @@
 # Project Name
 #------------------------------------------------------------
 
-SET(PACKAGE_VERSION_MAJOR "2")
-SET(PACKAGE_VERSION_MINOR "3")
-SET(PACKAGE_VERSION_PATCH "dev")
+set(PACKAGE_VERSION_MAJOR "2")
+set(PACKAGE_VERSION_MINOR "3")
+set(PACKAGE_VERSION_PATCH "dev")
 
 #   The second path is temporary untill these are integrated in cmake...
 
-# SET(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/macros;${CMAKE_SOURCE_DIR}/macros/FortranCInterface;")
-SET(CMAKE_MODULE_PATH
-"${CMAKE_SOURCE_DIR}/macros;${CMAKE_SOURCE_DIR}/macros/FortranCInterface;${CMAKE_SOURCE_DIR}/contrib/matio/cmake/")
-
-#   Why do we have to tell this here ??? (see matio/CMakeLists.txt for details).
-
-IF (WIN32 AND NOT CYGWIN_INSTALL_PATH)
-    SET(INTTYPES_INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/contrib/matio/contrib/msinttypes-r26)
-    SET(CMAKE_REQUIRED_INCLUDES ${INTTYPES_INCLUDES})
-    INCLUDE_DIRECTORIES(AFTER SYSTEM ${INTTYPES_INCLUDES})
-ENDIF()
+set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake ${CMAKE_SOURCE_DIR}/cmake/FortranCInterface)
 
 #   The next two lines are a kludge to make rpm generation work. If you change this,
 #   please check that rpm generation still works.
 
-SET(CPACK_PACKAGE_VERSION_MAJOR ${PACKAGE_VERSION_MAJOR})
-SET(CPACK_PACKAGE_VERSION_MINOR ${PACKAGE_VERSION_MINOR})
-SET(CPACK_PACKAGE_VERSION_PATCH ${PACKAGE_VERSION_PATCH})
+set(CPACK_PACKAGE_VERSION_MAJOR ${PACKAGE_VERSION_MAJOR})
+set(CPACK_PACKAGE_VERSION_MINOR ${PACKAGE_VERSION_MINOR})
+set(CPACK_PACKAGE_VERSION_PATCH ${PACKAGE_VERSION_PATCH})
 
-PROJECT(OpenMEEG C CXX)
+project(OpenMEEG C CXX)
 
-CMAKE_MINIMUM_REQUIRED(VERSION 2.6 FATAL_ERROR)
+cmake_minimum_required(VERSION 2.6 FATAL_ERROR)
 
 # By default, do not warn when built on machines using only VS Express:
 
-IF (NOT DEFINED CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_NO_WARNINGS)
-    SET(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_NO_WARNINGS ON)
-ENDIF()
+if (NOT DEFINED CMAKE_install_SYSTEM_RUNTIME_LIBS_NO_WARNINGS)
+    set(CMAKE_install_SYSTEM_RUNTIME_LIBS_NO_WARNINGS ON)
+endif()
 
-INCLUDE(NewExecutable)
-INCLUDE(LibCorrections)
-INCLUDE(FindLibrary)
-INCLUDE(UnitTest)
-INCLUDE(Revision)
-INCLUDE(Win32Compat)
+include(NewExecutable)
+include(GenerateConfigFile)
+include(FindLibrary)
+include(UnitTest)
+include(Revision)
+include(Win32Compat)
 
-GENERATE_VERSION_INFO()
+generate_version_info()
 
-INCLUDE(CompileOptions)
+include(CompileOptions)
+
+set(OPENMEEG_HEADER_INSTALLDIR ${INSTALL_INCLUDE_DIR}/openmeeg)
 
 # ==============
 # = Endianess =
 # ==============
 
-INCLUDE(TestBigEndian)
-TEST_BIG_ENDIAN(WORDS_BIGENDIAN)
+include(TestBigEndian)
+test_big_endian(WORDS_BIGENDIAN)
 
 #######################################################################
 # External Libraries
 #######################################################################
 
-INCLUDE(VtkOption)
-INCLUDE(GiftiOption)
-INCLUDE(UseMatio)
-INCLUDE(UseAtlas)
-INCLUDE(UseOpenMP)
+include(VtkOption)
+include(GiftiOption)
+include(UseAtlas)
+include(UseOpenMP)
 
 #   Detect Fortran to C interface.
-IF (USE_ATLAS)
-    INCLUDE(FortranCInterface)
+if (USE_ATLAS)
+    include(FortranCInterface)
     FortranCInterface_HEADER(FC.h MACRO_NAMESPACE "FC_" FROM_LIBRARY blas[daxpy])
-ENDIF()
+endif()
+
+Dependencies(OpenMEEG matio)
+
+set(USE_MATIO 1)
+if (NOT matio_FOUND)
+    message(WARNING "Without matio OpenMEEG only generates ascii files which are big and can loose accuracy.")
+    unset(USE_MATIO)
+endif()
 
 #---------------------------------------------------------------
 # Include OpenMEEG Directories
 #---------------------------------------------------------------
 
 # Include the file with all source tree directories for OpenMEEG
-SET (OPENMEEG_INCLUDE_DIRECTORIES
+set (OPENMEEG_INCLUDE_DIRECTORIES
     ${OpenMEEG_BINARY_DIR}
     ${OpenMEEG_SOURCE_DIR}
     ${OpenMEEG_SOURCE_DIR}/src
@@ -94,9 +93,10 @@ SET (OPENMEEG_INCLUDE_DIRECTORIES
     ${OpenMEEG_SOURCE_DIR}/libs/OpenMEEG/include
     ${OpenMEEG_BINARY_DIR}/libs/OpenMEEG/include
     ${OPENMEEG_OTHER_INCLUDE_DIRECTORIES}
+    ${matio_INCLUDE_DIRS}
 )
 
-INCLUDE_DIRECTORIES(${OPENMEEG_INCLUDE_DIRECTORIES})
+include_directories(${OPENMEEG_INCLUDE_DIRECTORIES})
 
 #---------------------------------------------------------------
 # Test the C++ compiler features
@@ -107,120 +107,115 @@ CHECK_CXX_STANDARD_LIBRARY()
 
 if (NOT HAVE_ISNORMAL_IN_NAMESPACE_STD)
     include(CheckSymbolExists)
-    CHECK_SYMBOL_EXISTS(isnormal math.h HAVE_ISNORMAL_IN_MATH_H)
+    check_symbol_exists(isnormal math.h HAVE_ISNORMAL_IN_MATH_H)
 endif()
 
 #---------------------------------------------------------------
 # Setting sources and libraries
 #---------------------------------------------------------------
 
-SUBDIRS(contrib libs src)
+subdirs(libs src)
 
 #######################################################################
 # Configure files with settings for use by the build.
 #######################################################################
 
-CONFIGURE_FILE(${OpenMEEG_SOURCE_DIR}/OpenMEEGConfigure.h.in
+configure_file(${OpenMEEG_SOURCE_DIR}/OpenMEEGConfigure.h.in
                ${OpenMEEG_BINARY_DIR}/OpenMEEGConfigure.h)
 
-IF(UNIX)
+if (UNIX)
     INCLUDE(AddDemoTarget)
     ADD_DEMO_TARGET(Head1 forinv)
     ADD_DEMO_TARGET(Head2 forward)
     ADD_DEMO_TARGET(Head3 forward)
     ADD_DEMO_TARGET(nerve1 gain)
-ENDIF()
+endif()
 
 #-----------------------------------------------
 # tools
 #-----------------------------------------------
 
-OPTION(BUILD_TOOLS "Build tools" ON)
+option(BUILD_TOOLS "Build tools" ON)
 
-IF (BUILD_TOOLS)
-    SUBDIRS(tools)
-ENDIF (BUILD_TOOLS)
+if (BUILD_TOOLS)
+    subdirs(tools)
+endif()
 
 #-----------------------------------------------
 # tests
 #-----------------------------------------------
 
-INCLUDE(TestOption)
-
-#-----------------------------------------------
-# Dart
-#-----------------------------------------------
-
-INCLUDE(Dart)
+include(TestOption)
+include(Dart)
 
 #-----------------------------------------------
 # documentation
 #-----------------------------------------------
 
-OPTION(BUILD_DOCUMENTATION "Build Doxygen documentation" OFF)
-OPTION(BUILD_TUTORIALS "Build Tutorials" OFF)
+option(BUILD_DOCUMENTATION "Build Doxygen documentation" OFF)
+option(BUILD_TUTORIALS "Build Tutorials" OFF)
 
-SUBDIRS(${OpenMEEG_SOURCE_DIR}/documentation)
+subdirs(${OpenMEEG_SOURCE_DIR}/documentation)
 
 #-----------------------------------------------
 # Wrapping
 #-----------------------------------------------
 
-OPTION(ENABLE_PYTHON "Enable Python Wrapping" OFF)
+option(ENABLE_PYTHON "Enable Python Wrapping" OFF)
 
-IF (ENABLE_PYTHON AND NOT BUILD_SHARED_LIBS)
-    MESSAGE(SEND_ERROR "Python wrapping does not work with static build, consider changing the BUILD_SHARED_LIBS option.")
-ENDIF ()
+if (ENABLE_PYTHON AND NOT BUILD_SHARED_LIBS)
+    message(SEND_ERROR "Python wrapping does not work with static build, consider changing the BUILD_SHARED_LIBS option.")
+endif ()
 
-IF(APPLE AND ENABLE_PYTHON)
-    IF (NOT FORCE_BUILD_32BITS) # Builtin Python2.5 on Mac OS X in 32 bits...
-        MESSAGE("You may have a 32bits Python installed.
+if (APPLE AND ENABLE_PYTHON)
+    if (NOT FORCE_BUILD_32BITS) # Builtin Python2.5 on Mac OS X in 32 bits...
+        message("You may have a 32bits Python installed.
                  In case of compilation problem try to force 32 bits compilation.")
-    ENDIF()
-ENDIF()
+    endif()
+endif()
 
-SUBDIRS(Wrapping)
+subdirs(Wrapping)
 
 #-----------------------------------------------
 # Support for make uninstall
 #-----------------------------------------------
 
-CONFIGURE_FILE(
-    "${CMAKE_CURRENT_SOURCE_DIR}/macros/cmake_uninstall.cmake.in"
+configure_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cmake_uninstall.cmake.in"
     "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
     IMMEDIATE @ONLY)
 
-ADD_CUSTOM_TARGET(uninstall
+add_custom_target(uninstall
     "${CMAKE_COMMAND}" -P "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake")
 
 #-----------------------------------------------
 # Code Syntax Checking with KWStyle
 #-----------------------------------------------
 
-OPTION(CHECK_SYNTAX "Checking code syntax using KWStyle" OFF)
+option(CHECK_SYNTAX "Checking code syntax using KWStyle" OFF)
 MARK_AS_ADVANCED(CHECK_SYNTAX)
 
-IF (CHECK_SYNTAX)
-    ADD_CUSTOM_TARGET(check_syntax
+if (CHECK_SYNTAX)
+    add_custom_target(check_syntax
         COMMAND KWStyle -xml ${OpenMEEG_SOURCE_DIR}/OpenMEEGConfig.kws.xml -html ${OpenMEEG_BINARY_DIR}/KWStyleCheck -D KWStyleFilesToCheck.txt -v
         WORKING_DIRECTORY ${OpenMEEG_SOURCE_DIR})
-ENDIF ( CHECK_SYNTAX )
+endif()
 
 #-----------------------------------------------
 # Progress bar
 #-----------------------------------------------
 
-OPTION(USE_PROGRESSBAR "Show ascii progress bar when assembling matrices" OFF)
+option(USE_PROGRESSBAR "Show ascii progress bar when assembling matrices" OFF)
 
-IF ( USE_PROGRESSBAR )
-    ADD_DEFINITIONS(-DUSE_PROGRESSBAR)
-ENDIF ( USE_PROGRESSBAR )
+if ( USE_PROGRESSBAR )
+    add_definitions(-DUSE_PROGRESSBAR)
+endif()
 
 #-----------------------------------------------
 # packaging
 #-----------------------------------------------
 
-INCLUDE(Packaging)
+include(Packaging)
 
 #######################################################################
 # Help other projects use OpenMEEG
@@ -233,62 +228,60 @@ INCLUDE(Packaging)
 
 # Include the libraries and their directories for OpenMEEG
 
-SET (OPENMEEG_LIBRARY_DIRECTORIES
+set(OPENMEEG_LIBRARY_DIRECTORIES
     ${OpenMEEG_BINARY_DIR}/src
     ${OpenMEEG_BINARY_DIR}/libs/OpenMEEGMaths/src
     ${OpenMEEG_BINARY_DIR}/libs/OpenMEEG/src
     ${OPENMEEG_OTHER_LIBRARY_DIRECTORIES}
 )
 
-SET(OPENMEEG_SOURCE_DIRECTORIES ${OpenMEEG_SOURCE_DIR})
+set(OPENMEEG_SOURCE_DIRECTORIES ${OpenMEEG_SOURCE_DIR})
 
-SET (OPENMEEG_LIBRARIES OpenMEEG OpenMEEGMaths ${OPENMEEG_LIBRARIES})
+set(OPENMEEG_LIBRARIES OpenMEEG OpenMEEGMaths ${OPENMEEG_LIBRARIES})
 
 # This section uses the OPENMEEG_INCLUDE_DIRECTORIES variable.
 # Copy the UseOpenMEEG.cmake file to the binary tree for backward compatability.
-CONFIGURE_FILE(
-    ${OpenMEEG_SOURCE_DIR}/macros/UseOpenMEEG.cmake.in
+configure_file(
+    ${OpenMEEG_SOURCE_DIR}/cmake/UseOpenMEEG.cmake.in
     ${OpenMEEG_BINARY_DIR}/UseOpenMEEG.cmake COPYONLY IMMEDIATE)
 
 # The "use" file.
-SET(OPENMEEG_USE_FILE ${OpenMEEG_BINARY_DIR}/UseOpenMEEG.cmake)
-
-SET(OPENMEEG_HEADER_INSTALLDIR include/openmeeg)
+set(OPENMEEG_USE_FILE ${OpenMEEG_BINARY_DIR}/UseOpenMEEG.cmake)
 
 # Configure OpenMEEGConfig.cmake for the build tree.
-CONFIGURE_FILE(
-    ${OpenMEEG_SOURCE_DIR}/macros/OpenMEEGConfig.cmake.in
+configure_file(
+    ${OpenMEEG_SOURCE_DIR}/cmake/OpenMEEGConfig.cmake.in
     ${OpenMEEG_BINARY_DIR}/OpenMEEGConfig.cmake @ONLY IMMEDIATE)
 
 # Generate another configure for installation
-SET (OPENMEEG_INCLUDE_DIRECTORIES
-    ${CMAKE_INSTALL_PREFIX}/${OPENMEEG_HEADER_INSTALLDIR}
+set(OPENMEEG_INCLUDE_DIRECTORIES
+    ${OPENMEEG_HEADER_INSTALLDIR}
     ${OPENMEEG_OTHER_INCLUDE_DIRECTORIES}
 )
-SET (OPENMEEG_LIBRARY_DIRECTORIES
-    ${CMAKE_INSTALL_PREFIX}/lib
+set(OPENMEEG_LIBRARY_DIRECTORIES
+    ${CMAKE_install_PREFIX}/lib
     ${OPENMEEG_OTHER_LIBRARY_DIRECTORIES}
 )
 
 # The "use" file.
-SET(OPENMEEG_USE_FILE ${CMAKE_INSTALL_PREFIX}/lib/UseOpenMEEG.cmake)
+set(OPENMEEG_USE_FILE ${CMAKE_install_PREFIX}/lib/UseOpenMEEG.cmake)
 
 # Configure OpenMEEGConfig.cmake for the install tree.
-CONFIGURE_FILE(
-    ${OpenMEEG_SOURCE_DIR}/macros/OpenMEEGConfig.cmake.in
-    ${OpenMEEG_BINARY_DIR}/macros/OpenMEEGConfig.cmake @ONLY IMMEDIATE)
+configure_file(
+    ${OpenMEEG_SOURCE_DIR}/cmake/OpenMEEGConfig.cmake.in
+    ${OpenMEEG_BINARY_DIR}/cmake/OpenMEEGConfig.cmake @ONLY IMMEDIATE)
 
-INSTALL(FILES ${OpenMEEG_BINARY_DIR}/UseOpenMEEG.cmake
-    DESTINATION lib)
+install(FILES ${OpenMEEG_BINARY_DIR}/UseOpenMEEG.cmake
+    DESTINATION ${INSTALL_DATA_DIR}/OpenMEEG/cmake)
 
-INSTALL(FILES ${OpenMEEG_BINARY_DIR}/macros/OpenMEEGConfig.cmake
-    DESTINATION lib)
+install(FILES ${OpenMEEG_BINARY_DIR}/cmake/OpenMEEGConfig.cmake
+    DESTINATION ${INSTALL_DATA_DIR}/OpenMEEG/cmake)
 
 # install generated headers OpenMEEGConfigure and FC
-INSTALL(FILES ${OpenMEEG_BINARY_DIR}/OpenMEEGConfigure.h
+install(FILES ${OpenMEEG_BINARY_DIR}/OpenMEEGConfigure.h
     DESTINATION ${OPENMEEG_HEADER_INSTALLDIR} COMPONENT Development)
 
-IF(USE_ATLAS)
-    INSTALL(FILES ${OpenMEEG_BINARY_DIR}/FC.h
-        DESTINATION ${OPENMEEG_HEADER_INSTALLDIR} COMPONENT Development)
-ENDIF()
+if (USE_ATLAS)
+    install(FILES ${OpenMEEG_BINARY_DIR}/FC.h
+           DESTINATION ${OPENMEEG_HEADER_INSTALLDIR} COMPONENT Development)
+endif()

@@ -5,7 +5,7 @@ MACRO(CHECK_CXX_FEATURE feature file message)
     MESSAGE(STATUS "Check whether the compiler ${message}")
     TRY_COMPILE(RESULT ${CMAKE_BINARY_DIR}
         #${CMAKE_ROOT}/Modules/TestForSTDNamespace.cxx
-        ${CMAKE_CURRENT_SOURCE_DIR}/macros/cxx_tests/${file}
+        ${CMAKE_CURRENT_SOURCE_DIR}/cmake/cxx_tests/${file}
         COMPILE_DEFINITIONS "${CHECK_CXX_FEATURE_DEFINITIONS}"
         OUTPUT_VARIABLE OUTPUT)
 
