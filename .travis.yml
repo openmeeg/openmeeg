@@ -9,7 +9,9 @@ install:
               -DPYTHON_WRAP:BOOL=ON
               -DUSE_VTK:BOOL=OFF
               -DUSE_ATLAS:BOOL=ON
-              -DUSE_SYSTEM_MATIO:BOOL=ON
+              -DUSE_SYSTEM_zlib:BOOL=ON
+              -DUSE_SYSTEM_hdf5:BOOL=ON
+              -DUSE_SYSTEM_matio:BOOL=ON
               -DCMAKE_SKIP_RPATH:BOOL=OFF
               ..
   - make
