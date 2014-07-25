@@ -12,7 +12,7 @@ function(hdf5_project)
     # Prepare the project and list dependencies
 
     EP_Initialisation(hdf5 BUILD_SHARED_LIBS ON)
-    set(${ep}_dependencies ${MSINTTYPES} zlib)
+    EP_SetDependencies(${ep}_dependencies ${MSINTTYPES} zlib)
 
     # Define repository where get the sources
 

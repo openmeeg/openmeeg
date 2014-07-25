@@ -16,7 +16,7 @@ function(VTK_project)
     # Prepare the project and list dependencies
 
     EP_Initialisation(VTK BUILD_SHARED_LIBS ON)
-    set(${ep}_dependencies Qt4)
+    EP_SetDependencies(${ep}_dependencies Qt4)
 
     # Define repository where get the sources
 

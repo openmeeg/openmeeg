@@ -47,6 +47,7 @@ include(ExternalProject)
 # Include common configuration steps
 
 include(EP_Initialisation)
+include(EP_SetDependencies)
 include(EP_AddCustomTargets) 
 include(EP_GeneratePatchCommand) 
 

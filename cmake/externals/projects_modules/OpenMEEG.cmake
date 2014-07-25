@@ -12,7 +12,7 @@ function(OpenMEEG_project)
     # Prepare the project and list dependencies
 
     EP_Initialisation(OpenMEEG BUILD_SHARED_LIBS ON)
-    set(${ep}_dependencies clapack matio ${MSINTTYPES})
+    EP_SetDependencies(${ep}_dependencies clapack matio ${MSINTTYPES})
 
     # Define repository where get the sources
 
@@ -53,11 +53,11 @@ function(OpenMEEG_project)
 
     # Add external-project
 
-    set(tag SuperProject)
+    #set(tag SuperProject_clean)
     ExternalProject_Add(${ep}
         ${ep_dirs}
         ${location}
-        GIT_TAG ${tag}
+#        GIT_TAG ${tag}
         ${PATCH_COMMAND}
         CMAKE_GENERATOR ${gen}
         CMAKE_ARGS ${cmake_args}

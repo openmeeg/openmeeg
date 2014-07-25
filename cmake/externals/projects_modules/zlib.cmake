@@ -12,7 +12,7 @@ function(zlib_project)
     # Prepare the project and list dependencies
 
     EP_Initialisation(zlib BUILD_SHARED_LIBS ON)
-    set(${ep}_dependencies "${MSINTTYPES}")
+    EP_SetDependencies(${ep}_dependencies "${MSINTTYPES}")
       
     # Define repository where get the sources
 
