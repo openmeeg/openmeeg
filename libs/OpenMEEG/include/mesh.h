@@ -130,6 +130,7 @@ namespace OpenMEEG {
         ~Mesh() { destroy(); }
 
         // Iterators on vertices
+
         vertex_iterator               vertex_begin()        { return vertices_.begin(); }
         vertex_iterator               vertex_end()          { return vertices_.end(); }
         const_vertex_iterator         vertex_begin()  const { return vertices_.begin(); }

@@ -12,9 +12,9 @@ OPENMEEG_EXECUTABLE(om_assemble assemble.cpp)
 # ================
 
 install(TARGETS om_assemble om_forward om_gain om_minverser
-        RUNTIME DESTINATION bin
-        LIBRARY DESTINATION lib
-        ARCHIVE DESTINATION lib)
+        RUNTIME DESTINATION ${INSTALL_BIN_DIR}
+        LIBRARY DESTINATION ${INSTALL_LIB_DIR}
+        ARCHIVE DESTINATION ${INSTALL_LIB_DIR})
 
 # ===========
 # = TESTING =
