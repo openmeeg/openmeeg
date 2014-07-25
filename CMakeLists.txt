@@ -70,8 +70,6 @@ option(MATLAB_TESTING "Enable matlab read tests (requires a function matlab)" OF
 set(MSINTTYPES)
 if (WIN32 AND NOT CYGWIN_INSTALL_PATH)
     set(MSINTTYPES msinttypes)
-#    set(INTTYPES_INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/msinttypes)
-#    set(CMAKE_REQUIRED_INCLUDES ${INTTYPES_INCLUDES})
 endif()
 
 if (NOT USE_ATLAS AND NOT USE_MKL)
