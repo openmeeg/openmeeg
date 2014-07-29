@@ -5,6 +5,7 @@ from __future__ import print_function
 import sys
 import io
 import os
+import platform
 import argparse
 import subprocess
 from shutil import rmtree
@@ -13,8 +14,11 @@ from lxml import etree
 import StringIO
 
 if sys.platform == 'win32':
-    CMAKE_COMMAND = "C:\Program Files\CMake 2.8\\bin\cmake.exe"
-    CTEST_COMMAND = "C:\Program Files\CMake 2.8\\bin\ctest.exe"
+    x86_suffix = ""
+    if platform.machine() == "AMD64":
+        x86_suffix = " (x86)"
+    CMAKE_COMMAND = "C:\Program Files\CMake 2.8"++"\\bin\cmake.exe"
+    CTEST_COMMAND = "C:\Program Files\CMake 2.8"++"\\bin\ctest.exe"
 else:
     CMAKE_COMMAND = "cmake"
     CTEST_COMMAND = "ctest"
