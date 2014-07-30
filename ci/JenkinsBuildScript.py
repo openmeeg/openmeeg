@@ -17,8 +17,9 @@ if sys.platform == 'win32':
     x86_suffix = ""
     if platform.machine() == "AMD64":
         x86_suffix = " (x86)"
-    CMAKE_COMMAND = "C:\Program Files\CMake 2.8"++"\\bin\cmake.exe"
-    CTEST_COMMAND = "C:\Program Files\CMake 2.8"++"\\bin\ctest.exe"
+    directory = "C:\\Program Files\\CMake 2.8"+x86_suffix+"\\bin\\"
+    CMAKE_COMMAND = directory+"cmake.exe"
+    CTEST_COMMAND = directory+"ctest.exe"
 else:
     CMAKE_COMMAND = "cmake"
     CTEST_COMMAND = "ctest"
