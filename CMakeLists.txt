@@ -69,7 +69,11 @@ option(MATLAB_TESTING "Enable matlab read tests (requires a function matlab)" OF
 
 set(MSINTTYPES)
 if (WIN32 AND NOT CYGWIN_INSTALL_PATH)
-    set(MSINTTYPES msinttypes)
+    include(CheckIncludeFiles)
+    check_include_files(stdint.h HAVE_C99_STDINT)
+    if (NOT HAVE_C99_STDINT)
+        set(MSINTTYPES msinttypes)
+    endif()
 endif()
 
 if (NOT USE_ATLAS AND NOT USE_MKL)
