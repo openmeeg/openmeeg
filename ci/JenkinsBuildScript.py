@@ -17,7 +17,7 @@ if sys.platform == 'win32':
     x86_suffix = ""
     if platform.machine() == "AMD64":
         x86_suffix = " (x86)"
-    directory = "C:\\Program Files\\CMake 2.8"+x86_suffix+"\\bin\\"
+    directory = "C:\\Program Files"+x86_suffix+"\\CMake 2.8\\bin\\"
     CMAKE_COMMAND = directory+"cmake.exe"
     CTEST_COMMAND = directory+"ctest.exe"
 else:
@@ -79,6 +79,7 @@ def cmake_configuration(args):
     add_cmake_parameter(args.omp,'USE_OMP',cmake_command_line)
 
     cmake_command_line.append('..')
+    print(cmake_command_line)
     CallAndLog(cmake_command_line,'configure.log',args.debug)
 
 def cmake_build(args):
