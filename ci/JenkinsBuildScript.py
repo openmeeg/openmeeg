@@ -27,6 +27,7 @@ else:
     CTEST_COMMAND = "ctest"
 
 def find_visual_studio_version():
+    cws = os.getcws()
     compilers = glob.glob("C:\\Program Files\\Microsoft Visual*\\VC\\bin\\vcvars*.bat")
     if  platform.machine() == "AMD64":
         compilers = compilers+glob.glob("C:\\Program Files (x86)\\Microsoft Visual*\\VC\\bin\\vcvars*.bat")
@@ -48,6 +49,7 @@ def find_visual_studio_version():
             process.wait()
         except:
             pass
+    os.chdir(cwd)
     return version
 
 def CTest2Unit(xsl_file,build_dir,result_file):
