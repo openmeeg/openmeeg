@@ -27,7 +27,7 @@ else:
     CTEST_COMMAND = "ctest"
 
 def find_visual_studio_version():
-    cws = os.getcws()
+    cwd = os.getcwd()
     compilers = glob.glob("C:\\Program Files\\Microsoft Visual*\\VC\\bin\\vcvars*.bat")
     if  platform.machine() == "AMD64":
         compilers = compilers+glob.glob("C:\\Program Files (x86)\\Microsoft Visual*\\VC\\bin\\vcvars*.bat")
