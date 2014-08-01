@@ -5,6 +5,8 @@ from __future__ import print_function
 import sys
 import io
 import os
+import re
+import glob
 import platform
 import argparse
 import subprocess
@@ -23,6 +25,30 @@ if sys.platform == 'win32':
 else:
     CMAKE_COMMAND = "cmake"
     CTEST_COMMAND = "ctest"
+
+def find_visual_studio_version():
+    compilers = glob.glob("C:\\Program Files\\Microsoft Visual*\\VC\\bin\\vcvars*.bat")
+    if  platform.machine() == "AMD64":
+        compilers = compilers+glob.glob("C:\\Program Files (x86)\\Microsoft Visual*\\VC\\bin\\vcvars*.bat")
+    clpattern = re.compile(r'Version (?P<version>\d+)\.')
+    vspattern = re.compile(r'Microsoft Visual Studio (?P<version>\d+)\.0')
+    version = 0
+    for comp in compilers:
+        directory = os.path.dirname(comp)
+        os.chdir(directory)
+        try:
+            process = subprocess.Popen(os.path.basename(comp)+' & cl.exe',stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
+            for line in iter(process.stdout.readline, ''):
+                m = clpattern.search(line)
+                if m is not None:
+                    if int(m.group("version").split('.')[0])>version:
+                        v = vspattern.search(directory)
+                        if v is not None:
+                            version = int(v.group("version"))
+            process.wait()
+        except:
+            pass
+    return version
 
 def CTest2Unit(xsl_file,build_dir,result_file):
     TestDir     = build_dir+'/Testing/'
@@ -70,7 +96,7 @@ def cmake_configuration(args):
 
     cmake_command_line = [ CMAKE_COMMAND ]
     if sys.platform == 'win32':
-        cmake_command_line.extend(['-G', 'Visual Studio 11', '-DCMAKE_BUILD_TYPE=RelWithDebInfo'])
+        cmake_command_line.extend(['-G', 'Visual Studio '+unicode(find_visual_studio_version()), '-DCMAKE_BUILD_TYPE=RelWithDebInfo'])
 
     add_cmake_parameter(args.python,'ENABLE_PYTHON',cmake_command_line)
     add_cmake_parameter(args.testing,'BUILD_TESTING',cmake_command_line)
