@@ -92,9 +92,11 @@ if (NOT USE_ATLAS AND NOT USE_MKL)
                  NO_CMAKE_PATH
                  NO_SYSTEM_ENVIRONMENT_PATH
                  NO_CMAKE_SYSTEM_PATH)
+    message("Lapack packae: ${lapack}: ${LAPACK_LIBRARIES}")
 endif()
 
 if (NOT LAPACK_LIBRARIES)
+    message("Searching lapack in {lapack_libs_dir}")
     find_file(lapack liblapack.a  PATHS ${lapack_libs_dir})
     find_file(blas libblas.a  PATHS ${lapack_libs_dir})
     find_file(f2c libf2c.a  PATHS ${lapack_libs_dir})
