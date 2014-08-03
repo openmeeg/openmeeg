@@ -53,11 +53,12 @@ function(OpenMEEG_project)
 
     # Add external-project
 
-    #set(tag SuperProject_clean)
+    set(tag master)
     ExternalProject_Add(${ep}
         ${ep_dirs}
         ${location}
-#        GIT_TAG ${tag}
+        GIT_TAG ${tag}
+        UPDATE_COMMAND ${GIT_EXECUTABLE} pull
         ${PATCH_COMMAND}
         CMAKE_GENERATOR ${gen}
         CMAKE_ARGS ${cmake_args}

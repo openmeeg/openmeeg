@@ -61,6 +61,7 @@ function(matio_project)
         ${ep_dirs}
         ${location}
         GIT_TAG ${tag}
+        UPDATE_COMMAND ${GIT_EXECUTABLE} pull
         ${PATCH_COMMAND}
         CMAKE_GENERATOR ${gen}
         CMAKE_ARGS ${cmake_args}
