@@ -54,7 +54,7 @@ function(hdf5_project)
         ${location}
         ${PATCH_COMMAND}
         GIT_TAG ${tag}
-        UPDATE_COMMAND ${GIT_EXECUTABLE} pull
+        UPDATE_COMMAND ${GIT_BIN} pull
         CMAKE_GENERATOR ${gen}
         CMAKE_ARGS ${cmake_args}
         DEPENDS ${${ep}_dependencies}

@@ -58,7 +58,7 @@ function(OpenMEEG_project)
         ${ep_dirs}
         ${location}
         GIT_TAG ${tag}
-        UPDATE_COMMAND ${GIT_EXECUTABLE} pull
+        UPDATE_COMMAND ${GIT_BIN} pull
         ${PATCH_COMMAND}
         CMAKE_GENERATOR ${gen}
         CMAKE_ARGS ${cmake_args}
