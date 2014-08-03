@@ -82,7 +82,7 @@ if (USE_ATLAS)
             endif()
         endforeach()
     endif()
-endif
+endif()
 
 if (NOT USE_ATLAS AND NOT USE_MKL)
     set(lapack_libs_dir ${lapack_DIR}/lib)
@@ -92,7 +92,7 @@ if (NOT USE_ATLAS AND NOT USE_MKL)
                  NO_CMAKE_PATH
                  NO_SYSTEM_ENVIRONMENT_PATH
                  NO_CMAKE_SYSTEM_PATH)
-    message("Lapack packae: ${lapack}: ${LAPACK_LIBRARIES}")
+    message("Lapack package: ${lapack}: ${LAPACK_LIBRARIES}")
 endif()
 
 if (NOT LAPACK_LIBRARIES)
