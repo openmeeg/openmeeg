@@ -96,7 +96,7 @@ if (NOT USE_ATLAS AND NOT USE_MKL)
 endif()
 
 if (NOT LAPACK_LIBRARIES)
-    message("Searching lapack in {lapack_libs_dir}")
+    message("Searching lapack in ${lapack_libs_dir}")
     find_file(lapack liblapack.a  PATHS ${lapack_libs_dir})
     find_file(blas libblas.a  PATHS ${lapack_libs_dir})
     find_file(f2c libf2c.a  PATHS ${lapack_libs_dir})
