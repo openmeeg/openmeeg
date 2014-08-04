@@ -56,7 +56,7 @@ function(matio_project)
 
     # Add external-project
 
-    set(tag SuperProject)
+    set(tag master)
     ExternalProject_Add(${ep}
         ${ep_dirs}
         ${location}
