@@ -104,7 +104,7 @@ namespace OpenMEEG {
               unsigned   nb_meshes()                      const { return meshes_.size(); }
         const Interface& outermost_interface()            const; ///< \brief returns the outermost Interface of the geometry
         const Interface& interface(const std::string& id) const; ///< \brief returns the Interface called id \param id Interface name
-        const Domain&    domain(const std::string&)       const; ///< \brief returns the Domain called id \param id Domain name
+        const Domain&    domain(const std::string& id)    const; ///< \brief returns the Domain called id \param id Domain name
         const Domain&    domain(const Vect3& p)           const; ///< \brief returns the Domain containing the point p \param p a point
 
         void import_meshes(const Meshes& m); ///< \brief imports meshes from a list of meshes
