@@ -65,7 +65,7 @@ namespace OpenMEEG {
 
     /// \brief load a VTK\\vtp file \param filename into a mesh. Optionally read some associated data in matrix \param data if \param READ_DATA is true.
 
-    void Geometry::load_vtp(const std::string& filename, Matrix& data, const bool READ_DATA)J {
+    void Geometry::load_vtp(const std::string& filename,Matrix& data,const bool READ_DATA) {
     #ifdef USE_VTK
         vtkSmartPointer<vtkXMLPolyDataReader> reader = vtkSmartPointer<vtkXMLPolyDataReader>::New();
         reader->SetFileName(filename.c_str()); // Specify file name of vtp data file to read
