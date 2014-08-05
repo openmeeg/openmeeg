@@ -63,7 +63,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 namespace OpenMEEG {
 
-    /// \brief load a VTK\vtp file \param filename
+    /// \brief load a VTK\\vtp file \param filename
     void Geometry::load_vtp(const std::string& filename, Matrix& data, const bool READ_DATA)
     {
     #ifdef USE_VTK
@@ -157,7 +157,7 @@ namespace OpenMEEG {
     #endif
     }
     
-    /// \brief write a VTK\vtp file \param filename
+    /// \brief write a VTK\\vtp file \param filename
     void Geometry::write_vtp(const std::string& filename, const Matrix &data) const
     {
 
