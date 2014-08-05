@@ -98,28 +98,28 @@ namespace OpenMEEG {
         Mesh(): Triangles(), name_(""), all_vertices_(0), outermost_(false), allocate_(false) { }
 
         /// constructor from scratch (add vertices/triangles one by one) 
-        /// \param nb_vertices allocate space for vertices
-        /// \param nb_triangles allocate space for triangles
+        /// \param nv allocate space for vertices
+        /// \param nt allocate space for triangles
 
-        Mesh(const unsigned& _nb_vertices, const unsigned& _nb_triangles): name_(""), outermost_(false), allocate_(true) {
+        Mesh(const unsigned& nv,const unsigned& nt): name_(""), outermost_(false), allocate_(true) {
             all_vertices_ = new Vertices;
-            all_vertices_->reserve(_nb_vertices); // allocates space for the vertices
-            reserve(_nb_triangles);
+            all_vertices_->reserve(nv); // allocates space for the vertices
+            reserve(nt);
         }
 
         /// constructor from another mesh \param m
 
         Mesh(const Mesh& m): Triangles() { *this = m; }
 
-        /// constructor using an outisde storage for vertices \param all_vertices Where to store vertices \param name Mesh name
+        /// constructor using an outisde storage for vertices \param av Where to store vertices \param name Mesh name
 
-        Mesh(Vertices& _all_vertices, const std::string _name = ""): name_(_name), all_vertices_(&_all_vertices), outermost_(false), allocate_(false) { 
+        Mesh(Vertices& av,const std::string _name = ""): name_(_name), all_vertices_(&av), outermost_(false), allocate_(false) { 
             set_vertices_.insert(all_vertices_->begin(), all_vertices_->end()); 
         }
 
-        /// constructor loading directly a mesh file \param filename \param verbose \param name Mesh name
+        /// constructor loading directly a mesh file named \param filename. Be verbose if \param verbose is true. The mesh name is \param n.
 
-        Mesh(std::string filename, const bool verbose = true, const std::string _name = ""): name_(_name), outermost_(false), allocate_(true) { 
+        Mesh(std::string filename,const bool verbose=true,const std::string n=""): name_(n), outermost_(false), allocate_(true) { 
             unsigned nb_v = load(filename, false, false); 
             all_vertices_ = new Vertices(nb_v); // allocates space for the vertices
             load(filename, verbose);
@@ -196,11 +196,11 @@ namespace OpenMEEG {
 
         // for IO:s --------------------------------------------------------------------
         /// Read mesh from file
-        /// \param filename can be .vtk, .tri (ascii), .off .bnd or .mesh
-        /// \param \optional verbose. 
-        /// \param \optional read_all. If False then it only returns the total number of vertices */
+        /// \param filename can be .vtk, .tri (ascii), .off .bnd or .mesh.
+        /// Be verbose if \param verbose is true. 
+        /// Id \param read_all is false then it only returns the total number of vertices.
 
-        unsigned load(const std::string& filename, const bool& verbose = true, const bool& read_all = true);
+        unsigned load(const std::string& filename,const bool& verbose=true,const bool& read_all=true);
         unsigned load_tri(std::istream& , const bool& read_all = true);
         unsigned load_tri(const std::string&, const bool& read_all = true);
         unsigned load_bnd(std::istream& , const bool& read_all = true);
