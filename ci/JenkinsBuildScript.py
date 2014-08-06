@@ -15,9 +15,11 @@ from shutil import rmtree
 from lxml import etree
 import StringIO
 
+
 if sys.platform == 'win32':
+    AMD64 = glob.glob("C:\\Program Files (x86)")!=[]
     x86_suffix = ""
-    if platform.machine() == "AMD64":
+    if AMD64:
         x86_suffix = " (x86)"
     directory = "C:\\Program Files"+x86_suffix+"\\CMake 2.8\\bin\\"
     CMAKE_COMMAND = directory+"cmake.exe"
@@ -29,7 +31,8 @@ else:
 def find_visual_studio_version():
     cwd = os.getcwd()
     compilers = glob.glob("C:\\Program Files\\Microsoft Visual*\\VC\\bin\\vcvars*.bat")
-    compilers = compilers+glob.glob("C:\\Program Files (x86)\\Microsoft Visual*\\VC\\bin\\vcvars*.bat")
+    if AMD64:
+        compilers = compilers+glob.glob("C:\\Program Files (x86)\\Microsoft Visual*\\VC\\bin\\vcvars*.bat")
     clpattern = re.compile(r'Version (?P<version>\d+)\.')
     vspattern = re.compile(r'Microsoft Visual Studio (?P<version>\d+)\.0')
     version = 0
@@ -47,7 +50,7 @@ def find_visual_studio_version():
                             version = int(v.group("version"))
             process.wait()
         except:
-            pass
+            p
     os.chdir(cwd)
     return version
 
