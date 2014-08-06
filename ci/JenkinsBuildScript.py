@@ -29,8 +29,7 @@ else:
 def find_visual_studio_version():
     cwd = os.getcwd()
     compilers = glob.glob("C:\\Program Files\\Microsoft Visual*\\VC\\bin\\vcvars*.bat")
-    if  platform.machine() == "AMD64":
-        compilers = compilers+glob.glob("C:\\Program Files (x86)\\Microsoft Visual*\\VC\\bin\\vcvars*.bat")
+    compilers = compilers+glob.glob("C:\\Program Files (x86)\\Microsoft Visual*\\VC\\bin\\vcvars*.bat")
     clpattern = re.compile(r'Version (?P<version>\d+)\.')
     vspattern = re.compile(r'Microsoft Visual Studio (?P<version>\d+)\.0')
     version = 0
