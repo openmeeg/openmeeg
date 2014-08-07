@@ -18,32 +18,26 @@ import StringIO
 
 from _winreg import *
 
-def find_in_key(key,subkey):
+def find_in_registry(reg,keyname,subkeyname):
     try:
-        with OpenKey(aReg,key,0) as key:
+        with OpenKey(reg,keyname,0) as key:
             i = 0
             while True:
                 value = EnumValue(key,i)
-                if value[0]=='ShellFolder':
+                if value[0]==subkeyname:
                     return value[1]
                 i = i+1
     except WindowsError:
         pass
 
 def find_visual_studio_version():
-    aReg = ConnectRegistry(None,HKEY_CURRENT_USER)
+    reg = ConnectRegistry(None,HKEY_CURRENT_USER)
     for i in [12,11,10,9,8,7,6]:
-        try:
-            key = r'SOFTWARE\\Microsoft\\VisualStudio\\'+str(i)+'.0'
-            value = 'ShellFolder'
-            val = find_in_registry(key,value):
-            if val:
-                return [i,val]
-            val = find_in_registry(key+'_Config',value)
-            if val:
-                return [i,val]
-        except WindowsError:
-            pass
+        key = r'SOFTWARE\\Microsoft\\VisualStudio\\'+str(i)+'.0_Config'
+        value = 'ShellFolder'
+        val = find_in_registry(reg,key,value)
+        if val:
+            return [i,val]
 
 def isWindows64bits():
     i = ctypes.c_int()
