@@ -101,6 +101,8 @@ def cmake_configuration(args):
     if sys.platform=='win32':
         vsvers = set_visual_studio_environment()
         cmake_command_line.extend(['-G', 'Visual Studio '+unicode(vsvers), '-DCMAKE_BUILD_TYPE=RelWithDebInfo'])
+    print(os.environ)
+    CallAndLog('env','configure.log',args.debug)
 
     add_cmake_parameter(args.python,'ENABLE_PYTHON',cmake_command_line)
     add_cmake_parameter(args.documentation,'BUILD_DOCUMENTATION',cmake_command_line)
