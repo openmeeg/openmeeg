@@ -2,12 +2,11 @@
 
 from __future__ import print_function
 
-import sys
+import ctypes,sys
 import io
 import os
 import re
 import glob
-import platform
 import argparse
 import subprocess
 from shutil import rmtree
@@ -15,43 +14,43 @@ from shutil import rmtree
 from lxml import etree
 import StringIO
 
+#   Windows specific functions.
 
-if sys.platform == 'win32':
-    AMD64 = glob.glob("C:\\Program Files (x86)")!=[]
-    x86_suffix = ""
-    if AMD64:
-        x86_suffix = " (x86)"
-    directory = "C:\\Program Files"+x86_suffix+"\\CMake 2.8\\bin\\"
-    CMAKE_COMMAND = directory+"cmake.exe"
-    CTEST_COMMAND = directory+"ctest.exe"
-else:
-    CMAKE_COMMAND = "cmake"
-    CTEST_COMMAND = "ctest"
-
+from _winreg import *
 def find_visual_studio_version():
-    cwd = os.getcwd()
-    compilers = glob.glob("C:\\Program Files\\Microsoft Visual*\\VC\\bin\\vcvars*.bat")
-    if AMD64:
-        compilers = compilers+glob.glob("C:\\Program Files (x86)\\Microsoft Visual*\\VC\\bin\\vcvars*.bat")
-    clpattern = re.compile(r'Version (?P<version>\d+)\.')
-    vspattern = re.compile(r'Microsoft Visual Studio (?P<version>\d+)\.0')
-    version = 0
-    for comp in compilers:
-        directory = os.path.dirname(comp)
-        os.chdir(directory)
+    aReg = ConnectRegistry(None,HKEY_CURRENT_USER)
+    for i in [12,11,10,9,8,7,6]:
         try:
-            process = subprocess.Popen(os.path.basename(comp)+' & cl.exe',stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
-            for line in iter(process.stdout.readline, ''):
-                m = clpattern.search(line)
-                if m is not None:
-                    if int(m.group("version").split('.')[0])>version:
-                        v = vspattern.search(directory)
-                        if v is not None:
-                            version = int(v.group("version"))
-            process.wait()
-        except:
-            p
-    os.chdir(cwd)
+            key = r'SOFTWARE\\Microsoft\\VisualStudio\\'+str(i)+'.0_Config'
+            with OpenKey(aReg,key,0) as key:
+                j = 0
+                while True:
+                    value = EnumValue(key,j)
+                    if value[0]=='ShellFolder':
+                        return [i,value[1]]
+                    j = j+1
+        except WindowsError:
+            pass
+
+def isWindows64bits():
+    i = ctypes.c_int()
+    kernel32 = ctypes.windll.kernel32
+    process = kernel32.GetCurrentProcess()
+    kernel32.IsWow64Process(process, ctypes.byref(i))
+    is64bit = (i.value != 0)
+    return is64bit
+
+def set_visual_studio_environment():
+    version,path = find_visual_studio_version()
+    script = glob.glob(path+"\\VC\\bin\\vcvars*.bat")
+    python = sys.executable
+    process = subprocess.Popen('("%s" %s>nul)&&"%s" -c "import os; print repr(os.environ)"' % (script[0],arch,python), stdout=subprocess.PIPE, shell=True)
+    stdout, _ = process.communicate()
+    exitcode = process.wait()
+    if exitcode != 0:
+        raise Exception("Got error code %s from subprocess!" % exitcode)
+    for key,value in eval(stdout.strip()).iteritems():
+        os.environ[key] = value
     return version
 
 def CTest2Unit(xsl_file,build_dir,result_file):
@@ -99,8 +98,9 @@ def add_cmake_parameter(boolean,base,cmd):
 def cmake_configuration(args):
 
     cmake_command_line = [ CMAKE_COMMAND ]
-    if sys.platform == 'win32':
-        cmake_command_line.extend(['-G', 'Visual Studio '+unicode(find_visual_studio_version()), '-DCMAKE_BUILD_TYPE=RelWithDebInfo'])
+    if sys.platform=='win32':
+        vsvers = set_visual_studio_environment()
+        cmake_command_line.extend(['-G', 'Visual Studio '+unicode(vsvers), '-DCMAKE_BUILD_TYPE=RelWithDebInfo'])
 
     add_cmake_parameter(args.python,'ENABLE_PYTHON',cmake_command_line)
     add_cmake_parameter(args.documentation,'BUILD_DOCUMENTATION',cmake_command_line)
@@ -118,7 +118,7 @@ def cmake_configuration(args):
 def cmake_build(args):
 
     cmake_command_line = [ CMAKE_COMMAND, '--build', '.' ]
-    if sys.platform == 'win32':
+    if sys.platform=='win32':
         cmake_command_line.extend(['--config', 'RelWithDebInfo'])
 
     if args.incremental_build:
@@ -129,12 +129,25 @@ def cmake_build(args):
 
 def cmake_test(test_type,args):
     cmake_command_line = [ CTEST_COMMAND, '-D', test_type]
-    if sys.platform == 'win32':
+    if sys.platform=='win32':
         cmake_command_line.extend(['-C', 'RelWithDebInfo'])
     if test_type=='ExperimentalTest':
         cmake_command_line.append('--no-compress-output')
 
     CallAndLog(cmake_command_line,'test.log',args.debug)
+
+if sys.platform=='win32':
+    arch = 'x86'
+    x86_suffix = ""
+    if isWindows64bits():
+        arch = "AMD64"
+        x86_suffix = " (x86)"
+    directory = "C:\\Program Files"+x86_suffix+"\\CMake 2.8\\bin\\"
+    CMAKE_COMMAND = directory+"cmake.exe"
+    CTEST_COMMAND = directory+"ctest.exe"
+else:
+    CMAKE_COMMAND = "cmake"
+    CTEST_COMMAND = "ctest"
 
 basedir = os.path.dirname(os.path.realpath(__file__))
 
@@ -143,19 +156,17 @@ basedir = os.path.dirname(os.path.realpath(__file__))
 parser = argparse.ArgumentParser(description='Options for building OpenMEEG.')
 parser.add_argument('--debug',dest='debug',action='store_true',help='Debugging this script (print actions instead of executing them')
 parser.add_argument('--incremental',dest='incremental_build',action='store_true',help='incremental build')
-parser.add_argument('--disable-python',dest='python',action='store_false',help='disable python support')
-parser.add_argument('--disable-documentation',dest='documentation',action='store_false',help='disable documentation')
-parser.add_argument('--disable-testing',dest='testing',action='store_false',help='disable testing')
-parser.add_argument('--disable-packaging',dest='packaging',action='store_false',help='disable packaging')
+parser.add_argument('--disable-python',dest='python',action='store_false',default=os.environ.get('PYTHONWRAPPER')=="true",help='disable python support')
+parser.add_argument('--disable-documentation',dest='documentation',action='store_false',default=os.environ.get('DOCUMENTATION')=="true",help='disable documentation')
+parser.add_argument('--disable-testing',dest='testing',action='store_false',default=os.environ.get('TESTING')=="true",help='disable testing')
+parser.add_argument('--disable-packaging',dest='packaging',action='store_false',default=os.environ.get('PACKAGING')=="true",help='disable packaging')
 parser.add_argument('--enable-matlab-testing',dest='matlab',action='store_true',help='enable matio matlab comparison (requires matio build)')
-parser.add_argument('--use-atlas',dest='atlas',action='store_true',help='use atlas library')
-parser.add_argument('--use-mkl',dest='mkl',action='store_true',help='use mkl library')
-parser.add_argument('--use-lapack',dest='lapack',action='store_true',help='use lapack library')
-parser.add_argument('--use-OpenMP',dest='omp',action='store_true',help='use OpenMP acceleration')
+parser.add_argument('--use-OpenMP',dest='omp',action='store_true',default=os.environ.get('OPENMP')=="true",help='use OpenMP acceleration')
+group = parser.add_mutually_exclusive_group()
+group.add_argument('--use-atlas',dest='atlas',action='store_true',default=os.environ.get('LAPACK')=="Atlas",help='use atlas library')
+group.add_argument('--use-mkl',dest='mkl',action='store_true',default=os.environ.get('LAPACK')=="MKL",help='use mkl library')
+group.add_argument('--use-lapack',dest='lapack',action='store_true',default=os.environ.get('LAPACK')=="CLapack",help='use lapack library')
 args = parser.parse_args()
-
-if args.lapack+args.mkl+args.atlas>1:
-    sys.exit("ERROR: you can only use one of --use-atlas --use-mkl --use-lapack")
 
 #   Create the proper build directory.
 
