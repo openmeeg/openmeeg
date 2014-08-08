@@ -1,3 +1,5 @@
+include(UnitTest)
+
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 OPENMEEG_UNIT_TEST(OpenMEEGMathsTest-vector SOURCES vector.cpp LIBRARIES OpenMEEGMaths)
