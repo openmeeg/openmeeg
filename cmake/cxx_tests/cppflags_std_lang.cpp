@@ -9,7 +9,7 @@
 // COPYLEFT
 //
 //   Copyright (c) 2009 Theo Papadopoulo <Theodore.Papadopoulo@sophia.inria.fr>
-//   Copyright (c) 2008 Ludovic Courtès <ludo@chbouib.org>
+//   Copyright (c) 2008 Ludovic CourtÃ¨s <ludo@chbouib.org>
 //
 //   Copying and distribution of this file, with or without modification, are
 //   permitted in any medium without royalty provided the copyright notice
