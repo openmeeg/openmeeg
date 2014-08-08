@@ -5,7 +5,6 @@ from __future__ import print_function
 import ctypes,sys
 import io
 import os
-import re
 import glob
 import argparse
 import subprocess
