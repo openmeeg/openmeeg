@@ -16,49 +16,51 @@ import StringIO
 
 #   Windows specific functions.
 
-from _winreg import *
+if sys.platform=='win32':
 
-def find_in_registry(reg,keyname,subkeyname):
-    try:
-        with OpenKey(reg,keyname,0) as key:
-            i = 0
-            while True:
-                value = EnumValue(key,i)
-                if value[0]==subkeyname:
-                    return value[1]
-                i = i+1
-    except WindowsError:
-        pass
+    from _winreg import *
 
-def find_visual_studio_version():
-    reg = ConnectRegistry(None,HKEY_CURRENT_USER)
-    for i in [12,11,10,9,8,7,6]:
-        key = r'SOFTWARE\\Microsoft\\VisualStudio\\'+str(i)+'.0_Config'
-        value = 'ShellFolder'
-        val = find_in_registry(reg,key,value)
-        if val:
-            return [i,val]
+    def find_in_registry(reg,keyname,subkeyname):
+        try:
+            with OpenKey(reg,keyname,0) as key:
+                i = 0
+                while True:
+                    value = EnumValue(key,i)
+                    if value[0]==subkeyname:
+                        return value[1]
+                    i = i+1
+        except WindowsError:
+            pass
 
-def isWindows64bits():
-    i = ctypes.c_int()
-    kernel32 = ctypes.windll.kernel32
-    process = kernel32.GetCurrentProcess()
-    kernel32.IsWow64Process(process, ctypes.byref(i))
-    is64bit = (i.value != 0)
-    return is64bit
+    def find_visual_studio_version():
+        reg = ConnectRegistry(None,HKEY_CURRENT_USER)
+        for i in [12,11,10,9,8,7,6]:
+            key = r'SOFTWARE\\Microsoft\\VisualStudio\\'+str(i)+'.0_Config'
+            value = 'ShellFolder'
+            val = find_in_registry(reg,key,value)
+            if val:
+                return [i,val]
 
-def set_visual_studio_environment():
-    version,path = find_visual_studio_version()
-    script = glob.glob(path+"\\VC\\bin\\vcvars*.bat")
-    python = sys.executable
-    process = subprocess.Popen('("%s" %s>nul)&&"%s" -c "import os; print repr(os.environ)"' % (script[0],arch,python), stdout=subprocess.PIPE, shell=True)
-    stdout, _ = process.communicate()
-    exitcode = process.wait()
-    if exitcode != 0:
-        raise Exception("Got error code %s from subprocess!" % exitcode)
-    for key,value in eval(stdout.strip()).iteritems():
-        os.environ[key] = value
-    return version
+    def isWindows64bits():
+        i = ctypes.c_int()
+        kernel32 = ctypes.windll.kernel32
+        process = kernel32.GetCurrentProcess()
+        kernel32.IsWow64Process(process, ctypes.byref(i))
+        is64bit = (i.value != 0)
+        return is64bit
+
+    def set_visual_studio_environment():
+        version,path = find_visual_studio_version()
+        script = glob.glob(path+"\\VC\\bin\\vcvars*.bat")
+        python = sys.executable
+        process = subprocess.Popen('("%s" %s>nul)&&"%s" -c "import os; print repr(os.environ)"' % (script[0],arch,python), stdout=subprocess.PIPE, shell=True)
+        stdout, _ = process.communicate()
+        exitcode = process.wait()
+        if exitcode != 0:
+            raise Exception("Got error code %s from subprocess!" % exitcode)
+        for key,value in eval(stdout.strip()).iteritems():
+            os.environ[key] = value
+        return version
 
 def CTest2Unit(xsl_file,build_dir,result_file):
     TestDir     = build_dir+'/Testing/'
