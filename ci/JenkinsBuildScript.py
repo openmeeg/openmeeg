@@ -203,16 +203,16 @@ cmake_build(args)
 #   Generate test reports and dashboards.
 
 if testing:
-os.chdir('OpenMEEG/build')
-if os.path.exists('JUnitTestResults.xml'):
-    os.remove('JUnitTestResults.xml')
+    os.chdir('OpenMEEG/build')
+    if os.path.exists('JUnitTestResults.xml'):
+        os.remove('JUnitTestResults.xml')
 
-cmake_test('ExperimentalConfigure',args)
-cmake_test('ExperimentalBuild',args)
-cmake_test('ExperimentalTest',args)
+    cmake_test('ExperimentalConfigure',args)
+    cmake_test('ExperimentalBuild',args)
+    cmake_test('ExperimentalTest',args)
 
-CTest2Unit(basedir+'/CTest2JUnit.xsl','.','JUnitTestResults.xml')
+    CTest2Unit(basedir+'/CTest2JUnit.xsl','.','JUnitTestResults.xml')
 
-# cdash backward compatibility.
+    # cdash backward compatibility.
 
-cmake_test('ExperimentalSubmit',args)
+    cmake_test('ExperimentalSubmit',args)
