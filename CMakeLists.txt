@@ -40,7 +40,6 @@ endif()
 include(NewExecutable)
 include(GenerateConfigFile)
 include(FindLibrary)
-include(UnitTest)
 include(Revision)
 include(Win32Compat)
 
