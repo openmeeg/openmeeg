@@ -1,8 +1,8 @@
 /*
 Project Name : OpenMEEG
 
-© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre 
-GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU, Théodore PAPADOPOULO,
+Â© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre 
+GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU, ThÃ©odore PAPADOPOULO,
 Emmanuel OLIVI
 Maureen.Clerc.AT.sophia.inria.fr, keriven.AT.certis.enpc.fr,
 kybic.AT.fel.cvut.cz, papadop.AT.sophia.inria.fr)
@@ -82,12 +82,12 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #if LANGUAGE == 1
 #define UNEXP_EOF        string("Fin de fichier inattendue")
 #define FORMAT_ERR       string("Erreur de format")
-#define WRITE_ERR        string("Erreur d'écriture")
+#define WRITE_ERR        string("Erreur d'Ã©criture")
 #define OPEN_ERR         string("Erreur d'ouverture du fichier")
 #define I_OPEN_ERR       string("Erreur d'ouverture en lecture du fichier")
-#define O_OPEN_ERR       string("Erreur d'ouverture en écriture du fichier")
-#define I_OPEN_ERR_CAUSE string("Fichier protégé en lecture ou inexistant")
-#define O_OPEN_ERR_CAUSE string("Fichier protégé en écriture")
+#define O_OPEN_ERR       string("Erreur d'ouverture en Ã©criture du fichier")
+#define I_OPEN_ERR_CAUSE string("Fichier protÃ©gÃ© en lecture ou inexistant")
+#define O_OPEN_ERR_CAUSE string("Fichier protÃ©gÃ© en Ã©criture")
 #endif
 
 namespace std {
