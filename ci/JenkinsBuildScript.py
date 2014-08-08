@@ -34,7 +34,7 @@ if sys.platform=='win32':
     def find_visual_studio_version():
         reg = ConnectRegistry(None,HKEY_CURRENT_USER)
         for i in [12,11,10,9,8,7,6]:
-            key = r'SOFTWARE\\Microsoft\\VisualStudio\\'+str(i)+'.0_Config'
+            key = os.path.join('SOFTWARE','Microsoft','VisualStudio',str(i)+'.0_Config')
             value = 'ShellFolder'
             val = find_in_registry(reg,key,value)
             if val:
@@ -50,7 +50,7 @@ if sys.platform=='win32':
 
     def set_visual_studio_environment():
         version,path = find_visual_studio_version()
-        script = glob.glob(path+"\\VC\\bin\\vcvars*.bat")
+        script = glob.glob(os.path.join(path,'VC','bin','vcvars*.bat'))
         python = sys.executable
         process = subprocess.Popen('("%s" %s>nul)&&"%s" -c "import os; print repr(os.environ)"' % (script[0],arch,python), stdout=subprocess.PIPE, shell=True)
         stdout, _ = process.communicate()
@@ -152,9 +152,9 @@ if sys.platform=='win32':
         arch = "AMD64"
         x86_suffix = " (x86)"
     os.environ['PROCESSOR_ARCHITECTURE'] = arch
-    directory = "C:\\Program Files"+x86_suffix+"\\CMake 2.8\\bin\\"
-    CMAKE_COMMAND = directory+"cmake.exe"
-    CTEST_COMMAND = directory+"ctest.exe"
+    directory = os.path.join('C:\\Program Files'+x86_suffix,'CMake 2.8','bin')
+    CMAKE_COMMAND = os.path.join(directory,'cmake.exe')
+    CTEST_COMMAND = os.path.join(directory,'ctest.exe')
 else:
     CMAKE_COMMAND = "cmake"
     CTEST_COMMAND = "ctest"
