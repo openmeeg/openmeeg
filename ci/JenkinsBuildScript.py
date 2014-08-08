@@ -55,7 +55,7 @@ if sys.platform=='win32':
         process = subprocess.Popen('("%s" %s>nul)&&"%s" -c "import os; print repr(os.environ)"' % (script[0],arch,python), stdout=subprocess.PIPE, shell=True)
         stdout, _ = process.communicate()
         exitcode = process.wait()
-        IF exitcode != 0:
+        if exitcode != 0:
             raise Exception("Got error code %s from subprocess!" % exitcode)
         for key,value in eval(stdout.strip()).iteritems():
             os.environ[key] = value
@@ -151,7 +151,7 @@ if sys.platform=='win32':
     if isWindows64bits():
         arch = "AMD64"
         x86_suffix = " (x86)"
-    os.environ['PROCESSOR_ARCHITECTURE'] = archt commit -m "Correct 
+    os.environ['PROCESSOR_ARCHITECTURE'] = arch
     directory = "C:\\Program Files"+x86_suffix+"\\CMake 2.8\\bin\\"
     CMAKE_COMMAND = directory+"cmake.exe"
     CTEST_COMMAND = directory+"ctest.exe"
