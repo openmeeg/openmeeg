@@ -55,7 +55,7 @@ if sys.platform=='win32':
         process = subprocess.Popen('("%s" %s>nul)&&"%s" -c "import os; print repr(os.environ)"' % (script[0],arch,python), stdout=subprocess.PIPE, shell=True)
         stdout, _ = process.communicate()
         exitcode = process.wait()
-        if exitcode != 0:
+        IF exitcode != 0:
             raise Exception("Got error code %s from subprocess!" % exitcode)
         for key,value in eval(stdout.strip()).iteritems():
             os.environ[key] = value
@@ -109,7 +109,7 @@ def cmake_configuration(args):
     if sys.platform=='win32':
         vsvers = set_visual_studio_environment()
         cmake_command_line.extend(['-G', 'Visual Studio '+unicode(vsvers), '-DCMAKE_BUILD_TYPE=RelWithDebInfo'])
-    #CallAndLog('env','configure.log',args.debug)
+    CallAndLog('env','configure.log',args.debug)
 
     add_cmake_parameter(args.python,'ENABLE_PYTHON',cmake_command_line)
     add_cmake_parameter(args.documentation,'BUILD_DOCUMENTATION',cmake_command_line)
@@ -151,6 +151,7 @@ if sys.platform=='win32':
     if isWindows64bits():
         arch = "AMD64"
         x86_suffix = " (x86)"
+    os.environ['PROCESSOR_ARCHITECTURE'] = archt commit -m "Correct 
     directory = "C:\\Program Files"+x86_suffix+"\\CMake 2.8\\bin\\"
     CMAKE_COMMAND = directory+"cmake.exe"
     CTEST_COMMAND = directory+"ctest.exe"
