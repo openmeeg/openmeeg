@@ -167,16 +167,16 @@ basedir = os.path.dirname(os.path.realpath(__file__))
 parser = argparse.ArgumentParser(description='Options for building OpenMEEG.')
 parser.add_argument('--debug',dest='debug',action='store_true',help='Debugging this script (print actions instead of executing them')
 parser.add_argument('--incremental',dest='incremental_build',action='store_true',help='incremental build')
-parser.add_argument('--disable-python',dest='python',action='store_false',default=os.environ.get('PYTHONWRAPPER')=="true",help='disable python support')
-parser.add_argument('--disable-documentation',dest='documentation',action='store_false',default=os.environ.get('DOCUMENTATION')=="true",help='disable documentation')
-parser.add_argument('--disable-testing',dest='testing',action='store_false',default=os.environ.get('TESTING')=="true",help='disable testing')
-parser.add_argument('--disable-packaging',dest='packaging',action='store_false',default=os.environ.get('PACKAGING')=="true",help='disable packaging')
+parser.add_argument('--disable-python',dest='python',action='store_false',help='disable python support')
+parser.add_argument('--disable-documentation',dest='documentation',action='store_false',help='disable documentation')
+parser.add_argument('--disable-testing',dest='testing',action='store_false',help='disable testing')
+parser.add_argument('--disable-packaging',dest='packaging',action='store_false',help='disable packaging')
 parser.add_argument('--enable-matlab-testing',dest='matlab',action='store_true',help='enable matio matlab comparison (requires matio build)')
-parser.add_argument('--use-OpenMP',dest='omp',action='store_true',default=os.environ.get('OPENMP')=="true",help='use OpenMP acceleration')
+parser.add_argument('--use-OpenMP',dest='omp',action='store_true',help='use OpenMP acceleration')
 group = parser.add_mutually_exclusive_group()
-group.add_argument('--use-atlas',dest='atlas',action='store_true',default=os.environ.get('LAPACK')=="Atlas",help='use atlas library')
-group.add_argument('--use-mkl',dest='mkl',action='store_true',default=os.environ.get('LAPACK')=="MKL",help='use mkl library')
-group.add_argument('--use-lapack',dest='lapack',action='store_true',default=os.environ.get('LAPACK')=="CLapack",help='use lapack library')
+group.add_argument('--use-atlas',dest='atlas',action='store_true',help='use atlas library')
+group.add_argument('--use-mkl',dest='mkl',action='store_true',help='use mkl library')
+group.add_argument('--use-lapack',dest='lapack',action='store_true',help='use lapack library')
 args = parser.parse_args()
 
 #   Create the proper build directory.
@@ -202,6 +202,7 @@ cmake_build(args)
 
 #   Generate test reports and dashboards.
 
+if testing:
 os.chdir('OpenMEEG/build')
 if os.path.exists('JUnitTestResults.xml'):
     os.remove('JUnitTestResults.xml')
