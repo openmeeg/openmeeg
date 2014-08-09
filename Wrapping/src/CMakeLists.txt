@@ -20,7 +20,7 @@ include(FindNumpy.cmake)
 
 set(MODULE_NAME openmeeg)
 set(SWIG_SRC_FILE_NAME ${MODULE_NAME}.i)
-set(CMAKE_SWIG_FLAGS "-c++" )
+set(CMAKE_SWIG_FLAGS "-c++ -v" )
 
 find_package(SWIG REQUIRED)
 include(${SWIG_USE_FILE})
