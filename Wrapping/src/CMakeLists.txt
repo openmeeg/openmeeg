@@ -28,7 +28,7 @@ find_package(PythonLibs)
 
 include_directories(${PYTHON_INCLUDE_PATH} ${PYTHON_NUMPY_INCLUDE_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
 
-set(CMAKE_SWIG_FLAGS "")
+set(CMAKE_SWIG_FLAGS "-v")
 
 file(GLOB SWIG_SRC_FILE ${SWIG_SRC_FILE_NAME})
 
