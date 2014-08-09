@@ -180,14 +180,18 @@ args = parser.parse_args()
 
 #   Create the proper build directory.
 
-if not args.incremental_build and os.path.exists('build'):
-    rmtree('build')
+try:
+    if not args.incremental_build and os.path.exists('build'):
+        rmtree('build')
 
-if os.path.isfile('build'):
-    os.remove('build')
+    if os.path.isfile('build'):
+        os.remove('build')
 
-if not os.path.isdir('build'):
-    os.mkdir('build')
+    if not os.path.isdir('build'):
+        os.mkdir('build')
+
+except OSError:
+    pass
 
 os.chdir('build')
 
