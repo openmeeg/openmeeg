@@ -1,6 +1,4 @@
-IF (ENABLE_PYTHON)
-    FIND_PACKAGE(SWIG REQUIRED)
-    INCLUDE(UseSwig_AlwaysShared.cmake)
-    SUBDIRS(src)
-ENDIF()
+if (ENABLE_PYTHON)
+    subdirs(src)
+endif()
 
