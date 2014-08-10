@@ -169,7 +169,7 @@ namespace OpenMEEG {
             
             // even the last surface triangles (yes for EIT... )
 
-            for (iterator mit=begin();mit!=end();++mit) {
+            for (iterator mit=begin();mit!=end();++mit)
                 for (Mesh::iterator tit=mit->begin();tit!=mit->end();++tit)
                     if (mit->outermost())
                         tit->index() = index++;
