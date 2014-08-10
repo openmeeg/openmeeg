@@ -55,15 +55,17 @@ namespace OpenMEEG {
     /// A simple domain (HalfSpace) is given by an interface (of type Interface) identifying a closed surface and a side information.
     /// The closed surface split the space into two components. The side depicts which of these two components is the simple domain.
 
-    class HalfSpace: public std::pair<Interface, bool> {
+    class HalfSpace: public std::pair<Interface,bool> {
 
-        typedef std::pair<Interface, bool> base;
+        typedef std::pair<Interface,bool> base;
 
     public:
 
-        HalfSpace(Interface& _interface, bool _inside): base(_interface, _inside) {}
+        HalfSpace() { }
 
-        ~HalfSpace() {}
+        HalfSpace(Interface& _interface,const bool _inside): base(_interface,_inside) { }
+
+        ~HalfSpace() { }
 
               Interface& interface()       { return this->first;  }
         const Interface& interface() const { return this->first;  }
@@ -80,7 +82,7 @@ namespace OpenMEEG {
 
     public:
 
-        Domain(): name_(""), sigma_(0.), outermost_(false) { }
+        Domain(): name_(""),sigma_(0.),outermost_(false) { }
 
         ~Domain() { }
 
@@ -108,13 +110,10 @@ namespace OpenMEEG {
                     0 else (the mesh is not part of the domain boundary) */
 
         int mesh_orientation(const Mesh& m) const { 
-            for (Domain::const_iterator hit = begin(); hit != end(); ++hit) {
-                for (Interface::const_iterator omit = hit->interface().begin();omit!=hit->interface().end();++omit) {
-                    if (&omit->mesh()==&m) {
-                        return ((hit->inside())?omit->orientation():-omit->orientation());
-                    }
-                }
-            }
+            for (Domain::const_iterator hit = begin();hit!=end();++hit)
+                for (Interface::const_iterator omit = hit->interface().begin();omit!=hit->interface().end();++omit)
+                    if (&omit->mesh()==&m)
+                        return ((hit->inside()) ? omit->orientation() : -omit->orientation());
             return 0;
         }
 
@@ -127,5 +126,5 @@ namespace OpenMEEG {
 
     /// A vector of Domain is called Domains
 
-    typedef std::vector<Domain > Domains;
+    typedef std::vector<Domain> Domains;
 }
