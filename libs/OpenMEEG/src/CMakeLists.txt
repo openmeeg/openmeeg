@@ -9,6 +9,11 @@ function(create_library libname)
                           VERSION 1.1.0
                           SOVERSION 1
                           CLEAN_DIRECT_OUTPUT 1)
+
+    install(TARGETS ${libname}
+            RUNTIME DESTINATION ${INSTALL_BIN_DIR}
+            LIBRARY DESTINATION ${INSTALL_LIB_DIR}
+            ARCHIVE DESTINATION ${INSTALL_LIB_DIR})
 endfunction()
 
 set(OpenMEEG_SOURCES 
@@ -16,14 +21,7 @@ set(OpenMEEG_SOURCES
     danielsson.cpp geometry.cpp operators.cpp sensors.cpp)
 
 create_library(OpenMEEG ${OpenMEEG_SOURCES})
-target_link_libraries(OpenMEEG OpenMEEGMaths ${OPENMEEG_LIBRARIES} ${LAPACK_LIBRARIES})
+target_link_libraries(OpenMEEG OpenMEEGMaths ${OPENMEEG_LIBRARIES} ${matio_LIBRARIES} ${LAPACK_LIBRARIES})
+
 #create_library(OpenMEEGInteractive ${OpenMEEG_SOURCES})
 #target_link_libraries(OpenMEEGInteractive OpenMEEGMathsInteractive ${OPENMEEG_LIBRARIES} ${LAPACK_LIBRARIES})
-
-# ================
-# = INSTALLATION =
-# ================
-
-install(TARGETS OpenMEEG
-        LIBRARY DESTINATION ${INSTALL_LIB_DIR}
-        ARCHIVE DESTINATION ${INSTALL_LIB_DIR})
