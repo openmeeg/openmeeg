@@ -41,39 +41,32 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 namespace OpenMEEG {
 
-    bool Domain::contains_point(const Vect3& p) const 
-    {
+    bool Domain::contains_point(const Vect3& p) const {
         bool inside = true;
-        for ( Domain::const_iterator hit = begin(); hit != end(); ++hit) {
+        for (Domain::const_iterator hit=begin();hit!=end();++hit)
             inside = (inside &&  (hit->interface().contains_point(p) == hit->inside()));
-        }
         return inside;
     }
 
-    void Domain::info() const 
-    {
+    void Domain::info() const {
+
         std::cout << "Info:: Domain name : "  << name() << std::endl;
         std::cout << "\t\tConductivity : "    << sigma() << std::endl;
         std::cout << "\t\tComposed by interfaces : ";
-        for ( const_iterator hit = begin(); hit != end(); ++hit) {
-            if ( hit->inside() ) {
-                std::cout << "-";
-            } else {
-                std::cout << "+";
-            }
+        for (const_iterator hit=begin();hit!=end();++hit) {
+            std::cout << ((hit->inside()) ? '-' : '+');
             std::cout << hit->interface().name() << " ";
         }
         std::cout << std::endl;
-        if ( outermost() ) {
+        if (outermost())
             std::cout << "\t\tConsidered as the outermost domain." << std::endl;
-        }
-        for ( const_iterator hit = begin(); hit != end(); ++hit) {
+        
+        for (const_iterator hit=begin();hit!=end();++hit) {
             std::cout << "\t\tInterface \"" << hit->interface().name() << "\"= { ";
-            for ( Interface::const_iterator omit = hit->interface().begin(); omit != hit->interface().end(); ++omit) {
+            for (Interface::const_iterator omit=hit->interface().begin();omit!=hit->interface().end();++omit) {
                 std::cout << "mesh \""<< omit->mesh().name() << "\"";
-                if ( omit->mesh().outermost() ) {
+                if (omit->mesh().outermost())
                     std::cout << "(outermost)";
-                }
                 std::cout << ", ";
             }
             std::cout << "\b\b }" << std::endl;
