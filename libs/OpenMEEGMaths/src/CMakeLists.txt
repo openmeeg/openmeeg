@@ -18,6 +18,7 @@ function(create_library libname)
                           CLEAN_DIRECT_OUTPUT 1)
 
     install(TARGETS ${libname}
+            RUNTIME DESTINATION ${INSTALL_BIN_DIR}
             ARCHIVE DESTINATION ${INSTALL_LIB_DIR}
             LIBRARY DESTINATION ${INSTALL_LIB_DIR})
 endfunction()
