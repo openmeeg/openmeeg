@@ -16,7 +16,6 @@ set(INSTALL_INCLUDE_DIR include         CACHE PATH "Installation directory for h
 set(INSTALL_DATA_DIR    share           CACHE PATH "Installation directory for data files")
 
 if (WIN32)
-    set(INSTALL_LIB_DIR  ${INSTALL_BIN_DIR}    CACHE PATH "Installation directory for libraries")
     set(INSTALL_DATA_DIR ${CMAKE_PROJECT_NAME} CACHE PATH "Installation directory for data files")
 endif()
 
