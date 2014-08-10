@@ -101,7 +101,7 @@ include_directories(${OPENMEEG_INCLUDE_DIRECTORIES})
 # Test the C++ compiler features
 #---------------------------------------------------------------
 
-INCLUDE(CheckCXXFeatures)
+include(CheckCXXFeatures)
 CHECK_CXX_STANDARD_LIBRARY()
 
 if (NOT HAVE_ISNORMAL_IN_NAMESPACE_STD)
@@ -123,7 +123,7 @@ configure_file(${OpenMEEG_SOURCE_DIR}/OpenMEEGConfigure.h.in
                ${OpenMEEG_BINARY_DIR}/OpenMEEGConfigure.h)
 
 if (UNIX)
-    INCLUDE(AddDemoTarget)
+    include(AddDemoTarget)
     ADD_DEMO_TARGET(Head1 forinv)
     ADD_DEMO_TARGET(Head2 forward)
     ADD_DEMO_TARGET(Head3 forward)
@@ -192,7 +192,7 @@ add_custom_target(uninstall
 #-----------------------------------------------
 
 option(CHECK_SYNTAX "Checking code syntax using KWStyle" OFF)
-MARK_AS_ADVANCED(CHECK_SYNTAX)
+mark_as_advanced(CHECK_SYNTAX)
 
 if (CHECK_SYNTAX)
     add_custom_target(check_syntax
@@ -206,7 +206,7 @@ endif()
 
 option(USE_PROGRESSBAR "Show ascii progress bar when assembling matrices" OFF)
 
-if ( USE_PROGRESSBAR )
+if (USE_PROGRESSBAR)
     add_definitions(-DUSE_PROGRESSBAR)
 endif()
 
