@@ -39,13 +39,12 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #pragma once
 
-/*! \file
-    \brief file containing the definition of a Domain.
-    A domain is the association of a name and a vector of pairs.
-    The first element of each pair corresponds to an interface.
-    The second element of each pair states whether the domain is contains in the
-    inside or the ouside of the volume bounded by the interface.
-*/
+/// \file
+/// \brief file containing the definition of a Domain.
+/// A domain is the association of a name and a vector of pairs.
+/// The first element of each pair corresponds to an interface.
+/// The second element of each pair states whether the domain is contains in the
+/// inside or the ouside of the volume bounded by the interface.
 
 #include <string>
 #include <interface.h>
@@ -55,8 +54,9 @@ namespace OpenMEEG {
     /// \brief a HalfSpace is a pair of Interface and boolean 
     /// A simple domain (HalfSpace) is given by an interface (of type Interface) identifying a closed surface and a side information.
     /// The closed surface split the space into two components. The side depicts which of these two components is the simple domain.
-    class HalfSpace: public std::pair<Interface, bool> 
-    {
+
+    class HalfSpace: public std::pair<Interface, bool> {
+
         typedef std::pair<Interface, bool> base;
 
     public:
@@ -73,8 +73,9 @@ namespace OpenMEEG {
     /// \brief a Domain is a vector of HalfSpace
     /// A Domain is the intersection of simple domains (of type HalfSpace).
     /// In addition the domain is named, has conductivity and a flag saying whether or not it is the outermost domain
-    class Domain: public std::vector<HalfSpace> 
-    {
+
+    class OPENMEEG_EXPORT Domain: public std::vector<HalfSpace> {
+
         typedef std::vector<HalfSpace> base;
 
     public:
@@ -84,14 +85,17 @@ namespace OpenMEEG {
         ~Domain() { }
 
         /// The name of the domain.
+
               std::string& name()            { return name_; }
         const std::string& name()      const { return name_; }
         
         /// The conductivity of the domain.
+
               double&      sigma()           { return sigma_; }
         const double&      sigma()     const { return sigma_; }
 
         /// Returns the outermost state of the domain.
+
               bool&        outermost()       { return outermost_; }
         const bool&        outermost() const { return outermost_; }
 
@@ -102,11 +106,12 @@ namespace OpenMEEG {
         /** \return 1 if the mesh is oriented toward the domain.
                    -1 if not
                     0 else (the mesh is not part of the domain boundary) */
+
         int mesh_orientation(const Mesh& m) const { 
-            for ( Domain::const_iterator hit = begin(); hit != end(); ++hit) {
-                for ( Interface::const_iterator omit = hit->interface().begin(); omit != hit->interface().end(); ++omit) {
-                    if ( &omit->mesh() == &m ) {
-                        return (( hit->inside() )?omit->orientation():-omit->orientation() );
+            for (Domain::const_iterator hit = begin(); hit != end(); ++hit) {
+                for (Interface::const_iterator omit = hit->interface().begin();omit!=hit->interface().end();++omit) {
+                    if (&omit->mesh()==&m) {
+                        return ((hit->inside())?omit->orientation():-omit->orientation());
                     }
                 }
             }
@@ -121,5 +126,6 @@ namespace OpenMEEG {
     };
 
     /// A vector of Domain is called Domains
+
     typedef std::vector<Domain > Domains;
 }
