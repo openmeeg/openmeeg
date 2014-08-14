@@ -46,6 +46,8 @@ endif()
 
 SWIG_ADD_MODULE(${MODULE_NAME} python ${SWIG_SRC_FILE_NAME} "")
 
+message("PYTHON::: ${PYTHON_LIBRARIES} ::: ${PYTHON_REL_SITE_ARCH} :::")
+
 if (PYTHON_LIBRARIES)
     target_link_libraries("_${MODULE_NAME}" ${PYTHON_LIBRARIES} OpenMEEG)
 endif()
