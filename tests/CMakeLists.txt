@@ -31,7 +31,7 @@ NEW_EXECUTABLE(om_validationEIT validationEIT.cpp ${OPEMEEG_HEADERS}
 
 if (WIN32 OR APPLE)
     set(INSTALLED_TESTS ${INSTALLED_TESTS} test_sensors compare_matrix om_validationEIT)
-    install(TARGET test_sensors compare_matrix om_validationEIT
+    install(TARGETS test_sensors compare_matrix om_validationEIT
             RUNTIME DESTINATION ${INSTALL_BIN_DIR}
             LIBRARY DESTINATION ${INSTALL_LIB_DIR}
             ARCHIVE DESTINATION ${INSTALL_LIB_DIR})
