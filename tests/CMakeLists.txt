@@ -29,11 +29,18 @@ NEW_EXECUTABLE(compare_matrix compare_matrix.cpp
 NEW_EXECUTABLE(om_validationEIT validationEIT.cpp ${OPEMEEG_HEADERS}
                LIBRARIES OpenMEEG OpenMEEGMaths ${LAPACK_LIBRARIES})
 
+if (WIN32 OR APPLE)
+    set(INSTALLED_TESTS ${INSTALLED_TESTS} test_sensors compare_matrix om_validationEIT)
+    install(TARGET test_sensors compare_matrix om_validationEIT
+            RUNTIME DESTINATION ${INSTALL_BIN_DIR}
+            LIBRARY DESTINATION ${INSTALL_LIB_DIR}
+            ARCHIVE DESTINATION ${INSTALL_LIB_DIR})
+endif()
+
 ############ TEST COMMON RESULTS ON HEAD1 (Regression test) ##############
 
 set(COMPARISONS HM HMInv SSM DSM v2eeg SurfGainEEG ESTEEG
-                Head2MEGMat SS2MM SurfGainMEG ESTMEG 
-)
+                Head2MEGMat SS2MM SurfGainMEG ESTMEG)
 
 foreach (COMPARISON ${COMPARISONS})
     set(BASE_FILE_NAME Head1${Suffix_${COMPARISON}})
