@@ -108,11 +108,7 @@ foreach(ADJOINT "" "adjoint" "adjoint2")
     endforeach()
 endforeach()
 
-if (WIN32)
-    set(VALIDATION_EIT "${EXECUTABLE_OUTPUT_PATH}/om_validationEIT")
-else()
-    set(VALIDATION_EIT "${CMAKE_CURRENT_BINARY_DIR}/om_validationEIT")
-endif()
+set(VALIDATION_EIT "om_validationEIT")
 
 foreach(HEADGEO "")
     foreach(HEADNUM 1 2 ${HEAD3})
