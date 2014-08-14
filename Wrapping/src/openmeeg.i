@@ -1,7 +1,20 @@
 %module(docstring="OpenMEEG bindings for python") openmeeg
 
-%include "std_string.i"
-%include "std_vector.i"
+%include <exception.i>
+%exception {
+    try {
+        $action
+    } catch (const std::exception& e) {
+        SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+}
+
+#ifdef SWIGWIN
+%include <windows.i>
+#endif
+
+%include <std_string.i>
+%include <std_vector.i>
 
 %{
     #define SWIG_FILE_WITH_INIT

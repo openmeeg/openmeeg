@@ -1,75 +1,74 @@
 #   This is the only test that should not use OPENMEEG_TEST
 
-ADD_TEST(CLEAN-TESTS ${CMAKE_COMMAND} -P ${OpenMEEG_SOURCE_DIR}/tests/clean_tests.cmake)
+add_test(CLEAN-TESTS ${CMAKE_COMMAND} -P ${OpenMEEG_SOURCE_DIR}/tests/clean_tests.cmake)
 
-SET(ASSEMBLE  ${CMAKE_CURRENT_BINARY_DIR}/om_assemble)
-SET(INVERSER  ${CMAKE_CURRENT_BINARY_DIR}/om_minverser)
-SET(GAIN      ${CMAKE_CURRENT_BINARY_DIR}/om_gain)
-SET(FORWARD   ${CMAKE_CURRENT_BINARY_DIR}/om_forward)
+set(ASSEMBLE  om_assemble)
+set(INVERSER  om_minverser)
+set(GAIN      om_gain)
+set(FORWARD   om_forward)
 
-ADD_TEST(assemble-help ${ASSEMBLE} -h)
-ADD_TEST(inverser-help ${INVERSER} -h)
-ADD_TEST(gain-help ${GAIN} -h)
-ADD_TEST(forward-help ${FORWARD} -h)
+OPENMEEG_TEST(assemble-help ${ASSEMBLE} -h)
+OPENMEEG_TEST(inverser-help ${INVERSER} -h)
+OPENMEEG_TEST(gain-help ${GAIN} -h)
+OPENMEEG_TEST(forward-help ${FORWARD} -h)
 
-FUNCTION(TESTHEAD HEADNUM)
-    SET(SUBJECT "Head${HEADNUM}")
+function(TESTHEAD HEADNUM)
+    set(SUBJECT "Head${HEADNUM}")
 
+    set(MODELBASE     ${OpenMEEG_SOURCE_DIR}/data/${SUBJECT}/${SUBJECT})
+    set(GENERATEDBASE ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT})
+    set(ANABASE       ${OpenMEEG_SOURCE_DIR}/tests/analytic)
 
-    SET(MODELBASE     ${OpenMEEG_SOURCE_DIR}/data/${SUBJECT}/${SUBJECT})
-    SET(GENERATEDBASE ${OpenMEEG_BINARY_DIR}/tests/${SUBJECT})
-    SET(ANABASE       ${OpenMEEG_SOURCE_DIR}/tests/analytic)
+    set(GEOM                   ${MODELBASE}.geom)
+    set(COND                   ${MODELBASE}.cond)
+    set(SRCMESH                ${MODELBASE}.tri)
+    set(POINTS                 ${ANABASE}/eeg_internal_points.txt)
+    set(DIPPOS                 ${MODELBASE}.dip)
+    set(DIPPOS-SKULLSCALP      ${MODELBASE}-skullscalp.dip)
+    set(PATCHES                ${MODELBASE}.patches)
+    set(SQUIDS                 ${MODELBASE}.squids)
+    set(SQUIDS-TANGENTIAL      ${MODELBASE}-tangential.squids)
+    set(SQUIDS-NORADIAL        ${MODELBASE}-noradial.squids)
+    set(SURFSOURCES            ${MODELBASE}.src)
+    set(DIPSOURCES             ${MODELBASE}.srcdip)
+    set(DIPSOURCES-SKULLSCALP  ${MODELBASE}-skullscalp.srcdip)
 
-    SET(GEOM                   ${MODELBASE}.geom)
-    SET(COND                   ${MODELBASE}.cond)
-    SET(SRCMESH                ${MODELBASE}.tri)
-    SET(POINTS                 ${ANABASE}/eeg_internal_points.txt)
-    SET(DIPPOS                 ${MODELBASE}.dip)
-    SET(DIPPOS-SKULLSCALP      ${MODELBASE}-skullscalp.dip)
-    SET(PATCHES                ${MODELBASE}.patches)
-    SET(SQUIDS                 ${MODELBASE}.squids)
-    SET(SQUIDS-TANGENTIAL      ${MODELBASE}-tangential.squids)
-    SET(SQUIDS-NORADIAL        ${MODELBASE}-noradial.squids)
-    SET(SURFSOURCES            ${MODELBASE}.src)
-    SET(DIPSOURCES             ${MODELBASE}.srcdip)
-    SET(DIPSOURCES-SKULLSCALP  ${MODELBASE}-skullscalp.srcdip)
+    set(SMOOTH                 ${GENERATEDBASE}.smooth)
+    set(AREAS                  ${GENERATEDBASE}.ai)
+    set(HMMAT                  ${GENERATEDBASE}.hm)
+    set(HMINVMAT               ${GENERATEDBASE}.hm_inv)
+    set(SSMMAT                 ${GENERATEDBASE}.ssm)
+    set(CMMAT                  ${GENERATEDBASE}.cm)
+    set(H2EMMAT                ${GENERATEDBASE}.h2em)
+    set(SGEMMAT                ${GENERATEDBASE}.sgem)
+    set(H2IPMAT                ${GENERATEDBASE}.h2ip)
+    set(H2MMMAT                ${GENERATEDBASE}.h2mm)
+    set(H2MMMAT-TANGENTIAL     ${GENERATEDBASE}-tangential.h2mm)
+    set(H2MMMAT-NORADIAL       ${GENERATEDBASE}-noradial.h2mm)
+    set(SS2MMMAT               ${GENERATEDBASE}.ss2mm)
+    set(SGMMMAT                ${GENERATEDBASE}.sgmm)
+    set(DS2IPMAT               ${GENERATEDBASE}.ds2ip)
+    set(DSMMAT                 ${GENERATEDBASE}.dsm)
+    set(DSM-SKULLSCALPMAT      ${GENERATEDBASE}-skullscalp.dsm)
+    set(DS2MMMAT               ${GENERATEDBASE}.ds2mm)
+    set(DS2MMMAT-TANGENTIAL    ${GENERATEDBASE}-tangential.ds2mm)
+    set(DS2MMMAT-NORADIAL      ${GENERATEDBASE}-noradial.ds2mm)
+    set(DGIPMAT                ${GENERATEDBASE}.dgip)
+    set(DGEMMAT                ${GENERATEDBASE}.dgem)
+    set(DGEM-SKULLSCALPMAT     ${GENERATEDBASE}-skullscalp.dgem)
+    set(DGEMADJOINTMAT         ${GENERATEDBASE}-adjoint.dgem)
+    set(DGEMADJOINT2MAT        ${GENERATEDBASE}-adjoint2.dgem)
+    set(DGMMMAT                ${GENERATEDBASE}.dgmm)
+    set(DGMMADJOINTMAT         ${GENERATEDBASE}-adjoint.dgmm)
+    set(DGMMADJOINT2MAT        ${GENERATEDBASE}-adjoint2.dgmm)
+    set(DGMMMAT-TANGENTIAL     ${GENERATEDBASE}-tangential.dgmm)
+    set(DGMMMAT-NORADIAL       ${GENERATEDBASE}-noradial.dgmm)
 
-    SET(SMOOTH                 ${GENERATEDBASE}.smooth)
-    SET(AREAS                  ${GENERATEDBASE}.ai)
-    SET(HMMAT                  ${GENERATEDBASE}.hm)
-    SET(HMINVMAT               ${GENERATEDBASE}.hm_inv)
-    SET(SSMMAT                 ${GENERATEDBASE}.ssm)
-    SET(CMMAT                  ${GENERATEDBASE}.cm)
-    SET(H2EMMAT                ${GENERATEDBASE}.h2em)
-    SET(SGEMMAT                ${GENERATEDBASE}.sgem)
-    SET(H2IPMAT                ${GENERATEDBASE}.h2ip)
-    SET(H2MMMAT                ${GENERATEDBASE}.h2mm)
-    SET(H2MMMAT-TANGENTIAL     ${GENERATEDBASE}-tangential.h2mm)
-    SET(H2MMMAT-NORADIAL       ${GENERATEDBASE}-noradial.h2mm)
-    SET(SS2MMMAT               ${GENERATEDBASE}.ss2mm)
-    SET(SGMMMAT                ${GENERATEDBASE}.sgmm)
-    SET(DS2IPMAT               ${GENERATEDBASE}.ds2ip)
-    SET(DSMMAT                 ${GENERATEDBASE}.dsm)
-    SET(DSM-SKULLSCALPMAT      ${GENERATEDBASE}-skullscalp.dsm)
-    SET(DS2MMMAT               ${GENERATEDBASE}.ds2mm)
-    SET(DS2MMMAT-TANGENTIAL    ${GENERATEDBASE}-tangential.ds2mm)
-    SET(DS2MMMAT-NORADIAL      ${GENERATEDBASE}-noradial.ds2mm)
-    SET(DGIPMAT                ${GENERATEDBASE}.dgip)
-    SET(DGEMMAT                ${GENERATEDBASE}.dgem)
-    SET(DGEM-SKULLSCALPMAT     ${GENERATEDBASE}-skullscalp.dgem)
-    SET(DGEMADJOINTMAT         ${GENERATEDBASE}-adjoint.dgem)
-    SET(DGEMADJOINT2MAT        ${GENERATEDBASE}-adjoint2.dgem)
-    SET(DGMMMAT                ${GENERATEDBASE}.dgmm)
-    SET(DGMMADJOINTMAT         ${GENERATEDBASE}-adjoint.dgmm)
-    SET(DGMMADJOINT2MAT        ${GENERATEDBASE}-adjoint2.dgmm)
-    SET(DGMMMAT-TANGENTIAL     ${GENERATEDBASE}-tangential.dgmm)
-    SET(DGMMMAT-NORADIAL       ${GENERATEDBASE}-noradial.dgmm)
-
-    SET(ESTEEG                 ${GENERATEDBASE}.est_eeg)
-    SET(ESTMEG                 ${GENERATEDBASE}.est_meg)
-    SET(EEGINVBASE             ${GENERATEDBASE}-eeg)
-    SET(MEGINVBASE             ${GENERATEDBASE}-meg)
-    SET(ESTDIPBASE             ${GENERATEDBASE}-dip)
+    set(ESTEEG                 ${GENERATEDBASE}.est_eeg)
+    set(ESTMEG                 ${GENERATEDBASE}.est_meg)
+    set(EEGINVBASE             ${GENERATEDBASE}-eeg)
+    set(MEGINVBASE             ${GENERATEDBASE}-meg)
+    set(ESTDIPBASE             ${GENERATEDBASE}-dip)
 
     ############ ASSEMBLE TEST ##############
 
@@ -77,16 +76,16 @@ FUNCTION(TESTHEAD HEADNUM)
     OPENMEEG_TEST(HMINV-${SUBJECT} ${INVERSER} ${HMMAT} ${HMINVMAT}
                   DEPENDS HM-${SUBJECT})
 
-    IF (${HEADNUM} EQUAL 1)
+    if (${HEADNUM} EQUAL 1)
         OPENMEEG_TEST(SSM-${SUBJECT} ${ASSEMBLE} -SSM ${GEOM} ${COND} ${SRCMESH} ${SSMMAT} DEPENDS CLEAN-TESTS)
         OPENMEEG_TEST(CM-${SUBJECT}  ${ASSEMBLE} -CM ${GEOM} ${COND} ${PATCHES} "Brain" ${CMMAT} 1e-4 1.58e-2 DEPENDS CLEAN-TESTS)
-    ENDIF()
+    endif()
 
     ############ EEG TEST ##############
 
     OPENMEEG_TEST(H2EM-${SUBJECT} ${ASSEMBLE} -H2EM ${GEOM} ${COND} ${PATCHES} ${H2EMMAT} DEPENDS CLEAN-TESTS)
 
-    IF (${HEADNUM} EQUAL 1)
+    if (${HEADNUM} EQUAL 1)
 
         ############ EEG TEST ##############
 
@@ -98,7 +97,7 @@ FUNCTION(TESTHEAD HEADNUM)
         OPENMEEG_TEST(ESTEEG-${SUBJECT} ${FORWARD} ${SGEMMAT} ${SURFSOURCES} ${ESTEEG} 0.0
                       DEPENDS SurfGainEEG-${SUBJECT})
 
-    ENDIF()
+    endif()
 
     ############ MEG TEST ##############
 
@@ -106,7 +105,7 @@ FUNCTION(TESTHEAD HEADNUM)
     OPENMEEG_TEST(H2MM-${SUBJECT}-tangential ${ASSEMBLE} -H2MM ${GEOM} ${COND} ${SQUIDS-TANGENTIAL} ${H2MMMAT-TANGENTIAL} DEPENDS CLEAN-TESTS)
     OPENMEEG_TEST(H2MM-${SUBJECT}-noradial ${ASSEMBLE} -H2MM ${GEOM} ${COND} ${SQUIDS-NORADIAL} ${H2MMMAT-NORADIAL} DEPENDS CLEAN-TESTS)
 
-    IF (${HEADNUM} EQUAL 1)
+    if (${HEADNUM} EQUAL 1)
         ############ MEG TEST ##############
 
         OPENMEEG_TEST(SS2MM-${SUBJECT} ${ASSEMBLE} -SS2MM ${SRCMESH} ${SQUIDS} ${SS2MMMAT} DEPENDS CLEAN-TESTS)
@@ -118,7 +117,7 @@ FUNCTION(TESTHEAD HEADNUM)
 
         OPENMEEG_TEST(ESTMEG-${SUBJECT} ${FORWARD} ${SGMMMAT} ${SURFSOURCES} ${ESTMEG} 0.0
                       DEPENDS SurfGainMEG-${SUBJECT})
-    ENDIF()
+    endif()
 
     ############ TEST DIPOLE FORWARD RESULTS (Regression test) ##############
 
@@ -179,7 +178,7 @@ FUNCTION(TESTHEAD HEADNUM)
                   DEPENDS DipGainInternalPot-${SUBJECT})
 
     # tests on Head3 for dipoles in the skull and scalp
-    IF (${HEADNUM} EQUAL 3)
+    if (${HEADNUM} EQUAL 3)
         OPENMEEG_TEST(DSMSkullScalp-${SUBJECT} ${ASSEMBLE} -DSM ${GEOM} ${COND} ${DIPPOS-SKULLSCALP} ${DSM-SKULLSCALPMAT} DEPENDS CLEAN-TESTS)
 
         OPENMEEG_TEST(DipGainEEGSkullScalp-${SUBJECT} ${GAIN} -EEG ${HMINVMAT} ${DSM-SKULLSCALPMAT} ${H2EMMAT} ${DGEM-SKULLSCALPMAT}
@@ -187,5 +186,5 @@ FUNCTION(TESTHEAD HEADNUM)
 
         OPENMEEG_TEST(EEG-dipolesSkullScalp-${SUBJECT} ${FORWARD} ${DGEM-SKULLSCALPMAT} ${DIPSOURCES-SKULLSCALP} ${ESTDIPBASE}-skullscalp.est_eeg 0.0
                 DEPENDS DipGainEEGSkullScalp-${SUBJECT})
-    ENDIF()
-ENDFUNCTION()
+    endif()
+endfunction()
