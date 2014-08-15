@@ -70,8 +70,7 @@ namespace OpenMEEG {
     void operatorDipolePot   (const Vect3& , const Vect3& , const Mesh& , Vector&, const double&, const unsigned, const bool);
 
     #ifndef OPTIMIZED_OPERATOR_D
-    inline double _operatorD(const Triangle& T, const Vertex& V, const Mesh& m, const unsigned gauss_order)
-    {
+    inline double _operatorD(const Triangle& T,const Vertex& V,const Mesh& m,const unsigned gauss_order) {
         // consider varying order of quadrature with the distance between T and T2
         STATIC_OMP analyticD analyD;
     #ifdef ADAPT_LHS
@@ -94,8 +93,7 @@ namespace OpenMEEG {
     #else
 
     template <typename T>
-    inline void _operatorD(const Triangle& T1, const Triangle& T2, T& mat, const double& coeff, const unsigned gauss_order)
-    {
+    inline void _operatorD(const Triangle& T1,const Triangle& T2,T& mat,const double& coeff,const unsigned gauss_order) {
         //this version of _operatorD add in the Matrix the contribution of T2 on T1
         // for all the P1 functions it gets involved
         // consider varying order of quadrature with the distance between T1 and T2
@@ -116,20 +114,18 @@ namespace OpenMEEG {
     }
     #endif //OPTIMIZED_OPERATOR_D
 
-    inline void _operatorDinternal(const Triangle& T2, const Vertex& P, Matrix & mat, const double& coeff)
-    {
+    inline void _operatorDinternal(const Triangle& T2,const Vertex& P,Matrix & mat,const double& coeff) {
         static analyticD3 analyD;
 
         analyD.init(T2);
 
         Vect3 total = analyD.f(P);
 
-        for (unsigned i = 0; i < 3; ++i)
+        for (unsigned i=0;i<3;++i)
             mat(P.index(), T2(i).index()) += total(i) * coeff;
     }
 
-    inline double _operatorS(const Triangle& T1, const Triangle& T2, const unsigned gauss_order)
-    {
+    inline double _operatorS(const Triangle& T1,const Triangle& T2,const unsigned gauss_order) {
         STATIC_OMP Triangle *oldT = 0;
         STATIC_OMP analyticS analyS;
 
@@ -148,15 +144,14 @@ namespace OpenMEEG {
     #endif //ADAPT_LHS
     }
 
-    inline double _operatorSinternal(const Triangle& T, const Vertex& P)
-    {
+    inline double _operatorSinternal(const Triangle& T,const Vertex& P) {
         static analyticS analyS;
         analyS.init(T);
         return analyS.f(P);
     }
 
     template <typename T>
-    inline double _operatorN(const Vertex& V1, const Vertex& V2, const Mesh& m1, const Mesh& m2, const T& mat) {
+    inline double _operatorN(const Vertex& V1,const Vertex& V2,const Mesh& m1,const Mesh& m2,const T& mat) {
 
         const Mesh::VectPTriangle& trgs1 = m1.get_triangles_for_vertex(V1);
         const Mesh::VectPTriangle& trgs2 = m2.get_triangles_for_vertex(V2);
@@ -178,24 +173,18 @@ namespace OpenMEEG {
 
                 // if it is the same shared vertex
 
-                result -=  ((&m1!=&m2) && (V1==V2)) ? 0.5*value : 0.25*value;
+                result -=  (((&m1!=&m2) && (V1==V2)) ? 0.5 : 0.25)*value;
             }
         }
         return result;
     }
 
-    inline double _operatorP1P0(const Triangle& T2, const Vertex& V1)
-    {
-        if ( T2.contains(V1) ) {
-            return 0.0;
-        } else {
-            return T2.area() / 3.0;
-        }
+    inline double _operatorP1P0(const Triangle& T2,const Vertex& V1) {
+        return (T2.contains(V1)) ? 0.0 : T2.area()/3.0;
     }
 
     template <typename T>
-    void operatorN(const Mesh& m1,const Mesh& m2,T& mat,const double& coeff,const unsigned gauss_order)
-    {
+    void operatorN(const Mesh& m1,const Mesh& m2,T& mat,const double& coeff,const unsigned gauss_order) {
         // This function has the following arguments:
         //    the 2 interacting meshes
         //    the storage Matrix for the result
@@ -410,8 +399,7 @@ namespace OpenMEEG {
     }
 
     template <typename T>
-    void operatorD(const Mesh& m1, const Mesh& m2, T& mat, const double& coeff, const unsigned gauss_order, const bool star)
-    {
+    void operatorD(const Mesh& m1,const Mesh& m2, T& mat,const double& coeff,const unsigned gauss_order,const bool star) {
         // This function (OPTIMIZED VERSION) has the following arguments:
         //    the 2 interacting meshes
         //    the storage Matrix for the result
@@ -430,8 +418,7 @@ namespace OpenMEEG {
     #endif // OPTIMIZED_OPERATOR_D
 
     template <typename T>
-    void operatorP1P0(const Mesh& m, T& mat, const double& coeff)
-    {
+    void operatorP1P0(const Mesh& m, T& mat,const double& coeff) {
         // This time mat(i, j)+= ... the Matrix is incremented by the P1P0 operator
         std::cout << "OPERATOR P1P0... (arg : mesh " << m.name() << " )" << std::endl;
         for (Mesh::const_iterator tit = m.begin(); tit != m.end(); ++tit)
@@ -439,10 +426,7 @@ namespace OpenMEEG {
                 mat(tit->index(), (*pit)->index()) += _operatorP1P0(*tit, **pit) * coeff;
     }
 
-    inline Vect3 _operatorFerguson(const Vect3& x, const Vertex& V1, const Mesh& m)
-    {
-        double opS;
-
+    inline Vect3 _operatorFerguson(const Vect3& x,const Vertex& V1,const Mesh& m) {
         STATIC_OMP Vect3 result;
         STATIC_OMP analyticS analyS;
 
@@ -453,7 +437,7 @@ namespace OpenMEEG {
         //loop over triangles of which V1 is a vertex
         const Mesh::VectPTriangle& trgs = m.get_triangles_for_vertex(V1);
 
-        for (Mesh::VectPTriangle::const_iterator tit = trgs.begin(); tit != trgs.end(); ++tit) {
+        for (Mesh::VectPTriangle::const_iterator tit=trgs.begin();tit!=trgs.end();++tit) {
 
             const Triangle& T1 = **tit;
 
@@ -463,7 +447,7 @@ namespace OpenMEEG {
             Vect3 A1B1 = (A1 - B1) * (0.5 / T1.area());
             
             analyS.init(V1, A1, B1);
-            opS = analyS.f(x);
+            const double opS = analyS.f(x);
 
             result += (A1B1 * opS);
         }
