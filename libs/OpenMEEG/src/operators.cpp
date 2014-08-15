@@ -67,6 +67,7 @@ namespace OpenMEEG {
     {
         #pragma omp parallel for
         #ifndef OPENMP_3_0
+        #pragma message("NOT OPENMP 3.0")
         for (int i=0;i<m.vertex_size();++i) {
             const Mesh::const_vertex_iterator vit=m.vertex_begin()+i;
         #else
