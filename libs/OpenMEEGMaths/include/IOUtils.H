@@ -151,7 +151,6 @@ namespace io_utils {
     //  Example: To remove the lines begining with a '#' then read data.
     //      cin >> skip_comments('#') >> data;
 
-
     inline std::istream&
     skip_lines_internal(std::istream& is,const unsigned char c) {
         is >> std::ws;
@@ -447,8 +446,25 @@ namespace io_utils {
     }
 
     inline std::string trim(std::string& s,const std::string& drop=" ") {
-        std::string r = s.erase(s.find_last_not_of(drop) + 1);
-        return r.erase(0, r.find_first_not_of(drop));
+        std::string r = s.erase(s.find_last_not_of(drop)+1);
+        return r.erase(0,r.find_first_not_of(drop));
+    }
+
+    //  Counts lines remaining in file.
+    
+    inline std::istream&
+    count_lines_internal(std::istream& is,unsigned& n) {
+        std::ios::pos_type pos = is.tellg();
+        std::string line;
+        for (n=0;is;getline(is,line),++n);
+        is.clear();
+        is.seekg(pos,std::ios::beg);
+        return is;
+    }
+
+    inline imanip<unsigned&>
+    count_lines(unsigned& n) {
+        return imanip<unsigned&>(count_lines_internal,n);
     }
 
     //  File reading.
@@ -465,10 +481,6 @@ namespace io_utils {
         if (is.peek()!=delimiter) {
             if (force_delimiter) {
                 is.setstate(std::ios::failbit);
-                return is;
-            } else {
-                std::getline(is,filename);
-                filename = trim(filename);
                 return is;
             }
         } else {

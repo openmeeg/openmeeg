@@ -133,9 +133,13 @@ namespace OpenMEEG {
 
         vertex_iterator               vertex_begin()        { return vertices_.begin(); }
         vertex_iterator               vertex_end()          { return vertices_.end(); }
+
+        unsigned                      vertex_size()   const { return vertices_.size(); } // Just for old OpenMP implementations.
+
         const_vertex_iterator         vertex_begin()  const { return vertices_.begin(); }
-        const_vertex_reverse_iterator vertex_rbegin() const { return vertices_.rbegin(); }
         const_vertex_iterator         vertex_end()    const { return vertices_.end(); }
+
+        const_vertex_reverse_iterator vertex_rbegin() const { return vertices_.rbegin(); }
         const_vertex_reverse_iterator vertex_rend()   const { return vertices_.rend(); }
 		
 		      std::string &           name()                { return name_; } ///< \return the mesh name

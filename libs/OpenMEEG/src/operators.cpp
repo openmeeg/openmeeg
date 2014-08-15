@@ -63,10 +63,15 @@ namespace OpenMEEG {
 
     // General routine for applying _operatorFerguson (see this function for further comments)
     // to an entire mesh, and storing coordinates of the output in a Matrix.
-    void operatorFerguson(const Vect3& x, const Mesh& m, Matrix& mat, const unsigned& offsetI, const double& coeff)
+    void operatorFerguson(const Vect3& x,const Mesh& m,Matrix& mat,const unsigned& offsetI,const double& coeff)
     {
         #pragma omp parallel for
-        for ( Mesh::const_vertex_iterator vit = m.vertex_begin(); vit < m.vertex_end(); ++vit) {
+        #ifndef OPENMP_3_0
+        for (int i=0;i<m.vertex_size();++i) {
+            const Mesh::const_vertex_iterator vit=m.vertex_begin()+i;
+        #else
+        for (Mesh::const_vertex_iterator vit=m.vertex_begin();vit<m.vertex_end();++vit) {
+        #endif
             Vect3 v = _operatorFerguson(x, **vit, m);
             mat(offsetI + 0, (*vit)->index()) += v.x() * coeff;
             mat(offsetI + 1, (*vit)->index()) += v.y() * coeff;
@@ -74,20 +79,21 @@ namespace OpenMEEG {
         }
     }
 
-    void operatorDipolePotDer(const Vect3& r0, const Vect3& q, const Mesh& m, Vector& rhs, const double& coeff, const unsigned gauss_order, const bool adapt_rhs) 
+    void operatorDipolePotDer(const Vect3& r0,const Vect3& q,const Mesh& m,Vector& rhs,const double& coeff,const unsigned gauss_order,const bool adapt_rhs) 
     {
         static analyticDipPotDer anaDPD;
 
-        Integrator<Vect3, analyticDipPotDer>* gauss;
-        if ( adapt_rhs ) {
-            gauss = new AdaptiveIntegrator<Vect3, analyticDipPotDer>(0.001);
-        } else {
-            gauss = new Integrator<Vect3, analyticDipPotDer>;
-        }
+        Integrator<Vect3,analyticDipPotDer>* gauss = (adapt_rhs) ? new AdaptiveIntegrator<Vect3, analyticDipPotDer>(0.001) :
+                                                                   new Integrator<Vect3, analyticDipPotDer>;
 
         gauss->setOrder(gauss_order);
         #pragma omp parallel for private(anaDPD)
-        for ( Mesh::const_iterator tit = m.begin(); tit < m.end(); ++tit) {
+        #ifndef OPENMP_3_0
+        for (int i=0;i<m.size();++i) {
+            const Mesh::const_iterator tit=m.begin()+i;
+        #else
+        for (Mesh::const_iterator tit=m.begin();tit<m.end();++tit) {
+        #endif
             anaDPD.init(*tit, q, r0);
             Vect3 v = gauss->integrate(anaDPD, *tit);
             #pragma omp critical
@@ -114,7 +120,12 @@ namespace OpenMEEG {
 
         gauss->setOrder(gauss_order);
         #pragma omp parallel for
-        for ( Mesh::const_iterator tit = m.begin(); tit < m.end(); ++tit) {
+        #ifndef OPENMP_3_0
+        for (int i=0;i<m.size();++i) {
+            const Mesh::const_iterator tit=m.begin()+i;
+        #else
+        for (Mesh::const_iterator tit=m.begin();tit<m.end();++tit) {
+        #endif
             double d = gauss->integrate(anaDP, *tit);
             #pragma omp critical
             rhs(tit->index()) += d * coeff;
@@ -122,4 +133,4 @@ namespace OpenMEEG {
         delete gauss;
     }
 
-} // namespace OpenMEEG
+}

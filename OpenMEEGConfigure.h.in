@@ -1,5 +1,4 @@
-#ifndef OPENMEEGCONFIGURE_H
-#define OPENMEEGCONFIGURE_H
+#pragma once
 
 // Here is where system computed values get stored these values should only
 // change when the target compile platform changes 
@@ -28,9 +27,12 @@
 static const char version[] = "@VERSION_STRING@";
 
 #ifdef USE_OMP
-#define STATIC_OMP
+    #define STATIC_OMP
+    #if defined _OPENMP
+        #if _OPENMP>=200805
+            #define OPENMP_3_0
+        #endif
+    #endif
 #else
-#define STATIC_OMP static
+    #define STATIC_OMP static
 #endif
-
-#endif  //  ! OPENMEEGCONFIGURE_H

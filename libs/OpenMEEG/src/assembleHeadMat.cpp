@@ -54,11 +54,16 @@ namespace OpenMEEG {
     void deflat(T& M, const Interface& i, double coef) 
     {
         // deflate the Matrix
-        for ( Interface::const_iterator omit = i.begin(); omit != i.end(); ++omit) {
-            for ( Mesh::const_vertex_iterator vit1 = omit->mesh().vertex_begin(); vit1 != omit->mesh().vertex_end(); ++vit1) {
+        for (Interface::const_iterator omit=i.begin();omit!=i.end();++omit) {
+            for (Mesh::const_vertex_iterator vit1=omit->mesh().vertex_begin();vit1!=omit->mesh().vertex_end();++vit1) {
                 #pragma omp parallel for
-                for ( Mesh::const_vertex_iterator vit2 = vit1; vit2 < omit->mesh().vertex_end(); ++vit2) {
-                    M((*vit1)->index(), (*vit2)->index()) += coef;
+                #ifndef OPENMP_3_0
+                for (int i2=vit1-omit->mesh().vertex_begin();i2<omit->mesh().vertex_size();++i2) {
+                    const Mesh::const_vertex_iterator vit2 = omit->mesh().vertex_begin()+i2;
+                #else
+                for (Mesh::const_vertex_iterator vit2=vit1;vit2<omit->mesh().vertex_end();++vit2) {
+                #endif
+                    M((*vit1)->index(),(*vit2)->index()) += coef;
                 }
             }
         }
