@@ -26,6 +26,10 @@ find_package(SWIG REQUIRED)
 include(${SWIG_USE_FILE})
 find_package(PythonLibs)
 
+if (PYTHON_LIBRARIES)
+    message(ERROR "Python libraries not found.")
+endif()
+
 include_directories(${PYTHON_INCLUDE_PATH} ${PYTHON_NUMPY_INCLUDE_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
 
 set(CMAKE_SWIG_FLAGS "-v")
@@ -45,15 +49,11 @@ if (BUILD_DOCUMENTATION)
 endif()
 
 SWIG_ADD_MODULE(${MODULE_NAME} python ${SWIG_SRC_FILE_NAME} "")
-
-message("PYTHON::: ${PYTHON_LIBRARIES} ::: ${PYTHON_REL_SITE_ARCH} :::")
-
-if (PYTHON_LIBRARIES)
-    target_link_libraries("_${MODULE_NAME}" ${PYTHON_LIBRARIES} OpenMEEG)
-endif()
+target_link_libraries("_${MODULE_NAME}" ${PYTHON_LIBRARIES} OpenMEEG)
 
 install(TARGETS  "_${MODULE_NAME}"
-        DESTINATION ${PYTHON_REL_SITE_ARCH}
+        LIBRARY DESTINATION ${PYTHON_REL_SITE_ARCH}
+        RUNTIME DESTINATION ${PYTHON_REL_SITE_ARCH}
         PERMISSIONS OWNER_WRITE OWNER_READ GROUP_READ WORLD_READ)
 
 install(FILES  ${OpenMEEG_BINARY_DIR}/Wrapping/src/${MODULE_NAME}.py
