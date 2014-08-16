@@ -332,8 +332,7 @@ namespace OpenMEEG {
 
     #ifndef OPTIMIZED_OPERATOR_D
     template <typename T>
-    void operatorD(const Mesh& m1,const Mesh& m2,T& mat,const double& coeff,const unsigned gauss_order,const bool star=false)
-    {
+    void operatorD(const Mesh& m1,const Mesh& m2,T& mat,const double& coeff,const unsigned gauss_order,const bool star=false) {
         // This function (NON OPTIMIZED VERSION) has the following arguments:
         //    the 2 interacting meshes
         //    the storage Matrix for the result
