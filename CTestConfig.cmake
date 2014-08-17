@@ -1,6 +1,10 @@
 set(CTEST_PROJECT_NAME "OpenMEEG")
 set(CTEST_NIGHTLY_START_TIME "00:00:00 EST")
 
+if (WIN32)
+    set(CTEST_ENVIRONMENT "PATH=$ENV{PATH};${INSTALL_BIN_DIR}")
+endif()
+
 # Does not work currently.
 # set(CTEST_DROP_METHOD "https")
 
