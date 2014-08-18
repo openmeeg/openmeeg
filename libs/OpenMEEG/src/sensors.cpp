@@ -153,8 +153,8 @@ namespace OpenMEEG {
         // weights
         if (ncol == 4) { // EIT
             m_radius = mat.getcol(mat.ncol()-1);
-            if ( m_interface == NULL ) {
-                std::cerr << "Sensors:: please specify at constructor stage an interface on which to apply the spatially extended EIT sensors." << std::endl;
+            if ( m_geo == NULL ) {
+                std::cerr << "Sensors:: please specify at constructor stage the geometry on which to apply the spatially extended EIT sensors." << std::endl;
                 exit(1);
             } else {
                 // find triangles on which to inject the currents
@@ -223,7 +223,7 @@ namespace OpenMEEG {
     }
 
     void Sensors::findInjectionTriangles() {
-        om_error(m_interface!=NULL);
+        om_error(m_geo!=NULL);
         m_weights = Vector(m_positions.nlin());
         m_weights.set(0.);
         for ( size_t idx = 0; idx < m_positions.nlin(); ++idx) {
@@ -231,7 +231,11 @@ namespace OpenMEEG {
             const Vect3 current_position(m_positions(idx, 0), m_positions(idx, 1), m_positions(idx, 2));
             Vect3 current_alphas; //not used here
             Triangle current_nearest_triangle; // to hold the closest triangle to electrode.
-            dist_point_interface(current_position, *m_interface, current_alphas, current_nearest_triangle);
+            
+            double dist;
+            std::string s_map=dist_point_geom(current_position, *m_geo, current_alphas, current_nearest_triangle, dist);
+            std::cout<<"Electrode "<<current_position<<" has been mapped to: "<<s_map<<"\n";
+            
             triangles.push_back(current_nearest_triangle);
             std::set<size_t> index_seen; // to avoid infinite looping
             index_seen.insert(current_nearest_triangle.index());
@@ -245,7 +249,7 @@ namespace OpenMEEG {
                         tri_stack.pop();
                         if ( (t->center()-current_position).norm() < m_radius(idx) ) {
                             triangles.push_back(*t);
-                            Interface::VectPTriangle t_adj = m_interface->adjacent_triangles(*t);
+                            Interface::VectPTriangle t_adj = m_geo->interface(s_map).adjacent_triangles(*t);
                             if ( index_seen.insert(t_adj[0]->index()).second ) tri_stack.push(t_adj[0]);
                             if ( index_seen.insert(t_adj[1]->index()).second ) tri_stack.push(t_adj[1]);
                             if ( index_seen.insert(t_adj[2]->index()).second ) tri_stack.push(t_adj[2]);

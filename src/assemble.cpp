@@ -271,7 +271,7 @@ int main(int argc, char** argv)
         Geometry geo;
         geo.read(argv[2], argv[3], OLD_ORDERING);
 
-        Sensors electrodes(argv[4], geo.outermost_interface()); // special parameter for EIT electrodes: the interface
+        Sensors electrodes(argv[4], geo); // special parameter for EIT electrodes: the interface
         EITSourceMat EITsource(geo, electrodes, gauss_order);
         EITsource.save(argv[5]);
     }
