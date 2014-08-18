@@ -69,17 +69,55 @@ namespace OpenMEEG {
         }
     }
 
+	template<class T>
+	void deflat(T& M, const Geometry& geo)
+	{
+		//deflat every outermost interface
+		unsigned nb_vertices=0,i_first=0; //number of outermost vertices
+		double coef=0.0;
+		for (std::vector<std::vector<std::string>>::const_iterator git=geo.geo_group().begin();git!=geo.geo_group().end();++git){
+			nb_vertices=0;
+			i_first=0;
+			for(std::vector<std::string>::const_iterator mit=git->begin();mit!=git->end();++mit){
+				const Mesh msh=geo.mesh(*mit);
+				if(msh.outermost()){
+					nb_vertices+=msh.nb_vertices();
+					if(i_first==0){
+						i_first=(*msh.vertex_begin())->index();
+					}
+				}
+			}
+			double a =M (i_first,i_first);
+			coef=a/nb_vertices;
+			for(std::vector<std::string>::const_iterator mit=git->begin();mit!=git->end();++mit){
+				Mesh msh=geo.mesh(*mit);
+				if(msh.outermost()){
+					for ( Mesh::const_vertex_iterator vit1 = msh.vertex_begin(); vit1 != msh.vertex_end(); ++vit1) {
+						#pragma omp parallel for
+						for ( Mesh::const_vertex_iterator vit2 = vit1; vit2 != msh.vertex_end(); ++vit2) {
+							M((*vit1)->index(), (*vit2)->index()) += coef;
+						}
+					}
+				}
+			}
+		}
+	}
+
     void assemble_HM(const Geometry& geo, SymMatrix& mat, const unsigned gauss_order) 
     {
-        mat = SymMatrix((geo.size()-geo.outermost_interface().nb_triangles()));
+        mat = SymMatrix((geo.size()-geo.nb_0_triangles()));
         mat.set(0.0);
         double K = 1.0 / (4.0 * M_PI);
 
         // We iterate over the meshes (or pair of domains) to fill the lower half of the HeadMat (since its symmetry)
         for ( Geometry::const_iterator mit1 = geo.begin(); mit1 != geo.end(); ++mit1) {
-
+			if(mit1->isolated()){
+				continue;
+			}
             for ( Geometry::const_iterator mit2 = geo.begin(); (mit2 != (mit1+1)); ++mit2) {
-
+				if(mit2->isolated()||geo.sigma(*mit1,*mit2)==0.0){
+					continue;
+				}
                 // if mit1 and mit2 communicate, i.e they are used for the definition of a common domain
                 const int orientation = geo.oriented(*mit1, *mit2); // equals  0, if they don't have any domains in common
                                                                        // equals  1, if they are both oriented toward the same domain
@@ -91,7 +129,7 @@ namespace OpenMEEG {
                     double Dcoeff = - orientation * geo.indicator(*mit1, *mit2) * K;
                     double Ncoeff;
 
-                    if ( !(mit1->outermost() || mit2->outermost()) ) {
+                    if ( !(mit1->touch_0_cond()||mit2->touch_0_cond()) ) {
                         // Computing S block first because it's needed for the corresponding N block
                         operatorS(*mit1, *mit2, mat, Scoeff, gauss_order);
                         Ncoeff = geo.sigma(*mit1, *mit2)/geo.sigma_inv(*mit1, *mit2);
@@ -99,11 +137,11 @@ namespace OpenMEEG {
                         Ncoeff = orientation * geo.sigma(*mit1, *mit2) * K;
                     }
 
-                    if ( !mit1->outermost() ) {
+                    if ( !mit1->touch_0_cond() ) {
                         // Computing D block
                         operatorD(*mit1, *mit2, mat, Dcoeff, gauss_order,false);
                     }
-                    if ( ( *mit1 != *mit2 ) && ( !mit2->outermost() ) ) {
+                    if ( ( *mit1 != *mit2 ) && ( !mit2->touch_0_cond() ) ) {
                         // Computing D* block
                         operatorD(*mit1, *mit2, mat, Dcoeff, gauss_order, true);
                     }
@@ -114,10 +152,8 @@ namespace OpenMEEG {
             }
         }
 
-        // Deflate the diagonal block (N33) of 'mat' : (in order to have a zero-mean potential for the outermost interface)
-        const Interface i = geo.outermost_interface();
-        unsigned i_first = (*i.begin()->mesh().vertex_begin())->index();
-        deflat(mat, i, mat(i_first, i_first) / (geo.outermost_interface().nb_vertices()));
+        // Deflate every outermost interface
+        deflat(mat,geo);
     }
 
     void assemble_cortical(const Geometry& geo, Matrix& mat, const Head2EEGMat& M, const std::string& domain_name, const unsigned gauss_order, double alpha, double beta, const std::string &filename)
@@ -452,9 +488,9 @@ namespace OpenMEEG {
         // Find the points per domain and generate the indices for the m_points
         for ( unsigned i = 0; i < points.nlin(); ++i) {
             const Domain domain = geo.domain(Vect3(points(i, 0), points(i, 1), points(i, 2)));
-            if ( domain.name() == "Air" ) {
+            if ( domain.sigma()==0.0 ) {
                 std::cerr << " Surf2Vol: Point [ " << points.getlin(i);
-                std::cerr << "] is outside the head. Point is dropped." << std::endl;
+                std::cerr << "] is inside a nonconductive domain. Point is dropped." << std::endl;
             } else {
                 m_points[domain].push_back(Vertex(points(i, 0), points(i, 1), points(i, 2), index++));
             }
