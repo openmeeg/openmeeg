@@ -29,7 +29,7 @@ set(CPACK_PACKAGE_VERSION_PATCH ${PACKAGE_VERSION_PATCH})
 
 project(OpenMEEG C CXX)
 
-cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
+cmake_minimum_required(VERSION 2.8.12 FATAL_ERROR)
 
 # By default, do not warn when built on machines using only VS Express:
 
