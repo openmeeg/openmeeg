@@ -23,20 +23,11 @@ OPENMEEG_UNIT_TEST(test_mesh_ios
     LIBRARIES OpenMEEG OpenMEEGMaths
     PARAMETERS ${OpenMEEG_SOURCE_DIR}/data/Head1/Head1.tri)
 
-NEW_EXECUTABLE(test_sensors test_sensors.cpp
-               LIBRARIES OpenMEEG)
-NEW_EXECUTABLE(compare_matrix compare_matrix.cpp
-               LIBRARIES OpenMEEGMaths ${LAPACK_LIBRARIES})
-NEW_EXECUTABLE(om_validationEIT validationEIT.cpp ${OPEMEEG_HEADERS}
-               LIBRARIES OpenMEEG OpenMEEGMaths ${LAPACK_LIBRARIES})
+#   Test sensor is not used  Why ?
 
-if (WIN32 OR APPLE)
-    set(INSTALLED_TESTS ${INSTALLED_TESTS} test_sensors om_validationEIT)
-    install(TARGETS test_sensors om_validationEIT
-            RUNTIME DESTINATION ${INSTALL_BIN_DIR}
-            LIBRARY DESTINATION ${INSTALL_LIB_DIR}
-            ARCHIVE DESTINATION ${INSTALL_LIB_DIR})
-endif()
+NEW_EXECUTABLE(test_sensors test_sensors.cpp LIBRARIES OpenMEEG)
+NEW_EXECUTABLE(compare_matrix compare_matrix.cpp LIBRARIES OpenMEEGMaths ${LAPACK_LIBRARIES})
+NEW_EXECUTABLE(om_validationEIT validationEIT.cpp ${OPEMEEG_HEADERS} LIBRARIES OpenMEEG OpenMEEGMaths ${LAPACK_LIBRARIES})
 
 #   TEST COMMON RESULTS ON HEAD1 (Regression test)
 
@@ -118,7 +109,10 @@ foreach(ADJOINT "" "adjoint" "adjoint2")
     endforeach()
 endforeach()
 
-set(VALIDATION_EIT "om_validationEIT")
+set(VALIDATION_EIT "${CMAKE_CURRENT_BINARY_DIR}/om_validationEIT")
+if (WIN32)
+    set(VALIDATION_EIT "${EXECUTABLE_OUTPUT_PATH}/om_validationEIT")
+endif()
 
 foreach(HEADGEO "")
     foreach(HEADNUM 1 2 ${HEAD3})
