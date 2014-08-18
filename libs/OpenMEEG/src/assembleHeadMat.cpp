@@ -78,7 +78,7 @@ namespace OpenMEEG {
 		for (std::vector<std::vector<std::string>>::const_iterator git=geo.geo_group().begin();git!=geo.geo_group().end();++git){
 			nb_vertices=0;
 			i_first=0;
-			for(std::vector<std::string>::const_iterator mit=git->begin();mit!=git->end();++mit){
+			for (std::vector<std::string>::const_iterator mit=git->begin();mit!=git->end();++mit){
 				const Mesh msh=geo.mesh(*mit);
 				if(msh.outermost()){
 					nb_vertices+=msh.nb_vertices();
@@ -87,15 +87,20 @@ namespace OpenMEEG {
 					}
 				}
 			}
-			double a =M (i_first,i_first);
+			double a=M(i_first,i_first);
 			coef=a/nb_vertices;
-			for(std::vector<std::string>::const_iterator mit=git->begin();mit!=git->end();++mit){
+			for (std::vector<std::string>::const_iterator mit=git->begin();mit!=git->end();++mit){
 				Mesh msh=geo.mesh(*mit);
 				if(msh.outermost()){
-					for ( Mesh::const_vertex_iterator vit1 = msh.vertex_begin(); vit1 != msh.vertex_end(); ++vit1) {
+					for ( Mesh::const_vertex_iterator vit1=msh.vertex_begin(); vit1!=msh.vertex_end();++vit1) {
 						#pragma omp parallel for
-						for ( Mesh::const_vertex_iterator vit2 = vit1; vit2 != msh.vertex_end(); ++vit2) {
-							M((*vit1)->index(), (*vit2)->index()) += coef;
+						#ifndef OPENMP_3_0
+						for (int i2=vit1-msh.vertex_begin();i2<msh.vertex_size();++i2) {
+							const Mesh::const_vertex_iterator vit2 = msh.vertex_begin()+i2;
+						#else
+						for (Mesh::const_vertex_iterator vit2=vit1;vit2<msh.vertex_end();++vit2) {
+						#endif
+							M((*vit1)->index(),(*vit2)->index()) += coef;
 						}
 					}
 				}
