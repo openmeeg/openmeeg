@@ -5,6 +5,12 @@
 option(BUILD_TESTING "Build tests" OFF)
 
 if (BUILD_TESTING)
+
+    if (WIN32)
+        file(WRITE ${CMAKE_BINARY_DIR}/TestConfig.cmake "set(ENV{PATH} \"${INSTALL_BIN_DIR}:\$ENV{PATH}\")\n")
+        set_directory_properties(PROPERTIES TEST_INCLUDE_FILE "${CMAKE_BINARY_DIR}/TestConfig.cmake")
+    endif()
+
     set(CTEST_BUILD_NAME "${CMAKE_SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR}")
     if (USE_MKL)
         set(CTEST_BUILD_NAME "${CTEST_BUILD_NAME}-MKL")
