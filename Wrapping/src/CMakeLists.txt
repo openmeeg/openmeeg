@@ -26,8 +26,8 @@ find_package(SWIG REQUIRED)
 include(${SWIG_USE_FILE})
 find_package(PythonLibs)
 
-if (PYTHON_LIBRARIES)
-    message(ERROR "Python libraries not found.")
+if (NOT PYTHONLIBS_FOUND)
+    message(SNED_ERROR "Python libraries not found.")
 endif()
 
 include_directories(${PYTHON_INCLUDE_PATH} ${PYTHON_NUMPY_INCLUDE_DIR} ${CMAKE_CURRENT_SOURCE_DIR})

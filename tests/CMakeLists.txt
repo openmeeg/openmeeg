@@ -11,7 +11,8 @@ set_file_properties(CompareOptions
     "SurfGainEEG -full" "ESTEEG -full" "Head2MEGMat -full" "SS2MM -full" "SurfGainMEG -full" "ESTMEG -full"
 )
 
-############ IO TEST ##############
+#   IO TESTS
+
 OPENMEEG_UNIT_TEST(load_geo
     SOURCES load_geo.cpp
     LIBRARIES OpenMEEG OpenMEEGMaths
@@ -22,22 +23,13 @@ OPENMEEG_UNIT_TEST(test_mesh_ios
     LIBRARIES OpenMEEG OpenMEEGMaths
     PARAMETERS ${OpenMEEG_SOURCE_DIR}/data/Head1/Head1.tri)
 
-NEW_EXECUTABLE(test_sensors test_sensors.cpp
-               LIBRARIES OpenMEEG)
-NEW_EXECUTABLE(compare_matrix compare_matrix.cpp
-               LIBRARIES OpenMEEGMaths ${LAPACK_LIBRARIES})
-NEW_EXECUTABLE(om_validationEIT validationEIT.cpp ${OPEMEEG_HEADERS}
-               LIBRARIES OpenMEEG OpenMEEGMaths ${LAPACK_LIBRARIES})
+#   Test sensor is not used  Why ?
 
-if (WIN32 OR APPLE)
-    set(INSTALLED_TESTS ${INSTALLED_TESTS} test_sensors compare_matrix om_validationEIT)
-    install(TARGETS test_sensors compare_matrix om_validationEIT
-            RUNTIME DESTINATION ${INSTALL_BIN_DIR}
-            LIBRARY DESTINATION ${INSTALL_LIB_DIR}
-            ARCHIVE DESTINATION ${INSTALL_LIB_DIR})
-endif()
+NEW_EXECUTABLE(test_sensors test_sensors.cpp LIBRARIES OpenMEEG)
+NEW_EXECUTABLE(compare_matrix compare_matrix.cpp LIBRARIES OpenMEEGMaths ${LAPACK_LIBRARIES})
+NEW_EXECUTABLE(om_validationEIT validationEIT.cpp ${OPEMEEG_HEADERS} LIBRARIES OpenMEEG OpenMEEGMaths ${LAPACK_LIBRARIES})
 
-############ TEST COMMON RESULTS ON HEAD1 (Regression test) ##############
+#   TEST COMMON RESULTS ON HEAD1 (Regression test)
 
 set(COMPARISONS HM HMInv SSM DSM v2eeg SurfGainEEG ESTEEG
                 Head2MEGMat SS2MM SurfGainMEG ESTMEG)
@@ -49,10 +41,11 @@ foreach (COMPARISON ${COMPARISONS})
         ${BASE_FILE_NAME} initialTest/${BASE_FILE_NAME} ${CompareOptions_${COMPARISON}})
 endforeach()
 
-############ TEST EEG RESULTS ON DIPOLES ##############
+#   TEST EEG RESULTS ON DIPOLES
 
 # defining variables for those who do not use VTK
 # TODO handle comparison test for NNX1 geom when not USE_VTK...
+
 if (USE_VTK) 
     set(NN "NNa" "NNb" "NNc")
     set(NNa "NNa")
@@ -102,7 +95,8 @@ if (TEST_HEAD3)
     endforeach()
 endif()
 
-# set tests that are expected to fail :
+#   Set tests that are expected to fail :
+
 foreach(ADJOINT "" "adjoint" "adjoint2")
     foreach(HEADGEO ${NNc1})
         foreach(DIP 1 2 3 4 5)
@@ -115,7 +109,10 @@ foreach(ADJOINT "" "adjoint" "adjoint2")
     endforeach()
 endforeach()
 
-set(VALIDATION_EIT "om_validationEIT")
+set(VALIDATION_EIT "${CMAKE_CURRENT_BINARY_DIR}/om_validationEIT")
+if (WIN32)
+    set(VALIDATION_EIT "${EXECUTABLE_OUTPUT_PATH}/om_validationEIT")
+endif()
 
 foreach(HEADGEO "")
     foreach(HEADNUM 1 2 ${HEAD3})
@@ -152,7 +149,8 @@ foreach(DIP 1 2 3 4 5)
     endforeach()
 endforeach()
 
-# set tests that are expected to fail :
+#   Set tests that are expected to fail :
+
 foreach(HEADGEO "1" ${NNa1} ${NNb1})
     SET_TESTS_PROPERTIES(cmp-EEGinternal-dip-Head${HEADGEO}-dip5 PROPERTIES WILL_FAIL TRUE)
 endforeach()
@@ -160,6 +158,7 @@ endforeach()
 set(EPSILON1 0.15)
 set(EPSILON2 0.14)
 set(EPSILON3 0.09)
+
 foreach(SENSORORIENT "" "-tangential" "-noradial")
     foreach(ADJOINT "" adjoint adjoint2)
         if (NOT(${ADJOINT} STREQUAL "adjoint" OR ${ADJOINT} STREQUAL "adjoint2") OR (SENSORORIENT STREQUAL ""))
@@ -183,11 +182,11 @@ foreach(SENSORORIENT "" "-tangential" "-noradial")
     endforeach()
 endforeach()
 
-# set tests that are expected to fail :
 foreach(HEADGEO ${NNc1})
     SET_TESTS_PROPERTIES(cmp-MEGEST-dip-Head${HEADGEO}-dip4-tangential-rdm PROPERTIES WILL_FAIL TRUE)
     SET_TESTS_PROPERTIES(cmp-MEGEST-dip-Head${HEADGEO}-dip5-tangential-rdm PROPERTIES WILL_FAIL TRUE)
 endforeach()
+
 foreach(HEADGEO "1" ${NNa1} ${NNb1})
     foreach(DIP 2 3 4 5)
         foreach(COMP mag rdm)
@@ -197,9 +196,11 @@ foreach(HEADGEO "1" ${NNa1} ${NNb1})
     SET_TESTS_PROPERTIES(cmp-MEGEST-dip-Head${HEADGEO}-dip4-noradial-mag   PROPERTIES WILL_FAIL TRUE)
     SET_TESTS_PROPERTIES(cmp-MEGEST-dip-Head${HEADGEO}-dip5-noradial-mag   PROPERTIES WILL_FAIL TRUE)
 endforeach()
+
 foreach(HEADGEO ${NNc2})
     SET_TESTS_PROPERTIES(cmp-MEGEST-dip-Head${HEADGEO}-dip5-tangential-rdm PROPERTIES WILL_FAIL TRUE)
 endforeach()
+
 foreach(HEADGEO "2" ${NNa2} ${NNb2})
     foreach(DIP 4 5)
         foreach(COMP mag rdm)

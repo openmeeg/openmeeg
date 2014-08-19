@@ -7,17 +7,17 @@
 # to load OpenMEEG's settings for an external project.
 
 # The OpenMEEG source tree.
-SET(OpenMEEG_SOURCE_DIR "@OPENMEEG_SOURCE_DIRECTORIES@")
+set(OpenMEEG_SOURCE_DIR "@OPENMEEG_SOURCE_DIRECTORIES@")
 
 # The OpenMEEG include file directories.
-SET(OpenMEEG_INCLUDE_DIRS "@OPENMEEG_INCLUDE_DIRECTORIES@")
+set(OpenMEEG_INCLUDE_DIRS "@OPENMEEG_INCLUDE_DIRECTORIES@")
 
 # The OpenMEEG library directories.
 # Includes OpenMEEG libs directory and OTHER libs directories
-SET(OpenMEEG_LIBRARY_DIRS "@OPENMEEG_LIBRARY_DIRECTORIES@")
+set(OpenMEEG_LIBRARY_DIRS "@OPENMEEG_LIBRARY_DIRECTORIES@")
 
 # This includes all libraries that OpenMEEG generates.
-SET(OpenMEEG_LIBRARIES "@OPENMEEG_LIBRARIES@")
+set(OpenMEEG_LIBRARIES "@OPENMEEG_LIBRARIES@")
 
 # The location of the UseOpenMEEG.cmake file.
-SET(OpenMEEG_USE_FILE "@OPENMEEG_USE_FILE@")
+set(OpenMEEG_USE_FILE "@OPENMEEG_USE_FILE@")

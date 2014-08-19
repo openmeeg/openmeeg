@@ -29,7 +29,7 @@ set(CPACK_PACKAGE_VERSION_PATCH ${PACKAGE_VERSION_PATCH})
 
 project(OpenMEEG C CXX)
 
-cmake_minimum_required(VERSION 2.6 FATAL_ERROR)
+cmake_minimum_required(VERSION 2.8.12 FATAL_ERROR)
 
 # By default, do not warn when built on machines using only VS Express:
 
@@ -235,7 +235,6 @@ set(OPENMEEG_LIBRARY_DIRECTORIES
 )
 
 set(OPENMEEG_SOURCE_DIRECTORIES ${OpenMEEG_SOURCE_DIR})
-
 set(OPENMEEG_LIBRARIES OpenMEEG OpenMEEGMaths ${OPENMEEG_LIBRARIES})
 
 # This section uses the OPENMEEG_INCLUDE_DIRECTORIES variable.

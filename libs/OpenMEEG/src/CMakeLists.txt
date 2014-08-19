@@ -21,7 +21,7 @@ set(OpenMEEG_SOURCES
     danielsson.cpp geometry.cpp operators.cpp sensors.cpp)
 
 create_library(OpenMEEG ${OpenMEEG_SOURCES})
-target_link_libraries(OpenMEEG OpenMEEGMaths ${OPENMEEG_LIBRARIES} ${matio_LIBRARIES} ${LAPACK_LIBRARIES})
+target_link_libraries(OpenMEEG PUBLIC OpenMEEGMaths PRIVATE ${OPENMEEG_LIBRARIES} ${matio_LIBRARIES} ${LAPACK_LIBRARIES})
 
 #create_library(OpenMEEGInteractive ${OpenMEEG_SOURCES})
 #target_link_libraries(OpenMEEGInteractive OpenMEEGMathsInteractive ${OPENMEEG_LIBRARIES} ${LAPACK_LIBRARIES})
