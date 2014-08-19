@@ -7,7 +7,7 @@
 #  the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
 #  PURPOSE.
 
-cmake_minimum_required(VERSION 2.8.7)
+cmake_minimum_required(VERSION 2.8.12)
 
 # Set CMAKE_BUILD_TYPE to Release by default.
 
@@ -23,12 +23,6 @@ set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
 
 project(OpenMEEG-superProject)
 
-option(GIT_HTTPS "Use https protocol to get git repositories." ON)
-set(GIT_PREFIX "git@")
-if (GIT_HTTPS)
-    set(GIT_PREFIX "https://")
-endif()
-
 # Setup everything (MODULE_PATH, check environment, basic targets
 
 include(Setup)
@@ -36,21 +30,6 @@ include(Setup)
 # Define revision (TODO: Get revision from teh OpenMEEG repo).
 
 SetRevision(2 3 0 dev)
-
-#   Various OpenMEEG options that will be forwarded.
-
-OPTION(USE_ATLAS "Build the project using ATLAS" OFF)
-option(USE_MKL "Build the project with MKL" OFF)
-option(ENABLE_PACKAGING "Enable Packaging" OFF)
-option(ENABLE_PYTHON "Enable Python Wrapping" OFF)
-option(USE_OMP "Use OpenMP" OFF)
-option(BUILD_TESTING "Build the testing tree" OFF)
-option(BUILD_DOCUMENTATION "Build the documentation" OFF)
-
-#   Various matio options that will be forwarded.
-
-option(MATIO_BUILD_TESTING "Build matio tests" OFF)
-option(MATLAB_TESTING "Enable matlab read tests (requires a function matlab)" OFF)
 
 # Add packages
 
@@ -83,19 +62,4 @@ endif()
 
 subprojects(${MSINTTYPES} zlib hdf5 matio ${LAPACK} OpenMEEG)
 
-if (BUILD_TESTING)
-    add_custom_target(test
-        DEPENDS build-OpenMEEG
-        COMMAND cd OpenMEEG/build && make test)
-
-    add_custom_target(test-matio
-        DEPENDS build-matio
-        COMMAND cd matio/build && make test)
-
-    add_custom_target(test-all
-        DEPENDS test-matio test)
-endif()
-
-if (ENABLE_PACKAGING)
-    #include(Packaging)
-endif()
+add_subdirectory(Packaging)

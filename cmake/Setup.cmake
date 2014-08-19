@@ -1,3 +1,5 @@
+include(Options)
+
 set(GET_REVISIONS_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake/externals/get_revisions)
 
 # Add CMAKE_MODULE_PATH to superProjectConfig.cmake
@@ -35,3 +37,5 @@ include(SetTargets)
 include(CheckEnvironment)
 include(ConfigureExternalProjects)
 include(InstallPaths)
+include(UninstallTargets)
+include(TestingTargets)
