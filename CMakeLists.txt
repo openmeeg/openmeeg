@@ -175,45 +175,9 @@ endif()
 
 subdirs(Wrapping)
 
-#-----------------------------------------------
-# Support for make uninstall
-#-----------------------------------------------
-
-configure_file(
-    "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cmake_uninstall.cmake.in"
-    "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
-    IMMEDIATE @ONLY)
-
-add_custom_target(uninstall
-    "${CMAKE_COMMAND}" -P "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake")
-
-#-----------------------------------------------
-# Code Syntax Checking with KWStyle
-#-----------------------------------------------
-
-option(CHECK_SYNTAX "Checking code syntax using KWStyle" OFF)
-mark_as_advanced(CHECK_SYNTAX)
-
-if (CHECK_SYNTAX)
-    add_custom_target(check_syntax
-        COMMAND KWStyle -xml ${OpenMEEG_SOURCE_DIR}/OpenMEEGConfig.kws.xml -html ${OpenMEEG_BINARY_DIR}/KWStyleCheck -D KWStyleFilesToCheck.txt -v
-        WORKING_DIRECTORY ${OpenMEEG_SOURCE_DIR})
-endif()
-
-#-----------------------------------------------
-# Progress bar
-#-----------------------------------------------
-
-option(USE_PROGRESSBAR "Show ascii progress bar when assembling matrices" OFF)
-
-if (USE_PROGRESSBAR)
-    add_definitions(-DUSE_PROGRESSBAR)
-endif()
-
-#-----------------------------------------------
-# packaging
-#-----------------------------------------------
-
+include(Uninstall)
+include(KWStyle)
+include(ProgressBar)
 include(Packaging)
 
 #######################################################################
