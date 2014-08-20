@@ -56,12 +56,8 @@ macro(ep_Initialisation project BUILD_SHARED_LIBS build_shared_libs_def)
     # Define a directory for each target of the project
     # On Windows/Mac make a single install dir so that libraries can be found for testing.
 
-    set(DIR_VAR_NAMES DOWNLOAD BINARY STAMP TMP)
-    set(DIR_NAMES     ""       build  stamp tmp)
-    if (LINUX)
-        set(DIR_VAR_NAMES ${DIR_VAR_NAMES} INSTALL)
-        set(DIR_NAMES     ${DIR_NAMES}     install)
-    endif()
+    set(DIR_VAR_NAMES DOWNLOAD BINARY STAMP TMP INSTALL)
+    set(DIR_NAMES     ""       build  stamp tmp install)
 
     list(LENGTH DIR_VAR_NAMES dirnum)
     math(EXPR dirnum ${dirnum}-1)
@@ -73,11 +69,6 @@ macro(ep_Initialisation project BUILD_SHARED_LIBS build_shared_libs_def)
         string(TOLOWER "${var}" varname)
         set(${varname}_dir ${ep}/${dir})
     endforeach()
-
-    if (NOT LINUX)
-        set(install_dir install)
-        set(dirs ${dirs} INSTALL_DIR ${install_dir})
-    endif()
 
     # Look for and define the source directory of the project 
 

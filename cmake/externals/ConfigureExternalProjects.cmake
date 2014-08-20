@@ -13,9 +13,6 @@
 
 # Add common variables for all external-projects
 
-set(CMAKE_INSTALL_PREFIX "" )  
-mark_as_advanced(CMAKE_INSTALL_PREFIX)
-
 set(ep_common_c_flags 
     "${CMAKE_C_FLAGS} ${CMAKE_C_FLAGS_INIT} ${ADDITIONAL_C_FLAGS}")
 
@@ -71,6 +68,9 @@ endmacro()
 
 macro(subprojects)
     
+    set(SAVED_CMAKE_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX})
+    set(CMAKE_INSTALL_PREFIX "" )  
+
     foreach (project ${ARGN})
 
         set(use_system_def OFF)
@@ -100,6 +100,10 @@ macro(subprojects)
         endif()
     endforeach()
 
+    set(CMAKE_INSTALL_PREFIX ${SAVED_CMAKE_INSTALL_PREFIX})
+
+    #   Add global targets.
+
     add_custom_target(update
         DEPENDS ${update_dependencies}
         COMMAND echo All project have been updated. 
@@ -107,4 +111,16 @@ macro(subprojects)
     )
       
     add_custom_target(build DEPENDS ${build_dependencies})
+
+    if (BUILD_TESTING)
+        add_custom_target(check DEPENDS ${TEST_TARGETS})
+    endif()
+
+    foreach (i ${INSTALL_DIRS})
+        message("install(DIRECTORY ${i} DESTINATION ${CMAKE_INSTALL_PREFIX})")
+        install(DIRECTORY ${i} DESTINATION ${CMAKE_INSTALL_PREFIX})
+    endforeach()
+
+    add_custom_target(uninstall DEPENDS ${UNINSTALL_TARGETS})
+
 endmacro()

@@ -62,12 +62,4 @@ endif()
 
 subprojects(${MSINTTYPES} zlib hdf5 matio ${LAPACK} OpenMEEG)
 
-#   Add global targets.
-
-if (BUILD_TESTING)
-    add_custom_target(test-all DEPENDS ${TEST_TARGETS})
-endif()
-
-add_custom_target(uninstall DEPENDS ${UNINSTALL_TARGETS})
-
 include(Packaging)

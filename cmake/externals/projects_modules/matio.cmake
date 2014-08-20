@@ -75,6 +75,9 @@ function(matio_project)
 
     # Add custom targets
 
-    EP_AddCustomTargets(${ep} TESTS)
+    if (MATIO_BUILD_TESTING)
+        set(MATIO_TESTING TESTS)
+    endif()
+    EP_AddCustomTargets(${ep} ${MATIO_TESTING})
 
 endfunction()
