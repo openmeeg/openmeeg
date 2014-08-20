@@ -69,94 +69,87 @@ namespace OpenMEEG {
         }
     }
 
-	template<class T>
-	void deflat(T& M, const Geometry& geo)
-	{
-		//deflat every outermost interface
-		unsigned nb_vertices=0,i_first=0; //number of outermost vertices
-		double coef=0.0;
-		for (std::vector<std::vector<std::string>>::const_iterator git=geo.geo_group().begin();git!=geo.geo_group().end();++git){
-			nb_vertices=0;
-			i_first=0;
-			for (std::vector<std::string>::const_iterator mit=git->begin();mit!=git->end();++mit){
-				const Mesh msh=geo.mesh(*mit);
-				if(msh.outermost()){
-					nb_vertices+=msh.nb_vertices();
-					if(i_first==0){
-						i_first=(*msh.vertex_begin())->index();
-					}
-				}
-			}
-			double a=M(i_first,i_first);
-			coef=a/nb_vertices;
-			for (std::vector<std::string>::const_iterator mit=git->begin();mit!=git->end();++mit){
-				Mesh msh=geo.mesh(*mit);
-				if(msh.outermost()){
-					for ( Mesh::const_vertex_iterator vit1=msh.vertex_begin(); vit1!=msh.vertex_end();++vit1) {
-						#pragma omp parallel for
-						#ifndef OPENMP_3_0
-						for (int i2=vit1-msh.vertex_begin();i2<msh.vertex_size();++i2) {
-							const Mesh::const_vertex_iterator vit2 = msh.vertex_begin()+i2;
-						#else
-						for (Mesh::const_vertex_iterator vit2=vit1;vit2<msh.vertex_end();++vit2) {
-						#endif
-							M((*vit1)->index(),(*vit2)->index()) += coef;
-						}
-					}
-				}
-			}
-		}
-	}
+    template<class T>
+    void deflat(T& M, const Geometry& geo)
+    {
+        //deflat every outermost interface
+        unsigned nb_vertices=0,i_first=0; //number of outermost vertices
+        double coef=0.0;
+        for (std::vector<std::vector<std::string>>::const_iterator git=geo.geo_group().begin();git!=geo.geo_group().end();++git){
+            nb_vertices=0;
+            i_first=0;
+            for (std::vector<std::string>::const_iterator mit=git->begin();mit!=git->end();++mit){
+                const Mesh msh=geo.mesh(*mit);
+                if(msh.outermost()){
+                    nb_vertices+=msh.nb_vertices();
+                    if(i_first==0)
+                        i_first=(*msh.vertex_begin())->index();
+                }
+            }
+            double a=M(i_first,i_first);
+	    coef=a/nb_vertices;
+	    for (std::vector<std::string>::const_iterator mit=git->begin();mit!=git->end();++mit){
+                Mesh msh=geo.mesh(*mit);
+                if(msh.outermost()){
+                    for (Mesh::const_vertex_iterator vit1=msh.vertex_begin(); vit1!=msh.vertex_end();++vit1) {
+                        #pragma omp parallel for
+                        #ifndef OPENMP_3_0
+                        for (int i2=vit1-msh.vertex_begin();i2<msh.vertex_size();++i2) {
+                            const Mesh::const_vertex_iterator vit2 = msh.vertex_begin()+i2;
+                        #else
+                        for (Mesh::const_vertex_iterator vit2=vit1;vit2<msh.vertex_end();++vit2) {
+                        #endif
+                            M((*vit1)->index(),(*vit2)->index()) += coef;
+                        }
+                    }
+                }
+	    }
+        }
+    }
 
     void assemble_HM(const Geometry& geo, SymMatrix& mat, const unsigned gauss_order) 
     {
-        mat = SymMatrix((geo.size()-geo.nb_0_triangles()));
+        mat = SymMatrix((geo.size()-geo.nb_current_barrier_triangles()));
         mat.set(0.0);
         double K = 1.0 / (4.0 * M_PI);
 
         // We iterate over the meshes (or pair of domains) to fill the lower half of the HeadMat (since its symmetry)
-        for ( Geometry::const_iterator mit1 = geo.begin(); mit1 != geo.end(); ++mit1) {
-			if(mit1->isolated()){
-				continue;
-			}
-            for ( Geometry::const_iterator mit2 = geo.begin(); (mit2 != (mit1+1)); ++mit2) {
-				if(mit2->isolated()||geo.sigma(*mit1,*mit2)==0.0){
-					continue;
-				}
-                // if mit1 and mit2 communicate, i.e they are used for the definition of a common domain
-                const int orientation = geo.oriented(*mit1, *mit2); // equals  0, if they don't have any domains in common
-                                                                       // equals  1, if they are both oriented toward the same domain
-                                                                       // equals -1, if they are not
+        for(Geometry::const_iterator mit1 = geo.begin(); mit1 != geo.end(); ++mit1) {
+            if(!mit1->isolated()){
+                for(Geometry::const_iterator mit2 = geo.begin(); (mit2 != (mit1+1)); ++mit2) {
+                    if((!mit2->isolated()) && (geo.sigma(*mit1,*mit2)!=0.0)){
+                        // if mit1 and mit2 communicate, i.e they are used for the definition of a common domain
+                        const int orientation = geo.oriented(*mit1, *mit2); // equals  0, if they don't have any domains in common
+                                                                            // equals  1, if they are both oriented toward the same domain
+                                                                            // equals -1, if they are not
+                        if(orientation!=0){
+                            double Scoeff =   orientation * geo.sigma_inv(*mit1, *mit2) * K;
+                            double Dcoeff = - orientation * geo.indicator(*mit1, *mit2) * K;
+                            double Ncoeff;
 
-                if ( orientation != 0 ) {
+                            if( (!mit1->current_barrier()) && (!mit2->current_barrier()) ) {
+                                // Computing S block first because it's needed for the corresponding N block
+                                operatorS(*mit1, *mit2, mat, Scoeff, gauss_order);
+                                Ncoeff = geo.sigma(*mit1, *mit2)/geo.sigma_inv(*mit1, *mit2);
+                            }else{
+                                Ncoeff = orientation * geo.sigma(*mit1, *mit2) * K;
+                            }
 
-                    double Scoeff =   orientation * geo.sigma_inv(*mit1, *mit2) * K;
-                    double Dcoeff = - orientation * geo.indicator(*mit1, *mit2) * K;
-                    double Ncoeff;
-
-                    if ( !(mit1->touch_0_cond()||mit2->touch_0_cond()) ) {
-                        // Computing S block first because it's needed for the corresponding N block
-                        operatorS(*mit1, *mit2, mat, Scoeff, gauss_order);
-                        Ncoeff = geo.sigma(*mit1, *mit2)/geo.sigma_inv(*mit1, *mit2);
-                    } else {
-                        Ncoeff = orientation * geo.sigma(*mit1, *mit2) * K;
+                            if(!mit1->current_barrier()){
+                                // Computing D block
+                                operatorD(*mit1, *mit2, mat, Dcoeff, gauss_order,false);
+                            }
+                            if((*mit1!=*mit2) && (!mit2->current_barrier())){
+                                // Computing D* block
+                                operatorD(*mit1, *mit2, mat, Dcoeff, gauss_order, true);
+                            }
+                            // Computing N block
+                            operatorN(*mit1, *mit2, mat, Ncoeff, gauss_order);
+                        }
                     }
-
-                    if ( !mit1->touch_0_cond() ) {
-                        // Computing D block
-                        operatorD(*mit1, *mit2, mat, Dcoeff, gauss_order,false);
-                    }
-                    if ( ( *mit1 != *mit2 ) && ( !mit2->touch_0_cond() ) ) {
-                        // Computing D* block
-                        operatorD(*mit1, *mit2, mat, Dcoeff, gauss_order, true);
-                    }
-
-                    // Computing N block
-                    operatorN(*mit1, *mit2, mat, Ncoeff, gauss_order);
                 }
             }
         }
-
         // Deflate every outermost interface
         deflat(mat,geo);
     }
