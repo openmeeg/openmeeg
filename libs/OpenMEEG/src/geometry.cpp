@@ -381,6 +381,7 @@ namespace OpenMEEG {
                         std::pair<std::set<std::string>::iterator, bool> ret=touch_0_mesh.insert(omit->mesh().name());
                         if(!ret.second){
                             omit->mesh().isolated()=true;
+                            omit->mesh().outermost()=false;
                             std::cout<<"Mesh \""<<omit->mesh().name()<<"\" will be excluded from computation because it touches non-conductive domains on both sides."<<std::endl;
                             //add all of its vertices to invalid_vertices
                             for(Mesh::const_vertex_iterator vit=omit->mesh().vertex_begin();vit!=omit->mesh().vertex_end();++vit)
@@ -415,6 +416,16 @@ namespace OpenMEEG {
         for(std::set<Vertex>::const_iterator vit=shared_vtx.begin();vit!=shared_vtx.end();++vit)
   	    invalid_vertices_.erase(*vit);
 
+        //redefine outermost interface
+        //the inside of a 0-cond domain is considered as a new outermost
+        for(Domains::iterator dit=domain_begin();dit!=domain_end();++dit)
+            if(dit->sigma()==0.0)
+                for(Domain::iterator hit=dit->begin();hit!=dit->end();++hit)
+                    if(!hit->inside())
+                        for(Interface::iterator omit=hit->first.begin();omit!=hit->first.end();++omit)
+                            if(omit->mesh().current_barrier()&&!omit->mesh().isolated())
+                                omit->mesh().outermost()=true;
+
         //detect isolated geometries
         if(mesh_conn.size()>1){
             std::cout<<"The geometry is cut into several unrelated parts by non-conductive domains."<<std::endl;
@@ -426,16 +437,6 @@ namespace OpenMEEG {
                     std::cout<<"\""<<meshes()[mesh_conn[iit][miit]].name()<<"\" ";
                 std::cout<<"}."<<std::endl;
             }
-
-	    //redefine outermost interface
-	    //the inside of a 0-cond domain is considered as a new outermost
-	    for(Domains::iterator dit=domain_begin();dit!=domain_end();++dit)
-                if(dit->sigma()==0.0)
-                    for(Domain::iterator hit=dit->begin();hit!=dit->end();++hit)
-                        if(!hit->inside())
-                            for(Interface::iterator omit=hit->first.begin();omit!=hit->first.end();++omit)
-                                if(omit->mesh().current_barrier()&&!omit->mesh().isolated())
-                                    omit->mesh().outermost()=true;
 
 	    //count geo_group
             for(unsigned git=0;git<mesh_conn.size();++git){

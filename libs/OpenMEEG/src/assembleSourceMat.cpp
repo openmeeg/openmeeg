@@ -153,29 +153,20 @@ namespace OpenMEEG {
         //  transmat = a big SymMatrix of which mat = part of its transpose.
         SymMatrix transmat(geo.size());
         transmat.set(0.0);
-        mat = Matrix((geo.size()-geo.outermost_interface().nb_triangles()), n_sensors);
-        mat.set(0.);
+        mat = Matrix((geo.size()-geo.nb_current_barrier_triangles()), n_sensors);
+        mat.set(0.0);
 
-        const Interface& i = geo.outermost_interface();
-
-        // We iterate over the meshes (or pair of domains)
-        for ( Interface::const_iterator omit1 = i.begin(); omit1 != i.end(); ++omit1) {
-            for ( Geometry::const_iterator mit2 = geo.begin(); mit2 != geo.end(); ++mit2) {
-
-                const int orientation = geo.oriented(omit1->mesh(), *mit2); // equals  0, if they don't have any domains in common
-                                                                  // equals  1, if they are both oriented toward the same domain
-                                                                  // equals -1, if they are not
-                if ( orientation != 0 ) {
-                    //  Compute S.
-                    operatorS(*mit2, omit1->mesh(), transmat, geo.sigma_inv(omit1->mesh(), *mit2) * ( -1. * K * orientation), gauss_order);
-
-                    //  First compute D.
-                    operatorD(*mit2, omit1->mesh(), transmat, (K * orientation), gauss_order, true);
-                    if ( omit1->mesh() == *mit2 ) {
-                        operatorP1P0(omit1->mesh(), transmat, 0.5 * orientation);
+        for(Geometry::const_iterator mit0=geo.begin();mit0!=geo.end();++mit0){
+            if(mit0->current_barrier())
+                for(Geometry::const_iterator mit1=geo.begin();mit1!=geo.end();++mit1){
+                    const int orientation=geo.oriented(*mit0,*mit1);
+                    if(orientation!=0){
+                        operatorS(*mit1,*mit0,transmat,geo.sigma_inv(*mit0,*mit1)*(-1.0*K*orientation),gauss_order);
+                        operatorD(*mit1,*mit0,transmat,(K*orientation),gauss_order,true);
+                        if(*mit0==*mit1)
+                            operatorP1P0(*mit0,transmat,0.5*orientation);
                     }
                 }
-            }
         }
 
         for ( unsigned ielec = 0; ielec < n_sensors; ++ielec) {
@@ -187,7 +178,7 @@ namespace OpenMEEG {
                 if ( electrodes.getRadius()(0) < 1e3*std::numeric_limits<double>::epsilon() ) {
                     inv_area = 1./tit->area();
                 }
-                for ( unsigned i = 0; i < (geo.size() - geo.outermost_interface().nb_triangles()); ++i) {
+                for ( unsigned i = 0; i < (geo.size() - geo.nb_current_barrier_triangles()); ++i) {
                     mat(i, ielec) += transmat(tit->index(), i) * inv_area;
                 }
             }
