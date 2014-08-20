@@ -145,7 +145,7 @@ namespace OpenMEEG
         Triangle local_nearest_triangle;
         double distance;
 
-        for ( Domains::const_iterator dit = g.domain_begin(); dit != g.domain_end(); ++dit){
+        for(Domains::const_iterator dit = g.domain_begin(); dit != g.domain_end(); ++dit)
             if( dit->sigma() == 0.0 ){
                 for ( Domain::const_iterator hit = dit->begin(); hit != dit->end(); ++hit){
                     distance=dist_point_interface(p,hit->interface(),alphas,local_nearest_triangle);
@@ -156,7 +156,6 @@ namespace OpenMEEG
                     }
                 }
             }
-        }
         dist=distmin;
         return name_nearest_interface;
     }

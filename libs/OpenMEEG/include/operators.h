@@ -162,7 +162,7 @@ namespace OpenMEEG {
 
                 // In the second case, we here divided (precalculated) operatorS by the product of areas.
 
-                const double Iqr = (m1.touch_0_cond() || m2.touch_0_cond()) ?
+                const double Iqr = (m1.current_barrier() || m2.current_barrier()) ?
                      mat((*tit1)->index()-m1.begin()->index(),(*tit2)->index()-m2.begin()->index()) :
                      mat((*tit1)->index(),(*tit2)->index())/((*tit1)->area()*(*tit2)->area());
 
@@ -195,7 +195,7 @@ namespace OpenMEEG {
 
         unsigned i = 0; // for the PROGRESSBAR
         if (&m1==&m2) {
-            if (m1.touch_0_cond()) {
+            if (m1.current_barrier()) {
                 // we thus precompute operator S divided by the product of triangles area.
 
                 SymMatrix matS(m1.nb_triangles());
@@ -239,7 +239,7 @@ namespace OpenMEEG {
                 }
             }
         } else {
-            if ( m1.touch_0_cond() || m2.touch_0_cond() ) {
+            if ( m1.current_barrier() || m2.current_barrier() ) {
                 // we thus precompute operator S divided by the product of triangles area.
                 Matrix matS(m1.nb_triangles(), m2.nb_triangles());
                 for (Mesh::const_iterator tit1 = m1.begin(); tit1 != m1.end(); ++tit1) {

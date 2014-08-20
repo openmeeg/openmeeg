@@ -214,12 +214,12 @@ namespace OpenMEEG {
         ~GainStimInternalPot () {};
     };
 
-   class GainEITIP : public Matrix {
+   class GainEITInternalPot : public Matrix {
    public:
-	   using Matrix::operator=;
-	   GainEITIP (const SymMatrix& HeadMatInv,const Matrix& SourceMat, const Matrix& Head2IPMat) {
-		   *this = (Head2IPMat*HeadMatInv)*SourceMat;
-	   }
-	   ~GainEITIP () {};
+        using Matrix::operator=;
+        GainEITInternalPot (const SymMatrix& HeadMatInv,const Matrix& SourceMat, const Matrix& Head2IPMat) {
+                *this = (Head2IPMat*HeadMatInv)*SourceMat;
+            }
+        ~GainEITInternalPot() {};
    };
 }
