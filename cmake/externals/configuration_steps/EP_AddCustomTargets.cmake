@@ -35,5 +35,23 @@ macro(EP_AddCustomTargets ep)
         COMMENT "build '${ep}' with 'cmake --build . --config ${CMAKE_BUILD_TYPE}'"
         DEPENDS ${build-${ep}_dependences})
     set(build-${ep} ON PARENT_SCOPE)
+    set(BUILD_TARGETS ${BUILD_TARGETS} build-${ep} PARENT_SCOPE)
 
+    add_custom_target(uninstall-${ep}
+                      COMMAND ${CMAKE_COMMAND} --build . --target uninstall
+                      WORKING_DIRECTORY ${binary_dir})
+    set(UNINSTALL_TARGETS ${UNINSTALL_TARGETS} uninstall-${ep} PARENT_SCOPE)
+
+    set(extra_parms ${ARGN})
+    list(LENGTH ${extra_parms} num_extra_parms)
+    if (${num_extra_parms} GREATER 0)
+        list(GET extra_parms 0 optional_arg)
+        if (BUILD_TESTING AND "${optional_arg}" STREQUAL "TESTS")
+            add_custom_target(test-${ep}
+                              COMMAND ${CMAKE_COMMAND} --build . --target test
+                              DEPENDS build-${ep}
+                              WORKING_DIRECTORY ${binary_dir})
+            set(TEST_TARGETS ${TEST_TARGETS} test-${ep} PARENT_SCOPE)
+        endif()
+    emdif()
 endmacro()

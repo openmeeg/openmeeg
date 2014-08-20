@@ -75,6 +75,6 @@ function(matio_project)
 
     # Add custom targets
 
-    EP_AddCustomTargets(${ep})
+    EP_AddCustomTargets(${ep} TESTS)
 
 endfunction()
