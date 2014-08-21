@@ -203,19 +203,23 @@ set(OPENMEEG_LIBRARIES OpenMEEG OpenMEEGMaths ${OPENMEEG_LIBRARIES})
 
 # This section uses the OPENMEEG_INCLUDE_DIRECTORIES variable.
 # Copy the UseOpenMEEG.cmake file to the binary tree for backward compatability.
+
 configure_file(
     ${OpenMEEG_SOURCE_DIR}/cmake/UseOpenMEEG.cmake.in
     ${OpenMEEG_BINARY_DIR}/UseOpenMEEG.cmake COPYONLY IMMEDIATE)
 
 # The "use" file.
+
 set(OPENMEEG_USE_FILE ${OpenMEEG_BINARY_DIR}/UseOpenMEEG.cmake)
 
 # Configure OpenMEEGConfig.cmake for the build tree.
+
 configure_file(
     ${OpenMEEG_SOURCE_DIR}/cmake/OpenMEEGConfig.cmake.in
     ${OpenMEEG_BINARY_DIR}/OpenMEEGConfig.cmake @ONLY IMMEDIATE)
 
 # Generate another configure for installation
+
 set(OPENMEEG_INCLUDE_DIRECTORIES
     ${OPENMEEG_HEADER_INSTALLDIR}
     ${OPENMEEG_OTHER_INCLUDE_DIRECTORIES}
@@ -226,9 +230,11 @@ set(OPENMEEG_LIBRARY_DIRECTORIES
 )
 
 # The "use" file.
+
 set(OPENMEEG_USE_FILE ${CMAKE_install_PREFIX}/lib/UseOpenMEEG.cmake)
 
 # Configure OpenMEEGConfig.cmake for the install tree.
+
 configure_file(
     ${OpenMEEG_SOURCE_DIR}/cmake/OpenMEEGConfig.cmake.in
     ${OpenMEEG_BINARY_DIR}/cmake/OpenMEEGConfig.cmake @ONLY IMMEDIATE)
@@ -239,11 +245,17 @@ install(FILES ${OpenMEEG_BINARY_DIR}/UseOpenMEEG.cmake
 install(FILES ${OpenMEEG_BINARY_DIR}/cmake/OpenMEEGConfig.cmake
     DESTINATION ${INSTALL_DATA_DIR}/OpenMEEG/cmake)
 
+# Install README
+
+install(FILES ${PROJECT_SOURCE_DIR}/OpenMEEG/LICENSE.txt  ${PROJECT_SOURCE_DIR}/OpenMEEG/README.rst
+        DESTINATION ${INSTALL_DATA_DIR}/doc/OpenMEEG)
+
 # install generated headers OpenMEEGConfigure and FC
+
 install(FILES ${OpenMEEG_BINARY_DIR}/OpenMEEGConfigure.h
-    DESTINATION ${OPENMEEG_HEADER_INSTALLDIR} COMPONENT Development)
+        DESTINATION ${OPENMEEG_HEADER_INSTALLDIR} COMPONENT Development)
 
 if (USE_ATLAS)
     install(FILES ${OpenMEEG_BINARY_DIR}/FC.h
-           DESTINATION ${OPENMEEG_HEADER_INSTALLDIR} COMPONENT Development)
+            DESTINATION ${OPENMEEG_HEADER_INSTALLDIR} COMPONENT Development)
 endif()
