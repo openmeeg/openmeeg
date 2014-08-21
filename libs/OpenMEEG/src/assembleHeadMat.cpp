@@ -86,8 +86,7 @@ namespace OpenMEEG {
                         i_first=(*msh.vertex_begin())->index();
                 }
             }
-            double a=M(i_first,i_first);
-	    coef=a/nb_vertices;
+	    coef=M(i_first,i_first)/nb_vertices;
 	    for (std::vector<std::string>::const_iterator mit=git->begin();mit!=git->end();++mit){
                 Mesh msh=geo.mesh(*mit);
                 if(msh.outermost()){
