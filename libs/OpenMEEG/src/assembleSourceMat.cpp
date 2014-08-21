@@ -72,6 +72,7 @@ namespace OpenMEEG {
         
         // We here set it as an outermost (to tell _operarorN it doesn't belong to the geometry)
         mesh_source.outermost() = true;
+        mesh_source.current_barrier() = true;
 
         std::cout << std::endl << "assemble SurfSourceMat with " << nVertexSources << " mesh_source located in domain \"" << d.name() << "\"." << std::endl << std::endl;
 
@@ -198,7 +199,7 @@ namespace OpenMEEG {
         std::vector<Vect3>  points_;
         for ( unsigned i = 0; i < points.nlin(); ++i) {
             const Domain& d = geo.domain(Vect3(points(i, 0), points(i, 1), points(i, 2)));
-            if ( d.name() != "Air" ) {
+            if ( d.sigma() != 0.0 ) {
                 points_domain.push_back(d);
                 points_.push_back(Vect3(points(i, 0), points(i, 1), points(i, 2)));
             }

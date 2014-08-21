@@ -168,10 +168,7 @@ namespace OpenMEEG {
             unsigned index = 0;
             if (!OLD_ORDERING) 
                 for (Vertices::iterator pit=vertex_begin();pit != vertex_end();++pit)
-                    if(invalid_vertices_.empty()||invalid_vertices_.count(*pit)==0)
-                        pit->index() = index++;
-                    else
-                        pit->index() = unsigned(-1);
+                    (invalid_vertices_.empty()||invalid_vertices_.count(*pit)==0) ? pit->index()=index++ : unsigned(-1);
 
             for(iterator mit=begin();mit!=end();++mit){
                 if(OLD_ORDERING){
@@ -193,7 +190,7 @@ namespace OpenMEEG {
                             tit->index() = index++;
                     }else
                         for(Mesh::iterator tit=mit->begin();tit!=mit->end();++tit)
-                            tit->index()=-1;
+                            tit->index()=unsigned(-1);
 
             size_ = index;
         }else{ 
@@ -437,14 +434,13 @@ namespace OpenMEEG {
                     std::cout<<"\""<<meshes()[mesh_conn[iit][miit]].name()<<"\" ";
                 std::cout<<"}."<<std::endl;
             }
-
-	    //count geo_group
-            for(unsigned git=0;git<mesh_conn.size();++git){
-                std::vector<std::string> gg;
-                for(unsigned mit=0;mit<mesh_conn[git].size();++mit)
-                    gg.push_back(meshes()[mesh_conn[git][mit]].name());
-                geo_group_.push_back(gg);
-            }
+        }
+        //count geo_group
+        for(unsigned git=0;git<mesh_conn.size();++git){
+            std::vector<std::string> gg;
+            for(unsigned mit=0;mit<mesh_conn[git].size();++mit)
+                gg.push_back(meshes()[mesh_conn[git][mit]].name());
+            geo_group_.push_back(gg);
         }
     }
 }
