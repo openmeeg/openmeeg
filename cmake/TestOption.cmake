@@ -7,10 +7,8 @@ option(BUILD_TESTING "Build tests" OFF)
 if (BUILD_TESTING)
 
     if (WIN32)
-        foreach (i ${lapack_DIR} ${ZLIB_ROOT} ${HDF5_DIR} ${matio_DIR} ${INSTALL_BIN_DIR})
-            set(LIBRARY_PATHS "${i};${LIBRARY_PATHS}")
-        endforeach()
-        file(WRITE ${CMAKE_BINARY_DIR}/TestConfig.cmake "set(ENV{PATH} \"${LIBRARY_PATHS}}\$ENV{PATH}\")\n")
+        get_property(OM_ASSEMBLE_EXE TARGET om_assemble PROPERTY LOCATION)
+        configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/TestConfig.cmake.in ${CMAKE_BINARY_DIR}/TestConfig.cmake @ONLY)
         set_directory_properties(PROPERTIES TEST_INCLUDE_FILE "${CMAKE_BINARY_DIR}/TestConfig.cmake")
     endif()
 
