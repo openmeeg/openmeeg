@@ -61,4 +61,6 @@ endif()
 
 subprojects(${MSINTTYPES} zlib hdf5 matio ${LAPACK} OpenMEEG)
 
+configure_file("${PROECT_SOURCE_DIR}/OpenMEEG/README.rst"  "${PROJECT_SOURCE_DIR}/README.rst" COPYONLY)
+configure_file("${PROECT_SOURCE_DIR}/OpenMEEG/License.txt" "${PROJECT_SOURCE_DIR}/License,txt" COPYONLY)
 include(Packaging)
