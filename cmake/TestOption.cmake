@@ -7,14 +7,9 @@ option(BUILD_TESTING "Build tests" OFF)
 if (BUILD_TESTING)
 
     if (WIN32)
-        include(GetPrerequisites)
         get_property(OM_ASSEMBLE_EXE TARGET om_assemble PROPERTY LOCATION)
-        get_prerequisites(${OM_ASSEMBLE} PREREQUISITES 1 0 ${OM_ASSEMBLE} "")
-        foreach (i ${PREREQUISITES})
-            get_filename_component(dir ${i} REALPATH)
-            set(LIBRARY_PATHS "${dir};${LIBRARY_PATHS}")
-        endforeach()
-        file(WRITE ${CMAKE_BINARY_DIR}/TestConfig.cmake "set(ENV{PATH} \"${LIBRARY_PATHS}\$ENV{PATH}\")\n")
+        add_custom_command(TARGET om_assemble POST_BUILD
+                           COMMAND ${CMAKE_COMMAND} -DOM_ASSEMBLE_EXE:STRING=${OM_ASSEMBLE_EXE} TestConfigGeneration.cmake)
         set_directory_properties(PROPERTIES TEST_INCLUDE_FILE "${CMAKE_BINARY_DIR}/TestConfig.cmake")
     endif()
 
