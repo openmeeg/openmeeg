@@ -8,8 +8,9 @@ if (BUILD_TESTING)
 
     if (WIN32)
         get_property(OM_ASSEMBLE_EXE TARGET om_assemble PROPERTY LOCATION)
-        add_custom_command(TARGET om_assemble POST_BUILD
-                           COMMAND ${CMAKE_COMMAND} -DOM_ASSEMBLE_EXE:STRING=${OM_ASSEMBLE_EXE} TestConfigGeneration.cmake)
+        add_custom_target(TestConfig ALL
+                          COMMAND ${CMAKE_COMMAND} -DOM_ASSEMBLE_EXE:STRING="${OM_ASSEMBLE_EXE}" -P ${PROJECT_SOURCE_DIR}/cmake/TestConfigGeneration.cmake)
+        add_dependencies(TestConfig om_assemble)
         set_directory_properties(PROPERTIES TEST_INCLUDE_FILE "${CMAKE_BINARY_DIR}/TestConfig.cmake")
     endif()
 
