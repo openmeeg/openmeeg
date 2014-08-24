@@ -9,10 +9,10 @@ endif()
 option(USE_ATLAS "Build the project using ATLAS" OFF)
 option(USE_MKL "Build the project with MKL" OFF)
 option(ENABLE_PACKAGING "Enable Packaging" OFF)
-option(ENABLE_PYTHON "Enable Python Wrapping" OFF)
+option(ENABLE_PYTHON "Enable Python Wrapping" ON)
 option(USE_OMP "Use OpenMP" OFF)
-option(BUILD_TESTING "Build the testing tree" OFF)
-option(BUILD_DOCUMENTATION "Build the documentation" OFF)
+option(BUILD_TESTING "Build the testing tree" ON)
+option(BUILD_DOCUMENTATION "Build the documentation" ON)
 
 #   Various matio options that will be forwarded.
 

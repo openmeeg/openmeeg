@@ -54,7 +54,6 @@ macro(ep_Initialisation project BUILD_SHARED_LIBS build_shared_libs_def)
     endforeach() 
 
     # Define a directory for each target of the project
-    # On Windows/Mac make a single install dir so that libraries can be found for testing.
 
     set(DIR_VAR_NAMES DOWNLOAD BINARY STAMP TMP INSTALL)
     set(DIR_NAMES     ""       build  stamp tmp install)

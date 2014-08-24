@@ -1,3 +1,7 @@
+if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+    set(CMAKE_INSTALL_PREFIX "/usr" CACHE PATH "default install path" FORCE )
+endif()
+
 include(Options)
 
 set(GET_REVISIONS_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake/externals/get_revisions)
