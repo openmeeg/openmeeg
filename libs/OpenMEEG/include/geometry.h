@@ -102,7 +102,7 @@ namespace OpenMEEG {
               unsigned   nb_triangles()                   const { return (size_-vertices_.size()); }
               unsigned   nb_domains()                     const { return domains_.size(); }
               unsigned   nb_meshes()                      const { return meshes_.size(); }
-        const Interface& outermost_interface()           const; ///< \brief returns the outermost Interfaces of the geometry (with multiple 0-cond you can probably have more than 1 outermost interfaces)
+        const Interface& outermost_interface()            const; ///< \brief returns the outermost Interfaces of the geometry (with multiple 0-cond you can probably have more than 1 outermost interfaces)
         const Interface& interface(const std::string& id) const; ///< \brief returns the Interface called id \param id Interface name
         const Domain&    domain(const std::string& id)    const; ///< \brief returns the Domain called id \param id Domain name
         const Domain&    domain(const Vect3& p)           const; ///< \brief returns the Domain containing the point p \param p a point
@@ -139,7 +139,7 @@ namespace OpenMEEG {
               double  funct_on_domains(const Mesh&, const Mesh&, const Function& ) const;
 
 
-		///handle multiple 0 conductivity domains
+    ///handle multiple 0 conductivity domains
     private:
         std::set<Vertex>	invalid_vertices_; //does not equal to the vertices of invalid meshes because there are shared vertices
         unsigned                nb_current_barrier_triangles_;   //number of triangles with 0 normal currnet. Including triangles of invalid meshes.

@@ -63,17 +63,15 @@ namespace OpenMEEG {
         // should never append
     }
 
-	const Mesh&  Geometry::mesh(const std::string& id) const
-	{
-		for (const_iterator mit = begin() ; mit != end(); ++mit) {
-			if ( id == mit->name() ) {
-				return *mit;
-			}
-		}
-		warning(std::string("Geometry::mesh: Error mesh id/name not found: ") + id);
-		throw OpenMEEG::BadInterface(id);
-		// should never append
-	}
+    const Mesh&  Geometry::mesh(const std::string& id) const {
+        for (const_iterator mit=begin(); mit!=end(); ++mit) {
+            if(id==mit->name()) 
+                return *mit;
+        }
+            // should never append
+            warning(std::string("Geometry::mesh: Error mesh id/name not found: ") + id);
+            throw OpenMEEG::BadInterface(id);
+    }
 
     void Geometry::info(const bool verbous) const {
         if (is_nested_) {
@@ -336,12 +334,12 @@ namespace OpenMEEG {
     }
 
     //mark all meshes which touch domains with 0 conductivity
-    void Geometry::mark_current_barrier(){
+    void Geometry::mark_current_barrier() {
+
         //figure out the connectivity of meshes
         std::vector<int> mesh_idx;
-        for(unsigned i=0;i<meshes().size();i++){
+        for(unsigned i=0;i<meshes().size();i++)
 	        mesh_idx.push_back(i);
-        }
         std::vector<std::vector<int>> mesh_conn;
         std::vector<int> mesh_connected,mesh_diff;
         std::set_difference(mesh_idx.begin(),mesh_idx.end(),mesh_connected.begin(),mesh_connected.end(),std::insert_iterator<std::vector<int>>(mesh_diff,mesh_diff.end()));
