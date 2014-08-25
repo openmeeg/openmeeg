@@ -26,6 +26,7 @@ if (USE_MKL)
 	find_package(MKL)
 	if (MKL_FOUND)
 		include_directories(${MKL_INCLUDE_DIR})
+        set(lapack_DIR ${MKL_ROOT_DIR})
 		set(LAPACK_LIBRARIES ${MKL_LIBRARIES})
         #message(${LAPACK_LIBRARIES}) # for debug
 		if(UNIX AND NOT APPLE) # MKL on linux requires to link with the pthread library
@@ -75,6 +76,7 @@ if (USE_ATLAS)
                 NO_SYSTEM_ENVIRONMENT_PATH
                 NO_CMAKE_SYSTEM_PATH)
             if(${LIB}_PATH)
+                set(lapack_DIR ${${LIB}_PATH})
                 set(LAPACK_LIBRARIES ${LAPACK_LIBRARIES} ${${LIB}_PATH})
                 mark_as_advanced(${LIB}_PATH)
             else()
