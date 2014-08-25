@@ -7,11 +7,13 @@ option(BUILD_TESTING "Build tests" OFF)
 if (BUILD_TESTING)
 
     if (WIN32)
-        get_property(OM_ASSEMBLE_EXE TARGET om_assemble PROPERTY LOCATION)
-        add_custom_target(TestConfig ALL
-                          COMMAND ${CMAKE_COMMAND} -DOM_ASSEMBLE_EXE:STRING="${OM_ASSEMBLE_EXE}" -P ${PROJECT_SOURCE_DIR}/cmake/TestConfigGeneration.cmake)
-        add_dependencies(TestConfig om_assemble)
-        set_directory_properties(PROPERTIES TEST_INCLUDE_FILE "${CMAKE_BINARY_DIR}/TestConfig.cmake")
+        set(TestConfigFile "${CMAKE_BINARY_DIR}/TestConfig.cmake")
+        set(INSTALL_DIRS ${ZLIB_ROOT} ${HDF5_DIR} ${matio_DIR} ${lapack_DIR} ${VTK_LIBRARY_DIRS} ${CGAL_LIBRARY_DIRS} ${NIFTI_DIR})
+        foreach (dir ${INSTALL_DIRS})
+            set(LIBRARY_PATHS "${dir};${LIBRARY_PATHS}")
+        endforeach()
+        file(WRITE ${TestConfigFile} "set(ENV{PATH} \"${LIBRARY_PATHS}\$ENV{PATH}\")\n")
+        set_directory_properties(PROPERTIES TEST_INCLUDE_FILE "${TestConfigFile}")
     endif()
 
     set(CTEST_BUILD_NAME "${CMAKE_SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR}")
