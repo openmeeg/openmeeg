@@ -142,7 +142,7 @@ namespace OpenMEEG {
         const_vertex_reverse_iterator vertex_rbegin() const { return vertices_.rbegin(); }
         const_vertex_reverse_iterator vertex_rend()   const { return vertices_.rend(); }
 		
-		      std::string &           name()                { return name_; } ///< \return the mesh name
+        std::string &                 name()                { return name_; } ///< \return the mesh name
         const std::string &           name()          const { return name_; } ///< \return the mesh name
 
         const VectPVertex &           vertices()      const { return vertices_; } ///< \return the vector of pointers to the mesh vertices
