@@ -1,14 +1,14 @@
 include(ComparisonTest)
 
 set_file_properties(Suffix
-    "HM .hm" "HMInv .hm_inv" "DSM .dsm" "SSM .ssm" "v2eeg .h2em" "SurfGainEEG .sgem"
+    "HM .hm" "HMInv .hm_inv" "DSM .dsm" "SSM .ssm" "H2EM .h2em" "SurfGainEEG .sgem"
     "ESTEEG .est_eeg" "EEGadjointEST .est_eegadjoint" "MEGadjointEST .est_megadjoint"
-    "Head2MEGMat .h2mm" "SS2MM .ss2mm" "SurfGainMEG .sgmm" "ESTMEG .est_meg"
+    "H2MM .h2mm" "SS2MM .ss2mm" "SurfGainMEG .sgmm" "ESTMEG .est_meg"
 )
 
 set_file_properties(CompareOptions
-    "HM -sym" "HMInv -sym" "DSM -full:-if1:binary:-if2:binary" "SSM -full:-if1:binary:-if2:binary" "v2eeg -if:binary:-sparse"
-    "SurfGainEEG -full" "ESTEEG -full" "Head2MEGMat -full" "SS2MM -full" "SurfGainMEG -full" "ESTMEG -full"
+    "HM -sym" "HMInv -sym" "DSM -full:-if1:binary:-if2:binary" "SSM -full:-if1:binary:-if2:binary" "H2EM -if:binary:-sparse"
+    "SurfGainEEG -full" "ESTEEG -full" "H2MM -full" "SS2MM -full" "SurfGainMEG -full" "ESTMEG -full"
 )
 
 #   IO TESTS
@@ -31,8 +31,8 @@ NEW_EXECUTABLE(om_validationEIT validationEIT.cpp ${OPEMEEG_HEADERS} LIBRARIES O
 
 #   TEST COMMON RESULTS ON HEAD1 (Regression test)
 
-set(COMPARISONS HM HMInv SSM DSM v2eeg SurfGainEEG ESTEEG
-                Head2MEGMat SS2MM SurfGainMEG ESTMEG)
+set(COMPARISONS HM HMInv SSM DSM H2EM SurfGainEEG ESTEEG
+                H2MM SS2MM SurfGainMEG ESTMEG)
 
 foreach (COMPARISON ${COMPARISONS})
     set(BASE_FILE_NAME Head1${Suffix_${COMPARISON}})
@@ -126,7 +126,7 @@ foreach(HEADGEO "")
             ${VALIDATION_EIT} ${MODELPREFIX}.geom ${MODELPREFIX}.cond
             ${DATADIR}/${HEAD}/${HEAD}.dip
             ${TESTPREFIX}.dsm ${TESTPREFIX}.hm_inv ${TESTPREFIX}.eit_qgradVj ${TESTPREFIX}.eit_diffVf
-            DEPENDS HMINV-${HEAD} DSM-${HEAD})
+            DEPENDS HMInv-${HEAD} DSM-${HEAD})
         foreach(DIP 1 2 3 4 5)
              # Compare the q.gradVj to diffVf in order to validate the EIT problem
             OPENMEEG_COMPARISON_TEST("EIT-${HEAD}-dip${DIP}"
