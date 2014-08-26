@@ -120,6 +120,6 @@ macro(subprojects)
         install(DIRECTORY ${i}/ USE_SOURCE_PERMISSIONS DESTINATION ${CMAKE_INSTALL_PREFIX})
     endforeach()
 
-    add_custom_target(uninstall DEPENDS ${UNINSTALL_TARGETS})
+    add_custom_target(clean DEPENDS ${CLEAN_TARGETS})
 
 endmacro()

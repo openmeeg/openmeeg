@@ -37,10 +37,11 @@ macro(EP_AddCustomTargets ep)
     set(build-${ep} ON PARENT_SCOPE)
     set(BUILD_TARGETS ${BUILD_TARGETS} build-${ep} PARENT_SCOPE)
 
-    add_custom_target(uninstall-${ep}
-                      COMMAND ${CMAKE_COMMAND} --build . --target uninstall
+    add_custom_target(clean-${ep}
+                      COMMAND ${CMAKE_COMMAND} --build . --target clean
+                      COMMAND ${CMAKE_COMMAND} -E remove_directory ${PROJECT_BINARY_DIR}/${ep}/install
                       WORKING_DIRECTORY ${binary_dir})
-    set(UNINSTALL_TARGETS ${UNINSTALL_TARGETS} uninstall-${ep} PARENT_SCOPE)
+    set(CLEAN_TARGETS ${CLEAN_TARGETS} clean-${ep} PARENT_SCOPE)
 
     set(INSTALL_DIRS ${INSTALL_DIRS} ${PROJECT_BINARY_DIR}/${ep}/install PARENT_SCOPE)
                       
