@@ -14,8 +14,8 @@ if (BUILD_TESTING)
         endif()
         set(TestConfigFile "${CMAKE_BINARY_DIR}/TestConfig.cmake")
         get_property(HDF5_LIB TARGET hdf5 PROPERTY LOCATION)
-        get_filename_component(HDF5_BIN_DIR ${HDF5_DIR} DIRECTORY)
-        set(DLL_DIRS "${ZLIB_ROOT}/bin" "${HDF5_ROOT_DIR}/bin" "${HDF5_BIN_DIR}" "${matio_ROOT_DIR}/bin"
+        get_filename_component(HDF5_ROOT_DIR ${HDF5_DIR} DIRECTORY)
+        set(DLL_DIRS "${ZLIB_ROOT}/bin" "${HDF5_ROOT_DIR}/bin" "${matio_ROOT_DIR}/bin"
                       "${LAPACK_DLL_DIR}" "${VTK_LIBRARY_DIRS}" "${CGAL_LIBRARY_DIRS}" "${NIFTI_DIR}")
         message("=== ${INSTALL_DIRS} - ${DLL_DIRS} ====")
         foreach (dir ${DLL_DIRS})
