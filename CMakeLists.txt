@@ -109,6 +109,13 @@ if (NOT HAVE_ISNORMAL_IN_NAMESPACE_STD)
     check_symbol_exists(isnormal math.h HAVE_ISNORMAL_IN_MATH_H)
 endif()
 
+#-----------------------------------------------
+# tests
+#-----------------------------------------------
+
+include(TestOption)
+include(Dart)
+
 #---------------------------------------------------------------
 # Setting sources and libraries
 #---------------------------------------------------------------
@@ -140,13 +147,6 @@ option(BUILD_TOOLS "Build tools" ON)
 if (BUILD_TOOLS)
     subdirs(tools)
 endif()
-
-#-----------------------------------------------
-# tests
-#-----------------------------------------------
-
-include(TestOption)
-include(Dart)
 
 #-----------------------------------------------
 # documentation
