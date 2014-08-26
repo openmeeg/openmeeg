@@ -1,30 +1,6 @@
-#-----------------------------------------------
-# tests
-#-----------------------------------------------
-
 option(BUILD_TESTING "Build tests" OFF)
 
 if (BUILD_TESTING)
-    if (WIN32 OR APPLE)
-        set(lib_separator ":")
-        set(dll_var "DYLD_LIBRARY_PATH")
-        if (WIN32)
-            set(lib_separator ";")
-            set(dll_var "PATH")
-        endif()
-        set(TestConfigFile "${CMAKE_BINARY_DIR}/TestConfig.cmake")
-        get_property(HDF5_LIB TARGET hdf5 PROPERTY LOCATION)
-        get_filename_component(HDF5_ROOT_DIR ${HDF5_DIR} DIRECTORY)
-        set(DLL_DIRS "${ZLIB_ROOT}/bin" "${HDF5_ROOT_DIR}/bin" "${matio_ROOT_DIR}/bin"
-                      "${LAPACK_DLL_DIR}" "${VTK_LIBRARY_DIRS}" "${CGAL_LIBRARY_DIRS}" "${NIFTI_DIR}")
-        message("=== ${INSTALL_DIRS} - ${DLL_DIRS} ====")
-        foreach (dir ${DLL_DIRS})
-            set(LIBRARY_PATHS "${dir}${lib_separator}${LIBRARY_PATHS}")
-        endforeach()
-        file(WRITE ${TestConfigFile} "set(ENV{${dll_var}} \"${LIBRARY_PATHS}\$ENV{${dll_var}}\")\n")
-        set_directory_properties(PROPERTIES TEST_INCLUDE_FILE "${TestConfigFile}")
-    endif()
-
     set(CTEST_BUILD_NAME "${CMAKE_SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR}")
     if (USE_MKL)
         set(CTEST_BUILD_NAME "${CTEST_BUILD_NAME}-MKL")
@@ -42,7 +18,6 @@ if (BUILD_TESTING)
     include(CTest)
     enable_testing()
     mark_as_advanced(BUILD_TESTING)
-    subdirs(tests)
 endif()
 
 if (USE_GCC AND BUILD_TESTING)
