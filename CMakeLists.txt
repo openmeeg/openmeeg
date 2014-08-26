@@ -155,7 +155,7 @@ endif()
 option(BUILD_DOCUMENTATION "Build Doxygen documentation" OFF)
 option(BUILD_TUTORIALS "Build Tutorials" OFF)
 
-subdirs(${OpenMEEG_SOURCE_DIR}/documentation)
+add_subdirectory(documentation)
 
 #-----------------------------------------------
 # Wrapping
@@ -174,7 +174,14 @@ if (APPLE AND ENABLE_PYTHON)
     endif()
 endif()
 
-subdirs(Wrapping)
+add_subdirectory(Wrapping)
+
+#   Tests
+
+if (BUILD_TESTING)
+    include(CreateTestEnvironment)
+    add_subdirectory(tests)
+endif()
 
 include(Uninstall)
 include(KWStyle)
