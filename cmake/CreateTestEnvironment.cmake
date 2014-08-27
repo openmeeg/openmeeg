@@ -6,7 +6,7 @@ if (WIN32 OR APPLE)
     if (WIN32)
         set(lib_separator ";")
         set(dll_var "PATH")
-        set(CONFIG "set(CONFIGURATION "${CONFIGURATION}")\n")
+        set(CONFIG "set(CONFIGURATION "${CMAKE_BUILD_TYPE}")\n")
     endif()
 
     #   Python dir
