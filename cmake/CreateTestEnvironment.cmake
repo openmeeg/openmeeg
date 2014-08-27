@@ -6,7 +6,6 @@ if (WIN32 OR APPLE)
     if (WIN32)
         set(lib_separator ";")
         set(dll_var "PATH")
-        set(CONFIG "set(CONFIGURATION \"${CMAKE_BUILD_TYPE}\")\n")
     endif()
 
     #   Python dir
@@ -27,6 +26,9 @@ if (WIN32 OR APPLE)
     foreach (dir ${DLL_DIRS})
         set(LIBRARY_PATHS "${dir}${lib_separator}${LIBRARY_PATHS}")
     endforeach()
+    if (WIN332)
+        string(REPLACE "\$(CONFIGURATION)" "${CMAKE_BUILD_TYPE}" LIBRARY_PATHS "${LIBRARY_PATHS}"
+    endif()
     file(WRITE ${TestConfigFile} "${CONFIG}set(ENV{${dll_var}} \"${LIBRARY_PATHS}\$ENV{${dll_var}}\")\n")
     set_directory_properties(PROPERTIES TEST_INCLUDE_FILE "${TestConfigFile}")
 endif()
