@@ -27,7 +27,7 @@ if (WIN32 OR APPLE)
         set(LIBRARY_PATHS "${dir}${lib_separator}${LIBRARY_PATHS}")
     endforeach()
     if (WIN332)
-        string(REPLACE "\$(CONFIGURATION)" "${CMAKE_BUILD_TYPE}" LIBRARY_PATHS "${LIBRARY_PATHS}"
+        string(REPLACE "\$(CONFIGURATION)" "${CMAKE_BUILD_TYPE}" LIBRARY_PATHS "${LIBRARY_PATHS}")
     endif()
     file(WRITE ${TestConfigFile} "${CONFIG}set(ENV{${dll_var}} \"${LIBRARY_PATHS}\$ENV{${dll_var}}\")\n")
     set_directory_properties(PROPERTIES TEST_INCLUDE_FILE "${TestConfigFile}")
