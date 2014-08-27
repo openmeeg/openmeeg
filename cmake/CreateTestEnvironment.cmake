@@ -6,6 +6,7 @@ if (WIN32 OR APPLE)
     if (WIN32)
         set(lib_separator ";")
         set(dll_var "PATH")
+        set(CONFIG "set(CONFIGURATION "${CONFIGURATION}")\n")
     endif()
 
     #   Python dir
@@ -26,7 +27,7 @@ if (WIN32 OR APPLE)
     foreach (dir ${DLL_DIRS})
         set(LIBRARY_PATHS "${dir}${lib_separator}${LIBRARY_PATHS}")
     endforeach()
-    file(WRITE ${TestConfigFile} "set(ENV{${dll_var}} \"${LIBRARY_PATHS}\$ENV{${dll_var}}\")\n")
+    file(WRITE ${TestConfigFile} "${CONFIG}set(ENV{${dll_var}} \"${LIBRARY_PATHS}\$ENV{${dll_var}}\")\n")
     set_directory_properties(PROPERTIES TEST_INCLUDE_FILE "${TestConfigFile}")
 endif()
 
