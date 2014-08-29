@@ -26,6 +26,10 @@ if (WIN32 OR APPLE)
     set(TestConfigFile "${CMAKE_BINARY_DIR}/TestConfig.cmake")
     get_property(HDF5_LIB TARGET hdf5 PROPERTY LOCATION)
     get_filename_component(HDF5_ROOT_DIR ${HDF5_DIR} DIRECTORY)
+    if (APPLE)
+        get_filename_component(HDF5_DIR ${HDF5_DIR} DIRECTORY)
+        get_filename_component(HDF5_ROOT_DIR ${HDF5_DIR} DIRECTORY)
+    endif()
 
     set(DLL_DIRS "${ZLIB_ROOT}/${subdir}" "${HDF5_ROOT_DIR}/${subdir}" "${matio_ROOT_DIR}/${subdir}" "${LAPACK_DLL_DIR}"
                  "${PYTHON_OPENMEEG_MODULE_DIR}" "${VTK_LIBRARY_DIRS}" "${CGAL_LIBRARY_DIRS}" "${NIFTI_DIR}")
