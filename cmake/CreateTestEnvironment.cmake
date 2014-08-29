@@ -3,9 +3,11 @@
 if (WIN32 OR APPLE)
     set(lib_separator ":")
     set(dll_var "DYLD_LIBRARY_PATH")
+    set(subdir "lib")
     if (WIN32)
         set(lib_separator ";")
         set(dll_var "PATH")
+        set(subdir "bin")
     endif()
 
     #   Python dir
@@ -13,11 +15,9 @@ if (WIN32 OR APPLE)
     if (ENABLE_PYTHON)
         get_property(PYTHON_OPENMEEG_MODULE TARGET "_openmeeg" PROPERTY LOCATION)
         get_filename_component(PYTHON_OPENMEEG_MODULE_DIR ${PYTHON_OPENMEEG_MODULE} DIRECTORY)
-        set(subdir "lib")
         if (WIN32)
             get_filename_component(PYTHON_OPENMEEG_MODULE_DIR ${PYTHON_OPENMEEG_MODULE_DIR} DIRECTORY)
             set(PYTHON_OPENMEEG_MODULE_DIR "${PYTHON_OPENMEEG_MODULE_DIR}/${CMAKE_BUILD_TYPE}")
-            set(subdir "bin")
         endif()
     endif()
 
