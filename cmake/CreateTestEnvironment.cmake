@@ -25,6 +25,7 @@ if (WIN32 OR APPLE)
 
     set(TestConfigFile "${CMAKE_BINARY_DIR}/TestConfig.cmake")
     get_property(HDF5_LIB TARGET hdf5 PROPERTY LOCATION)
+    get_filename_component(HDF5_LIB ${HDF5_LIB} DIRECTORY)
     get_filename_component(HDF5_ROOT_DIR ${HDF5_LIB} DIRECTORY)
 
     set(DLL_DIRS "${ZLIB_ROOT}/${subdir}" "${HDF5_ROOT_DIR}/${subdir}" "${matio_ROOT_DIR}/${subdir}" "${LAPACK_DLL_DIR}"
