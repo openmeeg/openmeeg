@@ -75,7 +75,7 @@ namespace OpenMEEG {
         //deflat every outermost interface
         unsigned nb_vertices=0,i_first=0; //number of outermost vertices
         double coef=0.0;
-        for (std::vector<std::vector<std::string>>::const_iterator git=geo.geo_group().begin();git!=geo.geo_group().end();++git){
+        for (std::vector< std::vector<std::string> >::const_iterator git=geo.geo_group().begin();git!=geo.geo_group().end();++git){
             nb_vertices=0;
             i_first=0;
             for (std::vector<std::string>::const_iterator mit=git->begin();mit!=git->end();++mit){
