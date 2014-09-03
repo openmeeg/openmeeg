@@ -340,9 +340,9 @@ namespace OpenMEEG {
         std::vector<int> mesh_idx;
         for(unsigned i=0;i<meshes().size();i++)
 	        mesh_idx.push_back(i);
-        std::vector< std::vector<int> > mesh_conn;
+        std::vector<std::vector<int> > mesh_conn;
         std::vector<int> mesh_connected,mesh_diff;
-        std::set_difference(mesh_idx.begin(),mesh_idx.end(),mesh_connected.begin(),mesh_connected.end(),std::insert_iterator< std::vector<int> >(mesh_diff,mesh_diff.end()));
+        std::set_difference(mesh_idx.begin(),mesh_idx.end(),mesh_connected.begin(),mesh_connected.end(),std::insert_iterator<std::vector<int> >(mesh_diff,mesh_diff.end()));
         while(!mesh_diff.empty()){
             std::vector<int> conn;
             int se=mesh_diff[0];
@@ -363,7 +363,7 @@ namespace OpenMEEG {
             mesh_conn.push_back(conn);
             std::sort(mesh_connected.begin(),mesh_connected.end());
             mesh_diff.clear();
-            std::set_difference(mesh_idx.begin(),mesh_idx.end(),mesh_connected.begin(),mesh_connected.end(),std::insert_iterator< std::vector<int> >(mesh_diff,mesh_diff.end()));
+            std::set_difference(mesh_idx.begin(),mesh_idx.end(),mesh_connected.begin(),mesh_connected.end(),std::insert_iterator<std::vector<int> >(mesh_diff,mesh_diff.end()));
         }
 
         //find isolated meshes and touch 0-cond meshes;
@@ -386,8 +386,8 @@ namespace OpenMEEG {
                 
         }
 
-        std::vector< std::vector<int> > new_conn;
-        for(std::vector< std::vector<int> >::const_iterator git=mesh_conn.begin();git!=mesh_conn.end();++git)
+        std::vector<std::vector<int> > new_conn;
+        for(std::vector<std::vector<int> >::const_iterator git=mesh_conn.begin();git!=mesh_conn.end();++git)
             if(git->size()>1||!meshes()[*git->begin()].isolated())
                 new_conn.push_back(*git);
         mesh_conn=new_conn;
