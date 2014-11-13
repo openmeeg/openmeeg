@@ -339,7 +339,7 @@ namespace OpenMEEG {
         //figure out the connectivity of meshes
         std::vector<int> mesh_idx;
         for(unsigned i=0;i<meshes().size();i++)
-	        mesh_idx.push_back(i);
+            mesh_idx.push_back(i);
         std::vector<std::vector<int> > mesh_conn;
         std::vector<int> mesh_connected,mesh_diff;
         std::set_difference(mesh_idx.begin(),mesh_idx.end(),mesh_connected.begin(),mesh_connected.end(),std::insert_iterator<std::vector<int> >(mesh_diff,mesh_diff.end()));
@@ -409,7 +409,7 @@ namespace OpenMEEG {
         }
 
         for(std::set<Vertex>::const_iterator vit=shared_vtx.begin();vit!=shared_vtx.end();++vit)
-  	    invalid_vertices_.erase(*vit);
+            invalid_vertices_.erase(*vit);
 
         //redefine outermost interface
         //the inside of a 0-cond domain is considered as a new outermost

@@ -295,15 +295,15 @@ namespace OpenMEEG {
         bool                                  allocate_;     ///< Are the vertices allocate within the mesh or shared ?
         std::set<Vertex>                      set_vertices_;
 
-	///handle multiple 0 conductivity domains
-	private:
-		bool     current_barrier_; 
-		bool	 isolated_;
-	public:
-		const bool&    current_barrier()          const { return current_barrier_; }
-                      bool&    current_barrier()                { return current_barrier_; }
-		const bool&    isolated()                 const { return isolated_;	   }
-		      bool&    isolated()                       { return isolated_;	   }
+    ///handle multiple 0 conductivity domains
+    private:
+        bool     current_barrier_; 
+        bool     isolated_;
+    public:
+        const bool&    current_barrier()          const { return current_barrier_; }
+              bool&    current_barrier()                { return current_barrier_; }
+        const bool&    isolated()                 const { return isolated_;        }
+              bool&    isolated()                       { return isolated_;        }
     };
 
     /// A vector of Mesh is called Meshes

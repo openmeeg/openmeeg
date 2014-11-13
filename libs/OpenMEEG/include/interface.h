@@ -43,6 +43,8 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <sstream>
 #include <vector>
 #include <limits>
+#include <cstdlib>
+#include <ctime>
 #include <mesh.h>
 
 namespace OpenMEEG {
