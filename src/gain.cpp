@@ -208,6 +208,7 @@ int main(int argc, char **argv)
             }
             SymMatrix HeadMatInv;
             HeadMatInv.load(argv[2]);
+            HeadMatInv.save("hm.mat");
             Matrix SourceMat;
             SourceMat.load(argv[3]);
             Matrix Head2IPMat;

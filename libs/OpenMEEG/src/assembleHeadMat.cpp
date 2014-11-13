@@ -445,7 +445,7 @@ namespace OpenMEEG {
             size += dvit->second.size();
         }
 
-        mat = Matrix(size, (geo.size() - geo.outermost_interface().nb_triangles()));
+        mat = Matrix(size, (geo.size() - geo.nb_current_barrier_triangles()));
         mat.set(0.0);
 
         for ( std::map<const Domain, Vertices>::const_iterator dvit = m_points.begin(); dvit != m_points.end(); ++dvit) {
@@ -453,7 +453,7 @@ namespace OpenMEEG {
                 int orientation = dvit->first.mesh_orientation(*mit);
                 if ( orientation != 0 ) {
                     operatorDinternal(*mit, mat, dvit->second, orientation * -1. * K);
-                    if ( !mit->outermost() ) {
+                    if ( !mit->current_barrier() ) {
                         operatorSinternal(*mit, mat, dvit->second, orientation * K / geo.sigma(dvit->first));
                     }
                 }

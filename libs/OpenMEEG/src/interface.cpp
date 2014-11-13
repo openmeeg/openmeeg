@@ -109,6 +109,21 @@ namespace OpenMEEG {
         double solangle = compute_solid_angle(bbcenter);
         bool closed;
 
+        //if the bounding box center is not inside the interface,
+        //we try to test another point inside the bounding box.
+        if(std::abs(solangle) < 1.e3*std::numeric_limits<double>::epsilon()){
+            //std::cout<<"bbcenter is not inside interface: "<<name_<<std::endl;
+            std::srand((unsigned int)std::time(NULL));
+
+            while(std::abs(solangle) < 1.e3*std::numeric_limits<double>::epsilon()){
+                Vect3 pt_rd((double)rand()/RAND_MAX*(xmax-xmin)+xmin,
+                            (double)rand()/RAND_MAX*(ymax-ymin)+ymin,
+                            (double)rand()/RAND_MAX*(zmax-zmin)+zmin);
+                //std::cout<<"\ttest random point("<<pt_rd<<")\n";
+                solangle=compute_solid_angle(pt_rd);
+            }
+        }
+
         if ( std::abs(solangle) < 1.e3*std::numeric_limits<double>::epsilon() ) {
             closed = true;
         } else if ( std::abs(solangle + 4.*M_PI) < 1.e3*std::numeric_limits<double>::epsilon()) {
