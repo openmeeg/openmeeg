@@ -178,7 +178,7 @@ namespace OpenMEEG {
                     i = ui;
                     if (static_cast <bool>(is.read(reinterpret_cast<char*>(&ui), sizeof(unsigned int))) == 0) break;
                     j = ui;
-                    f (static_cast <bool>(is.read(reinterpret_cast<char*>(&val), sizeof(double))) == 0) break;
+                    if (static_cast <bool>(is.read(reinterpret_cast<char*>(&val), sizeof(double))) == 0) break;
 #else
                     if (is.read(reinterpret_cast<char*>(&ui), sizeof(unsigned int)) == 0) break;
                     i = ui;
