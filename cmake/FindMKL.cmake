@@ -40,13 +40,13 @@ set(MKL_POSSIBLE_LOCATIONS
     /opt/intel/mkl
     /opt/intel/cmkl
     /Library/Frameworks/Intel_MKL.framework/Versions/Current/lib/universal
-	"C:/Program Files (x86)/Intel/ComposerXE-2011/mkl"
-	"C:/Program Files (x86)/Intel/Composer XE 2013/mkl"
-	"C:/Program Files/Intel/MKL/*/"
-	"C:/Program Files/Intel/ComposerXE-2011/mkl"
-	"C:/Program Files/Intel/Composer XE 2013/mkl"
-	"C:/Program Files (x86)/Intel/Composer XE 2015/mkl/"
-	"C:/Program Files/Intel/Composer XE 2015/mkl/"
+    "C:/Program Files (x86)/Intel/ComposerXE-2011/mkl"
+    "C:/Program Files (x86)/Intel/Composer XE 2013/mkl"
+    "C:/Program Files/Intel/MKL/*/"
+    "C:/Program Files/Intel/ComposerXE-2011/mkl"
+    "C:/Program Files/Intel/Composer XE 2013/mkl"
+    "C:/Program Files (x86)/Intel/Composer XE 2015/mkl/"
+    "C:/Program Files/Intel/Composer XE 2015/mkl/"
 )
 
 foreach (i ${MKL_POSSIBLE_LOCATIONS})
@@ -82,12 +82,12 @@ if (USE_MKL)
             if (CMAKE_CL_64)
                 set(MKL_LIBS mkl_core mkl_intel_lp64 mkl_intel_thread libiomp5md mkl_lapack95_lp64 mkl_blas95_lp64)
             endif()
-		elseif(MKL_INCLUDE_DIR MATCHES "2015")
-			if(CMAKE_CL_64)
-				SET(MKL_LIBS mkl_intel_lp64 mkl_core mkl_intel_thread mkl_lapack95_lp64 mkl_blas95_lp64 )
-			else()
-				SET(MKL_LIBS mkl_intel_c mkl_core mkl_intel_thread mkl_lapack95 mkl_blas95 )
-			endif()
+        elseif(MKL_INCLUDE_DIR MATCHES "2015")
+            if(CMAKE_CL_64)
+                SET(MKL_LIBS mkl_intel_lp64 mkl_core mkl_intel_thread mkl_lapack95_lp64 mkl_blas95_lp64 )
+            else()
+                SET(MKL_LIBS mkl_intel_c mkl_core mkl_intel_thread mkl_lapack95 mkl_blas95 )
+            endif()
         else() # old MKL 9
             set(MKL_LIBS mkl_solver mkl_c libguide mkl_lapack mkl_ia32)
         endif()
