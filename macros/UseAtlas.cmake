@@ -1,6 +1,6 @@
 IF (WIN32)
 #        OPTION(USE_ATLAS "Build the project using ATLAS" OFF)
-        OPTION(USE_MKL "Build the project with MKL" ON)
+        OPTION(USE_MKL "Build the project with MKL" ON)		
         MARK_AS_ADVANCED(USE_MKL)
 #        MARK_AS_ADVANCED(USE_ATLAS)
         IF (NOT BUILD_SHARED_LIBS)
@@ -29,6 +29,7 @@ IF (USE_MKL)
             "C:/Program Files/Intel/MKL/*/"
             "C:/Program Files/Intel/ComposerXE-2011/mkl"
             "C:/Program Files (x86)/Intel/ComposerXE-2011/mkl"
+			"C:/Program Files (x86)/Intel/Composer XE 2015/mkl/"
         )
 
         IF (MKL_ROOT_DIR)
@@ -39,17 +40,23 @@ IF (USE_MKL)
                     set(MKL_ARCH_DIR "ia32")
                 endif()
             endif()
-
+			
             SET(MKL_LIB_SEARCHPATH $ENV{ICC_LIB_DIR} $ENV{MKL_LIB_DIR} "${MKL_ROOT_DIR}/lib/${MKL_ARCH_DIR}" "${MKL_ROOT_DIR}/../compiler")
-
+			
             FIND_PATH(MKL_INCLUDE_PATH mkl.h ${MKL_ROOT_DIR}/include)
 
             IF (MKL_INCLUDE_PATH MATCHES "10." OR MKL_INCLUDE_PATH MATCHES "11.")
                 IF(CMAKE_CL_64)
                     SET(MKL_LIBS mkl_solver_lp64 mkl_core mkl_intel_lp64 mkl_intel_thread libguide mkl_lapack95_lp64 mkl_blas95_lp64)
                 ELSE()
-                    SET(MKL_LIBS mkl_solver mkl_core mkl_intel_c mkl_intel_s mkl_intel_thread libguide mkl_lapack95 mkl_blas95)
+                    SET(MKL_LIBS mkl_solver mkl_core mkl_intel_c mkl_intel_s mkl_intel_thread libguide mkl_lapack95 mkl_blas95)					
                 ENDIF()
+			ELSEIF(MKL_INCLUDE_PATH MATCHES "2015")
+				IF(CMAKE_CL_64)
+					SET(MKL_LIBS mkl_intel_lp64 mkl_core mkl_intel_thread mkl_lapack95_lp64 mkl_blas95_lp64 )
+				ELSE()
+					SET(MKL_LIBS mkl_intel_c mkl_core mkl_intel_thread mkl_lapack95 mkl_blas95 )
+				ENDIF()
             ELSE() # old MKL 9
                 SET(MKL_LIBS mkl_solver mkl_c libguide mkl_lapack mkl_ia32)
             ENDIF()
