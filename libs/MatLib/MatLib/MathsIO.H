@@ -123,7 +123,7 @@ namespace OpenMEEG {
 #if _MSC_VER >= 1700 //Visual Studio 2012 or newer
                 return static_cast <bool>(ifs);
 #else
-				return ifs;
+                return ifs;
 #endif
             }
 

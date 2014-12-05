@@ -79,7 +79,7 @@ namespace OpenMEEG {
 #if _MSC_VER >= 1700 //Visual Studio 2012 or newer
             const_iterator it = m_tank.find(std::make_pair(i, j));
 #else
-			const_iterator it = m_tank.find<size_t, size_t>(std::make_pair(i, j));
+            const_iterator it = m_tank.find<size_t, size_t>(std::make_pair(i, j));
 #endif
             if (it != m_tank.end()) return it->second;
             else return 0.0;
@@ -128,7 +128,7 @@ namespace OpenMEEG {
 #if _MSC_VER >= 1700 //Visual Studio 2012 or newer
             const_iterator it = m_tank.find(std::make_pair(i, j));
 #else
-			const_iterator it = m_tank.find<size_t, size_t>(std::make_pair(i, j));
+            const_iterator it = m_tank.find<size_t, size_t>(std::make_pair(i, j));
 #endif
             if (it != m_tank.end()) v(j)=it->second;
             else v(j)=0.0;
