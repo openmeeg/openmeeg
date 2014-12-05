@@ -57,7 +57,7 @@ IF (USE_MKL)
                 ELSE()
                     SET(MKL_LIBS mkl_intel_c mkl_core mkl_intel_thread mkl_lapack95 mkl_blas95 )
                     ENDIF()
-        ELSE() # old MKL 9
+            ELSE() # old MKL 9
                 SET(MKL_LIBS mkl_solver mkl_c libguide mkl_lapack mkl_ia32)
             ENDIF()
 
