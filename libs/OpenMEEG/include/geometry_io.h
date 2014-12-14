@@ -191,7 +191,7 @@ namespace OpenMEEG {
 
                 for (Meshes::const_iterator mit=meshes_.begin();mit!=meshes_.end();++mit)
                     for (Mesh::const_iterator tit = mit->begin();tit!=mit->end();++tit)
-                        currents[j]->InsertNextValue(((mit->outermost() && !HAS_OUTERMOST) ? 0.0 : data(tit->index(),j));
+                        currents[j]->InsertNextValue(((mit->outermost() && !HAS_OUTERMOST) ? 0.0 : data(tit->index(),j)));
             }
         }
 
