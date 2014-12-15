@@ -120,7 +120,11 @@ namespace OpenMEEG {
 
             operator bool() const {
                 std::ifstream ifs(file_name.c_str());
+#if _MSC_VER >= 1700 //Visual Studio 2012 or newer
+                return static_cast <bool>(ifs);
+#else
                 return ifs;
+#endif
             }
 
         protected:

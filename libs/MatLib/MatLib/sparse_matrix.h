@@ -76,7 +76,11 @@ namespace OpenMEEG {
         inline double operator()( size_t i, size_t j ) const {
             assert(i < nlin());
             assert(j < ncol());
-            const_iterator it = m_tank.find(std::make_pair<size_t, size_t>(i, j));
+#if _MSC_VER >= 1700 //Visual Studio 2012 or newer
+            const_iterator it = m_tank.find(std::make_pair(i, j));
+#else
+            const_iterator it = m_tank.find<size_t, size_t>(std::make_pair(i, j));
+#endif
             if (it != m_tank.end()) return it->second;
             else return 0.0;
         }
@@ -121,7 +125,11 @@ namespace OpenMEEG {
         assert(i<nlin());
         Vector v(ncol());
         for (size_t j=0;j<ncol();j++){
-            const_iterator it = m_tank.find(std::make_pair<size_t, size_t>(i, j));
+#if _MSC_VER >= 1700 //Visual Studio 2012 or newer
+            const_iterator it = m_tank.find(std::make_pair(i, j));
+#else
+            const_iterator it = m_tank.find<size_t, size_t>(std::make_pair(i, j));
+#endif
             if (it != m_tank.end()) v(j)=it->second;
             else v(j)=0.0;
         }

@@ -301,6 +301,7 @@ namespace OpenMEEG {
             static Suffixes init() {
                 Suffixes suffixes;
                 suffixes.push_back("txt");
+                suffixes.push_back("dip");
                 return suffixes;
             }
 
