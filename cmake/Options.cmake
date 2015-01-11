@@ -11,7 +11,7 @@ option(USE_MKL "Build the project with MKL" OFF)
 option(ENABLE_PACKAGING "Enable Packaging" OFF)
 option(ENABLE_PYTHON "Enable Python Wrapping" ON)
 option(USE_OMP "Use OpenMP" OFF)
-option(USE_VTK "Use VTK" ON)
+option(USE_VTK "Use VTK" OFF)
 option(BUILD_TESTING "Build the testing tree" ON)
 option(BUILD_DOCUMENTATION "Build the documentation" ON)
 
