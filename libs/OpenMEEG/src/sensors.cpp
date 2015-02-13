@@ -226,6 +226,10 @@ namespace OpenMEEG {
         om_error(m_geo!=NULL);
         m_weights = Vector(m_positions.nlin());
         m_weights.set(0.);
+        //To count the number of points that have been mapped to each mesh.
+        std::vector<std::string> ci_mesh_names;
+        std::vector<size_t>      ci_triangles;
+
         for ( size_t idx = 0; idx < m_positions.nlin(); ++idx) {
             Triangles triangles;
             const Vect3 current_position(m_positions(idx, 0), m_positions(idx, 1), m_positions(idx, 2));
@@ -234,7 +238,15 @@ namespace OpenMEEG {
             
             double dist;
             std::string s_map=dist_point_geom(current_position, *m_geo, current_alphas, current_nearest_triangle, dist);
-            std::cout<<"Electrode "<<current_position<<" has been mapped to: "<<s_map<<"\n";
+            std::vector<std::string>::iterator sit=std::find(ci_mesh_names.begin(),ci_mesh_names.end(),s_map);
+            if(sit!=ci_mesh_names.end()){
+                size_t idx=std::distance(ci_mesh_names.begin(),sit);
+                ci_triangles[idx]++;
+            }
+            else{
+                ci_mesh_names.push_back(s_map);
+                ci_triangles.push_back(1);
+            }
             
             triangles.push_back(current_nearest_triangle);
             std::set<size_t> index_seen; // to avoid infinite looping
@@ -266,6 +278,8 @@ namespace OpenMEEG {
             }
             m_weights(idx) = M_PI * std::pow(m_radius(idx),2) / triangles_area;
         }
+        for(size_t i=0;i<ci_mesh_names.size();++i)
+            std::cout<<ci_triangles[i]<<" points have been mapped to mesh "<<ci_mesh_names[i]<<std::endl;
     }
 
     void Sensors::info() const {
