@@ -85,7 +85,7 @@ namespace OpenMEEG {
         const bool &        outermost()                  const      { return outermost_; } ///< \return true if it is the outermost interface.
               void          set_to_outermost(); ///< set all interface meshes to outermost state.
               bool          contains_point(const Vect3& p) const; ///< \param p a point \return true if point is inside interface
-              bool          check(); ///< Check the global orientation
+              bool          check(bool checked = false); ///< Check the global orientation
 
         /// \return the total number of the interface vertices
         unsigned nb_vertices() const {
