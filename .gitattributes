@@ -43,6 +43,8 @@
 *.out text
 *.3 text
 *.ls text
+*.xsl text
+*.patch text
 
 # Declare files that will always have CRLF line endings on checkout.
 *.vcproj text eol=crlf
@@ -55,13 +57,14 @@
 *.sh text eol=lf
 
 # Denote all files that are truly binary and should not be modified.
-*.xcf binary
-*.gif binary
-*.png binary
-*.jpg binary
-*.pdf binary
-*.dll binary
-*.bin binary
-*.chm binary
-*.h5  binary
-*.m   binary
+*.xcf  binary
+*.gif  binary
+*.png  binary
+*.jpg  binary
+*.pdf  binary
+*.dll  binary
+*.bin  binary
+*.chm  binary
+*.h5   binary
+*.m    binary
+.patch binary
