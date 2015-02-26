@@ -7,6 +7,11 @@
 #  the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
 #  PURPOSE.
 
+macro(zlib_find_package)
+    find_package(ZLIB REQUIRED)
+    set(zlib_DIR ${ZLIB_DIR})
+endmacro()
+
 function(zlib_project)
 
     # Prepare the project and list dependencies
