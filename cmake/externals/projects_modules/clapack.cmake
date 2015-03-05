@@ -31,12 +31,13 @@ function(clapack_project)
         -DCMAKE_C_FLAGS:STRING=${${ep}_c_flags}
         -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
         -DBUILD_SHARED_LIBS:BOOL=${BUILD_SHARED_LIBS_${ep}}
+        -DCLAPACK_INSTALL_LIB_DIR:STRING=${INSTALL_LIB_DIR}
         -DBUILD_TESTING:BOOL=OFF
     )
 
     # Check if patch has to be applied
 
-    ep_GeneratePatchCommand(${ep} PATCH_COMMAND)
+    ep_GeneratePatchCommand(${ep} PATCH_COMMAND clapack-libdir.patch)
 
     # Add external-project
 
