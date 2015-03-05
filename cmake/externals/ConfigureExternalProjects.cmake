@@ -121,5 +121,4 @@ macro(subprojects)
     endforeach()
 
     add_custom_target(clean DEPENDS ${CLEAN_TARGETS})
-
 endmacro()
