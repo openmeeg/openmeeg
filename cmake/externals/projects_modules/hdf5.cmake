@@ -39,6 +39,7 @@ function(hdf5_project)
         -DCMAKE_CXX_COMPILER:FILEPATH=${CMAKE_CXX_COMPILER}
         -DCMAKE_SHARED_LINKER_FLAGS:STRING=${${ep}_shared_linker_flags}  
         -DBUILD_SHARED_LIBS:BOOL=${BUILD_SHARED_LIBS_${ep}}
+        -DHDF5_INSTALL_LIB_DIR:STRING=${INSTALL_LIB_DIR}
         -DBUILD_TESTING:BOOL=OFF
     )
 
