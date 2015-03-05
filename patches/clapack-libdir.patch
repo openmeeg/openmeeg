@@ -1,0 +1,23 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index d295ddd..c806a4a 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -20,12 +20,16 @@ if(NOT USE_BLAS_WRAP)
+   add_definitions(-DNO_BLAS_WRAP)
+ endif()
+ 
++if (NOT CLAPACK_INSTALL_LIB_DIR)
++  set(CLAPACK_INSTALL_LIB_DIR lib)
++endif()
++
+ # lib install macro
+ macro( install_library TARGET_NAME )
+   install(TARGETS ${TARGET_NAME}
+           EXPORT ${PROJECT_NAME} 
+-          ARCHIVE DESTINATION lib 
+-          LIBRARY DESTINATION lib 
++          ARCHIVE DESTINATION ${CLAPACK_INSTALL_LIB_DIR} 
++          LIBRARY DESTINATION ${CLAPACK_INSTALL_LIB_DIR}
+           RUNTIME DESTINATION bin
+   )
+ endmacro( install_library )
