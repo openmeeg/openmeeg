@@ -113,11 +113,11 @@ namespace OpenMEEG {
 
         /// constructor using an outisde storage for vertices \param av Where to store vertices \param name Mesh name
 
-        Mesh(Vertices& av,const std::string _name = ""): name_(_name), all_vertices_(&av), outermost_(false), allocate_(false) { 
+        Mesh(Vertices& av,const std::string name = ""): name_(name), all_vertices_(&av), outermost_(false), allocate_(false) { 
             set_vertices_.insert(all_vertices_->begin(), all_vertices_->end()); 
         }
 
-        /// constructor loading directly a mesh file named \param filename. Be verbose if \param verbose is true. The mesh name is \param n.
+        /// constructor loading directly a mesh file named \param filename . Be verbose if \param verbose is true. The mesh name is \param n .
 
         Mesh(std::string filename,const bool verbose=true,const std::string n=""): name_(n), outermost_(false), allocate_(true) { 
             unsigned nb_v = load(filename, false, false); 

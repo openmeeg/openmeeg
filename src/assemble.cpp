@@ -482,34 +482,34 @@ int main(int argc, char** argv)
     **********************************************************************************************/
 
     else if ( !strcmp(argv[1], "-DipSource2InternalPotMat") | !strcmp(argv[1], "-DS2IPM") | !strcmp(argv[1], "-ds2ipm") ) {
-        if ( argc < 3 ) {
+        if (argc<3) {
             cerr << "Please set geom filepath !" << endl;
             exit(1);
         }
-        if ( argc < 4 ) {
+        if (argc<4) {
             cerr << "Please set cond filepath !" << endl;
             exit(1);
         }
-        if ( argc < 5 ) {
+        if (argc<5) {
             cerr << "Please set dipoles filepath !" << endl;
             exit(1);
         }
-        if ( argc < 6 ) {
+        if (argc<6) {
             cerr << "Please set point positions filepath !" << endl;
             exit(1);
         }
-        if ( argc < 7 ) {
+        if (argc<7) {
             std::cerr << "Please set output filepath !" << endl;
             exit(1);
         }
         std::string domain_name = "";
-        if ( argc == 9 ) {
+        if (argc==9) {
             domain_name = argv[7];
             std::cout << "Dipoles are considered to be in \"" << domain_name << "\" domain." << std::endl;
         }
         // Loading surfaces from geometry file
         Geometry geo;
-        geo.read(argv[2], argv[3], OLD_ORDERING);
+        geo.read(argv[2],argv[3],OLD_ORDERING);
         // Loading dipoles :
         Matrix dipoles(argv[4]);
         Matrix points(argv[5]);

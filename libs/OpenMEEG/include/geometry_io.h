@@ -150,7 +150,7 @@ namespace OpenMEEG {
     #endif
     }
     
-    /// \brief write a VTK\\vtp file \param filename with associated data in \param data.
+    /// \brief write a VTK\\vtp file \param filename with associated data in \param data .
 
     void Geometry::write_vtp(const std::string& filename,const Matrix& data) const {
 
