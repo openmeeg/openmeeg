@@ -6,26 +6,33 @@
 
 #   We provide a module in case matio has not been found in config mode.
 
-find_package(HDF5 REQUIRED)
+if (NOT matio_LIBRARIES)
 
-# Look for the header file.
-find_path(matio_INCLUDE_DIR NAMES matio.h)
-mark_as_advanced(matio_INCLUDE_DIR)
+    find_package(HDF5 REQUIRED)
 
-# Look for the library.
-find_library(matio_LIBRARY NAMES matio)
-mark_as_advanced(matio_LIBRARY)
+    # Look for the header file.
 
-# handle the QUIETLY and REQUIRED arguments and set matio_FOUND to TRUE if 
-# all listed variables are TRUE
-include(FindPackageHandleStandardArgs)
-find_package_handle_standard_args(matio DEFAULT_MSG matio_LIBRARY matio_INCLUDE_DIR)
+    find_path(matio_INCLUDE_DIR NAMES matio.h)
+    mark_as_advanced(matio_INCLUDE_DIR)
 
-if (MATIO_FOUND)
-  set(matio_FOUND TRUE)
-  set(matio_LIBRARIES ${matio_LIBRARY} ${HDF5_LIBRARIES})
-  set(matio_INCLUDE_DIRS ${matio_INCLUDE_DIR} ${HDF5_INCLUDE_DIR})
-else()
-  set(matio_LIBRARIES)
-  set(matio_INCLUDE_DIRS)
+    # Look for the library.
+
+    find_library(matio_LIBRARY NAMES matio)
+    mark_as_advanced(matio_LIBRARY)
+
+    # handle the QUIETLY and REQUIRED arguments and set matio_FOUND to TRUE if 
+    # all listed variables are TRUE
+
+    include(FindPackageHandleStandardArgs)
+    find_package_handle_standard_args(matio DEFAULT_MSG matio_LIBRARY matio_INCLUDE_DIR)
+
+    if (MATIO_FOUND)
+        set(matio_FOUND TRUE)
+        set(matio_LIBRARIES ${matio_LIBRARY} ${HDF5_LIBRARIES})
+        set(matio_INCLUDE_DIRS ${matio_INCLUDE_DIR} ${HDF5_INCLUDE_DIR})
+    else()
+        set(matio_LIBRARIES)
+        set(matio_INCLUDE_DIRS)
+    endif()
+
 endif()
