@@ -7,6 +7,10 @@
 #  the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
 #  PURPOSE.
 
+macro(matio_find_package)
+#   Do nothing let OpenMEEG do the work.
+endmacro()
+
 function(matio_project)
 
     # Prepare the project and list dependencies

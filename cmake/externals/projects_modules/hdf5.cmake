@@ -7,6 +7,10 @@
 #  the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
 #  PURPOSE.
 
+macro(hdf5_find_package)
+#   Do nothing let OpenMEEG do the work.
+endmacro()
+
 function(hdf5_project)
 
     # Prepare the project and list dependencies
@@ -49,7 +53,8 @@ function(hdf5_project)
 
     # Add external-project
 
-    set(tag 1.8.12)
+    #set(tag 1.8.14)
+    set(tag master)
     ExternalProject_Add(${ep}
         ${ep_dirs}
         ${location}

@@ -8,8 +8,7 @@
 #  PURPOSE.
 
 macro(zlib_find_package)
-    find_package(ZLIB REQUIRED)
-    set(zlib_DIR ${ZLIB_DIR})
+#   Do nothing let OpenMEEG do the work.
 endmacro()
 
 function(zlib_project)

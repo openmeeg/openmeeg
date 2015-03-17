@@ -7,6 +7,10 @@
 #  the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
 #  PURPOSE.
 
+macro(clapack_find_package)
+#   Do nothing let OpenMEEG do the work.
+endmacro()
+
 function(clapack_project)
 
     # Prepare the project and list dependencies
