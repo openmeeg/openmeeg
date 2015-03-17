@@ -2,32 +2,43 @@
 # SWIG Embedding
 #######################################################################
 
-#   For now force the use of Python 2.{5,6,7}, numpy is not yet well adapted to python3.
-#   Reconsider this choice later.
-
-set(Python_ADDITIONAL_VERSIONS 2.5 2.6 2.7)
 find_package(PythonInterp)
 
-if (PYTHON_EXECUTABLE)
-    exec_program("${PYTHON_EXECUTABLE}"
-      ARGS "-c \"from distutils.sysconfig import get_python_lib; print get_python_lib(1)\""
-      OUTPUT_VARIABLE PYTHON_SITE_ARCH
-      RETURN_VALUE PYTHON_SITEARCH_NOT_FOUND)
-    string(REGEX REPLACE "^.*/(lib|lib64)(/python.*)$" "\\1\\2" PYTHON_REL_SITE_ARCH ${PYTHON_SITE_ARCH})
+if (NOT PYTHON_EXECUTABLE)
+    message(STATUS "Python not found: disabling wrapping.")
+    return()
 endif()
 
+exec_program("${PYTHON_EXECUTABLE}"
+             ARGS "-c \"from distutils.sysconfig import get_python_lib; print get_python_lib(1)\""
+             OUTPUT_VARIABLE PYTHON_SITE_ARCH
+             RETURN_VALUE PYTHON_SITEARCH_NOT_FOUND)
+string(REGEX REPLACE "^.*/(lib|lib64)(/python.*)$" "\\1\\2" PYTHON_REL_SITE_ARCH ${PYTHON_SITE_ARCH})
+
 include(FindNumpy.cmake)
+if (NOT PYTHON_NUMPY_FOUND)
+    message(STATUS "numpy not found for python ${PYTHON_VERSION_STRING}: disabling wrapping.")
+    return()
+endif()
+
+message(STATUS "PYTHON VERSION: ${PYTHON_VERSION_STRING}")
 
 set(MODULE_NAME openmeeg)
 set(SWIG_SRC_FILE_NAME ${MODULE_NAME}.i)
 set(CMAKE_SWIG_FLAGS "-c++ -v" )
 
-find_package(SWIG REQUIRED)
+find_package(SWIG)
+if (NOT SWIG_FOUND)
+    message(STATUS "swig not found: disabling wrapping.")
+    return()
+endif()
+
 include(${SWIG_USE_FILE})
 find_package(PythonLibs)
 
 if (NOT PYTHONLIBS_FOUND)
-    message(SNED_ERROR "Python libraries not found.")
+    message(STATUS "Python libraries not found: disabling wrapping.")
+    return()
 endif()
 
 include_directories(${PYTHON_INCLUDE_PATH} ${PYTHON_NUMPY_INCLUDE_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
