@@ -5,120 +5,52 @@
 option(ENABLE_PACKAGING "Enable Packaging" ON)
 
 if (ENABLE_PACKAGING)
-    set(PACKAGE_COMPILER ${CMAKE_CXX_COMPILER})
-    if (CMAKE_C_COMPILER MATCHES gcc)
-        exec_program(${CMAKE_CXX_COMPILER}
-            ARGS -dumpversion
-            OUTPUT_VARIABLE PACKAGE_COMPILER)
-        set(PACKAGE_COMPILER gcc-${PACKAGE_COMPILER})
-    endif()
 
-    if (UNIX AND NOT APPLE) # LINUX
-        option(BUILD_LINUX_PACKAGE "Enable RPM or Debian Packaging" ON)
-    endif()
+    set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/packaging ${CMAKE_MODULE_PATH})
 
-    if (NOT PACKAGE_NAME)
-        if (ENABLE_PACKAGING OR BUILD_LINUX_PACKAGE)
+    set(CPACK_PACKAGE_NAME "OpenMEEG")
+    set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "OpenMEEG Project")
+    set(CPACK_PACKAGE_VENDOR "INRIA-ENPC")
+    set(CPACK_PACKAGE_VERSION ${PROJECT_VERSION})
+    #set(CPACK_PACKAGE_DESCRIPTION_FILE "${PROJECT_SOURCE_DIR}/OpenMEEG/README.rst")
+    #set(CPACK_RESOURCE_FILE_LICENSE "${PROJECT_SOURCE_DIR}/OpenMEEG/LICENSE.txt")
+    set(CPACK_PACKAGE_CONTACT "openmeeg-info@lists.gforge.inria.fr")
 
-            include(InstallRequiredSystemLibraries)
+    set(CPACK_SET_DESTDIR true)
+    set(CPACK_INSTALL_PREFIX "Packaging")
+    set(CPACK_PACKAGE_INSTALL_DIRECTORY "OpenMEEG")
+    set(CPACK_SOURCE_STRIP_FILES "")
 
-            set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "OpenMEEG Project")
-            set(CPACK_PACKAGE_VENDOR "INRIA-ENPC")
-            #set(CPACK_PACKAGE_DESCRIPTION_FILE "${PROJECT_SOURCE_DIR}/OpenMEEG/README.rst")
-            #set(CPACK_RESOURCE_FILE_LICENSE "${PROJECT_SOURCE_DIR}/OpenMEEG/LICENSE.txt")
-            set(CPACK_PACKAGE_INSTALL_DIRECTORY "OpenMEEG")
-            set(CPACK_PACKAGE_CONTACT "openmeeg-info_at_lists.gforge.inria.fr")
-
-            if ("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "x86_64")
-                set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE amd64)
-                set(CPACK_RPM_PACKAGE_ARCHITECTURE x86_64)
-                set(NBITS 64)
-            else()
-                set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE i386)
-                set(CPACK_RPM_PACKAGE_ARCHITECTURE i386)
-                set(NBITS 32)
-            endif()
-
-            set(PACKAGE_NAME "OpenMEEG-${PACKAGE_VERSION_MAJOR}.${PACKAGE_VERSION_MINOR}.${PACKAGE_VERSION_PATCH}")
-            if (UNIX)
-                set(PACKAGE_NAME ${PACKAGE_NAME}-Linux${NBITS}.${CPACK_DEBIAN_PACKAGE_ARCHITECTURE})
-                if (APPLE)
-                    set(PACKAGE_NAME ${PACKAGE_NAME}-MacOSX-Intel)
-                    if (BUILD_UNIVERSAL)
-                        set(PACKAGE_NAME ${PACKAGE_NAME}-Universal)
-                    endif()
-                endif()
-            else()
-                if (CMAKE_CL_64)
-                    set(CPACK_SYSTEM_NAME win64)
-                    set(PACKAGE_NAME ${PACKAGE_NAME}-win64-x86_64)
-                else()
-                    set(CPACK_SYSTEM_NAME win32)
-                    set(PACKAGE_NAME ${PACKAGE_NAME}-win32-x86)
-                endif()
-            endif()
-
-            set(PACKAGE_NAME ${PACKAGE_NAME}-${PACKAGE_COMPILER})
-
-            if (USE_OMP)
-                set(PACKAGE_NAME ${PACKAGE_NAME}-OpenMP)
-            endif()
-
-            set(PACKAGE_NAME ${PACKAGE_NAME}-static)
-            if (BUILD_SHARED_LIBS)
-                if (ENABLE_PYTHON)
-                    set(PACKAGE_NAME ${PACKAGE_NAME}-python)
-                endif()
-                set(PACKAGE_NAME ${PACKAGE_NAME}-shared)
-            endif()
-
-            set(CPACK_PACKAGE_FILE_NAME ${PACKAGE_NAME})
-
-            if (WIN32)
-                # There is a bug in NSIS that does not handle full unix paths properly. Make
-                # sure there is at least one set of four (4) backlasshes.
-                set(CPACK_NSIS_DISPLAY_NAME "OpenMEEG")
-                set(CPACK_NSIS_HELP_LINK "http:\\\\\\\\openmeeg.gforge.inria.fr")
-                set(CPACK_NSIS_URL_INFO_ABOUT "http:\\\\\\\\openmeeg.gforge.inria.fr")
-                set(CPACK_NSIS_CONTACT "openmeeg-info@lists.gforge.inria.fr")
-                set(CPACK_NSIS_MODIFY_PATH ON)
-                set(CPACK_PACKAGE_EXECUTABLES "om_assemble" "OpenMEEG (Ignore)")
-                set(CPACK_NSIS_MENU_LINKS
-                    "doc/LICENSE.txt" "README.rst"
-                    "http://openmeeg.gforge.inria.fr" "OpenMEEG homepage"
-                )
-
-            endif()
-
-            set(CPACK_SOURCE_STRIP_FILES "")
-
-            if (UNIX AND NOT APPLE)
-                set(CPACK_GENERATOR "TGZ")
-            endif()
-
-            if (APPLE)
-                set(CPACK_GENERATOR "PackageMaker;TGZ")
-            endif()
-
-            include(CPack)
-
-            if (UNIX AND BUILD_LINUX_PACKAGE) # linux
-                set(CPACK_GENERATOR "${CPACK_GENERATOR};RPM")
-                if (CMAKE_MAJOR_VERSION EQUAL 2 AND CMAKE_MINOR_VERSION LESS 10)
-                    include(UseRPMTools)
-                    if (RPMTools_FOUND)
-                        RPMTools_ADD_RPM_TARGETS(${PROJECT_NAME} "${PROJECT_SOURCE_DIR}/Packaging/OpenMEEG.spec.in")
-                    endif()
-                else()
-                    set(CPACK_RPM_PACKAGE_LICENSE "CeCILL-B")
-                    set(CPACK_RPM_PACKAGE_DESCRIPTION  "OpenMEEG is a package for forward/inverse problems of EEG/MEG. The forward problem uses the symmetric Boundary Element Method. The inverse problem uses a distributed approach (L2, L1 regularization). Developped within Odyssee (INRIA-ENPC-ENS).")
-                    set(CPACK_RPM_PACKAGE_GROUP "Applications/Medical")
-                endif()
-            endif()
+    if (UNIX)
+        set(SYSTEMDIR linux)
+        if (APPLE)
+            set(SYSTEMDIR apple)
         endif()
+    else()
+        set(SYSTEMDIR windows)
+    endif()
+    include(${SYSTEMDIR}/PackagingConfiguration)
+
+    if (USE_OMP)
+        set(PACKAGE_OPTIONS OpenMP)
     endif()
 
-    if (ENABLE_PACKAGING AND WIN32)
-        include(UseWin32dlls)
+    if (BUILD_SHARED_LIBS)
+        if (ENABLE_PYTHON)
+            set(PACKAGE_OPTIONS ${PACKAGE_OPTIONS}-python)
+        endif()
+        set(PACKAGE_OPTIONS ${PACKAGE_OPTIONS}-shared)
+    else()
+        set(PACKAGE_OPTIONS ${PACKAGE_OPTIONS}-static)
     endif()
+
+    if (PACKAGE_OPTIONS)
+        set(PACKAGE_OPTIONS "-${PACKAGE_OPTIONS}")
+    endif()
+
+    set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}-${PACKAGE_ARCH}${PACKAGE_OPTIONS}")
+
+    include(InstallRequiredSystemLibraries)
+    include(CPack)
+
 endif()
