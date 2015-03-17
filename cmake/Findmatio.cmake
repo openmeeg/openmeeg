@@ -4,6 +4,8 @@
 #  matio_LIBRARIES    - List of libraries.
 #  matio_FOUND        - True if matio found.
 
+#   We provide a module in case matio has not been found in config mode.
+
 find_package(HDF5 REQUIRED)
 
 # Look for the header file.
