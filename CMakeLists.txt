@@ -8,8 +8,11 @@
 #  PURPOSE.
 
 cmake_minimum_required(VERSION 2.8.12)
-cmake_policy(SET CMP0048 NEW)
-cmake_policy(SET CMP0037 OLD)
+if (CMAKE_MAJOR_VERSION EQUAL 3)
+    cmake_policy(SET CMP0048 NEW)
+    cmake_policy(SET CMP0037 OLD)
+    set(PROJECT_VERSION VERSION 2.3.0.1)
+endif()
 
 # Set CMAKE_BUILD_TYPE to Release by default.
 
@@ -22,7 +25,7 @@ endif()
 
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
 
-project(OpenMEEG-superProject VERSION 2.3.0.1)
+project(OpenMEEG-superProject ${PROJECT_VERSION})
 
 # Setup everything (MODULE_PATH, check environment, basic targets
 
