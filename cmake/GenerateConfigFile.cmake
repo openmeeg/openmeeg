@@ -20,15 +20,6 @@ endif()
 
 mark_as_advanced(INSTALL_LIB_DIR INSTALL_BIN_DIR INSTALL_INCLUDE_DIR INSTALL_DATA_DIR)
  
-#   Make relative paths absolute (needed later on)
-
-foreach(p LIB BIN INCLUDE DATA)
-    set(var INSTALL_${p}_DIR)
-    if(NOT IS_ABSOLUTE "${${var}}")
-        set(${var} "${CMAKE_INSTALL_PREFIX}/${${var}}")
-    endif()
-endforeach()
-
 macro(sub_directories)
     foreach (dir ${ARGN})
         add_subdirectory(${dir})
@@ -83,6 +74,15 @@ endmacro()
 function(GenerateConfigFile ConfigName)
 
     PARSE_ARGUMENTS_GENERATE("LIBRARIES;INCLUDE_DIRS" "DEFAULT" ${ARGN})
+
+    #   Make relative paths absolute (needed later on)
+
+    foreach(p LIB BIN INCLUDE DATA)
+        set(var INSTALL_${p}_DIR)
+        if(NOT IS_ABSOLUTE "${${var}}")
+            set(${var} "${CMAKE_INSTALL_PREFIX}/${${var}}")
+        endif()
+    endforeach()
 
     #   Creating files for companion projects
 
