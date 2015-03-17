@@ -89,22 +89,16 @@ endif()
 
 if (NOT USE_ATLAS AND NOT USE_MKL)
     set(lapack_DIR_SAVE ${lapack_DIR})
-    find_package(lapack QUIET PATHS /usr/lib64/ /usr/lib/ ${lapack_libs_dir}
-                 NO_DEFAULT_PATH
-                 NO_CMAKE_ENVIRONMENT_PATH
-                 NO_CMAKE_PATH
-                 NO_SYSTEM_ENVIRONMENT_PATH
-                 NO_CMAKE_SYSTEM_PATH)
-    if (lapack)
+    find_package(LAPACK)
+    if (LAPACK_FOUND)
         message("Lapack package: ${lapack}: ${LAPACK_LIBRARIES}")
         get_filename_component(LAPACK_DLL_DIR "${lapack}" DIRECTORY)
     endif()
 endif()
 
-#set(CMAKE_FIND_DEBUG_MODE 1)
 if (NOT LAPACK_LIBRARIES)
     set(lapack_DIR ${lapack_DIR_SAVE})
-    set(lapack_libs_dir ${lapack_DIR}/lib)
+    set(lapack_libs_dir ${lapack_DIR}/${INSTALL_LIB_DIR})
     message("Searching lapack in ${lapack_libs_dir}")
     find_library(lapack lapack PATHS ${lapack_libs_dir})
     find_library(blas blas  PATHS ${lapack_libs_dir})
