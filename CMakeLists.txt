@@ -73,10 +73,21 @@ endif()
 
 Dependencies(OpenMEEG matio)
 
+#   We may want to make these warning fatal errors in a while.
+
 set(USE_MATIO 1)
 if (NOT matio_FOUND)
-    message(WARNING "Without matio OpenMEEG only generates ascii files which are big and can loose accuracy.")
+    message(WARNING "No matio found.")
     unset(USE_MATIO)
+endif()
+if (MATIO_VERSION VERSION_LESS "1.5.0")
+    message(WARNING "OpenMEEG will not compile with matio versions less than 1.5.0.")
+    unset(USE_MATIO)
+endif()
+if (NOT USE_MATIO)
+     message(WARNING "OpenMEEG compiled without matio: this only generates ascii
+files which are big and can loose accuracy. Comparison
+tests will not work in this situation.")
 endif()
 
 #---------------------------------------------------------------
