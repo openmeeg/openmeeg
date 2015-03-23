@@ -94,7 +94,7 @@ macro(subprojects)
                 set(update_dependencies ${update_dependencies} update-${project})
             endif()
             if (build-${project})
-                set(build_dependencies ${build_dependencies} build-${project})
+                set(build_dependencies ${build_dependencies} build-${project} install-${project})
             endif()
         endif()
         
