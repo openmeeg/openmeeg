@@ -4,7 +4,7 @@ macro(find type arg)
         unset(${arg}_DIR)
     endif()
 
-    if (FIND_PACKAGE_DEBUG)
+    if (FIND_DEBUG_MODE)
         set(CMAKE_FIND_DEBUG_MODE 1)
         message("[[Looking for ${type}: ${arg}]]")
     endif()   
@@ -17,4 +17,3 @@ macro(find type arg)
         message(SEND_ERROR "Unknown type ${type}")
     endif()
 endmacro()
-
