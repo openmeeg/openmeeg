@@ -70,7 +70,7 @@ function(hdf5_project)
 
     ExternalProject_Get_Property(${ep} install_dir)
     if (NOT WIN32)
-        set(HDF5_CMAKE_INSTALL_DIR share)
+        set(HDF5_CMAKE_INSTALL_DIR share/cmake)
     endif()
     set(${ep}_CMAKE_FLAGS -DHDF5_DIR:FILEPATH=${install_dir}/${HDF5_CMAKE_INSTALL_DIR} PARENT_SCOPE)
 
