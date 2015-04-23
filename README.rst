@@ -92,6 +92,17 @@ You should now be able to run the *om_assemble* command and see something like t
     Not enough arguments
     Please try "om_assemble -h" or "om_assemble --help "
 
+In some Linux distributions (AMD64/X86_64) you may see some errors like this::
+
+    Error while loading shared libraries: libOpenMEEG.so.1: cannot open shared object file: No such file or directory
+
+OpenMEEG puts its libraries in "/usr/local/lib64", which is not included
+in your loader's search path. If so, run this command as root::
+
+    # echo '/usr/local/lib64/' >> /etc/ld.so.conf && ldconfig
+
+Now you can try to run the *om_assemble* again.
+
 You can now give a try to OpenMEEG on the `sample dataset <https://gforge.inria.fr/frs/download.php/29059/openmeeg_sample_dataset.zip>`_.
 
 Windows
