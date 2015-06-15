@@ -29,6 +29,7 @@ set(CMAKE_SWIG_FLAGS "-c++ -v" )
 
 find_package(SWIG)
 if (NOT SWIG_FOUND)
+    unset(ENABLE_PYTHON)
     message(STATUS "swig not found: disabling wrapping.")
     return()
 endif()
