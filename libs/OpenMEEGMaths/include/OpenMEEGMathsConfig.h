@@ -67,20 +67,15 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #endif
 
 #ifdef USE_ATLAS
+extern "C" {
+    #include <cblas.h>
+    #include <clapack.h>
+}
+#define BLAS(x,X) cblas_ ## x
 #ifdef __APPLE__
-    extern "C" {
-        #include <cblas.h>
-        #include <clapack.h>
-    }
-    #define BLAS(x,X) cblas_ ## x
     #define LAPACK(x,X) x ## _
     // #define LAPACK(x,X) FC_GLOBAL(x,X)
 #else
-    extern "C" {
-        #include <cblas.h>
-        #include <clapack.h>
-    }
-    #define BLAS(x,X) cblas_ ## x
     #define LAPACK(x,X) clapack_ ## x
 #endif
 #endif
