@@ -120,7 +120,7 @@ int main () {
     std::cout << "W :" << std::endl;
     W.info();
     Matrix zero = M1 - U*S*W.transpose();
-    if ( zero.frobenius_norm() > eps) {
+    if (zero.frobenius_norm()>eps) {
         std::cerr << "Error: SVD is WRONG-1" << std::endl;
         exit(1);
     }
@@ -130,7 +130,7 @@ int main () {
     M1(1, 2) = 3; M1(3, 1) = 4;
     zero = M1*M1.pinverse()*M1-M1;
     if (zero.frobenius_norm()>eps) {
-        std::cerr << zero << std::endl;
+        zero.info();
         std::cerr << "Error: PseudoInverse is WRONG-2" << std::endl;
         exit(1);
     }
