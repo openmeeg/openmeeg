@@ -66,6 +66,7 @@ include(UseAtlas)
 include(UseOpenMP)
 
 #   Detect Fortran to C interface.
+
 if (USE_ATLAS)
     include(FortranCInterface)
     FortranCInterface_HEADER(FC.h MACRO_NAMESPACE "FC_" FROM_LIBRARY blas[daxpy])
@@ -75,20 +76,12 @@ Dependencies(OpenMEEG matio)
 
 #   We may want to make these warning fatal errors in a while.
 
-set(USE_MATIO 1)
 if (NOT matio_FOUND)
-    message(WARNING "No matio found.")
-    unset(USE_MATIO)
+    message(FATAL_ERROR "No matio found.")
 endif()
-if (MATIO_VERSION VERSION_LESS "1.5.0")
+if (matio_VERSION VERSION_LESS "1.5.0")
     message(WARNING "Found matio version: ${MATIO_VERSION}")
-    message(WARNING "OpenMEEG will not compile with matio versions less than 1.5.0.")
-    unset(USE_MATIO)
-endif()
-if (NOT USE_MATIO)
-     message(WARNING "OpenMEEG compiled without matio: this only generates ascii
-files which are big and can loose accuracy. Comparison
-tests will not work in this situation.")
+    message(FATAL_ERROR "OpenMEEG will not compile with matio versions less than 1.5.0.")
 endif()
 
 #---------------------------------------------------------------
