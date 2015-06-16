@@ -2,7 +2,7 @@ add_executable(om_make_nerve make_nerve.cpp)
 target_link_libraries (om_make_nerve OpenMEEG)
 
 add_executable(om_mesh_convert mesh_convert.cpp)
-target_link_libraries (om_mesh_convert OpenMEEG)
+target_link_libraries (om_mesh_convert OpenMEEG ${LAPACK_LIBRARIES})
 
 add_executable(om_geometry_info geometry_info.cpp)
 target_link_libraries (om_geometry_info OpenMEEG)
@@ -17,10 +17,10 @@ add_executable(om_mesh_concat mesh_concat.cpp)
 target_link_libraries (om_mesh_concat OpenMEEG)
 
 add_executable(om_project_sensors project_sensors.cpp)
-target_link_libraries (om_project_sensors OpenMEEG)
+target_link_libraries (om_project_sensors OpenMEEG ${LAPACK_LIBRARIES})
 
 add_executable(om_register_squids register_squids.cpp)
-target_link_libraries (om_register_squids OpenMEEG)
+target_link_libraries (om_register_squids OpenMEEG ${LAPACK_LIBRARIES})
 
 add_executable(om_squids2vtk squids2vtk.cpp)
 target_link_libraries (om_squids2vtk OpenMEEGMaths)
