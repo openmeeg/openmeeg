@@ -300,7 +300,7 @@ namespace OpenMEEG {
             void write(mat_t* mat,const LinOp& linop) const {
                 const TYPE& m = dynamic_cast<const TYPE&>(linop);
                 size_t* dims = details::helper<TYPE>::dims(m);
-                matvar_t* matvar = Mat_VarCreate("linop",MAT_C_DOUBLE,MAT_T_DOUBLE,details::helper<TYPE>::dim,dims,m.data(),0);
+                matvar_t* matvar = Mat_VarCreate("linop",MAT_C_DOUBLE,MAT_T_DOUBLE,details::helper<TYPE>::dim,dims,m.data(),MAT_F_DONT_COPY_DATA);
                 Mat_VarWrite(mat,matvar,MAT_COMPRESSION_ZLIB);
                 Mat_VarFree(matvar);
             }
