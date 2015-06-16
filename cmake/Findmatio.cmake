@@ -25,7 +25,7 @@ if (NOT matio_LIBRARIES)
 
     include(FindPackageHandleStandardArgs)
     find_package_handle_standard_args(matio DEFAULT_MSG matio_LIBRARY matio_INCLUDE_DIR)
-
+    
     if (MATIO_FOUND)
         set(matio_FOUND TRUE)
         set(matio_LIBRARIES ${matio_LIBRARY} ${HDF5_LIBRARIES})
