@@ -50,13 +50,13 @@ using namespace OpenMEEG;
 template <typename MATRIX>
 void conversion(maths::ifstream& ifs,const char* input_format,maths::ofstream& ofs,const char* output_format,const char* output_filename) {
     MATRIX M;
-    if ( input_format )
+    if (input_format)
         ifs >> maths::format(input_format) >> M;
     else
         ifs >> M;
 
     M.info(); //TODO
-    if ( output_format )
+    if (output_format)
         ofs << maths::format(output_format) << M;
     else
         ofs << maths::format(output_filename,maths::format::FromSuffix) << M;

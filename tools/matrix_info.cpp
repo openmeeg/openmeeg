@@ -48,7 +48,12 @@ knowledge of the CeCILL-B license and that you accept its terms.
 using namespace std;
 using namespace OpenMEEG;
 
-template<class T> void print_infos(const T& M);
+template <typename MATRIX>
+void print_infos(const char* filename) {
+    MATRIX M;
+    M.load(filename);
+    M.info();
+}
 
 int main( int argc, char **argv)
 {
@@ -56,12 +61,11 @@ int main( int argc, char **argv)
     //TODO doesn't say txt, if you don't specify it
 
     command_usage("Provides informations on a Matrix generated with OpenMEEG");
-    const char *filename = command_option("-i",(const char *) NULL,"Matrix file");
-    const char *txt = command_option("-txt",(const char *) 0,"Force reading data stored in ascii format");
-    const char *sym = command_option("-sym",(const char *) 0,"Data are symmetric matrices");
-    const char *sparse = command_option("-sparse",(const char *) 0,"Data are sparse matrices");
-    const char *mat = command_option("-mat",(const char *) 0,"Data are matlab format");
-    const char *bin = command_option("-bin",(const char *) 0,"Data are binary format");
+
+    const char* filename = command_option("-i",(const char *) NULL,"Matrix file");
+    const char* sym      = command_option("-sym",(const char *) 0,"Data are symmetric matrices");
+    const char* sparse   = command_option("-sparse",(const char *) 0,"Data are sparse matrices");
+    
     if (command_option("-h",(const char *)0,0)) return 0;
 
     if (!filename) {
@@ -72,108 +76,12 @@ int main( int argc, char **argv)
     cout << "Loading : " << filename << endl;
 
     if (sym) {
-        if (txt) {
-            SymMatrix M;
-            M.load(filename);
-            cout << "Format : ASCII" << endl;
-            print_infos(M);
-        } else if (mat) {
-            cerr << "Unsupported Format : MAT for symmetric matrices" << endl;
-            exit(1);
-        } else if (bin) {
-            SymMatrix M;
-            M.load(filename);
-            cout << "Format : BINARY" << endl;
-            print_infos(M);
-        } else {
-            SymMatrix M;
-            M.load(filename);
-            print_infos(M);
-        }
+        print_infos<SymMatrix>(filename);
     } else if (sparse) {
-        if (txt) {
-            SparseMatrix M;
-            M.load(filename);
-            cout << "Format : ASCII" << endl;
-            print_infos(M);
-        } else if (mat) {
-            SparseMatrix M;
-            M.load(filename);
-            cout << "Format : MAT" << endl;
-            print_infos(M);
-        } else if (bin) {
-            SparseMatrix M;
-            M.load(filename);
-            cout << "Format : BINARY" << endl;
-            print_infos(M);
-        } else {
-            SparseMatrix M;
-            M.load(filename);
-            print_infos(M);
-        }
+        print_infos<SparseMatrix>(filename);
     } else {
-        if (txt) {
-            Matrix M;
-            M.load(filename);
-            cout << "Format : ASCII" << endl;
-            print_infos(M);
-        } else if (mat) {
-            Matrix M;
-            M.load(filename);
-            cout << "Format : MAT" << endl;
-            print_infos(M);
-        } else if (bin) {
-            Matrix M;
-            M.load(filename);
-            cout << "Format : BINARY" << endl;
-            print_infos(M);
-        } else {
-            Matrix M;
-            M.load(filename);
-            print_infos(M);
-        }
+        print_infos<Matrix>(filename);
     }
 
     return 0;
-}
-
-template<class T>
-void print_infos(const T& M) {
-    if ((M.nlin()==0) && (M.ncol()==0)) {
-        cout << "Matrix Empty" << endl;
-        return;
-    }
-
-    cout << "Dimensions : " << M.nlin() << " x " << M.ncol() << endl;
-
-    double minv = M(0,0);
-    double maxv = M(0,0);
-    size_t mini = 0;
-    size_t maxi = 0;
-    size_t minj = 0;
-    size_t maxj = 0;
-
-    for(size_t i = 0; i<M.nlin(); ++i) {
-        for(size_t j = 0; j<M.ncol(); ++j) {
-            if (minv > M(i,j)) {
-                minv = M(i,j);
-                mini = i;
-                minj = j;
-            } else if (maxv<M(i,j)) {
-                maxv = M(i,j);
-                maxi = i;
-                maxj = j;
-            }
-        }
-    }
-    cout << "Min Value : " << minv << " (" << mini << "," << minj << ")" << endl;
-    cout << "Max Value : " << maxv << " (" << maxi << "," << maxj << ")" << endl;
-
-    cout << "First Values" << endl;
-    for(size_t i = 0; i<std::min(M.nlin(),(size_t) 10); ++i) {
-        for(size_t j = 0; j<std::min(M.ncol(),(size_t) 10); ++j) {
-            cout << M(i,j) << " " ;
-        }
-        cout << endl ;
-    }
 }

@@ -44,10 +44,9 @@ namespace OpenMEEG {
                 throw NoSuffix(name);
 
             const std::string suffix = name.substr(pos+1);
-            for(IOs::const_iterator i=ios().begin();i!=ios().end();++i) {
+            for(IOs::const_iterator i=ios().begin();i!=ios().end();++i)
                 if ((*i)->known_suffix(suffix.c_str()))
                     return *i;
-            }
             throw UnknownFileSuffix(suffix);
         }
 
