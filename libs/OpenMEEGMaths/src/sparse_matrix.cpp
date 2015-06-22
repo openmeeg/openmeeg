@@ -171,17 +171,16 @@ namespace OpenMEEG {
         size_t minj = 0;
         size_t maxj = 0;
 
-        for (Tank::const_iterator it=m_tank.begin();it!=m_tank.end();++it) {
-                if (minv>it->second) {
-                    minv = it->second;
-                    mini = it->first.first;
-                    minj = it->first.second;
-                } else if (maxv<it->second) {
-                    maxv = it->second;
-                    maxi = it->first.first;
-                    maxj = it->first.second;
-                }
-        }
+        for (Tank::const_iterator it=m_tank.begin();it!=m_tank.end();++it)
+            if (minv>it->second) {
+                minv = it->second;
+                mini = it->first.first;
+                minj = it->first.second;
+            } else if (maxv<it->second) {
+                maxv = it->second;
+                maxi = it->first.first;
+                maxj = it->first.second;
+            }
 
         std::cout << "Min Value : " << minv << " (" << mini << "," << minj << ")" << std::endl;
         std::cout << "Max Value : " << maxv << " (" << maxi << "," << maxj << ")" << std::endl;
