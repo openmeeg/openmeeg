@@ -89,7 +89,8 @@ endif()
 #---------------------------------------------------------------
 
 # Include the file with all source tree directories for OpenMEEG
-set (OPENMEEG_INCLUDE_DIRECTORIES
+
+set(OPENMEEG_INCLUDE_DIRECTORIES
     ${OpenMEEG_BINARY_DIR}
     ${OpenMEEG_SOURCE_DIR}
     ${OpenMEEG_SOURCE_DIR}/src
