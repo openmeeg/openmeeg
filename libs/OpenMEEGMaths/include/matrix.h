@@ -435,10 +435,6 @@ namespace OpenMEEG {
         const int n = nlin();
         const int m = D.ncol();
         const int l = C.nlin();
-        std::cerr << "A: " << std::hex << static_cast<void*>(data()) << '-' << static_cast<void*>(data()+size()) << std::endl;
-        std::cerr << "C: " << std::hex << static_cast<void*>(C.data()) << '-' << static_cast<void*>(C.data()+C.size()) << std::endl;
-        std::cerr << "D: " << std::hex << static_cast<void*>(D.data()) << '-' << static_cast<void*>(D.data()+D.size()) << std::endl;
-        std::cerr << "DSYMM(CblasRight,CblasUpper," << std::dec << n << ',' << m << ",1.,D," << m << ",A," << n << ",0.,C," << l <<");" << std::endl;
         DSYMM(CblasRight,CblasUpper,n,m,1.,D.data(),m,data(),n,0.,C.data(),l);
     #else
         for (size_t j=0;j<B.ncol();j++)
