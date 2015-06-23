@@ -72,13 +72,12 @@ void genericTest(const std::string& basename, T &M) {
     M.info();
 
     // TODO Here for sparse matrix 
-#ifdef USE_MATIO
+
     const std::string matname = basename+".mat";
     std::cout << "MAT :" << std::endl;
     M.save(matname);
     M.load(matname);
     M.info();
-#endif
 
     std::cout << "   operator * OK" << std::endl;
     std::cout.flush();

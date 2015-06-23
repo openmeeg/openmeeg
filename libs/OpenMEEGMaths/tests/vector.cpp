@@ -65,12 +65,11 @@ int main () {
     v.load("tmp.txt");
     std::cout << "v = " << std::endl << v << std::endl;
 
-#ifdef USE_MATIO
     std::cout << "MAT :" << std::endl;
     v.save("tmp_matrix.mat");
     v.load("tmp_matrix.mat");
     v.info();
-#endif
+
     v(0) = 115;
     v(7) = 0.16;
     v(3) = 0.22;
