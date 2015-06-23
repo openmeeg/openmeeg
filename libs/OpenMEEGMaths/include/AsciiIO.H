@@ -41,10 +41,6 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #include <sstream>
 
-#ifdef USE_MATIO
-#include <matio.h>
-#endif
-
 #include <Exceptions.H>
 #include "MathsIO.H"
 #include "sparse_matrix.h"

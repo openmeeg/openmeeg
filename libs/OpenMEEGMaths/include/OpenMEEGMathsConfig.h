@@ -43,10 +43,6 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <OpenMEEGConfigure.h>
 #include <DLLDefinesOpenMEEGMaths.h>
 
-#ifdef USE_MATIO
-#include "matio.h"
-#endif
-
 #if !defined(USE_MKL)
     #if defined (WIN32) || !defined(USE_ATLAS)
         #define FC_GLOBAL(x,X) x ## _
