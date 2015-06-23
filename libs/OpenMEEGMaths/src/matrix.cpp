@@ -266,7 +266,6 @@ namespace OpenMEEG {
             ifs >> maths::format(filename,maths::format::FromSuffix) >> *this;
         }
         catch (maths::Exception& e) {
-            std::cout << e.what() << " Doing my best...." << std::endl;
             ifs >> *this;
         }
     }
@@ -277,7 +276,6 @@ namespace OpenMEEG {
             ofs << maths::format(filename,maths::format::FromSuffix) << *this;
         }
         catch (maths::Exception& e) {
-            std::cout << e.what() << " Doing my best...." << std::endl;
             ofs << *this;
         }
     }
