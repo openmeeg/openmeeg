@@ -17,7 +17,7 @@ string(REGEX REPLACE "^.*/(lib|lib64)(/python.*)$" "\\1\\2" PYTHON_REL_SITE_ARCH
 
 include(FindNumpy.cmake)
 if (NOT PYTHON_NUMPY_FOUND)
-    message(STATUS "numpy not found for python ${PYTHON_VERSION_STRING}: disabling wrapping.")
+    message(FATAL_ERROR "numpy not found for python ${PYTHON_VERSION_STRING}: disabling wrapping.")
     return()
 endif()
 
@@ -25,7 +25,7 @@ message(STATUS "PYTHON VERSION: ${PYTHON_VERSION_STRING}")
 
 set(MODULE_NAME openmeeg)
 set(SWIG_SRC_FILE_NAME ${MODULE_NAME}.i)
-set(CMAKE_SWIG_FLAGS "-c++ -v" )
+set(CMAKE_SWIG_FLAGS "-c++ -v -O" )
 
 find_package(SWIG)
 if (NOT SWIG_FOUND)
@@ -43,8 +43,6 @@ if (NOT PYTHONLIBS_FOUND)
 endif()
 
 include_directories(${PYTHON_INCLUDE_PATH} ${PYTHON_NUMPY_INCLUDE_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
-
-set(CMAKE_SWIG_FLAGS "-v")
 
 file(GLOB SWIG_SRC_FILE ${SWIG_SRC_FILE_NAME})
 set_source_files_properties(${SWIG_SRC_FILE_NAME} ${SWIG_SRC_FILE} PROPERTIES CPLUSPLUS ON)
