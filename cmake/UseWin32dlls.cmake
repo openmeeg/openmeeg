@@ -29,20 +29,24 @@ IF (WIN32 AND ENABLE_PACKAGING)
 
     message(":::: ${OpenMEEG_SOURCE_DIR} :: ${OpenMEEG_BINARY_DIR} :::")
     message(":::: ${PROJECT_SOURCE_DIR} :: ${PROJECT_BINARY_DIR} :::")
-    SET(WIN32_MANIFEST "${PROJECT_SOURCE_DIR}/win32addons/Microsoft.VC80.CRT.manifest")
-    SET(MSVCP80 "${PROJECT_SOURCE_DIR}/win32addons/msvcp80.dll")
-    SET(MSVCR80 "${PROJECT_SOURCE_DIR}/win32addons/msvcr80.dll")
+    set(WIN32_MANIFEST "${PROJECT_SOURCE_DIR}/win32addons/Microsoft.VC80.CRT.manifest")
+    set(MSVCP80 "${PROJECT_SOURCE_DIR}/win32addons/msvcp80.dll")
+    set(MSVCR80 "${PROJECT_SOURCE_DIR}/win32addons/msvcr80.dll")
 
-    ADD_CUSTOM_TARGET(copy_dlls ALL
+    add_custom_target(copy_dlls ALL
         COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_BINARY_DIR}/win32depends/
+        COMMAND ${CMAKE_COMMAND} -E touch ${PROJECT_BINARY_DIR}/win32depends/Doing
+        COMMAND ${CMAKE_COMMAND} -E echo copy ${MSVCP80} ${PROJECT_BINARY_DIR}/win32depends/
         COMMAND ${CMAKE_COMMAND} -E copy ${MSVCP80} ${PROJECT_BINARY_DIR}/win32depends/
+        COMMAND ${CMAKE_COMMAND} -E echo copy ${MSVCR80} ${PROJECT_BINARY_DIR}/win32depends/
         COMMAND ${CMAKE_COMMAND} -E copy ${MSVCR80} ${PROJECT_BINARY_DIR}/win32depends/
-        COMMAND ${CMAKE_COMMAND} -E copy ${WIN32_MANIFEST} ${PROJECT_BINARY_DIR}/win32depends/
-    )
+        COMMAND ${CMAKE_COMMAND} -E echo copy ${WIN32_MANIFEST} ${PROJECT_BINARY_DIR}/win32depends/)
+        COMMAND ${CMAKE_COMMAND} -E copy ${WIN32_MANIFEST} ${PROJECT_BINARY_DIR}/win32depends/)
+        COMMAND ${CMAKE_COMMAND} -E touch ${PROJECT_BINARY_DIR}/win32depends/Done)
 
-    INSTALL(DIRECTORY ${OpenMEEG_BINARY_DIR}/win32depends/ DESTINATION bin
-              PATTERN "${OpenMEEG_BINARY_DIR}/win32depends/*"
-              PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ
-                          GROUP_EXECUTE GROUP_READ)
+    INSTALL(DIRECTORY ${PROJECT_BINARY_DIR}/win32depends/ DESTINATION bin
+            PATTERN "${PROJECT_BINARY_DIR}/win32depends/*"
+            PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ
+                        GROUP_EXECUTE GROUP_READ)
 
 ENDIF()
