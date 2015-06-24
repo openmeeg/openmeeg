@@ -27,8 +27,6 @@ IF (WIN32 AND ENABLE_PACKAGING)
     #          NO_SYSTEM_ENVIRONMENT_PATH
     #          NO_CMAKE_SYSTEM_PATH)
 
-    message(":::: ${OpenMEEG_SOURCE_DIR} :: ${OpenMEEG_BINARY_DIR} :::")
-    message(":::: ${PROJECT_SOURCE_DIR} :: ${PROJECT_BINARY_DIR} :::")
     set(WIN32_MANIFEST "${PROJECT_SOURCE_DIR}/win32addons/Microsoft.VC80.CRT.manifest")
     set(MSVCP80 "${PROJECT_SOURCE_DIR}/win32addons/msvcp80.dll")
     set(MSVCR80 "${PROJECT_SOURCE_DIR}/win32addons/msvcr80.dll")
