@@ -25,7 +25,7 @@ message(STATUS "PYTHON VERSION: ${PYTHON_VERSION_STRING}")
 
 set(MODULE_NAME openmeeg)
 set(SWIG_SRC_FILE_NAME ${MODULE_NAME}.i)
-set(CMAKE_SWIG_FLAGS "-c++ -v -O" )
+set(CMAKE_SWIG_FLAGS -c++ -v -O)
 
 find_package(SWIG)
 if (NOT SWIG_FOUND)
