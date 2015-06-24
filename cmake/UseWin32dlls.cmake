@@ -35,14 +35,9 @@ IF (WIN32 AND ENABLE_PACKAGING)
 
     add_custom_target(copy_dlls ALL
         COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_BINARY_DIR}/win32depends/
-        COMMAND ${CMAKE_COMMAND} -E touch ${PROJECT_BINARY_DIR}/win32depends/Doing
-        COMMAND ${CMAKE_COMMAND} -E echo copy ${MSVCP80} ${PROJECT_BINARY_DIR}/win32depends/
         COMMAND ${CMAKE_COMMAND} -E copy ${MSVCP80} ${PROJECT_BINARY_DIR}/win32depends/
-        COMMAND ${CMAKE_COMMAND} -E echo copy ${MSVCR80} ${PROJECT_BINARY_DIR}/win32depends/
         COMMAND ${CMAKE_COMMAND} -E copy ${MSVCR80} ${PROJECT_BINARY_DIR}/win32depends/
-        COMMAND ${CMAKE_COMMAND} -E echo copy ${WIN32_MANIFEST} ${PROJECT_BINARY_DIR}/win32depends/
-        COMMAND ${CMAKE_COMMAND} -E copy ${WIN32_MANIFEST} ${PROJECT_BINARY_DIR}/win32depends/
-        COMMAND ${CMAKE_COMMAND} -E touch ${PROJECT_BINARY_DIR}/win32depends/Done)
+        COMMAND ${CMAKE_COMMAND} -E copy ${WIN32_MANIFEST} ${PROJECT_BINARY_DIR}/win32depends/)
 
     INSTALL(DIRECTORY ${PROJECT_BINARY_DIR}/win32depends/ DESTINATION bin
             PATTERN "${PROJECT_BINARY_DIR}/win32depends/*"
