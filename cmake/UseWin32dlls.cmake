@@ -27,15 +27,17 @@ IF (WIN32 AND ENABLE_PACKAGING)
     #          NO_SYSTEM_ENVIRONMENT_PATH
     #          NO_CMAKE_SYSTEM_PATH)
 
-    SET(WIN32_MANIFEST "${OpenMEEG_SOURCE_DIR}/win32addons/Microsoft.VC80.CRT.manifest")
-    SET(MSVCP80 "${OpenMEEG_SOURCE_DIR}/win32addons/msvcp80.dll")
-    SET(MSVCR80 "${OpenMEEG_SOURCE_DIR}/win32addons/msvcr80.dll")
+    message(":::: ${OpenMEEG_SOURCE_DIR} :: ${OpenMEEG_BINARY_DIR} :::")
+    message(":::: ${PROJECT_SOURCE_DIR} :: ${PROJECT_BINARY_DIR} :::")
+    SET(WIN32_MANIFEST "${PROJECT_SOURCE_DIR}/win32addons/Microsoft.VC80.CRT.manifest")
+    SET(MSVCP80 "${PROJECT_SOURCE_DIR}/win32addons/msvcp80.dll")
+    SET(MSVCR80 "${PROJECT_SOURCE_DIR}/win32addons/msvcr80.dll")
 
     ADD_CUSTOM_TARGET(copy_dlls ALL
-        COMMAND ${CMAKE_COMMAND} -E make_directory ${OpenMEEG_BINARY_DIR}/win32depends/
-        COMMAND ${CMAKE_COMMAND} -E copy ${MSVCP80} ${OpenMEEG_BINARY_DIR}/win32depends/
-        COMMAND ${CMAKE_COMMAND} -E copy ${MSVCR80} ${OpenMEEG_BINARY_DIR}/win32depends/
-        COMMAND ${CMAKE_COMMAND} -E copy ${WIN32_MANIFEST} ${OpenMEEG_BINARY_DIR}/win32depends/
+        COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_BINARY_DIR}/win32depends/
+        COMMAND ${CMAKE_COMMAND} -E copy ${MSVCP80} ${PROJECT_BINARY_DIR}/win32depends/
+        COMMAND ${CMAKE_COMMAND} -E copy ${MSVCR80} ${PROJECT_BINARY_DIR}/win32depends/
+        COMMAND ${CMAKE_COMMAND} -E copy ${WIN32_MANIFEST} ${PROJECT_BINARY_DIR}/win32depends/
     )
 
     INSTALL(DIRECTORY ${OpenMEEG_BINARY_DIR}/win32depends/ DESTINATION bin
