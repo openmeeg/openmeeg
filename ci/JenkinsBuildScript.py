@@ -41,12 +41,18 @@ if sys.platform=='win32':
                 return [i,val]
 
     def isWindows64bits():
-        i = ctypes.c_int()
-        kernel32 = ctypes.windll.kernel32
-        process = kernel32.GetCurrentProcess()
-        kernel32.IsWow64Process(process, ctypes.byref(i))
-        is64bit = (i.value != 0)
-        return is64bit
+        #i = ctypes.c_int()
+        #kernel32 = ctypes.windll.kernel32
+        #process = kernel32.GetCurrentProcess()
+        #kernel32.IsWow64Process(process, ctypes.byref(i))
+        #is64bit = (i.value != 0)
+        #return is64bit
+        import platform
+        import struct
+
+        os_name = platform.system()
+        bits = struct.calcsize("P")*8
+        return bits==64
 
     def set_visual_studio_environment():
         version,path = find_visual_studio_version()
