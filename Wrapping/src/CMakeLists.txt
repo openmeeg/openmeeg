@@ -2,32 +2,17 @@
 # SWIG Embedding
 #######################################################################
 
-find_package(PythonInterp)
-
-if (NOT PYTHON_EXECUTABLE)
-    message(STATUS "Python not found: disabling wrapping.")
-    return()
-endif()
-
-exec_program("${PYTHON_EXECUTABLE}"
-             ARGS "-c \"from distutils.sysconfig import get_python_lib; print get_python_lib(1)\""
-             OUTPUT_VARIABLE PYTHON_SITE_ARCH
-             RETURN_VALUE PYTHON_SITEARCH_NOT_FOUND)
-string(REGEX REPLACE "^.*/(lib|lib64)(/python.*)$" "\\1\\2" PYTHON_REL_SITE_ARCH ${PYTHON_SITE_ARCH})
-
-include(FindNumpy.cmake)
-if (NOT PYTHON_NUMPY_FOUND)
-    message(FATAL_ERROR "numpy not found for python ${PYTHON_VERSION_STRING}: disabling wrapping.")
-    return()
-endif()
+find_package(PythonInterp REQUIRED)
 
 message(STATUS "PYTHON VERSION: ${PYTHON_VERSION_STRING}")
 
+find_package(PythonLibs REQUIRED)
+find_package(NumPy REQUIRED)
+
+include_directories(${PYTHON_INCLUDE_PATH} ${NUMPY_INCLUDE_DIRS} ${CMAKE_CURRENT_SOURCE_DIR})
+
 find_package(SWIG REQUIRED)
 include(${SWIG_USE_FILE})
-
-find_package(PythonLibs REQUIRED)
-include_directories(${PYTHON_INCLUDE_PATH} ${PYTHON_NUMPY_INCLUDE_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
 
 set(MODULE_NAME openmeeg)
 set(SWIG_SRC_FILE_NAME ${MODULE_NAME}.i)
