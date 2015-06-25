@@ -20,7 +20,8 @@ if (PYTHON_EXECUTABLE)
 
     execute_process(COMMAND "${PYTHON_EXECUTABLE}" "-c \"import numpy; print numpy.get_include()\""
                  OUTPUT_VARIABLE PYTHON_NUMPY_INCLUDE_DIR
-                 RETURN_VALUE PYTHON_NUMPY_NOT_FOUND)
+                 ERROR_VARIABLE  PYTHON_NUMPY_ERROR
+                 RESULT_VARIABLE PYTHON_NUMPY_NOT_FOUND)
     message("==== ${PYTHON_NUMPY_INCLUDE_DIR} ==== ${PYTHON_NUMPY_NOT_FOUND} ====== ${PYTHON_NUMPY_ERROR} ")
 
     if (PYTHON_NUMPY_INCLUDE_DIR)
