@@ -3,8 +3,7 @@
 #######################################################################
 
 find_package(PythonInterp REQUIRED)
-
-message(STATUS "PYTHON VERSION: ${PYTHON_VERSION_STRING}")
+message(STATUS "PYTHON VERSION: ${PYTHON_VERSION_STRING} ${PYTHON_EXECUTABLE}")
 
 find_package(PythonLibs REQUIRED)
 find_package(NumPy REQUIRED)
