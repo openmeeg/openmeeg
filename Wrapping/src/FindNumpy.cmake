@@ -12,6 +12,11 @@ endif()
 find_package(PythonInterp)
 
 if (PYTHON_EXECUTABLE)
+    message(" exec_program(\"${PYTHON_EXECUTABLE}\"
+                 ARGS \"-c \"import numpy; print numpy.get_include()\"\"
+                 OUTPUT_VARIABLE PYTHON_NUMPY_INCLUDE_DIR
+                 RETURN_VALUE PYTHON_NUMPY_NOT_FOUND)")
+
     exec_program("${PYTHON_EXECUTABLE}"
                  ARGS "-c \"import numpy; print numpy.get_include()\""
                  OUTPUT_VARIABLE PYTHON_NUMPY_INCLUDE_DIR
