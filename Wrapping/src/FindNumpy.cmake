@@ -21,7 +21,7 @@ if (PYTHON_EXECUTABLE)
                  ARGS "-c \"import numpy; print numpy.get_include()\""
                  OUTPUT_VARIABLE PYTHON_NUMPY_INCLUDE_DIR
                  RETURN_VALUE PYTHON_NUMPY_NOT_FOUND)
-    message("==== ${PYTHON_NUMPY_INCLUDE_DIR} ====")
+    message("==== ${PYTHON_NUMPY_INCLUDE_DIR} ==== ${PYTHON_NUMPY_NOT_FOUND} ======")
 
     if (PYTHON_NUMPY_INCLUDE_DIR)
         set(PYTHON_NUMPY_FOUND TRUE)
