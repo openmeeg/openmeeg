@@ -2,7 +2,7 @@
 
 from __future__ import print_function
 
-import ctypes,sys
+import sys
 import io
 import os
 import glob
@@ -41,15 +41,7 @@ if sys.platform=='win32':
                 return [i,val]
 
     def isWindows64bits():
-        #i = ctypes.c_int()
-        #kernel32 = ctypes.windll.kernel32
-        #process = kernel32.GetCurrentProcess()
-        #kernel32.IsWow64Process(process, ctypes.byref(i))
-        #is64bit = (i.value != 0)
-        #return is64bit
-        import platform
-        import struct
-
+        import platform,struct
         os_name = platform.system()
         bits = struct.calcsize("P")*8
         return bits==64
@@ -134,7 +126,7 @@ def cmake_build(args):
 
     cmake_command_line = [ CMAKE_COMMAND, '--build', '.' ]
     if sys.platform=='win32':
-        cmake_command_line.extend(['--config', 'RelWithDebInfo'])
+        cmake_command_line.extend(['--config', 'Release'])
 
     if args.incremental_build:
         cmcomline = list(cmake_command_line).extend(['--target','update'])
@@ -145,7 +137,7 @@ def cmake_build(args):
 def cmake_test(test_type,args):
     cmake_command_line = [ CTEST_COMMAND, '-D', test_type]
     if sys.platform=='win32':
-        cmake_command_line.extend(['-C', 'RelWithDebInfo'])
+        cmake_command_line.extend(['-C', 'Release'])
     if test_type=='ExperimentalTest':
         cmake_command_line.append('--no-compress-output')
 
