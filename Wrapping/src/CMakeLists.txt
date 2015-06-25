@@ -23,26 +23,15 @@ endif()
 
 message(STATUS "PYTHON VERSION: ${PYTHON_VERSION_STRING}")
 
+find_package(SWIG REQUIRED)
+include(${SWIG_USE_FILE})
+
+find_package(PythonLibs REQUIRED)
+include_directories(${PYTHON_INCLUDE_PATH} ${PYTHON_NUMPY_INCLUDE_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
+
 set(MODULE_NAME openmeeg)
 set(SWIG_SRC_FILE_NAME ${MODULE_NAME}.i)
 set(CMAKE_SWIG_FLAGS -c++ -v -O)
-
-find_package(SWIG)
-if (NOT SWIG_FOUND)
-    unset(ENABLE_PYTHON)
-    message(STATUS "swig not found: disabling wrapping.")
-    return()
-endif()
-
-include(${SWIG_USE_FILE})
-find_package(PythonLibs)
-
-if (NOT PYTHONLIBS_FOUND)
-    message(STATUS "Python libraries not found: disabling wrapping.")
-    return()
-endif()
-
-include_directories(${PYTHON_INCLUDE_PATH} ${PYTHON_NUMPY_INCLUDE_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
 
 file(GLOB SWIG_SRC_FILE ${SWIG_SRC_FILE_NAME})
 set_source_files_properties(${SWIG_SRC_FILE_NAME} ${SWIG_SRC_FILE} PROPERTIES CPLUSPLUS ON)
@@ -58,8 +47,8 @@ if (BUILD_DOCUMENTATION)
 endif()
 
 message("-:- ${SWIG_SRC_FILE} :: ${SWIG_SRC_FILE_NAME} :_:")
-SWIG_ADD_MODULE(${MODULE_NAME} python ${SWIG_SRC_FILE} "")
-target_link_libraries("_${MODULE_NAME}" ${PYTHON_LIBRARIES} OpenMEEG ${LAPACK_LIBRARIES})
+SWIG_ADD_MODULE(${MODULE_NAME} python ${SWIG_SRC_FILE} "openmeeg.cxx")
+SWIG_LINK_LIBRARIES(${MODULE_NAME} ${PYTHON_LIBRARIES} OpenMEEG ${LAPACK_LIBRARIES})
 
 install(TARGETS  "_${MODULE_NAME}"
         LIBRARY DESTINATION ${PYTHON_REL_SITE_ARCH}
