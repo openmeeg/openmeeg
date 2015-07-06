@@ -34,6 +34,13 @@ message("-:- ${SWIG_SRC_FILE} :: ${SWIG_SRC_FILE_NAME} :_:")
 SWIG_ADD_MODULE(${MODULE_NAME} python ${SWIG_SRC_FILE} "")
 SWIG_LINK_LIBRARIES(${MODULE_NAME} ${PYTHON_LIBRARIES} OpenMEEG ${LAPACK_LIBRARIES})
 
+exec_program("${PYTHON_EXECUTABLE}"
+             ARGS "-c \"from distutils.sysconfig import get_python_lib; print get_python_lib(1)\""
+             OUTPUT_VARIABLE PYTHON_SITE_ARCH
+             RETURN_VALUE PYTHON_SITEARCH_NOT_FOUND)
+string(REGEX REPLACE "^.*/(lib|lib64)(/python.*)$" "\\1\\2" PYTHON_REL_SITE_ARCH ${PYTHON_SITE_ARCH})
+message(":=: ${PYTHON_REL_SITE_ARCH} :: ${PYTHON_LIBRARIES} :=:")
+
 install(TARGETS  "_${MODULE_NAME}"
         LIBRARY DESTINATION ${PYTHON_REL_SITE_ARCH}
         RUNTIME DESTINATION ${PYTHON_REL_SITE_ARCH}
