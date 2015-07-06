@@ -6,7 +6,7 @@ find_package(PythonInterp REQUIRED)
 message(STATUS "PYTHON VERSION: ${PYTHON_VERSION_STRING} ${PYTHON_EXECUTABLE}")
 
 find_package(PythonLibs REQUIRED)
-find_package(NumPy REQUIRED)
+find_package(Numpy REQUIRED)
 
 include_directories(${PYTHON_INCLUDE_PATH} ${NUMPY_INCLUDE_DIRS} ${CMAKE_CURRENT_SOURCE_DIR})
 
