@@ -97,7 +97,8 @@ namespace OpenMEEG {
             const unsigned gauss_order, const bool adapt_rhs, const std::string& domain_name = "") 
     {
         const double   K         = 1.0/(4.*M_PI);
-        const unsigned size      = (geo.size() - geo.outermost_interface().nb_triangles());
+	//      const unsigned size      = (geo.size() - geo.outermost_interface().nb_triangles());
+	const unsigned size = geo.size() - geo.nb_current_barrier_triangles();
         const unsigned n_dipoles = dipoles.nlin();
 
         rhs = Matrix(size, n_dipoles);
@@ -127,7 +128,7 @@ namespace OpenMEEG {
                     double coeffD = (hit->inside())?(K * omit->orientation()):(-K * omit->orientation());
                     operatorDipolePotDer(r, q, omit->mesh(), rhs_col, coeffD, gauss_order, adapt_rhs);
 
-                    if ( !omit->mesh().outermost() ) {
+		    if(!omit->current_barrier()){
                         double coeff = ( hit->inside() )?(-omit->orientation() * K / sigma):(omit->orientation() * K / sigma);
                         operatorDipolePot(r, q, omit->mesh(), rhs_col, coeff, gauss_order, adapt_rhs);
                     }
