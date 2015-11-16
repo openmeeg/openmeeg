@@ -48,4 +48,8 @@ if (BUILD_TESTING)
             TESTHEAD(NNc3)
         endif()
     endif()
+    
+    # multiple nonconductive tests
+    TESTHEAD(MN1)
+    TESTHEAD(MN2)
 endif()
