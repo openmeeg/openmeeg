@@ -212,7 +212,21 @@ foreach(HEADGEO "2" ${NNa2} ${NNb2})
 endforeach()
 
 # tests for the multiple nonconductive branch
-# head matrix
+# compare with analytical solution
+set(EPSILONMN1 0.10)
+set(EPSILONMN2 0.10)
+foreach(DIP 1 2 3 4 5 6)
+    foreach(HEADNUM MN1 MN2)
+        foreach(COMP mag rdm)
+        set(HEAD "Head${HEADNUM}")
+            foreach(ADJOINT "" adjoint adjoint2)
+                set(BASE_FILE_NAME "${HEAD}-dip.est_eeg${ADJOINT}")
+                OPENMEEG_COMPARISON_TEST("EEG${ADJOINT}EST-dip-${HEAD}-dip${DIP}-${COMP}" ${BASE_FILE_NAME} analytic/eeg_head${HEADNUM}_analytic.txt -${COMP} -eps ${EPSILON${HEADNUM}} -col ${DIP} -full
+                DEPENDS EEG${ADJOINT}-dipoles-${HEAD})
+            endforeach()
+        endforeach()
+    endforeach()
+endforeach()
 
 
 
