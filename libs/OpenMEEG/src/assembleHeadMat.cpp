@@ -72,8 +72,8 @@ namespace OpenMEEG {
     template<class T>
     void deflat(T& M, const Geometry& geo)
     {
-        //deflat every outermost interface
-        unsigned nb_vertices=0,i_first=0; //number of outermost vertices
+        //deflat all current barriers as one
+        unsigned nb_vertices=0,i_first=0;
         double coef=0.0;
         for(std::vector<std::vector<std::string> >::const_iterator git=geo.geo_group().begin();git!=geo.geo_group().end();++git){
             nb_vertices=0;
@@ -148,7 +148,7 @@ namespace OpenMEEG {
                 }
             }
         }
-        // Deflate every outermost interface
+        // Deflate all current barriers as one
         deflat(mat,geo);
     }
 
@@ -167,8 +167,8 @@ namespace OpenMEEG {
         om_error(Cortex.size()==1);
 
         // shape of the new matrix:
-        unsigned Nl = geo.size()-geo.outermost_interface().nb_triangles()-Cortex.nb_vertices()-Cortex.nb_triangles();
-        unsigned Nc = geo.size()-geo.outermost_interface().nb_triangles();
+        unsigned Nl = geo.size()-geo.nb_current_barrier_triangles()-Cortex.nb_vertices()-Cortex.nb_triangles();
+        unsigned Nc = geo.size()-geo.nb_current_barrier_triangles();
         std::fstream f(filename.c_str());
         Matrix P;
         if ( !f ) {
@@ -188,18 +188,18 @@ namespace OpenMEEG {
                         double Scoeff =   orientation * geo.sigma_inv(*mit1, *mit2) * K;
                         double Dcoeff = - orientation * geo.indicator(*mit1, *mit2) * K;
                         double Ncoeff;
-                        if ( !(mit1->outermost() || mit2->outermost()) && ( (*mit1 != *mit2)||( *mit1 != cortex) ) ) {
+                        if ( !(mit1->current_barrier() || mit2->current_barrier()) && ( (*mit1 != *mit2)||( *mit1 != cortex) ) ) {
                             // Computing S block first because it's needed for the corresponding N block
                             operatorS(*mit1, *mit2, mat_temp, Scoeff, gauss_order);
                             Ncoeff = geo.sigma(*mit1, *mit2)/geo.sigma_inv(*mit1, *mit2);
                         } else {
                             Ncoeff = orientation * geo.sigma(*mit1, *mit2) * K;
                         }
-                        if ( !mit1->outermost() && (( (*mit1 != *mit2)||( *mit1 != cortex) )) ) {
+                        if ( !mit1->current_barrier() && (( (*mit1 != *mit2)||( *mit1 != cortex) )) ) {
                             // Computing D block
                             operatorD(*mit1, *mit2, mat_temp, Dcoeff, gauss_order,false);
                         }
-                        if ( ( *mit1 != *mit2 ) && ( !mit2->outermost() ) ) {
+                        if ( ( *mit1 != *mit2 ) && ( !mit2->current_barrier() ) ) {
                             // Computing D* block
                             operatorD(*mit1, *mit2, mat_temp, Dcoeff, gauss_order, true);
                         }
@@ -210,10 +210,8 @@ namespace OpenMEEG {
                     }
                 }
             }
-            // Deflate the diagonal block (N33) of 'mat' : (in order to have a zero-mean potential for the outermost interface)
-            const Interface interface = geo.outermost_interface();
-            unsigned i_first = (*interface.begin()->mesh().vertex_begin())->index();
-            deflat(mat_temp, interface, mat_temp(i_first, i_first) / (geo.outermost_interface().nb_vertices()));
+            // Deflate all current barriers as one
+            deflat(mat_temp,geo);
 
             mat = Matrix(Nl, Nc);
             mat.set(0.0);
@@ -225,7 +223,7 @@ namespace OpenMEEG {
                         mat.setlin(iNl, mat_temp.getlin((*vit)->index()));
                         ++iNl;
                     }
-                    if ( !mit->outermost() ) {
+                    if ( !mit->current_barrier() ) {
                         for ( Mesh::const_iterator tit = mit->begin(); tit != mit->end(); ++tit) {
                             mat.setlin(iNl, mat_temp.getlin(tit->index()));
                             ++iNl;
@@ -274,7 +272,7 @@ namespace OpenMEEG {
                 alphas(vit->index(), vit->index()) = alpha;
             }
             for ( Meshes::const_iterator mit = geo.begin(); mit != geo.end(); ++mit) {
-                if ( !mit->outermost() ) {
+                if ( !mit->current_barrier() ) {
                     for ( Mesh::const_iterator tit = mit->begin(); tit != mit->end(); ++tit) {
                         alphas(tit->index(), tit->index()) = beta;
                     }
@@ -286,7 +284,7 @@ namespace OpenMEEG {
                 alphas(vit->index(), vit->index()) = alpha;
             }
             for ( Meshes::const_iterator mit = geo.begin(); mit != geo.end(); ++mit) {
-                if ( !mit->outermost() ) {
+                if ( !mit->current_barrier() ) {
                     for ( Mesh::const_iterator tit = mit->begin(); tit != mit->end(); ++tit) {
                         alphas(tit->index(), tit->index()) = beta;
                     }
@@ -332,8 +330,8 @@ namespace OpenMEEG {
         om_error(Cortex.size()==1);
 
         // shape of the new matrix:
-        unsigned Nl = geo.size()-geo.outermost_interface().nb_triangles()-Cortex.nb_vertices()-Cortex.nb_triangles();
-        unsigned Nc = geo.size()-geo.outermost_interface().nb_triangles();
+        unsigned Nl = geo.size()-geo.nb_current_barrier_triangles()-Cortex.nb_vertices()-Cortex.nb_triangles();
+        unsigned Nc = geo.size()-geo.nb_current_barrier_triangles();
         std::fstream f(filename.c_str());
         Matrix H;
         if ( !f ) {
@@ -353,18 +351,18 @@ namespace OpenMEEG {
                         double Scoeff =   orientation * geo.sigma_inv(*mit1, *mit2) * K;
                         double Dcoeff = - orientation * geo.indicator(*mit1, *mit2) * K;
                         double Ncoeff;
-                        if ( !(mit1->outermost() || mit2->outermost()) && ( (*mit1 != *mit2)||( *mit1 != cortex) ) ) {
+                        if ( !(mit1->current_barrier() || mit2->current_barrier()) && ( (*mit1 != *mit2)||( *mit1 != cortex) ) ) {
                             // Computing S block first because it's needed for the corresponding N block
                             operatorS(*mit1, *mit2, mat_temp, Scoeff, gauss_order);
                             Ncoeff = geo.sigma(*mit1, *mit2)/geo.sigma_inv(*mit1, *mit2);
                         } else {
                             Ncoeff = orientation * geo.sigma(*mit1, *mit2) * K;
                         }
-                        if ( !mit1->outermost() && (( (*mit1 != *mit2)||( *mit1 != cortex) )) ) {
+                        if ( !mit1->current_barrier() && (( (*mit1 != *mit2)||( *mit1 != cortex) )) ) {
                             // Computing D block
                             operatorD(*mit1, *mit2, mat_temp, Dcoeff, gauss_order);
                         }
-                        if ( ( *mit1 != *mit2 ) && ( !mit2->outermost() ) ) {
+                        if ( ( *mit1 != *mit2 ) && ( !mit2->current_barrier() ) ) {
                             // Computing D* block
                             operatorD(*mit1, *mit2, mat_temp, Dcoeff, gauss_order, true);
                         }
@@ -375,10 +373,8 @@ namespace OpenMEEG {
                     }
                 }
             }
-            // Deflate the diagonal block (N33) of 'mat' : (in order to have a zero-mean potential for the outermost interface)
-            const Interface i = geo.outermost_interface();
-            unsigned i_first = (*i.begin()->mesh().vertex_begin())->index();
-            deflat(mat_temp, i, mat_temp(i_first, i_first) / (geo.outermost_interface().nb_vertices()));
+            // Deflate all current barriers as one
+            deflat(mat,geo);
 
             H = Matrix(Nl + M.nlin(), Nc);
             H.set(0.0);
@@ -390,7 +386,7 @@ namespace OpenMEEG {
                         H.setlin(iNl, mat_temp.getlin((*vit)->index()));
                         ++iNl;
                     }
-                    if ( !mit->outermost() ) {
+                    if ( !mit->current_barrier() ) {
                         for ( Mesh::const_iterator tit = mit->begin(); tit != mit->end(); ++tit) {
                             H.setlin(iNl, mat_temp.getlin(tit->index()));
                             ++iNl;
@@ -422,7 +418,7 @@ namespace OpenMEEG {
         }
         // multiply by gamma the submat of current gradient norm2
         for ( Meshes::const_iterator mit = geo.begin(); mit != geo.end(); ++mit) {
-            if ( !mit->outermost() ) {
+            if ( !mit->current_barrier() ) {
                 for ( Mesh::const_iterator tit1 = mit->begin(); tit1 != mit->end(); ++tit1) {
                     for ( Mesh::const_iterator tit2 = mit->begin(); tit2 != mit->end(); ++tit2) {
                         G(tit1->index(), tit2->index()) *= gamma;

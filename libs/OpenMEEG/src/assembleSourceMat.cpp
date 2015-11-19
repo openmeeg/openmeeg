@@ -54,7 +54,7 @@ namespace OpenMEEG {
 
     void assemble_SurfSourceMat(Matrix& mat, const Geometry& geo, Mesh& mesh_source, const unsigned gauss_order) 
     {
-        mat = Matrix((geo.size()-geo.outermost_interface().nb_triangles()), mesh_source.nb_vertices());
+        mat = Matrix((geo.size()-geo.nb_current_barrier_triangles()), mesh_source.nb_vertices());
         mat.set(0.0);
 
         // check if no overlapping between the geometry and the source mesh

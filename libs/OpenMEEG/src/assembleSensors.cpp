@@ -80,7 +80,7 @@ namespace OpenMEEG {
     // difference with Head2EEG is that it interpolates the inner skull layer instead of the scalp layer. 
     void assemble_Head2ECoG(SparseMatrix& mat, const Geometry& geo, const Matrix& positions, const Interface& i)
     {
-        mat = SparseMatrix(positions.nlin(), (geo.size()-geo.outermost_interface().nb_triangles()));
+        mat = SparseMatrix(positions.nlin(), (geo.size()-geo.nb_current_barrier_triangles()));
 
         Vect3 current_position;
         Vect3 current_alphas;
@@ -114,7 +114,7 @@ namespace OpenMEEG {
         Matrix positions = sensors.getPositions();
         Matrix orientations = sensors.getOrientations();
         const unsigned nbIntegrationPoints = sensors.getNumberOfPositions();
-        unsigned p0_p1_size = (geo.size() - geo.outermost_interface().nb_triangles());
+        unsigned p0_p1_size = (geo.size() - geo.nb_current_barrier_triangles());
 
         Matrix FergusonMat(3*nbIntegrationPoints, geo.nb_vertices());
 
