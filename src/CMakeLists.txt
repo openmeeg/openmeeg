@@ -52,4 +52,5 @@ if (BUILD_TESTING)
     # multiple nonconductive tests
     TESTHEAD(MN1)
     TESTHEAD(MN2)
+    TESTHEAD(MN3)
 endif()
