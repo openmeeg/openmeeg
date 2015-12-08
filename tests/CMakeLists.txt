@@ -15,19 +15,20 @@ set_file_properties(CompareOptions
 
 OPENMEEG_UNIT_TEST(load_geo
     SOURCES load_geo.cpp
-    LIBRARIES OpenMEEG OpenMEEGMaths
+    LIBRARIES OpenMEEG OpenMEEGMaths ${VTK_LIBRARIES}
     PARAMETERS ${OpenMEEG_SOURCE_DIR}/data/Head1/Head1.geom ${OpenMEEG_SOURCE_DIR}/data/Head1/Head1.cond)
 
 OPENMEEG_UNIT_TEST(test_mesh_ios
     SOURCES test_mesh_ios.cpp
-    LIBRARIES OpenMEEG OpenMEEGMaths
+    LIBRARIES OpenMEEG OpenMEEGMaths ${VTK_LIBRARIES}
     PARAMETERS ${OpenMEEG_SOURCE_DIR}/data/Head1/Head1.tri)
 
 #   Test sensor is not used  Why ?
 
-NEW_EXECUTABLE(test_sensors test_sensors.cpp LIBRARIES OpenMEEG)
+NEW_EXECUTABLE(test_sensors test_sensors.cpp LIBRARIES OpenMEEG ${VTK_LIBRARIES})
 NEW_EXECUTABLE(compare_matrix compare_matrix.cpp LIBRARIES OpenMEEGMaths ${LAPACK_LIBRARIES})
-NEW_EXECUTABLE(om_validationEIT validationEIT.cpp ${OPEMEEG_HEADERS} LIBRARIES OpenMEEG OpenMEEGMaths ${LAPACK_LIBRARIES})
+NEW_EXECUTABLE(om_validationEIT validationEIT.cpp ${OPEMEEG_HEADERS} LIBRARIES OpenMEEG OpenMEEGMaths ${LAPACK_LIBRARIES} ${VTK_LIBRARIES}
+)
 
 #   TEST COMMON RESULTS ON HEAD1 (Regression test)
 
@@ -100,12 +101,12 @@ endif()
 foreach(ADJOINT "" "adjoint" "adjoint2")
     foreach(HEADGEO ${NNc1})
         foreach(DIP 1 2 3 4 5)
-            SET_TESTS_PROPERTIES(cmp-EEG${ADJOINT}EST-dip-Head${HEADGEO}-dip${DIP}-mag PROPERTIES WILL_FAIL TRUE) # all cmp-EEG-mag NNc1 tests fail...
+            set_tests_properties(cmp-EEG${ADJOINT}EST-dip-Head${HEADGEO}-dip${DIP}-mag PROPERTIES WILL_FAIL TRUE) # all cmp-EEG-mag NNc1 tests fail...
         endforeach()
     endforeach()
     foreach(HEADGEO "1" ${NNa1} ${NNb1})
-        SET_TESTS_PROPERTIES(cmp-EEG${ADJOINT}EST-dip-Head${HEADGEO}-dip4-rdm PROPERTIES WILL_FAIL TRUE)
-        SET_TESTS_PROPERTIES(cmp-EEG${ADJOINT}EST-dip-Head${HEADGEO}-dip5-rdm PROPERTIES WILL_FAIL TRUE)
+        set_tests_properties(cmp-EEG${ADJOINT}EST-dip-Head${HEADGEO}-dip4-rdm PROPERTIES WILL_FAIL TRUE)
+        set_tests_properties(cmp-EEG${ADJOINT}EST-dip-Head${HEADGEO}-dip5-rdm PROPERTIES WILL_FAIL TRUE)
     endforeach()
 endforeach()
 
@@ -152,7 +153,7 @@ endforeach()
 #   Set tests that are expected to fail :
 
 foreach(HEADGEO "1" ${NNa1} ${NNb1})
-    SET_TESTS_PROPERTIES(cmp-EEGinternal-dip-Head${HEADGEO}-dip5 PROPERTIES WILL_FAIL TRUE)
+    set_tests_properties(cmp-EEGinternal-dip-Head${HEADGEO}-dip5 PROPERTIES WILL_FAIL TRUE)
 endforeach()
 
 set(EPSILON1 0.15)
@@ -183,29 +184,29 @@ foreach(SENSORORIENT "" "-tangential" "-noradial")
 endforeach()
 
 foreach(HEADGEO ${NNc1})
-    SET_TESTS_PROPERTIES(cmp-MEGEST-dip-Head${HEADGEO}-dip4-tangential-rdm PROPERTIES WILL_FAIL TRUE)
-    SET_TESTS_PROPERTIES(cmp-MEGEST-dip-Head${HEADGEO}-dip5-tangential-rdm PROPERTIES WILL_FAIL TRUE)
+    set_tests_properties(cmp-MEGEST-dip-Head${HEADGEO}-dip4-tangential-rdm PROPERTIES WILL_FAIL TRUE)
+    set_tests_properties(cmp-MEGEST-dip-Head${HEADGEO}-dip5-tangential-rdm PROPERTIES WILL_FAIL TRUE)
 endforeach()
 
 foreach(HEADGEO "1" ${NNa1} ${NNb1})
     foreach(DIP 2 3 4 5)
         foreach(COMP mag rdm)
-            SET_TESTS_PROPERTIES(cmp-MEGEST-dip-Head${HEADGEO}-dip${DIP}-tangential-${COMP} PROPERTIES WILL_FAIL TRUE)
+            set_tests_properties(cmp-MEGEST-dip-Head${HEADGEO}-dip${DIP}-tangential-${COMP} PROPERTIES WILL_FAIL TRUE)
         endforeach()
     endforeach()
-    SET_TESTS_PROPERTIES(cmp-MEGEST-dip-Head${HEADGEO}-dip4-noradial-mag   PROPERTIES WILL_FAIL TRUE)
-    SET_TESTS_PROPERTIES(cmp-MEGEST-dip-Head${HEADGEO}-dip5-noradial-mag   PROPERTIES WILL_FAIL TRUE)
+    set_tests_properties(cmp-MEGEST-dip-Head${HEADGEO}-dip4-noradial-mag   PROPERTIES WILL_FAIL TRUE)
+    set_tests_properties(cmp-MEGEST-dip-Head${HEADGEO}-dip5-noradial-mag   PROPERTIES WILL_FAIL TRUE)
 endforeach()
 
 foreach(HEADGEO ${NNc2})
-    SET_TESTS_PROPERTIES(cmp-MEGEST-dip-Head${HEADGEO}-dip5-tangential-rdm PROPERTIES WILL_FAIL TRUE)
+    set_tests_properties(cmp-MEGEST-dip-Head${HEADGEO}-dip5-tangential-rdm PROPERTIES WILL_FAIL TRUE)
 endforeach()
 
 foreach(HEADGEO "2" ${NNa2} ${NNb2})
     foreach(DIP 4 5)
         foreach(COMP mag rdm)
             if (NOT(${HEADGEO} STREQUAL "NNa2") OR NOT(${DIP} STREQUAL 4) OR NOT(${COMP} STREQUAL mag))
-                SET_TESTS_PROPERTIES(cmp-MEGEST-dip-Head${HEADGEO}-dip${DIP}-tangential-${COMP} PROPERTIES WILL_FAIL TRUE)
+                set_tests_properties(cmp-MEGEST-dip-Head${HEADGEO}-dip${DIP}-tangential-${COMP} PROPERTIES WILL_FAIL TRUE)
             endif()
         endforeach()
     endforeach()
