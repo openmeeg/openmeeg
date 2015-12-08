@@ -1,26 +1,26 @@
 add_executable(om_make_nerve make_nerve.cpp)
-target_link_libraries (om_make_nerve OpenMEEG)
+target_link_libraries (om_make_nerve OpenMEEG ${VTK_LIBRARIES})
 
 add_executable(om_mesh_convert mesh_convert.cpp)
-target_link_libraries (om_mesh_convert OpenMEEG ${LAPACK_LIBRARIES})
+target_link_libraries (om_mesh_convert OpenMEEG ${LAPACK_LIBRARIES} ${VTK_LIBRARIES})
 
 add_executable(om_geometry_info geometry_info.cpp)
-target_link_libraries (om_geometry_info OpenMEEG)
+target_link_libraries (om_geometry_info OpenMEEG ${VTK_LIBRARIES})
 
 add_executable(om_mesh_info mesh_info.cpp)
-target_link_libraries (om_mesh_info OpenMEEG)
+target_link_libraries (om_mesh_info OpenMEEG ${VTK_LIBRARIES})
 
 add_executable(om_mesh_smooth mesh_smooth.cpp)
-target_link_libraries (om_mesh_smooth OpenMEEG)
+target_link_libraries (om_mesh_smooth OpenMEEG ${VTK_LIBRARIES})
 
 add_executable(om_mesh_concat mesh_concat.cpp)
-target_link_libraries (om_mesh_concat OpenMEEG)
+target_link_libraries (om_mesh_concat OpenMEEG ${VTK_LIBRARIES})
 
 add_executable(om_project_sensors project_sensors.cpp)
-target_link_libraries (om_project_sensors OpenMEEG ${LAPACK_LIBRARIES})
+target_link_libraries (om_project_sensors OpenMEEG ${LAPACK_LIBRARIES} ${VTK_LIBRARIES})
 
 add_executable(om_register_squids register_squids.cpp)
-target_link_libraries (om_register_squids OpenMEEG ${LAPACK_LIBRARIES})
+target_link_libraries (om_register_squids OpenMEEG ${LAPACK_LIBRARIES} ${VTK_LIBRARIES})
 
 add_executable(om_squids2vtk squids2vtk.cpp)
 target_link_libraries (om_squids2vtk OpenMEEGMaths)
@@ -32,10 +32,10 @@ add_executable(om_matrix_convert matrix_convert.cpp)
 target_link_libraries (om_matrix_convert OpenMEEGMaths)
 
 add_executable(om_check_geom check_geom.cpp)
-target_link_libraries (om_check_geom OpenMEEG)
+target_link_libraries (om_check_geom OpenMEEG ${VTK_LIBRARIES})
 
 add_executable(om_mesh_to_dip mesh_to_dip.cpp)
-target_link_libraries (om_mesh_to_dip OpenMEEG)
+target_link_libraries (om_mesh_to_dip OpenMEEG ${VTK_LIBRARIES})
 
 include(CgalOption)
 if (USE_CGAL)

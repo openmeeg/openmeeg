@@ -127,7 +127,7 @@ int main(int argc, char *argv[])
     // save output to the input file
     vtkSmartPointer<vtkPolyDataWriter> writer = vtkSmartPointer<vtkPolyDataWriter>::New();
     writer->SetFileName(meshFileNameO.c_str());
-    writer->SetInput(mesh);
+    writer->SetInputData(mesh);
     writer->Write();
     std::cerr << "saved into " << meshFileNameO << "." << std::endl;
 
