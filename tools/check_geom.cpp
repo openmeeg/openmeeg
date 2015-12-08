@@ -51,7 +51,7 @@ int main( int argc, char **argv)
     command_usage("Check mesh intersections in geometry file");
     const char* geom_filename = command_option("-g",(const char *) NULL,"Input .geom file");
     const char* mesh_filename = command_option("-m",(const char *) NULL,"Mesh file (ex: to test .geom with cortex mesh)");
-    const char* verbous       = command_option("-v",(const char *) NULL,"Print verbous information about the geometry");
+    const char* verbose       = command_option("-v",(const char *) NULL,"Print verbose information about the geometry");
     if (command_option("-h",(const char *)0,0)) return 0;
 
     if ( !geom_filename ) {
@@ -76,7 +76,7 @@ int main( int argc, char **argv)
             status = 1;
         }
     }
-    if ( verbous ) {
+    if ( verbose ) {
         std::cout << "Detailed information about the geom file :" << std::endl;
         g.info(true);
     }
