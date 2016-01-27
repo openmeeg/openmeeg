@@ -114,12 +114,11 @@ int main(int argc, char *argv[])
     point_indices->SetName("Indices");
 
     unsigned i = 0;
-    for ( i = 0; i < nbPoints; ++i) {
+    for ( i = 0; i < nbPoints; ++i)
         point_indices->InsertNextValue(i);
-    }
-    for (; i < nbPoints+nbCells; ++i) {
+
+    for (; i < nbPoints+nbCells; ++i)
         cell_indices->InsertNextValue(i);
-    }
 
     mesh->GetPointData()->AddArray(point_indices);
     mesh->GetCellData()->AddArray(cell_indices);
@@ -127,7 +126,11 @@ int main(int argc, char *argv[])
     // save output to the input file
     vtkSmartPointer<vtkPolyDataWriter> writer = vtkSmartPointer<vtkPolyDataWriter>::New();
     writer->SetFileName(meshFileNameO.c_str());
+    #if VTK_MAJOR_VERSION==6
     writer->SetInputData(mesh);
+    #else
+    writer->SetInput(mesh);
+    #endif
     writer->Write();
     std::cerr << "saved into " << meshFileNameO << "." << std::endl;
 
