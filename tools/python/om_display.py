@@ -8,9 +8,11 @@ from om_display import om_display_vtp # visualiation with VTK
 
 @author: - E. Olivi
 
-This work has been done for the
-CNRS, Laboratoire de Neurosciences Cognitives, UMR 7291, 13331, Marseille, France
-under the supervision of Boris Burle
+This work has been done for the CNRS, Laboratoire de Neurosciences
+Cognitives, UMR 7291, 13331, Marseille, France under the supervision of
+Boris Burle, and supported by a European Research Council under the
+European Community's Seventh Framework Program (FP/2007-2013 Grant 
+Agreement No. 241077).
 
 """
 
