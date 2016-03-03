@@ -50,17 +50,16 @@ using namespace OpenMEEG;
 
 void getHelp(char** argv);
 
-int main(int argc, char **argv)
-{
+int main(int argc, char **argv) {
     print_version(argv[0]);
 
-    if(argc==1)
-    {
+    if(argc==1) {
         cerr << "Not enough arguments \nPlease try \"" << argv[0] << " -h\" or \"" << argv[0] << " --help \" \n" << endl;
         return 0;
     }
 
-    if ((!strcmp(argv[1],"-h")) | (!strcmp(argv[1],"--help"))) getHelp(argv);
+    if ((!strcmp(argv[1],"-h")) || (!strcmp(argv[1],"--help")))
+        getHelp(argv);
 
     disp_argv(argc,argv);
 
