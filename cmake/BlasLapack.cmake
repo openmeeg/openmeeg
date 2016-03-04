@@ -1,0 +1,52 @@
+include(BlasLapackOption)
+
+if (NOT BUILD_SHARED_LIBS)
+    if (WIN32)
+        set(CMAKE_FIND_LIBRARY_SUFFIXES ".lib;.dll")
+    else()
+        set(CMAKE_FIND_LIBRARY_SUFFIXES ".a;.so")
+        if (APPLE)
+            set(CMAKE_FIND_LIBRARY_SUFFIXES "${CMAKE_FIND_LIBRARY_SUFFIXES};.dylib")
+        endif()
+    endif()
+endif()
+
+include(UseAtlas)
+include(UseOpenBlas)
+include(UseMkl)
+include(UseACML)
+include(UseLapack)
+
+#   Detect Fortran to C interface.
+
+if (NOT USE_MKL AND NOT WIN32)
+    set(FC_INTERFACE)
+    include(FortranCInterface)
+    FortranCInterface_HEADER(FC.h MACRO_NAMESPACE "FC_" FROM_LIBRARY blas[daxpy])
+endif()
+
+#   Last chance check...
+
+if (NOT LAPACK_LIBRARIES)
+    set(lapack_DIR ${lapack_DIR_SAVE})
+    set(lapack_libs_dir ${lapack_DIR}/${INSTALL_LIB_DIR})
+    message("Searching lapack in ${lapack_libs_dir}")
+    set(CMAKE_FIND_DEBUG_MODE 1)
+    find_library(lapack NAMES lapack lapackd HINTS ${lapack_libs_dir})
+    find_library(blas   NAMES blas   blasd   HINTS ${lapack_libs_dir})
+    find_library(f2c    NAMES f2c f2cd libf2c libf2cd HINTS ${lapack_libs_dir})
+    if (NOT (lapack AND blas AND f2c))
+        message(SEND_ERROR "clapack is needed")
+    endif()
+    message("Lapack package: ${lapack}: ${LAPACK_LIBRARIES}")
+    get_filename_component(LAPACK_DLL_DIR "${lapack}" DIRECTORY)
+    set(LAPACK_LIBRARIES ${lapack} ${blas} ${f2c})
+    if (NOT BUILD_SHARED_LIBS)
+        file(GLOB GCC_fileS "/usr/lib/gcc/*/*")
+        find_file(GFORTRAN_LIB libgfortran.a ${GCC_fileS})
+        set(LAPACK_LIBRARIES ${LAPACK_LIBRARIES} ${GFORTRAN_LIB})
+    endif()
+endif()
+
+set(HAVE_LAPACK TRUE)
+set(HAVE_BLAS TRUE)

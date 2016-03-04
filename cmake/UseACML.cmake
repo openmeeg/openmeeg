@@ -1,0 +1,5 @@
+if (USE_ACML)
+    set(ACML_ROOT "/home/papadop/Downloads/acml/gfortran64")
+    include_directories(${ACML_ROOT}/include)
+    set(LAPACK_LIBRARIES ${ACML_ROOT}/lib/libacml.so)
+endif()

@@ -1,0 +1,8 @@
+if (USE_LAPACK)
+    set(lapack_DIR_SAVE ${lapack_DIR})
+    find_package(LAPACK)
+    if (LAPACK_FOUND)
+        message("Lapack package: ${lapack}: ${LAPACK_LIBRARIES}")
+        get_filename_component(LAPACK_DLL_DIR "${lapack}" DIRECTORY)
+    endif()
+endif()

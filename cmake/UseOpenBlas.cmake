@@ -1,0 +1,7 @@
+if (USE_OPENBLAS)
+    find_package(OpenBlas)
+    if (OpenBLAS_FOUND)
+        include_directories(${OpenBLAS_INCLUDE_DIR})
+        set(LAPACK_LIBRARIES ${OpenBLAS_LIB})
+    endif()
+endif()
