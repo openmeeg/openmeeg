@@ -14,11 +14,7 @@ function(OpenMEEG_project)
     EP_Initialisation(OpenMEEG BUILD_SHARED_LIBS ON)
     EP_SetDependencies(${ep}_dependencies clapack matio ${MSINTTYPES})
 
-    # Define repository where get the sources
-
-    if (NOT DEFINED ${ep}_SOURCE_DIR)
-        set(location GIT_REPOSITORY "${GIT_PREFIX}github.com/openmeeg/openmeeg.git")
-    endif()
+    # No need to define repository where get the sources, since they are integrated.
 
     # Set compilation flags
 
@@ -46,19 +42,11 @@ function(OpenMEEG_project)
         ${matio_CMAKE_FLAGS}
     )
 
-    # Check if patch has to be applied
-
-    ep_GeneratePatchCommand(${ep} PATCH_COMMAND)
-
     # Add external-project
 
     set(tag master)
     ExternalProject_Add(${ep}
         ${ep_dirs}
-        ${location}
-        GIT_TAG ${tag}
-        UPDATE_COMMAND ${GIT_BIN} pull
-        ${PATCH_COMMAND}
         CMAKE_GENERATOR ${gen}
         CMAKE_ARGS ${cmake_args}
         DEPENDS ${${ep}_dependencies}
