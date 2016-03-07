@@ -1,0 +1,86 @@
+diff --git a/CMakeInstallation.cmake b/CMakeInstallation.cmake
+index 1e6a5bf..a37248a 100644
+--- a/CMakeInstallation.cmake
++++ b/CMakeInstallation.cmake
+@@ -16,7 +16,7 @@ endif (NOT HDF5_INSTALL_NO_DEVELOPMENT)
+ if (NOT HDF5_EXTERNALLY_CONFIGURED)
+   install (
+       EXPORT ${HDF5_EXPORTED_TARGETS}
+-      DESTINATION ${HDF5_INSTALL_CMAKE_DIR}/${HDF5_PACKAGE}
++      DESTINATION ${HDF5_INSTALL_CMAKE_DIR}
+       FILE ${HDF5_PACKAGE}${HDF_PACKAGE_EXT}-targets.cmake
+       COMPONENT configinstall
+   )
+@@ -58,7 +58,7 @@ if (NOT HDF5_EXTERNALLY_CONFIGURED)
+   )
+   install (
+       FILES ${HDF5_BINARY_DIR}/CMakeFiles/FindHDF5${HDF_PACKAGE_EXT}.cmake
+-      DESTINATION ${HDF5_INSTALL_CMAKE_DIR}/${HDF5_PACKAGE}
++      DESTINATION ${HDF5_INSTALL_CMAKE_DIR}
+       COMPONENT configinstall
+   )
+ endif (NOT HDF5_EXTERNALLY_CONFIGURED)
+@@ -73,7 +73,7 @@ if (NOT HDF5_EXTERNALLY_CONFIGURED)
+   )
+   install (
+       FILES ${HDF5_BINARY_DIR}/CMakeFiles/${HDF5_PACKAGE}${HDF_PACKAGE_EXT}-config.cmake
+-      DESTINATION ${HDF5_INSTALL_CMAKE_DIR}/${HDF5_PACKAGE}
++      DESTINATION ${HDF5_INSTALL_CMAKE_DIR}
+       COMPONENT configinstall
+   )
+ endif (NOT HDF5_EXTERNALLY_CONFIGURED)
+@@ -88,7 +88,7 @@ if (NOT HDF5_EXTERNALLY_CONFIGURED)
+   )
+   install (
+       FILES ${HDF5_BINARY_DIR}/CMakeFiles/${HDF5_PACKAGE}${HDF_PACKAGE_EXT}-config-version.cmake
+-      DESTINATION ${HDF5_INSTALL_CMAKE_DIR}/${HDF5_PACKAGE}
++      DESTINATION ${HDF5_INSTALL_CMAKE_DIR}
+       COMPONENT configinstall
+   )
+ endif (NOT HDF5_EXTERNALLY_CONFIGURED)
+@@ -107,7 +107,7 @@ configure_file (
+ )
+ install (
+     FILES ${HDF5_BINARY_DIR}/libhdf5.settings
+-    DESTINATION ${HDF5_INSTALL_CMAKE_DIR}/${HDF5_PACKAGE}
++    DESTINATION ${HDF5_INSTALL_CMAKE_DIR}
+     COMPONENT libraries
+ )
+ 
+diff --git a/config/cmake/hdf5-config.cmake.build.in b/config/cmake/hdf5-config.cmake.build.in
+index 0276ea7..e2863e9 100644
+--- a/config/cmake/hdf5-config.cmake.build.in
++++ b/config/cmake/hdf5-config.cmake.build.in
+@@ -28,7 +28,7 @@ ENDIF(HDF5_ENABLE_PARALLEL)
+ #-----------------------------------------------------------------------------
+ # Directories
+ #-----------------------------------------------------------------------------
+-set (HDF5_INCLUDE_DIR "@HDF5_INCLUDES_BUILD_TIME@" "${HDF5_MPI_C_INCLUDE_PATH}" )
++set (HDF5_INCLUDE_DIRS "@HDF5_INCLUDES_BUILD_TIME@" "${HDF5_MPI_C_INCLUDE_PATH}" )
+ 
+ if (HDF5_BUILD_FORTRAN)
+   set (HDF5_INCLUDE_DIR_FORTRAN "@CMAKE_Fortran_MODULE_DIRECTORY@" )
+diff --git a/config/cmake/hdf5-config.cmake.install.in b/config/cmake/hdf5-config.cmake.install.in
+index c1c4498..d442233 100644
+--- a/config/cmake/hdf5-config.cmake.install.in
++++ b/config/cmake/hdf5-config.cmake.install.in
+@@ -3,9 +3,9 @@
+ #-----------------------------------------------------------------------------
+ GET_FILENAME_COMPONENT (SELF_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
+ GET_FILENAME_COMPONENT(_IMPORT_PREFIX "${SELF_DIR}" PATH)
+-GET_FILENAME_COMPONENT(_IMPORT_PREFIX "${_IMPORT_PREFIX}" PATH)
+ if (NOT WIN32)
+   GET_FILENAME_COMPONENT(_IMPORT_PREFIX "${_IMPORT_PREFIX}" PATH)
++  GET_FILENAME_COMPONENT(_IMPORT_PREFIX "${_IMPORT_PREFIX}" PATH)
+ endif (NOT WIN32)
+ 
+ #-----------------------------------------------------------------------------
+@@ -34,7 +34,7 @@ ENDIF(HDF5_ENABLE_PARALLEL)
+ #-----------------------------------------------------------------------------
+ # Directories
+ #-----------------------------------------------------------------------------
+-set (HDF5_INCLUDE_DIR "${_IMPORT_PREFIX}/include" "${HDF5_MPI_C_INCLUDE_PATH}" )
++set (HDF5_INCLUDE_DIRS "${_IMPORT_PREFIX}/include" "${HDF5_MPI_C_INCLUDE_PATH}" )
+ 
+ if (HDF5_BUILD_FORTRAN)
+   set (HDF5_INCLUDE_DIR_FORTRAN "${_IMPORT_PREFIX}/include" )

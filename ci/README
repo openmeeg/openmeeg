@@ -1,0 +1,31 @@
+#   Setting up a windows slave
+
+Install cmake, doxygen, python, numpy, lxml, graphviz, cygwin, git, java, (svn)
+In cygwin install Admin->cygrunsrv and Net->OpenSSH
+In a cygwin terminal (run as admin), do (http://www.noah.org/ssh/cygwin-sshd.html):
+    ssh-host-config -y -c "tty ntsec"
+    cygrunsrv -S sshd
+    Allow sshd in the firewall
+    Put the ci ssh keys in /home/ci
+    Make ci the ssh connection nme (see http://docs.oracle.com/cd/E24628_01/install.121/e22624/preinstall_req_cygwin_ssh.htm):
+        Computer->manage->Services->CYGWIN sshd->Properties->LogOn
+        Put ci as user and it password do:
+            Run C:\cygwin\Cygwin.bat, and execute the following:
+
+            chown <USERNAME> /var/log/sshd.log
+            chown -R <USERNAME> /var/empty
+            chown <USERNAME> /etc/ssh*
+            chmod 755 /var/empty
+            chmod 644 /var/log/sshd.log
+        And restart the service....
+                        
+
+
+#   Setting up a fedora slave
+
+    yum install cmake python-lxml numpy doxygen swig python-libs python-devel
+
+#   Setting up a ubuntu (debian) slave
+
+    Put the ci ssh keys in /home/ci (be sure that both .ssh and authorized_keys are rw only for ci).
+

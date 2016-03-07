@@ -1,0 +1,8 @@
+cmake_minimum_required(VERSION 2.8)
+
+project(msinttypes C)
+
+set(includedir "${CMAKE_INSTALL_PREFIX})/include")
+
+set(HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/inttypes.h ${CMAKE_CURRENT_SOURCE_DIR}/stdint.h)
+install(FILES ${HEADERS} DESTINATION include)
