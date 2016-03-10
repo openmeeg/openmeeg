@@ -306,7 +306,7 @@ namespace OpenMEEG {
         om_assert(nlin()==ncol());
         Matrix invA(*this,DEEP_COPY);
         // LU
-        #if defined(USE_ATLAS) || defined(USE_OPENBLAS)
+        #if defined(USE_ATLAS)
             #if defined(__APPLE__) // Apple Veclib Framework (Handles 32 and 64 Bits)
                 __CLPK_integer *pivots = new __CLPK_integer[ncol()];
                 __CLPK_integer Info;
@@ -395,10 +395,10 @@ namespace OpenMEEG {
             B.data(),(int)B.nlin(),
             0.,C.data(),(int)C.nlin());
     #else
-        for (size_t i=0;i<C.nlin();++i)
-            for (size_t j=0;j<C.ncol();++j) {
+        for (size_t i=0;i<C.nlin();i++)
+            for (size_t j=0;j<C.ncol();j++) {
                 C(i,j)=0;
-                for (size_t k=0;k<p;++k)
+                for (size_t k=0;k<p;k++)
                     C(i,j)+=(*this)(i,k)*B(j,k);
             }
     #endif
@@ -416,17 +416,17 @@ namespace OpenMEEG {
             B.data(),(int)B.nlin(),
             0.,C.data(),(int)C.nlin());
     #else
-        for (size_t i=0;i<C.nlin();++i)
-            for (size_t j=0;j<C.ncol();++j) {
+        for (size_t i=0;i<C.nlin();i++)
+            for (size_t j=0;j<C.ncol();j++) {
                 C(i,j)=0;
-                for (size_t k=0;k<p;++k)
+                for (size_t k=0;k<p;k++)
                     C(i,j)+=(*this)(k,i)*B(j,k);
             }
     #endif
             return C;
     }
 
-    inline Matrix Matrix::operator*(const SymMatrix& B) const {
+    inline Matrix Matrix::operator*(const SymMatrix &B) const {
         om_assert(ncol()==B.ncol());
         Matrix C(nlin(),B.ncol());
 
@@ -434,12 +434,13 @@ namespace OpenMEEG {
         Matrix D(B);
         const int n = nlin();
         const int m = D.ncol();
-        DSYMM(CblasRight,CblasUpper,n,m,1.,D.data(),m,data(),n,0.,C.data(),n);
+        const int l = C.nlin();
+        DSYMM(CblasRight,CblasUpper,n,m,1.,D.data(),m,data(),n,0.,C.data(),l);
     #else
-        for (size_t j=0;j<C.ncol();++j)
-            for (size_t i=0;i<C.nlin();++i) {
+        for (size_t j=0;j<B.ncol();j++)
+            for (size_t i=0;i<ncol();i++) {
                 C(i,j)=0;
-                for (size_t k=0;k<ncol();++k)
+                for (size_t k=0;k<ncol();k++)
                     C(i,j)+=(*this)(i,k)*B(k,j);
             }
     #endif

@@ -95,13 +95,13 @@ namespace OpenMEEG {
         // Constructors:
         /// default constructor
 
-        Mesh(): Triangles(), name_(""), all_vertices_(0), outermost_(false), allocate_(false) { }
+        Mesh(): Triangles(), name_(""), all_vertices_(0), outermost_(false), allocate_(false), current_barrier_(false), isolated_(false) { }
 
         /// constructor from scratch (add vertices/triangles one by one) 
         /// \param nv allocate space for vertices
         /// \param nt allocate space for triangles
 
-        Mesh(const unsigned& nv,const unsigned& nt): name_(""), outermost_(false), allocate_(true) {
+        Mesh(const unsigned& nv,const unsigned& nt): name_(""), outermost_(false), allocate_(true), current_barrier_(false), isolated_(false) {
             all_vertices_ = new Vertices;
             all_vertices_->reserve(nv); // allocates space for the vertices
             reserve(nt);
@@ -109,17 +109,17 @@ namespace OpenMEEG {
 
         /// constructor from another mesh \param m
 
-        Mesh(const Mesh& m): Triangles() { *this = m; }
+        Mesh(const Mesh& m): Triangles(), current_barrier_(false), isolated_(false) { *this = m; }
 
         /// constructor using an outisde storage for vertices \param av Where to store vertices \param name Mesh name
 
-        Mesh(Vertices& av,const std::string name = ""): name_(name), all_vertices_(&av), outermost_(false), allocate_(false) { 
+        Mesh(Vertices& av,const std::string name = ""): name_(name), all_vertices_(&av), outermost_(false), allocate_(false), current_barrier_(false), isolated_(false) { 
             set_vertices_.insert(all_vertices_->begin(), all_vertices_->end()); 
         }
 
         /// constructor loading directly a mesh file named \param filename . Be verbose if \param verbose is true. The mesh name is \param n .
 
-        Mesh(std::string filename,const bool verbose=true,const std::string n=""): name_(n), outermost_(false), allocate_(true) { 
+        Mesh(std::string filename,const bool verbose=true,const std::string n=""): name_(n), outermost_(false), allocate_(true), current_barrier_(false), isolated_(false) { 
             unsigned nb_v = load(filename, false, false); 
             all_vertices_ = new Vertices(nb_v); // allocates space for the vertices
             load(filename, verbose);
@@ -142,7 +142,7 @@ namespace OpenMEEG {
         const_vertex_reverse_iterator vertex_rbegin() const { return vertices_.rbegin(); }
         const_vertex_reverse_iterator vertex_rend()   const { return vertices_.rend(); }
 		
-		      std::string &           name()                { return name_; } ///< \return the mesh name
+        std::string &                 name()                { return name_; } ///< \return the mesh name
         const std::string &           name()          const { return name_; } ///< \return the mesh name
 
         const VectPVertex &           vertices()      const { return vertices_; } ///< \return the vector of pointers to the mesh vertices
@@ -294,6 +294,16 @@ namespace OpenMEEG {
         bool                                  outermost_;    ///< Is it an outermost mesh ? (i.e does it touch the Air domain)
         bool                                  allocate_;     ///< Are the vertices allocate within the mesh or shared ?
         std::set<Vertex>                      set_vertices_;
+
+    ///handle multiple 0 conductivity domains
+    private:
+        bool     current_barrier_; 
+        bool     isolated_;
+    public:
+        const bool&    current_barrier()          const { return current_barrier_; }
+              bool&    current_barrier()                { return current_barrier_; }
+        const bool&    isolated()                 const { return isolated_;        }
+              bool&    isolated()                       { return isolated_;        }
     };
 
     /// A vector of Mesh is called Meshes

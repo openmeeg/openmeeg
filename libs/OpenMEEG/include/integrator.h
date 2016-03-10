@@ -177,7 +177,7 @@ namespace OpenMEEG {
 
     static const unsigned nbPts[4] = {3, 6, 7, 16};
 
-    template <typename T, typename Integrand>
+    template <class T, class I>
     class OPENMEEG_EXPORT Integrator 
     {
         unsigned order;
@@ -198,7 +198,7 @@ namespace OpenMEEG {
             }
         }
 
-        virtual inline T integrate(const Integrand& fc, const Triangle& Trg) 
+        virtual inline T integrate(const I& fc, const Triangle& Trg) 
         {
             const Vect3 points[3] = { Trg.s1(), Trg.s2(), Trg.s3() };
             return triangle_integration(fc, points);
@@ -206,7 +206,7 @@ namespace OpenMEEG {
 
     protected:
 
-        inline T triangle_integration(const Integrand& fc, const Vect3 points[3]) 
+        inline T triangle_integration(const I& fc, const Vect3 points[3]) 
         {
             // compute double area of triangle defined by points
             Vect3 crossprod = (points[1] - points[0])^(points[2] - points[0]);
@@ -223,10 +223,10 @@ namespace OpenMEEG {
         }
     };
 
-    template <typename T, typename Integrand>
-    class OPENMEEG_EXPORT AdaptiveIntegrator: public Integrator<T, Integrand> 
+    template <class T, class I>
+    class OPENMEEG_EXPORT AdaptiveIntegrator: public Integrator<T, I> 
     {
-        typedef Integrator<T, Integrand> base;
+        typedef Integrator<T, I> base;
 
     public:
 
@@ -237,7 +237,7 @@ namespace OpenMEEG {
         inline double norm(const double a) { return fabs(a);  }
         inline double norm(const Vect3& a) { return a.norm(); }
 
-        virtual inline T integrate(const Integrand& fc, const Triangle& Trg) {
+        virtual inline T integrate(const I& fc, const Triangle& Trg) {
             const Vect3 points[3] = { Trg.s1(), Trg.s2(), Trg.s3() };
             T I0 = base::triangle_integration(fc, points);
             return adaptive_integration(fc, points, I0, 0);
@@ -247,7 +247,7 @@ namespace OpenMEEG {
 
         double tolerance;
 
-        inline T adaptive_integration(const Integrand& fc, const Vect3 * points, T I0, unsigned n) 
+        inline T adaptive_integration(const I& fc, const Vect3 * points, T I0, unsigned n) 
         {
             Vect3 newpoint0(0.0, 0.0, 0.0);
             multadd(newpoint0, 0.5, points[0]);

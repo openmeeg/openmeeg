@@ -86,8 +86,8 @@ namespace OpenMEEG {
         Domains::const_iterator    domain_end()      const { return domains_.end();    }
 
         /// Constructors
-        Geometry(): has_cond_(false), is_nested_(false), size_(0)  { }
-        Geometry(const std::string& geomFileName, const std::string& condFileName = "", const bool OLD_ORDERING = false): has_cond_(false), is_nested_(false), size_(0)  { read(geomFileName, condFileName, OLD_ORDERING); }
+        Geometry(): has_cond_(false), is_nested_(false), size_(0), nb_current_barrier_triangles_(0)  {}
+        Geometry(const std::string& geomFileName, const std::string& condFileName = "", const bool OLD_ORDERING = false): has_cond_(false), is_nested_(false), size_(0), nb_current_barrier_triangles_(0)  { read(geomFileName, condFileName, OLD_ORDERING); }
 
               void       info(const bool verbous = false) const; ///< \brief Print information on the geometry
         const bool&      has_cond()                       const { return has_cond_; }
@@ -102,7 +102,7 @@ namespace OpenMEEG {
               unsigned   nb_triangles()                   const { return (size_-vertices_.size()); }
               unsigned   nb_domains()                     const { return domains_.size(); }
               unsigned   nb_meshes()                      const { return meshes_.size(); }
-        const Interface& outermost_interface()            const; ///< \brief returns the outermost Interface of the geometry
+        const Interface& outermost_interface()            const; ///< \brief returns the outermost Interfaces of the geometry (with multiple 0-cond you can probably have more than 1 outermost interfaces)
         const Interface& interface(const std::string& id) const; ///< \brief returns the Interface called id \param id Interface name
         const Domain&    domain(const std::string& id)    const; ///< \brief returns the Domain called id \param id Domain name
         const Domain&    domain(const Vect3& p)           const; ///< \brief returns the Domain containing the point p \param p a point
@@ -134,9 +134,23 @@ namespace OpenMEEG {
         bool       has_cond_;
         bool       is_nested_;
         unsigned   size_;   // total number = nb of vertices + nb of triangles
-
         void          generate_indices(const bool);
         const Domains common_domains(const Mesh&, const Mesh&) const;
               double  funct_on_domains(const Mesh&, const Mesh&, const Function& ) const;
+
+
+    ///handle multiple 0 conductivity domains
+    private:
+        std::set<Vertex>    invalid_vertices_; //does not equal to the vertices of invalid meshes because there are shared vertices
+        unsigned            nb_current_barrier_triangles_;   //number of triangles with 0 normal currnet. Including triangles of invalid meshes.
+        std::vector<std::vector<std::string> > geo_group_; //Mesh names that belong to different isolated groups.
+
+    public:
+        const unsigned& nb_current_barrier_triangles() const { return nb_current_barrier_triangles_; }
+              unsigned& nb_current_barrier_triangles()       { return nb_current_barrier_triangles_; }
+        const unsigned  nb_invalid_vertices()          const { return invalid_vertices_.size();      }
+        const std::vector<std::vector<std::string> >& geo_group() const { return geo_group_; }
+              void  mark_current_barrier();
+        const Mesh& mesh(const std::string& id) const;
     };
 }
