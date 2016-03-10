@@ -41,6 +41,7 @@
 
     #ifdef SWIGPYTHON
 
+        #define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
         #include <numpy/arrayobject.h>
 
         static PyObject* asarray(OpenMEEG::Matrix* _mat) {
@@ -60,7 +61,7 @@
             ar_dim[1] = _mat->ncol();
 
             /* create numpy array */
-            matarray = (PyArrayObject*) PyArray_NewFromDescr(&PyArray_Type, PyArray_DescrFromType(PyArray_DOUBLE), ndims, ar_dim, NULL, (void *) _mat->data(),NPY_FARRAY,NULL);
+            matarray = (PyArrayObject*) PyArray_NewFromDescr(&PyArray_Type, PyArray_DescrFromType(NPY_DOUBLE), ndims, ar_dim, NULL, (void *) _mat->data(),NPY_ARRAY_FARRAY,NULL);
 
             return PyArray_Return((PyArrayObject*) matarray);
         }
@@ -81,7 +82,7 @@
             ar_dim[0] = _vec->size();
 
             /* create numpy array */
-            matarray = (PyArrayObject*) PyArray_NewFromDescr(&PyArray_Type, PyArray_DescrFromType(PyArray_DOUBLE), ndims, ar_dim, NULL, (void *) _vec->data(),NPY_FARRAY,NULL);
+            matarray = (PyArrayObject*) PyArray_NewFromDescr(&PyArray_Type, PyArray_DescrFromType(NPY_DOUBLE), ndims, ar_dim, NULL, (void *) _vec->data(),NPY_ARRAY_FARRAY,NULL);
 
             return PyArray_Return ((PyArrayObject*) matarray);
         }
@@ -95,15 +96,12 @@
             }
             PyArrayObject *matt;
             matt = (PyArrayObject *)PyArray_FromObject(mat, NPY_DOUBLE, 1, 2);
-            size_t nl = matt->dimensions[0];
-            size_t nc = 1;
-            if (matt->nd ==2) nc = matt->dimensions[1];
+            size_t nl = PyArray_DIM(matt,0);
+            const size_t nc = (PyArray_NDIM(matt)==2) ? PyArray_DIM(matt,1) : 1;
             OpenMEEG::Matrix omat(nl, nc);
-            for (unsigned i = 0; i< nl; ++i) {
-                for (unsigned j = 0; j< nc; ++j) {
-                    omat(i,j)= *(double * )(matt->data + i*matt->strides[0] + j*matt->strides[matt->nd-1]);
-                }
-            }
+            for (unsigned i = 0; i< nl; ++i)
+                for (unsigned j = 0; j< nc; ++j)
+                    omat(i,j)= static_cast<double*>(PyArray_DATA(matt))[i*PyArray_STRIDE(matt,0)+j*PyArray_STRIDE(matt,PyArray_NDIM(matt)-1)];
             return omat;
         }
         

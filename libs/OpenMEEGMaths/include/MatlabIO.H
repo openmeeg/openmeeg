@@ -309,7 +309,7 @@ namespace OpenMEEG {
                 const SymMatrix& m  = dynamic_cast<const SymMatrix&>(linop);
                 size_t dims[2] = { m.size(),1 };
                 size_t dims1[2] = { 1, 1 };
-                int size[1]  = { m.nlin() };
+                size_t size[1]  = { m.nlin() };
                 matvar_t** matvar = new matvar_t*[3];
                 matvar[0] = Mat_VarCreate("size",MAT_C_UINT32,MAT_T_UINT32,2,dims1,size,0);
                 matvar[1] = Mat_VarCreate("data",MAT_C_DOUBLE,MAT_T_DOUBLE,2,dims,m.data(),MAT_F_DONT_COPY_DATA);
@@ -331,9 +331,12 @@ namespace OpenMEEG {
                     tank_inverted[std::pair<size_t,size_t>(j,i)] = val;
                 }
 
-                double*      t  = new double[linop.size()];
-                mat_int32_t* ir = new mat_int32_t[linop.size()];
-                mat_int32_t* jc = new mat_int32_t[linop.ncol()+1];
+                const int sz = linop.size();
+                const int num = linop.ncol()+1;
+
+                double* t  = new double[sz];
+                int*    ir = new int[sz];
+                int*    jc = new int[num];
 
                 size_t cnt = 0;
                 size_t current_col = (size_t)-1;
@@ -353,12 +356,11 @@ namespace OpenMEEG {
                 }
 
                 for (size_t k = current_col+1; k <= linop.ncol(); ++k)
-                    jc[k] = linop.size();
+                    jc[k] = sz;
 
                 size_t dims[2] = { linop.nlin(), linop.ncol() };
                 matvar_t *matvar;
-                const int sz = linop.size();
-                mat_sparse_t  sparse = { sz, ir, sz, jc, linop.ncol()+1, sz, t};
+                mat_sparse_t  sparse = { sz, ir, sz, jc, num, sz, t};
 
                 matvar = Mat_VarCreate("matrix",MAT_C_SPARSE,MAT_T_DOUBLE,2,dims,&sparse,MAT_F_DONT_COPY_DATA);
                 Mat_VarWrite(mat,matvar,MAT_COMPRESSION_ZLIB);
