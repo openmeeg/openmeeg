@@ -153,8 +153,8 @@ namespace OpenMEEG {
         // weights
         if (ncol == 4) { // EIT
             m_radius = mat.getcol(mat.ncol()-1);
-            if ( m_interface == NULL ) {
-                std::cerr << "Sensors:: please specify at constructor stage an interface on which to apply the spatially extended EIT sensors." << std::endl;
+            if ( m_geo == NULL ) {
+                std::cerr << "Sensors:: please specify at constructor stage the geometry on which to apply the spatially extended EIT sensors." << std::endl;
                 exit(1);
             } else {
                 // find triangles on which to inject the currents
@@ -223,15 +223,31 @@ namespace OpenMEEG {
     }
 
     void Sensors::findInjectionTriangles() {
-        om_error(m_interface!=NULL);
+        om_error(m_geo!=NULL);
         m_weights = Vector(m_positions.nlin());
         m_weights.set(0.);
+        //To count the number of points that have been mapped to each mesh.
+        std::vector<std::string> ci_mesh_names;
+        std::vector<size_t>      ci_triangles;
+
         for ( size_t idx = 0; idx < m_positions.nlin(); ++idx) {
             Triangles triangles;
             const Vect3 current_position(m_positions(idx, 0), m_positions(idx, 1), m_positions(idx, 2));
             Vect3 current_alphas; //not used here
             Triangle current_nearest_triangle; // to hold the closest triangle to electrode.
-            dist_point_interface(current_position, *m_interface, current_alphas, current_nearest_triangle);
+
+            double dist;
+            std::string s_map=dist_point_geom(current_position, *m_geo, current_alphas, current_nearest_triangle, dist);
+            std::vector<std::string>::iterator sit=std::find(ci_mesh_names.begin(),ci_mesh_names.end(),s_map);
+            if(sit!=ci_mesh_names.end()){
+                size_t idx=std::distance(ci_mesh_names.begin(),sit);
+                ci_triangles[idx]++;
+            }
+            else{
+                ci_mesh_names.push_back(s_map);
+                ci_triangles.push_back(1);
+            }
+
             triangles.push_back(current_nearest_triangle);
             std::set<size_t> index_seen; // to avoid infinite looping
             index_seen.insert(current_nearest_triangle.index());
@@ -246,7 +262,7 @@ namespace OpenMEEG {
                         if ( (t->center()-current_position).norm() < m_radius(idx) ) {
                             if(t->index() != current_nearest_triangle.index()) //don't push the nearest triangle twice
                                 triangles.push_back(*t);
-                            Interface::VectPTriangle t_adj = m_interface->adjacent_triangles(*t);
+                            Interface::VectPTriangle t_adj = m_geo->interface(s_map).adjacent_triangles(*t);
                             if ( index_seen.insert(t_adj[0]->index()).second ) tri_stack.push(t_adj[0]);
                             if ( index_seen.insert(t_adj[1]->index()).second ) tri_stack.push(t_adj[1]);
                             if ( index_seen.insert(t_adj[2]->index()).second ) tri_stack.push(t_adj[2]);
@@ -263,6 +279,8 @@ namespace OpenMEEG {
             }
             m_weights(idx) = M_PI * std::pow(m_radius(idx),2) / triangles_area;
         }
+        for(size_t i=0;i<ci_mesh_names.size();++i)
+            std::cout<<ci_triangles[i]<<" points have been mapped to mesh "<<ci_mesh_names[i]<<std::endl;
     }
 
     void Sensors::info() const {

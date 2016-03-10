@@ -1,0 +1,4 @@
+radius:
+    cortex  0.40
+    skull   0.92
+    scalp   1.00

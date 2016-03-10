@@ -146,7 +146,7 @@ namespace OpenMEEG {
 
     #ifdef HAVE_LAPACK
         // Bunch Kaufman Factorization
-        int* pivots=new int[nlin()];
+        int *pivots=new int[nlin()];
         int Info;
         DSPTRF('U',invA.nlin(),invA.data(),pivots,Info);
         // Inverse

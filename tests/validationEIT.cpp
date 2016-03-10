@@ -108,7 +108,7 @@ int main(const int argc, const char* argv[]) {
 
     // We choose two electordes on which we inject the currents
     const unsigned nelec = 2;
-    Sensors electrodes(geo.outermost_interface()); // set nelec electrode positions
+    Sensors electrodes(geo); // set nelec electrode positions
 
     std::stringstream ss;
     ss << "0.886556 0.278249 -0.166667 0" << std::endl;

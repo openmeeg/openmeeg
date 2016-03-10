@@ -54,7 +54,7 @@ namespace OpenMEEG {
 
     void assemble_SurfSourceMat(Matrix& mat, const Geometry& geo, Mesh& mesh_source, const unsigned gauss_order) 
     {
-        mat = Matrix((geo.size()-geo.outermost_interface().nb_triangles()), mesh_source.nb_vertices());
+        mat = Matrix((geo.size()-geo.nb_current_barrier_triangles()), mesh_source.nb_vertices());
         mat.set(0.0);
 
         // check if no overlapping between the geometry and the source mesh
@@ -72,6 +72,7 @@ namespace OpenMEEG {
         
         // We here set it as an outermost (to tell _operarorN it doesn't belong to the geometry)
         mesh_source.outermost() = true;
+        mesh_source.current_barrier() = true;
 
         std::cout << std::endl << "assemble SurfSourceMat with " << nVertexSources << " mesh_source located in domain \"" << d.name() << "\"." << std::endl << std::endl;
 
@@ -96,7 +97,8 @@ namespace OpenMEEG {
             const unsigned gauss_order, const bool adapt_rhs, const std::string& domain_name = "") 
     {
         const double   K         = 1.0/(4.*M_PI);
-        const unsigned size      = (geo.size() - geo.outermost_interface().nb_triangles());
+	//      const unsigned size      = (geo.size() - geo.outermost_interface().nb_triangles());
+	const unsigned size = geo.size() - geo.nb_current_barrier_triangles();
         const unsigned n_dipoles = dipoles.nlin();
 
         rhs = Matrix(size, n_dipoles);
@@ -116,7 +118,9 @@ namespace OpenMEEG {
                 domain = geo.domain(domain_name);
             }
             const double sigma = domain.sigma();
-
+	    //only consider dipoles in non-zero conductivity domain
+	    if(!sigma==0)
+	      {
             rhs_col.set(0.);
             // iterate over the domain's interfaces (half-spaces)
             for ( Domain::const_iterator hit = domain.begin(); hit != domain.end(); ++hit ) {
@@ -126,14 +130,15 @@ namespace OpenMEEG {
                     double coeffD = (hit->inside())?(K * omit->orientation()):(-K * omit->orientation());
                     operatorDipolePotDer(r, q, omit->mesh(), rhs_col, coeffD, gauss_order, adapt_rhs);
 
-                    if ( !omit->mesh().outermost() ) {
+		    if(!omit->mesh().current_barrier()){
                         double coeff = ( hit->inside() )?(-omit->orientation() * K / sigma):(omit->orientation() * K / sigma);
                         operatorDipolePot(r, q, omit->mesh(), rhs_col, coeff, gauss_order, adapt_rhs);
                     }
                 }
             }
             rhs.setcol(s, rhs_col);
-        }
+	      }
+	}
     }
 
     DipSourceMat::DipSourceMat(const Geometry& geo, const Matrix& dipoles, const unsigned gauss_order,
@@ -153,29 +158,20 @@ namespace OpenMEEG {
         //  transmat = a big SymMatrix of which mat = part of its transpose.
         SymMatrix transmat(geo.size());
         transmat.set(0.0);
-        mat = Matrix((geo.size()-geo.outermost_interface().nb_triangles()), n_sensors);
-        mat.set(0.);
+        mat = Matrix((geo.size()-geo.nb_current_barrier_triangles()), n_sensors);
+        mat.set(0.0);
 
-        const Interface& i = geo.outermost_interface();
-
-        // We iterate over the meshes (or pair of domains)
-        for ( Interface::const_iterator omit1 = i.begin(); omit1 != i.end(); ++omit1) {
-            for ( Geometry::const_iterator mit2 = geo.begin(); mit2 != geo.end(); ++mit2) {
-
-                const int orientation = geo.oriented(omit1->mesh(), *mit2); // equals  0, if they don't have any domains in common
-                                                                  // equals  1, if they are both oriented toward the same domain
-                                                                  // equals -1, if they are not
-                if ( orientation != 0 ) {
-                    //  Compute S.
-                    operatorS(*mit2, omit1->mesh(), transmat, geo.sigma_inv(omit1->mesh(), *mit2) * ( -1. * K * orientation), gauss_order);
-
-                    //  First compute D.
-                    operatorD(*mit2, omit1->mesh(), transmat, (K * orientation), gauss_order, true);
-                    if ( omit1->mesh() == *mit2 ) {
-                        operatorP1P0(omit1->mesh(), transmat, 0.5 * orientation);
+        for(Geometry::const_iterator mit0=geo.begin();mit0!=geo.end();++mit0){
+            if(mit0->current_barrier())
+                for(Geometry::const_iterator mit1=geo.begin();mit1!=geo.end();++mit1){
+                    const int orientation=geo.oriented(*mit0,*mit1);
+                    if(orientation!=0){
+                        operatorS(*mit1,*mit0,transmat,geo.sigma_inv(*mit0,*mit1)*(-1.0*K*orientation),gauss_order);
+                        operatorD(*mit1,*mit0,transmat,(K*orientation),gauss_order,true);
+                        if(*mit0==*mit1)
+                            operatorP1P0(*mit0,transmat,0.5*orientation);
                     }
                 }
-            }
         }
 
         for ( unsigned ielec = 0; ielec < n_sensors; ++ielec) {
@@ -187,7 +183,7 @@ namespace OpenMEEG {
                 if ( electrodes.getRadius()(0) < 1e3*std::numeric_limits<double>::epsilon() ) {
                     inv_area = 1./tit->area();
                 }
-                for ( unsigned i = 0; i < (geo.size() - geo.outermost_interface().nb_triangles()); ++i) {
+                for ( unsigned i = 0; i < (geo.size() - geo.nb_current_barrier_triangles()); ++i) {
                     mat(i, ielec) += transmat(tit->index(), i) * inv_area;
                 }
             }
@@ -207,7 +203,7 @@ namespace OpenMEEG {
         std::vector<Vect3>  points_;
         for ( unsigned i = 0; i < points.nlin(); ++i) {
             const Domain& d = geo.domain(Vect3(points(i, 0), points(i, 1), points(i, 2)));
-            if ( d.name() != "Air" ) {
+            if ( d.sigma() != 0.0 ) {
                 points_domain.push_back(d);
                 points_.push_back(Vect3(points(i, 0), points(i, 1), points(i, 2)));
             }
