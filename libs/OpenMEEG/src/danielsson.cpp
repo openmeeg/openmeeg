@@ -136,6 +136,29 @@ namespace OpenMEEG
         }
         return distmin;
     }
+    
+    //find the closest triangle on the interfaces that touches 0 conductivity
+    std::string dist_point_geom(const Vect3& p, const Geometry& g, Vect3& alphas, Triangle& nearestTriangle, double& dist)
+    {
+        double distmin=std::numeric_limits<double>::max();
+        string name_nearest_interface;
+        Triangle local_nearest_triangle;
+        double distance;
+
+        for(Domains::const_iterator dit = g.domain_begin(); dit != g.domain_end(); ++dit)
+            if( dit->sigma() == 0.0 ){
+                for ( Domain::const_iterator hit = dit->begin(); hit != dit->end(); ++hit){
+                    distance=dist_point_interface(p,hit->interface(),alphas,local_nearest_triangle);
+                    if(distance<distmin) {
+                        name_nearest_interface=hit->interface().name();
+                        distmin=distance;
+                        nearestTriangle=local_nearest_triangle;
+                    }
+                }
+            }
+        dist=distmin;
+        return name_nearest_interface;
+    }
 
 } // end namespace OpenMEEG
 

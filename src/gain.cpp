@@ -201,6 +201,21 @@ int main(int argc, char **argv)
         GainStimInternalPot StimInternalPotGainMat(HeadMatInv, SourceMat, Head2IPMat);
         StimInternalPotGainMat.save(argv[5]);
     }
+        else if ( (!strcmp(argv[1], "-EITInternalPotential"))||(!strcmp(argv[1], "-EITIP")) ) {
+            if ( argc<6 ){
+                cerr << "Not enough arguments \nPlease try \"" << argv[0] << " -h\" or \"" << argv[0] << " --help \" \n" << endl;
+                return 0;
+            }
+            SymMatrix HeadMatInv;
+            HeadMatInv.load(argv[2]);
+            Matrix SourceMat;
+            SourceMat.load(argv[3]);
+            Matrix Head2IPMat;
+            Head2IPMat.load(argv[4]);
+
+            GainEITInternalPot InternalPotGainMat(HeadMatInv, SourceMat, Head2IPMat);
+            InternalPotGainMat.save(argv[5]);
+	}
     else
     {
         cerr << "Error: unknown option. \nPlease try \"" << argv[0] << " -h\" or \"" << argv[0] << " --help \" \n" << endl;
@@ -261,6 +276,14 @@ void getHelp(char** argv)
     cout << "            conductivity file (.cond)" << endl;
     cout << "            dipoles positions and orientations" << endl;
     cout << "            HeadMat, Head2EEGMat, Head2MEGMat, Source2MEGMat, EEGGainMatrix, MEGGainMatrix" << endl;
+    cout << "            bin Matrix" << endl << endl;
+
+    cout << "   -EITInternalPotential :   Compute the gain for internal potentials using boundary normal current as input" << endl;
+    cout << "            Filepaths are in order :" << endl;
+    cout << "            geometry file (.geom)" << endl;
+    cout << "            conductivity file (.cond)" << endl;
+    cout << "            dipoles positions and orientations" << endl;
+    cout << "            HeadMatInv, SourceMat, Head2IPMat" << endl;
     cout << "            bin Matrix" << endl << endl;
 
     exit(0);

@@ -49,7 +49,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <vector.h>
 #include <matrix.h>
 #include <symmatrix.h>
-#include <interface.h>
+#include <geometry.h>
 #include <sparse_matrix.h>
 
 #include <DLLDefinesOpenMEEG.h>
@@ -94,10 +94,10 @@ namespace OpenMEEG {
     class OPENMEEG_EXPORT Sensors {
 
     public:
-        Sensors(): m_nb(0), m_interface(NULL) {} /*!< Default constructor. Number of sensors = 0. */
-        Sensors(const Interface& i): m_nb(0), m_interface(&i) {} /*!< Default constructor with an interface. Number of sensors = 0. */
-        Sensors(const char* filename): m_interface(NULL) { this->load(filename,'t'); } /*!< Construct from file. Option 't' is for text file.*/
-        Sensors(const char* filename, const Interface& i): m_interface(&i) { this->load(filename,'t'); }; /*!< Construct from file and interface (for EIT). */
+        Sensors(): m_nb(0), m_geo(NULL) {} /*!< Default constructor. Number of sensors = 0. */
+        Sensors(const Geometry& g): m_nb(0), m_geo(&g) {} /*!< Default constructor with a geometry. Number of sensors = 0. */
+        Sensors(const char* filename): m_geo(NULL) { this->load(filename,'t'); } /*!< Construct from file. Option 't' is for text file.*/
+        Sensors(const char* filename, const Geometry& g): m_geo(&g) { this->load(filename,'t'); }; /*!< Construct from file and geometry (for EIT). */
 
         void load(const char* filename, char filetype = 't' ); /*!< Load sensors from file. Filetype is 't' for text file or 'b' for binary file. */
         void load(std::istream &in); /*!< Load description file of sensors from stream. */
@@ -144,7 +144,7 @@ namespace OpenMEEG {
         Vector m_weights;                 /*!< Weights of integration points */
         Vector m_radius;                   /*!< Areas of the EIT sensors */
         std::vector<Triangles> m_triangles; /*!< Triangles under each EIT sensors */
-        const Interface * m_interface;              /*!< Interface on which are applied EIT sensors */
+        const Geometry * m_geo;              /*!< Geometry on which are applied EIT sensors */
         std::vector<size_t> m_pointSensorIdx; /*!< Correspondance between point id and sensor id */
         void findInjectionTriangles(); /*!< Get the triangles under each EIT sensors */
     };

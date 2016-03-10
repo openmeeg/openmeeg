@@ -54,8 +54,8 @@ namespace OpenMEEG {
             std::cerr << "Interface::contains_point(" << p << ") Error. This should not happen. Are you sure the mesh is properly oriented ?\n";
             return true;
         } else {
-            std::cerr << "Interface::contains_point(" << p << ") Error. Are you sure the interface \"" << name_ << "\" is closed?" << std::abs(solangle) << std::endl;
-            exit(1);
+            std::cerr << "Interface::contains_point(" << p << ") Error. Are you sure the interface \"" << name_ << "\" is closed? Solid angle: " << std::abs(solangle)/M_PI <<"*PI." << std::endl;
+            return std::abs(solangle)>2*M_PI?true:false;
         }
     }
 
@@ -78,7 +78,7 @@ namespace OpenMEEG {
     }
 
     /// Check the global orientation: that the triangles are correctly oriented (outward-pointing normal)
-    bool Interface::check()
+    bool Interface::check(bool checked)
     {
         /// compute the bounding box:
         double xmin = std::numeric_limits<double>::max();
@@ -103,11 +103,29 @@ namespace OpenMEEG {
         Vect3 bbmax(xmax, ymax, zmax);
         Vect3 bbcenter = 0.5 * (bbmin + bbmax);
 
-        // TODO if solidangle returns 0, then the center of BB is not inside, and thus we should randomly choose another inside point untill solid_anlge gives + or -4 PI ?
+        // TODO if solidangle returns 0, then the center of BB is not inside, and thus we should randomly choose another inside point until solid_anlge gives + or -4 PI ?
         // else it causes a strange phenomenon for symmetric model, the point chosen for interface Cortex {north and south}, is on the surface...
         // compute the solid-angle from an inside point:
         double solangle = compute_solid_angle(bbcenter);
         bool closed;
+
+        //if the bounding box center is not inside the interface,
+        //we try to test another point inside the bounding box.
+        if(std::abs(solangle) < 1.e3*std::numeric_limits<double>::epsilon()){
+            //std::cout<<"bbcenter is not inside interface: "<<name_<<std::endl;
+            if(!checked)          
+                std::srand((unsigned int)std::time(NULL));
+            else
+                std::srand((unsigned int)(std::time(NULL)+3583)); //the program runs faster than the change of time value
+
+            while(std::abs(solangle) < 1.e3*std::numeric_limits<double>::epsilon()){
+                Vect3 pt_rd((double)rand()/RAND_MAX*(xmax-xmin)+xmin,
+                            (double)rand()/RAND_MAX*(ymax-ymin)+ymin,
+                            (double)rand()/RAND_MAX*(zmax-zmin)+zmin);
+                //std::cout<<"\ttest random point("<<pt_rd<<")\n";
+                solangle=compute_solid_angle(pt_rd);
+            }
+        }
 
         if ( std::abs(solangle) < 1.e3*std::numeric_limits<double>::epsilon() ) {
             closed = true;
@@ -122,8 +140,9 @@ namespace OpenMEEG {
             }
             closed = true;
         } else {
-            std::cout << std::abs(solangle - 4.*M_PI)  << std::endl;
-            closed = false;
+            std::cout << solangle/M_PI << "PI" << std::endl;
+            //in case of a bad random point location (too close to the mesh), do a double check:
+            closed = checked?false:this->check(true);
         }
 
         return closed;
