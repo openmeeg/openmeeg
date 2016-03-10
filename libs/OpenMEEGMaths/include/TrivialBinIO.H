@@ -170,21 +170,15 @@ namespace OpenMEEG {
 
                 while (!is.eof()) {
                     unsigned int ui;
-                    size_t i,j;
+
+                    if (!is.read(reinterpret_cast<char*>(&ui), sizeof(unsigned int))) break;
+                    const size_t i = ui;
+
+                    if (!is.read(reinterpret_cast<char*>(&ui), sizeof(unsigned int))) break;
+                    const size_t j = ui;
+
                     double val;
-#if _MSC_VER >= 1700 //Visual Studio 2012 or newer
-                    if (static_cast <bool>(is.read(reinterpret_cast<char*>(&ui), sizeof(unsigned int))) == 0) break;
-                    i = ui;
-                    if (static_cast <bool>(is.read(reinterpret_cast<char*>(&ui), sizeof(unsigned int))) == 0) break;
-                    j = ui;
-                    if (static_cast <bool>(is.read(reinterpret_cast<char*>(&val), sizeof(double))) == 0) break;
-#else
-                    if (is.read(reinterpret_cast<char*>(&ui), sizeof(unsigned int)) == 0) break;
-                    i = ui;
-                    if (is.read(reinterpret_cast<char*>(&ui), sizeof(unsigned int)) == 0) break;
-                    j = ui;
-                    if (is.read(reinterpret_cast<char*>(&val), sizeof(double)) == 0) break;
-#endif
+                    if (!is.read(reinterpret_cast<char*>(&val), sizeof(double))) break;
 
                     m(i,j) = val;
                 }
