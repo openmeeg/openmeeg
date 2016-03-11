@@ -244,7 +244,8 @@ namespace OpenMEEG {
                         Triangle * t = tri_stack.top();
                         tri_stack.pop();
                         if ( (t->center()-current_position).norm() < m_radius(idx) ) {
-                            triangles.push_back(*t);
+                            if(t->index() != current_nearest_triangle.index()) //don't push the nearest triangle twice
+                                triangles.push_back(*t);
                             Interface::VectPTriangle t_adj = m_interface->adjacent_triangles(*t);
                             if ( index_seen.insert(t_adj[0]->index()).second ) tri_stack.push(t_adj[0]);
                             if ( index_seen.insert(t_adj[1]->index()).second ) tri_stack.push(t_adj[1]);
