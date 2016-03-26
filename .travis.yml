@@ -50,7 +50,7 @@ install:
               -DUSE_SYSTEM_hdf5:BOOL=ON
               -DCMAKE_SKIP_RPATH:BOOL=OFF
               ..
-  - make
+  - make VERBOSE=1
 
 script:
   - $CXX --version
