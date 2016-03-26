@@ -1,5 +1,18 @@
-language: erlang
+language: cpp
+
+compiler:
+  - clang
+  - gcc
+
 before_install:
+  # g++4.8.1
+  - if [ "$CXX" == "g++" ]; then sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test; fi
+
+  # clang 3.4
+  - if [ "$CXX" == "clang++" ]; then sudo add-apt-repository -y ppa:h-rayflood/llvm; fi
+
+  - sudo apt-get update -qq
+
   # to prevent IPv6 being used for APT
   - sudo bash -c "echo 'Acquire::ForceIPv4 \"true\";' > /etc/apt/apt.conf.d/99force-ipv4"
   # The ultimate one-liner setup for NeuroDebian repository
@@ -9,7 +22,16 @@ before_install:
   - sudo apt-get update
   # Just to get information about available versions
   - apt-cache policy libmatio-dev
+
 install:
+  # g++4.8.1
+  - if [ "$CXX" = "g++" ]; then sudo apt-get install -qq g++-4.8; fi
+  - if [ "$CXX" = "g++" ]; then export CXX="g++-4.8"; fi
+
+  # clang 3.4
+  - if [ "$CXX" == "clang++" ]; then sudo apt-get install --allow-unauthenticated -qq clang-3.4; fi
+  - if [ "$CXX" == "clang++" ]; then export CXX="clang++-3.4"; fi
+
   - sudo apt-get update
   - sudo apt-get install doxygen python-numpy swig python-dev libatlas-base-dev libvtk5-dev libtiff4-dev libmatio-dev libhdf5-serial-dev
   - wget https://s3.amazonaws.com/biibinaries/thirdparty/cmake-3.0.2-Linux-64.tar.gz
@@ -29,5 +51,7 @@ install:
               -DCMAKE_SKIP_RPATH:BOOL=OFF
               ..
   - make
+
 script:
+  - $CXX --version
   - ctest -V
