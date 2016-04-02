@@ -12,6 +12,8 @@ matrix:
   exclude:
     - os: osx
       compiler: gcc
+    - os: linux
+      compiler: clang
 
 before_install: source build_tools/travis/before_install.sh
 

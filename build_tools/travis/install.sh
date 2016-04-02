@@ -23,15 +23,29 @@ fi
 
 mkdir build
 cd build
-cmake \
-    -DATLAS_INCLUDE_PATH:PATH=/usr/include/atlas \
-    -DBUILD_SHARED:BOOL=ON \
-    -DBUILD_TESTING:BOOL=ON \
-    -DPYTHON_WRAP:BOOL=ON \
-    -DUSE_VTK:BOOL=OFF \
-    -DUSE_ATLAS:BOOL=ON \
-    -DUSE_SYSTEM_MATIO:BOOL=ON \
-    -DUSE_SYSTEM_hdf5:BOOL=ON \
-    -DCMAKE_SKIP_RPATH:BOOL=OFF \
-    ..
+
+if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
+  cmake \
+      -DATLAS_INCLUDE_PATH:PATH=/usr/include/atlas \
+      -DBUILD_SHARED:BOOL=ON \
+      -DBUILD_TESTING:BOOL=ON \
+      -DPYTHON_WRAP:BOOL=OFF \
+      -DUSE_VTK:BOOL=OFF \
+      -DUSE_ATLAS:BOOL=ON \
+      -DUSE_SYSTEM_MATIO:BOOL=OFF \
+      -DUSE_SYSTEM_hdf5:BOOL=OFF \
+      -DCMAKE_SKIP_RPATH:BOOL=OFF \
+      ..
+else
+  cmake \
+      -DATLAS_INCLUDE_PATH:PATH=/usr/include/atlas \
+      -DBUILD_SHARED:BOOL=ON \
+      -DBUILD_TESTING:BOOL=ON \
+      -DPYTHON_WRAP:BOOL=ON \
+      -DUSE_VTK:BOOL=OFF \
+      -DUSE_ATLAS:BOOL=ON \
+      -DUSE_SYSTEM_MATIO:BOOL=ON \
+      -DUSE_SYSTEM_hdf5:BOOL=ON \
+      -DCMAKE_SKIP_RPATH:BOOL=OFF \
+      ..
 make VERBOSE=1
