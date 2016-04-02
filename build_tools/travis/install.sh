@@ -1,18 +1,26 @@
-# g++4.8.1
-if [ "$CXX" = "g++" ]; then sudo apt-get install -qq g++-4.8; fi
-if [ "$CXX" = "g++" ]; then export CXX="g++-4.8"; fi
+if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
 
-# clang 3.4
-if [ "$CXX" == "clang++" ]; then sudo apt-get install --allow-unauthenticated -qq clang-3.4; fi
-if [ "$CXX" == "clang++" ]; then export CXX="clang++-3.4"; fi
+    # Install some custom requirements on OS X
+    # e.g. brew install pyenv-virtualenv
 
-sudo apt-get update
-sudo apt-get install doxygen python-numpy swig python-dev libatlas-base-dev libvtk5-dev libtiff4-dev libmatio-dev libhdf5-serial-dev
-wget https://s3.amazonaws.com/biibinaries/thirdparty/cmake-3.0.2-Linux-64.tar.gz
-tar -xzf cmake-3.0.2-Linux-64.tar.gz
-sudo cp -fR cmake-3.0.2-Linux-64/* /usr
-rm -rf cmake-3.0.2-Linux-64
-rm cmake-3.0.2-Linux-64.tar.gz
+else
+    # g++4.8.1
+    if [ "$CXX" = "g++" ]; then sudo apt-get install -qq g++-4.8; fi
+    if [ "$CXX" = "g++" ]; then export CXX="g++-4.8"; fi
+
+    # clang 3.4
+    if [ "$CXX" == "clang++" ]; then sudo apt-get install --allow-unauthenticated -qq clang-3.4; fi
+    if [ "$CXX" == "clang++" ]; then export CXX="clang++-3.4"; fi
+
+    sudo apt-get update
+    sudo apt-get install doxygen python-numpy swig python-dev libatlas-base-dev libvtk5-dev libtiff4-dev libmatio-dev libhdf5-serial-dev
+    wget https://s3.amazonaws.com/biibinaries/thirdparty/cmake-3.0.2-Linux-64.tar.gz
+    tar -xzf cmake-3.0.2-Linux-64.tar.gz
+    sudo cp -fR cmake-3.0.2-Linux-64/* /usr
+    rm -rf cmake-3.0.2-Linux-64
+    rm cmake-3.0.2-Linux-64.tar.gz
+fi
+
 mkdir build; cd build; cmake
             -DATLAS_INCLUDE_PATH:PATH=/usr/include/atlas
             -DBUILD_SHARED:BOOL=ON
