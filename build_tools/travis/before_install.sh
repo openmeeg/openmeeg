@@ -1,7 +1,18 @@
 if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
 
     # Install some custom requirements on OS X
-    brew install hdf5
+    brew tap homebrew/science # a lot of cool formulae for scientific tools
+    brew tap homebrew/python # numpy, scipy, matplotlib, ...
+    brew update && brew upgrade
+
+    brew install cmake
+    brew install Doxygen
+    brew install homebrew/science/hdf5
+
+    # install a brewed python
+    brew install python
+    brew install numpy
+    brew install swig
 
 else
     # Install some custom requirements on Linux
