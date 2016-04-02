@@ -48,4 +48,6 @@ else
       -DUSE_SYSTEM_hdf5:BOOL=ON \
       -DCMAKE_SKIP_RPATH:BOOL=OFF \
       ..
+fi
+
 make VERBOSE=1
