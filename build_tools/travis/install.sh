@@ -3,8 +3,8 @@ if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
     # Install some custom requirements on OS X
     $CXX --version
 
-else;
-    # g++4.8.1
+else
+    # # g++4.8.1
     if [ "$CXX" = "g++" ]; then sudo apt-get install -qq g++-4.8; fi
     if [ "$CXX" = "g++" ]; then export CXX="g++-4.8"; fi
 
@@ -21,15 +21,17 @@ else;
     rm cmake-3.0.2-Linux-64.tar.gz
 fi
 
-mkdir build; cd build; cmake
-            -DATLAS_INCLUDE_PATH:PATH=/usr/include/atlas
-            -DBUILD_SHARED:BOOL=ON
-            -DBUILD_TESTING:BOOL=ON
-            -DPYTHON_WRAP:BOOL=ON
-            -DUSE_VTK:BOOL=OFF
-            -DUSE_ATLAS:BOOL=ON
-            -DUSE_SYSTEM_MATIO:BOOL=ON
-            -DUSE_SYSTEM_hdf5:BOOL=ON
-            -DCMAKE_SKIP_RPATH:BOOL=OFF
-            ..
+mkdir build
+cd build
+cmake \
+    -DATLAS_INCLUDE_PATH:PATH=/usr/include/atlas \
+    -DBUILD_SHARED:BOOL=ON \
+    -DBUILD_TESTING:BOOL=ON \
+    -DPYTHON_WRAP:BOOL=ON \
+    -DUSE_VTK:BOOL=OFF \
+    -DUSE_ATLAS:BOOL=ON \
+    -DUSE_SYSTEM_MATIO:BOOL=ON \
+    -DUSE_SYSTEM_hdf5:BOOL=ON \
+    -DCMAKE_SKIP_RPATH:BOOL=OFF \
+    ..
 make VERBOSE=1

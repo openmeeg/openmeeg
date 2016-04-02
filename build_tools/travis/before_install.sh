@@ -3,7 +3,7 @@ if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
     # Install some custom requirements on OS X
     brew install cmake
 
-else;
+else
     # Install some custom requirements on Linux
     # g++4.8.1
     if [ "$CXX" == "g++" ]; then sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test; fi
