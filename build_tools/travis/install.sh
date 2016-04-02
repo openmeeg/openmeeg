@@ -1,9 +1,9 @@
 if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
 
     # Install some custom requirements on OS X
-    # e.g. brew install pyenv-virtualenv
+    $CXX --version
 
-else
+else;
     # g++4.8.1
     if [ "$CXX" = "g++" ]; then sudo apt-get install -qq g++-4.8; fi
     if [ "$CXX" = "g++" ]; then export CXX="g++-4.8"; fi
