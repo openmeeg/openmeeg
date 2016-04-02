@@ -2,6 +2,8 @@ if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
 
     # Install some custom requirements on OS X
     brew install cmake
+    brew tap homebrew/science
+    brew install homebrew/science/hdf5
 
 else
     # Install some custom requirements on Linux
