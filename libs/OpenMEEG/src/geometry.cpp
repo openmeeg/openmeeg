@@ -63,6 +63,16 @@ namespace OpenMEEG {
         // should never append
     }
 
+    const Mesh&  Geometry::mesh(const std::string& id) const {
+        for (const_iterator mit=begin(); mit!=end(); ++mit) {
+            if(id==mit->name())
+                return *mit;
+        }
+            // should never append
+            warning(std::string("Geometry::mesh: Error mesh id/name not found: ") + id);
+            throw OpenMEEG::BadInterface(id);
+    }
+
     void Geometry::info(const bool verbous) const {
         if (is_nested_) {
             std::cout << "This geometry is a NESTED geometry." << std::endl;
@@ -133,6 +143,8 @@ namespace OpenMEEG {
         if (condFileName!="") {
             geoR.read_cond(condFileName);
             has_cond_ = true;
+            //mark meshes that touch the 0-cond
+            mark_current_barrier();
         }
 
         // generate the indices of our unknowns
@@ -153,28 +165,33 @@ namespace OpenMEEG {
         if (begin()->begin()->index()==unsigned(-1)) {
             unsigned index = 0;
             if (!OLD_ORDERING)
-                for (Vertices::iterator pit=vertex_begin();pit!=vertex_end();++pit,++index)
-                    pit->index() = index;
+                for (Vertices::iterator pit=vertex_begin();pit != vertex_end();++pit)
+                    (invalid_vertices_.empty()||invalid_vertices_.count(*pit)==0) ? pit->index()=index++ : unsigned(-1);
 
-            for (iterator mit=begin();mit!=end();++mit) {
-                if (OLD_ORDERING) {
+            for(iterator mit=begin();mit!=end();++mit){
+                if(OLD_ORDERING){
                     om_error(is_nested_); // OR non nested but without shared vertices
                     for (Mesh::const_vertex_iterator vit=mit->vertex_begin();vit!=mit->vertex_end();++vit,++index)
                         (*vit)->index() = index;
                 }
-                for (Mesh::iterator tit=mit->begin();tit!=mit->end();++tit)
-                    if (!mit->outermost())
+                if(!mit->isolated()&&!mit->current_barrier())
+                    for ( Mesh::iterator tit = mit->begin(); tit != mit->end(); ++tit)
                         tit->index() = index++;
             }
-            
             // even the last surface triangles (yes for EIT... )
+            nb_current_barrier_triangles()=0;
+            for (iterator mit=begin(); mit!=end();++mit)
+                if(mit->current_barrier())
+                    if(!mit->isolated()){
+                        nb_current_barrier_triangles()+=mit->nb_triangles();
+                        for (Mesh::iterator tit=mit->begin(); tit!=mit->end(); ++tit)
+                            tit->index() = index++;
+                    }else
+                        for(Mesh::iterator tit=mit->begin();tit!=mit->end();++tit)
+                            tit->index()=unsigned(-1);
 
-            for (iterator mit=begin();mit!=end();++mit)
-                for (Mesh::iterator tit=mit->begin();tit!=mit->end();++tit)
-                    if (mit->outermost())
-                        tit->index() = index++;
             size_ = index;
-        } else { 
+        }else{
             std::cout << "vertex_begin()->index() " << vertex_begin()->index() << std::endl;
             size_ = vertices_.size();
             for (iterator mit=begin();mit!=end();++mit)
@@ -313,6 +330,115 @@ namespace OpenMEEG {
                                                 map_vertices[(*tit)[1]], 
                                                 map_vertices[(*tit)[2]]));
             meshes_[iit].update();
+        }
+    }
+
+    //mark all meshes which touch domains with 0 conductivity
+    void Geometry::mark_current_barrier() {
+
+        //figure out the connectivity of meshes
+        std::vector<int> mesh_idx;
+        for(unsigned i=0;i<meshes().size();i++)
+            mesh_idx.push_back(i);
+        std::vector<std::vector<int> > mesh_conn;
+        std::vector<int> mesh_connected,mesh_diff;
+        std::set_difference(mesh_idx.begin(),mesh_idx.end(),mesh_connected.begin(),mesh_connected.end(),std::insert_iterator<std::vector<int> >(mesh_diff,mesh_diff.end()));
+        while(!mesh_diff.empty()){
+            std::vector<int> conn;
+            int se=mesh_diff[0];
+            conn.push_back(se);
+            mesh_connected.push_back(se);
+            for(unsigned iit=0;iit<conn.size();++iit){
+                const Mesh& me=meshes()[conn[iit]];
+                for(Meshes::iterator mit=begin();mit!=end();++mit)
+                    if(sigma(me,*mit)!=0.0){
+                        int id=mit-begin();
+                        std::vector<int>::iterator ifind=std::find(mesh_connected.begin(),mesh_connected.end(),id);
+                        if(ifind==mesh_connected.end()){
+                            mesh_connected.push_back(id);
+                            conn.push_back(id);
+                        }
+                    }
+            }
+            mesh_conn.push_back(conn);
+            std::sort(mesh_connected.begin(),mesh_connected.end());
+            mesh_diff.clear();
+            std::set_difference(mesh_idx.begin(),mesh_idx.end(),mesh_connected.begin(),mesh_connected.end(),std::insert_iterator<std::vector<int> >(mesh_diff,mesh_diff.end()));
+        }
+
+        //find isolated meshes and touch 0-cond meshes;
+        std::set<std::string> touch_0_mesh;
+        for(Domains::iterator dit=domains_.begin();dit!=domains_.end();++dit){
+            if(dit->sigma()==0.0)
+                for(Domain::iterator hit=dit->begin();hit!=dit->end();++hit)
+                    for(Interface::iterator omit=hit->first.begin();omit!=hit->first.end();++omit){
+                        omit->mesh().current_barrier()=true;
+                        std::pair<std::set<std::string>::iterator, bool> ret=touch_0_mesh.insert(omit->mesh().name());
+                        if(!ret.second){
+                            omit->mesh().isolated()=true;
+                            omit->mesh().outermost()=false;
+                            std::cout<<"Mesh \""<<omit->mesh().name()<<"\" will be excluded from computation because it touches non-conductive domains on both sides."<<std::endl;
+                            //add all of its vertices to invalid_vertices
+                            for(Mesh::const_vertex_iterator vit=omit->mesh().vertex_begin();vit!=omit->mesh().vertex_end();++vit)
+                                invalid_vertices_.insert(**vit);
+                        }
+                    }
+
+        }
+
+        std::vector<std::vector<int> > new_conn;
+        for(std::vector<std::vector<int> >::const_iterator git=mesh_conn.begin();git!=mesh_conn.end();++git)
+            if(git->size()>1||!meshes()[*git->begin()].isolated())
+                new_conn.push_back(*git);
+        mesh_conn=new_conn;
+
+        //do not delete shared vertices
+        std::set<Vertex> shared_vtx;
+        for(std::set<Vertex>::const_iterator vit=invalid_vertices_.begin();vit!=invalid_vertices_.end();++vit){
+            for(Meshes::const_iterator mit=begin();mit!=end();++mit){
+                if(!mit->isolated()){
+                    std::vector<Vertex*>::const_iterator vfind;
+                    for(vfind=mit->vertex_begin();vfind!=mit->vertex_end();++vfind){
+                        if(**vfind==*vit)
+                            break;
+                    }
+                    if(vfind!=mit->vertex_end())
+                        shared_vtx.insert(**vfind);//a shared vertex is found
+                }
+            }
+        }
+
+        for(std::set<Vertex>::const_iterator vit=shared_vtx.begin();vit!=shared_vtx.end();++vit)
+            invalid_vertices_.erase(*vit);
+
+        //redefine outermost interface
+        //the inside of a 0-cond domain is considered as a new outermost
+        for(Domains::iterator dit=domain_begin();dit!=domain_end();++dit)
+            if(dit->sigma()==0.0)
+                for(Domain::iterator hit=dit->begin();hit!=dit->end();++hit)
+                    if(!hit->inside())
+                        for(Interface::iterator omit=hit->first.begin();omit!=hit->first.end();++omit)
+                            if(omit->mesh().current_barrier()&&!omit->mesh().isolated())
+                                omit->mesh().outermost()=true;
+
+        //detect isolated geometries
+        if(mesh_conn.size()>1){
+            std::cout<<"The geometry is cut into several unrelated parts by non-conductive domains."<<std::endl;
+            std::cout<<"The computation will continue. But please note that the electric potentials from different parts are no longer comparable."<<std::endl;
+
+            for(unsigned iit=0,p=0;iit<mesh_conn.size();++iit){
+                std::cout<<"Part "<<++p<<" is formed by meshes: { ";
+                for(unsigned miit=0;miit<mesh_conn[iit].size();++miit)
+                    std::cout<<"\""<<meshes()[mesh_conn[iit][miit]].name()<<"\" ";
+                std::cout<<"}."<<std::endl;
+            }
+        }
+        //count geo_group
+        for(unsigned git=0;git<mesh_conn.size();++git){
+            std::vector<std::string> gg;
+            for(unsigned mit=0;mit<mesh_conn[git].size();++mit)
+                gg.push_back(meshes()[mesh_conn[git][mit]].name());
+            geo_group_.push_back(gg);
         }
     }
 }
