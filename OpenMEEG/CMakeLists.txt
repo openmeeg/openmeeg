@@ -261,7 +261,7 @@ install(FILES ${OpenMEEG_BINARY_DIR}/cmake/OpenMEEGConfig.cmake
 
 # Install README
 
-install(FILES ${PROJECT_SOURCE_DIR}/LICENSE.txt  ${PROJECT_SOURCE_DIR}/README.rst
+install(FILES ${PROJECT_SOURCE_DIR}/LICENSE.txt  ${PROJECT_SOURCE_DIR}/../README.rst
         DESTINATION ${INSTALL_DATA_DIR}/doc/OpenMEEG)
 
 # install generated headers OpenMEEGConfigure and FC
