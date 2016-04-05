@@ -24,7 +24,7 @@ if (ENABLE_PACKAGING)
 
             set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "OpenMEEG Project")
             set(CPACK_PACKAGE_VENDOR "INRIA-ENPC")
-            set(CPACK_PACKAGE_DESCRIPTION_FILE "${OpenMEEG_SOURCE_DIR}/README.rst")
+            set(CPACK_PACKAGE_DESCRIPTION_FILE "${OpenMEEG_SOURCE_DIR}/../README.rst")
             set(CPACK_RESOURCE_FILE_LICENSE "${OpenMEEG_SOURCE_DIR}/LICENSE.txt")
             set(CPACK_PACKAGE_INSTALL_DIRECTORY "OpenMEEG")
             set(CPACK_PACKAGE_CONTACT "openmeeg-info_at_lists.gforge.inria.fr")
