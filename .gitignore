@@ -11,7 +11,6 @@ install_manifest.txt
 Makefile
 matio
 msinttypes
-OpenMEEG
 rules.ninja
 .*.swo
 .*.swp
