@@ -14,11 +14,7 @@ function(OpenMEEG_project)
     EP_Initialisation(OpenMEEG BUILD_SHARED_LIBS ON)
     EP_SetDependencies(${ep}_dependencies flens clapack matio ${MSINTTYPES})
 
-    # Define repository where get the sources
-
-    if (NOT DEFINED ${ep}_SOURCE_DIR)
-        set(location GIT_REPOSITORY "${GIT_PREFIX}github.com/openmeeg/openmeeg.git")
-    endif()
+    # No need to define repository where get the sources, since they are integrated.
 
     # Set compilation flags
 
@@ -54,10 +50,6 @@ function(OpenMEEG_project)
     set(tag UniLapack)
     ExternalProject_Add(${ep}
         ${ep_dirs}
-        ${location}
-        GIT_TAG ${tag}
-        UPDATE_COMMAND ${GIT_BIN} pull
-        ${PATCH_COMMAND}
         CMAKE_GENERATOR ${gen}
         CMAKE_ARGS ${cmake_args}
         DEPENDS ${${ep}_dependencies}
