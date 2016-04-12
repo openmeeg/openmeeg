@@ -1,17 +1,23 @@
-language: erlang
-install:
-  - sudo apt-get update
-  - sudo apt-get install cmake doxygen python-numpy swig python-dev libatlas-base-dev libvtk5-dev libtiff4-dev libmatio-dev
-  - mkdir build; cd build; cmake
-              -DATLAS_INCLUDE_PATH:PATH=/usr/include/atlas
-              -DBUILD_SHARED:BOOL=ON
-              -DBUILD_TESTING:BOOL=ON
-              -DPYTHON_WRAP:BOOL=ON
-              -DUSE_VTK:BOOL=OFF
-              -DUSE_ATLAS:BOOL=ON
-              -DUSE_SYSTEM_MATIO:BOOL=ON
-              -DCMAKE_SKIP_RPATH:BOOL=OFF
-              ..
-  - make
+language: cpp
+
+os:
+  - linux
+  - osx
+
+compiler:
+  - clang
+  - gcc
+
+matrix:
+  exclude:
+    - os: osx
+      compiler: gcc
+
+before_install: source build_tools/travis/before_install.sh
+
+install: source build_tools/travis/install.sh
+
 script:
-  - cd build; ctest -V
+  - $CXX --version
+  - make test-OpenMEEG
+  - cpack -G TGZ .
