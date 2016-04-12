@@ -1,8 +1,8 @@
 ##############################################################################
 #
-# medInria
+# OpenMEEG
 #
-# Copyright (c) INRIA 2013. All rights reserved.
+# Copyright (c) INRIA 2013-2016. All rights reserved.
 # See LICENSE.txt for details.
 # 
 #  This software is distributed WITHOUT ANY WARRANTY; without even
@@ -86,5 +86,3 @@ set (SKIP_GITHUB_TESTS ON CACHE BOOL
   "GitHub access tests were successful, set ON to force re-evaluation" 
   FORCE
   )
-
-
