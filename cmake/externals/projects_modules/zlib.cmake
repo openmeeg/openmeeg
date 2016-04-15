@@ -22,7 +22,7 @@ function(zlib_project)
 
     if (NOT DEFINED ${ep}_SOURCE_DIR)
         set(location
-            URL "http://sourceforge.net/projects/libpng/files/zlib/1.2.8/zlib-1.2.8.tar.gz"
+            URL "http://zlib.net/zlib-1.2.8.tar.gz"
             URL_MD5 "44d667c142d7cda120332623eab69f40")
     endif()
 
