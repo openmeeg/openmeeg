@@ -1,7 +1,7 @@
 ##############################################################################
 # OpenMEEG
 #
-# Copyright (c) INRIA 2015. All rights reserved.
+# Copyright (c) INRIA 2015-2016. All rights reserved.
 # See LICENSE.txt for details.
 # 
 #  This software is distributed WITHOUT ANY WARRANTY; without even
@@ -39,17 +39,16 @@ set(CPACK_NSIS_CONTACT ${CPACK_PACKAGE_CONTACT})
 
 #   Dealing with the icon.
 
-set(ICON_PATH "${PROJECT_SOURCE_DIR}/medInria/app/medInria/resources/medInria.ico")
+set(ICON_PATH "${PROJECT_SOURCE_DIR}/packaging/openmeeg.ico")
 set(CPACK_NSIS_MUI_ICON ${ICON_PATH})
 set(CPACK_NSIS_MUI_UNIICON ${ICON_PATH})
-set(CPACK_NSIS_INSTALLED_ICON_NAME bin\\\\medInria.exe)
+# set(CPACK_NSIS_INSTALLED_ICON_NAME bin\\\\om_assemble.exe)
 set(CPACK_NSIS_DELETE_ICONS_EXTRA " Delete '\$SMPROGRAMS\\\\$MUI_TEMP\\\\*.*' ")
 
 #   Add OpenMEEG to the PATH and shortcut in the Startup menu and/or on the desktop.
 
 set(CPACK_NSIS_MODIFY_PATH ON)
 set(CPACK_PACKAGE_EXECUTABLES "om_assemble" "OpenMEEG (Ignore)")
-#set(CPACK_CREATE_DESKTOP_LINKS "medInria")
 
 #   Add a link to the application website in the Startup menu.
 
@@ -60,6 +59,6 @@ set(CPACK_NSIS_MENU_LINKS
 )
 
 #   Run OpenMEEG after installation
-#set(CPACK_NSIS_MUI_FINISHPAGE_RUN "medInria.exe")
+#set(CPACK_NSIS_MUI_FINISHPAGE_RUN "om_assemble.exe")
 
 include(UseWin32dlls)

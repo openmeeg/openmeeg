@@ -38,8 +38,13 @@ endif()
 
 if (USE_ATLAS)
     if (APPLE)
-        set(LAPACK_LIBRARIES "-framework vecLib")
+        # set(LAPACK_LIBRARIES "-framework vecLib")
+        set(LAPACK_LIBRARIES "-framework Accelerate")
         include_directories(/System/Library/Frameworks/vecLib.framework/Headers)
+        include_directories(/usr/local/opt/openblas/include)
+        include_directories(/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk/System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/Headers/)
+        # include_directories("-framework Veclib")
+        # include_directories("-framework Accelerate")
     else()
         set(ATLAS_LIB_SEARCHPATH
             /usr/lib64/atlas/sse3 /usr/lib/atlas/sse3 /usr/lib/sse3
