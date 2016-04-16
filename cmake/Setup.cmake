@@ -4,8 +4,6 @@ endif()
 
 include(Options)
 
-set(GET_REVISIONS_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake/externals/get_revisions)
-
 # Add CMAKE_MODULE_PATH to superProjectConfig.cmake
 
 set(${PROJECT_NAME}_CONFIG_FILE "${CMAKE_BINARY_DIR}/${PROJECT_NAME}Config.cmake")
@@ -27,11 +25,6 @@ set(CMAKE_MODULE_PATH
     ${CMAKE_CURRENT_SOURCE_DIR}/cmake/externals/configuration_steps
     ${CMAKE_CURRENT_SOURCE_DIR}/cmake/externals/projects_modules
     ${CMAKE_CURRENT_SOURCE_DIR}/cmake/environment
-#    ${CMAKE_CURRENT_SOURCE_DIR}/launchers
-#    ${CMAKE_CURRENT_SOURCE_DIR}/packaging
-#    ${CMAKE_CURRENT_SOURCE_DIR}/packaging/windows
-#    ${CMAKE_CURRENT_SOURCE_DIR}/packaging/linux
-#    ${CMAKE_CURRENT_SOURCE_DIR}/packaging/apple
     ${CMAKE_MODULE_PATH}
 )
 
