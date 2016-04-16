@@ -10,7 +10,9 @@ else()
     set(BLASLAPACK_IMPLEMENTATION_DEFAULT Atlas)
 endif()
 
-set(BLASLAPACK_IMPLEMENTATION "OpenBlas" CACHE FILEPATH "Vhoose the proper Blas/Lapack implementation Atlas/OpenBlas/MKL/Lapack")
+set(BLASLAPACK_IMPLEMENTATION ${BLASLAPACK_IMPLEMENTATION_DEFAULT}
+    CACHE FILEPATH "Choose the proper Blas/Lapack implementation Atlas/OpenBlas/MKL/Lapack")
+
 if (NOT ${BLASLAPACK_IMPLEMENTATION})
     message(ERROR "Unknown blas/lapack implementation in BLASLAPACK_IMPLEMENTATION")
 endif()
