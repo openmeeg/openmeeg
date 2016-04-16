@@ -40,7 +40,6 @@ if (USE_ATLAS)
     if (APPLE)
         set(LAPACK_LIBRARIES "-framework vecLib")
         include_directories(/System/Library/Frameworks/vecLib.framework/Headers)
-        include_directories(/System/Library/Frameworks/vecLib.framework/Versions/A/Headers/)
     else()
         set(ATLAS_LIB_SEARCHPATH
             /usr/lib64/atlas/sse3 /usr/lib/atlas/sse3 /usr/lib/sse3
