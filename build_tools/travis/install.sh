@@ -27,6 +27,8 @@ fi
 mkdir build
 cd build
 
+# XXX : BUILD_SHARED should be used to set global defaults
+
 if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
   cmake \
       -DATLAS_INCLUDE_PATH:PATH=/usr/include/atlas \

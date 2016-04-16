@@ -25,7 +25,7 @@ set(CMAKE_BUILD_TYPE ${build_type} CACHE STRING
 
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
 
-project(OpenMEEG-superProject ${PROJECT_VERSION})
+project(OpenMEEG-superProject ${PROJECT_VERSION})  # XXX don't call it super project
 
 # Setup everything (MODULE_PATH, check environment, basic targets
 

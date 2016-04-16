@@ -39,14 +39,14 @@ endif()
 
 # Include cmake modules of external-project
 
-include(ExternalProject) 
+include(ExternalProject)
 
 # Include common configuration steps
 
 include(EP_Initialisation)
 include(EP_SetDependencies)
-include(EP_AddCustomTargets) 
-include(EP_GeneratePatchCommand) 
+include(EP_AddCustomTargets)
+include(EP_GeneratePatchCommand)
 
 # Include specific module of each project
 
@@ -97,7 +97,7 @@ macro(subprojects)
                 set(build_dependencies ${build_dependencies} build-${project} install-${project})
             endif()
         endif()
-        
+
     endforeach()
 
     set(CMAKE_INSTALL_PREFIX ${SAVED_CMAKE_INSTALL_PREFIX})
@@ -109,7 +109,7 @@ macro(subprojects)
         COMMAND echo All project have been updated. 
         && echo To build them, run the build target: 'cmake --build . --target build'
     )
-      
+
     add_custom_target(build DEPENDS ${build_dependencies})
 
     if (BUILD_TESTING)

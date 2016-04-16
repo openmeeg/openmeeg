@@ -22,24 +22,25 @@ if (USE_MKL AND USE_ATLAS)
 endif()
 
 if (USE_MKL)
-	find_package(MKL)
-	if (MKL_FOUND)
-		include_directories(${MKL_INCLUDE_DIR})
-		set(LAPACK_LIBRARIES ${MKL_LIBRARIES})
+    find_package(MKL)
+    if (MKL_FOUND)
+        include_directories(${MKL_INCLUDE_DIR})
+        set(LAPACK_LIBRARIES ${MKL_LIBRARIES})
         get_filename_component(MKL_DLL_DIR "${MKL_LIBRARIES}" DIRECTORY) 
         #message(${LAPACK_LIBRARIES}) # for debug
-		if(UNIX AND NOT APPLE) # MKL on linux requires to link with the pthread library
-			set(LAPACK_LIBRARIES ${LAPACK_LIBRARIES} pthread)
-		endif()
-	else()
-		message(FATAL_ERROR "MKL not found. Please set environment variable MKLDIR")
-	endif()
+        if(UNIX AND NOT APPLE) # MKL on linux requires to link with the pthread library
+            set(LAPACK_LIBRARIES ${LAPACK_LIBRARIES} pthread)
+        endif()
+    else()
+        message(FATAL_ERROR "MKL not found. Please set environment variable MKLDIR")
+    endif()
 endif()
 
 if (USE_ATLAS)
     if (APPLE)
         set(LAPACK_LIBRARIES "-framework vecLib")
         include_directories(/System/Library/Frameworks/vecLib.framework/Headers)
+        include_directories(/System/Library/Frameworks/vecLib.framework/Versions/A/Headers/)
     else()
         set(ATLAS_LIB_SEARCHPATH
             /usr/lib64/atlas/sse3 /usr/lib/atlas/sse3 /usr/lib/sse3

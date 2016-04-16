@@ -6,8 +6,8 @@ endif()
 
 #   Various OpenMEEG options that will be forwarded.
 
-include(BlasLapackOption)
-
+option(USE_ATLAS "Build the project using ATLAS" OFF)
+option(USE_MKL "Build the project with MKL" OFF)
 option(ENABLE_PACKAGING "Enable Packaging" OFF)
 option(ENABLE_PYTHON "Enable Python Wrapping" ON)
 option(USE_OMP "Use OpenMP" OFF)
