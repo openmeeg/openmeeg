@@ -14,7 +14,7 @@ else
 
     sudo apt-get update
     # sudo apt-get install doxygen libatlas-dev libatlas-base-dev libblas-dev liblapack-dev # python-numpy swig python-dev libvtk5-dev libtiff4-dev
-    sudo apt-get install doxygen libblas-dev liblapack-dev # python-numpy swig python-dev libvtk5-dev libtiff4-dev
+    sudo apt-get install doxygen libblas-dev libatlas-base-dev liblapack-dev # python-numpy swig python-dev libvtk5-dev libtiff4-dev
     # sudo apt-get install libvtk5-dev libtiff4-dev
     # sudo apt-get install doxygen python-numpy swig python-dev
     sudo apt-get install doxygen
@@ -53,7 +53,7 @@ else
       -DENABLE_PYTHON:BOOL=OFF \
       -DENABLE_PACKAGING:BOOL=ON \
       -DUSE_VTK:BOOL=OFF \
-      -DUSE_ATLAS:BOOL=OFF \
+      -DUSE_ATLAS:BOOL=ON \
       -DUSE_SYSTEM_MATIO:BOOL=OFF \
       -DUSE_SYSTEM_hdf5:BOOL=OFF \
       -DCMAKE_SKIP_RPATH:BOOL=OFF \
