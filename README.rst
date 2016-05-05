@@ -1,3 +1,8 @@
+|Travis|_
+
+.. |Travis| image:: https://api.travis-ci.org/openmeeg/openmeeg.svg?branch=master
+.. _Travis: https://travis-ci.org/openmeeg/openmeeg
+
 OpenMEEG: forward problems solver in the field of EEG and MEG
 =============================================================
 
@@ -23,16 +28,12 @@ The references to be acknowledged are ::
     Kybic et al. Generalized head models for MEG/EEG: boundary element method
     beyond nested volumes. Phys. Med. Biol. (2006) vol. 51 pp. 1333-1346
 
-.. image:: http://biomaj.genouest.org/wp-content/uploads/2011/07/logo-inria_im.png
+.. image:: https://raw.githubusercontent.com/openmeeg/openmeeg.github.io/source/_static/inria.png
 
 Install precompiled binaries
 ----------------------------
 
 `Download precompiled binaries <https://gforge.inria.fr/frs/?group_id=435>`_ of the latest stable version.
-
-Or on Mac OS install with `Homebrew <http://mxcl.github.com/homebrew/>`_::
-
-    $ brew install openmeeg
 
 On Ubuntu/Debian GNU Linux you can use the http://neuro.debian.net package repository.
 
