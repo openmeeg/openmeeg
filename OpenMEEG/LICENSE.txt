@@ -3,7 +3,7 @@ Alexandre GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU,
 Emmanuel OLIVI, Theodore PAPADOPOULO, Maureen.Clerc.AT.sophia.inria.fr, keriven.AT.certis.enpc.fr, kybic.AT.fel.cvut.cz, papadop.AT.sophia.inria.fr, Alexandre.Gramfort.AT.inria.fr, Emmanuel.Olivi.AT.sophia.inria.fr)
 
 Contact : openmeeg-info@lists.gforge.inria.fr
-Web : http://openmeeg.gforge.inria.fr
+Web : http://openmeeg.github.io
 
 The OpenMEEG software is a C++ package for solving the forward
 problems of electroencephalography (EEG) and magnetoencephalography (MEG).
