@@ -247,7 +247,30 @@ namespace OpenMEEG {
 
         private:
 
-            MatlabIO(): MathsIOBase(5) { }
+            static void matiologfunc(const int log_level,char* message) {
+
+                //  Ugly copy of values in matio/io.c, but those are not exported...
+
+                enum { LOG_LEVEL_ERROR=1, LOG_LEVEL_CRITICAL=2, LOG_LEVEL_WARNING=4, LOG_LEVEL_MESSAGE=8, LOG_LEVEL_DEBUG=16 };
+
+                if (log_level & (LOG_LEVEL_CRITICAL|LOG_LEVEL_ERROR))
+                    throw MatioError(message);
+
+                std::string error;
+                if (log_level==LOG_LEVEL_WARNING)
+                    error = "Warning";
+                else if (log_level==LOG_LEVEL_DEBUG)
+                    error = "Debug";
+                else if (log_level==LOG_LEVEL_MESSAGE)
+                    error = "Message";
+                else
+                    error = "Unknown error";
+
+                std::cerr << error << message << std::endl;
+            }
+
+            MatlabIO(): MathsIOBase(5) { Mat_LogInitFunc("OpenMEEG",matiologfunc); }
+
             ~MatlabIO() {};
 
             template <typename TYPE>

@@ -14,7 +14,7 @@ namespace OpenMEEG {
 
         typedef enum { UNEXPECTED = 128, IO_EXCPT,
                        BAD_FILE, BAD_FILE_OPEN, BAD_CONTENT, NO_SUFFIX, BAD_HDR, BAD_DATA, BAD_VECT, UNKN_DIM, BAD_SYMM_MAT,
-                       BAD_STORAGE_TYPE, NO_IO, UNKN_FILE_FMT, UNKN_FILE_SUFFIX, NO_FILE_FMT, UNKN_NAMED_FILE_FMT,
+                       BAD_STORAGE_TYPE, NO_IO, MATIO_ERROR, UNKN_FILE_FMT, UNKN_FILE_SUFFIX, NO_FILE_FMT, UNKN_NAMED_FILE_FMT,
                        IMPOSSIBLE_IDENTIFICATION } ExceptionCode;
 
 
@@ -206,6 +206,11 @@ namespace OpenMEEG {
             static std::string message(const std::string& file,const Mode& mode) {
                 return std::string("Unable to find ")+((mode==READ) ? "reader" : "writer")+" for file "+file+".";
             }
+        };
+
+        struct OPENMEEGMATHS_EXPORT MatioError: public IOException {
+            MatioError(const std::string& err): IOException(err) { }
+            ExceptionCode code() const throw() { return MATIO_ERROR; }
         };
 
         struct OPENMEEGMATHS_EXPORT UnknownFileFormat: public IOException {
