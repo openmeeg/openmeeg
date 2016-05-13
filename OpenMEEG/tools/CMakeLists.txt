@@ -62,10 +62,6 @@ if (USE_VTK)
     install(TARGETS om_vtp_to_meshes om_meshes_to_vtp om_add_dataset_to_vtk DESTINATION bin)
 endif()
 
-if (ENABLE_PYTHON)
-    subdirs(python)
-endif()
-
 install(TARGETS om_make_nerve om_mesh_convert om_mesh_concat om_project_sensors om_mesh_info om_mesh_smooth om_register_squids om_geometry_info om_squids2vtk om_matrix_info om_matrix_convert om_check_geom om_mesh_to_dip DESTINATION bin)
 
 if (USE_VTK)
