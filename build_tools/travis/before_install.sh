@@ -12,8 +12,9 @@ if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
     fi
 
     # install a brewed python
-    brew install python
-    brew install numpy
+    # brew install python
+    # brew install numpy
+
     brew install cmake
     brew install swig
     brew install Doxygen
@@ -28,7 +29,7 @@ else
 
     sudo apt-get update -qq
 
-    if [[ $USE_SYSTEM == "1" ]]; then
+    if [[ "$USE_SYSTEM" == "1" ]]; then
         # to prevent IPv6 being used for APT
         sudo bash -c "echo 'Acquire::ForceIPv4 \"true\";' > /etc/apt/apt.conf.d/99force-ipv4"
         # The ultimate one-liner setup for NeuroDebian repository
