@@ -45,19 +45,35 @@ if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
       -DCMAKE_SKIP_RPATH:BOOL=OFF \
       ..
 else
-  cmake \
-      -DATLAS_INCLUDE_PATH:PATH=/usr/include/atlas \
-      -DBUILD_SHARED:BOOL=ON \
-      -DBUILD_DOCUMENTATION:BOOL=OFF \
-      -DBUILD_TESTING:BOOL=ON \
-      -DENABLE_PYTHON:BOOL=OFF \
-      -DENABLE_PACKAGING:BOOL=ON \
-      -DUSE_VTK:BOOL=OFF \
-      -DUSE_ATLAS:BOOL=OFF \
-      -DUSE_SYSTEM_MATIO:BOOL=OFF \
-      -DUSE_SYSTEM_hdf5:BOOL=OFF \
-      -DCMAKE_SKIP_RPATH:BOOL=OFF \
-      ..
+  if [[ $USE_SYSTEM == "1" ]]; then
+    cmake \
+        -DATLAS_INCLUDE_PATH:PATH=/usr/include/atlas \
+        -DBUILD_SHARED:BOOL=ON \
+        -DBUILD_DOCUMENTATION:BOOL=OFF \
+        -DBUILD_TESTING:BOOL=ON \
+        -DENABLE_PYTHON:BOOL=OFF \
+        -DENABLE_PACKAGING:BOOL=ON \
+        -DUSE_VTK:BOOL=OFF \
+        -DUSE_ATLAS:BOOL=ON \
+        -DUSE_SYSTEM_MATIO:BOOL=ON \
+        -DUSE_SYSTEM_hdf5:BOOL=ON \
+        -DCMAKE_SKIP_RPATH:BOOL=OFF \
+        ..
+  else
+    cmake \
+          -DATLAS_INCLUDE_PATH:PATH=/usr/include/atlas \
+          -DBUILD_SHARED:BOOL=ON \
+          -DBUILD_DOCUMENTATION:BOOL=OFF \
+          -DBUILD_TESTING:BOOL=ON \
+          -DENABLE_PYTHON:BOOL=OFF \
+          -DENABLE_PACKAGING:BOOL=ON \
+          -DUSE_VTK:BOOL=OFF \
+          -DUSE_ATLAS:BOOL=OFF \
+          -DUSE_SYSTEM_MATIO:BOOL=OFF \
+          -DUSE_SYSTEM_hdf5:BOOL=OFF \
+          -DCMAKE_SKIP_RPATH:BOOL=OFF \
+          ..
+  fi
 fi
 
 make
