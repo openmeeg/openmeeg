@@ -185,7 +185,8 @@ add_subdirectory(Wrapping)
 #   Tests
 
 if (BUILD_TESTING)
-    include(CreateTestEnvironment)
+    # XXX : this breaks when trying to build OpenMEEG without the project :(
+    # include(CreateTestEnvironment)
     add_subdirectory(tests)
 endif()
 

@@ -28,7 +28,7 @@ else
     rm cmake-3.0.2-Linux-64.tar.gz
 fi
 
-if [[ "$NO_PROJECT" == "1" ]]; then
+if [[ "$USE_PROJECT" == "0" ]]; then
   cd OpenMEEG
 fi
 
@@ -38,7 +38,7 @@ cd build
 # XXX : BUILD_SHARED should be used to set global defaults
 
 if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
-  if [[ "$NO_PROJECT" == "1" ]]; then
+  if [[ "$USE_PROJECT" == "0" ]]; then
       # Install MATIO
       wget https://github.com/openmeeg/matio-openmeeg/archive/master.zip
       unzip master.zip

@@ -4,10 +4,10 @@ matrix:
   include:
     - os: osx
       compiler: clang
-      env: NO_PROJECT=1
+      env: USE_PROJECT=1
     - os: osx
       compiler: clang
-      env: NO_PROJECT=0
+      env: USE_PROJECT=0
     - os: linux
       compiler: clang
       env: USE_SYSTEM=0

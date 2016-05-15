@@ -7,7 +7,7 @@ if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
 
 
     # Install some custom requirements on OS X
-    if [ "$NO_PROJECT" == "1" ]; then
+    if [[ "$USE_PROJECT" == "0" ]]; then
         brew install hdf5
     fi
 
