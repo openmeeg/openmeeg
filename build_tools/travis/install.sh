@@ -14,8 +14,8 @@ else
 
     sudo apt-get update
     if [[ $USE_SYSTEM == "1" ]]; then
-      sudo apt-get install doxygen libatlas-dev libatlas-base-dev libblas-dev liblapack-dev
-      # python-numpy swig python-dev libvtk5-dev libtiff4-dev
+      sudo apt-get install libatlas-dev libatlas-base-dev libblas-dev liblapack-dev
+      # python-numpy swig python-dev libvtk5-dev libtiff4-dev doxygen
     fi
     # sudo apt-get install libblas-dev libatlas-base-dev liblapack-dev
     # sudo apt-get install libvtk5-dev libtiff4-dev
@@ -44,7 +44,7 @@ if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
       -DUSE_VTK:BOOL=OFF \
       -DUSE_ATLAS:BOOL=ON \
       -DUSE_SYSTEM_MATIO:BOOL=OFF \
-      -DUSE_SYSTEM_hdf5:BOOL=OFF \
+      -DUSE_SYSTEM_HDF5:BOOL=OFF \
       -DCMAKE_SKIP_RPATH:BOOL=OFF \
       ..
 else
@@ -59,7 +59,8 @@ else
         -DUSE_VTK:BOOL=OFF \
         -DUSE_ATLAS:BOOL=ON \
         -DUSE_SYSTEM_MATIO:BOOL=ON \
-        -DUSE_SYSTEM_hdf5:BOOL=ON \
+        -DUSE_SYSTEM_HDF5:BOOL=ON \
+        -DUSE_SYSTEM_ZLIB:BOOL=ON \
         -DCMAKE_SKIP_RPATH:BOOL=OFF \
         ..
   else
@@ -73,7 +74,8 @@ else
           -DUSE_VTK:BOOL=OFF \
           -DUSE_ATLAS:BOOL=OFF \
           -DUSE_SYSTEM_MATIO:BOOL=OFF \
-          -DUSE_SYSTEM_hdf5:BOOL=OFF \
+          -DUSE_SYSTEM_HDF5:BOOL=OFF \
+          -DUSE_SYSTEM_ZLIB:BOOL=OFF \
           -DCMAKE_SKIP_RPATH:BOOL=OFF \
           ..
   fi
