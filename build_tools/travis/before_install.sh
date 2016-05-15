@@ -5,6 +5,12 @@ if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
     brew tap homebrew/python # numpy, scipy, matplotlib, ...
     brew update && brew upgrade
 
+
+    # Install some custom requirements on OS X
+    if [ "$NO_PROJECT" == "1" ]; then
+        brew install hdf5
+    fi
+
     # install a brewed python
     brew install python
     brew install numpy

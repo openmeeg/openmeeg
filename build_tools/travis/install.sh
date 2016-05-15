@@ -28,13 +28,41 @@ else
     rm cmake-3.0.2-Linux-64.tar.gz
 fi
 
+if [[ "$NO_PROJECT" == "1" ]]; then
+  cd OpenMEEG
+fi
+
 mkdir build
 cd build
 
 # XXX : BUILD_SHARED should be used to set global defaults
 
 if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
-  cmake \
+  if [[ "$NO_PROJECT" == "1" ]]; then
+      # Install MATIO
+      wget https://github.com/openmeeg/matio-openmeeg/archive/master.zip
+      unzip master.zip
+      cd matio-openmeeg-master
+      mkdir build
+      cd build
+      cmake -DMAT73:BOOL=$MAT73 ..
+      make
+      make install
+      cd ../../
+
+      # Build OpenMEEG
+      cmake \
+      -DBUILD_SHARED:BOOL=ON \
+      -DBUILD_DOCUMENTATION:BOOL=OFF \
+      -DBUILD_TESTING:BOOL=ON \
+      -DENABLE_PYTHON:BOOL=OFF \
+      -DENABLE_PACKAGING:BOOL=ON \
+      -DUSE_VTK:BOOL=OFF \
+      -DUSE_ATLAS:BOOL=ON \
+      -DCMAKE_SKIP_RPATH:BOOL=OFF \
+      ..
+  else
+      cmake \
       -DATLAS_INCLUDE_PATH:PATH=/usr/include/atlas \
       -DBUILD_SHARED:BOOL=ON \
       -DBUILD_DOCUMENTATION:BOOL=OFF \
@@ -47,8 +75,9 @@ if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
       -DUSE_SYSTEM_HDF5:BOOL=OFF \
       -DCMAKE_SKIP_RPATH:BOOL=OFF \
       ..
+  fi
 else
-  if [[ $USE_SYSTEM == "1" ]]; then
+  if [[ "$USE_SYSTEM" == "1" ]]; then
     cmake \
         -DATLAS_INCLUDE_PATH:PATH=/usr/include/atlas \
         -DBUILD_SHARED:BOOL=ON \
