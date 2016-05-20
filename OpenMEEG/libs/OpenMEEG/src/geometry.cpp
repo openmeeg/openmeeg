@@ -186,9 +186,10 @@ namespace OpenMEEG {
                         nb_current_barrier_triangles()+=mit->nb_triangles();
                         for (Mesh::iterator tit=mit->begin(); tit!=mit->end(); ++tit)
                             tit->index() = index++;
-                    }else
+                    } else {
                         for(Mesh::iterator tit=mit->begin();tit!=mit->end();++tit)
                             tit->index()=unsigned(-1);
+                    }
 
             size_ = index;
         }else{

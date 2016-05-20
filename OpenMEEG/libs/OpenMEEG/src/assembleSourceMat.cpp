@@ -118,27 +118,26 @@ namespace OpenMEEG {
                 domain = geo.domain(domain_name);
             }
             const double sigma = domain.sigma();
-	    //only consider dipoles in non-zero conductivity domain
-	    if(!sigma==0)
-	      {
-            rhs_col.set(0.);
-            // iterate over the domain's interfaces (half-spaces)
-            for ( Domain::const_iterator hit = domain.begin(); hit != domain.end(); ++hit ) {
+            //only consider dipoles in non-zero conductivity domain
+            if (sigma != 0.) {
+                rhs_col.set(0.);
+                // iterate over the domain's interfaces (half-spaces)
+                for ( Domain::const_iterator hit = domain.begin(); hit != domain.end(); ++hit ) {
                 // iterate over the meshes of the interface
-                for ( Interface::const_iterator omit = hit->interface().begin(); omit != hit->interface().end(); ++omit ) {
+                    for ( Interface::const_iterator omit = hit->interface().begin(); omit != hit->interface().end(); ++omit ) {
                     //  Treat the mesh.
-                    double coeffD = (hit->inside())?(K * omit->orientation()):(-K * omit->orientation());
-                    operatorDipolePotDer(r, q, omit->mesh(), rhs_col, coeffD, gauss_order, adapt_rhs);
+                        double coeffD = (hit->inside())?(K * omit->orientation()):(-K * omit->orientation());
+                        operatorDipolePotDer(r, q, omit->mesh(), rhs_col, coeffD, gauss_order, adapt_rhs);
 
-		    if(!omit->mesh().current_barrier()){
-                        double coeff = ( hit->inside() )?(-omit->orientation() * K / sigma):(omit->orientation() * K / sigma);
-                        operatorDipolePot(r, q, omit->mesh(), rhs_col, coeff, gauss_order, adapt_rhs);
+                        if(!omit->mesh().current_barrier()){
+                            double coeff = ( hit->inside() )?(-omit->orientation() * K / sigma):(omit->orientation() * K / sigma);
+                            operatorDipolePot(r, q, omit->mesh(), rhs_col, coeff, gauss_order, adapt_rhs);
+                        }
                     }
                 }
+                rhs.setcol(s, rhs_col);
             }
-            rhs.setcol(s, rhs_col);
-	      }
-	}
+        }
     }
 
     DipSourceMat::DipSourceMat(const Geometry& geo, const Matrix& dipoles, const unsigned gauss_order,
