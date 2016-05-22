@@ -61,6 +61,8 @@ if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
       -DUSE_ATLAS:BOOL=ON \
       -DCMAKE_SKIP_RPATH:BOOL=OFF \
       ..
+
+      ctest -V -R OpenMEEGMathsTest-vector
   else
       cmake \
       -DATLAS_INCLUDE_PATH:PATH=/usr/include/atlas \
