@@ -112,4 +112,4 @@ fi
 
 make
 
-ctest -V -R OpenMEEGMathsTest-vector
+ctest -V
