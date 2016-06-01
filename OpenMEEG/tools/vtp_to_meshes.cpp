@@ -49,9 +49,9 @@ int main( int argc, char **argv) {
 
     print_version(argv[0]);
 
-    command_usage("Convert meshes into a single VTP file.");
-    std::string input;
-    std::string output;
+    command_usage("Convert a single VTK/VTP into meshes.");
+    const char * input;
+    const char * output;
     input  = command_option("-i", (const char *) NULL, "Input VTK/VTP file");
     output = command_option("-o", (const char *) NULL, "Output mesh base name");
 
@@ -59,7 +59,7 @@ int main( int argc, char **argv) {
         return 0;
     }
 
-    if ( input.empty() || output.empty() ) {
+    if ( !input || !output ) {
         std::cout << "Not enough arguments, try the -h option" << std::endl;
         return 1;
     }
@@ -70,17 +70,18 @@ int main( int argc, char **argv) {
 
     std::string::size_type idx;
     std::string extension;
+    std::string output_string(output);
 
-    idx = output.rfind('.');
+    idx = output_string.rfind('.');
 
     if ( idx != std::string::npos ) {
-        extension = output.substr(idx+1);
+        extension = output_string.substr(idx+1);
     } else {
         extension = "";
     }
 
     for ( Geometry::const_iterator mit = geo.begin(); mit != geo.end(); mit++) {
-        mit->save(output.substr(0, idx) + mit->name() + '.' + extension);
+        mit->save(output_string.substr(0, idx) + mit->name() + '.' + extension);
     }
 
     return 0;

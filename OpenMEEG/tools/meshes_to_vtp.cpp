@@ -49,50 +49,59 @@ int main( int argc, char **argv) {
 
     print_version(argv[0]);
 
-    command_usage("Convert meshes into a single VTK/VTP file.");
+    command_usage("Convert meshes OR geometry into a single VTK/VTP file.");
+    const char * geom_filename;
     const char * input[7];
     const char * name[7];
     const char * output;
-    input[0] = command_option("-i1", (const char *) NULL, "Input Mesh");
-    input[1] = command_option("-i2", (const char *) NULL, "Input Mesh");
-    input[2] = command_option("-i3", (const char *) NULL, "Input Mesh");
-    input[3] = command_option("-i4", (const char *) NULL, "Input Mesh");
-    input[4] = command_option("-i5", (const char *) NULL, "Input Mesh");
-    input[5] = command_option("-i6", (const char *) NULL, "Input Mesh");
-    input[6] = command_option("-i7", (const char *) NULL, "Input Mesh");
-    name[0]  = command_option("-n1", (const char *) "1", "Mesh Name");
-    name[1]  = command_option("-n2", (const char *) "2", "Mesh Name");
-    name[2]  = command_option("-n3", (const char *) "3", "Mesh Name");
-    name[3]  = command_option("-n4", (const char *) "4", "Mesh Name");
-    name[4]  = command_option("-n5", (const char *) "5", "Mesh Name");
-    name[5]  = command_option("-n6", (const char *) "6", "Mesh Name");
-    name[6]  = command_option("-n7", (const char *) "7", "Mesh Name");
+    geom_filename = command_option("-g", (const char *) NULL, "Input geometry");
+    input[0] = command_option("-i1", (const char *) NULL, "Input mesh");
+    input[1] = command_option("-i2", (const char *) NULL, "Input mesh");
+    input[2] = command_option("-i3", (const char *) NULL, "Input mesh");
+    input[3] = command_option("-i4", (const char *) NULL, "Input mesh");
+    input[4] = command_option("-i5", (const char *) NULL, "Input mesh");
+    input[5] = command_option("-i6", (const char *) NULL, "Input mesh");
+    input[6] = command_option("-i7", (const char *) NULL, "Input mesh");
+    name[0]  = command_option("-n1", (const char *) "1", "Mesh name");
+    name[1]  = command_option("-n2", (const char *) "2", "Mesh name");
+    name[2]  = command_option("-n3", (const char *) "3", "Mesh name");
+    name[3]  = command_option("-n4", (const char *) "4", "Mesh name");
+    name[4]  = command_option("-n5", (const char *) "5", "Mesh name");
+    name[5]  = command_option("-n6", (const char *) "6", "Mesh name");
+    name[6]  = command_option("-n7", (const char *) "7", "Mesh name");
     output   = command_option("-o" , (const char *) NULL, "Output VTP file");
 
     if ( command_option("-h", (const char *)0, 0) )
         return 0;
 
-    if ( !input[0] || !output ) {
+    if ( (!input[0] && !geom_filename) || !output ) {
         std::cout << "Not enough arguments, try the -h option" << std::endl;
         return 1;
     }
     
-    Meshes meshes;
-
-    unsigned nb_vertices = 0;
-    unsigned i_input     = 0;
-
-    // first only read the number of inputs
-    while ( input[i_input] != 0 ) {
-        Mesh m(input[i_input], false, name[i_input]);
-        m.correct_local_orientation();
-        meshes.push_back(m);
-        ++i_input;
-    }
-
     Geometry geo;
 
-    geo.import_meshes(meshes);
+    if (!geom_filename)
+    {
+        Meshes meshes;
+
+        unsigned nb_vertices = 0;
+        unsigned i_input     = 0;
+
+        // first only read the number of inputs
+        while ( input[i_input] != 0 ) {
+            Mesh m(input[i_input], false, name[i_input]);
+            m.correct_local_orientation();
+            meshes.push_back(m);
+            ++i_input;
+        }
+
+        geo.import_meshes(meshes);
+    }
+    else
+    {
+        geo.read(geom_filename);
+    }
 
     geo.info();
 
