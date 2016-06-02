@@ -1,6 +1,6 @@
 Copyright INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC,
 Alexandre GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU,
-Emmanuel OLIVI, Theodore PAPADOPOULO, Maureen.Clerc.AT.sophia.inria.fr, keriven.AT.certis.enpc.fr, kybic.AT.fel.cvut.cz, papadop.AT.sophia.inria.fr, Alexandre.Gramfort.AT.inria.fr, Emmanuel.Olivi.AT.sophia.inria.fr)
+Emmanuel OLIVI, Theodore PAPADOPOULO, Maureen.Clerc.AT.inria.fr, keriven.AT.certis.enpc.fr, kybic.AT.fel.cvut.cz, papadop.AT.inria.fr, Alexandre.Gramfort.AT.inria.fr, Emmanuel.Olivi.AT.inria.fr)
 
 Contact : openmeeg-info@lists.gforge.inria.fr
 Web : http://openmeeg.github.io

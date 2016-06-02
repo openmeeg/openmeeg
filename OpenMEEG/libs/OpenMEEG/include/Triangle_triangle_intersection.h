@@ -7,7 +7,7 @@
 /*  Philippe Guigue                                                          */
 /*  INRIA - Sophia Antipolis                                                 */
 /*  France                                                                   */
-/*  philippe.guigue@sophia.inria.fr                                          */
+/*  philippe.guigue@inria.fr                                          */
 /*                                                                           */
 /*  This file contains C implementation of algorithms for                    */
 /*  performing two and three-dimensional triangle-triangle intersection test */

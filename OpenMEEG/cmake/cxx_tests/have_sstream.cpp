@@ -5,7 +5,7 @@
 //
 // COPYLEFT
 //
-//   Copyright (c) 2009 Theo Papadopoulo <Theodore.Papadopoulo@sophia.inria.fr>
+//   Copyright (c) 2009 Theo Papadopoulo <Theodore.Papadopoulo@inria.fr>
 //   Copyright (c) 2008 Ben Stanley <Ben.Stanley@exemail.com.au>
 //
 //   Copying and distribution of this file, with or without modification, are
