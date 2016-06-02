@@ -13,8 +13,8 @@ else
     if [ "$CXX" == "clang++" ]; then export CXX="clang++-3.4"; fi
 
     sudo apt-get update
-    if [[ $USE_SYSTEM == "1" ]]; then
-      sudo apt-get install libatlas-dev libatlas-base-dev libblas-dev liblapack-dev libhdf5-dev
+    if [[ "$USE_SYSTEM" == "1" ]]; then
+      sudo apt-get install libatlas-dev libatlas-base-dev libblas-dev liblapack-dev libhdf5-serial-dev
       # python-numpy swig python-dev libvtk5-dev libtiff4-dev doxygen
     fi
     # sudo apt-get install libblas-dev libatlas-base-dev liblapack-dev
