@@ -15,7 +15,7 @@ Summary:      The OpenMEEG package.
 Group:        Applications/Medical
 License:      CeCILL-B
 Url:          https://gforge.inria.fr/projects/openmeeg/
-Packager:     Theodore Papadopoulo <Theodore.Papadopoulo@sophia.inria.fr>
+Packager:     Theodore Papadopoulo <Theodore.Papadopoulo@inria.fr>
 Vendor:       Odyssee ENPC/INRIA/Ens Ulm 
 Distribution: research software
 
@@ -100,19 +100,19 @@ rm -rf %{srcdirname}
 %{_docdir}/OpenMEEG/*
 
 %changelog
-* Wed Oct 14 2009 Theo Papadopoulo <papadop@sophia.inria.fr>
+* Wed Oct 14 2009 Theo Papadopoulo <papadop@inria.fr>
 - Add Progressbar and OpenMP options.
 - Re-define %_cmake_skip_rpath to allow checking tests.
-* Thu Oct 30 2008 Theo Papadopoulo <papadop@sophia.inria.fr>
+* Thu Oct 30 2008 Theo Papadopoulo <papadop@inria.fr>
 - Add documentation build that had been suppressed by default.
-* Mon Oct 20 2008 Theo Papadopoulo <papadop@sophia.inria.fr>
+* Mon Oct 20 2008 Theo Papadopoulo <papadop@inria.fr>
 - Corrected installation for i386.
-* Tue Jul 19 2008 Theo Papadopoulo <papadop@sophia.inria.fr>
+* Tue Jul 19 2008 Theo Papadopoulo <papadop@inria.fr>
 - Added some cmake option and several packages to contain the python and
 documentation parts of @PROJECT_NAME@.
-* Thu Dec  6 2007 Theo Papadopoulo <papadop@sophia.inria.fr>
+* Thu Dec  6 2007 Theo Papadopoulo <papadop@inria.fr>
 - Adapt the file to work for both i386 and x86-64 architectures.
-* Mon Aug 27 2007 Theo Papadopoulo <Theodore.Papadopoulo@sophia.inria.fr> 0.8.0
+* Mon Aug 27 2007 Theo Papadopoulo <Theodore.Papadopoulo@inria.fr> 0.8.0
 - Added the new libOpenMEEG.so to installed files.
-* Wed Mar 28 2007 Theo Papadopoulo <Theodore.Papadopoulo@sophia.inria.fr> 0.8.0
+* Wed Mar 28 2007 Theo Papadopoulo <Theodore.Papadopoulo@inria.fr> 0.8.0
 - Initial revision (internal).

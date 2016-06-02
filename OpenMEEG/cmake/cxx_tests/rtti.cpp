@@ -4,7 +4,7 @@
 //   Identification (typeinfo header and typeid keyword).
 //   In sync with AC_CXX_RTTI (2008-04-12).
 //
-// Copyright (c) 2009 Theo Papadopoulo <Theodore.Papadopoulo@sophia.inria.fr>
+// Copyright (c) 2009 Theo Papadopoulo <Theodore.Papadopoulo@inria.fr>
 //
 // COPYLEFT
 //

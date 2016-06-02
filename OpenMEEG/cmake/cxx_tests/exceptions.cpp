@@ -3,7 +3,7 @@
 //   Test to check whether the C++ compiler supports exceptions handling (try, throw and catch),
 //   In sync with AC_CXX_EXCEPTIONS (2008-04-12).
 //
-// Copyright (c) 2009 Theo Papadopoulo <Theodore.Papadopoulo@sophia.inria.fr>
+// Copyright (c) 2009 Theo Papadopoulo <Theodore.Papadopoulo@inria.fr>
 //
 // ORIGINAL COPYLEFT
 //

@@ -6,7 +6,7 @@
 //
 // COPYLEFT
 //
-//   Copyright (c) 2009 Theo Papadopoulo <Theodore.Papadopoulo@sophia.inria.fr>
+//   Copyright (c) 2009 Theo Papadopoulo <Theodore.Papadopoulo@inria.fr>
 //   Copyright (c) 2008 Todd Veldhuizen
 //   Copyright (c) 2008 Luc Maisonobe <luc@spaceroots.org>
 //
