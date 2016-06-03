@@ -45,7 +45,7 @@ function install_matio {  # Install MATIO
   cd build
   cmake -DMAT73:BOOL=$MAT73 ..
   make
-  make install
+  sudo make install
   cd ../../
 }
 
