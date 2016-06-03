@@ -36,7 +36,11 @@ else
         bash <(wget -q -O- http://neuro.debian.net/_files/neurodebian-travis.sh)
         # But we actually want -devel repository just to get matio backport
         sudo sed -ie 's,neuro.debian.net/debian ,neuro.debian.net/debian-devel ,g' /etc/apt/sources.list.d/neurodebian.sources.list
-        sudo apt-get update
+
+        # To get recent hdf5 version:
+        sudo sed -i -e 's/trusty/vivid/g' /etc/apt/sources.list
+
+        sudo apt-get update -qq
         # Just to get information about available versions
         apt-cache policy libmatio-dev
     fi
