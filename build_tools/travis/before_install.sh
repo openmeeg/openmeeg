@@ -36,7 +36,6 @@ else
         # sudo sed -ie 's,neuro.debian.net/debian ,neuro.debian.net/debian-devel ,g' /etc/apt/sources.list.d/neurodebian.sources.list
 
         # To get recent hdf5 version:
-        echo "Using vivid!"
         sudo sed -i -e 's/trusty/vivid/g' /etc/apt/sources.list
 
         # sudo apt-get update -qq
