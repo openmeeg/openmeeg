@@ -49,26 +49,22 @@ function install_matio {  # Install MATIO
   cd ../../
 }
 
-function build_no_project {
-  install_matio
-
-  # Build OpenMEEG
-  cmake \
-  -DBUILD_SHARED:BOOL=ON \
-  -DBUILD_DOCUMENTATION:BOOL=OFF \
-  -DBUILD_TESTING:BOOL=ON \
-  -DENABLE_PYTHON:BOOL=OFF \
-  -DENABLE_PACKAGING:BOOL=ON \
-  -DUSE_VTK:BOOL=OFF \
-  -DUSE_ATLAS:BOOL=ON \
-  -DCMAKE_SKIP_RPATH:BOOL=OFF \
-  ..
-}
-
 
 if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
   if [[ "$USE_PROJECT" == "0" ]]; then
-    build_no_project
+    install_matio
+
+    # Build OpenMEEG
+    cmake \
+    -DBUILD_SHARED:BOOL=ON \
+    -DBUILD_DOCUMENTATION:BOOL=OFF \
+    -DBUILD_TESTING:BOOL=ON \
+    -DENABLE_PYTHON:BOOL=OFF \
+    -DENABLE_PACKAGING:BOOL=ON \
+    -DUSE_VTK:BOOL=OFF \
+    -DUSE_ATLAS:BOOL=ON \
+    -DCMAKE_SKIP_RPATH:BOOL=OFF \
+    ..
   else
       cmake \
       -DATLAS_INCLUDE_PATH:PATH=/usr/include/atlas \
@@ -87,7 +83,19 @@ if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
 else
   if [[ "$USE_SYSTEM" == "1" ]]; then
     if [[ "$USE_PROJECT" == "0" ]]; then
-      build_no_project
+      install_matio
+
+      # Build OpenMEEG
+      cmake \
+      -DBUILD_SHARED:BOOL=ON \
+      -DBUILD_DOCUMENTATION:BOOL=OFF \
+      -DBUILD_TESTING:BOOL=ON \
+      -DENABLE_PYTHON:BOOL=OFF \
+      -DENABLE_PACKAGING:BOOL=ON \
+      -DUSE_VTK:BOOL=OFF \
+      -DUSE_ATLAS:BOOL=OFF \
+      -DCMAKE_SKIP_RPATH:BOOL=OFF \
+      ..
     else
       cmake \
           -DATLAS_INCLUDE_PATH:PATH=/usr/include/atlas \
