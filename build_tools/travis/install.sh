@@ -37,30 +37,38 @@ cd build
 
 # XXX : BUILD_SHARED should be used to set global defaults
 
+function install_matio {  # Install MATIO
+  wget https://github.com/openmeeg/matio-openmeeg/archive/master.zip
+  unzip master.zip
+  cd matio-openmeeg-master
+  mkdir build
+  cd build
+  cmake -DMAT73:BOOL=$MAT73 ..
+  make
+  make install
+  cd ../../
+}
+
+function build_no_project {
+  install_matio
+
+  # Build OpenMEEG
+  cmake \
+  -DBUILD_SHARED:BOOL=ON \
+  -DBUILD_DOCUMENTATION:BOOL=OFF \
+  -DBUILD_TESTING:BOOL=ON \
+  -DENABLE_PYTHON:BOOL=OFF \
+  -DENABLE_PACKAGING:BOOL=ON \
+  -DUSE_VTK:BOOL=OFF \
+  -DUSE_ATLAS:BOOL=ON \
+  -DCMAKE_SKIP_RPATH:BOOL=OFF \
+  ..
+}
+
+
 if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
   if [[ "$USE_PROJECT" == "0" ]]; then
-      # Install MATIO
-      wget https://github.com/openmeeg/matio-openmeeg/archive/master.zip
-      unzip master.zip
-      cd matio-openmeeg-master
-      mkdir build
-      cd build
-      cmake -DMAT73:BOOL=$MAT73 ..
-      make
-      make install
-      cd ../../
-
-      # Build OpenMEEG
-      cmake \
-      -DBUILD_SHARED:BOOL=ON \
-      -DBUILD_DOCUMENTATION:BOOL=OFF \
-      -DBUILD_TESTING:BOOL=ON \
-      -DENABLE_PYTHON:BOOL=OFF \
-      -DENABLE_PACKAGING:BOOL=ON \
-      -DUSE_VTK:BOOL=OFF \
-      -DUSE_ATLAS:BOOL=ON \
-      -DCMAKE_SKIP_RPATH:BOOL=OFF \
-      ..
+    build_no_project
   else
       cmake \
       -DATLAS_INCLUDE_PATH:PATH=/usr/include/atlas \
@@ -78,19 +86,23 @@ if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
   fi
 else
   if [[ "$USE_SYSTEM" == "1" ]]; then
-    cmake \
-        -DATLAS_INCLUDE_PATH:PATH=/usr/include/atlas \
-        -DBUILD_DOCUMENTATION:BOOL=OFF \
-        -DBUILD_TESTING:BOOL=ON \
-        -DENABLE_PYTHON:BOOL=OFF \
-        -DENABLE_PACKAGING:BOOL=ON \
-        -DUSE_VTK:BOOL=OFF \
-        -DUSE_ATLAS:BOOL=OFF \
-        -DUSE_SYSTEM_matio:BOOL=ON \
-        -DUSE_SYSTEM_hdf5:BOOL=ON \
-        -DUSE_SYSTEM_zlib:BOOL=ON \
-        -DCMAKE_SKIP_RPATH:BOOL=OFF \
-        ..
+    if [[ "$USE_PROJECT" == "0" ]]; then
+      build_no_project
+    else
+      cmake \
+          -DATLAS_INCLUDE_PATH:PATH=/usr/include/atlas \
+          -DBUILD_DOCUMENTATION:BOOL=OFF \
+          -DBUILD_TESTING:BOOL=ON \
+          -DENABLE_PYTHON:BOOL=OFF \
+          -DENABLE_PACKAGING:BOOL=ON \
+          -DUSE_VTK:BOOL=OFF \
+          -DUSE_ATLAS:BOOL=OFF \
+          -DUSE_SYSTEM_matio:BOOL=OFF \  # XXX : should be ON but ...
+          -DUSE_SYSTEM_hdf5:BOOL=ON \
+          -DUSE_SYSTEM_zlib:BOOL=ON \
+          -DCMAKE_SKIP_RPATH:BOOL=OFF \
+          ..
+      fi
   else
     cmake \
           -DATLAS_INCLUDE_PATH:PATH=/usr/include/atlas \
