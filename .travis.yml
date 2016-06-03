@@ -16,12 +16,14 @@ matrix:
       env: USE_SYSTEM=0
     - os: linux
       compiler: gcc
-      env: USE_SYSTEM=1
-      env: USE_PROJECT=1
+      env:
+        - USE_SYSTEM=1
+        - USE_PROJECT=1
     - os: linux
       compiler: gcc
-      env: USE_SYSTEM=1
-      env: USE_PROJECT=0
+      env:
+        - USE_SYSTEM=1
+        - USE_PROJECT=0
 
 before_install: source build_tools/travis/before_install.sh
 
