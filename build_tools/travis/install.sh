@@ -83,7 +83,7 @@ if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
 else
   if [[ "$USE_SYSTEM" == "1" ]]; then
     if [[ "$USE_PROJECT" == "0" ]]; then
-      # install_matio
+      install_matio
 
       # Build OpenMEEG
       cmake \
@@ -105,7 +105,7 @@ else
           -DENABLE_PACKAGING:BOOL=ON \
           -DUSE_VTK:BOOL=OFF \
           -DUSE_ATLAS:BOOL=OFF \
-          -DUSE_SYSTEM_matio:BOOL=OFF \
+          -DUSE_SYSTEM_matio:BOOL=ON \
           -DUSE_SYSTEM_hdf5:BOOL=ON \
           -DUSE_SYSTEM_zlib:BOOL=ON \
           -DCMAKE_SKIP_RPATH:BOOL=OFF \
