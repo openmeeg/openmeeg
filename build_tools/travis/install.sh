@@ -83,7 +83,7 @@ if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
 else
   if [[ "$USE_SYSTEM" == "1" ]]; then
     if [[ "$USE_PROJECT" == "0" ]]; then
-      install_matio
+      # install_matio
 
       # Build OpenMEEG
       cmake \
