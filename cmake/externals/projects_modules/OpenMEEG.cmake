@@ -30,6 +30,7 @@ function(OpenMEEG_project)
         -DCMAKE_SHARED_LINKER_FLAGS:STRING=${${ep}_shared_linker_flags}  
         -DBUILD_SHARED_LIBS:BOOL=${BUILD_SHARED_LIBS_${ep}}
         -DUSE_ATLAS:BOOL=${USE_ATLAS}
+        -DUSE_OPENBLAS:BOOL=${USE_OPENBLAS}
         -DUSE_MKL:BOOL=${USE_MKL}
         -DUSE_OMP:BOOL=${USE_OMP}
         -DUSE_VTK:BOOL=${USE_VTK}
