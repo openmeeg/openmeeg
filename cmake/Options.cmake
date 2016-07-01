@@ -7,6 +7,7 @@ endif()
 #   Various OpenMEEG options that will be forwarded.
 
 option(USE_ATLAS "Build the project using ATLAS" OFF)
+option(USE_OPENBLAS "Build the project using OPENBLAS" OFF)
 option(USE_MKL "Build the project with MKL" OFF)
 option(ENABLE_PACKAGING "Enable Packaging" OFF)
 option(ENABLE_PYTHON "Enable Python Wrapping" ON)
