@@ -66,7 +66,7 @@ int main () {
 
     Matrix M1 = M;
     M1.insertmat(3,1,Q); // insert submatrix
-    if (abs((M1-M).frobenius_norm()) > 1e-10) {
+    if (std::abs((M1-M).frobenius_norm()) > 1e-10) {
         std::cerr << "Error: insert matrix is WRONG" << std::endl;
         exit(1);
     }
@@ -86,12 +86,12 @@ int main () {
     for (unsigned i=0;i<unit.nlin();++i) {
         for (unsigned j=0;j<unit.ncol();++j) {
             if (i==j) {
-                if (abs(unit(i,j)-1)>eps) {
+                if (std::abs(unit(i,j)-1)>eps) {
                     std::cerr << "Error: inverse is WRONG-1" << std::endl;
                     exit(1);
                 }
             } else {
-                if (abs(unit(i,j))>eps){
+                if (std::abs(unit(i,j))>eps){
                     std::cerr << "Error: inverse is WRONG-2 " << "unit(" << i << "," << j << ") = " << unit(i,j) << std::endl;
                     exit(1);
                 }
