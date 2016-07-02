@@ -14,7 +14,7 @@ else
 
     sudo apt-get update
     if [[ "$USE_SYSTEM" == "1" ]]; then
-      sudo apt-get install -y libatlas-dev libatlas-base-dev libblas-dev liblapack-dev libhdf5-serial-dev
+      sudo apt-get install -y libatlas-dev libatlas-base-dev libblas-dev liblapack-dev libhdf5-serial-dev libopenblas-base libopenblas-dev
       # libmatio-dev
       # python-numpy swig python-dev libvtk5-dev libtiff4-dev doxygen
     fi
@@ -85,7 +85,7 @@ else
     if [[ "$USE_PROJECT" == "0" ]]; then
       install_matio
 
-      # Build OpenMEEG
+      # Build OpenMEEG with openblas
       cmake \
       -DBUILD_SHARED:BOOL=ON \
       -DBUILD_DOCUMENTATION:BOOL=OFF \
@@ -94,6 +94,7 @@ else
       -DENABLE_PACKAGING:BOOL=ON \
       -DUSE_VTK:BOOL=OFF \
       -DUSE_ATLAS:BOOL=OFF \
+      -DUSE_OPENBLAS:BOOL=ON \
       -DCMAKE_SKIP_RPATH:BOOL=OFF \
       ..
     else
