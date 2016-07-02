@@ -14,7 +14,13 @@ else
 
     sudo apt-get update
     if [[ "$USE_SYSTEM" == "1" ]]; then
-      sudo apt-get install -y libatlas-dev libatlas-base-dev libblas-dev liblapack-dev libhdf5-serial-dev libopenblas-base libopenblas-dev
+      sudo apt-get install -y libhdf5-serial-dev libopenblas-base
+      if [[ "$USE_ATLAS" == "1" ]]; then
+          sudo apt-get install -y libatlas-dev libatlas-base-dev libblas-dev liblapack-dev
+      fi
+      if [[ "$USE_OPENBLAS" == "1" ]]; then
+          sudo apt-get install -y libopenblas-dev
+      fi
       # libmatio-dev
       # python-numpy swig python-dev libvtk5-dev libtiff4-dev doxygen
     fi
@@ -85,18 +91,34 @@ else
     if [[ "$USE_PROJECT" == "0" ]]; then
       install_matio
 
-      # Build OpenMEEG with openblas
-      cmake \
-      -DBUILD_SHARED:BOOL=ON \
-      -DBUILD_DOCUMENTATION:BOOL=OFF \
-      -DBUILD_TESTING:BOOL=ON \
-      -DENABLE_PYTHON:BOOL=OFF \
-      -DENABLE_PACKAGING:BOOL=ON \
-      -DUSE_VTK:BOOL=OFF \
-      -DUSE_ATLAS:BOOL=OFF \
-      -DUSE_OPENBLAS:BOOL=ON \
-      -DCMAKE_SKIP_RPATH:BOOL=OFF \
-      ..
+      if [[ "$USE_ATLAS" == "0" ]]; then
+        # Build OpenMEEG with ATLAS
+        cmake \
+        -DBUILD_SHARED:BOOL=ON \
+        -DBUILD_DOCUMENTATION:BOOL=OFF \
+        -DBUILD_TESTING:BOOL=ON \
+        -DENABLE_PYTHON:BOOL=OFF \
+        -DENABLE_PACKAGING:BOOL=ON \
+        -DUSE_VTK:BOOL=OFF \
+        -DUSE_ATLAS:BOOL=ON \
+        -DUSE_OPENBLAS:BOOL=OFF \
+        -DCMAKE_SKIP_RPATH:BOOL=OFF \
+        ..
+      fi
+      if [[ "$USE_OPENBLAS" == "1" ]]; then
+        # Build OpenMEEG with openblas
+        cmake \
+        -DBUILD_SHARED:BOOL=ON \
+        -DBUILD_DOCUMENTATION:BOOL=OFF \
+        -DBUILD_TESTING:BOOL=ON \
+        -DENABLE_PYTHON:BOOL=OFF \
+        -DENABLE_PACKAGING:BOOL=ON \
+        -DUSE_VTK:BOOL=OFF \
+        -DUSE_ATLAS:BOOL=OFF \
+        -DUSE_OPENBLAS:BOOL=ON \
+        -DCMAKE_SKIP_RPATH:BOOL=OFF \
+        ..
+      fi
     else
       cmake \
           -DATLAS_INCLUDE_PATH:PATH=/usr/include/atlas \
