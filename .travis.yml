@@ -25,6 +25,12 @@ matrix:
       compiler: gcc
       env:
         - USE_SYSTEM=1
+        - USE_PROJECT=0
+        - USE_OPENBLAS=1
+    - os: linux
+      compiler: gcc
+      env:
+        - USE_SYSTEM=1
         - USE_PROJECT=1
         - USE_OPENBLAS=1
 
