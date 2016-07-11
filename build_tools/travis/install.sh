@@ -170,6 +170,5 @@ make
 echo "pwd; ls; ls .."
 pwd
 ls
-ls ..
 
 ctest -V
