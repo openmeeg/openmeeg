@@ -37,11 +37,16 @@ fi
 
 if [[ "$USE_PROJECT" == "0" ]]; then
   cd OpenMEEG
+  ls
 fi
 
 mkdir build
 cd build
 
+echo "pwd; ls; ls .."
+pwd
+ls
+ls ..
 # XXX : BUILD_SHARED should be used to set global defaults
 
 function install_matio {  # Install MATIO
@@ -54,6 +59,10 @@ function install_matio {  # Install MATIO
   make
   sudo make install
   cd ../../
+  echo "pwd; ls; ls .."
+  pwd
+  ls
+  ls ..
 }
 
 
@@ -157,5 +166,10 @@ fi
 # -DBUILD_SHARED_LIBS_zlib:BOOL=ON
 
 make
+
+echo "pwd; ls; ls .."
+pwd
+ls
+ls ..
 
 ctest -V
