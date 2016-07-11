@@ -13,6 +13,8 @@
 
 #cmakedefine USE_ATLAS
 
+#cmakedefine USE_OPENBLAS
+
 #cmakedefine USE_MKL
 
 /* Define to 1 if your processor stores words with the most significant byte
