@@ -31,8 +31,10 @@ before_build:
 # scripts to run after build
 after_build:
   - cd %P%
-  - 7z a c:\projects\openmeeg\openmeeg.zip *.exe -tzip
-  - cd c:\projects\openmeeg
+  - 7z a c:/projects/openmeeg/openmeeg.zip *.exe -tzip
+  - cd c:/projects/openmeeg/OpenMEEG/build
+  - ctest -V
+
 
 artifacts:
   - path: openmeeg.zip
