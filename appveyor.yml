@@ -10,7 +10,7 @@ init:
 
 
 # clone directory
-clone_folder: c:\projects\openmeeg
+clone_folder: c:/projects/openmeeg
 
 platform: x64
 configuration: Release
@@ -24,9 +24,10 @@ build:
 # scripts to run before build
 before_build:
   - echo Running cmake...
-  - cd c:\projects\openmeeg
-  - cmake -G "Visual Studio 14 2015 Win64" -DCMAKE_INSTALL_PREFIX=%P% -DBUILD_SHARED:BOOL=ON -DBUILD_DOCUMENTATION:BOOL=OFF -DBUILD_TESTING:BOOL=ON -DENABLE_PYTHON:BOOL=OFF -DENABLE_PACKAGING:BOOL=OFF -DUSE_VTK:BOOL=OFF -DUSE_ATLAS:BOOL=OFF -DUSE_SYSTEM_matio:BOOL=OFF -DUSE_SYSTEM_hdf5:BOOL=OFF -DUSE_SYSTEM_zlib:BOOL=OFF -DCMAKE_SKIP_RPATH:BOOL=OFF .
+  - cd c:/projects/openmeeg
+  - cmake -G "Visual Studio 14 2015 Win64" -DCMAKE_INSTALL_PREFIX=%P% -DBUILD_SHARED=ON -DBUILD_DOCUMENTATION=OFF -DBUILD_TESTING:BOOL=ON -DENABLE_PYTHON=OFF -DENABLE_PACKAGING:BOOL=OFF -DUSE_VTK=OFF -DUSE_ATLAS=OFF -DUSE_SYSTEM_matio:BOOL=OFF -DUSE_SYSTEM_hdf5:BOOL=OFF -DUSE_SYSTEM_zlib=OFF -DCMAKE_SKIP_RPATH:BOOL=OFF -DUSE_LAPACK=ON .
   - cmake --build . --config Release
+  - ctest -V
 
 # scripts to run after build
 after_build:
@@ -34,7 +35,6 @@ after_build:
   - 7z a c:/projects/openmeeg/openmeeg.zip *.exe -tzip
   - cd c:/projects/openmeeg/OpenMEEG/build
   - ctest -V
-
 
 artifacts:
   - path: openmeeg.zip

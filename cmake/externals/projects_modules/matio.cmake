@@ -2,7 +2,7 @@
 #
 # Copyright (c) INRIA 2013-2016. All rights reserved.
 # See LICENSE.txt for details.
-# 
+#
 #  This software is distributed WITHOUT ANY WARRANTY; without even
 #  the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
 #  PURPOSE.
@@ -17,11 +17,11 @@ function(matio_project)
 
     EP_Initialisation(matio BUILD_SHARED_LIBS ON)
     EP_SetDependencies(${ep}_dependencies ${MSINTTYPES} hdf5 zlib)
-      
+
     # Define repository where get the sources
 
     if (NOT DEFINED ${ep}_SOURCE_DIR)
-        set(location GIT_REPOSITORY "${GIT_PREFIX}github.com/openmeeg/matio-openmeeg.git")
+        set(location GIT_REPOSITORY "${GIT_PREFIX}github.com/tguillemot/matio-openmeeg.git")
     endif()
 
     # set compilation flags
@@ -48,7 +48,7 @@ function(matio_project)
         ${hdf5_CMAKE_FLAGS}
         -DMAT73:BOOL=ON
         ${MSINTTYPES_CMAKE_ARG}
-        -DCMAKE_SHARED_LINKER_FLAGS:STRING=${${ep}_shared_linker_flags}  
+        -DCMAKE_SHARED_LINKER_FLAGS:STRING=${${ep}_shared_linker_flags}
         -DBUILD_SHARED_LIBS:BOOL=${BUILD_SHARED_LIBS_${ep}}
         -DMATIO_BUILD_TESTING:BOOL=${MATIO_BUILD_TESTING}
         -DMATLAB_TESTING:BOOL=${MATLAB_TESTING}

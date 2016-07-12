@@ -2,13 +2,13 @@
 #
 # Copyright (c) INRIA 2013-2016. All rights reserved.
 # See LICENSE.txt for details.
-# 
+#
 #  This software is distributed WITHOUT ANY WARRANTY; without even
 #  the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
 #  PURPOSE.
 
 function(OpenMEEG_project)
-      
+
     # Prepare the project and list dependencies
 
     EP_Initialisation(OpenMEEG BUILD_SHARED_LIBS ON)
@@ -27,7 +27,7 @@ function(OpenMEEG_project)
         ${ep_optional_args}
         -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
         -DCMAKE_C_FLAGS:STRING=${${ep}_c_flags}
-        -DCMAKE_SHARED_LINKER_FLAGS:STRING=${${ep}_shared_linker_flags}  
+        -DCMAKE_SHARED_LINKER_FLAGS:STRING=${${ep}_shared_linker_flags}
         -DBUILD_SHARED_LIBS:BOOL=${BUILD_SHARED_LIBS_${ep}}
         -DUSE_ATLAS:BOOL=${USE_ATLAS}
         -DUSE_MKL:BOOL=${USE_MKL}
@@ -51,7 +51,12 @@ function(OpenMEEG_project)
 
     set(tag UniLapack)
     ExternalProject_Add(${ep}
-        ${ep_dirs}
+        SOURCE_DIR ${CMAKE_SOURCE_DIR}/${ep}
+        DOWNLOAD_DIR ${ep}/
+        BINARY_DIR ${ep}/build
+        STAMP_DIR ${ep}/stamp
+        TMP_DIR ${ep}/tmp
+        INSTALL_DIR ${ep}/install
         CMAKE_GENERATOR ${gen}
         CMAKE_ARGS ${cmake_args}
         DEPENDS ${${ep}_dependencies}
