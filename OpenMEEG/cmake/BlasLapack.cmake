@@ -1,5 +1,3 @@
-include(BlasLapackOption)
-
 if (NOT BUILD_SHARED_LIBS)
     if (WIN32)
         set(CMAKE_FIND_LIBRARY_SUFFIXES ".lib;.dll")
