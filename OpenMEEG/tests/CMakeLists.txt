@@ -115,6 +115,7 @@ if (WIN32)
     set(VALIDATION_EIT "${EXECUTABLE_OUTPUT_PATH}/om_validationEIT")
 endif()
 
+# EIT tests
 foreach(HEADGEO "")
     foreach(HEADNUM 1 2 ${HEAD3})
         set(HEAD "Head${HEADGEO}${HEADNUM}")
@@ -222,8 +223,8 @@ foreach(DIP 1 2 3 4 5 6)
         set(HEAD "Head${HEADNUM}")
             foreach(ADJOINT "" adjoint adjoint2)
                 set(BASE_FILE_NAME "${HEAD}-dip.est_eeg${ADJOINT}")
-                OPENMEEG_COMPARISON_TEST("EEG${ADJOINT}EST-dip-${HEAD}-dip${DIP}-${COMP}" ${BASE_FILE_NAME} analytic/eeg_head${HEADNUM}_analytic.txt -${COMP} -eps ${EPSILON${HEADNUM}} -col ${DIP} -full
-                DEPENDS EEG${ADJOINT}-dipoles-${HEAD})
+                OPENMEEG_COMPARISON_TEST("EEG${ADJOINT}EST-dip-${HEAD}-dip${DIP}-${COMP}" ${BASE_FILE_NAME} analytic/eeg_head${HEADNUM}_analytic.txt 
+                    -${COMP} -eps ${EPSILON${HEADNUM}} -col ${DIP} -full DEPENDS EEG${ADJOINT}-dipoles-${HEAD})
             endforeach()
         endforeach()
     endforeach()

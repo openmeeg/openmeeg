@@ -132,19 +132,43 @@ int main(int argc, char** argv)
             std::cerr << "Please set output filepath !" << endl;
             exit(1);
         }
-        double alpha, beta;
-        if ( argc >= 9 ) {
+        double alpha = -1., beta = -1, gamma = -1.;
+        std::string filename = "";
+
+        switch (argc) {
+        case 8: { // case gamma or filename
+            std::stringstream ss(argv[7]);
+            if ( !(ss >> gamma) ) {
+                filename.append(argv[7]);
+            }
+            break;
+                }
+        case 9:{ // case alpha+beta or gamma+filename
             std::stringstream ss(argv[7]);
             if ( !(ss >> alpha) ) {
                 throw std::runtime_error("given parameter is not a number");
-            } else {
-                ss.clear();
-                ss.str(argv[8]);
-                if ( !(ss >> beta) ) {
-                    throw std::runtime_error("given parameter is not a number");
-                }
             }
+            ss = std::stringstream(argv[8]);
+            if ( !(ss >> beta) ) {
+                filename.append(argv[8]);
+                gamma = alpha;
+            }
+            break;
+                }
+        case 10:{ // case alpha+beta + filename
+            std::stringstream ss(argv[7]);
+            if ( !(ss >> alpha) ) {
+                throw std::runtime_error("given parameter is not a number");
+            }
+            ss = std::stringstream(argv[8]);
+            if ( !(ss >> beta) ) {
+                throw std::runtime_error("given parameter is not a number");
+            }
+            filename.append(argv[9]);
+            break;
+                }
         }
+
         // Loading surfaces from geometry file
         Geometry geo;
         geo.read(argv[2], argv[3], OLD_ORDERING);
@@ -159,13 +183,11 @@ int main(int argc, char** argv)
         Head2EEGMat M(geo, electrodes);
 
         // Assembling Matrix from discretization :
-        CorticalMat *CM;
-        if (argc == 9) {
-            CM = new CorticalMat(geo, M, argv[5], gauss_order, alpha, beta);
-        } else if (argc == 10) {
-            CM = new CorticalMat(geo, M, argv[5], gauss_order, alpha, beta, argv[9]);
+        Matrix *CM;
+        if (gamma > 0.) {
+            CM = new CorticalMat2(geo, M, argv[5], gauss_order, gamma, filename);
         } else {
-            CM = new CorticalMat(geo, M, argv[5], gauss_order);
+            CM = new CorticalMat(geo, M, argv[5], gauss_order, alpha, beta, filename);
         }
         CM->save(argv[6]);
     }
@@ -537,12 +559,19 @@ void getHelp(char** argv) {
 
     cout << "   -CorticalMat, -CM, -cm :   " << endl;
     cout << "       Compute Cortical Matrix for Symmetric BEM (left-hand side of linear system)." << endl;
+    cout << "       Comment on optional parameters:" << endl;
+    cout << "       Giving two (or zero) numeric optional parameters => CorticalMat will try to use (or estimate) alpha/beta." << endl;
+    cout << "       Giving one numeric optional parameters => CorticalMat2 will use gamma." << endl;
+    cout << "       Giving a filename (a string), one can save time saving the intermediate matrix in all cases (useful when trying multiple values)." << endl;
     cout << "             Arguments :" << endl;
     cout << "               geometry file (.geom)" << endl;
     cout << "               conductivity file (.cond)" << endl;
     cout << "               file containing the positions of EEG electrodes (.patches)" << endl;
     cout << "               domain name (containing the sources)" << endl;
-    cout << "               output matrix" << endl << endl;
+    cout << "               output matrix" << endl;
+    cout << "               [optional parameter alpha or gamma or filename]" << endl;
+    cout << "               [optional parameter beta or filename]" << endl;
+    cout << "               [optional filename]" << endl << endl;
 
     cout << "   -SurfSourceMat, -SSM, -ssm :   " << endl;
     cout << "       Compute Surfacic Source Matrix for Symmetric BEM (right-hand side of linear system). " << endl;
