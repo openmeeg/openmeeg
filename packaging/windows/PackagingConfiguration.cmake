@@ -3,7 +3,7 @@
 #
 # Copyright (c) INRIA 2015-2016. All rights reserved.
 # See LICENSE.txt for details.
-# 
+#
 #  This software is distributed WITHOUT ANY WARRANTY; without even
 #  the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
 #  PURPOSE.
@@ -60,5 +60,3 @@ set(CPACK_NSIS_MENU_LINKS
 
 #   Run OpenMEEG after installation
 #set(CPACK_NSIS_MUI_FINISHPAGE_RUN "om_assemble.exe")
-
-include(UseWin32dlls)

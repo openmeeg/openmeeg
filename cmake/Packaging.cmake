@@ -16,10 +16,13 @@ if (ENABLE_PACKAGING)
     #set(CPACK_RESOURCE_FILE_LICENSE "${PROJECT_SOURCE_DIR}/OpenMEEG/LICENSE.txt")
     set(CPACK_PACKAGE_CONTACT "openmeeg-info@lists.gforge.inria.fr")
 
-    set(CPACK_SET_DESTDIR true)
-    set(CPACK_INSTALL_PREFIX "Packaging")
-    set(CPACK_PACKAGE_INSTALL_DIRECTORY "OpenMEEG")
-    set(CPACK_SOURCE_STRIP_FILES "")
+    if (NOT WIN32)
+        set(CPACK_SET_DESTDIR true)
+        set(CPACK_INSTALL_PREFIX "Packaging")
+        set(CPACK_PACKAGE_INSTALL_DIRECTORY "OpenMEEG")
+        set(CPACK_SOURCE_STRIP_FILES "")
+    endif()
+
 
     if (UNIX)
         set(SYSTEMDIR linux)
