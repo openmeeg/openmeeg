@@ -1,5 +1,9 @@
 if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-    set(CMAKE_INSTALL_PREFIX "C:\\projects\\OpenMEEG" CACHE PATH "default install path" FORCE )
+    if (NOT WIN32)
+        set(CMAKE_INSTALL_PREFIX "/usr" CACHE PATH "default install path" FORCE )
+    else ()
+        set(CMAKE_INSTALL_PREFIX "." CACHE PATH "default install path" FORCE )
+    endif()
 endif()
 
 include(Options)
