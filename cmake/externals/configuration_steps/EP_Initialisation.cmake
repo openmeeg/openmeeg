@@ -4,7 +4,7 @@
 #
 # Copyright (c) INRIA 2013-2016. All rights reserved.
 # See LICENSE.txt for details.
-# 
+#
 #  This software is distributed WITHOUT ANY WARRANTY; without even
 #  the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
 #  PURPOSE.
@@ -12,18 +12,18 @@
 ################################################################################
 
 macro(ep_Initialisation project BUILD_SHARED_LIBS build_shared_libs_def)
-      
+
     set(ep ${project})
 
     # Option: do we want a static or a dynamic build ?
-  
+
     option(BUILD_SHARED_LIBS_${ep} "Build shared libs for ${ep}" ${build_shared_libs_def})
     mark_as_advanced(BUILD_SHARED_LIBS_${ep})
-  
+
     set(${ep}_c_flags ${ep_common_c_flags})
     set(${ep}_cxx_flags ${ep_common_cxx_flags})
     set(${ep}_shared_linker_flags ${ep_common_shared_linker_flags})
-  
+
     # Add PIC flag if Static build on UNIX with amd64 arch
 
     if (UNIX)
@@ -31,7 +31,7 @@ macro(ep_Initialisation project BUILD_SHARED_LIBS build_shared_libs_def)
             set(${ep}_c_flags "${${ep}_c_flags} -fPIC")
             set(${ep}_cxx_flags "${${ep}_cxx_flags} -fPIC")
         endif()
-    endif()  
+    endif()
 
     if (APPLE)
         if (BUILD_SHARED_LIBS_${ep})
@@ -51,12 +51,12 @@ macro(ep_Initialisation project BUILD_SHARED_LIBS build_shared_libs_def)
 
     foreach (target ${global_targets})
         add_dependencies(${target} ${ep}-${target})
-    endforeach() 
+    endforeach()
 
     # Define a directory for each target of the project
 
-    set(DIR_VAR_NAMES DOWNLOAD BINARY STAMP TMP INSTALL)
-    set(DIR_NAMES     ""       build  stamp tmp install)
+    set(DIR_VAR_NAMES SOURCE DOWNLOAD BINARY STAMP TMP INSTALL)
+    set(DIR_NAMES     src    ""       build  stamp tmp install)
 
     list(LENGTH DIR_VAR_NAMES dirnum)
     math(EXPR dirnum ${dirnum}-1)
@@ -69,13 +69,13 @@ macro(ep_Initialisation project BUILD_SHARED_LIBS build_shared_libs_def)
         set(${varname}_dir ${ep}/${dir})
     endforeach()
 
-    # Look for and define the source directory of the project 
+    # Look for and define the source directory of the project
 
-    if (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/${ep}/CMakeLists.txt 
+    if (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/${ep}/CMakeLists.txt
         OR EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/${ep}/configure)
-        set(${ep}_SOURCE_DIR SOURCE_DIR ${CMAKE_SOURCE_DIR}/${ep})
+        set(${ep}_SOURCE_DIR SOURCE_DIR ${ep}/src)
     endif()
 
     set(source_dir ${CMAKE_SOURCE_DIR}/${ep})
-    set(ep_dirs ${dirs} SOURCE_DIR ${source_dir})
+    set(ep_dirs ${dirs})
 endmacro()

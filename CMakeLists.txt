@@ -2,7 +2,7 @@
 #
 # Copyright (c) INRIA 2005-2016. All rights reserved.
 # See LICENSE.txt for details.
-# 
+#
 #  This software is distributed WITHOUT ANY WARRANTY; without even
 #  the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
 #  PURPOSE.
@@ -20,7 +20,7 @@ set(build_type Release)
 if (DEFINED CMAKE_BUILD_TYPE)
     set(build_type ${CMAKE_BUILD_TYPE})
 endif()
-set(CMAKE_BUILD_TYPE ${build_type} CACHE STRING 
+set(CMAKE_BUILD_TYPE ${build_type} CACHE STRING
     "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel.")
 
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
@@ -40,12 +40,12 @@ endif()
 # Add packages
 
 # There are three possibilities:
-# - if the option USE_SYSTEM_${external_project} is set, then the system version  
+# - if the option USE_SYSTEM_${external_project} is set, then the system version
 #   will be used (not yet fully tested)
 # - if the option USE_SYSTEM_${external_project} is not set:
-#   * there is a subdir with the package name, in which case this subdir is used 
+#   * there is a subdir with the package name, in which case this subdir is used
 #     directly
-#   * otherwise use download and compile locally the package as an external 
+#   * otherwise use download and compile locally the package as an external
 #     module.
 
 # See matio/CMakeLists.txt for details.
