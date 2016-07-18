@@ -148,7 +148,8 @@ int main(int argc, char** argv)
             if ( !(ss >> alpha) ) {
                 throw std::runtime_error("given parameter is not a number");
             }
-            ss = std::stringstream(argv[8]);
+            ss.str(argv[8]);
+            ss.clear();
             if ( !(ss >> beta) ) {
                 filename.append(argv[8]);
                 gamma = alpha;
@@ -160,7 +161,8 @@ int main(int argc, char** argv)
             if ( !(ss >> alpha) ) {
                 throw std::runtime_error("given parameter is not a number");
             }
-            ss = std::stringstream(argv[8]);
+            ss.str(argv[8]);
+            ss.clear();
             if ( !(ss >> beta) ) {
                 throw std::runtime_error("given parameter is not a number");
             }
