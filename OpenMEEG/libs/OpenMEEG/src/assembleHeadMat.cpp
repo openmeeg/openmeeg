@@ -156,7 +156,7 @@ namespace OpenMEEG {
     {
         // Following the article: M. Clerc, J. Kybic "Cortical mapping by Laplace–Cauchy transmission using a boundary element method".
         // Assumptions:
-        // - domain_name: the domain containing the sources is an innermost domain (defined as the interior of only one interface (called Cortex)
+        // - domain_name: the domain containing the sources is an innermost domain (defined as the interior of only one interface (called Cortex))
         // - Cortex interface is composed of one mesh only (no shared vertices)
 
         const Domain& SourceDomain  = geo.domain(domain_name);
@@ -374,7 +374,7 @@ namespace OpenMEEG {
                 }
             }
             // Deflate all current barriers as one
-            deflat(mat,geo);
+            deflat(mat_temp,geo);
 
             H = Matrix(Nl + M.nlin(), Nc);
             H.set(0.0);
