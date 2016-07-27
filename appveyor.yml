@@ -25,10 +25,12 @@ before_build:
   - cmake -G "Visual Studio 14 2015 Win64" -DBUILD_SHARED=ON -DBUILD_DOCUMENTATION=OFF -DBUILD_TESTING:BOOL=ON -DENABLE_PYTHON=OFF -DENABLE_PACKAGING:BOOL=ON -DUSE_VTK=OFF -DUSE_ATLAS=OFF -DUSE_SYSTEM_matio:BOOL=OFF -DUSE_SYSTEM_hdf5:BOOL=OFF -DUSE_SYSTEM_zlib=OFF -DCMAKE_SKIP_RPATH:BOOL=OFF -DUSE_LAPACK=ON .
   - cmake --build . --config Release
   - cpack
+  - cpack -G TGZ
 
 # scripts to run after build
 after_build:
   - move c:\projects\openmeeg\OpenMEEG-2.3.0.1-x64--static.exe .
+  - move c:\projects\openmeeg\OpenMEEG-2.3.0.1-x64--static.tar.gz .
 
 before_test:
   - echo Running tests...
@@ -38,3 +40,5 @@ before_test:
 artifacts:
   - path: OpenMEEG-*-x64--static.exe
     name: OpenMEEG-x64.exe
+  - path: OpenMEEG-*-x64--static.tar.gz
+    name: OpenMEEG-x64.exe    
