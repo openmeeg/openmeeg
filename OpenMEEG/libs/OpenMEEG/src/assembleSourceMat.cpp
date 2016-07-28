@@ -96,46 +96,41 @@ namespace OpenMEEG {
     void assemble_DipSourceMat(Matrix& rhs, const Geometry& geo, const Matrix& dipoles,
             const unsigned gauss_order, const bool adapt_rhs, const std::string& domain_name = "") 
     {
-        const double   K         = 1.0/(4.*M_PI);
-	//      const unsigned size      = (geo.size() - geo.outermost_interface().nb_triangles());
-	const unsigned size = geo.size() - geo.nb_current_barrier_triangles();
+        const unsigned size      = geo.size()-geo.nb_current_barrier_triangles();
         const unsigned n_dipoles = dipoles.nlin();
 
-        rhs = Matrix(size, n_dipoles);
-        rhs.set(0.);
+        rhs = Matrix(size,n_dipoles);
+        rhs.set(0.0);
 
         Vector rhs_col(rhs.nlin());
-        for ( unsigned s = 0; s < n_dipoles; ++s) {
-            PROGRESSBAR(s, n_dipoles);
-            const Vect3 r(dipoles(s, 0), dipoles(s, 1), dipoles(s, 2));
-            const Vect3 q(dipoles(s, 3), dipoles(s, 4), dipoles(s, 5));
+        for (unsigned s=0; s<n_dipoles; ++s) {
+            PROGRESSBAR(s,n_dipoles);
+            const Vect3 r(dipoles(s,0),dipoles(s,1),dipoles(s,2));
+            const Vect3 q(dipoles(s,3),dipoles(s,4),dipoles(s,5));
 
-            Domain domain;
+            const Domain domain = (domain_name=="") ? geo.domain(r) : geo.domain(domain_name);
 
-            if ( domain_name == "" ) {
-                domain = geo.domain(r);
-            } else {
-                domain = geo.domain(domain_name);
-            }
+            //  Only consider dipoles in non-zero conductivity domain.
+
             const double sigma = domain.sigma();
-            //only consider dipoles in non-zero conductivity domain
-            if (sigma != 0.) {
-                rhs_col.set(0.);
-                // iterate over the domain's interfaces (half-spaces)
-                for ( Domain::const_iterator hit = domain.begin(); hit != domain.end(); ++hit ) {
-                // iterate over the meshes of the interface
-                    for ( Interface::const_iterator omit = hit->interface().begin(); omit != hit->interface().end(); ++omit ) {
-                    //  Treat the mesh.
-                        double coeffD = (hit->inside())?(K * omit->orientation()):(-K * omit->orientation());
-                        operatorDipolePotDer(r, q, omit->mesh(), rhs_col, coeffD, gauss_order, adapt_rhs);
+            if (sigma!=0.0) {
+                rhs_col.set(0.0);
+                const double K = 1.0/(4.*M_PI);
+                //  Iterate over the domain's interfaces (half-spaces)
+                for (Domain::const_iterator hit=domain.begin(); hit!=domain.end(); ++hit) {
+                    //  Iterate over the meshes of the interface
+                    for (Interface::const_iterator omit=hit->interface().begin(); omit!=hit->interface().end(); ++omit) {
+                        //  Treat the mesh.
+                        const double coeffD = ((hit->inside()) ? K : -K)*omit->orientation();
+                        operatorDipolePotDer(r,q,omit->mesh(),rhs_col,coeffD,gauss_order,adapt_rhs);
 
-                        if(!omit->mesh().current_barrier()){
-                            double coeff = ( hit->inside() )?(-omit->orientation() * K / sigma):(omit->orientation() * K / sigma);
-                            operatorDipolePot(r, q, omit->mesh(), rhs_col, coeff, gauss_order, adapt_rhs);
+                        if (!omit->mesh().current_barrier()) {
+                            const double coeff = -coeffD/sigma;;
+                            operatorDipolePot(r,q,omit->mesh(),rhs_col,coeff,gauss_order,adapt_rhs);
                         }
                     }
                 }
-                rhs.setcol(s, rhs_col);
+                rhs.setcol(s,rhs_col);
             }
         }
     }
