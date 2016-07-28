@@ -1,7 +1,10 @@
-|Travis|_
+|Travis|_ |AppVeyor|_
 
 .. |Travis| image:: https://api.travis-ci.org/openmeeg/openmeeg.svg?branch=master
 .. _Travis: https://travis-ci.org/openmeeg/openmeeg
+
+.. |AppVeyor| image:: https://ci.appveyor.com/api/projects/status/github/openmeeg/openmeeg?branch=master&svg=true
+.. _AppVeyor: https://ci.appveyor.com/project/agramfort/openmeeg/history
 
 OpenMEEG: forward problems solver in the field of EEG and MEG
 =============================================================
