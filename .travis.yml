@@ -37,5 +37,4 @@ script:
   - if [[ "$USE_PROJECT" == "0" ]]; then make test; else make test-OpenMEEG; fi
   - cpack -G TGZ .
 
-after_success:
-  - if [[ "$USE_COVERAGE" == "1" ]]; then bash <(curl -s https://codecov.io/bash); fi
+after_success: source build_tools/travis/after_success.sh
