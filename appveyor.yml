@@ -22,7 +22,7 @@ build:
 before_build:
   - echo Running cmake...
   - mkdir C:\projects\openmeeg\build
-  - cd C:\projects\openmeeg
+  - cd C:\projects\openmeeg\build
   - cmake -G "Visual Studio 14 2015 Win64" -DBUILD_SHARED=ON -DBUILD_DOCUMENTATION=OFF -DBUILD_TESTING:BOOL=ON -DENABLE_PYTHON=OFF -DENABLE_PACKAGING:BOOL=ON -DUSE_VTK=OFF -DUSE_ATLAS=OFF -DUSE_SYSTEM_matio:BOOL=OFF -DUSE_SYSTEM_hdf5:BOOL=OFF -DUSE_SYSTEM_zlib=OFF -DCMAKE_SKIP_RPATH:BOOL=OFF -DUSE_LAPACK=ON ..
   - cmake --build . --config Release
   - cpack
