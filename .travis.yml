@@ -12,13 +12,13 @@ matrix:
     - os: osx
       compiler: clang
       env:
-        - USE_PROJECT=0
+        - USE_SYSTEM=1
+        - USE_PROJECT=1
         - USE_OPENBLAS=1
-    - os: osx
-      compiler: clang
-      env:
-        - USE_PROJECT=0
-        - USE_OPENBLAS=0
+    # - os: osx
+    #   compiler: clang
+    #   env:
+    #     - USE_PROJECT=0
     # - os: linux
     #   compiler: clang
     #   env:

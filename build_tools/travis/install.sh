@@ -61,33 +61,33 @@ if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
   if [[ "$USE_PROJECT" == "0" ]]; then
     install_matio
 
+    # Build OpenMEEG
+    cmake \
+    -DBUILD_SHARED:BOOL=ON \
+    -DBUILD_DOCUMENTATION:BOOL=OFF \
+    -DBUILD_TESTING:BOOL=ON \
+    -DENABLE_PYTHON:BOOL=OFF \
+    -DENABLE_PACKAGING:BOOL=ON \
+    -DUSE_VTK:BOOL=OFF \
+    -DUSE_ATLAS:BOOL=ON \
+    -DCMAKE_SKIP_RPATH:BOOL=OFF \
+    ..
+  else
     if [[ "$USE_OPENBLAS" == "1" ]]; then
-      # Build OpenMEEG
       cmake \
-      -DBUILD_SHARED:BOOL=ON \
+      -DATLAS_INCLUDE_PATH:PATH=/usr/include/atlas \
       -DBUILD_DOCUMENTATION:BOOL=OFF \
       -DBUILD_TESTING:BOOL=ON \
       -DENABLE_PYTHON:BOOL=OFF \
       -DENABLE_PACKAGING:BOOL=ON \
       -DUSE_VTK:BOOL=OFF \
-      -DUSE_ATLAS:BOOL=OFF \
       -DUSE_OPENBLAS:BOOL=ON \
+      -DUSE_ATLAS:BOOL=OFF \
+      -DUSE_SYSTEM_matio:BOOL=OFF \
+      -DUSE_SYSTEM_hdf5:BOOL=OFF \
       -DCMAKE_SKIP_RPATH:BOOL=OFF \
       ..
     else
-    # Build OpenMEEG
-      cmake \
-      -DBUILD_SHARED:BOOL=ON \
-      -DBUILD_DOCUMENTATION:BOOL=OFF \
-      -DBUILD_TESTING:BOOL=ON \
-      -DENABLE_PYTHON:BOOL=OFF \
-      -DENABLE_PACKAGING:BOOL=ON \
-      -DUSE_VTK:BOOL=OFF \
-      -DUSE_ATLAS:BOOL=ON \
-      -DCMAKE_SKIP_RPATH:BOOL=OFF \
-      ..
-    fi
-  else
       cmake \
       -DATLAS_INCLUDE_PATH:PATH=/usr/include/atlas \
       -DBUILD_DOCUMENTATION:BOOL=OFF \
@@ -100,6 +100,7 @@ if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
       -DUSE_SYSTEM_hdf5:BOOL=OFF \
       -DCMAKE_SKIP_RPATH:BOOL=OFF \
       ..
+    fi
   fi
 else
   if [[ "$USE_SYSTEM" == "1" ]]; then
