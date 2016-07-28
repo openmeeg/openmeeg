@@ -1,4 +1,3 @@
-# Operating system (build VM template)
 os: Visual Studio 2015
 
 # scripts that are called at very beginning, before repo cloning
@@ -6,7 +5,6 @@ init:
   - git config --global core.autocrlf input
   - cmd: set PATH=C:\Program Files (x86)\CMake\bin\;%PATH%
 
-# clone directory
 clone_folder: c:\projects\openmeeg
 
 platform: x64
@@ -15,7 +13,6 @@ configuration: Release
 install:
   # by default, all script lines are interpreted as batch
 
-# scripts to run before build
 build_script:
   - echo Running cmake...
   - mkdir C:\projects\openmeeg\build
@@ -23,8 +20,6 @@ build_script:
   - cmake -G "Visual Studio 14 2015 Win64" -DBUILD_SHARED=ON -DBUILD_DOCUMENTATION=OFF -DBUILD_TESTING:BOOL=ON -DENABLE_PYTHON=OFF -DENABLE_PACKAGING:BOOL=ON -DUSE_VTK=OFF -DUSE_ATLAS=OFF -DUSE_SYSTEM_matio:BOOL=OFF -DUSE_SYSTEM_hdf5:BOOL=OFF -DUSE_SYSTEM_zlib=OFF -DCMAKE_SKIP_RPATH:BOOL=OFF -DUSE_LAPACK=ON ..
   - cmake --build . --config Release
 
-
-# scripts to run after build
 after_build:
   - cpack
   - cpack -G TGZ
