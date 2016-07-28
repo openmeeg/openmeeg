@@ -30,8 +30,8 @@ before_build:
 
 # scripts to run after build
 after_build:
-  - move c:\projects\openmeeg\OpenMEEG-2.3.0.1-x64--static.exe .
-  - move c:\projects\openmeeg\OpenMEEG-2.3.0.1-x64--static.tar.gz .
+  - move c:\projects\openmeeg\build\OpenMEEG-2.3.0.1-x64--static.exe .
+  - move c:\projects\openmeeg\build\OpenMEEG-2.3.0.1-x64--static.tar.gz .
 
 before_test:
   - echo Running tests...
