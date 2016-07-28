@@ -51,6 +51,13 @@ function install_matio {  # Install MATIO
 }
 
 
+if [[ $USE_COVERAGE == '1' ]]; then
+  ENABLE_COVERAGE=ON
+else
+  ENABLE_COVERAGE=OFF
+fi
+
+
 if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
   if [[ "$USE_PROJECT" == "0" ]]; then
     install_matio
@@ -90,6 +97,7 @@ else
       -DBUILD_SHARED:BOOL=ON \
       -DBUILD_DOCUMENTATION:BOOL=OFF \
       -DBUILD_TESTING:BOOL=ON \
+      -DENABLE_COVERAGE:BOOL=$ENABLE_COVERAGE \
       -DENABLE_PYTHON:BOOL=OFF \
       -DENABLE_PACKAGING:BOOL=ON \
       -DUSE_VTK:BOOL=OFF \
@@ -101,6 +109,7 @@ else
           -DATLAS_INCLUDE_PATH:PATH=/usr/include/atlas \
           -DBUILD_DOCUMENTATION:BOOL=OFF \
           -DBUILD_TESTING:BOOL=ON \
+          -DENABLE_COVERAGE:BOOL=$ENABLE_COVERAGE \
           -DENABLE_PYTHON:BOOL=OFF \
           -DENABLE_PACKAGING:BOOL=ON \
           -DUSE_VTK:BOOL=OFF \
@@ -116,6 +125,7 @@ else
           -DATLAS_INCLUDE_PATH:PATH=/usr/include/atlas \
           -DBUILD_DOCUMENTATION:BOOL=OFF \
           -DBUILD_TESTING:BOOL=ON \
+          -DENABLE_COVERAGE:BOOL=$ENABLE_COVERAGE \
           -DENABLE_PYTHON:BOOL=OFF \
           -DENABLE_PACKAGING:BOOL=ON \
           -DUSE_VTK:BOOL=OFF \

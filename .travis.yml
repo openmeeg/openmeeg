@@ -21,6 +21,7 @@ matrix:
       env:
         - USE_SYSTEM=1
         - USE_PROJECT=1
+        - USE_COVERAGE=1
     # - os: linux
     #   compiler: gcc
     #   env:
@@ -35,3 +36,6 @@ script:
   - $CXX --version
   - if [[ "$USE_PROJECT" == "0" ]]; then make test; else make test-OpenMEEG; fi
   - cpack -G TGZ .
+
+after_success:
+  - if [[ "$USE_COVERAGE" == "1" ]]; then bash <(curl -s https://codecov.io/bash); fi
