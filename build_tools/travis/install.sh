@@ -22,6 +22,7 @@ else
     # sudo apt-get install libvtk5-dev libtiff4-dev
     # sudo apt-get install python-numpy swig python-dev
     # sudo apt-get install doxygen
+    sudo apt-get install valgrind
     wget https://s3.amazonaws.com/biibinaries/thirdparty/cmake-3.0.2-Linux-64.tar.gz
     tar -xzf cmake-3.0.2-Linux-64.tar.gz
     sudo cp -fR cmake-3.0.2-Linux-64/* /usr
@@ -134,5 +135,7 @@ fi
 # -DBUILD_SHARED_LIBS_zlib:BOOL=ON
 
 make
+
+ctest -V -R OpenMEEGMathsTest-full -T memcheck
 
 ctest -V

@@ -53,86 +53,93 @@ int main () {
     std::cout << std::endl << "========== matrices ==========" << std::endl;
 
     Matrix M(5,5);
+    Matrix Q;
+    Matrix M1;
+    Matrix zero;
+    Matrix Pinv;
 
-    for (size_t i=0;i<M.nlin();++i)
-        for (size_t j=0;j<M.ncol();++j)
-            M(i,j) = pow(2.0,(double)i)+pow(2.0,(double)j);
+    for (int i = 0; i < 1000; ++i)
+    {
+        for (size_t i=0;i<M.nlin();++i)
+            for (size_t j=0;j<M.ncol();++j)
+                M(i,j) = pow(2.0,(double)i)+pow(2.0,(double)j);
 
-    genericTest("full",M);
+        genericTest("full",M);
 
-    Matrix Q = M.submat(3,1,2,3); // select submatrix
-    std::cout << "Matrice Q : " << std::endl;
-    Q.info();
+        Q = M.submat(3,1,2,3); // select submatrix
+        std::cout << "Matrice Q : " << std::endl;
+        Q.info();
 
-    Matrix M1 = M;
-    M1.insertmat(3,1,Q); // insert submatrix
-    if (std::abs((M1-M).frobenius_norm()) > 1e-10) {
-        std::cerr << "Error: insert matrix is WRONG" << std::endl;
-        exit(1);
-    }
+        M1 = M;
+        M1.insertmat(3,1,Q); // insert submatrix
+        if (std::abs((M1-M).frobenius_norm()) > 1e-10) {
+            std::cerr << "Error: insert matrix is WRONG" << std::endl;
+            exit(1);
+        }
 
-    Matrix P(3,3);
-    P(0,0) = 25 ; P(0,1) = 3 ; P(0,2) = 6 ;
-    P(1,0) = 12 ; P(1,1) = 5 ; P(1,2) = 32 ;
-    P(2,0) = 4 ; P(2,1) = 10 ; P(2,2) = 4 ;
-    std::cout << "Matrice P : " << std::endl;
-    P.info();
+        Matrix P(3,3);
+        P(0,0) = 25 ; P(0,1) = 3 ; P(0,2) = 6 ;
+        P(1,0) = 12 ; P(1,1) = 5 ; P(1,2) = 32 ;
+        P(2,0) = 4 ; P(2,1) = 10 ; P(2,2) = 4 ;
+        std::cout << "Matrice P : " << std::endl;
+        P.info();
 
-    Matrix Pinv = P.inverse();
-    std::cout << "P Inverse Matrix : " << std::endl;
-    Pinv.info();
+        Pinv = P.inverse();
+        std::cout << "P Inverse Matrix : " << std::endl;
+        Pinv.info();
 
-    Matrix unit = P*Pinv;
-    for (unsigned i=0;i<unit.nlin();++i) {
-        for (unsigned j=0;j<unit.ncol();++j) {
-            if (i==j) {
-                if (std::abs(unit(i,j)-1)>eps) {
-                    std::cerr << "Error: inverse is WRONG-1" << std::endl;
-                    exit(1);
-                }
-            } else {
-                if (std::abs(unit(i,j))>eps){
-                    std::cerr << "Error: inverse is WRONG-2 " << "unit(" << i << "," << j << ") = " << unit(i,j) << std::endl;
-                    exit(1);
+        Matrix unit = P*Pinv;
+        for (unsigned i=0;i<unit.nlin();++i) {
+            for (unsigned j=0;j<unit.ncol();++j) {
+                if (i==j) {
+                    if (std::abs(unit(i,j)-1)>eps) {
+                        std::cerr << "Error: inverse is WRONG-1" << std::endl;
+                        exit(1);
+                    }
+                } else {
+                    if (std::abs(unit(i,j))>eps){
+                        std::cerr << "Error: inverse is WRONG-2 " << "unit(" << i << "," << j << ") = " << unit(i,j) << std::endl;
+                        exit(1);
+                    }
                 }
             }
         }
-    }
-    std::cout << std::endl << "BRAINVISA :" << std::endl;
-    M.save("tmp.tex");
-    M.load("tmp.tex");
-    M.info();
+        std::cout << std::endl << "BRAINVISA :" << std::endl;
+        M.save("tmp.tex");
+        M.load("tmp.tex");
+        M.info();
 
-    // SVD (wikipedia example)
-    M1 = Matrix(4,5); M1.set(0.0);
-    M1(0, 0) = 1; M1(0, 4) = 2;
-    M1(1, 2) = 3; M1(3, 1) = 4;
+        // SVD (wikipedia example)
+        M1 = Matrix(4,5); M1.set(0.0);
+        M1(0, 0) = 1; M1(0, 4) = 2;
+        M1(1, 2) = 3; M1(3, 1) = 4;
 
-    Matrix U, S, W;
-    M1.svd(U, S, W);
-    std::cout << "SVD: M1 = U * S * W' " << std::endl;
-    std::cout << "M1 :" << std::endl;
-    M1.info();
-    std::cout << "U :" << std::endl;
-    U.info();
-    std::cout << "S :" << std::endl;
-    S.info();
-    std::cout << "W :" << std::endl;
-    W.info();
-    Matrix zero = M1 - U*S*W.transpose();
-    if (zero.frobenius_norm()>eps) {
-        std::cerr << "Error: SVD is WRONG-1" << std::endl;
-        exit(1);
-    }
-    // PseudoInverse
-    M1 = Matrix(4,5);
-    M1(0, 0) = 1; M1(0, 4) = 2;
-    M1(1, 2) = 3; M1(3, 1) = 4;
-    zero = M1*M1.pinverse()*M1-M1;
-    if (zero.frobenius_norm()>eps) {
-        zero.info();
-        std::cerr << "Error: PseudoInverse is WRONG-2" << std::endl;
-        exit(1);
+        Matrix U, S, W;
+        M1.svd(U, S, W);
+        std::cout << "SVD: M1 = U * S * W' " << std::endl;
+        std::cout << "M1 :" << std::endl;
+        M1.info();
+        std::cout << "U :" << std::endl;
+        U.info();
+        std::cout << "S :" << std::endl;
+        S.info();
+        std::cout << "W :" << std::endl;
+        W.info();
+        Matrix zero = M1 - U*S*W.transpose();
+        if (zero.frobenius_norm()>eps) {
+            std::cerr << "Error: SVD is WRONG-1" << std::endl;
+            exit(1);
+        }
+        // PseudoInverse
+        M1 = Matrix(4,5);
+        M1(0, 0) = 1; M1(0, 4) = 2;
+        M1(1, 2) = 3; M1(3, 1) = 4;
+        zero = M1*M1.pinverse()*M1-M1;
+        if (zero.frobenius_norm()>eps) {
+            zero.info();
+            std::cerr << "Error: PseudoInverse is WRONG-2" << std::endl;
+            exit(1);
+        }
     }
     return 0;
 }
