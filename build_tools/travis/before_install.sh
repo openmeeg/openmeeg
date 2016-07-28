@@ -19,6 +19,8 @@ if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
     brew install swig
     brew install Doxygen
 
+    brew install valgrind
+
 else
     # Install some custom requirements on Linux
     # g++4.8.1
