@@ -5,7 +5,7 @@ init:
   - git config --global core.autocrlf input
   - cmd: set PATH=C:\Program Files (x86)\CMake\bin\;%PATH%
 
-clone_folder: c:\projects\openmeeg
+clone_folder: C:\projects\openmeeg
 
 platform: x64
 configuration: Release
@@ -15,16 +15,14 @@ install:
 
 build_script:
   - echo Running cmake...
-  - mkdir C:\projects\openmeeg\build
-  - cd C:\projects\openmeeg\build
+  - mkdir build
+  - cd build
   - cmake -G "Visual Studio 14 2015 Win64" -DBUILD_SHARED=ON -DBUILD_DOCUMENTATION=OFF -DBUILD_TESTING:BOOL=ON -DENABLE_PYTHON=OFF -DENABLE_PACKAGING:BOOL=ON -DUSE_VTK=OFF -DUSE_ATLAS=OFF -DUSE_SYSTEM_matio:BOOL=OFF -DUSE_SYSTEM_hdf5:BOOL=OFF -DUSE_SYSTEM_zlib=OFF -DCMAKE_SKIP_RPATH:BOOL=OFF -DUSE_LAPACK=ON ..
   - cmake --build . --config Release
 
 after_build:
   - cpack
   - cpack -G TGZ
-  - move c:\projects\openmeeg\build\OpenMEEG-2.3.0.1-x64--static.exe .
-  - move c:\projects\openmeeg\build\OpenMEEG-2.3.0.1-x64--static.tar.gz .
 
 before_test:
   - echo Running tests...
@@ -32,7 +30,7 @@ before_test:
   - ctest -V
 
 artifacts:
-  - path: OpenMEEG-*-x64--static.exe
+  - path: build\OpenMEEG-*-x64--static.exe
     name: OpenMEEG-x64.exe
-  - path: OpenMEEG-*-x64--static.tar.gz
-    name: OpenMEEG-x64.exe    
+  - path: build\OpenMEEG-*-x64--static.tar.gz
+    name: OpenMEEG-x64.tar.gz
