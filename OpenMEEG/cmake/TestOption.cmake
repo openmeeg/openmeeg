@@ -1,4 +1,4 @@
-option(BUILD_TESTING "Build tests" OFF)
+option(BUILD_TESTING "Build tests" ON)
 
 if (BUILD_TESTING)
     set(CTEST_BUILD_NAME "${CMAKE_SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR}")
