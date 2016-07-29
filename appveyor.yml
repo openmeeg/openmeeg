@@ -32,7 +32,7 @@ before_test:
   - ctest -V
 
 artifacts:
-  - path: OpenMEEG-*-x64--static.exe
+  - path: c:\projects\openmeeg\build\OpenMEEG-*-x64--static.exe
     name: OpenMEEG-x64.exe
-  - path: OpenMEEG-*-x64--static.tar.gz
+  - path: C:\projects\openmeeg\build\OpenMEEG-*-x64--static.tar.gz
     name: OpenMEEG-x64.exe    
