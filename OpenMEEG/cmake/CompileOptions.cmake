@@ -2,11 +2,11 @@
 # Setting compilation options
 #######################################################################
 
-if (${CMAKE_C_COMPILER} MATCHES "gcc")
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     set(USE_GCC YES)
 endif()
 
-if (${CMAKE_C_COMPILER} MATCHES "icc")
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
     set(USE_ICC YES)
 endif()
 
