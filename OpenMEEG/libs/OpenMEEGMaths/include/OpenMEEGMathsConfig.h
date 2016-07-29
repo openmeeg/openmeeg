@@ -76,6 +76,22 @@ extern "C" {
 #endif
 #endif
 
+// TODO please @Theo ?
+// #ifdef USE_OPENBLAS
+// extern "C" {
+//     #include <openblas_config.h>
+//     #include <cblas.h>
+// }
+// #define BLAS(x,X) cblas_ ## x
+// #ifdef __APPLE__
+//     #define LAPACK(x,X) x ## _
+//     // #define LAPACK(x,X) FC_GLOBAL(x,X)
+// #else
+//     #define LAPACK(x,X) lapacke_ ## x
+// #endif
+// #endif
+
+
 #ifdef USE_MKL
 // Hack to avoid the MKL declarations of Lapack Functions which do not use the power of C++ references
     #define _MKL_LAPACK_H_

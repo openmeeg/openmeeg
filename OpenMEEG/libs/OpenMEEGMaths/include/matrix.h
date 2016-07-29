@@ -306,7 +306,7 @@ namespace OpenMEEG {
         om_assert(nlin()==ncol());
         Matrix invA(*this,DEEP_COPY);
         // LU
-        #if defined(USE_ATLAS)
+        #if defined(USE_ATLAS) // || defined(USE_OPENBLAS)
             #if defined(__APPLE__) // Apple Veclib Framework (Handles 32 and 64 Bits)
                 __CLPK_integer *pivots = new __CLPK_integer[ncol()];
                 __CLPK_integer Info;

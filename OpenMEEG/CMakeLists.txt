@@ -67,7 +67,7 @@ include(UseOpenMP)
 
 #   Detect Fortran to C interface.
 
-if (USE_ATLAS)
+if (USE_ATLAS OR USE_OPENBLAS)
     include(FortranCInterface)
     FortranCInterface_HEADER(FC.h MACRO_NAMESPACE "FC_" FROM_LIBRARY blas[daxpy])
 endif()
