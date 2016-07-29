@@ -133,6 +133,6 @@ fi
 # -DBUILD_SHARED_LIBS_hdf5:BOOL=ON -DBUILD_SHARED_LIBS_matio:BOOL=ON
 # -DBUILD_SHARED_LIBS_zlib:BOOL=ON
 
-make
+make -j 2
 
 ctest -V
