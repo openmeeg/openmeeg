@@ -40,12 +40,20 @@ matrix:
         - USE_SYSTEM=1
         - USE_PROJECT=1
         - USE_OPENBLAS=1
-
-before_install: source build_tools/travis/before_install.sh
-
+    # - os: linux
+    #   compiler: gcc
+    #   env:
+    #     - USE_SYSTEM=1
+    #     - USE_PROJECT=0
+before_install:
+  - openssl aes-256-cbc -K $encrypted_0f8e3ef7b1c6_key -iv $encrypted_0f8e3ef7b1c6_iv
+    -in openmeeg_deploy_key.enc -out ~\/.ssh/openmeeg_deploy_key -d
+  - source build_tools/travis/before_install.sh
 install: source build_tools/travis/install.sh
-
 script:
-  - $CXX --version
+  - "$CXX --version"
   - if [[ "$USE_PROJECT" == "0" ]]; then make test; else make test-OpenMEEG; fi
   - cpack -G TGZ .
+after_success:
+  - pip install paramiko
+  - python build_tools/travis/upload_package_gforge.py *tar.gz
