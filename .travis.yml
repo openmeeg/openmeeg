@@ -46,8 +46,9 @@ matrix:
     #     - USE_SYSTEM=1
     #     - USE_PROJECT=0
 before_install:
-  - openssl aes-256-cbc -K $encrypted_0f8e3ef7b1c6_key -iv $encrypted_0f8e3ef7b1c6_iv
-    -in openmeeg_deploy_key.enc -out openmeeg_deploy_key -d
+  - cat $deploy_password > secret.txt
+  - openssl aes-256-cbc -pass "file:./secret.txt" -in ./openmeeg_deploy_key.enc
+  -out ./openmeeg_deploy_key -d -a
   - chmod 600 openmeeg_deploy_key
   - mv openmeeg_deploy_key ~/.ssh/openmeeg_deploy_key
   - source build_tools/travis/before_install.sh
