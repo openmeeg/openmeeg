@@ -22,6 +22,7 @@ if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
     # brew install Doxygen  # For building documentation
 
     if [[ "$USE_OPENBLAS" == "1" ]]; then
+        # brew install liblapacke ?
         brew install openblas
         brew link openblas --force  # required as link is not automatic
     fi
