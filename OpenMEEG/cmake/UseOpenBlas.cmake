@@ -1,5 +1,5 @@
 if (USE_OPENBLAS)
-    find_package(OpenBlas)
+    find_package(OpenBLAS MODULE)
     if (OpenBLAS_FOUND)
         include_directories(${OpenBLAS_INCLUDE_DIR})
         set(LAPACK_LIBRARIES ${OpenBLAS_LIB})

@@ -11,8 +11,8 @@
 
 extern "C" {
     #include <cblas.h>
-    #include <lapacke.h>
 }
+#include <lapacke.h>
 
 #define BLAS(x,X) cblas_ ## x
 #define LAPACK(x,X) LAPACKE_ ## x
