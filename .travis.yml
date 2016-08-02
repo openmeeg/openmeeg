@@ -40,12 +40,28 @@ matrix:
         - USE_SYSTEM=1
         - USE_PROJECT=1
         - USE_OPENBLAS=1
-
-before_install: source build_tools/travis/before_install.sh
-
+    # - os: linux
+    #   compiler: gcc
+    #   env:
+    #     - USE_SYSTEM=1
+    #     - USE_PROJECT=0
+before_install:
+  - echo test > test.txt
+  - echo pouet > pouet.txt
+  - openssl aes-256-cbc -pass "file:./test.txt" -in ./pouet.txt -out ./my_key.enc -a
+  - openssl aes-256-cbc -pass "file:./test.txt" -in ./my_key.enc -out ./pouet_out.txt -d -a
+  - cat pouet_out.txt
+  - echo $deploy_password > secret.txt
+  - cat secret.txt
+  - openssl aes-256-cbc -pass "file:./secret.txt" -in ./openmeeg_deploy_key.enc -out ./openmeeg_deploy_key -d -a
+  - chmod 600 openmeeg_deploy_key
+  - mv openmeeg_deploy_key ~/.ssh/openmeeg_deploy_key
+  - source build_tools/travis/before_install.sh
 install: source build_tools/travis/install.sh
-
 script:
-  - $CXX --version
+  - "$CXX --version"
   - if [[ "$USE_PROJECT" == "0" ]]; then make test; else make test-OpenMEEG; fi
   - cpack -G TGZ .
+after_success:
+  - pip install paramiko
+  - python build_tools/travis/upload_package_gforge.py *tar.gz

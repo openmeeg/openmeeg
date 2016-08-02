@@ -34,7 +34,7 @@ if (ENABLE_PACKAGING)
     include(${SYSTEMDIR}/PackagingConfiguration)
 
     if (USE_OMP)
-        set(PACKAGE_OPTIONS OpenMP)
+        set(PACKAGE_OPTIONS "-OpenMP")
     endif()
 
     if (BUILD_SHARED_LIBS)
@@ -44,10 +44,6 @@ if (ENABLE_PACKAGING)
         set(PACKAGE_OPTIONS ${PACKAGE_OPTIONS}-shared)
     else()
         set(PACKAGE_OPTIONS ${PACKAGE_OPTIONS}-static)
-    endif()
-
-    if (PACKAGE_OPTIONS)
-        set(PACKAGE_OPTIONS "-${PACKAGE_OPTIONS}")
     endif()
 
     set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}-${PACKAGE_ARCH}${PACKAGE_OPTIONS}")
