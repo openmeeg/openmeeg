@@ -46,6 +46,11 @@ matrix:
     #     - USE_SYSTEM=1
     #     - USE_PROJECT=0
 before_install:
+  - echo test > test.txt
+  - echo pouet > pouet.txt
+  - openssl aes-256-cbc -pass "file:./test.txt" -in ./pouet.txt -out ./my_key.enc -a
+  - openssl aes-256-cbc -pass "file:./test.txt" -in ./my_key.enc -out ./pouet_out.txt -d -a
+  - cat pouet_out.txt
   - echo $deploy_password > secret.txt
   - openssl aes-256-cbc -pass "file:./secret.txt" -in ./openmeeg_deploy_key.enc -out ./openmeeg_deploy_key -d -a
   - chmod 600 openmeeg_deploy_key
