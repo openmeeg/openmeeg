@@ -52,6 +52,7 @@ before_install:
   - openssl aes-256-cbc -pass "file:./test.txt" -in ./my_key.enc -out ./pouet_out.txt -d -a
   - cat pouet_out.txt
   - echo $deploy_password > secret.txt
+  - cat secret.txt
   - openssl aes-256-cbc -pass "file:./secret.txt" -in ./openmeeg_deploy_key.enc -out ./openmeeg_deploy_key -d -a
   - chmod 600 openmeeg_deploy_key
   - mv openmeeg_deploy_key ~/.ssh/openmeeg_deploy_key
