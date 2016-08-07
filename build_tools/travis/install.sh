@@ -143,7 +143,7 @@ else
           -DENABLE_PYTHON:BOOL=OFF \
           -DENABLE_PACKAGING:BOOL=ON \
           -DUSE_VTK:BOOL=OFF \
-          -DUSE_ATLAS:BOOL=OFF \
+          -DUSE_ATLAS:BOOL=ON \
           -DUSE_SYSTEM_matio:BOOL=OFF \
           -DUSE_SYSTEM_hdf5:BOOL=ON \
           -DUSE_SYSTEM_zlib:BOOL=ON \
