@@ -28,6 +28,7 @@ execute_process(COMMAND arch
                 OUTPUT_STRIP_TRAILING_WHITESPACE)
   
 set(PACKAGE_ARCH "${DISTRIBUTOR_ID}_${RELEASE}-${ARCH}")
+set(PACKAGE_ARCH_SHORT "Linux")
  
 #   Set the right package generator
 

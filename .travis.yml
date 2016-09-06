@@ -6,32 +6,46 @@ matrix:
   include:
     - os: osx
       compiler: clang
-      env: USE_PROJECT=1
+      env:
+        - USE_SYSTEM=1
+        - USE_PROJECT=1
+    - os: osx
+      compiler: clang
+      env:
+        - USE_SYSTEM=1
+        - USE_PROJECT=1
+        - USE_OPENBLAS=1
     # - os: osx
     #   compiler: clang
-    #   env: USE_PROJECT=0
+    #   env:
+    #     - USE_PROJECT=0
     - os: linux
       compiler: clang
-      env: USE_SYSTEM=0
+      env:
+        - USE_SYSTEM=0
+        - USE_PROJECT=1
     - os: linux
       compiler: gcc
-      env: USE_SYSTEM=0
+      env:
+        - USE_SYSTEM=0
+        - USE_PROJECT=1
     - os: linux
       compiler: gcc
       env:
         - USE_SYSTEM=1
         - USE_PROJECT=1
-    # - os: linux
-    #   compiler: gcc
-    #   env:
-    #     - USE_SYSTEM=1
-    #     - USE_PROJECT=0
-
-before_install: source build_tools/travis/before_install.sh
-
+    - os: linux
+      compiler: gcc
+      env:
+        - USE_SYSTEM=1
+        - USE_PROJECT=1
+        - USE_OPENBLAS=1
+before_install:
+  - source build_tools/travis/before_install.sh
 install: source build_tools/travis/install.sh
-
 script:
-  - $CXX --version
+  - "$CXX --version"
   - if [[ "$USE_PROJECT" == "0" ]]; then make test; else make test-OpenMEEG; fi
   - cpack -G TGZ .
+after_success:
+  - source $TRAVIS_BUILD_DIR/build_tools/travis/after_success.sh

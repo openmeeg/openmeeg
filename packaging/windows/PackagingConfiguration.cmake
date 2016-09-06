@@ -21,13 +21,14 @@ if(CMAKE_CL_64)
 	SET(CPACK_NSIS_PACKAGE_NAME "${CPACK_PACKAGE_NAME} (Win64)")
 	#  - Registry key used to store info about the installation
 	SET(CPACK_PACKAGE_INSTALL_REGISTRY_KEY "${CPACK_PACKAGE_NAME} ${CPACK_PACKAGE_VERSION} (Win64)")
-	SET(PACKAGE_ARCH x64)
+	SET(PACKAGE_ARCH Win64)
 else()
     SET(CPACK_NSIS_INSTALL_ROOT "$PROGRAMFILES")
 	SET(CPACK_NSIS_PACKAGE_NAME ${CPACK_PACKAGE_NAME})
 	SET(CPACK_PACKAGE_INSTALL_REGISTRY_KEY "${CPACK_PACKAGE_NAME} ${CPACK_PACKAGE_VERSION}")
-	SET(PACKAGE_ARCH x86)
+	SET(PACKAGE_ARCH Win32)
 endif()
+set(PACKAGE_ARCH_SHORT "${PACKAGE_ARCH}")
 
 #   There is a bug in NSIS that does not handle full unix paths properly. Make
 #   sure there is at least one set of four (4) backlasshes.
