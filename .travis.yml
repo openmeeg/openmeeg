@@ -15,36 +15,36 @@ matrix:
         - USE_SYSTEM=1
         - USE_PROJECT=1
         - USE_OPENBLAS=1
-    - os: osx
-      compiler: clang
-      env:
-        - USE_PROJECT=0
-    - os: osx
-      compiler: clang
-      env:
-        - USE_PROJECT=0
-        - USE_OPENBLAS=1
-    # - os: linux
+    # - os: osx
     #   compiler: clang
     #   env:
-    #     - USE_SYSTEM=0
-    #     - USE_PROJECT=1
-    # - os: linux
-    #   compiler: gcc
+    #     - USE_PROJECT=0
+    # - os: osx
+    #   compiler: clang
     #   env:
-    #     - USE_SYSTEM=0
-    #     - USE_PROJECT=1
-    # - os: linux
-    #   compiler: gcc
-    #   env:
-    #     - USE_SYSTEM=1
-    #     - USE_PROJECT=1
-    # - os: linux
-    #   compiler: gcc
-    #   env:
-    #     - USE_SYSTEM=1
-    #     - USE_PROJECT=1
+    #     - USE_PROJECT=0
     #     - USE_OPENBLAS=1
+    - os: linux
+      compiler: clang
+      env:
+        - USE_SYSTEM=0
+        - USE_PROJECT=1
+    - os: linux
+      compiler: gcc
+      env:
+        - USE_SYSTEM=0
+        - USE_PROJECT=1
+    - os: linux
+      compiler: gcc
+      env:
+        - USE_SYSTEM=1
+        - USE_PROJECT=1
+    - os: linux
+      compiler: gcc
+      env:
+        - USE_SYSTEM=1
+        - USE_PROJECT=1
+        - USE_OPENBLAS=1
 before_install:
   - source build_tools/travis/before_install.sh
 install: source build_tools/travis/install.sh
