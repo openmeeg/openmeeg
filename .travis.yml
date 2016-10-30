@@ -19,11 +19,11 @@ matrix:
       compiler: clang
       env:
         - USE_PROJECT=0
-    - os: osx
-      compiler: clang
-      env:
-        - USE_PROJECT=0
-        - USE_OPENBLAS=1
+    # - os: osx
+    #   compiler: clang
+    #   env:
+    #     - USE_PROJECT=0
+    #     - USE_OPENBLAS=1
     - os: linux
       compiler: clang
       env:
