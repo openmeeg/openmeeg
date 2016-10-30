@@ -36,7 +36,7 @@ The references to be acknowledged are ::
 Install precompiled binaries
 ----------------------------
 
-`Download precompiled binaries <https://gforge.inria.fr/frs/?group_id=435>`_ of the latest stable version.
+`Download precompiled binaries <http://openmeeg.gforge.inria.fr/download/>`_
 
 On Ubuntu/Debian GNU Linux you can use the http://neuro.debian.net package repository.
 
@@ -54,7 +54,7 @@ On Fedora and Centos::
 
     sudo yum install git-core gcc make cmake wget perl atlas-devel blas-devel numpy python-devel
 
-On Mac OS X, you'll need `CMake <http://www.cmake.org>`_ (install it with `Homebrew <http://mxcl.github.com/homebrew/>`_ or `Fink <http://www.finkproject.org/>`_ or `Macports <http://www.macports.org/>`_ or by direct download).
+On Mac OS X, you'll need `CMake <http://www.cmake.org>`_ (install it with `Homebrew <http://brew.sh/>`_ or `Fink <http://www.finkproject.org/>`_ or `Macports <http://www.macports.org/>`_ or by direct download).
 
 Then from a terminal::
 
