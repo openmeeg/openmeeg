@@ -50,7 +50,7 @@ function install_matio {  # Install MATIO
   cd matio-openmeeg-master
   mkdir build
   cd build
-  cmake -DMAT73:BOOL=$MAT73 ..
+  cmake -DMAT73:BOOL=ON ..
   make
   sudo make install
   cd ../../
