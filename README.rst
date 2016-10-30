@@ -58,18 +58,18 @@ On Mac OS X, you'll need `CMake <http://www.cmake.org>`_ (install it with `Homeb
 
 Then from a terminal::
 
-    $ git clone --recursive git://github.com/openmeeg/openmeeg.git
+    $ git clone git://github.com/openmeeg/openmeeg.git
 
 or if it does not work try::
 
-    $ git clone --recursive https://github.com/openmeeg/openmeeg.git
+    $ git clone https://github.com/openmeeg/openmeeg.git
 
 then::
 
     $ cd openmeeg
     $ mkdir build
     $ cd build
-    $ cmake -DBUILD_TESTING=ON -DCMAKE_BUILD_TYPE=Release -DUSE_PROGRESSBAR=ON ..
+    $ cmake -DBUILD_TESTING=ON -DCMAKE_BUILD_TYPE=Release -DUSE_PROGRESSBAR=ON -DBUILD_DOCUMENTATION=OFF -DENABLE_PYTHON=OFF ..
     $ make
 
 If you want the support for:
@@ -78,11 +78,17 @@ If you want the support for:
 
 -Python, you will need to add "-DENABLE_PYTHON=ON".
 
--Parallel computation with OpenMP, add "-DUSE_OMP=ON".
+-Parallel computation with OpenMP, add "-DUSE_OMP=ON". Then you can set the number of threads you want to run in parallel by setting the OMP_NUM_THREADS environment variable. On a Unix system if you want to run 4 threads in parallel do (before running OpenMEEG)::
 
-Then you can run the test suite with::
+    $ export OMP_NUM_THREADS=4
 
-    $ make test
+Then you can run the full test suite with::
+
+    $ make check
+
+or if you just want to run the tests for OpenMEEG::
+
+    $ make test-OpenMEEG
 
 If no test is failing you can install with::
 
@@ -107,7 +113,7 @@ in your loader's search path. If so, run this command as root::
 
 Now you can try to run the *om_assemble* again.
 
-You can now give a try to OpenMEEG on the `sample dataset <https://gforge.inria.fr/frs/download.php/29059/openmeeg_sample_dataset.zip>`_.
+You can now give a try to OpenMEEG on the `sample dataset <https://github.com/openmeeg/openmeeg_sample_data/archive/master.zip>`_.
 
 Windows
 ^^^^^^^

@@ -64,6 +64,7 @@ include(VtkOption)
 include(GiftiOption)
 include(UseAtlas)
 include(UseOpenMP)
+include(ProgressBar)
 
 #   Detect Fortran to C interface.
 
@@ -191,7 +192,6 @@ endif()
 
 include(Uninstall)
 include(KWStyle)
-include(ProgressBar)
 include(Packaging)
 
 #######################################################################
