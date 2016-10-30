@@ -27,6 +27,8 @@ set(CPACK_PACKAGE_VERSION_MAJOR ${PACKAGE_VERSION_MAJOR})
 set(CPACK_PACKAGE_VERSION_MINOR ${PACKAGE_VERSION_MINOR})
 set(CPACK_PACKAGE_VERSION_PATCH ${PACKAGE_VERSION_PATCH})
 
+SET(VERSION_STRING "${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}")
+
 project(OpenMEEG C CXX)
 
 cmake_minimum_required(VERSION 2.8.12 FATAL_ERROR)
@@ -40,10 +42,7 @@ endif()
 include(NewExecutable)
 include(GenerateConfigFile)
 include(FindLibrary)
-include(Revision)
 include(Win32Compat)
-
-generate_version_info()
 
 include(CompileOptions)
 

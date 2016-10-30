@@ -97,7 +97,7 @@ If no test is failing you can install with::
 You should now be able to run the *om_assemble* command and see something like this::
 
     $ om_assemble
-    om_assemble version 2.2.dev (802) compiled at Sep 20 2011 11:50:08
+    om_assemble version 2.3.dev compiled at Oct 30 2016 18:43:25
 
     Not enough arguments
     Please try "om_assemble -h" or "om_assemble --help "
