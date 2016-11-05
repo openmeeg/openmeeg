@@ -59,19 +59,34 @@ function install_matio {  # Install MATIO
 
 if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
   if [[ "$USE_PROJECT" == "0" ]]; then
-    install_matio
+    # install_matio
 
-    # Build OpenMEEG and use HDF5 from homebrew
-    cmake \
-    -DBUILD_SHARED:BOOL=ON \
-    -DBUILD_DOCUMENTATION:BOOL=OFF \
-    -DBUILD_TESTING:BOOL=ON \
-    -DENABLE_PYTHON:BOOL=OFF \
-    -DENABLE_PACKAGING:BOOL=ON \
-    -DUSE_VTK:BOOL=OFF \
-    -DUSE_ATLAS:BOOL=ON \
-    -DCMAKE_SKIP_RPATH:BOOL=OFF \
-    ..
+    if [[ "$USE_OPENBLAS" == "1" ]]; then
+      # Build OpenMEEG and use openblas from homebrew
+      cmake \
+      -DBUILD_SHARED:BOOL=ON \
+      -DBUILD_DOCUMENTATION:BOOL=OFF \
+      -DBUILD_TESTING:BOOL=ON \
+      -DENABLE_PYTHON:BOOL=OFF \
+      -DENABLE_PACKAGING:BOOL=ON \
+      -DUSE_VTK:BOOL=OFF \
+      -DUSE_ATLAS:BOOL=OFF \
+      -DUSE_OPENBLAS:BOOL=ON \
+      -DCMAKE_SKIP_RPATH:BOOL=OFF \
+      ..
+    else  # use Atlas which maps to vecLib or Accelerate frameworks
+      cmake \
+      -DBUILD_DOCUMENTATION:BOOL=OFF \
+      -DBUILD_TESTING:BOOL=ON \
+      -DENABLE_PYTHON:BOOL=OFF \
+      -DENABLE_PACKAGING:BOOL=ON \
+      -DUSE_VTK:BOOL=OFF \
+      -DUSE_ATLAS:BOOL=ON \
+      -DUSE_SYSTEM_matio:BOOL=OFF \
+      -DUSE_SYSTEM_hdf5:BOOL=OFF \
+      -DCMAKE_SKIP_RPATH:BOOL=OFF \
+      ..
+    fi
   else
     if [[ "$USE_OPENBLAS" == "1" ]]; then
       cmake \
