@@ -19,14 +19,18 @@ if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
         brew install swig
     fi
 
-    brew install cmake
-
     # brew install Doxygen  # For building documentation
 
     if [[ "$USE_OPENBLAS" == "1" ]]; then
         brew install openblas
         brew link openblas --force  # required as link is not automatic
     fi
+
+    if [[ "$USE_VTK" == "1" ]]; then
+        brew install vtk
+    fi
+
+    brew install cmake
 
 else
     # Install some custom requirements on Linux
@@ -77,7 +81,10 @@ else
         sudo apt-get install -y swig python-dev python-numpy
     fi
 
-    # sudo apt-get install libvtk5-dev libtiff4-dev
+    if [[ "$USE_VTK" == "1" ]]; then
+        sudo apt-get install libvtk5-dev libtiff4-dev
+    fi
+
     # sudo apt-get install doxygen
     wget https://s3.amazonaws.com/biibinaries/thirdparty/cmake-3.0.2-Linux-64.tar.gz
     tar -xzf cmake-3.0.2-Linux-64.tar.gz

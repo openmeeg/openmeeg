@@ -25,6 +25,12 @@ else
   ENABLE_PYTHON=OFF
 fi
 
+if [[ $USE_VTK == "1" ]]; then
+  USE_VTK=ON
+else
+  USE_VTK=OFF
+fi
+
 
 if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
   if [[ "$USE_PROJECT" == "0" ]]; then
@@ -36,7 +42,7 @@ if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
       -DBUILD_TESTING:BOOL=ON \
       -DENABLE_PYTHON:BOOL=${ENABLE_PYTHON} \
       -DENABLE_PACKAGING:BOOL=ON \
-      -DUSE_VTK:BOOL=OFF \
+      -DUSE_VTK:BOOL=${USE_VTK} \
       -DUSE_ATLAS:BOOL=OFF \
       -DUSE_OPENBLAS:BOOL=ON \
       -DCMAKE_SKIP_RPATH:BOOL=OFF \
@@ -48,7 +54,7 @@ if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
       -DBUILD_TESTING:BOOL=ON \
       -DENABLE_PYTHON:BOOL=${ENABLE_PYTHON} \
       -DENABLE_PACKAGING:BOOL=ON \
-      -DUSE_VTK:BOOL=OFF \
+      -DUSE_VTK:BOOL=${USE_VTK} \
       -DUSE_ATLAS:BOOL=ON \
       -DCMAKE_SKIP_RPATH:BOOL=OFF \
       ..
@@ -60,7 +66,7 @@ if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
       -DBUILD_TESTING:BOOL=ON \
       -DENABLE_PYTHON:BOOL=${ENABLE_PYTHON} \
       -DENABLE_PACKAGING:BOOL=ON \
-      -DUSE_VTK:BOOL=OFF \
+      -DUSE_VTK:BOOL=${USE_VTK} \
       -DUSE_OPENBLAS:BOOL=ON \
       -DUSE_ATLAS:BOOL=OFF \
       -DUSE_SYSTEM_matio:BOOL=OFF \
@@ -73,7 +79,7 @@ if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
       -DBUILD_TESTING:BOOL=ON \
       -DENABLE_PYTHON:BOOL=${ENABLE_PYTHON} \
       -DENABLE_PACKAGING:BOOL=ON \
-      -DUSE_VTK:BOOL=OFF \
+      -DUSE_VTK:BOOL=${USE_VTK} \
       -DUSE_ATLAS:BOOL=ON \
       -DUSE_SYSTEM_matio:BOOL=OFF \
       -DUSE_SYSTEM_hdf5:BOOL=OFF \
@@ -89,30 +95,30 @@ else
       if [[ "$USE_ATLAS" == "0" ]]; then
         # Build OpenMEEG with ATLAS
         cmake \
-        -DBUILD_SHARED:BOOL=ON \
-        -DBUILD_DOCUMENTATION:BOOL=OFF \
-        -DBUILD_TESTING:BOOL=ON \
-        -DENABLE_PYTHON:BOOL=${ENABLE_PYTHON} \
-        -DENABLE_PACKAGING:BOOL=ON \
-        -DUSE_VTK:BOOL=OFF \
-        -DUSE_ATLAS:BOOL=ON \
-        -DUSE_OPENBLAS:BOOL=OFF \
-        -DCMAKE_SKIP_RPATH:BOOL=OFF \
-        ..
+          -DBUILD_SHARED:BOOL=ON \
+          -DBUILD_DOCUMENTATION:BOOL=OFF \
+          -DBUILD_TESTING:BOOL=ON \
+          -DENABLE_PYTHON:BOOL=${ENABLE_PYTHON} \
+          -DENABLE_PACKAGING:BOOL=ON \
+          -DUSE_VTK:BOOL=${USE_VTK} \
+          -DUSE_ATLAS:BOOL=ON \
+          -DUSE_OPENBLAS:BOOL=OFF \
+          -DCMAKE_SKIP_RPATH:BOOL=OFF \
+          ..
       fi
       if [[ "$USE_OPENBLAS" == "1" ]]; then
         # Build OpenMEEG with openblas
         cmake \
-        -DBUILD_SHARED:BOOL=ON \
-        -DBUILD_DOCUMENTATION:BOOL=OFF \
-        -DBUILD_TESTING:BOOL=ON \
-        -DENABLE_PYTHON:BOOL=${ENABLE_PYTHON} \
-        -DENABLE_PACKAGING:BOOL=ON \
-        -DUSE_VTK:BOOL=OFF \
-        -DUSE_ATLAS:BOOL=OFF \
-        -DUSE_OPENBLAS:BOOL=ON \
-        -DCMAKE_SKIP_RPATH:BOOL=OFF \
-        ..
+          -DBUILD_SHARED:BOOL=ON \
+          -DBUILD_DOCUMENTATION:BOOL=OFF \
+          -DBUILD_TESTING:BOOL=ON \
+          -DENABLE_PYTHON:BOOL=${ENABLE_PYTHON} \
+          -DENABLE_PACKAGING:BOOL=ON \
+          -DUSE_VTK:BOOL=${USE_VTK} \
+          -DUSE_ATLAS:BOOL=OFF \
+          -DUSE_OPENBLAS:BOOL=ON \
+          -DCMAKE_SKIP_RPATH:BOOL=OFF \
+          ..
       fi
     else
       cmake \
@@ -121,7 +127,7 @@ else
           -DBUILD_TESTING:BOOL=ON \
           -DENABLE_PYTHON:BOOL=${ENABLE_PYTHON} \
           -DENABLE_PACKAGING:BOOL=ON \
-          -DUSE_VTK:BOOL=OFF \
+          -DUSE_VTK:BOOL=${USE_VTK} \
           -DUSE_ATLAS:BOOL=OFF \
           -DUSE_SYSTEM_matio:BOOL=OFF \
           -DUSE_SYSTEM_hdf5:BOOL=ON \
@@ -136,7 +142,7 @@ else
           -DBUILD_TESTING:BOOL=ON \
           -DENABLE_PYTHON:BOOL=${ENABLE_PYTHON} \
           -DENABLE_PACKAGING:BOOL=ON \
-          -DUSE_VTK:BOOL=OFF \
+          -DUSE_VTK:BOOL=${USE_VTK} \
           -DUSE_ATLAS:BOOL=OFF \
           -DUSE_SYSTEM_matio:BOOL=OFF \
           -DUSE_SYSTEM_hdf5:BOOL=OFF \
