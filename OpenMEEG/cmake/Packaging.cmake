@@ -6,11 +6,20 @@ option(ENABLE_PACKAGING "Enable Packaging" ON)
 
 if (ENABLE_PACKAGING)
     set(PACKAGE_COMPILER ${CMAKE_CXX_COMPILER})
-    if (CMAKE_C_COMPILER MATCHES gcc)
+    if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+        exec_program(${CMAKE_CXX_COMPILER}
+            ARGS -dumpversion
+            OUTPUT_VARIABLE PACKAGE_COMPILER)
+        set(PACKAGE_COMPILER Clang-${PACKAGE_COMPILER})
+    elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
         exec_program(${CMAKE_CXX_COMPILER}
             ARGS -dumpversion
             OUTPUT_VARIABLE PACKAGE_COMPILER)
         set(PACKAGE_COMPILER gcc-${PACKAGE_COMPILER})
+    elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
+        set(PACKAGE_COMPILER "icc")
+    elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+        set(PACKAGE_COMPILER "MSVC")
     endif()
 
     if (UNIX AND NOT APPLE) # LINUX
@@ -26,7 +35,7 @@ if (ENABLE_PACKAGING)
             set(CPACK_PACKAGE_VENDOR "INRIA-ENPC")
             set(CPACK_PACKAGE_DESCRIPTION_FILE "${OpenMEEG_SOURCE_DIR}/../README.rst")
             set(CPACK_RESOURCE_FILE_LICENSE "${OpenMEEG_SOURCE_DIR}/LICENSE.txt")
-            set(CPACK_PACKAGE_INSTALL_DIRECTORY "OpenMEEG")
+            set(CPACK_PACKAGE_INSTALL_DIRECTORYP "OpenMEEG")
             set(CPACK_PACKAGE_CONTACT "openmeeg-info_at_lists.gforge.inria.fr")
 
             if ("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "x86_64")
@@ -41,12 +50,13 @@ if (ENABLE_PACKAGING)
 
             set(PACKAGE_NAME "OpenMEEG-${PACKAGE_VERSION_MAJOR}.${PACKAGE_VERSION_MINOR}.${PACKAGE_VERSION_PATCH}")
             if (UNIX)
-                set(PACKAGE_NAME ${PACKAGE_NAME}-Linux${NBITS}.${CPACK_DEBIAN_PACKAGE_ARCHITECTURE})
                 if (APPLE)
-                    set(PACKAGE_NAME ${PACKAGE_NAME}-MacOSX-Intel)
+                    set(PACKAGE_NAME ${PACKAGE_NAME}-MacOSX)
                     if (BUILD_UNIVERSAL)
                         set(PACKAGE_NAME ${PACKAGE_NAME}-Universal)
                     endif()
+                else()
+                    set(PACKAGE_NAME ${PACKAGE_NAME}-Linux${NBITS}.${CPACK_DEBIAN_PACKAGE_ARCHITECTURE})
                 endif()
             else()
                 if (CMAKE_CL_64)
@@ -64,12 +74,13 @@ if (ENABLE_PACKAGING)
                 set(PACKAGE_NAME ${PACKAGE_NAME}-OpenMP)
             endif()
 
-            set(PACKAGE_NAME ${PACKAGE_NAME}-static)
             if (BUILD_SHARED_LIBS)
                 if (ENABLE_PYTHON)
                     set(PACKAGE_NAME ${PACKAGE_NAME}-python)
                 endif()
                 set(PACKAGE_NAME ${PACKAGE_NAME}-shared)
+            else()
+                set(PACKAGE_NAME ${PACKAGE_NAME}-static)
             endif()
 
             set(CPACK_PACKAGE_FILE_NAME ${PACKAGE_NAME})
@@ -78,14 +89,14 @@ if (ENABLE_PACKAGING)
                 # There is a bug in NSIS that does not handle full unix paths properly. Make
                 # sure there is at least one set of four (4) backlasshes.
                 set(CPACK_NSIS_DISPLAY_NAME "OpenMEEG")
-                set(CPACK_NSIS_HELP_LINK "http:\\\\\\\\openmeeg.gforge.inria.fr")
-                set(CPACK_NSIS_URL_INFO_ABOUT "http:\\\\\\\\openmeeg.gforge.inria.fr")
+                set(CPACK_NSIS_HELP_LINK "http:\\\\\\\\openmeeg.github.io")
+                set(CPACK_NSIS_URL_INFO_ABOUT "http:\\\\\\\\openmeeg.github.io")
                 set(CPACK_NSIS_CONTACT "openmeeg-info@lists.gforge.inria.fr")
                 set(CPACK_NSIS_MODIFY_PATH ON)
                 set(CPACK_PACKAGE_EXECUTABLES "om_assemble" "OpenMEEG (Ignore)")
                 set(CPACK_NSIS_MENU_LINKS
                     "doc/LICENSE.txt" "README.rst"
-                    "http://openmeeg.gforge.inria.fr" "OpenMEEG homepage"
+                    "http://openmeeg.github.io" "OpenMEEG homepage"
                 )
 
             endif()
