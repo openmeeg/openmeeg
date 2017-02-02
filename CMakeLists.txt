@@ -15,13 +15,12 @@ if (CMAKE_MAJOR_VERSION EQUAL 3)
 endif()
 
 # Set CMAKE_BUILD_TYPE to Release by default.
-
-set(build_type Release)
-if (DEFINED CMAKE_BUILD_TYPE)
-    set(build_type ${CMAKE_BUILD_TYPE})
+if (NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE "Release" CACHE STRING
+      "Choose the type of build, options are: Debug Release RelWithDebInfo MinSizeRel." FORCE)
 endif()
-set(CMAKE_BUILD_TYPE ${build_type} CACHE STRING
-    "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel.")
+# Set the possible values of build type for cmake-gui
+set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "RelWithDebInfo" "MinSizeRel")
 
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
 
