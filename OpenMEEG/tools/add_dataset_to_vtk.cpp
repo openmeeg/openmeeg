@@ -1,5 +1,5 @@
 // Author: Jean-Christophe Lombardo
-// Copyright (C) 2011 - Jean-Christophe Lombardo, Inria
+// Copyright (C) 2011-2017 - Jean-Christophe Lombardo, Inria
 
 #include <vtkSmartPointer.h>
 #include <vtkDataSetMapper.h>
