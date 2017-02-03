@@ -20,7 +20,7 @@ set (BLASLAPACK_IMPLEMENTATION ${BLASLAPACK_IMPLEMENTATION_DEFAULT} CACHE STRING
 set_property(CACHE BLASLAPACK_IMPLEMENTATION PROPERTY STRINGS "Atlas" "OpenBlas" "MKL" "ACML" "Lapack")
 
 if (NOT ${BLASLAPACK_IMPLEMENTATION})
-    message(ERROR "Unknown blas/lapack implementation in BLASLAPACK_IMPLEMENTATION")
+    message(ERROR "Unknown Blas/Lapack implementation in BLASLAPACK_IMPLEMENTATION")
 endif()
 
 #   Ensure that only one lapack implementation is selected by clearing all variable before setting the one chosen.
