@@ -1,7 +1,7 @@
 ##############################################################################
 # OpenMEEG
 #
-# Copyright (c) INRIA 2015. All rights reserved.
+# Copyright (c) INRIA 2015-2017. All rights reserved.
 # See LICENSE.txt for details.
 # 
 #  This software is distributed WITHOUT ANY WARRANTY; without even

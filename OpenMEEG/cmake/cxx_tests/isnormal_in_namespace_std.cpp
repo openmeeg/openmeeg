@@ -5,7 +5,7 @@
 //
 // COPYLEFT
 //
-//   Copyright (c) 2011 Theo Papadopoulo <Theodore.Papadopoulo@inria.fr>
+//   Copyright (c) 2011-2017 Theo Papadopoulo <Theodore.Papadopoulo@inria.fr>
 //
 //   Copying and distribution of this file, with or without modification, are
 //   permitted in any medium without royalty provided the copyright notice
