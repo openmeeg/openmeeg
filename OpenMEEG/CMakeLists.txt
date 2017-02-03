@@ -62,7 +62,7 @@ test_big_endian(WORDS_BIGENDIAN)
 include(VtkOption)
 include(GiftiOption)
 include(UseOpenMP)
-#include(ProgressBar) todo mais pourquoi ?
+include(ProgressBar)
 include(BlasLapackOption)
 
 include(BlasLapack)
