@@ -126,7 +126,7 @@ int main(int argc, char *argv[])
     // save output to the input file
     vtkSmartPointer<vtkPolyDataWriter> writer = vtkSmartPointer<vtkPolyDataWriter>::New();
     writer->SetFileName(meshFileNameO.c_str());
-    #if VTK_MAJOR_VERSION==6
+    #if VTK_MAJOR_VERSION >=6
     writer->SetInputData(mesh);
     #else
     writer->SetInput(mesh);
