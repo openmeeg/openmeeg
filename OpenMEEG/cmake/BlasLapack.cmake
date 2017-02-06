@@ -12,7 +12,6 @@ endif()
 include(UseAtlas)
 include(UseOpenBlas)
 include(UseMkl)
-include(UseACML)
 include(UseLapack)
 
 #   Detect Fortran to C interface.

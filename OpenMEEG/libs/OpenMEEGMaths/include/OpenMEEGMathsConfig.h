@@ -54,8 +54,6 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <BlasLapackImplementations/OM_Atlas_Config.h>
 #elif defined(USE_OPENBLAS)
 #include <BlasLapackImplementations/OM_OpenBlas_Config.h>
-#elif defined(USE_ACML)
-#include <BlasLapackImplementations/OM_ACML_Config.h>
 #elif defined(USE_VECLIB)
 #include <BlasLapackImplementations/OM_Veclib_Config.h>
 #else

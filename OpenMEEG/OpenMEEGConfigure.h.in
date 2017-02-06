@@ -13,7 +13,6 @@
 #cmakedefine USE_MKL
 #cmakedefine USE_OPENBLAS
 #cmakedefine USE_LAPACK
-#cmakedefine USE_ACML
 
 /* Define to 1 if your processor stores words with the most significant byte
    first (like Motorola and SPARC, unlike Intel and VAX). */

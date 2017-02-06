@@ -35,10 +35,5 @@
 
 #define DGETRF LAPACK(dgetrf,DGETRF)
 
-#if defined(USE_ACML)
-//    #define DGETRI(X1,X2,X3,X4,X5,X6,X7) LAPACK(dgetri,DGETRI)(X1,X2,X3,X4,X7)
-    #define DSPTRI(X1,X2,X3,X4,X5,X6)    LAPACK(dsptri,DSPTRI)(X1,X2,X3,X4,X6)
-#else
-    #define DGETRI LAPACK(dgetri,DGETRI)
-    #define DSPTRI LAPACK(dsptri,DSPTRI)
-#endif
+#define DGETRI LAPACK(dgetri,DGETRI)
+#define DSPTRI LAPACK(dsptri,DSPTRI)

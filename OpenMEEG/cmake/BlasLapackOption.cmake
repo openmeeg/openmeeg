@@ -2,7 +2,6 @@ set(Atlas    USE_ATLAS)
 set(OpenBlas USE_OPENBLAS)
 set(MKL      USE_MKL)
 set(Lapack   USE_LAPACK)
-set(ACML     USE_ACML)
 
 if (BLASLAPACK_IMPLEMENTATION)
     set(BLASLAPACK_IMPLEMENTATION_DEFAULT ${BLASLAPACK_IMPLEMENTATION})
@@ -15,9 +14,9 @@ else()
 endif()
 
 set (BLASLAPACK_IMPLEMENTATION ${BLASLAPACK_IMPLEMENTATION_DEFAULT} CACHE STRING "Choose 
-                the proper Blas/Lapack implementation Atlas/OpenBlas/MKL/ACML/Lapack" FORCE)
+                the proper Blas/Lapack implementation Atlas/OpenBlas/MKL/Lapack" FORCE)
 # Set the possible values of build type for cmake-gui
-set_property(CACHE BLASLAPACK_IMPLEMENTATION PROPERTY STRINGS "Atlas" "OpenBlas" "MKL" "ACML" "Lapack")
+set_property(CACHE BLASLAPACK_IMPLEMENTATION PROPERTY STRINGS "Atlas" "OpenBlas" "MKL" "Lapack")
 
 if (NOT ${BLASLAPACK_IMPLEMENTATION})
     message(ERROR "Unknown Blas/Lapack implementation in BLASLAPACK_IMPLEMENTATION")
