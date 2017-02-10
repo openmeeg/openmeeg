@@ -6,7 +6,7 @@ if (OpenBLAS_FOUND) # the git version propose a OpenBLASConfig.cmake
     set(OpenBLAS_INCLUDE_DIR ${OpenBLAS_INCLUDE_DIRS})
     set(OpenBLAS_LIB ${OpenBLAS_LIBRARIES})
 else()
-    SET(Open_BLAS_INCLUDE_SEARCH_PATHS
+    SET(OpenBLAS_INCLUDE_SEARCH_PATHS
         /usr/include
         /usr/include/openblas
         /usr/include/openblas-base
@@ -18,7 +18,7 @@ else()
         $ENV{OpenBLAS_HOME}/include
         )
 
-    SET(Open_BLAS_LIB_SEARCH_PATHS
+    SET(OpenBLAS_LIB_SEARCH_PATHS
         /lib/
         /lib/openblas-base
         /lib64/
@@ -34,8 +34,10 @@ else()
         $ENV{OpenBLAS_HOME}/lib
         )
 
-    FIND_PATH(OpenBLAS_INCLUDE_DIR NAMES openblas_config.h PATHS ${Open_BLAS_INCLUDE_SEARCH_PATHS})
-    FIND_LIBRARY(OpenBLAS_LIB NAMES openblas PATHS ${Open_BLAS_LIB_SEARCH_PATHS})
+    FIND_PATH(OpenBLAS_INCLUDE_DIR NAMES openblas_config.h PATHS ${OpenBLAS_INCLUDE_SEARCH_PATHS})
+    FIND_LIBRARY(OpenBLAS_LIB NAMES openblas PATHS ${OpenBLAS_LIB_SEARCH_PATHS})
+    # mostly for debian
+    FIND_LIBRARY(Lapacke_LIB NAMES lapacke PATHS ${OpenBLAS_LIB_SEARCH_PATHS})
 
     SET(OpenBLAS_FOUND ON)
 
@@ -52,8 +54,12 @@ else()
     ENDIF()
 
     IF (OpenBLAS_FOUND)
+        SET(OpenBLAS_LIBRARIES ${OpenBLAS_LIB})
+        IF (NOT Lapacke_LIB-NOTFOUND)
+            SET(OpenBLAS_LIBRARIES ${OpenBLAS_LIBRARIES} ${Lapacke_LIB})
+        endif()
         IF (NOT OpenBLAS_FIND_QUIETLY)
-            MESSAGE(STATUS "Found OpenBLAS libraries: ${OpenBLAS_LIB}")
+            MESSAGE(STATUS "Found OpenBLAS libraries: ${OpenBLAS_LIBRARIES}")
             MESSAGE(STATUS "Found OpenBLAS include: ${OpenBLAS_INCLUDE_DIR}")
         ENDIF (NOT OpenBLAS_FIND_QUIETLY)
     ELSE (OpenBLAS_FOUND)
@@ -69,4 +75,3 @@ MARK_AS_ADVANCED(
     OpenBLAS_LIB
     OpenBLAS
     )
-

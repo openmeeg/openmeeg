@@ -14,4 +14,4 @@
 
 #include<BlasLapackImplementations/blas.h>
 #include<BlasLapackImplementations/lapack.h>
-#include <BlasLapackImplementations/OM_F_BlasLapack.h>
+#include <BlasLapackImplementations/OpenMEEGMathsFBlasLapack.h>

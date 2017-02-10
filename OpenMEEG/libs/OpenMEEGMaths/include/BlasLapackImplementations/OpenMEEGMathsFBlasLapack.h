@@ -27,7 +27,6 @@
 
 #define DSPTRF LAPACK(dsptrf,DSPTRF)
 #define DSPTRS LAPACK(dsptrs,DSPTRS)
-//#define DSPTRI LAPACK(dsptri,DSPTRI)
 #define DPPTRF LAPACK(dpptrf,DPPTRF)
 #define DPPTRI LAPACK(dpptri,DPPTRI)
 

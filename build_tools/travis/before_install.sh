@@ -21,7 +21,7 @@ if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
 
     # brew install Doxygen  # For building documentation
 
-    if [[ "$USE_OPENBLAS" == "1" ]]; then
+    if [[ "$BLASLAPACK_IMPLEMENTATION" == "OpenBLAS" ]]; then
         # brew install liblapacke ?
         brew install openblas
         brew link openblas --force  # required as link is not automatic
@@ -36,43 +36,41 @@ if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
 else
     # Install some custom requirements on Linux
     # g++4.8.1
-    if [ "$CXX" == "g++" ]; then sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test; fi
+    sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test; 
+    sudo apt-get install -qq g++-4.8;
+    export CXX="g++-4.8"; 
 
     # clang 3.4
-    if [ "$CXX" == "clang++" ]; then sudo add-apt-repository -y ppa:h-rayflood/llvm; fi
+    if [ "$CXX" == "clang++" ]; then
+        sudo add-apt-repository -y ppa:h-rayflood/llvm; 
+        sudo apt-get install --allow-unauthenticated -qq clang-3.4;
+        export CXX="clang++-3.4";
+    fi
 
     # To get recent hdf5 version: AND openblas
     sudo sed -i -e 's/trusty/vivid/g' /etc/apt/sources.list
-        # # Handle MATIO
-        # sudo apt-get update -qq
-        # # to prevent IPv6 being used for APT
-        # sudo bash -c "echo 'Acquire::ForceIPv4 \"true\";' > /etc/apt/apt.conf.d/99force-ipv4"
-        # # The ultimate one-liner setup for NeuroDebian repository
-        # bash <(wget -q -O- http://neuro.debian.net/_files/neurodebian-travis.sh)
-        # # But we actually want -devel repository just to get matio backport
-        # sudo sed -ie 's,neuro.debian.net/debian ,neuro.debian.net/debian-devel ,g' /etc/apt/sources.list.d/neurodebian.sources.list
-        # # Just to get information about available versions
-        # apt-cache policy libmatio-dev
 
-    sudo apt-get update -qq
+    # # Handle MATIO
+    # sudo apt-get update -qq
+    # # to prevent IPv6 being used for APT
+    # sudo bash -c "echo 'Acquire::ForceIPv4 \"true\";' > /etc/apt/apt.conf.d/99force-ipv4"
+    # # The ultimate one-liner setup for NeuroDebian repository
+    # bash <(wget -q -O- http://neuro.debian.net/_files/neurodebian-travis.sh)
+    # # But we actually want -devel repository just to get matio backport
+    # sudo sed -ie 's,neuro.debian.net/debian ,neuro.debian.net/debian-devel ,g' /etc/apt/sources.list.d/neurodebian.sources.list
+    # # Just to get information about available versions
+    # apt-cache policy libmatio-dev
 
-    # # g++4.8.1
-    if [ "$CXX" = "g++" ]; then sudo apt-get install -qq g++-4.8; fi
-    if [ "$CXX" = "g++" ]; then export CXX="g++-4.8"; fi
+    sudo apt-get -qq update
 
-    # clang 3.4
-    if [ "$CXX" == "clang++" ]; then sudo apt-get install --allow-unauthenticated -qq clang-3.4; fi
-    if [ "$CXX" == "clang++" ]; then export CXX="clang++-3.4"; fi
-
-    sudo apt-get update
     if [[ "$USE_SYSTEM" == "1" ]]; then
       sudo apt-get install -y libhdf5-serial-dev libopenblas-base
     fi
-    if [[ "$USE_ATLAS" == "1" ]]; then
+
+    if [[ "$BLASLAPACK_IMPLEMENTATION" == "Atlas" ]]; then
         sudo apt-get install -y libatlas-dev libatlas-base-dev libblas-dev liblapack-dev
-    fi
-    if [[ "$USE_OPENBLAS" == "1" ]]; then
-        sudo apt-get install -y libopenblas-dev
+    else
+        sudo apt-get install -y libopenblas-dev liblapacke-dev
     fi
 
     if [[ "$USE_PYTHON" == "1" ]]; then

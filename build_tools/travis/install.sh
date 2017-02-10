@@ -33,8 +33,8 @@ fi
 
 if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
   if [[ "$USE_PROJECT" == "0" ]]; then
-    if [[ "$USE_OPENBLAS" == "1" ]]; then
       # Build OpenMEEG and use openblas from homebrew
+      # or use Atlas which maps to vecLib or Accelerate frameworks
       cmake \
       -DBUILD_SHARED:BOOL=ON \
       -DBUILD_DOCUMENTATION:BOOL=OFF \
@@ -42,57 +42,28 @@ if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
       -DENABLE_PYTHON:BOOL=${ENABLE_PYTHON} \
       -DENABLE_PACKAGING:BOOL=ON \
       -DUSE_VTK:BOOL=${USE_VTK} \
-      -DUSE_ATLAS:BOOL=OFF \
-      -DUSE_OPENBLAS:BOOL=ON \
+      -DBLASLAPACK_IMPLEMENTATION:BOOL=${BLASLAPACK_IMPLEMENTATION} \
       -DCMAKE_SKIP_RPATH:BOOL=OFF \
       ..
-    else  # use Atlas which maps to vecLib or Accelerate frameworks
-      cmake \
-      -DBUILD_SHARED:BOOL=OFF \
-      -DBUILD_DOCUMENTATION:BOOL=OFF \
-      -DBUILD_TESTING:BOOL=ON \
-      -DENABLE_PYTHON:BOOL=${ENABLE_PYTHON} \
-      -DENABLE_PACKAGING:BOOL=ON \
-      -DUSE_VTK:BOOL=${USE_VTK} \
-      -DUSE_ATLAS:BOOL=ON \
-      -DCMAKE_SKIP_RPATH:BOOL=OFF \
-      ..
-    fi
   else
-    if [[ "$USE_OPENBLAS" == "1" ]]; then
       cmake \
       -DBUILD_DOCUMENTATION:BOOL=OFF \
       -DBUILD_TESTING:BOOL=ON \
       -DENABLE_PYTHON:BOOL=${ENABLE_PYTHON} \
       -DENABLE_PACKAGING:BOOL=ON \
       -DUSE_VTK:BOOL=${USE_VTK} \
-      -DUSE_OPENBLAS:BOOL=ON \
-      -DUSE_ATLAS:BOOL=OFF \
+      -DBLASLAPACK_IMPLEMENTATION:BOOL=${BLASLAPACK_IMPLEMENTATION} \
       -DUSE_SYSTEM_matio:BOOL=OFF \
       -DUSE_SYSTEM_hdf5:BOOL=OFF \
       -DCMAKE_SKIP_RPATH:BOOL=OFF \
       ..
-    else  # use Atlas which maps to vecLib or Accelerate frameworks
-      cmake \
-      -DBUILD_DOCUMENTATION:BOOL=OFF \
-      -DBUILD_TESTING:BOOL=ON \
-      -DENABLE_PYTHON:BOOL=${ENABLE_PYTHON} \
-      -DENABLE_PACKAGING:BOOL=ON \
-      -DUSE_VTK:BOOL=${USE_VTK} \
-      -DUSE_ATLAS:BOOL=ON \
-      -DUSE_SYSTEM_matio:BOOL=OFF \
-      -DUSE_SYSTEM_hdf5:BOOL=OFF \
-      -DCMAKE_SKIP_RPATH:BOOL=OFF \
-      ..
-    fi
   fi
 else
   if [[ "$USE_SYSTEM" == "1" ]]; then
     if [[ "$USE_PROJECT" == "0" ]]; then
       install_matio
 
-      if [[ "$USE_ATLAS" == "0" ]]; then
-        # Build OpenMEEG with ATLAS
+        # Build OpenMEEG with ATLAS or openblas
         cmake \
           -DBUILD_SHARED:BOOL=ON \
           -DBUILD_DOCUMENTATION:BOOL=OFF \
@@ -100,34 +71,17 @@ else
           -DENABLE_PYTHON:BOOL=${ENABLE_PYTHON} \
           -DENABLE_PACKAGING:BOOL=ON \
           -DUSE_VTK:BOOL=${USE_VTK} \
-          -DUSE_ATLAS:BOOL=ON \
-          -DUSE_OPENBLAS:BOOL=OFF \
+          -DBLASLAPACK_IMPLEMENTATION:BOOL=${BLASLAPACK_IMPLEMENTATION} \
           -DCMAKE_SKIP_RPATH:BOOL=OFF \
           ..
-      fi
-      if [[ "$USE_OPENBLAS" == "1" ]]; then
-        # Build OpenMEEG with openblas
-        cmake \
-          -DBUILD_SHARED:BOOL=ON \
-          -DBUILD_DOCUMENTATION:BOOL=OFF \
-          -DBUILD_TESTING:BOOL=ON \
-          -DENABLE_PYTHON:BOOL=${ENABLE_PYTHON} \
-          -DENABLE_PACKAGING:BOOL=ON \
-          -DUSE_VTK:BOOL=${USE_VTK} \
-          -DUSE_ATLAS:BOOL=OFF \
-          -DUSE_OPENBLAS:BOOL=ON \
-          -DCMAKE_SKIP_RPATH:BOOL=OFF \
-          ..
-      fi
     else
       cmake \
-          -DATLAS_INCLUDE_PATH:PATH=/usr/include/atlas \
           -DBUILD_DOCUMENTATION:BOOL=OFF \
           -DBUILD_TESTING:BOOL=ON \
           -DENABLE_PYTHON:BOOL=${ENABLE_PYTHON} \
           -DENABLE_PACKAGING:BOOL=ON \
           -DUSE_VTK:BOOL=${USE_VTK} \
-          -DUSE_ATLAS:BOOL=OFF \
+          -DBLASLAPACK_IMPLEMENTATION:BOOL=${BLASLAPACK_IMPLEMENTATION} \
           -DUSE_SYSTEM_matio:BOOL=OFF \
           -DUSE_SYSTEM_hdf5:BOOL=ON \
           -DUSE_SYSTEM_zlib:BOOL=ON \
@@ -136,13 +90,12 @@ else
       fi
   else
     cmake \
-          -DATLAS_INCLUDE_PATH:PATH=/usr/include/atlas \
           -DBUILD_DOCUMENTATION:BOOL=OFF \
           -DBUILD_TESTING:BOOL=ON \
           -DENABLE_PYTHON:BOOL=${ENABLE_PYTHON} \
           -DENABLE_PACKAGING:BOOL=ON \
+          -DBLASLAPACK_IMPLEMENTATION:BOOL=${BLASLAPACK_IMPLEMENTATION} \
           -DUSE_VTK:BOOL=${USE_VTK} \
-          -DUSE_ATLAS:BOOL=OFF \
           -DUSE_SYSTEM_matio:BOOL=OFF \
           -DUSE_SYSTEM_hdf5:BOOL=OFF \
           -DUSE_SYSTEM_zlib:BOOL=OFF \

@@ -305,7 +305,7 @@ namespace OpenMEEG {
         Matrix invA(*this,DEEP_COPY);
         // LU
         #if defined(CLAPACK_INTERFACE)
-            #if defined(__APPLE__) // Apple Veclib Framework (Handles 32 and 64 Bits)
+            #if defined(__APPLE__) && defined(USE_VECLIB) // Apple Veclib Framework (Handles 32 and 64 Bits)
                 __CLPK_integer *pivots = new __CLPK_integer[ncol()];
                 __CLPK_integer Info;
                 __CLPK_integer nlin_local = invA.nlin();

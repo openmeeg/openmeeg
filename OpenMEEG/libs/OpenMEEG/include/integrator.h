@@ -177,7 +177,7 @@ namespace OpenMEEG {
 
     static const unsigned nbPts[4] = {3, 6, 7, 16};
 
-    template <class TT, class II>
+    template <class T, class I>
     class OPENMEEG_EXPORT Integrator 
     {
         unsigned order;
@@ -198,7 +198,7 @@ namespace OpenMEEG {
             }
         }
 
-        virtual inline TT integrate(const II& fc, const Triangle& Trg)
+        virtual inline T integrate(const I& fc, const Triangle& Trg)
         {
             const Vect3 points[3] = { Trg.s1(), Trg.s2(), Trg.s3() };
             return triangle_integration(fc, points);
@@ -206,12 +206,12 @@ namespace OpenMEEG {
 
     protected:
 
-        inline TT triangle_integration(const II& fc, const Vect3 points[3])
+        inline T triangle_integration(const I& fc, const Vect3 points[3])
         {
             // compute double area of triangle defined by points
             Vect3 crossprod = (points[1] - points[0])^(points[2] - points[0]);
             double S = crossprod.norm();
-            TT result = 0;
+            T result = 0;
             for ( unsigned i = 0; i < nbPts[order];++i) {
                 Vect3 v(0.0, 0.0, 0.0);
                 for ( unsigned j = 0; j < 3; ++j) {
@@ -223,10 +223,10 @@ namespace OpenMEEG {
         }
     };
 
-    template <class TT, class II>
-    class OPENMEEG_EXPORT AdaptiveIntegrator: public Integrator<TT, II>
+    template <class T, class I>
+    class OPENMEEG_EXPORT AdaptiveIntegrator: public Integrator<T, I>
     {
-        typedef Integrator<TT, II> base;
+        typedef Integrator<T, I> base;
 
     public:
 
@@ -237,9 +237,9 @@ namespace OpenMEEG {
         inline double norm(const double a) { return fabs(a);  }
         inline double norm(const Vect3& a) { return a.norm(); }
 
-        virtual inline TT integrate(const II& fc, const Triangle& Trg) {
+        virtual inline T integrate(const I& fc, const Triangle& Trg) {
             const Vect3 points[3] = { Trg.s1(), Trg.s2(), Trg.s3() };
-            TT I0 = base::triangle_integration(fc, points);
+            T I0 = base::triangle_integration(fc, points);
             return adaptive_integration(fc, points, I0, 0);
         }
 
@@ -247,7 +247,7 @@ namespace OpenMEEG {
 
         double tolerance;
 
-        inline TT adaptive_integration(const II& fc, const Vect3 * points, TT I0, unsigned n)
+        inline T adaptive_integration(const I& fc, const Vect3 * points, T I0, unsigned n)
         {
             Vect3 newpoint0(0.0, 0.0, 0.0);
             multadd(newpoint0, 0.5, points[0]);
@@ -262,11 +262,11 @@ namespace OpenMEEG {
             Vect3 points2[3] = {points[1], newpoint1, newpoint0};
             Vect3 points3[3] = {points[2], newpoint2, newpoint1};
             Vect3 points4[3] = {newpoint0, newpoint1, newpoint2};
-            TT I1 = base::triangle_integration(fc, points1);
-            TT I2 = base::triangle_integration(fc, points2);
-            TT I3 = base::triangle_integration(fc, points3);
-            TT I4 = base::triangle_integration(fc, points4);
-            TT sum = I1+I2+I3+I4;
+            T I1 = base::triangle_integration(fc, points1);
+            T I2 = base::triangle_integration(fc, points2);
+            T I3 = base::triangle_integration(fc, points3);
+            T I4 = base::triangle_integration(fc, points4);
+            T sum = I1+I2+I3+I4;
             if ( norm(I0-sum) > tolerance*norm(I0) ) {
                 n = n+1;
                 if ( n < 10 ) {

@@ -117,6 +117,7 @@ namespace OpenMEEG {
         unsigned p0_p1_size = (geo.size() - geo.nb_current_barrier_triangles());
 
         Matrix FergusonMat(3*nbIntegrationPoints, geo.nb_vertices());
+        FergusonMat.set(0.0);
 
         assemble_ferguson(geo, FergusonMat, positions);
 

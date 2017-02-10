@@ -64,7 +64,6 @@ include(GiftiOption)
 include(UseOpenMP)
 include(ProgressBar)
 include(BlasLapackOption)
-
 include(BlasLapack)
 
 Dependencies(OpenMEEG matio)

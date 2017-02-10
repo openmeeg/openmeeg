@@ -10,13 +10,6 @@
 
 #define CLAPACK_INTERFACE
 
-#if 0
-extern "C" {
-    void LAPACK(dgetrf,DGETRF)(const int&,const int&,double*,const int&,int*,int&);
-    void LAPACK(dgetri,DGETRI)(const int&,double*,const int&,int*,double*,const int&,int&);
-}
-#endif
-
 #define DLANGE(X1,X2,X3,X4,X5,X6)       LAPACK(dlange,DLANGE)(LAPACK_COL_MAJOR,X1,X2,X3,X4,X5)
 
 #define DSPTRF(X1,X2,X3,X4,X5)          LAPACK(dsptrf,DSPTRF)(LAPACK_COL_MAJOR,X1,X2,X3,X4)
@@ -29,4 +22,4 @@ extern "C" {
 
 #define DGESDD(X1,X2,X3,X4,X5,X6,X7,X8,X9,X10,X11,X12,X13,X14) LAPACK(dgesdd,DGESDD)(LAPACK_COL_MAJOR,X1,X2,X3,X4,X5,X6,X7,X8,X9,X10)
 
-#include <BlasLapackImplementations/OM_C_BlasLapack.h>
+#include <BlasLapackImplementations/OpenMEEGMathsCBlasLapack.h>
