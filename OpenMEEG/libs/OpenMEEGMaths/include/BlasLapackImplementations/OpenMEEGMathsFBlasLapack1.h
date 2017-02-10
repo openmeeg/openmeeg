@@ -1,3 +1,4 @@
+
 #pragma once
 
 //  The functions in this file are not always implemented in clapack.
@@ -14,9 +15,6 @@ extern "C" {
 
     void FC_GLOBAL(dgesdd,DGESDD)(const char&,const int&,const int&,double*,const int&,double*,double*,const int&,double*,const int&,double*,const int&,int*,int&);
 }
-
-#define DGETRF(X1,X2,X3,X4,X5) LAPACK(dgetrf,DGETRF)(CblasColMajor,X1,X2,X3,X4,X5)
-#define DGETRI(X1,X2,X3,X4)    LAPACK(dgetri,DGETRI)(CblasColMajor,X1,X2,X3,X4)
 
 #define DLANGE FC_GLOBAL(dlange,DLANGE)
 

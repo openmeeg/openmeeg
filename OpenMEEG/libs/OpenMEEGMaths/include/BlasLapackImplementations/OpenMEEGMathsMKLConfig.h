@@ -1,23 +1,21 @@
 #pragma once
 
-#if defined (WIN32)
-    #define FC_GLOBAL(x,X) x ## _
-#else
-    #include <FC.h>
-#endif
+// Hack to avoid the MKL declarations of Lapack Functions which do not use the power of C++ references
 
-//  We do dot use lapacke.h because it defines lapack interfaces with pointers.
-//  Instead, we use our own interfaces with leverage C++ references.
+#define _MKL_LAPACK_H_
 
-extern "C" {
-    #include <cblas.h>
-}
-#include <lapacke.h>
-
+#include <mkl.h>
 #define BLAS(x,X) cblas_ ## x
 #define LAPACK(x,X) LAPACKE_ ## x
 
 #define CLAPACK_INTERFACE
+
+#if 0
+extern "C" {
+    void LAPACK(dgetrf,DGETRF)(const int&,const int&,double*,const int&,int*,int&);
+    void LAPACK(dgetri,DGETRI)(const int&,double*,const int&,int*,double*,const int&,int&);
+}
+#endif
 
 #define DLANGE(X1,X2,X3,X4,X5,X6)       LAPACK(dlange,DLANGE)(LAPACK_COL_MAJOR,X1,X2,X3,X4,X5)
 
@@ -31,7 +29,4 @@ extern "C" {
 
 #define DGESDD(X1,X2,X3,X4,X5,X6,X7,X8,X9,X10,X11,X12,X13,X14) LAPACK(dgesdd,DGESDD)(LAPACK_COL_MAJOR,X1,X2,X3,X4,X5,X6,X7,X8,X9,X10)
 
-//#define LAPACK(x,X) FC_GLOBAL(x,X)
-
-//#include <BlasLapackImplementations/lapack.h>
-#include <BlasLapackImplementations/OM_C_BlasLapack.h>
+#include <BlasLapackImplementations/OpenMEEGMathsCBlasLapack.h>
