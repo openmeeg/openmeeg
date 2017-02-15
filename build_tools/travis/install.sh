@@ -31,7 +31,6 @@ else
   USE_VTK=OFF
 fi
 
-
 if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
   if [[ "$USE_PROJECT" == "0" ]]; then
     if [[ "$USE_OPENBLAS" == "1" ]]; then
