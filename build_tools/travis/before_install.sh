@@ -6,7 +6,7 @@ if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
     brew update && brew upgrade
 
     # Install some custom requirements on OS X
-    if [[ "$USE_PROJECT" == "0" ]]; then
+    if [[ "$USE_PROJECT" == "0" || "$USE_SYSTEM" == "1" ]]; then
         brew install hdf5
         brew install libmatio --with-hdf5
     fi
@@ -40,10 +40,8 @@ else
     # clang 3.4
     if [ "$CXX" == "clang++" ]; then sudo add-apt-repository -y ppa:h-rayflood/llvm; fi
 
-    if [[ "$USE_SYSTEM" == "1" ]]; then
-        # To get recent hdf5 version:
-        sudo sed -i -e 's/trusty/vivid/g' /etc/apt/sources.list
-
+    # To get recent hdf5 version: AND openblas
+    sudo sed -i -e 's/trusty/vivid/g' /etc/apt/sources.list
         # # Handle MATIO
         # sudo apt-get update -qq
         # # to prevent IPv6 being used for APT
@@ -54,7 +52,6 @@ else
         # sudo sed -ie 's,neuro.debian.net/debian ,neuro.debian.net/debian-devel ,g' /etc/apt/sources.list.d/neurodebian.sources.list
         # # Just to get information about available versions
         # apt-cache policy libmatio-dev
-    fi
 
     sudo apt-get update -qq
 
@@ -69,12 +66,12 @@ else
     sudo apt-get update
     if [[ "$USE_SYSTEM" == "1" ]]; then
       sudo apt-get install -y libhdf5-serial-dev libopenblas-base
-      if [[ "$USE_ATLAS" == "1" ]]; then
-          sudo apt-get install -y libatlas-dev libatlas-base-dev libblas-dev liblapack-dev
-      fi
-      if [[ "$USE_OPENBLAS" == "1" ]]; then
-          sudo apt-get install -y libopenblas-dev
-      fi
+    fi
+    if [[ "$USE_ATLAS" == "1" ]]; then
+        sudo apt-get install -y libatlas-dev libatlas-base-dev libblas-dev liblapack-dev
+    fi
+    if [[ "$USE_OPENBLAS" == "1" ]]; then
+        sudo apt-get install -y libopenblas-dev
     fi
 
     if [[ "$USE_PYTHON" == "1" ]]; then
