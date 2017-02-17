@@ -97,11 +97,11 @@ namespace OpenMEEG {
         const Vertices&  vertices()                       const { return vertices_; } ///< \brief returns the geometry vertices
         const Meshes&    meshes()                         const { return meshes_; } ///< \brief returns the geometry meshes
         const Domains&   domains()                        const { return domains_; } ///< \brief returns the geometry domains
-              unsigned   size()                           const { return size_; } ///< \brief the total number of vertices + triangles
-              unsigned   nb_vertices()                    const { return vertices_.size(); }
-              unsigned   nb_triangles()                   const { return (size_-vertices_.size()); }
-              unsigned   nb_domains()                     const { return domains_.size(); }
-              unsigned   nb_meshes()                      const { return meshes_.size(); }
+              size_t     size()                           const { return size_; } ///< \brief the total number of vertices + triangles
+              size_t     nb_vertices()                    const { return vertices_.size(); }
+              size_t     nb_triangles()                   const { return (size_-vertices_.size()); }
+              size_t     nb_domains()                     const { return domains_.size(); }
+              size_t     nb_meshes()                      const { return meshes_.size(); }
         const Interface& outermost_interface()            const; ///< \brief returns the outermost Interfaces of the geometry (with multiple 0-cond you can probably have more than 1 outermost interfaces)
         const Interface& interface(const std::string& id) const; ///< \brief returns the Interface called id \param id Interface name
         const Domain&    domain(const std::string& id)    const; ///< \brief returns the Domain called id \param id Domain name
@@ -133,8 +133,8 @@ namespace OpenMEEG {
         Domains    domains_;
         bool       has_cond_;
         bool       is_nested_;
-        unsigned   size_;   // total number = nb of vertices + nb of triangles
-        void          generate_indices(const bool);
+        size_t     size_;   // total number = nb of vertices + nb of triangles
+        void        generate_indices(const bool);
         const Domains common_domains(const Mesh&, const Mesh&) const;
               double  funct_on_domains(const Mesh&, const Mesh&, const Function& ) const;
 
