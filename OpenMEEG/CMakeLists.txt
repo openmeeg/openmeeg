@@ -59,9 +59,10 @@ test_big_endian(WORDS_BIGENDIAN)
 # External Libraries
 #######################################################################
 
-include(VtkOption)
-include(GiftiOption)
 include(UseOpenMP)
+include(UseVtk)
+include(UseGifti)
+include(UseCgal)
 include(ProgressBar)
 include(BlasLapackOption)
 include(BlasLapack)
