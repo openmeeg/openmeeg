@@ -226,8 +226,6 @@ namespace OpenMEEG {
         for (size_t j=0; j<jsize; j++) {
     #ifdef HAVE_BLAS
             BLAS(dcopy,DCOPY)(sz,data()+istart+(jstart+j)*nlin(),1,a.data()+j*isize,1);
-    #elif USE_ACML
-            dcopy(sz,data()+istart+(jstart+j)*nlin(),1,a.data()+j*isize,1);
     #else
             for (size_t i=0; i<isize; i++)
                 a(i,j) = (*this)(istart+i,jstart+j);
@@ -306,8 +304,8 @@ namespace OpenMEEG {
         om_assert(nlin()==ncol());
         Matrix invA(*this,DEEP_COPY);
         // LU
-        #if defined(USE_ATLAS) // || defined(USE_OPENBLAS)
-            #if defined(__APPLE__) // Apple Veclib Framework (Handles 32 and 64 Bits)
+        #if defined(CLAPACK_INTERFACE)
+            #if defined(__APPLE__) && defined(USE_VECLIB) // Apple Veclib Framework (Handles 32 and 64 Bits)
                 __CLPK_integer *pivots = new __CLPK_integer[ncol()];
                 __CLPK_integer Info;
                 __CLPK_integer nlin_local = invA.nlin();

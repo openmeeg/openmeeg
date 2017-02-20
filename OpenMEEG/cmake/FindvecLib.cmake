@@ -5,11 +5,6 @@
 #  vecLib_INCLUDE_DIR
 #  vecLib_LINKER_LIBS
 
-
-if(NOT APPLE)
-  return()
-endif()
-
 set(__veclib_include_suffix "Frameworks/vecLib.framework/Versions/Current/Headers")
 
 find_path(vecLib_INCLUDE_DIR vecLib.h

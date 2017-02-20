@@ -8,7 +8,7 @@ if [ x$1 != "x--incremental" ]; then
 fi
 
 cd build
-cmake -DUSE_ATLAS=ON -DUSE_MKL=OFF -DENABLE_PYTHON=ON -DBUILD_TESTING=ON -DENABLE_PACKAGING=ON -DMATLAB_TESTING=OFF ..
+cmake -DENABLE_PYTHON=ON -DBUILD_TESTING=ON -DENABLE_PACKAGING=ON -DMATLAB_TESTING=OFF ..
 ctest -D ExperimentalConfigure
 ctest -D ExperimentalBuild
 ctest -D ExperimentalTest --no-compress-output || true

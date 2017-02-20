@@ -1,0 +1,12 @@
+
+if (USE_VECLIB)
+    if (APPLE)
+        find_package(vecLib ${REQUIRED})
+        if (vecLib_FOUND)
+            include_directories(${vecLib_INCLUDE_DIR})
+            set(LAPACK_LIBRARIES ${vecLib_LINKER_LIBS})
+        endif()
+    else()
+        message(WARNING "vecLib is only on Apple MAC OS")
+    endif()
+endif()

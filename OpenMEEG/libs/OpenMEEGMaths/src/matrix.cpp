@@ -76,7 +76,6 @@ namespace OpenMEEG {
 
     /// pseudo inverse
     Matrix Matrix::pinverse(double tolrel) const {
-    #ifdef HAVE_LAPACK
         if (ncol() > nlin()) {
             return transpose().pinverse().transpose();
         } else {
@@ -107,10 +106,6 @@ namespace OpenMEEG {
                 return Vbis * s * Ubis.transpose();
             }
         }
-    #else
-        std::cerr << "pinv not implemented without blas/lapack" << std::endl;
-        exit(1);
-    #endif
     }
 
     Matrix Matrix::transpose() const {

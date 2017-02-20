@@ -61,16 +61,10 @@ test_big_endian(WORDS_BIGENDIAN)
 
 include(VtkOption)
 include(GiftiOption)
-include(UseAtlas)
 include(UseOpenMP)
 include(ProgressBar)
-
-#   Detect Fortran to C interface.
-
-if (USE_ATLAS OR USE_OPENBLAS)
-    include(FortranCInterface)
-    FortranCInterface_HEADER(FC.h MACRO_NAMESPACE "FC_" FROM_LIBRARY blas[daxpy])
-endif()
+include(BlasLapackOption)
+include(BlasLapack)
 
 Dependencies(OpenMEEG matio)
 
