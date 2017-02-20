@@ -4,7 +4,6 @@
 
 extern "C" {
     #include <cblas.h>
-    #include <lapacke.h>
 }
 #include <lapacke.h>
 #undef I // undefine this def due to complex.h that causes issues later
