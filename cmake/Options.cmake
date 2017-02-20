@@ -6,13 +6,13 @@ endif()
 
 #   Various OpenMEEG options that will be forwarded.
 
-option(USE_ATLAS "Build the project using ATLAS" OFF)
-option(USE_OPENBLAS "Build the project using OPENBLAS" OFF)
-option(USE_MKL "Build the project with MKL" OFF)
+include(BlasLapackOption)
 option(ENABLE_PACKAGING "Enable Packaging" OFF)
 option(ENABLE_PYTHON "Enable Python Wrapping" ON)
 option(USE_OMP "Use OpenMP" OFF)
+option(USE_GIFTI "Use GIFTI IO support" OFF)
 option(USE_VTK "Use VTK" OFF)
+option(USE_CGAL "Use CGAL meshing tools" OFF)
 option(BUILD_TESTING "Build the testing tree" ON)
 option(BUILD_DOCUMENTATION "Build the documentation" ON)
 

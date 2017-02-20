@@ -37,7 +37,6 @@ target_link_libraries (om_check_geom OpenMEEG ${VTK_LIBRARIES})
 add_executable(om_mesh_to_dip mesh_to_dip.cpp)
 target_link_libraries (om_mesh_to_dip OpenMEEG ${VTK_LIBRARIES})
 
-include(CgalOption)
 if (USE_CGAL)
     add_executable(om_cgal_mesh_3Dlevelset_image cgal_mesh_3Dlevelset_image.cpp)
     target_link_libraries (om_cgal_mesh_3Dlevelset_image OpenMEEG ${CGAL_LIBRARIES})
