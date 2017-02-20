@@ -2,8 +2,7 @@
 # GIFTI C library
 #------------------------------------------------------------
 
-option(USE_GIFTI "Build the project using GIFTI IO support" OFF)
-mark_as_advanced(USE_GIFTI)
+option(USE_GIFTI "Use GIFTI IO support" OFF)
 
 if (USE_GIFTI)
     find_package(EXPAT)
