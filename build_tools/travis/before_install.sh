@@ -31,40 +31,27 @@ if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
         brew install vtk
     fi
 
+    if [[ "$USE_CGAL" == 1 ]]; then
+        brew install  --with-qt5 cgal
+    fi
+
     brew install cmake
 
 else
     # Install some custom requirements on Linux
-    # g++4.8.1
-    sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test; 
-    sudo apt-get install -qq g++-4.8;
     export CXX="g++-4.8"; 
 
     # clang 3.4
     if [ "$CXX" == "clang++" ]; then
-        sudo add-apt-repository -y ppa:h-rayflood/llvm; 
-        sudo apt-get install --allow-unauthenticated -qq clang-3.4;
         export CXX="clang++-3.4";
     fi
 
-    # To get recent hdf5 version: AND openblas
-    sudo sed -i -e 's/trusty/vivid/g' /etc/apt/sources.list
-
-    # # Handle MATIO
-    # sudo apt-get update -qq
-    # # to prevent IPv6 being used for APT
-    # sudo bash -c "echo 'Acquire::ForceIPv4 \"true\";' > /etc/apt/apt.conf.d/99force-ipv4"
-    # # The ultimate one-liner setup for NeuroDebian repository
-    # bash <(wget -q -O- http://neuro.debian.net/_files/neurodebian-travis.sh)
-    # # But we actually want -devel repository just to get matio backport
-    # sudo sed -ie 's,neuro.debian.net/debian ,neuro.debian.net/debian-devel ,g' /etc/apt/sources.list.d/neurodebian.sources.list
-    # # Just to get information about available versions
-    # apt-cache policy libmatio-dev
-
-    sudo apt-get -qq update
-
     if [[ "$USE_SYSTEM" == "1" ]]; then
-      sudo apt-get install -y libhdf5-serial-dev libopenblas-base
+        sudo apt-get install -y libhdf5-serial-dev libmatio-dev
+    fi
+
+    if [[ "$USE_CGAL" == 1 ]]; then
+        sudo apt-get install -y libcgal-dev
     fi
 
     if [[ "$BLASLAPACK_IMPLEMENTATION" == "Atlas" ]]; then
@@ -78,13 +65,8 @@ else
     fi
 
     if [[ "$USE_VTK" == "1" ]]; then
-        sudo apt-get install libvtk5-dev libtiff4-dev
+        sudo apt-get install libvtk5-dev
     fi
 
     # sudo apt-get install doxygen
-    wget https://s3.amazonaws.com/biibinaries/thirdparty/cmake-3.0.2-Linux-64.tar.gz
-    tar -xzf cmake-3.0.2-Linux-64.tar.gz
-    sudo cp -fR cmake-3.0.2-Linux-64/* /usr
-    rm -rf cmake-3.0.2-Linux-64
-    rm cmake-3.0.2-Linux-64.tar.gz
 fi
