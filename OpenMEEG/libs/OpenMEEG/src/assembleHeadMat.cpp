@@ -234,7 +234,8 @@ namespace OpenMEEG {
             // ** Construct P: the null-space projector **
             Matrix W;
             {
-                Matrix U, s;
+                Matrix U;
+                SparseMatrix s;
                 mat.svd(U, s, W);
             }
 
@@ -243,7 +244,7 @@ namespace OpenMEEG {
             for ( unsigned i = Nl; i < Nc; ++i) {
                 S(i, i) = 1.0;
             }
-            P = (W * S) * W.transpose(); // P is a projector: P^2 = P and mat*P*X = 0
+            P = (W.transpose() * S) * W; // P is a projector: P^2 = P and mat*P*X = 0
             if ( filename.length() != 0 ) {
                 std::cout << "Saving projector P (" << filename << ")." << std::endl;
                 P.save(filename);

@@ -80,13 +80,14 @@ namespace OpenMEEG {
             return transpose().pinverse().transpose();
         } else {
             Matrix result(ncol(), nlin());
-            Matrix U, S, V;
+            result.set(0.0);
+            Matrix U, V;
+            SparseMatrix S;
             svd(U, S, V, false);
             double maxs = 0;
             unsigned mimi = std::min(S.nlin(), S.ncol());
-            for ( size_t i = 0; i < mimi; i++) {
-                maxs = std::max(S(i,i), maxs);
-            }
+            // following LAPACK The singular values of A, sorted so that S(i) >= S(i+1).
+            maxs = S(0,0);
             if ( tolrel == 0 ) tolrel = std::numeric_limits<double>::epsilon();
             double tol = std::max(nlin(), ncol()) * maxs * tolrel;
             unsigned r = 0;
@@ -101,7 +102,7 @@ namespace OpenMEEG {
                 for ( size_t i = 0; i < r; i++) {
                     s(i, i) = 1.0 / S(i, i);
                 }
-                const Matrix Vbis(V,r); // keep only the first r columns
+                const Matrix Vbis(V.transpose(),r); // keep only the first r columns
                 const Matrix Ubis(U,r);
                 return Vbis * s * Ubis.transpose();
             }
@@ -110,17 +111,20 @@ namespace OpenMEEG {
 
     Matrix Matrix::transpose() const {
         Matrix result(ncol(),nlin());
-        for(size_t i=0;i<nlin();i++) for(size_t j=0;j<ncol();j++) result(j,i)=(*this)(i,j);
+        for (size_t i=0; i<nlin(); i++)
+            for ( size_t j=0; j<ncol(); j++)
+                result(j,i)=(*this)(i,j);
         return result;
     }
 
-    void Matrix::svd(Matrix &U, Matrix &S, Matrix &V, bool complete) const {
+    void Matrix::svd(Matrix &U, SparseMatrix &S, Matrix &V, bool complete) const {
+        // XXX output is now V.transpose() not V (now as in Lapack and numpy)
     #ifdef HAVE_LAPACK
         Matrix cpy(*this,DEEP_COPY);
         int mini = (int)std::min(nlin(),ncol());
         int maxi = (int)std::max(nlin(),ncol());
         U = Matrix(nlin(),nlin()); U.set(0);
-        S = Matrix(nlin(),ncol()); S.set(0);
+        S = SparseMatrix(nlin(),ncol());
         V = Matrix(ncol(),ncol()); V.set(0);
         double *s = new double[mini];
         // int lwork = 4 *mini*mini + maxi + 9*mini; 
@@ -135,7 +139,6 @@ namespace OpenMEEG {
             DGESDD('S',nlin(),ncol(),cpy.data(),nlin(),s,U.data(),U.nlin(),V.data(),V.nlin(),work,lwork,iwork,Info);
         }
         for ( size_t i = 0; i < mini; ++i) S(i, i) = s[i];
-        V = V.transpose();
         delete[] s;
         delete[] work;
         delete[] iwork;
