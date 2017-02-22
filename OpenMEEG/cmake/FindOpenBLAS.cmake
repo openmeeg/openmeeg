@@ -34,7 +34,7 @@ else()
         $ENV{OpenBLAS_HOME}/lib
         )
 
-    FIND_PATH(OpenBLAS_INCLUDE_DIR NAMES openblas_config.h PATHS ${OpenBLAS_INCLUDE_SEARCH_PATHS})
+    FIND_PATH(OpenBLAS_INCLUDE_DIR NAMES openblas_config.h lapacke.h PATHS ${OpenBLAS_INCLUDE_SEARCH_PATHS})
     FIND_LIBRARY(OpenBLAS_LIB NAMES openblas PATHS ${OpenBLAS_LIB_SEARCH_PATHS})
     # mostly for debian
     FIND_LIBRARY(Lapacke_LIB NAMES lapacke PATHS ${OpenBLAS_LIB_SEARCH_PATHS})
@@ -61,13 +61,12 @@ else()
         IF (NOT OpenBLAS_FIND_QUIETLY)
             MESSAGE(STATUS "Found OpenBLAS libraries: ${OpenBLAS_LIBRARIES}")
             MESSAGE(STATUS "Found OpenBLAS include: ${OpenBLAS_INCLUDE_DIR}")
-        ENDIF (NOT OpenBLAS_FIND_QUIETLY)
-    ELSE (OpenBLAS_FOUND)
+        ENDIF()
+    ELSE()
         IF (OpenBLAS_FIND_REQUIRED)
             MESSAGE(FATAL_ERROR "Could not find OpenBLAS")
-        ENDIF (OpenBLAS_FIND_REQUIRED)
-    ENDIF (OpenBLAS_FOUND)
-
+        ENDIF()
+    ENDIF()
 endif()
 
 MARK_AS_ADVANCED(
