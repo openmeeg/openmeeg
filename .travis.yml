@@ -11,6 +11,7 @@ matrix:
         - USE_PROJECT=1
         - USE_CGAL=1
         - USE_VTK=1
+        - USE_PYTHON=1
     - os: osx
       compiler: clang
       env:
@@ -41,6 +42,7 @@ matrix:
         - BLASLAPACK_IMPLEMENTATION=OpenBLAS
         - USE_CGAL=1
         - USE_VTK=1
+        - USE_PYTHON=1
     - os: linux
       compiler: gcc
       env:

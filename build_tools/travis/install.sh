@@ -19,12 +19,6 @@ function install_matio {  # Install MATIO
     cd ../../
 }
 
-if [[ $USE_PYTHON == "1" ]]; then
-    ENABLE_PYTHON=ON
-else
-    ENABLE_PYTHON=OFF
-fi
-
 if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
     if [[ "$USE_PROJECT" == "0" ]]; then
         # Build OpenMEEG and use openblas from homebrew
@@ -33,7 +27,7 @@ if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
             -DBUILD_SHARED:BOOL=ON \
             -DBUILD_DOCUMENTATION:BOOL=OFF \
             -DBUILD_TESTING:BOOL=ON \
-            -DENABLE_PYTHON:BOOL=${ENABLE_PYTHON} \
+            -DENABLE_PYTHON:BOOL=${USE_PYTHON} \
             -DENABLE_PACKAGING:BOOL=ON \
             -DUSE_VTK:BOOL=${USE_VTK} \
             -DUSE_CGAL:BOOL=${USE_CGAL} \
@@ -44,7 +38,7 @@ if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
         cmake \
             -DBUILD_DOCUMENTATION:BOOL=OFF \
             -DBUILD_TESTING:BOOL=ON \
-            -DENABLE_PYTHON:BOOL=${ENABLE_PYTHON} \
+            -DENABLE_PYTHON:BOOL=${USE_PYTHON} \
             -DENABLE_PACKAGING:BOOL=ON \
             -DUSE_VTK:BOOL=${USE_VTK} \
             -DUSE_CGAL:BOOL=${USE_CGAL} \
@@ -63,7 +57,7 @@ else
             -DBUILD_SHARED:BOOL=ON \
             -DBUILD_DOCUMENTATION:BOOL=OFF \
             -DBUILD_TESTING:BOOL=ON \
-            -DENABLE_PYTHON:BOOL=${ENABLE_PYTHON} \
+            -DENABLE_PYTHON:BOOL=${USE_PYTHON} \
             -DENABLE_PACKAGING:BOOL=ON \
             -DUSE_VTK:BOOL=${USE_VTK} \
             -DUSE_CGAL:BOOL=${USE_CGAL} \
@@ -74,7 +68,7 @@ else
         cmake \
             -DBUILD_DOCUMENTATION:BOOL=OFF \
             -DBUILD_TESTING:BOOL=ON \
-            -DENABLE_PYTHON:BOOL=${ENABLE_PYTHON} \
+            -DENABLE_PYTHON:BOOL=${USE_PYTHON} \
             -DENABLE_PACKAGING:BOOL=ON \
             -DUSE_VTK:BOOL=${USE_VTK} \
             -DUSE_CGAL:BOOL=${USE_CGAL} \
