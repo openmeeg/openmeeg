@@ -23,14 +23,14 @@ matrix:
       compiler: clang
       env:
         - USE_PROJECT=0
-        - USE_SYSTEM=0
         - BLASLAPACK_IMPLEMENTATION=Auto
     - os: linux
       compiler: clang
       env:
-        - USE_SYSTEM=0
+        - USE_SYSTEM=1
         - USE_PROJECT=1
         - BUILD_DOCUMENTATION=1
+        - BLASLAPACK_IMPLEMENTATION=LAPACK
     - os: linux
       compiler: gcc
       env:
@@ -44,6 +44,13 @@ matrix:
         - USE_SYSTEM=0
         - USE_PROJECT=1
         - BLASLAPACK_IMPLEMENTATION=LAPACK
+    - os: linux
+      compiler: gcc
+      env:
+        - USE_PROJECT=0
+        - USE_CGAL=1
+        - USE_VTK=1
+        - BLASLAPACK_IMPLEMENTATION=Atlas
 before_install:
   - source build_tools/travis/before_install.sh
 install: source build_tools/travis/install.sh

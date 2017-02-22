@@ -25,7 +25,7 @@ if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
     fi
 
     if [[ "$USE_VTK" == "1" ]]; then
-        brew install vtk --with-qt --with-qt5 --with-python 
+        brew install vtk
     fi
 
     if [[ "$USE_CGAL" == 1 ]]; then
@@ -54,7 +54,12 @@ else
     fi
 
     if [[ "$BLASLAPACK_IMPLEMENTATION" == "Atlas" ]]; then
-        sudo apt-get install -y libatlas-dev libatlas-base-dev libblas-dev liblapack-dev
+        sudo apt-get install -y libatlas-dev libatlas-base-dev
+    elif [[ "$BLASLAPACK_IMPLEMENTATION" == "LAPACK" ]]; then
+        sudo apt-get install -y libblas-dev
+        if [[ "$USE_PROJECT" == "0" || "$USE_SYSTEM" == "1" ]]; then
+            sudo apt-get install -y liblapack-dev libblas-dev
+        fi
     else
         sudo apt-get install -y libopenblas-dev liblapacke-dev
     fi
