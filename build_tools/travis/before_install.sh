@@ -19,23 +19,22 @@ if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
         brew install swig
     fi
 
-    # brew install Doxygen  # For building documentation
-
     if [[ "$BLASLAPACK_IMPLEMENTATION" == "OpenBLAS" ]]; then
-        # brew install liblapacke ?
         brew install openblas
         brew link openblas --force  # required as link is not automatic
     fi
 
     if [[ "$USE_VTK" == "1" ]]; then
-        brew install vtk
+        brew install vtk --with-qt --with-qt5 --with-python 
     fi
 
     if [[ "$USE_CGAL" == 1 ]]; then
-        brew install  --with-qt5 cgal
+        brew reinstall --with-qt5 cgal
     fi
 
-    brew install cmake
+    if [[ "$BUILD_DOCUMENTATION" == "1" ]]; then
+        brew install Doxygen  # For building documentation
+    fi
 
 else
     # Install some custom requirements on Linux
@@ -46,7 +45,7 @@ else
         export CXX="clang++-3.4";
     fi
 
-    if [[ "$USE_SYSTEM" == "1" ]]; then
+    if [[ "$USE_PROJECT" == "0" || "$USE_SYSTEM" == "1" ]]; then
         sudo apt-get install -y libhdf5-serial-dev libmatio-dev
     fi
 
@@ -68,5 +67,7 @@ else
         sudo apt-get install libvtk5-dev
     fi
 
-    # sudo apt-get install doxygen
+    if [[ "$BUILD_DOCUMENTATION" == "1" ]]; then
+        sudo apt-get install doxygen
+    fi
 fi

@@ -18,31 +18,26 @@ matrix:
         - USE_SYSTEM=1
         - USE_PROJECT=1
         - BLASLAPACK_IMPLEMENTATION=vecLib
+        - BUILD_DOCUMENTATION=1
     - os: osx
       compiler: clang
       env:
         - USE_PROJECT=0
         - USE_SYSTEM=0
         - BLASLAPACK_IMPLEMENTATION=Auto
-    - os: osx
-      compiler: clang
-      env:
-        - USE_PROJECT=0
-        - BLASLAPACK_IMPLEMENTATION=OpenBLAS
     - os: linux
       compiler: clang
       env:
         - USE_SYSTEM=0
         - USE_PROJECT=1
+        - BUILD_DOCUMENTATION=1
     - os: linux
       compiler: gcc
       env:
         - USE_SYSTEM=1
         - USE_PROJECT=1
-        - BLASLAPACK_IMPLEMENTATION=OpenBLAS
         - USE_CGAL=1
         - USE_VTK=1
-        - USE_PYTHON=1
     - os: linux
       compiler: gcc
       env:
