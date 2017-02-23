@@ -32,7 +32,7 @@ endif()
 
 message("-:- ${SWIG_SRC_FILE} :: ${SWIG_SRC_FILE_NAME} :_:")
 SWIG_ADD_MODULE(${MODULE_NAME} python ${SWIG_SRC_FILE} "")
-SWIG_LINK_LIBRARIES(${MODULE_NAME} ${PYTHON_LIBRARIES} OpenMEEG ${LAPACK_LIBRARIES})
+SWIG_LINK_LIBRARIES(${MODULE_NAME} ${PYTHON_LIBRARIES} OpenMEEG ${LAPACK_LIBRARIES} ${VTK_LIBRARIES})
 
 exec_program("${PYTHON_EXECUTABLE}"
              ARGS "-c \"from distutils.sysconfig import get_python_lib; print get_python_lib(1)\""
