@@ -158,7 +158,7 @@ namespace OpenMEEG {
         SymMatrix A(*this,DEEP_COPY);
         // LU
         int *pivots=new int[nlin()];
-        int Info;
+        int Info = 0;
         DSPTRF('U',A.nlin(),A.data(),pivots,Info);
         // Solve the linear system AX=B
         DSPTRS('U',A.nlin(),RHS.ncol(),A.data(),pivots,RHS.data(),A.nlin(),Info);
