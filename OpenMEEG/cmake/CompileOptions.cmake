@@ -26,7 +26,6 @@ if (UNIX)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 endif()
 
-
 if (USE_GCC)
     set(CXX_WARNING_OPTIONS "-Wall -W -Wno-unknown-pragmas -Wshadow -Wunused-variable -Wunused-parameter -Wunused -Wno-system-headers -Wno-deprecated -Woverloaded-virtual -Wwrite-strings")
     set(CC_WARNING_OPTIONS "-Wall -W -Wno-unknown-pragmas -Wshadow -Wunused-variable -Wunused-parameter -Wunused -Wno-system-headers -Wwrite-strings")
