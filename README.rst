@@ -52,7 +52,7 @@ On Debian/Ubuntu you will need to install the dependencies with::
 
 *optionally*::
 
-    sudo apt-get install libhdf5-serial-dev libmatio-dev python-dev python-numpy swig libvtk5-dev doxygen libcgal-dev
+    sudo apt-get install libhdf5-serial-dev libmatio-dev python-dev python-numpy swig libvtk6-dev doxygen libcgal-dev
 
 On Fedora and Centos::
 
@@ -93,6 +93,8 @@ then::
     $ cd build
     $ cmake -DBUILD_TESTING=ON -DCMAKE_BUILD_TYPE=Release -DUSE_PROGRESSBAR=ON -DBUILD_DOCUMENTATION=OFF -DENABLE_PYTHON=OFF ..
     $ make
+
+OpenMEEG will download and compile the **zlib**, **hdf5**, and **matio** by default. In case your system already provides these libraries (see optional packages), you should specify the following variables to the cmake command line: "-DUSE_SYSTEM_zlib=ON -DUSE_SYSTEM_hdf5=ON -DUSE_SYSTEM_matio=ON".
 
 You will need to define more CMake variables if you want the support for:
 
