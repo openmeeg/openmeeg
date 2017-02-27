@@ -190,6 +190,8 @@ namespace OpenMEEG {
             for (unsigned j = 0; j < data.ncol(); ++j) {
                 std::stringstream sdip;
                 sdip << j;
+                potentials[j] = vtkSmartPointer<vtkDoubleArray>::New();
+                currents[j]   = vtkSmartPointer<vtkDoubleArray>::New();
                 potentials[j]->SetName(("Potentials-"+sdip.str()).c_str());
                 currents[j]->SetName(("Currents-"+sdip.str()).c_str());
 
