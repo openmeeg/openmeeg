@@ -191,6 +191,7 @@ namespace OpenMEEG {
     if ( nlin()*ncol() != 0 ) {
         double Info;
         return DLANGE('F',nlin(),ncol(),data(),nlin(),&Info);
+        om_assert(Info==0);
     } else {
         return 0;
     }

@@ -147,11 +147,12 @@ namespace OpenMEEG {
     #ifdef HAVE_LAPACK
         // Bunch Kaufman Factorization
         int *pivots=new int[nlin()];
-        int Info;
+        int Info = 0;
         DSPTRF('U',invA.nlin(),invA.data(),pivots,Info);
         // Inverse
         DSPTRS('U',invA.nlin(),1,invA.data(),pivots,X.data(),invA.nlin(),Info);
 
+        om_assert(Info==0);
         delete[] pivots;
     #else
         std::cout << "solveLin not defined" << std::endl;
@@ -166,13 +167,14 @@ namespace OpenMEEG {
     #ifdef HAVE_LAPACK
         // Bunch Kaufman Factorization
         int *pivots=new int[nlin()];
-        int Info;
+        int Info = 0;
         //char *uplo="U";
         DSPTRF('U',invA.nlin(),invA.data(),pivots,Info);
         // Inverse
         for(int i = 0; i < nbvect; i++)
             DSPTRS('U',invA.nlin(),1,invA.data(),pivots,B[i].data(),invA.nlin(),Info);
 
+        om_assert(Info==0);
         delete[] pivots;
     #else
         std::cout << "solveLin not defined" << std::endl;
@@ -207,6 +209,7 @@ namespace OpenMEEG {
         int Info;
         DPPTRF('U',nlin(),invA.data(),Info);
         DPPTRI('U',nlin(),invA.data(),Info);
+        om_assert(Info==0);
     #else
         std::cerr << "Positive definite inverse not defined" << std::endl;
     #endif
@@ -305,6 +308,7 @@ namespace OpenMEEG {
         int sz = (int) this->nlin() * 64;
         double *work = new double[sz];
         DSPTRI('U', nlin(), invA.data(), pivots, work, Info);
+        om_assert(Info==0);
 
         delete[] pivots;
         delete[] work;
@@ -326,6 +330,7 @@ namespace OpenMEEG {
         double *work = new double[sz];
         DSPTRI('U', nlin(), data(), pivots, work, Info);
 
+        om_assert(Info==0);
         delete[] pivots;
         delete[] work;
         return;
