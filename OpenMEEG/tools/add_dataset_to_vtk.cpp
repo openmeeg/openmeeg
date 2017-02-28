@@ -99,8 +99,8 @@ int main(int argc, char *argv[])
         }
         array->SetName(dataname.str().c_str());
 
-        if (data.nlin() == nbPoints) mesh->GetPointData()->AddArray(array);
-        else if (data.nlin() == nbCells) mesh->GetCellData()->AddArray(array);
+        if (data.nlin() == (size_t)nbPoints) mesh->GetPointData()->AddArray(array);
+        else if (data.nlin() == (size_t)nbCells) mesh->GetCellData()->AddArray(array);
         else {
             std::cerr << "Something's wrong ! got a mesh with " << nbPoints << " points and " << nbCells << " cells, and ("<< data.nlin() << ","<< data.ncol() <<") data. Don't know what to do with them !" << std::endl;
             return usage(argv[0]);

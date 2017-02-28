@@ -53,7 +53,7 @@ namespace OpenMEEG
 
     using namespace std;
 
-    static double dpc(const Vect3& p, const Triangle& triangle, Vect3& alphas, int nb, int* idx, bool& inside)
+    static double dpc(const Vect3& p, const Triangle& triangle, Vect3& alphas, unsigned nb, int* idx, bool& inside)
     {
         if ( nb == 1 ) {
             alphas(idx[0]) = 1.0;
