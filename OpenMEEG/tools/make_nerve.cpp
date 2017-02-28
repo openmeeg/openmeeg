@@ -68,10 +68,10 @@ using namespace OpenMEEG;
 
 void getHelp(char** argv);
 
-void decoupe (double dt, double x, int*nx, double*dx)
+void decoupe (double dt, double x, int* nx, double* dx)
 {
     *nx = (int)(x/dt + 0.5);
-    *nx = (nx > 0)?*nx:1;
+    *nx = (*nx > 0)?*nx:1;
     *dx = x/ *nx;
 }
 

@@ -186,7 +186,7 @@ namespace OpenMEEG {
 
         inline Integrator()             { setOrder(3);   }
         inline Integrator(unsigned ord) { setOrder(ord); }
-        inline ~Integrator() {}
+        inline virtual ~Integrator() {}
 
         inline void setOrder(const unsigned n) 
         {

@@ -85,7 +85,6 @@ int main( int argc, char **argv) {
     {
         Meshes meshes;
 
-        unsigned nb_vertices = 0;
         unsigned i_input     = 0;
 
         // first only read the number of inputs

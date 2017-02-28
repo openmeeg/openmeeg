@@ -148,7 +148,7 @@ namespace OpenMEEG {
     public:
         const unsigned& nb_current_barrier_triangles() const { return nb_current_barrier_triangles_; }
               unsigned& nb_current_barrier_triangles()       { return nb_current_barrier_triangles_; }
-        const unsigned  nb_invalid_vertices()          const { return invalid_vertices_.size();      }
+              unsigned  nb_invalid_vertices()          const { return invalid_vertices_.size();      }
         const std::vector<std::vector<std::string> >& geo_group() const { return geo_group_; }
               void  mark_current_barrier();
         const Mesh& mesh(const std::string& id) const;

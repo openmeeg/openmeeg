@@ -121,8 +121,8 @@ namespace OpenMEEG {
         // XXX output is now V.transpose() not V (now as in Lapack and numpy)
     #ifdef HAVE_LAPACK
         Matrix cpy(*this,DEEP_COPY);
-        int mini = (int)std::min(nlin(),ncol());
-        int maxi = (int)std::max(nlin(),ncol());
+        size_t mini = std::min(nlin(),ncol());
+        size_t maxi = std::max(nlin(),ncol());
         U = Matrix(nlin(),nlin()); U.set(0);
         S = SparseMatrix(nlin(),ncol());
         V = Matrix(ncol(),ncol()); V.set(0);
