@@ -10,7 +10,12 @@
 
 #define CLAPACK_INTERFACE
 
-#define DLANGE(X1,X2,X3,X4,X5,X6)       LAPACK(dlange,DLANGE)(LAPACK_COL_MAJOR,X1,X2,X3,X4,X5)
+
+extern "C" {
+    double dlange(const char&,const int&,const int&,double*,const int&,double*);
+}
+
+#define DLANGE dlange
 
 #define DSPTRF(X1,X2,X3,X4,X5)          LAPACK(dsptrf,DSPTRF)(LAPACK_COL_MAJOR,X1,X2,X3,X4)
 #define DSPTRS(X1,X2,X3,X4,X5,X6,X7,X8) LAPACK(dsptrs,DSPTRS)(LAPACK_COL_MAJOR,X1,X2,X3,X4,X5,X6,X7)
