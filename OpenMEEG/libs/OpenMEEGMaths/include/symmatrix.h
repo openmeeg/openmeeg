@@ -222,7 +222,7 @@ namespace OpenMEEG {
     #ifdef HAVE_LAPACK
         // Bunch Kaufmqn
         int *pivots=new int[nlin()];
-        int Info;
+        int Info = 0;
         // TUDUtTt
         DSPTRF('U',invA.nlin(),invA.data(),pivots,Info);
         if(Info<0)
