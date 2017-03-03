@@ -19,7 +19,7 @@ if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
         brew install swig
     fi
 
-    if [[ "$BLASLAPACK_IMPLEMENTATION" != "vecLib" ]]; then
+    if [[ "$BLASLAPACK_IMPLEMENTATION" == "OpenBLAS" || "$BLASLAPACK_IMPLEMENTATION" == "vecLib" ]]; then
         brew install openblas
         brew link openblas --force  # required as link is not automatic
     fi

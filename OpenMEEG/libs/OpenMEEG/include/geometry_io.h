@@ -170,7 +170,7 @@ namespace OpenMEEG {
         vtkSmartPointer<vtkStringArray>      cell_id  = vtkSmartPointer<vtkStringArray>::New(); // ids/mesh name
         vtkSmartPointer<vtkUnsignedIntArray> cell_indices = vtkSmartPointer<vtkUnsignedIntArray>::New(); // indices
         vtkSmartPointer<vtkUnsignedIntArray> point_indices = vtkSmartPointer<vtkUnsignedIntArray>::New(); // indices
-        std::vector<vtkSmartPointer<vtkDoubleArray> > potentials(data.ncol()); // potential on vestices
+        std::vector<vtkSmartPointer<vtkDoubleArray> > potentials(data.ncol()); // potential on vertices
         std::vector<vtkSmartPointer<vtkDoubleArray> > currents(data.ncol()); // current on triangles
 
         normals->SetNumberOfComponents(3); // 3d normals (ie x, y, z)
