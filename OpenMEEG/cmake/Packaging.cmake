@@ -2,6 +2,8 @@
 # packaging
 #-----------------------------------------------
 
+option(ENABLE_PACKAGING "Enable Packaging" OFF)
+
 if (ENABLE_PACKAGING)
     set(PACKAGE_COMPILER ${CMAKE_CXX_COMPILER})
     if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")

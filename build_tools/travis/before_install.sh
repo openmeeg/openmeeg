@@ -19,7 +19,7 @@ if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
         brew install swig
     fi
 
-    if [[ "$BLASLAPACK_IMPLEMENTATION" == "OpenBLAS" || "$BLASLAPACK_IMPLEMENTATION" == "vecLib" ]]; then
+    if [[ "$BLASLAPACK_IMPLEMENTATION" == "OpenBLAS" || "$BLASLAPACK_IMPLEMENTATION" == "Auto" ]]; then
         brew install openblas
         brew link openblas --force  # required as link is not automatic
     fi
@@ -56,7 +56,6 @@ else
     if [[ "$BLASLAPACK_IMPLEMENTATION" == "Atlas" ]]; then
         sudo apt-get install -y libatlas-dev libatlas-base-dev
     elif [[ "$BLASLAPACK_IMPLEMENTATION" == "LAPACK" ]]; then
-        sudo apt-get install -y libblas-dev
         if [[ "$USE_PROJECT" == "0" || "$USE_SYSTEM" == "1" ]]; then
             sudo apt-get install -y liblapack-dev libblas-dev
         fi

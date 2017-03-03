@@ -136,7 +136,7 @@ function(FortranCInterface_HEADER file)
   endforeach()
 
   #set(FortranCInterface_SOURCE_DIR ${CMAKE_ROOT}/Modules/FortranCInterface)
-  set(FortranCInterface_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/cmake/FortranCInterface)
+  set(FortranCInterface_SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/FortranCInterface)
 
   # Create the interface detection project if it does not exist.
   if(NOT FortranCInterface_BINARY_DIR)

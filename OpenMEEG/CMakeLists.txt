@@ -59,14 +59,10 @@ test_big_endian(WORDS_BIGENDIAN)
 # External Libraries
 #######################################################################
 
-include(UseOpenMP)
-include(UseVTK)
-include(UseGifti)
-include(UseCGAL)
-include(ProgressBar)
-include(BlasLapackOption)
-include(BlasLapack)
+# Options
+include(OpenMEEGOptions)
 
+# Dependencies
 Dependencies(OpenMEEG matio)
 
 #   We may want to make these warning fatal errors in a while.
@@ -153,16 +149,11 @@ endif()
 # documentation
 #-----------------------------------------------
 
-option(BUILD_DOCUMENTATION "Build Doxygen documentation" OFF)
-option(BUILD_TUTORIALS "Build Tutorials" OFF)
-
 add_subdirectory(documentation)
 
 #-----------------------------------------------
 # Wrapping
 #-----------------------------------------------
-
-option(ENABLE_PYTHON "Enable Python Wrapping" OFF)
 
 if (ENABLE_PYTHON AND NOT BUILD_SHARED_LIBS)
     message(SEND_ERROR "Python wrapping does not work with static build, consider changing the BUILD_SHARED_LIBS option.")

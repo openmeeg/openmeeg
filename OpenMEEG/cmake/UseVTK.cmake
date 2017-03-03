@@ -2,6 +2,8 @@
 # VTK library
 #------------------------------------------------------------
 
+option(USE_VTK "Use VTK" OFF)
+
 if (USE_VTK)
     find_package(VTK COMPONENTS vtkIOXML vtkIOLegacy NO_MODULE)
     if (VTK_FOUND)

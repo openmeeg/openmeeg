@@ -1,10 +1,8 @@
 #pragma once
 
-#include <BlasLapackImplementations/FortranCInterface.h>
+#define FC_GLOBAL(x,X) x ## _
 
-extern "C" {
-    #include <cblas.h>
-}
+#include <cblas.h>
 #include <lapacke.h>
 #undef I // undefine this def due to complex.h that causes issues later
 

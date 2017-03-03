@@ -22,11 +22,11 @@ endif()
 # Set the possible values of build type for cmake-gui
 set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "RelWithDebInfo" "MinSizeRel")
 
-set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake ${CMAKE_CURRENT_SOURCE_DIR}/OpenMEEG/cmake ${CMAKE_MODULE_PATH})
+set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake ${CMAKE_CURRENT_SOURCE_DIR}/OpenMEEG/cmake ${CMAKE_SOURCE_DIR}/OpenMEEG/cmake/FortranCInterface ${CMAKE_MODULE_PATH})
 
 project(OpenMEEG-superProject ${PROJECT_VERSION})  # XXX don't call it super project
 
-# Setup everything (MODULE_PATH, check environment, basic targets
+# Setup everything (MODULE_PATH, check environment, basic targets, options
 
 include(Setup)
 
@@ -60,7 +60,7 @@ if (WIN32 AND NOT CYGWIN_INSTALL_PATH)
     endif()
 endif()
 
-if (USE_LAPACK)
+if (NOT LAPACK_LIBRARIES AND USE_LAPACK)
     set(LAPACK clapack)
     option(CLAPACK_BUILD_TESTING "Build CLAPACK tests" OFF)
 endif()

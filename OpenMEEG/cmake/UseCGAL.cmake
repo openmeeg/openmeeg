@@ -2,6 +2,8 @@
 # CGAL library
 #------------------------------------------------------------
 
+option(USE_CGAL "Use CGAL meshing tools" OFF)
+
 if (USE_CGAL)
     find_package(CGAL REQUIRED COMPONENTS Core ImageIO)
 
