@@ -2,8 +2,6 @@
 # GIFTI C library
 #------------------------------------------------------------
 
-option(USE_GIFTI "Use GIFTI IO support" OFF)
-
 if (USE_GIFTI)
     find_package(EXPAT)
     find_package(ZLIB)

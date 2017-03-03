@@ -60,9 +60,9 @@ test_big_endian(WORDS_BIGENDIAN)
 #######################################################################
 
 include(UseOpenMP)
-include(UseVtk)
+include(UseVTK)
 include(UseGifti)
-include(UseCgal)
+include(UseCGAL)
 include(ProgressBar)
 include(BlasLapackOption)
 include(BlasLapack)

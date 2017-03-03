@@ -46,7 +46,7 @@ namespace OpenMEEG {
 
     inline double integral_simplified_green(const Vect3& p0x, const double norm2p0x,
                                             const Vect3& p1x, const double norm2p1x,
-                                            const Vect3& p1p0, const double norm2p1p0) 
+                                            const Vect3& p1p0, const double norm2p1p0)
     {
         //  The quantity arg is normally >= 1, verifying this relates to a triangular inequality
         //  between p0, p1 and x.
