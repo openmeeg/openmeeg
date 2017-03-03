@@ -13,10 +13,8 @@ if (BLASLAPACK_IMPLEMENTATION)
 endif()
 
 # the list of possibilites depending on the OS
-set(LIST_IMPL "Auto" "LAPACK" "OpenBLAS")
-if (WIN32)
-    set(LIST_IMPL ${LIST_IMPL} "MKL")
-elseif (APPLE)
+set(LIST_IMPL "Auto" "MKL" "LAPACK" "OpenBLAS")
+if (APPLE)
     set(LIST_IMPL ${LIST_IMPL} "vecLib")
 else()
     set(LIST_IMPL ${LIST_IMPL} "Atlas")
