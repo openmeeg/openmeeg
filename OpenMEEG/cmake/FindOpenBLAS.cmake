@@ -6,7 +6,7 @@ if (OpenBLAS_FOUND) # the git version propose a OpenBLASConfig.cmake
     set(OpenBLAS_INCLUDE_DIR ${OpenBLAS_INCLUDE_DIRS})
     set(OpenBLAS_LIB ${OpenBLAS_LIBRARIES})
 else()
-    SET(OpenBLAS_INCLUDE_SEARCH_PATHS
+    set(OpenBLAS_INCLUDE_SEARCH_PATHS
         /usr/include
         /usr/include/openblas
         /usr/include/openblas-base
@@ -18,7 +18,7 @@ else()
         $ENV{OpenBLAS_HOME}/include
         )
 
-    SET(OpenBLAS_LIB_SEARCH_PATHS
+    set(OpenBLAS_LIB_SEARCH_PATHS
         /lib/
         /lib/openblas-base
         /lib64/
@@ -34,42 +34,42 @@ else()
         $ENV{OpenBLAS_HOME}/lib
         )
 
-    FIND_PATH(OpenBLAS_INCLUDE_DIR NAMES openblas_config.h lapacke.h PATHS ${OpenBLAS_INCLUDE_SEARCH_PATHS})
-    FIND_LIBRARY(OpenBLAS_LIB NAMES openblas PATHS ${OpenBLAS_LIB_SEARCH_PATHS})
+    find_path(OpenBLAS_INCLUDE_DIR NAMES openblas_config.h lapacke.h PATHS ${OpenBLAS_INCLUDE_SEARCH_PATHS})
+    find_library(OpenBLAS_LIB NAMES openblas PATHS ${OpenBLAS_LIB_SEARCH_PATHS})
     # mostly for debian
-    FIND_LIBRARY(Lapacke_LIB NAMES lapacke PATHS ${OpenBLAS_LIB_SEARCH_PATHS})
+    find_library(Lapacke_LIB NAMES lapacke PATHS ${OpenBLAS_LIB_SEARCH_PATHS})
 
-    SET(OpenBLAS_FOUND ON)
+    set(OpenBLAS_FOUND ON)
 
     #    Check include files
-    IF(NOT OpenBLAS_INCLUDE_DIR)
-        SET(OpenBLAS_FOUND OFF)
-        MESSAGE(STATUS "Could not find OpenBLAS include. Turning OpenBLAS_FOUND off")
-    ENDIF()
+    if(NOT OpenBLAS_INCLUDE_DIR)
+        set(OpenBLAS_FOUND OFF)
+        message(STATUS "Could not find OpenBLAS include. Turning OpenBLAS_FOUND off")
+    endif()
 
     #    Check libraries
-    IF(NOT OpenBLAS_LIB)
-        SET(OpenBLAS_FOUND OFF)
-        MESSAGE(STATUS "Could not find OpenBLAS lib. Turning OpenBLAS_FOUND off")
-    ENDIF()
+    if(NOT OpenBLAS_LIB)
+        set(OpenBLAS_FOUND OFF)
+        message(STATUS "Could not find OpenBLAS lib. Turning OpenBLAS_FOUND off")
+    endif()
 
-    IF (OpenBLAS_FOUND)
-        SET(OpenBLAS_LIBRARIES ${OpenBLAS_LIB})
-        IF (NOT Lapacke_LIB-NOTFOUND)
-            SET(OpenBLAS_LIBRARIES ${OpenBLAS_LIBRARIES} ${Lapacke_LIB})
+    if (OpenBLAS_FOUND)
+        set(OpenBLAS_LIBRARIES ${OpenBLAS_LIB})
+        if (NOT Lapacke_LIB-NOTFOUND)
+            set(OpenBLAS_LIBRARIES ${OpenBLAS_LIBRARIES} ${Lapacke_LIB})
         endif()
-        IF (NOT OpenBLAS_FIND_QUIETLY)
-            MESSAGE(STATUS "Found OpenBLAS libraries: ${OpenBLAS_LIBRARIES}")
-            MESSAGE(STATUS "Found OpenBLAS include: ${OpenBLAS_INCLUDE_DIR}")
-        ENDIF()
-    ELSE()
-        IF (OpenBLAS_FIND_REQUIRED)
-            MESSAGE(FATAL_ERROR "Could not find OpenBLAS")
-        ENDIF()
-    ENDIF()
+        if (NOT OpenBLAS_FIND_QUIETLY)
+            message(STATUS "Found OpenBLAS libraries: ${OpenBLAS_LIBRARIES}")
+            message(STATUS "Found OpenBLAS include: ${OpenBLAS_INCLUDE_DIR}")
+        endif()
+    else()
+        if (OpenBLAS_FIND_REQUIRED)
+            message(FATAL_ERROR "Could not find OpenBLAS")
+        endif()
+    endif()
 endif()
 
-MARK_AS_ADVANCED(
+mark_as_advanced(
     OpenBLAS_INCLUDE_DIR
     OpenBLAS_LIB
     OpenBLAS
