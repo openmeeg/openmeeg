@@ -1,6 +1,6 @@
 #pragma once
 
-#define FC_GLOBAL(x,X) x ## _
+#include <BlasLapackImplementations/FortranCInterface.h>
 
 #include <cblas.h>
 #include <lapacke.h>

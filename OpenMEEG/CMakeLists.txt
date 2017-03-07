@@ -139,8 +139,6 @@ endif()
 # tools
 #-----------------------------------------------
 
-option(BUILD_TOOLS "Build tools" ON)
-
 if (BUILD_TOOLS)
     subdirs(tools)
 endif()
@@ -154,7 +152,6 @@ add_subdirectory(documentation)
 #-----------------------------------------------
 # Wrapping
 #-----------------------------------------------
-
 if (ENABLE_PYTHON AND NOT BUILD_SHARED_LIBS)
     message(SEND_ERROR "Python wrapping does not work with static build, consider changing the BUILD_SHARED_LIBS option.")
 endif ()
@@ -254,7 +251,7 @@ install(FILES ${PROJECT_SOURCE_DIR}/LICENSE.txt  ${PROJECT_SOURCE_DIR}/../README
 install(FILES ${OpenMEEG_BINARY_DIR}/OpenMEEGConfigure.h
         DESTINATION ${OPENMEEG_HEADER_INSTALLDIR} COMPONENT Development)
 
-if (USE_ATLAS)
+    if (USE_ATLAS OR USE_LAPACK OR USE_OPENBLAS)
     install(FILES ${OpenMEEG_BINARY_DIR}/FC.h
             DESTINATION ${OPENMEEG_HEADER_INSTALLDIR} COMPONENT Development)
 endif()

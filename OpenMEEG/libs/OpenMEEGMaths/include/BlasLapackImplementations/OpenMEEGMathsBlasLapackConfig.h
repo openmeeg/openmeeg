@@ -1,6 +1,7 @@
 #pragma once
 
-#define FC_GLOBAL(x,X) x ## _
+#include <BlasLapackImplementations/FortranCInterface.h>
+
 #define CblasColMajor
 #define CblasTrans 'T'
 #define CblasNoTrans 'N'

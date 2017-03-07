@@ -22,7 +22,7 @@ endif()
 # Set the possible values of build type for cmake-gui
 set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "RelWithDebInfo" "MinSizeRel")
 
-set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake ${CMAKE_CURRENT_SOURCE_DIR}/OpenMEEG/cmake ${CMAKE_SOURCE_DIR}/OpenMEEG/cmake/FortranCInterface ${CMAKE_MODULE_PATH})
+set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake ${CMAKE_CURRENT_SOURCE_DIR}/OpenMEEG/cmake ${CMAKE_CURRENT_SOURCE_DIR}/OpenMEEG/cmake/FortranCInterface ${CMAKE_MODULE_PATH})
 
 project(OpenMEEG-superProject ${PROJECT_VERSION})  # XXX don't call it super project
 

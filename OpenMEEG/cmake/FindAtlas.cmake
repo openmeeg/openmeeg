@@ -39,7 +39,7 @@ find_atlas_lib(clapack)
 find_atlas_lib(lapack)
 find_atlas_lib(cblas f77blas blas)
 
-if(Atlas_LIBRARIES)
+if(Atlas_LIBRARIES AND Atlas_INCLUDE_DIR)
     set(Atlas_FOUND true)
     mark_as_advanced(Atlas_INCLUDE_DIR)
 else()

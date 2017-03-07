@@ -428,7 +428,7 @@ namespace OpenMEEG {
             }
         }
         std::cout << "gamma = " << gamma << std::endl;
-        
+
         G.invert();
         mat = (G * H.transpose() * (H * G * H.transpose()).inverse()).submat(0, Nc, Nl, M.nlin());
     }
