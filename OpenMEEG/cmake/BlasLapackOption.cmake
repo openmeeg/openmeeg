@@ -45,7 +45,7 @@ include(Use${BLASLAPACK_IMPLEMENTATION})
 
 if (${CMAKE_PROJECT_NAME} STREQUAL "OpenMEEG" OR LAPACK_LIBRARIES)
 
-    message("Lapack package: ${LAPACK}: ${LAPACK_LIBRARIES}")
+    message(STATUS "Lapack package: ${LAPACK}: ${LAPACK_LIBRARIES}")
 
     # Detect Fortran to C interface. (XXX only ATLAS ?)
     if (NOT USE_MKL AND NOT WIN32 AND NOT USE_LAPACK)

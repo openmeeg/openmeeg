@@ -29,7 +29,7 @@ if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
     fi
 
     if [[ "$USE_CGAL" == 1 ]]; then
-        brew reinstall --with-qt5 cgal
+        brew install cgal
     fi
 
     if [[ "$BUILD_DOCUMENTATION" == "1" ]]; then
