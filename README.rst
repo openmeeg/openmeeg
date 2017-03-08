@@ -150,9 +150,9 @@ and generate the visual studio project. You can then open it and build the proje
 
 Supported Blas-Lapack Implementations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-- on Linux: `OpenBLAS <http://www.openblas.net/>`_, `Atlas <http://math-atlas.sourceforge.net>`_, Lapack
+- on Linux: `Intel MKL <http://software.intel.com/en-us/intel-mkl/>`_ , `OpenBLAS <http://www.openblas.net/>`_, `Atlas <http://math-atlas.sourceforge.net>`_, Lapack
 
-- on Mac OS X: `OpenBLAS <http://www.openblas.net/>`_, `vecLib <https://developer.apple.com/reference/accelerate/veclib>`_
+- on Mac OS X: `Intel MKL <http://software.intel.com/en-us/intel-mkl/>`_ , `OpenBLAS <http://www.openblas.net/>`_, `vecLib <https://developer.apple.com/reference/accelerate/veclib>`_
 
 - on Windows: `Intel MKL <http://software.intel.com/en-us/intel-mkl/>`_ , `Clapack <https://github.com/openmeeg/clapack>`_
 
