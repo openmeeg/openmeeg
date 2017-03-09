@@ -302,7 +302,7 @@ namespace OpenMEEG {
         SymMatrix invA(*this, DEEP_COPY);
         // LU
         int *pivots = new int[nlin()];
-        int Info;
+        int Info = 0;
         DSPTRF('U', nlin(), invA.data(), pivots, Info);
         // Inverse
         int sz = (int) this->nlin() * 64;
@@ -323,7 +323,7 @@ namespace OpenMEEG {
     #ifdef HAVE_LAPACK
         // LU
         int *pivots = new int[nlin()];
-        int Info;
+        int Info = 0;
         DSPTRF('U', nlin(), data(), pivots, Info);
         // Inverse
         int sz = (int) this->nlin() * 64;

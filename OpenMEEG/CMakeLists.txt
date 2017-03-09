@@ -59,13 +59,10 @@ test_big_endian(WORDS_BIGENDIAN)
 # External Libraries
 #######################################################################
 
-include(VtkOption)
-include(GiftiOption)
-include(UseOpenMP)
-include(ProgressBar)
-include(BlasLapackOption)
-include(BlasLapack)
+# Options
+include(OpenMEEGOptions)
 
+# Dependencies
 Dependencies(OpenMEEG matio)
 
 #   We may want to make these warning fatal errors in a while.
@@ -142,8 +139,6 @@ endif()
 # tools
 #-----------------------------------------------
 
-option(BUILD_TOOLS "Build tools" ON)
-
 if (BUILD_TOOLS)
     subdirs(tools)
 endif()
@@ -152,17 +147,11 @@ endif()
 # documentation
 #-----------------------------------------------
 
-option(BUILD_DOCUMENTATION "Build Doxygen documentation" OFF)
-option(BUILD_TUTORIALS "Build Tutorials" OFF)
-
 add_subdirectory(documentation)
 
 #-----------------------------------------------
 # Wrapping
 #-----------------------------------------------
-
-option(ENABLE_PYTHON "Enable Python Wrapping" OFF)
-
 if (ENABLE_PYTHON AND NOT BUILD_SHARED_LIBS)
     message(SEND_ERROR "Python wrapping does not work with static build, consider changing the BUILD_SHARED_LIBS option.")
 endif ()
@@ -262,7 +251,7 @@ install(FILES ${PROJECT_SOURCE_DIR}/LICENSE.txt  ${PROJECT_SOURCE_DIR}/../README
 install(FILES ${OpenMEEG_BINARY_DIR}/OpenMEEGConfigure.h
         DESTINATION ${OPENMEEG_HEADER_INSTALLDIR} COMPONENT Development)
 
-if (USE_ATLAS)
+if (NOT USE_MKL AND NOT WIN32)
     install(FILES ${OpenMEEG_BINARY_DIR}/FC.h
             DESTINATION ${OPENMEEG_HEADER_INSTALLDIR} COMPONENT Development)
 endif()

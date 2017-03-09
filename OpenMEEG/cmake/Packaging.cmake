@@ -2,7 +2,7 @@
 # packaging
 #-----------------------------------------------
 
-option(ENABLE_PACKAGING "Enable Packaging" ON)
+option(ENABLE_PACKAGING "Enable Packaging" OFF)
 
 if (ENABLE_PACKAGING)
     set(PACKAGE_COMPILER ${CMAKE_CXX_COMPILER})

@@ -33,7 +33,7 @@ set(MKL_THREAD_VARIANTS SEQUENTIAL GNUTHREAD INTELTHREAD)
 set(MKL_MODE_VARIANTS ILP LP)
 set(MKL_MPI_VARIANTS NOMPI INTELMPI OPENMPI SGIMPT)
 
-set(CMAKE_FIND_DEBUG_MODE 1)
+#set(CMAKE_FIND_DEBUG_MODE 1)
 
 set(MKL_POSSIBLE_LOCATIONS
     $ENV{MKLDIR}
@@ -59,19 +59,20 @@ endforeach()
 #   Does This work at all ?
 find_path(MKL_ROOT_DIR NAMES include/mkl_cblas.h PATHS ${MKL_POSSIBLE_LOCATIONS})
 
-IF (NOT MKL_ROOT_DIR)
-	MESSAGE(WARNING "Could not find MKL: disabling it")
-	set(USE_MKL FALSE)
-endif()
-
-if (USE_MKL)
+if (NOT MKL_ROOT_DIR)
+    if (MKL_FIND_REQUIRED)
+        MESSAGE(FATAL_ERROR "Could not find MKL: please provide MKL_DIR or environment {MKLDIR}")
+    else()
+        unset(MKL_ROOT_DIR CACHE)
+    endif()
+else()
     find_path(MKL_INCLUDE_DIR mkl_cblas.h PATHS ${MKL_ROOT_DIR}/include ${INCLUDE_INSTALL_DIR})
 
     find_path(MKL_FFTW_INCLUDE_DIR fftw3.h PATH_SUFFIXES fftw PATHS ${MKL_ROOT_DIR}/include ${INCLUDE_INSTALL_DIR} NO_DEFAULT_PATH)
 
     if (WIN32)
         set(MKL_LIB_SEARCHPATH $ENV{ICC_LIB_DIR} $ENV{MKL_LIB_DIR} "${MKL_ROOT_DIR}/lib/${MKL_ARCH_DIR}" "${MKL_ROOT_DIR}/../compiler" "${MKL_ROOT_DIR}/../compiler/lib/${MKL_ARCH_DIR}")
-        
+
         if (MKL_INCLUDE_DIR MATCHES "10.")
             set(MKL_LIBS mkl_solver mkl_core mkl_intel_c mkl_intel_s mkl_intel_thread libguide mkl_lapack95 mkl_blas95)
             if (CMAKE_CL_64)
@@ -95,7 +96,7 @@ if (USE_MKL)
         if (MKL_INCLUDE_DIR MATCHES "10.3")
             set(MKL_LIBS ${MKL_LIBS} libiomp5md)
         endif()
-        
+
         foreach (LIB ${MKL_LIBS})
             find_library(${LIB}_PATH ${LIB} PATHS ${MKL_LIB_SEARCHPATH} ENV LIBRARY_PATH)
             if (${LIB}_PATH)
@@ -159,7 +160,7 @@ if (USE_MKL)
         mark_as_advanced(MKL_CORE_LIBRARY MKL_LP_LIBRARY MKL_ILP_LIBRARY
             MKL_SEQUENTIAL_LIBRARY MKL_INTELTHREAD_LIBRARY MKL_GNUTHREAD_LIBRARY)
     endif()
-            
+
     #link_directories(${MKL_ROOT_DIR}/lib/${MKL_ARCH_DIR}) # hack
 
     include(FindPackageHandleStandardArgs)

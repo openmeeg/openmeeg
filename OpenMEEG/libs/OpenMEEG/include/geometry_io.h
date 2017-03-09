@@ -170,8 +170,8 @@ namespace OpenMEEG {
         vtkSmartPointer<vtkStringArray>      cell_id  = vtkSmartPointer<vtkStringArray>::New(); // ids/mesh name
         vtkSmartPointer<vtkUnsignedIntArray> cell_indices = vtkSmartPointer<vtkUnsignedIntArray>::New(); // indices
         vtkSmartPointer<vtkUnsignedIntArray> point_indices = vtkSmartPointer<vtkUnsignedIntArray>::New(); // indices
-        vtkSmartPointer<vtkDoubleArray>      potentials[data.ncol()]; // potential on vestices
-        vtkSmartPointer<vtkDoubleArray>      currents[data.ncol()]; // current on triangles
+        std::vector<vtkSmartPointer<vtkDoubleArray> > potentials(data.ncol()); // potential on vertices
+        std::vector<vtkSmartPointer<vtkDoubleArray> > currents(data.ncol()); // current on triangles
 
         normals->SetNumberOfComponents(3); // 3d normals (ie x, y, z)
         normals->SetName("Normals");
@@ -191,7 +191,7 @@ namespace OpenMEEG {
                 std::stringstream sdip;
                 sdip << j;
                 potentials[j] = vtkSmartPointer<vtkDoubleArray>::New();
-                currents[j]  = vtkSmartPointer<vtkDoubleArray>::New();
+                currents[j]   = vtkSmartPointer<vtkDoubleArray>::New();
                 potentials[j]->SetName(("Potentials-"+sdip.str()).c_str());
                 currents[j]->SetName(("Currents-"+sdip.str()).c_str());
 
@@ -238,17 +238,15 @@ namespace OpenMEEG {
         // Add the array of Indices to polydata points
         polydata->GetPointData()->AddArray(point_indices);
         // Add optional potentials and currents
-        if (data.nlin() != 0)
+        if (data.nlin() != 0) {
             for (unsigned j = 0; j < data.ncol(); ++j) {
                 polydata->GetPointData()->AddArray(potentials[j]);
                 polydata->GetCellData()->AddArray(currents[j]);
             }
+        }
 
         vtkSmartPointer<vtkXMLPolyDataWriter> writer = vtkSmartPointer<vtkXMLPolyDataWriter>::New();
         writer->SetFileName(filename.c_str());
-
-        // writer->SetCompressorTypeToZLib();
-        // writer->SetCompressorTypeToNone();
 
         #if VTK_MAJOR_VERSION <= 5
         writer->SetInput(polydata);

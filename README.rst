@@ -46,15 +46,37 @@ Build OpenMEEG
 Unix (Linux & Mac OS X)
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-On Ubuntu/Debian you will need to install the dependencies with::
+On Debian/Ubuntu you will need to install the dependencies with::
 
-    sudo apt-get install git-core gcc g++ make cmake libatlas-base-dev python-numpy python-dev swig
+    sudo apt-get install git-core gcc g++ make cmake libopenblas-dev liblapacke-dev
+
+*optionally*::
+
+    sudo apt-get install libhdf5-serial-dev libmatio-dev python-dev python-numpy swig libvtk6-dev doxygen libcgal-dev
 
 On Fedora and Centos::
 
-    sudo yum install git-core gcc make cmake wget perl atlas-devel blas-devel numpy python-devel
+    sudo yum install git-core gcc make cmake wget perl openblas-devel
+
+*optionally*::
+
+    sudo yum install hdf5-devel matio-devel python-devel python2-numpy swig vtk-devel doxygen cgal-devel
 
 On Mac OS X, you'll need `CMake <http://www.cmake.org>`_ (install it with `Homebrew <http://brew.sh/>`_ or `Fink <http://www.finkproject.org/>`_ or `Macports <http://www.macports.org/>`_ or by direct download).
+
+    *e.g* with Homebrew::
+
+    $ brew tap homebrew/science
+    $ brew tap homebrew/python
+    $ brew update && brew upgrade
+
+    *optionally*::
+
+    $ brew install hdf5 && brew install libmatio --with-hdf5
+    $ brew install openblas && brew link openblas --force
+    $ brew install vtk
+    $ brew install --with-qt5 cgal
+    $ brew install Doxygen
 
 Then from a terminal::
 
@@ -72,15 +94,19 @@ then::
     $ cmake -DBUILD_TESTING=ON -DCMAKE_BUILD_TYPE=Release -DUSE_PROGRESSBAR=ON -DBUILD_DOCUMENTATION=OFF -DENABLE_PYTHON=OFF ..
     $ make
 
-If you want the support for:
+OpenMEEG will download and compile the **zlib**, **hdf5**, and **matio** by default. In case your system already provides these libraries (see optional packages), you should specify the following variables to the cmake command line: "-DUSE_SYSTEM_zlib=ON -DUSE_SYSTEM_hdf5=ON -DUSE_SYSTEM_matio=ON".
 
--VTK, you will need to add "-DUSE_VTK=ON" to the cmake line above.
+You will need to define more CMake variables if you want the support for:
 
--Python, you will need to add "-DENABLE_PYTHON=ON".
-
--Parallel computation with OpenMP, add "-DUSE_OMP=ON". Then you can set the number of threads you want to run in parallel by setting the OMP_NUM_THREADS environment variable. On a Unix system if you want to run 4 threads in parallel do (before running OpenMEEG)::
+- Parallel computation with OpenMP, add "-DUSE_OMP=ON". Then you can set the number of threads you want to run in parallel by setting the OMP_NUM_THREADS environment variable. On a Unix system if you want to run 4 threads in parallel do (before running OpenMEEG)::
 
     $ export OMP_NUM_THREADS=4
+
+- Python wrapping, add "-DENABLE_PYTHON=ON".
+
+- CGAL meshing tools, add "-DUSE_CGAL=ON".
+
+- VTK file format, add "-DUSE_VTK=ON".
 
 Then you can run the full test suite with::
 
@@ -118,10 +144,17 @@ You can now give a try to OpenMEEG on the `sample dataset <https://github.com/op
 Windows
 ^^^^^^^
 
-You will need to install visual studio, `CMake <http://www.cmake.org>`_ and the
-`Intel MKL library <http://software.intel.com/en-us/intel-mkl/>`_.
+You will need to install visual studio, `CMake <http://www.cmake.org>`_.
 Then download the source from github, load the CMake.exe GUI, set the proper option
 and generate the visual studio project. You can then open it and build the project.
+
+Supported Blas-Lapack Implementations
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+- on Linux: `Intel MKL <http://software.intel.com/en-us/intel-mkl/>`_ , `OpenBLAS <http://www.openblas.net/>`_, `Atlas <http://math-atlas.sourceforge.net>`_, Lapack
+
+- on Mac OS X: `Intel MKL <http://software.intel.com/en-us/intel-mkl/>`_ , `OpenBLAS <http://www.openblas.net/>`_, `vecLib <https://developer.apple.com/reference/accelerate/veclib>`_
+
+- on Windows: `Intel MKL <http://software.intel.com/en-us/intel-mkl/>`_ , `Clapack <https://github.com/openmeeg/clapack>`_
 
 Using OpenMEEG
 --------------

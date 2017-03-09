@@ -2,7 +2,7 @@
 # GIFTI C library
 #------------------------------------------------------------
 
-option(USE_GIFTI "Build the project using GIFTI IO support" OFF)
+option(USE_GIFTI "Use GIFTI IO support" OFF)
 mark_as_advanced(USE_GIFTI)
 
 if (USE_GIFTI)
