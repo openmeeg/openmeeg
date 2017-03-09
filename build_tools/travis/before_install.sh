@@ -74,4 +74,8 @@ else
     if [[ "$BUILD_DOCUMENTATION" == "1" ]]; then
         sudo apt-get install doxygen
     fi
+
+    if [[ "$USE_COVERAGE" == "1" ]]; then
+        sudo apt-get install -y lcov
+    fi
 fi
