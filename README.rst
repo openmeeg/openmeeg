@@ -1,4 +1,4 @@
-|Travis|_ |AppVeyor|_
+|Travis|_ |AppVeyor|_ |CodeCov|_
 
 .. |Travis| image:: https://api.travis-ci.org/openmeeg/openmeeg.svg?branch=master
 .. _Travis: https://travis-ci.org/openmeeg/openmeeg
