@@ -6,8 +6,8 @@
 .. |AppVeyor| image:: https://ci.appveyor.com/api/projects/status/github/openmeeg/openmeeg?branch=master&svg=true
 .. _AppVeyor: https://ci.appveyor.com/project/agramfort/openmeeg/history
 
-.. |CodeCov| image:: https://codecov.io/github/openmeeg/openmeeg/coverage.svg?branch=master
-.. _CodeCov: https://codecov.io/github/openmeeg/openmeeg?branch=master
+.. |CodeCov| image:: https://codecov.io/gh/openmeeg/openmeeg/branch/master/graph/badge.svg
+.. _CodeCov: https://codecov.io/gh/openmeeg/openmeeg
 
 
 OpenMEEG: forward problems solver in the field of EEG and MEG
