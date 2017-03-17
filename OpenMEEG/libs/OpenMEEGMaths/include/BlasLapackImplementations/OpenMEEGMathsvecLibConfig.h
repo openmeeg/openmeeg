@@ -1,7 +1,7 @@
 
 #pragma once
 
-#define FC_GLOBAL(x,X) x
+#include <BlasLapackImplementations/FortranCInterface.h>
 
 extern "C" {
     #include <cblas.h>
