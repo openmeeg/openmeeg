@@ -558,8 +558,10 @@ namespace OpenMEEG {
 
         unsigned npts  = gim->darray[ipts]->dims[0];
         unsigned ntrgs = gim->darray[itrgs]->dims[0];
+
+        gifti_free_image(gim);
+        
         if (!read_all) { 
-            gifti_free_image(gim);
             return npts; 
         }
         read_data = 1; // now, load the data
@@ -942,7 +944,7 @@ namespace OpenMEEG {
         unsigned int mesh_step[1] = {0}; // mesh_step
         os.write((char*)mesh_step, sizeof(unsigned int));
 
-        unsigned int vertex_number[1] = {nb_vertices()}; // vertex number
+        unsigned int vertex_number[1] = {(unsigned)nb_vertices()}; // vertex number
         os.write((char*)vertex_number, sizeof(unsigned int));
 
         float* pts_raw = new float[nb_vertices()*3]; // Points
@@ -975,7 +977,7 @@ namespace OpenMEEG {
         os.write((char*)normals_raw, sizeof(float)*nb_vertices()*3);       // normals
         unsigned char zero[1] = {0};
         os.write((char*)zero, sizeof(unsigned int));                       // arg size : 0
-        unsigned int faces_number[1] = {nb_triangles()};
+        unsigned int faces_number[1] = {(unsigned)nb_triangles()};
         os.write((char*)faces_number, sizeof(unsigned int));               // ntrgs
         os.write((char*)faces_raw, sizeof(unsigned int)*nb_triangles()*3); // triangles
 

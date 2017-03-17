@@ -26,7 +26,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake ${CMAKE_CURRENT_SOURCE_D
 
 project(OpenMEEG-superProject ${PROJECT_VERSION})  # XXX don't call it super project
 
-# Setup everything (MODULE_PATH, check environment, basic targets, options
+# Setup everything MODULE_PATH, check environment, basic targets, options
 
 include(Setup)
 

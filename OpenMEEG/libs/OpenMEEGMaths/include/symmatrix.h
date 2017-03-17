@@ -148,9 +148,9 @@ namespace OpenMEEG {
         // Bunch Kaufman Factorization
         int *pivots=new int[nlin()];
         int Info = 0;
-        DSPTRF('U',invA.nlin(),invA.data(),pivots,Info);
+        DSPTRF('U',(int)invA.nlin(),invA.data(),pivots,Info);
         // Inverse
-        DSPTRS('U',invA.nlin(),1,invA.data(),pivots,X.data(),invA.nlin(),Info);
+        DSPTRS('U',(int)invA.nlin(),1,invA.data(),pivots,X.data(),(int)invA.nlin(),Info);
 
         om_assert(Info==0);
         delete[] pivots;
@@ -169,10 +169,10 @@ namespace OpenMEEG {
         int *pivots=new int[nlin()];
         int Info = 0;
         //char *uplo="U";
-        DSPTRF('U',invA.nlin(),invA.data(),pivots,Info);
+        DSPTRF('U',(int)invA.nlin(),invA.data(),pivots,Info);
         // Inverse
         for(int i = 0; i < nbvect; i++)
-            DSPTRS('U',invA.nlin(),1,invA.data(),pivots,B[i].data(),invA.nlin(),Info);
+            DSPTRS('U',(int)invA.nlin(),1,invA.data(),pivots,B[i].data(),(int)invA.nlin(),Info);
 
         om_assert(Info==0);
         delete[] pivots;
@@ -206,9 +206,9 @@ namespace OpenMEEG {
         SymMatrix invA(*this,DEEP_COPY);
     #ifdef HAVE_LAPACK
         // U'U factorization then inverse
-        int Info;
-        DPPTRF('U',nlin(),invA.data(),Info);
-        DPPTRI('U',nlin(),invA.data(),Info);
+        int Info = 0;
+        DPPTRF('U',(int)nlin(),invA.data(),Info);
+        DPPTRI('U',(int)nlin(),invA.data(),Info);
         om_assert(Info==0);
     #else
         std::cerr << "Positive definite inverse not defined" << std::endl;
@@ -224,7 +224,7 @@ namespace OpenMEEG {
         int *pivots=new int[nlin()];
         int Info = 0;
         // TUDUtTt
-        DSPTRF('U',invA.nlin(),invA.data(),pivots,Info);
+        DSPTRF('U',(int)invA.nlin(),invA.data(),pivots,Info);
         if(Info<0)
             std::cout << "Big problem in det (DSPTRF)" << std::endl;
         for(int i = 0; i<(int) nlin(); i++){
@@ -261,11 +261,11 @@ namespace OpenMEEG {
     //     int lwork;
     //     int liwork;
     // 
-    //     DSPEVD('V','U',nlin(),symtemp.data(),D.data(),Z.data(),nlin(),&lworkd,-1,&liwork,-1,info);
+    //     DSPEVD('V','U',(int)nlin(),symtemp.data(),D.data(),Z.data(),(int)nlin(),&lworkd,-1,&liwork,-1,info);
     //     lwork = (int) lworkd;
     //     double * work = new double[lwork];
     //     int * iwork = new int[liwork];
-    //     DSPEVD('V','U',nlin(),symtemp.data(),D.data(),Z.data(),nlin(),work,lwork,iwork,liwork,info);
+    //     DSPEVD('V','U',(int)nlin(),symtemp.data(),D.data(),Z.data(),(int)nlin(),work,lwork,iwork,liwork,info);
     // 
     //     delete[] work;
     //     delete[] iwork;
@@ -303,11 +303,11 @@ namespace OpenMEEG {
         // LU
         int *pivots = new int[nlin()];
         int Info = 0;
-        DSPTRF('U', nlin(), invA.data(), pivots, Info);
+        DSPTRF('U', (int)nlin(), invA.data(), pivots, Info);
         // Inverse
         int sz = (int) this->nlin() * 64;
         double *work = new double[sz];
-        DSPTRI('U', nlin(), invA.data(), pivots, work, Info);
+        DSPTRI('U', (int)nlin(), invA.data(), pivots, work, Info);
         om_assert(Info==0);
 
         delete[] pivots;
@@ -324,11 +324,11 @@ namespace OpenMEEG {
         // LU
         int *pivots = new int[nlin()];
         int Info = 0;
-        DSPTRF('U', nlin(), data(), pivots, Info);
+        DSPTRF('U', (int)nlin(), data(), pivots, Info);
         // Inverse
         int sz = (int) this->nlin() * 64;
         double *work = new double[sz];
-        DSPTRI('U', nlin(), data(), pivots, work, Info);
+        DSPTRI('U', (int)nlin(), data(), pivots, work, Info);
 
         om_assert(Info==0);
         delete[] pivots;

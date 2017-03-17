@@ -189,9 +189,8 @@ namespace OpenMEEG {
     inline double Matrix::frobenius_norm() const {
     #ifdef HAVE_LAPACK
     if ( nlin()*ncol() != 0 ) {
-        double Info;
-        return DLANGE('F',nlin(),ncol(),data(),nlin(),&Info);
-        om_assert(Info==0);
+        double work;
+        return DLANGE('F',(int)nlin(),(int)ncol(),data(),(int)nlin(),&work);
     } else {
         return 0;
     }
@@ -222,7 +221,7 @@ namespace OpenMEEG {
         om_assert (istart+isize<=nlin() && jstart+jsize<=ncol());
 
         Matrix a(isize,jsize);
-        const int sz = static_cast<int>(isize);
+        const int sz = (int)isize;
         
         for (size_t j=0; j<jsize; j++) {
     #ifdef HAVE_BLAS
@@ -308,7 +307,7 @@ namespace OpenMEEG {
         #if defined(CLAPACK_INTERFACE)
             #if defined(__APPLE__) && defined(USE_VECLIB) // Apple Veclib Framework (Handles 32 and 64 Bits)
                 __CLPK_integer *pivots = new __CLPK_integer[ncol()];
-                __CLPK_integer Info;
+                __CLPK_integer Info = 0;
                 __CLPK_integer nlin_local = invA.nlin();
                 __CLPK_integer nlin_local2 = invA.nlin();
                 __CLPK_integer ncol_local = invA.ncol();
@@ -318,21 +317,23 @@ namespace OpenMEEG {
                 DGETRI(ncol_local,invA.data(),ncol_local,pivots,work,sz,Info);
                 delete[] pivots;
                 delete[] work;
+                om_assert(Info==0);
             #else
                 int *pivots=new int[ncol()];
-                DGETRF(invA.nlin(),invA.ncol(),invA.data(),invA.nlin(),pivots);
-                DGETRI(invA.ncol(),invA.data(),invA.ncol(),pivots);
+                DGETRF((int)invA.nlin(),(int)invA.ncol(),invA.data(),(int)invA.nlin(),pivots);
+                DGETRI((int)invA.ncol(),invA.data(),(int)invA.ncol(),pivots);
                 delete[] pivots;
             #endif
         #else
-            int Info;
+            int Info = 0;
             int *pivots=new int[ncol()];
-            DGETRF(invA.nlin(),invA.ncol(),invA.data(),invA.nlin(),pivots,Info);
+            DGETRF((int)invA.nlin(),(int)invA.ncol(),invA.data(),invA.nlin(),pivots,Info);
             const unsigned sz = invA.ncol()*64;
             double *work=new double[sz];
-            DGETRI(invA.ncol(),invA.data(),invA.ncol(),pivots,work,sz,Info);
+            DGETRI((int)invA.ncol(),invA.data(),(int)invA.ncol(),pivots,work,sz,Info);
             delete[] pivots;
             delete[] work;
+            om_assert(Info==0);
         #endif
         return invA;
     #else
@@ -431,9 +432,9 @@ namespace OpenMEEG {
 
     #ifdef HAVE_BLAS
         Matrix D(B);
-        const int n = nlin();
-        const int m = D.ncol();
-        const int l = C.nlin();
+        const int n = (int)nlin();
+        const int m = (int)D.ncol();
+        const int l = (int)C.nlin();
         DSYMM(CblasRight,CblasUpper,n,m,1.,D.data(),m,data(),n,0.,C.data(),l);
     #else
         for (size_t j=0;j<B.ncol();j++)

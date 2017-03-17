@@ -134,9 +134,9 @@ namespace OpenMEEG {
         int *iwork = new int[8*mini];
         int Info = 0;
         if ( complete ) { // complete SVD
-            DGESDD('A',nlin(),ncol(),cpy.data(),nlin(),s,U.data(),U.nlin(),V.data(),V.nlin(),work,lwork,iwork,Info);
+            DGESDD('A',(int)nlin(),(int)ncol(),cpy.data(),(int)nlin(),s,U.data(),(int)U.nlin(),V.data(),(int)V.nlin(),work,lwork,iwork,Info);
         } else { // only first min(m,n)
-            DGESDD('S',nlin(),ncol(),cpy.data(),nlin(),s,U.data(),U.nlin(),V.data(),V.nlin(),work,lwork,iwork,Info);
+            DGESDD('S',(int)nlin(),(int)ncol(),cpy.data(),(int)nlin(),s,U.data(),(int)U.nlin(),V.data(),(int)V.nlin(),work,lwork,iwork,Info);
         }
         for ( size_t i = 0; i < mini; ++i) S(i, i) = s[i];
         delete[] s;
