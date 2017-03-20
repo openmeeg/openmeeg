@@ -116,7 +116,7 @@ namespace OpenMEEG {
         Matrix D(*this);
         Matrix B(m);
         Matrix C(nlin(),nlin());
-        DSYMM(CblasLeft,CblasUpper,sizet_to_int(nlin()),sizet_to_int(B.ncol()),1.,D.data(),sizet_to_int(D.ncol()),B.data(),sizet_to_int(B.nlin()),0,C.data(),sizet_to_int(C.nlin()));
+        DSYMM(CblasLeft,CblasUpper,sizet_to<int>(nlin()),sizet_to<int>(B.ncol()),1.,D.data(),sizet_to<int>(D.ncol()),B.data(),sizet_to<int>(B.nlin()),0,C.data(),sizet_to<int>(C.nlin()));
         return SymMatrix(C);
     #else
         SymMatrix C(nlin());
@@ -138,7 +138,7 @@ namespace OpenMEEG {
         Matrix C(nlin(),B.ncol());
     #ifdef HAVE_BLAS
         Matrix D(*this);
-        DSYMM(CblasLeft,CblasUpper, sizet_to_int(nlin()), sizet_to_int(B.ncol()), 1. , D.data(), sizet_to_int(D.ncol()), B.data(), sizet_to_int(B.nlin()), 0, C.data(),sizet_to_int(C.nlin()));
+        DSYMM(CblasLeft,CblasUpper, sizet_to<int>(nlin()), sizet_to<int>(B.ncol()), 1. , D.data(), sizet_to<int>(D.ncol()), B.data(), sizet_to<int>(B.nlin()), 0, C.data(),sizet_to<int>(C.nlin()));
     #else
         for ( size_t j = 0; j < B.ncol(); ++j) {
             for ( size_t i = 0; i < ncol(); ++i) {
@@ -159,9 +159,9 @@ namespace OpenMEEG {
         // LU
         int *pivots=new int[nlin()];
         int Info = 0;
-        DSPTRF('U',sizet_to_int(A.nlin()),A.data(),pivots,Info);
+        DSPTRF('U',sizet_to<int>(A.nlin()),A.data(),pivots,Info);
         // Solve the linear system AX=B
-        DSPTRS('U',sizet_to_int(A.nlin()),sizet_to_int(RHS.ncol()),A.data(),pivots,RHS.data(),sizet_to_int(A.nlin()),Info);
+        DSPTRS('U',sizet_to<int>(A.nlin()),sizet_to<int>(RHS.ncol()),A.data(),pivots,RHS.data(),sizet_to<int>(A.nlin()),Info);
         om_assert(Info == 0);
         return RHS;
     #else

@@ -147,9 +147,9 @@ namespace OpenMEEG {
         // Bunch Kaufman Factorization
         int *pivots=new int[nlin()];
         int Info = 0;
-        DSPTRF('U',sizet_to_int(invA.nlin()),invA.data(),pivots,Info);
+        DSPTRF('U',sizet_to<int>(invA.nlin()),invA.data(),pivots,Info);
         // Inverse
-        DSPTRS('U',sizet_to_int(invA.nlin()),1,invA.data(),pivots,X.data(),sizet_to_int(invA.nlin()),Info);
+        DSPTRS('U',sizet_to<int>(invA.nlin()),1,invA.data(),pivots,X.data(),sizet_to<int>(invA.nlin()),Info);
 
         om_assert(Info==0);
         delete[] pivots;
@@ -168,10 +168,10 @@ namespace OpenMEEG {
         int *pivots=new int[nlin()];
         int Info = 0;
         //char *uplo="U";
-        DSPTRF('U',sizet_to_int(invA.nlin()),invA.data(),pivots,Info);
+        DSPTRF('U',sizet_to<int>(invA.nlin()),invA.data(),pivots,Info);
         // Inverse
         for(int i = 0; i < nbvect; i++)
-            DSPTRS('U',sizet_to_int(invA.nlin()),1,invA.data(),pivots,B[i].data(),sizet_to_int(invA.nlin()),Info);
+            DSPTRS('U',sizet_to<int>(invA.nlin()),1,invA.data(),pivots,B[i].data(),sizet_to<int>(invA.nlin()),Info);
 
         om_assert(Info==0);
         delete[] pivots;
@@ -183,7 +183,7 @@ namespace OpenMEEG {
     inline void SymMatrix::operator -=(const SymMatrix &B) {
         om_assert(nlin()==B.nlin());
     #ifdef HAVE_BLAS
-        BLAS(daxpy,DAXPY)(sizet_to_int(nlin()*(nlin()+1)/2), -1.0, B.data(), 1, data() , 1);
+        BLAS(daxpy,DAXPY)(sizet_to<int>(nlin()*(nlin()+1)/2), -1.0, B.data(), 1, data() , 1);
     #else
         for (size_t i=0;i<nlin()*(nlin()+1)/2;i++)
             data()[i]+=B.data()[i];
@@ -193,7 +193,7 @@ namespace OpenMEEG {
     inline void SymMatrix::operator +=(const SymMatrix &B) {
         om_assert(nlin()==B.nlin());
     #ifdef HAVE_BLAS
-        BLAS(daxpy,DAXPY)(sizet_to_int(nlin()*(nlin()+1)/2), 1.0, B.data(), 1, data() , 1);
+        BLAS(daxpy,DAXPY)(sizet_to<int>(nlin()*(nlin()+1)/2), 1.0, B.data(), 1, data() , 1);
     #else
         for (size_t i=0;i<nlin()*(nlin()+1)/2;i++)
             data()[i]+=B.data()[i];
@@ -206,8 +206,8 @@ namespace OpenMEEG {
     #ifdef HAVE_LAPACK
         // U'U factorization then inverse
         int Info = 0;
-        DPPTRF('U', sizet_to_int(nlin()),invA.data(),Info);
-        DPPTRI('U', sizet_to_int(nlin()),invA.data(),Info);
+        DPPTRF('U', sizet_to<int>(nlin()),invA.data(),Info);
+        DPPTRI('U', sizet_to<int>(nlin()),invA.data(),Info);
         om_assert(Info==0);
     #else
         std::cerr << "Positive definite inverse not defined" << std::endl;
@@ -223,7 +223,7 @@ namespace OpenMEEG {
         int *pivots = new int[nlin()];
         int Info = 0;
         // TUDUtTt
-        DSPTRF('U', sizet_to_int(invA.nlin()), invA.data(), pivots,Info);
+        DSPTRF('U', sizet_to<int>(invA.nlin()), invA.data(), pivots,Info);
         if (Info<0)
             std::cout << "Big problem in det (DSPTRF)" << std::endl;
         for (size_t i = 0; i< nlin(); i++){
@@ -261,11 +261,11 @@ namespace OpenMEEG {
     //     int lwork;
     //     int liwork;
     // 
-    //     DSPEVD('V','U',sizet_to_int(nlin()),symtemp.data(),D.data(),Z.data(),sizet_to_int(nlin()),&lworkd,-1,&liwork,-1,info);
+    //     DSPEVD('V','U',sizet_to<int>(nlin()),symtemp.data(),D.data(),Z.data(),sizet_to<int>(nlin()),&lworkd,-1,&liwork,-1,info);
     //     lwork = (int) lworkd;
     //     double * work = new double[lwork];
     //     int * iwork = new int[liwork];
-    //     DSPEVD('V','U',sizet_to_int(nlin()),symtemp.data(),D.data(),Z.data(),sizet_to_int(nlin()),work,lwork,iwork,liwork,info);
+    //     DSPEVD('V','U',sizet_to<int>(nlin()),symtemp.data(),D.data(),Z.data(),sizet_to<int>(nlin()),work,lwork,iwork,liwork,info);
     // 
     //     delete[] work;
     //     delete[] iwork;
@@ -276,7 +276,7 @@ namespace OpenMEEG {
         om_assert(nlin()==B.nlin());
         SymMatrix C(*this,DEEP_COPY);
     #ifdef HAVE_BLAS
-        BLAS(daxpy,DAXPY)(sizet_to_int(nlin()*(nlin()+1)/2), 1.0, B.data(), 1, C.data() , 1);
+        BLAS(daxpy,DAXPY)(sizet_to<int>(nlin()*(nlin()+1)/2), 1.0, B.data(), 1, C.data() , 1);
     #else
         for (size_t i=0;i<nlin()*(nlin()+1)/2;i++)
             C.data()[i]+=B.data()[i];
@@ -289,7 +289,7 @@ namespace OpenMEEG {
         om_assert(nlin()==B.nlin());
         SymMatrix C(*this,DEEP_COPY);
     #ifdef HAVE_BLAS
-        BLAS(daxpy,DAXPY)(sizet_to_int(nlin()*(nlin()+1)/2), -1.0, B.data(), 1, C.data() , 1);
+        BLAS(daxpy,DAXPY)(sizet_to<int>(nlin()*(nlin()+1)/2), -1.0, B.data(), 1, C.data() , 1);
     #else
         for (size_t i=0;i<nlin()*(nlin()+1)/2;i++)
             C.data()[i]-=B.data()[i];
@@ -303,10 +303,10 @@ namespace OpenMEEG {
         // LU
         int *pivots = new int[nlin()];
         int Info = 0;
-        DSPTRF('U', sizet_to_int(nlin()), invA.data(), pivots, Info);
+        DSPTRF('U', sizet_to<int>(nlin()), invA.data(), pivots, Info);
         // Inverse
         double *work = new double[this->nlin() * 64];
-        DSPTRI('U', sizet_to_int(nlin()), invA.data(), pivots, work, Info);
+        DSPTRI('U', sizet_to<int>(nlin()), invA.data(), pivots, work, Info);
         om_assert(Info==0);
 
         delete[] pivots;
@@ -323,10 +323,10 @@ namespace OpenMEEG {
         // LU
         int *pivots = new int[nlin()];
         int Info = 0;
-        DSPTRF('U', sizet_to_int(nlin()), data(), pivots, Info);
+        DSPTRF('U', sizet_to<int>(nlin()), data(), pivots, Info);
         // Inverse
         double *work = new double[this->nlin() * 64];
-        DSPTRI('U', sizet_to_int(nlin()), data(), pivots, work, Info);
+        DSPTRI('U', sizet_to<int>(nlin()), data(), pivots, work, Info);
 
         om_assert(Info==0);
         delete[] pivots;
@@ -342,7 +342,7 @@ namespace OpenMEEG {
         om_assert(nlin()==v.size());
         Vector y(nlin());
     #ifdef HAVE_BLAS
-        DSPMV(CblasUpper,sizet_to_int(nlin()),1.,data(),v.data(),1,0.,y.data(),1);
+        DSPMV(CblasUpper,sizet_to<int>(nlin()),1.,data(),v.data(),1,0.,y.data(),1);
     #else
         for (size_t i=0;i<nlin();i++) {
             y(i)=0;

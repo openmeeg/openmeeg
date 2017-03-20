@@ -16,7 +16,7 @@ function(VTK_project)
     # Prepare the project and list dependencies
 
     EP_Initialisation(VTK BUILD_SHARED_LIBS ON)
-    EP_SetDependencies(${ep}_dependencies Qt4)
+    EP_SetDependencies(${ep}_dependencies Qt4 zlib)
 
     # Define repository where get the sources
 
@@ -50,7 +50,7 @@ function(VTK_project)
 
     # Check if patch has to be applied
 
-    ep_GeneratePatchCommand(VTK VTK_PATCH_COMMAND VTK_WindowLevel.patch)
+    ep_GeneratePatchCommand(VTK VTK_PATCH_COMMAND)
 
     # Add external-project
 
@@ -61,13 +61,12 @@ function(VTK_project)
         CMAKE_GENERATOR ${gen}
         CMAKE_ARGS ${cmake_args}
         DEPENDS ${${ep}_dependencies}
-        INSTALL_COMMAND ""
     )
       
     # Set variable to provide infos about the project
 
-    ExternalProject_Get_Property(${ep} binary_dir)
-    set(${ep}_DIR ${binary_dir} PARENT_SCOPE)
+    ExternalProject_Get_Property(${ep} install_dir)
+    set(${ep}_CMAKE_FLAGS -D${ep}_DIR:FILEPATH=${install_dir} PARENT_SCOPE)
 
     # Add custom targets
 
