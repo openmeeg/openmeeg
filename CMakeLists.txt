@@ -65,6 +65,6 @@ if (NOT LAPACK_LIBRARIES AND USE_LAPACK)
     option(CLAPACK_BUILD_TESTING "Build CLAPACK tests" OFF)
 endif()
 
-subprojects(${MSINTTYPES} zlib hdf5 matio ${LAPACK} OpenMEEG)
+subprojects(${MSINTTYPES} zlib vtk hdf5 matio ${LAPACK} OpenMEEG)
 
 include(Packaging)
