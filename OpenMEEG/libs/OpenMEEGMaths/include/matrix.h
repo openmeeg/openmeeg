@@ -189,7 +189,7 @@ namespace OpenMEEG {
     #ifdef HAVE_LAPACK
     if ( nlin()*ncol() != 0 ) {
         double work;
-        return DLANGE('F',sizet_to<int>(nlin()),sizet_to<int>(ncol()),data(),sizet_to<int>(nlin()),&work);
+        return DLANGE('F',sizet_to_int(nlin()),sizet_to_int(ncol()),data(),sizet_to_int(nlin()),&work);
     } else {
         return 0;
     }
@@ -204,7 +204,7 @@ namespace OpenMEEG {
         om_assert(ncol()==v.nlin());
         Vector y(nlin());
     #ifdef HAVE_BLAS
-        DGEMV(CblasNoTrans,sizet_to<int>(nlin()),sizet_to<int>(ncol()),1.0,data(),sizet_to<int>(nlin()),v.data(),1,0.,y.data(),1);
+        DGEMV(CblasNoTrans,sizet_to_int(nlin()),sizet_to_int(ncol()),1.0,data(),sizet_to_int(nlin()),v.data(),1,0.,y.data(),1);
     #else
         for (size_t i=0;i<nlin();i++) {
             y(i) = 0;
@@ -220,7 +220,7 @@ namespace OpenMEEG {
         om_assert (istart+isize<=nlin() && jstart+jsize<=ncol());
 
         Matrix a(isize,jsize);
-        const int sz = sizet_to<int>(isize);
+        const int sz = sizet_to_int(isize);
         
         for (size_t j=0; j<jsize; j++) {
     #ifdef HAVE_BLAS
@@ -246,7 +246,7 @@ namespace OpenMEEG {
         om_assert(j<ncol());
         Vector v(nlin());
     #ifdef HAVE_BLAS
-        BLAS(dcopy,DCOPY)(sizet_to<int>(nlin()),data()+nlin()*j,1,v.data(),1);
+        BLAS(dcopy,DCOPY)(sizet_to_int(nlin()),data()+nlin()*j,1,v.data(),1);
     #else
         for (size_t i=0;i<nlin();i++) v.data()[i]=data()[i+nlin()*j];
     #endif
@@ -257,7 +257,7 @@ namespace OpenMEEG {
         om_assert(i<nlin());
         Vector v(ncol());
     #ifdef HAVE_BLAS
-        BLAS(dcopy,DCOPY)(sizet_to<int>(ncol()),data()+i,sizet_to<int>(nlin()),v.data(),1);
+        BLAS(dcopy,DCOPY)(sizet_to_int(ncol()),data()+i,sizet_to_int(nlin()),v.data(),1);
     #else
         for (size_t j=0;j<ncol();j++) v.data()[j]=data()[i+nlin()*j];
     #endif
@@ -267,7 +267,7 @@ namespace OpenMEEG {
     inline void Matrix::setcol(size_t j,const Vector& v) {
         om_assert(v.size()==nlin() && j<ncol());
     #ifdef HAVE_BLAS
-        BLAS(dcopy,DCOPY)(sizet_to<int>(nlin()),v.data(),1,data()+nlin()*j,1);
+        BLAS(dcopy,DCOPY)(sizet_to_int(nlin()),v.data(),1,data()+nlin()*j,1);
     #else
         for (size_t i=0;i<nlin();i++) data()[i+nlin()*j]=v.data()[i];
     #endif
@@ -276,7 +276,7 @@ namespace OpenMEEG {
     inline void Matrix::setlin(size_t i,const Vector& v) {
         om_assert(v.size()==ncol() && i<nlin());
     #ifdef HAVE_BLAS
-        BLAS(dcopy,DCOPY)(sizet_to<int>(ncol()),v.data(),1,data()+i,sizet_to<int>(nlin()));
+        BLAS(dcopy,DCOPY)(sizet_to_int(ncol()),v.data(),1,data()+i,sizet_to_int(nlin()));
     #else
         for (size_t j=0;j<ncol();j++) data()[i+nlin()*j]=v.data()[j];
     #endif
@@ -286,7 +286,7 @@ namespace OpenMEEG {
         om_assert(nlin()==v.nlin());
         Vector y(ncol());
     #ifdef HAVE_BLAS
-        DGEMV(CblasTrans,sizet_to<int>(nlin()),sizet_to<int>(ncol()),1.,data(),sizet_to<int>(nlin()),v.data(),1,0.,y.data(),1);
+        DGEMV(CblasTrans,sizet_to_int(nlin()),sizet_to_int(ncol()),1.,data(),sizet_to_int(nlin()),v.data(),1,0.,y.data(),1);
     #else
         for (size_t i=0;i<ncol();i++) {
             y(i)=0;
@@ -318,18 +318,18 @@ namespace OpenMEEG {
                 delete[] work;
                 om_assert(Info==0);
             #else
-                int *pivots=new int[sizet_to<int>(ncol())];
-                DGETRF(sizet_to<int>(invA.nlin()),sizet_to<int>(invA.ncol()),invA.data(),sizet_to<int>(invA.nlin()),pivots);
-                DGETRI(sizet_to<int>(invA.ncol()),invA.data(),sizet_to<int>(invA.ncol()),pivots);
+                int *pivots=new int[sizet_to_int(ncol())];
+                DGETRF(sizet_to_int(invA.nlin()),sizet_to_int(invA.ncol()),invA.data(),sizet_to_int(invA.nlin()),pivots);
+                DGETRI(sizet_to_int(invA.ncol()),invA.data(),sizet_to_int(invA.ncol()),pivots);
                 delete[] pivots;
             #endif
         #else
             int Info = 0;
-            int *pivots=new int[sizet_to<int>(ncol())];
-            DGETRF(sizet_to<int>(invA.nlin()),sizet_to<int>(invA.ncol()),invA.data(),sizet_to<int>(invA.nlin()),pivots,Info);
+            int *pivots=new int[sizet_to_int(ncol())];
+            DGETRF(sizet_to_int(invA.nlin()),sizet_to_int(invA.ncol()),invA.data(),sizet_to_int(invA.nlin()),pivots,Info);
             const unsigned sz = invA.ncol()*64;
             double *work=new double[sz];
-            DGETRI(sizet_to<int>(invA.ncol()),invA.data(),sizet_to<int>(invA.ncol()),pivots,work,sz,Info);
+            DGETRI(sizet_to_int(invA.ncol()),invA.data(),sizet_to_int(invA.ncol()),pivots,work,sz,Info);
             delete[] pivots;
             delete[] work;
             om_assert(Info==0);
@@ -347,10 +347,10 @@ namespace OpenMEEG {
         Matrix C(nlin(),B.ncol());
     #ifdef HAVE_BLAS
         DGEMM(CblasNoTrans,CblasNoTrans,
-            sizet_to<int>(C.nlin()),sizet_to<int>(C.ncol()),sizet_to<int>(p),
-            1.,data(),sizet_to<int>(nlin()),
-            B.data(),sizet_to<int>(B.nlin()),
-            0.,C.data(),sizet_to<int>(C.nlin()));
+            sizet_to_int(C.nlin()),sizet_to_int(C.ncol()),sizet_to_int(p),
+            1.,data(),sizet_to_int(nlin()),
+            B.data(),sizet_to_int(B.nlin()),
+            0.,C.data(),sizet_to_int(C.nlin()));
     #else
         for (size_t i=0;i<C.nlin();i++)
             for (size_t j=0;j<C.ncol();j++) {
@@ -368,10 +368,10 @@ namespace OpenMEEG {
         Matrix C(ncol(),B.ncol());
     #ifdef HAVE_BLAS
         DGEMM(CblasTrans,CblasNoTrans,
-            sizet_to<int>(C.nlin()),sizet_to<int>(C.ncol()),sizet_to<int>(p),
-            1.,data(),sizet_to<int>(nlin()),
-            B.data(),sizet_to<int>(B.nlin()),
-            0.,C.data(),sizet_to<int>(C.nlin()));
+            sizet_to_int(C.nlin()),sizet_to_int(C.ncol()),sizet_to_int(p),
+            1.,data(),sizet_to_int(nlin()),
+            B.data(),sizet_to_int(B.nlin()),
+            0.,C.data(),sizet_to_int(C.nlin()));
     #else
         for (size_t i=0;i<C.nlin();i++)
             for (size_t j=0;j<C.ncol();j++) {
@@ -389,10 +389,10 @@ namespace OpenMEEG {
         Matrix C(nlin(),B.nlin());
     #ifdef HAVE_BLAS
         DGEMM(CblasNoTrans,CblasTrans,
-            sizet_to<int>(C.nlin()),sizet_to<int>(C.ncol()),sizet_to<int>(p),
-            1.,data(),sizet_to<int>(nlin()),
-            B.data(),sizet_to<int>(B.nlin()),
-            0.,C.data(),sizet_to<int>(C.nlin()));
+            sizet_to_int(C.nlin()),sizet_to_int(C.ncol()),sizet_to_int(p),
+            1.,data(),sizet_to_int(nlin()),
+            B.data(),sizet_to_int(B.nlin()),
+            0.,C.data(),sizet_to_int(C.nlin()));
     #else
         for (size_t i=0;i<C.nlin();i++)
             for (size_t j=0;j<C.ncol();j++) {
@@ -410,10 +410,10 @@ namespace OpenMEEG {
         Matrix C(ncol(),B.nlin());
     #ifdef HAVE_BLAS
         DGEMM(CblasTrans,CblasTrans,
-            sizet_to<int>(C.nlin()),sizet_to<int>(C.ncol()),sizet_to<int>(p),
-            1.,data(),sizet_to<int>(nlin()),
-            B.data(),sizet_to<int>(B.nlin()),
-            0.,C.data(),sizet_to<int>(C.nlin()));
+            sizet_to_int(C.nlin()),sizet_to_int(C.ncol()),sizet_to_int(p),
+            1.,data(),sizet_to_int(nlin()),
+            B.data(),sizet_to_int(B.nlin()),
+            0.,C.data(),sizet_to_int(C.nlin()));
     #else
         for (size_t i=0;i<C.nlin();i++)
             for (size_t j=0;j<C.ncol();j++) {
@@ -431,9 +431,9 @@ namespace OpenMEEG {
 
     #ifdef HAVE_BLAS
         Matrix D(B);
-        const int n = sizet_to<int>(nlin());
-        const int m = sizet_to<int>(D.ncol());
-        const int l = sizet_to<int>(C.nlin());
+        const int n = sizet_to_int(nlin());
+        const int m = sizet_to_int(D.ncol());
+        const int l = sizet_to_int(C.nlin());
         DSYMM(CblasRight,CblasUpper,n,m,1.,D.data(),m,data(),n,0.,C.data(),l);
     #else
         for (size_t j=0;j<B.ncol();j++)
@@ -451,7 +451,7 @@ namespace OpenMEEG {
         om_assert(nlin()==B.nlin());
         Matrix C(*this,DEEP_COPY);
     #ifdef HAVE_BLAS
-        BLAS(daxpy,DAXPY)(sizet_to<int>(nlin()*ncol()), 1.0, B.data(), 1, C.data() , 1);
+        BLAS(daxpy,DAXPY)(sizet_to_int(nlin()*ncol()), 1.0, B.data(), 1, C.data() , 1);
     #else
         for (size_t i=0;i<nlin()*ncol();i++)
             C.data()[i]+=B.data()[i];
@@ -464,7 +464,7 @@ namespace OpenMEEG {
         om_assert(nlin()==B.nlin());
         Matrix C(*this,DEEP_COPY);
     #ifdef HAVE_BLAS
-        BLAS(daxpy,DAXPY)(sizet_to<int>(nlin()*ncol()), -1.0, B.data(), 1, C.data() , 1);
+        BLAS(daxpy,DAXPY)(sizet_to_int(nlin()*ncol()), -1.0, B.data(), 1, C.data() , 1);
     #else
         for (size_t i=0;i<nlin()*ncol();i++)
             C.data()[i]-=B.data()[i];
@@ -476,7 +476,7 @@ namespace OpenMEEG {
         om_assert(ncol()==B.ncol());
         om_assert(nlin()==B.nlin());
     #ifdef HAVE_BLAS
-        BLAS(daxpy,DAXPY)(sizet_to<int>(nlin()*ncol()), 1.0, B.data(), 1, data() , 1);
+        BLAS(daxpy,DAXPY)(sizet_to_int(nlin()*ncol()), 1.0, B.data(), 1, data() , 1);
     #else
         for (size_t i=0;i<nlin()*ncol();i++)
             data()[i]+=B.data()[i];
@@ -487,7 +487,7 @@ namespace OpenMEEG {
         om_assert(ncol()==B.ncol());
         om_assert(nlin()==B.nlin());
     #ifdef HAVE_BLAS
-        BLAS(daxpy,DAXPY)(sizet_to<int>(nlin()*ncol()), -1.0, B.data(), 1, data() , 1);
+        BLAS(daxpy,DAXPY)(sizet_to_int(nlin()*ncol()), -1.0, B.data(), 1, data() , 1);
     #else
         for (size_t i=0;i<nlin()*ncol();i++)
             data()[i]-=B.data()[i];
@@ -497,7 +497,7 @@ namespace OpenMEEG {
     inline double Matrix::dot(const Matrix& b) const {
         om_assert(nlin()==b.nlin()&&ncol()==b.ncol());
     #ifdef HAVE_BLAS
-        return BLAS(ddot,DDOT)(sizet_to<int>(nlin()*ncol()),data(),1,b.data(),1);
+        return BLAS(ddot,DDOT)(sizet_to_int(nlin()*ncol()),data(),1,b.data(),1);
     #else
         double s=0;
         for (size_t i=0;i<nlin()*ncol();i++)
