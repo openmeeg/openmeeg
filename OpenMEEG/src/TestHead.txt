@@ -56,7 +56,7 @@ function(TESTHEAD HEADNUM)
     set(DS2MMMAT-TANGENTIAL    ${GENERATEDBASE}-tangential.ds2mm)
     set(DS2MMMAT-NORADIAL      ${GENERATEDBASE}-noradial.ds2mm)
     set(DGIPMAT                ${GENERATEDBASE}.dgip)
-    set(GSIPMAT                 ${GENERATEDBASE}.gsip)
+    set(GSIPMAT                ${GENERATEDBASE}.gsip)
     set(DGEMMAT                ${GENERATEDBASE}.dgem)
     set(DGEM-SKULLSCALPMAT     ${GENERATEDBASE}-skullscalp.dgem)
     set(DGEMADJOINTMAT         ${GENERATEDBASE}-adjoint.dgem)
@@ -142,11 +142,11 @@ function(TESTHEAD HEADNUM)
     OPENMEEG_TEST(H2IPM-${SUBJECT} ${ASSEMBLE} -H2IPM ${GEOM} ${COND} ${POINTS} ${H2IPMAT} DEPENDS CLEAN-TESTS)
 
     if (${HEADNUM} EQUAL 1)
-        #------ EIT Stim ----#
+        #------ EIT InternalPot ----#
         OPENMEEG_TEST(EITSM-${SUBJECT} ${ASSEMBLE} -EITSM ${GEOM} ${COND} ${EITPATCHES} ${EITSMAT})
 
-        OPENMEEG_TEST(GainStimInternalPot-${SUBJECT} ${GAIN} -SIP ${HMINVMAT} ${EITSMAT} ${H2IPMAT} ${GSIPMAT}
-                DEPENDS HMInv-${SUBJECT} DSM-${SUBJECT} EITSM-${SUBJECT} H2IPM-${SUBJECT})
+        OPENMEEG_TEST(GainEITInternalPot-${SUBJECT} ${GAIN} -EITIP ${HMINVMAT} ${EITSMAT} ${H2IPMAT} ${GSIPMAT}
+                DEPENDS HMInv-${SUBJECT} EITSM-${SUBJECT} H2IPM-${SUBJECT})
     endif()
 
     # om_assemble -DS2IPM geometry.geom conductivity.cond dipoles.dip internalpoints.txt ds2ip.bin

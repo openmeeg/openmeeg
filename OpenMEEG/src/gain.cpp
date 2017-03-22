@@ -235,12 +235,9 @@ void getHelp(char** argv)
 
     cout << "   -EITInternalPotential or -EITIP :   Compute the gain for internal potentials using boundary normal current as input" << endl;
     cout << "            Filepaths are in order :" << endl;
-    cout << "            geometry file (.geom)" << endl;
-    cout << "            conductivity file (.cond)" << endl;
-    cout << "            dipoles positions and orientations" << endl;
     cout << "            HeadMatInv, SourceMat, Head2IPMat" << endl;
-    cout << "            bin Matrix" << endl << endl;
--
+    cout << "            EITInternalPotential gain Matrix" << endl << endl;
+
     cout << "   -EEGadjoint :   Compute the gain for EEG " << endl;
     cout << "            Filepaths are in order :" << endl;
     cout << "            geometry file (.geom)" << endl;
