@@ -39,7 +39,6 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #pragma once
 
-#include <OMassert.H>
 #include <iostream>
 #include <cstdlib>
 #include <string>
@@ -148,9 +147,9 @@ namespace OpenMEEG {
         // Bunch Kaufman Factorization
         int *pivots=new int[nlin()];
         int Info = 0;
-        DSPTRF('U',invA.nlin(),invA.data(),pivots,Info);
+        DSPTRF('U',sizet_to_int(invA.nlin()),invA.data(),pivots,Info);
         // Inverse
-        DSPTRS('U',invA.nlin(),1,invA.data(),pivots,X.data(),invA.nlin(),Info);
+        DSPTRS('U',sizet_to_int(invA.nlin()),1,invA.data(),pivots,X.data(),sizet_to_int(invA.nlin()),Info);
 
         om_assert(Info==0);
         delete[] pivots;
@@ -169,10 +168,10 @@ namespace OpenMEEG {
         int *pivots=new int[nlin()];
         int Info = 0;
         //char *uplo="U";
-        DSPTRF('U',invA.nlin(),invA.data(),pivots,Info);
+        DSPTRF('U',sizet_to_int(invA.nlin()),invA.data(),pivots,Info);
         // Inverse
         for(int i = 0; i < nbvect; i++)
-            DSPTRS('U',invA.nlin(),1,invA.data(),pivots,B[i].data(),invA.nlin(),Info);
+            DSPTRS('U',sizet_to_int(invA.nlin()),1,invA.data(),pivots,B[i].data(),sizet_to_int(invA.nlin()),Info);
 
         om_assert(Info==0);
         delete[] pivots;
@@ -184,7 +183,7 @@ namespace OpenMEEG {
     inline void SymMatrix::operator -=(const SymMatrix &B) {
         om_assert(nlin()==B.nlin());
     #ifdef HAVE_BLAS
-        BLAS(daxpy,DAXPY)((int)(nlin()*(nlin()+1)/2), -1.0, B.data(), 1, data() , 1);
+        BLAS(daxpy,DAXPY)(sizet_to_int(nlin()*(nlin()+1)/2), -1.0, B.data(), 1, data() , 1);
     #else
         for (size_t i=0;i<nlin()*(nlin()+1)/2;i++)
             data()[i]+=B.data()[i];
@@ -194,7 +193,7 @@ namespace OpenMEEG {
     inline void SymMatrix::operator +=(const SymMatrix &B) {
         om_assert(nlin()==B.nlin());
     #ifdef HAVE_BLAS
-        BLAS(daxpy,DAXPY)((int)(nlin()*(nlin()+1)/2), 1.0, B.data(), 1, data() , 1);
+        BLAS(daxpy,DAXPY)(sizet_to_int(nlin()*(nlin()+1)/2), 1.0, B.data(), 1, data() , 1);
     #else
         for (size_t i=0;i<nlin()*(nlin()+1)/2;i++)
             data()[i]+=B.data()[i];
@@ -206,9 +205,9 @@ namespace OpenMEEG {
         SymMatrix invA(*this,DEEP_COPY);
     #ifdef HAVE_LAPACK
         // U'U factorization then inverse
-        int Info;
-        DPPTRF('U',nlin(),invA.data(),Info);
-        DPPTRI('U',nlin(),invA.data(),Info);
+        int Info = 0;
+        DPPTRF('U', sizet_to_int(nlin()),invA.data(),Info);
+        DPPTRI('U', sizet_to_int(nlin()),invA.data(),Info);
         om_assert(Info==0);
     #else
         std::cerr << "Positive definite inverse not defined" << std::endl;
@@ -221,22 +220,23 @@ namespace OpenMEEG {
         double d = 1.0;
     #ifdef HAVE_LAPACK
         // Bunch Kaufmqn
-        int *pivots=new int[nlin()];
+        int *pivots = new int[nlin()];
         int Info = 0;
         // TUDUtTt
-        DSPTRF('U',invA.nlin(),invA.data(),pivots,Info);
-        if(Info<0)
+        DSPTRF('U', sizet_to_int(invA.nlin()), invA.data(), pivots,Info);
+        if (Info<0)
             std::cout << "Big problem in det (DSPTRF)" << std::endl;
-        for(int i = 0; i<(int) nlin(); i++){
-            if(pivots[i] >= 0)
+        for (size_t i = 0; i< nlin(); i++){
+            if (pivots[i] >= 0) {
                 d *= invA(i,i);
-            else // pivots[i] < 0
-                if(i < (int) nlin()-1 && pivots[i] == pivots[i+1]){
+            } else { // pivots[i] < 0
+                if (i < nlin()-1 && pivots[i] == pivots[i+1]) {
                     d *= (invA(i,i)*invA(i+1,i+1)-invA(i,i+1)*invA(i+1,i));
                     i++;
-                }
-                else
+                } else {
                     std::cout << "Big problem in det" << std::endl;
+                }
+            }
         }
         delete[] pivots;
     #else
@@ -261,11 +261,11 @@ namespace OpenMEEG {
     //     int lwork;
     //     int liwork;
     // 
-    //     DSPEVD('V','U',nlin(),symtemp.data(),D.data(),Z.data(),nlin(),&lworkd,-1,&liwork,-1,info);
+    //     DSPEVD('V','U',sizet_to_int(nlin()),symtemp.data(),D.data(),Z.data(),sizet_to_int(nlin()),&lworkd,-1,&liwork,-1,info);
     //     lwork = (int) lworkd;
     //     double * work = new double[lwork];
     //     int * iwork = new int[liwork];
-    //     DSPEVD('V','U',nlin(),symtemp.data(),D.data(),Z.data(),nlin(),work,lwork,iwork,liwork,info);
+    //     DSPEVD('V','U',sizet_to_int(nlin()),symtemp.data(),D.data(),Z.data(),sizet_to_int(nlin()),work,lwork,iwork,liwork,info);
     // 
     //     delete[] work;
     //     delete[] iwork;
@@ -276,7 +276,7 @@ namespace OpenMEEG {
         om_assert(nlin()==B.nlin());
         SymMatrix C(*this,DEEP_COPY);
     #ifdef HAVE_BLAS
-        BLAS(daxpy,DAXPY)((int)(nlin()*(nlin()+1)/2), 1.0, B.data(), 1, C.data() , 1);
+        BLAS(daxpy,DAXPY)(sizet_to_int(nlin()*(nlin()+1)/2), 1.0, B.data(), 1, C.data() , 1);
     #else
         for (size_t i=0;i<nlin()*(nlin()+1)/2;i++)
             C.data()[i]+=B.data()[i];
@@ -289,7 +289,7 @@ namespace OpenMEEG {
         om_assert(nlin()==B.nlin());
         SymMatrix C(*this,DEEP_COPY);
     #ifdef HAVE_BLAS
-        BLAS(daxpy,DAXPY)((int)(nlin()*(nlin()+1)/2), -1.0, B.data(), 1, C.data() , 1);
+        BLAS(daxpy,DAXPY)(sizet_to_int(nlin()*(nlin()+1)/2), -1.0, B.data(), 1, C.data() , 1);
     #else
         for (size_t i=0;i<nlin()*(nlin()+1)/2;i++)
             C.data()[i]-=B.data()[i];
@@ -303,11 +303,10 @@ namespace OpenMEEG {
         // LU
         int *pivots = new int[nlin()];
         int Info = 0;
-        DSPTRF('U', nlin(), invA.data(), pivots, Info);
+        DSPTRF('U', sizet_to_int(nlin()), invA.data(), pivots, Info);
         // Inverse
-        int sz = (int) this->nlin() * 64;
-        double *work = new double[sz];
-        DSPTRI('U', nlin(), invA.data(), pivots, work, Info);
+        double *work = new double[this->nlin() * 64];
+        DSPTRI('U', sizet_to_int(nlin()), invA.data(), pivots, work, Info);
         om_assert(Info==0);
 
         delete[] pivots;
@@ -324,11 +323,10 @@ namespace OpenMEEG {
         // LU
         int *pivots = new int[nlin()];
         int Info = 0;
-        DSPTRF('U', nlin(), data(), pivots, Info);
+        DSPTRF('U', sizet_to_int(nlin()), data(), pivots, Info);
         // Inverse
-        int sz = (int) this->nlin() * 64;
-        double *work = new double[sz];
-        DSPTRI('U', nlin(), data(), pivots, work, Info);
+        double *work = new double[this->nlin() * 64];
+        DSPTRI('U', sizet_to_int(nlin()), data(), pivots, work, Info);
 
         om_assert(Info==0);
         delete[] pivots;
@@ -344,7 +342,7 @@ namespace OpenMEEG {
         om_assert(nlin()==v.size());
         Vector y(nlin());
     #ifdef HAVE_BLAS
-        DSPMV(CblasUpper,(int)nlin(),1.,data(),v.data(),1,0.,y.data(),1);
+        DSPMV(CblasUpper,sizet_to_int(nlin()),1.,data(),v.data(),1,0.,y.data(),1);
     #else
         for (size_t i=0;i<nlin();i++) {
             y(i)=0;

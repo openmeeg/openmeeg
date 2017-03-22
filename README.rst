@@ -98,7 +98,7 @@ then::
     $ cmake -DBUILD_TESTING=ON -DCMAKE_BUILD_TYPE=Release -DUSE_PROGRESSBAR=ON -DBUILD_DOCUMENTATION=OFF -DENABLE_PYTHON=OFF ..
     $ make
 
-OpenMEEG will download and compile the **zlib**, **hdf5**, and **matio** by default. In case your system already provides these libraries (see optional packages), you should specify the following variables to the cmake command line: "-DUSE_SYSTEM_zlib=ON -DUSE_SYSTEM_hdf5=ON -DUSE_SYSTEM_matio=ON".
+OpenMEEG will download and compile the **zlib**, (optional **vtk**), **hdf5**, and **matio** by default. In case your system already provides these libraries (see optional packages), you should specify the following variables to the cmake command line: "-DUSE_SYSTEM_zlib=ON -DUSE_SYSTEM_hdf5=ON -DUSE_SYSTEM_matio=ON".
 
 You will need to define more CMake variables if you want the support for:
 
@@ -108,9 +108,9 @@ You will need to define more CMake variables if you want the support for:
 
 - Python wrapping, add "-DENABLE_PYTHON=ON".
 
-- CGAL meshing tools, add "-DUSE_CGAL=ON".
-
 - VTK file format, add "-DUSE_VTK=ON".
+
+- CGAL meshing tools, add "-DUSE_CGAL=ON".
 
 Then you can run the full test suite with::
 

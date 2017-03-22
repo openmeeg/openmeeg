@@ -11,7 +11,7 @@ cmake_minimum_required(VERSION 2.8.12)
 if (CMAKE_MAJOR_VERSION EQUAL 3)
     cmake_policy(SET CMP0048 NEW)
     cmake_policy(SET CMP0037 OLD)
-    set(PROJECT_VERSION VERSION 2.3.0.1)
+    set(PROJECT_VERSION VERSION 2.3.0.2)
 endif()
 
 # Set CMAKE_BUILD_TYPE to Release by default.
@@ -26,7 +26,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake ${CMAKE_CURRENT_SOURCE_D
 
 project(OpenMEEG-superProject ${PROJECT_VERSION})  # XXX don't call it super project
 
-# Setup everything (MODULE_PATH, check environment, basic targets, options
+# Setup everything MODULE_PATH, check environment, basic targets, options
 
 include(Setup)
 
@@ -40,7 +40,7 @@ endif()
 
 # There are three possibilities:
 # - if the option USE_SYSTEM_${external_project} is set, then the system version
-#   will be used (not yet fully tested)
+#   will be used
 # - if the option USE_SYSTEM_${external_project} is not set:
 #   * there is a subdir with the package name, in which case this subdir is used
 #     directly
@@ -65,6 +65,13 @@ if (NOT LAPACK_LIBRARIES AND USE_LAPACK)
     option(CLAPACK_BUILD_TESTING "Build CLAPACK tests" OFF)
 endif()
 
-subprojects(${MSINTTYPES} zlib hdf5 matio ${LAPACK} OpenMEEG)
+if (USE_VTK)
+    set(VTK_ VTK)
+    if (VTK_FOUND)
+        set(USE_SYSTEM_VTK True CACHE BOOL "Use the VTK from the system" FORCE)
+    endif()
+endif()
+
+subprojects(${MSINTTYPES} zlib ${VTK_} hdf5 matio ${LAPACK} OpenMEEG)
 
 include(Packaging)

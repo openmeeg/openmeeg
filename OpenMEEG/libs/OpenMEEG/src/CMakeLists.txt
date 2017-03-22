@@ -17,8 +17,8 @@ function(create_library libname)
 endfunction()
 
 set(OpenMEEG_SOURCES 
-    assembleFerguson.cpp assembleHeadMat.cpp assembleSourceMat.cpp assembleSensors.cpp domain.cpp mesh.cpp interface.cpp
-    danielsson.cpp geometry.cpp operators.cpp sensors.cpp)
+    assembleFerguson.cpp assembleHeadMat.cpp assembleSourceMat.cpp assembleSensors.cpp domain.cpp
+    mesh.cpp interface.cpp danielsson.cpp geometry.cpp operators.cpp sensors.cpp)
 
 create_library(OpenMEEG ${OpenMEEG_SOURCES})
 target_link_libraries(OpenMEEG PUBLIC OpenMEEGMaths PRIVATE ${OPENMEEG_LIBRARIES} ${LAPACK_LIBRARIES})

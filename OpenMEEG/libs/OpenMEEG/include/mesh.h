@@ -134,7 +134,7 @@ namespace OpenMEEG {
         vertex_iterator               vertex_begin()        { return vertices_.begin(); }
         vertex_iterator               vertex_end()          { return vertices_.end(); }
 
-        unsigned                      vertex_size()   const { return vertices_.size(); } // Just for old OpenMP implementations.
+        const size_t                  vertex_size()   const { return vertices_.size(); } // Just for old OpenMP implementations.
 
         const_vertex_iterator         vertex_begin()  const { return vertices_.begin(); }
         const_vertex_iterator         vertex_end()    const { return vertices_.end(); }
@@ -146,11 +146,11 @@ namespace OpenMEEG {
         const std::string &           name()          const { return name_; } ///< \return the mesh name
 
         const VectPVertex &           vertices()      const { return vertices_; } ///< \return the vector of pointers to the mesh vertices
-              unsigned                nb_vertices()   const { return vertices_.size(); }
-              unsigned                nb_triangles()  const { return size(); }
+        const size_t                  nb_vertices()   const { return vertices_.size(); }
+        const size_t                  nb_triangles()  const { return size(); }
 
               Vertices                all_vertices()    const { return *all_vertices_; }
-              unsigned                nb_all_vertices() const { return all_vertices_->size(); }
+        const size_t                  nb_all_vertices() const { return all_vertices_->size(); }
 
         /// \brief properly add vertex to the list.
 
