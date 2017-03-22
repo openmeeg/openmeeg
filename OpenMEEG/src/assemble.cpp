@@ -260,7 +260,7 @@ int main(int argc, char** argv)
         bool adapt_rhs = true;
 
         // Choosing between adaptive integration or not for the RHS
-        if ( !strcmp(argv[1], "-DipSourceMatNoAdapt")|(!strcmp(argv[1], "-DSMNA"))|(!strcmp(argv[1], "-dsmna"))){
+        if ( !strcmp(argv[1], "-DipSourceMatNoAdapt")|(!strcmp(argv[1], "-DSMNA"))|(!strcmp(argv[1], "-dsmna"))) {
             adapt_rhs = false;
         }
 
@@ -296,6 +296,7 @@ int main(int argc, char** argv)
         geo.read(argv[2], argv[3], OLD_ORDERING);
 
         Sensors electrodes(argv[4], geo); // special parameter for EIT electrodes: the interface
+        electrodes.info(); // <- just to test that function on the code coverage
         EITSourceMat EITsource(geo, electrodes, gauss_order);
         EITsource.save(argv[5]);
     }
