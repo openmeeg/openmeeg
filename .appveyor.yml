@@ -13,11 +13,19 @@ configuration: Release
 install:
   # by default, all script lines are interpreted as batch
 
+environment:
+  matrix:
+    - lapack: OpenBLAS
+    - lapack: LAPACK
+
+matrix:
+  fast_finish: true
+
 build_script:
   - echo Running cmake...
   - mkdir build
   - cd build
-  - cmake -G "Visual Studio 14 2015 Win64" -DBUILD_SHARED=ON -DBUILD_DOCUMENTATION=OFF -DBUILD_TESTING:BOOL=ON -DENABLE_PACKAGING:BOOL=ON -DCMAKE_SKIP_RPATH:BOOL=OFF -DENABLE_PYTHON=OFF -DBLASLAPACK_IMPLEMENTATION=LAPACK ..
+  - cmake -G "Visual Studio 14 2015 Win64" -DBUILD_SHARED=ON -DBUILD_DOCUMENTATION=OFF -DBUILD_TESTING:BOOL=ON -DENABLE_PACKAGING:BOOL=ON -DCMAKE_SKIP_RPATH:BOOL=OFF -DENABLE_PYTHON=OFF -DBLASLAPACK_IMPLEMENTATION=%lapack% ..
   - cmake --build . --config Release
 
 after_build:
@@ -30,7 +38,7 @@ before_test:
   - ctest -V
 
 artifacts:
-  - path: build\OpenMEEG-*-Win64-static.exe
+  - path: build\OpenMEEG-*.exe
     name: OpenMEEG-Win64.exe
-  - path: build\OpenMEEG-*-Win64-static.tar.gz
-    name: OpenMEEG-Win64.exe
+  - path: build\OpenMEEG-*.tar.gz
+    name: OpenMEEG-Win64.tar.gz

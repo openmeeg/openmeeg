@@ -129,7 +129,7 @@ if (ENABLE_PACKAGING)
         endif()
     endif()
 
-    if (ENABLE_PACKAGING AND WIN32)
+    if (WIN32)
         include(UseWin32dlls)
     endif()
 endif()

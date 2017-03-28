@@ -2,6 +2,12 @@
 
 #include <BlasLapackImplementations/FortranCInterface.h>
 
+#if WIN32
+    #define LAPACK_COMPLEX_CUSTOM
+    #define lapack_complex_float float
+    #define lapack_complex_double double
+#endif
+
 #include <cblas.h>
 #include <lapacke.h>
 #undef I // undefine this def due to complex.h that causes issues later
