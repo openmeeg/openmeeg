@@ -28,28 +28,18 @@ if (USE_OPENBLAS)
             execute_process(COMMAND ${CMAKE_COMMAND} -E tar xfz ${CMAKE_SOURCE_DIR}/mingw.zip)
         else()
             file(GLOB OpenBLAS_DIR "${CMAKE_BINARY_DIR}/../../OpenBLAS*")
-            file(GLOB MinGW_LIBS "${CMAKE_BINARY_DIR}/../../mingw*/lib*")
 
             # add openblas as a shared imported lib
             add_library(libopenblas SHARED IMPORTED)
             set_property(TARGET libopenblas PROPERTY IMPORTED_LOCATION ${OpenBLAS_DIR}/bin/libopenblas.dll)
             set_property(TARGET libopenblas PROPERTY IMPORTED_IMPLIB   ${OpenBLAS_DIR}/lib/libopenblas.dll.a)
 
-            # copy Dlls to build and install.
-            set(OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/src/${CMAKE_BUILD_TYPE})
-            foreach(lib ${MinGW_LIBS} ${OpenBLAS_DIR}/bin/libopenblas.dll)
-               configure_file(${lib} ${OUTPUT_DIRECTORY} COPYONLY)
-            endforeach()
-
-            install(FILES ${MinGW_LIBS} ${OpenBLAS_DIR}/bin/libopenblas.dll DESTINATION bin
-                    PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ
-                    GROUP_EXECUTE GROUP_READ)
-
             # set variables manually as the OpenBLASConfig.cmake given is wrong
             set(OpenBLAS_INCLUDE_DIR ${OpenBLAS_DIR}/include)
         endif()
         set(OpenBLAS_LIBRARIES libopenblas)
         set(OpenBLAS_FOUND TRUE)
+        mark_as_advanced(OpenBLAS_DIR)
     else()
         find_package(OpenBLAS ${REQUIRED} MODULE)
     endif()
