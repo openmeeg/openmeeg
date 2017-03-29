@@ -158,7 +158,7 @@ Supported Blas-Lapack Implementations
 
 - on Mac OS X: `Intel MKL <http://software.intel.com/en-us/intel-mkl/>`_ , `OpenBLAS <http://www.openblas.net/>`_, `vecLib <https://developer.apple.com/reference/accelerate/veclib>`_
 
-- on Windows: `Intel MKL <http://software.intel.com/en-us/intel-mkl/>`_ , `Clapack <https://github.com/openmeeg/clapack>`_
+- on Windows: `Intel MKL <http://software.intel.com/en-us/intel-mkl/>`_ , `OpenBLAS <http://www.openblas.net/>`_, `Clapack <https://github.com/openmeeg/clapack>`_
 
 Using OpenMEEG
 --------------
