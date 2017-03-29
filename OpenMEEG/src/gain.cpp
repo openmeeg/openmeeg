@@ -186,21 +186,6 @@ int main(int argc, char **argv)
         GainInternalPot InternalPotGainMat(HeadMatInv, SourceMat, Head2IPMat, Source2IPMat);
         InternalPotGainMat.save(argv[6]);
     }
-    else if ( (!strcmp(argv[1], "-StimInternalPotential"))|(!strcmp(argv[1], "-SIP")) ) {
-        if ( argc<6 ) {
-            cerr << "Not enough arguments \nPlease try \"" << argv[0] << " -h\" or \"" << argv[0] << " --help \" \n" << endl;
-            return 0;
-        }
-        SymMatrix HeadMatInv;
-        HeadMatInv.load(argv[2]);
-        Matrix SourceMat;
-        SourceMat.load(argv[3]);
-        Matrix Head2IPMat;
-        Head2IPMat.load(argv[4]);
-
-        GainStimInternalPot StimInternalPotGainMat(HeadMatInv, SourceMat, Head2IPMat);
-        StimInternalPotGainMat.save(argv[5]);
-    }
     else if ( (!strcmp(argv[1], "-EITInternalPotential"))||(!strcmp(argv[1], "-EITIP")) ) {
         if ( argc<6 ){
             cerr << "Not enough arguments \nPlease try \"" << argv[0] << " -h\" or \"" << argv[0] << " --help \" \n" << endl;
@@ -248,11 +233,10 @@ void getHelp(char** argv)
     cout << "            HeadMatInv, SourceMat, Head2IPMat, Source2IPMat" << endl;
     cout << "            InternalPotential gain Matrix (.txt)" << endl << endl;
 
-    cout << "   -StimInternalPotential or -SIP : Compute the gain for internal potential," << endl;
-    cout << "            when source is current injection on outer surface " << endl;
+    cout << "   -EITInternalPotential or -EITIP :   Compute the gain for internal potentials using boundary normal current as input" << endl;
     cout << "            Filepaths are in order :" << endl;
     cout << "            HeadMatInv, SourceMat, Head2IPMat" << endl;
-    cout << "            StimInternalPotential gain Matrix (.txt)" << endl << endl;
+    cout << "            EITInternalPotential gain Matrix" << endl << endl;
 
     cout << "   -EEGadjoint :   Compute the gain for EEG " << endl;
     cout << "            Filepaths are in order :" << endl;
@@ -276,14 +260,6 @@ void getHelp(char** argv)
     cout << "            conductivity file (.cond)" << endl;
     cout << "            dipoles positions and orientations" << endl;
     cout << "            HeadMat, Head2EEGMat, Head2MEGMat, Source2MEGMat, EEGGainMatrix, MEGGainMatrix" << endl;
-    cout << "            bin Matrix" << endl << endl;
-
-    cout << "   -EITInternalPotential :   Compute the gain for internal potentials using boundary normal current as input" << endl;
-    cout << "            Filepaths are in order :" << endl;
-    cout << "            geometry file (.geom)" << endl;
-    cout << "            conductivity file (.cond)" << endl;
-    cout << "            dipoles positions and orientations" << endl;
-    cout << "            HeadMatInv, SourceMat, Head2IPMat" << endl;
     cout << "            bin Matrix" << endl << endl;
 
     exit(0);

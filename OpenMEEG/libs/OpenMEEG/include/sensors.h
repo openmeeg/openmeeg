@@ -51,6 +51,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <symmatrix.h>
 #include <geometry.h>
 #include <sparse_matrix.h>
+#include <OMassert.H>
 
 #include <DLLDefinesOpenMEEG.h>
 
@@ -120,13 +121,13 @@ namespace OpenMEEG {
         bool hasNames() const { return m_names.size() == m_nb ;} /*!< Return true if contains all sensors names */
         Vector getPosition(size_t idx) const; /*!< Return the position (3D point) of the integration point i. */
         Vector getOrientation(size_t idx) const; /*!< Return the orientations (3D point) of the integration point i. */
-        std::string getName(size_t idx) const{ return m_names[idx]; } /*!< Return the name of the idx_th sensor */
+        std::string getName(size_t idx) const{ om_assert(idx < m_names.size()); return m_names[idx]; } /*!< Return the name of the idx_th sensor */
         void setPosition(size_t idx, Vector& pos); /*!< Set the position (3D point) of the integration point i. */
         void setOrientation(size_t idx, Vector& orient); /*!< Set the orientation (3D point) of the integration point i. */
 
         bool hasSensor(std::string name);
         size_t getSensorIdx(std::string name);
-        Triangles getInjectionTriangles(size_t idx) const { return m_triangles[idx]; } /*!< For EIT, get triangles under the current injection electrode. */
+        Triangles getInjectionTriangles(size_t idx) const { om_assert(idx < m_triangles.size()); return m_triangles[idx]; } /*!< For EIT, get triangles under the current injection electrode. */
 
         Vector getRadius() const { return m_radius; }
         Vector getWeights() const { return m_weights; }
