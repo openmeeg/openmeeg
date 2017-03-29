@@ -70,6 +70,7 @@ Dependencies(OpenMEEG matio)
 if (NOT matio_FOUND)
     message(FATAL_ERROR "No matio found.")
 endif()
+# check matio version. TODO remove this check in 2018 (matio 1.5.0 was out in 2012!)
 if (matio_VERSION VERSION_LESS "1.5.0")
     message(WARNING "Found matio version: ${MATIO_VERSION}")
     message(FATAL_ERROR "OpenMEEG will not compile with matio versions less than 1.5.0.")
@@ -251,7 +252,7 @@ install(FILES ${PROJECT_SOURCE_DIR}/LICENSE.txt  ${PROJECT_SOURCE_DIR}/../README
 install(FILES ${OpenMEEG_BINARY_DIR}/OpenMEEGConfigure.h
         DESTINATION ${OPENMEEG_HEADER_INSTALLDIR} COMPONENT Development)
 
-if (NOT USE_MKL AND NOT WIN32)
+if (NOT USE_MKL AND NOT WIN32 AND NOT USE_OPENBLAS)
     install(FILES ${OpenMEEG_BINARY_DIR}/FC.h
             DESTINATION ${OPENMEEG_HEADER_INSTALLDIR} COMPONENT Development)
 endif()

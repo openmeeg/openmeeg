@@ -1,7 +1,5 @@
 #pragma once
 
-#include <BlasLapackImplementations/FortranCInterface.h>
-
 #if WIN32
     #define LAPACK_COMPLEX_CUSTOM
     #define lapack_complex_float float
