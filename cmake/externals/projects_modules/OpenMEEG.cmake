@@ -46,6 +46,7 @@ function(OpenMEEG_project)
         ${hdf5_CMAKE_FLAGS}
         ${matio_CMAKE_FLAGS}
         ${VTK_CMAKE_FLAGS}
+        ${OpenBLAS_CMAKE_FLAGS}
     )
 
     # Check if patch has to be applied
