@@ -34,4 +34,6 @@ if (NOT matio_LIBRARIES)
         set(matio_LIBRARIES)
         set(matio_INCLUDE_DIRS)
     endif()
+
+    include(matioVersion)
 endif()

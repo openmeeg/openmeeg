@@ -70,6 +70,11 @@ Dependencies(OpenMEEG matio)
 if (NOT matio_FOUND)
     message(FATAL_ERROR "No matio found.")
 endif()
+# check matio version. TODO remove this check in 2018 (matio 1.5.0 was out in 2012!)
+if (matio_VERSION VERSION_LESS "1.5.0")
+    message(WARNING "Found matio version: ${MATIO_VERSION}")
+    message(FATAL_ERROR "OpenMEEG will not compile with matio versions less than 1.5.0.")
+endif()
 
 #---------------------------------------------------------------
 # Include OpenMEEG Directories

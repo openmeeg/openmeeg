@@ -1,7 +1,5 @@
 #pragma once
 
-#define FC_GLOBAL(x,X) x ## _
-
 #if WIN32
     #define LAPACK_COMPLEX_CUSTOM
     #define lapack_complex_float float
