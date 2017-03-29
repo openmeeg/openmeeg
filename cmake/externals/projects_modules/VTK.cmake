@@ -16,7 +16,7 @@ function(VTK_project)
     # Prepare the project and list dependencies
 
     EP_Initialisation(VTK BUILD_SHARED_LIBS ON)
-    EP_SetDependencies(${ep}_dependencies Qt4 zlib)
+    EP_SetDependencies(${ep}_dependencies zlib)
 
     # Define repository where get the sources
 
@@ -37,14 +37,19 @@ function(VTK_project)
 
     set(cmake_args
         ${ep_common_cache_args}
+        ${zlib_CMAKE_FLAGS}
         -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
         -DCMAKE_C_FLAGS:STRING=${${ep}_c_flags}
         -DCMAKE_CXX_FLAGS:STRING=${${ep}_cxx_flags}
         -DCMAKE_SHARED_LINKER_FLAGS:STRING=${${ep}_shared_linker_flags}  
         -DBUILD_SHARED_LIBS:BOOL=${BUILD_SHARED_LIBS_${ep}}
-        -DQT_QMAKE_EXECUTABLE:FILEPATH=${QT_QMAKE_EXECUTABLE}
-        -DVTK_USE_QT:BOOL=ON
         -DVTK_WRAP_TCL:BOOL=OFF
+        -DVTK_USE_SYSTEM_ZLIB:BOOL=ON
+        -DVTK_Group_Rendering:BOOL=OFF
+        -DVTK_Group_StandAlone:BOOL=OFF
+        -DModule_vtkIOLegacy:BOOL=ON
+        -DModule_vtkIOCore:BOOL=ON
+        -DModule_vtkIOXML:BOOL=ON
         -DBUILD_TESTING:BOOL=OFF 
     )
 
