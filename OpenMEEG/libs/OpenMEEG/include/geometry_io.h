@@ -47,18 +47,15 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <vtkPoints.h>
 #include <vtkXMLPolyDataReader.h>
 #include <vtkXMLPolyDataWriter.h>
-#include <vtkDataReader.h>
 #include <vtkCellArray.h>
 #include <vtkDoubleArray.h>
 #include <vtkUnsignedIntArray.h>
-#include <vtkProperty.h>
 #include <vtkPointData.h>
 #include <vtkCellData.h>
 #include <vtkDataArray.h>
 #include <vtkAbstractArray.h>
 #include <vtkStringArray.h>
 #include <vtkSmartPointer.h>
-#include <vtkCleanPolyData.h>
 #endif
 
 namespace OpenMEEG {

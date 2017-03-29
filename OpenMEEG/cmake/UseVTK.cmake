@@ -12,7 +12,7 @@ if (USE_VTK)
 
     find_package(VTK ${REQUIRED} COMPONENTS vtkIOXML vtkIOLegacy NO_MODULE PATHS ${VTK_DIR})
     if (VTK_FOUND)
-        if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+        if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
             add_compile_options(-Wno-inconsistent-missing-override)
         endif()
         set(OPENMEEG_OTHER_LIBRARY_DIRECTORIES ${VTK_LIBRARY_DIRS} ${OPENMEEG_OTHER_LIBRARY_DIRECTORIES})
