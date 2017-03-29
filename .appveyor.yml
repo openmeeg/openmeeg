@@ -16,7 +16,9 @@ install:
 environment:
   matrix:
     - lapack: OpenBLAS
+      vtk: ON
     - lapack: LAPACK
+      vtk: OFF
 
 matrix:
   fast_finish: true
@@ -25,7 +27,7 @@ build_script:
   - echo Running cmake...
   - mkdir build
   - cd build
-  - cmake -G "Visual Studio 14 2015 Win64" -DBUILD_SHARED=ON -DBUILD_DOCUMENTATION=OFF -DBUILD_TESTING:BOOL=ON -DENABLE_PACKAGING:BOOL=ON -DCMAKE_SKIP_RPATH:BOOL=OFF -DENABLE_PYTHON=OFF -DBLASLAPACK_IMPLEMENTATION=%lapack% ..
+  - cmake -G "Visual Studio 14 2015 Win64" -DBUILD_SHARED=ON -DBUILD_DOCUMENTATION=OFF -DBUILD_TESTING:BOOL=ON -DENABLE_PACKAGING:BOOL=ON -DCMAKE_SKIP_RPATH:BOOL=OFF -DENABLE_PYTHON=OFF -DBLASLAPACK_IMPLEMENTATION=%lapack% -DUSE_VTK=%vtk% ..
   - cmake --build . --config Release
 
 after_build:
