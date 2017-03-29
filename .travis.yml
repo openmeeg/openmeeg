@@ -17,6 +17,7 @@ matrix:
       env:
         - USE_SYSTEM=1
         - USE_PROJECT=1
+        - USE_PYTHON=1
         - BLASLAPACK_IMPLEMENTATION=vecLib
         - BUILD_DOCUMENTATION=1
     - os: osx
@@ -38,6 +39,7 @@ matrix:
         - USE_PROJECT=1
         - USE_CGAL=1
         - USE_VTK=1
+        - USE_PYTHON=1
         - USE_COVERAGE=1
     - os: linux
       compiler: gcc
