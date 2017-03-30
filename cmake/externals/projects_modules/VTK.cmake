@@ -23,7 +23,10 @@ function(VTK_project)
     # Set GIT_TAG to latest commit of origin/release-6.3 known to work
     set(tag 9e24f51afcaebd4fbd474e8f9e620bad8997c0a3)
     if (NOT DEFINED ${ep}_SOURCE_DIR)
-        set(location GIT_REPOSITORY "git://vtk.org/VTK.git" GIT_TAG ${tag})
+        #set(location GIT_REPOSITORY "git://vtk.org/VTK.git" GIT_TAG ${tag})
+        set(location
+            URL "http://www.vtk.org/files/release/7.1/VTK-7.1.1.tar.gz"
+            URL_MD5 "daee43460f4e95547f0635240ffbc9cb")
     endif()
 
     # Add specific cmake arguments for configuration step of the project

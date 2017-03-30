@@ -42,7 +42,8 @@ before_test:
   - echo Running tests...
   - cd C:\projects\openmeeg\build\OpenMEEG\build
     # needed to find the dlls (VTK, (OpenBLAS, mingw), MKL)
-  - setPATH
+  - setPATH.cmd
+  - echo %PATH%
   - ctest -V
 
 artifacts:

@@ -7,7 +7,7 @@ if (USE_OPENBLAS)
         # special case for windows
         if (${CMAKE_PROJECT_NAME} STREQUAL "OpenMEEG")
             # so that the dlls can be found at runtime
-            set(CMAKE_MSVCIDE_RUN_PATH ${OpenBLAS_DIR}/bin ${CMAKE_BINARY_DIR}/mingw32_dll ${CMAKE_BINARY_DIR}/mingw64_dll ${CMAKE_MSVCIDE_RUN_PATH})
+            set(CMAKE_MSVCIDE_RUN_PATH ${OpenBLAS_DIR}/bin ${OpenBLAS_DIR}/../mingw32_dll ${OpenBLAS_DIR}/../mingw64_dll ${CMAKE_MSVCIDE_RUN_PATH})
             # add openblas as a shared imported lib
             add_library(libopenblas SHARED IMPORTED)
             set_property(TARGET libopenblas PROPERTY IMPORTED_LOCATION ${OpenBLAS_DIR}/bin/libopenblas.dll)
