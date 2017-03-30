@@ -39,16 +39,3 @@ install(DIRECTORY ${PROJECT_BINARY_DIR}/win32depends/ DESTINATION bin
            PATTERN "${PROJECT_BINARY_DIR}/win32depends/*"
            PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ
                        GROUP_EXECUTE GROUP_READ)
-
-if (USE_OPENBLAS)
-    file(GLOB MinGW_LIBS "${PROJECT_BINARY_DIR}/../../mingw*/lib*")
-    # copy Dlls to build and install.
-    set(OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/src/${CMAKE_BUILD_TYPE})
-    foreach(lib ${MinGW_LIBS} ${OpenBLAS_DIR}/bin/libopenblas.dll)
-        file(COPY ${lib} DESTINATION ${OUTPUT_DIRECTORY})
-    endforeach()
-
-    install(FILES ${MinGW_LIBS} ${OpenBLAS_DIR}/bin/libopenblas.dll DESTINATION bin
-        PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ
-        GROUP_EXECUTE GROUP_READ)
-endif()

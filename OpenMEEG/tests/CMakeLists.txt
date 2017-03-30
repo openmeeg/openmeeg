@@ -229,3 +229,8 @@ foreach(DIP 1 2 3 4 5 6)
         endforeach()
     endforeach()
 endforeach()
+
+if(WIN32)
+    # specially on WIN32, create a .cmd file that set correctly the PATH (run this before running tests)
+    configure_file(${OpenMEEG_SOURCE_DIR}/cmake/setPATH.cmd.in ${OpenMEEG_BINARY_DIR}/setPATH.cmd)
+endif()
