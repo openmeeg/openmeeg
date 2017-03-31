@@ -41,5 +41,3 @@ else
 fi
 
 make
-
-ctest -V
