@@ -2,11 +2,9 @@
 // Copyright (C) 2011-2017 - Jean-Christophe Lombardo, Inria
 
 #include <vtkSmartPointer.h>
-#include <vtkDataSetMapper.h>
 #include <vtkCellArray.h>
 #include <vtkPolyData.h>
 #include <vtkPolyDataReader.h>
-#include <vtkPolyDataMapper.h>
 #include <vtkPointData.h>
 #include <vtkCellData.h>
 #include <vtkUnsignedIntArray.h>

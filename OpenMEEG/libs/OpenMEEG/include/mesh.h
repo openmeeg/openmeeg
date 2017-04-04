@@ -61,11 +61,8 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <vtkDataReader.h>
 #include <vtkCellArray.h>
 #include <vtkCharArray.h>
-#include <vtkProperty.h>
-#include <vtkPolyDataNormals.h>
 #include <vtkPointData.h>
 #include <vtkDataArray.h>
-#include <vtkCleanPolyData.h>
 #endif
 
 #ifdef USE_GIFTI

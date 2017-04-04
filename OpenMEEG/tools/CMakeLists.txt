@@ -1,48 +1,48 @@
 add_executable(om_make_nerve make_nerve.cpp)
-target_link_libraries (om_make_nerve OpenMEEG ${VTK_LIBRARIES})
+target_link_libraries(om_make_nerve OpenMEEG ${VTK_LIBRARIES})
 
 add_executable(om_mesh_convert mesh_convert.cpp)
-target_link_libraries (om_mesh_convert OpenMEEG ${LAPACK_LIBRARIES} ${VTK_LIBRARIES})
+target_link_libraries(om_mesh_convert OpenMEEG ${LAPACK_LIBRARIES} ${VTK_LIBRARIES})
 
 add_executable(om_geometry_info geometry_info.cpp)
-target_link_libraries (om_geometry_info OpenMEEG ${VTK_LIBRARIES})
+target_link_libraries(om_geometry_info OpenMEEG ${VTK_LIBRARIES})
 
 add_executable(om_mesh_info mesh_info.cpp)
-target_link_libraries (om_mesh_info OpenMEEG ${VTK_LIBRARIES})
+target_link_libraries(om_mesh_info OpenMEEG ${VTK_LIBRARIES})
 
 add_executable(om_mesh_smooth mesh_smooth.cpp)
-target_link_libraries (om_mesh_smooth OpenMEEG ${VTK_LIBRARIES})
+target_link_libraries(om_mesh_smooth OpenMEEG ${VTK_LIBRARIES})
 
 add_executable(om_mesh_concat mesh_concat.cpp)
-target_link_libraries (om_mesh_concat OpenMEEG ${VTK_LIBRARIES})
+target_link_libraries(om_mesh_concat OpenMEEG ${VTK_LIBRARIES})
 
 add_executable(om_project_sensors project_sensors.cpp)
-target_link_libraries (om_project_sensors OpenMEEG ${LAPACK_LIBRARIES} ${VTK_LIBRARIES})
+target_link_libraries(om_project_sensors OpenMEEG ${LAPACK_LIBRARIES} ${VTK_LIBRARIES})
 
 add_executable(om_register_squids register_squids.cpp)
-target_link_libraries (om_register_squids OpenMEEG ${LAPACK_LIBRARIES} ${VTK_LIBRARIES})
+target_link_libraries(om_register_squids OpenMEEG ${LAPACK_LIBRARIES} ${VTK_LIBRARIES})
 
 add_executable(om_squids2vtk squids2vtk.cpp)
-target_link_libraries (om_squids2vtk OpenMEEGMaths)
+target_link_libraries(om_squids2vtk OpenMEEGMaths)
 
 add_executable(om_matrix_info matrix_info.cpp)
-target_link_libraries (om_matrix_info OpenMEEGMaths)
+target_link_libraries(om_matrix_info OpenMEEGMaths)
 
 add_executable(om_matrix_convert matrix_convert.cpp)
-target_link_libraries (om_matrix_convert OpenMEEGMaths)
+target_link_libraries(om_matrix_convert OpenMEEGMaths)
 
 add_executable(om_check_geom check_geom.cpp)
-target_link_libraries (om_check_geom OpenMEEG ${VTK_LIBRARIES})
+target_link_libraries(om_check_geom OpenMEEG ${VTK_LIBRARIES})
 
 add_executable(om_mesh_to_dip mesh_to_dip.cpp)
-target_link_libraries (om_mesh_to_dip OpenMEEG ${VTK_LIBRARIES})
+target_link_libraries(om_mesh_to_dip OpenMEEG ${VTK_LIBRARIES})
 
 if (USE_CGAL)
     set(OM_CGAL_EXEC)
     foreach(target cgal_mesh_function cgal_remesh)
         add_executable(om_${target} ${target}.cpp)
         list(APPEND OM_CGAL_EXEC om_${target})
-        target_link_libraries (om_${target} OpenMEEG ${CGAL_LIBRARIES} ${VTK_LIBRARIES})
+        target_link_libraries(om_${target} OpenMEEG ${CGAL_LIBRARIES} ${VTK_LIBRARIES})
         target_include_directories(om_${target} PUBLIC ${CGAL_INCLUDE_DIRS})
         target_compile_options(om_${target} PUBLIC ${CGAL_CXX_FLAGS})
     endforeach()
@@ -50,30 +50,33 @@ if (USE_CGAL)
         foreach(target cgal_mesh_3Dlevelset_image cgal_mesh_3Dlabeled_image)
             add_executable(om_${target} ${target}.cpp)
             list(APPEND OM_CGAL_EXEC om_${target})
-            target_link_libraries (om_${target} OpenMEEG ${CGAL_LIBRARIES} ${VTK_LIBRARIES})
+            target_link_libraries(om_${target} OpenMEEG ${CGAL_LIBRARIES} ${VTK_LIBRARIES})
             target_include_directories(om_${target} PUBLIC ${CGAL_INCLUDE_DIRS})
             target_compile_options(om_${target} PUBLIC ${CGAL_CXX_FLAGS})
         endforeach()
     endif()
     install(TARGETS ${OM_CGAL_EXEC} DESTINATION bin)
     if (BUILD_TESTING)
-        OPENMEEG_TEST(cgal_remesh ${CMAKE_CURRENT_BINARY_DIR}/om_cgal_remesh -i ${CMAKE_SOURCE_DIR}/data/Head1/cortex.1.tri -o ${OpenMEEG_BINARY_DIR}/tests/remeshed.tri)
+        OPENMEEG_TEST(cgal_remesh om_cgal_remesh -i ${CMAKE_SOURCE_DIR}/data/Head1/cortex.1.tri -o ${OpenMEEG_BINARY_DIR}/tests/remeshed.tri)
     endif()
 endif()
 
 if (USE_VTK)
     add_executable(om_vtp_to_meshes vtp_to_meshes.cpp)
-    target_link_libraries (om_vtp_to_meshes OpenMEEG ${VTK_LIBRARIES})
+    target_link_libraries(om_vtp_to_meshes OpenMEEG ${VTK_LIBRARIES})
 
     add_executable(om_meshes_to_vtp meshes_to_vtp.cpp)
-    target_link_libraries (om_meshes_to_vtp OpenMEEG ${VTK_LIBRARIES})
+    target_link_libraries(om_meshes_to_vtp OpenMEEG ${VTK_LIBRARIES})
 
     add_executable(om_add_dataset_to_vtk add_dataset_to_vtk.cpp)
-    target_link_libraries (om_add_dataset_to_vtk OpenMEEG ${VTK_LIBRARIES})
-    install(TARGETS om_vtp_to_meshes om_meshes_to_vtp om_add_dataset_to_vtk DESTINATION bin)
+    target_link_libraries(om_add_dataset_to_vtk OpenMEEG ${VTK_LIBRARIES})
+
+    install(TARGETS om_vtp_to_meshes om_meshes_to_vtp om_add_dataset_to_vtk 
+            DESTINATION bin)
+
     if (BUILD_TESTING)
-        OPENMEEG_TEST(meshes_to_vtp ${CMAKE_CURRENT_BINARY_DIR}/om_meshes_to_vtp -i1 ${CMAKE_SOURCE_DIR}/data/Head1/cortex.1.tri -i2 ${CMAKE_SOURCE_DIR}/data/Head1/skull.1.tri -i3 ${CMAKE_SOURCE_DIR}/data/Head1/scalp.1.tri -n1 "cortex" -n2 "skull" -n3 "scalp" -o ${OpenMEEG_BINARY_DIR}/tests/Head1.vtp)
-        OPENMEEG_TEST(vtp_to_meshes ${CMAKE_CURRENT_BINARY_DIR}/om_vtp_to_meshes -i ${OpenMEEG_BINARY_DIR}/tests/Head1.vtp -o ${OpenMEEG_BINARY_DIR}/tests/meshes.tri)
+        OPENMEEG_TEST(meshes_to_vtp om_meshes_to_vtp -g ${CMAKE_SOURCE_DIR}/data/Head1/Head1.geom -o ${OpenMEEG_BINARY_DIR}/tests/Head1.vtp)
+        OPENMEEG_TEST(vtp_to_meshes om_vtp_to_meshes -i ${OpenMEEG_BINARY_DIR}/tests/Head1.vtp -o ${OpenMEEG_BINARY_DIR}/tests/meshes.tri DEPENDS meshes_to_vtp)
     endif()
 endif()
 

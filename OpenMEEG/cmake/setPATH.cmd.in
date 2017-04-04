@@ -1,0 +1,2 @@
+rem to be run before running tests
+@set PATH=@CMAKE_MSVCIDE_RUN_PATH@;%PATH%

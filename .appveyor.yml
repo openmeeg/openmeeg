@@ -12,11 +12,17 @@ configuration: Release
 
 install:
   # by default, all script lines are interpreted as batch
+  #- cinst -y swig <-- doesnot work
+  #- cinst -y numpy <-- only 32 bit version...
 
 environment:
   matrix:
     - lapack: OpenBLAS
+      vtk: ON
+      python: OFF
     - lapack: LAPACK
+      vtk: OFF
+      python: OFF
 
 matrix:
   fast_finish: true
@@ -25,7 +31,7 @@ build_script:
   - echo Running cmake...
   - mkdir build
   - cd build
-  - cmake -G "Visual Studio 14 2015 Win64" -DBUILD_SHARED=ON -DBUILD_DOCUMENTATION=OFF -DBUILD_TESTING:BOOL=ON -DENABLE_PACKAGING:BOOL=ON -DCMAKE_SKIP_RPATH:BOOL=OFF -DENABLE_PYTHON=OFF -DBLASLAPACK_IMPLEMENTATION=%lapack% ..
+  - cmake -G "Visual Studio 14 2015 Win64" -DBUILD_SHARED=ON -DBUILD_DOCUMENTATION=OFF -DBUILD_TESTING:BOOL=ON -DENABLE_PACKAGING:BOOL=ON -DCMAKE_SKIP_RPATH:BOOL=OFF -DENABLE_PYTHON=%python% -DBLASLAPACK_IMPLEMENTATION=%lapack% -DUSE_VTK=%vtk% ..
   - cmake --build . --config Release
 
 after_build:
@@ -35,6 +41,9 @@ after_build:
 before_test:
   - echo Running tests...
   - cd C:\projects\openmeeg\build\OpenMEEG\build
+    # needed to find the dlls (VTK, (OpenBLAS, mingw), MKL)
+  - setPATH.cmd
+  - echo %PATH%
   - ctest -V
 
 artifacts:
