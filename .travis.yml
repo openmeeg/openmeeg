@@ -53,8 +53,7 @@ matrix:
         - USE_VTK=1
         - BLASLAPACK_IMPLEMENTATION=Atlas
 
-before_install:
-  - source build_tools/travis/before_install.sh
+before_install: source build_tools/travis/before_install.sh
 
 install: source build_tools/travis/install.sh
 
@@ -64,4 +63,11 @@ script:
   - cpack -G TGZ .
 
 after_success:
-  - source $TRAVIS_BUILD_DIR/build_tools/travis/after_success.sh
+  - source codecoverage.sh
+  - scp *gz $deploy_user@$deploy_host:$deploy_path
+
+env:
+  global:
+  - secure: THD5qh1lrYDL2dEYVu+pitC+RsfB/Wn8jJjNTVFYEwPnSw5zov4N2aVNwOaHM4qJwp8NdL81ke4gI0P9vS89HPSstsnkboAwzn8Kj3UhAq0X10vnkgH+BIjUut0H3DCcY0O5Y2/1pc5KL/6pErT6tdFlRq8xS6YwVe7UKx3rEXo=
+  - secure: XBNTHU+DVCKeUKjxVSfvAkFr/KnvzYDDn28u8Y41v9kT+yHE1HHPnSYJS9JndQllOUAXtT0Ix81LSKG9MVthIWs5uPTOOg4hPZloE8mOYWSs/EHLraEEbZFUAaoCz2ZVYdA92HM1YAVo4Bi+zMy9g7Ra4POSWwFY5n/zV+ma//A=
+  - secure: JlEdLh7nIcHVEmlsEkZkm2oYJUpQUt4OBe+Z8V0RNctcmax5VUNQ/GJoDQlZKsQNiM+kF9DH5W7wW3+IQas+ffEPU0lEcB/lhHaK91aOUzqPQ/GyTZm/0NABIrNDAvjnf4otcFb6meK+N22Ka/4xjvbiqGyTK8g9N+VEl8qHG3s=
