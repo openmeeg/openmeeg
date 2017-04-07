@@ -13,6 +13,8 @@ if (USE_OPENBLAS)
             set_property(TARGET libopenblas PROPERTY IMPORTED_LOCATION ${OpenBLAS_DIR}/bin/libopenblas.dll)
             set_property(TARGET libopenblas PROPERTY IMPORTED_IMPLIB   ${OpenBLAS_DIR}/lib/libopenblas.dll.a)
 
+            file(GLOB MinGW_LIBS "${OpenBLAS_DIR}/../mingw*/lib*")
+
             install(FILES ${MinGW_LIBS} ${OpenBLAS_DIR}/bin/libopenblas.dll DESTINATION bin
                 PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ
                 GROUP_EXECUTE GROUP_READ)
