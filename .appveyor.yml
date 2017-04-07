@@ -11,15 +11,17 @@ platform: x64
 configuration: Release
 
 install:
+  - "SET PATH=C:\\Miniconda-x64;C:\\Miniconda-x64\\Scripts;%PATH%"
   # by default, all script lines are interpreted as batch
-  #- cinst -y swig <-- doesnot work
-  #- cinst -y numpy <-- only 32 bit version...
+  - cinst -y swig
+  - "conda update -y conda"
+  - "conda install -y numpy" # numpy installs mkl2017 !
 
 environment:
   matrix:
     - lapack: OpenBLAS
       vtk: ON
-      python: OFF
+      python: ON
     - lapack: LAPACK
       vtk: OFF
       python: OFF
