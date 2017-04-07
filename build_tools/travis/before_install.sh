@@ -72,7 +72,7 @@ else
     fi
 
     if [[ "$BUILD_DOCUMENTATION" == "1" ]]; then
-        sudo apt-get install doxygen
+        sudo apt-get install doxygen graphviz
     fi
 
     if [[ "$USE_COVERAGE" == "1" ]]; then

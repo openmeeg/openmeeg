@@ -11,18 +11,32 @@ platform: x64
 configuration: Release
 
 install:
+  - "SET PATH=C:\\Miniconda-x64;C:\\Miniconda-x64\\Scripts;C:\\Python27-x64;%PATH%"
   # by default, all script lines are interpreted as batch
-  #- cinst -y swig <-- doesnot work
-  #- cinst -y numpy <-- only 32 bit version...
+  - cinst -y swig
+  - conda update -y conda
+  - conda install -y numpy # numpy installs mkl2017 !
+  - pip install paramiko pyopenssl
 
 environment:
+  global:
+    deploy_host:
+      secure: x1oONEbQPD9iOpA1uMRawiVBPCsp74PeQpzjINr3mEM=
+    deploy_user:
+      secure: fsdBnQNhKAfx97kcWRN0mw==
+    deploy_password:
+      secure: y5kbt9kB0gNeeBrDF0Q1V4itUlnOp1XfD9MlepKQkEE=
+    deploy_folder:
+      secure: u9s4t7Uj0Oucd5k05tO3zGdBvhzatzETNZOgG9JnNP4yT6lwjJTlv89M8G3CxM8S
   matrix:
     - lapack: OpenBLAS
       vtk: ON
-      python: OFF
+      python: ON
+      pack: ON
     - lapack: LAPACK
       vtk: OFF
       python: OFF
+      pack: OFF
 
 matrix:
   fast_finish: true
@@ -31,23 +45,28 @@ build_script:
   - echo Running cmake...
   - mkdir build
   - cd build
-  - cmake -G "Visual Studio 14 2015 Win64" -DBUILD_SHARED=ON -DBUILD_DOCUMENTATION=OFF -DBUILD_TESTING:BOOL=ON -DENABLE_PACKAGING:BOOL=ON -DCMAKE_SKIP_RPATH:BOOL=OFF -DENABLE_PYTHON=%python% -DBLASLAPACK_IMPLEMENTATION=%lapack% -DUSE_VTK=%vtk% ..
+  - cmake -G "Visual Studio 14 2015 Win64" -DBUILD_SHARED=ON -DBUILD_DOCUMENTATION=OFF -DBUILD_TESTING:BOOL=ON -DENABLE_PACKAGING:BOOL=%pack% -DCMAKE_SKIP_RPATH:BOOL=OFF -DENABLE_PYTHON=%python% -DBLASLAPACK_IMPLEMENTATION=%lapack% -DUSE_VTK=%vtk% ..
   - cmake --build . --config Release
 
 after_build:
-  - cpack
-  - cpack -G TGZ
+  #- if %APPVEYOR_REPO_BRANCH% == master ( if %pack%==ON ( cpack ) )
+  - if %pack%==ON ( cpack & cpack -G TGZ )
 
 before_test:
   - echo Running tests...
   - cd C:\projects\openmeeg\build\OpenMEEG\build
     # needed to find the dlls (VTK, (OpenBLAS, mingw), MKL)
   - setPATH.cmd
-  - echo %PATH%
-  - ctest -V
+  - ctest
+
+on_success:
+  - set src_dir=%APPVEYOR_BUILD_FOLDER%
+  - cd %src_dir%
+  - if NOT DEFINED APPVEYOR_PULL_REQUEST_NUMBER (if %APPVEYOR_REPO_BRANCH% == master ( if %pack%==ON ( python %src_dir%\build_tools\upload_package_gforge.py build\OpenMEEG-*.exe build\OpenMEEG-*.gz) ))
 
 artifacts:
   - path: build\OpenMEEG-*.exe
     name: OpenMEEG-Win64.exe
   - path: build\OpenMEEG-*.tar.gz
     name: OpenMEEG-Win64.tar.gz
+
