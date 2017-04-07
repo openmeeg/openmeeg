@@ -53,3 +53,17 @@ artifacts:
     name: OpenMEEG-Win64.exe
   - path: build\OpenMEEG-*.tar.gz
     name: OpenMEEG-Win64.tar.gz
+
+deploy:
+  provider: FTP
+  protocol: ftps
+  host:
+    secure: x1oONEbQPD9iOpA1uMRawiVBPCsp74PeQpzjINr3mEM=
+  username:
+    secure: fsdBnQNhKAfx97kcWRN0mw==
+  password:
+    secure: y5kbt9kB0gNeeBrDF0Q1V4itUlnOp1XfD9MlepKQkEE=
+  folder:
+    secure: u9s4t7Uj0Oucd5k05tO3zGdBvhzatzETNZOgG9JnNP4yT6lwjJTlv89M8G3CxM8S
+  artifact: OpenMEEG-Win64.exe OpenMEEG-Win64.tar.gz
+
