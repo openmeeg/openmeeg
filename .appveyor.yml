@@ -13,10 +13,6 @@ configuration: Release
 install:
   - "SET PATH=C:\\Miniconda-x64;C:\\Miniconda-x64\\Scripts;C:\\Python27-x64;%PATH%"
   # by default, all script lines are interpreted as batch
-  - cinst -y swig
-  - conda update -y conda
-  - conda install -y numpy # numpy installs mkl2017 !
-  - pip install paramiko pyopenssl
 
 environment:
   global:
@@ -41,6 +37,10 @@ environment:
 matrix:
   fast_finish: true
 
+before_build:
+    - if NOT DEFINED APPVEYOR_PULL_REQUEST_NUMBER (if %APPVEYOR_REPO_BRANCH% == master ( if %pack%==ON ( pip install paramiko pyopenssl ) ) )
+    - if %python%==ON ( cinst -y swig & conda update -y conda & conda install -y numpy)
+
 build_script:
   - echo Running cmake...
   - mkdir build
@@ -49,7 +49,6 @@ build_script:
   - cmake --build . --config Release
 
 after_build:
-  #- if %APPVEYOR_REPO_BRANCH% == master ( if %pack%==ON ( cpack ) )
   - if %pack%==ON ( cpack & cpack -G TGZ )
 
 before_test:

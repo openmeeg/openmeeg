@@ -26,5 +26,5 @@ if [[ $ENABLE_PACKAGING == "1" && $TRAVIS_PULL_REQUEST == "false" && $TRAVIS_BRA
     setup_conda
     conda install -y --quiet paramiko
     conda install -y --quiet pyopenssl
-    python ${src_dir}/build_tools/upload_package_gforge.py *gz
+    python ${src_dir}/build_tools/upload_package_gforge.py *gz *deb
 fi

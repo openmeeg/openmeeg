@@ -24,13 +24,12 @@ if __name__ == '__main__':
     priv = dump_privatekey(FILETYPE_PEM, pkey)
 
     # hack on the header
-    priv = priv.replace('BEGIN','BEGIN RSA')
+    priv = priv.replace('BEGIN ','BEGIN RSA ')
 
     key_filename += '.dec'
-    f.close()
-    f = open(key_filename, 'w')
-    f.write(priv)
-    f.close()
+
+    with open(key_filename,'w') as f:
+        f.write(priv)
 
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
