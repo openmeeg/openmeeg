@@ -4,6 +4,10 @@ if (GIT_HTTPS)
     set(GIT_PREFIX "https://")
 endif()
 
+# Option: do we want a static or a dynamic build ?
+option(BUILD_SHARED_LIBS "Build shared libs for all subprojects" ON)
+mark_as_advanced(BUILD_SHARED_LIBS)
+
 #   Various OpenMEEG options that will be forwarded.
 
 include(OpenMEEGOptions)
@@ -12,3 +16,4 @@ include(OpenMEEGOptions)
 
 option(MATIO_BUILD_TESTING "Build matio tests" OFF)
 option(MATLAB_TESTING "Enable matlab read tests (requires a function matlab)" OFF)
+

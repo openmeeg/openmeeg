@@ -20,8 +20,8 @@ elseif(UNIX)
     set(LIST_IMPL ${LIST_IMPL} "Atlas")
 endif()
 
-set (BLASLAPACK_IMPLEMENTATION ${BLASLAPACK_IMPLEMENTATION_DEFAULT} CACHE STRING 
-    "Choose the proper Blas/Lapack implementation: ${LIST_IMPL}" FORCE)
+set(BLASLAPACK_IMPLEMENTATION_DOCSTRING "Choose the proper Blas/Lapack implementation: ${LIST_IMPL}")
+set(BLASLAPACK_IMPLEMENTATION "${BLASLAPACK_IMPLEMENTATION_DEFAULT}" CACHE STRING "${BLASLAPACK_IMPLEMENTATION_DOCSTRING}" FORCE)
 
 # Set the possible values of build type for cmake-gui
 set_property(CACHE BLASLAPACK_IMPLEMENTATION PROPERTY STRINGS ${LIST_IMPL})
@@ -40,7 +40,7 @@ endforeach()
 ### now actually include the files
 
 # include the wanted BlasLapack
-set(REQUIRED "REQUIRED")
+set(FIND_MODE "REQUIRED")
 include(Use${BLASLAPACK_IMPLEMENTATION})
 
 if (${CMAKE_PROJECT_NAME} STREQUAL "OpenMEEG" OR LAPACK_LIBRARIES)

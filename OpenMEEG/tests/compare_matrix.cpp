@@ -210,12 +210,13 @@ bool compare(const T& mat1, const T& mat2, double eps, size_t col){
     unsigned count = 0;
 
     if ((norm1>1e-4)&(norm2>1e-4)&(mat1.nlin()!=1)) {
-        std::cout << "ERROR NORM  mat(i,j) | mat2(i,j) | diff" << std::endl;
         for(unsigned int i=0;i<mat1.nlin();++i) {
             for(unsigned int j=jmin;j<jmax;++j) {
                 diff = std::abs(mat1(i,j)/norm1 - mat2(i,j)/norm2);
                 flag = flag && (diff<eps);
                 if (!(diff<eps)&&(++count<100)) {
+                    if (count == 0)
+                        std::cout << "ERROR NORM  mat(i,j) | mat2(i,j) | diff" << std::endl;
                     std::cout << "ERROR NORM  " << mat1(i,j) << "  " << mat2(i,j) << "  " << diff << std::endl;
                     std::cout.flush();
                 }

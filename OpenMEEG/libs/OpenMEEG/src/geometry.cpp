@@ -207,11 +207,11 @@ namespace OpenMEEG {
                 }
             }
             // even the last surface triangles (yes for EIT... )
-            nb_current_barrier_triangles() = 0;
+            nb_current_barrier_triangles_ = 0;
             for (iterator mit = begin(); mit != end(); ++mit) {
                 if (mit->current_barrier()) {
                     if (!mit->isolated()) {
-                        nb_current_barrier_triangles()+=mit->nb_triangles();
+                        nb_current_barrier_triangles_ += mit->nb_triangles();
                         for (Mesh::iterator tit = mit->begin(); tit != mit->end(); ++tit) {
                             tit->index() = index++;
                         }

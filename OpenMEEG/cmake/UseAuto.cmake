@@ -7,6 +7,8 @@ if (USE_AUTO)
             set(USE_${LIB} true)
             include(Use${lib})
             if (${lib}_FOUND)
+                # set the found BLASLAPACK_IMPLEMENTATION (in case it was Auto)
+                set(BLASLAPACK_IMPLEMENTATION "${lib}" CACHE STRING "${BLASLAPACK_IMPLEMENTATION_DOCSTRING}" FORCE)
                 break()
             else()
                 unset(USE_${LIB})
@@ -14,7 +16,7 @@ if (USE_AUTO)
         endforeach()
     endmacro()
 
-    set(REQUIRED "QUIET")
+    set(FIND_MODE "QUIET")
 
     # define here the priorities of BLAS/LAPACK to use
     if (WIN32)
