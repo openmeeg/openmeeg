@@ -5,13 +5,11 @@ fi
 mkdir build
 cd build
 
-# XXX : BUILD_SHARED should be used to set global defaults
-
 if [[ "$USE_PROJECT" == "0" ]]; then
     # Build OpenMEEG and use OpenBLAS from homebrew
     # or use Atlas which maps to vecLib or Accelerate frameworks
     cmake \
-        -DBUILD_SHARED:BOOL=ON \
+        -DBUILD_SHARED_LIBS:BOOL=ON \
         -DBUILD_DOCUMENTATION:BOOL=${BUILD_DOCUMENTATION} \
         -DBUILD_TESTING:BOOL=ON \
         -DENABLE_PYTHON:BOOL=${USE_PYTHON} \
