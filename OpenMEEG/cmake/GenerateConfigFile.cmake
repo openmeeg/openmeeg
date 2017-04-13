@@ -13,9 +13,11 @@ set(INSTALL_LIB_DIR     lib${LIBSUFFIX} CACHE PATH "Installation directory for l
 set(INSTALL_BIN_DIR     bin             CACHE PATH "Installation directory for executables")
 set(INSTALL_INCLUDE_DIR include         CACHE PATH "Installation directory for header files")
 set(INSTALL_DATA_DIR    share           CACHE PATH "Installation directory for data files")
-
 if (WIN32)
     set(INSTALL_DATA_DIR ${CMAKE_PROJECT_NAME} CACHE PATH "Installation directory for data files")
+    set(INSTALL_CMAKE_DIR cmake CACHE PATH "Installation directory for CMake files")
+else()
+    set(INSTALL_CMAKE_DIR share/${CMAKE_PROJECT_NAME}/cmake CACHE PATH "Installation directory for CMake files")
 endif()
 
 mark_as_advanced(INSTALL_LIB_DIR INSTALL_BIN_DIR INSTALL_INCLUDE_DIR INSTALL_DATA_DIR)
@@ -52,6 +54,7 @@ macro(Dependencies ConfigName)
     set(DepFileName ${CMAKE_CURRENT_BINARY_DIR}/${ConfigName}Dependencies.cmake)
     set(DEPLIBS)
     set(DEPINCS)
+    set(FindDep) # <- contains the list of FindDep.cmake needed to be installed
     message("Dependencies for ${ConfigName}")
     if (NOT "${DEFAULT}" STREQUAL "" OR NOT "${OPTIONAL}" STREQUAL "")
         configure_file(${PROJECT_SOURCE_DIR}/cmake/FindSoftware.cmake ${DepFileName} COPYONLY)
@@ -62,15 +65,18 @@ macro(Dependencies ConfigName)
             if ("${arg}" STREQUAL "NOT_REQUIRED")
                 set(REQUIRED "")
             else()
-                file(APPEND ${DepFileName} "find(package ${arg} PATHS \${${arg}_DIR} NO_DEFAULT_PATH QUIET CONFIG)\n")
-                file(APPEND ${DepFileName} "find(package ${arg} MODULE QUIET)\n")
+                file(APPEND ${DepFileName} "find(package ${arg} COMPONENTS ${${arg}_FIND_COMPONENTS} PATHS \${${arg}_DIR} NO_DEFAULT_PATH QUIET CONFIG)\n")
+                file(APPEND ${DepFileName} "find(package ${arg} COMPONENTS ${${arg}_FIND_COMPONENTS} MODULE QUIET)\n")
                 file(APPEND ${DepFileName} "find(package ${arg}${REQUIRED})\n\n")
                 set(DEPLIBS "${DEPLIBS} \${${arg}_LIBRARIES}")
-                set(DEPINCS "${DEPINCS} \${${arg}_INCLUDE_DIRS}")
+                set(DEPINCS "${DEPINCS} \${${arg}_INCLUDE_DIRS} \${${arg}_INCLUDE_DIR}")
+                if (EXISTS ${PROJECT_SOURCE_DIR}/cmake/Find${arg}.cmake)
+                    list(APPEND FindDep ${PROJECT_SOURCE_DIR}/cmake/Find${arg}.cmake)
+                endif()
             endif()
         endforeach()
         include(${DepFileName})
-        install(FILES ${DepFileName} DESTINATION ${INSTALL_DATA_DIR}/${ConfigName}/cmake)
+        install(FILES ${DepFileName} ${FindDep} DESTINATION ${INSTALL_CMAKE_DIR})
     endif()
 endmacro()
 
@@ -79,7 +85,6 @@ function(GenerateConfigFile ConfigName)
     PARSE_ARGUMENTS_GENERATE("LIBRARIES;INCLUDE_DIRS" "DEFAULT" ${ARGN})
 
     #   Make relative paths absolute (needed later on)
-
     foreach(p LIB BIN INCLUDE DATA)
         set(var INSTALL_${p}_DIR)
         if(NOT IS_ABSOLUTE "${${var}}")
@@ -88,28 +93,31 @@ function(GenerateConfigFile ConfigName)
     endforeach()
 
     #   Creating files for companion projects
-
     set(LIBRARIES "${LIBRARIES}")
     set(version "${PACKAGE_VERSION_MAJOR}.${PACKAGE_VERSION_MINOR}.${PACKAGE_VERSION_PATCH}")
 
     #   Create a XXXConfig.cmake file for the use from the build tree
-
     foreach (dir ${INCLUDE_DIRS})
         set(I_D ${I_D} "${CMAKE_CURRENT_SOURCE_DIR}/${dir}")
     endforeach()
-    set(INCLUDE_DIRS ${I_D} "${CMAKE_CURRENT_SOURCE_DIR}/include" "${CMAKE_CURRENT_BINARY_DIR}/include")
+    set(${ConfigName}_INCLUDE_DIRS ${I_D} "${CMAKE_CURRENT_SOURCE_DIR}/include" "${CMAKE_CURRENT_BINARY_DIR}/include")
 
-    set(LIB_DIRS   "${CMAKE_CURRENT_BINARY_DIR}/src")
-    set(CONFIG_DIR "${CMAKE_CURRENT_BINARY_DIR}")
+    set(${ConfigName}_CONFIG_DIR "${CMAKE_CURRENT_BINARY_DIR}")
 
     configure_package_config_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/XXXConfig.cmake.in "${ConfigName}Config.cmake"
-                                  INSTALL_DESTINATION ${INSTALL_DATA_DIR}/${ConfigName}/cmake
-                                  PATH_VARS INSTALL_INCLUDE_DIR INSTALL_DATA_DIR INSTALL_LIB_DIR)
+                                  INSTALL_DESTINATION ${INSTALL_CMAKE_DIR}
+                                  PATH_VARS INSTALL_INCLUDE_DIR 
+                                            INSTALL_DATA_DIR
+                                            INSTALL_LIB_DIR
+                                            INSTALL_CMAKE_DIR
+                                  )
+
     write_basic_package_version_file("${ConfigName}ConfigVersion.cmake"
                                      VERSION ${version}
-                                     COMPATIBILITY SameMajorVersion )
+                                     COMPATIBILITY SameMajorVersion)
     install(FILES
             "${CMAKE_CURRENT_BINARY_DIR}/${ConfigName}Config.cmake"
             "${CMAKE_CURRENT_BINARY_DIR}/${ConfigName}ConfigVersion.cmake"
-            DESTINATION ${INSTALL_DATA_DIR}/${ConfigName}/cmake)
+            "${CMAKE_CURRENT_BINARY_DIR}/Use${ConfigName}.cmake"
+            DESTINATION ${INSTALL_CMAKE_DIR})
 endfunction()

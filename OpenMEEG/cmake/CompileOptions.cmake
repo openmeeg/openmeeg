@@ -42,3 +42,5 @@ if (APPLE)
     endif()
 endif()
 
+# for DLL windows
+include (GenerateExportHeader)
