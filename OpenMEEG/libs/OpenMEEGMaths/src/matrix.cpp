@@ -129,10 +129,16 @@ namespace OpenMEEG {
         double *s = new double[mini];
         // int lwork = 4 *mini*mini + maxi + 9*mini; 
         // http://www.netlib.no/netlib/lapack/double/dgesdd.f :
-        int lwork = 4 *mini*mini + std::max(maxi,4*mini*mini+4*mini);
-        double *work = new double[lwork];
+        #ifdef MKL_ILP64
+        long long *iwork = new long long[8*mini];
+        long long lwork = 4 *mini*mini + std::max(maxi,4*mini*mini+4*mini);
+        long long Info = 0;
+        #else
         int *iwork = new int[8*mini];
+        int lwork = 4 *mini*mini + std::max(maxi,4*mini*mini+4*mini);
         int Info = 0;
+        #endif
+        double *work = new double[lwork];
         if ( complete ) { // complete SVD
             DGESDD('A',sizet_to_int(nlin()),sizet_to_int(ncol()),cpy.data(),sizet_to_int(nlin()),s,U.data(),sizet_to_int(U.nlin()),V.data(),sizet_to_int(V.nlin()),work,lwork,iwork,Info);
         } else { // only first min(m,n)
@@ -142,9 +148,9 @@ namespace OpenMEEG {
         delete[] s;
         delete[] work;
         delete[] iwork;
-        if ( Info < 0) {
+        if (Info < 0) {
             std::cout << "in svd: the "<< -Info << "-th argument had an illegal value." << std::endl;
-        } else if ( Info > 0) {
+        } else if (Info > 0) {
             std::cout << "in svd: DBDSDC did not converge, updating process failed." << std::endl;
         }
     #else

@@ -145,7 +145,11 @@ namespace OpenMEEG {
 
     #ifdef HAVE_LAPACK
         // Bunch Kaufman Factorization
-        int *pivots=new int[nlin()];
+        #ifdef MKL_ILP64
+        long long *pivots=new long long[nlin()];
+        #else
+        int *pivots = new int[nlin()];
+        #endif
         int Info = 0;
         DSPTRF('U',sizet_to_int(invA.nlin()),invA.data(),pivots,Info);
         // Inverse
@@ -165,7 +169,11 @@ namespace OpenMEEG {
 
     #ifdef HAVE_LAPACK
         // Bunch Kaufman Factorization
-        int *pivots=new int[nlin()];
+        #ifdef MKL_ILP64
+        long long *pivots=new long long[nlin()];
+        #else
+        int *pivots = new int[nlin()];
+        #endif
         int Info = 0;
         //char *uplo="U";
         DSPTRF('U',sizet_to_int(invA.nlin()),invA.data(),pivots,Info);
@@ -220,7 +228,11 @@ namespace OpenMEEG {
         double d = 1.0;
     #ifdef HAVE_LAPACK
         // Bunch Kaufmqn
+        #ifdef MKL_ILP64
+        long long *pivots=new long long[nlin()];
+        #else
         int *pivots = new int[nlin()];
+        #endif
         int Info = 0;
         // TUDUtTt
         DSPTRF('U', sizet_to_int(invA.nlin()), invA.data(), pivots,Info);
@@ -264,7 +276,11 @@ namespace OpenMEEG {
     //     DSPEVD('V','U',sizet_to_int(nlin()),symtemp.data(),D.data(),Z.data(),sizet_to_int(nlin()),&lworkd,-1,&liwork,-1,info);
     //     lwork = (int) lworkd;
     //     double * work = new double[lwork];
-    //     int * iwork = new int[liwork];
+    //     #ifdef MKL_ILP64
+    //     long long *pivots=new long long[nlin()];
+    //     #else
+    //     int *iwork = new int[liwork];
+    //     #endif
     //     DSPEVD('V','U',sizet_to_int(nlin()),symtemp.data(),D.data(),Z.data(),sizet_to_int(nlin()),work,lwork,iwork,liwork,info);
     // 
     //     delete[] work;
@@ -301,7 +317,11 @@ namespace OpenMEEG {
     #ifdef HAVE_LAPACK
         SymMatrix invA(*this, DEEP_COPY);
         // LU
+        #ifdef MKL_ILP64
+        long long *pivots=new long long[nlin()];
+        #else
         int *pivots = new int[nlin()];
+        #endif
         int Info = 0;
         DSPTRF('U', sizet_to_int(nlin()), invA.data(), pivots, Info);
         // Inverse
@@ -321,7 +341,11 @@ namespace OpenMEEG {
     inline void SymMatrix::invert() {
     #ifdef HAVE_LAPACK
         // LU
+        #ifdef MKL_ILP64
+        long long *pivots=new long long[nlin()];
+        #else
         int *pivots = new int[nlin()];
+        #endif
         int Info = 0;
         DSPTRF('U', sizet_to_int(nlin()), data(), pivots, Info);
         // Inverse

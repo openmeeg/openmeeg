@@ -53,9 +53,15 @@ namespace OpenMEEG {
     }
 
     // to properly convert a size_t int to an int
+    #ifdef MKL_ILP64
+    OPENMEEGMATHS_EXPORT inline long long sizet_to_int(const size_t& num)
+    {
+        long long num_out = static_cast<long long>(num);
+    #else
     OPENMEEGMATHS_EXPORT inline int sizet_to_int(const size_t& num)
     {
         int num_out = static_cast<int>(num);
+    #endif
         om_assert(num_out >= 0);
         return num_out;
     }

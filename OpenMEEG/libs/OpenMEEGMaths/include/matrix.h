@@ -318,7 +318,11 @@ namespace OpenMEEG {
                 delete[] work;
                 om_assert(Info==0);
             #else
+                #ifdef MKL_ILP64
+                long long *pivots=new long long[sizet_to_int(ncol())];
+                #else
                 int *pivots=new int[sizet_to_int(ncol())];
+                #endif
                 DGETRF(sizet_to_int(invA.nlin()),sizet_to_int(invA.ncol()),invA.data(),sizet_to_int(invA.nlin()),pivots);
                 DGETRI(sizet_to_int(invA.ncol()),invA.data(),sizet_to_int(invA.ncol()),pivots);
                 delete[] pivots;

@@ -12,7 +12,11 @@
 
 
 extern "C" {
+    #ifdef MKL_ILP64
+    double dlange(const char&,const long long&,const long long&,double*,const long long&,double*);
+    #else
     double dlange(const char&,const int&,const int&,double*,const int&,double*);
+    #endif
 }
 
 #define DLANGE dlange

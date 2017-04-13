@@ -11,7 +11,7 @@ function(msinttypes_project)
 
     # Prepare the project
 
-    EP_Initialisation(msinttypes USE_SYSTEM OFF BUILD_SHARED_LIBS ON)
+    EP_Initialisation(msinttypes USE_SYSTEM OFF BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS})
 
     # Define repository where get the sources
 
