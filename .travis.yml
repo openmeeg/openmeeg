@@ -10,6 +10,7 @@ matrix:
         - USE_PROJECT=1
         - USE_VTK=1
         - ENABLE_PACKAGING=1
+        - BUILD_DOCUMENTATION=1
        #- BLASLAPACK_IMPLEMENTATION=Auto (not specifying is the same as Auto)
     - os: osx
       compiler: clang
@@ -18,7 +19,6 @@ matrix:
         - USE_PROJECT=1
         - USE_CGAL=1
         - BLASLAPACK_IMPLEMENTATION=vecLib
-        - BUILD_DOCUMENTATION=1
     - os: osx
       compiler: clang
       env:

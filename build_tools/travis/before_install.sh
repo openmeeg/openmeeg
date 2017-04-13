@@ -33,7 +33,7 @@ if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
     fi
 
     if [[ "$BUILD_DOCUMENTATION" == "1" ]]; then
-        brew install Doxygen  # For building documentation
+        brew install Doxygen Graphviz # For building documentation
     fi
 
 else
