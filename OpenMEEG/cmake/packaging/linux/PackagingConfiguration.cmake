@@ -11,22 +11,26 @@
 
 #   Get distribution name and architecture
 
-execute_process(COMMAND lsb_release -a
-                COMMAND grep "^Distributor ID:" 
-                COMMAND sed -e "s/Distributor ID:[ \t]*//ig"
+execute_process(COMMAND cat /etc/os-release
+                COMMAND grep "^ID="
+                COMMAND sed -e "s/ID=[ \t]*//ig"
                 OUTPUT_VARIABLE DISTRIBUTOR_ID
                 OUTPUT_STRIP_TRAILING_WHITESPACE)
-  
-execute_process(COMMAND lsb_release -a
-                COMMAND grep "^Release:"
-                COMMAND sed -e "s/Release:[ \t]*//ig"
+
+execute_process(COMMAND cat /etc/os-release
+                COMMAND grep "^VERSION_ID="
+                COMMAND sed -e "s/VERSION_ID=[ \t]*//ig"
                 OUTPUT_VARIABLE RELEASE
                 OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-execute_process(COMMAND arch 
-                OUTPUT_VARIABLE ARCH 
+execute_process(COMMAND arch
+                OUTPUT_VARIABLE ARCH
                 OUTPUT_STRIP_TRAILING_WHITESPACE)
-  
+
+# on debian /etc/os-release: string contain "..."
+string(REPLACE "\"" "" DISTRIBUTOR_ID ${DISTRIBUTOR_ID})
+string(REPLACE "\"" "" RELEASE ${RELEASE})
+
 set(PACKAGE_ARCH "${DISTRIBUTOR_ID}_${RELEASE}-${ARCH}")
 set(PACKAGE_ARCH_SHORT "Linux")
  
@@ -41,8 +45,8 @@ set(CPACK_GENERATOR "TGZ;${CPACK_GENERATOR}")
 
 #   Remember the linux packaging source dir
 
-set(CURRENT_SRC_DIR ${CMAKE_SOURCE_DIR}/packaging/linux)
-set(CURRENT_BIN_DIR ${CMAKE_BINARY_DIR}/packaging/linux)
+set(CURRENT_SRC_DIR ${CMAKE_CURRENT_LIST_DIR})
+set(CURRENT_BIN_DIR ${PROJECT_BINARY_DIR}/packaging/linux)
 
 #   include settings specific to DEB and RPM
 

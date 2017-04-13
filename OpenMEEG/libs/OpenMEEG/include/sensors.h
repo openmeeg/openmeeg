@@ -53,7 +53,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <sparse_matrix.h>
 #include <OMassert.H>
 
-#include <DLLDefinesOpenMEEG.h>
+#include <OpenMEEG_Export.h>
 
 namespace OpenMEEG {
 

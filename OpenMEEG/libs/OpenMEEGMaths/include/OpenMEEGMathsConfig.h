@@ -42,7 +42,32 @@ knowledge of the CeCILL-B license and that you accept its terms.
 //  cmake configuration.
 
 #include <OpenMEEGConfigure.h>
-#include <DLLDefinesOpenMEEGMaths.h>
+#include <OpenMEEGMaths_Export.h>
+
+// specially for windows
+#if WIN32
+    #pragma inline_recursion (on)
+    #pragma inline_depth (255) // MSVC static build with MKL cause LNK2019 error
+    #pragma warning( disable : 4530)    //MSVC standard library can't be inlined
+    #pragma warning( disable : 4996)    //MSVC warning C4996: declared deprecated
+    #if defined(_MSC_VER)
+        // Enable MSVC compiler warning messages that are useful but off by default.
+        # pragma warning ( default : 4263 ) /* no override, call convention differs */
+        // Disable MSVC compiler warning messages that often occur in valid code.
+        # pragma warning ( disable : 4097 ) /* typedef is synonym for class */
+        # pragma warning ( disable : 4127 ) /* conditional expression is constant */
+        # pragma warning ( disable : 4244 ) /* possible loss in conversion */
+        # pragma warning ( disable : 4251 ) /* missing DLL-interface */
+        # pragma warning ( disable : 4305 ) /* truncation from type1 to type2 */
+        # pragma warning ( disable : 4309 ) /* truncation of constant value */
+        # pragma warning ( disable : 4514 ) /* unreferenced inline function */
+        # pragma warning ( disable : 4706 ) /* assignment in conditional expression */
+        # pragma warning ( disable : 4710 ) /* function not inlined */
+        # pragma warning ( disable : 4786 ) /* identifier truncated in debug info */
+        # pragma warning ( disable : 4244 ) /* possible loss of data ('float' to 'mat_uint32_t') */
+        # pragma warning ( disable : 4267 ) /* possible loss of data (size_t to int) */
+    #endif
+#endif
 
 //  Blas/Lapack configuration
 
@@ -64,12 +89,6 @@ knowledge of the CeCILL-B license and that you accept its terms.
 //#define inline __attribute__((always_inline))
 //#define inline __attribute__((weak)) inline
 
-#if WIN32
-    #pragma inline_recursion (on)
-    #pragma inline_depth (255)
-    #pragma warning( disable : 4530)    //MSVC standard library can't be inlined
-    #pragma warning( disable : 4996)    //MSVC warning C4996: declared deprecated
-#endif
 
 #define DPOTF2 LAPACK(dpotf2,DPOTF2)
 #define DSPEVD LAPACK(dspevd,DSPEVD)

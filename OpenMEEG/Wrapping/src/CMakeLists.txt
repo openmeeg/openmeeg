@@ -34,11 +34,11 @@ message("-:- ${SWIG_SRC_FILE} :: ${SWIG_SRC_FILE_NAME} :_:")
 SWIG_ADD_MODULE(${MODULE_NAME} python ${SWIG_SRC_FILE} "")
 SWIG_LINK_LIBRARIES(${MODULE_NAME} ${PYTHON_LIBRARIES} OpenMEEG ${LAPACK_LIBRARIES} ${VTK_LIBRARIES})
 
-exec_program("${PYTHON_EXECUTABLE}"
-             ARGS "-c \"from distutils.sysconfig import get_python_lib; print get_python_lib(1)\""
+execute_process(COMMAND ${PYTHON_EXECUTABLE} "-c" "from distutils.sysconfig import get_python_lib; print get_python_lib(1)"
              OUTPUT_VARIABLE PYTHON_SITE_ARCH
-             RETURN_VALUE PYTHON_SITEARCH_NOT_FOUND)
-string(REGEX REPLACE "^.*/(lib|lib64)(/python.*)$" "\\1\\2" PYTHON_REL_SITE_ARCH ${PYTHON_SITE_ARCH})
+             RESULT_VARIABLE PYTHON_SITEARCH_NOT_FOUND)
+#extract correctly python location: e.g lib64/python2.7/site-packages
+string(REGEX MATCH "lib.*packages" PYTHON_REL_SITE_ARCH ${PYTHON_SITE_ARCH})
 
 install(TARGETS  "_${MODULE_NAME}"
         LIBRARY DESTINATION ${PYTHON_REL_SITE_ARCH}
@@ -50,9 +50,14 @@ install(FILES  ${OpenMEEG_BINARY_DIR}/Wrapping/src/${MODULE_NAME}.py
         PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ)
 
 # Test Python wrapping
-
 if (BUILD_TESTING)
     execute_process(COMMAND ${CMAKE_COMMAND} -E copy ${OpenMEEG_SOURCE_DIR}/Wrapping/src/test_python.py ${OpenMEEG_BINARY_DIR}/Wrapping/src/)
-    add_test(openmeeg_python
-             ${PYTHON_EXECUTABLE} ${OpenMEEG_BINARY_DIR}/Wrapping/src/test_python.py --path ${OpenMEEG_SOURCE_DIR}/data)
+    add_test(openmeeg_python ${PYTHON_EXECUTABLE} ${OpenMEEG_BINARY_DIR}/Wrapping/src/test_python.py --path ${OpenMEEG_SOURCE_DIR}/data)
+    if (USE_MKL AND BUILD_SHARED_LIBS AND NOT MKL_USE_sdl)
+        # due to this bug in the MKL
+        message(WARNING "due to a bug in the MKL when used from python: see https://software.intel.com/en-us/forums/intel-distribution-for-python/topic/628976 "
+            "workaround: set environment variable:\nexport LD_PRELOAD=\"${MKL_ROOT_DIR}/lib/intel64/libmkl_core.so:"
+            "${MKL_ROOT_DIR}/lib/intel64/libmkl_sequential.so\"")
+        set_tests_properties(openmeeg_python PROPERTIES ENVIRONMENT LD_PRELOAD=${MKL_ROOT_DIR}/lib/intel64/libmkl_core.so:${MKL_ROOT_DIR}/lib/intel64/libmkl_sequential.so)
+    endif()
 endif()

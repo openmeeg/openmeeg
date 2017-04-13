@@ -8,30 +8,29 @@
 # directory of the project as ${OpenMEEG_SOURCE_DIR} and
 # to the root binary directory of the project as ${OpenMEEG_BINARY_DIR}.
 
+cmake_minimum_required(VERSION 2.8.12 FATAL_ERROR)
+if (CMAKE_MAJOR_VERSION EQUAL 3)
+    cmake_policy(SET CMP0048 NEW)
+    cmake_policy(SET CMP0037 OLD)
+    set(PROJECT_VERSION VERSION 2.3.0.2)
+endif()
+# The second path is temporary untill these are integrated in cmake...
+set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake ${CMAKE_SOURCE_DIR}/cmake/FortranCInterface)
+
 #------------------------------------------------------------
 # Project Name
 #------------------------------------------------------------
 
-set(PACKAGE_VERSION_MAJOR "2")
-set(PACKAGE_VERSION_MINOR "3")
-set(PACKAGE_VERSION_PATCH "dev")
+project(OpenMEEG LANGUAGES C CXX ${PROJECT_VERSION})
 
-#   The second path is temporary untill these are integrated in cmake...
+# The next two lines are a kludge to make rpm generation work. If you change this,
+# please check that rpm generation still works.
 
-set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake ${CMAKE_SOURCE_DIR}/cmake/FortranCInterface)
-
-#   The next two lines are a kludge to make rpm generation work. If you change this,
-#   please check that rpm generation still works.
-
-set(CPACK_PACKAGE_VERSION_MAJOR ${PACKAGE_VERSION_MAJOR})
-set(CPACK_PACKAGE_VERSION_MINOR ${PACKAGE_VERSION_MINOR})
-set(CPACK_PACKAGE_VERSION_PATCH ${PACKAGE_VERSION_PATCH})
+set(CPACK_PACKAGE_VERSION_MAJOR ${PROJECT_VERSION_MAJOR})
+set(CPACK_PACKAGE_VERSION_MINOR ${PROJECT_VERSION_MINOR})
+set(CPACK_PACKAGE_VERSION_PATCH ${PROJECT_VERSION_PATCH})
 
 SET(VERSION_STRING "${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}")
-
-project(OpenMEEG C CXX)
-
-cmake_minimum_required(VERSION 2.8.12 FATAL_ERROR)
 
 # By default, do not warn when built on machines using only VS Express:
 
@@ -43,10 +42,10 @@ include(NewExecutable)
 include(GenerateConfigFile)
 include(FindLibrary)
 include(Win32Compat)
-
 include(CompileOptions)
 
-set(OPENMEEG_HEADER_INSTALLDIR ${INSTALL_INCLUDE_DIR}/openmeeg)
+set(OpenMEEG_HEADER_INSTALLDIR ${INSTALL_INCLUDE_DIR}/openmeeg)
+set(OpenMEEG_DEPENDENCIES OpenMEEG matio)
 
 # ==============
 # = Endianess =
@@ -62,10 +61,7 @@ test_big_endian(WORDS_BIGENDIAN)
 # Options
 include(OpenMEEGOptions)
 
-# Dependencies
-Dependencies(OpenMEEG matio)
-
-#   We may want to make these warning fatal errors in a while.
+Dependencies(${OpenMEEG_DEPENDENCIES})
 
 if (NOT matio_FOUND)
     message(FATAL_ERROR "No matio found.")
@@ -82,18 +78,20 @@ endif()
 
 # Include the file with all source tree directories for OpenMEEG
 
-set(OPENMEEG_INCLUDE_DIRECTORIES
+set(OpenMEEG_INCLUDE_DIRECTORIES
     ${OpenMEEG_BINARY_DIR}
     ${OpenMEEG_SOURCE_DIR}
     ${OpenMEEG_SOURCE_DIR}/src
     ${OpenMEEG_SOURCE_DIR}/libs/OpenMEEGMaths/include
     ${OpenMEEG_SOURCE_DIR}/libs/OpenMEEG/include
     ${OpenMEEG_BINARY_DIR}/libs/OpenMEEG/include
-    ${OPENMEEG_OTHER_INCLUDE_DIRECTORIES}
+    ${OpenMEEG_BINARY_DIR}/libs/OpenMEEGMaths/src
+    ${OpenMEEG_BINARY_DIR}/libs/OpenMEEG/src
+    ${OpenMEEG_OTHER_INCLUDE_DIRS}
     ${matio_INCLUDE_DIRS}
 )
 
-include_directories(${OPENMEEG_INCLUDE_DIRECTORIES})
+include_directories(${OpenMEEG_INCLUDE_DIRECTORIES})
 
 #---------------------------------------------------------------
 # Test the C++ compiler features
@@ -154,13 +152,14 @@ add_subdirectory(documentation)
 # Wrapping
 #-----------------------------------------------
 if (ENABLE_PYTHON AND NOT BUILD_SHARED_LIBS)
-    message(SEND_ERROR "Python wrapping does not work with static build, consider changing the BUILD_SHARED_LIBS option.")
-endif ()
+    message(SEND_ERROR "Python wrapping does not work with static build, "
+        "consider changing the BUILD_SHARED_LIBS option.")
+endif()
 
 if (APPLE AND ENABLE_PYTHON)
     if (NOT FORCE_BUILD_32BITS) # Builtin Python2.5 on Mac OS X in 32 bits...
-        message("You may have a 32bits Python installed.
-                 In case of compilation problem try to force 32 bits compilation.")
+        message("You may have a 32bits Python installed."
+                "In case of compilation problem try to force 32 bits compilation.")
     endif()
 endif()
 
@@ -185,74 +184,40 @@ include(Packaging)
 #-----------------------------------------------
 # Creating files for external projects
 #-----------------------------------------------
+set(OpenMEEG_LIBRARIES OpenMEEG OpenMEEGMaths)
 
-# Include the libraries and their directories for OpenMEEG
+# Add all targets to the build-tree export set
+export(TARGETS OpenMEEGMaths OpenMEEG 
+    FILE "${PROJECT_BINARY_DIR}/OpenMEEGTargets.cmake")
+ 
+# Export the package for use from the build-tree
+# (this registers the build-tree with a global CMake-registry)
+export(PACKAGE OpenMEEG)
 
-set(OPENMEEG_LIBRARY_DIRECTORIES
-    ${OpenMEEG_BINARY_DIR}/src
-    ${OpenMEEG_BINARY_DIR}/libs/OpenMEEGMaths/src
-    ${OpenMEEG_BINARY_DIR}/libs/OpenMEEG/src
-    ${OPENMEEG_OTHER_LIBRARY_DIRECTORIES}
-)
+# Configure OpenMEEGConfig.cmake for the install tree.
+GenerateConfigFile(OpenMEEG LIBRARIES ${OpenMEEG_LIBRARIES})
 
-set(OPENMEEG_SOURCE_DIRECTORIES ${OpenMEEG_SOURCE_DIR})
-set(OPENMEEG_LIBRARIES OpenMEEG OpenMEEGMaths ${OPENMEEG_LIBRARIES})
-
-# This section uses the OPENMEEG_INCLUDE_DIRECTORIES variable.
-# Copy the UseOpenMEEG.cmake file to the binary tree for backward compatability.
-
+# Configure UseOpenMEEG.cmake for simple support.
 configure_file(
     ${OpenMEEG_SOURCE_DIR}/cmake/UseOpenMEEG.cmake.in
     ${OpenMEEG_BINARY_DIR}/UseOpenMEEG.cmake COPYONLY IMMEDIATE)
 
-# The "use" file.
-
-set(OPENMEEG_USE_FILE ${OpenMEEG_BINARY_DIR}/UseOpenMEEG.cmake)
-
-# Configure OpenMEEGConfig.cmake for the build tree.
-
-configure_file(
-    ${OpenMEEG_SOURCE_DIR}/cmake/OpenMEEGConfig.cmake.in
-    ${OpenMEEG_BINARY_DIR}/OpenMEEGConfig.cmake @ONLY IMMEDIATE)
-
-# Generate another configure for installation
-
-set(OPENMEEG_INCLUDE_DIRECTORIES
-    ${OPENMEEG_HEADER_INSTALLDIR}
-    ${OPENMEEG_OTHER_INCLUDE_DIRECTORIES}
-)
-set(OPENMEEG_LIBRARY_DIRECTORIES
-    ${CMAKE_install_PREFIX}/lib
-    ${OPENMEEG_OTHER_LIBRARY_DIRECTORIES}
-)
-
-# The "use" file.
-
-set(OPENMEEG_USE_FILE ${CMAKE_install_PREFIX}/lib/UseOpenMEEG.cmake)
-
-# Configure OpenMEEGConfig.cmake for the install tree.
-
-configure_file(
-    ${OpenMEEG_SOURCE_DIR}/cmake/OpenMEEGConfig.cmake.in
-    ${OpenMEEG_BINARY_DIR}/cmake/OpenMEEGConfig.cmake @ONLY IMMEDIATE)
-
-install(FILES ${OpenMEEG_BINARY_DIR}/UseOpenMEEG.cmake
-    DESTINATION ${INSTALL_DATA_DIR}/OpenMEEG/cmake)
-
-install(FILES ${OpenMEEG_BINARY_DIR}/cmake/OpenMEEGConfig.cmake
-    DESTINATION ${INSTALL_DATA_DIR}/OpenMEEG/cmake)
+# Install the export set for use with the install-tree
+install(EXPORT OpenMEEGTargets DESTINATION "${INSTALL_CMAKE_DIR}"
+    COMPONENT DevelopmentCOMPONENT)
 
 # Install README
-
-install(FILES ${PROJECT_SOURCE_DIR}/LICENSE.txt  ${PROJECT_SOURCE_DIR}/../README.rst
-        DESTINATION ${INSTALL_DATA_DIR}/doc/OpenMEEG)
+install(FILES ${PROJECT_SOURCE_DIR}/../LICENSE.txt
+    ${PROJECT_SOURCE_DIR}/../README.rst
+    DESTINATION ${INSTALL_DATA_DIR}/doc/OpenMEEG)
 
 # install generated headers OpenMEEGConfigure and FC
-
 install(FILES ${OpenMEEG_BINARY_DIR}/OpenMEEGConfigure.h
-        DESTINATION ${OPENMEEG_HEADER_INSTALLDIR} COMPONENT Development)
+    DESTINATION ${OpenMEEG_HEADER_INSTALLDIR}
+    COMPONENT Development)
 
 if (NOT USE_MKL AND NOT WIN32 AND NOT USE_OPENBLAS)
     install(FILES ${OpenMEEG_BINARY_DIR}/FC.h
-            DESTINATION ${OPENMEEG_HEADER_INSTALLDIR} COMPONENT Development)
+        DESTINATION ${OpenMEEG_HEADER_INSTALLDIR}
+        COMPONENT Development)
 endif()

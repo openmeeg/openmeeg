@@ -7,7 +7,7 @@
 #include <iostream>
 #include <exception>
 
-#include "DLLDefinesOpenMEEGMaths.h"
+#include "OpenMEEGMaths_Export.h"
 
 namespace OpenMEEG {
     namespace maths {
