@@ -3,7 +3,7 @@
 .. |Travis| image:: https://api.travis-ci.org/openmeeg/openmeeg.svg?branch=master
 .. _Travis: https://travis-ci.org/openmeeg/openmeeg
 
-.. |AppVeyor| image:: https://ci.appveyor.com/api/projects/status/github/openmeeg/openmeeg?branch=master&svg=true
+.. |AppVeyor| image:: https://ci.appveyor.com/api/projects/status/11um4d4c8nn4itju/branch/master?svg=true
 .. _AppVeyor: https://ci.appveyor.com/project/openmeegci/openmeeg/history
 
 .. |CodeCov| image:: https://codecov.io/gh/openmeeg/openmeeg/branch/master/graph/badge.svg
