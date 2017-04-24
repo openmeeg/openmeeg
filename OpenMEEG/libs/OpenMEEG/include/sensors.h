@@ -64,16 +64,15 @@ namespace OpenMEEG {
      *  the file can have the shape of (neglecting if present the first, label column):
      *  <ul>
      *    
-     *  <li> 1 line per sensor and 3 columns (EEG sensors or MEG sensors without orientation) 
+     *  <li> 1 line per sensor and 3 columns (EEG sensors OR MEG sensors without orientation OR EIT punctual patches)
      *        <ul TYPE="circle">
      *        <li> the 1st, 2nd and 3rd columns are respectively position coordinates x, y, z of sensor  </li>
      *        </ul>
      *  </li>
-     *  <li> 1 line per sensor and 5 columns (EEG EIT patches (circular patches with input intensity)) :
+     *  <li> 1 line per sensor and 4 columns (EEG EIT patches (circular patches)) :
      *        <ul TYPE="circle">
      *        <li> the 1st, 2nd and 3rd are respectively position coordinates x, y, z of sensor  </li>
      *        <li> the 4th is the patche radius (unit relative to the mesh)  </li>
-     *        <li> the 5th is the input intensity (a weight). Remark: mean(weights*surfaces) must be zero (no accumulation of currents)  </li>
      *        </ul>
      *  </li>
      *  <li> 1 line per sensor and 6 columns (MEG sensors) :
@@ -138,16 +137,16 @@ namespace OpenMEEG {
         void info() const; /*!< \brief get info about sensors. */
 
     private:
-        size_t m_nb;                       /*!< Number of sensors. */
-        std::vector<std::string> m_names;  /*!< List of sensors names. */
-        Matrix m_positions;               /*!< Matrix of sensors positions. ex: positions(i,j) with  j in {0,1,2} for sensor i */
-        Matrix m_orientations;            /*!< Matrix of sensors orientations. ex: orientation(i,j) with  j in {0,1,2} for sensor i */
-        Vector m_weights;                 /*!< Weights of integration points */
-        Vector m_radius;                   /*!< Areas of the EIT sensors */
+        size_t m_nb;                        /*!< Number of sensors. */
+        std::vector<std::string> m_names;   /*!< List of sensors names. */
+        Matrix m_positions;                 /*!< Matrix of sensors positions. ex: positions(i,j) with  j in {0,1,2} for sensor i */
+        Matrix m_orientations;              /*!< Matrix of sensors orientations. ex: orientation(i,j) with  j in {0,1,2} for sensor i */
+        Vector m_weights;                   /*!< Weights of integration points */
+        Vector m_radius;                    /*!< Areas of the EIT sensors */
         std::vector<Triangles> m_triangles; /*!< Triangles under each EIT sensors */
-        const Geometry * m_geo;              /*!< Geometry on which are applied EIT sensors */
+        const Geometry * m_geo;             /*!< Geometry on which are applied EIT sensors */
         std::vector<size_t> m_pointSensorIdx; /*!< Correspondance between point id and sensor id */
-        void findInjectionTriangles(); /*!< Get the triangles under each EIT sensors */
+        void findInjectionTriangles();      /*!< Get the triangles under each EIT sensors */
     };
 
     inline Vector Sensors::getPosition(size_t idx) const {
