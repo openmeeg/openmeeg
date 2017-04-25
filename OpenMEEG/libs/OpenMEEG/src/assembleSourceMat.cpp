@@ -153,17 +153,19 @@ namespace OpenMEEG {
         mat = Matrix((geo.size()-geo.nb_current_barrier_triangles()), n_sensors);
         mat.set(0.0);
 
-        for(Geometry::const_iterator mit0=geo.begin();mit0!=geo.end();++mit0){
-            if(mit0->current_barrier())
-                for(Geometry::const_iterator mit1=geo.begin();mit1!=geo.end();++mit1){
+        for (Geometry::const_iterator mit0=geo.begin();mit0!=geo.end();++mit0){
+            if (mit0->current_barrier()) {
+                for (Geometry::const_iterator mit1=geo.begin();mit1!=geo.end();++mit1){
                     const int orientation=geo.oriented(*mit0,*mit1);
-                    if(orientation!=0){
+                    if (orientation!=0){
                         operatorS(*mit1,*mit0,transmat,geo.sigma_inv(*mit0,*mit1)*(-1.0*K*orientation),gauss_order);
                         operatorD(*mit1,*mit0,transmat,(K*orientation),gauss_order,true);
-                        if(*mit0==*mit1)
+                        if (*mit0==*mit1) {
                             operatorP1P0(*mit0,transmat,0.5*orientation);
+                        }
                     }
                 }
+            }
         }
 
         for ( unsigned ielec = 0; ielec < n_sensors; ++ielec) {
