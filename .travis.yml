@@ -21,14 +21,16 @@ matrix:
         - USE_CGAL=1
         - ENABLE_PACKAGING=1
         - BUILD_SHARED_LIBS=ON
+        - ENABLE_PACKAGING=1
+        - USE_VTK=1
         - BUILD_DOCUMENTATION=1
-        - BLASLAPACK_IMPLEMENTATION=vecLib
+        - BLASLAPACK_IMPLEMENTATION=Auto # (Auto is the same as MKL/OpenBLAS/vecLib in priority)
     - os: osx
       compiler: clang
       env:
         - USE_PROJECT=0
         - BUILD_SHARED_LIBS=ON
-        - BLASLAPACK_IMPLEMENTATION=Auto # (Auto is the same as MKL/OpenBLAS/vecLib in priority)
+        - BLASLAPACK_IMPLEMENTATION=vecLib
     - os: linux
       compiler: clang
       env:

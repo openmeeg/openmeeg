@@ -44,7 +44,7 @@ namespace OpenMEEG {
                 throw NoSuffix(name);
 
             const std::string suffix = name.substr(pos+1);
-            for(IOs::const_iterator i=ios().begin();i!=ios().end();++i)
+            for (IOs::const_iterator i=ios().begin();i!=ios().end();++i)
                 if ((*i)->known_suffix(suffix.c_str()))
                     return *i;
             throw UnknownFileSuffix(suffix);
@@ -52,7 +52,7 @@ namespace OpenMEEG {
 
         maths::ifstream& operator>>(maths::ifstream& mio,LinOp& linop) {
             std::ifstream is(mio.name().c_str(),std::ios::binary);
-            if(is.fail())
+            if (is.fail())
                 throw BadFileOpening(mio.name(),BadFileOpening::READ);
 
             const char* buffer = Internal::ReadTag(is);
@@ -80,7 +80,7 @@ namespace OpenMEEG {
         maths::ofstream& operator<<(maths::ofstream& mio,const LinOp& linop) {
 
             std::ofstream os(mio.name().c_str(),std::ios::binary);
-            if(os.fail())
+            if (os.fail())
                 throw BadFileOpening(mio.name(),BadFileOpening::WRITE);
 
             if (maths::MathsIO::IO dio = maths::MathsIO::GetCurrentFormat()) {

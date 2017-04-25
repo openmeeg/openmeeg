@@ -3,7 +3,7 @@
 # =====================
 
 function(create_library libname)
-    add_library(${libname} ${LIB_TYPE} ${ARGN})
+    add_library(${libname} SHARED ${ARGN})
     target_link_libraries(${libname} ${LAPACK_LIBRARIES} ${matio_LIBRARIES})
     if (LAPACK_DEFINITIONS) # mainly for MKL
         target_compile_definitions(${libname} PUBLIC ${LAPACK_DEFINITIONS})
@@ -25,7 +25,7 @@ function(create_library libname)
             ARCHIVE DESTINATION ${INSTALL_LIB_DIR}
             LIBRARY DESTINATION ${INSTALL_LIB_DIR})
 
-        install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${libname}_Export.h
+    install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${libname}_Export.h
             DESTINATION ${OpenMEEG_HEADER_INSTALLDIR} COMPONENT Development)
 endfunction()
 

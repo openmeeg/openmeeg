@@ -43,11 +43,11 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <sstream>
 #include <limits>
 
-#include "om_utils.h"
-#include "matrix.h"
-#include "symmatrix.h"
-#include "sparse_matrix.h"
-#include "vector.h"
+#include <om_utils.h>
+#include <matrix.h>
+#include <symmatrix.h>
+#include <sparse_matrix.h>
+#include <vector.h>
 
 namespace OpenMEEG {
 

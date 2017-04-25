@@ -29,12 +29,10 @@ environment:
       vtk: ON
       python: ON
       pack: ON
-      shared: OFF
     - lapack: LAPACK
       vtk: OFF
       python: OFF
       pack: OFF
-      shared: ON
 
 matrix:
   fast_finish: true
@@ -47,7 +45,7 @@ build_script:
   - echo Running cmake...
   - mkdir build
   - cd build
-  - cmake -G "Visual Studio 14 2015 Win64" -DBUILD_SHARED_LIBS=%shared% -DBUILD_DOCUMENTATION=OFF -DBUILD_TESTING:BOOL=ON -DENABLE_PACKAGING:BOOL=%pack% -DCMAKE_SKIP_RPATH:BOOL=OFF -DENABLE_PYTHON=%python% -DBLASLAPACK_IMPLEMENTATION=%lapack% -DUSE_VTK=%vtk% ..
+  - cmake -G "Visual Studio 14 2015 Win64" -DBUILD_DOCUMENTATION=OFF -DBUILD_TESTING:BOOL=ON -DENABLE_PACKAGING:BOOL=%pack% -DCMAKE_SKIP_RPATH:BOOL=OFF -DENABLE_PYTHON=%python% -DBLASLAPACK_IMPLEMENTATION=%lapack% -DUSE_VTK=%vtk% ..
   - cmake --build . --config Release
 
 after_build:

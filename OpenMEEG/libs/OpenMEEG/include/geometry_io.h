@@ -104,7 +104,7 @@ namespace OpenMEEG {
         }
 
         // insert the triangle and mesh vertices address into the right mesh
-        vtkSmartPointer<vtkIdList>   l;
+        vtkSmartPointer<vtkIdList> l;
 
         for (iterator mit = begin(); mit != end(); ++mit) {
             for (unsigned i = 0; i < ntrgs; ++i) {
