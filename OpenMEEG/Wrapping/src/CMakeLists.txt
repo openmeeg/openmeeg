@@ -31,14 +31,19 @@ if (BUILD_DOCUMENTATION)
 endif()
 
 message("-:- ${SWIG_SRC_FILE} :: ${SWIG_SRC_FILE_NAME} :_:")
-SWIG_ADD_MODULE(${MODULE_NAME} python ${SWIG_SRC_FILE} "")
+
+if ("${CMAKE_VERSION}" VERSION_LESS "3.8")
+    SWIG_ADD_MODULE(${MODULE_NAME} python ${SWIG_SRC_FILE} "")
+else()
+    SWIG_ADD_LIBRARY(${MODULE_NAME} LANGUAGE python SOURCES ${SWIG_SRC_FILE})
+endif()
 SWIG_LINK_LIBRARIES(${MODULE_NAME} ${PYTHON_LIBRARIES} OpenMEEG ${LAPACK_LIBRARIES} ${VTK_LIBRARIES})
 
 execute_process(COMMAND ${PYTHON_EXECUTABLE} "-c" "from distutils.sysconfig import get_python_lib; print get_python_lib(1)"
              OUTPUT_VARIABLE PYTHON_SITE_ARCH
              RESULT_VARIABLE PYTHON_SITEARCH_NOT_FOUND)
 #extract correctly python location: e.g lib64/python2.7/site-packages
-string(REGEX MATCH "lib.*packages" PYTHON_REL_SITE_ARCH ${PYTHON_SITE_ARCH})
+string(REGEX MATCH "[Ll]ib.*packages" PYTHON_REL_SITE_ARCH ${PYTHON_SITE_ARCH})
 
 install(TARGETS  "_${MODULE_NAME}"
         LIBRARY DESTINATION ${PYTHON_REL_SITE_ARCH}
