@@ -32,12 +32,16 @@ if (WIN32 OR APPLE)
         get_filename_component(HDF5_ROOT_DIR ${HDF5_LIB} DIRECTORY)
     endif()
 
-    set(DLL_DIRS "${ZLIB_ROOT}/${subdir}" "${HDF5_ROOT_DIR}/${subdir}" "${matio_ROOT_DIR}/${subdir}" "${LAPACK_DLL_DIR}"
-        "${PYTHON_OPENMEEG_MODULE_DIR}" "${VTK_LIBRARY_DIRS}" "${CGAL_LIBRARY_DIRS}" "${NIFTI_LIBRARY_DIR}")
+    set(DLL_DIRS "${ZLIB_ROOT}/${subdir}" "${HDF5_ROOT_DIR}/${subdir}" "${matio_ROOT_DIR}/${subdir}"
+                 "${CMAKE_MSVCIDE_RUN_PATH}" "${LAPACK_DLL_DIR}"
+                 "${PYTHON_OPENMEEG_MODULE_DIR}" "${VTK_LIBRARY_DIRS}" "${CGAL_LIBRARY_DIRS}" "${NIFTI_LIBRARY_DIR}")
     foreach (dir ${DLL_DIRS})
+        FILE(TO_NATIVE_PATH "${dir}" dir)
+        string(REPLACE "\\" "\\\\" dir ${dir})
         set(LIBRARY_PATHS "${dir}${lib_separator}${LIBRARY_PATHS}")
     endforeach()
     file(WRITE ${TestConfigFile} "${CONFIG}set(ENV{${dll_var}} \"${LIBRARY_PATHS}\$ENV{${dll_var}}\")\n")
+    file(APPEND ${TestConfigFile} "${CONFIG}set(ENV{PYTHONPATH} \"${LIBRARY_PATHS}\$ENV{${dll_var}}\")\n")
     set_directory_properties(PROPERTIES TEST_INCLUDE_FILE "${TestConfigFile}")
 endif()
 
