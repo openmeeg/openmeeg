@@ -53,6 +53,10 @@ else
         sudo apt-get install -y libcgal-dev
     fi
 
+    if [[ "$USE_GIFTI" == 1 ]]; then
+        sudo apt-get install -y libnifti-dev libgiftiio-dev
+    fi
+
     if [[ "$BLASLAPACK_IMPLEMENTATION" == "Atlas" ]]; then
         sudo apt-get install -y libatlas-dev libatlas-base-dev
     elif [[ "$BLASLAPACK_IMPLEMENTATION" == "LAPACK" ]]; then

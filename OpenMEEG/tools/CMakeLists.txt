@@ -80,5 +80,24 @@ if (USE_VTK)
     endif()
 endif()
 
-install(TARGETS om_make_nerve om_mesh_convert om_mesh_concat om_project_sensors om_mesh_info om_mesh_smooth om_register_squids om_geometry_info om_squids2vtk om_matrix_info om_matrix_convert om_check_geom om_mesh_to_dip DESTINATION bin)
+# test mesh IOs
+if (BUILD_TESTING)
+    # extensions to test
+    set(extensions off bnd mesh)
+    if (USE_VTK)
+        list(APPEND extensions vtk)
+    endif()
+    if (USE_GIFTI)
+        list(APPEND extensions gii)
+    endif()
+    # from tri -> to ext
+    foreach(extension ${extensions})
+        OPENMEEG_TEST(mesh_convert_tri_to_${extension} om_mesh_convert -i ${CMAKE_SOURCE_DIR}/data/Head1/scalp.1.tri -o ${OpenMEEG_BINARY_DIR}/tests/scalp.1.${extension})
+    endforeach()
+    # from ext -> to tri
+    foreach(extension ${extensions})
+        OPENMEEG_TEST(mesh_convert_${extension}_to_tri om_mesh_convert -i ${OpenMEEG_BINARY_DIR}/tests/scalp.1.${extension} -o ${OpenMEEG_BINARY_DIR}/tests/scalp.1.tri)
+    endforeach()
+endif()
 
+install(TARGETS om_make_nerve om_mesh_convert om_mesh_concat om_project_sensors om_mesh_info om_mesh_smooth om_register_squids om_geometry_info om_squids2vtk om_matrix_info om_matrix_convert om_check_geom om_mesh_to_dip DESTINATION bin)
