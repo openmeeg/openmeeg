@@ -38,8 +38,15 @@ add_executable(om_mesh_to_dip mesh_to_dip.cpp)
 target_link_libraries(om_mesh_to_dip OpenMEEG ${VTK_LIBRARIES})
 
 if (USE_CGAL)
+    set(OM_CGAL_TARGETS cgal_mesh_function cgal_remesh)
     set(OM_CGAL_EXEC)
-    foreach(target cgal_mesh_function cgal_remesh)
+
+    if (CGAL_VERSION VERSION_GREATER 4.6)
+        # edge collapse feature is stabilized in version ? not 4.2
+        list(APPEND OM_CGAL_TARGETS "cgal_decimate")
+    endif()
+
+    foreach(target ${OM_CGAL_TARGETS})
         add_executable(om_${target} ${target}.cpp)
         list(APPEND OM_CGAL_EXEC om_${target})
         target_link_libraries(om_${target} OpenMEEG ${CGAL_LIBRARIES} ${VTK_LIBRARIES})
@@ -58,6 +65,9 @@ if (USE_CGAL)
     install(TARGETS ${OM_CGAL_EXEC} DESTINATION bin)
     if (BUILD_TESTING)
         OPENMEEG_TEST(cgal_remesh om_cgal_remesh -i ${CMAKE_SOURCE_DIR}/data/Head1/cortex.1.tri -o ${OpenMEEG_BINARY_DIR}/tests/remeshed.tri)
+        if (CGAL_VERSION VERSION_GREATER 4.6)
+            OPENMEEG_TEST(cgal_decimate om_cgal_decimate -i ${CMAKE_SOURCE_DIR}/data/Head3/cortex.3.tri -n 100 -o ${OpenMEEG_BINARY_DIR}/tests/decimated.tri)
+        endif()
     endif()
 endif()
 

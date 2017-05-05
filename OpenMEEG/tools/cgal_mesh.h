@@ -51,11 +51,16 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <CGAL/make_mesh_3.h>
 #include <CGAL/refine_mesh_3.h>
 #include <CGAL/Image_3.h>
+#include <CGAL/Polyhedron_incremental_builder_3.h>
+#include <CGAL/Polyhedron_3.h>
 
 namespace OpenMEEG {
 
     typedef CGAL::Exact_predicates_inexact_constructions_kernel K;
     typedef CGAL::Mesh_3::Robust_intersection_traits_3<K> Geom_traits;
+    typedef CGAL::Polyhedron_3<K>  Polyhedron;
+    typedef Polyhedron::HalfedgeDS HDS;
+
 
     template <typename C3t3>
     Mesh CGAL_to_OM(C3t3 c3t3) {
@@ -77,13 +82,47 @@ namespace OpenMEEG {
             const int index1 = V[cell->vertex(c3t3.triangulation().vertex_triple_index(index, 0))];
             const int index2 = V[cell->vertex(c3t3.triangulation().vertex_triple_index(index, 1))];
             const int index3 = V[cell->vertex(c3t3.triangulation().vertex_triple_index(index, 2))];
-            Triangle t(m.vertices()[index1], m.vertices()[index2], m.vertices()[index3] );
+            Triangle t(m.vertices()[index1], m.vertices()[index2], m.vertices()[index3]);
             m.push_back(t);
         }
 
         m.update();
         m.correct_global_orientation();
         return m;
+    }
+
+    template < class HDS >
+    class Build_Mesh2Polyhedron : public CGAL::Modifier_base<HDS> {
+        const Mesh *m;
+    public:
+        Build_Mesh2Polyhedron(const Mesh& m): m(&m) {}
+        void operator()( HDS& target) {
+            CGAL::Polyhedron_incremental_builder_3<HDS> builder(target, true);
+            builder.begin_surface(m->nb_vertices(), m->nb_triangles(), 6*m->nb_vertices()-12);
+            std::map<const Vertex *, unsigned> map;
+            unsigned i = 0;
+            for ( Mesh::const_vertex_iterator vit = m->vertex_begin(); vit != m->vertex_end(); ++vit, ++i) {
+                builder.add_vertex(Polyhedron::Point_3((*vit)->x(), (*vit)->y(), (*vit)->z()));
+                map[*vit] = i;
+            }
+            for ( Mesh::const_iterator tit = m->begin(); tit != m->end(); ++tit) {
+                builder.begin_facet();
+                builder.add_vertex_to_facet(map[&(tit->s1())]);
+                builder.add_vertex_to_facet(map[&(tit->s2())]);
+                builder.add_vertex_to_facet(map[&(tit->s3())]);
+                builder.end_facet();
+            }
+            builder.end_surface();
+        }
+    };
+
+    Polyhedron Mesh2Polyhedron(const Mesh& m)
+    {
+        Polyhedron p;
+        Build_Mesh2Polyhedron<HDS> modifier(m);
+        p.delegate(modifier);
+
+        return p;
     }
 }
 #endif  //! OPENMEEG_CGAL_MESH_H

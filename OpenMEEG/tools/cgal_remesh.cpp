@@ -46,7 +46,6 @@ using namespace OpenMEEG;
 // To avoid verbose function and named parameters call
 using namespace CGAL::parameters;
 
-typedef CGAL::Polyhedron_3<K> Polyhedron;
 // Domain 
 typedef CGAL::Polyhedral_mesh_domain_3<Polyhedron, K> Mesh_domain;
 
@@ -142,13 +141,8 @@ int main(int argc, char **argv) {
     }
 
     // Create input polyhedron
-    Polyhedron polyhedron;
-    for ( Mesh::const_iterator tit = m_in.begin(); tit != m_in.end(); ++tit) {
-        const Vertex p1 = tit->s1();
-        const Vertex p2 = tit->s2();
-        const Vertex p3 = tit->s3();
-        polyhedron.make_triangle(Point_3(p1.x(), p1.y(), p1.z()), Point_3(p2.x(), p2.y(), p2.z()), Point_3(p3.x(), p3.y(), p3.z()));
-    }
+    Polyhedron polyhedron = Mesh2Polyhedron(m_in);
+
     // Create domain
     Mesh_domain domain(polyhedron);
 
