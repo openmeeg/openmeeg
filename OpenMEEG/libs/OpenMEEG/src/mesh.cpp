@@ -1012,20 +1012,20 @@ namespace OpenMEEG {
     #ifdef USE_GIFTI
     void Mesh::save_gifti(const std::string& filename) const {
 
-        int dims[2] = {(int)nb_vertices(), 3};
+        int dims[2] = {int(nb_vertices()), 3};
         gifti_image * gim = gifti_create_image(1, NIFTI_INTENT_POINTSET, NIFTI_TYPE_FLOAT32, 2, dims, 1);
         gim->darray[0]->encoding = GIFTI_ENCODING_B64GZ;
 
         // vertices
-        std::map<const Vertex *, int> map;
+        std::map<const Vertex *, int> mapVertexIndex;
         gim->darray[0]->data = new float[nb_vertices()*3];
         float * pts = (float *)gim->darray[0]->data;
         int i = 0;
         for (const_vertex_iterator vit = vertex_begin(); vit != vertex_end(); ++vit, ++i) {
-            map[*vit] = i;
-            pts[3*i]   = float ((*vit)->x());
-            pts[3*i+1] = float ((*vit)->y());
-            pts[3*i+2] = float ((*vit)->z());
+            mapVertexIndex[*vit] = i;
+            pts[3*i]   = (*vit)->x();
+            pts[3*i+1] = (*vit)->y();
+            pts[3*i+2] = (*vit)->z();
         }
 
         // triangles
@@ -1036,7 +1036,7 @@ namespace OpenMEEG {
         gDA->datatype = NIFTI_TYPE_INT32;
         gDA->ind_ord  = GIFTI_IND_ORD_ROW_MAJOR;
         gDA->num_dim  = 2;
-        gDA->dims[0]  = (int)nb_triangles();
+        gDA->dims[0]  = int(nb_triangles());
         gDA->dims[1]  = 3;
         gDA->nvals    = 3*nb_triangles();
         gDA->encoding = GIFTI_ENCODING_B64GZ;
@@ -1046,9 +1046,9 @@ namespace OpenMEEG {
         int * trgs = (int *)gDA->data;
         i = 0;
         for (const_iterator tit = begin(); tit != end(); ++tit, ++i) {
-            trgs[3*i]   = map[&(tit->s1())];
-            trgs[3*i+1] = map[&(tit->s2())];
-            trgs[3*i+2] = map[&(tit->s3())];
+            trgs[3*i]   = mapVertexIndex[&(tit->s1())];
+            trgs[3*i+1] = mapVertexIndex[&(tit->s2())];
+            trgs[3*i+2] = mapVertexIndex[&(tit->s3())];
         }
         // gifti_add_to_meta(&gDA->meta, "TopologicalType", "Closed", 0);
         gifti_add_to_meta(&gDA->meta, "Name",name_.c_str(), 0);

@@ -234,7 +234,7 @@ namespace OpenMEEG {
         }
         template <typename T>
         void save_gifti(T) const {
-            std::cerr << "GIFTI writer : Not implemented" << std::endl;
+            std::cerr << "You have to compile OpenMEEG with GIFTI to read GIFTI files" << std::endl;
             exit(1);
         }
     #endif
