@@ -8,7 +8,7 @@ if (NOT HAVE_ISNORMAL_IN_NAMESPACE_STD)
 endif()
 
 function(create_library libname)
-    add_library(${libname} ${LIB_TYPE} ${ARGN})
+    add_library(${libname} ${ARGN})
     if (LAPACK_DEFINITIONS)
         target_compile_definitions(${libname} PUBLIC ${LAPACK_DEFINITIONS})
     endif()
