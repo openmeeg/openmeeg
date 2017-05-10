@@ -157,11 +157,7 @@ namespace OpenMEEG {
     #ifdef HAVE_LAPACK
         SymMatrix A(*this,DEEP_COPY);
         // LU
-        #ifdef MKL_ILP64
-        long long *pivots = new long long[nlin()];
-        #else
-        int *pivots = new int[nlin()];
-        #endif
+        LA_INT *pivots = new LA_INT[nlin()];
         int Info = 0;
         DSPTRF('U',sizet_to_int(A.nlin()),A.data(),pivots,Info);
         // Solve the linear system AX=B

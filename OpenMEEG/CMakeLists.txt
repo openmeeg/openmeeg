@@ -11,8 +11,8 @@
 cmake_minimum_required(VERSION 2.8.12 FATAL_ERROR)
 if (CMAKE_MAJOR_VERSION EQUAL 3)
     cmake_policy(SET CMP0048 NEW)
-    cmake_policy(SET CMP0037 OLD)
-    set(PROJECT_VERSION VERSION 2.3.0.2)
+    cmake_policy(SET CMP0037 NEW)
+    set(PROJECT_VERSION VERSION 2.3.2)
 endif()
 # The second path is temporary untill these are integrated in cmake...
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake ${CMAKE_SOURCE_DIR}/cmake/FortranCInterface)
@@ -45,7 +45,7 @@ include(Win32Compat)
 include(CompileOptions)
 
 set(OpenMEEG_HEADER_INSTALLDIR ${INSTALL_INCLUDE_DIR}/openmeeg)
-set(OpenMEEG_DEPENDENCIES OpenMEEG matio)
+set(OpenMEEG_DEPENDENCIES matio)
 
 # ==============
 # = Endianess =
@@ -61,7 +61,7 @@ test_big_endian(WORDS_BIGENDIAN)
 # Options
 include(OpenMEEGOptions)
 
-Dependencies(${OpenMEEG_DEPENDENCIES})
+Dependencies(OpenMEEG ${OpenMEEG_DEPENDENCIES})
 
 if (NOT matio_FOUND)
     message(FATAL_ERROR "No matio found.")
@@ -188,7 +188,7 @@ set(OpenMEEG_LIBRARIES OpenMEEG OpenMEEGMaths)
 
 # Add all targets to the build-tree export set
 export(TARGETS OpenMEEGMaths OpenMEEG 
-    FILE "${PROJECT_BINARY_DIR}/OpenMEEGTargets.cmake")
+       FILE "${PROJECT_BINARY_DIR}/OpenMEEGTargets.cmake")
  
 # Export the package for use from the build-tree
 # (this registers the build-tree with a global CMake-registry)
@@ -198,26 +198,25 @@ export(PACKAGE OpenMEEG)
 GenerateConfigFile(OpenMEEG LIBRARIES ${OpenMEEG_LIBRARIES})
 
 # Configure UseOpenMEEG.cmake for simple support.
-configure_file(
-    ${OpenMEEG_SOURCE_DIR}/cmake/UseOpenMEEG.cmake.in
-    ${OpenMEEG_BINARY_DIR}/UseOpenMEEG.cmake COPYONLY IMMEDIATE)
+configure_file(${OpenMEEG_SOURCE_DIR}/cmake/UseOpenMEEG.cmake.in
+               ${OpenMEEG_BINARY_DIR}/UseOpenMEEG.cmake COPYONLY IMMEDIATE)
 
 # Install the export set for use with the install-tree
 install(EXPORT OpenMEEGTargets DESTINATION "${INSTALL_CMAKE_DIR}"
-    COMPONENT DevelopmentCOMPONENT)
+        COMPONENT DevelopmentCOMPONENT)
 
 # Install README
 install(FILES ${PROJECT_SOURCE_DIR}/../LICENSE.txt
-    ${PROJECT_SOURCE_DIR}/../README.rst
-    DESTINATION ${INSTALL_DATA_DIR}/doc/OpenMEEG)
+        ${PROJECT_SOURCE_DIR}/../README.rst
+        DESTINATION ${INSTALL_DATA_DIR}/doc/OpenMEEG)
 
 # install generated headers OpenMEEGConfigure and FC
 install(FILES ${OpenMEEG_BINARY_DIR}/OpenMEEGConfigure.h
-    DESTINATION ${OpenMEEG_HEADER_INSTALLDIR}
-    COMPONENT Development)
+        DESTINATION ${OpenMEEG_HEADER_INSTALLDIR}
+        COMPONENT Development)
 
 if (NOT USE_MKL AND NOT WIN32 AND NOT USE_OPENBLAS)
     install(FILES ${OpenMEEG_BINARY_DIR}/FC.h
-        DESTINATION ${OpenMEEG_HEADER_INSTALLDIR}
-        COMPONENT Development)
+            DESTINATION ${OpenMEEG_HEADER_INSTALLDIR}
+            COMPONENT Development)
 endif()

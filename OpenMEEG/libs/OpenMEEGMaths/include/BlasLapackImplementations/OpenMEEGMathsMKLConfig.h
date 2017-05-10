@@ -10,13 +10,8 @@
 
 #define CLAPACK_INTERFACE
 
-
 extern "C" {
-    #ifdef MKL_ILP64
-    double dlange(const char&,const long long&,const long long&,double*,const long long&,double*);
-    #else
-    double dlange(const char&,const int&,const int&,double*,const int&,double*);
-    #endif
+    double dlange(const char&,const LA_INT&,const LA_INT&,double*,const int&,double*);
 }
 
 #define DLANGE dlange
