@@ -567,14 +567,36 @@ namespace OpenMEEG {
         read_data = 1; // now, load the data
         gim = gifti_read_image(filename.c_str(), read_data);
         
-        float * pts_data = (float *)gim->darray[ipts]->data;
-        for (unsigned i = 0; i < npts; ++i)
-           add_vertex(Vertex(pts_data[i],pts_data[i+npts],pts_data[i+2*npts]));
+        float * pts_data;
+        if (gim->darray[ipts]->datatype == NIFTI_TYPE_FLOAT32 ) { // float
+            pts_data = (float *)gim->darray[ipts]->data;
+        // } else if (gim->darray[ipts]->datatype == NIFTI_TYPE_FLOAT64 ) { // double
+            // pts_data = (double *)gim->darray[ipts]->data;
+        } else {
+            throw std::invalid_argument("OpenMEEG:: gifti mesh points not float nor double !?.");
+        }
+        if (gim->darray[ipts]->ind_ord == GIFTI_IND_ORD_ROW_MAJOR ) { // RowMajor
+            for (unsigned i = 0; i < npts; ++i) {
+                add_vertex(Vertex(pts_data[i*3],pts_data[i*3+1],pts_data[i*3+2]));
+            }
+        } else {
+            for (unsigned i = 0; i < npts; ++i) {
+                add_vertex(Vertex(pts_data[i],pts_data[i+npts],pts_data[i+2*npts]));
+            }
+        }
 
         reserve(ntrgs);
-        unsigned * trgs_data = (unsigned *)gim->darray[itrgs]->data;
-        for (unsigned i = 0; i < ntrgs; ++i)
-            push_back(Triangle(vertices_[trgs_data[i]],vertices_[trgs_data[i+ntrgs]],vertices_[trgs_data[i+2*ntrgs]]));
+        int * trgs = (int *)gim->darray[itrgs]->data;
+
+        if (gim->darray[itrgs]->ind_ord == GIFTI_IND_ORD_ROW_MAJOR ) { // RowMajor
+            for (unsigned i = 0; i < ntrgs; ++i) {
+                push_back(Triangle(vertices_[trgs[i*3]],vertices_[trgs[i*3+1]],vertices_[trgs[i*3+2]]));
+            }
+        } else {
+            for (unsigned i = 0; i < ntrgs; ++i) {
+                push_back(Triangle(vertices_[trgs[i]],vertices_[trgs[i+ntrgs]],vertices_[trgs[i+2*ntrgs]]));
+            }
+        }
 
         // free all
         gifti_free_image(gim);
@@ -986,6 +1008,54 @@ namespace OpenMEEG {
         delete[] pts_raw;
         os.close();
     }
+
+    #ifdef USE_GIFTI
+    void Mesh::save_gifti(const std::string& filename) const {
+
+        int dims[2] = {int(nb_vertices()), 3};
+        gifti_image * gim = gifti_create_image(1, NIFTI_INTENT_POINTSET, NIFTI_TYPE_FLOAT32, 2, dims, 1);
+        gim->darray[0]->encoding = GIFTI_ENCODING_B64GZ;
+
+        // vertices
+        std::map<const Vertex *, int> mapVertexIndex;
+        gim->darray[0]->data = new float[nb_vertices()*3];
+        float * pts = (float *)gim->darray[0]->data;
+        int i = 0;
+        for (const_vertex_iterator vit = vertex_begin(); vit != vertex_end(); ++vit, ++i) {
+            mapVertexIndex[*vit] = i;
+            pts[3*i]   = (*vit)->x();
+            pts[3*i+1] = (*vit)->y();
+            pts[3*i+2] = (*vit)->z();
+        }
+
+        // triangles
+        gifti_add_empty_darray(gim, 1);
+        giiDataArray *gDA = gim->darray[1];
+        gifti_set_DA_defaults(gDA);
+        gDA->intent   = NIFTI_INTENT_TRIANGLE;
+        gDA->datatype = NIFTI_TYPE_INT32;
+        gDA->ind_ord  = GIFTI_IND_ORD_ROW_MAJOR;
+        gDA->num_dim  = 2;
+        gDA->dims[0]  = int(nb_triangles());
+        gDA->dims[1]  = 3;
+        gDA->nvals    = 3*nb_triangles();
+        gDA->encoding = GIFTI_ENCODING_B64GZ;
+        gDA->endian   = GIFTI_ENDIAN_LITTLE;
+
+        gDA->data = new int[nb_triangles()*3];
+        int * trgs = (int *)gDA->data;
+        i = 0;
+        for (const_iterator tit = begin(); tit != end(); ++tit, ++i) {
+            trgs[3*i]   = mapVertexIndex[&(tit->s1())];
+            trgs[3*i+1] = mapVertexIndex[&(tit->s2())];
+            trgs[3*i+2] = mapVertexIndex[&(tit->s3())];
+        }
+        // gifti_add_to_meta(&gDA->meta, "TopologicalType", "Closed", 0);
+        gifti_add_to_meta(&gDA->meta, "Name",name_.c_str(), 0);
+
+        gifti_write_image(gim, filename.c_str(), 1);
+    }
+    #endif
 
     const Mesh::EdgeMap Mesh::compute_edge_map() const {
 

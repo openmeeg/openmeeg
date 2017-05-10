@@ -51,6 +51,7 @@ matrix:
       env:
         - USE_PROJECT=0
         - USE_CGAL=1
+        - USE_GIFTI=1
         - USE_VTK=1
         - BLASLAPACK_IMPLEMENTATION=Atlas
 

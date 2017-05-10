@@ -33,7 +33,7 @@ if (WIN32 OR APPLE)
     endif()
 
     set(DLL_DIRS "${ZLIB_ROOT}/${subdir}" "${HDF5_ROOT_DIR}/${subdir}" "${matio_ROOT_DIR}/${subdir}" "${LAPACK_DLL_DIR}"
-                 "${PYTHON_OPENMEEG_MODULE_DIR}" "${VTK_LIBRARY_DIRS}" "${CGAL_LIBRARY_DIRS}" "${NIFTI_DIR}")
+        "${PYTHON_OPENMEEG_MODULE_DIR}" "${VTK_LIBRARY_DIRS}" "${CGAL_LIBRARY_DIRS}" "${NIFTI_LIBRARY_DIR}")
     foreach (dir ${DLL_DIRS})
         set(LIBRARY_PATHS "${dir}${lib_separator}${LIBRARY_PATHS}")
     endforeach()
