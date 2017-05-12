@@ -180,7 +180,10 @@ namespace OpenMEEG {
     }
 
     inline double _operatorP1P0(const Triangle& T2,const Vertex& V1) {
-        return (T2.contains(V1)) ? 0.0 : T2.area()/3.0;
+        double result = 0.;
+        if  (T2.contains(V1))
+            result = T2.area()/3.0;
+        return result;
     }
 
     template <typename T>
@@ -422,7 +425,7 @@ namespace OpenMEEG {
         // This time mat(i, j)+= ... the Matrix is incremented by the P1P0 operator
         std::cout << "OPERATOR P1P0... (arg : mesh " << m.name() << " )" << std::endl;
         for (Mesh::const_iterator tit = m.begin(); tit != m.end(); ++tit)
-            for (Mesh::VectPVertex::const_iterator pit = m.vertex_begin(); pit != m.vertex_end(); ++pit)
+            for (Triangle::const_iterator pit = tit->begin(); pit != tit->end(); ++pit)
                 mat(tit->index(), (*pit)->index()) += _operatorP1P0(*tit, **pit) * coeff;
     }
 

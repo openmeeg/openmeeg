@@ -153,10 +153,10 @@ namespace OpenMEEG {
         // weights
         if (m_geo) { // EIT
             if (ncol == 4) { // if radii were specified
-                m_radius = mat.getcol(mat.ncol()-1);
+                m_radii = mat.getcol(mat.ncol()-1);
             } else {
-                m_radius = Vector(nlin);
-                m_radius.set(0.);
+                m_radii = Vector(nlin);
+                m_radii.set(0.);
             }
             // find triangles on which to inject the currents and compute weights
             findInjectionTriangles();
@@ -253,15 +253,15 @@ namespace OpenMEEG {
             triangles.push_back(current_nearest_triangle);
             std::set<size_t> index_seen; // to avoid infinite looping
             index_seen.insert(current_nearest_triangle.index());
-            if ( std::abs(m_radius(idx)) > 1.e3*std::numeric_limits<double>::epsilon() ) {
+            if ( std::abs(m_radii(idx)) > 1.e3*std::numeric_limits<double>::epsilon() ) {
                 // if the electrode is larger than the triangle, look for adjacent triangles
-                if ( current_nearest_triangle.area() < 4.*M_PI*std::pow(m_radius(idx),2) ) {
+                if ( current_nearest_triangle.area() < 4.*M_PI*std::pow(m_radii(idx),2) ) {
                     std::stack<Triangle *> tri_stack;
                     tri_stack.push(&current_nearest_triangle);
                     while ( !tri_stack.empty() ) {
                         Triangle * t = tri_stack.top();
                         tri_stack.pop();
-                        if ( (t->center()-current_position).norm() < m_radius(idx) ) {
+                        if ( (t->center()-current_position).norm() < m_radii(idx) ) {
                             if (t->index() != current_nearest_triangle.index()) //don't push the nearest triangle twice
                                 triangles.push_back(*t);
                             Interface::VectPTriangle t_adj = m_geo->interface(s_map).adjacent_triangles(*t);
@@ -277,7 +277,7 @@ namespace OpenMEEG {
                 for ( Triangles::const_iterator tit = triangles.begin(); tit != triangles.end(); ++tit) {
                     triangles_area += tit->area();
                 }
-                m_weights(idx) = M_PI * std::pow(m_radius(idx),2) / triangles_area;
+                m_weights(idx) = M_PI * std::pow(m_radii(idx),2) / triangles_area;
             }
             m_triangles.push_back(triangles);
         }
@@ -314,7 +314,7 @@ namespace OpenMEEG {
         if(hasRadii()) {
             std::cout << "Radii" << std::endl;
             for(size_t i = 0; i < nb_to_display ; ++i) {
-                std::cout << m_radius(i) << " " << std::endl;
+                std::cout << m_radii(i) << " " << std::endl;
             }
             if(m_nb > nb_to_display) {
                 std::cout << "..." << std::endl;

@@ -142,7 +142,7 @@ namespace OpenMEEG {
     ///handle multiple 0 conductivity domains
     private:
         std::set<Vertex>    invalid_vertices_; //does not equal to the vertices of invalid meshes because there are shared vertices
-        size_t              nb_current_barrier_triangles_;   //number of triangles with 0 normal currnet. Including triangles of invalid meshes.
+        size_t              nb_current_barrier_triangles_;   //number of triangles with 0 normal current. Including triangles of invalid meshes.
         std::vector<std::vector<std::string> > geo_group_; //Mesh names that belong to different isolated groups.
 
     public:
