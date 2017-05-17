@@ -40,6 +40,8 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <cstring>
 #include <sstream>
 #include <stdexcept>
+#include <string>
+#include <vector>
 
 #include <mesh.h>
 #include <integrator.h>
@@ -50,27 +52,30 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 using namespace std;
 using namespace OpenMEEG;
+using Strings = vector<string>;
 
 unsigned gauss_order = 3;
 
 void getHelp(char** argv);
+
+bool option(const string& option, const Strings& options);
 
 int main(int argc, char** argv)
 {
     print_version(argv[0]);
 
     bool OLD_ORDERING = false;
-    if ( argc<2) {
-        cerr << "Not enough arguments \nPlease try \"" << argv[0] << " -h\" or \"" << argv[0] << " --help \" \n" << endl;
+    if ( argc<2 ) {
+        getHelp(argv);
         return 0;
     } else {
         OLD_ORDERING = (strcmp(argv[argc-1], "-old-ordering") == 0);
         if ( OLD_ORDERING ) {
-            std::cout << "Using old ordering i.e using (V1, p1, V2, p2, V3) instead of (V1, V2, V3, p1, p2)" << std::endl;
+            cout << "Using old ordering i.e using (V1, p1, V2, p2, V3) instead of (V1, V2, V3, p1, p2)" << endl;
         }
     }
 
-    if ((!strcmp(argv[1],"-h")) | (!strcmp(argv[1],"--help"))) getHelp(argv);
+    if ( option(argv[1], {"-h","--help"})) getHelp(argv);
 
     disp_argv(argc, argv);
 
@@ -81,17 +86,11 @@ int main(int argc, char** argv)
     /*********************************************************************************************
     * Computation of Head Matrix for BEM Symmetric formulation
     **********************************************************************************************/
-    if ( ( !strcmp(argv[1], "-HeadMat") ) | ( !strcasecmp(argv[1], "-HM" ) ) ) {
-        if ( argc < 3 ) {
-            std::cerr << "Please set geometry filepath !" << endl;
-            exit(1);
-        }
-        if ( argc < 4 ) {
-            std::cerr << "Please set conductivities filepath !" << endl;
-            exit(1);
-        }
+    if ( option(argv[1], {"-HeadMat","-HM", "-hm"}) ) {
         if ( argc < 5 ) {
-            std::cerr << "Please set output filepath !" << endl;
+            cerr << "Please set geometry filepath" << endl;
+            cerr << "           conductivities filepath" << endl;
+            cerr << "           output filepath" << endl;
             exit(1);
         }
         // Loading surfaces from geometry file
@@ -111,42 +110,30 @@ int main(int argc, char** argv)
     /*********************************************************************************************
     * Computation of Cortical Matrix for BEM Symmetric formulation
     **********************************************************************************************/
-    else if ( ( !strcmp(argv[1], "-CorticalMat") ) | ( !strcasecmp(argv[1], "-CM" ) ) ) {
-        if ( argc < 3 ) {
-            std::cerr << "Please set geometry filepath !" << endl;
-            exit(1);
-        }
-        if ( argc < 4 ) {
-            std::cerr << "Please set conductivities filepath !" << endl;
-            exit(1);
-        }
-        if ( argc < 5 ) {
-            std::cerr << "Please set sensors !" << endl;
-            exit(1);
-        }
-        if ( argc < 6 ) {
-            std::cerr << "Please set the domain name !" << endl;
-            exit(1);
-        }
+    else if ( option(argv[1], {"-CorticalMat", "-CM", "-cm"}) ) {
         if ( argc < 7 ) {
-            std::cerr << "Please set output filepath !" << endl;
+            cerr << "Please set geometry filepath" << endl;
+            cerr << "           conductivities filepath" << endl;
+            cerr << "           sensors" << endl;
+            cerr << "           the domain name" << endl;
+            cerr << "           output filepath" << endl;
             exit(1);
         }
         double alpha = -1., beta = -1, gamma = -1.;
-        std::string filename = "";
+        string filename = "";
 
         switch (argc) {
         case 8: { // case gamma or filename
-            std::stringstream ss(argv[7]);
+            stringstream ss(argv[7]);
             if ( !(ss >> gamma) ) {
                 filename.append(argv[7]);
             }
             break;
                 }
         case 9:{ // case alpha+beta or gamma+filename
-            std::stringstream ss(argv[7]);
+            stringstream ss(argv[7]);
             if ( !(ss >> alpha) ) {
-                throw std::runtime_error("given parameter is not a number");
+                throw runtime_error("given parameter is not a number");
             }
             ss.str(argv[8]);
             ss.clear();
@@ -157,14 +144,14 @@ int main(int argc, char** argv)
             break;
                 }
         case 10:{ // case alpha+beta + filename
-            std::stringstream ss(argv[7]);
+            stringstream ss(argv[7]);
             if ( !(ss >> alpha) ) {
-                throw std::runtime_error("given parameter is not a number");
+                throw runtime_error("given parameter is not a number");
             }
             ss.str(argv[8]);
             ss.clear();
             if ( !(ss >> beta) ) {
-                throw std::runtime_error("given parameter is not a number");
+                throw runtime_error("given parameter is not a number");
             }
             filename.append(argv[9]);
             break;
@@ -197,17 +184,12 @@ int main(int argc, char** argv)
     /*********************************************************************************************
     * Computation of general Surface Source Matrix for BEM Symmetric formulation
     **********************************************************************************************/
-    else if ( ( !strcmp(argv[1], "-SurfSourceMat") ) | ( !strcasecmp(argv[1], "-SSM") ) ) {
-        if ( argc < 3 ) {
-            std::cerr << "Please set geometry filepath !" << endl;
-            exit(1);
-        }
-        if ( argc < 4 ) {
-            std::cerr << "Please set conductivities filepath !" << endl;
-            exit(1);
-        }
-        if ( argc < 5 ) {
-            std::cerr << "Please set 'mesh of sources' filepath !" << endl;
+    else if ( option(argv[1], {"-SurfSourceMat", "-SSM", "-ssm"}) ) {
+        if ( argc < 6 ) {
+            cerr << "Please set geometry filepath" << endl;
+            cerr << "           conductivities filepath" << endl;
+            cerr << "           'mesh of sources' filepath" << endl;
+            cerr << "           output filepath" << endl;
             exit(1);
         }
 
@@ -227,23 +209,18 @@ int main(int argc, char** argv)
     /*********************************************************************************************
     * Computation of RHS for discrete dipolar case
     **********************************************************************************************/
-    else if ( ( !strcmp(argv[1], "-DipSourceMat") ) | ( !strcasecmp(argv[1], "-DSM") ) | ( !strcmp(argv[1], "-DipSourceMatNoAdapt") ) | ( !strcasecmp(argv[1], "-DSMNA") ) )  {
-        if ( argc < 3 ) {
-            cerr << "Please set geometry filepath !" << endl;
+    else if ( option(argv[1], {"-DipSourceMat", "-DSM", "-dsm", "-DipSourceMatNoAdapt", "-DSMNA", "-dsmna"}) ) {
+        if ( argc < 6 ) {
+            cerr << "Please set geometry filepath" << endl;
+            cerr << "           conductivities filepath" << endl;
+            cerr << "           dipoles filepath!" << endl;
+            cerr << "           output filepath" << endl;
             exit(1);
         }
-        if ( argc < 4 ) {
-            std::cerr << "Please set conductivities filepath !" << endl;
-            exit(1);
-        }
-        if ( argc < 5 ) {
-            cerr << "Please set dipoles filepath!" << endl;
-            exit(1);
-        }
-        std::string domain_name = "";
+        string domain_name = "";
         if ( argc == 7 ) {
             domain_name = argv[6];
-            std::cout << "Dipoles are considered to be in \"" << domain_name << "\" domain." << std::endl;
+            cout << "Dipoles are considered to be in \"" << domain_name << "\" domain." << endl;
         }
 
         // Loading surfaces from geometry file.
@@ -260,7 +237,7 @@ int main(int argc, char** argv)
         bool adapt_rhs = true;
 
         // Choosing between adaptive integration or not for the RHS
-        if ( !strcmp(argv[1], "-DipSourceMatNoAdapt") | (!strcasecmp(argv[1], "-DSMNA"))) {
+        if ( option(argv[1], {"-DipSourceMatNoAdapt", "-DSMNA", "-dsmna"})) {
             adapt_rhs = false;
         }
 
@@ -273,21 +250,12 @@ int main(int argc, char** argv)
     * Computation of the RHS for EIT
     **********************************************************************************************/
 
-    else if ( !strcmp(argv[1], "-EITSourceMat") | !strcasecmp(argv[1], "-EITSM") ) {
-        if ( argc < 3 ) {
-            cerr << "Please set geometry filepath !" << endl;
-            exit(1);
-        }
-        if ( argc < 4 ) {
-            std::cerr << "Please set conductivities filepath !" << endl;
-            exit(1);
-        }
-        if ( argc < 5 ) {
-            std::cerr << "Please set electrode positions filepath !" << endl;
-            exit(1);
-        }
+    else if ( option(argv[1], {"-EITSourceMat", "-EITSM", "-EITsm"}) ) {
         if ( argc < 6 ) {
-            std::cerr << "Please set output EITSourceMat filepath !" << endl;
+            cerr << "Please set geometry filepath" << endl;
+            cerr << "           conductivities filepath" << endl;
+            cerr << "           electrode positions filepath" << endl;
+            cerr << "           output EITSourceMat filepath" << endl;
             exit(1);
         }
 
@@ -306,18 +274,12 @@ int main(int argc, char** argv)
     * (i.e. the potential and the normal current on all interfaces)
     * |----> v (potential at the electrodes)
     **********************************************************************************************/
-    else if ( !strcmp(argv[1], "-Head2EEGMat") | !strcasecmp(argv[1], "-H2EM") ) {
-
-        if ( argc < 3 ) {
-            cerr << "Please set geometry filepath !" << endl;
-            exit(1);
-        }
-        if ( argc < 4 ) {
-            std::cerr << "Please set conductivities filepath !" << endl;
-            exit(1);
-        }
-        if ( argc < 5 ) {
-            cerr << "Please set electrode positions filepath !" << endl;
+    else if ( option(argv[1], {"-Head2EEGMat", "-H2EM", "-h2em"}) ) {
+        if ( argc < 6 ) {
+            cerr << "Please set geometry filepath" << endl;
+            cerr << "           conductivities filepath" << endl;
+            cerr << "           electrode positions filepath" << endl;
+            cerr << "           output filepath" << endl;
             exit(1);
         }
 
@@ -340,26 +302,13 @@ int main(int argc, char** argv)
     * (i.e. the potential and the normal current on all interfaces)
     * |----> v (potential at the ECoG electrodes)
     **********************************************************************************************/
-    else if ( !strcmp(argv[1], "-Head2ECoGMat") | !strcasecmp(argv[1], "-H2ECOGM")) {
-
-        if ( argc < 3 ) {
-            cerr << "Please set geometry filepath !" << endl;
-            exit(1);
-        }
-        if ( argc < 4 ) {
-            std::cerr << "Please set conductivities filepath !" << endl;
-            exit(1);
-        }
-        if ( argc < 5 ) {
-            cerr << "Please set ECoG electrode positions filepath !" << endl;
-            exit(1);
-        }
-        if ( argc < 6 ) {
-            cerr << "Please set the name of the interface for EcoG" << endl;
-            exit(1);
-        }
+    else if ( option(argv[1], {"-Head2ECoGMat", "-H2ECogM", "-H2ECOGM", "-h2ecogm"}) ) {
         if ( argc < 7 ) {
-            cerr << "Please set output matrix filepath !" << endl;
+            cerr << "Please set geometry filepath" << endl;
+            cerr << "           conductivities filepath" << endl;
+            cerr << "           ECoG electrode positions filepath" << endl;
+            cerr << "           the name of the interface for EcoG" << endl;
+            cerr << "           output matrix filepath" << endl;
             exit(1);
         }
 
@@ -386,18 +335,12 @@ int main(int argc, char** argv)
     * (i.e. the potential and the normal current on all interfaces)
     * |----> bFerguson (contrib to MEG response)
     **********************************************************************************************/
-    else if ( !strcmp(argv[1], "-Head2MEGMat") | !strcasecmp(argv[1], "-H2MM") ) {
-
-        if ( argc < 3) {
-            cerr << "Please set geometry filepath !" << endl;
-            exit(1);
-        }
-        if ( argc < 4) {
-            std::cerr << "Please set conductivities filepath !" << endl;
-            exit(1);
-        }
-        if ( argc < 5) {
-            cerr << "Please set squids filepath !" << endl;
+    else if ( option(argv[1], {"-Head2MEGMat", "-H2MM", "-h2mm"}) ) {
+        if ( argc < 6) {
+            cerr << "Please set geometry filepath" << endl;
+            cerr << "           conductivities filepath" << endl;
+            cerr << "           squids filepath" << endl;
+            cerr << "           output filepath" << endl;
             exit(1);
         }
 
@@ -418,19 +361,15 @@ int main(int argc, char** argv)
     * Computation of the linear application which maps the distributed source
     * |----> binf (contrib to MEG response)
     **********************************************************************************************/
-    else if ( !strcmp(argv[1], "-SurfSource2MEGMat") | !strcasecmp(argv[1], "-SS2MM") ) {
-
-        if ( argc < 3 ) {
-            cerr << "Please set 'mesh sources' filepath !" << endl;
-            exit(1);
-        }
-        if ( argc < 4 ) {
-            cerr << "Please set squids filepath !" << endl;
+    else if ( option(argv[1], {"-SurfSource2MEGMat", "-SS2MM", "-ss2mm"}) ) {
+        if ( argc < 5 ) {
+            cerr << "Please set 'mesh sources' filepath" << endl;
+            cerr << "           squids filepath" << endl;
+            cerr << "           output filepath" << endl;
             exit(1);
         }
 
         // Loading mesh for distributed sources :
-        Geometry geo;
         Mesh mesh_sources;
         mesh_sources.load(argv[2]);
         // Load positions and orientations of sensors  :
@@ -449,14 +388,11 @@ int main(int argc, char** argv)
     // arguments are the positions and orientations of the squids,
     // the position and orientations of the sources and the output name.
 
-    else if ( !strcmp(argv[1], "-DipSource2MEGMat") | !strcasecmp(argv[1], "-DS2MM") ) {
-
-        if ( argc < 3 ) {
-            cerr << "Please set dipoles filepath !" << endl;
-            exit(1);
-        }
-        if ( argc < 4 ) {
-            cerr << "Please set squids filepath !" << endl;
+    else if ( option(argv[1], {"-DipSource2MEGMat", "-DS2MM", "-ds2mm"}) ) {
+        if ( argc < 5 ) {
+            cerr << "Please set dipoles filepath" << endl;
+            cerr << "           squids filepath" << endl;
+            cerr << "           output filepath" << endl;
             exit(1);
         }
 
@@ -475,21 +411,12 @@ int main(int argc, char** argv)
     * |----> v, potential at a set of prescribed points within the 3D volume
     **********************************************************************************************/
 
-    else if ( !strcmp(argv[1], "-Head2InternalPotMat") | !strcasecmp(argv[1], "-H2IPM") ) {
-        if ( argc < 3 ) {
-            cerr << "Please set geom filepath !" << endl;
-            exit(1);
-        }
-        if ( argc < 4 ) {
-            cerr << "Please set cond filepath !" << endl;
-            exit(1);
-        }
-        if ( argc < 5 ) {
-            cerr << "Please set point positions filepath !" << endl;
-            exit(1);
-        }
+    else if ( option(argv[1], {"-Head2InternalPotMat", "-H2IPM", "-h2ipm"}) ) {
         if ( argc < 6 ) {
-            std::cerr << "Please set output filepath !" << endl;
+            cerr << "Please set geom filepath" << endl;
+            cerr << "           cond filepath" << endl;
+            cerr << "           point positions filepath" << endl;
+            cerr << "           output filepath" << endl;
             exit(1);
         }
         // Loading surfaces from geometry file
@@ -506,31 +433,19 @@ int main(int argc, char** argv)
     *    Vinf(r)=1/(4*pi*sigma)*(r-r0).q/(||r-r0||^3)
     **********************************************************************************************/
 
-    else if ( !strcmp(argv[1], "-DipSource2InternalPotMat") | !strcasecmp(argv[1], "-DS2IPM") ) {
-        if (argc<3) {
-            cerr << "Please set geom filepath !" << endl;
-            exit(1);
-        }
-        if (argc<4) {
-            cerr << "Please set cond filepath !" << endl;
-            exit(1);
-        }
-        if (argc<5) {
-            cerr << "Please set dipoles filepath !" << endl;
-            exit(1);
-        }
-        if (argc<6) {
-            cerr << "Please set point positions filepath !" << endl;
-            exit(1);
-        }
+    else if ( option(argv[1], {"-DipSource2InternalPotMat", "-DS2IPM", "-ds2ipm"}) ) {
         if (argc<7) {
-            std::cerr << "Please set output filepath !" << endl;
+            cerr << "Please set geom filepath" << endl;
+            cerr << "           cond filepath" << endl;
+            cerr << "           dipoles filepath" << endl;
+            cerr << "           point positions filepath" << endl;
+            cerr << "           output filepath" << endl;
             exit(1);
         }
-        std::string domain_name = "";
+        string domain_name = "";
         if (argc==9) {
             domain_name = argv[7];
-            std::cout << "Dipoles are considered to be in \"" << domain_name << "\" domain." << std::endl;
+            cout << "Dipoles are considered to be in \"" << domain_name << "\" domain." << endl;
         }
         // Loading surfaces from geometry file
         Geometry geo;
@@ -541,13 +456,24 @@ int main(int argc, char** argv)
         DipSource2InternalPotMat mat(geo, dipoles, points, domain_name);
         mat.save(argv[6]);
     }
-
-    else cerr << "unknown argument: " << argv[1] << endl;
+    else {
+        cerr << "unknown argument: " << argv[1] << endl;
+        exit(1);
+    }
 
     // Stop Chrono
     C.stop();
     C.dispEllapsed();
 }
+
+bool option(const string& option, const Strings& options) {
+    for ( auto s: options) {
+        if (option == s)
+            return true;
+    }
+    return false;
+}
+
 
 void getHelp(char** argv) {
     cout << argv[0] <<" [-option] [filepaths...]" << endl << endl;
