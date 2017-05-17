@@ -318,7 +318,7 @@ namespace OpenMEEG {
                 delete[] work;
                 om_assert(Info==0);
             #else
-                LA_INT *pivots=new LA_INT[sizet_to_int(ncol())];
+                BLAS_INT *pivots=new BLAS_INT[sizet_to_int(ncol())];
                 DGETRF(sizet_to_int(invA.nlin()),sizet_to_int(invA.ncol()),invA.data(),sizet_to_int(invA.nlin()),pivots);
                 DGETRI(sizet_to_int(invA.ncol()),invA.data(),sizet_to_int(invA.ncol()),pivots);
                 delete[] pivots;

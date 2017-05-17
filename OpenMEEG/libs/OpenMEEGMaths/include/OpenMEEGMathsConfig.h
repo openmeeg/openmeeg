@@ -72,9 +72,9 @@ knowledge of the CeCILL-B license and that you accept its terms.
 //  Blas/Lapack configuration
 
 #if defined(MKL_ILP64) && defined(USE_MKL)
-typedef long long int LA_INT;
+typedef long long int BLAS_INT;
 #else
-typedef int LA_INT;
+typedef int BLAS_INT;
 #endif
 
 #if defined(USE_LAPACK)

@@ -129,9 +129,9 @@ namespace OpenMEEG {
         double *s = new double[mini];
         // int lwork = 4 *mini*mini + maxi + 9*mini; 
         // http://www.netlib.no/netlib/lapack/double/dgesdd.f :
-        LA_INT *iwork = new LA_INT[8*mini];
-        LA_INT lwork = 4 *mini*mini + std::max(maxi,4*mini*mini+4*mini);
-        LA_INT Info = 0;
+        BLAS_INT *iwork = new BLAS_INT[8*mini];
+        BLAS_INT lwork = 4 *mini*mini + std::max(maxi,4*mini*mini+4*mini);
+        BLAS_INT Info = 0;
         double *work = new double[lwork];
         if ( complete ) { // complete SVD
             DGESDD('A',sizet_to_int(nlin()),sizet_to_int(ncol()),cpy.data(),sizet_to_int(nlin()),s,U.data(),sizet_to_int(U.nlin()),V.data(),sizet_to_int(V.nlin()),work,lwork,iwork,Info);
