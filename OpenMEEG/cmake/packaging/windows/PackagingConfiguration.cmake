@@ -34,13 +34,13 @@ set(PACKAGE_ARCH_SHORT "${PACKAGE_ARCH}")
 #   sure there is at least one set of four (4) backlasshes.
 
 set(CPACK_NSIS_DISPLAY_NAME "OpenMEEG")
-set(CPACK_NSIS_HELP_LINK "http:\\\\\\\\openmeeg.gforge.inria.fr")
-set(CPACK_NSIS_URL_INFO_ABOUT "http:\\\\\\\\openmeeg.gforge.inria.fr")
+set(CPACK_NSIS_HELP_LINK "http:\\\\\\\\openmeeg.github.io")
+set(CPACK_NSIS_URL_INFO_ABOUT "http:\\\\\\\\openmeeg.github.io")
 set(CPACK_NSIS_CONTACT ${CPACK_PACKAGE_CONTACT})
 
 #   Dealing with the icon.
 
-set(ICON_PATH "${PROJECT_SOURCE_DIR}/packaging/openmeeg.ico")
+set(ICON_PATH "${PROJECT_SOURCE_DIR}/cmake/packaging/openmeeg.ico")
 set(CPACK_NSIS_MUI_ICON ${ICON_PATH})
 set(CPACK_NSIS_MUI_UNIICON ${ICON_PATH})
 # set(CPACK_NSIS_INSTALLED_ICON_NAME bin\\\\om_assemble.exe)
@@ -56,7 +56,7 @@ set(CPACK_PACKAGE_EXECUTABLES "om_assemble" "OpenMEEG (Ignore)")
 set(CPACK_NSIS_MENU_LINKS
     "OpenMEEG/doc/LICENSE.txt"        "License"
     "OpenMEEG/README.rst"             "README"
-    "http://openmeeg.gforge.inria.fr" "OpenMEEG homepage"
+    "http://openmeeg.github.io"       "OpenMEEG homepage"
 )
 
 #   Run OpenMEEG after installation

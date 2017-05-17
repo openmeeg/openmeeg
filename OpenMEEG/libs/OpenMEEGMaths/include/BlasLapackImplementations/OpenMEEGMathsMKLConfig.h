@@ -10,9 +10,8 @@
 
 #define CLAPACK_INTERFACE
 
-
 extern "C" {
-    double dlange(const char&,const int&,const int&,double*,const int&,double*);
+    double dlange(const char&,const BLAS_INT&,const BLAS_INT&,double*,const int&,double*);
 }
 
 #define DLANGE dlange

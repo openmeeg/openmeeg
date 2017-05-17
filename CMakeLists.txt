@@ -14,6 +14,10 @@ if (CMAKE_MAJOR_VERSION EQUAL 3)
     set(PROJECT_VERSION VERSION 2.3.0.2)
 endif()
 
+set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake ${CMAKE_CURRENT_SOURCE_DIR}/OpenMEEG/cmake ${CMAKE_CURRENT_SOURCE_DIR}/OpenMEEG/cmake/FortranCInterface ${CMAKE_MODULE_PATH})
+
+project(OpenMEEG-superProject ${PROJECT_VERSION})  # XXX don't call it super project
+
 # Set CMAKE_BUILD_TYPE to Release by default.
 if (NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "Release" CACHE STRING
@@ -21,10 +25,6 @@ if (NOT CMAKE_BUILD_TYPE)
 endif()
 # Set the possible values of build type for cmake-gui
 set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "RelWithDebInfo" "MinSizeRel")
-
-set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake ${CMAKE_CURRENT_SOURCE_DIR}/OpenMEEG/cmake ${CMAKE_CURRENT_SOURCE_DIR}/OpenMEEG/cmake/FortranCInterface ${CMAKE_MODULE_PATH})
-
-project(OpenMEEG-superProject ${PROJECT_VERSION})  # XXX don't call it super project
 
 # Setup everything MODULE_PATH, check environment, basic targets, options
 
@@ -52,7 +52,7 @@ endif()
 # MSVC starts to include stddint.h only from MSVC10 !!!
 
 set(MSINTTYPES)
-if (WIN32 AND NOT CYGWIN_INSTALL_PATH)
+if (WIN32)
     include(CheckIncludeFiles)
     check_include_files(stdint.h HAVE_C99_STDINT)
     if (NOT HAVE_C99_STDINT)

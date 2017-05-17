@@ -11,7 +11,7 @@ function(OpenMEEG_project)
 
     # Prepare the project and list dependencies
 
-    EP_Initialisation(OpenMEEG BUILD_SHARED_LIBS ON)
+    EP_Initialisation(OpenMEEG BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS})
     EP_SetDependencies(${ep}_dependencies clapack matio ${MSINTTYPES} ${VTK_})
 
     # No need to define repository where get the sources, since they are integrated.
@@ -34,8 +34,10 @@ function(OpenMEEG_project)
         -DUSE_VTK:BOOL=${USE_VTK}
         -DUSE_GIFTI:BOOL=${USE_GIFTI}
         -DUSE_CGAL:BOOL=${USE_CGAL}
+        -DMKL_USE_sdl:BOOL=${MKL_USE_sdl}
+        -DMKL_USE_interface:STRING=${MKL_USE_interface}
+        -DMKL_USE_parallel:BOOL=${MKL_USE_parallel}
         -DUSE_PROGRESSBAR:BOOL=${USE_PROGRESSBAR}
-        -DENABLE_PACKAGING:BOOL=${ENABLE_PACKAGING}
         -DENABLE_PYTHON:BOOL=${ENABLE_PYTHON}
         -DENABLE_COVERAGE:BOOL=${ENABLE_COVERAGE}
         -DBUILD_TESTING:BOOL=${BUILD_TESTING}

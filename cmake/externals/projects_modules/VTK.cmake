@@ -15,7 +15,7 @@ function(VTK_project)
 
     # Prepare the project and list dependencies
 
-    EP_Initialisation(VTK BUILD_SHARED_LIBS ON)
+    EP_Initialisation(VTK BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS})
     EP_SetDependencies(${ep}_dependencies zlib)
 
     # Define repository where get the sources

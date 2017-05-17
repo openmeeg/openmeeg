@@ -75,7 +75,10 @@ int main () {
     v(3) = 0.22;
     v(2) = 2.;
     Matrix m(v,v.size(),1);
-    if ( (m*m.transpose() - v.outer_product(v)).frobenius_norm() > eps) {
+    m = m* m.transpose();
+    m -= v.outer_product(v);
+    if ( m.frobenius_norm() > eps) {
+        m.info();
         std::cerr << "Error: Vector outerproduct is WRONG-1" << std::endl;
         exit(1);
     }

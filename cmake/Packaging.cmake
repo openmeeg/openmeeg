@@ -5,50 +5,46 @@
 option(ENABLE_PACKAGING "Enable Packaging" ON)
 
 if (ENABLE_PACKAGING)
+    # set(CPACK_RPM_PACKAGE_DEBUG TRUE)
 
-    set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/packaging ${CMAKE_MODULE_PATH})
+    set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/OpenMEEG/cmake/packaging ${CMAKE_MODULE_PATH})
 
-    set(CPACK_PACKAGE_NAME "OpenMEEG")
-    set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "OpenMEEG Project")
-    set(CPACK_PACKAGE_VENDOR "INRIA-ENPC")
-    set(CPACK_PACKAGE_VERSION ${PROJECT_VERSION})
-    #set(CPACK_PACKAGE_DESCRIPTION_FILE "${PROJECT_SOURCE_DIR}/OpenMEEG/README.rst")
-    #set(CPACK_RESOURCE_FILE_LICENSE "${PROJECT_SOURCE_DIR}/OpenMEEG/LICENSE.txt")
-    set(CPACK_PACKAGE_CONTACT "openmeeg-info@lists.gforge.inria.fr")
+    # load variables
+    include(PackagingOpenMEEG)
 
-    set(CPACK_PACKAGE_INSTALL_DIRECTORY "OpenMEEG")
-    set(CPACK_SOURCE_STRIP_FILES "")
+    set(CPACK_GENERATOR "TGZ")
 
-    if (UNIX)
-        set(CPACK_SET_DESTDIR true)
-        set(CPACK_INSTALL_PREFIX "Packaging")
-        set(SYSTEMDIR linux)
-        if (APPLE)
-            set(SYSTEMDIR apple)
-        endif()
-    else()
-        set(CPACK_SET_DESTDIR false)
-        set(CPACK_INSTALL_PREFIX "")
-        set(SYSTEMDIR windows)
-    endif()
-    include(${SYSTEMDIR}/PackagingConfiguration)
+    # if we want to generate all the sub-project packages:
+    #set(CPACK_INSTALL_CMAKE_PROJECTS "${CMAKE_CURRENT_BINARY_DIR}/matio/build;matio;ALL;/" "${CMAKE_CURRENT_BINARY_DIR}/OpenMEEG/build;OpenMEEG;ALL;/")
 
-    if (USE_OMP)
-        set(PACKAGE_OPTIONS "-OpenMP")
-    endif()
+    # call cpack for OpenMEEG
+    set(CPACK_INSTALL_CMAKE_PROJECTS "${CMAKE_CURRENT_BINARY_DIR}/OpenMEEG/build;OpenMEEG;ALL;/")
 
-    set(PACKAGE_OPTIONS ${PACKAGE_OPTIONS}-${BLASLAPACK_IMPLEMENTATION})
+    set(PACKAGE_OPTIONS ${BLASLAPACK_IMPLEMENTATION})
 
     if (BUILD_SHARED_LIBS)
-        if (ENABLE_PYTHON)
-            set(PACKAGE_OPTIONS ${PACKAGE_OPTIONS}-python)
-        endif()
         set(PACKAGE_OPTIONS ${PACKAGE_OPTIONS}-shared)
     else()
         set(PACKAGE_OPTIONS ${PACKAGE_OPTIONS}-static)
     endif()
 
-    set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}-${PACKAGE_ARCH_SHORT}${PACKAGE_OPTIONS}")
+    if (USE_OMP)
+        set(PACKAGE_OPTIONS ${PACKAGE_OPTIONS}-OpenMP)
+    endif()
+
+    if (USE_VTK)
+        set(PACKAGE_OPTIONS ${PACKAGE_OPTIONS}-vtk)
+    endif()
+
+    if (USE_CGAL)
+        set(PACKAGE_OPTIONS ${PACKAGE_OPTIONS}-cgal)
+    endif()
+
+    if (ENABLE_PYTHON)
+        set(PACKAGE_OPTIONS ${PACKAGE_OPTIONS}-python)
+    endif()
+
+    set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}-${PACKAGE_ARCH_SHORT}-${PACKAGE_OPTIONS}")
 
     include(InstallRequiredSystemLibraries)
     include(CPack)

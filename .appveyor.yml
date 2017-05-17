@@ -45,7 +45,7 @@ build_script:
   - echo Running cmake...
   - mkdir build
   - cd build
-  - cmake -G "Visual Studio 14 2015 Win64" -DBUILD_SHARED=ON -DBUILD_DOCUMENTATION=OFF -DBUILD_TESTING:BOOL=ON -DENABLE_PACKAGING:BOOL=%pack% -DCMAKE_SKIP_RPATH:BOOL=OFF -DENABLE_PYTHON=%python% -DBLASLAPACK_IMPLEMENTATION=%lapack% -DUSE_VTK=%vtk% ..
+  - cmake -G "Visual Studio 14 2015 Win64" -DBUILD_DOCUMENTATION=OFF -DBUILD_TESTING:BOOL=ON -DENABLE_PACKAGING:BOOL=%pack% -DCMAKE_SKIP_RPATH:BOOL=OFF -DENABLE_PYTHON=%python% -DBLASLAPACK_IMPLEMENTATION=%lapack% -DUSE_VTK=%vtk% ..
   - cmake --build . --config Release
 
 after_build:
@@ -54,8 +54,6 @@ after_build:
 before_test:
   - echo Running tests...
   - cd C:\projects\openmeeg\build\OpenMEEG\build
-    # needed to find the dlls (VTK, (OpenBLAS, mingw), MKL)
-  - setPATH.cmd
   - ctest
 
 on_success:
