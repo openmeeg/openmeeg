@@ -58,7 +58,7 @@ unsigned gauss_order = 3;
 
 void getHelp(char** argv);
 
-bool option(const string& option, const Strings& options);
+bool option(const int argc, char ** argv, const Strings& options, const Strings& files);
 
 int main(int argc, char** argv)
 {
@@ -71,11 +71,12 @@ int main(int argc, char** argv)
     } else {
         OLD_ORDERING = (strcmp(argv[argc-1], "-old-ordering") == 0);
         if ( OLD_ORDERING ) {
+            argc--;
             cout << "Using old ordering i.e using (V1, p1, V2, p2, V3) instead of (V1, V2, V3, p1, p2)" << endl;
         }
     }
 
-    if ( option(argv[1], {"-h","--help"})) getHelp(argv);
+    if ( option(argc, argv, {"-h","--help"}, {})) getHelp(argv);
 
     disp_argv(argc, argv);
 
@@ -86,13 +87,8 @@ int main(int argc, char** argv)
     /*********************************************************************************************
     * Computation of Head Matrix for BEM Symmetric formulation
     **********************************************************************************************/
-    if ( option(argv[1], {"-HeadMat","-HM", "-hm"}) ) {
-        if ( argc < 5 ) {
-            cerr << "Please set geometry filepath" << endl;
-            cerr << "           conductivities filepath" << endl;
-            cerr << "           output filepath" << endl;
-            exit(1);
-        }
+    if ( option(argc, argv, {"-HeadMat","-HM", "-hm"},
+                {"geometry file", "conductivity file", "output file"}) ) {
         // Loading surfaces from geometry file
         Geometry geo;
         geo.read(argv[2], argv[3], OLD_ORDERING);
@@ -110,15 +106,8 @@ int main(int argc, char** argv)
     /*********************************************************************************************
     * Computation of Cortical Matrix for BEM Symmetric formulation
     **********************************************************************************************/
-    else if ( option(argv[1], {"-CorticalMat", "-CM", "-cm"}) ) {
-        if ( argc < 7 ) {
-            cerr << "Please set geometry filepath" << endl;
-            cerr << "           conductivities filepath" << endl;
-            cerr << "           sensors" << endl;
-            cerr << "           the domain name" << endl;
-            cerr << "           output filepath" << endl;
-            exit(1);
-        }
+    else if ( option(argc, argv, {"-CorticalMat", "-CM", "-cm"},
+                     {"geometry file", "conductivity file", "sensors file", "the domain name", "output file"}) ) {
         double alpha = -1., beta = -1, gamma = -1.;
         string filename = "";
 
@@ -184,14 +173,8 @@ int main(int argc, char** argv)
     /*********************************************************************************************
     * Computation of general Surface Source Matrix for BEM Symmetric formulation
     **********************************************************************************************/
-    else if ( option(argv[1], {"-SurfSourceMat", "-SSM", "-ssm"}) ) {
-        if ( argc < 6 ) {
-            cerr << "Please set geometry filepath" << endl;
-            cerr << "           conductivities filepath" << endl;
-            cerr << "           'mesh of sources' filepath" << endl;
-            cerr << "           output filepath" << endl;
-            exit(1);
-        }
+    else if ( option(argc, argv, {"-SurfSourceMat", "-SSM", "-ssm"},
+                     {"geometry file", "conductivity file", "'mesh of sources' file", "output file"})) {
 
         // Loading surfaces from geometry file.
         Geometry geo;
@@ -209,14 +192,9 @@ int main(int argc, char** argv)
     /*********************************************************************************************
     * Computation of RHS for discrete dipolar case
     **********************************************************************************************/
-    else if ( option(argv[1], {"-DipSourceMat", "-DSM", "-dsm", "-DipSourceMatNoAdapt", "-DSMNA", "-dsmna"}) ) {
-        if ( argc < 6 ) {
-            cerr << "Please set geometry filepath" << endl;
-            cerr << "           conductivities filepath" << endl;
-            cerr << "           dipoles filepath!" << endl;
-            cerr << "           output filepath" << endl;
-            exit(1);
-        }
+    else if ( option(argc, argv, {"-DipSourceMat", "-DSM", "-dsm", "-DipSourceMatNoAdapt", "-DSMNA", "-dsmna"},
+                     {"geometry file", "conductivity file", "dipoles file", "output file"}) ) {
+
         string domain_name = "";
         if ( argc == 7 ) {
             domain_name = argv[6];
@@ -233,11 +211,12 @@ int main(int argc, char** argv)
             cerr << "Dipoles File Format Error" << endl;
             exit(1);
         }
-        
+
         bool adapt_rhs = true;
 
         // Choosing between adaptive integration or not for the RHS
-        if ( option(argv[1], {"-DipSourceMatNoAdapt", "-DSMNA", "-dsmna"})) {
+        if ( option(argc, argv, {"-DipSourceMatNoAdapt", "-DSMNA", "-dsmna"},
+                    {"geometry file", "conductivity file", "dipoles file", "output file"})) {
             adapt_rhs = false;
         }
 
@@ -250,14 +229,8 @@ int main(int argc, char** argv)
     * Computation of the RHS for EIT
     **********************************************************************************************/
 
-    else if ( option(argv[1], {"-EITSourceMat", "-EITSM", "-EITsm"}) ) {
-        if ( argc < 6 ) {
-            cerr << "Please set geometry filepath" << endl;
-            cerr << "           conductivities filepath" << endl;
-            cerr << "           electrode positions filepath" << endl;
-            cerr << "           output EITSourceMat filepath" << endl;
-            exit(1);
-        }
+    else if ( option(argc, argv, {"-EITSourceMat", "-EITSM", "-EITsm"},
+                     {"geometry file", "conductivity file", "electrodes positions file", "output file"}) ) {
 
         // Loading surfaces from geometry file.
         Geometry geo;
@@ -274,14 +247,8 @@ int main(int argc, char** argv)
     * (i.e. the potential and the normal current on all interfaces)
     * |----> v (potential at the electrodes)
     **********************************************************************************************/
-    else if ( option(argv[1], {"-Head2EEGMat", "-H2EM", "-h2em"}) ) {
-        if ( argc < 6 ) {
-            cerr << "Please set geometry filepath" << endl;
-            cerr << "           conductivities filepath" << endl;
-            cerr << "           electrode positions filepath" << endl;
-            cerr << "           output filepath" << endl;
-            exit(1);
-        }
+    else if ( option(argc, argv, {"-Head2EEGMat", "-H2EM", "-h2em"},
+                     {"geometry file", "conductivity file", "electrodes positions file", "output file"}) ) {
 
         // Loading surfaces from geometry file.
         Geometry geo;
@@ -302,15 +269,8 @@ int main(int argc, char** argv)
     * (i.e. the potential and the normal current on all interfaces)
     * |----> v (potential at the ECoG electrodes)
     **********************************************************************************************/
-    else if ( option(argv[1], {"-Head2ECoGMat", "-H2ECogM", "-H2ECOGM", "-h2ecogm"}) ) {
-        if ( argc < 7 ) {
-            cerr << "Please set geometry filepath" << endl;
-            cerr << "           conductivities filepath" << endl;
-            cerr << "           ECoG electrode positions filepath" << endl;
-            cerr << "           the name of the interface for EcoG" << endl;
-            cerr << "           output matrix filepath" << endl;
-            exit(1);
-        }
+    else if ( option(argc, argv, {"-Head2ECoGMat", "-H2ECogM", "-H2ECOGM", "-h2ecogm"},
+                     {"geometry file", "conductivity file", "ECoG electrodes positions file", "the name of the interface for EcoG", "output file"}) ) {
 
         // Loading surfaces from geometry file.
         Geometry geo;
@@ -335,14 +295,8 @@ int main(int argc, char** argv)
     * (i.e. the potential and the normal current on all interfaces)
     * |----> bFerguson (contrib to MEG response)
     **********************************************************************************************/
-    else if ( option(argv[1], {"-Head2MEGMat", "-H2MM", "-h2mm"}) ) {
-        if ( argc < 6) {
-            cerr << "Please set geometry filepath" << endl;
-            cerr << "           conductivities filepath" << endl;
-            cerr << "           squids filepath" << endl;
-            cerr << "           output filepath" << endl;
-            exit(1);
-        }
+    else if ( option(argc, argv, {"-Head2MEGMat", "-H2MM", "-h2mm"},
+                     {"geometry file", "conductivity file", "squids file", "output file"}) ) {
 
         // Loading surfaces from geometry file.
         Geometry geo;
@@ -361,13 +315,8 @@ int main(int argc, char** argv)
     * Computation of the linear application which maps the distributed source
     * |----> binf (contrib to MEG response)
     **********************************************************************************************/
-    else if ( option(argv[1], {"-SurfSource2MEGMat", "-SS2MM", "-ss2mm"}) ) {
-        if ( argc < 5 ) {
-            cerr << "Please set 'mesh sources' filepath" << endl;
-            cerr << "           squids filepath" << endl;
-            cerr << "           output filepath" << endl;
-            exit(1);
-        }
+    else if ( option(argc, argv, {"-SurfSource2MEGMat", "-SS2MM", "-ss2mm"},
+                     {"'mesh sources' file", "squids file", "output file"}) ) {
 
         // Loading mesh for distributed sources :
         Mesh mesh_sources;
@@ -388,13 +337,8 @@ int main(int argc, char** argv)
     // arguments are the positions and orientations of the squids,
     // the position and orientations of the sources and the output name.
 
-    else if ( option(argv[1], {"-DipSource2MEGMat", "-DS2MM", "-ds2mm"}) ) {
-        if ( argc < 5 ) {
-            cerr << "Please set dipoles filepath" << endl;
-            cerr << "           squids filepath" << endl;
-            cerr << "           output filepath" << endl;
-            exit(1);
-        }
+    else if ( option(argc, argv, {"-DipSource2MEGMat", "-DS2MM", "-ds2mm"},
+                     {"dipoles file", "squids file", "output file"}) ) {
 
         // Loading dipoles :
         Matrix dipoles(argv[2]);
@@ -411,14 +355,9 @@ int main(int argc, char** argv)
     * |----> v, potential at a set of prescribed points within the 3D volume
     **********************************************************************************************/
 
-    else if ( option(argv[1], {"-Head2InternalPotMat", "-H2IPM", "-h2ipm"}) ) {
-        if ( argc < 6 ) {
-            cerr << "Please set geom filepath" << endl;
-            cerr << "           cond filepath" << endl;
-            cerr << "           point positions filepath" << endl;
-            cerr << "           output filepath" << endl;
-            exit(1);
-        }
+    else if ( option(argc, argv, {"-Head2InternalPotMat", "-H2IPM", "-h2ipm"},
+                     {"geometry file", "conductivity file", "point positions file", "output file"}) ) {
+
         // Loading surfaces from geometry file
         Geometry geo;
         geo.read(argv[2], argv[3], OLD_ORDERING);
@@ -433,15 +372,8 @@ int main(int argc, char** argv)
     *    Vinf(r)=1/(4*pi*sigma)*(r-r0).q/(||r-r0||^3)
     **********************************************************************************************/
 
-    else if ( option(argv[1], {"-DipSource2InternalPotMat", "-DS2IPM", "-ds2ipm"}) ) {
-        if (argc<7) {
-            cerr << "Please set geom filepath" << endl;
-            cerr << "           cond filepath" << endl;
-            cerr << "           dipoles filepath" << endl;
-            cerr << "           point positions filepath" << endl;
-            cerr << "           output filepath" << endl;
-            exit(1);
-        }
+    else if ( option(argc, argv, {"-DipSource2InternalPotMat", "-DS2IPM", "-ds2ipm"},
+                     {"geometry file", "conductivity file", "dipole file", "point positions file", "output file"})) {
         string domain_name = "";
         if (argc==9) {
             domain_name = argv[7];
@@ -466,14 +398,21 @@ int main(int argc, char** argv)
     C.dispEllapsed();
 }
 
-bool option(const string& option, const Strings& options) {
+bool option(const int argc, char ** argv, const Strings& options, const Strings& files) {
     for ( auto s: options) {
-        if (option == s)
+        if (argv[1] == s) {
+            if (argc-2 < files.size()) {
+                cout << "Please set :\n";
+                for ( auto f: files) {
+                    cout << "            " << f << endl;
+                }
+                exit(1);
+            }
             return true;
+        }
     }
     return false;
 }
-
 
 void getHelp(char** argv) {
     cout << argv[0] <<" [-option] [filepaths...]" << endl << endl;
