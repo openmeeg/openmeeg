@@ -15,10 +15,14 @@ if (ENABLE_PACKAGING)
     set(CPACK_GENERATOR "TGZ")
 
     # if we want to generate all the sub-project packages:
-    #set(CPACK_INSTALL_CMAKE_PROJECTS "${CMAKE_CURRENT_BINARY_DIR}/matio/build;matio;ALL;/" "${CMAKE_CURRENT_BINARY_DIR}/OpenMEEG/build;OpenMEEG;ALL;/")
-
-    # call cpack for OpenMEEG
     set(CPACK_INSTALL_CMAKE_PROJECTS "${CMAKE_CURRENT_BINARY_DIR}/OpenMEEG/build;OpenMEEG;ALL;/")
+    foreach (dep ${MSINTTYPES} zlib ${VTK_} hdf5 matio ${LAPACK})
+        if (dep AND NOT USE_SYSTEM_${dep})
+            list(APPEND CPACK_INSTALL_CMAKE_PROJECTS
+                "${CMAKE_CURRENT_BINARY_DIR}/${dep}/build;${dep};ALL;/"
+                )
+        endif()
+    endforeach()
 
     set(PACKAGE_OPTIONS ${BLASLAPACK_IMPLEMENTATION})
 
