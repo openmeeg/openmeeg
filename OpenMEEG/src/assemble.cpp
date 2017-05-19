@@ -107,7 +107,7 @@ int main(int argc, char** argv)
     * Computation of Cortical Matrix for BEM Symmetric formulation
     **********************************************************************************************/
     else if ( option(argc, argv, {"-CorticalMat", "-CM", "-cm"},
-                     {"geometry file", "conductivity file", "sensors file", "the domain name", "output file"}) ) {
+                     {"geometry file", "conductivity file", "sensors file", "domain name", "output file"}) ) {
         double alpha = -1., beta = -1, gamma = -1.;
         string filename = "";
 
@@ -402,10 +402,11 @@ bool option(const int argc, char ** argv, const Strings& options, const Strings&
     for ( auto s: options) {
         if (argv[1] == s) {
             if (argc-2 < files.size()) {
-                cout << "Please set :\n";
+                cout << "\'om_assemble\' option \'" << argv[1] << "\' expects " << files.size() << " arguments (";
                 for ( auto f: files) {
-                    cout << "            " << f << endl;
+                    cout << f << ", ";
                 }
+                cout << ") and you gave only " << argc-2 << " arguments." << endl;
                 exit(1);
             }
             return true;
