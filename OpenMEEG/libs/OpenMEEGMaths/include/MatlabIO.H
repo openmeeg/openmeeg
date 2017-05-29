@@ -71,7 +71,6 @@ namespace OpenMEEG {
                 }
                 static const char message[];
             };
-            const char helper<Vector>::message[] = "double Vector";
 
             template <>
             struct helper<Matrix> {
@@ -94,7 +93,6 @@ namespace OpenMEEG {
                 }
                 static const char message[];
             };
-            const char helper<Matrix>::message[] = "2D full double Matrix";
 
             template <>
             struct helper<SymMatrix> {
@@ -127,8 +125,6 @@ namespace OpenMEEG {
                 }
                 static const char message[];
             };
-            matvar_t* helper<SymMatrix>::saved;
-            const char helper<SymMatrix>::message[] = "symmetric double Matrix";
 
             template <>
             struct helper<SparseMatrix> {
@@ -145,7 +141,6 @@ namespace OpenMEEG {
                 }
                 static const char message[];
             };
-            const char helper<SparseMatrix>::message[] = "2D full double Matrix";
         }
 
         struct OPENMEEGMATHS_EXPORT MatlabIO: public MathsIOBase {
