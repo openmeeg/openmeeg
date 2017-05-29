@@ -36,7 +36,13 @@ else()
         )
 
     find_path(OpenBLAS_INCLUDE_DIR NAMES openblas_config.h lapacke.h PATHS ${OpenBLAS_INCLUDE_SEARCH_PATHS})
-    find_library(OpenBLAS_LIB NAMES openblas PATHS ${OpenBLAS_LIB_SEARCH_PATHS})
+
+    set(openblas_lib openblas)
+    if (NOT BUILD_SHARED_LIBS)
+        set(openblas_lib libopenblas.a)
+    endif()
+    find_library(OpenBLAS_LIB NAMES ${openblas_lib} PATHS ${OpenBLAS_LIB_SEARCH_PATHS})
+
     # mostly for debian
     find_library(Lapacke_LIB NAMES lapacke PATHS ${OpenBLAS_LIB_SEARCH_PATHS})
 

@@ -17,7 +17,11 @@ if (NOT matio_LIBRARIES)
 
     # Look for the library.
 
-    find_library(matio_LIBRARY NAMES matio)
+    set(matio_lib matio)
+    if (NOT BUILD_SHARED_LIBS)
+        set(matio_lib libmatio.a)
+    endif()
+    find_library(matio_LIBRARY NAMES ${matio_lib})
     mark_as_advanced(matio_LIBRARY)
 
     # handle the QUIETLY and REQUIRED arguments and set matio_FOUND to TRUE if 
