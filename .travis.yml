@@ -62,7 +62,7 @@ matrix:
         - USE_CGAL=1
         - USE_GIFTI=1
         - USE_VTK=1
-        - BUILD_SHARED_LIBS=OFF
+        - BUILD_SHARED_LIBS=ON
         - BLASLAPACK_IMPLEMENTATION=Atlas
 
 before_install: source build_tools/travis/before_install.sh
