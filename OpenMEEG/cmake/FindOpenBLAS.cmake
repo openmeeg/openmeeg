@@ -4,7 +4,6 @@ find_package(OpenBLAS QUIET CONFIG)
 if (OpenBLAS_FOUND) # the git version propose a OpenBLASConfig.cmake
     message(STATUS "OpenBLASConfig found")
     set(OpenBLAS_INCLUDE_DIR ${OpenBLAS_INCLUDE_DIRS})
-    set(OpenBLAS_LIB ${OpenBLAS_LIBRARIES})
 else()
     unset(OpenBLAS_DIR CACHE)
     set(OpenBLAS_INCLUDE_SEARCH_PATHS
@@ -72,5 +71,5 @@ endif()
 
 mark_as_advanced(
     OpenBLAS_INCLUDE_DIR
-    OpenBLAS_LIB
+    OpenBLAS_LIBRARIES
     )

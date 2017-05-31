@@ -10,19 +10,6 @@ if (NOT matio_LIBRARIES)
 
     find_package(HDF5 REQUIRED)
 
-    # Hack for building in static
-    if (NOT BUILD_SHARED_LIBS)
-        set(HDF5_LIBS)
-        foreach(lib ${HDF5_LIBRARIES})
-            string(REGEX REPLACE "[.].*$" ".a" liba ${lib})
-            if (EXISTS ${liba})
-                list(APPEND HDF5_LIBS ${liba})
-            else()
-                list(APPEND HDF5_LIBS ${lib})
-            endif()
-        endforeach()
-    endif()
-
     # Look for the header file.
 
     find_path(matio_INCLUDE_DIR NAMES matio.h)
@@ -41,8 +28,18 @@ if (NOT matio_LIBRARIES)
     
     if (MATIO_FOUND)
         set(matio_FOUND TRUE)
-        set(matio_LIBRARIES ${matio_LIBRARY} ${HDF5_LIBS})
+        set(matio_LIBRARIES ${matio_LIBRARY} ${HDF5_LIBRARIES})
         set(matio_INCLUDE_DIRS ${matio_INCLUDE_DIR} ${HDF5_INCLUDE_DIR})
+        if (APPLE)
+            set(LIBS)
+            foreach(lib ${matio_LIBRARY} ${HDF5_LIBRARIES})
+                get_filename_component(reallib ${lib} REALPATH)
+                list(APPEND LIBS ${reallib})
+            endforeach()
+            install(FILES ${LIBS} DESTINATION lib
+                PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ
+                GROUP_EXECUTE GROUP_READ)
+        endif()
     else()
         set(matio_LIBRARIES)
         set(matio_INCLUDE_DIRS)

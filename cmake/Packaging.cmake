@@ -15,7 +15,7 @@ if (ENABLE_PACKAGING)
     set(CPACK_GENERATOR "TGZ")
 
     # if we want to generate all the sub-project packages:
-    set(CPACK_INSTALL_CMAKE_PROJECTS "${CMAKE_CURRENT_BINARY_DIR}/OpenMEEG/build;OpenMEEG;ALL;/")
+    set(CPACK_INSTALL_CMAKE_PROJECTS)
     foreach (dep ${SUBPROJECTS})
         list(APPEND CPACK_INSTALL_CMAKE_PROJECTS
             "${CMAKE_CURRENT_BINARY_DIR}/${dep}/build;${dep};ALL;/")

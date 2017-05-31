@@ -10,8 +10,7 @@ matrix:
         - USE_PROJECT=1
         - USE_VTK=1
         - ENABLE_PACKAGING=1
-        - BUILD_SHARED_LIBS=OFF
-        - BUILD_DOCUMENTATION=ON
+        - BUILD_DOCUMENTATION=1
         - BLASLAPACK_IMPLEMENTATION=OpenBLAS
     - os: osx
       compiler: clang
@@ -20,7 +19,6 @@ matrix:
         - USE_PROJECT=1
         - USE_CGAL=1
         - ENABLE_PACKAGING=1
-        - BUILD_SHARED_LIBS=ON
         - USE_VTK=1
         - BUILD_DOCUMENTATION=OFF
         - BLASLAPACK_IMPLEMENTATION=Auto # (Auto is the same as MKL/OpenBLAS/vecLib in priority)
@@ -28,16 +26,12 @@ matrix:
       compiler: clang
       env:
         - USE_PROJECT=0
-        - BUILD_SHARED_LIBS=ON
-        - BUILD_DOCUMENTATION=OFF
         - BLASLAPACK_IMPLEMENTATION=vecLib
     - os: linux
       compiler: clang
       env:
         - USE_SYSTEM=1
         - USE_PROJECT=1
-        - BUILD_SHARED_LIBS=ON
-        - BUILD_DOCUMENTATION=OFF
         - BLASLAPACK_IMPLEMENTATION=LAPACK
     - os: linux
       compiler: gcc
@@ -48,15 +42,12 @@ matrix:
         - USE_COVERAGE=1
         - BUILD_DOCUMENTATION=ON
         - ENABLE_PACKAGING=1
-        - BUILD_SHARED_LIBS=ON
         - BLASLAPACK_IMPLEMENTATION=OpenBLAS
     - os: linux
       compiler: gcc
       env:
         - USE_SYSTEM=0
         - USE_PROJECT=1
-        - BUILD_SHARED_LIBS=ON
-        - BUILD_DOCUMENTATION=OFF
         - BLASLAPACK_IMPLEMENTATION=LAPACK
     - os: linux
       compiler: gcc
@@ -65,8 +56,6 @@ matrix:
         - USE_CGAL=1
         - USE_GIFTI=1
         - USE_VTK=1
-        - BUILD_SHARED_LIBS=ON
-        - BUILD_DOCUMENTATION=OFF
         - BLASLAPACK_IMPLEMENTATION=Atlas
 
 before_install: source build_tools/travis/before_install.sh

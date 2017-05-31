@@ -9,7 +9,6 @@ if [[ "$USE_PROJECT" == "0" ]]; then
     # Build OpenMEEG and use OpenBLAS from homebrew
     # or use Atlas which maps to vecLib or Accelerate frameworks
     cmake \
-        -DBUILD_SHARED_LIBS:BOOL=${BUILD_SHARED_LIBS} \
         -DBUILD_DOCUMENTATION:BOOL=${BUILD_DOCUMENTATION} \
         -DBUILD_TESTING:BOOL=ON \
         -DENABLE_PYTHON:BOOL=${USE_PYTHON} \
@@ -23,7 +22,6 @@ if [[ "$USE_PROJECT" == "0" ]]; then
         ..
 else
     cmake \
-        -DBUILD_SHARED_LIBS:BOOL=${BUILD_SHARED_LIBS} \
         -DBUILD_DOCUMENTATION:BOOL=${BUILD_DOCUMENTATION} \
         -DBUILD_TESTING:BOOL=ON \
         -DENABLE_PYTHON:BOOL=${USE_PYTHON} \
