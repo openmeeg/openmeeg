@@ -57,6 +57,15 @@ knowledge of the CeCILL-B license and that you accept its terms.
     #define PROGRESSBAR(a,b)
 #endif
 
+#ifndef BUILD_SHARED_LIBS
+namespace OpenMEEG {
+    namespace maths {
+        extern int init_AsciiIO(), init_MatlabIO(), init_TrivialBinIO(), init_BrainVisaTextureIO();
+        static int never_actually_used = init_AsciiIO() + init_MatlabIO() + init_TrivialBinIO() + init_BrainVisaTextureIO() ;
+    }
+}
+#endif
+
 namespace OpenMEEG {
 
     #ifndef M_PI

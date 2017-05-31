@@ -45,5 +45,6 @@ namespace OpenMEEG {
         const std::string        MatlabIO::MagicTag("MATLAB");
         const MatlabIO::Suffixes MatlabIO::suffs = MatlabIO::init();
         const std::string        MatlabIO::Identity("matlab");
+        int   init_MatlabIO()    { return 0; }
     }
 }

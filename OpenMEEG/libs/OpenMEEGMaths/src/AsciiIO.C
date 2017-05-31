@@ -44,5 +44,6 @@ namespace OpenMEEG {
         const AsciiIO           AsciiIO::prototype;
         const AsciiIO::Suffixes AsciiIO::suffs = AsciiIO::init();
         const std::string       AsciiIO::Identity("ascii");
+        int   init_AsciiIO()    { return 0; }
     }
 }

@@ -45,5 +45,6 @@ namespace OpenMEEG {
         const TrivialBinIO           TrivialBinIO::prototype;
         const TrivialBinIO::Suffixes TrivialBinIO::suffs = TrivialBinIO::init();
         const std::string            TrivialBinIO::Identity("binary");
+        int   init_TrivialBinIO()    { return 0; }
     }
 }

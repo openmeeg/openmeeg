@@ -3,7 +3,7 @@
 # =====================
 
 function(create_library libname)
-    add_library(${libname} SHARED ${ARGN})
+    add_library(${libname} ${ARGN})
     target_link_libraries(${libname} ${LAPACK_LIBRARIES} ${matio_LIBRARIES})
     if (LAPACK_DEFINITIONS) # mainly for MKL
         target_compile_definitions(${libname} PUBLIC ${LAPACK_DEFINITIONS})
