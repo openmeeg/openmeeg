@@ -37,92 +37,54 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#ifndef OPENMEEG_CGAL_MESH_H
-#define OPENMEEG_CGAL_MESH_H
+#pragma once
 
 // for verbosity
 #define CGAL_MESH_3_VERBOSE
 
+#include <mesh.h>
+
 #include <CGAL/Exact_predicates_inexact_constructions_kernel.h>
 #include <CGAL/Mesh_3/Robust_intersection_traits_3.h>
-#include <CGAL/Mesh_triangulation_3.h>
-#include <CGAL/Mesh_complex_3_in_triangulation_3.h>
-#include <CGAL/Mesh_criteria_3.h>
-#include <CGAL/make_mesh_3.h>
-#include <CGAL/refine_mesh_3.h>
-#include <CGAL/Image_3.h>
-#include <CGAL/Polyhedron_incremental_builder_3.h>
 #include <CGAL/Polyhedron_3.h>
+#include <CGAL/config.h>
+#include <CGAL/version.h>
+
+typedef CGAL::Exact_predicates_inexact_constructions_kernel K;
+typedef K::Point_3 Point_3;
+typedef K::FT FT;
+typedef CGAL::Polyhedron_3<K>  Polyhedron;
+typedef Polyhedron::HalfedgeDS HDS;
 
 namespace OpenMEEG {
 
-    typedef CGAL::Exact_predicates_inexact_constructions_kernel K;
-    typedef CGAL::Mesh_3::Robust_intersection_traits_3<K> Geom_traits;
-    typedef CGAL::Polyhedron_3<K>  Polyhedron;
-    typedef Polyhedron::HalfedgeDS HDS;
-
-
-    template <typename C3t3>
-    Mesh CGAL_to_OM(C3t3 c3t3) {
-        typedef typename C3t3::Triangulation Tr;
-        Mesh m(c3t3.triangulation().number_of_vertices(), c3t3.number_of_facets());
-
-        std::map<typename C3t3::Vertex_handle, unsigned> V;
-        unsigned inum = 0;
-        for ( typename Tr::Finite_vertices_iterator vit = c3t3.triangulation().finite_vertices_begin(), end = c3t3.triangulation().finite_vertices_end(); vit != end; ++vit)
-        {
-            const typename Tr::Point& p = vit->point();
-            m.add_vertex(Vertex(CGAL::to_double(p.x()), CGAL::to_double(p.y()), CGAL::to_double(p.z())));
-            V[vit] = inum++;
-        }
-
-        for ( typename C3t3::Facets_in_complex_iterator fit = c3t3.facets_in_complex_begin(); fit != c3t3.facets_in_complex_end(); ++fit) {
-            const typename Tr::Cell_handle cell = fit->first;
-            const int& index = fit->second;
-            const int index1 = V[cell->vertex(c3t3.triangulation().vertex_triple_index(index, 0))];
-            const int index2 = V[cell->vertex(c3t3.triangulation().vertex_triple_index(index, 1))];
-            const int index3 = V[cell->vertex(c3t3.triangulation().vertex_triple_index(index, 2))];
-            Triangle t(m.vertices()[index1], m.vertices()[index2], m.vertices()[index3]);
-            m.push_back(t);
-        }
-
-        m.update();
-        m.correct_global_orientation();
-        return m;
+    namespace {
+        template <typename C3t3>
+        Mesh CGAL_to_OM(C3t3 c3t3);
     }
 
-    template < class HDS >
-    class Build_Mesh2Polyhedron : public CGAL::Modifier_base<HDS> {
-        const Mesh *m;
-    public:
-        Build_Mesh2Polyhedron(const Mesh& m): m(&m) {}
-        void operator()( HDS& target) {
-            CGAL::Polyhedron_incremental_builder_3<HDS> builder(target, true);
-            builder.begin_surface(m->nb_vertices(), m->nb_triangles(), 6*m->nb_vertices()-12);
-            std::map<const Vertex *, unsigned> map;
-            unsigned i = 0;
-            for ( Mesh::const_vertex_iterator vit = m->vertex_begin(); vit != m->vertex_end(); ++vit, ++i) {
-                builder.add_vertex(Polyhedron::Point_3((*vit)->x(), (*vit)->y(), (*vit)->z()));
-                map[*vit] = i;
-            }
-            for ( Mesh::const_iterator tit = m->begin(); tit != m->end(); ++tit) {
-                builder.begin_facet();
-                builder.add_vertex_to_facet(map[&(tit->s1())]);
-                builder.add_vertex_to_facet(map[&(tit->s2())]);
-                builder.add_vertex_to_facet(map[&(tit->s3())]);
-                builder.end_facet();
-            }
-            builder.end_surface();
-        }
-    };
+    Mesh cgal_mesh_function(double sphere_radius, double hemisphere, double radius_bound, double distance_bound);
 
-    Polyhedron Mesh2Polyhedron(const Mesh& m)
-    {
-        Polyhedron p;
-        Build_Mesh2Polyhedron<HDS> modifier(m);
-        p.delegate(modifier);
+    #if CGAL_VERSION_NR >= CGAL_VERSION_NUMBER(4,6,0)
+    namespace {
+        class Build_Mesh2Polyhedron : public CGAL::Modifier_base<HDS> {
+            const Mesh *m;
+        public:
+            Build_Mesh2Polyhedron(const Mesh& m): m(&m) {}
+            void operator()(HDS& target);
+        };
 
-        return p;
+        Polyhedron Mesh2Polyhedron(const Mesh& m);
     }
+
+    Mesh cgal_refine(const Mesh& m_in, double radius_bound, double distance_bound, const char* sizing_field);
+
+    Mesh cgal_decimate(const Mesh& m_in, unsigned nb_points);
+    #endif
+
+    #ifdef CGAL_ImageIO
+    Mesh cgal_mesh_3Dlabeled_image(const char* input_filename, double radius_bound, double distance_bound);
+    Mesh cgal_mesh_3Dlevelset_image(const char* input_filename,  double levelset_value, bool positive_inside, double radius_bound, double distance_bound);
+    #endif
+
 }
-#endif  //! OPENMEEG_CGAL_MESH_H

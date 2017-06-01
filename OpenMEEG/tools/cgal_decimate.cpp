@@ -43,20 +43,6 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <options.h>
 #include "cgal_mesh.h"
 
-#include <CGAL/Simple_cartesian.h>
-#include <CGAL/Polyhedron_3.h>
-#include <CGAL/IO/Polyhedron_iostream.h>
-#include <CGAL/boost/graph/graph_traits_Polyhedron_3.h>
-
-// Simplification function
-#include <CGAL/Surface_mesh_simplification/edge_collapse.h>
-// Stop-condition policy
-#include <CGAL/Surface_mesh_simplification/Policies/Edge_collapse/Count_stop_predicate.h>
-#include <CGAL/Surface_mesh_simplification/Policies/Edge_collapse/Edge_length_cost.h>
-#include <CGAL/Surface_mesh_simplification/Policies/Edge_collapse/Midpoint_placement.h>
-
-namespace SMS = CGAL::Surface_mesh_simplification ;
-
 using namespace OpenMEEG;
 
 int main(int argc, char **argv)
@@ -68,55 +54,9 @@ int main(int argc, char **argv)
 
     Mesh m_in(input_filename, false);
     std::cout << "Input surface:\n nb of points: " << m_in.nb_vertices() << "\t nb of triangles:\t" << m_in.nb_triangles() << std::endl;
-    Polyhedron polyhedron = Mesh2Polyhedron(m_in);
-
-    int nb_edges = 3*nb_points-6;
-
-    std::cout << "Target: less than " << nb_points << " vertices <=> " << nb_edges << " edges.\n";
-
-    SMS::Count_stop_predicate<Polyhedron> stop(nb_edges);
-
-    int r = SMS::edge_collapse(
-            polyhedron,
-            stop,
-            CGAL::parameters::vertex_index_map(get(CGAL::vertex_external_index, polyhedron)).
-            halfedge_index_map(get(CGAL::halfedge_external_index, polyhedron)).
-            get_cost(SMS::Edge_length_cost<Polyhedron>()).
-            get_placement(SMS::Midpoint_placement<Polyhedron>()));
-
-    std::cout << "polyhedron.size_of_vertices() = " <<  polyhedron.size_of_vertices() << std::endl;
-    std::cout << "polyhedron.size_of_facets() = " <<  polyhedron.size_of_facets() << std::endl;
-
-    unsigned inum = 0;
-    // write the output mesh
-    Mesh m(polyhedron.size_of_vertices(), polyhedron.size_of_facets());
-    std::map< Polyhedron::Vertex_const_handle, unsigned> V;
-    for ( Polyhedron::Vertex_iterator vit = polyhedron.vertices_begin(); vit != polyhedron.vertices_end(); ++vit)
-    {
-        const Polyhedron::Vertex::Point& p = vit->point();
-        m.add_vertex(Vertex(CGAL::to_double(p.x()), CGAL::to_double(p.y()), CGAL::to_double(p.z())));
-        V[vit] = inum++;
-    }
-
-    for ( Polyhedron::Facet_iterator fit = polyhedron.facets_begin(); fit != polyhedron.facets_end(); ++fit) {
-        Polyhedron::Facet::Halfedge_around_facet_circulator j = fit->facet_begin();
-        // Facets in polyhedral surfaces are triangles.
-        CGAL_assertion( CGAL::circulator_size(j) == 3);
-        const int index1 = V[j->vertex()];
-        j++;
-        const int index2 = V[j->vertex()];
-        j++;
-        const int index3 = V[j->vertex()];
-        Triangle t(m.vertices()[index1], m.vertices()[index2], m.vertices()[index3] );
-        m.push_back(t);
-    }
-
-    m.update();
-    m.correct_global_orientation();
-
-    std::cout << "Finished...\n" << r << " edges removed.\n" << m.nb_vertices() << " final nb_points.\n";
+    Mesh m = cgal_decimate(m_in, nb_points);
     m.info();
     m.save(output_filename);
 
-    return 0 ; 
+    return 0;
 }
