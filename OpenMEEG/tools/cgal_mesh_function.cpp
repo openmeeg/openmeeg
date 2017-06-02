@@ -42,8 +42,6 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include "cgal_mesh.h"
 
 using namespace OpenMEEG;
-// To avoid verbose function and named parameters call
-using namespace CGAL::parameters;
 
 int main(int argc, char **argv) {
     command_usage("Create a BEM mesh from either an implicit function: sphere, hemisphere, ...:");
