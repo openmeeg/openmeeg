@@ -39,7 +39,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #include <mesh.h>
 #include <options.h>
-#include "cgal_mesh.h"
+#include <cgal_lib.h>
 
 using namespace OpenMEEG;
 

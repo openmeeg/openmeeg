@@ -37,16 +37,8 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#include <CGAL/Mesh_triangulation_3.h>
-#include <CGAL/Mesh_complex_3_in_triangulation_3.h>
-#include <CGAL/Mesh_criteria_3.h>
-#include <CGAL/make_mesh_3.h>
-#include <CGAL/refine_mesh_3.h>
-#include <CGAL/Image_3.h>
-#include <CGAL/Polyhedral_mesh_domain_3.h>
-#include <CGAL/Implicit_mesh_domain_3.h>
+#include <cgal_lib.h>
 
-#if CGAL_VERSION_NR >= CGAL_VERSION_NUMBER(4,6,0)
 #include <CGAL/Polyhedron_incremental_builder_3.h>
 // Simplification function
 #include <CGAL/Surface_mesh_simplification/edge_collapse.h>
@@ -54,19 +46,6 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <CGAL/Surface_mesh_simplification/Policies/Edge_collapse/Count_stop_predicate.h>
 #include <CGAL/Surface_mesh_simplification/Policies/Edge_collapse/Edge_length_cost.h>
 #include <CGAL/Surface_mesh_simplification/Policies/Edge_collapse/Midpoint_placement.h>
-#endif
-
-#ifdef CGAL_ImageIO
-#include <CGAL/Labeled_image_mesh_domain_3.h>
-#include <CGAL/Gray_level_image_3.h>
-#endif
-
-#include "cgal_mesh.h"
-
-// To avoid verbose function and named parameters call
-using namespace CGAL::parameters;
-
-typedef CGAL::Mesh_3::Robust_intersection_traits_3<K> Geom_traits;
 
 // typedef to mesh
 // Domain
@@ -123,115 +102,15 @@ struct Spheres
     double fs;
 };
 
-// sphere function
-// for spheres
-class FT_to_point_Sphere_wrapper : public std::unary_function<Point_3, FT>
-{
-    double sqrd;
-    public:
-    FT_to_point_Sphere_wrapper(FT sqrd_) : sqrd(sqrd_) {}
-    FT operator()(Point_3 p) const { return (std::pow(p.x(),2)+std::pow(p.y(),2)+std::pow(p.z(),2)-sqrd); }
-};
-
-// Hemisphere function
-class FT_to_point_HemiSphere_wrapper : public std::unary_function<Point_3, FT>
-{
-    double sqrd;
-    public:
-    FT_to_point_HemiSphere_wrapper(FT sqrd_) : sqrd(sqrd_) {}
-    FT operator()(Point_3 p) const {
-        double d_sphere = (std::pow(p.x(), 2) + std::pow(p.y(), 2) + std::pow(p.z(), 2) - sqrd);
-        double d_total;
-        if ( p.z() > 0 ) {
-            d_total = ( d_sphere > 0 ) ? d_sphere : -std::min(-d_sphere, std::pow(p.z(), 2));
-        } else {
-            d_total = std::min(std::pow(p.x(), 2), sqrd ) + std::min(std::pow(p.y(), 2), sqrd ) + std::pow(p.z(), 2);
-        }
-        return d_total;
-    }
-};
-
-// typedef to mesh a function
-typedef FT_to_point_Sphere_wrapper SphereFunction;
-typedef CGAL::Implicit_mesh_domain_3<SphereFunction, K> SphereDomain;
-typedef FT_to_point_HemiSphere_wrapper HemiSphereFunction;
-typedef CGAL::Implicit_mesh_domain_3<HemiSphereFunction, K> HemiSphereDomain;
-typedef CGAL::Mesh_triangulation_3<SphereDomain>::type TrS;
-typedef CGAL::Mesh_complex_3_in_triangulation_3<TrS> C3t3S;
-// Criteria
-typedef CGAL::Mesh_criteria_3<TrS> Mesh_criteriaS;
+// To avoid verbose function and named parameters call
+using namespace CGAL::parameters;
 
 namespace OpenMEEG {
-    namespace {
-        template <typename C3t3>
-        Mesh CGAL_to_OM(C3t3 c3t3) {
-            typedef typename C3t3::Triangulation Tr;
-            Mesh m(c3t3.triangulation().number_of_vertices(), c3t3.number_of_facets());
-
-            std::map<typename C3t3::Vertex_handle, unsigned> V;
-            unsigned inum = 0;
-            for ( typename Tr::Finite_vertices_iterator vit = c3t3.triangulation().finite_vertices_begin(), end = c3t3.triangulation().finite_vertices_end(); vit != end; ++vit)
-            {
-                const typename Tr::Point& p = vit->point();
-                m.add_vertex(Vertex(CGAL::to_double(p.x()), CGAL::to_double(p.y()), CGAL::to_double(p.z())));
-                V[vit] = inum++;
-            }
-
-            for ( typename C3t3::Facets_in_complex_iterator fit = c3t3.facets_in_complex_begin(); fit != c3t3.facets_in_complex_end(); ++fit) {
-                const typename Tr::Cell_handle cell = fit->first;
-                const int& index = fit->second;
-                const int index1 = V[cell->vertex(c3t3.triangulation().vertex_triple_index(index, 0))];
-                const int index2 = V[cell->vertex(c3t3.triangulation().vertex_triple_index(index, 1))];
-                const int index3 = V[cell->vertex(c3t3.triangulation().vertex_triple_index(index, 2))];
-                Triangle t(m.vertices()[index1], m.vertices()[index2], m.vertices()[index3]);
-                m.push_back(t);
-            }
-
-            m.update();
-            m.correct_global_orientation();
-            return m;
-        }
-    }
-
-    /// decimate safely a mesh
-    Mesh cgal_mesh_function(double sphere_radius, double hemisphere_radius, double radius_bound, double distance_bound)
-    {
-        // defining the sphere domain
-        SphereFunction spherefunction(std::pow(sphere_radius, 2));
-        SphereDomain sdomain(spherefunction, K::Sphere_3(CGAL::ORIGIN, std::pow(1.1*sphere_radius, 2)), 1e-6); // with its bounding sphere
-        // defining the hemisphere domain
-        HemiSphereFunction hemispherefunction(std::pow(hemisphere_radius, 2));
-        HemiSphereDomain hdomain(hemispherefunction, K::Sphere_3(TrS::Point(0, 0, hemisphere_radius/2.), std::pow(1.1*hemisphere_radius, 2)), 1e-6); // with its bounding sphere
-
-        // Mesh criteria
-        Mesh_criteriaS criteria(facet_angle=30, facet_size=radius_bound, facet_distance=distance_bound);
-
-        // meshing domain
-        C3t3S c3t3;
-
-        if ( sphere_radius > 0.0001 ) {
-            c3t3 = CGAL::make_mesh_3<C3t3S>(sdomain, criteria, no_exude(), no_perturb());
-        } else {
-            // if you want want to add initial points on the hemisphere circle (for a better definition),
-            // have a look here (it probably needs to construct the facets also ).
-# if 0
-            std::pair<Tr::Point,unsigned> p[init_points];
-            for ( unsigned iip = 0; iip < init_points; ++iip) {
-                p[iip] = std::make_pair(Tr::Point(hemisphere_radius*std::cos(2.*M_PI/init_points*iip), hemisphere_radius*std::sin(2.*M_PI/init_points*iip) , 0),0);
-            }
-            c3t3.insert_surface_points(&p[0],&p[init_points-1]);
-            CGAL::refine_mesh_3<C3t3>(c3t3, hdomain, criteria, no_exude(), no_perturb());
-#else
-            c3t3 = CGAL::make_mesh_3<C3t3S>(hdomain, criteria, no_exude(), no_perturb());
-#endif
-        }
-
-        return CGAL_to_OM(c3t3);
-    }
-
-    #if CGAL_VERSION_NR >= CGAL_VERSION_NUMBER(4,6,0)
-    namespace {
-        void Build_Mesh2Polyhedron::operator()( HDS& target) {
+    class Build_Mesh2Polyhedron : public CGAL::Modifier_base<HDS> {
+        const Mesh *m;
+    public:
+        Build_Mesh2Polyhedron(const Mesh& m): m(&m) {}
+        void operator()(HDS& target) {
             CGAL::Polyhedron_incremental_builder_3<HDS> builder(target, true);
             builder.begin_surface(m->nb_vertices(), m->nb_triangles(), 6*m->nb_vertices()-12);
             std::map<const Vertex *, unsigned> map;
@@ -249,15 +128,15 @@ namespace OpenMEEG {
             }
             builder.end_surface();
         }
+    };
 
-        Polyhedron Mesh2Polyhedron(const Mesh& m)
-        {
-            Polyhedron p;
-            Build_Mesh2Polyhedron modifier(m);
-            p.delegate(modifier);
+    Polyhedron Mesh2Polyhedron(const Mesh& m)
+    {
+        Polyhedron p;
+        Build_Mesh2Polyhedron modifier(m);
+        p.delegate(modifier);
 
-            return p;
-        }
+        return p;
     }
 
     // refine a mesh
@@ -352,68 +231,4 @@ namespace OpenMEEG {
 
         return m;
     }
-    #endif
-
-    /// mesh an image
-    #ifdef CGAL_ImageIO
-    typedef CGAL::Labeled_image_mesh_domain_3<CGAL::Image_3,K> Mesh_domain;
-    typedef CGAL::Mesh_triangulation_3<Mesh_domain>::type Tr;
-    typedef CGAL::Mesh_complex_3_in_triangulation_3<Tr> C3t3;
-    // Criteria
-    typedef CGAL::Mesh_criteria_3<Tr> Mesh_criteria;
-
-    typedef CGAL::Gray_level_image_3<Geom_traits::FT, Geom_traits::Point_3> Gray_level_image;
-    typedef CGAL::Implicit_mesh_domain_3<Gray_level_image, K> Mesh_domainL;
-    typedef CGAL::Mesh_triangulation_3<Mesh_domainL>::type TrL;
-    typedef CGAL::Mesh_complex_3_in_triangulation_3<TrL> C3t3L;
-    // Criteria
-    typedef CGAL::Mesh_criteria_3<TrL> Mesh_criteriaL;
-
-    Mesh cgal_mesh_3Dlabeled_image(const char* input_filename, double radius_bound, double distance_bound)
-    {
-        // Mesh criteria
-        CGAL::Image_3 image;
-        image.read(input_filename);
-        std::cout << "Input image:\n dimension: " << image.xdim() << "x"<< image.ydim() << "x"<< image.zdim() << std::endl;
-
-        // Domain
-        Mesh_domain domain(image, 0);
-
-        // Mesh criteria
-        Mesh_criteria criteria(facet_angle=30, facet_size=radius_bound, facet_distance=distance_bound);
-
-        // Meshing
-        C3t3 c3t3 = CGAL::make_mesh_3<C3t3>(domain, criteria, no_exude(), no_perturb());
-
-        // Output
-        return CGAL_to_OM(c3t3);
-    }
-
-    Mesh cgal_mesh_3Dlevelset_image(const char* input_filename,  double levelset_value, bool positive_inside, double radius_bound, double distance_bound)
-    {
-        // Mesh criteria
-        double value_outside  = 1.;
-        Gray_level_image image(input_filename, levelset_value, positive_inside, value_outside);
-        std::cout << "Input INR image:\n dimension: " << image.xdim() << "x"<< image.ydim() << "x"<< image.zdim() << "\n Positive values are " << (positive_inside?"Inside":"Outside") << std::endl;
-        // Carefully choose bounding sphere: the center must be inside the
-        // surface defined by 'image' and the radius must be high enough so that
-        // the sphere actually bounds the whole image.
-        Point_3 bounding_sphere_center(image.xdim()/2., image.ydim()/2., image.zdim()/2.);
-        K::FT bounding_sphere_squared_radius = image.xdim()*image.ydim()*2.;
-        K::Sphere_3 bounding_sphere(bounding_sphere_center, bounding_sphere_squared_radius);
-
-        // Domain
-        // definition of the surface, with 10^-8 as relative precision
-        Mesh_domainL domain(image, bounding_sphere, 1e-3);
-
-        // Mesh criteria
-        Mesh_criteriaL criteria(facet_angle=30, facet_size=radius_bound, facet_distance=distance_bound);
-
-        // Meshing
-        C3t3L c3t3 = CGAL::make_mesh_3<C3t3L>(domain, criteria, no_exude(), no_perturb());
-
-        // Output
-        return CGAL_to_OM(c3t3);
-    }
-    #endif
 }

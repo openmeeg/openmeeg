@@ -37,13 +37,10 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#include <mesh.h>
 #include <options.h>
-#include "cgal_mesh.h"
+#include <cgal_lib.h>
 
 using namespace OpenMEEG;
-// To avoid verbose function and named parameters call
-using namespace CGAL::parameters;
 
 int main(int argc, char **argv) {
     command_usage("Create a BEM mesh from a 3D levelset image:");

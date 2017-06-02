@@ -13,7 +13,7 @@ if (USE_CGAL)
     find_package(CGAL QUIET COMPONENTS ImageIO)
     # find_package(CGAL REQUIRED COMPONENTS Core OPTIONAL_COMPONENTS ImageIO) <- cannot since CGAL do not support OPTIONAL_COMPONENTS
 
-    if (CGAL_FOUND) # for handling images (.inr format only for the moment!)
+    if (CGAL_ImageIO_FOUND) # for handling images (.inr format only for the moment!)
         set(CGAL_LIBRARIES CGAL::CGAL_ImageIO)
         add_definitions(-DCGAL_ImageIO)
     else()
