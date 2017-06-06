@@ -32,13 +32,17 @@ if (NOT matio_LIBRARIES)
         set(matio_INCLUDE_DIRS ${matio_INCLUDE_DIR} ${HDF5_INCLUDE_DIR})
         if (APPLE)
             set(LIBS)
-            foreach(lib ${matio_LIBRARY} ${HDF5_LIBRARIES})
+            foreach(lib ${matio_LIBRARIES})
                 get_filename_component(reallib ${lib} REALPATH)
-                list(APPEND LIBS ${reallib})
+                # do not install the libSystem.B.dylib
+                string(REGEX MATCH "System.B" a ${reallib})
+                if(NOT a)
+                    list(APPEND LIBS ${reallib})
+                endif()
             endforeach()
             install(FILES ${LIBS} DESTINATION lib
-                PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ
-                GROUP_EXECUTE GROUP_READ)
+                    PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ
+                    GROUP_EXECUTE GROUP_READ)
         endif()
     else()
         set(matio_LIBRARIES)
