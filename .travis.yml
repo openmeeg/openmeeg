@@ -71,7 +71,7 @@ install: source build_tools/travis/install.sh
 
 script:
   - "$CXX --version"
-  - if [[ "$USE_PROJECT" == "0" ]]; then make test; else make test-OpenMEEG; fi
+  - if [[ "$USE_PROJECT" == "0" ]]; then make CTEST_OUTPUT_ON_FAILURE=1 test; else make CTEST_OUTPUT_ON_FAILURE=1 test-OpenMEEG; fi
   - if [[ "$ENABLE_PACKAGING" == "1" ]]; then cpack -G TGZ; fi
 
 after_success: source $TRAVIS_BUILD_DIR/build_tools/travis/after_success.sh
