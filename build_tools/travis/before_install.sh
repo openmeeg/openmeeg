@@ -75,7 +75,7 @@ else
         sudo apt-get install libvtk5-dev
     fi
 
-    if [[ "$BUILD_DOCUMENTATION" == "1" ]]; then
+    if [[ "$BUILD_DOCUMENTATION" == "ON" ]]; then
         sudo apt-get install doxygen graphviz
     fi
 
