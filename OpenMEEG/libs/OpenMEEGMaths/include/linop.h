@@ -43,7 +43,6 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #include "OpenMEEGMathsConfig.h"
 #include <OMassert.H>
-#include "om_utils.h"
 #include "RC.H"
 
 namespace OpenMEEG {

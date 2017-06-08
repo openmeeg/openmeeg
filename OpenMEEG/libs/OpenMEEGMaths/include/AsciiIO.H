@@ -306,5 +306,7 @@ namespace OpenMEEG {
             static const Suffixes    suffs;
             static const std::string Identity;
         };
+
+        int init_AsciiIO();
     }
 }

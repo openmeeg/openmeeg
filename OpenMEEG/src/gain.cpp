@@ -78,7 +78,6 @@ int main(int argc, char **argv)
             cerr << "Not enough arguments \nPlease try \"" << argv[0] << " -h\" or \"" << argv[0] << " --help \" \n" << endl;
             return 0;
         }
-        LinOpInfo matinfo = OpenMEEG::maths::info(argv[3]);
         SymMatrix HeadMatInv;
         HeadMatInv.load(argv[2]);
         SparseMatrix Head2EEGMat;
@@ -95,7 +94,6 @@ int main(int argc, char **argv)
             cerr << "Not enough arguments \nPlease try \"" << argv[0] << " -h\" or \"" << argv[0] << " --help \" \n" << endl;
             return 0;
         }
-        LinOpInfo matinfo = OpenMEEG::maths::info(argv[3]);
         Geometry geo;
         geo.read(argv[2], argv[3]);
         Matrix dipoles(argv[4]);
@@ -113,7 +111,6 @@ int main(int argc, char **argv)
             cerr << "Not enough arguments \nPlease try \"" << argv[0] << " -h\" or \"" << argv[0] << " --help \" \n" << endl;
             return 0;
         }
-        LinOpInfo matinfo = OpenMEEG::maths::info(argv[3]);
         SymMatrix HeadMatInv;
         HeadMatInv.load(argv[2]);
         Matrix SourceMat;
@@ -132,7 +129,6 @@ int main(int argc, char **argv)
             cerr << "Not enough arguments \nPlease try \"" << argv[0] << " -h\" or \"" << argv[0] << " --help \" \n" << endl;
             return 0;
         }
-        LinOpInfo matinfo = OpenMEEG::maths::info(argv[3]);
         Geometry geo;
         geo.read(argv[2], argv[3]);
         Matrix dipoles(argv[4]);
@@ -152,7 +148,6 @@ int main(int argc, char **argv)
             cerr << "Not enough arguments \nPlease try \"" << argv[0] << " -h\" or \"" << argv[0] << " --help \" \n" << endl;
             return 0;
         }
-        LinOpInfo matinfo = OpenMEEG::maths::info(argv[3]);
         Geometry geo;
         geo.read(argv[2], argv[3]);
         Matrix dipoles(argv[4]);

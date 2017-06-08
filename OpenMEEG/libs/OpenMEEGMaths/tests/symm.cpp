@@ -44,6 +44,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <symmatrix.h>
 #include <matrix.h>
 #include <generic_test.hpp>
+#include <om_utils.h>
 
 int main() {
 

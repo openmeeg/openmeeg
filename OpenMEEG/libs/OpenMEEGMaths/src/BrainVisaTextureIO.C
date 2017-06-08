@@ -45,5 +45,6 @@ namespace OpenMEEG {
         const std::string                  BrainVisaTextureIO::MagicTag("ascii");
         const BrainVisaTextureIO::Suffixes BrainVisaTextureIO::suffs = BrainVisaTextureIO::init();
         const std::string                  BrainVisaTextureIO::Identity("tex");
+        int   init_BrainVisaTextureIO()    { return 0; }
     }
 }

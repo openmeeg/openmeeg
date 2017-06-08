@@ -54,6 +54,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <cstdlib>
 #include <cstdio>
 #include <iostream>
+#include <om_utils.h>
 
 namespace OpenMEEG {
 
