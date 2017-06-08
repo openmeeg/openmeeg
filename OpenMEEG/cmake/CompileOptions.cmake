@@ -35,6 +35,7 @@ endif()
 
 if (APPLE)
     option(BUILD_UNIVERSAL "Build Universal Binaries" OFF)
+    mark_as_advanced(BUILD_UNIVERSAL)
     if (BUILD_UNIVERSAL)
         set(GCC_UNIVERSAL_FLAGS "-arch i386 -arch x86_64")
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GCC_UNIVERSAL_FLAGS}")

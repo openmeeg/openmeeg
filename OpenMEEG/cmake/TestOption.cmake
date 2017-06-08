@@ -11,7 +11,6 @@ if (BUILD_TESTING)
     set(BUILDNAME ${CTEST_BUILD_NAME})
     include(CTest)
     enable_testing()
-    mark_as_advanced(BUILD_TESTING)
 endif()
 
 if (USE_GCC AND BUILD_TESTING)
