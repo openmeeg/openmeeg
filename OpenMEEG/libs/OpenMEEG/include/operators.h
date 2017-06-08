@@ -54,11 +54,8 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 namespace OpenMEEG {
 
-    #ifdef USE_OMP
-    #undef OPTIMIZED_OPERATOR_D
-    #else
+    // comment this if you have 8 cores or more and are using OpenMP
     #define OPTIMIZED_OPERATOR_D
-    #endif
 
     //#define ADAPT_LHS
 

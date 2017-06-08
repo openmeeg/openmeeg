@@ -91,7 +91,7 @@ namespace OpenMEEG {
             init_aux();
         }
 
-        void init( const Vect3& v0, const Vect3& v1, const Vect3& v2 )
+        void init(const Vect3& v0, const Vect3& v1, const Vect3& v2)
         {
             // all computations needed when the first triangle of integration is changed
             p0 = v0;
@@ -127,19 +127,17 @@ namespace OpenMEEG {
 
     class OPENMEEG_EXPORT analyticD
     {
-        Vect3 v1, v2, v3;
+        const Vect3 v1, v2, v3;
         unsigned i;
-        double aire;
 
     public:
         analyticD()  {}
         ~analyticD() {}
-        inline void init( const Triangle& T, const Vertex& V) {
+        inline void init(const Triangle& T, const Vertex& V) {
             v1 = T.s1();
             v2 = T.s2();
             v3 = T.s3();
             (V == v1) ? i = 1 : (V == v2) ? i = 2 : i = 3;
-            aire = T.area();
         }
 
         inline double f(const Vect3& x) const {
@@ -180,8 +178,7 @@ namespace OpenMEEG {
 
     class OPENMEEG_EXPORT analyticD3
     {
-        Vertex v1, v2, v3;
-        double aire;
+        const Vect3 v1, v2, v3;
 
     public:
         analyticD3()  {}
@@ -190,7 +187,6 @@ namespace OpenMEEG {
             v1 = T.s1();
             v2 = T.s2();
             v3 = T.s3();
-            aire = T.area();
         }
 
         inline Vect3 f(const Vect3& x) const {

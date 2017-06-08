@@ -1,7 +1,6 @@
 #pragma once
 
 // Hack to avoid the MKL declarations of Lapack Functions which do not use the power of C++ references
-
 #define _MKL_LAPACK_H_
 
 #include <mkl.h>
