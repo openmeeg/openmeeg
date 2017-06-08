@@ -32,7 +32,7 @@ if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
         brew install cgal
     fi
 
-    if [[ "$BUILD_DOCUMENTATION" == "1" ]]; then
+    if [[ "$BUILD_DOCUMENTATION" == "ON" ]]; then
         brew install Doxygen Graphviz # For building documentation
     fi
 
