@@ -8,7 +8,7 @@ if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
     # Install some custom requirements on OS X
     if [[ "$USE_PROJECT" == "0" || "$USE_SYSTEM" == "1" ]]; then
         brew install hdf5
-        brew install libmatio --with-hdf5
+        brew install libmatio
     fi
 
     # install a brewed python
