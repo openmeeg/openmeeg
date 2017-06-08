@@ -40,12 +40,17 @@ The references to be acknowledged are ::
 Install precompiled binaries
 ----------------------------
 
-`Download precompiled binaries <http://openmeeg.gforge.inria.fr/download/>`_
+On Mac if you use `Homebrew <http://brew.sh/>`_ you can just do::
 
-On Ubuntu/Debian GNU Linux you can use the http://neuro.debian.net package repository.
+    $ brew tap homebrew/science  # to get access to science packages
+    $ brew install openmeeg
 
-Build OpenMEEG
---------------
+Binaries for Linux/Mac/Windows are available at `Download precompiled binaries <http://openmeeg.gforge.inria.fr/download/>`_.
+
+On Ubuntu/Debian GNU Linux you may be able use the http://neuro.debian.net package repository.
+
+Build OpenMEEG from source
+--------------------------
 
 Unix (Linux & Mac OS X)
 ^^^^^^^^^^^^^^^^^^^^^^^
@@ -66,21 +71,26 @@ On Fedora and Centos::
 
     sudo yum install hdf5-devel matio-devel python-devel python2-numpy swig vtk-devel doxygen cgal-devel
 
-On Mac OS X, you'll need `CMake <http://www.cmake.org>`_ (install it with `Homebrew <http://brew.sh/>`_ or `Fink <http://www.finkproject.org/>`_ or `Macports <http://www.macports.org/>`_ or by direct download).
+On Mac OS X, you'll need `CMake <http://www.cmake.org>`_. We recommend you install it with `Homebrew <http://brew.sh/>`_ using::
 
-    *e.g* with Homebrew::
+    $ brew install cmake
+
+To configure your environment with Homebrew install the following packages with the brew command::
 
     $ brew tap homebrew/science
-    $ brew tap homebrew/python
     $ brew update && brew upgrade
+
+    *optionally* but recommended::
+
+    $ brew install libmatio
+    $ brew install openblas && brew link openblas --force
 
     *optionally*::
 
-    $ brew install hdf5 && brew install libmatio --with-hdf5
-    $ brew install openblas && brew link openblas --force
-    $ brew install vtk
-    $ brew install --with-qt5 cgal
-    $ brew install Doxygen
+    $ brew tap homebrew/python  # to have Python bindings
+    $ brew install vtk  # to have support for VTK file format
+    $ brew install --with-qt5 cgal  # to use CGAL meshing tools
+    $ brew install Doxygen  # to build the documentation
 
 Then from a terminal::
 
@@ -95,7 +105,7 @@ then::
     $ cd openmeeg
     $ mkdir build
     $ cd build
-    $ cmake -DBUILD_TESTING=ON -DCMAKE_BUILD_TYPE=Release -DUSE_PROGRESSBAR=ON -DBUILD_DOCUMENTATION=OFF -DENABLE_PYTHON=OFF ..
+    $ cmake -DBUILD_TESTING=ON -DCMAKE_BUILD_TYPE=Release -DUSE_PROGRESSBAR=ON ..
     $ make
 
 OpenMEEG will download and compile the **zlib**, (optional **vtk**), **hdf5**, and **matio** by default. In case your system already provides these libraries (see optional packages), you should specify the following variables to the cmake command line: "-DUSE_SYSTEM_zlib=ON -DUSE_SYSTEM_hdf5=ON -DUSE_SYSTEM_matio=ON".
