@@ -54,10 +54,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 namespace OpenMEEG {
 
-    // comment this if you have 8 cores or more and are using OpenMP
-    #define OPTIMIZED_OPERATOR_D
-
-    //#define ADAPT_LHS
+    // #define ADAPT_LHS
 
     // T can be a Matrix or SymMatrix
     void operatorSinternal(const Mesh& , Matrix& , const Vertices&, const double& );
@@ -66,37 +63,13 @@ namespace OpenMEEG {
     void operatorDipolePotDer(const Vect3& , const Vect3& , const Mesh& , Vector&, const double&, const unsigned, const bool);
     void operatorDipolePot   (const Vect3& , const Vect3& , const Mesh& , Vector&, const double&, const unsigned, const bool);
 
-    #ifndef OPTIMIZED_OPERATOR_D
-    inline double _operatorD(const Triangle& T,const Vertex& V,const Mesh& m,const unsigned gauss_order) {
-        // consider varying order of quadrature with the distance between T and T2
-        STATIC_OMP analyticD analyD;
-    #ifdef ADAPT_LHS
-        STATIC_OMP AdaptiveIntegrator<double, analyticD> gauss(0.005);
-        gauss.setOrder(gauss_order);
-    #else
-        STATIC_OMP Integrator<double, analyticD> gauss(gauss_order);
-    #endif //ADAPT_LHS
-
-        double total = 0;
-
-        const Mesh::VectPTriangle& Tadj = m.get_triangles_for_vertex(V); // loop on triangles of which V is a vertex
-
-        for (Mesh::VectPTriangle::const_iterator tit = Tadj.begin(); tit != Tadj.end(); ++tit) {
-            analyD.init(**tit, V);
-            total += gauss.integrate(analyD, T);
-        }
-        return total;
-    }
-    #else
-
     template <typename T>
     inline void _operatorD(const Triangle& T1,const Triangle& T2,T& mat,const double& coeff,const unsigned gauss_order) {
         //this version of _operatorD add in the Matrix the contribution of T2 on T1
         // for all the P1 functions it gets involved
         // consider varying order of quadrature with the distance between T1 and T2
-        STATIC_OMP analyticD3 analyD;
+        analyticD3 analyD(T2);
 
-        analyD.init(T2);
     #ifdef ADAPT_LHS
         AdaptiveIntegrator<Vect3, analyticD3> gauss(0.005);
         gauss.setOrder(gauss_order);
@@ -109,12 +82,9 @@ namespace OpenMEEG {
         for (unsigned i = 0; i < 3; ++i)
             mat(T1.index(), T2(i).index()) += total(i) * coeff;
     }
-    #endif //OPTIMIZED_OPERATOR_D
 
     inline void _operatorDinternal(const Triangle& T2,const Vertex& P,Matrix & mat,const double& coeff) {
-        static analyticD3 analyD;
-
-        analyD.init(T2);
+        analyticD3 analyD(T2);
 
         Vect3 total = analyD.f(P);
 
@@ -331,52 +301,6 @@ namespace OpenMEEG {
         }
     }
 
-    #ifndef OPTIMIZED_OPERATOR_D
-    template <typename T>
-    void operatorD(const Mesh& m1,const Mesh& m2,T& mat,const double& coeff,const unsigned gauss_order,const bool star=false) {
-        // This function (NON OPTIMIZED VERSION) has the following arguments:
-        //    the 2 interacting meshes
-        //    the storage Matrix for the result
-        //    the coefficient to be appleid to each matrix element (depending on conductivities, ...)
-        //    the gauss order parameter (for adaptive integration)
-        //    an optional star parameter, which denotes the adjoint of the operator
-
-        std::cout << "OPERATOR D" << ((star) ? "*" : " ") << "... (arg : mesh " << m1.name() << " , mesh " << m2.name() << " )" << std::endl;
-
-        unsigned i = 0; // for the PROGRESSBAR
-        if (star) {
-            for (Mesh::const_iterator tit=m2.begin();tit!=m2.end();++tit) {
-                PROGRESSBAR(i++,m2.nb_triangles());
-                #pragma omp parallel for
-                #ifndef OPENMP_3_0
-                for (int i2=0;i2<m1.vertex_size();++i2) {
-                    const Mesh::const_vertex_iterator vit = m1.vertex_begin()+i2;
-                #else
-                for (Mesh::const_vertex_iterator vit=m1.vertex_begin();vit<m1.vertex_end();++vit) {
-                #endif
-                    // P1 functions are tested thus looping on vertices
-                    mat((*vit)->index(),tit->index()) += _operatorD(*tit,**vit,m1,gauss_order)*coeff;
-                }
-            }
-        } else {
-            for (Mesh::const_iterator tit=m1.begin();tit!=m1.end();++tit) {
-                PROGRESSBAR(i++,m1.nb_triangles());
-                #pragma omp parallel for
-                #ifndef OPENMP_3_0
-                for (int i2=0;i2<m2.vertex_size();++i2) {
-                    const Mesh::const_vertex_iterator vit = m2.vertex_begin()+i2;
-                #else
-                for (Mesh::const_vertex_iterator vit=m2.vertex_begin();vit<m2.vertex_end();++vit) {
-                #endif
-                    // P1 functions are tested thus looping on vertices
-                    mat(tit->index(),(*vit)->index()) += _operatorD(*tit,**vit,m2,gauss_order)*coeff;
-                }
-            }
-        }
-    }
-
-    #else // OPTIMIZED_OPERATOR_D
-
     template <typename T>
     void operatorD(const Mesh& m1, const Mesh& m2, T& mat, const double& coeff, const unsigned gauss_order) {
         // This function (OPTIMIZED VERSION) has the following arguments:
@@ -391,7 +315,13 @@ namespace OpenMEEG {
         //
 
         unsigned i = 0; // for the PROGRESSBAR
-        for (Mesh::const_iterator tit1=m1.begin();tit1!=m1.end();++tit1) {
+        #pragma omp parallel for
+        #ifndef OPENMP_3_0
+        for (int i1=0; i1 < m1.size(); ++i1) {
+            const Mesh::const_iterator tit1 = m1.begin()+i1;
+        #else
+        for (Mesh::const_iterator tit1 = m1.begin(); tit1 < m1.end(); ++tit1) {
+        #endif
             PROGRESSBAR(i++, m1.nb_triangles());
             for (Mesh::const_iterator tit2=m2.begin();tit2!=m2.end();++tit2)
                 _operatorD(*tit1,*tit2,mat,coeff,gauss_order);
@@ -407,15 +337,14 @@ namespace OpenMEEG {
         //    the gauss order parameter (for adaptive integration)
         //    an optional star parameter, which denotes the adjoint of the operator
 
-        std::cout << "OPERATOR D" << ((star) ? "*" : " ") << "(Optimized) ... (arg : mesh " << m1.name() << " , mesh " << m2.name() << " )" << std::endl;
+        std::cout << "OPERATOR D" << ((star) ? "*" : " ") << "... (arg : mesh " << m1.name() << " , mesh " << m2.name() << " )" << std::endl;
 
         if (star) {
-            operatorD(m2,m1,mat,coeff,gauss_order);
+            operatorD(m2, m1, mat, coeff, gauss_order);
         } else {
-            operatorD(m1,m2,mat,coeff,gauss_order);
+            operatorD(m1, m2, mat, coeff, gauss_order);
         }
     }
-    #endif // OPTIMIZED_OPERATOR_D
 
     template <typename T>
     void operatorP1P0(const Mesh& m, T& mat,const double& coeff) {

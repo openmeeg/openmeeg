@@ -137,10 +137,14 @@ If no test is failing you can install with::
 You should now be able to run the *om_assemble* command and see something like this::
 
     $ om_assemble
-    om_assemble version 2.3.dev compiled at Oct 30 2016 18:43:25
+    om_assemble version 2.3.2 compiled at May 24 2017 11:43:33
 
-    Not enough arguments
-    Please try "om_assemble -h" or "om_assemble --help "
+    om_assemble [-option] [filepaths...]
+
+    option :
+       -HeadMat, -HM, -hm :
+           Compute Head Matrix for Symmetric BEM (left-hand side of linear system).
+           ...
 
 In some Linux distributions (AMD64/X86_64) you may see some errors like this::
 
