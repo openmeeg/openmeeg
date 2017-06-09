@@ -17,6 +17,7 @@ matrix:
         - USE_SYSTEM=1
         - USE_PROJECT=1
         - USE_CGAL=1
+        - USE_OMP=1
         - ENABLE_PACKAGING=1
         - USE_VTK=1
         - BUILD_DOCUMENTATION=OFF
@@ -38,6 +39,7 @@ matrix:
         - USE_SYSTEM=1
         - USE_PROJECT=1
         - USE_VTK=1
+        - USE_OMP=1
         - USE_COVERAGE=1
         - BUILD_DOCUMENTATION=ON
         - ENABLE_PACKAGING=1
