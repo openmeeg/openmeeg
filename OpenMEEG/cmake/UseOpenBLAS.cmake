@@ -16,8 +16,8 @@ if (USE_OPENBLAS)
             file(GLOB MinGW_LIBS "${OpenBLAS_DIR}/../mingw*/lib*")
 
             install(FILES ${MinGW_LIBS} ${OpenBLAS_DIR}/bin/libopenblas.dll DESTINATION bin
-                PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ
-                GROUP_EXECUTE GROUP_READ)
+                    PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ
+                    GROUP_EXECUTE GROUP_READ)
         endif()
         # set variables manually as the OpenBLASConfig.cmake given is wrong
         set(OpenBLAS_INCLUDE_DIR ${OpenBLAS_DIR}/include)
@@ -25,6 +25,16 @@ if (USE_OPENBLAS)
         set(OpenBLAS_FOUND TRUE)
     else()
         find_package(OpenBLAS ${FIND_MODE} MODULE)
+    endif()
+    if (APPLE)
+        set(LIBS)
+        foreach(lib ${OpenBLAS_LIBRARIES})
+            get_filename_component(reallib ${lib} REALPATH)
+            list(APPEND LIBS ${reallib})
+        endforeach()
+        install(FILES ${LIBS} DESTINATION lib
+                PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ
+                GROUP_EXECUTE GROUP_READ)
     endif()
     if (OpenBLAS_FOUND)
         include_directories(${OpenBLAS_INCLUDE_DIR})
