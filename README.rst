@@ -45,7 +45,7 @@ On Mac if you use `Homebrew <http://brew.sh/>`_ you can just do::
     $ brew tap homebrew/science  # to get access to science packages
     $ brew install openmeeg
 
-Binaries for Linux/Mac/Windows are available at `Download precompiled binaries <http://openmeeg.gforge.inria.fr/download/>`_.
+Binaries for Linux/Mac/Windows are available at `Download precompiled binaries <http://openmeeg.gforge.inria.fr/download/?C=M;O=D>`_.
 
 On Ubuntu/Debian GNU Linux you may be able use the http://neuro.debian.net package repository.
 
