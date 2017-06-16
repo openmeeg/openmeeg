@@ -8,7 +8,6 @@ matrix:
       env:
         - USE_SYSTEM=1
         - USE_PROJECT=1
-        - USE_VTK=1
         - ENABLE_PACKAGING=1
         - BUILD_DOCUMENTATION=ON
         - BLASLAPACK_IMPLEMENTATION=OpenBLAS
