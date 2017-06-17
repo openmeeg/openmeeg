@@ -1,3 +1,7 @@
+if [[ "$CPPLINT" == "1" ]]; then
+    cpplint --recursive OpenMEEG/libs/ OpenMEEG/src/
+fi
+
 if [[ "$USE_PROJECT" == "0" ]]; then
     cd OpenMEEG
 fi
