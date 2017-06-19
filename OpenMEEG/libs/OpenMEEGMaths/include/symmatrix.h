@@ -138,7 +138,7 @@ namespace OpenMEEG {
             return data()[j+i*(i+1)/2];
     }
 
-    //returns the solution of (this)*X = B
+    // returns the solution of (this)*X = B
     inline Vector SymMatrix::solveLin(const Vector &B) const {
         SymMatrix invA(*this, DEEP_COPY);
         Vector X(B, DEEP_COPY);
@@ -167,7 +167,7 @@ namespace OpenMEEG {
         // Bunch Kaufman Factorization
         BLAS_INT *pivots = new BLAS_INT[nlin()];
         int Info = 0;
-        //char *uplo = "U";
+        // char *uplo = "U";
         DSPTRF('U', sizet_to_int(invA.nlin()), invA.data(), pivots, Info);
         // Inverse
         for (int i = 0; i < nbvect; i++)

@@ -42,9 +42,9 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #ifdef WIN32
 #define command_line_OS 2
-#pragma warning( disable : 4530)    //MSVC standard library can't be inlined
-#pragma warning( disable : 4996)    //MSVC warning C4996: declared deprecated
-#pragma warning( disable : 4290)    //MSVC warning C4290: C++ exception specification
+#pragma warning( disable : 4530)    // MSVC standard library can't be inlined
+#pragma warning( disable : 4996)    // MSVC warning C4996: declared deprecated
+#pragma warning( disable : 4290)    // MSVC warning C4290: C++ exception specification
 #else
 #define use_color_terminal
 #define command_line_OS 1

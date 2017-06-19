@@ -137,7 +137,7 @@ namespace OpenMEEG
         return distmin;
     }
 
-    //find the closest triangle on the interfaces that touches 0 conductivity
+    // find the closest triangle on the interfaces that touches 0 conductivity
     std::string dist_point_geom(const Vect3& p, const Geometry& g, Vect3& alphas, Triangle& nearestTriangle, double& dist)
     {
         double distmin = std::numeric_limits<double>::max();

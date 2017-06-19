@@ -56,7 +56,7 @@ namespace OpenMEEG {
 
     public:
 
-        ///default constructors
+        /// default constructors
         OrientedMesh() {}
 
         OrientedMesh(Mesh& _mesh, bool _inside): base(&_mesh, _inside) {}

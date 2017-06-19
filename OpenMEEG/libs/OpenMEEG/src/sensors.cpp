@@ -228,14 +228,14 @@ namespace OpenMEEG {
         om_error(m_geo != NULL);
         m_weights = Vector(m_positions.nlin());
         m_weights.set(1.);
-        //To count the number of points that have been mapped to each mesh.
+        // To count the number of points that have been mapped to each mesh.
         std::vector<std::string> ci_mesh_names;
         std::vector<size_t>      ci_triangles;
 
         for ( size_t idx = 0; idx < m_positions.nlin(); ++idx) {
             Triangles triangles;
             const Vect3 current_position(m_positions(idx, 0), m_positions(idx, 1), m_positions(idx, 2));
-            Vect3 current_alphas;  //not used here
+            Vect3 current_alphas;  // not used here
             Triangle current_nearest_triangle;  // to hold the closest triangle to electrode.
 
             double dist;
@@ -262,7 +262,7 @@ namespace OpenMEEG {
                         Triangle * t = tri_stack.top();
                         tri_stack.pop();
                         if ( (t->center()-current_position).norm() < m_radii(idx) ) {
-                            if (t->index() != current_nearest_triangle.index())  //don't push the nearest triangle twice
+                            if (t->index() != current_nearest_triangle.index())  // don't push the nearest triangle twice
                                 triangles.push_back(*t);
                             Interface::VectPTriangle t_adj = m_geo->interface(s_map).adjacent_triangles(*t);
                             if ( index_seen.insert(t_adj[0]->index()).second ) tri_stack.push(t_adj[0]);

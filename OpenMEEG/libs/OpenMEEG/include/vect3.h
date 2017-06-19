@@ -61,7 +61,7 @@ namespace OpenMEEG {
 
     class OPENMEEG_EXPORT Vect3 {
 
-        double m[3];  //!< Coordinates of the vector
+        double m[3];  // !< Coordinates of the vector
 
     public:
 

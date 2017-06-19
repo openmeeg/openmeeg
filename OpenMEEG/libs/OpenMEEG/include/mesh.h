@@ -293,7 +293,7 @@ namespace OpenMEEG {
         bool                                  allocate_;     ///< Are the vertices allocate within the mesh or shared ?
         std::set<Vertex>                      set_vertices_;
 
-    ///handle multiple 0 conductivity domains
+    /// handle multiple 0 conductivity domains
     private:
         bool     current_barrier_;
         bool     isolated_;

@@ -65,7 +65,7 @@ namespace OpenMEEG {
 
     template <typename T>
     inline void _operatorD(const Triangle& T1, const Triangle& T2, T& mat, const double& coeff, const unsigned gauss_order) {
-        //this version of _operatorD add in the Matrix the contribution of T2 on T1
+        // this version of _operatorD add in the Matrix the contribution of T2 on T1
         // for all the P1 functions it gets involved
         // consider varying order of quadrature with the distance between T1 and T2
         analyticD3 analyD(T2);
@@ -309,7 +309,7 @@ namespace OpenMEEG {
         //    the coefficient to be appleid to each matrix element (depending on conductivities, ...)
         //    the gauss order parameter (for adaptive integration)
 
-        //In this version of the function, in order to skip multiple computations of the same quantities
+        // In this version of the function, in order to skip multiple computations of the same quantities
         //    loops are run over the triangles but the Matrix cannot be filled in this function anymore
         //    That's why the filling is done is function _operatorD
         //
@@ -363,7 +363,7 @@ namespace OpenMEEG {
         result.y() = 0.0;
         result.z() = 0.0;
 
-        //loop over triangles of which V1 is a vertex
+        // loop over triangles of which V1 is a vertex
         const Mesh::VectPTriangle& trgs = m.get_triangles_for_vertex(V1);
 
         for (Mesh::VectPTriangle::const_iterator tit = trgs.begin(); tit != trgs.end(); ++tit) {

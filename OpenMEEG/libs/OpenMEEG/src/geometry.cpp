@@ -161,7 +161,7 @@ namespace OpenMEEG {
         if (condFileName != "") {
             geoR.read_cond(condFileName);
             has_cond_ = true;
-            //mark meshes that touch the 0-cond
+            // mark meshes that touch the 0-cond
             mark_current_barrier();
         }
 
@@ -379,10 +379,10 @@ namespace OpenMEEG {
         }
     }
 
-    //mark all meshes which touch domains with 0 conductivity
+    // mark all meshes which touch domains with 0 conductivity
     void Geometry::mark_current_barrier() {
 
-        //figure out the connectivity of meshes
+        // figure out the connectivity of meshes
         std::vector<int> mesh_idx;
         for (unsigned i = 0; i < meshes().size(); i++) {
             mesh_idx.push_back(i);
@@ -414,7 +414,7 @@ namespace OpenMEEG {
             std::set_difference(mesh_idx.begin(), mesh_idx.end(), mesh_connected.begin(), mesh_connected.end(), std::insert_iterator<std::vector<int> >(mesh_diff, mesh_diff.end()));
         }
 
-        //find isolated meshes and touch 0-cond meshes;
+        // find isolated meshes and touch 0-cond meshes;
         std::set<std::string> touch_0_mesh;
         for (Domains::iterator dit = domains_.begin(); dit != domains_.end(); ++dit) {
             if (dit->sigma() == 0.0) {
@@ -444,7 +444,7 @@ namespace OpenMEEG {
         }
         mesh_conn = new_conn;
 
-        //do not delete shared vertices
+        // do not delete shared vertices
         std::set<Vertex> shared_vtx;
         for (std::set<Vertex>::const_iterator vit = invalid_vertices_.begin(); vit != invalid_vertices_.end(); ++vit) {
             for (Meshes::const_iterator mit = begin(); mit != end(); ++mit) {
@@ -466,8 +466,8 @@ namespace OpenMEEG {
             invalid_vertices_.erase(*vit);
         }
 
-        //redefine outermost interface
-        //the inside of a 0-cond domain is considered as a new outermost
+        // redefine outermost interface
+        // the inside of a 0-cond domain is considered as a new outermost
         for (Domains::iterator dit = domain_begin(); dit != domain_end(); ++dit) {
             if (dit->sigma() == 0.0) {
                 for (Domain::iterator hit = dit->begin(); hit != dit->end(); ++hit) {
@@ -482,7 +482,7 @@ namespace OpenMEEG {
             }
         }
 
-        //detect isolated geometries
+        // detect isolated geometries
         if (mesh_conn.size()>1) {
             std::cout << "The geometry is cut into several unrelated parts by non-conductive domains." << std::endl;
             std::cout << "The computation will continue. But please note that the electric potentials from different parts are no longer comparable." << std::endl;
@@ -495,7 +495,7 @@ namespace OpenMEEG {
                 std::cout << "}." << std::endl;
             }
         }
-        //count geo_group
+        // count geo_group
         for (unsigned git = 0; git < mesh_conn.size(); ++git) {
             std::vector<std::string> gg;
             for (unsigned mit = 0; mit < mesh_conn[git].size(); ++mit) {

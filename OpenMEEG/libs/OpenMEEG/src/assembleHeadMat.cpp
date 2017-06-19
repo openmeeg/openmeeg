@@ -72,7 +72,7 @@ namespace OpenMEEG {
     template<class T>
     void deflat(T& M, const Geometry& geo)
     {
-        //deflat all current barriers as one
+        // deflat all current barriers as one
         unsigned nb_vertices = 0, i_first = 0;
         double coef = 0.0;
         for (std::vector<std::vector<std::string> >::const_iterator git = geo.geo_group().begin(); git != geo.geo_group().end(); ++git) {

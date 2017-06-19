@@ -49,7 +49,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <matrix.h>
 
 // #ifdef WIN32
-// #pragma warning( disable : 4251)    //MSVC warning C4251 : DLL exports of STL templates
+// #pragma warning( disable : 4251)    // MSVC warning C4251 : DLL exports of STL templates
 // #endif
 
 #ifdef WIN32
