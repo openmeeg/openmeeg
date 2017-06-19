@@ -58,7 +58,7 @@ namespace OpenMEEG {
 
     class OPENMEEG_EXPORT analyticS
     {
-        Vect3 p0, p1, p2;  // !< vertices of the triangle
+        Vect3 p0, p1, p2;  //!< vertices of the triangle
         Vect3 p2p1, p1p0, p0p2;
         Vect3 nu0, nu1, nu2;
         Vect3 n;
