@@ -146,8 +146,8 @@ namespace OpenMEEG
         double distance;
 
         for (Domains::const_iterator dit = g.domain_begin(); dit != g.domain_end(); ++dit)
-            if ( dit->sigma() == 0.0 ){
-                for ( Domain::const_iterator hit = dit->begin(); hit != dit->end(); ++hit){
+            if ( dit->sigma() == 0.0 ) {
+                for ( Domain::const_iterator hit = dit->begin(); hit != dit->end(); ++hit) {
                     distance = dist_point_interface(p, hit->interface(), alphas, local_nearest_triangle);
                     if (distance<distmin) {
                         name_nearest_interface = hit->interface().name();

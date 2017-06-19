@@ -216,7 +216,7 @@ namespace OpenMEEG {
 
     bool coplanar_tri_tri3d(double p1[3], double q1[3], double r1[3],
                            double p2[3], double q2[3], double r2[3],
-                           double normal_1[3], double[3]){
+                           double normal_1[3], double[3]) {
 
       double P1[2], Q1[2], R1[2];
       double P2[2], Q2[2], R2[2];
@@ -512,7 +512,7 @@ namespace OpenMEEG {
         if (ORIENT_2D(P1, P2, Q1) >= 0.0f) { \
             if (ORIENT_2D(P1, Q1, R2) >= 0.0f) return 1; \
             else return 0;} else { \
-          if (ORIENT_2D(Q1, R1, P2) >= 0.0f){ \
+          if (ORIENT_2D(Q1, R1, P2) >= 0.0f) { \
             if (ORIENT_2D(R1, P1, P2) >= 0.0f) return 1; else return 0;} \
           else return 0; } \
       } else {\

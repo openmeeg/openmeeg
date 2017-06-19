@@ -160,7 +160,7 @@ namespace OpenMEEG {
             if (mit0->current_barrier()) {
                 for (Geometry::const_iterator mit1 = geo.begin(); mit1 != geo.end(); ++mit1) {
                     const int orientation = geo.oriented(*mit0, *mit1);
-                    if (orientation != 0){
+                    if (orientation != 0) {
                         // D*_23 or D*_33
                         operatorD(*mit1, *mit0, transmat, K*orientation, gauss_order, true);
                         if (*mit0 == *mit1) {

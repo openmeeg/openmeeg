@@ -75,8 +75,8 @@ namespace OpenMEEG {
         }
 
     public:
-        analyticS(){}
-        ~analyticS(){}
+        analyticS() {}
+        ~analyticS() {}
         void init(const Triangle& T)
         {
             // all computations needed when the first triangle of integration is changed
@@ -184,8 +184,8 @@ namespace OpenMEEG {
         Vect3 q;
 
     public:
-        analyticDipPot(){}
-        ~analyticDipPot(){}
+        analyticDipPot() {}
+        ~analyticDipPot() {}
 
         inline void init( const Vect3& _q, const Vect3& _r0) {
             q = _q;
@@ -207,8 +207,8 @@ namespace OpenMEEG {
         Vect3 H0p0DivNorm2, H1p1DivNorm2, H2p2DivNorm2, n;
 
     public:
-        analyticDipPotDer(){}
-        ~analyticDipPotDer(){}
+        analyticDipPotDer() {}
+        ~analyticDipPotDer() {}
         inline void init( const Triangle& T, const Vect3 &_q, const Vect3& _r0) {
             q = _q;
             r0 = _r0;

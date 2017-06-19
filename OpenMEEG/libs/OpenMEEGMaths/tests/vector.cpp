@@ -44,7 +44,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <matrix.h>
 #include <generic_test.hpp>
 
-int main () {
+int main() {
 
     using namespace OpenMEEG;
 

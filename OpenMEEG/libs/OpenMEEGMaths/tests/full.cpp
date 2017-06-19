@@ -92,7 +92,7 @@ int main () {
                     exit(1);
                 }
             } else {
-                if (std::abs(unit(i, j))>eps){
+                if (std::abs(unit(i, j))>eps) {
                     std::cerr << "Error: inverse is WRONG-2 " << "unit(" << i << ", " << j << ") = " << unit(i, j) << std::endl;
                     exit(1);
                 }

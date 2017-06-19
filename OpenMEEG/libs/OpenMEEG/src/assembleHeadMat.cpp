@@ -75,22 +75,22 @@ namespace OpenMEEG {
         //deflat all current barriers as one
         unsigned nb_vertices = 0, i_first = 0;
         double coef = 0.0;
-        for (std::vector<std::vector<std::string> >::const_iterator git = geo.geo_group().begin(); git != geo.geo_group().end(); ++git){
+        for (std::vector<std::vector<std::string> >::const_iterator git = geo.geo_group().begin(); git != geo.geo_group().end(); ++git) {
             nb_vertices = 0;
             i_first = 0;
-            for (std::vector<std::string>::const_iterator mit = git->begin(); mit != git->end(); ++mit){
+            for (std::vector<std::string>::const_iterator mit = git->begin(); mit != git->end(); ++mit) {
                 const Mesh msh = geo.mesh(*mit);
-                if (msh.outermost()){
+                if (msh.outermost()) {
                     nb_vertices += msh.nb_vertices();
                     if (i_first == 0)
                         i_first = (*msh.vertex_begin())->index();
                 }
             }
             coef = M(i_first, i_first)/nb_vertices;
-            for (std::vector<std::string>::const_iterator mit = git->begin(); mit != git->end(); ++mit){
+            for (std::vector<std::string>::const_iterator mit = git->begin(); mit != git->end(); ++mit) {
                 Mesh msh = geo.mesh(*mit);
                 if (msh.outermost())
-                    for (Mesh::const_vertex_iterator vit1 = msh.vertex_begin(); vit1 != msh.vertex_end(); ++vit1){
+                    for (Mesh::const_vertex_iterator vit1 = msh.vertex_begin(); vit1 != msh.vertex_end(); ++vit1) {
                         #pragma omp parallel for
                         #ifndef OPENMP_3_0
                         for (int i2 = vit1-msh.vertex_begin(); i2 < msh.vertex_size(); ++i2) {
@@ -113,14 +113,14 @@ namespace OpenMEEG {
 
         // We iterate over the meshes (or pair of domains) to fill the lower half of the HeadMat (since its symmetry)
         for (Geometry::const_iterator mit1 = geo.begin(); mit1 != geo.end(); ++mit1) {
-            if (!mit1->isolated()){
+            if (!mit1->isolated()) {
                 for (Geometry::const_iterator mit2 = geo.begin(); (mit2 != (mit1+1)); ++mit2) {
-                    if ((!mit2->isolated()) && (geo.sigma(*mit1, *mit2) != 0.0)){
+                    if ((!mit2->isolated()) && (geo.sigma(*mit1, *mit2) != 0.0)) {
                         // if mit1 and mit2 communicate, i.e they are used for the definition of a common domain
                         const int orientation = geo.oriented(*mit1, *mit2); // equals  0, if they don't have any domains in common
                                                                             // equals  1, if they are both oriented toward the same domain
                                                                             // equals -1, if they are not
-                        if (orientation != 0){
+                        if (orientation != 0) {
                             double Scoeff =   orientation * geo.sigma_inv(*mit1, *mit2) * K;
                             double Dcoeff = - orientation * geo.indicator(*mit1, *mit2) * K;
                             double Ncoeff;
@@ -133,11 +133,11 @@ namespace OpenMEEG {
                                 Ncoeff = orientation * geo.sigma(*mit1, *mit2) * K;
                             }
 
-                            if (!mit1->current_barrier()){
+                            if (!mit1->current_barrier()) {
                                 // Computing D block
                                 operatorD(*mit1, *mit2, mat, Dcoeff, gauss_order, false);
                             }
-                            if ((*mit1 != *mit2) && (!mit2->current_barrier())){
+                            if ((*mit1 != *mit2) && (!mit2->current_barrier())) {
                                 // Computing D* block
                                 operatorD(*mit1, *mit2, mat, Dcoeff, gauss_order, true);
                             }

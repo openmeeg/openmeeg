@@ -226,7 +226,7 @@ namespace OpenMEEG {
         DSPTRF('U', sizet_to_int(invA.nlin()), invA.data(), pivots, Info);
         if (Info<0)
             std::cout << "Big problem in det (DSPTRF)" << std::endl;
-        for (size_t i = 0; i< nlin(); i++){
+        for (size_t i = 0; i< nlin(); i++) {
             if (pivots[i] >= 0) {
                 d *= invA(i, i);
             } else { // pivots[i] < 0
@@ -246,7 +246,7 @@ namespace OpenMEEG {
         return(d);
     }
 
-    // inline void SymMatrix::eigen(Matrix & Z, Vector & D ){
+    // inline void SymMatrix::eigen(Matrix & Z, Vector & D ) {
     //     // performs the complete eigen-decomposition.
     //     //  (*this) = Z.D.Z'
     //     // -> eigenvector are columns of the Matrix Z.
