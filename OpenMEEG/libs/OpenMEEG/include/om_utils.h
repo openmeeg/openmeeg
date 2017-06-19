@@ -49,7 +49,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <algorithm>
 #include <cctype>
 
-#include "OpenMEEGConfigure.h"
+#include <OpenMEEGConfigure.h>
 
 #ifdef USE_PROGRESSBAR
     #define PROGRESSBAR(a, b) progressbar((a), (b))

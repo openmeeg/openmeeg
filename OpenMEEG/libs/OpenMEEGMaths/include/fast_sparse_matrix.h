@@ -39,9 +39,9 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #pragma once
 
-#include "OpenMEEGMathsConfig.h"
-#include "vector.h"
-#include "sparse_matrix.h"
+#include <OpenMEEGMathsConfig.h>
+#include <vector.h>
+#include <sparse_matrix.h>
 
 namespace OpenMEEG {
 

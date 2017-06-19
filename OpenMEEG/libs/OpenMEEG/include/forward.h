@@ -39,9 +39,9 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #pragma once
 
-#include "matrix.h"
-#include "symmatrix.h"
-#include "vector.h"
+#include <matrix.h>
+#include <symmatrix.h>
+#include <vector.h>
 
 namespace OpenMEEG {
 

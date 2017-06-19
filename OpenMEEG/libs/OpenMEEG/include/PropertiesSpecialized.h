@@ -39,8 +39,8 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #pragma once
 
-#include "Properties.H"
-#include "DataTag.H"
+#include <Properties.H>
+#include <DataTag.H>
 
 namespace OpenMEEG {
 

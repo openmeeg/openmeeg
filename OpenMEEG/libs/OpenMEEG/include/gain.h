@@ -41,12 +41,12 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #define USE_GMRES 0
 
-#include "matrix.h"
-#include "sparse_matrix.h"
-#include "symmatrix.h"
-#include "geometry.h"
-#include "assemble.h"
-#include "gmres.h"
+#include <matrix.h>
+#include <sparse_matrix.h>
+#include <symmatrix.h>
+#include <geometry.h>
+#include <assemble.h>
+#include <gmres.h>
 
 namespace OpenMEEG {
 
