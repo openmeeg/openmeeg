@@ -155,7 +155,7 @@ namespace OpenMEEG {
       double dp1, dq1, dr1, dp2, dq2, dr2;
       double v1[3], v2[3];
       double N1[3], N2[3];
-      const double eps=1e-16;
+      const double eps = 1e-16;
 
       // Compute distance signs  of p1, q1 and r1 to the plane of triangle(p2,q2,r2)
 

@@ -438,7 +438,7 @@ namespace OpenMEEG {
 
         std::vector<std::vector<int> > new_conn;
         for (std::vector<std::vector<int> >::const_iterator git = mesh_conn.begin(); git != mesh_conn.end(); ++git) {
-            if (git->size()>1||!meshes()[*git->begin()].isolated()) {
+            if (git->size() > 1 || !meshes()[*git->begin()].isolated()) {
                 new_conn.push_back(*git);
             }
         }

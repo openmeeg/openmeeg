@@ -233,7 +233,7 @@ namespace OpenMEEG {
         {
             Vect3 P1part(H0p0DivNorm2*(x-H0), H1p1DivNorm2*(x-H1), H2p2DivNorm2*(x-H2));
 
-            // RK: B = n.grad_x(A) with grad_x(A)= q/||^3 - 3r(q.r)/||^5
+            // RK: B = n.grad_x(A) with grad_x(A) = q/||^3 - 3r(q.r)/||^5
             Vect3 r = x-r0;
             double rn = r.norm();
             double EMpart = n*(q/pow(rn, 3.)-3*(q*r)*r/pow(rn, 5.));

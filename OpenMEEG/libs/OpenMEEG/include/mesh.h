@@ -116,7 +116,7 @@ namespace OpenMEEG {
 
         /// constructor loading directly a mesh file named \param filename . Be verbose if \param verbose is true. The mesh name is \param n .
 
-        Mesh(std::string filename,const bool verbose=true,const std::string n=""): name_(n), outermost_(false), allocate_(true), current_barrier_(false), isolated_(false) {
+        Mesh(std::string filename,const bool verbose = true,const std::string n = ""): name_(n), outermost_(false), allocate_(true), current_barrier_(false), isolated_(false) {
             unsigned nb_v = load(filename, false, false);
             all_vertices_ = new Vertices(nb_v); // allocates space for the vertices
             load(filename, verbose);
@@ -201,7 +201,7 @@ namespace OpenMEEG {
         /// Be verbose if \param verbose is true.
         /// Id \param read_all is false then it only returns the total number of vertices.
 
-        unsigned load(const std::string& filename,const bool& verbose=true,const bool& read_all=true);
+        unsigned load(const std::string& filename,const bool& verbose = true,const bool& read_all = true);
         unsigned load_tri(std::istream& , const bool& read_all = true);
         unsigned load_tri(const std::string&, const bool& read_all = true);
         unsigned load_bnd(std::istream& , const bool& read_all = true);

@@ -142,7 +142,7 @@ namespace OpenMEEG {
         }
 
         inline const char* option(const char *const name, const int argc, char **argv,
-                                  const char *defaut, const char *const usage=NULL)
+                                  const char *defaut, const char *const usage = NULL)
         {
             static bool first = true, visu = false;
             const char *res = NULL;
@@ -173,7 +173,7 @@ namespace OpenMEEG {
         }
 
         inline bool option(const char *const name, const int argc, char **argv,
-                           const bool defaut, const char *const usage=NULL)
+                           const bool defaut, const char *const usage = NULL)
         {
             const char *s = command_line::option(name, argc, argv, (const char*)NULL);
             const bool res = s?(command_line::strcasecmp(s,"false") && command_line::strcasecmp(s,"off") && command_line::strcasecmp(s,"0")):defaut;
@@ -182,7 +182,7 @@ namespace OpenMEEG {
         }
 
         inline int option(const char *const name, const int argc, char **argv,
-                          const int defaut, const char *const usage=NULL)
+                          const int defaut, const char *const usage = NULL)
         {
             const char *s = command_line::option(name, argc, argv, (const char*)NULL);
             const int res = s?std::atoi(s):defaut;
@@ -193,7 +193,7 @@ namespace OpenMEEG {
         }
 
         inline char option(const char *const name, const int argc, char **argv,
-                   const char defaut, const char *const usage=NULL)
+                   const char defaut, const char *const usage = NULL)
         {
             const char *s = command_line::option(name, argc, argv, (const char*)NULL);
             const char res = s?s[0]:defaut;
@@ -205,7 +205,7 @@ namespace OpenMEEG {
         }
 
         inline double option(const char *const name, const int argc, char **argv,
-                 const double defaut, const char *const usage=NULL)
+                 const double defaut, const char *const usage = NULL)
         {
             const char *s = command_line::option(name, argc, argv, (const char*)NULL);
             const double res = s?command_line::atof(s):defaut;

@@ -78,10 +78,10 @@ namespace OpenMEEG {
     };
 
     inline void init_random(int seed) {
-        static bool first=true;
+        static bool first = true;
         if (seed == -1 && !first)
             return;
-        first=false;
+        first = false;
         // srand((unsigned int)((seed == -1)?time(0):seed));
         srand(0);
         rand(); // the first is biased!
@@ -97,7 +97,7 @@ namespace OpenMEEG {
     {
         double x;
         do
-            x=drandom();
+            x = drandom();
         while (x == 0);
         return (double)(sqrt(-2*log(x))*cos(2*M_PI*drandom()));
     }

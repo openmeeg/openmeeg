@@ -63,14 +63,14 @@ namespace OpenMEEG {
 
         /// Create a new triangle from a set of vertices.
 
-        Triangle(Vertex* pts[3],const unsigned index=-1): ind(index) {
-            for (unsigned i=0; i<3; ++i)
+        Triangle(Vertex* pts[3],const unsigned index = -1): ind(index) {
+            for (unsigned i = 0; i<3; ++i)
                 vertices_[i] = pts[i];
         }
 
         /// Create a new triangle from a 3 vertices.
 
-        Triangle(Vertex& p1,Vertex& p2,Vertex& p3,const unsigned index=-1): ind(index) {
+        Triangle(Vertex& p1,Vertex& p2,Vertex& p3,const unsigned index = -1): ind(index) {
             vertices_[0] = &p1;
             vertices_[1] = &p2;
             vertices_[2] = &p3;
@@ -78,7 +78,7 @@ namespace OpenMEEG {
 
         /// Create a new triangle from a 3 vertex adresses.
 
-        Triangle(Vertex* p1,Vertex* p2,Vertex* p3,const unsigned index=-1): ind(index) {
+        Triangle(Vertex* p1,Vertex* p2,Vertex* p3,const unsigned index = -1): ind(index) {
             vertices_[0] = p1;
             vertices_[1] = p2;
             vertices_[2] = p3;
@@ -155,7 +155,7 @@ namespace OpenMEEG {
         }
 
         bool contains(const Vertex& p) const {
-            for (unsigned i=0; i<3; ++i)
+            for (unsigned i = 0; i<3; ++i)
                 if (&vertex(i) == &p )
                     return true;
             return false;

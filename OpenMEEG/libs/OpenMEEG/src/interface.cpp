@@ -123,7 +123,7 @@ namespace OpenMEEG {
                             (double)rand()/RAND_MAX*(ymax-ymin)+ymin,
                             (double)rand()/RAND_MAX*(zmax-zmin)+zmin);
                 //std::cout<<"\ttest random point("<<pt_rd<<")\n";
-                solangle=compute_solid_angle(pt_rd);
+                solangle = compute_solid_angle(pt_rd);
             }
         }
 

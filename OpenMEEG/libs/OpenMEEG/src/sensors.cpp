@@ -239,10 +239,10 @@ namespace OpenMEEG {
             Triangle current_nearest_triangle; // to hold the closest triangle to electrode.
 
             double dist;
-            std::string s_map=dist_point_geom(current_position, *m_geo, current_alphas, current_nearest_triangle, dist);
-            std::vector<std::string>::iterator sit=std::find(ci_mesh_names.begin(), ci_mesh_names.end(), s_map);
+            std::string s_map = dist_point_geom(current_position, *m_geo, current_alphas, current_nearest_triangle, dist);
+            std::vector<std::string>::iterator sit = std::find(ci_mesh_names.begin(), ci_mesh_names.end(), s_map);
             if(sit != ci_mesh_names.end()){
-                size_t idx2=std::distance(ci_mesh_names.begin(), sit);
+                size_t idx2 = std::distance(ci_mesh_names.begin(), sit);
                 ci_triangles[idx2]++;
             }
             else{
@@ -281,7 +281,7 @@ namespace OpenMEEG {
             }
             m_triangles.push_back(triangles);
         }
-        for(size_t i=0; i<ci_mesh_names.size(); ++i)
+        for(size_t i = 0; i<ci_mesh_names.size(); ++i)
             std::cout<<ci_triangles[i]<<" points have been mapped to mesh "<<ci_mesh_names[i]<<std::endl;
     }
 
@@ -290,7 +290,7 @@ namespace OpenMEEG {
         std::cout << "Nb of sensors : " << m_nb << std::endl;
         std::cout << "Positions" << std::endl;
         for(size_t i = 0; i < nb_to_display ; ++i) {
-            for (size_t j=0; j<m_positions.ncol(); ++j) {
+            for (size_t j = 0; j<m_positions.ncol(); ++j) {
                 std::cout << m_positions(i, j) << " ";
             }
             std::cout << std::endl;
@@ -302,7 +302,7 @@ namespace OpenMEEG {
         if(hasOrientations()) {
             std::cout << "Orientations" << std::endl;
             for(size_t i = 0; i < nb_to_display ; ++i) {
-                for (size_t j=0; j<m_orientations.ncol(); ++j) {
+                for (size_t j = 0; j<m_orientations.ncol(); ++j) {
                     std::cout << m_orientations(i, j) << " ";
                 }
                 std::cout << std::endl;

@@ -101,7 +101,7 @@ namespace OpenMEEG {
         rhs.set(0.0);
 
         Vector rhs_col(rhs.nlin());
-        for (unsigned s=0; s<n_dipoles; ++s) {
+        for (unsigned s = 0; s<n_dipoles; ++s) {
             PROGRESSBAR(s, n_dipoles);
             const Vect3 r(dipoles(s, 0), dipoles(s, 1), dipoles(s, 2));
             const Vect3 q(dipoles(s, 3), dipoles(s, 4), dipoles(s, 5));
@@ -115,9 +115,9 @@ namespace OpenMEEG {
                 rhs_col.set(0.0);
                 const double K = 1.0/(4.*M_PI);
                 //  Iterate over the domain's interfaces (half-spaces)
-                for (Domain::const_iterator hit=domain.begin(); hit != domain.end(); ++hit) {
+                for (Domain::const_iterator hit = domain.begin(); hit != domain.end(); ++hit) {
                     //  Iterate over the meshes of the interface
-                    for (Interface::const_iterator omit=hit->interface().begin(); omit != hit->interface().end(); ++omit) {
+                    for (Interface::const_iterator omit = hit->interface().begin(); omit != hit->interface().end(); ++omit) {
                         //  Treat the mesh.
                         const double coeffD = ((hit->inside()) ? K : -K)*omit->orientation();
                         operatorDipolePotDer(r, q, omit->mesh(), rhs_col, coeffD, gauss_order, adapt_rhs);

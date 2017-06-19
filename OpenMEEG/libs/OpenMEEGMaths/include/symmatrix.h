@@ -145,7 +145,7 @@ namespace OpenMEEG {
 
     #ifdef HAVE_LAPACK
         // Bunch Kaufman Factorization
-        BLAS_INT *pivots=new BLAS_INT[nlin()];
+        BLAS_INT *pivots = new BLAS_INT[nlin()];
         int Info = 0;
         DSPTRF('U', sizet_to_int(invA.nlin()), invA.data(), pivots, Info);
         // Inverse
@@ -165,9 +165,9 @@ namespace OpenMEEG {
 
     #ifdef HAVE_LAPACK
         // Bunch Kaufman Factorization
-        BLAS_INT *pivots=new BLAS_INT[nlin()];
+        BLAS_INT *pivots = new BLAS_INT[nlin()];
         int Info = 0;
-        //char *uplo="U";
+        //char *uplo = "U";
         DSPTRF('U', sizet_to_int(invA.nlin()), invA.data(), pivots, Info);
         // Inverse
         for(int i = 0; i < nbvect; i++)
@@ -185,7 +185,7 @@ namespace OpenMEEG {
     #ifdef HAVE_BLAS
         BLAS(daxpy, DAXPY)(sizet_to_int(nlin()*(nlin()+1)/2), -1.0, B.data(), 1, data() , 1);
     #else
-        for (size_t i=0; i<nlin()*(nlin()+1)/2; i++)
+        for (size_t i = 0; i<nlin()*(nlin()+1)/2; i++)
             data()[i] += B.data()[i];
     #endif
     }
@@ -195,7 +195,7 @@ namespace OpenMEEG {
     #ifdef HAVE_BLAS
         BLAS(daxpy, DAXPY)(sizet_to_int(nlin()*(nlin()+1)/2), 1.0, B.data(), 1, data() , 1);
     #else
-        for (size_t i=0; i<nlin()*(nlin()+1)/2; i++)
+        for (size_t i = 0; i<nlin()*(nlin()+1)/2; i++)
             data()[i] += B.data()[i];
     #endif
     }
@@ -220,7 +220,7 @@ namespace OpenMEEG {
         double d = 1.0;
     #ifdef HAVE_LAPACK
         // Bunch Kaufmqn
-        BLAS_INT *pivots=new BLAS_INT[nlin()];
+        BLAS_INT *pivots = new BLAS_INT[nlin()];
         int Info = 0;
         // TUDUtTt
         DSPTRF('U', sizet_to_int(invA.nlin()), invA.data(), pivots, Info);
@@ -278,7 +278,7 @@ namespace OpenMEEG {
     #ifdef HAVE_BLAS
         BLAS(daxpy, DAXPY)(sizet_to_int(nlin()*(nlin()+1)/2), 1.0, B.data(), 1, C.data() , 1);
     #else
-        for (size_t i=0; i<nlin()*(nlin()+1)/2; i++)
+        for (size_t i = 0; i<nlin()*(nlin()+1)/2; i++)
             C.data()[i] += B.data()[i];
     #endif
         return C;
@@ -291,7 +291,7 @@ namespace OpenMEEG {
     #ifdef HAVE_BLAS
         BLAS(daxpy, DAXPY)(sizet_to_int(nlin()*(nlin()+1)/2), -1.0, B.data(), 1, C.data() , 1);
     #else
-        for (size_t i=0; i<nlin()*(nlin()+1)/2; i++)
+        for (size_t i = 0; i<nlin()*(nlin()+1)/2; i++)
             C.data()[i] -= B.data()[i];
     #endif
         return C;
@@ -344,9 +344,9 @@ namespace OpenMEEG {
     #ifdef HAVE_BLAS
         DSPMV(CblasUpper, sizet_to_int(nlin()), 1., data(), v.data(), 1, 0., y.data(), 1);
     #else
-        for (size_t i=0; i<nlin(); i++) {
-            y(i)=0;
-            for (size_t j=0; j<nlin(); j++)
+        for (size_t i = 0; i<nlin(); i++) {
+            y(i) = 0;
+            for (size_t j = 0; j<nlin(); j++)
                 y(i) += (*this)(i, j)*v(j);
         }
     #endif

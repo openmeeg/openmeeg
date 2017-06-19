@@ -67,10 +67,10 @@ namespace OpenMEEG {
     {
         #pragma omp parallel for
         #ifndef OPENMP_3_0
-        for (int i=0; i<m.vertex_size(); ++i) {
-            const Mesh::const_vertex_iterator vit=m.vertex_begin()+i;
+        for (int i = 0; i<m.vertex_size(); ++i) {
+            const Mesh::const_vertex_iterator vit = m.vertex_begin()+i;
         #else
-        for (Mesh::const_vertex_iterator vit=m.vertex_begin(); vit<m.vertex_end(); ++vit) {
+        for (Mesh::const_vertex_iterator vit = m.vertex_begin(); vit<m.vertex_end(); ++vit) {
         #endif
             Vect3 v = _operatorFerguson(x, **vit, m);
             mat(offsetI + 0, (*vit)->index()) += v.x() * coeff;
@@ -89,10 +89,10 @@ namespace OpenMEEG {
         gauss->setOrder(gauss_order);
         #pragma omp parallel for private(anaDPD)
         #ifndef OPENMP_3_0
-        for (int i=0; i<m.size(); ++i) {
-            const Mesh::const_iterator tit=m.begin()+i;
+        for (int i = 0; i<m.size(); ++i) {
+            const Mesh::const_iterator tit = m.begin()+i;
         #else
-        for (Mesh::const_iterator tit=m.begin(); tit<m.end(); ++tit) {
+        for (Mesh::const_iterator tit = m.begin(); tit<m.end(); ++tit) {
         #endif
             anaDPD.init(*tit, q, r0);
             Vect3 v = gauss->integrate(anaDPD, *tit);
@@ -121,10 +121,10 @@ namespace OpenMEEG {
         gauss->setOrder(gauss_order);
         #pragma omp parallel for
         #ifndef OPENMP_3_0
-        for (int i=0; i<m.size(); ++i) {
-            const Mesh::const_iterator tit=m.begin()+i;
+        for (int i = 0; i<m.size(); ++i) {
+            const Mesh::const_iterator tit = m.begin()+i;
         #else
-        for (Mesh::const_iterator tit=m.begin(); tit<m.end(); ++tit) {
+        for (Mesh::const_iterator tit = m.begin(); tit<m.end(); ++tit) {
         #endif
             double d = gauss->integrate(anaDP, *tit);
             #pragma omp critical

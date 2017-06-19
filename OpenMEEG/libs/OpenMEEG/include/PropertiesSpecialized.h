@@ -44,7 +44,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 namespace OpenMEEG {
 
-    template <typename REP=double>
+    template <typename REP = double>
     class OPENMEEG_EXPORT Conductivity {
     public:
 

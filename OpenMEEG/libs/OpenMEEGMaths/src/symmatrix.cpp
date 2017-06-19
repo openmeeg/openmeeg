@@ -86,7 +86,7 @@ namespace OpenMEEG {
         Matrix retMat(i_end-i_start+1, j_end-j_start+1);
         for(size_t i = 0; i <= i_end-i_start; i++)
             for(size_t j = 0; j <= j_end-j_start; j++)
-                retMat(i, j)=this->operator()(i_start+i, j_start+j);
+                retMat(i, j) = this->operator()(i_start+i, j_start+j);
 
         return retMat;
     }
@@ -104,7 +104,7 @@ namespace OpenMEEG {
         SymMatrix mat(isize);
         for(size_t i = istart; i <= iend; i++)
             for(size_t j = i; j <= iend; j++)
-                mat(i, j)=this->operator()(i, j);
+                mat(i, j) = this->operator()(i, j);
 
         return mat;
     }

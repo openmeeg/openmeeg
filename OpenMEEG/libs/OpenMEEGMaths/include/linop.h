@@ -75,7 +75,7 @@ namespace OpenMEEG {
 
         virtual ~LinOpInfo() {};
 
-        LinOpInfo& operator=(const LinOpInfo& l) {
+        LinOpInfo& operator= (const LinOpInfo& l) {
             num_lines = l.num_lines;
             num_cols  = l.num_cols;
             storage   = l.storage;

@@ -124,17 +124,17 @@ namespace OpenMEEG {
     inline Vector SparseMatrix::getlin(size_t i) const {
         om_assert(i<nlin());
         Vector v(ncol());
-        for (size_t j=0; j<ncol(); j++){
+        for (size_t j = 0; j<ncol(); j++){
             const_iterator it = m_tank.find(std::make_pair(i, j));
-            if (it != m_tank.end()) v(j)=it->second;
-            else v(j)=0.0;
+            if (it != m_tank.end()) v(j) = it->second;
+            else v(j) = 0.0;
         }
         return v;
     }
 
     inline void SparseMatrix::setlin(Vector v, size_t i) {
         om_assert(i<nlin());
-        for (size_t j=0; j<v.nlin(); j++){
+        for (size_t j = 0; j<v.nlin(); j++){
             (*this)(i, j) = v(j);
         }
     }

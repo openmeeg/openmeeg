@@ -51,26 +51,26 @@ namespace OpenMEEG {
 
     class OPENMEEG_EXPORT HeadMat: public virtual SymMatrix {
     public:
-        HeadMat (const Geometry& geo, const unsigned gauss_order=3);
+        HeadMat (const Geometry& geo, const unsigned gauss_order = 3);
         virtual ~HeadMat () {};
     };
 
     class OPENMEEG_EXPORT SurfSourceMat: public virtual Matrix {
     public:
-        SurfSourceMat (const Geometry& geo, Mesh& sources, const unsigned gauss_order=3);
+        SurfSourceMat (const Geometry& geo, Mesh& sources, const unsigned gauss_order = 3);
         virtual ~SurfSourceMat () {};
     };
 
     class OPENMEEG_EXPORT DipSourceMat: public virtual Matrix {
     public:
-        DipSourceMat (const Geometry& geo, const Matrix& dipoles, const unsigned gauss_order=3,
+        DipSourceMat (const Geometry& geo, const Matrix& dipoles, const unsigned gauss_order = 3,
                       const bool adapt_rhs = true, const std::string& domain_name = "");
         virtual ~DipSourceMat () {};
     };
 
     class OPENMEEG_EXPORT EITSourceMat: public virtual Matrix {
     public:
-        EITSourceMat(const Geometry& geo, const Sensors& electrodes, const unsigned gauss_order=3);
+        EITSourceMat(const Geometry& geo, const Sensors& electrodes, const unsigned gauss_order = 3);
         virtual ~EITSourceMat () {};
     };
 
@@ -122,14 +122,14 @@ namespace OpenMEEG {
     class OPENMEEG_EXPORT CorticalMat: public virtual Matrix {
     public:
         CorticalMat (const Geometry& geo, const Head2EEGMat& M, const std::string& domain_name = "CORTEX",
-                const unsigned gauss_order=3, double alpha=-1., double beta=-1., const std::string &filename="");
+                const unsigned gauss_order = 3, double alpha = -1., double beta = -1., const std::string &filename = "");
         virtual ~CorticalMat () {};
     };
 
     class OPENMEEG_EXPORT CorticalMat2: public virtual Matrix {
     public:
         CorticalMat2(const Geometry& geo, const Head2EEGMat& M, const std::string& domain_name = "CORTEX",
-                const unsigned gauss_order=3, double gamma=1., const std::string &filename="");
+                const unsigned gauss_order = 3, double gamma = 1., const std::string &filename = "");
         virtual ~CorticalMat2() {};
     };
 }
