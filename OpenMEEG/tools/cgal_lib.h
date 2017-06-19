@@ -37,26 +37,35 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#ifndef OPENMEEG_CGAL_MESH_H
-#define OPENMEEG_CGAL_MESH_H
+#pragma once
 
 // for verbosity
 #define CGAL_MESH_3_VERBOSE
 
+#include <mesh.h>
+
 #include <CGAL/Exact_predicates_inexact_constructions_kernel.h>
 #include <CGAL/Mesh_3/Robust_intersection_traits_3.h>
+#include <CGAL/Mesh_criteria_3.h>
+#include <CGAL/Polyhedron_3.h>
 #include <CGAL/Mesh_triangulation_3.h>
 #include <CGAL/Mesh_complex_3_in_triangulation_3.h>
-#include <CGAL/Mesh_criteria_3.h>
 #include <CGAL/make_mesh_3.h>
 #include <CGAL/refine_mesh_3.h>
 #include <CGAL/Image_3.h>
+#include <CGAL/Polyhedral_mesh_domain_3.h>
+#include <CGAL/Implicit_mesh_domain_3.h>
+
+#include <CGAL/config.h>
+#include <CGAL/version.h>
+
+typedef CGAL::Exact_predicates_inexact_constructions_kernel K;
+typedef K::Point_3 Point_3;
+typedef K::FT FT;
+typedef CGAL::Polyhedron_3<K>  Polyhedron;
+typedef Polyhedron::HalfedgeDS HDS;
 
 namespace OpenMEEG {
-
-    typedef CGAL::Exact_predicates_inexact_constructions_kernel K;
-    typedef CGAL::Mesh_3::Robust_intersection_traits_3<K> Geom_traits;
-
     template <typename C3t3>
     Mesh CGAL_to_OM(C3t3 c3t3) {
         typedef typename C3t3::Triangulation Tr;
@@ -77,7 +86,7 @@ namespace OpenMEEG {
             const int index1 = V[cell->vertex(c3t3.triangulation().vertex_triple_index(index, 0))];
             const int index2 = V[cell->vertex(c3t3.triangulation().vertex_triple_index(index, 1))];
             const int index3 = V[cell->vertex(c3t3.triangulation().vertex_triple_index(index, 2))];
-            Triangle t(m.vertices()[index1], m.vertices()[index2], m.vertices()[index3] );
+            Triangle t(m.vertices()[index1], m.vertices()[index2], m.vertices()[index3]);
             m.push_back(t);
         }
 
@@ -85,5 +94,18 @@ namespace OpenMEEG {
         m.correct_global_orientation();
         return m;
     }
+
+
+    Mesh cgal_mesh_function(double sphere_radius, double hemisphere, double radius_bound, double distance_bound);
+
+    #if CGAL_VERSION_NR >= CGAL_VERSION_NUMBER(4,6,0)
+    Mesh cgal_refine(const Mesh& m_in, double radius_bound, double distance_bound, const char* sizing_field);
+
+    Mesh cgal_decimate(const Mesh& m_in, unsigned nb_points);
+    #endif
+
+    #ifdef CGAL_ImageIO
+    Mesh cgal_mesh_3Dlabeled_image(const char* input_filename, double radius_bound, double distance_bound);
+    Mesh cgal_mesh_3Dlevelset_image(const char* input_filename,  double levelset_value, bool positive_inside, double radius_bound, double distance_bound);
+    #endif
 }
-#endif  //! OPENMEEG_CGAL_MESH_H

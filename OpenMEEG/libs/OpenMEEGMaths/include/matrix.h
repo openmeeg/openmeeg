@@ -189,7 +189,7 @@ namespace OpenMEEG {
     #ifdef HAVE_LAPACK
     if ( nlin()*ncol() != 0 ) {
         double work;
-        return DLANGE('F',sizet_to_int(nlin()),sizet_to_int(ncol()),data(),sizet_to_int(nlin()),&work);
+        return DLANGE('F', sizet_to_int(nlin()), sizet_to_int(ncol()), data(), sizet_to_int(nlin()), &work);
     } else {
         return 0;
     }
