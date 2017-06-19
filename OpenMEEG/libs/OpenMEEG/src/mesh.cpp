@@ -537,7 +537,7 @@ namespace OpenMEEG {
         int read_data = 0; 
         gifti_image* gim = gifti_read_image(filename.c_str(), read_data);
 
-        if (gim->numDA!=2)
+        if (gim->numDA != 2)
             throw std::invalid_argument("OpenMEEG only handles gifti files containing two arrays.");
 
         // find which array contains the points and which the triangles
@@ -551,8 +551,8 @@ namespace OpenMEEG {
             }
             ++iit;
         }
-        if ((gim->darray[ipts]->dims[1]!=3) || // 3D points
-            (gim->darray[itrgs]->dims[1]!=3))  // 3 indices per triangle
+        if ((gim->darray[ipts]->dims[1] != 3) || // 3D points
+            (gim->darray[itrgs]->dims[1] != 3))  // 3 indices per triangle
             throw std::invalid_argument("OpenMEEG only handles 3D surfacic meshes.");
 
         unsigned npts  = gim->darray[ipts]->dims[0];
@@ -645,9 +645,9 @@ namespace OpenMEEG {
 
         delete[] ui;
 
-        if (vertex_per_face!=3) // Support only for triangulations
+        if (vertex_per_face != 3) // Support only for triangulations
             throw std::invalid_argument("OpenMEEG only handles 3D surfacic meshes.");
-        if (mesh_time!=1) // Support only 1 time frame
+        if (mesh_time != 1) // Support only 1 time frame
             throw std::invalid_argument("OpenMEEG only handles 3D surfacic meshes with one time frame.");
 
         float* pts_raw = new float[npts*3]; // Points

@@ -96,8 +96,8 @@ namespace OpenMEEG {
         inline double norm()  const { return sqrt(norm2()); }
         inline double norm2() const { return m[0]*m[0]+m[1]*m[1]+m[2]*m[2]; }
 
-        inline bool operator==(const Vect3& v ) const { return (m[0]==v.x() && m[1]==v.y() && m[2]==v.z()); }
-        inline bool operator!=(const Vect3& v ) const { return (m[0]!=v.x() || m[1]!=v.y() || m[2]!=v.z()); }
+        inline bool operator==(const Vect3& v ) const { return (m[0] == v.x() && m[1] == v.y() && m[2] == v.z()); }
+        inline bool operator!=(const Vect3& v ) const { return (m[0] != v.x() || m[1] != v.y() || m[2] != v.z()); }
 
         inline void operator+=(const Vect3& v)  { m[0] += v.x(); m[1] += v.y(); m[2] += v.z(); }
         inline void operator-=(const Vect3& v)  { m[0] -= v.x(); m[1] -= v.y(); m[2] -= v.z(); }

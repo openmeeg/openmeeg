@@ -111,13 +111,13 @@ namespace OpenMEEG {
             //  Only consider dipoles in non-zero conductivity domain.
 
             const double sigma = domain.sigma();
-            if (sigma!=0.0) {
+            if (sigma != 0.0) {
                 rhs_col.set(0.0);
                 const double K = 1.0/(4.*M_PI);
                 //  Iterate over the domain's interfaces (half-spaces)
-                for (Domain::const_iterator hit=domain.begin(); hit!=domain.end(); ++hit) {
+                for (Domain::const_iterator hit=domain.begin(); hit != domain.end(); ++hit) {
                     //  Iterate over the meshes of the interface
-                    for (Interface::const_iterator omit=hit->interface().begin(); omit!=hit->interface().end(); ++omit) {
+                    for (Interface::const_iterator omit=hit->interface().begin(); omit != hit->interface().end(); ++omit) {
                         //  Treat the mesh.
                         const double coeffD = ((hit->inside()) ? K : -K)*omit->orientation();
                         operatorDipolePotDer(r, q, omit->mesh(), rhs_col, coeffD, gauss_order, adapt_rhs);

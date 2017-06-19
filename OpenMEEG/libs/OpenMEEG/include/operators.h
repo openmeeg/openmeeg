@@ -140,7 +140,7 @@ namespace OpenMEEG {
 
                 // if it is the same shared vertex
 
-                result -=  (((&m1!=&m2) && (V1 == V2)) ? 0.5 : 0.25)*value;
+                result -=  (((&m1 != &m2) && (V1 == V2)) ? 0.5 : 0.25)*value;
             }
         }
         return result;
@@ -169,7 +169,7 @@ namespace OpenMEEG {
                 // we thus precompute operator S divided by the product of triangles area.
 
                 SymMatrix matS(m1.nb_triangles());
-                for (Mesh::const_iterator tit1=m1.begin(); tit1!=m1.end(); ++tit1) {
+                for (Mesh::const_iterator tit1=m1.begin(); tit1 != m1.end(); ++tit1) {
                     PROGRESSBAR(i++, m1.nb_triangles());
                     #pragma omp parallel for
                     #ifndef OPENMP_3_0
@@ -225,7 +225,7 @@ namespace OpenMEEG {
                     }
                 }
                 i = 0 ;
-                for (Mesh::const_vertex_iterator vit1 = m1.vertex_begin(); vit1!=m1.vertex_end(); ++vit1) {
+                for (Mesh::const_vertex_iterator vit1 = m1.vertex_begin(); vit1 != m1.vertex_end(); ++vit1) {
                     PROGRESSBAR(i++,m1.nb_vertices());
                     #pragma omp parallel for
                     #ifndef OPENMP_3_0
@@ -239,7 +239,7 @@ namespace OpenMEEG {
                 }
             } else {
                 //  This loop is exactly the same as the one just above with just matS -> mat (factorize).
-                for (Mesh::const_vertex_iterator vit1 = m1.vertex_begin(); vit1!=m1.vertex_end(); ++vit1) {
+                for (Mesh::const_vertex_iterator vit1 = m1.vertex_begin(); vit1 != m1.vertex_end(); ++vit1) {
                     PROGRESSBAR(i++,m1.nb_vertices());
                     #pragma omp parallel for
                     #ifndef OPENMP_3_0
@@ -270,7 +270,7 @@ namespace OpenMEEG {
         // The operator S is given by Sij=\Int G*PSI(I, i)*Psi(J, j) with
         // PSI(A, a) is a P0 test function on layer A and triangle a
         if (&m1 == &m2) {
-            for (Mesh::const_iterator tit1=m1.begin(); tit1!=m1.end(); ++tit1) {
+            for (Mesh::const_iterator tit1=m1.begin(); tit1 != m1.end(); ++tit1) {
                 PROGRESSBAR(i++,m1.nb_triangles());
                 #pragma omp parallel for
                 #ifndef OPENMP_3_0
@@ -286,7 +286,7 @@ namespace OpenMEEG {
             // TODO check the symmetry of _operatorS. 
             // if we invert tit1 with tit2: results in HeadMat differs at 4.e-5 which is too big.
             // using ADAPT_LHS with tolerance at 0.000005 (for _opS) drops this at 6.e-6. (but increase the computation time)
-            for (Mesh::const_iterator tit1=m1.begin(); tit1!=m1.end(); ++tit1) {
+            for (Mesh::const_iterator tit1=m1.begin(); tit1 != m1.end(); ++tit1) {
                 PROGRESSBAR(i++,m1.nb_triangles());
                 #pragma omp parallel for
                 #ifndef OPENMP_3_0
@@ -323,7 +323,7 @@ namespace OpenMEEG {
         for (Mesh::const_iterator tit1 = m1.begin(); tit1 < m1.end(); ++tit1) {
         #endif
             PROGRESSBAR(i++, m1.nb_triangles());
-            for (Mesh::const_iterator tit2=m2.begin(); tit2!=m2.end(); ++tit2)
+            for (Mesh::const_iterator tit2=m2.begin(); tit2 != m2.end(); ++tit2)
                 _operatorD(*tit1,*tit2,mat,coeff,gauss_order);
         }
     }
@@ -366,7 +366,7 @@ namespace OpenMEEG {
         //loop over triangles of which V1 is a vertex
         const Mesh::VectPTriangle& trgs = m.get_triangles_for_vertex(V1);
 
-        for (Mesh::VectPTriangle::const_iterator tit=trgs.begin(); tit!=trgs.end(); ++tit) {
+        for (Mesh::VectPTriangle::const_iterator tit=trgs.begin(); tit != trgs.end(); ++tit) {
 
             const Triangle& T1 = **tit;
 

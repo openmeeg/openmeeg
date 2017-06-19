@@ -225,7 +225,7 @@ namespace OpenMEEG {
     }
 
     void Sensors::findInjectionTriangles() {
-        om_error(m_geo!=NULL);
+        om_error(m_geo != NULL);
         m_weights = Vector(m_positions.nlin());
         m_weights.set(1.);
         //To count the number of points that have been mapped to each mesh.
@@ -241,7 +241,7 @@ namespace OpenMEEG {
             double dist;
             std::string s_map=dist_point_geom(current_position, *m_geo, current_alphas, current_nearest_triangle, dist);
             std::vector<std::string>::iterator sit=std::find(ci_mesh_names.begin(), ci_mesh_names.end(), s_map);
-            if(sit!=ci_mesh_names.end()){
+            if(sit != ci_mesh_names.end()){
                 size_t idx2=std::distance(ci_mesh_names.begin(), sit);
                 ci_triangles[idx2]++;
             }
