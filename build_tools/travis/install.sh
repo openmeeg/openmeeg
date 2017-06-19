@@ -1,5 +1,5 @@
 if [[ "$CPPLINT" == "1" ]]; then
-    cpplint --filter=-runtime/references,-whitespace/line_length,-readability/alt_tokens,-whitespace/parens,-whitespace/indent,-whitespace/blank_line,-whitespace/braces,-legal/copyright --recursive OpenMEEG/libs/ OpenMEEG/src/
+    cpplint --filter=-runtime/references,-whitespace/line_length,-readability/alt_tokens,-whitespace/parens,-whitespace/indent,-whitespace/blank_line,-whitespace/braces,-legal/copyright,-build/namespaces --recursive OpenMEEG/libs/ OpenMEEG/src/
 fi
 
 if [[ "$USE_PROJECT" == "0" ]]; then
