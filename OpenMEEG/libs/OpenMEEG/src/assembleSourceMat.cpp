@@ -123,7 +123,7 @@ namespace OpenMEEG {
                         operatorDipolePotDer(r, q, omit->mesh(), rhs_col, coeffD, gauss_order, adapt_rhs);
 
                         if (!omit->mesh().current_barrier()) {
-                            const double coeff = -coeffD/sigma;;
+                            const double coeff = -coeffD/sigma;
                             operatorDipolePot(r, q, omit->mesh(), rhs_col, coeff, gauss_order, adapt_rhs);
                         }
                     }

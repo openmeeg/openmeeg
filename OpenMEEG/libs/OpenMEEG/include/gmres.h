@@ -122,8 +122,8 @@ namespace OpenMEEG {
         int i, j = 1, k;
         Vector s(m+1), cs(m+1), sn(m+1), w;
 
-        double normb = (M(b)).norm();//(M*b).norm()
-        Vector r = M(b-A*x);//M.solve(b - A * x);
+        double normb = (M(b)).norm(); //(M*b).norm()
+        Vector r = M(b-A*x); //M.solve(b - A * x);
         double beta = r.norm();
 
         if (normb == 0.0)
@@ -167,7 +167,7 @@ namespace OpenMEEG {
                 }
             }
             Update(x, i - 1, H, s, v);
-            r = M(b-A*x);//M.solve(b - A * x);
+            r = M(b-A*x); //M.solve(b - A * x);
             beta = r.norm();
             if ((resid = beta / normb) < tol) {
                 tol = resid;

@@ -232,7 +232,7 @@ namespace OpenMEEG {
     // #ifdef HAVE_BLAS
     //         BLAS(daxpy, DAXPY)(sizet_to_int(nlin()), v(i), data(), 1, p.data()+i, 1);
     // #else
-    //         for (size_t j=0;j<nlin();j++)
+    //         for (size_t j=0; j<nlin(); j++)
     //             p(i+j) += v(i)*data()[j];
     // #endif
     //     }
@@ -248,7 +248,7 @@ namespace OpenMEEG {
     // #ifdef HAVE_BLAS
     //         BLAS(daxpy, DAXPY)((int)m, v(i), data(), 1, p.data()+i, 1);
     // #else
-    //         for (size_t j=0;j<m;j++)
+    //         for (size_t j=0; j<m; j++)
     //             p(i+j) += v(i)*data()[j];
     // #endif
     //     }

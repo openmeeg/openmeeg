@@ -55,8 +55,8 @@ int main () {
 
     Matrix M(5, 5);
 
-    for (size_t i = 0;i<M.nlin();++i)
-        for (size_t j = 0;j<M.ncol();++j)
+    for (size_t i = 0; i<M.nlin(); ++i)
+        for (size_t j = 0; j<M.ncol(); ++j)
             M(i, j) = pow(2.0, (double)i)+pow(2.0, (double)j);
 
     genericTest("full", M);
@@ -84,8 +84,8 @@ int main () {
     Pinv.info();
 
     Matrix unit = P*Pinv;
-    for (unsigned i = 0;i<unit.nlin();++i) {
-        for (unsigned j = 0;j<unit.ncol();++j) {
+    for (unsigned i = 0; i<unit.nlin(); ++i) {
+        for (unsigned j = 0; j<unit.ncol(); ++j) {
             if (i == j) {
                 if (std::abs(unit(i, j)-1)>eps) {
                     std::cerr << "Error: inverse is WRONG-1" << std::endl;

@@ -129,7 +129,7 @@ namespace OpenMEEG {
     std::istream& operator>>(std::istream& is, Mesh& m) {
         unsigned vind[3];
         is >> vind[0] >> vind[1] >> vind[2];
-        for (unsigned i=0;i<3;++i)
+        for (unsigned i=0; i<3; ++i)
             if (vind[i] >= m.vertices_.size()) {
                 std::cerr << "Unknown vertex: " << vind[i] << " (hint: vertex numbering often starts at 0). Aborting." << std::endl;
                 exit(1);
@@ -722,7 +722,7 @@ namespace OpenMEEG {
         f >> ch >> ntrgs >> ntrgs >> ntrgs; // This number is repeated 3 times
 
         reserve(ntrgs);
-        for (unsigned i=0;i<ntrgs;++i)
+        for (unsigned i=0; i<ntrgs; ++i)
             f >> *this;
 
         return ntrgs;

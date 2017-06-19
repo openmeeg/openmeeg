@@ -49,7 +49,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 namespace OpenMEEG {
 
     const SymMatrix& SymMatrix::operator=(const double d) {
-        for(size_t i = 0;i < size();i++) data()[i] = d;
+        for(size_t i = 0; i < size(); i++) data()[i] = d;
         return *this;
     }
 
@@ -62,13 +62,13 @@ namespace OpenMEEG {
 
     SymMatrix::SymMatrix(const Matrix& M): LinOp(M.nlin(), M.nlin(), SYMMETRIC, 2), value(new LinOpValue(size())){
         om_assert(nlin() == M.nlin());
-        for (size_t i = 0; i < nlin();++i)
-            for (size_t j = i; j < nlin();++j)
+        for (size_t i = 0; i < nlin(); ++i)
+            for (size_t j = i; j < nlin(); ++j)
                 (*this)(i, j) = M(i, j);
     }
 
     void SymMatrix::set(double x) {
-        for (size_t i = 0;i < (nlin()*(nlin()+1))/2;i++)
+        for (size_t i = 0; i < (nlin()*(nlin()+1))/2; i++)
             data()[i] = x;
     }
 
@@ -84,8 +84,8 @@ namespace OpenMEEG {
 
     Matrix SymMatrix::operator()(size_t i_start, size_t i_end, size_t j_start, size_t j_end) const {
         Matrix retMat(i_end-i_start+1, j_end-j_start+1);
-        for(size_t i = 0;i <= i_end-i_start;i++)
-            for(size_t j = 0;j <= j_end-j_start;j++)
+        for(size_t i = 0; i <= i_end-i_start; i++)
+            for(size_t j = 0; j <= j_end-j_start; j++)
                 retMat(i, j)=this->operator()(i_start+i, j_start+j);
 
         return retMat;
@@ -102,8 +102,8 @@ namespace OpenMEEG {
         om_assert ( istart+isize <= nlin() );
 
         SymMatrix mat(isize);
-        for(size_t i = istart;i <= iend;i++)
-            for(size_t j = i;j <= iend;j++)
+        for(size_t i = istart; i <= iend; i++)
+            for(size_t j = i; j <= iend; j++)
                 mat(i, j)=this->operator()(i, j);
 
         return mat;
@@ -185,8 +185,8 @@ namespace OpenMEEG {
         size_t minj = 0;
         size_t maxj = 0;
 
-        for (size_t i = 0;i < nlin();++i)
-            for (size_t j = i;j < ncol();++j)
+        for (size_t i = 0; i < nlin(); ++i)
+            for (size_t j = i; j < ncol(); ++j)
                 if (minv > this->operator()(i, j)) {
                     minv = this->operator()(i, j);
                     mini = i;
@@ -201,8 +201,8 @@ namespace OpenMEEG {
         std::cout << "Max Value : " << maxv << " (" << maxi << ", " << maxj << ")" << std::endl;
         std::cout << "First Values" << std::endl;
 
-        for (size_t i = 0;i < std::min(nlin(), (size_t) 5);++i) {
-            for (size_t j = i;j < std::min(ncol(), (size_t) 5);++j)
+        for (size_t i = 0; i < std::min(nlin(), (size_t) 5); ++i) {
+            for (size_t j = i; j < std::min(ncol(), (size_t) 5); ++j)
                 std::cout << this->operator()(i, j) << " " ;
             std::cout << std::endl ;
         }

@@ -67,7 +67,7 @@ namespace OpenMEEG {
         inline FastSparseMatrix(size_t n, size_t p, size_t sp);
         inline FastSparseMatrix( const SparseMatrix &M);
         inline FastSparseMatrix( const FastSparseMatrix &M);
-        inline ~FastSparseMatrix() {destroy();}
+        inline ~FastSparseMatrix() {destroy(); }
         inline size_t nlin() const ;
         inline size_t ncol() const ;
         inline void write(std::ostream& f) const;
@@ -78,7 +78,7 @@ namespace OpenMEEG {
         inline Vector operator * (const Vector &v) const;
         inline void operator =( const FastSparseMatrix &M);
 
-        inline double& operator[](size_t i) {return tank[i];};
+        inline double& operator[](size_t i) {return tank[i]; };
 
         inline void info() const;
 
@@ -89,9 +89,9 @@ namespace OpenMEEG {
         size_t nz = M.rowindex[M.nlin()];
         f << M.nlin() << " " << M.ncol() << std::endl;
         f << nz << std::endl;
-        for(size_t i = 0;i<M.nlin();i++)
+        for(size_t i = 0; i<M.nlin(); i++)
         {
-            for(size_t j = M.rowindex[i];j<M.rowindex[i+1];j++)
+            for(size_t j = M.rowindex[i]; j<M.rowindex[i+1]; j++)
             {
                 f<<(long unsigned int)i<<"\t"<<(long unsigned int)M.js[j]<<"\t"<<M.tank[j]<<std::endl;
             }
@@ -210,13 +210,13 @@ namespace OpenMEEG {
         memcpy(rowindex, m.rowindex, sizeof(size_t)*(m.m_nlin+1));
     }
 
-    inline size_t FastSparseMatrix::nlin() const {return (size_t)m_nlin;}
+    inline size_t FastSparseMatrix::nlin() const {return (size_t)m_nlin; }
 
-    inline size_t FastSparseMatrix::ncol() const {return (size_t)m_ncol;}
+    inline size_t FastSparseMatrix::ncol() const {return (size_t)m_ncol; }
 
     inline double FastSparseMatrix::operator()(size_t i, size_t j) const
     {
-        for(size_t k=rowindex[i];k<rowindex[i+1];k++)
+        for(size_t k=rowindex[i]; k<rowindex[i+1]; k++)
         {
             if(js[k]<j) continue;
             else if(js[k] == j) return tank[k];
@@ -228,7 +228,7 @@ namespace OpenMEEG {
 
     inline double& FastSparseMatrix::operator()(size_t i, size_t j)
     {
-        for(size_t k=rowindex[i];k<rowindex[i+1];k++)
+        for(size_t k=rowindex[i]; k<rowindex[i+1]; k++)
         {
             if(js[k]<j) continue;
             else if(js[k] == j) return tank[k];
@@ -246,10 +246,10 @@ namespace OpenMEEG {
         Vector *_v=(Vector *)&v;
         double *pt_vect=&(*_v)(0);
 
-        for(size_t i=0;i<m_nlin;i++)
+        for(size_t i=0; i<m_nlin; i++)
         {
             double& total=pt_result[i];
-            for(size_t j=rowindex[i];j<rowindex[i+1];j++) {
+            for(size_t j=rowindex[i]; j<rowindex[i+1]; j++) {
                 total += tank[j]*pt_vect[js[j]];
             }
         }

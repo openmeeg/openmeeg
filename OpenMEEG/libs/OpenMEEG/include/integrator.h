@@ -212,7 +212,7 @@ namespace OpenMEEG {
             Vect3 crossprod = (points[1] - points[0])^(points[2] - points[0]);
             double S = crossprod.norm();
             T result = 0;
-            for ( unsigned i = 0; i < nbPts[order];++i) {
+            for ( unsigned i = 0; i < nbPts[order]; ++i) {
                 Vect3 v(0.0, 0.0, 0.0);
                 for ( unsigned j = 0; j < 3; ++j) {
                     v.multadd(cordBars[order][i][j], points[j]);

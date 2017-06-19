@@ -101,7 +101,7 @@ namespace OpenMEEG {
         Matrix    operator*(const Matrix& B) const;
         Vector    operator*(const Vector& v) const;
         SymMatrix operator*(double x) const;
-        SymMatrix operator/(double x) const {return (*this)*(1/x);}
+        SymMatrix operator/(double x) const {return (*this)*(1/x); }
         void operator +=(const SymMatrix& B);
         void operator -=(const SymMatrix& B);
         void operator *=(double x);
@@ -185,7 +185,7 @@ namespace OpenMEEG {
     #ifdef HAVE_BLAS
         BLAS(daxpy, DAXPY)(sizet_to_int(nlin()*(nlin()+1)/2), -1.0, B.data(), 1, data() , 1);
     #else
-        for (size_t i=0;i<nlin()*(nlin()+1)/2;i++)
+        for (size_t i=0; i<nlin()*(nlin()+1)/2; i++)
             data()[i] += B.data()[i];
     #endif
     }
@@ -195,7 +195,7 @@ namespace OpenMEEG {
     #ifdef HAVE_BLAS
         BLAS(daxpy, DAXPY)(sizet_to_int(nlin()*(nlin()+1)/2), 1.0, B.data(), 1, data() , 1);
     #else
-        for (size_t i=0;i<nlin()*(nlin()+1)/2;i++)
+        for (size_t i=0; i<nlin()*(nlin()+1)/2; i++)
             data()[i] += B.data()[i];
     #endif
     }
@@ -278,7 +278,7 @@ namespace OpenMEEG {
     #ifdef HAVE_BLAS
         BLAS(daxpy, DAXPY)(sizet_to_int(nlin()*(nlin()+1)/2), 1.0, B.data(), 1, C.data() , 1);
     #else
-        for (size_t i=0;i<nlin()*(nlin()+1)/2;i++)
+        for (size_t i=0; i<nlin()*(nlin()+1)/2; i++)
             C.data()[i] += B.data()[i];
     #endif
         return C;
@@ -291,7 +291,7 @@ namespace OpenMEEG {
     #ifdef HAVE_BLAS
         BLAS(daxpy, DAXPY)(sizet_to_int(nlin()*(nlin()+1)/2), -1.0, B.data(), 1, C.data() , 1);
     #else
-        for (size_t i=0;i<nlin()*(nlin()+1)/2;i++)
+        for (size_t i=0; i<nlin()*(nlin()+1)/2; i++)
             C.data()[i] -= B.data()[i];
     #endif
         return C;
@@ -344,9 +344,9 @@ namespace OpenMEEG {
     #ifdef HAVE_BLAS
         DSPMV(CblasUpper, sizet_to_int(nlin()), 1., data(), v.data(), 1, 0., y.data(), 1);
     #else
-        for (size_t i=0;i<nlin();i++) {
+        for (size_t i=0; i<nlin(); i++) {
             y(i)=0;
-            for (size_t j=0;j<nlin();j++)
+            for (size_t j=0; j<nlin(); j++)
                 y(i) += (*this)(i, j)*v(j);
         }
     #endif

@@ -64,7 +64,7 @@ namespace OpenMEEG {
         /// Create a new triangle from a set of vertices.
 
         Triangle(Vertex* pts[3],const unsigned index=-1): ind(index) {
-            for (unsigned i=0;i<3;++i)
+            for (unsigned i=0; i<3; ++i)
                 vertices_[i] = pts[i];
         }
 
@@ -155,7 +155,7 @@ namespace OpenMEEG {
         }
 
         bool contains(const Vertex& p) const {
-            for (unsigned i=0;i<3;++i)
+            for (unsigned i=0; i<3; ++i)
                 if (&vertex(i) == &p )
                     return true;
             return false;

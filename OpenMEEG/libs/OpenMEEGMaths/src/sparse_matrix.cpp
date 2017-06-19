@@ -171,7 +171,7 @@ namespace OpenMEEG {
         size_t minj = 0;
         size_t maxj = 0;
 
-        for (Tank::const_iterator it = m_tank.begin();it != m_tank.end();++it) {
+        for (Tank::const_iterator it = m_tank.begin(); it != m_tank.end(); ++it) {
             if (minv>it->second) {
                 minv = it->second;
                 mini = it->first.first;

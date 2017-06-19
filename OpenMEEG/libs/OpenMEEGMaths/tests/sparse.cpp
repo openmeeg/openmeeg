@@ -54,7 +54,7 @@ int main () {
 
     SparseMatrix spM(10, 10);
     unsigned n = 0;
-    for ( unsigned i = 0;i<5;++i) {
+    for ( unsigned i = 0; i<5; ++i) {
         n = (n*1237+1493)%1723;
         const int p = (n*1237+1493)%1723;
         spM(n%10, p%10) = n;
@@ -73,7 +73,7 @@ int main () {
     Matrix Mzero = spM*U - Matrix(spM)*U - Matrix(spM)*U + spM*U;
     // Sparse & Sparse
     SparseMatrix spM2(10, 10);
-    for ( unsigned i = 0;i<5;++i) {
+    for ( unsigned i = 0; i<5; ++i) {
         n = (n*1007+1493)%2551;
         const int p = (n*1007+1493)%2551;
         spM2(n%10, p%10) = n;

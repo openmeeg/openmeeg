@@ -206,9 +206,9 @@ namespace OpenMEEG {
     #ifdef HAVE_BLAS
         DGEMV(CblasNoTrans, sizet_to_int(nlin()), sizet_to_int(ncol()), 1.0, data(), sizet_to_int(nlin()), v.data(), 1, 0., y.data(), 1);
     #else
-        for (size_t i=0;i<nlin();i++) {
+        for (size_t i=0; i<nlin(); i++) {
             y(i) = 0;
-            for (size_t j=0;j<ncol();j++)
+            for (size_t j=0; j<ncol(); j++)
                 y(i) += (*this)(i, j)*v(j);
         }
     #endif
@@ -248,7 +248,7 @@ namespace OpenMEEG {
     #ifdef HAVE_BLAS
         BLAS(dcopy, DCOPY)(sizet_to_int(nlin()), data()+nlin()*j, 1, v.data(), 1);
     #else
-        for (size_t i=0;i<nlin();i++) v.data()[i]=data()[i+nlin()*j];
+        for (size_t i=0; i<nlin(); i++) v.data()[i]=data()[i+nlin()*j];
     #endif
         return v;
     }
@@ -259,7 +259,7 @@ namespace OpenMEEG {
     #ifdef HAVE_BLAS
         BLAS(dcopy, DCOPY)(sizet_to_int(ncol()), data()+i, sizet_to_int(nlin()), v.data(), 1);
     #else
-        for (size_t j=0;j<ncol();j++) v.data()[j]=data()[i+nlin()*j];
+        for (size_t j=0; j<ncol(); j++) v.data()[j]=data()[i+nlin()*j];
     #endif
         return v;
     }
@@ -269,7 +269,7 @@ namespace OpenMEEG {
     #ifdef HAVE_BLAS
         BLAS(dcopy, DCOPY)(sizet_to_int(nlin()), v.data(), 1, data()+nlin()*j, 1);
     #else
-        for (size_t i=0;i<nlin();i++) data()[i+nlin()*j]=v.data()[i];
+        for (size_t i=0; i<nlin(); i++) data()[i+nlin()*j]=v.data()[i];
     #endif
     }
 
@@ -278,7 +278,7 @@ namespace OpenMEEG {
     #ifdef HAVE_BLAS
         BLAS(dcopy, DCOPY)(sizet_to_int(ncol()), v.data(), 1, data()+i, sizet_to_int(nlin()));
     #else
-        for (size_t j=0;j<ncol();j++) data()[i+nlin()*j]=v.data()[j];
+        for (size_t j=0; j<ncol(); j++) data()[i+nlin()*j]=v.data()[j];
     #endif
     }
 
@@ -288,9 +288,9 @@ namespace OpenMEEG {
     #ifdef HAVE_BLAS
         DGEMV(CblasTrans, sizet_to_int(nlin()), sizet_to_int(ncol()), 1., data(), sizet_to_int(nlin()), v.data(), 1, 0., y.data(), 1);
     #else
-        for (size_t i=0;i<ncol();i++) {
+        for (size_t i=0; i<ncol(); i++) {
             y(i)=0;
-            for (size_t j=0;j<nlin();j++)
+            for (size_t j=0; j<nlin(); j++)
                 y(i) += (*this)(j, i)*v(j);
         }
     #endif
@@ -352,10 +352,10 @@ namespace OpenMEEG {
             B.data(), sizet_to_int(B.nlin()),
             0., C.data(), sizet_to_int(C.nlin()));
     #else
-        for (size_t i=0;i<C.nlin();i++)
-            for (size_t j=0;j<C.ncol();j++) {
+        for (size_t i=0; i<C.nlin(); i++)
+            for (size_t j=0; j<C.ncol(); j++) {
                 C(i, j)=0;
-                for (size_t k=0;k<p;k++)
+                for (size_t k=0; k<p; k++)
                     C(i, j) += (*this)(i, k)*B(k, j);
             }
     #endif
@@ -373,10 +373,10 @@ namespace OpenMEEG {
             B.data(), sizet_to_int(B.nlin()),
             0., C.data(), sizet_to_int(C.nlin()));
     #else
-        for (size_t i=0;i<C.nlin();i++)
-            for (size_t j=0;j<C.ncol();j++) {
+        for (size_t i=0; i<C.nlin(); i++)
+            for (size_t j=0; j<C.ncol(); j++) {
                 C(i, j)=0;
-                for (size_t k=0;k<p;k++)
+                for (size_t k=0; k<p; k++)
                     C(i, j) += (*this)(k, i)*B(k, j);
             }
     #endif
@@ -394,10 +394,10 @@ namespace OpenMEEG {
             B.data(), sizet_to_int(B.nlin()),
             0., C.data(), sizet_to_int(C.nlin()));
     #else
-        for (size_t i=0;i<C.nlin();i++)
-            for (size_t j=0;j<C.ncol();j++) {
+        for (size_t i=0; i<C.nlin(); i++)
+            for (size_t j=0; j<C.ncol(); j++) {
                 C(i, j)=0;
-                for (size_t k=0;k<p;k++)
+                for (size_t k=0; k<p; k++)
                     C(i, j) += (*this)(i, k)*B(j, k);
             }
     #endif
@@ -415,10 +415,10 @@ namespace OpenMEEG {
             B.data(), sizet_to_int(B.nlin()),
             0., C.data(), sizet_to_int(C.nlin()));
     #else
-        for (size_t i=0;i<C.nlin();i++)
-            for (size_t j=0;j<C.ncol();j++) {
+        for (size_t i=0; i<C.nlin(); i++)
+            for (size_t j=0; j<C.ncol(); j++) {
                 C(i, j)=0;
-                for (size_t k=0;k<p;k++)
+                for (size_t k=0; k<p; k++)
                     C(i, j) += (*this)(k, i)*B(j, k);
             }
     #endif
@@ -436,10 +436,10 @@ namespace OpenMEEG {
         const int l = sizet_to_int(C.nlin());
         DSYMM(CblasRight, CblasUpper, n, m, 1., D.data(), m, data(), n, 0., C.data(), l);
     #else
-        for (size_t j=0;j<B.ncol();j++)
-            for (size_t i=0;i<ncol();i++) {
+        for (size_t j=0; j<B.ncol(); j++)
+            for (size_t i=0; i<ncol(); i++) {
                 C(i, j)=0;
-                for (size_t k=0;k<ncol();k++)
+                for (size_t k=0; k<ncol(); k++)
                     C(i, j) += (*this)(i, k)*B(k, j);
             }
     #endif
@@ -453,7 +453,7 @@ namespace OpenMEEG {
     #ifdef HAVE_BLAS
         BLAS(daxpy, DAXPY)(sizet_to_int(nlin()*ncol()), 1.0, B.data(), 1, C.data() , 1);
     #else
-        for (size_t i=0;i<nlin()*ncol();i++)
+        for (size_t i=0; i<nlin()*ncol(); i++)
             C.data()[i] += B.data()[i];
     #endif
         return C;
@@ -466,7 +466,7 @@ namespace OpenMEEG {
     #ifdef HAVE_BLAS
         BLAS(daxpy, DAXPY)(sizet_to_int(nlin()*ncol()), -1.0, B.data(), 1, C.data() , 1);
     #else
-        for (size_t i=0;i<nlin()*ncol();i++)
+        for (size_t i=0; i<nlin()*ncol(); i++)
             C.data()[i] -= B.data()[i];
     #endif
         return C;
@@ -478,7 +478,7 @@ namespace OpenMEEG {
     #ifdef HAVE_BLAS
         BLAS(daxpy, DAXPY)(sizet_to_int(nlin()*ncol()), 1.0, B.data(), 1, data() , 1);
     #else
-        for (size_t i=0;i<nlin()*ncol();i++)
+        for (size_t i=0; i<nlin()*ncol(); i++)
             data()[i] += B.data()[i];
     #endif
     }
@@ -489,7 +489,7 @@ namespace OpenMEEG {
     #ifdef HAVE_BLAS
         BLAS(daxpy, DAXPY)(sizet_to_int(nlin()*ncol()), -1.0, B.data(), 1, data() , 1);
     #else
-        for (size_t i=0;i<nlin()*ncol();i++)
+        for (size_t i=0; i<nlin()*ncol(); i++)
             data()[i] -= B.data()[i];
     #endif
     }
@@ -500,7 +500,7 @@ namespace OpenMEEG {
         return BLAS(ddot, DDOT)(sizet_to_int(nlin()*ncol()), data(), 1, b.data(), 1);
     #else
         double s=0;
-        for (size_t i=0;i<nlin()*ncol();i++)
+        for (size_t i=0; i<nlin()*ncol(); i++)
             s += data()[i]*b.data()[i];
         return s;
     #endif
