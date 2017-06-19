@@ -60,10 +60,10 @@ namespace OpenMEEG {
     namespace command_line {
 
         #ifdef use_color_terminal
-            const char t_normal[9]  = {0x1b,'[','0',';','0',';','0','m','\0'};
-            const char t_red[11]    = {0x1b,'[','4',';','3','1',';','5','9','m','\0'};
-            const char t_bold[5]    = {0x1b,'[','1','m','\0'};
-            const char t_purple[11] = {0x1b,'[','0',';','3','5',';','5','9','m','\0'};
+            const char t_normal[9]  = {0x1b, '[', '0', ';', '0', ';', '0', 'm', '\0'};
+            const char t_red[11]    = {0x1b, '[', '4', ';', '3', '1', ';', '5', '9', 'm', '\0'};
+            const char t_bold[5]    = {0x1b, '[', '1', 'm', '\0'};
+            const char t_purple[11] = {0x1b, '[', '0', ';', '3', '5', ';', '5', '9', 'm', '\0'};
         #else
             const char t_normal[1]  = {'\0'};
             const char *const t_red = command_line::t_normal, *const t_bold = command_line::t_normal, *const t_purple = command_line::t_normal;
@@ -77,7 +77,7 @@ namespace OpenMEEG {
             if ( !str ) {
                 return 0;
             } else {
-                std::sscanf(str, "%g/%g", &x,&y);
+                std::sscanf(str, "%g/%g", &x, &y);
                 return x/y;
             }
         }
@@ -155,7 +155,7 @@ namespace OpenMEEG {
                 if ( usage ) {
                     std::fprintf(stderr, " : %s", usage);
                 }
-                std::fprintf(stderr," (%s, %s)\n\n",__DATE__,__TIME__);
+                std::fprintf(stderr, " (%s, %s)\n\n", __DATE__, __TIME__);
             }
             if ( name ) {
                 if ( argc > 0 ) {
@@ -176,7 +176,7 @@ namespace OpenMEEG {
                            const bool defaut, const char *const usage = NULL)
         {
             const char *s = command_line::option(name, argc, argv, (const char*)NULL);
-            const bool res = s?(command_line::strcasecmp(s,"false") && command_line::strcasecmp(s,"off") && command_line::strcasecmp(s,"0")):defaut;
+            const bool res = s?(command_line::strcasecmp(s, "false") && command_line::strcasecmp(s, "off") && command_line::strcasecmp(s, "0")):defaut;
             command_line::option(name, 0, NULL, res?"true":"false", usage);
             return res;
         }

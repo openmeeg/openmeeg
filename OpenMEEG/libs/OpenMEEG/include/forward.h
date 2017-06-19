@@ -57,7 +57,7 @@ namespace OpenMEEG {
 
         for ( unsigned i = 0; i < SimulatedData.nlin(); ++i) {
             for ( unsigned j = 0; j < SimulatedData.ncol(); ++j) {
-                SimulatedData(i,j) += NoiseLevel * gaussian();
+                SimulatedData(i, j) += NoiseLevel * gaussian();
             }
         }
     }

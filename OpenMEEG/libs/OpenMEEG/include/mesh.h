@@ -98,7 +98,7 @@ namespace OpenMEEG {
         /// \param nv allocate space for vertices
         /// \param nt allocate space for triangles
 
-        Mesh(const unsigned& nv,const unsigned& nt): name_(""), outermost_(false), allocate_(true), current_barrier_(false), isolated_(false) {
+        Mesh(const unsigned& nv, const unsigned& nt): name_(""), outermost_(false), allocate_(true), current_barrier_(false), isolated_(false) {
             all_vertices_ = new Vertices;
             all_vertices_->reserve(nv); // allocates space for the vertices
             reserve(nt);
@@ -110,13 +110,13 @@ namespace OpenMEEG {
 
         /// constructor using an outisde storage for vertices \param av Where to store vertices \param name Mesh name
 
-        Mesh(Vertices& av,const std::string name = ""): name_(name), all_vertices_(&av), outermost_(false), allocate_(false), current_barrier_(false), isolated_(false) {
+        Mesh(Vertices& av, const std::string name = ""): name_(name), all_vertices_(&av), outermost_(false), allocate_(false), current_barrier_(false), isolated_(false) {
             set_vertices_.insert(all_vertices_->begin(), all_vertices_->end());
         }
 
         /// constructor loading directly a mesh file named \param filename . Be verbose if \param verbose is true. The mesh name is \param n .
 
-        Mesh(std::string filename,const bool verbose = true,const std::string n = ""): name_(n), outermost_(false), allocate_(true), current_barrier_(false), isolated_(false) {
+        Mesh(std::string filename, const bool verbose = true, const std::string n = ""): name_(n), outermost_(false), allocate_(true), current_barrier_(false), isolated_(false) {
             unsigned nb_v = load(filename, false, false);
             all_vertices_ = new Vertices(nb_v); // allocates space for the vertices
             load(filename, verbose);
@@ -201,7 +201,7 @@ namespace OpenMEEG {
         /// Be verbose if \param verbose is true.
         /// Id \param read_all is false then it only returns the total number of vertices.
 
-        unsigned load(const std::string& filename,const bool& verbose = true,const bool& read_all = true);
+        unsigned load(const std::string& filename, const bool& verbose = true, const bool& read_all = true);
         unsigned load_tri(std::istream& , const bool& read_all = true);
         unsigned load_tri(const std::string&, const bool& read_all = true);
         unsigned load_bnd(std::istream& , const bool& read_all = true);
@@ -272,21 +272,21 @@ namespace OpenMEEG {
         // regarding mesh orientation
 
         const EdgeMap compute_edge_map() const;
-        void  orient_adjacent_triangles(std::stack<Triangle*>& t_stack,std::map<Triangle*,bool>& tri_reoriented);
-        bool  triangle_intersection(const Triangle&,const Triangle&) const;
+        void  orient_adjacent_triangles(std::stack<Triangle*>& t_stack, std::map<Triangle*, bool>& tri_reoriented);
+        bool  triangle_intersection(const Triangle&, const Triangle&) const;
 
         /// P1gradient : aux function to compute the surfacic gradient
 
-        Vect3 P1gradient(const Vect3& p0,const Vect3& p1,const Vect3& p2) const { return p1^p2/(p0*(p1^p2)); }
+        Vect3 P1gradient(const Vect3& p0, const Vect3& p1, const Vect3& p2) const { return p1^p2/(p0*(p1^p2)); }
 
         /// P0gradient_norm2 : aux function to compute the square norm of the surfacic gradient
 
-        double P0gradient_norm2(const Triangle& t1,const Triangle& t2) const {
-            return std::pow(t1.normal()*t2.normal(),2)/(t1.center()-t2.center()).norm2();
+        double P0gradient_norm2(const Triangle& t1, const Triangle& t2) const {
+            return std::pow(t1.normal()*t2.normal(), 2)/(t1.center()-t2.center()).norm2();
         }
 
         std::string                           name_;         ///< Name of the mesh.
-        std::map<const Vertex*,VectPTriangle> links_;        ///< links[&v] are the triangles that contain vertex v.
+        std::map<const Vertex*, VectPTriangle> links_;        ///< links[&v] are the triangles that contain vertex v.
         Vertices*                             all_vertices_; ///< Pointer to all the vertices.
         VectPVertex                           vertices_;     ///< Vector of pointers to the mesh vertices.
         bool                                  outermost_;    ///< Is it an outermost mesh ? (i.e does it touch the Air domain)

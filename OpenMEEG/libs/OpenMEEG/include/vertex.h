@@ -54,11 +54,11 @@ namespace OpenMEEG {
 
         Vertex(): ind(-1) {};
 
-        Vertex(const double& x,const double& y,const double& z): Vect3(x,y,z),ind(-1) { }
+        Vertex(const double& x, const double& y, const double& z): Vect3(x, y, z), ind(-1) { }
 
-        Vertex(const double& x,const double& y,const double& z,const unsigned& id): Vect3(x,y,z),ind(id) { }
+        Vertex(const double& x, const double& y, const double& z, const unsigned& id): Vect3(x, y, z), ind(id) { }
 
-        Vertex(const Vect3& v): Vect3(v),ind(-1) { }
+        Vertex(const Vect3& v): Vect3(v), ind(-1) { }
 
         ~Vertex() {};
 

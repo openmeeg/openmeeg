@@ -57,16 +57,16 @@ namespace OpenMEEG {
     };
 
     template <typename REP>
-    inline std::istream& operator>>(std::istream& is,Conductivity<REP>& m) { return is >> m.sigma(); }
+    inline std::istream& operator>>(std::istream& is, Conductivity<REP>& m) { return is >> m.sigma(); }
 
     template <typename REP>
-    inline std::ostream& operator<<(std::ostream& os,const Conductivity<REP>& m) { return os << m.sigma(); }
+    inline std::ostream& operator<<(std::ostream& os, const Conductivity<REP>& m) { return os << m.sigma(); }
 }
 
 namespace Types {
     template<>
-    struct DataTrait<Utils::Properties::Named<std::string,OpenMEEG::Conductivity<double> > >{
+    struct DataTrait<Utils::Properties::Named<std::string, OpenMEEG::Conductivity<double> > >{
         static const char TAG[];
     };
-    const char DataTrait<Utils::Properties::Named<std::string,OpenMEEG::Conductivity<double> > >::TAG[]= "Conductivities";
+    const char DataTrait<Utils::Properties::Named<std::string, OpenMEEG::Conductivity<double> > >::TAG[]= "Conductivities";
 };

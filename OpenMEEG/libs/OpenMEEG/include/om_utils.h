@@ -52,9 +52,9 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include "OpenMEEGConfigure.h"
 
 #ifdef USE_PROGRESSBAR
-    #define PROGRESSBAR(a,b) progressbar((a),(b))
+    #define PROGRESSBAR(a, b) progressbar((a), (b))
 #else
-    #define PROGRESSBAR(a,b)
+    #define PROGRESSBAR(a, b)
 #endif
 
 namespace OpenMEEG {

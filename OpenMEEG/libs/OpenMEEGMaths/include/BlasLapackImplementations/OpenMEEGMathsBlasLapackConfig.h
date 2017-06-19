@@ -9,8 +9,8 @@
 #define CblasLeft 'L'
 #define CblasUpper 'U'
 
-#define BLAS(x,X) FC_GLOBAL(x,X)
-#define LAPACK(x,X) FC_GLOBAL(x,X)
+#define BLAS(x, X) FC_GLOBAL(x, X)
+#define LAPACK(x, X) FC_GLOBAL(x, X)
 
 #include <BlasLapackImplementations/blas.h>
 #include <BlasLapackImplementations/lapack.h>

@@ -96,8 +96,8 @@ namespace OpenMEEG {
     public:
         Sensors(): m_nb(0), m_geo(NULL) {} /*!< Default constructor. Number of sensors = 0. */
         Sensors(const Geometry& g): m_nb(0), m_geo(&g) {} /*!< Default constructor with a geometry. Number of sensors = 0. */
-        Sensors(const char* filename): m_geo(NULL) { this->load(filename,'t'); } /*!< Construct from file. Option 't' is for text file.*/
-        Sensors(const char* filename, const Geometry& g): m_geo(&g) { this->load(filename,'t'); }; /*!< Construct from file and geometry (for EIT). */
+        Sensors(const char* filename): m_geo(NULL) { this->load(filename, 't'); } /*!< Construct from file. Option 't' is for text file.*/
+        Sensors(const char* filename, const Geometry& g): m_geo(&g) { this->load(filename, 't'); }; /*!< Construct from file and geometry (for EIT). */
 
         void load(const char* filename, char filetype = 't' ); /*!< Load sensors from file. Filetype is 't' for text file or 'b' for binary file. */
         void load(std::istream &in); /*!< Load description file of sensors from stream. */
@@ -139,8 +139,8 @@ namespace OpenMEEG {
     private:
         size_t m_nb;                        /*!< Number of sensors. */
         std::vector<std::string> m_names;   /*!< List of sensors names. */
-        Matrix m_positions;                 /*!< Matrix of sensors positions. ex: positions(i,j) with  j in {0,1,2} for sensor i */
-        Matrix m_orientations;              /*!< Matrix of sensors orientations. ex: orientation(i,j) with  j in {0,1,2} for sensor i */
+        Matrix m_positions;                 /*!< Matrix of sensors positions. ex: positions(i, j) with  j in {0, 1, 2} for sensor i */
+        Matrix m_orientations;              /*!< Matrix of sensors orientations. ex: orientation(i, j) with  j in {0, 1, 2} for sensor i */
         Vector m_weights;                   /*!< Weights of integration points */
         Vector m_radii;                    /*!< Areas of the EIT sensors */
         std::vector<Triangles> m_triangles; /*!< Triangles under each EIT sensors */
@@ -158,10 +158,10 @@ namespace OpenMEEG {
     }
 
     inline void Sensors::setPosition(size_t idx, Vector& pos) {
-        return m_positions.setlin(idx,pos);
+        return m_positions.setlin(idx, pos);
     }
 
     inline void Sensors::setOrientation(size_t idx, Vector& orient) {
-        return m_orientations.setlin(idx,orient);
+        return m_orientations.setlin(idx, orient);
     }
 }
