@@ -73,7 +73,7 @@ namespace OpenMEEG {
         LinOpInfo(const size_t m, const size_t n, const StorageType st, const Dimension d):
             num_lines(m), num_cols(n), storage(st), dim(d)  { }
 
-        virtual ~LinOpInfo() {};
+        virtual ~LinOpInfo() {}
 
         LinOpInfo& operator= (const LinOpInfo& l) {
             num_lines = l.num_lines;

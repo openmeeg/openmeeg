@@ -55,7 +55,7 @@ namespace OpenMEEG {
         Vect3 t[d];
 
     public:
-        Vect3array() {};
+        Vect3array() {}
         inline Vect3array(double x) {
             for ( unsigned i = 0; i < d; ++i)
                 t[i] = Vect3(x);

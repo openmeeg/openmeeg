@@ -63,7 +63,7 @@ namespace OpenMEEG {
             return J*g;
         }
 
-        ~Jacobi () {};
+        ~Jacobi () {}
     private:
         SparseMatrix J; // diagonal
     };

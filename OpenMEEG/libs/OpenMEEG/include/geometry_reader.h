@@ -51,7 +51,7 @@ namespace OpenMEEG {
     /// \brief A class to read geometry and cond file
     class GeometryReader {
         public:
-            GeometryReader(Geometry& geo): geo_(geo) {};
+            GeometryReader(Geometry& geo): geo_(geo) {}
 
             /// \brief read a geometry file
             void read_geom(const std::string&);

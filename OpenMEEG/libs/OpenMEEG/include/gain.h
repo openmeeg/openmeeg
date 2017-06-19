@@ -56,7 +56,7 @@ namespace OpenMEEG {
         GainMEG (const SymMatrix& HeadMatInv, const Matrix& SourceMat, const Matrix& Head2MEGMat, const Matrix& Source2MEGMat) {
             *this = Source2MEGMat+(Head2MEGMat*HeadMatInv)*SourceMat;
         }
-        ~GainMEG () {};
+        ~GainMEG () {}
     };
 
     class GainEEG : public Matrix {
@@ -65,7 +65,7 @@ namespace OpenMEEG {
         GainEEG (const SymMatrix& HeadMatInv, const Matrix& SourceMat, const SparseMatrix& Head2EEGMat) {
             *this = (Head2EEGMat*HeadMatInv)*SourceMat;
         }
-        ~GainEEG () {};
+        ~GainEEG () {}
     };
 
     class GainEEGadjoint : public Matrix {
@@ -101,7 +101,7 @@ namespace OpenMEEG {
                 }
                 *this = LeadField;
             }
-            ~GainEEGadjoint () {};
+            ~GainEEGadjoint () {}
     };
 
     class GainMEGadjoint : public Matrix {
@@ -140,7 +140,7 @@ namespace OpenMEEG {
                 }
                 *this = LeadField;
             }
-            ~GainMEGadjoint () {};
+            ~GainMEGadjoint () {}
     };
 
     class GainEEGMEGadjoint {
@@ -190,7 +190,7 @@ namespace OpenMEEG {
 
             void saveMEG( const std::string filename ) const { MEGleadfield.save(filename); }
 
-            ~GainEEGMEGadjoint () {};
+            ~GainEEGMEGadjoint () {}
         private:
             Matrix EEGleadfield;
             Matrix MEGleadfield;
@@ -202,7 +202,7 @@ namespace OpenMEEG {
         GainInternalPot (const SymMatrix& HeadMatInv, const Matrix& SourceMat, const Matrix& Head2IPMat, const Matrix& Source2IPMat) {
             *this = Source2IPMat + (Head2IPMat * HeadMatInv) * SourceMat;
         }
-        ~GainInternalPot () {};
+        ~GainInternalPot () {}
     };
 
    class GainEITInternalPot : public Matrix {
@@ -211,6 +211,6 @@ namespace OpenMEEG {
         GainEITInternalPot (const SymMatrix& HeadMatInv, const Matrix& SourceMat, const Matrix& Head2IPMat) {
             *this = (Head2IPMat * HeadMatInv) * SourceMat;
         }
-        ~GainEITInternalPot () {};
+        ~GainEITInternalPot () {}
     };
 }

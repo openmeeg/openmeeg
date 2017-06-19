@@ -48,7 +48,7 @@ namespace OpenMEEG {
     class Forward : public virtual Matrix {
     public:
         Forward (const Matrix& GainMatrix, const Matrix& RealSourcesData, double NoiseLevel);
-        virtual ~Forward () {};
+        virtual ~Forward () {}
     };
 
     void compute_forward(Matrix& SimulatedData, const Matrix& GainMatrix, const Matrix& RealSourcesData, double NoiseLevel) {
