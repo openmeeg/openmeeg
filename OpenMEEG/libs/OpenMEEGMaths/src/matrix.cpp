@@ -52,13 +52,13 @@ knowledge of the CeCILL-B license and that you accept its terms.
 namespace OpenMEEG {
 
     const Matrix& Matrix::set(const double d) {
-        for(size_t i=0;i<size();i++) data()[i]=d;
+        for(size_t i = 0;i < size();i++) data()[i] = d;
         return *this;
     }
 
     Matrix::Matrix(const SymMatrix& A): LinOp(A.nlin(), A.ncol(), FULL, 2), value(new LinOpValue(size())) {
-        for (size_t j=0; j<ncol();++j)
-            for (size_t i=0; i<nlin();++i)
+        for (size_t j = 0; j < ncol();++j)
+            for (size_t i = 0; i < nlin();++i)
                 (*this)(i, j) = A(i, j);
     }
 
@@ -70,7 +70,7 @@ namespace OpenMEEG {
     }
 
     Matrix::Matrix(const Vector& v, const size_t M, const size_t N): LinOp(M, N, FULL, 2) {
-        om_assert(M*N==v.size());
+        om_assert(M*N == v.size());
         value = v.value;
     }
 
@@ -111,9 +111,9 @@ namespace OpenMEEG {
 
     Matrix Matrix::transpose() const {
         Matrix result(ncol(), nlin());
-        for (size_t i=0; i<nlin(); i++)
-            for ( size_t j=0; j<ncol(); j++)
-                result(j, i)=(*this)(i, j);
+        for (size_t i = 0; i<nlin(); i++)
+            for ( size_t j = 0; j<ncol(); j++)
+                result(j, i) = (*this)(i, j);
         return result;
     }
 
@@ -154,7 +154,7 @@ namespace OpenMEEG {
 
     Matrix Matrix::operator *(const SparseMatrix &mat) const
     {
-        om_assert(ncol()==mat.nlin());
+        om_assert(ncol() == mat.nlin());
         Matrix out(nlin(), mat.ncol());
         out.set(0.0);
 
@@ -172,22 +172,22 @@ namespace OpenMEEG {
 
     Matrix Matrix::operator*(double x) const {
         Matrix C(nlin(), ncol());
-        for (size_t k=0; k<nlin()*ncol(); k++) C.data()[k] = data()[k]*x;
+        for (size_t k = 0; k<nlin()*ncol(); k++) C.data()[k] = data()[k]*x;
         return C;
     }
 
     Matrix Matrix::operator/(double x) const {
         Matrix C(nlin(), ncol());
-        for (size_t k=0; k<nlin()*ncol(); k++) C.data()[k] = data()[k]/x;
+        for (size_t k = 0; k<nlin()*ncol(); k++) C.data()[k] = data()[k]/x;
         return C;
     }
 
     void Matrix::operator*=(double x) {
-        for (size_t k=0; k<nlin()*ncol(); k++) data()[k] *= x;
+        for (size_t k = 0; k<nlin()*ncol(); k++) data()[k] *= x;
     }
 
     void Matrix::operator/=(double x) {
-        for (size_t k=0; k<nlin()*ncol(); k++) data()[k] /= x;
+        for (size_t k = 0; k<nlin()*ncol(); k++) data()[k] /= x;
     }
 
     Vector Matrix::mean() const {
@@ -217,7 +217,7 @@ namespace OpenMEEG {
     }
 
     void Matrix::info() const {
-        if ((nlin()==0) && (ncol()==0)) {
+        if ((nlin() == 0) && (ncol() == 0)) {
             std::cout << "Matrix Empty" << std::endl;
             return;
         }
@@ -231,8 +231,8 @@ namespace OpenMEEG {
         size_t minj = 0;
         size_t maxj = 0;
 
-        for (size_t i=0;i<nlin();++i)
-            for (size_t j=0;j<ncol();++j)
+        for (size_t i = 0;i<nlin();++i)
+            for (size_t j = 0;j<ncol();++j)
                 if (minv > this->operator()(i, j)) {
                     minv = this->operator()(i, j);
                     mini = i;
@@ -247,8 +247,8 @@ namespace OpenMEEG {
         std::cout << "Max Value : " << maxv << " (" << maxi << ", " << maxj << ")" << std::endl;
         std::cout << "First Values" << std::endl;
 
-        for (size_t i=0;i<std::min(nlin(), (size_t) 5);++i) {
-            for (size_t j=0;j<std::min(ncol(), (size_t) 5);++j)
+        for (size_t i = 0;i<std::min(nlin(), (size_t) 5);++i) {
+            for (size_t j = 0;j<std::min(ncol(), (size_t) 5);++j)
                 std::cout << this->operator()(i, j) << " " ;
             std::cout << std::endl ;
         }

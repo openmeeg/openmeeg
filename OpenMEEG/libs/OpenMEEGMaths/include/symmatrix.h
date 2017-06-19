@@ -62,7 +62,7 @@ namespace OpenMEEG {
 
         SymMatrix(const char* fname): LinOp(0, 0, SYMMETRIC, 2), value() { this->load(fname); }
         SymMatrix(size_t N): LinOp(N, N, SYMMETRIC, 2), value(new LinOpValue(size())) { }
-        SymMatrix(size_t M, size_t N): LinOp(N, N, SYMMETRIC, 2), value(new LinOpValue(size())) { om_assert(N==M); }
+        SymMatrix(size_t M, size_t N): LinOp(N, N, SYMMETRIC, 2), value(new LinOpValue(size())) { om_assert(N == M); }
         SymMatrix(const SymMatrix& S, const DeepCopy): LinOp(S.nlin(), S.nlin(), SYMMETRIC, 2), value(new LinOpValue(S.size(), S.data())) { }
 
         explicit SymMatrix(const Vector& v);
@@ -124,7 +124,7 @@ namespace OpenMEEG {
 
     inline double SymMatrix::operator()(size_t i, size_t j) const {
         om_assert(i<nlin() && j<nlin());
-        if(i<=j)
+        if(i <= j)
             return data()[i+j*(j+1)/2];
         else
             return data()[j+i*(i+1)/2];
@@ -132,7 +132,7 @@ namespace OpenMEEG {
 
     inline double& SymMatrix::operator()(size_t i, size_t j) {
         om_assert(i<nlin() && j<nlin());
-        if(i<=j)
+        if(i <= j)
             return data()[i+j*(j+1)/2];
         else
             return data()[j+i*(i+1)/2];
@@ -151,7 +151,7 @@ namespace OpenMEEG {
         // Inverse
         DSPTRS('U', sizet_to_int(invA.nlin()), 1, invA.data(), pivots, X.data(), sizet_to_int(invA.nlin()), Info);
 
-        om_assert(Info==0);
+        om_assert(Info == 0);
         delete[] pivots;
     #else
         std::cout << "solveLin not defined" << std::endl;
@@ -173,7 +173,7 @@ namespace OpenMEEG {
         for(int i = 0; i < nbvect; i++)
             DSPTRS('U', sizet_to_int(invA.nlin()), 1, invA.data(), pivots, B[i].data(), sizet_to_int(invA.nlin()), Info);
 
-        om_assert(Info==0);
+        om_assert(Info == 0);
         delete[] pivots;
     #else
         std::cout << "solveLin not defined" << std::endl;
@@ -181,22 +181,22 @@ namespace OpenMEEG {
     }
 
     inline void SymMatrix::operator -=(const SymMatrix &B) {
-        om_assert(nlin()==B.nlin());
+        om_assert(nlin() == B.nlin());
     #ifdef HAVE_BLAS
         BLAS(daxpy, DAXPY)(sizet_to_int(nlin()*(nlin()+1)/2), -1.0, B.data(), 1, data() , 1);
     #else
         for (size_t i=0;i<nlin()*(nlin()+1)/2;i++)
-            data()[i]+=B.data()[i];
+            data()[i] += B.data()[i];
     #endif
     }
 
     inline void SymMatrix::operator +=(const SymMatrix &B) {
-        om_assert(nlin()==B.nlin());
+        om_assert(nlin() == B.nlin());
     #ifdef HAVE_BLAS
         BLAS(daxpy, DAXPY)(sizet_to_int(nlin()*(nlin()+1)/2), 1.0, B.data(), 1, data() , 1);
     #else
         for (size_t i=0;i<nlin()*(nlin()+1)/2;i++)
-            data()[i]+=B.data()[i];
+            data()[i] += B.data()[i];
     #endif
     }
 
@@ -208,7 +208,7 @@ namespace OpenMEEG {
         int Info = 0;
         DPPTRF('U', sizet_to_int(nlin()), invA.data(), Info);
         DPPTRI('U', sizet_to_int(nlin()), invA.data(), Info);
-        om_assert(Info==0);
+        om_assert(Info == 0);
     #else
         std::cerr << "Positive definite inverse not defined" << std::endl;
     #endif
@@ -273,26 +273,26 @@ namespace OpenMEEG {
     // }
 
     inline SymMatrix SymMatrix::operator +(const SymMatrix &B) const {
-        om_assert(nlin()==B.nlin());
+        om_assert(nlin() == B.nlin());
         SymMatrix C(*this, DEEP_COPY);
     #ifdef HAVE_BLAS
         BLAS(daxpy, DAXPY)(sizet_to_int(nlin()*(nlin()+1)/2), 1.0, B.data(), 1, C.data() , 1);
     #else
         for (size_t i=0;i<nlin()*(nlin()+1)/2;i++)
-            C.data()[i]+=B.data()[i];
+            C.data()[i] += B.data()[i];
     #endif
         return C;
     }
 
     inline SymMatrix SymMatrix::operator -(const SymMatrix &B) const
     {
-        om_assert(nlin()==B.nlin());
+        om_assert(nlin() == B.nlin());
         SymMatrix C(*this, DEEP_COPY);
     #ifdef HAVE_BLAS
         BLAS(daxpy, DAXPY)(sizet_to_int(nlin()*(nlin()+1)/2), -1.0, B.data(), 1, C.data() , 1);
     #else
         for (size_t i=0;i<nlin()*(nlin()+1)/2;i++)
-            C.data()[i]-=B.data()[i];
+            C.data()[i] -= B.data()[i];
     #endif
         return C;
     }
@@ -307,7 +307,7 @@ namespace OpenMEEG {
         // Inverse
         double *work = new double[this->nlin() * 64];
         DSPTRI('U', sizet_to_int(nlin()), invA.data(), pivots, work, Info);
-        om_assert(Info==0);
+        om_assert(Info == 0);
 
         delete[] pivots;
         delete[] work;
@@ -328,7 +328,7 @@ namespace OpenMEEG {
         double *work = new double[this->nlin() * 64];
         DSPTRI('U', sizet_to_int(nlin()), data(), pivots, work, Info);
 
-        om_assert(Info==0);
+        om_assert(Info == 0);
         delete[] pivots;
         delete[] work;
         return;
@@ -339,7 +339,7 @@ namespace OpenMEEG {
     }
 
     inline Vector SymMatrix::operator *(const Vector &v) const {
-        om_assert(nlin()==v.size());
+        om_assert(nlin() == v.size());
         Vector y(nlin());
     #ifdef HAVE_BLAS
         DSPMV(CblasUpper, sizet_to_int(nlin()), 1., data(), v.data(), 1, 0., y.data(), 1);
@@ -347,7 +347,7 @@ namespace OpenMEEG {
         for (size_t i=0;i<nlin();i++) {
             y(i)=0;
             for (size_t j=0;j<nlin();j++)
-                y(i)+=(*this)(i, j)*v(j);
+                y(i) += (*this)(i, j)*v(j);
         }
     #endif
         return y;
@@ -361,7 +361,7 @@ namespace OpenMEEG {
     }
 
     inline void SymMatrix::setlin(size_t i, const Vector& v) {
-        om_assert(v.size()==nlin() && i<nlin());
+        om_assert(v.size() == nlin() && i<nlin());
         for ( size_t j = 0; j < ncol(); ++j) this->operator()(i, j) = v(j);
     }
 }

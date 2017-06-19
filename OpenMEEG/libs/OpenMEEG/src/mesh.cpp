@@ -130,7 +130,7 @@ namespace OpenMEEG {
         unsigned vind[3];
         is >> vind[0] >> vind[1] >> vind[2];
         for (unsigned i=0;i<3;++i)
-            if (vind[i]>=m.vertices_.size()) {
+            if (vind[i] >= m.vertices_.size()) {
                 std::cerr << "Unknown vertex: " << vind[i] << " (hint: vertex numbering often starts at 0). Aborting." << std::endl;
                 exit(1);
             }
@@ -433,17 +433,17 @@ namespace OpenMEEG {
 
         std::transform(extension.begin(), extension.end(), extension.begin(), (int(*)(int))std::tolower);
 
-        if (extension==std::string("vtk")) {
+        if (extension == std::string("vtk")) {
             save_vtk(filename);
-        } else if (extension==std::string("tri")) {
+        } else if (extension == std::string("tri")) {
             save_tri(filename);
-        } else if (extension==std::string("bnd")) {
+        } else if (extension == std::string("bnd")) {
             save_bnd(filename);
-        } else if (extension==std::string("mesh")) {
+        } else if (extension == std::string("mesh")) {
             save_mesh(filename);
-        } else if (extension==std::string("off")) {
+        } else if (extension == std::string("off")) {
             save_off(filename);
-        } else if (extension==std::string("gii")) {
+        } else if (extension == std::string("gii")) {
             save_gifti(filename);
         } else {
             std::cerr << "Unknown file format for : " << filename << std::endl;

@@ -113,12 +113,12 @@ namespace OpenMEEG {
         inline Vect3 operator/(const double& d) const { return Vect3(m[0]/d, m[1]/d, m[2]/d); }
 
         inline double operator() (const int i) const {
-            om_assert(i>=0 && i<3);
+            om_assert(i >= 0 && i<3);
             return m[i];
         }
 
         inline double& operator()(const int i) {
-            om_assert(i>=0 && i<3);
+            om_assert(i >= 0 && i<3);
             return m[i];
         }
 

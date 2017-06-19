@@ -151,6 +151,6 @@ namespace OpenMEEG {
 
         ~LinOpValue() { delete[] data; }
 
-        bool empty() const { return data==0; }
+        bool empty() const { return data == 0; }
     };
 }

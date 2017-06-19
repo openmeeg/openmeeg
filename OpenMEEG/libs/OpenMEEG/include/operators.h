@@ -140,7 +140,7 @@ namespace OpenMEEG {
 
                 // if it is the same shared vertex
 
-                result -=  (((&m1!=&m2) && (V1==V2)) ? 0.5 : 0.25)*value;
+                result -=  (((&m1!=&m2) && (V1 == V2)) ? 0.5 : 0.25)*value;
             }
         }
         return result;
@@ -164,7 +164,7 @@ namespace OpenMEEG {
         std::cout << "OPERATOR N ... (arg : mesh " << m1.name() << " , mesh " << m2.name() << " )" << std::endl;
 
         unsigned i = 0; // for the PROGRESSBAR
-        if (&m1==&m2) {
+        if (&m1 == &m2) {
             if (m1.current_barrier()) {
                 // we thus precompute operator S divided by the product of triangles area.
 
@@ -199,10 +199,10 @@ namespace OpenMEEG {
                     PROGRESSBAR(i++, m1.nb_vertices());
                     #pragma omp parallel for
                     #ifndef OPENMP_3_0
-                    for (int i2=0;i2<=vit1-m1.vertex_begin();++i2) {
+                    for (int i2=0;i2 <= vit1-m1.vertex_begin();++i2) {
                         const Mesh::const_vertex_iterator vit2 = m1.vertex_begin()+i2;
                     #else
-                    for (Mesh::const_vertex_iterator vit2=m1.vertex_begin();vit2<=vit1;++vit2) {
+                    for (Mesh::const_vertex_iterator vit2=m1.vertex_begin();vit2 <= vit1;++vit2) {
                     #endif
                         mat((*vit1)->index(), (*vit2)->index()) += _operatorN(**vit1, **vit2, m1, m1, mat) * coeff;
                     }
@@ -269,7 +269,7 @@ namespace OpenMEEG {
         unsigned i = 0; // for the PROGRESSBAR
         // The operator S is given by Sij=\Int G*PSI(I, i)*Psi(J, j) with
         // PSI(A, a) is a P0 test function on layer A and triangle a
-        if (&m1==&m2) {
+        if (&m1 == &m2) {
             for (Mesh::const_iterator tit1=m1.begin();tit1!=m1.end();++tit1) {
                 PROGRESSBAR(i++,m1.nb_triangles());
                 #pragma omp parallel for

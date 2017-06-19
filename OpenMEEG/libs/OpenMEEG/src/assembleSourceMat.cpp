@@ -106,7 +106,7 @@ namespace OpenMEEG {
             const Vect3 r(dipoles(s, 0), dipoles(s, 1), dipoles(s, 2));
             const Vect3 q(dipoles(s, 3), dipoles(s, 4), dipoles(s, 5));
 
-            const Domain domain = (domain_name=="") ? geo.domain(r) : geo.domain(domain_name);
+            const Domain domain = (domain_name == "") ? geo.domain(r) : geo.domain(domain_name);
 
             //  Only consider dipoles in non-zero conductivity domain.
 
@@ -163,7 +163,7 @@ namespace OpenMEEG {
                     if (orientation != 0){
                         // D*_23 or D*_33
                         operatorD(*mit1, *mit0, transmat, K*orientation, gauss_order, true);
-                        if (*mit0==*mit1) {
+                        if (*mit0 == *mit1) {
                             // I_33
                             operatorP1P0(*mit0, transmat, -0.5*orientation);
                         } else {

@@ -112,7 +112,7 @@ namespace OpenMEEG {
         int mesh_orientation(const Mesh& m) const { 
             for (Domain::const_iterator hit = begin();hit!=end();++hit)
                 for (Interface::const_iterator omit = hit->interface().begin();omit!=hit->interface().end();++omit)
-                    if (&omit->mesh()==&m)
+                    if (&omit->mesh() == &m)
                         return ((hit->inside()) ? omit->orientation() : -omit->orientation());
             return 0;
         }

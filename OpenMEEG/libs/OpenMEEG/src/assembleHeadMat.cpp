@@ -81,8 +81,8 @@ namespace OpenMEEG {
             for(std::vector<std::string>::const_iterator mit=git->begin();mit!=git->end();++mit){
                 const Mesh msh=geo.mesh(*mit);
                 if(msh.outermost()){
-                    nb_vertices+=msh.nb_vertices();
-                    if(i_first==0)
+                    nb_vertices += msh.nb_vertices();
+                    if(i_first == 0)
                         i_first=(*msh.vertex_begin())->index();
                 }
             }
@@ -163,8 +163,8 @@ namespace OpenMEEG {
         const Interface& Cortex     = SourceDomain.begin()->interface();
         const Mesh& cortex          = Cortex.begin()->mesh();
         
-        om_error(SourceDomain.size()==1);
-        om_error(Cortex.size()==1);
+        om_error(SourceDomain.size() == 1);
+        om_error(Cortex.size() == 1);
 
         // shape of the new matrix:
         unsigned Nl = geo.size()-geo.nb_current_barrier_triangles()-Cortex.nb_vertices()-Cortex.nb_triangles();
@@ -327,8 +327,8 @@ namespace OpenMEEG {
         const Interface& Cortex    = SourceDomain.begin()->interface();
         const Mesh& cortex         = Cortex.begin()->mesh();
         
-        om_error(SourceDomain.size()==1);
-        om_error(Cortex.size()==1);
+        om_error(SourceDomain.size() == 1);
+        om_error(Cortex.size() == 1);
 
         // shape of the new matrix:
         unsigned Nl = geo.size()-geo.nb_current_barrier_triangles()-Cortex.nb_vertices()-Cortex.nb_triangles();
@@ -481,7 +481,7 @@ namespace OpenMEEG {
         // Find the points per domain and generate the indices for the m_points
         for ( unsigned i = 0; i < points.nlin(); ++i) {
             const Domain domain = geo.domain(Vect3(points(i, 0), points(i, 1), points(i, 2)));
-            if ( domain.sigma()==0.0 ) {
+            if ( domain.sigma() == 0.0 ) {
                 std::cerr << " Surf2Vol: Point [ " << points.getlin(i);
                 std::cerr << "] is inside a nonconductive domain. Point is dropped." << std::endl;
             } else {

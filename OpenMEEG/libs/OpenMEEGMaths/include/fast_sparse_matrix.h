@@ -89,9 +89,9 @@ namespace OpenMEEG {
         size_t nz = M.rowindex[M.nlin()];
         f << M.nlin() << " " << M.ncol() << std::endl;
         f << nz << std::endl;
-        for(size_t i=0;i<M.nlin();i++)
+        for(size_t i = 0;i<M.nlin();i++)
         {
-            for(size_t j=M.rowindex[i];j<M.rowindex[i+1];j++)
+            for(size_t j = M.rowindex[i];j<M.rowindex[i+1];j++)
             {
                 f<<(long unsigned int)i<<"\t"<<(long unsigned int)M.js[j]<<"\t"<<M.tank[j]<<std::endl;
             }
@@ -219,7 +219,7 @@ namespace OpenMEEG {
         for(size_t k=rowindex[i];k<rowindex[i+1];k++)
         {
             if(js[k]<j) continue;
-            else if(js[k]==j) return tank[k];
+            else if(js[k] == j) return tank[k];
             else break;
         }
 
@@ -231,7 +231,7 @@ namespace OpenMEEG {
         for(size_t k=rowindex[i];k<rowindex[i+1];k++)
         {
             if(js[k]<j) continue;
-            else if(js[k]==j) return tank[k];
+            else if(js[k] == j) return tank[k];
             else break;
         }
 
@@ -250,7 +250,7 @@ namespace OpenMEEG {
         {
             double& total=pt_result[i];
             for(size_t j=rowindex[i];j<rowindex[i+1];j++) {
-                total+=tank[j]*pt_vect[js[j]];
+                total += tank[j]*pt_vect[js[j]];
             }
         }
         return result;

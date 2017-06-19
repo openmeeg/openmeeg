@@ -101,7 +101,7 @@ namespace OpenMEEG {
                 tokens.clear();
                 while (iss >> buf) {
                     tokens.push_back(buf);
-                    if ( i==0 ) {
+                    if ( i == 0 ) {
                         ncol++;
                     }
                 }

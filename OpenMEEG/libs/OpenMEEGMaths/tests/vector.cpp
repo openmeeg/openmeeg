@@ -56,7 +56,7 @@ int main () {
     v.set(0);
     v.save("tmp.bin");
 
-    for (int i=0;i<8;++i)
+    for (int i = 0;i<8;++i)
         v(i) = i;
 
     v.save("tmp.txt");

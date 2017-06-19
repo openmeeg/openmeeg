@@ -156,7 +156,7 @@ namespace OpenMEEG {
 
         bool contains(const Vertex& p) const {
             for (unsigned i=0;i<3;++i)
-                if (&vertex(i)==&p )
+                if (&vertex(i) == &p )
                     return true;
             return false;
         }

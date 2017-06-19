@@ -45,19 +45,19 @@ knowledge of the CeCILL-B license and that you accept its terms.
 namespace OpenMEEG {
 
     Vector::Vector(Matrix& A) {
-        nlin()=A.nlin()*A.ncol();
+        nlin() = A.nlin()*A.ncol();
         value = A.value;
     }
 
     Vector::Vector(SymMatrix& A) {
-        nlin()=A.nlin()*(A.nlin()+1)/2;
+        nlin() = A.nlin()*(A.nlin()+1)/2;
         value = A.value;
     }
 
     Vector Vector::kmult(const Vector& v) const { // Kronecker multiplication
         om_assert(nlin() == v.nlin());
         Vector p(nlin());
-        for( size_t i=0; i<nlin(); i++ )
+        for( size_t i = 0; i<nlin(); i++ )
             p(i) = v(i)*data()[i];
         return p;
     }
@@ -65,37 +65,37 @@ namespace OpenMEEG {
     Vector Vector::operator+(double x) const
     {
         Vector p(*this, DEEP_COPY);
-        for( size_t i=0; i<nlin(); i++ )
-            p.data()[i]+=x;
+        for( size_t i = 0; i<nlin(); i++ )
+            p.data()[i] += x;
         return p;
     }
 
     Vector Vector::operator-(double x) const
     {
         Vector p(*this, DEEP_COPY);
-        for( size_t i=0; i<nlin(); i++ )
-            p.data()[i]-=x;
+        for( size_t i = 0; i<nlin(); i++ )
+            p.data()[i] -= x;
 
         return p;
     }
 
     Vector Vector::operator*(const Matrix& m) const {
-        om_assert(nlin()==m.nlin());
+        om_assert(nlin() == m.nlin());
         Vector c(m.ncol());
         return m.transpose()*(*this);
     }
 
     void Vector::set(double x) {
         om_assert(nlin()>0);
-        for( size_t i=0; i<nlin(); i++ )
-            data()[i]=x;
+        for( size_t i = 0; i<nlin(); i++ )
+            data()[i] = x;
     }
 
     double Vector::sum() const
     {
-        double s=0;
-        for (size_t i=0; i<nlin(); i++)
-            s+=data()[i];
+        double s = 0;
+        for (size_t i = 0; i<nlin(); i++)
+            s += data()[i];
         return s;
     }
 
@@ -170,14 +170,14 @@ namespace OpenMEEG {
 
     Matrix Vector::outer_product(const Vector& v) const
     {
-        om_assert(size()==v.size());
+        om_assert(size() == v.size());
         Matrix A(size(), v.size());
         A.set(0.);
     #ifdef HAVE_BLAS
         DGER(sizet_to_int(size()), sizet_to_int(v.size()), 1., data(), 1, v.data(), 1, A.data(), sizet_to_int(size()));
     #else
-        for( unsigned int j=0; j<nlin(); j++ )
-            for ( unsigned int i=0; i<nlin(); i++)
+        for( unsigned int j = 0; j<nlin(); j++ )
+            for ( unsigned int i = 0; i<nlin(); i++)
                 A(i, j) = v(i)*(*this)(j);
     #endif
         return A;
