@@ -63,7 +63,7 @@ namespace OpenMEEG {
      *  in the first column of the file (it has to contains at least one character to be considered as label)
      *  the file can have the shape of (neglecting if present the first, label column):
      *  <ul>
-     *    
+     *
      *  <li> 1 line per sensor and 3 columns (EEG sensors OR MEG sensors without orientation OR EIT punctual patches)
      *        <ul TYPE="circle">
      *        <li> the 1st, 2nd and 3rd columns are respectively position coordinates x, y, z of sensor  </li>

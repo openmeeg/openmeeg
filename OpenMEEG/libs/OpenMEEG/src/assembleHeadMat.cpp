@@ -51,7 +51,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 namespace OpenMEEG {
 
     template<class T>
-    void deflat(T& M, const Interface& i, double coef) 
+    void deflat(T& M, const Interface& i, double coef)
     {
         // deflate the Matrix
         for (Interface::const_iterator omit=i.begin(); omit != i.end(); ++omit) {
@@ -105,7 +105,7 @@ namespace OpenMEEG {
         }
     }
 
-    void assemble_HM(const Geometry& geo, SymMatrix& mat, const unsigned gauss_order) 
+    void assemble_HM(const Geometry& geo, SymMatrix& mat, const unsigned gauss_order)
     {
         mat = SymMatrix((geo.size()-geo.nb_current_barrier_triangles()));
         mat.set(0.0);
@@ -162,7 +162,7 @@ namespace OpenMEEG {
         const Domain& SourceDomain  = geo.domain(domain_name);
         const Interface& Cortex     = SourceDomain.begin()->interface();
         const Mesh& cortex          = Cortex.begin()->mesh();
-        
+
         om_error(SourceDomain.size() == 1);
         om_error(Cortex.size() == 1);
 
@@ -308,10 +308,10 @@ namespace OpenMEEG {
     {
         // Re-writting of the optimization problem in M. Clerc, J. Kybic "Cortical mapping by Laplace–Cauchy transmission using a boundary element method".
         // with a Lagrangian formulation as in see http://www.math.uh.edu/~rohop/fall_06/Chapter3.pdf eq3.3
-        // find argmin(norm(gradient(X)) under constraints: 
+        // find argmin(norm(gradient(X)) under constraints:
         // H * X = 0 and M * X = m
         // let G be the gradient norm matrix, l1, l2 the lagrange parameters
-        // 
+        //
         // [ G  H' M'] [   X    ]   [ 0 ]
         // | H  0    | |   l1   | = | 0 |
         // [ M     0 ] [   l2   ]   [ m ]
@@ -326,7 +326,7 @@ namespace OpenMEEG {
         const Domain& SourceDomain = geo.domain(domain_name);
         const Interface& Cortex    = SourceDomain.begin()->interface();
         const Mesh& cortex         = Cortex.begin()->mesh();
-        
+
         om_error(SourceDomain.size() == 1);
         om_error(Cortex.size() == 1);
 
@@ -433,7 +433,7 @@ namespace OpenMEEG {
         mat = (G * H.transpose() * (H * G * H.transpose()).inverse()).submat(0, Nc, Nl, M.nlin());
     }
 
-    void assemble_Surf2Vol(const Geometry& geo, Matrix& mat, const std::map<const Domain, Vertices> m_points) 
+    void assemble_Surf2Vol(const Geometry& geo, Matrix& mat, const std::map<const Domain, Vertices> m_points)
     {
         const double K = 1.0/(4.0*M_PI);
 
@@ -473,7 +473,7 @@ namespace OpenMEEG {
         assemble_cortical2(geo, *this, M, domain_name, gauss_order, gamma, filename);
     }
 
-    Surf2VolMat::Surf2VolMat(const Geometry& geo, const Matrix& points) 
+    Surf2VolMat::Surf2VolMat(const Geometry& geo, const Matrix& points)
     {
         std::map<const Domain, Vertices> m_points;
 

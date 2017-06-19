@@ -53,7 +53,7 @@ namespace OpenMEEG {
     template <typename M>
     class Jacobi {
     public:
-        Jacobi (const M& m): J(m.nlin()) { 
+        Jacobi (const M& m): J(m.nlin()) {
             for ( unsigned i = 0; i < m.nlin(); ++i) {
                 J(i, i) = 1.0 / m(i, i);
             }
@@ -62,7 +62,7 @@ namespace OpenMEEG {
         Vector operator()(const Vector& g) const {
             return J*g;
         }
-    
+
         ~Jacobi () {};
     private:
         SparseMatrix J; // diagonal
@@ -99,7 +99,7 @@ namespace OpenMEEG {
     void Update(Vector &x, int k, T &h, Vector &s, Vector v[])
     {
             Vector y(s);
-            // Backsolve:  
+            // Backsolve:
             for (int i = k; i >= 0; i--) {
                     y(i) /= h(i, i);
                     for (int j = i - 1; j >= 0; j--)

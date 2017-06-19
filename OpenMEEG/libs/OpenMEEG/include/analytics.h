@@ -64,7 +64,7 @@ namespace OpenMEEG {
         Vect3 n;
         double norm2p2p1, norm2p1p0, norm2p0p2;
         double tanTHETA0m, tanTHETA0p, tanTHETA1m, tanTHETA1p, tanTHETA2m, tanTHETA2p;
-        
+
         void init_aux() {
             nu0 = (p1p0^n);
             nu1 = (p2p1^n);

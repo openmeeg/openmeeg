@@ -82,7 +82,7 @@ namespace OpenMEEG {
             dim       = l.dim;
             return *this;
         }
-        
+
         size_t  nlin() const { return num_lines; }
         size_t& nlin()       { return num_lines; }
 
@@ -119,7 +119,7 @@ namespace OpenMEEG {
             base::operator=(l);
             return *this;
         }
-        
+
         virtual size_t size() const = 0;
         virtual void   info() const = 0;
     };

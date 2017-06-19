@@ -52,7 +52,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 namespace OpenMEEG {
 
-    void assemble_SurfSourceMat(Matrix& mat, const Geometry& geo, Mesh& mesh_source, const unsigned gauss_order) 
+    void assemble_SurfSourceMat(Matrix& mat, const Geometry& geo, Mesh& mesh_source, const unsigned gauss_order)
     {
         mat = Matrix((geo.size()-geo.nb_current_barrier_triangles()), mesh_source.nb_vertices());
         mat.set(0.0);
@@ -64,10 +64,10 @@ namespace OpenMEEG {
             return;
         } // then the mesh is included in a domain of the geometry
 
-        const Domain d     = geo.domain(**mesh_source.vertex_begin()); 
+        const Domain d     = geo.domain(**mesh_source.vertex_begin());
         const double sigma = d.sigma();
         const double K     = 1.0/(4.*M_PI);
-        
+
         // We here set it as an outermost (to tell _operarorN it doesn't belong to the geometry)
         mesh_source.outermost() = true;
         mesh_source.current_barrier() = true;
@@ -86,13 +86,13 @@ namespace OpenMEEG {
         }
     }
 
-    SurfSourceMat::SurfSourceMat(const Geometry& geo, Mesh& mesh_source, const unsigned gauss_order) 
+    SurfSourceMat::SurfSourceMat(const Geometry& geo, Mesh& mesh_source, const unsigned gauss_order)
     {
         assemble_SurfSourceMat(*this, geo, mesh_source, gauss_order);
     }
 
     void assemble_DipSourceMat(Matrix& rhs, const Geometry& geo, const Matrix& dipoles,
-            const unsigned gauss_order, const bool adapt_rhs, const std::string& domain_name = "") 
+            const unsigned gauss_order, const bool adapt_rhs, const std::string& domain_name = "")
     {
         const size_t size      = geo.size()-geo.nb_current_barrier_triangles();
         const size_t n_dipoles = dipoles.nlin();
@@ -191,13 +191,13 @@ namespace OpenMEEG {
         }
     }
 
-    EITSourceMat::EITSourceMat(const Geometry& geo, const Sensors& electrodes, const unsigned gauss_order) 
+    EITSourceMat::EITSourceMat(const Geometry& geo, const Sensors& electrodes, const unsigned gauss_order)
     {
         assemble_EITSourceMat(*this, geo, electrodes, gauss_order);
     }
 
     void assemble_DipSource2InternalPotMat(Matrix& mat, const Geometry& geo, const Matrix& dipoles,
-                                           const Matrix& points, const std::string& domain_name)     
+                                           const Matrix& points, const std::string& domain_name)
     {
         // Points with one more column for the index of the domain they belong
         std::vector<Domain> points_domain;

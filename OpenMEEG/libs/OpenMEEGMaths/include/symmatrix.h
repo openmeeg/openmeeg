@@ -255,18 +255,18 @@ namespace OpenMEEG {
     //     SymMatrix symtemp(*this, DEEP_COPY);
     //     D = Vector(nlin());
     //     Z = Matrix(nlin(), nlin());
-    // 
+    //
     //     int info;
     //     double lworkd;
     //     int lwork;
     //     int liwork;
-    // 
+    //
     //     DSPEVD('V', 'U', sizet_to_int(nlin()), symtemp.data(), D.data(), Z.data(), sizet_to_int(nlin()), &lworkd, -1, &liwork, -1, info);
     //     lwork = (int) lworkd;
     //     double * work = new double[lwork];
     //     BLAS_INT *iwork = new BLAS_INT[liwork];
     //     DSPEVD('V', 'U', sizet_to_int(nlin()), symtemp.data(), D.data(), Z.data(), sizet_to_int(nlin()), work, lwork, iwork, liwork, info);
-    // 
+    //
     //     delete[] work;
     //     delete[] iwork;
     // #endif

@@ -76,7 +76,7 @@ namespace OpenMEEG {
     // ECoG positions are reported line by line in the positions Matrix
     // mat is supposed to be filled with zeros
     // mat is the linear application which maps x (the unknown vector in symmetric system) -> v (potential at the ECoG electrodes)
-    // difference with Head2EEG is that it interpolates the inner skull layer instead of the scalp layer. 
+    // difference with Head2EEG is that it interpolates the inner skull layer instead of the scalp layer.
     void assemble_Head2ECoG(SparseMatrix& mat, const Geometry& geo, const Matrix& positions, const Interface& i)
     {
         mat = SparseMatrix(positions.nlin(), (geo.size()-geo.nb_current_barrier_triangles()));
@@ -108,7 +108,7 @@ namespace OpenMEEG {
     // MEG patches positions are reported line by line in the positions Matrix (same for positions)
     // mat is supposed to be filled with zeros
     // mat is the linear application which maps x (the unknown vector in symmetric system) -> bFerguson (contrib to MEG response)
-    void assemble_Head2MEG(Matrix& mat, const Geometry& geo, const Sensors& sensors) 
+    void assemble_Head2MEG(Matrix& mat, const Geometry& geo, const Sensors& sensors)
     {
         Matrix positions = sensors.getPositions();
         Matrix orientations = sensors.getOrientations();

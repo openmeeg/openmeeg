@@ -42,7 +42,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 namespace OpenMEEG {
 
     /// Computes the total solid angle of a surface for a point p and tells whether p is inside the mesh or not.
-    bool Interface::contains_point(const Vect3& p) const 
+    bool Interface::contains_point(const Vect3& p) const
     {
         double solangle = compute_solid_angle(p);
 
@@ -60,7 +60,7 @@ namespace OpenMEEG {
     }
 
     /// compute the solid-angle which should be +/-4 * Pi for a closed mesh if p is inside, 0 if p is outside
-    double Interface::compute_solid_angle(const Vect3& p) const 
+    double Interface::compute_solid_angle(const Vect3& p) const
     {
         double solangle = 0.0;
         for ( Interface::const_iterator omit = begin(); omit != end(); ++omit) {
@@ -69,7 +69,7 @@ namespace OpenMEEG {
         return solangle;
     }
 
-    void Interface::set_to_outermost() 
+    void Interface::set_to_outermost()
     {
         for ( Interface::iterator omit = begin(); omit != end(); ++omit) {
             omit->mesh().outermost() = true;
@@ -98,7 +98,7 @@ namespace OpenMEEG {
                 zmax = std::max(zmax, (**vit).z());
             }
         }
-        
+
         Vect3 bbmin(xmin, ymin, zmin);
         Vect3 bbmax(xmax, ymax, zmax);
         Vect3 bbcenter = 0.5 * (bbmin + bbmax);

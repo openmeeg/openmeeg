@@ -116,7 +116,7 @@ namespace OpenMEEG {
                             mit->push_back(Triangle(vertices_[l->GetId(0)],
                                                     vertices_[l->GetId(1)],
                                                     vertices_[l->GetId(2)],
-                                                    c_indices->GetValue(i))); 
+                                                    c_indices->GetValue(i)));
                         } else {
                             mit->push_back(Triangle(vertices_[l->GetId(0)],
                                                     vertices_[l->GetId(1)],
@@ -133,7 +133,7 @@ namespace OpenMEEG {
             mit->update();
             if (READ_DATA) {
                 const unsigned nc = vtkMesh->GetPointData()->GetNumberOfArrays()-1;
-                const unsigned nl = vtkMesh->GetNumberOfPoints()+vtkMesh->GetNumberOfCells(); 
+                const unsigned nl = vtkMesh->GetNumberOfPoints()+vtkMesh->GetNumberOfCells();
                 if (nc != 0) {
                     data = Matrix(nl, nc);
                     for (unsigned ic = 0; ic < nc; ++ic) {

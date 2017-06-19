@@ -45,7 +45,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 namespace OpenMEEG {
 
-    // geo = geometry 
+    // geo = geometry
     // mat = storage for Ferguson Matrix
     // pts = where the magnetic field is to be computed
     // n   = numbers of places where magnetic field is to be computed

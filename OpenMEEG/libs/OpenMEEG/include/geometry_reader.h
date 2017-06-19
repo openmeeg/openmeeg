@@ -109,11 +109,11 @@ namespace OpenMEEG {
         //       contains domains descriptions, one per line. Each domain consist of:
         //
         //         o a domain name.
-        //         o a list of IDs (signed numbers or signed names): the sign ('+'by default) of the ID depicts 
+        //         o a list of IDs (signed numbers or signed names): the sign ('+'by default) of the ID depicts
         //           whether the interior or the exterior of the interface should be used to select the domain.
         //
         // Any line starting with # is considered a comment and is silently ignored.
-        
+
         std::ifstream ifs(geometry.c_str());
 
         if ( !ifs.is_open() ) {
@@ -163,8 +163,8 @@ namespace OpenMEEG {
                             defaultname << i+1;
                             meshname[i] = defaultname.str();
                         } else {
-                            ifs >> io_utils::match("Mesh") 
-                                >> io_utils::token(meshname[i], ':') 
+                            ifs >> io_utils::match("Mesh")
+                                >> io_utils::token(meshname[i], ':')
                                 >> io_utils::filename(filename[i], '"', false);
                         }
                         fullname[i] = (is_relative_path(filename[i]))?path+filename[i]:filename[i];
@@ -219,13 +219,13 @@ namespace OpenMEEG {
                     interfacename[i] = defaultname.str();
                     ifs >> io_utils::filename(filename[i], '"', false);
                 } else {
-                    ifs >> io_utils::match("Interface") 
-                        >> io_utils::token(interfacename[i], ':') 
+                    ifs >> io_utils::match("Interface")
+                        >> io_utils::token(interfacename[i], ':')
                         >> io_utils::filename(filename[i], '"', false);
                 }
                 Mesh m;
                 fullname[i] = (is_relative_path(filename[i]))?path+filename[i]:filename[i];
-                nb_vertices += m.load(fullname[i], false, false); 
+                nb_vertices += m.load(fullname[i], false, false);
             }
             geo_.vertices_.reserve(nb_vertices);
             // Second really load the meshes
@@ -290,7 +290,7 @@ namespace OpenMEEG {
                     id = id.substr(1, id.size());
                 } else if ( id == "shared" ) {
                     std::cerr << "(DEPRECATED) Keyword shared is useless. Please consider updating your geometry file to the new format 1.1 (see data/README.rst): " << geometry << std::endl;
-                    break;                    
+                    break;
                 }
                 for ( Interfaces::iterator iit = interfaces.begin(); iit != interfaces.end() ; ++iit) {
                     if ( iit->name() == id ) {

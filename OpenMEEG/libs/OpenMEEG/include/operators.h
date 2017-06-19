@@ -283,7 +283,7 @@ namespace OpenMEEG {
                 }
             }
         } else {
-            // TODO check the symmetry of _operatorS. 
+            // TODO check the symmetry of _operatorS.
             // if we invert tit1 with tit2: results in HeadMat differs at 4.e-5 which is too big.
             // using ADAPT_LHS with tolerance at 0.000005 (for _opS) drops this at 6.e-6. (but increase the computation time)
             for (Mesh::const_iterator tit1=m1.begin(); tit1 != m1.end(); ++tit1) {
@@ -374,7 +374,7 @@ namespace OpenMEEG {
             Vect3 A1   = T1.next(V1);
             Vect3 B1   = T1.prev(V1);
             Vect3 A1B1 = (A1 - B1) * (0.5 / T1.area());
-            
+
             analyS.init(V1, A1, B1);
             const double opS = analyS.f(x);
 

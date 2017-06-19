@@ -60,7 +60,7 @@ namespace OpenMEEG {
         std::cout << std::endl;
         if (outermost())
             std::cout << "\t\tConsidered as the outermost domain." << std::endl;
-        
+
         for (const_iterator hit=begin(); hit != end(); ++hit) {
             std::cout << "\t\tInterface \"" << hit->interface().name() << "\"= { ";
             for (Interface::const_iterator omit=hit->interface().begin(); omit != hit->interface().end(); ++omit) {

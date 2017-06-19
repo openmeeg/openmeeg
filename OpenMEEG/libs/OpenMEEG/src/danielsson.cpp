@@ -117,7 +117,7 @@ namespace OpenMEEG
         return ( s > 0 ) ? 1 : ( s < 0 ) ? -1: 0;
     }
 
-    double dist_point_interface(const Vect3& p, const Interface& i, Vect3& alphas, Triangle& nearestTriangle) 
+    double dist_point_interface(const Vect3& p, const Interface& i, Vect3& alphas, Triangle& nearestTriangle)
     {
         double distmin = std::numeric_limits<double>::max();
         bool inside;

@@ -58,7 +58,7 @@ namespace OpenMEEG {
         Here are stored the vertices, meshes and domains
      */
 
-    class OPENMEEG_EXPORT Geometry 
+    class OPENMEEG_EXPORT Geometry
     {
         typedef enum { IDENTITY, INVERSE, INDICATOR} Function;
 

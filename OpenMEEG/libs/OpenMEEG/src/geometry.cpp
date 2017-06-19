@@ -195,7 +195,7 @@ namespace OpenMEEG {
             for (iterator mit = begin(); mit != end(); ++mit) {
                 if (OLD_ORDERING) {
                     om_error(is_nested_); // OR non nested but without shared vertices
-                    for (Mesh::const_vertex_iterator vit = mit->vertex_begin(); vit != mit->vertex_end(); ++vit, ++index) 
+                    for (Mesh::const_vertex_iterator vit = mit->vertex_begin(); vit != mit->vertex_end(); ++vit, ++index)
                     {
                         (*vit)->index() = index;
                     }
@@ -371,8 +371,8 @@ namespace OpenMEEG {
         iit = 0;
         for (Meshes::const_iterator mit = m.begin(); mit != m.end(); ++mit, ++iit) {
             for (Mesh::const_iterator tit = mit->begin(); tit != mit->end(); ++tit) {
-                meshes_[iit].push_back(Triangle(map_vertices[(*tit)[0]], 
-                            map_vertices[(*tit)[1]], 
+                meshes_[iit].push_back(Triangle(map_vertices[(*tit)[0]],
+                            map_vertices[(*tit)[1]],
                             map_vertices[(*tit)[2]]));
             }
             meshes_[iit].update();

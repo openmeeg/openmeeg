@@ -77,13 +77,13 @@ namespace OpenMEEG {
         }
 
         /// Create a new triangle from a 3 vertex adresses.
-        
+
         Triangle(Vertex* p1,Vertex* p2,Vertex* p3,const unsigned index=-1): ind(index) {
             vertices_[0] = p1;
             vertices_[1] = p2;
             vertices_[2] = p3;
         }
-        
+
         /// Operators
         // Having both [] and () doing different things is prone to errors. Also the %3 in indexing seems vety costly.
 
@@ -93,7 +93,7 @@ namespace OpenMEEG {
         const Vertex&   operator()(const unsigned& vindex) const { return *vertices_[vindex%3]; }
 
               bool      operator==(const Triangle& T)     const { return (T[0]==vertices_[0])&(T[1]==vertices_[1])&(T[2]==vertices_[2]); }
-                                                 
+
               Vertex&        vertex(const unsigned& vindex)       { return operator()(vindex); }
         const Vertex&        vertex(const unsigned& vindex) const { return operator()(vindex); }
 
@@ -116,16 +116,16 @@ namespace OpenMEEG {
 
               Normal&  normal()       { return normal_; }
         const Normal&  normal() const { return normal_; }
-                                
+
               double&  area()         { return area_; }
         const double&  area()   const { return area_; }
-                                
+
               unsigned& index()        { return ind; }
         const unsigned& index()  const { return ind; }
 
         // These two methods are ugly and used exactly once. There is probably a better way.
 
-        const Vertex& prev(const Vertex& V) const { 
+        const Vertex& prev(const Vertex& V) const {
             if ( &V == vertices_[0]) {
                 return *vertices_[2];
             } else if ( &V == vertices_[1] ) {
@@ -137,7 +137,7 @@ namespace OpenMEEG {
                 return v;
             }
         }
-        const Vertex& next(const Vertex& V) const { 
+        const Vertex& next(const Vertex& V) const {
             if ( &V == vertices_[0]) {
                 return *vertices_[1];
             } else if ( &V == vertices_[1] ) {

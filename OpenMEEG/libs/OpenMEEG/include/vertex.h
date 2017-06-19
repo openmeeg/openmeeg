@@ -53,7 +53,7 @@ namespace OpenMEEG {
     public:
 
         Vertex(): ind(-1) {};
-        
+
         Vertex(const double& x,const double& y,const double& z): Vect3(x,y,z),ind(-1) { }
 
         Vertex(const double& x,const double& y,const double& z,const unsigned& id): Vect3(x,y,z),ind(id) { }

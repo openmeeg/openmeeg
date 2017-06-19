@@ -115,7 +115,7 @@ namespace OpenMEEG {
                 int gauss_order = 3;
                 // Consider the GMRes solver for problem with dimension > 15,000 (3,000 vertices per interface) else use LAPACK solver
                 #if USE_GMRES
-                Matrix mtemp(Head2MEGMat.nlin(),HeadMat.nlin()); 
+                Matrix mtemp(Head2MEGMat.nlin(),HeadMat.nlin());
                 Jacobi<SymMatrix> M(HeadMat);    // Jacobi preconditionner
                 #pragma omp parallel for
                 #ifndef OPENMP_3_0
@@ -159,7 +159,7 @@ namespace OpenMEEG {
                 }
                 // Consider the GMRes solver for problem with dimension > 15,000 (3,000 vertices per interface) else use LAPACK solver
                 #if USE_GMRES
-                Matrix mtemp(RHS.nlin(), HeadMat.nlin()); 
+                Matrix mtemp(RHS.nlin(), HeadMat.nlin());
                 Jacobi<SymMatrix> M(HeadMat); // Jacobi preconditionner
                 #pragma omp parallel for
                 #ifndef OPENMP_3_0
@@ -185,11 +185,11 @@ namespace OpenMEEG {
                     PROGRESSBAR(i, dipoles.nlin());
                 }
             }
-            
+
             void saveEEG( const std::string filename ) const { EEGleadfield.save(filename); }
 
             void saveMEG( const std::string filename ) const { MEGleadfield.save(filename); }
-            
+
             ~GainEEGMEGadjoint () {};
         private:
             Matrix EEGleadfield;

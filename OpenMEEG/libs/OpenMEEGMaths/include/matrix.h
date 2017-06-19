@@ -184,7 +184,7 @@ namespace OpenMEEG {
         om_assert(i<nlin() && j<ncol());
         return value->data[i+nlin()*j];
     }
-    
+
     inline double Matrix::frobenius_norm() const {
     #ifdef HAVE_LAPACK
     if ( nlin()*ncol() != 0 ) {
@@ -221,7 +221,7 @@ namespace OpenMEEG {
 
         Matrix a(isize, jsize);
         const int sz = sizet_to_int(isize);
-        
+
         for (size_t j=0; j<jsize; j++) {
     #ifdef HAVE_BLAS
             BLAS(dcopy, DCOPY)(sz, data()+istart+(jstart+j)*nlin(), 1, a.data()+j*isize, 1);
@@ -361,7 +361,7 @@ namespace OpenMEEG {
     #endif
             return C;
     }
-    
+
     inline Matrix Matrix::tmult(const Matrix &B) const {
         om_assert(nlin() == B.nlin());
         size_t p=nlin();
@@ -445,7 +445,7 @@ namespace OpenMEEG {
     #endif
             return C;
     }
-    
+
     inline Matrix Matrix::operator+(const Matrix &B) const {
         om_assert(ncol() == B.ncol());
         om_assert(nlin() == B.nlin());
@@ -493,7 +493,7 @@ namespace OpenMEEG {
             data()[i] -= B.data()[i];
     #endif
     }
-    
+
     inline double Matrix::dot(const Matrix& b) const {
         om_assert(nlin() == b.nlin()&&ncol() == b.ncol());
     #ifdef HAVE_BLAS

@@ -51,7 +51,7 @@ namespace OpenMEEG {
         }
     }
 
-    void operatorSinternal(const Mesh& m, Matrix& mat, const Vertices& points, const double& coeff) 
+    void operatorSinternal(const Mesh& m, Matrix& mat, const Vertices& points, const double& coeff)
     {
         std::cout << "INTERNAL OPERATOR S..." << std::endl;
         for ( Vertices::const_iterator vit = points.begin(); vit != points.end(); ++vit)  {
@@ -79,7 +79,7 @@ namespace OpenMEEG {
         }
     }
 
-    void operatorDipolePotDer(const Vect3& r0, const Vect3& q, const Mesh& m, Vector& rhs, const double& coeff, const unsigned gauss_order, const bool adapt_rhs) 
+    void operatorDipolePotDer(const Vect3& r0, const Vect3& q, const Mesh& m, Vector& rhs, const double& coeff, const unsigned gauss_order, const bool adapt_rhs)
     {
         static analyticDipPotDer anaDPD;
 
@@ -106,7 +106,7 @@ namespace OpenMEEG {
         delete gauss;
     }
 
-    void operatorDipolePot(const Vect3& r0, const Vect3& q, const Mesh& m, Vector& rhs, const double& coeff, const unsigned gauss_order, const bool adapt_rhs) 
+    void operatorDipolePot(const Vect3& r0, const Vect3& q, const Mesh& m, Vector& rhs, const double& coeff, const unsigned gauss_order, const bool adapt_rhs)
     {
         static analyticDipPot anaDP;
 

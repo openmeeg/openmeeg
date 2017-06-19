@@ -225,7 +225,7 @@ namespace OpenMEEG {
 
     // inline Vector Vector::conv(const Vector& v) const {
     //     if (v.nlin()<nlin()) return v.conv(*this);
-    // 
+    //
     //     Vector p(nlin()+v.nlin()-1);
     //     p.set(0);
     //     for (size_t i=0; i<v.nlin(); i++) {
@@ -238,7 +238,7 @@ namespace OpenMEEG {
     //     }
     //     return p;
     // }
-    // 
+    //
     // inline Vector Vector::conv_trunc(const Vector& v) const {
     //     Vector p(v.nlin());
     //     p.set(0);

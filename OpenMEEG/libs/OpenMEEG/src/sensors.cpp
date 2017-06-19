@@ -70,13 +70,13 @@ namespace OpenMEEG {
             if(filetype == 'b') {
                 in.open(filename, std::ios::in|std::ios::binary);
             } else {
-                std::cout << "ERROR: unkown filetype. " << std::endl; exit(1); 
+                std::cout << "ERROR: unkown filetype. " << std::endl; exit(1);
             }
         }
 
         if ( !in.is_open() ) {
-            std::cerr<<"Error Reading File : " << filename << std::endl; 
-            exit(1);  
+            std::cerr<<"Error Reading File : " << filename << std::endl;
+            exit(1);
         }
         Sensors::load(in);
         in.close();
@@ -318,7 +318,7 @@ namespace OpenMEEG {
             }
             if(m_nb > nb_to_display) {
                 std::cout << "..." << std::endl;
-            }            
+            }
         }
         if(hasNames()) {
             std::cout << "Names" << std::endl;

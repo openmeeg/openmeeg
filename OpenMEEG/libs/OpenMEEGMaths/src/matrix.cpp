@@ -127,7 +127,7 @@ namespace OpenMEEG {
         S = SparseMatrix(nlin(), ncol());
         V = Matrix(ncol(), ncol()); V.set(0);
         double *s = new double[mini];
-        // int lwork = 4 *mini*mini + maxi + 9*mini; 
+        // int lwork = 4 *mini*mini + maxi + 9*mini;
         // http://www.netlib.no/netlib/lapack/double/dgesdd.f :
         BLAS_INT *iwork = new BLAS_INT[8*mini];
         BLAS_INT lwork = 4 *mini*mini + std::max(maxi, 4*mini*mini+4*mini);

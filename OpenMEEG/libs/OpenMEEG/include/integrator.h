@@ -50,7 +50,7 @@ namespace OpenMEEG {
 
     // light class containing d Vect3
     template <int d>
-    class OPENMEEG_EXPORT Vect3array 
+    class OPENMEEG_EXPORT Vect3array
     {
         Vect3 t[d];
 
@@ -71,19 +71,19 @@ namespace OpenMEEG {
     };
 
     template <int d>
-    inline void multadd (Vect3array<d>& target, const double scale,  const Vect3array<d>& incr) 
+    inline void multadd (Vect3array<d>& target, const double scale,  const Vect3array<d>& incr)
     {
         for ( unsigned i = 0; i < d; ++i) {
             target(i) = target(i) + scale*incr(i);
         }
     }
 
-    inline void multadd (double& target, const double scale, const double incr) 
+    inline void multadd (double& target, const double scale, const double incr)
     {
         target += scale*incr;
     }
 
-    inline void multadd (Vect3& target, const double scale,  const Vect3& incr) 
+    inline void multadd (Vect3& target, const double scale,  const Vect3& incr)
     {
         target = target + scale*incr;
     }
@@ -178,7 +178,7 @@ namespace OpenMEEG {
     static const unsigned nbPts[4] = {3, 6, 7, 16};
 
     template <typename T, typename I>
-    class OPENMEEG_EXPORT Integrator 
+    class OPENMEEG_EXPORT Integrator
     {
         unsigned order;
 
@@ -188,7 +188,7 @@ namespace OpenMEEG {
         inline Integrator(unsigned ord) { setOrder(ord); }
         inline virtual ~Integrator() {}
 
-        inline void setOrder(const unsigned n) 
+        inline void setOrder(const unsigned n)
         {
             if ( n < 4 ) {
                 order = n;
