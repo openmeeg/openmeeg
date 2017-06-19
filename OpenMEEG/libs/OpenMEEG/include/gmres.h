@@ -114,7 +114,7 @@ namespace OpenMEEG {
     template<class T, class P>  // T should be a linear operator, and P a preconditionner
     unsigned GMRes(const T& A, const P& M, Vector &x, const Vector& b, int max_iter, double tol, unsigned m) {
 
-        // m is the size of the Krylov subspace, if m<A.nlin(), it is a restarted GMRes (for saving memory)
+        // m is the size of the Krylov subspace, if m < A.nlin(), it is a restarted GMRes (for saving memory)
         Matrix H(m+1, m);
         x.set(0.0);
 

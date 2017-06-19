@@ -54,8 +54,8 @@ int main() {
     std::cout << std::endl << "========== symmetric matrices ==========" << std::endl;
 
     SymMatrix S(4);
-    for (unsigned i = 0; i<4; ++i)
-        for (unsigned j = i; j<4; ++j)
+    for (unsigned i = 0; i < 4; ++i)
+        for (unsigned j = i; j < 4; ++j)
             S(i, j) = pow(2.0, (double)i)+pow(3.0, (double)j);
 
     genericTest("symm", S);

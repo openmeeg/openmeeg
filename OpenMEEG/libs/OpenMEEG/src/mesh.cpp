@@ -129,7 +129,7 @@ namespace OpenMEEG {
     std::istream& operator>>(std::istream& is, Mesh& m) {
         unsigned vind[3];
         is >> vind[0] >> vind[1] >> vind[2];
-        for (unsigned i = 0; i<3; ++i)
+        for (unsigned i = 0; i < 3; ++i)
             if (vind[i] >= m.vertices_.size()) {
                 std::cerr << "Unknown vertex: " << vind[i] << " (hint: vertex numbering often starts at 0). Aborting." << std::endl;
                 exit(1);
@@ -722,7 +722,7 @@ namespace OpenMEEG {
         f >> ch >> ntrgs >> ntrgs >> ntrgs;  // This number is repeated 3 times
 
         reserve(ntrgs);
-        for (unsigned i = 0; i<ntrgs; ++i)
+        for (unsigned i = 0; i < ntrgs; ++i)
             f >> *this;
 
         return ntrgs;
@@ -1130,11 +1130,11 @@ namespace OpenMEEG {
         center /= nb_vertices();
         const double eps = 1.e3*std::numeric_limits<double>::epsilon();
         double solangle = compute_solid_angle(center);
-        if (std::abs(solangle)<eps) {
+        if (std::abs(solangle) < eps) {
             std::cout << "Center point :" << center << " is on the mesh." << std::endl;
-        } else if (std::abs(solangle+4.*M_PI)<eps) {
+        } else if (std::abs(solangle+4.*M_PI) < eps) {
             // mesh is ok
-        } else if (std::abs(solangle-4.*M_PI)<eps) {
+        } else if (std::abs(solangle-4.*M_PI) < eps) {
             flip_triangles();
         } else {
             std::cout << "Not a closed mesh." << std::endl;

@@ -483,7 +483,7 @@ namespace OpenMEEG {
         }
 
         // detect isolated geometries
-        if (mesh_conn.size()>1) {
+        if (mesh_conn.size() > 1) {
             std::cout << "The geometry is cut into several unrelated parts by non-conductive domains." << std::endl;
             std::cout << "The computation will continue. But please note that the electric potentials from different parts are no longer comparable." << std::endl;
 

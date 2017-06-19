@@ -82,7 +82,7 @@ namespace OpenMEEG {
                 #ifndef OPENMP_3_0
                 for (int i = 0; i<static_cast<int>(LeadField.nlin()); ++i) {
                 #else
-                for (unsigned i = 0; i<LeadField.nlin(); ++i) {
+                for (unsigned i = 0; i < LeadField.nlin(); ++i) {
                 #endif
                     Vector vtemp(HeadMat.nlin());
                     GMRes(HeadMat, M, vtemp, Head2EEGMat.getlin(i), 1e3, 1e-7, HeadMat.nlin());  // max number of iteration = 1000, and precision = 1e-7 (1e-5 for faster resolution)
@@ -121,7 +121,7 @@ namespace OpenMEEG {
                 #ifndef OPENMP_3_0
                 for (int i = 0; i<static_cast<int>(LeadField.nlin()); ++i) {
                 #else
-                for (unsigned i = 0; i<LeadField.nlin(); ++i) {
+                for (unsigned i = 0; i < LeadField.nlin(); ++i) {
                 #endif
                     Vector vtemp(HeadMat.nlin());
                     GMRes(HeadMat, M, vtemp, Head2MEGMat.getlin(i), 1e3, 1e-7, HeadMat.nlin());  // max number of iteration = 1000, and precision = 1e-7 (1e-5 for faster resolution)
@@ -134,7 +134,7 @@ namespace OpenMEEG {
                 HeadMat.solveLin(mtemp);  // solving the system AX = B with LAPACK
                 mtemp = mtemp.transpose();
                 #endif
-                for (unsigned i = 0; i<LeadField.ncol(); i++) {
+                for (unsigned i = 0; i < LeadField.ncol(); i++) {
                     LeadField.setcol(i, mtemp * DipSourceMat(geo, dipoles.submat(i, 1, 0, dipoles.ncol()), gauss_order, true, "").getcol(0)+Source2MEGMat.getcol(i));  // TODO ugly
                     PROGRESSBAR(i, LeadField.ncol());
                 }
@@ -165,7 +165,7 @@ namespace OpenMEEG {
                 #ifndef OPENMP_3_0
                 for (int i = 0; i<static_cast<int>(RHS.nlin()); ++i) {
                 #else
-                for (unsigned i = 0; i<RHS.nlin(); ++i) {
+                for (unsigned i = 0; i < RHS.nlin(); ++i) {
                 #endif
                     Vector vtemp(HeadMat.nlin());
                     GMRes(HeadMat, M, vtemp, RHS.getlin(i), 1e3, 1e-7, HeadMat.nlin());  // max number of iteration = 1000, and precision = 1e-7 (1e-5 for faster resolution)

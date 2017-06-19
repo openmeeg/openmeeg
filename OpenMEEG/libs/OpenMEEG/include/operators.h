@@ -88,7 +88,7 @@ namespace OpenMEEG {
 
         Vect3 total = analyD.f(P);
 
-        for (unsigned i = 0; i<3; ++i)
+        for (unsigned i = 0; i < 3; ++i)
             mat(P.index(), T2(i).index()) += total(i) * coeff;
     }
 
@@ -173,10 +173,10 @@ namespace OpenMEEG {
                     PROGRESSBAR(i++, m1.nb_triangles());
                     #pragma omp parallel for
                     #ifndef OPENMP_3_0
-                    for (int i2 = tit1-m1.begin(); i2<m1.size(); ++i2) {
+                    for (int i2 = tit1-m1.begin(); i2 < m1.size(); ++i2) {
                         const Mesh::const_iterator tit2 = m1.begin()+i2;
                     #else
-                    for (Mesh::const_iterator tit2 = tit1; tit2<m1.end(); ++tit2) {
+                    for (Mesh::const_iterator tit2 = tit1; tit2 < m1.end(); ++tit2) {
                     #endif
                         matS(tit1->index() - m1.begin()->index(), tit2->index() - m1.begin()->index()) = _operatorS(*tit1, *tit2, gauss_order) / ( tit1->area() * tit2->area());
                     }
@@ -186,10 +186,10 @@ namespace OpenMEEG {
                     PROGRESSBAR(i++, m1.nb_vertices());
                     #pragma omp parallel for
                     #ifndef OPENMP_3_0
-                    for (int i2 = vit1-m1.vertex_begin(); i2<m1.vertex_size(); ++i2) {
+                    for (int i2 = vit1-m1.vertex_begin(); i2 < m1.vertex_size(); ++i2) {
                         const Mesh::const_vertex_iterator vit2 = m1.vertex_begin()+i2;
                     #else
-                    for (Mesh::const_vertex_iterator vit2 = vit1; vit2<m1.vertex_end(); ++vit2) {
+                    for (Mesh::const_vertex_iterator vit2 = vit1; vit2 < m1.vertex_end(); ++vit2) {
                     #endif
                         mat((*vit1)->index(), (*vit2)->index()) += _operatorN(**vit1, **vit2, m1, m1, matS) * coeff;
                     }
@@ -216,10 +216,10 @@ namespace OpenMEEG {
                     PROGRESSBAR(i++, m1.nb_triangles());
                     #pragma omp parallel for
                     #ifndef OPENMP_3_0
-                    for (int i2 = 0; i2<m2.size(); ++i2) {
+                    for (int i2 = 0; i2 < m2.size(); ++i2) {
                         const Mesh::const_iterator tit2 = m2.begin()+i2;
                     #else
-                    for (Mesh::const_iterator tit2 = m2.begin(); tit2<m2.end(); ++tit2) {
+                    for (Mesh::const_iterator tit2 = m2.begin(); tit2 < m2.end(); ++tit2) {
                     #endif
                         matS(tit1->index()-m1.begin()->index(), tit2->index()-m2.begin()->index()) = _operatorS(*tit1, *tit2, gauss_order)/(tit1->area()*tit2->area());
                     }
@@ -229,10 +229,10 @@ namespace OpenMEEG {
                     PROGRESSBAR(i++, m1.nb_vertices());
                     #pragma omp parallel for
                     #ifndef OPENMP_3_0
-                    for (int i2 = 0; i2<m2.vertex_size(); ++i2) {
+                    for (int i2 = 0; i2 < m2.vertex_size(); ++i2) {
                         const Mesh::const_vertex_iterator vit2 = m2.vertex_begin()+i2;
                     #else
-                    for (Mesh::const_vertex_iterator vit2 = m2.vertex_begin(); vit2<m2.vertex_end(); ++vit2) {
+                    for (Mesh::const_vertex_iterator vit2 = m2.vertex_begin(); vit2 < m2.vertex_end(); ++vit2) {
                     #endif
                         mat((*vit1)->index(), (*vit2)->index()) += _operatorN(**vit1, **vit2, m1, m2, matS)*coeff;
                     }
@@ -243,10 +243,10 @@ namespace OpenMEEG {
                     PROGRESSBAR(i++, m1.nb_vertices());
                     #pragma omp parallel for
                     #ifndef OPENMP_3_0
-                    for (int i2 = 0; i2<m2.vertex_size(); ++i2) {
+                    for (int i2 = 0; i2 < m2.vertex_size(); ++i2) {
                         const Mesh::const_vertex_iterator vit2 = m2.vertex_begin()+i2;
                     #else
-                    for (Mesh::const_vertex_iterator vit2 = m2.vertex_begin(); vit2<m2.vertex_end(); ++vit2) {
+                    for (Mesh::const_vertex_iterator vit2 = m2.vertex_begin(); vit2 < m2.vertex_end(); ++vit2) {
                     #endif
                         mat((*vit1)->index(), (*vit2)->index()) += _operatorN(**vit1, **vit2, m1, m2, mat)*coeff;
                     }
@@ -274,10 +274,10 @@ namespace OpenMEEG {
                 PROGRESSBAR(i++, m1.nb_triangles());
                 #pragma omp parallel for
                 #ifndef OPENMP_3_0
-                for (int i2 = tit1-m1.begin(); i2<m1.size(); ++i2) {
+                for (int i2 = tit1-m1.begin(); i2 < m1.size(); ++i2) {
                     const Mesh::const_iterator tit2 = m1.begin()+i2;
                 #else
-                for (Mesh::const_iterator tit2 = tit1; tit2<m1.end(); ++tit2) {
+                for (Mesh::const_iterator tit2 = tit1; tit2 < m1.end(); ++tit2) {
                 #endif
                     mat(tit1->index(), tit2->index()) = _operatorS(*tit1, *tit2, gauss_order)*coeff;
                 }
@@ -290,10 +290,10 @@ namespace OpenMEEG {
                 PROGRESSBAR(i++, m1.nb_triangles());
                 #pragma omp parallel for
                 #ifndef OPENMP_3_0
-                for (int i2 = 0; i2<m2.size(); ++i2) {
+                for (int i2 = 0; i2 < m2.size(); ++i2) {
                     const Mesh::const_iterator tit2 = m2.begin()+i2;
                 #else
-                for (Mesh::const_iterator tit2 = m2.begin(); tit2<m2.end(); ++tit2) {
+                for (Mesh::const_iterator tit2 = m2.begin(); tit2 < m2.end(); ++tit2) {
                 #endif
                     mat(tit1->index(), tit2->index()) = _operatorS(*tit1, *tit2, gauss_order)*coeff;
                 }

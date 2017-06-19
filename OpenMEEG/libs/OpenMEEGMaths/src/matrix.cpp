@@ -111,8 +111,8 @@ namespace OpenMEEG {
 
     Matrix Matrix::transpose() const {
         Matrix result(ncol(), nlin());
-        for (size_t i = 0; i<nlin(); i++)
-            for ( size_t j = 0; j<ncol(); j++)
+        for (size_t i = 0; i < nlin(); i++)
+            for ( size_t j = 0; j < ncol(); j++)
                 result(j, i) = (*this)(i, j);
         return result;
     }
@@ -172,22 +172,22 @@ namespace OpenMEEG {
 
     Matrix Matrix::operator*(double x) const {
         Matrix C(nlin(), ncol());
-        for (size_t k = 0; k<nlin()*ncol(); k++) C.data()[k] = data()[k]*x;
+        for (size_t k = 0; k < nlin()*ncol(); k++) C.data()[k] = data()[k]*x;
         return C;
     }
 
     Matrix Matrix::operator/(double x) const {
         Matrix C(nlin(), ncol());
-        for (size_t k = 0; k<nlin()*ncol(); k++) C.data()[k] = data()[k]/x;
+        for (size_t k = 0; k < nlin()*ncol(); k++) C.data()[k] = data()[k]/x;
         return C;
     }
 
     void Matrix::operator*=(double x) {
-        for (size_t k = 0; k<nlin()*ncol(); k++) data()[k] *= x;
+        for (size_t k = 0; k < nlin()*ncol(); k++) data()[k] *= x;
     }
 
     void Matrix::operator/=(double x) {
-        for (size_t k = 0; k<nlin()*ncol(); k++) data()[k] /= x;
+        for (size_t k = 0; k < nlin()*ncol(); k++) data()[k] /= x;
     }
 
     Vector Matrix::mean() const {
@@ -231,8 +231,8 @@ namespace OpenMEEG {
         size_t minj = 0;
         size_t maxj = 0;
 
-        for (size_t i = 0; i<nlin(); ++i)
-            for (size_t j = 0; j<ncol(); ++j)
+        for (size_t i = 0; i < nlin(); ++i)
+            for (size_t j = 0; j < ncol(); ++j)
                 if (minv > this->operator()(i, j)) {
                     minv = this->operator()(i, j);
                     mini = i;
@@ -247,8 +247,8 @@ namespace OpenMEEG {
         std::cout << "Max Value : " << maxv << " (" << maxi << ", " << maxj << ")" << std::endl;
         std::cout << "First Values" << std::endl;
 
-        for (size_t i = 0; i<std::min(nlin(), (size_t) 5); ++i) {
-            for (size_t j = 0; j<std::min(ncol(), (size_t) 5); ++j)
+        for (size_t i = 0; i < std::min(nlin(), (size_t) 5); ++i) {
+            for (size_t j = 0; j < std::min(ncol(), (size_t) 5); ++j)
                 std::cout << this->operator()(i, j) << " " ;
             std::cout << std::endl ;
         }

@@ -123,7 +123,7 @@ namespace OpenMEEG {
     };
 
     inline double SymMatrix::operator()(size_t i, size_t j) const {
-        om_assert(i<nlin() && j<nlin());
+        om_assert(i < nlin() && j < nlin());
         if (i <= j)
             return data()[i+j*(j+1)/2];
         else
@@ -131,7 +131,7 @@ namespace OpenMEEG {
     }
 
     inline double& SymMatrix::operator()(size_t i, size_t j) {
-        om_assert(i<nlin() && j<nlin());
+        om_assert(i < nlin() && j < nlin());
         if (i <= j)
             return data()[i+j*(j+1)/2];
         else
@@ -185,7 +185,7 @@ namespace OpenMEEG {
     #ifdef HAVE_BLAS
         BLAS(daxpy, DAXPY)(sizet_to_int(nlin()*(nlin()+1)/2), -1.0, B.data(), 1, data() , 1);
     #else
-        for (size_t i = 0; i<nlin()*(nlin()+1)/2; i++)
+        for (size_t i = 0; i < nlin()*(nlin()+1)/2; i++)
             data()[i] += B.data()[i];
     #endif
     }
@@ -195,7 +195,7 @@ namespace OpenMEEG {
     #ifdef HAVE_BLAS
         BLAS(daxpy, DAXPY)(sizet_to_int(nlin()*(nlin()+1)/2), 1.0, B.data(), 1, data() , 1);
     #else
-        for (size_t i = 0; i<nlin()*(nlin()+1)/2; i++)
+        for (size_t i = 0; i < nlin()*(nlin()+1)/2; i++)
             data()[i] += B.data()[i];
     #endif
     }
@@ -224,7 +224,7 @@ namespace OpenMEEG {
         int Info = 0;
         // TUDUtTt
         DSPTRF('U', sizet_to_int(invA.nlin()), invA.data(), pivots, Info);
-        if (Info<0)
+        if (Info < 0)
             std::cout << "Big problem in det (DSPTRF)" << std::endl;
         for (size_t i = 0; i< nlin(); i++) {
             if (pivots[i] >= 0) {
@@ -278,7 +278,7 @@ namespace OpenMEEG {
     #ifdef HAVE_BLAS
         BLAS(daxpy, DAXPY)(sizet_to_int(nlin()*(nlin()+1)/2), 1.0, B.data(), 1, C.data() , 1);
     #else
-        for (size_t i = 0; i<nlin()*(nlin()+1)/2; i++)
+        for (size_t i = 0; i < nlin()*(nlin()+1)/2; i++)
             C.data()[i] += B.data()[i];
     #endif
         return C;
@@ -291,7 +291,7 @@ namespace OpenMEEG {
     #ifdef HAVE_BLAS
         BLAS(daxpy, DAXPY)(sizet_to_int(nlin()*(nlin()+1)/2), -1.0, B.data(), 1, C.data() , 1);
     #else
-        for (size_t i = 0; i<nlin()*(nlin()+1)/2; i++)
+        for (size_t i = 0; i < nlin()*(nlin()+1)/2; i++)
             C.data()[i] -= B.data()[i];
     #endif
         return C;
@@ -344,9 +344,9 @@ namespace OpenMEEG {
     #ifdef HAVE_BLAS
         DSPMV(CblasUpper, sizet_to_int(nlin()), 1., data(), v.data(), 1, 0., y.data(), 1);
     #else
-        for (size_t i = 0; i<nlin(); i++) {
+        for (size_t i = 0; i < nlin(); i++) {
             y(i) = 0;
-            for (size_t j = 0; j<nlin(); j++)
+            for (size_t j = 0; j < nlin(); j++)
                 y(i) += (*this)(i, j)*v(j);
         }
     #endif
@@ -354,14 +354,14 @@ namespace OpenMEEG {
     }
 
     inline Vector SymMatrix::getlin(size_t i) const {
-        om_assert(i<nlin());
+        om_assert(i < nlin());
         Vector v(ncol());
         for ( size_t j = 0; j < ncol(); ++j) v.data()[j] = this->operator()(i, j);
         return v;
     }
 
     inline void SymMatrix::setlin(size_t i, const Vector& v) {
-        om_assert(v.size() == nlin() && i<nlin());
+        om_assert(v.size() == nlin() && i < nlin());
         for ( size_t j = 0; j < ncol(); ++j) this->operator()(i, j) = v(j);
     }
 }

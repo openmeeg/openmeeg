@@ -149,7 +149,7 @@ namespace OpenMEEG
             if ( dit->sigma() == 0.0 ) {
                 for ( Domain::const_iterator hit = dit->begin(); hit != dit->end(); ++hit) {
                     distance = dist_point_interface(p, hit->interface(), alphas, local_nearest_triangle);
-                    if (distance<distmin) {
+                    if (distance < distmin) {
                         name_nearest_interface = hit->interface().name();
                         distmin = distance;
                         nearestTriangle = local_nearest_triangle;

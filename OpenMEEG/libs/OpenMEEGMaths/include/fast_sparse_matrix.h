@@ -89,9 +89,9 @@ namespace OpenMEEG {
         size_t nz = M.rowindex[M.nlin()];
         f << M.nlin() << " " << M.ncol() << std::endl;
         f << nz << std::endl;
-        for (size_t i = 0; i<M.nlin(); i++)
+        for (size_t i = 0; i < M.nlin(); i++)
         {
-            for (size_t j = M.rowindex[i]; j<M.rowindex[i+1]; j++)
+            for (size_t j = M.rowindex[i]; j < M.rowindex[i+1]; j++)
             {
                 f << (long unsigned int)i << "\t" << (long unsigned int)M.js[j] << "\t" << M.tank[j] << std::endl;
             }
@@ -216,9 +216,9 @@ namespace OpenMEEG {
 
     inline double FastSparseMatrix::operator()(size_t i, size_t j) const
     {
-        for (size_t k = rowindex[i]; k<rowindex[i+1]; k++)
+        for (size_t k = rowindex[i]; k < rowindex[i+1]; k++)
         {
-            if (js[k]<j) continue;
+            if (js[k] < j) continue;
             else if (js[k] == j) return tank[k];
             else break;
         }
@@ -228,14 +228,14 @@ namespace OpenMEEG {
 
     inline double& FastSparseMatrix::operator()(size_t i, size_t j)
     {
-        for (size_t k = rowindex[i]; k<rowindex[i+1]; k++)
+        for (size_t k = rowindex[i]; k < rowindex[i+1]; k++)
         {
-            if (js[k]<j) continue;
+            if (js[k] < j) continue;
             else if (js[k] == j) return tank[k];
             else break;
         }
 
-        std::cerr<<"FastSparseMatrix : double& operator()(size_t i, size_t j) can't add element"<<std::endl;
+        std::cerr << "FastSparseMatrix : double& operator()(size_t i, size_t j) can't add element" << std::endl;
         exit(1);
     }
 
@@ -246,10 +246,10 @@ namespace OpenMEEG {
         Vector *_v = (Vector *)&v;
         double *pt_vect = &(*_v)(0);
 
-        for (size_t i = 0; i<m_nlin; i++)
+        for (size_t i = 0; i < m_nlin; i++)
         {
             double& total = pt_result[i];
-            for (size_t j = rowindex[i]; j<rowindex[i+1]; j++) {
+            for (size_t j = rowindex[i]; j < rowindex[i+1]; j++) {
                 total += tank[j]*pt_vect[js[j]];
             }
         }

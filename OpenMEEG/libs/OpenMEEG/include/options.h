@@ -127,7 +127,7 @@ namespace OpenMEEG {
         inline int strcmp(const char *s1, const char *s2)
         {
             const int l1 = command_line::strlen(s1), l2 = command_line::strlen(s2);
-            return command_line::strncmp(s1, s2, 1+(l1<l2?l1:l2));
+            return command_line::strncmp(s1, s2, 1+(l1 < l2?l1:l2));
         }
 
         inline int strcasecmp(const char *s1, const char *s2)

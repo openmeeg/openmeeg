@@ -223,9 +223,9 @@ namespace OpenMEEG {
 
       double n_x, n_y, n_z;
 
-      n_x = ((normal_1[0]<0)?-normal_1[0]:normal_1[0]);
-      n_y = ((normal_1[1]<0)?-normal_1[1]:normal_1[1]);
-      n_z = ((normal_1[2]<0)?-normal_1[2]:normal_1[2]);
+      n_x = ((normal_1[0] < 0)?-normal_1[0]:normal_1[0]);
+      n_y = ((normal_1[1] < 0)?-normal_1[1]:normal_1[1]);
+      n_z = ((normal_1[2] < 0)?-normal_1[2]:normal_1[2]);
 
 
       // Projection of the triangles in 3D onto 2D such that the area of

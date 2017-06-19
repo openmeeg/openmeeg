@@ -55,7 +55,7 @@ namespace OpenMEEG {
             return true;
         } else {
             std::cerr << "Interface::contains_point(" << p << ") Error. Are you sure the interface \"" << name_ << "\" is closed? Solid angle: " << std::abs(solangle)/M_PI << "*PI." << std::endl;
-            return std::abs(solangle)>2*M_PI?true:false;
+            return std::abs(solangle) > 2*M_PI?true:false;
         }
     }
 

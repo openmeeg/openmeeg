@@ -77,12 +77,12 @@ namespace OpenMEEG {
         double* data() const { return value->data; }
 
         inline double operator()(const size_t i) const {
-            om_assert(i<nlin());
+            om_assert(i < nlin());
             return value->data[i];
         }
 
         inline double& operator()(const size_t i) {
-            om_assert(i<nlin());
+            om_assert(i < nlin());
             return value->data[i];
         }
 
@@ -130,7 +130,7 @@ namespace OpenMEEG {
     inline Vector Vector::subvect(size_t istart, size_t isize) const {
         om_assert (istart+isize <= nlin());
         Vector a(isize);
-        for (size_t i = 0; i<isize; i++)
+        for (size_t i = 0; i < isize; i++)
             a(i) = (*this)(istart+i);
         return a;
     }
@@ -141,7 +141,7 @@ namespace OpenMEEG {
     #ifdef HAVE_BLAS
         BLAS(daxpy, DAXPY)(sizet_to_int(nlin()), 1, v.data(), 1, p.data(), 1);
     #else
-        for ( size_t i = 0; i<nlin(); i++ )
+        for ( size_t i = 0; i < nlin(); i++ )
             p.data()[i] = data()[i]+v.data()[i];
     #endif
         return p;
@@ -153,7 +153,7 @@ namespace OpenMEEG {
     #ifdef HAVE_BLAS
         BLAS(daxpy, DAXPY)(sizet_to_int(nlin()), -1, v.data(), 1, p.data(), 1);
     #else
-        for ( size_t i = 0; i<nlin(); i++ )
+        for ( size_t i = 0; i < nlin(); i++ )
             p.data()[i] = data()[i]-v.data()[i];
     #endif
         return p;
@@ -164,7 +164,7 @@ namespace OpenMEEG {
     #ifdef HAVE_BLAS
         BLAS(daxpy, DAXPY)(sizet_to_int(nlin()), 1, v.data(), 1, data(), 1);
     #else
-        for ( size_t i = 0; i<nlin(); i++ )
+        for ( size_t i = 0; i < nlin(); i++ )
             data()[i] += v.data()[i];
     #endif
     }
@@ -174,7 +174,7 @@ namespace OpenMEEG {
     #ifdef HAVE_BLAS
         BLAS(daxpy, DAXPY)(sizet_to_int(nlin()), -1, v.data(), 1, data(), 1);
     #else
-        for ( size_t i = 0; i<nlin(); i++ )
+        for ( size_t i = 0; i < nlin(); i++ )
             data()[i] -= v.data()[i];
     #endif
     }
@@ -185,7 +185,7 @@ namespace OpenMEEG {
         return BLAS(ddot, DDOT)(sizet_to_int(nlin()), data(), 1, v.data(), 1);
     #else
         double s = 0;
-        for ( size_t i = 0; i<nlin(); i++ )
+        for ( size_t i = 0; i < nlin(); i++ )
             s += data()[i]*v.data()[i];
         return s;
     #endif
@@ -197,7 +197,7 @@ namespace OpenMEEG {
         BLAS(dscal, DSCAL)(sizet_to_int(nlin()), x, p.data(), 1);
     #else
         Vector p(nlin());
-        for ( size_t i = 0; i<nlin(); i++ )
+        for ( size_t i = 0; i < nlin(); i++ )
             p.data()[i] = x*data()[i];
     #endif
         return p;
@@ -207,7 +207,7 @@ namespace OpenMEEG {
     #ifdef HAVE_BLAS
         BLAS(dscal, DSCAL)(sizet_to_int(nlin()), x, data(), 1);
     #else
-        for ( size_t i = 0; i<nlin(); i++ )
+        for ( size_t i = 0; i < nlin(); i++ )
             data()[i] *= x;
     #endif
     }
@@ -224,15 +224,15 @@ namespace OpenMEEG {
     }
 
     // inline Vector Vector::conv(const Vector& v) const {
-    //     if (v.nlin()<nlin()) return v.conv(*this);
+    //     if (v.nlin() < nlin()) return v.conv(*this);
     //
     //     Vector p(nlin()+v.nlin()-1);
     //     p.set(0);
-    //     for (size_t i = 0; i<v.nlin(); i++) {
+    //     for (size_t i = 0; i < v.nlin(); i++) {
     // #ifdef HAVE_BLAS
     //         BLAS(daxpy, DAXPY)(sizet_to_int(nlin()), v(i), data(), 1, p.data()+i, 1);
     // #else
-    //         for (size_t j = 0; j<nlin(); j++)
+    //         for (size_t j = 0; j < nlin(); j++)
     //             p(i+j) += v(i)*data()[j];
     // #endif
     //     }
@@ -242,13 +242,13 @@ namespace OpenMEEG {
     // inline Vector Vector::conv_trunc(const Vector& v) const {
     //     Vector p(v.nlin());
     //     p.set(0);
-    //     for (size_t i = 0; i<v.nlin(); i++)
+    //     for (size_t i = 0; i < v.nlin(); i++)
     //     {
     //         size_t m = std::min(nlin(), v.nlin()-i);
     // #ifdef HAVE_BLAS
     //         BLAS(daxpy, DAXPY)((int)m, v(i), data(), 1, p.data()+i, 1);
     // #else
-    //         for (size_t j = 0; j<m; j++)
+    //         for (size_t j = 0; j < m; j++)
     //             p(i+j) += v(i)*data()[j];
     // #endif
     //     }
