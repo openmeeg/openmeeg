@@ -20,6 +20,7 @@ matrix:
         - USE_OMP=1
         - ENABLE_PACKAGING=1
         - USE_VTK=1
+        - APPLE_PROVIDE_ALL_LIBS=1
         - BUILD_DOCUMENTATION=OFF
         - BLASLAPACK_IMPLEMENTATION=Auto # (Auto is the same as MKL/OpenBLAS/vecLib in priority)
     - os: osx

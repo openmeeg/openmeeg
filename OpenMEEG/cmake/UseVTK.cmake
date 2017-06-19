@@ -27,7 +27,7 @@ if (USE_VTK)
         list(APPEND OpenMEEG_OTHER_INCLUDE_DIRS ${VTK_INCLUDE_DIRS})
         list(APPEND OpenMEEG_DEPENDENCIES VTK)
         set(CMAKE_MSVCIDE_RUN_PATH ${VTK_RUNTIME_LIBRARY_DIRS} ${CMAKE_MSVCIDE_RUN_PATH}) # specially for windows
-        if (APPLE) # for Mac copy the libs
+        if (APPLE_PROVIDE_ALL_LIBS) # for Mac copy the libs
             set(LIBS)
             foreach(lib ${VTK_LIBRARIES})
                 if(EXISTS ${lib})
