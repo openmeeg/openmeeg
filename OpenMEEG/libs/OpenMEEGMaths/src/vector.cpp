@@ -54,7 +54,7 @@ namespace OpenMEEG {
         value = A.value;
     }
 
-    Vector Vector::kmult(const Vector& v) const { // Kronecker multiplication
+    Vector Vector::kmult(const Vector& v) const {  // Kronecker multiplication
         om_assert(nlin() == v.nlin());
         Vector p(nlin());
         for ( size_t i = 0; i<nlin(); i++ )

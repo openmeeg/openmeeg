@@ -58,7 +58,7 @@ namespace OpenMEEG {
 
     class OPENMEEG_EXPORT analyticS
     {
-        Vect3 p0, p1, p2; //!< vertices of the triangle
+        Vect3 p0, p1, p2;  //!< vertices of the triangle
         Vect3 p2p1, p1p0, p0p2;
         Vect3 nu0, nu1, nu2;
         Vect3 n;
@@ -87,7 +87,7 @@ namespace OpenMEEG {
             p1p0 = p1-p0; p2p1 = p2-p1; p0p2 = p0-p2;
             norm2p1p0 = p1p0.norm(); norm2p2p1 = p2p1.norm(); norm2p0p2 = p0p2.norm();
 
-            n = T.normal(); // since triangle's normal is already normalized
+            n = T.normal();  // since triangle's normal is already normalized
             init_aux();
         }
 
@@ -238,7 +238,7 @@ namespace OpenMEEG {
             double rn = r.norm();
             double EMpart = n*(q/pow(rn, 3.)-3*(q*r)*r/pow(rn, 5.));
 
-            return -EMpart*P1part; // RK: why - sign ?
+            return -EMpart*P1part;  // RK: why - sign ?
         }
     };
 }

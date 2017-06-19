@@ -84,7 +84,7 @@ namespace OpenMEEG {
         first = false;
         // srand((unsigned int)((seed == -1)?time(0):seed));
         srand(0);
-        rand(); // the first is biased!
+        rand();  // the first is biased!
     }
 
     inline double drandom()

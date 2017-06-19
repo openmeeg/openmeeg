@@ -8,7 +8,7 @@
 
 #include <cblas.h>
 #include <lapacke.h>
-#undef I // undefine this def due to complex.h that causes issues later
+#undef I  // undefine this def due to complex.h that causes issues later
 
 #define BLAS(x, X) cblas_ ## x
 #define LAPACK(x, X) LAPACKE_ ## x

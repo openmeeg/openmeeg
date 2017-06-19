@@ -61,7 +61,7 @@ namespace OpenMEEG {
 
     class OPENMEEG_EXPORT Vect3 {
 
-        double m[3]; //!< Coordinates of the vector
+        double m[3];  //!< Coordinates of the vector
 
     public:
 
@@ -125,7 +125,7 @@ namespace OpenMEEG {
         inline Vect3 operator-() { return Vect3(-m[0], -m[1], -m[2]); }
 
         inline double det(const Vect3& y2, const Vect3& y3) const {
-            return (*this)*(y2^y3); // y1.det(y2, y3):= y1/(y2^y3)
+            return (*this)*(y2^y3);  // y1.det(y2, y3):= y1/(y2^y3)
         }
 
         inline double solangl(const Vect3& v1, const Vect3& v2, const Vect3& v3) const {

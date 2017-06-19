@@ -102,7 +102,7 @@ namespace OpenMEEG {
                 for ( size_t i = 0; i < r; i++) {
                     s(i, i) = 1.0 / S(i, i);
                 }
-                const Matrix Vbis(V.transpose(), r); // keep only the first r columns
+                const Matrix Vbis(V.transpose(), r);  // keep only the first r columns
                 const Matrix Ubis(U, r);
                 return Vbis * s * Ubis.transpose();
             }
@@ -133,9 +133,9 @@ namespace OpenMEEG {
         BLAS_INT lwork = 4 *mini*mini + std::max(maxi, 4*mini*mini+4*mini);
         BLAS_INT Info = 0;
         double *work = new double[lwork];
-        if ( complete ) { // complete SVD
+        if ( complete ) {  // complete SVD
             DGESDD('A', sizet_to_int(nlin()), sizet_to_int(ncol()), cpy.data(), sizet_to_int(nlin()), s, U.data(), sizet_to_int(U.nlin()), V.data(), sizet_to_int(V.nlin()), work, lwork, iwork, Info);
-        } else { // only first min(m, n)
+        } else {  // only first min(m, n)
             DGESDD('S', sizet_to_int(nlin()), sizet_to_int(ncol()), cpy.data(), sizet_to_int(nlin()), s, U.data(), sizet_to_int(U.nlin()), V.data(), sizet_to_int(V.nlin()), work, lwork, iwork, Info);
         }
         for ( size_t i = 0; i < mini; ++i) S(i, i) = s[i];

@@ -101,9 +101,9 @@ namespace OpenMEEG {
               bool&        outermost()       { return outermost_; }
         const bool&        outermost() const { return outermost_; }
 
-        void info() const; ///< print info about the domain
+        void info() const;  ///< print info about the domain
 
-        bool contains_point(const Vect3&) const; ///< Does this point belongs to the domain ?
+        bool contains_point(const Vect3&) const;  ///< Does this point belongs to the domain ?
 
         /** \return 1 if the mesh is oriented toward the domain.
                    -1 if not
@@ -121,7 +121,7 @@ namespace OpenMEEG {
 
         std::string name_;      ///< Name of the domain.
         double      sigma_;     ///< Conductivity of the domain.
-        bool        outermost_; ///< Is it an outermost domain
+        bool        outermost_;  ///< Is it an outermost domain
     };
 
     /// A vector of Domain is called Domains

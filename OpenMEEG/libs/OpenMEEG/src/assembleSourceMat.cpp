@@ -62,7 +62,7 @@ namespace OpenMEEG {
         if ( !OK ) {
             std::cerr << "Error: source mesh overlapps the geometry" << std::endl;
             return;
-        } // then the mesh is included in a domain of the geometry
+        }  // then the mesh is included in a domain of the geometry
 
         const Domain d     = geo.domain(**mesh_source.vertex_begin());
         const double sigma = d.sigma();

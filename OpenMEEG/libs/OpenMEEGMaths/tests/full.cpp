@@ -61,12 +61,12 @@ int main () {
 
     genericTest("full", M);
 
-    Matrix Q = M.submat(3, 1, 2, 3); // select submatrix
+    Matrix Q = M.submat(3, 1, 2, 3);  // select submatrix
     std::cout << "Matrice Q : " << std::endl;
     Q.info();
 
     Matrix M1 = M;
-    M1.insertmat(3, 1, Q); // insert submatrix
+    M1.insertmat(3, 1, Q);  // insert submatrix
     if (std::abs((M1-M).frobenius_norm()) > 1e-10) {
         std::cerr << "Error: insert matrix is WRONG" << std::endl;
         exit(1);

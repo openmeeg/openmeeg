@@ -65,7 +65,7 @@ namespace OpenMEEG {
 
         ~Jacobi () {}
     private:
-        SparseMatrix J; // diagonal
+        SparseMatrix J;  // diagonal
     };
 
     // =========================
@@ -111,7 +111,7 @@ namespace OpenMEEG {
     }
 
     // code taken from http://www.netlib.org/templates/cpp/gmres.h and modified
-    template<class T, class P> // T should be a linear operator, and P a preconditionner
+    template<class T, class P>  // T should be a linear operator, and P a preconditionner
     unsigned GMRes(const T& A, const P& M, Vector &x, const Vector& b, int max_iter, double tol, unsigned m) {
 
         // m is the size of the Krylov subspace, if m<A.nlin(), it is a restarted GMRes (for saving memory)
@@ -122,8 +122,8 @@ namespace OpenMEEG {
         int i, j = 1, k;
         Vector s(m+1), cs(m+1), sn(m+1), w;
 
-        double normb = (M(b)).norm(); //(M*b).norm()
-        Vector r = M(b-A*x); //M.solve(b - A * x);
+        double normb = (M(b)).norm();  //(M*b).norm()
+        Vector r = M(b-A*x);  //M.solve(b - A * x);
         double beta = r.norm();
 
         if (normb == 0.0)
@@ -142,7 +142,7 @@ namespace OpenMEEG {
             s(0) = beta;
 
             for (i = 0; i < m && j <= max_iter; i++, j++) {
-                w = M(A*v[i]); //M.solve(A * v[i]);
+                w = M(A*v[i]);  //M.solve(A * v[i]);
                 for (k = 0; k <= i; k++) {
                     H(k, i) = w*v[k];
                     w -= H(k, i) * v[k];
@@ -167,7 +167,7 @@ namespace OpenMEEG {
                 }
             }
             Update(x, i - 1, H, s, v);
-            r = M(b-A*x); //M.solve(b - A * x);
+            r = M(b-A*x);  //M.solve(b - A * x);
             beta = r.norm();
             if ((resid = beta / normb) < tol) {
                 tol = resid;

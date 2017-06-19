@@ -117,7 +117,7 @@ namespace OpenMEEG {
                 for (Geometry::const_iterator mit2 = geo.begin(); (mit2 != (mit1+1)); ++mit2) {
                     if ((!mit2->isolated()) && (geo.sigma(*mit1, *mit2) != 0.0)) {
                         // if mit1 and mit2 communicate, i.e they are used for the definition of a common domain
-                        const int orientation = geo.oriented(*mit1, *mit2); // equals  0, if they don't have any domains in common
+                        const int orientation = geo.oriented(*mit1, *mit2);  // equals  0, if they don't have any domains in common
                                                                             // equals  1, if they are both oriented toward the same domain
                                                                             // equals -1, if they are not
                         if (orientation != 0) {
@@ -181,7 +181,7 @@ namespace OpenMEEG {
             for ( Geometry::const_iterator mit1 = geo.begin(); mit1 != geo.end(); ++mit1) {
                 for ( Geometry::const_iterator mit2 = geo.begin(); (mit2 != (mit1+1)); ++mit2) {
                     // if mit1 and mit2 communicate, i.e they are used for the definition of a common domain
-                    const int orientation = geo.oriented(*mit1, *mit2); // equals  0, if they don't have any domains in common
+                    const int orientation = geo.oriented(*mit1, *mit2);  // equals  0, if they don't have any domains in common
                     // equals  1, if they are both oriented toward the same domain
                     // equals -1, if they are not
                     if ( orientation != 0) {
@@ -244,7 +244,7 @@ namespace OpenMEEG {
             for ( unsigned i = Nl; i < Nc; ++i) {
                 S(i, i) = 1.0;
             }
-            P = (W.transpose() * S) * W; // P is a projector: P^2 = P and mat*P*X = 0
+            P = (W.transpose() * S) * W;  // P is a projector: P^2 = P and mat*P*X = 0
             if ( filename.length() != 0 ) {
                 std::cout << "Saving projector P (" << filename << ")." << std::endl;
                 P.save(filename);
@@ -262,9 +262,9 @@ namespace OpenMEEG {
         }
 
         // ** Choose Regularization parameter **
-        SparseMatrix alphas(Nc, Nc); // diagonal matrix
+        SparseMatrix alphas(Nc, Nc);  // diagonal matrix
         Matrix Z;
-        if ( alpha < 0 ) { // try an automatic method... TODO find better estimation
+        if ( alpha < 0 ) {  // try an automatic method... TODO find better estimation
             double nRR_v = RR.submat(0, geo.nb_vertices(), 0, geo.nb_vertices()).frobenius_norm();
             alphas.set(0.);
             alpha = MM.frobenius_norm() / (1.e3*nRR_v);
@@ -345,7 +345,7 @@ namespace OpenMEEG {
             for ( Geometry::const_iterator mit1 = geo.begin(); mit1 != geo.end(); ++mit1) {
                 for ( Geometry::const_iterator mit2 = geo.begin(); (mit2 != (mit1+1)); ++mit2) {
                     // if mit1 and mit2 communicate, i.e they are used for the definition of a common domain
-                    const int orientation = geo.oriented(*mit1, *mit2); // equals  0, if they don't have any domains in common
+                    const int orientation = geo.oriented(*mit1, *mit2);  // equals  0, if they don't have any domains in common
                     // equals  1, if they are both oriented toward the same domain
                     // equals -1, if they are not
                     if ( orientation != 0) {
@@ -437,7 +437,7 @@ namespace OpenMEEG {
     {
         const double K = 1.0/(4.0*M_PI);
 
-        unsigned size = 0; // total number of inside points
+        unsigned size = 0;  // total number of inside points
         for ( std::map<const Domain, Vertices>::const_iterator dvit = m_points.begin(); dvit != m_points.end(); ++dvit) {
             size += dvit->second.size();
         }
@@ -491,4 +491,4 @@ namespace OpenMEEG {
 
         assemble_Surf2Vol(geo, *this, m_points);
     }
-} // namespace OpenMEEG
+}  // namespace OpenMEEG

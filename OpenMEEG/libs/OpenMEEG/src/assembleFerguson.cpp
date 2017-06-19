@@ -51,7 +51,7 @@ namespace OpenMEEG {
     // n   = numbers of places where magnetic field is to be computed
     void assemble_ferguson(const Geometry& geo, Matrix& mat, const Matrix& pts)
     {
-        unsigned miit = 0; // for progressbar: mesh index iterator
+        unsigned miit = 0;  // for progressbar: mesh index iterator
         // Computation of blocks of Ferguson's Matrix
         for ( Geometry::const_iterator mit = geo.begin(); mit != geo.end(); ++mit, ++miit) {
             unsigned offsetI = 0;

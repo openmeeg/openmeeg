@@ -194,7 +194,7 @@ namespace OpenMEEG {
 
             for (iterator mit = begin(); mit != end(); ++mit) {
                 if (OLD_ORDERING) {
-                    om_error(is_nested_); // OR non nested but without shared vertices
+                    om_error(is_nested_);  // OR non nested but without shared vertices
                     for (Mesh::const_vertex_iterator vit = mit->vertex_begin(); vit != mit->vertex_end(); ++vit, ++index)
                     {
                         (*vit)->index() = index;
@@ -284,7 +284,7 @@ namespace OpenMEEG {
 
     /// \return the difference of conductivities of the 2 domains.
     double  Geometry::sigma_diff(const Mesh& m) const {
-        Domains doms = common_domains(m, m); // Get the 2 domains surrounding mesh m
+        Domains doms = common_domains(m, m);  // Get the 2 domains surrounding mesh m
         double  ans  = 0.;
         for (Domains::iterator dit = doms.begin(); dit != doms.end(); ++dit) {
             ans += dit->sigma()*dit->mesh_orientation(m);
@@ -294,7 +294,7 @@ namespace OpenMEEG {
 
     /// \return 0. for non communicating meshes, 1. for same oriented meshes, -1. for different orientation
     int Geometry::oriented(const Mesh& m1, const Mesh& m2) const {
-        Domains doms = common_domains(m1, m2); // 2 meshes have either 0, 1 or 2 domains in common
+        Domains doms = common_domains(m1, m2);  // 2 meshes have either 0, 1 or 2 domains in common
         return (doms.size() == 0) ? 0 : ((doms[0].mesh_orientation(m1) == doms[0].mesh_orientation(m2)) ? 1 : -1);
     }
 
@@ -456,7 +456,7 @@ namespace OpenMEEG {
                         }
                     }
                     if (vfind != mit->vertex_end()) {
-                        shared_vtx.insert(**vfind); //a shared vertex is found
+                        shared_vtx.insert(**vfind);  //a shared vertex is found
                     }
                 }
             }

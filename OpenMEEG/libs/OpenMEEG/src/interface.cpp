@@ -116,7 +116,7 @@ namespace OpenMEEG {
             if (!checked)
                 std::srand((unsigned int)std::time(NULL));
             else
-                std::srand((unsigned int)(std::time(NULL)+3583)); //the program runs faster than the change of time value
+                std::srand((unsigned int)(std::time(NULL)+3583));  //the program runs faster than the change of time value
 
             while (std::abs(solangle) < 1.e3*std::numeric_limits<double>::epsilon()) {
                 Vect3 pt_rd((double)rand()/RAND_MAX*(xmax-xmin)+xmin,

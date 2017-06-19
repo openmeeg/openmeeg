@@ -71,7 +71,7 @@ namespace OpenMEEG {
         size_t size() const { return nlin()*(nlin()+1)/2; };
         void info() const ;
 
-        size_t  ncol() const { return nlin(); } // SymMatrix only need num_lines
+        size_t  ncol() const { return nlin(); }  // SymMatrix only need num_lines
         size_t& ncol()       { return nlin(); }
 
         void alloc_data() { value = new LinOpValue(size()); }
@@ -229,7 +229,7 @@ namespace OpenMEEG {
         for (size_t i = 0; i< nlin(); i++) {
             if (pivots[i] >= 0) {
                 d *= invA(i, i);
-            } else { // pivots[i] < 0
+            } else {  // pivots[i] < 0
                 if (i < nlin()-1 && pivots[i] == pivots[i+1]) {
                     d *= (invA(i, i)*invA(i+1, i+1)-invA(i, i+1)*invA(i+1, i));
                     i++;

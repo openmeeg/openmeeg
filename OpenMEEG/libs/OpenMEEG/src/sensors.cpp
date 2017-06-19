@@ -123,7 +123,7 @@ namespace OpenMEEG {
             }
         }
         in.clear();
-        in.seekg(0, std::ios::beg); // move the get pointer to the beginning of the file.
+        in.seekg(0, std::ios::beg);  // move the get pointer to the beginning of the file.
         in >> io_utils::skip_comments('#');
 
         if ( labeled ) {
@@ -151,8 +151,8 @@ namespace OpenMEEG {
         // positions
         m_positions = mat.submat(0, nlin, 0, 3);
         // weights
-        if (m_geo) { // EIT
-            if (ncol == 4) { // if radii were specified
+        if (m_geo) {  // EIT
+            if (ncol == 4) {  // if radii were specified
                 m_radii = mat.getcol(mat.ncol()-1);
             } else {
                 m_radii = Vector(nlin);
@@ -163,9 +163,9 @@ namespace OpenMEEG {
         } else if ((ncol == 4) && (m_geo == NULL) ) {
             std::cerr << "Sensors:: please specify at constructor stage the geometry on which to apply the spatially extended EIT sensors." << std::endl;
             exit(1);
-        } else if (ncol == 7) { // MEG
+        } else if (ncol == 7) {  // MEG
             m_weights = mat.getcol(mat.ncol()-1);
-        } else { // Others
+        } else {  // Others
             m_weights = Vector(nlin);
             m_weights.set(1.);
         }
@@ -235,8 +235,8 @@ namespace OpenMEEG {
         for ( size_t idx = 0; idx < m_positions.nlin(); ++idx) {
             Triangles triangles;
             const Vect3 current_position(m_positions(idx, 0), m_positions(idx, 1), m_positions(idx, 2));
-            Vect3 current_alphas; //not used here
-            Triangle current_nearest_triangle; // to hold the closest triangle to electrode.
+            Vect3 current_alphas;  //not used here
+            Triangle current_nearest_triangle;  // to hold the closest triangle to electrode.
 
             double dist;
             std::string s_map = dist_point_geom(current_position, *m_geo, current_alphas, current_nearest_triangle, dist);
@@ -251,7 +251,7 @@ namespace OpenMEEG {
             }
 
             triangles.push_back(current_nearest_triangle);
-            std::set<size_t> index_seen; // to avoid infinite looping
+            std::set<size_t> index_seen;  // to avoid infinite looping
             index_seen.insert(current_nearest_triangle.index());
             if ( std::abs(m_radii(idx)) > 1.e3*std::numeric_limits<double>::epsilon() ) {
                 // if the electrode is larger than the triangle, look for adjacent triangles
@@ -262,7 +262,7 @@ namespace OpenMEEG {
                         Triangle * t = tri_stack.top();
                         tri_stack.pop();
                         if ( (t->center()-current_position).norm() < m_radii(idx) ) {
-                            if (t->index() != current_nearest_triangle.index()) //don't push the nearest triangle twice
+                            if (t->index() != current_nearest_triangle.index())  //don't push the nearest triangle twice
                                 triangles.push_back(*t);
                             Interface::VectPTriangle t_adj = m_geo->interface(s_map).adjacent_triangles(*t);
                             if ( index_seen.insert(t_adj[0]->index()).second ) tri_stack.push(t_adj[0]);

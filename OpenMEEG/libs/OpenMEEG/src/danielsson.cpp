@@ -60,11 +60,11 @@ namespace OpenMEEG
             return (p - triangle.vertex(idx[0])).norm();
         }
         // Solves H = sum(alpha_i A_i), sum(alpha_i) = 1, et HM.(A_i-A_0) = 0
-        Vect3 A0Ai[3]; // A_i-A_0
+        Vect3 A0Ai[3];  // A_i-A_0
         for ( unsigned i = 1; i < nb; ++i) {
             A0Ai[i] = triangle.vertex(idx[i]) - triangle.vertex(idx[0]);
         }
-        Vect3 A0M = p - triangle.vertex(idx[0]); // M-A_0
+        Vect3 A0M = p - triangle.vertex(idx[0]);  // M-A_0
         if ( nb == 2 ) {
             alphas(idx[1]) = (A0M * A0Ai[1]) / (A0Ai[1] * A0Ai[1]);
             alphas(idx[0]) = 1.0 - alphas(idx[1]);
@@ -160,5 +160,5 @@ namespace OpenMEEG
         return name_nearest_interface;
     }
 
-} // end namespace OpenMEEG
+}  // end namespace OpenMEEG
 

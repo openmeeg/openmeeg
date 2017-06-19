@@ -173,7 +173,7 @@ namespace OpenMEEG {
             {0.263112829634639, 0.728492392955404, 0.008394777409957, 0.013615157087217}
         }
 
-    }; // end of gaussTriangleParams
+    };  // end of gaussTriangleParams
 
     static const unsigned nbPts[4] = {3, 6, 7, 16};
 

@@ -47,7 +47,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 // specially for windows
 #if WIN32
     #pragma inline_recursion (on)
-    #pragma inline_depth (255) // MSVC static build with MKL cause LNK2019 error
+    #pragma inline_depth (255)  // MSVC static build with MKL cause LNK2019 error
     #pragma warning( disable : 4530)    //MSVC standard library can't be inlined
     #pragma warning( disable : 4996)    //MSVC warning C4996: declared deprecated
     #if defined(_MSC_VER)

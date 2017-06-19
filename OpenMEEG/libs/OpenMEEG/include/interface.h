@@ -61,9 +61,9 @@ namespace OpenMEEG {
 
         OrientedMesh(Mesh& _mesh, bool _inside): base(&_mesh, _inside) {}
 
-              Mesh&  mesh()              { return *first;  } ///< \brief access mesh
-        const Mesh&  mesh()        const { return *first;  } ///< \brief access mesh
-              int    orientation() const { return ( second )?1:-1; } ///< \brief orientation is +1 or -1 ?
+              Mesh&  mesh()              { return *first;  }  ///< \brief access mesh
+        const Mesh&  mesh()        const { return *first;  }  ///< \brief access mesh
+              int    orientation() const { return ( second )?1:-1; }  ///< \brief orientation is +1 or -1 ?
     };
 
     /** Interface class
@@ -81,11 +81,11 @@ namespace OpenMEEG {
         /// Constructor from a name
         Interface(const std::string _name): name_(_name), outermost_(false) { }
 
-        const std::string   name()                       const      { return name_; } ///< \return Interface name
-        const bool &        outermost()                  const      { return outermost_; } ///< \return true if it is the outermost interface.
-              void          set_to_outermost(); ///< set all interface meshes to outermost state.
-              bool          contains_point(const Vect3& p) const; ///< \param p a point \return true if point is inside interface
-              bool          check(bool checked = false); ///< Check the global orientation
+        const std::string   name()                       const      { return name_; }  ///< \return Interface name
+        const bool &        outermost()                  const      { return outermost_; }  ///< \return true if it is the outermost interface.
+              void          set_to_outermost();  ///< set all interface meshes to outermost state.
+              bool          contains_point(const Vect3& p) const;  ///< \param p a point \return true if point is inside interface
+              bool          check(bool checked = false);  ///< Check the global orientation
 
         /// \return the total number of the interface vertices
         size_t nb_vertices() const {
@@ -117,10 +117,10 @@ namespace OpenMEEG {
 
     private:
 
-        double compute_solid_angle(const Vect3& p) const; ///< Given a point p, it computes the solid angle \return should return +/- 4 PI or 0.
+        double compute_solid_angle(const Vect3& p) const;  ///< Given a point p, it computes the solid angle \return should return +/- 4 PI or 0.
 
         std::string name_;      ///< is "" by default
-        bool        outermost_; ///< tell weather or not the interface touches the Air (Outermost) Domain.
+        bool        outermost_;  ///< tell weather or not the interface touches the Air (Outermost) Domain.
     };
 
     /// A vector of Interface is called Interfaces

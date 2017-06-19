@@ -132,7 +132,7 @@ namespace OpenMEEG {
                 mat(i, vit->index()) = fergusonField * normalizedDirection;
             }
         }
-        mat = sensors.getWeightsMatrix() * mat; // Apply weights
+        mat = sensors.getWeightsMatrix() * mat;  // Apply weights
     }
 
     Head2MEGMat::Head2MEGMat(const Geometry& geo, const Sensors& sensors)
@@ -166,7 +166,7 @@ namespace OpenMEEG {
             }
         }
 
-        mat = sensors.getWeightsMatrix() * mat; // Apply weights
+        mat = sensors.getWeightsMatrix() * mat;  // Apply weights
     }
 
     SurfSource2MEGMat::SurfSource2MEGMat(const Mesh& sources_mesh, const Sensors& sensors)
@@ -206,7 +206,7 @@ namespace OpenMEEG {
             }
         }
 
-        mat = sensors.getWeightsMatrix() * mat; // Apply weights
+        mat = sensors.getWeightsMatrix() * mat;  // Apply weights
     }
 
     DipSource2MEGMat::DipSource2MEGMat(const Matrix& dipoles, const Sensors& sensors)
@@ -214,4 +214,4 @@ namespace OpenMEEG {
         assemble_DipSource2MEG(*this, dipoles, sensors);
     }
 
-} // end namespace OpenMEEG
+}  // end namespace OpenMEEG

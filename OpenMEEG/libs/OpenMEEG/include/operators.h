@@ -77,7 +77,7 @@ namespace OpenMEEG {
     #else
         STATIC_OMP Integrator<Vect3, analyticD3> gauss(gauss_order);
         Vect3 total = gauss.integrate(analyD, T1);
-    #endif //ADAPT_LHS
+    #endif  //ADAPT_LHS
 
         for (unsigned i = 0; i < 3; ++i)
             mat(T1.index(), T2(i).index()) += total(i) * coeff;
@@ -96,7 +96,7 @@ namespace OpenMEEG {
         STATIC_OMP Triangle *oldT = 0;
         STATIC_OMP analyticS analyS;
 
-        if ( oldT != &T1 ) { // a few computations are needed only when changing triangle T1
+        if ( oldT != &T1 ) {  // a few computations are needed only when changing triangle T1
             oldT = (Triangle*)&T1;
             analyS.init(T1);
         }
@@ -108,7 +108,7 @@ namespace OpenMEEG {
         STATIC_OMP Integrator<double, analyticS> gauss;
         gauss.setOrder(gauss_order);
         return gauss.integrate(analyS, T2);
-    #endif //ADAPT_LHS
+    #endif  //ADAPT_LHS
     }
 
     inline double _operatorSinternal(const Triangle& T, const Vertex& P) {
@@ -163,7 +163,7 @@ namespace OpenMEEG {
 
         std::cout << "OPERATOR N ... (arg : mesh " << m1.name() << " , mesh " << m2.name() << " )" << std::endl;
 
-        unsigned i = 0; // for the PROGRESSBAR
+        unsigned i = 0;  // for the PROGRESSBAR
         if (&m1 == &m2) {
             if (m1.current_barrier()) {
                 // we thus precompute operator S divided by the product of triangles area.
@@ -266,7 +266,7 @@ namespace OpenMEEG {
 
         std::cout << "OPERATOR S ... (arg : mesh " << m1.name() << " , mesh " << m2.name() << " )" << std::endl;
 
-        unsigned i = 0; // for the PROGRESSBAR
+        unsigned i = 0;  // for the PROGRESSBAR
         // The operator S is given by Sij = \Int G*PSI(I, i)*Psi(J, j) with
         // PSI(A, a) is a P0 test function on layer A and triangle a
         if (&m1 == &m2) {
@@ -314,7 +314,7 @@ namespace OpenMEEG {
         //    That's why the filling is done is function _operatorD
         //
 
-        unsigned i = 0; // for the PROGRESSBAR
+        unsigned i = 0;  // for the PROGRESSBAR
         #pragma omp parallel for
         #ifndef OPENMP_3_0
         for (int i1=0; i1 < m1.size(); ++i1) {

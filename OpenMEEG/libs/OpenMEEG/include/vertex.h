@@ -67,7 +67,7 @@ namespace OpenMEEG {
 
     private:
 
-        unsigned ind; ///< Index of the vertex
+        unsigned ind;  ///< Index of the vertex
     };
 
     typedef std::vector<Vertex> Vertices;

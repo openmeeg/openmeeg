@@ -60,7 +60,7 @@ int main() {
 
     genericTest("symm", S);
 
-    const Matrix R = S(1, 2, 0, 2); // extract submatrix
+    const Matrix R = S(1, 2, 0, 2);  // extract submatrix
     std::cout << "Matrice R : " << std::endl;
     R.info();
 
