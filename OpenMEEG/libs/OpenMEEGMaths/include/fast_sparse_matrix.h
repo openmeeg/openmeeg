@@ -93,7 +93,7 @@ namespace OpenMEEG {
         {
             for (size_t j = M.rowindex[i]; j<M.rowindex[i+1]; j++)
             {
-                f<<(long unsigned int)i<<"\t"<<(long unsigned int)M.js[j]<<"\t"<<M.tank[j]<<std::endl;
+                f << (long unsigned int)i << "\t" << (long unsigned int)M.js[j] << "\t" << M.tank[j] << std::endl;
             }
         }
         return f;

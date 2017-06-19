@@ -105,7 +105,7 @@ namespace OpenMEEG {
 
             for (const_iterator mit = begin(); mit != end(); ++mit) {
                 for (Mesh::const_iterator tit = mit->begin(); tit != mit->end(); ++tit) {
-                    std::cout << "[[" << tit->s1() << "] , [" << tit->s2() << "] , ["<< tit->s3() << "]] \t = " << tit->index() << std::endl;
+                    std::cout << "[[" << tit->s1() << "] , [" << tit->s2() << "] , [" << tit->s3() << "]] \t = " << tit->index() << std::endl;
                 }
             }
         }
@@ -425,7 +425,7 @@ namespace OpenMEEG {
                         if (!ret.second) {
                             omit->mesh().isolated() = true;
                             omit->mesh().outermost() = false;
-                            std::cout<<"Mesh \""<<omit->mesh().name()<<"\" will be excluded from computation because it touches non-conductive domains on both sides."<<std::endl;
+                            std::cout << "Mesh \"" << omit->mesh().name() << "\" will be excluded from computation because it touches non-conductive domains on both sides." << std::endl;
                             //add all of its vertices to invalid_vertices
                             for (Mesh::const_vertex_iterator vit = omit->mesh().vertex_begin(); vit != omit->mesh().vertex_end(); ++vit) {
                                 invalid_vertices_.insert(**vit);
@@ -484,15 +484,15 @@ namespace OpenMEEG {
 
         //detect isolated geometries
         if (mesh_conn.size()>1) {
-            std::cout<<"The geometry is cut into several unrelated parts by non-conductive domains."<<std::endl;
-            std::cout<<"The computation will continue. But please note that the electric potentials from different parts are no longer comparable."<<std::endl;
+            std::cout << "The geometry is cut into several unrelated parts by non-conductive domains." << std::endl;
+            std::cout << "The computation will continue. But please note that the electric potentials from different parts are no longer comparable." << std::endl;
 
             for (unsigned iit = 0, p = 0; iit < mesh_conn.size(); ++iit) {
-                std::cout<<"Part "<<++p<<" is formed by meshes: { ";
+                std::cout << "Part " << ++p << " is formed by meshes: { ";
                 for (unsigned miit = 0; miit < mesh_conn[iit].size(); ++miit) {
-                    std::cout<<"\""<<meshes()[mesh_conn[iit][miit]].name()<<"\" ";
+                    std::cout << "\"" << meshes()[mesh_conn[iit][miit]].name() << "\" ";
                 }
-                std::cout<<"}."<<std::endl;
+                std::cout << "}." << std::endl;
             }
         }
         //count geo_group

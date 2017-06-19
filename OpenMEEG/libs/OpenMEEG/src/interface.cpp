@@ -54,7 +54,7 @@ namespace OpenMEEG {
             std::cerr << "Interface::contains_point(" << p << ") Error. This should not happen. Are you sure the mesh is properly oriented ?\n";
             return true;
         } else {
-            std::cerr << "Interface::contains_point(" << p << ") Error. Are you sure the interface \"" << name_ << "\" is closed? Solid angle: " << std::abs(solangle)/M_PI <<"*PI." << std::endl;
+            std::cerr << "Interface::contains_point(" << p << ") Error. Are you sure the interface \"" << name_ << "\" is closed? Solid angle: " << std::abs(solangle)/M_PI << "*PI." << std::endl;
             return std::abs(solangle)>2*M_PI?true:false;
         }
     }
@@ -112,7 +112,7 @@ namespace OpenMEEG {
         //if the bounding box center is not inside the interface,
         //we try to test another point inside the bounding box.
         if (std::abs(solangle) < 1.e3*std::numeric_limits<double>::epsilon()) {
-            //std::cout<<"bbcenter is not inside interface: "<<name_<<std::endl;
+            //std::cout << "bbcenter is not inside interface: " << name_ << std::endl;
             if (!checked)
                 std::srand((unsigned int)std::time(NULL));
             else
@@ -122,7 +122,7 @@ namespace OpenMEEG {
                 Vect3 pt_rd((double)rand()/RAND_MAX*(xmax-xmin)+xmin,
                             (double)rand()/RAND_MAX*(ymax-ymin)+ymin,
                             (double)rand()/RAND_MAX*(zmax-zmin)+zmin);
-                //std::cout<<"\ttest random point("<<pt_rd<<")\n";
+                //std::cout << "\ttest random point(" << pt_rd << ")\n";
                 solangle = compute_solid_angle(pt_rd);
             }
         }

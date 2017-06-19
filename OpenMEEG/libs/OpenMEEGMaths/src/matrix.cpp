@@ -143,12 +143,12 @@ namespace OpenMEEG {
         delete[] work;
         delete[] iwork;
         if (Info < 0) {
-            std::cout << "in svd: the "<< -Info << "-th argument had an illegal value." << std::endl;
+            std::cout << "in svd: the " << -Info << "-th argument had an illegal value." << std::endl;
         } else if (Info > 0) {
             std::cout << "in svd: DBDSDC did not converge, updating process failed." << std::endl;
         }
     #else
-        std::cerr<<"svd not implemented without blas/lapack"<<std::endl;
+        std::cerr << "svd not implemented without blas/lapack" << std::endl;
     #endif
     }
 

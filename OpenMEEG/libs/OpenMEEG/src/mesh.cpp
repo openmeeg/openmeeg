@@ -94,7 +94,7 @@ namespace OpenMEEG {
                 std::cout << "[" << **vit << "] = " << (*vit)->index() << std::endl;
             }
             for (const_iterator tit = begin(); tit!= end(); ++tit) {
-                    std::cout << "[[" << tit->s1() << "] , [" << tit->s2() << "] , ["<< tit->s3() << "]] \t = " << tit->index() << std::endl;
+                    std::cout << "[[" << tit->s1() << "] , [" << tit->s2() << "] , [" << tit->s3() << "]] \t = " << tit->index() << std::endl;
             }
         }
     }
@@ -388,7 +388,7 @@ namespace OpenMEEG {
         unsigned return_value = 0;
 
         if (verbose)
-            std::cout << "loading : " << filename << " as a \"" << extension << "\" file."<< std::endl;
+            std::cout << "loading : " << filename << " as a \"" << extension << "\" file." << std::endl;
 
         if (extension == std::string("vtk")) {
             return_value = load_vtk(filename, read_all);

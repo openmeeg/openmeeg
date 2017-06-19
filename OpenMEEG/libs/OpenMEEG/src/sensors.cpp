@@ -75,7 +75,7 @@ namespace OpenMEEG {
         }
 
         if ( !in.is_open() ) {
-            std::cerr<<"Error Reading File : " << filename << std::endl;
+            std::cerr << "Error Reading File : " << filename << std::endl;
             exit(1);
         }
         Sensors::load(in);
@@ -282,7 +282,7 @@ namespace OpenMEEG {
             m_triangles.push_back(triangles);
         }
         for (size_t i = 0; i<ci_mesh_names.size(); ++i)
-            std::cout<<ci_triangles[i]<<" points have been mapped to mesh "<<ci_mesh_names[i]<<std::endl;
+            std::cout << ci_triangles[i] << " points have been mapped to mesh " << ci_mesh_names[i] << std::endl;
     }
 
     void Sensors::info() const {
