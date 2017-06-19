@@ -133,7 +133,7 @@ namespace OpenMEEG {
 
         SparseMatrix getWeightsMatrix() const;
 
-        bool isEmpty() { if(m_nb == 0) return true; else return false; } /*!< Return if the sensors object is empty. The sensors object is empty if its number of sensors is null. */
+        bool isEmpty() { if (m_nb == 0) return true; else return false; } /*!< Return if the sensors object is empty. The sensors object is empty if its number of sensors is null. */
         void info() const; /*!< \brief get info about sensors. */
 
     private:

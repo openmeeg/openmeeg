@@ -49,7 +49,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 namespace OpenMEEG {
 
     const SymMatrix& SymMatrix::operator=(const double d) {
-        for(size_t i = 0; i < size(); i++) data()[i] = d;
+        for (size_t i = 0; i < size(); i++) data()[i] = d;
         return *this;
     }
 
@@ -84,8 +84,8 @@ namespace OpenMEEG {
 
     Matrix SymMatrix::operator()(size_t i_start, size_t i_end, size_t j_start, size_t j_end) const {
         Matrix retMat(i_end-i_start+1, j_end-j_start+1);
-        for(size_t i = 0; i <= i_end-i_start; i++)
-            for(size_t j = 0; j <= j_end-j_start; j++)
+        for (size_t i = 0; i <= i_end-i_start; i++)
+            for (size_t j = 0; j <= j_end-j_start; j++)
                 retMat(i, j) = this->operator()(i_start+i, j_start+j);
 
         return retMat;
@@ -102,8 +102,8 @@ namespace OpenMEEG {
         om_assert ( istart+isize <= nlin() );
 
         SymMatrix mat(isize);
-        for(size_t i = istart; i <= iend; i++)
-            for(size_t j = i; j <= iend; j++)
+        for (size_t i = istart; i <= iend; i++)
+            for (size_t j = i; j <= iend; j++)
                 mat(i, j) = this->operator()(i, j);
 
         return mat;

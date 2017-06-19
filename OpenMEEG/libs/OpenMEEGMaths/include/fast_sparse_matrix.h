@@ -89,9 +89,9 @@ namespace OpenMEEG {
         size_t nz = M.rowindex[M.nlin()];
         f << M.nlin() << " " << M.ncol() << std::endl;
         f << nz << std::endl;
-        for(size_t i = 0; i<M.nlin(); i++)
+        for (size_t i = 0; i<M.nlin(); i++)
         {
-            for(size_t j = M.rowindex[i]; j<M.rowindex[i+1]; j++)
+            for (size_t j = M.rowindex[i]; j<M.rowindex[i+1]; j++)
             {
                 f<<(long unsigned int)i<<"\t"<<(long unsigned int)M.js[j]<<"\t"<<M.tank[j]<<std::endl;
             }
@@ -140,14 +140,14 @@ namespace OpenMEEG {
         SparseMatrix::const_iterator it;
         int cnt = 0;
         size_t current_line = (size_t)-1;
-        for( it = M.begin(); it != M.end(); ++it) {
+        for ( it = M.begin(); it != M.end(); ++it) {
             size_t i = it->first.first;
             size_t j = it->first.second;
             double val = it->second;
             tank[cnt] = val;
             js[cnt] = j;
-            if(i != current_line) {
-                for(size_t k = current_line+1; k <= i; ++k) {
+            if (i != current_line) {
+                for (size_t k = current_line+1; k <= i; ++k) {
                     rowindex[k] = cnt;
                 }
                 current_line = i;
@@ -155,7 +155,7 @@ namespace OpenMEEG {
             cnt++;
         }
 
-        for(size_t k = current_line+1; k <= M.nlin(); ++k) {
+        for (size_t k = current_line+1; k <= M.nlin(); ++k) {
             rowindex[k] = M.size();
         }
 
@@ -216,10 +216,10 @@ namespace OpenMEEG {
 
     inline double FastSparseMatrix::operator()(size_t i, size_t j) const
     {
-        for(size_t k = rowindex[i]; k<rowindex[i+1]; k++)
+        for (size_t k = rowindex[i]; k<rowindex[i+1]; k++)
         {
-            if(js[k]<j) continue;
-            else if(js[k] == j) return tank[k];
+            if (js[k]<j) continue;
+            else if (js[k] == j) return tank[k];
             else break;
         }
 
@@ -228,10 +228,10 @@ namespace OpenMEEG {
 
     inline double& FastSparseMatrix::operator()(size_t i, size_t j)
     {
-        for(size_t k = rowindex[i]; k<rowindex[i+1]; k++)
+        for (size_t k = rowindex[i]; k<rowindex[i+1]; k++)
         {
-            if(js[k]<j) continue;
-            else if(js[k] == j) return tank[k];
+            if (js[k]<j) continue;
+            else if (js[k] == j) return tank[k];
             else break;
         }
 
@@ -246,10 +246,10 @@ namespace OpenMEEG {
         Vector *_v = (Vector *)&v;
         double *pt_vect = &(*_v)(0);
 
-        for(size_t i = 0; i<m_nlin; i++)
+        for (size_t i = 0; i<m_nlin; i++)
         {
             double& total = pt_result[i];
-            for(size_t j = rowindex[i]; j<rowindex[i+1]; j++) {
+            for (size_t j = rowindex[i]; j<rowindex[i+1]; j++) {
                 total += tank[j]*pt_vect[js[j]];
             }
         }

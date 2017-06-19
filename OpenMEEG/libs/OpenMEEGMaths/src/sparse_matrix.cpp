@@ -56,7 +56,7 @@ namespace OpenMEEG {
         ret.set(0);
 
         Tank::const_iterator it;
-        for(it = m_tank.begin(); it != m_tank.end(); ++it) {
+        for (it = m_tank.begin(); it != m_tank.end(); ++it) {
             size_t i = it->first.first;
             size_t j = it->first.second;
             double val = it->second;
@@ -73,11 +73,11 @@ namespace OpenMEEG {
         out.set(0.0);
 
         Tank::const_iterator it;
-        for(it = m_tank.begin(); it != m_tank.end(); ++it) {
+        for (it = m_tank.begin(); it != m_tank.end(); ++it) {
             size_t i = it->first.first;
             size_t j = it->first.second;
             double val = it->second;
-            for(size_t k = 0; k < mat.ncol(); ++k) {
+            for (size_t k = 0; k < mat.ncol(); ++k) {
                 out(i, k) += val * mat(j, k);
             }
         }
@@ -91,7 +91,7 @@ namespace OpenMEEG {
         Matrix out(nlin(), mat.ncol());
         out.set(0.0);
 
-        for( Tank::const_iterator it = m_tank.begin(); it != m_tank.end(); ++it) {
+        for ( Tank::const_iterator it = m_tank.begin(); it != m_tank.end(); ++it) {
             size_t i = it->first.first;
             size_t j = it->first.second;
             double val = it->second;
@@ -142,7 +142,7 @@ namespace OpenMEEG {
     SparseMatrix SparseMatrix::transpose() const {
         SparseMatrix tsp(ncol(), nlin());
         const_iterator it;
-        for(it = m_tank.begin(); it != m_tank.end(); ++it) {
+        for (it = m_tank.begin(); it != m_tank.end(); ++it) {
             size_t i = it->first.first;
             size_t j = it->first.second;
             tsp(j, i) = it->second;
@@ -151,7 +151,7 @@ namespace OpenMEEG {
     }
 
     void SparseMatrix::set(double d) {
-        for( iterator it = m_tank.begin(); it != m_tank.end(); ++it) {
+        for ( iterator it = m_tank.begin(); it != m_tank.end(); ++it) {
             it->second = d;
         }
     }
@@ -188,7 +188,7 @@ namespace OpenMEEG {
         std::cout << "First Values" << std::endl;
 
         size_t cnt = 0;
-        for(Tank::const_iterator it = m_tank.begin(); it != m_tank.end() && cnt < 5; ++it) {
+        for (Tank::const_iterator it = m_tank.begin(); it != m_tank.end() && cnt < 5; ++it) {
             std::cout << "(" << it->first.first << ", " << it->first.second << ") " << it->second << std::endl;
             cnt++;
         }

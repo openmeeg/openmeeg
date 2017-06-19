@@ -43,8 +43,8 @@ knowledge of the CeCILL-B license and that you accept its terms.
 namespace OpenMEEG {
 
     bool Sensors::hasSensor(std::string name) {
-        for(size_t i = 0; i < m_names.size(); ++i) {
-            if(m_names[i] == name) {
+        for (size_t i = 0; i < m_names.size(); ++i) {
+            if (m_names[i] == name) {
                 return true;
             }
         }
@@ -52,8 +52,8 @@ namespace OpenMEEG {
     }
 
     size_t Sensors::getSensorIdx(std::string name) {
-        for(size_t i = 0; i < m_names.size(); ++i) {
-            if(m_names[i] == name) {
+        for (size_t i = 0; i < m_names.size(); ++i) {
+            if (m_names[i] == name) {
                 return i;
             }
         }
@@ -64,10 +64,10 @@ namespace OpenMEEG {
 
     void Sensors::load(const char* filename, char filetype) {
         std::ifstream in;
-        if(filetype == 't') {
+        if (filetype == 't') {
             in.open(filename, std::ios::in);
         } else {
-            if(filetype == 'b') {
+            if (filetype == 'b') {
                 in.open(filename, std::ios::in|std::ios::binary);
             } else {
                 std::cout << "ERROR: unkown filetype. " << std::endl; exit(1);
@@ -198,7 +198,7 @@ namespace OpenMEEG {
 
     void Sensors::save(const char* filename) {
         std::ofstream outfile(filename);
-        for(size_t i = 0; i < getNumberOfPositions(); ++i) {
+        for (size_t i = 0; i < getNumberOfPositions(); ++i) {
             // if it has names
             if (hasNames())
                 outfile << m_names[m_pointSensorIdx[i]] << " ";
@@ -218,7 +218,7 @@ namespace OpenMEEG {
 
     SparseMatrix Sensors::getWeightsMatrix() const {
         SparseMatrix weight_matrix(getNumberOfSensors(), getNumberOfPositions());
-        for(size_t i = 0; i < getNumberOfPositions(); ++i) {
+        for (size_t i = 0; i < getNumberOfPositions(); ++i) {
             weight_matrix(m_pointSensorIdx[i], i) = m_weights(i);
         }
         return weight_matrix;
@@ -241,7 +241,7 @@ namespace OpenMEEG {
             double dist;
             std::string s_map = dist_point_geom(current_position, *m_geo, current_alphas, current_nearest_triangle, dist);
             std::vector<std::string>::iterator sit = std::find(ci_mesh_names.begin(), ci_mesh_names.end(), s_map);
-            if(sit != ci_mesh_names.end()){
+            if (sit != ci_mesh_names.end()){
                 size_t idx2 = std::distance(ci_mesh_names.begin(), sit);
                 ci_triangles[idx2]++;
             }
@@ -281,7 +281,7 @@ namespace OpenMEEG {
             }
             m_triangles.push_back(triangles);
         }
-        for(size_t i = 0; i<ci_mesh_names.size(); ++i)
+        for (size_t i = 0; i<ci_mesh_names.size(); ++i)
             std::cout<<ci_triangles[i]<<" points have been mapped to mesh "<<ci_mesh_names[i]<<std::endl;
     }
 
@@ -289,43 +289,43 @@ namespace OpenMEEG {
         size_t nb_to_display = (int)std::min((int)m_nb, (int)5);
         std::cout << "Nb of sensors : " << m_nb << std::endl;
         std::cout << "Positions" << std::endl;
-        for(size_t i = 0; i < nb_to_display ; ++i) {
+        for (size_t i = 0; i < nb_to_display ; ++i) {
             for (size_t j = 0; j<m_positions.ncol(); ++j) {
                 std::cout << m_positions(i, j) << " ";
             }
             std::cout << std::endl;
         }
-        if(m_nb > nb_to_display) {
+        if (m_nb > nb_to_display) {
             std::cout << "..." << std::endl;
         }
 
-        if(hasOrientations()) {
+        if (hasOrientations()) {
             std::cout << "Orientations" << std::endl;
-            for(size_t i = 0; i < nb_to_display ; ++i) {
+            for (size_t i = 0; i < nb_to_display ; ++i) {
                 for (size_t j = 0; j<m_orientations.ncol(); ++j) {
                     std::cout << m_orientations(i, j) << " ";
                 }
                 std::cout << std::endl;
             }
-            if(m_nb > nb_to_display) {
+            if (m_nb > nb_to_display) {
                 std::cout << "..." << std::endl;
             }
         }
-        if(hasRadii()) {
+        if (hasRadii()) {
             std::cout << "Radii" << std::endl;
-            for(size_t i = 0; i < nb_to_display ; ++i) {
+            for (size_t i = 0; i < nb_to_display ; ++i) {
                 std::cout << m_radii(i) << " " << std::endl;
             }
-            if(m_nb > nb_to_display) {
+            if (m_nb > nb_to_display) {
                 std::cout << "..." << std::endl;
             }
         }
-        if(hasNames()) {
+        if (hasNames()) {
             std::cout << "Names" << std::endl;
-            for(size_t i = 0; i < nb_to_display; ++i) {
+            for (size_t i = 0; i < nb_to_display; ++i) {
                 std::cout << m_names[i] << std::endl;
             }
-            if(m_nb > nb_to_display) {
+            if (m_nb > nb_to_display) {
                 std::cout << "..." << std::endl;
             }
         }

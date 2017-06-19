@@ -124,7 +124,7 @@ namespace OpenMEEG {
 
     inline double SymMatrix::operator()(size_t i, size_t j) const {
         om_assert(i<nlin() && j<nlin());
-        if(i <= j)
+        if (i <= j)
             return data()[i+j*(j+1)/2];
         else
             return data()[j+i*(i+1)/2];
@@ -132,7 +132,7 @@ namespace OpenMEEG {
 
     inline double& SymMatrix::operator()(size_t i, size_t j) {
         om_assert(i<nlin() && j<nlin());
-        if(i <= j)
+        if (i <= j)
             return data()[i+j*(j+1)/2];
         else
             return data()[j+i*(i+1)/2];
@@ -170,7 +170,7 @@ namespace OpenMEEG {
         //char *uplo = "U";
         DSPTRF('U', sizet_to_int(invA.nlin()), invA.data(), pivots, Info);
         // Inverse
-        for(int i = 0; i < nbvect; i++)
+        for (int i = 0; i < nbvect; i++)
             DSPTRS('U', sizet_to_int(invA.nlin()), 1, invA.data(), pivots, B[i].data(), sizet_to_int(invA.nlin()), Info);
 
         om_assert(Info == 0);

@@ -104,7 +104,7 @@ namespace OpenMEEG {
 
     inline void disp_argv(int argc, char **argv) {
         std::cout << std::endl << "| ------ " << argv[0] << std::endl;
-        for( int i = 1; i < argc; i += 1 )
+        for ( int i = 1; i < argc; i += 1 )
         {
             std::cout << "| " << argv[i] << std::endl;
         }
@@ -129,14 +129,14 @@ namespace OpenMEEG {
             if (p != pprev) {
                 if (n>1) {
                     // clear previous string
-                    for(unsigned i = 0; i < (w+2); ++i)
+                    for (unsigned i = 0; i < (w+2); ++i)
                         std::cout<< "\b";
 
                     std::cout<< cbeg;
-                    for(unsigned i = 0; i < p; ++i) {
+                    for (unsigned i = 0; i < p; ++i) {
                         std::cout<< cprog1;
                     }
-                    for(unsigned i = p; i < w; ++i) {
+                    for (unsigned i = p; i < w; ++i) {
                         std::cout<< cprog;
                     }
                     std::cout<< cend;

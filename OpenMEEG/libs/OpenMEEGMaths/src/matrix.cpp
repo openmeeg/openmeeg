@@ -52,7 +52,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 namespace OpenMEEG {
 
     const Matrix& Matrix::set(const double d) {
-        for(size_t i = 0; i < size(); i++) data()[i] = d;
+        for (size_t i = 0; i < size(); i++) data()[i] = d;
         return *this;
     }
 
@@ -64,7 +64,7 @@ namespace OpenMEEG {
 
     Matrix::Matrix(const SparseMatrix& A): LinOp(A.nlin(), A.ncol(), FULL, 2), value(new LinOpValue(size())) {
         this->set(0.);
-        for(SparseMatrix::const_iterator it = A.begin(); it != A.end(); ++it) {
+        for (SparseMatrix::const_iterator it = A.begin(); it != A.end(); ++it) {
             (*this)(it->first.first, it->first.second) = it->second;
         }
     }
@@ -159,11 +159,11 @@ namespace OpenMEEG {
         out.set(0.0);
 
         SparseMatrix::const_iterator it;
-        for(it = mat.begin(); it != mat.end(); ++it) {
+        for (it = mat.begin(); it != mat.end(); ++it) {
             size_t i = it->first.first;
             size_t j = it->first.second;
             double val = it->second;
-            for(size_t k = 0; k < nlin(); ++k) {
+            for (size_t k = 0; k < nlin(); ++k) {
                 out(k, j) += this->operator()(k, i) * val;
             }
         }
@@ -192,12 +192,12 @@ namespace OpenMEEG {
 
     Vector Matrix::mean() const {
         Vector v(ncol()); v.set(0);
-        for(size_t j = 0; j < ncol(); ++j) {
-            for(size_t i = 0; i < nlin(); ++i) {
+        for (size_t j = 0; j < ncol(); ++j) {
+            for (size_t i = 0; i < nlin(); ++i) {
                 v(j) += this->operator()(i, j);
             }
         }
-        for(size_t j = 0; j < ncol(); ++j) {
+        for (size_t j = 0; j < ncol(); ++j) {
             v(j) = v(j) / nlin();
         }
         return v;
@@ -205,12 +205,12 @@ namespace OpenMEEG {
 
     Vector Matrix::tmean() const {
         Vector v(nlin()); v.set(0);
-        for(size_t j = 0; j < ncol(); ++j) {
-            for(size_t i = 0; i < nlin(); ++i) {
+        for (size_t j = 0; j < ncol(); ++j) {
+            for (size_t i = 0; i < nlin(); ++i) {
                 v(i) += this->operator()(i, j);
             }
         }
-        for(size_t i = 0; i < nlin(); ++i) {
+        for (size_t i = 0; i < nlin(); ++i) {
             v(i) = v(i) / ncol();
         }
         return v;

@@ -771,7 +771,7 @@ namespace OpenMEEG {
         f >> io_utils::skip_comments('#') >> st;
         om_error(st == "Positions");
 
-        for( unsigned i = 0; i < npts; ++i) {
+        for ( unsigned i = 0; i < npts; ++i) {
             Vertex v;
             f >> io_utils::skip_comments('#') >> v;
             add_vertex(v);
