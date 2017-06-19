@@ -58,12 +58,12 @@ namespace OpenMEEG {
 
     public:
 
-        SymMatrix(): LinOp(0,0,SYMMETRIC,2),value() {}
+        SymMatrix(): LinOp(0, 0, SYMMETRIC, 2), value() {}
 
-        SymMatrix(const char* fname): LinOp(0,0,SYMMETRIC,2),value() { this->load(fname); }
-        SymMatrix(size_t N): LinOp(N,N,SYMMETRIC,2),value(new LinOpValue(size())) { }
-        SymMatrix(size_t M,size_t N): LinOp(N,N,SYMMETRIC,2),value(new LinOpValue(size())) { om_assert(N==M); }
-        SymMatrix(const SymMatrix& S,const DeepCopy): LinOp(S.nlin(),S.nlin(),SYMMETRIC,2),value(new LinOpValue(S.size(),S.data())) { }
+        SymMatrix(const char* fname): LinOp(0, 0, SYMMETRIC, 2), value() { this->load(fname); }
+        SymMatrix(size_t N): LinOp(N, N, SYMMETRIC, 2), value(new LinOpValue(size())) { }
+        SymMatrix(size_t M, size_t N): LinOp(N, N, SYMMETRIC, 2), value(new LinOpValue(size())) { om_assert(N==M); }
+        SymMatrix(const SymMatrix& S, const DeepCopy): LinOp(S.nlin(), S.nlin(), SYMMETRIC, 2), value(new LinOpValue(S.size(), S.data())) { }
 
         explicit SymMatrix(const Vector& v);
         explicit SymMatrix(const Matrix& A);
@@ -75,14 +75,14 @@ namespace OpenMEEG {
         size_t& ncol()       { return nlin(); }
 
         void alloc_data() { value = new LinOpValue(size()); }
-        void reference_data(const double* array) { value = new LinOpValue(size(),array); }
+        void reference_data(const double* array) { value = new LinOpValue(size(), array); }
 
         bool empty() const { return value->empty(); }
         void set(double x) ;
         double* data() const { return value->data; }
 
-        inline double operator()(size_t i,size_t j) const;
-        inline double& operator()(size_t i,size_t j) ;
+        inline double operator()(size_t i, size_t j) const;
+        inline double& operator()(size_t i, size_t j) ;
 
         Matrix    operator()(size_t i_start, size_t i_end, size_t j_start, size_t j_end) const;
         Matrix    submat(size_t istart, size_t isize, size_t jstart, size_t jsize) const;
@@ -122,7 +122,7 @@ namespace OpenMEEG {
         friend class Matrix;
     };
 
-    inline double SymMatrix::operator()(size_t i,size_t j) const {
+    inline double SymMatrix::operator()(size_t i, size_t j) const {
         om_assert(i<nlin() && j<nlin());
         if(i<=j)
             return data()[i+j*(j+1)/2];
@@ -130,7 +130,7 @@ namespace OpenMEEG {
             return data()[j+i*(i+1)/2];
     }
 
-    inline double& SymMatrix::operator()(size_t i,size_t j) {
+    inline double& SymMatrix::operator()(size_t i, size_t j) {
         om_assert(i<nlin() && j<nlin());
         if(i<=j)
             return data()[i+j*(j+1)/2];
@@ -140,16 +140,16 @@ namespace OpenMEEG {
 
     //returns the solution of (this)*X = B
     inline Vector SymMatrix::solveLin(const Vector &B) const {
-        SymMatrix invA(*this,DEEP_COPY);
-        Vector X(B,DEEP_COPY);
+        SymMatrix invA(*this, DEEP_COPY);
+        Vector X(B, DEEP_COPY);
 
     #ifdef HAVE_LAPACK
         // Bunch Kaufman Factorization
         BLAS_INT *pivots=new BLAS_INT[nlin()];
         int Info = 0;
-        DSPTRF('U',sizet_to_int(invA.nlin()),invA.data(),pivots,Info);
+        DSPTRF('U', sizet_to_int(invA.nlin()), invA.data(), pivots, Info);
         // Inverse
-        DSPTRS('U',sizet_to_int(invA.nlin()),1,invA.data(),pivots,X.data(),sizet_to_int(invA.nlin()),Info);
+        DSPTRS('U', sizet_to_int(invA.nlin()), 1, invA.data(), pivots, X.data(), sizet_to_int(invA.nlin()), Info);
 
         om_assert(Info==0);
         delete[] pivots;
@@ -161,17 +161,17 @@ namespace OpenMEEG {
 
     // stores in B the solution of (this)*X = B, where B is a set of nbvect vector
     inline void SymMatrix::solveLin(Vector * B, int nbvect) {
-        SymMatrix invA(*this,DEEP_COPY);
+        SymMatrix invA(*this, DEEP_COPY);
 
     #ifdef HAVE_LAPACK
         // Bunch Kaufman Factorization
         BLAS_INT *pivots=new BLAS_INT[nlin()];
         int Info = 0;
         //char *uplo="U";
-        DSPTRF('U',sizet_to_int(invA.nlin()),invA.data(),pivots,Info);
+        DSPTRF('U', sizet_to_int(invA.nlin()), invA.data(), pivots, Info);
         // Inverse
         for(int i = 0; i < nbvect; i++)
-            DSPTRS('U',sizet_to_int(invA.nlin()),1,invA.data(),pivots,B[i].data(),sizet_to_int(invA.nlin()),Info);
+            DSPTRS('U', sizet_to_int(invA.nlin()), 1, invA.data(), pivots, B[i].data(), sizet_to_int(invA.nlin()), Info);
 
         om_assert(Info==0);
         delete[] pivots;
@@ -183,7 +183,7 @@ namespace OpenMEEG {
     inline void SymMatrix::operator -=(const SymMatrix &B) {
         om_assert(nlin()==B.nlin());
     #ifdef HAVE_BLAS
-        BLAS(daxpy,DAXPY)(sizet_to_int(nlin()*(nlin()+1)/2), -1.0, B.data(), 1, data() , 1);
+        BLAS(daxpy, DAXPY)(sizet_to_int(nlin()*(nlin()+1)/2), -1.0, B.data(), 1, data() , 1);
     #else
         for (size_t i=0;i<nlin()*(nlin()+1)/2;i++)
             data()[i]+=B.data()[i];
@@ -193,7 +193,7 @@ namespace OpenMEEG {
     inline void SymMatrix::operator +=(const SymMatrix &B) {
         om_assert(nlin()==B.nlin());
     #ifdef HAVE_BLAS
-        BLAS(daxpy,DAXPY)(sizet_to_int(nlin()*(nlin()+1)/2), 1.0, B.data(), 1, data() , 1);
+        BLAS(daxpy, DAXPY)(sizet_to_int(nlin()*(nlin()+1)/2), 1.0, B.data(), 1, data() , 1);
     #else
         for (size_t i=0;i<nlin()*(nlin()+1)/2;i++)
             data()[i]+=B.data()[i];
@@ -202,12 +202,12 @@ namespace OpenMEEG {
 
     inline SymMatrix SymMatrix::posdefinverse() const {
         // supposes (*this) is definite positive
-        SymMatrix invA(*this,DEEP_COPY);
+        SymMatrix invA(*this, DEEP_COPY);
     #ifdef HAVE_LAPACK
         // U'U factorization then inverse
         int Info = 0;
-        DPPTRF('U', sizet_to_int(nlin()),invA.data(),Info);
-        DPPTRI('U', sizet_to_int(nlin()),invA.data(),Info);
+        DPPTRF('U', sizet_to_int(nlin()), invA.data(), Info);
+        DPPTRI('U', sizet_to_int(nlin()), invA.data(), Info);
         om_assert(Info==0);
     #else
         std::cerr << "Positive definite inverse not defined" << std::endl;
@@ -216,22 +216,22 @@ namespace OpenMEEG {
     }
 
     inline double SymMatrix::det() {
-        SymMatrix invA(*this,DEEP_COPY);
+        SymMatrix invA(*this, DEEP_COPY);
         double d = 1.0;
     #ifdef HAVE_LAPACK
         // Bunch Kaufmqn
         BLAS_INT *pivots=new BLAS_INT[nlin()];
         int Info = 0;
         // TUDUtTt
-        DSPTRF('U', sizet_to_int(invA.nlin()), invA.data(), pivots,Info);
+        DSPTRF('U', sizet_to_int(invA.nlin()), invA.data(), pivots, Info);
         if (Info<0)
             std::cout << "Big problem in det (DSPTRF)" << std::endl;
         for (size_t i = 0; i< nlin(); i++){
             if (pivots[i] >= 0) {
-                d *= invA(i,i);
+                d *= invA(i, i);
             } else { // pivots[i] < 0
                 if (i < nlin()-1 && pivots[i] == pivots[i+1]) {
-                    d *= (invA(i,i)*invA(i+1,i+1)-invA(i,i+1)*invA(i+1,i));
+                    d *= (invA(i, i)*invA(i+1, i+1)-invA(i, i+1)*invA(i+1, i));
                     i++;
                 } else {
                     std::cout << "Big problem in det" << std::endl;
@@ -250,22 +250,22 @@ namespace OpenMEEG {
     //     // performs the complete eigen-decomposition.
     //     //  (*this) = Z.D.Z'
     //     // -> eigenvector are columns of the Matrix Z.
-    //     // (*this).Z[:,i] = D[i].Z[:,i]
+    //     // (*this).Z[:, i] = D[i].Z[:, i]
     // #ifdef HAVE_LAPACK
-    //     SymMatrix symtemp(*this,DEEP_COPY);
+    //     SymMatrix symtemp(*this, DEEP_COPY);
     //     D = Vector(nlin());
-    //     Z = Matrix(nlin(),nlin());
+    //     Z = Matrix(nlin(), nlin());
     // 
     //     int info;
     //     double lworkd;
     //     int lwork;
     //     int liwork;
     // 
-    //     DSPEVD('V','U',sizet_to_int(nlin()),symtemp.data(),D.data(),Z.data(),sizet_to_int(nlin()),&lworkd,-1,&liwork,-1,info);
+    //     DSPEVD('V', 'U', sizet_to_int(nlin()), symtemp.data(), D.data(), Z.data(), sizet_to_int(nlin()), &lworkd, -1, &liwork, -1, info);
     //     lwork = (int) lworkd;
     //     double * work = new double[lwork];
     //     BLAS_INT *iwork = new BLAS_INT[liwork];
-    //     DSPEVD('V','U',sizet_to_int(nlin()),symtemp.data(),D.data(),Z.data(),sizet_to_int(nlin()),work,lwork,iwork,liwork,info);
+    //     DSPEVD('V', 'U', sizet_to_int(nlin()), symtemp.data(), D.data(), Z.data(), sizet_to_int(nlin()), work, lwork, iwork, liwork, info);
     // 
     //     delete[] work;
     //     delete[] iwork;
@@ -274,9 +274,9 @@ namespace OpenMEEG {
 
     inline SymMatrix SymMatrix::operator +(const SymMatrix &B) const {
         om_assert(nlin()==B.nlin());
-        SymMatrix C(*this,DEEP_COPY);
+        SymMatrix C(*this, DEEP_COPY);
     #ifdef HAVE_BLAS
-        BLAS(daxpy,DAXPY)(sizet_to_int(nlin()*(nlin()+1)/2), 1.0, B.data(), 1, C.data() , 1);
+        BLAS(daxpy, DAXPY)(sizet_to_int(nlin()*(nlin()+1)/2), 1.0, B.data(), 1, C.data() , 1);
     #else
         for (size_t i=0;i<nlin()*(nlin()+1)/2;i++)
             C.data()[i]+=B.data()[i];
@@ -287,9 +287,9 @@ namespace OpenMEEG {
     inline SymMatrix SymMatrix::operator -(const SymMatrix &B) const
     {
         om_assert(nlin()==B.nlin());
-        SymMatrix C(*this,DEEP_COPY);
+        SymMatrix C(*this, DEEP_COPY);
     #ifdef HAVE_BLAS
-        BLAS(daxpy,DAXPY)(sizet_to_int(nlin()*(nlin()+1)/2), -1.0, B.data(), 1, C.data() , 1);
+        BLAS(daxpy, DAXPY)(sizet_to_int(nlin()*(nlin()+1)/2), -1.0, B.data(), 1, C.data() , 1);
     #else
         for (size_t i=0;i<nlin()*(nlin()+1)/2;i++)
             C.data()[i]-=B.data()[i];
@@ -342,12 +342,12 @@ namespace OpenMEEG {
         om_assert(nlin()==v.size());
         Vector y(nlin());
     #ifdef HAVE_BLAS
-        DSPMV(CblasUpper,sizet_to_int(nlin()),1.,data(),v.data(),1,0.,y.data(),1);
+        DSPMV(CblasUpper, sizet_to_int(nlin()), 1., data(), v.data(), 1, 0., y.data(), 1);
     #else
         for (size_t i=0;i<nlin();i++) {
             y(i)=0;
             for (size_t j=0;j<nlin();j++)
-                y(i)+=(*this)(i,j)*v(j);
+                y(i)+=(*this)(i, j)*v(j);
         }
     #endif
         return y;
@@ -356,12 +356,12 @@ namespace OpenMEEG {
     inline Vector SymMatrix::getlin(size_t i) const {
         om_assert(i<nlin());
         Vector v(ncol());
-        for ( size_t j = 0; j < ncol(); ++j) v.data()[j] = this->operator()(i,j);
+        for ( size_t j = 0; j < ncol(); ++j) v.data()[j] = this->operator()(i, j);
         return v;
     }
 
-    inline void SymMatrix::setlin(size_t i,const Vector& v) {
+    inline void SymMatrix::setlin(size_t i, const Vector& v) {
         om_assert(v.size()==nlin() && i<nlin());
-        for ( size_t j = 0; j < ncol(); ++j) this->operator()(i,j) = v(j);
+        for ( size_t j = 0; j < ncol(); ++j) this->operator()(i, j) = v(j);
     }
 }

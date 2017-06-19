@@ -63,7 +63,7 @@ namespace OpenMEEG {
                 #else
                 for (Mesh::const_vertex_iterator vit2=vit1;vit2<omit->mesh().vertex_end();++vit2) {
                 #endif
-                    M((*vit1)->index(),(*vit2)->index()) += coef;
+                    M((*vit1)->index(), (*vit2)->index()) += coef;
                 }
             }
         }
@@ -73,7 +73,7 @@ namespace OpenMEEG {
     void deflat(T& M, const Geometry& geo)
     {
         //deflat all current barriers as one
-        unsigned nb_vertices=0,i_first=0;
+        unsigned nb_vertices=0, i_first=0;
         double coef=0.0;
         for(std::vector<std::vector<std::string> >::const_iterator git=geo.geo_group().begin();git!=geo.geo_group().end();++git){
             nb_vertices=0;
@@ -86,7 +86,7 @@ namespace OpenMEEG {
                         i_first=(*msh.vertex_begin())->index();
                 }
             }
-            coef=M(i_first,i_first)/nb_vertices;
+            coef=M(i_first, i_first)/nb_vertices;
             for(std::vector<std::string>::const_iterator mit=git->begin();mit!=git->end();++mit){
                 Mesh msh=geo.mesh(*mit);
                 if(msh.outermost())
@@ -98,7 +98,7 @@ namespace OpenMEEG {
                         #else
                         for (Mesh::const_vertex_iterator vit2=vit1;vit2<msh.vertex_end();++vit2) {
                         #endif
-                            M((*vit1)->index(),(*vit2)->index()) += coef;
+                            M((*vit1)->index(), (*vit2)->index()) += coef;
                         }
                     }
             }
@@ -115,7 +115,7 @@ namespace OpenMEEG {
         for(Geometry::const_iterator mit1 = geo.begin(); mit1 != geo.end(); ++mit1) {
             if(!mit1->isolated()){
                 for(Geometry::const_iterator mit2 = geo.begin(); (mit2 != (mit1+1)); ++mit2) {
-                    if((!mit2->isolated()) && (geo.sigma(*mit1,*mit2)!=0.0)){
+                    if((!mit2->isolated()) && (geo.sigma(*mit1, *mit2)!=0.0)){
                         // if mit1 and mit2 communicate, i.e they are used for the definition of a common domain
                         const int orientation = geo.oriented(*mit1, *mit2); // equals  0, if they don't have any domains in common
                                                                             // equals  1, if they are both oriented toward the same domain
@@ -135,7 +135,7 @@ namespace OpenMEEG {
 
                             if(!mit1->current_barrier()){
                                 // Computing D block
-                                operatorD(*mit1, *mit2, mat, Dcoeff, gauss_order,false);
+                                operatorD(*mit1, *mit2, mat, Dcoeff, gauss_order, false);
                             }
                             if((*mit1!=*mit2) && (!mit2->current_barrier())){
                                 // Computing D* block
@@ -149,7 +149,7 @@ namespace OpenMEEG {
             }
         }
         // Deflate all current barriers as one
-        deflat(mat,geo);
+        deflat(mat, geo);
     }
 
     void assemble_cortical(const Geometry& geo, Matrix& mat, const Head2EEGMat& M, const std::string& domain_name, const unsigned gauss_order, double alpha, double beta, const std::string &filename)
@@ -197,7 +197,7 @@ namespace OpenMEEG {
                         }
                         if ( !mit1->current_barrier() && (( (*mit1 != *mit2)||( *mit1 != cortex) )) ) {
                             // Computing D block
-                            operatorD(*mit1, *mit2, mat_temp, Dcoeff, gauss_order,false);
+                            operatorD(*mit1, *mit2, mat_temp, Dcoeff, gauss_order, false);
                         }
                         if ( ( *mit1 != *mit2 ) && ( !mit2->current_barrier() ) ) {
                             // Computing D* block
@@ -211,7 +211,7 @@ namespace OpenMEEG {
                 }
             }
             // Deflate all current barriers as one
-            deflat(mat_temp,geo);
+            deflat(mat_temp, geo);
 
             mat = Matrix(Nl, Nc);
             mat.set(0.0);
@@ -239,7 +239,7 @@ namespace OpenMEEG {
                 mat.svd(U, s, W);
             }
 
-            SparseMatrix S(Nc,Nc);
+            SparseMatrix S(Nc, Nc);
             // we set S to 0 everywhere, except in the last part of the diag:
             for ( unsigned i = Nl; i < Nc; ++i) {
                 S(i, i) = 1.0;
@@ -262,7 +262,7 @@ namespace OpenMEEG {
         }
 
         // ** Choose Regularization parameter **
-        SparseMatrix alphas(Nc,Nc); // diagonal matrix
+        SparseMatrix alphas(Nc, Nc); // diagonal matrix
         Matrix Z;
         if ( alpha < 0 ) { // try an automatic method... TODO find better estimation
             double nRR_v = RR.submat(0, geo.nb_vertices(), 0, geo.nb_vertices()).frobenius_norm();
@@ -316,7 +316,7 @@ namespace OpenMEEG {
         // | H  0    | |   l1   | = | 0 |
         // [ M     0 ] [   l2   ]   [ m ]
         //
-        // {----,----}
+        // {----, ----}
         //      K
         // we want a submat of the inverse of K (using blockwise inversion, (TODO maybe iterative solution better ?)).
         // Assumptions:
@@ -375,7 +375,7 @@ namespace OpenMEEG {
                 }
             }
             // Deflate all current barriers as one
-            deflat(mat_temp,geo);
+            deflat(mat_temp, geo);
 
             H = Matrix(Nl + M.nlin(), Nc);
             H.set(0.0);

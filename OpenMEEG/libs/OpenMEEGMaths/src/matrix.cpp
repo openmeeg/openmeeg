@@ -56,20 +56,20 @@ namespace OpenMEEG {
         return *this;
     }
 
-    Matrix::Matrix(const SymMatrix& A): LinOp(A.nlin(),A.ncol(),FULL,2),value(new LinOpValue(size())) {
+    Matrix::Matrix(const SymMatrix& A): LinOp(A.nlin(), A.ncol(), FULL, 2), value(new LinOpValue(size())) {
         for (size_t j=0; j<ncol();++j)
             for (size_t i=0; i<nlin();++i)
-                (*this)(i,j) = A(i,j);
+                (*this)(i, j) = A(i, j);
     }
 
-    Matrix::Matrix(const SparseMatrix& A): LinOp(A.nlin(),A.ncol(),FULL,2),value(new LinOpValue(size())) {
+    Matrix::Matrix(const SparseMatrix& A): LinOp(A.nlin(), A.ncol(), FULL, 2), value(new LinOpValue(size())) {
         this->set(0.);
         for(SparseMatrix::const_iterator it = A.begin(); it != A.end(); ++it) {
-            (*this)(it->first.first,it->first.second) = it->second;
+            (*this)(it->first.first, it->first.second) = it->second;
         }
     }
 
-    Matrix::Matrix(const Vector& v,const size_t M,const size_t N): LinOp(M,N,FULL,2) {
+    Matrix::Matrix(const Vector& v, const size_t M, const size_t N): LinOp(M, N, FULL, 2) {
         om_assert(M*N==v.size());
         value = v.value;
     }
@@ -87,7 +87,7 @@ namespace OpenMEEG {
             double maxs = 0;
             unsigned mimi = std::min(S.nlin(), S.ncol());
             // following LAPACK The singular values of A, sorted so that S(i) >= S(i+1).
-            maxs = S(0,0);
+            maxs = S(0, 0);
             if ( tolrel == 0 ) tolrel = std::numeric_limits<double>::epsilon();
             double tol = std::max(nlin(), ncol()) * maxs * tolrel;
             unsigned r = 0;
@@ -102,41 +102,41 @@ namespace OpenMEEG {
                 for ( size_t i = 0; i < r; i++) {
                     s(i, i) = 1.0 / S(i, i);
                 }
-                const Matrix Vbis(V.transpose(),r); // keep only the first r columns
-                const Matrix Ubis(U,r);
+                const Matrix Vbis(V.transpose(), r); // keep only the first r columns
+                const Matrix Ubis(U, r);
                 return Vbis * s * Ubis.transpose();
             }
         }
     }
 
     Matrix Matrix::transpose() const {
-        Matrix result(ncol(),nlin());
+        Matrix result(ncol(), nlin());
         for (size_t i=0; i<nlin(); i++)
             for ( size_t j=0; j<ncol(); j++)
-                result(j,i)=(*this)(i,j);
+                result(j, i)=(*this)(i, j);
         return result;
     }
 
     void Matrix::svd(Matrix &U, SparseMatrix &S, Matrix &V, bool complete) const {
         // XXX output is now V.transpose() not V (now as in Lapack and numpy)
     #ifdef HAVE_LAPACK
-        Matrix cpy(*this,DEEP_COPY);
-        size_t mini = std::min(nlin(),ncol());
-        size_t maxi = std::max(nlin(),ncol());
-        U = Matrix(nlin(),nlin()); U.set(0);
-        S = SparseMatrix(nlin(),ncol());
-        V = Matrix(ncol(),ncol()); V.set(0);
+        Matrix cpy(*this, DEEP_COPY);
+        size_t mini = std::min(nlin(), ncol());
+        size_t maxi = std::max(nlin(), ncol());
+        U = Matrix(nlin(), nlin()); U.set(0);
+        S = SparseMatrix(nlin(), ncol());
+        V = Matrix(ncol(), ncol()); V.set(0);
         double *s = new double[mini];
         // int lwork = 4 *mini*mini + maxi + 9*mini; 
         // http://www.netlib.no/netlib/lapack/double/dgesdd.f :
         BLAS_INT *iwork = new BLAS_INT[8*mini];
-        BLAS_INT lwork = 4 *mini*mini + std::max(maxi,4*mini*mini+4*mini);
+        BLAS_INT lwork = 4 *mini*mini + std::max(maxi, 4*mini*mini+4*mini);
         BLAS_INT Info = 0;
         double *work = new double[lwork];
         if ( complete ) { // complete SVD
-            DGESDD('A',sizet_to_int(nlin()),sizet_to_int(ncol()),cpy.data(),sizet_to_int(nlin()),s,U.data(),sizet_to_int(U.nlin()),V.data(),sizet_to_int(V.nlin()),work,lwork,iwork,Info);
-        } else { // only first min(m,n)
-            DGESDD('S',sizet_to_int(nlin()),sizet_to_int(ncol()),cpy.data(),sizet_to_int(nlin()),s,U.data(),sizet_to_int(U.nlin()),V.data(),sizet_to_int(V.nlin()),work,lwork,iwork,Info);
+            DGESDD('A', sizet_to_int(nlin()), sizet_to_int(ncol()), cpy.data(), sizet_to_int(nlin()), s, U.data(), sizet_to_int(U.nlin()), V.data(), sizet_to_int(V.nlin()), work, lwork, iwork, Info);
+        } else { // only first min(m, n)
+            DGESDD('S', sizet_to_int(nlin()), sizet_to_int(ncol()), cpy.data(), sizet_to_int(nlin()), s, U.data(), sizet_to_int(U.nlin()), V.data(), sizet_to_int(V.nlin()), work, lwork, iwork, Info);
         }
         for ( size_t i = 0; i < mini; ++i) S(i, i) = s[i];
         delete[] s;
@@ -155,7 +155,7 @@ namespace OpenMEEG {
     Matrix Matrix::operator *(const SparseMatrix &mat) const
     {
         om_assert(ncol()==mat.nlin());
-        Matrix out(nlin(),mat.ncol());
+        Matrix out(nlin(), mat.ncol());
         out.set(0.0);
 
         SparseMatrix::const_iterator it;
@@ -164,20 +164,20 @@ namespace OpenMEEG {
             size_t j = it->first.second;
             double val = it->second;
             for(size_t k = 0; k < nlin(); ++k) {
-                out(k,j) += this->operator()(k,i) * val;
+                out(k, j) += this->operator()(k, i) * val;
             }
         }
         return out;
     }
 
     Matrix Matrix::operator*(double x) const {
-        Matrix C(nlin(),ncol());
+        Matrix C(nlin(), ncol());
         for (size_t k=0; k<nlin()*ncol(); k++) C.data()[k] = data()[k]*x;
         return C;
     }
 
     Matrix Matrix::operator/(double x) const {
-        Matrix C(nlin(),ncol());
+        Matrix C(nlin(), ncol());
         for (size_t k=0; k<nlin()*ncol(); k++) C.data()[k] = data()[k]/x;
         return C;
     }
@@ -194,7 +194,7 @@ namespace OpenMEEG {
         Vector v(ncol()); v.set(0);
         for(size_t j = 0; j < ncol(); ++j) {
             for(size_t i = 0; i < nlin(); ++i) {
-                v(j) += this->operator()(i,j);
+                v(j) += this->operator()(i, j);
             }
         }
         for(size_t j = 0; j < ncol(); ++j) {
@@ -207,7 +207,7 @@ namespace OpenMEEG {
         Vector v(nlin()); v.set(0);
         for(size_t j = 0; j < ncol(); ++j) {
             for(size_t i = 0; i < nlin(); ++i) {
-                v(i) += this->operator()(i,j);
+                v(i) += this->operator()(i, j);
             }
         }
         for(size_t i = 0; i < nlin(); ++i) {
@@ -224,8 +224,8 @@ namespace OpenMEEG {
 
         std::cout << "Dimensions : " << nlin() << " x " << ncol() << std::endl;
 
-        double minv = this->operator()(0,0);
-        double maxv = this->operator()(0,0);
+        double minv = this->operator()(0, 0);
+        double maxv = this->operator()(0, 0);
         size_t mini = 0;
         size_t maxi = 0;
         size_t minj = 0;
@@ -233,23 +233,23 @@ namespace OpenMEEG {
 
         for (size_t i=0;i<nlin();++i)
             for (size_t j=0;j<ncol();++j)
-                if (minv > this->operator()(i,j)) {
-                    minv = this->operator()(i,j);
+                if (minv > this->operator()(i, j)) {
+                    minv = this->operator()(i, j);
                     mini = i;
                     minj = j;
-                } else if (maxv < this->operator()(i,j)) {
-                    maxv = this->operator()(i,j);
+                } else if (maxv < this->operator()(i, j)) {
+                    maxv = this->operator()(i, j);
                     maxi = i;
                     maxj = j;
                 }
 
-        std::cout << "Min Value : " << minv << " (" << mini << "," << minj << ")" << std::endl;
-        std::cout << "Max Value : " << maxv << " (" << maxi << "," << maxj << ")" << std::endl;
+        std::cout << "Min Value : " << minv << " (" << mini << ", " << minj << ")" << std::endl;
+        std::cout << "Max Value : " << maxv << " (" << maxi << ", " << maxj << ")" << std::endl;
         std::cout << "First Values" << std::endl;
 
-        for (size_t i=0;i<std::min(nlin(),(size_t) 5);++i) {
-            for (size_t j=0;j<std::min(ncol(),(size_t) 5);++j)
-                std::cout << this->operator()(i,j) << " " ;
+        for (size_t i=0;i<std::min(nlin(), (size_t) 5);++i) {
+            for (size_t j=0;j<std::min(ncol(), (size_t) 5);++j)
+                std::cout << this->operator()(i, j) << " " ;
             std::cout << std::endl ;
         }
     }
@@ -261,7 +261,7 @@ namespace OpenMEEG {
     void Matrix::load(const char *filename) {
         maths::ifstream ifs(filename);
         try {
-            ifs >> maths::format(filename,maths::format::FromSuffix) >> *this;
+            ifs >> maths::format(filename, maths::format::FromSuffix) >> *this;
         }
         catch (maths::Exception& e) {
             ifs >> *this;
@@ -271,7 +271,7 @@ namespace OpenMEEG {
     void Matrix::save(const char *filename) const {
         maths::ofstream ofs(filename);
         try {
-            ofs << maths::format(filename,maths::format::FromSuffix) << *this;
+            ofs << maths::format(filename, maths::format::FromSuffix) << *this;
         }
         catch (maths::Exception& e) {
             ofs << *this;

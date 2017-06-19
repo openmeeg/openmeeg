@@ -126,7 +126,7 @@ namespace OpenMEEG {
 
     //  This is not the input of a mesh. It should be renamed...
 
-    std::istream& operator>>(std::istream& is,Mesh& m) {
+    std::istream& operator>>(std::istream& is, Mesh& m) {
         unsigned vind[3];
         is >> vind[0] >> vind[1] >> vind[2];
         for (unsigned i=0;i<3;++i)
@@ -134,7 +134,7 @@ namespace OpenMEEG {
                 std::cerr << "Unknown vertex: " << vind[i] << " (hint: vertex numbering often starts at 0). Aborting." << std::endl;
                 exit(1);
             }
-        Triangle t(m.vertices_[vind[0]],m.vertices_[vind[1]],m.vertices_[vind[2]]);
+        Triangle t(m.vertices_[vind[0]], m.vertices_[vind[1]], m.vertices_[vind[2]]);
         m.push_back(t);
         return is;
     }
@@ -206,13 +206,13 @@ namespace OpenMEEG {
         all_vertices_ = new Vertices;
         all_vertices_->reserve(m1.nb_vertices() + m2.nb_vertices());
 
-        std::map<unsigned,Vertex *> map1;
+        std::map<unsigned, Vertex *> map1;
         for (Mesh::const_vertex_iterator vit = m1.vertex_begin(); vit != m1.vertex_end(); ++vit) {
             add_vertex(**vit);
             map1[(*vit)->index()] = *vertices_.rbegin();
         }
 
-        std::map<unsigned,Vertex*> map2;
+        std::map<unsigned, Vertex*> map2;
         for (Mesh::const_vertex_iterator vit = m2.vertex_begin(); vit != m2.vertex_end(); ++vit) {
             add_vertex(**vit);
             map2[(*vit)->index()] = *vertices_.rbegin();
@@ -272,7 +272,7 @@ namespace OpenMEEG {
                 } else {
                     v2 = (**tit)[0]; v3 = (**tit)[1];
                 }
-                A((*vit)->index(), (*vit)->index()) += P1gradient(**vit, *v2, *v3).norm2() * std::pow((*tit)->area(),2);
+                A((*vit)->index(), (*vit)->index()) += P1gradient(**vit, *v2, *v3).norm2() * std::pow((*tit)->area(), 2);
             }
 
         // edges
@@ -280,7 +280,7 @@ namespace OpenMEEG {
         for (const_iterator tit = begin(); tit != end(); ++tit)
             for (unsigned j = 0; j < 3; ++j)
                 if (((*tit)(j)).index() < ((*tit)(j+1)).index()) // sym matrix only lower half
-                    A(((*tit)(j)).index(), ((*tit)(j+1)).index()) += P1gradient((*tit)(j), (*tit)(j+1), (*tit)(j+2)) * P1gradient((*tit)(j+1), (*tit)(j+2), (*tit)(j+3)) * std::pow(tit->area(),2);
+                    A(((*tit)(j)).index(), ((*tit)(j+1)).index()) += P1gradient((*tit)(j), (*tit)(j+1), (*tit)(j+2)) * P1gradient((*tit)(j+1), (*tit)(j+2), (*tit)(j+3)) * std::pow(tit->area(), 2);
 
         // P0 gradients: loop on triangles
         if (!outermost_) // if it is an outermost mesh: p=0 thus no need for computing it
@@ -303,7 +303,7 @@ namespace OpenMEEG {
             for (unsigned j = 0; j < 3; ++j)
                 if (((*tit)(j)).index() < ((*tit)(j+1)).index()) { // sym matrix only lower half
                     h = ((*tit)(j+1)-(*tit)(j)).norm();
-                    A(((*tit)(j)).index(), ((*tit)(j+1)).index()) += -tit->area()/(12.*M_PI*std::pow(h,2)) * exp(-((*tit)(j)-(*tit)(j+1)).norm2()/(4.*h));
+                    A(((*tit)(j)).index(), ((*tit)(j+1)).index()) += -tit->area()/(12.*M_PI*std::pow(h, 2)) * exp(-((*tit)(j)-(*tit)(j+1)).norm2()/(4.*h));
                 }
 
         for (const_vertex_iterator vit = vertex_begin(); vit != vertex_end(); ++vit)
@@ -474,7 +474,7 @@ namespace OpenMEEG {
         for (unsigned i = 0; i < ntrgs; ++i)
             if (vtkMesh->GetCellType(i) == VTK_TRIANGLE) {
                 l = vtkMesh->GetCell(i)->GetPointIds();
-                push_back(Triangle(vertices()[l->GetId(0)],vertices()[l->GetId(1)],vertices()[l->GetId(2)]));
+                push_back(Triangle(vertices()[l->GetId(0)], vertices()[l->GetId(1)], vertices()[l->GetId(2)]));
             } else {
                 std::cerr << "Mesh \"" << name_ << "\" is not a triangulation" << std::endl;
                 exit(1);
@@ -576,11 +576,11 @@ namespace OpenMEEG {
         }
         if (gim->darray[ipts]->ind_ord == GIFTI_IND_ORD_ROW_MAJOR ) { // RowMajor
             for (unsigned i = 0; i < npts; ++i) {
-                add_vertex(Vertex(pts_data[i*3],pts_data[i*3+1],pts_data[i*3+2]));
+                add_vertex(Vertex(pts_data[i*3], pts_data[i*3+1], pts_data[i*3+2]));
             }
         } else {
             for (unsigned i = 0; i < npts; ++i) {
-                add_vertex(Vertex(pts_data[i],pts_data[i+npts],pts_data[i+2*npts]));
+                add_vertex(Vertex(pts_data[i], pts_data[i+npts], pts_data[i+2*npts]));
             }
         }
 
@@ -589,11 +589,11 @@ namespace OpenMEEG {
 
         if (gim->darray[itrgs]->ind_ord == GIFTI_IND_ORD_ROW_MAJOR ) { // RowMajor
             for (unsigned i = 0; i < ntrgs; ++i) {
-                push_back(Triangle(vertices_[trgs[i*3]],vertices_[trgs[i*3+1]],vertices_[trgs[i*3+2]]));
+                push_back(Triangle(vertices_[trgs[i*3]], vertices_[trgs[i*3+1]], vertices_[trgs[i*3+2]]));
             }
         } else {
             for (unsigned i = 0; i < ntrgs; ++i) {
-                push_back(Triangle(vertices_[trgs[i]],vertices_[trgs[i+ntrgs]],vertices_[trgs[i+2*ntrgs]]));
+                push_back(Triangle(vertices_[trgs[i]], vertices_[trgs[i+ntrgs]], vertices_[trgs[i+2*ntrgs]]));
             }
         }
 
@@ -674,12 +674,12 @@ namespace OpenMEEG {
         is.read((char*)faces_raw, sizeof(unsigned int)*ntrgs*3);
 
         for (unsigned i = 0; i < npts; ++i)
-            add_vertex(Vertex(pts_raw[i*3+0],pts_raw[i*3+1],pts_raw[i*3+2]));
+            add_vertex(Vertex(pts_raw[i*3+0], pts_raw[i*3+1], pts_raw[i*3+2]));
 
         reserve(ntrgs);
 
         for (unsigned i = 0; i < ntrgs; ++i)
-            push_back(Triangle(vertices_[faces_raw[i*3+0]],vertices_[faces_raw[i*3+1]],vertices_[faces_raw[i*3+2]]));
+            push_back(Triangle(vertices_[faces_raw[i*3+0]], vertices_[faces_raw[i*3+1]], vertices_[faces_raw[i*3+2]]));
 
         delete[] faces_raw;
         delete[] normals_raw;
@@ -701,9 +701,9 @@ namespace OpenMEEG {
         return return_value;
     }
 
-    unsigned Mesh::load_tri(std::istream& f,const bool& read_all) {
+    unsigned Mesh::load_tri(std::istream& f, const bool& read_all) {
 
-        f.seekg(0,std::ios_base::beg);
+        f.seekg(0, std::ios_base::beg);
 
         char ch;
         unsigned npts, ntrgs;
@@ -1050,7 +1050,7 @@ namespace OpenMEEG {
             trgs[3*i+2] = mapVertexIndex[&(tit->s3())];
         }
         // gifti_add_to_meta(&gDA->meta, "TopologicalType", "Closed", 0);
-        gifti_add_to_meta(&gDA->meta, "Name",name_.c_str(), 0);
+        gifti_add_to_meta(&gDA->meta, "Name", name_.c_str(), 0);
 
         gifti_write_image(gim, filename.c_str(), 1);
     }
@@ -1123,7 +1123,7 @@ namespace OpenMEEG {
 
     void Mesh::correct_global_orientation() {
 
-        Vect3 center(0.,0.,0.);
+        Vect3 center(0., 0., 0.);
         for (const_vertex_iterator vit = vertex_begin(); vit != vertex_end(); ++vit)
             center += **vit;
 

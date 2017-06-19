@@ -60,11 +60,11 @@ namespace OpenMEEG {
         value = v.value;
     }
 
-    SymMatrix::SymMatrix(const Matrix& M): LinOp(M.nlin(),M.nlin(),SYMMETRIC,2),value(new LinOpValue(size())){
+    SymMatrix::SymMatrix(const Matrix& M): LinOp(M.nlin(), M.nlin(), SYMMETRIC, 2), value(new LinOpValue(size())){
         om_assert(nlin() == M.nlin());
         for (size_t i=0; i<nlin();++i)
             for (size_t j=i; j<nlin();++j)
-                (*this)(i,j) = M(i,j);
+                (*this)(i, j) = M(i, j);
     }
 
     void SymMatrix::set(double x) {
@@ -83,17 +83,17 @@ namespace OpenMEEG {
     }
 
     Matrix SymMatrix::operator()(size_t i_start, size_t i_end, size_t j_start, size_t j_end) const {
-        Matrix retMat(i_end-i_start+1,j_end-j_start+1);
+        Matrix retMat(i_end-i_start+1, j_end-j_start+1);
         for(size_t i=0;i<=i_end-i_start;i++)
             for(size_t j=0;j<=j_end-j_start;j++)
-                retMat(i,j)=this->operator()(i_start+i,j_start+j);
+                retMat(i, j)=this->operator()(i_start+i, j_start+j);
 
         return retMat;
     }
 
     Matrix SymMatrix::submat(size_t istart, size_t isize, size_t jstart, size_t jsize) const {
         om_assert ( istart+isize<=nlin() && jstart+jsize<=nlin() );
-        return (*this)(istart,istart+isize-1,jstart,jstart+jsize-1);
+        return (*this)(istart, istart+isize-1, jstart, jstart+jsize-1);
     }
 
     SymMatrix SymMatrix::submat(size_t istart, size_t iend) const {
@@ -104,7 +104,7 @@ namespace OpenMEEG {
         SymMatrix mat(isize);
         for(size_t i=istart;i<=iend;i++)
             for(size_t j=i;j<=iend;j++)
-                mat(i,j)=this->operator()(i,j);
+                mat(i, j)=this->operator()(i, j);
 
         return mat;
     }
@@ -115,8 +115,8 @@ namespace OpenMEEG {
     #ifdef HAVE_BLAS
         Matrix D(*this);
         Matrix B(m);
-        Matrix C(nlin(),nlin());
-        DSYMM(CblasLeft,CblasUpper,sizet_to_int(nlin()),sizet_to_int(B.ncol()),1.,D.data(),sizet_to_int(D.ncol()),B.data(),sizet_to_int(B.nlin()),0,C.data(),sizet_to_int(C.nlin()));
+        Matrix C(nlin(), nlin());
+        DSYMM(CblasLeft, CblasUpper, sizet_to_int(nlin()), sizet_to_int(B.ncol()), 1., D.data(), sizet_to_int(D.ncol()), B.data(), sizet_to_int(B.nlin()), 0, C.data(), sizet_to_int(C.nlin()));
         return SymMatrix(C);
     #else
         SymMatrix C(nlin());
@@ -135,10 +135,10 @@ namespace OpenMEEG {
     Matrix SymMatrix::operator*(const Matrix &B) const
     {
         om_assert(ncol()==B.nlin());
-        Matrix C(nlin(),B.ncol());
+        Matrix C(nlin(), B.ncol());
     #ifdef HAVE_BLAS
         Matrix D(*this);
-        DSYMM(CblasLeft,CblasUpper, sizet_to_int(nlin()), sizet_to_int(B.ncol()), 1. , D.data(), sizet_to_int(D.ncol()), B.data(), sizet_to_int(B.nlin()), 0, C.data(),sizet_to_int(C.nlin()));
+        DSYMM(CblasLeft, CblasUpper, sizet_to_int(nlin()), sizet_to_int(B.ncol()), 1. , D.data(), sizet_to_int(D.ncol()), B.data(), sizet_to_int(B.nlin()), 0, C.data(), sizet_to_int(C.nlin()));
     #else
         for ( size_t j = 0; j < B.ncol(); ++j) {
             for ( size_t i = 0; i < ncol(); ++i) {
@@ -155,13 +155,13 @@ namespace OpenMEEG {
     Matrix SymMatrix::solveLin(Matrix &RHS) const
     {
     #ifdef HAVE_LAPACK
-        SymMatrix A(*this,DEEP_COPY);
+        SymMatrix A(*this, DEEP_COPY);
         // LU
         BLAS_INT *pivots = new BLAS_INT[nlin()];
         int Info = 0;
-        DSPTRF('U',sizet_to_int(A.nlin()),A.data(),pivots,Info);
+        DSPTRF('U', sizet_to_int(A.nlin()), A.data(), pivots, Info);
         // Solve the linear system AX=B
-        DSPTRS('U',sizet_to_int(A.nlin()),sizet_to_int(RHS.ncol()),A.data(),pivots,RHS.data(),sizet_to_int(A.nlin()),Info);
+        DSPTRS('U', sizet_to_int(A.nlin()), sizet_to_int(RHS.ncol()), A.data(), pivots, RHS.data(), sizet_to_int(A.nlin()), Info);
         om_assert(Info == 0);
         return RHS;
     #else
@@ -178,8 +178,8 @@ namespace OpenMEEG {
 
         std::cout << "Dimensions : " << nlin() << " x " << ncol() << std::endl;
 
-        double minv = this->operator()(0,0);
-        double maxv = this->operator()(0,0);
+        double minv = this->operator()(0, 0);
+        double maxv = this->operator()(0, 0);
         size_t mini = 0;
         size_t maxi = 0;
         size_t minj = 0;
@@ -187,23 +187,23 @@ namespace OpenMEEG {
 
         for (size_t i=0;i<nlin();++i)
             for (size_t j=i;j<ncol();++j)
-                if (minv>this->operator()(i,j)) {
-                    minv = this->operator()(i,j);
+                if (minv>this->operator()(i, j)) {
+                    minv = this->operator()(i, j);
                     mini = i;
                     minj = j;
-                } else if (maxv<this->operator()(i,j)) {
-                    maxv = this->operator()(i,j);
+                } else if (maxv<this->operator()(i, j)) {
+                    maxv = this->operator()(i, j);
                     maxi = i;
                     maxj = j;
                 }
 
-        std::cout << "Min Value : " << minv << " (" << mini << "," << minj << ")" << std::endl;
-        std::cout << "Max Value : " << maxv << " (" << maxi << "," << maxj << ")" << std::endl;
+        std::cout << "Min Value : " << minv << " (" << mini << ", " << minj << ")" << std::endl;
+        std::cout << "Max Value : " << maxv << " (" << maxi << ", " << maxj << ")" << std::endl;
         std::cout << "First Values" << std::endl;
 
-        for (size_t i=0;i<std::min(nlin(),(size_t) 5);++i) {
-            for (size_t j=i;j<std::min(ncol(),(size_t) 5);++j)
-                std::cout << this->operator()(i,j) << " " ;
+        for (size_t i=0;i<std::min(nlin(), (size_t) 5);++i) {
+            for (size_t j=i;j<std::min(ncol(), (size_t) 5);++j)
+                std::cout << this->operator()(i, j) << " " ;
             std::cout << std::endl ;
         }
     }
@@ -215,7 +215,7 @@ namespace OpenMEEG {
     void SymMatrix::load(const char *filename) {
         maths::ifstream ifs(filename);
         try {
-            ifs >> maths::format(filename,maths::format::FromSuffix) >> *this;
+            ifs >> maths::format(filename, maths::format::FromSuffix) >> *this;
         }
         catch (maths::Exception& e) {
             ifs >> *this;
@@ -225,7 +225,7 @@ namespace OpenMEEG {
     void SymMatrix::save(const char *filename) const {
         maths::ofstream ofs(filename);
         try {
-            ofs << maths::format(filename,maths::format::FromSuffix) << *this;
+            ofs << maths::format(filename, maths::format::FromSuffix) << *this;
         }
         catch (maths::Exception& e) {
             ofs << *this;

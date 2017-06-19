@@ -65,10 +65,10 @@ namespace OpenMEEG {
     void Sensors::load(const char* filename, char filetype) {
         std::ifstream in;
         if(filetype == 't') {
-            in.open(filename,std::ios::in);
+            in.open(filename, std::ios::in);
         } else {
             if(filetype == 'b') {
-                in.open(filename,std::ios::in|std::ios::binary);
+                in.open(filename, std::ios::in|std::ios::binary);
             } else {
                 std::cout << "ERROR: unkown filetype. " << std::endl; exit(1); 
             }
@@ -94,7 +94,7 @@ namespace OpenMEEG {
         size_t ncol = 0;
         size_t i = 0;
         // determine number of lines, columns and labeled or not
-        while ( std::getline(in,s) ) {
+        while ( std::getline(in, s) ) {
             if ( !s.empty() ) {
                 // Tokenize the line.
                 std::stringstream iss(s);
@@ -123,7 +123,7 @@ namespace OpenMEEG {
             }
         }
         in.clear();
-        in.seekg(0,std::ios::beg); // move the get pointer to the beginning of the file.
+        in.seekg(0, std::ios::beg); // move the get pointer to the beginning of the file.
         in >> io_utils::skip_comments('#');
 
         if ( labeled ) {
@@ -132,7 +132,7 @@ namespace OpenMEEG {
 
         Matrix mat(nlin, ncol);
         i = 0;
-        while ( std::getline(in,s) ) {
+        while ( std::getline(in, s) ) {
             if ( !s.empty() ) {
                 // Tokenize the line.
                 std::stringstream iss(s);
@@ -149,7 +149,7 @@ namespace OpenMEEG {
 
         // init private members :
         // positions
-        m_positions = mat.submat(0,nlin,0,3);
+        m_positions = mat.submat(0, nlin, 0, 3);
         // weights
         if (m_geo) { // EIT
             if (ncol == 4) { // if radii were specified
@@ -173,7 +173,7 @@ namespace OpenMEEG {
 
         // orientations
         if ( ncol >= 6 ) {
-            m_orientations = mat.submat(0,nlin,3,3);
+            m_orientations = mat.submat(0, nlin, 3, 3);
         }
 
         // Sensor index
@@ -217,9 +217,9 @@ namespace OpenMEEG {
     }
 
     SparseMatrix Sensors::getWeightsMatrix() const {
-        SparseMatrix weight_matrix(getNumberOfSensors(),getNumberOfPositions());
+        SparseMatrix weight_matrix(getNumberOfSensors(), getNumberOfPositions());
         for(size_t i = 0; i < getNumberOfPositions(); ++i) {
-            weight_matrix(m_pointSensorIdx[i],i) = m_weights(i);
+            weight_matrix(m_pointSensorIdx[i], i) = m_weights(i);
         }
         return weight_matrix;
     }
@@ -240,9 +240,9 @@ namespace OpenMEEG {
 
             double dist;
             std::string s_map=dist_point_geom(current_position, *m_geo, current_alphas, current_nearest_triangle, dist);
-            std::vector<std::string>::iterator sit=std::find(ci_mesh_names.begin(),ci_mesh_names.end(),s_map);
+            std::vector<std::string>::iterator sit=std::find(ci_mesh_names.begin(), ci_mesh_names.end(), s_map);
             if(sit!=ci_mesh_names.end()){
-                size_t idx2=std::distance(ci_mesh_names.begin(),sit);
+                size_t idx2=std::distance(ci_mesh_names.begin(), sit);
                 ci_triangles[idx2]++;
             }
             else{
@@ -255,7 +255,7 @@ namespace OpenMEEG {
             index_seen.insert(current_nearest_triangle.index());
             if ( std::abs(m_radii(idx)) > 1.e3*std::numeric_limits<double>::epsilon() ) {
                 // if the electrode is larger than the triangle, look for adjacent triangles
-                if ( current_nearest_triangle.area() < 4.*M_PI*std::pow(m_radii(idx),2) ) {
+                if ( current_nearest_triangle.area() < 4.*M_PI*std::pow(m_radii(idx), 2) ) {
                     std::stack<Triangle *> tri_stack;
                     tri_stack.push(&current_nearest_triangle);
                     while ( !tri_stack.empty() ) {
@@ -277,7 +277,7 @@ namespace OpenMEEG {
                 for ( Triangles::const_iterator tit = triangles.begin(); tit != triangles.end(); ++tit) {
                     triangles_area += tit->area();
                 }
-                m_weights(idx) = M_PI * std::pow(m_radii(idx),2) / triangles_area;
+                m_weights(idx) = M_PI * std::pow(m_radii(idx), 2) / triangles_area;
             }
             m_triangles.push_back(triangles);
         }
@@ -286,12 +286,12 @@ namespace OpenMEEG {
     }
 
     void Sensors::info() const {
-        size_t nb_to_display = (int)std::min((int)m_nb,(int)5);
+        size_t nb_to_display = (int)std::min((int)m_nb, (int)5);
         std::cout << "Nb of sensors : " << m_nb << std::endl;
         std::cout << "Positions" << std::endl;
         for(size_t i = 0; i < nb_to_display ; ++i) {
             for (size_t j=0;j<m_positions.ncol();++j) {
-                std::cout << m_positions(i,j) << " ";
+                std::cout << m_positions(i, j) << " ";
             }
             std::cout << std::endl;
         }
@@ -303,7 +303,7 @@ namespace OpenMEEG {
             std::cout << "Orientations" << std::endl;
             for(size_t i = 0; i < nb_to_display ; ++i) {
                 for (size_t j=0;j<m_orientations.ncol();++j) {
-                    std::cout << m_orientations(i,j) << " ";
+                    std::cout << m_orientations(i, j) << " ";
                 }
                 std::cout << std::endl;
             }

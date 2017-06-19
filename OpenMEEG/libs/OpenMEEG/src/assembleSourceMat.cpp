@@ -81,7 +81,7 @@ namespace OpenMEEG {
                 operatorN( omit->mesh(), mesh_source, mat, coeffN, gauss_order);
                 // Second block is nFacesFistLayer*mesh_source.nb_vertices()
                 double coeffD = (hit->inside())?-omit->orientation() * K / sigma : omit->orientation() * K / sigma;
-                operatorD(omit->mesh(), mesh_source, mat, coeffD, gauss_order,false);
+                operatorD(omit->mesh(), mesh_source, mat, coeffD, gauss_order, false);
             }
         }
     }
@@ -97,14 +97,14 @@ namespace OpenMEEG {
         const size_t size      = geo.size()-geo.nb_current_barrier_triangles();
         const size_t n_dipoles = dipoles.nlin();
 
-        rhs = Matrix(size,n_dipoles);
+        rhs = Matrix(size, n_dipoles);
         rhs.set(0.0);
 
         Vector rhs_col(rhs.nlin());
         for (unsigned s=0; s<n_dipoles; ++s) {
-            PROGRESSBAR(s,n_dipoles);
-            const Vect3 r(dipoles(s,0),dipoles(s,1),dipoles(s,2));
-            const Vect3 q(dipoles(s,3),dipoles(s,4),dipoles(s,5));
+            PROGRESSBAR(s, n_dipoles);
+            const Vect3 r(dipoles(s, 0), dipoles(s, 1), dipoles(s, 2));
+            const Vect3 q(dipoles(s, 3), dipoles(s, 4), dipoles(s, 5));
 
             const Domain domain = (domain_name=="") ? geo.domain(r) : geo.domain(domain_name);
 
@@ -120,15 +120,15 @@ namespace OpenMEEG {
                     for (Interface::const_iterator omit=hit->interface().begin(); omit!=hit->interface().end(); ++omit) {
                         //  Treat the mesh.
                         const double coeffD = ((hit->inside()) ? K : -K)*omit->orientation();
-                        operatorDipolePotDer(r,q,omit->mesh(),rhs_col,coeffD,gauss_order,adapt_rhs);
+                        operatorDipolePotDer(r, q, omit->mesh(), rhs_col, coeffD, gauss_order, adapt_rhs);
 
                         if (!omit->mesh().current_barrier()) {
                             const double coeff = -coeffD/sigma;;
-                            operatorDipolePot(r,q,omit->mesh(),rhs_col,coeff,gauss_order,adapt_rhs);
+                            operatorDipolePot(r, q, omit->mesh(), rhs_col, coeff, gauss_order, adapt_rhs);
                         }
                     }
                 }
-                rhs.setcol(s,rhs_col);
+                rhs.setcol(s, rhs_col);
             }
         }
     }
@@ -159,7 +159,7 @@ namespace OpenMEEG {
         for (Geometry::const_iterator mit0 = geo.begin(); mit0 != geo.end(); ++mit0) {
             if (mit0->current_barrier()) {
                 for (Geometry::const_iterator mit1 = geo.begin(); mit1 != geo.end(); ++mit1) {
-                    const int orientation = geo.oriented(*mit0,*mit1);
+                    const int orientation = geo.oriented(*mit0, *mit1);
                     if (orientation != 0){
                         // D*_23 or D*_33
                         operatorD(*mit1, *mit0, transmat, K*orientation, gauss_order, true);
@@ -168,7 +168,7 @@ namespace OpenMEEG {
                             operatorP1P0(*mit0, transmat, -0.5*orientation);
                         } else {
                             // S_23
-                            operatorS(*mit1, *mit0, transmat, geo.sigma_inv(*mit0,*mit1)*(-1.0*K*orientation), gauss_order);
+                            operatorS(*mit1, *mit0, transmat, geo.sigma_inv(*mit0, *mit1)*(-1.0*K*orientation), gauss_order);
                         }
                     }
                 }

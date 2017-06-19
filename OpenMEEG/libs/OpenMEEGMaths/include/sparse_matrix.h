@@ -68,8 +68,8 @@ namespace OpenMEEG {
         typedef std::map< std::pair< size_t, size_t >, double >::const_iterator const_iterator;
         typedef std::map< std::pair< size_t, size_t >, double >::iterator iterator;
 
-        SparseMatrix() : LinOp(0,0,SPARSE,2) {};
-        SparseMatrix(size_t N,size_t M) : LinOp(N,M,SPARSE,2) {};
+        SparseMatrix() : LinOp(0, 0, SPARSE, 2) {};
+        SparseMatrix(size_t N, size_t M) : LinOp(N, M, SPARSE, 2) {};
         ~SparseMatrix() {};
 
         inline double operator()( size_t i, size_t j ) const {
@@ -135,7 +135,7 @@ namespace OpenMEEG {
     inline void SparseMatrix::setlin(Vector v, size_t i) {
         om_assert(i<nlin());
         for (size_t j=0;j<v.nlin();j++){
-            (*this)(i,j) = v(j);
+            (*this)(i, j) = v(j);
         }
     }
 }

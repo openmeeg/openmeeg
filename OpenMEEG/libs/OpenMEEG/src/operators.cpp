@@ -63,7 +63,7 @@ namespace OpenMEEG {
 
     // General routine for applying _operatorFerguson (see this function for further comments)
     // to an entire mesh, and storing coordinates of the output in a Matrix.
-    void operatorFerguson(const Vect3& x,const Mesh& m,Matrix& mat,const unsigned& offsetI,const double& coeff)
+    void operatorFerguson(const Vect3& x, const Mesh& m, Matrix& mat, const unsigned& offsetI, const double& coeff)
     {
         #pragma omp parallel for
         #ifndef OPENMP_3_0
@@ -79,11 +79,11 @@ namespace OpenMEEG {
         }
     }
 
-    void operatorDipolePotDer(const Vect3& r0,const Vect3& q,const Mesh& m,Vector& rhs,const double& coeff,const unsigned gauss_order,const bool adapt_rhs) 
+    void operatorDipolePotDer(const Vect3& r0, const Vect3& q, const Mesh& m, Vector& rhs, const double& coeff, const unsigned gauss_order, const bool adapt_rhs) 
     {
         static analyticDipPotDer anaDPD;
 
-        Integrator<Vect3,analyticDipPotDer>* gauss = (adapt_rhs) ? new AdaptiveIntegrator<Vect3, analyticDipPotDer>(0.001) :
+        Integrator<Vect3, analyticDipPotDer>* gauss = (adapt_rhs) ? new AdaptiveIntegrator<Vect3, analyticDipPotDer>(0.001) :
                                                                    new Integrator<Vect3, analyticDipPotDer>;
 
         gauss->setOrder(gauss_order);

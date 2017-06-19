@@ -55,7 +55,7 @@ namespace OpenMEEG {
     public:
         Jacobi (const M& m): J(m.nlin()) { 
             for ( unsigned i = 0; i < m.nlin(); ++i) {
-                J(i, i) = 1.0 / m(i,i);
+                J(i, i) = 1.0 / m(i, i);
             }
         }
 
@@ -101,9 +101,9 @@ namespace OpenMEEG {
             Vector y(s);
             // Backsolve:  
             for (int i = k; i >= 0; i--) {
-                    y(i) /= h(i,i);
+                    y(i) /= h(i, i);
                     for (int j = i - 1; j >= 0; j--)
-                            y(j) -= h(j,i) * y(i);
+                            y(j) -= h(j, i) * y(i);
             }
             for (int j = 0; j <= k; j++) {
                     x += v[j] * y(j);
@@ -111,11 +111,11 @@ namespace OpenMEEG {
     }
 
     // code taken from http://www.netlib.org/templates/cpp/gmres.h and modified
-    template<class T,class P> // T should be a linear operator, and P a preconditionner
-    unsigned GMRes(const T& A, const P& M, Vector &x, const Vector& b, int max_iter, double tol,unsigned m) {
+    template<class T, class P> // T should be a linear operator, and P a preconditionner
+    unsigned GMRes(const T& A, const P& M, Vector &x, const Vector& b, int max_iter, double tol, unsigned m) {
 
         // m is the size of the Krylov subspace, if m<A.nlin(), it is a restarted GMRes (for saving memory)
-        Matrix H(m+1,m);
+        Matrix H(m+1, m);
         x.set(0.0);
 
         double resid;
@@ -151,10 +151,10 @@ namespace OpenMEEG {
                 v[i+1] = (w / H(i+1, i));
 
                 for (k = 0; k < i; k++)
-                    ApplyPlaneRotation(H(k,i), H(k+1,i), cs(k), sn(k));
+                    ApplyPlaneRotation(H(k, i), H(k+1, i), cs(k), sn(k));
 
-                GeneratePlaneRotation(H(i,i), H(i+1,i), cs(i), sn(i));
-                ApplyPlaneRotation(H(i,i), H(i+1,i), cs(i), sn(i));
+                GeneratePlaneRotation(H(i, i), H(i+1, i), cs(i), sn(i));
+                ApplyPlaneRotation(H(i, i), H(i+1, i), cs(i), sn(i));
                 ApplyPlaneRotation(s(i), s(i+1), cs(i), sn(i));
 
                 if ((resid = std::abs(s(i+1)) / normb) < tol) {

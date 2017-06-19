@@ -56,11 +56,11 @@ int main() {
     SymMatrix S(4);
     for (unsigned i=0;i<4;++i)
         for (unsigned j=i; j<4;++j)
-            S(i,j) = pow(2.0,(double)i)+pow(3.0,(double)j);
+            S(i, j) = pow(2.0, (double)i)+pow(3.0, (double)j);
 
-    genericTest("symm",S);
+    genericTest("symm", S);
 
-    const Matrix R = S(1,2,0,2); // extract submatrix
+    const Matrix R = S(1, 2, 0, 2); // extract submatrix
     std::cout << "Matrice R : " << std::endl;
     R.info();
 

@@ -96,5 +96,5 @@ typedef int BLAS_INT;
 //#define inline __attribute__((weak)) inline
 
 
-#define DPOTF2 LAPACK(dpotf2,DPOTF2)
-#define DSPEVD LAPACK(dspevd,DSPEVD)
+#define DPOTF2 LAPACK(dpotf2, DPOTF2)
+#define DSPEVD LAPACK(dspevd, DSPEVD)

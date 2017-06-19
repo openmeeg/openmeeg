@@ -70,8 +70,8 @@ namespace OpenMEEG {
         typedef unsigned                         Dimension;
 
         LinOpInfo() { }
-        LinOpInfo(const size_t m,const size_t n,const StorageType st,const Dimension d):
-            num_lines(m),num_cols(n),storage(st),dim(d)  { }
+        LinOpInfo(const size_t m, const size_t n, const StorageType st, const Dimension d):
+            num_lines(m), num_cols(n), storage(st), dim(d)  { }
 
         virtual ~LinOpInfo() {};
 
@@ -113,7 +113,7 @@ namespace OpenMEEG {
     public:
 
         LinOp() { }
-        LinOp(const size_t m,const size_t n,const StorageType st,const Dimension d): base(m,n,st,d) { }
+        LinOp(const size_t m, const size_t n, const StorageType st, const Dimension d): base(m, n, st, d) { }
 
         LinOp& operator=(const LinOp& l) {
             base::operator=(l);
@@ -141,12 +141,12 @@ namespace OpenMEEG {
             }
         }
 
-        LinOpValue(const size_t n,const double* initval) { init(n,initval); }
-        LinOpValue(const size_t n,const LinOpValue& v)   { init(n,v.data);  }
+        LinOpValue(const size_t n, const double* initval) { init(n, initval); }
+        LinOpValue(const size_t n, const LinOpValue& v)   { init(n, v.data);  }
 
-        void init(const size_t n,const double* initval) {
+        void init(const size_t n, const double* initval) {
             data = new double[n];
-            std::copy(initval,initval+n,data);
+            std::copy(initval, initval+n, data);
         }
 
         ~LinOpValue() { delete[] data; }

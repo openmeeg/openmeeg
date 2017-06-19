@@ -74,7 +74,7 @@ int main () {
     v(7) = 0.16;
     v(3) = 0.22;
     v(2) = 2.;
-    Matrix m(v,v.size(),1);
+    Matrix m(v, v.size(), 1);
     m = m* m.transpose();
     m -= v.outer_product(v);
     if ( m.frobenius_norm() > eps) {

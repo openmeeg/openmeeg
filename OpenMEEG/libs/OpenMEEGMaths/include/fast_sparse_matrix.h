@@ -49,7 +49,7 @@ namespace OpenMEEG {
     {
     public:
 
-        inline friend std::ostream& operator<<(std::ostream& f,const FastSparseMatrix &M);
+        inline friend std::ostream& operator<<(std::ostream& f, const FastSparseMatrix &M);
 
     protected:
 
@@ -64,7 +64,7 @@ namespace OpenMEEG {
 
     public:
         inline FastSparseMatrix();
-        inline FastSparseMatrix(size_t n,size_t p, size_t sp);
+        inline FastSparseMatrix(size_t n, size_t p, size_t sp);
         inline FastSparseMatrix( const SparseMatrix &M);
         inline FastSparseMatrix( const FastSparseMatrix &M);
         inline ~FastSparseMatrix() {destroy();}
@@ -73,8 +73,8 @@ namespace OpenMEEG {
         inline void write(std::ostream& f) const;
         inline void read(std::istream& f);
 
-        inline double operator()(size_t i,size_t j) const;
-        inline double& operator()(size_t i,size_t j);
+        inline double operator()(size_t i, size_t j) const;
+        inline double& operator()(size_t i, size_t j);
         inline Vector operator * (const Vector &v) const;
         inline void operator =( const FastSparseMatrix &M);
 
@@ -84,7 +84,7 @@ namespace OpenMEEG {
 
     };
 
-    inline std::ostream& operator<<(std::ostream& f,const FastSparseMatrix &M)
+    inline std::ostream& operator<<(std::ostream& f, const FastSparseMatrix &M)
     {
         size_t nz = M.rowindex[M.nlin()];
         f << M.nlin() << " " << M.ncol() << std::endl;
@@ -111,21 +111,21 @@ namespace OpenMEEG {
 
     inline FastSparseMatrix::FastSparseMatrix()
     {
-        alloc(1,1,1);
+        alloc(1, 1, 1);
     }
 
-    inline FastSparseMatrix::FastSparseMatrix(size_t n,size_t p, size_t sp=1)
+    inline FastSparseMatrix::FastSparseMatrix(size_t n, size_t p, size_t sp=1)
     {
-        alloc(n,p,sp);
+        alloc(n, p, sp);
     }
 
     inline void FastSparseMatrix::operator =( const FastSparseMatrix &M)
     {
         destroy();
-        alloc(M.m_nlin,M.m_ncol,M.rowindex[M.m_nlin]);
-        memcpy(tank,M.tank,sizeof(double)*M.rowindex[M.m_nlin]);
-        memcpy(js,M.js,sizeof(size_t)*M.rowindex[M.m_nlin]);
-        memcpy(rowindex,M.rowindex,sizeof(size_t)*(M.m_nlin+1));
+        alloc(M.m_nlin, M.m_ncol, M.rowindex[M.m_nlin]);
+        memcpy(tank, M.tank, sizeof(double)*M.rowindex[M.m_nlin]);
+        memcpy(js, M.js, sizeof(size_t)*M.rowindex[M.m_nlin]);
+        memcpy(rowindex, M.rowindex, sizeof(size_t)*(M.m_nlin+1));
     }
 
     inline FastSparseMatrix::FastSparseMatrix( const SparseMatrix &M)
@@ -164,25 +164,25 @@ namespace OpenMEEG {
     inline void FastSparseMatrix::write(std::ostream& f) const
     {
         size_t nz=rowindex[m_nlin];
-        f.write((const char*)&m_nlin,(std::streamsize)sizeof(size_t));
-        f.write((const char*)&m_ncol,(std::streamsize)sizeof(size_t));
-        f.write((const char*)&nz,(std::streamsize)sizeof(size_t));
-        f.write((const char*)tank,(std::streamsize)(sizeof(double)*nz));
-        f.write((const char*)js,(std::streamsize)(sizeof(size_t)*nz));
-        f.write((const char*)rowindex,(std::streamsize)(sizeof(size_t)*m_nlin));
+        f.write((const char*)&m_nlin, (std::streamsize)sizeof(size_t));
+        f.write((const char*)&m_ncol, (std::streamsize)sizeof(size_t));
+        f.write((const char*)&nz, (std::streamsize)sizeof(size_t));
+        f.write((const char*)tank, (std::streamsize)(sizeof(double)*nz));
+        f.write((const char*)js, (std::streamsize)(sizeof(size_t)*nz));
+        f.write((const char*)rowindex, (std::streamsize)(sizeof(size_t)*m_nlin));
     }
 
     inline void FastSparseMatrix::read(std::istream& f)
     {
         destroy();
         size_t nz;
-        f.read((char*)&m_nlin,(std::streamsize)sizeof(size_t));
-        f.read((char*)&m_ncol,(std::streamsize)sizeof(size_t));
-        f.read((char*)&nz,(std::streamsize)sizeof(size_t));
-        alloc(m_nlin,m_ncol,nz);
-        f.read((char*)tank,(std::streamsize)(sizeof(double)*nz));
-        f.read((char*)js,(std::streamsize)(sizeof(size_t)*nz));
-        f.read((char*)rowindex,(std::streamsize)(sizeof(size_t)*m_nlin));
+        f.read((char*)&m_nlin, (std::streamsize)sizeof(size_t));
+        f.read((char*)&m_ncol, (std::streamsize)sizeof(size_t));
+        f.read((char*)&nz, (std::streamsize)sizeof(size_t));
+        alloc(m_nlin, m_ncol, nz);
+        f.read((char*)tank, (std::streamsize)(sizeof(double)*nz));
+        f.read((char*)js, (std::streamsize)(sizeof(size_t)*nz));
+        f.read((char*)rowindex, (std::streamsize)(sizeof(size_t)*m_nlin));
     }
 
     inline void FastSparseMatrix::alloc(size_t nl, size_t nc, size_t nz)
@@ -204,17 +204,17 @@ namespace OpenMEEG {
 
     inline FastSparseMatrix::FastSparseMatrix( const FastSparseMatrix &m)
     {
-        alloc(m.m_nlin,m.m_ncol,m.rowindex[m.m_nlin]);
-        memcpy(tank,m.tank,sizeof(double)*m.rowindex[m.m_nlin]);
-        memcpy(js,m.js,sizeof(size_t)*m.rowindex[m.m_nlin]);
-        memcpy(rowindex,m.rowindex,sizeof(size_t)*(m.m_nlin+1));
+        alloc(m.m_nlin, m.m_ncol, m.rowindex[m.m_nlin]);
+        memcpy(tank, m.tank, sizeof(double)*m.rowindex[m.m_nlin]);
+        memcpy(js, m.js, sizeof(size_t)*m.rowindex[m.m_nlin]);
+        memcpy(rowindex, m.rowindex, sizeof(size_t)*(m.m_nlin+1));
     }
 
     inline size_t FastSparseMatrix::nlin() const {return (size_t)m_nlin;}
 
     inline size_t FastSparseMatrix::ncol() const {return (size_t)m_ncol;}
 
-    inline double FastSparseMatrix::operator()(size_t i,size_t j) const
+    inline double FastSparseMatrix::operator()(size_t i, size_t j) const
     {
         for(size_t k=rowindex[i];k<rowindex[i+1];k++)
         {
@@ -226,7 +226,7 @@ namespace OpenMEEG {
         return 0;
     }
 
-    inline double& FastSparseMatrix::operator()(size_t i,size_t j)
+    inline double& FastSparseMatrix::operator()(size_t i, size_t j)
     {
         for(size_t k=rowindex[i];k<rowindex[i+1];k++)
         {
@@ -235,7 +235,7 @@ namespace OpenMEEG {
             else break;
         }
 
-        std::cerr<<"FastSparseMatrix : double& operator()(size_t i,size_t j) can't add element"<<std::endl;
+        std::cerr<<"FastSparseMatrix : double& operator()(size_t i, size_t j) can't add element"<<std::endl;
         exit(1);
     }
 
