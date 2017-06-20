@@ -34,7 +34,7 @@ if (USE_CGAL)
         set(CGAL_LIBRARIES ${CGAL_LIBRARY} ${CGAL_Core_LIBRARY} ${CGAL_ImageIO_LIBRARY} ${MPFR_LIBRARIES} ${GMP_LIBRARIES} ${CGAL_3RD_PARTY_LIBRARIES} ${CGAL_ImageIO_3RD_PARTY_LIBRARIES})
         set(CGAL_CXX_FLAGS ${CGAL_CXX_FLAGS} ${CGAL_ImageIO_3RD_PARTY_DEFINITIONS})
     endif()
-    if (APPLE)
+    if (APPLE_PROVIDE_ALL_LIBS) # for Mac copy the libs
         set(LIBS)
         foreach(lib ${CGAL_LIBRARIES})
             get_filename_component(reallib ${lib} REALPATH)

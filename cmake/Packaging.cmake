@@ -23,10 +23,8 @@ if (ENABLE_PACKAGING)
 
     set(PACKAGE_OPTIONS ${BLASLAPACK_IMPLEMENTATION})
 
-    if (BUILD_SHARED_LIBS)
-        set(PACKAGE_OPTIONS ${PACKAGE_OPTIONS}-shared)
-    else()
-        set(PACKAGE_OPTIONS ${PACKAGE_OPTIONS}-static)
+    if (APPLE_PROVIDE_ALL_LIBS)
+        set(PACKAGE_OPTIONS ${PACKAGE_OPTIONS}-AllLibs)
     endif()
 
     if (USE_OMP)
