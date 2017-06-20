@@ -367,7 +367,6 @@ namespace OpenMEEG {
             static Mesh::VectPTriangle a;
             return a;
         }
-        // TODO const_cast here
     }
 
     /// For IO:s -------------------------------------------------------------------------------------------

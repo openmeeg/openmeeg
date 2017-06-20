@@ -28,6 +28,17 @@ if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
         brew install vtk
     fi
 
+    if [[ "$USE_OMP" == 1 ]]; then
+        brew install llvm
+        export OMP_NUM_THREADS=4
+        export LDFLAGS="-L/usr/local/opt/llvm/lib -Wl,-rpath,/usr/local/opt/llvm/lib"
+        export DYLD_LIBRARY_PATH="/usr/local/opt/llvm/lib:$DYLD_LIBRARY_PATH"
+        export CC="/usr/local/opt/llvm/bin/clang"
+        export CXX="/usr/local/opt/llvm/bin/clang++"
+        export CPPFLAGS="-I/usr/local/opt/llvm/include -fopenmp $CPPFLAGS"
+        export CFLAGS="-I/usr/local/opt/llvm/include -fopenmp $CFLAGS"
+    fi
+
     if [[ "$USE_CGAL" == 1 ]]; then
         brew install cgal
     fi
