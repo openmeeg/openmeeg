@@ -30,7 +30,7 @@ if (NOT matio_LIBRARIES)
         set(matio_FOUND TRUE)
         set(matio_LIBRARIES ${matio_LIBRARY} ${HDF5_LIBRARIES})
         set(matio_INCLUDE_DIRS ${matio_INCLUDE_DIR} ${HDF5_INCLUDE_DIR})
-        if (APPLE_PROVIDE_ALL_LIBS) # for Mac copy the libs
+        if (APPLE_STANDALONE) # for Mac copy the libs
             set(LIBS)
             foreach(lib ${matio_LIBRARIES})
                 get_filename_component(reallib ${lib} REALPATH)
