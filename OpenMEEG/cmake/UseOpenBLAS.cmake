@@ -26,7 +26,7 @@ if (USE_OPENBLAS)
     else()
         find_package(OpenBLAS ${FIND_MODE} MODULE)
     endif()
-    if (APPLE_PROVIDE_ALL_LIBS) # for Mac copy the libs
+    if (APPLE_STANDALONE) # for Mac copy the libs
         set(LIBS)
         foreach(lib ${OpenBLAS_LIBRARIES})
             get_filename_component(reallib ${lib} REALPATH)

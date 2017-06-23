@@ -11,15 +11,15 @@ matrix:
         - ENABLE_PACKAGING=1
         - BUILD_DOCUMENTATION=ON
         - BLASLAPACK_IMPLEMENTATION=OpenBLAS
+        - APPLE_STANDALONE=1
     - os: osx
       compiler: clang
       env:
         - USE_SYSTEM=1
         - USE_PROJECT=1
         - USE_CGAL=1
-        - USE_OMP=1
         - ENABLE_PACKAGING=1
-        - APPLE_PROVIDE_ALL_LIBS=1
+        - APPLE_STANDALONE=1
         - BUILD_DOCUMENTATION=OFF
         - BLASLAPACK_IMPLEMENTATION=Auto # (Auto is the same as MKL/OpenBLAS/vecLib in priority)
     - os: osx
@@ -27,6 +27,7 @@ matrix:
       env:
         - USE_PROJECT=0
         - BLASLAPACK_IMPLEMENTATION=vecLib
+        - USE_OMP=1
         - USE_VTK=1
     - os: linux
       compiler: clang

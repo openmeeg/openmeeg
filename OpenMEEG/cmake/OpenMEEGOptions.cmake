@@ -13,7 +13,7 @@ option(BUILD_TUTORIALS "Build Tutorials" OFF)
 option(ENABLE_PYTHON "Enable Python Wrapping" OFF)
 option(ENABLE_COVERAGE "Enable Coverage" OFF)
 if(APPLE)
-    option(APPLE_PROVIDE_ALL_LIBS "Install all tiers library" OFF)
+    option(APPLE_STANDALONE "Install all tiers library" OFF)
 endif()
 
 include(UseOpenMP)
