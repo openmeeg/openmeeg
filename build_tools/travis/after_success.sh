@@ -21,7 +21,7 @@ if [[ "$USE_COVERAGE" == "1" ]]; then
     bash <(curl -s https://codecov.io/bash) > /dev/null 2>&1
 fi
 
-# only upload to forge if we are on the master branch
+# only upload to forge if we are on the master branch and the package is working
 if [[ $ENABLE_PACKAGING == "1" && $TRAVIS_PULL_REQUEST == "false" && $TRAVIS_BRANCH == "master" ]]; then
     setup_conda
     conda install -y --quiet paramiko
