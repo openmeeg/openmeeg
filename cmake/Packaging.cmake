@@ -9,10 +9,10 @@ if (ENABLE_PACKAGING)
 
     set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/OpenMEEG/cmake/packaging ${CMAKE_MODULE_PATH})
 
+    set(CPACK_GENERATOR "TGZ")
+
     # load variables
     include(PackagingOpenMEEG)
-
-    set(CPACK_GENERATOR "TGZ")
 
     # if we want to generate all the sub-project packages:
     set(CPACK_INSTALL_CMAKE_PROJECTS)
@@ -24,7 +24,7 @@ if (ENABLE_PACKAGING)
     set(PACKAGE_OPTIONS ${BLASLAPACK_IMPLEMENTATION})
 
     if (APPLE_STANDALONE)
-        set(PACKAGE_OPTIONS ${PACKAGE_OPTIONS}-Standalone)
+        set(PACKAGE_OPTIONS ${PACKAGE_OPTIONS}-standalone)
     endif()
 
     if (USE_OMP)
