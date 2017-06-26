@@ -1,3 +1,7 @@
+# Tell CMake to use rpath with the libs we build
+set(CMAKE_MACOSX_RPATH 1)
+set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
+
 # Set CMAKE_BUILD_TYPE to Release by default.
 if (NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "Release" CACHE STRING
