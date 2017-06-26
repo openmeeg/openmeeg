@@ -10,6 +10,7 @@
 ################################################################################
 
 set(DISTRIB windows)
+set(CPACK_GENERATOR "${CPACK_GENERATOR}" "NSIS")
 set(CPACK_PACKAGE_TYPE NSIS)
 set(CPACK_PACKAGING_INSTALL_PREFIX "")
 set(CPACK_PACKAGE_INSTALL_DIRECTORY "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}")

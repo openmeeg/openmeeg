@@ -50,7 +50,7 @@ build_script:
   - cmake --build . --config Release
 
 after_build:
-  - if %pack%==ON ( cpack & cpack -G TGZ )
+  - if %pack%==ON ( cpack & cpack -G NSIS)
 
 before_test:
   - echo Running tests...
