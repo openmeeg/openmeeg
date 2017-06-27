@@ -16,14 +16,12 @@ endif()
 
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake ${CMAKE_CURRENT_SOURCE_DIR}/OpenMEEG/cmake ${CMAKE_CURRENT_SOURCE_DIR}/OpenMEEG/cmake/FortranCInterface ${CMAKE_MODULE_PATH})
 
-project(OpenMEEG-superProject ${PROJECT_VERSION})  # XXX don't call it super project
+project(OpenMEEG-superProject ${PROJECT_VERSION})
 
 # Setup everything MODULE_PATH, check environment, basic targets, options
-
 include(Setup)
 
 # Define revision (TODO: Get revision from the OpenMEEG repo).
-
 if ("${CMAKE_VERSION}" VERSION_LESS "3.0")
     SetRevision(2 3 99 dev)
 endif()

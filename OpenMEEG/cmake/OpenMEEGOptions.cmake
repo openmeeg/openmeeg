@@ -16,6 +16,7 @@ option(BUILD_DOCUMENTATION "Build the Doxygen documentation" OFF)
 option(BUILD_TUTORIALS "Build Tutorials" OFF)
 option(ENABLE_PYTHON "Enable Python Wrapping" OFF)
 option(ENABLE_COVERAGE "Enable Coverage" OFF)
+
 if(APPLE)
     option(APPLE_STANDALONE "Install all tiers library" OFF)
 endif()

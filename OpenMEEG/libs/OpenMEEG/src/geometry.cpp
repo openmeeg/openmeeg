@@ -37,6 +37,7 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
+#include <limits>
 #include <geometry.h>
 #include <geometry_reader.h>
 #include <geometry_io.h>
@@ -154,15 +155,17 @@ namespace OpenMEEG {
         domains_.clear();
         is_nested_ = has_cond_ = false;
 
-        GeometryReader geoR(*this);
 
+        GeometryReader geoR(*this);
         geoR.read_geom(geomFileName);
 
         if (condFileName != "") {
             geoR.read_cond(condFileName);
             has_cond_ = true;
-            //mark meshes that touch the 0-cond
+            // mark meshes that touch the 0-cond
             mark_current_barrier();
+
+            check_conductivities();
         }
 
         // generate the indices of our unknowns
@@ -173,9 +176,7 @@ namespace OpenMEEG {
     }
 
     // This generates unique indices for vertices and triangles which will correspond to our unknowns.
-
     void Geometry::generate_indices(const bool OLD_ORDERING) {
-
         // Either unknowns (potentials and currents) are ordered by mesh (i.e. V_1, p_1, V_2, p_2, ...) (this is the OLD_ORDERING)
         // or by type (V_1, V_2, V_3 .. p_1, p_2...) (by DEFAULT)
         // or by the user himself encoded into the vtp file.
@@ -372,14 +373,30 @@ namespace OpenMEEG {
         for (Meshes::const_iterator mit = m.begin(); mit != m.end(); ++mit, ++iit) {
             for (Mesh::const_iterator tit = mit->begin(); tit != mit->end(); ++tit) {
                 meshes_[iit].push_back(Triangle(map_vertices[(*tit)[0]], 
-                            map_vertices[(*tit)[1]], 
-                            map_vertices[(*tit)[2]]));
+                                                map_vertices[(*tit)[1]],
+                                                map_vertices[(*tit)[2]]));
             }
             meshes_[iit].update();
         }
     }
 
-    //mark all meshes which touch domains with 0 conductivity
+    // ensure that all domain's conductivities were defined
+    void Geometry::check_conductivities() {
+        for (Domains::iterator dit = domains_.begin(); dit != domains_.end(); ++dit) {
+            for (Domain::iterator hit = dit->begin(); hit != dit->end(); ++hit) {
+                for (Interface::iterator omit = hit->first.begin(); omit != hit->first.end(); ++omit) {
+                    if (dit->sigma() < 1.e3*std::numeric_limits<double>::epsilon()
+                            and not dit->outermost()
+                            and not omit->mesh().current_barrier()) {  // check that sigma is not zero
+                        throw OpenMEEG::BadDomain("Bad conductivity provided for domain " + dit->name());
+                    }
+                }
+            }
+        }
+        return;
+    }
+
+    // mark all meshes which touch domains with 0 conductivity
     void Geometry::mark_current_barrier() {
 
         //figure out the connectivity of meshes
@@ -503,5 +520,6 @@ namespace OpenMEEG {
             }
             geo_group_.push_back(gg);
         }
+
     }
 }

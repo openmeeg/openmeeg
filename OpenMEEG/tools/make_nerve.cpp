@@ -406,9 +406,11 @@ int main(int argc, char** argv)
         ifs >> Ea >> Eb >> Eb2;
         for (i=0;i<Nc;++i)
             ifs >> L[i] >> R[i] >> dt[i] >> sig[i];
+    } else {
+        std::cerr << "unknown argument: " << argv[1] << endl;
+        return 1;
     }
 
-    else  cerr << "unknown argument: " << argv[1] << endl;
     //  the electrode:
     Elec[0]=(int)((L[Nc-1]/2-Ea/2-Eb/2)/dt[Nc-1] +0.5);
     Elec[1]=(int)(Eb / dt[Nc-1]);

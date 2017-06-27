@@ -109,7 +109,7 @@ namespace OpenMEEG {
 
         void import_meshes(const Meshes& m); ///< \brief imports meshes from a list of meshes
 
-        const double & sigma     (const Domain& d)                const { return (d.sigma()); }
+        const double & sigma     (const Domain& d)        const { return (d.sigma()); }
         double sigma     (const Mesh& m1, const Mesh& m2) const { return funct_on_domains(m1, m2, IDENTITY); } // return the (sum) conductivity(ies) of the shared domain(s).
         double sigma_inv (const Mesh& m1, const Mesh& m2) const { return funct_on_domains(m1, m2, INVERSE); } // return the (sum) inverse of conductivity(ies) of the shared domain(s).
         double indicator (const Mesh& m1, const Mesh& m2) const { return funct_on_domains(m1, m2, INDICATOR); } // return the (sum) indicator function of the shared domain(s).
@@ -133,7 +133,8 @@ namespace OpenMEEG {
         bool       has_cond_;
         bool       is_nested_;
         size_t     size_;   // total number = nb of vertices + nb of triangles
-        void        generate_indices(const bool);
+
+        void          generate_indices(const bool);
         const Domains common_domains(const Mesh&, const Mesh&) const;
               double  funct_on_domains(const Mesh&, const Mesh&, const Function& ) const;
 
@@ -145,11 +146,12 @@ namespace OpenMEEG {
         std::vector<std::vector<std::string> > geo_group_; //Mesh names that belong to different isolated groups.
 
     public:
-        const size_t&   nb_current_barrier_triangles() const { return nb_current_barrier_triangles_; }
-              size_t&   nb_current_barrier_triangles()       { return nb_current_barrier_triangles_; }
-        const size_t    nb_invalid_vertices()          const { return invalid_vertices_.size();      }
+        const size_t& nb_current_barrier_triangles() const { return nb_current_barrier_triangles_; }
+              size_t& nb_current_barrier_triangles()       { return nb_current_barrier_triangles_; }
+        const size_t  nb_invalid_vertices()          const { return invalid_vertices_.size();      }
         const std::vector<std::vector<std::string> >& geo_group() const { return geo_group_; }
-              void  mark_current_barrier();
-        const Mesh& mesh(const std::string& id) const;
+              void    mark_current_barrier();
+              void    check_conductivities(); ///< \brief ensure that all domain's conductivities were defined
+        const Mesh&   mesh(const std::string& id) const;
     };
 }

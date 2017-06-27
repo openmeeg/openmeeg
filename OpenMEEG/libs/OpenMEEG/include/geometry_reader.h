@@ -379,7 +379,7 @@ namespace OpenMEEG {
 
     void GeometryReader::read_cond(const std::string& condFileName) {
 
-        typedef Utils::Properties::Named< std::string , Conductivity<double> > HeadProperties;
+        typedef Utils::Properties::Named<std::string, Conductivity<double> > HeadProperties;
         HeadProperties properties(condFileName.c_str());
 
         // Store the internal conductivity of the external boundary of domain i
