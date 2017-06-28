@@ -54,7 +54,7 @@ namespace Utils {
         class BadPropertyFile: public std::runtime_error {
         public:
             BadPropertyFile(const std::string& name):
-                std::runtime_error(std::string("Wrong property file"),filename(name) { }
+                std::runtime_error("Wrong property file"),filename(name) { }
             ~BadPropertyFile() throw() { }
             std::string filename;
         };
@@ -113,7 +113,8 @@ namespace Utils {
                 try {
                     loader.properties.define(id,property);
                 } catch(MultiplyDefinedProperty<Id>& e) {
-                    std::cerr << "Double definition of " << e.id << " in " << loader.filename << "( error " << i << ")." << std::endl
+                    std::cerr << "Double definition of " << e.id << " in " << loader.filename
+                              << "( error " << e.what() << ")." << std::endl
                               << "Keeping first definition..." << std::endl;
                 }
             }
@@ -142,7 +143,7 @@ namespace Utils {
             //  Define and retrieve a property using its id.
 
             const Property& find(const Id& id) const {
-                base::const_iterator it = base::find(id);
+                auto it = base::find(id);
                 if (it==base::end())
                     throw UnknownProperty<Id>(id);
                 return it->second; 
@@ -150,7 +151,7 @@ namespace Utils {
 
             void define(const Id& id,const Property& prop) throw(char*) {
                 if (base::find(id)!=base::end())
-                    throw MultiplyDefinedProperty(id);
+                    throw MultiplyDefinedProperty<Id>(id);
                 base::insert(typename base::value_type(id,prop));
             }
         };
