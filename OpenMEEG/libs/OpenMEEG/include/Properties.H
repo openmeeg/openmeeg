@@ -42,6 +42,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <string>
 #include <map>
 #include <fstream>
+#include <stdexcept>
 
 #include <IOUtils.H>
 #include <DataTag.H>
@@ -49,6 +50,30 @@ knowledge of the CeCILL-B license and that you accept its terms.
 namespace Utils {
 
     namespace Properties {
+
+        class BadPropertyFile: public std::runtime_error {
+        public:
+            BadPropertyFile(const std::string& name):
+                std::runtime_error(std::string("Wrong property file"),filename(name) { }
+            ~BadPropertyFile() throw() { }
+            std::string filename;
+        };
+
+        template <typename ID>
+        class UnknownProperty: public std::runtime_error {
+        public:
+            UnknownProperty(const ID& i): std::runtime_error("Unknown property"), id(i) { }
+            ~UnknownProperty() throw() { }
+            ID id;
+        };
+
+        template <typename ID>
+        class MultiplyDefinedProperty: public std::runtime_error {
+        public:
+            MultiplyDefinedProperty(const ID& i): std::runtime_error("Property defined multiple times"), id(i) { }
+            ~MultiplyDefinedProperty() throw() { }
+            ID id;
+        };
 
         template <typename PROPERTIES>
         struct PropertyLoader {
@@ -70,16 +95,15 @@ namespace Utils {
             typedef typename PROPERTIES::Id       Id;
             typedef typename PROPERTIES::Property Property;
 
-            Types::DataTag<PROPERTIES> tag;
-
             try {
+                Types::DataTag<PROPERTIES> tag;
                 is >> io_utils::match("# Properties Description 1.0 (") >> tag >> io_utils::match(")");
+                if (!is)
+                    throw BadPropertyFile(loader.filename);
             } catch(...) {
-                std::cerr << "Wrong property file: " << loader.filename << '.' << std::endl
-                          << "  Check whether the file exists and contains the proper properties." << std::endl;
-                exit(1);
+                throw BadPropertyFile(loader.filename);
             }
-
+            
             while (is.peek()!=std::istream::traits_type::eof()) {
 
                 Id       id;
@@ -88,9 +112,9 @@ namespace Utils {
                 is >> io_utils::skip_comments("#") >> id >> property >> std::ws;
                 try {
                     loader.properties.define(id,property);
-                } catch(int& i) {
-                    std::cerr << "Double definition of " << id << " in " << loader.filename << "( error " << i << ")." << std::endl
-                              << "Keeping first definition...." << std::endl;
+                } catch(MultiplyDefinedProperty<Id>& e) {
+                    std::cerr << "Double definition of " << e.id << " in " << loader.filename << "( error " << i << ")." << std::endl
+                              << "Keeping first definition..." << std::endl;
                 }
             }
             return is;
@@ -117,14 +141,17 @@ namespace Utils {
 
             //  Define and retrieve a property using its id.
 
-            const Property& find(const Id& id) const { return base::find(id)->second; }
+            const Property& find(const Id& id) const {
+                base::const_iterator it = base::find(id);
+                if (it==base::end())
+                    throw UnknownProperty<Id>(id);
+                return it->second; 
+            }
 
             void define(const Id& id,const Property& prop) throw(char*) {
-                if (base::find(id)!=base::end()) {
-                    throw "Double definition";
-                } else {
-                    base::insert(typename base::value_type(id,prop));
-                }
+                if (base::find(id)!=base::end())
+                    throw MultiplyDefinedProperty(id);
+                base::insert(typename base::value_type(id,prop));
             }
         };
 
