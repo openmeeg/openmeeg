@@ -49,12 +49,12 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <algorithm>
 #include <cctype>
 
-#include "OpenMEEGConfigure.h"
+#include <OpenMEEGConfigure.h>
 
 #ifdef USE_PROGRESSBAR
-    #define PROGRESSBAR(a,b) progressbar((a),(b))
+    #define PROGRESSBAR(a, b) progressbar((a), (b))
 #else
-    #define PROGRESSBAR(a,b)
+    #define PROGRESSBAR(a, b)
 #endif
 
 namespace OpenMEEG {
@@ -78,13 +78,13 @@ namespace OpenMEEG {
     };
 
     inline void init_random(int seed) {
-        static bool first=true;
-        if (seed==-1 && !first)
+        static bool first = true;
+        if (seed == -1 && !first)
             return;
-        first=false;
-        // srand((unsigned int)((seed==-1)?time(0):seed));
+        first = false;
+        // srand((unsigned int)((seed == -1)?time(0):seed));
         srand(0);
-        rand(); // the first is biased!
+        rand();  // the first is biased!
     }
 
     inline double drandom()
@@ -97,14 +97,14 @@ namespace OpenMEEG {
     {
         double x;
         do
-            x=drandom();
-        while (x==0);
+            x = drandom();
+        while (x == 0);
         return (double)(sqrt(-2*log(x))*cos(2*M_PI*drandom()));
     }
 
     inline void disp_argv(int argc, char **argv) {
         std::cout << std::endl << "| ------ " << argv[0] << std::endl;
-        for( int i = 1; i < argc; i += 1 )
+        for ( int i = 1; i < argc; i += 1 )
         {
             std::cout << "| " << argv[i] << std::endl;
         }
@@ -129,22 +129,22 @@ namespace OpenMEEG {
             if (p != pprev) {
                 if (n>1) {
                     // clear previous string
-                    for(unsigned i = 0; i < (w+2); ++i)
-                        std::cout<< "\b";
+                    for (unsigned i = 0; i < (w+2); ++i)
+                        std::cout << "\b";
 
-                    std::cout<< cbeg;
-                    for(unsigned i = 0; i < p; ++i) {
-                        std::cout<< cprog1;
+                    std::cout << cbeg;
+                    for (unsigned i = 0; i < p; ++i) {
+                        std::cout << cprog1;
                     }
-                    for(unsigned i = p; i < w; ++i) {
-                        std::cout<< cprog;
+                    for (unsigned i = p; i < w; ++i) {
+                        std::cout << cprog;
                     }
-                    std::cout<< cend;
+                    std::cout << cend;
                 }
             }
             pprev = p;
             if (n >= (N-1)) {
-                std::cout<<"\n";
+                std::cout << "\n";
             }
             std::cout.flush();
         }

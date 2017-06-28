@@ -44,7 +44,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <matrix.h>
 #include <generic_test.hpp>
 
-int main () {
+int main() {
 
     using namespace OpenMEEG;
 
@@ -56,7 +56,7 @@ int main () {
     v.set(0);
     v.save("tmp.bin");
 
-    for (int i=0;i<8;++i)
+    for (int i = 0; i < 8; ++i)
         v(i) = i;
 
     v.save("tmp.txt");
@@ -74,7 +74,7 @@ int main () {
     v(7) = 0.16;
     v(3) = 0.22;
     v(2) = 2.;
-    Matrix m(v,v.size(),1);
+    Matrix m(v, v.size(), 1);
     m = m* m.transpose();
     m -= v.outer_product(v);
     if ( m.frobenius_norm() > eps) {

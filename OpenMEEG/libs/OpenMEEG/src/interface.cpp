@@ -42,7 +42,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 namespace OpenMEEG {
 
     /// Computes the total solid angle of a surface for a point p and tells whether p is inside the mesh or not.
-    bool Interface::contains_point(const Vect3& p) const 
+    bool Interface::contains_point(const Vect3& p) const
     {
         double solangle = compute_solid_angle(p);
 
@@ -54,13 +54,13 @@ namespace OpenMEEG {
             std::cerr << "Interface::contains_point(" << p << ") Error. This should not happen. Are you sure the mesh is properly oriented ?\n";
             return true;
         } else {
-            std::cerr << "Interface::contains_point(" << p << ") Error. Are you sure the interface \"" << name_ << "\" is closed? Solid angle: " << std::abs(solangle)/M_PI <<"*PI." << std::endl;
-            return std::abs(solangle)>2*M_PI?true:false;
+            std::cerr << "Interface::contains_point(" << p << ") Error. Are you sure the interface \"" << name_ << "\" is closed? Solid angle: " << std::abs(solangle)/M_PI << "*PI." << std::endl;
+            return std::abs(solangle) > 2*M_PI?true:false;
         }
     }
 
     /// compute the solid-angle which should be +/-4 * Pi for a closed mesh if p is inside, 0 if p is outside
-    double Interface::compute_solid_angle(const Vect3& p) const 
+    double Interface::compute_solid_angle(const Vect3& p) const
     {
         double solangle = 0.0;
         for ( Interface::const_iterator omit = begin(); omit != end(); ++omit) {
@@ -69,7 +69,7 @@ namespace OpenMEEG {
         return solangle;
     }
 
-    void Interface::set_to_outermost() 
+    void Interface::set_to_outermost()
     {
         for ( Interface::iterator omit = begin(); omit != end(); ++omit) {
             omit->mesh().outermost() = true;
@@ -98,7 +98,7 @@ namespace OpenMEEG {
                 zmax = std::max(zmax, (**vit).z());
             }
         }
-        
+
         Vect3 bbmin(xmin, ymin, zmin);
         Vect3 bbmax(xmax, ymax, zmax);
         Vect3 bbcenter = 0.5 * (bbmin + bbmax);
@@ -109,21 +109,21 @@ namespace OpenMEEG {
         double solangle = compute_solid_angle(bbcenter);
         bool closed;
 
-        //if the bounding box center is not inside the interface,
-        //we try to test another point inside the bounding box.
-        if(std::abs(solangle) < 1.e3*std::numeric_limits<double>::epsilon()){
-            //std::cout<<"bbcenter is not inside interface: "<<name_<<std::endl;
-            if(!checked)
+        // if the bounding box center is not inside the interface,
+        // we try to test another point inside the bounding box.
+        if (std::abs(solangle) < 1.e3*std::numeric_limits<double>::epsilon()) {
+            // std::cout << "bbcenter is not inside interface: " << name_ << std::endl;
+            if (!checked)
                 std::srand((unsigned int)std::time(NULL));
             else
-                std::srand((unsigned int)(std::time(NULL)+3583)); //the program runs faster than the change of time value
+                std::srand((unsigned int)(std::time(NULL)+3583));  // the program runs faster than the change of time value
 
-            while(std::abs(solangle) < 1.e3*std::numeric_limits<double>::epsilon()){
+            while (std::abs(solangle) < 1.e3*std::numeric_limits<double>::epsilon()) {
                 Vect3 pt_rd((double)rand()/RAND_MAX*(xmax-xmin)+xmin,
                             (double)rand()/RAND_MAX*(ymax-ymin)+ymin,
                             (double)rand()/RAND_MAX*(zmax-zmin)+zmin);
-                //std::cout<<"\ttest random point("<<pt_rd<<")\n";
-                solangle=compute_solid_angle(pt_rd);
+                // std::cout << "\ttest random point(" << pt_rd << ")\n";
+                solangle = compute_solid_angle(pt_rd);
             }
         }
 
@@ -141,7 +141,7 @@ namespace OpenMEEG {
             closed = true;
         } else {
             std::cout << solangle/M_PI << "PI" << std::endl;
-            //in case of a bad random point location (too close to the mesh), do a double check:
+            // in case of a bad random point location (too close to the mesh), do a double check:
             closed = checked?false:this->check(true);
         }
 

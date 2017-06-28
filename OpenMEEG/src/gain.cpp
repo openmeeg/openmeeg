@@ -50,7 +50,7 @@ int main(int argc, char **argv)
 {
     print_version(argv[0]);
 
-    if ( argc<2 ) {
+    if ( argc < 2 ) {
         cerr << "Not enough arguments \nPlease try \"" << argv[0] << " -h\" or \"" << argv[0] << " --help \" \n" << endl;
         return 0;
     }
@@ -66,15 +66,15 @@ int main(int argc, char **argv)
     disp_argv(argc, argv);
 
     // declaration of argument variables
-    string Option=string(argv[1]);
-    if ( argc<5 ) {
+    string Option = string(argv[1]);
+    if ( argc < 5 ) {
         cerr << "Not enough arguments \nPlease try \"" << argv[0] << " -h\" or \"" << argv[0] << " --help \" \n" << endl;
         return 0;
     }
 
     // for use with EEG DATA
     if ( !strcmp(argv[1], "-EEG") ) {
-        if ( argc<6 ) {
+        if ( argc < 6 ) {
             cerr << "Not enough arguments \nPlease try \"" << argv[0] << " -h\" or \"" << argv[0] << " --help \" \n" << endl;
             return 0;
         }
@@ -91,7 +91,7 @@ int main(int argc, char **argv)
     }
     // compute the gain matrix with the adjoint method for use with EEG DATA
     else if ( !strcmp(argv[1], "-EEGadjoint") ) {
-        if ( argc<8 ) {
+        if ( argc < 8 ) {
             cerr << "Not enough arguments \nPlease try \"" << argv[0] << " -h\" or \"" << argv[0] << " --help \" \n" << endl;
             return 0;
         }
@@ -109,7 +109,7 @@ int main(int argc, char **argv)
     }
     // for use with MEG DATA
     else if ( !strcmp(argv[1], "-MEG") ) {
-        if ( argc<7 ) {
+        if ( argc < 7 ) {
             cerr << "Not enough arguments \nPlease try \"" << argv[0] << " -h\" or \"" << argv[0] << " --help \" \n" << endl;
             return 0;
         }
@@ -128,7 +128,7 @@ int main(int argc, char **argv)
     }
     // compute the gain matrix with the adjoint method for use with MEG DATA
     else if ( !strcmp(argv[1], "-MEGadjoint") ) {
-        if ( argc<9 ) {
+        if ( argc < 9 ) {
             cerr << "Not enough arguments \nPlease try \"" << argv[0] << " -h\" or \"" << argv[0] << " --help \" \n" << endl;
             return 0;
         }
@@ -148,7 +148,7 @@ int main(int argc, char **argv)
     }
     // compute the gain matrices with the adjoint method for use with EEG and MEG DATA
     else if ( !strcmp(argv[1], "-EEGMEGadjoint") ) {
-        if ( argc<11 ) {
+        if ( argc < 11 ) {
             cerr << "Not enough arguments \nPlease try \"" << argv[0] << " -h\" or \"" << argv[0] << " --help \" \n" << endl;
             return 0;
         }
@@ -170,7 +170,7 @@ int main(int argc, char **argv)
         EEGMEGGainMat.saveMEG(argv[10]);
     }
     else if ( (!strcmp(argv[1], "-InternalPotential"))|(!strcmp(argv[1], "-IP")) ) {
-        if ( argc<7 ) {
+        if ( argc < 7 ) {
             cerr << "Not enough arguments \nPlease try \"" << argv[0] << " -h\" or \"" << argv[0] << " --help \" \n" << endl;
             return 0;
         }
@@ -187,7 +187,7 @@ int main(int argc, char **argv)
         InternalPotGainMat.save(argv[6]);
     }
     else if ( (!strcmp(argv[1], "-EITInternalPotential"))||(!strcmp(argv[1], "-EITIP")) ) {
-        if ( argc<6 ){
+        if ( argc < 6 ){
             cerr << "Not enough arguments \nPlease try \"" << argv[0] << " -h\" or \"" << argv[0] << " --help \" \n" << endl;
             return 0;
         }

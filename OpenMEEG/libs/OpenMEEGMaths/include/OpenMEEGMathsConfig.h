@@ -47,9 +47,9 @@ knowledge of the CeCILL-B license and that you accept its terms.
 // specially for windows
 #if WIN32
     #pragma inline_recursion (on)
-    #pragma inline_depth (255) // MSVC static build with MKL cause LNK2019 error
-    #pragma warning( disable : 4530)    //MSVC standard library can't be inlined
-    #pragma warning( disable : 4996)    //MSVC warning C4996: declared deprecated
+    #pragma inline_depth (255)  // MSVC static build with MKL cause LNK2019 error
+    #pragma warning( disable : 4530)    // MSVC standard library can't be inlined
+    #pragma warning( disable : 4996)    // MSVC warning C4996: declared deprecated
     #if defined(_MSC_VER)
         // Enable MSVC compiler warning messages that are useful but off by default.
         # pragma warning ( default : 4263 ) /* no override, call convention differs */
@@ -91,10 +91,10 @@ typedef int BLAS_INT;
 #warning "No blas/lapack implementation selected."
 #endif
 
-//#define inline __forceinline
-//#define inline __attribute__((always_inline))
-//#define inline __attribute__((weak)) inline
+// #define inline __forceinline
+// #define inline __attribute__((always_inline))
+// #define inline __attribute__((weak)) inline
 
 
-#define DPOTF2 LAPACK(dpotf2,DPOTF2)
-#define DSPEVD LAPACK(dspevd,DSPEVD)
+#define DPOTF2 LAPACK(dpotf2, DPOTF2)
+#define DSPEVD LAPACK(dspevd, DSPEVD)

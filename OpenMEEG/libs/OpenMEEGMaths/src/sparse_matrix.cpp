@@ -37,15 +37,15 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#include "sparse_matrix.h"
-#include "symmatrix.h"
+#include <sparse_matrix.h>
+#include <symmatrix.h>
 
 namespace OpenMEEG {
 
     double SparseMatrix::frobenius_norm() const {
         double d = 0.;
         for ( const_iterator it = m_tank.begin() ; it != m_tank.end(); ++it) {
-            d += std::pow(it->second,2);
+            d += std::pow(it->second, 2);
         }
         return sqrt(d);
     }
@@ -56,7 +56,7 @@ namespace OpenMEEG {
         ret.set(0);
 
         Tank::const_iterator it;
-        for(it = m_tank.begin(); it != m_tank.end(); ++it) {
+        for (it = m_tank.begin(); it != m_tank.end(); ++it) {
             size_t i = it->first.first;
             size_t j = it->first.second;
             double val = it->second;
@@ -68,17 +68,17 @@ namespace OpenMEEG {
 
     Matrix SparseMatrix::operator*(const SymMatrix &mat) const
     {
-        om_assert(ncol()==mat.nlin());
-        Matrix out(nlin(),mat.ncol());
+        om_assert(ncol() == mat.nlin());
+        Matrix out(nlin(), mat.ncol());
         out.set(0.0);
 
         Tank::const_iterator it;
-        for(it = m_tank.begin(); it != m_tank.end(); ++it) {
+        for (it = m_tank.begin(); it != m_tank.end(); ++it) {
             size_t i = it->first.first;
             size_t j = it->first.second;
             double val = it->second;
-            for(size_t k = 0; k < mat.ncol(); ++k) {
-                out(i,k) += val * mat(j,k);
+            for (size_t k = 0; k < mat.ncol(); ++k) {
+                out(i, k) += val * mat(j, k);
             }
         }
 
@@ -87,11 +87,11 @@ namespace OpenMEEG {
 
     Matrix SparseMatrix::operator*(const Matrix &mat) const
     {
-        om_assert(ncol()==mat.nlin());
-        Matrix out(nlin(),mat.ncol());
+        om_assert(ncol() == mat.nlin());
+        Matrix out(nlin(), mat.ncol());
         out.set(0.0);
 
-        for( Tank::const_iterator it = m_tank.begin(); it != m_tank.end(); ++it) {
+        for ( Tank::const_iterator it = m_tank.begin(); it != m_tank.end(); ++it) {
             size_t i = it->first.first;
             size_t j = it->first.second;
             double val = it->second;
@@ -140,18 +140,18 @@ namespace OpenMEEG {
     }
 
     SparseMatrix SparseMatrix::transpose() const {
-        SparseMatrix tsp(ncol(),nlin());
+        SparseMatrix tsp(ncol(), nlin());
         const_iterator it;
-        for(it = m_tank.begin(); it != m_tank.end(); ++it) {
+        for (it = m_tank.begin(); it != m_tank.end(); ++it) {
             size_t i = it->first.first;
             size_t j = it->first.second;
-            tsp(j,i) = it->second;
+            tsp(j, i) = it->second;
         }
         return tsp;
     }
 
     void SparseMatrix::set(double d) {
-        for( iterator it = m_tank.begin(); it != m_tank.end(); ++it) {
+        for ( iterator it = m_tank.begin(); it != m_tank.end(); ++it) {
             it->second = d;
         }
     }
@@ -171,25 +171,25 @@ namespace OpenMEEG {
         size_t minj = 0;
         size_t maxj = 0;
 
-        for (Tank::const_iterator it=m_tank.begin();it!=m_tank.end();++it) {
-            if (minv>it->second) {
+        for (Tank::const_iterator it = m_tank.begin(); it != m_tank.end(); ++it) {
+            if (minv > it->second) {
                 minv = it->second;
                 mini = it->first.first;
                 minj = it->first.second;
-            } else if (maxv<it->second) {
+            } else if (maxv < it->second) {
                 maxv = it->second;
                 maxi = it->first.first;
                 maxj = it->first.second;
             }
         }
 
-        std::cout << "Min Value : " << minv << " (" << mini << "," << minj << ")" << std::endl;
-        std::cout << "Max Value : " << maxv << " (" << maxi << "," << maxj << ")" << std::endl;
+        std::cout << "Min Value : " << minv << " (" << mini << ", " << minj << ")" << std::endl;
+        std::cout << "Max Value : " << maxv << " (" << maxi << ", " << maxj << ")" << std::endl;
         std::cout << "First Values" << std::endl;
 
         size_t cnt = 0;
-        for(Tank::const_iterator it = m_tank.begin(); it != m_tank.end() && cnt < 5; ++it) {
-            std::cout << "(" << it->first.first << "," << it->first.second << ") " << it->second << std::endl;
+        for (Tank::const_iterator it = m_tank.begin(); it != m_tank.end() && cnt < 5; ++it) {
+            std::cout << "(" << it->first.first << ", " << it->first.second << ") " << it->second << std::endl;
             cnt++;
         }
     }
@@ -201,7 +201,7 @@ namespace OpenMEEG {
     void SparseMatrix::load(const char *filename) {
         maths::ifstream ifs(filename);
         try {
-            ifs >> maths::format(filename,maths::format::FromSuffix) >> *this;
+            ifs >> maths::format(filename, maths::format::FromSuffix) >> *this;
         }
         catch (maths::Exception& e) {
             ifs >> *this;
@@ -211,7 +211,7 @@ namespace OpenMEEG {
     void SparseMatrix::save(const char *filename) const {
         maths::ofstream ofs(filename);
         try {
-            ofs << maths::format(filename,maths::format::FromSuffix) << *this;
+            ofs << maths::format(filename, maths::format::FromSuffix) << *this;
         }
         catch (maths::Exception& e) {
             ofs << *this;

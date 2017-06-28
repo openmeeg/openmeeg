@@ -51,7 +51,7 @@ namespace OpenMEEG {
     /// \brief A class to read geometry and cond file
     class GeometryReader {
         public:
-            GeometryReader(Geometry& geo): geo_(geo) {};
+            GeometryReader(Geometry& geo): geo_(geo) {}
 
             /// \brief read a geometry file
             void read_geom(const std::string&);
@@ -109,18 +109,18 @@ namespace OpenMEEG {
         //       contains domains descriptions, one per line. Each domain consist of:
         //
         //         o a domain name.
-        //         o a list of IDs (signed numbers or signed names): the sign ('+'by default) of the ID depicts 
+        //         o a list of IDs (signed numbers or signed names): the sign ('+'by default) of the ID depicts
         //           whether the interior or the exterior of the interface should be used to select the domain.
         //
         // Any line starting with # is considered a comment and is silently ignored.
-        
+
         std::ifstream ifs(geometry.c_str());
 
         if ( !ifs.is_open() ) {
             throw OpenMEEG::OpenError(geometry);
         }
 
-        unsigned Dd_version[2]; ///< version of the domain description
+        unsigned Dd_version[2];  ///< version of the domain description
         ifs >> io_utils::match("# Domain Description ") >> Dd_version[0] >> io_utils::match(".") >> Dd_version[1];
         if ( ifs.fail() ) {
             throw OpenMEEG::WrongFileFormat(geometry);
@@ -150,7 +150,7 @@ namespace OpenMEEG {
                 } else if ( Is_Meshes ) {
                     unsigned nb_meshes;
                     ifs >> nb_meshes;
-                    std::vector<std::string> meshname(nb_meshes); // names
+                    std::vector<std::string> meshname(nb_meshes);  // names
                     std::vector<std::string> filename(nb_meshes);
                     std::vector<std::string> fullname(nb_meshes);
                     Meshes meshes(nb_meshes);
@@ -163,8 +163,8 @@ namespace OpenMEEG {
                             defaultname << i+1;
                             meshname[i] = defaultname.str();
                         } else {
-                            ifs >> io_utils::match("Mesh") 
-                                >> io_utils::token(meshname[i], ':') 
+                            ifs >> io_utils::match("Mesh")
+                                >> io_utils::token(meshname[i], ':')
                                 >> io_utils::filename(filename[i], '"', false);
                         }
                         fullname[i] = (is_relative_path(filename[i]))?path+filename[i]:filename[i];
@@ -186,7 +186,7 @@ namespace OpenMEEG {
 
         // Process interfaces. -----------------------------------------------------------------------------------
         unsigned nb_interfaces;
-        bool trash; // backward compatibility, catch "Mesh" optionnally.
+        bool trash;  // backward compatibility, catch "Mesh" optionnally.
         ifs >> io_utils::skip_comments('#')
             >> io_utils::match("Interfaces") >> nb_interfaces >> io_utils::match_optional("Mesh", trash);
 
@@ -195,10 +195,10 @@ namespace OpenMEEG {
         }
 
         // load the interfaces
-        std::string id; // id of mesh/interface/domain
+        std::string id;  // id of mesh/interface/domain
         Interfaces interfaces;
         // if meshes are not already loaded
-        if ( geo_.nb_meshes() == 0 ) { // ---------------------------------------
+        if ( geo_.nb_meshes() == 0 ) {  // ---------------------------------------
             geo_.meshes_.reserve(nb_interfaces);
             std::vector<std::string> interfacename(nb_interfaces);
             std::vector<std::string> filename(nb_interfaces);
@@ -213,19 +213,19 @@ namespace OpenMEEG {
                     std::stringstream defaultname;
                     defaultname << i+1;
                     interfacename[i] = defaultname.str();
-                } else if ( Dd_version[1] == 0 ) { // backward compatibility
+                } else if ( Dd_version[1] == 0 ) {  // backward compatibility
                     std::stringstream defaultname;
                     defaultname << i+1;
                     interfacename[i] = defaultname.str();
                     ifs >> io_utils::filename(filename[i], '"', false);
                 } else {
-                    ifs >> io_utils::match("Interface") 
-                        >> io_utils::token(interfacename[i], ':') 
+                    ifs >> io_utils::match("Interface")
+                        >> io_utils::token(interfacename[i], ':')
                         >> io_utils::filename(filename[i], '"', false);
                 }
                 Mesh m;
                 fullname[i] = (is_relative_path(filename[i]))?path+filename[i]:filename[i];
-                nb_vertices += m.load(fullname[i], false, false); 
+                nb_vertices += m.load(fullname[i], false, false);
             }
             geo_.vertices_.reserve(nb_vertices);
             // Second really load the meshes
@@ -233,13 +233,13 @@ namespace OpenMEEG {
                 geo_.meshes_.push_back(Mesh(geo_.vertices_, interfacename[i]));
                 geo_.meshes_[i].load(fullname[i], false);
                 interfaces.push_back( Interface(interfacename[i]) );
-                interfaces[i].push_back(OrientedMesh(geo_.meshes_[i], true)); // one mesh per interface, (well oriented)
+                interfaces[i].push_back(OrientedMesh(geo_.meshes_[i], true));  // one mesh per interface, (well oriented)
             }
-        } else { // -----------------------
+        } else {  // -----------------------
             std::string interfacename;
             for ( unsigned i = 0; i < nb_interfaces; ++i ) {
                 bool unnamed;
-                std::string line; // extract a line and parse it
+                std::string line;  // extract a line and parse it
                 ifs >> io_utils::skip_comments("#");
                 std::getline(ifs, line);
                 std::istringstream iss(line);
@@ -254,7 +254,7 @@ namespace OpenMEEG {
                 }
                 interfaces.push_back( interfacename );
                 while ( iss >> id ) {
-                    bool oriented = true; // does the id starts with a '-' or a '+' ?
+                    bool oriented = true;  // does the id starts with a '-' or a '+' ?
                     if ( ( id[0] == '-' ) || ( id[0] == '+' ) ) {
                         oriented = ( id[0] == '+' );
                         id = id.substr(1, id.size());
@@ -275,7 +275,7 @@ namespace OpenMEEG {
         geo_.domains_.resize(num_domains);
         for ( Domains::iterator dit = geo_.domain_begin(); dit != geo_.domain_end(); ++dit) {
             std::string line;
-            if ( Dd_version[1] == 0 ) { // backward compatibility
+            if ( Dd_version[1] == 0 ) {  // backward compatibility
                 ifs >> io_utils::skip_comments('#') >> io_utils::match("Domain") >> dit->name();
             } else {
                 ifs >> io_utils::skip_comments('#') >> io_utils::match("Domain") >> io_utils::token(dit->name(), ':');
@@ -284,18 +284,18 @@ namespace OpenMEEG {
             std::istringstream iss(line);
             while ( iss >> id ) {
                 bool found = false;
-                bool inside = false; // does the id starts with a '-' or a '+' ?
+                bool inside = false;  // does the id starts with a '-' or a '+' ?
                 if ( ( id[0] == '-' ) || ( id[0] == '+' ) ) {
                     inside = ( id[0] == '-' );
                     id = id.substr(1, id.size());
                 } else if ( id == "shared" ) {
                     std::cerr << "(DEPRECATED) Keyword shared is useless. Please consider updating your geometry file to the new format 1.1 (see data/README.rst): " << geometry << std::endl;
-                    break;                    
+                    break;
                 }
                 for ( Interfaces::iterator iit = interfaces.begin(); iit != interfaces.end() ; ++iit) {
                     if ( iit->name() == id ) {
                         found = true;
-                        if ( !iit->check() ) { // check and correct global orientation
+                        if ( !iit->check() ) {  // check and correct global orientation
                             std::cerr << "Interface \"" << iit->name() << "\" is not closed !" << std::endl;
                             std::cerr << "Please correct a mesh orientation when defining the interface in the geometry file." << std::endl;
                             exit(1);
@@ -361,7 +361,7 @@ namespace OpenMEEG {
                     }
                 }
                 if ( m_oriented == 0 ) {
-                    nested = false; // TODO unless a mesh is defined but unused ...
+                    nested = false;  // TODO unless a mesh is defined but unused ...
                     break;
                 }
             }

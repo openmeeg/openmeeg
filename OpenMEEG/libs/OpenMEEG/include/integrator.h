@@ -50,12 +50,12 @@ namespace OpenMEEG {
 
     // light class containing d Vect3
     template <int d>
-    class OPENMEEG_EXPORT Vect3array 
+    class OPENMEEG_EXPORT Vect3array
     {
         Vect3 t[d];
 
     public:
-        Vect3array() {};
+        Vect3array() {}
         inline Vect3array(double x) {
             for ( unsigned i = 0; i < d; ++i)
                 t[i] = Vect3(x);
@@ -71,19 +71,19 @@ namespace OpenMEEG {
     };
 
     template <int d>
-    inline void multadd (Vect3array<d>& target, const double scale,  const Vect3array<d>& incr) 
+    inline void multadd (Vect3array<d>& target, const double scale,  const Vect3array<d>& incr)
     {
         for ( unsigned i = 0; i < d; ++i) {
             target(i) = target(i) + scale*incr(i);
         }
     }
 
-    inline void multadd (double& target, const double scale, const double incr) 
+    inline void multadd (double& target, const double scale, const double incr)
     {
         target += scale*incr;
     }
 
-    inline void multadd (Vect3& target, const double scale,  const Vect3& incr) 
+    inline void multadd (Vect3& target, const double scale,  const Vect3& incr)
     {
         target = target + scale*incr;
     }
@@ -92,7 +92,7 @@ namespace OpenMEEG {
 
     static const double cordBars[4][16][4] =
     {
-        //parameters for N=3
+        // parameters for N=3
         {
             {0.166666666666667, 0.166666666666667, 0.666666666666667, 0.166666666666667},
             {0.166666666666667, 0.666666666666667, 0.166666666666667, 0.166666666666667},
@@ -173,12 +173,12 @@ namespace OpenMEEG {
             {0.263112829634639, 0.728492392955404, 0.008394777409957, 0.013615157087217}
         }
 
-    }; // end of gaussTriangleParams
+    };  // end of gaussTriangleParams
 
     static const unsigned nbPts[4] = {3, 6, 7, 16};
 
     template <typename T, typename I>
-    class OPENMEEG_EXPORT Integrator 
+    class OPENMEEG_EXPORT Integrator
     {
         unsigned order;
 
@@ -188,7 +188,7 @@ namespace OpenMEEG {
         inline Integrator(unsigned ord) { setOrder(ord); }
         inline virtual ~Integrator() {}
 
-        inline void setOrder(const unsigned n) 
+        inline void setOrder(const unsigned n)
         {
             if ( n < 4 ) {
                 order = n;
@@ -212,7 +212,7 @@ namespace OpenMEEG {
             Vect3 crossprod = (points[1] - points[0])^(points[2] - points[0]);
             double S = crossprod.norm();
             T result = 0;
-            for ( unsigned i = 0; i < nbPts[order];++i) {
+            for ( unsigned i = 0; i < nbPts[order]; ++i) {
                 Vect3 v(0.0, 0.0, 0.0);
                 for ( unsigned j = 0; j < 3; ++j) {
                     v.multadd(cordBars[order][i][j], points[j]);

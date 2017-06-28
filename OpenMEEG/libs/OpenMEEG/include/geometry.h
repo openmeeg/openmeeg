@@ -58,7 +58,7 @@ namespace OpenMEEG {
         Here are stored the vertices, meshes and domains
      */
 
-    class OPENMEEG_EXPORT Geometry 
+    class OPENMEEG_EXPORT Geometry
     {
         typedef enum { IDENTITY, INVERSE, INDICATOR} Function;
 
@@ -89,42 +89,42 @@ namespace OpenMEEG {
         Geometry(): has_cond_(false), is_nested_(false), size_(0), nb_current_barrier_triangles_(0)  {}
         Geometry(const std::string& geomFileName, const std::string& condFileName = "", const bool OLD_ORDERING = false): has_cond_(false), is_nested_(false), size_(0), nb_current_barrier_triangles_(0)  { read(geomFileName, condFileName, OLD_ORDERING); }
 
-              void       info(const bool verbous = false) const; ///< \brief Print information on the geometry
+              void       info(const bool verbous = false) const;  ///< \brief Print information on the geometry
         const bool&      has_cond()                       const { return has_cond_; }
         const bool&      is_nested()                      const { return is_nested_; }
-              bool       selfCheck()                      const; ///< \brief the geometry meshes intersect each other
-              bool       check(const Mesh& m)             const; ///< \brief check if m intersect geometry meshes
-        const Vertices&  vertices()                       const { return vertices_; } ///< \brief returns the geometry vertices
-        const Meshes&    meshes()                         const { return meshes_; } ///< \brief returns the geometry meshes
-        const Domains&   domains()                        const { return domains_; } ///< \brief returns the geometry domains
-              size_t     size()                           const { return size_; } ///< \brief the total number of vertices + triangles
+              bool       selfCheck()                      const;  ///< \brief the geometry meshes intersect each other
+              bool       check(const Mesh& m)             const;  ///< \brief check if m intersect geometry meshes
+        const Vertices&  vertices()                       const { return vertices_; }  ///< \brief returns the geometry vertices
+        const Meshes&    meshes()                         const { return meshes_; }  ///< \brief returns the geometry meshes
+        const Domains&   domains()                        const { return domains_; }  ///< \brief returns the geometry domains
+              size_t     size()                           const { return size_; }  ///< \brief the total number of vertices + triangles
               size_t     nb_vertices()                    const { return vertices_.size(); }
               size_t     nb_triangles()                   const { return (size_-vertices_.size()); }
               size_t     nb_domains()                     const { return domains_.size(); }
               size_t     nb_meshes()                      const { return meshes_.size(); }
-        const Interface& outermost_interface()            const; ///< \brief returns the outermost Interfaces of the geometry (with multiple 0-cond you can probably have more than 1 outermost interfaces)
-        const Interface& interface(const std::string& id) const; ///< \brief returns the Interface called id \param id Interface name
-        const Domain&    domain(const std::string& id)    const; ///< \brief returns the Domain called id \param id Domain name
-        const Domain&    domain(const Vect3& p)           const; ///< \brief returns the Domain containing the point p \param p a point
+        const Interface& outermost_interface()            const;  ///< \brief returns the outermost Interfaces of the geometry (with multiple 0-cond you can probably have more than 1 outermost interfaces)
+        const Interface& interface(const std::string& id) const;  ///< \brief returns the Interface called id \param id Interface name
+        const Domain&    domain(const std::string& id)    const;  ///< \brief returns the Domain called id \param id Domain name
+        const Domain&    domain(const Vect3& p)           const;  ///< \brief returns the Domain containing the point p \param p a point
 
-        void import_meshes(const Meshes& m); ///< \brief imports meshes from a list of meshes
+        void import_meshes(const Meshes& m);  ///< \brief imports meshes from a list of meshes
 
         const double & sigma     (const Domain& d)                const { return (d.sigma()); }
-        double sigma     (const Mesh& m1, const Mesh& m2) const { return funct_on_domains(m1, m2, IDENTITY); } // return the (sum) conductivity(ies) of the shared domain(s).
-        double sigma_inv (const Mesh& m1, const Mesh& m2) const { return funct_on_domains(m1, m2, INVERSE); } // return the (sum) inverse of conductivity(ies) of the shared domain(s).
-        double indicator (const Mesh& m1, const Mesh& m2) const { return funct_on_domains(m1, m2, INDICATOR); } // return the (sum) indicator function of the shared domain(s).
-        double sigma_diff(const Mesh& m) const; // return the difference of conductivities of the 2 domains.
+        double sigma     (const Mesh& m1, const Mesh& m2) const { return funct_on_domains(m1, m2, IDENTITY); }  // return the (sum) conductivity(ies) of the shared domain(s).
+        double sigma_inv (const Mesh& m1, const Mesh& m2) const { return funct_on_domains(m1, m2, INVERSE); }  // return the (sum) inverse of conductivity(ies) of the shared domain(s).
+        double indicator (const Mesh& m1, const Mesh& m2) const { return funct_on_domains(m1, m2, INDICATOR); }  // return the (sum) indicator function of the shared domain(s).
+        double sigma_diff(const Mesh& m) const;  // return the difference of conductivities of the 2 domains.
         double sigma     (const std::string&) const;
         int    oriented(const Mesh&, const Mesh&) const;
 
         void read(const std::string& geomFileName, const std::string& condFileName = "", const bool OLD_ORDERING = false);
         void load_vtp(const std::string& filename) { Matrix trash; load_vtp(filename, trash, false); }
         void load_vtp(const std::string& filename, Matrix& data, const bool READ_DATA = true);
-        void write_vtp(const std::string& filename, const Matrix& data = Matrix()) const; // optional give a dataset
+        void write_vtp(const std::string& filename, const Matrix& data = Matrix()) const;  // optional give a dataset
 
     private:
 
-        Mesh& mesh(const std::string& id); ///< \brief returns the Mesh called id \param id Mesh name
+        Mesh& mesh(const std::string& id);  ///< \brief returns the Mesh called id \param id Mesh name
 
         /// Members
         Vertices   vertices_;
@@ -138,11 +138,11 @@ namespace OpenMEEG {
               double  funct_on_domains(const Mesh&, const Mesh&, const Function& ) const;
 
 
-    ///handle multiple 0 conductivity domains
+    /// handle multiple 0 conductivity domains
     private:
-        std::set<Vertex>    invalid_vertices_; //does not equal to the vertices of invalid meshes because there are shared vertices
-        size_t              nb_current_barrier_triangles_;   //number of triangles with 0 normal current. Including triangles of invalid meshes.
-        std::vector<std::vector<std::string> > geo_group_; //Mesh names that belong to different isolated groups.
+        std::set<Vertex>    invalid_vertices_;  // does not equal to the vertices of invalid meshes because there are shared vertices
+        size_t              nb_current_barrier_triangles_;   // number of triangles with 0 normal current. Including triangles of invalid meshes.
+        std::vector<std::vector<std::string> > geo_group_;  // Mesh names that belong to different isolated groups.
 
     public:
         const size_t&   nb_current_barrier_triangles() const { return nb_current_barrier_triangles_; }

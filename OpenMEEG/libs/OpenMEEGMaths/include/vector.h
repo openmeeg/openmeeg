@@ -59,16 +59,16 @@ namespace OpenMEEG {
 
     public:
 
-        Vector(): LinOp(0,1,FULL,1),value() { }
+        Vector(): LinOp(0, 1, FULL, 1), value() { }
 
-        Vector(const size_t N): LinOp(N,1,FULL,1),value(new LinOpValue(size())) { }
-        Vector(const Vector& A,const DeepCopy): LinOp(A.nlin(),1,FULL,1),value(new LinOpValue(A.size(),A.data())) { }
+        Vector(const size_t N): LinOp(N, 1, FULL, 1), value(new LinOpValue(size())) { }
+        Vector(const Vector& A, const DeepCopy): LinOp(A.nlin(), 1, FULL, 1), value(new LinOpValue(A.size(), A.data())) { }
 
         explicit Vector(Matrix& A);
         explicit Vector(SymMatrix& A);
 
         void alloc_data() { value = new LinOpValue(size()); }
-        void reference_data(const double* array) { value = new LinOpValue(size(),array); }
+        void reference_data(const double* array) { value = new LinOpValue(size(), array); }
 
         size_t size() const { return nlin(); }
 
@@ -77,12 +77,12 @@ namespace OpenMEEG {
         double* data() const { return value->data; }
 
         inline double operator()(const size_t i) const {
-            om_assert(i<nlin());
+            om_assert(i < nlin());
             return value->data[i];
         }
 
         inline double& operator()(const size_t i) {
-            om_assert(i<nlin());
+            om_assert(i < nlin());
             return value->data[i];
         }
 
@@ -124,98 +124,98 @@ namespace OpenMEEG {
 
     OPENMEEGMATHS_EXPORT Vector operator*(const double &d, const Vector &v);
 
-    OPENMEEGMATHS_EXPORT std::ostream& operator<<(std::ostream& f,const Vector &M);
-    OPENMEEGMATHS_EXPORT std::istream& operator>>(std::istream& f,Vector &M);
+    OPENMEEGMATHS_EXPORT std::ostream& operator<<(std::ostream& f, const Vector &M);
+    OPENMEEGMATHS_EXPORT std::istream& operator>>(std::istream& f, Vector &M);
 
     inline Vector Vector::subvect(size_t istart, size_t isize) const {
-        om_assert (istart+isize<=nlin());
+        om_assert (istart+isize <= nlin());
         Vector a(isize);
-        for (size_t i=0; i<isize; i++)
+        for (size_t i = 0; i < isize; i++)
             a(i) = (*this)(istart+i);
         return a;
     }
 
     inline Vector Vector::operator+(const Vector& v) const {
-        om_assert(nlin()==v.nlin());
-        Vector p(*this,DEEP_COPY);
+        om_assert(nlin() == v.nlin());
+        Vector p(*this, DEEP_COPY);
     #ifdef HAVE_BLAS
-        BLAS(daxpy,DAXPY)(sizet_to_int(nlin()),1,v.data(),1,p.data(),1);
+        BLAS(daxpy, DAXPY)(sizet_to_int(nlin()), 1, v.data(), 1, p.data(), 1);
     #else
-        for( size_t i=0; i<nlin(); i++ )
-            p.data()[i]=data()[i]+v.data()[i];
+        for ( size_t i = 0; i < nlin(); i++ )
+            p.data()[i] = data()[i]+v.data()[i];
     #endif
         return p;
     }
 
     inline Vector Vector::operator-(const Vector& v) const {
-        om_assert(nlin()==v.nlin());
-        Vector p(*this,DEEP_COPY);
+        om_assert(nlin() == v.nlin());
+        Vector p(*this, DEEP_COPY);
     #ifdef HAVE_BLAS
-        BLAS(daxpy,DAXPY)(sizet_to_int(nlin()),-1,v.data(),1,p.data(),1);
+        BLAS(daxpy, DAXPY)(sizet_to_int(nlin()), -1, v.data(), 1, p.data(), 1);
     #else
-        for( size_t i=0; i<nlin(); i++ )
-            p.data()[i]=data()[i]-v.data()[i];
+        for ( size_t i = 0; i < nlin(); i++ )
+            p.data()[i] = data()[i]-v.data()[i];
     #endif
         return p;
     }
 
     inline void Vector::operator+=(const Vector& v) {
-        om_assert(nlin()==v.nlin());
+        om_assert(nlin() == v.nlin());
     #ifdef HAVE_BLAS
-        BLAS(daxpy,DAXPY)(sizet_to_int(nlin()),1,v.data(),1,data(),1);
+        BLAS(daxpy, DAXPY)(sizet_to_int(nlin()), 1, v.data(), 1, data(), 1);
     #else
-        for( size_t i=0; i<nlin(); i++ )
-            data()[i]+=v.data()[i];
+        for ( size_t i = 0; i < nlin(); i++ )
+            data()[i] += v.data()[i];
     #endif
     }
 
     inline void Vector::operator-=(const Vector& v) {
-        om_assert(nlin()==v.nlin());
+        om_assert(nlin() == v.nlin());
     #ifdef HAVE_BLAS
-        BLAS(daxpy,DAXPY)(sizet_to_int(nlin()),-1,v.data(),1,data(),1);
+        BLAS(daxpy, DAXPY)(sizet_to_int(nlin()), -1, v.data(), 1, data(), 1);
     #else
-        for( size_t i=0; i<nlin(); i++ )
-            data()[i]-=v.data()[i];
+        for ( size_t i = 0; i < nlin(); i++ )
+            data()[i] -= v.data()[i];
     #endif
     }
 
     inline double Vector::operator*(const Vector& v) const {
-        om_assert(nlin()==v.nlin());
+        om_assert(nlin() == v.nlin());
     #ifdef HAVE_BLAS
-        return BLAS(ddot,DDOT)(sizet_to_int(nlin()),data(),1,v.data(),1);
+        return BLAS(ddot, DDOT)(sizet_to_int(nlin()), data(), 1, v.data(), 1);
     #else
-        double s=0;
-        for( size_t i=0; i<nlin(); i++ )
-            s+=data()[i]*v.data()[i];
+        double s = 0;
+        for ( size_t i = 0; i < nlin(); i++ )
+            s += data()[i]*v.data()[i];
         return s;
     #endif
     }
 
     inline Vector Vector::operator*(double x) const {
     #ifdef HAVE_BLAS
-        Vector p(*this,DEEP_COPY);
-        BLAS(dscal,DSCAL)(sizet_to_int(nlin()),x,p.data(),1);
+        Vector p(*this, DEEP_COPY);
+        BLAS(dscal, DSCAL)(sizet_to_int(nlin()), x, p.data(), 1);
     #else
         Vector p(nlin());
-        for( size_t i=0; i<nlin(); i++ )
-            p.data()[i]=x*data()[i];
+        for ( size_t i = 0; i < nlin(); i++ )
+            p.data()[i] = x*data()[i];
     #endif
         return p;
     }
 
     inline void Vector::operator*=(double x) {
     #ifdef HAVE_BLAS
-        BLAS(dscal,DSCAL)(sizet_to_int(nlin()),x,data(),1);
+        BLAS(dscal, DSCAL)(sizet_to_int(nlin()), x, data(), 1);
     #else
-        for( size_t i=0; i<nlin(); i++ )
-            data()[i]*=x;
+        for ( size_t i = 0; i < nlin(); i++ )
+            data()[i] *= x;
     #endif
     }
 
     inline double Vector::norm() const
     {
     #ifdef HAVE_BLAS
-        return BLAS(dnrm2,DNRM2)(sizet_to_int(nlin()),data(),1);
+        return BLAS(dnrm2, DNRM2)(sizet_to_int(nlin()), data(), 1);
     #else
         std::cout << "'Vector::norm' not implemented" << std::endl;
         exit(1);
@@ -224,32 +224,32 @@ namespace OpenMEEG {
     }
 
     // inline Vector Vector::conv(const Vector& v) const {
-    //     if (v.nlin()<nlin()) return v.conv(*this);
-    // 
+    //     if (v.nlin() < nlin()) return v.conv(*this);
+    //
     //     Vector p(nlin()+v.nlin()-1);
     //     p.set(0);
-    //     for (size_t i=0; i<v.nlin(); i++) {
+    //     for (size_t i = 0; i < v.nlin(); i++) {
     // #ifdef HAVE_BLAS
-    //         BLAS(daxpy,DAXPY)(sizet_to_int(nlin()), v(i), data(), 1, p.data()+i, 1);
+    //         BLAS(daxpy, DAXPY)(sizet_to_int(nlin()), v(i), data(), 1, p.data()+i, 1);
     // #else
-    //         for (size_t j=0;j<nlin();j++)
-    //             p(i+j)+=v(i)*data()[j];
+    //         for (size_t j = 0; j < nlin(); j++)
+    //             p(i+j) += v(i)*data()[j];
     // #endif
     //     }
     //     return p;
     // }
-    // 
+    //
     // inline Vector Vector::conv_trunc(const Vector& v) const {
     //     Vector p(v.nlin());
     //     p.set(0);
-    //     for (size_t i=0; i<v.nlin(); i++)
+    //     for (size_t i = 0; i < v.nlin(); i++)
     //     {
-    //         size_t m = std::min(nlin(),v.nlin()-i);
+    //         size_t m = std::min(nlin(), v.nlin()-i);
     // #ifdef HAVE_BLAS
-    //         BLAS(daxpy,DAXPY)((int)m, v(i), data(), 1, p.data()+i, 1);
+    //         BLAS(daxpy, DAXPY)((int)m, v(i), data(), 1, p.data()+i, 1);
     // #else
-    //         for (size_t j=0;j<m;j++)
-    //             p(i+j)+=v(i)*data()[j];
+    //         for (size_t j = 0; j < m; j++)
+    //             p(i+j) += v(i)*data()[j];
     // #endif
     //     }
     //     return p;

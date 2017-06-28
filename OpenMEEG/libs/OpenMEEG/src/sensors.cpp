@@ -43,8 +43,8 @@ knowledge of the CeCILL-B license and that you accept its terms.
 namespace OpenMEEG {
 
     bool Sensors::hasSensor(std::string name) {
-        for(size_t i = 0; i < m_names.size(); ++i) {
-            if(m_names[i] == name) {
+        for (size_t i = 0; i < m_names.size(); ++i) {
+            if (m_names[i] == name) {
                 return true;
             }
         }
@@ -52,8 +52,8 @@ namespace OpenMEEG {
     }
 
     size_t Sensors::getSensorIdx(std::string name) {
-        for(size_t i = 0; i < m_names.size(); ++i) {
-            if(m_names[i] == name) {
+        for (size_t i = 0; i < m_names.size(); ++i) {
+            if (m_names[i] == name) {
                 return i;
             }
         }
@@ -64,19 +64,19 @@ namespace OpenMEEG {
 
     void Sensors::load(const char* filename, char filetype) {
         std::ifstream in;
-        if(filetype == 't') {
-            in.open(filename,std::ios::in);
+        if (filetype == 't') {
+            in.open(filename, std::ios::in);
         } else {
-            if(filetype == 'b') {
-                in.open(filename,std::ios::in|std::ios::binary);
+            if (filetype == 'b') {
+                in.open(filename, std::ios::in|std::ios::binary);
             } else {
-                std::cout << "ERROR: unkown filetype. " << std::endl; exit(1); 
+                std::cout << "ERROR: unkown filetype. " << std::endl; exit(1);
             }
         }
 
         if ( !in.is_open() ) {
-            std::cerr<<"Error Reading File : " << filename << std::endl; 
-            exit(1);  
+            std::cerr << "Error Reading File : " << filename << std::endl;
+            exit(1);
         }
         Sensors::load(in);
         in.close();
@@ -94,14 +94,14 @@ namespace OpenMEEG {
         size_t ncol = 0;
         size_t i = 0;
         // determine number of lines, columns and labeled or not
-        while ( std::getline(in,s) ) {
+        while ( std::getline(in, s) ) {
             if ( !s.empty() ) {
                 // Tokenize the line.
                 std::stringstream iss(s);
                 tokens.clear();
                 while (iss >> buf) {
                     tokens.push_back(buf);
-                    if ( i==0 ) {
+                    if ( i == 0 ) {
                         ncol++;
                     }
                 }
@@ -123,7 +123,7 @@ namespace OpenMEEG {
             }
         }
         in.clear();
-        in.seekg(0,std::ios::beg); // move the get pointer to the beginning of the file.
+        in.seekg(0, std::ios::beg);  // move the get pointer to the beginning of the file.
         in >> io_utils::skip_comments('#');
 
         if ( labeled ) {
@@ -132,7 +132,7 @@ namespace OpenMEEG {
 
         Matrix mat(nlin, ncol);
         i = 0;
-        while ( std::getline(in,s) ) {
+        while ( std::getline(in, s) ) {
             if ( !s.empty() ) {
                 // Tokenize the line.
                 std::stringstream iss(s);
@@ -149,10 +149,10 @@ namespace OpenMEEG {
 
         // init private members :
         // positions
-        m_positions = mat.submat(0,nlin,0,3);
+        m_positions = mat.submat(0, nlin, 0, 3);
         // weights
-        if (m_geo) { // EIT
-            if (ncol == 4) { // if radii were specified
+        if (m_geo) {  // EIT
+            if (ncol == 4) {  // if radii were specified
                 m_radii = mat.getcol(mat.ncol()-1);
             } else {
                 m_radii = Vector(nlin);
@@ -163,9 +163,9 @@ namespace OpenMEEG {
         } else if ((ncol == 4) && (m_geo == NULL) ) {
             std::cerr << "Sensors:: please specify at constructor stage the geometry on which to apply the spatially extended EIT sensors." << std::endl;
             exit(1);
-        } else if (ncol == 7) { // MEG
+        } else if (ncol == 7) {  // MEG
             m_weights = mat.getcol(mat.ncol()-1);
-        } else { // Others
+        } else {  // Others
             m_weights = Vector(nlin);
             m_weights.set(1.);
         }
@@ -173,7 +173,7 @@ namespace OpenMEEG {
 
         // orientations
         if ( ncol >= 6 ) {
-            m_orientations = mat.submat(0,nlin,3,3);
+            m_orientations = mat.submat(0, nlin, 3, 3);
         }
 
         // Sensor index
@@ -198,7 +198,7 @@ namespace OpenMEEG {
 
     void Sensors::save(const char* filename) {
         std::ofstream outfile(filename);
-        for(size_t i = 0; i < getNumberOfPositions(); ++i) {
+        for (size_t i = 0; i < getNumberOfPositions(); ++i) {
             // if it has names
             if (hasNames())
                 outfile << m_names[m_pointSensorIdx[i]] << " ";
@@ -217,32 +217,32 @@ namespace OpenMEEG {
     }
 
     SparseMatrix Sensors::getWeightsMatrix() const {
-        SparseMatrix weight_matrix(getNumberOfSensors(),getNumberOfPositions());
-        for(size_t i = 0; i < getNumberOfPositions(); ++i) {
-            weight_matrix(m_pointSensorIdx[i],i) = m_weights(i);
+        SparseMatrix weight_matrix(getNumberOfSensors(), getNumberOfPositions());
+        for (size_t i = 0; i < getNumberOfPositions(); ++i) {
+            weight_matrix(m_pointSensorIdx[i], i) = m_weights(i);
         }
         return weight_matrix;
     }
 
     void Sensors::findInjectionTriangles() {
-        om_error(m_geo!=NULL);
+        om_error(m_geo != NULL);
         m_weights = Vector(m_positions.nlin());
         m_weights.set(1.);
-        //To count the number of points that have been mapped to each mesh.
+        // To count the number of points that have been mapped to each mesh.
         std::vector<std::string> ci_mesh_names;
         std::vector<size_t>      ci_triangles;
 
         for ( size_t idx = 0; idx < m_positions.nlin(); ++idx) {
             Triangles triangles;
             const Vect3 current_position(m_positions(idx, 0), m_positions(idx, 1), m_positions(idx, 2));
-            Vect3 current_alphas; //not used here
-            Triangle current_nearest_triangle; // to hold the closest triangle to electrode.
+            Vect3 current_alphas;  // not used here
+            Triangle current_nearest_triangle;  // to hold the closest triangle to electrode.
 
             double dist;
-            std::string s_map=dist_point_geom(current_position, *m_geo, current_alphas, current_nearest_triangle, dist);
-            std::vector<std::string>::iterator sit=std::find(ci_mesh_names.begin(),ci_mesh_names.end(),s_map);
-            if(sit!=ci_mesh_names.end()){
-                size_t idx2=std::distance(ci_mesh_names.begin(),sit);
+            std::string s_map = dist_point_geom(current_position, *m_geo, current_alphas, current_nearest_triangle, dist);
+            std::vector<std::string>::iterator sit = std::find(ci_mesh_names.begin(), ci_mesh_names.end(), s_map);
+            if (sit != ci_mesh_names.end()) {
+                size_t idx2 = std::distance(ci_mesh_names.begin(), sit);
                 ci_triangles[idx2]++;
             }
             else{
@@ -251,18 +251,18 @@ namespace OpenMEEG {
             }
 
             triangles.push_back(current_nearest_triangle);
-            std::set<size_t> index_seen; // to avoid infinite looping
+            std::set<size_t> index_seen;  // to avoid infinite looping
             index_seen.insert(current_nearest_triangle.index());
             if ( std::abs(m_radii(idx)) > 1.e3*std::numeric_limits<double>::epsilon() ) {
                 // if the electrode is larger than the triangle, look for adjacent triangles
-                if ( current_nearest_triangle.area() < 4.*M_PI*std::pow(m_radii(idx),2) ) {
+                if ( current_nearest_triangle.area() < 4.*M_PI*std::pow(m_radii(idx), 2) ) {
                     std::stack<Triangle *> tri_stack;
                     tri_stack.push(&current_nearest_triangle);
                     while ( !tri_stack.empty() ) {
                         Triangle * t = tri_stack.top();
                         tri_stack.pop();
                         if ( (t->center()-current_position).norm() < m_radii(idx) ) {
-                            if (t->index() != current_nearest_triangle.index()) //don't push the nearest triangle twice
+                            if (t->index() != current_nearest_triangle.index())  // don't push the nearest triangle twice
                                 triangles.push_back(*t);
                             Interface::VectPTriangle t_adj = m_geo->interface(s_map).adjacent_triangles(*t);
                             if ( index_seen.insert(t_adj[0]->index()).second ) tri_stack.push(t_adj[0]);
@@ -277,55 +277,55 @@ namespace OpenMEEG {
                 for ( Triangles::const_iterator tit = triangles.begin(); tit != triangles.end(); ++tit) {
                     triangles_area += tit->area();
                 }
-                m_weights(idx) = M_PI * std::pow(m_radii(idx),2) / triangles_area;
+                m_weights(idx) = M_PI * std::pow(m_radii(idx), 2) / triangles_area;
             }
             m_triangles.push_back(triangles);
         }
-        for(size_t i=0;i<ci_mesh_names.size();++i)
-            std::cout<<ci_triangles[i]<<" points have been mapped to mesh "<<ci_mesh_names[i]<<std::endl;
+        for (size_t i = 0; i < ci_mesh_names.size(); ++i)
+            std::cout << ci_triangles[i] << " points have been mapped to mesh " << ci_mesh_names[i] << std::endl;
     }
 
     void Sensors::info() const {
-        size_t nb_to_display = (int)std::min((int)m_nb,(int)5);
+        size_t nb_to_display = (int)std::min((int)m_nb, (int)5);
         std::cout << "Nb of sensors : " << m_nb << std::endl;
         std::cout << "Positions" << std::endl;
-        for(size_t i = 0; i < nb_to_display ; ++i) {
-            for (size_t j=0;j<m_positions.ncol();++j) {
-                std::cout << m_positions(i,j) << " ";
+        for (size_t i = 0; i < nb_to_display ; ++i) {
+            for (size_t j = 0; j < m_positions.ncol(); ++j) {
+                std::cout << m_positions(i, j) << " ";
             }
             std::cout << std::endl;
         }
-        if(m_nb > nb_to_display) {
+        if (m_nb > nb_to_display) {
             std::cout << "..." << std::endl;
         }
 
-        if(hasOrientations()) {
+        if (hasOrientations()) {
             std::cout << "Orientations" << std::endl;
-            for(size_t i = 0; i < nb_to_display ; ++i) {
-                for (size_t j=0;j<m_orientations.ncol();++j) {
-                    std::cout << m_orientations(i,j) << " ";
+            for (size_t i = 0; i < nb_to_display ; ++i) {
+                for (size_t j = 0; j < m_orientations.ncol(); ++j) {
+                    std::cout << m_orientations(i, j) << " ";
                 }
                 std::cout << std::endl;
             }
-            if(m_nb > nb_to_display) {
+            if (m_nb > nb_to_display) {
                 std::cout << "..." << std::endl;
             }
         }
-        if(hasRadii()) {
+        if (hasRadii()) {
             std::cout << "Radii" << std::endl;
-            for(size_t i = 0; i < nb_to_display ; ++i) {
+            for (size_t i = 0; i < nb_to_display ; ++i) {
                 std::cout << m_radii(i) << " " << std::endl;
             }
-            if(m_nb > nb_to_display) {
+            if (m_nb > nb_to_display) {
                 std::cout << "..." << std::endl;
-            }            
+            }
         }
-        if(hasNames()) {
+        if (hasNames()) {
             std::cout << "Names" << std::endl;
-            for(size_t i = 0; i < nb_to_display; ++i) {
+            for (size_t i = 0; i < nb_to_display; ++i) {
                 std::cout << m_names[i] << std::endl;
             }
-            if(m_nb > nb_to_display) {
+            if (m_nb > nb_to_display) {
                 std::cout << "..." << std::endl;
             }
         }

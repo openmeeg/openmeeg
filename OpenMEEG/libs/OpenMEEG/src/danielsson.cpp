@@ -46,10 +46,10 @@ namespace OpenMEEG
 
     // Distance from p to a triangle (3 pointers to vertex)
     // alpha-> barycentric coordinates of closest point
-    // sum(alpha_i)=1
-    // inside: closest point is inside (alpha_i!=0 for all i)
+    // sum(alpha_i) = 1
+    // inside: closest point is inside (alpha_i != 0 for all i)
 
-    // Auxilary Fn : nb vertices left (for the others alpha=0)
+    // Auxilary Fn : nb vertices left (for the others alpha = 0)
 
     using namespace std;
 
@@ -59,12 +59,12 @@ namespace OpenMEEG
             alphas(idx[0]) = 1.0;
             return (p - triangle.vertex(idx[0])).norm();
         }
-        // Solves H=sum(alpha_i A_i), sum(alpha_i)=1, et HM.(A_i-A_0)=0
-        Vect3 A0Ai[3]; // A_i-A_0
+        // Solves H = sum(alpha_i A_i), sum(alpha_i) = 1, et HM.(A_i-A_0) = 0
+        Vect3 A0Ai[3];  // A_i-A_0
         for ( unsigned i = 1; i < nb; ++i) {
             A0Ai[i] = triangle.vertex(idx[i]) - triangle.vertex(idx[0]);
         }
-        Vect3 A0M = p - triangle.vertex(idx[0]); // M-A_0
+        Vect3 A0M = p - triangle.vertex(idx[0]);  // M-A_0
         if ( nb == 2 ) {
             alphas(idx[1]) = (A0M * A0Ai[1]) / (A0Ai[1] * A0Ai[1]);
             alphas(idx[0]) = 1.0 - alphas(idx[1]);
@@ -76,18 +76,18 @@ namespace OpenMEEG
             double b0 = A0M * A0Ai[1];
             double b1 = A0M * A0Ai[2];
             double d = a00 * a11 - a10 * a10;
-            om_error(d!=0);
+            om_error(d != 0);
             alphas(idx[1]) = (b0 * a11 - b1 * a10) / d;
             alphas(idx[2]) = (a00 * b1 - a10 * b0) / d;
             alphas(idx[0]) = 1.0 - alphas(idx[1]) - alphas(idx[2]);
         } else {
             // 3 unknowns or more -> solve system
-            //  Ax=b with: A(i, j)=A0Ai.AjA0, x=(alpha_1, alpha_2, ...), b=A0M.A0Ai
-            cerr << "Error : dim>=4 in danielsson !" << endl;
+            //  Ax = b with: A(i, j) = A0Ai.AjA0, x = (alpha_1, alpha_2, ...), b = A0M.A0Ai
+            cerr << "Error : dim >= 4 in danielsson !" << endl;
             exit(0);
         }
         // If alpha_i<0 -> brought to 0 and recursion
-        // NB: also takes care of alpha > 1 because if alpha_i>1 then alpha_j<0 for at least one j
+        // NB: also takes care of alpha > 1 because if alpha_i > 1 then alpha_j < 0 for at least one j
         for ( unsigned i = 0; i < nb; ++i) {
             if ( alphas(idx[i]) < 0 ) {
                 inside = false;
@@ -117,7 +117,7 @@ namespace OpenMEEG
         return ( s > 0 ) ? 1 : ( s < 0 ) ? -1: 0;
     }
 
-    double dist_point_interface(const Vect3& p, const Interface& i, Vect3& alphas, Triangle& nearestTriangle) 
+    double dist_point_interface(const Vect3& p, const Interface& i, Vect3& alphas, Triangle& nearestTriangle)
     {
         double distmin = std::numeric_limits<double>::max();
         bool inside;
@@ -137,28 +137,28 @@ namespace OpenMEEG
         return distmin;
     }
 
-    //find the closest triangle on the interfaces that touches 0 conductivity
+    // find the closest triangle on the interfaces that touches 0 conductivity
     std::string dist_point_geom(const Vect3& p, const Geometry& g, Vect3& alphas, Triangle& nearestTriangle, double& dist)
     {
-        double distmin=std::numeric_limits<double>::max();
+        double distmin = std::numeric_limits<double>::max();
         string name_nearest_interface;
         Triangle local_nearest_triangle;
         double distance;
 
-        for(Domains::const_iterator dit = g.domain_begin(); dit != g.domain_end(); ++dit)
-            if( dit->sigma() == 0.0 ){
-                for ( Domain::const_iterator hit = dit->begin(); hit != dit->end(); ++hit){
-                    distance=dist_point_interface(p,hit->interface(),alphas,local_nearest_triangle);
-                    if(distance<distmin) {
-                        name_nearest_interface=hit->interface().name();
-                        distmin=distance;
-                        nearestTriangle=local_nearest_triangle;
+        for (Domains::const_iterator dit = g.domain_begin(); dit != g.domain_end(); ++dit)
+            if ( dit->sigma() == 0.0 ) {
+                for ( Domain::const_iterator hit = dit->begin(); hit != dit->end(); ++hit) {
+                    distance = dist_point_interface(p, hit->interface(), alphas, local_nearest_triangle);
+                    if (distance < distmin) {
+                        name_nearest_interface = hit->interface().name();
+                        distmin = distance;
+                        nearestTriangle = local_nearest_triangle;
                     }
                 }
             }
-        dist=distmin;
+        dist = distmin;
         return name_nearest_interface;
     }
 
-} // end namespace OpenMEEG
+}  // end namespace OpenMEEG
 

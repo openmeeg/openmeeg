@@ -51,19 +51,19 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 namespace OpenMEEG {
 
-    /// \brief a HalfSpace is a pair of Interface and boolean 
+    /// \brief a HalfSpace is a pair of Interface and boolean
     /// A simple domain (HalfSpace) is given by an interface (of type Interface) identifying a closed surface and a side information.
     /// The closed surface split the space into two components. The side depicts which of these two components is the simple domain.
 
-    class HalfSpace: public std::pair<Interface,bool> {
+    class HalfSpace: public std::pair<Interface, bool> {
 
-        typedef std::pair<Interface,bool> base;
+        typedef std::pair<Interface, bool> base;
 
     public:
 
         HalfSpace() { }
 
-        HalfSpace(Interface& _interface,const bool _inside): base(_interface,_inside) { }
+        HalfSpace(Interface& _interface, const bool _inside): base(_interface, _inside) { }
 
         ~HalfSpace() { }
 
@@ -82,7 +82,7 @@ namespace OpenMEEG {
 
     public:
 
-        Domain(): name_(""),sigma_(0.),outermost_(false) { }
+        Domain(): name_(""), sigma_(0.), outermost_(false) { }
 
         ~Domain() { }
 
@@ -90,7 +90,7 @@ namespace OpenMEEG {
 
               std::string& name()            { return name_; }
         const std::string& name()      const { return name_; }
-        
+
         /// The conductivity of the domain.
 
               double&      sigma()           { return sigma_; }
@@ -101,18 +101,18 @@ namespace OpenMEEG {
               bool&        outermost()       { return outermost_; }
         const bool&        outermost() const { return outermost_; }
 
-        void info() const; ///< print info about the domain
+        void info() const;  ///< print info about the domain
 
-        bool contains_point(const Vect3&) const; ///< Does this point belongs to the domain ?
+        bool contains_point(const Vect3&) const;  ///< Does this point belongs to the domain ?
 
         /** \return 1 if the mesh is oriented toward the domain.
                    -1 if not
                     0 else (the mesh is not part of the domain boundary) */
 
-        int mesh_orientation(const Mesh& m) const { 
-            for (Domain::const_iterator hit = begin();hit!=end();++hit)
-                for (Interface::const_iterator omit = hit->interface().begin();omit!=hit->interface().end();++omit)
-                    if (&omit->mesh()==&m)
+        int mesh_orientation(const Mesh& m) const {
+            for (Domain::const_iterator hit = begin(); hit != end(); ++hit)
+                for (Interface::const_iterator omit = hit->interface().begin(); omit != hit->interface().end(); ++omit)
+                    if (&omit->mesh() == &m)
                         return ((hit->inside()) ? omit->orientation() : -omit->orientation());
             return 0;
         }
@@ -121,7 +121,7 @@ namespace OpenMEEG {
 
         std::string name_;      ///< Name of the domain.
         double      sigma_;     ///< Conductivity of the domain.
-        bool        outermost_; ///< Is it an outermost domain
+        bool        outermost_;  ///< Is it an outermost domain
     };
 
     /// A vector of Domain is called Domains

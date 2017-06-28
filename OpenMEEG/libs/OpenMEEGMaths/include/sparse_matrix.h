@@ -49,7 +49,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <matrix.h>
 
 // #ifdef WIN32
-// #pragma warning( disable : 4251)    //MSVC warning C4251 : DLL exports of STL templates
+// #pragma warning( disable : 4251)    // MSVC warning C4251 : DLL exports of STL templates
 // #endif
 
 #ifdef WIN32
@@ -68,9 +68,9 @@ namespace OpenMEEG {
         typedef std::map< std::pair< size_t, size_t >, double >::const_iterator const_iterator;
         typedef std::map< std::pair< size_t, size_t >, double >::iterator iterator;
 
-        SparseMatrix() : LinOp(0,0,SPARSE,2) {};
-        SparseMatrix(size_t N,size_t M) : LinOp(N,M,SPARSE,2) {};
-        ~SparseMatrix() {};
+        SparseMatrix() : LinOp(0, 0, SPARSE, 2) {}
+        SparseMatrix(size_t N, size_t M) : LinOp(N, M, SPARSE, 2) {}
+        ~SparseMatrix() {}
 
         inline double operator()( size_t i, size_t j ) const {
             om_assert(i < nlin());
@@ -95,7 +95,7 @@ namespace OpenMEEG {
 
         SparseMatrix transpose() const;
 
-        const Tank& tank() const {return m_tank;}
+        const Tank& tank() const {return m_tank; }
 
         void set( double t);
         Vector getlin(size_t i) const;
@@ -122,20 +122,20 @@ namespace OpenMEEG {
     };
 
     inline Vector SparseMatrix::getlin(size_t i) const {
-        om_assert(i<nlin());
+        om_assert(i < nlin());
         Vector v(ncol());
-        for (size_t j=0;j<ncol();j++){
+        for (size_t j = 0; j < ncol(); j++) {
             const_iterator it = m_tank.find(std::make_pair(i, j));
-            if (it != m_tank.end()) v(j)=it->second;
-            else v(j)=0.0;
+            if (it != m_tank.end()) v(j) = it->second;
+            else v(j) = 0.0;
         }
         return v;
     }
 
     inline void SparseMatrix::setlin(Vector v, size_t i) {
-        om_assert(i<nlin());
-        for (size_t j=0;j<v.nlin();j++){
-            (*this)(i,j) = v(j);
+        om_assert(i < nlin());
+        for (size_t j = 0; j < v.nlin(); j++) {
+            (*this)(i, j) = v(j);
         }
     }
 }

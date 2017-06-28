@@ -49,21 +49,21 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 namespace OpenMEEG {
 
-    /// An Oriented Mesh is a mesh associated with a boolean stating if it is well oriented. 
-    class OrientedMesh: public std::pair<Mesh *, bool> 
+    /// An Oriented Mesh is a mesh associated with a boolean stating if it is well oriented.
+    class OrientedMesh: public std::pair<Mesh *, bool>
     {
         typedef std::pair<Mesh *, bool> base;
 
     public:
 
-        ///default constructors
+        /// default constructors
         OrientedMesh() {}
 
         OrientedMesh(Mesh& _mesh, bool _inside): base(&_mesh, _inside) {}
 
-              Mesh&  mesh()              { return *first;  } ///< \brief access mesh
-        const Mesh&  mesh()        const { return *first;  } ///< \brief access mesh
-              int    orientation() const { return ( second )?1:-1; } ///< \brief orientation is +1 or -1 ?
+              Mesh&  mesh()              { return *first;  }  ///< \brief access mesh
+        const Mesh&  mesh()        const { return *first;  }  ///< \brief access mesh
+              int    orientation() const { return ( second )?1:-1; }  ///< \brief orientation is +1 or -1 ?
     };
 
     /** Interface class
@@ -77,15 +77,15 @@ namespace OpenMEEG {
 
         /// Default Constructor
         Interface(): name_(""), outermost_(false) { }
-        
+
         /// Constructor from a name
         Interface(const std::string _name): name_(_name), outermost_(false) { }
 
-        const std::string   name()                       const      { return name_; } ///< \return Interface name
-        const bool &        outermost()                  const      { return outermost_; } ///< \return true if it is the outermost interface.
-              void          set_to_outermost(); ///< set all interface meshes to outermost state.
-              bool          contains_point(const Vect3& p) const; ///< \param p a point \return true if point is inside interface
-              bool          check(bool checked = false); ///< Check the global orientation
+        const std::string   name()                       const      { return name_; }  ///< \return Interface name
+        const bool &        outermost()                  const      { return outermost_; }  ///< \return true if it is the outermost interface.
+              void          set_to_outermost();  ///< set all interface meshes to outermost state.
+              bool          contains_point(const Vect3& p) const;  ///< \param p a point \return true if point is inside interface
+              bool          check(bool checked = false);  ///< Check the global orientation
 
         /// \return the total number of the interface vertices
         size_t nb_vertices() const {
@@ -95,7 +95,7 @@ namespace OpenMEEG {
             }
             return nb;
         }
-        
+
         /// \return the total number of the interface triangles
         size_t nb_triangles() const {
             size_t nb = 0;
@@ -117,10 +117,10 @@ namespace OpenMEEG {
 
     private:
 
-        double compute_solid_angle(const Vect3& p) const; ///< Given a point p, it computes the solid angle \return should return +/- 4 PI or 0.
+        double compute_solid_angle(const Vect3& p) const;  ///< Given a point p, it computes the solid angle \return should return +/- 4 PI or 0.
 
         std::string name_;      ///< is "" by default
-        bool        outermost_; ///< tell weather or not the interface touches the Air (Outermost) Domain.
+        bool        outermost_;  ///< tell weather or not the interface touches the Air (Outermost) Domain.
     };
 
     /// A vector of Interface is called Interfaces

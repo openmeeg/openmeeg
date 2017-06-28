@@ -65,22 +65,22 @@ namespace OpenMEEG {
 
         utils::RCPtr<LinOpValue> value;
 
-        explicit Matrix(const Matrix& A,const size_t M): LinOp(A.nlin(),M,FULL,2),value(A.value) { }
+        explicit Matrix(const Matrix& A, const size_t M): LinOp(A.nlin(), M, FULL, 2), value(A.value) { }
 
     public:
 
-        Matrix(): LinOp(0,0,FULL,2),value() { }
-        Matrix(const char* fname): LinOp(0,0,FULL,2),value() { this->load(fname); }
-        Matrix(const size_t M,const size_t N): LinOp(M,N,FULL,2),value(new LinOpValue(N*M)) { }
-        Matrix(const Matrix& A,const DeepCopy): LinOp(A.nlin(),A.ncol(),FULL,2),value(new LinOpValue(A.size(),A.data())) { }
+        Matrix(): LinOp(0, 0, FULL, 2), value() { }
+        Matrix(const char* fname): LinOp(0, 0, FULL, 2), value() { this->load(fname); }
+        Matrix(const size_t M, const size_t N): LinOp(M, N, FULL, 2), value(new LinOpValue(N*M)) { }
+        Matrix(const Matrix& A, const DeepCopy): LinOp(A.nlin(), A.ncol(), FULL, 2), value(new LinOpValue(A.size(), A.data())) { }
 
         explicit Matrix(const SymMatrix& A);
         explicit Matrix(const SparseMatrix& A);
 
-        Matrix(const Vector& v,const size_t M,const size_t N);
+        Matrix(const Vector& v, const size_t M, const size_t N);
 
         void alloc_data()                       { value = new LinOpValue(size());      }
-        void reference_data(const double* vals) { value = new LinOpValue(size(),vals); }
+        void reference_data(const double* vals) { value = new LinOpValue(size(), vals); }
 
         /** \brief Test if Matrix is empty
             \return true if Matrix is empty
@@ -104,13 +104,13 @@ namespace OpenMEEG {
             \return value in Matrix
             \sa
         **/
-        inline double operator()(size_t i,size_t j) const ;
+        inline double operator()(size_t i, size_t j) const ;
 
         /** \brief Get Matrix value
             \return reference to value in Matrix
             \sa
         **/
-        inline double& operator()(size_t i,size_t j) ;
+        inline double& operator()(size_t i, size_t j) ;
 
         Matrix submat(size_t istart, size_t isize, size_t jstart, size_t jsize) const;
         void insertmat(size_t istart, size_t jstart, const Matrix& B);
@@ -144,8 +144,8 @@ namespace OpenMEEG {
 
         Matrix transpose() const;
         Matrix inverse() const;
-        Matrix pinverse(double reltol=0) const;
-        void svd(Matrix &U, SparseMatrix &S, Matrix &V, bool complete=true) const;
+        Matrix pinverse(double reltol = 0) const;
+        void svd(Matrix &U, SparseMatrix &S, Matrix &V, bool complete = true) const;
 
         /** \brief Get Matrix Frobenius norm
             \return norm value
@@ -176,15 +176,15 @@ namespace OpenMEEG {
         friend class SymMatrix;
     };
 
-    inline double Matrix::operator()(size_t i,size_t j) const {
-        om_assert(i<nlin() && j<ncol());
+    inline double Matrix::operator()(size_t i, size_t j) const {
+        om_assert(i < nlin() && j < ncol());
         return value->data[i+nlin()*j];
     }
-    inline double& Matrix::operator()(size_t i,size_t j) {
-        om_assert(i<nlin() && j<ncol());
+    inline double& Matrix::operator()(size_t i, size_t j) {
+        om_assert(i < nlin() && j < ncol());
         return value->data[i+nlin()*j];
     }
-    
+
     inline double Matrix::frobenius_norm() const {
     #ifdef HAVE_LAPACK
     if ( nlin()*ncol() != 0 ) {
@@ -195,21 +195,21 @@ namespace OpenMEEG {
     }
     #else
         double d = 0.;
-        for (size_t i=0; i<nlin()*ncol(); i++) d+=data()[i]*data()[i];
+        for (size_t i = 0; i < nlin()*ncol(); i++) d += data()[i]*data()[i];
         return sqrt(d);
     #endif
     }
 
     inline Vector Matrix::operator*(const Vector &v) const {
-        om_assert(ncol()==v.nlin());
+        om_assert(ncol() == v.nlin());
         Vector y(nlin());
     #ifdef HAVE_BLAS
-        DGEMV(CblasNoTrans,sizet_to_int(nlin()),sizet_to_int(ncol()),1.0,data(),sizet_to_int(nlin()),v.data(),1,0.,y.data(),1);
+        DGEMV(CblasNoTrans, sizet_to_int(nlin()), sizet_to_int(ncol()), 1.0, data(), sizet_to_int(nlin()), v.data(), 1, 0., y.data(), 1);
     #else
-        for (size_t i=0;i<nlin();i++) {
+        for (size_t i = 0; i < nlin(); i++) {
             y(i) = 0;
-            for (size_t j=0;j<ncol();j++)
-                y(i) += (*this)(i,j)*v(j);
+            for (size_t j = 0; j < ncol(); j++)
+                y(i) += (*this)(i, j)*v(j);
         }
     #endif
 
@@ -217,81 +217,81 @@ namespace OpenMEEG {
     }
 
     inline Matrix Matrix::submat(size_t istart, size_t isize, size_t jstart, size_t jsize) const {
-        om_assert (istart+isize<=nlin() && jstart+jsize<=ncol());
+        om_assert (istart+isize <= nlin() && jstart+jsize <= ncol());
 
-        Matrix a(isize,jsize);
+        Matrix a(isize, jsize);
         const int sz = sizet_to_int(isize);
-        
-        for (size_t j=0; j<jsize; j++) {
+
+        for (size_t j = 0; j < jsize; j++) {
     #ifdef HAVE_BLAS
-            BLAS(dcopy,DCOPY)(sz,data()+istart+(jstart+j)*nlin(),1,a.data()+j*isize,1);
+            BLAS(dcopy, DCOPY)(sz, data()+istart+(jstart+j)*nlin(), 1, a.data()+j*isize, 1);
     #else
-            for (size_t i=0; i<isize; i++)
-                a(i,j) = (*this)(istart+i,jstart+j);
+            for (size_t i = 0; i < isize; i++)
+                a(i, j) = (*this)(istart+i, jstart+j);
     #endif
         }
         return a;
     }
 
     inline void Matrix::insertmat(size_t istart, size_t jstart, const Matrix& B) {
-        om_assert (istart+B.nlin()<=nlin() && jstart+B.ncol()<=ncol() );
-        for (size_t j=0; j<B.ncol(); j++) {
-            for (size_t i=0; i<B.nlin(); i++) {
-                (*this)(istart+i,jstart+j)=B(i,j);
+        om_assert (istart+B.nlin() <= nlin() && jstart+B.ncol() <= ncol() );
+        for (size_t j = 0; j < B.ncol(); j++) {
+            for (size_t i = 0; i < B.nlin(); i++) {
+                (*this)(istart+i, jstart+j) = B(i, j);
             }
         }
     }
 
     inline Vector Matrix::getcol(size_t j) const {
-        om_assert(j<ncol());
+        om_assert(j < ncol());
         Vector v(nlin());
     #ifdef HAVE_BLAS
-        BLAS(dcopy,DCOPY)(sizet_to_int(nlin()),data()+nlin()*j,1,v.data(),1);
+        BLAS(dcopy, DCOPY)(sizet_to_int(nlin()), data()+nlin()*j, 1, v.data(), 1);
     #else
-        for (size_t i=0;i<nlin();i++) v.data()[i]=data()[i+nlin()*j];
+        for (size_t i = 0; i < nlin(); i++) v.data()[i] = data()[i+nlin()*j];
     #endif
         return v;
     }
 
     inline Vector Matrix::getlin(size_t i) const {
-        om_assert(i<nlin());
+        om_assert(i < nlin());
         Vector v(ncol());
     #ifdef HAVE_BLAS
-        BLAS(dcopy,DCOPY)(sizet_to_int(ncol()),data()+i,sizet_to_int(nlin()),v.data(),1);
+        BLAS(dcopy, DCOPY)(sizet_to_int(ncol()), data()+i, sizet_to_int(nlin()), v.data(), 1);
     #else
-        for (size_t j=0;j<ncol();j++) v.data()[j]=data()[i+nlin()*j];
+        for (size_t j = 0; j < ncol(); j++) v.data()[j] = data()[i+nlin()*j];
     #endif
         return v;
     }
 
-    inline void Matrix::setcol(size_t j,const Vector& v) {
-        om_assert(v.size()==nlin() && j<ncol());
+    inline void Matrix::setcol(size_t j, const Vector& v) {
+        om_assert(v.size() == nlin() && j < ncol());
     #ifdef HAVE_BLAS
-        BLAS(dcopy,DCOPY)(sizet_to_int(nlin()),v.data(),1,data()+nlin()*j,1);
+        BLAS(dcopy, DCOPY)(sizet_to_int(nlin()), v.data(), 1, data()+nlin()*j, 1);
     #else
-        for (size_t i=0;i<nlin();i++) data()[i+nlin()*j]=v.data()[i];
+        for (size_t i = 0; i < nlin(); i++) data()[i+nlin()*j] = v.data()[i];
     #endif
     }
 
-    inline void Matrix::setlin(size_t i,const Vector& v) {
-        om_assert(v.size()==ncol() && i<nlin());
+    inline void Matrix::setlin(size_t i, const Vector& v) {
+        om_assert(v.size() == ncol() && i < nlin());
     #ifdef HAVE_BLAS
-        BLAS(dcopy,DCOPY)(sizet_to_int(ncol()),v.data(),1,data()+i,sizet_to_int(nlin()));
+        BLAS(dcopy, DCOPY)(sizet_to_int(ncol()), v.data(), 1, data()+i, sizet_to_int(nlin()));
     #else
-        for (size_t j=0;j<ncol();j++) data()[i+nlin()*j]=v.data()[j];
+        for (size_t j = 0; j < ncol(); j++) data()[i+nlin()*j] = v.data()[j];
     #endif
     }
 
     inline Vector Matrix::tmult(const Vector &v) const {
-        om_assert(nlin()==v.nlin());
+        om_assert(nlin() == v.nlin());
         Vector y(ncol());
     #ifdef HAVE_BLAS
-        DGEMV(CblasTrans,sizet_to_int(nlin()),sizet_to_int(ncol()),1.,data(),sizet_to_int(nlin()),v.data(),1,0.,y.data(),1);
+        DGEMV(CblasTrans, sizet_to_int(nlin()), sizet_to_int(ncol()), 1., data(), sizet_to_int(nlin()), v.data(), 1, 0., y.data(), 1);
     #else
-        for (size_t i=0;i<ncol();i++) {
-            y(i)=0;
-            for (size_t j=0;j<nlin();j++)
-                y(i)+=(*this)(j,i)*v(j);
+        for (size_t i = 0; i < ncol(); i++) {
+            y(i) = 0;
+            for (size_t j = 0; j < nlin(); j++)
+                y(i) += (*this)(j, i)*v(j);
         }
     #endif
 
@@ -300,39 +300,39 @@ namespace OpenMEEG {
 
     inline Matrix Matrix::inverse() const {
     #ifdef HAVE_LAPACK
-        om_assert(nlin()==ncol());
-        Matrix invA(*this,DEEP_COPY);
+        om_assert(nlin() == ncol());
+        Matrix invA(*this, DEEP_COPY);
         // LU
         #if defined(CLAPACK_INTERFACE)
-            #if defined(__APPLE__) && defined(USE_VECLIB) // Apple Veclib Framework (Handles 32 and 64 Bits)
+            #if defined(__APPLE__) && defined(USE_VECLIB)  // Apple Veclib Framework (Handles 32 and 64 Bits)
                 __CLPK_integer *pivots = new __CLPK_integer[ncol()];
                 __CLPK_integer Info = 0;
                 __CLPK_integer nlin_local = invA.nlin();
                 __CLPK_integer nlin_local2 = invA.nlin();
                 __CLPK_integer ncol_local = invA.ncol();
                 __CLPK_integer sz = invA.ncol()*64;
-                DGETRF(nlin_local,ncol_local,invA.data(),nlin_local2,pivots,Info);
-                double *work=new double[sz];
-                DGETRI(ncol_local,invA.data(),ncol_local,pivots,work,sz,Info);
+                DGETRF(nlin_local, ncol_local, invA.data(), nlin_local2, pivots, Info);
+                double *work = new double[sz];
+                DGETRI(ncol_local, invA.data(), ncol_local, pivots, work, sz, Info);
                 delete[] pivots;
                 delete[] work;
-                om_assert(Info==0);
+                om_assert(Info == 0);
             #else
-                BLAS_INT *pivots=new BLAS_INT[sizet_to_int(ncol())];
-                DGETRF(sizet_to_int(invA.nlin()),sizet_to_int(invA.ncol()),invA.data(),sizet_to_int(invA.nlin()),pivots);
-                DGETRI(sizet_to_int(invA.ncol()),invA.data(),sizet_to_int(invA.ncol()),pivots);
+                BLAS_INT *pivots = new BLAS_INT[sizet_to_int(ncol())];
+                DGETRF(sizet_to_int(invA.nlin()), sizet_to_int(invA.ncol()), invA.data(), sizet_to_int(invA.nlin()), pivots);
+                DGETRI(sizet_to_int(invA.ncol()), invA.data(), sizet_to_int(invA.ncol()), pivots);
                 delete[] pivots;
             #endif
         #else
             int Info = 0;
-            int *pivots=new int[sizet_to_int(ncol())];
-            DGETRF(sizet_to_int(invA.nlin()),sizet_to_int(invA.ncol()),invA.data(),sizet_to_int(invA.nlin()),pivots,Info);
+            int *pivots = new int[sizet_to_int(ncol())];
+            DGETRF(sizet_to_int(invA.nlin()), sizet_to_int(invA.ncol()), invA.data(), sizet_to_int(invA.nlin()), pivots, Info);
             const unsigned sz = invA.ncol()*64;
-            double *work=new double[sz];
-            DGETRI(sizet_to_int(invA.ncol()),invA.data(),sizet_to_int(invA.ncol()),pivots,work,sz,Info);
+            double *work = new double[sz];
+            DGETRI(sizet_to_int(invA.ncol()), invA.data(), sizet_to_int(invA.ncol()), pivots, work, sz, Info);
             delete[] pivots;
             delete[] work;
-            om_assert(Info==0);
+            om_assert(Info == 0);
         #endif
         return invA;
     #else
@@ -341,167 +341,167 @@ namespace OpenMEEG {
     #endif
     }
 
-    inline Matrix Matrix::operator *(const Matrix &B) const {
-        om_assert(ncol()==B.nlin());
-        size_t p=ncol();
-        Matrix C(nlin(),B.ncol());
+    inline Matrix Matrix::operator*(const Matrix &B) const {
+        om_assert(ncol() == B.nlin());
+        size_t p = ncol();
+        Matrix C(nlin(), B.ncol());
     #ifdef HAVE_BLAS
-        DGEMM(CblasNoTrans,CblasNoTrans,
-            sizet_to_int(C.nlin()),sizet_to_int(C.ncol()),sizet_to_int(p),
-            1.,data(),sizet_to_int(nlin()),
-            B.data(),sizet_to_int(B.nlin()),
-            0.,C.data(),sizet_to_int(C.nlin()));
+        DGEMM(CblasNoTrans, CblasNoTrans,
+            sizet_to_int(C.nlin()), sizet_to_int(C.ncol()), sizet_to_int(p),
+            1., data(), sizet_to_int(nlin()),
+            B.data(), sizet_to_int(B.nlin()),
+            0., C.data(), sizet_to_int(C.nlin()));
     #else
-        for (size_t i=0;i<C.nlin();i++)
-            for (size_t j=0;j<C.ncol();j++) {
-                C(i,j)=0;
-                for (size_t k=0;k<p;k++)
-                    C(i,j)+=(*this)(i,k)*B(k,j);
+        for (size_t i = 0; i < C.nlin(); i++)
+            for (size_t j = 0; j < C.ncol(); j++) {
+                C(i, j) = 0;
+                for (size_t k = 0; k < p; k++)
+                    C(i, j) += (*this)(i, k)*B(k, j);
             }
     #endif
             return C;
     }
-    
+
     inline Matrix Matrix::tmult(const Matrix &B) const {
-        om_assert(nlin()==B.nlin());
-        size_t p=nlin();
-        Matrix C(ncol(),B.ncol());
+        om_assert(nlin() == B.nlin());
+        size_t p = nlin();
+        Matrix C(ncol(), B.ncol());
     #ifdef HAVE_BLAS
-        DGEMM(CblasTrans,CblasNoTrans,
-            sizet_to_int(C.nlin()),sizet_to_int(C.ncol()),sizet_to_int(p),
-            1.,data(),sizet_to_int(nlin()),
-            B.data(),sizet_to_int(B.nlin()),
-            0.,C.data(),sizet_to_int(C.nlin()));
+        DGEMM(CblasTrans, CblasNoTrans,
+            sizet_to_int(C.nlin()), sizet_to_int(C.ncol()), sizet_to_int(p),
+            1., data(), sizet_to_int(nlin()),
+            B.data(), sizet_to_int(B.nlin()),
+            0., C.data(), sizet_to_int(C.nlin()));
     #else
-        for (size_t i=0;i<C.nlin();i++)
-            for (size_t j=0;j<C.ncol();j++) {
-                C(i,j)=0;
-                for (size_t k=0;k<p;k++)
-                    C(i,j)+=(*this)(k,i)*B(k,j);
+        for (size_t i = 0; i < C.nlin(); i++)
+            for (size_t j = 0; j < C.ncol(); j++) {
+                C(i, j) = 0;
+                for (size_t k = 0; k < p; k++)
+                    C(i, j) += (*this)(k, i)*B(k, j);
             }
     #endif
             return C;
     }
 
     inline Matrix Matrix::multt(const Matrix &B) const {
-        om_assert(ncol()==B.ncol());
-        size_t p=ncol();
-        Matrix C(nlin(),B.nlin());
+        om_assert(ncol() == B.ncol());
+        size_t p = ncol();
+        Matrix C(nlin(), B.nlin());
     #ifdef HAVE_BLAS
-        DGEMM(CblasNoTrans,CblasTrans,
-            sizet_to_int(C.nlin()),sizet_to_int(C.ncol()),sizet_to_int(p),
-            1.,data(),sizet_to_int(nlin()),
-            B.data(),sizet_to_int(B.nlin()),
-            0.,C.data(),sizet_to_int(C.nlin()));
+        DGEMM(CblasNoTrans, CblasTrans,
+            sizet_to_int(C.nlin()), sizet_to_int(C.ncol()), sizet_to_int(p),
+            1., data(), sizet_to_int(nlin()),
+            B.data(), sizet_to_int(B.nlin()),
+            0., C.data(), sizet_to_int(C.nlin()));
     #else
-        for (size_t i=0;i<C.nlin();i++)
-            for (size_t j=0;j<C.ncol();j++) {
-                C(i,j)=0;
-                for (size_t k=0;k<p;k++)
-                    C(i,j)+=(*this)(i,k)*B(j,k);
+        for (size_t i = 0; i < C.nlin(); i++)
+            for (size_t j = 0; j < C.ncol(); j++) {
+                C(i, j) = 0;
+                for (size_t k = 0; k < p; k++)
+                    C(i, j) += (*this)(i, k)*B(j, k);
             }
     #endif
             return C;
     }
 
     inline Matrix Matrix::tmultt(const Matrix &B) const {
-        om_assert(nlin()==B.ncol());
-        size_t p=nlin();
-        Matrix C(ncol(),B.nlin());
+        om_assert(nlin() == B.ncol());
+        size_t p = nlin();
+        Matrix C(ncol(), B.nlin());
     #ifdef HAVE_BLAS
-        DGEMM(CblasTrans,CblasTrans,
-            sizet_to_int(C.nlin()),sizet_to_int(C.ncol()),sizet_to_int(p),
-            1.,data(),sizet_to_int(nlin()),
-            B.data(),sizet_to_int(B.nlin()),
-            0.,C.data(),sizet_to_int(C.nlin()));
+        DGEMM(CblasTrans, CblasTrans,
+            sizet_to_int(C.nlin()), sizet_to_int(C.ncol()), sizet_to_int(p),
+            1., data(), sizet_to_int(nlin()),
+            B.data(), sizet_to_int(B.nlin()),
+            0., C.data(), sizet_to_int(C.nlin()));
     #else
-        for (size_t i=0;i<C.nlin();i++)
-            for (size_t j=0;j<C.ncol();j++) {
-                C(i,j)=0;
-                for (size_t k=0;k<p;k++)
-                    C(i,j)+=(*this)(k,i)*B(j,k);
+        for (size_t i = 0; i < C.nlin(); i++)
+            for (size_t j = 0; j < C.ncol(); j++) {
+                C(i, j) = 0;
+                for (size_t k = 0; k < p; k++)
+                    C(i, j) += (*this)(k, i)*B(j, k);
             }
     #endif
             return C;
     }
 
     inline Matrix Matrix::operator*(const SymMatrix &B) const {
-        om_assert(ncol()==B.ncol());
-        Matrix C(nlin(),B.ncol());
+        om_assert(ncol() == B.ncol());
+        Matrix C(nlin(), B.ncol());
 
     #ifdef HAVE_BLAS
         Matrix D(B);
         const int n = sizet_to_int(nlin());
         const int m = sizet_to_int(D.ncol());
         const int l = sizet_to_int(C.nlin());
-        DSYMM(CblasRight,CblasUpper,n,m,1.,D.data(),m,data(),n,0.,C.data(),l);
+        DSYMM(CblasRight, CblasUpper, n, m, 1., D.data(), m, data(), n, 0., C.data(), l);
     #else
-        for (size_t j=0;j<B.ncol();j++)
-            for (size_t i=0;i<ncol();i++) {
-                C(i,j)=0;
-                for (size_t k=0;k<ncol();k++)
-                    C(i,j)+=(*this)(i,k)*B(k,j);
+        for (size_t j = 0; j < B.ncol(); j++)
+            for (size_t i = 0; i < ncol(); i++) {
+                C(i, j) = 0;
+                for (size_t k = 0; k < ncol(); k++)
+                    C(i, j) += (*this)(i, k)*B(k, j);
             }
     #endif
             return C;
     }
-    
+
     inline Matrix Matrix::operator+(const Matrix &B) const {
-        om_assert(ncol()==B.ncol());
-        om_assert(nlin()==B.nlin());
-        Matrix C(*this,DEEP_COPY);
+        om_assert(ncol() == B.ncol());
+        om_assert(nlin() == B.nlin());
+        Matrix C(*this, DEEP_COPY);
     #ifdef HAVE_BLAS
-        BLAS(daxpy,DAXPY)(sizet_to_int(nlin()*ncol()), 1.0, B.data(), 1, C.data() , 1);
+        BLAS(daxpy, DAXPY)(sizet_to_int(nlin()*ncol()), 1.0, B.data(), 1, C.data() , 1);
     #else
-        for (size_t i=0;i<nlin()*ncol();i++)
-            C.data()[i]+=B.data()[i];
+        for (size_t i = 0; i < nlin()*ncol(); i++)
+            C.data()[i] += B.data()[i];
     #endif
         return C;
     }
 
     inline Matrix Matrix::operator-(const Matrix &B) const {
-        om_assert(ncol()==B.ncol());
-        om_assert(nlin()==B.nlin());
-        Matrix C(*this,DEEP_COPY);
+        om_assert(ncol() == B.ncol());
+        om_assert(nlin() == B.nlin());
+        Matrix C(*this, DEEP_COPY);
     #ifdef HAVE_BLAS
-        BLAS(daxpy,DAXPY)(sizet_to_int(nlin()*ncol()), -1.0, B.data(), 1, C.data() , 1);
+        BLAS(daxpy, DAXPY)(sizet_to_int(nlin()*ncol()), -1.0, B.data(), 1, C.data() , 1);
     #else
-        for (size_t i=0;i<nlin()*ncol();i++)
-            C.data()[i]-=B.data()[i];
+        for (size_t i = 0; i < nlin()*ncol(); i++)
+            C.data()[i] -= B.data()[i];
     #endif
         return C;
     }
 
     inline void Matrix::operator+=(const Matrix &B) {
-        om_assert(ncol()==B.ncol());
-        om_assert(nlin()==B.nlin());
+        om_assert(ncol() == B.ncol());
+        om_assert(nlin() == B.nlin());
     #ifdef HAVE_BLAS
-        BLAS(daxpy,DAXPY)(sizet_to_int(nlin()*ncol()), 1.0, B.data(), 1, data() , 1);
+        BLAS(daxpy, DAXPY)(sizet_to_int(nlin()*ncol()), 1.0, B.data(), 1, data() , 1);
     #else
-        for (size_t i=0;i<nlin()*ncol();i++)
-            data()[i]+=B.data()[i];
+        for (size_t i = 0; i < nlin()*ncol(); i++)
+            data()[i] += B.data()[i];
     #endif
     }
 
     inline void Matrix::operator-=(const Matrix &B) {
-        om_assert(ncol()==B.ncol());
-        om_assert(nlin()==B.nlin());
+        om_assert(ncol() == B.ncol());
+        om_assert(nlin() == B.nlin());
     #ifdef HAVE_BLAS
-        BLAS(daxpy,DAXPY)(sizet_to_int(nlin()*ncol()), -1.0, B.data(), 1, data() , 1);
+        BLAS(daxpy, DAXPY)(sizet_to_int(nlin()*ncol()), -1.0, B.data(), 1, data() , 1);
     #else
-        for (size_t i=0;i<nlin()*ncol();i++)
-            data()[i]-=B.data()[i];
+        for (size_t i = 0; i < nlin()*ncol(); i++)
+            data()[i] -= B.data()[i];
     #endif
     }
-    
+
     inline double Matrix::dot(const Matrix& b) const {
-        om_assert(nlin()==b.nlin()&&ncol()==b.ncol());
+        om_assert(nlin() == b.nlin()&&ncol() == b.ncol());
     #ifdef HAVE_BLAS
-        return BLAS(ddot,DDOT)(sizet_to_int(nlin()*ncol()),data(),1,b.data(),1);
+        return BLAS(ddot, DDOT)(sizet_to_int(nlin()*ncol()), data(), 1, b.data(), 1);
     #else
-        double s=0;
-        for (size_t i=0;i<nlin()*ncol();i++)
-            s+=data()[i]*b.data()[i];
+        double s = 0;
+        for (size_t i = 0; i < nlin()*ncol(); i++)
+            s += data()[i]*b.data()[i];
         return s;
     #endif
     }

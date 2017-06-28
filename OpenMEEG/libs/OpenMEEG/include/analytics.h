@@ -58,13 +58,13 @@ namespace OpenMEEG {
 
     class OPENMEEG_EXPORT analyticS
     {
-        Vect3 p0, p1, p2; //!< vertices of the triangle
+        Vect3 p0, p1, p2;  //!< vertices of the triangle
         Vect3 p2p1, p1p0, p0p2;
         Vect3 nu0, nu1, nu2;
         Vect3 n;
         double norm2p2p1, norm2p1p0, norm2p0p2;
         double tanTHETA0m, tanTHETA0p, tanTHETA1m, tanTHETA1p, tanTHETA2m, tanTHETA2p;
-        
+
         void init_aux() {
             nu0 = (p1p0^n);
             nu1 = (p2p1^n);
@@ -75,8 +75,8 @@ namespace OpenMEEG {
         }
 
     public:
-        analyticS(){}
-        ~analyticS(){}
+        analyticS() {}
+        ~analyticS() {}
         void init(const Triangle& T)
         {
             // all computations needed when the first triangle of integration is changed
@@ -87,7 +87,7 @@ namespace OpenMEEG {
             p1p0 = p1-p0; p2p1 = p2-p1; p0p2 = p0-p2;
             norm2p1p0 = p1p0.norm(); norm2p2p1 = p2p1.norm(); norm2p0p2 = p0p2.norm();
 
-            n = T.normal(); // since triangle's normal is already normalized
+            n = T.normal();  // since triangle's normal is already normalized
             init_aux();
         }
 
@@ -184,8 +184,8 @@ namespace OpenMEEG {
         Vect3 q;
 
     public:
-        analyticDipPot(){}
-        ~analyticDipPot(){}
+        analyticDipPot() {}
+        ~analyticDipPot() {}
 
         inline void init( const Vect3& _q, const Vect3& _r0) {
             q = _q;
@@ -207,8 +207,8 @@ namespace OpenMEEG {
         Vect3 H0p0DivNorm2, H1p1DivNorm2, H2p2DivNorm2, n;
 
     public:
-        analyticDipPotDer(){}
-        ~analyticDipPotDer(){}
+        analyticDipPotDer() {}
+        ~analyticDipPotDer() {}
         inline void init( const Triangle& T, const Vect3 &_q, const Vect3& _r0) {
             q = _q;
             r0 = _r0;
@@ -233,12 +233,12 @@ namespace OpenMEEG {
         {
             Vect3 P1part(H0p0DivNorm2*(x-H0), H1p1DivNorm2*(x-H1), H2p2DivNorm2*(x-H2));
 
-            // RK: B = n.grad_x(A) with grad_x(A)= q/||^3 - 3r(q.r)/||^5
+            // RK: B = n.grad_x(A) with grad_x(A) = q/||^3 - 3r(q.r)/||^5
             Vect3 r = x-r0;
             double rn = r.norm();
             double EMpart = n*(q/pow(rn, 3.)-3*(q*r)*r/pow(rn, 5.));
 
-            return -EMpart*P1part; // RK: why - sign ?
+            return -EMpart*P1part;  // RK: why - sign ?
         }
     };
 }

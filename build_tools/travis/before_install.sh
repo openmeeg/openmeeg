@@ -94,3 +94,7 @@ else
         sudo apt-get install -y lcov
     fi
 fi
+
+if [[ "$CPPLINT" == "1" ]]; then
+    pip install cpplint
+fi

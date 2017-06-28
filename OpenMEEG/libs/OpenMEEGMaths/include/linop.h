@@ -41,10 +41,10 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #include <cstdlib>
 
-#include "OpenMEEGMathsConfig.h"
+#include <OpenMEEGMathsConfig.h>
 #include <OMassert.H>
-#include "om_utils.h"
-#include "RC.H"
+#include <om_utils.h>
+#include <RC.H>
 
 namespace OpenMEEG {
 
@@ -70,19 +70,19 @@ namespace OpenMEEG {
         typedef unsigned                         Dimension;
 
         LinOpInfo() { }
-        LinOpInfo(const size_t m,const size_t n,const StorageType st,const Dimension d):
-            num_lines(m),num_cols(n),storage(st),dim(d)  { }
+        LinOpInfo(const size_t m, const size_t n, const StorageType st, const Dimension d):
+            num_lines(m), num_cols(n), storage(st), dim(d)  { }
 
-        virtual ~LinOpInfo() {};
+        virtual ~LinOpInfo() {}
 
-        LinOpInfo& operator=(const LinOpInfo& l) {
+        LinOpInfo& operator= (const LinOpInfo& l) {
             num_lines = l.num_lines;
             num_cols  = l.num_cols;
             storage   = l.storage;
             dim       = l.dim;
             return *this;
         }
-        
+
         size_t  nlin() const { return num_lines; }
         size_t& nlin()       { return num_lines; }
 
@@ -113,13 +113,13 @@ namespace OpenMEEG {
     public:
 
         LinOp() { }
-        LinOp(const size_t m,const size_t n,const StorageType st,const Dimension d): base(m,n,st,d) { }
+        LinOp(const size_t m, const size_t n, const StorageType st, const Dimension d): base(m, n, st, d) { }
 
         LinOp& operator=(const LinOp& l) {
             base::operator=(l);
             return *this;
         }
-        
+
         virtual size_t size() const = 0;
         virtual void   info() const = 0;
     };
@@ -141,16 +141,16 @@ namespace OpenMEEG {
             }
         }
 
-        LinOpValue(const size_t n,const double* initval) { init(n,initval); }
-        LinOpValue(const size_t n,const LinOpValue& v)   { init(n,v.data);  }
+        LinOpValue(const size_t n, const double* initval) { init(n, initval); }
+        LinOpValue(const size_t n, const LinOpValue& v)   { init(n, v.data);  }
 
-        void init(const size_t n,const double* initval) {
+        void init(const size_t n, const double* initval) {
             data = new double[n];
-            std::copy(initval,initval+n,data);
+            std::copy(initval, initval+n, data);
         }
 
         ~LinOpValue() { delete[] data; }
 
-        bool empty() const { return data==0; }
+        bool empty() const { return data == 0; }
     };
 }

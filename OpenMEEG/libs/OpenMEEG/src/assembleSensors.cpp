@@ -50,8 +50,7 @@ namespace OpenMEEG {
     // EEG patches positions are reported line by line in the positions Matrix
     // mat is supposed to be filled with zeros
     // mat is the linear application which maps x (the unknown vector in symmetric system) -> v (potential at the electrodes)
-    void assemble_Head2EEG(SparseMatrix& mat, const Geometry& geo, const Matrix& positions )
-    {
+    void assemble_Head2EEG(SparseMatrix& mat, const Geometry& geo, const Matrix& positions ) {
         mat = SparseMatrix(positions.nlin(), (geo.size()-geo.nb_current_barrier_triangles()));
 
         Vect3 current_position;
@@ -62,7 +61,7 @@ namespace OpenMEEG {
                 current_position(k) = positions(i, k);
             }
             double dist;
-            dist_point_geom(current_position,geo,current_alphas,current_triangle,dist);
+            dist_point_geom(current_position, geo, current_alphas, current_triangle, dist);
             mat(i, current_triangle.s1().index()) = current_alphas(0);
             mat(i, current_triangle.s2().index()) = current_alphas(1);
             mat(i, current_triangle.s3().index()) = current_alphas(2);
@@ -77,7 +76,7 @@ namespace OpenMEEG {
     // ECoG positions are reported line by line in the positions Matrix
     // mat is supposed to be filled with zeros
     // mat is the linear application which maps x (the unknown vector in symmetric system) -> v (potential at the ECoG electrodes)
-    // difference with Head2EEG is that it interpolates the inner skull layer instead of the scalp layer. 
+    // difference with Head2EEG is that it interpolates the inner skull layer instead of the scalp layer.
     void assemble_Head2ECoG(SparseMatrix& mat, const Geometry& geo, const Matrix& positions, const Interface& i)
     {
         mat = SparseMatrix(positions.nlin(), (geo.size()-geo.nb_current_barrier_triangles()));
@@ -109,7 +108,7 @@ namespace OpenMEEG {
     // MEG patches positions are reported line by line in the positions Matrix (same for positions)
     // mat is supposed to be filled with zeros
     // mat is the linear application which maps x (the unknown vector in symmetric system) -> bFerguson (contrib to MEG response)
-    void assemble_Head2MEG(Matrix& mat, const Geometry& geo, const Sensors& sensors) 
+    void assemble_Head2MEG(Matrix& mat, const Geometry& geo, const Sensors& sensors)
     {
         Matrix positions = sensors.getPositions();
         Matrix orientations = sensors.getOrientations();
@@ -133,7 +132,7 @@ namespace OpenMEEG {
                 mat(i, vit->index()) = fergusonField * normalizedDirection;
             }
         }
-        mat = sensors.getWeightsMatrix() * mat; // Apply weights
+        mat = sensors.getWeightsMatrix() * mat;  // Apply weights
     }
 
     Head2MEGMat::Head2MEGMat(const Geometry& geo, const Sensors& sensors)
@@ -167,7 +166,7 @@ namespace OpenMEEG {
             }
         }
 
-        mat = sensors.getWeightsMatrix() * mat; // Apply weights
+        mat = sensors.getWeightsMatrix() * mat;  // Apply weights
     }
 
     SurfSource2MEGMat::SurfSource2MEGMat(const Mesh& sources_mesh, const Sensors& sensors)
@@ -196,7 +195,7 @@ namespace OpenMEEG {
         for ( unsigned i = 0; i < mat.nlin(); ++i) {
             for ( unsigned j = 0; j < mat.ncol(); ++j) {
                 Vect3 r(dipoles(j, 0), dipoles(j, 1), dipoles(j, 2));
-                Vect3 q(dipoles(j, 3), dipoles(j, 4), dipoles(j,5));
+                Vect3 q(dipoles(j, 3), dipoles(j, 4), dipoles(j, 5));
                 Vect3 diff(positions(i, 0), positions(i, 1), positions(i, 2));
                 diff -= r;
                 double norm_diff = diff.norm();
@@ -207,7 +206,7 @@ namespace OpenMEEG {
             }
         }
 
-        mat = sensors.getWeightsMatrix() * mat; // Apply weights
+        mat = sensors.getWeightsMatrix() * mat;  // Apply weights
     }
 
     DipSource2MEGMat::DipSource2MEGMat(const Matrix& dipoles, const Sensors& sensors)
@@ -215,4 +214,4 @@ namespace OpenMEEG {
         assemble_DipSource2MEG(*this, dipoles, sensors);
     }
 
-} // end namespace OpenMEEG
+}  // end namespace OpenMEEG

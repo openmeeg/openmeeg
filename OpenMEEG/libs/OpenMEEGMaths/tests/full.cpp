@@ -53,29 +53,29 @@ int main () {
 
     std::cout << std::endl << "========== matrices ==========" << std::endl;
 
-    Matrix M(5,5);
+    Matrix M(5, 5);
 
-    for (size_t i=0;i<M.nlin();++i)
-        for (size_t j=0;j<M.ncol();++j)
-            M(i,j) = pow(2.0,(double)i)+pow(2.0,(double)j);
+    for (size_t i = 0; i < M.nlin(); ++i)
+        for (size_t j = 0; j < M.ncol(); ++j)
+            M(i, j) = pow(2.0, (double)i)+pow(2.0, (double)j);
 
-    genericTest("full",M);
+    genericTest("full", M);
 
-    Matrix Q = M.submat(3,1,2,3); // select submatrix
+    Matrix Q = M.submat(3, 1, 2, 3);  // select submatrix
     std::cout << "Matrice Q : " << std::endl;
     Q.info();
 
     Matrix M1 = M;
-    M1.insertmat(3,1,Q); // insert submatrix
+    M1.insertmat(3, 1, Q);  // insert submatrix
     if (std::abs((M1-M).frobenius_norm()) > 1e-10) {
         std::cerr << "Error: insert matrix is WRONG" << std::endl;
         exit(1);
     }
 
-    Matrix P(3,3);
-    P(0,0) = 25 ; P(0,1) = 3 ; P(0,2) = 6;
-    P(1,0) = 12 ; P(1,1) = 5 ; P(1,2) = 32;
-    P(2,0) = 4  ; P(2,1) = 10; P(2,2) = 4;
+    Matrix P(3, 3);
+    P(0, 0) = 25 ; P(0, 1) = 3 ; P(0, 2) = 6;
+    P(1, 0) = 12 ; P(1, 1) = 5 ; P(1, 2) = 32;
+    P(2, 0) = 4  ; P(2, 1) = 10; P(2, 2) = 4;
     std::cout << "Matrice P : " << std::endl;
     P.info();
 
@@ -84,16 +84,16 @@ int main () {
     Pinv.info();
 
     Matrix unit = P*Pinv;
-    for (unsigned i=0;i<unit.nlin();++i) {
-        for (unsigned j=0;j<unit.ncol();++j) {
-            if (i==j) {
-                if (std::abs(unit(i,j)-1)>eps) {
+    for (unsigned i = 0; i < unit.nlin(); ++i) {
+        for (unsigned j = 0; j < unit.ncol(); ++j) {
+            if (i == j) {
+                if (std::abs(unit(i, j)-1)>eps) {
                     std::cerr << "Error: inverse is WRONG-1" << std::endl;
                     exit(1);
                 }
             } else {
-                if (std::abs(unit(i,j))>eps){
-                    std::cerr << "Error: inverse is WRONG-2 " << "unit(" << i << "," << j << ") = " << unit(i,j) << std::endl;
+                if (std::abs(unit(i, j))>eps) {
+                    std::cerr << "Error: inverse is WRONG-2 " << "unit(" << i << ", " << j << ") = " << unit(i, j) << std::endl;
                     exit(1);
                 }
             }
@@ -105,7 +105,7 @@ int main () {
     M.info();
 
     // SVD (wikipedia example)
-    M1 = Matrix(4,5); M1.set(0.0);
+    M1 = Matrix(4, 5); M1.set(0.0);
     M1(0, 0) = 1; M1(0, 4) = 2;
     M1(1, 2) = 3; M1(3, 1) = 4;
 

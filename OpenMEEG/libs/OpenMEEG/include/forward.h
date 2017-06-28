@@ -39,16 +39,16 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #pragma once
 
-#include "matrix.h"
-#include "symmatrix.h"
-#include "vector.h"
+#include <matrix.h>
+#include <symmatrix.h>
+#include <vector.h>
 
 namespace OpenMEEG {
 
     class Forward : public virtual Matrix {
     public:
         Forward (const Matrix& GainMatrix, const Matrix& RealSourcesData, double NoiseLevel);
-        virtual ~Forward () {};
+        virtual ~Forward () {}
     };
 
     void compute_forward(Matrix& SimulatedData, const Matrix& GainMatrix, const Matrix& RealSourcesData, double NoiseLevel) {
@@ -57,7 +57,7 @@ namespace OpenMEEG {
 
         for ( unsigned i = 0; i < SimulatedData.nlin(); ++i) {
             for ( unsigned j = 0; j < SimulatedData.ncol(); ++j) {
-                SimulatedData(i,j) += NoiseLevel * gaussian();
+                SimulatedData(i, j) += NoiseLevel * gaussian();
             }
         }
     }

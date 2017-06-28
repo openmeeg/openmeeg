@@ -61,7 +61,7 @@ namespace OpenMEEG {
 
     class OPENMEEG_EXPORT Vect3 {
 
-        double m[3]; //!< Coordinates of the vector
+        double m[3];  //!< Coordinates of the vector
 
     public:
 
@@ -96,15 +96,15 @@ namespace OpenMEEG {
         inline double norm()  const { return sqrt(norm2()); }
         inline double norm2() const { return m[0]*m[0]+m[1]*m[1]+m[2]*m[2]; }
 
-        inline bool operator==(const Vect3& v ) const { return (m[0]==v.x() && m[1]==v.y() && m[2]==v.z()); }
-        inline bool operator!=(const Vect3& v ) const { return (m[0]!=v.x() || m[1]!=v.y() || m[2]!=v.z()); }
+        inline bool operator==(const Vect3& v ) const { return (m[0] == v.x() && m[1] == v.y() && m[2] == v.z()); }
+        inline bool operator!=(const Vect3& v ) const { return (m[0] != v.x() || m[1] != v.y() || m[2] != v.z()); }
 
         inline void operator+=(const Vect3& v)  { m[0] += v.x(); m[1] += v.y(); m[2] += v.z(); }
         inline void operator-=(const Vect3& v)  { m[0] -= v.x(); m[1] -= v.y(); m[2] -= v.z(); }
         inline void operator*=(const double& d) { m[0] *= d; m[1] *= d; m[2] *= d; }
         inline void operator/=(const double& d) { operator*=(1.0/d); }
 
-        inline void multadd(const double& d, const Vect3& v) {m[0] += d*v.x(); m[1] += d*v.y(); m[2] += d*v.z();}
+        inline void multadd(const double& d, const Vect3& v) {m[0] += d*v.x(); m[1] += d*v.y(); m[2] += d*v.z(); }
 
         inline Vect3 operator+(const Vect3& v)  const { return Vect3(m[0]+v.x(), m[1]+v.y(), m[2]+v.z()); }
         inline Vect3 operator-(const Vect3& v)  const { return Vect3(m[0]-v.x(), m[1]-v.y(), m[2]-v.z()); }
@@ -113,19 +113,19 @@ namespace OpenMEEG {
         inline Vect3 operator/(const double& d) const { return Vect3(m[0]/d, m[1]/d, m[2]/d); }
 
         inline double operator() (const int i) const {
-            om_assert(i>=0 && i<3);
+            om_assert(i >= 0 && i<3);
             return m[i];
         }
 
         inline double& operator()(const int i) {
-            om_assert(i>=0 && i<3);
+            om_assert(i >= 0 && i<3);
             return m[i];
         }
 
         inline Vect3 operator-() { return Vect3(-m[0], -m[1], -m[2]); }
 
         inline double det(const Vect3& y2, const Vect3& y3) const {
-            return (*this)*(y2^y3); // y1.det(y2, y3):= y1/(y2^y3)
+            return (*this)*(y2^y3);  // y1.det(y2, y3):= y1/(y2^y3)
         }
 
         inline double solangl(const Vect3& v1, const Vect3& v2, const Vect3& v3) const {

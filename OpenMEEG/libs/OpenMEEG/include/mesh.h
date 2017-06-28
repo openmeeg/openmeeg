@@ -75,14 +75,14 @@ namespace OpenMEEG {
 
     enum Filetype { VTK, TRI, BND, MESH, OFF, GIFTI };
 
-    /** 
+    /**
         Mesh class
         \brief Mesh is a collection of triangles
     */
 
     class OPENMEEG_EXPORT Mesh: public Triangles {
     public:
-        
+
         typedef std::vector<Triangle*>              VectPTriangle;
         typedef std::vector<Vertex*>                VectPVertex;
         typedef VectPVertex::iterator               vertex_iterator;
@@ -94,13 +94,13 @@ namespace OpenMEEG {
 
         Mesh(): Triangles(), name_(""), all_vertices_(0), outermost_(false), allocate_(false), current_barrier_(false), isolated_(false) { }
 
-        /// constructor from scratch (add vertices/triangles one by one) 
+        /// constructor from scratch (add vertices/triangles one by one)
         /// \param nv allocate space for vertices
         /// \param nt allocate space for triangles
 
-        Mesh(const unsigned& nv,const unsigned& nt): name_(""), outermost_(false), allocate_(true), current_barrier_(false), isolated_(false) {
+        Mesh(const unsigned& nv, const unsigned& nt): name_(""), outermost_(false), allocate_(true), current_barrier_(false), isolated_(false) {
             all_vertices_ = new Vertices;
-            all_vertices_->reserve(nv); // allocates space for the vertices
+            all_vertices_->reserve(nv);  // allocates space for the vertices
             reserve(nt);
         }
 
@@ -110,15 +110,15 @@ namespace OpenMEEG {
 
         /// constructor using an outisde storage for vertices \param av Where to store vertices \param name Mesh name
 
-        Mesh(Vertices& av,const std::string name = ""): name_(name), all_vertices_(&av), outermost_(false), allocate_(false), current_barrier_(false), isolated_(false) {
-            set_vertices_.insert(all_vertices_->begin(), all_vertices_->end()); 
+        Mesh(Vertices& av, const std::string name = ""): name_(name), all_vertices_(&av), outermost_(false), allocate_(false), current_barrier_(false), isolated_(false) {
+            set_vertices_.insert(all_vertices_->begin(), all_vertices_->end());
         }
 
         /// constructor loading directly a mesh file named \param filename . Be verbose if \param verbose is true. The mesh name is \param n .
 
-        Mesh(std::string filename,const bool verbose=true,const std::string n=""): name_(n), outermost_(false), allocate_(true), current_barrier_(false), isolated_(false) {
-            unsigned nb_v = load(filename, false, false); 
-            all_vertices_ = new Vertices(nb_v); // allocates space for the vertices
+        Mesh(std::string filename, const bool verbose = true, const std::string n = ""): name_(n), outermost_(false), allocate_(true), current_barrier_(false), isolated_(false) {
+            unsigned nb_v = load(filename, false, false);
+            all_vertices_ = new Vertices(nb_v);  // allocates space for the vertices
             load(filename, verbose);
         }
 
@@ -131,7 +131,7 @@ namespace OpenMEEG {
         vertex_iterator               vertex_begin()        { return vertices_.begin(); }
         vertex_iterator               vertex_end()          { return vertices_.end(); }
 
-        const size_t                  vertex_size()   const { return vertices_.size(); } // Just for old OpenMP implementations.
+        const size_t                  vertex_size()   const { return vertices_.size(); }  // Just for old OpenMP implementations.
 
         const_vertex_iterator         vertex_begin()  const { return vertices_.begin(); }
         const_vertex_iterator         vertex_end()    const { return vertices_.end(); }
@@ -139,10 +139,10 @@ namespace OpenMEEG {
         const_vertex_reverse_iterator vertex_rbegin() const { return vertices_.rbegin(); }
         const_vertex_reverse_iterator vertex_rend()   const { return vertices_.rend(); }
 		
-        std::string &                 name()                { return name_; } ///< \return the mesh name
-        const std::string &           name()          const { return name_; } ///< \return the mesh name
+        std::string &                 name()                { return name_; }  ///< \return the mesh name
+        const std::string &           name()          const { return name_; }  ///< \return the mesh name
 
-        const VectPVertex &           vertices()      const { return vertices_; } ///< \return the vector of pointers to the mesh vertices
+        const VectPVertex &           vertices()      const { return vertices_; }  ///< \return the vector of pointers to the mesh vertices
         const size_t                  nb_vertices()   const { return vertices_.size(); }
         const size_t                  nb_triangles()  const { return size(); }
 
@@ -158,13 +158,13 @@ namespace OpenMEEG {
         ///  \return void \sa */
 
         void info(const bool verbous = false) const;
-        bool has_self_intersection() const; ///< \brief check if the mesh self-intersects
-        bool intersection(const Mesh&) const; ///< \brief check if the mesh intersects another mesh
-        bool has_correct_orientation() const; ///< \brief check the local orientation of the mesh triangles
-        void build_mesh_vertices(); ///< \brief construct the list of the mesh vertices out of its triangles
-        void generate_indices(); ///< \brief generate indices (if allocate)
-        void update(); ///< \brief recompute triangles normals, area, and links
-        void merge(const Mesh&, const Mesh&); ///< properly merge two meshes into one
+        bool has_self_intersection() const;  ///< \brief check if the mesh self-intersects
+        bool intersection(const Mesh&) const;  ///< \brief check if the mesh intersects another mesh
+        bool has_correct_orientation() const;  ///< \brief check the local orientation of the mesh triangles
+        void build_mesh_vertices();  ///< \brief construct the list of the mesh vertices out of its triangles
+        void generate_indices();  ///< \brief generate indices (if allocate)
+        void update();  ///< \brief recompute triangles normals, area, and links
+        void merge(const Mesh&, const Mesh&);  ///< properly merge two meshes into one
 
         /// Flip all triangles
 
@@ -173,15 +173,15 @@ namespace OpenMEEG {
                 tit->flip();
         }
 
-        void correct_local_orientation(); ///< \brief correct the local orientation of the mesh triangles
-        void correct_global_orientation(); ///< \brief correct the global orientation (if there is one)
-        double compute_solid_angle(const Vect3& p) const; ///< Given a point p, it computes the solid angle
-        const VectPTriangle& get_triangles_for_vertex(const Vertex& V) const; ///< \brief get the triangles associated with vertex V \return the links
-        VectPTriangle adjacent_triangles(const Triangle&) const; ///< \brief get the adjacent triangles
-        Normal normal(const Vertex& v) const; ///< \brief get the Normal at vertex
-        void laplacian(SymMatrix &A) const; ///< \brief compute mesh laplacian
+        void correct_local_orientation();  ///< \brief correct the local orientation of the mesh triangles
+        void correct_global_orientation();  ///< \brief correct the global orientation (if there is one)
+        double compute_solid_angle(const Vect3& p) const;  ///< Given a point p, it computes the solid angle
+        const VectPTriangle& get_triangles_for_vertex(const Vertex& V) const;  ///< \brief get the triangles associated with vertex V \return the links
+        VectPTriangle adjacent_triangles(const Triangle&) const;  ///< \brief get the adjacent triangles
+        Normal normal(const Vertex& v) const;  ///< \brief get the Normal at vertex
+        void laplacian(SymMatrix &A) const;  ///< \brief compute mesh laplacian
 
-              bool& outermost()       { return outermost_; } /// \brief Returns True if it is an outermost mesh.
+              bool& outermost()       { return outermost_; }  /// \brief Returns True if it is an outermost mesh.
         const bool& outermost() const { return outermost_; }
 
         /// \brief Smooth Mesh
@@ -198,10 +198,10 @@ namespace OpenMEEG {
         // for IO:s --------------------------------------------------------------------
         /// Read mesh from file
         /// \param filename can be .vtk, .tri (ascii), .off .bnd or .mesh.
-        /// Be verbose if \param verbose is true. 
+        /// Be verbose if \param verbose is true.
         /// Id \param read_all is false then it only returns the total number of vertices.
 
-        unsigned load(const std::string& filename,const bool& verbose=true,const bool& read_all=true);
+        unsigned load(const std::string& filename, const bool& verbose = true, const bool& read_all = true);
         unsigned load_tri(std::istream& , const bool& read_all = true);
         unsigned load_tri(const std::string&, const bool& read_all = true);
         unsigned load_bnd(std::istream& , const bool& read_all = true);
@@ -258,13 +258,13 @@ namespace OpenMEEG {
             return *this;
         }
 
-        friend std::istream& operator>>(std::istream& is, Mesh& m); ///< \brief insert a triangle into the mesh
+        friend std::istream& operator>>(std::istream& is, Mesh& m);  ///< \brief insert a triangle into the mesh
 
     private:
 
         /// map the edges with an unsigned
 
-        typedef std::map<std::pair<const Vertex *, const Vertex *>, int> EdgeMap; 
+        typedef std::map<std::pair<const Vertex *, const Vertex *>, int> EdgeMap;
 
         void destroy();
         void copy(const Mesh&);
@@ -272,28 +272,28 @@ namespace OpenMEEG {
         // regarding mesh orientation
 
         const EdgeMap compute_edge_map() const;
-        void  orient_adjacent_triangles(std::stack<Triangle*>& t_stack,std::map<Triangle*,bool>& tri_reoriented);
-        bool  triangle_intersection(const Triangle&,const Triangle&) const;
+        void  orient_adjacent_triangles(std::stack<Triangle*>& t_stack, std::map<Triangle*, bool>& tri_reoriented);
+        bool  triangle_intersection(const Triangle&, const Triangle&) const;
 
         /// P1gradient : aux function to compute the surfacic gradient
 
-        Vect3 P1gradient(const Vect3& p0,const Vect3& p1,const Vect3& p2) const { return p1^p2/(p0*(p1^p2)); }
+        Vect3 P1gradient(const Vect3& p0, const Vect3& p1, const Vect3& p2) const { return p1^p2/(p0*(p1^p2)); }
 
         /// P0gradient_norm2 : aux function to compute the square norm of the surfacic gradient
 
-        double P0gradient_norm2(const Triangle& t1,const Triangle& t2) const {
-            return std::pow(t1.normal()*t2.normal(),2)/(t1.center()-t2.center()).norm2();
+        double P0gradient_norm2(const Triangle& t1, const Triangle& t2) const {
+            return std::pow(t1.normal()*t2.normal(), 2)/(t1.center()-t2.center()).norm2();
         }
 
         std::string                           name_;         ///< Name of the mesh.
-        std::map<const Vertex*,VectPTriangle> links_;        ///< links[&v] are the triangles that contain vertex v.
-        Vertices*                             all_vertices_; ///< Pointer to all the vertices.
+        std::map<const Vertex*, VectPTriangle> links_;        ///< links[&v] are the triangles that contain vertex v.
+        Vertices*                             all_vertices_;  ///< Pointer to all the vertices.
         VectPVertex                           vertices_;     ///< Vector of pointers to the mesh vertices.
         bool                                  outermost_;    ///< Is it an outermost mesh ? (i.e does it touch the Air domain)
         bool                                  allocate_;     ///< Are the vertices allocate within the mesh or shared ?
         std::set<Vertex>                      set_vertices_;
 
-    ///handle multiple 0 conductivity domains
+    /// handle multiple 0 conductivity domains
     private:
         bool     current_barrier_;
         bool     isolated_;

@@ -39,6 +39,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #pragma once
 
+#include <string>
 #include <limits>
 #include <OMassert.H>
 #include <math.h>

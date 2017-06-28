@@ -39,12 +39,12 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #pragma once
 
-#include "Properties.H"
-#include "DataTag.H"
+#include <Properties.H>
+#include <DataTag.H>
 
 namespace OpenMEEG {
 
-    template <typename REP=double>
+    template <typename REP = double>
     class OPENMEEG_EXPORT Conductivity {
     public:
 
@@ -57,16 +57,16 @@ namespace OpenMEEG {
     };
 
     template <typename REP>
-    inline std::istream& operator>>(std::istream& is,Conductivity<REP>& m) { return is >> m.sigma(); }
+    inline std::istream& operator>>(std::istream& is, Conductivity<REP>& m) { return is >> m.sigma(); }
 
     template <typename REP>
-    inline std::ostream& operator<<(std::ostream& os,const Conductivity<REP>& m) { return os << m.sigma(); }
+    inline std::ostream& operator<<(std::ostream& os, const Conductivity<REP>& m) { return os << m.sigma(); }
 }
 
 namespace Types {
     template<>
-    struct DataTrait<Utils::Properties::Named<std::string,OpenMEEG::Conductivity<double> > >{
+    struct DataTrait<Utils::Properties::Named<std::string, OpenMEEG::Conductivity<double> > >{
         static const char TAG[];
     };
-    const char DataTrait<Utils::Properties::Named<std::string,OpenMEEG::Conductivity<double> > >::TAG[]= "Conductivities";
+    const char DataTrait<Utils::Properties::Named<std::string, OpenMEEG::Conductivity<double> > >::TAG[]= "Conductivities";
 };
