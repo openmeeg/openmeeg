@@ -41,6 +41,9 @@ if (APPLE)
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GCC_UNIVERSAL_FLAGS}")
         set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${GCC_UNIVERSAL_FLAGS}")
     endif()
+elseif(MSVC)
+    # to allow the use of and, or instead of && ||
+    add_compile_options("/Za")
 endif()
 
 # for DLL windows

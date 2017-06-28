@@ -1127,13 +1127,12 @@ namespace OpenMEEG {
             center += **vit;
 
         center /= nb_vertices();
-        const double eps = 1.e3*std::numeric_limits<double>::epsilon();
         double solangle = compute_solid_angle(center);
-        if (std::abs(solangle)<eps) {
+        if (almost_equal(solangle, 0.)) {
             std::cout << "Center point :" << center << " is on the mesh." << std::endl;
-        } else if (std::abs(solangle+4.*M_PI)<eps) {
+        } else if (almost_equal(solangle, -4.*M_PI)) {
             // mesh is ok
-        } else if (std::abs(solangle-4.*M_PI)<eps) {
+        } else if (almost_equal(solangle, 4.*M_PI)) {
             flip_triangles();
         } else {
             std::cout << "Not a closed mesh." << std::endl;

@@ -50,12 +50,12 @@
 #include <fstream>
 #include <cstring>
 #include <vector>
+#include <cmath>
 
 #include "mesh.h"
 #include "sparse_matrix.h"
 #include "fast_sparse_matrix.h"
 #include "stdlib.h"
-#include "math.h"
 #include "triangle.h"
 #include "options.h"
 #include "geometry.h"

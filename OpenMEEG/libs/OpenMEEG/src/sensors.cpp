@@ -86,9 +86,9 @@ namespace OpenMEEG {
 
         in >> io_utils::skip_comments('#');
         std::string s, buf;
-        std::vector<std::string> names;
-        std::vector<std::string> tokens;
-        std::vector<std::string>::const_iterator tokensIterator;
+        Strings names;
+        Strings tokens;
+        Strings::const_iterator tokensIterator;
         bool labeled = false;
         size_t nlin = 0;
         size_t ncol = 0;
@@ -207,7 +207,7 @@ namespace OpenMEEG {
             if (hasOrientations())
                 outfile << m_orientations.getlin(i) << " ";
             // if it has weights (other than 1)
-            if (std::abs(m_weights.sum() - m_weights.size()) > 1.e3*std::numeric_limits<double>::epsilon()) {
+            if (almost_equal(m_weights.sum(), static_cast<double>(m_weights.size()))) {
                 outfile << m_weights(i) << std::endl;
             } else {
                 outfile << std::endl;
@@ -229,7 +229,7 @@ namespace OpenMEEG {
         m_weights = Vector(m_positions.nlin());
         m_weights.set(1.);
         //To count the number of points that have been mapped to each mesh.
-        std::vector<std::string> ci_mesh_names;
+        Strings ci_mesh_names;
         std::vector<size_t>      ci_triangles;
 
         for ( size_t idx = 0; idx < m_positions.nlin(); ++idx) {
@@ -240,7 +240,7 @@ namespace OpenMEEG {
 
             double dist;
             std::string s_map=dist_point_geom(current_position, *m_geo, current_alphas, current_nearest_triangle, dist);
-            std::vector<std::string>::iterator sit=std::find(ci_mesh_names.begin(),ci_mesh_names.end(),s_map);
+            Strings::iterator sit=std::find(ci_mesh_names.begin(),ci_mesh_names.end(),s_map);
             if(sit!=ci_mesh_names.end()){
                 size_t idx2=std::distance(ci_mesh_names.begin(),sit);
                 ci_triangles[idx2]++;
@@ -253,7 +253,7 @@ namespace OpenMEEG {
             triangles.push_back(current_nearest_triangle);
             std::set<size_t> index_seen; // to avoid infinite looping
             index_seen.insert(current_nearest_triangle.index());
-            if ( std::abs(m_radii(idx)) > 1.e3*std::numeric_limits<double>::epsilon() ) {
+            if ( not almost_equal(m_radii(idx), 0.) ) {
                 // if the electrode is larger than the triangle, look for adjacent triangles
                 if ( current_nearest_triangle.area() < 4.*M_PI*std::pow(m_radii(idx),2) ) {
                     std::stack<Triangle *> tri_stack;

@@ -46,7 +46,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <cstdlib>
 #include <cmath>
 #include <iostream>
-#include <OMassert.H>
+#include <OMstd.h>
 #include <vector>
 
 #include <OpenMEEG_Export.h>

@@ -48,6 +48,8 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <map>
 #include <stack>
 #include <string>
+
+#include <OMstd.h>
 #include <triangle.h>
 #include <IOUtils.H>
 #include <om_utils.h>
@@ -292,9 +294,7 @@ namespace OpenMEEG {
         bool                                  outermost_;    ///< Is it an outermost mesh ? (i.e does it touch the Air domain)
         bool                                  allocate_;     ///< Are the vertices allocate within the mesh or shared ?
         std::set<Vertex>                      set_vertices_;
-
-    ///handle multiple 0 conductivity domains
-    private:
+        /// handle multiple 0 conductivity domains
         bool     current_barrier_;
         bool     isolated_;
     public:
