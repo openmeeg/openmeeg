@@ -44,7 +44,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <vector>
 #include <set>
 
-#include <OMstd.h>
+#include <om_common.h>
 #include <vertex.h>
 #include <triangle.h>
 #include <mesh.h>
@@ -128,7 +128,6 @@ namespace OpenMEEG {
         const size_t  nb_invalid_vertices()               const { return invalid_vertices_.size();      }
         const std::vector<Strings>& geo_group()           const { return geo_group_; }
               void    mark_current_barrier();
-              void    check_conductivities(); ///< \brief ensure that all domain's conductivities were defined
         const Mesh&   mesh(const std::string& id) const;
 
     private:

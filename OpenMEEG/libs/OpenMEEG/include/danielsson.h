@@ -42,7 +42,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <limits>
 #include <cmath>
 
-#include <OMstd.h>
+#include <om_common.h>
 #include <vertex.h>
 #include <mesh.h>
 #include <interface.h>

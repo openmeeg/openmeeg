@@ -27,20 +27,6 @@ if (USE_VTK)
         list(APPEND OpenMEEG_OTHER_INCLUDE_DIRS ${VTK_INCLUDE_DIRS})
         list(APPEND OpenMEEG_DEPENDENCIES VTK)
         set(CMAKE_MSVCIDE_RUN_PATH ${VTK_RUNTIME_LIBRARY_DIRS} ${CMAKE_MSVCIDE_RUN_PATH}) # specially for windows
-        if (APPLE_STANDALONE) # for Mac copy the libs
-            set(LIBS)
-            foreach(lib ${VTK_LIBRARIES})
-                if(EXISTS ${lib})
-                    list(APPEND LIBS ${lib})
-                else()
-                    get_property(lib TARGET ${lib} PROPERTY LOCATION)
-                    list(APPEND LIBS ${lib})
-                endif()
-            endforeach()
-            install(FILES ${LIBS} DESTINATION lib
-                    PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ
-                    GROUP_EXECUTE GROUP_READ)
-        endif()
     else() # in case we are in the SuperProject :
         message("VTK not found, we will download and build it")
         set(USE_SYSTEM_VTK False CACHE BOOL "Use the VTK from the system" FORCE)

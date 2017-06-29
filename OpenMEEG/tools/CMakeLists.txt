@@ -104,7 +104,7 @@ endif()
 # tests
 if (BUILD_TESTING)
     OPENMEEG_TEST(wrong_geom_info om_geometry_info -g ${CMAKE_SOURCE_DIR}/data/HeadNNc1/HeadNNc1.geom -c ${CMAKE_SOURCE_DIR}/data/Head1/Head1.cond)
-    #    set_tests_properties(wrong_geom_info PROPERTIES PASS_REGULAR_EXPRESSION "*Exception*")
+    set_tests_properties(wrong_geom_info PROPERTIES WILL_FAIL TRUE)
 endif()
 
 install(TARGETS om_make_nerve om_mesh_convert om_mesh_concat om_project_sensors om_mesh_info om_mesh_smooth om_register_squids om_geometry_info om_squids2vtk om_matrix_info om_matrix_convert om_check_geom om_mesh_to_dip DESTINATION bin)

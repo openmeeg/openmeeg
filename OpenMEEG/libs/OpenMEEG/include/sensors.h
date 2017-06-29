@@ -49,7 +49,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <vector.h>
 #include <matrix.h>
 #include <geometry.h>
-#include <OMstd.h>
+#include <om_common.h>
 
 #include <OpenMEEG_Export.h>
 

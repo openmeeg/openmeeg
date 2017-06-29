@@ -389,7 +389,7 @@ namespace OpenMEEG {
                 const Conductivity<double>& cond = properties.find(dit->name());
                 dit->sigma() =  cond.sigma();
             } catch( const Utils::Properties::UnknownProperty<HeadProperties::Id>& e) {
-                throw OpenMEEG::BadDomain("Bad conductivity provided for domain " + dit->name());
+                throw OpenMEEG::BadDomain(dit->name());
             }
         }
     }

@@ -40,7 +40,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #define _USE_MATH_DEFINES
 #endif
 
-#include <OMstd.h>
+#include <om_common.h>
 #include <matrix.h>
 #include <symmatrix.h>
 #include <geometry.h>

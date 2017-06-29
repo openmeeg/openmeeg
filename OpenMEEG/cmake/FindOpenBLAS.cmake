@@ -14,6 +14,7 @@ else()
         /usr/local/include/openblas
         /usr/local/include/openblas-base
         /opt/OpenBLAS/include
+        /usr/local/opt/openblas/include
         $ENV{OpenBLAS_HOME}
         $ENV{OpenBLAS_HOME}/include
         )
@@ -27,8 +28,9 @@ else()
         /usr/lib64
         /usr/local/lib
         /usr/local/lib64
+        /usr/local/opt/openblas/lib
         /opt/OpenBLAS/lib
-        $ENV{OpenBLAS}cd
+        $ENV{OpenBLAS}
         $ENV{OpenBLAS}/lib
         $ENV{OpenBLAS_HOME}
         $ENV{OpenBLAS_HOME}/lib
@@ -55,7 +57,7 @@ else()
 
     if (OpenBLAS_FOUND)
         set(OpenBLAS_LIBRARIES ${OpenBLAS_LIB})
-        if (NOT Lapacke_LIB-NOTFOUND)
+        if (Lapacke_LIB)
             set(OpenBLAS_LIBRARIES ${OpenBLAS_LIBRARIES} ${Lapacke_LIB})
         endif()
         if (NOT OpenBLAS_FIND_QUIETLY)

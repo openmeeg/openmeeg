@@ -37,7 +37,6 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#include <limits>
 #include <geometry.h>
 #include <geometry_reader.h>
 #include <geometry_io.h>
@@ -171,13 +170,12 @@ namespace OpenMEEG {
                 geoR.read_cond(condFileName);
             } catch ( OpenMEEG::Exception& e) {
                 std::cerr << e.what() << " in the file " << condFileName << std::endl;
-                exit(1);
+                exit(e.code());
             } catch (...) {
                 std::cerr << "Could not read the conducitvity file: " << condFileName << std::endl;
                 exit(1);
             }
             has_cond_ = true;
-            check_conductivities();
 
             // mark meshes that touch the 0-cond
             mark_current_barrier();
@@ -393,22 +391,6 @@ namespace OpenMEEG {
             }
             meshes_[iit].update();
         }
-    }
-
-    // ensure that all domain's conductivities were defined
-    void Geometry::check_conductivities() {
-        for (Domains::iterator dit = domains_.begin(); dit != domains_.end(); ++dit) {
-            for (Domain::iterator hit = dit->begin(); hit != dit->end(); ++hit) {
-                for (Interface::iterator omit = hit->first.begin(); omit != hit->first.end(); ++omit) {
-                    if ((dit->sigma() < 0.)
-                        and not dit->outermost()
-                        and not omit->mesh().current_barrier()) {  // check that sigma is not zero
-                        throw OpenMEEG::BadDomain("Bad conductivity provided for domain " + dit->name());
-                    }
-                }
-            }
-        }
-        return;
     }
 
     // mark all meshes which touch domains with 0 conductivity

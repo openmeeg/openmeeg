@@ -207,7 +207,7 @@ namespace OpenMEEG {
             if (hasOrientations())
                 outfile << m_orientations.getlin(i) << " ";
             // if it has weights (other than 1)
-            if (almost_equal(m_weights.sum(), static_cast<double>(m_weights.size()))) {
+            if (not almost_equal(m_weights.sum(), static_cast<double>(m_weights.size()))) {
                 outfile << m_weights(i) << std::endl;
             } else {
                 outfile << std::endl;

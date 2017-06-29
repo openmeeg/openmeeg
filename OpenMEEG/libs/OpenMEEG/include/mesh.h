@@ -49,7 +49,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <stack>
 #include <string>
 
-#include <OMstd.h>
+#include <om_common.h>
 #include <triangle.h>
 #include <IOUtils.H>
 #include <om_utils.h>
