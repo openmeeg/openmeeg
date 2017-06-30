@@ -46,11 +46,11 @@ namespace OpenMEEG {
     {
         double solangle = compute_solid_angle(p);
 
-        if ( std::abs(solangle) < 1.e3*std::numeric_limits<double>::epsilon() ) {
+        if ( almost_equal(solangle, 0.) ) {
             return false;
-        } else if ( std::abs(solangle + 4.*M_PI) < 1.e3*std::numeric_limits<double>::epsilon()) {
+        } else if ( almost_equal(solangle, -4.*M_PI) ) {
             return true;
-        } else if ( std::abs(solangle - 4.*M_PI) < 1.e3*std::numeric_limits<double>::epsilon()) {
+        } else if ( almost_equal(solangle, 4.*M_PI) ) {
             std::cerr << "Interface::contains_point(" << p << ") Error. This should not happen. Are you sure the mesh is properly oriented ?\n";
             return true;
         } else {
@@ -111,14 +111,14 @@ namespace OpenMEEG {
 
         //if the bounding box center is not inside the interface,
         //we try to test another point inside the bounding box.
-        if(std::abs(solangle) < 1.e3*std::numeric_limits<double>::epsilon()){
+        if ( almost_equal(solangle, 0.)) {
             //std::cout<<"bbcenter is not inside interface: "<<name_<<std::endl;
-            if(!checked)
+            if ( not checked)
                 std::srand((unsigned int)std::time(NULL));
             else
                 std::srand((unsigned int)(std::time(NULL)+3583)); //the program runs faster than the change of time value
 
-            while(std::abs(solangle) < 1.e3*std::numeric_limits<double>::epsilon()){
+            while ( almost_equal(solangle, 0.) ) {
                 Vect3 pt_rd((double)rand()/RAND_MAX*(xmax-xmin)+xmin,
                             (double)rand()/RAND_MAX*(ymax-ymin)+ymin,
                             (double)rand()/RAND_MAX*(zmax-zmin)+zmin);
@@ -127,11 +127,11 @@ namespace OpenMEEG {
             }
         }
 
-        if ( std::abs(solangle) < 1.e3*std::numeric_limits<double>::epsilon() ) {
+        if ( almost_equal(solangle, 0.) ) {
             closed = true;
-        } else if ( std::abs(solangle + 4.*M_PI) < 1.e3*std::numeric_limits<double>::epsilon()) {
+        } else if ( almost_equal(solangle, -4.*M_PI)) {
             closed = true;
-        } else if ( std::abs(solangle - 4.*M_PI) < 1.e3*std::numeric_limits<double>::epsilon()) {
+        } else if ( almost_equal(solangle, 4.*M_PI) ) {
             // TODO we still have to reorient the interface, but the code should be able with very little work to
             // be insensitive to global orientation of the interfaces, until that day, we reorient:
             std::cout << "Global reorientation of interface " << name() << std::endl;

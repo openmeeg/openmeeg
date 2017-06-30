@@ -8,7 +8,7 @@ function(ep_GeneratePatchCommand ep OutVar)
     #   If the source directory of the project does not exist all patches must be applied.
 
     foreach (patch ${ARGN})
-        set(PATCHES_TO_APPLY ${PATCHES_TO_APPLY} ${CMAKE_SOURCE_DIR}/patches/${patch})
+        set(PATCHES_TO_APPLY ${PATCHES_TO_APPLY} ${CMAKE_SOURCE_DIR}/cmake/externals/patches/${patch})
     endforeach()
 
     #   If the source directory of the project already exists, prune the patch list

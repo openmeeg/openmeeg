@@ -48,10 +48,8 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <IOUtils.H>
 #include <vector.h>
 #include <matrix.h>
-#include <symmatrix.h>
 #include <geometry.h>
-#include <sparse_matrix.h>
-#include <OMassert.H>
+#include <om_common.h>
 
 #include <OpenMEEG_Export.h>
 
@@ -112,8 +110,8 @@ namespace OpenMEEG {
         Matrix& getOrientations() {return m_orientations ; } /*!< Return a reference on sensors orientations. */
         Matrix getOrientations() const {return m_orientations ; } /*!< Return a copy of sensors orientations. */
 
-        std::vector<std::string>& getNames() {return m_names ; } /*!< Return a reference on sensors names. */
-        std::vector<std::string> getNames() const {return m_names ; } /*!< Return a copy of sensors names. */
+        Strings& getNames() {return m_names ; } /*!< Return a reference on sensors names. */
+        Strings  getNames() const {return m_names ; } /*!< Return a copy of sensors names. */
 
         bool hasRadii() const { return m_radii.nlin() > 0 ;} /*!< Return true if contains radii */
         bool hasOrientations() const { return m_orientations.nlin() > 0 ;} /*!< Return true if contains orientations */
@@ -128,7 +126,7 @@ namespace OpenMEEG {
         size_t getSensorIdx(std::string name);
         Triangles getInjectionTriangles(size_t idx) const { om_assert(idx < m_triangles.size()); return m_triangles[idx]; } /*!< For EIT, get triangles under the current injection electrode. */
 
-        Vector getRadii() const { return m_radii; }
+        Vector getRadii()   const { return m_radii; }
         Vector getWeights() const { return m_weights; }
 
         SparseMatrix getWeightsMatrix() const;
@@ -138,11 +136,11 @@ namespace OpenMEEG {
 
     private:
         size_t m_nb;                        /*!< Number of sensors. */
-        std::vector<std::string> m_names;   /*!< List of sensors names. */
+        Strings m_names;                    /*!< List of sensors names. */
         Matrix m_positions;                 /*!< Matrix of sensors positions. ex: positions(i,j) with  j in {0,1,2} for sensor i */
         Matrix m_orientations;              /*!< Matrix of sensors orientations. ex: orientation(i,j) with  j in {0,1,2} for sensor i */
         Vector m_weights;                   /*!< Weights of integration points */
-        Vector m_radii;                    /*!< Areas of the EIT sensors */
+        Vector m_radii;                     /*!< Areas of the EIT sensors */
         std::vector<Triangles> m_triangles; /*!< Triangles under each EIT sensors */
         const Geometry * m_geo;             /*!< Geometry on which are applied EIT sensors */
         std::vector<size_t> m_pointSensorIdx; /*!< Correspondance between point id and sensor id */

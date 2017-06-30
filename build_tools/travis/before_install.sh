@@ -24,7 +24,7 @@ if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
         brew link openblas --force  # required as link is not automatic
     fi
 
-    if [[ "$USE_VTK" == "1" ]]; then
+    if [[ "$USE_VTK" == "1" && "$APPLE_STANDALONE" != "1" ]]; then
         brew install vtk
     fi
 

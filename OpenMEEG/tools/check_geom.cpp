@@ -62,6 +62,7 @@ int main( int argc, char **argv)
     int status = 0;
     Geometry g;
     g.read(geom_filename);
+
     if ( g.selfCheck() ) {
         std::cout << ".geom : OK" << std::endl;
     } else {

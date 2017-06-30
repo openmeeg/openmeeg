@@ -34,14 +34,4 @@ if (USE_CGAL)
         set(CGAL_LIBRARIES ${CGAL_LIBRARY} ${CGAL_Core_LIBRARY} ${CGAL_ImageIO_LIBRARY} ${MPFR_LIBRARIES} ${GMP_LIBRARIES} ${CGAL_3RD_PARTY_LIBRARIES} ${CGAL_ImageIO_3RD_PARTY_LIBRARIES})
         set(CGAL_CXX_FLAGS ${CGAL_CXX_FLAGS} ${CGAL_ImageIO_3RD_PARTY_DEFINITIONS})
     endif()
-    if (APPLE_STANDALONE) # for Mac copy the libs
-        set(LIBS)
-        foreach(lib ${CGAL_LIBRARIES})
-            get_filename_component(reallib ${lib} REALPATH)
-            list(APPEND LIBS ${reallib})
-        endforeach()
-        install(FILES ${LIBS} DESTINATION lib
-                PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ
-                GROUP_EXECUTE GROUP_READ)
-    endif()
 endif()

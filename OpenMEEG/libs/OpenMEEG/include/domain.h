@@ -82,7 +82,7 @@ namespace OpenMEEG {
 
     public:
 
-        Domain(): name_(""),sigma_(0.),outermost_(false) { }
+        Domain(): name_(""), sigma_(-1.), outermost_(false) { }
 
         ~Domain() { }
 

@@ -52,7 +52,6 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 using namespace std;
 using namespace OpenMEEG;
-using Strings = vector<string>;
 
 unsigned gauss_order = 3;
 

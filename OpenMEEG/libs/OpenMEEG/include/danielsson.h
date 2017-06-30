@@ -40,9 +40,9 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #pragma once
 
 #include <limits>
-#include <OMassert.H>
-#include <math.h>
+#include <cmath>
 
+#include <om_common.h>
 #include <vertex.h>
 #include <mesh.h>
 #include <interface.h>

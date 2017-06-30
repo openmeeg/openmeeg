@@ -40,7 +40,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #if WIN32
 #define _USE_MATH_DEFINES
 #endif
-#include <math.h>
+#include <cmath>
 
 #include <vector.h>
 #include <matrix.h>
@@ -181,7 +181,7 @@ namespace OpenMEEG {
                 // to ensure exactly no accumulation of currents. w = elec_area/tris_area (~= 1)
                 double inv_area = electrodes.getWeights()(ielec);
                 // if no radius is given, we assume the user wants to specify an intensity not a density of current
-                if ( electrodes.getRadii()(ielec) < 1e3*std::numeric_limits<double>::epsilon() ) {
+                if ( almost_equal(electrodes.getRadii()(ielec), 0.) ) {
                     inv_area = 1./tit->area();
                 }
                 for ( size_t i = 0; i < (geo.size() - geo.nb_current_barrier_triangles()); ++i) {

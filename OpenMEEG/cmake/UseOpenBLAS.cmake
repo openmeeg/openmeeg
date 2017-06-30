@@ -26,16 +26,6 @@ if (USE_OPENBLAS)
     else()
         find_package(OpenBLAS ${FIND_MODE} MODULE)
     endif()
-    if (APPLE_STANDALONE) # for Mac copy the libs
-        set(LIBS)
-        foreach(lib ${OpenBLAS_LIBRARIES})
-            get_filename_component(reallib ${lib} REALPATH)
-            list(APPEND LIBS ${reallib})
-        endforeach()
-        install(FILES ${LIBS} DESTINATION lib
-                PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ
-                GROUP_EXECUTE GROUP_READ)
-    endif()
     if (OpenBLAS_FOUND)
         include_directories(${OpenBLAS_INCLUDE_DIR})
         set(LAPACK_LIBRARIES ${OpenBLAS_LIBRARIES})

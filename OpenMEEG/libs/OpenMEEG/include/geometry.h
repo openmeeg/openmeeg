@@ -39,18 +39,18 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #pragma once
 
-#include <OMassert.H>
-#include <set>
+#include <iterator>
+#include <string>
 #include <vector>
+#include <set>
+
+#include <om_common.h>
 #include <vertex.h>
 #include <triangle.h>
 #include <mesh.h>
 #include <interface.h>
 #include <domain.h>
-
-#include <iterator>
-#include <vector>
-#include <string>
+#include <GeometryExceptions.H>
 
 namespace OpenMEEG {
 
@@ -109,9 +109,9 @@ namespace OpenMEEG {
 
         void import_meshes(const Meshes& m); ///< \brief imports meshes from a list of meshes
 
-        const double & sigma     (const Domain& d)                const { return (d.sigma()); }
-        double sigma     (const Mesh& m1, const Mesh& m2) const { return funct_on_domains(m1, m2, IDENTITY); } // return the (sum) conductivity(ies) of the shared domain(s).
-        double sigma_inv (const Mesh& m1, const Mesh& m2) const { return funct_on_domains(m1, m2, INVERSE); } // return the (sum) inverse of conductivity(ies) of the shared domain(s).
+        const double& sigma(const Domain& d)              const { return (d.sigma()); }
+        double sigma     (const Mesh& m1, const Mesh& m2) const { return funct_on_domains(m1, m2, IDENTITY); }  // return the (sum) conductivity(ies) of the shared domain(s).
+        double sigma_inv (const Mesh& m1, const Mesh& m2) const { return funct_on_domains(m1, m2, INVERSE); }   // return the (sum) inverse of conductivity(ies) of the shared domain(s).
         double indicator (const Mesh& m1, const Mesh& m2) const { return funct_on_domains(m1, m2, INDICATOR); } // return the (sum) indicator function of the shared domain(s).
         double sigma_diff(const Mesh& m) const; // return the difference of conductivities of the 2 domains.
         double sigma     (const std::string&) const;
@@ -121,6 +121,14 @@ namespace OpenMEEG {
         void load_vtp(const std::string& filename) { Matrix trash; load_vtp(filename, trash, false); }
         void load_vtp(const std::string& filename, Matrix& data, const bool READ_DATA = true);
         void write_vtp(const std::string& filename, const Matrix& data = Matrix()) const; // optional give a dataset
+
+        /// handle multiple 0 conductivity domains
+        const size_t& nb_current_barrier_triangles()      const { return nb_current_barrier_triangles_; }
+              size_t& nb_current_barrier_triangles()            { return nb_current_barrier_triangles_; }
+        const size_t  nb_invalid_vertices()               const { return invalid_vertices_.size();      }
+        const std::vector<Strings>& geo_group()           const { return geo_group_; }
+              void    mark_current_barrier();
+        const Mesh&   mesh(const std::string& id) const;
 
     private:
 
@@ -133,23 +141,14 @@ namespace OpenMEEG {
         bool       has_cond_;
         bool       is_nested_;
         size_t     size_;   // total number = nb of vertices + nb of triangles
-        void        generate_indices(const bool);
+
+        void          generate_indices(const bool);
         const Domains common_domains(const Mesh&, const Mesh&) const;
               double  funct_on_domains(const Mesh&, const Mesh&, const Function& ) const;
 
-
-    ///handle multiple 0 conductivity domains
-    private:
-        std::set<Vertex>    invalid_vertices_; //does not equal to the vertices of invalid meshes because there are shared vertices
-        size_t              nb_current_barrier_triangles_;   //number of triangles with 0 normal current. Including triangles of invalid meshes.
-        std::vector<std::vector<std::string> > geo_group_; //Mesh names that belong to different isolated groups.
-
-    public:
-        const size_t&   nb_current_barrier_triangles() const { return nb_current_barrier_triangles_; }
-              size_t&   nb_current_barrier_triangles()       { return nb_current_barrier_triangles_; }
-        const size_t    nb_invalid_vertices()          const { return invalid_vertices_.size();      }
-        const std::vector<std::vector<std::string> >& geo_group() const { return geo_group_; }
-              void  mark_current_barrier();
-        const Mesh& mesh(const std::string& id) const;
+        /// handle multiple 0 conductivity domains
+        std::set<Vertex>     invalid_vertices_;  ///< \brief  does not equal to the vertices of invalid meshes because there are shared vertices
+        size_t               nb_current_barrier_triangles_;  ///< \brief number of triangles with 0 normal current. Including triangles of invalid meshes.
+        std::vector<Strings> geo_group_;  ///< \brief Mesh names that belong to different isolated groups.
     };
 }

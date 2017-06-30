@@ -639,11 +639,10 @@ namespace OpenMEEG {
         ui = new unsigned int[1]; // vertex number
         is.read((char*)ui, sizeof(unsigned int));
         unsigned npts = ui[0];
+        delete[] ui;
         
         if (!read_all)
             return npts; 
-
-        delete[] ui;
 
         if (vertex_per_face!=3) // Support only for triangulations
             throw std::invalid_argument("OpenMEEG only handles 3D surfacic meshes.");
@@ -997,7 +996,7 @@ namespace OpenMEEG {
         os.write((char*)vertex_number, sizeof(unsigned int));              // arg size : npts
         os.write((char*)normals_raw, sizeof(float)*nb_vertices()*3);       // normals
         unsigned char zero[1] = {0};
-        os.write((char*)zero, sizeof(unsigned int));                       // arg size : 0
+        os.write((char*)zero, sizeof(char));                               // arg size : 0
         unsigned int faces_number[1] = {static_cast<unsigned>(nb_triangles())};
         os.write((char*)faces_number, sizeof(unsigned int));               // ntrgs
         os.write((char*)faces_raw, sizeof(unsigned int)*nb_triangles()*3); // triangles
@@ -1128,13 +1127,12 @@ namespace OpenMEEG {
             center += **vit;
 
         center /= nb_vertices();
-        const double eps = 1.e3*std::numeric_limits<double>::epsilon();
         double solangle = compute_solid_angle(center);
-        if (std::abs(solangle)<eps) {
+        if (almost_equal(solangle, 0.)) {
             std::cout << "Center point :" << center << " is on the mesh." << std::endl;
-        } else if (std::abs(solangle+4.*M_PI)<eps) {
+        } else if (almost_equal(solangle, -4.*M_PI)) {
             // mesh is ok
-        } else if (std::abs(solangle-4.*M_PI)<eps) {
+        } else if (almost_equal(solangle, 4.*M_PI)) {
             flip_triangles();
         } else {
             std::cout << "Not a closed mesh." << std::endl;

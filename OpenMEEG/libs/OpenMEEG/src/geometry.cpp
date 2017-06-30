@@ -155,13 +155,29 @@ namespace OpenMEEG {
         is_nested_ = has_cond_ = false;
 
         GeometryReader geoR(*this);
-
-        geoR.read_geom(geomFileName);
+        try {
+            geoR.read_geom(geomFileName);
+        } catch ( OpenMEEG::Exception& e) {
+            std::cerr << e.what() << " in the file " << geomFileName << std::endl;
+            exit(e.code());
+        } catch (...) {
+            std::cerr << "Could not read the geometry file: " << geomFileName << std::endl;
+            exit(1);
+        }
 
         if (condFileName != "") {
-            geoR.read_cond(condFileName);
+            try {
+                geoR.read_cond(condFileName);
+            } catch ( OpenMEEG::Exception& e) {
+                std::cerr << e.what() << " in the file " << condFileName << std::endl;
+                exit(e.code());
+            } catch (...) {
+                std::cerr << "Could not read the conducitvity file: " << condFileName << std::endl;
+                exit(1);
+            }
             has_cond_ = true;
-            //mark meshes that touch the 0-cond
+
+            // mark meshes that touch the 0-cond
             mark_current_barrier();
         }
 
@@ -173,9 +189,7 @@ namespace OpenMEEG {
     }
 
     // This generates unique indices for vertices and triangles which will correspond to our unknowns.
-
     void Geometry::generate_indices(const bool OLD_ORDERING) {
-
         // Either unknowns (potentials and currents) are ordered by mesh (i.e. V_1, p_1, V_2, p_2, ...) (this is the OLD_ORDERING)
         // or by type (V_1, V_2, V_3 .. p_1, p_2...) (by DEFAULT)
         // or by the user himself encoded into the vtp file.
@@ -372,17 +386,17 @@ namespace OpenMEEG {
         for (Meshes::const_iterator mit = m.begin(); mit != m.end(); ++mit, ++iit) {
             for (Mesh::const_iterator tit = mit->begin(); tit != mit->end(); ++tit) {
                 meshes_[iit].push_back(Triangle(map_vertices[(*tit)[0]], 
-                            map_vertices[(*tit)[1]], 
-                            map_vertices[(*tit)[2]]));
+                                                map_vertices[(*tit)[1]],
+                                                map_vertices[(*tit)[2]]));
             }
             meshes_[iit].update();
         }
     }
 
-    //mark all meshes which touch domains with 0 conductivity
+    // mark all meshes which touch domains with 0 conductivity
     void Geometry::mark_current_barrier() {
 
-        //figure out the connectivity of meshes
+        // figure out the connectivity of meshes
         std::vector<int> mesh_idx;
         for (unsigned i = 0; i < meshes().size(); i++) {
             mesh_idx.push_back(i);
@@ -398,7 +412,7 @@ namespace OpenMEEG {
             for (unsigned iit = 0; iit < conn.size(); ++iit) {
                 const Mesh& me = meshes()[conn[iit]];
                 for (Meshes::iterator mit = begin(); mit != end(); ++mit) {
-                    if (sigma(me, *mit) != 0.0) {
+                    if ( not almost_equal(sigma(me, *mit), 0.0)) {
                         int id = mit-begin();
                         std::vector<int>::iterator ifind = std::find(mesh_connected.begin(), mesh_connected.end(), id);
                         if (ifind == mesh_connected.end()) {
@@ -414,10 +428,10 @@ namespace OpenMEEG {
             std::set_difference(mesh_idx.begin(), mesh_idx.end(), mesh_connected.begin(), mesh_connected.end(), std::insert_iterator<std::vector<int> >(mesh_diff, mesh_diff.end()));
         }
 
-        //find isolated meshes and touch 0-cond meshes;
+        // find isolated meshes and touch 0-cond meshes;
         std::set<std::string> touch_0_mesh;
         for (Domains::iterator dit = domains_.begin(); dit != domains_.end(); ++dit) {
-            if (dit->sigma() == 0.0) {
+            if ( almost_equal(dit->sigma(), 0.0)) {
                 for (Domain::iterator hit = dit->begin(); hit != dit->end(); ++hit) {
                     for (Interface::iterator omit = hit->first.begin(); omit != hit->first.end(); ++omit) {
                         omit->mesh().current_barrier() = true;
@@ -469,7 +483,7 @@ namespace OpenMEEG {
         //redefine outermost interface
         //the inside of a 0-cond domain is considered as a new outermost
         for (Domains::iterator dit = domain_begin(); dit != domain_end(); ++dit) {
-            if (dit->sigma() == 0.0) {
+            if ( almost_equal(dit->sigma(), 0.0)) {
                 for (Domain::iterator hit = dit->begin(); hit != dit->end(); ++hit) {
                     if (!hit->inside()) {
                         for (Interface::iterator omit = hit->first.begin(); omit != hit->first.end(); ++omit) {
@@ -497,11 +511,12 @@ namespace OpenMEEG {
         }
         //count geo_group
         for (unsigned git = 0; git < mesh_conn.size(); ++git) {
-            std::vector<std::string> gg;
+            Strings gg;
             for (unsigned mit = 0; mit < mesh_conn[git].size(); ++mit) {
                 gg.push_back(meshes()[mesh_conn[git][mit]].name());
             }
             geo_group_.push_back(gg);
         }
+
     }
 }

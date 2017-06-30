@@ -10,7 +10,7 @@ matrix:
         - USE_PROJECT=1
         - ENABLE_PACKAGING=1
         - BUILD_DOCUMENTATION=ON
-        - BLASLAPACK_IMPLEMENTATION=OpenBLAS
+        - BLASLAPACK_IMPLEMENTATION=vecLib
         - APPLE_STANDALONE=1
     - os: osx
       compiler: clang
@@ -18,17 +18,17 @@ matrix:
         - USE_SYSTEM=1
         - USE_PROJECT=1
         - USE_CGAL=1
+        - USE_VTK=1
         - ENABLE_PACKAGING=1
         - APPLE_STANDALONE=1
+        - BLASLAPACK_IMPLEMENTATION=vecLib
         - BUILD_DOCUMENTATION=OFF
-        - BLASLAPACK_IMPLEMENTATION=Auto # (Auto is the same as MKL/OpenBLAS/vecLib in priority)
     - os: osx
       compiler: clang
       env:
         - USE_PROJECT=0
-        - BLASLAPACK_IMPLEMENTATION=vecLib
+        - BLASLAPACK_IMPLEMENTATION=Auto # (Auto is the same as MKL/OpenBLAS/vecLib in priority)
         - USE_OMP=1
-        - USE_VTK=1
     - os: linux
       compiler: clang
       env:
@@ -65,10 +65,7 @@ before_install: source build_tools/travis/before_install.sh
 
 install: source build_tools/travis/install.sh
 
-script:
-  - "$CXX --version"
-  - if [[ "$USE_PROJECT" == "0" ]]; then make CTEST_OUTPUT_ON_FAILURE=1 test; else make CTEST_OUTPUT_ON_FAILURE=1 test-OpenMEEG; fi
-  - if [[ "$ENABLE_PACKAGING" == "1" ]]; then cpack -G TGZ; fi
+script: source $TRAVIS_BUILD_DIR/build_tools/travis/script.sh
 
 after_success: source $TRAVIS_BUILD_DIR/build_tools/travis/after_success.sh
 

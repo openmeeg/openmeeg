@@ -40,8 +40,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #define _USE_MATH_DEFINES
 #endif
 
-#include <math.h>
-
+#include <om_common.h>
 #include <matrix.h>
 #include <symmatrix.h>
 #include <geometry.h>
@@ -75,7 +74,7 @@ namespace OpenMEEG {
         //deflat all current barriers as one
         unsigned nb_vertices=0,i_first=0;
         double coef=0.0;
-        for(std::vector<std::vector<std::string> >::const_iterator git=geo.geo_group().begin();git!=geo.geo_group().end();++git){
+        for ( std::vector<Strings>::const_iterator git = geo.geo_group().begin(); git != geo.geo_group().end(); ++git) {
             nb_vertices=0;
             i_first=0;
             for(std::vector<std::string>::const_iterator mit=git->begin();mit!=git->end();++mit){
