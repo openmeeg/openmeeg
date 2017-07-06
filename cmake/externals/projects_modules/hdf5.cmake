@@ -73,7 +73,7 @@ function(hdf5_project)
     if (NOT WIN32)
         set(HDF5_CMAKE_INSTALL_DIR share/cmake)
     endif()
-    set(${ep}_CMAKE_FLAGS -DHDF5_DIR:FILEPATH=${install_dir}/${HDF5_CMAKE_INSTALL_DIR} PARENT_SCOPE)
+    set(${ep}_CMAKE_FLAGS -D${ep}_DIR:PATH=${install_dir}/${${ep}_CMAKE_INSTALL_DIR} PARENT_SCOPE)
 
     # Add custom targets
 
