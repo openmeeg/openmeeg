@@ -22,7 +22,7 @@ if (BUILD_DOCUMENTATION)
                       COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/doxy2swig.py ${PROJECT_BINARY_DIR}/documentation/reference/xml/index.xml docstrings.i)
     add_dependencies(docstrings OpenMEEG-doxygen_outputs)
     add_dependencies(OpenMEEG-documentation docstrings)
-    set (SWIG_MODULE_OPENMEEG_EXTRA_DEPS ${SWIG_MODULE_OPENMEEG_EXTRA_DEPS} ${PROJECT_BINARY_DIR}/wrapping/src/docstrings.i)
+    set (SWIG_MODULE_${MODULE_NAME}_EXTRA_DEPS ${SWIG_MODULE_${MODULE_NAME}_EXTRA_DEPS} ${PROJECT_BINARY_DIR}/wrapping/src/docstrings.i)
 endif()
 
 if ("${CMAKE_VERSION}" VERSION_LESS "3.8")
@@ -43,7 +43,7 @@ install(TARGETS  "_openmeeg"
         RUNTIME DESTINATION ${PYTHON_REL_SITE_ARCH}
         PERMISSIONS OWNER_WRITE OWNER_READ GROUP_READ WORLD_READ)
 
-install(FILES  ${OpenMEEG_BINARY_DIR}/wrapping/src/openmeeg.py
+install(FILES  ${OpenMEEG_BINARY_DIR}/wrapping/src/${MODULE_NAME}.py
         DESTINATION ${PYTHON_REL_SITE_ARCH}
         PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ)
 

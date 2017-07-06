@@ -62,10 +62,18 @@ if (USE_VTK)
     endif()
 endif()
 
+if (USE_GIFTI)
+    set(GIFTI_ NIFTI GIFTI)
+    if (GIFTI_FOUND)
+        set(USE_SYSTEM_GIFTI True CACHE BOOL "Use the GIFTI from the system" FORCE)
+        set(USE_SYSTEM_NIFTI True CACHE BOOL "Use the NIFTI from the system" FORCE)
+    endif()
+endif()
+
 if (USE_OPENBLAS AND WIN32)
     include(installOpenBLAS)
 endif()
 
-subprojects(${MSINTTYPES} zlib ${VTK_} hdf5 matio ${LAPACK} OpenMEEG)
+subprojects(${MSINTTYPES} zlib ${VTK_} ${GIFTI_} hdf5 matio ${LAPACK} OpenMEEG)
 
 include(Packaging)
