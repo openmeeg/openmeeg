@@ -31,7 +31,7 @@ function(matio_project)
     endif()
 
     if (MSINTTYPES)
-        set(MSINTTYPES_CMAKE_ARG -DINTTYPES_INCLUDES:FILEPATH=${msinttypes_DIR}/include)
+        set(MSINTTYPES_CMAKE_ARG -DINTTYPES_INCLUDES:PATH=${msinttypes_DIR}/include)
     endif()
 
     if (zlib_CMAKE_FLAGS)
@@ -42,7 +42,6 @@ function(matio_project)
         ${ep_common_cache_args}
         ${ep_optional_args}
         -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
-        -DCMAKE_PREFIX_PATH:PATH=${CMAKE_INSTALL_PREFIX}
         -DCMAKE_C_FLAGS:STRING=${${ep}_c_flags}
         -DCMAKE_CXX_COMPILER:FILEPATH=${CMAKE_CXX_COMPILER}
         ${zlib_CMAKE_FLAGS}

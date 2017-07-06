@@ -39,7 +39,6 @@ function(hdf5_project)
         -DHDF5_ENABLE_Z_LIB_SUPPORT:BOOL=ON
         ${zlib_CMAKE_FLAGS}
         -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
-        -DCMAKE_PREFIX_PATH:PATH=${CMAKE_INSTALL_PREFIX}
         -DCMAKE_C_FLAGS:STRING=${${ep}_c_flags}
         -DCMAKE_CXX_COMPILER:FILEPATH=${CMAKE_CXX_COMPILER}
         -DCMAKE_SHARED_LINKER_FLAGS:STRING=${${ep}_shared_linker_flags}  
@@ -73,7 +72,7 @@ function(hdf5_project)
     if (NOT WIN32)
         set(HDF5_CMAKE_INSTALL_DIR share/cmake)
     endif()
-    set(${ep}_CMAKE_FLAGS -D${ep}_DIR:PATH=${install_dir}/${${ep}_CMAKE_INSTALL_DIR} PARENT_SCOPE)
+    set(${ep}_CMAKE_FLAGS -DHDF5_DIR:FILEPATH=${install_dir}/${HDF5_CMAKE_INSTALL_DIR} PARENT_SCOPE)
 
     # Add custom targets
 
