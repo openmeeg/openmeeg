@@ -1,3 +1,5 @@
+################################################################################
+#
 # OpenMEEG
 #
 # Copyright (c) INRIA 2013-2017. All rights reserved.
@@ -6,63 +8,64 @@
 #  This software is distributed WITHOUT ANY WARRANTY; without even
 #  the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
 #  PURPOSE.
+#
+################################################################################
 
-macro(zlib_find_package)
-#   Do nothing let OpenMEEG do the work.
-endmacro()
-
-function(zlib_project)
+function(GIFTI_project)
 
     # Prepare the project and list dependencies
 
-    EP_Initialisation(zlib BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS})
-    EP_SetDependencies(${ep}_dependencies "${MSINTTYPES}")
-      
-    # Define repository where get the sources
+    EP_Initialisation(GIFTI BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS})
+    EP_SetDependencies(${ep}_dependencies NIFTI)
 
+    # Define repository where get the sources
     if (NOT DEFINED ${ep}_SOURCE_DIR)
-        set(location GIT_REPOSITORY "${GIT_PREFIX}github.com/madler/zlib.git" GIT_TAG v1.2.11)
-        #set(location
-        #    URL "http://zlib.net/zlib-1.2.11.tar.gz"
-        #    URL_MD5 "1c9f62f0778697a09d36121ead88e08e")
+        #set(location GIT_REPOSITORY "git://GIFTI.org/GIFTI.git" GIT_TAG ${tag})
+        set(location
+            URL "https://www.nitrc.org/frs/download.php/2262/gifticlib-1.0.9.tgz"
+            URL_MD5 "4ac6342ab316136a9964ec752e384cf2")
     endif()
 
-    # set compilation flags
+    # Add specific cmake arguments for configuration step of the project
 
+    # set compilation flags
     if (UNIX)
         set(${ep}_c_flags "${${ep}_c_flags} -w")
+        set(${ep}_cxx_flags "${${ep}_cxx_flags} -w")
+        set(unix_additional_args -DGIFTI_USE_NVCONTROL:BOOL=ON)
     endif()
 
     set(cmake_args
         ${ep_common_cache_args}
-        ${ep_optional_args}
         -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
         -DCMAKE_PREFIX_PATH:PATH=${CMAKE_INSTALL_PREFIX}
         -DCMAKE_C_FLAGS:STRING=${${ep}_c_flags}
+        -DCMAKE_CXX_FLAGS:STRING=${${ep}_cxx_flags}
         -DCMAKE_SHARED_LINKER_FLAGS:STRING=${${ep}_shared_linker_flags}  
         -DBUILD_SHARED_LIBS:BOOL=${BUILD_SHARED_LIBS_${ep}}
-        -DINSTALL_LIB_DIR:PATH=${INSTALL_LIB_DIR}
+        -DBUILD_TESTING:BOOL=OFF
+        ${NIFTI_CMAKE_FLAGS}
     )
 
     # Check if patch has to be applied
 
-    ep_GeneratePatchCommand(${ep} PATCH_COMMAND zlib.patch)
+    ep_GeneratePatchCommand(GIFTI GIFTI_PATCH_COMMAND)
 
     # Add external-project
 
     ExternalProject_Add(${ep}
         ${ep_dirs}
         ${location}
-        ${PATCH_COMMAND}
+        ${GIFTI_PATCH_COMMAND}
         CMAKE_GENERATOR ${gen}
         CMAKE_ARGS ${cmake_args}
         DEPENDS ${${ep}_dependencies}
     )
-
+      
     # Set variable to provide infos about the project
 
     ExternalProject_Get_Property(${ep} install_dir)
-    set(${ep}_CMAKE_FLAGS -DZLIB_ROOT:FILEPATH=${install_dir} PARENT_SCOPE)
+    set(${ep}_CMAKE_FLAGS -D${ep}_DIR:FILEPATH=${install_dir} PARENT_SCOPE)
 
     # Add custom targets
 

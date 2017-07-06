@@ -42,6 +42,7 @@ function(matio_project)
         ${ep_common_cache_args}
         ${ep_optional_args}
         -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
+        -DCMAKE_PREFIX_PATH:PATH=${CMAKE_INSTALL_PREFIX}
         -DCMAKE_C_FLAGS:STRING=${${ep}_c_flags}
         -DCMAKE_CXX_COMPILER:FILEPATH=${CMAKE_CXX_COMPILER}
         ${zlib_CMAKE_FLAGS}
