@@ -39,7 +39,6 @@ function(hdf5_project)
         -DHDF5_ENABLE_Z_LIB_SUPPORT:BOOL=ON
         ${zlib_CMAKE_FLAGS}
         -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
-        -DCMAKE_PREFIX_PATH:PATH=${CMAKE_INSTALL_PREFIX}
         -DCMAKE_C_FLAGS:STRING=${${ep}_c_flags}
         -DCMAKE_CXX_COMPILER:FILEPATH=${CMAKE_CXX_COMPILER}
         -DCMAKE_SHARED_LINKER_FLAGS:STRING=${${ep}_shared_linker_flags}  

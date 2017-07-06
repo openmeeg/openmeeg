@@ -38,7 +38,6 @@ function(GIFTI_project)
     set(cmake_args
         ${ep_common_cache_args}
         -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
-        -DCMAKE_PREFIX_PATH:PATH=${CMAKE_INSTALL_PREFIX}
         -DCMAKE_C_FLAGS:STRING=${${ep}_c_flags}
         -DCMAKE_CXX_FLAGS:STRING=${${ep}_cxx_flags}
         -DCMAKE_SHARED_LINKER_FLAGS:STRING=${${ep}_shared_linker_flags}  
@@ -49,14 +48,14 @@ function(GIFTI_project)
 
     # Check if patch has to be applied
 
-    ep_GeneratePatchCommand(GIFTI GIFTI_PATCH_COMMAND)
+    ep_GeneratePatchCommand(${ep} PATCH_COMMAND gifti.patch)
 
     # Add external-project
 
     ExternalProject_Add(${ep}
         ${ep_dirs}
         ${location}
-        ${GIFTI_PATCH_COMMAND}
+        ${PATCH_COMMAND}
         CMAKE_GENERATOR ${gen}
         CMAKE_ARGS ${cmake_args}
         DEPENDS ${${ep}_dependencies}
@@ -65,7 +64,7 @@ function(GIFTI_project)
     # Set variable to provide infos about the project
 
     ExternalProject_Get_Property(${ep} install_dir)
-    set(${ep}_CMAKE_FLAGS -D${ep}_DIR:FILEPATH=${install_dir} PARENT_SCOPE)
+    set(${ep}_CMAKE_FLAGS ${NIFTI_CMAKE_FLAGS} -D${ep}_ROOT:PATH=${install_dir} PARENT_SCOPE)
 
     # Add custom targets
 

@@ -64,7 +64,7 @@ else
         sudo apt-get install -y libcgal-dev
     fi
 
-    if [[ "$USE_GIFTI" == 1 ]]; then
+    if [[ "$USE_GIFTI" == 1 && "$ENABLE_PACKAGING" != "1"  ]]; then
         sudo apt-get install -y libnifti-dev libgiftiio-dev
     fi
 

@@ -39,7 +39,7 @@ else()
 endif()
 SWIG_LINK_LIBRARIES(${MODULE_NAME} ${PYTHON_LIBRARIES} OpenMEEG ${LAPACK_LIBRARIES} ${VTK_LIBRARIES})
 
-execute_process(COMMAND ${PYTHON_EXECUTABLE} "-c" "from distutils.sysconfig import get_python_lib; print get_python_lib(1)"
+execute_process(COMMAND ${PYTHON_EXECUTABLE} "-c" "from distutils.sysconfig import get_python_lib; print(get_python_lib(1))"
              OUTPUT_VARIABLE PYTHON_SITE_ARCH
              RESULT_VARIABLE PYTHON_SITEARCH_NOT_FOUND)
 #extract correctly python location: e.g lib64/python2.7/site-packages

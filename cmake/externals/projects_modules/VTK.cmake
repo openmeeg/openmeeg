@@ -42,7 +42,6 @@ function(VTK_project)
         ${ep_common_cache_args}
         ${zlib_CMAKE_FLAGS}
         -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
-        -DCMAKE_PREFIX_PATH:PATH=${CMAKE_INSTALL_PREFIX}
         -DCMAKE_C_FLAGS:STRING=${${ep}_c_flags}
         -DCMAKE_CXX_FLAGS:STRING=${${ep}_cxx_flags}
         -DCMAKE_SHARED_LINKER_FLAGS:STRING=${${ep}_shared_linker_flags}  
@@ -75,7 +74,7 @@ function(VTK_project)
     # Set variable to provide infos about the project
 
     ExternalProject_Get_Property(${ep} install_dir)
-    set(${ep}_CMAKE_FLAGS -D${ep}_DIR:PATH=${install_dir}/${${ep}_CMAKE_INSTALL_DIR} PARENT_SCOPE)
+    set(${ep}_CMAKE_FLAGS -D${ep}_DIR:PATH=${install_dir} PARENT_SCOPE)
 
     # Add custom targets
 

@@ -1,6 +1,6 @@
 
-find_library(GIFTI_LIBRARY giftiio ${FIND_MODE})
-find_path(GIFTI_INCLUDE_PATH gifti_io.h PATH_SUFFIXES gifti ${FIND_MODE})
+find_library(GIFTI_LIBRARY giftiio ${FIND_MODE} PATHS ${GIFTI_DIR}/lib)
+find_path(GIFTI_INCLUDE_PATH gifti_io.h PATH_SUFFIXES gifti ${FIND_MODE} PATHS ${GIFTI_DIR}/include/gifti)
 
 if (GIFTI_FIND_REQUIRED)
     include(FindPackageHandleStandardArgs)
