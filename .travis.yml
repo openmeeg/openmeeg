@@ -8,7 +8,7 @@ matrix:
       env:
         - USE_SYSTEM=1
         - USE_PROJECT=1
-        - ENABLE_PACKAGING=1
+        - ENABLE_PACKAGING=0
         - BLASLAPACK_IMPLEMENTATION=vecLib
         - APPLE_STANDALONE=1
     - os: osx
