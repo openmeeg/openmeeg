@@ -28,11 +28,11 @@ environment:
     - lapack: OpenBLAS
       omp: ON
       vtk: ON
-      python: ON
+      python: OFF
       pack: ON
     - lapack: LAPACK
       vtk: OFF
-      python: OFF
+      python: ON
       pack: OFF
 
 matrix:
