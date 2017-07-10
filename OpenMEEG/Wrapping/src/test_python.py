@@ -68,26 +68,26 @@ gain_adjoint_eeg_meg_dip = om.GainEEGMEGadjoint(geom, dipoles,
                                                 hm, h2em, h2mm, ds2mm)
 
 
-print "hm                  : %d x %d" % (hm.nlin(), hm.ncol())
-print "hminv               : %d x %d" % (hminv.nlin(), hminv.ncol())
-print "ssm                 : %d x %d" % (ssm.nlin(), ssm.ncol())
-print "ss2mm               : %d x %d" % (ss2mm.nlin(), ss2mm.ncol())
-print "dsm                 : %d x %d" % (ssm.nlin(), ssm.ncol())
-print "ds2mm               : %d x %d" % (ss2mm.nlin(), ss2mm.ncol())
-print "h2mm                : %d x %d" % (h2mm.nlin(), h2mm.ncol())
-print "h2em                : %d x %d" % (h2mm.nlin(), h2mm.ncol())
-print "gain_meg_surf       : %d x %d" % (gain_meg_surf.nlin(),
-                                         gain_meg_surf.ncol())
-print "gain_eeg_surf       : %d x %d" % (gain_eeg_surf.nlin(),
-                                         gain_eeg_surf.ncol())
-print "gain_meg_dip        : %d x %d" % (gain_meg_dip.nlin(),
-                                         gain_meg_dip.ncol())
-print "gain_adjoint_meg_dip: %d x %d" % (gain_adjoint_meg_dip.nlin(),
-                                         gain_adjoint_meg_dip.ncol())
-print "gain_eeg_dip        : %d x %d" % (gain_eeg_dip.nlin(),
-                                         gain_eeg_dip.ncol())
-print "gain_adjoint_eeg_dip: %d x %d" % (gain_adjoint_eeg_dip.nlin(),
-                                         gain_adjoint_eeg_dip.ncol())
+print("hm                  : %d x %d" % (hm.nlin(), hm.ncol()))
+print("hminv               : %d x %d" % (hminv.nlin(), hminv.ncol()))
+print("ssm                 : %d x %d" % (ssm.nlin(), ssm.ncol()))
+print("ss2mm               : %d x %d" % (ss2mm.nlin(), ss2mm.ncol()))
+print("dsm                 : %d x %d" % (ssm.nlin(), ssm.ncol()))
+print("ds2mm               : %d x %d" % (ss2mm.nlin(), ss2mm.ncol()))
+print("h2mm                : %d x %d" % (h2mm.nlin(), h2mm.ncol()))
+print("h2em                : %d x %d" % (h2mm.nlin(), h2mm.ncol()))
+print("gain_meg_surf       : %d x %d" % (gain_meg_surf.nlin(),
+                                         gain_meg_surf.ncol()))
+print("gain_eeg_surf       : %d x %d" % (gain_eeg_surf.nlin(),
+                                         gain_eeg_surf.ncol()))
+print("gain_meg_dip        : %d x %d" % (gain_meg_dip.nlin(),
+                                         gain_meg_dip.ncol()))
+print("gain_adjoint_meg_dip: %d x %d" % (gain_adjoint_meg_dip.nlin(),
+                                         gain_adjoint_meg_dip.ncol()))
+print("gain_eeg_dip        : %d x %d" % (gain_eeg_dip.nlin(),
+                                         gain_eeg_dip.ncol()))
+print("gain_adjoint_eeg_dip: %d x %d" % (gain_adjoint_eeg_dip.nlin(),
+                                         gain_adjoint_eeg_dip.ncol()))
 
 # Leadfield MEG in one line :
 
@@ -96,8 +96,8 @@ gain_meg_surf_one_line = om.GainMEG(om.HeadMat(geom, gauss_order).inverse(),
                                     om.Head2MEGMat(geom, sensors),
                                     om.SurfSource2MEGMat(mesh, sensors))
 
-print "gain_meg_surf_one_line : %d x %d" % (gain_meg_surf_one_line.nlin(),
-                                            gain_meg_surf_one_line.ncol())
+print("gain_meg_surf_one_line : %d x %d" % (gain_meg_surf_one_line.nlin(),
+                                            gain_meg_surf_one_line.ncol()))
 
 ###############################################################################
 # Compute forward data =
@@ -107,18 +107,18 @@ sources = om.Matrix(srcFile)
 
 noise_level = 0.0
 est_meg = om.Forward(gain_meg_dip, sources, noise_level)
-print "est_meg    : %d x %d" % (est_meg.nlin(), est_meg.ncol())
+print("est_meg    : %d x %d" % (est_meg.nlin(), est_meg.ncol()))
 
 est_meg_adjoint = om.Forward(gain_adjoint_meg_dip, sources, noise_level)
-print "est_meg_adjoint    : %d x %d" % (est_meg_adjoint.nlin(),
-                                       est_meg_adjoint.ncol())
+print("est_meg_adjoint    : %d x %d" % (est_meg_adjoint.nlin(),
+                                       est_meg_adjoint.ncol()))
 
 est_eeg = om.Forward(gain_eeg_dip, sources, noise_level)
-print "est_eeg    : %d x %d" % (est_eeg.nlin(), est_eeg.ncol())
+print("est_eeg    : %d x %d" % (est_eeg.nlin(), est_eeg.ncol()))
 
 est_eeg_adjoint = om.Forward(gain_adjoint_eeg_dip, sources, noise_level)
-print "est_eeg_adjoint    : %d x %d" % (est_eeg_adjoint.nlin(),
-                                       est_eeg_adjoint.ncol())
+print("est_eeg_adjoint    : %d x %d" % (est_eeg_adjoint.nlin(),
+                                       est_eeg_adjoint.ncol()))
 
 ###############################################################################
 # Example of basic manipulations
@@ -127,8 +127,8 @@ v1 = om.Vertex(1., 0., 0., 0)
 v2 = om.Vertex(0., 1., 0., 1)
 v3 = om.Vertex(0., 0., 1., 2)
 
-#print v1.norm()
-#print (v1 + v2).norm()
+#print(v1.norm()
+#print((v1 + v2).norm()
 
 normal = om.Vect3(1., 0., 0.)
 t = om.Triangle(v1, v2, v3)
@@ -141,17 +141,17 @@ ssm.save(ssm_file)
 
 m1 = om.SymMatrix()
 m1.load(hm_file)
-#print m1(0, 0)
-#print m1.nlin()
-#print m1.ncol()
+#print(m1(0, 0))
+#print(m1.nlin())
+#print(m1.ncol())
 
 m2 = om.Matrix()
 m2.load(ssm_file)
 #m2.setvalue(2,3,-0.2) # m2(2,3)=-0.2
-#print m2(2,3)
-#print m2(0, 0)
-#print m2.nlin()
-#print m2.ncol()
+#print(m2(2,3))
+#print(m2(0, 0))
+#print(m2.nlin())
+#print(m2.ncol())
 
 ###############################################################################
 # Numpy interface
@@ -165,11 +165,10 @@ assert((v-m.getcol(0)).norm() < 1e-15)
 # For a Matrix
 mat = om.asarray(m2)
 assert((m2-om.fromarray(mat)).frobenius_norm() < 1e-15)
-#print mat.shape
-#print mat.sum()
+#print(mat.shape)
+#print(mat.sum())
 #mat[0:2, 1:3] = 0
-#print mat[0:5, 0:5]
-
+#print(mat[0:5, 0:5])
 
 #remove useless files
 os.remove(hm_file)
