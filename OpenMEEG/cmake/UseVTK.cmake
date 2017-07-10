@@ -5,16 +5,16 @@
 option(USE_VTK "Use VTK" OFF)
 
 if (USE_VTK)
-    set(REQUIRED "QUIET")
+    set(FIND_MODE "QUIET")
     if(CMAKE_PROJECT_NAME STREQUAL "OpenMEEG")
-        set(REQUIRED "REQUIRED")
+        set(FIND_MODE "REQUIRED")
     endif()
 
     # what components do we want:
     set(VTK_FIND_COMPONENTS vtkIOXML vtkIOLegacy)
     mark_as_advanced(VTK_FIND_COMPONENTS)
 
-    find_package(VTK ${REQUIRED} COMPONENTS ${VTK_FIND_COMPONENTS} NO_MODULE PATHS ${VTK_DIR})
+    find_package(VTK ${FIND_MODE} COMPONENTS ${VTK_FIND_COMPONENTS} NO_MODULE PATHS ${VTK_DIR})
     if (VTK_FOUND)
         if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
             add_compile_options(-Wno-inconsistent-missing-override)
@@ -31,5 +31,5 @@ if (USE_VTK)
         message("VTK not found, we will download and build it")
         set(USE_SYSTEM_VTK False CACHE BOOL "Use the VTK from the system" FORCE)
     endif()
-    unset(REQUIRED)
+    unset(FIND_MODE)
 endif()

@@ -61,7 +61,7 @@ function(zlib_project)
     # Set variable to provide infos about the project
 
     ExternalProject_Get_Property(${ep} install_dir)
-    set(${ep}_CMAKE_FLAGS -DZLIB_ROOT:FILEPATH=${install_dir} PARENT_SCOPE)
+    set(${ep}_CMAKE_FLAGS -D${ep}_ROOT:PATH=${install_dir} PARENT_SCOPE)
 
     # Add custom targets
 

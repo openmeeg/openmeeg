@@ -25,6 +25,7 @@ set(ep_common_shared_linker_flags
 set(ep_common_cache_args
     -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
     -DCMAKE_C_COMPILER:FILEPATH=${CMAKE_C_COMPILER}
+    -DCMAKE_PREFIX_PATH:PATH=${CMAKE_INSTALL_PREFIX}
 )
 
 set(gen "${CMAKE_GENERATOR}")

@@ -74,7 +74,7 @@ function(VTK_project)
     # Set variable to provide infos about the project
 
     ExternalProject_Get_Property(${ep} install_dir)
-    set(${ep}_CMAKE_FLAGS -D${ep}_DIR:FILEPATH=${install_dir} PARENT_SCOPE)
+    set(${ep}_CMAKE_FLAGS -D${ep}_DIR:PATH=${install_dir} PARENT_SCOPE)
 
     # Add custom targets
 

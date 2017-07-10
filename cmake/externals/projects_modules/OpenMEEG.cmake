@@ -12,7 +12,7 @@ function(OpenMEEG_project)
     # Prepare the project and list dependencies
 
     EP_Initialisation(OpenMEEG BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS})
-    EP_SetDependencies(${ep}_dependencies clapack matio ${MSINTTYPES} ${VTK_})
+    EP_SetDependencies(${ep}_dependencies clapack matio ${optional_subprojects})
 
     # No need to define repository where get the sources, since they are integrated.
 
@@ -47,6 +47,7 @@ function(OpenMEEG_project)
         -DBUILD_TUTORIALS:BOOL=${BUILD_TUTORIALS}
         ${clapack_CMAKE_FLAGS}
         ${zlib_CMAKE_FLAGS}
+        ${GIFTI_CMAKE_FLAGS}
         ${hdf5_CMAKE_FLAGS}
         ${matio_CMAKE_FLAGS}
         ${VTK_CMAKE_FLAGS}
