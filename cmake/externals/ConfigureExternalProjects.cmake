@@ -111,6 +111,7 @@ macro(subprojects)
         && echo To build them, run the build target: 'cmake --build . --target build'
     )
 
+    #add_custom_target(build ALL DEPENDS ${build_dependencies})
     add_custom_target(build DEPENDS ${build_dependencies})
 
     if (BUILD_TESTING)
@@ -121,5 +122,5 @@ macro(subprojects)
         install(DIRECTORY ${i}/ USE_SOURCE_PERMISSIONS DESTINATION ${CMAKE_INSTALL_PREFIX})
     endforeach()
 
-    add_custom_target(clean DEPENDS ${CLEAN_TARGETS})
+    #add_custom_target(clean DEPENDS ${CLEAN_TARGETS})
 endmacro()
