@@ -22,7 +22,7 @@ if (BUILD_DOCUMENTATION)
                       COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/doxy2swig.py ${PROJECT_BINARY_DIR}/documentation/reference/xml/index.xml docstrings.i)
     add_dependencies(docstrings OpenMEEG-doxygen_outputs)
     add_dependencies(OpenMEEG-documentation docstrings)
-    set (SWIG_MODULE_OPENMEEG_EXTRA_DEPS ${SWIG_MODULE_OPENMEEG_EXTRA_DEPS} ${PROJECT_BINARY_DIR}/Wrapping/src/docstrings.i)
+    set (SWIG_MODULE_OPENMEEG_EXTRA_DEPS ${SWIG_MODULE_OPENMEEG_EXTRA_DEPS} ${PROJECT_BINARY_DIR}/wrapping/src/docstrings.i)
 endif()
 
 if ("${CMAKE_VERSION}" VERSION_LESS "3.8")
@@ -43,14 +43,14 @@ install(TARGETS  "_openmeeg"
         RUNTIME DESTINATION ${PYTHON_REL_SITE_ARCH}
         PERMISSIONS OWNER_WRITE OWNER_READ GROUP_READ WORLD_READ)
 
-install(FILES  ${OpenMEEG_BINARY_DIR}/Wrapping/src/openmeeg.py
+install(FILES  ${OpenMEEG_BINARY_DIR}/wrapping/src/openmeeg.py
         DESTINATION ${PYTHON_REL_SITE_ARCH}
         PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ)
 
 # Test Python wrapping
 if (BUILD_TESTING)
-    execute_process(COMMAND ${CMAKE_COMMAND} -E copy ${OpenMEEG_SOURCE_DIR}/Wrapping/src/test_python.py ${OpenMEEG_BINARY_DIR}/Wrapping/src/)
-    add_test(openmeeg_python ${PYTHON_EXECUTABLE} ${OpenMEEG_BINARY_DIR}/Wrapping/src/test_python.py --path ${OpenMEEG_SOURCE_DIR}/data)
+    execute_process(COMMAND ${CMAKE_COMMAND} -E copy ${OpenMEEG_SOURCE_DIR}/wrapping/src/test_python.py ${OpenMEEG_BINARY_DIR}/wrapping/src/)
+    add_test(openmeeg_python ${PYTHON_EXECUTABLE} ${OpenMEEG_BINARY_DIR}/wrapping/src/test_python.py --path ${OpenMEEG_SOURCE_DIR}/data)
     if (USE_MKL AND BUILD_SHARED_LIBS AND NOT MKL_USE_sdl)
         # due to this bug in the MKL
         message(WARNING "Due to a bug in the MKL when used from python: see https://software.intel.com/en-us/forums/intel-distribution-for-python/topic/628976 "
