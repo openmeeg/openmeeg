@@ -29,6 +29,8 @@ else()
         /usr/local/lib
         /usr/local/lib64
         /usr/local/opt/openblas/lib
+        /usr/local/Cellar/
+        /usr/local/opt/gcc/lib
         /opt/OpenBLAS/lib
         $ENV{OpenBLAS}
         $ENV{OpenBLAS}/lib
@@ -69,6 +71,16 @@ else()
             message(FATAL_ERROR "Could not find OpenBLAS")
         endif()
     endif()
+endif()
+
+# if we are in a standalone mode look for other libs as well
+if ((${CMAKE_PROJECT_NAME} STREQUAL "OpenMEEG") AND STANDALONE)
+    foreach(alib openblas lapacke quadmath gcc_s pthread gfortran gomp)
+        find_library(found${alib} NAMES ${alib} PATHS ${OpenBLAS_LIB_SEARCH_PATHS} PATH_SUFFIXES gcc/${CMAKE_CXX_COMPILER_VERSION} ${CMAKE_CXX_COMPILER_VERSION} gcc/x86_64-linux-gnu/${CMAKE_CXX_COMPILER_VERSION})
+        if (found${alib})
+            list(APPEND OpenMEEG_IMPORTED_LIBS ${found${alib}})
+        endif()
+    endforeach()
 endif()
 
 mark_as_advanced(

@@ -31,5 +31,10 @@ if (USE_VTK)
         message("VTK not found, we will download and build it")
         set(USE_SYSTEM_VTK False CACHE BOOL "Use the VTK from the system" FORCE)
     endif()
+    # if we are in a standalone mode look for other libs as well
+    #if ((${CMAKE_PROJECT_NAME} STREQUAL "OpenMEEG") AND STANDALONE)
+        #list(APPEND OpenMEEG_IMPORTED_LIBS ${VTK_LIBRARIES})
+    #endif()
+
     unset(REQUIRED)
 endif()
