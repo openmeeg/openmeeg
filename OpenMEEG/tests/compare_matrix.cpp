@@ -215,6 +215,9 @@ bool compare(const T& mat1, const T& mat2, double eps, size_t col){
                 diff = std::abs(mat1(i,j)/norm1 - mat2(i,j)/norm2);
                 flag = flag && (diff<eps);
                 if (!(diff<eps)&&(++count<100)) {
+                    if (count == 0)
+                        std::cout << "ERROR NORM  mat(i,j) | mat2(i,j) | diff" << std::endl;
+                    std::cout.precision(20);
                     std::cout << "ERROR NORM  " << mat1(i,j) << "  " << mat2(i,j) << "  " << diff << std::endl;
                     std::cout.flush();
                 }
@@ -234,6 +237,7 @@ bool compare(const T& mat1, const T& mat2, double eps, size_t col){
                     diff = std::abs(mat1(i,j) - mat2(i,j))/std::abs(mat2(i,j));
                     flag = flag && (diff<eps);
                     if (!(diff<eps)&&(++count<100)) {
+                        std::cout.precision(20);
                         std::cout << "ERROR RELATIVE  " << mat1(i,j) << "  " << mat2(i,j) << "  " << diff << std::endl;
                         std::cout.flush();
                     }
@@ -246,6 +250,7 @@ bool compare(const T& mat1, const T& mat2, double eps, size_t col){
                     diff = std::abs(mat1(i,j) - mat2(i,j));
                     flag = flag && (diff<eps);
                     if (!(diff<eps)&&(++count<100)) {
+                        std::cout.precision(20);
                         std::cout << "ERROR DIFF  " << mat1(i,j) << "  " << mat2(i,j) << "  " << diff << std::endl;
                         std::cout.flush();
                     }

@@ -42,6 +42,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <cstdlib>
 
 #include "OpenMEEGMathsConfig.h"
+#include <OMassert.H>
 #include "om_utils.h"
 #include "RC.H"
 
@@ -49,6 +50,14 @@ namespace OpenMEEG {
 
     namespace maths {
         struct OPENMEEGMATHS_EXPORT MathsIO;
+    }
+
+    // to properly convert a size_t int to an int
+    OPENMEEGMATHS_EXPORT inline BLAS_INT sizet_to_int(const size_t& num)
+    {
+        BLAS_INT num_out = static_cast<BLAS_INT>(num);
+        om_assert(num_out >= 0);
+        return num_out;
     }
 
     class OPENMEEGMATHS_EXPORT LinOpInfo {

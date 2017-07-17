@@ -43,11 +43,11 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <sstream>
 #include <limits>
 
-#include "om_utils.h"
-#include "matrix.h"
-#include "symmatrix.h"
-#include "sparse_matrix.h"
-#include "vector.h"
+#include <om_utils.h>
+#include <matrix.h>
+#include <symmatrix.h>
+#include <sparse_matrix.h>
+#include <vector.h>
 
 namespace OpenMEEG {
 
@@ -76,18 +76,18 @@ namespace OpenMEEG {
 
     /// pseudo inverse
     Matrix Matrix::pinverse(double tolrel) const {
-    #ifdef HAVE_LAPACK
         if (ncol() > nlin()) {
             return transpose().pinverse().transpose();
         } else {
             Matrix result(ncol(), nlin());
-            Matrix U, S, V;
+            result.set(0.0);
+            Matrix U, V;
+            SparseMatrix S;
             svd(U, S, V, false);
             double maxs = 0;
             unsigned mimi = std::min(S.nlin(), S.ncol());
-            for ( size_t i = 0; i < mimi; i++) {
-                maxs = std::max(S(i,i), maxs);
-            }
+            // following LAPACK The singular values of A, sorted so that S(i) >= S(i+1).
+            maxs = S(0,0);
             if ( tolrel == 0 ) tolrel = std::numeric_limits<double>::epsilon();
             double tol = std::max(nlin(), ncol()) * maxs * tolrel;
             unsigned r = 0;
@@ -102,56 +102,54 @@ namespace OpenMEEG {
                 for ( size_t i = 0; i < r; i++) {
                     s(i, i) = 1.0 / S(i, i);
                 }
-                const Matrix Vbis(V,r); // keep only the first r columns
+                const Matrix Vbis(V.transpose(),r); // keep only the first r columns
                 const Matrix Ubis(U,r);
                 return Vbis * s * Ubis.transpose();
             }
         }
-    #else
-        std::cerr << "pinv not implemented without blas/lapack" << std::endl;
-        exit(1);
-    #endif
     }
 
     Matrix Matrix::transpose() const {
         Matrix result(ncol(),nlin());
-        for(size_t i=0;i<nlin();i++) for(size_t j=0;j<ncol();j++) result(j,i)=(*this)(i,j);
+        for (size_t i=0; i<nlin(); i++)
+            for ( size_t j=0; j<ncol(); j++)
+                result(j,i)=(*this)(i,j);
         return result;
     }
 
-    void Matrix::svd(Matrix &U, Matrix &S, Matrix &V, bool complete) const {
+    void Matrix::svd(Matrix &U, SparseMatrix &S, Matrix &V, bool complete) const {
+        // XXX output is now V.transpose() not V (now as in Lapack and numpy)
     #ifdef HAVE_LAPACK
         Matrix cpy(*this,DEEP_COPY);
-        int mini = (int)std::min(nlin(),ncol());
-        int maxi = (int)std::max(nlin(),ncol());
+        size_t mini = std::min(nlin(),ncol());
+        size_t maxi = std::max(nlin(),ncol());
         U = Matrix(nlin(),nlin()); U.set(0);
-        S = Matrix(nlin(),ncol()); S.set(0);
+        S = SparseMatrix(nlin(),ncol());
         V = Matrix(ncol(),ncol()); V.set(0);
         double *s = new double[mini];
         // int lwork = 4 *mini*mini + maxi + 9*mini; 
         // http://www.netlib.no/netlib/lapack/double/dgesdd.f :
-        int lwork = 4 *mini*mini + std::max(maxi,4*mini*mini+4*mini);
+        BLAS_INT *iwork = new BLAS_INT[8*mini];
+        BLAS_INT lwork = 4 *mini*mini + std::max(maxi,4*mini*mini+4*mini);
+        BLAS_INT Info = 0;
         double *work = new double[lwork];
-        int *iwork = new int[8*mini];
-        int Info;
         if ( complete ) { // complete SVD
-            DGESDD('A',nlin(),ncol(),cpy.data(),nlin(),s,U.data(),U.nlin(),V.data(),V.nlin(),work,lwork,iwork,Info);
+            DGESDD('A',sizet_to_int(nlin()),sizet_to_int(ncol()),cpy.data(),sizet_to_int(nlin()),s,U.data(),sizet_to_int(U.nlin()),V.data(),sizet_to_int(V.nlin()),work,lwork,iwork,Info);
         } else { // only first min(m,n)
-            DGESDD('S',nlin(),ncol(),cpy.data(),nlin(),s,U.data(),U.nlin(),V.data(),V.nlin(),work,lwork,iwork,Info);
+            DGESDD('S',sizet_to_int(nlin()),sizet_to_int(ncol()),cpy.data(),sizet_to_int(nlin()),s,U.data(),sizet_to_int(U.nlin()),V.data(),sizet_to_int(V.nlin()),work,lwork,iwork,Info);
         }
         for ( size_t i = 0; i < mini; ++i) S(i, i) = s[i];
-        V = V.transpose();
         delete[] s;
         delete[] work;
         delete[] iwork;
+        if (Info < 0) {
+            std::cout << "in svd: the "<< -Info << "-th argument had an illegal value." << std::endl;
+        } else if (Info > 0) {
+            std::cout << "in svd: DBDSDC did not converge, updating process failed." << std::endl;
+        }
     #else
         std::cerr<<"svd not implemented without blas/lapack"<<std::endl;
     #endif
-        if ( Info < 0) {
-            std::cout << "in svd: the "<< -Info << "-th argument had an illegal value." << std::endl;
-        } else if ( Info > 0) {
-            std::cout << "in svd: DBDSDC did not converge, updating process failed." << std::endl;
-        }
     }
 
     Matrix Matrix::operator *(const SparseMatrix &mat) const

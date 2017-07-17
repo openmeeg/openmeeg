@@ -1,0 +1,23 @@
+* Mon Apr 3 2017 <openmeeg-info@lists.gforge.inria.fr> 2.3.0.2
+- Support added for MKL and OpenBLAS on all platforms
+- Support for non nested geometries
+- Support for CGAL meshing tools, VTK formats
+- Adding Cortical Gain matrices and EIT Gain matrices computations
+- Bug fixes, adding more tests
+* Wed Oct 14 2009 Theo Papadopoulo <Theodore.Papadopoulo@inria.fr>
+- Add Progressbar and OpenMP options.
+- Re-define %_cmake_skip_rpath to allow checking tests.
+* Thu Oct 30 2008 Theo Papadopoulo <Theodore.Papadopoulo@inria.fr>
+- Add documentation build that had been suppressed by default.
+* Mon Oct 20 2008 Theo Papadopoulo <Theodore.Papadopoulo@inria.fr>
+- Corrected installation for i386.
+* Tue Jul 19 2008 Theo Papadopoulo <Theodore.Papadopoulo@inria.fr>
+- Added some cmake option and several packages to contain the python and
+documentation parts of @PROJECT_NAME@.
+* Thu Dec  6 2007 Theo Papadopoulo <Theodore.Papadopoulo@inria.fr>
+- Adapt the file to work for both i386 and x86-64 architectures.
+* Mon Aug 27 2007 Theo Papadopoulo <Theodore.Papadopoulo@inria.fr> 0.8.0
+- Added the new libOpenMEEG.so to installed files.
+* Wed Mar 28 2007 Theo Papadopoulo <Theodore.Papadopoulo@inria.fr> 0.8.0
+- Initial revision (internal).
+

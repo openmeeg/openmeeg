@@ -1,12 +1,10 @@
 // Author: Jean-Christophe Lombardo
-// Copyright (C) 2011 - Jean-Christophe Lombardo, Inria
+// Copyright (C) 2011-2017 - Jean-Christophe Lombardo, Inria
 
 #include <vtkSmartPointer.h>
-#include <vtkDataSetMapper.h>
 #include <vtkCellArray.h>
 #include <vtkPolyData.h>
 #include <vtkPolyDataReader.h>
-#include <vtkPolyDataMapper.h>
 #include <vtkPointData.h>
 #include <vtkCellData.h>
 #include <vtkUnsignedIntArray.h>
@@ -99,8 +97,8 @@ int main(int argc, char *argv[])
         }
         array->SetName(dataname.str().c_str());
 
-        if (data.nlin() == nbPoints) mesh->GetPointData()->AddArray(array);
-        else if (data.nlin() == nbCells) mesh->GetCellData()->AddArray(array);
+        if (data.nlin() == (size_t)nbPoints) mesh->GetPointData()->AddArray(array);
+        else if (data.nlin() == (size_t)nbCells) mesh->GetCellData()->AddArray(array);
         else {
             std::cerr << "Something's wrong ! got a mesh with " << nbPoints << " points and " << nbCells << " cells, and ("<< data.nlin() << ","<< data.ncol() <<") data. Don't know what to do with them !" << std::endl;
             return usage(argv[0]);
@@ -126,7 +124,7 @@ int main(int argc, char *argv[])
     // save output to the input file
     vtkSmartPointer<vtkPolyDataWriter> writer = vtkSmartPointer<vtkPolyDataWriter>::New();
     writer->SetFileName(meshFileNameO.c_str());
-    #if VTK_MAJOR_VERSION==6
+    #if VTK_MAJOR_VERSION >=6
     writer->SetInputData(mesh);
     #else
     writer->SetInput(mesh);

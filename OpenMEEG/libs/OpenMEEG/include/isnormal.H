@@ -43,7 +43,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <cmath>
 #else
 #ifdef HAVE_ISNORMAL_IN_MATH_H
-#include <math.h>
+#include <cmath>
 namespace std {
     inline bool isnormal(const double x) { return std::isnormal(x); }
 }

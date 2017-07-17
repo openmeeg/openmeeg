@@ -48,6 +48,8 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <map>
 #include <stack>
 #include <string>
+
+#include <om_common.h>
 #include <triangle.h>
 #include <IOUtils.H>
 #include <om_utils.h>
@@ -61,11 +63,8 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <vtkDataReader.h>
 #include <vtkCellArray.h>
 #include <vtkCharArray.h>
-#include <vtkProperty.h>
-#include <vtkPolyDataNormals.h>
 #include <vtkPointData.h>
 #include <vtkDataArray.h>
-#include <vtkCleanPolyData.h>
 #endif
 
 #ifdef USE_GIFTI
@@ -134,7 +133,7 @@ namespace OpenMEEG {
         vertex_iterator               vertex_begin()        { return vertices_.begin(); }
         vertex_iterator               vertex_end()          { return vertices_.end(); }
 
-        unsigned                      vertex_size()   const { return vertices_.size(); } // Just for old OpenMP implementations.
+        const size_t                  vertex_size()   const { return vertices_.size(); } // Just for old OpenMP implementations.
 
         const_vertex_iterator         vertex_begin()  const { return vertices_.begin(); }
         const_vertex_iterator         vertex_end()    const { return vertices_.end(); }
@@ -146,11 +145,11 @@ namespace OpenMEEG {
         const std::string &           name()          const { return name_; } ///< \return the mesh name
 
         const VectPVertex &           vertices()      const { return vertices_; } ///< \return the vector of pointers to the mesh vertices
-              unsigned                nb_vertices()   const { return vertices_.size(); }
-              unsigned                nb_triangles()  const { return size(); }
+        const size_t                  nb_vertices()   const { return vertices_.size(); }
+        const size_t                  nb_triangles()  const { return size(); }
 
               Vertices                all_vertices()    const { return *all_vertices_; }
-              unsigned                nb_all_vertices() const { return all_vertices_->size(); }
+        const size_t                  nb_all_vertices() const { return all_vertices_->size(); }
 
         /// \brief properly add vertex to the list.
 
@@ -228,19 +227,20 @@ namespace OpenMEEG {
 
     #ifdef USE_GIFTI
         unsigned load_gifti(const std::string&, const bool& read_all = true);
+        void save_gifti(const std::string&) const;
     #else
         template <typename T>
         unsigned load_gifti(T, const bool&) {
             std::cerr << "You have to compile OpenMEEG with GIFTI to read GIFTI files" << std::endl;
             exit(1);
         }
-    #endif
-
         template <typename T>
         void save_gifti(T) const {
-            std::cerr << "GIFTI writer : Not implemented" << std::endl;
+            std::cerr << "You have to compile OpenMEEG with GIFTI to read GIFTI files" << std::endl;
             exit(1);
         }
+    #endif
+
 
         /// Save mesh to file
         /// \param filename can be .vtk, .tri (ascii), .bnd, .off or .mesh */
@@ -294,9 +294,7 @@ namespace OpenMEEG {
         bool                                  outermost_;    ///< Is it an outermost mesh ? (i.e does it touch the Air domain)
         bool                                  allocate_;     ///< Are the vertices allocate within the mesh or shared ?
         std::set<Vertex>                      set_vertices_;
-
-    ///handle multiple 0 conductivity domains
-    private:
+        /// handle multiple 0 conductivity domains
         bool     current_barrier_;
         bool     isolated_;
     public:

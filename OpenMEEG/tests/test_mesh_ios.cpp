@@ -62,6 +62,14 @@ int main (int argc, char** argv)
     om_error(are_equal(mesh, mesh_orig));
 #endif
 
+    // GIFTI
+#ifdef USE_GIFTI
+    mesh.save("tmp.gii");
+    mesh.load("tmp.gii");
+    om_error(are_equal(mesh, mesh_orig));
+#endif
+
+
     // MESH
     mesh.save("tmp.mesh");
     mesh.load("tmp.mesh");

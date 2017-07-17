@@ -42,6 +42,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #include <OpenMEEGMathsConfig.h>
 #include <matrix.h>
+#include <sparse_matrix.h>
 #include <generic_test.hpp>
 
 int main () {
@@ -72,9 +73,9 @@ int main () {
     }
 
     Matrix P(3,3);
-    P(0,0) = 25 ; P(0,1) = 3 ; P(0,2) = 6 ;
-    P(1,0) = 12 ; P(1,1) = 5 ; P(1,2) = 32 ;
-    P(2,0) = 4 ; P(2,1) = 10 ; P(2,2) = 4 ;
+    P(0,0) = 25 ; P(0,1) = 3 ; P(0,2) = 6;
+    P(1,0) = 12 ; P(1,1) = 5 ; P(1,2) = 32;
+    P(2,0) = 4  ; P(2,1) = 10; P(2,2) = 4;
     std::cout << "Matrice P : " << std::endl;
     P.info();
 
@@ -108,28 +109,35 @@ int main () {
     M1(0, 0) = 1; M1(0, 4) = 2;
     M1(1, 2) = 3; M1(3, 1) = 4;
 
-    Matrix U, S, W;
+    Matrix U, W;
+    SparseMatrix S;
     M1.svd(U, S, W);
     std::cout << "SVD: M1 = U * S * W' " << std::endl;
-    std::cout << "M1 :" << std::endl;
-    M1.info();
-    std::cout << "U :" << std::endl;
-    U.info();
-    std::cout << "S :" << std::endl;
-    S.info();
-    std::cout << "W :" << std::endl;
-    W.info();
-    Matrix zero = M1 - U*S*W.transpose();
+    Matrix zero = M1 - U*S*W;
     if (zero.frobenius_norm()>eps) {
+        std::cout << "M1 :" << std::endl;
+        M1.info();
+        std::cout << "U :" << std::endl;
+        U.info();
+        std::cout << "S :" << std::endl;
+        S.info();
+        std::cout << "W :" << std::endl;
+        W.info();
         std::cerr << "Error: SVD is WRONG-1" << std::endl;
         exit(1);
     }
+
     // PseudoInverse
-    M1 = Matrix(4,5);
+    M1.set(0.0);
     M1(0, 0) = 1; M1(0, 4) = 2;
     M1(1, 2) = 3; M1(3, 1) = 4;
-    zero = M1*M1.pinverse()*M1-M1;
+    Matrix M1pinv = M1.pinverse();
+    zero.set(0.);
+    zero = M1*M1pinv*M1-M1;
     if (zero.frobenius_norm()>eps) {
+        std::cout << "pinverse = M^{+} = " << std::endl;
+        M1pinv.info();
+        std::cout << "M*M^{+}*M-M = zero matrix = " << std::endl;
         zero.info();
         std::cerr << "Error: PseudoInverse is WRONG-2" << std::endl;
         exit(1);

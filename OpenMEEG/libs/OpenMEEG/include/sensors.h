@@ -48,11 +48,10 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <IOUtils.H>
 #include <vector.h>
 #include <matrix.h>
-#include <symmatrix.h>
 #include <geometry.h>
-#include <sparse_matrix.h>
+#include <om_common.h>
 
-#include <DLLDefinesOpenMEEG.h>
+#include <OpenMEEG_Export.h>
 
 namespace OpenMEEG {
 
@@ -63,16 +62,15 @@ namespace OpenMEEG {
      *  the file can have the shape of (neglecting if present the first, label column):
      *  <ul>
      *    
-     *  <li> 1 line per sensor and 3 columns (EEG sensors or MEG sensors without orientation) 
+     *  <li> 1 line per sensor and 3 columns (EEG sensors OR MEG sensors without orientation OR EIT punctual patches)
      *        <ul TYPE="circle">
      *        <li> the 1st, 2nd and 3rd columns are respectively position coordinates x, y, z of sensor  </li>
      *        </ul>
      *  </li>
-     *  <li> 1 line per sensor and 5 columns (EEG EIT patches (circular patches with input intensity)) :
+     *  <li> 1 line per sensor and 4 columns (EEG EIT patches (circular patches)) :
      *        <ul TYPE="circle">
      *        <li> the 1st, 2nd and 3rd are respectively position coordinates x, y, z of sensor  </li>
      *        <li> the 4th is the patche radius (unit relative to the mesh)  </li>
-     *        <li> the 5th is the input intensity (a weight). Remark: mean(weights*surfaces) must be zero (no accumulation of currents)  </li>
      *        </ul>
      *  </li>
      *  <li> 1 line per sensor and 6 columns (MEG sensors) :
@@ -112,23 +110,23 @@ namespace OpenMEEG {
         Matrix& getOrientations() {return m_orientations ; } /*!< Return a reference on sensors orientations. */
         Matrix getOrientations() const {return m_orientations ; } /*!< Return a copy of sensors orientations. */
 
-        std::vector<std::string>& getNames() {return m_names ; } /*!< Return a reference on sensors names. */
-        std::vector<std::string> getNames() const {return m_names ; } /*!< Return a copy of sensors names. */
+        Strings& getNames() {return m_names ; } /*!< Return a reference on sensors names. */
+        Strings  getNames() const {return m_names ; } /*!< Return a copy of sensors names. */
 
-        bool hasRadii() const { return m_radius.nlin() > 0 ;} /*!< Return true if contains radii */
+        bool hasRadii() const { return m_radii.nlin() > 0 ;} /*!< Return true if contains radii */
         bool hasOrientations() const { return m_orientations.nlin() > 0 ;} /*!< Return true if contains orientations */
         bool hasNames() const { return m_names.size() == m_nb ;} /*!< Return true if contains all sensors names */
         Vector getPosition(size_t idx) const; /*!< Return the position (3D point) of the integration point i. */
         Vector getOrientation(size_t idx) const; /*!< Return the orientations (3D point) of the integration point i. */
-        std::string getName(size_t idx) const{ return m_names[idx]; } /*!< Return the name of the idx_th sensor */
+        std::string getName(size_t idx) const{ om_assert(idx < m_names.size()); return m_names[idx]; } /*!< Return the name of the idx_th sensor */
         void setPosition(size_t idx, Vector& pos); /*!< Set the position (3D point) of the integration point i. */
         void setOrientation(size_t idx, Vector& orient); /*!< Set the orientation (3D point) of the integration point i. */
 
         bool hasSensor(std::string name);
         size_t getSensorIdx(std::string name);
-        Triangles getInjectionTriangles(size_t idx) const { return m_triangles[idx]; } /*!< For EIT, get triangles under the current injection electrode. */
+        Triangles getInjectionTriangles(size_t idx) const { om_assert(idx < m_triangles.size()); return m_triangles[idx]; } /*!< For EIT, get triangles under the current injection electrode. */
 
-        Vector getRadius() const { return m_radius; }
+        Vector getRadii()   const { return m_radii; }
         Vector getWeights() const { return m_weights; }
 
         SparseMatrix getWeightsMatrix() const;
@@ -137,16 +135,16 @@ namespace OpenMEEG {
         void info() const; /*!< \brief get info about sensors. */
 
     private:
-        size_t m_nb;                       /*!< Number of sensors. */
-        std::vector<std::string> m_names;  /*!< List of sensors names. */
-        Matrix m_positions;               /*!< Matrix of sensors positions. ex: positions(i,j) with  j in {0,1,2} for sensor i */
-        Matrix m_orientations;            /*!< Matrix of sensors orientations. ex: orientation(i,j) with  j in {0,1,2} for sensor i */
-        Vector m_weights;                 /*!< Weights of integration points */
-        Vector m_radius;                   /*!< Areas of the EIT sensors */
+        size_t m_nb;                        /*!< Number of sensors. */
+        Strings m_names;                    /*!< List of sensors names. */
+        Matrix m_positions;                 /*!< Matrix of sensors positions. ex: positions(i,j) with  j in {0,1,2} for sensor i */
+        Matrix m_orientations;              /*!< Matrix of sensors orientations. ex: orientation(i,j) with  j in {0,1,2} for sensor i */
+        Vector m_weights;                   /*!< Weights of integration points */
+        Vector m_radii;                     /*!< Areas of the EIT sensors */
         std::vector<Triangles> m_triangles; /*!< Triangles under each EIT sensors */
-        const Geometry * m_geo;              /*!< Geometry on which are applied EIT sensors */
+        const Geometry * m_geo;             /*!< Geometry on which are applied EIT sensors */
         std::vector<size_t> m_pointSensorIdx; /*!< Correspondance between point id and sensor id */
-        void findInjectionTriangles(); /*!< Get the triangles under each EIT sensors */
+        void findInjectionTriangles();      /*!< Get the triangles under each EIT sensors */
     };
 
     inline Vector Sensors::getPosition(size_t idx) const {

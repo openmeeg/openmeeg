@@ -1,6 +1,6 @@
 # OpenMEEG
 #
-# Copyright (c) INRIA 2013-2016. All rights reserved.
+# Copyright (c) INRIA 2013-2017. All rights reserved.
 # See LICENSE.txt for details.
 # 
 #  This software is distributed WITHOUT ANY WARRANTY; without even
@@ -15,7 +15,7 @@ function(hdf5_project)
 
     # Prepare the project and list dependencies
 
-    EP_Initialisation(hdf5 BUILD_SHARED_LIBS ON)
+    EP_Initialisation(hdf5 BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS})
     EP_SetDependencies(${ep}_dependencies ${MSINTTYPES} zlib)
 
     # Define repository where get the sources

@@ -42,9 +42,9 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <string>
 #include <sstream>
 #include <vector>
-#include <limits>
 #include <cstdlib>
 #include <ctime>
+#include <om_common.h>
 #include <mesh.h>
 
 namespace OpenMEEG {
@@ -88,8 +88,8 @@ namespace OpenMEEG {
               bool          check(bool checked = false); ///< Check the global orientation
 
         /// \return the total number of the interface vertices
-        unsigned nb_vertices() const {
-            unsigned nb = 0;
+        size_t nb_vertices() const {
+            size_t nb = 0;
             for ( const_iterator omit = begin(); omit != end(); ++omit) {
                 nb += omit->mesh().nb_vertices();
             }
@@ -97,8 +97,8 @@ namespace OpenMEEG {
         }
         
         /// \return the total number of the interface triangles
-        unsigned nb_triangles() const {
-            unsigned nb = 0;
+        size_t nb_triangles() const {
+            size_t nb = 0;
             for ( const_iterator omit = begin(); omit != end(); ++omit) {
                 nb += omit->mesh().nb_triangles();
             }

@@ -49,7 +49,8 @@ int main( int argc, char **argv)
     print_version(argv[0]);
 
     command_usage("Print Geometry information");
-    const char *geom_filename = command_option("-g",(const char *) NULL,"Input .geom file");
+    const char *geom_filename = command_option("-g", (const char *) NULL, "Input .geom file");
+    const char* cond_filename = command_option("-c", (const char *) NULL, "Input .cond file");
     const bool verbose = command_option("-v", false, "Verbose mode");
 
     if (command_option("-h",(const char *)0,0)) return 0;
@@ -62,7 +63,11 @@ int main( int argc, char **argv)
 
     int status = 0;
     Geometry geo;
-    geo.read(geom_filename);
+    if ( cond_filename ) {
+        geo.read(geom_filename, cond_filename);
+    } else {
+        geo.read(geom_filename);
+    }
 
     if ( geo.selfCheck() )
     {

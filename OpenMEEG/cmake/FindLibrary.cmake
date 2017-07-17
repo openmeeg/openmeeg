@@ -1,12 +1,9 @@
-set(LIB_TYPE SHARED)
 
 option(BUILD_SHARED_LIBS "Build shared libs" ON)
 mark_as_advanced(BUILD_SHARED_LIBS)
 
-if (BUILD_SHARED_LIBS)
-    set(LIB_TYPE SHARED)
-else()
-    set(LIB_TYPE STATIC)
+if (APPLE_STANDALONE)
+    set(CMAKE_FIND_LIBRARY_SUFFIXES ".a;.so;.dylib")
 endif()
 
 string(COMPARE NOTEQUAL "${BUILD_SHARED_STATUS}" "" BUILD_SHARED_STATUS_NOT_EMPTY)

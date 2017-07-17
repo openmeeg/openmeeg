@@ -70,7 +70,7 @@
                 return(NULL);
             }
 
-            std::cerr << "VV = " << *vec << std::endl;
+            /* std::cerr << "VV = " << *vec << std::endl; TODO */
 
             /* array object */
             PyArrayObject* matarray = 0;
@@ -86,8 +86,7 @@
             return PyArray_Return(matarray);
         }
 
-        /* Create a Matrix from an array
-           how to assign elements, ex: A(1,2)=4. ? setvalue ? TODO */
+        /* Create a Matrix from an array */
         static OpenMEEG::Matrix fromarray(PyObject* mat) {
             if (!mat) {
                 PyErr_SetString(PyExc_RuntimeError, "Zero pointer passed instead of valid array.");

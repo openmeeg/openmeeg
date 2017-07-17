@@ -40,8 +40,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #define _USE_MATH_DEFINES
 #endif
 
-#include <math.h>
-
+#include <om_common.h>
 #include <matrix.h>
 #include <symmatrix.h>
 #include <geometry.h>
@@ -75,7 +74,7 @@ namespace OpenMEEG {
         //deflat all current barriers as one
         unsigned nb_vertices=0,i_first=0;
         double coef=0.0;
-        for(std::vector<std::vector<std::string> >::const_iterator git=geo.geo_group().begin();git!=geo.geo_group().end();++git){
+        for ( std::vector<Strings>::const_iterator git = geo.geo_group().begin(); git != geo.geo_group().end(); ++git) {
             nb_vertices=0;
             i_first=0;
             for(std::vector<std::string>::const_iterator mit=git->begin();mit!=git->end();++mit){
@@ -234,7 +233,8 @@ namespace OpenMEEG {
             // ** Construct P: the null-space projector **
             Matrix W;
             {
-                Matrix U, s;
+                Matrix U;
+                SparseMatrix s;
                 mat.svd(U, s, W);
             }
 
@@ -243,7 +243,7 @@ namespace OpenMEEG {
             for ( unsigned i = Nl; i < Nc; ++i) {
                 S(i, i) = 1.0;
             }
-            P = (W * S) * W.transpose(); // P is a projector: P^2 = P and mat*P*X = 0
+            P = (W.transpose() * S) * W; // P is a projector: P^2 = P and mat*P*X = 0
             if ( filename.length() != 0 ) {
                 std::cout << "Saving projector P (" << filename << ")." << std::endl;
                 P.save(filename);
@@ -427,7 +427,7 @@ namespace OpenMEEG {
             }
         }
         std::cout << "gamma = " << gamma << std::endl;
-        
+
         G.invert();
         mat = (G * H.transpose() * (H * G * H.transpose()).inverse()).submat(0, Nc, Nl, M.nlin());
     }

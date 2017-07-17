@@ -1,6 +1,6 @@
 *~
 *.autosave
-build*
+build/*
 build.ninja
 clapack
 CMakeCache.txt

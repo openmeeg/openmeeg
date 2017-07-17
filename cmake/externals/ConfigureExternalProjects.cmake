@@ -2,7 +2,7 @@
 #
 # OpenMEEG
 #
-# Copyright (c) INRIA 2013-2016. All rights reserved.
+# Copyright (c) INRIA 2013-2017. All rights reserved.
 # See LICENSE.txt for details.
 # 
 #  This software is distributed WITHOUT ANY WARRANTY; without even
@@ -69,7 +69,7 @@ endmacro()
 macro(subprojects)
     
     set(SAVED_CMAKE_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX})
-    set(CMAKE_INSTALL_PREFIX "" )  
+    set(CMAKE_INSTALL_PREFIX "" )
 
     foreach (project ${ARGN})
 
@@ -96,6 +96,7 @@ macro(subprojects)
             if (build-${project})
                 set(build_dependencies ${build_dependencies} build-${project} install-${project})
             endif()
+            set(SUBPROJECTS ${SUBPROJECTS} "${project}")
         endif()
 
     endforeach()

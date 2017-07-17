@@ -1,6 +1,6 @@
 # OpenMEEG
 #
-# Copyright (c) INRIA 2013-2016. All rights reserved.
+# Copyright (c) INRIA 2013-2017. All rights reserved.
 # See LICENSE.txt for details.
 # 
 #  This software is distributed WITHOUT ANY WARRANTY; without even
@@ -11,7 +11,7 @@ function(msinttypes_project)
 
     # Prepare the project
 
-    EP_Initialisation(msinttypes USE_SYSTEM OFF BUILD_SHARED_LIBS ON)
+    EP_Initialisation(msinttypes USE_SYSTEM OFF BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS})
 
     # Define repository where get the sources
 

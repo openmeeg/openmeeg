@@ -1,8 +1,8 @@
 function setup_conda {
     if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
-        wget -q https://repo.continuum.io/miniconda/Miniconda-latest-MacOSX-x86_64.sh -O miniconda.sh
+        wget -q https://repo.continuum.io/miniconda/Miniconda2-latest-MacOSX-x86_64.sh -O miniconda.sh
     else
-        wget -q http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh
+        wget -q http://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh -O miniconda.sh
     fi
 
     chmod +x miniconda.sh
@@ -14,14 +14,17 @@ function setup_conda {
     source activate testenv
 }
 
+if [[ "$USE_COVERAGE" == "1" ]]; then
+    lcov --directory . --capture --output-file coverage.info > /dev/null 2>&1 # capture coverage info
+    lcov --remove coverage.info '/usr/*' --output-file coverage.info > /dev/null 2>&1 # filter out system
+    lcov --list coverage.info > /dev/null 2>&1
+    bash <(curl -s https://codecov.io/bash) > /dev/null 2>&1
+fi
 
-if [[ $deploy_password != '' ]]; then
-    echo $deploy_password > secret.txt
-    openssl aes-256-cbc -pass "file:./secret.txt" -in $TRAVIS_BUILD_DIR/build_tools/travis/openmeeg_deploy_key.enc -out ./openmeeg_deploy_key -d -a
-    chmod 600 openmeeg_deploy_key
-    mv openmeeg_deploy_key ~/.ssh/openmeeg_deploy_key
-
+# only upload to forge if we are on the master branch
+if [[ $ENABLE_PACKAGING == "1" && $TRAVIS_PULL_REQUEST == "false" && $TRAVIS_BRANCH == "master" ]]; then
     setup_conda
-    conda install --yes --quiet paramiko
-    python $TRAVIS_BUILD_DIR/build_tools/travis/upload_package_gforge.py *tar.gz
+    conda install -y --quiet paramiko
+    conda install -y --quiet pyopenssl
+    python ${src_dir}/build_tools/upload_package_gforge.py *gz
 fi

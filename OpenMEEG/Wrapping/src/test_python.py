@@ -159,7 +159,7 @@ m2.load(ssm_file)
 # For a Vector
 v=hm(1,10,1,1).getcol(0)
 vec = om.asarray(v)
-m=om.fromarray(vec)
+m = om.fromarray(vec)
 assert((v-m.getcol(0)).norm() < 1e-15)
 
 # For a Matrix

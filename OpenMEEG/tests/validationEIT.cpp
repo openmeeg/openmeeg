@@ -111,8 +111,8 @@ int main(const int argc, const char* argv[]) {
     Sensors electrodes(geo); // set nelec electrode positions
 
     std::stringstream ss;
-    ss << "0.886556 0.278249 -0.166667 0" << std::endl;
-    ss << "0.547922 -0.269672 -0.719889 0" << std::endl;
+    ss << "0.886556 0.278249 -0.166667" << std::endl;
+    ss << "0.547922 -0.269672 -0.719889" << std::endl;
     electrodes.load(ss);
 
     const Matrix& electrodes_positions = electrodes.getPositions();
@@ -121,7 +121,7 @@ int main(const int argc, const char* argv[]) {
     Matrix PotExt(HeadMatInv);
     PotExt = PotExt * SourceMatrix;
 
-    Vect3 current_position; //buffer for electrodes positions
+    Vect3 current_position; // buffer for electrodes positions
     Vect3 current_alphas;
     Triangle current_nearest_triangle; // buffer for closest triangle to electrode
     SparseMatrix matH2E(electrodes.getNumberOfSensors(), newsize); // Matrices Head2Electrodes
@@ -149,10 +149,7 @@ int main(const int argc, const char* argv[]) {
     const Matrix& rhsEIT = EITsource * injection;
 
     // Surf2Vol
-    Matrix points(ndip, 3);
-    points.setcol(0, dipoles.getcol(0));
-    points.setcol(1, dipoles.getcol(1));
-    points.setcol(2, dipoles.getcol(2));
+    Matrix points = dipoles.submat(0, ndip, 0, 3); // extract positions
     const Vector& VR0 = VR(geo, points, HeadMatInv, rhsEIT);
 
     // Surf2Vol en dx.

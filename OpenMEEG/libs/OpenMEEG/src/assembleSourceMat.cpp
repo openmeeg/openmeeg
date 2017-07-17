@@ -40,7 +40,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #if WIN32
 #define _USE_MATH_DEFINES
 #endif
-#include <math.h>
+#include <cmath>
 
 #include <vector.h>
 #include <matrix.h>
@@ -67,21 +67,19 @@ namespace OpenMEEG {
         const Domain d     = geo.domain(**mesh_source.vertex_begin()); 
         const double sigma = d.sigma();
         const double K     = 1.0/(4.*M_PI);
-
-        const unsigned nVertexSources = mesh_source.nb_vertices();
         
         // We here set it as an outermost (to tell _operarorN it doesn't belong to the geometry)
         mesh_source.outermost() = true;
         mesh_source.current_barrier() = true;
 
-        std::cout << std::endl << "assemble SurfSourceMat with " << nVertexSources << " mesh_source located in domain \"" << d.name() << "\"." << std::endl << std::endl;
+        std::cout << std::endl << "assemble SurfSourceMat with " << mesh_source.nb_vertices() << " mesh_source located in domain \"" << d.name() << "\"." << std::endl << std::endl;
 
         for ( Domain::const_iterator hit = d.begin(); hit != d.end(); ++hit) {
             for ( Interface::const_iterator omit = hit->interface().begin(); omit != hit->interface().end(); ++omit) {
-                // First block is nVertexFistLayer*nVertexSources.
+                // First block is nVertexFistLayer*mesh_source.nb_vertices()
                 double coeffN = (hit->inside())?K * omit->orientation() : omit->orientation() * -K;
                 operatorN( omit->mesh(), mesh_source, mat, coeffN, gauss_order);
-                // Second block is nFacesFistLayer*nVertexSources.
+                // Second block is nFacesFistLayer*mesh_source.nb_vertices()
                 double coeffD = (hit->inside())?-omit->orientation() * K / sigma : omit->orientation() * K / sigma;
                 operatorD(omit->mesh(), mesh_source, mat, coeffD, gauss_order,false);
             }
@@ -96,8 +94,8 @@ namespace OpenMEEG {
     void assemble_DipSourceMat(Matrix& rhs, const Geometry& geo, const Matrix& dipoles,
             const unsigned gauss_order, const bool adapt_rhs, const std::string& domain_name = "") 
     {
-        const unsigned size      = geo.size()-geo.nb_current_barrier_triangles();
-        const unsigned n_dipoles = dipoles.nlin();
+        const size_t size      = geo.size()-geo.nb_current_barrier_triangles();
+        const size_t n_dipoles = dipoles.nlin();
 
         rhs = Matrix(size,n_dipoles);
         rhs.set(0.0);
@@ -144,8 +142,11 @@ namespace OpenMEEG {
     void assemble_EITSourceMat(Matrix& mat, const Geometry& geo, const Sensors& electrodes, const unsigned gauss_order)
     {
         //  A Matrix to be applied to the scalp-injected current to obtain the Source Term of the EIT foward problem.
+        // following article BOUNDARY ELEMENT FORMULATION FOR ELECTRICAL IMPEDANCE TOMOGRAPHY
+        // (eq.14 (do not look at eq.16 since there is a mistake: D_23 -> S_23))
+        // rhs = [0 ... 0  -D*_23  sigma_3^(-1)S_23  -I_33/2.+D*_33]
 
-        unsigned n_sensors = electrodes.getNumberOfSensors();
+        size_t n_sensors = electrodes.getNumberOfSensors();
 
         const double K = 1.0/(4.*M_PI);
 
@@ -155,29 +156,35 @@ namespace OpenMEEG {
         mat = Matrix((geo.size()-geo.nb_current_barrier_triangles()), n_sensors);
         mat.set(0.0);
 
-        for(Geometry::const_iterator mit0=geo.begin();mit0!=geo.end();++mit0){
-            if(mit0->current_barrier())
-                for(Geometry::const_iterator mit1=geo.begin();mit1!=geo.end();++mit1){
-                    const int orientation=geo.oriented(*mit0,*mit1);
-                    if(orientation!=0){
-                        operatorS(*mit1,*mit0,transmat,geo.sigma_inv(*mit0,*mit1)*(-1.0*K*orientation),gauss_order);
-                        operatorD(*mit1,*mit0,transmat,(K*orientation),gauss_order,true);
-                        if(*mit0==*mit1)
-                            operatorP1P0(*mit0,transmat,0.5*orientation);
+        for (Geometry::const_iterator mit0 = geo.begin(); mit0 != geo.end(); ++mit0) {
+            if (mit0->current_barrier()) {
+                for (Geometry::const_iterator mit1 = geo.begin(); mit1 != geo.end(); ++mit1) {
+                    const int orientation = geo.oriented(*mit0,*mit1);
+                    if (orientation != 0){
+                        // D*_23 or D*_33
+                        operatorD(*mit1, *mit0, transmat, K*orientation, gauss_order, true);
+                        if (*mit0==*mit1) {
+                            // I_33
+                            operatorP1P0(*mit0, transmat, -0.5*orientation);
+                        } else {
+                            // S_23
+                            operatorS(*mit1, *mit0, transmat, geo.sigma_inv(*mit0,*mit1)*(-1.0*K*orientation), gauss_order);
+                        }
                     }
                 }
+            }
         }
 
-        for ( unsigned ielec = 0; ielec < n_sensors; ++ielec) {
+        for ( size_t ielec = 0; ielec < n_sensors; ++ielec) {
             Triangles tris = electrodes.getInjectionTriangles(ielec);
             for ( Triangles::const_iterator tit = tris.begin(); tit != tris.end(); ++tit) {
                 // to ensure exactly no accumulation of currents. w = elec_area/tris_area (~= 1)
                 double inv_area = electrodes.getWeights()(ielec);
                 // if no radius is given, we assume the user wants to specify an intensity not a density of current
-                if ( electrodes.getRadius()(0) < 1e3*std::numeric_limits<double>::epsilon() ) {
+                if ( almost_equal(electrodes.getRadii()(ielec), 0.) ) {
                     inv_area = 1./tit->area();
                 }
-                for ( unsigned i = 0; i < (geo.size() - geo.nb_current_barrier_triangles()); ++i) {
+                for ( size_t i = 0; i < (geo.size() - geo.nb_current_barrier_triangles()); ++i) {
                     mat(i, ielec) += transmat(tit->index(), i) * inv_area;
                 }
             }

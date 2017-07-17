@@ -4,19 +4,16 @@ if (GIT_HTTPS)
     set(GIT_PREFIX "https://")
 endif()
 
+# Option: do we want a static or a dynamic build ?
+option(BUILD_SHARED_LIBS "Build shared libs for all subprojects" ON)
+mark_as_advanced(BUILD_SHARED_LIBS)
+
 #   Various OpenMEEG options that will be forwarded.
 
-option(USE_ATLAS "Build the project using ATLAS" OFF)
-option(USE_OPENBLAS "Build the project using OPENBLAS" OFF)
-option(USE_MKL "Build the project with MKL" OFF)
-option(ENABLE_PACKAGING "Enable Packaging" OFF)
-option(ENABLE_PYTHON "Enable Python Wrapping" ON)
-option(USE_OMP "Use OpenMP" OFF)
-option(USE_VTK "Use VTK" OFF)
-option(BUILD_TESTING "Build the testing tree" ON)
-option(BUILD_DOCUMENTATION "Build the documentation" ON)
+include(OpenMEEGOptions)
 
 #   Various matio options that will be forwarded.
 
 option(MATIO_BUILD_TESTING "Build matio tests" OFF)
 option(MATLAB_TESTING "Enable matlab read tests (requires a function matlab)" OFF)
+

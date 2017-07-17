@@ -177,7 +177,7 @@ namespace OpenMEEG {
 
     static const unsigned nbPts[4] = {3, 6, 7, 16};
 
-    template <class T, class I>
+    template <typename T, typename I>
     class OPENMEEG_EXPORT Integrator 
     {
         unsigned order;
@@ -186,7 +186,7 @@ namespace OpenMEEG {
 
         inline Integrator()             { setOrder(3);   }
         inline Integrator(unsigned ord) { setOrder(ord); }
-        inline ~Integrator() {}
+        inline virtual ~Integrator() {}
 
         inline void setOrder(const unsigned n) 
         {
@@ -223,7 +223,7 @@ namespace OpenMEEG {
         }
     };
 
-    template <class T, class I>
+    template <typename T, typename I>
     class OPENMEEG_EXPORT AdaptiveIntegrator: public Integrator<T, I>
     {
         typedef Integrator<T, I> base;

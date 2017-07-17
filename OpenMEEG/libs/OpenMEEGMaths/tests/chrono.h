@@ -37,10 +37,7 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#ifndef OPENMEEG_CHRONO_H
-#define OPENMEEG_CHRONO_H
+#pragma once
 
 void timer_start();
 double timer_lap();
-
-#endif  //! OPENMEEG_CHRONO_H

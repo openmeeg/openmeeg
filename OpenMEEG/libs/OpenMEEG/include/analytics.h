@@ -46,7 +46,7 @@ namespace OpenMEEG {
 
     inline double integral_simplified_green(const Vect3& p0x, const double norm2p0x,
                                             const Vect3& p1x, const double norm2p1x,
-                                            const Vect3& p1p0, const double norm2p1p0) 
+                                            const Vect3& p1p0, const double norm2p1p0)
     {
         //  The quantity arg is normally >= 1, verifying this relates to a triangular inequality
         //  between p0, p1 and x.
@@ -91,7 +91,7 @@ namespace OpenMEEG {
             init_aux();
         }
 
-        void init( const Vect3& v0, const Vect3& v1, const Vect3& v2 )
+        void init(const Vect3& v0, const Vect3& v1, const Vect3& v2)
         {
             // all computations needed when the first triangle of integration is changed
             p0 = v0;
@@ -125,73 +125,14 @@ namespace OpenMEEG {
         }
     };
 
-    class OPENMEEG_EXPORT analyticD
-    {
-        Vect3 v1, v2, v3;
-        unsigned i;
-        double aire;
-
-    public:
-        analyticD()  {}
-        ~analyticD() {}
-        inline void init( const Triangle& T, const Vertex& V) {
-            v1 = T.s1();
-            v2 = T.s2();
-            v3 = T.s3();
-            (V == v1) ? i = 1 : (V == v2) ? i = 2 : i = 3;
-            aire = T.area();
-        }
-
-        inline double f(const Vect3& x) const {
-            //Analytical value of the inner integral in operator D. See DeMunck article for further details.
-            //  for non-optimized version of operator D
-            //  returns the value of the inner integral of operator D on a triangle used for a P1 function
-            const Vect3& Y1 = v1-x;
-            const Vect3& Y2 = v2-x;
-            const Vect3& Y3 = v3-x;
-
-            const double y1 = Y1.norm();
-            const double y2 = Y2.norm();
-            const double y3 = Y3.norm();
-            const double d = Y1*(Y2^Y3);
-
-            const double derr = 1e-10;
-            if ( fabs(d) < derr ) return 0.0;
-
-            const Vect3 D[3] = { Y1-Y2, Y2-Y3, Y3-Y1 };
-            const double d0 = D[0].norm();
-            const double d1 = D[1].norm();
-            const double d2 = D[2].norm();
-
-            const double g0 = integral_simplified_green(Y2, y2, Y1, y1, D[0], d0)/d0;
-            const double g1 = integral_simplified_green(Y3, y3, Y2, y2, D[1], d1)/d1;
-            const double g2 = integral_simplified_green(Y1, y1, Y3, y3, D[2], d2)/d2;
-
-            const Vect3 Z[3] = { Y2^Y3, Y3^Y1, Y1^Y2 };
-            const Vect3& N = Z[0]+Z[1]+Z[2];
-
-            const Vect3& S = D[0]*g0+D[1]*g1+D[2]*g2;
-
-            const double omega = 2*atan2(d,(y1*y2*y3+y1*(Y2*Y3)+y2*(Y3*Y1)+y3*(Y1*Y2)));
-
-            return (omega*(Z[i-1]*N) + d*(D[i%3]*S))/N.norm2();
-        }
-    };
-
     class OPENMEEG_EXPORT analyticD3
     {
-        Vertex v1, v2, v3;
-        double aire;
+        const Vect3 &v1, &v2, &v3;
 
     public:
-        analyticD3()  {}
+        analyticD3(const Triangle& T): v1(T.s1()), v2(T.s2()), v3(T.s3()) {}
+
         ~analyticD3() {}
-        inline void init( const Triangle& T) {
-            v1 = T.s1();
-            v2 = T.s2();
-            v3 = T.s3();
-            aire = T.area();
-        }
 
         inline Vect3 f(const Vect3& x) const {
             //Analytical value of the inner integral in operator D. See DeMunck article for further details.

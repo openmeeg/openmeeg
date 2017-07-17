@@ -46,10 +46,10 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <cstdlib>
 #include <cmath>
 #include <iostream>
-#include <OMassert.H>
+#include <om_common.h>
 #include <vector>
 
-#include <DLLDefinesOpenMEEG.h>
+#include <OpenMEEG_Export.h>
 
 namespace OpenMEEG {
 

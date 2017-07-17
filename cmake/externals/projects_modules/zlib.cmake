@@ -1,6 +1,6 @@
 # OpenMEEG
 #
-# Copyright (c) INRIA 2013-2016. All rights reserved.
+# Copyright (c) INRIA 2013-2017. All rights reserved.
 # See LICENSE.txt for details.
 # 
 #  This software is distributed WITHOUT ANY WARRANTY; without even
@@ -15,15 +15,16 @@ function(zlib_project)
 
     # Prepare the project and list dependencies
 
-    EP_Initialisation(zlib BUILD_SHARED_LIBS ON)
+    EP_Initialisation(zlib BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS})
     EP_SetDependencies(${ep}_dependencies "${MSINTTYPES}")
       
     # Define repository where get the sources
 
     if (NOT DEFINED ${ep}_SOURCE_DIR)
-        set(location
-            URL "http://zlib.net/zlib-1.2.8.tar.gz"
-            URL_MD5 "44d667c142d7cda120332623eab69f40")
+        set(location GIT_REPOSITORY "${GIT_PREFIX}github.com/madler/zlib.git" GIT_TAG v1.2.11)
+        #set(location
+        #    URL "http://zlib.net/zlib-1.2.11.tar.gz"
+        #    URL_MD5 "1c9f62f0778697a09d36121ead88e08e")
     endif()
 
     # set compilation flags
@@ -44,7 +45,7 @@ function(zlib_project)
 
     # Check if patch has to be applied
 
-    ep_GeneratePatchCommand(${ep} PATCH_COMMAND)
+    ep_GeneratePatchCommand(${ep} PATCH_COMMAND zlib.patch)
 
     # Add external-project
 

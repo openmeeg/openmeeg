@@ -1,0 +1,70 @@
+os: Visual Studio 2015
+
+# scripts that are called at very beginning, before repo cloning
+init:
+  - git config --global core.autocrlf input
+  - cmd: set PATH=C:\Program Files (x86)\CMake\bin\;%PATH%
+
+clone_folder: C:\projects\openmeeg
+
+platform: x64
+configuration: Release
+
+install:
+  - "SET PATH=C:\\Miniconda-x64;C:\\Miniconda-x64\\Scripts;C:\\Python27-x64;%PATH%"
+  # by default, all script lines are interpreted as batch
+
+environment:
+  global:
+    deploy_host:
+      secure: elpy2/txkSJRwksSCwLehfm3eLDYTAalGUvTGzPlphY=
+    deploy_user:
+      secure: 2kJCgcedzNy4rFCQbW7PNw==
+    deploy_password:
+      secure: Cr908GItsFT5Wp0rYB8ExUukZxSu+mgdprFvU4CxmcM=
+    deploy_folder:
+      secure: k+J4yytvUwuRb5wHVAetZ84O90bJ4ZgwYOS9vLec90o09HP+GLvD9DvNbG1q9Q2p
+  matrix:
+    - lapack: OpenBLAS
+      omp: ON
+      vtk: ON
+      python: OFF
+      pack: ON
+    - lapack: LAPACK
+      vtk: OFF
+      python: ON
+      pack: OFF
+
+matrix:
+  fast_finish: true
+
+before_build:
+    - if NOT DEFINED APPVEYOR_PULL_REQUEST_NUMBER (if %APPVEYOR_REPO_BRANCH% == master ( if %pack%==ON ( pip install paramiko pyopenssl ) ) )
+    - if %python%==ON ( cinst -y swig & conda update -y conda & conda install -y numpy)
+
+build_script:
+  - echo Running cmake...
+  - mkdir build
+  - cd build
+  - cmake -G "Visual Studio 14 2015 Win64" -DBUILD_DOCUMENTATION=OFF -DBUILD_TESTING:BOOL=ON -DENABLE_PACKAGING:BOOL=%pack% -DCMAKE_SKIP_RPATH:BOOL=OFF -DENABLE_PYTHON=%python% -DBLASLAPACK_IMPLEMENTATION=%lapack% -DUSE_OMP:BOOL=%omp% -DUSE_VTK=%vtk% ..
+  - cmake --build . --config Release
+
+after_build:
+  - if %pack%==ON ( cpack & cpack -G NSIS)
+
+before_test:
+  - echo Running tests...
+  - cd C:\projects\openmeeg\build\OpenMEEG\build
+  - ctest
+
+on_success:
+  - set src_dir=%APPVEYOR_BUILD_FOLDER%
+  - cd %src_dir%
+  - if NOT DEFINED APPVEYOR_PULL_REQUEST_NUMBER (if %APPVEYOR_REPO_BRANCH% == master ( if %pack%==ON ( python %src_dir%\build_tools\upload_package_gforge.py build\OpenMEEG-*.exe build\OpenMEEG-*.gz) ))
+
+artifacts:
+  - path: build\OpenMEEG-*.exe
+    name: OpenMEEG-Win64.exe
+  - path: build\OpenMEEG-*.tar.gz
+    name: OpenMEEG-Win64.tar.gz
+

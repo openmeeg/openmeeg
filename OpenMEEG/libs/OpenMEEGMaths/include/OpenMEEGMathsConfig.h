@@ -40,176 +40,61 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #pragma once
 
 //  cmake configuration.
-#include <OpenMEEGConfigure.h>
-#include <DLLDefinesOpenMEEGMaths.h>
 
-#if !defined(USE_MKL)
-    #if defined (WIN32) || !defined(USE_ATLAS)
-        #define FC_GLOBAL(x,X) x ## _
-    #else
-        #include <FC.h>
+#include <OpenMEEGConfigure.h>
+#include <OpenMEEGMaths_Export.h>
+
+// specially for windows
+#if WIN32
+    #pragma inline_recursion (on)
+    #pragma inline_depth (255) // MSVC static build with MKL cause LNK2019 error
+    #pragma warning( disable : 4530)    //MSVC standard library can't be inlined
+    #pragma warning( disable : 4996)    //MSVC warning C4996: declared deprecated
+    #if defined(_MSC_VER)
+        // Enable MSVC compiler warning messages that are useful but off by default.
+        # pragma warning ( default : 4263 ) /* no override, call convention differs */
+        // Disable MSVC compiler warning messages that often occur in valid code.
+        # pragma warning ( disable : 4097 ) /* typedef is synonym for class */
+        # pragma warning ( disable : 4127 ) /* conditional expression is constant */
+        # pragma warning ( disable : 4244 ) /* possible loss in conversion */
+        # pragma warning ( disable : 4251 ) /* missing DLL-interface */
+        # pragma warning ( disable : 4305 ) /* truncation from type1 to type2 */
+        # pragma warning ( disable : 4309 ) /* truncation of constant value */
+        # pragma warning ( disable : 4514 ) /* unreferenced inline function */
+        # pragma warning ( disable : 4706 ) /* assignment in conditional expression */
+        # pragma warning ( disable : 4710 ) /* function not inlined */
+        # pragma warning ( disable : 4786 ) /* identifier truncated in debug info */
+        # pragma warning ( disable : 4244 ) /* possible loss of data ('float' to 'mat_uint32_t') */
+        # pragma warning ( disable : 4267 ) /* possible loss of data (size_t to int) */
     #endif
+#endif
+
+//  Blas/Lapack configuration
+
+#if defined(MKL_ILP64) && defined(USE_MKL)
+typedef long long int BLAS_INT;
+#else
+typedef int BLAS_INT;
+#endif
+
+#if defined(USE_LAPACK)
+#include <BlasLapackImplementations/OpenMEEGMathsBlasLapackConfig.h>
+#elif defined(USE_MKL)
+#include <BlasLapackImplementations/OpenMEEGMathsMKLConfig.h>
+#elif defined(USE_ATLAS)
+#include <BlasLapackImplementations/OpenMEEGMathsAtlasConfig.h>
+#elif defined(USE_OPENBLAS)
+#include <BlasLapackImplementations/OpenMEEGMathsOpenBLASConfig.h>
+#elif defined(USE_VECLIB)
+#include <BlasLapackImplementations/OpenMEEGMathsvecLibConfig.h>
+#else
+#warning "No blas/lapack implementation selected."
 #endif
 
 //#define inline __forceinline
 //#define inline __attribute__((always_inline))
 //#define inline __attribute__((weak)) inline
 
-#if WIN32
-    #pragma inline_recursion (on)
-    #pragma inline_depth (255)
-    #pragma warning( disable : 4530)    //MSVC standard library can't be inlined
-    #pragma warning( disable : 4996)    //MSVC warning C4996: declared deprecated
-#endif
 
-#ifdef USE_ATLAS
-extern "C" {
-    #include <cblas.h>
-    #include <clapack.h>
-}
-#define BLAS(x,X) cblas_ ## x
-#ifdef __APPLE__
-    #define LAPACK(x,X) x ## _
-    // #define LAPACK(x,X) FC_GLOBAL(x,X)
-#else
-    #define LAPACK(x,X) clapack_ ## x
-#endif
-#endif
-
-// TODO please @Theo ?
-// #ifdef USE_OPENBLAS
-// extern "C" {
-//     #include <openblas_config.h>
-//     #include <cblas.h>
-// }
-// #define BLAS(x,X) cblas_ ## x
-// #ifdef __APPLE__
-//     #define LAPACK(x,X) x ## _
-//     // #define LAPACK(x,X) FC_GLOBAL(x,X)
-// #else
-//     #define LAPACK(x,X) lapacke_ ## x
-// #endif
-// #endif
-
-
-#ifdef USE_MKL
-// Hack to avoid the MKL declarations of Lapack Functions which do not use the power of C++ references
-    #define _MKL_LAPACK_H_
-    #include <mkl.h>
-    #define BLAS(x,X) cblas_ ## x
-    #define LAPACK(x,X) x
-    #define FC_GLOBAL(x,X) x
-#endif
-
-#ifdef USE_ACML
-    #include <acml.h>
-    //  Those macros are not used yet
-    #define BLAS(x,X) x
-    #define LAPACK(x,X) FC_GLOBAL(x,X)
-    extern "C" void vrda_sin (int n, double *t, double *p);
-    extern "C" void vrda_cos (int n, double *t, double *p);
-    extern "C" void vrda_exp (int n, double *t, double *p);
-    extern "C" void vrda_log (int n, double *t, double *p);
-#endif
-
-#if defined(HAVE_BLAS) && !defined(USE_ATLAS) && !defined(USE_ACML)
-
-#ifndef USE_MKL
-    #define CblasColMajor
-    #define CblasTrans 'T'
-    #define CblasNoTrans 'N'
-    #define CblasRight 'R'
-    #define CblasLeft 'L'
-    #define CblasUpper 'U'
-    #define BLAS(x,X) FC_GLOBAL(x,X)
-    #define LAPACK(x,X) FC_GLOBAL(x,X)
-
-    extern "C" {
-        void BLAS(dcopy,DCOPY)(const int&,const double*,const int&,double*,const int&);
-        void BLAS(daxpy,DAXPY)(const int&,const double&,const double*,const int&,double*,const int&);
-        double BLAS(ddot,DDOT)(const int&,const double*,const int&,const double*,const int&);
-        double BLAS(dnrm2,DNRM2)(const int&,const double*,const int&);
-        void BLAS(dscal,DSCAL)(const int&,const double&,double*,const int&);
-        void BLAS(dger,DGER)(const int&,const int&,const double&,const double*,const int&,const double*,const int&,double*,const int&);
-        void BLAS(dspmv,DSPMV)(const char&,const int&,const double&,const double*,const double*,const int&,const double&,double*,const int&);
-        void BLAS(dtpmv,DTPMV)(const char&,const char&,const char&,const int&,const double*,double*,const int&);
-        void BLAS(dsymm,DSYMM)(const char&,const char&,const int&,const int&,const double&,const double*,const int&,const double*,const int&, const double&,double*,const int&);
-        void BLAS(dgemm,DGEMM)(const char&,const char&,const int&,const int&,const int&,const double&,const double*,const int&,const double*,const int&,const double&,double*,const int&);
-        void BLAS(dtrmm,DTRMM)(const char&,const char&,const char&,const char&,const int&,const int&,const double&,const double*,const int&,const double*,const int&);
-        void BLAS(dgemv,DGEMV)(const char&,const int&,const int&,const double&,const double*,const int&,const double*,const int&,const double&,double*,const int&);
-    }
-#endif
-
-    extern "C" {
-        void LAPACK(dgetrf,DGETRF)(const int&,const int&,double*,const int&,int*,int&);
-        void LAPACK(dgetri,DGETRI)(const int&,double*,const int&,int*,double*,const int&,int&);
-    }
-
-#endif
-
-#if defined(HAVE_LAPACK)
-    extern "C" {
-        void FC_GLOBAL(dgesdd,DGESDD)(const char&,const int&,const int&,double*,const int&,double*,double*,const int&,double*,const int&,double*,const int&,int*,int&);
-        void FC_GLOBAL(dpotf2,DPOTF2)(const char&,const int&,double*,const int&,int&);
-        double FC_GLOBAL(dlange,DLANGE)(const char&,const int&,const int&,const double*,const int&,double*);
-        void FC_GLOBAL(dsptrf,DSPTRF)(const char&,const int&,double*,int*,int&);
-        void FC_GLOBAL(dtptri,DTPTRI)(const char&,const char&,const int&,double*,int&,int&);
-        void FC_GLOBAL(dsptri,DSPTRI)(const char&,const int&,double*,int*,double*,int&);
-        void FC_GLOBAL(dpptrf,DPPTRF)(const char&,const int&,double*,int&);
-        void FC_GLOBAL(dpptri,DPPTRI)(const char&,const int&,double*,int&);
-        void FC_GLOBAL(dspevd,DSPEVD)(const char&,const char&,const int&,double*,double*,double*,const int&,double*,const int&,int*,const int&,int&);
-        void FC_GLOBAL(dsptrs,DSPTRS)(const char&,const int&,const int&,double*,int*,double*,const int&,int&);
-    }
-#endif
-
-#define DGESDD FC_GLOBAL(dgesdd,DGESDD)
-#define DPOTF2 FC_GLOBAL(dpotf2,DPOTF2)
-#define DLANGE FC_GLOBAL(dlange,DLANGE)
-
-#define DSPTRF FC_GLOBAL(dsptrf,DSPTRF)
-#define DTPTRI FC_GLOBAL(dtptri,DTPTRI)
-#define DPPTRF FC_GLOBAL(dpptrf,DPPTRF)
-#define DPPTRI FC_GLOBAL(dpptri,DPPTRI)
-#define DSPEVD FC_GLOBAL(dspevd,DSPEVD)
-#define DSPTRS FC_GLOBAL(dsptrs,DSPTRS)
-
-#if defined(USE_ATLAS) || defined(USE_MKL)
-    #define DGER(X1,X2,X3,X4,X5,X6,X7,X8,X9) BLAS(dger,DGER)(CblasColMajor,X1,X2,X3,X4,X5,X6,X7,X8,X9)
-    #define DSPMV(X1,X2,X3,X4,X5,X6,X7,X8,X9) BLAS(dspmv,DSPMV)(CblasColMajor,X1,X2,X3,X4,X5,X6,X7,X8,X9)
-    #define DTPMV(X1,X2,X3,X4,X5,X6,X7) BLAS(dtpmv,DTPMV)(CblasColMajor,X1,X2,X3,X4,X5,X6,X7)
-    #define DSYMM(X1,X2,X3,X4,X5,X6,X7,X8,X9,X10,X11,X12) BLAS(dsymm,DSYMM)(CblasColMajor,X1,X2,X3,X4,X5,X6,X7,X8,X9,X10,X11,X12)
-    #define DGEMV(X1,X2,X3,X4,X5,X6,X7,X8,X9,X10,X11) BLAS(dgemv,DGEMV)(CblasColMajor,X1,X2,X3,X4,X5,X6,X7,X8,X9,X10,X11)
-    #define DGEMM(X1,X2,X3,X4,X5,X6,X7,X8,X9,X10,X11,X12,X13) BLAS(dgemm,DGEMM)(CblasColMajor,X1,X2,X3,X4,X5,X6,X7,X8,X9,X10,X11,X12,X13)
-    #define DTRMM(X1,X2,X3,X4,X5,X6,X7,X8,X9,X10,X11) BLAS(dtrmm,DTRMM)(CblasColMajor,X1,X2,X3,X4,X5,X6,X7,X8,X9,X10,X11)
-    #if defined(USE_ATLAS)
-        #ifdef __APPLE__
-            #define DGETRF(X1,X2,X3,X4,X5,X6) LAPACK(dgetrf,DGETRF)(&X1,&X2,X3,&X4,X5,&X6)
-            // #define DGETRF(X1,X2,X3,X4,X5,X6) LAPACK(dgetrf,DGETRF)(CblasColMajor,X1,X2,X3,X4,X5)
-            #define DGETRI(X1,X2,X3,X4,X5,X6,X7) LAPACK(dgetri,DGETRI)(&X1,X2,&X3,X4,X5,&X6,&X7)
-            // #define DGETRI(X1,X2,X3,X4,X5,X6,X7) LAPACK(dgetri,DGETRI)(CblasColMajor,X1,X2,X3,X4)
-        #else
-            #define DGETRF(X1,X2,X3,X4,X5) LAPACK(dgetrf,DGETRF)(CblasColMajor,X1,X2,X3,X4,X5)
-            #define DGETRI(X1,X2,X3,X4)    LAPACK(dgetri,DGETRI)(CblasColMajor,X1,X2,X3,X4)
-        #endif
-    #else
-        #define DGETRF(X1,X2,X3,X4,X5,X6) LAPACK(dgetrf,DGETRF)(X1,X2,X3,X4,X5,X6)
-        #define DGETRI(X1,X2,X3,X4,X5,X6,X7) LAPACK(dgetri,DGETRI)(X1,X2,X3,X4,X5,X6,X7)
-    #endif
-    #define DSPTRI(X1,X2,X3,X4,X5,X6) FC_GLOBAL(dsptri,DSPTRI)(X1,X2,X3,X4,X5,X6)
-#else
-    #define DGER(X1,X2,X3,X4,X5,X6,X7,X8,X9) BLAS(dger,DGER)(X1,X2,X3,X4,X5,X6,X7,X8,X9)
-    #define DSPMV(X1,X2,X3,X4,X5,X6,X7,X8,X9) BLAS(dspmv,DSPMV)(X1,X2,X3,X4,X5,X6,X7,X8,X9)
-    #define DTPMV(X1,X2,X3,X4,X5,X6,X7) BLAS(dtpmv,DTPMV)(X1,X2,X3,X4,X5,X6,X7)
-    #define DSYMM(X1,X2,X3,X4,X5,X6,X7,X8,X9,X10,X11,X12) BLAS(dsymm,DSYMM)(X1,X2,X3,X4,X5,X6,X7,X8,X9,X10,X11,X12)
-    #define DGEMV(X1,X2,X3,X4,X5,X6,X7,X8,X9,X10,X11) BLAS(dgemv,DGEMV)(X1,X2,X3,X4,X5,X6,X7,X8,X9,X10,X11)
-    #define DGEMM(X1,X2,X3,X4,X5,X6,X7,X8,X9,X10,X11,X12,X13) BLAS(dgemm,DGEMM)(X1,X2,X3,X4,X5,X6,X7,X8,X9,X10,X11,X12,X13)
-    #define DTRMM(X1,X2,X3,X4,X5,X6,X7,X8,X9,X10,X11) BLAS(dtrmm,DTRMM)(X1,X2,X3,X4,X5,X6,X7,X8,X9,X10,X11)
-    #define DGETRF LAPACK(dgetrf,DGETRF)
-    #if defined(USE_ACML)
-        #define DGETRI(X1,X2,X3,X4,X5,X6,X7) LAPACK(dgetri,DGETRI)(X1,X2,X3,X4,X7)
-        #define DSPTRI(X1,X2,X3,X4,X5,X6) LAPACK(dsptri,DSPTRI)(X1,X2,X3,X4,X6)
-    #else
-        #define DGETRI(X1,X2,X3,X4,X5,X6,X7) LAPACK(dgetri,DGETRI)(X1,X2,X3,X4,X5,X6,X7)
-        #define DSPTRI(X1,X2,X3,X4,X5,X6) LAPACK(dsptri,DSPTRI)(X1,X2,X3,X4,X5,X6)
-    #endif
-#endif
+#define DPOTF2 LAPACK(dpotf2,DPOTF2)
+#define DSPEVD LAPACK(dspevd,DSPEVD)

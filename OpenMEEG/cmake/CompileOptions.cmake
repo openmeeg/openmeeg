@@ -26,7 +26,6 @@ if (UNIX)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 endif()
 
-
 if (USE_GCC)
     set(CXX_WARNING_OPTIONS "-Wall -W -Wno-unknown-pragmas -Wshadow -Wunused-variable -Wunused-parameter -Wunused -Wno-system-headers -Wno-deprecated -Woverloaded-virtual -Wwrite-strings")
     set(CC_WARNING_OPTIONS "-Wall -W -Wno-unknown-pragmas -Wshadow -Wunused-variable -Wunused-parameter -Wunused -Wno-system-headers -Wwrite-strings")
@@ -34,12 +33,10 @@ if (USE_GCC)
     set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} ${CC_WARNING_OPTIONS}")
 endif()
 
-if (APPLE)
-    option(BUILD_UNIVERSAL "Build Universal Binaries" OFF)
-    if (BUILD_UNIVERSAL)
-        set(GCC_UNIVERSAL_FLAGS "-arch i386 -arch x86_64")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GCC_UNIVERSAL_FLAGS}")
-        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${GCC_UNIVERSAL_FLAGS}")
-    endif()
+if(MSVC)
+    # to allow the use of and, or instead of && ||
+    add_compile_options("/Za")
 endif()
 
+# for DLL windows
+include (GenerateExportHeader)
