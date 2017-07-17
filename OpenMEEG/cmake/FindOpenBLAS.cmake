@@ -29,8 +29,6 @@ else()
         /usr/local/lib
         /usr/local/lib64
         /usr/local/opt/openblas/lib
-        /usr/local/Cellar/
-        /usr/local/opt/gcc/lib
         /opt/OpenBLAS/lib
         $ENV{OpenBLAS}
         $ENV{OpenBLAS}/lib
