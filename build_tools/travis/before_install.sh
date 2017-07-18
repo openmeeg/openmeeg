@@ -24,7 +24,7 @@ if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
         brew link openblas --force  # required as link is not automatic
     fi
 
-    if [[ "$USE_VTK" == "1" && "$APPLE_STANDALONE" != "1" ]]; then
+    if [[ "$USE_VTK" == "1" && "$STANDALONE" != "1" ]]; then
         brew install vtk
     fi
 
@@ -82,8 +82,12 @@ else
         sudo apt-get install -y swig python-dev python-numpy
     fi
 
-    if [[ "$USE_VTK" == "1" ]]; then
+    if [[ "$USE_VTK" == "1" && "$STANDALONE" != "1" ]]; then
         sudo apt-get install libvtk5-dev
+    fi
+
+    if [[ "$STANDALONE" == "1" ]]; then
+        sudo apt-get install libgfortran-4.8-dev
     fi
 
     if [[ "$BUILD_DOCUMENTATION" == "ON" ]]; then

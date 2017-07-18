@@ -46,6 +46,7 @@ include(CompileOptions)
 
 set(OpenMEEG_HEADER_INSTALLDIR ${INSTALL_INCLUDE_DIR}/openmeeg)
 set(OpenMEEG_DEPENDENCIES matio)
+set(OpenMEEG_IMPORTED_LIBS) # for standalone package
 
 # ==============
 # = Endianess =
@@ -62,6 +63,8 @@ test_big_endian(WORDS_BIGENDIAN)
 include(OpenMEEGOptions)
 
 Dependencies(OpenMEEG ${OpenMEEG_DEPENDENCIES})
+
+include(Standalone)
 
 if (NOT matio_FOUND)
     message(FATAL_ERROR "No matio found.")

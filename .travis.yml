@@ -10,7 +10,7 @@ matrix:
         - USE_PROJECT=1
         - ENABLE_PACKAGING=0
         - BLASLAPACK_IMPLEMENTATION=vecLib
-        - APPLE_STANDALONE=1
+        - STANDALONE=1
     - os: osx
       compiler: clang
       env:
@@ -19,8 +19,8 @@ matrix:
         - USE_CGAL=1
         - USE_VTK=1
         - ENABLE_PACKAGING=1
-        - APPLE_STANDALONE=1
-        - BLASLAPACK_IMPLEMENTATION=vecLib
+        - STANDALONE=1
+        - BLASLAPACK_IMPLEMENTATION=OpenBLAS
     - os: osx
       compiler: clang
       env:
@@ -44,6 +44,7 @@ matrix:
         - USE_COVERAGE=1
         - BUILD_DOCUMENTATION=ON
         - ENABLE_PACKAGING=1
+        - STANDALONE=1
         - BLASLAPACK_IMPLEMENTATION=OpenBLAS
     - os: linux
       compiler: gcc
