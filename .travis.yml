@@ -41,7 +41,6 @@ matrix:
         - USE_PROJECT=1
         - USE_VTK=1
         - USE_OMP=1
-        - USE_COVERAGE=1
         - BUILD_DOCUMENTATION=ON
         - ENABLE_PACKAGING=1
         - STANDALONE=1
@@ -49,17 +48,18 @@ matrix:
     - os: linux
       compiler: gcc
       env:
-        - USE_SYSTEM=0
-        - USE_PROJECT=1
-        - BLASLAPACK_IMPLEMENTATION=LAPACK
+        - USE_PROJECT=0
+        - BLASLAPACK_IMPLEMENTATION=Atlas
     - os: linux
       compiler: gcc
       env:
-        - USE_PROJECT=0
+        - USE_PROJECT=1
+        - USE_SYSTEM=0
         - USE_CGAL=1
         - USE_GIFTI=1
         - USE_VTK=1
-        - BLASLAPACK_IMPLEMENTATION=Atlas
+        - USE_COVERAGE=1
+        - BLASLAPACK_IMPLEMENTATION=LAPACK
 
 before_install: source build_tools/travis/before_install.sh
 
