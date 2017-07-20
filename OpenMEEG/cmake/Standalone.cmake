@@ -30,15 +30,20 @@ if (STANDALONE)
                 list(LENGTH exts nb_ext)
                 if (${nb_ext} GREATER 2)
                     list(GET exts 1 outt)
-                    add_custom_target(links${alibnameL}${outt} ALL
-                        COMMAND ln -sf ${areallibname} ${alibnameL}${outt}
-                        COMMENT "linking ${alibnameL}${outt} -> ${areallibname}")
-                    list(APPEND imported_libs ${CMAKE_CURRENT_BINARY_DIR}/${alibnameL}${outt})
+                    set(linkname ${alibnameL}${outt})
+                    if (APPLE)
+                        list(GET exts 0 outt)
+                        set(linkname ${CMAKE_SHARED_LIBRARY_PREFIX}${alibname}${outt}${CMAKE_SHARED_LIBRARY_SUFFIX})
+                    endif()
+                    add_custom_target(links${linkname} ALL
+                        COMMAND ln -sf ${areallibname} ${linkname}
+                        COMMENT "linking ${linkname} -> ${areallibname}")
+                    list(APPEND imported_libs ${CMAKE_CURRENT_BINARY_DIR}/${linkname})
                 endif()
                 # sym link from libmatio.so -> libmatio.so.2.0.2
                 add_custom_target(links${alibnameL} ALL
                     COMMAND ln -sf ${areallibname} ${alibnameL}
-                    COMMENT "linking ${alibnameL}${outt} -> ${areallibname}")
+                    COMMENT "linking ${alibnameL} -> ${areallibname}")
                 list(APPEND imported_libs ${CMAKE_CURRENT_BINARY_DIR}/${alibnameL})
             endif()
         endif()

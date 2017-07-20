@@ -14,6 +14,14 @@ matrix:
     - os: osx
       compiler: clang
       env:
+        - USE_SYSTEM=0
+        - USE_PROJECT=1
+        - ENABLE_PACKAGING=1
+        - USE_VTK=1
+        - BLASLAPACK_IMPLEMENTATION=LAPACK
+    - os: osx
+      compiler: clang
+      env:
         - USE_SYSTEM=1
         - USE_PROJECT=1
         - USE_CGAL=1
@@ -33,6 +41,15 @@ matrix:
       env:
         - USE_SYSTEM=1
         - USE_PROJECT=1
+        - BLASLAPACK_IMPLEMENTATION=LAPACK
+    - os: linux
+      compiler: gcc
+      env:
+        - USE_SYSTEM=0
+        - USE_PROJECT=1
+        - USE_VTK=1
+        - USE_OMP=1
+        - ENABLE_PACKAGING=1
         - BLASLAPACK_IMPLEMENTATION=LAPACK
     - os: linux
       compiler: gcc

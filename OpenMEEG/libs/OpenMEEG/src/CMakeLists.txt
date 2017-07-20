@@ -36,5 +36,5 @@ set(OpenMEEG_SOURCES
     mesh.cpp interface.cpp danielsson.cpp geometry.cpp operators.cpp sensors.cpp)
 
 create_library(OpenMEEG ${OpenMEEG_SOURCES})
-target_link_libraries(OpenMEEG PUBLIC OpenMEEGMaths PRIVATE ${LAPACK_LIBRARIES} ${VTK_LIBRARIES} ${GIFTI_LIBRARIES})
+target_link_libraries(OpenMEEG PUBLIC OpenMEEGMaths ${LAPACK_LIBRARIES} ${VTK_LIBRARIES} ${GIFTI_LIBRARIES})
 target_include_directories(OpenMEEG PUBLIC ${VTK_INCLUDE_DIRS} ${GIFTI_INCLUDE_DIRS})
