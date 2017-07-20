@@ -10,8 +10,8 @@ fi
 if [[ "$ENABLE_PACKAGING" == "1" ]]; then
     cpack -G TGZ;
 
-    # now test the binary package: uninstall all brew, extract previously built package, run om_assemble
-    if [[ $STANDALONE == "1" ]]; then
+#    # now test the binary package: uninstall all brew, extract previously built package, run om_assemble
+#    if [[ $STANDALONE == "1" ]]; then
 
         if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
             # remove completly brew to test standalone mac package
@@ -24,7 +24,8 @@ if [[ "$ENABLE_PACKAGING" == "1" ]]; then
         cd OpenMEEG-2.*
         export DYLD_LIBRARY_PATH="lib:$DYLD_LIBRARY_PATH"
         export LD_LIBRARY_PATH="lib:$LD_LIBRARY_PATH"
+        echo "running ./bin/om_assemble"
         ./bin/om_assemble
         cd ..
-    fi
+#    fi
 fi
