@@ -14,9 +14,8 @@ if [[ "$ENABLE_PACKAGING" == "1" ]]; then
     if [[ $STANDALONE == "1" ]]; then
 
         if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
-            # do not completly remove brew we need wget, ... for conda
-            # /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/uninstall)"
-            brew uninstall --ignore-dependencies --force hdf5 libmatio vtk cgal openblas
+            # remove completly brew to test standalone mac package
+            /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/uninstall)"
         else
             sudo apt-get remove -y libhdf5-serial-dev libmatio-dev libopenblas-dev liblapacke-dev
         fi

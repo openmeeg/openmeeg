@@ -1,6 +1,6 @@
 function setup_conda {
     if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
-        wget -q https://repo.continuum.io/miniconda/Miniconda2-latest-MacOSX-x86_64.sh -O miniconda.sh
+        curl https://repo.continuum.io/miniconda/Miniconda2-latest-MacOSX-x86_64.sh -o miniconda.sh -s
     else
         wget -q http://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh -O miniconda.sh
     fi
