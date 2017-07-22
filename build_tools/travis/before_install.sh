@@ -74,7 +74,7 @@ else
         if [[ "$USE_PROJECT" == "0" || "$USE_SYSTEM" == "1" ]]; then
             sudo apt-get install -y liblapack-dev libblas-dev
         fi
-    else
+    elif [[ "$BLASLAPACK_IMPLEMENTATION" == "OpenBLAS" ]]; then
         sudo apt-get install -y libopenblas-dev liblapacke-dev
     fi
 

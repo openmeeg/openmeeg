@@ -73,7 +73,7 @@ endif()
 
 # if we are in a standalone mode look for other libs as well
 if ((${CMAKE_PROJECT_NAME} STREQUAL "OpenMEEG") AND STANDALONE)
-    foreach(alib openblas lapacke quadmath gcc_s pthread gfortran gomp)
+    foreach(alib openblas lapacke quadmath gcc_s pthread gfortran gomp blas lapack)
         find_library(found${alib} NAMES ${alib} PATHS
             ${OpenBLAS_LIB_SEARCH_PATHS}
             /usr/local/Cellar/
