@@ -10,22 +10,18 @@ fi
 if [[ "$ENABLE_PACKAGING" == "1" ]]; then
     cpack -G TGZ;
 
-#    # now test the binary package: uninstall all brew, extract previously built package, run om_assemble
-#    if [[ $STANDALONE == "1" ]]; then
+    if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
+        # remove completly brew to test standalone mac package
+        /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/uninstall)"
+    else
+        sudo apt-get remove -y libhdf5-serial-dev libmatio-dev libopenblas-dev liblapacke-dev
+    fi
 
-        if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
-            # remove completly brew to test standalone mac package
-            /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/uninstall)"
-        else
-            sudo apt-get remove -y libhdf5-serial-dev libmatio-dev libopenblas-dev liblapacke-dev
-        fi
-
-        tar xvvzf OpenMEEG-2.*.gz > /dev/null 2> /dev/null
-        cd OpenMEEG-2.*
-        export DYLD_LIBRARY_PATH="lib:$DYLD_LIBRARY_PATH"
-        export LD_LIBRARY_PATH="lib:$LD_LIBRARY_PATH"
-        echo "running ./bin/om_assemble"
-        ./bin/om_assemble
-        cd ..
-#    fi
+    tar xvvzf OpenMEEG-2.*.gz > /dev/null 2> /dev/null
+    cd OpenMEEG-2.*
+    export DYLD_LIBRARY_PATH="lib:$DYLD_LIBRARY_PATH"
+    export LD_LIBRARY_PATH="lib:$LD_LIBRARY_PATH"
+    echo "running ./bin/om_assemble"
+    ./bin/om_assemble
+    cd ..
 fi

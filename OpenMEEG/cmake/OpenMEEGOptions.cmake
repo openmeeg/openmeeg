@@ -17,7 +17,9 @@ option(BUILD_TUTORIALS "Build Tutorials" OFF)
 option(ENABLE_PYTHON "Enable Python Wrapping" OFF)
 option(ENABLE_COVERAGE "Enable Coverage" OFF)
 
-option(STANDALONE "Install all tiers libraries" OFF)
+if(APPLE)
+    option(APPLE_STANDALONE "Link with static libs to deliver a full standalone package" OFF)
+endif()
 
 include(UseOpenMP)
 include(UseVTK)

@@ -86,10 +86,6 @@ else
         sudo apt-get install libvtk5-dev
     fi
 
-    if [[ "$STANDALONE" == "1" ]]; then
-        sudo apt-get install libgfortran-4.8-dev
-    fi
-
     if [[ "$BUILD_DOCUMENTATION" == "ON" ]]; then
         sudo apt-get install doxygen graphviz
     fi
