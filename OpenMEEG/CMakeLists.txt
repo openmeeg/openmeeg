@@ -163,7 +163,7 @@ if (APPLE AND ENABLE_PYTHON)
     endif()
 endif()
 
-add_subdirectory(Wrapping)
+add_subdirectory(wrapping)
 
 #   Tests
 

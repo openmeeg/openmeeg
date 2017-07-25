@@ -14,7 +14,7 @@ option(BUILD_TOOLS "Build tools" ON)
 option(BUILD_TESTING "Build the testing tree" ON)
 option(BUILD_DOCUMENTATION "Build the Doxygen documentation" OFF)
 option(BUILD_TUTORIALS "Build Tutorials" OFF)
-option(ENABLE_PYTHON "Enable Python Wrapping" OFF)
+option(ENABLE_PYTHON "Enable Python wrapping" OFF)
 option(ENABLE_COVERAGE "Enable Coverage" OFF)
 
 if(APPLE)

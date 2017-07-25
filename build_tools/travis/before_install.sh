@@ -87,7 +87,7 @@ else
     fi
 
     if [[ "$BUILD_DOCUMENTATION" == "ON" ]]; then
-        sudo apt-get install doxygen graphviz
+        sudo apt-get install -y doxygen graphviz gnuplot
     fi
 
     if [[ "$USE_COVERAGE" == "1" ]]; then
