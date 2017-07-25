@@ -78,15 +78,10 @@ int main(int argc, char **argv)
             cerr << "Not enough arguments \nPlease try \"" << argv[0] << " -h\" or \"" << argv[0] << " --help \" \n" << endl;
             return 0;
         }
-        LinOpInfo matinfo = OpenMEEG::maths::info(argv[3]);
-        SymMatrix HeadMatInv;
-        HeadMatInv.load(argv[2]);
-        SparseMatrix Head2EEGMat;
-        Head2EEGMat.load(argv[4]);
-        Matrix SourceMat;
-        SourceMat.load(argv[3]);
 
-        GainEEG EEGGainMat(HeadMatInv, SourceMat, Head2EEGMat);
+        const Matrix &tmp = SparseMatrix(argv[4]) * SymMatrix(argv[2]) * Matrix(argv[3]);
+
+        GainEEG EEGGainMat(tmp);
         EEGGainMat.save(argv[5]);
     }
     // compute the gain matrix with the adjoint method for use with EEG DATA
@@ -95,7 +90,6 @@ int main(int argc, char **argv)
             cerr << "Not enough arguments \nPlease try \"" << argv[0] << " -h\" or \"" << argv[0] << " --help \" \n" << endl;
             return 0;
         }
-        LinOpInfo matinfo = OpenMEEG::maths::info(argv[3]);
         Geometry geo;
         geo.read(argv[2], argv[3]);
         Matrix dipoles(argv[4]);
@@ -113,17 +107,9 @@ int main(int argc, char **argv)
             cerr << "Not enough arguments \nPlease try \"" << argv[0] << " -h\" or \"" << argv[0] << " --help \" \n" << endl;
             return 0;
         }
-        LinOpInfo matinfo = OpenMEEG::maths::info(argv[3]);
-        SymMatrix HeadMatInv;
-        HeadMatInv.load(argv[2]);
-        Matrix SourceMat;
-        SourceMat.load(argv[3]);
-        Matrix Head2MEGMat;
-        Head2MEGMat.load(argv[4]);
-        Matrix Source2MEGMat;
-        Source2MEGMat.load(argv[5]);
+        const Matrix &tmp = Matrix(argv[5]) + (Matrix(argv[4]) * SymMatrix(argv[2])) * Matrix(argv[3]);
 
-        GainMEG MEGGainMat(HeadMatInv, SourceMat, Head2MEGMat, Source2MEGMat);
+        GainMEG MEGGainMat(tmp);
         MEGGainMat.save(argv[6]);
     }
     // compute the gain matrix with the adjoint method for use with MEG DATA
@@ -132,7 +118,6 @@ int main(int argc, char **argv)
             cerr << "Not enough arguments \nPlease try \"" << argv[0] << " -h\" or \"" << argv[0] << " --help \" \n" << endl;
             return 0;
         }
-        LinOpInfo matinfo = OpenMEEG::maths::info(argv[3]);
         Geometry geo;
         geo.read(argv[2], argv[3]);
         Matrix dipoles(argv[4]);
@@ -152,7 +137,6 @@ int main(int argc, char **argv)
             cerr << "Not enough arguments \nPlease try \"" << argv[0] << " -h\" or \"" << argv[0] << " --help \" \n" << endl;
             return 0;
         }
-        LinOpInfo matinfo = OpenMEEG::maths::info(argv[3]);
         Geometry geo;
         geo.read(argv[2], argv[3]);
         Matrix dipoles(argv[4]);
