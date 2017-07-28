@@ -97,7 +97,7 @@ else
 fi
 
 # install anaconda Python
-if [[ "$USE_PYTHON" == "1" || "$ENABLE_PACKAGING" == "1"]]; then
+if [[ "$USE_PYTHON" == "1" || "$ENABLE_PACKAGING" == "1" ]]; then
     setup_conda
     conda create -n wrappingenv --yes pip python=$PYTHON_VERSION
     source activate wrappingenv
