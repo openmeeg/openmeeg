@@ -9,9 +9,6 @@ function setup_conda {
     ./miniconda.sh -b -p ${HOME}/miniconda
     export PATH=${HOME}/miniconda/bin:$PATH
     conda update --yes --quiet conda
-    export PYTHON=2.7
-    conda create -n testenv --yes pip python=$PYTHON
-    source activate testenv
 }
 
 
@@ -100,7 +97,9 @@ else
 fi
 
 # install anaconda Python
-if [[ "$USE_PYTHON" == "1" ]]; then
+if [[ "$USE_PYTHON" == "1" || "$ENABLE_PACKAGING" == "1"]]; then
     setup_conda
+    conda create -n wrappingenv --yes pip python=$PYTHON_VERSION
+    source activate wrappingenv
     conda install -y --quiet numpy swig
 fi
