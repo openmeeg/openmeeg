@@ -19,6 +19,7 @@ matrix:
         - BLASLAPACK_IMPLEMENTATION=vecLib
         - USE_VTK=1
         - USE_PYTHON=1
+        - PYTHON_VERSION=3.6
         - APPLE_STANDALONE=1
     - os: linux
       compiler: clang
