@@ -23,7 +23,9 @@ fi
 
 # only upload to forge if we are on the master branch
 if [[ $ENABLE_PACKAGING == "1" && $TRAVIS_PULL_REQUEST == "false" && $TRAVIS_BRANCH == "master" ]]; then
-    setup_conda
+    if ! [ -x "$(command -v conda)" ]; then
+        setup_conda
+    fi
     conda install -y --quiet paramiko
     conda install -y --quiet pyopenssl
     python ${src_dir}/build_tools/upload_package_gforge.py *gz

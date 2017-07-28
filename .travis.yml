@@ -3,13 +3,13 @@ sudo: required
 dist: trusty
 matrix:
   include:
-    - os: osx
-      compiler: clang
-      env:
-        - USE_SYSTEM=0
-        - USE_PROJECT=1
-        - USE_VTK=1
-        - BLASLAPACK_IMPLEMENTATION=Auto # (Auto is the same as MKL/OpenBLAS/vecLib in priority)
+    # - os: osx
+    #   compiler: clang
+    #   env:
+    #     - USE_SYSTEM=0
+    #     - USE_PROJECT=1
+    #     - USE_VTK=1
+    #     - BLASLAPACK_IMPLEMENTATION=Auto # (Auto is the same as MKL/OpenBLAS/vecLib in priority)
     - os: osx
       compiler: clang
       env:
@@ -18,38 +18,39 @@ matrix:
         - ENABLE_PACKAGING=1
         - BLASLAPACK_IMPLEMENTATION=vecLib
         - USE_VTK=1
+        - USE_PYTHON=1
         - APPLE_STANDALONE=1
-    - os: linux
-      compiler: clang
-      env:
-        - USE_SYSTEM=1
-        - USE_PROJECT=1
-        - BLASLAPACK_IMPLEMENTATION=LAPACK
-    - os: linux
-      compiler: gcc
-      env:
-        - USE_SYSTEM=0
-        - USE_PROJECT=1
-        - USE_VTK=1
-        - USE_OMP=1
-        - ENABLE_PACKAGING=1
-        - BLASLAPACK_IMPLEMENTATION=LAPACK
-    - os: linux
-      compiler: gcc
-      env:
-        - USE_SYSTEM=1
-        - USE_PROJECT=1
-        - USE_VTK=1
-        - USE_OMP=1
-        - USE_GIFTI=1
-        - USE_COVERAGE=1
-        - BUILD_DOCUMENTATION=ON
-        - BLASLAPACK_IMPLEMENTATION=OpenBLAS
-    - os: linux
-      compiler: gcc
-      env:
-        - USE_PROJECT=0
-        - BLASLAPACK_IMPLEMENTATION=Atlas
+    # - os: linux
+    #   compiler: clang
+    #   env:
+    #     - USE_SYSTEM=1
+    #     - USE_PROJECT=1
+    #     - BLASLAPACK_IMPLEMENTATION=LAPACK
+    # - os: linux
+    #   compiler: gcc
+    #   env:
+    #     - USE_SYSTEM=0
+    #     - USE_PROJECT=1
+    #     - USE_VTK=1
+    #     - USE_OMP=1
+    #     - ENABLE_PACKAGING=1
+    #     - BLASLAPACK_IMPLEMENTATION=LAPACK
+    # - os: linux
+    #   compiler: gcc
+    #   env:
+    #     - USE_SYSTEM=1
+    #     - USE_PROJECT=1
+    #     - USE_VTK=1
+    #     - USE_OMP=1
+    #     - USE_GIFTI=1
+    #     - USE_COVERAGE=1
+    #     - BUILD_DOCUMENTATION=ON
+    #     - BLASLAPACK_IMPLEMENTATION=OpenBLAS
+    # - os: linux
+    #   compiler: gcc
+    #   env:
+    #     - USE_PROJECT=0
+    #     - BLASLAPACK_IMPLEMENTATION=Atlas
 
 before_install: source build_tools/travis/before_install.sh
 
