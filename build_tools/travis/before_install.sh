@@ -19,7 +19,6 @@ if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
 
     # Install some custom requirements on OS X
     brew tap homebrew/science # a lot of cool formulae for scientific tools
-    brew tap homebrew/python # numpy, scipy, matplotlib, ...
     brew update && brew upgrade
 
     # Install some custom requirements on OS X
