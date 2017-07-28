@@ -10,22 +10,23 @@ matrix:
     #     - USE_PROJECT=1
     #     - USE_VTK=1
     #     - BLASLAPACK_IMPLEMENTATION=Auto # (Auto is the same as MKL/OpenBLAS/vecLib in priority)
-    - os: osx
-      compiler: clang
-      env:
-        - USE_SYSTEM=1
-        - USE_PROJECT=1
-        - ENABLE_PACKAGING=1
-        - BLASLAPACK_IMPLEMENTATION=vecLib
-        # - USE_VTK=1
-        - USE_PYTHON=1
-        - APPLE_STANDALONE=1
-    # - os: linux
+    # - os: osx
     #   compiler: clang
     #   env:
     #     - USE_SYSTEM=1
     #     - USE_PROJECT=1
-    #     - BLASLAPACK_IMPLEMENTATION=LAPACK
+    #     - ENABLE_PACKAGING=1
+    #     - BLASLAPACK_IMPLEMENTATION=vecLib
+    #     # - USE_VTK=1
+    #     - USE_PYTHON=1
+    #     - APPLE_STANDALONE=1
+    - os: linux
+      compiler: clang
+      env:
+        - USE_SYSTEM=1
+        - USE_PROJECT=1
+        - BLASLAPACK_IMPLEMENTATION=LAPACK
+        - USE_PYTHON=1
     # - os: linux
     #   compiler: gcc
     #   env:
