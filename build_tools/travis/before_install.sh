@@ -1,22 +1,27 @@
+function setup_conda {
+    if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
+        curl https://repo.continuum.io/miniconda/Miniconda2-latest-MacOSX-x86_64.sh -o miniconda.sh -s
+    else
+        wget -q http://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh -O miniconda.sh
+    fi
+
+    chmod +x miniconda.sh
+    ./miniconda.sh -b -p ${HOME}/miniconda
+    export PATH=${HOME}/miniconda/bin:$PATH
+    conda update --yes --quiet conda
+}
+
+
 if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
 
     # Install some custom requirements on OS X
     brew tap homebrew/science # a lot of cool formulae for scientific tools
-    brew tap homebrew/python # numpy, scipy, matplotlib, ...
     brew update && brew upgrade
 
     # Install some custom requirements on OS X
     if [[ "$USE_PROJECT" == "0" || "$USE_SYSTEM" == "1" ]]; then
         brew install hdf5
         brew install libmatio
-    fi
-
-    # install a brewed python
-    # To use Python of
-    if [[ "$USE_PYTHON" == "1" ]]; then
-        brew install python
-        brew install numpy
-        brew install swig
     fi
 
     if [[ "$BLASLAPACK_IMPLEMENTATION" == "OpenBLAS" || "$BLASLAPACK_IMPLEMENTATION" == "Auto" ]]; then
@@ -78,19 +83,23 @@ else
         sudo apt-get install -y libopenblas-dev liblapacke-dev
     fi
 
-    if [[ "$USE_PYTHON" == "1" ]]; then
-        sudo apt-get install -y swig python-dev python-numpy
-    fi
-
     if [[ "$USE_VTK" == "1" && "$STANDALONE" != "1" ]]; then
         sudo apt-get install libvtk5-dev
     fi
 
     if [[ "$BUILD_DOCUMENTATION" == "ON" ]]; then
-        sudo apt-get install doxygen graphviz
+        sudo apt-get install -y doxygen graphviz
     fi
 
     if [[ "$USE_COVERAGE" == "1" ]]; then
         sudo apt-get install -y lcov
     fi
+fi
+
+# install anaconda Python
+if [[ "$USE_PYTHON" == "1" || "$ENABLE_PACKAGING" == "1" ]]; then
+    setup_conda
+    conda create -n wrappingenv --yes pip python=$PYTHON_VERSION
+    source activate wrappingenv
+    conda install -y --quiet numpy swig
 fi
