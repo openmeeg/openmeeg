@@ -14,7 +14,7 @@ if [[ "$ENABLE_PACKAGING" == "1" ]]; then
         # remove completly brew to test standalone mac package
         /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/uninstall)"
     else
-        sudo apt-get remove -y libhdf5-serial-dev libmatio-dev libopenblas-dev liblapacke-dev
+        sudo apt-get remove -y libhdf5-serial-dev libmatio-dev libopenblas-dev liblapacke-dev libvtk5-dev libvtk5.8
     fi
 
     tar xvvzf OpenMEEG-2.*.gz > /dev/null 2> /dev/null

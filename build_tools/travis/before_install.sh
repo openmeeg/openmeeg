@@ -83,7 +83,7 @@ else
         sudo apt-get install -y libopenblas-dev liblapacke-dev
     fi
 
-    if [[ "$USE_VTK" == "1" && "$STANDALONE" != "1" ]]; then
+    if [[ "$USE_VTK" == "1" ]]; then
         sudo apt-get install libvtk5-dev
     fi
 
