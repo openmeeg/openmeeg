@@ -78,15 +78,16 @@ int main(int argc, char **argv)
             cerr << "Not enough arguments \nPlease try \"" << argv[0] << " -h\" or \"" << argv[0] << " --help \" \n" << endl;
             return 0;
         }
-        LinOpInfo matinfo = OpenMEEG::maths::info(argv[3]);
-        SymMatrix HeadMatInv;
-        HeadMatInv.load(argv[2]);
-        SparseMatrix Head2EEGMat;
-        Head2EEGMat.load(argv[4]);
-        Matrix SourceMat;
-        SourceMat.load(argv[3]);
+        //const SymMatrix HeadMatInv(argv[2]);
+        //const SparseMatrix Head2EEGMat(argv[4]);
+        std::cerr << "A" << std::endl;
+        const Matrix& tmp = SparseMatrix(argv[4])*SymMatrix(argv[2]);
+        std::cerr << "B" << std::endl;
+        //const Matrix SourceMat(argv[3]);
+        const Matrix& EEGGainMat = tmp*Matrix(argv[3]);
+        std::cerr << "C" << std::endl;
 
-        GainEEG EEGGainMat(HeadMatInv, SourceMat, Head2EEGMat);
+        //GainEEG EEGGainMat(HeadMatInv, SourceMat, Head2EEGMat);
         EEGGainMat.save(argv[5]);
     }
     // compute the gain matrix with the adjoint method for use with EEG DATA
@@ -95,16 +96,13 @@ int main(int argc, char **argv)
             cerr << "Not enough arguments \nPlease try \"" << argv[0] << " -h\" or \"" << argv[0] << " --help \" \n" << endl;
             return 0;
         }
-        LinOpInfo matinfo = OpenMEEG::maths::info(argv[3]);
         Geometry geo;
         geo.read(argv[2], argv[3]);
-        Matrix dipoles(argv[4]);
-        SymMatrix HeadMat;
-        HeadMat.load(argv[5]);
-        SparseMatrix Head2EEGMat;
-        Head2EEGMat.load(argv[6]);
+        const Matrix dipoles(argv[4]);
+        const SymMatrix HeadMat(argv[5]);
+        const SparseMatrix Head2EEGMat(argv[6]);
 
-        GainEEGadjoint EEGGainMat(geo, dipoles, HeadMat, Head2EEGMat);
+        const GainEEGadjoint EEGGainMat(geo, dipoles, HeadMat, Head2EEGMat);
         EEGGainMat.save(argv[7]);
     }
     // for use with MEG DATA
@@ -113,17 +111,12 @@ int main(int argc, char **argv)
             cerr << "Not enough arguments \nPlease try \"" << argv[0] << " -h\" or \"" << argv[0] << " --help \" \n" << endl;
             return 0;
         }
-        LinOpInfo matinfo = OpenMEEG::maths::info(argv[3]);
-        SymMatrix HeadMatInv;
-        HeadMatInv.load(argv[2]);
-        Matrix SourceMat;
-        SourceMat.load(argv[3]);
-        Matrix Head2MEGMat;
-        Head2MEGMat.load(argv[4]);
-        Matrix Source2MEGMat;
-        Source2MEGMat.load(argv[5]);
+        const SymMatrix HeadMatInv(argv[2]);
+        const Matrix SourceMat(argv[3]);
+        const Matrix Head2MEGMat(argv[4]);
+        const Matrix Source2MEGMat(argv[5]);
 
-        GainMEG MEGGainMat(HeadMatInv, SourceMat, Head2MEGMat, Source2MEGMat);
+        const GainMEG MEGGainMat(HeadMatInv, SourceMat, Head2MEGMat, Source2MEGMat);
         MEGGainMat.save(argv[6]);
     }
     // compute the gain matrix with the adjoint method for use with MEG DATA
@@ -132,18 +125,14 @@ int main(int argc, char **argv)
             cerr << "Not enough arguments \nPlease try \"" << argv[0] << " -h\" or \"" << argv[0] << " --help \" \n" << endl;
             return 0;
         }
-        LinOpInfo matinfo = OpenMEEG::maths::info(argv[3]);
         Geometry geo;
         geo.read(argv[2], argv[3]);
-        Matrix dipoles(argv[4]);
-        SymMatrix HeadMat;
-        HeadMat.load(argv[5]);
-        Matrix Head2MEGMat;
-        Head2MEGMat.load(argv[6]);
-        Matrix Source2MEGMat;
-        Source2MEGMat.load(argv[7]);
+        const Matrix dipoles(argv[4]);
+        const SymMatrix HeadMat(argv[5]);
+        const Matrix Head2MEGMat(argv[6]);
+        const Matrix Source2MEGMat(argv[7]);
 
-        GainMEGadjoint MEGGainMat(geo, dipoles, HeadMat, Head2MEGMat, Source2MEGMat);
+        const GainMEGadjoint MEGGainMat(geo, dipoles, HeadMat, Head2MEGMat, Source2MEGMat);
         MEGGainMat.save(argv[8]);
     }
     // compute the gain matrices with the adjoint method for use with EEG and MEG DATA
@@ -152,20 +141,15 @@ int main(int argc, char **argv)
             cerr << "Not enough arguments \nPlease try \"" << argv[0] << " -h\" or \"" << argv[0] << " --help \" \n" << endl;
             return 0;
         }
-        LinOpInfo matinfo = OpenMEEG::maths::info(argv[3]);
         Geometry geo;
         geo.read(argv[2], argv[3]);
-        Matrix dipoles(argv[4]);
-        SymMatrix HeadMat;
-        HeadMat.load(argv[5]);
-        SparseMatrix Head2EEGMat;
-        Head2EEGMat.load(argv[6]);
-        Matrix Head2MEGMat;
-        Head2MEGMat.load(argv[7]);
-        Matrix Source2MEGMat;
-        Source2MEGMat.load(argv[8]);
+        const Matrix dipoles(argv[4]);
+        const SymMatrix HeadMat(argv[5]);
+        const SparseMatrix Head2EEGMat(argv[6]);
+        const Matrix Head2MEGMat(argv[7]);
+        const Matrix Source2MEGMat(argv[8]);
 
-        GainEEGMEGadjoint EEGMEGGainMat(geo, dipoles, HeadMat, Head2EEGMat, Head2MEGMat, Source2MEGMat);
+        const GainEEGMEGadjoint EEGMEGGainMat(geo, dipoles, HeadMat, Head2EEGMat, Head2MEGMat, Source2MEGMat);
         EEGMEGGainMat.saveEEG(argv[9]);
         EEGMEGGainMat.saveMEG(argv[10]);
     }
@@ -174,16 +158,12 @@ int main(int argc, char **argv)
             cerr << "Not enough arguments \nPlease try \"" << argv[0] << " -h\" or \"" << argv[0] << " --help \" \n" << endl;
             return 0;
         }
-        SymMatrix HeadMatInv;
-        HeadMatInv.load(argv[2]);
-        Matrix SourceMat;
-        SourceMat.load(argv[3]);
-        Matrix Head2IPMat;
-        Head2IPMat.load(argv[4]);
-        Matrix Source2IPMat;
-        Source2IPMat.load(argv[5]);
+        const SymMatrix HeadMatInv(argv[2]);
+        const Matrix SourceMat(argv[3]);
+        const Matrix Head2IPMat(argv[4]);
+        const Matrix Source2IPMat(argv[5]);
 
-        GainInternalPot InternalPotGainMat(HeadMatInv, SourceMat, Head2IPMat, Source2IPMat);
+        const GainInternalPot InternalPotGainMat(HeadMatInv, SourceMat, Head2IPMat, Source2IPMat);
         InternalPotGainMat.save(argv[6]);
     }
     else if ( (!strcmp(argv[1], "-EITInternalPotential"))||(!strcmp(argv[1], "-EITIP")) ) {
@@ -191,18 +171,14 @@ int main(int argc, char **argv)
             cerr << "Not enough arguments \nPlease try \"" << argv[0] << " -h\" or \"" << argv[0] << " --help \" \n" << endl;
             return 0;
         }
-        SymMatrix HeadMatInv;
-        HeadMatInv.load(argv[2]);
-        Matrix SourceMat;
-        SourceMat.load(argv[3]);
-        Matrix Head2IPMat;
-        Head2IPMat.load(argv[4]);
+        const SymMatrix HeadMatInv(argv[2]);
+        const Matrix SourceMat(argv[3]);
+        const Matrix Head2IPMat(argv[4]);
 
-        GainEITInternalPot InternalPotGainMat(HeadMatInv, SourceMat, Head2IPMat);
+        const GainEITInternalPot InternalPotGainMat(HeadMatInv, SourceMat, Head2IPMat);
         InternalPotGainMat.save(argv[5]);
     }
-    else
-    {
+    else {
         cerr << "Error: unknown option. \nPlease try \"" << argv[0] << " -h\" or \"" << argv[0] << " --help \" \n" << endl;
     }
 
