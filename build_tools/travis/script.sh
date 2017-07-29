@@ -23,5 +23,6 @@ if [[ "$ENABLE_PACKAGING" == "1" ]]; then
     export LD_LIBRARY_PATH="lib:$LD_LIBRARY_PATH"
     echo "running ./bin/om_assemble"
     ./bin/om_assemble
+    ldd ./bin/om_assemble
     cd ..
 fi

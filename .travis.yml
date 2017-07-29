@@ -21,14 +21,14 @@ matrix:
     #     - USE_PYTHON=1
     #     - PYTHON_VERSION=3.6
     #     - APPLE_STANDALONE=1
-    - os: linux
-      compiler: clang
-      env:
-        - USE_SYSTEM=1
-        - USE_PROJECT=1
-        - BLASLAPACK_IMPLEMENTATION=LAPACK
-        - USE_PYTHON=1
-        - PYTHON_VERSION=2.7
+    # - os: linux
+    #   compiler: clang
+    #   env:
+    #     - USE_SYSTEM=1
+    #     - USE_PROJECT=1
+    #     - BLASLAPACK_IMPLEMENTATION=LAPACK
+    #     - USE_PYTHON=1
+    #     - PYTHON_VERSION=2.7
     - os: linux
       compiler: gcc
       env:
@@ -38,24 +38,24 @@ matrix:
         - USE_OMP=1
         - ENABLE_PACKAGING=1
         - BLASLAPACK_IMPLEMENTATION=LAPACK
-    - os: linux
-      compiler: gcc
-      env:
-        - USE_SYSTEM=1
-        - USE_PROJECT=1
-        - USE_VTK=1
-        - USE_OMP=1
-        - USE_GIFTI=1
-        - USE_COVERAGE=1
-        - BUILD_DOCUMENTATION=ON
-        - BLASLAPACK_IMPLEMENTATION=OpenBLAS
-    - os: linux
-      compiler: gcc
-      env:
-        - USE_PROJECT=0
-        - BLASLAPACK_IMPLEMENTATION=Atlas
-        - USE_PYTHON=1
-        - PYTHON_VERSION=3.6
+    # - os: linux
+    #   compiler: gcc
+    #   env:
+    #     - USE_SYSTEM=1
+    #     - USE_PROJECT=1
+    #     - USE_VTK=1
+    #     - USE_OMP=1
+    #     - USE_GIFTI=1
+    #     - USE_COVERAGE=1
+    #     - BUILD_DOCUMENTATION=ON
+    #     - BLASLAPACK_IMPLEMENTATION=OpenBLAS
+    # - os: linux
+    #   compiler: gcc
+    #   env:
+    #     - USE_PROJECT=0
+    #     - BLASLAPACK_IMPLEMENTATION=Atlas
+    #     - USE_PYTHON=1
+    #     - PYTHON_VERSION=3.6
 
 before_install: source build_tools/travis/before_install.sh
 
