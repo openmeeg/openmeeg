@@ -34,7 +34,7 @@ matrix:
       env:
         - USE_SYSTEM=0
         - USE_PROJECT=1
-        - USE_VTK=1
+        - USE_VTK=0
         - USE_OMP=1
         - ENABLE_PACKAGING=1
         - BLASLAPACK_IMPLEMENTATION=LAPACK
