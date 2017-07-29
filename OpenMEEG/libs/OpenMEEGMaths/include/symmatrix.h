@@ -60,7 +60,7 @@ namespace OpenMEEG {
 
         SymMatrix(): LinOp(0,0,SYMMETRIC,2),value() {}
 
-        SymMatrix(const char* fname): LinOp(0,0,SYMMETRIC,2),value() { this->load(fname); }
+        SymMatrix(const char* fname): LinOp(0,0,SYMMETRIC,2),value() { load(fname); }
         SymMatrix(size_t N): LinOp(N,N,SYMMETRIC,2),value(new LinOpValue(size())) { }
         SymMatrix(size_t M,size_t N): LinOp(N,N,SYMMETRIC,2),value(new LinOpValue(size())) { om_assert(N==M); }
         SymMatrix(const SymMatrix& S,const DeepCopy): LinOp(S.nlin(),S.nlin(),SYMMETRIC,2),value(new LinOpValue(S.size(),S.data())) { }
@@ -124,18 +124,16 @@ namespace OpenMEEG {
 
     inline double SymMatrix::operator()(size_t i,size_t j) const {
         om_assert(i<nlin() && j<nlin());
-        if(i<=j)
-            return data()[i+j*(j+1)/2];
-        else
-            return data()[j+i*(i+1)/2];
+        if (i>j)
+            std::swap(i,j);
+        return data()[i+j*(j+1)/2];
     }
 
     inline double& SymMatrix::operator()(size_t i,size_t j) {
         om_assert(i<nlin() && j<nlin());
-        if(i<=j)
-            return data()[i+j*(j+1)/2];
-        else
-            return data()[j+i*(i+1)/2];
+        if (i>j)
+            std::swap(i,j);
+        return data()[i+j*(j+1)/2];
     }
 
     //returns the solution of (this)*X = B
