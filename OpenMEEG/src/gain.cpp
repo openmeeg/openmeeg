@@ -78,16 +78,14 @@ int main(int argc, char **argv)
             cerr << "Not enough arguments \nPlease try \"" << argv[0] << " -h\" or \"" << argv[0] << " --help \" \n" << endl;
             return 0;
         }
-        //const SymMatrix HeadMatInv(argv[2]);
-        //const SparseMatrix Head2EEGMat(argv[4]);
-        std::cerr << "A" << std::endl;
-        const Matrix& tmp = SparseMatrix(argv[4])*SymMatrix(argv[2]);
-        std::cerr << "B" << std::endl;
-        //const Matrix SourceMat(argv[3]);
-        const Matrix& EEGGainMat = tmp*Matrix(argv[3]);
-        std::cerr << "C" << std::endl;
+        //  We split the 2 matrix multiplications in order to spare memory.
+        //  This is also why we do not use GainEEG...
 
-        //GainEEG EEGGainMat(HeadMatInv, SourceMat, Head2EEGMat);
+        const SymMatrix HeadMatInv(argv[2]);
+        const SparseMatrix Head2EEGMat(argv[4]);
+        const Matrix& tmp = Head2EEGMat*HeadMatInv;
+        const Matrix SourceMat(argv[3]);
+        const Matrix& EEGGainMat = tmp*SourceMat;
         EEGGainMat.save(argv[5]);
     }
     // compute the gain matrix with the adjoint method for use with EEG DATA
@@ -111,12 +109,16 @@ int main(int argc, char **argv)
             cerr << "Not enough arguments \nPlease try \"" << argv[0] << " -h\" or \"" << argv[0] << " --help \" \n" << endl;
             return 0;
         }
-        const SymMatrix HeadMatInv(argv[2]);
-        const Matrix SourceMat(argv[3]);
-        const Matrix Head2MEGMat(argv[4]);
-        const Matrix Source2MEGMat(argv[5]);
+        //  We split the 3 matrix multiplications in order to spare memory.
+        //  This is also why we do not use GainMEG...
 
-        const GainMEG MEGGainMat(HeadMatInv, SourceMat, Head2MEGMat, Source2MEGMat);
+        const SymMatrix HeadMatInv(argv[2]);
+        const Matrix Head2MEGMat(argv[4]);
+        const Matrix& tmp1 = Head2MEGMat*HeadMatInv;
+        const Matrix SourceMat(argv[3]);
+        const Matrix& tmp2 = tmp1*SourceMat;
+        const Matrix Source2MEGMat(argv[5]);
+        const Matrix MEGGainMat = Source2MEGMat+tmp2;
         MEGGainMat.save(argv[6]);
     }
     // compute the gain matrix with the adjoint method for use with MEG DATA
