@@ -30,7 +30,7 @@ function(create_library libname)
 endfunction()
 
 set(OpenMEEGMaths_SOURCES
-    vector.cpp matrix.cpp symmatrix.cpp sparse_matrix.cpp fast_sparse_matrix.cpp
+    utils.cpp vector.cpp matrix.cpp symmatrix.cpp sparse_matrix.cpp fast_sparse_matrix.cpp
     MathsIO.C MatlabIO.C AsciiIO.C BrainVisaTextureIO.C TrivialBinIO.C)
     
 create_library(OpenMEEGMaths ${OpenMEEGMaths_SOURCES})
