@@ -69,9 +69,8 @@ namespace OpenMEEG {
         typedef std::map< std::pair< size_t, size_t >, double >::iterator iterator;
 
         SparseMatrix() : LinOp(0,0,SPARSE,2) {};
-
-        SparseMatrix(const char* fname): LinOp(0,0,SPARSE,2) { load(fname); };
-        SparseMatrix(size_t N,size_t M): LinOp(N,M,SPARSE,2) { };
+        SparseMatrix(const char* fname) : LinOp(0,0,SPARSE,2) { this->load(fname); }
+        SparseMatrix(size_t N,size_t M) : LinOp(N,M,SPARSE,2) {};
         ~SparseMatrix() {};
 
         inline double operator()( size_t i, size_t j ) const {
