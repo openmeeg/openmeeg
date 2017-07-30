@@ -53,19 +53,31 @@ namespace OpenMEEG {
     class GainMEG : public Matrix {
     public:
         using Matrix::operator=;
-        GainMEG (const SymMatrix& HeadMatInv,const Matrix& SourceMat, const Matrix& Head2MEGMat, const Matrix& Source2MEGMat) {
+
+        GainMEG(const char * HeadMatInv, const char * SourceMat, const char * Head2MEGMat, const char * Source2MEGMat) {
+            *this = Matrix(Source2MEGMat) + (Matrix(Head2MEGMat) * SymMatrix(HeadMatInv)) * Matrix(SourceMat);
+        }
+
+        GainMEG(const SymMatrix& HeadMatInv, const Matrix& SourceMat, const Matrix& Head2MEGMat, const Matrix& Source2MEGMat) {
             *this = Source2MEGMat+(Head2MEGMat*HeadMatInv)*SourceMat;
         }
-        ~GainMEG () {};
+
+        ~GainMEG() {};
     };
 
     class GainEEG : public Matrix {
     public:
         using Matrix::operator=;
-        GainEEG (const SymMatrix& HeadMatInv,const Matrix& SourceMat, const SparseMatrix& Head2EEGMat) {
+
+        GainEEG(const char * HeadMatInv, const char * SourceMat, const char * Head2EEGMat) {
+            *this = (SparseMatrix(Head2EEGMat) * SymMatrix(HeadMatInv)) * Matrix(SourceMat);
+        }
+
+        GainEEG(const SymMatrix& HeadMatInv, const Matrix& SourceMat, const SparseMatrix& Head2EEGMat) {
             *this = (Head2EEGMat*HeadMatInv)*SourceMat;
         }
-        ~GainEEG () {};
+
+        ~GainEEG() {};
     };
 
     class GainEEGadjoint : public Matrix {
@@ -186,9 +198,9 @@ namespace OpenMEEG {
                 }
             }
             
-            void saveEEG( const std::string filename ) const { EEGleadfield.save(filename); }
+            void saveEEG(const std::string filename) const { EEGleadfield.save(filename); }
 
-            void saveMEG( const std::string filename ) const { MEGleadfield.save(filename); }
+            void saveMEG(const std::string filename) const { MEGleadfield.save(filename); }
             
             ~GainEEGMEGadjoint () {};
         private:
