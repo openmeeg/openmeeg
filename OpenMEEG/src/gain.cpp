@@ -66,7 +66,7 @@ int main(int argc, char **argv)
     disp_argv(argc, argv);
 
     // declaration of argument variables
-    string Option=string(argv[1]);
+    string Option = string(argv[1]);
     if ( argc<5 ) {
         cerr << "Not enough arguments \nPlease try \"" << argv[0] << " -h\" or \"" << argv[0] << " --help \" \n" << endl;
         return 0;
@@ -79,9 +79,7 @@ int main(int argc, char **argv)
             return 0;
         }
 
-        const Matrix &tmp = SparseMatrix(argv[4]) * SymMatrix(argv[2]) * Matrix(argv[3]);
-
-        GainEEG EEGGainMat(tmp);
+        GainEEG EEGGainMat(argv[2], argv[3], argv[4]);
         EEGGainMat.save(argv[5]);
     }
     // compute the gain matrix with the adjoint method for use with EEG DATA
@@ -107,9 +105,7 @@ int main(int argc, char **argv)
             cerr << "Not enough arguments \nPlease try \"" << argv[0] << " -h\" or \"" << argv[0] << " --help \" \n" << endl;
             return 0;
         }
-        const Matrix &tmp = Matrix(argv[5]) + (Matrix(argv[4]) * SymMatrix(argv[2])) * Matrix(argv[3]);
-
-        GainMEG MEGGainMat(tmp);
+        GainMEG MEGGainMat(argv[2], argv[3], argv[4], argv[5]);
         MEGGainMat.save(argv[6]);
     }
     // compute the gain matrix with the adjoint method for use with MEG DATA
