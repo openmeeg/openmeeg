@@ -2,12 +2,37 @@
 
 #pragma once
 
+#include <OpenMEEGMathsConfig.h>
+
+#ifdef RC_DEBUG
+#include <iostream>
+#define DEBUG(type,parms) \
+    std::cerr << type << parms << std::endl
+namespace utils {
+    struct DebugId {
+        DebugId(): id(idref++) { }
+        static unsigned idref;
+        unsigned       id;
+    };
+}
+#else
+#define DEBUG(type,parms)
+namespace utils {
+    struct DebugId { };
+}
+#endif
+
+#define DebugCreate() DEBUG("Creating object ",id)
+#define DebugAddRef() DEBUG("Adding reference to object ",id << ' ' << refCount)
+#define DebugRemRef() DEBUG("Removing reference to object ",id << ' ' << refCount)
+#define DebugDestroy() DEBUG("Destroying object ",id)
+
 namespace utils {
 
     //	Template class for smart pointers-to-T objects;
     //	T must inherit from RCObject.
 
-    template <class T>
+    template <typename T>
     class RCPtr {
     public:
 
@@ -28,7 +53,7 @@ namespace utils {
         void init();
     };
 
-    template <class T>
+    template <typename T>
     void RCPtr<T>::init() {
 
         if (pointee==0) return;
@@ -39,7 +64,7 @@ namespace utils {
         pointee->addReference();
     }
 
-    template <class T>
+    template <typename T>
     RCPtr<T>&
     RCPtr<T>::operator=(const RCPtr& rhs) {
 
@@ -55,11 +80,11 @@ namespace utils {
 
     //	Base class for reference-counted objects.
 
-    class OPENMEEGMATHS_EXPORT RCObject {
+    class OPENMEEGMATHS_EXPORT RCObject: public DebugId {
     public:
 
-        void addReference()      { ++refCount;                     }
-        void removeReference()   { if (--refCount==0) delete this; }
+        void addReference()      { ++refCount; DebugAddRef(); }
+        void removeReference()   { --refCount; DebugRemRef(); if (refCount==0) delete this; }
 
         void markUnsharable()    { shareable = false;              }
         bool isShareable() const { return shareable;               }
@@ -68,11 +93,11 @@ namespace utils {
 
     protected:
 
-        RCObject(): refCount(0),shareable(true) { }
+        RCObject(): refCount(0),shareable(true) { DebugCreate(); }
 
-        RCObject(const RCObject&): refCount(0),shareable(true) { }
+        RCObject(const RCObject&): refCount(0),shareable(true) { DebugCreate(); }
 
-        virtual ~RCObject() { }
+        virtual ~RCObject() { DebugDestroy(); }
 
         RCObject& operator=(const RCObject&) { return *this; }
 
@@ -82,7 +107,7 @@ namespace utils {
         mutable bool   shareable;
     };
 
-    template <class T>
+    template <typename T>
     class RCIPtr {
     public:
 
@@ -113,7 +138,7 @@ namespace utils {
         void init();
     };
 
-    template <class T>
+    template <typename T>
     void RCIPtr<T>::init()
     {
         if (counter==0) return;
@@ -126,7 +151,7 @@ namespace utils {
         counter->addReference();
     }
 
-    template <class T>
+    template <typename T>
     RCIPtr<T>&
     RCIPtr<T>::operator=(const RCIPtr& rhs)
     {
