@@ -161,11 +161,14 @@ int main(int argc, char **argv)
             return 0;
         }
         const SymMatrix HeadMatInv(argv[2]);
-        const Matrix SourceMat(argv[3]);
         const Matrix Head2IPMat(argv[4]);
+
+        const Matrix& tmp1 = Head2IPMat*HeadMatInv;
+        const Matrix SourceMat(argv[3]);
+        const Matrix& tmp2 = tmp1*SourceMat;
         const Matrix Source2IPMat(argv[5]);
 
-        const GainInternalPot InternalPotGainMat(HeadMatInv, SourceMat, Head2IPMat, Source2IPMat);
+        const Matrix& InternalPotGainMat = Source2IPMat+tmp2;
         InternalPotGainMat.save(argv[6]);
     }
     else if ( (!strcmp(argv[1], "-EITInternalPotential"))||(!strcmp(argv[1], "-EITIP")) ) {
@@ -174,10 +177,13 @@ int main(int argc, char **argv)
             return 0;
         }
         const SymMatrix HeadMatInv(argv[2]);
-        const Matrix SourceMat(argv[3]);
         const Matrix Head2IPMat(argv[4]);
 
-        const GainEITInternalPot InternalPotGainMat(HeadMatInv, SourceMat, Head2IPMat);
+        const Matrix& tmp = Head2IPMat*HeadMatInv;
+
+        const Matrix SourceMat(argv[3]);
+
+        const Matrix& InternalPotGainMat = tmp*SourceMat;
         InternalPotGainMat.save(argv[5]);
     }
     else {
