@@ -61,7 +61,6 @@ namespace OpenMEEG {
     }
 
     class OPENMEEGMATHS_EXPORT LinOpInfo {
-
     public:
 
         typedef maths::MathsIO* IO;
