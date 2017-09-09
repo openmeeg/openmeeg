@@ -269,13 +269,14 @@ int main(int argc, char** argv)
     * |----> v (potential at the ECoG electrodes)
     **********************************************************************************************/
     else if ( option(argc, argv, {"-Head2ECoGMat", "-H2ECogM", "-H2ECOGM", "-h2ecogm"},
-                     {"geometry file", "conductivity file", "ECoG electrodes positions file", "the name of the interface for EcoG", "output file"}) ) {
+                     {"geometry file", "conductivity file", "ECoG electrodes positions file",
+                      "the name of the interface for EcoG", "output file"}) ) {
 
         // Loading surfaces from geometry file.
         Geometry geo;
         geo.read(argv[2], argv[3], OLD_ORDERING);
 
-        // Find the mesh of the Ecog electrodes
+        // Find the mesh of the ECoG electrodes
         const Interface &i = geo.interface(argv[5]);
 
         // read the file containing the positions of the EEG patches
@@ -403,7 +404,10 @@ bool option(const int argc, char ** argv, const Strings& options, const Strings&
             if (argc-2 < files.size()) {
                 cout << "\'om_assemble\' option \'" << argv[1] << "\' expects " << files.size() << " arguments (";
                 for ( auto f: files) {
-                    cout << f << ", ";
+                    cout << f;
+                    if (f != files[files.size() - 1]){
+                        cout << ", ";
+                    }
                 }
                 cout << ") and you gave only " << argc-2 << " arguments." << endl;
                 exit(1);
