@@ -47,7 +47,7 @@ def my_open_write(dest):
     if hasattr(dest, "write"):
         return dest
     else:
-        return open(dest, 'w')
+        return open(dest, 'wb')
 
 
 class Doxy2SWIG:    
@@ -215,7 +215,7 @@ class Doxy2SWIG:
                      'detaileddescription', 'includes')
             first = self.get_specific_nodes(node, names)
             for n in names:
-                if first.has_key(n):
+                if n not in first:
                     self.parse(first[n])
             self.add_text(['";','\n'])
             for n in node.childNodes:
