@@ -50,8 +50,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 namespace OpenMEEG {
 
     /// An Oriented Mesh is a mesh associated with a boolean stating if it is well oriented. 
-    class OrientedMesh: public std::pair<Mesh *, bool> 
-    {
+    class OrientedMesh: public std::pair<Mesh *, bool> {
         typedef std::pair<Mesh *, bool> base;
 
     public:
@@ -76,16 +75,18 @@ namespace OpenMEEG {
         typedef Mesh::VectPTriangle VectPTriangle;
 
         /// Default Constructor
-        Interface(): name_(""), outermost_(false) { }
+        Interface(): interface_name(""), outermost_(false) { }
         
         /// Constructor from a name
-        Interface(const std::string _name): name_(_name), outermost_(false) { }
+        Interface(const std::string& name): interface_name(name), outermost_(false) { }
 
-        const std::string   name()                       const      { return name_; } ///< \return Interface name
-        const bool &        outermost()                  const      { return outermost_; } ///< \return true if it is the outermost interface.
-              void          set_to_outermost(); ///< set all interface meshes to outermost state.
-              bool          contains_point(const Vect3& p) const; ///< \param p a point \return true if point is inside interface
-              bool          check(bool checked = false); ///< Check the global orientation
+        const std::string name() const { return interface_name; } ///< \return Interface name
+
+        const bool& outermost() const { return outermost_; } ///< \return true if it is the outermost interface.
+        void        set_to_outermost(); ///< set all interface meshes to outermost state.
+
+        bool contains_point(const Vect3& p) const; ///< \param p a point \return true if point is inside interface
+        bool check(bool checked = false); ///< Check the global orientation
 
         /// \return the total number of the interface vertices
         size_t nb_vertices() const {
@@ -119,7 +120,7 @@ namespace OpenMEEG {
 
         double compute_solid_angle(const Vect3& p) const; ///< Given a point p, it computes the solid angle \return should return +/- 4 PI or 0.
 
-        std::string name_;      ///< is "" by default
+        std::string interface_name;      ///< is "" by default
         bool        outermost_; ///< tell weather or not the interface touches the Air (Outermost) Domain.
     };
 
