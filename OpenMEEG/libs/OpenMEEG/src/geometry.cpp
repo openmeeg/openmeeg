@@ -234,15 +234,11 @@ namespace OpenMEEG {
                 if (OLD_ORDERING) {
                     om_error(is_nested_); // OR non nested but without shared vertices
                     for (Mesh::const_vertex_iterator vit = mit->vertex_begin(); vit != mit->vertex_end(); ++vit, ++index) 
-                    {
                         (*vit)->index() = index;
-                    }
                 }
-                if (!mit->isolated()&&!mit->current_barrier()) {
-                    for ( Mesh::iterator tit = mit->begin(); tit != mit->end(); ++tit) {
+                if (!mit->isolated()&&!mit->current_barrier())
+                    for ( Mesh::iterator tit = mit->begin(); tit != mit->end(); ++tit)
                         tit->index() = index++;
-                    }
-                }
             }
             // even the last surface triangles (yes for EIT... )
             nb_current_barrier_triangles_ = 0;
