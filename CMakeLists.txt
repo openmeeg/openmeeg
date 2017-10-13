@@ -11,7 +11,7 @@ cmake_minimum_required(VERSION 2.8.12)
 if (CMAKE_MAJOR_VERSION EQUAL 3)
     cmake_policy(SET CMP0048 NEW)
     cmake_policy(SET CMP0037 OLD)
-    set(PROJECT_VERSION VERSION 2.3.99.0)
+    set(PROJECT_VERSION VERSION 2.4.0.0)
 endif()
 
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake ${CMAKE_CURRENT_SOURCE_DIR}/OpenMEEG/cmake ${CMAKE_CURRENT_SOURCE_DIR}/OpenMEEG/cmake/FortranCInterface ${CMAKE_MODULE_PATH})
@@ -23,7 +23,7 @@ include(Setup)
 
 # Define revision (TODO: Get revision from the OpenMEEG repo).
 if ("${CMAKE_VERSION}" VERSION_LESS "3.0")
-    SetRevision(2 3 99 dev)
+    SetRevision(2 4 0 dev)
 endif()
 
 # Add packages

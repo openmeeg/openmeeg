@@ -28,7 +28,7 @@ environment:
     - lapack: OpenBLAS
       omp: ON
       vtk: ON
-      python: OFF
+      python: ON
       pack: ON
     - lapack: LAPACK
       vtk: OFF

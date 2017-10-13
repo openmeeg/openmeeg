@@ -53,6 +53,7 @@ namespace OpenMEEG {
     class GainMEG : public Matrix {
     public:
         using Matrix::operator=;
+        GainMEG (const Matrix& GainMat): Matrix(GainMat) {}
         GainMEG (const SymMatrix& HeadMatInv,const Matrix& SourceMat, const Matrix& Head2MEGMat, const Matrix& Source2MEGMat) {
             *this = Source2MEGMat+(Head2MEGMat*HeadMatInv)*SourceMat;
         }
@@ -62,6 +63,7 @@ namespace OpenMEEG {
     class GainEEG : public Matrix {
     public:
         using Matrix::operator=;
+        GainEEG (const Matrix& GainMat): Matrix(GainMat) {}
         GainEEG (const SymMatrix& HeadMatInv,const Matrix& SourceMat, const SparseMatrix& Head2EEGMat) {
             *this = (Head2EEGMat*HeadMatInv)*SourceMat;
         }

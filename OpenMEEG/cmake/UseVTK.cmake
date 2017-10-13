@@ -31,5 +31,6 @@ if (USE_VTK)
         message("VTK not found, we will download and build it")
         set(USE_SYSTEM_VTK False CACHE BOOL "Use the VTK from the system" FORCE)
     endif()
+
     unset(REQUIRED)
 endif()

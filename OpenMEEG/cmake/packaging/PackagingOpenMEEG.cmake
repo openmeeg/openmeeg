@@ -1,4 +1,3 @@
-
 set(CPACK_PACKAGE_NAME "OpenMEEG")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "OpenMEEG Project")
 set(CPACK_PACKAGE_DESCRIPTION "A C++ package for low-frequency bio-electromagnetism solving forward problems in the field of EEG and MEG.")

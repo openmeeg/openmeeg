@@ -1,8 +1,21 @@
+function setup_conda {
+    if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
+        curl https://repo.continuum.io/miniconda/Miniconda2-latest-MacOSX-x86_64.sh -o miniconda.sh -s
+    else
+        wget -q http://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh -O miniconda.sh
+    fi
+
+    chmod +x miniconda.sh
+    ./miniconda.sh -b -p ${HOME}/miniconda
+    export PATH=${HOME}/miniconda/bin:$PATH
+    conda update --yes --quiet conda
+}
+
+
 if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
 
     # Install some custom requirements on OS X
     brew tap homebrew/science # a lot of cool formulae for scientific tools
-    brew tap homebrew/python # numpy, scipy, matplotlib, ...
     brew update && brew upgrade
 
     # Install some custom requirements on OS X
@@ -11,20 +24,12 @@ if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
         brew install libmatio
     fi
 
-    # install a brewed python
-    # To use Python of
-    if [[ "$USE_PYTHON" == "1" ]]; then
-        brew install python
-        brew install numpy
-        brew install swig
-    fi
-
     if [[ "$BLASLAPACK_IMPLEMENTATION" == "OpenBLAS" || "$BLASLAPACK_IMPLEMENTATION" == "Auto" ]]; then
         brew install openblas
         brew link openblas --force  # required as link is not automatic
     fi
 
-    if [[ "$USE_VTK" == "1" && "$APPLE_STANDALONE" != "1" ]]; then
+    if [[ "$USE_VTK" == "1" && "$ENABLE_PACKAGING" != "1" ]]; then
         brew install vtk
     fi
 
@@ -74,12 +79,8 @@ else
         if [[ "$USE_PROJECT" == "0" || "$USE_SYSTEM" == "1" ]]; then
             sudo apt-get install -y liblapack-dev libblas-dev
         fi
-    else
+    elif [[ "$BLASLAPACK_IMPLEMENTATION" == "OpenBLAS" ]]; then
         sudo apt-get install -y libopenblas-dev liblapacke-dev
-    fi
-
-    if [[ "$USE_PYTHON" == "1" ]]; then
-        sudo apt-get install -y swig python-dev python-numpy
     fi
 
     if [[ "$USE_VTK" == "1" ]]; then
@@ -87,10 +88,18 @@ else
     fi
 
     if [[ "$BUILD_DOCUMENTATION" == "ON" ]]; then
-        sudo apt-get install doxygen graphviz
+        sudo apt-get install -y doxygen graphviz
     fi
 
     if [[ "$USE_COVERAGE" == "1" ]]; then
         sudo apt-get install -y lcov
     fi
+fi
+
+# install anaconda Python
+if [[ "$USE_PYTHON" == "1" || "$ENABLE_PACKAGING" == "1" ]]; then
+    setup_conda
+    conda create -n wrappingenv --yes pip python=$PYTHON_VERSION
+    source activate wrappingenv
+    conda install -y --quiet numpy swig
 fi
