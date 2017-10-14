@@ -52,6 +52,8 @@ if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
         brew install Doxygen Graphviz # For building documentation
     fi
 
+    brew uninstall python
+
 else
     # Install some custom requirements on Linux
     export CXX="g++-4.8"; 
