@@ -43,7 +43,33 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 namespace OpenMEEG {
 
-    const Interface& Geometry::outermost_interface() const {
+    const Interface&
+    Geometry::innermost_interface() const {
+
+        if (!is_nested()) {
+            warning("Geometry::innermost_interface: Error innermost interface is only defined for nested geometries.");
+            throw OpenMEEG::BadInterface("innermost");
+        }
+
+        for (Domains::const_iterator dit=domain_begin();dit!=domain_end();++dit) {
+            bool inner = true;
+            for (Domain::const_iterator hit = dit->begin(); hit!=dit->end(); ++hit)
+                if (!hit->inside()) {
+                    inner = false;
+                    break;
+                }
+            if (inner)
+                return dit->begin()->interface();
+        }
+
+        // Should never append as this function should only be called for nested geometries.
+
+        warning("Geometry::innerermost_interface: Error innermost interface is not defined.");
+        throw OpenMEEG::BadInterface("innermost");
+    }
+
+    const Interface&
+    Geometry::outermost_interface() const {
         for (Domains::const_iterator dit = domain_begin(); dit != domain_end(); ++dit) {
             if (dit->outermost()) {
                 return dit->begin()->interface();
