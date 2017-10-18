@@ -52,7 +52,11 @@ if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
         brew install Doxygen Graphviz # For building documentation
     fi
 
+    brew uses --installed python
     brew uninstall --force python
+
+    brew rm python
+    brew rm $(join <(brew leaves) <(brew deps python))
 
 else
     # Install some custom requirements on Linux
