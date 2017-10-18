@@ -287,7 +287,6 @@ int main(int argc, char** argv)
                   << "This is only valid for nested files. Consider specifying an interface as a name" << std::endl
                   << " right after the electrode position file." << std::endl;
         const Interface& innerSkullLayer = geo.innermost_interface();
-        std::cerr << "Detected interface: " << innerSkullLayer.name() << ' ' << geo.interface("3").name() << std::endl;
 
         Head2ECoGMat mat(geo,electrodes,innerSkullLayer);
         mat.save(argv[5]);
