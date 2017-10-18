@@ -55,7 +55,7 @@ namespace Utils {
         public:
             BadPropertyFile(const std::string& name):
                 std::runtime_error("Wrong property file"),filename(name) { }
-            ~BadPropertyFile() throw() { }
+            ~BadPropertyFile() noexcept { }
             std::string filename;
         };
 
@@ -149,7 +149,7 @@ namespace Utils {
                 return it->second; 
             }
 
-            void define(const Id& id,const Property& prop) throw(char*) {
+            void define(const Id& id,const Property& prop) {
                 if (base::find(id)!=base::end())
                     throw MultiplyDefinedProperty<Id>(id);
                 base::insert(typename base::value_type(id,prop));

@@ -66,7 +66,7 @@ namespace Types {
 #pragma warning (disable: 4290)	// this particular throw is not the one Visual 2005 is waiting for
 #endif
     template <typename T>
-    std::istream& operator>>(std::istream& is,Types::DataTag<T>& tag) throw(std::io_except::read_error) {
+    std::istream& operator>>(std::istream& is,Types::DataTag<T>& tag) {
 #if WIN32
 #pragma warning (default: 4290)
 #endif
