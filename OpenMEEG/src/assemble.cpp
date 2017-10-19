@@ -268,32 +268,9 @@ int main(int argc, char** argv)
     * (i.e. the potential and the normal current on all interfaces)
     * |----> v (potential at the ECoG electrodes)
     **********************************************************************************************/
-    else if (argc==6 && option(argc, argv, {"-Head2ECoGMat", "-H2ECogM", "-H2ECOGM", "-h2ecogm"},
-                                           {"geometry file", "conductivity file", "ECoG electrodes positions file", "output file"})) {
-
-        // Loading surfaces from geometry file.
-
-        Geometry geo;
-        geo.read(argv[2], argv[3], OLD_ORDERING);
-
-        // Reading the file containing the positions of the EEG patches
-
-        Sensors electrodes(argv[4]);
-
-        // Assemble matrix from discretization:
-        // Head2ECoG is the linear application which maps x |----> v
-
-        std::cerr << "Warning: we assume that ECoG electrodes are placed on the inner interface." << std::endl
-                  << "This is only valid for nested files. Consider specifying an interface as a name" << std::endl
-                  << " right after the electrode position file." << std::endl;
-        const Interface& innerSkullLayer = geo.innermost_interface();
-
-        Head2ECoGMat mat(geo,electrodes,innerSkullLayer);
-        mat.save(argv[5]);
-    }
     else if (option(argc, argv, {"-Head2ECoGMat", "-H2ECogM", "-H2ECOGM", "-h2ecogm"},
                                 {"geometry file", "conductivity file", "ECoG electrodes positions file",
-                                 "name of the interface for EcoG", "output file"}) ) {
+                                 "[name of the interface for EcoG]", "output file"}) ) {
 
         // Load surfaces from geometry file.
 
@@ -306,13 +283,21 @@ int main(int argc, char** argv)
 
         // Find the mesh of the ECoG electrodes
 
-        const Interface& index = geo.interface(argv[5]);
+        bool old_cmd_line = false;
+        if (argc==6) {
+            std::cerr << "Warning: we assume that ECoG electrodes are placed on the inner interface." << std::endl
+                      << "This is only valid for nested files. Consider specifying an interface as a name" << std::endl
+                      << " right after the electrode position file." << std::endl;
+            old_cmd_line = true;
+        }
+        
+        const Interface& ECoG_layer = (old_cmd_line) ? geo.innermost_interface() : geo.interface(argv[5]);
 
         // Assemble matrix from discretization:
         // Head2ECoG is the linear application which maps x |----> v
 
-        Head2ECoGMat mat(geo,electrodes,index);
-        mat.save(argv[6]);
+        Head2ECoGMat mat(geo,electrodes,ECoG_layer);
+        mat.save(argv[(old_cmd_line) ? 5 : 6]);
     }
 
     /*********************************************************************************************
@@ -426,7 +411,11 @@ int main(int argc, char** argv)
 bool option(const int argc, char ** argv, const Strings& options, const Strings& files) {
     for ( auto s: options) {
         if (argv[1] == s) {
-            if (argc-2 < files.size()) {
+            unsigned minimum_nparms = files.size();
+            for (auto f: files)
+                if (f[0]=='[')
+                    --minimum_nparms;
+            if (argc-2 < minimum_nparms) {
                 cout << "\'om_assemble\' option \'" << argv[1] << "\' expects " << files.size() << " arguments (";
                 for ( auto f: files) {
                     cout << f;
