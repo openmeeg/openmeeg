@@ -3,12 +3,12 @@ include(ComparisonTest)
 set_file_properties(Suffix
     "HM .hm" "HMInv .hm_inv" "DSM .dsm" "SSM .ssm" "H2EM .h2em" "SurfGainEEG .sgem"
     "ESTEEG .est_eeg" "EEGadjointEST .est_eegadjoint" "MEGadjointEST .est_megadjoint"
-    "H2MM .h2mm" "SS2MM .ss2mm" "SurfGainMEG .sgmm" "ESTMEG .est_meg"
+    "H2MM .h2mm" "SS2MM .ss2mm" "SurfGainMEG .sgmm" "ESTMEG .est_meg" "H2ECOGM .ecog" "H2ECOGM-OLD .ecog"
 )
 
 set_file_properties(CompareOptions
     "HM -sym" "HMInv -sym" "DSM -full:-if1:binary:-if2:binary" "SSM -full:-if1:binary:-if2:binary" "H2EM -if:binary:-sparse"
-    "SurfGainEEG -full" "ESTEEG -full" "H2MM -full" "SS2MM -full" "SurfGainMEG -full" "ESTMEG -full"
+    "SurfGainEEG -full" "ESTEEG -full" "H2MM -full" "SS2MM -full" "SurfGainMEG -full" "ESTMEG -full" "H2ECOGM -sparse" "H2ECOGM-OLD -sparse"
 )
 
 #   IO TESTS
@@ -27,19 +27,17 @@ OPENMEEG_UNIT_TEST(test_mesh_ios
 
 NEW_EXECUTABLE(test_sensors test_sensors.cpp LIBRARIES OpenMEEG ${VTK_LIBRARIES})
 NEW_EXECUTABLE(compare_matrix compare_matrix.cpp LIBRARIES OpenMEEGMaths ${LAPACK_LIBRARIES})
-NEW_EXECUTABLE(om_validationEIT validationEIT.cpp ${OPEMEEG_HEADERS} LIBRARIES OpenMEEG OpenMEEGMaths ${LAPACK_LIBRARIES} ${VTK_LIBRARIES}
-)
+NEW_EXECUTABLE(om_validationEIT validationEIT.cpp ${OPEMEEG_HEADERS} LIBRARIES OpenMEEG OpenMEEGMaths ${LAPACK_LIBRARIES} ${VTK_LIBRARIES})
 
 #   TEST COMMON RESULTS ON HEAD1 (Regression test)
 
 set(COMPARISONS HM HMInv SSM DSM H2EM SurfGainEEG ESTEEG
-                H2MM SS2MM SurfGainMEG ESTMEG)
+                H2MM SS2MM SurfGainMEG ESTMEG H2ECOGM)
 
 foreach (COMPARISON ${COMPARISONS})
     set(BASE_FILE_NAME Head1${Suffix_${COMPARISON}})
     set(TEST_NAME ${COMPARISON}-Head1)
-    OPENMEEG_COMPARISON_TEST(${COMPARISON}-Head1
-        ${BASE_FILE_NAME} initialTest/${BASE_FILE_NAME} ${CompareOptions_${COMPARISON}})
+    OPENMEEG_COMPARISON_TEST(${COMPARISON}-Head1 ${BASE_FILE_NAME} initialTest/${BASE_FILE_NAME} ${CompareOptions_${COMPARISON}})
 endforeach()
 
 #   TEST EEG RESULTS ON DIPOLES

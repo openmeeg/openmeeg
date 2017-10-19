@@ -28,6 +28,7 @@ function(TESTHEAD HEADNUM)
     set(PATCHES                ${MODELBASE}.patches)
     set(EITPATCHES             ${MODELBASE}-EIT.patches)
     set(SQUIDS                 ${MODELBASE}.squids)
+    set(ECOG-ELECTRODES        ${MODELBASE}-ecog.electrodes)
     set(SQUIDS-TANGENTIAL      ${MODELBASE}-tangential.squids)
     set(SQUIDS-NORADIAL        ${MODELBASE}-noradial.squids)
     set(SURFSOURCES            ${MODELBASE}.src)
@@ -40,6 +41,8 @@ function(TESTHEAD HEADNUM)
     set(HMINVMAT               ${GENERATEDBASE}.hm_inv)
     set(SSMMAT                 ${GENERATEDBASE}.ssm)
     set(CMMAT                  ${GENERATEDBASE}.cm)
+    set(ECOGMMAT               ${GENERATEDBASE}.ecog)
+    set(OLDECOGMMAT            ${GENERATEDBASE}-old.ecog)
     set(H2EMMAT                ${GENERATEDBASE}.h2em)
     set(SGEMMAT                ${GENERATEDBASE}.sgem)
     set(H2IPMAT                ${GENERATEDBASE}.h2ip)
@@ -76,16 +79,23 @@ function(TESTHEAD HEADNUM)
     ############ ASSEMBLE TEST ##############
 
     OPENMEEG_TEST(HM-${SUBJECT} ${ASSEMBLE} -HM ${GEOM} ${COND} ${HMMAT} DEPENDS CLEAN-TESTS)
-    OPENMEEG_TEST(HMInv-${SUBJECT} ${INVERSER} ${HMMAT} ${HMINVMAT}
-                  DEPENDS HM-${SUBJECT})
+    OPENMEEG_TEST(HMInv-${SUBJECT} ${INVERSER} ${HMMAT} ${HMINVMAT}      DEPENDS HM-${SUBJECT})
 
     if (${HEADNUM} EQUAL 1)
+
         OPENMEEG_TEST(SSM-${SUBJECT} ${ASSEMBLE} -SSM ${GEOM} ${COND} ${SRCMESH} ${SSMMAT} DEPENDS CLEAN-TESTS)
+
         # corticalMat tests
-        OPENMEEG_TEST(CM1-0-${SUBJECT}  ${ASSEMBLE} -CM ${GEOM} ${COND} ${PATCHES} "Brain" ${CMMAT} DEPENDS CLEAN-TESTS)
-        OPENMEEG_TEST(CM1-1-${SUBJECT}  ${ASSEMBLE} -CM ${GEOM} ${COND} ${PATCHES} "Brain" ${CMMAT} 1e-4 1.58e-2 DEPENDS CLEAN-TESTS)
-        # corticalMat2 tests
-        OPENMEEG_TEST(CM2-${SUBJECT}  ${ASSEMBLE} -CM ${GEOM} ${COND} ${PATCHES} "Brain" ${CMMAT} 12.4 DEPENDS CLEAN-TESTS)
+
+        OPENMEEG_TEST(CM1-0-${SUBJECT} ${ASSEMBLE} -CM ${GEOM} ${COND} ${PATCHES} "Brain" ${CMMAT} DEPENDS CLEAN-TESTS)
+        OPENMEEG_TEST(CM1-1-${SUBJECT} ${ASSEMBLE} -CM ${GEOM} ${COND} ${PATCHES} "Brain" ${CMMAT} 1e-4 1.58e-2 DEPENDS CLEAN-TESTS)
+        OPENMEEG_TEST(CM2-${SUBJECT}   ${ASSEMBLE} -CM ${GEOM} ${COND} ${PATCHES} "Brain" ${CMMAT} 12.4 DEPENDS CLEAN-TESTS)
+
+        # ECoG
+
+        OPENMEEG_TEST(H2ECOGM-OLD-${SUBJECT} ${ASSEMBLE} -H2ECOGM ${GEOM} ${COND} ${ECOG-ELECTRODES} ${OLDECOGMMAT} DEPENDS CLEAN-TESTS)
+        OPENMEEG_TEST(H2ECOGM-${SUBJECT} ${ASSEMBLE} -H2ECOGM ${GEOM} ${COND} ${ECOG-ELECTRODES} "1" ${ECOGMMAT} DEPENDS CLEAN-TESTS)
+
     endif()
 
     ############ EEG TEST ##############
@@ -99,7 +109,7 @@ function(TESTHEAD HEADNUM)
         OPENMEEG_TEST(SurfGainEEG-${SUBJECT} ${GAIN} -EEG ${HMINVMAT} ${SSMMAT} ${H2EMMAT} ${SGEMMAT}
                       DEPENDS HMInv-${SUBJECT} SSM-${SUBJECT} H2EM-${SUBJECT})
 
-        #------ FORWARD -----#
+        # Forward
 
         OPENMEEG_TEST(ESTEEG-${SUBJECT} ${FORWARD} ${SGEMMAT} ${SURFSOURCES} ${ESTEEG} 0.0
                       DEPENDS SurfGainEEG-${SUBJECT})
@@ -120,7 +130,7 @@ function(TESTHEAD HEADNUM)
         OPENMEEG_TEST(SurfGainMEG-${SUBJECT} ${GAIN} -MEG ${HMINVMAT} ${SSMMAT} ${H2MMMAT} ${SS2MMMAT} ${SGMMMAT}
                       DEPENDS HMInv-${SUBJECT} SSM-${SUBJECT} H2MM-${SUBJECT} SS2MM-${SUBJECT})
 
-        #------ FORWARD ----#
+        # FORWARD
         OPENMEEG_TEST(ESTMEG-${SUBJECT} ${FORWARD} ${SGMMMAT} ${SURFSOURCES} ${ESTMEG} 0.0
                       DEPENDS SurfGainMEG-${SUBJECT})
     endif()
@@ -143,7 +153,7 @@ function(TESTHEAD HEADNUM)
 
     # for Head1 and Head2, test EIT
     if (${HEADNUM} EQUAL 1 OR ${HEADNUM} EQUAL 2)
-        #------ EIT InternalPot ----#
+        # EIT InternalPot
         OPENMEEG_TEST(EITSM-${SUBJECT} ${ASSEMBLE} -EITSM ${GEOM} ${COND} ${EITPATCHES} ${EITSMAT})
 
         OPENMEEG_TEST(GainEITInternalPot-${SUBJECT} ${GAIN} -EITIP ${HMINVMAT} ${EITSMAT} ${H2IPMAT} ${GSIPMAT}
