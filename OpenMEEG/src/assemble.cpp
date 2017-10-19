@@ -111,39 +111,39 @@ int main(int argc, char** argv)
         string filename = "";
 
         switch (argc) {
-        case 8: { // case gamma or filename
-            stringstream ss(argv[7]);
-            if ( !(ss >> gamma) ) {
-                filename.append(argv[7]);
-            }
-            break;
+            case 8: { // case gamma or filename
+                stringstream ss(argv[7]);
+                if ( !(ss >> gamma) ) {
+                    filename.append(argv[7]);
                 }
-        case 9:{ // case alpha+beta or gamma+filename
-            stringstream ss(argv[7]);
-            if ( !(ss >> alpha) ) {
-                throw runtime_error("given parameter is not a number");
+                break;
             }
-            ss.str(argv[8]);
-            ss.clear();
-            if ( !(ss >> beta) ) {
-                filename.append(argv[8]);
-                gamma = alpha;
-            }
-            break;
+            case 9: { // case alpha+beta or gamma+filename
+                stringstream ss(argv[7]);
+                if ( !(ss >> alpha) ) {
+                    throw runtime_error("given parameter is not a number");
                 }
-        case 10:{ // case alpha+beta + filename
-            stringstream ss(argv[7]);
-            if ( !(ss >> alpha) ) {
-                throw runtime_error("given parameter is not a number");
-            }
-            ss.str(argv[8]);
-            ss.clear();
-            if ( !(ss >> beta) ) {
-                throw runtime_error("given parameter is not a number");
-            }
-            filename.append(argv[9]);
-            break;
+                ss.str(argv[8]);
+                ss.clear();
+                if ( !(ss >> beta) ) {
+                    filename.append(argv[8]);
+                    gamma = alpha;
                 }
+                break;
+            }
+            case 10: { // case alpha+beta + filename
+                stringstream ss(argv[7]);
+                if ( !(ss >> alpha) ) {
+                    throw runtime_error("given parameter is not a number");
+                }
+                ss.str(argv[8]);
+                ss.clear();
+                if ( !(ss >> beta) ) {
+                    throw runtime_error("given parameter is not a number");
+                }
+                filename.append(argv[9]);
+                break;
+            }
         }
 
         // Loading surfaces from geometry file
