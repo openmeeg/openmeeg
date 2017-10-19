@@ -3,12 +3,12 @@ include(ComparisonTest)
 set_file_properties(Suffix
     "HM .hm" "HMInv .hm_inv" "DSM .dsm" "SSM .ssm" "H2EM .h2em" "SurfGainEEG .sgem"
     "ESTEEG .est_eeg" "EEGadjointEST .est_eegadjoint" "MEGadjointEST .est_megadjoint"
-    "H2MM .h2mm" "SS2MM .ss2mm" "SurfGainMEG .sgmm" "ESTMEG .est_meg" "H2ECOGM .ecog" "H2ECOGM-OLD .ecog"
+    "H2MM .h2mm" "SS2MM .ss2mm" "SurfGainMEG .sgmm" "ESTMEG .est_meg" "H2ECOGM .ecog"
 )
 
 set_file_properties(CompareOptions
     "HM -sym" "HMInv -sym" "DSM -full:-if1:binary:-if2:binary" "SSM -full:-if1:binary:-if2:binary" "H2EM -if:binary:-sparse"
-    "SurfGainEEG -full" "ESTEEG -full" "H2MM -full" "SS2MM -full" "SurfGainMEG -full" "ESTMEG -full" "H2ECOGM -sparse" "H2ECOGM-OLD -sparse"
+    "SurfGainEEG -full" "ESTEEG -full" "H2MM -full" "SS2MM -full" "SurfGainMEG -full" "ESTMEG -full" "H2ECOGM -sparse"
 )
 
 #   IO TESTS
@@ -32,13 +32,16 @@ NEW_EXECUTABLE(om_validationEIT validationEIT.cpp ${OPEMEEG_HEADERS} LIBRARIES O
 #   TEST COMMON RESULTS ON HEAD1 (Regression test)
 
 set(COMPARISONS HM HMInv SSM DSM H2EM SurfGainEEG ESTEEG
-                H2MM SS2MM SurfGainMEG ESTMEG H2ECOGM)
+                H2MM SS2MM SurfGainMEG ESTMEG H2ECOGM H2ECOGM-OLD)
 
 foreach (COMPARISON ${COMPARISONS})
     set(BASE_FILE_NAME Head1${Suffix_${COMPARISON}})
-    set(TEST_NAME ${COMPARISON}-Head1)
     OPENMEEG_COMPARISON_TEST(${COMPARISON}-Head1 ${BASE_FILE_NAME} initialTest/${BASE_FILE_NAME} ${CompareOptions_${COMPARISON}})
 endforeach()
+
+# Verify that old and new call for H2ECOGM provide the same answer.
+
+OPENMEEG_COMPARISON_TEST(H2ECOGM-OLD-Head1 Head1-old.ecog initialTest/Head1.ecog ${CompareOptions_H2ECOGM})
 
 #   TEST EEG RESULTS ON DIPOLES
 
