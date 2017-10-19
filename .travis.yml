@@ -26,7 +26,7 @@ matrix:
       env:
         - USE_SYSTEM=1
         - USE_PROJECT=1
-        - ENABLE_PACKAGING=1
+        # - ENABLE_PACKAGING=1
         - BLASLAPACK_IMPLEMENTATION=LAPACK
         - USE_PYTHON=1
         - USE_VTK=1
