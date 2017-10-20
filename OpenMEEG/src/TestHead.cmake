@@ -104,15 +104,22 @@ function(TESTHEAD HEADNUM)
 
     if (${HEADNUM} EQUAL 1)
 
-        ############ EEG TEST ##############
+        # EEG test
 
         OPENMEEG_TEST(SurfGainEEG-${SUBJECT} ${GAIN} -EEG ${HMINVMAT} ${SSMMAT} ${H2EMMAT} ${SGEMMAT}
                       DEPENDS HMInv-${SUBJECT} SSM-${SUBJECT} H2EM-${SUBJECT})
 
+        #   Compute sspecial (separate) dipole matrices for ECoG (because errors vary wildly).
+
+        foreach(i 1 2 3)
+            OPENMEEG_TEST(DSM${i}-${SUBJECT} ${ASSEMBLE} -DSM ${GEOM} ${COND} ${DIPPOS}${i} ${DSMMAT}.${i} DEPENDS CLEAN-TESTS)
+            OPENMEEG_TEST(GainwECoG${i}-${SUBJECT} ${GAIN} -EEG ${HMINVMAT} ${DSMMAT}.${i} ${ECOGMMAT} ${GAINECOGMAT}.${i}
+                          DEPENDS HMInv-${SUBJECT} DSM${i}-${SUBJECT} H2ECOGM-${SUBJECT})
+        endforeach()
+
         # Forward
 
-        OPENMEEG_TEST(ESTEEG-${SUBJECT} ${FORWARD} ${SGEMMAT} ${SURFSOURCES} ${ESTEEG} 0.0
-                      DEPENDS SurfGainEEG-${SUBJECT})
+        OPENMEEG_TEST(ESTEEG-${SUBJECT} ${FORWARD} ${SGEMMAT} ${SURFSOURCES} ${ESTEEG} 0.0 DEPENDS SurfGainEEG-${SUBJECT})
 
     endif()
 
@@ -130,7 +137,7 @@ function(TESTHEAD HEADNUM)
         OPENMEEG_TEST(SurfGainMEG-${SUBJECT} ${GAIN} -MEG ${HMINVMAT} ${SSMMAT} ${H2MMMAT} ${SS2MMMAT} ${SGMMMAT}
                       DEPENDS HMInv-${SUBJECT} SSM-${SUBJECT} H2MM-${SUBJECT} SS2MM-${SUBJECT})
 
-        # FORWARD
+        # Forward
         OPENMEEG_TEST(ESTMEG-${SUBJECT} ${FORWARD} ${SGMMMAT} ${SURFSOURCES} ${ESTMEG} 0.0
                       DEPENDS SurfGainMEG-${SUBJECT})
     endif()
@@ -157,7 +164,7 @@ function(TESTHEAD HEADNUM)
         OPENMEEG_TEST(EITSM-${SUBJECT} ${ASSEMBLE} -EITSM ${GEOM} ${COND} ${EITPATCHES} ${EITSMAT})
 
         OPENMEEG_TEST(GainEITInternalPot-${SUBJECT} ${GAIN} -EITIP ${HMINVMAT} ${EITSMAT} ${H2IPMAT} ${GSIPMAT}
-                DEPENDS HMInv-${SUBJECT} EITSM-${SUBJECT} H2IPM-${SUBJECT})
+                      DEPENDS HMInv-${SUBJECT} EITSM-${SUBJECT} H2IPM-${SUBJECT})
     endif()
 
     # om_assemble -DS2IPM geometry.geom conductivity.cond dipoles.dip internalpoints.txt ds2ip.bin

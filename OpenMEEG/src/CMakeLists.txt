@@ -21,7 +21,7 @@ install(TARGETS om_assemble om_forward om_gain om_minverser
 # ===========
 
 if (BUILD_TESTING)
-    include(TestHead.txt)
+    include(TestHead)
 
     # those models should give same results !
     #TESTHEAD(0)
