@@ -54,7 +54,7 @@ namespace OpenMEEG {
             std::cerr << "Interface::contains_point(" << p << ") Error. This should not happen. Are you sure the mesh is properly oriented ?\n";
             return true;
         } else {
-            std::cerr << "Interface::contains_point(" << p << ") Error. Are you sure the interface \"" << name_ << "\" is closed? Solid angle: " << std::abs(solangle)/M_PI <<"*PI." << std::endl;
+            std::cerr << "Interface::contains_point(" << p << ") Error. Are you sure the interface \"" << name() << "\" is closed? Solid angle: " << std::abs(solangle)/M_PI <<"*PI." << std::endl;
             return std::abs(solangle)>2*M_PI?true:false;
         }
     }
@@ -112,7 +112,7 @@ namespace OpenMEEG {
         //if the bounding box center is not inside the interface,
         //we try to test another point inside the bounding box.
         if ( almost_equal(solangle, 0.)) {
-            //std::cout<<"bbcenter is not inside interface: "<<name_<<std::endl;
+            //std::cout << "bbcenter is not inside interface: " << name() << std::endl;
             if ( not checked)
                 std::srand((unsigned int)std::time(NULL));
             else

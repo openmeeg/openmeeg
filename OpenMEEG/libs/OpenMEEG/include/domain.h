@@ -63,13 +63,13 @@ namespace OpenMEEG {
 
         HalfSpace() { }
 
-        HalfSpace(Interface& _interface,const bool _inside): base(_interface,_inside) { }
+        HalfSpace(Interface& interf,const bool ins): base(interf,ins) { }
 
         ~HalfSpace() { }
 
-              Interface& interface()       { return this->first;  }
-        const Interface& interface() const { return this->first;  }
-        const bool &     inside()    const { return this->second; }
+              Interface& interface()       { return base::first;  }
+        const Interface& interface() const { return base::first;  }
+        const bool       inside()    const { return base::second; }
     };
 
     /// \brief a Domain is a vector of HalfSpace
