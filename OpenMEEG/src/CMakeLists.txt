@@ -21,7 +21,7 @@ install(TARGETS om_assemble om_forward om_gain om_minverser
 # ===========
 
 if (BUILD_TESTING)
-    include(TestHead)
+    include(TestHead.cmake)
 
     # those models should give same results !
     #TESTHEAD(0)

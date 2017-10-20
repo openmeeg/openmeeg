@@ -3,12 +3,12 @@ include(ComparisonTest)
 set_file_properties(Suffix
     "HM .hm" "HMInv .hm_inv" "DSM .dsm" "SSM .ssm" "H2EM .h2em" "SurfGainEEG .sgem"
     "ESTEEG .est_eeg" "EEGadjointEST .est_eegadjoint" "MEGadjointEST .est_megadjoint"
-    "H2MM .h2mm" "SS2MM .ss2mm" "SurfGainMEG .sgmm" "ESTMEG .est_meg" "H2ECOGM .ecog"
+    "H2MM .h2mm" "SS2MM .ss2mm" "SurfGainMEG .sgmm" "ESTMEG .est_meg"
 )
 
 set_file_properties(CompareOptions
     "HM -sym" "HMInv -sym" "DSM -full:-if1:binary:-if2:binary" "SSM -full:-if1:binary:-if2:binary" "H2EM -if:binary:-sparse"
-    "SurfGainEEG -full" "ESTEEG -full" "H2MM -full" "SS2MM -full" "SurfGainMEG -full" "ESTMEG -full" "H2ECOGM -sparse"
+    "SurfGainEEG -full" "ESTEEG -full" "H2MM -full" "SS2MM -full" "SurfGainMEG -full" "ESTMEG -full"
 )
 
 #   IO TESTS
@@ -31,17 +31,19 @@ NEW_EXECUTABLE(om_validationEIT validationEIT.cpp ${OPEMEEG_HEADERS} LIBRARIES O
 
 #   TEST COMMON RESULTS ON HEAD1 (Regression test)
 
-set(COMPARISONS HM HMInv SSM DSM H2EM SurfGainEEG ESTEEG
-                H2MM SS2MM SurfGainMEG ESTMEG H2ECOGM H2ECOGM-OLD)
-
-foreach (COMPARISON ${COMPARISONS})
+foreach (COMPARISON HM HMInv SSM DSM H2EM SurfGainEEG ESTEEG H2MM SS2MM SurfGainMEG ESTMEG)
     set(BASE_FILE_NAME Head1${Suffix_${COMPARISON}})
     OPENMEEG_COMPARISON_TEST(${COMPARISON}-Head1 ${BASE_FILE_NAME} initialTest/${BASE_FILE_NAME} ${CompareOptions_${COMPARISON}})
 endforeach()
 
+# Verify ECoG transfert matrices.
 # Verify that old and new call for H2ECOGM provide the same answer.
 
-OPENMEEG_COMPARISON_TEST(H2ECOGM-OLD-Head1 Head1-old.ecog initialTest/Head1.ecog ${CompareOptions_H2ECOGM})
+foreach (HEADNUM 1 2 ${HEAD3})
+    set(BASE_FILE_NAME Head${HEADNUM}.ecog)
+    OPENMEEG_COMPARISON_TEST(H2ECOGM-Head${HEADNUM} ${BASE_FILE_NAME} initialTest/${BASE_FILE_NAME} "-sparse")
+    OPENMEEG_COMPARISON_TEST(H2ECOGM-OLD-Head${HEADNUM} Head${HEADNUM}-old.ecog initialTest/${BASE_FILE_NAME} "-sparse")
+endforeach()
 
 #   TEST EEG RESULTS ON DIPOLES
 
@@ -146,9 +148,23 @@ foreach(DIP 1 2 3 4 5)
             # Compare the potential results in a interior sphere of the Surf2Vol operator with analytical solution
             # obtained with Sphere (V.Hedou Modified)
              OPENMEEG_COMPARISON_TEST("EEGinternal-dip-${HEAD}-dip${DIP}"
-                ${HEAD}-dip-internal.est_eeg analytic/eeg_internal_analytic.txt -eps ${EPSILON${HEADNUM}} -col ${DIP} -full
-                DEPENDS InternalPot-dipoles-${HEAD})
+                                      ${HEAD}-dip-internal.est_eeg analytic/eeg_internal_analytic.txt -eps ${EPSILON${HEADNUM}} -col ${DIP} -full
+                                      DEPENDS InternalPot-dipoles-${HEAD})
         endforeach()
+    endforeach()
+endforeach()
+
+#   ECoG comparison tests
+#   Done only on dipoles 1, 2 and 3 because otherwise the error (even in the analytic model is poorly controlled.
+
+set(DIP_EPSILON1 0.035)
+set(DIP_EPSILON2 0.17)
+set(DIP_EPSILON3 0.59)
+foreach(HEADNUM 1 2 ${HEAD3})
+    foreach(DIP 1 2 3)
+        OPENMEEG_COMPARISON_TEST("GAINECOG-Head${HEADNUM}-dip${DIP}"
+                                 Head${HEADNUM}ECoGGain.mat analytic/ecog_analytic.txt -eps ${DIP_EPSILON${DIP}} -col ${DIP} -full
+                                 DEPENDS GAINECOG-Head${HEADNUM})
     endforeach()
 endforeach()
 
