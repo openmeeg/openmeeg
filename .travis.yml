@@ -26,13 +26,13 @@ matrix:
       env:
         - USE_SYSTEM=1
         - USE_PROJECT=1
-        # - ENABLE_PACKAGING=1
+        - ENABLE_PACKAGING=1
         - BLASLAPACK_IMPLEMENTATION=LAPACK
         - USE_PYTHON=1
         - USE_VTK=1
         - PYTHON_VERSION=3.6
         # - PYTHON_VERSION=2.7
-        - APPLE_STANDALONE=1
+        # - APPLE_STANDALONE=1
     # - os: linux
     #   compiler: gcc
     #   env:
