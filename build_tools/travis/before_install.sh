@@ -16,7 +16,7 @@ if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
 
     # Install some custom requirements on OS X
     brew tap homebrew/science # a lot of cool formulae for scientific tools
-    brew update && brew upgrade
+    # brew update && brew upgrade
 
     # Install some custom requirements on OS X
     if [[ "$USE_PROJECT" == "0" || "$USE_SYSTEM" == "1" ]]; then
