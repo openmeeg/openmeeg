@@ -29,7 +29,7 @@ matrix:
         - ENABLE_PACKAGING=1
         - BLASLAPACK_IMPLEMENTATION=LAPACK
         - USE_PYTHON=1
-        - USE_VTK=1
+        - USE_VTK=0
         - PYTHON_VERSION=3.6
         # - PYTHON_VERSION=2.7
         # - APPLE_STANDALONE=1
