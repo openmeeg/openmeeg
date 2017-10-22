@@ -9,6 +9,7 @@
 .. |CodeCov| image:: https://codecov.io/gh/openmeeg/openmeeg/branch/master/graph/badge.svg
 .. _CodeCov: https://codecov.io/gh/openmeeg/openmeeg
 
+
 OpenMEEG: forward problems solver in the field of EEG and MEG
 =============================================================
 
