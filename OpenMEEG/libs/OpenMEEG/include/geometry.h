@@ -58,14 +58,15 @@ namespace OpenMEEG {
         Here are stored the vertices, meshes and domains
      */
 
-    class OPENMEEG_EXPORT Geometry 
-    {
-        typedef enum { IDENTITY, INVERSE, INDICATOR} Function;
+    class OPENMEEG_EXPORT Geometry {
 
-        /// friend class for reading geom/cond files.
         friend class GeometryReader;
 
     public:
+
+        typedef enum { UNKNOWN_VERSION=-1, VERSION10, VERSION11 } VersionId;
+
+        VersionId version() const { return version_id; }
 
         /// Default iterator of a Geometry is an Iterator on the meshes
         typedef Meshes::iterator          iterator;
@@ -102,7 +103,10 @@ namespace OpenMEEG {
               size_t     nb_triangles()                   const { return (size_-vertices_.size()); }
               size_t     nb_domains()                     const { return domains_.size(); }
               size_t     nb_meshes()                      const { return meshes_.size(); }
-        const Interface& outermost_interface()            const; ///< \brief returns the outermost Interfaces of the geometry (with multiple 0-cond you can probably have more than 1 outermost interfaces)
+
+        const Interface& outermost_interface() const; ///< \brief returns the outermost interface (only valid for nested geometries).
+        const Interface& innermost_interface() const; ///< \brief returns the innermost interface (only valid for nested geometries).
+
         const Interface& interface(const std::string& id) const; ///< \brief returns the Interface called id \param id Interface name
         const Domain&    domain(const std::string& id)    const; ///< \brief returns the Domain called id \param id Domain name
         const Domain&    domain(const Vect3& p)           const; ///< \brief returns the Domain containing the point p \param p a point
@@ -132,15 +136,18 @@ namespace OpenMEEG {
 
     private:
 
+        typedef enum { IDENTITY, INVERSE, INDICATOR} Function;
+
         Mesh& mesh(const std::string& id); ///< \brief returns the Mesh called id \param id Mesh name
 
         /// Members
-        Vertices   vertices_;
-        Meshes     meshes_;
-        Domains    domains_;
-        bool       has_cond_;
-        bool       is_nested_;
-        size_t     size_;   // total number = nb of vertices + nb of triangles
+        VersionId version_id;
+        Vertices  vertices_;
+        Meshes    meshes_;
+        Domains   domains_;
+        bool      has_cond_;
+        bool      is_nested_;
+        size_t    size_;   // total number = nb of vertices + nb of triangles
 
         void          generate_indices(const bool);
         const Domains common_domains(const Mesh&, const Mesh&) const;

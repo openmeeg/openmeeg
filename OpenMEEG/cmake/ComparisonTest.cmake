@@ -1,6 +1,6 @@
 include(UnitTest)
 
-macro(SET_FILE_PROPERTIES PROPERTY)
+macro(set_file_properties PROPERTY)
     foreach(arg ${ARGN})
         string(REGEX REPLACE "^([^ ]+) .+$" "\\1" VAR_NAME ${arg})
         string(REGEX REPLACE "^[^ ]+ +(.+)$" "\\1" VALUE ${arg})

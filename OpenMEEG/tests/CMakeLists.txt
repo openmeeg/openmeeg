@@ -27,19 +27,22 @@ OPENMEEG_UNIT_TEST(test_mesh_ios
 
 NEW_EXECUTABLE(test_sensors test_sensors.cpp LIBRARIES OpenMEEG ${VTK_LIBRARIES})
 NEW_EXECUTABLE(compare_matrix compare_matrix.cpp LIBRARIES OpenMEEGMaths ${LAPACK_LIBRARIES})
-NEW_EXECUTABLE(om_validationEIT validationEIT.cpp ${OPEMEEG_HEADERS} LIBRARIES OpenMEEG OpenMEEGMaths ${LAPACK_LIBRARIES} ${VTK_LIBRARIES}
-)
+NEW_EXECUTABLE(om_validationEIT validationEIT.cpp ${OPEMEEG_HEADERS} LIBRARIES OpenMEEG OpenMEEGMaths ${LAPACK_LIBRARIES} ${VTK_LIBRARIES})
 
 #   TEST COMMON RESULTS ON HEAD1 (Regression test)
 
-set(COMPARISONS HM HMInv SSM DSM H2EM SurfGainEEG ESTEEG
-                H2MM SS2MM SurfGainMEG ESTMEG)
-
-foreach (COMPARISON ${COMPARISONS})
+foreach (COMPARISON HM HMInv SSM DSM H2EM SurfGainEEG ESTEEG H2MM SS2MM SurfGainMEG ESTMEG)
     set(BASE_FILE_NAME Head1${Suffix_${COMPARISON}})
-    set(TEST_NAME ${COMPARISON}-Head1)
-    OPENMEEG_COMPARISON_TEST(${COMPARISON}-Head1
-        ${BASE_FILE_NAME} initialTest/${BASE_FILE_NAME} ${CompareOptions_${COMPARISON}})
+    OPENMEEG_COMPARISON_TEST(${COMPARISON}-Head1 ${BASE_FILE_NAME} initialTest/${BASE_FILE_NAME} ${CompareOptions_${COMPARISON}})
+endforeach()
+
+# Verify ECoG transfert matrices.
+# Verify that old and new call for H2ECOGM provide the same answer.
+
+foreach (HEADNUM 1 2 ${HEAD3})
+    set(BASE_FILE_NAME Head${HEADNUM}.ecog)
+    OPENMEEG_COMPARISON_TEST(H2ECOGM-Head${HEADNUM} ${BASE_FILE_NAME} initialTest/${BASE_FILE_NAME} "-sparse")
+    OPENMEEG_COMPARISON_TEST(H2ECOGM-OLD-Head${HEADNUM} Head${HEADNUM}-old.ecog initialTest/${BASE_FILE_NAME} "-sparse")
 endforeach()
 
 #   TEST EEG RESULTS ON DIPOLES
@@ -145,9 +148,23 @@ foreach(DIP 1 2 3 4 5)
             # Compare the potential results in a interior sphere of the Surf2Vol operator with analytical solution
             # obtained with Sphere (V.Hedou Modified)
              OPENMEEG_COMPARISON_TEST("EEGinternal-dip-${HEAD}-dip${DIP}"
-                ${HEAD}-dip-internal.est_eeg analytic/eeg_internal_analytic.txt -eps ${EPSILON${HEADNUM}} -col ${DIP} -full
-                DEPENDS InternalPot-dipoles-${HEAD})
+                                      ${HEAD}-dip-internal.est_eeg analytic/eeg_internal_analytic.txt -eps ${EPSILON${HEADNUM}} -col ${DIP} -full
+                                      DEPENDS InternalPot-dipoles-${HEAD})
         endforeach()
+    endforeach()
+endforeach()
+
+#   ECoG comparison tests
+#   Done only on dipoles 1, 2 and 3 because otherwise the error (even in the analytic model is poorly controlled.
+
+set(DIP_EPSILON1 0.035)
+set(DIP_EPSILON2 0.17)
+set(DIP_EPSILON3 0.59)
+foreach(HEADNUM 1 2 ${HEAD3})
+    foreach(DIP 1 2 3)
+        OPENMEEG_COMPARISON_TEST("GAINECOG-Head${HEADNUM}-dip${DIP}"
+                                 Head${HEADNUM}ECoGGain.mat analytic/ecog_analytic.txt -eps ${DIP_EPSILON${DIP}} -col ${DIP} -full
+                                 DEPENDS GAINECOG-Head${HEADNUM})
     endforeach()
 endforeach()
 

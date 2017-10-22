@@ -111,39 +111,39 @@ int main(int argc, char** argv)
         string filename = "";
 
         switch (argc) {
-        case 8: { // case gamma or filename
-            stringstream ss(argv[7]);
-            if ( !(ss >> gamma) ) {
-                filename.append(argv[7]);
-            }
-            break;
+            case 8: { // case gamma or filename
+                stringstream ss(argv[7]);
+                if ( !(ss >> gamma) ) {
+                    filename.append(argv[7]);
                 }
-        case 9:{ // case alpha+beta or gamma+filename
-            stringstream ss(argv[7]);
-            if ( !(ss >> alpha) ) {
-                throw runtime_error("given parameter is not a number");
+                break;
             }
-            ss.str(argv[8]);
-            ss.clear();
-            if ( !(ss >> beta) ) {
-                filename.append(argv[8]);
-                gamma = alpha;
-            }
-            break;
+            case 9: { // case alpha+beta or gamma+filename
+                stringstream ss(argv[7]);
+                if ( !(ss >> alpha) ) {
+                    throw runtime_error("given parameter is not a number");
                 }
-        case 10:{ // case alpha+beta + filename
-            stringstream ss(argv[7]);
-            if ( !(ss >> alpha) ) {
-                throw runtime_error("given parameter is not a number");
-            }
-            ss.str(argv[8]);
-            ss.clear();
-            if ( !(ss >> beta) ) {
-                throw runtime_error("given parameter is not a number");
-            }
-            filename.append(argv[9]);
-            break;
+                ss.str(argv[8]);
+                ss.clear();
+                if ( !(ss >> beta) ) {
+                    filename.append(argv[8]);
+                    gamma = alpha;
                 }
+                break;
+            }
+            case 10: { // case alpha+beta + filename
+                stringstream ss(argv[7]);
+                if ( !(ss >> alpha) ) {
+                    throw runtime_error("given parameter is not a number");
+                }
+                ss.str(argv[8]);
+                ss.clear();
+                if ( !(ss >> beta) ) {
+                    throw runtime_error("given parameter is not a number");
+                }
+                filename.append(argv[9]);
+                break;
+            }
         }
 
         // Loading surfaces from geometry file
@@ -268,26 +268,36 @@ int main(int argc, char** argv)
     * (i.e. the potential and the normal current on all interfaces)
     * |----> v (potential at the ECoG electrodes)
     **********************************************************************************************/
-    else if ( option(argc, argv, {"-Head2ECoGMat", "-H2ECogM", "-H2ECOGM", "-h2ecogm"},
-                     {"geometry file", "conductivity file", "ECoG electrodes positions file",
-                      "the name of the interface for EcoG", "output file"}) ) {
+    else if (option(argc, argv, {"-Head2ECoGMat", "-H2ECogM", "-H2ECOGM", "-h2ecogm"},
+                                {"geometry file", "conductivity file", "ECoG electrodes positions file",
+                                 "[name of the interface for EcoG]", "output file"}) ) {
 
-        // Loading surfaces from geometry file.
+        // Load surfaces from geometry file.
+
         Geometry geo;
         geo.read(argv[2], argv[3], OLD_ORDERING);
 
-        // Find the mesh of the ECoG electrodes
-        const Interface &i = geo.interface(argv[5]);
+        // Read the file containing the positions of the EEG patches
 
-        // read the file containing the positions of the EEG patches
         Sensors electrodes(argv[4]);
 
-        // Assembling Matrix from discretization :
-        // Head2ECoG is the linear application which maps x |----> v
-        Head2ECoGMat mat(geo, electrodes, i);
+        // Find the mesh of the ECoG electrodes
 
-        // Saving Head2ECoG Matrix :
-        mat.save(argv[6]);
+        bool old_cmd_line = false;
+        if (argc==6) {
+            std::cerr << "Warning: we assume that ECoG electrodes are placed on the inner interface." << std::endl
+                      << "This is only valid for nested files. Consider specifying an interface as a name" << std::endl
+                      << " right after the electrode position file." << std::endl;
+            old_cmd_line = true;
+        }
+        
+        const Interface& ECoG_layer = (old_cmd_line) ? geo.innermost_interface() : geo.interface(argv[5]);
+
+        // Assemble matrix from discretization:
+        // Head2ECoG is the linear application which maps x |----> v
+
+        Head2ECoGMat mat(geo,electrodes,ECoG_layer);
+        mat.save(argv[(old_cmd_line) ? 5 : 6]);
     }
 
     /*********************************************************************************************
@@ -401,7 +411,11 @@ int main(int argc, char** argv)
 bool option(const int argc, char ** argv, const Strings& options, const Strings& files) {
     for ( auto s: options) {
         if (argv[1] == s) {
-            if (argc-2 < files.size()) {
+            unsigned minimum_nparms = files.size();
+            for (auto f: files)
+                if (f[0]=='[')
+                    --minimum_nparms;
+            if (argc-2 < minimum_nparms) {
                 cout << "\'om_assemble\' option \'" << argv[1] << "\' expects " << files.size() << " arguments (";
                 for ( auto f: files) {
                     cout << f;
