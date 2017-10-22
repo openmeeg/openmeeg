@@ -13,12 +13,12 @@ matrix:
     - os: osx
       compiler: clang
       env:
-        - USE_SYSTEM=1
+        - USE_SYSTEM=0
         - USE_PROJECT=1
         - ENABLE_PACKAGING=1
         - BLASLAPACK_IMPLEMENTATION=vecLib
         - USE_VTK=1
-        - USE_PYTHON=1
+        - USE_PYTHON=0
         - PYTHON_VERSION=2.7
         # - PYTHON_VERSION=3.6
         - APPLE_STANDALONE=1
