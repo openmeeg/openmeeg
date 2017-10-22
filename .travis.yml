@@ -18,7 +18,7 @@ matrix:
         - ENABLE_PACKAGING=1
         - BLASLAPACK_IMPLEMENTATION=vecLib
         - USE_VTK=1
-        - USE_PYTHON=0
+        - USE_PYTHON=1
         - PYTHON_VERSION=2.7
         # - PYTHON_VERSION=3.6
         - APPLE_STANDALONE=1
