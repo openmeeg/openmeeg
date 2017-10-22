@@ -5,13 +5,14 @@
 option(USE_GIFTI "Use GIFTI IO support" OFF)
 
 if (USE_GIFTI)
-    find_package(EXPAT)
-    find_package(ZLIB)
-    find_library(NIFTI_LIBRARY niftiio)
-    find_library(GIFTI_LIBRARY giftiio)
-    find_library(ZNZ_LIBRARY znz)
-    find_path(GIFTI_INCLUDE_PATH gifti_io.h PATH_SUFFIXES gifti)
-    find_path(NIFTI_INCLUDE_PATH nifti1_io.h PATH_SUFFIXES nifti)
+    set(FIND_MODE "QUIET")
+    if(CMAKE_PROJECT_NAME STREQUAL "OpenMEEG")
+        set(FIND_MODE "REQUIRED")
+    endif()
+
+    find_package(NIFTI ${FIND_MODE} MODULE)
+    find_package(GIFTI ${FIND_MODE} MODULE)
+
     set(GIFTI_INCLUDE_DIRS ${GIFTI_INCLUDE_PATH} ${NIFTI_INCLUDE_PATH})
     set(GIFTI_LIBRARIES ${EXPAT_LIBRARIES} ${ZLIB_LIBRARIES} ${NIFTI_LIBRARY} ${ZNZ_LIBRARY} m ${NIFTI_LIBRARY} ${GIFTI_LIBRARY})
     list(APPEND OpenMEEG_OTHER_INCLUDE_DIRS ${GIFTI_INCLUDE_DIRS})

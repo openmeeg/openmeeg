@@ -41,24 +41,32 @@ endif()
 # Provide stdint.h for windows, if it is not already there.
 # MSVC starts to include stddint.h only from MSVC10 !!!
 
-set(MSINTTYPES)
+set(optional_subprojects)
 if (WIN32)
     include(CheckIncludeFiles)
     check_include_files(stdint.h HAVE_C99_STDINT)
     if (NOT HAVE_C99_STDINT)
-        set(MSINTTYPES msinttypes)
+        list(APPEND optional_subprojects msinttypes)
     endif()
 endif()
 
 if (NOT LAPACK_LIBRARIES AND USE_LAPACK)
-    set(LAPACK clapack)
+    list(APPEND optional_subprojects clapack)
     option(CLAPACK_BUILD_TESTING "Build CLAPACK tests" OFF)
 endif()
 
 if (USE_VTK)
-    set(VTK_ VTK)
+    list(APPEND optional_subprojects VTK)
     if (VTK_FOUND)
         set(USE_SYSTEM_VTK True CACHE BOOL "Use the VTK from the system" FORCE)
+    endif()
+endif()
+
+if (USE_GIFTI)
+    list(APPEND optional_subprojects NIFTI GIFTI)
+    if (GIFTI_FOUND)
+        set(USE_SYSTEM_GIFTI True CACHE BOOL "Use the GIFTI from the system" FORCE)
+        set(USE_SYSTEM_NIFTI True CACHE BOOL "Use the NIFTI from the system" FORCE)
     endif()
 endif()
 
@@ -66,6 +74,6 @@ if (USE_OPENBLAS AND WIN32)
     include(installOpenBLAS)
 endif()
 
-subprojects(${MSINTTYPES} zlib ${VTK_} hdf5 matio ${LAPACK} OpenMEEG)
+subprojects(zlib hdf5 matio ${optional_subprojects} OpenMEEG)
 
 include(Packaging)
