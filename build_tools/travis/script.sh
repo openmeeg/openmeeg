@@ -17,6 +17,9 @@ if [[ "$ENABLE_PACKAGING" == "1" ]]; then
         sudo apt-get remove -y libhdf5-serial-dev libmatio-dev libopenblas-dev liblapacke-dev libvtk5-dev libvtk5.8
     fi
 
+    # Remove conda used from wrapping
+    rm -rf ${HOME}/miniconda_wrap
+
     tar xvvzf OpenMEEG-2.*.gz > /dev/null 2> /dev/null
     cd OpenMEEG-2.*
     export DYLD_LIBRARY_PATH="lib:$DYLD_LIBRARY_PATH"

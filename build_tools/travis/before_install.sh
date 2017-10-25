@@ -1,4 +1,4 @@
-function setup_conda {
+function setup_conda_wrap {
     if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
         curl https://repo.continuum.io/miniconda/Miniconda2-latest-MacOSX-x86_64.sh -o miniconda.sh -s
     else
@@ -6,9 +6,24 @@ function setup_conda {
     fi
 
     chmod +x miniconda.sh
-    ./miniconda.sh -b -p ${HOME}/miniconda
-    export PATH=${HOME}/miniconda/bin:$PATH
+    ./miniconda.sh -b -p ${HOME}/miniconda_wrap
+    export PATH=${HOME}/miniconda_wrap/bin:$PATH
     conda update --yes --quiet conda
+    conda create -n wrappingenv --yes pip python=$PYTHON_VERSION
+    conda create -n wrappingenv --yes pip python=$PYTHON_VERSION
+    source activate wrappingenv
+    conda install -y --quiet numpy swig
+}
+
+function setup_conda_deploy {
+    if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
+        curl https://repo.continuum.io/miniconda/Miniconda2-latest-MacOSX-x86_64.sh -o miniconda.sh -s
+    else
+        wget -q http://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh -O miniconda.sh
+    fi
+
+    chmod +x miniconda.sh
+    ./miniconda.sh -b -p ${HOME}/miniconda_deploy
 }
 
 
@@ -16,7 +31,7 @@ if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
 
     # Install some custom requirements on OS X
     brew tap homebrew/science # a lot of cool formulae for scientific tools
-    brew update && brew upgrade
+    # brew update && brew upgrade
 
     # Install some custom requirements on OS X
     if [[ "$USE_PROJECT" == "0" || "$USE_SYSTEM" == "1" ]]; then
@@ -96,10 +111,11 @@ else
     fi
 fi
 
-# install anaconda Python
-if [[ "$USE_PYTHON" == "1" || "$ENABLE_PACKAGING" == "1" ]]; then
-    setup_conda
-    conda create -n wrappingenv --yes pip python=$PYTHON_VERSION
-    source activate wrappingenv
-    conda install -y --quiet numpy swig
+# install anaconda Python for wrapping or deployment
+if [[ "$USE_PYTHON" == "1" ]]; then
+    setup_conda_wrap
+fi
+
+if [[ "$ENABLE_PACKAGING" == "1" ]]; then
+    setup_conda_deploy
 fi

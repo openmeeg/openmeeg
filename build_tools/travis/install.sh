@@ -42,4 +42,5 @@ else
         ..
 fi
 
+cat CMakeCache.txt
 make
