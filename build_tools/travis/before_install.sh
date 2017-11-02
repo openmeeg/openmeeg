@@ -116,6 +116,6 @@ if [[ "$USE_PYTHON" == "1" ]]; then
     setup_conda_wrap
 fi
 
-if [[ "$ENABLE_PACKAGING" == "1" ]]; then
-    setup_conda_deploy
-fi
+# if [[ "$ENABLE_PACKAGING" == "1" ]]; then
+#     setup_conda_deploy
+# fi
