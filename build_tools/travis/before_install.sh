@@ -15,17 +15,6 @@ function setup_conda_wrap {
     conda install -y --quiet numpy swig
 }
 
-function setup_conda_deploy {
-    if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
-        curl https://repo.continuum.io/miniconda/Miniconda2-latest-MacOSX-x86_64.sh -o miniconda.sh -s
-    else
-        wget -q http://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh -O miniconda.sh
-    fi
-
-    chmod +x miniconda.sh
-    ./miniconda.sh -b -p ${HOME}/miniconda_deploy
-}
-
 
 if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
 
@@ -114,8 +103,4 @@ fi
 # install anaconda Python for wrapping or deployment
 if [[ "$USE_PYTHON" == "1" ]]; then
     setup_conda_wrap
-fi
-
-if [[ "$ENABLE_PACKAGING" == "1" ]]; then
-    setup_conda_deploy
 fi
