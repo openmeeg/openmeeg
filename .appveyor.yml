@@ -34,7 +34,7 @@ environment:
       omp: ON
       vtk: ON
       python: ON
-      pack: ON
+      pack: OFF
     - lapack: LAPACK
       vtk: OFF
       python: ON
