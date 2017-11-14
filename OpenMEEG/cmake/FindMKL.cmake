@@ -23,13 +23,14 @@
 # SGI - SGI MPT Library
 
 
-# set(CMAKE_FIND_DEBUG_MODE 1)
+#set(CMAKE_FIND_DEBUG_MODE 1)
 
 # unset this variable defined in matio
 unset(MSVC)
 
 set(MKL_POSSIBLE_LOCATIONS
     $ENV{MKLDIR}
+    ${MKL_ROOT_DIR}
     /opt/intel/mkl
     /opt/intel/cmkl
     /Library/Frameworks/Intel_MKL.framework/Versions/Current/lib/universal
@@ -50,18 +51,67 @@ get_filename_component(MKL_ROOT_DIR ${MKL_ROOT_DIR} REALPATH)
 
 if (NOT MKL_ROOT_DIR)
     if (MKL_FIND_REQUIRED)
-        MESSAGE(FATAL_ERROR "Could not find MKL: please provide MKL_DIR or environment {MKLDIR}")
+        message(STATUS "Could not find MKL: attempting to install it from network")
+        set(MKL_INSTALLER_DIR "l_mkl_2018.0.128")
+        set(MKL_INSTALLER_ARCHIVE "${MKL_INSTALLER_DIR}.tgz")
+        file(DOWNLOAD "http://registrationcenter-download.intel.com/akdlm/irc_nas/tec/12070/${MKL_INSTALLER_ARCHIVE}" ${CMAKE_BINARY_DIR}/mkl.tgz
+             SHOW_PROGRESS
+             STATUS result)
+        list(GET result 0 error_code)
+        if (NOT ${error_code} STREQUAL "0")
+            message(FATAL_ERROR "Could not download MKL install script. If no network connexion please provide MKL_DIR or environment {MKLDIR}")
+        endif()
+        message(STATUS "Installing Intel MKL, this may take a while...")
+        execute_process(COMMAND ${CMAKE_COMMAND} -E tar zxvf ${CMAKE_BINARY_DIR}/mkl.tgz
+                        OUTPUT_QUIET
+                        ERROR_QUIET
+                        RESULT_VARIABLE mkl_unpack_result)
+        if (NOT ${mkl_unpack_result} STREQUAL "0")
+            message(FATAL_ERROR "Could not extract MKL: please look at files install-mkl.{out,err} or provide MKL_DIR or environment {MKLDIR}")
+        endif()
+
+        file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/mkl)
+        set(CFGFILE ${CMAKE_BINARY_DIR}/silent.cfg)
+        file(APPEND ${CFGFILE} "# Generated silent configuration file\n")
+        file(APPEND ${CFGFILE} "ACCEPT_EULA=accept\n")
+        file(APPEND ${CFGFILE} "CONTINUE_WITH_OPTIONAL_ERROR=yes\n")
+        file(APPEND ${CFGFILE} "PSET_INSTALL_DIR=${CMAKE_BINARY_DIR}/mkl\n")
+        file(APPEND ${CFGFILE} "CONTINUE_WITH_INSTALLDIR_OVERWRITE=yes\n")
+        file(APPEND ${CFGFILE} "COMPONENTS=ALL\n")
+        file(APPEND ${CFGFILE} "PSET_MODE=install\n")
+        file(APPEND ${CFGFILE} "SIGNING_ENABLED=yes\n")
+        file(APPEND ${CFGFILE} "ARCH_SELECTED=ALL\n")
+
+        if (WIN)
+            set(MKL_SHELL "git-bash")
+        endif()
+
+        execute_process(COMMAND ${MKL_SHELL} ${MKL_INSTALLER_DIR}/install.sh -s ${CFGFILE} --cli-mode --user-mode
+                        OUTPUT_FILE ${CMAKE_BINARY_DIR}/install-mkl.out
+                        ERROR_FILE ${CMAKE_BINARY_DIR}/install-mkl.err
+                        RESULT_VARIABLE mkl_install_result)
+
+        if (NOT ${mkl_install_result} STREQUAL "0")
+            message(FATAL_ERROR "Could not install MKL: please look at files install-mkl.{out,err} or provide MKL_DIR or environment {MKLDIR}")
+        endif()
+
+        find_path(MKL_ROOT_DIR NAMES include/mkl_cblas.h PATHS ${CMAKE_BINARY_DIR}/mkl/mkl)
+        if (NOT MKL_ROOT_DIR)
+            message(FATAL_ERROR "MKL seems to be incorrectly installed in ${CMAKE_BINARY_DIR}/mkl/mkl")
+        endif()
     else()
         unset(MKL_ROOT_DIR CACHE)
     endif()
-else()
+endif()
+
+if (MKL_ROOT_DIR)
     set(MKL_INCLUDE_DIR ${MKL_ROOT_DIR}/include)
 
     # set arguments to call the MKL provided tool for linking
 	set(COMMANDE ${MKL_ROOT_DIR}/tools/mkl_link_tool)
 
     if (WIN32)
-        set(COMMANDE ${MKL_ROOT_DIR}/tools/mkl_link_tool.exe)
+        set(COMMANDE ${COMMANDE}.exe)
     endif()
     
     # check that the tools exists or quit
@@ -89,6 +139,8 @@ else()
     elseif(MKL_INCLUDE_DIR MATCHES "2016")
         list(APPEND COMMANDE  "--mkl=11.3")
     elseif(MKL_INCLUDE_DIR MATCHES "2017")
+        list(APPEND COMMANDE  "--mkl=11.3")
+    elseif(MKL_INCLUDE_DIR MATCHES "2018")
         list(APPEND COMMANDE  "--mkl=11.3")
     elseif (MKL_INCLUDE_DIR MATCHES "10")
         list(APPEND COMMANDE  "--mkl=10.2")
@@ -160,7 +212,7 @@ else()
     set(MKL_LIBRARIES)
 
     if (NOT ${COMMAND_WORKED} EQUAL 0)
-        MESSAGE(FATAL_ERROR "Cannot find the MKL libraries correctly. Please check your MKL input variables and mkl_link_tool. The command executed was:\n ${COMMANDE}.")
+        message(FATAL_ERROR "Cannot find the MKL libraries correctly. Please check your MKL input variables and mkl_link_tool. The command executed was:\n ${COMMANDE}.")
     endif()
 
     set(MKL_LIBRARY_DIR)
@@ -196,6 +248,14 @@ else()
         else() # dynamic or sdl
             # get the lib dirs
             string(REGEX REPLACE "^.*-L[^/]+([^\ ]+).*" "${MKL_ROOT_DIR}\\1" INTEL_LIB_DIR ${RESULT_LIBS})
+            if (NOT EXISTS ${INTEL_LIB_DIR})
+                #   Work around a bug in mkl 2018
+                set(INTEL_LIB_DIR1 "${INTEL_LIB_DIR}_lin")
+                if (NOT EXISTS ${INTEL_LIB_DIR1})
+                    message(FATAL_ERROR "MKL installation broken. Directory ${INTEL_LIB_DIR} does not exist.")
+                endif()
+                set(INTEL_LIB_DIR ${INTEL_LIB_DIR1})
+            endif()
             set(MKL_LIBRARY_DIR ${INTEL_LIB_DIR} "${MKL_ROOT_DIR}/../compiler/lib/${MKL_LIB_DIR}")
 
             # get the list of libs
