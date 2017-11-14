@@ -183,6 +183,8 @@ if (MKL_ROOT_DIR)
         else()
             list(APPEND COMMANDE "--linking=static")
         endif()
+        #  To simplify packaging. Otherwise we would have to copy the proper mkl files into the package.
+        list(APPEND COMMANDE "--linking=static")
     endif()
 
     if (MKL_USE_parallel)

@@ -1,4 +1,3 @@
-
 if (USE_MKL)
     # user defined options for MKL
     option(MKL_USE_parallel "Use MKL parallel" True)
