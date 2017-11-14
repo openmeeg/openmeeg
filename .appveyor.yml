@@ -25,6 +25,11 @@ environment:
     deploy_folder:
       secure: k+J4yytvUwuRb5wHVAetZ84O90bJ4ZgwYOS9vLec90o09HP+GLvD9DvNbG1q9Q2p
   matrix:
+    - lapack: MKL
+      omp: ON
+      vtk: ON
+      python: ON
+      pack: ON
     - lapack: OpenBLAS
       omp: ON
       vtk: ON
@@ -67,4 +72,3 @@ artifacts:
     name: OpenMEEG-Win64.exe
   - path: build\OpenMEEG-*.tar.gz
     name: OpenMEEG-Win64.tar.gz
-
