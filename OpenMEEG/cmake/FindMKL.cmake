@@ -23,7 +23,7 @@
 # SGI - SGI MPT Library
 
 
-#set(CMAKE_FIND_DEBUG_MODE 1)
+set(CMAKE_FIND_DEBUG_MODE 1)
 
 # unset this variable defined in matio
 unset(MSVC)
@@ -97,7 +97,7 @@ if (NOT MKL_ROOT_DIR)
         endif()
 
         find_path(MKL_ROOT_DIR NAMES include/mkl_cblas.h PATHS ${CMAKE_BINARY_DIR}/mkl/mkl)
-        message("[[MKL_ROOT_PATH: _DIR}]]")
+        message("[[MKL_ROOT_PATH: ${MKL_ROOT_DIR}]]")
         if (NOT MKL_ROOT_DIR)
             message(FATAL_ERROR "MKL seems to be incorrectly installed in ${CMAKE_BINARY_DIR}/mkl/mkl")
         endif()
@@ -220,7 +220,7 @@ if (MKL_ROOT_DIR)
 
                     #ERROR_QUIET)
 
-    meessage("[[mkl_tool: ${COMMAND_WORKED}]]")
+    message("[[mkl_tool: ${COMMAND_WORKED}]]")
     file(READ ${CMAKE_BINARY_DIR}/mkl-tool.out OUT)
     message("[[OUT\n${OUT}]]")
     file(READ ${CMAKE_BINARY_DIR}/mkl-tool.err ERR)
