@@ -216,7 +216,7 @@ if (MKL_ROOT_DIR)
                     TIMEOUT 2
                     RESULT_VARIABLE COMMAND_WORKED
                     OUTPUT_FILE ${CMAKE_BINARY_DIR}/mkl-tool.out
-                    ERROR_FILE ${CMAKE_BINARY_DIR}/mkl-tool.err
+                    ERROR_FILE ${CMAKE_BINARY_DIR}/mkl-tool.err)
 
                     #ERROR_QUIET)
 
