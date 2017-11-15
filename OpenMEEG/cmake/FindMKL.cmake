@@ -183,7 +183,7 @@ if (MKL_ROOT_DIR)
         set(MKL_LINK_TOOL "${MKL_LINK_TOOL} --linking=sdl")
     else()
         #  To simplify packaging. Otherwise we would have to copy the proper mkl files into the package.
-        set(FORCE_STATIC_MKL True # force to static linking for WIN32)
+        set(FORCE_STATIC_MKL True) # force to static linking for WIN32
         if (BUILD_SHARED_LIBS AND NOT FORCE_STATIC_MKL)
             set(MKL_LINK_TOOL "${MKL_LINK_TOOL} --linking=dynamic")
         else()
