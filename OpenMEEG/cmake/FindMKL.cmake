@@ -91,11 +91,13 @@ if (NOT MKL_ROOT_DIR)
                         ERROR_FILE ${CMAKE_BINARY_DIR}/install-mkl.err
                         RESULT_VARIABLE mkl_install_result)
 
+        message("[[mkl_install_status: ${mkl_install_result}]]")
         if (NOT ${mkl_install_result} STREQUAL "0")
             message(FATAL_ERROR "Could not install MKL: please look at files install-mkl.{out,err} or provide MKL_DIR or environment {MKLDIR}")
         endif()
 
         find_path(MKL_ROOT_DIR NAMES include/mkl_cblas.h PATHS ${CMAKE_BINARY_DIR}/mkl/mkl)
+        message("[[MKL_ROOT_PATH: _DIR}]]")
         if (NOT MKL_ROOT_DIR)
             message(FATAL_ERROR "MKL seems to be incorrectly installed in ${CMAKE_BINARY_DIR}/mkl/mkl")
         endif()
@@ -209,7 +211,20 @@ if (MKL_ROOT_DIR)
         endif()
     endif()
 
-    execute_process(COMMAND ${COMMANDE} OUTPUT_VARIABLE RESULT_LIBS TIMEOUT 2 RESULT_VARIABLE COMMAND_WORKED ERROR_QUIET)
+    execute_process(COMMAND ${COMMANDE}
+                    OUTPUT_VARIABLE RESULT_LIBS
+                    TIMEOUT 2
+                    RESULT_VARIABLE COMMAND_WORKED
+                    OUTPUT_FILE ${CMAKE_BINARY_DIR}/mkl-tool.out
+                    ERROR_FILE ${CMAKE_BINARY_DIR}/mkl-tool.err
+
+                    #ERROR_QUIET)
+
+    meessage("[[mkl_tool: ${COMMAND_WORKED}]]")
+    file(READ ${CMAKE_BINARY_DIR}/mkl-tool.out OUT)
+    message("[[OUT\n${OUT}]]")
+    file(READ ${CMAKE_BINARY_DIR}/mkl-tool.err ERR)
+    message("[[ERR\n${ERR}]]")
 
     set(MKL_LIBRARIES)
 
