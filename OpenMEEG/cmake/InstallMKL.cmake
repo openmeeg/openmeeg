@@ -42,7 +42,14 @@ else()
     set(MKL_UNPACK_COMMAND ${CMAKE_COMMAND} -E tar zxvf ${CMAKE_BINARY_DIR}/${MKL_INSTALLER_ARCHIVE})
 endif()
 
-execute_process(COMMAND ${MKL_UNPACK_COMMAND} OUTPUT_QUIET ERROR_QUIET RESULT_VARIABLE mkl_unpack_result)
+message("[[execute_process(COMMAND ${MKL_UNPACK_COMMAND} OUTPUT install-mkl.out ERROR intall_mkl.err RESULT_VARIABLE mkl_unpack_result)]]")
+
+execute_process(COMMAND ${MKL_UNPACK_COMMAND} OUTPUT_FILE ${CMAKE_BINARY_DIR}/install_mkl.out ERROR_FILE ${CMAKE_BINARY_DIR}/intall_mkl.err RESULT_VARIABLE mkl_unpack_result)
+file(READ ${CMAKE_BINARY_DIR}/install_mkl.out mkl_output)
+message("[[mkl output: ${mkl_output}]]")
+file(READ ${CMAKE_BINARY_DIR}/install_mkl.err mkl_err)
+message("[[mkl err: ${mkl_err}]]")
+
 if (NOT ${mkl_unpack_result} STREQUAL "0")
     message(FATAL_ERROR "Could not extract MKL: please look at files install-mkl.{out,err} or provide MKL_DIR or environment {MKLDIR}")
 endif()
@@ -66,12 +73,18 @@ else()
     set(MKL_INSTALL_COMMAND ${MKL_INSTALLER_DIR}/install.sh -s ${CFGFILE} --cli-mode --user-mode)
 endif()
 
+message("[[instal command: ${MKL_INSTALL_COMMAND}]]")
+
 execute_process(COMMAND ${MKL_INSTALL_COMMAND}
                 OUTPUT_FILE ${CMAKE_BINARY_DIR}/install-mkl.out
                 ERROR_FILE ${CMAKE_BINARY_DIR}/install-mkl.err
                 RESULT_VARIABLE mkl_install_result)
 
 message("[[mkl_install_status: ${mkl_install_result}]]")
+file(READ ${CMAKE_BINARY_DIR}/install-mkl.out mkl_output)
+message("[[mkl output: ${mkl_output}]]")
+file(READ ${CMAKE_BINARY_DIR}/install-mkl.err mkl_err)
+message("[[mkl err: ${mkl_err}]]")
 if (NOT ${mkl_install_result} STREQUAL "0")
     message(FATAL_ERROR "Could not install MKL: please look at files install-mkl.{out,err} or provide MKL_DIR or environment {MKLDIR}")
 endif()
