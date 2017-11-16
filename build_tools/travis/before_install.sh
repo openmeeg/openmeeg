@@ -67,11 +67,16 @@ else
         export CC=$(which clang)
         ;;
     "icc")
+        wget -q -O install-icc.sh 'https://raw.githubusercontent.com/nemequ/icc-travis/master/install-icc.sh'
+        chmod +x install-icc.sh
+        ./install-icc.sh
+        source ~/.bashrc
         echo "I'll install something here"
         echo "I'll install something and here"
         echo "I'll install something also"
         echo "I'll install something and more"
-        export CXX=$(wich g++)
+        export CXX=$(which icc)
+        export CC=$(which icc)
         ;;
     *)
         echo "Unknown compiler"
