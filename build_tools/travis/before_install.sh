@@ -56,12 +56,13 @@ if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
     fi
 
 else
+    echo "HERE HERE HERE"
     # Install some custom requirements on Linux
-    export CXX="g++-4.8"; 
+    export CXX="g++"; 
 
-    # clang 3.4
+    # clang
     if [ "$CXX" == "clang++" ]; then
-        export CXX="clang++-3.4";
+        export CXX="clang++";
     fi
 
     if [[ "$USE_PROJECT" == "0" || "$USE_SYSTEM" == "1" ]]; then
@@ -87,6 +88,8 @@ else
     elif [[ "$BLASLAPACK_IMPLEMENTATION" == "MKL" ]]; then
         # mkl_link_tool is a 32bits application !
         echo "HERE"
+        sudo dpkg --add-architecture i386
+        sudo apt-get update
         sudo apt-get install -y libc6:i386 libncurses5:i386 libstdc++6:i386
     fi
 
