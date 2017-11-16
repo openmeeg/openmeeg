@@ -59,11 +59,11 @@ matrix:
     #     - BUILD_DOCUMENTATION=ON
     #     - BLASLAPACK_IMPLEMENTATION=OpenBLAS
     - os: linux
-      compiler: gcc
       env:
+        - COMPILER=gcc
         - USE_SYSTEM=1
         - USE_PROJECT=1
-        - USE_VTK=1
+        - USE_VTK=0
         - USE_OMP=1
         - USE_GIFTI=1
         - USE_COVERAGE=1
@@ -73,11 +73,11 @@ matrix:
         - ENABLE_PACKAGING=1
         - BLASLAPACK_IMPLEMENTATION=MKL
     - os: linux
-      compiler: clang
       env:
+        - COMPILER=clang
         - USE_SYSTEM=1
         - USE_PROJECT=1
-        - USE_VTK=1
+        - USE_VTK=0
         - USE_OMP=1
         - USE_GIFTI=1
         - USE_COVERAGE=1
@@ -87,11 +87,11 @@ matrix:
         - ENABLE_PACKAGING=1
         - BLASLAPACK_IMPLEMENTATION=MKL
     - os: linux
-      compiler: icc
       env:
+        - COMPILER=icc
         - USE_SYSTEM=1
         - USE_PROJECT=1
-        - USE_VTK=1
+        - USE_VTK=0
         - USE_OMP=1
         - USE_GIFTI=1
         - USE_COVERAGE=1
