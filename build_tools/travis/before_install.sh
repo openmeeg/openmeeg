@@ -15,7 +15,6 @@ function setup_conda_wrap {
     conda install -y --quiet numpy swig
 }
 
-
 if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
 
     # Install some custom requirements on OS X
@@ -85,6 +84,9 @@ else
         fi
     elif [[ "$BLASLAPACK_IMPLEMENTATION" == "OpenBLAS" ]]; then
         sudo apt-get install -y libopenblas-dev liblapacke-dev
+    elif [[ "$BLASLAPACK_IMPLEMENTATION" == "MKL" ]]; then
+        # mkl_link_tool is a 32bits application !
+        sudo apt-get install -y libc6:i386 libncurses5:i386 libstdc++6:i386
     fi
 
     if [[ "$USE_VTK" == "1" ]]; then
