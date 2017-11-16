@@ -3,61 +3,61 @@ sudo: required
 dist: trusty
 matrix:
   include:
-    - os: osx
-      compiler: clang
-      env:
-        - USE_SYSTEM=0
-        - USE_PROJECT=1
-        - USE_VTK=1
-        - BLASLAPACK_IMPLEMENTATION=Auto # (Auto is the same as MKL/OpenBLAS/vecLib in priority)
-    - os: osx
-      compiler: clang
-      env:
-        - USE_SYSTEM=0
-        - USE_PROJECT=1
-        - BLASLAPACK_IMPLEMENTATION=vecLib
-        - USE_VTK=1
-        - USE_PYTHON=1
-        - PYTHON_VERSION=2.7   # 3.6 conflicts with brew and system Python
-        - APPLE_STANDALONE=1
-    - os: osx
-      compiler: clang
-      env:
-        - USE_SYSTEM=0
-        - USE_PROJECT=1
-        - ENABLE_PACKAGING=1
-        - BLASLAPACK_IMPLEMENTATION=MKL
-        - USE_VTK=1
-        - USE_PYTHON=1
-        - PYTHON_VERSION=2.7   # 3.6 conflicts with brew and system Python
-        - APPLE_STANDALONE=1
-    - os: linux
-      compiler: clang
-      env:
-        - USE_SYSTEM=1
-        - USE_PROJECT=1
-        - BLASLAPACK_IMPLEMENTATION=LAPACK
-        - USE_PYTHON=1
-        - PYTHON_VERSION=2.7
-    - os: linux
-      compiler: gcc
-      env:
-        - USE_SYSTEM=0
-        - USE_PROJECT=1
-        - USE_VTK=0
-        - USE_OMP=1
-        - BLASLAPACK_IMPLEMENTATION=LAPACK
-    - os: linux
-      compiler: gcc
-      env:
-        - USE_SYSTEM=1
-        - USE_PROJECT=1
-        - USE_VTK=1
-        - USE_OMP=1
-        - USE_GIFTI=1
-        - USE_COVERAGE=1
-        - BUILD_DOCUMENTATION=ON
-        - BLASLAPACK_IMPLEMENTATION=OpenBLAS
+    # - os: osx
+    #   compiler: clang
+    #   env:
+    #     - USE_SYSTEM=0
+    #     - USE_PROJECT=1
+    #     - USE_VTK=1
+    #     - BLASLAPACK_IMPLEMENTATION=Auto # (Auto is the same as MKL/OpenBLAS/vecLib in priority)
+    # - os: osx
+    #   compiler: clang
+    #   env:
+    #     - USE_SYSTEM=0
+    #     - USE_PROJECT=1
+    #     - BLASLAPACK_IMPLEMENTATION=vecLib
+    #     - USE_VTK=1
+    #     - USE_PYTHON=1
+    #     - PYTHON_VERSION=2.7   # 3.6 conflicts with brew and system Python
+    #     - APPLE_STANDALONE=1
+    # - os: osx
+    #   compiler: clang
+    #   env:
+    #     - USE_SYSTEM=0
+    #     - USE_PROJECT=1
+    #     - ENABLE_PACKAGING=1
+    #     - BLASLAPACK_IMPLEMENTATION=MKL
+    #     - USE_VTK=1
+    #     - USE_PYTHON=1
+    #     - PYTHON_VERSION=2.7   # 3.6 conflicts with brew and system Python
+    #     - APPLE_STANDALONE=1
+    # - os: linux
+    #   compiler: clang
+    #   env:
+    #     - USE_SYSTEM=1
+    #     - USE_PROJECT=1
+    #     - BLASLAPACK_IMPLEMENTATION=LAPACK
+    #     - USE_PYTHON=1
+    #     - PYTHON_VERSION=2.7
+    # - os: linux
+    #   compiler: gcc
+    #   env:
+    #     - USE_SYSTEM=0
+    #     - USE_PROJECT=1
+    #     - USE_VTK=0
+    #     - USE_OMP=1
+    #     - BLASLAPACK_IMPLEMENTATION=LAPACK
+    # - os: linux
+    #   compiler: gcc
+    #   env:
+    #     - USE_SYSTEM=1
+    #     - USE_PROJECT=1
+    #     - USE_VTK=1
+    #     - USE_OMP=1
+    #     - USE_GIFTI=1
+    #     - USE_COVERAGE=1
+    #     - BUILD_DOCUMENTATION=ON
+    #     - BLASLAPACK_IMPLEMENTATION=OpenBLAS
     - os: linux
       compiler: gcc
       env:
@@ -73,12 +73,40 @@ matrix:
         - ENABLE_PACKAGING=1
         - BLASLAPACK_IMPLEMENTATION=MKL
     - os: linux
-      compiler: gcc
+      compiler: clang
       env:
-        - USE_PROJECT=0
-        - BLASLAPACK_IMPLEMENTATION=Atlas
+        - USE_SYSTEM=1
+        - USE_PROJECT=1
+        - USE_VTK=1
+        - USE_OMP=1
+        - USE_GIFTI=1
+        - USE_COVERAGE=1
         - USE_PYTHON=1
         - PYTHON_VERSION=3.6
+        - BUILD_DOCUMENTATION=ON
+        - ENABLE_PACKAGING=1
+        - BLASLAPACK_IMPLEMENTATION=MKL
+    - os: linux
+      compiler: icc
+      env:
+        - USE_SYSTEM=1
+        - USE_PROJECT=1
+        - USE_VTK=1
+        - USE_OMP=1
+        - USE_GIFTI=1
+        - USE_COVERAGE=1
+        - USE_PYTHON=1
+        - PYTHON_VERSION=3.6
+        - BUILD_DOCUMENTATION=ON
+        - ENABLE_PACKAGING=1
+        - BLASLAPACK_IMPLEMENTATION=MKL
+    # - os: linux
+    #   compiler: gcc
+    #   env:
+    #     - USE_PROJECT=0
+    #     - BLASLAPACK_IMPLEMENTATION=Atlas
+    #     - USE_PYTHON=1
+    #     - PYTHON_VERSION=3.6
 
 before_install: source build_tools/travis/before_install.sh
 
@@ -96,3 +124,5 @@ env:
     - secure: NwGYiI9vDCLsIN+uAJRPlUV9g4RraaHfNiJRGBmsc8kOaPvBL2fb3Mia6nOfkfcaVOmkEPhWeAOW8XKHqVj6982SBQrbnS/xfU/EHiDJaq7YVBRfkCn4/9yswyhCxvrS97JagIgnEjlhbIV9VLZ19A/e2fhWEzGbJabLyZ0ZNBc=
     - secure: ZXoAGZAYFC/kPwiX+TEpNX+rh2zVrVIw6BDdd/Qt1SiBB3+BZWwosqh+Wv1mLpjce7IAOXO42rg/OUwfPMl2egjFHth8OU827dyfYC0yFsgfN6myWD+HK+U6/3i+fp5WknWOhXzzFc72CgBwYNCnrIKNJ5LUMESUyew+vIgo5p0=
     - MAKEFLAGS="-j 2"
+    - secure: kg2M3iKYQoJZeFFmT6ordNU1BlcDWfovUzLkbzHUTbIjbVoA9orqCDgRbdGXXzqc1KjuFUw+PXkNvaBv9HJBs3pKjT7aUqpwu6hCyFQDHRYBuW4kKAGTnlXrtRon+mbkeBxsFJXeJHxWtlpnGeKPaS0sUuB/nul57/hwYHZkhWQ=
+

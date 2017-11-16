@@ -57,11 +57,14 @@ if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
 
 else
     echo "HERE HERE HERE"
+    echo $CC
+    echo $CXX
     # Install some custom requirements on Linux
     export CXX="g++"; 
 
     # clang
     if [ "$CXX" == "clang++" ]; then
+        echo "I GOT inside clang "
         export CXX="clang++";
     fi
 
