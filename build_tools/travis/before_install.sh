@@ -57,6 +57,7 @@ if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
 
 else
     echo "HERE HERE HERE"
+    env
     echo $CC
     echo $CXX
     # Install some custom requirements on Linux
