@@ -56,18 +56,30 @@ if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
     fi
 
 else
-    echo "HERE HERE HERE"
-    env
-    echo $CC
-    echo $CXX
     # Install some custom requirements on Linux
-    export CXX="g++"; 
+    case "$COMPILER" in
+    "gcc")
+        export CXX=$(which g++)
+        export CC=$(which gcc)
+        ;;
+    "clang")
+        export CXX=$(which clang++)
+        export CC=$(which clang)
+        ;;
+    "icc")
+        echo "I'll install something here"
+        echo "I'll install something and here"
+        echo "I'll install something also"
+        echo "I'll install something and more"
+        export CXX=$(wich g++)
+        ;;
+    *)
+        echo "Unknown compiler"
+        ;;
+    esac
 
-    # clang
-    if [ "$CXX" == "clang++" ]; then
-        echo "I GOT inside clang "
-        export CXX="clang++";
-    fi
+    echo "The compiler CXX is: ${CXX}"
+    echo "The compiler CC is: ${CC}"
 
     if [[ "$USE_PROJECT" == "0" || "$USE_SYSTEM" == "1" ]]; then
         sudo apt-get install -y libhdf5-serial-dev libmatio-dev

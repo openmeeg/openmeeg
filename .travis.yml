@@ -125,4 +125,3 @@ env:
     - secure: ZXoAGZAYFC/kPwiX+TEpNX+rh2zVrVIw6BDdd/Qt1SiBB3+BZWwosqh+Wv1mLpjce7IAOXO42rg/OUwfPMl2egjFHth8OU827dyfYC0yFsgfN6myWD+HK+U6/3i+fp5WknWOhXzzFc72CgBwYNCnrIKNJ5LUMESUyew+vIgo5p0=
     - MAKEFLAGS="-j 2"
     - secure: kg2M3iKYQoJZeFFmT6ordNU1BlcDWfovUzLkbzHUTbIjbVoA9orqCDgRbdGXXzqc1KjuFUw+PXkNvaBv9HJBs3pKjT7aUqpwu6hCyFQDHRYBuW4kKAGTnlXrtRon+mbkeBxsFJXeJHxWtlpnGeKPaS0sUuB/nul57/hwYHZkhWQ=
-
