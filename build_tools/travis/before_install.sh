@@ -86,6 +86,7 @@ else
         sudo apt-get install -y libopenblas-dev liblapacke-dev
     elif [[ "$BLASLAPACK_IMPLEMENTATION" == "MKL" ]]; then
         # mkl_link_tool is a 32bits application !
+        echo "HERE"
         sudo apt-get install -y libc6:i386 libncurses5:i386 libstdc++6:i386
     fi
 
