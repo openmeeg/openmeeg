@@ -26,16 +26,19 @@ environment:
       secure: Nk+J4yytvUwuRb5wHVAetZ84O90bJ4ZgwYOS9vLec90o09HP+GLvD9DvNbG1q9Q2p
   matrix:
     - lapack: MKL
+      mkl_install: ON
       omp: ON
       vtk: ON
       python: ON
       pack: ON
     - lapack: OpenBLAS
+      mkl_install: OFF
       omp: ON
       vtk: ON
       python: ON
       pack: OFF
     - lapack: LAPACK
+      mkl_install: OFF
       vtk: OFF
       python: ON
       pack: OFF
@@ -51,7 +54,7 @@ build_script:
   - echo Running cmake...
   - mkdir build
   - cd build
-  - cmake -G "Visual Studio 14 2015 Win64" -DBUILD_DOCUMENTATION=OFF -DBUILD_TESTING:BOOL=ON -DENABLE_PACKAGING:BOOL=%pack% -DCMAKE_SKIP_RPATH:BOOL=OFF -DENABLE_PYTHON=%python% -DBLASLAPACK_IMPLEMENTATION=%lapack% -DUSE_OMP:BOOL=%omp% -DUSE_VTK=%vtk% ..
+  - cmake -G "Visual Studio 14 2015 Win64" -DBUILD_DOCUMENTATION=OFF -DBUILD_TESTING:BOOL=ON -DENABLE_PACKAGING:BOOL=%pack% -DCMAKE_SKIP_RPATH:BOOL=OFF -DENABLE_PYTHON=%python% -DMKL_INSTALL_FROM_NETWORK=%mkl_install% -DBLASLAPACK_IMPLEMENTATION=%lapack% -DUSE_OMP:BOOL=%omp% -DUSE_VTK=%vtk% ..
   - cmake --build . --config Release
 
 after_build:
