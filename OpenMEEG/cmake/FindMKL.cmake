@@ -48,6 +48,8 @@ find_path(MKL_ROOT_DIR NAMES include/mkl_cblas.h PATHS ${MKL_POSSIBLE_LOCATIONS}
 # from symlinks to real paths
 get_filename_component(MKL_ROOT_DIR ${MKL_ROOT_DIR} REALPATH)
 
+option(MKL_INSTALL_FROM_NETWORK "Intsall MKL from network if not found." OFF)
+
 if (NOT MKL_ROOT_DIR)
     if (MKL_INSTALL_FROM_NETWORK)
         include(InstallMKL)
