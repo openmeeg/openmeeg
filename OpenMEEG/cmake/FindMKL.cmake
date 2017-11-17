@@ -202,7 +202,11 @@ else()
         if (MKL_LINK_TOOL_COMMAND MATCHES "static")
             string(REPLACE "$(MKLROOT)" "${MKL_ROOT_DIR}" MKL_LIBRARIES ${RESULT_LIBS})
             # hack for lin with libiomp5.a
-            string(REPLACE "-liomp5" "${MKL_ROOT_DIR}/../compiler/lib/${MKL_LIB_DIR}/libiomp5.a" MKL_LIBRARIES ${MKL_LIBRARIES})
+            if (APPLE)
+                string(REPLACE "-liomp5" "${MKL_ROOT_DIR}/../compiler/lib/libiomp5.a" MKL_LIBRARIES ${MKL_LIBRARIES})
+            else()
+                string(REPLACE "-liomp5" "${MKL_ROOT_DIR}/../compiler/lib/${MKL_LIB_DIR}/libiomp5.a" MKL_LIBRARIES ${MKL_LIBRARIES})
+            endif()
             separate_arguments(MKL_LIBRARIES)
 
         else() # dynamic or sdl
