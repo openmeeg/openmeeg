@@ -35,10 +35,11 @@ message(STATUS "Unpacking Intel MKL")
 if (WIN32)
     set(MKL_UNPACK_COMMAND ${CMAKE_BINARY_DIR}/${MKL_INSTALLER_ARCHIVE})
 elseif (APPLE)
-    set(MKL_UNPACK_COMMAND sudo hdiutil attach ${MKL_BASE_NAME}
+    set(MKL_UNPACK_COMMAND sudo hdiutil attach ${CMAKE_BINARY_DIR}/${MKL_INSTALLER_ARCHIVE}
                            COMMAND sudo installer -package /Volumes/${MKL_BASE_NAME}/${MKL_BASE_NAME}.pkg -target .
                            COMMAND sudo hdiutil detach /Volumes/${MKL_BASE_NAME})
 else()
+    # Linux
     set(MKL_UNPACK_COMMAND ${CMAKE_COMMAND} -E tar zxvf ${CMAKE_BINARY_DIR}/${MKL_INSTALLER_ARCHIVE})
 endif()
 
