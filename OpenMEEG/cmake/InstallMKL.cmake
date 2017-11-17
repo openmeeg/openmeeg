@@ -4,13 +4,13 @@ message(STATUS "Could not find MKL: attempting to install it from network")
 
 message(STATUS "Downloading Intel MKL 8.0, this may take a while...")
 
-if (WIN)
+if (WIN32)
     set(MKL_URL_DIR 12079)
-    set(MKL_BASE_NAME "l_mkl_2018.0.124")
+    set(MKL_BASE_NAME "w_mkl_2018.0.124")
     set(MKL_INSTALLER_ARCHIVE "${MKL_BASE_NAME}.exe")
-elsif (APPLE)
+elseif (APPLE)
     set(MKL_URL_DIR 12025)
-    set(MKL_BASE_NAME "l_mkl_2018.0.104")
+    set(MKL_BASE_NAME "m_mkl_2018.0.104")
     set(MKL_INSTALLER_ARCHIVE "${MKL_BASE_NAME}.dmg")
 else()
     set(MKL_URL_DIR 12070)
@@ -32,8 +32,8 @@ endif()
 
 message(STATUS "Unpacking Intel MKL")
 
-if (WIN)
-    set(MKL_UNPACK_COMMAND ${MKL_INSTALLER_ARCHIVE})
+if (WIN32)
+    set(MKL_UNPACK_COMMAND ${CMAKE_BINARY_DIR}/${MKL_INSTALLER_ARCHIVE})
 elseif (APPLE)
     set(MKL_UNPACK_COMMAND sudo hdiutil attach ${MKL_BASE_NAME}
                            COMMAND sudo installer -package /Volumes/${MKL_BASE_NAME}/${MKL_BASE_NAME}.pkg -target .
@@ -45,7 +45,7 @@ endif()
 message("[[execute_process(COMMAND ${MKL_UNPACK_COMMAND} OUTPUT install-mkl.out ERROR intall_mkl.err RESULT_VARIABLE mkl_unpack_result)]]")
 
 execute_process(COMMAND ${MKL_UNPACK_COMMAND} OUTPUT_FILE ${CMAKE_BINARY_DIR}/install_mkl.out ERROR_FILE ${CMAKE_BINARY_DIR}/intall_mkl.err RESULT_VARIABLE mkl_unpack_result)
-file(READ ${CMAKE_BINARY_DIR}/install_mkl.out mkl_output)
+file(READ ${CMAKE_BINARY_DIR}/install_mkl.out mkl_out)
 message("[[mkl output: ${mkl_output}]]")
 file(READ ${CMAKE_BINARY_DIR}/install_mkl.err mkl_err)
 message("[[mkl err: ${mkl_err}]]")
@@ -56,7 +56,7 @@ endif()
 
 message(STATUS "Installing Intel MKL, this may take a while...")
 
-if (WIN)
+if (WIN32)
     set(MKL_INSTALL_COMMAND "${MKL_INSTALLER_DIR}/Setup.exe install -eula=accept -output=${CMAKE_BINARY_DIR}/install-mkl.log -installdir=mkl")
 else()
     file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/mkl)
