@@ -44,7 +44,7 @@ endif()
 
 message("[[execute_process(COMMAND ${MKL_UNPACK_COMMAND} OUTPUT install-mkl.out ERROR intall_mkl.err RESULT_VARIABLE mkl_unpack_result)]]")
 
-execute_process(COMMAND ${MKL_UNPACK_COMMAND} OUTPUT_FILE ${CMAKE_BINARY_DIR}/install_mkl.out ERROR_FILE ${CMAKE_BINARY_DIR}/intall_mkl.err RESULT_VARIABLE mkl_unpack_result)
+execute_process(COMMAND ${MKL_UNPACK_COMMAND} OUTPUT_FILE ${CMAKE_BINARY_DIR}/install_mkl.out ERROR_FILE ${CMAKE_BINARY_DIR}/install_mkl.err RESULT_VARIABLE mkl_unpack_result)
 file(READ ${CMAKE_BINARY_DIR}/install_mkl.out mkl_out)
 message("[[mkl output: ${mkl_output}]]")
 file(READ ${CMAKE_BINARY_DIR}/install_mkl.err mkl_err)
