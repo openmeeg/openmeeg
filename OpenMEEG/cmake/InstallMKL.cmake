@@ -58,7 +58,7 @@ endif()
 message(STATUS "Installing Intel MKL, this may take a while...")
 
 if (WIN32)
-    set(MKL_INSTALL_COMMAND "${MKL_INSTALLER_DIR}/Setup.exe install -eula=accept -output=${CMAKE_BINARY_DIR}/install-mkl.log -installdir=mkl")
+    set(MKL_INSTALL_COMMAND "cinst -y ${MKL_INSTALLER_DIR}/Setup.exe install -eula=accept -output=${CMAKE_BINARY_DIR}/install-mkl.log -installdir=mkl")
 else()
     file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/mkl)
     set(CFGFILE ${CMAKE_BINARY_DIR}/silent.cfg)
