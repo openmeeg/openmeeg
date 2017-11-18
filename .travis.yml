@@ -11,6 +11,7 @@ env:
     - secure: ZXoAGZAYFC/kPwiX+TEpNX+rh2zVrVIw6BDdd/Qt1SiBB3+BZWwosqh+Wv1mLpjce7IAOXO42rg/OUwfPMl2egjFHth8OU827dyfYC0yFsgfN6myWD+HK+U6/3i+fp5WknWOhXzzFc72CgBwYNCnrIKNJ5LUMESUyew+vIgo5p0=
     - MAKEFLAGS="-j 2"
     - secure: BtMQQBWqnUJ1PbZ+Yk7HzB8QgCUfzhDI20TkZGckwe69pOE4w1fc067+FodysTLeyylPX42pPsAMCUAgnWtn4YRm+cIu+RUh0v6CZpsP3Hs9oE2b6rugMzKmL0HDIbGrThsFxqjATKV0n9LmrxfZmjBvMo97UEhJIESZKWTAUzY=
+    - INTEL_SERIAL_NUMBER=VZ3N-F9BJ2MLR
 
   matrix:
     include:
