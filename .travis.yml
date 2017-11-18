@@ -72,7 +72,6 @@ matrix:
         - PYTHON_VERSION=3.6
         - BUILD_DOCUMENTATION=ON
         - ENABLE_PACKAGING=1
-        - MKL_INSTALL=1
         - BLASLAPACK_IMPLEMENTATION=MKL
     - os: linux
       compiler: gcc

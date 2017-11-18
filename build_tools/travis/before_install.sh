@@ -118,6 +118,12 @@ else
     fi
 fi
 
+# install MKL if necessary.
+
+if [[ "BLASLAPACK_IMPLEMENTATION" == "MKL" ]]; then
+    cmake -P OpenMEEG/cmake/InstallMKL.cmake
+fi
+
 # install anaconda Python for wrapping or deployment
 if [[ "$USE_PYTHON" == "1" ]]; then
     setup_conda_wrap

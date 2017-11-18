@@ -30,6 +30,7 @@ unset(MSVC)
 set(MKL_POSSIBLE_LOCATIONS
     $ENV{MKLDIR}
     ${MKL_ROOT_DIR}
+    ${CMAKE_BINARY_DIR}/mkl
     /opt/intel/mkl
     /opt/intel/cmkl
     /Library/Frameworks/Intel_MKL.framework/Versions/Current/lib/universal
@@ -48,17 +49,13 @@ find_path(MKL_ROOT_DIR NAMES include/mkl_cblas.h PATHS ${MKL_POSSIBLE_LOCATIONS}
 # from symlinks to real paths
 get_filename_component(MKL_ROOT_DIR ${MKL_ROOT_DIR} REALPATH)
 
-option(MKL_INSTALL_FROM_NETWORK "Intsall MKL from network if not found." OFF)
-
 if (NOT MKL_ROOT_DIR)
-    if (MKL_INSTALL_FROM_NETWORK)
-        include(InstallMKL)
+    if (MKL_FIND_REQUIRED)
+        MESSAGE(FATAL_ERROR "Could not find MKL: please provide MKL_DIR or environment {MKLDIR}")
     else()
-        message(FATAL_ERROR "MKL not found on your computer, define MKLDIR in your environment to point to the proper install.")
+        unset(MKL_ROOT_DIR CACHE)
     endif()
-endif()
-
-if (MKL_ROOT_DIR)
+else()
     set(MKL_INCLUDE_DIR ${MKL_ROOT_DIR}/include)
 
     # set arguments to call the MKL provided tool for linking
