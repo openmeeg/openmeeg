@@ -120,7 +120,7 @@ fi
 
 # install MKL if necessary.
 
-if [[ "BLASLAPACK_IMPLEMENTATION" == "MKL" ]]; then
+if [[ "$BLASLAPACK_IMPLEMENTATION" == "MKL" ]]; then
     cmake -P OpenMEEG/cmake/InstallMKL.cmake
 fi
 
