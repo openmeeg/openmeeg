@@ -33,7 +33,7 @@ endif()
 message(STATUS "Unpacking Intel MKL")
 
 if (WIN32)
-    set(MKL_UNPACK_COMMAND ${CMAKE_BINARY_DIR}/${MKL_INSTALLER_ARCHIVE})
+    set(MKL_UNPACK_COMMAND cinst -y ${CMAKE_BINARY_DIR}/${MKL_INSTALLER_ARCHIVE})
 elseif (APPLE)
     set(MKL_UNPACK_COMMAND sudo hdiutil attach ${CMAKE_BINARY_DIR}/${MKL_INSTALLER_ARCHIVE}
                            COMMAND sudo installer -package /Volumes/${MKL_BASE_NAME}/${MKL_BASE_NAME}.pkg -target .
@@ -58,7 +58,7 @@ endif()
 message(STATUS "Installing Intel MKL, this may take a while...")
 
 if (WIN32)
-    set(MKL_INSTALL_COMMAND "cinst -y ${MKL_INSTALLER_DIR}/Setup.exe install -eula=accept -output=${CMAKE_BINARY_DIR}/install-mkl.log -installdir=mkl")
+    set(MKL_INSTALL_COMMAND "${MKL_INSTALLER_DIR}/Setup.exe install -eula=accept -output=${CMAKE_BINARY_DIR}/install-mkl.log -installdir=mkl")
 else()
     file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/mkl)
     set(CFGFILE ${CMAKE_BINARY_DIR}/silent.cfg)
