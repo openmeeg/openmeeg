@@ -67,7 +67,7 @@ else
         export CC=$(which clang)
         ;;
     "icc")
-        wget -q -O install-icc.sh 'https://raw.githubusercontent.com/nemequ/icc-travis/master/install-icc.sh'
+        wget -q -O install-icc.sh 'https://raw.githubusercontent.com/massich/icc-travis/install_only/install-icc.sh'
         chmod +x install-icc.sh
         ./install-icc.sh
         source ~/.bashrc
