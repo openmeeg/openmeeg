@@ -3,15 +3,9 @@
 build/*
 build.ninja
 clapack
-CMakeCache.txt
-CMakeFiles
-cmake_install.cmake
 hdf5
-install_manifest.txt
-Makefile
 matio
 msinttypes
-rules.ninja
 .*.swo
 .*.swp
 *.user
