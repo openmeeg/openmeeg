@@ -15,6 +15,12 @@ function setup_conda_wrap {
     conda install -y --quiet numpy swig
 }
 
+# install MKL if necessary.
+
+if [[ "$BLASLAPACK_IMPLEMENTATION" == "MKL" ]]; then
+    cmake -P OpenMEEG/cmake/InstallMKL.cmake
+fi
+
 if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
 
     # Install some custom requirements on OS X
@@ -116,12 +122,6 @@ else
     if [[ "${pkgs}" != "" ]]; then
         sudo apt-get install -y ${pkgs}
     fi
-fi
-
-# install MKL if necessary.
-
-if [[ "$BLASLAPACK_IMPLEMENTATION" == "MKL" ]]; then
-    cmake -P OpenMEEG/cmake/InstallMKL.cmake
 fi
 
 # install anaconda Python for wrapping or deployment
