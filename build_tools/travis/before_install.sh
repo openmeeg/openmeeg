@@ -15,7 +15,6 @@ function setup_conda_wrap {
     conda install -y --quiet numpy swig
 }
 
-
 if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
 
     # Install some custom requirements on OS X
@@ -58,12 +57,34 @@ if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
 
 else
     # Install some custom requirements on Linux
-    export CXX="g++-4.8"; 
+    case "$COMPILER" in
+    "gcc")
+        export CXX=$(which g++)
+        export CC=$(which gcc)
+        ;;
+    "clang")
+        export CXX=$(which clang++)
+        export CC=$(which clang)
+        ;;
+    "icc")
+        wget -q -O install-icc.sh 'https://raw.githubusercontent.com/massich/icc-travis/install_only/install-icc.sh'
+        chmod +x install-icc.sh
+        ./install-icc.sh
+        source ~/.bashrc
+        echo "I'll install something here"
+        echo "I'll install something and here"
+        echo "I'll install something also"
+        echo "I'll install something and more"
+        export CXX=$(which icc)
+        export CC=$(which icc)
+        ;;
+    *)
+        echo "Unknown compiler"
+        ;;
+    esac
 
-    # clang 3.4
-    if [ "$CXX" == "clang++" ]; then
-        export CXX="clang++-3.4";
-    fi
+    echo "The compiler CXX is: ${CXX}"
+    echo "The compiler CC is: ${CC}"
 
     if [[ "$USE_PROJECT" == "0" || "$USE_SYSTEM" == "1" ]]; then
         sudo apt-get install -y libhdf5-serial-dev libmatio-dev
@@ -85,6 +106,12 @@ else
         fi
     elif [[ "$BLASLAPACK_IMPLEMENTATION" == "OpenBLAS" ]]; then
         sudo apt-get install -y libopenblas-dev liblapacke-dev
+    elif [[ "$BLASLAPACK_IMPLEMENTATION" == "MKL" ]]; then
+        # mkl_link_tool is a 32bits application !
+        echo "HERE"
+        sudo dpkg --add-architecture i386
+        sudo apt-get update
+        sudo apt-get install -y libc6:i386 libncurses5:i386 libstdc++6:i386
     fi
 
     if [[ "$USE_VTK" == "1" ]]; then

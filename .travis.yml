@@ -1,61 +1,126 @@
 language: cpp
 sudo: required
 dist: trusty
-matrix:
-  include:
-    - os: osx
-      compiler: clang
-      env:
-        - USE_SYSTEM=0
-        - USE_PROJECT=1
-        - USE_VTK=1
-        - BLASLAPACK_IMPLEMENTATION=Auto # (Auto is the same as MKL/OpenBLAS/vecLib in priority)
-    - os: osx
-      compiler: clang
-      env:
-        - USE_SYSTEM=0
-        - USE_PROJECT=1
-        - ENABLE_PACKAGING=1
-        - BLASLAPACK_IMPLEMENTATION=vecLib
-        - USE_VTK=1
-        - USE_PYTHON=1
-        - PYTHON_VERSION=2.7   # 3.6 conflicts with brew and system Python
-        - APPLE_STANDALONE=1
-    - os: linux
-      compiler: clang
-      env:
-        - USE_SYSTEM=1
-        - USE_PROJECT=1
-        - BLASLAPACK_IMPLEMENTATION=LAPACK
-        - USE_PYTHON=1
-        - PYTHON_VERSION=2.7
-    - os: linux
-      compiler: gcc
-      env:
-        - USE_SYSTEM=0
-        - USE_PROJECT=1
-        - USE_VTK=0
-        - USE_OMP=1
-        - ENABLE_PACKAGING=1
-        - BLASLAPACK_IMPLEMENTATION=LAPACK
-    - os: linux
-      compiler: gcc
-      env:
-        - USE_SYSTEM=1
-        - USE_PROJECT=1
-        - USE_VTK=1
-        - USE_OMP=1
-        - USE_GIFTI=1
-        - USE_COVERAGE=1
-        - BUILD_DOCUMENTATION=ON
-        - BLASLAPACK_IMPLEMENTATION=OpenBLAS
-    - os: linux
-      compiler: gcc
-      env:
-        - USE_PROJECT=0
-        - BLASLAPACK_IMPLEMENTATION=Atlas
-        - USE_PYTHON=1
-        - PYTHON_VERSION=3.6
+
+env:
+  global:
+    - src_dir: $TRAVIS_BUILD_DIR
+    # - secure: THD5qh1lrYDL2dEYVu+pitC+RsfB/Wn8jJjNTVFYEwPnSw5zov4N2aVNwOaHM4qJwp8NdL81ke4gI0P9vS89HPSstsnkboAwzn8Kj3UhAq0X10vnkgH+BIjUut0H3DCcY0O5Y2/1pc5KL/6pErT6tdFlRq8xS6YwVe7UKx3rEXo=
+    # - secure: XBNTHU+DVCKeUKjxVSfvAkFr/KnvzYDDn28u8Y41v9kT+yHE1HHPnSYJS9JndQllOUAXtT0Ix81LSKG9MVthIWs5uPTOOg4hPZloE8mOYWSs/EHLraEEbZFUAaoCz2ZVYdA92HM1YAVo4Bi+zMy9g7Ra4POSWwFY5n/zV+ma//A=
+    # - secure: NwGYiI9vDCLsIN+uAJRPlUV9g4RraaHfNiJRGBmsc8kOaPvBL2fb3Mia6nOfkfcaVOmkEPhWeAOW8XKHqVj6982SBQrbnS/xfU/EHiDJaq7YVBRfkCn4/9yswyhCxvrS97JagIgnEjlhbIV9VLZ19A/e2fhWEzGbJabLyZ0ZNBc=
+    # - secure: ZXoAGZAYFC/kPwiX+TEpNX+rh2zVrVIw6BDdd/Qt1SiBB3+BZWwosqh+Wv1mLpjce7IAOXO42rg/OUwfPMl2egjFHth8OU827dyfYC0yFsgfN6myWD+HK+U6/3i+fp5WknWOhXzzFc72CgBwYNCnrIKNJ5LUMESUyew+vIgo5p0=
+    - MAKEFLAGS="-j 2"
+    # travis encrypt -r massich/openmeeg 'export INTEL_SERIAL_NUMBER=xxxxxxxxxxxxx'
+    - secure: "nTBdogyc6jqQneLtZxCgt1aE6FBpMbppqMC/5giQ/x/ik+cvhNG6+caWGPxVCQEgvXYX2pywMka9InYFVQf+Wit4S/5o9i92wvUyY+l6dSmFJo+YNihSOc2jcx5Wzgilf1d+7ytpbPxmaA/O6svBig3fUSb1UctvXRNKCc5+j8OdtOXdu8cKTFsAvAhf4RQ/tiD/VZ0plL3jnxM/cd0Zhf22ZdzJ493fTt+8JvzLFhAQDstWrEISFjCQq3K+6sPuX+NKHNbc1yT7FCPx2brfIa9TecLwOKONwgMQ2lqZESWeVdRq6Hjja6JhfTzPVdg91zqH0yGki3MFtA7M57C4uXRy1RIwR2eNeX2GkS2UYMegz4NE/1dK8PvXtJCP5nfHWA4RPuexwHtOn+fKaGtRAoxHj4/n9uGDqJbo3A6Bvvsq1uJfS6gCME8S6RAE+rjRxF3DDMXhrSTDgLe05/UBfeoN4AzbmSLTqGwyiTlO5ZZyRWYAKSt7VW887O7dBPO9EB7RdgJVAhyTrAdV9oV9/sxl2ioiAKd3Ws2Qn+F77uY7lecnl2FXa0seA4jKwLJsWH2W+o5OaT/9MtVsoOgpqZVldTdEuMK7FOvGMTduRzhQXfiwrepblxkSZYZBgUOw7oLZMf6zNNFQGY2iYV5zrNSiD4DSfQjV7+BpS3mb1q0="
+
+
+
+  matrix:
+    include:
+      # - os: osx
+      #   compiler: clang
+      #   env:
+      #     - USE_SYSTEM=0
+      #     - USE_PROJECT=1
+      #     - USE_VTK=1
+      #     - BLASLAPACK_IMPLEMENTATION=Auto # (Auto is the same as MKL/OpenBLAS/vecLib in priority)
+      # - os: osx
+      #   compiler: clang
+      #   env:
+      #     - USE_SYSTEM=0
+      #     - USE_PROJECT=1
+      #     - BLASLAPACK_IMPLEMENTATION=vecLib
+      #     - USE_VTK=1
+      #     - USE_PYTHON=1
+      #     - PYTHON_VERSION=2.7   # 3.6 conflicts with brew and system Python
+      #     - APPLE_STANDALONE=1
+      # - os: osx
+      #   compiler: clang
+      #   env:
+      #     - USE_SYSTEM=0
+      #     - USE_PROJECT=1
+      #     - ENABLE_PACKAGING=1
+      #     - BLASLAPACK_IMPLEMENTATION=MKL
+      #     - USE_VTK=1
+      #     - USE_PYTHON=1
+      #     - PYTHON_VERSION=2.7   # 3.6 conflicts with brew and system Python
+      #     - APPLE_STANDALONE=1
+      # - os: linux
+      #   compiler: clang
+      #   env:
+      #     - USE_SYSTEM=1
+      #     - USE_PROJECT=1
+      #     - BLASLAPACK_IMPLEMENTATION=LAPACK
+      #     - USE_PYTHON=1
+      #     - PYTHON_VERSION=2.7
+      # - os: linux
+      #   compiler: gcc
+      #   env:
+      #     - USE_SYSTEM=0
+      #     - USE_PROJECT=1
+      #     - USE_VTK=0
+      #     - USE_OMP=1
+      #     - BLASLAPACK_IMPLEMENTATION=LAPACK
+      # - os: linux
+      #   compiler: gcc
+      #   env:
+      #     - USE_SYSTEM=1
+      #     - USE_PROJECT=1
+      #     - USE_VTK=1
+      #     - USE_OMP=1
+      #     - USE_GIFTI=1
+      #     - USE_COVERAGE=1
+      #     - BUILD_DOCUMENTATION=ON
+      #     - BLASLAPACK_IMPLEMENTATION=OpenBLAS
+      - os: linux
+        env:
+          - COMPILER=gcc
+          - USE_SYSTEM=1
+          - USE_PROJECT=1
+          - USE_VTK=0
+          - USE_OMP=1
+          - USE_GIFTI=1
+          - USE_COVERAGE=1
+          - USE_PYTHON=1
+          - PYTHON_VERSION=3.6
+          - BUILD_DOCUMENTATION=ON
+          - ENABLE_PACKAGING=1
+          - BLASLAPACK_IMPLEMENTATION=MKL
+      - os: linux
+        env:
+          - COMPILER=clang
+          - USE_SYSTEM=1
+          - USE_PROJECT=1
+          - USE_VTK=0
+          - USE_OMP=1
+          - USE_GIFTI=1
+          - USE_COVERAGE=1
+          - USE_PYTHON=1
+          - PYTHON_VERSION=3.6
+          - BUILD_DOCUMENTATION=ON
+          - ENABLE_PACKAGING=1
+          - BLASLAPACK_IMPLEMENTATION=MKL
+      - os: linux
+        env:
+          - COMPILER=icc
+          - USE_SYSTEM=1
+          - USE_PROJECT=1
+          - USE_VTK=0
+          - USE_OMP=1
+          - USE_GIFTI=1
+          - USE_COVERAGE=1
+          - USE_PYTHON=1
+          - PYTHON_VERSION=3.6
+          - BUILD_DOCUMENTATION=ON
+          - ENABLE_PACKAGING=1
+          - BLASLAPACK_IMPLEMENTATION=MKL
+      # - os: linux
+      #   compiler: gcc
+      #   env:
+      #     - USE_PROJECT=0
+      #     - BLASLAPACK_IMPLEMENTATION=Atlas
+      #     - USE_PYTHON=1
+      #     - PYTHON_VERSION=3.6
 
 before_install: source build_tools/travis/before_install.sh
 
@@ -65,10 +130,3 @@ script: source $TRAVIS_BUILD_DIR/build_tools/travis/script.sh
 
 after_success: source $TRAVIS_BUILD_DIR/build_tools/travis/after_success.sh
 
-env:
-  global:
-    - src_dir: $TRAVIS_BUILD_DIR
-    - secure: THD5qh1lrYDL2dEYVu+pitC+RsfB/Wn8jJjNTVFYEwPnSw5zov4N2aVNwOaHM4qJwp8NdL81ke4gI0P9vS89HPSstsnkboAwzn8Kj3UhAq0X10vnkgH+BIjUut0H3DCcY0O5Y2/1pc5KL/6pErT6tdFlRq8xS6YwVe7UKx3rEXo=
-    - secure: XBNTHU+DVCKeUKjxVSfvAkFr/KnvzYDDn28u8Y41v9kT+yHE1HHPnSYJS9JndQllOUAXtT0Ix81LSKG9MVthIWs5uPTOOg4hPZloE8mOYWSs/EHLraEEbZFUAaoCz2ZVYdA92HM1YAVo4Bi+zMy9g7Ra4POSWwFY5n/zV+ma//A=
-    - secure: NwGYiI9vDCLsIN+uAJRPlUV9g4RraaHfNiJRGBmsc8kOaPvBL2fb3Mia6nOfkfcaVOmkEPhWeAOW8XKHqVj6982SBQrbnS/xfU/EHiDJaq7YVBRfkCn4/9yswyhCxvrS97JagIgnEjlhbIV9VLZ19A/e2fhWEzGbJabLyZ0ZNBc=
-    - secure: ZXoAGZAYFC/kPwiX+TEpNX+rh2zVrVIw6BDdd/Qt1SiBB3+BZWwosqh+Wv1mLpjce7IAOXO42rg/OUwfPMl2egjFHth8OU827dyfYC0yFsgfN6myWD+HK+U6/3i+fp5WknWOhXzzFc72CgBwYNCnrIKNJ5LUMESUyew+vIgo5p0=

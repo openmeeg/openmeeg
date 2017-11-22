@@ -35,6 +35,7 @@ function(OpenMEEG_project)
         -DUSE_GIFTI:BOOL=${USE_GIFTI}
         -DUSE_CGAL:BOOL=${USE_CGAL}
         -DAPPLE_STANDALONE:BOOL=${APPLE_STANDALONE}
+        -DMKL_ROOT_DIR:PATH=${MKL_ROOT_DIR}
         -DMKL_USE_sdl:BOOL=${MKL_USE_sdl}
         -DMKL_USE_interface:STRING=${MKL_USE_interface}
         -DMKL_USE_parallel:BOOL=${MKL_USE_parallel}

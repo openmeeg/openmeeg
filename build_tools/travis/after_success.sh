@@ -26,3 +26,10 @@ if [[ $ENABLE_PACKAGING == "1" && $TRAVIS_PULL_REQUEST == "false" && $TRAVIS_BRA
 
     python ${src_dir}/build_tools/upload_package_gforge.py *gz
 fi
+
+# tear down ICC compiler
+
+if [[ "$COMPILER" == "icc" ]]; then
+    echo "[SK-DB-MSG] TEARING DOWN ICC"
+    [[ ! -z "${INTEL_INSTALL_PATH}" ]] && uninstall_intel_software
+fi
