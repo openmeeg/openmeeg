@@ -2,7 +2,7 @@ message(STATUS "Could not find MKL: attempting to install it from network")
 
 #   Download MKL from Intel web site.
 
-message(STATUS "Downloading Intel MKL 8.0, this may take a while...")
+message(STATUS "Downloading Intel MKL, this may take a while...")
 
 if (WIN32)
     set(MKL_URL_DIR 12079)
@@ -57,8 +57,7 @@ endif()
 message(STATUS "Installing Intel MKL, this may take a while...")
 
 if(APPLE)
-    # set(MKL_INSTALL_DIR /opt/intel)
-    set(MKL_INSTALL_DIR /opt/mkl)
+    set(MKL_INSTALL_DIR /opt/intel)
 elseif()
     set(MKL_INSTALL_DIR ${CMAKE_BINARY_DIR})
 endif()
