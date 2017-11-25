@@ -1,5 +1,3 @@
-message(STATUS "Could not find MKL: attempting to install it from network")
-
 #   Download MKL from Intel web site.
 
 message(STATUS "Downloading Intel MKL, this may take a while...")
@@ -21,13 +19,13 @@ else()
 endif()
 
 set(MKL_BASE_URL "http://registrationcenter-download.intel.com/akdlm/irc_nas/tec")
-#file(DOWNLOAD "${MKL_BASE_URL}/${MKL_URL_DIR}/${MKL_INSTALLER_ARCHIVE}" ${CMAKE_BINARY_DIR}/${MKL_INSTALLER_ARCHIVE}
-#     SHOW_PROGRESS
-#     STATUS result)
-#list(GET result 0 error_code)
-#if (NOT ${error_code} STREQUAL "0")
-#    message(FATAL_ERROR "Could not download MKL install script. If no network connexion please provide MKL_DIR or environment {MKLDIR}")
-#endif()
+file(DOWNLOAD "${MKL_BASE_URL}/${MKL_URL_DIR}/${MKL_INSTALLER_ARCHIVE}" ${CMAKE_BINARY_DIR}/${MKL_INSTALLER_ARCHIVE}
+     SHOW_PROGRESS
+     STATUS result)
+list(GET result 0 error_code)
+if (NOT ${error_code} STREQUAL "0")
+    message(FATAL_ERROR "Could not download MKL install script. If no network connexion please provide MKL_DIR or environment {MKLDIR}")
+endif()
 
 #   Install MKL in a local directory.
 
