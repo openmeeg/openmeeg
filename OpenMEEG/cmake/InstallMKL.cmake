@@ -21,13 +21,13 @@ else()
 endif()
 
 set(MKL_BASE_URL "http://registrationcenter-download.intel.com/akdlm/irc_nas/tec")
-file(DOWNLOAD "${MKL_BASE_URL}/${MKL_URL_DIR}/${MKL_INSTALLER_ARCHIVE}" ${CMAKE_BINARY_DIR}/${MKL_INSTALLER_ARCHIVE}
-     SHOW_PROGRESS
-     STATUS result)
-list(GET result 0 error_code)
-if (NOT ${error_code} STREQUAL "0")
-    message(FATAL_ERROR "Could not download MKL install script. If no network connexion please provide MKL_DIR or environment {MKLDIR}")
-endif()
+#file(DOWNLOAD "${MKL_BASE_URL}/${MKL_URL_DIR}/${MKL_INSTALLER_ARCHIVE}" ${CMAKE_BINARY_DIR}/${MKL_INSTALLER_ARCHIVE}
+#     SHOW_PROGRESS
+#     STATUS result)
+#list(GET result 0 error_code)
+#if (NOT ${error_code} STREQUAL "0")
+#    message(FATAL_ERROR "Could not download MKL install script. If no network connexion please provide MKL_DIR or environment {MKLDIR}")
+#endif()
 
 #   Install MKL in a local directory.
 
@@ -58,8 +58,8 @@ message(STATUS "Installing Intel MKL, this may take a while...")
 
 if(APPLE)
     set(MKL_INSTALL_DIR /opt/intel)
-elseif()
-    set(MKL_INSTALL_DIR ${CMAKE_BINARY_DIR})
+else()
+    set(MKL_INSTALL_DIR ${CMAKE_BINARY_DIR}/mkl)
 endif()
 
 if (WIN32)
@@ -79,7 +79,7 @@ else()
     else()
         file(APPEND ${CFGFILE} "SIGNING_ENABLED=yes\n")
         file(APPEND ${CFGFILE} "ARCH_SELECTED=ALL\n")
-        set(MKL_INSTALL_COMMAND ${MKL_INSTALLER_DIR}/install.sh -s ${CFGFILE} --cli-mode --user-mode)
+        set(MKL_INSTALL_COMMAND ${MKL_BASE_NAME}/install.sh -s ${CFGFILE} --cli-mode --user-mode)
     endif()
 endif()
 
