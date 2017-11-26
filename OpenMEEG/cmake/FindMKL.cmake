@@ -30,7 +30,6 @@ unset(MSVC)
 set(MKL_POSSIBLE_LOCATIONS
     $ENV{MKLDIR}
     ${MKL_ROOT_DIR}
-    ${CMAKE_BINARY_DIR}/intel/mkl
     /opt/intel/mkl
     /opt/intel/cmkl
     /Library/Frameworks/Intel_MKL.framework/Versions/Current/lib/universal
