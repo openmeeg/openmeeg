@@ -43,13 +43,12 @@ set(MKL_POSSIBLE_LOCATIONS
     "C:/Program Files (x86)/IntelSWTools/compilers_and_libraries/windows/mkl/"
 )
 
-execute_process(COMMAND ls -lR ${CMAKE_BINARY_DIR} OUTPUT_VARIABLE aa)
-message("[[${CMAKE_BINARY_DIR}]]")
-message("${aa}")
+# Find MKL ROOT
 
-# get the MKL ROOT
 find_path(MKL_ROOT_DIR NAMES include/mkl_cblas.h PATHS ${MKL_POSSIBLE_LOCATIONS})
-# from symlinks to real paths
+
+# Convert symlinks to real paths
+
 get_filename_component(MKL_ROOT_DIR ${MKL_ROOT_DIR} REALPATH)
 
 if (NOT MKL_ROOT_DIR)
