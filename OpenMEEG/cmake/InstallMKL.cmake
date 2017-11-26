@@ -94,7 +94,7 @@ file(READ ${CMAKE_BINARY_DIR}/install-mkl.err mkl_err)
 message("[[mkl err: ${mkl_err}]]")
 
 file(GLOB_RECURSE FILELIST '*')
-message("[[${FILELIST}]])
+message("[[${FILELIST}]]")
 
 if (APPLE)
     set(MKL_UNPACK_COMMAND hdiutil detach /Volumes/${MKL_BASE_NAME})
