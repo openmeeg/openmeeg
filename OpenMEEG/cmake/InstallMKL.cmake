@@ -57,7 +57,7 @@ message(STATUS "Installing Intel MKL, this may take a while...")
 if(APPLE)
     set(MKL_INSTALL_DIR /opt/intel)
 else()
-    set(MKL_INSTALL_DIR ${CMAKE_BINARY_DIR})
+    set(MKL_INSTALL_DIR ${CMAKE_BINARY_DIR}/intel)
 endif()
 
 if (WIN32)
@@ -93,7 +93,7 @@ message("[[mkl output: ${mkl_output}]]")
 file(READ ${CMAKE_BINARY_DIR}/install-mkl.err mkl_err)
 message("[[mkl err: ${mkl_err}]]")
 
-file(GLOB_RECURSE files ${CMAKE_BINARY_DIR}/'*')
+file(GLOB_RECURSE files ${CMAKE_BINARY_DIR})
 message("[[${files}]]")
 
 if (APPLE)
