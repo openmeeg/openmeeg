@@ -29,5 +29,6 @@ cmake \
     -DCMAKE_SKIP_RPATH:BOOL=OFF \
     ..
 
-cat CMakeCache.txt
+#cat CMakeCache.txt
+
 make

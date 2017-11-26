@@ -45,7 +45,7 @@ set(MKL_POSSIBLE_LOCATIONS
 )
 
 execute_process(COMMAND ls -lR ${CMAKE_BINARY_DIR} OUTPUT aa)
-message("[[${aa}]])
+message("[[${aa}]]")
 
 # get the MKL ROOT
 find_path(MKL_ROOT_DIR NAMES include/mkl_cblas.h PATHS ${MKL_POSSIBLE_LOCATIONS})
