@@ -132,7 +132,7 @@ else()
         list(APPEND MKL_LINK_TOOL_COMMAND "--linking=sdl")
     else()
         #  To simplify packaging. Otherwise we would have to copy the proper mkl files into the package.
-        set(FORCE_STATIC_MKL True) # force to static linking for WIN32
+        #set(FORCE_STATIC_MKL True) # force to static linking for WIN32
         if (BUILD_SHARED_LIBS AND NOT FORCE_STATIC_MKL)
             list(APPEND MKL_LINK_TOOL_COMMAND "--linking=dynamic")
         else()
