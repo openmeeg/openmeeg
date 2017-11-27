@@ -32,7 +32,10 @@ endif()
 
 message(STATUS "Unpacking Intel MKL")
 
+set(MKL_UNPACK_WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
 if (WIN32)
+    set(MKL_UNPACK_WORKING_DIRECTORY ${MKL_UNPACK_WORKING_DIRECTORY}/mkl)
+    file(MAKE_DIRECTORY ${MKL_UNPACK_WORKING_DIRECTORY})
     set(MKL_UNPACK_COMMAND unzip ${CMAKE_BINARY_DIR}/${MKL_INSTALLER_ARCHIVE})
 elseif (APPLE)
     set(MKL_UNPACK_COMMAND hdiutil attach ${CMAKE_BINARY_DIR}/${MKL_INSTALLER_ARCHIVE})
@@ -41,9 +44,13 @@ else()
     set(MKL_UNPACK_COMMAND ${CMAKE_COMMAND} -E tar zxvf ${CMAKE_BINARY_DIR}/${MKL_INSTALLER_ARCHIVE})
 endif()
 
-execute_process(COMMAND ${MKL_UNPACK_COMMAND} OUTPUT_FILE ${CMAKE_BINARY_DIR}/install_mkl.out ERROR_FILE ${CMAKE_BINARY_DIR}/install_mkl.err RESULT_VARIABLE mkl_unpack_result)
+execute_process(COMMAND ${MKL_UNPACK_COMMAND} 
+                WORKING_DIRECTORY ${MKL_UNPACK_WORKING_DIRECTORY}
+                OUTPUT_FILE ${CMAKE_BINARY_DIR}/install_mkl.out
+                ERROR_FILE ${CMAKE_BINARY_DIR}/install_mkl.err
+                RESULT_VARIABLE mkl_unpack_result)
 
-file(GLOB_RECURSE aa ${CMAKE_BINARY_DIR}/*)
+file(GLOB_RECURSE aa ${MKL_UNPACK_WORKING_DIRECTORY}/*)
 message("[[${aa}]]")
 
 if (NOT ${mkl_unpack_result} STREQUAL "0")
@@ -61,7 +68,7 @@ else()
 endif()
 
 if (WIN32)
-    set(MKL_INSTALL_COMMAND "${MKL_BASE_NAME}/setup.exe install -eula=accept -output=${CMAKE_BINARY_DIR}/install-mkl.log -installdir=\"C:/Program Files (x86)/IntelSWTools\"")
+    set(MKL_INSTALL_COMMAND "${MKL_UNPACK_WORKING_DIRECTORY}/setup.exe install -eula=accept -output=${CMAKE_BINARY_DIR}/install-mkl.log -installdir=\"C:/Program Files (x86)/IntelSWTools\"")
 else()
     set(CFGFILE ${CMAKE_BINARY_DIR}/silent.cfg)
     file(WRITE ${CFGFILE} "# Generated silent configuration file\n")
