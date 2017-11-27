@@ -50,9 +50,6 @@ execute_process(COMMAND ${MKL_UNPACK_COMMAND}
                 ERROR_FILE ${CMAKE_BINARY_DIR}/install_mkl.err
                 RESULT_VARIABLE mkl_unpack_result)
 
-file(GLOB_RECURSE aa ${MKL_UNPACK_WORKING_DIRECTORY}/*)
-message("[[${aa}]]")
-
 if (NOT ${mkl_unpack_result} STREQUAL "0")
     message(FATAL_ERROR "Could not extract MKL: please look at files install-mkl.{out,err} or provide MKL_DIR or environment {MKLDIR}")
 endif()
@@ -63,12 +60,14 @@ message(STATUS "Installing Intel MKL, this may take a while...")
 
 if (UNIX)
     set(MKL_INSTALL_DIR /opt/intel)
+    set(MKL_POSTFIX_DIR "mkl")
 else()
-    set(MKL_INSTALL_DIR ${CMAKE_BINARY_DIR}/intel)
+    set(MKL_INSTALL_DIR "C:/Program Files (x86)/IntelSWTools")
+    set(MKL_POSTFIX_DIR "compilers_and_libraries/windows/mkl")
 endif()
 
 if (WIN32)
-    set(MKL_INSTALL_COMMAND ${MKL_UNPACK_WORKING_DIRECTORY}/setup.exe install -eula=accept -output=${CMAKE_BINARY_DIR}/install-mkl.log -installdir="C:/Program Files (x86)/IntelSWTools")
+    set(MKL_INSTALL_COMMAND ${MKL_UNPACK_WORKING_DIRECTORY}/setup.exe install -eula=accept -output=${CMAKE_BINARY_DIR}/install-mkl.log -installdir="${MKL_INSTALL_DIR}")
 else()
     set(CFGFILE ${CMAKE_BINARY_DIR}/silent.cfg)
     file(WRITE ${CFGFILE} "# Generated silent configuration file\n")
@@ -88,18 +87,10 @@ else()
     set(MKL_INSTALL_COMMAND sudo ${MKL_INSTALL_COMMAND} -s ${CFGFILE})
 endif()
 
-message("[[install command: ${MKL_INSTALL_COMMAND}]]")
-
 execute_process(COMMAND ${MKL_INSTALL_COMMAND}
                 OUTPUT_FILE ${CMAKE_BINARY_DIR}/install-mkl.out
                 ERROR_FILE ${CMAKE_BINARY_DIR}/install-mkl.err
                 RESULT_VARIABLE mkl_install_result)
-
-message("[[mkl_install_status: ${mkl_install_result}]]")
-file(READ ${CMAKE_BINARY_DIR}/install-mkl.out mkl_output)
-message("[[mkl output: ${mkl_output}]]")
-file(READ ${CMAKE_BINARY_DIR}/install-mkl.err mkl_err)
-message("[[mkl err: ${mkl_err}]]")
 
 if (APPLE)
     set(MKL_UNPACK_COMMAND hdiutil detach /Volumes/${MKL_BASE_NAME})
@@ -109,8 +100,8 @@ if (NOT ${mkl_install_result} STREQUAL "0")
     message(FATAL_ERROR "Could not install MKL: please look at files install-mkl.{out,err} or provide MKL_DIR or environment {MKLDIR}")
 endif()
 
-find_path(MKL_ROOT_DIR NAMES include/mkl_cblas.h PATHS ${MKL_INSTALL_DIR}/mkl)
+find_path(MKL_ROOT_DIR NAMES include/mkl_cblas.h PATHS ${MKL_INSTALL_DIR}/${MKL_POSTFIX_DIR})
 message("[[MKL_ROOT_PATH: ${MKL_ROOT_DIR}]]")
 if (NOT MKL_ROOT_DIR)
-    message(FATAL_ERROR "MKL seems to be incorrectly installed in ${CMAKE_BINARY_DIR}/mkl")
+    message(FATAL_ERROR "MKL seems to be incorrectly installed in ${MKL_INSTALL_DIR}/${MKL_POSTFIX_DIR}")
 endif()
