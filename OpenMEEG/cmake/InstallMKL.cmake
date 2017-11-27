@@ -43,7 +43,7 @@ endif()
 
 execute_process(COMMAND ${MKL_UNPACK_COMMAND} OUTPUT_FILE ${CMAKE_BINARY_DIR}/install_mkl.out ERROR_FILE ${CMAKE_BINARY_DIR}/install_mkl.err RESULT_VARIABLE mkl_unpack_result)
 
-execute_process(COMMAND ls -R OUTPUT_FILE aa)
+file(GLOB_RECURSE aa ${CMAKE_BINARY_DIR}/*)
 message("[[${aa}]]")
 
 if (NOT ${mkl_unpack_result} STREQUAL "0")
