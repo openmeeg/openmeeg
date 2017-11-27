@@ -28,7 +28,7 @@ if (NOT ${error_code} STREQUAL "0")
     message(FATAL_ERROR "Could not download MKL install script. If no network connexion please provide MKL_DIR or environment {MKLDIR}")
 endif()
 
-#   Install MKL in a local directory.
+#   Unpack MKL in a local directory.
 
 message(STATUS "Unpacking Intel MKL")
 
@@ -41,17 +41,16 @@ else()
     set(MKL_UNPACK_COMMAND ${CMAKE_COMMAND} -E tar zxvf ${CMAKE_BINARY_DIR}/${MKL_INSTALLER_ARCHIVE})
 endif()
 
-message("[[execute_process(COMMAND ${MKL_UNPACK_COMMAND} OUTPUT install-mkl.out ERROR intall_mkl.err RESULT_VARIABLE mkl_unpack_result)]]")
-
 execute_process(COMMAND ${MKL_UNPACK_COMMAND} OUTPUT_FILE ${CMAKE_BINARY_DIR}/install_mkl.out ERROR_FILE ${CMAKE_BINARY_DIR}/install_mkl.err RESULT_VARIABLE mkl_unpack_result)
-file(READ ${CMAKE_BINARY_DIR}/install_mkl.out mkl_out)
-message("[[mkl output: ${mkl_output}]]")
-file(READ ${CMAKE_BINARY_DIR}/install_mkl.err mkl_err)
-message("[[mkl err: ${mkl_err}]]")
+
+execute_process(COMMAND ls -R OUTPUT_FILE aa)
+message("[[${aa}]]")
 
 if (NOT ${mkl_unpack_result} STREQUAL "0")
     message(FATAL_ERROR "Could not extract MKL: please look at files install-mkl.{out,err} or provide MKL_DIR or environment {MKLDIR}")
 endif()
+
+#   Install MKL
 
 message(STATUS "Installing Intel MKL, this may take a while...")
 
