@@ -62,11 +62,13 @@ if (UNIX)
     set(MKL_POSTFIX_DIR "mkl")
 else()
     set(MKL_INSTALL_DIR "C:/Program Files (x86)/IntelSWTools")
-    set(MKL_POSTFIX_DIR "compilers_and_libraries/windows/mkl")
+    set(MKL_POSTFIX_DIR "compilers_and_libraries_2018.0.124/windows/mkl")
 endif()
 
 if (WIN32)
-    set(MKL_INSTALL_COMMAND ${MKL_UNPACK_WORKING_DIRECTORY}/setup.exe install -eula=accept -output=${CMAKE_BINARY_DIR}/install-mkl.log -installdir="${MKL_INSTALL_DIR}")
+    set(MKL_INSTALL_COMMAND ${MKL_UNPACK_WORKING_DIRECTORY}/setup.exe install --components=all -eula=accept
+                                --output=${CMAKE_BINARY_DIR}/install-mkl.log
+                                --installdir=${MKL_INSTALL_DIR})
 else()
     set(CFGFILE ${CMAKE_BINARY_DIR}/silent.cfg)
     file(WRITE ${CFGFILE} "# Generated silent configuration file\n")
