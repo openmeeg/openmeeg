@@ -21,7 +21,6 @@ endif()
 
 set(MKL_BASE_URL "http://registrationcenter-download.intel.com/akdlm/irc_nas/tec")
 file(DOWNLOAD "${MKL_BASE_URL}/${MKL_URL_DIR}/${MKL_INSTALLER_ARCHIVE}" ${CMAKE_BINARY_DIR}/${MKL_INSTALLER_ARCHIVE}
-     SHOW_PROGRESS
      STATUS result)
 list(GET result 0 error_code)
 if (NOT ${error_code} STREQUAL "0")
@@ -92,6 +91,9 @@ execute_process(COMMAND ${MKL_INSTALL_COMMAND}
                 ERROR_FILE ${CMAKE_BINARY_DIR}/install-mkl.err
                 RESULT_VARIABLE mkl_install_result)
 
+file(GLOB_RECURSE aa ${MKL_INSTALL_DIR}/*)
+message("[[${aa}]]")
+
 if (APPLE)
     set(MKL_UNPACK_COMMAND hdiutil detach /Volumes/${MKL_BASE_NAME})
 endif()
@@ -100,6 +102,7 @@ if (NOT ${mkl_install_result} STREQUAL "0")
     message(FATAL_ERROR "Could not install MKL: please look at files install-mkl.{out,err} or provide MKL_DIR or environment {MKLDIR}")
 endif()
 
+message("Looking for MKL in ${MKL_INSTALL_DIR}/${MKL_POSTFIX_DIR}")
 find_path(MKL_ROOT_DIR NAMES include/mkl_cblas.h PATHS ${MKL_INSTALL_DIR}/${MKL_POSTFIX_DIR})
 message("[[MKL_ROOT_PATH: ${MKL_ROOT_DIR}]]")
 if (NOT MKL_ROOT_DIR)
