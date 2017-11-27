@@ -46,7 +46,7 @@ matrix:
 before_build:
     - if NOT DEFINED APPVEYOR_PULL_REQUEST_NUMBER (if %APPVEYOR_REPO_BRANCH% == master ( if %pack%==ON ( pip install paramiko pyopenssl ) ) )
     - if %python%==ON ( cinst -y swig & conda update -y conda & conda install -y numpy )
-    - if %lapack%==MKL ( cinst -y mkl )
+    - if %lapack%==MKL ( conda install -y mkl )
 
 build_script:
   - echo Running cmake...
