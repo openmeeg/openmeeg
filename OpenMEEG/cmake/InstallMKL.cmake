@@ -68,7 +68,7 @@ else()
 endif()
 
 if (WIN32)
-    set(MKL_INSTALL_COMMAND "${MKL_UNPACK_WORKING_DIRECTORY}/setup.exe install -eula=accept -output=${CMAKE_BINARY_DIR}/install-mkl.log -installdir=\"C:/Program Files (x86)/IntelSWTools\"")
+    set(MKL_INSTALL_COMMAND ${MKL_UNPACK_WORKING_DIRECTORY}/setup.exe install -eula=accept -output=${CMAKE_BINARY_DIR}/install-mkl.log -installdir="C:/Program Files (x86)/IntelSWTools")
 else()
     set(CFGFILE ${CMAKE_BINARY_DIR}/silent.cfg)
     file(WRITE ${CFGFILE} "# Generated silent configuration file\n")
