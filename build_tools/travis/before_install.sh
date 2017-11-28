@@ -18,7 +18,7 @@ function setup_conda_wrap {
 # install MKL if necessary.
 
 if [[ "$BLASLAPACK_IMPLEMENTATION" == "MKL" ]]; then
-    cmake -P OpenMEEG/cmake/InstallMKL.cmake
+    cmake -P cmake/InstallMKL.cmake
 fi
 
 if [[ $TRAVIS_OS_NAME == 'osx' ]]; then

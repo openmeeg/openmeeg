@@ -46,7 +46,7 @@ matrix:
 before_build:
     - if NOT DEFINED APPVEYOR_PULL_REQUEST_NUMBER (if %APPVEYOR_REPO_BRANCH% == master ( if %pack%==ON ( pip install paramiko pyopenssl ) ) )
     - if %python%==ON ( cinst -y swig & conda update -y conda & conda install -y numpy )
-    - if %lapack%==MKL ( cmake -P OpenMEEG/cmake/InstallMKL.cmake)
+    - if %lapack%==MKL ( cmake -P cmake/InstallMKL.cmake )
 
 build_script:
   - echo Running cmake...
