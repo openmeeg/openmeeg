@@ -165,19 +165,10 @@ else()
         endif()
     endif()
 
-    message("[[mkl_tool: ${MKL_LINK_TOOL_COMMAND}]]")
     execute_process(COMMAND ${MKL_LINK_TOOL_COMMAND}
-                    OUTPUT_VARIABLE RESULT_LIBS
-                    TIMEOUT 2
+                    OUTPUT_VARIABLE MKL_LIBS
                     RESULT_VARIABLE COMMAND_WORKED
-                    OUTPUT_VARIABLE aa
-                    ERROR_VARIABLE bb)
-
-    message("[[mkl_tool: ${COMMAND_WORKED}]]")
-    message("[[OUTPUT]]")
-    message("${aa}")
-    message("[[ERROR]]")
-    message("${bb}")
+                    TIMEOUT 2 ERROR_QUIET)
 
     set(MKL_LIBRARIES)
 
@@ -191,11 +182,11 @@ else()
         set(MKL_LIBRARY_DIR "${MKL_ROOT_DIR}/lib/${MKL_LIB_DIR}/" "${MKL_ROOT_DIR}/../compiler/lib/${MKL_LIB_DIR}")
 
         # remove unwanted break
-        string(REGEX REPLACE "\n" "" RESULT_LIBS ${RESULT_LIBS})
+        string(REGEX REPLACE "\n" "" MKL_LIBS ${MKL_LIBS})
 
         # get the list of libs
-        separate_arguments(RESULT_LIBS)
-        foreach(i ${RESULT_LIBS})
+        separate_arguments(MKL_LIBS)
+        foreach(i ${MKL_LIBS})
             find_library(FULLPATH_LIB ${i} PATHS "${MKL_LIBRARY_DIR}")
 
             if (FULLPATH_LIB)
@@ -208,9 +199,9 @@ else()
 
     else() # UNIX and macOS
         # remove unwanted break
-		string(REGEX REPLACE "\n" "" RESULT_LIBS ${RESULT_LIBS}) 
+		string(REGEX REPLACE "\n" "" MKL_LIBS ${MKL_LIBS}) 
         if (MKL_LINK_TOOL_COMMAND MATCHES "static")
-            string(REPLACE "$(MKLROOT)" "${MKL_ROOT_DIR}" MKL_LIBRARIES ${RESULT_LIBS})
+            string(REPLACE "$(MKLROOT)" "${MKL_ROOT_DIR}" MKL_LIBRARIES ${MKL_LIBS})
             # hack for lin with libiomp5.a
             if (APPLE)
                 string(REPLACE "-liomp5" "${MKL_ROOT_DIR}/../compiler/lib/libiomp5.a" MKL_LIBRARIES ${MKL_LIBRARIES})
@@ -221,7 +212,7 @@ else()
 
         else() # dynamic or sdl
             # get the lib dirs
-            string(REGEX REPLACE "^.*-L[^/]+([^\ ]+).*" "${MKL_ROOT_DIR}\\1" INTEL_LIB_DIR ${RESULT_LIBS})
+            string(REGEX REPLACE "^.*-L[^/]+([^\ ]+).*" "${MKL_ROOT_DIR}\\1" INTEL_LIB_DIR ${MKL_LIBS})
             if (NOT EXISTS ${INTEL_LIB_DIR})
                 #   Work around a bug in mkl 2018
                 set(INTEL_LIB_DIR1 "${INTEL_LIB_DIR}_lin")
@@ -233,10 +224,10 @@ else()
             set(MKL_LIBRARY_DIR ${INTEL_LIB_DIR} "${MKL_ROOT_DIR}/../compiler/lib/${MKL_LIB_DIR}")
 
             # get the list of libs
-            separate_arguments(RESULT_LIBS)
+            separate_arguments(MKL_LIBS)
 
             # set full path to libs
-            foreach(i ${RESULT_LIBS})
+            foreach(i ${MKL_LIBS})
                 string(REGEX REPLACE " -" "-" i ${i})
                 string(REGEX REPLACE "-l([^\ ]+)" "\\1" i ${i})
                 string(REGEX REPLACE "-L.*" "" i ${i})
