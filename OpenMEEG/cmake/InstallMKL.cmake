@@ -62,7 +62,7 @@ if (UNIX)
     set(MKL_POSTFIX_DIR "mkl")
 else()
     set(MKL_INSTALL_DIR "C:/Program Files (x86)/IntelSWTools")
-    set(MKL_POSTFIX_DIR "compilers_and_libraries_2018.0.124/windows/mkl")
+    set(MKL_POSTFIX_DIR "compilers_and_libraries/windows/mkl")
 endif()
 
 if (WIN32)
