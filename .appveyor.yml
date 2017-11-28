@@ -47,6 +47,7 @@ before_build:
     - if NOT DEFINED APPVEYOR_PULL_REQUEST_NUMBER (if %APPVEYOR_REPO_BRANCH% == master ( if %pack%==ON ( pip install paramiko pyopenssl ) ) )
     - if %python%==ON ( cinst -y swig & conda update -y conda & conda install -y numpy )
     - if %lapack%==MKL ( cmake -P cmake/InstallMKL.cmake )
+    - if %vtk%==ON ( cmake -P cmake/InstallVTK.cmake )
 
 build_script:
   - echo Running cmake...

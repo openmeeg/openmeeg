@@ -57,7 +57,7 @@ if (NOT LAPACK_LIBRARIES AND USE_LAPACK)
 endif()
 
 if (USE_VTK)
-    set(VTK_ VTK)
+    set(VTK VTK)
     if (VTK_FOUND)
         set(USE_SYSTEM_VTK True CACHE BOOL "Use the VTK from the system" FORCE)
     endif()
@@ -67,6 +67,6 @@ if (USE_OPENBLAS AND WIN32)
     include(installOpenBLAS)
 endif()
 
-subprojects(${MSINTTYPES} zlib ${VTK_} hdf5 matio ${LAPACK} OpenMEEG)
+subprojects(${MSINTTYPES} zlib ${VTK} hdf5 matio ${LAPACK} OpenMEEG)
 
 include(Packaging)
