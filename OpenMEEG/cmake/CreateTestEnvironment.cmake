@@ -33,7 +33,7 @@ if (WIN32 OR APPLE)
     endif()
 
     set(DLL_DIRS "${ZLIB_ROOT}/${subdir}" "${HDF5_ROOT_DIR}/${subdir}" "${matio_ROOT_DIR}/${subdir}"
-                 "${CMAKE_MSVCIDE_RUN_PATH}" "${LAPACK_DLL_DIR}"
+                 "${CMAKE_MSVCIDE_RUN_PATH}" "${LAPACK_DLL_DIR}" ${MKL_LIBRARY_DIR}
                  "${PYTHON_OPENMEEG_MODULE_DIR}" "${VTK_LIBRARY_DIRS}" "${CGAL_LIBRARY_DIRS}" "${NIFTI_LIBRARY_DIR}")
     foreach (dir ${DLL_DIRS})
         FILE(TO_NATIVE_PATH "${dir}" dir)
