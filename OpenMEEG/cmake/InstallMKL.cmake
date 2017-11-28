@@ -93,9 +93,6 @@ execute_process(COMMAND ${MKL_INSTALL_COMMAND}
                 ERROR_FILE ${CMAKE_BINARY_DIR}/install-mkl.err
                 RESULT_VARIABLE mkl_install_result)
 
-file(GLOB_RECURSE aa ${MKL_INSTALL_DIR}/*)
-message("[[${aa}]]")
-
 if (APPLE)
     set(MKL_UNPACK_COMMAND hdiutil detach /Volumes/${MKL_BASE_NAME})
 endif()
@@ -104,9 +101,9 @@ if (NOT ${mkl_install_result} STREQUAL "0")
     message(FATAL_ERROR "Could not install MKL: please look at files install-mkl.{out,err} or provide MKL_DIR or environment {MKLDIR}")
 endif()
 
-message("Looking for MKL in ${MKL_INSTALL_DIR}/${MKL_POSTFIX_DIR}")
+message("Looking for MKL...")
 find_path(MKL_ROOT_DIR NAMES include/mkl_cblas.h PATHS ${MKL_INSTALL_DIR}/${MKL_POSTFIX_DIR})
-message("[[MKL_ROOT_PATH: ${MKL_ROOT_DIR}]]")
 if (NOT MKL_ROOT_DIR)
     message(FATAL_ERROR "MKL seems to be incorrectly installed in ${MKL_INSTALL_DIR}/${MKL_POSTFIX_DIR}")
 endif()
+message("MKL_ROOT_PATH: ${MKL_ROOT_DIR}")
