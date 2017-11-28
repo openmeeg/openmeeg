@@ -170,9 +170,14 @@ else()
                     OUTPUT_VARIABLE RESULT_LIBS
                     TIMEOUT 2
                     RESULT_VARIABLE COMMAND_WORKED
-                    ERROR_QUIET)
+                    OUTPUT_VARIABLE aa
+                    ERROR_VARIABLE bb)
 
     message("[[mkl_tool: ${COMMAND_WORKED}]]")
+    message("[[OUTPUT]]")
+    message("${aa}")
+    message("[[ERROR]]")
+    message("${bb}")
 
     set(MKL_LIBRARIES)
 
