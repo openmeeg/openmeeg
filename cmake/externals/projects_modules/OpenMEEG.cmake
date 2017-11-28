@@ -12,7 +12,7 @@ function(OpenMEEG_project)
     # Prepare the project and list dependencies
 
     EP_Initialisation(OpenMEEG BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS})
-    EP_SetDependencies(${ep}_dependencies clapack matio ${MSINTTYPES} ${VTK_})
+    EP_SetDependencies(${ep}_dependencies clapack matio ${MSINTTYPES} ${BUILD_VTK})
 
     # No need to define repository where get the sources, since they are integrated.
 
