@@ -77,7 +77,7 @@ function(TESTHEAD HEADNUM)
     set(MEGINVBASE             ${GENERATEDBASE}-meg)
     set(ESTDIPBASE             ${GENERATEDBASE}-dip)
 
-    ############ ASSEMBLE TEST ##############
+    #   assemble tests
 
     OPENMEEG_TEST(HM-${SUBJECT} ${ASSEMBLE} -HM ${GEOM} ${COND} ${HMMAT} DEPENDS CLEAN-TESTS)
     OPENMEEG_TEST(HMInv-${SUBJECT} ${INVERSER} ${HMMAT} ${HMINVMAT}      DEPENDS HM-${SUBJECT})

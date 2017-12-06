@@ -1,4 +1,5 @@
 # Tell CMake to use rpath with the libs we build
+
 set(CMAKE_MACOSX_RPATH 1)
 set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
 

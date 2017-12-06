@@ -15,10 +15,21 @@ matrix:
       env:
         - USE_SYSTEM=0
         - USE_PROJECT=1
-        - ENABLE_PACKAGING=1
         - BLASLAPACK_IMPLEMENTATION=vecLib
         - USE_VTK=1
         - USE_PYTHON=1
+        - PYTHON_VERSION=2.7   # 3.6 conflicts with brew and system Python
+        - APPLE_STANDALONE=1
+    - os: osx
+      compiler: clang
+      env:
+        - USE_SYSTEM=0
+        - USE_PROJECT=1
+        - ENABLE_PACKAGING=1
+        - MKL_INSTALL=1
+        - BLASLAPACK_IMPLEMENTATION=MKL
+        - USE_VTK=0
+        - USE_PYTHON=0
         - PYTHON_VERSION=2.7   # 3.6 conflicts with brew and system Python
         - APPLE_STANDALONE=1
     - os: linux
@@ -36,7 +47,6 @@ matrix:
         - USE_PROJECT=1
         - USE_VTK=0
         - USE_OMP=1
-        - ENABLE_PACKAGING=1
         - BLASLAPACK_IMPLEMENTATION=LAPACK
     - os: linux
       compiler: gcc
@@ -49,6 +59,20 @@ matrix:
         - USE_COVERAGE=1
         - BUILD_DOCUMENTATION=ON
         - BLASLAPACK_IMPLEMENTATION=OpenBLAS
+    - os: linux
+      compiler: gcc
+      env:
+        - USE_SYSTEM=1
+        - USE_PROJECT=1
+        - USE_VTK=1
+        - USE_OMP=1
+        - USE_GIFTI=1
+        - USE_COVERAGE=1
+        - USE_PYTHON=1
+        - PYTHON_VERSION=3.6
+        - BUILD_DOCUMENTATION=ON
+        - ENABLE_PACKAGING=1
+        - BLASLAPACK_IMPLEMENTATION=MKL
     - os: linux
       compiler: gcc
       env:
@@ -72,3 +96,4 @@ env:
     - secure: XBNTHU+DVCKeUKjxVSfvAkFr/KnvzYDDn28u8Y41v9kT+yHE1HHPnSYJS9JndQllOUAXtT0Ix81LSKG9MVthIWs5uPTOOg4hPZloE8mOYWSs/EHLraEEbZFUAaoCz2ZVYdA92HM1YAVo4Bi+zMy9g7Ra4POSWwFY5n/zV+ma//A=
     - secure: NwGYiI9vDCLsIN+uAJRPlUV9g4RraaHfNiJRGBmsc8kOaPvBL2fb3Mia6nOfkfcaVOmkEPhWeAOW8XKHqVj6982SBQrbnS/xfU/EHiDJaq7YVBRfkCn4/9yswyhCxvrS97JagIgnEjlhbIV9VLZ19A/e2fhWEzGbJabLyZ0ZNBc=
     - secure: ZXoAGZAYFC/kPwiX+TEpNX+rh2zVrVIw6BDdd/Qt1SiBB3+BZWwosqh+Wv1mLpjce7IAOXO42rg/OUwfPMl2egjFHth8OU827dyfYC0yFsgfN6myWD+HK+U6/3i+fp5WknWOhXzzFc72CgBwYNCnrIKNJ5LUMESUyew+vIgo5p0=
+    - MAKEFLAGS="-j 2"

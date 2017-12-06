@@ -14,7 +14,8 @@ if (CMAKE_MAJOR_VERSION EQUAL 3)
     set(PROJECT_VERSION VERSION 2.4.0.0)
 endif()
 
-set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake ${CMAKE_CURRENT_SOURCE_DIR}/OpenMEEG/cmake ${CMAKE_CURRENT_SOURCE_DIR}/OpenMEEG/cmake/FortranCInterface ${CMAKE_MODULE_PATH})
+set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake ${CMAKE_CURRENT_SOURCE_DIR}/OpenMEEG/cmake
+                      ${CMAKE_CURRENT_SOURCE_DIR}/OpenMEEG/cmake/FortranCInterface ${CMAKE_MODULE_PATH})
 
 project(OpenMEEG-superProject ${PROJECT_VERSION})
 
@@ -56,7 +57,7 @@ if (NOT LAPACK_LIBRARIES AND USE_LAPACK)
 endif()
 
 if (USE_VTK)
-    set(VTK_ VTK)
+    set(BUILD_VTK VTK)
     if (VTK_FOUND)
         set(USE_SYSTEM_VTK True CACHE BOOL "Use the VTK from the system" FORCE)
     endif()
@@ -66,6 +67,6 @@ if (USE_OPENBLAS AND WIN32)
     include(installOpenBLAS)
 endif()
 
-subprojects(${MSINTTYPES} zlib ${VTK_} hdf5 matio ${LAPACK} OpenMEEG)
+subprojects(${MSINTTYPES} zlib ${BUILD_VTK} hdf5 matio ${LAPACK} OpenMEEG)
 
 include(Packaging)
