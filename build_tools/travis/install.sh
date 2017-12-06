@@ -5,6 +5,8 @@ fi
 mkdir build
 cd build
 
+set args = ""
+
 if [[ "$USE_PROJECT" == "1" ]]; then
     # Build OpenMEEG and use installed versions of libraries for lapack and matio.
     set args = "-DUSE_SYSTEM_clapack:BOOL=${USE_SYSTEM} \
