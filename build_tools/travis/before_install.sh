@@ -15,9 +15,9 @@ function setup_conda_wrap {
     conda install -y --quiet numpy swig
 }
 
-if [[ "$TRAVIS_OS_NAME" == "osx" ]];
+if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
     # to avoid: "shell_session_update: command not found"
-    then rvm get stable;
+    rvm get stable;
 fi
 
 # install MKL if necessary.

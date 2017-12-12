@@ -19,12 +19,15 @@ if [[ "$ENABLE_PACKAGING" == "1" ]]; then
     fi
 
     # Remove conda used from wrapping
+    echo "Removing miniconda_wrap"
     rm -rf ${HOME}/miniconda_wrap
 
     if [[ "$BLASLAPACK_IMPLEMENTATION" == "MKL" ]]; then
+        echo "Removing MKL"
         sudo rm -rf /opt/intel
     fi
 
+    echo "Untaring the package"
     tar xvvzf OpenMEEG-2.*.gz > /dev/null 2> /dev/null
     cd OpenMEEG-2.*
     export DYLD_LIBRARY_PATH="lib:$DYLD_LIBRARY_PATH"
