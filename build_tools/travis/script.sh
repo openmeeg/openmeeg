@@ -12,8 +12,6 @@ if [[ "$ENABLE_PACKAGING" == "1" ]]; then
 
     if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
         # remove completly brew to test standalone mac package
-        curl -O https://raw.githubusercontent.com/Homebrew/install/master/uninstall
-        chmod +x uninstall
         brew uninstall --force ${pkgs}
     else
         sudo apt-get remove -y libhdf5-serial-dev libmatio-dev libopenblas-dev liblapacke-dev libvtk5-dev libvtk5.8
