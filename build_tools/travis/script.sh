@@ -13,7 +13,7 @@ if [[ "$ENABLE_PACKAGING" == "1" ]]; then
     if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
         # remove completly brew to test standalone mac package
         # brew uninstall --force ${pkgs}
-        echo brew uninstall --force --ignore-dependencies ${pkgs}
+        brew uninstall --force --ignore-dependencies ${pkgs}
     else
         sudo apt-get remove -y libhdf5-serial-dev libmatio-dev libopenblas-dev liblapacke-dev libvtk5-dev libvtk5.8
     fi
@@ -30,6 +30,7 @@ if [[ "$ENABLE_PACKAGING" == "1" ]]; then
     echo "Untaring the package"
     tar xvvzf OpenMEEG-2.*.gz > /dev/null 2> /dev/null
     cd OpenMEEG-2.*
+    echo "Setting up (DY)LD_LIBRARY_PATH"
     export DYLD_LIBRARY_PATH="lib:$DYLD_LIBRARY_PATH"
     export LD_LIBRARY_PATH="lib:$LD_LIBRARY_PATH"
     echo "running ./bin/om_assemble"
