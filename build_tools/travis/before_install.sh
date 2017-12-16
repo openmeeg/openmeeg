@@ -17,6 +17,7 @@ function setup_conda_wrap {
 
 if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
     # to avoid: "shell_session_update: command not found"
+    which rvm
     rvm get stable;
 fi
 
