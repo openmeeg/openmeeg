@@ -33,6 +33,7 @@ if [[ "$ENABLE_PACKAGING" == "1" ]]; then
     cd OpenMEEG-2.*
     ls *
     if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
+        echo "Running otool"
         otool -L ./bin/om_assemble
     fi
     echo "Setting up (DY)LD_LIBRARY_PATH"
