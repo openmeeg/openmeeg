@@ -21,7 +21,7 @@ endif()
 
 set(MKL_BASE_URL "http://registrationcenter-download.intel.com/akdlm/irc_nas/tec")
 file(DOWNLOAD "${MKL_BASE_URL}/${MKL_URL_DIR}/${MKL_INSTALLER_ARCHIVE}" ${CMAKE_BINARY_DIR}/${MKL_INSTALLER_ARCHIVE}
-     STATUS result)
+     STATUS result SHOW_PROGRESS)
 list(GET result 0 error_code)
 if (NOT ${error_code} STREQUAL "0")
     message(FATAL_ERROR "Could not download MKL install script. If no network connexion please provide MKL_DIR or environment {MKLDIR}")
