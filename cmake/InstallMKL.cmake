@@ -104,6 +104,10 @@ if (APPLE)
 endif()
 
 if (NOT ${mkl_install_result} STREQUAL "0")
+    file(READ ${CMAKE_BINARY_DIR}/install_mkl.out INSTALL_MKL_OUT)
+    file(READ ${CMAKE_BINARY_DIR}/install_mkl.err INSTALL_MKL_ERR)
+    message(${INSTALL_MKL_OUT})
+    message(${INSTALL_MKL_ERR})
     message(FATAL_ERROR "Could not install MKL: please look at files install-mkl.{out,err} or provide MKL_DIR or environment {MKLDIR}")
 endif()
 
