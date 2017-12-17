@@ -19,8 +19,10 @@ else()
     set(MKL_INSTALLER_ARCHIVE "${MKL_BASE_NAME}.tgz")
 endif()
 
+set(MKL_INSTALLER_PATH "${CMAKE_BINARY_DIR}/${MKL_INSTALLER_ARCHIVE}")
+
 set(MKL_BASE_URL "http://registrationcenter-download.intel.com/akdlm/irc_nas/tec")
-file(DOWNLOAD "${MKL_BASE_URL}/${MKL_URL_DIR}/${MKL_INSTALLER_ARCHIVE}" ${CMAKE_BINARY_DIR}/${MKL_INSTALLER_ARCHIVE}
+file(DOWNLOAD "${MKL_BASE_URL}/${MKL_URL_DIR}/${MKL_INSTALLER_ARCHIVE}" ${MKL_INSTALLER_PATH}
      STATUS result SHOW_PROGRESS)
 list(GET result 0 error_code)
 if (NOT ${error_code} STREQUAL "0")
@@ -35,12 +37,12 @@ set(MKL_UNPACK_WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
 if (WIN32)
     set(MKL_UNPACK_WORKING_DIRECTORY ${MKL_UNPACK_WORKING_DIRECTORY}/mkl)
     file(MAKE_DIRECTORY ${MKL_UNPACK_WORKING_DIRECTORY})
-    set(MKL_UNPACK_COMMAND unzip ${CMAKE_BINARY_DIR}/${MKL_INSTALLER_ARCHIVE})
+    set(MKL_UNPACK_COMMAND unzip ${MKL_INSTALLER_PATH})
 elseif (APPLE)
-    set(MKL_UNPACK_COMMAND hdiutil attach ${CMAKE_BINARY_DIR}/${MKL_INSTALLER_ARCHIVE})
+    set(MKL_UNPACK_COMMAND hdiutil attach ${MKL_INSTALLER_PATH})
 else()
     # Linux
-    set(MKL_UNPACK_COMMAND ${CMAKE_COMMAND} -E tar zxvf ${CMAKE_BINARY_DIR}/${MKL_INSTALLER_ARCHIVE})
+    set(MKL_UNPACK_COMMAND ${CMAKE_COMMAND} -E tar zxvf ${MKL_INSTALLER_PATH})
 endif()
 
 execute_process(COMMAND ${MKL_UNPACK_COMMAND} 
@@ -50,6 +52,10 @@ execute_process(COMMAND ${MKL_UNPACK_COMMAND}
                 RESULT_VARIABLE mkl_unpack_result)
 
 if (NOT ${mkl_unpack_result} STREQUAL "0")
+    file(READ ${CMAKE_BINARY_DIR}/install_mkl.out INSTALL_MKL_OUT)
+    file(READ ${CMAKE_BINARY_DIR}/install_mkl.err INSTALL_MKL_ERR)
+    message(${INSTALL_MKL_OUT})
+    message(${INSTALL_MKL_ERR})
     message(FATAL_ERROR "Could not extract MKL: please look at files install-mkl.{out,err} or provide MKL_DIR or environment {MKLDIR}")
 endif()
 

@@ -15,7 +15,6 @@ if [[ "$ENABLE_PACKAGING" == "1" ]]; then
         curl -O https://raw.githubusercontent.com/Homebrew/install/master/uninstall
         chmod +x uninstall
         ./uninstall --force
-        # brew uninstall --force --ignore-dependencies
     else
         sudo apt-get remove -y libhdf5-serial-dev libmatio-dev libopenblas-dev liblapacke-dev libvtk5-dev libvtk5.8
     fi
@@ -31,12 +30,13 @@ if [[ "$ENABLE_PACKAGING" == "1" ]]; then
 
     echo "Untaring the package"
     tar xvvzf OpenMEEG-2.*.gz #> /dev/null 2> /dev/null
-    ls OpenMEEG-2.*
     cd OpenMEEG-2.*
-    ls *
     if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
-        echo "Running otool"
+        echo "Running otool on om_assemble"
         otool -L ./bin/om_assemble
+    else
+        echo "Running ldd on om_assemble"
+        ldd ./bin/om_assemble
     fi
     echo "Setting up (DY)LD_LIBRARY_PATH"
     export DYLD_LIBRARY_PATH="lib:$DYLD_LIBRARY_PATH"
