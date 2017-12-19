@@ -1,6 +1,7 @@
 language: cpp
 sudo: required
 dist: trusty
+osx_image: xcode6.4   # to avoid error : shell_session_update: command not found
 matrix:
   include:
     # - os: osx
