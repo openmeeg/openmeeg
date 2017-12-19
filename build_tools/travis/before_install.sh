@@ -70,6 +70,8 @@ if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
     if [[ "${links}" != "" ]]; then
         brew link ${links}
     fi
+
+    rvm get stable  # to avoid error : shell_session_update: command not found
 else
     # Install some custom requirements on Linux
     export CXX="g++"; 
