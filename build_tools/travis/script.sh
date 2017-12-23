@@ -29,7 +29,7 @@ if [[ "$ENABLE_PACKAGING" == "1" ]]; then
     fi
 
     echo "Untaring the package"
-    tar xvvzf OpenMEEG-2.*.gz #> /dev/null 2> /dev/null
+    tar xzf OpenMEEG-2.*.gz #> /dev/null 2> /dev/null
     cd OpenMEEG-2.*
     if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
         echo "Running otool on om_assemble"
