@@ -1,6 +1,14 @@
 # The -e flag causes the script to exit as soon as one command returns a non-zero exit code.
 set -e
 
+if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
+    find . -name "om_assemble" | xargs otool -L
+    find . -name "libOpenMEEG*dylib" | xargs otool -L
+else
+    find . -name "om_assemble" | xargs ldd
+    find . -name "libOpenMEEG*dylib" | xargs ldd
+fi
+
 if [[ "$USE_PROJECT" == "0" ]]; then
     make CTEST_OUTPUT_ON_FAILURE=1 test;
 else

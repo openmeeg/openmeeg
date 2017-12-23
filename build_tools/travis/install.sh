@@ -41,7 +41,4 @@ cmake \
     ${args} \
     ..
 
-make
-
-
-
+make ${MAKEFLAGS}

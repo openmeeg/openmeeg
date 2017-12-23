@@ -23,10 +23,6 @@ fi
 if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
 
     # Install some custom requirements on OS X
-    brew tap homebrew/science # a lot of cool formulae for scientific tools
-    # brew update && brew upgrade
-
-    # Install some custom requirements on OS X
 
     pkgs=""
     links=""
@@ -63,11 +59,14 @@ if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
     fi
 
     if [[ "${pkgs}" != "" ]]; then
-        brew install ${pkgs}
-    fi
+        # Install some custom requirements on OS X
+        brew tap homebrew/science # a lot of cool formulae for scientific tools
+        # brew update && brew upgrade
 
-    if [[ "${links}" != "" ]]; then
-        brew link ${links}
+        brew install ${pkgs}
+        if [[ "${links}" != "" ]]; then
+            brew link ${links}
+        fi
     fi
 
     rvm get stable  # to avoid error : shell_session_update: command not found
