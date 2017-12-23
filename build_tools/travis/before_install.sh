@@ -16,8 +16,7 @@ function setup_conda_wrap {
 }
 
 # install MKL if necessary.
-# if [[ "$BLASLAPACK_IMPLEMENTATION" == "MKL" ]]; then
-if [[ "$MKL_INSTALL" == "1" ]]; then
+if [[ "$BLASLAPACK_IMPLEMENTATION" == "MKL" ]]; then
     cmake -P cmake/InstallMKL.cmake
 fi
 

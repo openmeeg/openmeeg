@@ -27,7 +27,6 @@ matrix:
         - USE_SYSTEM=0
         - USE_PROJECT=1
         - ENABLE_PACKAGING=1
-        - MKL_INSTALL=1
         - BLASLAPACK_IMPLEMENTATION=MKL
         - USE_VTK=0
         - USE_PYTHON=0
