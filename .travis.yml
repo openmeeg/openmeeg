@@ -66,7 +66,7 @@ matrix:
         - USE_PROJECT=1
         - USE_VTK=0
         - USE_OMP=1
-        - USE_GIFTI=1
+        - USE_GIFTI=0
         - USE_COVERAGE=1
         - USE_PYTHON=0
         - PYTHON_VERSION=3.6
