@@ -6,7 +6,7 @@ if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
     find . -name "libOpenMEEG*dylib" | xargs otool -L
 else
     find . -name "om_assemble" | xargs ldd
-    find . -name "libOpenMEEG*dylib" | xargs ldd
+    find . -name "libOpenMEEG*so" | xargs ldd
 fi
 
 if [[ "$USE_PROJECT" == "0" ]]; then
