@@ -16,7 +16,7 @@ if [[ "$ENABLE_PACKAGING" == "1" ]]; then
         chmod +x uninstall
         ./uninstall --force
     else
-        sudo apt-get remove -y libhdf5-serial-dev libmatio-dev libopenblas-dev liblapacke-dev libvtk5-dev libvtk5.8
+        sudo apt-get remove -y libhdf5-serial-dev libmatio-dev libopenblas-dev liblapacke-dev libvtk5-dev libvtk5.8 libnifti-dev libgiftiio-dev libcgal-dev doxygen graphviz
     fi
 
     # Remove conda used from wrapping
