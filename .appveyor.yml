@@ -27,18 +27,18 @@ environment:
   matrix:
     - lapack: MKL
       omp: ON
-      vtk: ON
-      python: ON
-      pack: ON
-    - lapack: OpenBLAS
-      omp: ON
-      vtk: ON
-      python: ON
-      pack: OFF
-    - lapack: LAPACK
       vtk: OFF
-      python: ON
-      pack: OFF
+      python: OFF
+      pack: ON
+    # - lapack: OpenBLAS
+    #   omp: ON
+    #   vtk: ON
+    #   python: ON
+    #   pack: OFF
+    # - lapack: LAPACK
+    #   vtk: OFF
+    #   python: OFF
+    #   pack: OFF
 
 matrix:
   fast_finish: true
@@ -61,7 +61,7 @@ after_build:
 before_test:
   - echo Running tests...
   - cd C:\projects\openmeeg\build\OpenMEEG\build
-  - ctest
+  - ctest --output-on-failure
 
 on_success:
   - set src_dir=%APPVEYOR_BUILD_FOLDER%
