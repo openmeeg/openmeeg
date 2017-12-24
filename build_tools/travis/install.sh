@@ -23,6 +23,7 @@ if [[ "$USE_PYTHON" != "1" && "$USE_PROJECT" == "1" ]]; then  # python requires 
                 -DBUILD_SHARED_LIBS_matio:BOOL=OFF \
                 -DBUILD_SHARED_LIBS_zlib:BOOL=OFF \
                 -DCMAKE_SKIP_RPATH:BOOL=OFF"
+    echo ${args}
 fi
 
 cmake \
