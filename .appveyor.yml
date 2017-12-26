@@ -25,7 +25,8 @@ environment:
     deploy_folder:
       secure: Nk+J4yytvUwuRb5wHVAetZ84O90bJ4ZgwYOS9vLec90o09HP+GLvD9DvNbG1q9Q2p
   matrix:
-    - lapack: MKL
+    # - lapack: MKL
+    - lapack: OpenBLAS
       omp: ON
       vtk: OFF
       python: OFF
