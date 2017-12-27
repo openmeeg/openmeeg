@@ -1,7 +1,12 @@
 # Tell CMake to use rpath with the libs we build
 
 set(CMAKE_MACOSX_RPATH 1)
-set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
+if (LINUX) # to fix the installed rpath so it looks in ../lib
+    # https://www.semipol.de/2012/02/16/relative-rpath-settings-with-cmake.html
+    SET(CMAKE_INSTALL_RPATH "$ORIGIN/../lib")
+else()
+    set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
+endif()
 
 # Set CMAKE_BUILD_TYPE to Release by default.
 if (NOT CMAKE_BUILD_TYPE)
