@@ -15,30 +15,32 @@ function setup_conda_wrap {
     conda install -y --quiet numpy swig
 }
 
+# install MKL if necessary.
+if [[ "$BLASLAPACK_IMPLEMENTATION" == "MKL" ]]; then
+    cmake -P cmake/InstallMKL.cmake
+fi
 
 if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
 
     # Install some custom requirements on OS X
-    brew tap homebrew/science # a lot of cool formulae for scientific tools
-    # brew update && brew upgrade
 
-    # Install some custom requirements on OS X
+    pkgs=""
+    links=""
     if [[ "$USE_PROJECT" == "0" || "$USE_SYSTEM" == "1" ]]; then
-        brew install hdf5
-        brew install libmatio
+        pkgs="${pkgs} hdf5 libmatio"
     fi
 
     if [[ "$BLASLAPACK_IMPLEMENTATION" == "OpenBLAS" || "$BLASLAPACK_IMPLEMENTATION" == "Auto" ]]; then
-        brew install openblas
-        brew link openblas --force  # required as link is not automatic
+        pkgs="${pkgs} hdf5 openblas"
+        links="${links} openblas --force" # required as link is not automatic
     fi
 
     if [[ "$USE_VTK" == "1" && "$ENABLE_PACKAGING" != "1" ]]; then
-        brew install vtk
+        pkgs="${pkgs} vtk"
     fi
 
     if [[ "$USE_OMP" == 1 ]]; then
-        brew install llvm
+        pkgs="${pkgs} llvm"
         export OMP_NUM_THREADS=4
         export LDFLAGS="-L/usr/local/opt/llvm/lib -Wl,-rpath,/usr/local/opt/llvm/lib"
         export DYLD_LIBRARY_PATH="/usr/local/opt/llvm/lib:$DYLD_LIBRARY_PATH"
@@ -49,54 +51,76 @@ if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
     fi
 
     if [[ "$USE_CGAL" == 1 ]]; then
-        brew install cgal
+        pkgs="${pkgs} cgal"
     fi
 
     if [[ "$BUILD_DOCUMENTATION" == "ON" ]]; then
-        brew install Doxygen Graphviz # For building documentation
+        pkgs="${pkgs} Doxygen Graphviz" # For building documentation
     fi
 
+    if [[ "${pkgs}" != "" ]]; then
+        # Install some custom requirements on OS X
+        brew tap homebrew/science # a lot of cool formulae for scientific tools
+        # brew update && brew upgrade
+
+        brew install ${pkgs}
+        if [[ "${links}" != "" ]]; then
+            brew link ${links}
+        fi
+    fi
+
+    rvm get stable  # to avoid error : shell_session_update: command not found
 else
     # Install some custom requirements on Linux
-    export CXX="g++-4.8"; 
+    export CXX="g++"; 
 
-    # clang 3.4
+    # clang
     if [ "$CXX" == "clang++" ]; then
-        export CXX="clang++-3.4";
+        export CXX="clang++";
     fi
 
+    pkgs=""
     if [[ "$USE_PROJECT" == "0" || "$USE_SYSTEM" == "1" ]]; then
-        sudo apt-get install -y libhdf5-serial-dev libmatio-dev
+        pkgs="${pkgs} libhdf5-serial-dev libmatio-dev"
     fi
 
     if [[ "$USE_CGAL" == 1 ]]; then
-        sudo apt-get install -y libcgal-dev
+        pkgs="${pkgs} libcgal-dev"
     fi
 
     if [[ "$USE_GIFTI" == 1 ]]; then
-        sudo apt-get install -y libnifti-dev libgiftiio-dev
+        pkgs="${pkgs} libnifti-dev libgiftiio-dev"
     fi
 
     if [[ "$BLASLAPACK_IMPLEMENTATION" == "Atlas" ]]; then
-        sudo apt-get install -y libatlas-dev libatlas-base-dev
+        pkgs="${pkgs} libatlas-dev libatlas-base-dev"
     elif [[ "$BLASLAPACK_IMPLEMENTATION" == "LAPACK" ]]; then
         if [[ "$USE_PROJECT" == "0" || "$USE_SYSTEM" == "1" ]]; then
-            sudo apt-get install -y liblapack-dev libblas-dev
+            pkgs="${pkgs} liblapack-dev libblas-dev"
         fi
     elif [[ "$BLASLAPACK_IMPLEMENTATION" == "OpenBLAS" ]]; then
-        sudo apt-get install -y libopenblas-dev liblapacke-dev
+        pkgs="${pkgs} libopenblas-dev liblapacke-dev"
+    elif [[ "$BLASLAPACK_IMPLEMENTATION" == "MKL" ]]; then
+        # mkl_link_tool is a 32bits application !
+        sudo dpkg --add-architecture i386
+        sudo apt-get update
+        pkgs="${pkgs} libc6:i386 libncurses5:i386 libstdc++6:i386"
     fi
 
     if [[ "$USE_VTK" == "1" ]]; then
-        sudo apt-get install libvtk5-dev
+        pkgs="${pkgs} libvtk5-dev"
     fi
 
     if [[ "$BUILD_DOCUMENTATION" == "ON" ]]; then
-        sudo apt-get install -y doxygen graphviz
+        pkgs="${pkgs} doxygen graphviz"
     fi
 
     if [[ "$USE_COVERAGE" == "1" ]]; then
-        sudo apt-get install -y lcov
+        pkgs="${pkgs} lcov"
+    fi
+
+    if [[ "${pkgs}" != "" ]]; then
+        sudo apt-get install -y ${pkgs}
     fi
 fi
 

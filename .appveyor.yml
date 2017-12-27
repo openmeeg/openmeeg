@@ -23,24 +23,31 @@ environment:
     deploy_password:
       secure: Cr908GItsFT5Wp0rYB8ExUukZxSu+mgdprFvU4CxmcM=
     deploy_folder:
-      secure: k+J4yytvUwuRb5wHVAetZ84O90bJ4ZgwYOS9vLec90o09HP+GLvD9DvNbG1q9Q2p
+      secure: Nk+J4yytvUwuRb5wHVAetZ84O90bJ4ZgwYOS9vLec90o09HP+GLvD9DvNbG1q9Q2p
   matrix:
+    # - lapack: MKL
     - lapack: OpenBLAS
       omp: ON
-      vtk: ON
-      python: ON
-      pack: ON
-    - lapack: LAPACK
       vtk: OFF
-      python: ON
-      pack: OFF
+      python: OFF
+      pack: ON
+    # - lapack: OpenBLAS
+    #   omp: ON
+    #   vtk: ON
+    #   python: ON
+    #   pack: OFF
+    # - lapack: LAPACK
+    #   vtk: OFF
+    #   python: OFF
+    #   pack: OFF
 
 matrix:
   fast_finish: true
 
 before_build:
     - if NOT DEFINED APPVEYOR_PULL_REQUEST_NUMBER (if %APPVEYOR_REPO_BRANCH% == master ( if %pack%==ON ( pip install paramiko pyopenssl ) ) )
-    - if %python%==ON ( cinst -y swig & conda update -y conda & conda install -y numpy)
+    - if %python%==ON ( cinst -y swig & conda update -y conda & conda install -y numpy )
+    - if %lapack%==MKL ( cmake -P cmake/InstallMKL.cmake )
 
 build_script:
   - echo Running cmake...
@@ -55,7 +62,7 @@ after_build:
 before_test:
   - echo Running tests...
   - cd C:\projects\openmeeg\build\OpenMEEG\build
-  - ctest
+  - ctest -V
 
 on_success:
   - set src_dir=%APPVEYOR_BUILD_FOLDER%
@@ -67,4 +74,3 @@ artifacts:
     name: OpenMEEG-Win64.exe
   - path: build\OpenMEEG-*.tar.gz
     name: OpenMEEG-Win64.tar.gz
-

@@ -1,61 +1,79 @@
 language: cpp
 sudo: required
 dist: trusty
+osx_image: xcode7.3
 matrix:
   include:
-    - os: osx
+    - os: osx  # test brew full package (without project)
       compiler: clang
       env:
-        - USE_SYSTEM=0
-        - USE_PROJECT=1
+        - USE_SYSTEM=1
+        - USE_PROJECT=0
+        - USE_OMP=1
+        - USE_CGAL=1
         - USE_VTK=1
-        - BLASLAPACK_IMPLEMENTATION=Auto # (Auto is the same as MKL/OpenBLAS/vecLib in priority)
-    - os: osx
+        - BLASLAPACK_IMPLEMENTATION=Auto # (Auto will default to OpenBLAS here)
+    - os: osx  # test build full project without brew but with anaconda python
       compiler: clang
       env:
         - USE_SYSTEM=0
         - USE_PROJECT=1
-        - ENABLE_PACKAGING=1
         - BLASLAPACK_IMPLEMENTATION=vecLib
-        - USE_VTK=1
         - USE_PYTHON=1
         - PYTHON_VERSION=2.7   # 3.6 conflicts with brew and system Python
         - APPLE_STANDALONE=1
-    - os: linux
+    - os: osx  # packaged version (no python, no vtk, with static MKL)
       compiler: clang
-      env:
-        - USE_SYSTEM=1
-        - USE_PROJECT=1
-        - BLASLAPACK_IMPLEMENTATION=LAPACK
-        - USE_PYTHON=1
-        - PYTHON_VERSION=2.7
-    - os: linux
-      compiler: gcc
       env:
         - USE_SYSTEM=0
         - USE_PROJECT=1
+        - BLASLAPACK_IMPLEMENTATION=MKL
         - USE_VTK=0
-        - USE_OMP=1
+        - USE_PYTHON=0
+        - APPLE_STANDALONE=1
         - ENABLE_PACKAGING=1
-        - BLASLAPACK_IMPLEMENTATION=LAPACK
-    - os: linux
+    - os: linux  # test without project using only system packages with Atlas and python
       compiler: gcc
       env:
-        - USE_SYSTEM=1
-        - USE_PROJECT=1
+        - USE_PROJECT=0
+        - BLASLAPACK_IMPLEMENTATION=Atlas
         - USE_VTK=1
         - USE_OMP=1
         - USE_GIFTI=1
         - USE_COVERAGE=1
         - BUILD_DOCUMENTATION=ON
-        - BLASLAPACK_IMPLEMENTATION=OpenBLAS
-    - os: linux
+        - USE_PYTHON=1
+        - PYTHON_VERSION=3.6
+    - os: linux  # test without project using only system packages with OpenBLAS
       compiler: gcc
       env:
         - USE_PROJECT=0
-        - BLASLAPACK_IMPLEMENTATION=Atlas
-        - USE_PYTHON=1
-        - PYTHON_VERSION=3.6
+        - BLASLAPACK_IMPLEMENTATION=OpenBLAS
+        - USE_VTK=1
+        - USE_OMP=1
+        - USE_GIFTI=1
+        - USE_COVERAGE=1
+        - BUILD_DOCUMENTATION=ON
+    - os: linux  # use project with LAPACK (no system)
+      compiler: gcc
+      env:
+        - USE_SYSTEM=0
+        - USE_PROJECT=1
+        - BLASLAPACK_IMPLEMENTATION=LAPACK
+        - USE_OMP=1
+    - os: linux  # packaged version (no python, no vtk, with static MKL)
+      compiler: gcc
+      env:
+        - USE_SYSTEM=0
+        - USE_PROJECT=1
+        - BLASLAPACK_IMPLEMENTATION=MKL
+        - USE_VTK=0
+        - USE_OMP=1
+        - USE_GIFTI=0
+        - USE_COVERAGE=1
+        - USE_PYTHON=0
+        - BUILD_DOCUMENTATION=ON
+        - ENABLE_PACKAGING=1
 
 before_install: source build_tools/travis/before_install.sh
 
@@ -72,3 +90,4 @@ env:
     - secure: XBNTHU+DVCKeUKjxVSfvAkFr/KnvzYDDn28u8Y41v9kT+yHE1HHPnSYJS9JndQllOUAXtT0Ix81LSKG9MVthIWs5uPTOOg4hPZloE8mOYWSs/EHLraEEbZFUAaoCz2ZVYdA92HM1YAVo4Bi+zMy9g7Ra4POSWwFY5n/zV+ma//A=
     - secure: NwGYiI9vDCLsIN+uAJRPlUV9g4RraaHfNiJRGBmsc8kOaPvBL2fb3Mia6nOfkfcaVOmkEPhWeAOW8XKHqVj6982SBQrbnS/xfU/EHiDJaq7YVBRfkCn4/9yswyhCxvrS97JagIgnEjlhbIV9VLZ19A/e2fhWEzGbJabLyZ0ZNBc=
     - secure: ZXoAGZAYFC/kPwiX+TEpNX+rh2zVrVIw6BDdd/Qt1SiBB3+BZWwosqh+Wv1mLpjce7IAOXO42rg/OUwfPMl2egjFHth8OU827dyfYC0yFsgfN6myWD+HK+U6/3i+fp5WknWOhXzzFc72CgBwYNCnrIKNJ5LUMESUyew+vIgo5p0=
+    - MAKEFLAGS="-j 2"

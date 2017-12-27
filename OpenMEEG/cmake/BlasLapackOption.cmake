@@ -1,4 +1,3 @@
-
 set(Atlas    USE_ATLAS)
 set(OpenBLAS USE_OPENBLAS)
 set(MKL      USE_MKL)
