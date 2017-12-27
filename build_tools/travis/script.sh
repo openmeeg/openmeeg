@@ -51,8 +51,8 @@ if [[ "$ENABLE_PACKAGING" == "1" ]]; then
     echo "running ./bin/om_assemble"
     ./bin/om_assemble
     echo "running ./bin/om_check_geom"
-    ./bin/om_check_geom
+    ./bin/om_check_geom -h
     echo "running ./bin/om_matrix_info"
-    ./bin/om_matrix_info
+    ./bin/om_matrix_info -h
     cd ..
 fi
