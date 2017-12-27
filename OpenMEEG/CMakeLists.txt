@@ -12,7 +12,7 @@ cmake_minimum_required(VERSION 2.8.12 FATAL_ERROR)
 if (CMAKE_MAJOR_VERSION EQUAL 3)
     cmake_policy(SET CMP0048 NEW)
     cmake_policy(SET CMP0037 NEW)
-    set(PROJECT_VERSION VERSION 2.3.99)
+    set(PROJECT_VERSION VERSION 2.4.0.0)
 endif()
 # The second path is temporary untill these are integrated in cmake...
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake ${CMAKE_SOURCE_DIR}/cmake/FortranCInterface)
