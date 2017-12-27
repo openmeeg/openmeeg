@@ -1,40 +1,48 @@
-add_executable(om_make_nerve make_nerve.cpp)
+macro(OPENMEEG_TOOL EXECUTABLE EXECUTABLE_FILE)
+    add_executable(${EXECUTABLE} ${EXECUTABLE_FILE})
+    if (LINUX)  # to fix the installed rpath so it looks in ../lib
+        # see: https://www.semipol.de/2012/02/16/relative-rpath-settings-with-cmake.html
+        set_target_properties(${EXECUTABLE} PROPERTIES LINK_FLAGS "-Wl,-rpath,$ORIGIN/../lib")
+    endif()
+endmacro()
+
+OPENMEEG_TOOL(om_make_nerve make_nerve.cpp)
 target_link_libraries(om_make_nerve OpenMEEG ${VTK_LIBRARIES})
 
-add_executable(om_mesh_convert mesh_convert.cpp)
+OPENMEEG_TOOL(om_mesh_convert mesh_convert.cpp)
 target_link_libraries(om_mesh_convert OpenMEEG ${LAPACK_LIBRARIES} ${VTK_LIBRARIES})
 
-add_executable(om_geometry_info geometry_info.cpp)
+OPENMEEG_TOOL(om_geometry_info geometry_info.cpp)
 target_link_libraries(om_geometry_info OpenMEEG ${VTK_LIBRARIES})
 
-add_executable(om_mesh_info mesh_info.cpp)
+OPENMEEG_TOOL(om_mesh_info mesh_info.cpp)
 target_link_libraries(om_mesh_info OpenMEEG ${VTK_LIBRARIES})
 
-add_executable(om_mesh_smooth mesh_smooth.cpp)
+OPENMEEG_TOOL(om_mesh_smooth mesh_smooth.cpp)
 target_link_libraries(om_mesh_smooth OpenMEEG ${VTK_LIBRARIES})
 
-add_executable(om_mesh_concat mesh_concat.cpp)
+OPENMEEG_TOOL(om_mesh_concat mesh_concat.cpp)
 target_link_libraries(om_mesh_concat OpenMEEG ${VTK_LIBRARIES})
 
-add_executable(om_project_sensors project_sensors.cpp)
+OPENMEEG_TOOL(om_project_sensors project_sensors.cpp)
 target_link_libraries(om_project_sensors OpenMEEG ${LAPACK_LIBRARIES} ${VTK_LIBRARIES})
 
-add_executable(om_register_squids register_squids.cpp)
+OPENMEEG_TOOL(om_register_squids register_squids.cpp)
 target_link_libraries(om_register_squids OpenMEEG ${LAPACK_LIBRARIES} ${VTK_LIBRARIES})
 
-add_executable(om_squids2vtk squids2vtk.cpp)
+OPENMEEG_TOOL(om_squids2vtk squids2vtk.cpp)
 target_link_libraries(om_squids2vtk OpenMEEGMaths)
 
-add_executable(om_matrix_info matrix_info.cpp)
+OPENMEEG_TOOL(om_matrix_info matrix_info.cpp)
 target_link_libraries(om_matrix_info OpenMEEGMaths)
 
-add_executable(om_matrix_convert matrix_convert.cpp)
+OPENMEEG_TOOL(om_matrix_convert matrix_convert.cpp)
 target_link_libraries(om_matrix_convert OpenMEEGMaths)
 
-add_executable(om_check_geom check_geom.cpp)
+OPENMEEG_TOOL(om_check_geom check_geom.cpp)
 target_link_libraries(om_check_geom OpenMEEG ${VTK_LIBRARIES})
 
-add_executable(om_mesh_to_dip mesh_to_dip.cpp)
+OPENMEEG_TOOL(om_mesh_to_dip mesh_to_dip.cpp)
 target_link_libraries(om_mesh_to_dip OpenMEEG ${VTK_LIBRARIES})
 
 if (USE_CGAL)
@@ -64,7 +72,7 @@ if (USE_CGAL)
     # compile each target
     set(OM_CGAL_EXEC)
     foreach(target ${OM_CGAL_TARGETS})
-        add_executable(om_${target} ${target}.cpp)
+        OPENMEEG_TOOL(om_${target} ${target}.cpp)
         list(APPEND OM_CGAL_EXEC om_${target})
         target_link_libraries(om_${target} OpenMEEG OpenMEEGCgal ${CGAL_LIBRARIES} ${VTK_LIBRARIES})
         target_include_directories(om_${target} PUBLIC ${CGAL_INCLUDE_DIRS})
@@ -83,13 +91,13 @@ if (USE_CGAL)
 endif()
 
 if (USE_VTK)
-    add_executable(om_vtp_to_meshes vtp_to_meshes.cpp)
+    OPENMEEG_TOOL(om_vtp_to_meshes vtp_to_meshes.cpp)
     target_link_libraries(om_vtp_to_meshes OpenMEEG ${VTK_LIBRARIES})
 
-    add_executable(om_meshes_to_vtp meshes_to_vtp.cpp)
+    OPENMEEG_TOOL(om_meshes_to_vtp meshes_to_vtp.cpp)
     target_link_libraries(om_meshes_to_vtp OpenMEEG ${VTK_LIBRARIES})
 
-    add_executable(om_add_dataset_to_vtk add_dataset_to_vtk.cpp)
+    OPENMEEG_TOOL(om_add_dataset_to_vtk add_dataset_to_vtk.cpp)
     target_link_libraries(om_add_dataset_to_vtk OpenMEEG ${VTK_LIBRARIES})
 
     install(TARGETS om_vtp_to_meshes om_meshes_to_vtp om_add_dataset_to_vtk 
