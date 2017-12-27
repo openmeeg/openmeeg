@@ -1,6 +1,9 @@
 macro(OPENMEEG_EXECUTABLE EXECUTABLE)
-    # NEW_EXECUTABLE(${EXECUTABLE} ${ARGN} LIBRARIES OpenMEEG ${LAPACK_LIBRARIES} ${VTK_LIBRARIES} ${GIFTI_LIBRARIES})
     NEW_EXECUTABLE(${EXECUTABLE} ${ARGN} LIBRARIES OpenMEEG ${VTK_LIBRARIES} ${GIFTI_LIBRARIES})
+    if (LINUX)  # to fix the installed rpath so it looks in ../lib
+        # see: https://www.semipol.de/2012/02/16/relative-rpath-settings-with-cmake.html
+        set_target_properties(${EXECUTABLE} PROPERTIES LINK_FLAGS "-Wl,-rpath,$ORIGIN/../lib")
+    endif()
 endmacro()
 
 OPENMEEG_EXECUTABLE(om_minverser minverser.cpp)

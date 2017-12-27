@@ -48,8 +48,11 @@ if [[ "$ENABLE_PACKAGING" == "1" ]]; then
     fi
     echo "Setting up (DY)LD_LIBRARY_PATH"
     export DYLD_LIBRARY_PATH="lib:$DYLD_LIBRARY_PATH"
-    export LD_LIBRARY_PATH="lib:$LD_LIBRARY_PATH"
     echo "running ./bin/om_assemble"
     ./bin/om_assemble
+    echo "running ./bin/om_check_geom"
+    ./bin/om_check_geom -h
+    echo "running ./bin/om_matrix_info"
+    ./bin/om_matrix_info -h
     cd ..
 fi
