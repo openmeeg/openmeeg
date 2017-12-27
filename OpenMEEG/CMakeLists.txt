@@ -156,13 +156,6 @@ if (ENABLE_PYTHON AND NOT BUILD_SHARED_LIBS)
         "consider changing the BUILD_SHARED_LIBS option.")
 endif()
 
-if (APPLE AND ENABLE_PYTHON)
-    if (NOT FORCE_BUILD_32BITS) # Builtin Python2.5 on Mac OS X in 32 bits...
-        message("You may have a 32bits Python installed."
-                "In case of compilation problem try to force 32 bits compilation.")
-    endif()
-endif()
-
 add_subdirectory(wrapping)
 
 #   Tests
