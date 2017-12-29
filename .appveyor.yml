@@ -25,8 +25,8 @@ environment:
     deploy_folder:
       secure: Nk+J4yytvUwuRb5wHVAetZ84O90bJ4ZgwYOS9vLec90o09HP+GLvD9DvNbG1q9Q2p
   matrix:
-    # - lapack: MKL
-    - lapack: OpenBLAS
+    - lapack: MKL
+    # - lapack: OpenBLAS
       omp: ON
       vtk: OFF
       python: OFF
@@ -53,7 +53,8 @@ build_script:
   - echo Running cmake...
   - mkdir build
   - cd build
-  - cmake -G "Visual Studio 14 2015 Win64" -DBUILD_DOCUMENTATION=OFF -DBUILD_TESTING:BOOL=ON -DENABLE_PACKAGING:BOOL=%pack% -DCMAKE_SKIP_RPATH:BOOL=OFF -DENABLE_PYTHON=%python% -DBLASLAPACK_IMPLEMENTATION=%lapack% -DUSE_OMP:BOOL=%omp% -DUSE_VTK=%vtk% ..
+  # - cmake -G "Visual Studio 14 2015 Win64" -DBUILD_DOCUMENTATION=OFF -DBUILD_TESTING:BOOL=ON -DENABLE_PACKAGING:BOOL=%pack% -DCMAKE_SKIP_RPATH:BOOL=OFF -DENABLE_PYTHON=%python% -DBLASLAPACK_IMPLEMENTATION=%lapack% -DUSE_OMP:BOOL=%omp% -DUSE_VTK=%vtk% ..
+  - cmake -G "Visual Studio 14 2015 Win64" -DBUILD_DOCUMENTATION=OFF -DBUILD_TESTING:BOOL=ON -DENABLE_PACKAGING:BOOL=%pack% -DCMAKE_SKIP_RPATH:BOOL=OFF -DENABLE_PYTHON=%python% -DBLASLAPACK_IMPLEMENTATION=%lapack% -DUSE_OMP:BOOL=%omp% -DUSE_VTK=%vtk% -DBUILD_SHARED_LIBS:BOOL=OFF -DBUILD_SHARED_LIBS_OpenMEEG:BOOL=OFF -DBUILD_SHARED_LIBS_hdf5:BOOL=OFF -DBUILD_SHARED_LIBS_matio:BOOL=OFF -DBUILD_SHARED_LIBS_zlib:BOOL=OFF ..
   - cmake --build . --config Release
 
 after_build:
