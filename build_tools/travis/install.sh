@@ -28,7 +28,7 @@ fi
 echo "cmake args: ${args}"
 
 cmake \
-    -DCMAKE_BUILD_TYPE=Release
+    -DCMAKE_BUILD_TYPE=Release \
     -DBUILD_DOCUMENTATION:BOOL=${BUILD_DOCUMENTATION} \
     -DBUILD_TESTING:BOOL=ON \
     -DENABLE_PYTHON:BOOL=${USE_PYTHON} \
