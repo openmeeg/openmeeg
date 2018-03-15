@@ -1,93 +1,189 @@
-language: cpp
-sudo: required
-dist: trusty
-osx_image: xcode7.3
+sudo: true
+
+language:
+  - cpp
+
+cache:
+  ccache: true
+  directories:
+    - $HOME/downloads
+
 matrix:
   include:
-    - os: osx  # test brew full package (without project)
-      compiler: clang
+    - os: linux  # shipping linux
       env:
-        - USE_SYSTEM=1
-        - USE_PROJECT=0
-        - USE_OMP=1
-        - USE_CGAL=1
-        - USE_VTK=1
-        - BLASLAPACK_IMPLEMENTATION=Auto # (Auto will default to OpenBLAS here)
-    - os: osx  # test build full project without brew but with anaconda python
-      compiler: clang
-      env:
-        - USE_SYSTEM=0
-        - USE_PROJECT=1
-        - BLASLAPACK_IMPLEMENTATION=vecLib
-        - USE_PYTHON=1
-        - PYTHON_VERSION=2.7   # 3.6 conflicts with brew and system Python
-        - APPLE_STANDALONE=1
-    - os: osx  # packaged version (no python, no vtk, with static MKL)
-      compiler: clang
-      env:
-        - USE_SYSTEM=0
-        - USE_PROJECT=1
-        - BLASLAPACK_IMPLEMENTATION=MKL
-        - USE_VTK=0
-        - USE_PYTHON=0
-        - APPLE_STANDALONE=1
-        - ENABLE_PACKAGING=1
-    - os: linux  # test without project using only system packages with Atlas and python
-      compiler: gcc
-      env:
-        - USE_PROJECT=0
-        - BLASLAPACK_IMPLEMENTATION=Atlas
-        - USE_VTK=1
-        - USE_OMP=1
-        - USE_GIFTI=1
-        - USE_COVERAGE=1
-        - BUILD_DOCUMENTATION=ON
-        - USE_PYTHON=1
-        - PYTHON_VERSION=3.6
-    - os: linux  # test without project using only system packages with OpenBLAS
-      compiler: gcc
-      env:
-        - USE_PROJECT=0
-        - BLASLAPACK_IMPLEMENTATION=OpenBLAS
-        - USE_VTK=1
-        - USE_OMP=1
-        - USE_GIFTI=1
-        - USE_COVERAGE=1
-        - BUILD_DOCUMENTATION=ON
-    - os: linux  # use project with LAPACK (no system)
-      compiler: gcc
-      env:
-        - USE_SYSTEM=0
-        - USE_PROJECT=1
-        - BLASLAPACK_IMPLEMENTATION=LAPACK
-        - USE_OMP=1
-    - os: linux  # packaged version (no python, no vtk, with static MKL)
-      compiler: gcc
-      env:
-        - USE_SYSTEM=0
-        - USE_PROJECT=1
-        - BLASLAPACK_IMPLEMENTATION=MKL
-        - USE_VTK=0
-        - USE_OMP=1
-        - USE_GIFTI=0
-        - USE_COVERAGE=0
-        - USE_PYTHON=0
-        - BUILD_DOCUMENTATION=ON
-        - ENABLE_PACKAGING=1
+        - BACKEND=Intel10_64lp
+        - BUILD_STATIC=ON
+        - BUILD_PACKAGE=ON
 
-before_install: source build_tools/travis/before_install.sh
+    - os: linux  # shipping apt-get
+      env:
+        - BACKEND=ATLAS
+        - USE_VTK=ON
+      addons:
+        sources:
+          - ubuntu-toolchain-r-test
+        apt:
+          packages:
+            - libatlas-base-dev
 
-install: source build_tools/travis/install.sh
+    - os: osx  # shipping mac
+      env:
+        - BACKEND=Intel10_64lp
+        - BUILD_STATIC=ON
+        - BUILD_PACKAGE=ON
 
-script: source $TRAVIS_BUILD_DIR/build_tools/travis/script.sh
+    - os: osx  # shipping brew
+      env:
+        - BACKEND=Intel10_64lp  # XXX : move to openblas
+        # - USE_GCC=ON  # XXX : vtk does not work with GCC
+        - USE_VTK=ON
 
-after_success: source $TRAVIS_BUILD_DIR/build_tools/travis/after_success.sh
+    - os: osx  # Static analysis using clang-analyzer
+      env:
+        - BACKEND=Apple
+        # - ANALYSE=ON  # XXX : put back ON when works...
+
+before_install:
+  - |
+    if [[ "${TRAVIS_OS_NAME}" == "linux" ]]; then
+      # FindMKL.cmake uses mkl_link_tool, which is a 32bits application !
+      sudo dpkg --add-architecture i386
+      sudo apt-get update
+      sudo apt-get install -y libc6:i386 libncurses5:i386 libstdc++6:i386
+      sudo apt-get install -y lcov
+    fi
+
+  # Travis machines have 2 cores
+  - JOBS=2
+
+  ############################################################################
+  # Handle caching of downloaded files
+  ############################################################################
+  - export DL_DIR=$HOME/downloads
+  - curl -fsSkL https://raw.githubusercontent.com/openmeeg/ci-utils/master/travis/travis_tools.sh > x.sh && source ./x.sh
+
+  ############################################################################
+  # Install a recent CMake
+  ############################################################################
+  - CMAKE_VERSION=3.10.1
+  - curl -fsSkL https://raw.githubusercontent.com/openmeeg/ci-utils/master/travis/install_cmake.sh > x.sh && source ./x.sh
+
+  ############################################################################
+  # Install MKL (if necessary)
+  ############################################################################
+  - |
+    if [[ "${BACKEND}" == *"Intel"* ]]; then
+      curl -fsSkL https://raw.githubusercontent.com/openmeeg/ci-utils/master/travis/install_mkl.sh > install_mkl.sh && source ./install_mkl.sh
+    fi
+
+  ############################################################################
+  # Install Matio
+  ############################################################################
+  - if [[ "${TRAVIS_OS_NAME}" == "osx" ]]; then
+        rm -rf /usr/local/include/c++;
+        brew install hdf5 libmatio vtk;
+    else
+        if [[ "${BUILD_PACKAGE}" == "ON" ]]; then
+            git clone https://github.com/astropy/ci-helpers.git;
+            source ci-helpers/travis/setup_conda.sh;
+            conda install -c conda-forge libmatio;
+        else
+            sudo apt-get install -y libmatio2 libmatio-dev libvtk5-dev;
+        fi
+    fi
+
+  ############################################################################
+  # Install scan-build clang analyser
+  ############################################################################
+  - |
+    export SCAN_BUILD=""
+    if [[ "${ANALYSE}" == "ON" ]]; then
+      export SCAN_BUILD="scan-build --status-bugs -o scanbuildout"
+      if [[ "${TRAVIS_OS_NAME}" == "linux" ]]; then
+        sudo apt-get install -qq clang;
+      else
+        curl http://clang-analyzer.llvm.org/downloads/checker-276.tar.bz2 -o /usr/local/Cellar/checker-276.bz2;
+        cd /usr/local/Cellar/;
+        tar -jxvf checker-276.bz2;
+        ln -s /usr/local/Cellar/checker-276/scan-build /usr/local/bin/scan-build;
+        rm checker-276.bz2;
+      fi
+      shopt -s expand_aliases
+      alias cmake="${SCAN_BUILD} cmake -DCMAKE_BUILD_TYPE=Debug"
+      alias make="${SCAN_BUILD} make"
+    fi
+
+script:
+  - cd ${TRAVIS_BUILD_DIR}
+  - mkdir -p build && cd build
+  - export CMAKE_OPTIONS="-DCMAKE_CXX_STANDARD=11 -DBLA_VENDOR=$BACKEND -DENABLE_COVERAGE=ON"
+  - |
+    if [[ "${BUILD_STATIC}" == "ON" ]]; then
+      export CMAKE_OPTIONS="${CMAKE_OPTIONS} -DBLA_STATIC=ON"
+    fi
+  - |
+    if [[ "${CONFIGURATION}" == "Release" ]] && [[ "${ANALYSE}" != "ON" ]]; then
+      export CMAKE_OPTIONS="${CMAKE_OPTIONS} -DCMAKE_BUILD_TYPE=RELEASE"
+    fi
+  - |
+    if [[ "${USE_VTK}" == "ON" ]]; then
+      export CMAKE_OPTIONS="${CMAKE_OPTIONS} -DUSE_VTK=ON"
+    fi
+  - |
+    if [[ "${TRAVIS_OS_NAME}" == "osx" && "${USE_GCC}" == "ON" ]]; then
+      export CMAKE_OPTIONS="${CMAKE_OPTIONS} -DCMAKE_C_COMPILER=/usr/local/bin/gcc-7 -DCMAKE_CXX_COMPILER=/usr/local/bin/g++-7"
+    fi
+  - if [[ "${TRAVIS_OS_NAME}" == "linux" ]]; then echo $LD_LIBRARY_PATH; fi
+  - if [[ "${TRAVIS_OS_NAME}" == "osx" ]]; then echo $DYLD_LIBRARY_PATH; fi
+  - echo "cmake .. ${CMAKE_OPTIONS}"
+  - cmake .. ${CMAKE_OPTIONS}
+  - make -j ${JOBS}
+  - ctest -v .
+
+after_success:
+  - |
+    if [[ "${ENABLE_COVERAGE}" == "ON" ]]; then
+      lcov --directory . --capture --output-file coverage.info > /dev/null 2>&1 # capture coverage info
+      lcov --remove coverage.info '/usr/*' --output-file coverage.info > /dev/null 2>&1 # filter out system
+      lcov --list coverage.info > /dev/null 2>&1
+      bash <(curl -s https://codecov.io/bash) > /dev/null 2>&1
+    fi
+  - |
+    if [[ "${BUILD_PACKAGE}" == "ON" ]]; then
+      mkdir -p /tmp/xx/ && cd /tmp/xx/
+      # MESSAGE=$(git log --format=%B -n 1 $TRAVIS_COMMIT)
+      MESSAGE="[av skip] Push from findmkl_openmeeg $(date)"
+      git clone git://${GH_REPO}
+      cd ${REPO}
+      git remote
+      # git config user.email ${EMAIL}
+      # git config user.name ${USER}
+      git config user.email "openmeeg@openmeeg.org"
+      git config user.name "openmeeg"
+      function gitpush() {
+        git fetch origin
+        git reset --hard origin/master
+        cp -R ${PACKAGE_DEPLOY} ./
+        echo "- $(date)" >> README.md
+        git add ${FILES}
+        git add OpenMEEG*.tar.gz
+        git commit -m "${MESSAGE}"
+        git pull --no-edit "https://${OPENMEEG_PACKAGING_TOKEN}@${GH_REPO}" master
+        git push "https://${OPENMEEG_PACKAGING_TOKEN}@${GH_REPO}" master
+      }
+      travis_retry gitpush
+    fi
+
+notifications:
+  email: false
 
 env:
   global:
-    - src_dir: $TRAVIS_BUILD_DIR
-    - secure: THD5qh1lrYDL2dEYVu+pitC+RsfB/Wn8jJjNTVFYEwPnSw5zov4N2aVNwOaHM4qJwp8NdL81ke4gI0P9vS89HPSstsnkboAwzn8Kj3UhAq0X10vnkgH+BIjUut0H3DCcY0O5Y2/1pc5KL/6pErT6tdFlRq8xS6YwVe7UKx3rEXo=
-    - secure: XBNTHU+DVCKeUKjxVSfvAkFr/KnvzYDDn28u8Y41v9kT+yHE1HHPnSYJS9JndQllOUAXtT0Ix81LSKG9MVthIWs5uPTOOg4hPZloE8mOYWSs/EHLraEEbZFUAaoCz2ZVYdA92HM1YAVo4Bi+zMy9g7Ra4POSWwFY5n/zV+ma//A=
-    - secure: NwGYiI9vDCLsIN+uAJRPlUV9g4RraaHfNiJRGBmsc8kOaPvBL2fb3Mia6nOfkfcaVOmkEPhWeAOW8XKHqVj6982SBQrbnS/xfU/EHiDJaq7YVBRfkCn4/9yswyhCxvrS97JagIgnEjlhbIV9VLZ19A/e2fhWEzGbJabLyZ0ZNBc=
-    - secure: ZXoAGZAYFC/kPwiX+TEpNX+rh2zVrVIw6BDdd/Qt1SiBB3+BZWwosqh+Wv1mLpjce7IAOXO42rg/OUwfPMl2egjFHth8OU827dyfYC0yFsgfN6myWD+HK+U6/3i+fp5WknWOhXzzFc72CgBwYNCnrIKNJ5LUMESUyew+vIgo5p0=
-    - MAKEFLAGS="-j 2"
+    - CONFIGURATION=Release
+    - PYTHON_VERSION=3.6
+    - USER="openmeeg"
+    - REPO="openmeeg_packages"
+    - FILES="README.md"
+    - GH_REPO="github.com/${USER}/${REPO}.git"
+    - secure: ZPKXObKy4dl3xGamX/QZxbXsTitvh4pA6gO3mKf2siau3l9r8kkvBW4JDa6fE16G1QxZF1lKGMK2GHTMSi//Z0sUlLNstopLaN3+42byJ0B1JYl/noauYLpf2H7FvOyrJJhFWZUWbbtP0JX2JDIFxx9lEvRfzotmObjTsSy3crZgc/24XiqAsfRONUaFv1xk+WZr1j6Ebm/c906dUWbY1/ORNKKlmgAvnTXF5brfHDSixCk+/6mvUTZb9G1TwANzUT7SecDH5PEIMNymM6JActgi4+oifynMuEaZVld+FHaOzhm7vYbc6Nv+66ZFsshRHiFm82u2tcnAVmKZIIyA0tMlxgJL7zfErRmsiIjT1mxDTRqRS3XGdkdKY2U7q0IkoU2nnPDRxACQ8MlKAtCiJLj8SG3kf4tnnVt08W1R8QL2J3QX+/7ZMAYNpEytxPWSCyAWCUlcWbNaQnjNFM4EPg0TvV6efkt9Ks2wk1wYmNgTNNdm8r/htKhNxwmYG1FPNf6hLCKoPZHqf6eo1Mx9zfcrnvLGXfTZtaQnnPBWkY2ol+fb3t3ThnRqXLWhTZ2FOSScGOHVn6cOCwzs0N8o8+TGlswDvLUyFZ35syfEidxiRverxhcU+zM+A6mJf4aKTBzn6VSgqayhZeZrYlL5fzqeK6BvcvIkFd1wMwrFg+s=

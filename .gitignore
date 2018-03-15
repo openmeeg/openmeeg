@@ -2,13 +2,7 @@
 *.autosave
 build/*
 build.ninja
-clapack
-hdf5
-matio
-msinttypes
 .*.swo
 .*.swp
 *.user
-VTK
-zlib
 .DS_Store
