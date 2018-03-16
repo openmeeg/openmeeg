@@ -197,4 +197,4 @@ env:
     - REPO="openmeeg_packages"
     - FILES="README.md"
     - GH_REPO="github.com/${USER}/${REPO}.git"
-    - secure: R3Zu7088TWylgjJAoCenfZuqV6JMvuQfK3Zu59DRcipexvo0fq0S4SzrhFoP5fXGQK2QTG55ky9qE3YSTOQOPDq1gd8GRR6jIRPjXXvMR7a+NrGKVf2RgKqIn5Ow6Njt52H8cAiQE6KwSuitdW39MnR3YRUi9BCG42wXc2Jppfo=
+    - secure: KPHv7A0gp+NNaj3oMeemI5Wt60Xlyc2XTr+zV4pxQmgoHTLA3c+8f+ZWCfF59pI/cmGhV0zG6noshOhXoPzS31fVIgpP1CHvpj2T16NOboM7G6lBpIBvncJ+a3BfzUUiLgPGlQYZRNeIATYl6shLaXP4FG8Nqt1O1TcE73M7Ba0=
