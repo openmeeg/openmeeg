@@ -1,76 +1,128 @@
-os: Visual Studio 2015
+shallow_clone: true
 
-# scripts that are called at very beginning, before repo cloning
-init:
-  - git config --global core.autocrlf input
-  - cmd: set PATH=C:\Program Files (x86)\CMake\bin\;%PATH%
+platform:
+  # - x86
+  - x64
 
-clone_folder: C:\projects\openmeeg
+configuration:
+  # - Debug
+  - Release
 
-platform: x64
-configuration: Release
+image:
+  - Visual Studio 2015
+  # - Visual Studio 2017
 
-install:
-  - "SET PATH=C:\\Miniconda-x64;C:\\Miniconda-x64\\Scripts;C:\\Python27-x64;%PATH%"
-  # by default, all script lines are interpreted as batch
+cache:
+  - C:\cmake-3.10.1-win64-x64
+  - C:\w_mkl_2018.0.124.exe
 
 environment:
   global:
-    deploy_host:
-      secure: elpy2/txkSJRwksSCwLehfm3eLDYTAalGUvTGzPlphY=
-    deploy_user:
-      secure: 2kJCgcedzNy4rFCQbW7PNw==
-    deploy_password:
-      secure: Cr908GItsFT5Wp0rYB8ExUukZxSu+mgdprFvU4CxmcM=
-    deploy_folder:
-      secure: Nk+J4yytvUwuRb5wHVAetZ84O90bJ4ZgwYOS9vLec90o09HP+GLvD9DvNbG1q9Q2p
+      PYTHON: "C:\\conda"
   matrix:
-    # - lapack: MKL
-    - lapack: OpenBLAS
-      omp: ON
-      vtk: OFF
-      python: OFF
-      pack: ON
-    # - lapack: OpenBLAS
-    #   omp: ON
-    #   vtk: ON
-    #   python: ON
-    #   pack: OFF
-    # - lapack: LAPACK
-    #   vtk: OFF
-    #   python: OFF
-    #   pack: OFF
+    - BLAS_VERSION: Intel10_64lp_seq
+      BUILD_STATIC : ON
+      PYTHON_VERSION: "3.6"
+      PYTHON_ARCH: "64"
 
-matrix:
-  fast_finish: true
+skip_commits:
+# Add [av skip] to commit messages
+  message: /\[av skip\]/
+
+# # To allow remote connection to appveyor
+# init:
+#   - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+
+install:
+  ############################################################################
+  # Install Win packages
+  ############################################################################
+  - choco install dependencywalker -y --allow-empty-checksums
+
+
+  ############################################################################
+  # Install Conda
+  ############################################################################
+  - "git clone --depth 1 git://github.com/astropy/ci-helpers.git"
+  - "powershell ci-helpers/appveyor/install-miniconda.ps1"
+  - "SET PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
+
+  ############################################################################
+  # Install CMake
+  ############################################################################
+  - ps: |
+      if (![IO.File]::Exists("C:\cmake-3.10.1-win64-x64\bin\cmake.exe")) {
+        Start-FileDownload 'https://cmake.org/files/v3.10/cmake-3.10.1-win64-x64.zip'
+        7z x -y cmake-3.10.1-win64-x64.zip -oC:\
+      }
+      $env:PATH="C:\cmake-3.10.1-win64-x64\bin;$env:PATH"
+
+  ############################################################################
+  # Install MKL
+  ############################################################################
+  - ps: |
+      if (![IO.File]::Exists("C:\w_mkl_2018.0.124.exe")) {
+        ECHO 'w_mkl_2018.0.124.exe does not exist. Preparing to download MKL ..'
+        Start-FileDownload 'http://registrationcenter-download.intel.com/akdlm/irc_nas/tec/12079/w_mkl_2018.0.124.exe' -FileName 'C:\w_mkl_2018.0.124.exe'
+        ECHO 'Done'
+      }
+      C:\w_mkl_2018.0.124.exe -s -l c:\logs\extract-mkl.log -a install --eula=accept --components=all --output='C:\logs\install-mkl-output.txt' --installdir='C:\Program Files (x86)\IntelSWTools' --log='c:\logs\install-mkl.log' | Out-Null
+      $env:LD_MKL_PATH='C:\Program Files (x86)\IntelSWTools\compilers_and_libraries_2018.0.124\windows\mkl\lib\intel64_win\'
+      $env:LIB="$env:LD_MKL_PATH;$env:LIB"
+
+  ############################################################################
+  # Install Conda
+  ############################################################################
+  - conda config --add channels conda-forge
+  - conda install libmatio
 
 before_build:
-    - if NOT DEFINED APPVEYOR_PULL_REQUEST_NUMBER (if %APPVEYOR_REPO_BRANCH% == master ( if %pack%==ON ( pip install paramiko pyopenssl ) ) )
-    - if %python%==ON ( cinst -y swig & conda update -y conda & conda install -y numpy )
-    - if %lapack%==MKL ( cmake -P cmake/InstallMKL.cmake )
+  - call "C:\Program Files (x86)\IntelSWTools\compilers_and_libraries_2018.0.124\windows\bin\compilervars_arch.bat" intel64 vs2015
+  - call "C:\Program Files (x86)\IntelSWTools\compilers_and_libraries_2018.0.124\windows\mkl\bin\mklvars.bat" intel64
+  - "ECHO %MKLROOT%"
+  - cd %APPVEYOR_BUILD_FOLDER%
+  - "ECHO %BLAS_VERSION%"
+  - "ECHO 'cmake -DBLA_STATIC=%BUILD_STATIC% -DBLA_VENDOR=%BLAS_VERSION% -G \"Visual Studio 14 2015 Win64\" .. '"
+  - cmake --version
+  - "ECHO 'MKLROOT is %MKLROOT%'"
+  - ps: |
+      mkdir build
+      cd build
+  - ps: $env:matio_dir='C:\conda\Library\'
+  - ps: $env:CMAKE_PREFIX_PATH='C:\conda\Library\cmake'
+  - cmake -DCMAKE_BUILD_TYPE=%CONFIGURATION% -DBLA_STATIC=%BUILD_STATIC% -DBLA_VENDOR=%BLAS_VERSION% -G "Visual Studio 14 2015 Win64" ..
 
 build_script:
-  - echo Running cmake...
-  - mkdir build
-  - cd build
-  - cmake -G "Visual Studio 14 2015 Win64" -DBUILD_DOCUMENTATION=OFF -DBUILD_TESTING:BOOL=ON -DENABLE_PACKAGING:BOOL=%pack% -DCMAKE_SKIP_RPATH:BOOL=OFF -DENABLE_PYTHON=%python% -DBLASLAPACK_IMPLEMENTATION=%lapack% -DUSE_OMP:BOOL=%omp% -DUSE_VTK=%vtk% ..
-  - cmake --build . --config Release
+  - cmake --build . --config %CONFIGURATION%
+  - cpack -C Release
 
-after_build:
-  - if %pack%==ON ( cpack & cpack -G NSIS)
+test_script:
+  - cp %APPVEYOR_BUILD_FOLDER%\build\OpenMEEGMaths\%CONFIGURATION%\OpenMEEGMaths.dll %APPVEYOR_BUILD_FOLDER%\build\OpenMEEGMaths\tests\%CONFIGURATION%\
+  - cp %APPVEYOR_BUILD_FOLDER%\build\OpenMEEGMaths\%CONFIGURATION%\OpenMEEGMaths.dll %APPVEYOR_BUILD_FOLDER%\build\apps\%CONFIGURATION%\
+  - cp %APPVEYOR_BUILD_FOLDER%\build\OpenMEEGMaths\%CONFIGURATION%\OpenMEEGMaths.dll %APPVEYOR_BUILD_FOLDER%\build\apps\tools\%CONFIGURATION%\
 
-before_test:
-  - echo Running tests...
-  - cd C:\projects\openmeeg\build\OpenMEEG\build
-  - ctest -V
+  - cp %APPVEYOR_BUILD_FOLDER%\build\OpenMEEG\%CONFIGURATION%\OpenMEEG.dll %APPVEYOR_BUILD_FOLDER%\build\apps\%CONFIGURATION%\
+  - cp %APPVEYOR_BUILD_FOLDER%\build\OpenMEEG\%CONFIGURATION%\OpenMEEG.dll %APPVEYOR_BUILD_FOLDER%\build\apps\tools\%CONFIGURATION%\
 
-on_success:
-  - set src_dir=%APPVEYOR_BUILD_FOLDER%
-  - cd %src_dir%
-  - if NOT DEFINED APPVEYOR_PULL_REQUEST_NUMBER (if %APPVEYOR_REPO_BRANCH% == master ( if %pack%==ON ( python %src_dir%\build_tools\upload_package_gforge.py build\OpenMEEG-*.exe build\OpenMEEG-*.gz) ))
+  - cp %matio_dir%bin\libmatio.dll %APPVEYOR_BUILD_FOLDER%\build\OpenMEEGMaths\tests\%CONFIGURATION%\
+  - cp %matio_dir%bin\hdf5.dll %APPVEYOR_BUILD_FOLDER%\build\OpenMEEGMaths\tests\%CONFIGURATION%\
+  - cp %matio_dir%bin\zlib.dll %APPVEYOR_BUILD_FOLDER%\build\OpenMEEGMaths\tests\%CONFIGURATION%\
 
-artifacts:
-  - path: build\OpenMEEG-*.exe
-    name: OpenMEEG-Win64.exe
-  - path: build\OpenMEEG-*.tar.gz
-    name: OpenMEEG-Win64.tar.gz
+  - cp %matio_dir%bin\libmatio.dll %APPVEYOR_BUILD_FOLDER%\build\apps\%CONFIGURATION%\
+  - cp %matio_dir%bin\hdf5.dll %APPVEYOR_BUILD_FOLDER%\build\apps\%CONFIGURATION%\
+  - cp %matio_dir%bin\zlib.dll %APPVEYOR_BUILD_FOLDER%\build\apps\%CONFIGURATION%\
+
+  - cp %matio_dir%bin\libmatio.dll %APPVEYOR_BUILD_FOLDER%\build\apps\tools\%CONFIGURATION%\
+  - cp %matio_dir%bin\hdf5.dll %APPVEYOR_BUILD_FOLDER%\build\apps\tools\%CONFIGURATION%\
+  - cp %matio_dir%bin\zlib.dll %APPVEYOR_BUILD_FOLDER%\build\apps\tools\%CONFIGURATION%\
+
+  - depends.exe /f:1 /c /oc:c:\projects\depends.txt %APPVEYOR_BUILD_FOLDER%\build\OpenMEEGMaths\tests\%CONFIGURATION%\OpenMEEGMathsTest-vector.exe
+  - appveyor PushArtifact C:\projects\depends.txt
+  - call "C:\Program Files (x86)\IntelSWTools\compilers_and_libraries_2018.0.124\windows\mkl\bin\mklvars.bat" intel64
+  - cmd: ctest -v .
+  - appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\OpenMEEG-2.4.0-Win64.tar.gz
+
+deploy: off
+
+# on_finish:
+#   - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))

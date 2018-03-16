@@ -1,215 +1,69 @@
-################################################################
-#
-#    Compilation file for OpenMEEG library
-#
-################################################################
-
-# CMakeLists files in this project can refer to the root source
-# directory of the project as ${OpenMEEG_SOURCE_DIR} and
-# to the root binary directory of the project as ${OpenMEEG_BINARY_DIR}.
-
-cmake_minimum_required(VERSION 2.8.12 FATAL_ERROR)
-if (CMAKE_MAJOR_VERSION EQUAL 3)
-    cmake_policy(SET CMP0048 NEW)
-    cmake_policy(SET CMP0037 NEW)
-    set(PROJECT_VERSION VERSION 2.4.0.0)
-endif()
-# The second path is temporary untill these are integrated in cmake...
-set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake ${CMAKE_SOURCE_DIR}/cmake/FortranCInterface)
-
-#------------------------------------------------------------
-# Project Name
-#------------------------------------------------------------
-
-project(OpenMEEG LANGUAGES C CXX ${PROJECT_VERSION})
-
-# The next two lines are a kludge to make rpm generation work. If you change this,
-# please check that rpm generation still works.
-
-set(CPACK_PACKAGE_VERSION_MAJOR ${PROJECT_VERSION_MAJOR})
-set(CPACK_PACKAGE_VERSION_MINOR ${PROJECT_VERSION_MINOR})
-set(CPACK_PACKAGE_VERSION_PATCH ${PROJECT_VERSION_PATCH})
-
-SET(VERSION_STRING "${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}")
-
-# By default, do not warn when built on machines using only VS Express:
-
-if (NOT DEFINED CMAKE_install_SYSTEM_RUNTIME_LIBS_NO_WARNINGS)
-    set(CMAKE_install_SYSTEM_RUNTIME_LIBS_NO_WARNINGS ON)
-endif()
-
-include(NewExecutable)
-include(GenerateConfigFile)
-include(FindLibrary)
-include(Win32Compat)
-include(CompileOptions)
-
-set(OpenMEEG_HEADER_INSTALLDIR ${INSTALL_INCLUDE_DIR}/openmeeg)
-set(OpenMEEG_DEPENDENCIES matio)
-
-# ==============
-# = Endianess =
-# ==============
-
-include(TestBigEndian)
-test_big_endian(WORDS_BIGENDIAN)
-
-#######################################################################
-# External Libraries
-#######################################################################
-
-# Options
-include(OpenMEEGOptions)
-
-Dependencies(OpenMEEG ${OpenMEEG_DEPENDENCIES})
-
-if (NOT matio_FOUND)
-    message(FATAL_ERROR "No matio found.")
-endif()
-# check matio version. TODO remove this check in 2018 (matio 1.5.0 was out in 2012!)
-if (matio_VERSION VERSION_LESS "1.5.0")
-    message(WARNING "Found matio version: ${MATIO_VERSION}")
-    message(FATAL_ERROR "OpenMEEG will not compile with matio versions less than 1.5.0.")
-endif()
-
-#---------------------------------------------------------------
-# Include OpenMEEG Directories
-#---------------------------------------------------------------
-
-# Include the file with all source tree directories for OpenMEEG
-
-set(OpenMEEG_INCLUDE_DIRECTORIES
-    ${OpenMEEG_BINARY_DIR}
-    ${OpenMEEG_SOURCE_DIR}
-    ${OpenMEEG_SOURCE_DIR}/src
-    ${OpenMEEG_SOURCE_DIR}/libs/OpenMEEGMaths/include
-    ${OpenMEEG_SOURCE_DIR}/libs/OpenMEEG/include
-    ${OpenMEEG_BINARY_DIR}/libs/OpenMEEG/include
-    ${OpenMEEG_BINARY_DIR}/libs/OpenMEEGMaths/src
-    ${OpenMEEG_BINARY_DIR}/libs/OpenMEEG/src
-    ${OpenMEEG_OTHER_INCLUDE_DIRS}
-    ${matio_INCLUDE_DIRS}
+add_library(OpenMEEG SHARED
+    src/assembleFerguson.cpp
+    src/assembleHeadMat.cpp
+    src/assembleSourceMat.cpp
+    src/assembleSensors.cpp
+    src/domain.cpp
+    src/mesh.cpp
+    src/interface.cpp
+    src/danielsson.cpp
+    src/geometry.cpp
+    src/operators.cpp
+    src/sensors.cpp
 )
 
-include_directories(${OpenMEEG_INCLUDE_DIRECTORIES})
+target_compile_definitions(OpenMEEG PUBLIC HAVE_ISNORMAL_IN_NAMESPACE_STD)
+target_compile_definitions(OpenMEEG PUBLIC HAVE_ISNORMAL_IN_MATH_H)
 
-#---------------------------------------------------------------
-# Test the C++ compiler features
-#---------------------------------------------------------------
-
-include(CheckCXXFeatures)
-CHECK_CXX_STANDARD_LIBRARY()
-
-if (NOT HAVE_ISNORMAL_IN_NAMESPACE_STD)
-    include(CheckSymbolExists)
-    check_symbol_exists(isnormal math.h HAVE_ISNORMAL_IN_MATH_H)
+if(VTK_FOUND)
+    target_compile_definitions(OpenMEEG PUBLIC USE_VTK)
 endif()
 
-#-----------------------------------------------
-# tests
-#-----------------------------------------------
-
-include(TestOption)
-include(Dart)
-
-#---------------------------------------------------------------
-# Setting sources and libraries
-#---------------------------------------------------------------
-
-add_subdirectory(libs)
-add_subdirectory(src)
-
-#######################################################################
-# Configure files with settings for use by the build.
-#######################################################################
-
-configure_file(${OpenMEEG_SOURCE_DIR}/OpenMEEGConfigure.h.in
-               ${OpenMEEG_BINARY_DIR}/OpenMEEGConfigure.h)
-
-if (UNIX)
-    include(AddDemoTarget)
-    ADD_DEMO_TARGET(Head1 forinv)
-    ADD_DEMO_TARGET(Head2 forward)
-    ADD_DEMO_TARGET(Head3 forward)
-    ADD_DEMO_TARGET(nerve1 gain)
+# OpenMP
+find_package(OpenMP)
+if (OPENMP_FOUND)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+    target_compile_definitions(OpenMEEG PUBLIC USE_OMP)
+else()
+    message("OpenMP library not found. Use a compiler with OpenMP support for optimized running time." )
 endif()
 
-#-----------------------------------------------
-# tools
-#-----------------------------------------------
+# Progress bar
+option(USE_PROGRESSBAR "Use progressar to display computation progress" ON)
+if(USE_PROGRESSBAR)
+    target_compile_definitions(OpenMEEG PUBLIC USE_PROGRESSBAR)
+endif(USE_PROGRESSBAR)
 
-if (BUILD_TOOLS)
-    subdirs(tools)
-endif()
+target_include_directories(OpenMEEG
+      PUBLIC
+          $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/OpenMEEG>
+          $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+          $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}> # XXX: this is to include the generated file OpenMEEG_Export.h
+          $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}>         # XXX: this is to include the generated file OpenMEEGConfigure.h
+          ${VTK_INCLUDE_DIRS}
+          ${GIFTI_INCLUDE_DIRS}
+      PRIVATE
+          $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/OpenMEEG/src>
+)
 
-#-----------------------------------------------
-# documentation
-#-----------------------------------------------
+target_link_libraries(OpenMEEG
+      PUBLIC # XXX : this should become PRIVATE ! and transitive
+          OpenMEEG::OpenMEEGMaths
+          ${VTK_LIBRARIES}
+          ${GIFTI_LIBRARIES}
+)
 
-add_subdirectory(documentation)
+add_library(OpenMEEG::OpenMEEG ALIAS OpenMEEG)
 
-#-----------------------------------------------
-# Wrapping
-#-----------------------------------------------
-if (ENABLE_PYTHON AND NOT BUILD_SHARED_LIBS)
-    message(SEND_ERROR "Python wrapping does not work with static build, "
-        "consider changing the BUILD_SHARED_LIBS option.")
-endif()
+generate_export_header(OpenMEEG
+    EXPORT_FILE_NAME OpenMEEG_Export.h
+    STATIC_DEFINE OpenMEEG_BUILT_AS_STATIC)
 
-add_subdirectory(wrapping)
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
-#   Tests
-
-if (BUILD_TESTING)
-    include(CreateTestEnvironment)
-    add_subdirectory(tests)
-endif()
-
-include(Uninstall)
-include(KWStyle)
-include(Packaging)
-
-#######################################################################
-# Help other projects use OpenMEEG
-# DEFINED FOR OpenMEEGConfig.cmake.in file
-#######################################################################
-
-#-----------------------------------------------
-# Creating files for external projects
-#-----------------------------------------------
-set(OpenMEEG_LIBRARIES OpenMEEG OpenMEEGMaths)
-
-# Add all targets to the build-tree export set
-export(TARGETS OpenMEEGMaths OpenMEEG 
-       FILE "${PROJECT_BINARY_DIR}/OpenMEEGTargets.cmake")
- 
-# Export the package for use from the build-tree
-# (this registers the build-tree with a global CMake-registry)
-export(PACKAGE OpenMEEG)
-
-# Configure OpenMEEGConfig.cmake for the install tree.
-GenerateConfigFile(OpenMEEG LIBRARIES ${OpenMEEG_LIBRARIES})
-
-# Configure UseOpenMEEG.cmake for simple support.
-configure_file(${OpenMEEG_SOURCE_DIR}/cmake/UseOpenMEEG.cmake.in
-               ${OpenMEEG_BINARY_DIR}/UseOpenMEEG.cmake COPYONLY IMMEDIATE)
-
-# Install the export set for use with the install-tree
-install(EXPORT OpenMEEGTargets DESTINATION "${INSTALL_CMAKE_DIR}"
-        COMPONENT DevelopmentCOMPONENT)
-
-# Install README
-install(FILES ${PROJECT_SOURCE_DIR}/../LICENSE.txt
-        ${PROJECT_SOURCE_DIR}/../README.rst
-        DESTINATION ${INSTALL_DATA_DIR}/doc/OpenMEEG)
-
-# install generated headers OpenMEEGConfigure and FC
-install(FILES ${OpenMEEG_BINARY_DIR}/OpenMEEGConfigure.h
-        DESTINATION ${OpenMEEG_HEADER_INSTALLDIR}
-        COMPONENT Development)
-
-if (NOT USE_MKL AND NOT WIN32 AND NOT USE_OPENBLAS)
-    install(FILES ${OpenMEEG_BINARY_DIR}/FC.h
-            DESTINATION ${OpenMEEG_HEADER_INSTALLDIR}
-            COMPONENT Development)
-endif()
+# 'make install' to the correct locations (provided by GNUInstallDirs).
+install(TARGETS OpenMEEG EXPORT OpenMEEGConfig
+    ARCHIVE  DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    LIBRARY  DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    RUNTIME  DESTINATION ${CMAKE_INSTALL_BINDIR})  # This is for Windows
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
