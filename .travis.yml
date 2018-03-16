@@ -149,31 +149,31 @@ after_success:
       lcov --list coverage.info > /dev/null 2>&1
       bash <(curl -s https://codecov.io/bash) > /dev/null 2>&1
     fi
-  # - |
-  #   if [[ "${BUILD_PACKAGE}" == "ON" ]]; then
-  #     mkdir -p /tmp/xx/ && cd /tmp/xx/
-  #     # MESSAGE=$(git log --format=%B -n 1 $TRAVIS_COMMIT)
-  #     MESSAGE="[av skip] Push from findmkl_openmeeg $(date)"
-  #     git clone git://${GH_REPO}
-  #     cd ${REPO}
-  #     git remote
-  #     # git config user.email ${EMAIL}
-  #     # git config user.name ${USER}
-  #     git config user.email "openmeeg@openmeeg.org"
-  #     git config user.name "openmeeg"
-  #     function gitpush() {
-  #       git fetch origin
-  #       git reset --hard origin/master
-  #       cp -R ${PACKAGE_DEPLOY} ./
-  #       echo "- $(date)" >> README.md
-  #       git add ${FILES}
-  #       git add OpenMEEG*.tar.gz
-  #       git commit -m "${MESSAGE}"
-  #       git pull --no-edit "https://${OPENMEEG_PACKAGING_TOKEN}@${GH_REPO}" master
-  #       git push "https://${OPENMEEG_PACKAGING_TOKEN}@${GH_REPO}" master
-  #     }
-  #     travis_retry gitpush
-  #   fi
+  - |
+    if [[ "${BUILD_PACKAGE}" == "ON" ]]; then
+      mkdir -p /tmp/xx/ && cd /tmp/xx/
+      # MESSAGE=$(git log --format=%B -n 1 $TRAVIS_COMMIT)
+      MESSAGE="[av skip] Push from findmkl_openmeeg $(date)"
+      git clone git://${GH_REPO}
+      cd ${REPO}
+      git remote
+      # git config user.email ${EMAIL}
+      # git config user.name ${USER}
+      git config user.email "openmeeg@openmeeg.org"
+      git config user.name "openmeeg"
+      function gitpush() {
+        git fetch origin
+        git reset --hard origin/master
+        cp -R ${PACKAGE_DEPLOY} ./
+        echo "- $(date)" >> README.md
+        git add ${FILES}
+        git add OpenMEEG*.tar.gz
+        git commit -m "${MESSAGE}"
+        git pull --no-edit "https://${OPENMEEG_PACKAGING_TOKEN}@${GH_REPO}" master
+        git push "https://${OPENMEEG_PACKAGING_TOKEN}@${GH_REPO}" master
+      }
+      travis_retry gitpush
+    fi
 
 notifications:
   email: false
@@ -186,4 +186,5 @@ env:
     - REPO="openmeeg_packages"
     - FILES="README.md"
     - GH_REPO="github.com/${USER}/${REPO}.git"
-    - secure: ZPKXObKy4dl3xGamX/QZxbXsTitvh4pA6gO3mKf2siau3l9r8kkvBW4JDa6fE16G1QxZF1lKGMK2GHTMSi//Z0sUlLNstopLaN3+42byJ0B1JYl/noauYLpf2H7FvOyrJJhFWZUWbbtP0JX2JDIFxx9lEvRfzotmObjTsSy3crZgc/24XiqAsfRONUaFv1xk+WZr1j6Ebm/c906dUWbY1/ORNKKlmgAvnTXF5brfHDSixCk+/6mvUTZb9G1TwANzUT7SecDH5PEIMNymM6JActgi4+oifynMuEaZVld+FHaOzhm7vYbc6Nv+66ZFsshRHiFm82u2tcnAVmKZIIyA0tMlxgJL7zfErRmsiIjT1mxDTRqRS3XGdkdKY2U7q0IkoU2nnPDRxACQ8MlKAtCiJLj8SG3kf4tnnVt08W1R8QL2J3QX+/7ZMAYNpEytxPWSCyAWCUlcWbNaQnjNFM4EPg0TvV6efkt9Ks2wk1wYmNgTNNdm8r/htKhNxwmYG1FPNf6hLCKoPZHqf6eo1Mx9zfcrnvLGXfTZtaQnnPBWkY2ol+fb3t3ThnRqXLWhTZ2FOSScGOHVn6cOCwzs0N8o8+TGlswDvLUyFZ35syfEidxiRverxhcU+zM+A6mJf4aKTBzn6VSgqayhZeZrYlL5fzqeK6BvcvIkFd1wMwrFg+s=
+    - secure: akQ0ekkVrlMW303fwX19hkyJMwP+Z3LVsKhSAfG55fT5td0dZqBXIha2bIJpmg6uAyhORHFsvdl3iXmGnV0eOMWIQEXTRv5ecPzpk1HUUs/2okDdKgSJMriacfe7kQ0WlD9RYz0ETk5MofXW24O5c2pcaQ/4WDW8sX9nnp6szac=
+
