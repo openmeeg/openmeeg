@@ -153,15 +153,15 @@ script:
     fi
 
 after_success:
-  # - mkdir -p /tmp/xx/ && cd /tmp/xx/
-  # # # - MESSAGE=$(git log --format=%B -n 1 $TRAVIS_COMMIT)
-  # - MESSAGE="[av skip] Push from new_build_system ${TRAVIS_OS_NAME} $(date)"
-  # - git clone git://${GH_REPO}
-  # - cd ${REPO}
-  # # - git config user.email ${EMAIL}
-  # # - git config user.name ${USER}
-  # - git config user.email "openmeeg@openmeeg.org"
-  # - git config user.name "openmeeg"
+  - mkdir -p /tmp/xx/ && cd /tmp/xx/
+  # # - MESSAGE=$(git log --format=%B -n 1 $TRAVIS_COMMIT)
+  - MESSAGE="[av skip] Push from new_build_system ${TRAVIS_OS_NAME} $(date)"
+  - git clone git://${GH_REPO}
+  - cd ${REPO}
+  # - git config user.email ${EMAIL}
+  # - git config user.name ${USER}
+  - git config user.email "openmeeg@openmeeg.org"
+  - git config user.name "openmeeg"
   # - |
   # function gitpush() {
   #     git fetch origin
