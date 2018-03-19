@@ -1,2 +1,0 @@
-add_subdirectory(OpenMEEGMaths)
-add_subdirectory(OpenMEEG)
