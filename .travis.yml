@@ -49,6 +49,7 @@ matrix:
 
     - os: osx  # Static analysis using clang-analyzer
       env:
+        - USE_CPPLINT=ON
         - BACKEND=Apple
         - ANALYSE=ON
 
@@ -151,6 +152,11 @@ before_install:
     fi
 
 script:
+  - |
+    if [[ "${USE_CPPLINT}" == "ON" ]]; then
+      pip install cpplint
+      cpplint --recursive OpenMEEG OpenMEEGMaths apps
+    fi
   - cd ${TRAVIS_BUILD_DIR}
   - mkdir -p build && cd build
   - |
