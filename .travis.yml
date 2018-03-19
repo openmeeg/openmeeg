@@ -18,15 +18,15 @@ matrix:
 
     - os: linux  # shipping apt-get
       env:
-        - BACKEND=ATLAS
+        - BACKEND=OpenBLAS
         - USE_VTK=ON
       addons:
         sources:
           - ubuntu-toolchain-r-test
         apt:
           packages:
-            - libatlas-base-dev
-
+            - libopenblas-dev
+            - liblapacke-dev # XXX: If lapacke is missing, cmake does not break at generation but at compilation.
     - os: osx  # shipping mac
       env:
         - BACKEND=Intel10_64lp
