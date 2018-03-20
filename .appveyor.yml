@@ -19,11 +19,21 @@ cache:
 environment:
   global:
       PYTHON: "C:\\conda"
+      deploy_host:
+        secure: elpy2/txkSJRwksSCwLehfm3eLDYTAalGUvTGzPlphY=
+      deploy_user:
+        secure: 2kJCgcedzNy4rFCQbW7PNw==
+      deploy_password:
+        secure: Cr908GItsFT5Wp0rYB8ExUukZxSu+mgdprFvU4CxmcM=
+      deploy_folder:
+        secure: Nk+J4yytvUwuRb5wHVAetZ84O90bJ4ZgwYOS9vLec90o09HP+GLvD9DvNbG1q9Q2p
+
   matrix:
     - BLAS_VERSION: Intel10_64lp_seq
       BUILD_STATIC : ON
       PYTHON_VERSION: "3.6"
       PYTHON_ARCH: "64"
+      PACK: ON
 
 skip_commits:
 # Add [av skip] to commit messages
@@ -95,8 +105,10 @@ before_build:
 build_script:
   - cmake --build . --config %CONFIGURATION%
   - cpack -C Release
+  - cpack -G NSIS
 
 test_script:
+  # Copy runtime libs for testing
   - cp %APPVEYOR_BUILD_FOLDER%\build\OpenMEEGMaths\%CONFIGURATION%\OpenMEEGMaths.dll %APPVEYOR_BUILD_FOLDER%\build\OpenMEEGMaths\tests\%CONFIGURATION%\
   - cp %APPVEYOR_BUILD_FOLDER%\build\OpenMEEGMaths\%CONFIGURATION%\OpenMEEGMaths.dll %APPVEYOR_BUILD_FOLDER%\build\apps\%CONFIGURATION%\
   - cp %APPVEYOR_BUILD_FOLDER%\build\OpenMEEGMaths\%CONFIGURATION%\OpenMEEGMaths.dll %APPVEYOR_BUILD_FOLDER%\build\apps\tools\%CONFIGURATION%\
@@ -116,11 +128,22 @@ test_script:
   - cp %matio_dir%bin\hdf5.dll %APPVEYOR_BUILD_FOLDER%\build\apps\tools\%CONFIGURATION%\
   - cp %matio_dir%bin\zlib.dll %APPVEYOR_BUILD_FOLDER%\build\apps\tools\%CONFIGURATION%\
 
+  # Check dependencies
   - depends.exe /f:1 /c /oc:c:\projects\depends.txt %APPVEYOR_BUILD_FOLDER%\build\OpenMEEGMaths\tests\%CONFIGURATION%\OpenMEEGMathsTest-vector.exe
   - appveyor PushArtifact C:\projects\depends.txt
+
+  # Test
   - call "C:\Program Files (x86)\IntelSWTools\compilers_and_libraries_2018.0.124\windows\mkl\bin\mklvars.bat" intel64
   - cmd: ctest -v .
+
+on_success:
   - appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\OpenMEEG-2.4.0-Win64.tar.gz
+
+  - conda install -y --quiet paramiko
+  - conda install -y --quiet pyopenssl
+  - set src_dir=%APPVEYOR_BUILD_FOLDER%
+  - cd %src_dir%
+  - if NOT DEFINED APPVEYOR_PULL_REQUEST_NUMBER (if %APPVEYOR_REPO_BRANCH% == master ( if %pack%==ON ( python %APPVEYOR_BUILD_FOLDER%\build_tools\upload_package_gforge.py %APPVEYOR_BUILD_FOLDER%\build\OpenMEEG-*.exe %APPVEYOR_BUILD_FOLDER%\build\OpenMEEG-*.gz) ))
 
 deploy: off
 
