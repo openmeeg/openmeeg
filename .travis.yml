@@ -113,7 +113,7 @@ before_install:
             git clone https://github.com/astropy/ci-helpers.git;
             source ci-helpers/travis/setup_conda.sh;
         fi
-        pip install cpplint
+        pip install cpplint;
     fi
 
   ############################################################################
