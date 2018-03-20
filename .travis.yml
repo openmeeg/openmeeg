@@ -185,12 +185,18 @@ after_success:
       }
       travis_retry gitpush
     fi
+  - source $TRAVIS_BUILD_DIR/build_tools/travis/after_success.sh
 
 notifications:
   email: false
 
 env:
   global:
+    - src_dir: $TRAVIS_BUILD_DIR
+    - secure: THD5qh1lrYDL2dEYVu+pitC+RsfB/Wn8jJjNTVFYEwPnSw5zov4N2aVNwOaHM4qJwp8NdL81ke4gI0P9vS89HPSstsnkboAwzn8Kj3UhAq0X10vnkgH+BIjUut0H3DCcY0O5Y2/1pc5KL/6pErT6tdFlRq8xS6YwVe7UKx3rEXo=
+    - secure: XBNTHU+DVCKeUKjxVSfvAkFr/KnvzYDDn28u8Y41v9kT+yHE1HHPnSYJS9JndQllOUAXtT0Ix81LSKG9MVthIWs5uPTOOg4hPZloE8mOYWSs/EHLraEEbZFUAaoCz2ZVYdA92HM1YAVo4Bi+zMy9g7Ra4POSWwFY5n/zV+ma//A=
+    - secure: NwGYiI9vDCLsIN+uAJRPlUV9g4RraaHfNiJRGBmsc8kOaPvBL2fb3Mia6nOfkfcaVOmkEPhWeAOW8XKHqVj6982SBQrbnS/xfU/EHiDJaq7YVBRfkCn4/9yswyhCxvrS97JagIgnEjlhbIV9VLZ19A/e2fhWEzGbJabLyZ0ZNBc=
+    - secure: ZXoAGZAYFC/kPwiX+TEpNX+rh2zVrVIw6BDdd/Qt1SiBB3+BZWwosqh+Wv1mLpjce7IAOXO42rg/OUwfPMl2egjFHth8OU827dyfYC0yFsgfN6myWD+HK+U6/3i+fp5WknWOhXzzFc72CgBwYNCnrIKNJ5LUMESUyew+vIgo5p0=
     - CONFIGURATION=Release
     - PYTHON_VERSION=3.6
     - USER="openmeeg"
