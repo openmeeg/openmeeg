@@ -106,6 +106,17 @@ before_install:
     fi
 
   ############################################################################
+  # Install CPPLINT
+  ############################################################################
+  - if [[ "${USE_CPPLINT}" == "ON" ]]; then
+        if ! [ -x "$(command -v conda)" ]; then
+            git clone https://github.com/astropy/ci-helpers.git;
+            source ci-helpers/travis/setup_conda.sh;
+        fi
+        pip install cpplint
+    fi
+
+  ############################################################################
   # Install scan-build clang analyser
   ############################################################################
   - |
@@ -154,7 +165,6 @@ before_install:
 script:
   - |
     if [[ "${USE_CPPLINT}" == "ON" ]]; then
-      pip install cpplint
       cpplint --filter=-runtime/references,-whitespace/line_length,-readability/alt_tokens,-whitespace/parens,-whitespace/indent,-whitespace/blank_line,-whitespace/braces,-legal/copyright,-build/namespace --recursive OpenMEEG OpenMEEGMaths apps
     fi
   - cd ${TRAVIS_BUILD_DIR}
