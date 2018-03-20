@@ -6,8 +6,13 @@ if [[ "$USE_COVERAGE" == "1" ]]; then
 fi
 
 
+ echo "BUILD_PACKAGE       $BUILD_PACKAGE"
+ echo "TRAVIS_PULL_REQUEST $TRAVIS_PULL_REQUEST"
+ echo "TRAVIS_BRANCH       $TRAVIS_BRANCH"
+
 # only upload to forge if we are on the master branch
-if [[ $ENABLE_PACKAGING == "1" && $TRAVIS_PULL_REQUEST == "false" && $TRAVIS_BRANCH == "master" ]]; then
+if [[ $BUILD_PACKAGE == "ON" && $TRAVIS_PULL_REQUEST == "false" && $TRAVIS_BRANCH == "master" ]]; then
+    echo "Build package"
     if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
         curl https://repo.continuum.io/miniconda/Miniconda2-latest-MacOSX-x86_64.sh -o miniconda.sh -s
     else
