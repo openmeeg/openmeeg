@@ -41,7 +41,10 @@ if __name__ == '__main__':
             # fname2 = fname.replace('build\\','')
             print('uploading file: ' + fname + ' ...')
             # sftp.put(fname, os.path.join(remotepath, fname2))
-            sftp.put(fname, os.path.join(remotepath, fname))
+            xx = os.path.join(remotepath, fname)
+            print('[debug] fname: ' + fname)
+            print('[debug] xx: ' + xx)
+            sftp.put(fname, xx)
 
     sftp.close()
     ssh.close()
