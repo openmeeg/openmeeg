@@ -43,7 +43,7 @@ if __name__ == '__main__':
             # sftp.put(fname, os.path.join(remotepath, fname2))
             print('[debug] fname: ' + fname)
             print('[debug] remotepath: ' + remotepath)
-            xx = os.path.join(remotepath, fname)
+            xx = os.path.join(remotepath, os.path.basename(fname))
             print('[debug] xx: ' + xx)
             sftp.put(fname, xx)
 
