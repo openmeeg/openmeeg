@@ -5,8 +5,12 @@ if [[ "$USE_COVERAGE" == "1" ]]; then
     bash <(curl -s https://codecov.io/bash) > /dev/null 2>&1
 fi
 
+echo "[DEBUG] BUILD_PACKAGE: $BUILD_PACKAGE"
+echo "[DEBUG] TRAVIS_PULL_REQUEST: $TRAVIS_PULL_REQUEST"
+echo "[DEBUG] TRAVIS_BRANCH: $TRAVIS_BRANCH"
+
 # only upload to forge if we are on the master branch
-if [[ $BUILD_PACKAGE == "ON" && $TRAVIS_PULL_REQUEST == "false" && $TRAVIS_BRANCH == "master" ]]; then
+if [[ $BUILD_PACKAGE == "ON" && $TRAVIS_PULL_REQUEST == "false" && $TRAVIS_BRANCH == "gforce" ]]; then
     echo "Upload package"
     if ! [ -x "$(command -v conda)" ]; then
         git clone https://github.com/astropy/ci-helpers.git;
