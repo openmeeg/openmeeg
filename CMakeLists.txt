@@ -1,6 +1,7 @@
 cmake_minimum_required (VERSION 3.2)
 project (OpenMEEG VERSION 2.4.0 LANGUAGES C CXX)
 
+SET(VERSION_STRING 2.4.0) # XXX This should be changed to use project's version
 set(OpenMEEG_HEADER_INSTALLDIR include) # XXX I don't know why this should be here
 
 # Modify where to find the modules
