@@ -38,9 +38,8 @@ if __name__ == '__main__':
 
     for i in sys.argv[1:]:
         for fname in glob.glob(i):
-            fname2 = fname.replace('build\\','')
             print('uploading file: ' + fname + ' ...')
-            sftp.put(fname, os.path.join(remotepath, fname2))
+            sftp.put(fname, os.path.join(remotepath, os.path.basename(fname)))
 
     sftp.close()
     ssh.close()
