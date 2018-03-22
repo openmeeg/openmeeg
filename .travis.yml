@@ -20,6 +20,7 @@ matrix:
       env:
         - BACKEND=OpenBLAS
         - USE_VTK=ON
+        - ENABLE_PYTHON=ON
       addons:
         sources:
           - ubuntu-toolchain-r-test
@@ -27,6 +28,8 @@ matrix:
           packages:
             - libopenblas-dev
             - liblapacke-dev # XXX: If lapacke is missing, cmake does not break at generation but at compilation.
+            - swig
+            - python-numpy
     - os: osx  # shipping mac
       env:
         - BACKEND=Intel10_64lp
@@ -126,6 +129,10 @@ script:
   - |
     if [[ "${BUILD_STATIC}" == "ON" ]]; then
       export CMAKE_OPTIONS="${CMAKE_OPTIONS} -DBLA_STATIC=ON"
+    fi
+  - |
+    if [[ "${ENABLE_PYTHON}" == "ON" ]]; then
+      export CMAKE_OPTIONS="${CMAKE_OPTIONS} -DENABLE_PYTHON=ON"
     fi
   - |
     if [[ "${CONFIGURATION}" == "Release" ]] && [[ "${ANALYSE}" != "ON" ]]; then
