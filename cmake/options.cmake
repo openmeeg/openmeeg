@@ -5,6 +5,8 @@ option(USE_VTK "Use VTK" OFF)
 
 option(ENABLE_COVERAGE "Enable coverage" OFF)
 
+option(ENABLE_PYTHON "Enable python bindings" OFF)
+
 if (ENABLE_COVERAGE)
     if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
         set(COVERAGE_FLAGS "-fprofile-arcs -ftest-coverage")
