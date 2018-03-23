@@ -10,12 +10,6 @@ cache:
 
 matrix:
   include:
-    - os: linux  # shipping linux
-      env:
-        - BACKEND=Intel10_64lp
-        - BUILD_STATIC=ON
-        - BUILD_PACKAGE=ON
-
     - os: linux  # shipping apt-get
       env:
         - BACKEND=OpenBLAS
@@ -31,22 +25,11 @@ matrix:
             - liblapacke-dev # XXX: If lapacke is missing, cmake does not break at generation but at compilation.
             - swig
             - python-numpy
-    - os: osx  # shipping mac
-      env:
-        - BACKEND=Intel10_64lp
-        - BUILD_STATIC=ON
-        - BUILD_PACKAGE=ON
-
     - os: osx  # shipping brew
       env:
         - BACKEND=Intel10_64lp  # XXX : move to openblas
         # - USE_GCC=ON  # XXX : vtk does not work with GCC
         - USE_VTK=ON
-
-    - os: osx  # Static analysis using clang-analyzer
-      env:
-        - BACKEND=Apple
-        - ANALYSE=ON 
 
 before_install:
   - |
