@@ -6,7 +6,14 @@ find_package(PythonInterp REQUIRED)
 find_package(PythonLibs REQUIRED)
 find_package(Numpy REQUIRED)
 
-include_directories(${PYTHON_INCLUDE_PATH} ${NUMPY_INCLUDE_DIRS} ${CMAKE_CURRENT_SOURCE_DIR})
+# XXXX: this include_directories should be removed and transitive properties
+#       of OpenMEEG::OpenMEEG and OpenMEEG::OpenMEEGMaths should be used instead
+include_directories(${PYTHON_INCLUDE_PATH}
+                    ${NUMPY_INCLUDE_DIRS}
+                    ${CMAKE_CURRENT_SOURCE_DIR}
+                    ${PROJECT_SOURCE_DIR}/OpenMEEG/include/
+                    ${PROJECT_SOURCE_DIR}/OpenMEEGMaths/include/
+)
 
 find_package(SWIG REQUIRED)
 include(${SWIG_USE_FILE})
@@ -30,7 +37,7 @@ if ("${CMAKE_VERSION}" VERSION_LESS "3.8")
 else()
     swig_add_library(openmeeg LANGUAGE python SOURCES ${SWIG_SRC_FILE})
 endif()
-swig_link_libraries(openmeeg ${PYTHON_LIBRARIES} OpenMEEG ${LAPACK_LIBRARIES} ${VTK_LIBRARIES})
+swig_link_libraries(openmeeg ${PYTHON_LIBRARIES} OpenMEEG::OpenMEEG)
 
 execute_process(COMMAND ${PYTHON_EXECUTABLE} "-c" "from distutils.sysconfig import get_python_lib; print(get_python_lib(1))"
                 OUTPUT_VARIABLE PYTHON_SITE_ARCH
