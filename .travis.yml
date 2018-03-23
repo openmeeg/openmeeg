@@ -21,6 +21,7 @@ matrix:
         - BACKEND=OpenBLAS
         - USE_VTK=ON
         - ENABLE_PYTHON=ON
+        - ANALYSE=ON  
       addons:
         sources:
           - ubuntu-toolchain-r-test
@@ -45,7 +46,7 @@ matrix:
     - os: osx  # Static analysis using clang-analyzer
       env:
         - BACKEND=Apple
-        # - ANALYSE=ON  # XXX : put back ON when works...
+        - ANALYSE=ON 
 
 before_install:
   - |
