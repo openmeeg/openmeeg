@@ -114,7 +114,8 @@ before_install:
         rm checker-276.bz2;
       fi
       shopt -s expand_aliases
-      alias cmake="${SCAN_BUILD} cmake -DCMAKE_BUILD_TYPE=Debug"
+      # alias cmake="${SCAN_BUILD} cmake -DCMAKE_BUILD_TYPE=Debug"
+      alias cmake="cmake -DCMAKE_BUILD_TYPE=Debug"
       alias make="${SCAN_BUILD} make"
     fi
 
