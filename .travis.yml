@@ -21,6 +21,7 @@ matrix:
         - BACKEND=OpenBLAS
         - USE_VTK=ON
         - ENABLE_PYTHON=ON
+        - USE_CGAL=ON
         - ANALYSE=ON  
       addons:
         sources:
@@ -31,18 +32,18 @@ matrix:
             - liblapacke-dev # XXX: If lapacke is missing, cmake does not break at generation but at compilation.
             - swig
             - python-numpy
+            - libcgal-dev
     - os: osx  # shipping mac
       env:
         - BACKEND=Intel10_64lp
         - BUILD_STATIC=ON
         - BUILD_PACKAGE=ON
-
     - os: osx  # shipping brew
       env:
         - BACKEND=Intel10_64lp  # XXX : move to openblas
         # - USE_GCC=ON  # XXX : vtk does not work with GCC
         - USE_VTK=ON
-
+        - USE_CGAL=ON
     - os: osx  # Static analysis using clang-analyzer
       env:
         - BACKEND=Apple
@@ -98,6 +99,13 @@ before_install:
     fi
 
   ############################################################################
+  # Install CGAL
+  ############################################################################
+  - if [[ "${TRAVIS_OS_NAME}" == "osx" ]]; then
+        brew install cgal;
+    fi
+
+  ############################################################################
   # Install scan-build clang analyser
   ############################################################################
   - |
@@ -143,6 +151,10 @@ script:
   - |
     if [[ "${USE_VTK}" == "ON" ]]; then
       export CMAKE_OPTIONS="${CMAKE_OPTIONS} -DUSE_VTK=ON"
+    fi
+  - |
+    if [[ "${USE_CGAL}" == "ON" ]]; then
+      export CMAKE_OPTIONS="${CMAKE_OPTIONS} -DUSE_CGAL=ON"
     fi
   - |
     if [[ "${TRAVIS_OS_NAME}" == "osx" && "${USE_GCC}" == "ON" ]]; then
