@@ -64,7 +64,7 @@ if (USE_CGAL)
     target_link_libraries(OpenMEEGCgal
         PUBLIC
             OpenMEEG::OpenMEEG
-            ${CGAL_LIBRARIES}
+            CGAL::CGAL_Core
             ${VTK_LIBRARIES}
     )
     # target_include_directories(OpenMEEGCgal PUBLIC ${CGAL_INCLUDE_DIRS})
