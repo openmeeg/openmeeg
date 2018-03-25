@@ -13,6 +13,10 @@ add_library(OpenMEEGMaths SHARED
   src/TrivialBinIO.C
 )
 
+set_target_properties(OpenMEEGMaths PROPERTIES
+                      VERSION 1.1.0
+                      SOVERSION 1
+                      CLEAN_DIRECT_OUTPUT 1)
 
 target_include_directories(OpenMEEGMaths
       PUBLIC

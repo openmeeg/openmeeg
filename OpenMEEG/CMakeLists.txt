@@ -12,6 +12,11 @@ add_library(OpenMEEG SHARED
     src/sensors.cpp
 )
 
+set_target_properties(OpenMEEG PROPERTIES
+                      VERSION 1.1.0
+                      SOVERSION 1
+                      CLEAN_DIRECT_OUTPUT 1)
+
 target_compile_definitions(OpenMEEG PUBLIC HAVE_ISNORMAL_IN_NAMESPACE_STD)
 target_compile_definitions(OpenMEEG PUBLIC HAVE_ISNORMAL_IN_MATH_H)
 
