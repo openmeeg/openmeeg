@@ -56,6 +56,12 @@ if (USE_CGAL)
 
     # compile the OpenMEEGCgal library
     add_library(OpenMEEGCgal ${OM_CGAL_SOURCES})
+
+    set_target_properties(OpenMEEGCgal PROPERTIES
+                          VERSION 1.1.0
+                          SOVERSION 1
+                          CLEAN_DIRECT_OUTPUT 1)
+
     target_link_libraries(OpenMEEGCgal OpenMEEG ${CGAL_LIBRARIES} ${VTK_LIBRARIES})
     target_include_directories(OpenMEEGCgal PUBLIC ${CGAL_INCLUDE_DIRS})
     target_compile_options(OpenMEEGCgal PUBLIC ${CGAL_CXX_FLAGS})
