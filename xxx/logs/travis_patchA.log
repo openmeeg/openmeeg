@@ -1,3 +1,423 @@
+Running with expanded trace output on.
+-- The C compiler identification is GNU 4.8.4
+-- The CXX compiler identification is GNU 4.8.4
+-- Check for working C compiler: /usr/bin/cc
+CMake Warning (dev) at /home/travis/cmake/share/cmake-3.10/Modules/CMakeTestCCompiler.cmake:37 (try_compile):
+  Policy CMP0066 is not set: Honor per-config flags in try_compile()
+  source-file signature.  Run "cmake --help-policy CMP0066" for policy
+  details.  Use the cmake_policy command to set the policy and suppress this
+  warning.
+
+  For compatibility with older versions of CMake, try_compile is not honoring
+  caller config-specific compiler flags (e.g.  CMAKE_C_FLAGS_DEBUG) in the
+  test project.
+Call Stack (most recent call first):
+  CMakeLists.txt:2 (project)
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+-- Check for working C compiler: /usr/bin/cc -- works
+-- Detecting C compiler ABI info
+CMake Warning (dev) at /home/travis/cmake/share/cmake-3.10/Modules/CMakeDetermineCompilerABI.cmake:26 (try_compile):
+  Policy CMP0066 is not set: Honor per-config flags in try_compile()
+  source-file signature.  Run "cmake --help-policy CMP0066" for policy
+  details.  Use the cmake_policy command to set the policy and suppress this
+  warning.
+
+  For compatibility with older versions of CMake, try_compile is not honoring
+  caller config-specific compiler flags (e.g.  CMAKE_C_FLAGS_DEBUG) in the
+  test project.
+Call Stack (most recent call first):
+  /home/travis/cmake/share/cmake-3.10/Modules/CMakeTestCCompiler.cmake:66 (CMAKE_DETERMINE_COMPILER_ABI)
+  CMakeLists.txt:2 (project)
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+-- Detecting C compiler ABI info - done
+-- Detecting C compile features
+CMake Warning (dev) at /home/travis/cmake/share/cmake-3.10/Modules/Internal/FeatureTesting.cmake:33 (try_compile):
+  Policy CMP0066 is not set: Honor per-config flags in try_compile()
+  source-file signature.  Run "cmake --help-policy CMP0066" for policy
+  details.  Use the cmake_policy command to set the policy and suppress this
+  warning.
+
+  For compatibility with older versions of CMake, try_compile is not honoring
+  caller config-specific compiler flags (e.g.  CMAKE_C_FLAGS_DEBUG) in the
+  test project.
+Call Stack (most recent call first):
+  /home/travis/cmake/share/cmake-3.10/Modules/Internal/FeatureTesting.cmake:74 (_record_compiler_features)
+  /home/travis/cmake/share/cmake-3.10/Modules/Compiler/CMakeCommonCompilerMacros.cmake:68 (_record_compiler_features_c)
+  /home/travis/cmake/share/cmake-3.10/Modules/CMakeDetermineCompileFeatures.cmake:16 (cmake_record_c_compile_features)
+  /home/travis/cmake/share/cmake-3.10/Modules/CMakeTestCCompiler.cmake:69 (CMAKE_DETERMINE_COMPILE_FEATURES)
+  CMakeLists.txt:2 (project)
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+CMake Warning (dev) at /home/travis/cmake/share/cmake-3.10/Modules/Internal/FeatureTesting.cmake:33 (try_compile):
+  Policy CMP0066 is not set: Honor per-config flags in try_compile()
+  source-file signature.  Run "cmake --help-policy CMP0066" for policy
+  details.  Use the cmake_policy command to set the policy and suppress this
+  warning.
+
+  For compatibility with older versions of CMake, try_compile is not honoring
+  caller config-specific compiler flags (e.g.  CMAKE_C_FLAGS_DEBUG) in the
+  test project.
+Call Stack (most recent call first):
+  /home/travis/cmake/share/cmake-3.10/Modules/Internal/FeatureTesting.cmake:74 (_record_compiler_features)
+  /home/travis/cmake/share/cmake-3.10/Modules/Compiler/CMakeCommonCompilerMacros.cmake:71 (_record_compiler_features_c)
+  /home/travis/cmake/share/cmake-3.10/Modules/CMakeDetermineCompileFeatures.cmake:16 (cmake_record_c_compile_features)
+  /home/travis/cmake/share/cmake-3.10/Modules/CMakeTestCCompiler.cmake:69 (CMAKE_DETERMINE_COMPILE_FEATURES)
+  CMakeLists.txt:2 (project)
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+CMake Warning (dev) at /home/travis/cmake/share/cmake-3.10/Modules/Internal/FeatureTesting.cmake:33 (try_compile):
+  Policy CMP0066 is not set: Honor per-config flags in try_compile()
+  source-file signature.  Run "cmake --help-policy CMP0066" for policy
+  details.  Use the cmake_policy command to set the policy and suppress this
+  warning.
+
+  For compatibility with older versions of CMake, try_compile is not honoring
+  caller config-specific compiler flags (e.g.  CMAKE_C_FLAGS_DEBUG) in the
+  test project.
+Call Stack (most recent call first):
+  /home/travis/cmake/share/cmake-3.10/Modules/Internal/FeatureTesting.cmake:74 (_record_compiler_features)
+  /home/travis/cmake/share/cmake-3.10/Modules/Compiler/CMakeCommonCompilerMacros.cmake:74 (_record_compiler_features_c)
+  /home/travis/cmake/share/cmake-3.10/Modules/CMakeDetermineCompileFeatures.cmake:16 (cmake_record_c_compile_features)
+  /home/travis/cmake/share/cmake-3.10/Modules/CMakeTestCCompiler.cmake:69 (CMAKE_DETERMINE_COMPILE_FEATURES)
+  CMakeLists.txt:2 (project)
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+-- Detecting C compile features - done
+-- Check for working CXX compiler: /usr/bin/c++
+CMake Warning (dev) at /home/travis/cmake/share/cmake-3.10/Modules/CMakeTestCXXCompiler.cmake:30 (try_compile):
+  Policy CMP0066 is not set: Honor per-config flags in try_compile()
+  source-file signature.  Run "cmake --help-policy CMP0066" for policy
+  details.  Use the cmake_policy command to set the policy and suppress this
+  warning.
+
+  For compatibility with older versions of CMake, try_compile is not honoring
+  caller config-specific compiler flags (e.g.  CMAKE_C_FLAGS_DEBUG) in the
+  test project.
+Call Stack (most recent call first):
+  CMakeLists.txt:2 (project)
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+CMake Warning (dev) at /home/travis/cmake/share/cmake-3.10/Modules/CMakeTestCXXCompiler.cmake:30 (try_compile):
+  Policy CMP0067 is not set: Honor language standard in try_compile()
+  source-file signature.  Run "cmake --help-policy CMP0067" for policy
+  details.  Use the cmake_policy command to set the policy and suppress this
+  warning.
+
+  For compatibility with older versions of CMake, try_compile is not honoring
+  language standard variables in the test project:
+
+    CMAKE_CXX_STANDARD
+
+Call Stack (most recent call first):
+  CMakeLists.txt:2 (project)
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+-- Check for working CXX compiler: /usr/bin/c++ -- works
+-- Detecting CXX compiler ABI info
+CMake Warning (dev) at /home/travis/cmake/share/cmake-3.10/Modules/CMakeDetermineCompilerABI.cmake:26 (try_compile):
+  Policy CMP0066 is not set: Honor per-config flags in try_compile()
+  source-file signature.  Run "cmake --help-policy CMP0066" for policy
+  details.  Use the cmake_policy command to set the policy and suppress this
+  warning.
+
+  For compatibility with older versions of CMake, try_compile is not honoring
+  caller config-specific compiler flags (e.g.  CMAKE_C_FLAGS_DEBUG) in the
+  test project.
+Call Stack (most recent call first):
+  /home/travis/cmake/share/cmake-3.10/Modules/CMakeTestCXXCompiler.cmake:59 (CMAKE_DETERMINE_COMPILER_ABI)
+  CMakeLists.txt:2 (project)
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+CMake Warning (dev) at /home/travis/cmake/share/cmake-3.10/Modules/CMakeDetermineCompilerABI.cmake:26 (try_compile):
+  Policy CMP0067 is not set: Honor language standard in try_compile()
+  source-file signature.  Run "cmake --help-policy CMP0067" for policy
+  details.  Use the cmake_policy command to set the policy and suppress this
+  warning.
+
+  For compatibility with older versions of CMake, try_compile is not honoring
+  language standard variables in the test project:
+
+    CMAKE_CXX_STANDARD
+
+Call Stack (most recent call first):
+  /home/travis/cmake/share/cmake-3.10/Modules/CMakeTestCXXCompiler.cmake:59 (CMAKE_DETERMINE_COMPILER_ABI)
+  CMakeLists.txt:2 (project)
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+-- Detecting CXX compiler ABI info - done
+-- Detecting CXX compile features
+CMake Warning (dev) at /home/travis/cmake/share/cmake-3.10/Modules/Internal/FeatureTesting.cmake:33 (try_compile):
+  Policy CMP0066 is not set: Honor per-config flags in try_compile()
+  source-file signature.  Run "cmake --help-policy CMP0066" for policy
+  details.  Use the cmake_policy command to set the policy and suppress this
+  warning.
+
+  For compatibility with older versions of CMake, try_compile is not honoring
+  caller config-specific compiler flags (e.g.  CMAKE_C_FLAGS_DEBUG) in the
+  test project.
+Call Stack (most recent call first):
+  /home/travis/cmake/share/cmake-3.10/Modules/Internal/FeatureTesting.cmake:79 (_record_compiler_features)
+  /home/travis/cmake/share/cmake-3.10/Modules/Compiler/CMakeCommonCompilerMacros.cmake:85 (_record_compiler_features_cxx)
+  /home/travis/cmake/share/cmake-3.10/Modules/CMakeDetermineCompileFeatures.cmake:55 (cmake_record_cxx_compile_features)
+  /home/travis/cmake/share/cmake-3.10/Modules/CMakeTestCXXCompiler.cmake:62 (CMAKE_DETERMINE_COMPILE_FEATURES)
+  CMakeLists.txt:2 (project)
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+CMake Warning (dev) at /home/travis/cmake/share/cmake-3.10/Modules/Internal/FeatureTesting.cmake:33 (try_compile):
+  Policy CMP0067 is not set: Honor language standard in try_compile()
+  source-file signature.  Run "cmake --help-policy CMP0067" for policy
+  details.  Use the cmake_policy command to set the policy and suppress this
+  warning.
+
+  For compatibility with older versions of CMake, try_compile is not honoring
+  language standard variables in the test project:
+
+    CMAKE_CXX_STANDARD
+
+Call Stack (most recent call first):
+  /home/travis/cmake/share/cmake-3.10/Modules/Internal/FeatureTesting.cmake:79 (_record_compiler_features)
+  /home/travis/cmake/share/cmake-3.10/Modules/Compiler/CMakeCommonCompilerMacros.cmake:85 (_record_compiler_features_cxx)
+  /home/travis/cmake/share/cmake-3.10/Modules/CMakeDetermineCompileFeatures.cmake:55 (cmake_record_cxx_compile_features)
+  /home/travis/cmake/share/cmake-3.10/Modules/CMakeTestCXXCompiler.cmake:62 (CMAKE_DETERMINE_COMPILE_FEATURES)
+  CMakeLists.txt:2 (project)
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+CMake Warning (dev) at /home/travis/cmake/share/cmake-3.10/Modules/Internal/FeatureTesting.cmake:33 (try_compile):
+  Policy CMP0066 is not set: Honor per-config flags in try_compile()
+  source-file signature.  Run "cmake --help-policy CMP0066" for policy
+  details.  Use the cmake_policy command to set the policy and suppress this
+  warning.
+
+  For compatibility with older versions of CMake, try_compile is not honoring
+  caller config-specific compiler flags (e.g.  CMAKE_C_FLAGS_DEBUG) in the
+  test project.
+Call Stack (most recent call first):
+  /home/travis/cmake/share/cmake-3.10/Modules/Internal/FeatureTesting.cmake:79 (_record_compiler_features)
+  /home/travis/cmake/share/cmake-3.10/Modules/Compiler/CMakeCommonCompilerMacros.cmake:88 (_record_compiler_features_cxx)
+  /home/travis/cmake/share/cmake-3.10/Modules/CMakeDetermineCompileFeatures.cmake:55 (cmake_record_cxx_compile_features)
+  /home/travis/cmake/share/cmake-3.10/Modules/CMakeTestCXXCompiler.cmake:62 (CMAKE_DETERMINE_COMPILE_FEATURES)
+  CMakeLists.txt:2 (project)
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+CMake Warning (dev) at /home/travis/cmake/share/cmake-3.10/Modules/Internal/FeatureTesting.cmake:33 (try_compile):
+  Policy CMP0067 is not set: Honor language standard in try_compile()
+  source-file signature.  Run "cmake --help-policy CMP0067" for policy
+  details.  Use the cmake_policy command to set the policy and suppress this
+  warning.
+
+  For compatibility with older versions of CMake, try_compile is not honoring
+  language standard variables in the test project:
+
+    CMAKE_CXX_STANDARD
+
+Call Stack (most recent call first):
+  /home/travis/cmake/share/cmake-3.10/Modules/Internal/FeatureTesting.cmake:79 (_record_compiler_features)
+  /home/travis/cmake/share/cmake-3.10/Modules/Compiler/CMakeCommonCompilerMacros.cmake:88 (_record_compiler_features_cxx)
+  /home/travis/cmake/share/cmake-3.10/Modules/CMakeDetermineCompileFeatures.cmake:55 (cmake_record_cxx_compile_features)
+  /home/travis/cmake/share/cmake-3.10/Modules/CMakeTestCXXCompiler.cmake:62 (CMAKE_DETERMINE_COMPILE_FEATURES)
+  CMakeLists.txt:2 (project)
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+CMake Warning (dev) at /home/travis/cmake/share/cmake-3.10/Modules/Internal/FeatureTesting.cmake:33 (try_compile):
+  Policy CMP0066 is not set: Honor per-config flags in try_compile()
+  source-file signature.  Run "cmake --help-policy CMP0066" for policy
+  details.  Use the cmake_policy command to set the policy and suppress this
+  warning.
+
+  For compatibility with older versions of CMake, try_compile is not honoring
+  caller config-specific compiler flags (e.g.  CMAKE_C_FLAGS_DEBUG) in the
+  test project.
+Call Stack (most recent call first):
+  /home/travis/cmake/share/cmake-3.10/Modules/Internal/FeatureTesting.cmake:79 (_record_compiler_features)
+  /home/travis/cmake/share/cmake-3.10/Modules/Compiler/CMakeCommonCompilerMacros.cmake:91 (_record_compiler_features_cxx)
+  /home/travis/cmake/share/cmake-3.10/Modules/CMakeDetermineCompileFeatures.cmake:55 (cmake_record_cxx_compile_features)
+  /home/travis/cmake/share/cmake-3.10/Modules/CMakeTestCXXCompiler.cmake:62 (CMAKE_DETERMINE_COMPILE_FEATURES)
+  CMakeLists.txt:2 (project)
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+CMake Warning (dev) at /home/travis/cmake/share/cmake-3.10/Modules/Internal/FeatureTesting.cmake:33 (try_compile):
+  Policy CMP0067 is not set: Honor language standard in try_compile()
+  source-file signature.  Run "cmake --help-policy CMP0067" for policy
+  details.  Use the cmake_policy command to set the policy and suppress this
+  warning.
+
+  For compatibility with older versions of CMake, try_compile is not honoring
+  language standard variables in the test project:
+
+    CMAKE_CXX_STANDARD
+
+Call Stack (most recent call first):
+  /home/travis/cmake/share/cmake-3.10/Modules/Internal/FeatureTesting.cmake:79 (_record_compiler_features)
+  /home/travis/cmake/share/cmake-3.10/Modules/Compiler/CMakeCommonCompilerMacros.cmake:91 (_record_compiler_features_cxx)
+  /home/travis/cmake/share/cmake-3.10/Modules/CMakeDetermineCompileFeatures.cmake:55 (cmake_record_cxx_compile_features)
+  /home/travis/cmake/share/cmake-3.10/Modules/CMakeTestCXXCompiler.cmake:62 (CMAKE_DETERMINE_COMPILE_FEATURES)
+  CMakeLists.txt:2 (project)
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+-- Detecting CXX compile features - done
+-- Check whether the compiler implements namespaces
+CMake Warning (dev) at cmake/utils/CheckCXXFeatures.cmake:7 (try_compile):
+  Policy CMP0066 is not set: Honor per-config flags in try_compile()
+  source-file signature.  Run "cmake --help-policy CMP0066" for policy
+  details.  Use the cmake_policy command to set the policy and suppress this
+  warning.
+
+  For compatibility with older versions of CMake, try_compile is not honoring
+  caller config-specific compiler flags (e.g.  CMAKE_C_FLAGS_DEBUG) in the
+  test project.
+Call Stack (most recent call first):
+  cmake/utils/CheckCXXFeatures.cmake:86 (CHECK_CXX_FEATURE)
+  cmake/CompilerOptions.cmake:14 (CHECK_CXX_STANDARD_LIBRARY)
+  CMakeLists.txt:18 (include)
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+CMake Warning (dev) at cmake/utils/CheckCXXFeatures.cmake:7 (try_compile):
+  Policy CMP0067 is not set: Honor language standard in try_compile()
+  source-file signature.  Run "cmake --help-policy CMP0067" for policy
+  details.  Use the cmake_policy command to set the policy and suppress this
+  warning.
+
+  For compatibility with older versions of CMake, try_compile is not honoring
+  language standard variables in the test project:
+
+    CMAKE_CXX_STANDARD
+
+Call Stack (most recent call first):
+  cmake/utils/CheckCXXFeatures.cmake:86 (CHECK_CXX_FEATURE)
+  cmake/CompilerOptions.cmake:14 (CHECK_CXX_STANDARD_LIBRARY)
+  CMakeLists.txt:18 (include)
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+-- Check whether the compiler implements namespaces - found
+-- Check whether the compiler has isnormal function in namespace std
+CMake Warning (dev) at cmake/utils/CheckCXXFeatures.cmake:7 (try_compile):
+  Policy CMP0066 is not set: Honor per-config flags in try_compile()
+  source-file signature.  Run "cmake --help-policy CMP0066" for policy
+  details.  Use the cmake_policy command to set the policy and suppress this
+  warning.
+
+  For compatibility with older versions of CMake, try_compile is not honoring
+  caller config-specific compiler flags (e.g.  CMAKE_C_FLAGS_DEBUG) in the
+  test project.
+Call Stack (most recent call first):
+  cmake/utils/CheckCXXFeatures.cmake:102 (CHECK_CXX_FEATURE)
+  cmake/CompilerOptions.cmake:14 (CHECK_CXX_STANDARD_LIBRARY)
+  CMakeLists.txt:18 (include)
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+CMake Warning (dev) at cmake/utils/CheckCXXFeatures.cmake:7 (try_compile):
+  Policy CMP0067 is not set: Honor language standard in try_compile()
+  source-file signature.  Run "cmake --help-policy CMP0067" for policy
+  details.  Use the cmake_policy command to set the policy and suppress this
+  warning.
+
+  For compatibility with older versions of CMake, try_compile is not honoring
+  language standard variables in the test project:
+
+    CMAKE_CXX_STANDARD
+
+Call Stack (most recent call first):
+  cmake/utils/CheckCXXFeatures.cmake:102 (CHECK_CXX_FEATURE)
+  cmake/CompilerOptions.cmake:14 (CHECK_CXX_STANDARD_LIBRARY)
+  CMakeLists.txt:18 (include)
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+-- Check whether the compiler has isnormal function in namespace std - found
+-- Found OpenBLAS libraries: /usr/lib/libopenblas.so;/usr/lib/liblapacke.so
+-- Found OpenBLAS include: /usr/include
+-- Looking for pthread.h
+CMake Warning (dev) at /home/travis/cmake/share/cmake-3.10/Modules/CheckIncludeFile.cmake:56 (try_compile):
+  Policy CMP0066 is not set: Honor per-config flags in try_compile()
+  source-file signature.  Run "cmake --help-policy CMP0066" for policy
+  details.  Use the cmake_policy command to set the policy and suppress this
+  warning.
+
+  For compatibility with older versions of CMake, try_compile is not honoring
+  caller config-specific compiler flags (e.g.  CMAKE_C_FLAGS_DEBUG) in the
+  test project.
+Call Stack (most recent call first):
+  /home/travis/cmake/share/cmake-3.10/Modules/FindThreads.cmake:121 (CHECK_INCLUDE_FILE)
+  cmake/thirdParties.cmake:53 (find_package)
+  CMakeLists.txt:20 (include)
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+-- Looking for pthread.h - found
+-- Looking for pthread_create
+CMake Warning (dev) at /home/travis/cmake/share/cmake-3.10/Modules/CheckSymbolExists.cmake:85 (try_compile):
+  Policy CMP0066 is not set: Honor per-config flags in try_compile()
+  source-file signature.  Run "cmake --help-policy CMP0066" for policy
+  details.  Use the cmake_policy command to set the policy and suppress this
+  warning.
+
+  For compatibility with older versions of CMake, try_compile is not honoring
+  caller config-specific compiler flags (e.g.  CMAKE_C_FLAGS_DEBUG) in the
+  test project.
+Call Stack (most recent call first):
+  /home/travis/cmake/share/cmake-3.10/Modules/CheckSymbolExists.cmake:48 (__CHECK_SYMBOL_EXISTS_IMPL)
+  /home/travis/cmake/share/cmake-3.10/Modules/FindThreads.cmake:134 (CHECK_SYMBOL_EXISTS)
+  cmake/thirdParties.cmake:53 (find_package)
+  CMakeLists.txt:20 (include)
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+-- Looking for pthread_create - not found
+-- Looking for pthread_create in pthreads
+CMake Warning (dev) at /home/travis/cmake/share/cmake-3.10/Modules/CheckLibraryExists.cmake:54 (try_compile):
+  Policy CMP0066 is not set: Honor per-config flags in try_compile()
+  source-file signature.  Run "cmake --help-policy CMP0066" for policy
+  details.  Use the cmake_policy command to set the policy and suppress this
+  warning.
+
+  For compatibility with older versions of CMake, try_compile is not honoring
+  caller config-specific compiler flags (e.g.  CMAKE_C_FLAGS_DEBUG) in the
+  test project.
+Call Stack (most recent call first):
+  /home/travis/cmake/share/cmake-3.10/Modules/FindThreads.cmake:67 (CHECK_LIBRARY_EXISTS)
+  /home/travis/cmake/share/cmake-3.10/Modules/FindThreads.cmake:148 (_check_threads_lib)
+  cmake/thirdParties.cmake:53 (find_package)
+  CMakeLists.txt:20 (include)
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+-- Looking for pthread_create in pthreads - not found
+-- Looking for pthread_create in pthread
+CMake Warning (dev) at /home/travis/cmake/share/cmake-3.10/Modules/CheckLibraryExists.cmake:54 (try_compile):
+  Policy CMP0066 is not set: Honor per-config flags in try_compile()
+  source-file signature.  Run "cmake --help-policy CMP0066" for policy
+  details.  Use the cmake_policy command to set the policy and suppress this
+  warning.
+
+  For compatibility with older versions of CMake, try_compile is not honoring
+  caller config-specific compiler flags (e.g.  CMAKE_C_FLAGS_DEBUG) in the
+  test project.
+Call Stack (most recent call first):
+  /home/travis/cmake/share/cmake-3.10/Modules/FindThreads.cmake:67 (CHECK_LIBRARY_EXISTS)
+  /home/travis/cmake/share/cmake-3.10/Modules/FindThreads.cmake:149 (_check_threads_lib)
+  cmake/thirdParties.cmake:53 (find_package)
+  CMakeLists.txt:20 (include)
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+-- Looking for pthread_create in pthread - found
+-- Found Threads: TRUE  
+CMake Warning (dev) at /home/travis/cmake/share/cmake-3.10/Modules/FindHDF5.cmake:204 (try_compile):
+  Policy CMP0066 is not set: Honor per-config flags in try_compile()
+  source-file signature.  Run "cmake --help-policy CMP0066" for policy
+  details.  Use the cmake_policy command to set the policy and suppress this
+  warning.
+
+  For compatibility with older versions of CMake, try_compile is not honoring
+  caller config-specific compiler flags (e.g.  CMAKE_C_FLAGS_DEBUG) in the
+  test project.
+Call Stack (most recent call first):
+  /home/travis/cmake/share/cmake-3.10/Modules/FindHDF5.cmake:538 (_HDF5_test_regular_compiler_C)
+  cmake/Findmatio.cmake:20 (find_package)
+  cmake/thirdParties.cmake:58 (find_package)
+  CMakeLists.txt:20 (include)
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+-- HDF5: Using hdf5 compiler wrapper to determine C configuration
+-- Found HDF5: /usr/lib/x86_64-linux-gnu/libhdf5.so;/usr/lib/x86_64-linux-gnu/libpthread.so;/usr/lib/x86_64-linux-gnu/libz.so;/usr/lib/x86_64-linux-gnu/libdl.so;/usr/lib/x86_64-linux-gnu/libm.so (found version "1.8.11")  
+-- matio.h /usr/include
 -- matio_library /usr/lib/x86_64-linux-gnu/libmatio.so
 -- Found matio: /usr/lib/x86_64-linux-gnu/libmatio.so  
 /usr/lib/x86_64-linux-gnu/cmake/CGAL/CGALConfig.cmake(9):  set(CGAL_CONFIG_LOADED TRUE )
@@ -65,3 +485,8 @@ Call Stack (most recent call first):
   /usr/lib/x86_64-linux-gnu/cmake/CGAL/CGALConfig.cmake:140 (check_cgal_component)
   cmake/thirdParties.cmake:85 (find_package)
   CMakeLists.txt:20 (include)
+
+
+-- Configuring incomplete, errors occurred!
+See also "/home/travis/openmeeg/build/CMakeFiles/CMakeOutput.log".
+See also "/home/travis/openmeeg/build/CMakeFiles/CMakeError.log".

@@ -1,3 +1,459 @@
+Running with expanded trace output on.
+-- The C compiler identification is GNU 7.2.0
+-- The CXX compiler identification is GNU 7.2.0
+-- Check for working C compiler: /usr/bin/cc
+CMake Warning (dev) at /usr/local/share/cmake-3.10/Modules/CMakeTestCCompiler.cmake:37 (try_compile):
+  Policy CMP0066 is not set: Honor per-config flags in try_compile()
+  source-file signature.  Run "cmake --help-policy CMP0066" for policy
+  details.  Use the cmake_policy command to set the policy and suppress this
+  warning.
+
+  For compatibility with older versions of CMake, try_compile is not honoring
+  caller config-specific compiler flags (e.g.  CMAKE_C_FLAGS_DEBUG) in the
+  test project.
+Call Stack (most recent call first):
+  CMakeLists.txt:2 (project)
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+-- Check for working C compiler: /usr/bin/cc -- works
+-- Detecting C compiler ABI info
+CMake Warning (dev) at /usr/local/share/cmake-3.10/Modules/CMakeDetermineCompilerABI.cmake:26 (try_compile):
+  Policy CMP0066 is not set: Honor per-config flags in try_compile()
+  source-file signature.  Run "cmake --help-policy CMP0066" for policy
+  details.  Use the cmake_policy command to set the policy and suppress this
+  warning.
+
+  For compatibility with older versions of CMake, try_compile is not honoring
+  caller config-specific compiler flags (e.g.  CMAKE_C_FLAGS_DEBUG) in the
+  test project.
+Call Stack (most recent call first):
+  /usr/local/share/cmake-3.10/Modules/CMakeTestCCompiler.cmake:66 (CMAKE_DETERMINE_COMPILER_ABI)
+  CMakeLists.txt:2 (project)
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+-- Detecting C compiler ABI info - done
+-- Detecting C compile features
+CMake Warning (dev) at /usr/local/share/cmake-3.10/Modules/Internal/FeatureTesting.cmake:33 (try_compile):
+  Policy CMP0066 is not set: Honor per-config flags in try_compile()
+  source-file signature.  Run "cmake --help-policy CMP0066" for policy
+  details.  Use the cmake_policy command to set the policy and suppress this
+  warning.
+
+  For compatibility with older versions of CMake, try_compile is not honoring
+  caller config-specific compiler flags (e.g.  CMAKE_C_FLAGS_DEBUG) in the
+  test project.
+Call Stack (most recent call first):
+  /usr/local/share/cmake-3.10/Modules/Internal/FeatureTesting.cmake:74 (_record_compiler_features)
+  /usr/local/share/cmake-3.10/Modules/Compiler/CMakeCommonCompilerMacros.cmake:68 (_record_compiler_features_c)
+  /usr/local/share/cmake-3.10/Modules/CMakeDetermineCompileFeatures.cmake:16 (cmake_record_c_compile_features)
+  /usr/local/share/cmake-3.10/Modules/CMakeTestCCompiler.cmake:69 (CMAKE_DETERMINE_COMPILE_FEATURES)
+  CMakeLists.txt:2 (project)
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+CMake Warning (dev) at /usr/local/share/cmake-3.10/Modules/Internal/FeatureTesting.cmake:33 (try_compile):
+  Policy CMP0066 is not set: Honor per-config flags in try_compile()
+  source-file signature.  Run "cmake --help-policy CMP0066" for policy
+  details.  Use the cmake_policy command to set the policy and suppress this
+  warning.
+
+  For compatibility with older versions of CMake, try_compile is not honoring
+  caller config-specific compiler flags (e.g.  CMAKE_C_FLAGS_DEBUG) in the
+  test project.
+Call Stack (most recent call first):
+  /usr/local/share/cmake-3.10/Modules/Internal/FeatureTesting.cmake:74 (_record_compiler_features)
+  /usr/local/share/cmake-3.10/Modules/Compiler/CMakeCommonCompilerMacros.cmake:71 (_record_compiler_features_c)
+  /usr/local/share/cmake-3.10/Modules/CMakeDetermineCompileFeatures.cmake:16 (cmake_record_c_compile_features)
+  /usr/local/share/cmake-3.10/Modules/CMakeTestCCompiler.cmake:69 (CMAKE_DETERMINE_COMPILE_FEATURES)
+  CMakeLists.txt:2 (project)
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+CMake Warning (dev) at /usr/local/share/cmake-3.10/Modules/Internal/FeatureTesting.cmake:33 (try_compile):
+  Policy CMP0066 is not set: Honor per-config flags in try_compile()
+  source-file signature.  Run "cmake --help-policy CMP0066" for policy
+  details.  Use the cmake_policy command to set the policy and suppress this
+  warning.
+
+  For compatibility with older versions of CMake, try_compile is not honoring
+  caller config-specific compiler flags (e.g.  CMAKE_C_FLAGS_DEBUG) in the
+  test project.
+Call Stack (most recent call first):
+  /usr/local/share/cmake-3.10/Modules/Internal/FeatureTesting.cmake:74 (_record_compiler_features)
+  /usr/local/share/cmake-3.10/Modules/Compiler/CMakeCommonCompilerMacros.cmake:74 (_record_compiler_features_c)
+  /usr/local/share/cmake-3.10/Modules/CMakeDetermineCompileFeatures.cmake:16 (cmake_record_c_compile_features)
+  /usr/local/share/cmake-3.10/Modules/CMakeTestCCompiler.cmake:69 (CMAKE_DETERMINE_COMPILE_FEATURES)
+  CMakeLists.txt:2 (project)
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+-- Detecting C compile features - done
+-- Check for working CXX compiler: /usr/bin/c++
+CMake Warning (dev) at /usr/local/share/cmake-3.10/Modules/CMakeTestCXXCompiler.cmake:30 (try_compile):
+  Policy CMP0066 is not set: Honor per-config flags in try_compile()
+  source-file signature.  Run "cmake --help-policy CMP0066" for policy
+  details.  Use the cmake_policy command to set the policy and suppress this
+  warning.
+
+  For compatibility with older versions of CMake, try_compile is not honoring
+  caller config-specific compiler flags (e.g.  CMAKE_C_FLAGS_DEBUG) in the
+  test project.
+Call Stack (most recent call first):
+  CMakeLists.txt:2 (project)
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+CMake Warning (dev) at /usr/local/share/cmake-3.10/Modules/CMakeTestCXXCompiler.cmake:30 (try_compile):
+  Policy CMP0067 is not set: Honor language standard in try_compile()
+  source-file signature.  Run "cmake --help-policy CMP0067" for policy
+  details.  Use the cmake_policy command to set the policy and suppress this
+  warning.
+
+  For compatibility with older versions of CMake, try_compile is not honoring
+  language standard variables in the test project:
+
+    CMAKE_CXX_STANDARD
+
+Call Stack (most recent call first):
+  CMakeLists.txt:2 (project)
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+-- Check for working CXX compiler: /usr/bin/c++ -- works
+-- Detecting CXX compiler ABI info
+CMake Warning (dev) at /usr/local/share/cmake-3.10/Modules/CMakeDetermineCompilerABI.cmake:26 (try_compile):
+  Policy CMP0066 is not set: Honor per-config flags in try_compile()
+  source-file signature.  Run "cmake --help-policy CMP0066" for policy
+  details.  Use the cmake_policy command to set the policy and suppress this
+  warning.
+
+  For compatibility with older versions of CMake, try_compile is not honoring
+  caller config-specific compiler flags (e.g.  CMAKE_C_FLAGS_DEBUG) in the
+  test project.
+Call Stack (most recent call first):
+  /usr/local/share/cmake-3.10/Modules/CMakeTestCXXCompiler.cmake:59 (CMAKE_DETERMINE_COMPILER_ABI)
+  CMakeLists.txt:2 (project)
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+CMake Warning (dev) at /usr/local/share/cmake-3.10/Modules/CMakeDetermineCompilerABI.cmake:26 (try_compile):
+  Policy CMP0067 is not set: Honor language standard in try_compile()
+  source-file signature.  Run "cmake --help-policy CMP0067" for policy
+  details.  Use the cmake_policy command to set the policy and suppress this
+  warning.
+
+  For compatibility with older versions of CMake, try_compile is not honoring
+  language standard variables in the test project:
+
+    CMAKE_CXX_STANDARD
+
+Call Stack (most recent call first):
+  /usr/local/share/cmake-3.10/Modules/CMakeTestCXXCompiler.cmake:59 (CMAKE_DETERMINE_COMPILER_ABI)
+  CMakeLists.txt:2 (project)
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+-- Detecting CXX compiler ABI info - done
+-- Detecting CXX compile features
+CMake Warning (dev) at /usr/local/share/cmake-3.10/Modules/Internal/FeatureTesting.cmake:33 (try_compile):
+  Policy CMP0066 is not set: Honor per-config flags in try_compile()
+  source-file signature.  Run "cmake --help-policy CMP0066" for policy
+  details.  Use the cmake_policy command to set the policy and suppress this
+  warning.
+
+  For compatibility with older versions of CMake, try_compile is not honoring
+  caller config-specific compiler flags (e.g.  CMAKE_C_FLAGS_DEBUG) in the
+  test project.
+Call Stack (most recent call first):
+  /usr/local/share/cmake-3.10/Modules/Internal/FeatureTesting.cmake:79 (_record_compiler_features)
+  /usr/local/share/cmake-3.10/Modules/Compiler/CMakeCommonCompilerMacros.cmake:82 (_record_compiler_features_cxx)
+  /usr/local/share/cmake-3.10/Modules/CMakeDetermineCompileFeatures.cmake:55 (cmake_record_cxx_compile_features)
+  /usr/local/share/cmake-3.10/Modules/CMakeTestCXXCompiler.cmake:62 (CMAKE_DETERMINE_COMPILE_FEATURES)
+  CMakeLists.txt:2 (project)
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+CMake Warning (dev) at /usr/local/share/cmake-3.10/Modules/Internal/FeatureTesting.cmake:33 (try_compile):
+  Policy CMP0067 is not set: Honor language standard in try_compile()
+  source-file signature.  Run "cmake --help-policy CMP0067" for policy
+  details.  Use the cmake_policy command to set the policy and suppress this
+  warning.
+
+  For compatibility with older versions of CMake, try_compile is not honoring
+  language standard variables in the test project:
+
+    CMAKE_CXX_STANDARD
+
+Call Stack (most recent call first):
+  /usr/local/share/cmake-3.10/Modules/Internal/FeatureTesting.cmake:79 (_record_compiler_features)
+  /usr/local/share/cmake-3.10/Modules/Compiler/CMakeCommonCompilerMacros.cmake:82 (_record_compiler_features_cxx)
+  /usr/local/share/cmake-3.10/Modules/CMakeDetermineCompileFeatures.cmake:55 (cmake_record_cxx_compile_features)
+  /usr/local/share/cmake-3.10/Modules/CMakeTestCXXCompiler.cmake:62 (CMAKE_DETERMINE_COMPILE_FEATURES)
+  CMakeLists.txt:2 (project)
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+CMake Warning (dev) at /usr/local/share/cmake-3.10/Modules/Internal/FeatureTesting.cmake:33 (try_compile):
+  Policy CMP0066 is not set: Honor per-config flags in try_compile()
+  source-file signature.  Run "cmake --help-policy CMP0066" for policy
+  details.  Use the cmake_policy command to set the policy and suppress this
+  warning.
+
+  For compatibility with older versions of CMake, try_compile is not honoring
+  caller config-specific compiler flags (e.g.  CMAKE_C_FLAGS_DEBUG) in the
+  test project.
+Call Stack (most recent call first):
+  /usr/local/share/cmake-3.10/Modules/Internal/FeatureTesting.cmake:79 (_record_compiler_features)
+  /usr/local/share/cmake-3.10/Modules/Compiler/CMakeCommonCompilerMacros.cmake:85 (_record_compiler_features_cxx)
+  /usr/local/share/cmake-3.10/Modules/CMakeDetermineCompileFeatures.cmake:55 (cmake_record_cxx_compile_features)
+  /usr/local/share/cmake-3.10/Modules/CMakeTestCXXCompiler.cmake:62 (CMAKE_DETERMINE_COMPILE_FEATURES)
+  CMakeLists.txt:2 (project)
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+CMake Warning (dev) at /usr/local/share/cmake-3.10/Modules/Internal/FeatureTesting.cmake:33 (try_compile):
+  Policy CMP0067 is not set: Honor language standard in try_compile()
+  source-file signature.  Run "cmake --help-policy CMP0067" for policy
+  details.  Use the cmake_policy command to set the policy and suppress this
+  warning.
+
+  For compatibility with older versions of CMake, try_compile is not honoring
+  language standard variables in the test project:
+
+    CMAKE_CXX_STANDARD
+
+Call Stack (most recent call first):
+  /usr/local/share/cmake-3.10/Modules/Internal/FeatureTesting.cmake:79 (_record_compiler_features)
+  /usr/local/share/cmake-3.10/Modules/Compiler/CMakeCommonCompilerMacros.cmake:85 (_record_compiler_features_cxx)
+  /usr/local/share/cmake-3.10/Modules/CMakeDetermineCompileFeatures.cmake:55 (cmake_record_cxx_compile_features)
+  /usr/local/share/cmake-3.10/Modules/CMakeTestCXXCompiler.cmake:62 (CMAKE_DETERMINE_COMPILE_FEATURES)
+  CMakeLists.txt:2 (project)
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+CMake Warning (dev) at /usr/local/share/cmake-3.10/Modules/Internal/FeatureTesting.cmake:33 (try_compile):
+  Policy CMP0066 is not set: Honor per-config flags in try_compile()
+  source-file signature.  Run "cmake --help-policy CMP0066" for policy
+  details.  Use the cmake_policy command to set the policy and suppress this
+  warning.
+
+  For compatibility with older versions of CMake, try_compile is not honoring
+  caller config-specific compiler flags (e.g.  CMAKE_C_FLAGS_DEBUG) in the
+  test project.
+Call Stack (most recent call first):
+  /usr/local/share/cmake-3.10/Modules/Internal/FeatureTesting.cmake:79 (_record_compiler_features)
+  /usr/local/share/cmake-3.10/Modules/Compiler/CMakeCommonCompilerMacros.cmake:88 (_record_compiler_features_cxx)
+  /usr/local/share/cmake-3.10/Modules/CMakeDetermineCompileFeatures.cmake:55 (cmake_record_cxx_compile_features)
+  /usr/local/share/cmake-3.10/Modules/CMakeTestCXXCompiler.cmake:62 (CMAKE_DETERMINE_COMPILE_FEATURES)
+  CMakeLists.txt:2 (project)
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+CMake Warning (dev) at /usr/local/share/cmake-3.10/Modules/Internal/FeatureTesting.cmake:33 (try_compile):
+  Policy CMP0067 is not set: Honor language standard in try_compile()
+  source-file signature.  Run "cmake --help-policy CMP0067" for policy
+  details.  Use the cmake_policy command to set the policy and suppress this
+  warning.
+
+  For compatibility with older versions of CMake, try_compile is not honoring
+  language standard variables in the test project:
+
+    CMAKE_CXX_STANDARD
+
+Call Stack (most recent call first):
+  /usr/local/share/cmake-3.10/Modules/Internal/FeatureTesting.cmake:79 (_record_compiler_features)
+  /usr/local/share/cmake-3.10/Modules/Compiler/CMakeCommonCompilerMacros.cmake:88 (_record_compiler_features_cxx)
+  /usr/local/share/cmake-3.10/Modules/CMakeDetermineCompileFeatures.cmake:55 (cmake_record_cxx_compile_features)
+  /usr/local/share/cmake-3.10/Modules/CMakeTestCXXCompiler.cmake:62 (CMAKE_DETERMINE_COMPILE_FEATURES)
+  CMakeLists.txt:2 (project)
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+CMake Warning (dev) at /usr/local/share/cmake-3.10/Modules/Internal/FeatureTesting.cmake:33 (try_compile):
+  Policy CMP0066 is not set: Honor per-config flags in try_compile()
+  source-file signature.  Run "cmake --help-policy CMP0066" for policy
+  details.  Use the cmake_policy command to set the policy and suppress this
+  warning.
+
+  For compatibility with older versions of CMake, try_compile is not honoring
+  caller config-specific compiler flags (e.g.  CMAKE_C_FLAGS_DEBUG) in the
+  test project.
+Call Stack (most recent call first):
+  /usr/local/share/cmake-3.10/Modules/Internal/FeatureTesting.cmake:79 (_record_compiler_features)
+  /usr/local/share/cmake-3.10/Modules/Compiler/CMakeCommonCompilerMacros.cmake:91 (_record_compiler_features_cxx)
+  /usr/local/share/cmake-3.10/Modules/CMakeDetermineCompileFeatures.cmake:55 (cmake_record_cxx_compile_features)
+  /usr/local/share/cmake-3.10/Modules/CMakeTestCXXCompiler.cmake:62 (CMAKE_DETERMINE_COMPILE_FEATURES)
+  CMakeLists.txt:2 (project)
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+CMake Warning (dev) at /usr/local/share/cmake-3.10/Modules/Internal/FeatureTesting.cmake:33 (try_compile):
+  Policy CMP0067 is not set: Honor language standard in try_compile()
+  source-file signature.  Run "cmake --help-policy CMP0067" for policy
+  details.  Use the cmake_policy command to set the policy and suppress this
+  warning.
+
+  For compatibility with older versions of CMake, try_compile is not honoring
+  language standard variables in the test project:
+
+    CMAKE_CXX_STANDARD
+
+Call Stack (most recent call first):
+  /usr/local/share/cmake-3.10/Modules/Internal/FeatureTesting.cmake:79 (_record_compiler_features)
+  /usr/local/share/cmake-3.10/Modules/Compiler/CMakeCommonCompilerMacros.cmake:91 (_record_compiler_features_cxx)
+  /usr/local/share/cmake-3.10/Modules/CMakeDetermineCompileFeatures.cmake:55 (cmake_record_cxx_compile_features)
+  /usr/local/share/cmake-3.10/Modules/CMakeTestCXXCompiler.cmake:62 (CMAKE_DETERMINE_COMPILE_FEATURES)
+  CMakeLists.txt:2 (project)
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+-- Detecting CXX compile features - done
+-- Check whether the compiler implements namespaces
+CMake Warning (dev) at cmake/utils/CheckCXXFeatures.cmake:7 (try_compile):
+  Policy CMP0066 is not set: Honor per-config flags in try_compile()
+  source-file signature.  Run "cmake --help-policy CMP0066" for policy
+  details.  Use the cmake_policy command to set the policy and suppress this
+  warning.
+
+  For compatibility with older versions of CMake, try_compile is not honoring
+  caller config-specific compiler flags (e.g.  CMAKE_C_FLAGS_DEBUG) in the
+  test project.
+Call Stack (most recent call first):
+  cmake/utils/CheckCXXFeatures.cmake:86 (CHECK_CXX_FEATURE)
+  cmake/CompilerOptions.cmake:14 (CHECK_CXX_STANDARD_LIBRARY)
+  CMakeLists.txt:18 (include)
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+CMake Warning (dev) at cmake/utils/CheckCXXFeatures.cmake:7 (try_compile):
+  Policy CMP0067 is not set: Honor language standard in try_compile()
+  source-file signature.  Run "cmake --help-policy CMP0067" for policy
+  details.  Use the cmake_policy command to set the policy and suppress this
+  warning.
+
+  For compatibility with older versions of CMake, try_compile is not honoring
+  language standard variables in the test project:
+
+    CMAKE_CXX_STANDARD
+
+Call Stack (most recent call first):
+  cmake/utils/CheckCXXFeatures.cmake:86 (CHECK_CXX_FEATURE)
+  cmake/CompilerOptions.cmake:14 (CHECK_CXX_STANDARD_LIBRARY)
+  CMakeLists.txt:18 (include)
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+-- Check whether the compiler implements namespaces - found
+-- Check whether the compiler has isnormal function in namespace std
+CMake Warning (dev) at cmake/utils/CheckCXXFeatures.cmake:7 (try_compile):
+  Policy CMP0066 is not set: Honor per-config flags in try_compile()
+  source-file signature.  Run "cmake --help-policy CMP0066" for policy
+  details.  Use the cmake_policy command to set the policy and suppress this
+  warning.
+
+  For compatibility with older versions of CMake, try_compile is not honoring
+  caller config-specific compiler flags (e.g.  CMAKE_C_FLAGS_DEBUG) in the
+  test project.
+Call Stack (most recent call first):
+  cmake/utils/CheckCXXFeatures.cmake:102 (CHECK_CXX_FEATURE)
+  cmake/CompilerOptions.cmake:14 (CHECK_CXX_STANDARD_LIBRARY)
+  CMakeLists.txt:18 (include)
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+CMake Warning (dev) at cmake/utils/CheckCXXFeatures.cmake:7 (try_compile):
+  Policy CMP0067 is not set: Honor language standard in try_compile()
+  source-file signature.  Run "cmake --help-policy CMP0067" for policy
+  details.  Use the cmake_policy command to set the policy and suppress this
+  warning.
+
+  For compatibility with older versions of CMake, try_compile is not honoring
+  language standard variables in the test project:
+
+    CMAKE_CXX_STANDARD
+
+Call Stack (most recent call first):
+  cmake/utils/CheckCXXFeatures.cmake:102 (CHECK_CXX_FEATURE)
+  cmake/CompilerOptions.cmake:14 (CHECK_CXX_STANDARD_LIBRARY)
+  CMakeLists.txt:18 (include)
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+-- Check whether the compiler has isnormal function in namespace std - found
+-- Found OpenBLAS libraries: /usr/lib/x86_64-linux-gnu/libopenblas.so;/usr/lib/x86_64-linux-gnu/liblapacke.so
+-- Found OpenBLAS include: /usr/include/x86_64-linux-gnu
+-- Looking for pthread.h
+CMake Warning (dev) at /usr/local/share/cmake-3.10/Modules/CheckIncludeFile.cmake:56 (try_compile):
+  Policy CMP0066 is not set: Honor per-config flags in try_compile()
+  source-file signature.  Run "cmake --help-policy CMP0066" for policy
+  details.  Use the cmake_policy command to set the policy and suppress this
+  warning.
+
+  For compatibility with older versions of CMake, try_compile is not honoring
+  caller config-specific compiler flags (e.g.  CMAKE_C_FLAGS_DEBUG) in the
+  test project.
+Call Stack (most recent call first):
+  /usr/local/share/cmake-3.10/Modules/FindThreads.cmake:121 (CHECK_INCLUDE_FILE)
+  cmake/thirdParties.cmake:53 (find_package)
+  CMakeLists.txt:20 (include)
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+-- Looking for pthread.h - found
+-- Looking for pthread_create
+CMake Warning (dev) at /usr/local/share/cmake-3.10/Modules/CheckSymbolExists.cmake:85 (try_compile):
+  Policy CMP0066 is not set: Honor per-config flags in try_compile()
+  source-file signature.  Run "cmake --help-policy CMP0066" for policy
+  details.  Use the cmake_policy command to set the policy and suppress this
+  warning.
+
+  For compatibility with older versions of CMake, try_compile is not honoring
+  caller config-specific compiler flags (e.g.  CMAKE_C_FLAGS_DEBUG) in the
+  test project.
+Call Stack (most recent call first):
+  /usr/local/share/cmake-3.10/Modules/CheckSymbolExists.cmake:48 (__CHECK_SYMBOL_EXISTS_IMPL)
+  /usr/local/share/cmake-3.10/Modules/FindThreads.cmake:134 (CHECK_SYMBOL_EXISTS)
+  cmake/thirdParties.cmake:53 (find_package)
+  CMakeLists.txt:20 (include)
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+-- Looking for pthread_create - not found
+-- Looking for pthread_create in pthreads
+CMake Warning (dev) at /usr/local/share/cmake-3.10/Modules/CheckLibraryExists.cmake:54 (try_compile):
+  Policy CMP0066 is not set: Honor per-config flags in try_compile()
+  source-file signature.  Run "cmake --help-policy CMP0066" for policy
+  details.  Use the cmake_policy command to set the policy and suppress this
+  warning.
+
+  For compatibility with older versions of CMake, try_compile is not honoring
+  caller config-specific compiler flags (e.g.  CMAKE_C_FLAGS_DEBUG) in the
+  test project.
+Call Stack (most recent call first):
+  /usr/local/share/cmake-3.10/Modules/FindThreads.cmake:67 (CHECK_LIBRARY_EXISTS)
+  /usr/local/share/cmake-3.10/Modules/FindThreads.cmake:148 (_check_threads_lib)
+  cmake/thirdParties.cmake:53 (find_package)
+  CMakeLists.txt:20 (include)
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+-- Looking for pthread_create in pthreads - not found
+-- Looking for pthread_create in pthread
+CMake Warning (dev) at /usr/local/share/cmake-3.10/Modules/CheckLibraryExists.cmake:54 (try_compile):
+  Policy CMP0066 is not set: Honor per-config flags in try_compile()
+  source-file signature.  Run "cmake --help-policy CMP0066" for policy
+  details.  Use the cmake_policy command to set the policy and suppress this
+  warning.
+
+  For compatibility with older versions of CMake, try_compile is not honoring
+  caller config-specific compiler flags (e.g.  CMAKE_C_FLAGS_DEBUG) in the
+  test project.
+Call Stack (most recent call first):
+  /usr/local/share/cmake-3.10/Modules/FindThreads.cmake:67 (CHECK_LIBRARY_EXISTS)
+  /usr/local/share/cmake-3.10/Modules/FindThreads.cmake:149 (_check_threads_lib)
+  cmake/thirdParties.cmake:53 (find_package)
+  CMakeLists.txt:20 (include)
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+-- Looking for pthread_create in pthread - found
+-- Found Threads: TRUE  
+CMake Warning (dev) at /usr/local/share/cmake-3.10/Modules/FindHDF5.cmake:204 (try_compile):
+  Policy CMP0066 is not set: Honor per-config flags in try_compile()
+  source-file signature.  Run "cmake --help-policy CMP0066" for policy
+  details.  Use the cmake_policy command to set the policy and suppress this
+  warning.
+
+  For compatibility with older versions of CMake, try_compile is not honoring
+  caller config-specific compiler flags (e.g.  CMAKE_C_FLAGS_DEBUG) in the
+  test project.
+Call Stack (most recent call first):
+  /usr/local/share/cmake-3.10/Modules/FindHDF5.cmake:538 (_HDF5_test_regular_compiler_C)
+  cmake/Findmatio.cmake:20 (find_package)
+  cmake/thirdParties.cmake:58 (find_package)
+  CMakeLists.txt:20 (include)
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+-- HDF5: Using hdf5 compiler wrapper to determine C configuration
+-- Found HDF5: /usr/lib/x86_64-linux-gnu/hdf5/serial/libhdf5.so;/usr/lib/x86_64-linux-gnu/libpthread.so;/usr/lib/x86_64-linux-gnu/libsz.so;/usr/lib/x86_64-linux-gnu/libz.so;/usr/lib/x86_64-linux-gnu/libdl.so;/usr/lib/x86_64-linux-gnu/libm.so (found version "1.10.0.1")  
+-- matio.h /usr/include
 -- matio_library /usr/lib/x86_64-linux-gnu/libmatio.so
 -- Found matio: /usr/lib/x86_64-linux-gnu/libmatio.so  
 /usr/lib/x86_64-linux-gnu/cmake/CGAL/CGALConfig.cmake(9):  set(CGAL_CONFIG_LOADED TRUE )
@@ -106,3 +562,489 @@ CMake Warning (dev) at /usr/local/share/cmake-3.10/Modules/CheckCXXSourceCompile
   language standard variables in the test project:
 
     CMAKE_CXX_STANDARD
+
+Call Stack (most recent call first):
+  /usr/local/share/cmake-3.10/Modules/CheckCXXCompilerFlag.cmake:49 (CHECK_CXX_SOURCE_COMPILES)
+  /usr/local/share/cmake-3.10/Modules/GenerateExportHeader.cmake:215 (check_cxx_compiler_flag)
+  /usr/local/share/cmake-3.10/Modules/GenerateExportHeader.cmake:374 (_test_compiler_hidden_visibility)
+  OpenMEEGMaths/CMakeLists.txt:43 (generate_export_header)
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+-- Performing Test COMPILER_HAS_HIDDEN_VISIBILITY - Success
+-- Performing Test COMPILER_HAS_HIDDEN_INLINE_VISIBILITY
+CMake Warning (dev) at /usr/local/share/cmake-3.10/Modules/CheckCXXSourceCompiles.cmake:97 (try_compile):
+  Policy CMP0066 is not set: Honor per-config flags in try_compile()
+  source-file signature.  Run "cmake --help-policy CMP0066" for policy
+  details.  Use the cmake_policy command to set the policy and suppress this
+  warning.
+
+  For compatibility with older versions of CMake, try_compile is not honoring
+  caller config-specific compiler flags (e.g.  CMAKE_C_FLAGS_DEBUG) in the
+  test project.
+Call Stack (most recent call first):
+  /usr/local/share/cmake-3.10/Modules/CheckCXXCompilerFlag.cmake:49 (CHECK_CXX_SOURCE_COMPILES)
+  /usr/local/share/cmake-3.10/Modules/GenerateExportHeader.cmake:216 (check_cxx_compiler_flag)
+  /usr/local/share/cmake-3.10/Modules/GenerateExportHeader.cmake:374 (_test_compiler_hidden_visibility)
+  OpenMEEGMaths/CMakeLists.txt:43 (generate_export_header)
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+CMake Warning (dev) at /usr/local/share/cmake-3.10/Modules/CheckCXXSourceCompiles.cmake:97 (try_compile):
+  Policy CMP0067 is not set: Honor language standard in try_compile()
+  source-file signature.  Run "cmake --help-policy CMP0067" for policy
+  details.  Use the cmake_policy command to set the policy and suppress this
+  warning.
+
+  For compatibility with older versions of CMake, try_compile is not honoring
+  language standard variables in the test project:
+
+    CMAKE_CXX_STANDARD
+
+Call Stack (most recent call first):
+  /usr/local/share/cmake-3.10/Modules/CheckCXXCompilerFlag.cmake:49 (CHECK_CXX_SOURCE_COMPILES)
+  /usr/local/share/cmake-3.10/Modules/GenerateExportHeader.cmake:216 (check_cxx_compiler_flag)
+  /usr/local/share/cmake-3.10/Modules/GenerateExportHeader.cmake:374 (_test_compiler_hidden_visibility)
+  OpenMEEGMaths/CMakeLists.txt:43 (generate_export_header)
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+-- Performing Test COMPILER_HAS_HIDDEN_INLINE_VISIBILITY - Success
+-- Performing Test COMPILER_HAS_DEPRECATED_ATTR
+CMake Warning (dev) at /usr/local/share/cmake-3.10/Modules/CheckCXXSourceCompiles.cmake:97 (try_compile):
+  Policy CMP0066 is not set: Honor per-config flags in try_compile()
+  source-file signature.  Run "cmake --help-policy CMP0066" for policy
+  details.  Use the cmake_policy command to set the policy and suppress this
+  warning.
+
+  For compatibility with older versions of CMake, try_compile is not honoring
+  caller config-specific compiler flags (e.g.  CMAKE_C_FLAGS_DEBUG) in the
+  test project.
+Call Stack (most recent call first):
+  /usr/local/share/cmake-3.10/Modules/GenerateExportHeader.cmake:191 (check_cxx_source_compiles)
+  /usr/local/share/cmake-3.10/Modules/GenerateExportHeader.cmake:234 (_check_cxx_compiler_attribute)
+  /usr/local/share/cmake-3.10/Modules/GenerateExportHeader.cmake:375 (_test_compiler_has_deprecated)
+  OpenMEEGMaths/CMakeLists.txt:43 (generate_export_header)
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+CMake Warning (dev) at /usr/local/share/cmake-3.10/Modules/CheckCXXSourceCompiles.cmake:97 (try_compile):
+  Policy CMP0067 is not set: Honor language standard in try_compile()
+  source-file signature.  Run "cmake --help-policy CMP0067" for policy
+  details.  Use the cmake_policy command to set the policy and suppress this
+  warning.
+
+  For compatibility with older versions of CMake, try_compile is not honoring
+  language standard variables in the test project:
+
+    CMAKE_CXX_STANDARD
+
+Call Stack (most recent call first):
+  /usr/local/share/cmake-3.10/Modules/GenerateExportHeader.cmake:191 (check_cxx_source_compiles)
+  /usr/local/share/cmake-3.10/Modules/GenerateExportHeader.cmake:234 (_check_cxx_compiler_attribute)
+  /usr/local/share/cmake-3.10/Modules/GenerateExportHeader.cmake:375 (_test_compiler_has_deprecated)
+  OpenMEEGMaths/CMakeLists.txt:43 (generate_export_header)
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+-- Performing Test COMPILER_HAS_DEPRECATED_ATTR - Success
+CMake Warning (dev) at /usr/local/share/cmake-3.10/Modules/FindOpenMP.cmake:185 (try_compile):
+  Policy CMP0066 is not set: Honor per-config flags in try_compile()
+  source-file signature.  Run "cmake --help-policy CMP0066" for policy
+  details.  Use the cmake_policy command to set the policy and suppress this
+  warning.
+
+  For compatibility with older versions of CMake, try_compile is not honoring
+  caller config-specific compiler flags (e.g.  CMAKE_C_FLAGS_DEBUG) in the
+  test project.
+Call Stack (most recent call first):
+  /usr/local/share/cmake-3.10/Modules/FindOpenMP.cmake:363 (_OPENMP_GET_FLAGS)
+  OpenMEEG/CMakeLists.txt:28 (find_package)
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+CMake Warning (dev) at /usr/local/share/cmake-3.10/Modules/FindOpenMP.cmake:185 (try_compile):
+  Policy CMP0066 is not set: Honor per-config flags in try_compile()
+  source-file signature.  Run "cmake --help-policy CMP0066" for policy
+  details.  Use the cmake_policy command to set the policy and suppress this
+  warning.
+
+  For compatibility with older versions of CMake, try_compile is not honoring
+  caller config-specific compiler flags (e.g.  CMAKE_C_FLAGS_DEBUG) in the
+  test project.
+Call Stack (most recent call first):
+  /usr/local/share/cmake-3.10/Modules/FindOpenMP.cmake:363 (_OPENMP_GET_FLAGS)
+  OpenMEEG/CMakeLists.txt:28 (find_package)
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+CMake Warning (dev) at /usr/local/share/cmake-3.10/Modules/FindOpenMP.cmake:185 (try_compile):
+  Policy CMP0067 is not set: Honor language standard in try_compile()
+  source-file signature.  Run "cmake --help-policy CMP0067" for policy
+  details.  Use the cmake_policy command to set the policy and suppress this
+  warning.
+
+  For compatibility with older versions of CMake, try_compile is not honoring
+  language standard variables in the test project:
+
+    CMAKE_CXX_STANDARD
+
+Call Stack (most recent call first):
+  /usr/local/share/cmake-3.10/Modules/FindOpenMP.cmake:363 (_OPENMP_GET_FLAGS)
+  OpenMEEG/CMakeLists.txt:28 (find_package)
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+CMake Warning (dev) at /usr/local/share/cmake-3.10/Modules/FindOpenMP.cmake:306 (try_compile):
+  Policy CMP0066 is not set: Honor per-config flags in try_compile()
+  source-file signature.  Run "cmake --help-policy CMP0066" for policy
+  details.  Use the cmake_policy command to set the policy and suppress this
+  warning.
+
+  For compatibility with older versions of CMake, try_compile is not honoring
+  caller config-specific compiler flags (e.g.  CMAKE_C_FLAGS_DEBUG) in the
+  test project.
+Call Stack (most recent call first):
+  /usr/local/share/cmake-3.10/Modules/FindOpenMP.cmake:425 (_OPENMP_GET_SPEC_DATE)
+  OpenMEEG/CMakeLists.txt:28 (find_package)
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+-- Found OpenMP_C: -fopenmp (found version "4.5") 
+CMake Warning (dev) at /usr/local/share/cmake-3.10/Modules/FindOpenMP.cmake:306 (try_compile):
+  Policy CMP0066 is not set: Honor per-config flags in try_compile()
+  source-file signature.  Run "cmake --help-policy CMP0066" for policy
+  details.  Use the cmake_policy command to set the policy and suppress this
+  warning.
+
+  For compatibility with older versions of CMake, try_compile is not honoring
+  caller config-specific compiler flags (e.g.  CMAKE_C_FLAGS_DEBUG) in the
+  test project.
+Call Stack (most recent call first):
+  /usr/local/share/cmake-3.10/Modules/FindOpenMP.cmake:425 (_OPENMP_GET_SPEC_DATE)
+  OpenMEEG/CMakeLists.txt:28 (find_package)
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+CMake Warning (dev) at /usr/local/share/cmake-3.10/Modules/FindOpenMP.cmake:306 (try_compile):
+  Policy CMP0067 is not set: Honor language standard in try_compile()
+  source-file signature.  Run "cmake --help-policy CMP0067" for policy
+  details.  Use the cmake_policy command to set the policy and suppress this
+  warning.
+
+  For compatibility with older versions of CMake, try_compile is not honoring
+  language standard variables in the test project:
+
+    CMAKE_CXX_STANDARD
+
+Call Stack (most recent call first):
+  /usr/local/share/cmake-3.10/Modules/FindOpenMP.cmake:425 (_OPENMP_GET_SPEC_DATE)
+  OpenMEEG/CMakeLists.txt:28 (find_package)
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+-- Found OpenMP_CXX: -fopenmp (found version "4.5") 
+-- Found OpenMP: TRUE (found version "4.5")  
+-- Configuring done
+CMake Warning (dev) at OpenMEEGMaths/CMakeLists.txt:2 (add_library):
+  Policy CMP0060 is not set: Link libraries by full path even in implicit
+  directories.  Run "cmake --help-policy CMP0060" for policy details.  Use
+  the cmake_policy command to set the policy and suppress this warning.
+
+  Some library files are in directories implicitly searched by the linker
+  when invoked for CXX:
+
+   /usr/lib/x86_64-linux-gnu/libdl.so
+   /usr/lib/x86_64-linux-gnu/liblapacke.so
+   /usr/lib/x86_64-linux-gnu/libm.so
+   /usr/lib/x86_64-linux-gnu/libopenblas.so
+   /usr/lib/x86_64-linux-gnu/libpthread.so
+   /usr/lib/x86_64-linux-gnu/libsz.so
+   /usr/lib/x86_64-linux-gnu/libz.so
+
+  For compatibility with older versions of CMake, the generated link line
+  will ask the linker to search for these by library name.
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+CMake Warning (dev) in OpenMEEGMaths/tests/CMakeLists.txt:
+  Policy CMP0065 is not set: Do not add flags to export symbols from
+  executables without the ENABLE_EXPORTS target property.  Run "cmake
+  --help-policy CMP0065" for policy details.  Use the cmake_policy command to
+  set the policy and suppress this warning.
+
+  For compatibility with older versions of CMake, additional flags may be
+  added to export symbols on all executables regardless of their
+  ENABLE_EXPORTS property.
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+CMake Warning (dev) in OpenMEEGMaths/tests/CMakeLists.txt:
+  Policy CMP0065 is not set: Do not add flags to export symbols from
+  executables without the ENABLE_EXPORTS target property.  Run "cmake
+  --help-policy CMP0065" for policy details.  Use the cmake_policy command to
+  set the policy and suppress this warning.
+
+  For compatibility with older versions of CMake, additional flags may be
+  added to export symbols on all executables regardless of their
+  ENABLE_EXPORTS property.
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+CMake Warning (dev) in OpenMEEGMaths/tests/CMakeLists.txt:
+  Policy CMP0065 is not set: Do not add flags to export symbols from
+  executables without the ENABLE_EXPORTS target property.  Run "cmake
+  --help-policy CMP0065" for policy details.  Use the cmake_policy command to
+  set the policy and suppress this warning.
+
+  For compatibility with older versions of CMake, additional flags may be
+  added to export symbols on all executables regardless of their
+  ENABLE_EXPORTS property.
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+CMake Warning (dev) in OpenMEEGMaths/tests/CMakeLists.txt:
+  Policy CMP0065 is not set: Do not add flags to export symbols from
+  executables without the ENABLE_EXPORTS target property.  Run "cmake
+  --help-policy CMP0065" for policy details.  Use the cmake_policy command to
+  set the policy and suppress this warning.
+
+  For compatibility with older versions of CMake, additional flags may be
+  added to export symbols on all executables regardless of their
+  ENABLE_EXPORTS property.
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+CMake Warning (dev) in OpenMEEGMaths/tests/CMakeLists.txt:
+  Policy CMP0065 is not set: Do not add flags to export symbols from
+  executables without the ENABLE_EXPORTS target property.  Run "cmake
+  --help-policy CMP0065" for policy details.  Use the cmake_policy command to
+  set the policy and suppress this warning.
+
+  For compatibility with older versions of CMake, additional flags may be
+  added to export symbols on all executables regardless of their
+  ENABLE_EXPORTS property.
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+CMake Warning (dev) in apps/CMakeLists.txt:
+  Policy CMP0065 is not set: Do not add flags to export symbols from
+  executables without the ENABLE_EXPORTS target property.  Run "cmake
+  --help-policy CMP0065" for policy details.  Use the cmake_policy command to
+  set the policy and suppress this warning.
+
+  For compatibility with older versions of CMake, additional flags may be
+  added to export symbols on all executables regardless of their
+  ENABLE_EXPORTS property.
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+CMake Warning (dev) in apps/CMakeLists.txt:
+  Policy CMP0065 is not set: Do not add flags to export symbols from
+  executables without the ENABLE_EXPORTS target property.  Run "cmake
+  --help-policy CMP0065" for policy details.  Use the cmake_policy command to
+  set the policy and suppress this warning.
+
+  For compatibility with older versions of CMake, additional flags may be
+  added to export symbols on all executables regardless of their
+  ENABLE_EXPORTS property.
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+CMake Warning (dev) in apps/CMakeLists.txt:
+  Policy CMP0065 is not set: Do not add flags to export symbols from
+  executables without the ENABLE_EXPORTS target property.  Run "cmake
+  --help-policy CMP0065" for policy details.  Use the cmake_policy command to
+  set the policy and suppress this warning.
+
+  For compatibility with older versions of CMake, additional flags may be
+  added to export symbols on all executables regardless of their
+  ENABLE_EXPORTS property.
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+CMake Warning (dev) in apps/CMakeLists.txt:
+  Policy CMP0065 is not set: Do not add flags to export symbols from
+  executables without the ENABLE_EXPORTS target property.  Run "cmake
+  --help-policy CMP0065" for policy details.  Use the cmake_policy command to
+  set the policy and suppress this warning.
+
+  For compatibility with older versions of CMake, additional flags may be
+  added to export symbols on all executables regardless of their
+  ENABLE_EXPORTS property.
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+CMake Warning (dev) at apps/tools/CMakeLists.txt:78 (add_executable):
+  Policy CMP0060 is not set: Link libraries by full path even in implicit
+  directories.  Run "cmake --help-policy CMP0060" for policy details.  Use
+  the cmake_policy command to set the policy and suppress this warning.
+
+  Some library files are in directories implicitly searched by the linker
+  when invoked for CXX:
+
+   /usr/lib/x86_64-linux-gnu/libgmp.so
+   /usr/lib/x86_64-linux-gnu/libgmpxx.so
+   /usr/lib/x86_64-linux-gnu/libmpfr.so
+
+  For compatibility with older versions of CMake, the generated link line
+  will ask the linker to search for these by library name.
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+CMake Warning (dev) in apps/tools/CMakeLists.txt:
+  Policy CMP0065 is not set: Do not add flags to export symbols from
+  executables without the ENABLE_EXPORTS target property.  Run "cmake
+  --help-policy CMP0065" for policy details.  Use the cmake_policy command to
+  set the policy and suppress this warning.
+
+  For compatibility with older versions of CMake, additional flags may be
+  added to export symbols on all executables regardless of their
+  ENABLE_EXPORTS property.
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+CMake Warning (dev) in apps/tools/CMakeLists.txt:
+  Policy CMP0065 is not set: Do not add flags to export symbols from
+  executables without the ENABLE_EXPORTS target property.  Run "cmake
+  --help-policy CMP0065" for policy details.  Use the cmake_policy command to
+  set the policy and suppress this warning.
+
+  For compatibility with older versions of CMake, additional flags may be
+  added to export symbols on all executables regardless of their
+  ENABLE_EXPORTS property.
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+CMake Warning (dev) in apps/tools/CMakeLists.txt:
+  Policy CMP0065 is not set: Do not add flags to export symbols from
+  executables without the ENABLE_EXPORTS target property.  Run "cmake
+  --help-policy CMP0065" for policy details.  Use the cmake_policy command to
+  set the policy and suppress this warning.
+
+  For compatibility with older versions of CMake, additional flags may be
+  added to export symbols on all executables regardless of their
+  ENABLE_EXPORTS property.
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+CMake Warning (dev) in apps/tools/CMakeLists.txt:
+  Policy CMP0065 is not set: Do not add flags to export symbols from
+  executables without the ENABLE_EXPORTS target property.  Run "cmake
+  --help-policy CMP0065" for policy details.  Use the cmake_policy command to
+  set the policy and suppress this warning.
+
+  For compatibility with older versions of CMake, additional flags may be
+  added to export symbols on all executables regardless of their
+  ENABLE_EXPORTS property.
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+CMake Warning (dev) in apps/tools/CMakeLists.txt:
+  Policy CMP0065 is not set: Do not add flags to export symbols from
+  executables without the ENABLE_EXPORTS target property.  Run "cmake
+  --help-policy CMP0065" for policy details.  Use the cmake_policy command to
+  set the policy and suppress this warning.
+
+  For compatibility with older versions of CMake, additional flags may be
+  added to export symbols on all executables regardless of their
+  ENABLE_EXPORTS property.
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+CMake Warning (dev) in apps/tools/CMakeLists.txt:
+  Policy CMP0065 is not set: Do not add flags to export symbols from
+  executables without the ENABLE_EXPORTS target property.  Run "cmake
+  --help-policy CMP0065" for policy details.  Use the cmake_policy command to
+  set the policy and suppress this warning.
+
+  For compatibility with older versions of CMake, additional flags may be
+  added to export symbols on all executables regardless of their
+  ENABLE_EXPORTS property.
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+CMake Warning (dev) in apps/tools/CMakeLists.txt:
+  Policy CMP0065 is not set: Do not add flags to export symbols from
+  executables without the ENABLE_EXPORTS target property.  Run "cmake
+  --help-policy CMP0065" for policy details.  Use the cmake_policy command to
+  set the policy and suppress this warning.
+
+  For compatibility with older versions of CMake, additional flags may be
+  added to export symbols on all executables regardless of their
+  ENABLE_EXPORTS property.
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+CMake Warning (dev) in apps/tools/CMakeLists.txt:
+  Policy CMP0065 is not set: Do not add flags to export symbols from
+  executables without the ENABLE_EXPORTS target property.  Run "cmake
+  --help-policy CMP0065" for policy details.  Use the cmake_policy command to
+  set the policy and suppress this warning.
+
+  For compatibility with older versions of CMake, additional flags may be
+  added to export symbols on all executables regardless of their
+  ENABLE_EXPORTS property.
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+CMake Warning (dev) in apps/tools/CMakeLists.txt:
+  Policy CMP0065 is not set: Do not add flags to export symbols from
+  executables without the ENABLE_EXPORTS target property.  Run "cmake
+  --help-policy CMP0065" for policy details.  Use the cmake_policy command to
+  set the policy and suppress this warning.
+
+  For compatibility with older versions of CMake, additional flags may be
+  added to export symbols on all executables regardless of their
+  ENABLE_EXPORTS property.
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+CMake Warning (dev) in apps/tools/CMakeLists.txt:
+  Policy CMP0065 is not set: Do not add flags to export symbols from
+  executables without the ENABLE_EXPORTS target property.  Run "cmake
+  --help-policy CMP0065" for policy details.  Use the cmake_policy command to
+  set the policy and suppress this warning.
+
+  For compatibility with older versions of CMake, additional flags may be
+  added to export symbols on all executables regardless of their
+  ENABLE_EXPORTS property.
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+CMake Warning (dev) in apps/tools/CMakeLists.txt:
+  Policy CMP0065 is not set: Do not add flags to export symbols from
+  executables without the ENABLE_EXPORTS target property.  Run "cmake
+  --help-policy CMP0065" for policy details.  Use the cmake_policy command to
+  set the policy and suppress this warning.
+
+  For compatibility with older versions of CMake, additional flags may be
+  added to export symbols on all executables regardless of their
+  ENABLE_EXPORTS property.
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+CMake Warning (dev) in apps/tools/CMakeLists.txt:
+  Policy CMP0065 is not set: Do not add flags to export symbols from
+  executables without the ENABLE_EXPORTS target property.  Run "cmake
+  --help-policy CMP0065" for policy details.  Use the cmake_policy command to
+  set the policy and suppress this warning.
+
+  For compatibility with older versions of CMake, additional flags may be
+  added to export symbols on all executables regardless of their
+  ENABLE_EXPORTS property.
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+CMake Warning (dev) in apps/tools/CMakeLists.txt:
+  Policy CMP0065 is not set: Do not add flags to export symbols from
+  executables without the ENABLE_EXPORTS target property.  Run "cmake
+  --help-policy CMP0065" for policy details.  Use the cmake_policy command to
+  set the policy and suppress this warning.
+
+  For compatibility with older versions of CMake, additional flags may be
+  added to export symbols on all executables regardless of their
+  ENABLE_EXPORTS property.
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+CMake Warning (dev) in apps/tools/CMakeLists.txt:
+  Policy CMP0065 is not set: Do not add flags to export symbols from
+  executables without the ENABLE_EXPORTS target property.  Run "cmake
+  --help-policy CMP0065" for policy details.  Use the cmake_policy command to
+  set the policy and suppress this warning.
+
+  For compatibility with older versions of CMake, additional flags may be
+  added to export symbols on all executables regardless of their
+  ENABLE_EXPORTS property.
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+CMake Warning (dev) in apps/tools/CMakeLists.txt:
+  Policy CMP0065 is not set: Do not add flags to export symbols from
+  executables without the ENABLE_EXPORTS target property.  Run "cmake
+  --help-policy CMP0065" for policy details.  Use the cmake_policy command to
+  set the policy and suppress this warning.
+
+  For compatibility with older versions of CMake, additional flags may be
+  added to export symbols on all executables regardless of their
+  ENABLE_EXPORTS property.
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+CMake Warning (dev) in apps/tools/CMakeLists.txt:
+  Policy CMP0065 is not set: Do not add flags to export symbols from
+  executables without the ENABLE_EXPORTS target property.  Run "cmake
+  --help-policy CMP0065" for policy details.  Use the cmake_policy command to
+  set the policy and suppress this warning.
+
+  For compatibility with older versions of CMake, additional flags may be
+  added to export symbols on all executables regardless of their
+  ENABLE_EXPORTS property.
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+-- Generating done
+-- Build files have been written to: /home/sik/code/openmeeg/build
