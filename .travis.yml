@@ -21,6 +21,7 @@ matrix:
         - BACKEND=OpenBLAS
         - USE_VTK=ON
         - ENABLE_PYTHON=ON
+        - ANALYSE=ON  
       addons:
         sources:
           - ubuntu-toolchain-r-test
@@ -45,7 +46,7 @@ matrix:
     - os: osx  # Static analysis using clang-analyzer
       env:
         - BACKEND=Apple
-        # - ANALYSE=ON  # XXX : put back ON when works...
+        - ANALYSE=ON 
 
 before_install:
   - |
@@ -113,7 +114,8 @@ before_install:
         rm checker-276.bz2;
       fi
       shopt -s expand_aliases
-      alias cmake="${SCAN_BUILD} cmake -DCMAKE_BUILD_TYPE=Debug"
+      # alias cmake="${SCAN_BUILD} cmake -DCMAKE_BUILD_TYPE=Debug"
+      alias cmake="cmake -DCMAKE_BUILD_TYPE=Debug"
       alias make="${SCAN_BUILD} make"
     fi
 
