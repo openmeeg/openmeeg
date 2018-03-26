@@ -27,7 +27,6 @@ matrix:
             - liblapacke-dev # XXX: If lapacke is missing, cmake does not break at generation but at compilation.
             - swig
             - python-numpy
-            - libcgal-dev
     - os: osx  # shipping brew
       env:
         - BACKEND=Intel10_64lp  # XXX : move to openblas
@@ -87,8 +86,17 @@ before_install:
   ############################################################################
   # Install CGAL
   ############################################################################
-  - if [[ "${TRAVIS_OS_NAME}" == "osx" ]] && [[ "${USE_CGAL}" == "ON" ]]; then
-        brew install cgal;
+  - |
+    if [[ "${USE_CGAL}" == "ON" ]]; then
+        if [[ "${TRAVIS_OS_NAME}" == "linux" ]]; then
+            if ! [ -x "$(command -v conda)" ]; then
+                git clone https://github.com/astropy/ci-helpers.git;
+                source ci-helpers/travis/setup_conda.sh;
+            fi
+            conda install -c conda-forge cgal;
+        else
+            brew install cgal;
+        fi
     fi
 
   ############################################################################
