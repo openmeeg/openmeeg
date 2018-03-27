@@ -104,7 +104,7 @@ before_install:
   - |
     if [[ "${USE_CGAL}" == "ON" ]]; then
         if  [[ "${TRAVIS_OS_NAME}" == "osx" ]]; then
-            brew list cgal &>/dev/null || brew install cgal
+            brew list cgal &>/dev/null || brew install cgal;
         else
             echo "cgal from trusty is too old. More recent ubuntu version needed.";
             boom  # XXX
