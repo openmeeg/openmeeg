@@ -1,5 +1,18 @@
-Release 2.1:
+Release 2.4:
+	
+New features:
+	- handles non-nested geometries: domains (still with constant isotropic conductivity)
+	  do not have to be nested inside one another
+	- handles domains with zero conductivity (modeling ventricles or silicone material)
+	- supports CGAL meshing tools (allowing to remesh or decimate existing meshes,
+	  or to mesh a levelset)
+	- supports linear algebra packages MKL and OpenBLAS, on all platforms (linux, MacOS and Windows) 
 
+Improvements:
+	- Python interfacing with new wrappers that avoid memory loss
+	- supports Gifti and VTK mesh formats
+
+Release 2.1:
 New features:
 	- added the adjoint way for computing a leadfield for either EEG, MEG or
 	  MEEG simultaneously. This save a lot of time and memory for big systems (>1000 pts/surfaces).
