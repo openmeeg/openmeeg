@@ -33,7 +33,7 @@ matrix:
             - liblapacke-dev # XXX: If lapacke is missing, cmake does not break at generation but at compilation.
             - swig
             - python-numpy
-            - libcgal-dev
+            # - libcgal-dev # XXX : cgal from trusty is too old. More recent ubuntu version needed.
     - os: osx  # shipping mac
       env:
         - BACKEND=Intel10_64lp
@@ -106,15 +106,8 @@ before_install:
         if  [[ "${TRAVIS_OS_NAME}" == "osx" ]]; then
             brew install cgal;
         else
-            cd $DL_DIR;
-            travis_retry curl -L -o CGAL-4.11.1.tar.gz https://github.com/CGAL/cgal/archive/releases/CGAL-4.11.1.tar.gz;
-            tar zxvf CGAL-4.11.1.tar.gz &> install.log;
-            cd cgal-releases-CGAL-4.11.1;
-            CMAKE_OPTIONS+=" -DCMAKE_BUILD_TYPE=Release -DWITH_Eigen3=OFF";
-            echo ${CMAKE_OPTIONS};
-            cmake ${CMAKE_OPTIONS} -G Ninja .;
-            cmake --build .;
-            sudo env "PATH=$PATH" cmake --build . --target install &> install.log;
+            echo "cgal from trusty is too old. More recent ubuntu version needed."
+            boom  # XXX
         fi
     fi
 
