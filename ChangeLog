@@ -9,27 +9,27 @@ New features:
 	- can use linear algebra packages MKL and OpenBLAS, on all platforms (linux, MacOS and Windows) 
 
 Improvements:
-	- Python interfacing with new wrappers that avoid memory loss
-	- supports Gifti and VTK mesh formats
+	- support for VTK mesh formats
 
 Release 2.1:
 New features:
 	- added the adjoint way for computing a leadfield for either EEG, MEG or
 	  MEEG simultaneously. This save a lot of time and memory for big systems (>1000 pts/surfaces).
+
 Improvements:
 	- better ordering in computations when inverting the matrix for the memory footprint.
 	- storage now more effective using the matio library even for symmetric matrices.
 	- support for matlab7.3 file format.
 	- reducing memory footprint of DSM, Head2MEG, SurfSource2MEG and DipSource2MEG computations
-    - improved MKL detection
+	- improved MKL detection
 	- lapack inclusion (experimental) to ease the build on architectures where
 	there is no alternative.
 
 Bug corrections:
-    - allowance of spaces in mesh file names with a new .geom format (old
-	format is still accepted).
-    - bug when loading sensor file with no empty line at the end
-    - fix leak in Mesh class
+	- allowance of spaces in mesh file names with a new .geom format (old
+	  format is still accepted).
+	- bug when loading sensor file with no empty line at the end
+	- fix leak in Mesh class
 
 Removed features:
     - TV inverse solver
@@ -42,6 +42,7 @@ New features:
 	- added target for uninstalling (make uninstall).
 	- possibility of evaluating the potential at any point within inner volume.
 	- for Functional Electric Stimulation: added a new criterion to optimize: current activation.
+
 Improvements:
 	- support for MKL-10.0 on MacOS.
 	- added the possibility of statically linked libraries for easier distribution (unix only).
