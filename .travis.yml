@@ -23,7 +23,7 @@ matrix:
         - USE_VTK=ON
         - ENABLE_PYTHON=ON
         - USE_CGAL=ON
-        - ANALYSE=ON  
+        - ANALYSE=ON
       addons:
         sources:
           - ubuntu-toolchain-r-test
@@ -48,7 +48,7 @@ matrix:
     - os: osx  # Static analysis using clang-analyzer
       env:
         - BACKEND=Apple
-        - ANALYSE=ON 
+        - ANALYSE=ON
 
 before_install:
   - |
