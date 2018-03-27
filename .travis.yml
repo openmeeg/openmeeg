@@ -41,7 +41,7 @@ matrix:
       env:
         - BACKEND=OpenBLAS
         # - USE_GCC=ON  # XXX : vtk does not work with GCC
-        - USE_BREW_LLVM=ON  # To have OpenMP
+        # - USE_BREW_LLVM=ON  # XXX: To have OpenMP but segfaults...
         - USE_VTK=ON
 
     - os: osx  # Static analysis using clang-analyzer
@@ -131,8 +131,8 @@ before_install:
         export DYLD_LIBRARY_PATH="/usr/local/opt/llvm/lib:$DYLD_LIBRARY_PATH";
         export CC="/usr/local/opt/llvm/bin/clang";
         export CXX="/usr/local/opt/llvm/bin/clang++";
-        export CPPFLAGS="-I/usr/local/opt/llvm/include -fopenmp $CPPFLAGS";
-        export CFLAGS="-I/usr/local/opt/llvm/include -fopenmp $CFLAGS";
+        export CPPFLAGS="-I/usr/local/opt/llvm/include $CPPFLAGS";
+        export CFLAGS="-I/usr/local/opt/llvm/include $CFLAGS";
     fi
 
   ############################################################################
@@ -149,9 +149,9 @@ script:
   - mkdir -p build && cd build
   - |
     if [[ $BUILD_PACKAGE == "ON" && $TRAVIS_PULL_REQUEST == "false" && $TRAVIS_BRANCH == "master" ]]; then
-      export CMAKE_OPTIONS="-DCMAKE_CXX_STANDARD=11 -DBLA_VENDOR=$BACKEND"
+      export CMAKE_OPTIONS=" -DBLA_VENDOR=$BACKEND"
     else
-      export CMAKE_OPTIONS="-DCMAKE_CXX_STANDARD=11 -DBLA_VENDOR=$BACKEND -DENABLE_COVERAGE=ON"
+      export CMAKE_OPTIONS=" -DBLA_VENDOR=$BACKEND -DENABLE_COVERAGE=ON"
     fi
   - |
     if [[ "${BUILD_STATIC}" == "ON" ]]; then
