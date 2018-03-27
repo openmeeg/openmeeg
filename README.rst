@@ -57,19 +57,19 @@ Unix (Linux & Mac OS X)
 
 On Debian/Ubuntu you will need to install the dependencies with::
 
-    sudo apt-get install git-core gcc g++ make cmake libopenblas-dev liblapacke-dev
+    sudo apt-get install gcc g++ make cmake libopenblas-dev liblapacke-dev libhdf5-serial-dev libmatio-dev
 
 *optionally*::
 
-    sudo apt-get install libhdf5-serial-dev libmatio-dev python-dev python-numpy swig libvtk6-dev doxygen libcgal-dev
+    sudo apt-get install python-dev python-numpy swig libvtk6-dev doxygen libcgal-dev
 
 On Fedora and Centos::
 
-    sudo yum install git-core gcc make cmake wget perl openblas-devel
+    sudo yum install gcc make cmake openblas-devel hdf5-devel matio-devel
 
 *optionally*::
 
-    sudo yum install hdf5-devel matio-devel python-devel python2-numpy swig vtk-devel doxygen cgal-devel
+    sudo yum install python-devel python2-numpy swig vtk-devel doxygen cgal-devel
 
 On Mac OS X, you'll need `CMake <http://www.cmake.org>`_. We recommend you install it with `Homebrew <http://brew.sh/>`_ using::
 
@@ -77,26 +77,16 @@ On Mac OS X, you'll need `CMake <http://www.cmake.org>`_. We recommend you insta
 
 To configure your environment with Homebrew install the following packages with the brew command::
 
-    $ brew tap homebrew/science
-    $ brew update && brew upgrade
-
-    *optionally* but recommended::
-
-    $ brew install libmatio
+    $ brew install hdf5 libmatio
     $ brew install openblas && brew link openblas --force
 
     *optionally*::
 
-    $ brew tap homebrew/python  # to have Python bindings
     $ brew install vtk  # to have support for VTK file format
-    $ brew install --with-qt5 cgal  # to use CGAL meshing tools
     $ brew install Doxygen  # to build the documentation
+    $ brew install --with-qt5 cgal  # to use CGAL meshing tools
 
 Then from a terminal::
-
-    $ git clone git://github.com/openmeeg/openmeeg.git
-
-or if it does not work try::
 
     $ git clone https://github.com/openmeeg/openmeeg.git
 
@@ -105,15 +95,11 @@ then::
     $ cd openmeeg
     $ mkdir build
     $ cd build
-    $ cmake -DBUILD_TESTING=ON -DCMAKE_BUILD_TYPE=Release -DUSE_PROGRESSBAR=ON ..
+    $ cmake -DCMAKE_BUILD_TYPE=Release -DUSE_PROGRESSBAR=ON -DBLA_VENDOR=OpenBLAS ..
     $ make
 
 
 You will need to define more CMake variables if you want the support for:
-
-- Parallel computation with OpenMP, add "-DUSE_OMP=ON". Then you can set the number of threads you want to run in parallel by setting the OMP_NUM_THREADS environment variable. On a Unix system if you want to run 4 threads in parallel do (before running OpenMEEG)::
-
-    $ export OMP_NUM_THREADS=4
 
 - Python wrapping, add "-DENABLE_PYTHON=ON".
 
@@ -121,13 +107,15 @@ You will need to define more CMake variables if you want the support for:
 
 - CGAL meshing tools, add "-DUSE_CGAL=ON".
 
+- Build the documentation, add "-DBUILD_DOCUMENTATION=ON".
+
 Then you can run the full test suite with::
 
-    $ make check
+    $ make
 
 or if you just want to run the tests for OpenMEEG::
 
-    $ make test-OpenMEEG
+    $ make test
 
 If no test is failing you can install with::
 
@@ -164,14 +152,16 @@ Windows
 You will need to install visual studio, `CMake <http://www.cmake.org>`_.
 Then download the source from github, load the CMake.exe GUI, set the proper option
 and generate the visual studio project. You can then open it and build the project.
+Note that on Windows we currently recommend to use Intel MKL library.
+See how we build OpenMEEG on AppVeyor: `.appveyor.yml <https://github.com/openmeeg/openmeeg/blob/master/.appveyor.yml>`_
 
 Supported Blas-Lapack Implementations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-- on Linux: `Intel MKL <http://software.intel.com/en-us/intel-mkl/>`_ , `OpenBLAS <http://www.openblas.net/>`_, `Atlas <http://math-atlas.sourceforge.net>`_, Lapack
+- on Linux: `Intel MKL <http://software.intel.com/en-us/intel-mkl/>`_ , `OpenBLAS <http://www.openblas.net/>`_ (and possibly `Atlas <http://math-atlas.sourceforge.net>`_)
 
 - on Mac OS X: `Intel MKL <http://software.intel.com/en-us/intel-mkl/>`_ , `OpenBLAS <http://www.openblas.net/>`_, `vecLib <https://developer.apple.com/reference/accelerate/veclib>`_
 
-- on Windows: `Intel MKL <http://software.intel.com/en-us/intel-mkl/>`_ , `OpenBLAS <http://www.openblas.net/>`_, `Clapack <https://github.com/openmeeg/clapack>`_
+- on Windows: `Intel MKL <http://software.intel.com/en-us/intel-mkl/>`_ , `OpenBLAS <http://www.openblas.net/>`_
 
 Using OpenMEEG
 --------------
