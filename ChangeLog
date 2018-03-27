@@ -1,12 +1,12 @@
 Release 2.4:
 	
 New features:
-	- handles non-nested geometries: domains (still with constant isotropic conductivity)
-	  do not have to be nested inside one another
-	- handles domains with zero conductivity (modeling ventricles or silicone material)
-	- supports CGAL meshing tools (allowing to remesh or decimate existing meshes,
+	- handles non-nested geometries: domains can have several neighbors as long as their
+	  conductivity is constant and isotropic.
+	- handles zero-conductivity domains (modeling ventricles or silicone material)
+	- CGAL meshing tools (allowing to remesh or decimate existing meshes,
 	  or to mesh a levelset)
-	- supports linear algebra packages MKL and OpenBLAS, on all platforms (linux, MacOS and Windows) 
+	- can use linear algebra packages MKL and OpenBLAS, on all platforms (linux, MacOS and Windows) 
 
 Improvements:
 	- Python interfacing with new wrappers that avoid memory loss
@@ -22,7 +22,7 @@ Improvements:
 	- support for matlab7.3 file format.
 	- reducing memory footprint of DSM, Head2MEG, SurfSource2MEG and DipSource2MEG computations
     - improved MKL detection
-	- lapack inclusion (experimental) to ease the build on architectures were
+	- lapack inclusion (experimental) to ease the build on architectures where
 	there is no alternative.
 
 Bug corrections:
