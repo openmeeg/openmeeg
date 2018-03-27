@@ -108,7 +108,6 @@ then::
     $ cmake -DBUILD_TESTING=ON -DCMAKE_BUILD_TYPE=Release -DUSE_PROGRESSBAR=ON ..
     $ make
 
-OpenMEEG will download and compile the **zlib**, (optional **vtk**), **hdf5**, and **matio** by default. In case your system already provides these libraries (see optional packages), you should specify the following variables to the cmake command line: "-DUSE_SYSTEM_zlib=ON -DUSE_SYSTEM_hdf5=ON -DUSE_SYSTEM_matio=ON".
 
 You will need to define more CMake variables if you want the support for:
 
@@ -137,7 +136,7 @@ If no test is failing you can install with::
 You should now be able to run the *om_assemble* command and see something like this::
 
     $ om_assemble
-    om_assemble version 2.3.2 compiled at May 24 2017 11:43:33
+    om_assemble version 2.4.0 compiled at Mar 21 2018 18:17:12
 
     om_assemble [-option] [filepaths...]
 
@@ -178,8 +177,6 @@ Using OpenMEEG
 --------------
 
 Have a look into data/README.rst for defining your geometry.
-and/or
-specify to cmake "-DBUILD_TUTORIALS=ON", and read the tutorials in pdf.
 
 CeCILL-B full license
 ---------------------
