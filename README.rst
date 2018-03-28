@@ -61,7 +61,7 @@ On Debian/Ubuntu you will need to install the dependencies with::
 
 *optionally*::
 
-    sudo apt-get install python-dev python-numpy swig libvtk6-dev doxygen libcgal-dev
+    sudo apt-get install python-dev python-numpy swig libvtk6-dev doxygen graphviz libcgal-dev
 
 On Fedora and Centos::
 
@@ -107,7 +107,7 @@ You will need to define more CMake variables if you want the support for:
 
 - CGAL meshing tools, add "-DUSE_CGAL=ON".
 
-- Build the documentation, add "-DBUILD_DOCUMENTATION=ON".
+- Reference documentation, add "-DBUILD_DOCUMENTATION=ON". Make sure to have `doxygen` with `dot` support.
 
 Then you can run the full test suite with::
 
