@@ -65,4 +65,10 @@ if (BUILD_TESTING)
             "${MKL_ROOT_DIR}/lib/intel64/libmkl_sequential.so\"")
         set_tests_properties(openmeeg_python PROPERTIES ENVIRONMENT LD_PRELOAD=${MKL_ROOT_DIR}/lib/intel64/libmkl_core.so:${MKL_ROOT_DIR}/lib/intel64/libmkl_sequential.so)
     endif()
+
+    if(BUILD_REFERENCE_DOC)
+        execute_process(COMMAND ${CMAKE_COMMAND} -E copy ${OpenMEEG_SOURCE_DIR}/wrapping/src/test_doc.py ${OpenMEEG_BINARY_DIR}/wrapping/src/)
+        add_test(openmeeg_python_doc ${PYTHON_EXECUTABLE} ${OpenMEEG_BINARY_DIR}/wrapping/src/test_doc.py)
+    endif(BUILD_REFERENCE_DOC)
+
 endif()
