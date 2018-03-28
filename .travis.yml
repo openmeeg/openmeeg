@@ -93,7 +93,7 @@ before_install:
                 git clone https://github.com/astropy/ci-helpers.git;
                 source ci-helpers/travis/setup_conda.sh;
             fi
-            conda install -c conda-forge cgal;
+            conda install -c conda-forge cgal=4.9;
         else
             brew install cgal;
         fi
