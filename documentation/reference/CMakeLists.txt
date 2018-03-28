@@ -9,9 +9,21 @@ IF (BUILD_DOCUMENTATION)
     #
     # Configure the script and the doxyfile, then add target
     #
+    # XXXX: This should not be done in this manner, or at least it should break when dot is not found.
+    #       The way to do that is:
+    #       find_package(Doxygen
+    #                    REQUIRED dot
+    #                    OPTIONAL_COMPONENTS gnuplot)
+    #       if(NOT DOXYGEN_DOT_FOUND)
+    #            message(WARNING "Graphviz doesn't seem to be installed.\
+    #                             Doxygen will not be able to generate graphs.\
+    #                             Consider installing this package.")
+    #       endif(NOT DOXYGEN_DOT_FOUND)
+    #
     IF(NOT DOT_PATH)
         GET_FILENAME_COMPONENT(DOT_PATH ${DOT} PATH)
     ENDIF(NOT DOT_PATH)
+
 
     IF (NOT USE_CGAL)
         SET(OpenMEEG_EXCLUDE_FROM_DOCUMENTATION
