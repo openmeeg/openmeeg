@@ -11,3 +11,5 @@ ENDIF (BUILD_REFERENCE_DOC)
 IF (BUILD_TUTORIALS)
     SUBDIRS(tutorial)
 ENDIF (BUILD_TUTORIALS)
+
+# XXX: Add a test to ensure that documentation is generated properly
