@@ -32,6 +32,7 @@ add_subdirectory(OpenMEEGMaths)
 add_subdirectory(OpenMEEG)
 add_subdirectory(apps)
 add_subdirectory(wrapping)
+add_subdirectory(documentation)
 
 ################
 # OpenMEEG Export

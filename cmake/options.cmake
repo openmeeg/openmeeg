@@ -6,6 +6,8 @@ option(USE_VTK "Use VTK" OFF)
 option(ENABLE_COVERAGE "Enable coverage" OFF)
 
 option(ENABLE_PYTHON "Enable python bindings" OFF)
+option(BUILD_DOCUMENTATION "Build doxygen documentation when building all" OFF)
+mark_as_advanced(BUILD_DOCUMENTATION)
 
 if (ENABLE_COVERAGE)
     if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
