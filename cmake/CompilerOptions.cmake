@@ -10,7 +10,6 @@ endif()
 #   unneeded options. The needed functionalities should be checked
 #   here
 
-set(CMAKE_CXX_STANDARD 11)  # use c++11
 include(CheckCXXFeatures)
 CHECK_CXX_STANDARD_LIBRARY()
 
