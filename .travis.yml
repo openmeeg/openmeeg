@@ -20,7 +20,7 @@ matrix:
       env:
         - BACKEND=OpenBLAS
         - USE_VTK=ON
-        # - ENABLE_PYTHON=ON
+        - ENABLE_PYTHON=ON
         - ANALYSE=ON
         - BUILD_DOCUMENTATION=ON
       addons:
