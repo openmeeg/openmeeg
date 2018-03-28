@@ -1,6 +1,8 @@
 cmake_minimum_required (VERSION 3.2)
 project (OpenMEEG VERSION 2.4.0 LANGUAGES C CXX)
 
+set(CMAKE_CXX_STANDARD 11)  # use c++11
+
 set(OpenMEEG_HEADER_INSTALLDIR include) # XXX I don't know why this should be here
 
 # Modify where to find the modules

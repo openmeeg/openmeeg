@@ -39,8 +39,9 @@ matrix:
 
     - os: osx  # shipping brew
       env:
-        - BACKEND=Intel10_64lp  # XXX : move to openblas
+        - BACKEND=OpenBLAS
         # - USE_GCC=ON  # XXX : vtk does not work with GCC
+        # - USE_BREW_LLVM=ON  # XXX: To have OpenMP but segfaults...
         - USE_VTK=ON
 
     - os: osx  # Static analysis using clang-analyzer
@@ -119,14 +120,38 @@ before_install:
       alias make="${SCAN_BUILD} make"
     fi
 
+  ############################################################################
+  # Install brew llvm
+  ############################################################################
+  - |
+    if [[ "${USE_BREW_LLVM}" == "ON" ]]; then
+        brew install llvm;
+        export OMP_NUM_THREADS=4;
+        export LDFLAGS="-L/usr/local/opt/llvm/lib -Wl,-rpath,/usr/local/opt/llvm/lib";
+        export DYLD_LIBRARY_PATH="/usr/local/opt/llvm/lib:$DYLD_LIBRARY_PATH";
+        export CC="/usr/local/opt/llvm/bin/clang";
+        export CXX="/usr/local/opt/llvm/bin/clang++";
+        export CPPFLAGS="-I/usr/local/opt/llvm/include $CPPFLAGS";
+        export CFLAGS="-I/usr/local/opt/llvm/include $CFLAGS";
+    fi
+
+  ############################################################################
+  # Install OpenBLAS
+  ############################################################################
+  - |
+    if [[ "${TRAVIS_OS_NAME}" == "osx" && "${BACKEND}" == "OpenBLAS" ]]; then
+        brew install openblas;
+        brew link openblas --force;
+    fi
+
 script:
   - cd ${TRAVIS_BUILD_DIR}
   - mkdir -p build && cd build
   - |
     if [[ $BUILD_PACKAGE == "ON" && $TRAVIS_PULL_REQUEST == "false" && $TRAVIS_BRANCH == "master" ]]; then
-      export CMAKE_OPTIONS="-DCMAKE_CXX_STANDARD=11 -DBLA_VENDOR=$BACKEND"
+      export CMAKE_OPTIONS=" -DBLA_VENDOR=$BACKEND"
     else
-      export CMAKE_OPTIONS="-DCMAKE_CXX_STANDARD=11 -DBLA_VENDOR=$BACKEND -DENABLE_COVERAGE=ON"
+      export CMAKE_OPTIONS=" -DBLA_VENDOR=$BACKEND -DENABLE_COVERAGE=ON"
     fi
   - |
     if [[ "${BUILD_STATIC}" == "ON" ]]; then
