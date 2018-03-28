@@ -16,7 +16,12 @@ include_directories(${PYTHON_INCLUDE_PATH}
 )
 
 find_package(SWIG REQUIRED)
-include(${SWIG_USE_FILE})
+# load SWIG macros. The path to UseSWIG.cmake is provided by SWIG_USE_FILE which is set in FindSWIG
+if (SWIG_USE_FILE STREQUAL "")
+  message(FATAL_ERROR "unexpected: the variable SWIG_USE_FILE is the empty string. Did you run FindSWIG.cmake?")
+else()
+  include(${SWIG_USE_FILE})
+endif()
 
 set(CMAKE_SWIG_FLAGS -v -O)
 set(SWIG_SRC_FILE ${CMAKE_CURRENT_SOURCE_DIR}/openmeeg.i)
