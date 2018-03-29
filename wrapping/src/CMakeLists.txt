@@ -42,10 +42,12 @@ if (BUILD_DOCUMENTATION AND SIK_FLAG)
       OUTPUT docstrings.i
       COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/doxy2swig.py
       ARGS --function-signature --type-info --overloaded-functions --attribute-list --constructor-list
-      ${PROJECT_BINARY_DIR}/documentation/reference/xml/index.xml ${PROJECT_BINARY_DIR}/wrapping/src/docstrings.i)
+      ${PROJECT_BINARY_DIR}/documentation/reference/xml/index.xml ${PROJECT_BINARY_DIR}/wrapping/src/docstrings.i
+        DEPENDS OpenMEEG-doxygen_outputs
+        COMMENT "Generating Swig documentation" VERBATIM
+    )
 
     add_custom_target(docstrings DEPENDS docstrings.i)
-    add_dependencies(docstrings OpenMEEG-doxygen_outputs)
     add_dependencies(OpenMEEG-documentation docstrings)
 endif()
 
