@@ -32,12 +32,8 @@ else()
   include(${SWIG_USE_FILE})
 endif()
 
-list(APPEND CMAKE_SWIG_FLAGS -v -O)
-set(SWIG_SRC_FILE ${CMAKE_CURRENT_SOURCE_DIR}/openmeeg.i)
-set_source_files_properties(${SWIG_SRC_FILE} PROPERTIES CPLUSPLUS ON)
 
 if (BUILD_DOCUMENTATION AND SIK_FLAG)
-    list(APPEND CMAKE_SWIG_FLAGS "-DDOCSTRINGS")
     add_custom_command(
       OUTPUT docstrings.i
       COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/doxy2swig.py
@@ -47,10 +43,14 @@ if (BUILD_DOCUMENTATION AND SIK_FLAG)
         COMMENT "Generating Swig documentation" VERBATIM
     )
 
+    list(APPEND CMAKE_SWIG_FLAGS "-DDOCSTRINGS")
     add_custom_target(docstrings DEPENDS docstrings.i)
     add_dependencies(OpenMEEG-documentation docstrings)
 endif()
 
+list(APPEND CMAKE_SWIG_FLAGS -v -O)
+set(SWIG_SRC_FILE ${CMAKE_CURRENT_SOURCE_DIR}/openmeeg.i)
+set_source_files_properties(${SWIG_SRC_FILE} PROPERTIES CPLUSPLUS ON)
 if ("${CMAKE_VERSION}" VERSION_LESS "3.8")
     swig_add_module(openmeeg python ${SWIG_SRC_FILE} "")
 else()
