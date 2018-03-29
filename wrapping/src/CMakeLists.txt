@@ -1,6 +1,15 @@
 #######################################################################
 # SWIG Embedding
 #######################################################################
+#
+# SWIG generation is driven by the following SWIG macros:
+#
+#   - swig_add_module
+#   - swig_add_library
+#   - swig_link_libraries
+#
+# those macros are driven by CMAKE_SWIG_FLAGS, and SWIG_MODULE_XXXXXXX_EXTRA_DEPS
+# where XXXXXXX is the name of the target object in swig_add_library(XXXXXXX ...)
 
 find_package(PythonInterp REQUIRED)
 find_package(PythonLibs REQUIRED)
