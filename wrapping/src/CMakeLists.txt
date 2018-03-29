@@ -36,7 +36,6 @@ list(APPEND CMAKE_SWIG_FLAGS -v -O)
 set(SWIG_SRC_FILE ${CMAKE_CURRENT_SOURCE_DIR}/openmeeg.i)
 set_source_files_properties(${SWIG_SRC_FILE} PROPERTIES CPLUSPLUS ON)
 
-set(SWIG_MODULE_OPENMEEG_EXTRA_DEPS ${SWIG_SRC_FILE})
 if (BUILD_DOCUMENTATION AND SIK_FLAG)
     list(APPEND CMAKE_SWIG_FLAGS "-DDOCSTRINGS")
     add_custom_target(docstrings
@@ -45,7 +44,6 @@ if (BUILD_DOCUMENTATION AND SIK_FLAG)
 ${PROJECT_BINARY_DIR}/documentation/reference/xml/index.xml docstrings.i)
     add_dependencies(docstrings OpenMEEG-doxygen_outputs)
     add_dependencies(OpenMEEG-documentation docstrings)
-    set (SWIG_MODULE_OPENMEEG_EXTRA_DEPS ${SWIG_MODULE_OPENMEEG_EXTRA_DEPS} ${PROJECT_BINARY_DIR}/wrapping/src/docstrings.i)
 endif()
 
 if ("${CMAKE_VERSION}" VERSION_LESS "3.8")
