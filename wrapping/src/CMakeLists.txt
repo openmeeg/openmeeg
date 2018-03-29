@@ -32,13 +32,13 @@ else()
   include(${SWIG_USE_FILE})
 endif()
 
-set(CMAKE_SWIG_FLAGS -v -O)
+list(APPEND CMAKE_SWIG_FLAGS -v -O)
 set(SWIG_SRC_FILE ${CMAKE_CURRENT_SOURCE_DIR}/openmeeg.i)
 set_source_files_properties(${SWIG_SRC_FILE} PROPERTIES CPLUSPLUS ON)
 
 set(SWIG_MODULE_OPENMEEG_EXTRA_DEPS ${SWIG_SRC_FILE})
 if (BUILD_DOCUMENTATION AND SIK_FLAG)
-    set(CMAKE_SWIG_FLAGS ${CMAKE_SWIG_FLAGS} -DDOCSTRINGS)
+    list(APPEND CMAKE_SWIG_FLAGS "-DDOCSTRINGS")
     add_custom_target(docstrings
                       COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/doxy2swig.py 
             --function-signature --type-info --overloaded-functions --attribute-list --constructor-list
