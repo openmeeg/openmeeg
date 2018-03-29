@@ -74,3 +74,22 @@ if (USE_VTK)
         # set(CMAKE_MSVCIDE_RUN_PATH ${VTK_RUNTIME_LIBRARY_DIRS} ${CMAKE_MSVCIDE_RUN_PATH}) # specially for windows
     endif()
 endif()
+
+################
+# CGAL stuff
+###############
+
+if (USE_CGAL)
+    # # find_package(CGAL REQUIRED COMPONENTS Core OPTIONAL_COMPONENTS ImageIO) <- cannot since CGAL do not support OPTIONAL_COMPONENTS
+
+    find_package(CGAL REQUIRED COMPONENTS Core)
+    # find_package(CGAL REQUIRED COMPONENTS ImageIO)
+    # set(CGAL_LIBRARIES CGAL::CGAL_ImageIO)
+    # add_definitions(-DCGAL_ImageIO)
+
+    if(NOT CGAL_FOUND)
+        message(FATAL_ERROR "Please set CGAL_DIR")
+    endif()
+
+endif()
+
