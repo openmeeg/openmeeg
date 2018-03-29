@@ -53,9 +53,8 @@ if (BUILD_DOCUMENTATION AND SIK_FLAG)
 endif()
 
 list(APPEND CMAKE_SWIG_FLAGS -v -O)
-set(SWIG_SRC_FILE ${CMAKE_CURRENT_SOURCE_DIR}/openmeeg.i)
-set_source_files_properties(${SWIG_SRC_FILE} PROPERTIES CPLUSPLUS ON)
-swig_add_library(openmeeg LANGUAGE python SOURCES ${SWIG_SRC_FILE})
+set_source_files_properties(openmeeg.i PROPERTIES CPLUSPLUS ON)
+swig_add_library(openmeeg LANGUAGE python SOURCES openmeeg.i)
 swig_link_libraries(openmeeg ${PYTHON_LIBRARIES} OpenMEEG::OpenMEEG)
 
 execute_process(COMMAND ${PYTHON_EXECUTABLE} "-c" "from distutils.sysconfig import get_python_lib; print(get_python_lib(1))"
