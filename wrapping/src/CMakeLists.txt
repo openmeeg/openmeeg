@@ -55,11 +55,7 @@ endif()
 list(APPEND CMAKE_SWIG_FLAGS -v -O)
 set(SWIG_SRC_FILE ${CMAKE_CURRENT_SOURCE_DIR}/openmeeg.i)
 set_source_files_properties(${SWIG_SRC_FILE} PROPERTIES CPLUSPLUS ON)
-if ("${CMAKE_VERSION}" VERSION_LESS "3.8")
-    swig_add_module(openmeeg python ${SWIG_SRC_FILE} "")
-else()
-    swig_add_library(openmeeg LANGUAGE python SOURCES ${SWIG_SRC_FILE})
-endif()
+swig_add_library(openmeeg LANGUAGE python SOURCES ${SWIG_SRC_FILE})
 swig_link_libraries(openmeeg ${PYTHON_LIBRARIES} OpenMEEG::OpenMEEG)
 
 execute_process(COMMAND ${PYTHON_EXECUTABLE} "-c" "from distutils.sysconfig import get_python_lib; print(get_python_lib(1))"
