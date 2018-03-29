@@ -34,11 +34,14 @@ endif()
 
 
 if (BUILD_DOCUMENTATION AND SIK_FLAG)
+    # In order to generate python docstrings we use doxy2swig (which is bundled in our codebase)
+    # doxy2swig takes xml output from doxygen and generates a .i file that can be include in openmeeg.i
+    set(DOXY2SWIG_EXECUTABLE ${PROJECT_SOURCE_DIR}/wrapping/src/doxy2swig.py)
     add_custom_command(
-      OUTPUT docstrings.i
-      COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/doxy2swig.py
-      ARGS --function-signature --type-info --overloaded-functions --attribute-list --constructor-list
-      ${PROJECT_BINARY_DIR}/documentation/reference/xml/index.xml ${PROJECT_BINARY_DIR}/wrapping/src/docstrings.i
+        OUTPUT docstrings.i
+        COMMAND ${PYTHON_EXECUTABLE} ${DOXY2SWIG_EXECUTABLE}
+        ARGS    --function-signature --type-info --overloaded-functions --attribute-list --constructor-list
+                ${PROJECT_BINARY_DIR}/documentation/reference/xml/index.xml ${PROJECT_BINARY_DIR}/wrapping/src/docstrings.i
         DEPENDS OpenMEEG-doxygen_outputs
         COMMENT "Generating Swig documentation" VERBATIM
     )
