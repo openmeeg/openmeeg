@@ -38,10 +38,13 @@ set_source_files_properties(${SWIG_SRC_FILE} PROPERTIES CPLUSPLUS ON)
 
 if (BUILD_DOCUMENTATION AND SIK_FLAG)
     list(APPEND CMAKE_SWIG_FLAGS "-DDOCSTRINGS")
-    add_custom_target(docstrings
-                      COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/doxy2swig.py 
-            --function-signature --type-info --overloaded-functions --attribute-list --constructor-list
-${PROJECT_BINARY_DIR}/documentation/reference/xml/index.xml docstrings.i)
+    add_custom_command(
+      OUTPUT docstrings.i
+      COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/doxy2swig.py
+      ARGS --function-signature --type-info --overloaded-functions --attribute-list --constructor-list
+      ${PROJECT_BINARY_DIR}/documentation/reference/xml/index.xml ${PROJECT_BINARY_DIR}/wrapping/src/docstrings.i)
+
+    add_custom_target(docstrings DEPENDS docstrings.i)
     add_dependencies(docstrings OpenMEEG-doxygen_outputs)
     add_dependencies(OpenMEEG-documentation docstrings)
 endif()
