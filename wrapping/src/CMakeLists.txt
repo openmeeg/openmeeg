@@ -33,7 +33,7 @@ else()
 endif()
 
 
-if (BUILD_DOCUMENTATION AND SIK_FLAG)
+if (BUILD_DOCUMENTATION)
     # In order to generate python docstrings we use doxy2swig (which is bundled in our codebase)
     # doxy2swig takes xml output from doxygen and generates a .i file that can be include in openmeeg.i
     set(DOXY2SWIG_EXECUTABLE ${PROJECT_SOURCE_DIR}/wrapping/src/doxy2swig.py)
