@@ -1,6 +1,15 @@
 #######################################################################
 # SWIG Embedding
 #######################################################################
+#
+# SWIG generation is driven by the following SWIG macros:
+#
+#   - swig_add_module
+#   - swig_add_library
+#   - swig_link_libraries
+#
+# those macros are driven by CMAKE_SWIG_FLAGS, and SWIG_MODULE_XXXXXXX_EXTRA_DEPS
+# where XXXXXXX is the name of the target object in swig_add_library(XXXXXXX ...)
 
 find_package(PythonInterp REQUIRED)
 find_package(PythonLibs REQUIRED)
@@ -16,27 +25,36 @@ include_directories(${PYTHON_INCLUDE_PATH}
 )
 
 find_package(SWIG REQUIRED)
-include(${SWIG_USE_FILE})
-
-set(CMAKE_SWIG_FLAGS -v -O)
-set(SWIG_SRC_FILE ${CMAKE_CURRENT_SOURCE_DIR}/openmeeg.i)
-set_source_files_properties(${SWIG_SRC_FILE} PROPERTIES CPLUSPLUS ON)
-
-set(SWIG_MODULE_OPENMEEG_EXTRA_DEPS ${SWIG_SRC_FILE})
-if (BUILD_DOCUMENTATION)
-    set(CMAKE_SWIG_FLAGS ${CMAKE_SWIG_FLAGS} -DDOCSTRINGS)
-    add_custom_target(docstrings
-                      COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/doxy2swig.py ${PROJECT_BINARY_DIR}/documentation/reference/xml/index.xml docstrings.i)
-    add_dependencies(docstrings OpenMEEG-doxygen_outputs)
-    add_dependencies(OpenMEEG-documentation docstrings)
-    set (SWIG_MODULE_OPENMEEG_EXTRA_DEPS ${SWIG_MODULE_OPENMEEG_EXTRA_DEPS} ${PROJECT_BINARY_DIR}/wrapping/src/docstrings.i)
-endif()
-
-if ("${CMAKE_VERSION}" VERSION_LESS "3.8")
-    swig_add_module(openmeeg python ${SWIG_SRC_FILE} "")
+# load SWIG macros. The path to UseSWIG.cmake is provided by SWIG_USE_FILE which is set in FindSWIG
+if (SWIG_USE_FILE STREQUAL "")
+  message(FATAL_ERROR "unexpected: the variable SWIG_USE_FILE is the empty string. Did you run FindSWIG.cmake?")
 else()
-    swig_add_library(openmeeg LANGUAGE python SOURCES ${SWIG_SRC_FILE})
+  include(${SWIG_USE_FILE})
 endif()
+
+
+if (BUILD_DOCUMENTATION)
+    # In order to generate python docstrings we use doxy2swig (which is bundled in our codebase)
+    # doxy2swig takes xml output from doxygen and generates a .i file that can be include in openmeeg.i
+    set(DOXY2SWIG_EXECUTABLE ${PROJECT_SOURCE_DIR}/wrapping/src/doxy2swig.py)
+    set(DOXY_INDEX_XML ${PROJECT_BINARY_DIR}/documentation/reference/xml/index.xml)
+    add_custom_command(
+        OUTPUT docstrings.i
+        COMMAND ${PYTHON_EXECUTABLE} ${DOXY2SWIG_EXECUTABLE}
+        ARGS    --function-signature --type-info --overloaded-functions --attribute-list --constructor-list
+                ${DOXY_INDEX_XML} ${CMAKE_CURRENT_BINARY_DIR}/docstrings.i
+        DEPENDS OpenMEEG-doxygen_outputs
+        COMMENT "Generating Swig documentation" VERBATIM
+    )
+
+    list(APPEND CMAKE_SWIG_FLAGS "-DDOCSTRINGS")
+    add_custom_target(docstrings DEPENDS docstrings.i)
+    add_dependencies(OpenMEEG-documentation docstrings)
+endif()
+
+list(APPEND CMAKE_SWIG_FLAGS -v -O)
+set_source_files_properties(openmeeg.i PROPERTIES CPLUSPLUS ON)
+swig_add_library(openmeeg LANGUAGE python SOURCES openmeeg.i)
 swig_link_libraries(openmeeg ${PYTHON_LIBRARIES} OpenMEEG::OpenMEEG)
 
 execute_process(COMMAND ${PYTHON_EXECUTABLE} "-c" "from distutils.sysconfig import get_python_lib; print(get_python_lib(1))"
@@ -55,6 +73,9 @@ install(FILES  ${OpenMEEG_BINARY_DIR}/wrapping/src/openmeeg.py
         PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ)
 
 # Test Python wrapping
+#
+# XXXX: we copy all python scripts from source to binary so that openmeeg.py is in the path. There should be a manner of just adding
+#       it to the python path for the testing environment and allow to execute the python scripts from source.
 if (BUILD_TESTING)
     execute_process(COMMAND ${CMAKE_COMMAND} -E copy ${OpenMEEG_SOURCE_DIR}/wrapping/src/test_python.py ${OpenMEEG_BINARY_DIR}/wrapping/src/)
     add_test(openmeeg_python ${PYTHON_EXECUTABLE} ${OpenMEEG_BINARY_DIR}/wrapping/src/test_python.py --path ${OpenMEEG_SOURCE_DIR}/data)
@@ -65,4 +86,10 @@ if (BUILD_TESTING)
             "${MKL_ROOT_DIR}/lib/intel64/libmkl_sequential.so\"")
         set_tests_properties(openmeeg_python PROPERTIES ENVIRONMENT LD_PRELOAD=${MKL_ROOT_DIR}/lib/intel64/libmkl_core.so:${MKL_ROOT_DIR}/lib/intel64/libmkl_sequential.so)
     endif()
+
+    if(BUILD_REFERENCE_DOC)
+        execute_process(COMMAND ${CMAKE_COMMAND} -E copy ${OpenMEEG_SOURCE_DIR}/wrapping/src/test_doc.py ${OpenMEEG_BINARY_DIR}/wrapping/src/)
+        add_test(openmeeg_python_doc ${PYTHON_EXECUTABLE} ${OpenMEEG_BINARY_DIR}/wrapping/src/test_doc.py)
+    endif(BUILD_REFERENCE_DOC)
+
 endif()

@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.2)
+cmake_minimum_required (VERSION 3.9)
 project (OpenMEEG VERSION 2.4.0 LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 11)  # use c++11
@@ -31,6 +31,7 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/OpenMEEGConfigure.h.in
 add_subdirectory(OpenMEEGMaths)
 add_subdirectory(OpenMEEG)
 add_subdirectory(apps)
+add_subdirectory(documentation)
 add_subdirectory(wrapping)
 
 ################

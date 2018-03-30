@@ -21,7 +21,8 @@ matrix:
         - BACKEND=OpenBLAS
         - USE_VTK=ON
         - ENABLE_PYTHON=ON
-        - ANALYSE=ON  
+        - ANALYSE=ON
+        - BUILD_DOCUMENTATION=ON
       addons:
         sources:
           - ubuntu-toolchain-r-test
@@ -31,6 +32,8 @@ matrix:
             - liblapacke-dev # XXX: If lapacke is missing, cmake does not break at generation but at compilation.
             - swig
             - python-numpy
+            - doxygen
+            - graphviz
     - os: osx  # shipping mac
       env:
         - BACKEND=Intel10_64lp
@@ -39,15 +42,15 @@ matrix:
 
     - os: osx  # shipping brew
       env:
-        - BACKEND=OpenBLAS
-        # - USE_GCC=ON  # XXX : vtk does not work with GCC
-        # - USE_BREW_LLVM=ON  # XXX: To have OpenMP but segfaults...
-        - USE_VTK=ON
+      - BACKEND=OpenBLAS
+      # - USE_GCC=ON  # XXX : vtk does not work with GCC
+      # - USE_BREW_LLVM=ON  # XXX: To have OpenMP but segfaults...
+      - USE_VTK=ON
 
     - os: osx  # Static analysis using clang-analyzer
       env:
         - BACKEND=Apple
-        - ANALYSE=ON 
+        - ANALYSE=ON
 
 before_install:
   - |
@@ -168,6 +171,10 @@ script:
   - |
     if [[ "${USE_VTK}" == "ON" ]]; then
       export CMAKE_OPTIONS="${CMAKE_OPTIONS} -DUSE_VTK=ON"
+    fi
+  - |
+    if [[ "${BUILD_DOCUMENTATION}" == "ON" ]]; then
+      export CMAKE_OPTIONS="${CMAKE_OPTIONS} -DBUILD_DOCUMENTATION=ON"
     fi
   - |
     if [[ "${TRAVIS_OS_NAME}" == "osx" && "${USE_GCC}" == "ON" ]]; then
