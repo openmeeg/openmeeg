@@ -46,6 +46,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <string>
 #include <cmath>
 #include <iostream>
+#include <sstream>
 #include <algorithm>
 #include <cctype>
 #ifdef USE_OMP
@@ -162,9 +163,17 @@ namespace OpenMEEG {
     }
 
     inline void print_version(const char* cmd) {
-        std::cout << cmd << " version " << version << " compiled at " << __DATE__ << " " << __TIME__ << std::endl << std::endl;
         #ifdef USE_OMP
-          std::cout << "compiled with OpenMP support and executed with "<< omp_get_max_threads() <<"max threads available " << std::endl;
+            std::string omp_support = " using OpenMP with " + std::to_string(omp_get_max_threads()) + " threads.";
+        #else
+            std::string omp_support();
         #endif
+
+        std::ostringstream display_info;
+        display_info << cmd;
+        display_info << " version " << version;
+        display_info << " compiled at " << __DATE__ << " " << __TIME__;
+        display_info << omp_support;
+        std::cout << display_info.str() << std::endl << std::endl;
     }
 }
