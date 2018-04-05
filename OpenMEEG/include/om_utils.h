@@ -164,7 +164,7 @@ namespace OpenMEEG {
 
     inline void print_version(const char* cmd) {
         #ifdef USE_OMP
-            std::string omp_support = " using OpenMP with " + std::to_string(omp_get_max_threads()) + " threads.";
+            std::string omp_support = " using OpenMP\n Executing using " + std::to_string(omp_get_max_threads()) + " threads.";
         #else
             std::string omp_support = "";
         #endif
