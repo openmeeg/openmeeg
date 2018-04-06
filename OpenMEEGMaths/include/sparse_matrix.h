@@ -43,7 +43,6 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <map>
 #include <utility>
 
-#include <om_utils.h>
 #include <linop.h>
 #include <vector.h>
 #include <matrix.h>

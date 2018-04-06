@@ -8,7 +8,7 @@
 # OPENMEEG_EXECUTABLE(om_assemble assemble.cpp)
 
 add_executable(om_minverser minverser.cpp)
-target_link_libraries(om_minverser OpenMEEG::OpenMEEGMaths)
+target_link_libraries(om_minverser OpenMEEG::OpenMEEGMaths OpenMEEG::OpenMEEG)
 target_include_directories(om_minverser PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
 install(TARGETS om_minverser

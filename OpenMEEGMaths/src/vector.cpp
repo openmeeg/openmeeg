@@ -41,6 +41,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <vector.h>
 #include <matrix.h>
 #include <symmatrix.h>
+#include <algorithm>
 
 namespace OpenMEEG {
 

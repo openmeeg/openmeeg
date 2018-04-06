@@ -43,6 +43,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <fast_sparse_matrix.h>
 #include <fstream>
 #include <options.h>
+#include <om_utils.h>
 
 using namespace std;
 using namespace OpenMEEG;

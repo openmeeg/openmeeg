@@ -42,6 +42,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include "symmatrix.h"
 #include "matrix.h"
 #include "options.h"
+#include "om_utils.h"
 
 #include <cmath>
 

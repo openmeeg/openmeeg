@@ -42,8 +42,8 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <string>
 #include <sstream>
 #include <limits>
+#include <algorithm>
 
-#include <om_utils.h>
 #include <matrix.h>
 #include <symmatrix.h>
 #include <sparse_matrix.h>

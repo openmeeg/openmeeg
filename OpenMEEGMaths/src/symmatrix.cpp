@@ -40,11 +40,11 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <sstream>
 #include <cmath>
 #include <cstdlib>
+#include <algorithm>
 
 #include "OpenMEEGMathsConfig.h"
 #include "matrix.h"
 #include "symmatrix.h"
-#include "om_utils.h"
 
 namespace OpenMEEG {
 
