@@ -42,6 +42,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <string>
 #include <sstream>
 #include <limits>
+#include <algorithm>
 
 #include <matrix.h>
 #include <symmatrix.h>

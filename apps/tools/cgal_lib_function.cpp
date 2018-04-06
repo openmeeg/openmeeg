@@ -37,6 +37,7 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
+#include <algorithm>
 #include <cgal_lib.h>
 
 // To avoid verbose function and named parameters call
