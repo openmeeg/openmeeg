@@ -33,7 +33,15 @@ environment:
       BUILD_STATIC : ON
       PYTHON_VERSION: "3.6"
       PYTHON_ARCH: "64"
+      ENABLE_PYTHON : OFF
       PACK: ON
+
+    - BLAS_VERSION: Intel10_64lp_seq
+      BUILD_STATIC : ON
+      PYTHON_VERSION: "3.6"
+      PYTHON_ARCH: "64"
+      ENABLE_PYTHON : ON
+      PACK: OFF
 
 skip_commits:
 # Add [av skip] to commit messages
@@ -100,7 +108,7 @@ before_build:
       cd build
   - ps: $env:matio_dir='C:\conda\Library\'
   - ps: $env:CMAKE_PREFIX_PATH='C:\conda\Library\cmake'
-  - cmake -DCMAKE_BUILD_TYPE=%CONFIGURATION% -DBLA_STATIC=%BUILD_STATIC% -DBLA_VENDOR=%BLAS_VERSION% -G "Visual Studio 14 2015 Win64" ..
+  - cmake -DCMAKE_BUILD_TYPE=%CONFIGURATION% -DBLA_STATIC=%BUILD_STATIC% -DBLA_VENDOR=%BLAS_VERSION% -DENABLE_PYTHON=%ENABLE_PYTHON% -G "Visual Studio 14 2015 Win64" ..
 
 build_script:
   - cmake --build . --config %CONFIGURATION%
