@@ -163,7 +163,7 @@ script:
   - echo "cmake .. ${CMAKE_OPTIONS}"
   - cmake .. ${CMAKE_OPTIONS}
   - make -j ${JOBS}
-  - ctest -v .
+  - ctest -v . -D ExperimentalMemCheck
   - |
     if [[ "${BUILD_PACKAGE}" == "ON" ]]; then
       cpack -G TGZ .
