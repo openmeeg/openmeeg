@@ -97,9 +97,7 @@ install:
   - conda install libmatio
 
   ## XXX:
-  - if(%XXX%=='ON'){
-      conda install openblas numpy 
-    }
+  - conda install openblas numpy
 
 before_build:
   - call "C:\Program Files (x86)\IntelSWTools\compilers_and_libraries_2018.0.124\windows\bin\compilervars_arch.bat" intel64 vs2015
