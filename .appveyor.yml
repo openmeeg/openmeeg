@@ -29,13 +29,6 @@ environment:
         secure: k+J4yytvUwuRb5wHVAetZ84O90bJ4ZgwYOS9vLec90o09HP+GLvD9DvNbG1q9Q2p
 
   matrix:
-    - BLAS_VERSION: Intel10_64lp_seq
-      BUILD_STATIC : ON
-      PYTHON_VERSION: "3.6"
-      PYTHON_ARCH: "64"
-      ENABLE_PYTHON : OFF
-      PACK: ON
-
     - XXX : ON
       BLAS_VERSION: OpenBLAS
       BUILD_STATIC : ON
@@ -76,19 +69,6 @@ install:
         7z x -y cmake-3.10.1-win64-x64.zip -oC:\
       }
       $env:PATH="C:\cmake-3.10.1-win64-x64\bin;$env:PATH"
-
-  ############################################################################
-  # Install MKL
-  ############################################################################
-  - ps: |
-      if (![IO.File]::Exists("C:\w_mkl_2018.0.124.exe")) {
-        ECHO 'w_mkl_2018.0.124.exe does not exist. Preparing to download MKL ..'
-        Start-FileDownload 'http://registrationcenter-download.intel.com/akdlm/irc_nas/tec/12079/w_mkl_2018.0.124.exe' -FileName 'C:\w_mkl_2018.0.124.exe'
-        ECHO 'Done'
-      }
-      C:\w_mkl_2018.0.124.exe -s -l c:\logs\extract-mkl.log -a install --eula=accept --components=all --output='C:\logs\install-mkl-output.txt' --installdir='C:\Program Files (x86)\IntelSWTools' --log='c:\logs\install-mkl.log' | Out-Null
-      $env:LD_MKL_PATH='C:\Program Files (x86)\IntelSWTools\compilers_and_libraries_2018.0.124\windows\mkl\lib\intel64_win\'
-      $env:LIB="$env:LD_MKL_PATH;$env:LIB"
 
   ############################################################################
   # Install Conda
