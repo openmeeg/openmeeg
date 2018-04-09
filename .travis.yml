@@ -10,18 +10,12 @@ cache:
 
 matrix:
   include:
-    - os: linux  # shipping linux
-      env:
-        - BACKEND=Intel10_64lp
-        - BUILD_STATIC=ON
-        - BUILD_PACKAGE=ON
-
     - os: linux  # shipping apt-get
       env:
         - BACKEND=OpenBLAS
         - USE_VTK=ON
         - ENABLE_PYTHON=ON
-        - ANALYSE=ON
+        - ANALYSE=OFF
         - BUILD_DOCUMENTATION=ON
       addons:
         sources:
@@ -34,23 +28,7 @@ matrix:
             - python-numpy
             - doxygen
             - graphviz
-    - os: osx  # shipping mac
-      env:
-        - BACKEND=Intel10_64lp
-        - BUILD_STATIC=ON
-        - BUILD_PACKAGE=ON
-
-    - os: osx  # shipping brew
-      env:
-      - BACKEND=OpenBLAS
-      # - USE_GCC=ON  # XXX : vtk does not work with GCC
-      # - USE_BREW_LLVM=ON  # XXX: To have OpenMP but segfaults...
-      - USE_VTK=ON
-
-    - os: osx  # Static analysis using clang-analyzer
-      env:
-        - BACKEND=Apple
-        - ANALYSE=ON
+            - valgrind
 
 before_install:
   - |
