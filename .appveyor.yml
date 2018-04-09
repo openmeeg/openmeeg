@@ -36,11 +36,13 @@ environment:
       ENABLE_PYTHON : OFF
       PACK: ON
 
-    - BLAS_VERSION: Intel10_64lp_seq
+    - XXX : ON
+      BLAS_VERSION: OpenBLAS
       BUILD_STATIC : ON
       PYTHON_VERSION: "3.6"
       PYTHON_ARCH: "64"
       ENABLE_PYTHON : ON
+      DOC: OFF
       PACK: OFF
 
 skip_commits:
@@ -94,13 +96,18 @@ install:
   - conda config --add channels conda-forge
   - conda install libmatio
 
+  ## XXX:
+  - if(%XXX%=='ON'){
+      conda install openblas numpy 
+    }
+
 before_build:
   - call "C:\Program Files (x86)\IntelSWTools\compilers_and_libraries_2018.0.124\windows\bin\compilervars_arch.bat" intel64 vs2015
   - call "C:\Program Files (x86)\IntelSWTools\compilers_and_libraries_2018.0.124\windows\mkl\bin\mklvars.bat" intel64
   - "ECHO %MKLROOT%"
   - cd %APPVEYOR_BUILD_FOLDER%
   - "ECHO %BLAS_VERSION%"
-  - "ECHO 'cmake -DBLA_STATIC=%BUILD_STATIC% -DBLA_VENDOR=%BLAS_VERSION% -G \"Visual Studio 14 2015 Win64\" .. '"
+  - "ECHO 'cmake -DCMAKE_BUILD_TYPE=%CONFIGURATION% -DBLA_STATIC=%BUILD_STATIC% -DBLA_VENDOR=%BLAS_VERSION% -DENABLE_PYTHON=%ENABLE_PYTHON% -DBUILD_DOCUMENTATION=%DOC% \"Visual Studio 14 2015 Win64\" .. '"
   - cmake --version
   - "ECHO 'MKLROOT is %MKLROOT%'"
   - ps: |
@@ -108,7 +115,7 @@ before_build:
       cd build
   - ps: $env:matio_dir='C:\conda\Library\'
   - ps: $env:CMAKE_PREFIX_PATH='C:\conda\Library\cmake'
-  - cmake -DCMAKE_BUILD_TYPE=%CONFIGURATION% -DBLA_STATIC=%BUILD_STATIC% -DBLA_VENDOR=%BLAS_VERSION% -DENABLE_PYTHON=%ENABLE_PYTHON% -G "Visual Studio 14 2015 Win64" ..
+  - cmake -DCMAKE_BUILD_TYPE=%CONFIGURATION% -DBLA_STATIC=%BUILD_STATIC% -DBLA_VENDOR=%BLAS_VERSION% -DENABLE_PYTHON=%ENABLE_PYTHON% -DBUILD_DOCUMENTATION=%DOC% -G "Visual Studio 14 2015 Win64" ..
 
 build_script:
   - cmake --build . --config %CONFIGURATION%
