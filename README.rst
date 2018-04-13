@@ -29,10 +29,10 @@ Cite this software
 
 The references to be acknowledged are ::
 
-    Gramfort et al. OpenMEEG: opensource software for quasistatic
+    Gramfort A, Papadopoulo T, Olivi E, Clerc M. OpenMEEG: opensource software for quasistatic
     bioelectromagnetics. Biomedical engineering online (2010) vol. 9 (1) pp. 45
 
-    Kybic et al. Generalized head models for MEG/EEG: boundary element method
+    Kybic J, Clerc M, Abboud T, Faugeras O, Keriven R, Papadopoulo T. Generalized head models for MEG/EEG: boundary element method
     beyond nested volumes. Phys. Med. Biol. (2006) vol. 51 pp. 1333-1346
 
 .. image:: https://raw.githubusercontent.com/openmeeg/openmeeg.github.io/source/_static/inria.png
