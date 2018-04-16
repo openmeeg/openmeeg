@@ -74,3 +74,7 @@ if (USE_VTK)
         # set(CMAKE_MSVCIDE_RUN_PATH ${VTK_RUNTIME_LIBRARY_DIRS} ${CMAKE_MSVCIDE_RUN_PATH}) # specially for windows
     endif()
 endif()
+
+if (BUILD_LIBMATIO)
+  message(build)
+endif(BUILD_LIBMATIO)
