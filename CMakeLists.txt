@@ -19,6 +19,9 @@ list(APPEND CMAKE_MODULE_PATH
 include(GenerateExportHeader)
 include(cmake/CompilerOptions.cmake)
 include(cmake/options.cmake)
+include(CTest)
+find_program( MEMORYCHECK_COMMAND valgrind )
+set( MEMORYCHECK_COMMAND_OPTIONS "--trace-children=yes --leak-check=full" )
 include(cmake/thirdParties.cmake)
 include(cmake/install.cmake)  # install setup (do it before adding targets)
 
