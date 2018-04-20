@@ -45,7 +45,7 @@ matrix:
       - BACKEND=OpenBLAS
       # - USE_GCC=ON  # XXX : vtk does not work with GCC
       # - USE_BREW_LLVM=ON  # XXX: To have OpenMP but segfaults...
-      - USE_VTK=ON
+      # - USE_VTK=ON # XXX: vtk is currently broken in brew
 
     - os: osx  # Static analysis using clang-analyzer
       env:
@@ -90,7 +90,10 @@ before_install:
   ############################################################################
   - if [[ "${TRAVIS_OS_NAME}" == "osx" ]]; then
         rm -rf /usr/local/include/c++;
-        brew install hdf5 libmatio vtk;
+        brew install hdf5 libmatio;
+        if [[ "${USE_VTK}" == "ON" ]]; then
+            brew install vtk --without-python@2;
+        fi
     else
         if [[ "${BUILD_PACKAGE}" == "ON" ]]; then
             git clone https://github.com/astropy/ci-helpers.git;
