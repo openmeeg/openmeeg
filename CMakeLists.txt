@@ -21,6 +21,7 @@ include(cmake/CompilerOptions.cmake)
 include(cmake/options.cmake)
 include(cmake/thirdParties.cmake)
 include(cmake/install.cmake)  # install setup (do it before adding targets)
+include(cmake/Uninstall.cmake)  # install setup (do it before adding targets)
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/OpenMEEGConfigure.h.in
                ${CMAKE_CURRENT_BINARY_DIR}/OpenMEEGConfigure.h)

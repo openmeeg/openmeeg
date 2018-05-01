@@ -200,6 +200,8 @@ script:
         PACKAGE_DEPLOY=$(greadlink -f OpenMEEG*.tar.gz)
       fi
     fi
+  - sudo make install
+  - sudo make uninstall
 
 after_success:
   - |
