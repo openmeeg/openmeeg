@@ -71,7 +71,7 @@ if (NOT matio_LIBRARIES)
 
     set(MATIO_NAMES matio libmatio)
     if(MATIO_USE_STATIC_LIBRARIES)
-        set(MATIO_NAMES  libmatio.a ${MATIO_NAMES})
+        set(MATIO_NAMES  libmatio.a libmatio-static.lib ${MATIO_NAMES})
     endif()
 
     find_library(matio_LIBRARY

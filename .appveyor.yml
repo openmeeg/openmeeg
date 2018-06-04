@@ -84,7 +84,7 @@ install:
   # Install Conda
   ############################################################################
   - conda config --add channels conda-forge
-  - conda install libmatio
+  - conda install -c massich matio-cmake
 
 before_build:
   - call "C:\Program Files (x86)\IntelSWTools\compilers_and_libraries_2018.0.124\windows\bin\compilervars_arch.bat" intel64 vs2015
@@ -116,15 +116,15 @@ test_script:
   - cp %APPVEYOR_BUILD_FOLDER%\build\OpenMEEG\%CONFIGURATION%\OpenMEEG.dll %APPVEYOR_BUILD_FOLDER%\build\apps\%CONFIGURATION%\
   - cp %APPVEYOR_BUILD_FOLDER%\build\OpenMEEG\%CONFIGURATION%\OpenMEEG.dll %APPVEYOR_BUILD_FOLDER%\build\apps\tools\%CONFIGURATION%\
 
-  - cp %matio_dir%bin\libmatio.dll %APPVEYOR_BUILD_FOLDER%\build\OpenMEEGMaths\tests\%CONFIGURATION%\
+  # - cp %matio_dir%bin\libmatio.dll %APPVEYOR_BUILD_FOLDER%\build\OpenMEEGMaths\tests\%CONFIGURATION%\
   - cp %matio_dir%bin\hdf5.dll %APPVEYOR_BUILD_FOLDER%\build\OpenMEEGMaths\tests\%CONFIGURATION%\
   - cp %matio_dir%bin\zlib.dll %APPVEYOR_BUILD_FOLDER%\build\OpenMEEGMaths\tests\%CONFIGURATION%\
 
-  - cp %matio_dir%bin\libmatio.dll %APPVEYOR_BUILD_FOLDER%\build\apps\%CONFIGURATION%\
+  # - cp %matio_dir%bin\libmatio.dll %APPVEYOR_BUILD_FOLDER%\build\apps\%CONFIGURATION%\
   - cp %matio_dir%bin\hdf5.dll %APPVEYOR_BUILD_FOLDER%\build\apps\%CONFIGURATION%\
   - cp %matio_dir%bin\zlib.dll %APPVEYOR_BUILD_FOLDER%\build\apps\%CONFIGURATION%\
 
-  - cp %matio_dir%bin\libmatio.dll %APPVEYOR_BUILD_FOLDER%\build\apps\tools\%CONFIGURATION%\
+  # - cp %matio_dir%bin\libmatio.dll %APPVEYOR_BUILD_FOLDER%\build\apps\tools\%CONFIGURATION%\
   - cp %matio_dir%bin\hdf5.dll %APPVEYOR_BUILD_FOLDER%\build\apps\tools\%CONFIGURATION%\
   - cp %matio_dir%bin\zlib.dll %APPVEYOR_BUILD_FOLDER%\build\apps\tools\%CONFIGURATION%\
 
