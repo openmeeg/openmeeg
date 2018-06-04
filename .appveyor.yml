@@ -100,7 +100,7 @@ before_build:
       cd build
   - ps: $env:matio_dir='C:\conda\Library\'
   - ps: $env:CMAKE_PREFIX_PATH='C:\conda\Library\cmake'
-  - cmake -DCMAKE_BUILD_TYPE=%CONFIGURATION% -DBLA_STATIC=%BUILD_STATIC% -DBLA_VENDOR=%BLAS_VERSION% -G "Visual Studio 14 2015 Win64" ..
+  - cmake -DCMAKE_BUILD_TYPE=%CONFIGURATION% -DBLA_STATIC=%BUILD_STATIC% -DBLA_VENDOR=%BLAS_VERSION% -DBUILD_LIBMATIO=ON -G "Visual Studio 14 2015 Win64" ..
 
 build_script:
   - cmake --build . --config %CONFIGURATION%

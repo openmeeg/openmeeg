@@ -52,10 +52,6 @@ endif()
 
 find_package(Threads)
 
-if(BLA_STATIC)
-    set(MATIO_USE_STATIC_LIBRARIES TRUE) # XXX This should be an option
-endif()
-find_package(matio REQUIRED)
 
 ################
 # VTK stuff
@@ -74,3 +70,35 @@ if (USE_VTK)
         # set(CMAKE_MSVCIDE_RUN_PATH ${VTK_RUNTIME_LIBRARY_DIRS} ${CMAKE_MSVCIDE_RUN_PATH}) # specially for windows
     endif()
 endif()
+
+
+##########
+# matio stuff
+##########
+
+if(BLA_STATIC)
+    set(MATIO_USE_STATIC_LIBRARIES TRUE) # XXX This should be an option
+endif()
+find_package(matio REQUIRED)
+
+if(BUILD_LIBMATIO)
+    # message(FATAL_ERROR "build_libmatio ON")
+    include(ExternalProject)
+    set(EXTERNAL_INSTALL_LOCATION ${CMAKE_BINARY_DIR}/third_parties) # XXX: Should this be set up by install.cmake?
+
+    # if(MATIO_USE_STATIC_LIBRARIES)
+    #     set(HDF5_USE_STATIC_LIBRARIES TRUE)
+    # endif()
+    # find_package(HDF5 REQUIRED)
+
+    ExternalProject_Add(matio-cmake
+        GIT_REPOSITORY https://github.com/massich/matio-cmake
+        CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION}
+    )
+
+    include_directories(${EXTERNAL_INSTALL_LOCATION}/include)
+    link_directories(${EXTERNAL_INSTALL_LOCATION}/lib)
+else(BUILD_LIBMATIO)
+    # message(FATAL_ERROR "build_libmatio OFF")
+    find_package(matio REQUIRED)
+endif(BUILD_LIBMATIO)
