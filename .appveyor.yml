@@ -29,11 +29,14 @@ environment:
         secure: k+J4yytvUwuRb5wHVAetZ84O90bJ4ZgwYOS9vLec90o09HP+GLvD9DvNbG1q9Q2p
 
   matrix:
-    - BLAS_VERSION: Intel10_64lp_seq
+    - XXX : ON
+      BLAS_VERSION: OpenBLAS
       BUILD_STATIC : ON
       PYTHON_VERSION: "3.6"
       PYTHON_ARCH: "64"
-      PACK: ON
+      ENABLE_PYTHON : ON
+      DOC: OFF
+      PACK: OFF
 
 skip_commits:
 # Add [av skip] to commit messages
@@ -68,23 +71,13 @@ install:
       $env:PATH="C:\cmake-3.10.1-win64-x64\bin;$env:PATH"
 
   ############################################################################
-  # Install MKL
-  ############################################################################
-  - ps: |
-      if (![IO.File]::Exists("C:\w_mkl_2018.0.124.exe")) {
-        ECHO 'w_mkl_2018.0.124.exe does not exist. Preparing to download MKL ..'
-        Start-FileDownload 'http://registrationcenter-download.intel.com/akdlm/irc_nas/tec/12079/w_mkl_2018.0.124.exe' -FileName 'C:\w_mkl_2018.0.124.exe'
-        ECHO 'Done'
-      }
-      C:\w_mkl_2018.0.124.exe -s -l c:\logs\extract-mkl.log -a install --eula=accept --components=all --output='C:\logs\install-mkl-output.txt' --installdir='C:\Program Files (x86)\IntelSWTools' --log='c:\logs\install-mkl.log' | Out-Null
-      $env:LD_MKL_PATH='C:\Program Files (x86)\IntelSWTools\compilers_and_libraries_2018.0.124\windows\mkl\lib\intel64_win\'
-      $env:LIB="$env:LD_MKL_PATH;$env:LIB"
-
-  ############################################################################
   # Install Conda
   ############################################################################
   - conda config --add channels conda-forge
   - conda install -c massich matio-cmake
+
+  ## XXX:
+  - conda install openblas>=0.2.20 numpy
 
 before_build:
   - call "C:\Program Files (x86)\IntelSWTools\compilers_and_libraries_2018.0.124\windows\bin\compilervars_arch.bat" intel64 vs2015
@@ -92,7 +85,7 @@ before_build:
   - "ECHO %MKLROOT%"
   - cd %APPVEYOR_BUILD_FOLDER%
   - "ECHO %BLAS_VERSION%"
-  - "ECHO 'cmake -DBLA_STATIC=%BUILD_STATIC% -DBLA_VENDOR=%BLAS_VERSION% -G \"Visual Studio 14 2015 Win64\" .. '"
+  - "ECHO 'cmake -DCMAKE_BUILD_TYPE=%CONFIGURATION% -DBLA_STATIC=%BUILD_STATIC% -DBLA_VENDOR=%BLAS_VERSION% -DENABLE_PYTHON=%ENABLE_PYTHON% -DBUILD_DOCUMENTATION=%DOC% \"Visual Studio 14 2015 Win64\" .. '"
   - cmake --version
   - "ECHO 'MKLROOT is %MKLROOT%'"
   - ps: |
@@ -100,7 +93,7 @@ before_build:
       cd build
   - ps: $env:matio_dir='C:\conda\Library\'
   - ps: $env:CMAKE_PREFIX_PATH='C:\conda\Library\cmake'
-  - cmake -DCMAKE_BUILD_TYPE=%CONFIGURATION% -DBLA_STATIC=%BUILD_STATIC% -DBLA_VENDOR=%BLAS_VERSION% -G "Visual Studio 14 2015 Win64" ..
+  - cmake -DCMAKE_BUILD_TYPE=%CONFIGURATION% -DBLA_STATIC=%BUILD_STATIC% -DBLA_VENDOR=%BLAS_VERSION% -DENABLE_PYTHON=%ENABLE_PYTHON% -DBUILD_DOCUMENTATION=%DOC% -G "Visual Studio 14 2015 Win64" ..
 
 build_script:
   - cmake --build . --config %CONFIGURATION%
