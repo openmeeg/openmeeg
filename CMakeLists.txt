@@ -13,6 +13,8 @@ list(APPEND CMAKE_MODULE_PATH
     ${CMAKE_MODULE_PATH}
 )
 
+include(cmake/inspect_target.cmake)
+
 ################
 # OpenMEEG Configuration and needed things
 ################
@@ -35,7 +37,11 @@ add_subdirectory(apps)
 add_subdirectory(documentation)
 add_subdirectory(wrapping)
 
+
 ################
 # OpenMEEG Export
 ################
 include(cmake/Packaging.cmake)
+
+
+include(xxx.cmake)
