@@ -8,8 +8,4 @@ IF (BUILD_REFERENCE_DOC)# XXX: the right condition should be (BUILD_REFERENCE_DO
     SUBDIRS(reference)
 ENDIF (BUILD_REFERENCE_DOC)
 
-IF (BUILD_TUTORIALS)
-    SUBDIRS(tutorial)
-ENDIF (BUILD_TUTORIALS)
-
 # XXX: Add a test to ensure that documentation is generated properly
