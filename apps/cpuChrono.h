@@ -38,35 +38,10 @@ knowledge of the CeCILL-B license and that you accept its terms.
 */
 
 #include <iostream>
-#include <stdlib.h>
-#include <time.h>
+#include <chrono>
 
-namespace OpenMEEG {
-
-    class cpuChrono {
-
-        clock_t ellapsed;
-        clock_t tstart;
-
-    public:
-
-        cpuChrono(): ellapsed(0),tstart(0) { }
-        ~cpuChrono(){}
-
-        void start() { tstart = clock();                      }
-        void stop()  { ellapsed += (ellapsed+clock()-tstart); }
-        void zero()  { ellapsed=0;                            }
-
-        clock_t getEllapsedT() const { return ellapsed; }
-
-        double getEllapsedS() const {
-            return (double)(ellapsed)/CLOCKS_PER_SEC;
-        }
-
-        void dispEllapsed() const {
-            std::cout <<  "-------------------------------------------" << std::endl;
-            std::cout <<  "| Elapsed Time: " << getEllapsedS() << " s." << std::endl;
-            std::cout <<  "-------------------------------------------" << std::endl;
-        }
-    };
+void dispEllapsed(const std::chrono::duration<double> elapsed_seconds){
+  std::cout <<  "-------------------------------------------" << std::endl;
+  std::cout <<  "| Elapsed Time: " << elapsed_seconds.count() << " s." << std::endl;
+  std::cout <<  "-------------------------------------------" << std::endl;
 }

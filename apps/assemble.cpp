@@ -45,7 +45,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #include <mesh.h>
 #include <integrator.h>
-#include <cpuChrono.h>
+#include "cpuChrono.h"   // XXX: to refactor when reviewing text-gui
 #include <assemble.h>
 #include <sensors.h>
 #include <geometry.h>
@@ -80,8 +80,7 @@ int main(int argc, char** argv)
     disp_argv(argc, argv);
 
     // Start Chrono
-    cpuChrono C;
-    C.start();
+    auto start_time = std::chrono::system_clock::now();
 
     /*********************************************************************************************
     * Computation of Head Matrix for BEM Symmetric formulation
@@ -290,7 +289,7 @@ int main(int argc, char** argv)
                       << " right after the electrode position file." << std::endl;
             old_cmd_line = true;
         }
-        
+
         const Interface& ECoG_layer = (old_cmd_line) ? geo.innermost_interface() : geo.interface(argv[5]);
 
         // Assemble matrix from discretization:
@@ -404,8 +403,10 @@ int main(int argc, char** argv)
     }
 
     // Stop Chrono
-    C.stop();
-    C.dispEllapsed();
+    auto end_time = std::chrono::system_clock::now();
+    dispEllapsed(end_time-start_time);
+
+    return 0;
 }
 
 bool option(const int argc, char ** argv, const Strings& options, const Strings& files) {

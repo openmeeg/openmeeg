@@ -38,7 +38,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 */
 
 #include <cstring>
-#include <cpuChrono.h>
+#include "cpuChrono.h"   // XXX: to refactor when reviewing text-gui
 #include <gain.h>
 
 using namespace std;
@@ -60,8 +60,7 @@ int main(int argc, char **argv)
     }
 
     // Start Chrono
-    cpuChrono C;
-    C.start();
+    auto start_time = std::chrono::system_clock::now();
 
     disp_argv(argc, argv);
 
@@ -191,8 +190,8 @@ int main(int argc, char **argv)
     }
 
     // Stop Chrono
-    C.stop();
-    C.dispEllapsed();
+    auto end_time = std::chrono::system_clock::now();
+    dispEllapsed(end_time-start_time);
 
     return 0;
 }
