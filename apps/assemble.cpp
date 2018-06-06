@@ -42,10 +42,10 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <stdexcept>
 #include <string>
 #include <vector>
+#include <chrono>
 
 #include <mesh.h>
 #include <integrator.h>
-#include <cpuChrono.h>
 #include <assemble.h>
 #include <sensors.h>
 #include <geometry.h>
@@ -58,6 +58,8 @@ unsigned gauss_order = 3;
 void getHelp(char** argv);
 
 bool option(const int argc, char ** argv, const Strings& options, const Strings& files);
+
+void dispEllapsed(const std::chrono::duration<double> elapsed_seconds);
 
 int main(int argc, char** argv)
 {
@@ -80,8 +82,7 @@ int main(int argc, char** argv)
     disp_argv(argc, argv);
 
     // Start Chrono
-    cpuChrono C;
-    C.start();
+    auto start_time = std::chrono::system_clock::now();
 
     /*********************************************************************************************
     * Computation of Head Matrix for BEM Symmetric formulation
@@ -290,7 +291,7 @@ int main(int argc, char** argv)
                       << " right after the electrode position file." << std::endl;
             old_cmd_line = true;
         }
-        
+
         const Interface& ECoG_layer = (old_cmd_line) ? geo.innermost_interface() : geo.interface(argv[5]);
 
         // Assemble matrix from discretization:
@@ -404,8 +405,8 @@ int main(int argc, char** argv)
     }
 
     // Stop Chrono
-    C.stop();
-    C.dispEllapsed();
+    auto end_time = std::chrono::system_clock::now();
+    dispEllapsed(end_time-start_time);
 }
 
 bool option(const int argc, char ** argv, const Strings& options, const Strings& files) {
@@ -549,4 +550,10 @@ void getHelp(char** argv) {
     cout << "               (Optional) domain name where lie all dipoles." << endl << endl;
 
     exit(0);
+}
+
+void dispEllapsed(const std::chrono::duration<double> elapsed_seconds){
+  std::cout <<  "-------------------------------------------" << std::endl;
+  std::cout <<  "| Elapsed Time: " << elapsed_seconds.count() << " s." << std::endl;
+  std::cout <<  "-------------------------------------------" << std::endl;
 }
