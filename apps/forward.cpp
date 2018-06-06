@@ -37,7 +37,7 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#include <cpuChrono.h>
+#include <chrono>
 #include <om_utils.h>
 #include <forward.h>
 
@@ -45,6 +45,8 @@ using namespace std;
 using namespace OpenMEEG;
 
 void getHelp(char** argv);
+
+void dispEllapsed(const std::chrono::duration<double> elapsed_seconds);
 
 int main(int argc, char **argv)
 {
@@ -68,8 +70,7 @@ int main(int argc, char **argv)
     }
 
     // Start Chrono
-    cpuChrono C;
-    C.start();
+    auto start_time = std::chrono::system_clock::now();
 
     disp_argv(argc,argv);
 
@@ -86,8 +87,8 @@ int main(int argc, char **argv)
     SimulatedData.save(argv[3]);
 
     // Stop Chrono
-    C.stop();
-    C.dispEllapsed();
+    auto end_time = std::chrono::system_clock::now();
+    dispEllapsed(end_time-start_time);
 
     return 0;
 }
@@ -101,4 +102,10 @@ void getHelp(char** argv)
     cout << "   GainMatrix (bin), RealSourcesData (txt), SimulatedData (txt), NoiseLevel (float)" << endl << endl;
 
     exit(0);
+}
+
+void dispEllapsed(const std::chrono::duration<double> elapsed_seconds){
+  std::cout <<  "-------------------------------------------" << std::endl;
+  std::cout <<  "| Elapsed Time: " << elapsed_seconds.count() << " s." << std::endl;
+  std::cout <<  "-------------------------------------------" << std::endl;
 }

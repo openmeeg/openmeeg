@@ -38,17 +38,19 @@ knowledge of the CeCILL-B license and that you accept its terms.
 */
 
 #include <cstring>
+#include <chrono>
 
 #include <matrix.h>
 #include <symmatrix.h>
 #include <vector.h>
-#include <cpuChrono.h>
 #include <om_utils.h>
 
 using namespace std;
 using namespace OpenMEEG;
 
 void getHelp(char** argv);
+
+void dispEllapsed(const std::chrono::duration<double> elapsed_seconds);
 
 int main(int argc, char **argv)
 {
@@ -65,8 +67,7 @@ int main(int argc, char **argv)
     disp_argv(argc,argv);
 
     // Start Chrono
-    cpuChrono C;
-    C.start();
+    auto start_time = std::chrono::system_clock::now();
 
     SymMatrix HeadMat;
 
@@ -75,8 +76,8 @@ int main(int argc, char **argv)
     HeadMat.save(argv[2]);
 
     // Stop Chrono
-    C.stop();
-    C.dispEllapsed();
+    auto end_time = std::chrono::system_clock::now();
+    dispEllapsed(end_time-start_time);
 
     return 0;
 }
@@ -90,4 +91,10 @@ void getHelp(char** argv)
     cout << "       HeadMat (bin), HeadMatInv (bin)" << endl << endl;
 
     exit(0);
+}
+
+void dispEllapsed(const std::chrono::duration<double> elapsed_seconds){
+  std::cout <<  "-------------------------------------------" << std::endl;
+  std::cout <<  "| Elapsed Time: " << elapsed_seconds.count() << " s." << std::endl;
+  std::cout <<  "-------------------------------------------" << std::endl;
 }
