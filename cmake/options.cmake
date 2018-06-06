@@ -13,8 +13,6 @@ mark_as_advanced(BUILD_DOCUMENTATION)
 include(CMakeDependentOption)
 cmake_dependent_option(BUILD_REFERENCE_DOC "Build reference documentation" ON
                        "BUILD_DOCUMENTATION" OFF)
-cmake_dependent_option(BUILD_TUTORIALS "Build reference documentation" OFF
-                       "BUILD_DOCUMENTATION" OFF)
 
 if (ENABLE_COVERAGE)
     if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
