@@ -43,13 +43,12 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <string>
 #include <vector>
 
-#include <om_utils.h>
 #include <mesh.h>
 #include <integrator.h>
+#include "cpuChrono.h"   // XXX: to refactor when reviewing text-gui
 #include <assemble.h>
 #include <sensors.h>
 #include <geometry.h>
-#include <cpuChrono.h>
 
 using namespace std;
 using namespace OpenMEEG;

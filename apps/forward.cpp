@@ -37,15 +37,14 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
+#include "cpuChrono.h"   // XXX: to refactor when reviewing text-gui
 #include <om_utils.h>
 #include <forward.h>
-#include <cpuChrono.h>
 
 using namespace std;
 using namespace OpenMEEG;
 
 void getHelp(char** argv);
-
 
 int main(int argc, char **argv)
 {

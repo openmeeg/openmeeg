@@ -39,11 +39,11 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #include <cstring>
 
-#include <om_utils.h>
 #include <matrix.h>
 #include <symmatrix.h>
 #include <vector.h>
-#include <cpuChrono.h>
+#include "cpuChrono.h"   // XXX: to refactor when reviewing text-gui
+#include <om_utils.h>
 
 using namespace std;
 using namespace OpenMEEG;

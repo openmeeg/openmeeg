@@ -38,8 +38,8 @@ knowledge of the CeCILL-B license and that you accept its terms.
 */
 
 #include <cstring>
+#include "cpuChrono.h"   // XXX: to refactor when reviewing text-gui
 #include <gain.h>
-#include <cpuChrono.h>
 
 using namespace std;
 using namespace OpenMEEG;
