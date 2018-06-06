@@ -37,56 +37,10 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#include <cstring>
+#include <chrono>
 
-#include <om_utils.h>
-#include <matrix.h>
-#include <symmatrix.h>
-#include <vector.h>
-#include <cpuChrono.h>
-
-using namespace std;
-using namespace OpenMEEG;
-
-void getHelp(char** argv);
-
-int main(int argc, char **argv)
-{
-    print_version(argv[0]);
-
-    if(argc==1)
-    {
-        cerr << "Not enough arguments \nPlease try \"" << argv[0] << " -h\" or \"" << argv[0] << " --help \" \n" << endl;
-        return 0;
-    }
-
-    if ((!strcmp(argv[1],"-h")) | (!strcmp(argv[1],"--help"))) getHelp(argv);
-
-    disp_argv(argc,argv);
-
-    // Start Chrono
-    auto start_time = std::chrono::system_clock::now();
-
-    SymMatrix HeadMat;
-
-    HeadMat.load(argv[1]);
-    HeadMat.invert(); // invert inplace
-    HeadMat.save(argv[2]);
-
-    // Stop Chrono
-    auto end_time = std::chrono::system_clock::now();
-    dispEllapsed(end_time-start_time);
-
-    return 0;
-}
-
-void getHelp(char** argv)
-{
-    cout << argv[0] <<" [-option] [filepaths...]" << endl << endl;
-
-    cout << "   Inverse HeadMatrix " << endl;
-    cout << "   Filepaths are in order :" << endl;
-    cout << "       HeadMat (bin), HeadMatInv (bin)" << endl << endl;
-
-    exit(0);
+void dispEllapsed(const std::chrono::duration<double> elapsed_seconds){
+  std::cout <<  "-------------------------------------------" << std::endl;
+  std::cout <<  "| Elapsed Time: " << elapsed_seconds.count() << " s." << std::endl;
+  std::cout <<  "-------------------------------------------" << std::endl;
 }

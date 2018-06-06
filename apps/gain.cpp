@@ -38,14 +38,13 @@ knowledge of the CeCILL-B license and that you accept its terms.
 */
 
 #include <cstring>
-#include <chrono>
 #include <gain.h>
+#include <cpuChrono.h>
 
 using namespace std;
 using namespace OpenMEEG;
 
 void getHelp(char** argv);
-void dispEllapsed(const std::chrono::duration<double> elapsed_seconds);
 
 int main(int argc, char **argv)
 {
@@ -247,10 +246,4 @@ void getHelp(char** argv)
     cout << "            bin Matrix" << endl << endl;
 
     exit(0);
-}
-
-void dispEllapsed(const std::chrono::duration<double> elapsed_seconds){
-  std::cout <<  "-------------------------------------------" << std::endl;
-  std::cout <<  "| Elapsed Time: " << elapsed_seconds.count() << " s." << std::endl;
-  std::cout <<  "-------------------------------------------" << std::endl;
 }

@@ -44,11 +44,13 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <vector>
 #include <chrono>
 
+#include <om_utils.h>
 #include <mesh.h>
 #include <integrator.h>
 #include <assemble.h>
 #include <sensors.h>
 #include <geometry.h>
+#include <cpuChrono.h>
 
 using namespace std;
 using namespace OpenMEEG;
@@ -58,8 +60,6 @@ unsigned gauss_order = 3;
 void getHelp(char** argv);
 
 bool option(const int argc, char ** argv, const Strings& options, const Strings& files);
-
-void dispEllapsed(const std::chrono::duration<double> elapsed_seconds);
 
 int main(int argc, char** argv)
 {
@@ -407,6 +407,8 @@ int main(int argc, char** argv)
     // Stop Chrono
     auto end_time = std::chrono::system_clock::now();
     dispEllapsed(end_time-start_time);
+
+    return 0;
 }
 
 bool option(const int argc, char ** argv, const Strings& options, const Strings& files) {
@@ -550,10 +552,4 @@ void getHelp(char** argv) {
     cout << "               (Optional) domain name where lie all dipoles." << endl << endl;
 
     exit(0);
-}
-
-void dispEllapsed(const std::chrono::duration<double> elapsed_seconds){
-  std::cout <<  "-------------------------------------------" << std::endl;
-  std::cout <<  "| Elapsed Time: " << elapsed_seconds.count() << " s." << std::endl;
-  std::cout <<  "-------------------------------------------" << std::endl;
 }
