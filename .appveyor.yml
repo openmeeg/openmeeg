@@ -118,15 +118,15 @@ test_script:
 
   # - cp %matio_dir%bin\libmatio.dll %APPVEYOR_BUILD_FOLDER%\build\OpenMEEGMaths\tests\%CONFIGURATION%\
   # - cp %matio_dir%bin\hdf5.dll %APPVEYOR_BUILD_FOLDER%\build\OpenMEEGMaths\tests\%CONFIGURATION%\
-  - cp %matio_dir%bin\zlib.dll %APPVEYOR_BUILD_FOLDER%\build\OpenMEEGMaths\tests\%CONFIGURATION%\
+  # - cp %matio_dir%bin\zlib.dll %APPVEYOR_BUILD_FOLDER%\build\OpenMEEGMaths\tests\%CONFIGURATION%\
 
   # - cp %matio_dir%bin\libmatio.dll %APPVEYOR_BUILD_FOLDER%\build\apps\%CONFIGURATION%\
   # - cp %matio_dir%bin\hdf5.dll %APPVEYOR_BUILD_FOLDER%\build\apps\%CONFIGURATION%\
-  - cp %matio_dir%bin\zlib.dll %APPVEYOR_BUILD_FOLDER%\build\apps\%CONFIGURATION%\
+  # - cp %matio_dir%bin\zlib.dll %APPVEYOR_BUILD_FOLDER%\build\apps\%CONFIGURATION%\
 
   # - cp %matio_dir%bin\libmatio.dll %APPVEYOR_BUILD_FOLDER%\build\apps\tools\%CONFIGURATION%\
   # - cp %matio_dir%bin\hdf5.dll %APPVEYOR_BUILD_FOLDER%\build\apps\tools\%CONFIGURATION%\
-  - cp %matio_dir%bin\zlib.dll %APPVEYOR_BUILD_FOLDER%\build\apps\tools\%CONFIGURATION%\
+  # - cp %matio_dir%bin\zlib.dll %APPVEYOR_BUILD_FOLDER%\build\apps\tools\%CONFIGURATION%\
 
   # Check dependencies
   - depends.exe /f:1 /c /oc:c:\projects\depends.txt %APPVEYOR_BUILD_FOLDER%\build\OpenMEEGMaths\tests\%CONFIGURATION%\OpenMEEGMathsTest-vector.exe
