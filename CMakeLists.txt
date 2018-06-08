@@ -39,3 +39,5 @@ add_subdirectory(wrapping)
 # OpenMEEG Export
 ################
 include(cmake/Packaging.cmake)
+
+INSTALL(FILES ${CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS} DESTINATION bin COMPONENT Libraries)
