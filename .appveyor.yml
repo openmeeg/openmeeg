@@ -39,9 +39,9 @@ skip_commits:
 # Add [av skip] to commit messages
   message: /\[av skip\]/
 
-# # To allow remote connection to appveyor
-# init:
-#   - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+# To allow remote connection to appveyor
+init:
+  - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
 
 install:
   ############################################################################
@@ -109,6 +109,8 @@ before_build:
           -DBLA_STATIC=%BUILD_STATIC%            ^
           -DBLA_VENDOR=%BLAS_VERSION%            ^
           -G "Visual Studio 14 2015 Win64" ..
+  - set "REDIST_DIR=%InstallDir%\VC\Redist\MSVC\%RedistVersion%\"
+  - echo %REDIST_DIR%
 
 build_script:
   - cmake --build . --config %CONFIGURATION%
@@ -148,5 +150,5 @@ on_success:
 
 deploy: off
 
-# on_finish:
-#   - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+on_finish:
+  - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
