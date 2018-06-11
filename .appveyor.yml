@@ -111,6 +111,7 @@ before_build:
           -DBLA_VENDOR=%BLAS_VERSION%            ^
           -DVCOMP_PATH=%VCOMP_PATH%              ^
           -G "Visual Studio 14 2015 Win64" ..
+  - appveyor PushArtifact C:\projects\openmeeg\build\cmake_install.cmake
 
 build_script:
   - cmake --build . --config %CONFIGURATION%
