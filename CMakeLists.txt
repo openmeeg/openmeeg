@@ -42,5 +42,5 @@ include(cmake/Packaging.cmake)
 
 
 if (WIN32 AND OPENMP_FOUND)
-   INSTALL(FILES ${VCOMP_PATH} DESTINATION bin COMPONENT Libraries)
+   INSTALL(FILES "${VCOMP_PATH}" DESTINATION bin COMPONENT Libraries)
 endif()
