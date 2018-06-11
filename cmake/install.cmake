@@ -30,9 +30,10 @@ if(${MKL_USE_parallel})
 endif()
 
 
-if (WIN32 AND OPENMP_FOUND)
-   message(STATUS "Adding vcomp to the runtiome")
-   list(APPEND CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS ${VCOMP_PATH})
-endif()
+# if (WIN32 AND OPENMP_FOUND)
+#    message(STATUS "Adding vcomp to the runtiome")
+#    list(APPEND CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS ${VCOMP_PATH})
+# endif()
+
 # install_system_libs(HDF5::HDF5)
 # install_system_libs(MATIO::MATIO)

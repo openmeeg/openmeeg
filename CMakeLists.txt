@@ -40,4 +40,7 @@ add_subdirectory(wrapping)
 ################
 include(cmake/Packaging.cmake)
 
-INSTALL(FILES ${CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS} DESTINATION bin COMPONENT Libraries)
+
+if (WIN32 AND OPENMP_FOUND)
+   INSTALL(FILES ${VCOMP_PATH} DESTINATION bin COMPONENT Libraries)
+endif()
