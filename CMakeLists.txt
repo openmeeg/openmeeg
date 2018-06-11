@@ -42,5 +42,6 @@ include(cmake/Packaging.cmake)
 
 
 if (WIN32 AND OPENMP_FOUND)
-   INSTALL(FILES "${VCOMP_PATH}" DESTINATION bin COMPONENT Libraries)
+    set(VCOMP_PATH "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\redist\x64\Microsoft.VC140.OpenMP\vcomp140.dll")
+    INSTALL(FILES "${VCOMP_PATH}" DESTINATION bin COMPONENT Libraries)
 endif()
