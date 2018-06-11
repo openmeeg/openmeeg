@@ -104,7 +104,7 @@ before_build:
   - ps: $env:matio_dir='C:\conda\Library\'
   - ps: $env:CMAKE_PREFIX_PATH='C:\conda\Library\cmake'
   - ps: $env:INSTALL_DIR='C:\fake_install_dir\'
-  - ps: $env:VCOMP_PATH="C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\redist\x64\Microsoft.VC140.OpenMP\vcomp140.dll"
+  - ps: $env:VCOMP_PATH="C:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/redist/x64/Microsoft.VC140.OpenMP/vcomp140.dll"
   - cmake -DCMAKE_INSTALL_PREFIX=%INSTALL_DIR%   ^
           -DCMAKE_BUILD_TYPE=%CONFIGURATION%     ^
           -DBLA_STATIC=%BUILD_STATIC%            ^
