@@ -52,9 +52,11 @@ endif()
 
 find_package(Threads)
 
+find_package(OpenMP)
 if(BLA_STATIC)
     set(MATIO_USE_STATIC_LIBRARIES TRUE) # XXX This should be an option
 endif()
+
 find_package(matio REQUIRED)
 
 ################

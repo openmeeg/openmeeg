@@ -25,7 +25,6 @@ if(VTK_FOUND)
 endif()
 
 # OpenMP
-find_package(OpenMP)
 if (OPENMP_FOUND)
     target_compile_definitions(OpenMEEG PUBLIC USE_OMP)
     target_link_libraries(OpenMEEG PUBLIC OpenMP::OpenMP_CXX)
