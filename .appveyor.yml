@@ -103,10 +103,19 @@ before_build:
       cd build
   - ps: $env:matio_dir='C:\conda\Library\'
   - ps: $env:CMAKE_PREFIX_PATH='C:\conda\Library\cmake'
-  - cmake -DCMAKE_BUILD_TYPE=%CONFIGURATION% -DBLA_STATIC=%BUILD_STATIC% -DBLA_VENDOR=%BLAS_VERSION% -G "Visual Studio 14 2015 Win64" ..
+  - ps: $env:INSTALL_DIR='C:\fake_install_dir\'
+  # - ps: $env:VCOMP_PATH="C:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/redist/x64/Microsoft.VC140.OpenMP/vcomp140.dll"
+  - cmake -DCMAKE_INSTALL_PREFIX=%INSTALL_DIR%   ^
+          -DCMAKE_BUILD_TYPE=%CONFIGURATION%     ^
+          -DBLA_STATIC=%BUILD_STATIC%            ^
+          -DBLA_VENDOR=%BLAS_VERSION%            ^
+          -DVCOMP_WORKAROUND=ON                  ^
+          -G "Visual Studio 14 2015 Win64" ..
+  - appveyor PushArtifact C:\projects\openmeeg\build\cmake_install.cmake
 
 build_script:
   - cmake --build . --config %CONFIGURATION%
+  - cmake --build . --target install
   - cpack -C Release
   - cpack -G NSIS
 
@@ -120,8 +129,10 @@ test_script:
   - cp %APPVEYOR_BUILD_FOLDER%\build\OpenMEEG\%CONFIGURATION%\OpenMEEG.dll %APPVEYOR_BUILD_FOLDER%\build\apps\tools\%CONFIGURATION%\
 
   # Check dependencies
-  - depends.exe /f:1 /c /oc:c:\projects\depends.txt %APPVEYOR_BUILD_FOLDER%\build\OpenMEEGMaths\tests\%CONFIGURATION%\OpenMEEGMathsTest-vector.exe
-  - appveyor PushArtifact C:\projects\depends.txt
+  - depends.exe /f:1 /c /oc:c:\projects\depends-testvector.txt %APPVEYOR_BUILD_FOLDER%\build\OpenMEEGMaths\tests\%CONFIGURATION%\OpenMEEGMathsTest-vector.exe
+  - depends.exe /f:1 /c /oc:c:\projects\depends-omassemble.txt %APPVEYOR_BUILD_FOLDER%\build\apps\%CONFIGURATION%\om_assemble.exe
+  - appveyor PushArtifact C:\projects\depends-testvector.txt
+  - appveyor PushArtifact C:\projects\depends-omassemble.txt
 
   # Test
   - call "C:\Program Files (x86)\IntelSWTools\compilers_and_libraries_2018.0.124\windows\mkl\bin\mklvars.bat" intel64
