@@ -53,7 +53,7 @@ install:
   # Install Conda
   ############################################################################
   - conda config --add channels conda-forge
-  - conda install cmake swig libmatio
+  - conda install cmake openblas=0.2.20 libmatio=1.5.12 toolchain swig numpy
   - set LIBRARY_LIB=C:\conda\Library\lib
   - copy /y %LIBRARY_LIB%\zlibstatic.lib %LIBRARY_LIB%\z.lib
   
@@ -63,7 +63,7 @@ before_build:
       mkdir build
       cd build
 
-  - ps: $env:CMAKE_PREFIX_PATH='C:\conda\Library\cmake'
+  - ps: $env:CMAKE_PREFIX_PATH='C:\conda\Library\'
   - ps: $env:INSTALL_DIR='C:\fake_install_dir\'
   # - ps: $env:VCOMP_PATH="C:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/redist/x64/Microsoft.VC140.OpenMP/vcomp140.dll"
   - cmmd: set CONFIGURATION="Release"
