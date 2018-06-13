@@ -37,7 +37,7 @@ endif()
 list(APPEND CMAKE_SWIG_FLAGS -v -O)
 set_source_files_properties(openmeeg.i PROPERTIES CPLUSPLUS ON)
 swig_add_library(openmeeg LANGUAGE python SOURCES openmeeg.i)
-swig_link_libraries(openmeeg ${PYTHON_LIBRARIES} OpenMEEG::OpenMEEG)
+swig_link_libraries(openmeeg ${PYTHON_LIBRARIES} OpenMEEG::OpenMEEGMaths)
 
 execute_process(COMMAND ${PYTHON_EXECUTABLE} "-c" "from distutils.sysconfig import get_python_lib; print(get_python_lib(1))"
                 OUTPUT_VARIABLE PYTHON_SITE_ARCH
