@@ -37,14 +37,9 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#include <cstdlib>
-#include <cmath>
-#include <string>
-#include <sstream>
-#include <limits>
-#include <algorithm>
 
 #include <matrix.h>
+// #include <MathsIO.H>
 
 namespace OpenMEEG {
 
@@ -52,23 +47,23 @@ namespace OpenMEEG {
         for(size_t i=0;i<size();i++) data()[i]=d;
         return *this;
     }
-    void Matrix::load(const char *filename) {
-        maths::ifstream ifs(filename);
-        try {
-            ifs >> maths::format(filename,maths::format::FromSuffix) >> *this;
-        }
-        catch (maths::Exception& e) {
-            ifs >> *this;
-        }
-    }
+    // void Matrix::load(const char *filename) {
+    //     maths::ifstream ifs(filename);
+    //     try {
+    //         ifs >> maths::format(filename,maths::format::FromSuffix) >> *this;
+    //     }
+    //     catch (maths::Exception& e) {
+    //         ifs >> *this;
+    //     }
+    // }
 
-    void Matrix::save(const char *filename) const {
-        maths::ofstream ofs(filename);
-        try {
-            ofs << maths::format(filename,maths::format::FromSuffix) << *this;
-        }
-        catch (maths::Exception& e) {
-            ofs << *this;
-        }
-    }
+    // void Matrix::save(const char *filename) const {
+    //     maths::ofstream ofs(filename);
+    //     try {
+    //         ofs << maths::format(filename,maths::format::FromSuffix) << *this;
+    //     }
+    //     catch (maths::Exception& e) {
+    //         ofs << *this;
+    //     }
+    // }
 }
