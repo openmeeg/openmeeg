@@ -57,7 +57,7 @@ namespace OpenMEEG {
     public:
 
         Matrix(): LinOp(0,0,FULL,2),value() { }
-        Matrix(const char* fname): LinOp(0,0,FULL,2),value() { this->load(fname); }
+        // Matrix(const char* fname): LinOp(0,0,FULL,2),value() { this->load(fname); }
         Matrix(const size_t M,const size_t N): LinOp(M,N,FULL,2),value(new LinOpValue(N*M)) { }
         Matrix(const Matrix& A,const DeepCopy): LinOp(A.nlin(),A.ncol(),FULL,2),value(new LinOpValue(A.size(),A.data())) { }
 
@@ -68,8 +68,8 @@ namespace OpenMEEG {
         double* data() const { return value->data; }
 
         const Matrix& set(const double d);
-        void load(const char *filename);
-        void save(const char *filename) const;
+        // void load(const char *filename);
+        // void save(const char *filename) const;
 
     };
 
