@@ -135,6 +135,14 @@ before_install:
         brew link openblas --force;
     fi
 
+  ############################################################################
+  # Install SWIG
+  ############################################################################
+  - |
+    if [[ "${TRAVIS_OS_NAME}" == "osx" ]]; then
+        brew install swig;
+    fi
+
 script:
   - cd ${TRAVIS_BUILD_DIR}
   - mkdir -p build && cd build
