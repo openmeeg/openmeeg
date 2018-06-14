@@ -1,16 +1,16 @@
 # OpenMEEGMath
 add_library(OpenMEEGMaths SHARED
-  src/utils.cpp
-  src/vector.cpp
+  # src/utils.cpp
+  # src/vector.cpp
   src/matrix.cpp
-  src/symmatrix.cpp
-  src/sparse_matrix.cpp
-  src/fast_sparse_matrix.cpp
-  src/MathsIO.C
-  src/MatlabIO.C
-  src/AsciiIO.C
-  src/BrainVisaTextureIO.C
-  src/TrivialBinIO.C
+  # src/symmatrix.cpp
+  # src/sparse_matrix.cpp
+  # src/fast_sparse_matrix.cpp
+  # src/MathsIO.C
+  # src/MatlabIO.C
+  # src/AsciiIO.C
+  # src/BrainVisaTextureIO.C
+  # src/TrivialBinIO.C
 )
 
 set_target_properties(OpenMEEGMaths PROPERTIES
@@ -57,7 +57,7 @@ install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/ DESTINATION ${CMAKE_INSTA
 ############################################################
 
 # This are executables using OpenMEEGMath
-add_subdirectory(tests)
+# add_subdirectory(tests)
 # add_subdirectory(apps)
 # add_subdirectory(OpenMEEGMath/tests)
 # add_subdirectory(OpenMEEGMath/apps)
