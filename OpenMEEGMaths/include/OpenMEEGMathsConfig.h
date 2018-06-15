@@ -71,25 +71,8 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 //  Blas/Lapack configuration
 
-#if defined(MKL_ILP64) && defined(USE_MKL)
-typedef long long int BLAS_INT;
-#else
-typedef int BLAS_INT;
-#endif
 
-#if defined(USE_LAPACK)
-#include <BlasLapackImplementations/OpenMEEGMathsBlasLapackConfig.h>
-#elif defined(USE_MKL)
-#include <BlasLapackImplementations/OpenMEEGMathsMKLConfig.h>
-#elif defined(USE_ATLAS)
-#include <BlasLapackImplementations/OpenMEEGMathsAtlasConfig.h>
-#elif defined(USE_OPENBLAS)
 #include <BlasLapackImplementations/OpenMEEGMathsOpenBLASConfig.h>
-#elif defined(USE_VECLIB)
-#include <BlasLapackImplementations/OpenMEEGMathsvecLibConfig.h>
-#else
-#warning "No blas/lapack implementation selected."
-#endif
 
 //#define inline __forceinline
 //#define inline __attribute__((always_inline))
