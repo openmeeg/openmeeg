@@ -39,12 +39,12 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #pragma once
 
-#include <cstdlib>
-#include <cmath>
+// #include <cstdlib>
+// #include <cmath>
 
 #include "OpenMEEGMathsConfig.h"
 // #include <OMassert.H>
-#include "RC.H"
+// #include "RC.H"
 
 namespace OpenMEEG {
 
