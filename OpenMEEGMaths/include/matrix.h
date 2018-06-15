@@ -69,7 +69,7 @@ namespace OpenMEEG {
         // double* data() const { return value->data; }
         double* data() const { return 0; }
 
-        const Matrix& set(const double d);
+        // const Matrix& set(const double d);
         // void load(const char *filename);
         // void save(const char *filename) const;
 
