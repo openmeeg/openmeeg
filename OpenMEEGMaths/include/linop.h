@@ -43,7 +43,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <cmath>
 
 #include "OpenMEEGMathsConfig.h"
-#include <OMassert.H>
+// #include <OMassert.H>
 #include "RC.H"
 
 namespace OpenMEEG {
@@ -56,7 +56,7 @@ namespace OpenMEEG {
     OPENMEEGMATHS_EXPORT inline BLAS_INT sizet_to_int(const size_t& num)
     {
         BLAS_INT num_out = static_cast<BLAS_INT>(num);
-        om_assert(num_out >= 0);
+        // om_assert(num_out >= 0);
         return num_out;
     }
 
@@ -114,42 +114,8 @@ namespace OpenMEEG {
         LinOp() { }
         LinOp(const size_t m,const size_t n,const StorageType st,const Dimension d): base(m,n,st,d) { }
 
-        LinOp& operator=(const LinOp& l) {
-            base::operator=(l);
-            return *this;
-        }
-
-        virtual size_t size() const = 0;
-        virtual void   info() const = 0;
     };
 
     typedef enum { DEEP_COPY } DeepCopy;
 
-    struct OPENMEEGMATHS_EXPORT LinOpValue: public utils::RCObject {
-        double *data;
-
-        LinOpValue(): data(0) { }
-
-        LinOpValue(const size_t n) {
-            try {
-                this->data = new double[n];
-            }
-            catch (std::bad_alloc&) {
-                std::cerr << "Error memory allocation failed... " << std::endl;
-                exit(1);
-            }
-        }
-
-        LinOpValue(const size_t n,const double* initval) { init(n,initval); }
-        LinOpValue(const size_t n,const LinOpValue& v)   { init(n,v.data);  }
-
-        void init(const size_t n,const double* initval) {
-            data = new double[n];
-            std::copy(initval,initval+n,data);
-        }
-
-        ~LinOpValue() { delete[] data; }
-
-        bool empty() const { return data==0; }
-    };
 }
