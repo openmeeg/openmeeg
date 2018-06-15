@@ -72,7 +72,13 @@ knowledge of the CeCILL-B license and that you accept its terms.
 //  Blas/Lapack configuration
 
 
-#include <BlasLapackImplementations/OpenMEEGMathsOpenBLASConfig.h>
+#if WIN32
+#define LAPACK_COMPLEX_CUSTOM
+#define lapack_complex_float float
+#define lapack_complex_double double
+#endif
+
+#include <cblas.h>
 
 //#define inline __forceinline
 //#define inline __attribute__((always_inline))

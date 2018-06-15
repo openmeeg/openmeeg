@@ -42,7 +42,10 @@ knowledge of the CeCILL-B license and that you accept its terms.
 // #include <cstdlib>
 // #include <cmath>
 
-#include "OpenMEEGMathsConfig.h"
+// #include <OpenMEEGConfigure.h>
+#include <OpenMEEGMaths_Export.h>
+#include <cblas.h>
+// #include "OpenMEEGMathsConfig.h"
 // #include <OMassert.H>
 // #include "RC.H"
 
