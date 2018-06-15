@@ -43,10 +43,10 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 namespace OpenMEEG {
 
-    const Matrix& Matrix::set(const double d) {
-        for(size_t i=0;i<size();i++) data()[i]=d;
-        return *this;
-    }
+    // const Matrix& Matrix::set(const double d) {
+    //     for(size_t i=0;i<size();i++) data()[i]=d;
+    //     return *this;
+    // }
     // void Matrix::load(const char *filename) {
     //     maths::ifstream ifs(filename);
     //     try {        // size_t size

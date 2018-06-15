@@ -1,7 +1,7 @@
 /*
 Project Name : OpenMEEG
 
-© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre 
+© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre
 GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU, Théodore PAPADOPOULO,
 Emmanuel OLIVI
 Maureen.Clerc.AT.inria.fr, keriven.AT.certis.enpc.fr,
@@ -81,20 +81,20 @@ namespace OpenMEEG {
             dim       = l.dim;
             return *this;
         }
-        
-        size_t  nlin() const { return num_lines; }
-        size_t& nlin()       { return num_lines; }
 
-        virtual size_t  ncol() const { return num_cols; }
-                size_t& ncol()       { return num_cols; }
+        // size_t  nlin() const { return num_lines; }
+        // size_t& nlin()       { return num_lines; }
 
-        StorageType  storageType() const { return storage; }
-        StorageType& storageType()       { return storage; }
+        // virtual size_t  ncol() const { return num_cols; }
+        //         size_t& ncol()       { return num_cols; }
 
-        Dimension   dimension()   const { return dim;     }
-        Dimension&  dimension()         { return dim;     }
+        // StorageType  storageType() const { return storage; }
+        // StorageType& storageType()       { return storage; }
 
-        IO& default_io() { return DefaultIO; }
+        // Dimension   dimension()   const { return dim;     }
+        // Dimension&  dimension()         { return dim;     }
+
+        // IO& default_io() { return DefaultIO; }
 
     protected:
 
@@ -118,7 +118,7 @@ namespace OpenMEEG {
             base::operator=(l);
             return *this;
         }
-        
+
         virtual size_t size() const = 0;
         virtual void   info() const = 0;
     };

@@ -50,13 +50,14 @@ namespace OpenMEEG {
 
         // friend class Vector;
 
-        utils::RCPtr<LinOpValue> value;
+        // utils::RCPtr<LinOpValue> value;
 
         // explicit Matrix(const Matrix& A,const size_t M): LinOp(A.nlin(),M,FULL,2),value(A.value) { }
 
     public:
+        Matrix(): LinOp(0,0,FULL,2) { }
 
-        Matrix(): LinOp(0,0,FULL,2),value() { }
+        // Matrix(): LinOp(0,0,FULL,2),value() { }
         // Matrix(const char* fname): LinOp(0,0,FULL,2),value() { this->load(fname); }
         // Matrix(const size_t M,const size_t N): LinOp(M,N,FULL,2),value(new LinOpValue(N*M)) { }
         // Matrix(const Matrix& A,const DeepCopy): LinOp(A.nlin(),A.ncol(),FULL,2),value(new LinOpValue(A.size(),A.data())) { }
@@ -65,7 +66,8 @@ namespace OpenMEEG {
 
         // size_t size() const { return nlin()*ncol(); };
 
-        double* data() const { return value->data; }
+        // double* data() const { return value->data; }
+        double* data() const { return 0; }
 
         const Matrix& set(const double d);
         // void load(const char *filename);
