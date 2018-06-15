@@ -49,7 +49,7 @@ namespace OpenMEEG {
     }
     // void Matrix::load(const char *filename) {
     //     maths::ifstream ifs(filename);
-    //     try {
+    //     try {        // size_t size
     //         ifs >> maths::format(filename,maths::format::FromSuffix) >> *this;
     //     }
     //     catch (maths::Exception& e) {

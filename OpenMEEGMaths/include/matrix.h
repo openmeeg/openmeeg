@@ -48,22 +48,22 @@ namespace OpenMEEG {
     class OPENMEEGMATHS_EXPORT Matrix: public LinOp {
     protected:
 
-        friend class Vector;
+        // friend class Vector;
 
         utils::RCPtr<LinOpValue> value;
 
-        explicit Matrix(const Matrix& A,const size_t M): LinOp(A.nlin(),M,FULL,2),value(A.value) { }
+        // explicit Matrix(const Matrix& A,const size_t M): LinOp(A.nlin(),M,FULL,2),value(A.value) { }
 
     public:
 
         Matrix(): LinOp(0,0,FULL,2),value() { }
         // Matrix(const char* fname): LinOp(0,0,FULL,2),value() { this->load(fname); }
-        Matrix(const size_t M,const size_t N): LinOp(M,N,FULL,2),value(new LinOpValue(N*M)) { }
-        Matrix(const Matrix& A,const DeepCopy): LinOp(A.nlin(),A.ncol(),FULL,2),value(new LinOpValue(A.size(),A.data())) { }
+        // Matrix(const size_t M,const size_t N): LinOp(M,N,FULL,2),value(new LinOpValue(N*M)) { }
+        // Matrix(const Matrix& A,const DeepCopy): LinOp(A.nlin(),A.ncol(),FULL,2),value(new LinOpValue(A.size(),A.data())) { }
 
-        bool empty() const { return value->empty(); }
+        // bool empty() const { return value->empty(); }
 
-        size_t size() const { return nlin()*ncol(); };
+        // size_t size() const { return nlin()*ncol(); };
 
         double* data() const { return value->data; }
 
