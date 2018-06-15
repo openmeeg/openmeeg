@@ -48,22 +48,22 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 namespace OpenMEEG {
 
-    namespace maths {
-        struct OPENMEEGMATHS_EXPORT MathsIO;
-    }
+    // namespace maths {
+    //     struct OPENMEEGMATHS_EXPORT MathsIO;
+    // }
 
     // to properly convert a size_t int to an int
-    OPENMEEGMATHS_EXPORT inline BLAS_INT sizet_to_int(const size_t& num)
-    {
-        BLAS_INT num_out = static_cast<BLAS_INT>(num);
-        // om_assert(num_out >= 0);
-        return num_out;
-    }
+    // OPENMEEGMATHS_EXPORT inline BLAS_INT sizet_to_int(const size_t& num)
+    // {
+    //     BLAS_INT num_out = static_cast<BLAS_INT>(num);
+    //     // om_assert(num_out >= 0);
+    //     return num_out;
+    // }
 
     class OPENMEEGMATHS_EXPORT LinOpInfo {
     public:
 
-        typedef maths::MathsIO* IO;
+        // typedef maths::MathsIO* IO;
 
         typedef enum { FULL, SYMMETRIC, SPARSE } StorageType;
         typedef unsigned                         Dimension;
@@ -102,7 +102,7 @@ namespace OpenMEEG {
         size_t            num_cols;
         StorageType       storage;
         Dimension         dim;
-        IO                DefaultIO;
+        // IO                DefaultIO;
     };
 
     class OPENMEEGMATHS_EXPORT LinOp: public LinOpInfo {
@@ -116,6 +116,6 @@ namespace OpenMEEG {
 
     };
 
-    typedef enum { DEEP_COPY } DeepCopy;
+    // typedef enum { DEEP_COPY } DeepCopy;
 
 }
