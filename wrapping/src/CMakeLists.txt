@@ -20,7 +20,7 @@ find_package(Numpy REQUIRED)
 include_directories(${PYTHON_INCLUDE_PATH}
                     ${NUMPY_INCLUDE_DIRS}
                     ${CMAKE_CURRENT_SOURCE_DIR}
-                    ${PROJECT_SOURCE_DIR}/OpenMEEG/include/
+                    # ${PROJECT_SOURCE_DIR}/OpenMEEG/include/
                     ${PROJECT_SOURCE_DIR}/OpenMEEGMaths/include/
 )
 
