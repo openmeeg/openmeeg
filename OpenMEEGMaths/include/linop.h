@@ -56,8 +56,8 @@ namespace OpenMEEG {
     //     struct OPENMEEGMATHS_EXPORT MathsIO;
     // }
 
-    // to properly convert a size_t int to an int
-    // OPENMEEGMATHS_EXPORT inline BLAS_INT sizet_to_int(const size_t& num)
+    // to properly convert a int int to an int
+    // OPENMEEGMATHS_EXPORT inline BLAS_INT sizet_to_int(const int& num)
     // {
     //     BLAS_INT num_out = static_cast<BLAS_INT>(num);
     //     // om_assert(num_out >= 0);
@@ -73,7 +73,7 @@ namespace OpenMEEG {
         typedef unsigned                         Dimension;
 
         LinOpInfo() { }
-        LinOpInfo(const size_t m,const size_t n,const StorageType st,const Dimension d):
+        LinOpInfo(const int m,const int n,const StorageType st,const Dimension d):
             num_lines(m),num_cols(n),storage(st),dim(d)  { }
 
         virtual ~LinOpInfo() {};
@@ -86,11 +86,11 @@ namespace OpenMEEG {
             return *this;
         }
 
-        // size_t  nlin() const { return num_lines; }
-        // size_t& nlin()       { return num_lines; }
+        // int  nlin() const { return num_lines; }
+        // int& nlin()       { return num_lines; }
 
-        // virtual size_t  ncol() const { return num_cols; }
-        //         size_t& ncol()       { return num_cols; }
+        // virtual int  ncol() const { return num_cols; }
+        //         int& ncol()       { return num_cols; }
 
         // StorageType  storageType() const { return storage; }
         // StorageType& storageType()       { return storage; }
@@ -102,8 +102,8 @@ namespace OpenMEEG {
 
     protected:
 
-        size_t            num_lines;
-        size_t            num_cols;
+        int            num_lines;
+        int            num_cols;
         StorageType       storage;
         Dimension         dim;
         // IO                DefaultIO;
@@ -116,7 +116,7 @@ namespace OpenMEEG {
     public:
 
         LinOp() { }
-        LinOp(const size_t m,const size_t n,const StorageType st,const Dimension d): base(m,n,st,d) { }
+        LinOp(const int m,const int n,const StorageType st,const Dimension d): base(m,n,st,d) { }
 
     };
 
