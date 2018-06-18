@@ -41,37 +41,72 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 // #include <OpenMEEGMathsConfig.h>
 
-
 namespace OpenMEEG {
 
-  /*    class  Matrix: public LinOp {
+    // namespace maths {
+    //     struct OPENMEEGMATHS_EXPORT MathsIO;
+    // }
+
+    // to properly convert a int int to an int
+    // OPENMEEGMATHS_EXPORT inline BLAS_INT sizet_to_int(const int& num)
+    // {
+    //     BLAS_INT num_out = static_cast<BLAS_INT>(num);
+    //     // om_assert(num_out >= 0);
+    //     return num_out;
+    // }
+
+    class LinOpInfo {
+    public:
+
+        // typedef maths::MathsIO* IO;
+
+
+        LinOpInfo() { }
+        LinOpInfo(const int m,const int n):
+            num_lines(m),num_cols(n)  { }
+
+        virtual ~LinOpInfo() {};
+
+        // LinOpInfo& operator=(const LinOpInfo& l) {
+        //     num_lines = l.num_lines;
+        //     num_cols  = l.num_cols;
+        //     storage   = l.storage;
+        //     dim       = l.dim;
+        //     return *this;
+        // }
+
+        // int  nlin() const { return num_lines; }
+        // int& nlin()       { return num_lines; }
+
+        // virtual int  ncol() const { return num_cols; }
+        //         int& ncol()       { return num_cols; }
+
+        // StorageType  storageType() const { return storage; }
+        // StorageType& storageType()       { return storage; }
+
+        // Dimension   dimension()   const { return dim;     }
+        // Dimension&  dimension()         { return dim;     }
+
+        // IO& default_io() { return DefaultIO; }
+
     protected:
 
-        // friend class Vector;
+        int            num_lines;
+        int            num_cols;
+        // IO                DefaultIO;
+    };
 
-        // utils::RCPtr<LinOpValue> value;
+    class LinOp: public LinOpInfo {
 
-        // explicit Matrix(const Matrix& A,const size_t M): LinOp(A.nlin(),M,FULL,2),value(A.value) { }
+        typedef LinOpInfo base;
 
     public:
-        Matrix(): LinOp(0,0,FULL,2) { }
 
-        // Matrix(): LinOp(0,0,FULL,2),value() { }
-        // Matrix(const char* fname): LinOp(0,0,FULL,2),value() { this->load(fname); }
-        // Matrix(const size_t M,const size_t N): LinOp(M,N,FULL,2),value(new LinOpValue(N*M)) { }
-        // Matrix(const Matrix& A,const DeepCopy): LinOp(A.nlin(),A.ncol(),FULL,2),value(new LinOpValue(A.size(),A.data())) { }
+        LinOp() { }
+        LinOp(const int m,const int n): base(m,n) { }
 
-        // bool empty() const { return value->empty(); }
+    };
 
-        // size_t size() const { return nlin()*ncol(); };
-
-        // double* data() const { return value->data; }
-        double* data() const { return 0; }
-
-        // const Matrix& set(const double d);
-        // void load(const char *filename);
-        // void save(const char *filename) const;
-
-    };*/
+    // typedef enum { DEEP_COPY } DeepCopy;
 
 }
