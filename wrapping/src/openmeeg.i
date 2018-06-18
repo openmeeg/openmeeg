@@ -12,6 +12,12 @@
 /* %include <std_string.i> */
 /* %include <std_vector.i> */
 
+// Add necessary symbols to generated header
 %{
+#include "matrix.h"
+#include "linop.h"
 %}
 
+// Process symbols in header
+%include "matrix.h"
+%include "linop.h"

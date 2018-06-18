@@ -41,7 +41,6 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 // #include <OpenMEEGMathsConfig.h>
 
-#include <linop.h>
 
 namespace OpenMEEG {
 

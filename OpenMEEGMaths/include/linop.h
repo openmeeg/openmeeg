@@ -69,12 +69,10 @@ namespace OpenMEEG {
 
         // typedef maths::MathsIO* IO;
 
-        typedef enum { FULL, SYMMETRIC, SPARSE } StorageType;
-        typedef unsigned                         Dimension;
 
         LinOpInfo() { }
-        LinOpInfo(const int m,const int n,const StorageType st,const Dimension d):
-            num_lines(m),num_cols(n),storage(st),dim(d)  { }
+        LinOpInfo(const int m,const int n):
+            num_lines(m),num_cols(n)  { }
 
         virtual ~LinOpInfo() {};
 
@@ -104,8 +102,6 @@ namespace OpenMEEG {
 
         int            num_lines;
         int            num_cols;
-        StorageType       storage;
-        Dimension         dim;
         // IO                DefaultIO;
     };
 
@@ -116,7 +112,7 @@ namespace OpenMEEG {
     public:
 
         LinOp() { }
-        LinOp(const int m,const int n,const StorageType st,const Dimension d): base(m,n,st,d) { }
+        LinOp(const int m,const int n): base(m,n) { }
 
     };
 
