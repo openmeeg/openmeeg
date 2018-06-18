@@ -43,11 +43,12 @@ knowledge of the CeCILL-B license and that you accept its terms.
 // #include <cmath>
 
 // #include <OpenMEEGConfigure.h>
-#include <OpenMEEGMaths_Export.h>
+// #include <OpenMEEGMaths_Export.h>
 #include <cblas.h>
 // #include "OpenMEEGMathsConfig.h"
 // #include <OMassert.H>
 // #include "RC.H"
+
 
 namespace OpenMEEG {
 
@@ -63,7 +64,7 @@ namespace OpenMEEG {
     //     return num_out;
     // }
 
-    class OPENMEEGMATHS_EXPORT LinOpInfo {
+    class LinOpInfo {
     public:
 
         // typedef maths::MathsIO* IO;
@@ -108,7 +109,7 @@ namespace OpenMEEG {
         // IO                DefaultIO;
     };
 
-    class OPENMEEGMATHS_EXPORT LinOp: public LinOpInfo {
+    class LinOp: public LinOpInfo {
 
         typedef LinOpInfo base;
 

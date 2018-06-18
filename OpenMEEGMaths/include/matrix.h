@@ -45,7 +45,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 namespace OpenMEEG {
 
-    class OPENMEEGMATHS_EXPORT Matrix: public LinOp {
+    class  Matrix: public LinOp {
     protected:
 
         // friend class Vector;
