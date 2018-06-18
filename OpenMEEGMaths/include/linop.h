@@ -78,13 +78,13 @@ namespace OpenMEEG {
 
         virtual ~LinOpInfo() {};
 
-        LinOpInfo& operator=(const LinOpInfo& l) {
-            num_lines = l.num_lines;
-            num_cols  = l.num_cols;
-            storage   = l.storage;
-            dim       = l.dim;
-            return *this;
-        }
+        // LinOpInfo& operator=(const LinOpInfo& l) {
+        //     num_lines = l.num_lines;
+        //     num_cols  = l.num_cols;
+        //     storage   = l.storage;
+        //     dim       = l.dim;
+        //     return *this;
+        // }
 
         // int  nlin() const { return num_lines; }
         // int& nlin()       { return num_lines; }
