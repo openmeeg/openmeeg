@@ -10,19 +10,13 @@ cache:
 
 matrix:
   include:
-    - os: linux  # shipping linux
-      env:
-        - BACKEND=Intel10_64lp
-        - BUILD_STATIC=ON
-        - BUILD_PACKAGE=ON
-
     - os: linux  # shipping apt-get
       env:
         - BACKEND=OpenBLAS
         - USE_VTK=ON
         - ENABLE_PYTHON=ON
         - ANALYSE=ON
-        - BUILD_DOCUMENTATION=ON
+        - BUILD_DOCUMENTATION=OFF
       addons:
         sources:
           - ubuntu-toolchain-r-test
@@ -34,23 +28,14 @@ matrix:
             - python-numpy
             - doxygen
             - graphviz
-    - os: osx  # shipping mac
-      env:
-        - BACKEND=Intel10_64lp
-        - BUILD_STATIC=ON
-        - BUILD_PACKAGE=ON
-
     - os: osx  # shipping brew
       env:
       - BACKEND=OpenBLAS
+      - ENABLE_PYTHON=ON
       # - USE_GCC=ON  # XXX : vtk does not work with GCC
       # - USE_BREW_LLVM=ON  # XXX: To have OpenMP but segfaults...
       # - USE_VTK=ON # XXX: vtk is currently broken in brew
 
-    - os: osx  # Static analysis using clang-analyzer
-      env:
-        - BACKEND=Apple
-        - ANALYSE=ON
 
 before_install:
   - |
@@ -148,6 +133,14 @@ before_install:
     if [[ "${TRAVIS_OS_NAME}" == "osx" && "${BACKEND}" == "OpenBLAS" ]]; then
         brew install openblas;
         brew link openblas --force;
+    fi
+
+  ############################################################################
+  # Install SWIG
+  ############################################################################
+  - |
+    if [[ "${TRAVIS_OS_NAME}" == "osx" ]]; then
+        brew install swig;
     fi
 
 script:
