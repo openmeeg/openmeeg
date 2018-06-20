@@ -40,6 +40,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <geometry.h>
 #include <geometry_reader.h>
 #include <geometry_io.h>
+#include <ciso646>
 
 namespace OpenMEEG {
 

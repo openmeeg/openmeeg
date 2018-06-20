@@ -39,6 +39,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #include <interface.h>
 #include <algorithm>
+#include <ciso646>
 
 namespace OpenMEEG {
 

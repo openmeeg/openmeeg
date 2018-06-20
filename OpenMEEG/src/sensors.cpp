@@ -40,6 +40,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <algorithm>
 #include <sensors.h>
 #include <danielsson.h>
+#include <ciso646>
 
 namespace OpenMEEG {
 
