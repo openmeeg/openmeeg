@@ -1,4 +1,4 @@
-%module() openmeeg
+%module openmeeg
 
 /* %include <exception.i> */
 /* %exception { */
