@@ -1,8 +1,3 @@
-if(MSVC)
-    # to allow the use of and, or instead of && ||
-    # add_compile_options("/Za")
-endif()
-
 #---------------------------------------------------------------
 # Test and setup the C++ compiler features
 #---------------------------------------------------------------
