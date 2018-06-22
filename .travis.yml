@@ -157,7 +157,7 @@ script:
     if [[ $BUILD_PACKAGE == "ON" && $TRAVIS_PULL_REQUEST == "false" && $TRAVIS_BRANCH == "master" ]]; then
       export CMAKE_OPTIONS=" -DBLA_VENDOR=$BACKEND"
     else
-      export CMAKE_OPTIONS=" -DBLA_VENDOR=$BACKEND -DENABLE_COVERAGE=ON"
+      export CMAKE_OPTIONS=" -DBLA_VENDOR=$BACKEND -DENABLE_COVERAGE=${ENABLE_COVERAGE}"
     fi
   - |
     if [[ "${BUILD_STATIC}" == "ON" ]]; then
@@ -243,6 +243,7 @@ notifications:
 
 env:
   global:
+    - ENABLE_COVERAGE=ON
     - src_dir: $TRAVIS_BUILD_DIR
     - secure: THD5qh1lrYDL2dEYVu+pitC+RsfB/Wn8jJjNTVFYEwPnSw5zov4N2aVNwOaHM4qJwp8NdL81ke4gI0P9vS89HPSstsnkboAwzn8Kj3UhAq0X10vnkgH+BIjUut0H3DCcY0O5Y2/1pc5KL/6pErT6tdFlRq8xS6YwVe7UKx3rEXo=
     - secure: XBNTHU+DVCKeUKjxVSfvAkFr/KnvzYDDn28u8Y41v9kT+yHE1HHPnSYJS9JndQllOUAXtT0Ix81LSKG9MVthIWs5uPTOOg4hPZloE8mOYWSs/EHLraEEbZFUAaoCz2ZVYdA92HM1YAVo4Bi+zMy9g7Ra4POSWwFY5n/zV+ma//A=
