@@ -49,6 +49,20 @@ Binaries for Linux/Mac/Windows are available at `Download precompiled binaries <
 
 On Ubuntu/Debian GNU Linux you may be able use the http://neuro.debian.net package repository.
 
+On Fedora::
+
+    $ dnf install openmeeg openmeeg-devel python2-openmeeg
+
+On RHEL/CentOS 7, enable [EPEL repositories](https://fedoraproject.org/wiki/EPEL) and install::
+
+    $ yum install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+    $ yum install openmeeg openmeeg-devel python2-openmeeg
+
+Additional repositories recommended on RHEL 7::
+
+    $ subscription-manager repos --enable "rhel-*-optional-rpms" --enable "rhel-*-extras-rpms"
+
+
 Build OpenMEEG from source
 --------------------------
 
