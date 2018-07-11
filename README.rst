@@ -43,11 +43,12 @@ The references to be acknowledged are ::
 Install precompiled binaries
 ----------------------------
 
+Binaries for Linux/Mac/Windows are available at `Download precompiled binaries <http://openmeeg.gforge.inria.fr/download/?C=M;O=D>`_.
+
 To install OpenMEEG via `anaconda <https://www.anaconda.com/download/>`_ you can just do::
 
     $ conda install -c conda-forge openmeeg
 
-Binaries for Linux/Mac/Windows are available at `Download precompiled binaries <http://openmeeg.gforge.inria.fr/download/?C=M;O=D>`_.
 
 On Ubuntu/Debian GNU Linux you may be able use the http://neuro.debian.net package repository.
 
