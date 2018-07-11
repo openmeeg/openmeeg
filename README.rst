@@ -1,4 +1,4 @@
-|Travis|_ |AppVeyor|_ |CodeCov|_
+|Travis|_ |AppVeyor|_ |CodeCov|_ |condaVersion|_
 
 .. |Travis| image:: https://api.travis-ci.org/openmeeg/openmeeg.svg?branch=master
 .. _Travis: https://travis-ci.org/openmeeg/openmeeg
@@ -9,6 +9,9 @@
 .. |CodeCov| image:: https://codecov.io/gh/openmeeg/openmeeg/branch/master/graph/badge.svg
 .. _CodeCov: https://codecov.io/gh/openmeeg/openmeeg
 
+
+.. |condaVersion| image:: https://anaconda.org/conda-forge/openmeeg/badges/version.svg
+.. _condaVersion: https://anaconda.org/conda-forge/openmeeg
 
 OpenMEEG: forward problems solver in the field of EEG and MEG
 =============================================================
