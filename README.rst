@@ -40,10 +40,9 @@ The references to be acknowledged are ::
 Install precompiled binaries
 ----------------------------
 
-On Mac if you use `Homebrew <http://brew.sh/>`_ you can just do::
+To install OpenMEEG via `anaconda <https://www.anaconda.com/download/>`_ you can just do::
 
-    $ brew tap homebrew/science  # to get access to science packages
-    $ brew install openmeeg
+    $ conda install -c conda-forge openmeeg
 
 Binaries for Linux/Mac/Windows are available at `Download precompiled binaries <http://openmeeg.gforge.inria.fr/download/?C=M;O=D>`_.
 
