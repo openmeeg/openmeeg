@@ -1,4 +1,4 @@
-|Travis|_ |AppVeyor|_ |CodeCov|_
+|Travis|_ |AppVeyor|_ |CodeCov|_ |condaVersion|_
 
 .. |Travis| image:: https://api.travis-ci.org/openmeeg/openmeeg.svg?branch=master
 .. _Travis: https://travis-ci.org/openmeeg/openmeeg
@@ -9,6 +9,9 @@
 .. |CodeCov| image:: https://codecov.io/gh/openmeeg/openmeeg/branch/master/graph/badge.svg
 .. _CodeCov: https://codecov.io/gh/openmeeg/openmeeg
 
+
+.. |condaVersion| image:: https://anaconda.org/conda-forge/openmeeg/badges/version.svg
+.. _condaVersion: https://anaconda.org/conda-forge/openmeeg
 
 OpenMEEG: forward problems solver in the field of EEG and MEG
 =============================================================
@@ -40,12 +43,12 @@ The references to be acknowledged are ::
 Install precompiled binaries
 ----------------------------
 
-On Mac if you use `Homebrew <http://brew.sh/>`_ you can just do::
-
-    $ brew tap homebrew/science  # to get access to science packages
-    $ brew install openmeeg
-
 Binaries for Linux/Mac/Windows are available at `Download precompiled binaries <http://openmeeg.gforge.inria.fr/download/?C=M;O=D>`_.
+
+To install OpenMEEG via `anaconda <https://www.anaconda.com/download/>`_ you can just do::
+
+    $ conda install -c conda-forge openmeeg
+
 
 On Ubuntu/Debian GNU Linux you may be able use the http://neuro.debian.net package repository.
 
