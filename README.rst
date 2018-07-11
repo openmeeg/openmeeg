@@ -56,7 +56,7 @@ On Fedora::
 
     $ dnf install openmeeg openmeeg-devel python2-openmeeg
 
-On RHEL/CentOS 7, enable [EPEL repositories](https://fedoraproject.org/wiki/EPEL) and install::
+On RHEL/CentOS 7, enable `EPEL repositories <https://fedoraproject.org/wiki/EPEL>`_ and install::
 
     $ yum install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
     $ yum install openmeeg openmeeg-devel python2-openmeeg
