@@ -22,7 +22,7 @@
    ? static_cast<void>(0)						\
    : Assert(om_str(expr),__FILE__,__LINE__,__PRETTY_FUNCTION__))
 
-//  Remove om_assert wgen NDEBUG is defined.
+//  Remove om_assert when NDEBUG is defined.
 //  Not clear this is useful...
 
 #define IGNORE_NDEBUG
