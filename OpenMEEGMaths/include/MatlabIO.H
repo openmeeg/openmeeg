@@ -284,6 +284,9 @@ namespace OpenMEEG {
             void read(mat_t* mat,LinOp& linop) const {
                 matvar_t* matvar = read_header<TYPE>(mat,linop);
                 TYPE& O = dynamic_cast<TYPE&>(linop);
+                const uint64_t nbytes = linop.size()*matvar->data_size;
+                if (nbytes!=static_cast<uint64_t>(matvar->nbytes))
+                    throw maths::MatioError("Matio inconsistency: the number of bytes read by matio is not coherent with the matrix size.");
                 O.reference_data(static_cast<double*>(matvar->data));
                 matvar->mem_conserve = 1;
                 Mat_VarFree(matvar);
@@ -292,7 +295,7 @@ namespace OpenMEEG {
             void read_sparse(mat_t* mat,LinOp& linop) const {
                 matvar_t*     matvar = read_header<SparseMatrix>(mat,linop);
                 SparseMatrix& m      = dynamic_cast<SparseMatrix&>(linop);
-                std::cout << "Using variable with name : " << matvar->name << std::endl;
+                std::cout << "Using variable with name: " << matvar->name << std::endl;
 
                 mat_sparse_t* sparse = static_cast<mat_sparse_t*>(matvar->data);
                 size_t _nz = sparse->nzmax;
