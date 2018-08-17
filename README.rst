@@ -214,3 +214,8 @@ same conditions as regards security.
 
 The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
+
+
+.. image:: https://badges.gitter.im/openmeeg/openmeeg.svg
+   :alt: Join the chat at https://gitter.im/openmeeg/openmeeg
+   :target: https://gitter.im/openmeeg/openmeeg?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
