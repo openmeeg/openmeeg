@@ -64,6 +64,8 @@ before_install:
       sudo apt-get update
       sudo apt-get install -y libc6:i386 libncurses5:i386 libstdc++6:i386
       sudo apt-get install -y lcov
+      sudo apt-get install binutils-2.26
+      export PATH=/usr/lib/binutils-2.26/bin:${PATH}
     fi
 
   # Travis machines have 2 cores
@@ -102,7 +104,7 @@ before_install:
         if [[ "${BUILD_PACKAGE}" == "ON" ]]; then
             git clone https://github.com/astropy/ci-helpers.git;
             source ci-helpers/travis/setup_conda.sh;
-            conda install -c conda-forge libmatio;
+            conda install -c massich libmatio;
         else
             sudo apt-get install -y libmatio2 libmatio-dev libvtk5-dev;
         fi
