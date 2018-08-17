@@ -37,7 +37,6 @@ matrix:
             - graphviz
 
     - os: osx  # shipping mac
-      osx_image: xcode8.3
       env:
         - BACKEND=Intel10_64lp
         - BUILD_STATIC=ON
