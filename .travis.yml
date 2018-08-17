@@ -16,46 +16,6 @@ matrix:
         - BUILD_STATIC=ON
         - BUILD_PACKAGE=ON
 
-    - os: linux  # shipping apt-get
-      env:
-        - BACKEND=OpenBLAS
-        - USE_VTK=ON
-        - ENABLE_PYTHON=ON
-        - ANALYSE=ON
-        - ENABLE_COVERAGE=ON
-        - BUILD_DOCUMENTATION=ON
-      addons:
-        sources:
-          - ubuntu-toolchain-r-test
-        apt:
-          packages:
-            - libopenblas-dev
-            - liblapacke-dev # XXX: If lapacke is missing, cmake does not break at generation but at compilation.
-            - swig
-            - python-numpy
-            - doxygen
-            - graphviz
-
-    - os: osx  # shipping mac
-      osx_image: xcode8.3
-      env:
-        - BACKEND=Intel10_64lp
-        - BUILD_STATIC=ON
-        - BUILD_PACKAGE=ON
-
-    - os: osx  # shipping brew
-      env:
-        - BACKEND=OpenBLAS
-      # - USE_GCC=ON  # XXX : vtk does not work with GCC
-      # - USE_BREW_LLVM=ON  # XXX: To have OpenMP but segfaults...
-      # - USE_VTK=ON # XXX: vtk is currently broken in brew
-
-    - os: osx  # Static analysis using clang-analyzer
-      env:
-        - ENABLE_COVERAGE=ON
-        - BACKEND=Apple
-        - ANALYSE=ON
-
 before_install:
   - |
     if [[ "${TRAVIS_OS_NAME}" == "linux" ]]; then
@@ -102,11 +62,16 @@ before_install:
         if [[ "${BUILD_PACKAGE}" == "ON" ]]; then
             git clone https://github.com/astropy/ci-helpers.git;
             source ci-helpers/travis/setup_conda.sh;
-            conda install -c conda-forge libmatio;
+            conda install -c massich matio-cmake;
         else
             sudo apt-get install -y libmatio2 libmatio-dev libvtk5-dev;
         fi
     fi
+
+  ##### checks
+  - ls ~/miniconda/envs/test/lib/
+  - ls ~/miniconda/envs/test/include/
+  - export CMAKE_OPTIONS="${CMAKE_OPTIONS} -Dmatio_DIR=~/miniconda3/envs/test/"
 
   ############################################################################
   # Install scan-build clang analyser
@@ -159,9 +124,9 @@ script:
   - mkdir -p build && cd build
   - |
     if [[ $BUILD_PACKAGE == "ON" && $TRAVIS_PULL_REQUEST == "false" && $TRAVIS_BRANCH == "master" ]]; then
-      export CMAKE_OPTIONS=" -DBLA_VENDOR=$BACKEND"
+      export CMAKE_OPTIONS="${CMAKE_OPTIONS} -DBLA_VENDOR=$BACKEND"
     else
-      export CMAKE_OPTIONS=" -DBLA_VENDOR=$BACKEND -DENABLE_COVERAGE=${ENABLE_COVERAGE}"
+      export CMAKE_OPTIONS="${CMAKE_OPTIONS} -DBLA_VENDOR=$BACKEND -DENABLE_COVERAGE=${ENABLE_COVERAGE}"
     fi
   - |
     if [[ "${BUILD_STATIC}" == "ON" ]]; then
@@ -216,7 +181,7 @@ after_success:
       bash <(curl -s https://codecov.io/bash) > /dev/null 2>&1
     fi
   - |
-    if [[ "${BUILD_PACKAGE}" == "ON" && "${TRAVIS_PULL_REQUEST}" == "false" ]]; then
+    if [[ "${BUILD_PACKAGE}" == "ON" ]]; then
       mkdir -p /tmp/xx/ && cd /tmp/xx/
       # MESSAGE=$(git log --format=%B -n 1 $TRAVIS_COMMIT)
       MESSAGE="[av skip] Push from openmeeg $(date)"
@@ -228,15 +193,15 @@ after_success:
       git config user.name "openmeeg"
       function gitpush() {
         git fetch origin
-        git reset --hard origin/master
+        git reset --hard origin/openmeeg_segfault
         cp -R ${PACKAGE_DEPLOY} ./
         echo "- $(date)" >> README.md
         git add ${FILES}
         git add OpenMEEG*.tar.gz
         git status
         git commit -m "${MESSAGE}"
-        git pull --no-edit "https://${OPENMEEG_PACKAGING_TOKEN}@${GH_REPO}" master
-        git push "https://${OPENMEEG_PACKAGING_TOKEN}@${GH_REPO}" master
+        git pull --no-edit "https://${OPENMEEG_PACKAGING_TOKEN}@${GH_REPO}" openmeeg_segfault
+        git push "https://${OPENMEEG_PACKAGING_TOKEN}@${GH_REPO}" openmeeg_segfault
       }
       travis_retry gitpush
     fi
