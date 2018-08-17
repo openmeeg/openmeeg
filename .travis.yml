@@ -68,6 +68,10 @@ before_install:
         fi
     fi
 
+  ##### checks
+  - ls ~/miniconda/envs/test/lib/
+  - ls ~/miniconda/envs/test/include/
+
   ############################################################################
   # Install scan-build clang analyser
   ############################################################################
