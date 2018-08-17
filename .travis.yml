@@ -71,6 +71,7 @@ before_install:
   ##### checks
   - ls ~/miniconda/envs/test/lib/
   - ls ~/miniconda/envs/test/include/
+  - export CMAKE_OPTIONS="${CMAKE_OPTIONS} -Dmatio_DIR=~/miniconda3/envs/test/"
 
   ############################################################################
   # Install scan-build clang analyser
@@ -123,9 +124,9 @@ script:
   - mkdir -p build && cd build
   - |
     if [[ $BUILD_PACKAGE == "ON" && $TRAVIS_PULL_REQUEST == "false" && $TRAVIS_BRANCH == "master" ]]; then
-      export CMAKE_OPTIONS=" -DBLA_VENDOR=$BACKEND"
+      export CMAKE_OPTIONS="${CMAKE_OPTIONS} -DBLA_VENDOR=$BACKEND"
     else
-      export CMAKE_OPTIONS=" -DBLA_VENDOR=$BACKEND -DENABLE_COVERAGE=${ENABLE_COVERAGE}"
+      export CMAKE_OPTIONS="${CMAKE_OPTIONS} -DBLA_VENDOR=$BACKEND -DENABLE_COVERAGE=${ENABLE_COVERAGE}"
     fi
   - |
     if [[ "${BUILD_STATIC}" == "ON" ]]; then
