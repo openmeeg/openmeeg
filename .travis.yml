@@ -102,7 +102,6 @@ before_install:
         if [[ "${BUILD_PACKAGE}" == "ON" ]]; then
             git clone https://github.com/astropy/ci-helpers.git;
             source ci-helpers/travis/setup_conda.sh;
-            # conda install -c conda-forge libmatio;
             conda install -c massich matio-cmake;
         else
             sudo apt-get install -y libmatio2 libmatio-dev libvtk5-dev;
@@ -229,7 +228,6 @@ after_success:
       git config user.name "openmeeg"
       function gitpush() {
         git fetch origin
-        git checkout openmeeg_segfault
         git reset --hard origin/openmeeg_segfault
         cp -R ${PACKAGE_DEPLOY} ./
         echo "- $(date)" >> README.md
