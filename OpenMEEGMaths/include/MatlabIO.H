@@ -215,7 +215,7 @@ namespace OpenMEEG {
                     os.close();
                     std::remove(name().c_str());
                 }
-                mat_t* mat = Mat_CreateVer(name().c_str(),NULL,MAT_FT_DEFAULT);
+                mat_t* mat = Mat_CreateVer(name().c_str(),NULL,MAT_FT_MAT73);
                 if (!mat)
                     throw BadFileOpening(name(),maths::BadFileOpening::WRITE);
 
