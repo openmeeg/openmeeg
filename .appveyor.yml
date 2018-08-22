@@ -139,7 +139,7 @@ test_script:
   - cmd: ctest -v .
 
 on_success:
-  - appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\OpenMEEG-2.4.0-Win64.tar.gz
+  - appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\OpenMEEG-2.4.1-Win64.tar.gz
 
   - conda create -n packageenv --yes pip python=2.7
   - activate packageenv
