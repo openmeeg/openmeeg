@@ -1,5 +1,5 @@
 cmake_minimum_required (VERSION 3.9)
-project (OpenMEEG VERSION 2.4.1 LANGUAGES C CXX)
+project (OpenMEEG VERSION 2.4.9999 LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 11)  # use c++11
 
