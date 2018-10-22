@@ -90,22 +90,15 @@ On Fedora and Centos::
 
     sudo yum install python-devel python2-numpy swig vtk-devel doxygen cgal-devel
 
-On Mac OS X, you'll need `CMake <http://www.cmake.org>`_. We recommend you install it with `Homebrew <http://brew.sh/>`_ using::
+On Mac OS X, we recommend you install it with `Homebrew <http://brew.sh/>`_ using::
 
-    $ brew install cmake
+    $ brew install https://raw.githubusercontent.com/openmeeg/openmeeg/master/openmeeg.rb
 
-To configure your environment with Homebrew install the following packages with the brew command::
+To install with Homebrew the current development version use::
 
-    $ brew install hdf5 libmatio
-    $ brew install openblas && brew link openblas --force
+    $ brew install https://raw.githubusercontent.com/openmeeg/openmeeg/master/openmeeg.rb --devel
 
-    *optionally*::
-
-    $ brew install vtk  # to have support for VTK file format
-    $ brew install Doxygen  # to build the documentation
-    $ brew install --with-qt5 cgal  # to use CGAL meshing tools
-
-Then from a terminal::
+To install OpenMEEG from source in a terminal::
 
     $ git clone https://github.com/openmeeg/openmeeg.git
 
