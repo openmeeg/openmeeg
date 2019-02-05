@@ -139,6 +139,54 @@ namespace OpenMEEG {
         assemble_DipSourceMat(*this, geo, dipoles, gauss_order, adapt_rhs, domain_name);
     }
 
+    void assemble_MonopSourceMat(Matrix& rhs, const Geometry& geo, const Matrix& dipoles,
+        const unsigned gauss_order, const bool adapt_rhs, const std::string& domain_name = "")
+    {
+        const size_t size = geo.size() - geo.nb_current_barrier_triangles();
+        const size_t n_dipoles = dipoles.nlin();
+
+        rhs = Matrix(size, n_dipoles);
+        rhs.set(0.0);
+
+        Vector rhs_col(rhs.nlin());
+        for (unsigned s = 0; s<n_dipoles; ++s) {
+            PROGRESSBAR(s, n_dipoles);
+            const Vect3 r(dipoles(s, 0), dipoles(s, 1), dipoles(s, 2));
+            const double q(dipoles(s, 3));
+
+            const Domain domain = (domain_name == "") ? geo.domain(r) : geo.domain(domain_name);
+
+            //  Only consider dipoles in non-zero conductivity domain.
+
+            const double sigma = domain.sigma();
+            if (sigma != 0.0) {
+                rhs_col.set(0.0);
+                const double K = 1.0 / (4.*M_PI);
+                //  Iterate over the domain's interfaces (half-spaces)
+                for (Domain::const_iterator hit = domain.begin(); hit != domain.end(); ++hit) {
+                    //  Iterate over the meshes of the interface
+                    for (Interface::const_iterator omit = hit->interface().begin(); omit != hit->interface().end(); ++omit) {
+                        //  Treat the mesh.
+                        const double coeffD = ((hit->inside()) ? K : -K)*omit->orientation();
+                        operatorMonopolePotDer(r, q, omit->mesh(), rhs_col, coeffD, gauss_order, adapt_rhs);
+
+                        if (!omit->mesh().current_barrier()) {
+                            const double coeff = -coeffD / sigma;;
+                            operatorMonopolePot(r, q, omit->mesh(), rhs_col, coeff, gauss_order, adapt_rhs);
+                        }
+                    }
+                }
+                rhs.setcol(s, rhs_col);
+            }
+        }
+    }
+
+    MonopSourceMat::MonopSourceMat(const Geometry& geo, const Matrix& dipoles, const unsigned gauss_order,
+        const bool adapt_rhs, const std::string& domain_name)
+    {
+        assemble_MonopSourceMat(*this, geo, dipoles, gauss_order, adapt_rhs, domain_name);
+    }
+
     void assemble_EITSourceMat(Matrix& mat, const Geometry& geo, const Sensors& electrodes, const unsigned gauss_order)
     {
         //  A Matrix to be applied to the scalp-injected current to obtain the Source Term of the EIT foward problem.

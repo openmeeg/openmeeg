@@ -133,4 +133,58 @@ namespace OpenMEEG {
         delete gauss;
     }
 
+    void operatorMonopolePotDer(const Vect3& r0, const double& q, const Mesh& m, Vector& rhs, const double& coeff, const unsigned gauss_order, const bool adapt_rhs)
+    {
+        static analyticMonopPotDer anaMPD;
+
+        Integrator<Vect3, analyticMonopPotDer>* gauss = (adapt_rhs) ? new AdaptiveIntegrator<Vect3, analyticMonopPotDer>(0.001) :
+            new Integrator<Vect3, analyticMonopPotDer>;
+
+        gauss->setOrder(gauss_order);
+#pragma omp parallel for private(anaMPD)
+#ifndef OPENMP_3_0
+        for (int i = 0; i<m.size(); ++i) {
+            const Mesh::const_iterator tit = m.begin() + i;
+#else
+        for (Mesh::const_iterator tit = m.begin(); tit<m.end(); ++tit) {
+#endif
+            anaMPD.init(*tit, q, r0);
+            Vect3 v = gauss->integrate(anaMPD, *tit);
+#pragma omp critical
+            {
+                rhs(tit->s1().index()) += v(0) * coeff;
+                rhs(tit->s2().index()) += v(1) * coeff;
+                rhs(tit->s3().index()) += v(2) * coeff;
+            }
+        }
+        delete gauss;
+        }
+
+    void operatorMonopolePot(const Vect3& r0, const double& q, const Mesh& m, Vector& rhs, const double& coeff, const unsigned gauss_order, const bool adapt_rhs)
+    {
+        static analyticMonopPot anaMP;
+
+        anaMP.init(q, r0);
+        Integrator<double, analyticMonopPot> *gauss;
+        if (adapt_rhs) {
+            gauss = new AdaptiveIntegrator<double, analyticMonopPot>(0.001);
+        }
+        else {
+            gauss = new Integrator<double, analyticMonopPot>;
+        }
+
+        gauss->setOrder(gauss_order);
+#pragma omp parallel for
+#ifndef OPENMP_3_0
+        for (int i = 0; i<m.size(); ++i) {
+            const Mesh::const_iterator tit = m.begin() + i;
+#else
+        for (Mesh::const_iterator tit = m.begin(); tit<m.end(); ++tit) {
+#endif
+            double d = gauss->integrate(anaMP, *tit);
+#pragma omp critical
+            rhs(tit->index()) += d * coeff;
+        }
+        delete gauss;
+        }
 }
