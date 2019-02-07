@@ -55,7 +55,7 @@ namespace Utils {
         public:
             BadPropertyFile(const std::string& name):
                 std::runtime_error("Wrong property file"),filename(name) { }
-            ~BadPropertyFile() throw()  { }
+            ~BadPropertyFile() noexcept { }
             std::string filename;
         };
 

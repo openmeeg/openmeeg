@@ -62,8 +62,6 @@ namespace OpenMEEG {
     void operatorFerguson(const Vect3& , const Mesh& , Matrix& , const unsigned&, const double&);
     void operatorDipolePotDer(const Vect3& , const Vect3& , const Mesh& , Vector&, const double&, const unsigned, const bool);
     void operatorDipolePot   (const Vect3& , const Vect3& , const Mesh& , Vector&, const double&, const unsigned, const bool);
-    void operatorMonopolePotDer(const Vect3&, const double&, const Mesh&, Vector&, const double&, const unsigned, const bool);
-    void operatorMonopolePot(const Vect3&, const double&, const Mesh&, Vector&, const double&, const unsigned, const bool);
 
     template <typename T>
     inline void _operatorD(const Triangle& T1,const Triangle& T2,T& mat,const double& coeff,const unsigned gauss_order) {

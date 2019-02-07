@@ -224,42 +224,6 @@ int main(int argc, char** argv)
     }
 
     /*********************************************************************************************
-    * Computation of RHS for discrete monopolar case
-    **********************************************************************************************/
-    else if (option(argc, argv, { "-MonopSourceMat", "-MSM", "-msm", "-MonopSourceMatNoAdapt", "-MSMNA", "-msmna" },
-    { "geometry file", "conductivity file", "dipoles file", "output file" })) {
-
-        string domain_name = "";
-        if (argc == 7) {
-            domain_name = argv[6];
-            cout << "Dipoles are considered to be in \"" << domain_name << "\" domain." << endl;
-        }
-
-        // Loading surfaces from geometry file.
-        Geometry geo;
-        geo.read(argv[2], argv[3], OLD_ORDERING);
-
-        // Loading Matrix of dipoles :
-        Matrix dipoles(argv[4]);
-        if (dipoles.ncol() != 4) {
-            cerr << "Dipoles File Format Error" << endl;
-            exit(1);
-        }
-
-        bool adapt_rhs = true;
-
-        // Choosing between adaptive integration or not for the RHS
-        if (option(argc, argv, { "-MonopSourceMatNoAdapt", "-MSMNA", "-msmna" },
-        { "geometry file", "conductivity file", "dipoles file", "output file" })) {
-            adapt_rhs = false;
-        }
-
-        MonopSourceMat msm(geo, dipoles, gauss_order, adapt_rhs, domain_name);
-        // Saving RHS Matrix for dipolar case :
-        msm.save(argv[5]);
-    }
-
-    /*********************************************************************************************
     * Computation of the RHS for EIT
     **********************************************************************************************/
 
