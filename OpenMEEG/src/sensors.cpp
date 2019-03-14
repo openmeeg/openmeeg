@@ -107,7 +107,9 @@ namespace OpenMEEG {
                         ncol++;
                     }
                 }
-                tokensIterator = tokens.begin();
+                if (ncol >= 7) {
+                    labeled = true;
+                }
                 for ( size_t j = 0; j < tokens[0].size(); ++j) {
                     if ( isalpha(tokens[0][j]) && (tokens[0][j] != 'e') && (tokens[0][j] != 'E' ) ) {
                         labeled = true;
