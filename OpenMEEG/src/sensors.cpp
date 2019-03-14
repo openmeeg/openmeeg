@@ -90,7 +90,6 @@ namespace OpenMEEG {
         std::string s, buf;
         Strings names;
         Strings tokens;
-        Strings::const_iterator tokensIterator;
         bool labeled = false;
         size_t nlin = 0;
         size_t ncol = 0;
