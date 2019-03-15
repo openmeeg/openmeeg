@@ -1,4 +1,6 @@
 path_classifiers:
+  exclude:
+    "wrapping/"
   test:
     "tests/*.cpp"
 extraction:
