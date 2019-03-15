@@ -1,8 +1,9 @@
 path_classifiers:
   exclude:
-    "wrapping/"
+    - "wrapping/"
+    - "build_tools/"
   test:
-    "tests/*.cpp"
+    - "tests/*.cpp"
 extraction:
   cpp:
     prepare:
