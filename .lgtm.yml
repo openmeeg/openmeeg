@@ -1,4 +1,8 @@
 path_classifiers:
+  foo:
+    - "*.cpp"
+    - "OpenMEEG/*/*.cpp"
+    - "OpenMEEGMaths/*/*.cpp"
   exclude:
     - "wrapping/"
     - "build_tools/"
