@@ -175,7 +175,7 @@ script:
     fi
   - |
     if [[ "${CONFIGURATION}" == "Release" ]] && [[ "${ANALYSE}" != "ON" ]]; then
-      export CMAKE_OPTIONS="${CMAKE_OPTIONS} -DCMAKE_BUILD_TYPE=RELEASE"
+      export CMAKE_OPTIONS="${CMAKE_OPTIONS} -DCMAKE_BUILD_TYPE=Release"
     fi
   - |
     if [[ "${USE_VTK}" == "ON" ]]; then

@@ -4,6 +4,9 @@
 
 set(BLA_DEFINITIONS)
 
+set(BLA_VENDOR "OpenBLAS" CACHE STRING "BLAS/LAPACK implementation")
+# cannot set this as travis sometimes use Intel10_64lp ...
+#set_property(CACHE BLA_VENDOR PROPERTY STRINGS OpenBLAS Intel ATLAS Apple)
 
 if (BLA_VENDOR MATCHES Intel)
     if ("$ENV{MKLROOT}" STREQUAL "")
