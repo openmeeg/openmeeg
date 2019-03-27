@@ -195,15 +195,6 @@ script:
   - echo "cmake .. ${CMAKE_OPTIONS}"
   - cmake .. ${CMAKE_OPTIONS}
   - make -j ${JOBS}
-  - |
-    if [[ "${TRAVIS_OS_NAME}" == "osx" ]]; then 
-      echo "------ try to list stuff ------ "
-      brew info hdf5
-      brew info libmatio
-      echo "------"
-      ./OpenMEEGMaths/tests/OpenMEEGMathsTest-vector
-      echo "------ done tring to list stuff ------ "
-    fi
   - ctest -v .
   - |
     if [[ "${BUILD_PACKAGE}" == "ON" ]]; then
