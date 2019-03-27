@@ -97,6 +97,7 @@ before_install:
   - if [[ "${TRAVIS_OS_NAME}" == "osx" ]]; then
         rm -rf /usr/local/include/c++;
         brew install hdf5 libmatio;
+        brew reinstall -s libmatio;
         if [[ "${USE_VTK}" == "ON" ]]; then
             brew install vtk --without-python@2;
         fi
