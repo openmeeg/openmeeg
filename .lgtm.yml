@@ -1,13 +1,14 @@
-path_classifiers:
-  foo:
-    - "*.cpp"
-    - "OpenMEEG/*/*.cpp"
-    - "OpenMEEGMaths/*/*.cpp"
-  exclude:
-    - "wrapping/"
-    - "build_tools/"
-  test:
-    - "tests/*.cpp"
+# path_classifiers:
+#   foo:
+#     - "*.cpp"
+#     - "OpenMEEG/*/*.cpp"
+#     - "OpenMEEGMaths/*/*.cpp"
+#   exclude:
+#     - "wrapping/"
+#     - "build_tools/"
+#   test:
+#     - "tests/*.cpp"
+
 extraction:
   cpp:
     prepare:
