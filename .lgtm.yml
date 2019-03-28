@@ -15,11 +15,10 @@ extraction:
       packages:
         - libopenblas-dev
         - liblapacke-dev # XXX: If lapacke is missing, cmake does not break at generation but at compilation.
-      command:
-        - mkdir -p _lgtm_build_dir
 
     configure:
       command:
+        - mkdir -p _lgtm_build_dir
         - cd _lgtm_build_dir
         - cmake -DBLA_VENDOR=OpenBLAS ..
 
