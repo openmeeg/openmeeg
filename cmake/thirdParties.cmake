@@ -3,6 +3,7 @@
 ###############
 
 set(BLA_DEFINITIONS)
+set(BLA_VENDOR "OpenBLAS" CACHE STRING "BLAS/LAPACK implementation")
 
 
 if (BLA_VENDOR MATCHES Intel)
