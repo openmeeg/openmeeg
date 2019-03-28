@@ -37,48 +37,43 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#include <algorithm>
 #include <sensors.h>
-#include <danielsson.h>
+
+#include <algorithm>
 #include <ciso646>
+#include <iterator>     // std::distance
+#include <vector>       // std::vector
+
+#include <danielsson.h>
 
 namespace OpenMEEG {
 
-    bool Sensors::hasSensor(std::string name) {
-        for(size_t i = 0; i < m_names.size(); ++i) {
-            if(m_names[i] == name) {
-                return true;
-            }
-        }
-        return false;
+    bool Sensors::hasSensor(std::string name) const {
+        return (std::find(m_names.cbegin(), m_names.cend(), name) != m_names.cend());
     }
 
-    size_t Sensors::getSensorIdx(std::string name) {
-        for(size_t i = 0; i < m_names.size(); ++i) {
-            if(m_names[i] == name) {
-                return i;
-            }
+    size_t Sensors::getSensorIdx(std::string name) const {
+        auto it = std::find(m_names.cbegin(), m_names.cend(), name);
+        if (it == m_names.cend()) {
+            std::cerr << "Unknown sensor : " << name << std::endl;
+            exit(1);
         }
-        std::cerr << "Unknown sensor : " << name << std::endl;
-        exit(1);
-        return 0;
+        return std::distance(m_names.cbegin(), it);
     }
 
     void Sensors::load(const char* filename, char filetype) {
         std::ifstream in;
         if(filetype == 't') {
             in.open(filename,std::ios::in);
+        } else if(filetype == 'b') {
+            in.open(filename,std::ios::in|std::ios::binary);
         } else {
-            if(filetype == 'b') {
-                in.open(filename,std::ios::in|std::ios::binary);
-            } else {
-                std::cout << "ERROR: unkown filetype. " << std::endl; exit(1); 
-            }
+            std::cerr << "ERROR: unkown filetype. " << std::endl; exit(1);
         }
 
         if ( !in.is_open() ) {
-            std::cerr<<"Error Reading File : " << filename << std::endl; 
-            exit(1);  
+            std::cerr<<"Error Reading File : " << filename << std::endl;
+            exit(1);
         }
         Sensors::load(in);
         in.close();
@@ -87,11 +82,11 @@ namespace OpenMEEG {
     void Sensors::load(std::istream &in) {
 
         in >> io_utils::skip_comments('#');
+
         std::string s, buf;
         Strings names;
         Strings tokens;
-        Strings::const_iterator tokensIterator;
-        bool labeled = false;
+        bool labeled = true;
         size_t nlin = 0;
         size_t ncol = 0;
         size_t i = 0;
@@ -107,12 +102,9 @@ namespace OpenMEEG {
                         ncol++;
                     }
                 }
-                tokensIterator = tokens.begin();
-                for ( size_t j = 0; j < tokens[0].size(); ++j) {
-                    if ( isalpha(tokens[0][j]) && (tokens[0][j] != 'e') && (tokens[0][j] != 'E' ) ) {
-                        labeled = true;
-                        // Labeled. Unless the labels are numbers.. TODO ?
-                    }
+                // it is labeled unless there exists a float (i.e containing one '.')
+                if (std::count(tokens[0].cbegin(), tokens[0].cend(), '.') == 1) {
+                    labeled = false;
                 }
                 if ( tokens.size() != ncol ) {
                     std::cout << tokens.size() << " != " << ncol << std::endl;
@@ -320,7 +312,7 @@ namespace OpenMEEG {
             }
             if(m_nb > nb_to_display) {
                 std::cout << "..." << std::endl;
-            }            
+            }
         }
         if(hasNames()) {
             std::cout << "Names" << std::endl;
