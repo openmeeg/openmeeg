@@ -195,7 +195,7 @@ script:
   - echo "cmake .. ${CMAKE_OPTIONS}"
   - cmake .. ${CMAKE_OPTIONS}
   - make -j ${JOBS}
-  - ctest -v .
+  - CTEST_OUTPUT_ON_FAILURE=1 ctest .
   - |
     if [[ "${BUILD_PACKAGE}" == "ON" ]]; then
       cpack -G TGZ .

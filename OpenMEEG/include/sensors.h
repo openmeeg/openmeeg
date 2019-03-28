@@ -61,7 +61,7 @@ namespace OpenMEEG {
      *  in the first column of the file (it has to contains at least one character to be considered as label)
      *  the file can have the shape of (neglecting if present the first, label column):
      *  <ul>
-     *    
+     *
      *  <li> 1 line per sensor and 3 columns (EEG sensors OR MEG sensors without orientation OR EIT punctual patches)
      *        <ul TYPE="circle">
      *        <li> the 1st, 2nd and 3rd columns are respectively position coordinates x, y, z of sensor  </li>
@@ -122,8 +122,8 @@ namespace OpenMEEG {
         void setPosition(size_t idx, Vector& pos); /*!< Set the position (3D point) of the integration point i. */
         void setOrientation(size_t idx, Vector& orient); /*!< Set the orientation (3D point) of the integration point i. */
 
-        bool hasSensor(std::string name);
-        size_t getSensorIdx(std::string name);
+        bool hasSensor(std::string name) const;
+        size_t getSensorIdx(std::string name) const;
         Triangles getInjectionTriangles(size_t idx) const { om_assert(idx < m_triangles.size()); return m_triangles[idx]; } /*!< For EIT, get triangles under the current injection electrode. */
 
         Vector getRadii()   const { return m_radii; }
