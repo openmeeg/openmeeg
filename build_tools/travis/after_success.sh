@@ -6,7 +6,8 @@ if [[ "$USE_COVERAGE" == "1" ]]; then
 fi
 
 # only upload to forge if we are on the master branch
-if [[ $BUILD_PACKAGE == "ON" && $TRAVIS_PULL_REQUEST == "false" && $TRAVIS_BRANCH == "master" ]]; then
+# if [[ $BUILD_PACKAGE == "ON" && $TRAVIS_PULL_REQUEST == "false" && $TRAVIS_BRANCH == "master" ]]; then
+if [[ $BUILD_PACKAGE == "ON" && $TRAVIS_PULL_REQUEST == "false" ]]; then
     echo "Upload package"
     if ! [ -x "$(command -v conda)" ]; then
         git clone https://github.com/astropy/ci-helpers.git;
