@@ -37,6 +37,8 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
+#pragma once
+
 #define command_usage(usage) command_line::option((const char*)0,argc,argv,(const char*)0,usage)
 #define command_option(name,defaut,usage) command_line::option(name,argc,argv,defaut,usage)
 
