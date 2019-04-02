@@ -1,5 +1,3 @@
-echo 'hiiiiiii this should appear somewhere'
-
 if [[ "$USE_COVERAGE" == "1" ]]; then
     lcov --directory . --capture --output-file coverage.info > /dev/null 2>&1 # capture coverage info
     lcov --remove coverage.info '/usr/*' --output-file coverage.info > /dev/null 2>&1 # filter out system
@@ -8,8 +6,7 @@ if [[ "$USE_COVERAGE" == "1" ]]; then
 fi
 
 # only upload to forge if we are on the master branch
-# if [[ $BUILD_PACKAGE == "ON" && $TRAVIS_PULL_REQUEST == "false" && $TRAVIS_BRANCH == "master" ]]; then
-if [[ $BUILD_PACKAGE == "ON" && $TRAVIS_PULL_REQUEST == "false" ]]; then
+if [[ $BUILD_PACKAGE == "ON" && $TRAVIS_PULL_REQUEST == "false" && $TRAVIS_BRANCH == "master" ]]; then
     echo "Upload package"
     if [ -x "$(command -v conda)" ]; then
         git clone https://github.com/astropy/ci-helpers.git;
