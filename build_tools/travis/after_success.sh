@@ -11,9 +11,7 @@ fi
 # if [[ $BUILD_PACKAGE == "ON" && $TRAVIS_PULL_REQUEST == "false" && $TRAVIS_BRANCH == "master" ]]; then
 if [[ $BUILD_PACKAGE == "ON" && $TRAVIS_PULL_REQUEST == "false" ]]; then
     echo "Upload package"
-    conda --version
-    echo "$(command -v conda)"
-    if ! [ -x "$(command -v conda)" ]; then
+    if [ -x "$(command -v conda)" ]; then
         git clone https://github.com/astropy/ci-helpers.git;
         source ci-helpers/travis/setup_conda.sh;
     fi
