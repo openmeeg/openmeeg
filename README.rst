@@ -1,4 +1,4 @@
-|Travis|_ |AppVeyor|_ |CodeCov|_ |condaVersion|_ |gitter|_
+|Travis|_ |AppVeyor|_ |lgtm|_ |CodeCov|_ |condaVersion|_ |gitter|_
 
 .. |Travis| image:: https://api.travis-ci.org/openmeeg/openmeeg.svg?branch=master
 .. _Travis: https://travis-ci.org/openmeeg/openmeeg/branches
@@ -14,6 +14,9 @@
 
 .. |gitter| image:: https://badges.gitter.im/openmeeg/openmeeg.svg
 .. _gitter: https://gitter.im/openmeeg/openmeeg
+
+.. |lgtm| image:: https://img.shields.io/lgtm/grade/cpp/g/openmeeg/openmeeg.svg?logo=lgtm&logoWidth=18
+.. _lgtm: https://lgtm.com/projects/g/openmeeg/openmeeg/context:cpp
 
 OpenMEEG: forward problems solver in the field of EEG and MEG
 =============================================================
