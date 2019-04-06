@@ -155,7 +155,7 @@ int main(int argc, char** argv)
         }
 
         // read the file containing the positions of the EEG patches
-        Sensors electrodes(argv[4]);
+        EEGSensors electrodes(argv[4]);
         Head2EEGMat M(geo, electrodes);
 
         // Assembling Matrix from discretization :
@@ -234,7 +234,7 @@ int main(int argc, char** argv)
         Geometry geo;
         geo.read(argv[2], argv[3], OLD_ORDERING);
 
-        Sensors electrodes(argv[4], geo); // special parameter for EIT electrodes: the interface
+        EITSensors electrodes(argv[4], geo); // special parameter for EIT electrodes: the interface
         electrodes.info(); // <- just to test that function on the code coverage
         EITSourceMat EITsource(geo, electrodes, gauss_order);
         EITsource.save(argv[5]);
@@ -253,7 +253,7 @@ int main(int argc, char** argv)
         geo.read(argv[2], argv[3], OLD_ORDERING);
 
         // read the file containing the positions of the EEG patches
-        Sensors electrodes(argv[4]);
+        EEGSensors electrodes(argv[4]);
 
         // Assembling Matrix from discretization :
         // Head2EEG is the linear application which maps x |----> v
@@ -278,7 +278,7 @@ int main(int argc, char** argv)
 
         // Read the file containing the positions of the EEG patches
 
-        Sensors electrodes(argv[4]);
+        ECoGSensors electrodes(argv[4]);
 
         // Find the mesh of the ECoG electrodes
 
@@ -312,7 +312,7 @@ int main(int argc, char** argv)
         geo.read(argv[2], argv[3]);
 
         // Load positions and orientations of sensors  :
-        Sensors sensors(argv[4]);
+        MEGSensors sensors(argv[4]);
 
         // Assembling Matrix from discretization :
         Head2MEGMat mat(geo, sensors);
@@ -331,7 +331,7 @@ int main(int argc, char** argv)
         Mesh mesh_sources;
         mesh_sources.load(argv[2]);
         // Load positions and orientations of sensors  :
-        Sensors sensors(argv[3]);
+        MEGSensors sensors(argv[3]);
 
         // Assembling Matrix from discretization :
         SurfSource2MEGMat mat(mesh_sources, sensors);
@@ -353,7 +353,7 @@ int main(int argc, char** argv)
         Matrix dipoles(argv[2]);
 
         // Load positions and orientations of sensors  :
-        Sensors sensors(argv[3]);
+        MEGSensors sensors(argv[3]);
 
         DipSource2MEGMat mat( dipoles, sensors );
         mat.save(argv[4]);

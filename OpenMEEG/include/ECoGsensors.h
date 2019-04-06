@@ -37,51 +37,33 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#include <sensors.h>
+#pragma once
 
-#include <ciso646>
-#include <iterator>    // std::distance
-#include <numeric>     // std::iota
-#include <vector>      // std::vector
+#include <EEGsensors.h>
 
-#include <danielsson.h>
+#include <OpenMEEG_Export.h>
 
 namespace OpenMEEG {
 
-    bool Sensors::hasSensor(std::string name) const {
-        return (std::find(m_labels.cbegin(), m_labels.cend(), name) != m_labels.cend());
-    }
+    /*!
+     *  Sensors class for ECoG sensors (similar to EEGSensor).
+     *  This class is made for reading sensors description file. This description file is a file text. Sensors may have names (labels)
+     *  in the first column of the file (it has to contains at least one character to be considered as label)
+     *  the file can have the shape of (neglecting if present the first, label column):
+     *  <ul>
+     *
+     *  <li> 1 line per sensor and 3 columns
+     *        <ul TYPE="circle">
+     *        <li> the 1st, 2nd and 3rd columns are respectively position coordinates x, y, z of sensor  </li>
+     *        </ul>
+     *  </li>
+     *  </ul>
+     */
+    class OPENMEEG_EXPORT ECoGSensors : public EEGSensors {
+    public:
+        ECoGSensors(): EEGSensors() { }; /*!< Default constructor. */
+        ECoGSensors(const char* filename): EEGSensors(filename) { }; /*!< Construct from file. */
 
-    size_t Sensors::getSensorIdx(std::string name) const {
-        auto it = std::find(m_labels.cbegin(), m_labels.cend(), name);
-        if (it == m_labels.cend()) {
-            std::cerr << "Unknown sensor : " << name << std::endl;
-            exit(1);
-        }
-        return std::distance(m_labels.cbegin(), it);
-    }
-
-    void Sensors::info(int n_lines) const {
-        size_t nb_to_display = (int)std::min((int)m_nb,(int)n_lines);
-        std::cout << "Nb of sensors : " << m_nb << std::endl;
-        if (hasLabels()) {
-            std::cout << "Labels" << std::endl;
-            for(size_t i = 0; i < nb_to_display; ++i) {
-                std::cout << m_labels[i] << std::endl;
-            }
-            if(m_nb > nb_to_display) {
-                std::cout << "..." << std::endl;
-            }
-        }
-        std::cout << "Positions" << std::endl;
-        for(size_t i = 0; i < nb_to_display ; ++i) {
-            for (size_t j=0;j<m_positions.ncol();++j) {
-                std::cout << m_positions(i,j) << " ";
-            }
-            std::cout << std::endl;
-        }
-        if(m_nb > nb_to_display) {
-            std::cout << "..." << std::endl;
-        }
-    }
+        void info(int n_lines = 5) const; /*!< \brief get n_lines first lines info about sensors. */
+    };
 }

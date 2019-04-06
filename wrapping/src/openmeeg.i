@@ -28,6 +28,10 @@
     #include <sparse_matrix.h>
     #include <fast_sparse_matrix.h>
     #include <sensors.h>
+    #include <EEGsensors.h>
+    #include <MEGsensors.h>
+    #include <ECoGsensors.h>
+    #include <EITsensors.h>
     #include <geometry.h>
     #include <geometry_io.h>
     #include <mesh.h>
@@ -171,6 +175,10 @@ namespace OpenMEEG {
 %include <geometry.h>
 %include <geometry_io.h>
 %include <sensors.h>
+%include <EEGsensors.h>
+%include <MEGsensors.h>
+%include <ECoGsensors.h>
+%include <EITsensors.h>
 %include <mesh.h>
 %include <interface.h>
 %include <domain.h>

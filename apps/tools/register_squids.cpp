@@ -42,7 +42,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include "symmatrix.h"
 #include "vector.h"
 #include "om_utils.h"
-#include "sensors.h"
+#include "MEGsensors.h"
 #include <string>
 
 using namespace OpenMEEG;
@@ -78,11 +78,10 @@ int main( int argc, char** argv)
         return 1;
     }
 
-    Sensors squids;
-    squids.load(squids_filename);
+    MEGSensors squids(squids_filename);
     size_t nb_positions = squids.getNumberOfPositions();
 
-    Matrix fiducials; fiducials.load(fiducials_filename);
+    Matrix fiducials(fiducials_filename);
 
     if ((fiducials.nlin()!=3) ||
         (fiducials.ncol()!=3))

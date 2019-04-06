@@ -39,16 +39,17 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #pragma once
 
+#include <algorithm>
 #include <fstream>
 #include <sstream>
 #include <stdlib.h>
 #include <string>
+#include <tuple>
 #include <vector>
 
 #include <IOUtils.H>
 #include <vector.h>
 #include <matrix.h>
-#include <geometry.h>
 #include <om_common.h>
 
 #include <OpenMEEG_Export.h>
@@ -56,7 +57,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 namespace OpenMEEG {
 
     /*!
-     *  Sensors class for EEG and MEG sensors.
+     *  Sensors abstract class for EEG MEG, EIT, ECoG sensors.
      *  This class is made for reading sensors description file. This description file is a file text. Sensors may have names (labels)
      *  in the first column of the file (it has to contains at least one character to be considered as label)
      *  the file can have the shape of (neglecting if present the first, label column):
@@ -92,14 +93,10 @@ namespace OpenMEEG {
     class OPENMEEG_EXPORT Sensors {
 
     public:
-        Sensors(): m_nb(0), m_geo(NULL) {} /*!< Default constructor. Number of sensors = 0. */
-        Sensors(const Geometry& g): m_nb(0), m_geo(&g) {} /*!< Default constructor with a geometry. Number of sensors = 0. */
-        Sensors(const char* filename): m_geo(NULL) { this->load(filename,'t'); } /*!< Construct from file. Option 't' is for text file.*/
-        Sensors(const char* filename, const Geometry& g): m_geo(&g) { this->load(filename,'t'); }; /*!< Construct from file and geometry (for EIT). */
+        Sensors(): m_nb(0) {} /*!< Default constructor. Number of sensors = 0. */
 
-        void load(const char* filename, char filetype = 't' ); /*!< Load sensors from file. Filetype is 't' for text file or 'b' for binary file. */
-        void load(std::istream &in); /*!< Load description file of sensors from stream. */
-        void save(const char* filename);
+        virtual void load(const char* filename) = 0; /*!< Load sensors from file. Filetype is 't' for text file or 'b' for binary file. */
+        virtual void save(const char* filename) = 0;
 
         size_t getNumberOfSensors() const { return m_nb; } /*!< Return the number of sensors. */
         size_t getNumberOfPositions() const { return m_positions.nlin(); } /*!< Return the number of integration points. */
@@ -107,59 +104,74 @@ namespace OpenMEEG {
         Matrix& getPositions() { return m_positions ; } /*!< Return a reference on sensors positions. */
         Matrix getPositions() const { return m_positions ; } /*!< Return a copy of sensors positions */
 
-        Matrix& getOrientations() {return m_orientations ; } /*!< Return a reference on sensors orientations. */
-        Matrix getOrientations() const {return m_orientations ; } /*!< Return a copy of sensors orientations. */
+        Strings& getNames() {return m_labels ; } /*!< Return a reference on sensors names. */
+        Strings  getNames() const {return m_labels ; } /*!< Return a copy of sensors names. */
 
-        Strings& getNames() {return m_names ; } /*!< Return a reference on sensors names. */
-        Strings  getNames() const {return m_names ; } /*!< Return a copy of sensors names. */
-
-        bool hasRadii() const { return m_radii.nlin() > 0 ;} /*!< Return true if contains radii */
-        bool hasOrientations() const { return m_orientations.nlin() > 0 ;} /*!< Return true if contains orientations */
-        bool hasNames() const { return m_names.size() == m_nb ;} /*!< Return true if contains all sensors names */
+        bool hasLabels() const { return m_labels.size() == m_nb ;} /*!< Return true if contains all sensors names */
         Vector getPosition(size_t idx) const; /*!< Return the position (3D point) of the integration point i. */
-        Vector getOrientation(size_t idx) const; /*!< Return the orientations (3D point) of the integration point i. */
-        std::string getName(size_t idx) const{ om_assert(idx < m_names.size()); return m_names[idx]; } /*!< Return the name of the idx_th sensor */
+        std::string getName(size_t idx) const{ om_assert(idx < m_labels.size()); return m_labels[idx]; } /*!< Return the name of the idx_th sensor */
         void setPosition(size_t idx, Vector& pos); /*!< Set the position (3D point) of the integration point i. */
-        void setOrientation(size_t idx, Vector& orient); /*!< Set the orientation (3D point) of the integration point i. */
 
         bool hasSensor(std::string name) const;
         size_t getSensorIdx(std::string name) const;
-        Triangles getInjectionTriangles(size_t idx) const { om_assert(idx < m_triangles.size()); return m_triangles[idx]; } /*!< For EIT, get triangles under the current injection electrode. */
+        bool isEmpty() const { return (m_nb == 0); } /*!< Return if the sensors object is empty. The sensors object is empty if its number of sensors is null. */
+        void info(int n_lines = 5) const; /*!< \brief get n_lines first lines info about sensors. */
 
-        Vector getRadii()   const { return m_radii; }
-        Vector getWeights() const { return m_weights; }
-
-        SparseMatrix getWeightsMatrix() const;
-
-        bool isEmpty() { if(m_nb == 0) return true; else return false; } /*!< Return if the sensors object is empty. The sensors object is empty if its number of sensors is null. */
-        void info() const; /*!< \brief get info about sensors. */
-
-    private:
-        size_t m_nb;                        /*!< Number of sensors. */
-        Strings m_names;                    /*!< List of sensors names. */
-        Matrix m_positions;                 /*!< Matrix of sensors positions. ex: positions(i,j) with  j in {0,1,2} for sensor i */
-        Matrix m_orientations;              /*!< Matrix of sensors orientations. ex: orientation(i,j) with  j in {0,1,2} for sensor i */
-        Vector m_weights;                   /*!< Weights of integration points */
-        Vector m_radii;                     /*!< Areas of the EIT sensors */
-        std::vector<Triangles> m_triangles; /*!< Triangles under each EIT sensors */
-        const Geometry * m_geo;             /*!< Geometry on which are applied EIT sensors */
+    protected:
+        size_t m_nb;                          /*!< Number of sensors. */
+        Strings m_labels;                     /*!< List of sensors names. */
+        Matrix m_positions;                   /*!< Matrix of sensors positions. ex: positions(i,j) with  j in {0,1,2} for sensor i */
         std::vector<size_t> m_pointSensorIdx; /*!< Correspondance between point id and sensor id */
-        void findInjectionTriangles();      /*!< Get the triangles under each EIT sensors */
     };
 
     inline Vector Sensors::getPosition(size_t idx) const {
         return m_positions.getlin(idx);
     }
 
-    inline Vector Sensors::getOrientation(size_t idx) const {
-        return m_orientations.getlin(idx);
-    }
-
     inline void Sensors::setPosition(size_t idx, Vector& pos) {
         return m_positions.setlin(idx,pos);
     }
+}
 
-    inline void Sensors::setOrientation(size_t idx, Vector& orient) {
-        return m_orientations.setlin(idx,orient);
+namespace {
+    std::tuple<size_t, size_t, bool> pre_parse_stream(std::istream& in) {
+        in >> io_utils::skip_comments('#');
+
+        OpenMEEG::Strings tokens;
+        bool seems_labeled = true;
+        std::string s, buf;
+        size_t nlin = 0, ncol = 0;
+
+        while ( std::getline(in,s) ) {
+            if ( !s.empty() ) {
+                // Tokenize the line.
+                std::stringstream iss(s);
+                tokens.clear();
+                while (iss >> buf) {
+                    tokens.push_back(buf);
+                }
+                // it is labeled unless there exists a float (i.e containing one '.')
+                if (std::count(tokens[0].cbegin(), tokens[0].cend(), '.') == 1) {
+                    seems_labeled = false;
+                }
+                if (nlin == 0) // first line
+                    ncol = tokens.size();
+                else if ( tokens.size() != ncol ) {
+                    std::cerr << tokens.size() << " != " << ncol << std::endl;
+                    std::cerr << "Problem while reading sensors file" << std::endl;
+                    std::cerr << "Each line should have the same number of elements" << std::endl;
+                    exit(1);
+                }
+                ++nlin;
+            }
+        }
+        if (nlin == 0) {
+            std::cerr << "Problem while reading sensors file" << std::endl;
+            std::cerr << "File does not contain any sensor" << std::endl;
+            exit(1);
+        }
+        in.clear();
+        in.seekg(0,std::ios::beg); // move the get pointer to the beginning of the file.
+        return std::make_tuple(nlin, ncol, seems_labeled);
     }
 }
