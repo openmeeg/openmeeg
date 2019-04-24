@@ -55,17 +55,15 @@ namespace OpenMEEG {
         std::cout << "MEG electrodes" << std::endl;
         Sensors::info(nb_to_display);
 
-        if(hasOrientations()) {
-            std::cout << "Orientations" << std::endl;
-            for(size_t i = 0; i < nb_to_display ; ++i) {
-                for (size_t j=0;j<m_orientations.ncol();++j) {
-                    std::cout << m_orientations(i,j) << " ";
-                }
-                std::cout << std::endl;
+        std::cout << "Orientations" << std::endl;
+        for(size_t i = 0; i < nb_to_display ; ++i) {
+            for (size_t j=0;j<m_orientations.ncol();++j) {
+                std::cout << m_orientations(i,j) << " ";
             }
-            if(m_nb > nb_to_display) {
-                std::cout << "..." << std::endl;
-            }
+            std::cout << std::endl;
+        }
+        if(m_nb > nb_to_display) {
+            std::cout << "..." << std::endl;
         }
     }
 
@@ -87,10 +85,6 @@ namespace OpenMEEG {
 
     void MEGSensors::load(const char* filename) {
         // line with
-        // 3 elements = position
-        // or
-        // 4 elements = label + position
-        // or
         // 6 elements = position + orientation
         // or
         // 7 elements = label + position + orientation
@@ -106,7 +100,7 @@ namespace OpenMEEG {
         size_t ncol;
         // determine number of lines, columns and labeled or not
         std::tie(nlin, ncol, labeled) = pre_parse_stream(in);
-        if ((ncol == 4) or (ncol == 7) or (ncol == 8)) {
+        if ((ncol == 7) or (ncol == 8)) {
             labeled = true;
             ncol--;
         }
@@ -135,9 +129,7 @@ namespace OpenMEEG {
         // positions
         m_positions = mat.submat(0,nlin,0,3);
         // orientations
-        if ( ncol >= 6 ) {
-            m_orientations = mat.submat(0,nlin,3,3);
-        }
+        m_orientations = mat.submat(0,nlin,3,3);
         if (ncol == 7) {
             m_weights = mat.getcol(mat.ncol()-1);
         } else {
@@ -170,11 +162,7 @@ namespace OpenMEEG {
             // if it has names
             if (hasLabels())
                 outfile << m_labels[m_pointSensorIdx[i]] << " ";
-            outfile << m_positions.getlin(i) << " ";
-            // if it has orientations
-            if (hasOrientations())
-                outfile << m_orientations.getlin(i) << " ";
-            outfile << std::endl;
+            outfile << m_positions.getlin(i) << " " << m_orientations.getlin(i) << std::endl;
         }
         return;
     }
