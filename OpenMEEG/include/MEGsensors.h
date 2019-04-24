@@ -58,11 +58,6 @@ namespace OpenMEEG {
      *  the file can have the shape of (neglecting if present the first, label column):
      *  <ul>
      *
-     *  <li> 1 line per sensor and 3 columns (MEG sensors without orientation)
-     *        <ul TYPE="circle">
-     *        <li> the 1st, 2nd and 3rd columns are respectively position coordinates x, y, z of sensor  </li>
-     *        </ul>
-     *  </li>
      *  <li> 1 line per sensor and 6 columns (MEG sensors) :
      *        <ul TYPE="circle">
      *        <li> the 1st, 2nd and 3rd are respectively position coordinates x, y, z of sensor  </li>
@@ -89,7 +84,6 @@ namespace OpenMEEG {
         void save(const char* filename);
         Matrix& getOrientations() {return m_orientations ; } /*!< Return a reference on sensors orientations. */
         Matrix getOrientations() const {return m_orientations ; } /*!< Return a copy of sensors orientations. */
-        bool hasOrientations() const { return m_orientations.nlin() > 0 ;} /*!< Return true if contains orientations */
         Vector getOrientation(size_t idx) const; /*!< Return the orientations (3D point) of the integration point i. */
         void setOrientation(size_t idx, Vector& orient); /*!< Set the orientation (3D point) of the integration point i. */
 
