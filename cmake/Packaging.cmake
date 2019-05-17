@@ -56,7 +56,7 @@ if (ENABLE_PACKAGING)
 
     # Following https://blog.quickmediasolutions.com/2017/11/24/using-windeployqt-with-cpack.html
     set(CMAKE_INSTALL_UCRT_LIBRARIES TRUE)
-    # set(CMAKE_INSTALL_OPENMP_LIBRARIES TRUE)
+    set(CMAKE_INSTALL_OPENMP_LIBRARIES TRUE)
     include(InstallRequiredSystemLibraries)
     include(CPack)
 
