@@ -47,7 +47,8 @@ include(cmake/Packaging.cmake)
 #   - Build a test that fails if this is not active
 #   - Find a way to find vcompXXX.dll in the system
 #   - Place this in the proper place (probably the entire install.cmake/thirdparty.cmake needs refactor)
-if (WIN32 AND OPENMP_FOUND AND VCOMP_WORKAROUND)
-    set(VCOMP_PATH "C:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/redist/x64/Microsoft.VC140.OpenMP/vcomp140.dll")
-    INSTALL(FILES "${VCOMP_PATH}" DESTINATION bin COMPONENT Libraries)
-endif()
+# fixed in cmake/install.cmake
+#if (WIN32 AND OPENMP_FOUND AND VCOMP_WORKAROUND)
+#    set(VCOMP_PATH "C:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/redist/x64/Microsoft.VC140.OpenMP/vcomp140.dll")
+#    INSTALL(FILES "${VCOMP_PATH}" DESTINATION bin COMPONENT Libraries)
+#endif()
