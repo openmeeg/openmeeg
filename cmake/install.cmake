@@ -9,12 +9,6 @@ elseif(UNIX)  # means if LINUX
     # to fix the installed rpath so it looks in ../lib
     # https://www.semipol.de/2012/02/16/relative-rpath-settings-with-cmake.html
     set(CMAKE_INSTALL_RPATH "$ORIGIN/../lib")
-    
-    # installing openmp libs properly; issue #314
-    # ref: https://cmake.org/cmake/help/latest/module/InstallRequiredSystemLibraries.html
-    set(CMAKE_INSTALL_UCRT_LIBRARIES TRUE)
-    set(CMAKE_INSTALL_OPENMP_LIBRARIES TRUE)
-    include(InstallRequiredSystemLibraries)
 endif()
 
 # Find absolute path to each external lib to avoid symlinks then package it
