@@ -385,6 +385,26 @@ namespace OpenMEEG {
         return OK;
     }
 
+    bool Geometry::check(const Matrix& mat) const {
+        bool OK = true;
+        if (!is_nested()) {
+            std::cerr << "Dipoles are only allowed when geometry is nested." << std::endl;
+            OK = false;
+        };
+        const Interface& interface = innermost_interface();
+        int n_outside = 0;
+        for (int i; i < mat.nlin(); i++) {
+            if (!interface.contains_point(Vect3(mat(i, 0), mat(i, 1), mat(i, 2)))) {
+                n_outside += 1.;
+            };
+        };
+        if (n_outside > 0) {
+            std::cerr << n_outside << " points are outside of the inner most compartment." << std::endl;
+            OK = false;
+        }
+        return OK;
+    }
+
     void Geometry::import_meshes(const Meshes& m) {
         meshes_.clear();
         vertices_.clear();

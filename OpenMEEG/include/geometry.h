@@ -95,6 +95,7 @@ namespace OpenMEEG {
         const bool&      is_nested()                      const { return is_nested_; }
               bool       selfCheck()                      const; ///< \brief the geometry meshes intersect each other
               bool       check(const Mesh& m)             const; ///< \brief check if m intersect geometry meshes
+              bool       check(const Matrix& m)           const; ///< \brief check if dipoles are outside of geometry meshes
         const Vertices&  vertices()                       const { return vertices_; } ///< \brief returns the geometry vertices
         const Meshes&    meshes()                         const { return meshes_; } ///< \brief returns the geometry meshes
         const Domains&   domains()                        const { return domains_; } ///< \brief returns the geometry domains

@@ -52,6 +52,7 @@ int main( int argc, char **argv)
     const char* geom_filename = command_option("-g",(const char *) NULL,"Input .geom file");
     const char* mesh_filename = command_option("-m",(const char *) NULL,"Mesh file (ex: to test .geom with cortex mesh)");
     const char* verbose       = command_option("-v",(const char *) NULL,"Print verbose information about the geometry");
+    const char *dip_filename  = command_option("-d", (const char *) NULL, "The dipole .dip file (ex: to test .geom with cortical dipoles");
     if (command_option("-h",(const char *)0,0)) return 0;
 
     if ( !geom_filename ) {
@@ -75,6 +76,16 @@ int main( int argc, char **argv)
             std::cout << ".geom and mesh : OK" << std::endl;
         } else {
             status = 1;
+        }
+    }
+    if ( dip_filename ) {
+        if (!g.is_nested()) {
+            std::cerr << "Dipoles are only allowed when geometry is nested." << std::endl;
+            return 1;
+        }
+        Matrix dipoles(dip_filename);
+        if (g.check(dipoles)) {
+            std::cout << ".geom and .dip dipoles : OK" << std::endl;
         }
     }
     if ( verbose ) {
