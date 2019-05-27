@@ -74,14 +74,6 @@ namespace OpenMEEG {
 
         virtual ~LinOpInfo() {};
 
-        LinOpInfo& operator=(const LinOpInfo& l) {
-            num_lines = l.num_lines;
-            num_cols  = l.num_cols;
-            storage   = l.storage;
-            dim       = l.dim;
-            return *this;
-        }
-        
         size_t  nlin() const { return num_lines; }
         size_t& nlin()       { return num_lines; }
 
@@ -114,11 +106,6 @@ namespace OpenMEEG {
         LinOp() { }
         LinOp(const size_t m,const size_t n,const StorageType st,const Dimension d): base(m,n,st,d) { }
 
-        LinOp& operator=(const LinOp& l) {
-            base::operator=(l);
-            return *this;
-        }
-        
         virtual size_t size() const = 0;
         virtual void   info() const = 0;
     };

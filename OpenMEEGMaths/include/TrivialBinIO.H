@@ -85,7 +85,7 @@ namespace OpenMEEG {
                     linop.ncol()        = 1;
                 } else {
                     linop.dimension()   = 2;
-                    if (size==static_cast<std::streamoff>(ui*(ui+1)*sizeof(double)/2)) {
+                    if (size==static_cast<std::streamoff>((long)ui*(ui+1)*sizeof(double)/2)) {
                         linop.storageType() = LinOp::SYMMETRIC;
                         linop.ncol()        = ui;
                     } else {
