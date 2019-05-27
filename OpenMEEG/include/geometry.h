@@ -129,7 +129,7 @@ namespace OpenMEEG {
         /// handle multiple 0 conductivity domains
         const size_t& nb_current_barrier_triangles()      const { return nb_current_barrier_triangles_; }
               size_t& nb_current_barrier_triangles()            { return nb_current_barrier_triangles_; }
-        const size_t  nb_invalid_vertices()               const { return invalid_vertices_.size();      }
+        const size_t  nb_invalid_vertices()                     { return invalid_vertices_.size();      }
         const std::vector<Strings>& geo_group()           const { return geo_group_; }
               void    mark_current_barrier();
         const Mesh&   mesh(const std::string& id) const;
