@@ -81,11 +81,13 @@ int main( int argc, char **argv)
     if ( dip_filename ) {
         if (!g.is_nested()) {
             std::cerr << "Dipoles are only allowed when geometry is nested." << std::endl;
-            return 1;
+            status = 1;
         }
         Matrix dipoles(dip_filename);
         if (g.check(dipoles)) {
             std::cout << ".geom and .dip dipoles : OK" << std::endl;
+        } else {
+            status = 1;
         }
     }
     if ( verbose ) {
