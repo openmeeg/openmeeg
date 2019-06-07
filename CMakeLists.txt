@@ -35,6 +35,8 @@ add_subdirectory(apps)
 add_subdirectory(documentation)
 add_subdirectory(wrapping)
 
+add_subdirectory(tests)
+
 ################
 # OpenMEEG Export
 ################
