@@ -20,3 +20,5 @@ if (BUILD_TESTING)
     OPENMEEG_TEST(check_test_mesh_ios
         test_mesh_ios ${OpenMEEG_SOURCE_DIR}/data/Head1/Head1.tri)
 endif()
+
+include(other.cmake)
