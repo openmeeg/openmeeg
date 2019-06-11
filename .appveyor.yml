@@ -40,11 +40,11 @@ skip_commits:
   message: /\[av skip\]/
 
 
-## To allow remote connection to appveyor
-## connect via rdp using:
-#    $ xfreerdp /d:domain /u:appveyor /p:'password' /cert-ignore /v:ipaddr:port
-init:
-  - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+# ## To allow remote connection to appveyor
+# ## connect via rdp using:
+# #    $ xfreerdp /d:domain /u:appveyor /p:'password' /cert-ignore /v:ipaddr:port
+# init:
+#   - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
 
 install:
   ############################################################################
