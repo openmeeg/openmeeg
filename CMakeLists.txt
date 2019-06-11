@@ -18,7 +18,6 @@ list(APPEND CMAKE_MODULE_PATH
 ################
 include(GenerateExportHeader)
 include(cmake/CompilerOptions.cmake)
-include(cmake/ComparisonTest.cmake)
 include(cmake/options.cmake)
 include(cmake/thirdParties.cmake)
 include(cmake/install.cmake)  # install setup (do it before adding targets)

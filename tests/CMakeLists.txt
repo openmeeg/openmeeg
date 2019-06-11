@@ -21,6 +21,11 @@ if (BUILD_TESTING)
         test_mesh_ios ${OpenMEEG_SOURCE_DIR}/data/Head1/Head1.tri)
 endif()
 
+
+######
+
+input(ComparisonTest.cmake)
+
 set_file_properties(Suffix
     "HM .hm" "HMInv .hm_inv" "DSM .dsm" "SSM .ssm" "H2EM .h2em" "SurfGainEEG .sgem"
     "ESTEEG .est_eeg" "EEGadjointEST .est_eegadjoint" "MEGadjointEST .est_megadjoint"
