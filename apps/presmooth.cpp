@@ -64,7 +64,7 @@ int main(int argc, char **argv) // TODO a quoi ça sert ?
 
     SourceMesh.load(argv[1]);
 
-    SparseMatrix SmoothMatrix = SourceMesh.gradient();
+    SparseMatrix SmoothMatrix = SourceMesh.gradient_norm2();
 
     // write output variables
     SmoothMatrix.save(argv[2]);
