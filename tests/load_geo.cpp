@@ -6,7 +6,7 @@ using namespace OpenMEEG;
 
 int main (int argc, char** argv)
 {
-	if ( argc != 3) 
+	if ( argc != 3)
     {
         std::cerr << "Wrong nb of parameters" << std::endl;
         exit(1);

@@ -40,7 +40,6 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <fstream>
 #include <cstring>
 
-#include <matrix.h>
 #include <sensors.h>
 
 using namespace OpenMEEG;
