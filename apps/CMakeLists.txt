@@ -39,6 +39,14 @@ install(TARGETS om_assemble
         ARCHIVE DESTINATION ${CMAKE_INSTALL_BINDIR}
         RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
+add_executable(om_presmooth presmooth.cpp)
+target_link_libraries(om_presmooth OpenMEEG::OpenMEEGMaths OpenMEEG::OpenMEEG)
+target_include_directories(om_presmooth PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+install(TARGETS om_presmooth
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_BINDIR}
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+
 # ================
 # = INSTALLATION =
 # ================

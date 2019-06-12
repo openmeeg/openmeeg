@@ -49,7 +49,7 @@ namespace OpenMEEG {
         if (m.allocate_) {
             allocate_     = true;
             all_vertices_ = new Vertices; // allocates space for the vertices and copy
-            all_vertices_->reserve(m.nb_vertices()); 
+            all_vertices_->reserve(m.nb_vertices());
             std::map<const Vertex *, Vertex *> map; // for the triangles
             for (Mesh::const_vertex_iterator vit = m.vertex_begin(); vit != m.vertex_end(); ++vit) {
                 add_vertex(**vit);
@@ -73,7 +73,7 @@ namespace OpenMEEG {
         name_      = m.name_;
     }
 
-    /// Print informations about the mesh 
+    /// Print informations about the mesh
 
     void Mesh::info(const bool verbose) const {
         std::cout << "Info:: Mesh name/ID : "  << name() << std::endl;
@@ -380,7 +380,7 @@ namespace OpenMEEG {
         if (read_all && ( all_vertices_ == 0) ) {
             unsigned nb_v = load(filename, false, false); // first allocates memory for the vertices
             all_vertices_ = new Vertices;
-            all_vertices_->reserve(nb_v); 
+            all_vertices_->reserve(nb_v);
             allocate_ = true;
         }
 
@@ -532,10 +532,10 @@ namespace OpenMEEG {
     #endif
 
     #ifdef USE_GIFTI
-    unsigned Mesh::load_gifti(const std::string& filename, const bool& read_all) {   
+    unsigned Mesh::load_gifti(const std::string& filename, const bool& read_all) {
 
         // Use gifti_io API
-        int read_data = 0; 
+        int read_data = 0;
         gifti_image* gim = gifti_read_image(filename.c_str(), read_data);
 
         if (gim->numDA!=2)
@@ -560,13 +560,13 @@ namespace OpenMEEG {
         unsigned ntrgs = gim->darray[itrgs]->dims[0];
 
         gifti_free_image(gim);
-        
-        if (!read_all) { 
-            return npts; 
+
+        if (!read_all) {
+            return npts;
         }
         read_data = 1; // now, load the data
         gim = gifti_read_image(filename.c_str(), read_data);
-        
+
         float * pts_data;
         if (gim->darray[ipts]->datatype == NIFTI_TYPE_FLOAT32 ) { // float
             pts_data = (float *)gim->darray[ipts]->data;
@@ -641,9 +641,9 @@ namespace OpenMEEG {
         is.read((char*)ui, sizeof(unsigned int));
         unsigned npts = ui[0];
         delete[] ui;
-        
+
         if (!read_all)
-            return npts; 
+            return npts;
 
         if (vertex_per_face!=3) // Support only for triangulations
             throw std::invalid_argument("OpenMEEG only handles 3D surfacic meshes.");
@@ -797,7 +797,7 @@ namespace OpenMEEG {
         return 0;
     }
 
-    unsigned Mesh::load_bnd(const std::string& filename, const bool& read_all) {        
+    unsigned Mesh::load_bnd(const std::string& filename, const bool& read_all) {
 
         std::string s = filename;
         std::ifstream f(filename.c_str());
@@ -852,7 +852,7 @@ namespace OpenMEEG {
         f.close();
         return return_value;
     }
-    
+
     void Mesh::save_vtk(const std::string& filename) const {
 
         std::ofstream os(filename.c_str());
