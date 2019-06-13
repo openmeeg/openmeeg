@@ -5,7 +5,9 @@ set(OpenMEEG_BINARY_DIR ${CMAKE_BINARY_DIR}) # XXXX this has to be done differen
 file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/tests/) # XXXX this has to be done differently
 
 
-add_test(CLEAN-TESTS ${CMAKE_COMMAND} -P ${OpenMEEG_SOURCE_DIR}/tests/clean_tests.cmake)
+add_test(test-head-cleanup ${CMAKE_COMMAND} -P ${OpenMEEG_SOURCE_DIR}/tests/clean_tests.cmake)
+
+set_tests_properties(test-head-cleanup PROPERTIES FIXTURES_CLEANUP  TestHead_cleanup_fixture)
 
 set(ASSEMBLE  om_assemble)
 set(INVERSER  om_minverser)
@@ -84,24 +86,32 @@ function(TESTHEAD HEADNUM)
 
     #   assemble tests
 
-    OPENMEEG_TEST(HM-${SUBJECT} ${ASSEMBLE} -HM ${GEOM} ${COND} ${HMMAT} DEPENDS CLEAN-TESTS)
+    OPENMEEG_TEST(HM-${SUBJECT} ${ASSEMBLE} -HM ${GEOM} ${COND} ${HMMAT})
     OPENMEEG_TEST(HMInv-${SUBJECT} ${INVERSER} ${HMMAT} ${HMINVMAT}      DEPENDS HM-${SUBJECT})
+
+    set_tests_properties( HM-${SUBJECT} HMInv-${SUBJECT}
+                          PROPERTIES FIXTURES_REQUIRED TestHead_cleanup_fixture)
 
     if (${HEADNUM} EQUAL 1)
 
-        OPENMEEG_TEST(SSM-${SUBJECT} ${ASSEMBLE} -SSM ${GEOM} ${COND} ${SRCMESH} ${SSMMAT} DEPENDS CLEAN-TESTS)
+        OPENMEEG_TEST(SSM-${SUBJECT} ${ASSEMBLE} -SSM ${GEOM} ${COND} ${SRCMESH} ${SSMMAT})
 
         # corticalMat tests
 
-        OPENMEEG_TEST(CM1-0-${SUBJECT} ${ASSEMBLE} -CM ${GEOM} ${COND} ${PATCHES} "Brain" ${CMMAT} DEPENDS CLEAN-TESTS)
-        OPENMEEG_TEST(CM1-1-${SUBJECT} ${ASSEMBLE} -CM ${GEOM} ${COND} ${PATCHES} "Brain" ${CMMAT} 1e-4 1.58e-2 DEPENDS CLEAN-TESTS)
-        OPENMEEG_TEST(CM2-${SUBJECT}   ${ASSEMBLE} -CM ${GEOM} ${COND} ${PATCHES} "Brain" ${CMMAT} 12.4 DEPENDS CLEAN-TESTS)
+        OPENMEEG_TEST(CM1-0-${SUBJECT} ${ASSEMBLE} -CM ${GEOM} ${COND} ${PATCHES} "Brain" ${CMMAT})
+        OPENMEEG_TEST(CM1-1-${SUBJECT} ${ASSEMBLE} -CM ${GEOM} ${COND} ${PATCHES} "Brain" ${CMMAT} 1e-4 1.58e-2)
+        OPENMEEG_TEST(CM2-${SUBJECT}   ${ASSEMBLE} -CM ${GEOM} ${COND} ${PATCHES} "Brain" ${CMMAT} 12.4)
+
+        set_tests_properties( SSM-${SUBJECT} CM1-0-${SUBJECT} CM1-1-${SUBJECT} CM2-${SUBJECT}
+                              PROPERTIES FIXTURES_REQUIRED TestHead_cleanup_fixture)
 
     endif()
 
     # EEG test
 
-    OPENMEEG_TEST(H2EM-${SUBJECT} ${ASSEMBLE} -H2EM ${GEOM} ${COND} ${PATCHES} ${H2EMMAT} DEPENDS CLEAN-TESTS)
+    OPENMEEG_TEST(H2EM-${SUBJECT} ${ASSEMBLE} -H2EM ${GEOM} ${COND} ${PATCHES} ${H2EMMAT})
+    set_tests_properties( H2EM-${SUBJECT}
+                          PROPERTIES FIXTURES_REQUIRED TestHead_cleanup_fixture)
 
     if (${HEADNUM} EQUAL 1)
 
@@ -112,17 +122,22 @@ function(TESTHEAD HEADNUM)
 
         OPENMEEG_TEST(ESTEEG-${SUBJECT} ${FORWARD} ${SGEMMAT} ${SURFSOURCES} ${ESTEEG} 0.0 DEPENDS SurfGainEEG-${SUBJECT})
 
+        set_tests_properties( SurfGainEEG-${SUBJECT} ESTEEG-${SUBJECT}
+                              PROPERTIES FIXTURES_REQUIRED TestHead_cleanup_fixture)
     endif()
 
     # MEG
 
-    OPENMEEG_TEST(H2MM-${SUBJECT} ${ASSEMBLE} -H2MM ${GEOM} ${COND} ${SQUIDS} ${H2MMMAT} DEPENDS CLEAN-TESTS)
-    OPENMEEG_TEST(H2MM-${SUBJECT}-tangential ${ASSEMBLE} -H2MM ${GEOM} ${COND} ${SQUIDS-TANGENTIAL} ${H2MMMAT-TANGENTIAL} DEPENDS CLEAN-TESTS)
-    OPENMEEG_TEST(H2MM-${SUBJECT}-noradial ${ASSEMBLE} -H2MM ${GEOM} ${COND} ${SQUIDS-NORADIAL} ${H2MMMAT-NORADIAL} DEPENDS CLEAN-TESTS)
+    OPENMEEG_TEST(H2MM-${SUBJECT} ${ASSEMBLE} -H2MM ${GEOM} ${COND} ${SQUIDS} ${H2MMMAT})
+    OPENMEEG_TEST(H2MM-${SUBJECT}-tangential ${ASSEMBLE} -H2MM ${GEOM} ${COND} ${SQUIDS-TANGENTIAL} ${H2MMMAT-TANGENTIAL})
+    OPENMEEG_TEST(H2MM-${SUBJECT}-noradial ${ASSEMBLE} -H2MM ${GEOM} ${COND} ${SQUIDS-NORADIAL} ${H2MMMAT-NORADIAL})
+
+    set_tests_properties( H2MM-${SUBJECT} H2MM-${SUBJECT}-tangential H2MM-${SUBJECT}-noradial
+                          PROPERTIES FIXTURES_REQUIRED TestHead_cleanup_fixture)
 
     if (${HEADNUM} EQUAL 1)
 
-        OPENMEEG_TEST(SS2MM-${SUBJECT} ${ASSEMBLE} -SS2MM ${SRCMESH} ${SQUIDS} ${SS2MMMAT} DEPENDS CLEAN-TESTS)
+        OPENMEEG_TEST(SS2MM-${SUBJECT} ${ASSEMBLE} -SS2MM ${SRCMESH} ${SQUIDS} ${SS2MMMAT})
 
         OPENMEEG_TEST(SurfGainMEG-${SUBJECT} ${GAIN} -MEG ${HMINVMAT} ${SSMMAT} ${H2MMMAT} ${SS2MMMAT} ${SGMMMAT}
                       DEPENDS HMInv-${SUBJECT} SSM-${SUBJECT} H2MM-${SUBJECT} SS2MM-${SUBJECT})
@@ -130,36 +145,50 @@ function(TESTHEAD HEADNUM)
         # Forward
         OPENMEEG_TEST(ESTMEG-${SUBJECT} ${FORWARD} ${SGMMMAT} ${SURFSOURCES} ${ESTMEG} 0.0
                       DEPENDS SurfGainMEG-${SUBJECT})
+
+        set_tests_properties( SS2MM-${SUBJECT} SurfGainMEG-${SUBJECT} ESTMEG-${SUBJECT}
+                              PROPERTIES FIXTURES_REQUIRED TestHead_cleanup_fixture)
     endif()
 
     # ECoG
 
     if (${HEADNUM} EQUAL 1 OR ${HEADNUM} EQUAL 2 OR ${HEADNUM} EQUAL 3)
-        OPENMEEG_TEST(H2ECOGM-OLD-${SUBJECT} ${ASSEMBLE} -H2ECOGM ${GEOM} ${COND} ${ECOG-ELECTRODES} ${OLDECOGMMAT} DEPENDS CLEAN-TESTS)
-        OPENMEEG_TEST(H2ECOGM-${SUBJECT} ${ASSEMBLE} -H2ECOGM ${GEOM} ${COND} ${ECOG-ELECTRODES} "1" ${ECOGMMAT} DEPENDS CLEAN-TESTS)
+        OPENMEEG_TEST(H2ECOGM-OLD-${SUBJECT} ${ASSEMBLE} -H2ECOGM ${GEOM} ${COND} ${ECOG-ELECTRODES} ${OLDECOGMMAT})
+        OPENMEEG_TEST(H2ECOGM-${SUBJECT} ${ASSEMBLE} -H2ECOGM ${GEOM} ${COND} ${ECOG-ELECTRODES} "1" ${ECOGMMAT})
+
+        set_tests_properties( H2ECOGM-OLD-${SUBJECT} H2ECOGM-${SUBJECT}
+                              PROPERTIES FIXTURES_REQUIRED TestHead_cleanup_fixture)
     endif()
 
     ############ TEST DIPOLE FORWARD RESULTS (Regression test) ##############
 
     # om_assemble -DSM geometry.geom conductivity.cond dipoles.dip dsm.bin
 
-    OPENMEEG_TEST(DSM-${SUBJECT} ${ASSEMBLE} -DSM ${GEOM} ${COND} ${DIPPOS} ${DSMMAT} DEPENDS CLEAN-TESTS)
+    OPENMEEG_TEST(DSM-${SUBJECT} ${ASSEMBLE} -DSM ${GEOM} ${COND} ${DIPPOS} ${DSMMAT})
 
     # om_assemble -DS2MM dipoles.dip squidscoord.squids sToMEGmat.bin
 
-    OPENMEEG_TEST(DS2MM-${SUBJECT} ${ASSEMBLE} -DS2MM ${DIPPOS} ${SQUIDS} ${DS2MMMAT} DEPENDS CLEAN-TESTS)
-    OPENMEEG_TEST(DS2MM-${SUBJECT}-tangential ${ASSEMBLE} -DS2MM ${DIPPOS} ${SQUIDS-TANGENTIAL} ${DS2MMMAT-TANGENTIAL} DEPENDS CLEAN-TESTS)
-    OPENMEEG_TEST(DS2MM-${SUBJECT}-noradial ${ASSEMBLE} -DS2MM ${DIPPOS} ${SQUIDS-NORADIAL} ${DS2MMMAT-NORADIAL} DEPENDS CLEAN-TESTS)
+    OPENMEEG_TEST(DS2MM-${SUBJECT} ${ASSEMBLE} -DS2MM ${DIPPOS} ${SQUIDS} ${DS2MMMAT})
+    OPENMEEG_TEST(DS2MM-${SUBJECT}-tangential ${ASSEMBLE} -DS2MM ${DIPPOS} ${SQUIDS-TANGENTIAL} ${DS2MMMAT-TANGENTIAL})
+    OPENMEEG_TEST(DS2MM-${SUBJECT}-noradial ${ASSEMBLE} -DS2MM ${DIPPOS} ${SQUIDS-NORADIAL} ${DS2MMMAT-NORADIAL})
+
+
+    set_tests_properties( DSM-${SUBJECT} DS2MM-${SUBJECT} DS2MM-${SUBJECT}-tangential DS2MM-${SUBJECT}-noradial
+                          PROPERTIES FIXTURES_REQUIRED TestHead_cleanup_fixture)
 
     #   ECoG gain matrix.
 
     if (${HEADNUM} EQUAL 1 OR ${HEADNUM} EQUAL 2 OR ${HEADNUM} EQUAL 3)
         OPENMEEG_TEST(GAINECOG-${SUBJECT} ${GAIN} -EEG ${HMINVMAT} ${DSMMAT} ${ECOGMMAT} ${GAINECOGMAT} DEPENDS HMInv-${SUBJECT} DSM-${SUBJECT} H2ECOGM-${SUBJECT})
+        set_tests_properties( GAINECOG-${SUBJECT}
+                              PROPERTIES FIXTURES_REQUIRED TestHead_cleanup_fixture)
     endif()
 
     # om_assemble -H2IPM geometry.geom conductivity.cond internalpoints.txt h2ip.bin
 
-    OPENMEEG_TEST(H2IPM-${SUBJECT} ${ASSEMBLE} -H2IPM ${GEOM} ${COND} ${POINTS} ${H2IPMAT} DEPENDS CLEAN-TESTS)
+    OPENMEEG_TEST(H2IPM-${SUBJECT} ${ASSEMBLE} -H2IPM ${GEOM} ${COND} ${POINTS} ${H2IPMAT})
+    set_tests_properties( H2IPM-${SUBJECT}
+                          PROPERTIES FIXTURES_REQUIRED TestHead_cleanup_fixture)
 
     # for Head1 and Head2, test EIT
     if (${HEADNUM} EQUAL 1 OR ${HEADNUM} EQUAL 2)
@@ -168,11 +197,17 @@ function(TESTHEAD HEADNUM)
 
         OPENMEEG_TEST(GainEITInternalPot-${SUBJECT} ${GAIN} -EITIP ${HMINVMAT} ${EITSMAT} ${H2IPMAT} ${GSIPMAT}
                       DEPENDS HMInv-${SUBJECT} EITSM-${SUBJECT} H2IPM-${SUBJECT})
+
+        set_tests_properties( EITSM-${SUBJECT} GainEITInternalPot-${SUBJECT}
+                              PROPERTIES FIXTURES_REQUIRED TestHead_cleanup_fixture)
     endif()
 
     # om_assemble -DS2IPM geometry.geom conductivity.cond dipoles.dip internalpoints.txt ds2ip.bin
 
-    OPENMEEG_TEST(S2IPM-${SUBJECT} ${ASSEMBLE} -DS2IPM ${GEOM} ${COND} ${DIPPOS} ${POINTS} ${DS2IPMAT} DEPENDS CLEAN-TESTS)
+    OPENMEEG_TEST(S2IPM-${SUBJECT} ${ASSEMBLE} -DS2IPM ${GEOM} ${COND} ${DIPPOS} ${POINTS} ${DS2IPMAT})
+
+    set_tests_properties( S2IPM-${SUBJECT}
+                          PROPERTIES FIXTURES_REQUIRED TestHead_cleanup_fixture)
 
     OPENMEEG_TEST(DipGainEEG-${SUBJECT} ${GAIN} -EEG ${HMINVMAT} ${DSMMAT} ${H2EMMAT} ${DGEMMAT}
                   DEPENDS HMInv-${SUBJECT} DSM-${SUBJECT} H2EM-${SUBJECT})
@@ -190,6 +225,9 @@ function(TESTHEAD HEADNUM)
                   DEPENDS HM-${SUBJECT} H2EM-${SUBJECT} H2MM-${SUBJECT} DS2MM-${SUBJECT})
     OPENMEEG_TEST(DipGainInternalPot-${SUBJECT} ${GAIN} -IP ${HMINVMAT} ${DSMMAT} ${H2IPMAT} ${DS2IPMAT} ${DGIPMAT}
                   DEPENDS HMInv-${SUBJECT} DSM-${SUBJECT} H2IPM-${SUBJECT} S2IPM-${SUBJECT})
+
+    set_tests_properties( DipGainEEG-${SUBJECT} DipGainEEGadjoint-${SUBJECT} DipGainMEG-${SUBJECT} DipGainMEGadjoint-${SUBJECT} DipGainMEG-${SUBJECT}-tangential DipGainMEG-${SUBJECT}-noradial DipGainEEGMEGadjoint-${SUBJECT} DipGainInternalPot-${SUBJECT}
+                          PROPERTIES FIXTURES_REQUIRED TestHead_cleanup_fixture)
 
     # forward gainmatrix.bin dipoleActivation.src estimatedeegdata.txt noiselevel
 
@@ -212,14 +250,21 @@ function(TESTHEAD HEADNUM)
     OPENMEEG_TEST(InternalPot-dipoles-${SUBJECT} ${FORWARD} ${DGIPMAT} ${DIPSOURCES} ${ESTDIPBASE}-internal.est_eeg 0.0
                   DEPENDS DipGainInternalPot-${SUBJECT})
 
+    set_tests_properties( EEG-dipoles-${SUBJECT} EEGadjoint-dipoles-${SUBJECT} EEGadjoint2-dipoles-${SUBJECT} MEG-dipoles-${SUBJECT} MEGadjoint-dipoles-${SUBJECT} MEG-dipoles-${SUBJECT}-tangential MEG-dipoles-${SUBJECT}-noradial MEGadjoint2-dipoles-${SUBJECT} InternalPot-dipoles-${SUBJECT} 
+                          PROPERTIES FIXTURES_REQUIRED TestHead_cleanup_fixture)
+
     # tests on Head3 for dipoles in the skull and scalp
     if (${HEADNUM} EQUAL 3)
-        OPENMEEG_TEST(DSMSkullScalp-${SUBJECT} ${ASSEMBLE} -DSM ${GEOM} ${COND} ${DIPPOS-SKULLSCALP} ${DSM-SKULLSCALPMAT} DEPENDS CLEAN-TESTS)
+        OPENMEEG_TEST(DSMSkullScalp-${SUBJECT} ${ASSEMBLE} -DSM ${GEOM} ${COND} ${DIPPOS-SKULLSCALP} ${DSM-SKULLSCALPMAT})
 
         OPENMEEG_TEST(DipGainEEGSkullScalp-${SUBJECT} ${GAIN} -EEG ${HMINVMAT} ${DSM-SKULLSCALPMAT} ${H2EMMAT} ${DGEM-SKULLSCALPMAT}
                 DEPENDS HMInv-${SUBJECT} DSMSkullScalp-${SUBJECT} H2EM-${SUBJECT})
 
         OPENMEEG_TEST(EEG-dipolesSkullScalp-${SUBJECT} ${FORWARD} ${DGEM-SKULLSCALPMAT} ${DIPSOURCES-SKULLSCALP} ${ESTDIPBASE}-skullscalp.est_eeg 0.0
                 DEPENDS DipGainEEGSkullScalp-${SUBJECT})
+
+        set_tests_properties( DSMSkullScalp-${SUBJECT} DipGainEEGSkullScalp-${SUBJECT} EEG-dipolesSkullScalp-${SUBJECT} 
+                              PROPERTIES FIXTURES_REQUIRED TestHead_cleanup_fixture)
+
     endif()
 endfunction()
