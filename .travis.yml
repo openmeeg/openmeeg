@@ -207,6 +207,8 @@ script:
         PACKAGE_DEPLOY=$(greadlink -f OpenMEEG*.tar.gz)
       fi
     fi
+
+  - ctest -V -R check_geom_dip_outside
   - sudo make install
   - sudo make uninstall
 
