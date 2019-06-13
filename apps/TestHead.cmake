@@ -14,11 +14,6 @@ set(INVERSER  om_minverser)
 set(GAIN      om_gain)
 set(FORWARD   om_forward)
 
-OPENMEEG_TEST(assemble-help ${ASSEMBLE} -h)
-OPENMEEG_TEST(inverser-help ${INVERSER} -h)
-OPENMEEG_TEST(gain-help ${GAIN} -h)
-OPENMEEG_TEST(forward-help ${FORWARD} -h)
-
 function(TESTHEAD HEADNUM)
     set(SUBJECT "Head${HEADNUM}")
 

@@ -53,6 +53,16 @@ install(TARGETS om_assemble
 # ===========
 
 if (BUILD_TESTING)
+
+    ## Test all apps have help
+
+    OPENMEEG_TEST(assemble-help om_assemble -h)
+    OPENMEEG_TEST(inverser-help om_minverser -h)
+    OPENMEEG_TEST(gain-help     om_gain -h)
+    OPENMEEG_TEST(forward-help  om_forward -h)
+
+
+    ## Test HEAD
     include(TestHead.cmake)
 
     # those models should give same results !
@@ -85,6 +95,7 @@ if (BUILD_TESTING)
     TESTHEAD(MN1)
     TESTHEAD(MN2)
     TESTHEAD(MN3)
+
 endif()
 
 
