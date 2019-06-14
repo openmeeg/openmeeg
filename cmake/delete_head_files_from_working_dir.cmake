@@ -1,3 +1,3 @@
 file(GLOB files "Head*")
-# file(REMOVE ${files})
-MESSAGE("REMOVE ${files}")
+MESSAGE("REMOVE ${files}")  # Just verbose in case is needed
+file(REMOVE ${files})
