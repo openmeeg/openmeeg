@@ -5,7 +5,11 @@ set(OpenMEEG_BINARY_DIR ${CMAKE_BINARY_DIR}) # XXXX this has to be done differen
 file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/tests/) # XXXX this has to be done differently
 
 
-add_test(CLEAN-TESTS ${CMAKE_COMMAND} -P ${OpenMEEG_SOURCE_DIR}/tests/clean_tests.cmake)
+add_test(
+    NAME CLEAN-TESTS
+    WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/../tests/"
+    COMMAND ${CMAKE_COMMAND} -P ${OpenMEEG_SOURCE_DIR}/tests/clean_tests.cmake
+)
 
 set(ASSEMBLE  om_assemble)
 set(INVERSER  om_minverser)
