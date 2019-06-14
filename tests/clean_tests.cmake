@@ -1,2 +1,3 @@
 file(GLOB files "${CMAKE_CURRENT_BINARY_DIR}/../tests/Head*")
-file(REMOVE ${files} "Head-tmp.txt")
+# file(REMOVE ${files} "Head-tmp.txt")
+MESSAGE("REMOVE ${files} Head-tmp.txt")
