@@ -10,7 +10,7 @@ macro(set_file_properties PROPERTY)
 endmacro()
 
 function(OPENMEEG_COMPARISON_TEST TEST_NAME FILENAME REFERENCE_FILENAME)
-    set(COMPARISON_COMMAND "${OpenMEEG_BINARY_DIR}/tests/compare_matrix")
+    set(COMPARISON_COMMAND "${OpenMEEG_BINARY_DIR}/apps/tools/compare_matrix")
     if (WIN32)
         set(COMPARISON_COMMAND "${EXECUTABLE_OUTPUT_PATH}/compare_matrix")
     endif()

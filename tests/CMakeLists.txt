@@ -7,9 +7,6 @@ target_link_libraries(test_mesh_ios OpenMEEG::OpenMEEG)
 add_executable(test_sensors test_sensors.cpp)
 target_link_libraries(test_sensors OpenMEEG::OpenMEEG)
 
-add_executable(compare_matrix compare_matrix.cpp)
-target_link_libraries(compare_matrix OpenMEEG::OpenMEEG OpenMEEG::OpenMEEGMaths)
-
 add_executable(om_validationEIT validationEIT.cpp)
 target_link_libraries(om_validationEIT OpenMEEG::OpenMEEG)
 
@@ -24,4 +21,3 @@ endif()
 
 ######
 
-include(ComparisonTest_caller.cmake)

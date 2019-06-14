@@ -37,6 +37,10 @@ target_link_libraries(om_check_geom OpenMEEG ${VTK_LIBRARIES})
 add_executable(om_mesh_to_dip mesh_to_dip.cpp)
 target_link_libraries(om_mesh_to_dip OpenMEEG ${VTK_LIBRARIES})
 
+add_executable(compare_matrix compare_matrix.cpp)
+target_link_libraries(compare_matrix OpenMEEG::OpenMEEG OpenMEEG::OpenMEEGMaths)
+
+
 if (USE_CGAL)
     set(OM_CGAL_TARGETS cgal_mesh_function)
     set(OM_CGAL_SOURCES cgal_lib_function.cpp)
