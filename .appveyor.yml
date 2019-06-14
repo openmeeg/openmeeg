@@ -118,9 +118,9 @@ before_build:
 
 build_script:
   - cmake --build . --config %CONFIGURATION%
-  - cmake --build . --target install
-  - cpack -C Release
-  - cpack -G NSIS
+  - cmake --build . --config %CONFIGURATION% --target install
+  - cpack -C %CONFIGURATION%
+  - cpack -C %CONFIGURATION% -G NSIS
 
 test_script:
   # Copy runtime libs for testing
@@ -141,7 +141,7 @@ test_script:
 
   # Test
   - call "C:\Program Files (x86)\IntelSWTools\compilers_and_libraries_2018.0.124\windows\mkl\bin\mklvars.bat" intel64
-  - cmd: ctest -v .
+  - cmd: ctest --build-config %CONFIGURATION% -v .
 
 on_success:
   - appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\OpenMEEG-2.4.1-Win64.tar.gz
