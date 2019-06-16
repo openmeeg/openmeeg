@@ -7,8 +7,8 @@ target_link_libraries(test_mesh_ios OpenMEEG::OpenMEEG)
 add_executable(test_sensors test_sensors.cpp)
 target_link_libraries(test_sensors OpenMEEG::OpenMEEG)
 
-add_executable(om_validationEIT validationEIT.cpp)
-target_link_libraries(om_validationEIT OpenMEEG::OpenMEEG)
+add_executable(test_validationEIT validationEIT.cpp)
+target_link_libraries(test_validationEIT OpenMEEG::OpenMEEG)
 
 # tests
 if (BUILD_TESTING)
