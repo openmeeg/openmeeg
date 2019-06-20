@@ -89,3 +89,5 @@ endif()
 
 
 add_subdirectory(tools)
+
+include(ComparisonTest_caller.cmake)

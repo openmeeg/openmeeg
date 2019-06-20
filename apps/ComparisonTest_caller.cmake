@@ -96,9 +96,9 @@ foreach(ADJOINT "" "adjoint" "adjoint2")
     endforeach()
 endforeach()
 
-set(VALIDATION_EIT "${CMAKE_CURRENT_BINARY_DIR}/om_validationEIT")
+set(VALIDATION_EIT "${CMAKE_CURRENT_BINARY_DIR}/../tests/test_validationEIT")
 if (WIN32)
-    set(VALIDATION_EIT "${EXECUTABLE_OUTPUT_PATH}/om_validationEIT")
+    set(VALIDATION_EIT "${EXECUTABLE_OUTPUT_PATH}/../tests/test_validationEIT")
 endif()
 
 # EIT tests
