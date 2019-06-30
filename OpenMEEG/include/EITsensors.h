@@ -73,12 +73,12 @@ namespace OpenMEEG {
      */
     class OPENMEEG_EXPORT EITSensors : public Sensors {
     public:
-        EITSensors(const Geometry& g): Sensors(), m_geo(&g) {} /*!< Default constructor with a geometry. Number of sensors = 0. */
-        EITSensors(const char* filename, const Geometry& g): Sensors(), m_geo(&g) { load(filename); }; /*!< Construct from file and geometry (for EIT). */
+        EITSensors(const Geometry& g): Sensors("EIT"), m_geo(&g) {} /*!< Default constructor with a geometry. Number of sensors = 0. */
+        EITSensors(const Geometry& g, const char* filename): Sensors("EIT"), m_geo(&g) { load(filename); }; /*!< Construct from file and geometry (for EIT). */
 
         void info(int n_lines = 5) const; /*!< \brief get n_lines first lines info about sensors. */
         void load(const char* filename); /*!< Load sensors from file. */
-        void save(const char* filename);
+        void save(const char* filename) const;
 
         Triangles getInjectionTriangles(size_t idx) const { om_assert(idx < m_triangles.size()); return m_triangles[idx]; } /*!< For EIT, get triangles under the current injection electrode. */
 

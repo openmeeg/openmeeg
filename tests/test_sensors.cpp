@@ -37,32 +37,45 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#include <fstream>
-#include <cstring>
+#include <stdio.h>
+#include <string>
 
-#include <sensors.h>
+#include <EEGsensors.h>
+#include <MEGsensors.h>
 
 using namespace OpenMEEG;
 
-int main(const int,const char** argv) {
-// usage : sensors sensors_file_description.txt
+template <class S>
+int test_sensors(const S& s) {
 
-    /*** tests on sensors file ****/
-    Sensors S(argv[1]);
-
-    size_t n = S.getNumberOfSensors();
+    size_t n = s.getNumberOfSensors();
     std::cout << "Number of sensors of S : " << n << std::endl;
 
-    if (S.isEmpty())
+    if (s.isEmpty())
         std::cout << "WARNING : empty sensors !" << std::endl;
-    else{
-        S.info();
+    else {
+        s.info();
+        s.save("tmp.sensors");
 
         /**** test on copy constructor ****/
-        Sensors Scopy(S);
-        if(Scopy.getNumberOfSensors()!=n)
+        S scopy("tmp.sensors");
+        if (scopy.getNumberOfSensors() != n) {
             std::cout << "ERROR in copy from copy constructor : incorrect number of sensors" << std::endl;
+            return -1;
+        }
 
-        Scopy.info();
+        scopy.info();
     }
+    remove("tmp.sensors");
+    return 0;
+}
+
+int main(const int argc, const char** argv) {
+    if (argc < 2)
+        return -1;
+
+    std::string base_name = argv[1];
+    EEGSensors eeg((base_name + ".eeg").c_str());
+    MEGSensors meg((base_name + ".squids").c_str());
+    return test_sensors(eeg) + test_sensors(meg);
 }

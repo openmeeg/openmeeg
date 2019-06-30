@@ -43,7 +43,10 @@ knowledge of the CeCILL-B license and that you accept its terms.
 // Vf solution of classical forward problem for a dipole of momentum q at r0 whereas
 // Vj is the solution of the EIT problem for injections at ri and re
 
+#include <stdio.h>
+
 #include "assemble.h"
+#include "EITsensors.h"
 #include "danielsson.h"
 
 using namespace OpenMEEG;
@@ -108,12 +111,15 @@ int main(const int argc, const char* argv[]) {
 
     // We choose two electordes on which we inject the currents
     const unsigned nelec = 2;
-    Sensors electrodes(geo); // set nelec electrode positions
+    EITSensors electrodes(geo); // set nelec electrode positions
 
-    std::stringstream ss;
-    ss << "0.886556 0.278249 -0.166667" << std::endl;
-    ss << "0.547922 -0.269672 -0.719889" << std::endl;
-    electrodes.load(ss);
+    {
+        std::ofstream os("tmp.eit");
+        os << "0.886556 0.278249 -0.166667" << std::endl;
+        os << "0.547922 -0.269672 -0.719889" << std::endl;
+    }
+    electrodes.load("tmp.eit");
+    remove("tmp.eit");
 
     const Matrix& electrodes_positions = electrodes.getPositions();
 

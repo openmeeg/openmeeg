@@ -67,10 +67,10 @@ namespace OpenMEEG {
      */
     class OPENMEEG_EXPORT EEGSensors : public Sensors {
     public:
-        EEGSensors(): Sensors() {} /*!< Default constructor. Number of sensors = 0. */
-        EEGSensors(const char* filename): Sensors() { load(filename); }; /*!< Construct from file. */
+        EEGSensors(): Sensors("EEG") {} /*!< Default constructor. Number of sensors = 0. */
+        EEGSensors(const char* filename): Sensors("EEG") { load(filename); }; /*!< Construct from file. */
         void info(int n_lines = 5) const; /*!< \brief get n_lines first lines info about sensors. */
         void load(const char* filename); /*!< Load sensors from file. */
-        void save(const char* filename);
+        void save(const char* filename) const;
     };
 }

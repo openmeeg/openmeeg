@@ -52,7 +52,6 @@ namespace OpenMEEG {
     // EITSensors --------------------------------------
     void EITSensors::info(int n_lines) const {
         int nb_to_display = (int)std::min((int)m_nb,(int)n_lines);
-        std::cout << "EIT electrodes" << std::endl;
         Sensors::info(nb_to_display);
 
         if (hasRadii()) {
@@ -138,7 +137,7 @@ namespace OpenMEEG {
         m_nb = nlin;
     }
 
-    void EITSensors::save(const char* filename) {
+    void EITSensors::save(const char* filename) const {
         std::ofstream outfile(filename);
         bool has_radii = not almost_equal(m_radii.sum(), 0.);
         for ( size_t i = 0; i < getNumberOfPositions(); ++i) {

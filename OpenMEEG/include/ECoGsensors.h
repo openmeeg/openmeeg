@@ -61,8 +61,8 @@ namespace OpenMEEG {
      */
     class OPENMEEG_EXPORT ECoGSensors : public EEGSensors {
     public:
-        ECoGSensors(): EEGSensors() { }; /*!< Default constructor. */
-        ECoGSensors(const char* filename): EEGSensors(filename) { }; /*!< Construct from file. */
+        ECoGSensors(): EEGSensors() { m_type = "ECoG"; }; /*!< Default constructor. */
+        ECoGSensors(const char* filename): EEGSensors(filename) { m_type = "ECoG"; }; /*!< Construct from file. */
 
         void info(int n_lines = 5) const; /*!< \brief get n_lines first lines info about sensors. */
     };

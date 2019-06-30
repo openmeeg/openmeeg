@@ -76,12 +76,12 @@ namespace OpenMEEG {
 
     class OPENMEEG_EXPORT MEGSensors : public Sensors {
     public:
-        MEGSensors(): Sensors() { }; /*!< Default constructor. */
-        MEGSensors(const char* filename): Sensors() { load(filename); }; /*!< Construct from file. */
+        MEGSensors(): Sensors("MEG") { }; /*!< Default constructor. */
+        MEGSensors(const char* filename): Sensors("MEG") { load(filename); }; /*!< Construct from file. */
 
         void info(int n_lines = 5) const; /*!< \brief get n_lines first lines info about sensors. */
         void load(const char* filename); /*!< Load sensors from file. */
-        void save(const char* filename);
+        void save(const char* filename) const;
         Matrix& getOrientations() {return m_orientations ; } /*!< Return a reference on sensors orientations. */
         Matrix getOrientations() const {return m_orientations ; } /*!< Return a copy of sensors orientations. */
         Vector getOrientation(size_t idx) const; /*!< Return the orientations (3D point) of the integration point i. */

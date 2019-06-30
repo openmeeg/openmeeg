@@ -43,7 +43,6 @@ namespace OpenMEEG {
     // ECoGSensors --------------------------------------
     void ECoGSensors::info(int n_lines) const {
         int nb_to_display = (int)std::min((int)m_nb,(int)n_lines);
-        std::cout << "ECoG electrodes" << std::endl;
         EEGSensors::info(nb_to_display);
     }
 }

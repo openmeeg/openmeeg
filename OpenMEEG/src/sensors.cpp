@@ -62,6 +62,7 @@ namespace OpenMEEG {
     }
 
     void Sensors::info(int n_lines) const {
+        std::cout << m_type << " sensors:" << std::endl;
         size_t nb_to_display = (int)std::min((int)m_nb,(int)n_lines);
         std::cout << "Nb of sensors : " << m_nb << std::endl;
         if (hasLabels()) {

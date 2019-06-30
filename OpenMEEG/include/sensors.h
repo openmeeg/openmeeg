@@ -57,7 +57,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 namespace OpenMEEG {
 
     /*!
-     *  Sensors abstract class for EEG MEG, EIT, ECoG sensors.
+     *  Sensors ABSTRACT class for EEG MEG, EIT, ECoG sensors.
      *  This class is made for reading sensors description file. This description file is a file text. Sensors may have names (labels)
      *  in the first column of the file (it has to contains at least one character to be considered as label)
      *  the file can have the shape of (neglecting if present the first, label column):
@@ -93,10 +93,10 @@ namespace OpenMEEG {
     class OPENMEEG_EXPORT Sensors {
 
     public:
-        Sensors(): m_nb(0) {} /*!< Default constructor. Number of sensors = 0. */
+        Sensors(const std::string& type): m_type(type), m_nb(0) {} /*!< Default constructor. Number of sensors = 0. */
 
         virtual void load(const char* filename) = 0; /*!< Load sensors from file. Filetype is 't' for text file or 'b' for binary file. */
-        virtual void save(const char* filename) = 0;
+        virtual void save(const char* filename) const = 0;
 
         size_t getNumberOfSensors() const { return m_nb; } /*!< Return the number of sensors. */
         size_t getNumberOfPositions() const { return m_positions.nlin(); } /*!< Return the number of integration points. */
@@ -122,6 +122,7 @@ namespace OpenMEEG {
         Strings m_labels;                     /*!< List of sensors names. */
         Matrix m_positions;                   /*!< Matrix of sensors positions. ex: positions(i,j) with  j in {0,1,2} for sensor i */
         std::vector<size_t> m_pointSensorIdx; /*!< Correspondance between point id and sensor id */
+        std::string m_type;                     /*!< Sensor type */
     };
 
     inline Vector Sensors::getPosition(size_t idx) const {

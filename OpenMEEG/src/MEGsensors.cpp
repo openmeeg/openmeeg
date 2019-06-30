@@ -52,7 +52,6 @@ namespace OpenMEEG {
 
     void MEGSensors::info(int n_lines) const {
         int nb_to_display = (int)std::min((int)m_nb,(int)n_lines);
-        std::cout << "MEG electrodes" << std::endl;
         Sensors::info(nb_to_display);
 
         std::cout << "Orientations" << std::endl;
@@ -156,7 +155,7 @@ namespace OpenMEEG {
         }
     }
 
-    void MEGSensors::save(const char* filename) {
+    void MEGSensors::save(const char* filename) const {
         std::ofstream outfile(filename);
         for ( size_t i = 0; i < getNumberOfPositions(); ++i) {
             // if it has names
