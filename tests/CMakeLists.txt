@@ -19,6 +19,8 @@ if (BUILD_TESTING)
         test_load_geo ${OpenMEEG_SOURCE_DIR}/data/Head1/Head1.geom ${OpenMEEG_SOURCE_DIR}/data/Head1/Head1.cond)
     OPENMEEG_TEST(check_test_mesh_ios
         test_mesh_ios ${OpenMEEG_SOURCE_DIR}/data/Head1/Head1.tri)
+    OPENMEEG_TEST(check_test_sensors
+        test_sensors ${OpenMEEG_SOURCE_DIR}/data/Head1/Head1)
 endif()
 
 

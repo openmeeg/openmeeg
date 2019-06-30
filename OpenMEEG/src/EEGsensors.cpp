@@ -114,7 +114,7 @@ namespace OpenMEEG {
         m_nb = nlin;
     }
 
-    void EEGSensors::save(const char* filename) {
+    void EEGSensors::save(const char* filename) const {
         std::ofstream outfile(filename);
         for ( size_t i = 0; i < getNumberOfPositions(); ++i) {
             // if it has names

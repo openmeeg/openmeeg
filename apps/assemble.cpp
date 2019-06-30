@@ -234,7 +234,7 @@ int main(int argc, char** argv)
         Geometry geo;
         geo.read(argv[2], argv[3], OLD_ORDERING);
 
-        EITSensors electrodes(argv[4], geo); // special parameter for EIT electrodes: the interface
+        EITSensors electrodes(geo, argv[4]); // special parameter for EIT electrodes: the interface
         electrodes.info(); // <- just to test that function on the code coverage
         EITSourceMat EITsource(geo, electrodes, gauss_order);
         EITsource.save(argv[5]);
