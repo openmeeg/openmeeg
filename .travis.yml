@@ -209,6 +209,9 @@ script:
     fi
 
   - ctest -V -R check_geom_dip_outside
+  - ldd ./OpenMEEG/libOpenMEEG.so.1.1.0
+  - ldd ./OpenMEEGMaths/libOpenMEEGMaths.so.1.1.0
+  - ldd ./apps/tools/om_check_geom
   - sudo make install
   - sudo make uninstall
 
