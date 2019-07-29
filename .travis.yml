@@ -10,20 +10,25 @@ cache:
 
 matrix:
   include:
-    - os: linux  # shipping linux
-      env:
-        - BACKEND=Intel10_64lp
-        - BUILD_STATIC=ON
-        - BUILD_PACKAGE=ON
+    # - os: linux  # shipping linux
+    #   env:
+    #     - BACKEND=Intel10_64lp
+    #     - BUILD_STATIC=ON
+    #     - BUILD_PACKAGE=ON
 
     - os: linux  # shipping apt-get
       env:
         - BACKEND=OpenBLAS
-        - USE_VTK=ON
-        - ENABLE_PYTHON=ON
-        - ANALYSE=ON
-        - ENABLE_COVERAGE=ON
-        - BUILD_DOCUMENTATION=ON
+        - USE_VTK=OFF
+        # - USE_VTK=ON
+        # - ENABLE_PYTHON=ON
+        - ENABLE_PYTHON=OFF
+        - ANALYSE=OFF
+        # - ANALYSE=ON
+        - ENABLE_COVERAGE=OFF
+        # - ENABLE_COVERAGE=ON
+        # - BUILD_DOCUMENTATION=ON
+        - BUILD_DOCUMENTATION=OFF
       addons:
         sources:
           - ubuntu-toolchain-r-test
@@ -36,25 +41,25 @@ matrix:
             - doxygen
             - graphviz
 
-    - os: osx  # shipping mac
-      osx_image: xcode8.3
-      env:
-        - BACKEND=Intel10_64lp
-        - BUILD_STATIC=ON
-        - BUILD_PACKAGE=ON
+    # - os: osx  # shipping mac
+    #   osx_image: xcode8.3
+    #   env:
+    #     - BACKEND=Intel10_64lp
+    #     - BUILD_STATIC=ON
+    #     - BUILD_PACKAGE=ON
 
-    - os: osx  # shipping brew
-      env:
-        - BACKEND=OpenBLAS
-      # - USE_GCC=ON  # XXX : vtk does not work with GCC
-      # - USE_BREW_LLVM=ON  # XXX: To have OpenMP but segfaults...
-      # - USE_VTK=ON # XXX: vtk is currently broken in brew
+    # - os: osx  # shipping brew
+    #   env:
+    #     - BACKEND=OpenBLAS
+    #   # - USE_GCC=ON  # XXX : vtk does not work with GCC
+    #   # - USE_BREW_LLVM=ON  # XXX: To have OpenMP but segfaults...
+    #   # - USE_VTK=ON # XXX: vtk is currently broken in brew
 
-    - os: osx  # Static analysis using clang-analyzer
-      env:
-        - ENABLE_COVERAGE=ON
-        - BACKEND=Apple
-        - ANALYSE=ON
+    # - os: osx  # Static analysis using clang-analyzer
+    #   env:
+    #     - ENABLE_COVERAGE=ON
+    #     - BACKEND=Apple
+    #     - ANALYSE=ON
 
 before_install:
   - |
