@@ -21,8 +21,8 @@ matrix:
         - BACKEND=OpenBLAS
         - USE_VTK=OFF
         # - USE_VTK=ON
-        # - ENABLE_PYTHON=ON
-        - ENABLE_PYTHON=OFF
+        - ENABLE_PYTHON=ON
+        # - ENABLE_PYTHON=OFF
         - ANALYSE=OFF
         # - ANALYSE=ON
         - ENABLE_COVERAGE=OFF
