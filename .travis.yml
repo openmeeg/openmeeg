@@ -36,13 +36,13 @@ matrix:
           - ubuntu-toolchain-r-test
         apt:
           packages:
+            - g++-7
             - libopenblas-dev
             - liblapacke-dev # XXX: If lapacke is missing, cmake does not break at generation but at compilation.
             - swig
             - python-numpy
             - doxygen
             - graphviz
-            - g++-7
             
     # works on Precise and Trusty
     - os: linux
