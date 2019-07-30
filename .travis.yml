@@ -200,6 +200,7 @@ script:
   - echo "cmake .. ${CMAKE_OPTIONS}"
   - cmake .. ${CMAKE_OPTIONS} -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON
   - make -j ${JOBS}
+  - /usr/lib/ccache/g++ --version
   - CTEST_OUTPUT_ON_FAILURE=1 ctest .
   - |
     if [[ "${BUILD_PACKAGE}" == "ON" ]]; then
