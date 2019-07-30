@@ -52,9 +52,22 @@ matrix:
             - ubuntu-toolchain-r-test
           packages:
             - g++-7
+            - libopenblas-dev
+            - liblapacke-dev # XXX: If lapacke is missing, cmake does not break at generation but at compilation.
       env:
         - CC=gcc-7
         - CXX=gcc-7
+        - BACKEND=OpenBLAS
+        - USE_VTK=OFF
+        # - USE_VTK=ON
+        # - ENABLE_PYTHON=ON
+        - ENABLE_PYTHON=OFF
+        # - ANALYSE=OFF
+        - ANALYSE=ON
+        - ENABLE_COVERAGE=OFF
+        # - ENABLE_COVERAGE=ON
+        # - BUILD_DOCUMENTATION=ON
+        - BUILD_DOCUMENTATION=OFF
 
     # - os: osx  # shipping mac
     #   osx_image: xcode8.3
