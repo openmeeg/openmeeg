@@ -36,7 +36,6 @@ matrix:
           - ubuntu-toolchain-r-test
         apt:
           packages:
-            - g++-7
             - libopenblas-dev
             - liblapacke-dev # XXX: If lapacke is missing, cmake does not break at generation but at compilation.
             - swig
@@ -44,38 +43,6 @@ matrix:
             - doxygen
             - graphviz
             
-    # works on Precise and Trusty
-    - os: linux
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-          packages:
-            - g++-7
-            - libopenblas-dev
-            - liblapacke-dev # XXX: If lapacke is missing, cmake does not break at generation but at compilation.
-            - libopenblas-dev
-            - liblapacke-dev # XXX: If lapacke is missing, cmake does not break at generation but at compilation.
-            - swig
-            - python-numpy
-            - doxygen
-            - graphviz
-            - g++-7
-      env:
-        - CC=gcc-7
-        - CXX=gcc-7
-        - BACKEND=OpenBLAS
-        - USE_VTK=OFF
-        # - USE_VTK=ON
-        # - ENABLE_PYTHON=ON
-        - ENABLE_PYTHON=OFF
-        # - ANALYSE=OFF
-        - ANALYSE=ON
-        - ENABLE_COVERAGE=OFF
-        # - ENABLE_COVERAGE=ON
-        # - BUILD_DOCUMENTATION=ON
-        - BUILD_DOCUMENTATION=OFF
-
     # - os: osx  # shipping mac
     #   osx_image: xcode8.3
     #   env:
@@ -104,6 +71,7 @@ before_install:
       sudo apt-get update
       sudo apt-get install -y libc6:i386 libncurses5:i386 libstdc++6:i386
       sudo apt-get install -y lcov
+      sudo apt-get install -y g++-7
       sudo apt-get install binutils-2.26
       export PATH=/usr/lib/binutils-2.26/bin:${PATH}
     fi
