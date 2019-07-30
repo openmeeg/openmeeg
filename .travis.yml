@@ -30,7 +30,7 @@ matrix:
         # - BUILD_DOCUMENTATION=ON
         - BUILD_DOCUMENTATION=OFF
         - CC=gcc-7
-        - CXX=gcc-7
+        - CXX=g++-7
       addons:
         sources:
           - ubuntu-toolchain-r-test
