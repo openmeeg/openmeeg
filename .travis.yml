@@ -29,6 +29,8 @@ matrix:
         # - ENABLE_COVERAGE=ON
         # - BUILD_DOCUMENTATION=ON
         - BUILD_DOCUMENTATION=OFF
+        - CC=gcc-7
+        - CXX=gcc-7
       addons:
         sources:
           - ubuntu-toolchain-r-test
@@ -40,6 +42,7 @@ matrix:
             - python-numpy
             - doxygen
             - graphviz
+            - g++-7
 
     # - os: osx  # shipping mac
     #   osx_image: xcode8.3
