@@ -84,7 +84,7 @@ int main( int argc, char **argv)
             status = 1;
         }
         Matrix dipoles(dip_filename);
-        if (g.check(dipoles)) {
+        if (g.check_inner(dipoles)) {
             std::cout << ".geom and .dip dipoles : OK" << std::endl;
         } else {
             status = 1;
