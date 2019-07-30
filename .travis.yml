@@ -43,6 +43,18 @@ matrix:
             - doxygen
             - graphviz
             - g++-7
+            
+    # works on Precise and Trusty
+    - os: linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-7
+      env:
+        - CC=gcc-7
+        - CXX=gcc-7
 
     # - os: osx  # shipping mac
     #   osx_image: xcode8.3
