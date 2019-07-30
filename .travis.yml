@@ -54,6 +54,13 @@ matrix:
             - g++-7
             - libopenblas-dev
             - liblapacke-dev # XXX: If lapacke is missing, cmake does not break at generation but at compilation.
+            - libopenblas-dev
+            - liblapacke-dev # XXX: If lapacke is missing, cmake does not break at generation but at compilation.
+            - swig
+            - python-numpy
+            - doxygen
+            - graphviz
+            - g++-7
       env:
         - CC=gcc-7
         - CXX=gcc-7
