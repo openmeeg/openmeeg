@@ -6,10 +6,13 @@
 # an OpenMEEG temporary object.
 # For example, having a symmetric matrix defined as :
 # > M = om.SymMatrix(100)
+#
+# TODO:
 # taking as an numpy array the sub-matrix of M might lead to corrupted memory:
 # > mySubMat = om.asarray(M.submat(0,10,0,10))
 # since submat returns a newly created object that is hold by nothing, thus
 # destroyed afterward.
+# ENDTODO
 # Instead do keep an object pointing the newly created submatrix, and then
 # access the numpy array form of it:
 # > subM = M.submat(0,10,0,10)
@@ -42,17 +45,33 @@ squidsFile = op.join(data_path, subject,
 patches_file = op.join(data_path, subject,
                         subject + '.patches')
 
+# TODO: geom.read() using raw python
+# TODO: conductivity == { string => double}
+# TODO: geometry     == { [ mesh ] , { string => [ int ] } }
 geom = om.Geometry()
 geom.read(geom_file, cond_file)
 
+# TODO: mesh.read() using numpy arrays
+# TODO: mesh == [ double ] , [ int ]
 mesh = om.Mesh()
 mesh.load(source_mesh_file)
+# TODO: V = [...]
+# TODO: I = [...]
+# TODO: mesh_1 = om.Mesh(V, I)
 
+# TODO: dipoles.read() using numpy arrays
+# TODO: dipoles == [ double ]
 dipoles = om.Matrix()
 dipoles.load(dipole_file)
+# TODO: D = asarray(dipoles).copy...
+# TODO: dipoles_1 = om.Matrix(D)
 
+# TODO: sensors.read() using numpy arrays
+# TODO: sensors == [ double ]
 sensors = om.Sensors()
 sensors.load(squidsFile)
+# TODO: D = asarray(sensors).copy...
+# TODO: sensors_1 = om.Matrix(D)
 
 patches = om.Sensors()
 patches.load(patches_file)
@@ -139,9 +158,11 @@ print("est_eeg_adjoint    : %d x %d" % (est_eeg_adjoint.nlin(),
 ###############################################################################
 # Example of basic manipulations
 
+# TODO: the same with numpy
 v1 = om.Vertex(1., 0., 0., 0)
 v2 = om.Vertex(0., 1., 0., 1)
 v3 = om.Vertex(0., 0., 1., 2)
+# TODO: v4 = om.Vertex( [double] , int )
 
 #print(v1.norm()
 #print((v1 + v2).norm()
