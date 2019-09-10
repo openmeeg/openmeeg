@@ -2,12 +2,18 @@
 
 #
 import sys
-sys.path.append("/Users/jls/Development/athena/openmeeg/build/wrapping/src")
+import os
 
+topdir = os.getcwd()
+if not topdir.endswith("/openmeeg"):
+    print("Go to openmeeg topdir before launching this script")
+    exit(-1)
+
+sys.path.append(topdir + "/build/wrapping/src")
 
 import openmeeg as om
 
 
 dipoles = om.Matrix()
-dipoles.load("/Users/jls/Development/athena/openmeeg/data/Head1/Head1.dip")
+dipoles.load(topdir+"/data/Head1/Head1.dip")
 D = om.asarray(dipoles)
