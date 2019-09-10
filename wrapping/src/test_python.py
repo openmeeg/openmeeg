@@ -63,6 +63,7 @@ mesh.load(source_mesh_file)
 # TODO: dipoles == [ double ]
 dipoles = om.Matrix()
 dipoles.load(dipole_file)
+D = asarray(dipoles)
 # TODO: D = asarray(dipoles).copy...
 # TODO: dipoles_1 = om.Matrix(D)
 
