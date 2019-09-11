@@ -134,11 +134,11 @@ namespace OpenMEEG {
 
 %typemap(in) Vector& {
     // TODO check $input as np.array
-    std::cout << "typemap_in_Vector:" << dim << std::endl;
 
     PyArrayObject* input_array  = (PyArrayObject*) PyArray_FromObject($input,NPY_DOUBLE,1,1);
 
     const size_t dim = PyArray_DIM(input_array,0);
+    std::cout << "typemap_in_Vector: " << dim << std::endl;
 
     OpenMEEG::Vector &vec = *(new OpenMEEG::Vector(dim));
 
@@ -186,10 +186,10 @@ namespace OpenMEEG {
 // /////////////////////////////////////////////////////////////////
 
 %extend OpenMEEG::Sensors {
-    Sensors(Vector &a) {
+    Sensors(const char*, Vector& a) {
         Sensors *S = new Sensors();
         //
-        std::cout << "extend_sensors:" << a << std::endl;
+        std::cout << "extend_sensors: " << a << std::endl;
         return S;
     }
 }

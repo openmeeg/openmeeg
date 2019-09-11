@@ -37,5 +37,5 @@ S = om.Sensors()
 S.load( fileskel + "squids")
 Pos = S.getPosition(1)
 
-S2 = om.Sensors(Pos)
+S2 = om.Sensors("toto", Pos)
 #print("S2 of", S2.__class__)
