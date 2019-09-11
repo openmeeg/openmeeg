@@ -3,6 +3,7 @@
 #
 import sys
 import os
+import numpy
 
 # import locally built openmeeg
 topdir = os.getcwd()
@@ -23,11 +24,14 @@ dipoles.load( fileskel + "dip")
 D = om.asarray(dipoles)
 print("D is a" , D.__class__)
 print(D)
+# Examples of basic linear algebra
+print("Determinant of D is equal to: ", numpy.linalg.det(D))
+
 
 # TODO: sensors.read() using numpy arrays
 # TODO: sensors == [ double ]
-#sensors = om.Sensors()
-#sensors.load( fileskel + "squids")
+sensors = om.Sensors()
+sensors.load( fileskel + "squids")
 # TODO: D = asarray(sensors).copy...
 # TODO: sensors_1 = om.Matrix(D)
 

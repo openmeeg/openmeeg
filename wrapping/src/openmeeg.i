@@ -13,6 +13,10 @@
 %include <windows.i>
 #endif
 
+
+
+
+
 %include <std_string.i>
 %include <std_vector.i>
 
@@ -36,8 +40,11 @@
     #include <assemble.h>
     #include <gain.h>
     #include <forward.h>
+#include "../../../../../../usr/local/Frameworks/Python.framework/Versions/3.7/include/python3.7m/object.h"
+#include "../../OpenMEEGMaths/include/matrix.h"
 
-    using namespace OpenMEEG;
+
+using namespace OpenMEEG;
 
     #ifdef SWIGPYTHON
 
@@ -104,6 +111,21 @@
         
     #endif
 %}
+
+%typemap(in) OpenMEEG::Matrix { // Assume it is numpy.ndarray
+std::cout << typeid( $input ).name() << std::endl;
+}
+//%typemap(in) OpenMEEG::Matrix* { // Assume it is numpy.ndarray
+//std::cout << typeof( *$input ) << std::endl;
+//}
+
+%inline %{
+void wrap_foo(OpenMEEG::Matrix param) {
+    std::cout << typeid( param ).name() << std::endl;
+}
+%}
+
+
 
 %pythoncode {
 def loadmat(fname):
@@ -225,6 +247,6 @@ instead we have a pointer to it:
 <Swig Object of type 'Interface *' at 0xa1e1590>
 */
 
-static PyObject* asarray(OpenMEEG::Matrix* _mat);
-static PyObject* asarray(OpenMEEG::Vector* _vec);
-static OpenMEEG::Matrix fromarray(PyObject* _mat);
+//static PyObject* asarray(OpenMEEG::Matrix* _mat);
+//static PyObject* asarray(OpenMEEG::Vector* _vec);
+//static OpenMEEG::Matrix fromarray(PyObject* _mat);
