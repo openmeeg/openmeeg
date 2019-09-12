@@ -240,7 +240,30 @@ namespace OpenMEEG {
 }
 
 %extend OpenMEEG::Matrix {
-    void setvalue(unsigned int i, unsigned int j, double d) {
+        Matrix(PyObject* o) {
+            if (!o || !PyArray_Check(o)) {
+                return new Matrix();
+            }
+            PyArrayObject *mat = (PyArrayObject *) PyArray_FromObject(o, NPY_DOUBLE, 2, 2); // able to accept a scalar, a vector and a matrix ?
+            const size_t nblines = PyArray_DIM(mat, 0);
+            const size_t nbcol = PyArray_DIM(mat, 1);
+
+            Matrix* result = new Matrix(nblines, nbcol);
+            result->reference_data(static_cast<double *>(PyArray_GETPTR1(mat, 0)));
+            return result;
+        }
+
+        PyObject* array() {
+            const npy_intp ndims = 2;
+            npy_intp* ar_dim =  new npy_intp[ndims];
+            ar_dim[0] = ($self)->nlin();
+            ar_dim[1] = ($self)->ncol();
+
+            PyArrayObject* array = (PyArrayObject*) PyArray_SimpleNewFromData(ndims, ar_dim, NPY_DOUBLE, static_cast<void*>(($self)->data()));
+            return PyArray_Return(array);
+        }
+
+        void setvalue(unsigned int i, unsigned int j, double d) {
         (*($self))(i,j)=d;
     }
 }

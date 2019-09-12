@@ -22,16 +22,27 @@ W = np.array( [
 print("W of", W.__class__)
 print("W =", W, "\n")
 
-W = V
-print("W of", W.__class__)
-print("W =", W, "\n")
+X = om.Matrix(W)
+print("X of", X.__class__)
+print("X =", X, "\n")
 
-#
-fileskel = os.path.join(ps.topdir, "data/Head1/Head1.")
+Z = X.array()
+print("Z of", Z.__class__)
+print("Z =", Z, "\n")
 
-S = om.Sensors()
-S.load( fileskel + "")
-Pos = S.getPosition(1)
+a = np.array([[1,2,3],[4,5,6]])
+print("a=", a)
 
-S2 = om.Sensors("toto", Pos)
-#print("S2 of", S2.__class__)
+b = om.Matrix(a)
+assert(b.nlin() == 2)
+assert(b.ncol() == 3)
+
+import random
+nlines = random.randrange(10,50)
+ncols = random.randrange(10,50)
+mat_numpy = np.ndarray(shape=(nlines,ncols), dtype=float)
+for l in range(nlines):
+    for c in range(ncols):
+        mat_numpy[l][c] = random.randrange(-100,100)
+
+mat_om = om.Matrix(mat_numpy)
