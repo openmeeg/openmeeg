@@ -34,8 +34,17 @@ Z = X.array()
 print("Z of", Z.__class__)
 print("Z =", Z, "\n")
 
+Labels = [ "toto" ]
+Positions = np.array([ 0 , 1 , 2 ])
+Orientations = np.array([ -1 , -1 , -2 ])
+Weights = np.array([ 0.5 ])
+Radii = np.array([ 1 ])
+
+#S = om.Sensors(Labels, Positions, Orientations, Weights, Radii)
+print("om.Sensors(Labels, Positions, Orientations, Weights, Radii)");
+
 #
-fileskel = os.path.join(topdir, "data/Head1/Head1.")
+#fileskel = os.path.join(topdir, "data/Head1/Head1.")
 
 #S = om.Sensors()
 #S.load( fileskel + "squids")

@@ -119,6 +119,7 @@ namespace OpenMEEG {
     %typedef std::vector<OpenMEEG::Vertex *> PVertices;
     %typedef std::vector<OpenMEEG::Triangle> Triangles;
     %typedef std::vector<OpenMEEG::Mesh> Meshes;
+    %typedef std::vector<std::string>    Strings;
 }
 
 // /////////////////////////////////////////////////////////////////
@@ -130,7 +131,52 @@ namespace OpenMEEG {
 namespace OpenMEEG {
 
 
-// Python -> C++
+    // Python -> C++
+
+    /*
+%typemap(in) const Strings* {
+
+        std::cerr << "typemap" << std::endl;
+    if(PyList_Check($input))
+    {
+        int size = PyList_Size($input);
+        std::cerr << "typemap size " << size << std::endl;
+        $1 = new Strings;
+        for( int i = 0; i < size; i++)
+        {
+            PyObject * o = PyList_GetItem($input, i);
+            std::cerr << "typemap loop " << i << std::endl;
+            std::cerr << "typemap object " << o << std::endl;
+            std::cerr << "typemap type is " << typeid(o).name() << std::endl;
+            std::cerr << "typemap pyobject is " << Py_TYPE(o)->tp_name << std::endl;
+
+            std::cerr << "typemap string " << PyString_AsString(o) << std::endl;
+
+            if(PyString_Check(o)) {
+                std::cerr << "typemap string " << PyString_AsString(o) << std::endl;
+                $1->push_back(PyString_AsString(o));
+            }
+            else
+            {
+                PyErr_SetString(PyExc_TypeError, "list must contain strings");
+                free($1);
+                return NULL;
+            }
+        }
+    }
+    else
+    {
+        PyErr_SetString(PyExc_TypeError, "PyList of strings is expected as input");
+        return NULL;
+    }
+}
+
+%typemap(freearg) const Strings* {
+    if ($1) {
+        delete $1;
+    }
+}
+    */
 
 //%typemap(in) Vector& {
 //     TODO check $input as np.array
