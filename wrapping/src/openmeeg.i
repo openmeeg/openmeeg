@@ -128,60 +128,86 @@ namespace OpenMEEG {
 
 #ifdef SWIGPYTHON
 
-namespace OpenMEEG {
+%inline %{
 
+// Creator of Vector from PyArrayObject or Vector
+OpenMEEG::Vector *new_OpenMEEG_Vector(PyObject *o) {
+    OpenMEEG::Vector *out = nullptr;
+    if (PyArray_Check(o)) {
+        PyArrayObject *vect = (PyArrayObject *) PyArray_FromObject(o, NPY_DOUBLE, 1, 1);
+        const size_t nelem = PyArray_DIM(vect, 0);
+        OpenMEEG::Vector *v = new Vector(nelem);
+        v->reference_data(static_cast<double *>(PyArray_GETPTR1(vect, 0)));
+        out = v;
+    } else {
+        void *ptr = 0 ;
+        int res = SWIG_ConvertPtr(o, &ptr, SWIGTYPE_p_OpenMEEG__Vector,  0  | 0);
+        if (SWIG_IsOK(res)) {
+            out = reinterpret_cast<OpenMEEG::Vector *>(ptr);
+        } else {
+            PyErr_SetString(PyExc_TypeError, "Input object is neither a PyArray nor a Vector.");
+            out = new OpenMEEG::Vector();
+        }
+    }
+    return out;
+}
+
+// Creator of Vector from PyArrayObject or Matrix
+OpenMEEG::Matrix *new_OpenMEEG_Matrix(PyObject *o) {
+    OpenMEEG::Matrix *out = nullptr;
+    if (PyArray_Check(o)) {
+        int nbdims = PyArray_NDIM((PyArrayObject *)o);
+        if (nbdims == 2) {
+            PyArrayObject *mat = (PyArrayObject *) PyArray_FromObject(o, NPY_DOUBLE, 2, 2); // able to accept a scalar, a vector and a matrix ?
+            const size_t nblines = PyArray_DIM(mat, 0);
+            const size_t nbcol = PyArray_DIM(mat, 1);
+
+            OpenMEEG::Matrix *result = new Matrix(nblines, nbcol);
+            result->reference_data(static_cast<double *>(PyArray_GETPTR2(mat, 0, 0)));
+            out = result;
+        } else {
+            PyErr_SetString(PyExc_TypeError, "Matrix requires an 2 dimensions nbarray, returning an empty matrix instead.");
+            out = new Matrix();
+        }
+    } else {
+        void *ptr = 0 ;
+        int res = SWIG_ConvertPtr(o, &ptr, SWIGTYPE_p_OpenMEEG__Matrix,  0  | 0);
+        if (SWIG_IsOK(res))
+            out = reinterpret_cast<OpenMEEG::Matrix *>(ptr);
+        else
+            PyErr_SetString(PyExc_TypeError, "Input object is neither a PyArray nor a Matrix.");
+    }
+    return out;
+}
+%}
+
+namespace OpenMEEG {
 
     // Python -> C++
 %typemap(in) Vector& {
-        if (PyArray_Check($input)) {
-            PyArrayObject *vect = (PyArrayObject *) PyArray_FromObject($input, NPY_DOUBLE, 1, 1);
-            const size_t nelem = PyArray_DIM(vect, 0);
-            Vector *v = new Vector(nelem);
-            v->reference_data(static_cast<double *>(PyArray_GETPTR1(vect, 0)));
-            $1 = v;
-        } else {
-            void *ptr = 0 ;
-            int res = SWIG_ConvertPtr($input, &ptr, SWIGTYPE_p_OpenMEEG__Vector,  0  | 0);
-            if (SWIG_IsOK(res))
-                $1 = reinterpret_cast<OpenMEEG::Vector *>(ptr);
-            else
-                PyErr_SetString(PyExc_TypeError, "Input object is neither a PyArray nor a Vector.");
-        }
+        $1 = new_OpenMEEG_Vector($input);
+}
+
+%typemap(freearg) Vector& {
+        if ($1) delete $1;
 }
 
 %typemap(in) Matrix& {
-            int nbdims = PyArray_NDIM((PyArrayObject *)$input);
-            if (nbdims == 2) {
-                PyArrayObject *mat = (PyArrayObject *) PyArray_FromObject($input, NPY_DOUBLE, 2,
-                                                                          2); // able to accept a scalar, a vector and a matrix ?
-                const size_t nblines = PyArray_DIM(mat, 0);
-                const size_t nbcol = PyArray_DIM(mat, 1);
+        $1 = new_OpenMEEG_Matrix($input);
+}
 
-                Matrix * result = new Matrix(nblines, nbcol);
-                result->reference_data(static_cast<double *>(PyArray_GETPTR2(mat, 0, 0)));
-                $1 = result;
-            } else {
-                PyErr_SetString(PyExc_TypeError, "Matrix requires an 2 dimensions nbarray, returning an empty matrix instead.");
-                $1 = new Matrix();
-            }
+%typemap(freearg) Matrix& {
+        if ($1) delete $1;
 }
 
 }
 
 #endif // SWIGPYTHON
 
+
 // /////////////////////////////////////////////////////////////////
 // extensions
 // /////////////////////////////////////////////////////////////////
-
-%extend OpenMEEG::Sensors {
-    Sensors(const char*, Vector& a) {
-        Sensors *S = new Sensors();
-        //
-        std::cout << "extend_sensors: " << a << std::endl;
-        return S;
-    }
-}
 
 %extend OpenMEEG::Vertex {
     // TODO almost.. if I do: v.index() I get:
@@ -202,34 +228,44 @@ namespace OpenMEEG {
 }
 
 %extend OpenMEEG::Vector {
+    Vector(PyObject *o) {
+        Vector *v = new_OpenMEEG_Vector(o);
+        return new Vector(*v, DEEP_COPY); // Enforce copy to avoid garbage collector side effect
+    }
 
-    PyObject* array() {
+    PyObject *array() {
             const npy_intp ndims = 1;
             npy_intp ar_dim[] = { static_cast<npy_intp>(($self)->size()) };
 
-            PyArrayObject* array = (PyArrayObject*) PyArray_SimpleNewFromData(ndims, ar_dim, NPY_DOUBLE, static_cast<void*>(($self)->data()));
+            PyArrayObject *array = (PyArrayObject*) PyArray_SimpleNewFromData(ndims, ar_dim, NPY_DOUBLE, static_cast<void*>(($self)->data()));
             return PyArray_Return(array);
     }
 
     // TODO almost.. v(2)=0. does not work, workaround:
     void setvalue(unsigned int i, double d) {
-        (*($self))(i)=d;
+        (*($self))(i) = d;
     }
 }
 
 %extend OpenMEEG::Matrix {
-        PyObject* array() {
-            const npy_intp ndims = 2;
-            npy_intp* ar_dim =  new npy_intp[ndims];
-            ar_dim[0] = ($self)->nlin();
-            ar_dim[1] = ($self)->ncol();
+    Matrix(PyObject *o) {
+        Matrix *m = new_OpenMEEG_Matrix(o);
+        return new Matrix(*m, DEEP_COPY);  // Enforce copy to avoid garbage collector side effect
+    }
 
-            PyArrayObject* array = (PyArrayObject*) PyArray_SimpleNewFromData(ndims, ar_dim, NPY_DOUBLE, static_cast<void*>(($self)->data()));
-            return PyArray_Return(array);
-        }
 
-        void setvalue(unsigned int i, unsigned int j, double d) {
-        (*($self))(i,j)=d;
+    PyObject *array() {
+        const npy_intp ndims = 2;
+        npy_intp* ar_dim =  new npy_intp[ndims];
+        ar_dim[0] = ($self)->nlin();
+        ar_dim[1] = ($self)->ncol();
+
+        PyArrayObject *array = (PyArrayObject*) PyArray_SimpleNewFromData(ndims, ar_dim, NPY_DOUBLE, static_cast<void*>(($self)->data()));
+        return PyArray_Return(array);
+    }
+
+    void setvalue(unsigned int i, unsigned int j, double d) {
+        (*($self))(i,j) = d;
     }
 }
 

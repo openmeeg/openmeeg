@@ -7,12 +7,12 @@ import openmeeg as om
 import numpy as np
 import os
 
-V = om.Matrix(3,3)
-V.setvalue(1,1,2)
-V.setvalue(2,2,2)
-V.setvalue(3,3,4)
-print("V of", V.__class__)
-print("V =", V, "\n")
+# V = om.Matrix(3,3)
+# V.setvalue(1,1,2)
+# V.setvalue(2,2,2)
+# V.setvalue(3,3,4)
+# print("V of", V.__class__)
+# print("V =", V, "\n")
 
 W = np.array( [
     [0.0, 0.0, 3.0],
@@ -38,6 +38,10 @@ b = om.Matrix(a)
 assert(b.nlin() == 2)
 assert(b.ncol() == 3)
 
+c = om.Matrix(b)
+assert(b.nlin() == 2)
+assert(b.ncol() == 3)
+
 import random
 nlines = random.randrange(10,50)
 ncols = random.randrange(10,50)
@@ -50,4 +54,5 @@ for l in range(nlines):
 mat_om = om.Matrix(mat_numpy)
 
 print("dimensions of mat_numpy: ", mat_numpy.shape)
+
 mat_om.info()

@@ -24,5 +24,10 @@ W2 = np.array( [1.0, 2.0, 3.0])
 print("W2 of", W2.__class__)
 print("W2 =", W2, "\n")
 
-V2 = om.Vector(W2, om.DEEP_COPY)
+V2 = om.Vector(W2)
+print("V2 of", V2.__class__)
 V2.info()
+
+V3 = om.Vector(V2)
+print("V3 of", V3.__class__)
+V3.info()
