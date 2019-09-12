@@ -14,7 +14,6 @@
 #endif
 
 
-
 %include <std_string.i>
 %include <std_vector.i>
 
@@ -218,13 +217,13 @@ namespace OpenMEEG {
     }
 }
 
-%extend OpenMEEG::Triangle {
-    // TODO almost.. if I do: t.index() I get:
-    // <Swig Object of type 'unsigned int *' at 0x22129f0>
-    // I want simply an unsigned. workaround:
-    unsigned int getindex() {
-        return ($self)->index();
-    }
+%extend OpenMEEG::Triangle{
+        // TODO almost.. if I do: t.index() I get:
+        // <Swig Object of type 'unsigned int *' at 0x22129f0>
+        // I want simply an unsigned. workaround:
+        unsigned int getindex() {
+            return ($self)->index();
+        }
 }
 
 %extend OpenMEEG::Vector {
@@ -267,12 +266,69 @@ namespace OpenMEEG {
 }
 
 
-%extend OpenMEEG::Mesh {
-    // TODO almost.. if I do: m.name() I get:
-    // <Swig Object of type 'std::string *' at 0x2c92ea0>
-    const char* __str__() {
-        return ($self)->name().c_str();
-    }
+%extend OpenMEEG::Mesh{
+        // TODO almost.. if I do: m.name() I get:
+        // <Swig Object of type 'std::string *' at 0x2c92ea0>
+        Mesh(PyObject * py_v, PyObject * py_i) {
+            if (!py_v || !PyArray_Check(py_v)) {
+                return new Mesh();
+            }
+            PyArrayObject *mat_v = (PyArrayObject *) PyArray_FromObject(py_v, NPY_DOUBLE, 2, 2);
+            int nbdims_v = PyArray_NDIM((PyArrayObject *) mat_v);
+            if (nbdims_v == 2) {
+                const size_t nbVertices = PyArray_DIM(mat_v, 0);
+                const size_t nbcol = PyArray_DIM(mat_v, 1);
+                if (nbcol < 3) {
+                    PyErr_SetString(PyExc_TypeError,
+                                    "Matrix of triangles requires at least 3 columns, standing for x, y, z of vertices.");
+                    return new Mesh();
+                } else {
+                    Mesh * newMesh = new Mesh(nbVertices, nbVertices);
+                    for (int cptV = 0; cptV < nbVertices; ++cptV) {
+                        double x = *(double *) PyArray_GETPTR2(mat_v, cptV, 0);
+                        double y = *(double *) PyArray_GETPTR2(mat_v, cptV, 1);
+                        double z = *(double *) PyArray_GETPTR2(mat_v, cptV, 2);
+                        Vertex * newVertex = new Vertex(x, y, z);
+                        newMesh->add_vertex(*newVertex);
+                    }
+                    if (!py_i || !PyArray_Check(py_i)) {
+                        return newMesh;
+                    }
+                    PyArrayObject *mat_i = (PyArrayObject *) PyArray_FromObject(py_i, NPY_DOUBLE, 2, 2);
+                    int nbdims_i = PyArray_NDIM((PyArrayObject *) mat_i);
+                    if (nbdims_i == 2) {
+                        const size_t nbVertices = PyArray_DIM(mat_i, 0);
+                        const size_t nbcol = PyArray_DIM(mat_i, 1);
+                        if (nbcol != 3) {
+                            PyErr_SetString(PyExc_TypeError,
+                                            "Matrix of triangles requires exactly 3 columns, standing for x, y, z of indices.");
+                            return newMesh;
+                        } else {
+                            for (int cptV = 0; cptV < nbVertices; ++cptV) {
+                                int x = *(int *) PyArray_GETPTR2(mat_i, cptV, 0);
+                                int y = *(int *) PyArray_GETPTR2(mat_i, cptV, 1);
+                                int z = *(int *) PyArray_GETPTR2(mat_i, cptV, 2);
+                                Triangle t( newMesh->vertices()[x], newMesh->vertices()[y], newMesh->vertices()[z]);
+                                newMesh->push_back(t);
+                            }
+                            return newMesh;
+                        }
+                    } else {
+                        PyErr_SetString(PyExc_TypeError,
+                                        "Matrix of triangles requires an 2 dimensions nbarray, returning an empty matrix instead.");
+                        return new Mesh();
+                    }
+                }
+            } else {
+                PyErr_SetString(PyExc_TypeError,
+                                "Matrix of vertices requires an 2 dimensions nbarray, returning an empty matrix instead.");
+                return new Mesh();
+            }
+            return new Mesh();
+        }
+        const char* __str__() {
+            return ($self)->name().c_str();
+        }
 }
 
 // /////////////////////////////////////////////////////////////////
