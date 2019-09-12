@@ -44,98 +44,44 @@
 #include "../../OpenMEEGMaths/include/matrix.h"
 
 
-using namespace OpenMEEG;
+    #include <iostream>
 
     #ifdef SWIGPYTHON
 
         #define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
         #include <numpy/arrayobject.h>
 
-        static PyObject* asarray(OpenMEEG::Matrix* mat) {
-            if (!mat) {
-                PyErr_SetString(PyExc_RuntimeError, "Zero pointer passed instead of valid Matrix struct.");
-                return(NULL);
-            }
-
-            /* array object */
-            PyArrayObject* matarray = 0;
-
-            /* Get the number of dimensions from the Matrix
-             */
-            const npy_intp ndims = 2;
-            npy_intp ar_dim[] = { static_cast<npy_intp>(mat->nlin()), static_cast<npy_intp>(mat->ncol()) };
-
-            /* create numpy array */
-            matarray = (PyArrayObject*) PyArray_NewFromDescr(&PyArray_Type, PyArray_DescrFromType(NPY_DOUBLE), ndims, ar_dim, NULL, (void *) mat->data(),NPY_ARRAY_FARRAY,NULL);
-
-            return PyArray_Return((PyArrayObject*) matarray);
-        }
-
-        static PyObject* asarray(OpenMEEG::Vector* vec) {
-            if (!vec) {
-                PyErr_SetString(PyExc_RuntimeError, "Zero pointer passed instead of valid Vector struct.");
-                return(NULL);
-            }
-
-            /* std::cerr << "VV = " << *vec << std::endl; TODO */
-
-            /* array object */
-            PyArrayObject* matarray = 0;
-
-            /* Get the size of the Vector
-             */
-            const npy_intp ndims = 1;
-            npy_intp ar_dim[] = { static_cast<npy_intp>(vec->size()) };
-
-            /* create numpy array */
-            matarray = (PyArrayObject*) PyArray_NewFromDescr(&PyArray_Type,PyArray_DescrFromType(NPY_DOUBLE),ndims,ar_dim,NULL,static_cast<void*>(vec->data()),NPY_ARRAY_FARRAY,NULL);
-
-            return PyArray_Return(matarray);
-        }
-
-        /* Create a Matrix from an array */
-        static OpenMEEG::Matrix fromarray(PyObject* mat) {
-            if (!mat) {
-                PyErr_SetString(PyExc_RuntimeError, "Zero pointer passed instead of valid array.");
-                return NULL;
-            }
-            PyArrayObject* matt = (PyArrayObject*) PyArray_FromObject(mat,NPY_DOUBLE,1,2);
-            const size_t nl = PyArray_DIM(matt,0);
-            const size_t nc = (PyArray_NDIM(matt)==2) ? PyArray_DIM(matt,1) : 1;
-            OpenMEEG::Matrix omat(nl,nc);
-            for (unsigned i=0;i<nl;++i)
-                for (unsigned j=0;j<nc;++j)
-                    omat(i,j) = *(static_cast<double*>(PyArray_GETPTR2(matt,i,j)));
-            return omat;
-        }
-        
     #endif
+
+    using namespace OpenMEEG;
 %}
 
-%typemap(in) OpenMEEG::Matrix { // Assume it is numpy.ndarray
-std::cout << typeid( $input ).name() << std::endl;
-}
-//%typemap(in) OpenMEEG::Matrix* { // Assume it is numpy.ndarray
-//std::cout << typeof( *$input ) << std::endl;
-//}
+// /////////////////////////////////////////////////////////////////
+// Preprocessing setup
+// /////////////////////////////////////////////////////////////////
 
-%inline %{
-void wrap_foo(OpenMEEG::Matrix param) {
-    std::cout << typeid( param ).name() << std::endl;
-}
-%}
+#pragma SWIG nowarn=302, 315, 389, 401, 509, 801, 472, 473, 476, 362, 503, 514, 516, 842, 845
 
+// /////////////////////////////////////////////////////////////////
+// Ignore rules for operators
+// /////////////////////////////////////////////////////////////////
 
+%ignore operator>>;
+%ignore operator<<;
+%ignore operator==;
+%ignore operator[];
+%ignore operator!=;
+%ignore operator*=;
+%ignore operator/=;
+//%ignore operator bool;
+//%ignore operator int;
+//%ignore operator float;
+//%ignore operator double;
+//%ignore operator double *;
 
-%pythoncode {
-def loadmat(fname):
-    try:
-        from scipy import io
-        io.loadmat(fname)['linop']
-    except:
-        import h5py
-        return h5py.File(fname)['linop'].value.T
-}
+// /////////////////////////////////////////////////////////////////
+// Legacy
+// /////////////////////////////////////////////////////////////////
 
 %include "numpy.i"
 
@@ -154,13 +100,13 @@ import_array();
     }
 }
 
-/* DLL Exports handling on Windows */
+// /////////////////////////////////////////////////////////////////
+// Definitions
+// /////////////////////////////////////////////////////////////////
+
 #define OPENMEEGMATHS_EXPORT
 #define OPENMEEG_EXPORT
 
-#ifdef DOCSTRINGS
-%include <docstrings.i>
-#endif
 
 namespace std {
     %template(vector_int) vector<int>;
@@ -181,24 +127,79 @@ namespace OpenMEEG {
     %typedef std::vector<OpenMEEG::Mesh> Meshes;
 }
 
-%include <vect3.h>
-%include <vertex.h>
-%include <triangle.h>
-%include <linop.h>
-%include <vector.h>
-%include <matrix.h>
-%include <symmatrix.h>
-%include <sparse_matrix.h>
-%include <fast_sparse_matrix.h>
-%include <geometry.h>
-%include <geometry_io.h>
-%include <sensors.h>
-%include <mesh.h>
-%include <interface.h>
-%include <domain.h>
-%include <assemble.h>
-%include <gain.h>
-%include <forward.h>
+// /////////////////////////////////////////////////////////////////
+// Typemaps
+// /////////////////////////////////////////////////////////////////
+
+#ifdef SWIGPYTHON
+
+namespace OpenMEEG {
+
+//%typemap(typecheck) Vector = void* ;
+
+// Python -> C++
+
+%typemap(in) Vector& {
+    // TODO check $input as np.array
+
+    PyArrayObject* input_array  = (PyArrayObject*) PyArray_FromObject($input,NPY_DOUBLE,1,1);
+
+    const size_t dim = PyArray_DIM(input_array,0);
+    std::cout << "typemap_in_Vector: " << dim << std::endl;
+
+    OpenMEEG::Vector &vec = *(new OpenMEEG::Vector(dim));
+
+    for (unsigned i=0;i<dim;++i)
+        vec(i) = *(static_cast<double*>(PyArray_GETPTR1(input_array,i)));
+
+    $1 = &vec;
+}
+
+%typemap(freearg) Vector& {
+    if ($1)
+        delete $1;
+}
+
+// C++ -> Python
+
+//%typecheck(SWIG_TYPECHECK_POINTER) Vector * {
+//    $1 = ( $input != 0);
+//}
+
+//%typecheck(SWIG_TYPECHECK_VOIDPTR) Vector * {
+//    $1 = ( $input != 0);
+//}
+
+
+%typemap(out) Vector {
+    PyArrayObject* matarray = 0;
+
+    std::cout << "typemap_out_Vector:" << $1.size() << std::endl;
+
+    const npy_intp ndims = 1;
+    npy_intp ar_dim[] = { static_cast<npy_intp>($1.size()) };
+
+    matarray = (PyArrayObject*) PyArray_NewFromDescr(&PyArray_Type,PyArray_DescrFromType(NPY_DOUBLE),ndims,ar_dim,NULL,static_cast<void*>($1.data()),NPY_ARRAY_FARRAY,NULL);
+
+    $result = PyArray_Return(matarray);
+}
+
+}
+
+#endif // SWIGPYTHON
+
+// /////////////////////////////////////////////////////////////////
+// extensions
+// /////////////////////////////////////////////////////////////////
+
+%extend OpenMEEG::Sensors {
+    Sensors(const char*, Vector& a) {
+        Sensors *S = new Sensors();
+        //
+        std::cout << "extend_sensors: " << a << std::endl;
+        return S;
+    }
+}
 
 %extend OpenMEEG::Vertex {
     // TODO almost.. if I do: v.index() I get:
@@ -238,15 +239,30 @@ namespace OpenMEEG {
         return ($self)->name().c_str();
     }
 }
-/* TODO
-%include <cpointer.i>
-%pointer_class(Interface ,InterfaceP)
-We would like to have an Interface when asking for
-i=geom.outermost_interface()
-instead we have a pointer to it:
-<Swig Object of type 'Interface *' at 0xa1e1590>
-*/
 
-//static PyObject* asarray(OpenMEEG::Matrix* _mat);
-//static PyObject* asarray(OpenMEEG::Vector* _vec);
-//static OpenMEEG::Matrix fromarray(PyObject* _mat);
+// /////////////////////////////////////////////////////////////////
+// Input
+// /////////////////////////////////////////////////////////////////
+
+%include <vect3.h>
+%include <vertex.h>
+%include <triangle.h>
+%include <linop.h>
+%include <vector.h>
+%include <matrix.h>
+%include <symmatrix.h>
+%include <sparse_matrix.h>
+%include <fast_sparse_matrix.h>
+%include <geometry.h>
+%include <geometry_io.h>
+%include <sensors.h>
+%include <mesh.h>
+%include <interface.h>
+%include <domain.h>
+%include <assemble.h>
+%include <gain.h>
+%include <forward.h>
+
+// /////////////////////////////////////////////////////////////////
+//
+// /////////////////////////////////////////////////////////////////
