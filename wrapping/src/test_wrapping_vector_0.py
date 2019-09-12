@@ -26,16 +26,20 @@ W = np.array( [1.0, 2.0, 3.0])
 print("W of", W.__class__)
 print("W =", W, "\n")
 
-W = V
-print("W of", W.__class__)
-print("W =", W, "\n")
+X = om.Vector(W)
+print("X of", X.__class__)
+print("X =", X, "\n")
+
+Z = X.array()
+print("Z of", Z.__class__)
+print("Z =", Z, "\n")
 
 #
 fileskel = os.path.join(topdir, "data/Head1/Head1.")
 
-S = om.Sensors()
-S.load( fileskel + "squids")
-Pos = S.getPosition(1)
+#S = om.Sensors()
+#S.load( fileskel + "squids")
+#Pos = S.getPosition(1)
 
-S2 = om.Sensors("toto", Pos)
+#S2 = om.Sensors("toto", Pos)
 #print("S2 of", S2.__class__)

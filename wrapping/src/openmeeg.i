@@ -13,6 +13,8 @@
 %include <windows.i>
 #endif
 
+
+
 %include <std_string.i>
 %include <std_vector.i>
 
@@ -36,7 +38,6 @@
     #include <assemble.h>
     #include <gain.h>
     #include <forward.h>
-
     #include <iostream>
 
     #ifdef SWIGPYTHON
@@ -128,30 +129,29 @@ namespace OpenMEEG {
 
 namespace OpenMEEG {
 
-//%typemap(typecheck) Vector = void* ;
 
 // Python -> C++
 
-%typemap(in) Vector& {
-    // TODO check $input as np.array
+//%typemap(in) Vector& {
+//     TODO check $input as np.array
+//
+//    PyArrayObject* input_array  = (PyArrayObject*) PyArray_FromObject($input,NPY_DOUBLE,1,1);
+//
+//    const size_t dim = PyArray_DIM(input_array,0);
+//    std::cout << "typemap_in_Vector: " << dim << std::endl;
+//
+//    OpenMEEG::Vector &vec = *(new OpenMEEG::Vector(dim));
+//
+//    for (unsigned i=0;i<dim;++i)
+//        vec(i) = *(static_cast<double*>(PyArray_GETPTR1(input_array,i)));
+//
+//    $1 = &vec;
+//}
 
-    PyArrayObject* input_array  = (PyArrayObject*) PyArray_FromObject($input,NPY_DOUBLE,1,1);
-
-    const size_t dim = PyArray_DIM(input_array,0);
-    std::cout << "typemap_in_Vector: " << dim << std::endl;
-
-    OpenMEEG::Vector &vec = *(new OpenMEEG::Vector(dim));
-
-    for (unsigned i=0;i<dim;++i)
-        vec(i) = *(static_cast<double*>(PyArray_GETPTR1(input_array,i)));
-
-    $1 = &vec;
-}
-
-%typemap(freearg) Vector& {
-    if ($1)
-        delete $1;
-}
+//%typemap(freearg) Vector& {
+//    if ($1)
+//        delete $1;
+//}
 
 // C++ -> Python
 
@@ -164,18 +164,18 @@ namespace OpenMEEG {
 //}
 
 
-%typemap(out) Vector {
-    PyArrayObject* matarray = 0;
-
-    std::cout << "typemap_out_Vector:" << $1.size() << std::endl;
-
-    const npy_intp ndims = 1;
-    npy_intp ar_dim[] = { static_cast<npy_intp>($1.size()) };
-
-    matarray = (PyArrayObject*) PyArray_NewFromDescr(&PyArray_Type,PyArray_DescrFromType(NPY_DOUBLE),ndims,ar_dim,NULL,static_cast<void*>($1.data()),NPY_ARRAY_FARRAY,NULL);
-
-    $result = PyArray_Return(matarray);
-}
+//%typemap(out) Vector {
+//    PyArrayObject* matarray = 0;
+//
+//    std::cout << "typemap_out_Vector:" << $1.size() << std::endl;
+//
+//    const npy_intp ndims = 1;
+//    npy_intp ar_dim[] = { static_cast<npy_intp>($1.size()) };
+//
+//    matarray = (PyArrayObject*) PyArray_NewFromDescr(&PyArray_Type,PyArray_DescrFromType(NPY_DOUBLE),ndims,ar_dim,NULL,static_cast<void*>($1.data()),NPY_ARRAY_FARRAY,NULL);
+//
+//    $result = PyArray_Return(matarray);
+//}
 
 }
 
@@ -213,6 +213,26 @@ namespace OpenMEEG {
 }
 
 %extend OpenMEEG::Vector {
+    Vector(PyObject* o) {
+            if (!o || !PyArray_Check(o)) {
+                return new Vector();
+            }
+            PyArrayObject *vect = (PyArrayObject *) PyArray_FromObject(o, NPY_DOUBLE, 1, 1);
+            const size_t nelem = PyArray_DIM(vect, 0);
+
+            Vector* v = new Vector(nelem);
+            v->reference_data(static_cast<double *>(PyArray_GETPTR1(vect, 0)));
+            return v;
+    }
+
+    PyObject* array() {
+            const npy_intp ndims = 1;
+            npy_intp ar_dim[] = { static_cast<npy_intp>(($self)->size()) };
+
+            PyArrayObject* array = (PyArrayObject*) PyArray_SimpleNewFromData(ndims, ar_dim, NPY_DOUBLE, static_cast<void*>(($self)->data()));
+            return PyArray_Return(array);
+    }
+
     // TODO almost.. v(2)=0. does not work, workaround:
     void setvalue(unsigned int i, double d) {
         (*($self))(i)=d;
