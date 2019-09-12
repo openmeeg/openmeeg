@@ -133,12 +133,20 @@ namespace OpenMEEG {
 
     // Python -> C++
 %typemap(in) Vector& {
+        if (PyArray_Check($input)) {
             PyArrayObject *vect = (PyArrayObject *) PyArray_FromObject($input, NPY_DOUBLE, 1, 1);
             const size_t nelem = PyArray_DIM(vect, 0);
-
-            Vector* v = new Vector(nelem);
+            Vector *v = new Vector(nelem);
             v->reference_data(static_cast<double *>(PyArray_GETPTR1(vect, 0)));
             $1 = v;
+        } else {
+            void *ptr = 0 ;
+            int res = SWIG_ConvertPtr($input, &ptr, SWIGTYPE_p_OpenMEEG__Vector,  0  | 0);
+            if (SWIG_IsOK(res))
+                $1 = reinterpret_cast<OpenMEEG::Vector *>(ptr);
+            else
+                PyErr_SetString(PyExc_TypeError, "Input object is neither a PyArray nor a Vector.");
+        }
 }
 
 %typemap(in) Matrix& {
