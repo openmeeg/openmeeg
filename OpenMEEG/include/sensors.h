@@ -184,7 +184,7 @@ namespace OpenMEEG {
 
         m_pointSensorIdx = std::vector<size_t>(labels.size());
         for ( std::size_t i = 0; i < labels.size(); ++i) {
-            m_pointSensorIdx[i] = getSensorIdx(m_names[i]);
+            m_pointSensorIdx[i] = i;
         }
     }
 
