@@ -132,96 +132,31 @@ namespace OpenMEEG {
 
 
     // Python -> C++
+%typemap(in) Vector& {
+            PyArrayObject *vect = (PyArrayObject *) PyArray_FromObject($input, NPY_DOUBLE, 1, 1);
+            const size_t nelem = PyArray_DIM(vect, 0);
 
-    /*
-%typemap(in) const Strings* {
-
-        std::cerr << "typemap" << std::endl;
-    if(PyList_Check($input))
-    {
-        int size = PyList_Size($input);
-        std::cerr << "typemap size " << size << std::endl;
-        $1 = new Strings;
-        for( int i = 0; i < size; i++)
-        {
-            PyObject * o = PyList_GetItem($input, i);
-            std::cerr << "typemap loop " << i << std::endl;
-            std::cerr << "typemap object " << o << std::endl;
-            std::cerr << "typemap type is " << typeid(o).name() << std::endl;
-            std::cerr << "typemap pyobject is " << Py_TYPE(o)->tp_name << std::endl;
-
-            std::cerr << "typemap string " << PyString_AsString(o) << std::endl;
-
-            if(PyString_Check(o)) {
-                std::cerr << "typemap string " << PyString_AsString(o) << std::endl;
-                $1->push_back(PyString_AsString(o));
-            }
-            else
-            {
-                PyErr_SetString(PyExc_TypeError, "list must contain strings");
-                free($1);
-                return NULL;
-            }
-        }
-    }
-    else
-    {
-        PyErr_SetString(PyExc_TypeError, "PyList of strings is expected as input");
-        return NULL;
-    }
+            Vector* v = new Vector(nelem);
+            v->reference_data(static_cast<double *>(PyArray_GETPTR1(vect, 0)));
+            $1 = v;
 }
 
-%typemap(freearg) const Strings* {
-    if ($1) {
-        delete $1;
-    }
+%typemap(in) Matrix& {
+            int nbdims = PyArray_NDIM((PyArrayObject *)$input);
+            if (nbdims == 2) {
+                PyArrayObject *mat = (PyArrayObject *) PyArray_FromObject($input, NPY_DOUBLE, 2,
+                                                                          2); // able to accept a scalar, a vector and a matrix ?
+                const size_t nblines = PyArray_DIM(mat, 0);
+                const size_t nbcol = PyArray_DIM(mat, 1);
+
+                Matrix * result = new Matrix(nblines, nbcol);
+                result->reference_data(static_cast<double *>(PyArray_GETPTR2(mat, 0, 0)));
+                $1 = result;
+            } else {
+                PyErr_SetString(PyExc_TypeError, "Matrix requires an 2 dimensions nbarray, returning an empty matrix instead.");
+                $1 = new Matrix();
+            }
 }
-    */
-
-//%typemap(in) Vector& {
-//     TODO check $input as np.array
-//
-//    PyArrayObject* input_array  = (PyArrayObject*) PyArray_FromObject($input,NPY_DOUBLE,1,1);
-//
-//    const size_t dim = PyArray_DIM(input_array,0);
-//    std::cout << "typemap_in_Vector: " << dim << std::endl;
-//
-//    OpenMEEG::Vector &vec = *(new OpenMEEG::Vector(dim));
-//
-//    for (unsigned i=0;i<dim;++i)
-//        vec(i) = *(static_cast<double*>(PyArray_GETPTR1(input_array,i)));
-//
-//    $1 = &vec;
-//}
-
-//%typemap(freearg) Vector& {
-//    if ($1)
-//        delete $1;
-//}
-
-// C++ -> Python
-
-//%typecheck(SWIG_TYPECHECK_POINTER) Vector * {
-//    $1 = ( $input != 0);
-//}
-
-//%typecheck(SWIG_TYPECHECK_VOIDPTR) Vector * {
-//    $1 = ( $input != 0);
-//}
-
-
-//%typemap(out) Vector {
-//    PyArrayObject* matarray = 0;
-//
-//    std::cout << "typemap_out_Vector:" << $1.size() << std::endl;
-//
-//    const npy_intp ndims = 1;
-//    npy_intp ar_dim[] = { static_cast<npy_intp>($1.size()) };
-//
-//    matarray = (PyArrayObject*) PyArray_NewFromDescr(&PyArray_Type,PyArray_DescrFromType(NPY_DOUBLE),ndims,ar_dim,NULL,static_cast<void*>($1.data()),NPY_ARRAY_FARRAY,NULL);
-//
-//    $result = PyArray_Return(matarray);
-//}
 
 }
 
@@ -259,17 +194,6 @@ namespace OpenMEEG {
 }
 
 %extend OpenMEEG::Vector {
-    Vector(PyObject* o) {
-            if (!o || !PyArray_Check(o)) {
-                return new Vector();
-            }
-            PyArrayObject *vect = (PyArrayObject *) PyArray_FromObject(o, NPY_DOUBLE, 1, 1);
-            const size_t nelem = PyArray_DIM(vect, 0);
-
-            Vector* v = new Vector(nelem);
-            v->reference_data(static_cast<double *>(PyArray_GETPTR1(vect, 0)));
-            return v;
-    }
 
     PyObject* array() {
             const npy_intp ndims = 1;
@@ -286,25 +210,6 @@ namespace OpenMEEG {
 }
 
 %extend OpenMEEG::Matrix {
-        Matrix(PyObject* o) {
-            if (!o || !PyArray_Check(o)) {
-                return new Matrix();
-            }
-            nbdims = PyArray_NDIM(o);
-            if (nbdims == 2) {
-                PyArrayObject *mat = (PyArrayObject *) PyArray_FromObject(o, NPY_DOUBLE, 2,
-                                                                          2); // able to accept a scalar, a vector and a matrix ?
-                const size_t nblines = PyArray_DIM(mat, 0);
-                const size_t nbcol = PyArray_DIM(mat, 1);
-
-                Matrix * result = new Matrix(nblines, nbcol);
-                result->reference_data(static_cast<double *>(PyArray_GETPTR2(mat, 0, 0)));
-                return result;
-            }
-            PyERR_Setstring(PyExc_TypeError, "Matrix requires an 2 dimensions nbarray, returning an empty matrix instead.");
-            return new Matrix();
-        }
-
         PyObject* array() {
             const npy_intp ndims = 2;
             npy_intp* ar_dim =  new npy_intp[ndims];
@@ -319,6 +224,7 @@ namespace OpenMEEG {
         (*($self))(i,j)=d;
     }
 }
+
 
 %extend OpenMEEG::Mesh {
     // TODO almost.. if I do: m.name() I get:

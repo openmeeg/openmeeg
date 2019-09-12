@@ -26,29 +26,12 @@ W = np.array( [1.0, 2.0, 3.0])
 print("W of", W.__class__)
 print("W =", W, "\n")
 
-X = om.Vector(W)
-print("X of", X.__class__)
-print("X =", X, "\n")
-
-Z = X.array()
-print("Z of", Z.__class__)
-print("Z =", Z, "\n")
-
 Labels = [ "toto" ]
 Positions = np.array([[ 0 , 1 , 2 ]])
 Orientations = np.array([[ -1 , -1 , -2 ]])
 Weights = np.array([ 0.5 ])
 Radii = np.array([ 1 ])
 
-#S = om.Sensors(Labels, Positions, Orientations, Weights, Radii)
-print("om.Sensors(Labels, Positions, Orientations, Weights, Radii)");
-print("om.Sensors(Labels, om.Matrix(Positions), om.Matrix(Orientations), om.Vector(Weights), om.Vector(Radii))")
-#
-#fileskel = os.path.join(topdir, "data/Head1/Head1.")
-
-#S = om.Sensors()
-#S.load( fileskel + "squids")
-#Pos = S.getPosition(1)
-
-#S2 = om.Sensors("toto", Pos)
-#print("S2 of", S2.__class__)
+print("s1=om.Sensors(Labels, Positions, Orientations, Weights, Radii)");
+r=om.Vector(Radii,om.DEEP_COPY)
+r.info()
