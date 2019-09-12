@@ -40,9 +40,13 @@ assert(b.ncol() == 3)
 import random
 nlines = random.randrange(10,50)
 ncols = random.randrange(10,50)
-mat_numpy = np.ndarray(shape=(nlines,ncols), dtype=float)
+mat_numpy = np.ndarray(shape=(nlines,ncols), dtype=float, order='F')
 for l in range(nlines):
     for c in range(ncols):
+        print(l, " ", c)
         mat_numpy[l][c] = random.randrange(-100,100)
 
 mat_om = om.Matrix(mat_numpy)
+
+print("dimensions of mat_numpy: ", mat_numpy.shape)
+mat_om.info()

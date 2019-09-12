@@ -35,14 +35,14 @@ print("Z of", Z.__class__)
 print("Z =", Z, "\n")
 
 Labels = [ "toto" ]
-Positions = np.array([ 0 , 1 , 2 ])
-Orientations = np.array([ -1 , -1 , -2 ])
+Positions = np.array([[ 0 , 1 , 2 ]])
+Orientations = np.array([[ -1 , -1 , -2 ]])
 Weights = np.array([ 0.5 ])
 Radii = np.array([ 1 ])
 
 #S = om.Sensors(Labels, Positions, Orientations, Weights, Radii)
 print("om.Sensors(Labels, Positions, Orientations, Weights, Radii)");
-
+print("om.Sensors(Labels, om.Matrix(Positions), om.Matrix(Orientations), om.Vector(Weights), om.Vector(Radii))")
 #
 #fileskel = os.path.join(topdir, "data/Head1/Head1.")
 

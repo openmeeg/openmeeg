@@ -290,13 +290,19 @@ namespace OpenMEEG {
             if (!o || !PyArray_Check(o)) {
                 return new Matrix();
             }
-            PyArrayObject *mat = (PyArrayObject *) PyArray_FromObject(o, NPY_DOUBLE, 2, 2); // able to accept a scalar, a vector and a matrix ?
-            const size_t nblines = PyArray_DIM(mat, 0);
-            const size_t nbcol = PyArray_DIM(mat, 1);
+            nbdims = PyArray_NDIM(o);
+            if (nbdims == 2) {
+                PyArrayObject *mat = (PyArrayObject *) PyArray_FromObject(o, NPY_DOUBLE, 2,
+                                                                          2); // able to accept a scalar, a vector and a matrix ?
+                const size_t nblines = PyArray_DIM(mat, 0);
+                const size_t nbcol = PyArray_DIM(mat, 1);
 
-            Matrix* result = new Matrix(nblines, nbcol);
-            result->reference_data(static_cast<double *>(PyArray_GETPTR1(mat, 0)));
-            return result;
+                Matrix * result = new Matrix(nblines, nbcol);
+                result->reference_data(static_cast<double *>(PyArray_GETPTR2(mat, 0, 0)));
+                return result;
+            }
+            PyERR_Setstring(PyExc_TypeError, "Matrix requires an 2 dimensions nbarray, returning an empty matrix instead.");
+            return new Matrix();
         }
 
         PyObject* array() {
