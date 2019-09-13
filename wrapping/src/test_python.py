@@ -19,6 +19,7 @@
 # > mySubMat = om.asarray(subM)
 ###########################################
 
+import openmeeg_path_setter as ops
 import openmeeg as om
 import os
 from os import path as op
@@ -31,6 +32,8 @@ parser.add_option("-p", "--path", dest="data_path",
                   default=data_path)
 options, args = parser.parse_args()
 data_path = options.data_path
+
+data_path = op.join(ops.omdir, "data")
 
 ###############################################################################
 # Load data
@@ -45,34 +48,17 @@ squidsFile = op.join(data_path, subject,
 patches_file = op.join(data_path, subject,
                         subject + '.patches')
 
-# TODO: geom.read() using raw python
-# TODO: conductivity == { string => double}
-# TODO: geometry     == { [ mesh ] , { string => [ int ] } }
 geom = om.Geometry()
 geom.read(geom_file, cond_file)
 
-# TODO: mesh.read() using numpy arrays
-# TODO: mesh == [ double ] , [ int ]
 mesh = om.Mesh()
 mesh.load(source_mesh_file)
-# TODO: V = [...]
-# TODO: I = [...]
-# TODO: mesh_1 = om.Mesh(V, I)
 
-# TODO: dipoles.read() using numpy arrays
-# TODO: dipoles == [ double ]
 dipoles = om.Matrix()
 dipoles.load(dipole_file)
-D = asarray(dipoles)
-# TODO: D = asarray(dipoles).copy...
-# TODO: dipoles_1 = om.Matrix(D)
 
-# TODO: sensors.read() using numpy arrays
-# TODO: sensors == [ double ]
 sensors = om.Sensors()
 sensors.load(squidsFile)
-# TODO: D = asarray(sensors).copy...
-# TODO: sensors_1 = om.Matrix(D)
 
 patches = om.Sensors()
 patches.load(patches_file)
@@ -192,21 +178,6 @@ m2.load(ssm_file)
 #print(m2.ncol())
 
 ###############################################################################
-# Numpy interface
-
-# For a Vector
-v=hm(1,10,1,1).getcol(0)
-vec = om.asarray(v)
-m = om.fromarray(vec)
-assert((v-m.getcol(0)).norm() < 1e-15)
-
-# For a Matrix
-mat = om.asarray(m2)
-assert((m2-om.fromarray(mat)).frobenius_norm() < 1e-15)
-#print(mat.shape)
-#print(mat.sum())
-#mat[0:2, 1:3] = 0
-#print(mat[0:5, 0:5])
 
 #remove useless files
 os.remove(hm_file)

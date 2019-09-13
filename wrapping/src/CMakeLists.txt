@@ -76,6 +76,7 @@ install(FILES  ${OpenMEEG_BINARY_DIR}/wrapping/src/openmeeg.py
 set(PYTHON_TEST_FILES
   "test_matrix.py"
   "test_mesh.py"
+  "test_python.py"
   "test_python2.py"
   "test_sensors.py"
   "test_vector.py"
@@ -88,7 +89,7 @@ set(PYTHON_TEST_FILES
 if (BUILD_TESTING)
     execute_process(COMMAND ${CMAKE_COMMAND} -E copy ${OpenMEEG_SOURCE_DIR}/wrapping/src/openmeeg_path_setter.py ${OpenMEEG_BINARY_DIR}/wrapping/src/)
     foreach( T ${PYTHON_TEST_FILES})
-      message("*** Adding test: ${T}")
+      #message("*** Adding test: ${T}")
       execute_process(COMMAND ${CMAKE_COMMAND} -E copy ${OpenMEEG_SOURCE_DIR}/wrapping/src/${T} ${OpenMEEG_BINARY_DIR}/wrapping/src/)
       add_test(openmeeg_python_${T} ${PYTHON_EXECUTABLE} ${OpenMEEG_BINARY_DIR}/wrapping/src/${T})
     endforeach()
