@@ -73,13 +73,25 @@ install(FILES  ${OpenMEEG_BINARY_DIR}/wrapping/src/openmeeg.py
         DESTINATION ${PYTHON_REL_SITE_ARCH}
         PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ)
 
+set(PYTHON_TEST_FILES
+  "test_matrix.py"
+  "test_mesh.py"
+  "test_python2.py"
+  "test_sensors.py"
+  "test_vector.py"
+  )
+
 # Test Python wrapping
 #
 # XXXX: we copy all python scripts from source to binary so that openmeeg.py is in the path. There should be a manner of just adding
 #       it to the python path for the testing environment and allow to execute the python scripts from source.
 if (BUILD_TESTING)
-    execute_process(COMMAND ${CMAKE_COMMAND} -E copy ${OpenMEEG_SOURCE_DIR}/wrapping/src/test_python.py ${OpenMEEG_BINARY_DIR}/wrapping/src/)
-    add_test(openmeeg_python ${PYTHON_EXECUTABLE} ${OpenMEEG_BINARY_DIR}/wrapping/src/test_python.py --path ${OpenMEEG_SOURCE_DIR}/data)
+    execute_process(COMMAND ${CMAKE_COMMAND} -E copy ${OpenMEEG_SOURCE_DIR}/wrapping/src/openmeeg_path_setter.py ${OpenMEEG_BINARY_DIR}/wrapping/src/)
+    foreach( T ${PYTHON_TEST_FILES})
+      message("*** Adding test: ${T}")
+      execute_process(COMMAND ${CMAKE_COMMAND} -E copy ${OpenMEEG_SOURCE_DIR}/wrapping/src/${T} ${OpenMEEG_BINARY_DIR}/wrapping/src/)
+      add_test(openmeeg_python_${T} ${PYTHON_EXECUTABLE} ${OpenMEEG_BINARY_DIR}/wrapping/src/${T})
+    endforeach()
     if (USE_MKL AND BUILD_SHARED_LIBS AND NOT MKL_USE_sdl)
         # due to this bug in the MKL
         message(WARNING "Due to a bug in the MKL when used from python: see https://software.intel.com/en-us/forums/intel-distribution-for-python/topic/628976 "
