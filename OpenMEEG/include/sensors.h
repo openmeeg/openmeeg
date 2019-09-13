@@ -172,7 +172,7 @@ namespace OpenMEEG {
         std::cout << "const" << labels.size() << std::endl;
         m_pointSensorIdx = std::vector<size_t>(labels.size());
         for ( std::size_t i = 0; i < labels.size(); ++i) {
-            m_pointSensorIdx[i] = i;
+            m_pointSensorIdx[i] = getSensorIdx(m_names[i]);
         }
     }
 
@@ -184,7 +184,7 @@ namespace OpenMEEG {
 
         m_pointSensorIdx = std::vector<size_t>(labels.size());
         for ( std::size_t i = 0; i < labels.size(); ++i) {
-            m_pointSensorIdx[i] = i;
+            m_pointSensorIdx[i] = getSensorIdx(m_names[i]);
         }
     }
 
