@@ -7,13 +7,6 @@ import openmeeg as om
 import numpy as np
 import os
 
-# V = om.Matrix(3,3)
-# V.setvalue(1,1,2)
-# V.setvalue(2,2,2)
-# V.setvalue(3,3,4)
-# print("V of", V.__class__)
-# print("V =", V, "\n")
-
 W = np.array( [
     [0.0, 0.0, 3.0],
     [0.0, 2.0, 0.0],
@@ -43,12 +36,11 @@ assert(b.nlin() == 2)
 assert(b.ncol() == 3)
 
 import random
-nlines = random.randrange(10,50)
-ncols = random.randrange(10,50)
+nlines = random.randrange(10,20)
+ncols  = nlines + 2 # test on not squares matric
 mat_numpy = np.ndarray(shape=(nlines,ncols), dtype=float, order='F')
 for l in range(nlines):
     for c in range(ncols):
-        print(l, " ", c)
         mat_numpy[l][c] = random.randrange(-100,100)
 
 mat_om = om.Matrix(mat_numpy)
@@ -56,3 +48,11 @@ mat_om = om.Matrix(mat_numpy)
 print("dimensions of mat_numpy: ", mat_numpy.shape)
 
 mat_om.info()
+
+# mimic info()
+
+print("First Values of numpy array")
+for l in range(5):
+    for c in range(5):
+        print(mat_numpy[l][c], end = " ")
+    print();
