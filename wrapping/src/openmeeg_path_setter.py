@@ -6,6 +6,7 @@ import os
 
 # import locally built openmeeg
 topdir = os.getcwd()
+omdir = ""
 
 # heuristic
 found = 0;
@@ -13,7 +14,7 @@ l = ""
 for i in range(1, 10):
     d = os.path.join( topdir, l , "build" , "wrapping", "src")
     if os.path.exists( os.path.join( d , "_openmeeg.so")):
-        print(d)
+        omdir = os.path.join( topdir, l)
         sys.path.append(d)
         found = 1
         break
