@@ -143,7 +143,7 @@ OpenMEEG::Vector *new_OpenMEEG_Vector(PyObject *o) {
         void *ptr = 0 ;
         int res = SWIG_ConvertPtr(o, &ptr, SWIGTYPE_p_OpenMEEG__Vector,  0  | 0);
         if (SWIG_IsOK(res)) {
-            out = reinterpret_cast<OpenMEEG::Vector *>(ptr);
+            out = new Vector(*(reinterpret_cast<OpenMEEG::Vector *>(ptr)), DEEP_COPY);
         } else {
             PyErr_SetString(PyExc_TypeError, "Input object is neither a PyArray nor a Vector.");
             out = new OpenMEEG::Vector();
@@ -171,9 +171,9 @@ OpenMEEG::Matrix *new_OpenMEEG_Matrix(PyObject *o) {
         }
     } else {
         void *ptr = 0 ;
-        int res = SWIG_ConvertPtr(o, &ptr, SWIGTYPE_p_OpenMEEG__Matrix,  0  | 0);
+        int res = SWIG_ConvertPtr(o, &ptr, SWIGTYPE_p_OpenMEEG__Matrix,  SWIG_POINTER_OWN  | 0);
         if (SWIG_IsOK(res))
-            out = reinterpret_cast<OpenMEEG::Matrix *>(ptr);
+            out = new Matrix(*(reinterpret_cast<OpenMEEG::Matrix *>(ptr)), DEEP_COPY);
         else
             PyErr_SetString(PyExc_TypeError, "Input object is neither a PyArray nor a Matrix.");
     }
@@ -229,16 +229,14 @@ namespace OpenMEEG {
 
 %extend OpenMEEG::Vector {
     Vector(PyObject *o) {
-        Vector *v = new_OpenMEEG_Vector(o);
-        return new Vector(*v, DEEP_COPY); // Enforce copy to avoid garbage collector side effect
+        return new_OpenMEEG_Vector(o);
     }
 
     PyObject *array() {
-            const npy_intp ndims = 1;
-            npy_intp ar_dim[] = { static_cast<npy_intp>(($self)->size()) };
-
-            PyArrayObject *array = (PyArrayObject*) PyArray_SimpleNewFromData(ndims, ar_dim, NPY_DOUBLE, static_cast<void*>(($self)->data()));
-            return PyArray_Return(array);
+        const npy_intp ndims = 1;
+        npy_intp ar_dim[] = { static_cast<npy_intp>(($self)->size()) };
+        PyArrayObject *array = (PyArrayObject*) PyArray_SimpleNewFromData(ndims, ar_dim, NPY_DOUBLE, static_cast<void*>(($self)->data()));
+        return PyArray_Return(array);
     }
 
     // TODO almost.. v(2)=0. does not work, workaround:
@@ -249,8 +247,7 @@ namespace OpenMEEG {
 
 %extend OpenMEEG::Matrix {
     Matrix(PyObject *o) {
-        Matrix *m = new_OpenMEEG_Matrix(o);
-        return new Matrix(*m, DEEP_COPY);  // Enforce copy to avoid garbage collector side effect
+        return new_OpenMEEG_Matrix(o);
     }
 
 
