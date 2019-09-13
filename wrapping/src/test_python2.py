@@ -5,23 +5,16 @@ import sys
 import os
 import numpy
 
-# import locally built openmeeg
-topdir = os.getcwd()
-omdir  = os.path.join(topdir, "build/wrapping/src/")
-if not os.path.exists( os.path.join(omdir , "_openmeeg.so")):
-    print("Go to openmeeg topdir before launching this script")
-    exit(-1)
-
-sys.path.append(omdir)
+import openmeeg_path_setter as ops
 import openmeeg as om
 
 #
-fileskel = os.path.join(topdir, "data/Head1/Head1.")
+fileskel = os.path.join(ops.omdir, "data/Head1/Head1.")
 
 # dipole
 dipoles = om.Matrix()
 dipoles.load( fileskel + "dip")
-D = om.asarray(dipoles)
+D = dipoles.array()
 print("D is a" , D.__class__)
 print(D)
 # Examples of basic linear algebra
