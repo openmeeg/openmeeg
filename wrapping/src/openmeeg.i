@@ -242,6 +242,14 @@ namespace OpenMEEG {
     void setvalue(unsigned int i, double d) {
         (*($self))(i) = d;
     }
+
+    double value(unsigned int i) {
+        if ( i >= ($self)->size() ) {
+            PyErr_SetString(PyExc_TypeError, "Out of range");
+            return std::nan("");
+        }
+        return (*($self))(i);
+    }
 }
 
 %extend OpenMEEG::Matrix {
@@ -262,6 +270,15 @@ namespace OpenMEEG {
 
     void setvalue(unsigned int i, unsigned int j, double d) {
         (*($self))(i,j) = d;
+    }
+
+    double value(unsigned int i, unsigned int j) {
+        if ( ( i >= ($self)->nlin() ) ||
+             ( j >= ($self)->ncol() ) ) {
+            PyErr_SetString(PyExc_TypeError, "Out of range");
+            return std::nan("");
+        }
+        return (*($self))(i,j);
     }
 }
 

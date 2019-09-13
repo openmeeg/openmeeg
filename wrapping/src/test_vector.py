@@ -42,3 +42,13 @@ print("V3 of", V3.__class__)
 V3 = om.Vector(M)
 print("V3 of", V3.__class__)
 V3.info()
+
+#
+error = 0
+for i in range(3):
+    if ( W1[i] != V1.value(i) ):
+        print("vectors differ at:", i)
+        error = 1
+
+if error == 0:
+    print("conversion between OpenMEEG:Vector <> numpy.array is OK")

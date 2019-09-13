@@ -56,3 +56,14 @@ for l in range(5):
     for c in range(5):
         print(mat_numpy[l][c], end = " ")
     print();
+
+
+error = 0
+for l in range(5):
+    for c in range(5):
+        if ( mat_numpy[l][c] != mat_om.value(l,c) ):
+            print("matrices differ at:", l, c)
+            error = 1
+
+if error == 0:
+    print("conversion between OpenMEEG:Matrix <> numpy.ndarray is OK")
