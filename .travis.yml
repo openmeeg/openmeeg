@@ -9,13 +9,13 @@ cache:
 
 matrix:
   include:
-    # - os: linux  # shipping linux
-    #   dist: bionic
-    #   env:
-    #     - BACKEND=Intel10_64lp
-    #     - BUILD_STATIC=ON
-    #     - BUILD_PACKAGE=ON
-    #     - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
+    - os: linux  # shipping linux
+      dist: bionic
+      env:
+        - BACKEND=Intel10_64lp
+        - BUILD_STATIC=ON
+        - BUILD_PACKAGE=ON
+        - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
 
     - os: linux  # shipping apt-get
       dist: bionic
@@ -25,7 +25,7 @@ matrix:
         - ENABLE_PYTHON=ON
         # - ANALYSE=ON
         # - ENABLE_COVERAGE=ON
-        # - BUILD_DOCUMENTATION=ON
+        - BUILD_DOCUMENTATION=ON
         - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
       addons:
         apt:
@@ -42,38 +42,38 @@ matrix:
             - libmatio-dev
             - libvtk6-dev
 
-    # - os: osx  # shipping mac
-    #   osx_image: xcode8.3
-    #   env:
-    #     - BACKEND=Intel10_64lp
-    #     - BUILD_STATIC=ON
-    #     - BUILD_PACKAGE=ON
+    - os: osx  # shipping mac
+      osx_image: xcode8.3
+      env:
+        - BACKEND=Intel10_64lp
+        - BUILD_STATIC=ON
+        - BUILD_PACKAGE=ON
 
-    # - os: osx  # shipping brew
-    #   env:
-    #     - BACKEND=OpenBLAS
-    #   # - USE_GCC=ON  # XXX : vtk does not work with GCC
-    #   # - USE_BREW_LLVM=ON  # XXX: To have OpenMP but segfaults...
-    #   # - USE_VTK=ON # XXX: vtk is currently broken in brew
+    - os: osx  # shipping brew
+      env:
+        - BACKEND=OpenBLAS
+      # - USE_GCC=ON  # XXX : vtk does not work with GCC
+      # - USE_BREW_LLVM=ON  # XXX: To have OpenMP but segfaults...
+      # - USE_VTK=ON # XXX: vtk is currently broken in brew
 
-    # - os: osx  # Static analysis using clang-analyzer
-    #   env:
-    #     - ENABLE_COVERAGE=ON
-    #     - BACKEND=Apple
-    #     - ANALYSE=ON
+    - os: osx  # Static analysis using clang-analyzer
+      env:
+        - ENABLE_COVERAGE=ON
+        - BACKEND=Apple
+        - ANALYSE=ON
 
 before_install:
   - eval "${MATRIX_EVAL}"
-  # - |
-  #   if [[ "${TRAVIS_OS_NAME}" == "linux" ]]; then
-  #     # FindMKL.cmake uses mkl_link_tool, which is a 32bits application !
-  #     sudo dpkg --add-architecture i386
-  #     sudo apt-get update
-  #     sudo apt-get install -y libc6:i386 libncurses5:i386 libstdc++6:i386
-  #     sudo apt-get install -y lcov
-  #     sudo apt-get install binutils-2.26
-  #     export PATH=/usr/lib/binutils-2.26/bin:${PATH}
-  #   fi
+  - |
+    if [[ "${TRAVIS_OS_NAME}" == "linux" ]]; then
+      # FindMKL.cmake uses mkl_link_tool, which is a 32bits application !
+      sudo dpkg --add-architecture i386
+      sudo apt-get update
+      sudo apt-get install -y libc6:i386 libncurses5:i386 libstdc++6:i386
+      sudo apt-get install -y lcov
+      sudo apt-get install binutils-2.26
+      export PATH=/usr/lib/binutils-2.26/bin:${PATH}
+    fi
 
   # Travis machines have 2 cores
   - JOBS=2
@@ -87,82 +87,82 @@ before_install:
   ############################################################################
   # Install a recent CMake
   ############################################################################
-  # - |
-  #   if [[ "${TRAVIS_OS_NAME}" == "osx" ]]; then
-  #       brew upgrade cmake;
-  #   fi
+  - |
+    if [[ "${TRAVIS_OS_NAME}" == "osx" ]]; then
+        brew upgrade cmake;
+    fi
 
   ############################################################################
   # Install MKL (if necessary)
   ############################################################################
-  # - |
-  #   if [[ "${BACKEND}" == *"Intel"* ]]; then
-  #     curl -fsSkL https://raw.githubusercontent.com/openmeeg/ci-utils/master/travis/install_mkl.sh > install_mkl.sh && source ./install_mkl.sh
-  #   fi
+  - |
+    if [[ "${BACKEND}" == *"Intel"* ]]; then
+      curl -fsSkL https://raw.githubusercontent.com/openmeeg/ci-utils/master/travis/install_mkl.sh > install_mkl.sh && source ./install_mkl.sh
+    fi
 
   ############################################################################
   # Install Matio
   ############################################################################
-  # - if [[ "${TRAVIS_OS_NAME}" == "osx" ]]; then
-  #       rm -rf /usr/local/include/c++;
-  #       brew install hdf5 libmatio;
-  #       brew reinstall -s libmatio;
-  #       if [[ "${USE_VTK}" == "ON" ]]; then
-  #           brew install vtk --without-python@2;
-  #       fi
-  #   else
-  #       if [[ "${BUILD_PACKAGE}" == "ON" ]]; then
-  #           git clone https://github.com/astropy/ci-helpers.git;
-  #           source ci-helpers/travis/setup_conda.sh;
-  #           conda install -c massich libmatio;
-  #       fi
-  #   fi
+  - if [[ "${TRAVIS_OS_NAME}" == "osx" ]]; then
+        rm -rf /usr/local/include/c++;
+        brew install hdf5 libmatio;
+        brew reinstall -s libmatio;
+        if [[ "${USE_VTK}" == "ON" ]]; then
+            brew install vtk --without-python@2;
+        fi
+    else
+        if [[ "${BUILD_PACKAGE}" == "ON" ]]; then
+            git clone https://github.com/astropy/ci-helpers.git;
+            source ci-helpers/travis/setup_conda.sh;
+            conda install -c massich libmatio;
+        fi
+    fi
 
   ############################################################################
   # Install scan-build clang analyser
   ############################################################################
-  # - |
-  #   export SCAN_BUILD=""
-  #   if [[ "${ANALYSE}" == "ON" ]]; then
-  #     export SCAN_BUILD="scan-build --status-bugs -o scanbuildout"
-  #     if [[ "${TRAVIS_OS_NAME}" == "linux" ]]; then
-  #       sudo apt-get install -qq clang;
-  #     else
-  #       curl http://clang-analyzer.llvm.org/downloads/checker-276.tar.bz2 -o /usr/local/Cellar/checker-276.bz2;
-  #       cd /usr/local/Cellar/;
-  #       tar -jxvf checker-276.bz2;
-  #       ln -s /usr/local/Cellar/checker-276/scan-build /usr/local/bin/scan-build;
-  #       rm checker-276.bz2;
-  #     fi
-  #     shopt -s expand_aliases
-  #     # alias cmake="${SCAN_BUILD} cmake -DCMAKE_BUILD_TYPE=Debug"
-  #     alias cmake="cmake -DCMAKE_BUILD_TYPE=Debug"
-  #     alias make="${SCAN_BUILD} make"
-  #   fi
+  - |
+    export SCAN_BUILD=""
+    if [[ "${ANALYSE}" == "ON" ]]; then
+      export SCAN_BUILD="scan-build --status-bugs -o scanbuildout"
+      if [[ "${TRAVIS_OS_NAME}" == "linux" ]]; then
+        sudo apt-get install -qq clang;
+      else
+        curl http://clang-analyzer.llvm.org/downloads/checker-276.tar.bz2 -o /usr/local/Cellar/checker-276.bz2;
+        cd /usr/local/Cellar/;
+        tar -jxvf checker-276.bz2;
+        ln -s /usr/local/Cellar/checker-276/scan-build /usr/local/bin/scan-build;
+        rm checker-276.bz2;
+      fi
+      shopt -s expand_aliases
+      # alias cmake="${SCAN_BUILD} cmake -DCMAKE_BUILD_TYPE=Debug"
+      alias cmake="cmake -DCMAKE_BUILD_TYPE=Debug"
+      alias make="${SCAN_BUILD} make"
+    fi
 
   ############################################################################
   # Install brew llvm
   ############################################################################
-  # - |
-  #   if [[ "${USE_BREW_LLVM}" == "ON" ]]; then
-  #       brew install llvm;
-  #       export OMP_NUM_THREADS=4;
-  #       export LDFLAGS="-L/usr/local/opt/llvm/lib -Wl,-rpath,/usr/local/opt/llvm/lib";
-  #       export DYLD_LIBRARY_PATH="/usr/local/opt/llvm/lib:$DYLD_LIBRARY_PATH";
-  #       export CC="/usr/local/opt/llvm/bin/clang";
-  #       export CXX="/usr/local/opt/llvm/bin/clang++";
-  #       export CPPFLAGS="-I/usr/local/opt/llvm/include $CPPFLAGS";
-  #       export CFLAGS="-I/usr/local/opt/llvm/include $CFLAGS";
-  #   fi
+  - |
+    if [[ "${USE_BREW_LLVM}" == "ON" ]]; then
+        brew install llvm;
+        export OMP_NUM_THREADS=4;
+        export LDFLAGS="-L/usr/local/opt/llvm/lib -Wl,-rpath,/usr/local/opt/llvm/lib";
+        export DYLD_LIBRARY_PATH="/usr/local/opt/llvm/lib:$DYLD_LIBRARY_PATH";
+        export CC="/usr/local/opt/llvm/bin/clang";
+        export CXX="/usr/local/opt/llvm/bin/clang++";
+        export CPPFLAGS="-I/usr/local/opt/llvm/include $CPPFLAGS";
+        export CFLAGS="-I/usr/local/opt/llvm/include $CFLAGS";
+    fi
 
   ############################################################################
   # Install OpenBLAS
   ############################################################################
-  # - |
-  #   if [[ "${TRAVIS_OS_NAME}" == "osx" && "${BACKEND}" == "OpenBLAS" ]]; then
-  #       brew install openblas;
-  #       brew link openblas --force;
-  #   fi
+  - |
+    if [[ "${TRAVIS_OS_NAME}" == "osx" && "${BACKEND}" == "OpenBLAS" ]]; then
+        brew install openblas;
+        brew link openblas --force;
+    fi
 
 script:
   - cd ${TRAVIS_BUILD_DIR}
