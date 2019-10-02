@@ -1,7 +1,6 @@
 sudo: true
 
-language:
-  - cpp
+language: cpp
 
 cache:
   ccache: true
@@ -11,12 +10,15 @@ cache:
 matrix:
   include:
     - os: linux  # shipping linux
+      dist: bionic
       env:
         - BACKEND=Intel10_64lp
         - BUILD_STATIC=ON
         - BUILD_PACKAGE=ON
+        - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
 
     - os: linux  # shipping apt-get
+      dist: bionic
       env:
         - BACKEND=OpenBLAS
         - USE_VTK=ON
@@ -24,10 +26,11 @@ matrix:
         - ANALYSE=ON
         - ENABLE_COVERAGE=ON
         - BUILD_DOCUMENTATION=ON
+        - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
       addons:
-        sources:
-          - ubuntu-toolchain-r-test
         apt:
+          sources:
+            - ubuntu-toolchain-r-test
           packages:
             - libopenblas-dev
             - liblapacke-dev # XXX: If lapacke is missing, cmake does not break at generation but at compilation.
@@ -35,6 +38,9 @@ matrix:
             - python-numpy
             - doxygen
             - graphviz
+            - libmatio4
+            - libmatio-dev
+            - libvtk6-dev
 
     - os: osx  # shipping mac
       osx_image: xcode8.3
@@ -57,6 +63,7 @@ matrix:
         - ANALYSE=ON
 
 before_install:
+  - eval "${MATRIX_EVAL}"
   - |
     if [[ "${TRAVIS_OS_NAME}" == "linux" ]]; then
       # FindMKL.cmake uses mkl_link_tool, which is a 32bits application !
@@ -80,8 +87,10 @@ before_install:
   ############################################################################
   # Install a recent CMake
   ############################################################################
-  - CMAKE_VERSION=3.10.1
-  - curl -fsSkL https://raw.githubusercontent.com/openmeeg/ci-utils/master/travis/install_cmake.sh > x.sh && source ./x.sh
+  - |
+    if [[ "${TRAVIS_OS_NAME}" == "osx" ]]; then
+        brew upgrade cmake;
+    fi
 
   ############################################################################
   # Install MKL (if necessary)
@@ -106,8 +115,6 @@ before_install:
             git clone https://github.com/astropy/ci-helpers.git;
             source ci-helpers/travis/setup_conda.sh;
             conda install -c massich libmatio;
-        else
-            sudo apt-get install -y libmatio2 libmatio-dev libvtk5-dev;
         fi
     fi
 
@@ -250,7 +257,7 @@ notifications:
 
 env:
   global:
-    - src_dir: $TRAVIS_BUILD_DIR
+    - src_dir: "${TRAVIS_BUILD_DIR}"
     - secure: THD5qh1lrYDL2dEYVu+pitC+RsfB/Wn8jJjNTVFYEwPnSw5zov4N2aVNwOaHM4qJwp8NdL81ke4gI0P9vS89HPSstsnkboAwzn8Kj3UhAq0X10vnkgH+BIjUut0H3DCcY0O5Y2/1pc5KL/6pErT6tdFlRq8xS6YwVe7UKx3rEXo=
     - secure: XBNTHU+DVCKeUKjxVSfvAkFr/KnvzYDDn28u8Y41v9kT+yHE1HHPnSYJS9JndQllOUAXtT0Ix81LSKG9MVthIWs5uPTOOg4hPZloE8mOYWSs/EHLraEEbZFUAaoCz2ZVYdA92HM1YAVo4Bi+zMy9g7Ra4POSWwFY5n/zV+ma//A=
     - secure: NwGYiI9vDCLsIN+uAJRPlUV9g4RraaHfNiJRGBmsc8kOaPvBL2fb3Mia6nOfkfcaVOmkEPhWeAOW8XKHqVj6982SBQrbnS/xfU/EHiDJaq7YVBRfkCn4/9yswyhCxvrS97JagIgnEjlhbIV9VLZ19A/e2fhWEzGbJabLyZ0ZNBc=
