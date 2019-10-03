@@ -26,7 +26,7 @@ matrix:
         - ENABLE_PYTHON=ON
         - ANALYSE=OFF
         - ENABLE_COVERAGE=OFF
-        - BUILD_DOCUMENTATION=ON
+        - BUILD_DOCUMENTATION=OFF
         - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
       addons:
         apt:
