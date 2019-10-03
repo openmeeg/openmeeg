@@ -24,8 +24,8 @@ matrix:
         - BACKEND=OpenBLAS
         - USE_VTK=ON
         - ENABLE_PYTHON=ON
-        - ANALYSE=OFF
-        - ENABLE_COVERAGE=OFF
+        - ANALYSE=ON
+        - ENABLE_COVERAGE=ON
         - BUILD_DOCUMENTATION=OFF
         - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
       addons:
