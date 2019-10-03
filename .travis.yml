@@ -9,13 +9,14 @@ cache:
 
 matrix:
   include:
-    - os: linux  # shipping linux
-      dist: bionic
-      env:
-        - BACKEND=Intel10_64lp
-        - BUILD_STATIC=ON
-        - BUILD_PACKAGE=ON
-        - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
+
+    # - os: linux  # shipping linux
+    #   dist: bionic
+    #   env:
+    #     - BACKEND=Intel10_64lp
+    #     - BUILD_STATIC=ON
+    #     - BUILD_PACKAGE=ON
+    #     - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
 
     - os: linux  # shipping apt-get
       dist: bionic
@@ -23,8 +24,8 @@ matrix:
         - BACKEND=OpenBLAS
         - USE_VTK=ON
         - ENABLE_PYTHON=ON
-        # - ANALYSE=ON
-        # - ENABLE_COVERAGE=ON
+        - ANALYSE=OFF
+        - ENABLE_COVERAGE=OFF
         - BUILD_DOCUMENTATION=ON
         - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
       addons:
@@ -42,25 +43,25 @@ matrix:
             - libmatio-dev
             - libvtk6-dev
 
-    - os: osx  # shipping mac
-      osx_image: xcode8.3
-      env:
-        - BACKEND=Intel10_64lp
-        - BUILD_STATIC=ON
-        - BUILD_PACKAGE=ON
+    # - os: osx  # shipping mac
+    #   osx_image: xcode8.3
+    #   env:
+    #     - BACKEND=Intel10_64lp
+    #     - BUILD_STATIC=ON
+    #     - BUILD_PACKAGE=ON
 
-    - os: osx  # shipping brew
-      env:
-        - BACKEND=OpenBLAS
-      # - USE_GCC=ON  # XXX : vtk does not work with GCC
-      # - USE_BREW_LLVM=ON  # XXX: To have OpenMP but segfaults...
-      # - USE_VTK=ON # XXX: vtk is currently broken in brew
+    # - os: osx  # shipping brew
+    #   env:
+    #     - BACKEND=OpenBLAS
+    #   # - USE_GCC=ON  # XXX : vtk does not work with GCC
+    #   # - USE_BREW_LLVM=ON  # XXX: To have OpenMP but segfaults...
+    #   # - USE_VTK=ON # XXX: vtk is currently broken in brew
 
-    - os: osx  # Static analysis using clang-analyzer
-      env:
-        - ENABLE_COVERAGE=ON
-        - BACKEND=Apple
-        - ANALYSE=ON
+    # - os: osx  # Static analysis using clang-analyzer
+    #   env:
+    #     - ENABLE_COVERAGE=ON
+    #     - BACKEND=Apple
+    #     - ANALYSE=ON
 
 before_install:
   - eval "${MATRIX_EVAL}"
@@ -203,54 +204,54 @@ script:
   - cmake .. ${CMAKE_OPTIONS}
   - make -j ${JOBS} VERBOSE=1
   - CTEST_OUTPUT_ON_FAILURE=1 ctest .
-  - |
-    if [[ "${BUILD_PACKAGE}" == "ON" ]]; then
-      cpack -G TGZ .
-      if [[ "${TRAVIS_OS_NAME}" == "linux" ]]; then
-        PACKAGE_DEPLOY=$(readlink OpenMEEG*.tar.gz -f)
-      fi
-      if [[ "${TRAVIS_OS_NAME}" == "osx" ]]; then
-        brew install coreutils
-        PACKAGE_DEPLOY=$(greadlink -f OpenMEEG*.tar.gz)
-      fi
-    fi
-  - sudo make install
-  - sudo make uninstall
+  # - |
+  #   if [[ "${BUILD_PACKAGE}" == "ON" ]]; then
+  #     cpack -G TGZ .
+  #     if [[ "${TRAVIS_OS_NAME}" == "linux" ]]; then
+  #       PACKAGE_DEPLOY=$(readlink OpenMEEG*.tar.gz -f)
+  #     fi
+  #     if [[ "${TRAVIS_OS_NAME}" == "osx" ]]; then
+  #       brew install coreutils
+  #       PACKAGE_DEPLOY=$(greadlink -f OpenMEEG*.tar.gz)
+  #     fi
+  #   fi
+  # - sudo make install
+  # - sudo make uninstall
 
-after_success:
-  - |
-    if [[ "${ENABLE_COVERAGE}" == "ON" ]]; then
-      lcov --directory . --capture --output-file coverage.info > /dev/null 2>&1 # capture coverage info
-      lcov --remove coverage.info '/usr/*' --output-file coverage.info > /dev/null 2>&1 # filter out system
-      lcov --list coverage.info > /dev/null 2>&1
-      bash <(curl -s https://codecov.io/bash) > /dev/null 2>&1
-    fi
-  - |
-    if [[ "${BUILD_PACKAGE}" == "ON" && "${TRAVIS_PULL_REQUEST}" == "false" ]]; then
-      mkdir -p /tmp/xx/ && cd /tmp/xx/
-      # MESSAGE=$(git log --format=%B -n 1 $TRAVIS_COMMIT)
-      MESSAGE="[av skip] Push from openmeeg $(date)"
-      git clone git://${GH_REPO}
-      cd ${REPO}
-      # git config user.email ${EMAIL}
-      # git config user.name ${USER}
-      git config user.email "openmeeg@openmeeg.org"
-      git config user.name "openmeeg"
-      function gitpush() {
-        git fetch origin
-        git reset --hard origin/master
-        cp -R ${PACKAGE_DEPLOY} ./
-        echo "- $(date)" >> README.md
-        git add ${FILES}
-        git add OpenMEEG*.tar.gz
-        git status
-        git commit -m "${MESSAGE}"
-        git pull --no-edit "https://${OPENMEEG_PACKAGING_TOKEN}@${GH_REPO}" master
-        git push "https://${OPENMEEG_PACKAGING_TOKEN}@${GH_REPO}" master
-      }
-      travis_retry gitpush
-    fi
-  - source $TRAVIS_BUILD_DIR/build_tools/travis/after_success.sh
+# after_success:
+#   - |
+#     if [[ "${ENABLE_COVERAGE}" == "ON" ]]; then
+#       lcov --directory . --capture --output-file coverage.info > /dev/null 2>&1 # capture coverage info
+#       lcov --remove coverage.info '/usr/*' --output-file coverage.info > /dev/null 2>&1 # filter out system
+#       lcov --list coverage.info > /dev/null 2>&1
+#       bash <(curl -s https://codecov.io/bash) > /dev/null 2>&1
+#     fi
+#   - |
+#     if [[ "${BUILD_PACKAGE}" == "ON" && "${TRAVIS_PULL_REQUEST}" == "false" ]]; then
+#       mkdir -p /tmp/xx/ && cd /tmp/xx/
+#       # MESSAGE=$(git log --format=%B -n 1 $TRAVIS_COMMIT)
+#       MESSAGE="[av skip] Push from openmeeg $(date)"
+#       git clone git://${GH_REPO}
+#       cd ${REPO}
+#       # git config user.email ${EMAIL}
+#       # git config user.name ${USER}
+#       git config user.email "openmeeg@openmeeg.org"
+#       git config user.name "openmeeg"
+#       function gitpush() {
+#         git fetch origin
+#         git reset --hard origin/master
+#         cp -R ${PACKAGE_DEPLOY} ./
+#         echo "- $(date)" >> README.md
+#         git add ${FILES}
+#         git add OpenMEEG*.tar.gz
+#         git status
+#         git commit -m "${MESSAGE}"
+#         git pull --no-edit "https://${OPENMEEG_PACKAGING_TOKEN}@${GH_REPO}" master
+#         git push "https://${OPENMEEG_PACKAGING_TOKEN}@${GH_REPO}" master
+#       }
+#       travis_retry gitpush
+#     fi
+#   - source $TRAVIS_BUILD_DIR/build_tools/travis/after_success.sh
 
 notifications:
   email: false
