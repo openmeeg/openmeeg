@@ -44,7 +44,7 @@ matrix:
             - libvtk6-dev
 
     - os: osx  # shipping mac
-      osx_image: xcode8.3
+      osx_image: xcode9.2
       env:
         - BACKEND=Intel10_64lp
         - BUILD_STATIC=ON
