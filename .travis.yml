@@ -49,6 +49,12 @@ matrix:
         - BACKEND=Intel10_64lp
         - BUILD_STATIC=ON
         - BUILD_PACKAGE=ON
+      addons:
+        homebrew:
+          packages:
+            # - cmake
+            - hdf5
+            - libmatio
 
     - os: osx  # shipping brew
       env:
@@ -56,12 +62,24 @@ matrix:
       # - USE_GCC=ON  # XXX : vtk does not work with GCC
       # - USE_BREW_LLVM=ON  # XXX: To have OpenMP but segfaults...
       # - USE_VTK=ON # XXX: vtk is currently broken in brew
+      addons:
+        homebrew:
+          packages:
+            # - cmake
+            - hdf5
+            - libmatio
 
     - os: osx  # Static analysis using clang-analyzer
       env:
         - ENABLE_COVERAGE=ON
         - BACKEND=Apple
         - ANALYSE=ON
+      addons:
+        homebrew:
+          packages:
+            # - cmake
+            - hdf5
+            - libmatio
 
 before_install:
   - eval "${MATRIX_EVAL}"
@@ -106,8 +124,6 @@ before_install:
   ############################################################################
   - if [[ "${TRAVIS_OS_NAME}" == "osx" ]]; then
         rm -rf /usr/local/include/c++;
-        brew install hdf5 libmatio;
-        brew reinstall -s libmatio;
         if [[ "${USE_VTK}" == "ON" ]]; then
             brew install vtk --without-python@2;
         fi
