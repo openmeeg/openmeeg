@@ -77,7 +77,8 @@ matrix:
       addons:
         homebrew:
           packages:
-            # - cmake
+            - cmake
+            - gcc
             - hdf5
             - libmatio
 
@@ -94,6 +95,12 @@ before_install:
       export PATH=/usr/lib/binutils-2.26/bin:${PATH}
     fi
 
+  - |
+    if [[ "${TRAVIS_OS_NAME}" == "osx" ]]; then
+        brew upgrade cmake;
+        brew reinstall -s libmatio;
+    fi
+
   # Travis machines have 2 cores
   - JOBS=2
 
@@ -103,13 +110,13 @@ before_install:
   - export DL_DIR=$HOME/downloads
   - curl -fsSkL https://raw.githubusercontent.com/openmeeg/ci-utils/master/travis/travis_tools.sh > x.sh && source ./x.sh
 
-  ############################################################################
-  # Install a recent CMake
-  ############################################################################
-  - |
-    if [[ "${TRAVIS_OS_NAME}" == "osx" ]]; then
-        brew upgrade cmake;
-    fi
+  # ############################################################################
+  # # Install a recent CMake
+  # ############################################################################
+  # - |
+  #   if [[ "${TRAVIS_OS_NAME}" == "osx" ]]; then
+  #       brew upgrade cmake;
+  #   fi
 
   ############################################################################
   # Install MKL (if necessary)
@@ -123,7 +130,6 @@ before_install:
   # Install Matio
   ############################################################################
   - if [[ "${TRAVIS_OS_NAME}" == "osx" ]]; then
-        rm -rf /usr/local/include/c++;
         if [[ "${USE_VTK}" == "ON" ]]; then
             brew install vtk --without-python@2;
         fi
