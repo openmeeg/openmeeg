@@ -10,82 +10,82 @@ cache:
 matrix:
   include:
 
-    - os: linux  # shipping linux
-      dist: bionic
-      env:
-        - BACKEND=Intel10_64lp
-        - BUILD_STATIC=ON
-        - BUILD_PACKAGE=ON
-        - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
+    # - os: linux  # shipping linux
+    #   dist: bionic
+    #   env:
+    #     - BACKEND=Intel10_64lp
+    #     - BUILD_STATIC=ON
+    #     - BUILD_PACKAGE=ON
+    #     - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
 
-    - os: linux  # shipping apt-get
-      dist: bionic
-      env:
-        - BACKEND=OpenBLAS
-        - USE_VTK=ON
-        - ENABLE_PYTHON=ON
-        - ANALYSE=ON
-        - ENABLE_COVERAGE=ON
-        - BUILD_DOCUMENTATION=OFF
-        - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-          packages:
-            - libopenblas-dev
-            - liblapacke-dev # XXX: If lapacke is missing, cmake does not break at generation but at compilation.
-            - swig
-            - python-numpy
-            - doxygen
-            - graphviz
-            - libmatio4
-            - libmatio-dev
-            - libvtk6-dev
+    # - os: linux  # shipping apt-get
+    #   dist: bionic
+    #   env:
+    #     - BACKEND=OpenBLAS
+    #     - USE_VTK=ON
+    #     - ENABLE_PYTHON=ON
+    #     - ANALYSE=ON
+    #     - ENABLE_COVERAGE=ON
+    #     - BUILD_DOCUMENTATION=OFF
+    #     - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
+    #   addons:
+    #     apt:
+    #       sources:
+    #         - ubuntu-toolchain-r-test
+    #       packages:
+    #         - libopenblas-dev
+    #         - liblapacke-dev # XXX: If lapacke is missing, cmake does not break at generation but at compilation.
+    #         - swig
+    #         - python-numpy
+    #         - doxygen
+    #         - graphviz
+    #         - libmatio4
+    #         - libmatio-dev
+    #         - libvtk6-dev
 
     - os: osx  # shipping mac
-      # osx_image: xcode8.3
+      osx_image: xcode10.3
       env:
         - BACKEND=Intel10_64lp
         - BUILD_STATIC=ON
         - BUILD_PACKAGE=ON
       addons:
         homebrew:
-          update: true
           packages:
             - cmake
-            - gcc
+            # - gcc
             - hdf5
             - libmatio
+          update: true
 
-    - os: osx  # shipping brew
-      env:
-        - BACKEND=OpenBLAS
-      # - USE_GCC=ON  # XXX : vtk does not work with GCC
-      # - USE_BREW_LLVM=ON  # XXX: To have OpenMP but segfaults...
-      # - USE_VTK=ON # XXX: vtk is currently broken in brew
-      addons:
-        homebrew:
-          update: true
-          packages:
-            - cmake
-            - gcc
-            - hdf5
-            - libmatio
+    # - os: osx  # shipping brew
+    #   env:
+    #     - BACKEND=OpenBLAS
+    #   # - USE_GCC=ON  # XXX : vtk does not work with GCC
+    #   # - USE_BREW_LLVM=ON  # XXX: To have OpenMP but segfaults...
+    #   # - USE_VTK=ON # XXX: vtk is currently broken in brew
+    #   addons:
+    #     homebrew:
+    #       update: true
+    #       packages:
+    #         - cmake
+    #         - gcc
+    #         - hdf5
+    #         - libmatio
 
-    - os: osx  # Static analysis using clang-analyzer
-      env:
-        - ENABLE_COVERAGE=ON
-        - BACKEND=Apple
-        - ANALYSE=ON
-      addons:
-        homebrew:
-          update: true
-          packages:
-            - cmake
-            - gcc
-            - hdf5
-            - libmatio
+    # - os: osx  # Static analysis using clang-analyzer
+    #   env:
+    #     - ENABLE_COVERAGE=ON
+    #     - BACKEND=Apple
+    #     - ANALYSE=ON
+    #   addons:
+    #     homebrew:
+    #       update: true
+    #       packages:
+    #         - cmake
+    #         - gcc
+    #         - hdf5
+    #         - libmatio
 
 before_install:
   - eval "${MATRIX_EVAL}"
