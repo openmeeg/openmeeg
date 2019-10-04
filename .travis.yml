@@ -51,8 +51,10 @@ matrix:
         - BUILD_PACKAGE=ON
       addons:
         homebrew:
+          update: true
           packages:
-            # - cmake
+            - cmake
+            - gcc
             - hdf5
             - libmatio
 
@@ -64,8 +66,10 @@ matrix:
       # - USE_VTK=ON # XXX: vtk is currently broken in brew
       addons:
         homebrew:
+          update: true
           packages:
-            # - cmake
+            - cmake
+            - gcc
             - hdf5
             - libmatio
 
@@ -76,6 +80,7 @@ matrix:
         - ANALYSE=ON
       addons:
         homebrew:
+          update: true
           packages:
             - cmake
             - gcc
