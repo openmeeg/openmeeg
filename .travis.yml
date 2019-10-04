@@ -100,11 +100,6 @@ before_install:
       export PATH=/usr/lib/binutils-2.26/bin:${PATH}
     fi
 
-  - |
-    if [[ "${TRAVIS_OS_NAME}" == "osx" ]]; then
-        brew upgrade cmake;
-        brew reinstall -s libmatio;
-    fi
 
   # Travis machines have 2 cores
   - JOBS=2
