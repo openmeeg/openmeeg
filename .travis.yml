@@ -100,19 +100,6 @@ before_install:
       export PATH=/usr/lib/binutils-2.26/bin:${PATH}
     fi
 
-  - |
-    if [[ "${TRAVIS_OS_NAME}" == "osx" ]]; then
-      export MKL_INSTALL_DIR=/opt/intel;
-      export ARCH_FNAME=m_mkl_2017.4.220.dmg;
-      travis_wait 30 download http://registrationcenter-download.intel.com/akdlm/irc_nas/tec/12185/${ARCH_FNAME};
-      hdiutil attach $DL_DIR/${ARCH_FNAME};
-      cat /Volumes/m_mkl_2017.4.220/m_mkl_2017.4.220.app/Contents/MacOS/silent.cfg | grep -v EULA | grep -v PSET_INSTALL_DIR > silent.cfg;
-      echo "ACCEPT_EULA=accept" >> silent.cfg;
-      echo "PSET_INSTALL_DIR=${MKL_INSTALL_DIR}" >> silent.cfg;
-      sudo /Volumes/m_mkl_2017.4.220/m_mkl_2017.4.220.app/Contents/MacOS/install.sh -s ./silent.cfg;
-      . /opt/intel/mkl/bin/mklvars.sh intel64 ilp64;
-    fi
-
   # Travis machines have 2 cores
   - JOBS=2
 
@@ -134,10 +121,23 @@ before_install:
   ############################################################################
   # Install MKL (if necessary)
   ############################################################################
+  # - |
+  #   if [[ "${BACKEND}" == *"Intel"* ]]; then
+  #     curl -fsSkL https://raw.githubusercontent.com/openmeeg/ci-utils/master/travis/install_mkl.sh > install_mkl.sh && source ./install_mkl.sh
+  #   fi
   - |
-    if [[ "${BACKEND}" == *"Intel"* ]]; then
-      curl -fsSkL https://raw.githubusercontent.com/openmeeg/ci-utils/master/travis/install_mkl.sh > install_mkl.sh && source ./install_mkl.sh
+    if [[ "${TRAVIS_OS_NAME}" == "osx" ]]; then
+      export MKL_INSTALL_DIR=/opt/intel;
+      export ARCH_FNAME=m_mkl_2017.4.220.dmg;
+      travis_wait 30 download http://registrationcenter-download.intel.com/akdlm/irc_nas/tec/12185/${ARCH_FNAME};
+      hdiutil attach $DL_DIR/${ARCH_FNAME};
+      cat /Volumes/m_mkl_2017.4.220/m_mkl_2017.4.220.app/Contents/MacOS/silent.cfg | grep -v EULA | grep -v PSET_INSTALL_DIR > silent.cfg;
+      echo "ACCEPT_EULA=accept" >> silent.cfg;
+      echo "PSET_INSTALL_DIR=${MKL_INSTALL_DIR}" >> silent.cfg;
+      sudo /Volumes/m_mkl_2017.4.220/m_mkl_2017.4.220.app/Contents/MacOS/install.sh -s ./silent.cfg;
+      . /opt/intel/mkl/bin/mklvars.sh intel64 ilp64;
     fi
+
 
   ############################################################################
   # Install Matio
