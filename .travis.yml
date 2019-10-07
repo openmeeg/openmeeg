@@ -10,7 +10,7 @@ cache:
 matrix:
   include:
 
-    - name: [shipping] MKL + minimal dep using conda
+    - name: (shipping) MKL + minimal dep using conda
       os: linux
       dist: bionic
       env:
@@ -19,7 +19,7 @@ matrix:
         - BUILD_PACKAGE=ON
         - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
 
-    - name: openblas, python, vtk, gcc-7, apt-get dependencies
+    - name: (analyse) openblas, python, vtk, gcc-7, apt-get dependencies
       os: linux
       dist: bionic
       env:
@@ -46,7 +46,7 @@ matrix:
             - libvtk6-dev
             - lcov
 
-    - name: [shipping] MKL + minimal dep using brew
+    - name: (shipping) MKL + minimal dep using brew
       os: osx
       osx_image: xcode9.4
       env:
@@ -79,7 +79,7 @@ matrix:
             - openblas
             - vtk
 
-    - name: Static analysis using clang-analyzer
+    - name: (analyse) Static analysis using clang-analyzer
       os: osx
       env:
         - ENABLE_COVERAGE=ON
