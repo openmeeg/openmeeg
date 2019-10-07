@@ -51,12 +51,11 @@ matrix:
         - BUILD_PACKAGE=ON
       addons:
         homebrew:
+          update: true
           packages:
             - cmake
-            # - gcc
             - hdf5
             - libmatio
-          update: true
 
     - os: osx  # shipping brew
       env:
@@ -72,6 +71,7 @@ matrix:
             - gcc
             - hdf5
             - libmatio
+            - openblas
 
     - os: osx  # Static analysis using clang-analyzer
       env:
@@ -108,15 +108,6 @@ before_install:
   ############################################################################
   - export DL_DIR=$HOME/downloads
   - curl -fsSkL https://raw.githubusercontent.com/openmeeg/ci-utils/master/travis/travis_tools.sh > x.sh && source ./x.sh
-
-  # ############################################################################
-  # # Install a recent CMake
-  # ############################################################################
-  # - |
-  #   if [[ "${TRAVIS_OS_NAME}" == "osx" ]]; then
-  #       brew upgrade cmake;
-  #   fi
-  
 
   ############################################################################
   # Install MKL (if necessary)
@@ -182,11 +173,11 @@ before_install:
   ############################################################################
   # Install OpenBLAS
   ############################################################################
-  - |
-    if [[ "${TRAVIS_OS_NAME}" == "osx" && "${BACKEND}" == "OpenBLAS" ]]; then
-        brew install openblas;
-        brew link openblas --force;
-    fi
+  # - |
+  #   if [[ "${TRAVIS_OS_NAME}" == "osx" && "${BACKEND}" == "OpenBLAS" ]]; then
+  #       brew install openblas;
+  #       brew link openblas --force;
+  #   fi
 
 script:
   - cd ${TRAVIS_BUILD_DIR}
