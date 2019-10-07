@@ -62,7 +62,7 @@ matrix:
         - BACKEND=OpenBLAS
       # - USE_GCC=ON  # XXX : vtk does not work with GCC
       # - USE_BREW_LLVM=ON  # XXX: To have OpenMP but segfaults...
-      - USE_VTK=ON # XXX: vtk is currently broken in brew
+        - USE_VTK=ON # XXX: vtk is currently broken in brew
       addons:
         homebrew:
           update: true
@@ -123,9 +123,7 @@ before_install:
   # Install Matio
   ############################################################################
   - if [[ "${TRAVIS_OS_NAME}" == "osx" ]]; then
-        if [[ "${USE_VTK}" == "ON" ]]; then
-            brew install vtk --without-python@2;
-        fi
+        echo 'osx';
     else
         if [[ "${BUILD_PACKAGE}" == "ON" ]]; then
             git clone https://github.com/astropy/ci-helpers.git;
@@ -273,7 +271,7 @@ notifications:
 
 env:
   global:
-    - src_dir: "${TRAVIS_BUILD_DIR}"
+    - src_dir: $TRAVIS_BUILD_DIR
     - secure: THD5qh1lrYDL2dEYVu+pitC+RsfB/Wn8jJjNTVFYEwPnSw5zov4N2aVNwOaHM4qJwp8NdL81ke4gI0P9vS89HPSstsnkboAwzn8Kj3UhAq0X10vnkgH+BIjUut0H3DCcY0O5Y2/1pc5KL/6pErT6tdFlRq8xS6YwVe7UKx3rEXo=
     - secure: XBNTHU+DVCKeUKjxVSfvAkFr/KnvzYDDn28u8Y41v9kT+yHE1HHPnSYJS9JndQllOUAXtT0Ix81LSKG9MVthIWs5uPTOOg4hPZloE8mOYWSs/EHLraEEbZFUAaoCz2ZVYdA92HM1YAVo4Bi+zMy9g7Ra4POSWwFY5n/zV+ma//A=
     - secure: NwGYiI9vDCLsIN+uAJRPlUV9g4RraaHfNiJRGBmsc8kOaPvBL2fb3Mia6nOfkfcaVOmkEPhWeAOW8XKHqVj6982SBQrbnS/xfU/EHiDJaq7YVBRfkCn4/9yswyhCxvrS97JagIgnEjlhbIV9VLZ19A/e2fhWEzGbJabLyZ0ZNBc=
