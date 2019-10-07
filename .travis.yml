@@ -10,7 +10,8 @@ cache:
 matrix:
   include:
 
-    - os: linux  # shipping linux
+    - name: [shipping] MKL + minimal dep using conda
+      os: linux
       dist: bionic
       env:
         - BACKEND=Intel10_64lp
@@ -18,7 +19,8 @@ matrix:
         - BUILD_PACKAGE=ON
         - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
 
-    - os: linux  # shipping apt-get
+    - name: openblas, python, vtk, gcc-7, apt-get dependencies
+      os: linux
       dist: bionic
       env:
         - BACKEND=OpenBLAS
@@ -42,8 +44,10 @@ matrix:
             - libmatio4
             - libmatio-dev
             - libvtk6-dev
+            - lcov
 
-    - os: osx  # shipping mac
+    - name: [shipping] MKL + minimal dep using brew
+      os: osx
       osx_image: xcode9.4
       env:
         - BACKEND=Intel10_64lp
@@ -57,12 +61,13 @@ matrix:
             - hdf5
             - libmatio
 
-    - os: osx  # shipping brew
+    - name: openblas, vtk, full dep using brew
+      os: osx
       env:
         - BACKEND=OpenBLAS
-      # - USE_GCC=ON  # XXX : vtk does not work with GCC
-      # - USE_BREW_LLVM=ON  # XXX: To have OpenMP but segfaults...
-        - USE_VTK=ON # XXX: vtk is currently broken in brew
+        - USE_VTK=ON
+        # - USE_GCC=ON  # XXX : vtk does not work with GCC
+        # - USE_BREW_LLVM=ON  # XXX: To have OpenMP but segfaults...
       addons:
         homebrew:
           update: true
@@ -74,7 +79,8 @@ matrix:
             - openblas
             - vtk
 
-    - os: osx  # Static analysis using clang-analyzer
+    - name: Static analysis using clang-analyzer
+      os: osx
       env:
         - ENABLE_COVERAGE=ON
         - BACKEND=Apple
@@ -90,16 +96,6 @@ matrix:
 
 before_install:
   - eval "${MATRIX_EVAL}"
-  - |
-    if [[ "${TRAVIS_OS_NAME}" == "linux" ]]; then
-      # FindMKL.cmake uses mkl_link_tool, which is a 32bits application !
-      sudo dpkg --add-architecture i386
-      sudo apt-get update
-      sudo apt-get install -y libc6:i386 libncurses5:i386 libstdc++6:i386
-      sudo apt-get install -y lcov
-      sudo apt-get install binutils-2.26
-      export PATH=/usr/lib/binutils-2.26/bin:${PATH}
-    fi
 
   # Travis machines have 2 cores
   - JOBS=2
@@ -120,16 +116,13 @@ before_install:
 
 
   ############################################################################
-  # Install Matio
+  # Install Matio (using conda for shipping in Linux)
   ############################################################################
-  - if [[ "${TRAVIS_OS_NAME}" == "osx" ]]; then
-        echo 'osx';
-    else
-        if [[ "${BUILD_PACKAGE}" == "ON" ]]; then
-            git clone https://github.com/astropy/ci-helpers.git;
-            source ci-helpers/travis/setup_conda.sh;
-            conda install -c massich libmatio;
-        fi
+  - |
+    if [[ "${TRAVIS_OS_NAME}" == "linux" && "${BUILD_PACKAGE}" == "ON" ]]; then
+        git clone https://github.com/astropy/ci-helpers.git;
+        source ci-helpers/travis/setup_conda.sh;
+        conda install -c massich libmatio;
     fi
 
   ############################################################################
@@ -168,15 +161,6 @@ before_install:
         export CPPFLAGS="-I/usr/local/opt/llvm/include $CPPFLAGS";
         export CFLAGS="-I/usr/local/opt/llvm/include $CFLAGS";
     fi
-
-  ############################################################################
-  # Install OpenBLAS
-  ############################################################################
-  # - |
-  #   if [[ "${TRAVIS_OS_NAME}" == "osx" && "${BACKEND}" == "OpenBLAS" ]]; then
-  #       brew install openblas;
-  #       brew link openblas --force;
-  #   fi
 
 script:
   - cd ${TRAVIS_BUILD_DIR}
