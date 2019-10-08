@@ -52,7 +52,7 @@ print("First Values of numpy array")
 for l in range(5):
     for c in range(5):
         print(mat_numpy[l][c], end = " ")
-    print();
+    print()
 
 
 error = 0

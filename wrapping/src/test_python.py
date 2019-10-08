@@ -31,7 +31,6 @@ parser.add_option("-p", "--path", dest="data_path",
 options, args = parser.parse_args()
 data_path = options.data_path
 
-data_path = op.join(ops.omdir, "data")
 
 ###############################################################################
 # Load data
