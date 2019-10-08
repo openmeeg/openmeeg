@@ -1,11 +1,9 @@
 #!/usr/bin/env python
-
-#
 import sys
 import os
+import numpy as np
 
 import openmeeg as om
-import numpy as np
 
 # vector mapping
 
@@ -18,7 +16,7 @@ W1 = V1.array()
 print("W1 =", W1)
 
 # np.array -> om.Vector
-W2 = np.array( [1.0, 2.0, 3.0])
+W2 = np.array([1.0, 2.0, 3.0])
 print("W2 of", W2.__class__)
 print("W2 =", W2, "\n")
 
@@ -30,7 +28,7 @@ V3 = om.Vector(V2)
 print("V3 of", V3.__class__)
 V3.info()
 
-M = om.Matrix(2,3)
+M = om.Matrix(2, 3)
 M.setlin(0, V2)
 M.set(3)
 M.info()
@@ -44,7 +42,7 @@ V3.info()
 #
 error = 0
 for i in range(3):
-    if ( W1[i] != V1.value(i) ):
+    if W1[i] != V1.value(i):
         print("vectors differ at:", i)
         error = 1
 
