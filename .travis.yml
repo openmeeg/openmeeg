@@ -38,7 +38,7 @@ matrix:
             - libopenblas-dev
             - liblapacke-dev # XXX: If lapacke is missing, cmake does not break at generation but at compilation.
             - swig
-            - python-numpy
+            - python3-numpy
             - doxygen
             - graphviz
             - libmatio4
