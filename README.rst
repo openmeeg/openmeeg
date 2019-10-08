@@ -116,7 +116,7 @@ then::
 
 You will need to define more CMake variables if you want the support for:
 
-- Python wrapping, add "-DENABLE_PYTHON=ON".
+- Python wrapping, add "-DENABLE_PYTHON=ON" (default version is 3, add "-DPYTHON_VERSION=2" to use python2)
 
 - VTK file format, add "-DUSE_VTK=ON".
 
