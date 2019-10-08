@@ -1,7 +1,6 @@
 sudo: true
 
-language:
-  - cpp
+language: cpp
 
 cache:
   ccache: true
@@ -10,63 +9,93 @@ cache:
 
 matrix:
   include:
-    - os: linux  # shipping linux
+
+    - name: (shipping) MKL + minimal dep using conda
+      os: linux
+      dist: bionic
       env:
         - BACKEND=Intel10_64lp
         - BUILD_STATIC=ON
         - BUILD_PACKAGE=ON
+        - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
 
-    - os: linux  # shipping apt-get
+    - name: (analyse) openblas, python, vtk, gcc-7, apt-get dependencies
+      os: linux
+      dist: bionic
       env:
         - BACKEND=OpenBLAS
         - USE_VTK=ON
         - ENABLE_PYTHON=ON
         - ANALYSE=ON
         - ENABLE_COVERAGE=ON
-        - BUILD_DOCUMENTATION=ON
+        - BUILD_DOCUMENTATION=OFF
+        - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
       addons:
-        sources:
-          - ubuntu-toolchain-r-test
         apt:
+          sources:
+            - ubuntu-toolchain-r-test
           packages:
             - libopenblas-dev
             - liblapacke-dev # XXX: If lapacke is missing, cmake does not break at generation but at compilation.
             - swig
-            - python-numpy
+            - python3-numpy
             - doxygen
             - graphviz
+            - libmatio4
+            - libmatio-dev
+            - libvtk6-dev
+            - lcov
 
-    - os: osx  # shipping mac
-      osx_image: xcode8.3
+    - name: (shipping) MKL + minimal dep using brew
+      os: osx
+      osx_image: xcode9.4
       env:
         - BACKEND=Intel10_64lp
         - BUILD_STATIC=ON
         - BUILD_PACKAGE=ON
+      addons:
+        homebrew:
+          update: true
+          packages:
+            - cmake
+            - hdf5
+            - libmatio
 
-    - os: osx  # shipping brew
+    - name: openblas, vtk, full dep using brew
+      os: osx
       env:
         - BACKEND=OpenBLAS
-      # - USE_GCC=ON  # XXX : vtk does not work with GCC
-      # - USE_BREW_LLVM=ON  # XXX: To have OpenMP but segfaults...
-      # - USE_VTK=ON # XXX: vtk is currently broken in brew
+        - USE_VTK=ON
+        # - USE_GCC=ON  # XXX : vtk does not work with GCC
+        # - USE_BREW_LLVM=ON  # XXX: To have OpenMP but segfaults...
+      addons:
+        homebrew:
+          update: true
+          packages:
+            - cmake
+            - gcc
+            - hdf5
+            - libmatio
+            - openblas
+            - vtk
 
-    - os: osx  # Static analysis using clang-analyzer
+    - name: (analyse) Static analysis using clang-analyzer
+      os: osx
       env:
         - ENABLE_COVERAGE=ON
         - BACKEND=Apple
         - ANALYSE=ON
+      addons:
+        homebrew:
+          update: true
+          packages:
+            - cmake
+            - gcc
+            - hdf5
+            - libmatio
 
 before_install:
-  - |
-    if [[ "${TRAVIS_OS_NAME}" == "linux" ]]; then
-      # FindMKL.cmake uses mkl_link_tool, which is a 32bits application !
-      sudo dpkg --add-architecture i386
-      sudo apt-get update
-      sudo apt-get install -y libc6:i386 libncurses5:i386 libstdc++6:i386
-      sudo apt-get install -y lcov
-      sudo apt-get install binutils-2.26
-      export PATH=/usr/lib/binutils-2.26/bin:${PATH}
-    fi
+  - eval "${MATRIX_EVAL}"
 
   # Travis machines have 2 cores
   - JOBS=2
@@ -78,12 +107,6 @@ before_install:
   - curl -fsSkL https://raw.githubusercontent.com/openmeeg/ci-utils/master/travis/travis_tools.sh > x.sh && source ./x.sh
 
   ############################################################################
-  # Install a recent CMake
-  ############################################################################
-  - CMAKE_VERSION=3.10.1
-  - curl -fsSkL https://raw.githubusercontent.com/openmeeg/ci-utils/master/travis/install_cmake.sh > x.sh && source ./x.sh
-
-  ############################################################################
   # Install MKL (if necessary)
   ############################################################################
   - |
@@ -91,24 +114,15 @@ before_install:
       curl -fsSkL https://raw.githubusercontent.com/openmeeg/ci-utils/master/travis/install_mkl.sh > install_mkl.sh && source ./install_mkl.sh
     fi
 
+
   ############################################################################
-  # Install Matio
+  # Install Matio (using conda for shipping in Linux)
   ############################################################################
-  - if [[ "${TRAVIS_OS_NAME}" == "osx" ]]; then
-        rm -rf /usr/local/include/c++;
-        brew install hdf5 libmatio;
-        brew reinstall -s libmatio;
-        if [[ "${USE_VTK}" == "ON" ]]; then
-            brew install vtk --without-python@2;
-        fi
-    else
-        if [[ "${BUILD_PACKAGE}" == "ON" ]]; then
-            git clone https://github.com/astropy/ci-helpers.git;
-            source ci-helpers/travis/setup_conda.sh;
-            conda install -c massich libmatio;
-        else
-            sudo apt-get install -y libmatio2 libmatio-dev libvtk5-dev;
-        fi
+  - |
+    if [[ "${TRAVIS_OS_NAME}" == "linux" && "${BUILD_PACKAGE}" == "ON" ]]; then
+        git clone https://github.com/astropy/ci-helpers.git;
+        source ci-helpers/travis/setup_conda.sh;
+        conda install -c massich libmatio;
     fi
 
   ############################################################################
@@ -146,15 +160,6 @@ before_install:
         export CXX="/usr/local/opt/llvm/bin/clang++";
         export CPPFLAGS="-I/usr/local/opt/llvm/include $CPPFLAGS";
         export CFLAGS="-I/usr/local/opt/llvm/include $CFLAGS";
-    fi
-
-  ############################################################################
-  # Install OpenBLAS
-  ############################################################################
-  - |
-    if [[ "${TRAVIS_OS_NAME}" == "osx" && "${BACKEND}" == "OpenBLAS" ]]; then
-        brew install openblas;
-        brew link openblas --force;
     fi
 
 script:

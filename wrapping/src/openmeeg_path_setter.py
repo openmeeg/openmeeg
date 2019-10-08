@@ -9,18 +9,18 @@ topdir = os.getcwd()
 omdir = ""
 
 # heuristic
-found = 0;
+found = False
 l = ""
 for i in range(1, 10):
     d = os.path.join( topdir, l , "build" , "wrapping", "src")
     if os.path.exists( os.path.join( d , "_openmeeg.so")):
         omdir = os.path.join( topdir, l)
         sys.path.append(d)
-        found = 1
+        found = True
         break
     l = os.path.join(l , "..")
 
-if found == 0:
+if not found:
     print("Cannot find locally compiled _openmeeg.so file")
     print("Please goto openmeeg repository or a subdir of it")
-    exit(-1)
+    sys.exit(-1)
