@@ -3,10 +3,6 @@
 #
 import sys
 import os
-
-import openmeeg_path_setter as ps
-
-#
 import openmeeg as om
 import numpy as np
 

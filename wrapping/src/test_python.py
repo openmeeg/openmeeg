@@ -18,8 +18,6 @@
 # > subM = M.submat(0,10,0,10)
 # > mySubMat = om.asarray(subM)
 ###########################################
-
-import openmeeg_path_setter as ops
 import openmeeg as om
 import os
 from os import path as op

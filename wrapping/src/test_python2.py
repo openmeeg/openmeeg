@@ -5,7 +5,6 @@ import sys
 import os
 import numpy
 
-import openmeeg_path_setter as ops
 import openmeeg as om
 
 #

@@ -1,8 +1,5 @@
 #!/usr/bin/env python
 
-import openmeeg_path_setter as ps
-
-#
 import openmeeg as om
 import numpy as np
 import os
