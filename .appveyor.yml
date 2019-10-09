@@ -91,7 +91,7 @@ install:
   - set LIBRARY_LIB=C:\conda\Library\lib
   - copy /y %LIBRARY_LIB%\zlibstatic.lib %LIBRARY_LIB%\z.lib
   # force to pick zlibstatic in order to create proper wheels
-  
+
 before_build:
   - call "C:\Program Files (x86)\IntelSWTools\compilers_and_libraries_2018.0.124\windows\bin\compilervars_arch.bat" intel64 vs2015
   - call "C:\Program Files (x86)\IntelSWTools\compilers_and_libraries_2018.0.124\windows\mkl\bin\mklvars.bat" intel64
@@ -144,7 +144,7 @@ test_script:
   - cmd: ctest --build-config %CONFIGURATION% -v .
 
 on_success:
-  - appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\OpenMEEG-2.4.1-Win64.tar.gz
+  - appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\OpenMEEG-2.4.2-Win64.tar.gz
 
   - conda create -n packageenv --yes pip python=2.7
   - activate packageenv
