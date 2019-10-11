@@ -13,6 +13,9 @@
 %include <windows.i>
 #endif
 
+#ifdef DOCSTRINGS
+%include <docstrings.i>
+#endif
 
 %include <std_string.i>
 %include <std_vector.i>
