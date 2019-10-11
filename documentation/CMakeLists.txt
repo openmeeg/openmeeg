@@ -4,8 +4,6 @@
 #              # OPTIONAL_COMPONENTS mscgen dia)
 
 
-IF (BUILD_REFERENCE_DOC)# XXX: the right condition should be (BUILD_REFERENCE_DOC and DOXYGEN_FOUND) therefore, Doxygen should be found ind documentation rather than its subdirectories
-    SUBDIRS(reference)
-ENDIF (BUILD_REFERENCE_DOC)
-
-# XXX: Add a test to ensure that documentation is generated properly
+if (BUILD_REFERENCE_DOC)# XXX: the right condition should be (BUILD_REFERENCE_DOC and DOXYGEN_FOUND) therefore, Doxygen should be found in documentation rather than its subdirectories
+    subdirs(reference)
+endif()
