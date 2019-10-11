@@ -33,7 +33,6 @@ else()
   include(${SWIG_USE_FILE})
 endif()
 
-
 if (BUILD_DOCUMENTATION)
     # In order to generate python docstrings we use doxy2swig (which is bundled in our codebase)
     # doxy2swig takes xml output from doxygen and generates a .i file that can be include in openmeeg.i
@@ -51,10 +50,11 @@ if (BUILD_DOCUMENTATION)
     list(APPEND CMAKE_SWIG_FLAGS "-DDOCSTRINGS")
     add_custom_target(docstrings DEPENDS docstrings.i)
     add_dependencies(OpenMEEG-documentation docstrings)
+    set(DOCSTRING_DEPS DEPENDS docstrings)
 endif()
 
 list(APPEND CMAKE_SWIG_FLAGS -v -O)
-set_source_files_properties(openmeeg.i PROPERTIES CPLUSPLUS ON)
+set_source_files_properties(openmeeg.i PROPERTIES CPLUSPLUS ON ${DOCSTRING_DEPS})
 swig_add_library(openmeeg LANGUAGE python SOURCES openmeeg.i)
 swig_link_libraries(openmeeg ${PYTHON_LIBRARIES} OpenMEEG::OpenMEEG)
 
@@ -116,9 +116,9 @@ if (BUILD_TESTING)
       endif()
     endforeach()
 
-    if(BUILD_REFERENCE_DOC)
+    if (BUILD_REFERENCE_DOC)
         execute_process(COMMAND ${CMAKE_COMMAND} -E copy ${OpenMEEG_SOURCE_DIR}/wrapping/src/test_doc.py ${OpenMEEG_BINARY_DIR}/wrapping/src/)
         add_test(openmeeg_python_doc ${PYTHON_EXECUTABLE} ${OpenMEEG_BINARY_DIR}/wrapping/src/test_doc.py)
-    endif(BUILD_REFERENCE_DOC)
+    endif()
 
 endif()
