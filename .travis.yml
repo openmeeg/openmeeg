@@ -79,6 +79,7 @@ matrix:
             - libmatio
             - openblas
             - vtk
+            - numpy
 
     - name: (analyse) Static analysis using clang-analyzer
       os: osx
