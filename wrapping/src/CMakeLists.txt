@@ -56,7 +56,13 @@ endif()
 list(APPEND CMAKE_SWIG_FLAGS -v -O)
 set_source_files_properties(openmeeg.i PROPERTIES CPLUSPLUS ON ${DOCSTRING_DEPS})
 swig_add_library(openmeeg LANGUAGE python SOURCES openmeeg.i)
-swig_link_libraries(openmeeg ${PYTHON_LIBRARIES} OpenMEEG::OpenMEEG)
+
+if (APPLE)
+  swig_link_libraries(openmeeg OpenMEEG::OpenMEEG)
+else()
+  swig_link_libraries(openmeeg ${PYTHON_LIBRARIES} OpenMEEG::OpenMEEG)
+endif()
+
 
 execute_process(COMMAND ${PYTHON_EXECUTABLE} "-c" "from distutils.sysconfig import get_python_lib; print(get_python_lib(1))"
                 OUTPUT_VARIABLE PYTHON_SITE_ARCH
@@ -68,6 +74,10 @@ install(TARGETS  "_openmeeg"
         LIBRARY DESTINATION ${PYTHON_REL_SITE_ARCH}
         RUNTIME DESTINATION ${PYTHON_REL_SITE_ARCH}
         PERMISSIONS OWNER_WRITE OWNER_READ GROUP_READ WORLD_READ)
+
+if (APPLE)
+  set_target_properties(_openmeeg PROPERTIES LINK_FLAGS "-undefined dynamic_lookup")
+endif()
 
 install(FILES  ${OpenMEEG_BINARY_DIR}/wrapping/src/openmeeg.py
         DESTINATION ${PYTHON_REL_SITE_ARCH}
