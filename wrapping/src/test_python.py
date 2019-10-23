@@ -48,33 +48,17 @@ dipole_file = op.join(data_path, subject, subject + ".dip")
 squidsFile = op.join(data_path, subject, subject + ".squids")
 patches_file = op.join(data_path, subject, subject + ".patches")
 
-# TODO: geom.read() using raw python
-# TODO: conductivity == { string => double}
-# TODO: geometry     == { [ mesh ] , { string => [ int ] } }
 geom = om.Geometry()
 geom.read(geom_file, cond_file)
 
-# TODO: mesh.read() using numpy arrays
-# TODO: mesh == [ double ] , [ int ]
 mesh = om.Mesh()
 mesh.load(source_mesh_file)
-# TODO: V = [...]
-# TODO: I = [...]
-# TODO: mesh_1 = om.Mesh(V, I)
 
-# TODO: dipoles.read() using numpy arrays
-# TODO: dipoles == [ double ]
 dipoles = om.Matrix()
 dipoles.load(dipole_file)
-# TODO: D = asarray(dipoles).copy...
-# TODO: dipoles_1 = om.Matrix(D)
 
-# TODO: sensors.read() using numpy arrays
-# TODO: sensors == [ double ]
 sensors = om.Sensors()
 sensors.load(squidsFile)
-# TODO: D = asarray(sensors).copy...
-# TODO: sensors_1 = om.Matrix(D)
 
 patches = om.Sensors()
 patches.load(patches_file)
@@ -184,7 +168,6 @@ print(
 v1 = om.Vertex(1.0, 0.0, 0.0, 0)
 v2 = om.Vertex(0.0, 1.0, 0.0, 1)
 v3 = om.Vertex(0.0, 0.0, 1.0, 2)
-
 # TODO: v4 = om.Vertex( [double] , int )
 
 # print(v1.norm()
