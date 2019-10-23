@@ -34,6 +34,17 @@ target_link_libraries(om_matrix_convert OpenMEEGMaths OpenMEEG::OpenMEEG)
 add_executable(om_check_geom check_geom.cpp)
 target_link_libraries(om_check_geom OpenMEEG ${VTK_LIBRARIES})
 
+# tests
+if (BUILD_TESTING)
+    OPENMEEG_TEST(check_geom_mesh
+        om_check_geom -g ${CMAKE_SOURCE_DIR}/data/Head1/Head1.geom -m ${CMAKE_SOURCE_DIR}/data/Head1/Head1.tri)
+    OPENMEEG_TEST(check_geom_dip
+        om_check_geom -g ${CMAKE_SOURCE_DIR}/data/Head1/Head1.geom -d ${CMAKE_SOURCE_DIR}/data/Head1/Head1.dip)
+    OPENMEEG_TEST(check_geom_dip_outside
+        om_check_geom -g ${CMAKE_SOURCE_DIR}/data/Head1/Head1.geom -d ${CMAKE_SOURCE_DIR}/data/Head1/Head1_outside.dip)
+    set_tests_properties(check_geom_dip_outside PROPERTIES WILL_FAIL TRUE)
+endif()
+
 add_executable(om_mesh_to_dip mesh_to_dip.cpp)
 target_link_libraries(om_mesh_to_dip OpenMEEG ${VTK_LIBRARIES})
 

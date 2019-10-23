@@ -38,8 +38,9 @@
 #
 #============================================================================
 
+message("***** Entering FindNumpy")
 # Finding NumPy involves calling the Python interpreter
-if(NumPy_FIND_REQUIRED)
+if(Numpy_FIND_REQUIRED)
     find_package(PythonInterp REQUIRED)
 else()
     find_package(PythonInterp)
@@ -57,10 +58,10 @@ execute_process(COMMAND "${PYTHON_EXECUTABLE}" "-c"
     ERROR_VARIABLE _NUMPY_ERROR_VALUE
     OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-message("${_NUMPY_SEARCH_SUCCESS}")
+#message("FindNumpy: ${_NUMPY_SEARCH_SUCCESS} / ${PYTHON_EXECUTABLE} / ${Numpy_FIND_REQUIRED}")
 
 if(NOT _NUMPY_SEARCH_SUCCESS MATCHES 0)
-    if(NumPy_FIND_REQUIRED)
+    if(Numpy_FIND_REQUIRED)
         message(FATAL_ERROR
             "NumPy import failure:\n${_NUMPY_ERROR_VALUE}")
     endif()

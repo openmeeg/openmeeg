@@ -6,3 +6,4 @@ build.ninja
 .*.swp
 *.user
 .DS_Store
+__pycache__

@@ -6,6 +6,7 @@ option(USE_VTK "Use VTK" OFF)
 option(ENABLE_COVERAGE "Enable coverage" OFF)
 
 option(ENABLE_PYTHON "Enable python bindings" OFF)
+set(PYTHON_VERSION 3 CACHE STRING "Python version to use: 2, 2.x, 3, 3.x, or empty")
 
 # Documentation configuration
 option(BUILD_DOCUMENTATION "Build doxygen documentation when building all" OFF)

@@ -1,3 +1,9 @@
+Dev version:
+
+Improvements:
+	- Add "-d" option to om_check_geom to check if dipoles are within
+	  the inner interface.
+
 Release 2.4:
 	
 New features:
