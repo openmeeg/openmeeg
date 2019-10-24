@@ -295,6 +295,12 @@ namespace OpenMEEG {
                 return new Mesh();
 
             PyArrayObject* mat_v  = reinterpret_cast<PyArrayObject*>(PyArray_FromObject(py_v,NPY_DOUBLE,0,0));
+            if ( mat_v == nullptr) {
+                PyErr_SetString(PyExc_TypeError,
+                                "Matrix of vertices is not wellformed, returning an empty matrix instead.");
+                return new Mesh();
+            }
+
             const size_t nbdims_v = PyArray_NDIM(mat_v);
             if (nbdims_v!=2) {
                 PyErr_SetString(PyExc_TypeError,
@@ -305,6 +311,12 @@ namespace OpenMEEG {
             const size_t nbcol      = PyArray_DIM(mat_v,1);
 
             PyArrayObject* mat_i = reinterpret_cast<PyArrayObject*>(PyArray_FromObject(py_i,NPY_DOUBLE,0,0));
+            if ( mat_i == nullptr) {
+                PyErr_SetString(PyExc_TypeError,
+                                "Matrix of triangles is not wellformed, returning an empty matrix instead.");
+                return new Mesh();
+            }
+
             const size_t nbdims_i = PyArray_NDIM(mat_i);
             if (nbdims_i!=2) {
                 PyErr_SetString(PyExc_TypeError,
