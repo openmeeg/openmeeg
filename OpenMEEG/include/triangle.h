@@ -85,12 +85,12 @@ namespace OpenMEEG {
         }
         
         /// Operators
-        // Having both [] and () doing different things is prone to errors. Also the %3 in indexing seems vety costly.
+        // Having both [] and () doing different things is prone to errors.
 
-              Vertex*   operator[](const unsigned& vindex)       { return vertices_[vindex%3];  } // 0 <= 'index' <= '2'
-        const Vertex*   operator[](const unsigned& vindex) const { return vertices_[vindex%3];  }
-              Vertex&   operator()(const unsigned& vindex)       { return *vertices_[vindex%3]; } // 0 <= 'index' <= '2'
-        const Vertex&   operator()(const unsigned& vindex) const { return *vertices_[vindex%3]; }
+              Vertex*   operator[](const unsigned& vindex)       { return vertices_[vindex];  }
+        const Vertex*   operator[](const unsigned& vindex) const { return vertices_[vindex];  }
+              Vertex&   operator()(const unsigned& vindex)       { return *vertices_[vindex]; }
+        const Vertex&   operator()(const unsigned& vindex) const { return *vertices_[vindex]; }
 
               bool      operator==(const Triangle& T)     const { return (T[0]==vertices_[0])&(T[1]==vertices_[1])&(T[2]==vertices_[2]); }
                                                  

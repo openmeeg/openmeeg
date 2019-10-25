@@ -264,8 +264,8 @@ namespace OpenMEEG {
         // self
         for (const_vertex_iterator vit = vertex_begin(); vit != vertex_end(); ++vit)
             for (VectPTriangle::const_iterator tit = links_.at(*vit).begin(); tit != links_.at(*vit).end(); ++tit) {
-                Vertex * v2;
-                Vertex * v3;
+                Vertex* v2;
+                Vertex* v3;
                 if (((**tit)[0]) == *vit) {
                     v2 = (**tit)[1]; v3 = (**tit)[2];
                 } else if ((**tit)[1] == *vit) {
@@ -278,10 +278,23 @@ namespace OpenMEEG {
 
         // edges
 
-        for (const_iterator tit = begin(); tit != end(); ++tit)
-            for (unsigned j = 0; j < 3; ++j)
-                if (((*tit)(j)).index() < ((*tit)(j+1)).index()) // sym matrix only lower half
-                    A(((*tit)(j)).index(), ((*tit)(j+1)).index()) += P1gradient((*tit)(j), (*tit)(j+1), (*tit)(j+2)) * P1gradient((*tit)(j+1), (*tit)(j+2), (*tit)(j+3)) * std::pow(tit->area(),2);
+        constexpr unsigned indices[3][3] = { {0,1,2}, {1,2,0}, {2,0,1}};
+
+        for (const auto& triangle: *this) {
+
+            const double area2 = std::pow(triangle.area(),2);
+            for (const auto& index : indices) {
+                const Vertex& V1 = triangle(index[0]);
+                const Vertex& V2 = triangle(index[1]);
+
+                //  This is a symmetric matrix. We only need to fill the lower half matrix.
+
+                if (V1.index()<V2.index()) {
+                    const Vertex& V3 = triangle(index[2]);
+                    A(V1.index(),V2.index()) += P1gradient(V1,V2,V3)*P1gradient(V2,V3,V1)*area2;
+                }
+            }
+        }
 
         // P0 gradients: loop on triangles
         if (!outermost_) // if it is an outermost mesh: p=0 thus no need for computing it
@@ -1058,30 +1071,33 @@ namespace OpenMEEG {
 
     const Mesh::EdgeMap Mesh::compute_edge_map() const {
 
-        // define the triangle edges as (first vertex, second vertex)
-        // if a triangle edge is ordered with (lower index, higher index) add 1 to its map else remove 1
-        // in the end each mapping should be: 0 (well oriented), 1 for border edge (non closed), and 2 for non well oriented
+        // Associate an integer with each edge.
+        // Well oriented inner edges will be mapped to 0, border edges to 1 and badly oriented edges to 2.
+        // The algorithm goes through each triangle edge e=(first vertex, second vertex)
+        // If e is ordered with (lower index, higher index) add 1 to its map else remove 1.
 
-        EdgeMap mape; // map the edges with an unsigned
-        for (const_iterator tit = begin(); tit != end(); ++tit)
-            for (unsigned j = 0; j < 3; ++j)
-                if ((*tit)(j).index() > (*tit)(j+1).index()) {
-                    std::pair<const Vertex *, const Vertex *> pairv((*tit)[j], (*tit)[j+1]);
-                    if (mape.count(pairv) == 0) {
-                        mape[pairv] = 1;
-                    } else {
-                        mape[pairv]++;
-                    }
-                } else {
-                    std::pair<const Vertex *, const Vertex *> pairv((*tit)[j+1], (*tit)[j]);
-                    if (mape.count(pairv) == 0) {
-                        mape[pairv] = -1;
-                    } else {
-                        mape[pairv]--;
-                    }
-                }
+        EdgeMap edgemap;
+        auto lambda = [&](const Vertex& V1,const Vertex& V2,const int incr) {
+            const auto& index = std::make_pair(&V1,&V2);
+            if (edgemap.count(index)==0)
+                edgemap[index] = incr;
+            else
+                edgemap[index] += incr;
+        };
 
-        return mape;
+        constexpr unsigned edges[3][2] = {{0,1},{1,2},{2,0}};
+
+        for (const auto& triangle : *this)
+            for (unsigned i=0;i<3;++i) {
+                const Vertex& V1 = triangle(edges[i][0]);
+                const Vertex& V2 = triangle(edges[i][1]);
+                if (V1.index()>V2.index())
+                    lambda(V1,V2,1);
+                else
+                    lambda(V2,V1,-1);
+            }
+
+        return edgemap;
     }
 
     /// get the 3 adjacents triangles of a triangle t
