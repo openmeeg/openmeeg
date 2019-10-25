@@ -44,6 +44,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 namespace OpenMEEG {
 
+#if 0
     void Mesh::copy(const Mesh& m) {
 
         if (m.allocate_) {
@@ -64,14 +65,14 @@ namespace OpenMEEG {
             all_vertices_ = m.all_vertices_;
             set_vertices_ = m.set_vertices_;
             allocate_ = false;
-            for (Triangles::const_iterator tit = m.begin(); tit != m.end(); ++tit) {
+            for (Triangles::const_iterator tit = m.begin(); tit != m.end(); ++tit)
                 push_back(*tit);
-            }
             build_mesh_vertices();
         }
         outermost_ = m.outermost_;
         name_      = m.name_;
     }
+#endif
 
     /// Print informations about the mesh 
 
@@ -100,17 +101,19 @@ namespace OpenMEEG {
         }
     }
 
+#if 0
     void Mesh::build_mesh_vertices() {
 
         // Sets do not preserve the order, and we would like to preserve it so we push_back in the vector as soon as the element is unique.
 
-        std::set<const Vertex *> mesh_v;
+        std::set<const Vertex*> mesh_v;
         vertices_.clear();
         for (const_iterator tit = begin(); tit != end(); ++tit)
             for (Triangle::const_iterator sit = tit->begin(); sit != tit->end(); ++sit)
                 if (mesh_v.insert(*sit).second)
                     vertices_.push_back(const_cast<Vertex *>(*sit));
     }
+#endif
 
     void Mesh::destroy() {
         if (allocate_)
@@ -140,22 +143,21 @@ namespace OpenMEEG {
         return is;
     }
 
-    /// properly add vertex to the list. (if not already added)
+    /// Properly add vertex to the list. (if not already added)
     void Mesh::add_vertex(const Vertex& v) {
 
-        // try to insert the vertex to the set
-        std::pair<std::set<Vertex>::iterator, bool> ret = set_vertices_.insert(v);
+        // Try to insert the vertex to the set
+        std::pair<std::set<Vertex>::iterator,bool> ret = set_vertices_.insert(v);
         if (ret.second) {
-            // if inserted, then it is a new vertex, and we add it to both lists
+            // If inserted, then it is a new vertex, and we add it to both lists
             all_vertices_->push_back(v);
-            vertices_.push_back(&(*all_vertices_->rbegin()));
+            vertices_.push_back(&all_vertices_->back());
         } else {
-            // if not inserted, Either it belongs to another mesh or it was dupplicated in the same mesh
+            // If not inserted, either it belongs to another mesh or it was duplicated in the same mesh
             // TODO this may take time for too big redundant mesh
             Vertices::iterator vit = std::find(all_vertices_->begin(), all_vertices_->end(), v);
-            if (std::find(vertices_.begin(), vertices_.end(), &(*vit)) == vertices_.end()) {
+            if (std::find(vertices_.begin(), vertices_.end(), &(*vit)) == vertices_.end())
                 vertices_.push_back(&(*vit));
-            }
         }
     }
 
@@ -370,39 +372,39 @@ namespace OpenMEEG {
         }
     }
 
-    /// For IO:s -------------------------------------------------------------------------------------------
+    /// For IOs
 
-    unsigned Mesh::load(const std::string& filename, const bool& verbose, const bool& read_all) {
+    unsigned Mesh::load(const std::string& filename,const bool& verbose,const bool& read_all) {
 
-        if (size() != 0)
+        if (size()!=0)
             destroy();
 
-        if (read_all && ( all_vertices_ == 0) ) {
-            unsigned nb_v = load(filename, false, false); // first allocates memory for the vertices
+        if (read_all && (all_vertices_==0)) {
+            unsigned nb_v = load(filename,false,false); // first allocates memory for the vertices
             all_vertices_ = new Vertices;
             all_vertices_->reserve(nb_v); 
             allocate_ = true;
         }
 
         std::string extension = getNameExtension(filename);
-        std::transform(extension.begin(), extension.end(), extension.begin(), (int(*)(int))std::tolower);
+        std::transform(extension.begin(),extension.end(),extension.begin(),(int(*)(int))std::tolower);
         unsigned return_value = 0;
 
         if (verbose)
             std::cout << "loading : " << filename << " as a \"" << extension << "\" file."<< std::endl;
 
-        if (extension == std::string("vtk")) {
-            return_value = load_vtk(filename, read_all);
+        if (extension==std::string("vtk")) {
+            return_value = load_vtk(filename,read_all);
         } else if (extension == std::string("tri")) {
-            return_value = load_tri(filename, read_all);
+            return_value = load_tri(filename,read_all);
         } else if (extension == std::string("bnd")) {
-            return_value = load_bnd(filename, read_all);
+            return_value = load_bnd(filename,read_all);
         } else if (extension == std::string("mesh")) {
-            return_value = load_mesh(filename, read_all);
+            return_value = load_mesh(filename,read_all);
         } else if (extension == std::string("off")) {
-            return_value = load_off(filename, read_all);
+            return_value = load_off(filename,read_all);
         } else if (extension == std::string("gii")) {
-            return_value = load_gifti(filename, read_all);
+            return_value = load_gifti(filename,read_all);
         } else {
             std::cerr << "IO: load: Unknown mesh file format for " << filename << std::endl;
             exit(1);
@@ -484,29 +486,29 @@ namespace OpenMEEG {
         return 0;
     }
 
-    unsigned Mesh::load_vtk(std::istream& is, const bool& read_all) {
+    unsigned Mesh::load_vtk(std::istream& is,const bool& read_all) {
 
-        // get length of file:
-        is.seekg (0, ios::end);
+        // Compute length of file:
+
+        is.seekg (0,ios::end);
         int length = is.tellg();
-        is.seekg (0, ios::beg);
-
-        // allocate memory:
-        char * buffer = new char [length];
+        is.seekg (0,ios::beg);
 
         // read data as a block:
-        is.read (buffer, length);
+
+        char* buffer = new char[length];
+        is.read(buffer,length);
 
         // held buffer by the array buf:
         vtkCharArray* buf = vtkCharArray::New();
-        buf->SetArray(buffer, length, 1);
+        buf->SetArray(buffer,length,1);
 
         vtkPolyDataReader* reader = vtkPolyDataReader::New();
         reader->SetInputArray(buf); // Specify 'buf' to be used when reading from a string
         reader->SetReadFromInputString(1);  // Enable reading from the InputArray 'buf' instead of the default, a file
 
         unsigned return_value = 0;
-        return_value = get_data_from_vtk_reader(reader, read_all);
+        return_value = get_data_from_vtk_reader(reader,read_all);
 
         delete[] buffer;
         reader->Delete();
@@ -516,8 +518,7 @@ namespace OpenMEEG {
 
     unsigned Mesh::load_vtk(const std::string& filename, const bool& read_all) {
 
-        std::string s = filename;
-        vtkPolyDataReader *reader = vtkPolyDataReader::New();
+        vtkPolyDataReader* reader = vtkPolyDataReader::New();
         reader->SetFileName(filename.c_str()); // Specify file name of vtk data file to read
         if (!reader->IsFilePolyData()) {
             std::cerr << "Mesh \"" << name_ << "\" is not a valid vtk poly data file" << std::endl;
@@ -526,7 +527,7 @@ namespace OpenMEEG {
         }
 
         unsigned return_value = 0;
-        return_value = get_data_from_vtk_reader(reader, read_all);
+        return_value = get_data_from_vtk_reader(reader,read_all);
         return return_value;
     }
     #endif
@@ -730,7 +731,6 @@ namespace OpenMEEG {
 
     unsigned Mesh::load_tri(const std::string& filename, const bool& read_all) {
 
-        std::string s = filename;
         std::ifstream f(filename.c_str());
         if (!f.is_open()) {
             std::ostringstream ost;
@@ -799,7 +799,6 @@ namespace OpenMEEG {
 
     unsigned Mesh::load_bnd(const std::string& filename, const bool& read_all) {        
 
-        std::string s = filename;
         std::ifstream f(filename.c_str());
 
         if (!f.is_open()) {
@@ -841,7 +840,6 @@ namespace OpenMEEG {
 
     unsigned Mesh::load_off(const std::string& filename, const bool& read_all) {
 
-        std::string s = filename;
         std::ifstream f(filename.c_str());
         if (!f.is_open()) {
             std::cerr << "Error opening OFF file: " << filename << std::endl;

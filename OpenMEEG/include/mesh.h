@@ -94,34 +94,43 @@ namespace OpenMEEG {
         // Constructors:
         /// default constructor
 
-        Mesh(): Triangles(), name_(""), all_vertices_(0), outermost_(false), allocate_(false), current_barrier_(false), isolated_(false) { }
+        Mesh(): Triangles(),name_(""),all_vertices_(0),outermost_(false),allocate_(false),current_barrier_(false),isolated_(false) { }
 
         /// constructor from scratch (add vertices/triangles one by one) 
         /// \param nv allocate space for vertices
         /// \param nt allocate space for triangles
 
-        Mesh(const unsigned& nv,const unsigned& nt): name_(""), outermost_(false), allocate_(true), current_barrier_(false), isolated_(false) {
+        Mesh(const unsigned& nv,const unsigned& nt): name_(""),outermost_(false),allocate_(true),current_barrier_(false),isolated_(false) {
             all_vertices_ = new Vertices;
             all_vertices_->reserve(nv); // allocates space for the vertices
             reserve(nt);
         }
 
-        /// constructor from another mesh \param m
+        /// Constructor from another mesh \param m
 
+        Mesh(const Mesh&& m): Triangles(m),name_(m.name_),all_vertices_(m.all_vertices_),outermost_(m.outermost_),allocate_(m.allocate_),current_barrier_(m.current_barrier_),isolated_(m.isolated_) { }
+
+        Mesh(const Mesh&) = delete;
+        #if 0
         Mesh(const Mesh& m): Triangles(), current_barrier_(false), isolated_(false) { *this = m; }
+        #endif
 
-        /// constructor using an outisde storage for vertices \param av Where to store vertices \param name Mesh name
+        /// Constructor using an existing set of vertices
+        /// \param av: vertices
+        /// \param name Mesh name
 
-        Mesh(Vertices& av,const std::string name = ""): name_(name), all_vertices_(&av), outermost_(false), allocate_(false), current_barrier_(false), isolated_(false) {
-            set_vertices_.insert(all_vertices_->begin(), all_vertices_->end()); 
+        Mesh(Vertices& av,const std::string name=""): name_(name),all_vertices_(&av),outermost_(false),allocate_(false),current_barrier_(false),isolated_(false) {
+            set_vertices_.insert(all_vertices_->begin(),all_vertices_->end()); 
         }
 
-        /// constructor loading directly a mesh file named \param filename . Be verbose if \param verbose is true. The mesh name is \param n .
+        /// Constructor loading directly a mesh file named \param filename.
+        /// Be verbose if \param verbose is true.
+        /// The mesh name is \param n.
 
-        Mesh(std::string filename,const bool verbose=true,const std::string n=""): name_(n), outermost_(false), allocate_(true), current_barrier_(false), isolated_(false) {
-            unsigned nb_v = load(filename, false, false); 
+        Mesh(std::string filename,const bool verbose=true,const std::string n=""): name_(n),outermost_(false),allocate_(true),current_barrier_(false),isolated_(false) {
+            unsigned nb_v = load(filename,false,false); 
             all_vertices_ = new Vertices(nb_v); // allocates space for the vertices
-            load(filename, verbose);
+            load(filename,verbose);
         }
 
         /// Destructor
@@ -163,7 +172,9 @@ namespace OpenMEEG {
         bool has_self_intersection() const; ///< \brief check if the mesh self-intersects
         bool intersection(const Mesh&) const; ///< \brief check if the mesh intersects another mesh
         bool has_correct_orientation() const; ///< \brief check the local orientation of the mesh triangles
+        #if 0
         void build_mesh_vertices(); ///< \brief construct the list of the mesh vertices out of its triangles
+        #endif
         void generate_indices(); ///< \brief generate indices (if allocate)
         void update(); ///< \brief recompute triangles normals, area, and links
         void merge(const Mesh&, const Mesh&); ///< properly merge two meshes into one
@@ -254,11 +265,14 @@ namespace OpenMEEG {
 
         // IO:s ----------------------------------------------------------------------------
 
+        Mesh& operator=(const Mesh&) = delete;
+        #if 0
         Mesh& operator=(const Mesh& m) {
-            if ( this != &m )
+            if (this!=&m)
                 copy(m);
             return *this;
         }
+        #endif
 
         friend std::istream& operator>>(std::istream& is, Mesh& m); ///< \brief insert a triangle into the mesh
 
@@ -269,7 +283,9 @@ namespace OpenMEEG {
         typedef std::map<std::pair<const Vertex *, const Vertex *>, int> EdgeMap; 
 
         void destroy();
+        #if 0
         void copy(const Mesh&);
+        #endif
 
         // regarding mesh orientation
 
