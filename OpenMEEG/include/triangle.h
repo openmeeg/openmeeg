@@ -92,7 +92,7 @@ namespace OpenMEEG {
               Vertex&   operator()(const unsigned& vindex)       { return *vertices_[vindex]; }
         const Vertex&   operator()(const unsigned& vindex) const { return *vertices_[vindex]; }
 
-              bool      operator==(const Triangle& T)     const { return (T[0]==vertices_[0])&(T[1]==vertices_[1])&(T[2]==vertices_[2]); }
+              bool      operator==(const Triangle& T)     const { return (T[0]==(*this)[0]) && (T[1]==(*this)[1]) && (T[2]==(*this)[2]); }
                                                  
               Vertex&        vertex(const unsigned& vindex)       { return operator()(vindex); }
         const Vertex&        vertex(const unsigned& vindex) const { return operator()(vindex); }
