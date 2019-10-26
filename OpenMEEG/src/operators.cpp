@@ -41,96 +41,72 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 namespace OpenMEEG {
 
-    void operatorDinternal(const Mesh& m, Matrix& mat, const Vertices& points, const double& coeff)
-    {
+    void operatorDinternal(const Mesh& m,Matrix& mat,const Vertices& points,const double& coeff) {
         std::cout << "INTERNAL OPERATOR D..." << std::endl;
-        for ( Vertices::const_iterator vit = points.begin(); vit != points.end(); ++vit)  {
-            for ( Mesh::const_iterator tit = m.begin(); tit != m.end(); ++tit) {
-                _operatorDinternal(*tit, *vit, mat, coeff);
-            }
-        }
+        for (const auto& vertex : points)
+            for (const auto& triangle : m)
+                _operatorDinternal(triangle,vertex,mat,coeff);
     }
 
-    void operatorSinternal(const Mesh& m, Matrix& mat, const Vertices& points, const double& coeff) 
-    {
+    void operatorSinternal(const Mesh& m,Matrix& mat,const Vertices& points,const double& coeff) {
         std::cout << "INTERNAL OPERATOR S..." << std::endl;
-        for ( Vertices::const_iterator vit = points.begin(); vit != points.end(); ++vit)  {
-            for ( Mesh::const_iterator tit = m.begin(); tit != m.end(); ++tit) {
-                mat(vit->index(), tit->index()) = _operatorSinternal(*tit, *vit) * coeff;
+        for (const auto& vertex : points) {
+            const unsigned vindex = vertex.index();
+            for (const auto& triangle : m) {
+                const unsigned tindex = triangle.index();
+                mat(vindex,tindex) = _operatorSinternal(triangle,vertex)*coeff;
             }
         }
     }
 
     // General routine for applying _operatorFerguson (see this function for further comments)
     // to an entire mesh, and storing coordinates of the output in a Matrix.
-    void operatorFerguson(const Vect3& x,const Mesh& m,Matrix& mat,const unsigned& offsetI,const double& coeff)
-    {
+
+    void operatorFerguson(const Vect3& x,const Mesh& m,Matrix& mat,const unsigned& offsetI,const double& coeff) {
         #pragma omp parallel for
-        #ifndef OPENMP_3_0
-        for (int i=0;i<m.vertex_size();++i) {
-            const Mesh::const_vertex_iterator vit=m.vertex_begin()+i;
-        #else
-        for (Mesh::const_vertex_iterator vit=m.vertex_begin();vit<m.vertex_end();++vit) {
-        #endif
-            Vect3 v = _operatorFerguson(x, **vit, m);
-            mat(offsetI + 0, (*vit)->index()) += v.x() * coeff;
-            mat(offsetI + 1, (*vit)->index()) += v.y() * coeff;
-            mat(offsetI + 2, (*vit)->index()) += v.z() * coeff;
+        for (const auto& vertexp : m.vertices()) {
+            const unsigned vindex = vertexp->index();
+            Vect3 v = _operatorFerguson(x,*vertexp,m);
+            mat(offsetI+0,vindex) += v.x()*coeff;
+            mat(offsetI+1,vindex) += v.y()*coeff;
+            mat(offsetI+2,vindex) += v.z()*coeff;
         }
     }
 
-    void operatorDipolePotDer(const Vect3& r0,const Vect3& q,const Mesh& m,Vector& rhs,const double& coeff,const unsigned gauss_order,const bool adapt_rhs) 
-    {
+    void operatorDipolePotDer(const Vect3& r0,const Vect3& q,const Mesh& m,Vector& rhs,const double& coeff,const unsigned gauss_order,const bool adapt_rhs) {
         static analyticDipPotDer anaDPD;
 
-        Integrator<Vect3,analyticDipPotDer>* gauss = (adapt_rhs) ? new AdaptiveIntegrator<Vect3, analyticDipPotDer>(0.001) :
-                                                                   new Integrator<Vect3, analyticDipPotDer>;
+        Integrator<Vect3,analyticDipPotDer>* gauss = (adapt_rhs) ? new AdaptiveIntegrator<Vect3,analyticDipPotDer>(0.001) :
+                                                                   new Integrator<Vect3,analyticDipPotDer>;
 
         gauss->setOrder(gauss_order);
         #pragma omp parallel for private(anaDPD)
-        #ifndef OPENMP_3_0
-        for (int i=0;i<m.size();++i) {
-            const Mesh::const_iterator tit=m.begin()+i;
-        #else
-        for (Mesh::const_iterator tit=m.begin();tit<m.end();++tit) {
-        #endif
-            anaDPD.init(*tit, q, r0);
-            Vect3 v = gauss->integrate(anaDPD, *tit);
+        for (const auto& triangle : m) {
+            anaDPD.init(triangle,q,r0);
+            Vect3 v = gauss->integrate(anaDPD,triangle);
             #pragma omp critical
             {
-                rhs(tit->s1().index() ) += v(0) * coeff;
-                rhs(tit->s2().index() ) += v(1) * coeff;
-                rhs(tit->s3().index() ) += v(2) * coeff;
+                for (unsigned i=0;i<3;++i)
+                    rhs(triangle(i).index()) += v(i)*coeff;
             }
         }
         delete gauss;
     }
 
-    void operatorDipolePot(const Vect3& r0, const Vect3& q, const Mesh& m, Vector& rhs, const double& coeff, const unsigned gauss_order, const bool adapt_rhs) 
-    {
+    void operatorDipolePot(const Vect3& r0,const Vect3& q,const Mesh& m,Vector& rhs,const double& coeff,const unsigned gauss_order,const bool adapt_rhs) {
         static analyticDipPot anaDP;
 
-        anaDP.init(q, r0);
-        Integrator<double, analyticDipPot> *gauss;
-        if ( adapt_rhs ) {
-            gauss = new AdaptiveIntegrator<double, analyticDipPot>(0.001);
-        } else {
-            gauss = new Integrator<double, analyticDipPot>;
-        }
-
+        anaDP.init(q,r0);
+        Integrator<double,analyticDipPot>* gauss = (adapt_rhs) ? new AdaptiveIntegrator<double,analyticDipPot>(0.001) :
+                                                                 new Integrator<double,analyticDipPot>;
         gauss->setOrder(gauss_order);
+
         #pragma omp parallel for
-        #ifndef OPENMP_3_0
-        for (int i=0;i<m.size();++i) {
-            const Mesh::const_iterator tit=m.begin()+i;
-        #else
-        for (Mesh::const_iterator tit=m.begin();tit<m.end();++tit) {
-        #endif
-            double d = gauss->integrate(anaDP, *tit);
+        for (const auto& triangle : m) {
+            double d = gauss->integrate(anaDP,triangle);
             #pragma omp critical
-            rhs(tit->index()) += d * coeff;
+            rhs(triangle.index()) += d*coeff;
         }
         delete gauss;
     }
-
 }
