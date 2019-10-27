@@ -73,7 +73,7 @@ namespace OpenMEEG {
         gauss->setOrder(gauss_order);
 
         #pragma omp parallel for
-        for (const auto& triangle : m) {
+        for (const auto& triangle : m.triangles()) {
             double d = gauss->integrate(anaDP,triangle);
             #pragma omp critical
             rhs(triangle.index()) += d*coeff;
