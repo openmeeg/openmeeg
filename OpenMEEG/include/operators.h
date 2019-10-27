@@ -37,9 +37,9 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-/*! \file
-    \brief file containing the integral operators
-*/
+/// \file
+/// \brief File containing the integral operators.
+
 #pragma once
 
 #include <iostream>
@@ -57,11 +57,28 @@ namespace OpenMEEG {
     // #define ADAPT_LHS
 
     // T can be a Matrix or SymMatrix
-    void operatorSinternal(const Mesh& , Matrix& , const Vertices&, const double& );
-    void operatorDinternal(const Mesh& , Matrix& , const Vertices&, const double& );
-    void operatorFerguson(const Vect3& , const Mesh& , Matrix& , const unsigned&, const double&);
-    void operatorDipolePotDer(const Vect3& , const Vect3& , const Mesh& , Vector&, const double&, const unsigned, const bool);
-    void operatorDipolePot   (const Vect3& , const Vect3& , const Mesh& , Vector&, const double&, const unsigned, const bool);
+
+    void operatorSinternal(const Mesh&,Matrix&,const Vertices&,const double&);
+    void operatorDinternal(const Mesh&,Matrix&,const Vertices&,const double&);
+    void operatorFerguson(const Vect3&,const Mesh&,Matrix&,const unsigned&,const double&);
+    void operatorDipolePotDer(const Vect3&,const Vect3&,const Mesh&,Vector&,const double&,const unsigned,const bool);
+    void operatorDipolePot   (const Vect3&,const Vect3&,const Mesh&,Vector&,const double&,const unsigned,const bool);
+
+    template <template <typename,typename> class Integrator>
+    void operatorDipolePot(const Vect3& r0,const Vect3& q,const Mesh& m,Vector& rhs,const double& coeff,const unsigned gauss_order) {
+        static analyticDipPot anaDP;
+
+        anaDP.init(q,r0);
+        Integrator<double,analyticDipPot> gauss(0.001);
+        gauss->setOrder(gauss_order);
+
+        #pragma omp parallel for
+        for (const auto& triangle : m) {
+            double d = gauss->integrate(anaDP,triangle);
+            #pragma omp critical
+            rhs(triangle.index()) += d*coeff;
+        }
+    }
 
     template <typename T>
     inline void _operatorD(const Triangle& T1,const Triangle& T2,T& mat,const double& coeff,const unsigned gauss_order) {
@@ -80,7 +97,7 @@ namespace OpenMEEG {
     #endif //ADAPT_LHS
 
         for (unsigned i = 0; i < 3; ++i)
-            mat(T1.index(), T2(i).index()) += total(i) * coeff;
+            mat(T1.index(),T2.vertex(i).index()) += total(i)*coeff;
     }
 
     inline void _operatorDinternal(const Triangle& T2,const Vertex& P,Matrix & mat,const double& coeff) {
@@ -89,7 +106,7 @@ namespace OpenMEEG {
         Vect3 total = analyD.f(P);
 
         for (unsigned i=0;i<3;++i)
-            mat(P.index(), T2(i).index()) += total(i) * coeff;
+            mat(P.index(),T2.vertex(i).index()) += total(i)*coeff;
     }
 
     inline double _operatorS(const Triangle& T1,const Triangle& T2,const unsigned gauss_order) {
@@ -123,24 +140,25 @@ namespace OpenMEEG {
         const Mesh::VectPTriangle& trgs1 = m1.get_triangles_for_vertex(V1);
         const Mesh::VectPTriangle& trgs2 = m2.get_triangles_for_vertex(V2);
 
+        const bool same_shared_vertex = ((&m1!=&m2) && (V1==V2));
+        const double factor = (same_shared_vertex) ? 0.5 : 0.25;
+
         double result = 0.0;
-        for (Mesh::VectPTriangle::const_iterator tit1 = trgs1.begin(); tit1 != trgs1.end(); ++tit1 ) {
-            for (Mesh::VectPTriangle::const_iterator tit2 = trgs2.begin(); tit2 != trgs2.end(); ++tit2 ) {
+        for (const auto& tp1 : trgs1) {
+            const Edge& edge1 = tp1->edge(V1);
+            const Vect3& CB1 = edge1.vertex(0)-edge1.vertex(1);
+            for (const auto& tp2 : trgs2) {
 
                 // In the second case, we here divided (precalculated) operatorS by the product of areas.
 
                 const double Iqr = (m1.current_barrier() || m2.current_barrier()) ?
-                     mat((*tit1)->index()-m1.begin()->index(),(*tit2)->index()-m2.begin()->index()) :
-                     mat((*tit1)->index(),(*tit2)->index())/((*tit1)->area()*(*tit2)->area());
+                     mat(tp1->index()-m1.begin()->index(),tp2->index()-m2.begin()->index()) :
+                     mat(tp1->index(),tp2->index())/(tp1->area()*tp2->area());
 
-                Vect3 CB1 = (*tit1)->next(V1)-(*tit1)->prev(V1);
-                Vect3 CB2 = (*tit2)->next(V2)-(*tit2)->prev(V2);
+                const Edge& edge2 = tp2->edge(V2);
+                const Vect3& CB2 = edge2.vertex(0)-edge2.vertex(1);
 
-                const double value = (CB1*CB2)*Iqr;
-
-                // if it is the same shared vertex
-
-                result -=  (((&m1!=&m2) && (V1==V2)) ? 0.5 : 0.25)*value;
+                result -= factor*Iqr*dotprod(CB1,CB2);
             }
         }
         return result;
@@ -355,7 +373,7 @@ namespace OpenMEEG {
                 mat(tit->index(), (*pit)->index()) += _operatorP1P0(*tit, **pit) * coeff;
     }
 
-    inline Vect3 _operatorFerguson(const Vect3& x,const Vertex& V1,const Mesh& m) {
+    inline Vect3 _operatorFerguson(const Vect3& x,const Vertex& V,const Mesh& m) {
         STATIC_OMP Vect3 result;
         STATIC_OMP analyticS analyS;
 
@@ -363,22 +381,26 @@ namespace OpenMEEG {
         result.y() = 0.0;
         result.z() = 0.0;
 
-        //loop over triangles of which V1 is a vertex
-        const Mesh::VectPTriangle& trgs = m.get_triangles_for_vertex(V1);
+        //loop over triangles of which V is a vertex
+        const Mesh::VectPTriangle& trgs = m.get_triangles_for_vertex(V);
 
-        for (Mesh::VectPTriangle::const_iterator tit=trgs.begin();tit!=trgs.end();++tit) {
+        for (const auto& tp : trgs) {
+            const Triangle& T    = *tp;
+            const Edge&     edge = T.edge(V);
 
-            const Triangle& T1 = **tit;
-
-            // A1 , B1  are the two opposite vertices to V1 (triangle A1, B1, V1)
-            Vect3 A1   = T1.next(V1);
-            Vect3 B1   = T1.prev(V1);
-            Vect3 A1B1 = (A1 - B1) * (0.5 / T1.area());
+            // A, B are the two opposite vertices to V (triangle A, B, V)
+            const Vertex& A = edge.vertex(0);
+            const Vertex& B = edge.vertex(1);
+            const Vect3 AB = (A-B)*(0.5/T.area());
             
-            analyS.init(V1, A1, B1);
+            #if 0
+            const Triangle T(V,A1,B1);
+            analyS.init(T);
+            #endif
+            analyS.init(V,A,B);
             const double opS = analyS.f(x);
 
-            result += (A1B1 * opS);
+            result += (AB*opS);
         }
         return result;
     }

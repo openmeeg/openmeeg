@@ -87,7 +87,7 @@ namespace OpenMEEG {
             #pragma omp critical
             {
                 for (unsigned i=0;i<3;++i)
-                    rhs(triangle(i).index()) += v(i)*coeff;
+                    rhs(triangle.vertex(i).index()) += v(i)*coeff;
             }
         }
         delete gauss;
