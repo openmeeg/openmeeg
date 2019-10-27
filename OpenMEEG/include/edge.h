@@ -50,9 +50,10 @@ namespace OpenMEEG {
     class OPENMEEG_EXPORT Edge {
     public:
 
-        #ifdef SWIG_VERSION
-        Edge() { }
-        #endif
+        Edge() {
+            vertices[0] = nullptr;
+            vertices[1] = nullptr;
+        }
 
         Edge(const Vertex& V1,const Vertex& V2) {
             vertices[0] = &V1;
@@ -60,6 +61,9 @@ namespace OpenMEEG {
         }
 
         const Vertex& vertex(const unsigned i) const { return *vertices[i]; }
+
+        bool operator==(const Edge& e) const { return (e.vertex(0)==vertex(0)) && (e.vertex(1)==vertex(1)); }
+        bool operator!=(const Edge& e) const { return (e.vertex(0)!=vertex(0)) || (e.vertex(1)!=vertex(1)); }
 
     private:
 

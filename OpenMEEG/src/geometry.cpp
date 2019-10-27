@@ -132,7 +132,7 @@ namespace OpenMEEG {
 
             for (const_iterator mit = begin(); mit != end(); ++mit) {
                 for (Mesh::const_iterator tit = mit->begin(); tit != mit->end(); ++tit) {
-                    std::cout << "[[" << tit->s1() << "] , [" << tit->s2() << "] , ["<< tit->s3() << "]] \t = " << tit->index() << std::endl;
+                    std::cout << "[[" << tit->vertex(0) << "] , [" << tit->vertex(1) << "] , ["<< tit->vertex(2) << "]] \t = " << tit->index() << std::endl;
                 }
             }
         }
@@ -429,14 +429,14 @@ namespace OpenMEEG {
         }
 
         // Copy the triangles in the geometry.
+
         iit = 0;
-        for (Meshes::const_iterator mit = m.begin(); mit != m.end(); ++mit, ++iit) {
-            for (Mesh::const_iterator tit = mit->begin(); tit != mit->end(); ++tit) {
-                meshes_[iit].push_back(Triangle(map_vertices[(*tit)[0]], 
-                                                map_vertices[(*tit)[1]],
-                                                map_vertices[(*tit)[2]]));
-            }
-            meshes_[iit].update();
+        for (const auto& mesh : m) {
+            for (const auto& triangle : mesh.triangles())
+                meshes_[iit].push_back(Triangle(map_vertices[&triangle.vertex(0)],
+                                                map_vertices[&triangle.vertex(1)],
+                                                map_vertices[&triangle.vertex(2)]));
+            meshes_[iit++].update();
         }
     }
 
@@ -444,19 +444,20 @@ namespace OpenMEEG {
     void Geometry::mark_current_barrier() {
 
         // figure out the connectivity of meshes
+
         std::vector<int> mesh_idx;
-        for (unsigned i = 0; i < meshes().size(); i++) {
+        for (unsigned i=0;i<meshes().size();++i)
             mesh_idx.push_back(i);
-        }
-        std::vector<std::vector<int> > mesh_conn;
+
+        std::vector<std::vector<int>> mesh_conn;
         std::vector<int> mesh_connected, mesh_diff;
-        std::set_difference(mesh_idx.begin(), mesh_idx.end(), mesh_connected.begin(), mesh_connected.end(), std::insert_iterator<std::vector<int> >(mesh_diff, mesh_diff.end()));
+        std::set_difference(mesh_idx.begin(),mesh_idx.end(),mesh_connected.begin(),mesh_connected.end(),std::insert_iterator<std::vector<int>>(mesh_diff,mesh_diff.end()));
         while (!mesh_diff.empty()) {
             std::vector<int> conn;
-            int se = mesh_diff[0];
+            const int se = mesh_diff[0];
             conn.push_back(se);
             mesh_connected.push_back(se);
-            for (unsigned iit = 0; iit < conn.size(); ++iit) {
+            for (unsigned iit = 0;iit<conn.size();++iit) {
                 const Mesh& me = meshes()[conn[iit]];
                 for (Meshes::iterator mit = begin(); mit != end(); ++mit) {
                     if ( not almost_equal(sigma(me, *mit), 0.0)) {
@@ -478,7 +479,7 @@ namespace OpenMEEG {
         // find isolated meshes and touch 0-cond meshes;
         std::set<std::string> touch_0_mesh;
         for (Domains::iterator dit = domains_.begin(); dit != domains_.end(); ++dit) {
-            if ( almost_equal(dit->sigma(), 0.0)) {
+            if (almost_equal(dit->sigma(),0.0)) {
                 for (Domain::iterator hit = dit->begin(); hit != dit->end(); ++hit) {
                     for (Interface::iterator omit = hit->first.begin(); omit != hit->first.end(); ++omit) {
                         omit->mesh().current_barrier() = true;
