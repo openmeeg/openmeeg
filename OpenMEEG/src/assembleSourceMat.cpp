@@ -56,7 +56,7 @@ namespace OpenMEEG {
 
         Matrix& mat = *this;
 
-        mat = Matrix((geo.size()-geo.nb_current_barrier_triangles()),source_mesh.nb_vertices());
+        mat = Matrix((geo.size()-geo.nb_current_barrier_triangles()),source_mesh.vertices().size());
         mat.set(0.0);
 
         // Check that there is no overlapping between the geometry and the source mesh.
@@ -76,7 +76,7 @@ namespace OpenMEEG {
         source_mesh.current_barrier() = true;
 
         std::cout << std::endl
-                  << "assemble SurfSourceMat with " << source_mesh.nb_vertices()
+                  << "assemble SurfSourceMat with " << source_mesh.vertices().size()
                   << " source_mesh located in domain \"" << domain.name() << "\"." << std::endl
                   << std::endl;
 
@@ -86,10 +86,10 @@ namespace OpenMEEG {
             const double factorN = (halfspace.inside()) ? K : -K;
             for (auto& oriented_mesh : halfspace.interface()) {
                 const Mesh& mesh = oriented_mesh.mesh();
-                // First block is nVertexFistLayer*source_mesh.nb_vertices()
+                // First block is nVertexFistLayer*source_mesh.vertices().size()
                 const double coeffN = factorN*oriented_mesh.orientation();
                 operatorN(mesh,source_mesh,mat,coeffN,gauss_order);
-                // Second block is nFacesFistLayer*source_mesh.nb_vertices()
+                // Second block is nFacesFistLayer*source_mesh.vertices().size()
                 operatorD(mesh,source_mesh,mat,coeffN*L,gauss_order,false);
             }
         }

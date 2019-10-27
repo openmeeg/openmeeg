@@ -129,18 +129,17 @@ namespace OpenMEEG {
 
         ~Mesh() { destroy(); }
 
-              std::string& name()              { return name_; } ///< \return the mesh name
-        const std::string& name()        const { return name_; } ///< \return the mesh name
+        std::string&                 name()                { return name_; } ///< \return the mesh name
+        const std::string&           name()          const { return name_; } ///< \return the mesh name
 
-        const VectPVertex& vertices()    const { return vertices_; } ///< \return the vector of pointers to the mesh vertices
-        size_t             nb_vertices() const { return vertices_.size(); }
+        const VectPVertex&           vertices()      const { return vertices_; } ///< \return the vector of pointers to the mesh vertices
 
-              Triangles&   triangles()         { return *this;  }
-        const Triangles&   triangles()   const { return *this;  }
-        size_t             triangles()   const { return size(); }
+              Triangles&              triangles()           { return *this;  }
+        const Triangles&              triangles()     const { return *this;  }
+        size_t                        nb_triangles()  const { return size(); }
 
-        Vertices           all_vertices()    const { return *all_vertices_; }
-        size_t             nb_all_vertices() const { return all_vertices_->size(); }
+        Vertices                      all_vertices()    const { return *all_vertices_; }
+        size_t                        nb_all_vertices() const { return all_vertices_->size(); }
 
         const bool&    current_barrier()          const { return current_barrier_; }
               bool&    current_barrier()                { return current_barrier_; }

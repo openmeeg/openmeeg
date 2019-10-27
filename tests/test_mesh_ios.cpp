@@ -10,7 +10,7 @@ int are_equal(const Vertex& v1, const Vertex& v2, double tol = 1e-12) {
 }
 
 int are_equal(const Mesh& m1, const Mesh& m2, double tol = 1e-12) {
-    if ((m1.nb_vertices()!=m2.nb_vertices()) || (m1.nb_triangles()!=m2.nb_triangles()))
+    if ((m1.vertices().size()!=m2.vertices().size()) || (m1.nb_triangles()!=m2.nb_triangles()))
         return 0;
 
     for (Mesh::const_vertex_iterator vit1=m1.vertices().begin(),vit2=m2.vertices().begin();vit1!=m1.vertices().end();vit1++,vit2++)
