@@ -61,7 +61,7 @@ int main( int argc, char **argv)
 
     Mesh m(input_filename, false);
 
-    Matrix mat(m.nb_vertices(), 6);
+    Matrix mat(m.vertices().size(),6);
 
     unsigned i = 0;
     for (const auto& vertex : m.vertices()) {

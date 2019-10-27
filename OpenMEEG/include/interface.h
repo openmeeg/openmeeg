@@ -92,9 +92,8 @@ namespace OpenMEEG {
         /// \return the total number of the interface vertices
         size_t nb_vertices() const {
             size_t nb = 0;
-            for ( const_iterator omit = begin(); omit != end(); ++omit) {
-                nb += omit->mesh().nb_vertices();
-            }
+            for (const_iterator omit=begin();omit!=end();++omit)
+                nb += omit->mesh().vertices().size();
             return nb;
         }
         

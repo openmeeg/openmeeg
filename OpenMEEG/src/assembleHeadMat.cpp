@@ -72,7 +72,7 @@ namespace OpenMEEG {
             for(std::vector<std::string>::const_iterator mit=git->begin();mit!=git->end();++mit){
                 const Mesh msh=geo.mesh(*mit);
                 if(msh.outermost()){
-                    nb_vertices+=msh.nb_vertices();
+                    nb_vertices += msh.vertices().size();
                     if(i_first==0)
                         i_first=(*msh.vertices().begin())->index();
                 }

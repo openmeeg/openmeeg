@@ -111,7 +111,7 @@ namespace OpenMEEG {
         } else {
             int shared = -vertices_.size();
             for (const_iterator mit = begin(); mit != end(); ++mit) {
-                shared += mit->nb_vertices();
+                shared += mit->vertices().size();
             }
             // those are not the number of shared vertices but the number of demands for adding the same vertex...
             std::cout << "This geometry is a NON NESTED geometry. (There was " << shared << " demands for adding same vertices)." << std::endl;
@@ -412,7 +412,7 @@ namespace OpenMEEG {
 
         // count the vertices
         for (Meshes::const_iterator mit = m.begin(); mit != m.end(); ++mit) {
-            n_vert_max += mit->nb_vertices();
+            n_vert_max += mit->vertices().size();
         }
 
         vertices_.reserve(n_vert_max);

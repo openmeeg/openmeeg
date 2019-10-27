@@ -185,7 +185,7 @@ namespace OpenMEEG {
             auto NUpdate = [&](const Mesh& m,const auto& M) {
                 unsigned i = 0; // for the PROGRESSBAR
                 for (auto vit1=m.vertices().begin();vit1!=m.vertices().end();++vit1) {
-                    PROGRESSBAR(i++,m1.nb_vertices());
+                    PROGRESSBAR(i++,m1.vertices().size());
                     #pragma omp parallel for
                     for (auto vit2=vit1;vit2<m.vertices().end();++vit2)
                         mat((*vit1)->index(),(*vit2)->index()) += _operatorN(**vit1,**vit2,m,m,M)*coeff;
@@ -217,7 +217,7 @@ namespace OpenMEEG {
             auto NUpdate = [&](const Mesh& m1,const Mesh& m2,const auto& M) {
                 unsigned i = 0; // for the PROGRESSBAR
                 for (const auto& vertex1 : m1.vertices()) {
-                    PROGRESSBAR(i++,m1.nb_vertices());
+                    PROGRESSBAR(i++,m1.vertices().size());
                     #pragma omp parallel for
                     for (const auto& vertex2 : m2.vertices())
                         mat(vertex1->index(),vertex2->index()) += _operatorN(*vertex1,*vertex2,m1,m2,M)*coeff;

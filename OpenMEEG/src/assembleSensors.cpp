@@ -105,7 +105,7 @@ namespace OpenMEEG {
         const unsigned nbIntegrationPoints = sensors.getNumberOfPositions();
         unsigned p0_p1_size = geo.size()-geo.nb_current_barrier_triangles();
 
-        Matrix FergusonMat(3*nbIntegrationPoints,geo.nb_vertices());
+        Matrix FergusonMat(3*nbIntegrationPoints,geo.vertices().size());
         FergusonMat.set(0.0);
 
         assemble_ferguson(geo,FergusonMat,positions);
@@ -136,7 +136,7 @@ namespace OpenMEEG {
         const Matrix& orientations = sensors.getOrientations();
         const unsigned nsquids = positions.nlin();
 
-        mat = Matrix(nsquids,sources_mesh.nb_vertices());
+        mat = Matrix(nsquids,sources_mesh.vertices().size());
         mat.set(0.0);
 
         for (unsigned i=0;i<nsquids;++i) {
