@@ -49,29 +49,21 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 namespace OpenMEEG {
 
-    template<class T>
-    void deflat(T& M, const Interface& i, double coef) 
-    {
-        // deflate the Matrix
+    template <typename T>
+    void deflate(T& M,const Interface& i,const double coef) {
+        //  deflate the Matrix
         for (Interface::const_iterator omit=i.begin();omit!=i.end();++omit) {
-            for (Mesh::const_vertex_iterator vit1=omit->mesh().vertex_begin();vit1!=omit->mesh().vertex_end();++vit1) {
+            for (auto vit1=omit->mesh().vertices().begin();vit1!=omit->mesh().vertices().end();++vit1) {
                 #pragma omp parallel for
-                #ifndef OPENMP_3_0
-                for (int i2=vit1-omit->mesh().vertex_begin();i2<omit->mesh().vertex_size();++i2) {
-                    const Mesh::const_vertex_iterator vit2 = omit->mesh().vertex_begin()+i2;
-                #else
-                for (Mesh::const_vertex_iterator vit2=vit1;vit2<omit->mesh().vertex_end();++vit2) {
-                #endif
+                for (auto vit2=vit1;vit2<omit->mesh().vertices().end();++vit2)
                     M((*vit1)->index(),(*vit2)->index()) += coef;
-                }
             }
         }
     }
 
-    template<class T>
-    void deflat(T& M, const Geometry& geo)
-    {
-        //deflat all current barriers as one
+    template <typename T>
+    void deflate(T& M,const Geometry& geo) {
+        //  deflate all current barriers as one
         unsigned nb_vertices=0,i_first=0;
         double coef=0.0;
         for ( std::vector<Strings>::const_iterator git = geo.geo_group().begin(); git != geo.geo_group().end(); ++git) {
@@ -82,23 +74,17 @@ namespace OpenMEEG {
                 if(msh.outermost()){
                     nb_vertices+=msh.nb_vertices();
                     if(i_first==0)
-                        i_first=(*msh.vertex_begin())->index();
+                        i_first=(*msh.vertices().begin())->index();
                 }
             }
             coef=M(i_first,i_first)/nb_vertices;
             for(std::vector<std::string>::const_iterator mit=git->begin();mit!=git->end();++mit){
                 Mesh msh=geo.mesh(*mit);
                 if(msh.outermost())
-                    for(Mesh::const_vertex_iterator vit1=msh.vertex_begin();vit1!=msh.vertex_end();++vit1){
+                    for(auto vit1=msh.vertices().begin();vit1!=msh.vertices().end();++vit1) {
                         #pragma omp parallel for
-                        #ifndef OPENMP_3_0
-                        for (int i2=vit1-msh.vertex_begin();i2<msh.vertex_size();++i2) {
-                            const Mesh::const_vertex_iterator vit2 = msh.vertex_begin()+i2;
-                        #else
-                        for (Mesh::const_vertex_iterator vit2=vit1;vit2<msh.vertex_end();++vit2) {
-                        #endif
+                        for (auto vit2=vit1;vit2<msh.vertices().end();++vit2)
                             M((*vit1)->index(),(*vit2)->index()) += coef;
-                        }
                     }
             }
         }
@@ -148,7 +134,7 @@ namespace OpenMEEG {
             }
         }
         // Deflate all current barriers as one
-        deflat(mat,geo);
+        deflate(mat,geo);
     }
 
     void assemble_cortical(const Geometry& geo, Matrix& mat, const Head2EEGMat& M, const std::string& domain_name, const unsigned gauss_order, double alpha, double beta, const std::string &filename)
@@ -210,23 +196,19 @@ namespace OpenMEEG {
                 }
             }
             // Deflate all current barriers as one
-            deflat(mat_temp,geo);
+            deflate(mat_temp,geo);
 
             mat = Matrix(Nl, Nc);
             mat.set(0.0);
             // copy mat_temp into mat except the lines for cortex vertices [i_vb_c, i_ve_c] and cortex triangles [i_tb_c, i_te_c].
             unsigned iNl = 0;
-            for ( Geometry::const_iterator mit = geo.begin(); mit != geo.end(); ++mit) {
-                if ( *mit != cortex ) {
-                    for ( Mesh::const_vertex_iterator vit = mit->vertex_begin(); vit != mit->vertex_end(); ++vit) {
-                        mat.setlin(iNl, mat_temp.getlin((*vit)->index()));
-                        ++iNl;
-                    }
-                    if ( !mit->current_barrier() ) {
-                        for ( Mesh::const_iterator tit = mit->begin(); tit != mit->end(); ++tit) {
-                            mat.setlin(iNl, mat_temp.getlin(tit->index()));
-                            ++iNl;
-                        }
+            for (Geometry::const_iterator mit = geo.begin(); mit != geo.end(); ++mit) {
+                if (*mit!=cortex) {
+                    for (const auto& vertex : mit->vertices())
+                        mat.setlin(iNl++,mat_temp.getlin(vertex->index()));
+                    if (!mit->current_barrier()) {
+                        for (Mesh::const_iterator tit = mit->begin(); tit != mit->end(); ++tit)
+                            mat.setlin(iNl++, mat_temp.getlin(tit->index()));
                     }
                 }
             }
@@ -374,7 +356,7 @@ namespace OpenMEEG {
                 }
             }
             // Deflate all current barriers as one
-            deflat(mat_temp,geo);
+            deflate(mat_temp,geo);
 
             H = Matrix(Nl + M.nlin(), Nc);
             H.set(0.0);
@@ -382,10 +364,8 @@ namespace OpenMEEG {
             unsigned iNl = 0;
             for ( Geometry::const_iterator mit = geo.begin(); mit != geo.end(); ++mit) {
                 if ( *mit != cortex ) {
-                    for ( Mesh::const_vertex_iterator vit = mit->vertex_begin(); vit != mit->vertex_end(); ++vit) {
-                        H.setlin(iNl, mat_temp.getlin((*vit)->index()));
-                        ++iNl;
-                    }
+                    for (const auto& vertex : mit->vertices())
+                        H.setlin(iNl++,mat_temp.getlin(vertex->index()));
                     if ( !mit->current_barrier() ) {
                         for ( Mesh::const_iterator tit = mit->begin(); tit != mit->end(); ++tit) {
                             H.setlin(iNl, mat_temp.getlin(tit->index()));

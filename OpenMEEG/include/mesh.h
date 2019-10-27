@@ -129,38 +129,25 @@ namespace OpenMEEG {
 
         ~Mesh() { destroy(); }
 
-        // Iterators on vertices
+              std::string& name()              { return name_; } ///< \return the mesh name
+        const std::string& name()        const { return name_; } ///< \return the mesh name
 
-        vertex_iterator               vertex_begin()        { return vertices_.begin(); }
-        vertex_iterator               vertex_end()          { return vertices_.end(); }
+        const VectPVertex& vertices()    const { return vertices_; } ///< \return the vector of pointers to the mesh vertices
+        size_t             nb_vertices() const { return vertices_.size(); }
 
-        size_t                        vertex_size()   const { return vertices_.size(); } // Just for old OpenMP implementations.
+              Triangles&   triangles()         { return *this;  }
+        const Triangles&   triangles()   const { return *this;  }
+        size_t             triangles()   const { return size(); }
 
-        const_vertex_iterator         vertex_begin()  const { return vertices_.begin(); }
-        const_vertex_iterator         vertex_end()    const { return vertices_.end(); }
-
-        const_vertex_reverse_iterator vertex_rbegin() const { return vertices_.rbegin(); }
-        const_vertex_reverse_iterator vertex_rend()   const { return vertices_.rend(); }
-		
-        std::string &                 name()                { return name_; } ///< \return the mesh name
-        const std::string &           name()          const { return name_; } ///< \return the mesh name
-
-        const VectPVertex &           vertices()      const { return vertices_; } ///< \return the vector of pointers to the mesh vertices
-        size_t                        nb_vertices()   const { return vertices_.size(); }
-
-              Triangles&              triangles()           { return *this;  }
-        const Triangles&              triangles()     const { return *this;  }
-        size_t                        nb_triangles()  const { return size(); }
-
-        Vertices                      all_vertices()    const { return *all_vertices_; }
-        size_t                        nb_all_vertices() const { return all_vertices_->size(); }
+        Vertices           all_vertices()    const { return *all_vertices_; }
+        size_t             nb_all_vertices() const { return all_vertices_->size(); }
 
         const bool&    current_barrier()          const { return current_barrier_; }
               bool&    current_barrier()                { return current_barrier_; }
         const bool&    isolated()                 const { return isolated_;        }
               bool&    isolated()                       { return isolated_;        }
 
-        /// \brief properly add vertex to the list.
+        /// \brief Add vertex to the mesh.
 
         void add_vertex(const Vertex& v);
 
@@ -168,20 +155,20 @@ namespace OpenMEEG {
         ///  Print to std::cout some info about the mesh
         ///  \return void \sa */
 
-        void info(const bool verbous = false) const;
-        bool has_self_intersection() const; ///< \brief check if the mesh self-intersects
-        bool intersection(const Mesh&) const; ///< \brief check if the mesh intersects another mesh
-        bool has_correct_orientation() const; ///< \brief check the local orientation of the mesh triangles
-        void build_mesh_vertices(); ///< \brief construct the list of the mesh vertices out of its triangles
-        void generate_indices(); ///< \brief generate indices (if allocate)
-        void update(); ///< \brief recompute triangles normals, area, and links
-        void merge(const Mesh&, const Mesh&); ///< properly merge two meshes into one
+        void info(const bool verbous = false) const; ///< \brief Print mesh information.
+        bool has_self_intersection() const; ///< \brief Check whether the mesh self-intersects.
+        bool intersection(const Mesh&) const; ///< \brief Check whether the mesh intersects another mesh.
+        bool has_correct_orientation() const; ///< \brief Check local orientation of mesh triangles.
+        void build_mesh_vertices(); ///< \brief Construct mesh vertices from its triangles,
+        void generate_indices(); ///< \brief Generate indices (if allocate).
+        void update(); ///< \brief Recompute triangles normals, area, and links.
+        void merge(const Mesh&,const Mesh&); ///< Merge two meshes.
 
-        ///< \brief get the triangles adjacent to vertex \param V.
+        /// \brief Get the triangles adjacent to vertex \param V .
 
         VectPTriangle adjacent_triangles(const Vertex& V) const { return links_.at(&V); }
 
-        ///< \brief get the triangles adjacent to \param triangle.
+        /// \brief Get the triangles adjacent to \param triangle .
 
         VectPTriangle adjacent_triangles(const Triangle& triangle) const {
             std::map<Triangle*,unsigned> mapt;
@@ -200,12 +187,12 @@ namespace OpenMEEG {
                 triangle.change_orientation();
         }
 
-        void correct_local_orientation(); ///< \brief correct the local orientation of the mesh triangles
-        void correct_global_orientation(); ///< \brief correct the global orientation (if there is one)
-        double solid_angle(const Vect3& p) const; ///< Given a point p, it computes the solid angle
-        const VectPTriangle& get_triangles_for_vertex(const Vertex& V) const; ///< \brief get the triangles associated with vertex V \return the links
-        Normal normal(const Vertex& v) const; ///< \brief get the Normal at vertex
-        void laplacian(SymMatrix &A) const; ///< \brief compute mesh laplacian
+        void correct_local_orientation(); ///< \brief Correct the local orientation of the mesh triangles.
+        void correct_global_orientation(); ///< \brief Correct the global orientation (if there is one).
+        double solid_angle(const Vect3& p) const; ///< Given a point p, computes the solid angle of the mesh seen from \param p .
+        const VectPTriangle& get_triangles_for_vertex(const Vertex& V) const; ///< \brief Get the triangles associated with vertex V \return the links
+        Normal normal(const Vertex& v) const; ///< \brief Get normal at vertex.`
+        void laplacian(SymMatrix &A) const; ///< \brief Compute mesh laplacian.
 
               bool& outermost()       { return outermost_; } /// \brief Returns True if it is an outermost mesh.
         const bool& outermost() const { return outermost_; }

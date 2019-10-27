@@ -236,10 +236,8 @@ namespace OpenMEEG {
             for (iterator mit = begin(); mit != end(); ++mit) {
                 if (OLD_ORDERING) {
                     om_error(is_nested_); // OR non nested but without shared vertices
-                    for (Mesh::const_vertex_iterator vit = mit->vertex_begin(); vit != mit->vertex_end(); ++vit, ++index) 
-                    {
-                        (*vit)->index() = index;
-                    }
+                    for (const auto& vertex : mit->vertices())
+                        vertex->index() = index++;
                 }
                 if (!mit->isolated()&&!mit->current_barrier()) {
                     for ( Mesh::iterator tit = mit->begin(); tit != mit->end(); ++tit) {
@@ -422,9 +420,9 @@ namespace OpenMEEG {
 
         for (Meshes::const_iterator mit = m.begin(); mit != m.end(); ++mit, ++iit) {
             meshes_.push_back(Mesh(vertices_, mit->name()));
-            for (Mesh::const_vertex_iterator vit = mit->vertex_begin(); vit != mit->vertex_end(); vit++) {
-                meshes_[iit].add_vertex(**vit);
-                map_vertices[*vit] = *meshes_[iit].vertex_rbegin();
+            for (const auto& vertex : mit->vertices()) {
+                meshes_[iit].add_vertex(*vertex);
+                map_vertices[vertex] = meshes_[iit].vertices().back();
             }
         }
 
@@ -489,9 +487,8 @@ namespace OpenMEEG {
                             omit->mesh().outermost() = false;
                             std::cout<<"Mesh \""<<omit->mesh().name()<<"\" will be excluded from computation because it touches non-conductive domains on both sides."<<std::endl;
                             //add all of its vertices to invalid_vertices
-                            for (Mesh::const_vertex_iterator vit = omit->mesh().vertex_begin(); vit != omit->mesh().vertex_end(); ++vit) {
-                                invalid_vertices_.insert(**vit);
-                            }
+                            for (const auto& vertex : omit->mesh().vertices())
+                                invalid_vertices_.insert(*vertex);
                         }
                     }
                 }
@@ -508,25 +505,17 @@ namespace OpenMEEG {
 
         //do not delete shared vertices
         std::set<Vertex> shared_vtx;
-        for (std::set<Vertex>::const_iterator vit = invalid_vertices_.begin(); vit != invalid_vertices_.end(); ++vit) {
-            for (Meshes::const_iterator mit = begin(); mit != end(); ++mit) {
+        for (std::set<Vertex>::const_iterator vit = invalid_vertices_.begin(); vit != invalid_vertices_.end(); ++vit)
+            for (Meshes::const_iterator mit = begin(); mit != end(); ++mit)
                 if (!mit->isolated()) {
-                    std::vector<Vertex*>::const_iterator vfind;
-                    for (vfind = mit->vertex_begin(); vfind != mit->vertex_end(); ++vfind) {
-                        if (**vfind == *vit) {
-                            break;
-                        }
-                    }
-                    if (vfind != mit->vertex_end()) {
+                    const auto comp = [vit](const Vertex* v) { return *v==*vit; };
+                    const std::vector<Vertex*>::const_iterator vfind = std::find_if(mit->vertices().begin(),mit->vertices().end(),comp);
+                    if (vfind!=mit->vertices().end())
                         shared_vtx.insert(**vfind); //a shared vertex is found
-                    }
                 }
-            }
-        }
 
-        for (std::set<Vertex>::const_iterator vit = shared_vtx.begin(); vit != shared_vtx.end(); ++vit) {
+        for (std::set<Vertex>::const_iterator vit = shared_vtx.begin(); vit != shared_vtx.end(); ++vit)
             invalid_vertices_.erase(*vit);
-        }
 
         //redefine outermost interface
         //the inside of a 0-cond domain is considered as a new outermost

@@ -10,26 +10,17 @@ int are_equal(const Vertex& v1, const Vertex& v2, double tol = 1e-12) {
 }
 
 int are_equal(const Mesh& m1, const Mesh& m2, double tol = 1e-12) {
-    if ( m1.nb_vertices() != m2.nb_vertices() ) {
+    if ((m1.nb_vertices()!=m2.nb_vertices()) || (m1.nb_triangles()!=m2.nb_triangles()))
         return 0;
-    }
-    if ( m1.nb_triangles() != m2.nb_triangles() ) {
-        return 0;
-    }
-    for ( Mesh::const_vertex_iterator vit1 = m1.vertex_begin(), vit2 = m2.vertex_begin(); vit1 != m1.vertex_end(); vit1++, vit2++)
-    {
-        if ( !are_equal(**vit1, **vit2, tol)) {
+
+    for (Mesh::const_vertex_iterator vit1=m1.vertices().begin(),vit2=m2.vertices().begin();vit1!=m1.vertices().end();vit1++,vit2++)
+        if (!are_equal(**vit1,**vit2,tol))
             return 0;
-        }
-    }
-    for ( Mesh::const_iterator tit1 = m1.begin(), tit2 = m2.begin(); tit1 != m1.end(); ++tit1, ++tit2)
-    {
-        for ( Triangle::const_iterator sit1 = tit1->begin(), sit2 = tit2->begin(); sit1 != tit1->end(); ++sit1, ++sit2) {
-            if ( !are_equal(**sit1, **sit2) ) {
+
+    for (Mesh::const_iterator tit1=m1.begin(),tit2=m2.begin();tit1!=m1.end();++tit1,++tit2)
+        for (Triangle::const_iterator sit1=tit1->begin(),sit2=tit2->begin();sit1!=tit1->end();++sit1,++sit2)
+            if (!are_equal(**sit1,**sit2))
                 return 0;
-            }
-        }
-    }
     return 1;
 }
 

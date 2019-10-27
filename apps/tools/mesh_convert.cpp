@@ -80,14 +80,14 @@ int main( int argc, char **argv) {
 
     Mesh m(input_filename);
 
-    for ( Mesh::vertex_iterator vit = m.vertex_begin(); vit != m.vertex_end(); ++vit) {
-        Vertex& v = **vit;
-        v(0) = v(0)*sx + tx;
-        v(1) = v(1)*sy + ty;
-        v(2) = v(2)*sz + tz;
+    for (const auto& vertex : m.vertices()) {
+        Vertex& v = *vertex;
+        v(0) = v(0)*sx+tx;
+        v(1) = v(1)*sy+ty;
+        v(2) = v(2)*sz+tz;
     }
 
-    if ( transfmat ) {
+    if (transfmat) {
         Matrix mat;
         mat.load(transfmat);
 
@@ -100,8 +100,8 @@ int main( int argc, char **argv) {
         if (mdet < 0 && !invert) // transformation is indirect => should force face flipping
             std::cout << "Warning : Transformation is indirect use -invert option to force face flipping" << std::endl;
 
-        for ( Mesh::vertex_iterator vit = m.vertex_begin(); vit != m.vertex_end(); ++vit) {
-            Vertex& v = **vit;
+        for (const auto& vertex : m.vertices()) {
+            Vertex& v = *vertex;
             Vector point(4);
             point.set(1.0);
             point(0) = v(0); point(1) = v(1); point(2) = v(2);
