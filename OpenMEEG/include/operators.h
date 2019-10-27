@@ -74,7 +74,7 @@ namespace OpenMEEG {
 
         #pragma omp parallel for
         for (const auto& triangle : m.triangles()) {
-            double d = gauss->integrate(anaDP,triangle);
+            const double d = gauss->integrate(anaDP,triangle);
             #pragma omp critical
             rhs(triangle.index()) += d*coeff;
         }
@@ -176,16 +176,26 @@ namespace OpenMEEG {
         // This function has the following arguments:
         //    the 2 interacting meshes
         //    the storage Matrix for the result
-        //    the coefficient to be appleid to each matrix element (depending on conductivities, ...)
+        //    the coefficient to be applied to each matrix element (depending on conductivities, ...)
         //    the gauss order parameter (for adaptive integration)
 
         std::cout << "OPERATOR N ... (arg : mesh " << m1.name() << " , mesh " << m2.name() << " )" << std::endl;
 
-        unsigned i = 0; // for the PROGRESSBAR
         if (&m1==&m2) {
+            auto NUpdate = [&](const Mesh& m,const auto& M) {
+                unsigned i = 0; // for the PROGRESSBAR
+                for (auto vit1=m.vertices().begin();vit1!=m.vertices().end();++vit1) {
+                    PROGRESSBAR(i++,m1.nb_vertices());
+                    #pragma omp parallel for
+                    for (auto vit2=vit1;vit2<m.vertices().end();++vit2)
+                        mat((*vit1)->index(),(*vit2)->index()) += _operatorN(**vit1,**vit2,m,m,M)*coeff;
+                }
+            };
+
             if (m1.current_barrier()) {
                 // we thus precompute operator S divided by the product of triangles area.
 
+                unsigned i = 0; // for the PROGRESSBAR
                 SymMatrix matS(m1.nb_triangles());
                 for (Mesh::const_iterator tit1=m1.begin();tit1!=m1.end();++tit1) {
                     PROGRESSBAR(i++, m1.nb_triangles());
@@ -199,37 +209,25 @@ namespace OpenMEEG {
                         matS(tit1->index() - m1.begin()->index(), tit2->index() - m1.begin()->index()) = _operatorS(*tit1, *tit2, gauss_order) / ( tit1->area() * tit2->area());
                     }
                 }
-                i = 0 ;
-                for (Mesh::const_vertex_iterator vit1 = m1.vertex_begin(); vit1 != m1.vertex_end(); ++vit1) {
-                    PROGRESSBAR(i++, m1.nb_vertices());
-                    #pragma omp parallel for
-                    #ifndef OPENMP_3_0
-                    for (int i2=vit1-m1.vertex_begin();i2<m1.vertex_size();++i2) {
-                        const Mesh::const_vertex_iterator vit2 = m1.vertex_begin()+i2;
-                    #else
-                    for (Mesh::const_vertex_iterator vit2=vit1;vit2<m1.vertex_end();++vit2) {
-                    #endif
-                        mat((*vit1)->index(), (*vit2)->index()) += _operatorN(**vit1, **vit2, m1, m1, matS) * coeff;
-                    }
-                }
+                NUpdate(m1,matS);
             } else {
-                for (Mesh::const_vertex_iterator vit1 = m1.vertex_begin(); vit1 != m1.vertex_end(); ++vit1) {
-                    PROGRESSBAR(i++, m1.nb_vertices());
-                    #pragma omp parallel for
-                    #ifndef OPENMP_3_0
-                    for (int i2=0;i2<=vit1-m1.vertex_begin();++i2) {
-                        const Mesh::const_vertex_iterator vit2 = m1.vertex_begin()+i2;
-                    #else
-                    for (Mesh::const_vertex_iterator vit2=m1.vertex_begin();vit2<=vit1;++vit2) {
-                    #endif
-                        mat((*vit1)->index(), (*vit2)->index()) += _operatorN(**vit1, **vit2, m1, m1, mat) * coeff;
-                    }
-                }
+                NUpdate(m1,mat);
             }
         } else {
+            auto NUpdate = [&](const Mesh& m1,const Mesh& m2,const auto& M) {
+                unsigned i = 0; // for the PROGRESSBAR
+                for (const auto& vertex1 : m1.vertices()) {
+                    PROGRESSBAR(i++,m1.nb_vertices());
+                    #pragma omp parallel for
+                    for (const auto& vertex2 : m2.vertices())
+                        mat(vertex1->index(),vertex2->index()) += _operatorN(*vertex1,*vertex2,m1,m2,M)*coeff;
+                }
+            };
+
             if ( m1.current_barrier() || m2.current_barrier() ) {
                 // we thus precompute operator S divided by the product of triangles area.
                 Matrix matS(m1.nb_triangles(), m2.nb_triangles());
+                unsigned i = 0; // for the PROGRESSBAR
                 for (Mesh::const_iterator tit1 = m1.begin(); tit1 != m1.end(); ++tit1) {
                     PROGRESSBAR(i++, m1.nb_triangles());
                     #pragma omp parallel for
@@ -242,33 +240,9 @@ namespace OpenMEEG {
                         matS(tit1->index()-m1.begin()->index(),tit2->index()-m2.begin()->index()) = _operatorS(*tit1,*tit2,gauss_order)/(tit1->area()*tit2->area());
                     }
                 }
-                i = 0 ;
-                for (Mesh::const_vertex_iterator vit1 = m1.vertex_begin();vit1!=m1.vertex_end();++vit1) {
-                    PROGRESSBAR(i++,m1.nb_vertices());
-                    #pragma omp parallel for
-                    #ifndef OPENMP_3_0
-                    for (int i2=0;i2<m2.vertex_size();++i2) {
-                        const Mesh::const_vertex_iterator vit2 = m2.vertex_begin()+i2;
-                    #else
-                    for (Mesh::const_vertex_iterator vit2=m2.vertex_begin();vit2<m2.vertex_end();++vit2) {
-                    #endif
-                        mat((*vit1)->index(),(*vit2)->index()) += _operatorN(**vit1,**vit2,m1,m2,matS)*coeff;
-                    }
-                }
+                NUpdate(m1,m2,matS);
             } else {
-                //  This loop is exactly the same as the one just above with just matS -> mat (factorize).
-                for (Mesh::const_vertex_iterator vit1 = m1.vertex_begin();vit1!=m1.vertex_end();++vit1) {
-                    PROGRESSBAR(i++,m1.nb_vertices());
-                    #pragma omp parallel for
-                    #ifndef OPENMP_3_0
-                    for (int i2=0;i2<m2.vertex_size();++i2) {
-                        const Mesh::const_vertex_iterator vit2 = m2.vertex_begin()+i2;
-                    #else
-                    for (Mesh::const_vertex_iterator vit2=m2.vertex_begin();vit2<m2.vertex_end();++vit2) {
-                    #endif
-                        mat((*vit1)->index(),(*vit2)->index()) += _operatorN(**vit1,**vit2,m1,m2,mat)*coeff;
-                    }
-                }
+                NUpdate(m1,m2,mat);
             }
         }
     }

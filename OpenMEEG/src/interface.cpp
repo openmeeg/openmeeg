@@ -89,13 +89,13 @@ namespace OpenMEEG {
         double zmax = -std::numeric_limits<double>::max();
 
         for ( Interface::const_iterator omit = begin(); omit != end(); ++omit) {
-            for ( Mesh::const_vertex_iterator vit = omit->mesh().vertex_begin(); vit != omit->mesh().vertex_end(); ++vit) {
-                xmin = std::min(xmin, (**vit).x());
-                ymin = std::min(ymin, (**vit).y());
-                zmin = std::min(zmin, (**vit).z());
-                xmax = std::max(xmax, (**vit).x());
-                ymax = std::max(ymax, (**vit).y());
-                zmax = std::max(zmax, (**vit).z());
+            for (const auto& vertex : omit->mesh().vertices()) {
+                xmin = std::min(xmin,vertex->x());
+                ymin = std::min(ymin,vertex->y());
+                zmin = std::min(zmin,vertex->z());
+                xmax = std::max(xmax,vertex->x());
+                ymax = std::max(ymax,vertex->y());
+                zmax = std::max(zmax,vertex->z());
             }
         }
         

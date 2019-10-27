@@ -68,8 +68,8 @@ namespace OpenMEEG {
 
         // The mesh is included in a domain of the geometry.
 
-        const Domain& domain = geo.domain(**source_mesh.vertex_begin());
-        
+        const Domain& domain = geo.domain(**source_mesh.vertices().begin());
+
         // Set it as an outermost (to tell _operarorN it doesn't belong to the geometry).
 
         source_mesh.outermost()       = true;

@@ -170,7 +170,7 @@ namespace OpenMEEG {
 
         // If indices are not set, we generate them for sorting edge and testing orientation
         if (allocate_) {
-            if ((*vertex_begin())->index()==unsigned(-1))
+            if (vertices().front()->index()==unsigned(-1))
                 generate_indices();
             correct_local_orientation();
         }
@@ -206,15 +206,15 @@ namespace OpenMEEG {
         all_vertices_->reserve(m1.nb_vertices() + m2.nb_vertices());
 
         std::map<unsigned,Vertex *> map1;
-        for (Mesh::const_vertex_iterator vit = m1.vertex_begin(); vit != m1.vertex_end(); ++vit) {
-            add_vertex(**vit);
-            map1[(*vit)->index()] = *vertices_.rbegin();
+        for (const auto& vertex : m1.vertices()) {
+            add_vertex(*vertex);
+            map1[vertex->index()] = vertices().back();
         }
 
         std::map<unsigned,Vertex*> map2;
-        for (Mesh::const_vertex_iterator vit = m2.vertex_begin(); vit != m2.vertex_end(); ++vit) {
-            add_vertex(**vit);
-            map2[(*vit)->index()] = *vertices_.rbegin();
+        for (const auto& vertex : m2.vertices()) {
+            add_vertex(*vertex);
+            map2[vertex->index()] = vertices().back();
         }
 
         for (const_iterator tit = m1.begin(); tit != m1.end(); ++tit)
@@ -230,7 +230,8 @@ namespace OpenMEEG {
 
     void Mesh::smooth(const double& smoothing_intensity,const unsigned& niter) {
 
-        std::vector<std::set<Vertex>> neighbors(nb_vertices());
+        typedef std::vector<std::set<Vertex>> Neighbors;
+        Neighbors neighbors(nb_vertices());
         unsigned i = 0;
         for (const auto& vertex : vertices()) {
             for (const auto& triangle : adjacent_triangles(*vertex))
@@ -242,16 +243,17 @@ namespace OpenMEEG {
 
         Vertices new_pts(nb_vertices());
         for (unsigned n = 0; n < niter; ++n) {
-            i = 0;
-            for (const_vertex_iterator vit = vertex_begin(); vit != vertex_end(); ++vit, ++i) {
-                new_pts.push_back(**vit);
-                for (std::set<Vertex>::const_iterator it = neighbors[i].begin(); it != neighbors[i].end(); ++it)
-                    new_pts[i] = new_pts[i] + (smoothing_intensity * (*it - **vit)) / neighbors[i].size();
+            Neighbors::const_iterator nit = neighbors.begin();
+            for (const auto& vertex : vertices()) {
+                new_pts.push_back(*vertex);
+                auto& newpt = new_pts.back();
+                for (std::set<Vertex>::const_iterator it = nit->begin();it!=nit->end();++it)
+                    newpt += (smoothing_intensity*(*it-*vertex))/nit->size();
+                ++nit;
             }
-            for (vertex_iterator vit = vertex_begin(); vit != vertex_end(); ++vit) {
-                **vit = new_pts[i];
-                new_pts.clear();
-            }
+            for (auto& vertex : vertices())
+                *vertex = new_pts[i];
+            new_pts.clear();
         }
         update(); // Updating triangles (areas + normals)
     }
@@ -435,8 +437,8 @@ namespace OpenMEEG {
 
     void Mesh::generate_indices() {
         unsigned index = 0;
-        for (vertex_iterator vit = vertex_begin(); vit != vertex_end(); ++vit, ++index)
-            (*vit)->index() = index;
+        for (auto& vertex : vertices())
+            vertex->index() = index++;
         for (iterator tit = begin(); tit!= end(); ++tit, ++index)
             tit->index() = index;
     }
@@ -877,9 +879,9 @@ namespace OpenMEEG {
 
         std::map<const Vertex *, unsigned> map;
         unsigned i = 0;
-        for (const_vertex_iterator vit = vertex_begin(); vit != vertex_end(); ++vit, ++i) {
-            map[*vit] = i;
-            os << **vit << std::endl;
+        for (const auto& vertex : vertices()) {
+            map[vertex] = i++;
+            os << *vertex << std::endl;
         }
         os << "POLYGONS " << nb_triangles() << " " << nb_triangles()*4 << std::endl;
         for (const_iterator tit = begin(); tit != end(); ++tit)
@@ -888,8 +890,8 @@ namespace OpenMEEG {
         os << "CELL_DATA " << nb_triangles() << std::endl;
         os << "POINT_DATA " << nb_vertices() << std::endl;
         os << "NORMALS normals float" << std::endl;
-        for (const_vertex_iterator vit = vertex_begin(); vit != vertex_end(); ++vit)
-            os << normal(**vit) << std::endl;
+        for (const auto& vertex : vertices())
+            os << normal(*vertex) << std::endl;
 
         os.close();
     }
@@ -904,9 +906,9 @@ namespace OpenMEEG {
         os << "Positions" << std::endl;
         std::map<const Vertex *, unsigned> map;
         unsigned i = 0;
-        for (const_vertex_iterator vit = vertex_begin(); vit != vertex_end(); ++vit, ++i) {
-            map[*vit] = i;
-            os << **vit << std::endl;
+        for (const auto& vertex : vertices()) {
+            map[vertex] = i++;
+            os << *vertex << std::endl;
         }
         os << "NumberPolygons= " << nb_triangles() << std::endl;
         os << "TypePolygons=\t3" << std::endl;
@@ -923,9 +925,9 @@ namespace OpenMEEG {
         os << "- " << nb_vertices() << std::endl;
         std::map<const Vertex *, unsigned> map;
         unsigned i = 0;
-        for (const_vertex_iterator vit = vertex_begin(); vit != vertex_end(); ++vit, ++i) {
-            map[*vit] = i;
-            os << **vit << " " << normal(**vit) << std::endl;
+        for (const auto& vertex : vertices()) {
+            map[vertex] = i++;
+            os << *vertex << " " << normal(*vertex) << std::endl;
         }
         os << "- " << nb_triangles() << " " << nb_triangles() << " " << nb_triangles() << std::endl;
         for (const_iterator tit = begin(); tit != end(); ++tit)
@@ -942,9 +944,9 @@ namespace OpenMEEG {
         std::map<const Vertex *, unsigned> map;
 
         unsigned i = 0;
-        for (const_vertex_iterator vit = vertex_begin(); vit != vertex_end(); ++vit, ++i) {
-            map[*vit] = i;
-            os << **vit << std::endl;
+        for (const auto& vertex : vertices()) {
+            map[vertex] = i++;
+            os << *vertex << std::endl;
         }
 
         for (const_iterator tit = begin(); tit != end(); ++tit)
@@ -987,16 +989,16 @@ namespace OpenMEEG {
 
         std::map<const Vertex *, unsigned> map;
         unsigned i = 0;
-
-        for (const_vertex_iterator vit = vertex_begin(); vit != vertex_end(); ++vit, ++i) {
-            map[*vit] = i;
-            pts_raw[i*3+0]     = (float)((*vit)->x());
-            pts_raw[i*3+1]     = (float)((*vit)->y());
-            pts_raw[i*3+2]     = (float)((*vit)->z());
-            Normal n = normal(**vit);
-            normals_raw[i*3+0] = (float)(n.x());
-            normals_raw[i*3+1] = (float)(n.y());
-            normals_raw[i*3+2] = (float)(n.z());
+        for (const auto& vertex : vertices()) {
+            map[vertex] = i;
+            pts_raw[i*3+0]     = static_cast<float>(vertex->x());
+            pts_raw[i*3+1]     = static_cast<float>(vertex->y());
+            pts_raw[i*3+2]     = static_cast<float>(vertex->z());
+            const Normal& n = normal(*vertex);
+            normals_raw[i*3+0] = static_cast<float>(n.x());
+            normals_raw[i*3+1] = static_cast<float>(n.y());
+            normals_raw[i*3+2] = static_cast<float>(n.z());
+            ++i;
         }
 
         i = 0;
