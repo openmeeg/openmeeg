@@ -250,7 +250,7 @@ namespace OpenMEEG {
             for (iterator mit = begin(); mit != end(); ++mit) {
                 if (mit->current_barrier()) {
                     if (!mit->isolated()) {
-                        nb_current_barrier_triangles_ += mit->nb_triangles();
+                        nb_current_barrier_triangles_ += mit->triangles().size();
                         for (Mesh::iterator tit = mit->begin(); tit != mit->end(); ++tit) {
                             tit->index() = index++;
                         }
