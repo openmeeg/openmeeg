@@ -147,13 +147,14 @@ namespace OpenMEEG {
         for (const auto& tp1 : trgs1) {
             const Edge& edge1 = tp1->edge(V1);
             const Vect3& CB1 = edge1.vertex(0)-edge1.vertex(1);
+            const unsigned ind1 = tp1->index()-m1.triangles().front().index();
             for (const auto& tp2 : trgs2) {
+
+                const unsigned ind2 = tp2->index()-m2.triangles().front().index();
 
                 // In the second case, we here divided (precalculated) operatorS by the product of areas.
 
-                const double Iqr = (m1.current_barrier() || m2.current_barrier()) ?
-                     mat(tp1->index()-m1.begin()->index(),tp2->index()-m2.begin()->index()) :
-                     mat(tp1->index(),tp2->index())/(tp1->area()*tp2->area());
+                const double Iqr = (m1.current_barrier() || m2.current_barrier()) ? mat(ind1,ind2) : mat(tp1->index(),tp2->index())/(tp1->area()*tp2->area());
 
                 const Edge& edge2 = tp2->edge(V2);
                 const Vect3& CB2 = edge2.vertex(0)-edge2.vertex(1);
@@ -197,16 +198,13 @@ namespace OpenMEEG {
 
                 unsigned i = 0; // for the PROGRESSBAR
                 SymMatrix matS(m1.triangles().size());
-                for (Mesh::const_iterator tit1=m1.begin();tit1!=m1.end();++tit1) {
-                    PROGRESSBAR(i++, m1.triangles().size());
+                for (Triangles::const_iterator tit1=m1.triangles().begin();tit1!=m1.triangles().end();++tit1) {
+                    const unsigned ind1 = tit1->index()-m1.triangles().front().index();
+                    PROGRESSBAR(i++,m1.triangles().size());
                     #pragma omp parallel for
-                    #ifndef OPENMP_3_0
-                    for (int i2=tit1-m1.begin();i2<m1.size();++i2) {
-                        const Mesh::const_iterator tit2 = m1.begin()+i2;
-                    #else
-                    for (Mesh::const_iterator tit2=tit1;tit2<m1.end();++tit2) {
-                    #endif
-                        matS(tit1->index() - m1.begin()->index(), tit2->index() - m1.begin()->index()) = _operatorS(*tit1, *tit2, gauss_order) / ( tit1->area() * tit2->area());
+                    for (Triangles::const_iterator tit2=tit1;tit2<m1.triangles().end();++tit2) {
+                        const unsigned ind2 = tit2->index()-m2.triangles().front().index();
+                        matS(ind1,ind2) = _operatorS(*tit1,*tit2,gauss_order)/(tit1->area()*tit2->area());
                     }
                 }
                 NUpdate(m1,matS);
@@ -225,19 +223,16 @@ namespace OpenMEEG {
             };
 
             if ( m1.current_barrier() || m2.current_barrier() ) {
-                // we thus precompute operator S divided by the product of triangles area.
-                Matrix matS(m1.triangles().size(), m2.triangles().size());
-                unsigned i = 0; // for the PROGRESSBAR
-                for (Mesh::const_iterator tit1 = m1.begin(); tit1 != m1.end(); ++tit1) {
-                    PROGRESSBAR(i++, m1.triangles().size());
+                // Precompute operator S divided by the product of triangles area.
+                Matrix matS(m1.triangles().size(),m2.triangles().size());
+                unsigned i = 0;
+                for (const auto& triangle1 : m1.triangles()) {
+                    PROGRESSBAR(i++,m1.triangles().size());
+                    const unsigned ind1 = triangle1.index()-m1.triangles().front().index();
                     #pragma omp parallel for
-                    #ifndef OPENMP_3_0
-                    for (int i2=0;i2<m2.size();++i2) {
-                        const Mesh::const_iterator tit2 = m2.begin()+i2;
-                    #else
-                    for (Mesh::const_iterator tit2=m2.begin();tit2<m2.end();++tit2) {
-                    #endif
-                        matS(tit1->index()-m1.begin()->index(),tit2->index()-m2.begin()->index()) = _operatorS(*tit1,*tit2,gauss_order)/(tit1->area()*tit2->area());
+                    for (const auto& triangle2 : m2.triangles()) {
+                        const unsigned ind2 = triangle2.index()-m2.triangles().front().index();
+                        matS(ind1,ind2) = _operatorS(triangle1,triangle2,gauss_order)/(triangle1.area()*triangle2.area());
                     }
                 }
                 NUpdate(m1,m2,matS);
@@ -262,33 +257,22 @@ namespace OpenMEEG {
         // The operator S is given by Sij=\Int G*PSI(I, i)*Psi(J, j) with
         // PSI(A, a) is a P0 test function on layer A and triangle a
         if (&m1==&m2) {
-            for (Mesh::const_iterator tit1=m1.begin();tit1!=m1.end();++tit1) {
+            for (Triangles::const_iterator tit1=m1.triangles().begin();tit1!=m1.triangles().end();++tit1) {
                 PROGRESSBAR(i++,m1.triangles().size());
                 #pragma omp parallel for
-                #ifndef OPENMP_3_0
-                for (int i2=tit1-m1.begin();i2<m1.size();++i2) {
-                    const Mesh::const_iterator tit2 = m1.begin()+i2;
-                #else
-                for (Mesh::const_iterator tit2=tit1;tit2<m1.end();++tit2) {
-                #endif
+                for (Triangles::const_iterator tit2=tit1;tit2<m1.triangles().end();++tit2)
                     mat(tit1->index(),tit2->index()) = _operatorS(*tit1,*tit2,gauss_order)*coeff;
-                }
             }
         } else {
             // TODO check the symmetry of _operatorS. 
             // if we invert tit1 with tit2: results in HeadMat differs at 4.e-5 which is too big.
             // using ADAPT_LHS with tolerance at 0.000005 (for _opS) drops this at 6.e-6. (but increase the computation time)
-            for (Mesh::const_iterator tit1=m1.begin();tit1!=m1.end();++tit1) {
+
+            for (const auto& triangle1 : m1.triangles()) {
                 PROGRESSBAR(i++,m1.triangles().size());
                 #pragma omp parallel for
-                #ifndef OPENMP_3_0
-                for (int i2=0;i2<m2.size();++i2) {
-                    const Mesh::const_iterator tit2 = m2.begin()+i2;
-                #else
-                for (Mesh::const_iterator tit2=m2.begin();tit2<m2.end();++tit2) {
-                #endif
-                    mat(tit1->index(),tit2->index()) = _operatorS(*tit1,*tit2,gauss_order)*coeff;
-                }
+                for (const auto& triangle2 : m2.triangles())
+                    mat(triangle1.index(),triangle2.index()) = _operatorS(triangle1,triangle2,gauss_order)*coeff;
             }
         }
     }
@@ -308,15 +292,10 @@ namespace OpenMEEG {
 
         unsigned i = 0; // for the PROGRESSBAR
         #pragma omp parallel for
-        #ifndef OPENMP_3_0
-        for (int i1=0; i1 < m1.size(); ++i1) {
-            const Mesh::const_iterator tit1 = m1.begin()+i1;
-        #else
-        for (Mesh::const_iterator tit1 = m1.begin(); tit1 < m1.end(); ++tit1) {
-        #endif
+        for (const auto& triangle1 : m1.triangles()) {
             PROGRESSBAR(i++, m1.triangles().size());
-            for (Mesh::const_iterator tit2=m2.begin();tit2!=m2.end();++tit2)
-                _operatorD(*tit1,*tit2,mat,coeff,gauss_order);
+            for (const auto& triangle2 : m2.triangles())
+                _operatorD(triangle1,triangle2,mat,coeff,gauss_order);
         }
     }
 
@@ -342,9 +321,9 @@ namespace OpenMEEG {
     void operatorP1P0(const Mesh& m, T& mat,const double& coeff) {
         // This time mat(i, j)+= ... the Matrix is incremented by the P1P0 operator
         std::cout << "OPERATOR P1P0... (arg : mesh " << m.name() << " )" << std::endl;
-        for (Mesh::const_iterator tit = m.begin(); tit != m.end(); ++tit)
-            for (Triangle::const_iterator pit = tit->begin(); pit != tit->end(); ++pit)
-                mat(tit->index(), (*pit)->index()) += _operatorP1P0(*tit, **pit) * coeff;
+        for (const auto& triangle : m.triangles())
+            for (const auto& vertex : triangle)
+                mat(triangle.index(),vertex->index()) += _operatorP1P0(triangle,*vertex)*coeff;
     }
 
     inline Vect3 _operatorFerguson(const Vect3& x,const Vertex& V,const Mesh& m) {

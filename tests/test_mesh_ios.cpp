@@ -17,7 +17,7 @@ int are_equal(const Mesh& m1,const Mesh& m2,double tol=1e-12) {
         if (!are_equal(**vit1,**vit2,tol))
             return 0;
 
-    for (Mesh::const_iterator tit1=m1.begin(),tit2=m2.begin();tit1!=m1.end();++tit1,++tit2)
+    for (Triangles::const_iterator tit1=m1.triangles().begin(),tit2=m2.triangles().begin();tit1!=m1.triangles().end();++tit1,++tit2)
         for (Triangle::const_iterator sit1=tit1->begin(),sit2=tit2->begin();sit1!=tit1->end();++sit1,++sit2)
             if (!are_equal(**sit1,**sit2))
                 return 0;

@@ -105,7 +105,7 @@ namespace OpenMEEG {
         throw OpenMEEG::BadInterface(id);
     }
 
-    void Geometry::info(const bool verbous) const {
+    void Geometry::info(const bool verbose) const {
         if (is_nested_) {
             std::cout << "This geometry is a NESTED geometry." << std::endl;
         } else {
@@ -125,16 +125,14 @@ namespace OpenMEEG {
             dit->info();
         }
 
-        if (verbous) {
+        if (verbose) {
             for (Vertices::const_iterator vit = vertex_begin(); vit != vertex_end(); ++vit) {
                 std::cout << "[" << *vit << "] = " << vit->index() << std::endl;
             }
 
-            for (const_iterator mit = begin(); mit != end(); ++mit) {
-                for (Mesh::const_iterator tit = mit->begin(); tit != mit->end(); ++tit) {
-                    std::cout << "[[" << tit->vertex(0) << "] , [" << tit->vertex(1) << "] , ["<< tit->vertex(2) << "]] \t = " << tit->index() << std::endl;
-                }
-            }
+            for (const auto& mesh : *this)
+                for (const auto& triangle : mesh.triangles()) 
+                    std::cout << "[[" << triangle.vertex(0) << "] , [" << triangle.vertex(1) << "] , ["<< triangle.vertex(2) << "]] \t = " << triangle.index() << std::endl;
         }
     }
 
@@ -221,7 +219,8 @@ namespace OpenMEEG {
         // or by type (V_1, V_2, V_3 .. p_1, p_2...) (by DEFAULT)
         // or by the user himself encoded into the vtp file.
         // if you use OLD_ORDERING make sure to iterate only once on each vertex: not to overwrite index (meshes have shared vertices).
-        if (begin()->begin()->index() == unsigned(-1)) {
+
+        if (begin()->triangles().front().index() == unsigned(-1)) {
             unsigned index = 0;
             if (!OLD_ORDERING) {
                 for (Vertices::iterator pit = vertex_begin(); pit != vertex_end(); ++pit) {
@@ -233,42 +232,36 @@ namespace OpenMEEG {
                 }
             }
 
-            for (iterator mit = begin(); mit != end(); ++mit) {
+            for (auto& mesh : *this) {
                 if (OLD_ORDERING) {
                     om_error(is_nested_); // OR non nested but without shared vertices
-                    for (const auto& vertex : mit->vertices())
+                    for (const auto& vertex : mesh.vertices())
                         vertex->index() = index++;
                 }
-                if (!mit->isolated()&&!mit->current_barrier()) {
-                    for ( Mesh::iterator tit = mit->begin(); tit != mit->end(); ++tit) {
-                        tit->index() = index++;
-                    }
-                }
+                if (!mesh.isolated()&&!mesh.current_barrier())
+                    for (auto& triangle : mesh.triangles())
+                        triangle.index() = index++;
             }
             // even the last surface triangles (yes for EIT... )
             nb_current_barrier_triangles_ = 0;
-            for (iterator mit = begin(); mit != end(); ++mit) {
-                if (mit->current_barrier()) {
-                    if (!mit->isolated()) {
-                        nb_current_barrier_triangles_ += mit->triangles().size();
-                        for (Mesh::iterator tit = mit->begin(); tit != mit->end(); ++tit) {
-                            tit->index() = index++;
-                        }
+            for (auto& mesh : *this)
+                if (mesh.current_barrier()) {
+                    if (!mesh.isolated()) {
+                        nb_current_barrier_triangles_ += mesh.triangles().size();
+                        for (auto& triangle : mesh.triangles())
+                            triangle.index() = index++;
                     } else {
-                        for (Mesh::iterator tit = mit->begin(); tit != mit->end(); ++tit) {
-                            tit->index() = unsigned(-1);
-                        }
+                        for (auto& triangle : mesh.triangles())
+                            triangle.index() = unsigned(-1);
                     }
                 }
-            }
 
             size_ = index;
-        }else{
+        } else {
             std::cout << "vertex_begin()->index() " << vertex_begin()->index() << std::endl;
             size_ = vertices_.size();
-            for (iterator mit = begin(); mit != end(); ++mit) {
-                size_ += mit->size();
-            }
+            for (const auto& mesh : *this)
+                size_ += mesh.triangles().size();
         }
     }
 
@@ -406,35 +399,31 @@ namespace OpenMEEG {
     void Geometry::import_meshes(const Meshes& m) {
         meshes_.clear();
         vertices_.clear();
-        unsigned n_vert_max = 0;
-        unsigned iit = 0;
-        std::map<const Vertex *, Vertex *> map_vertices;
 
-        // count the vertices
-        for (Meshes::const_iterator mit = m.begin(); mit != m.end(); ++mit) {
-            n_vert_max += mit->vertices().size();
-        }
+        // Count vertices
+
+        unsigned n_vert_max = 0;
+        for (const auto& mesh : m)
+            n_vert_max += mesh.vertices().size();
+
+        // Copy vertices and triangles in the geometry.
 
         vertices_.reserve(n_vert_max);
         meshes_.reserve(m.size());
-
-        for (Meshes::const_iterator mit = m.begin(); mit != m.end(); ++mit, ++iit) {
-            meshes_.push_back(Mesh(vertices_, mit->name()));
-            for (const auto& vertex : mit->vertices()) {
-                meshes_[iit].add_vertex(*vertex);
-                map_vertices[vertex] = meshes_[iit].vertices().back();
-            }
-        }
-
-        // Copy the triangles in the geometry.
-
-        iit = 0;
+        std::map<const Vertex*,Vertex*> map_vertices;
         for (const auto& mesh : m) {
+            meshes_.push_back(Mesh(vertices_,mesh.name()));
+            Mesh& newmesh = meshes_.back();
+            for (const auto& vertex : mesh.vertices()) {
+                newmesh.add_vertex(*vertex);
+                map_vertices[vertex] = newmesh.vertices().back();
+            }
+            Triangles& triangles = newmesh.triangles();
             for (const auto& triangle : mesh.triangles())
-                meshes_[iit].push_back(Triangle(map_vertices[&triangle.vertex(0)],
-                                                map_vertices[&triangle.vertex(1)],
-                                                map_vertices[&triangle.vertex(2)]));
-            meshes_[iit++].update();
+                triangles.push_back(Triangle(map_vertices[&triangle.vertex(0)],
+                                             map_vertices[&triangle.vertex(1)],
+                                             map_vertices[&triangle.vertex(2)]));
+            newmesh.update();
         }
     }
 

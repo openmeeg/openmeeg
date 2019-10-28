@@ -157,24 +157,22 @@ namespace OpenMEEG {
         mat = Matrix((geo.size()-geo.nb_current_barrier_triangles()), n_sensors);
         mat.set(0.0);
 
-        for (Geometry::const_iterator mit0 = geo.begin(); mit0 != geo.end(); ++mit0) {
-            if (mit0->current_barrier()) {
-                for (Geometry::const_iterator mit1 = geo.begin(); mit1 != geo.end(); ++mit1) {
-                    const int orientation = geo.oriented(*mit0,*mit1);
+        for (const auto& mesh1 : geo)
+            if (mesh1.current_barrier())
+                for (const auto& mesh2 : geo) {
+                    const int orientation = geo.oriented(mesh1,mesh2);
                     if (orientation != 0){
                         // D*_23 or D*_33
-                        operatorD(*mit1, *mit0, transmat, K*orientation, gauss_order, true);
-                        if (*mit0==*mit1) {
+                        operatorD(mesh2,mesh1,transmat,K*orientation,gauss_order,true);
+                        if (mesh1==mesh2) {
                             // I_33
-                            operatorP1P0(*mit0, transmat, -0.5*orientation);
+                            operatorP1P0(mesh1,transmat,-0.5*orientation);
                         } else {
                             // S_23
-                            operatorS(*mit1, *mit0, transmat, geo.sigma_inv(*mit0,*mit1)*(-1.0*K*orientation), gauss_order);
+                            operatorS(mesh2,mesh1,transmat,geo.sigma_inv(mesh1,mesh2)*(-1.0*K*orientation),gauss_order);
                         }
                     }
                 }
-            }
-        }
 
         for ( size_t ielec = 0; ielec < n_sensors; ++ielec) {
             Triangles tris = electrodes.getInjectionTriangles(ielec);

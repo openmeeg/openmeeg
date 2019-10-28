@@ -62,7 +62,7 @@ namespace OpenMEEG {
 
     /// \brief load a VTK\\vtp file \param filename into a mesh. Optionally read some associated data in matrix \param data if \param READ_DATA is true.
 
-    void Geometry::load_vtp(const std::string& filename, Matrix& data, const bool READ_DATA) {
+    void Geometry::load_vtp(const std::string& filename,Matrix& data,const bool READ_DATA) {
         #ifdef USE_VTK
         vtkSmartPointer<vtkXMLPolyDataReader> reader = vtkSmartPointer<vtkXMLPolyDataReader>::New();
         reader->SetFileName(filename.c_str()); // Specify file name of vtp data file to read
@@ -71,8 +71,8 @@ namespace OpenMEEG {
         vtkSmartPointer<vtkPolyData> vtkMesh = reader->GetOutput();
 
         int trash;
-        vtkSmartPointer<vtkUnsignedIntArray> v_indices = vtkUnsignedIntArray::SafeDownCast(vtkMesh->GetPointData()->GetArray("Indices", trash));
-        vtkSmartPointer<vtkUnsignedIntArray> c_indices = vtkUnsignedIntArray::SafeDownCast(vtkMesh->GetCellData()->GetArray("Indices", trash));
+        vtkSmartPointer<vtkUnsignedIntArray> v_indices = vtkUnsignedIntArray::SafeDownCast(vtkMesh->GetPointData()->GetArray("Indices",trash));
+        vtkSmartPointer<vtkUnsignedIntArray> c_indices = vtkUnsignedIntArray::SafeDownCast(vtkMesh->GetCellData()->GetArray("Indices",trash));
 
         const unsigned npts = vtkMesh->GetNumberOfPoints();
         vertices_.reserve(npts); // alocate memory for the vertices
@@ -107,20 +107,16 @@ namespace OpenMEEG {
         vtkSmartPointer<vtkIdList> l;
 
         for (iterator mit = begin(); mit != end(); ++mit) {
+            Triangles& triangles = mit->triangles();
             for (unsigned i = 0; i < ntrgs; ++i) {
                 // get the mesh which has this name
                 if (cell_id->GetValue(i) == mit->name()) {
                     if (vtkMesh->GetCellType(i) == VTK_TRIANGLE) {
                         l = vtkMesh->GetCell(i)->GetPointIds();
                         if (trash != -1) { // no indices provided
-                            mit->push_back(Triangle(vertices_[l->GetId(0)],
-                                                    vertices_[l->GetId(1)],
-                                                    vertices_[l->GetId(2)],
-                                                    c_indices->GetValue(i))); 
+                            triangles.push_back(Triangle(vertices_[l->GetId(0)],vertices_[l->GetId(1)],vertices_[l->GetId(2)],c_indices->GetValue(i))); 
                         } else {
-                            mit->push_back(Triangle(vertices_[l->GetId(0)],
-                                                    vertices_[l->GetId(1)],
-                                                    vertices_[l->GetId(2)]));
+                            triangles.push_back(Triangle(vertices_[l->GetId(0)],vertices_[l->GetId(1)],vertices_[l->GetId(2)]));
                         }
                     } else {
                         std::cerr << "This is not a triangulation" << std::endl;
