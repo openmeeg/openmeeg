@@ -246,7 +246,7 @@ int cylindre (char namesurf[], char namepatches[], char namepatchcount[], double
     }
     Mesh surf(P);
     for (i=0;i<nt;++i)
-        surf.push_back(T[i]);
+        surf.triangles().push_back(T[i]);
     surf.save(namesurf);
 
     //the electrode

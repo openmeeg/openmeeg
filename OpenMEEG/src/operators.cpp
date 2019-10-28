@@ -44,7 +44,7 @@ namespace OpenMEEG {
     void operatorDinternal(const Mesh& m,Matrix& mat,const Vertices& points,const double& coeff) {
         std::cout << "INTERNAL OPERATOR D..." << std::endl;
         for (const auto& vertex : points)
-            for (const auto& triangle : m)
+            for (const auto& triangle : m.triangles())
                 _operatorDinternal(triangle,vertex,mat,coeff);
     }
 
@@ -52,7 +52,7 @@ namespace OpenMEEG {
         std::cout << "INTERNAL OPERATOR S..." << std::endl;
         for (const auto& vertex : points) {
             const unsigned vindex = vertex.index();
-            for (const auto& triangle : m) {
+            for (const auto& triangle : m.triangles()) {
                 const unsigned tindex = triangle.index();
                 mat(vindex,tindex) = _operatorSinternal(triangle,vertex)*coeff;
             }
@@ -81,7 +81,7 @@ namespace OpenMEEG {
 
         gauss->setOrder(gauss_order);
         #pragma omp parallel for private(anaDPD)
-        for (const auto& triangle : m) {
+        for (const auto& triangle : m.triangles()) {
             anaDPD.init(triangle,q,r0);
             Vect3 v = gauss->integrate(anaDPD,triangle);
             #pragma omp critical
@@ -102,7 +102,7 @@ namespace OpenMEEG {
         gauss->setOrder(gauss_order);
 
         #pragma omp parallel for
-        for (const auto& triangle : m) {
+        for (const auto& triangle : m.triangles()) {
             double d = gauss->integrate(anaDP,triangle);
             #pragma omp critical
             rhs(triangle.index()) += d*coeff;

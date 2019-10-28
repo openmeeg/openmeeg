@@ -303,7 +303,7 @@ namespace OpenMEEG {
                                     "Matrix of triangles requires at least 3 columns, standing for x, y, z of vertices.");
                     return new Mesh();
                 } else {
-                    Mesh * newMesh = new Mesh(nbVertices, nbVertices);
+                    Mesh* newMesh = new Mesh(nbVertices, nbVertices);
                     for (int cptV = 0; cptV < nbVertices; ++cptV) {
                         double x = *(double *) PyArray_GETPTR2(mat_v, cptV, 0);
                         double y = *(double *) PyArray_GETPTR2(mat_v, cptV, 1);
@@ -329,7 +329,7 @@ namespace OpenMEEG {
                                 int y = *(int *) PyArray_GETPTR2(mat_i, cptV, 1);
                                 int z = *(int *) PyArray_GETPTR2(mat_i, cptV, 2);
                                 Triangle t( newMesh->vertices()[x], newMesh->vertices()[y], newMesh->vertices()[z]);
-                                newMesh->push_back(t);
+                                newMesh->triangles().push_back(t);
                             }
                             return newMesh;
                         }

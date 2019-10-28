@@ -82,7 +82,7 @@ namespace OpenMEEG {
         \brief Mesh is a collection of triangles
     */
 
-    class OPENMEEG_EXPORT Mesh: public Triangles {
+    class OPENMEEG_EXPORT Mesh: private Triangles {
     public:
         
         typedef std::vector<Triangle*>                VectPTriangle;
@@ -129,31 +129,30 @@ namespace OpenMEEG {
 
         ~Mesh() { destroy(); }
 
-        std::string&                 name()                { return name_; } ///< \return the mesh name
-        const std::string&           name()          const { return name_; } ///< \return the mesh name
+        std::string&       name()       { return name_; } ///< \return the mesh name
+        const std::string& name() const { return name_; } ///< \return the mesh name
 
-        const VectPVertex&           vertices()      const { return vertices_; } ///< \return the vector of pointers to the mesh vertices
+        const VectPVertex& vertices()     const { return vertices_;      } ///< \return the vector of pointers to the mesh vertices
+              Vertices     all_vertices() const { return *all_vertices_; }
 
-              Triangles&              triangles()           { return *this;  }
-        const Triangles&              triangles()     const { return *this;  }
+              Triangles& triangles()       { return *this; } ///< \return the triangles of the mesh
+        const Triangles& triangles() const { return *this; } ///< \return the triangles of the mesh
 
-        Vertices                      all_vertices()    const { return *all_vertices_; }
-        size_t                        nb_all_vertices() const { return all_vertices_->size(); }
+        const bool  current_barrier() const { return current_barrier_; }
+              bool& current_barrier()       { return current_barrier_; }
+        const bool  isolated()        const { return isolated_;        }
+              bool& isolated()              { return isolated_;        }
 
-        const bool     current_barrier()          const { return current_barrier_; }
-              bool&    current_barrier()                { return current_barrier_; }
-        const bool     isolated()                 const { return isolated_;        }
-              bool&    isolated()                       { return isolated_;        }
+        void add_vertex(const Vertex& v); ///< \brief Add vertex to the mesh.
 
-        /// \brief Add vertex to the mesh.
-
-        void add_vertex(const Vertex& v);
+        bool operator==(const Mesh& m) const { return this->triangles()==m.triangles(); }
+        bool operator!=(const Mesh& m) const { return this->triangles()!=m.triangles(); }
 
         /// \brief Print info
         ///  Print to std::cout some info about the mesh
         ///  \return void \sa */
 
-        void info(const bool verbous = false) const; ///< \brief Print mesh information.
+        void info(const bool verbous=false) const; ///< \brief Print mesh information.
         bool has_self_intersection() const; ///< \brief Check whether the mesh self-intersects.
         bool intersection(const Mesh&) const; ///< \brief Check whether the mesh intersects another mesh.
         bool has_correct_orientation() const; ///< \brief Check local orientation of mesh triangles.
@@ -263,12 +262,12 @@ namespace OpenMEEG {
         // IO:s ----------------------------------------------------------------------------
 
         Mesh& operator=(const Mesh& m) {
-            if ( this != &m )
+            if (this!=&m)
                 copy(m);
             return *this;
         }
 
-        friend std::istream& operator>>(std::istream& is, Mesh& m); ///< \brief insert a triangle into the mesh
+        friend std::istream& operator>>(std::istream& is,Mesh& m); ///< \brief insert a triangle into the mesh
 
     private:
 
@@ -284,11 +283,11 @@ namespace OpenMEEG {
         const EdgeMap compute_edge_map() const;
         bool  triangle_intersection(const Triangle&,const Triangle&) const;
 
-        /// P1gradient : aux function to compute the surfacic gradient
+        /// P1gradient: aux function to compute the surfacic gradient
 
         Vect3 P1gradient(const Vect3& p0,const Vect3& p1,const Vect3& p2) const { return crossprod(p1,p2)/det(p0,p1,p2); }
 
-        /// P0gradient_norm2 : aux function to compute the square norm of the surfacic gradient
+        /// P0gradient_norm2: aux function to compute the square norm of the surfacic gradient
 
         double P0gradient_norm2(const Triangle& t1,const Triangle& t2) const {
             return sqr(dotprod(t1.normal(),t2.normal()))/(t1.center()-t2.center()).norm2();
