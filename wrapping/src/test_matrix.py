@@ -29,7 +29,7 @@ assert b.ncol() == 3
 import random
 
 nlines = random.randrange(10, 20)
-ncols = nlines + 2  # test on not squares matric
+ncols = nlines + 2  # test on not squared matric
 mat_numpy = np.ndarray(shape=(nlines, ncols), dtype=float, order="F")
 for l in range(nlines):
     for c in range(ncols):
