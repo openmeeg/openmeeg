@@ -21,11 +21,18 @@ T_OK = np.array(
         [ 2, 3, 0]
     ]
 )
-print("== Test 1")
-mesh_1 = om.Mesh(V_OK, T_OK)
-mesh_1.info()
+trap = False
+try:
+    print("== Test 1")
+    mesh_1 = om.Mesh(V_OK, T_OK)
+    mesh_1.info()
+except:
+    # should not reach this line
+    trap = True
+assert trap == False
 
 # test 2 -> should send a PyError
+trap = False
 V_BAD = np.array(
         [ 0.0 ,  0.0,  0.0 ]
 )
@@ -33,12 +40,13 @@ try:
     print("== Test 2")
     mesh_2 = om.Mesh(V_BAD, T_OK)
     # should not reach this line
-    sys.exit(-1)
 except:
     print("PyError trapped => OK")
-
+    trap = True
+assert trap == True
 
 # test 3 -> should send a PyError
+trap = False
 T_BAD = np.array(
         [ 0 ,  1,  2 ]
 )
@@ -46,11 +54,13 @@ try:
     print("== Test 3")
     mesh_3 = om.Mesh(V_OK, T_BAD)
     # should not reach this line
-    sys.exit(-1)
 except:
     print("PyError trapped => OK")
+    trap = True
+assert trap == True
 
 # test 4 -> should send a PyError
+trap = False
 V_BAD = np.array(
     [
         [ 0.0 ,  0.0       ],
@@ -63,11 +73,13 @@ try:
     print("== Test 4")
     mesh_4 = om.Mesh(V_BAD, T_OK)
     # should not reach this line
-    sys.exit(-1)
 except:
     print("PyError trapped => OK")
+    trap = True
+assert trap == True
 
 # test 5 -> should send a PyError
+trap = False
 T_BAD = np.array(
     [
         [ 1 ,  2     ],
@@ -78,58 +90,28 @@ try:
     print("== Test 5")
     mesh_4 = om.Mesh(V_OK, T_BAD)
     # should not reach this line
-    sys.exit(-1)
 except:
     print("PyError trapped => OK")
+    trap = True
+assert trap == True
 
+# test 6 -> should be OK
+test_dir  = os.path.dirname(os.path.abspath(__file__))
+data_file = os.path.join( test_dir , "..", "..", "..", "data", "Head1" , "Head1.tri" )
+mesh_6 = om.Mesh()
+mesh_6.load(data_file)
 
-sys.exit()
+# test 7 -> redo with np.array()
+V6 = mesh_6.vertices()
+#T6 = mesh_6.triangles()
+#mesh_7 = om.Mesh(V6, T6)
+#mesh_7.info()
 
-V = np.array(
-    [
-        [-0.3575,  0,       0.5784,  0.525768,  0,        -0.850628],
-        [ 0.3575,  0,       0.5784, -0.525768,  0,        -0.850628],
-        [-0.3575,  0,      -0.5784,  0.525768,  0,         0.850628],
-        [ 0.3575,  0,      -0.5784, -0.525768,  0,         0.850628],
-        [ 0,       0.5784,  0.3575,  0,        -0.850628, -0.525768],
-        [ 0,       0.5784, -0.3575,  0,        -0.850628,  0.525768],
-        [ 0,       0.68,    0,       0,        -1,         0],
-        [ 0.34,    0.5501, -0.2101, -0.50003,  -0.808998,  0.309019],
-        [ 0.34,    0.5501,  0.2101, -0.50003,  -0.808998, -0.309019],
-        [ 0.5501,  0.2101,  0.34,   -0.808998, -0.309019, -0.50003],
-        [ 0.68,    0,       0,      -1,         0,         0],
-        [ 0.5501, -0.2101,  0.34,   -0.808998,  0.309019, -0.50003],
-        [ 0.5501,  0.2101, -0.34,   -0.808998, -0.309019,  0.50003],
-        [ 0.5501, -0.2101, -0.34,   -0.808998,  0.309019,  0.50003],
-        [ 0.2101,  0.34,   -0.5501, -0.309019, -0.50003,   0.808998],
-        [-0.2101,  0.34,   -0.5501,  0.309019, -0.50003,   0.808998],
-        [ 0,       0,      -0.68,    0,         0,         1],
-        [-0.2101, -0.34,   -0.5501,  0.309019,  0.50003,   0.808998],
-        [ 0.2101, -0.34,   -0.5501, -0.309019,  0.50003,   0.808998],
-        [ 0.34,   -0.5501, -0.2101, -0.50003,   0.808998,  0.309019],
-        [ 0,      -0.68,    0,       0,         1,         0],
-        [ 0.34,   -0.5501,  0.2101, -0.50003,   0.808998, -0.309019],
-        [-0.34,   -0.5501, -0.2101,  0.50003,   0.808998,  0.309019],
-        [-0.34,   -0.5501,  0.2101,  0.50003,   0.808998, -0.309019],
-        [-0.5501, -0.2101,  0.34,    0.808998,  0.309019, -0.50003],
-        [-0.2101, -0.34,    0.5501,  0.309019,  0.50003,  -0.808998],
-        [ 0.2101, -0.34,    0.5501, -0.309019,  0.50003,  -0.808998],
-        [ 0.68,    0,       0.01,    1,         0,         0],
-        [-0.5501, -0.2101, -0.34,    0.808998,  0.309019,  0.50003],
-        [-0.5501,  0.2101, -0.34,    0.808998, -0.309019,  0.50003],
-    ]
-)
-I = np.array([[1, 3, 4], [2, 4, 5], [10, 3, 5], [21, 4, 5]])
-mesh_1 = om.Mesh(V, I)
-mesh_1.info()
-
-mesh_f = om.Mesh()
-mesh_f.load("/Users/jls/Development/athena/openmeeg/data/Head1/Head1.tri")
-
-# TODO: mesh.read() using numpy arrays
-# TODO: mesh == [ double ] , [ int ]
-# mesh = om.Mesh()
-# mesh.load( fileskel + "tri")
-# TODO: V = [...]
-# TODO: I = [...]
-# TODO: mesh_1 = om.Mesh(V, I)
+# TODO
+#
+# mesh_6.nb_vertices()  == mesh_7.nb_vertices()
+# mesh_6.nb_triangles() == mesh_7.nb_triangles()
+# V7 = mesh_6.vertices()
+# T7 = mesh_6.triangles()
+# V6 == V7
+# T6 == T7
