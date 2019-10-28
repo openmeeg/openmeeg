@@ -64,11 +64,14 @@ namespace OpenMEEG {
 
     void operatorFerguson(const Vect3& x,const Mesh& m,Matrix& mat,const unsigned& offsetI,const double& coeff) {
         #pragma omp parallel for
-        #if defined NO_OPENMP || defined OPENMP_5_0
+        #if defined NO_OPENMP || defined OPENMP_RANGEFOR
         for (const auto& vertexp : m.vertices()) {
-        #else
-        for (auto vit=m.vertices().begin();vit!=m.vertices().end();++vit) {
+        #elif defined OPENMP_ITERATOR
+        for (auto vit=m.vertices().begin();vit<m.vertices().end();++vit) {
             const Vertex* vertexp = *vit;
+        #else
+        for (int i=0;i<m.vertices().size();++i) {
+            const Vertex* vertexp = *(m.vertices().begin()+i);
         #endif
             const unsigned vindex = vertexp->index();
             Vect3 v = _operatorFerguson(x,*vertexp,m);
@@ -86,14 +89,14 @@ namespace OpenMEEG {
 
         gauss->setOrder(gauss_order);
         #pragma omp parallel for private(anaDPD)
-        #if defined NO_OPENMP || defined OPENMP_5_0
+        #if defined NO_OPENMP || defined OPENMP_RANGEFOR
         for (const auto& triangle : m.triangles()) {
-        #elif defined OLD_OPENMP
+        #elif defined OPENMP_ITERATOR
+        for (Triangles::const_iterator tit=m.triangles().begin();tit<m.triangles().end();++tit) {
+            const Triangle& triangle = *tit;
+        #else
         for (int i=0;i<m.triangles().size();++i) {
             const Triangle& triangle = *(m.triangles().begin()+i);
-        #else
-        for (Triangles::const_iterator tit=m.triangles().begin();tit!=m.triangles().end();++tit) {
-            const Triangle& triangle = *tit;
         #endif
             anaDPD.init(triangle,q,r0);
             Vect3 v = gauss->integrate(anaDPD,triangle);
@@ -115,14 +118,14 @@ namespace OpenMEEG {
         gauss->setOrder(gauss_order);
 
         #pragma omp parallel for
-        #if defined NO_OPENMP || defined OPENMP_5_0
+        #if defined NO_OPENMP || defined OPENMP_RANGEFOR
         for (const auto& triangle : m.triangles()) {
-        #elif defined OLD_OPENMP
+        #elif defined OPENMP_ITERATOR
+        for (Triangles::const_iterator tit=m.triangles().begin();tit<m.triangles().end();++tit) {
+            const Triangle& triangle = *tit;
+        #else
         for (int i=0;i<m.triangles().size();++i) {
             const Triangle& triangle = *(m.triangles().begin()+i);
-        #else
-        for (Triangles::const_iterator tit=m.triangles().begin();tit!=m.triangles().end();++tit) {
-            const Triangle& triangle = *tit;
         #endif
             const double d = gauss->integrate(anaDP,triangle);
             #pragma omp critical
