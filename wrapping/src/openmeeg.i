@@ -103,6 +103,44 @@ import_array();
 #define OPENMEEGMATHS_EXPORT
 #define OPENMEEG_EXPORT
 
+#ifdef 0  // POC for translating tuple(Vertex *) to numpy.array
+#ifdef SWIGPYTHON
+
+namespace OpenMEEG {
+
+    // C++ -> Python
+
+%typemap(out) Vertex& {
+        //std::cerr << "Calling TYPEMAP OUT Vertex&" << std::endl;
+        npy_intp shape[1];
+        shape[0] = 3;
+
+        double &data = ($1)->x();
+
+        $result = PyArray_SimpleNewFromData(1, shape, NPY_DOUBLE, static_cast<void*>(&data));
+
+}
+
+%typemap(out) PVertices & {
+        std::cerr << "Calling TYPEMAP OUT PVertices &" << std::endl;
+}
+
+%typemap(out) Mesh::VectPVertex &  {
+        std::cerr << "Calling TYPEMAP OUT Mesh::VectPVertex & " << std::endl;
+
+        npy_intp shape[2];
+        shape[0] = ($1)->size();
+        shape[1] = 4;
+
+        double &data = ($1)->at(0)->x();
+
+        $result = PyArray_SimpleNewFromData(2, shape, NPY_DOUBLE, static_cast<void*>(&data));
+}
+
+}
+
+#endif // SWIGPYTHON
+#endif // 0
 
 namespace std {
     %template(vector_int) vector<int>;
@@ -202,6 +240,13 @@ namespace OpenMEEG {
         if ($1) delete $1;
 }
 
+#if 0
+%typemap(in) Vertex& {
+        std::cerr << "CALLING " << $input << std::endl;
+        //$1 = *($input);
+}
+#endif //0
+
 }
 
 #endif // SWIGPYTHON
@@ -218,6 +263,26 @@ namespace OpenMEEG {
     unsigned int getindex() {
         return ($self)->index();
     }
+
+    double x() {
+        return (($self)->x());
+    }
+    double y() {
+        return (($self)->y());
+    }
+    double z() {
+        return (($self)->z());
+    }
+
+    PyObject *array() {
+        npy_intp shape[1];
+        shape[0] = 3;
+
+        double &data = ($self)->x();
+        return (PyArray_SimpleNewFromData(1, shape, NPY_DOUBLE, static_cast<void*>(&data)));
+    }
+
+
 }
 
 %extend OpenMEEG::Triangle{
@@ -295,7 +360,7 @@ namespace OpenMEEG {
                 return new Mesh();
 
             PyArrayObject* mat_v  = reinterpret_cast<PyArrayObject*>(PyArray_FromObject(py_v,NPY_DOUBLE,0,0));
-            if ( mat_v == nullptr) {
+            if (mat_v==nullptr) {
                 PyErr_SetString(PyExc_TypeError,
                                 "Matrix of vertices is not wellformed, returning an empty matrix instead.");
                 return new Mesh();
@@ -311,7 +376,7 @@ namespace OpenMEEG {
             const size_t nbcol      = PyArray_DIM(mat_v,1);
 
             PyArrayObject* mat_i = reinterpret_cast<PyArrayObject*>(PyArray_FromObject(py_i,NPY_DOUBLE,0,0));
-            if ( mat_i == nullptr) {
+            if (mat_i==nullptr) {
                 PyErr_SetString(PyExc_TypeError,
                                 "Matrix of triangles is not wellformed, returning an empty matrix instead.");
                 return new Mesh();
