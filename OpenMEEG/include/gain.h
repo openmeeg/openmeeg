@@ -81,7 +81,7 @@ namespace OpenMEEG {
                 Matrix mtemp(Head2EEGMat.nlin(),HeadMat.nlin());
                 Jacobi<SymMatrix> M(HeadMat);    // Jacobi preconditionner
                 #pragma omp parallel for
-                #ifndef OPENMP_3_0
+                #ifdef OLD_OPENMP
                 for (int i=0;i<static_cast<int>(LeadField.nlin());++i) {
                 #else
                 for (unsigned i=0;i<LeadField.nlin();++i) {
@@ -120,7 +120,7 @@ namespace OpenMEEG {
                 Matrix mtemp(Head2MEGMat.nlin(),HeadMat.nlin()); 
                 Jacobi<SymMatrix> M(HeadMat);    // Jacobi preconditionner
                 #pragma omp parallel for
-                #ifndef OPENMP_3_0
+                #ifdef OLD_OPENMP
                 for (int i=0;i<static_cast<int>(LeadField.nlin());++i) {
                 #else
                 for (unsigned i=0;i<LeadField.nlin();++i) {
@@ -164,7 +164,7 @@ namespace OpenMEEG {
                 Matrix mtemp(RHS.nlin(), HeadMat.nlin()); 
                 Jacobi<SymMatrix> M(HeadMat); // Jacobi preconditionner
                 #pragma omp parallel for
-                #ifndef OPENMP_3_0
+                #ifdef OLD_OPENMP
                 for (int i=0;i<static_cast<int>(RHS.nlin());++i) {
                 #else
                 for (unsigned i=0;i<RHS.nlin();++i) {

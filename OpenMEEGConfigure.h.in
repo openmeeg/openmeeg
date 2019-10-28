@@ -5,13 +5,14 @@
 
 static const char version[] = "@OpenMEEG_VERSION@";
 
-#ifdef USE_OMP
+#if defined USE_OMP && defined _OPENMP
     #define STATIC_OMP
-    #if defined _OPENMP
-        #if _OPENMP>=200805
-            #define OPENMP_3_0
-        #endif
+    #if _OPENMP<201511
+        #define OLD_OPENMP
+    #elif _OPENMP>=201811
+        #define OPENMP_5_0
     #endif
 #else
     #define STATIC_OMP static
+    #define NO_OPENMP
 #endif
