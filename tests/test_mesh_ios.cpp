@@ -5,12 +5,12 @@
 
 using namespace OpenMEEG;
 
-int are_equal(const Vertex& v1, const Vertex& v2, double tol = 1e-12) {
-    return (v1 - v2).norm2() < tol;
+int are_equal(const Vertex& v1,const Vertex& v2,double tol=1e-12) {
+    return (v1-v2).norm2()<tol;
 }
 
-int are_equal(const Mesh& m1, const Mesh& m2, double tol = 1e-12) {
-    if ((m1.vertices().size()!=m2.vertices().size()) || (m1.nb_triangles()!=m2.nb_triangles()))
+int are_equal(const Mesh& m1,const Mesh& m2,double tol=1e-12) {
+    if ((m1.vertices().size()!=m2.vertices().size()) || (m1.triangles().size()!=m2.triangles().size()))
         return 0;
 
     for (Mesh::const_vertex_iterator vit1=m1.vertices().begin(),vit2=m2.vertices().begin();vit1!=m1.vertices().end();vit1++,vit2++)
@@ -25,10 +25,8 @@ int are_equal(const Mesh& m1, const Mesh& m2, double tol = 1e-12) {
 }
 
 
-int main (int argc, char** argv)
-{
-	if ( argc != 2 ) 
-    {
+int main(int argc,char** argv) {
+	if (argc!=2) {
         std::cerr << "Wrong nb of parameters" << std::endl;
         exit(1);
     }
@@ -41,6 +39,7 @@ int main (int argc, char** argv)
     Mesh mesh = mesh_orig;
 
     // // TRI
+
     mesh.save("tmp.tri");
     mesh.load("tmp.tri");
 
@@ -53,20 +52,22 @@ int main (int argc, char** argv)
     om_error(are_equal(mesh, mesh_orig));
 #endif
 
-    // GIFTI
 #ifdef USE_GIFTI
+    // GIFTI
+
     mesh.save("tmp.gii");
     mesh.load("tmp.gii");
     om_error(are_equal(mesh, mesh_orig));
 #endif
 
-
     // MESH
+
     mesh.save("tmp.mesh");
     mesh.load("tmp.mesh");
     om_error(are_equal(mesh, mesh_orig));
 
     // BND && OFF that do not store normals
+
     mesh.save("tmp.bnd");
     mesh.save("tmp.off");
     mesh.info();

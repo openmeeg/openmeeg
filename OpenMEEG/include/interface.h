@@ -101,7 +101,7 @@ namespace OpenMEEG {
         size_t nb_triangles() const {
             size_t nb = 0;
             for ( const_iterator omit = begin(); omit != end(); ++omit) {
-                nb += omit->mesh().nb_triangles();
+                nb += omit->mesh().triangles().size();
             }
             return nb;
         }

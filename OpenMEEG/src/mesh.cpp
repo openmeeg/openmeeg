@@ -77,8 +77,8 @@ namespace OpenMEEG {
     void Mesh::info(const bool verbose) const {
         std::cout << "Info:: Mesh name/ID : "  << name() << std::endl;
         std::cout << "\t\t# vertices  : " << vertices().size() << std::endl;
-        std::cout << "\t\t# triangles : " << nb_triangles() << std::endl;
-        std::cout << "\t\tEuler characteristic : " << vertices().size() - 3.*nb_triangles()/2. + nb_triangles() << std::endl;
+        std::cout << "\t\t# triangles : " << triangles().size() << std::endl;
+        std::cout << "\t\tEuler characteristic : " << vertices().size()-3*triangles().size()/2+triangles().size() << std::endl;
 
         double min_area = std::numeric_limits<double>::max();
         double max_area = 0.;
@@ -883,11 +883,11 @@ namespace OpenMEEG {
             map[vertex] = i++;
             os << *vertex << std::endl;
         }
-        os << "POLYGONS " << nb_triangles() << " " << nb_triangles()*4 << std::endl;
+        os << "POLYGONS " << triangles().size() << " " << triangles().size()*4 << std::endl;
         for (const_iterator tit = begin(); tit != end(); ++tit)
             os << "3 " << map[&(tit->vertex(0))] << " " << map[&(tit->vertex(1))] << " " << map[&(tit->vertex(2))] << std::endl;
 
-        os << "CELL_DATA " << nb_triangles() << std::endl;
+        os << "CELL_DATA " << triangles().size() << std::endl;
         os << "POINT_DATA " << vertices().size() << std::endl;
         os << "NORMALS normals float" << std::endl;
         for (const auto& vertex : vertices())
@@ -910,7 +910,7 @@ namespace OpenMEEG {
             map[vertex] = i++;
             os << *vertex << std::endl;
         }
-        os << "NumberPolygons= " << nb_triangles() << std::endl;
+        os << "NumberPolygons= " << triangles().size() << std::endl;
         os << "TypePolygons=\t3" << std::endl;
         os << "Polygons" << std::endl;
         for (const_iterator tit = begin(); tit != end(); ++tit)
@@ -929,7 +929,7 @@ namespace OpenMEEG {
             map[vertex] = i++;
             os << *vertex << " " << normal(*vertex) << std::endl;
         }
-        os << "- " << nb_triangles() << " " << nb_triangles() << " " << nb_triangles() << std::endl;
+        os << "- " << triangles().size() << " " << triangles().size() << " " << triangles().size() << std::endl;
         for (const_iterator tit = begin(); tit != end(); ++tit)
             os << map[&(tit->vertex(0))] << " " << map[&(tit->vertex(1))] << " " << map[&(tit->vertex(2))] << std::endl;
 
@@ -940,7 +940,7 @@ namespace OpenMEEG {
 
         std::ofstream os(filename.c_str());
         os << "OFF" << std::endl;
-        os << vertices().size() << " " << nb_triangles() << " 0" << std::endl;
+        os << vertices().size() << " " << triangles().size() << " 0" << std::endl;
         std::map<const Vertex *, unsigned> map;
 
         unsigned i = 0;
@@ -985,7 +985,7 @@ namespace OpenMEEG {
 
         float* pts_raw = new float[vertices().size()*3]; // Points
         float* normals_raw = new float[vertices().size()*3]; // Normals
-        unsigned int* faces_raw = new unsigned int[nb_triangles()*3]; // Faces
+        unsigned int* faces_raw = new unsigned int[triangles().size()*3]; // Faces
 
         std::map<const Vertex *, unsigned> map;
         unsigned i = 0;
@@ -1013,9 +1013,9 @@ namespace OpenMEEG {
         os.write((char*)normals_raw, sizeof(float)*vertices().size()*3);       // normals
         unsigned char zero[1] = {0};
         os.write((char*)zero, sizeof(char));                               // arg size : 0
-        unsigned int faces_number[1] = {static_cast<unsigned>(nb_triangles())};
+        unsigned int faces_number[1] = {static_cast<unsigned>(triangles().size())};
         os.write((char*)faces_number, sizeof(unsigned int));               // ntrgs
-        os.write((char*)faces_raw, sizeof(unsigned int)*nb_triangles()*3); // triangles
+        os.write((char*)faces_raw, sizeof(unsigned int)*triangles().size()*3); // triangles
 
         delete[] faces_raw;
         delete[] normals_raw;
@@ -1050,13 +1050,13 @@ namespace OpenMEEG {
         gDA->datatype = NIFTI_TYPE_INT32;
         gDA->ind_ord  = GIFTI_IND_ORD_ROW_MAJOR;
         gDA->num_dim  = 2;
-        gDA->dims[0]  = int(nb_triangles());
+        gDA->dims[0]  = int(triangles().size());
         gDA->dims[1]  = 3;
-        gDA->nvals    = 3*nb_triangles();
+        gDA->nvals    = 3*triangles().size();
         gDA->encoding = GIFTI_ENCODING_B64GZ;
         gDA->endian   = GIFTI_ENDIAN_LITTLE;
 
-        gDA->data = new int[nb_triangles()*3];
+        gDA->data = new int[triangles().size()*3];
         int * trgs = (int *)gDA->data;
         i = 0;
         for (const_iterator tit = begin(); tit != end(); ++tit, ++i) {

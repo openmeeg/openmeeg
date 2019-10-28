@@ -136,14 +136,13 @@ namespace OpenMEEG {
 
               Triangles&              triangles()           { return *this;  }
         const Triangles&              triangles()     const { return *this;  }
-        size_t                        nb_triangles()  const { return size(); }
 
         Vertices                      all_vertices()    const { return *all_vertices_; }
         size_t                        nb_all_vertices() const { return all_vertices_->size(); }
 
-        const bool&    current_barrier()          const { return current_barrier_; }
+        const bool     current_barrier()          const { return current_barrier_; }
               bool&    current_barrier()                { return current_barrier_; }
-        const bool&    isolated()                 const { return isolated_;        }
+        const bool     isolated()                 const { return isolated_;        }
               bool&    isolated()                       { return isolated_;        }
 
         /// \brief Add vertex to the mesh.

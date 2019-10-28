@@ -196,9 +196,9 @@ namespace OpenMEEG {
                 // we thus precompute operator S divided by the product of triangles area.
 
                 unsigned i = 0; // for the PROGRESSBAR
-                SymMatrix matS(m1.nb_triangles());
+                SymMatrix matS(m1.triangles().size());
                 for (Mesh::const_iterator tit1=m1.begin();tit1!=m1.end();++tit1) {
-                    PROGRESSBAR(i++, m1.nb_triangles());
+                    PROGRESSBAR(i++, m1.triangles().size());
                     #pragma omp parallel for
                     #ifndef OPENMP_3_0
                     for (int i2=tit1-m1.begin();i2<m1.size();++i2) {
@@ -226,10 +226,10 @@ namespace OpenMEEG {
 
             if ( m1.current_barrier() || m2.current_barrier() ) {
                 // we thus precompute operator S divided by the product of triangles area.
-                Matrix matS(m1.nb_triangles(), m2.nb_triangles());
+                Matrix matS(m1.triangles().size(), m2.triangles().size());
                 unsigned i = 0; // for the PROGRESSBAR
                 for (Mesh::const_iterator tit1 = m1.begin(); tit1 != m1.end(); ++tit1) {
-                    PROGRESSBAR(i++, m1.nb_triangles());
+                    PROGRESSBAR(i++, m1.triangles().size());
                     #pragma omp parallel for
                     #ifndef OPENMP_3_0
                     for (int i2=0;i2<m2.size();++i2) {
@@ -263,7 +263,7 @@ namespace OpenMEEG {
         // PSI(A, a) is a P0 test function on layer A and triangle a
         if (&m1==&m2) {
             for (Mesh::const_iterator tit1=m1.begin();tit1!=m1.end();++tit1) {
-                PROGRESSBAR(i++,m1.nb_triangles());
+                PROGRESSBAR(i++,m1.triangles().size());
                 #pragma omp parallel for
                 #ifndef OPENMP_3_0
                 for (int i2=tit1-m1.begin();i2<m1.size();++i2) {
@@ -279,7 +279,7 @@ namespace OpenMEEG {
             // if we invert tit1 with tit2: results in HeadMat differs at 4.e-5 which is too big.
             // using ADAPT_LHS with tolerance at 0.000005 (for _opS) drops this at 6.e-6. (but increase the computation time)
             for (Mesh::const_iterator tit1=m1.begin();tit1!=m1.end();++tit1) {
-                PROGRESSBAR(i++,m1.nb_triangles());
+                PROGRESSBAR(i++,m1.triangles().size());
                 #pragma omp parallel for
                 #ifndef OPENMP_3_0
                 for (int i2=0;i2<m2.size();++i2) {
@@ -314,7 +314,7 @@ namespace OpenMEEG {
         #else
         for (Mesh::const_iterator tit1 = m1.begin(); tit1 < m1.end(); ++tit1) {
         #endif
-            PROGRESSBAR(i++, m1.nb_triangles());
+            PROGRESSBAR(i++, m1.triangles().size());
             for (Mesh::const_iterator tit2=m2.begin();tit2!=m2.end();++tit2)
                 _operatorD(*tit1,*tit2,mat,coeff,gauss_order);
         }
