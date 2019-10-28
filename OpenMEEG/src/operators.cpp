@@ -64,7 +64,12 @@ namespace OpenMEEG {
 
     void operatorFerguson(const Vect3& x,const Mesh& m,Matrix& mat,const unsigned& offsetI,const double& coeff) {
         #pragma omp parallel for
+        #if defined NO_OPENMP || defined OPENMP_5_0
         for (const auto& vertexp : m.vertices()) {
+        #else
+        for (auto vit=m.vertices().begin();vit!=m.vertices().end();++vit) {
+            const Vertex* vertexp = *vit;
+        #endif
             const unsigned vindex = vertexp->index();
             Vect3 v = _operatorFerguson(x,*vertexp,m);
             mat(offsetI+0,vindex) += v.x()*coeff;
@@ -81,7 +86,15 @@ namespace OpenMEEG {
 
         gauss->setOrder(gauss_order);
         #pragma omp parallel for private(anaDPD)
+        #if defined NO_OPENMP || defined OPENMP_5_0
         for (const auto& triangle : m.triangles()) {
+        #elif defined OLD_OPENMP
+        for (int i=0;i<m.triangles().size();++i) {
+            const Triangle& triangle = *(m.triangles().begin()+i);
+        #else
+        for (Triangles::const_iterator tit=m.triangles().begin();tit!=m.triangles().end();++tit) {
+            const Triangle& triangle = *tit;
+        #endif
             anaDPD.init(triangle,q,r0);
             Vect3 v = gauss->integrate(anaDPD,triangle);
             #pragma omp critical
@@ -102,8 +115,16 @@ namespace OpenMEEG {
         gauss->setOrder(gauss_order);
 
         #pragma omp parallel for
+        #if defined NO_OPENMP || defined OPENMP_5_0
         for (const auto& triangle : m.triangles()) {
-            double d = gauss->integrate(anaDP,triangle);
+        #elif defined OLD_OPENMP
+        for (int i=0;i<m.triangles().size();++i) {
+            const Triangle& triangle = *(m.triangles().begin()+i);
+        #else
+        for (Triangles::const_iterator tit=m.triangles().begin();tit!=m.triangles().end();++tit) {
+            const Triangle& triangle = *tit;
+        #endif
+            const double d = gauss->integrate(anaDP,triangle);
             #pragma omp critical
             rhs(triangle.index()) += d*coeff;
         }
