@@ -111,7 +111,6 @@ namespace OpenMEEG {
     // C++ -> Python
 
 %typemap(out) Vertex& {
-        //std::cerr << "Calling TYPEMAP OUT Vertex&" << std::endl;
         npy_intp shape[1];
         shape[0] = 3;
 
@@ -292,6 +291,10 @@ namespace OpenMEEG {
         unsigned int getindex() {
             return ($self)->index();
         }
+
+        double area() {
+            return (($self)->area());
+        }
 }
 
 %extend OpenMEEG::Vector {
@@ -375,7 +378,28 @@ namespace OpenMEEG {
             const size_t nbVertices = PyArray_DIM(mat_v,0);
             const size_t nbcol      = PyArray_DIM(mat_v,1);
 
-            PyArrayObject* mat_i = reinterpret_cast<PyArrayObject*>(PyArray_FromObject(py_i,NPY_DOUBLE,0,0));
+            // Deals with both np.dtype arrays of UNIT64 and INT64
+            PyArrayObject *arr = NULL;
+            PyArray_Descr *dtype = new PyArray_Descr();
+            int ndim = 0;
+            npy_intp dims[NPY_MAXDIMS];
+
+            if ( (PyArray_GetArrayParamsFromObject(py_i, NULL, 1, &dtype, &ndim, &dims[0], &arr, NULL) < 0 ) ||
+                ( arr == NULL) ) {
+                PyErr_SetString(PyExc_TypeError,
+                                "Cannot get array parameters for triangles array");
+                return new Mesh();
+            }
+
+            const int array_type = PyArray_TYPE(arr);
+
+            if ( array_type != NPY_INT64 && array_type != NPY_UINT64) {
+                PyErr_SetString(PyExc_TypeError,
+                                "Wrong dtype for triangles array (only int64 or uint64 supported)");
+                return new Mesh();
+            }
+
+            PyArrayObject* mat_i = reinterpret_cast<PyArrayObject*>(PyArray_FromObject(py_i,array_type,0,0));
             if (mat_i==nullptr) {
                 PyErr_SetString(PyExc_TypeError,
                                 "Matrix of triangles is not wellformed, returning an empty matrix instead.");
@@ -407,8 +431,9 @@ namespace OpenMEEG {
 
             auto get_vertex = [=](PyArrayObject* mat,const int i,const int j) {
                 const unsigned vi = *reinterpret_cast<unsigned*>(PyArray_GETPTR2(mat,i,j));
-                if (vi>=nbVertices)
+                if (vi>=nbVertices) {
                     throw vi;
+                }
                 return newMesh->vertices()[vi];
             };
 
@@ -429,6 +454,16 @@ namespace OpenMEEG {
         }
 
         const char* __str__() {
+            return ($self)->name().c_str();
+        }
+
+        const std::string name() {
+            std::cout << "INTO extend name" << std::endl;
+            return ($self)->name().c_str();
+        }
+
+        const std::string name1() {
+            std::cout << "INTO extend name1" << std::endl;
             return ($self)->name().c_str();
         }
 }
