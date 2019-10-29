@@ -26,6 +26,7 @@ trap = False
 try:
     print("== Test 1")
     mesh_1 = om.Mesh(V1_OK, T1_OK)
+    mesh_1.update()
     mesh_1.info()
 except:
     # should not reach this line
@@ -52,6 +53,7 @@ trap = False
 try:
     print("== Test 1 bis")
     mesh_1 = om.Mesh(V_OK, T_OK)
+    mesh_1.update()
     mesh_1.info()
 except:
     # should not reach this line
@@ -127,6 +129,8 @@ test_dir  = os.path.dirname(os.path.abspath(__file__))
 data_file = os.path.join( test_dir , "..", "..", "..", "data", "Head1" , "Head1.tri" )
 mesh_6 = om.Mesh()
 mesh_6.load(data_file)
+mesh_6.update()
+mesh_6.info()
 
 # test 7 -> redo with np.array()
 V6 = mesh_6.vertices()
