@@ -357,105 +357,108 @@ namespace OpenMEEG {
 
 %extend OpenMEEG::Mesh{
 
-        Mesh(PyObject* py_v,PyObject* py_i) {
-            if ((py_v==nullptr || !PyArray_Check(py_v)) ||
-                (py_i==nullptr || !PyArray_Check(py_i)))
-                return new Mesh();
+    Mesh(PyObject* py_v,PyObject* py_i, std::string name = "" ) {
+        if ((py_v==nullptr || !PyArray_Check(py_v)) ||
+            (py_i==nullptr || !PyArray_Check(py_i)))
+            return new Mesh();
 
-            PyArrayObject* mat_v  = reinterpret_cast<PyArrayObject*>(PyArray_FromObject(py_v,NPY_DOUBLE,0,0));
-            if (mat_v==nullptr) {
-                PyErr_SetString(PyExc_TypeError,
-                                "Matrix of vertices is not wellformed, returning an empty matrix instead.");
-                return new Mesh();
-            }
-
-            const size_t nbdims_v = PyArray_NDIM(mat_v);
-            if (nbdims_v!=2) {
-                PyErr_SetString(PyExc_TypeError,
-                                "Matrix of vertices requires an 2 dimensions array, returning an empty matrix instead.");
-                return new Mesh();
-            }
-            const size_t nbVertices = PyArray_DIM(mat_v,0);
-            const size_t nbcol      = PyArray_DIM(mat_v,1);
-
-            // Deals with both np.dtype arrays of UNIT64 and INT64
-            PyArrayObject *arr = NULL;
-            PyArray_Descr *dtype = new PyArray_Descr();
-            int ndim = 0;
-            npy_intp dims[NPY_MAXDIMS];
-
-            if ( (PyArray_GetArrayParamsFromObject(py_i, NULL, 1, &dtype, &ndim, &dims[0], &arr, NULL) < 0 ) ||
-                ( arr == NULL) ) {
-                PyErr_SetString(PyExc_TypeError,
-                                "Cannot get array parameters for triangles array");
-                return new Mesh();
-            }
-
-            const int array_type = PyArray_TYPE(arr);
-
-            if ( array_type != NPY_INT64 && array_type != NPY_UINT64) {
-                PyErr_SetString(PyExc_TypeError,
-                                "Wrong dtype for triangles array (only int64 or uint64 supported)");
-                return new Mesh();
-            }
-
-            PyArrayObject* mat_i = reinterpret_cast<PyArrayObject*>(PyArray_FromObject(py_i,array_type,0,0));
-            if (mat_i==nullptr) {
-                PyErr_SetString(PyExc_TypeError,
-                                "Matrix of triangles is not wellformed, returning an empty matrix instead.");
-                return new Mesh();
-            }
-
-            const size_t nbdims_i = PyArray_NDIM(mat_i);
-            if (nbdims_i!=2) {
-                PyErr_SetString(PyExc_TypeError,
-                                "Matrix of triangles requires an 2 dimensions array, returning an empty matrix instead.");
-                return new Mesh();
-            }
-
-            const size_t nbTriangles  = PyArray_DIM(mat_i,0);
-            const size_t TriangleSize = PyArray_DIM(mat_i,1);
-            if (TriangleSize!=3) {
-                PyErr_SetString(PyExc_TypeError,
-                                "Matrix of triangles requires exactly 3 columns, standing for indices of 3 vertices.");
-                return new Mesh();
-            }
-
-            Mesh * newMesh = new Mesh(nbVertices,nbTriangles);
-            for (int vi=0;vi<nbVertices;++vi) {
-                const double x = *reinterpret_cast<double*>(PyArray_GETPTR2(mat_v,vi,0));
-                const double y = *reinterpret_cast<double*>(PyArray_GETPTR2(mat_v,vi,1));
-                const double z = *reinterpret_cast<double*>(PyArray_GETPTR2(mat_v,vi,2));
-                newMesh->add_vertex(*new Vertex(x,y,z));
-            }
-
-            auto get_vertex = [=](PyArrayObject* mat,const int i,const int j) {
-                const unsigned vi = *reinterpret_cast<unsigned*>(PyArray_GETPTR2(mat,i,j));
-                if (vi>=nbVertices) {
-                    throw vi;
-                }
-                return newMesh->vertices()[vi];
-            };
-
-            for (int ti=0;ti<nbTriangles;++ti) {
-                try {
-                    Vertex* v1 = get_vertex(mat_i,ti,0);
-                    Vertex* v2 = get_vertex(mat_i,ti,1);
-                    Vertex* v3 = get_vertex(mat_i,ti,2);
-                    newMesh->triangles().push_back(Triangle(v1,v2,v3));
-                } catch(unsigned& ind) {
-                    //  TODO: Improve the error message to indicate the triangle and the index of vertex
-                    PyErr_SetString(PyExc_TypeError,"Triangle index out of range");
-                    delete newMesh;
-                    return new Mesh();
-                }
-            }
-            return newMesh;
+        PyArrayObject* mat_v  = reinterpret_cast<PyArrayObject*>(PyArray_FromObject(py_v,NPY_DOUBLE,0,0));
+        if (mat_v==nullptr) {
+            PyErr_SetString(PyExc_TypeError,
+                            "Matrix of vertices is not wellformed, returning an empty matrix instead.");
+            return new Mesh();
         }
 
-        const char* __str__() {
-            return ($self)->name().c_str();
+        const size_t nbdims_v = PyArray_NDIM(mat_v);
+        if (nbdims_v!=2) {
+            PyErr_SetString(PyExc_TypeError,
+                            "Matrix of vertices requires an 2 dimensions array, returning an empty matrix instead.");
+            return new Mesh();
         }
+        const size_t nbVertices = PyArray_DIM(mat_v,0);
+        const size_t nbcol      = PyArray_DIM(mat_v,1);
+
+        // Deals with both np.dtype arrays of UNIT64 and INT64
+        PyArrayObject *arr = NULL;
+        PyArray_Descr *dtype = new PyArray_Descr();
+        int ndim = 0;
+        npy_intp dims[NPY_MAXDIMS];
+
+        if ( (PyArray_GetArrayParamsFromObject(py_i, NULL, 1, &dtype, &ndim, &dims[0], &arr, NULL) < 0 ) ||
+             ( arr == NULL) ) {
+            PyErr_SetString(PyExc_TypeError,
+                            "Cannot get array parameters for triangles array");
+            return new Mesh();
+        }
+
+        const int array_type = PyArray_TYPE(arr);
+
+        if ( array_type != NPY_INT64 && array_type != NPY_UINT64) {
+            PyErr_SetString(PyExc_TypeError,
+                            "Wrong dtype for triangles array (only int64 or uint64 supported)");
+            return new Mesh();
+        }
+
+        PyArrayObject* mat_i = reinterpret_cast<PyArrayObject*>(PyArray_FromObject(py_i,array_type,0,0));
+        if (mat_i==nullptr) {
+            PyErr_SetString(PyExc_TypeError,
+                            "Matrix of triangles is not wellformed, returning an empty matrix instead.");
+            return new Mesh();
+        }
+
+        const size_t nbdims_i = PyArray_NDIM(mat_i);
+        if (nbdims_i!=2) {
+            PyErr_SetString(PyExc_TypeError,
+                            "Matrix of triangles requires an 2 dimensions array, returning an empty matrix instead.");
+            return new Mesh();
+        }
+
+        const size_t nbTriangles  = PyArray_DIM(mat_i,0);
+        const size_t TriangleSize = PyArray_DIM(mat_i,1);
+        if (TriangleSize!=3) {
+            PyErr_SetString(PyExc_TypeError,
+                            "Matrix of triangles requires exactly 3 columns, standing for indices of 3 vertices.");
+            return new Mesh();
+        }
+
+        Mesh * newMesh = new Mesh(nbVertices,nbTriangles);
+        for (int vi=0;vi<nbVertices;++vi) {
+            const double x = *reinterpret_cast<double*>(PyArray_GETPTR2(mat_v,vi,0));
+            const double y = *reinterpret_cast<double*>(PyArray_GETPTR2(mat_v,vi,1));
+            const double z = *reinterpret_cast<double*>(PyArray_GETPTR2(mat_v,vi,2));
+            newMesh->add_vertex(*new Vertex(x,y,z));
+        }
+
+        auto get_vertex = [=](PyArrayObject* mat,const int i,const int j) {
+            const unsigned vi = *reinterpret_cast<unsigned*>(PyArray_GETPTR2(mat,i,j));
+            if (vi>=nbVertices) {
+                throw vi;
+            }
+            return newMesh->vertices()[vi];
+        };
+
+        for (int ti=0;ti<nbTriangles;++ti) {
+            try {
+                Vertex* v1 = get_vertex(mat_i,ti,0);
+                Vertex* v2 = get_vertex(mat_i,ti,1);
+                Vertex* v3 = get_vertex(mat_i,ti,2);
+                newMesh->triangles().push_back(Triangle(v1,v2,v3));
+            } catch(unsigned& ind) {
+                //  TODO: Improve the error message to indicate the triangle and the index of vertex
+                PyErr_SetString(PyExc_TypeError,"Triangle index out of range");
+                delete newMesh;
+                return new Mesh();
+            }
+        }
+
+        //
+        newMesh->name() = name;
+        return newMesh;
+    }
+
+    const char* __str__() {
+        return ($self)->name().c_str();
+    }
 }
 
 // /////////////////////////////////////////////////////////////////
