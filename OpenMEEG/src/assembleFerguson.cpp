@@ -49,20 +49,23 @@ namespace OpenMEEG {
     // mat = storage for Ferguson Matrix
     // pts = where the magnetic field is to be computed
     // n   = numbers of places where magnetic field is to be computed
-    void assemble_ferguson(const Geometry& geo, Matrix& mat, const Matrix& pts)
-    {
-        unsigned miit = 0; // for progressbar: mesh index iterator
+
+    void assemble_ferguson(const Geometry& geo,Matrix& mat,const Matrix& pts) {
+
         // Computation of blocks of Ferguson's Matrix
-        for ( Geometry::const_iterator mit = geo.begin(); mit != geo.end(); ++mit, ++miit) {
+
+        unsigned miit = 0; // for progressbar: mesh index iterator
+        for (const auto& mesh : geo.meshes()) {
             unsigned offsetI = 0;
             unsigned n = pts.nlin();
-            double coeff = geo.sigma_diff(*mit)*MU0/(4.*M_PI);
-            for ( unsigned i = 0; i < n; ++i) {
-                PROGRESSBAR(miit*n+i, geo.nb_meshes()*n);
-                Vect3 p(pts(i, 0), pts(i, 1), pts(i, 2));
-                operatorFerguson(p, *mit, mat, offsetI, coeff);
+            double coeff = geo.sigma_diff(mesh)*MU0/(4.*M_PI);
+            for (unsigned i=0; i<n; ++i) {
+                PROGRESSBAR(miit*n+i,geo.meshes().size()*n);
+                const Vect3 p(pts(i,0),pts(i,1),pts(i,2));
+                operatorFerguson(p,mesh,mat,offsetI,coeff);
                 offsetI += 3;
             }
+            ++miit;
         }
     }
 }

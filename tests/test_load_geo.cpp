@@ -18,7 +18,7 @@ int main (int argc, char** argv)
     Geometry geo;
     geo.read(argv[1], argv[2]);
 
-    std::cerr << "Geometry Size : " << geo.size() << std::endl;
+    std::cerr << "Geometry degrees of freedom: " << geo.nb_parameters() << std::endl;
 
     return 0;
 }
