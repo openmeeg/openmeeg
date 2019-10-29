@@ -353,10 +353,10 @@ namespace OpenMEEG {
     }
 }
 
+%ignore OpenMEEG::Mesh::name(); // ignore non const name() method
 
 %extend OpenMEEG::Mesh{
-        // TODO almost.. if I do: m.name() I get:
-        // <Swig Object of type 'std::string *' at 0x2c92ea0>
+
         Mesh(PyObject* py_v,PyObject* py_i) {
             if ((py_v==nullptr || !PyArray_Check(py_v)) ||
                 (py_i==nullptr || !PyArray_Check(py_i)))
@@ -454,16 +454,6 @@ namespace OpenMEEG {
         }
 
         const char* __str__() {
-            return ($self)->name().c_str();
-        }
-
-        const std::string name() {
-            std::cout << "INTO extend name" << std::endl;
-            return ($self)->name().c_str();
-        }
-
-        const std::string name1() {
-            std::cout << "INTO extend name1" << std::endl;
             return ($self)->name().c_str();
         }
 }
