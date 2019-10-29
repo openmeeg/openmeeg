@@ -206,7 +206,8 @@ namespace OpenMEEG {
         std::string id; // id of mesh/interface/domain
         Interfaces interfaces;
         // if meshes are not already loaded
-        if ( geom.nb_meshes() == 0 ) { // ---------------------------------------
+
+        if (geom.meshes().size()==0) { // ---------------------------------------
             geom.meshes_.reserve(nb_interfaces);
             std::vector<std::string> interfacename(nb_interfaces);
             std::vector<std::string> filename(nb_interfaces);
@@ -284,12 +285,12 @@ namespace OpenMEEG {
         }
 
         geom.domains_.resize(num_domains);
-        for ( Domains::iterator dit = geom.domain_begin(); dit != geom.domain_end(); ++dit) {
+        for (auto& domain : geom.domains()) {
             std::string line;
             if (geom.version_id==Geometry::VERSION10) { // backward compatibility
-                ifs >> io_utils::skip_comments('#') >> io_utils::match("Domain") >> dit->name();
+                ifs >> io_utils::skip_comments('#') >> io_utils::match("Domain") >> domain.name();
             } else {
-                ifs >> io_utils::skip_comments('#') >> io_utils::match("Domain") >> io_utils::token(dit->name(), ':');
+                ifs >> io_utils::skip_comments('#') >> io_utils::match("Domain") >> io_utils::token(domain.name(), ':');
             }
             getline(ifs, line);
             std::istringstream iss(line);
@@ -311,33 +312,21 @@ namespace OpenMEEG {
                             std::cerr << "Please correct a mesh orientation when defining the interface in the geometry file." << std::endl;
                             exit(1);
                         }
-                        dit->push_back(HalfSpace(*iit, inside));
+                        domain.push_back(HalfSpace(*iit, inside));
                     }
                 }
-                if ( !found ) {
-                    throw OpenMEEG::NonExistingDomain<std::string>(dit->name(), id);
-                }
+                if (!found)
+                    throw OpenMEEG::NonExistingDomain<std::string>(domain.name(), id);
             }
         }
 
         // Search for the outermost domain and set boolean OUTERMOST on the domain in the vector domains.
         // An outermost domain is (here) defined as the only domain outside represented by only one interface.
 
-        Domains::iterator dit_out;
-        for ( Domains::iterator dit = geom.domain_begin(); dit != geom.domain_end(); ++dit) {
-            bool outer = true;
-            for ( Domain::iterator hit = dit->begin(); hit != dit->end(); ++hit)
-                outer = outer && !(hit->inside());
-
-            if (outer) {
-                dit_out = dit;
-                dit_out->outermost() = true;
-                for (Domain::iterator hit = dit_out->begin(); hit != dit_out->end(); ++hit) {
-                    hit->interface().set_to_outermost();
-                }
-                break;
-            }
-        }
+        Domain& outer_domain = geom.outermost_domain();
+        outer_domain.outermost() = true;
+        for (auto& halfspace : outer_domain)
+            halfspace.interface().set_to_outermost();
 
         // Determine if the geometry is nested or not
         // The geometry is considered non nested if (at least) one domain is defined as being outside two or more interfaces
@@ -345,34 +334,27 @@ namespace OpenMEEG {
         // if 2 interfaces are composed by a same mesh oriented once correctly once wrongly.
 
         bool nested = true;
-        for ( Domains::const_iterator dit = geom.domain_begin(); dit != geom.domain_end(); ++dit) {
+        for (const auto& domain : geom.domains()) {
             unsigned out_interface = 0;
-            if ( dit != dit_out ) {
-                for ( Domain::const_iterator hit = dit->begin(); hit != dit->end(); ++hit) {
-                    if ( !hit->inside() ) {
+            if (&domain!=&outer_domain)
+                for (const auto& halfspace : domain)
+                    if (halfspace.inside())
                         out_interface++;
-                    }
-                }
-            }
-            if ( out_interface >= 2 ) {
+            if (out_interface>=2) {
                 nested = false;
                 break;
             }
         }
 
-        if ( nested ) {
-            for ( Geometry::const_iterator mit = geom.begin(); mit != geom.end(); ++mit) {
+        if (nested) {
+            for (const auto& mesh : geom.meshes()) {
                 unsigned m_oriented = 0;
-                for ( Domains::const_iterator dit = geom.domain_begin(); dit != geom.domain_end(); ++dit) {
-                    for ( Domain::const_iterator hit = dit->begin(); hit != dit->end(); ++hit) {
-                        for ( Interface::const_iterator iit = hit->first.begin(); iit != hit->first.end(); ++iit) {
-                            if ( iit->mesh() == *mit ) {
-                                m_oriented += (iit->orientation());
-                            }
-                        }
-                    }
-                }
-                if ( m_oriented == 0 ) {
+                for (const auto& domain : geom.domains())
+                    for (const auto& halfspace : domain)
+                        for (const auto& interface : halfspace.first)
+                            if (interface.mesh()==mesh)
+                                m_oriented += interface.orientation();
+                if (m_oriented==0) {
                     nested = false; // TODO unless a mesh is defined but unused ...
                     break;
                 }
@@ -390,18 +372,18 @@ namespace OpenMEEG {
 
     void GeometryReader::read_cond(const std::string& condFileName) {
 
-        typedef Utils::Properties::Named<std::string, Conductivity<double> > HeadProperties;
+        typedef Utils::Properties::Named<std::string,Conductivity<double>> HeadProperties;
         HeadProperties properties(condFileName.c_str());
 
         // Store the internal conductivity of the external boundary of domain i
         // and store the external conductivity of the internal boundary of domain i
-        for ( Domains::iterator dit = geom.domain_begin(); dit != geom.domain_end(); ++dit) {
+
+        for (auto& domain : geom.domains())
             try {
-                const Conductivity<double>& cond = properties.find(dit->name());
-                dit->sigma() =  cond.sigma();
+                const Conductivity<double>& cond = properties.find(domain.name());
+                domain.sigma() = cond.sigma();
             } catch( const Utils::Properties::UnknownProperty<HeadProperties::Id>& e) {
-                throw OpenMEEG::BadDomain(dit->name());
+                throw OpenMEEG::BadDomain(domain.name());
             }
-        }
     }
 }

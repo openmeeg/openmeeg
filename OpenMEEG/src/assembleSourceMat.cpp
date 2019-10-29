@@ -56,7 +56,7 @@ namespace OpenMEEG {
 
         Matrix& mat = *this;
 
-        mat = Matrix((geo.size()-geo.nb_current_barrier_triangles()),source_mesh.vertices().size());
+        mat = Matrix((geo.nb_parameters()-geo.nb_current_barrier_triangles()),source_mesh.vertices().size());
         mat.set(0.0);
 
         // Check that there is no overlapping between the geometry and the source mesh.
@@ -100,7 +100,7 @@ namespace OpenMEEG {
     {
         Matrix& rhs = *this;
 
-        const size_t size      = geo.size()-geo.nb_current_barrier_triangles();
+        const size_t size      = geo.nb_parameters()-geo.nb_current_barrier_triangles();
         const size_t n_dipoles = dipoles.nlin();
 
         rhs = Matrix(size,n_dipoles);
@@ -152,14 +152,14 @@ namespace OpenMEEG {
         const double K = 1.0/(4.*M_PI);
 
         //  transmat = a big SymMatrix of which mat = part of its transpose.
-        SymMatrix transmat(geo.size());
+        SymMatrix transmat(geo.nb_parameters());
         transmat.set(0.0);
-        mat = Matrix((geo.size()-geo.nb_current_barrier_triangles()), n_sensors);
+        mat = Matrix((geo.nb_parameters()-geo.nb_current_barrier_triangles()), n_sensors);
         mat.set(0.0);
 
-        for (const auto& mesh1 : geo)
+        for (const auto& mesh1 : geo.meshes())
             if (mesh1.current_barrier())
-                for (const auto& mesh2 : geo) {
+                for (const auto& mesh2 : geo.meshes()) {
                     const int orientation = geo.oriented(mesh1,mesh2);
                     if (orientation != 0){
                         // D*_23 or D*_33
@@ -183,7 +183,7 @@ namespace OpenMEEG {
                 if ( almost_equal(electrodes.getRadii()(ielec), 0.) ) {
                     inv_area = 1./tit->area();
                 }
-                for ( size_t i = 0; i < (geo.size() - geo.nb_current_barrier_triangles()); ++i) {
+                for ( size_t i = 0; i < (geo.nb_parameters() - geo.nb_current_barrier_triangles()); ++i) {
                     mat(i, ielec) += transmat(tit->index(), i) * inv_area;
                 }
             }

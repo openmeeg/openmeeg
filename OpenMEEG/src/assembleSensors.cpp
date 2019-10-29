@@ -56,7 +56,7 @@ namespace OpenMEEG {
 
         const Matrix& positions = electrodes.getPositions();
 
-        mat = SparseMatrix(positions.nlin(),(geo.size()-geo.nb_current_barrier_triangles()));
+        mat = SparseMatrix(positions.nlin(),(geo.nb_parameters()-geo.nb_current_barrier_triangles()));
 
         for (unsigned i=0;i<positions.nlin();++i) {
             const Vect3 current_position(positions(i,0),positions(i,1),positions(i,2));
@@ -79,7 +79,7 @@ namespace OpenMEEG {
 
         const Matrix& positions = electrodes.getPositions();
 
-        mat = SparseMatrix(positions.nlin(),(geo.size()-geo.nb_current_barrier_triangles()));
+        mat = SparseMatrix(positions.nlin(),(geo.nb_parameters()-geo.nb_current_barrier_triangles()));
 
         for (unsigned it=0;it<positions.nlin();++it) {
             Vect3 current_position;
@@ -103,7 +103,7 @@ namespace OpenMEEG {
         const Matrix& positions    = sensors.getPositions();
         const Matrix& orientations = sensors.getOrientations();
         const unsigned nbIntegrationPoints = sensors.getNumberOfPositions();
-        unsigned p0_p1_size = geo.size()-geo.nb_current_barrier_triangles();
+        unsigned p0_p1_size = geo.nb_parameters()-geo.nb_current_barrier_triangles();
 
         Matrix FergusonMat(3*nbIntegrationPoints,geo.vertices().size());
         FergusonMat.set(0.0);
@@ -115,10 +115,12 @@ namespace OpenMEEG {
 
         for (unsigned i=0;i<nbIntegrationPoints;++i) {
             PROGRESSBAR(i,nbIntegrationPoints);
-            for (Vertices::const_iterator vit = geo.vertex_begin(); vit != geo.vertex_end(); ++vit) { // TODO
-                const Vect3 fergusonField(FergusonMat(3*i,vit->index()),FergusonMat(3*i+1,vit->index()),FergusonMat(3*i+2,vit->index()));
+            for (const auto& vertex : geo.vertices()) {
+                const Vect3 fergusonField(FergusonMat(3*i,vertex.index()),
+                                          FergusonMat(3*i+1,vertex.index()),
+                                          FergusonMat(3*i+2,vertex.index()));
                 const Vect3 direction(orientations(i,0),orientations(i,1),orientations(i,2));
-                mat(i,vit->index()) = dotprod(fergusonField,direction)/direction.norm();
+                mat(i,vertex.index()) = dotprod(fergusonField,direction)/direction.norm();
             }
         }
         mat = sensors.getWeightsMatrix()*mat; // Apply weights

@@ -44,6 +44,26 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 namespace OpenMEEG {
 
+    Domain&
+    Geometry::outermost_domain() {
+        // Search for the outermost domain and set boolean OUTERMOST on the domain in the vector domains.
+        // An outermost domain is (here) defined as the only domain outside represented by only one interface.
+
+        for (auto& domain : domains()) {
+            bool outer = true;
+            for (auto& halfspace : domain)
+                if (halfspace.inside()) {
+                    outer = false;
+                    break;
+                }
+            if (outer)
+                return domain;
+        }
+
+        warning("Geometry::outermost_domain: Error outermost domain is not defined.");
+        throw OpenMEEG::BadDomain("outermost");
+    }
+
     const Interface&
     Geometry::innermost_interface() const {
 
@@ -52,15 +72,15 @@ namespace OpenMEEG {
             throw OpenMEEG::BadInterface("innermost");
         }
 
-        for (Domains::const_iterator dit=domain_begin();dit!=domain_end();++dit) {
+        for (const auto& domain : domains()) {
             bool inner = true;
-            for (Domain::const_iterator hit = dit->begin(); hit!=dit->end(); ++hit)
-                if (!hit->inside()) {
+            for (const auto& halfspace : domain)
+                if (!halfspace.inside()) {
                     inner = false;
                     break;
                 }
             if (inner)
-                return dit->begin()->interface();
+                return domain.front().interface();
         }
 
         // Should never append as this function should only be called for nested geometries.
@@ -71,36 +91,34 @@ namespace OpenMEEG {
 
     const Interface&
     Geometry::outermost_interface() const {
-        for (Domains::const_iterator dit = domain_begin(); dit != domain_end(); ++dit) {
-            if (dit->outermost()) {
-                return dit->begin()->interface();
-            }
-        }
+        for (const auto& domain : domains())
+            if (domain.outermost())
+                return domain.front().interface();
 
-        // should never append
+        // Should never append
+
         warning("Geometry::outermost_interface: Error outermost interface were not set.");
         throw OpenMEEG::BadInterface("outermost");
     }
 
-    Mesh&  Geometry::mesh(const std::string& id) {
-        for (iterator mit = begin(); mit != end(); ++mit ) {
-            if (id == mit->name()) {
-                return *mit;
-            }
-        }
+    Mesh& Geometry::mesh(const std::string& id) {
+        for (auto& mesh: meshes())
+            if (mesh.name()==id)
+                return mesh;
+
+        // Should never happen
 
         warning(std::string("Geometry::mesh: Error mesh id/name not found: ") + id);
         throw OpenMEEG::BadInterface(id);
-        // should never append
     }
 
-    const Mesh&  Geometry::mesh(const std::string& id) const {
-        for (const_iterator mit = begin(); mit != end(); ++mit) {
-            if (id == mit->name()) {
-                return *mit;
-            }
-        }
-        // should never append
+    const Mesh& Geometry::mesh(const std::string& id) const {
+        for (const auto& mesh: meshes())
+            if (mesh.name()==id)
+                return mesh;
+
+        // Should never happen
+
         warning(std::string("Geometry::mesh: Error mesh id/name not found: ") + id);
         throw OpenMEEG::BadInterface(id);
     }
@@ -109,67 +127,70 @@ namespace OpenMEEG {
         if (is_nested_) {
             std::cout << "This geometry is a NESTED geometry." << std::endl;
         } else {
-            int shared = -vertices_.size();
-            for (const_iterator mit = begin(); mit != end(); ++mit) {
-                shared += mit->vertices().size();
-            }
+            int shared = -vertices().size();
+            for (const auto& mesh : meshes())
+                shared += mesh.vertices().size();
+
             // those are not the number of shared vertices but the number of demands for adding the same vertex...
             std::cout << "This geometry is a NON NESTED geometry. (There was " << shared << " demands for adding same vertices)." << std::endl;
         }
 
-        for (const_iterator mit = begin(); mit != end(); ++mit) {
-            mit->info();
-        }
+        for (const auto& mesh : meshes())
+            mesh.info();
 
-        for (Domains::const_iterator dit = domain_begin(); dit != domain_end(); ++dit) {
-            dit->info();
-        }
+        for (const auto& domain : domains())
+            domain.info();
 
         if (verbose) {
-            for (Vertices::const_iterator vit = vertex_begin(); vit != vertex_end(); ++vit) {
-                std::cout << "[" << *vit << "] = " << vit->index() << std::endl;
-            }
+            for (const auto& vertex : vertices())
+                std::cout << "[" << vertex << "] = " << vertex.index() << std::endl;
 
-            for (const auto& mesh : *this)
+            for (const auto& mesh : meshes())
                 for (const auto& triangle : mesh.triangles()) 
                     std::cout << "[[" << triangle.vertex(0) << "] , [" << triangle.vertex(1) << "] , ["<< triangle.vertex(2) << "]] \t = " << triangle.index() << std::endl;
         }
     }
 
     const Interface& Geometry::interface(const std::string& id) const {
-        for (Domains::const_iterator dit = domain_begin(); dit != domain_end(); ++dit) {
-            for (Domain::const_iterator hit = dit->begin(); hit != dit->end(); ++hit) {
-                if (hit->interface().name() == id) {
-                    return hit->interface();
-                }
-            }
-        }
+        for (const auto& domain : domains())
+            for (const auto& halfspace : domain)
+                if (halfspace.interface().name()==id)
+                    return halfspace.interface();
 
-        warning(std::string("Geometry::interface: Interface id/name \"") + id + std::string("\" not found."));
+        // Should never append
+        warning(std::string("Geometry::interface: Interface id/name \"")+id+std::string("\" not found."));
         throw OpenMEEG::BadInterface(id);
-        // should never append
     }
 
     const Domain& Geometry::domain(const Vect3& p) const {
-        for (Domains::const_iterator dit = domain_begin(); dit != domain_end(); ++dit) {
-            if (dit->contains_point(p)) {
-                return *dit;
-            }
-        }
+        for (const auto& domain : domains())
+            if (domain.contains_point(p))
+                return domain;
+
+        // Should never append
+
         throw OpenMEEG::BadDomain("Impossible");
-        // should never append
     }
 
-    const Domain& Geometry::domain(const std::string& dname) const {
-        for (Domains::const_iterator dit = domain_begin(); dit != domain_end(); ++dit) {
-            if (dit->name() == dname) {
-                return *dit;
-            }
-        }
+    const Domain& Geometry::domain(const std::string& name) const {
+        for (const auto& domain : domains())
+            if (domain.name()==name)
+                return domain;
 
-        // should never append
-        warning(std::string("Geometry::domain: Domain id/name \"") + dname + std::string("\" not found."));
-        throw OpenMEEG::BadDomain(dname);
+        // Should never happen
+
+        warning(std::string("Geometry::domain: Domain id/name \"") + name + std::string("\" not found."));
+        throw OpenMEEG::BadDomain(name);
+    }
+
+    double Geometry::sigma(const std::string& name) const {
+        try {
+            const Domain& dom = domain(name);
+            return dom.sigma();
+        } catch(...) {
+            warning(std::string("Geometry::sigma: Domain id/name \"")+name+std::string("\" not found."));
+            return 0.;
+        }
     }
 
     void Geometry::read(const std::string& geomFileName, const std::string& condFileName, const bool OLD_ORDERING) {
@@ -220,19 +241,17 @@ namespace OpenMEEG {
         // or by the user himself encoded into the vtp file.
         // if you use OLD_ORDERING make sure to iterate only once on each vertex: not to overwrite index (meshes have shared vertices).
 
-        if (begin()->triangles().front().index() == unsigned(-1)) {
+        if (meshes().front().triangles().front().index()==unsigned(-1)) {
             unsigned index = 0;
-            if (!OLD_ORDERING) {
-                for (Vertices::iterator pit = vertex_begin(); pit != vertex_end(); ++pit) {
-                    if (invalid_vertices_.empty() || invalid_vertices_.count(*pit) == 0) {
-                        pit->index() = index++;
+            if (!OLD_ORDERING)
+                for (auto& vertex : vertices())
+                    if (invalid_vertices_.empty() || invalid_vertices_.count(vertex)==0) {
+                        vertex.index() = index++;
                     } else {
-                        pit->index() = unsigned(-1);
+                        vertex.index() = unsigned(-1);
                     }
-                }
-            }
 
-            for (auto& mesh : *this) {
+            for (auto& mesh : meshes()) {
                 if (OLD_ORDERING) {
                     om_error(is_nested_); // OR non nested but without shared vertices
                     for (const auto& vertex : mesh.vertices())
@@ -244,7 +263,7 @@ namespace OpenMEEG {
             }
             // even the last surface triangles (yes for EIT... )
             nb_current_barrier_triangles_ = 0;
-            for (auto& mesh : *this)
+            for (auto& mesh : meshes())
                 if (mesh.current_barrier()) {
                     if (!mesh.isolated()) {
                         nb_current_barrier_triangles_ += mesh.triangles().size();
@@ -258,40 +277,29 @@ namespace OpenMEEG {
 
             size_ = index;
         } else {
-            std::cout << "vertex_begin()->index() " << vertex_begin()->index() << std::endl;
+            std::cout << "First vertex index: " << vertices().front().index() << std::endl; // Necessary ? TODO
             size_ = vertices_.size();
-            for (const auto& mesh : *this)
+            for (const auto& mesh : meshes())
                 size_ += mesh.triangles().size();
         }
     }
 
-    double Geometry::sigma(const std::string& name) const {
-        for (std::vector<Domain>::const_iterator dit = domain_begin(); dit != domain_end(); ++dit) {
-            if (name == dit->name()) {
-                return dit->sigma();
-            }
-        }
-        warning(std::string("Geometry::sigma: Domain id/name \"") + name + std::string("\" not found."));
-        return 0.;
-    }
-
-    const Domains Geometry::common_domains(const Mesh& m1, const Mesh& m2) const {
+    const Domains Geometry::common_domains(const Mesh& m1,const Mesh& m2) const {
         std::set<Domain> sdom1;
         std::set<Domain> sdom2;
-        for (Domains::const_iterator dit = domain_begin(); dit != domain_end(); ++dit) {
-            if (dit->mesh_orientation(m1) != 0) {
-                sdom1.insert(*dit);
-            }
-            if (dit->mesh_orientation(m2) != 0) {
-                sdom2.insert(*dit);
-            }
+        for (const auto& domain : domains()) {
+            if (domain.mesh_orientation(m1)!=0)
+                sdom1.insert(domain);
+            if (domain.mesh_orientation(m2)!=0)
+                sdom2.insert(domain);
         }
         Domains doms;
-        std::set_intersection(sdom1.begin(), sdom1.end(), sdom2.begin(), sdom2.end(), std::back_inserter(doms));
+        std::set_intersection(sdom1.begin(),sdom1.end(),sdom2.begin(),sdom2.end(),std::back_inserter(doms));
         return doms;
     }
 
     /// \return a function (sum, difference, ...) of the conductivity(ies) of the shared domain(s).
+
     double Geometry::funct_on_domains(const Mesh& m1, const Mesh& m2, const Function& f) const {
         Domains doms = common_domains(m1, m2);
         double ans = 0.;
@@ -315,19 +323,20 @@ namespace OpenMEEG {
     }
 
     /// \return the difference of conductivities of the 2 domains.
+
     double  Geometry::sigma_diff(const Mesh& m) const {
-        Domains doms = common_domains(m, m); // Get the 2 domains surrounding mesh m
+        Domains doms = common_domains(m,m); // Get the 2 domains surrounding mesh m
         double  ans  = 0.;
-        for (Domains::iterator dit = doms.begin(); dit != doms.end(); ++dit) {
-            ans += dit->sigma()*dit->mesh_orientation(m);
-        }
+        for (auto& domain : doms)
+            ans += domain.sigma()*domain.mesh_orientation(m);
         return ans;
     }
 
     /// \return 0. for non communicating meshes, 1. for same oriented meshes, -1. for different orientation
-    int Geometry::oriented(const Mesh& m1, const Mesh& m2) const {
-        Domains doms = common_domains(m1, m2); // 2 meshes have either 0, 1 or 2 domains in common
-        return (doms.size() == 0) ? 0 : ((doms[0].mesh_orientation(m1) == doms[0].mesh_orientation(m2)) ? 1 : -1);
+
+    int Geometry::oriented(const Mesh& m1,const Mesh& m2) const {
+        Domains doms = common_domains(m1,m2); // 2 meshes have either 0, 1 or 2 domains in common
+        return (doms.size()==0) ? 0 : ((doms[0].mesh_orientation(m1)==doms[0].mesh_orientation(m2)) ? 1 : -1);
     }
 
     bool Geometry::selfCheck() const {
@@ -335,22 +344,25 @@ namespace OpenMEEG {
         bool OK = true;
 
         // Test that all meshes are well oriented and not (self-)intersecting
-        for (const_iterator mit1 = begin(); mit1 != end(); ++mit1) {
-            if (!mit1->has_correct_orientation()) {
+
+        for (Meshes::const_iterator mit1=meshes().begin();mit1!=meshes().end();++mit1) {
+            const Mesh& mesh1 = *mit1;
+            if (!mesh1.has_correct_orientation())
                 warning(std::string("A mesh does not seem to be properly oriented"));
-            }
-            if (mit1->has_self_intersection()) {
+
+            if (mesh1.has_self_intersection()) {
                 warning(std::string("Mesh is self intersecting !"));
-                mit1->info();
+                mesh1.info();
                 OK = false;
-                std::cout << "Self intersection for mesh \"" << mit1->name() << "\"" << std:: endl;
+                std::cout << "Self intersection for mesh \"" << mesh1.name() << "\"" << std:: endl;
             }
-            if (is_nested_) {
-                for (const_iterator mit2 = mit1+1; mit2 != end(); ++mit2) {
-                    if (mit1->intersection(*mit2)) {
+            if (is_nested()) {
+                for (Meshes::const_iterator mit2=mit1+1;mit2!=meshes().end();++mit2) {
+                    const Mesh& mesh2 = *mit2;
+                    if (mesh1.intersection(mesh2)) {
                         warning(std::string("2 meshes are intersecting !"));
-                        mit1->info();
-                        mit2->info();
+                        mesh1.info();
+                        mesh2.info();
                         OK = false;
                     }
                 }
@@ -366,13 +378,12 @@ namespace OpenMEEG {
             m.info();
             OK = false;
         }
-        for (const_iterator mit = begin(); mit != end(); ++mit) {
-            if (mit->intersection(m)) {
+        for (const auto& mesh : meshes())
+            if (mesh.intersection(m)) {
                 warning(std::string("Mesh is intersecting with one of the mesh in geom file !"));
-                mit->info();
+                mesh.info();
                 OK = false;
             }
-        }
         return OK;
     }
 
@@ -446,11 +457,11 @@ namespace OpenMEEG {
             mesh_connected.push_back(se);
             for (unsigned iit = 0;iit<conn.size();++iit) {
                 const Mesh& me = meshes()[conn[iit]];
-                for (Meshes::iterator mit = begin(); mit != end(); ++mit) {
-                    if ( not almost_equal(sigma(me, *mit), 0.0)) {
-                        int id = mit-begin();
-                        std::vector<int>::iterator ifind = std::find(mesh_connected.begin(), mesh_connected.end(), id);
-                        if (ifind == mesh_connected.end()) {
+                for (auto& mesh : meshes()) {
+                    if (not almost_equal(sigma(me,mesh),0.0)) {
+                        const int id = &mesh-&meshes().front();
+                        std::vector<int>::iterator ifind = std::find(mesh_connected.begin(),mesh_connected.end(),id);
+                        if (ifind==mesh_connected.end()) {
                             mesh_connected.push_back(id);
                             conn.push_back(id);
                         }
@@ -495,11 +506,11 @@ namespace OpenMEEG {
         //do not delete shared vertices
         std::set<Vertex> shared_vtx;
         for (std::set<Vertex>::const_iterator vit = invalid_vertices_.begin(); vit != invalid_vertices_.end(); ++vit)
-            for (Meshes::const_iterator mit = begin(); mit != end(); ++mit)
-                if (!mit->isolated()) {
+            for (const auto& mesh : meshes())
+                if (!mesh.isolated()) {
                     const auto comp = [vit](const Vertex* v) { return *v==*vit; };
-                    const std::vector<Vertex*>::const_iterator vfind = std::find_if(mit->vertices().begin(),mit->vertices().end(),comp);
-                    if (vfind!=mit->vertices().end())
+                    const std::vector<Vertex*>::const_iterator vfind = std::find_if(mesh.vertices().begin(),mesh.vertices().end(),comp);
+                    if (vfind!=mesh.vertices().end())
                         shared_vtx.insert(**vfind); //a shared vertex is found
                 }
 
@@ -508,19 +519,14 @@ namespace OpenMEEG {
 
         //redefine outermost interface
         //the inside of a 0-cond domain is considered as a new outermost
-        for (Domains::iterator dit = domain_begin(); dit != domain_end(); ++dit) {
-            if ( almost_equal(dit->sigma(), 0.0)) {
-                for (Domain::iterator hit = dit->begin(); hit != dit->end(); ++hit) {
-                    if (!hit->inside()) {
-                        for (Interface::iterator omit = hit->first.begin(); omit != hit->first.end(); ++omit) {
-                            if (omit->mesh().current_barrier()&&!omit->mesh().isolated()) {
-                                omit->mesh().outermost() = true;
-                            }
-                        }
-                    }
-                }
-            }
-        }
+
+        for (auto& domain : domains())
+            if (almost_equal(domain.sigma(),0.0))
+                for (auto& halfspace : domain)
+                    if (!halfspace.inside())
+                        for (auto& interface : halfspace.first)
+                            if (interface.mesh().current_barrier() && !interface.mesh().isolated())
+                                interface.mesh().outermost() = true;
 
         //detect isolated geometries
         if (mesh_conn.size()>1) {

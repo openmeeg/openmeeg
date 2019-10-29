@@ -93,7 +93,7 @@ int main(const int argc, const char* argv[]) {
     geo.read(argv[1], argv[2]);
 
     const unsigned gauss_order = 3;
-    const unsigned totalsize = geo.size();
+    const unsigned totalsize = geo.nb_parameters();
     const unsigned sourcesize = geo.outermost_interface().nb_triangles();
     const unsigned newsize = totalsize - sourcesize;
 

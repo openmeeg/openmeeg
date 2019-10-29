@@ -54,9 +54,8 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 namespace OpenMEEG {
 
-    /** \brief Geometry contains the electrophysiological model
-        Here are stored the vertices, meshes and domains
-     */
+    /// \brief Geometry contains the electrophysiological model
+    /// Vertices, meshes and domains are stored in this geometry.
 
     class OPENMEEG_EXPORT Geometry {
 
@@ -68,42 +67,38 @@ namespace OpenMEEG {
 
         VersionId version() const { return version_id; }
 
-        /// Default iterator of a Geometry is an Iterator on the meshes
-        typedef Meshes::iterator          iterator;
-        typedef Meshes::const_iterator    const_iterator;
-
-        /// Iterators
-        iterator                   begin()                 { return meshes_.begin();   }
-        const_iterator             begin()           const { return meshes_.begin();   }
-        iterator                   end()                   { return meshes_.end();     }
-        const_iterator             end()             const { return meshes_.end();     }
-        Vertices::iterator         vertex_begin()          { return vertices_.begin(); }
-        Vertices::const_iterator   vertex_begin()    const { return vertices_.begin(); }
-        Vertices::iterator         vertex_end()            { return vertices_.end();   }
-        Vertices::const_iterator   vertex_end()      const { return vertices_.end();   }
-        Domains::iterator          domain_begin()          { return domains_.begin();  }
-        Domains::const_iterator    domain_begin()    const { return domains_.begin();  }
-        Domains::iterator          domain_end()            { return domains_.end();    }
-        Domains::const_iterator    domain_end()      const { return domains_.end();    }
-
         /// Constructors
-        Geometry(): has_cond_(false), is_nested_(false), size_(0), nb_current_barrier_triangles_(0)  {}
-        Geometry(const std::string& geomFileName, const std::string& condFileName = "", const bool OLD_ORDERING = false): has_cond_(false), is_nested_(false), size_(0), nb_current_barrier_triangles_(0)  { read(geomFileName, condFileName, OLD_ORDERING); }
 
-              void       info(const bool verbous = false) const; ///< \brief Print information on the geometry
-        const bool&      has_cond()                       const { return has_cond_; }
-        const bool&      is_nested()                      const { return is_nested_; }
-              bool       selfCheck()                      const; ///< \brief the geometry meshes intersect each other
-              bool       check(const Mesh& m)             const; ///< \brief check if m intersect geometry meshes
-              bool       check_inner(const Matrix& m)     const; ///< \brief check if dipoles are outside of geometry meshes
-        const Vertices&  vertices()                       const { return vertices_; } ///< \brief returns the geometry vertices
-        const Meshes&    meshes()                         const { return meshes_; } ///< \brief returns the geometry meshes
-        const Domains&   domains()                        const { return domains_; } ///< \brief returns the geometry domains
-              size_t     size()                           const { return size_; } ///< \brief the total number of vertices + triangles
-              size_t     nb_vertices()                    const { return vertices_.size(); }
-              size_t     nb_triangles()                   const { return (size_-vertices_.size()); }
-              size_t     nb_domains()                     const { return domains_.size(); }
-              size_t     nb_meshes()                      const { return meshes_.size(); }
+        Geometry() {}
+        Geometry(const std::string& geomFileName,const std::string& condFileName="",const bool OLD_ORDERING=false) {
+            read(geomFileName,condFileName,OLD_ORDERING);
+        }
+
+        void info(const bool verbose=false) const; ///< \brief Print information on the geometry
+        bool has_cond()                     const { return has_cond_; }
+        bool is_nested()                    const { return is_nested_; }
+        bool selfCheck()                    const; ///< \brief the geometry meshes intersect each other
+        bool check(const Mesh& m)           const; ///< \brief check if m intersect geometry meshes
+        bool check_inner(const Matrix& m)   const; ///< \brief check if dipoles are outside of geometry meshes
+
+        /// \brief Return the list of vertices involved in the geometry.
+
+              Vertices& vertices()       { return vertices_; }
+        const Vertices& vertices() const { return vertices_; }
+
+        /// \brief Return the list of meshes involved in the geometry.
+
+              Meshes& meshes()       { return meshes_; }
+        const Meshes& meshes() const { return meshes_; }
+
+        /// \brief  Return the list of domains.
+
+              Domains& domains()       { return domains_; }
+        const Domains& domains() const { return domains_; }
+
+        size_t nb_parameters() const { return size_; } ///< \brief the total number of vertices + triangles
+
+        Domain& outermost_domain(); ///< \brief returns the outermost domain.
 
         const Interface& outermost_interface() const; ///< \brief returns the outermost interface (only valid for nested geometries).
         const Interface& innermost_interface() const; ///< \brief returns the innermost interface (only valid for nested geometries).
@@ -122,7 +117,7 @@ namespace OpenMEEG {
         double sigma     (const std::string&) const;
         int    oriented(const Mesh&, const Mesh&) const;
 
-        void read(const std::string& geomFileName, const std::string& condFileName = "", const bool OLD_ORDERING = false);
+        void read(const std::string& geomFileName,const std::string& condFileName="",const bool OLD_ORDERING=false);
         void load_vtp(const std::string& filename) { Matrix trash; load_vtp(filename, trash, false); }
         void load_vtp(const std::string& filename, Matrix& data, const bool READ_DATA = true);
         void write_vtp(const std::string& filename, const Matrix& data = Matrix()) const; // optional give a dataset
@@ -142,13 +137,14 @@ namespace OpenMEEG {
         Mesh& mesh(const std::string& id); ///< \brief returns the Mesh called id \param id Mesh name
 
         /// Members
+
         VersionId version_id;
         Vertices  vertices_;
         Meshes    meshes_;
         Domains   domains_;
-        bool      has_cond_;
-        bool      is_nested_;
-        size_t    size_;   // total number = nb of vertices + nb of triangles
+        bool      has_cond_  = false;
+        bool      is_nested_ = false;
+        size_t    size_ = 0;   // total number = nb of vertices + nb of triangles
 
         void          generate_indices(const bool);
         const Domains common_domains(const Mesh&, const Mesh&) const;
@@ -156,7 +152,7 @@ namespace OpenMEEG {
 
         /// handle multiple 0 conductivity domains
         std::set<Vertex>     invalid_vertices_;  ///< \brief  does not equal to the vertices of invalid meshes because there are shared vertices
-        size_t               nb_current_barrier_triangles_;  ///< \brief number of triangles with 0 normal current. Including triangles of invalid meshes.
+        size_t               nb_current_barrier_triangles_ = 0;  ///< \brief number of triangles with 0 normal current. Including triangles of invalid meshes.
         std::vector<Strings> geo_group_;  ///< \brief Mesh names that belong to different isolated groups.
     };
 }

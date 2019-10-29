@@ -110,10 +110,10 @@ namespace OpenMEEG {
                     0 else (the mesh is not part of the domain boundary) */
 
         int mesh_orientation(const Mesh& m) const { 
-            for (Domain::const_iterator hit = begin();hit!=end();++hit)
-                for (Interface::const_iterator omit = hit->interface().begin();omit!=hit->interface().end();++omit)
-                    if (&omit->mesh()==&m)
-                        return ((hit->inside()) ? omit->orientation() : -omit->orientation());
+            for (const auto& halfspace : *this)
+                for (const auto& interface : halfspace.interface())
+                    if (&interface.mesh()==&m)
+                        return (halfspace.inside()) ? interface.orientation() : -interface.orientation();
             return 0;
         }
 
