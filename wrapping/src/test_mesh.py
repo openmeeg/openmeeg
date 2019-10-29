@@ -7,6 +7,32 @@ import openmeeg as om
 import numpy as np
 
 # test 1 -> should be OK
+V1_OK = np.array(
+    [
+        [ 0.0 ,  0.0,  0.0 ],
+        [ 1.0 ,  0.0,  0.0 ],
+        [ 1.0 ,  1.0,  0.0 ],
+        [ 0.0 ,  1.0,  0.0 ]
+    ]
+)
+T1_OK = np.array(
+    [
+        [ 1, 2, 3],
+        [ 2, 3, 0]
+    ],
+    dtype = np.uint64
+)
+trap = False
+try:
+    print("== Test 1")
+    mesh_1 = om.Mesh(V1_OK, T1_OK)
+    mesh_1.info()
+except:
+    # should not reach this line
+    trap = True
+assert trap == False
+
+# test 1 bis -> should be OK too
 V_OK = np.array(
     [
         [ 0.0 ,  0.0,  0.0 ],
@@ -19,11 +45,12 @@ T_OK = np.array(
     [
         [ 1, 2, 3],
         [ 2, 3, 0]
-    ]
+    ],
+    dtype = np.int64
 )
 trap = False
 try:
-    print("== Test 1")
+    print("== Test 1 bis")
     mesh_1 = om.Mesh(V_OK, T_OK)
     mesh_1.info()
 except:
