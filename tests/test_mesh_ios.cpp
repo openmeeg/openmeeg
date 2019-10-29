@@ -13,7 +13,7 @@ int are_equal(const Mesh& m1,const Mesh& m2,double tol=1e-12) {
     if ((m1.vertices().size()!=m2.vertices().size()) || (m1.triangles().size()!=m2.triangles().size()))
         return 0;
 
-    for (Mesh::const_vertex_iterator vit1=m1.vertices().begin(),vit2=m2.vertices().begin();vit1!=m1.vertices().end();vit1++,vit2++)
+    for (auto vit1=m1.vertices().begin(),vit2=m2.vertices().begin();vit1!=m1.vertices().end();vit1++,vit2++)
         if (!are_equal(**vit1,**vit2,tol))
             return 0;
 
