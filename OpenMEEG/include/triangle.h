@@ -68,9 +68,9 @@ namespace OpenMEEG {
         }
 
         /// Create a new triangle from a 3 vertex adresses.
-        
+
         Triangle(Vertex* p1,Vertex* p2,Vertex* p3,const unsigned index=-1): vertices_{p1,p2,p3},ind(index) { }
-        
+
         /// Create a new triangle from a 3 vertices.
 
         Triangle(Vertex& p1,Vertex& p2,Vertex& p3,const unsigned index=-1): Triangle(&p1,&p2,&p3,index) { }
@@ -87,10 +87,10 @@ namespace OpenMEEG {
         bool operator==(const Triangle& T) const {
             return (&T.vertex(0)==&vertex(0)) && (&T.vertex(1)==&vertex(1)) && (&T.vertex(2)==&vertex(2));
         }
-                                                 
+
               Vertex& vertex(const unsigned& vindex)       { return *vertices_[vindex]; }
         const Vertex& vertex(const unsigned& vindex) const { return *vertices_[vindex]; }
-    
+
         Edge edge(const Vertex& V) const {
             const unsigned ind = vertex_index(V);
             if (ind==4)
@@ -104,12 +104,12 @@ namespace OpenMEEG {
 
               Normal&  normal()       { return normal_; }
         const Normal&  normal() const { return normal_; }
-                                
+
+              double   area()   const { return area_; }
               double&  area()         { return area_; }
-        const double&  area()   const { return area_; }
-                                
+
               unsigned& index()        { return ind; }
-        const unsigned& index()  const { return ind; }
+              unsigned  index()  const { return ind; }
 
         Vect3 center() const { return (vertex(0)+vertex(1)+vertex(2))/3; }
 
