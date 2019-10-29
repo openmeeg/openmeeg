@@ -44,9 +44,9 @@ knowledge of the CeCILL-B license and that you accept its terms.
 namespace OpenMEEG {
 
     /// Computes the total solid angle of a surface for a point p and tells whether p is inside the mesh or not.
-    bool Interface::contains_point(const Vect3& p) const 
-    {
-        double solangle = compute_solid_angle(p);
+
+    bool Interface::contains_point(const Vect3& p) const {
+        double solangle = solid_angle(p);
 
         if ( almost_equal(solangle, 0.) ) {
             return false;
@@ -62,17 +62,15 @@ namespace OpenMEEG {
     }
 
     /// compute the solid-angle which should be +/-4 * Pi for a closed mesh if p is inside, 0 if p is outside
-    double Interface::compute_solid_angle(const Vect3& p) const 
-    {
+    double Interface::solid_angle(const Vect3& p) const {
         double solangle = 0.0;
         for ( Interface::const_iterator omit = begin(); omit != end(); ++omit) {
-                solangle += omit->orientation() * omit->mesh().compute_solid_angle(p);
+                solangle += omit->orientation() * omit->mesh().solid_angle(p);
         }
         return solangle;
     }
 
-    void Interface::set_to_outermost() 
-    {
+    void Interface::set_to_outermost() {
         for ( Interface::iterator omit = begin(); omit != end(); ++omit) {
             omit->mesh().outermost() = true;
         }
@@ -80,8 +78,8 @@ namespace OpenMEEG {
     }
 
     /// Check the global orientation: that the triangles are correctly oriented (outward-pointing normal)
-    bool Interface::check(bool checked)
-    {
+
+    bool Interface::check(const bool checked) {
         /// compute the bounding box:
         double xmin = std::numeric_limits<double>::max();
         double ymin = std::numeric_limits<double>::max();
@@ -91,13 +89,13 @@ namespace OpenMEEG {
         double zmax = -std::numeric_limits<double>::max();
 
         for ( Interface::const_iterator omit = begin(); omit != end(); ++omit) {
-            for ( Mesh::const_vertex_iterator vit = omit->mesh().vertex_begin(); vit != omit->mesh().vertex_end(); ++vit) {
-                xmin = std::min(xmin, (**vit).x());
-                ymin = std::min(ymin, (**vit).y());
-                zmin = std::min(zmin, (**vit).z());
-                xmax = std::max(xmax, (**vit).x());
-                ymax = std::max(ymax, (**vit).y());
-                zmax = std::max(zmax, (**vit).z());
+            for (const auto& vertex : omit->mesh().vertices()) {
+                xmin = std::min(xmin,vertex->x());
+                ymin = std::min(ymin,vertex->y());
+                zmin = std::min(zmin,vertex->z());
+                xmax = std::max(xmax,vertex->x());
+                ymax = std::max(ymax,vertex->y());
+                zmax = std::max(zmax,vertex->z());
             }
         }
         
@@ -108,7 +106,7 @@ namespace OpenMEEG {
         // TODO if solidangle returns 0, then the center of BB is not inside, and thus we should randomly choose another inside point until solid_anlge gives + or -4 PI ?
         // else it causes a strange phenomenon for symmetric model, the point chosen for interface Cortex {north and south}, is on the surface...
         // compute the solid-angle from an inside point:
-        double solangle = compute_solid_angle(bbcenter);
+        double solangle = solid_angle(bbcenter);
         bool closed;
 
         //if the bounding box center is not inside the interface,
@@ -125,7 +123,7 @@ namespace OpenMEEG {
                             (double)rand()/RAND_MAX*(ymax-ymin)+ymin,
                             (double)rand()/RAND_MAX*(zmax-zmin)+zmin);
                 //std::cout<<"\ttest random point("<<pt_rd<<")\n";
-                solangle=compute_solid_angle(pt_rd);
+                solangle = solid_angle(pt_rd);
             }
         }
 

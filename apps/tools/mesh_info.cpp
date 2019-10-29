@@ -69,7 +69,7 @@ int main( int argc, char **argv)
     {
         warning(std::string("Mesh is not well-oriented (valid for closed mesh) !"));
     } else {
-        if ( m.nb_vertices() - 3.*m.nb_triangles()/2. + m.nb_triangles() == 2) {
+        if (m.vertices().size()-3*m.triangles().size()/2+m.triangles().size()==2) {
             std::cout << "Mesh orientation correct (valid for closed mesh)." << std::endl;
         } else {
             std::cout << "Mesh local orientation correct." << std::endl;

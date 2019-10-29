@@ -50,13 +50,15 @@ knowledge of the CeCILL-B license and that you accept its terms.
 namespace OpenMEEG {
 
     /// An Oriented Mesh is a mesh associated with a boolean stating if it is well oriented. 
-    class OrientedMesh: public std::pair<Mesh *, bool> 
-    {
-        typedef std::pair<Mesh *, bool> base;
+
+    class OrientedMesh: public std::pair<Mesh*,bool> {
+
+        typedef std::pair<Mesh*,bool> base;
 
     public:
 
         ///default constructors
+
         OrientedMesh() {}
 
         OrientedMesh(Mesh& _mesh, bool _inside): base(&_mesh, _inside) {}
@@ -90,9 +92,8 @@ namespace OpenMEEG {
         /// \return the total number of the interface vertices
         size_t nb_vertices() const {
             size_t nb = 0;
-            for ( const_iterator omit = begin(); omit != end(); ++omit) {
-                nb += omit->mesh().nb_vertices();
-            }
+            for (const_iterator omit=begin();omit!=end();++omit)
+                nb += omit->mesh().vertices().size();
             return nb;
         }
         
@@ -100,7 +101,7 @@ namespace OpenMEEG {
         size_t nb_triangles() const {
             size_t nb = 0;
             for ( const_iterator omit = begin(); omit != end(); ++omit) {
-                nb += omit->mesh().nb_triangles();
+                nb += omit->mesh().triangles().size();
             }
             return nb;
         }
@@ -117,7 +118,7 @@ namespace OpenMEEG {
 
     private:
 
-        double compute_solid_angle(const Vect3& p) const; ///< Given a point p, it computes the solid angle \return should return +/- 4 PI or 0.
+        double solid_angle(const Vect3& p) const; ///< Given a point p, it computes the solid angle \return should return +/- 4 PI or 0.
 
         std::string name_;      ///< is "" by default
         bool        outermost_; ///< tell weather or not the interface touches the Air (Outermost) Domain.

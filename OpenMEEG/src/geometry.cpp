@@ -105,13 +105,13 @@ namespace OpenMEEG {
         throw OpenMEEG::BadInterface(id);
     }
 
-    void Geometry::info(const bool verbous) const {
+    void Geometry::info(const bool verbose) const {
         if (is_nested_) {
             std::cout << "This geometry is a NESTED geometry." << std::endl;
         } else {
             int shared = -vertices_.size();
             for (const_iterator mit = begin(); mit != end(); ++mit) {
-                shared += mit->nb_vertices();
+                shared += mit->vertices().size();
             }
             // those are not the number of shared vertices but the number of demands for adding the same vertex...
             std::cout << "This geometry is a NON NESTED geometry. (There was " << shared << " demands for adding same vertices)." << std::endl;
@@ -125,16 +125,14 @@ namespace OpenMEEG {
             dit->info();
         }
 
-        if (verbous) {
+        if (verbose) {
             for (Vertices::const_iterator vit = vertex_begin(); vit != vertex_end(); ++vit) {
                 std::cout << "[" << *vit << "] = " << vit->index() << std::endl;
             }
 
-            for (const_iterator mit = begin(); mit != end(); ++mit) {
-                for (Mesh::const_iterator tit = mit->begin(); tit != mit->end(); ++tit) {
-                    std::cout << "[[" << tit->s1() << "] , [" << tit->s2() << "] , ["<< tit->s3() << "]] \t = " << tit->index() << std::endl;
-                }
-            }
+            for (const auto& mesh : *this)
+                for (const auto& triangle : mesh.triangles()) 
+                    std::cout << "[[" << triangle.vertex(0) << "] , [" << triangle.vertex(1) << "] , ["<< triangle.vertex(2) << "]] \t = " << triangle.index() << std::endl;
         }
     }
 
@@ -221,7 +219,8 @@ namespace OpenMEEG {
         // or by type (V_1, V_2, V_3 .. p_1, p_2...) (by DEFAULT)
         // or by the user himself encoded into the vtp file.
         // if you use OLD_ORDERING make sure to iterate only once on each vertex: not to overwrite index (meshes have shared vertices).
-        if (begin()->begin()->index() == unsigned(-1)) {
+
+        if (begin()->triangles().front().index() == unsigned(-1)) {
             unsigned index = 0;
             if (!OLD_ORDERING) {
                 for (Vertices::iterator pit = vertex_begin(); pit != vertex_end(); ++pit) {
@@ -233,44 +232,36 @@ namespace OpenMEEG {
                 }
             }
 
-            for (iterator mit = begin(); mit != end(); ++mit) {
+            for (auto& mesh : *this) {
                 if (OLD_ORDERING) {
                     om_error(is_nested_); // OR non nested but without shared vertices
-                    for (Mesh::const_vertex_iterator vit = mit->vertex_begin(); vit != mit->vertex_end(); ++vit, ++index) 
-                    {
-                        (*vit)->index() = index;
-                    }
+                    for (const auto& vertex : mesh.vertices())
+                        vertex->index() = index++;
                 }
-                if (!mit->isolated()&&!mit->current_barrier()) {
-                    for ( Mesh::iterator tit = mit->begin(); tit != mit->end(); ++tit) {
-                        tit->index() = index++;
-                    }
-                }
+                if (!mesh.isolated()&&!mesh.current_barrier())
+                    for (auto& triangle : mesh.triangles())
+                        triangle.index() = index++;
             }
             // even the last surface triangles (yes for EIT... )
             nb_current_barrier_triangles_ = 0;
-            for (iterator mit = begin(); mit != end(); ++mit) {
-                if (mit->current_barrier()) {
-                    if (!mit->isolated()) {
-                        nb_current_barrier_triangles_ += mit->nb_triangles();
-                        for (Mesh::iterator tit = mit->begin(); tit != mit->end(); ++tit) {
-                            tit->index() = index++;
-                        }
+            for (auto& mesh : *this)
+                if (mesh.current_barrier()) {
+                    if (!mesh.isolated()) {
+                        nb_current_barrier_triangles_ += mesh.triangles().size();
+                        for (auto& triangle : mesh.triangles())
+                            triangle.index() = index++;
                     } else {
-                        for (Mesh::iterator tit = mit->begin(); tit != mit->end(); ++tit) {
-                            tit->index() = unsigned(-1);
-                        }
+                        for (auto& triangle : mesh.triangles())
+                            triangle.index() = unsigned(-1);
                     }
                 }
-            }
 
             size_ = index;
-        }else{
+        } else {
             std::cout << "vertex_begin()->index() " << vertex_begin()->index() << std::endl;
             size_ = vertices_.size();
-            for (iterator mit = begin(); mit != end(); ++mit) {
-                size_ += mit->size();
-            }
+            for (const auto& mesh : *this)
+                size_ += mesh.triangles().size();
         }
     }
 
@@ -408,35 +399,31 @@ namespace OpenMEEG {
     void Geometry::import_meshes(const Meshes& m) {
         meshes_.clear();
         vertices_.clear();
-        unsigned n_vert_max = 0;
-        unsigned iit = 0;
-        std::map<const Vertex *, Vertex *> map_vertices;
 
-        // count the vertices
-        for (Meshes::const_iterator mit = m.begin(); mit != m.end(); ++mit) {
-            n_vert_max += mit->nb_vertices();
-        }
+        // Count vertices
+
+        unsigned n_vert_max = 0;
+        for (const auto& mesh : m)
+            n_vert_max += mesh.vertices().size();
+
+        // Copy vertices and triangles in the geometry.
 
         vertices_.reserve(n_vert_max);
         meshes_.reserve(m.size());
-
-        for (Meshes::const_iterator mit = m.begin(); mit != m.end(); ++mit, ++iit) {
-            meshes_.push_back(Mesh(vertices_, mit->name()));
-            for (Mesh::const_vertex_iterator vit = mit->vertex_begin(); vit != mit->vertex_end(); vit++) {
-                meshes_[iit].add_vertex(**vit);
-                map_vertices[*vit] = *meshes_[iit].vertex_rbegin();
+        std::map<const Vertex*,Vertex*> map_vertices;
+        for (const auto& mesh : m) {
+            meshes_.push_back(Mesh(vertices_,mesh.name()));
+            Mesh& newmesh = meshes_.back();
+            for (const auto& vertex : mesh.vertices()) {
+                newmesh.add_vertex(*vertex);
+                map_vertices[vertex] = newmesh.vertices().back();
             }
-        }
-
-        // Copy the triangles in the geometry.
-        iit = 0;
-        for (Meshes::const_iterator mit = m.begin(); mit != m.end(); ++mit, ++iit) {
-            for (Mesh::const_iterator tit = mit->begin(); tit != mit->end(); ++tit) {
-                meshes_[iit].push_back(Triangle(map_vertices[(*tit)[0]], 
-                                                map_vertices[(*tit)[1]],
-                                                map_vertices[(*tit)[2]]));
-            }
-            meshes_[iit].update();
+            Triangles& triangles = newmesh.triangles();
+            for (const auto& triangle : mesh.triangles())
+                triangles.push_back(Triangle(map_vertices[&triangle.vertex(0)], 
+                                             map_vertices[&triangle.vertex(1)],
+                                             map_vertices[&triangle.vertex(2)]));
+            newmesh.update();
         }
     }
 
@@ -444,19 +431,20 @@ namespace OpenMEEG {
     void Geometry::mark_current_barrier() {
 
         // figure out the connectivity of meshes
+
         std::vector<int> mesh_idx;
-        for (unsigned i = 0; i < meshes().size(); i++) {
+        for (unsigned i=0;i<meshes().size();++i)
             mesh_idx.push_back(i);
-        }
-        std::vector<std::vector<int> > mesh_conn;
+
+        std::vector<std::vector<int>> mesh_conn;
         std::vector<int> mesh_connected, mesh_diff;
-        std::set_difference(mesh_idx.begin(), mesh_idx.end(), mesh_connected.begin(), mesh_connected.end(), std::insert_iterator<std::vector<int> >(mesh_diff, mesh_diff.end()));
+        std::set_difference(mesh_idx.begin(),mesh_idx.end(),mesh_connected.begin(),mesh_connected.end(),std::insert_iterator<std::vector<int>>(mesh_diff,mesh_diff.end()));
         while (!mesh_diff.empty()) {
             std::vector<int> conn;
-            int se = mesh_diff[0];
+            const int se = mesh_diff[0];
             conn.push_back(se);
             mesh_connected.push_back(se);
-            for (unsigned iit = 0; iit < conn.size(); ++iit) {
+            for (unsigned iit = 0;iit<conn.size();++iit) {
                 const Mesh& me = meshes()[conn[iit]];
                 for (Meshes::iterator mit = begin(); mit != end(); ++mit) {
                     if ( not almost_equal(sigma(me, *mit), 0.0)) {
@@ -478,7 +466,7 @@ namespace OpenMEEG {
         // find isolated meshes and touch 0-cond meshes;
         std::set<std::string> touch_0_mesh;
         for (Domains::iterator dit = domains_.begin(); dit != domains_.end(); ++dit) {
-            if ( almost_equal(dit->sigma(), 0.0)) {
+            if (almost_equal(dit->sigma(),0.0)) {
                 for (Domain::iterator hit = dit->begin(); hit != dit->end(); ++hit) {
                     for (Interface::iterator omit = hit->first.begin(); omit != hit->first.end(); ++omit) {
                         omit->mesh().current_barrier() = true;
@@ -488,9 +476,8 @@ namespace OpenMEEG {
                             omit->mesh().outermost() = false;
                             std::cout<<"Mesh \""<<omit->mesh().name()<<"\" will be excluded from computation because it touches non-conductive domains on both sides."<<std::endl;
                             //add all of its vertices to invalid_vertices
-                            for (Mesh::const_vertex_iterator vit = omit->mesh().vertex_begin(); vit != omit->mesh().vertex_end(); ++vit) {
-                                invalid_vertices_.insert(**vit);
-                            }
+                            for (const auto& vertex : omit->mesh().vertices())
+                                invalid_vertices_.insert(*vertex);
                         }
                     }
                 }
@@ -507,25 +494,17 @@ namespace OpenMEEG {
 
         //do not delete shared vertices
         std::set<Vertex> shared_vtx;
-        for (std::set<Vertex>::const_iterator vit = invalid_vertices_.begin(); vit != invalid_vertices_.end(); ++vit) {
-            for (Meshes::const_iterator mit = begin(); mit != end(); ++mit) {
+        for (std::set<Vertex>::const_iterator vit = invalid_vertices_.begin(); vit != invalid_vertices_.end(); ++vit)
+            for (Meshes::const_iterator mit = begin(); mit != end(); ++mit)
                 if (!mit->isolated()) {
-                    std::vector<Vertex*>::const_iterator vfind;
-                    for (vfind = mit->vertex_begin(); vfind != mit->vertex_end(); ++vfind) {
-                        if (**vfind == *vit) {
-                            break;
-                        }
-                    }
-                    if (vfind != mit->vertex_end()) {
+                    const auto comp = [vit](const Vertex* v) { return *v==*vit; };
+                    const std::vector<Vertex*>::const_iterator vfind = std::find_if(mit->vertices().begin(),mit->vertices().end(),comp);
+                    if (vfind!=mit->vertices().end())
                         shared_vtx.insert(**vfind); //a shared vertex is found
-                    }
                 }
-            }
-        }
 
-        for (std::set<Vertex>::const_iterator vit = shared_vtx.begin(); vit != shared_vtx.end(); ++vit) {
+        for (std::set<Vertex>::const_iterator vit = shared_vtx.begin(); vit != shared_vtx.end(); ++vit)
             invalid_vertices_.erase(*vit);
-        }
 
         //redefine outermost interface
         //the inside of a 0-cond domain is considered as a new outermost

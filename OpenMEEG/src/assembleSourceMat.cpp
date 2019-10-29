@@ -52,48 +52,54 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 namespace OpenMEEG {
 
-    void assemble_SurfSourceMat(Matrix& mat, const Geometry& geo, Mesh& mesh_source, const unsigned gauss_order) 
-    {
-        mat = Matrix((geo.size()-geo.nb_current_barrier_triangles()), mesh_source.nb_vertices());
+    SurfSourceMat::SurfSourceMat(const Geometry& geo,Mesh& source_mesh,const unsigned gauss_order) {
+
+        Matrix& mat = *this;
+
+        mat = Matrix((geo.size()-geo.nb_current_barrier_triangles()),source_mesh.vertices().size());
         mat.set(0.0);
 
-        // check if no overlapping between the geometry and the source mesh
-        bool OK = geo.check(mesh_source);
-        if ( !OK ) {
+        // Check that there is no overlapping between the geometry and the source mesh.
+
+        if (!geo.check(source_mesh)) {
             std::cerr << "Error: source mesh overlapps the geometry" << std::endl;
             return;
-        } // then the mesh is included in a domain of the geometry
+        }
 
-        const Domain d     = geo.domain(**mesh_source.vertex_begin()); 
-        const double sigma = d.sigma();
-        const double K     = 1.0/(4.*M_PI);
+        // The mesh is included in a domain of the geometry.
+
+        const Domain& domain = geo.domain(**source_mesh.vertices().begin()); 
         
-        // We here set it as an outermost (to tell _operarorN it doesn't belong to the geometry)
-        mesh_source.outermost() = true;
-        mesh_source.current_barrier() = true;
+        // Set it as an outermost (to tell _operarorN it doesn't belong to the geometry).
 
-        std::cout << std::endl << "assemble SurfSourceMat with " << mesh_source.nb_vertices() << " mesh_source located in domain \"" << d.name() << "\"." << std::endl << std::endl;
+        source_mesh.outermost()       = true;
+        source_mesh.current_barrier() = true;
 
-        for ( Domain::const_iterator hit = d.begin(); hit != d.end(); ++hit) {
-            for ( Interface::const_iterator omit = hit->interface().begin(); omit != hit->interface().end(); ++omit) {
-                // First block is nVertexFistLayer*mesh_source.nb_vertices()
-                double coeffN = (hit->inside())?K * omit->orientation() : omit->orientation() * -K;
-                operatorN( omit->mesh(), mesh_source, mat, coeffN, gauss_order);
-                // Second block is nFacesFistLayer*mesh_source.nb_vertices()
-                double coeffD = (hit->inside())?-omit->orientation() * K / sigma : omit->orientation() * K / sigma;
-                operatorD(omit->mesh(), mesh_source, mat, coeffD, gauss_order,false);
+        std::cout << std::endl
+                  << "assemble SurfSourceMat with " << source_mesh.vertices().size()
+                  << " source_mesh located in domain \"" << domain.name() << "\"." << std::endl
+                  << std::endl;
+
+        const double K  = 1.0/(4.*M_PI);
+        const double L  = -1.0/domain.sigma();
+        for (const auto& halfspace : domain) {
+            const double factorN = (halfspace.inside()) ? K : -K;
+            for (auto& oriented_mesh : halfspace.interface()) {
+                const Mesh& mesh = oriented_mesh.mesh();
+                // First block is nVertexFistLayer*source_mesh.vertices().size()
+                const double coeffN = factorN*oriented_mesh.orientation();
+                operatorN(mesh,source_mesh,mat,coeffN,gauss_order);
+                // Second block is nFacesFistLayer*source_mesh.vertices().size()
+                operatorD(mesh,source_mesh,mat,coeffN*L,gauss_order,false);
             }
         }
     }
 
-    SurfSourceMat::SurfSourceMat(const Geometry& geo, Mesh& mesh_source, const unsigned gauss_order) 
+    DipSourceMat::DipSourceMat(const Geometry& geo,const Matrix& dipoles,const unsigned gauss_order,
+                               const bool adapt_rhs,const std::string& domain_name)
     {
-        assemble_SurfSourceMat(*this, geo, mesh_source, gauss_order);
-    }
+        Matrix& rhs = *this;
 
-    void assemble_DipSourceMat(Matrix& rhs, const Geometry& geo, const Matrix& dipoles,
-            const unsigned gauss_order, const bool adapt_rhs, const std::string& domain_name = "") 
-    {
         const size_t size      = geo.size()-geo.nb_current_barrier_triangles();
         const size_t n_dipoles = dipoles.nlin();
 
@@ -114,17 +120,17 @@ namespace OpenMEEG {
             if (sigma!=0.0) {
                 rhs_col.set(0.0);
                 const double K = 1.0/(4.*M_PI);
-                //  Iterate over the domain's interfaces (half-spaces)
-                for (Domain::const_iterator hit=domain.begin(); hit!=domain.end(); ++hit) {
-                    //  Iterate over the meshes of the interface
-                    for (Interface::const_iterator omit=hit->interface().begin(); omit!=hit->interface().end(); ++omit) {
+                for (const auto& halfspace : domain) { //  Iterate over the domain's interfaces (half-spaces)
+                    const double factorD = (halfspace.inside()) ? K : -K;
+                    for (const auto& oriented_mesh : halfspace.interface()) { //  Iterate over the meshes of the interface
                         //  Treat the mesh.
-                        const double coeffD = ((hit->inside()) ? K : -K)*omit->orientation();
-                        operatorDipolePotDer(r,q,omit->mesh(),rhs_col,coeffD,gauss_order,adapt_rhs);
+                        const double coeffD = factorD*oriented_mesh.orientation();
+                        const Mesh&  mesh   = oriented_mesh.mesh();
+                        operatorDipolePotDer(r,q,mesh,rhs_col,coeffD,gauss_order,adapt_rhs);
 
-                        if (!omit->mesh().current_barrier()) {
+                        if (!oriented_mesh.mesh().current_barrier()) {
                             const double coeff = -coeffD/sigma;;
-                            operatorDipolePot(r,q,omit->mesh(),rhs_col,coeff,gauss_order,adapt_rhs);
+                            operatorDipolePot(r,q,mesh,rhs_col,coeff,gauss_order,adapt_rhs);
                         }
                     }
                 }
@@ -133,14 +139,9 @@ namespace OpenMEEG {
         }
     }
 
-    DipSourceMat::DipSourceMat(const Geometry& geo, const Matrix& dipoles, const unsigned gauss_order,
-                               const bool adapt_rhs, const std::string& domain_name)
-    {
-        assemble_DipSourceMat(*this, geo, dipoles, gauss_order, adapt_rhs, domain_name);
-    }
+    EITSourceMat::EITSourceMat(const Geometry& geo,const Sensors& electrodes,const unsigned gauss_order) {
+        Matrix& mat = *this;
 
-    void assemble_EITSourceMat(Matrix& mat, const Geometry& geo, const Sensors& electrodes, const unsigned gauss_order)
-    {
         //  A Matrix to be applied to the scalp-injected current to obtain the Source Term of the EIT foward problem.
         // following article BOUNDARY ELEMENT FORMULATION FOR ELECTRICAL IMPEDANCE TOMOGRAPHY
         // (eq.14 (do not look at eq.16 since there is a mistake: D_23 -> S_23))
@@ -156,24 +157,22 @@ namespace OpenMEEG {
         mat = Matrix((geo.size()-geo.nb_current_barrier_triangles()), n_sensors);
         mat.set(0.0);
 
-        for (Geometry::const_iterator mit0 = geo.begin(); mit0 != geo.end(); ++mit0) {
-            if (mit0->current_barrier()) {
-                for (Geometry::const_iterator mit1 = geo.begin(); mit1 != geo.end(); ++mit1) {
-                    const int orientation = geo.oriented(*mit0,*mit1);
+        for (const auto& mesh1 : geo)
+            if (mesh1.current_barrier())
+                for (const auto& mesh2 : geo) {
+                    const int orientation = geo.oriented(mesh1,mesh2);
                     if (orientation != 0){
                         // D*_23 or D*_33
-                        operatorD(*mit1, *mit0, transmat, K*orientation, gauss_order, true);
-                        if (*mit0==*mit1) {
+                        operatorD(mesh2,mesh1,transmat,K*orientation,gauss_order,true);
+                        if (mesh1==mesh2) {
                             // I_33
-                            operatorP1P0(*mit0, transmat, -0.5*orientation);
+                            operatorP1P0(mesh1,transmat,-0.5*orientation);
                         } else {
                             // S_23
-                            operatorS(*mit1, *mit0, transmat, geo.sigma_inv(*mit0,*mit1)*(-1.0*K*orientation), gauss_order);
+                            operatorS(mesh2,mesh1,transmat,geo.sigma_inv(mesh1,mesh2)*(-1.0*K*orientation),gauss_order);
                         }
                     }
                 }
-            }
-        }
 
         for ( size_t ielec = 0; ielec < n_sensors; ++ielec) {
             Triangles tris = electrodes.getInjectionTriangles(ielec);
@@ -191,21 +190,18 @@ namespace OpenMEEG {
         }
     }
 
-    EITSourceMat::EITSourceMat(const Geometry& geo, const Sensors& electrodes, const unsigned gauss_order) 
-    {
-        assemble_EITSourceMat(*this, geo, electrodes, gauss_order);
-    }
+    DipSource2InternalPotMat::DipSource2InternalPotMat(const Geometry& geo,const Matrix& dipoles,const Matrix& points,const std::string& domain_name) {
 
-    void assemble_DipSource2InternalPotMat(Matrix& mat, const Geometry& geo, const Matrix& dipoles,
-                                           const Matrix& points, const std::string& domain_name)     
-    {
+        Matrix& mat = *this;
+
         // Points with one more column for the index of the domain they belong
+
         std::vector<Domain> points_domain;
         std::vector<Vect3>  points_;
         for ( unsigned i = 0; i < points.nlin(); ++i) {
-            const Domain& d = geo.domain(Vect3(points(i, 0), points(i, 1), points(i, 2)));
-            if ( d.sigma() != 0.0 ) {
-                points_domain.push_back(d);
+            const Domain& domain = geo.domain(Vect3(points(i, 0), points(i, 1), points(i, 2)));
+            if ( domain.sigma() != 0.0 ) {
+                points_domain.push_back(domain);
                 points_.push_back(Vect3(points(i, 0), points(i, 1), points(i, 2)));
             }
             else {
@@ -237,11 +233,5 @@ namespace OpenMEEG {
                 }
             }
         }
-    }
-
-    DipSource2InternalPotMat::DipSource2InternalPotMat(const Geometry& geo, const Matrix& dipoles,
-                                                       const Matrix& points, const std::string& domain_name)
-    {
-        assemble_DipSource2InternalPotMat(*this, geo, dipoles, points, domain_name);
     }
 }

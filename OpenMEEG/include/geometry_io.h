@@ -62,7 +62,7 @@ namespace OpenMEEG {
 
     /// \brief load a VTK\\vtp file \param filename into a mesh. Optionally read some associated data in matrix \param data if \param READ_DATA is true.
 
-    void Geometry::load_vtp(const std::string& filename, Matrix& data, const bool READ_DATA) {
+    void Geometry::load_vtp(const std::string& filename,Matrix& data,const bool READ_DATA) {
         #ifdef USE_VTK
         vtkSmartPointer<vtkXMLPolyDataReader> reader = vtkSmartPointer<vtkXMLPolyDataReader>::New();
         reader->SetFileName(filename.c_str()); // Specify file name of vtp data file to read
@@ -71,8 +71,8 @@ namespace OpenMEEG {
         vtkSmartPointer<vtkPolyData> vtkMesh = reader->GetOutput();
 
         int trash;
-        vtkSmartPointer<vtkUnsignedIntArray> v_indices = vtkUnsignedIntArray::SafeDownCast(vtkMesh->GetPointData()->GetArray("Indices", trash));
-        vtkSmartPointer<vtkUnsignedIntArray> c_indices = vtkUnsignedIntArray::SafeDownCast(vtkMesh->GetCellData()->GetArray("Indices", trash));
+        vtkSmartPointer<vtkUnsignedIntArray> v_indices = vtkUnsignedIntArray::SafeDownCast(vtkMesh->GetPointData()->GetArray("Indices",trash));
+        vtkSmartPointer<vtkUnsignedIntArray> c_indices = vtkUnsignedIntArray::SafeDownCast(vtkMesh->GetCellData()->GetArray("Indices",trash));
 
         const unsigned npts = vtkMesh->GetNumberOfPoints();
         vertices_.reserve(npts); // alocate memory for the vertices
@@ -107,20 +107,16 @@ namespace OpenMEEG {
         vtkSmartPointer<vtkIdList> l;
 
         for (iterator mit = begin(); mit != end(); ++mit) {
+            Triangles& triangles = mit->triangles();
             for (unsigned i = 0; i < ntrgs; ++i) {
                 // get the mesh which has this name
                 if (cell_id->GetValue(i) == mit->name()) {
                     if (vtkMesh->GetCellType(i) == VTK_TRIANGLE) {
                         l = vtkMesh->GetCell(i)->GetPointIds();
                         if (trash != -1) { // no indices provided
-                            mit->push_back(Triangle(vertices_[l->GetId(0)],
-                                                    vertices_[l->GetId(1)],
-                                                    vertices_[l->GetId(2)],
-                                                    c_indices->GetValue(i))); 
+                            triangles.push_back(Triangle(vertices_[l->GetId(0)],vertices_[l->GetId(1)],vertices_[l->GetId(2)],c_indices->GetValue(i))); 
                         } else {
-                            mit->push_back(Triangle(vertices_[l->GetId(0)],
-                                                    vertices_[l->GetId(1)],
-                                                    vertices_[l->GetId(2)]));
+                            triangles.push_back(Triangle(vertices_[l->GetId(0)],vertices_[l->GetId(1)],vertices_[l->GetId(2)]));
                         }
                     } else {
                         std::cerr << "This is not a triangulation" << std::endl;
@@ -176,67 +172,75 @@ namespace OpenMEEG {
         cell_indices->SetName("Indices");
         point_indices->SetName("Indices");
 
-        if (data.nlin() != 0) {
+        if (data.nlin()!=0) {
             // Check the data corresponds to the geometry
-            bool HAS_OUTERMOST = false; // data has last p values ?
-            if (data.nlin() == size()) {
-                HAS_OUTERMOST = true;
-            } else {
-                om_error(data.nlin() == size()-outermost_interface().nb_triangles());
-            }
+
+            const bool HAS_OUTERMOST = (data.nlin()==size()); // data has least p values ?
+            if (!HAS_OUTERMOST)
+                om_error(data.nlin()==size()-outermost_interface().nb_triangles());
+
             for (unsigned j = 0; j < data.ncol(); ++j) {
                 std::stringstream sdip;
                 sdip << j;
+
                 potentials[j] = vtkSmartPointer<vtkDoubleArray>::New();
-                currents[j]   = vtkSmartPointer<vtkDoubleArray>::New();
                 potentials[j]->SetName(("Potentials-"+sdip.str()).c_str());
+
+                currents[j]   = vtkSmartPointer<vtkDoubleArray>::New();
                 currents[j]->SetName(("Currents-"+sdip.str()).c_str());
 
-                for (Vertices::const_iterator vit = vertex_begin(); vit != vertex_end(); ++vit) {
-                    potentials[j]->InsertNextValue(data(vit->index(), j));
-                }
+                for (const auto& vertex : vertices())
+                    potentials[j]->InsertNextValue(data(vertex.index(),j));
 
-                for (Meshes::const_iterator mit = meshes_.begin(); mit != meshes_.end(); ++mit) {
-                    for (Mesh::const_iterator tit = mit->begin(); tit != mit->end(); ++tit) {
-                        currents[j]->InsertNextValue(((mit->outermost() && !HAS_OUTERMOST) ? 0.0 : data(tit->index(), j)));
-                    }
-                }
+                for(const auto& mesh : meshes_)
+                    for (const auto& triangle: mesh.triangles())
+                        currents[j]->InsertNextValue(((mesh.outermost() && !HAS_OUTERMOST) ? 0.0 : data(triangle.index(),j)));
             }
         }
 
         std::map<const Vertex*, unsigned> map;
 
         unsigned i = 0;
-        for (Vertices::const_iterator vit = vertex_begin(); vit != vertex_end(); ++vit, ++i) {
-            points->InsertNextPoint((*vit)(0), (*vit)(1), (*vit)(2));
-            point_indices->InsertNextValue(vit->index());
-            map[&*vit] = i;
+        for (const auto& vertex : vertices()) {
+            points->InsertNextPoint(vertex(0), vertex(1), vertex(2));
+            point_indices->InsertNextValue(vertex.index());
+            map[&vertex] = i++;
         }
+
         // Add the vertices to polydata
+        
         polydata->SetPoints(points);
 
         vtkSmartPointer<vtkCellArray> polys  = vtkSmartPointer<vtkCellArray>::New(); // the triangles
 
-        for (Meshes::const_iterator mit = meshes_.begin(); mit != meshes_.end(); ++mit) {
-            for ( Mesh::const_iterator tit = mit->begin(); tit != mit->end(); ++tit) {
-                vtkIdType triangle[3] = { map[&(tit->s1())], map[&(tit->s2())], map[&(tit->s3())] };
-                polys->InsertNextCell(3, triangle);
-                cell_id->InsertNextValue(mit->name());
-                cell_indices->InsertNextValue(tit->index());
+        for(const auto& mesh : meshes_)
+            for (const auto& triangle: mesh.triangles()) {
+                const vtkIdType vtktriangle[3] = { map[&(triangle.vertex(0))], map[&(triangle.vertex(1))], map[&(triangle.vertex(2))] };
+                polys->InsertNextCell(3, vtktriangle);
+                cell_id->InsertNextValue(mesh.name());
+                cell_indices->InsertNextValue(triangle.index());
             }
-        }
 
         // Add the triangles to polydata
+
         polydata->SetPolys(polys);
+
         // Add the array of Names to polydata
+
         polydata->GetCellData()->AddArray(cell_id);
+
         // Add the array of Indices to polydata cells
+
         polydata->GetCellData()->AddArray(cell_indices);
+
         // Add the array of Indices to polydata points
+
         polydata->GetPointData()->AddArray(point_indices);
+
         // Add optional potentials and currents
-        if (data.nlin() != 0) {
-            for (unsigned j = 0; j < data.ncol(); ++j) {
+
+        if (data.nlin()!=0) {
+            for (unsigned j=0;j<data.ncol();++j) {
                 polydata->GetPointData()->AddArray(potentials[j]);
                 polydata->GetCellData()->AddArray(currents[j]);
             }

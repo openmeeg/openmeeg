@@ -1,7 +1,7 @@
 /*
 Project Name : OpenMEEG
 
-© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre 
+© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre
 GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU, Théodore PAPADOPOULO,
 Emmanuel OLIVI
 Maureen.Clerc.AT.inria.fr, keriven.AT.certis.enpc.fr,
@@ -37,44 +37,38 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#include "mesh.h"
-#include "options.h"
-#include "matrix.h"
+#pragma once
 
-using namespace std;
-using namespace OpenMEEG;
+#include <vector>
+#include <vertex.h>
 
-int main( int argc, char **argv)
-{
-    print_version(argv[0]);
+namespace OpenMEEG {
 
-    command_usage("Convert mesh file to a dipole file");
-    const char *input_filename  = command_option("-i", (const char *) NULL, "Input Mesh");
-    const char *output_filename = command_option("-o", (const char *) NULL, "Output .dip file");
+    /// \brief Edge
+    /// Edge class
 
-    if (command_option("-h",(const char *)0,0)) return 0;
+    class OPENMEEG_EXPORT Edge {
+    public:
 
-    if(!input_filename || !output_filename) {
-        std::cout << "Not enough arguments, try the -h option" << std::endl;
-        return 1;
-    }
+        Edge() {
+            vertices[0] = nullptr;
+            vertices[1] = nullptr;
+        }
 
-    Mesh m(input_filename, false);
+        Edge(const Vertex& V1,const Vertex& V2) {
+            vertices[0] = &V1;
+            vertices[1] = &V2;
+        }
 
-    Matrix mat(m.vertices().size(),6);
+        const Vertex& vertex(const unsigned i) const { return *vertices[i]; }
 
-    unsigned i = 0;
-    for (const auto& vertex : m.vertices()) {
-        mat(i,0) = vertex->x();
-        mat(i,1) = vertex->y();
-        mat(i,2) = vertex->z();
-        const Normal& n = m.normal(*vertex);
-        mat(i,3)   = n.x();
-        mat(i,4)   = n.y();
-        mat(i++,5) = n.z();
-    }
+        bool operator==(const Edge& e) const { return (e.vertex(0)==vertex(0)) && (e.vertex(1)==vertex(1)); }
+        bool operator!=(const Edge& e) const { return (e.vertex(0)!=vertex(0)) || (e.vertex(1)!=vertex(1)); }
 
-    mat.save(output_filename);
+    private:
 
-    return 0;
+        const Vertex* vertices[2];
+    };
+
+    typedef std::vector<Edge> Edges;
 }

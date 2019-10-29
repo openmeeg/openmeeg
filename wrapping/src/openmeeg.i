@@ -417,7 +417,7 @@ namespace OpenMEEG {
                     Vertex* v1 = get_vertex(mat_i,ti,0);
                     Vertex* v2 = get_vertex(mat_i,ti,1);
                     Vertex* v3 = get_vertex(mat_i,ti,2);
-                    newMesh->push_back(Triangle(v1,v2,v3));
+                    newMesh->triangles().push_back(Triangle(v1,v2,v3));
                 } catch(unsigned& ind) {
                     //  TODO: Improve the error message to indicate the triangle and the index of vertex
                     PyErr_SetString(PyExc_TypeError,"Triangle index out of range");
