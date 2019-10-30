@@ -124,7 +124,7 @@ namespace OpenMEEG {
     }
 
     void Geometry::info(const bool verbose) const {
-        if (is_nested_) {
+        if (is_nested()) {
             std::cout << "This geometry is a NESTED geometry." << std::endl;
         } else {
             int shared = -vertices().size();
@@ -198,7 +198,6 @@ namespace OpenMEEG {
         vertices_.clear();
         meshes_.clear();
         domains_.clear();
-        is_nested_ = has_cond_ = false;
 
         GeometryReader geoR(*this);
         try {
@@ -253,7 +252,7 @@ namespace OpenMEEG {
 
             for (auto& mesh : meshes()) {
                 if (OLD_ORDERING) {
-                    om_error(is_nested_); // OR non nested but without shared vertices
+                    om_error(is_nested()); // OR non nested but without shared vertices
                     for (const auto& vertex : mesh.vertices())
                         vertex->index() = index++;
                 }

@@ -58,9 +58,6 @@ namespace OpenMEEG {
     /// Vertices, meshes and domains are stored in this geometry.
 
     class OPENMEEG_EXPORT Geometry {
-
-        friend class GeometryReader;
-
     public:
 
         /// Constructors
@@ -72,10 +69,12 @@ namespace OpenMEEG {
 
         void info(const bool verbose=false) const; ///< \brief Print information on the geometry
         bool has_cond()                     const { return has_cond_; }
-        bool is_nested()                    const { return is_nested_; }
+        bool is_nested()                    const { return nested;    }
         bool selfCheck()                    const; ///< \brief the geometry meshes intersect each other
         bool check(const Mesh& m)           const; ///< \brief check if m intersect geometry meshes
         bool check_inner(const Matrix& m)   const; ///< \brief check if dipoles are outside of geometry meshes
+
+        void set_nested() { nested = true; }
 
         /// \brief Return the list of vertices involved in the geometry.
 
@@ -86,6 +85,8 @@ namespace OpenMEEG {
 
               Meshes& meshes()       { return meshes_; }
         const Meshes& meshes() const { return meshes_; }
+
+        Mesh& mesh(const std::string& id); ///< \brief returns the Mesh called id \param id Mesh name
 
         /// \brief  Return the list of domains.
 
@@ -130,15 +131,13 @@ namespace OpenMEEG {
 
         typedef enum { IDENTITY, INVERSE, INDICATOR} Function;
 
-        Mesh& mesh(const std::string& id); ///< \brief returns the Mesh called id \param id Mesh name
-
         /// Members
 
         Vertices  vertices_;
         Meshes    meshes_;
         Domains   domains_;
-        bool      has_cond_  = false;
-        bool      is_nested_ = false;
+        bool      has_cond_ = false;
+        bool      nested    = false;
         size_t    size_ = 0;   // total number = nb of vertices + nb of triangles
 
         void          generate_indices(const bool);
