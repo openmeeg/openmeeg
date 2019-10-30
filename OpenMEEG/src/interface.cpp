@@ -81,7 +81,7 @@ namespace OpenMEEG {
 
     /// Check the global orientation: that the triangles are correctly oriented (outward-pointing normal)
 
-    bool Interface::check(const bool checked) {
+    bool Interface::is_mesh_orientations_coherent(const bool doublecheck) {
 
         /// compute the bounding box:
 
@@ -92,47 +92,37 @@ namespace OpenMEEG {
 
         const Vect3& bbcenter = bb.center();
 
-        // TODO if solidangle returns 0, then the center of BB is not inside, and thus we should randomly choose another inside point until solid_anlge gives + or -4 PI ?
-        // else it causes a strange phenomenon for symmetric model, the point chosen for interface Cortex {north and south}, is on the surface...
-        // compute the solid-angle from an inside point:
-
         double solangle = solid_angle(bbcenter);
-        bool closed;
 
         //  If the bounding box center is not inside the interface,
-        //  we try to test another point inside the bounding box.
+        //  try to test another point chosen randomly inside the bounding box, until
+        //  its solid angle is significantly non zero.
 
-        if (almost_equal(solangle,0.)) {
-            //std::cout<<"bbcenter is not inside interface: "<<name_<<std::endl;
-            if (not checked)
-                std::srand((unsigned int)std::time(NULL));
-            else
-                std::srand((unsigned int)(std::time(NULL)+3583)); //the program runs faster than the change of time value
-
+        if (almost_equal(solangle,0.0))
             while (almost_equal(solangle,0.)) {
                 const Vertex& V = bb.random_point();
+                std::cerr << V << doublecheck << std::endl;
                 solangle = solid_angle(V);
             }
-        }
 
-        if (almost_equal(solangle,0.)) {
-            closed = true;
-        } else if (almost_equal(solangle,-4.*M_PI)) {
-            closed = true;
-        } else if (almost_equal(solangle,4.*M_PI)) {
-            // TODO we still have to reorient the interface, but the code should be able with very little work to
-            // be insensitive to global orientation of the interfaces, until that day, we reorient:
+        if (almost_equal(solangle,4.*M_PI)) {
+            // Reorient the interface.
+            // TODO: With very little work OpenMEEG could be insensitive to global orientation of the interfaces.
+            // and we could could remove this.
+
             std::cout << "Global reorientation of interface " << name() << std::endl;
-            for ( Interface::iterator omit = begin(); omit != end(); ++omit) {
-                omit->second = !omit->second;
-            }
-            closed = true;
-        } else {
-            std::cout << solangle/M_PI << "PI" << std::endl;
-            //in case of a bad random point location (too close to the mesh), do a double check:
-            closed = checked?false:this->check(true);
+            for (auto& omesh : *this)
+                omesh.second = !omesh.second;
+            solangle = -solangle;
         }
 
-        return closed;
+        if (almost_equal(solangle,0.0) || almost_equal(solangle,-4.*M_PI))
+            return true;
+
+        std::cout << solangle/M_PI << "PI" << std::endl;
+
+        //  In case of a bad random point location (too close to the mesh), do a double check:
+
+        return doublecheck ? false : is_mesh_orientations_coherent(true);
     }
 }

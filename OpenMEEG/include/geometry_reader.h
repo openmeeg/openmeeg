@@ -302,7 +302,7 @@ namespace OpenMEEG {
             }
             getline(ifs,line);
             std::istringstream iss(line);
-            while ( iss >> id ) {
+            while (iss >> id) {
                 bool found = false;
                 bool inside = false; // does the id starts with a '-' or a '+' ?
                 if ((id[0]=='-') || (id[0]=='+')) {
@@ -312,17 +312,17 @@ namespace OpenMEEG {
                     std::cerr << "(DEPRECATED) Keyword shared is useless. Please consider updating your geometry file to the new format 1.1 (see data/README.rst): " << geometry << std::endl;
                     break;                    
                 }
-                for (Interfaces::iterator iit=interfaces.begin(); iit!=interfaces.end(); ++iit) {
-                    if (iit->name()==id) {
+                for (auto& omesh : interfaces)
+                    if (omesh.name()==id) {
                         found = true;
-                        if (!iit->check() ) { // check and correct global orientation
-                            std::cerr << "Interface \"" << iit->name() << "\" is not closed !" << std::endl;
+                        if (!omesh.is_mesh_orientations_coherent()) { // check and correct global orientation
+                            std::cerr << "Interface \"" << omesh.name() << "\" is not closed !" << std::endl;
                             std::cerr << "Please correct a mesh orientation when defining the interface in the geometry file." << std::endl;
                             exit(1);
                         }
-                        domain.push_back(HalfSpace(*iit,inside));
+                        domain.push_back(HalfSpace(omesh,inside));
                     }
-                }
+
                 if (!found)
                     throw OpenMEEG::NonExistingDomain<std::string>(domain.name(), id);
             }
@@ -336,9 +336,9 @@ namespace OpenMEEG {
         for (auto& halfspace : outer_domain)
             halfspace.interface().set_to_outermost();
 
-        // Determine if the geometry is nested or not
-        // The geometry is considered non nested if (at least) one domain is defined as being outside two or more interfaces
-        // OR
+        // Determine if the geometry is nested or not.
+        // The geometry is considered non nested if (at least) one domain is defined as being outside
+        // two or more interfaces OR
         // if 2 interfaces are composed by a same mesh oriented once correctly once wrongly.
 
         bool nested = true;
