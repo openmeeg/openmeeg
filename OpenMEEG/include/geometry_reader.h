@@ -50,28 +50,35 @@ namespace OpenMEEG {
 
     /// \brief A class to read geometry and cond file
     class GeometryReader {
-        public:
-            GeometryReader(Geometry& g): geom(g) {};
+    public:
 
-            /// \brief read a geometry file
-            void read_geom(const std::string&);
+        typedef enum { UNKNOWN_VERSION=-1, VERSION10, VERSION11 } VersionId;
 
-            /// \brief read a cond file
-            void read_cond(const std::string&);
+        GeometryReader(Geometry& g): geom(g) {};
 
-        private:
-            Geometry& geom;
+        /// \brief read a geometry file
+        void read_geom(const std::string&);
 
-            /// \return true if name is a realtive path. \param name
-            bool is_relative_path(const std::string& name);
+        /// \brief read a cond file
+        void read_cond(const std::string&);
+
+        VersionId version() const { return version_id; }
+
+    private:
+
+        VersionId version_id;
+        Geometry& geom;
+
+        /// \return true if name is a realtive path. \param name
+        bool is_relative_path(const std::string& name);
         #if WIN32
-            static const char PathSeparator[];
+        static const char PathSeparator[];
         #else
-            static const char PathSeparator   = '/';
+        static const char PathSeparator   = '/';
         #endif
     };
     #if WIN32
-        const char GeometryReader::PathSeparator[] = "/\\";
+    const char GeometryReader::PathSeparator[] = "/\\";
     #endif
 
     bool GeometryReader::is_relative_path(const std::string& name) {
@@ -129,18 +136,18 @@ namespace OpenMEEG {
             throw OpenMEEG::WrongFileFormat(geometry);
         }
 
-        geom.version_id = Geometry::UNKNOWN_VERSION;
+        version_id = UNKNOWN_VERSION;
         if (version[0]==1) {
             if (version[1]==0) {
-                geom.version_id = Geometry::VERSION10;
+                version_id = VERSION10;
                 std::cerr << "(DEPRECATED) Please consider updating your geometry file to the new format 1.1 (see data/README.rst): "
                           << geometry << std::endl;
             }
             if (version[1]==1)
-                geom.version_id = Geometry::VERSION11;
+                version_id = VERSION11;
         }
 
-        if (geom.version_id==Geometry::UNKNOWN_VERSION) {
+        if (version_id==UNKNOWN_VERSION) {
              std::cerr << "Domain Description version not available !" << std::endl;
              throw OpenMEEG::WrongFileFormat(geometry);
         }
@@ -150,7 +157,7 @@ namespace OpenMEEG {
         const std::string path = (pos == std::string::npos) ? "" : geometry.substr(0, pos+1);
 
         // Process meshes. -----------------------------------------------------------------------------------
-        if (geom.version_id==Geometry::VERSION11) {
+        if (version_id==VERSION11) {
             // Read the mesh section of the description file.
             // Try to load the meshfile (VTK::vtp file)
             // or try to load the meshes
@@ -209,7 +216,7 @@ namespace OpenMEEG {
         // if meshes are not already loaded
 
         if (geom.meshes().size()==0) { // ---------------------------------------
-            geom.meshes_.reserve(nb_interfaces);
+            geom.meshes().reserve(nb_interfaces);
             std::vector<std::string> interfacename(nb_interfaces);
             std::vector<std::string> filename(nb_interfaces);
             std::vector<std::string> fullname(nb_interfaces);
@@ -225,7 +232,7 @@ namespace OpenMEEG {
                     std::stringstream defaultname;
                     defaultname << i+1;
                     interfacename[i] = defaultname.str();
-                } else if (geom.version_id==Geometry::VERSION10) { // backward compatibility
+                } else if (version_id==VERSION10) { // backward compatibility
                     std::stringstream defaultname;
                     defaultname << i+1;
                     interfacename[i] = defaultname.str();
@@ -239,13 +246,13 @@ namespace OpenMEEG {
                 fullname[i] = (is_relative_path(filename[i]))?path+filename[i]:filename[i];
                 nb_vertices += m.load(fullname[i], false, false); 
             }
-            geom.vertices_.reserve(nb_vertices);
+            geom.vertices().reserve(nb_vertices);
             // Second really load the meshes
             for ( unsigned i = 0; i < nb_interfaces; ++i ) {
-                geom.meshes_.push_back(Mesh(geom.vertices_, interfacename[i]));
-                geom.meshes_[i].load(fullname[i], false);
+                geom.meshes().push_back(Mesh(geom.vertices(), interfacename[i]));
+                geom.meshes()[i].load(fullname[i], false);
                 interfaces.push_back(Interface(interfacename[i]));
-                interfaces[i].push_back(OrientedMesh(geom.meshes_[i],true)); // one mesh per interface, (well oriented)
+                interfaces[i].push_back(OrientedMesh(geom.meshes()[i],true)); // one mesh per interface, (well oriented)
             }
         } else { // -----------------------
             std::string interfacename;
@@ -284,16 +291,16 @@ namespace OpenMEEG {
         if (ifs.fail())
             throw OpenMEEG::WrongFileFormat(geometry);
 
-        geom.domains_.resize(num_domains);
+        geom.domains().resize(num_domains);
         for (auto& domain : geom.domains()) {
             std::string line;
             ifs >> io_utils::skip_comments('#') >> io_utils::match("Domain");
-            if (geom.version_id==Geometry::VERSION10) { // backward compatibility
+            if (version_id==VERSION10) { // backward compatibility
                 ifs >> domain.name();
             } else {
                 ifs >> io_utils::token(domain.name(),':');
             }
-            getline(ifs, line);
+            getline(ifs,line);
             std::istringstream iss(line);
             while ( iss >> id ) {
                 bool found = false;

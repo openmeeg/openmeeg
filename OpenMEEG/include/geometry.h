@@ -63,10 +63,6 @@ namespace OpenMEEG {
 
     public:
 
-        typedef enum { UNKNOWN_VERSION=-1, VERSION10, VERSION11 } VersionId;
-
-        VersionId version() const { return version_id; }
-
         /// Constructors
 
         Geometry() {}
@@ -138,7 +134,6 @@ namespace OpenMEEG {
 
         /// Members
 
-        VersionId version_id;
         Vertices  vertices_;
         Meshes    meshes_;
         Domains   domains_;
