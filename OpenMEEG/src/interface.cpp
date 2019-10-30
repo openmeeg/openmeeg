@@ -47,20 +47,23 @@ namespace OpenMEEG {
 
     /// Computes the total solid angle of a surface for a point p and tells whether p is inside the mesh or not.
 
-    bool Interface::contains_point(const Vect3& p) const {
-        double solangle = solid_angle(p);
+    bool Interface::contains(const Vect3& p) const {
+        const double solangle = solid_angle(p);
 
-        if ( almost_equal(solangle, 0.) ) {
-            return false;
-        } else if ( almost_equal(solangle, -4.*M_PI) ) {
+        if (almost_equal(solangle,-4.*M_PI))
             return true;
-        } else if ( almost_equal(solangle, 4.*M_PI) ) {
+
+        if (almost_equal(solangle,0.0))
+            return false;
+
+        if (almost_equal(solangle,4.*M_PI)) {
             std::cerr << "Interface::contains_point(" << p << ") Error. This should not happen. Are you sure the mesh is properly oriented ?\n";
             return true;
-        } else {
-            std::cerr << "Interface::contains_point(" << p << ") Error. Are you sure the interface \"" << name_ << "\" is closed? Solid angle: " << std::abs(solangle)/M_PI <<"*PI." << std::endl;
-            return std::abs(solangle)>2*M_PI?true:false;
         }
+
+        std::cerr << "Interface::contains_point(" << p << ") Error. Are you sure the interface \"" << name_ << "\" is closed? Solid angle: " << std::abs(solangle)/M_PI <<"*PI." << std::endl;
+        //  TODO: Is it really sane to return something ? Throw an exception instead...
+        return (std::abs(solangle)>2*M_PI) ? true : false;
     }
 
     /// Compute the solid angle which should be +/-4 * Pi for a closed mesh if p is inside

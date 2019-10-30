@@ -103,11 +103,11 @@ namespace OpenMEEG {
 
         void info() const; ///< print info about the domain
 
-        bool contains_point(const Vect3&) const; ///< Does this point belongs to the domain ?
+        bool contains(const Vect3&) const; ///< Does this point belongs to the domain ?
 
-        /** \return 1 if the mesh is oriented toward the domain.
-                   -1 if not
-                    0 else (the mesh is not part of the domain boundary) */
+        /// \return 1 if the mesh is oriented toward the domain.
+        ///        -1 if not
+        ///         0 else (the mesh is not part of the domain boundary) */
 
         int mesh_orientation(const Mesh& m) const { 
             for (const auto& halfspace : *this)

@@ -41,10 +41,10 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 namespace OpenMEEG {
 
-    bool Domain::contains_point(const Vect3& p) const {
+    bool Domain::contains(const Vect3& p) const {
         bool inside = true;
         for (Domain::const_iterator hit=begin();hit!=end();++hit)
-            inside = (inside &&  (hit->interface().contains_point(p) == hit->inside()));
+            inside = (inside && (hit->interface().contains(p)==hit->inside()));
         return inside;
     }
 
