@@ -1,7 +1,7 @@
 /*
 Project Name : OpenMEEG
 
-© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre 
+© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre
 GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU, Théodore PAPADOPOULO,
 Emmanuel OLIVI
 Maureen.Clerc.AT.inria.fr, keriven.AT.certis.enpc.fr,
@@ -146,7 +146,7 @@ namespace OpenMEEG {
                 std::cout << "[" << vertex << "] = " << vertex.index() << std::endl;
 
             for (const auto& mesh : meshes())
-                for (const auto& triangle : mesh.triangles()) 
+                for (const auto& triangle : mesh.triangles())
                     std::cout << "[[" << triangle.vertex(0) << "] , [" << triangle.vertex(1) << "] , ["<< triangle.vertex(2) << "]] \t = " << triangle.index() << std::endl;
         }
     }
@@ -243,12 +243,13 @@ namespace OpenMEEG {
         if (meshes().front().triangles().front().index()==unsigned(-1)) {
             unsigned index = 0;
             if (!OLD_ORDERING)
-                for (auto& vertex : vertices())
+                for (auto& vertex : vertices()) {
                     if (invalid_vertices_.empty() || invalid_vertices_.count(vertex)==0) {
                         vertex.index() = index++;
                     } else {
                         vertex.index() = unsigned(-1);
                     }
+                }
 
             for (auto& mesh : meshes()) {
                 if (OLD_ORDERING) {
