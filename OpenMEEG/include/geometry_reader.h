@@ -367,8 +367,9 @@ namespace OpenMEEG {
                     break;
                 }
             }
+            if (nested)
+                geom.set_nested();
         }
-        geom.is_nested_ = nested;
 
         if ( ifs.fail() ) {
             throw OpenMEEG::WrongFileFormat(geometry);
