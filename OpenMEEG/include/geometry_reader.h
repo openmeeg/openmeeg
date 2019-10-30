@@ -198,13 +198,14 @@ namespace OpenMEEG {
         ifs >> io_utils::skip_comments('#')
             >> io_utils::match("Interfaces") >> nb_interfaces >> io_utils::match_optional("Mesh", trash);
 
-        if ( ifs.fail() ) {
+        if (ifs.fail())
             throw OpenMEEG::WrongFileFormat(geometry);
-        }
 
-        // load the interfaces
+        // Load interfaces
+
         std::string id; // id of mesh/interface/domain
         Interfaces interfaces;
+
         // if meshes are not already loaded
 
         if (geom.meshes().size()==0) { // ---------------------------------------
@@ -216,7 +217,7 @@ namespace OpenMEEG {
             // First read the total number of vertices
 
             unsigned nb_vertices = 0;
-            for ( unsigned i = 0; i < nb_interfaces; ++i ) {
+            for (unsigned i=0; i<nb_interfaces; ++i) {
                 bool unnamed;
                 ifs >> io_utils::skip_comments("#") >> io_utils::match_optional("Interface:", unnamed);
                 if ( unnamed ) {
@@ -243,12 +244,12 @@ namespace OpenMEEG {
             for ( unsigned i = 0; i < nb_interfaces; ++i ) {
                 geom.meshes_.push_back(Mesh(geom.vertices_, interfacename[i]));
                 geom.meshes_[i].load(fullname[i], false);
-                interfaces.push_back( Interface(interfacename[i]) );
-                interfaces[i].push_back(OrientedMesh(geom.meshes_[i], true)); // one mesh per interface, (well oriented)
+                interfaces.push_back(Interface(interfacename[i]));
+                interfaces[i].push_back(OrientedMesh(geom.meshes_[i],true)); // one mesh per interface, (well oriented)
             }
         } else { // -----------------------
             std::string interfacename;
-            for ( unsigned i = 0; i < nb_interfaces; ++i ) {
+            for (unsigned i=0; i<nb_interfaces; ++i) {
                 bool unnamed;
                 std::string line; // extract a line and parse it
                 ifs >> io_utils::skip_comments("#");
@@ -263,14 +264,14 @@ namespace OpenMEEG {
                     iss >> io_utils::match("Interface")
                         >> io_utils::token(interfacename, ':');
                 }
-                interfaces.push_back( interfacename );
-                while ( iss >> id ) {
+                interfaces.push_back(interfacename);
+                while (iss >> id) {
                     bool oriented = true; // does the id starts with a '-' or a '+' ?
-                    if ( ( id[0] == '-' ) || ( id[0] == '+' ) ) {
-                        oriented = ( id[0] == '+' );
-                        id = id.substr(1, id.size());
+                    if ((id[0]=='-') || (id[0]=='+')) {
+                        oriented = id[0]=='+';
+                        id = id.substr(1,id.size());
                     }
-                    interfaces[i].push_back(OrientedMesh(geom.mesh(id), oriented));
+                    interfaces[i].push_back(OrientedMesh(geom.mesh(id),oriented));
                 }
             }
         }
@@ -280,39 +281,39 @@ namespace OpenMEEG {
         unsigned num_domains;
         ifs >> io_utils::skip_comments('#') >> io_utils::match("Domains") >> num_domains;
 
-        if ( ifs.fail() ) {
+        if (ifs.fail())
             throw OpenMEEG::WrongFileFormat(geometry);
-        }
 
         geom.domains_.resize(num_domains);
         for (auto& domain : geom.domains()) {
             std::string line;
+            ifs >> io_utils::skip_comments('#') >> io_utils::match("Domain");
             if (geom.version_id==Geometry::VERSION10) { // backward compatibility
-                ifs >> io_utils::skip_comments('#') >> io_utils::match("Domain") >> domain.name();
+                ifs >> domain.name();
             } else {
-                ifs >> io_utils::skip_comments('#') >> io_utils::match("Domain") >> io_utils::token(domain.name(), ':');
+                ifs >> io_utils::token(domain.name(),':');
             }
             getline(ifs, line);
             std::istringstream iss(line);
             while ( iss >> id ) {
                 bool found = false;
                 bool inside = false; // does the id starts with a '-' or a '+' ?
-                if ( ( id[0] == '-' ) || ( id[0] == '+' ) ) {
-                    inside = ( id[0] == '-' );
-                    id = id.substr(1, id.size());
-                } else if ( id == "shared" ) {
+                if ((id[0]=='-') || (id[0]=='+')) {
+                    inside = id[0]=='-';
+                    id = id.substr(1,id.size());
+                } else if (id=="shared") {
                     std::cerr << "(DEPRECATED) Keyword shared is useless. Please consider updating your geometry file to the new format 1.1 (see data/README.rst): " << geometry << std::endl;
                     break;                    
                 }
-                for ( Interfaces::iterator iit = interfaces.begin(); iit != interfaces.end() ; ++iit) {
-                    if ( iit->name() == id ) {
+                for (Interfaces::iterator iit=interfaces.begin(); iit!=interfaces.end(); ++iit) {
+                    if (iit->name()==id) {
                         found = true;
-                        if ( !iit->check() ) { // check and correct global orientation
+                        if (!iit->check() ) { // check and correct global orientation
                             std::cerr << "Interface \"" << iit->name() << "\" is not closed !" << std::endl;
                             std::cerr << "Please correct a mesh orientation when defining the interface in the geometry file." << std::endl;
                             exit(1);
                         }
-                        domain.push_back(HalfSpace(*iit, inside));
+                        domain.push_back(HalfSpace(*iit,inside));
                     }
                 }
                 if (!found)
