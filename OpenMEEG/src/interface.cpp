@@ -37,9 +37,11 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#include <interface.h>
 #include <algorithm>
 #include <ciso646>
+
+#include <boundingbox.h>
+#include <interface.h>
 
 namespace OpenMEEG {
 
@@ -61,77 +63,63 @@ namespace OpenMEEG {
         }
     }
 
-    /// compute the solid-angle which should be +/-4 * Pi for a closed mesh if p is inside, 0 if p is outside
+    /// Compute the solid angle which should be +/-4 * Pi for a closed mesh if p is inside
+    /// (the sign depends on the interface orientation), and 0 if p is outside.
+
     double Interface::solid_angle(const Vect3& p) const {
         double solangle = 0.0;
-        for ( Interface::const_iterator omit = begin(); omit != end(); ++omit) {
-                solangle += omit->orientation() * omit->mesh().solid_angle(p);
-        }
+        for (const auto& omesh : *this)
+            solangle += omesh.orientation()*omesh.mesh().solid_angle(p);
         return solangle;
     }
 
     void Interface::set_to_outermost() {
-        for ( Interface::iterator omit = begin(); omit != end(); ++omit) {
-            omit->mesh().outermost() = true;
-        }
+        for (auto& omesh : *this)
+            omesh.mesh().outermost() = true;
         outermost_ = true;
     }
 
     /// Check the global orientation: that the triangles are correctly oriented (outward-pointing normal)
 
     bool Interface::check(const bool checked) {
-        /// compute the bounding box:
-        double xmin = std::numeric_limits<double>::max();
-        double ymin = std::numeric_limits<double>::max();
-        double zmin = std::numeric_limits<double>::max();
-        double xmax = -std::numeric_limits<double>::max();
-        double ymax = -std::numeric_limits<double>::max();
-        double zmax = -std::numeric_limits<double>::max();
 
-        for ( Interface::const_iterator omit = begin(); omit != end(); ++omit) {
-            for (const auto& vertex : omit->mesh().vertices()) {
-                xmin = std::min(xmin,vertex->x());
-                ymin = std::min(ymin,vertex->y());
-                zmin = std::min(zmin,vertex->z());
-                xmax = std::max(xmax,vertex->x());
-                ymax = std::max(ymax,vertex->y());
-                zmax = std::max(zmax,vertex->z());
-            }
-        }
-        
-        Vect3 bbmin(xmin, ymin, zmin);
-        Vect3 bbmax(xmax, ymax, zmax);
-        Vect3 bbcenter = 0.5 * (bbmin + bbmax);
+        /// compute the bounding box:
+
+        BoundingBox bb;
+        for (const auto& omesh : *this)
+            for (const auto& vertex : omesh.mesh().vertices())
+                bb.add(vertex);
+
+        const Vect3& bbcenter = bb.center();
 
         // TODO if solidangle returns 0, then the center of BB is not inside, and thus we should randomly choose another inside point until solid_anlge gives + or -4 PI ?
         // else it causes a strange phenomenon for symmetric model, the point chosen for interface Cortex {north and south}, is on the surface...
         // compute the solid-angle from an inside point:
+
         double solangle = solid_angle(bbcenter);
         bool closed;
 
-        //if the bounding box center is not inside the interface,
-        //we try to test another point inside the bounding box.
-        if ( almost_equal(solangle, 0.)) {
+        //  If the bounding box center is not inside the interface,
+        //  we try to test another point inside the bounding box.
+
+        if (almost_equal(solangle,0.)) {
             //std::cout<<"bbcenter is not inside interface: "<<name_<<std::endl;
-            if ( not checked)
+            if (not checked)
                 std::srand((unsigned int)std::time(NULL));
             else
                 std::srand((unsigned int)(std::time(NULL)+3583)); //the program runs faster than the change of time value
 
-            while ( almost_equal(solangle, 0.) ) {
-                Vect3 pt_rd((double)rand()/RAND_MAX*(xmax-xmin)+xmin,
-                            (double)rand()/RAND_MAX*(ymax-ymin)+ymin,
-                            (double)rand()/RAND_MAX*(zmax-zmin)+zmin);
-                //std::cout<<"\ttest random point("<<pt_rd<<")\n";
-                solangle = solid_angle(pt_rd);
+            while (almost_equal(solangle,0.)) {
+                const Vertex& V = bb.random_point();
+                solangle = solid_angle(V);
             }
         }
 
-        if ( almost_equal(solangle, 0.) ) {
+        if (almost_equal(solangle,0.)) {
             closed = true;
-        } else if ( almost_equal(solangle, -4.*M_PI)) {
+        } else if (almost_equal(solangle,-4.*M_PI)) {
             closed = true;
-        } else if ( almost_equal(solangle, 4.*M_PI) ) {
+        } else if (almost_equal(solangle,4.*M_PI)) {
             // TODO we still have to reorient the interface, but the code should be able with very little work to
             // be insensitive to global orientation of the interfaces, until that day, we reorient:
             std::cout << "Global reorientation of interface " << name() << std::endl;
