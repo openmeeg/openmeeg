@@ -255,6 +255,10 @@ namespace OpenMEEG {
 // extensions
 // /////////////////////////////////////////////////////////////////
 
+// OpenMEEG
+%ignore OpenMEEG::Filetype;
+
+// OpenMEEG/Vertex
 %extend OpenMEEG::Vertex {
     // TODO almost.. if I do: v.index() I get:
     // <Swig Object of type 'unsigned int *' at 0x22129f0>
@@ -284,6 +288,7 @@ namespace OpenMEEG {
 
 }
 
+// OpenMEEG::Triangle
 %extend OpenMEEG::Triangle{
         // TODO almost.. if I do: t.index() I get:
         // <Swig Object of type 'unsigned int *' at 0x22129f0>
@@ -297,6 +302,7 @@ namespace OpenMEEG {
         }
 }
 
+// OpenMEEG::Vector
 %extend OpenMEEG::Vector {
     Vector(PyObject *o) {
         return new_OpenMEEG_Vector(o);
@@ -323,6 +329,7 @@ namespace OpenMEEG {
     }
 }
 
+// OpenMEEG::Matrix
 %extend OpenMEEG::Matrix {
     Matrix(PyObject *o) {
         return new_OpenMEEG_Matrix(o);
@@ -353,6 +360,7 @@ namespace OpenMEEG {
     }
 }
 
+// OpenMEEG::Mesh
 %ignore OpenMEEG::Mesh::name(); // ignore non const name() method
 
 %extend OpenMEEG::Mesh{
