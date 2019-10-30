@@ -164,7 +164,7 @@ namespace OpenMEEG {
 
     const Domain& Geometry::domain(const Vect3& p) const {
         for (const auto& domain : domains())
-            if (domain.contains_point(p))
+            if (domain.contains(p))
                 return domain;
 
         // Should never append
@@ -387,24 +387,26 @@ namespace OpenMEEG {
         return OK;
     }
 
+    //  TODO: find a better name check_dipoles_in_inner_layer ?
+    //  TODO: Introduce a Dipoles class.
+
     bool Geometry::check_inner(const Matrix& mat) const {
-        bool OK = true;
+
         if (!is_nested()) {
             std::cerr << "Dipoles are only allowed when geometry is nested." << std::endl;
-            OK = false;
+            return false;
         };
+
         const Interface& interface = innermost_interface();
-        int n_outside = 0;
-        for (int i=0; i < mat.nlin(); i++) {
-            if (!interface.contains_point(Vect3(mat(i, 0), mat(i, 1), mat(i, 2)))) {
-                n_outside += 1.;
-            };
-        };
-        if (n_outside > 0) {
-            std::cerr << n_outside << " points are outside of the inner most compartment." << std::endl;
-            OK = false;
+        unsigned n_outside = 0;
+        for (int i=0; i<mat.nlin(); i++)
+            if (!interface.contains(Vect3(mat(i,0),mat(i,1),mat(i,2))))
+                ++n_outside;
+        if (n_outside!=0) {
+            std::cerr << n_outside << " points are outside of the inner compartment." << std::endl;
+            return false;
         }
-        return OK;
+        return true;
     }
 
     void Geometry::import_meshes(const Meshes& m) {
