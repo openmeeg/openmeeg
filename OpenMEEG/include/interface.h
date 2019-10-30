@@ -90,7 +90,7 @@ namespace OpenMEEG {
 
         bool contains_point(const Vect3& p) const; ///< \param p a point \return true if point is inside interface
 
-        bool check(bool checked = false); ///< Check the global orientation
+        bool is_mesh_orientations_coherent(const bool doublechecked=false); ///< Check the global orientation
 
         /// \return the total number of the interface vertices
 
@@ -129,6 +129,7 @@ namespace OpenMEEG {
         bool        outermost_; ///< tell weather or not the interface touches the Air (Outermost) Domain.
     };
 
-    /// A vector of Interface is called Interfaces
+    /// A vector of Interface is called Interfaces.
+
     typedef std::vector<Interface> Interfaces;
 }
