@@ -35,15 +35,28 @@ test_mesh("3",Vertices,np.array([0,1,2]),False)
 test_mesh("4",BadVertices,Triangles,False)
 test_mesh("5",Vertices,BadTriangles,False)
 
-# test 6 -> should be OK
+BadVertices = np.array([0.0,0.0])
+test_mesh("6",BadVertices,Triangles,False)
+
+BadTriangles = np.array([1,2,3])
+test_mesh("7",Vertices,BadTriangles,False)
+
+Triangles = np.array([[1,2,3],[2,3,0]], dtype = np.uint64)
+test_mesh("8",Vertices,Triangles,True)
+
+Triangles = np.array([[1,2,3],[2,3,0]], dtype = np.int64)
+test_mesh("9",Vertices,Triangles,True)
+
+# test X -> should be OK
 # TODO: Does not work if not jls....
 test_dir  = os.path.dirname(os.path.abspath(__file__))
 data_file = os.path.join(test_dir,"..","..","..","data/Head1/Head1.tri")
-mesh_6 = om.Mesh()
-mesh_6.load(data_file)
+mesh_X = om.Mesh()
+mesh_X.load(data_file)
+mesh_X.update()
 
-# test 7 -> redo with np.array()
-V6 = mesh_6.vertices()
+# test Y -> redo with np.array()
+V_Y = mesh_X.vertices()
 #T6 = mesh_6.triangles()
 #mesh_7 = om.Mesh(V6, T6)
 #mesh_7.info()
