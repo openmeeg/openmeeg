@@ -1,136 +1,46 @@
 #!/usr/bin/env python
 
-#
-import sys
-import os
+import sys,os
 import openmeeg as om
 import numpy as np
 
-# test 1 -> should be OK
-V1_OK = np.array(
-    [
-        [ 0.0 ,  0.0,  0.0 ],
-        [ 1.0 ,  0.0,  0.0 ],
-        [ 1.0 ,  1.0,  0.0 ],
-        [ 0.0 ,  1.0,  0.0 ]
-    ]
-)
-T1_OK = np.array(
-    [
-        [ 1, 2, 3],
-        [ 2, 3, 0]
-    ],
-    dtype = np.uint64
-)
-trap = False
-try:
-    print("== Test 1")
-    mesh_1 = om.Mesh(V1_OK, T1_OK)
-    mesh_1.update()
-    mesh_1.info()
-except:
-    # should not reach this line
-    trap = True
-assert trap == False
+def test_mesh(name,Vs,Ts,ExpectedResult):
+    try:
+        mesh = om.Mesh(Vs,Ts)
+        mesh.update()
+        mesh.info()
+    except:
+        if ExpectedResult:
+            print("Test",name,"--> Failed")
+            assert False
+        else:
+            print("Test",name,"--> Expected failure")
+        return
+    if not ExpectedResult:
+        print("Test",name,"--> Unexpected success")
+        assert False
+    print("Test",name,"--> Expected success")
 
-# test 1 bis -> should be OK too
-V_OK = np.array(
-    [
-        [ 0.0 ,  0.0,  0.0 ],
-        [ 1.0 ,  0.0,  0.0 ],
-        [ 1.0 ,  1.0,  0.0 ],
-        [ 0.0 ,  1.0,  0.0 ]
-    ]
-)
-T_OK = np.array(
-    [
-        [ 1, 2, 3],
-        [ 2, 3, 0]
-    ],
-    dtype = np.int64
-)
-trap = False
-try:
-    print("== Test 1 bis")
-    mesh_1 = om.Mesh(V_OK, T_OK)
-    mesh_1.update()
-    mesh_1.info()
-except:
-    # should not reach this line
-    trap = True
-assert trap == False
+Vertices  = np.array([[0.0,0.0,0.0],[1.0,0.0,0.0],
+                     [1.0,1.0,0.0],[0.0,1.0,0.0]])
+Triangles = np.array([[1,2,3],[2,3,0]])
 
-# test 2 -> should send a PyError
-trap = False
-V_BAD = np.array(
-        [ 0.0 ,  0.0,  0.0 ]
-)
-try:
-    print("== Test 2")
-    mesh_2 = om.Mesh(V_BAD, T_OK)
-    # should not reach this line
-except:
-    print("PyError trapped => OK")
-    trap = True
-assert trap == True
+BadVertices = np.array([[0.0,0.0],    [1.0,0.0,0.0],
+                        [1.0,1.0,0.0],[0.0,1.0,0.0]])
+BadTriangles = np.array([[1,2  ],[0,1,2]])
 
-# test 3 -> should send a PyError
-trap = False
-T_BAD = np.array(
-        [ 0 ,  1,  2 ]
-)
-try:
-    print("== Test 3")
-    mesh_3 = om.Mesh(V_OK, T_BAD)
-    # should not reach this line
-except:
-    print("PyError trapped => OK")
-    trap = True
-assert trap == True
-
-# test 4 -> should send a PyError
-trap = False
-V_BAD = np.array(
-    [
-        [ 0.0 ,  0.0       ],
-        [ 1.0 ,  0.0,  0.0 ],
-        [ 1.0 ,  1.0,  0.0 ],
-        [ 0.0 ,  1.0,  0.0 ]
-    ]
-)
-try:
-    print("== Test 4")
-    mesh_4 = om.Mesh(V_BAD, T_OK)
-    # should not reach this line
-except:
-    print("PyError trapped => OK")
-    trap = True
-assert trap == True
-
-# test 5 -> should send a PyError
-trap = False
-T_BAD = np.array(
-    [
-        [ 1 ,  2     ],
-        [ 0 ,  1,  2 ]
-    ]
-)
-try:
-    print("== Test 5")
-    mesh_4 = om.Mesh(V_OK, T_BAD)
-    # should not reach this line
-except:
-    print("PyError trapped => OK")
-    trap = True
-assert trap == True
+test_mesh("1",Vertices,Triangles,True);
+test_mesh("2",np.array([0.0,0.0,0.0]),Triangles,False)
+test_mesh("3",Vertices,np.array([0,1,2]),False)
+test_mesh("4",BadVertices,Triangles,False)
+test_mesh("5",Vertices,BadTriangles,False)
 
 # test 6 -> should be OK
+# TODO: Does not work if not jls....
 test_dir  = os.path.dirname(os.path.abspath(__file__))
-data_file = os.path.join( test_dir , "..", "..", "..", "data", "Head1" , "Head1.tri" )
+data_file = os.path.join(test_dir,"..","..","..","data/Head1/Head1.tri")
 mesh_6 = om.Mesh()
 mesh_6.load(data_file)
-mesh_6.update()
-mesh_6.info()
 
 # test 7 -> redo with np.array()
 V6 = mesh_6.vertices()
