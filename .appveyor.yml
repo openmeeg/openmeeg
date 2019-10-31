@@ -87,8 +87,7 @@ install:
   # Install Conda
   ############################################################################
   - conda config --add channels conda-forge
-  - conda config --add channels massich
-  - conda install --yes matio-cmake
+  - conda install matio-cmake -c massich --yes
   - set LIBRARY_LIB=C:\conda\Library\lib
   - copy /y %LIBRARY_LIB%\zlibstatic.lib %LIBRARY_LIB%\z.lib
   # force to pick zlibstatic in order to create proper wheels
