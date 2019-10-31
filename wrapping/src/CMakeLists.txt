@@ -84,6 +84,7 @@ install(FILES  ${OpenMEEG_BINARY_DIR}/wrapping/src/openmeeg.py
         PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ)
 
 set(PYTHON_TEST_FILES
+  "test_geom.py"
   "test_matrix.py"
   "test_mesh.py"
   "test_sensors.py"
