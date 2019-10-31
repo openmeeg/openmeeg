@@ -121,7 +121,7 @@ namespace OpenMEEG {
 }
 
 %typemap(out) PVertices & {
-        std::cerr << "Calling TYPEMAP OUT PVertices &" << std::endl;
+        std::cerr << "Calling TYPEMAP OUT PVertices & (NOT IMPLEMENTED)" << std::endl;
 }
 
 %typemap(out) Mesh::VectPVertex &  {
@@ -161,6 +161,31 @@ namespace OpenMEEG {
     %typedef std::vector<std::string>    Strings;
 }
 
+namespace OpenMEEG
+{
+  %naturalvar Mesh;
+  class Mesh;
+
+  %naturalvar Meshes;
+  class Meshes;
+
+  %naturalvar Matrix;
+  class Matrix;
+
+  %naturalvar Triangle;
+  class Triangle;
+
+  %naturalvar Vect3;
+  class Vect3;
+
+  %naturalvar Vertex;
+  class Vertex;
+
+  %naturalvar Vector;
+  class Vector;
+}
+
+
 // /////////////////////////////////////////////////////////////////
 // Typemaps
 // /////////////////////////////////////////////////////////////////
@@ -191,7 +216,7 @@ OpenMEEG::Vector *new_OpenMEEG_Vector(PyObject *o) {
     return out;
 }
 
-// Creator of Vector from PyArrayObject or Matrix
+// Creator of Matrix from PyArrayObject or Matrix
 OpenMEEG::Matrix *new_OpenMEEG_Matrix(PyObject *o) {
     OpenMEEG::Matrix *out = nullptr;
     if (PyArray_Check(o)) {
@@ -218,33 +243,31 @@ OpenMEEG::Matrix *new_OpenMEEG_Matrix(PyObject *o) {
     }
     return out;
 }
+
 %}
 
 namespace OpenMEEG {
 
     // Python -> C++
 %typemap(in) Vector& {
+        //std::cerr << "CALLING typemap(in) Vector&" << std::endl;
         $1 = new_OpenMEEG_Vector($input);
 }
 
 %typemap(freearg) Vector& {
+        //std::cerr << "CALLING typemap(freearg) Vector&" << std::endl;
         if ($1) delete $1;
 }
 
 %typemap(in) Matrix& {
+        //std::cerr << "CALLING typemap(in) Matrix&" << std::endl;
         $1 = new_OpenMEEG_Matrix($input);
 }
 
 %typemap(freearg) Matrix& {
+        //std::cerr << "CALLING typemap(freearg) Matrix&" << std::endl;
         if ($1) delete $1;
 }
-
-#if 0
-%typemap(in) Vertex& {
-        std::cerr << "CALLING " << $input << std::endl;
-        //$1 = *($input);
-}
-#endif //0
 
 }
 
