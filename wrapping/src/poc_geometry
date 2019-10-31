@@ -1,0 +1,65 @@
+#!/usr/bin/env python3
+#
+#
+#
+
+import openmeeg as om
+
+from enum import Enum, auto
+class Orientation(Enum):
+    Normal   = auto()
+    Opposite = auto()
+
+class Side(Enum):
+    In     = auto()
+    Out    = auto()
+
+#
+# build a geometry with given domains list
+#
+def make_geometry( domains_array ):
+    for i in range(len(domains_array)):
+        for dname in domains_array[i]:
+            print("Domain: " + dname)
+
+            for j in range(len(domains_array[i][dname][0])):
+                print("- interface: " + str(j))
+
+                for k in range(len(domains_array[i][dname][0][j][0])):
+                    print("  - mesh       : " + domains_array[i][dname][0][j][0][k][0].name())
+                    print("    " + str(len(domains_array[i][dname][0][j][0][k][0].vertices())) + " vertices")
+                    print("    " + str(len(domains_array[i][dname][0][j][0][k][0].triangles())) + " triangles")
+                    print("  - orientation: " + str(domains_array[i][dname][0][j][0][k][1]))
+
+                print("- direction: " + str(domains_array[i][dname][0][j][1]))
+            print("- conductivity: " + str(domains_array[i][dname][1]))
+            print()
+
+    g = om.Geometry()
+    return g
+
+#
+# MIMICS Head1.geom + Head1.cond
+#
+m_cort = om.Mesh( "/Users/jls/Development/athena/openmeeg/data/Head1/cortex.1.tri")
+m_skul = om.Mesh( "/Users/jls/Development/athena/openmeeg/data/Head1/skull.1.tri")
+m_scal = om.Mesh( "/Users/jls/Development/athena/openmeeg/data/Head1/scalp.1.tri")
+
+# should be possible
+#interface1 = [ (m1, Orientation.Normal), ( m2, Orientation.Opposite), ( m3, Orientation.Normal)]
+
+interface1 = [ (m_cort, Orientation.Normal) ,(m_cort, Orientation.Normal) ]
+interface2 = [ (m_skul, Orientation.Normal) ]
+interface3 = [ (m_scal, Orientation.Normal) ]
+
+domains = {
+    "Scalp" : ( [ (interface2, Side.Out) , (interface3, Side.In) ] , 1.0 ) ,
+    "Brain" : ( [ (interface1, Side.In) ] , 1.0),
+    "Air"   : ( [ (interface3, Side.Out) ] , 0.0),
+    "Skull" : ( [ (interface2, Side.In) , (interface1, Side.Out) ] , 0.0125)
+}
+
+g1 = make_geometry( [ domains ] );
+g2 = om.Geometry()
+
+assert g1.__class__ == g2.__class__
