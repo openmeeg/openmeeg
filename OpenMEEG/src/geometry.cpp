@@ -186,16 +186,6 @@ namespace OpenMEEG {
         throw OpenMEEG::BadDomain(name);
     }
 
-    double Geometry::sigma(const std::string& name) const {
-        try {
-            const Domain& dom = domain(name);
-            return dom.conductivity();
-        } catch(...) {
-            warning(std::string("Geometry::sigma: Domain id/name \"")+name+std::string("\" not found."));
-            return 0.;
-        }
-    }
-
     void Geometry::read_geometry_file(const std::string& filename) {
          GeometryReader geoR(*this);
          try {
