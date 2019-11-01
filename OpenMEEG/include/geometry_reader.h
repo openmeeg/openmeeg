@@ -320,7 +320,7 @@ namespace OpenMEEG {
                             std::cerr << "Please correct a mesh orientation when defining the interface in the geometry file." << std::endl;
                             exit(1);
                         }
-                        domain.boundaries().push_back(HalfSpace(omesh,inside));
+                        domain.boundaries().push_back(SimpleDomain(omesh,inside));
                     }
 
                 if (!found)

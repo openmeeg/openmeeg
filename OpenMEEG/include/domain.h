@@ -44,26 +44,27 @@ knowledge of the CeCILL-B license and that you accept its terms.
 /// A domain is the association of a name and a vector of pairs.
 /// The first element of each pair corresponds to an interface.
 /// The second element of each pair states whether the domain is contains in the
-/// inside or the ouside of the volume bounded by the interface.
+/// inside or the outside of the volume bounded by the interface.
 
 #include <string>
 #include <interface.h>
 
 namespace OpenMEEG {
 
-    /// \brief a HalfSpace is a pair of Interface and boolean 
-    /// A simple domain (HalfSpace) is given by an interface (of type Interface) identifying a closed surface and a side information.
-    /// The closed surface split the space into two components. The side depicts which of these two components is the simple domain.
+    /// \brief a SimpleDomain is a pair of an Interface and a boolean.
+    /// A simple domain (SimpleDomain) is given by an interface (of type Interface) identifying
+    /// a closed surface and a side information. The closed surface/interface splits the space
+    /// into two components. The side depicts which of these two components is the simple domain.
 
-    class HalfSpace: private std::pair<Interface,bool> {
+    class SimpleDomain: private std::pair<Interface,bool> {
 
         typedef std::pair<Interface,bool> base;
 
     public:
 
-         HalfSpace() { }
-         HalfSpace(Interface& interf,const bool ins): base(interf,ins) { }
-        ~HalfSpace() { }
+         SimpleDomain() { }
+         SimpleDomain(Interface& interf,const bool ins): base(interf,ins) { }
+        ~SimpleDomain() { }
 
               Interface& interface()       { return this->first;  }
         const Interface& interface() const { return this->first;  }
@@ -71,14 +72,14 @@ namespace OpenMEEG {
         bool inside() const { return this->second; }
     };
 
-    /// \brief a Domain is a vector of HalfSpace
-    /// A Domain is the intersection of simple domains (of type HalfSpace).
+    /// \brief a Domain is a vector of SimpleDomain
+    /// A Domain is the intersection of simple domains (of type SimpleDomain).
     /// In addition the domain is named and has a conductivity.
 
     class OPENMEEG_EXPORT Domain {
     public:
 
-        typedef std::vector<HalfSpace> Boundaries;
+        typedef std::vector<SimpleDomain> Boundaries;
 
          Domain() { }
         ~Domain() { }
