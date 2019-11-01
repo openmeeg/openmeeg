@@ -87,13 +87,13 @@ namespace OpenMEEG {
 
         /// The name of the domain.
 
-              std::string& name()            { return name_; }
-        const std::string& name()      const { return name_; }
+              std::string& name()            { return domain_name; }
+        const std::string& name()      const { return domain_name; }
         
         /// The conductivity of the domain.
 
-              double& sigma()       { return sigma_; }
-        const double& sigma() const { return sigma_; }
+              double& sigma()       { return cond; }
+        const double& sigma() const { return cond; }
 
         /// Print information about the domain.
         /// \param outermost specifies if the domain is the outer domain
@@ -117,8 +117,8 @@ namespace OpenMEEG {
 
     private:
 
-        std::string name_      = "";    ///< Name of the domain.
-        double      sigma_     = -1.0;  ///< Conductivity of the domain.
+        std::string domain_name = "";   ///< Name of the domain.
+        double      cond        = -1.0; ///< Conductivity of the domain.
     };
 
     /// A vector of Domain is called Domains
