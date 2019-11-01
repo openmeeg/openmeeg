@@ -112,7 +112,7 @@ namespace OpenMEEG {
 
         void import_meshes(const Meshes& m); ///< \brief imports meshes from a list of meshes
 
-        const double& sigma(const Domain& d)              const { return (d.sigma()); }
+        const double& sigma(const Domain& d)              const { return (d.conductivity()); } // This has no interest !!!
         double sigma     (const Mesh& m1, const Mesh& m2) const { return funct_on_domains(m1, m2, IDENTITY); }  // return the (sum) conductivity(ies) of the shared domain(s).
         double sigma_inv (const Mesh& m1, const Mesh& m2) const { return funct_on_domains(m1, m2, INVERSE); }   // return the (sum) inverse of conductivity(ies) of the shared domain(s).
         double indicator (const Mesh& m1, const Mesh& m2) const { return funct_on_domains(m1, m2, INDICATOR); } // return the (sum) indicator function of the shared domain(s).

@@ -51,7 +51,7 @@ namespace OpenMEEG {
     void Domain::info(const bool outermost) const {
 
         std::cout << "Info:: Domain name : "  << name() << std::endl;
-        std::cout << "\t\tConductivity : "    << sigma() << std::endl;
+        std::cout << "\t\tConductivity : "    << conductivity() << std::endl;
         std::cout << "\t\tComposed by interfaces : ";
         for (const auto& halfspace : *this) {
             std::cout << ((halfspace.inside()) ? '-' : '+');

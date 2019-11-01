@@ -189,7 +189,7 @@ namespace OpenMEEG {
     double Geometry::sigma(const std::string& name) const {
         try {
             const Domain& dom = domain(name);
-            return dom.sigma();
+            return dom.conductivity();
         } catch(...) {
             warning(std::string("Geometry::sigma: Domain id/name \"")+name+std::string("\" not found."));
             return 0.;
@@ -222,7 +222,7 @@ namespace OpenMEEG {
                 try {
                     std::cerr << "Setting conductivuty of domain: " << domain.name() << std::endl;
                     const Conductivity<double>& cond = properties.find(domain.name());
-                    domain.sigma() = cond.sigma();
+                    domain.conductivity() = cond.sigma();
                 } catch (const Utils::Properties::UnknownProperty<HeadProperties::Id>& e) {
                     throw OpenMEEG::BadDomain(domain.name());
                 }
@@ -312,10 +312,10 @@ namespace OpenMEEG {
         for (Domains::iterator dit = doms.begin(); dit != doms.end(); ++dit) {
             switch (f) {
                 case IDENTITY:
-                    ans += dit->sigma();
+                    ans += dit->conductivity();
                     break;
                 case INVERSE:
-                    ans += 1./dit->sigma();
+                    ans += 1./dit->conductivity();
                     break;
                 case INDICATOR:
                     ans += 1.;
@@ -334,7 +334,7 @@ namespace OpenMEEG {
         Domains doms = common_domains(m,m); // Get the 2 domains surrounding mesh m
         double  ans  = 0.;
         for (auto& domain : doms)
-            ans += domain.sigma()*domain.mesh_orientation(m);
+            ans += domain.conductivity()*domain.mesh_orientation(m);
         return ans;
     }
 
@@ -519,7 +519,7 @@ namespace OpenMEEG {
         // find isolated meshes and touch 0-cond meshes;
         std::set<std::string> touch_0_mesh;
         for (Domains::iterator dit = domains_.begin(); dit != domains_.end(); ++dit) {
-            if (almost_equal(dit->sigma(),0.0)) {
+            if (almost_equal(dit->conductivity(),0.0)) {
                 for (Domain::iterator hit = dit->begin(); hit != dit->end(); ++hit) {
                     for (Interface::iterator omit = hit->first.begin(); omit != hit->first.end(); ++omit) {
                         omit->mesh().current_barrier() = true;
@@ -563,7 +563,7 @@ namespace OpenMEEG {
         //the inside of a 0-cond domain is considered as a new outermost
 
         for (auto& domain : domains())
-            if (almost_equal(domain.sigma(),0.0))
+            if (almost_equal(domain.conductivity(),0.0))
                 for (auto& halfspace : domain)
                     if (!halfspace.inside())
                         for (auto& interface : halfspace.first)

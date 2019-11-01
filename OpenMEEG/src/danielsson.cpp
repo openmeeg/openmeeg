@@ -142,7 +142,7 @@ namespace OpenMEEG
         std::string name_nearest_interface;
 
         for(const auto& domain : g.domains())
-            if (domain.sigma()==0.0)
+            if (domain.conductivity()==0.0)
                 for (const auto& halfspace : domain) {
                     Triangle local_nearest_triangle;
                     const double distance = dist_point_interface(p,halfspace.interface(),alphas,local_nearest_triangle);

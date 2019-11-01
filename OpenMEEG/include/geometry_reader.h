@@ -361,7 +361,7 @@ namespace OpenMEEG {
         for (auto& domain : geom.domains())
             try {
                 const Conductivity<double>& cond = properties.find(domain.name());
-                domain.sigma() = cond.sigma();
+                domain.conductivity() = cond.sigma();
             } catch( const Utils::Properties::UnknownProperty<HeadProperties::Id>& e) {
                 throw OpenMEEG::BadDomain(domain.name());
             }
