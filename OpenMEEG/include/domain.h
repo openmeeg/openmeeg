@@ -105,6 +105,8 @@ namespace OpenMEEG {
 
         void info(const bool outermost=false) const;
 
+        bool contains(const Mesh& m) const { return mesh_orientation(m)!=0; }
+
         bool contains(const Vect3& point) const; ///< Does this point belongs to the domain ?
 
         /// \return 1 if the mesh is oriented towards the inside of the domain.

@@ -280,28 +280,12 @@ namespace OpenMEEG {
         }
     }
 
-    const Geometry::DomainsReference
-    Geometry::common_domains(const Mesh& m1,const Mesh& m2) const {
-        std::set<const Domain*> sdom1;
-        std::set<const Domain*> sdom2;
-        for (const auto& domain : domains()) {
-            if (domain.mesh_orientation(m1)!=0)
-                sdom1.insert(&domain);
-            if (domain.mesh_orientation(m2)!=0)
-                sdom2.insert(&domain);
-        }
-
-        DomainsReference doms;
-        std::set_intersection(sdom1.begin(),sdom1.end(),sdom2.begin(),sdom2.end(),std::back_inserter(doms));
-        return doms;
-    }
-
     /// \return a function (sum, difference, ...) of the conductivity(ies) of the shared domain(s).
     /// Make a template on f ??
 
     double Geometry::funct_on_domains(const Mesh& m1,const Mesh& m2,const Function& f) const {
         const DomainsReference& doms = common_domains(m1,m2);
-        double res = 0.;
+        double res = 0.0;
         for (const auto& domainptr : doms)
             switch (f) {
                 case IDENTITY:
@@ -322,10 +306,10 @@ namespace OpenMEEG {
 
     /// \return the difference of conductivities of the 2 domains.
 
-    double  Geometry::sigma_diff(const Mesh& m) const {
-        const DomainsReference& doms = common_domains(m,m);
-        double res  = 0.;
-        for (auto& domainptr : doms)
+    double Geometry::sigma_diff(const Mesh& m) const {
+        const DomainsReference& doms = domains(m);
+        double res = 0.0;
+        for (const auto& domainptr : doms)
             res += domainptr->conductivity()*domainptr->mesh_orientation(m);
         return res;
     }
