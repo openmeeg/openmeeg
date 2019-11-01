@@ -45,6 +45,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #include <string>
 #include <cmath>
+#include <random>
 #include <iostream>
 #include <sstream>
 #include <algorithm>
@@ -64,10 +65,12 @@ knowledge of the CeCILL-B license and that you accept its terms.
 namespace OpenMEEG {
 
     #ifndef M_PI
-        constexpr double M_PI = 3.14159265358979323846;
+        constexpr double PI = 3.14159265358979323846;
+    #else
+        constexpr double PI = M_PI;
     #endif
 
-    constexpr double MU0 = 4*M_PI*1e-7;
+    constexpr double MagFactor = 1e-7;
 
     inline std::string getNameExtension(const std::string& name) {
         const std::string::size_type idx = name.find('.');
@@ -78,28 +81,6 @@ namespace OpenMEEG {
         } else {
             return name.substr(idx+1);
         }
-    }
-
-    inline void init_random(const int seed) {
-        static bool first=true;
-        if (seed==-1 && !first)
-            return;
-        first = false;
-        // srand((unsigned int)((seed==-1)?time(0):seed));
-        srand(0);
-        rand(); // the first is biased!
-    }
-
-    inline double drandom() {
-        init_random(-1);
-        return double(rand())/RAND_MAX;
-    }
-
-    inline double gaussian() {
-        double x = 0.0;
-        while (x==0)
-            x = drandom();
-        return static_cast<double>(sqrt(-2*log(x))*cos(2*M_PI*drandom()));
     }
 
     inline void disp_argv(const int argc,char **argv) {

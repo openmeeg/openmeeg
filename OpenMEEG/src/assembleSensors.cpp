@@ -187,7 +187,7 @@ namespace OpenMEEG {
                 const double norm_diff = diff.norm();
                 const Vect3 fergusonField = q ^ diff / (norm_diff * norm_diff * norm_diff);
                 const Vect3 direction(orientations(i,0),orientations(i,1),orientations(i,2));
-                mat(i,j) = dotprod(fergusonField,direction)*MU0/(4.0*M_PI*direction.norm());
+                mat(i,j) = dotprod(fergusonField,direction)*MagFactor/direction.norm();
             }
 
         mat = sensors.getWeightsMatrix()*mat; // Apply weights

@@ -306,7 +306,7 @@ namespace OpenMEEG {
 
     /// \return the difference of conductivities of the 2 domains.
 
-    double Geometry::sigma_diff(const Mesh& m) const {
+    double Geometry::conductivity_difference(const Mesh& m) const {
         const DomainsReference& doms = domains(m);
         double res = 0.0;
         for (const auto& domainptr : doms)
