@@ -60,6 +60,8 @@ namespace OpenMEEG {
     class OPENMEEG_EXPORT Geometry {
     public:
 
+        typedef std::vector<const Domain*> DomainsReference;
+
         /// Constructors
 
         Geometry() {}
@@ -94,6 +96,16 @@ namespace OpenMEEG {
 
               Domains& domains()       { return domains_; }
         const Domains& domains() const { return domains_; }
+
+        /// \brief  Return the list of domains containing a mesh.
+
+        DomainsReference domains(const Mesh& m) const {
+            DomainsReference result;
+            for (const auto& domain : domains())
+                if (domain.contains(m))
+                    result.push_back(&domain);
+            return result;
+        }
 
         size_t nb_parameters() const { return size_; } ///< \brief the total number of vertices + triangles
 
@@ -162,8 +174,6 @@ namespace OpenMEEG {
 
         typedef enum { IDENTITY, INVERSE, INDICATOR } Function;
 
-        typedef std::vector<const Domain*> DomainsReference;
-
         void clear() {
             vertices_.clear();
             meshes_.clear();
@@ -189,7 +199,13 @@ namespace OpenMEEG {
 
         void  generate_indices(const bool);
 
-        const DomainsReference common_domains(const Mesh&,const Mesh&) const;
+        DomainsReference common_domains(const Mesh& m1,const Mesh& m2) const {
+            const DomainsReference& doms1 = domains(m1);
+            const DomainsReference& doms2 = domains(m2);
+            DomainsReference doms;
+            std::set_intersection(doms1.begin(),doms1.end(),doms2.begin(),doms2.end(),std::back_inserter(doms));
+            return doms;
+        }
 
         double funct_on_domains(const Mesh&,const Mesh&,const Function&) const; //  TODO: rename...
 
