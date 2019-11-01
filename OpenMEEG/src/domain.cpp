@@ -43,29 +43,29 @@ namespace OpenMEEG {
 
     bool Domain::contains(const Vect3& p) const {
         bool inside = true;
-        for (Domain::const_iterator hit=begin();hit!=end();++hit)
-            inside = (inside && (hit->interface().contains(p)==hit->inside()));
+        for (const auto& halfspace : *this)
+            inside = (inside && (halfspace.interface().contains(p)==halfspace.inside()));
         return inside;
     }
 
-    void Domain::info() const {
+    void Domain::info(const bool outermost) const {
 
         std::cout << "Info:: Domain name : "  << name() << std::endl;
         std::cout << "\t\tConductivity : "    << sigma() << std::endl;
         std::cout << "\t\tComposed by interfaces : ";
-        for (const_iterator hit=begin();hit!=end();++hit) {
-            std::cout << ((hit->inside()) ? '-' : '+');
-            std::cout << hit->interface().name() << " ";
+        for (const auto& halfspace : *this) {
+            std::cout << ((halfspace.inside()) ? '-' : '+');
+            std::cout << halfspace.interface().name() << " ";
         }
         std::cout << std::endl;
-        if (outermost())
+        if (outermost)
             std::cout << "\t\tConsidered as the outermost domain." << std::endl;
         
-        for (const_iterator hit=begin();hit!=end();++hit) {
-            std::cout << "\t\tInterface \"" << hit->interface().name() << "\"= { ";
-            for (Interface::const_iterator omit=hit->interface().begin();omit!=hit->interface().end();++omit) {
-                std::cout << "mesh \""<< omit->mesh().name() << "\"";
-                if (omit->mesh().outermost())
+        for (const auto& halfspace : *this) {
+            std::cout << "\t\tInterface \"" << halfspace.interface().name() << "\"= { ";
+            for (const auto& oriented_mesh : halfspace.interface()) {
+                std::cout << "mesh \""<< oriented_mesh.mesh().name() << "\"";
+                if (oriented_mesh.mesh().outermost())
                     std::cout << "(outermost)";
                 std::cout << ", ";
             }

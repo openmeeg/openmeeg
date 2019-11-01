@@ -44,10 +44,13 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 namespace OpenMEEG {
 
+    /// Search for the outermost domain.
+
     Domain&
     Geometry::outermost_domain() {
-        // Search for the outermost domain and set boolean OUTERMOST on the domain in the vector domains.
-        // An outermost domain is (here) defined as the only domain outside represented by only one interface.
+        // The outermost domain is defined as the domain which has no inside.
+        // This domain should be unique. Otherwise the decomposition of the geometry
+        // into domains is wrong. We assume here that it is correct.
 
         for (auto& domain : domains()) {
             bool outer = true;
@@ -92,7 +95,7 @@ namespace OpenMEEG {
     const Interface&
     Geometry::outermost_interface() const {
         for (const auto& domain : domains())
-            if (domain.outermost())
+            if (is_outermost(domain))
                 return domain.front().interface();
 
         // Should never append
@@ -139,7 +142,7 @@ namespace OpenMEEG {
             mesh.info();
 
         for (const auto& domain : domains())
-            domain.info();
+            domain.info(is_outermost(domain));
 
         if (verbose) {
             for (const auto& vertex : vertices())
@@ -193,48 +196,49 @@ namespace OpenMEEG {
         }
     }
 
-    void Geometry::read(const std::string& geomFileName, const std::string& condFileName, const bool OLD_ORDERING) {
-        // clear all first
-        vertices_.clear();
-        meshes_.clear();
-        domains_.clear();
+    void Geometry::read_geometry_file(const std::string& filename) {
+         GeometryReader geoR(*this);
+         try {
+            geoR.read_geom(filename);
+         } catch ( OpenMEEG::Exception& e) {
+            std::cerr << e.what() << " in the file " << filename << std::endl;
+             exit(e.code());
+         } catch (...) {
+            std::cerr << "Could not read the geometry file: " << filename << std::endl;
+             exit(1);
+         }
+    }
 
-        GeometryReader geoR(*this);
+    void Geometry::read_conductivity_file(const std::string& filename) {
         try {
-            geoR.read_geom(geomFileName);
-        } catch ( OpenMEEG::Exception& e) {
-            std::cerr << e.what() << " in the file " << geomFileName << std::endl;
+            typedef Utils::Properties::Named<std::string,Conductivity<double>> HeadProperties;
+            HeadProperties properties(filename.c_str());
+
+            // Store the internal conductivity of the external boundary of domain i
+            // and store the external conductivity of the internal boundary of domain i
+
+            std::cerr << domains().size() << " domains" << std::endl;
+            for (auto& domain : domains())
+                try {
+                    std::cerr << "Setting conductivuty of domain: " << domain.name() << std::endl;
+                    const Conductivity<double>& cond = properties.find(domain.name());
+                    domain.sigma() = cond.sigma();
+                } catch (const Utils::Properties::UnknownProperty<HeadProperties::Id>& e) {
+                    throw OpenMEEG::BadDomain(domain.name());
+                }
+        } catch (OpenMEEG::Exception& e) {
+            std::cerr << e.what() << " in the file " << filename << std::endl;
             exit(e.code());
         } catch (...) {
-            std::cerr << "Could not read the geometry file: " << geomFileName << std::endl;
+            std::cerr << "Could not read the conducitvity file: " << filename << std::endl;
             exit(1);
         }
-
-        if (condFileName != "") {
-            try {
-                geoR.read_cond(condFileName);
-            } catch ( OpenMEEG::Exception& e) {
-                std::cerr << e.what() << " in the file " << condFileName << std::endl;
-                exit(e.code());
-            } catch (...) {
-                std::cerr << "Could not read the conducitvity file: " << condFileName << std::endl;
-                exit(1);
-            }
-            has_cond_ = true;
-
-            // mark meshes that touch the 0-cond
-            mark_current_barrier();
-        }
-
-        // generate the indices of our unknowns
-        generate_indices(OLD_ORDERING);
-
-        // print info
-        info();
     }
 
     // This generates unique indices for vertices and triangles which will correspond to our unknowns.
+
     void Geometry::generate_indices(const bool OLD_ORDERING) {
+
         // Either unknowns (potentials and currents) are ordered by mesh (i.e. V_1, p_1, V_2, p_2, ...) (this is the OLD_ORDERING)
         // or by type (V_1, V_2, V_3 .. p_1, p_2...) (by DEFAULT)
         // or by the user himself encoded into the vtp file.
@@ -261,7 +265,9 @@ namespace OpenMEEG {
                     for (auto& triangle : mesh.triangles())
                         triangle.index() = index++;
             }
+
             // even the last surface triangles (yes for EIT... )
+
             nb_current_barrier_triangles_ = 0;
             for (auto& mesh : meshes())
                 if (mesh.current_barrier()) {
@@ -409,6 +415,39 @@ namespace OpenMEEG {
         return true;
     }
 
+    /// Determine whether the geometry is nested or not.
+
+    bool Geometry::check_geometry_is_nested() const {
+        // The geometry is considered non nested if:
+        // (at least) one domain is defined as being outside two or more interfaces OR....
+
+        bool nested = true;
+        for (const auto& domain : domains()) {
+            unsigned out_interface = 0;
+            if (!is_outermost(domain))
+                for (const auto& halfspace : domain)
+                    if (halfspace.inside())
+                        out_interface++;
+            if (out_interface>=2)
+                return false;
+        }
+
+        // ... if 2 interfaces are composed by a same mesh oriented into two different directions.
+
+        for (const auto& mesh : meshes()) {
+            unsigned m_oriented = 0;
+            for (const auto& domain : domains())
+                for (const auto& halfspace : domain)
+                    for (const auto& interface : halfspace.first)
+                        if (interface.mesh()==mesh)
+                            m_oriented += interface.orientation();
+            if (m_oriented==0)
+                return false;
+        }
+
+        return true;
+    }
+
     void Geometry::import_meshes(const Meshes& m) {
         meshes_.clear();
         vertices_.clear();
@@ -441,9 +480,10 @@ namespace OpenMEEG {
     }
 
     // mark all meshes which touch domains with 0 conductivity
-    void Geometry::mark_current_barrier() {
 
-        // figure out the connectivity of meshes
+    void Geometry::mark_current_barriers() {
+
+        // Figure out the connectivity of meshes
 
         std::vector<int> mesh_idx;
         for (unsigned i=0;i<meshes().size();++i)

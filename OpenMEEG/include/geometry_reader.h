@@ -328,48 +328,19 @@ namespace OpenMEEG {
             }
         }
 
+        // TODO: We should check the correct decomposition of the geometry into domains here.
+        // In a correct decomposition, each interface is used exactly once ?? Unsure...
         // Search for the outermost domain and set boolean OUTERMOST on the domain in the vector domains.
         // An outermost domain is (here) defined as the only domain outside represented by only one interface.
 
         Domain& outer_domain = geom.outermost_domain();
-        outer_domain.outermost() = true;
+        geom.set_outermost_domain(outer_domain);
+        //  TODO: Integrate this loop (if necessary) in set_outermost_domain...
         for (auto& halfspace : outer_domain)
             halfspace.interface().set_to_outermost();
 
-        // Determine if the geometry is nested or not.
-        // The geometry is considered non nested if (at least) one domain is defined as being outside
-        // two or more interfaces OR
-        // if 2 interfaces are composed by a same mesh oriented once correctly once wrongly.
-
-        bool nested = true;
-        for (const auto& domain : geom.domains()) {
-            unsigned out_interface = 0;
-            if (&domain!=&outer_domain)
-                for (const auto& halfspace : domain)
-                    if (halfspace.inside())
-                        out_interface++;
-            if (out_interface>=2) {
-                nested = false;
-                break;
-            }
-        }
-
-        if (nested) {
-            for (const auto& mesh : geom.meshes()) {
-                unsigned m_oriented = 0;
-                for (const auto& domain : geom.domains())
-                    for (const auto& halfspace : domain)
-                        for (const auto& interface : halfspace.first)
-                            if (interface.mesh()==mesh)
-                                m_oriented += interface.orientation();
-                if (m_oriented==0) {
-                    nested = false; // TODO unless a mesh is defined but unused ...
-                    break;
-                }
-            }
-            if (nested)
-                geom.set_nested();
-        }
+        if (geom.check_geometry_is_nested())
+            geom.set_nested();
 
         if ( ifs.fail() ) {
             throw OpenMEEG::WrongFileFormat(geometry);

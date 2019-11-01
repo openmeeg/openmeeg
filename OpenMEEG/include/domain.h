@@ -74,7 +74,7 @@ namespace OpenMEEG {
 
     /// \brief a Domain is a vector of HalfSpace
     /// A Domain is the intersection of simple domains (of type HalfSpace).
-    /// In addition the domain is named, has conductivity and a flag saying whether or not it is the outermost domain
+    /// In addition the domain is named and has a conductivity.
 
     class OPENMEEG_EXPORT Domain: public std::vector<HalfSpace> {
 
@@ -82,8 +82,7 @@ namespace OpenMEEG {
 
     public:
 
-        Domain(): name_(""), sigma_(-1.), outermost_(false) { }
-
+         Domain() { }
         ~Domain() { }
 
         /// The name of the domain.
@@ -93,21 +92,20 @@ namespace OpenMEEG {
         
         /// The conductivity of the domain.
 
-              double&      sigma()           { return sigma_; }
-        const double&      sigma()     const { return sigma_; }
+              double& sigma()       { return sigma_; }
+        const double& sigma() const { return sigma_; }
 
-        /// Returns the outermost state of the domain.
+        /// Print information about the domain.
+        /// \param outermost specifies if the domain is the outer domain
+        /// (the geometry knows this information).
 
-              bool&        outermost()       { return outermost_; }
-        const bool&        outermost() const { return outermost_; }
+        void info(const bool outermost=false) const;
 
-        void info() const; ///< print info about the domain
+        bool contains(const Vect3& point) const; ///< Does this point belongs to the domain ?
 
-        bool contains(const Vect3&) const; ///< Does this point belongs to the domain ?
-
-        /// \return 1 if the mesh is oriented toward the domain.
-        ///        -1 if not
-        ///         0 else (the mesh is not part of the domain boundary) */
+        /// \return 1 if the mesh is oriented towards the inside of the domain.
+        ///        -1 if the mesh is oriented towards the outsde of the domain.
+        ///         0 otherwise (the mesh is not part of the domain boundary).
 
         int mesh_orientation(const Mesh& m) const { 
             for (const auto& halfspace : *this)
@@ -119,9 +117,8 @@ namespace OpenMEEG {
 
     private:
 
-        std::string name_;      ///< Name of the domain.
-        double      sigma_;     ///< Conductivity of the domain.
-        bool        outermost_; ///< Is it an outermost domain
+        std::string name_      = "";    ///< Name of the domain.
+        double      sigma_     = -1.0;  ///< Conductivity of the domain.
     };
 
     /// A vector of Domain is called Domains
