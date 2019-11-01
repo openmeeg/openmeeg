@@ -45,27 +45,23 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 namespace OpenMEEG {
 
-    // geo = geometry 
-    // mat = storage for Ferguson Matrix
-    // pts = where the magnetic field is to be computed
-    // n   = numbers of places where magnetic field is to be computed
+    // geom = geometry 
+    // mat  = storage for Ferguson Matrix
+    // pts  = where the magnetic field is to be computed
 
-    void assemble_ferguson(const Geometry& geo,Matrix& mat,const Matrix& pts) {
+    void assemble_ferguson(const Geometry& geom,Matrix& mat,const Matrix& pts) {
 
         // Computation of blocks of Ferguson's Matrix
 
-        unsigned miit = 0; // for progressbar: mesh index iterator
-        for (const auto& mesh : geo.meshes()) {
-            unsigned offsetI = 0;
-            unsigned n = pts.nlin();
-            double coeff = geo.sigma_diff(mesh)*MU0/(4.*M_PI);
-            for (unsigned i=0; i<n; ++i) {
-                PROGRESSBAR(miit*n+i,geo.meshes().size()*n);
+        unsigned progress = 0;
+        for (const auto& mesh : geom.meshes()) {
+            const unsigned n = pts.nlin();
+            const double coeff = MagFactor*geom.conductivity_difference(mesh);
+            for (unsigned i=0,offsetI=0; i<n; ++i,offsetI+=3,++progress) {
+                PROGRESSBAR(progress,geom.meshes().size()*n);
                 const Vect3 p(pts(i,0),pts(i,1),pts(i,2));
                 operatorFerguson(p,mesh,mat,offsetI,coeff);
-                offsetI += 3;
             }
-            ++miit;
         }
     }
 }

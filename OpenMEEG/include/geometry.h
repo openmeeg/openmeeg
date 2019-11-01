@@ -127,8 +127,9 @@ namespace OpenMEEG {
         double sigma     (const Mesh& m1,const Mesh& m2) const { return funct_on_domains(m1,m2,IDENTITY); }  // return the (sum) conductivity(ies) of the shared domain(s).
         double sigma_inv (const Mesh& m1,const Mesh& m2) const { return funct_on_domains(m1,m2,INVERSE); }   // return the (sum) inverse of conductivity(ies) of the shared domain(s).
         double indicator (const Mesh& m1,const Mesh& m2) const { return funct_on_domains(m1,m2,INDICATOR); } // return the (sum) indicator function of the shared domain(s).
-        double sigma_diff(const Mesh& m) const; // return the difference of conductivities of the 2 domains.
-        int    oriented(const Mesh&, const Mesh&) const;
+        double conductivity_difference(const Mesh& m) const; // return the difference of conductivities of the 2 domains.
+
+        int    oriented(const Mesh&,const Mesh&) const;
 
         //  Calling this method read induces failures due do wrong conversions when read is passed with one or two arguments...
 
