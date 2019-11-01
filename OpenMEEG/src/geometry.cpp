@@ -54,8 +54,8 @@ namespace OpenMEEG {
 
         for (auto& domain : domains()) {
             bool outer = true;
-            for (auto& halfspace : domain)
-                if (halfspace.inside()) {
+            for (auto& boundary : domain.boundaries())
+                if (boundary.inside()) {
                     outer = false;
                     break;
                 }
@@ -77,13 +77,13 @@ namespace OpenMEEG {
 
         for (const auto& domain : domains()) {
             bool inner = true;
-            for (const auto& halfspace : domain)
-                if (!halfspace.inside()) {
+            for (const auto& boundary : domain.boundaries())
+                if (!boundary.inside()) {
                     inner = false;
                     break;
                 }
             if (inner)
-                return domain.front().interface();
+                return domain.boundaries().front().interface();
         }
 
         // Should never append as this function should only be called for nested geometries.
@@ -96,7 +96,7 @@ namespace OpenMEEG {
     Geometry::outermost_interface() const {
         for (const auto& domain : domains())
             if (is_outermost(domain))
-                return domain.front().interface();
+                return domain.boundaries().front().interface();
 
         // Should never append
 
@@ -156,9 +156,9 @@ namespace OpenMEEG {
 
     const Interface& Geometry::interface(const std::string& id) const {
         for (const auto& domain : domains())
-            for (const auto& halfspace : domain)
-                if (halfspace.interface().name()==id)
-                    return halfspace.interface();
+            for (const auto& boundary : domain.boundaries())
+                if (boundary.interface().name()==id)
+                    return boundary.interface();
 
         // Should never append
         warning(std::string("Geometry::interface: Interface id/name \"")+id+std::string("\" not found."));
@@ -290,59 +290,61 @@ namespace OpenMEEG {
         }
     }
 
-    const Domains Geometry::common_domains(const Mesh& m1,const Mesh& m2) const {
-        std::set<Domain> sdom1;
-        std::set<Domain> sdom2;
+    const Geometry::DomainsReference
+    Geometry::common_domains(const Mesh& m1,const Mesh& m2) const {
+        std::set<const Domain*> sdom1;
+        std::set<const Domain*> sdom2;
         for (const auto& domain : domains()) {
             if (domain.mesh_orientation(m1)!=0)
-                sdom1.insert(domain);
+                sdom1.insert(&domain);
             if (domain.mesh_orientation(m2)!=0)
-                sdom2.insert(domain);
+                sdom2.insert(&domain);
         }
-        Domains doms;
+
+        DomainsReference doms;
         std::set_intersection(sdom1.begin(),sdom1.end(),sdom2.begin(),sdom2.end(),std::back_inserter(doms));
         return doms;
     }
 
     /// \return a function (sum, difference, ...) of the conductivity(ies) of the shared domain(s).
+    /// Make a template on f ??
 
-    double Geometry::funct_on_domains(const Mesh& m1, const Mesh& m2, const Function& f) const {
-        Domains doms = common_domains(m1, m2);
-        double ans = 0.;
-        for (Domains::iterator dit = doms.begin(); dit != doms.end(); ++dit) {
+    double Geometry::funct_on_domains(const Mesh& m1,const Mesh& m2,const Function& f) const {
+        const DomainsReference& doms = common_domains(m1,m2);
+        double res = 0.;
+        for (const auto& domainptr : doms)
             switch (f) {
                 case IDENTITY:
-                    ans += dit->conductivity();
+                    res += domainptr->conductivity();
                     break;
                 case INVERSE:
-                    ans += 1./dit->conductivity();
+                    res += 1./domainptr->conductivity();
                     break;
                 case INDICATOR:
-                    ans += 1.;
+                    res += 1.;
                     break;
                 default:
-                    ans = 0;
+                    res = 0;
                     break;
             }
-        }
-        return ans;
+        return res;
     }
 
     /// \return the difference of conductivities of the 2 domains.
 
     double  Geometry::sigma_diff(const Mesh& m) const {
-        Domains doms = common_domains(m,m); // Get the 2 domains surrounding mesh m
-        double  ans  = 0.;
-        for (auto& domain : doms)
-            ans += domain.conductivity()*domain.mesh_orientation(m);
-        return ans;
+        const DomainsReference& doms = common_domains(m,m);
+        double res  = 0.;
+        for (auto& domainptr : doms)
+            res += domainptr->conductivity()*domainptr->mesh_orientation(m);
+        return res;
     }
 
     /// \return 0. for non communicating meshes, 1. for same oriented meshes, -1. for different orientation
 
     int Geometry::oriented(const Mesh& m1,const Mesh& m2) const {
-        Domains doms = common_domains(m1,m2); // 2 meshes have either 0, 1 or 2 domains in common
-        return (doms.size()==0) ? 0 : ((doms[0].mesh_orientation(m1)==doms[0].mesh_orientation(m2)) ? 1 : -1);
+        const DomainsReference& doms = common_domains(m1,m2); // 2 meshes have either 0, 1 or 2 domains in common
+        return (doms.size()==0) ? 0 : ((doms[0]->mesh_orientation(m1)==doms[0]->mesh_orientation(m2)) ? 1 : -1);
     }
 
     bool Geometry::selfCheck() const {
@@ -425,8 +427,8 @@ namespace OpenMEEG {
         for (const auto& domain : domains()) {
             unsigned out_interface = 0;
             if (!is_outermost(domain))
-                for (const auto& halfspace : domain)
-                    if (halfspace.inside())
+                for (const auto& boundary : domain.boundaries())
+                    if (boundary.inside())
                         out_interface++;
             if (out_interface>=2)
                 return false;
@@ -437,10 +439,10 @@ namespace OpenMEEG {
         for (const auto& mesh : meshes()) {
             unsigned m_oriented = 0;
             for (const auto& domain : domains())
-                for (const auto& halfspace : domain)
-                    for (const auto& interface : halfspace.first)
-                        if (interface.mesh()==mesh)
-                            m_oriented += interface.orientation();
+                for (const auto& boundary : domain.boundaries())
+                    for (const auto& oriented_mesh : boundary.interface())
+                        if (oriented_mesh.mesh()==mesh)
+                            m_oriented += oriented_mesh.orientation();
             if (m_oriented==0)
                 return false;
         }
@@ -516,20 +518,21 @@ namespace OpenMEEG {
             std::set_difference(mesh_idx.begin(), mesh_idx.end(), mesh_connected.begin(), mesh_connected.end(), std::insert_iterator<std::vector<int> >(mesh_diff, mesh_diff.end()));
         }
 
-        // find isolated meshes and touch 0-cond meshes;
+        // Find isolated meshes and touch 0-cond meshes.
+
         std::set<std::string> touch_0_mesh;
-        for (Domains::iterator dit = domains_.begin(); dit != domains_.end(); ++dit) {
-            if (almost_equal(dit->conductivity(),0.0)) {
-                for (Domain::iterator hit = dit->begin(); hit != dit->end(); ++hit) {
-                    for (Interface::iterator omit = hit->first.begin(); omit != hit->first.end(); ++omit) {
-                        omit->mesh().current_barrier() = true;
-                        std::pair<std::set<std::string>::iterator, bool> ret = touch_0_mesh.insert(omit->mesh().name());
+        for (auto& domain : domains()) {
+            if (almost_equal(domain.conductivity(),0.0)) {
+                for (auto& boundary : domain.boundaries()) {
+                    for (auto& oriented_mesh : boundary.interface()) {
+                        oriented_mesh.mesh().current_barrier() = true;
+                        std::pair<std::set<std::string>::iterator, bool> ret = touch_0_mesh.insert(oriented_mesh.mesh().name());
                         if (!ret.second) {
-                            omit->mesh().isolated() = true;
-                            omit->mesh().outermost() = false;
-                            std::cout<<"Mesh \""<<omit->mesh().name()<<"\" will be excluded from computation because it touches non-conductive domains on both sides."<<std::endl;
+                            oriented_mesh.mesh().isolated() = true;
+                            oriented_mesh.mesh().outermost() = false;
+                            std::cout<<"Mesh \""<<oriented_mesh.mesh().name()<<"\" will be excluded from computation because it touches non-conductive domains on both sides."<<std::endl;
                             //add all of its vertices to invalid_vertices
-                            for (const auto& vertex : omit->mesh().vertices())
+                            for (const auto& vertex : oriented_mesh.mesh().vertices())
                                 invalid_vertices_.insert(*vertex);
                         }
                     }
@@ -564,11 +567,11 @@ namespace OpenMEEG {
 
         for (auto& domain : domains())
             if (almost_equal(domain.conductivity(),0.0))
-                for (auto& halfspace : domain)
-                    if (!halfspace.inside())
-                        for (auto& interface : halfspace.first)
-                            if (interface.mesh().current_barrier() && !interface.mesh().isolated())
-                                interface.mesh().outermost() = true;
+                for (auto& boundary : domain.boundaries())
+                    if (!boundary.inside())
+                        for (auto& oriented_mesh : boundary.interface())
+                            if (oriented_mesh.mesh().current_barrier() && !oriented_mesh.mesh().isolated())
+                                oriented_mesh.mesh().outermost() = true;
 
         //detect isolated geometries
         if (mesh_conn.size()>1) {
