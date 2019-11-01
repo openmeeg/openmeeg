@@ -320,7 +320,7 @@ namespace OpenMEEG {
                             std::cerr << "Please correct a mesh orientation when defining the interface in the geometry file." << std::endl;
                             exit(1);
                         }
-                        domain.push_back(HalfSpace(omesh,inside));
+                        domain.boundaries().push_back(HalfSpace(omesh,inside));
                     }
 
                 if (!found)
@@ -336,8 +336,8 @@ namespace OpenMEEG {
         Domain& outer_domain = geom.outermost_domain();
         geom.set_outermost_domain(outer_domain);
         //  TODO: Integrate this loop (if necessary) in set_outermost_domain...
-        for (auto& halfspace : outer_domain)
-            halfspace.interface().set_to_outermost();
+        for (auto& boundary : outer_domain.boundaries())
+            boundary.interface().set_to_outermost();
 
         if (geom.check_geometry_is_nested())
             geom.set_nested();

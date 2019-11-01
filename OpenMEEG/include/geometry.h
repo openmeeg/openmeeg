@@ -164,6 +164,8 @@ namespace OpenMEEG {
 
         typedef enum { IDENTITY, INVERSE, INDICATOR } Function;
 
+        typedef std::vector<const Domain*> DomainsReference;
+
         void clear() {
             vertices_.clear();
             meshes_.clear();
@@ -188,7 +190,9 @@ namespace OpenMEEG {
         size_t        size_        = 0;   // total number = nb of vertices + nb of triangles
 
         void  generate_indices(const bool);
-        const Domains common_domains(const Mesh&,const Mesh&) const;
+
+        const DomainsReference common_domains(const Mesh&,const Mesh&) const;
+
         double funct_on_domains(const Mesh&,const Mesh&,const Function&) const; //  TODO: rename...
 
         /// handle multiple 0 conductivity domains

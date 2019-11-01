@@ -82,9 +82,9 @@ namespace OpenMEEG {
 
         const double K  = 1.0/(4.*M_PI);
         const double L  = -1.0/domain.conductivity();
-        for (const auto& halfspace : domain) {
-            const double factorN = (halfspace.inside()) ? K : -K;
-            for (auto& oriented_mesh : halfspace.interface()) {
+        for (const auto& boundary : domain.boundaries()) {
+            const double factorN = (boundary.inside()) ? K : -K;
+            for (auto& oriented_mesh : boundary.interface()) {
                 const Mesh& mesh = oriented_mesh.mesh();
                 // First block is nVertexFistLayer*source_mesh.vertices().size()
                 const double coeffN = factorN*oriented_mesh.orientation();
@@ -120,9 +120,9 @@ namespace OpenMEEG {
             if (sigma!=0.0) {
                 rhs_col.set(0.0);
                 const double K = 1.0/(4.*M_PI);
-                for (const auto& halfspace : domain) { //  Iterate over the domain's interfaces (half-spaces)
-                    const double factorD = (halfspace.inside()) ? K : -K;
-                    for (const auto& oriented_mesh : halfspace.interface()) { //  Iterate over the meshes of the interface
+                for (const auto& boundary : domain.boundaries()) { //  Iterate over the domain's interfaces (half-spaces)
+                    const double factorD = (boundary.inside()) ? K : -K;
+                    for (const auto& oriented_mesh : boundary.interface()) { //  Iterate over the meshes of the interface
                         //  Treat the mesh.
                         const double coeffD = factorD*oriented_mesh.orientation();
                         const Mesh&  mesh   = oriented_mesh.mesh();
@@ -196,13 +196,13 @@ namespace OpenMEEG {
 
         // Points with one more column for the index of the domain they belong
 
-        std::vector<Domain> points_domain;
-        std::vector<Vect3>  points_;
-        for ( unsigned i = 0; i < points.nlin(); ++i) {
-            const Domain& domain = geo.domain(Vect3(points(i, 0), points(i, 1), points(i, 2)));
+        std::vector<const Domain*> points_domain;
+        std::vector<Vect3>   points_;
+        for (unsigned i=0; i<points.nlin(); ++i) {
+            const Domain& domain = geo.domain(Vect3(points(i,0),points(i,1),points(i,2)));
             if (domain.conductivity()!=0.0) {
-                points_domain.push_back(domain);
-                points_.push_back(Vect3(points(i, 0), points(i, 1), points(i, 2)));
+                points_domain.push_back(&domain);
+                points_.push_back(Vect3(points(i,0),points(i,1),points(i,2)));
             } else {
                 std::cerr << " DipSource2InternalPot: Point [ " << points.getlin(i);
                 std::cerr << "] is outside the head. Point is dropped." << std::endl;
@@ -212,25 +212,18 @@ namespace OpenMEEG {
         mat = Matrix(points_.size(), dipoles.nlin());
         mat.set(0.0);
 
-        for ( unsigned iDIP = 0; iDIP < dipoles.nlin(); ++iDIP) {
-            const Vect3 r0(dipoles(iDIP, 0), dipoles(iDIP, 1), dipoles(iDIP, 2));
-            const Vect3  q(dipoles(iDIP, 3), dipoles(iDIP, 4), dipoles(iDIP, 5));
+        for (unsigned iDIP=0; iDIP<dipoles.nlin(); ++iDIP) {
+            const Vect3 r0(dipoles(iDIP,0), dipoles(iDIP,1), dipoles(iDIP,2));
+            const Vect3  q(dipoles(iDIP,3), dipoles(iDIP,4), dipoles(iDIP,5));
 
-            Domain domain;
-            if ( domain_name == "" ) {
-                domain = geo.domain(r0);
-            } else {
-                domain = geo.domain(domain_name);
-            }
-            const double sigma = domain.conductivity();
+            const Domain& domain = (domain_name=="") ? geo.domain(r0) : geo.domain(domain_name);
+            const double  cond   = domain.conductivity();
 
             static analyticDipPot anaDP;
             anaDP.init(q, r0);
-            for ( unsigned iPTS = 0; iPTS < points_.size(); ++iPTS) {
-                if ( points_domain[iPTS] == domain ) {
-                    mat(iPTS, iDIP) += K/sigma*anaDP.f(points_[iPTS]);
-                }
-            }
+            for (unsigned iPTS=0; iPTS<points_.size(); ++iPTS)
+                if (points_domain[iPTS]==&domain)
+                    mat(iPTS, iDIP) += K/cond*anaDP.f(points_[iPTS]);
         }
     }
 }

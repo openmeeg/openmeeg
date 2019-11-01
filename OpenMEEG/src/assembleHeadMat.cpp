@@ -154,13 +154,13 @@ namespace OpenMEEG {
         // Following the article: M. Clerc, J. Kybic "Cortical mapping by Laplace–Cauchy transmission using a boundary element method".
         // Assumptions:
         // - domain_name: the domain containing the sources is an innermost domain (defined as the interior of only one interface (called Cortex))
-        // - Cortex interface is composed of one mesh only (no shared vertices)
+        // - Cortex interface is composed of one mesh only (no shared vertices).
 
-        const Domain& SourceDomain  = geo.domain(domain_name);
-        const Interface& Cortex     = SourceDomain.front().interface();
-        const Mesh& cortex          = Cortex.front().mesh();
+        const Domain& SourceDomain = geo.domain(domain_name);
+        const Interface& Cortex    = SourceDomain.boundaries().front().interface();
+        const Mesh& cortex         = Cortex.front().mesh();
         
-        om_error(SourceDomain.size()==1);
+        om_error(SourceDomain.boundaries().size()==1);
         om_error(Cortex.size()==1);
 
         // shape of the new matrix:
@@ -326,10 +326,10 @@ namespace OpenMEEG {
         // - Cortex interface is composed of one mesh only (no shared vertices)
 
         const Domain& SourceDomain = geo.domain(domain_name);
-        const Interface& Cortex    = SourceDomain.begin()->interface();
+        const Interface& Cortex    = SourceDomain.boundaries().front().interface();
         const Mesh& cortex         = Cortex.begin()->mesh();
         
-        om_error(SourceDomain.size()==1);
+        om_error(SourceDomain.boundaries().size()==1);
         om_error(Cortex.size()==1);
 
         // shape of the new matrix:
@@ -433,18 +433,17 @@ namespace OpenMEEG {
 
     Surf2VolMat::Surf2VolMat(const Geometry& geo,const Matrix& points) {
 
-        std::map<const Domain,Vertices> m_points;
-
         // Find the points per domain and generate the indices for the m_points
 
+        std::map<const Domain*,Vertices> m_points;
         unsigned index = 0;
         for (unsigned i=0;i<points.nlin();++i) {
-            const Domain domain = geo.domain(Vect3(points(i,0),points(i,1),points(i,2))); // TODO: see Vertex below....
+            const Domain& domain = geo.domain(Vect3(points(i,0),points(i,1),points(i,2))); // TODO: see Vertex below....
             if (domain.conductivity()==0.0) {
                 std::cerr << " Surf2Vol: Point [ " << points.getlin(i);
                 std::cerr << "] is inside a non-conductive domain. Point is dropped." << std::endl;
             } else {
-                m_points[domain].push_back(Vertex(points(i,0), points(i,1),points(i,2),index++));
+                m_points[&domain].push_back(Vertex(points(i,0), points(i,1),points(i,2),index++));
             }
         }
 
@@ -452,19 +451,19 @@ namespace OpenMEEG {
         const double K = 1.0/(4.0*M_PI);
 
         unsigned size = 0; // total number of inside points
-        for (std::map<const Domain,Vertices>::const_iterator dvit = m_points.begin();dvit!=m_points.end();++dvit)
-            size += dvit->second.size();
+        for (const auto& map_element : m_points)
+            size += map_element.second.size();
 
         mat = Matrix(size,(geo.nb_parameters()-geo.nb_current_barrier_triangles()));
         mat.set(0.0);
 
-        for (std::map<const Domain,Vertices>::const_iterator dvit=m_points.begin();dvit!=m_points.end();++dvit)
+        for (const auto& map_element : m_points)
             for (const auto& mesh : geo.meshes()) {
-                const int orientation = dvit->first.mesh_orientation(mesh);
+                const int orientation = map_element.first->mesh_orientation(mesh);
                 if (orientation!=0) {
-                    operatorDinternal(mesh, mat, dvit->second, orientation * -1. * K);
+                    operatorDinternal(mesh,mat,map_element.second,-orientation*K);
                     if (!mesh.current_barrier())
-                        operatorSinternal(mesh,mat,dvit->second,orientation*K/geo.sigma(dvit->first));
+                        operatorSinternal(mesh,mat,map_element.second,orientation*K/map_element.first->conductivity());
                 }
             }
     }

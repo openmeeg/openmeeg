@@ -43,8 +43,8 @@ namespace OpenMEEG {
 
     bool Domain::contains(const Vect3& p) const {
         bool inside = true;
-        for (const auto& halfspace : *this)
-            inside = (inside && (halfspace.interface().contains(p)==halfspace.inside()));
+        for (const auto& boundary : boundaries())
+            inside = (inside && (boundary.interface().contains(p)==boundary.inside()));
         return inside;
     }
 
@@ -53,17 +53,17 @@ namespace OpenMEEG {
         std::cout << "Info:: Domain name : "  << name() << std::endl;
         std::cout << "\t\tConductivity : "    << conductivity() << std::endl;
         std::cout << "\t\tComposed by interfaces : ";
-        for (const auto& halfspace : *this) {
-            std::cout << ((halfspace.inside()) ? '-' : '+');
-            std::cout << halfspace.interface().name() << " ";
+        for (const auto& boundary : boundaries()) {
+            std::cout << ((boundary.inside()) ? '-' : '+');
+            std::cout << boundary.interface().name() << " ";
         }
         std::cout << std::endl;
         if (outermost)
             std::cout << "\t\tConsidered as the outermost domain." << std::endl;
         
-        for (const auto& halfspace : *this) {
-            std::cout << "\t\tInterface \"" << halfspace.interface().name() << "\"= { ";
-            for (const auto& oriented_mesh : halfspace.interface()) {
+        for (const auto& boundary : boundaries()) {
+            std::cout << "\t\tInterface \"" << boundary.interface().name() << "\"= { ";
+            for (const auto& oriented_mesh : boundary.interface()) {
                 std::cout << "mesh \""<< oriented_mesh.mesh().name() << "\"";
                 if (oriented_mesh.mesh().outermost())
                     std::cout << "(outermost)";

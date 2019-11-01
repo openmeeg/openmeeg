@@ -143,11 +143,11 @@ namespace OpenMEEG
 
         for(const auto& domain : g.domains())
             if (domain.conductivity()==0.0)
-                for (const auto& halfspace : domain) {
+                for (const auto& boundary : domain.boundaries()) {
                     Triangle local_nearest_triangle;
-                    const double distance = dist_point_interface(p,halfspace.interface(),alphas,local_nearest_triangle);
+                    const double distance = dist_point_interface(p,boundary.interface(),alphas,local_nearest_triangle);
                     if (distance<distmin) {
-                        name_nearest_interface = halfspace.interface().name();
+                        name_nearest_interface = boundary.interface().name();
                         distmin = distance;
                         nearestTriangle = local_nearest_triangle;
                     }
