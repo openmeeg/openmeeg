@@ -68,13 +68,15 @@ namespace OpenMEEG {
         }
 
         void info(const bool verbose=false) const; ///< \brief Print information on the geometry
-        bool has_cond()                     const { return has_cond_; }
-        bool is_nested()                    const { return nested;    }
+        bool has_cond()                     const { return conductivity; } // TODO: Is this useful ?
         bool selfCheck()                    const; ///< \brief the geometry meshes intersect each other
         bool check(const Mesh& m)           const; ///< \brief check if m intersect geometry meshes
         bool check_inner(const Matrix& m)   const; ///< \brief check if dipoles are outside of geometry meshes
 
-        void set_nested() { nested = true; }
+        bool check_geometry_is_nested() const;
+
+        bool is_nested() const { return nested; }
+        void set_nested()      { nested = true; }
 
         /// \brief Return the list of vertices involved in the geometry.
 
@@ -95,7 +97,11 @@ namespace OpenMEEG {
 
         size_t nb_parameters() const { return size_; } ///< \brief the total number of vertices + triangles
 
-        Domain& outermost_domain(); ///< \brief returns the outermost domain.
+        /// Returns the outermost domain.
+
+        Domain& outermost_domain();
+        void    set_outermost_domain(const Domain& domain) { outer_domain = &domain; } //   Do we need this (and the previous) or can they be hidden ?
+        bool    is_outermost(const Domain& domain) const { return outer_domain==&domain; }
 
         const Interface& outermost_interface() const; ///< \brief returns the outermost interface (only valid for nested geometries).
         const Interface& innermost_interface() const; ///< \brief returns the innermost interface (only valid for nested geometries).
@@ -114,7 +120,34 @@ namespace OpenMEEG {
         double sigma     (const std::string&) const;
         int    oriented(const Mesh&, const Mesh&) const;
 
-        void read(const std::string& geomFileName,const std::string& condFileName="",const bool OLD_ORDERING=false);
+        //  Calling this method read induces failures due do wrong conversions when read is passed with one or two arguments...
+
+        void load(const std::string& filename,const bool OLD_ORDERING=false) {
+            clear();
+            read_geometry_file(filename);
+            finalize(OLD_ORDERING);
+        }
+
+        void read(const std::string& filename) { load(filename); }
+
+        void read(const std::string& geomFileName,const std::string& condFileName,const bool OLD_ORDERING=false) {
+            clear();
+            read_geometry_file(geomFileName);
+            read_conductivity_file(condFileName);
+            conductivity = true;
+
+            mark_current_barriers(); // mark meshes that touch the domains of null conductivity.
+
+            finalize(OLD_ORDERING);
+        }
+
+        void finalize(const bool OLD_ORDERING=false) {
+            generate_indices(OLD_ORDERING);
+            info();
+        }
+
+        //  Do those belong to this class ?
+
         void load_vtp(const std::string& filename) { Matrix trash; load_vtp(filename, trash, false); }
         void load_vtp(const std::string& filename, Matrix& data, const bool READ_DATA = true);
         void write_vtp(const std::string& filename, const Matrix& data = Matrix()) const; // optional give a dataset
@@ -124,25 +157,39 @@ namespace OpenMEEG {
               size_t& nb_current_barrier_triangles()            { return nb_current_barrier_triangles_; }
         const size_t  nb_invalid_vertices()                     { return invalid_vertices_.size();      }
         const std::vector<Strings>& geo_group()           const { return geo_group_; }
-              void    mark_current_barrier();
+              void    mark_current_barriers();
         const Mesh&   mesh(const std::string& id) const;
 
     private:
 
-        typedef enum { IDENTITY, INVERSE, INDICATOR} Function;
+        typedef enum { IDENTITY, INVERSE, INDICATOR } Function;
+
+        void clear() {
+            vertices_.clear();
+            meshes_.clear();
+            domains_.clear();
+            conductivity = nested = false;
+            outer_domain = 0;
+            size_ = 0;
+        }
+
+        void read_geometry_file(const std::string& filename);
+        void read_conductivity_file(const std::string& filename);
 
         /// Members
 
-        Vertices  vertices_;
-        Meshes    meshes_;
-        Domains   domains_;
-        bool      has_cond_ = false;
-        bool      nested    = false;
-        size_t    size_ = 0;   // total number = nb of vertices + nb of triangles
+        Vertices vertices_;
+        Meshes   meshes_;
+        Domains  domains_;
 
-        void          generate_indices(const bool);
-        const Domains common_domains(const Mesh&, const Mesh&) const;
-              double  funct_on_domains(const Mesh&, const Mesh&, const Function& ) const;
+        const Domain* outer_domain = 0;
+        bool          nested       = false;
+        bool          conductivity = false;
+        size_t        size_        = 0;   // total number = nb of vertices + nb of triangles
+
+        void  generate_indices(const bool);
+        const Domains common_domains(const Mesh&,const Mesh&) const;
+        double funct_on_domains(const Mesh&,const Mesh&,const Function&) const; //  TODO: rename...
 
         /// handle multiple 0 conductivity domains
         std::set<Vertex>     invalid_vertices_;  ///< \brief  does not equal to the vertices of invalid meshes because there are shared vertices
