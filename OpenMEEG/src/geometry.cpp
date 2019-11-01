@@ -280,30 +280,6 @@ namespace OpenMEEG {
         }
     }
 
-    /// \return a function (sum, difference, ...) of the conductivity(ies) of the shared domain(s).
-    /// Make a template on f ??
-
-    double Geometry::funct_on_domains(const Mesh& m1,const Mesh& m2,const Function& f) const {
-        const DomainsReference& doms = common_domains(m1,m2);
-        double res = 0.0;
-        for (const auto& domainptr : doms)
-            switch (f) {
-                case IDENTITY:
-                    res += domainptr->conductivity();
-                    break;
-                case INVERSE:
-                    res += 1./domainptr->conductivity();
-                    break;
-                case INDICATOR:
-                    res += 1.;
-                    break;
-                default:
-                    res = 0;
-                    break;
-            }
-        return res;
-    }
-
     /// \return the difference of conductivities of the 2 domains.
 
     double Geometry::conductivity_difference(const Mesh& m) const {

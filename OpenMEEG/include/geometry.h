@@ -124,9 +124,10 @@ namespace OpenMEEG {
 
         void import_meshes(const Meshes& m); ///< \brief imports meshes from a list of meshes
 
-        double sigma     (const Mesh& m1,const Mesh& m2) const { return funct_on_domains(m1,m2,IDENTITY); }  // return the (sum) conductivity(ies) of the shared domain(s).
-        double sigma_inv (const Mesh& m1,const Mesh& m2) const { return funct_on_domains(m1,m2,INVERSE); }   // return the (sum) inverse of conductivity(ies) of the shared domain(s).
-        double indicator (const Mesh& m1,const Mesh& m2) const { return funct_on_domains(m1,m2,INDICATOR); } // return the (sum) indicator function of the shared domain(s).
+        double sigma     (const Mesh& m1,const Mesh& m2) const { return eval_on_common_domains<IDENTITY>(m1,m2);  } // return the (sum) conductivity(ies) of the shared domain(s).
+        double sigma_inv (const Mesh& m1,const Mesh& m2) const { return eval_on_common_domains<INVERSE>(m1,m2);   } // return the (sum) inverse of conductivity(ies) of the shared domain(s).
+        double indicator (const Mesh& m1,const Mesh& m2) const { return eval_on_common_domains<INDICATOR>(m1,m2); } // return the (sum) indicator function of the shared domain(s).
+
         double conductivity_difference(const Mesh& m) const; // return the difference of conductivities of the 2 domains.
 
         int    oriented(const Mesh&,const Mesh&) const;
@@ -173,8 +174,6 @@ namespace OpenMEEG {
 
     private:
 
-        typedef enum { IDENTITY, INVERSE, INDICATOR } Function;
-
         void clear() {
             vertices_.clear();
             meshes_.clear();
@@ -208,7 +207,20 @@ namespace OpenMEEG {
             return doms;
         }
 
-        double funct_on_domains(const Mesh&,const Mesh&,const Function&) const; //  TODO: rename...
+        //  Accumulate a function over the domain common to two meshes.
+
+        static double IDENTITY(const Domain& domain)  { return domain.conductivity();     }
+        static double INVERSE(const Domain& domain)   { return 1.0/domain.conductivity(); }
+        static double INDICATOR(const Domain& domain) { return 1.0;                       }
+
+        template <double Function(const Domain&)>
+        double eval_on_common_domains(const Mesh& m1,const Mesh& m2) const {
+            const DomainsReference& doms = common_domains(m1,m2);
+            double result = 0.0;
+            for (const auto& domainptr : doms)
+                result += Function(*domainptr);
+            return result;
+        }
 
         /// handle multiple 0 conductivity domains
         std::set<Vertex>     invalid_vertices_;  ///< \brief  does not equal to the vertices of invalid meshes because there are shared vertices
