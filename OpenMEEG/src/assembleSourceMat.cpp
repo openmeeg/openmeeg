@@ -68,7 +68,7 @@ namespace OpenMEEG {
 
         // The mesh is included in a domain of the geometry.
 
-        const Domain& domain = geo.domain(**source_mesh.vertices().begin()); 
+        const Domain& domain = geo.domain(*source_mesh.vertices().front()); 
         
         // Set it as an outermost (to tell _operarorN it doesn't belong to the geometry).
 
@@ -81,7 +81,7 @@ namespace OpenMEEG {
                   << std::endl;
 
         const double K  = 1.0/(4.*M_PI);
-        const double L  = -1.0/domain.sigma();
+        const double L  = -1.0/domain.conductivity();
         for (const auto& halfspace : domain) {
             const double factorN = (halfspace.inside()) ? K : -K;
             for (auto& oriented_mesh : halfspace.interface()) {
@@ -116,7 +116,7 @@ namespace OpenMEEG {
 
             //  Only consider dipoles in non-zero conductivity domain.
 
-            const double sigma = domain.sigma();
+            const double sigma = domain.conductivity();
             if (sigma!=0.0) {
                 rhs_col.set(0.0);
                 const double K = 1.0/(4.*M_PI);
@@ -200,11 +200,10 @@ namespace OpenMEEG {
         std::vector<Vect3>  points_;
         for ( unsigned i = 0; i < points.nlin(); ++i) {
             const Domain& domain = geo.domain(Vect3(points(i, 0), points(i, 1), points(i, 2)));
-            if ( domain.sigma() != 0.0 ) {
+            if (domain.conductivity()!=0.0) {
                 points_domain.push_back(domain);
                 points_.push_back(Vect3(points(i, 0), points(i, 1), points(i, 2)));
-            }
-            else {
+            } else {
                 std::cerr << " DipSource2InternalPot: Point [ " << points.getlin(i);
                 std::cerr << "] is outside the head. Point is dropped." << std::endl;
             }
@@ -223,7 +222,7 @@ namespace OpenMEEG {
             } else {
                 domain = geo.domain(domain_name);
             }
-            const double sigma  = domain.sigma();
+            const double sigma = domain.conductivity();
 
             static analyticDipPot anaDP;
             anaDP.init(q, r0);

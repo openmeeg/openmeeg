@@ -440,9 +440,9 @@ namespace OpenMEEG {
         unsigned index = 0;
         for (unsigned i=0;i<points.nlin();++i) {
             const Domain domain = geo.domain(Vect3(points(i,0),points(i,1),points(i,2))); // TODO: see Vertex below....
-            if (domain.sigma()==0.0) {
+            if (domain.conductivity()==0.0) {
                 std::cerr << " Surf2Vol: Point [ " << points.getlin(i);
-                std::cerr << "] is inside a nonconductive domain. Point is dropped." << std::endl;
+                std::cerr << "] is inside a non-conductive domain. Point is dropped." << std::endl;
             } else {
                 m_points[domain].push_back(Vertex(points(i,0), points(i,1),points(i,2),index++));
             }

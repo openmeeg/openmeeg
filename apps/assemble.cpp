@@ -64,12 +64,12 @@ int main(int argc, char** argv)
     print_version(argv[0]);
 
     bool OLD_ORDERING = false;
-    if ( argc<2 ) {
+    if (argc<2) {
         getHelp(argv);
         return 0;
     } else {
         OLD_ORDERING = (strcmp(argv[argc-1], "-old-ordering") == 0);
-        if ( OLD_ORDERING ) {
+        if (OLD_ORDERING) {
             argc--;
             cout << "Using old ordering i.e using (V1, p1, V2, p2, V3) instead of (V1, V2, V3, p1, p2)" << endl;
         }

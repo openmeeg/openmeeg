@@ -92,8 +92,8 @@ namespace OpenMEEG {
         
         /// The conductivity of the domain.
 
-              double& sigma()       { return cond; }
-        const double& sigma() const { return cond; }
+              double& conductivity()       { return cond; }
+        const double& conductivity() const { return cond; }
 
         /// Print information about the domain.
         /// \param outermost specifies if the domain is the outer domain
