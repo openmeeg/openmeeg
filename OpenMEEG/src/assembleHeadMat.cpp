@@ -65,29 +65,23 @@ namespace OpenMEEG {
     template <typename T>
     void deflate(T& M,const Geometry& geo) {
         //  deflate all current barriers as one
-        unsigned nb_vertices=0,i_first=0;
-        double coef=0.0;
-        for ( std::vector<Strings>::const_iterator git = geo.geo_group().begin(); git != geo.geo_group().end(); ++git) {
-            nb_vertices=0;
-            i_first=0;
-            for(std::vector<std::string>::const_iterator mit=git->begin();mit!=git->end();++mit){
-                const Mesh msh=geo.mesh(*mit);
-                if(msh.outermost()){
-                    nb_vertices += msh.vertices().size();
-                    if(i_first==0)
-                        i_first=(*msh.vertices().begin())->index();
+        for (const auto& part :geo.isolated_parts()) {
+            unsigned nb_vertices = 0;
+            unsigned i_first = 0;
+            for (const auto& meshptr : part)
+                if (meshptr->outermost()){
+                    nb_vertices += meshptr->vertices().size();
+                    if (i_first==0)
+                        i_first = meshptr->vertices().front()->index();
                 }
-            }
-            coef=M(i_first,i_first)/nb_vertices;
-            for(std::vector<std::string>::const_iterator mit=git->begin();mit!=git->end();++mit){
-                Mesh msh=geo.mesh(*mit);
-                if(msh.outermost())
-                    for(auto vit1=msh.vertices().begin();vit1!=msh.vertices().end();++vit1) {
+            const double coef = M(i_first,i_first)/nb_vertices;
+            for (const auto& meshptr : part)
+                if (meshptr->outermost())
+                    for (auto vit1=meshptr->vertices().begin(); vit1!=meshptr->vertices().end(); ++vit1) {
                         #pragma omp parallel for
-                        for (auto vit2=vit1;vit2<msh.vertices().end();++vit2)
+                        for (auto vit2=vit1; vit2<meshptr->vertices().end(); ++vit2)
                             M((*vit1)->index(),(*vit2)->index()) += coef;
                     }
-            }
         }
     }
 
@@ -146,6 +140,8 @@ namespace OpenMEEG {
 
         deflate(mat,geo);
     }
+
+    //  The first part of this code is extremely similar to the method above.... TODO: Commonize ??
 
     Matrix HeadMatrix(const Geometry& geo,const Interface& Cortex,const unsigned gauss_order,const unsigned extension=0) {
 
@@ -347,6 +343,7 @@ namespace OpenMEEG {
 
         // Why don't we save the full matrix H instead of only the upper block ??
         // Concat M to H
+        // TODO TODO TODO: Integrate in HeadMatrix...
 
         std::cerr << "A" << std::endl;
         const unsigned Nl = H.nlin()-M.nlin();
