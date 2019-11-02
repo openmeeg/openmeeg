@@ -100,6 +100,11 @@ namespace OpenMEEG {
               Domains& domains()       { return domains_; }
         const Domains& domains() const { return domains_; }
 
+        /// \brief Get specific domains.
+
+        const Domain& domain(const std::string& name) const; ///< \brief returns the Domain called \param name
+        const Domain& domain(const Vect3& p)          const; ///< \brief returns the Domain containing the point p \param p a point
+
         /// \brief  Return the list of domains containing a mesh.
 
         DomainsReference domains(const Mesh& m) const {
@@ -121,15 +126,15 @@ namespace OpenMEEG {
         const Interface& outermost_interface() const; ///< \brief returns the outermost interface (only valid for nested geometries).
         const Interface& innermost_interface() const; ///< \brief returns the innermost interface (only valid for nested geometries).
 
-        const Interface& interface(const std::string& id) const; ///< \brief returns the Interface called id \param id Interface name
-        const Domain&    domain(const std::string& id)    const; ///< \brief returns the Domain called id \param id Domain name
-        const Domain&    domain(const Vect3& p)           const; ///< \brief returns the Domain containing the point p \param p a point
+        const Interface& interface(const std::string& name) const; ///< \brief returns the Interface called \param name
 
         void import_meshes(const Meshes& m); ///< \brief imports meshes from a list of meshes
 
-        double sigma     (const Mesh& m1,const Mesh& m2) const { return eval_on_common_domains<IDENTITY>(m1,m2);  } // return the (sum) conductivity(ies) of the shared domain(s).
-        double sigma_inv (const Mesh& m1,const Mesh& m2) const { return eval_on_common_domains<INVERSE>(m1,m2);   } // return the (sum) inverse of conductivity(ies) of the shared domain(s).
-        double indicator (const Mesh& m1,const Mesh& m2) const { return eval_on_common_domains<INDICATOR>(m1,m2); } // return the (sum) indicator function of the shared domain(s).
+        //  TODO: Find better names for the next two methods.
+
+        double sigma    (const Mesh& m1,const Mesh& m2) const { return eval_on_common_domains<IDENTITY>(m1,m2);  } // return the (sum) conductivity(ies) of the shared domain(s).
+        double sigma_inv(const Mesh& m1,const Mesh& m2) const { return eval_on_common_domains<INVERSE>(m1,m2);   } // return the (sum) inverse of conductivity(ies) of the shared domain(s).
+        double indicator(const Mesh& m1,const Mesh& m2) const { return eval_on_common_domains<INDICATOR>(m1,m2); } // return the (sum) indicator function of the shared domain(s).
 
         double conductivity_difference(const Mesh& m) const; // return the difference of conductivities of the 2 domains.
 
@@ -162,6 +167,7 @@ namespace OpenMEEG {
         }
 
         //  Do those belong to this class ?
+        //  TODO: Move this away in Reader/Writer classes....
 
         void load_vtp(const std::string& filename) { Matrix trash; load_vtp(filename, trash, false); }
         void load_vtp(const std::string& filename, Matrix& data, const bool READ_DATA = true);
