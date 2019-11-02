@@ -91,7 +91,9 @@ namespace OpenMEEG {
               Meshes& meshes()       { return meshes_; }
         const Meshes& meshes() const { return meshes_; }
 
-        Mesh& mesh(const std::string& id); ///< \brief returns the Mesh called id \param id Mesh name
+        ///< \brief returns the Mesh called \param name .
+
+        Mesh& mesh(const std::string& name);
 
         /// \brief  Return the list of domains.
 
