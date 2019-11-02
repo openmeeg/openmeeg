@@ -60,7 +60,8 @@ namespace OpenMEEG {
     class OPENMEEG_EXPORT Geometry {
     public:
 
-        typedef std::vector<const Domain*> DomainsReference;
+        typedef std::vector<const Domain*>            DomainsReference;
+        typedef std::vector<std::vector<const Mesh*>> MeshParts;
 
         /// Constructors
 
@@ -164,13 +165,14 @@ namespace OpenMEEG {
         void load_vtp(const std::string& filename, Matrix& data, const bool READ_DATA = true);
         void write_vtp(const std::string& filename, const Matrix& data = Matrix()) const; // optional give a dataset
 
-        /// handle multiple 0 conductivity domains
-        const size_t& nb_current_barrier_triangles()      const { return nb_current_barrier_triangles_; }
-              size_t& nb_current_barrier_triangles()            { return nb_current_barrier_triangles_; }
-        const size_t  nb_invalid_vertices()                     { return invalid_vertices_.size();      }
-        const std::vector<Strings>& geo_group()           const { return geo_group_; }
-              void    mark_current_barriers();
-        const Mesh&   mesh(const std::string& id) const;
+        /// Handle multiple isolated domains
+
+        const size_t     nb_current_barrier_triangles() const { return nb_current_barrier_triangles_; }
+              size_t&    nb_current_barrier_triangles()       { return nb_current_barrier_triangles_; }
+        const size_t     nb_invalid_vertices()                { return invalid_vertices_.size();      }
+        const MeshParts& isolated_parts() const { return independant_parts; }
+              void       mark_current_barriers();
+        const Mesh&      mesh(const std::string& id) const; //  Is this useful ?? TODO.
 
     private:
 
@@ -222,9 +224,11 @@ namespace OpenMEEG {
             return result;
         }
 
-        /// handle multiple 0 conductivity domains
-        std::set<Vertex>     invalid_vertices_;  ///< \brief  does not equal to the vertices of invalid meshes because there are shared vertices
-        size_t               nb_current_barrier_triangles_ = 0;  ///< \brief number of triangles with 0 normal current. Including triangles of invalid meshes.
-        std::vector<Strings> geo_group_;  ///< \brief Mesh names that belong to different isolated groups.
+        /// Handle multiple isolated domains.
+
+        std::set<Vertex> invalid_vertices_;  ///< \brief  does not equal to the vertices of invalid meshes because there are shared vertices
+        size_t           nb_current_barrier_triangles_ = 0;  ///< \brief number of triangles with 0 normal current. Including triangles of invalid meshes.
+
+        MeshParts independant_parts;  ///< \brief Mesh names that belong to different isolated groups.
     };
 }

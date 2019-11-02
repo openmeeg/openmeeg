@@ -435,46 +435,6 @@ namespace OpenMEEG {
 
     void Geometry::mark_current_barriers() {
 
-        // Figure out the connectivity of meshes
-
-        std::vector<int> mesh_idx;
-        for (unsigned i=0; i<meshes().size(); ++i)
-            mesh_idx.push_back(i);
-
-        std::vector<std::vector<int>> mesh_conn;
-        std::vector<int> mesh_connected, mesh_diff;
-
-        //  Mesh_connected is empty... This is unnecessary.
-        //  Or is it a way to suppress redundant indexes ?
-
-        std::set_difference(mesh_idx.begin(),mesh_idx.end(),mesh_connected.begin(),mesh_connected.end(),std::insert_iterator<std::vector<int>>(mesh_diff,mesh_diff.end()));
-
-        while (!mesh_diff.empty()) {
-            std::vector<int> conn;
-            const int se = mesh_diff[0];
-            conn.push_back(se);
-            mesh_connected.push_back(se);
-            for (unsigned iit = 0;iit<conn.size();++iit) {
-                const Mesh& me = meshes()[conn[iit]];
-                for (auto& mesh : meshes()) {
-                    if (not almost_equal(sigma(me,mesh),0.0)) {
-                        const int id = &mesh-&meshes().front();
-                        std::vector<int>::iterator ifind = std::find(mesh_connected.begin(),mesh_connected.end(),id);
-                        if (ifind==mesh_connected.end()) {
-                            mesh_connected.push_back(id);
-                            conn.push_back(id);
-                        }
-                    }
-                }
-            }
-            mesh_conn.push_back(conn);
-            std::sort(mesh_connected.begin(), mesh_connected.end());
-            mesh_diff.clear();
-            std::set_difference(mesh_idx.begin(),mesh_idx.end(),
-                                mesh_connected.begin(),mesh_connected.end(),
-                                std::insert_iterator<std::vector<int>>(mesh_diff,mesh_diff.end()));
-        }
-
         // Find meshes that are current_barriers (that touch a zero-conductivity domain).
         // TODO: Should we also remove meshes for which there is no conductivity jump...
         // TODO: Instead of marking meshes and vertices, remove them from the model ?
@@ -492,7 +452,9 @@ namespace OpenMEEG {
                             std::cout << "Mesh \"" << oriented_mesh.mesh().name()
                                       << "\" will be excluded from computation because it touches non-conductive domains on both sides."
                                       << std::endl;
+
                             //  Add all of its vertices to invalid_vertices
+
                             for (const auto& vertex : oriented_mesh.mesh().vertices())
                                 invalid_vertices_.insert(*vertex);
                         }
@@ -501,13 +463,20 @@ namespace OpenMEEG {
             }
         }
 
-        std::vector<std::vector<int>> new_conn;
-        for (const auto& mesh_indices : mesh_conn)
-            if (mesh_indices.size()>1 || !meshes()[mesh_indices.front()].isolated())
-                new_conn.push_back(mesh_indices);
-        mesh_conn = new_conn;
+        //redefine outermost interface
+        //the inside of a 0-cond domain is considered as a new outermost
+        //  TODO: Can we merge this loop in the previous one ?
 
-        //do not delete shared vertices
+        for (auto& domain : domains())
+            if (almost_equal(domain.conductivity(),0.0))
+                for (auto& boundary : domain.boundaries())
+                    if (!boundary.inside())
+                        for (auto& oriented_mesh : boundary.interface())
+                            if (oriented_mesh.mesh().current_barrier() && !oriented_mesh.mesh().isolated())
+                                oriented_mesh.mesh().outermost() = true;
+
+        //  Do not invalidate vertices of isolated meshes if they are shared by non isolated meshes.
+
         std::set<Vertex> shared_vtx;
         for (std::set<Vertex>::const_iterator vit = invalid_vertices_.begin(); vit != invalid_vertices_.end(); ++vit)
             for (const auto& mesh : meshes())
@@ -521,38 +490,50 @@ namespace OpenMEEG {
         for (std::set<Vertex>::const_iterator vit = shared_vtx.begin(); vit != shared_vtx.end(); ++vit)
             invalid_vertices_.erase(*vit);
 
-        //redefine outermost interface
-        //the inside of a 0-cond domain is considered as a new outermost
+        // Find the various components in the geometry.
+        // The various components are separated by zero-conductivity domains.
 
-        for (auto& domain : domains())
-            if (almost_equal(domain.conductivity(),0.0))
-                for (auto& boundary : domain.boundaries())
-                    if (!boundary.inside())
-                        for (auto& oriented_mesh : boundary.interface())
-                            if (oriented_mesh.mesh().current_barrier() && !oriented_mesh.mesh().isolated())
-                                oriented_mesh.mesh().outermost() = true;
+        // Figure out the connectivity of meshes
 
-        //detect isolated geometries
-        if (mesh_conn.size()>1) {
-            std::cout<<"The geometry is cut into several unrelated parts by non-conductive domains."<<std::endl;
-            std::cout<<"The computation will continue. But please note that the electric potentials from different parts are no longer comparable."<<std::endl;
+        std::set<const Mesh*> mesh_indices;
+        for (const auto& mesh : meshes())
+            mesh_indices.insert(&mesh);
 
-            for (unsigned iit = 0, p = 0; iit < mesh_conn.size(); ++iit) {
-                std::cout<<"Part "<<++p<<" is formed by meshes: { ";
-                for (unsigned miit = 0; miit < mesh_conn[iit].size(); ++miit) {
-                    std::cout<<"\""<<meshes()[mesh_conn[iit][miit]].name()<<"\" ";
-                }
-                std::cout<<"}."<<std::endl;
-            }
-        }
-        //count geo_group
-        for (unsigned git = 0; git < mesh_conn.size(); ++git) {
-            Strings gg;
-            for (unsigned mit = 0; mit < mesh_conn[git].size(); ++mit) {
-                gg.push_back(meshes()[mesh_conn[git][mit]].name());
-            }
-            geo_group_.push_back(gg);
+        std::set<const Mesh*> connected_meshes;
+
+        while (!mesh_indices.empty()) {
+            std::vector<const Mesh*> conn;
+            const Mesh* se = *(mesh_indices.begin());
+            mesh_indices.erase(se);
+            conn.push_back(se);
+            connected_meshes.insert(se);
+            for (unsigned iit = 0;iit<conn.size();++iit)
+                for (auto& mesh : meshes())
+                    if (common_domains(*conn[iit],mesh).size()!=0 && connected_meshes.insert(&mesh).second) {
+                        conn.push_back(&mesh);
+                        mesh_indices.erase(&mesh);
+                    }
+
+            //  Only consider connected sets with more than one component and that are not isolated.
+
+            if (conn.size()>1 && !conn.front()->isolated())
+                independant_parts.push_back(conn);
         }
 
+        //  Report isolated geometries
+
+        if (independant_parts.size()>1) {
+            std::cout << "The geometry is cut into several unrelated parts by non-conductive domains." << std::endl
+                      << "The computation will continue. But note that electric potentials from different parts are not comparable."
+                      << std::endl;
+
+            unsigned p =0;
+            for (const auto& part : independant_parts) {
+                std::cout << "Part " << ++p << " is formed by meshes: { ";
+                for (const auto& meshptr : part)
+                    std::cout << "\"" << meshptr->name() << "\" ";
+                std::cout << "}." << std::endl;
+            }
+        }
     }
 }
