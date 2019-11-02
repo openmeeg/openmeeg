@@ -249,7 +249,7 @@ namespace OpenMEEG {
             index_seen.insert(current_nearest_triangle.index());
             if ( not almost_equal(m_radii(idx), 0.) ) {
                 // if the electrode is larger than the triangle, look for adjacent triangles
-                if ( current_nearest_triangle.area() < 4.*M_PI*std::pow(m_radii(idx),2) ) {
+                if (current_nearest_triangle.area()<4*Pi*sqr(m_radii(idx))) {
                     std::stack<Triangle *> tri_stack;
                     tri_stack.push(&current_nearest_triangle);
                     while ( !tri_stack.empty() ) {
@@ -271,7 +271,7 @@ namespace OpenMEEG {
                 for ( Triangles::const_iterator tit = triangles.begin(); tit != triangles.end(); ++tit) {
                     triangles_area += tit->area();
                 }
-                m_weights(idx) = M_PI * std::pow(m_radii(idx),2) / triangles_area;
+                m_weights(idx) = Pi*sqr(m_radii(idx))/triangles_area;
             }
             m_triangles.push_back(triangles);
         }

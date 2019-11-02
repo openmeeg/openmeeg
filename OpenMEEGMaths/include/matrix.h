@@ -341,7 +341,7 @@ namespace OpenMEEG {
     #endif
     }
 
-    inline Matrix Matrix::operator *(const Matrix &B) const {
+    inline Matrix Matrix::operator*(const Matrix &B) const {
         om_assert(ncol()==B.nlin());
         size_t p=ncol();
         Matrix C(nlin(),B.ncol());

@@ -80,7 +80,7 @@ namespace OpenMEEG {
                   << " source_mesh located in domain \"" << domain.name() << "\"." << std::endl
                   << std::endl;
 
-        const double K  = 1.0/(4.*M_PI);
+        const double K  = 1.0/(4*Pi);
         const double L  = -1.0/domain.conductivity();
         for (const auto& boundary : domain.boundaries()) {
             const double factorN = (boundary.inside()) ? K : -K;
@@ -116,10 +116,10 @@ namespace OpenMEEG {
 
             //  Only consider dipoles in non-zero conductivity domain.
 
-            const double sigma = domain.conductivity();
-            if (sigma!=0.0) {
+            const double cond = domain.conductivity();
+            if (cond!=0.0) {
                 rhs_col.set(0.0);
-                const double K = 1.0/(4.*M_PI);
+                const double K = 1.0/(4*Pi);
                 for (const auto& boundary : domain.boundaries()) { //  Iterate over the domain's interfaces (half-spaces)
                     const double factorD = (boundary.inside()) ? K : -K;
                     for (const auto& oriented_mesh : boundary.interface()) { //  Iterate over the meshes of the interface
@@ -129,7 +129,7 @@ namespace OpenMEEG {
                         operatorDipolePotDer(r,q,mesh,rhs_col,coeffD,gauss_order,adapt_rhs);
 
                         if (!oriented_mesh.mesh().current_barrier()) {
-                            const double coeff = -coeffD/sigma;;
+                            const double coeff = -coeffD/cond;;
                             operatorDipolePot(r,q,mesh,rhs_col,coeff,gauss_order,adapt_rhs);
                         }
                     }
@@ -149,7 +149,7 @@ namespace OpenMEEG {
 
         size_t n_sensors = electrodes.getNumberOfSensors();
 
-        const double K = 1.0/(4.*M_PI);
+        const double K = 1.0/(4*Pi);
 
         //  transmat = a big SymMatrix of which mat = part of its transpose.
         SymMatrix transmat(geo.nb_parameters());
@@ -208,7 +208,7 @@ namespace OpenMEEG {
                 std::cerr << "] is outside the head. Point is dropped." << std::endl;
             }
         }
-        const double K = 1.0/(4.*M_PI);
+        const double K = 1.0/(4*Pi);
         mat = Matrix(points_.size(), dipoles.nlin());
         mat.set(0.0);
 
