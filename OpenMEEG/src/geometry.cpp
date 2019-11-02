@@ -438,12 +438,17 @@ namespace OpenMEEG {
         // Figure out the connectivity of meshes
 
         std::vector<int> mesh_idx;
-        for (unsigned i=0;i<meshes().size();++i)
+        for (unsigned i=0; i<meshes().size(); ++i)
             mesh_idx.push_back(i);
 
         std::vector<std::vector<int>> mesh_conn;
         std::vector<int> mesh_connected, mesh_diff;
+
+        //  Mesh_connected is empty... This is unnecessary.
+        //  Or is it a way to suppress redundant indexes ?
+
         std::set_difference(mesh_idx.begin(),mesh_idx.end(),mesh_connected.begin(),mesh_connected.end(),std::insert_iterator<std::vector<int>>(mesh_diff,mesh_diff.end()));
+
         while (!mesh_diff.empty()) {
             std::vector<int> conn;
             const int se = mesh_diff[0];
@@ -465,23 +470,29 @@ namespace OpenMEEG {
             mesh_conn.push_back(conn);
             std::sort(mesh_connected.begin(), mesh_connected.end());
             mesh_diff.clear();
-            std::set_difference(mesh_idx.begin(), mesh_idx.end(), mesh_connected.begin(), mesh_connected.end(), std::insert_iterator<std::vector<int> >(mesh_diff, mesh_diff.end()));
+            std::set_difference(mesh_idx.begin(),mesh_idx.end(),
+                                mesh_connected.begin(),mesh_connected.end(),
+                                std::insert_iterator<std::vector<int>>(mesh_diff,mesh_diff.end()));
         }
 
-        // Find isolated meshes and touch 0-cond meshes.
+        // Find meshes that are current_barriers (that touch a zero-conductivity domain).
+        // TODO: Should we also remove meshes for which there is no conductivity jump...
+        // TODO: Instead of marking meshes and vertices, remove them from the model ?
+        // TODO: isolated is not the proper name. immersed, redundant, unnecessary ?
 
-        std::set<std::string> touch_0_mesh;
         for (auto& domain : domains()) {
             if (almost_equal(domain.conductivity(),0.0)) {
                 for (auto& boundary : domain.boundaries()) {
                     for (auto& oriented_mesh : boundary.interface()) {
+                        const bool fully_immersed = (oriented_mesh.mesh().current_barrier()==true);
                         oriented_mesh.mesh().current_barrier() = true;
-                        std::pair<std::set<std::string>::iterator, bool> ret = touch_0_mesh.insert(oriented_mesh.mesh().name());
-                        if (!ret.second) {
-                            oriented_mesh.mesh().isolated() = true;
+                        if (fully_immersed) {
+                            oriented_mesh.mesh().isolated()  = true;
                             oriented_mesh.mesh().outermost() = false;
-                            std::cout<<"Mesh \""<<oriented_mesh.mesh().name()<<"\" will be excluded from computation because it touches non-conductive domains on both sides."<<std::endl;
-                            //add all of its vertices to invalid_vertices
+                            std::cout << "Mesh \"" << oriented_mesh.mesh().name()
+                                      << "\" will be excluded from computation because it touches non-conductive domains on both sides."
+                                      << std::endl;
+                            //  Add all of its vertices to invalid_vertices
                             for (const auto& vertex : oriented_mesh.mesh().vertices())
                                 invalid_vertices_.insert(*vertex);
                         }
@@ -490,12 +501,10 @@ namespace OpenMEEG {
             }
         }
 
-        std::vector<std::vector<int> > new_conn;
-        for (std::vector<std::vector<int> >::const_iterator git = mesh_conn.begin(); git != mesh_conn.end(); ++git) {
-            if (git->size()>1||!meshes()[*git->begin()].isolated()) {
-                new_conn.push_back(*git);
-            }
-        }
+        std::vector<std::vector<int>> new_conn;
+        for (const auto& mesh_indices : mesh_conn)
+            if (mesh_indices.size()>1 || !meshes()[mesh_indices.front()].isolated())
+                new_conn.push_back(mesh_indices);
         mesh_conn = new_conn;
 
         //do not delete shared vertices

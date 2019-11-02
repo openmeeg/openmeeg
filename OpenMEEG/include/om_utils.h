@@ -65,9 +65,9 @@ knowledge of the CeCILL-B license and that you accept its terms.
 namespace OpenMEEG {
 
     #ifndef M_PI
-        constexpr double PI = 3.14159265358979323846;
+        constexpr double Pi = 3.14159265358979323846;
     #else
-        constexpr double PI = M_PI;
+        constexpr double Pi = M_PI;
     #endif
 
     constexpr double MagFactor = 1e-7;

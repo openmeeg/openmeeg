@@ -99,48 +99,45 @@ int main(int argc, char** argv)
         // Assembling Matrix from discretization :
         HeadMat HM(geo, gauss_order);
         HM.save(argv[4]);
-    }
+    } else if (option(argc,argv,{ "-CorticalMat","-CM","-cm" },
+                                { "geometry file","conductivity file","sensors file","domain name","output file" })) {
 
-    /*********************************************************************************************
-    * Computation of Cortical Matrix for BEM Symmetric formulation
-    **********************************************************************************************/
-    else if ( option(argc, argv, {"-CorticalMat", "-CM", "-cm"},
-                     {"geometry file", "conductivity file", "sensors file", "domain name", "output file"}) ) {
-        double alpha = -1., beta = -1, gamma = -1.;
-        string filename = "";
+        //  Computation of Cortical Matrix for BEM Symmetric formulation
+
+        double alpha = -1.0;
+        double beta  = -1.0;
+        double gamma = -1.0;
+
+        std::string filename;
 
         switch (argc) {
             case 8: { // case gamma or filename
                 stringstream ss(argv[7]);
-                if ( !(ss >> gamma) ) {
-                    filename.append(argv[7]);
-                }
+                if (!(ss >> gamma))
+                    filename = argv[7];
                 break;
             }
             case 9: { // case alpha+beta or gamma+filename
                 stringstream ss(argv[7]);
-                if ( !(ss >> alpha) ) {
+                if (!(ss >> alpha))
                     throw runtime_error("given parameter is not a number");
-                }
                 ss.str(argv[8]);
                 ss.clear();
-                if ( !(ss >> beta) ) {
-                    filename.append(argv[8]);
+                if (!(ss >> beta)) {
+                    filename = argv[8];
                     gamma = alpha;
                 }
                 break;
             }
             case 10: { // case alpha+beta + filename
                 stringstream ss(argv[7]);
-                if ( !(ss >> alpha) ) {
+                if (!(ss >> alpha))
                     throw runtime_error("given parameter is not a number");
-                }
                 ss.str(argv[8]);
                 ss.clear();
-                if ( !(ss >> beta) ) {
+                if (!(ss >> beta))
                     throw runtime_error("given parameter is not a number");
-                }
-                filename.append(argv[9]);
+                filename = argv[9];
                 break;
             }
         }
@@ -159,12 +156,9 @@ int main(int argc, char** argv)
         Head2EEGMat M(geo, electrodes);
 
         // Assembling Matrix from discretization :
-        Matrix *CM;
-        if (gamma > 0.) {
-            CM = new CorticalMat2(geo, M, argv[5], gauss_order, gamma, filename);
-        } else {
-            CM = new CorticalMat(geo, M, argv[5], gauss_order, alpha, beta, filename);
-        }
+
+        const Matrix* CM = (gamma>0.0) ? static_cast<Matrix*>(new CorticalMat2(geo,M,argv[5],gauss_order,gamma,filename)) :
+                                         static_cast<Matrix*>(new CorticalMat (geo,M,argv[5],gauss_order,alpha,beta,filename));
         CM->save(argv[6]);
     }
 

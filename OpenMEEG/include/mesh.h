@@ -311,7 +311,7 @@ namespace OpenMEEG {
         /// Multiple 0 conductivity domains
 
         bool             current_barrier_ = false;
-        bool             isolated_ = false;
+        bool             isolated_        = false;
     };
 
     /// A vector of Mesh is called Meshes

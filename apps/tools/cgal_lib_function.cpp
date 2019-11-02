@@ -106,7 +106,7 @@ namespace OpenMEEG {
 # if 0
             std::pair<Tr::Point,unsigned> p[init_points];
             for ( unsigned iip = 0; iip < init_points; ++iip) {
-                p[iip] = std::make_pair(Tr::Point(hemisphere_radius*std::cos(2.*M_PI/init_points*iip), hemisphere_radius*std::sin(2.*M_PI/init_points*iip) , 0),0);
+                p[iip] = std::make_pair(Tr::Point(hemisphere_radius*std::cos(2.*Pi/init_points*iip), hemisphere_radius*std::sin(2.*Pi/init_points*iip) , 0),0);
             }
             c3t3.insert_surface_points(&p[0],&p[init_points-1]);
             CGAL::refine_mesh_3<C3t3>(c3t3, hdomain, criteria, no_exude(), no_perturb());

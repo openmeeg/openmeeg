@@ -271,14 +271,14 @@ namespace OpenMEEG {
                 const Edge& edge = t->edge(v1);
                 const Vertex& v2 = edge.vertex(0);
                 const Vertex& v3 = edge.vertex(1);
-                A(index,index) += P1gradient(v1,v2,v3).norm2()*std::pow(t->area(),2);
+                A(index,index) += P1gradient(v1,v2,v3).norm2()*sqr(t->area());
             }
         }
 
         // edges
 
         for (const auto& triangle: triangles_) {
-            const double area2 = std::pow(triangle.area(),2);
+            const double area2 = sqr(triangle.area());
             const Edges& edges = triangle.edges();
             for (unsigned i=0;i<3;++i) {
                 const Vertex& V1 = edges[i].vertex(0);
@@ -318,7 +318,7 @@ namespace OpenMEEG {
                 const unsigned ind2 = V2.index();
                 if (ind1<ind2) { // sym matrix only lower half
                     const double h = (V2-V1).norm();
-                    A(ind1,ind2) += -triangle.area()/(12*M_PI*sqr(h))*exp(-sqr(h)/(4*h));
+                    A(ind1,ind2) += -triangle.area()/(12*Pi*sqr(h))*exp(-sqr(h)/(4*h));
                 }
             }
 
@@ -1144,14 +1144,14 @@ namespace OpenMEEG {
 
         center /= vertices().size();
         const double solangle = solid_angle(center);
-        if (almost_equal(solangle, 0.)) {
-            std::cout << "Center point :" << center << " is on the mesh." << std::endl;
-        } else if (almost_equal(solangle,-4*M_PI)) {
-            // mesh is ok
-        } else if (almost_equal(solangle,4*M_PI)) {
-            change_orientation();
-        } else {
-            std::cout << "Not a closed mesh." << std::endl;
+        if (!almost_equal(solangle,-4*Pi)) {
+            if (almost_equal(solangle,0.0)) {
+                std::cout << "Center point :" << center << " is on the mesh." << std::endl;
+            } else if (almost_equal(solangle,4*Pi)) {
+                change_orientation();
+            } else {
+                std::cout << "Not a closed mesh." << std::endl;
+            }
         }
     }
 

@@ -50,23 +50,23 @@ namespace OpenMEEG {
     bool Interface::contains(const Vect3& p) const {
         const double solangle = solid_angle(p);
 
-        if (almost_equal(solangle,-4.*M_PI))
+        if (almost_equal(solangle,-4*Pi))
             return true;
 
         if (almost_equal(solangle,0.0))
             return false;
 
-        if (almost_equal(solangle,4.*M_PI)) {
+        if (almost_equal(solangle,4*Pi)) {
             std::cerr << "Interface::contains_point(" << p << ") Error. This should not happen. Are you sure the mesh is properly oriented ?\n";
             return true;
         }
 
-        std::cerr << "Interface::contains_point(" << p << ") Error. Are you sure the interface \"" << name_ << "\" is closed? Solid angle: " << std::abs(solangle)/M_PI <<"*PI." << std::endl;
+        std::cerr << "Interface::contains_point(" << p << ") Error. Are you sure the interface \"" << name_ << "\" is closed? Solid angle: " << std::abs(solangle)/Pi <<"*PI." << std::endl;
         //  TODO: Is it really sane to return something ? Throw an exception instead...
-        return (std::abs(solangle)>2*M_PI) ? true : false;
+        return (std::abs(solangle)>2*Pi) ? true : false;
     }
 
-    /// Compute the solid angle which should be +/-4 * Pi for a closed mesh if p is inside
+    /// Compute the solid angle which should be +/-4*Pi for a closed mesh if p is inside
     /// (the sign depends on the interface orientation), and 0 if p is outside.
 
     double Interface::solid_angle(const Vect3& p) const {
@@ -108,7 +108,7 @@ namespace OpenMEEG {
                 solangle = solid_angle(V);
             }
 
-        if (almost_equal(solangle,4.*M_PI)) {
+        if (almost_equal(solangle,4*Pi)) {
             // Reorient the interface.
             // TODO: With very little work OpenMEEG could be insensitive to global orientation of the interfaces.
             // and we could could remove this.
@@ -119,10 +119,10 @@ namespace OpenMEEG {
             solangle = -solangle;
         }
 
-        if (almost_equal(solangle,0.0) || almost_equal(solangle,-4.*M_PI))
+        if (almost_equal(solangle,0.0) || almost_equal(solangle,-4*Pi))
             return true;
 
-        std::cout << solangle/M_PI << "PI" << std::endl;
+        std::cout << solangle/Pi << "PI" << std::endl;
 
         //  In case of a bad random point location (too close to the mesh), do a double check:
 
