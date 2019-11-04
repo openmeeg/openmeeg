@@ -18,18 +18,55 @@ class Side(Enum):
 # build a geometry with given domains list
 #
 def make_geometry( domains_array ):
+    # syntax check: need for an array of domains
+    if  type(domains_array) != list:
+        print("make_geometry: wrong main arg (should be an array of domains)")
+        return om.Geometry()
+    if len(domains_array) == 0:
+        print("make_geometry: main arg is empty")
+        return om.Geometry()
+
     for i in range(len(domains_array)):
         for dname in domains_array[i]:
             print("Domain: " + dname)
 
-            for j in range(len(domains_array[i][dname][0])):
-                print("- interface: " + str(j))
+            # syntax check: need an array of interfaces
+            if type(domains_array[i][dname][0]) != list:
+                print("make_geometry: wrong arg for domain (" + dname + "), should be a list of interfaces")
+                return om.Geometry()
+            if len(domains_array[i][dname][0]) == 0:
+                print("make_geometry: domain (" + dname + ") should not be empty")
+                return om.Geometry()
 
+            for j in range(len(domains_array[i][dname][0])):
+
+                # syntax check: need a array of (msh, orientation)
+                if type(domains_array[i][dname][0][j][0]) != list:
+                    print("make_geometry: wrong arg for interface (" + str[j] + "), should be a list of ( mesh, orientation)")
+                    return om.Geometry()
+                if len(domains_array[i][dname][0][j][0]) == 0:
+                    print("make_geometry: interface (" + str[j] + ") for domain (" + dname + ") should not be empty")
+                    return om.Geometry()
+                if domains_array[i][dname][0][j][1] != Side.In and domains_array[i][dname][0][j][1] != Side.Out:
+                    print("make_geometry: wrong arg for interface (" + str[j] + "),  2nd arg should be a side direction (In/Out)")
+                    return om.Geometry()
+
+
+                print("- interface: " + str(j))
                 for k in range(len(domains_array[i][dname][0][j][0])):
+                    # syntax check: tuple of (mesh, orientation)
+                    if type(domains_array[i][dname][0][j][0][k][0]) != type(om.Mesh()):
+                        print("make_geometry: wrong arg for interface (" + str[j] + ") and element (" +  strk(k)+ ") 1st tuple member should a be a mesh")
+                        return om.Geometry()
+                    if domains_array[i][dname][0][j][0][k][1] != Orientation.Normal and domains_array[i][dname][0][j][0][k][1] != Orientation.Opposite:
+                        print("make_geometry: wrong arg for interface (" + str[j] + ") and element (" +  strk(k)+ ") 2nd tuple member should a be an orientation")
+                        return om.Geometry()
+
                     print("  - mesh       : " + domains_array[i][dname][0][j][0][k][0].name())
                     print("    " + str(len(domains_array[i][dname][0][j][0][k][0].vertices())) + " vertices")
                     print("    " + str(len(domains_array[i][dname][0][j][0][k][0].triangles())) + " triangles")
                     print("  - orientation: " + str(domains_array[i][dname][0][j][0][k][1]))
+
 
                 print("- direction: " + str(domains_array[i][dname][0][j][1]))
             print("- conductivity: " + str(domains_array[i][dname][1]))
