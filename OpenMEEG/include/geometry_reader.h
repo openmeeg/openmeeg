@@ -304,9 +304,9 @@ namespace OpenMEEG {
             std::istringstream iss(line);
             while (iss >> id) {
                 bool found = false;
-                bool inside = false; // does the id starts with a '-' or a '+' ?
+                SimpleDomain::Side side = SimpleDomain::Outside; // does the id starts with a '-' or a '+' ?
                 if ((id[0]=='-') || (id[0]=='+')) {
-                    inside = id[0]=='-';
+                    side = (id[0]=='-') ? SimpleDomain::Inside : SimpleDomain::Outside;
                     id = id.substr(1,id.size());
                 } else if (id=="shared") {
                     std::cerr << "(DEPRECATED) Keyword shared is useless. Please consider updating your geometry file to the new format 1.1 (see data/README.rst): " << geometry << std::endl;
@@ -320,7 +320,7 @@ namespace OpenMEEG {
                             std::cerr << "Please correct a mesh orientation when defining the interface in the geometry file." << std::endl;
                             exit(1);
                         }
-                        domain.boundaries().push_back(SimpleDomain(omesh,inside));
+                        domain.boundaries().push_back(SimpleDomain(omesh,side));
                     }
 
                 if (!found)

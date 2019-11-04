@@ -56,20 +56,24 @@ namespace OpenMEEG {
     /// a closed surface and a side information. The closed surface/interface splits the space
     /// into two components. The side depicts which of these two components is the simple domain.
 
-    class SimpleDomain: private std::pair<Interface,bool> {
-
-        typedef std::pair<Interface,bool> base;
-
+    class SimpleDomain {
     public:
 
+        typedef enum { Inside, Outside } Side;
+
          SimpleDomain() { }
-         SimpleDomain(Interface& interf,const bool ins): base(interf,ins) { }
+         SimpleDomain(Interface& i,const Side s): interf(i),side(s) { }
         ~SimpleDomain() { }
 
-              Interface& interface()       { return this->first;  }
-        const Interface& interface() const { return this->first;  }
+              Interface& interface()       { return interf;  }
+        const Interface& interface() const { return interf;  }
 
-        bool inside() const { return this->second; }
+        bool inside() const { return (side==Inside); }
+
+    private:
+
+        Interface interf;
+        Side      side;
     };
 
     /// \brief a Domain is a vector of SimpleDomain
@@ -78,8 +82,6 @@ namespace OpenMEEG {
 
     class OPENMEEG_EXPORT Domain {
     public:
-
-        typedef enum { Inside, Outside } Side;
 
         typedef std::vector<SimpleDomain> Boundaries;
 
