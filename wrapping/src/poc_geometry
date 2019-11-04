@@ -7,15 +7,6 @@
 
 import openmeeg as om
 
-from enum import Enum, auto
-class Orientation(Enum):
-    Normal   = auto()
-    Opposite = auto()
-
-class Side(Enum):
-    In     = auto()
-    Out    = auto()
-
 #
 # build a geometry with given domains list
 #
@@ -49,7 +40,7 @@ def make_geometry( domains_array ):
                 if len(domains_array[i][dname][0][j][0]) == 0:
                     print("make_geometry: interface (" + str[j] + ") for domain (" + dname + ") should not be empty")
                     return om.Geometry()
-                if domains_array[i][dname][0][j][1] != Side.In and domains_array[i][dname][0][j][1] != Side.Out:
+                if domains_array[i][dname][0][j][1] != om.Domain.Inside and domains_array[i][dname][0][j][1] != om.Domain.Outside:
                     print("make_geometry: wrong arg for interface (" + str[j] + "),  2nd arg should be a side direction (In/Out)")
                     return om.Geometry()
 
@@ -60,17 +51,22 @@ def make_geometry( domains_array ):
                     if type(domains_array[i][dname][0][j][0][k][0]) != type(om.Mesh()):
                         print("make_geometry: wrong arg for interface (" + str[j] + ") and element (" +  strk(k)+ ") 1st tuple member should a be a mesh")
                         return om.Geometry()
-                    if domains_array[i][dname][0][j][0][k][1] != Orientation.Normal and domains_array[i][dname][0][j][0][k][1] != Orientation.Opposite:
+                    if domains_array[i][dname][0][j][0][k][1] != om.OrientedMesh.Normal and domains_array[i][dname][0][j][0][k][1] != om.OrientedMesh.Opposite:
                         print("make_geometry: wrong arg for interface (" + str[j] + ") and element (" +  strk(k)+ ") 2nd tuple member should a be an orientation")
                         return om.Geometry()
 
                     print("  - mesh       : " + domains_array[i][dname][0][j][0][k][0].name())
                     print("    " + str(len(domains_array[i][dname][0][j][0][k][0].vertices())) + " vertices")
                     print("    " + str(len(domains_array[i][dname][0][j][0][k][0].triangles())) + " triangles")
-                    print("  - orientation: " + str(domains_array[i][dname][0][j][0][k][1]))
+                    if domains_array[i][dname][0][j][0][k][1] == om.OrientedMesh.Normal :
+                        print("  - orientation: Normal")
+                    else:
+                        print("  - orientation: Opposite")
 
-
-                print("- direction: " + str(domains_array[i][dname][0][j][1]))
+                if  domains_array[i][dname][0][j][1] == om.Domain.Inside:
+                    print("- direction: Inside")
+                else:
+                    print("- direction: Outside")
             print("- conductivity: " + str(domains_array[i][dname][1]))
             print()
 
@@ -88,20 +84,20 @@ m_scal = om.Mesh( "/Users/jls/Development/athena/openmeeg/data/Head1/scalp.1.tri
 m_scal.setName("scalp.1.tri")
 
 # should be possible
-#interface1 = [ (m1, Orientation.Normal), ( m2, Orientation.Opposite), ( m3, Orientation.Normal)]
+#interface1 = [ (m1, om.OrientedMesh.Normal), ( m2, om.OrientedMesh.Opposite), ( m3, om.OrientedMesh.Normal)]
 
-interface1 = [ (m_cort, Orientation.Normal) ,(m_cort, Orientation.Normal) ]
-interface2 = [ (m_skul, Orientation.Normal) ]
-interface3 = [ (m_scal, Orientation.Normal) ]
+interface1 = [ (m_cort, om.OrientedMesh.Normal) ]
+interface2 = [ (m_skul, om.OrientedMesh.Normal) ]
+interface3 = [ (m_scal, om.OrientedMesh.Normal) ]
 
 domains = {
-    "Scalp" : ( [ (interface2, Side.Out) , (interface3, Side.In) ] , 1.0 ) ,
-    "Brain" : ( [ (interface1, Side.In) ] , 1.0),
-    "Air"   : ( [ (interface3, Side.Out) ] , 0.0),
-    "Skull" : ( [ (interface2, Side.In) , (interface1, Side.Out) ] , 0.0125)
+    "Scalp" : ( [ (interface2, om.Domain.Outside) , (interface3, om.Domain.Inside) ] , 1.0 ) ,
+    "Brain" : ( [ (interface1, om.Domain.Inside) ] , 1.0),
+    "Air"   : ( [ (interface3, om.Domain.Outside) ] , 0.0),
+    "Skull" : ( [ (interface2, om.Domain.Inside) , (interface1, om.Domain.Outside) ] , 0.0125)
 }
 
 g1 = make_geometry( [ domains ] );
-g2 = om.Geometry()
+g2 = om.Geometry("/Users/jls/Development/athena/openmeeg/data/Head1/Head1.geom",  "/Users/jls/Development/athena/openmeeg/data/Head1/Head1.cond")
 
 assert g1.__class__ == g2.__class__
