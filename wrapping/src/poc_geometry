@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 #
 #
+# WIP: copy this file in wrapping/src directory of the build tree
+# then execute it (python3 ./wrapping/src/poc_geometry)
 #
 
 import openmeeg as om
