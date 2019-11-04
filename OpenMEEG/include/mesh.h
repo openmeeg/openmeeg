@@ -1,7 +1,7 @@
 /*
 Project Name : OpenMEEG
 
-© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre 
+© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre
 GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU, Théodore PAPADOPOULO,
 Emmanuel OLIVI
 Maureen.Clerc.AT.inria.fr, keriven.AT.certis.enpc.fr,
@@ -77,14 +77,14 @@ namespace OpenMEEG {
 
     enum Filetype { VTK, TRI, BND, MESH, OFF, GIFTI };
 
-    /** 
+    /**
         Mesh class
         \brief Mesh is a collection of triangles
     */
 
     class OPENMEEG_EXPORT Mesh {
     public:
-        
+
         typedef std::vector<Triangle*>                VectPTriangle;
         typedef std::vector<Vertex*>                  VectPVertex;
         typedef std::map<const Vertex*,VectPTriangle> AdjacencyMap;
@@ -94,7 +94,7 @@ namespace OpenMEEG {
 
         Mesh(): name_(""),all_vertices_(0),triangles_() { }
 
-        /// constructor from scratch (add vertices/triangles one by one) 
+        /// constructor from scratch (add vertices/triangles one by one)
         /// \param nv allocate space for vertices
         /// \param nt allocate space for triangles
 
@@ -111,13 +111,13 @@ namespace OpenMEEG {
         /// constructor using an outisde storage for vertices \param av Where to store vertices \param name Mesh name
 
         Mesh(Vertices& av,const std::string name=""): name_(name),all_vertices_(&av) {
-            set_vertices_.insert(all_vertices_->begin(), all_vertices_->end()); 
+            set_vertices_.insert(all_vertices_->begin(), all_vertices_->end());
         }
 
         /// constructor loading directly a mesh file named \param filename . Be verbose if \param verbose is true. The mesh name is \param name .
 
         Mesh(std::string filename,const bool verbose=true,const std::string name=""): name_(name),allocate_(true) {
-            unsigned nb_v = load(filename,false,false); 
+            unsigned nb_v = load(filename,false,false);
             all_vertices_ = new Vertices(nb_v); // allocates space for the vertices
             load(filename,verbose);
         }
@@ -128,6 +128,8 @@ namespace OpenMEEG {
 
         std::string&       name()       { return name_; } ///< \return the mesh name
         const std::string& name() const { return name_; } ///< \return the mesh name
+
+        void setName(const std::string& name) { name_ = name ; return ;  } ///< \setter for the mesh name
 
         const VectPVertex& vertices()     const { return vertices_;      } ///< \return the vector of pointers to the mesh vertices
               Vertices     all_vertices() const { return *all_vertices_; }
@@ -205,7 +207,7 @@ namespace OpenMEEG {
         // for IO:s --------------------------------------------------------------------
         /// Read mesh from file
         /// \param filename can be .vtk, .tri (ascii), .off .bnd or .mesh.
-        /// Be verbose if \param verbose is true. 
+        /// Be verbose if \param verbose is true.
         /// Id \param read_all is false then it only returns the total number of vertices.
 
         unsigned load(const std::string& filename,const bool& verbose=true,const bool& read_all=true);
@@ -270,7 +272,7 @@ namespace OpenMEEG {
 
         /// map the edges with an unsigned
 
-        typedef std::map<std::pair<const Vertex *, const Vertex *>, int> EdgeMap; 
+        typedef std::map<std::pair<const Vertex *, const Vertex *>, int> EdgeMap;
 
         void destroy();
         void copy(const Mesh&);
