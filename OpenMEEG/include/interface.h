@@ -1,7 +1,7 @@
 /*
 Project Name : OpenMEEG
 
-© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre 
+© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre
 GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU, Théodore PAPADOPOULO,
 Emmanuel OLIVI
 Maureen.Clerc.AT.inria.fr, keriven.AT.certis.enpc.fr,
@@ -49,13 +49,15 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 namespace OpenMEEG {
 
-    /// An Oriented Mesh is a mesh associated with a boolean stating if it is well oriented. 
+    /// An Oriented Mesh is a mesh associated with a boolean stating if it is well oriented.
 
     class OrientedMesh: public std::pair<Mesh*,bool> {
 
         typedef std::pair<Mesh*,bool> base;
 
     public:
+
+        typedef enum { Normal, Opposite } Orientation ;
 
         OrientedMesh() {}
 
@@ -73,12 +75,14 @@ namespace OpenMEEG {
     class OPENMEEG_EXPORT Interface: public std::vector<OrientedMesh> {
     public:
 
+        //        using OrientedMesh::Orientation;
+
         typedef Mesh::VectPTriangle VectPTriangle;
 
         /// Default Constructor
 
         Interface(): name_(""),outermost_(false) { }
-        
+
         /// Constructor from a name
 
         Interface(const std::string _name): name_(_name), outermost_(false) { }
@@ -100,7 +104,7 @@ namespace OpenMEEG {
                 nb += omesh.mesh().vertices().size();
             return nb;
         }
-        
+
         /// \return the total number of the interface triangles
 
         size_t nb_triangles() const {
