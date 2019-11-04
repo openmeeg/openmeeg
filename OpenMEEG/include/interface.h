@@ -51,22 +51,26 @@ namespace OpenMEEG {
 
     /// An Oriented Mesh is a mesh associated with a boolean stating if it is well oriented.
 
-    class OrientedMesh: public std::pair<Mesh*,bool> {
-
-        typedef std::pair<Mesh*,bool> base;
-
+    class OrientedMesh {
     public:
 
-        typedef enum { Normal, Opposite } Orientation ;
+        typedef enum { Normal=1, Opposite=-1 } Orientation ;
 
         OrientedMesh() {}
 
-        OrientedMesh(Mesh& m,const bool inside): base(&m,inside) { }
+        OrientedMesh(Mesh& m,const Orientation o=Normal): meshptr(&m),orient(o) { }
 
-              Mesh&  mesh()       { return *first;  } ///< \brief access mesh
-        const Mesh&  mesh() const { return *first;  } ///< \brief access mesh
+              Mesh&  mesh()       { return *meshptr; } ///< \brief access mesh
+        const Mesh&  mesh() const { return *meshptr; } ///< \brief access mesh
 
-        int orientation() const { return (second) ? 1 : -1; } ///< \brief orientation is +1 or -1 ?
+        int orientation() const { return orient; } ///< \brief orientation is +1 or -1 ?
+
+        void change_orientation() { orient = -orient; }
+
+    private:
+
+        Mesh* meshptr;
+        int   orient;
     };
 
     /// Interface class

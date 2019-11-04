@@ -68,12 +68,11 @@ int main( int argc, char** argv)
 
     Mesh mesh(mesh_filename);
     Interface interface;
-    interface.push_back(OrientedMesh(mesh, true)); // one mesh per interface, (well oriented)
+    interface.push_back(OrientedMesh(mesh)); // one mesh per interface, (well oriented)
 
     Matrix output(sensors.getNumberOfPositions(), 3);
 
-    size_t nb_positions = sensors.getNumberOfPositions();
-
+    const size_t nb_positions = sensors.getNumberOfPositions();
     for (size_t i=0;i<nb_positions;++i) {
         const Vector position = sensors.getPosition(i);
         Vect3 current_position;
