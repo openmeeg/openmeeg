@@ -79,8 +79,11 @@ def make_geometry( domains_array ):
 # MIMICS Head1.geom + Head1.cond
 #
 m_cort = om.Mesh( "/Users/jls/Development/athena/openmeeg/data/Head1/cortex.1.tri")
+m_cort.setName("cortex.1.tri")
 m_skul = om.Mesh( "/Users/jls/Development/athena/openmeeg/data/Head1/skull.1.tri")
+m_skul.setName("skull.1.tri")
 m_scal = om.Mesh( "/Users/jls/Development/athena/openmeeg/data/Head1/scalp.1.tri")
+m_scal.setName("scalp.1.tri")
 
 # should be possible
 #interface1 = [ (m1, Orientation.Normal), ( m2, Orientation.Opposite), ( m3, Orientation.Normal)]
