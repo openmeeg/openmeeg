@@ -1,7 +1,7 @@
 /*
 Project Name : OpenMEEG
 
-© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre 
+© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre
 GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU, Théodore PAPADOPOULO,
 Emmanuel OLIVI
 Maureen.Clerc.AT.inria.fr, keriven.AT.certis.enpc.fr,
@@ -79,6 +79,8 @@ namespace OpenMEEG {
     class OPENMEEG_EXPORT Domain {
     public:
 
+        typedef enum { Inside, Outside } Side;
+
         typedef std::vector<SimpleDomain> Boundaries;
 
          Domain() { }
@@ -93,7 +95,7 @@ namespace OpenMEEG {
 
               std::string& name()       { return domain_name; }
         const std::string& name() const { return domain_name; }
-        
+
         /// The conductivity of the domain.
 
               double& conductivity()       { return cond; }
@@ -113,7 +115,7 @@ namespace OpenMEEG {
         ///        -1 if the mesh is oriented towards the outsde of the domain.
         ///         0 otherwise (the mesh is not part of the domain boundary).
 
-        int mesh_orientation(const Mesh& m) const { 
+        int mesh_orientation(const Mesh& m) const {
             for (const auto& boundary : boundaries())
                 for (const auto& interface : boundary.interface())
                     if (&interface.mesh()==&m)
