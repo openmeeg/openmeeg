@@ -115,7 +115,7 @@ namespace OpenMEEG {
 
             std::cout << "Global reorientation of interface " << name() << std::endl;
             for (auto& omesh : *this)
-                omesh.second = !omesh.second;
+                omesh.change_orientation();
             solangle = -solangle;
         }
 

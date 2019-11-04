@@ -252,7 +252,7 @@ namespace OpenMEEG {
                 geom.meshes().push_back(Mesh(geom.vertices(), interfacename[i]));
                 geom.meshes()[i].load(fullname[i], false);
                 interfaces.push_back(Interface(interfacename[i]));
-                interfaces[i].push_back(OrientedMesh(geom.meshes()[i],true)); // one mesh per interface, (well oriented)
+                interfaces[i].push_back(OrientedMesh(geom.meshes()[i])); // one mesh per interface, (well oriented)
             }
         } else { // -----------------------
             std::string interfacename;
@@ -273,9 +273,9 @@ namespace OpenMEEG {
                 }
                 interfaces.push_back(interfacename);
                 while (iss >> id) {
-                    bool oriented = true; // does the id starts with a '-' or a '+' ?
+                    OrientedMesh::Orientation oriented = OrientedMesh::Normal; // does the id starts with a '-' or a '+' ?
                     if ((id[0]=='-') || (id[0]=='+')) {
-                        oriented = id[0]=='+';
+                        oriented = (id[0]=='+') ? OrientedMesh::Normal : OrientedMesh::Opposite;
                         id = id.substr(1,id.size());
                     }
                     interfaces[i].push_back(OrientedMesh(geom.mesh(id),oriented));
