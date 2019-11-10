@@ -87,10 +87,10 @@ namespace OpenMEEG {
 
     HeadMat::HeadMat(const Geometry& geo,const unsigned gauss_order) {
 
-        SymMatrix& mat = *this;
+        SymMatrix& symmatrix = *this;
 
-        mat = SymMatrix((geo.nb_parameters()-geo.nb_current_barrier_triangles()));
-        mat.set(0.0);
+        symmatrix = SymMatrix((geo.nb_parameters()-geo.nb_current_barrier_triangles()));
+        symmatrix.set(0.0);
         constexpr double K = 1.0/(4*Pi);
 
         // We iterate over pairs of communicating meshes (sharing a domains) to fill the
@@ -106,7 +106,7 @@ namespace OpenMEEG {
             if ((!mesh1.current_barrier()) && (!mesh2.current_barrier()) ) {
                 // Computing S block first because it's needed for the corresponding N block
                 const double inv_cond = geo.sigma_inv(mesh1,mesh2);
-                operatorS(mesh1,mesh2,mat,orientation*inv_cond*K,gauss_order);
+                operatorS(mesh1,mesh2,symmatrix,orientation*inv_cond*K,gauss_order);
                 Ncoeff = geo.sigma(mesh1,mesh2)/inv_cond;
             } else {
                 Ncoeff = orientation*geo.sigma(mesh1,mesh2)*K;
@@ -115,21 +115,21 @@ namespace OpenMEEG {
             const double Dcoeff = -orientation*geo.indicator(mesh1,mesh2)*K;
             if (!mesh1.current_barrier()){
                 // Computing D block
-                operatorD(mesh1,mesh2,mat,Dcoeff,gauss_order,false);
+                operatorD(mesh1,mesh2,symmatrix,Dcoeff,gauss_order,false);
             }
             if ((mesh1!=mesh2) && (!mesh2.current_barrier())){
                 // Computing D* block
-                operatorD(mesh1,mesh2,mat,Dcoeff,gauss_order,true);
+                operatorD(mesh1,mesh2,symmatrix,Dcoeff,gauss_order,true);
             }
 
             // Computing N block
 
-            operatorN(mesh1,mesh2,mat,Ncoeff,gauss_order);
+            operatorN(mesh1,mesh2,symmatrix,Ncoeff,gauss_order);
         }
 
         // Deflate all current barriers as one
 
-        deflate(mat,geo);
+        deflate(symmatrix,geo);
     }
 
     //  The first part of this code is extremely similar to the method above.... TODO: Commonize ??
@@ -160,7 +160,7 @@ namespace OpenMEEG {
             if (!(mesh1.current_barrier() || mesh2.current_barrier()) && ((mesh1!=mesh2) || (mesh1!=cortex))) {
                 // Computing S block first because it's needed for the corresponding N block
                 const double inv_cond = geo.sigma_inv(mesh1,mesh2);
-                operatorS(mesh1,mesh2,mat,orientation*inv_cond*K,gauss_order);
+                operatorS(mesh1,mesh2,symmatrix,orientation*inv_cond*K,gauss_order);
                 Ncoeff = geo.sigma(mesh1,mesh2)/inv_cond;
             } else {
                 Ncoeff = orientation*geo.sigma(mesh1,mesh2)*K;
@@ -183,7 +183,7 @@ namespace OpenMEEG {
 
         deflate(symmatrix,geo);
 
-        // Copy symmatrix into mat except for the lines related to the cortex
+        // Copy symmatrix into the returned matrix except for the lines related to the cortex
         // (vertices [i_vb_c, i_ve_c] and triangles [i_tb_c, i_te_c]).
 
         Matrix matrix = Matrix(Nl,Nc);
