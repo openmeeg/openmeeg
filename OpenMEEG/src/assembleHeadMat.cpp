@@ -105,9 +105,9 @@ namespace OpenMEEG {
             double Ncoeff;
             if ((!mesh1.current_barrier()) && (!mesh2.current_barrier()) ) {
                 // Computing S block first because it's needed for the corresponding N block
-                const double Scoeff = orientation*geo.sigma_inv(mesh1,mesh2)*K;
-                operatorS(mesh1,mesh2,mat,Scoeff,gauss_order);
-                Ncoeff = geo.sigma(mesh1,mesh2)/geo.sigma_inv(mesh1,mesh2);
+                const double inv_cond = geo.sigma_inv(mesh1,mesh2);
+                operatorS(mesh1,mesh2,mat,orientation*inv_cond*K,gauss_order);
+                Ncoeff = geo.sigma(mesh1,mesh2)/inv_cond;
             } else {
                 Ncoeff = orientation*geo.sigma(mesh1,mesh2)*K;
             }
@@ -159,9 +159,9 @@ namespace OpenMEEG {
             double Ncoeff;
             if (!(mesh1.current_barrier() || mesh2.current_barrier()) && ((mesh1!=mesh2) || (mesh1!=cortex))) {
                 // Computing S block first because it's needed for the corresponding N block
-                const double Scoeff = orientation*geo.sigma_inv(mesh1,mesh2)*K;
-                operatorS(mesh1,mesh2,symmatrix,Scoeff,gauss_order);
-                Ncoeff = geo.sigma(mesh1,mesh2)/geo.sigma_inv(mesh1,mesh2);
+                const double inv_cond = geo.sigma_inv(mesh1,mesh2);
+                operatorS(mesh1,mesh2,mat,orientation*inv_cond*K,gauss_order);
+                Ncoeff = geo.sigma(mesh1,mesh2)/inv_cond;
             } else {
                 Ncoeff = orientation*geo.sigma(mesh1,mesh2)*K;
             }
