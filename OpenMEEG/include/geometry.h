@@ -190,9 +190,10 @@ namespace OpenMEEG {
 
         /// Handle multiple isolated domains
 
-        const size_t     nb_current_barrier_triangles() const { return nb_current_barrier_triangles_; }
-              size_t&    nb_current_barrier_triangles()       { return nb_current_barrier_triangles_; }
-        const size_t     nb_invalid_vertices()                { return invalid_vertices_.size();      }
+        size_t  nb_current_barrier_triangles() const { return nb_current_barrier_triangles_; }
+        size_t& nb_current_barrier_triangles()       { return nb_current_barrier_triangles_; }
+        size_t  nb_invalid_vertices()                { return invalid_vertices_.size();      }
+
         const MeshParts& isolated_parts() const { return independant_parts; }
               void       mark_current_barriers();
         const Mesh&      mesh(const std::string& id) const; //  Is this useful ?? TODO.
