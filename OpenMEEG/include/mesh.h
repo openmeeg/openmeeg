@@ -92,13 +92,13 @@ namespace OpenMEEG {
         // Constructors:
         /// default constructor
 
-        Mesh(): name_(""),all_vertices_(0),triangles_() { }
+        Mesh(): all_vertices_(0),triangles_() { }
 
         /// constructor from scratch (add vertices/triangles one by one)
         /// \param nv allocate space for vertices
         /// \param nt allocate space for triangles
 
-        Mesh(const unsigned& nv,const unsigned& nt): name_(""),allocate_(true) {
+        Mesh(const unsigned& nv,const unsigned& nt): allocated(true) {
             all_vertices_ = new Vertices;
             all_vertices_->reserve(nv); // allocates space for the vertices
             triangles_.reserve(nt);
@@ -110,13 +110,13 @@ namespace OpenMEEG {
 
         /// constructor using an outisde storage for vertices \param av Where to store vertices \param name Mesh name
 
-        Mesh(Vertices& av,const std::string name=""): name_(name),all_vertices_(&av) {
+        Mesh(Vertices& av,const std::string name=""): mesh_name(name),all_vertices_(&av) {
             set_vertices_.insert(all_vertices_->begin(), all_vertices_->end());
         }
 
         /// constructor loading directly a mesh file named \param filename . Be verbose if \param verbose is true. The mesh name is \param name .
 
-        Mesh(std::string filename,const bool verbose=true,const std::string name=""): name_(name),allocate_(true) {
+        Mesh(std::string filename,const bool verbose=true,const std::string name=""): mesh_name(name),allocated(true) {
             unsigned nb_v = load(filename,false,false);
             all_vertices_ = new Vertices(nb_v); // allocates space for the vertices
             load(filename,verbose);
@@ -126,10 +126,10 @@ namespace OpenMEEG {
 
         ~Mesh() { destroy(); }
 
-        std::string&       name()       { return name_; } ///< \return the mesh name
-        const std::string& name() const { return name_; } ///< \return the mesh name
+        std::string&       name()       { return mesh_name; } ///< \return the mesh name
+        const std::string& name() const { return mesh_name; } ///< \return the mesh name
 
-        void setName(const std::string& name) { name_ = name ; return ;  } ///< \setter for the mesh name
+        void setName(const std::string& name) { mesh_name = name ; return ;  } ///< \setter for the mesh name
 
         const VectPVertex& vertices()     const { return vertices_;      } ///< \return the vector of pointers to the mesh vertices
               Vertices     all_vertices() const { return *all_vertices_; }
@@ -301,13 +301,13 @@ namespace OpenMEEG {
                     links_[vertex].push_back(&triangle);
         }
 
-        std::string      name_;              ///< Name of the mesh.
+        std::string      mesh_name = "";     ///< Name of the mesh.
         AdjacencyMap     links_;             ///< links[&v] are the triangles that contain vertex v.
         Vertices*        all_vertices_;      ///< Pointer to all the vertices.
         VectPVertex      vertices_;          ///< Vector of pointers to the mesh vertices.
         Triangles        triangles_;         ///< Vector of triangles.
         bool             outermost_ = false; ///< Is it an outermost mesh ? (i.e does it touch the Air domain)
-        bool             allocate_ = false;  ///< Are the vertices allocate within the mesh or shared ?
+        bool             allocated = false;  ///< Are the vertices allocate within the mesh or shared ?
         std::set<Vertex> set_vertices_;
 
         /// Multiple 0 conductivity domains

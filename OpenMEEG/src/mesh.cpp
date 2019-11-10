@@ -46,8 +46,8 @@ namespace OpenMEEG {
 
     void Mesh::copy(const Mesh& m) {
 
-        if (m.allocate_) {
-            allocate_     = true;
+        if (m.allocated) {
+            allocated     = true;
             all_vertices_ = new Vertices; // allocates space for the vertices and copy
             all_vertices_->reserve(m.vertices().size());
             std::map<const Vertex*,Vertex*> map; // for the triangles
@@ -63,13 +63,13 @@ namespace OpenMEEG {
         } else {
             all_vertices_ = m.all_vertices_;
             set_vertices_ = m.set_vertices_;
-            allocate_ = false;
+            allocated = false;
             for (const auto& triangle : m.triangles())
                 triangles_.push_back(triangle);
             build_mesh_vertices();
         }
         outermost_ = m.outermost_;
-        name_      = m.name_;
+        mesh_name  = m.mesh_name;
     }
 
     /// Print informations about the mesh 
@@ -113,16 +113,16 @@ namespace OpenMEEG {
     }
 
     void Mesh::destroy() {
-        if (allocate_)
+        if (allocated)
             delete all_vertices_;
         triangles_.clear();
         all_vertices_ = 0;
         vertices_.clear();
         set_vertices_.clear();
-        name_.clear();
+        mesh_name.clear();
         links_.clear();
         outermost_ = false;
-        allocate_ = false;
+        allocated = false;
     }
 
     //  This is not the input of a mesh. It should be renamed...
@@ -169,7 +169,7 @@ namespace OpenMEEG {
         make_adjacencies();
 
         // If indices are not set, we generate them for sorting edge and testing orientation
-        if (allocate_) {
+        if (allocated) {
             if (vertices().front()->index()==unsigned(-1))
                 generate_indices();
             correct_local_orientation();
@@ -201,7 +201,7 @@ namespace OpenMEEG {
         if (triangles_.size() != 0)
             warning("Mesh::merge Mesh must be empty.");
 
-        allocate_ = true;
+        allocated = true;
         all_vertices_ = new Vertices;
         all_vertices_->reserve(m1.vertices().size() + m2.vertices().size());
 
@@ -395,7 +395,7 @@ namespace OpenMEEG {
             unsigned nb_v = load(filename,false,false); // first allocates memory for the vertices
             all_vertices_ = new Vertices;
             all_vertices_->reserve(nb_v); 
-            allocate_ = true;
+            allocated = true;
         }
 
         std::string extension = getNameExtension(filename);
@@ -428,7 +428,7 @@ namespace OpenMEEG {
         if (verbose)
             info();
 
-        if (allocate_ && read_all) // we generates the indices of these mesh vertices
+        if (allocated && read_all) // we generates the indices of these mesh vertices
             generate_indices();
 
         return return_value;
@@ -491,7 +491,7 @@ namespace OpenMEEG {
                 l = vtkMesh->GetCell(i)->GetPointIds();
                 triangles().push_back(Triangle(vertices()[l->GetId(0)],vertices()[l->GetId(1)],vertices()[l->GetId(2)]));
             } else {
-                std::cerr << "Mesh \"" << name_ << "\" is not a triangulation" << std::endl;
+                std::cerr << "Mesh \"" << mesh_name << "\" is not a triangulation" << std::endl;
                 exit(1);
             }
 
@@ -534,7 +534,7 @@ namespace OpenMEEG {
         vtkPolyDataReader *reader = vtkPolyDataReader::New();
         reader->SetFileName(filename.c_str()); // Specify file name of vtk data file to read
         if (!reader->IsFilePolyData()) {
-            std::cerr << "Mesh \"" << name_ << "\" is not a valid vtk poly data file" << std::endl;
+            std::cerr << "Mesh \"" << mesh_name << "\" is not a valid vtk poly data file" << std::endl;
             reader->Delete();
             exit(1);
         }
@@ -1065,7 +1065,7 @@ namespace OpenMEEG {
             trgs[3*i+2] = mapVertexIndex[&(tit->vertex(2))];
         }
         // gifti_add_to_meta(&gDA->meta, "TopologicalType", "Closed", 0);
-        gifti_add_to_meta(&gDA->meta, "Name",name_.c_str(), 0);
+        gifti_add_to_meta(&gDA->meta, "Name",mesh_name.c_str(), 0);
 
         gifti_write_image(gim, filename.c_str(), 1);
     }
