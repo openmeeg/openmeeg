@@ -51,12 +51,14 @@ knowledge of the CeCILL-B license and that you accept its terms.
 namespace OpenMEEG {
 
     template <typename T>
-    void deflate(T& M,const Interface& i,const double coef) {
+    void deflate(T& M,const Interface& interface,const double coef) {
         //  deflate the Matrix
-        for (Interface::const_iterator omit=i.begin();omit!=i.end();++omit) {
-            for (auto vit1=omit->mesh().vertices().begin();vit1!=omit->mesh().vertices().end();++vit1) {
+        for (const auto& omesh : interface.oriented_meshes()) {
+            const Mesh& mesh     = omesh.mesh();
+            const auto& vertices = mesh.vertices();
+            for (auto vit1=vertices.begin();vit1!=vertices.end();++vit1) {
                 #pragma omp parallel for
-                for (auto vit2=vit1;vit2<omit->mesh().vertices().end();++vit2)
+                for (auto vit2=vit1;vit2<vertices.end();++vit2)
                     M((*vit1)->index(),(*vit2)->index()) += coef;
             }
         }
@@ -148,7 +150,7 @@ namespace OpenMEEG {
         // Iterate over pairs of communicating meshes (sharing a domains) to fill the
         // lower half of the HeadMat (since it is symmetric).
 
-        const Mesh& cortex = Cortex.front().mesh();
+        const Mesh& cortex = Cortex.oriented_meshes().front().mesh();
         for (const auto& mp : geo.communicating_mesh_pairs()) {
             const Mesh& mesh1 = mp(0);
             const Mesh& mesh2 = mp(1);
@@ -215,7 +217,7 @@ namespace OpenMEEG {
         const Interface& Cortex    = SourceDomain.boundaries().front().interface();
         
         om_error(SourceDomain.boundaries().size()==1);
-        om_error(Cortex.size()==1);
+        om_error(Cortex.oriented_meshes().size()==1);
 
         // shape of the new matrix:
 
@@ -240,13 +242,15 @@ namespace OpenMEEG {
         }
 
         // ** Get the gradient of P1&P0 elements on the meshes **
-        Matrix MM(M.transpose() * M);
-        SymMatrix RR(Nc,Nc); RR.set(0.);
+
+        SymMatrix RR(Nc,Nc);
+        RR.set(0.);
         for (const auto& mesh : geo.meshes())
             mesh.gradient_norm2(RR);
 
         /// Choose Regularization parameter
 
+        const Matrix MM(M.transpose()*M);
         SparseMatrix alphas(Nc,Nc); // diagonal matrix
         Matrix Z;
         double alpha1 = alpha;
@@ -307,7 +311,7 @@ namespace OpenMEEG {
         const Interface& Cortex    = SourceDomain.boundaries().front().interface();
         
         om_error(SourceDomain.boundaries().size()==1);
-        om_error(Cortex.size()==1);
+        om_error(Cortex.oriented_meshes().size()==1);
 
         // shape of the new matrix:
 

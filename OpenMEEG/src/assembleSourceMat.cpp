@@ -84,7 +84,7 @@ namespace OpenMEEG {
         const double L  = -1.0/domain.conductivity();
         for (const auto& boundary : domain.boundaries()) {
             const double factorN = (boundary.inside()) ? K : -K;
-            for (auto& oriented_mesh : boundary.interface()) {
+            for (const auto& oriented_mesh : boundary.interface().oriented_meshes()) {
                 const Mesh& mesh = oriented_mesh.mesh();
                 // First block is nVertexFistLayer*source_mesh.vertices().size()
                 const double coeffN = factorN*oriented_mesh.orientation();
@@ -122,7 +122,7 @@ namespace OpenMEEG {
                 const double K = 1.0/(4*Pi);
                 for (const auto& boundary : domain.boundaries()) { //  Iterate over the domain's interfaces (half-spaces)
                     const double factorD = (boundary.inside()) ? K : -K;
-                    for (const auto& oriented_mesh : boundary.interface()) { //  Iterate over the meshes of the interface
+                    for (const auto& oriented_mesh : boundary.interface().oriented_meshes()) { //  Iterate over the meshes of the interface
                         //  Treat the mesh.
                         const double coeffD = factorD*oriented_mesh.orientation();
                         const Mesh&  mesh   = oriented_mesh.mesh();

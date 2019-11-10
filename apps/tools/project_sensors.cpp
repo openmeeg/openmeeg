@@ -68,7 +68,7 @@ int main( int argc, char** argv)
 
     Mesh mesh(mesh_filename);
     Interface interface;
-    interface.push_back(OrientedMesh(mesh)); // one mesh per interface, (well oriented)
+    interface.oriented_meshes().push_back(OrientedMesh(mesh)); // one mesh per interface, (well oriented)
 
     Matrix output(sensors.getNumberOfPositions(), 3);
 
