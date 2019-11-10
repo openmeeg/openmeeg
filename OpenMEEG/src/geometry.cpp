@@ -431,7 +431,25 @@ namespace OpenMEEG {
         }
     }
 
-    // mark all meshes which touch domains with 0 conductivity
+    //  Create the vector of pairs of communicating meshes.
+
+    void Geometry::make_mesh_pairs() {
+        for (const auto& mesh1 : meshes())
+            if (!mesh1.isolated())
+                for (const auto& mesh2 : meshes()) {
+                    if ((!mesh2.isolated()) && (sigma(mesh1,mesh2)!=0.0) && oriented(mesh1,mesh2)!=0) {
+                        // Communicating meshes are used for the definition of a common domain
+                        meshpairs.push_back(MeshPair(mesh1,mesh2));
+                    }
+
+                    //  Lopp only over oriented pairs of meshes.
+
+                    if (&mesh2==&mesh1)
+                        break;
+                }
+    }
+
+    // Mark all meshes which touch domains with 0 conductivity
 
     void Geometry::mark_current_barriers() {
 
@@ -463,8 +481,8 @@ namespace OpenMEEG {
             }
         }
 
-        //redefine outermost interface
-        //the inside of a 0-cond domain is considered as a new outermost
+        //  Redefine outermost interface.
+        //  The inside of a 0-cond domain is considered as a new outermost
         //  TODO: Can we merge this loop in the previous one ?
 
         for (auto& domain : domains())

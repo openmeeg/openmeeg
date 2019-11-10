@@ -60,6 +60,19 @@ namespace OpenMEEG {
     class OPENMEEG_EXPORT Geometry {
     public:
 
+        struct MeshPair {
+
+            MeshPair(const Mesh& m1,const Mesh& m2): meshes{&m1,&m2} { }
+
+            const Mesh& operator()(const unsigned i) const { return *meshes[i]; }
+
+        private:
+
+            const Mesh* meshes[2];
+        };
+
+        typedef std::vector<MeshPair>                 MeshPairs;
+
         typedef std::vector<const Domain*>            DomainsReference;
         typedef std::vector<std::vector<const Mesh*>> MeshParts;
 
@@ -90,6 +103,8 @@ namespace OpenMEEG {
 
               Meshes& meshes()       { return meshes_; }
         const Meshes& meshes() const { return meshes_; }
+
+        const MeshPairs& communicating_mesh_pairs() const { return meshpairs; }
 
         ///< \brief returns the Mesh called \param name .
 
@@ -138,7 +153,12 @@ namespace OpenMEEG {
 
         double conductivity_difference(const Mesh& m) const; // return the difference of conductivities of the 2 domains.
 
-        int    oriented(const Mesh&,const Mesh&) const;
+        /// \brief Give the relative orientation of two meshes:
+        /// \return  0, if they don't have any domains in common
+        ///          1, if they are both oriented toward the same domain
+        ///         -1, if they are not
+
+        int oriented(const Mesh&,const Mesh&) const;
 
         //  Calling this method read induces failures due do wrong conversions when read is passed with one or two arguments...
 
@@ -159,11 +179,6 @@ namespace OpenMEEG {
             mark_current_barriers(); // mark meshes that touch the domains of null conductivity.
 
             finalize(OLD_ORDERING);
-        }
-
-        void finalize(const bool OLD_ORDERING=false) {
-            generate_indices(OLD_ORDERING);
-            info();
         }
 
         //  Do those belong to this class ?
@@ -195,6 +210,14 @@ namespace OpenMEEG {
 
         void read_geometry_file(const std::string& filename);
         void read_conductivity_file(const std::string& filename);
+
+        void finalize(const bool OLD_ORDERING=false) {
+            generate_indices(OLD_ORDERING);
+            make_mesh_pairs();
+            info();
+        }
+
+        void make_mesh_pairs();
 
         /// Members
 
@@ -238,5 +261,6 @@ namespace OpenMEEG {
         size_t           nb_current_barrier_triangles_ = 0;  ///< \brief number of triangles with 0 normal current. Including triangles of invalid meshes.
 
         MeshParts independant_parts;  ///< \brief Mesh names that belong to different isolated groups.
+        MeshPairs meshpairs;
     };
 }

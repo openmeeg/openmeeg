@@ -65,7 +65,7 @@ namespace OpenMEEG {
     template <typename T>
     void deflate(T& M,const Geometry& geo) {
         //  deflate all current barriers as one
-        for (const auto& part :geo.isolated_parts()) {
+        for (const auto& part : geo.isolated_parts()) {
             unsigned nb_vertices = 0;
             unsigned i_first = 0;
             for (const auto& meshptr : part)
@@ -91,50 +91,41 @@ namespace OpenMEEG {
 
         mat = SymMatrix((geo.nb_parameters()-geo.nb_current_barrier_triangles()));
         mat.set(0.0);
-        double K = 1.0/(4*Pi);
+        constexpr double K = 1.0/(4*Pi);
 
-        // We iterate over the meshes (or pair of domains) to fill the lower half of the HeadMat (since its symmetry)
+        // We iterate over pairs of communicating meshes (sharing a domains) to fill the
+        // lower half of the HeadMat (since it is symmetric).
 
-        for (const auto& mesh1 : geo.meshes())
-            if (!mesh1.isolated()) {
-                for (const auto& mesh2 : geo.meshes()) {
-                    if ((!mesh2.isolated()) && (geo.sigma(mesh1,mesh2)!=0.0)) {
-                        // if mesh1 and mesh2 communicate, i.e they are used for the definition of a common domain
-                        const int orientation = geo.oriented(mesh1,mesh2); // equals  0, if they don't have any domains in common
-                                                                           // equals  1, if they are both oriented toward the same domain
-                                                                           // equals -1, if they are not
-                        if (orientation!=0) {
-                            double Scoeff =  orientation*geo.sigma_inv(mesh1,mesh2)*K;
-                            double Dcoeff = -orientation*geo.indicator(mesh1,mesh2)*K;
-                            double Ncoeff;
+        for (const auto& mp : geo.communicating_mesh_pairs()) {
+            const Mesh& mesh1 = mp(0);
+            const Mesh& mesh2 = mp(1);
 
-                            if ((!mesh1.current_barrier()) && (!mesh2.current_barrier()) ) {
-                                // Computing S block first because it's needed for the corresponding N block
-                                operatorS(mesh1,mesh2,mat,Scoeff,gauss_order);
-                                Ncoeff = geo.sigma(mesh1,mesh2)/geo.sigma_inv(mesh1,mesh2);
-                            }else{
-                                Ncoeff = orientation*geo.sigma(mesh1,mesh2)*K;
-                            }
+            const int orientation = geo.oriented(mesh1,mesh2);
 
-                            if (!mesh1.current_barrier()){
-                                // Computing D block
-                                operatorD(mesh1,mesh2,mat,Dcoeff,gauss_order,false);
-                            }
-                            if ((mesh1!=mesh2) && (!mesh2.current_barrier())){
-                                // Computing D* block
-                                operatorD(mesh1,mesh2,mat,Dcoeff,gauss_order,true);
-                            }
-                            // Computing N block
-                            operatorN(mesh1,mesh2,mat,Ncoeff,gauss_order);
-                        }
-                    }
-
-                    //  Loop only on oriented pairs of meshes.
-
-                    if (&mesh2==&mesh1)
-                        break;
-                }
+            double Ncoeff;
+            if ((!mesh1.current_barrier()) && (!mesh2.current_barrier()) ) {
+                // Computing S block first because it's needed for the corresponding N block
+                const double Scoeff = orientation*geo.sigma_inv(mesh1,mesh2)*K;
+                operatorS(mesh1,mesh2,mat,Scoeff,gauss_order);
+                Ncoeff = geo.sigma(mesh1,mesh2)/geo.sigma_inv(mesh1,mesh2);
+            } else {
+                Ncoeff = orientation*geo.sigma(mesh1,mesh2)*K;
             }
+
+            const double Dcoeff = -orientation*geo.indicator(mesh1,mesh2)*K;
+            if (!mesh1.current_barrier()){
+                // Computing D block
+                operatorD(mesh1,mesh2,mat,Dcoeff,gauss_order,false);
+            }
+            if ((mesh1!=mesh2) && (!mesh2.current_barrier())){
+                // Computing D* block
+                operatorD(mesh1,mesh2,mat,Dcoeff,gauss_order,true);
+            }
+
+            // Computing N block
+
+            operatorN(mesh1,mesh2,mat,Ncoeff,gauss_order);
+        }
 
         // Deflate all current barriers as one
 
@@ -154,47 +145,39 @@ namespace OpenMEEG {
         SymMatrix symmatrix(Nc);
         symmatrix.set(0.0);
 
-        // Iterate over the meshes (or pair of domains) to fill the lower half of the HeadMat (since its symmetry)
+        // Iterate over pairs of communicating meshes (sharing a domains) to fill the
+        // lower half of the HeadMat (since it is symmetric).
 
         const Mesh& cortex = Cortex.front().mesh();
-        for (const auto& mesh1 : geo.meshes())
-            for (const auto& mesh2 : geo.meshes()) {
+        for (const auto& mp : geo.communicating_mesh_pairs()) {
+            const Mesh& mesh1 = mp(0);
+            const Mesh& mesh2 = mp(1);
 
-                // If mesh1 and mesh2 communicate, i.e they are used for the definition of a common domain
+            const int orientation = geo.oriented(mesh1,mesh2);
 
-                const int orientation = geo.oriented(mesh1,mesh2);
-
-                // orientation equals 0, if the 2 meshes don't have any domains in common
-                // Equals  1, if they are both oriented toward the same domain
-                // Equals -1, otherwise.
-
-                if (orientation!=0) { //    Interacting meshes.
-                    constexpr double K = 1.0/(4*Pi);
-                    const double Scoeff =  orientation*geo.sigma_inv(mesh1,mesh2)*K;
-                    const double Dcoeff = -orientation*geo.indicator(mesh1,mesh2)*K;
-                    double Ncoeff;
-                    if (!(mesh1.current_barrier() || mesh2.current_barrier()) && ((mesh1!=mesh2) || (mesh1!=cortex))) {
-                        // Computing S block first because it's needed for the corresponding N block
-                        operatorS(mesh1,mesh2,symmatrix,Scoeff,gauss_order);
-                        Ncoeff = geo.sigma(mesh1,mesh2)/geo.sigma_inv(mesh1,mesh2);
-                    } else {
-                        Ncoeff = orientation*geo.sigma(mesh1,mesh2)*K;
-                    }
-
-                    if (!mesh1.current_barrier() && (((mesh1!=mesh2) || (mesh1!=cortex)))) // Computing D block
-                        operatorD(mesh1,mesh2,symmatrix,Dcoeff,gauss_order,false);
-
-                    if ((mesh1!=mesh2) && mesh2.current_barrier()) // Computing D* block
-                        operatorD(mesh1,mesh2,symmatrix,Dcoeff,gauss_order,true);
-
-                    // Computing N block
-
-                    if ((mesh1!=mesh2) || (mesh1!=cortex))
-                        operatorN(mesh1,mesh2,symmatrix,Ncoeff,gauss_order);
-                }
-                if (&mesh1==&mesh2)
-                    break;
+            constexpr double K = 1.0/(4*Pi);
+            double Ncoeff;
+            if (!(mesh1.current_barrier() || mesh2.current_barrier()) && ((mesh1!=mesh2) || (mesh1!=cortex))) {
+                // Computing S block first because it's needed for the corresponding N block
+                const double Scoeff = orientation*geo.sigma_inv(mesh1,mesh2)*K;
+                operatorS(mesh1,mesh2,symmatrix,Scoeff,gauss_order);
+                Ncoeff = geo.sigma(mesh1,mesh2)/geo.sigma_inv(mesh1,mesh2);
+            } else {
+                Ncoeff = orientation*geo.sigma(mesh1,mesh2)*K;
             }
+
+            const double Dcoeff = -orientation*geo.indicator(mesh1,mesh2)*K;
+            if (!mesh1.current_barrier() && (((mesh1!=mesh2) || (mesh1!=cortex)))) // Computing D block
+                operatorD(mesh1,mesh2,symmatrix,Dcoeff,gauss_order,false);
+
+            if ((mesh1!=mesh2) && mesh2.current_barrier()) // Computing D* block
+                operatorD(mesh1,mesh2,symmatrix,Dcoeff,gauss_order,true);
+
+            // Computing N block
+
+            if ((mesh1!=mesh2) || (mesh1!=cortex))
+                operatorN(mesh1,mesh2,symmatrix,Ncoeff,gauss_order);
+        }
 
         // Deflate all current barriers as one
 
