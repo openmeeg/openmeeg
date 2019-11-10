@@ -1,81 +1,80 @@
 #!/usr/bin/env python3
 #
-#
 # WIP: copy this file in wrapping/src directory of the build tree
 # then execute it (python3 ./wrapping/src/poc_geometry)
-#
 
 import openmeeg as om
 
-#
-# build a geometry with given domains list
-#
-def make_geometry( domains_array ):
+# Build a geometry with given domains list
+
+def make_geometry(domains_array):
     # syntax check: need for an array of domains
-    if  type(domains_array) != list:
-        print("make_geometry: wrong main arg (should be an array of domains)")
+    if  type(domains_array)!=list:
+        print("make_geometry: wrong argument (should be an array of domains)")
         return om.Geometry()
-    if len(domains_array) == 0:
-        print("make_geometry: main arg is empty")
+    if len(domains_array)==0:
+        print("make_geometry: argument is empty list")
         return om.Geometry()
 
     for i in range(len(domains_array)):
         for dname in domains_array[i]:
-            print("Domain: " + dname)
+            print("Domain: "+dname)
 
-            # syntax check: need an array of interfaces
-            if type(domains_array[i][dname][0]) != list:
-                print("make_geometry: wrong arg for domain (" + dname + "), should be a list of interfaces")
+            # Syntax check: need an array of interfaces.
+
+            if type(domains_array[i][dname][0])!=list:
+                print("make_geometry: wrong description of domain ("+dname+"), should be a list of interfaces")
                 return om.Geometry()
-            if len(domains_array[i][dname][0]) == 0:
-                print("make_geometry: domain (" + dname + ") should not be empty")
+            if len(domains_array[i][dname][0])==0:
+                print("make_geometry: domain ("+dname+") should not be empty")
                 return om.Geometry()
 
             for j in range(len(domains_array[i][dname][0])):
 
-                # syntax check: need a array of (msh, orientation)
-                if type(domains_array[i][dname][0][j][0]) != list:
-                    print("make_geometry: wrong arg for interface (" + str[j] + "), should be a list of ( mesh, orientation)")
+                # Syntax check: needs an array of (mesh,orientation).
+
+                if type(domains_array[i][dname][0][j][0])!=list:
+                    print("make_geometry: wrong description of interface ("+str[j]+"), should be a list of (mesh,orientation)")
                     return om.Geometry()
-                if len(domains_array[i][dname][0][j][0]) == 0:
-                    print("make_geometry: interface (" + str[j] + ") for domain (" + dname + ") should not be empty")
+                if len(domains_array[i][dname][0][j][0])==0:
+                    print("make_geometry: interface ("+str[j]+") for domain ("+dname+") should not be empty")
                     return om.Geometry()
-                if domains_array[i][dname][0][j][1] != om.Domain.Inside and domains_array[i][dname][0][j][1] != om.Domain.Outside:
-                    print("make_geometry: wrong arg for interface (" + str[j] + "),  2nd arg should be a side direction (In/Out)")
+                if domains_array[i][dname][0][j][1]!=om.Domain.Inside and domains_array[i][dname][0][j][1]!=om.Domain.Outside:
+                    print("make_geometry: wrong description of interface ("+str[j]+"),  2nd arg should be a side direction (In/Out)")
                     return om.Geometry()
 
-
-                print("- interface: " + str(j))
+                print("- interface: "+str(j))
                 for k in range(len(domains_array[i][dname][0][j][0])):
-                    # syntax check: tuple of (mesh, orientation)
-                    if type(domains_array[i][dname][0][j][0][k][0]) != type(om.Mesh()):
-                        print("make_geometry: wrong arg for interface (" + str[j] + ") and element (" +  strk(k)+ ") 1st tuple member should a be a mesh")
+
+                    # Syntax check: an interface should be a tuple of (mesh,orientation)
+
+                    if type(domains_array[i][dname][0][j][0][k][0])!=type(om.Mesh()):
+                        print("make_geometry: wrong description of interface ("+str[j]+") and element ("+strk(k)+") 1st tuple member should a be a mesh")
                         return om.Geometry()
-                    if domains_array[i][dname][0][j][0][k][1] != om.OrientedMesh.Normal and domains_array[i][dname][0][j][0][k][1] != om.OrientedMesh.Opposite:
-                        print("make_geometry: wrong arg for interface (" + str[j] + ") and element (" +  strk(k)+ ") 2nd tuple member should a be an orientation")
+                    if domains_array[i][dname][0][j][0][k][1]!=om.OrientedMesh.Normal and domains_array[i][dname][0][j][0][k][1]!=om.OrientedMesh.Opposite:
+                        print("make_geometry: wrong arg for interface ("+str[j]+") and element ("+strk(k)+") 2nd tuple member should a be an orientation")
                         return om.Geometry()
 
-                    print("  - mesh       : " + domains_array[i][dname][0][j][0][k][0].name())
-                    print("    " + str(len(domains_array[i][dname][0][j][0][k][0].vertices())) + " vertices")
-                    print("    " + str(len(domains_array[i][dname][0][j][0][k][0].triangles())) + " triangles")
-                    if domains_array[i][dname][0][j][0][k][1] == om.OrientedMesh.Normal :
+                    print("  - mesh       : "+domains_array[i][dname][0][j][0][k][0].name())
+                    print("    "+str(len(domains_array[i][dname][0][j][0][k][0].vertices())) +" vertices")
+                    print("    "+str(len(domains_array[i][dname][0][j][0][k][0].triangles()))+" triangles")
+                    if domains_array[i][dname][0][j][0][k][1]==om.OrientedMesh.Normal:
                         print("  - orientation: Normal")
                     else:
                         print("  - orientation: Opposite")
 
-                if  domains_array[i][dname][0][j][1] == om.Domain.Inside:
+                if  domains_array[i][dname][0][j][1]==om.Domain.Inside:
                     print("- direction: Inside")
                 else:
                     print("- direction: Outside")
-            print("- conductivity: " + str(domains_array[i][dname][1]))
+            print("- conductivity: "+str(domains_array[i][dname][1]))
             print()
 
     g = om.Geometry()
     return g
 
-#
 # MIMICS Head1.geom + Head1.cond
-#
+
 m_cort = om.Mesh( "/Users/jls/Development/athena/openmeeg/data/Head1/cortex.1.tri")
 m_cort.setName("cortex.1.tri")
 m_skul = om.Mesh( "/Users/jls/Development/athena/openmeeg/data/Head1/skull.1.tri")
@@ -83,21 +82,21 @@ m_skul.setName("skull.1.tri")
 m_scal = om.Mesh( "/Users/jls/Development/athena/openmeeg/data/Head1/scalp.1.tri")
 m_scal.setName("scalp.1.tri")
 
-# should be possible
-#interface1 = [ (m1, om.OrientedMesh.Normal), ( m2, om.OrientedMesh.Opposite), ( m3, om.OrientedMesh.Normal)]
+# Should be possible
+# interface1 = [(m1,om.OrientedMesh.Normal), (m2,om.OrientedMesh.Opposite), (m3,om.OrientedMesh.Normal)]
 
-interface1 = [ (m_cort, om.OrientedMesh.Normal) ]
-interface2 = [ (m_skul, om.OrientedMesh.Normal) ]
-interface3 = [ (m_scal, om.OrientedMesh.Normal) ]
+interface1 = [(m_cort,om.OrientedMesh.Normal)]
+interface2 = [(m_skul,om.OrientedMesh.Normal)]
+interface3 = [(m_scal,om.OrientedMesh.Normal)]
 
 domains = {
-    "Scalp" : ( [ (interface2, om.Domain.Outside) , (interface3, om.Domain.Inside) ] , 1.0 ) ,
-    "Brain" : ( [ (interface1, om.Domain.Inside) ] , 1.0),
-    "Air"   : ( [ (interface3, om.Domain.Outside) ] , 0.0),
-    "Skull" : ( [ (interface2, om.Domain.Inside) , (interface1, om.Domain.Outside) ] , 0.0125)
+    "Scalp" : ([(interface2,om.Domain.Outside), (interface3,om.Domain.Inside)],1.0) ,
+    "Brain" : ([(interface1,om.Domain.Inside)],1.0),
+    "Air"   : ([(interface3,om.Domain.Outside)],0.0),
+    "Skull" : ([(interface2,om.Domain.Inside), (interface1,om.Domain.Outside)],0.0125)
 }
 
-g1 = make_geometry( [ domains ] );
-g2 = om.Geometry("/Users/jls/Development/athena/openmeeg/data/Head1/Head1.geom",  "/Users/jls/Development/athena/openmeeg/data/Head1/Head1.cond")
+g1 = make_geometry([domains]);
+g2 = om.Geometry("/Users/jls/Development/athena/openmeeg/data/Head1/Head1.geom","/Users/jls/Development/athena/openmeeg/data/Head1/Head1.cond")
 
 assert g1.__class__ == g2.__class__

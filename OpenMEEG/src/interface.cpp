@@ -61,7 +61,7 @@ namespace OpenMEEG {
             return true;
         }
 
-        std::cerr << "Interface::contains_point(" << p << ") Error. Are you sure the interface \"" << name_ << "\" is closed? Solid angle: " << std::abs(solangle)/Pi <<"*PI." << std::endl;
+        std::cerr << "Interface::contains_point(" << p << ") Error. Are you sure the interface \"" << name() << "\" is closed? Solid angle: " << std::abs(solangle)/Pi <<"*PI." << std::endl;
         //  TODO: Is it really sane to return something ? Throw an exception instead...
         return (std::abs(solangle)>2*Pi) ? true : false;
     }
@@ -71,15 +71,15 @@ namespace OpenMEEG {
 
     double Interface::solid_angle(const Vect3& p) const {
         double solangle = 0.0;
-        for (const auto& omesh : *this)
+        for (const auto& omesh : oriented_meshes())
             solangle += omesh.orientation()*omesh.mesh().solid_angle(p);
         return solangle;
     }
 
     void Interface::set_to_outermost() {
-        for (auto& omesh : *this)
+        for (auto& omesh : oriented_meshes())
             omesh.mesh().outermost() = true;
-        outermost_ = true;
+        outermost_interface = true;
     }
 
     /// Check the global orientation: that the triangles are correctly oriented (outward-pointing normal)
@@ -89,7 +89,7 @@ namespace OpenMEEG {
         /// compute the bounding box:
 
         BoundingBox bb;
-        for (const auto& omesh : *this)
+        for (const auto& omesh : oriented_meshes())
             for (const auto& vertex : omesh.mesh().vertices())
                 bb.add(vertex);
  
@@ -114,7 +114,7 @@ namespace OpenMEEG {
             // and we could could remove this.
 
             std::cout << "Global reorientation of interface " << name() << std::endl;
-            for (auto& omesh : *this)
+            for (auto& omesh : oriented_meshes())
                 omesh.change_orientation();
             solangle = -solangle;
         }

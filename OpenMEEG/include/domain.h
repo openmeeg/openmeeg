@@ -119,9 +119,9 @@ namespace OpenMEEG {
 
         int mesh_orientation(const Mesh& m) const {
             for (const auto& boundary : boundaries())
-                for (const auto& interface : boundary.interface())
-                    if (&interface.mesh()==&m)
-                        return (boundary.inside()) ? interface.orientation() : -interface.orientation();
+                for (const auto& omesh : boundary.interface().oriented_meshes())
+                    if (&omesh.mesh()==&m)
+                        return (boundary.inside()) ? omesh.orientation() : -omesh.orientation();
             return 0;
         }
 

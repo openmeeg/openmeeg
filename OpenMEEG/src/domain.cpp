@@ -63,7 +63,7 @@ namespace OpenMEEG {
         
         for (const auto& boundary : boundaries()) {
             std::cout << "\t\tInterface \"" << boundary.interface().name() << "\"= { ";
-            for (const auto& oriented_mesh : boundary.interface()) {
+            for (const auto& oriented_mesh : boundary.interface().oriented_meshes()) {
                 std::cout << "mesh \""<< oriented_mesh.mesh().name() << "\"";
                 if (oriented_mesh.mesh().outermost())
                     std::cout << "(outermost)";
