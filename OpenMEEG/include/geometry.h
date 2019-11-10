@@ -62,13 +62,16 @@ namespace OpenMEEG {
 
         struct MeshPair {
 
-            MeshPair(const Mesh& m1,const Mesh& m2): meshes{&m1,&m2} { }
+            MeshPair(const Mesh& m1,const Mesh& m2,const int o): meshes{&m1,&m2},orientation(o) { }
 
             const Mesh& operator()(const unsigned i) const { return *meshes[i]; }
+
+            int relative_orientation() const { return orientation; }
 
         private:
 
             const Mesh* meshes[2];
+            int         orientation;
         };
 
         typedef std::vector<MeshPair>                 MeshPairs;

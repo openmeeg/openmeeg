@@ -100,7 +100,7 @@ namespace OpenMEEG {
             const Mesh& mesh1 = mp(0);
             const Mesh& mesh2 = mp(1);
 
-            const int orientation = geo.oriented(mesh1,mesh2);
+            const int orientation = mp.relative_orientation();
 
             double Ncoeff;
             if ((!mesh1.current_barrier()) && (!mesh2.current_barrier()) ) {
@@ -153,7 +153,7 @@ namespace OpenMEEG {
             const Mesh& mesh1 = mp(0);
             const Mesh& mesh2 = mp(1);
 
-            const int orientation = geo.oriented(mesh1,mesh2);
+            const int orientation = mp.relative_orientation();
 
             constexpr double K = 1.0/(4*Pi);
             double Ncoeff;

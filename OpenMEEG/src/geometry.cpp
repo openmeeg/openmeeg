@@ -437,9 +437,10 @@ namespace OpenMEEG {
         for (const auto& mesh1 : meshes())
             if (!mesh1.isolated())
                 for (const auto& mesh2 : meshes()) {
-                    if ((!mesh2.isolated()) && (sigma(mesh1,mesh2)!=0.0) && oriented(mesh1,mesh2)!=0) {
+                    const int orientation = oriented(mesh1,mesh2);
+                    if ((!mesh2.isolated()) && (sigma(mesh1,mesh2)!=0.0) && orientation!=0) {
                         // Communicating meshes are used for the definition of a common domain
-                        meshpairs.push_back(MeshPair(mesh1,mesh2));
+                        meshpairs.push_back(MeshPair(mesh1,mesh2,orientation));
                     }
 
                     //  Lopp only over oriented pairs of meshes.
