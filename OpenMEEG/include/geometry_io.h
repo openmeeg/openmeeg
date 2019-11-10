@@ -106,11 +106,11 @@ namespace OpenMEEG {
         // insert the triangle and mesh vertices address into the right mesh
         vtkSmartPointer<vtkIdList> l;
 
-        for (iterator mit = begin(); mit != end(); ++mit) {
-            Triangles& triangles = mit->triangles();
+        for (auto& mesh : meshes()) {
+            Triangles& triangles = mesh.triangles();
             for (unsigned i = 0; i < ntrgs; ++i) {
                 // get the mesh which has this name
-                if (cell_id->GetValue(i) == mit->name()) {
+                if (cell_id->GetValue(i) == mesh.name()) {
                     if (vtkMesh->GetCellType(i) == VTK_TRIANGLE) {
                         l = vtkMesh->GetCell(i)->GetPointIds();
                         if (trash != -1) { // no indices provided
@@ -125,8 +125,8 @@ namespace OpenMEEG {
                 }
             }
 
-            mit->build_mesh_vertices();
-            mit->update();
+            mesh.build_mesh_vertices();
+            mesh.update();
             if (READ_DATA) {
                 const unsigned nc = vtkMesh->GetPointData()->GetNumberOfArrays()-1;
                 const unsigned nl = vtkMesh->GetNumberOfPoints()+vtkMesh->GetNumberOfCells(); 
@@ -175,9 +175,9 @@ namespace OpenMEEG {
         if (data.nlin()!=0) {
             // Check the data corresponds to the geometry
 
-            const bool HAS_OUTERMOST = (data.nlin()==size()); // data has least p values ?
+            const bool HAS_OUTERMOST = (data.nlin()==meshes().size()); // data has least p values ?
             if (!HAS_OUTERMOST)
-                om_error(data.nlin()==size()-outermost_interface().nb_triangles());
+                om_error(data.nlin()==meshes().size()-outermost_interface().nb_triangles());
 
             for (unsigned j = 0; j < data.ncol(); ++j) {
                 std::stringstream sdip;
