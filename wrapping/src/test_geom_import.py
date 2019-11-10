@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-import sys,os
 import openmeeg as om
 import numpy as np
 
@@ -12,8 +11,8 @@ mesh = om.Mesh(Vertices,Triangles)
 
 g = om.Geometry( )
 
-assert g.check(mesh) == True
+assert g.check(mesh)==True
 
-g.import_meshes( [ mesh ] )
+g.import_meshes([mesh])
 
-assert g.check(mesh) == False
+assert g.check(mesh)==False

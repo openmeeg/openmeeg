@@ -18,6 +18,7 @@ find_package(Numpy REQUIRED)
 
 # XXXX: this include_directories should be removed and transitive properties
 #       of OpenMEEG::OpenMEEG and OpenMEEG::OpenMEEGMaths should be used instead
+
 include_directories(${PYTHON_INCLUDE_PATH}
                     ${NUMPY_INCLUDE_DIRS}
                     ${CMAKE_CURRENT_SOURCE_DIR}
@@ -25,8 +26,13 @@ include_directories(${PYTHON_INCLUDE_PATH}
                     ${PROJECT_SOURCE_DIR}/OpenMEEGMaths/include/
 )
 
+cmake_policy(SET CMP0078 OLD) # Use old policy as our required cmake version (3.9) is older than 3.13 (For the NEW we need to chage the target name).
+cmake_policy(SET CMP0086 NEW) # Use NEW policy as we do not use SWIG_MODULE_NAME
+
 find_package(SWIG REQUIRED)
+
 # load SWIG macros. The path to UseSWIG.cmake is provided by SWIG_USE_FILE which is set in FindSWIG
+
 if (SWIG_USE_FILE STREQUAL "")
   message(FATAL_ERROR "unexpected: the variable SWIG_USE_FILE is the empty string. Did you run FindSWIG.cmake?")
 else()
@@ -63,7 +69,6 @@ else()
   swig_link_libraries(openmeeg ${PYTHON_LIBRARIES} OpenMEEG::OpenMEEG)
 endif()
 
-
 execute_process(COMMAND ${PYTHON_EXECUTABLE} "-c" "from distutils.sysconfig import get_python_lib; print(get_python_lib(1))"
                 OUTPUT_VARIABLE PYTHON_SITE_ARCH
                 RESULT_VARIABLE PYTHON_SITEARCH_NOT_FOUND)
@@ -83,48 +88,42 @@ install(FILES  ${OpenMEEG_BINARY_DIR}/wrapping/src/openmeeg.py
         DESTINATION ${PYTHON_REL_SITE_ARCH}
         PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ)
 
-set(PYTHON_TEST_FILES
-  "test_geom.py"
-  "test_matrix.py"
-  "test_mesh.py"
-  "test_sensors.py"
-  "test_vector.py"
-  )
-
-set(PYTHON_TEST_FILES_REQUIRING_DATA
-  "test_python.py"
-  "test_python2.py"
-  )
-
 # Test Python wrapping
 #
 # XXXX: we copy all python scripts from source to binary so that openmeeg.py is in the path. There should be a manner of just adding
 #       it to the python path for the testing environment and allow to execute the python scripts from source.
+
 if (BUILD_TESTING)
+
+    set(PYTHON_TEST_FILES test_vector.py test_matrix.py test_mesh.py test_sensors.py test_geom_import.py)
+    set(PYTHON_TEST_FILES_REQUIRING_DATA test_python.py test_python2.py test_make_geometry.py)
+
     # Add tests requiring data
-    foreach( T ${PYTHON_TEST_FILES_REQUIRING_DATA})
-      execute_process(COMMAND ${CMAKE_COMMAND} -E copy ${OpenMEEG_SOURCE_DIR}/wrapping/src/${T} ${OpenMEEG_BINARY_DIR}/wrapping/src/)
-      add_test(openmeeg_python_${T} ${PYTHON_EXECUTABLE} ${OpenMEEG_BINARY_DIR}/wrapping/src/${T} --path ${OpenMEEG_SOURCE_DIR}/data)
-      if (USE_MKL AND BUILD_SHARED_LIBS AND NOT MKL_USE_sdl)
-          # due to this bug in the MKL
-          message(WARNING "Due to a bug in the MKL when used from python: see https://software.intel.com/en-us/forums/intel-distribution-for-python/topic/628976 "
-              "workaround: set environment variable:\nexport LD_PRELOAD=\"${MKL_ROOT_DIR}/lib/intel64/libmkl_core.so:"
-              "${MKL_ROOT_DIR}/lib/intel64/libmkl_sequential.so\"")
-          set_tests_properties(openmeeg_python_${T} PROPERTIES ENVIRONMENT LD_PRELOAD=${MKL_ROOT_DIR}/lib/intel64/libmkl_core.so:${MKL_ROOT_DIR}/lib/intel64/libmkl_sequential.so)
-      endif()
+
+    foreach (test ${PYTHON_TEST_FILES_REQUIRING_DATA})
+        execute_process(COMMAND ${CMAKE_COMMAND} -E copy ${OpenMEEG_SOURCE_DIR}/wrapping/src/${test} ${OpenMEEG_BINARY_DIR}/wrapping/src/)
+        add_test(openmeeg_python_${test} ${PYTHON_EXECUTABLE} ${OpenMEEG_BINARY_DIR}/wrapping/src/${test} --path ${OpenMEEG_SOURCE_DIR}/data)
+        if (USE_MKL AND BUILD_SHARED_LIBS AND NOT MKL_USE_sdl)
+            # due to this bug in the MKL
+            message(WARNING "Due to a bug in the MKL when used from python: see https://software.intel.com/en-us/forums/intel-distribution-for-python/topic/628976 "
+                "workaround: set environment variable:\nexport LD_PRELOAD=\"${MKL_ROOT_DIR}/lib/intel64/libmkl_core.so:"
+                "${MKL_ROOT_DIR}/lib/intel64/libmkl_sequential.so\"")
+            set_tests_properties(openmeeg_python_${test} PROPERTIES ENVIRONMENT LD_PRELOAD=${MKL_ROOT_DIR}/lib/intel64/libmkl_core.so:${MKL_ROOT_DIR}/lib/intel64/libmkl_sequential.so)
+        endif()
     endforeach()
 
     # Add python tests not requiring data
-    foreach( T ${PYTHON_TEST_FILES})
-      execute_process(COMMAND ${CMAKE_COMMAND} -E copy ${OpenMEEG_SOURCE_DIR}/wrapping/src/${T} ${OpenMEEG_BINARY_DIR}/wrapping/src/)
-      add_test(openmeeg_python_${T} ${PYTHON_EXECUTABLE} ${OpenMEEG_BINARY_DIR}/wrapping/src/${T})
-      if (USE_MKL AND BUILD_SHARED_LIBS AND NOT MKL_USE_sdl)
-          # due to this bug in the MKL
-          message(WARNING "Due to a bug in the MKL when used from python: see https://software.intel.com/en-us/forums/intel-distribution-for-python/topic/628976 "
-              "workaround: set environment variable:\nexport LD_PRELOAD=\"${MKL_ROOT_DIR}/lib/intel64/libmkl_core.so:"
-              "${MKL_ROOT_DIR}/lib/intel64/libmkl_sequential.so\"")
-          set_tests_properties(openmeeg_python_${T} PROPERTIES ENVIRONMENT LD_PRELOAD=${MKL_ROOT_DIR}/lib/intel64/libmkl_core.so:${MKL_ROOT_DIR}/lib/intel64/libmkl_sequential.so)
-      endif()
+
+    foreach (test ${PYTHON_TEST_FILES})
+        execute_process(COMMAND ${CMAKE_COMMAND} -E copy ${OpenMEEG_SOURCE_DIR}/wrapping/src/${test} ${OpenMEEG_BINARY_DIR}/wrapping/src/)
+        add_test(openmeeg_python_${test} ${PYTHON_EXECUTABLE} ${OpenMEEG_BINARY_DIR}/wrapping/src/${test})
+        if (USE_MKL AND BUILD_SHARED_LIBS AND NOT MKL_USE_sdl)
+            # due to this bug in the MKL
+            message(WARNING "Due to a bug in the MKL when used from python: see https://software.intel.com/en-us/forums/intel-distribution-for-python/topic/628976 "
+                "workaround: set environment variable:\nexport LD_PRELOAD=\"${MKL_ROOT_DIR}/lib/intel64/libmkl_core.so:"
+                "${MKL_ROOT_DIR}/lib/intel64/libmkl_sequential.so\"")
+            set_tests_properties(openmeeg_python_${test} PROPERTIES ENVIRONMENT LD_PRELOAD=${MKL_ROOT_DIR}/lib/intel64/libmkl_core.so:${MKL_ROOT_DIR}/lib/intel64/libmkl_sequential.so)
+        endif()
     endforeach()
 
     if (BUILD_REFERENCE_DOC)
