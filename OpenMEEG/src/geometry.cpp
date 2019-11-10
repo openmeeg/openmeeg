@@ -212,7 +212,7 @@ namespace OpenMEEG {
                 try {
                     std::cerr << "Setting conductivuty of domain: " << domain.name() << std::endl;
                     const Conductivity<double>& cond = properties.find(domain.name());
-                    domain.conductivity() = cond.sigma();
+                    domain.set_conductivity(cond.sigma());
                 } catch (const Utils::Properties::UnknownProperty<HeadProperties::Id>& e) {
                     throw OpenMEEG::BadDomain(domain.name());
                 }
