@@ -85,7 +85,7 @@ namespace OpenMEEG {
 
         typedef std::vector<SimpleDomain> Boundaries;
 
-         Domain() { }
+         Domain(const std::string& dname=""): domain_name(dname) { }
         ~Domain() { }
 
         /// Boundaries of the domain.

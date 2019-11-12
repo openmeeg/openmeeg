@@ -83,7 +83,6 @@
 
 %init %{
 import_array();
-//import_array1(NULL); For future python 3.x
 %}
 
 %exception {
@@ -152,17 +151,21 @@ namespace std {
     %template(vector_string) vector<std::string>;
     %template(vector_interface) vector<OpenMEEG::Interface>;
     %template(vector_simple_dom) vector<OpenMEEG::SimpleDomain>;
+    %template(vector_domain) vector<OpenMEEG::Domain>;
     %template(vector_oriented_mesh) vector<OpenMEEG::OrientedMesh>;
 }
 
 namespace OpenMEEG {
-    %typedef std::vector<Vertex>       Vertices;
-    %typedef std::vector<Vertex*>      PVertices;
-    %typedef std::vector<Triangle>     Triangles;
-    %typedef std::vector<Mesh>         Meshes;
-    %typedef std::vector<std::string>  Strings;
-    %typedef std::vector<SimpleDomain> Boundaries;
-    %typedef std::vector<OrientedMesh> OrientedMeshes;
+    // The OpenMEEG:: prefix seems required...
+    // Otherwise some wrapping tests are failing.
+    %typedef std::vector<OpenMEEG::Vertex>   Vertices;
+    %typedef std::vector<OpenMEEG::Vertex*>  PVertices;
+    %typedef std::vector<OpenMEEG::Triangle> Triangles;
+    %typedef std::vector<OpenMEEG::Mesh>     Meshes;
+    %typedef std::vector<OpenMEEG::Domain>   Domains;
+    %typedef std::vector<std::string>        Strings;
+    %typedef std::vector<SimpleDomain>       Boundaries;
+    %typedef std::vector<OrientedMesh>       OrientedMeshes;
 }
 
 namespace OpenMEEG {
@@ -187,6 +190,9 @@ namespace OpenMEEG {
 
   %naturalvar Vector;
   class Vector;
+
+  %naturalvar Domains;
+  class Domains;
 
   %naturalvar Boundaries;
   class Boundaries;
@@ -529,20 +535,17 @@ namespace OpenMEEG {
 def make_geometry(domains):
 
     if  type(domains)!=dict or len(domains)==0:
-        print("make_geometry: wrong argument (should be a non empty dictionary of named domains)")
-        return om.Geometry()
+        raise Exception("Wrong argument (should be a non empty dictionary of named domains)")
 
-    for dname,domain in domains.items:
-        print("Domain: "+dname)
-
+    geom = Geometry()
+    for dname,domain in domains.items():
         interfaces   = domain[0]
         conductivity = domain[1]
 
         if type(interfaces)!=list or len(interfaces)==0:
-            print("make_geometry: wrong description of domain ("+dname+"), should be a non-empty list of interfaces")
-            return om.Geometry()
+            raise Exception("wrong description of domain ("+dname+"), should be a non-empty list of interfaces")
 
-        om_domain = om.Domain()
+        om_domain = Domain(dname)
         om_domain.set_conductivity(conductivity)
 
         for i in range(len(interfaces)):
@@ -553,48 +556,31 @@ def make_geometry(domains):
                 iname = str(i)
                 oriented_meshes,side = interfaces[i]
             else:
-                print("make_geometry: wrong interface definition.")
-                return om.Geometry()
+                raise Exception("Domain interface definition "+iname+" should have 2 or 3 elements.")
 
-            print("- interface: "+str(i))
             if type(oriented_meshes)!=list or len(oriented_meshes)==0:
-                print("make_geometry: wrong description, first argument should be a non-empty list of (mesh,orientation)")
-                return om.Geometry()
-            if side!=om.Domain.Inside and side!=om.Domain.Outside:
-                print("make_geometry: wrong description, second argument should be a side direction (In/Out)")
-                return om.Geometry()
+                raise Exception("Domain interface definition "+iname+" first argument should be a non-empty list of (mesh,orientation)")
+            if side!=SimpleDomain.Inside and side!=SimpleDomain.Outside:
+                raise Exception("Domain interface definition "+iname+" second argument should be a side direction (In/Out)")
 
-            om_interface = om.Interface(iname)
+            om_interface = Interface(iname)
             for j in range(len(oriented_meshes)):
 
                 mesh,orientation = oriented_meshes[j]
 
-                if type(mesh)!=type(om.Mesh()):
-                    print("make_geometry: wrong description of interface element ("+str(j)+"), first tuple member should a be a mesh")
-                    return om.Geometry()
-                if orientation!=om.OrientedMesh.Normal and orientation!=om.OrientedMesh.Opposite:
-                    print("make_geometry: wrong description for interface element ("+str(j)+"), secnd tuple member should a be an orientation")
-                    return om.Geometry()
+                if type(mesh)!=type(Mesh()):
+                    raise Exception("Wrong description of interface element ("+str(j)+"), first tuple member should a be a mesh")
+                if orientation!=OrientedMesh.Normal and orientation!=OrientedMesh.Opposite:
+                    raise Exception("Wrong description for interface element ("+str(j)+"), second tuple member should a be an orientation")
 
-                oriented_mesh = om.OrientedMesh(mesh,orientation)
+                oriented_mesh = OrientedMesh(mesh,orientation)
                 om_interface.oriented_meshes().push_back(oriented_mesh)
 
-                print("  - mesh       : "+mesh.name())
-                print("    "+str(len(mesh.vertices())) +" vertices")
-                print("    "+str(len(mesh.triangles()))+" triangles")
-                if orientation==om.OrientedMesh.Normal:
-                    print("  - orientation: Normal")
-                else:
-                    print("  - orientation: Opposite")
+            om_domain.boundaries().push_back(SimpleDomain(om_interface,side))
+        geom.domains().push_back(om_domain)
 
-            om_domain.boundaries().push_back(om.SimpleDomain(om_interface,side))
-            if side==om.Domain.Inside:
-                print("- direction: Inside")
-            else:
-                print("- direction: Outside")
-        print("- conductivity: "+str(conductivity))
-        print()
-
-    g = om.Geometry()
-    return g
+    print("A")
+    geom.finalize()
+    print("B")
+    return geom
 %}

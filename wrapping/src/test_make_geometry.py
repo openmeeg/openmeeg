@@ -19,11 +19,11 @@ data_path    = options.data_path
 subject = "Head1"
 dirpath = path.join(data_path,subject)
 
-cortex = om.Mesh(path.join(dirpath,"cortex.1.tri")
+cortex = om.Mesh(path.join(dirpath,"cortex.1.tri"))
 cortex.setName("cortex")
-skull = om.Mesh(path.join(dirpath,"skull.1.tri")
+skull = om.Mesh(path.join(dirpath,"skull.1.tri"))
 skull.setName("skull")
-scalp = om.Mesh(path.join(dirpath,"scalp.1.tri")
+scalp = om.Mesh(path.join(dirpath,"scalp.1.tri"))
 scalp.setName("scalp")
 
 # It should be possible to have multiple oriented meshes per interface. e.g.
@@ -35,13 +35,13 @@ interfaces = [[(cortex,om.OrientedMesh.Normal)],
               [(scalp,om.OrientedMesh.Normal)]]
 
 domains = {
-    "Scalp" : ([(interface[1],om.Domain.Outside), (interface[2],om.Domain.Inside)],1.0) ,
-    "Brain" : ([(interface[0],om.Domain.Inside)],1.0),
-    "Air"   : ([(interface[2],om.Domain.Outside)],0.0),
-    "Skull" : ([(interface[1],om.Domain.Inside), (interface[0],om.Domain.Outside)],0.0125)
+    "Scalp" : ([(interfaces[1],om.SimpleDomain.Outside), (interfaces[2],om.SimpleDomain.Inside)],1.0) ,
+    "Brain" : ([(interfaces[0],om.SimpleDomain.Inside)],1.0),
+    "Air"   : ([(interfaces[2],om.SimpleDomain.Outside)],0.0),
+    "Skull" : ([(interfaces[1],om.SimpleDomain.Inside), (interfaces[0],om.SimpleDomain.Outside)],0.0125)
 }
 
-g1 = make_geometry([domains]);
+g1 = om.make_geometry(domains);
 g2 = om.Geometry(path.join(dirpath,subject+".geom"),path.join(dirpath,subject+".cond"))
 
 assert g1.__class__ == g2.__class__
