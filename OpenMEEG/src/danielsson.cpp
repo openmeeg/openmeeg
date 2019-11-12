@@ -120,8 +120,8 @@ namespace OpenMEEG
     double dist_point_interface(const Vect3& p,const Interface& interface,Vect3& alphas,Triangle& nearestTriangle) {
         double distmin = std::numeric_limits<double>::max();
 
-        for (const auto& interface : interface.oriented_meshes())
-            for (const auto& triangle : interface.mesh().triangles()) {
+        for (const auto& omesh : interface.oriented_meshes())
+            for (const auto& triangle : omesh.mesh().triangles()) {
                 bool  inside;
                 Vect3 alphasLoop;
                 const double distance = dist_point_triangle(p,triangle,alphasLoop,inside);
