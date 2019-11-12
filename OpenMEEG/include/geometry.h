@@ -184,6 +184,26 @@ namespace OpenMEEG {
             finalize(OLD_ORDERING);
         }
 
+        void finalize(const bool OLD_ORDERING=false) {
+            // TODO: We should check the correct decomposition of the geometry into domains here.
+            // In a correct decomposition, each interface is used exactly once ?? Unsure...
+            // Search for the outermost domain and set boolean OUTERMOST on the domain in the vector domains.
+            // An outermost domain is (here) defined as the only domain outside represented by only one interface.
+
+            Domain& outer_domain = outermost_domain();
+            set_outermost_domain(outer_domain);
+            //  TODO: Integrate this loop (if necessary) in set_outermost_domain...
+            for (auto& boundary : outer_domain.boundaries())
+                boundary.interface().set_to_outermost();
+
+            if (check_geometry_is_nested())
+                set_nested();
+
+            generate_indices(OLD_ORDERING);
+            make_mesh_pairs();
+            info();
+        }
+
         //  Do those belong to this class ?
         //  TODO: Move this away in Reader/Writer classes....
 
@@ -214,12 +234,6 @@ namespace OpenMEEG {
 
         void read_geometry_file(const std::string& filename);
         void read_conductivity_file(const std::string& filename);
-
-        void finalize(const bool OLD_ORDERING=false) {
-            generate_indices(OLD_ORDERING);
-            make_mesh_pairs();
-            info();
-        }
 
         void make_mesh_pairs();
 
