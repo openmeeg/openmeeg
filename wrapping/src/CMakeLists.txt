@@ -95,8 +95,8 @@ install(FILES  ${OpenMEEG_BINARY_DIR}/wrapping/src/openmeeg.py
 
 if (BUILD_TESTING)
 
-    set(PYTHON_TEST_FILES test_vector.py test_matrix.py test_mesh.py test_sensors.py test_geom_import.py)
-    set(PYTHON_TEST_FILES_REQUIRING_DATA test_python.py test_python2.py test_make_geometry.py)
+    set(PYTHON_TEST_FILES test_vector.py test_matrix.py test_sensors.py test_geom_import.py)
+    set(PYTHON_TEST_FILES_REQUIRING_DATA test_python.py test_python2.py test_mesh.py test_make_geometry.py)
 
     # Add tests requiring data
 
