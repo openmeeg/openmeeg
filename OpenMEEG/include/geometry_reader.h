@@ -132,9 +132,8 @@ namespace OpenMEEG {
         unsigned version[2]; ///< version of the domain description
         ifs >> io_utils::match("# Domain Description ") >> version[0] >> io_utils::match(".") >> version[1];
 
-        if ( ifs.fail() ) {
+        if (ifs.fail())
             throw OpenMEEG::WrongFileFormat(geometry);
-        }
 
         version_id = UNKNOWN_VERSION;
         if (version[0]==1) {
@@ -213,9 +212,9 @@ namespace OpenMEEG {
         std::string id; // id of mesh/interface/domain
         Interfaces interfaces;
 
-        // if meshes are not already loaded
+        // If meshes are not already loaded
 
-        if (geom.meshes().size()==0) { // ---------------------------------------
+        if (geom.meshes().size()==0) {
             geom.meshes().reserve(nb_interfaces);
             std::vector<std::string> interfacename(nb_interfaces);
             std::vector<std::string> filename(nb_interfaces);
@@ -254,7 +253,7 @@ namespace OpenMEEG {
                 interfaces.push_back(Interface(interfacename[i]));
                 interfaces[i].oriented_meshes().push_back(OrientedMesh(geom.meshes()[i])); // one mesh per interface, (well oriented)
             }
-        } else { // -----------------------
+        } else {
             std::string interfacename;
             for (unsigned i=0; i<nb_interfaces; ++i) {
                 bool unnamed;
@@ -283,7 +282,7 @@ namespace OpenMEEG {
             }
         }
 
-        // Process domains. -----------------------------------------------------------------------------------
+        // Process domains.
 
         unsigned num_domains;
         ifs >> io_utils::skip_comments('#') >> io_utils::match("Domains") >> num_domains;
@@ -328,26 +327,8 @@ namespace OpenMEEG {
             }
         }
 
-        // TODO: We should check the correct decomposition of the geometry into domains here.
-        // In a correct decomposition, each interface is used exactly once ?? Unsure...
-        // Search for the outermost domain and set boolean OUTERMOST on the domain in the vector domains.
-        // An outermost domain is (here) defined as the only domain outside represented by only one interface.
-
-        Domain& outer_domain = geom.outermost_domain();
-        geom.set_outermost_domain(outer_domain);
-        //  TODO: Integrate this loop (if necessary) in set_outermost_domain...
-        for (auto& boundary : outer_domain.boundaries())
-            boundary.interface().set_to_outermost();
-
-        if (geom.check_geometry_is_nested())
-            geom.set_nested();
-
-        if ( ifs.fail() ) {
+        if (ifs.fail())
             throw OpenMEEG::WrongFileFormat(geometry);
-        }
-
-        // Close the input file. -----------------------------------------------------------------------------------
-        ifs.close();
     }
 
     void GeometryReader::read_cond(const std::string& condFileName) {
