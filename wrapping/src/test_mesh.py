@@ -4,6 +4,13 @@ import sys,os
 import openmeeg as om
 import numpy as np
 
+data_path = path.dirname(path.abspath(__file__))
+parser = OptionParser()
+parser.add_option("-p","--path",dest="data_path",help="path to data folder",metavar="FILE",default=data_path)
+
+options,args = parser.parse_args()
+data_path    = options.data_path
+
 def test_mesh(name,Vs,Ts,ExpectedResult):
     try:
         mesh = om.Mesh(Vs,Ts)
@@ -49,8 +56,7 @@ test_mesh("9",Vertices,Triangles,True)
 
 # test X -> should be OK
 # TODO: Does not work if not jls....
-test_dir  = os.path.dirname(os.path.abspath(__file__))
-data_file = os.path.join(test_dir,"..","..","..","data/Head1/Head1.tri")
+data_file = os.path.join(data_path,"Head1","Head1.tri")
 mesh_X = om.Mesh()
 mesh_X.load(data_file)
 mesh_X.update()
