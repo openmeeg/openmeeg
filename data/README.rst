@@ -46,19 +46,19 @@ OpenMEEG definitions:
 
 Namings:
 --------
-For ease of explanation, we consider the naming as follow:
+For ease of explanation, the following naming convention is used in this document:
 - meshes: are named in lower case
 - interfaces: in CamelCase
 - domains: in UPPERCASE
-
-but this convention is up to you.
 
 A *.geom file* contains:
 
 1. A header section: 
 --------------------
 
-Version 1.1 and later date from after the introduction of non-nested geometries::
+This header defines the type of the geom file.
+Version 1.0 was the initial file format. It was only allowing nested head models. It is now deprecated but still supported.
+The newer Version 1.1 has been introduced to support non-nested geometries::
 
   # Domain Description 1.1                             
 
