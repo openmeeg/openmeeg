@@ -26,8 +26,13 @@ include_directories(${PYTHON_INCLUDE_PATH}
                     ${PROJECT_SOURCE_DIR}/OpenMEEGMaths/include/
 )
 
-cmake_policy(SET CMP0078 OLD) # Use old policy as our required cmake version (3.9) is older than 3.13 (For the NEW we need to chage the target name).
-cmake_policy(SET CMP0086 NEW) # Use NEW policy as we do not use SWIG_MODULE_NAME
+if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.13")
+    cmake_policy(SET CMP0078 OLD) # Use old policy as our required cmake version (3.9) is older than 3.13 (For the NEW we need to chage the target name).
+endif()
+
+if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.14")
+    cmake_policy(SET CMP0086 NEW) # Use NEW policy as we do not use SWIG_MODULE_NAME
+endif()
 
 find_package(SWIG REQUIRED)
 
