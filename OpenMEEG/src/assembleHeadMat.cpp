@@ -332,13 +332,11 @@ namespace OpenMEEG {
         // Concat M to H
         // TODO TODO TODO: Integrate in HeadMatrix...
 
-        std::cerr << "A" << std::endl;
         const unsigned Nl = H.nlin()-M.nlin();
         const unsigned Nc = H.ncol();
         for (unsigned i=Nl;i<H.nlin();++i)
             for (unsigned j=0;j<Nc;++j)
                 H(i,j) = M(i-Nl,j);
-        std::cerr << "B" << std::endl;
 
         // Get the gradient of P1&P0 elements on the meshes.
 
