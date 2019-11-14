@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 
-import sys,os
+from os import path as path
 import openmeeg as om
 import numpy as np
+from optparse import OptionParser
 
 data_path = path.dirname(path.abspath(__file__))
 parser = OptionParser()
@@ -56,7 +57,7 @@ test_mesh("9",Vertices,Triangles,True)
 
 # test X -> should be OK
 # TODO: Does not work if not jls....
-data_file = os.path.join(data_path,"Head1","Head1.tri")
+data_file = path.join(data_path,"Head1","Head1.tri")
 mesh_X = om.Mesh()
 mesh_X.load(data_file)
 mesh_X.update()
