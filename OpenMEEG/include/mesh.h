@@ -89,14 +89,13 @@ namespace OpenMEEG {
         typedef std::vector<Vertex*>                  VectPVertex;
         typedef std::map<const Vertex*,VectPTriangle> AdjacencyMap;
 
-        // Constructors:
-        /// default constructor
+        /// Default constructor
 
         Mesh(): all_vertices_(0),triangles_() { }
 
-        /// constructor from scratch (add vertices/triangles one by one)
-        /// \param nv allocate space for vertices
-        /// \param nt allocate space for triangles
+        /// Constructor from scratch (add vertices/triangles one by one)
+        /// \param nv space to allocate for vertices
+        /// \param nt space to allocate for triangles
 
         Mesh(const unsigned& nv,const unsigned& nt): allocated(true) {
             all_vertices_ = new Vertices;
@@ -104,19 +103,25 @@ namespace OpenMEEG {
             triangles_.reserve(nt);
         }
 
-        /// constructor from another mesh \param m
+        /// Constructor from another mesh \param m
 
         Mesh(const Mesh& m) { *this = m; }
 
-        /// constructor using an outisde storage for vertices \param av Where to store vertices \param name Mesh name
+        /// Constructor using an existing set of vertices.
+        /// \param av vertices
+        /// \param name mesh name
 
         Mesh(Vertices& av,const std::string name=""): mesh_name(name),all_vertices_(&av) {
-            set_vertices_.insert(all_vertices_->begin(), all_vertices_->end());
+            set_vertices_.insert(all_vertices_->begin(),all_vertices_->end());
         }
 
-        /// constructor loading directly a mesh file named \param filename . Be verbose if \param verbose is true. The mesh name is \param name .
+        /// Constructor loading directly a mesh file named \param filename .
+        /// Be verbose if \param verbose is true.
+        /// The mesh name is \param name .
 
-        Mesh(std::string filename,const bool verbose=true,const std::string name=""): mesh_name(name),allocated(true) {
+        Mesh(const std::string& filename,const bool verbose=true,const std::string& name=""):
+            mesh_name(name),allocated(true)
+        {
             unsigned nb_v = load(filename,false,false);
             all_vertices_ = new Vertices(nb_v); // allocates space for the vertices
             load(filename,verbose);
@@ -258,15 +263,13 @@ namespace OpenMEEG {
         void save_off(const std::string&)  const;
         void save_mesh(const std::string&) const;
 
-        // IO:s ----------------------------------------------------------------------------
+        // IO:s
 
         Mesh& operator=(const Mesh& m) {
             if (this!=&m)
                 copy(m);
             return *this;
         }
-
-        friend std::istream& operator>>(std::istream& is,Mesh& m); ///< \brief insert a triangle into the mesh
 
     private:
 
