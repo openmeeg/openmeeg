@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 #
 # WIP: copy this file in wrapping/src directory of the build tree
-# then execute it (python3 ./wrapping/src/poc_geometry)
+# then execute it (python3 ./wrapping/src/test_make_geometry path_to_data_directory)
 
 import openmeeg as om
 from os import path as path
@@ -30,18 +30,20 @@ scalp.setName("scalp")
 # interface1 = [(m1,om.OrientedMesh.Normal), (m2,om.OrientedMesh.Opposite), (m3,om.OrientedMesh.Normal)]
 # It should also be possible to have a name added at the beginning of the tuple.
 
-interfaces = [[(cortex,om.OrientedMesh.Normal)],
-              [(skull,om.OrientedMesh.Normal)],
-              [(scalp,om.OrientedMesh.Normal)]]
-
-domains = {
-    "Scalp" : ([(interfaces[1],om.SimpleDomain.Outside), (interfaces[2],om.SimpleDomain.Inside)],1.0) ,
-    "Brain" : ([(interfaces[0],om.SimpleDomain.Inside)],1.0),
-    "Air"   : ([(interfaces[2],om.SimpleDomain.Outside)],0.0),
-    "Skull" : ([(interfaces[1],om.SimpleDomain.Inside), (interfaces[0],om.SimpleDomain.Outside)],0.0125)
+interfaces = {
+    "interface1": [(cortex,om.OrientedMesh.Normal)],
+    "interface2": [(skull,om.OrientedMesh.Normal)],
+    "interface3": [(scalp,om.OrientedMesh.Normal)]
 }
 
-g1 = om.make_geometry(domains);
+domains = {
+    "Scalp" : ([('interface2',om.SimpleDomain.Outside), ('interface3',om.SimpleDomain.Inside)],1.0) ,
+    "Brain" : ([('interface1',om.SimpleDomain.Inside)],1.0),
+    "Air"   : ([('interface3',om.SimpleDomain.Outside)],0.0),
+    "Skull" : ([('interface2',om.SimpleDomain.Inside), ('interface1',om.SimpleDomain.Outside)],0.0125)
+}
+
+g1 = om.make_geometry(interfaces,domains)
 g2 = om.Geometry(path.join(dirpath,subject+".geom"),path.join(dirpath,subject+".cond"))
 
 assert g1.__class__ == g2.__class__
