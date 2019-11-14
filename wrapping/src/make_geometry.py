@@ -6,14 +6,14 @@ def make_geometry(interfaces,domains,meshes=None):
         raise Exception("Wrong argument (should be a non empty dictionary of named domains)")
 
     meshes = set()
-    geom = om.Geometry()
+    geom = Geometry()
     for dname,domain in domains.items():
         domain_interfaces,conductivity = domain
 
         if type(domain_interfaces)!=list or len(domain_interfaces)==0:
             raise Exception("wrong description of domain ("+dname+"), should be a non-empty list of interfaces")
 
-        om_domain = om.Domain(dname)
+        om_domain = Domain(dname)
         om_domain.set_conductivity(conductivity)
 
         for iname,side in domain_interfaces:
@@ -25,7 +25,7 @@ def make_geometry(interfaces,domains,meshes=None):
             if side!=SimpleDomain.Inside and side!=SimpleDomain.Outside:
                 raise Exception("Domain "+dname+": interface "+iname+" has a wrong side direction (In/Out)")
 
-            om_interface = om.Interface(iname)
+            om_interface = Interface(iname)
             for mesh,orientation in oriented_meshes:
                 if type(mesh)!=type(Mesh()):
                     raise Exception("Wrong description of interface ("+iname+"), first tuple member should a be a mesh")
