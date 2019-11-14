@@ -131,11 +131,11 @@ namespace OpenMEEG {
         unsigned vind[3];
         is >> vind[0] >> vind[1] >> vind[2];
         for (unsigned i=0;i<3;++i)
-            if (vind[i]>=m.vertices_.size()) {
+            if (vind[i]>=m.vertices().size()) {
                 std::cerr << "Unknown vertex: " << vind[i] << " (hint: vertex numbering often starts at 0). Aborting." << std::endl;
                 exit(1);
             }
-        Triangle t(m.vertices_[vind[0]],m.vertices_[vind[1]],m.vertices_[vind[2]]);
+        Triangle t(m.vertices()[vind[0]],m.vertices()[vind[1]],m.vertices()[vind[2]]);
         m.triangles().push_back(t);
         return is;
     }
