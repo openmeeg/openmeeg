@@ -105,11 +105,11 @@ namespace OpenMEEG {
               Normal&  normal()       { return normal_; }
         const Normal&  normal() const { return normal_; }
 
-              double   area()   const { return area_; }
-              double&  area()         { return area_; }
+        double  area() const { return area_; }
+        double& area()       { return area_; }
 
-              unsigned& index()        { return ind; }
-              unsigned  index()  const { return ind; }
+        unsigned& index()       { return ind; }
+        unsigned  index() const { return ind; }
 
         Vect3 center() const { return (vertex(0)+vertex(1)+vertex(2))/3; }
 
