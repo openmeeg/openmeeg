@@ -75,14 +75,12 @@ namespace OpenMEEG {
         vtkSmartPointer<vtkUnsignedIntArray> c_indices = vtkUnsignedIntArray::SafeDownCast(vtkMesh->GetCellData()->GetArray("Indices",trash));
 
         const unsigned npts = vtkMesh->GetNumberOfPoints();
-        vertices_.reserve(npts); // alocate memory for the vertices
+        vertices().reserve(npts); // allocate memory for the vertices
 
         for (unsigned i = 0; i < npts; ++i) {
-            if (trash == -1) { // no indices provided
-                vertices_.push_back(Vertex(vtkMesh->GetPoint(i)[0], vtkMesh->GetPoint(i)[1], vtkMesh->GetPoint(i)[2]));
-            } else {
-                vertices_.push_back(Vertex(vtkMesh->GetPoint(i)[0], vtkMesh->GetPoint(i)[1], vtkMesh->GetPoint(i)[2], v_indices->GetValue(i)));
-            }
+            vertices().push_back(Vertex(vtkMesh->GetPoint(i)[0],vtkMesh->GetPoint(i)[1],vtkMesh->GetPoint(i)[2]));
+            if (trash!=-1) // index provided
+                vertices().back().index() = v_indices->GetValue(i);
         }
 
         // find the number of different meshes reading the string array associated with the cells
@@ -92,32 +90,27 @@ namespace OpenMEEG {
         vtkSmartPointer<vtkStringArray> cell_id = vtkStringArray::SafeDownCast(vtkMesh->GetCellData()->GetAbstractArray("Names"));
 
         const unsigned ntrgs = vtkMesh->GetNumberOfCells();
-        for (unsigned i = 0; i < ntrgs; ++i) {
-            if (std::find(meshes_name.begin(), meshes_name.end(), cell_id->GetValue(i)) == meshes_name.end()) {
+        for (unsigned i = 0; i < ntrgs; ++i)
+            if (std::find(meshes_name.begin(),meshes_name.end(),cell_id->GetValue(i))==meshes_name.end())
                 meshes_name.push_back(cell_id->GetValue(i));
-            }
-        }
 
-        // create the meshes
-        for (std::vector<std::string>::const_iterator vit = meshes_name.begin(); vit != meshes_name.end(); ++vit) {
-            meshes_.push_back(Mesh(vertices_, *vit));
-        }
+        // Create the meshes
 
-        // insert the triangle and mesh vertices address into the right mesh
-        vtkSmartPointer<vtkIdList> l;
+        for (auto& name : meshes_name)
+            meshes().push_back(Mesh(vertices(),name));
+
+        // Insert the triangle and mesh vertices addresses into the right mesh
 
         for (auto& mesh : meshes()) {
             Triangles& triangles = mesh.triangles();
-            for (unsigned i = 0; i < ntrgs; ++i) {
+            for (unsigned i=0; i<ntrgs; ++i) {
                 // get the mesh which has this name
-                if (cell_id->GetValue(i) == mesh.name()) {
-                    if (vtkMesh->GetCellType(i) == VTK_TRIANGLE) {
-                        l = vtkMesh->GetCell(i)->GetPointIds();
-                        if (trash != -1) { // no indices provided
-                            triangles.push_back(Triangle(vertices_[l->GetId(0)],vertices_[l->GetId(1)],vertices_[l->GetId(2)],c_indices->GetValue(i))); 
-                        } else {
-                            triangles.push_back(Triangle(vertices_[l->GetId(0)],vertices_[l->GetId(1)],vertices_[l->GetId(2)]));
-                        }
+                if (cell_id->GetValue(i)==mesh.name()) {
+                    if (vtkMesh->GetCellType(i)==VTK_TRIANGLE) {
+                        const vtkSmartPointer<vtkIdList>& vl = vtkMesh->GetCell(i)->GetPointIds();
+                        triangles.push_back(Triangle(vertices()[vl->GetId(0)],vertices()[vl->GetId(1)],vertices()[vl->GetId(2)]));
+                        if (trash!=-1) // index provided
+                            triangles.back().index() = c_indices->GetValue(i);
                     } else {
                         std::cerr << "This is not a triangulation" << std::endl;
                         exit(1);
