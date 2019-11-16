@@ -207,10 +207,8 @@ namespace OpenMEEG {
             // Store the internal conductivity of the external boundary of domain i
             // and store the external conductivity of the internal boundary of domain i
 
-            std::cerr << domains().size() << " domains" << std::endl;
             for (auto& domain : domains()) {
                 try {
-                    std::cerr << "Setting conductivuty of domain: " << domain.name() << std::endl;
                     const Conductivity<double>& cond = properties.find(domain.name());
                     domain.set_conductivity(cond.sigma());
                 } catch (const Utils::Properties::UnknownProperty<HeadProperties::Id>& e) {
@@ -238,13 +236,8 @@ namespace OpenMEEG {
         if (meshes().front().triangles().front().index()==unsigned(-1)) {
             unsigned index = 0;
             if (!OLD_ORDERING)
-                for (auto& vertex : vertices()) {
-                    if (invalid_vertices_.empty() || invalid_vertices_.count(vertex)==0) {
-                        vertex.index() = index++;
-                    } else {
-                        vertex.index() = unsigned(-1);
-                    }
-                }
+                for (auto& vertex : vertices())
+                    vertex.index() = (invalid_vertices_.count(vertex)==0) ? index++ : unsigned(-1);
 
             for (auto& mesh : meshes()) {
                 if (OLD_ORDERING) {
@@ -252,7 +245,7 @@ namespace OpenMEEG {
                     for (const auto& vertex : mesh.vertices())
                         vertex->index() = index++;
                 }
-                if (!mesh.isolated()&&!mesh.current_barrier())
+                if (!mesh.isolated() && !mesh.current_barrier())
                     for (auto& triangle : mesh.triangles())
                         triangle.index() = index++;
             }
