@@ -58,8 +58,14 @@ namespace OpenMEEG {
             const auto& vertices = mesh.vertices();
             for (auto vit1=vertices.begin();vit1!=vertices.end();++vit1) {
                 #pragma omp parallel for
-                for (auto vit2=vit1;vit2<vertices.end();++vit2)
+                #if defined NO_OPENMP || defined OPENMP_ITERATOR
+                for (auto vit2=vit1; vit2<vertices.end(); ++vit2) {
+                #else
+                for (int i2=vit1-vertices.begin();i2<vertices.size();++i2) {
+                    const Mesh::const_vertex_iterator vit2 = vertices.begin()+i2;
+                #endif
                     M((*vit1)->index(),(*vit2)->index()) += coef;
+                }
             }
         }
     }
@@ -78,12 +84,20 @@ namespace OpenMEEG {
                 }
             const double coef = M(i_first,i_first)/nb_vertices;
             for (const auto& meshptr : part)
-                if (meshptr->outermost())
-                    for (auto vit1=meshptr->vertices().begin(); vit1!=meshptr->vertices().end(); ++vit1) {
+                if (meshptr->outermost()) {
+                    const auto& vertices = meshptr->vertices();
+                    for (auto vit1=vertices.begin(); vit1!=vertices.end(); ++vit1) {
                         #pragma omp parallel for
-                        for (auto vit2=vit1; vit2<meshptr->vertices().end(); ++vit2)
+                        #if defined NO_OPENMP || defined OPENMP_ITERATOR
+                        for (auto vit2=vit1; vit2<vertices.end(); ++vit2) {
+                        #else
+                        for (int i2=vit1-vertices.begin();i2<vertices.size();++i2) {
+                            const Mesh::const_vertex_iterator vit2 = vertices.begin()+i2;
+                        #endif
                             M((*vit1)->index(),(*vit2)->index()) += coef;
+                        }
                     }
+                }
         }
     }
 

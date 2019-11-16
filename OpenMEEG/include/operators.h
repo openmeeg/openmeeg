@@ -200,7 +200,7 @@ namespace OpenMEEG {
                     for (auto vit2=vit1;vit2<m.vertices().end();++vit2) {
                     #else
                     for (int i2=0;i2<=vit1-m1.vertices().begin();++i2) {
-                        const Mesh::const_vertex_iterator vit2 = m1.vertices().begin()+i2;
+                        const typename Mesh::const_vertex_iterator vit2 = m1.vertices().begin()+i2;
                     #endif
                         mat((*vit1)->index(),(*vit2)->index()) += _operatorN(**vit1,**vit2,m,m,M)*coeff;
                     }
