@@ -151,11 +151,13 @@ namespace OpenMEEG {
              throw OpenMEEG::WrongFileFormat(geometry);
         }
 
-        // extract the absolut path of geometry file
+        // Extract the absolut path of geometry file
+
         const std::string::size_type pos = geometry.find_last_of(this->PathSeparator);
         const std::string path = (pos == std::string::npos) ? "" : geometry.substr(0, pos+1);
 
-        // Process meshes. -----------------------------------------------------------------------------------
+        // Process meshes.
+
         if (version_id==VERSION11) {
             // Read the mesh section of the description file.
             // Try to load the meshfile (VTK::vtp file)
@@ -198,7 +200,8 @@ namespace OpenMEEG {
             }
         }
 
-        // Process interfaces. -----------------------------------------------------------------------------------
+        // Process interfaces.
+
         unsigned nb_interfaces;
         bool trash; // backward compatibility, catch "Mesh" optionnally.
         ifs >> io_utils::skip_comments('#')
@@ -246,8 +249,10 @@ namespace OpenMEEG {
                 nb_vertices += m.load(fullname[i], false, false); 
             }
             geom.vertices().reserve(nb_vertices);
+
             // Second really load the meshes
-            for ( unsigned i = 0; i < nb_interfaces; ++i ) {
+
+            for (unsigned i=0; i<nb_interfaces; ++i) {
                 geom.meshes().push_back(Mesh(geom.vertices(), interfacename[i]));
                 geom.meshes()[i].load(fullname[i], false);
                 interfaces.push_back(Interface(interfacename[i]));
@@ -343,7 +348,7 @@ namespace OpenMEEG {
             try {
                 const Conductivity<double>& cond = properties.find(domain.name());
                 domain.set_conductivity(cond.sigma());
-            } catch( const Utils::Properties::UnknownProperty<HeadProperties::Id>& e) {
+            } catch (const Utils::Properties::UnknownProperty<HeadProperties::Id>& e) {
                 throw OpenMEEG::BadDomain(domain.name());
             }
     }
