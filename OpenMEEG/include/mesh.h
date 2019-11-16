@@ -156,7 +156,7 @@ namespace OpenMEEG {
         ///  Print to std::cout some info about the mesh
         ///  \return void \sa */
 
-        void info(const bool verbous=false) const; ///< \brief Print mesh information.
+        void info(const bool verbose=false) const; ///< \brief Print mesh information.
         bool has_self_intersection() const; ///< \brief Check whether the mesh self-intersects.
         bool intersection(const Mesh&) const; ///< \brief Check whether the mesh intersects another mesh.
         bool has_correct_orientation() const; ///< \brief Check local orientation of mesh triangles.
