@@ -62,7 +62,7 @@ namespace OpenMEEG {
                 for (auto vit2=vit1; vit2<vertices.end(); ++vit2) {
                 #else
                 for (int i2=vit1-vertices.begin();i2<vertices.size();++i2) {
-                    const Mesh::const_vertex_iterator vit2 = vertices.begin()+i2;
+                    const Vertices::const_iterator vit2 = vertices.begin()+i2;
                 #endif
                     M((*vit1)->index(),(*vit2)->index()) += coef;
                 }
@@ -92,7 +92,7 @@ namespace OpenMEEG {
                         for (auto vit2=vit1; vit2<vertices.end(); ++vit2) {
                         #else
                         for (int i2=vit1-vertices.begin();i2<vertices.size();++i2) {
-                            const Mesh::const_vertex_iterator vit2 = vertices.begin()+i2;
+                            const Vertices::const_iterator vit2 = vertices.begin()+i2;
                         #endif
                             M((*vit1)->index(),(*vit2)->index()) += coef;
                         }
