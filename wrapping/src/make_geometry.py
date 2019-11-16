@@ -32,6 +32,8 @@ def make_geometry(interfaces,domains,meshes=None):
                 if orientation!=OrientedMesh.Normal and orientation!=OrientedMesh.Opposite:
                     raise Exception("Wrong description for interface ("+iname+"), second tuple member should a be an orientation")
 
+                print(mesh)
+                mesh.info()
                 meshes.add(mesh)
                 oriented_mesh = OrientedMesh(mesh,orientation)
                 om_interface.oriented_meshes().push_back(oriented_mesh)
