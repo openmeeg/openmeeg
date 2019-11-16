@@ -117,7 +117,6 @@ before_install:
       curl -fsSkL https://raw.githubusercontent.com/openmeeg/ci-utils/master/travis/install_mkl.sh > install_mkl.sh && source ./install_mkl.sh
     fi
 
-
   ############################################################################
   # Install Matio (using conda for shipping in Linux)
   ############################################################################
