@@ -208,7 +208,7 @@ namespace OpenMEEG {
             // and store the external conductivity of the internal boundary of domain i
 
             std::cerr << domains().size() << " domains" << std::endl;
-            for (auto& domain : domains())
+            for (auto& domain : domains()) {
                 try {
                     std::cerr << "Setting conductivuty of domain: " << domain.name() << std::endl;
                     const Conductivity<double>& cond = properties.find(domain.name());
@@ -216,6 +216,7 @@ namespace OpenMEEG {
                 } catch (const Utils::Properties::UnknownProperty<HeadProperties::Id>& e) {
                     throw OpenMEEG::BadDomain(domain.name());
                 }
+            }
         } catch (OpenMEEG::Exception& e) {
             std::cerr << e.what() << " in the file " << filename << std::endl;
             exit(e.code());
