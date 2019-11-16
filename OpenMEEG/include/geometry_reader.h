@@ -344,12 +344,13 @@ namespace OpenMEEG {
         // Store the internal conductivity of the external boundary of domain i
         // and store the external conductivity of the internal boundary of domain i
 
-        for (auto& domain : geom.domains())
+        for (auto& domain : geom.domains()) {
             try {
                 const Conductivity<double>& cond = properties.find(domain.name());
                 domain.set_conductivity(cond.sigma());
             } catch (const Utils::Properties::UnknownProperty<HeadProperties::Id>& e) {
                 throw OpenMEEG::BadDomain(domain.name());
             }
+        }
     }
 }
