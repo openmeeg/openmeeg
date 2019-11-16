@@ -49,49 +49,49 @@ knowledge of the CeCILL-B license and that you accept its terms.
 namespace OpenMEEG {
 
     // light class containing d Vect3
-    template <int d>
-    class OPENMEEG_EXPORT Vect3array 
-    {
+
+    template <unsigned d>
+    class OPENMEEG_EXPORT Vect3array {
+
         Vect3 t[d];
 
     public:
+
         Vect3array() {};
-        inline Vect3array(double x) {
-            for ( unsigned i = 0; i < d; ++i)
+
+        inline Vect3array(const double x) {
+            for (unsigned i=0;i<d;++i)
                 t[i] = Vect3(x);
         }
-        inline Vect3array<d> operator*(double x) const {
+
+        inline Vect3array<d> operator*(const double x) const {
             Vect3array<d> r;
-            for ( unsigned i = 0; i < d; ++i)
+            for (unsigned i=0;i<d;++i)
                 r.t[i] = t[i]*x;
             return r;
         }
-        inline Vect3 operator()(int i) const { return t[i]; }
-        inline Vect3& operator()(int i) { return t[i]; }
+
+        inline Vect3  operator()(const int i) const { return t[i]; }
+        inline Vect3& operator()(const int i)       { return t[i]; }
     };
 
-    template <int d>
-    inline void multadd (Vect3array<d>& target, const double scale,  const Vect3array<d>& incr) 
-    {
-        for ( unsigned i = 0; i < d; ++i) {
-            target(i) = target(i) + scale*incr(i);
-        }
+    template <unsigned d>
+    inline void multadd(Vect3array<d>& target,const double scale,const Vect3array<d>& incr) {
+        for (unsigned i=0;i<d;++i)
+            target(i) = target(i)+scale*incr(i);
     }
 
-    inline void multadd (double& target, const double scale, const double incr) 
-    {
+    inline void multadd(double& target,const double scale,const double incr) {
         target += scale*incr;
     }
 
-    inline void multadd (Vect3& target, const double scale,  const Vect3& incr) 
-    {
-        target = target + scale*incr;
+    inline void multadd(Vect3& target,const double scale,const Vect3& incr) {
+        target = target+scale*incr;
     }
 
     // Quadrature rules are from Marc Bonnet's book: Equations integrales..., Appendix B.3
 
-    static const double cordBars[4][16][4] =
-    {
+    static const double cordBars[4][16][4] = {
         //parameters for N=3
         {
             {0.166666666666667, 0.166666666666667, 0.666666666666667, 0.166666666666667},
@@ -177,20 +177,20 @@ namespace OpenMEEG {
 
     static const unsigned nbPts[4] = {3, 6, 7, 16};
 
-    template <typename T, typename I>
-    class OPENMEEG_EXPORT Integrator 
-    {
+    template <typename T,typename I>
+    class OPENMEEG_EXPORT Integrator {
+
         unsigned order;
 
     public:
 
-        inline Integrator()             { setOrder(3);   }
-        inline Integrator(unsigned ord) { setOrder(ord); }
-        inline virtual ~Integrator() {}
+        Integrator()                   { setOrder(3);   }
+        Integrator(const double)       { setOrder(3);   }
+        Integrator(const unsigned ord) { setOrder(ord); }
+        virtual ~Integrator() { }
 
-        inline void setOrder(const unsigned n) 
-        {
-            if ( n < 4 ) {
+        inline void setOrder(const unsigned n) {
+            if (n<4) {
                 order = n;
             } else {
                 std::cout << "Unavailable Gauss order: min is 1, max is 3" << n << std::endl;
@@ -198,57 +198,53 @@ namespace OpenMEEG {
             }
         }
 
-        virtual inline T integrate(const I& fc, const Triangle& Trg)
-        {
-            const Vect3 points[3] = { Trg.s1(), Trg.s2(), Trg.s3() };
-            return triangle_integration(fc, points);
+        virtual inline T integrate(const I& fc,const Triangle& triangle) {
+            const Vect3 points[3] = { triangle.vertex(0), triangle.vertex(1), triangle.vertex(2) };
+            return triangle_integration(fc,points);
         }
 
     protected:
 
-        inline T triangle_integration(const I& fc, const Vect3 points[3])
-        {
+        inline T triangle_integration(const I& fc,const Vect3 points[3]) {
             // compute double area of triangle defined by points
             Vect3 crossprod = (points[1] - points[0])^(points[2] - points[0]);
             double S = crossprod.norm();
             T result = 0;
-            for ( unsigned i = 0; i < nbPts[order];++i) {
-                Vect3 v(0.0, 0.0, 0.0);
-                for ( unsigned j = 0; j < 3; ++j) {
+            for (unsigned i=0;i<nbPts[order];++i) {
+                Vect3 v(0.0,0.0,0.0);
+                for (unsigned j=0;j<3;++j)
                     v.multadd(cordBars[order][i][j], points[j]);
-                }
                 multadd(result, cordBars[order][i][3], fc.f(v));
             }
             return result*S;
         }
     };
 
-    template <typename T, typename I>
-    class OPENMEEG_EXPORT AdaptiveIntegrator: public Integrator<T, I>
-    {
-        typedef Integrator<T, I> base;
+    template <typename T,typename I>
+    class OPENMEEG_EXPORT AdaptiveIntegrator: public Integrator<T,I> {
+
+        typedef Integrator<T,I> base;
 
     public:
 
-        inline AdaptiveIntegrator() : tolerance(0.0001) {}
-        inline AdaptiveIntegrator(double tol) : tolerance(tol) {}
-        inline ~AdaptiveIntegrator() {}
+        AdaptiveIntegrator(): tolerance(0.0001) { }
+        AdaptiveIntegrator(const double tol): tolerance(tol) { }
+        ~AdaptiveIntegrator() { }
 
-        inline double norm(const double a) { return fabs(a);  }
-        inline double norm(const Vect3& a) { return a.norm(); }
+        double norm(const double a) { return fabs(a);  }
+        double norm(const Vect3& a) { return a.norm(); }
 
-        virtual inline T integrate(const I& fc, const Triangle& Trg) {
-            const Vect3 points[3] = { Trg.s1(), Trg.s2(), Trg.s3() };
-            T I0 = base::triangle_integration(fc, points);
-            return adaptive_integration(fc, points, I0, 0);
+        virtual T integrate(const I& fc, const Triangle& triangle) {
+            const Vect3 points[3] = { triangle.vertex(0), triangle.vertex(1), triangle.vertex(2) };
+            T I0 = base::triangle_integration(fc,points);
+            return adaptive_integration(fc,points,I0,0);
         }
 
     private:
 
         double tolerance;
 
-        inline T adaptive_integration(const I& fc, const Vect3 * points, T I0, unsigned n)
-        {
+        inline T adaptive_integration(const I& fc,const Vect3* points,T I0,unsigned n) {
             Vect3 newpoint0(0.0, 0.0, 0.0);
             multadd(newpoint0, 0.5, points[0]);
             multadd(newpoint0, 0.5, points[1]);
@@ -258,22 +254,22 @@ namespace OpenMEEG {
             Vect3 newpoint2(0.0, 0.0, 0.0);
             multadd(newpoint2, 0.5, points[2]);
             multadd(newpoint2, 0.5, points[0]);
-            Vect3 points1[3] = {points[0], newpoint0, newpoint2};
-            Vect3 points2[3] = {points[1], newpoint1, newpoint0};
-            Vect3 points3[3] = {points[2], newpoint2, newpoint1};
-            Vect3 points4[3] = {newpoint0, newpoint1, newpoint2};
-            T I1 = base::triangle_integration(fc, points1);
-            T I2 = base::triangle_integration(fc, points2);
-            T I3 = base::triangle_integration(fc, points3);
-            T I4 = base::triangle_integration(fc, points4);
+            Vect3 points1[3] = { points[0], newpoint0, newpoint2 };
+            Vect3 points2[3] = { points[1], newpoint1, newpoint0 };
+            Vect3 points3[3] = { points[2], newpoint2, newpoint1 };
+            Vect3 points4[3] = { newpoint0, newpoint1, newpoint2 };
+            T I1 = base::triangle_integration(fc,points1);
+            T I2 = base::triangle_integration(fc,points2);
+            T I3 = base::triangle_integration(fc,points3);
+            T I4 = base::triangle_integration(fc,points4);
             T sum = I1+I2+I3+I4;
-            if ( norm(I0-sum) > tolerance*norm(I0) ) {
+            if (norm(I0-sum)>tolerance*norm(I0)) {
                 n = n+1;
-                if ( n < 10 ) {
-                    I1 = adaptive_integration(fc, points1, I1, n);
-                    I2 = adaptive_integration(fc, points2, I2, n);
-                    I3 = adaptive_integration(fc, points3, I3, n);
-                    I4 = adaptive_integration(fc, points4, I4, n);
+                if (n<10) {
+                    I1 = adaptive_integration(fc,points1,I1,n);
+                    I2 = adaptive_integration(fc,points2,I2,n);
+                    I3 = adaptive_integration(fc,points3,I3,n);
+                    I4 = adaptive_integration(fc,points4,I4,n);
                     I0 = I1+I2+I3+I4;
                 }
             }

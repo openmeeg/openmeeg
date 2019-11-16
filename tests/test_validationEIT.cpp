@@ -127,14 +127,12 @@ int main(const int argc, const char* argv[]) {
     SparseMatrix matH2E(electrodes.getNumberOfSensors(), newsize); // Matrices Head2Electrodes
 
     // Find the triangle closest to the electrodes
-    for ( unsigned ielec = 0; ielec < nelec; ++ielec) {
-        for ( unsigned k = 0; k < 3; ++k) {
+    for (unsigned ielec=0;ielec<nelec;++ielec) {
+        for (unsigned k=0;k<3;++k)
             current_position(k) = electrodes_positions(ielec, k);
-        }
         dist_point_interface(current_position, geo.outermost_interface(), current_alphas, current_nearest_triangle);
-        matH2E(ielec, current_nearest_triangle.s1().index()) = current_alphas(0);
-        matH2E(ielec, current_nearest_triangle.s2().index()) = current_alphas(1);
-        matH2E(ielec, current_nearest_triangle.s3().index()) = current_alphas(2);
+        for (unsigned k=0;k<3;++k)
+            matH2E(ielec,current_nearest_triangle.vertex(k).index()) = current_alphas(k);
     }
 
     // Potential at the electrodes positions

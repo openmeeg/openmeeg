@@ -74,19 +74,17 @@ int main( int argc, char** argv)
 
     size_t nb_positions = sensors.getNumberOfPositions();
 
-    for( size_t i = 0; i < nb_positions; ++i )
-    {
-        Vector position = sensors.getPosition(i);
-        Vect3 current_position, alphas;
-        for ( unsigned k = 0; k < 3; ++k) {
+    for (size_t i=0;i<nb_positions;++i) {
+        const Vector position = sensors.getPosition(i);
+        Vect3 current_position;
+        for (unsigned k=0;k<3;++k)
             current_position(k) = position(k);
-        }
+        Vect3 alphas;
         Triangle triangle; // closest triangle
-        dist_point_interface(current_position, interface, alphas, triangle);
-        current_position = alphas(0)*triangle(0)+alphas(1)*triangle(1)+alphas(2)*triangle(2);
-        for ( unsigned k = 0; k < 3; ++k) {
+        dist_point_interface(current_position,interface,alphas,triangle);
+        current_position = alphas(0)*triangle.vertex(0)+alphas(1)*triangle.vertex(1)+alphas(2)*triangle.vertex(2);
+        for (unsigned k=0;k<3;++k)
             output(i,k) = current_position(k);
-        }
     }
 
     sensors.getPositions() = output;

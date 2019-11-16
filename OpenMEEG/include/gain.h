@@ -97,8 +97,8 @@ namespace OpenMEEG {
                 HeadMat.solveLin(mtemp); // solving the system AX=B with LAPACK
                 mtemp=mtemp.transpose();
                 #endif
-                for ( unsigned i = 0; i < LeadField.ncol(); ++i) {
-                    LeadField.setcol(i,mtemp * DipSourceMat(geo, dipoles.submat(i, 1, 0, dipoles.ncol()), gauss_order, true, "").getcol(0)); // TODO ugly
+                for (unsigned i=0;i<LeadField.ncol();++i) {
+                    LeadField.setcol(i,mtemp*DipSourceMat(geo,dipoles.submat(i,1,0,dipoles.ncol()),gauss_order,true,"").getcol(0)); // TODO ugly
                     PROGRESSBAR(i,LeadField.ncol());
                 }
                 *this = LeadField;
@@ -137,7 +137,7 @@ namespace OpenMEEG {
                 mtemp=mtemp.transpose();
                 #endif
                 for (unsigned i=0;i<LeadField.ncol();i++) {
-                    LeadField.setcol(i, mtemp * DipSourceMat(geo, dipoles.submat(i, 1, 0, dipoles.ncol()), gauss_order, true, "").getcol(0)+Source2MEGMat.getcol(i)); // TODO ugly
+                    LeadField.setcol(i,mtemp*DipSourceMat(geo,dipoles.submat(i,1,0,dipoles.ncol()),gauss_order,true,"").getcol(0)+Source2MEGMat.getcol(i)); // TODO ugly
                     PROGRESSBAR(i,LeadField.ncol());
                 }
                 *this = LeadField;
