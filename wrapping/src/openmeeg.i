@@ -111,7 +111,7 @@ namespace std {
     %template(vector_vertex) vector<OpenMEEG::Vertex>;
     %template(vector_pvertex) vector<OpenMEEG::Vertex *>;
     %template(vector_triangle) vector<OpenMEEG::Triangle>;
-    %template(vector_mesh) vector<OpenMEEG::Mesh>;
+#    %template(vector_mesh) vector<OpenMEEG::Mesh>;
     %template(vector_string) vector<std::string>;
     %template(vector_interface) vector<OpenMEEG::Interface>;
 }
@@ -120,7 +120,7 @@ namespace OpenMEEG {
     %typedef std::vector<OpenMEEG::Vertex> Vertices;
     %typedef std::vector<OpenMEEG::Vertex *> PVertices;
     %typedef std::vector<OpenMEEG::Triangle> Triangles;
-    %typedef std::vector<OpenMEEG::Mesh> Meshes;
+#    %typedef std::vector<OpenMEEG::Mesh> Meshes;
     %typedef std::vector<std::string>    Strings;
 }
 

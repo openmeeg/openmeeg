@@ -78,7 +78,7 @@ namespace OpenMEEG {
             nb_vertices=0;
             i_first=0;
             for(std::vector<std::string>::const_iterator mit=git->begin();mit!=git->end();++mit){
-                const Mesh msh=geo.mesh(*mit);
+                const Mesh& msh = geo.mesh(*mit);
                 if(msh.outermost()){
                     nb_vertices+=msh.nb_vertices();
                     if(i_first==0)
@@ -87,7 +87,7 @@ namespace OpenMEEG {
             }
             coef=M(i_first,i_first)/nb_vertices;
             for(std::vector<std::string>::const_iterator mit=git->begin();mit!=git->end();++mit){
-                Mesh msh=geo.mesh(*mit);
+                const Mesh& msh=geo.mesh(*mit);
                 if(msh.outermost())
                     for(Mesh::const_vertex_iterator vit1=msh.vertex_begin();vit1!=msh.vertex_end();++vit1){
                         #pragma omp parallel for

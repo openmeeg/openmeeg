@@ -5,7 +5,6 @@
 set(BLA_DEFINITIONS)
 set(BLA_VENDOR "OpenBLAS" CACHE STRING "BLAS/LAPACK implementation")
 
-
 if (BLA_VENDOR MATCHES Intel)
     if ("$ENV{MKLROOT}" STREQUAL "")
         message(FATAL_ERROR "MKLROOT is not set. Please source the Intel MKL mklvars.sh file.")
@@ -52,9 +51,9 @@ else()
 endif()
 
 find_package(Threads)
-
 find_package(OpenMP)
-if(BLA_STATIC)
+
+if (BLA_STATIC)
     set(MATIO_USE_STATIC_LIBRARIES TRUE) # XXX This should be an option
 endif()
 

@@ -406,37 +406,32 @@ namespace OpenMEEG {
     }
 
     void Geometry::import_meshes(const Meshes& m) {
-        meshes_.clear();
-        vertices_.clear();
+        std::map<const Vertex*,Vertex*> map_vertices;
+
+        // Count vertices
+
         unsigned n_vert_max = 0;
-        unsigned iit = 0;
-        std::map<const Vertex *, Vertex *> map_vertices;
-
-        // count the vertices
-        for (Meshes::const_iterator mit = m.begin(); mit != m.end(); ++mit) {
+        for (Meshes::const_iterator mit=m.begin();mit!=m.end();++mit)
             n_vert_max += mit->nb_vertices();
-        }
 
+        vertices_.clear();
         vertices_.reserve(n_vert_max);
+        meshes_.clear();
         meshes_.reserve(m.size());
 
-        for (Meshes::const_iterator mit = m.begin(); mit != m.end(); ++mit, ++iit) {
-            meshes_.push_back(Mesh(vertices_, mit->name()));
-            for (Mesh::const_vertex_iterator vit = mit->vertex_begin(); vit != mit->vertex_end(); vit++) {
-                meshes_[iit].add_vertex(**vit);
-                map_vertices[*vit] = *meshes_[iit].vertex_rbegin();
+        for (const auto& mesh : m) {
+            meshes_.emplace_back(vertices_,mesh.name());
+            Mesh& m1 = meshes_.back();
+            for (const auto& pvertex : mesh.vertices()) {
+                m1.add_vertex(*pvertex);
+                map_vertices[pvertex] = m1.vertices().back(); // This is probably wrong if vertices are duplicated...
             }
-        }
 
-        // Copy the triangles in the geometry.
-        iit = 0;
-        for (Meshes::const_iterator mit = m.begin(); mit != m.end(); ++mit, ++iit) {
-            for (Mesh::const_iterator tit = mit->begin(); tit != mit->end(); ++tit) {
-                meshes_[iit].push_back(Triangle(map_vertices[(*tit)[0]], 
-                                                map_vertices[(*tit)[1]],
-                                                map_vertices[(*tit)[2]]));
-            }
-            meshes_[iit].update();
+            // Copy the triangles in the geometry.
+
+            for (const auto& triangle: mesh)
+                m1.push_back(Triangle(map_vertices[triangle[0]],map_vertices[triangle[1]],map_vertices[triangle[2]]));
+            m1.update();
         }
     }
 

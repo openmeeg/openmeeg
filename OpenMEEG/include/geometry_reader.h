@@ -60,38 +60,47 @@ namespace OpenMEEG {
             void read_cond(const std::string&);
 
         private:
+
             Geometry& geom;
 
-            /// \return true if name is a realtive path. \param name
-            bool is_relative_path(const std::string& name);
-        #if WIN32
-            static const char PathSeparator[];
-        #else
-            static const char PathSeparator   = '/';
-        #endif
-    };
-    #if WIN32
-        const char GeometryReader::PathSeparator[] = "/\\";
-    #endif
+            /// \return true if name is a relative path. \param name
 
-    bool GeometryReader::is_relative_path(const std::string& name) {
-    #if WIN32
-        const char c0 = name[0];
-        if ( c0 == '/' || c0 == '\\' ) {
-            return false;
-        }
-        const char c1 = name[1];
-        const char c2 = name[2];
-        return !( std::isalpha(c0) && c1 == ':' && ( c2 == '/' || c2 == '\\' ) );
-    #else
-        return ( name[0] != PathSeparator );
-    #endif
-    }
+            static bool is_relative_path(const std::string& name) {
+            #if WIN32
+                const char c0 = name[0];
+                if (c0=='/' || c0=='\\')
+                    return false;
+                const char c1 = name[1];
+                const char c2 = name[2];
+                return !(std::isalpha(c0) && c1==':' && (c2=='/' || c2=='\\'));
+            #else
+                return (name[0]!='/');
+            #endif
+            }
+
+            static std::string dir(const std::string& filename) {
+            #if WIN32
+                const std::string::size_type pos = filename.find_last_of("/\\");
+            #else
+                const std::string::size_type pos = filename.find_last_of('/');
+            #endif
+                return (pos==std::string::npos) ? "" : filename.substr(0,pos+1);
+            }
+
+            static std::string fullname(const std::string& filename,const std::string& path) {
+                return (is_relative_path(filename)) ? path+filename : filename;
+            }
+
+            static std::string name(const unsigned n) {
+                std::stringstream ss;
+                ss << n;
+                return ss.str();
+            }
+    };
 
     void GeometryReader::read_geom(const std::string& geometry) {
         // Read the head file description and load the information into the data structures.
-
-        // check file data/README.rst for complete details about the .geom format.
+        // Check file data/README.rst for complete details about the .geom format.
         // The syntax of the head description is a header ("# Domain Description 1.1") followed
         // by two or three sections:
         //
@@ -116,207 +125,205 @@ namespace OpenMEEG {
         
         std::ifstream ifs(geometry.c_str());
 
-        if ( !ifs.is_open() ) {
+        if (!ifs.is_open())
             throw OpenMEEG::OpenError(geometry);
-        }
 
         //  Get the version of the geometry file format.
 
         unsigned version[2]; ///< version of the domain description
         ifs >> io_utils::match("# Domain Description ") >> version[0] >> io_utils::match(".") >> version[1];
 
-        if ( ifs.fail() ) {
+        if (ifs.fail())
+            throw OpenMEEG::WrongFileFormat(geometry);
+
+        if ((version[0]!=1) || (version[1]>1)) {
+            std::cerr << "Domain Description version not available !" << std::endl;
             throw OpenMEEG::WrongFileFormat(geometry);
         }
 
-        geom.version_id = Geometry::UNKNOWN_VERSION;
-        if (version[0]==1) {
-            if (version[1]==0) {
-                geom.version_id = Geometry::VERSION10;
-                std::cerr << "(DEPRECATED) Please consider updating your geometry file to the new format 1.1 (see data/README.rst): "
-                          << geometry << std::endl;
-            }
-            if (version[1]==1)
-                geom.version_id = Geometry::VERSION11;
-        }
+        geom.version_id = (version[1]==0) ? Geometry::VERSION10 : Geometry::VERSION11;
+        if (geom.version_id==Geometry::VERSION10)
+            std::cerr << "(DEPRECATED geometry file): " << geometry << std::endl
+                      << "Please consider updating your geometry file to the new format 1.1 (see data/README.rst): "
+                      << std::endl;
 
-        if (geom.version_id==Geometry::UNKNOWN_VERSION) {
-             std::cerr << "Domain Description version not available !" << std::endl;
-             throw OpenMEEG::WrongFileFormat(geometry);
-        }
+        // Extract the directory of the geometry file.
 
-        // extract the absolut path of geometry file
-        const std::string::size_type pos = geometry.find_last_of(this->PathSeparator);
-        const std::string path = (pos == std::string::npos) ? "" : geometry.substr(0, pos+1);
+        const std::string& path = GeometryReader::dir(geometry);
 
-        // Process meshes. -----------------------------------------------------------------------------------
+        // Process meshes.
+
         if (geom.version_id==Geometry::VERSION11) {
-            // Read the mesh section of the description file.
-            // Try to load the meshfile (VTK::vtp file)
-            // or try to load the meshes
-            bool Is_MeshFile, Is_Meshes;
-            ifs >> io_utils::skip_comments("#") >> io_utils::match_optional("MeshFile", Is_MeshFile);
-            ifs >> io_utils::skip_comments("#") >> io_utils::match_optional("Meshes", Is_Meshes);
-            if ( Is_MeshFile ) {
-                std::string name;
-                ifs >> io_utils::skip_comments("#") >> io_utils::filename(name, '"', false);
-                const std::string& full_name = (is_relative_path(name))?path+name:name;
-                geom.load_vtp(full_name);
-            } else if ( Is_Meshes ) {
-                unsigned nb_meshes;
-                ifs >> nb_meshes;
-                std::vector<std::string> meshname(nb_meshes); // names
-                std::vector<std::string> filename(nb_meshes);
-                std::vector<std::string> fullname(nb_meshes);
-                Meshes meshes(nb_meshes);
-                for ( unsigned i = 0; i < nb_meshes; ++i ) {
-                    bool unnamed;
-                    ifs >> io_utils::skip_comments("#") >> io_utils::match_optional("Mesh:", unnamed);
-                    if ( unnamed ) {
-                        ifs >> io_utils::filename(filename[i], '"', false);
-                        std::stringstream defaultname;
-                        defaultname << i+1;
-                        meshname[i] = defaultname.str();
-                    } else {
-                        ifs >> io_utils::match("Mesh") 
-                            >> io_utils::token(meshname[i], ':') 
-                            >> io_utils::filename(filename[i], '"', false);
-                    }
-                    fullname[i] = (is_relative_path(filename[i]))?path+filename[i]:filename[i];
-                    // Load the mesh.
-                    meshes[i].load(fullname[i], false);
-                    meshes[i].name() = meshname[i];
+
+            // Read the optional mesh section of the description file.
+            // When it exists, it is either a mesh file (VTK::vtp file) or a list of meshes.
+
+            const std::vector<const char*> alternatives = { "MeshFile", "Meshes" };
+            int index;
+            ifs >> io_utils::skip_comments("#") >> io_utils::match_alternative(alternatives,index);
+
+            switch (index) {
+                case 0: {
+                    std::string name;
+                    ifs >> io_utils::skip_comments("#") >> io_utils::filename(name,'"',false);
+                    geom.load_vtp(GeometryReader::fullname(name,path));
                 }
-                // Now properly load the meshes into the geometry (not dupplicated vertices)
-                geom.import_meshes(meshes);
+                case 1: {
+                    unsigned nb_meshes;
+                    ifs >> nb_meshes;
+                    Meshes meshes(nb_meshes);
+                    for (unsigned i=0;i<nb_meshes;++i) {
+                        bool unnamed;
+                        ifs >> io_utils::skip_comments("#") >> io_utils::match("Mesh");
+                        std::string meshname;
+                        if (ifs.peek()==':') {
+                            meshname = name(i+1);
+                        } else {
+                            ifs >> io_utils::token(meshname,':');
+                        }
+                        std::string filename;
+                        ifs >> io_utils::filename(filename,'"',false);
+
+                        // Load the mesh.
+                   
+                        meshes[i].load(GeometryReader::fullname(filename,path),false);
+                        meshes[i].name() = meshname;
+                    }
+
+                    // Now properly load the meshes into the geometry (not duplicated vertices)
+
+                    geom.import_meshes(meshes);
+                }
             }
         }
 
-        // Process interfaces. -----------------------------------------------------------------------------------
+        // Process interfaces.
+
         unsigned nb_interfaces;
         bool trash; // backward compatibility, catch "Mesh" optionnally.
         ifs >> io_utils::skip_comments('#')
-            >> io_utils::match("Interfaces") >> nb_interfaces >> io_utils::match_optional("Mesh", trash);
+            >> io_utils::match("Interfaces") >> nb_interfaces >> io_utils::match_optional("Mesh",trash);
 
-        if ( ifs.fail() ) {
+        if (ifs.fail())
             throw OpenMEEG::WrongFileFormat(geometry);
-        }
 
-        // load the interfaces
+        // Load the interfaces
+
         std::string id; // id of mesh/interface/domain
         Interfaces interfaces;
-        // if meshes are not already loaded
-        if ( geom.nb_meshes() == 0 ) { // ---------------------------------------
-            geom.meshes_.reserve(nb_interfaces);
+
+        // If meshes are not already loaded
+
+        if (geom.nb_meshes()==0) {
+
+            // First step: Read the total number of vertices
+            // Store the interface names and the corresponding file names.
+
             std::vector<std::string> interfacename(nb_interfaces);
-            std::vector<std::string> filename(nb_interfaces);
             std::vector<std::string> fullname(nb_interfaces);
 
-            // First read the total number of vertices
-
             unsigned nb_vertices = 0;
-            for ( unsigned i = 0; i < nb_interfaces; ++i ) {
+            for (unsigned i=0;i<nb_interfaces;++i) {
                 bool unnamed;
-                ifs >> io_utils::skip_comments("#") >> io_utils::match_optional("Interface:", unnamed);
-                if ( unnamed ) {
-                    ifs >> io_utils::filename(filename[i], '"', false);
-                    std::stringstream defaultname;
-                    defaultname << i+1;
-                    interfacename[i] = defaultname.str();
-                } else if (geom.version_id==Geometry::VERSION10) { // backward compatibility
-                    std::stringstream defaultname;
-                    defaultname << i+1;
-                    interfacename[i] = defaultname.str();
-                    ifs >> io_utils::filename(filename[i], '"', false);
+                ifs >> io_utils::skip_comments("#") >> io_utils::match_optional("Interface:",unnamed);
+                if (unnamed || geom.version_id==Geometry::VERSION10) {
+                    interfacename[i] = GeometryReader::name(i+1);
                 } else {
-                    ifs >> io_utils::match("Interface") 
-                        >> io_utils::token(interfacename[i], ':') 
-                        >> io_utils::filename(filename[i], '"', false);
+                    ifs >> io_utils::match("Interface") >> io_utils::token(interfacename[i],':');
                 }
+
+                std::string filename;
+                ifs >> io_utils::filename(filename,'"',false);
+                fullname[i] = GeometryReader::fullname(filename,path);
+
                 Mesh m;
-                fullname[i] = (is_relative_path(filename[i]))?path+filename[i]:filename[i];
-                nb_vertices += m.load(fullname[i], false, false); 
+                nb_vertices += m.load(fullname[i],false,false); 
             }
             geom.vertices_.reserve(nb_vertices);
-            // Second really load the meshes
-            for ( unsigned i = 0; i < nb_interfaces; ++i ) {
-                geom.meshes_.push_back(Mesh(geom.vertices_, interfacename[i]));
-                geom.meshes_[i].load(fullname[i], false);
-                interfaces.push_back( Interface(interfacename[i]) );
-                interfaces[i].push_back(OrientedMesh(geom.meshes_[i], true)); // one mesh per interface, (well oriented)
+
+            // Second step: Really load the meshes
+
+            geom.meshes_.reserve(nb_interfaces);
+            for (unsigned i=0;i<nb_interfaces;++i) {
+                geom.meshes_.emplace_back(geom.vertices_,interfacename[i]);
+                geom.meshes_[i].load(fullname[i],false);
+                interfaces.push_back(Interface(interfacename[i]));
+                interfaces[i].push_back(OrientedMesh(geom.meshes_[i],true)); // one mesh per interface, (well oriented)
             }
-        } else { // -----------------------
+
+        } else {
+
             std::string interfacename;
-            for ( unsigned i = 0; i < nb_interfaces; ++i ) {
+            for (unsigned i=0;i<nb_interfaces;++i ) {
                 bool unnamed;
                 std::string line; // extract a line and parse it
                 ifs >> io_utils::skip_comments("#");
-                std::getline(ifs, line);
+                std::getline(ifs,line);
                 std::istringstream iss(line);
-                iss >> io_utils::match_optional("Interface:", unnamed);
-                if ( unnamed ) {
+                iss >> io_utils::match_optional("Interface:",unnamed);
+                if (unnamed) {
                     std::stringstream defaultname;
                     defaultname << i+1;
                     interfacename = defaultname.str();
                 } else {
                     iss >> io_utils::match("Interface")
-                        >> io_utils::token(interfacename, ':');
+                        >> io_utils::token(interfacename,':');
                 }
-                interfaces.push_back( interfacename );
-                while ( iss >> id ) {
+                interfaces.push_back(interfacename);
+                while (iss >> id) {
                     bool oriented = true; // does the id starts with a '-' or a '+' ?
-                    if ( ( id[0] == '-' ) || ( id[0] == '+' ) ) {
-                        oriented = ( id[0] == '+' );
-                        id = id.substr(1, id.size());
+                    if ((id[0]=='-') || (id[0]=='+')) {
+                        oriented = (id[0]=='+');
+                        id = id.substr(1,id.size());
                     }
-                    interfaces[i].push_back(OrientedMesh(geom.mesh(id), oriented));
+                    interfaces[i].push_back(OrientedMesh(geom.mesh(id),oriented));
                 }
             }
         }
 
-        // Process domains. -----------------------------------------------------------------------------------
+        // Process domains.
 
         unsigned num_domains;
         ifs >> io_utils::skip_comments('#') >> io_utils::match("Domains") >> num_domains;
 
-        if ( ifs.fail() ) {
+        if (ifs.fail())
             throw OpenMEEG::WrongFileFormat(geometry);
-        }
 
         geom.domains_.resize(num_domains);
-        for ( Domains::iterator dit = geom.domain_begin(); dit != geom.domain_end(); ++dit) {
+        for (Domains::iterator dit=geom.domain_begin();dit!=geom.domain_end();++dit) {
             std::string line;
+            ifs >> io_utils::skip_comments('#') >> io_utils::match("Domain");
             if (geom.version_id==Geometry::VERSION10) { // backward compatibility
-                ifs >> io_utils::skip_comments('#') >> io_utils::match("Domain") >> dit->name();
+                ifs >> dit->name();
             } else {
-                ifs >> io_utils::skip_comments('#') >> io_utils::match("Domain") >> io_utils::token(dit->name(), ':');
+                ifs >> io_utils::token(dit->name(), ':');
             }
-            getline(ifs, line);
+            getline(ifs,line);
             std::istringstream iss(line);
-            while ( iss >> id ) {
+            while (iss >> id) {
                 bool found = false;
                 bool inside = false; // does the id starts with a '-' or a '+' ?
-                if ( ( id[0] == '-' ) || ( id[0] == '+' ) ) {
-                    inside = ( id[0] == '-' );
-                    id = id.substr(1, id.size());
-                } else if ( id == "shared" ) {
+                if ((id[0]=='-') || (id[0]=='+')) {
+                    inside = (id[0]=='-');
+                    id = id.substr(1,id.size());
+                } else if (id=="shared") {
                     std::cerr << "(DEPRECATED) Keyword shared is useless. Please consider updating your geometry file to the new format 1.1 (see data/README.rst): " << geometry << std::endl;
                     break;                    
                 }
-                for ( Interfaces::iterator iit = interfaces.begin(); iit != interfaces.end() ; ++iit) {
-                    if ( iit->name() == id ) {
+                for (Interfaces::iterator iit=interfaces.begin();iit!=interfaces.end();++iit) {
+                    if (iit->name()==id) {
                         found = true;
-                        if ( !iit->check() ) { // check and correct global orientation
-                            std::cerr << "Interface \"" << iit->name() << "\" is not closed !" << std::endl;
-                            std::cerr << "Please correct a mesh orientation when defining the interface in the geometry file." << std::endl;
+                        if (!iit->check()) { // check and correct global orientation
+                            std::cerr << "Interface \"" << iit->name() << "\" is not closed !" << std::endl
+                                      << "Please correct a mesh orientation when defining the interface in the geometry file."
+                                      << std::endl;
                             exit(1);
                         }
-                        dit->push_back(HalfSpace(*iit, inside));
+                        dit->push_back(HalfSpace(*iit,inside));
                     }
                 }
-                if ( !found ) {
-                    throw OpenMEEG::NonExistingDomain<std::string>(dit->name(), id);
-                }
+                if (!found)
+                    throw OpenMEEG::NonExistingDomain<std::string>(dit->name(),id);
             }
         }
 
@@ -347,32 +354,25 @@ namespace OpenMEEG {
         bool nested = true;
         for ( Domains::const_iterator dit = geom.domain_begin(); dit != geom.domain_end(); ++dit) {
             unsigned out_interface = 0;
-            if ( dit != dit_out ) {
-                for ( Domain::const_iterator hit = dit->begin(); hit != dit->end(); ++hit) {
-                    if ( !hit->inside() ) {
+            if (dit!=dit_out)
+                for (Domain::const_iterator hit=dit->begin();hit!=dit->end();++hit)
+                    if (!hit->inside())
                         out_interface++;
-                    }
-                }
-            }
-            if ( out_interface >= 2 ) {
+            if (out_interface>=2) {
                 nested = false;
                 break;
             }
         }
 
-        if ( nested ) {
-            for ( Geometry::const_iterator mit = geom.begin(); mit != geom.end(); ++mit) {
+        if (nested) {
+            for (Geometry::const_iterator mit=geom.begin();mit!=geom.end();++mit) {
                 unsigned m_oriented = 0;
-                for ( Domains::const_iterator dit = geom.domain_begin(); dit != geom.domain_end(); ++dit) {
-                    for ( Domain::const_iterator hit = dit->begin(); hit != dit->end(); ++hit) {
-                        for ( Interface::const_iterator iit = hit->first.begin(); iit != hit->first.end(); ++iit) {
-                            if ( iit->mesh() == *mit ) {
+                for (Domains::const_iterator dit=geom.domain_begin();dit!=geom.domain_end();++dit)
+                    for (Domain::const_iterator hit = dit->begin();hit!=dit->end();++hit)
+                        for (Interface::const_iterator iit=hit->first.begin();iit!=hit->first.end();++iit)
+                            if (iit->mesh()==*mit)
                                 m_oriented += (iit->orientation());
-                            }
-                        }
-                    }
-                }
-                if ( m_oriented == 0 ) {
+                if (m_oriented==0) {
                     nested = false; // TODO unless a mesh is defined but unused ...
                     break;
                 }
@@ -380,11 +380,11 @@ namespace OpenMEEG {
         }
         geom.is_nested_ = nested;
 
-        if ( ifs.fail() ) {
+        if (ifs.fail())
             throw OpenMEEG::WrongFileFormat(geometry);
-        }
 
-        // Close the input file. -----------------------------------------------------------------------------------
+        // Close the input file.
+
         ifs.close();
     }
 

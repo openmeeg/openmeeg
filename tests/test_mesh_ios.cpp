@@ -44,45 +44,50 @@ int main (int argc, char** argv)
 
     std::cout << "Mesh : " << argv[1] << std::endl;
 
-    Mesh mesh_orig;
-    mesh_orig.load(argv[1]);
+    Mesh mesh;
+    mesh.load(argv[1]);
 
-    Mesh mesh = mesh_orig;
+    //  TRI
 
-    // // TRI
     mesh.save("tmp.tri");
-    mesh.load("tmp.tri");
+    Mesh trimesh;
+    trimesh.load("tmp.tri");
 
-    om_error(are_equal(mesh, mesh_orig));
+    om_error(are_equal(mesh,trimesh));
 
     // VTK
     mesh.save("tmp.vtk");
 #ifdef USE_VTK
-    mesh.load("tmp.vtk");
-    om_error(are_equal(mesh, mesh_orig));
+    Mesh vtkmesh;
+    vtkmesh.load("tmp.vtk");
+    om_error(are_equal(mesh,vtkmesh));
 #endif
 
     // GIFTI
 #ifdef USE_GIFTI
     mesh.save("tmp.gii");
-    mesh.load("tmp.gii");
-    om_error(are_equal(mesh, mesh_orig));
+    Mesh giftimesh;
+    giftimesh.load("tmp.gii");
+    om_error(are_equal(mesh,giftimesh));
 #endif
 
-
     // MESH
+
     mesh.save("tmp.mesh");
-    mesh.load("tmp.mesh");
-    om_error(are_equal(mesh, mesh_orig));
+    Mesh mmesh;
+    mmesh.load("tmp.mesh");
+    om_error(are_equal(mesh,mmesh));
 
     // BND && OFF that do not store normals
+
     mesh.save("tmp.bnd");
     mesh.save("tmp.off");
     mesh.info();
 
     Mesh mesh1;
-    Mesh mesh2;
     mesh1.load("tmp.bnd");
+
+    Mesh mesh2;
     mesh2.load("tmp.off");
     om_error(are_equal(mesh1, mesh2));
 
