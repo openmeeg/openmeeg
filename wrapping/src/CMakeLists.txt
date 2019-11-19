@@ -61,11 +61,11 @@ if (BUILD_DOCUMENTATION)
     list(APPEND CMAKE_SWIG_FLAGS "-DDOCSTRINGS")
     add_custom_target(docstrings DEPENDS docstrings.i)
     add_dependencies(OpenMEEG-documentation docstrings)
-    set(DOCSTRING_DEPS DEPENDS docstrings)
+    set(DOCSTRING_DEPS docstrings)
 endif()
 
 list(APPEND CMAKE_SWIG_FLAGS -v -O)
-set_source_files_properties(openmeeg.i PROPERTIES CPLUSPLUS ON ${DOCSTRING_DEPS})
+set_source_files_properties(openmeeg.i PROPERTIES CPLUSPLUS ON DEPENDS numpy.i make_geometry.py ${DOCSTRING_DEPS})
 swig_add_library(openmeeg LANGUAGE python SOURCES openmeeg.i)
 
 if (APPLE)

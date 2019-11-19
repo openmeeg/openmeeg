@@ -5,7 +5,9 @@ def make_geometry(interfaces,domains,meshes=None):
     if type(domains)!=dict or len(domains)==0:
         raise Exception("Wrong argument (should be a non empty dictionary of named domains)")
 
-    meshes = set()
+    # This would be better with a set() but newer swig does not provide the __hash__ method.
+
+    meshes = list()
     geom = Geometry()
     for dname,domain in domains.items():
         domain_interfaces,conductivity = domain
@@ -34,7 +36,8 @@ def make_geometry(interfaces,domains,meshes=None):
 
                 print("Mesh:",mesh)
                 mesh.info()
-                meshes.add(mesh)
+                if not mesh in meshes:
+                    meshes.append(mesh)
                 oriented_mesh = OrientedMesh(mesh,orientation)
                 om_interface.oriented_meshes().push_back(oriented_mesh)
 
