@@ -54,10 +54,9 @@ namespace OpenMEEG {
     class SymMatrix;
     class Vector;
 
-    /** \brief  Matrix class
+    /// \brief  Matrix class
+    /// Matrix class
 
-        Matrix class
-    **/
     class OPENMEEGMATHS_EXPORT Matrix: public LinOp {
     protected:
 
@@ -82,34 +81,29 @@ namespace OpenMEEG {
         void alloc_data()                       { value = new LinOpValue(size());      }
         void reference_data(const double* vals) { value = new LinOpValue(size(),vals); }
 
-        /** \brief Test if Matrix is empty
-            \return true if Matrix is empty
-            \sa
-        **/
+        /// \brief Test if Matrix is empty
+        /// \return true if Matrix is empty
+
         bool empty() const { return value->empty(); }
 
-        /** \brief Get Matrix size
-            \return number of values (nb lines x nb columns)
-            \sa
-        **/
+        /// \brief Get Matrix size
+        /// \return number of values (nb lines x nb columns)
+
         size_t size() const { return nlin()*ncol(); };
 
-        /** \brief Get Matrix data
-            \return pointer to Matrix values
-            \sa
-        **/
+        /// \brief Get Matrix data
+        /// \return pointer to Matrix values
+
         double* data() const { return value->data; }
 
-        /** \brief Get Matrix value
-            \return value in Matrix
-            \sa
-        **/
+        /// \brief Get Matrix value
+        /// \return value in Matrix
+
         inline double operator()(size_t i,size_t j) const ;
 
-        /** \brief Get Matrix value
-            \return reference to value in Matrix
-            \sa
-        **/
+        /// \brief Get Matrix value
+        /// \return reference to value in Matrix
+
         inline double& operator()(size_t i,size_t j) ;
 
         Matrix submat(size_t istart, size_t isize, size_t jstart, size_t jsize) const;
@@ -147,29 +141,25 @@ namespace OpenMEEG {
         Matrix pinverse(double reltol=0) const;
         void svd(Matrix &U, SparseMatrix &S, Matrix &V, bool complete=true) const;
 
-        /** \brief Get Matrix Frobenius norm
-            \return norm value
-            \sa
-        **/
+        /// \brief Get Matrix Frobenius norm
+        /// \return norm value
+
         double frobenius_norm() const;
         double dot(const Matrix& B) const;
 
-        /** \brief Save Matrix to file (Format set using file name extension)
-            \sa
-        **/
+        /// \brief Save Matrix to file (Format set using file name extension)
+
         void save(const char *filename) const;
 
-        /** \brief Load Matrix from file (Format set using file name extension)
-            \sa
-        **/
+        /// \brief Load Matrix from file (Format set using file name extension)
+
         void load(const char *filename);
 
         void save(const std::string& s) const { save(s.c_str()); }
         void load(const std::string& s)       { load(s.c_str()); }
 
-        /** \brief Print info on Matrix
-            \sa
-        **/
+        /// \brief Print info on Matrix
+
         void info() const;
 
         friend class SparseMatrix;
