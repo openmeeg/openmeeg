@@ -113,13 +113,13 @@ namespace OpenMEEG {
     typedef enum { DEEP_COPY } DeepCopy;
 
     struct OPENMEEGMATHS_EXPORT LinOpValue: public utils::RCObject {
-        double *data;
+        double* data;
 
         LinOpValue(): data(0) { }
 
         LinOpValue(const size_t n) {
             try {
-                this->data = new double[n];
+                data = new double[n];
             }
             catch (std::bad_alloc&) {
                 std::cerr << "Error memory allocation failed... " << std::endl;
