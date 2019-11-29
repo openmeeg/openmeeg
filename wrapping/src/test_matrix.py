@@ -3,7 +3,7 @@ import random
 import numpy as np
 import openmeeg as om
 
-W = np.array([[0.0, 0.0, 3.0], [0.0, 2.0, 0.0], [1.0, 0.0, 0.0]])
+W = np.asfortranarray([[0.0, 0.0, 3.0], [0.0, 2.0, 0.0], [1.0, 0.0, 0.0]])
 print("W of", W.__class__)
 print("W =", W, "\n")
 
@@ -15,17 +15,24 @@ Z = X.array()
 print("Z of", Z.__class__)
 print("Z =", Z, "\n")
 
-a = np.array([[1, 2, 3], [4, 5, 6]])
+a = np.asfortranarray([[1, 2, 3], [4, 5, 6]])
 print("a=", a)
 
 b = om.Matrix(a)
 assert b.nlin() == 2
 assert b.ncol() == 3
 
-c = om.Matrix(b)
-assert b.nlin() == 2
-assert b.ncol() == 3
+for i in range(b.nlin()):
+    for j in range(b.ncol()):
+        assert b.value(i,j)==a[i,j]
 
+c = om.Matrix(b)
+assert c.nlin() == 2
+assert c.ncol() == 3
+
+for i in range(c.nlin()):
+    for j in range(c.ncol()):
+        assert c.value(i,j)==a[i,j]
 
 nlines = random.randrange(10, 20)
 ncols = nlines + 2  # test on not squared matric

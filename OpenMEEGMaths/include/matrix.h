@@ -72,6 +72,7 @@ namespace OpenMEEG {
         Matrix(const char* fname): LinOp(0,0,FULL,2),value() { this->load(fname); }
         Matrix(const size_t M,const size_t N): LinOp(M,N,FULL,2),value(new LinOpValue(N*M)) { }
         Matrix(const Matrix& A,const DeepCopy): LinOp(A.nlin(),A.ncol(),FULL,2),value(new LinOpValue(A.size(),A.data())) { }
+        Matrix(const Matrix& A): LinOp(A.nlin(),A.ncol(),FULL,2),value(A.value) { }
 
         explicit Matrix(const SymMatrix& A);
         explicit Matrix(const SparseMatrix& A);
