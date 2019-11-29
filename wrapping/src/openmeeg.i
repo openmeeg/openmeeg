@@ -218,7 +218,7 @@ namespace OpenMEEG {
         //  TODO: do we need this ???
 
         void *ptr = 0 ;
-        if (!SWIG_IsOK(SWIG_ConvertPtr(o, &ptr, SWIGTYPE_p_OpenMEEG__Vector,0))) {
+        if (!SWIG_IsOK(SWIG_ConvertPtr(o,&ptr,SWIGTYPE_p_OpenMEEG__Vector,SWIG_POINTER_EXCEPTION))) {
             PyErr_SetString(PyExc_TypeError, "Input object is neither a PyArray nor a Vector.");
             return nullptr;
         }
@@ -254,7 +254,7 @@ namespace OpenMEEG {
         //  If the object is an OpenMEEG matrix converted to python, just return the matrix.
 
         void* ptr = 0;
-        if (!SWIG_IsOK(SWIG_ConvertPtr(o,&ptr,SWIGTYPE_p_OpenMEEG__Matrix,SWIG_POINTER_OWN))) {
+        if (!SWIG_IsOK(SWIG_ConvertPtr(o,&ptr,SWIGTYPE_p_OpenMEEG__Matrix,SWIG_POINTER_EXCEPTION))) {
             PyErr_SetString(PyExc_TypeError, "Input object must be a PyArray or an OpenMEEG Matrix.");
             return nullptr;
         }
