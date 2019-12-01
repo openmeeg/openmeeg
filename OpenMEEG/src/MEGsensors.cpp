@@ -161,7 +161,8 @@ namespace OpenMEEG {
             // if it has names
             if (hasLabels())
                 outfile << m_labels[m_pointSensorIdx[i]] << " ";
-            outfile << m_positions.getlin(i) << " " << m_orientations.getlin(i) << std::endl;
+            outfile << m_positions.getlin(i) << " " << m_orientations.getlin(i) << " ";
+            outfile << m_weights(i) << std::endl;
         }
         return;
     }

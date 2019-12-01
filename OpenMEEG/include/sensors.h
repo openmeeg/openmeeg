@@ -94,10 +94,9 @@ namespace OpenMEEG {
 
     public:
         Sensors(const std::string& type): m_type(type), m_nb(0) {} /*!< Default constructor. Number of sensors = 0. */
+        Sensors(const std::string& type, const Strings& labels, const Matrix& positions);
 
-        // Sensors(const Strings &labels, const Matrix& positions, const Matrix& orientations, const Vector &weights, const Vector &radii);
-        // Sensors(const Strings &labels, const Matrix& positions, const Matrix& orientations, const Vector &weights, const Vector &radii, const Geometry &g);
-        virtual void load(const char* filename) = 0; /*!< Load sensors from file. Filetype is 't' for text file or 'b' for binary file. */
+        virtual void load(const char* filename) = 0; /*!< Load sensors from file.*/
         virtual void save(const char* filename) const = 0;
 
         size_t getNumberOfSensors() const { return m_nb; } /*!< Return the number of sensors. */
@@ -124,7 +123,7 @@ namespace OpenMEEG {
         Strings m_labels;                     /*!< List of sensors names. */
         Matrix m_positions;                   /*!< Matrix of sensors positions. ex: positions(i,j) with  j in {0,1,2} for sensor i */
         std::vector<size_t> m_pointSensorIdx; /*!< Correspondance between point id and sensor id */
-        std::string m_type;                     /*!< Sensor type */
+        std::string m_type;                   /*!< Sensor type */
     };
 
     inline Vector Sensors::getPosition(size_t idx) const {
@@ -178,26 +177,16 @@ namespace {
         return std::make_tuple(nlin, ncol, seems_labeled);
     }
 
-    inline Sensors::Sensors(const Strings &labels, const Matrix& positions, const Matrix& orientations, const Vector &weights, const Vector &radii) :
-        m_nb(labels.size()), m_names(labels), m_positions(positions), m_orientations(orientations),m_weights(weights), m_radii(radii)
-    {
-        std::cout << "const" << labels.size() << std::endl;
-        m_pointSensorIdx = std::vector<size_t>(labels.size());
-        for ( std::size_t i = 0; i < labels.size(); ++i) {
-            m_pointSensorIdx[i] = getSensorIdx(m_names[i]);
-        }
-    }
+    // inline Sensors::Sensors(const Strings &labels, const Matrix& positions, const Matrix& orientations, const Vector &weights, const Vector &radii, const Geometry &g) :
+    //     m_nb(labels.size()), m_names(labels), m_positions(positions), m_orientations(orientations),m_weights(weights), m_radii(radii), m_geo(&g)
+    // {
+    //     // find triangles on which to inject the currents and compute weights
+    //     findInjectionTriangles();
 
-    inline Sensors::Sensors(const Strings &labels, const Matrix& positions, const Matrix& orientations, const Vector &weights, const Vector &radii, const Geometry &g) :
-        m_nb(labels.size()), m_names(labels), m_positions(positions), m_orientations(orientations),m_weights(weights), m_radii(radii), m_geo(&g)
-    {
-        // find triangles on which to inject the currents and compute weights
-        findInjectionTriangles();
-
-        m_pointSensorIdx = std::vector<size_t>(labels.size());
-        for ( std::size_t i = 0; i < labels.size(); ++i) {
-            m_pointSensorIdx[i] = getSensorIdx(m_names[i]);
-        }
-    }
+    //     m_pointSensorIdx = std::vector<size_t>(labels.size());
+    //     for ( std::size_t i = 0; i < labels.size(); ++i) {
+    //         m_pointSensorIdx[i] = getSensorIdx(m_names[i]);
+    //     }
+    // }
 
 }

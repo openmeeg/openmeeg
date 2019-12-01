@@ -48,7 +48,7 @@ namespace OpenMEEG {
     /*!
      *  Sensors class for EEG sensors.
      *  This class is made for reading sensors description file. This description file is a file text. Sensors may have names (labels)
-     *  in the first column of the file (it has to contains at least one character to be considered as label)
+     *  in the first column of the file
      *  the file can have the shape of (neglecting if present the first, label column):
      *  <ul>
      *
@@ -57,20 +57,15 @@ namespace OpenMEEG {
      *        <li> the 1st, 2nd and 3rd columns are respectively position coordinates x, y, z of sensor  </li>
      *        </ul>
      *  </li>
-     *  <li> 1 line per sensor and 4 columns :
-     *        <ul TYPE="circle">
-     *        <li> the 1st, 2nd and 3rd are respectively position coordinates x, y, z of sensor  </li>
-     *        <li> the 4th is the patche radius (unit relative to the mesh)  </li>
-     *        </ul>
-     *  </li>
      *  </ul>
      */
     class OPENMEEG_EXPORT EEGSensors : public Sensors {
     public:
         EEGSensors(): Sensors("EEG") {} /*!< Default constructor. Number of sensors = 0. */
+        EEGSensors(const Strings& labels, const Matrix& positions): Sensors("EEG", labels, positions) {}
         EEGSensors(const char* filename): Sensors("EEG") { load(filename); }; /*!< Construct from file. */
         void info(int n_lines = 5) const; /*!< \brief get n_lines first lines info about sensors. */
-        void load(const char* filename, char filetype = 't'); /*!< Load sensors from file. */
+        void load(const char* filename); /*!< Load sensors from file. */
         void save(const char* filename) const;
     };
 }

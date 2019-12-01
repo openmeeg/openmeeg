@@ -48,6 +48,14 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 namespace OpenMEEG {
 
+    Sensors::Sensors(const std::string& type, const Strings& labels, const Matrix& positions): 
+            m_nb(labels.size()), m_labels(labels), m_positions(positions) {
+        m_pointSensorIdx = std::vector<size_t>(labels.size());
+        for ( std::size_t i = 0; i < labels.size(); ++i) {
+            m_pointSensorIdx[i] = getSensorIdx(m_labels[i]);
+        }
+    }
+
     bool Sensors::hasSensor(std::string name) const {
         return (std::find(m_labels.cbegin(), m_labels.cend(), name) != m_labels.cend());
     }

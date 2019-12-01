@@ -78,6 +78,8 @@ namespace OpenMEEG {
     public:
         MEGSensors(): Sensors("MEG") { }; /*!< Default constructor. */
         MEGSensors(const char* filename): Sensors("MEG") { load(filename); }; /*!< Construct from file. */
+        MEGSensors(const Strings& labels, const Matrix& positions, const Vector& weights, const Matrix& orientations):
+            Sensors("MEG", labels, positions), m_weights(weights), m_orientations(orientations) {}
 
         void info(int n_lines = 5) const; /*!< \brief get n_lines first lines info about sensors. */
         void load(const char* filename); /*!< Load sensors from file. */

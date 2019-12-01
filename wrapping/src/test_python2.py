@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import print_function
 import numpy as np
 
 import openmeeg as om
@@ -36,7 +37,7 @@ print("Determinant of D is equal to: ", np.linalg.det(D))
 
 # TODO: sensors.read() using numpy arrays
 # TODO: sensors == [ double ]
-sensors = om.Sensors()
+sensors = om.MEGSensors()
 sensors.load(file_name_skeleton + ".squids")
 # TODO: D = asarray(sensors).copy...
 # TODO: sensors_1 = om.Matrix(D)

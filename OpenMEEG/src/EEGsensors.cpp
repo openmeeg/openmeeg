@@ -50,6 +50,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 namespace OpenMEEG {
 
     // EEGSensors --------------------------------------
+
     void EEGSensors::info(int n_lines) const {
         int nb_to_display = (int)std::min((int)m_nb,(int)n_lines);
         std::cout << "EEG electrodes" << std::endl;

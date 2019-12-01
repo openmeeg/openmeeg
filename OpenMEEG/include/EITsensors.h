@@ -75,6 +75,8 @@ namespace OpenMEEG {
     public:
         EITSensors(const Geometry& g): Sensors("EIT"), m_geo(&g) {} /*!< Default constructor with a geometry. Number of sensors = 0. */
         EITSensors(const Geometry& g, const char* filename): Sensors("EIT"), m_geo(&g) { load(filename); }; /*!< Construct from file and geometry (for EIT). */
+        EITSensors(const Strings& labels, const Matrix& positions, const Vector& weights, const Vector& radii): 
+            Sensors("EIT", labels, positions), m_weights(weights), m_radii(radii) {}
 
         void info(int n_lines = 5) const; /*!< \brief get n_lines first lines info about sensors. */
         void load(const char* filename); /*!< Load sensors from file. */

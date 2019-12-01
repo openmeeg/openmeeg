@@ -63,6 +63,7 @@ namespace OpenMEEG {
     public:
         ECoGSensors(): EEGSensors() { m_type = "ECoG"; }; /*!< Default constructor. */
         ECoGSensors(const char* filename): EEGSensors(filename) { m_type = "ECoG"; }; /*!< Construct from file. */
+        ECoGSensors(const Strings& labels, const Matrix& positions): EEGSensors(labels, positions) { m_type = "ECoG"; }
 
         void info(int n_lines = 5) const; /*!< \brief get n_lines first lines info about sensors. */
     };
