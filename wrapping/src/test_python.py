@@ -40,13 +40,15 @@ data_path = options.data_path
 ###############################################################################
 # Load data
 
-subject = "Head1"
-cond_file = op.join(data_path, subject, subject + ".cond")
-geom_file = op.join(data_path, subject, subject + ".geom")
-source_mesh_file = op.join(data_path, subject, subject + ".tri")
-dipole_file = op.join(data_path, subject, subject + ".dip")
-squidsFile = op.join(data_path, subject, subject + ".squids")
-patches_file = op.join(data_path, subject, subject + ".patches")
+subject = 'Head1'
+cond_file = op.join(data_path, subject, subject + '.cond')
+geom_file = op.join(data_path, subject, subject + '.geom')
+source_mesh_file = op.join(data_path, subject, subject + '.tri')
+dipole_file = op.join(data_path, subject, subject + '.dip')
+squidsFile = op.join(data_path, subject, subject + '.squids')
+patches_file = op.join(data_path, subject, subject + '.patches')
+eit_file = op.join(data_path, subject, subject + '-EIT.patches')
+ecog_file = op.join(data_path, subject, subject + '-ecog.electrodes')
 
 geom = om.Geometry()
 geom.read(geom_file, cond_file)
@@ -57,11 +59,21 @@ mesh.load(source_mesh_file)
 dipoles = om.Matrix()
 dipoles.load(dipole_file)
 
-sensors = om.Sensors()
+sensors = om.MEGSensors()
 sensors.load(squidsFile)
+sensors.info()
 
-patches = om.Sensors()
+patches = om.EEGSensors()
 patches.load(patches_file)
+patches.info()
+
+ecog_patches = om.ECoGSensors()
+ecog_patches.load(ecog_file)
+ecog_patches.info()
+
+eit_patches = om.EITSensors(geom)
+eit_patches.load(eit_file)
+eit_patches.info()
 
 ###############################################################################
 # Compute forward problem (Build Gain Matrices)
@@ -78,8 +90,10 @@ ssm = om.SurfSourceMat(geom, mesh)
 ss2mm = om.SurfSource2MEGMat(mesh, sensors)
 dsm = om.DipSourceMat(geom, dipoles, gauss_order, use_adaptive_integration, "")
 ds2mm = om.DipSource2MEGMat(dipoles, sensors)
+eitsm = om.EITSourceMat(geom, eit_patches) # not used
 h2mm = om.Head2MEGMat(geom, sensors)
 h2em = om.Head2EEGMat(geom, patches)
+h2ecogm = om.Head2ECoGMat(geom, ecog_patches, '1') # not used
 gain_meg_surf = om.GainMEG(hminv, ssm, h2mm, ss2mm)
 gain_eeg_surf = om.GainEEG(hminv, ssm, h2em)
 gain_meg_dip = om.GainMEG(hminv, dsm, h2mm, ds2mm)

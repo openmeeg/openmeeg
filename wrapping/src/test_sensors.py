@@ -10,9 +10,7 @@ import openmeeg as om
 Labels = ["toto"]
 Positions = np.array([[0, 1, 2]])
 Orientations = np.array([[-1, -1, -2]])
-Weights = np.array([0.5])
-Radii = np.array([1])
 
-s1 = om.Sensors(Labels, Positions, Orientations, Weights, Radii)
+s1 = om.EEGSensors(Labels, Positions)
 print("s1 =", s1)
 s1.info()

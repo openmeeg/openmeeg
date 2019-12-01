@@ -37,45 +37,34 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#include <stdio.h>
-#include <string>
+#pragma once
 
 #include <EEGsensors.h>
-#include <MEGsensors.h>
 
-using namespace OpenMEEG;
+#include <OpenMEEG_Export.h>
 
-template <class S>
-int test_sensors(const S& s) {
+namespace OpenMEEG {
 
-    size_t n = s.getNumberOfSensors();
-    std::cout << "Number of sensors of S : " << n << std::endl;
+    /*!
+     *  Sensors class for ECoG sensors (similar to EEGSensor).
+     *  This class is made for reading sensors description file. This description file is a file text. Sensors may have names (labels)
+     *  in the first column of the file (it has to contains at least one character to be considered as label)
+     *  the file can have the shape of (neglecting if present the first, label column):
+     *  <ul>
+     *
+     *  <li> 1 line per sensor and 3 columns
+     *        <ul TYPE="circle">
+     *        <li> the 1st, 2nd and 3rd columns are respectively position coordinates x, y, z of sensor  </li>
+     *        </ul>
+     *  </li>
+     *  </ul>
+     */
+    class OPENMEEG_EXPORT ECoGSensors : public EEGSensors {
+    public:
+        ECoGSensors(): EEGSensors() { m_type = "ECoG"; }; /*!< Default constructor. */
+        ECoGSensors(const char* filename): EEGSensors(filename) { m_type = "ECoG"; }; /*!< Construct from file. */
+        ECoGSensors(const Strings& labels, const Matrix& positions): EEGSensors(labels, positions) { m_type = "ECoG"; }
 
-    if (s.isEmpty())
-        std::cout << "WARNING : empty sensors !" << std::endl;
-    else {
-        s.info();
-        s.save("tmp.sensors");
-
-        /**** test on copy constructor ****/
-        S scopy("tmp.sensors");
-        if (scopy.getNumberOfSensors() != n) {
-            std::cout << "ERROR in copy from copy constructor : incorrect number of sensors" << std::endl;
-            return -1;
-        }
-
-        scopy.info();
-    }
-    remove("tmp.sensors");
-    return 0;
-}
-
-int main(const int argc, const char** argv) {
-    if (argc < 2)
-        return -1;
-
-    std::string base_name = argv[1];
-    EEGSensors eeg((base_name + ".eeg").c_str());
-    MEGSensors meg((base_name + ".squids").c_str());
-    return test_sensors(eeg) + test_sensors(meg);
+        void info(int n_lines = 5) const; /*!< \brief get n_lines first lines info about sensors. */
+    };
 }

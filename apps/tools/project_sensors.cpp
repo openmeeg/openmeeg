@@ -43,7 +43,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <danielsson.h>
 #include <vector.h>
 #include <om_utils.h>
-#include <sensors.h>
+#include <EEGsensors.h>
 
 using namespace OpenMEEG;
 
@@ -64,19 +64,26 @@ int main( int argc, char** argv)
     }
 
     // read the file containing the positions of the EEG patches
-    Sensors sensors(sensors_filename);
+    Sensors *sensors;
+    try {
+        sensors = new EEGSensors(sensors_filename);
+    } catch(...)
+    {
+        // TODO try EIT ECoG
+        std::cout << "TODO" << std::endl;
+    }
 
     Mesh mesh(mesh_filename);
     Interface interface;
     interface.push_back(OrientedMesh(mesh, true)); // one mesh per interface, (well oriented)
 
-    Matrix output(sensors.getNumberOfPositions(), 3);
+    Matrix output(sensors->getNumberOfPositions(), 3);
 
-    size_t nb_positions = sensors.getNumberOfPositions();
+    size_t nb_positions = sensors->getNumberOfPositions();
 
     for( size_t i = 0; i < nb_positions; ++i )
     {
-        Vector position = sensors.getPosition(i);
+        Vector position = sensors->getPosition(i);
         Vect3 current_position, alphas;
         for ( unsigned k = 0; k < 3; ++k) {
             current_position(k) = position(k);
@@ -89,8 +96,8 @@ int main( int argc, char** argv)
         }
     }
 
-    sensors.getPositions() = output;
-    sensors.save(output_filename);
+    sensors->getPositions() = output;
+    sensors->save(output_filename);
 
     return 0;
 }

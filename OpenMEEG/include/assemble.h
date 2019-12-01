@@ -45,7 +45,10 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <matrix.h>
 #include <symmatrix.h>
 #include <geometry.h>
-#include <sensors.h>
+#include <EEGsensors.h>
+#include <MEGsensors.h>
+#include <ECoGsensors.h>
+#include <EITsensors.h>
 
 namespace OpenMEEG {
 
@@ -70,7 +73,7 @@ namespace OpenMEEG {
 
     class OPENMEEG_EXPORT EITSourceMat: public virtual Matrix {
     public:
-        EITSourceMat(const Geometry& geo, const Sensors& electrodes, const unsigned gauss_order=3);
+        EITSourceMat(const Geometry& geo, const EITSensors& electrodes, const unsigned gauss_order=3);
         virtual ~EITSourceMat () {};
     };
 
@@ -83,32 +86,32 @@ namespace OpenMEEG {
 
     class OPENMEEG_EXPORT Head2EEGMat: public virtual SparseMatrix {
     public:
-        Head2EEGMat (const Geometry& geo, const Sensors& electrodes);
+        Head2EEGMat (const Geometry& geo, const EEGSensors& electrodes);
         virtual ~Head2EEGMat () {};
     };
 
     class OPENMEEG_EXPORT Head2ECoGMat: public virtual SparseMatrix {
     public:
-        Head2ECoGMat (const Geometry& geo, const Sensors& electrodes, const Interface& i);
-        Head2ECoGMat (const Geometry& geo, const Sensors& electrodes, const std::string& id); // mainly for SWIG
+        Head2ECoGMat (const Geometry& geo, const ECoGSensors& electrodes, const Interface& i);
+        Head2ECoGMat (const Geometry& geo, const ECoGSensors& electrodes, const std::string& id); // mainly for SWIG
         virtual ~Head2ECoGMat () {};
     };
 
     class OPENMEEG_EXPORT Head2MEGMat: public virtual Matrix {
     public:
-        Head2MEGMat (const Geometry& geo, const Sensors& sensors);
+        Head2MEGMat (const Geometry& geo, const MEGSensors& sensors);
         virtual ~Head2MEGMat () {};
     };
 
     class OPENMEEG_EXPORT SurfSource2MEGMat: public virtual Matrix {
     public:
-        SurfSource2MEGMat (const Mesh& sources, const Sensors& sensors);
+        SurfSource2MEGMat (const Mesh& sources, const MEGSensors& sensors);
         virtual ~SurfSource2MEGMat () {};
     };
 
     class OPENMEEG_EXPORT DipSource2MEGMat: public virtual Matrix {
     public:
-        DipSource2MEGMat(const Matrix& dipoles, const Sensors& sensors);
+        DipSource2MEGMat(const Matrix& dipoles, const MEGSensors& sensors);
         virtual ~DipSource2MEGMat () {};
     };
 

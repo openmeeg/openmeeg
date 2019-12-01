@@ -10,6 +10,10 @@ add_library(OpenMEEG SHARED
     src/geometry.cpp
     src/operators.cpp
     src/sensors.cpp
+    src/EEGsensors.cpp
+    src/MEGsensors.cpp
+    src/EITsensors.cpp
+    src/ECoGsensors.cpp
 )
 
 set_target_properties(OpenMEEG PROPERTIES
