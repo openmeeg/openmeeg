@@ -41,10 +41,10 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #include <cstdlib>
 #include <cmath>
+#include <memory>
 
 #include "OpenMEEGMathsConfig.h"
 #include <OMassert.H>
-#include "RC.H"
 
 namespace OpenMEEG {
 
@@ -112,31 +112,18 @@ namespace OpenMEEG {
 
     typedef enum { DEEP_COPY } DeepCopy;
 
-    struct OPENMEEGMATHS_EXPORT LinOpValue: public utils::RCObject {
-        double *data;
+    struct OPENMEEGMATHS_EXPORT LinOpValue: public std::shared_ptr<double[]> {
+        typedef std::shared_ptr<double[]> base;
 
-        LinOpValue(): data(0) { }
+        LinOpValue(): base(0) { }
 
-        LinOpValue(const size_t n) {
-            try {
-                this->data = new double[n];
-            }
-            catch (std::bad_alloc&) {
-                std::cerr << "Error memory allocation failed... " << std::endl;
-                exit(1);
-            }
-        }
+        LinOpValue(const size_t n): base(new double[n]) { }
 
-        LinOpValue(const size_t n,const double* initval) { init(n,initval); }
-        LinOpValue(const size_t n,const LinOpValue& v)   { init(n,v.data);  }
+        LinOpValue(const size_t n,const double* initval): LinOpValue(n) { std::copy(initval,initval+n,&(*this)[0]); }
+        LinOpValue(const size_t n,const LinOpValue& v):   LinOpValue(n,&(v[0])) { }
 
-        void init(const size_t n,const double* initval) {
-            data = new double[n];
-            std::copy(initval,initval+n,data);
-        }
+        ~LinOpValue() { }
 
-        ~LinOpValue() { delete[] data; }
-
-        bool empty() const { return data==0; }
+        bool empty() const { return static_cast<bool>(*this); }
     };
 }

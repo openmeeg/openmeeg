@@ -63,7 +63,7 @@ namespace OpenMEEG {
 
         friend class Vector;
 
-        utils::RCPtr<LinOpValue> value;
+        LinOpValue value;
 
         explicit Matrix(const Matrix& A,const size_t M): LinOp(A.nlin(),M,FULL,2),value(A.value) { }
 
@@ -71,22 +71,22 @@ namespace OpenMEEG {
 
         Matrix(): LinOp(0,0,FULL,2),value() { }
         Matrix(const char* fname): LinOp(0,0,FULL,2),value() { this->load(fname); }
-        Matrix(const size_t M,const size_t N): LinOp(M,N,FULL,2),value(new LinOpValue(N*M)) { }
-        Matrix(const Matrix& A,const DeepCopy): LinOp(A.nlin(),A.ncol(),FULL,2),value(new LinOpValue(A.size(),A.data())) { }
+        Matrix(const size_t M,const size_t N): LinOp(M,N,FULL,2),value(N*M) { }
+        Matrix(const Matrix& A,const DeepCopy): LinOp(A.nlin(),A.ncol(),FULL,2),value(A.size(),A.data()) { }
 
         explicit Matrix(const SymMatrix& A);
         explicit Matrix(const SparseMatrix& A);
 
         Matrix(const Vector& v,const size_t M,const size_t N);
 
-        void alloc_data()                       { value = new LinOpValue(size());      }
-        void reference_data(const double* vals) { value = new LinOpValue(size(),vals); }
+        void alloc_data()                       { value = LinOpValue(size());      }
+        void reference_data(const double* vals) { value = LinOpValue(size(),vals); }
 
         /** \brief Test if Matrix is empty
             \return true if Matrix is empty
             \sa
         **/
-        bool empty() const { return value->empty(); }
+        bool empty() const { return value.empty(); }
 
         /** \brief Get Matrix size
             \return number of values (nb lines x nb columns)
@@ -98,7 +98,7 @@ namespace OpenMEEG {
             \return pointer to Matrix values
             \sa
         **/
-        double* data() const { return value->data; }
+        double* data() const { return value.get(); }
 
         /** \brief Get Matrix value
             \return value in Matrix
@@ -178,11 +178,11 @@ namespace OpenMEEG {
 
     inline double Matrix::operator()(size_t i,size_t j) const {
         om_assert(i<nlin() && j<ncol());
-        return value->data[i+nlin()*j];
+        return value[i+nlin()*j];
     }
     inline double& Matrix::operator()(size_t i,size_t j) {
         om_assert(i<nlin() && j<ncol());
-        return value->data[i+nlin()*j];
+        return value[i+nlin()*j];
     }
     
     inline double Matrix::frobenius_norm() const {
