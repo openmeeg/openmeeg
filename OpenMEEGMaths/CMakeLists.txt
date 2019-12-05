@@ -1,6 +1,5 @@
 # OpenMEEGMath
 add_library(OpenMEEGMaths SHARED
-  src/utils.cpp
   src/vector.cpp
   src/matrix.cpp
   src/symmatrix.cpp
