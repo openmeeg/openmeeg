@@ -35,6 +35,7 @@ matrix:
           sources:
             - ubuntu-toolchain-r-test
           packages:
+            - g++-8
             - libopenblas-dev
             - liblapacke-dev # XXX: If lapacke is missing, cmake does not break at generation but at compilation.
             - swig
@@ -165,8 +166,8 @@ before_install:
         brew install llvm;
         BREW_PREFIX=$(brew --prefix)
         export OMP_NUM_THREADS=4;
-        export LDFLAGS="-L${BREW_PREFIX}/opt/llvm/lib -Wl,-rpath,/usr/local/opt/llvm/lib";
-        export DYLD_LIBRARY_PATH="${BREW_PREFIX}/opt/llvm/lib:$DYLD_LIBRARY_PATH";
+        export LDFLAGS="-L${BREW_PREFIX}/opt/llvm/lib -Wl,-rpath,${BREW_PREFIX}/opt/llvm/lib"
+        export DYLD_LIBRARY_PATH="${BREW_PREFIX}/local/opt/llvm/lib:$DYLD_LIBRARY_PATH";
         export CC="${BREW_PREFIX}/opt/llvm/bin/clang";
         export CXX="${BREW_PREFIX}/opt/llvm/bin/clang++";
         export CPPFLAGS="-I${BREW_PREFIX}/opt/llvm/include $CPPFLAGS";
@@ -174,35 +175,29 @@ before_install:
     fi
 
 script:
-  - cd ${TRAVIS_BUILD_DIR}
-  - mkdir -p build && cd build
   - |
+    cd ${TRAVIS_BUILD_DIR}
+    mkdir -p build && cd build
     if [[ $BUILD_PACKAGE == "ON" && $TRAVIS_PULL_REQUEST == "false" && $TRAVIS_BRANCH == "master" ]]; then
       export CMAKE_OPTIONS=" -DBLA_VENDOR=$BACKEND"
     else
       export CMAKE_OPTIONS=" -DBLA_VENDOR=$BACKEND -DENABLE_COVERAGE=${ENABLE_COVERAGE}"
     fi
-  - |
     if [[ "${BUILD_STATIC}" == "ON" ]]; then
       export CMAKE_OPTIONS="${CMAKE_OPTIONS} -DBLA_STATIC=ON"
     fi
-  - |
     if [[ "${ENABLE_PYTHON}" == "ON" ]]; then
       export CMAKE_OPTIONS="${CMAKE_OPTIONS} -DENABLE_PYTHON=ON"
     fi
-  - |
     if [[ "${CONFIGURATION}" == "Release" ]] && [[ "${ANALYSE}" != "ON" ]]; then
       export CMAKE_OPTIONS="${CMAKE_OPTIONS} -DCMAKE_BUILD_TYPE=Release"
     fi
-  - |
     if [[ "${USE_VTK}" == "ON" ]]; then
       export CMAKE_OPTIONS="${CMAKE_OPTIONS} -DUSE_VTK=ON"
     fi
-  - |
     if [[ "${BUILD_DOCUMENTATION}" == "ON" ]]; then
       export CMAKE_OPTIONS="${CMAKE_OPTIONS} -DBUILD_DOCUMENTATION=ON"
     fi
-  - |
     if [[ "${TRAVIS_OS_NAME}" == "osx" && "${USE_GCC}" == "ON" ]]; then
       export CMAKE_OPTIONS="${CMAKE_OPTIONS} -DCMAKE_C_COMPILER=/usr/local/bin/gcc-7 -DCMAKE_CXX_COMPILER=/usr/local/bin/g++-7"
     fi
@@ -223,8 +218,8 @@ script:
         PACKAGE_DEPLOY=$(greadlink -f OpenMEEG*.tar.gz)
       fi
     fi
-  - sudo make install
-  - sudo make uninstall
+    sudo make install
+    sudo make uninstall
 
 after_success:
   - |
