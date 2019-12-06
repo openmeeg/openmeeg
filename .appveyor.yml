@@ -93,12 +93,12 @@ install:
   # force to pick zlibstatic in order to create proper wheels
   
 before_build:
-  - call "C:\Program Files (x86)\IntelSWTools\compilers_and_libraries_2018.0.124\windows\bin\compilervars_arch.bat" intel64 vs2015
+  - call "C:\Program Files (x86)\IntelSWTools\compilers_and_libraries_2018.0.124\windows\bin\compilervars_arch.bat" intel64 vs2019
   - call "C:\Program Files (x86)\IntelSWTools\compilers_and_libraries_2018.0.124\windows\mkl\bin\mklvars.bat" intel64
   - "ECHO %MKLROOT%"
   - cd %APPVEYOR_BUILD_FOLDER%
   - "ECHO %BLAS_VERSION%"
-  - "ECHO 'cmake -DBLA_STATIC=%BUILD_STATIC% -DBLA_VENDOR=%BLAS_VERSION% -G \"Visual Studio 14 2015 Win64\" .. '"
+  - "ECHO 'cmake -DBLA_STATIC=%BUILD_STATIC% -DBLA_VENDOR=%BLAS_VERSION% -G \"Visual Studio 16 2019 Win64\" .. '"
   - cmake --version
   - "ECHO 'MKLROOT is %MKLROOT%'"
   - ps: |
@@ -113,7 +113,7 @@ before_build:
           -DBLA_STATIC=%BUILD_STATIC%            ^
           -DBLA_VENDOR=%BLAS_VERSION%            ^
           -DVCOMP_WORKAROUND=ON                  ^
-          -G "Visual Studio 14 2015 Win64" ..
+          -G "Visual Studio 16 2019 Win64" ..
   - appveyor PushArtifact C:\projects\openmeeg\build\cmake_install.cmake
 
 build_script:
