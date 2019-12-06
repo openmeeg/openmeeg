@@ -17,9 +17,9 @@ matrix:
         - BACKEND=Intel10_64lp
         - BUILD_STATIC=ON
         - BUILD_PACKAGE=ON
-        - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
+        - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8"
 
-    - name: (analyse) openblas, python, vtk, gcc-7, apt-get dependencies
+    - name: (analyse) openblas, python, vtk, gcc-8, apt-get dependencies
       os: linux
       dist: bionic
       env:
@@ -29,7 +29,7 @@ matrix:
         - ANALYSE=ON
         - ENABLE_COVERAGE=ON
         - BUILD_DOCUMENTATION=ON
-        - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
+        - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8"
       addons:
         apt:
           sources:
@@ -154,14 +154,14 @@ before_install:
   ############################################################################
   - |
     if [[ "${USE_BREW_LLVM}" == "ON" ]]; then
-        brew install llvm;
+        brew install llvm@9;
         export OMP_NUM_THREADS=4;
-        export LDFLAGS="-L/usr/local/opt/llvm/lib -Wl,-rpath,/usr/local/opt/llvm/lib";
-        export DYLD_LIBRARY_PATH="/usr/local/opt/llvm/lib:$DYLD_LIBRARY_PATH";
-        export CC="/usr/local/opt/llvm/bin/clang";
-        export CXX="/usr/local/opt/llvm/bin/clang++";
-        export CPPFLAGS="-I/usr/local/opt/llvm/include $CPPFLAGS";
-        export CFLAGS="-I/usr/local/opt/llvm/include $CFLAGS";
+        export LDFLAGS="-L$(brew --prefix)/opt/llvm/lib -Wl,-rpath,$(brew --prefix)/opt/llvm/lib"
+        export DYLD_LIBRARY_PATH="$(brew --prefix)/local/opt/llvm/lib:$DYLD_LIBRARY_PATH";
+        export CC="$(brew --prefix)/opt/llvm/bin/clang";
+        export CXX="$(brew --prefix)/opt/llvm/bin/clang++";
+        export CPPFLAGS="-I$(brew --prefix)/opt/llvm/include $CPPFLAGS";
+        export CFLAGS="-I$(brew --prefix)/opt/llvm/include $CFLAGS";
     fi
 
 script:
@@ -195,7 +195,7 @@ script:
     fi
   - |
     if [[ "${TRAVIS_OS_NAME}" == "osx" && "${USE_GCC}" == "ON" ]]; then
-      export CMAKE_OPTIONS="${CMAKE_OPTIONS} -DCMAKE_C_COMPILER=/usr/local/bin/gcc-7 -DCMAKE_CXX_COMPILER=/usr/local/bin/g++-7"
+      export CMAKE_OPTIONS="${CMAKE_OPTIONS} -DCMAKE_C_COMPILER=/usr/local/bin/gcc-8 -DCMAKE_CXX_COMPILER=/usr/local/bin/g++-8"
     fi
   - if [[ "${TRAVIS_OS_NAME}" == "linux" ]]; then echo $LD_LIBRARY_PATH; fi
   - if [[ "${TRAVIS_OS_NAME}" == "osx" ]]; then echo $DYLD_LIBRARY_PATH; fi
