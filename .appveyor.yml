@@ -9,8 +9,8 @@ configuration:
   - Release
 
 image:
-  - Visual Studio 2015
-  # - Visual Studio 2017
+  - Visual Studio 2019
+  #- Visual Studio 2015
 
 cache:
   - C:\cmake-3.10.1-win64-x64
