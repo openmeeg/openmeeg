@@ -179,7 +179,8 @@ before_install:
 
   - |
     if [[ "${TRAVIS_OS_NAME}" == "osx" ]]; then
-        brew install boost
+        brew install boost;
+        brew link boost;
     fi
 
 script:
