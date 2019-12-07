@@ -17,9 +17,9 @@ matrix:
         - BACKEND=Intel10_64lp
         - BUILD_STATIC=ON
         - BUILD_PACKAGE=ON
-        - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8"
+        - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
 
-    - name: (analyse) openblas, python, vtk, gcc-8, apt-get dependencies
+    - name: (analyse) openblas, python, vtk, gcc-7, apt-get dependencies
       os: linux
       dist: bionic
       env:
@@ -29,13 +29,12 @@ matrix:
         - ANALYSE=ON
         - ENABLE_COVERAGE=ON
         - BUILD_DOCUMENTATION=ON
-        - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8"
+        - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
       addons:
         apt:
           sources:
             - ubuntu-toolchain-r-test
           packages:
-            - g++-8
             - libopenblas-dev
             - liblapacke-dev # XXX: If lapacke is missing, cmake does not break at generation but at compilation.
             - swig
@@ -115,7 +114,8 @@ before_install:
   # Install MKL (if necessary)
   ############################################################################
 
-  - if [[ "${BACKEND}" == *"Intel"* ]]; then
+  - |
+    if [[ "${BACKEND}" == *"Intel"* ]]; then
       curl -fsSkL https://raw.githubusercontent.com/openmeeg/ci-utils/master/travis/install_mkl.sh > install_mkl.sh && source ./install_mkl.sh
     fi
 
@@ -125,9 +125,9 @@ before_install:
 
   - |
     if [[ "${TRAVIS_OS_NAME}" == "linux" && "${BUILD_PACKAGE}" == "ON" ]]; then
-        git clone https://github.com/astropy/ci-helpers.git
-        source ci-helpers/travis/setup_conda.sh
-        conda install -c massich libmatio
+        git clone https://github.com/astropy/ci-helpers.git;
+        source ci-helpers/travis/setup_conda.sh;
+        conda install -c massich libmatio;
     fi
 
   ############################################################################
@@ -141,11 +141,11 @@ before_install:
       if [[ "${TRAVIS_OS_NAME}" == "linux" ]]; then
         sudo apt-get install -qq clang;
       else
-        curl http://clang-analyzer.llvm.org/downloads/checker-276.tar.bz2 -o /usr/local/Cellar/checker-276.bz2
-        cd /usr/local/Cellar/
-        tar -jxvf checker-276.bz2
-        ln -s /usr/local/Cellar/checker-276/scan-build /usr/local/bin/scan-build
-        rm checker-276.bz2
+        curl http://clang-analyzer.llvm.org/downloads/checker-276.tar.bz2 -o /usr/local/Cellar/checker-276.bz2;
+        cd /usr/local/Cellar/;
+        tar -jxvf checker-276.bz2;
+        ln -s /usr/local/Cellar/checker-276/scan-build /usr/local/bin/scan-build;
+        rm checker-276.bz2;
       fi
       shopt -s expand_aliases
       # alias cmake="${SCAN_BUILD} cmake -DCMAKE_BUILD_TYPE=Debug"
@@ -159,48 +159,52 @@ before_install:
 
   - |
     if [[ "${USE_BREW_LLVM}" == "ON" ]]; then
-        brew install llvm@9
+        brew install llvm;
         BREW_PREFIX=$(brew --prefix)
-        export OMP_NUM_THREADS=4
-        export LDFLAGS="-L${BREW_PREFIX}/opt/llvm/lib -Wl,-rpath,${BREW_PREFIX}/opt/llvm/lib"
-        export DYLD_LIBRARY_PATH="${BREW_PREFIX}/local/opt/llvm/lib:$DYLD_LIBRARY_PATH"
-        export CC="${BREW_PREFIX}/opt/llvm/bin/clang"
-        export CXX="${BREW_PREFIX}/opt/llvm/bin/clang++"
-        export CPPFLAGS="-I${BREW_PREFIX}/opt/llvm/include $CPPFLAGS"
-        export CFLAGS="-I${BREW_PREFIX}/opt/llvm/include $CFLAGS"
+        export OMP_NUM_THREADS=4;
+        export LDFLAGS="-L${BREW_PREFIX}/opt/llvm/lib -Wl,-rpath,/usr/local/opt/llvm/lib";
+        export DYLD_LIBRARY_PATH="${BREW_PREFIX}/opt/llvm/lib:$DYLD_LIBRARY_PATH";
+        export CC="${BREW_PREFIX}/opt/llvm/bin/clang";
+        export CXX="${BREW_PREFIX}/opt/llvm/bin/clang++";
+        export CPPFLAGS="-I${BREW_PREFIX}/opt/llvm/include $CPPFLAGS";
+        export CFLAGS="-I${BREW_PREFIX}/opt/llvm/include $CFLAGS";
     fi
 
 script:
   - cd ${TRAVIS_BUILD_DIR}
   - mkdir -p build && cd build
-  - if [[ $BUILD_PACKAGE == "ON" && $TRAVIS_PULL_REQUEST == "false" && $TRAVIS_BRANCH == "master" ]]; then
+  - |
+    if [[ $BUILD_PACKAGE == "ON" && $TRAVIS_PULL_REQUEST == "false" && $TRAVIS_BRANCH == "master" ]]; then
       export CMAKE_OPTIONS=" -DBLA_VENDOR=$BACKEND"
     else
       export CMAKE_OPTIONS=" -DBLA_VENDOR=$BACKEND -DENABLE_COVERAGE=${ENABLE_COVERAGE}"
     fi
-  - if [[ "${BUILD_STATIC}" == "ON" ]]; then
+  - |
+    if [[ "${BUILD_STATIC}" == "ON" ]]; then
       export CMAKE_OPTIONS="${CMAKE_OPTIONS} -DBLA_STATIC=ON"
     fi
-  - if [[ "${ENABLE_PYTHON}" == "ON" ]]; then
+  - |
+    if [[ "${ENABLE_PYTHON}" == "ON" ]]; then
       export CMAKE_OPTIONS="${CMAKE_OPTIONS} -DENABLE_PYTHON=ON"
     fi
-  - if [[ "${CONFIGURATION}" == "Release" ]] && [[ "${ANALYSE}" != "ON" ]]; then
+  - |
+    if [[ "${CONFIGURATION}" == "Release" ]] && [[ "${ANALYSE}" != "ON" ]]; then
       export CMAKE_OPTIONS="${CMAKE_OPTIONS} -DCMAKE_BUILD_TYPE=Release"
     fi
-  - if [[ "${USE_VTK}" == "ON" ]]; then
+  - |
+    if [[ "${USE_VTK}" == "ON" ]]; then
       export CMAKE_OPTIONS="${CMAKE_OPTIONS} -DUSE_VTK=ON"
     fi
-  - if [[ "${BUILD_DOCUMENTATION}" == "ON" ]]; then
+  - |
+    if [[ "${BUILD_DOCUMENTATION}" == "ON" ]]; then
       export CMAKE_OPTIONS="${CMAKE_OPTIONS} -DBUILD_DOCUMENTATION=ON"
     fi
   - |
     if [[ "${TRAVIS_OS_NAME}" == "osx" && "${USE_GCC}" == "ON" ]]; then
-      GCC_SUFFIX="-8"
-      export CMAKE_OPTIONS="${CMAKE_OPTIONS} -DCMAKE_C_COMPILER=`which gcc${GCC_SUFFIX}` -DCMAKE_CXX_COMPILER=`which g++${GCC_SUFFIX}`"
+      export CMAKE_OPTIONS="${CMAKE_OPTIONS} -DCMAKE_C_COMPILER=/usr/local/bin/gcc-7 -DCMAKE_CXX_COMPILER=/usr/local/bin/g++-7"
     fi
   - if [[ "${TRAVIS_OS_NAME}" == "linux" ]]; then echo $LD_LIBRARY_PATH; fi
   - if [[ "${TRAVIS_OS_NAME}" == "osx" ]]; then echo $DYLD_LIBRARY_PATH; fi
-  - echo `which gcc-8`
   - echo "cmake .. ${CMAKE_OPTIONS}"
   - cmake .. ${CMAKE_OPTIONS}
   - make -j ${JOBS}
