@@ -173,16 +173,6 @@ before_install:
         export CFLAGS="-I${BREW_PREFIX}/opt/llvm/include $CFLAGS";
     fi
 
-  ############################################################################
-  # Install Boost for target with old C++ lib
-  ############################################################################
-
-  - |
-    if [[ "${TRAVIS_OS_NAME}" == "osx" ]]; then
-        brew install boost;
-        brew link boost;
-    fi
-
 script:
   - cd ${TRAVIS_BUILD_DIR}
   - mkdir -p build && cd build
