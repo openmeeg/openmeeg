@@ -60,6 +60,7 @@ matrix:
             - cmake
             - hdf5
             - libmatio
+            - boost
 
     - name: openblas, vtk, full dep using brew
       os: osx
@@ -77,6 +78,7 @@ matrix:
             - gcc
             - hdf5
             - libmatio
+            - boost
             - openblas
             - vtk
             - numpy
@@ -96,6 +98,7 @@ matrix:
             - gcc
             - hdf5
             - libmatio
+            - boost
 
 before_install:
   - eval "${MATRIX_EVAL}"
@@ -168,6 +171,15 @@ before_install:
         export CXX="${BREW_PREFIX}/opt/llvm/bin/clang++";
         export CPPFLAGS="-I${BREW_PREFIX}/opt/llvm/include $CPPFLAGS";
         export CFLAGS="-I${BREW_PREFIX}/opt/llvm/include $CFLAGS";
+    fi
+
+  ############################################################################
+  # Install Boost for target with old C++ lib
+  ############################################################################
+
+  - |
+    if [[ "${TRAVIS_OS_NAME}" == "osx" ]]; then
+        brew install boost
     fi
 
 script:
