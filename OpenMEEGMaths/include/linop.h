@@ -41,7 +41,16 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #include <cstdlib>
 #include <cmath>
+
+#ifdef HAVE_SHARED_PTR_ARRAY_SUPPORT
 #include <memory>
+template <typename T>
+using SharedPtr = std::shared_ptr<T>;
+#else
+#include <boost/shared_ptr.hpp>
+template <typename T>
+using SharedPtr = boost::shared_ptr<T>;
+#endif
 
 #include "OpenMEEGMathsConfig.h"
 #include <OMassert.H>
@@ -112,8 +121,8 @@ namespace OpenMEEG {
 
     typedef enum { DEEP_COPY } DeepCopy;
 
-    struct OPENMEEGMATHS_EXPORT LinOpValue: public std::shared_ptr<double[]> {
-        typedef std::shared_ptr<double[]> base;
+    struct OPENMEEGMATHS_EXPORT LinOpValue: public SharedPtr<double[]> {
+        typedef SharedPtr<double[]> base;
 
         LinOpValue(): base(0) { }
         LinOpValue(const size_t n): base(new double[n]) { }
