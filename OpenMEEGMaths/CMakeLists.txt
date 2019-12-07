@@ -17,7 +17,6 @@ target_include_directories(OpenMEEGMaths
           $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
           ${Boost_INCLUDE_Dir}
           ${BLA_INCLUDE_DIR} # XXX : this should not be here, transitive properties should work
-          MATIO::MATIO
           $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}> # XXX: this is to include the generated file OpenMEEGMaths_Export.h
           $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}>         # XXX: this is to include the generated file OpenMEEGConfigure.h
       PRIVATE
@@ -31,6 +30,7 @@ target_link_libraries(OpenMEEGMaths
           HDF5::HDF5
           MATIO::MATIO
 )
+message("::${SHARED_PTR_DEFINITIONS}::")
 target_compile_definitions(OpenMEEGMaths PUBLIC ${BLA_DEFINITIONS} ${SHARED_PTR_DEFINITIONS})
 add_library(OpenMEEG::OpenMEEGMaths ALIAS OpenMEEGMaths)
 
