@@ -41,7 +41,16 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #include <cstdlib>
 #include <cmath>
+
+#ifdef HAVE_SHARED_PTR_ARRAY_SUPPORT
 #include <memory>
+template <typename T>
+using SharedPtr = std::shared_ptr<T>;
+#else
+#include <boost/shared_ptr.hpp>
+template <typename T>
+using SharedPtr = boost::shared_ptr<T>;
+#endif
 
 #ifdef HAVE_SHARED_PTR_ARRAY_SUPPORT
 #include <memory>
