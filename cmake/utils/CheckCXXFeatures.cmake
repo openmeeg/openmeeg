@@ -6,7 +6,7 @@ macro(CHECK_CXX_FEATURE feature file message)
         message(STATUS "Check whether the compiler ${message}")
         try_compile(RESULT ${CMAKE_BINARY_DIR}
             #${CMAKE_ROOT}/Modules/TestForSTDNamespace.cxx
-            ${CMAKE_CURRENT_SOURCE_DIR}/cmake/utils/cxx_tests/${file}
+            ${CMAKE_SOURCE_DIR}/cmake/utils/cxx_tests/${file}
             COMPILE_DEFINITIONS "${CHECK_CXX_FEATURE_DEFINITIONS}"
             OUTPUT_VARIABLE OUTPUT)
 
@@ -103,6 +103,10 @@ macro(CHECK_CXX_STANDARD_LIBRARY)
     # CHECK_CXX_FEATURE(HAVE_STD                           have_std.cpp                      "supports ISO C++ standard library")
     # CHECK_CXX_FEATURE(HAVE_STL                           have_stl.cpp                      "supports Standard Template Library")
     # CHECK_CXX_FEATURE(HAVE_RUSAGE                        have_rusage.cpp                   "has getrusage() function")
+endmacro()
+
+macro(CHECK_CXX_SHARED_PTR_FOR_ARRAY)
+    CHECK_CXX_FEATURE(HAVE_SHARED_PTR_FOR_ARRAY,           shared_ptr_array_extension.cpp    "has C++17 extension of shared_ptr for arrays")
 endmacro()
 
 macro(CHECK_ALL_CXX_FEATURES)
