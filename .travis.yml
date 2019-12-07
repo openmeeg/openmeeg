@@ -192,7 +192,7 @@ script:
     fi;
     if [[ "${TRAVIS_OS_NAME}" == "osx" && "${USE_GCC}" == "ON" ]]; then
       GCC_SUFFIX="-8"
-      export CMAKE_OPTIONS="${CMAKE_OPTIONS} -DCMAKE_C_COMPILER=`which gcc${GCC_SUFFIX}` -DCMAKE_CXX_COMPILER=`which g++${GCC_SUFFIX}"
+      export CMAKE_OPTIONS="${CMAKE_OPTIONS} -DCMAKE_C_COMPILER=`which gcc${GCC_SUFFIX}` -DCMAKE_CXX_COMPILER=`which g++${GCC_SUFFIX}`"
     fi;
     if [[ "${TRAVIS_OS_NAME}" == "linux" ]]; then echo $LD_LIBRARY_PATH; fi;
     if [[ "${TRAVIS_OS_NAME}" == "osx" ]]; then echo $DYLD_LIBRARY_PATH; fi;
