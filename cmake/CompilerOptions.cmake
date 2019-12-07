@@ -13,7 +13,7 @@ check_cxx_feature(HAVE_SHARED_PTR_ARRAY_EXTENSION
 set(SHARED_PTR_DEFINITIONS HAVE_SHARED_PTR_ARRAY_SUPPORT)
 if (NOT HAVE_SHARED_PTR_ARRAY_EXTENSION)
     message("Missing support of shared_ptr for arrays. Using boost instead.")
-    find_package(Boost 1.53.0 REQUIRED COMPONENTS shared_ptr)
+    find_package(Boost 1.53.0 REQUIRED)
     unset(SHARED_PTR_DEFINITIONS)
 endif()
 
