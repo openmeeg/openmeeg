@@ -118,8 +118,7 @@ before_install:
   # Install MKL (if necessary)
   ############################################################################
 
-  - |
-    if [[ "${BACKEND}" == *"Intel"* ]]; then
+  - if [[ "${BACKEND}" == *"Intel"* ]]; then
       curl -fsSkL https://raw.githubusercontent.com/openmeeg/ci-utils/master/travis/install_mkl.sh > install_mkl.sh && source ./install_mkl.sh
     fi
 
@@ -129,9 +128,9 @@ before_install:
 
   - |
     if [[ "${TRAVIS_OS_NAME}" == "linux" && "${BUILD_PACKAGE}" == "ON" ]]; then
-        git clone https://github.com/astropy/ci-helpers.git;
-        source ci-helpers/travis/setup_conda.sh;
-        conda install -c massich libmatio;
+        git clone https://github.com/astropy/ci-helpers.git
+        source ci-helpers/travis/setup_conda.sh
+        conda install -c massich libmatio
     fi
 
   ############################################################################
@@ -145,11 +144,11 @@ before_install:
       if [[ "${TRAVIS_OS_NAME}" == "linux" ]]; then
         sudo apt-get install -qq clang;
       else
-        curl http://clang-analyzer.llvm.org/downloads/checker-276.tar.bz2 -o /usr/local/Cellar/checker-276.bz2;
-        cd /usr/local/Cellar/;
-        tar -jxvf checker-276.bz2;
-        ln -s /usr/local/Cellar/checker-276/scan-build /usr/local/bin/scan-build;
-        rm checker-276.bz2;
+        curl http://clang-analyzer.llvm.org/downloads/checker-276.tar.bz2 -o /usr/local/Cellar/checker-276.bz2
+        cd /usr/local/Cellar/
+        tar -jxvf checker-276.bz2
+        ln -s /usr/local/Cellar/checker-276/scan-build /usr/local/bin/scan-build
+        rm checker-276.bz2
       fi
       shopt -s expand_aliases
       # alias cmake="${SCAN_BUILD} cmake -DCMAKE_BUILD_TYPE=Debug"
@@ -175,29 +174,29 @@ before_install:
     fi
 
 script:
-  - |
-    cd ${TRAVIS_BUILD_DIR};
-    mkdir -p build && cd build;
-    if [[ $BUILD_PACKAGE == "ON" && $TRAVIS_PULL_REQUEST == "false" && $TRAVIS_BRANCH == "master" ]]; then
+  - cd ${TRAVIS_BUILD_DIR}
+  - mkdir -p build && cd build
+  - if [[ $BUILD_PACKAGE == "ON" && $TRAVIS_PULL_REQUEST == "false" && $TRAVIS_BRANCH == "master" ]]; then
       export CMAKE_OPTIONS=" -DBLA_VENDOR=$BACKEND"
     else
       export CMAKE_OPTIONS=" -DBLA_VENDOR=$BACKEND -DENABLE_COVERAGE=${ENABLE_COVERAGE}"
-    fi;
-    if [[ "${BUILD_STATIC}" == "ON" ]]; then
+    fi
+  - if [[ "${BUILD_STATIC}" == "ON" ]]; then
       export CMAKE_OPTIONS="${CMAKE_OPTIONS} -DBLA_STATIC=ON"
-    fi;
-    if [[ "${ENABLE_PYTHON}" == "ON" ]]; then
+    fi
+  - if [[ "${ENABLE_PYTHON}" == "ON" ]]; then
       export CMAKE_OPTIONS="${CMAKE_OPTIONS} -DENABLE_PYTHON=ON"
-    fi;
-    if [[ "${CONFIGURATION}" == "Release" ]] && [[ "${ANALYSE}" != "ON" ]]; then
+    fi
+  - if [[ "${CONFIGURATION}" == "Release" ]] && [[ "${ANALYSE}" != "ON" ]]; then
       export CMAKE_OPTIONS="${CMAKE_OPTIONS} -DCMAKE_BUILD_TYPE=Release"
-    fi;
-    if [[ "${USE_VTK}" == "ON" ]]; then
+    fi
+  - if [[ "${USE_VTK}" == "ON" ]]; then
       export CMAKE_OPTIONS="${CMAKE_OPTIONS} -DUSE_VTK=ON"
-    fi;
-    if [[ "${BUILD_DOCUMENTATION}" == "ON" ]]; then
+    fi
+  - if [[ "${BUILD_DOCUMENTATION}" == "ON" ]]; then
       export CMAKE_OPTIONS="${CMAKE_OPTIONS} -DBUILD_DOCUMENTATION=ON"
-    fi;
+    fi
+  - |
     if [[ "${TRAVIS_OS_NAME}" == "osx" && "${USE_GCC}" == "ON" ]]; then
       export CMAKE_OPTIONS="${CMAKE_OPTIONS} -DCMAKE_C_COMPILER=`which gcc-7` -DCMAKE_CXX_COMPILER=`which g++-7`"
     fi
@@ -217,9 +216,9 @@ script:
         brew install coreutils
         PACKAGE_DEPLOY=$(greadlink -f OpenMEEG*.tar.gz)
       fi
-    fi;
-    sudo make install;
-    sudo make uninstall
+    fi
+  - sudo make install
+  - sudo make uninstall
 
 after_success:
   - |
