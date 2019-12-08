@@ -50,4 +50,7 @@ g1 = om.make_geometry(interfaces, domains)
 g2 = om.Geometry(
     op.join(dirpath, subject + ".geom"), op.join(dirpath, subject + ".cond"))
 
+assert g1.is_nested()
+assert g2.is_nested()
+
 assert g1.__class__ == g2.__class__
