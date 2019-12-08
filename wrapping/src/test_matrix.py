@@ -24,7 +24,7 @@ assert b.ncol() == 3
 
 for i in range(b.nlin()):
     for j in range(b.ncol()):
-        assert b.value(i,j)==a[i,j]
+        assert b.value(i, j) == a[i, j]
 
 c = om.Matrix(b)
 assert c.nlin() == 2
@@ -32,7 +32,7 @@ assert c.ncol() == 3
 
 for i in range(c.nlin()):
     for j in range(c.ncol()):
-        assert c.value(i,j)==a[i,j]
+        assert c.value(i, j) == a[i, j]
 
 nlines = random.randrange(10, 20)
 ncols = nlines + 2  # test on not squared matric
@@ -54,14 +54,14 @@ for l in range(5):
         print(mat_numpy[l, c], end=" ")
     print()
 
-error = 0
+error = False
 for l in range(5):
     for c in range(5):
         if mat_numpy[l, c] != mat_om.value(l, c):
             print("matrices differ at:", l, c)
-            error = 1
+            error = True
 
-if error == 0:
+if error:
     print("conversion between OpenMEEG:Matrix <> numpy.ndarray is OK")
 
 # Testing going back from OpenMEEG to numpy
