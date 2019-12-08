@@ -1,7 +1,7 @@
 /*
 Project Name : OpenMEEG
 
-© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre 
+© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre
 GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU, Théodore PAPADOPOULO,
 Emmanuel OLIVI
 Maureen.Clerc.AT.inria.fr, keriven.AT.certis.enpc.fr,
@@ -37,31 +37,38 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#define _USE_MATH_DEFINES
-#include <cmath>
+#pragma once
 
-#include <operators.h>
-#include <om_utils.h>
+#include <vector>
+#include <vertex.h>
 
 namespace OpenMEEG {
 
-    // geom = geometry
-    // mat  = storage for Ferguson Matrix
-    // pts  = where the magnetic field is to be computed
+    /// \brief Edge
+    /// Edge class
 
-    void assemble_ferguson(const Geometry& geom,Matrix& mat,const Matrix& pts) {
+    class OPENMEEG_EXPORT Edge {
+    public:
 
-        // Computation of blocks of Ferguson's Matrix
-
-        unsigned progress = 0;
-        for (const auto& mesh : geom.meshes()) {
-            const unsigned n = pts.nlin();
-            const double coeff = MagFactor*geom.conductivity_difference(mesh);
-            for (unsigned i=0,offsetI=0; i<n; ++i,offsetI+=3,++progress) {
-                PROGRESSBAR(progress,geom.meshes().size()*n);
-                const Vect3 p(pts(i,0),pts(i,1),pts(i,2));
-                operatorFerguson(p,mesh,mat,offsetI,coeff);
-            }
+        Edge() {
+            vertices[0] = nullptr;
+            vertices[1] = nullptr;
         }
-    }
+
+        Edge(const Vertex& V1,const Vertex& V2) {
+            vertices[0] = &V1;
+            vertices[1] = &V2;
+        }
+
+        const Vertex& vertex(const unsigned i) const { return *vertices[i]; }
+
+        bool operator==(const Edge& e) const { return (e.vertex(0)==vertex(0)) && (e.vertex(1)==vertex(1)); }
+        bool operator!=(const Edge& e) const { return (e.vertex(0)!=vertex(0)) || (e.vertex(1)!=vertex(1)); }
+
+    private:
+
+        const Vertex* vertices[2];
+    };
+
+    typedef std::vector<Edge> Edges;
 }

@@ -46,57 +46,57 @@ namespace OpenMEEG {
 
     void Mesh::copy(const Mesh& m) {
 
-        if (m.allocate_) {
-            allocate_     = true;
+        if (m.allocated) {
+            allocated     = true;
             all_vertices_ = new Vertices; // allocates space for the vertices and copy
-            all_vertices_->reserve(m.nb_vertices()); 
-            std::map<const Vertex *, Vertex *> map; // for the triangles
-            for (Mesh::const_vertex_iterator vit = m.vertex_begin(); vit != m.vertex_end(); ++vit) {
-                add_vertex(**vit);
-                map[*vit] = *vertices_.rbegin();
+            all_vertices_->reserve(m.vertices().size());
+            std::map<const Vertex*,Vertex*> map; // for the triangles
+            for (const auto& vertex : m.vertices()) {
+                add_vertex(*vertex);
+                map[vertex] = vertices().back();
             }
-            for (Triangles::const_iterator tit = m.begin(); tit != m.end(); ++tit) {
-                Triangle t(map[&tit->s1()], map[&tit->s2()], map[&tit->s3()]);
-                push_back(t);
+            for (const auto& triangle : m.triangles()) {
+                Triangle t(map[&triangle.vertex(0)],map[&triangle.vertex(1)],map[&triangle.vertex(2)]);
+                triangles_.push_back(t);
             }
             update();
         } else {
             all_vertices_ = m.all_vertices_;
             set_vertices_ = m.set_vertices_;
-            allocate_ = false;
-            for (Triangles::const_iterator tit = m.begin(); tit != m.end(); ++tit) {
-                push_back(*tit);
-            }
+            allocated = false;
+            for (const auto& triangle : m.triangles())
+                triangles_.push_back(triangle);
             build_mesh_vertices();
         }
         outermost_ = m.outermost_;
-        name_      = m.name_;
+        mesh_name  = m.mesh_name;
     }
 
     /// Print informations about the mesh 
 
     void Mesh::info(const bool verbose) const {
         std::cout << "Info:: Mesh name/ID : "  << name() << std::endl;
-        std::cout << "\t\t# vertices  : " << nb_vertices() << std::endl;
-        std::cout << "\t\t# triangles : " << nb_triangles() << std::endl;
-        std::cout << "\t\tEuler characteristic : " << nb_vertices() - 3.*nb_triangles()/2. + nb_triangles() << std::endl;
+        std::cout << "\t\t# vertices  : " << vertices().size() << std::endl;
+        std::cout << "\t\t# triangles : " << triangles().size() << std::endl;
+        std::cout << "\t\tEuler characteristic : " << vertices().size()-3*triangles().size()/2+triangles().size() << std::endl;
 
         double min_area = std::numeric_limits<double>::max();
         double max_area = 0.;
-        for (const_iterator tit = begin(); tit != end(); ++tit) {
-            min_area = std::min(tit->area(), min_area);
-            max_area = std::max(tit->area(), max_area);
+        for (const auto& triangle : triangles()) {
+            min_area = std::min(triangle.area(),min_area);
+            max_area = std::max(triangle.area(),max_area);
         }
         std::cout << "\t\tMin Area : " << min_area << std::endl;
         std::cout << "\t\tMax Area : " << max_area << std::endl;
         if (verbose) {
             std::cout << "Indices :" << std::endl;
-            for (const_vertex_iterator vit = vertex_begin(); vit != vertex_end(); ++vit) {
-                std::cout << "[" << **vit << "] = " << (*vit)->index() << std::endl;
-            }
-            for (const_iterator tit = begin(); tit!= end(); ++tit) {
-                    std::cout << "[[" << tit->s1() << "] , [" << tit->s2() << "] , ["<< tit->s3() << "]] \t = " << tit->index() << std::endl;
-            }
+            for (const auto& vertex : vertices())
+                std::cout << "[" << *vertex << "] = " << vertex->index() << std::endl;
+            for (const auto& triangle : triangles())
+                std::cout << "[[" << triangle.vertex(0)
+                          << "] , [" << triangle.vertex(1)
+                          << "] , ["<< triangle.vertex(2)
+                          << "]] \t = " << triangle.index() << std::endl;
         }
     }
 
@@ -106,23 +106,23 @@ namespace OpenMEEG {
 
         std::set<const Vertex *> mesh_v;
         vertices_.clear();
-        for (const_iterator tit = begin(); tit != end(); ++tit)
-            for (Triangle::const_iterator sit = tit->begin(); sit != tit->end(); ++sit)
-                if (mesh_v.insert(*sit).second)
-                    vertices_.push_back(const_cast<Vertex *>(*sit));
+        for (auto& triangle : triangles_)
+            for (auto& vertex : triangle)
+                if (mesh_v.insert(vertex).second)
+                    vertices_.push_back(vertex);
     }
 
     void Mesh::destroy() {
-        if (allocate_)
+        if (allocated)
             delete all_vertices_;
-        clear();
+        triangles_.clear();
         all_vertices_ = 0;
         vertices_.clear();
         set_vertices_.clear();
-        name_.clear();
+        mesh_name.clear();
         links_.clear();
         outermost_ = false;
-        allocate_ = false;
+        allocated = false;
     }
 
     //  This is not the input of a mesh. It should be renamed...
@@ -131,12 +131,12 @@ namespace OpenMEEG {
         unsigned vind[3];
         is >> vind[0] >> vind[1] >> vind[2];
         for (unsigned i=0;i<3;++i)
-            if (vind[i]>=m.vertices_.size()) {
+            if (vind[i]>=m.vertices().size()) {
                 std::cerr << "Unknown vertex: " << vind[i] << " (hint: vertex numbering often starts at 0). Aborting." << std::endl;
                 exit(1);
             }
-        Triangle t(m.vertices_[vind[0]],m.vertices_[vind[1]],m.vertices_[vind[2]]);
-        m.push_back(t);
+        Triangle t(m.vertices()[vind[0]],m.vertices()[vind[1]],m.vertices()[vind[2]]);
+        m.triangles().push_back(t);
         return is;
     }
 
@@ -162,33 +162,31 @@ namespace OpenMEEG {
     /// Update triangles area/normal, update links and vertices normals if needed
     void Mesh::update() {
 
-        // empty unessacary set
+        // empty unnecessary set
+
         set_vertices_.clear();
 
-        // make links
-        links_.clear();
-        for (const_iterator tit = begin(); tit != end(); ++tit)
-            for (Triangle::const_iterator sit = tit->begin(); sit != tit->end(); ++sit)
-                links_[*sit].push_back(const_cast<Triangle *>(&*tit));
+        make_adjacencies();
 
         // If indices are not set, we generate them for sorting edge and testing orientation
-        if (allocate_) {
-            if ((*vertex_begin())->index() == unsigned(-1))
+        if (allocated) {
+            if (vertices().front()->index()==unsigned(-1))
                 generate_indices();
             correct_local_orientation();
         }
 
-        // computes the triangles normals (after having the mesh locally reoriented)
-        for (iterator tit = begin(); tit != end(); ++tit) {
-            tit->normal()  = (tit->s1() - tit->s2())^(tit->s1() - tit->s3());
-            tit->area()    = tit->normal().norm() / 2.0;
-            tit->normal().normalize();
+        // Compute triangles' normals and areas (after having the mesh locally reoriented)
+
+        for (auto& triangle : triangles()) {
+            Vect3 normaldir   = crossprod(triangle.vertex(0)-triangle.vertex(1),triangle.vertex(0)-triangle.vertex(2));
+            triangle.area()   = normaldir.norm()/2.0;
+            triangle.normal() = normaldir.normalize();
         }
     }
 
-    /// compute the normal at vertex
-    Normal Mesh::normal(const Vertex& v) const {
+    /// Compute normals at vertices.
 
+    Normal Mesh::normal(const Vertex& v) const {
         Normal _normal(0);
         for (VectPTriangle::const_iterator tit = links_.at(&v).begin(); tit != links_.at(&v).end(); ++tit)
             _normal += (*tit)->normal();
@@ -196,62 +194,66 @@ namespace OpenMEEG {
         return _normal;
     }
 
-    /// properly merge two meshes into one (it does not dupplicate vertices)
+    /// Merge two meshes into one (without duplicating vertices).
 
     void Mesh::merge(const Mesh& m1, const Mesh& m2) {
 
-        if (size() != 0)
+        if (triangles_.size() != 0)
             warning("Mesh::merge Mesh must be empty.");
 
-        allocate_ = true;
+        allocated = true;
         all_vertices_ = new Vertices;
-        all_vertices_->reserve(m1.nb_vertices() + m2.nb_vertices());
+        all_vertices_->reserve(m1.vertices().size() + m2.vertices().size());
 
         std::map<unsigned,Vertex *> map1;
-        for (Mesh::const_vertex_iterator vit = m1.vertex_begin(); vit != m1.vertex_end(); ++vit) {
-            add_vertex(**vit);
-            map1[(*vit)->index()] = *vertices_.rbegin();
+        for (const auto& vertex : m1.vertices()) {
+            add_vertex(*vertex);
+            map1[vertex->index()] = vertices().back();
         }
 
         std::map<unsigned,Vertex*> map2;
-        for (Mesh::const_vertex_iterator vit = m2.vertex_begin(); vit != m2.vertex_end(); ++vit) {
-            add_vertex(**vit);
-            map2[(*vit)->index()] = *vertices_.rbegin();
+        for (const auto& vertex : m2.vertices()) {
+            add_vertex(*vertex);
+            map2[vertex->index()] = vertices().back();
         }
 
-        for (const_iterator tit = m1.begin(); tit != m1.end(); ++tit)
-            push_back(Triangle(map1[tit->s1().index()], map1[tit->s2().index()], map1[tit->s3().index()]));
+        for (const auto& triangle : m1.triangles())
+            triangles_.push_back(Triangle(map1[triangle.vertex(0).index()], map1[triangle.vertex(1).index()], map1[triangle.vertex(2).index()]));
 
-        for (const_iterator tit = m2.begin(); tit != m2.end(); ++tit)
-            push_back(Triangle(map2[tit->s1().index()], map2[tit->s2().index()], map2[tit->s3().index()]));
+        for (const auto& triangle : m2.triangles())
+            triangles_.push_back(Triangle(map2[triangle.vertex(0).index()], map2[triangle.vertex(1).index()], map2[triangle.vertex(2).index()]));
 
         update();
     }
 
     /// Smooth Mesh
 
-    void Mesh::smooth(const double& smoothing_intensity, const unsigned& niter) {
+    void Mesh::smooth(const double& smoothing_intensity,const unsigned& niter) {
 
-        std::vector< std::set<Vertex> > neighbors(nb_vertices());
+        typedef std::vector<std::set<Vertex>> Neighbors;
+        Neighbors neighbors(vertices().size());
         unsigned i = 0;
-        for (const_vertex_iterator vit = vertex_begin(); vit != vertex_end(); ++vit, ++i)
-            for (VectPTriangle::const_iterator tit = links_[*vit].begin(); tit != links_[*vit].end(); ++tit)
-                for (unsigned  k = 0; k < 3; ++k)
-                    if ((**tit)(k) == **vit)
-                        neighbors[i].insert((**tit)(k));
+        for (const auto& vertex : vertices()) {
+            for (const auto& triangle : adjacent_triangles(*vertex))
+                for (unsigned  k=0;k<3;++k)
+                    if (triangle->vertex(k)==*vertex) // TODO: Is a pointer comparison sufficient ?
+                        neighbors[i].insert(triangle->vertex(k));
+            ++i; // Can't we use the vertex index instead ? TODO
+        }
 
-        Vertices new_pts(nb_vertices());
+        Vertices new_pts(vertices().size());
         for (unsigned n = 0; n < niter; ++n) {
-            i = 0;
-            for (const_vertex_iterator vit = vertex_begin(); vit != vertex_end(); ++vit, ++i) {
-                new_pts.push_back(**vit);
-                for (std::set<Vertex>::const_iterator it = neighbors[i].begin(); it != neighbors[i].end(); ++it)
-                    new_pts[i] = new_pts[i] + (smoothing_intensity * (*it - **vit)) / neighbors[i].size();
+            Neighbors::const_iterator nit = neighbors.begin();
+            for (const auto& vertex : vertices()) {
+                new_pts.push_back(*vertex);
+                auto& newpt = new_pts.back();
+                for (std::set<Vertex>::const_iterator it = nit->begin();it!=nit->end();++it)
+                    newpt += (smoothing_intensity*(*it-*vertex))/nit->size();
+                ++nit;
             }
-            for (vertex_iterator vit = vertex_begin(); vit != vertex_end(); ++vit) {
-                **vit = new_pts[i];
-                new_pts.clear();
-            }
+            for (auto& vertex : vertices())
+                *vertex = new_pts[i];
+            new_pts.clear();
         }
         update(); // Updating triangles (areas + normals)
     }
@@ -260,63 +262,76 @@ namespace OpenMEEG {
 
     void Mesh::gradient_norm2(SymMatrix &A) const {
 
-        /// V
-        // self
-        for (const_vertex_iterator vit = vertex_begin(); vit != vertex_end(); ++vit)
-            for (VectPTriangle::const_iterator tit = links_.at(*vit).begin(); tit != links_.at(*vit).end(); ++tit) {
-                Vertex * v2;
-                Vertex * v3;
-                if (((**tit)[0]) == *vit) {
-                    v2 = (**tit)[1]; v3 = (**tit)[2];
-                } else if ((**tit)[1] == *vit) {
-                    v2 = (**tit)[2]; v3 = (**tit)[0];
-                } else {
-                    v2 = (**tit)[0]; v3 = (**tit)[1];
-                }
-                A((*vit)->index(), (*vit)->index()) += P1gradient(**vit, *v2, *v3).norm2() * std::pow((*tit)->area(),2);
+        /// Vertices (diagonal of the matrix).
+
+        for (const auto& vp : vertices()) {
+            const Vertex& v1 = *vp;
+            const unsigned index = v1.index();
+            for (const auto& t : links_.at(vp)) {
+                const Edge& edge = t->edge(v1);
+                const Vertex& v2 = edge.vertex(0);
+                const Vertex& v3 = edge.vertex(1);
+                A(index,index) += P1gradient(v1,v2,v3).norm2()*sqr(t->area());
             }
+        }
 
         // edges
 
-        for (const_iterator tit = begin(); tit != end(); ++tit)
-            for (unsigned j = 0; j < 3; ++j)
-                if (((*tit)(j)).index() < ((*tit)(j+1)).index()) // sym matrix only lower half
-                    A(((*tit)(j)).index(), ((*tit)(j+1)).index()) += P1gradient((*tit)(j), (*tit)(j+1), (*tit)(j+2)) * P1gradient((*tit)(j+1), (*tit)(j+2), (*tit)(j+3)) * std::pow(tit->area(),2);
+        for (const auto& triangle: triangles_) {
+            const double area2 = sqr(triangle.area());
+            const Edges& edges = triangle.edges();
+            for (unsigned i=0;i<3;++i) {
+                const Vertex& V1 = edges[i].vertex(0);
+                const Vertex& V2 = edges[i].vertex(1);
+
+                const unsigned ind1 = V1.index();
+                const unsigned ind2 = V2.index();
+
+                //  This is a symmetric matrix. We only need to fill the lower half matrix.
+
+                if (ind1<ind2) {
+                    const Vertex& V3 = triangle.vertex(i);
+                    A(ind1,ind2) += dotprod(P1gradient(V1,V2,V3),P1gradient(V2,V3,V1))*area2;
+                }
+            }
+        }
 
         // P0 gradients: loop on triangles
         if (!outermost_) // if it is an outermost mesh: p=0 thus no need for computing it
-            for (const_iterator tit = begin(); tit != end(); ++tit) {
-                A(tit->index(), tit->index()) = 0.;
-                VectPTriangle Tadj = adjacent_triangles(*tit);
-                for (VectPTriangle::const_iterator tit2 = Tadj.begin(); tit2 != Tadj.end(); ++tit2)
-                    if (tit->index() < (*tit2)->index()) // sym matrix only lower half
-                        A(tit->index(), (*tit2)->index()) += P0gradient_norm2(*tit, **tit2) * tit->area() * (*tit2)->area();
+            for (const auto& triangle1 : triangles()) {
+                A(triangle1.index(),triangle1.index()) = 0.;
+                for (const auto& triangle2 : adjacent_triangles(triangle1))
+                    if (triangle1.index()<triangle2->index()) // sym matrix only lower half
+                        A(triangle1.index(), triangle2->index()) += P0gradient_norm2(triangle1,*triangle2)*triangle1.area()*triangle2->area();
             }
     }
 
     /// Laplacian Mesh: good approximation of Laplace-Beltrami operator
     // "Discrete Laplace Operator on Meshed Surfaces". by Belkin, Sun, Wang
 
-    void Mesh::laplacian(SymMatrix &A) const {
-
-        double h;
-        for (const_iterator tit = begin(); tit != end(); ++tit)
-            for (unsigned j = 0; j < 3; ++j)
-                if (((*tit)(j)).index() < ((*tit)(j+1)).index()) { // sym matrix only lower half
-                    h = ((*tit)(j+1)-(*tit)(j)).norm();
-                    A(((*tit)(j)).index(), ((*tit)(j+1)).index()) += -tit->area()/(12.*M_PI*std::pow(h,2)) * exp(-((*tit)(j)-(*tit)(j+1)).norm2()/(4.*h));
+    void Mesh::laplacian(SymMatrix& A) const {
+        for (const auto& triangle : triangles())
+            for (const auto& edge : triangle.edges()) {
+                const Vertex& V1 = edge.vertex(0);
+                const Vertex& V2 = edge.vertex(1);
+                const unsigned ind1 = V1.index();
+                const unsigned ind2 = V2.index();
+                if (ind1<ind2) { // sym matrix only lower half
+                    const double h = (V2-V1).norm();
+                    A(ind1,ind2) += -triangle.area()/(12*Pi*sqr(h))*exp(-sqr(h)/(4*h));
                 }
+            }
 
-        for (const_vertex_iterator vit = vertex_begin(); vit != vertex_end(); ++vit)
-            A((*vit)->index(), (*vit)->index()) = -A.getlin((*vit)->index()).sum();
+        for (const auto& vertex : vertices())
+            A(vertex->index(),vertex->index()) = -A.getlin(vertex->index()).sum();
     }
 
     bool Mesh::has_self_intersection() const {
 
         bool selfIntersects = false;
-        for (const_iterator tit1 = begin(); tit1 != end(); ++tit1)
-            for (const_iterator tit2 = tit1; tit2 != end(); ++tit2)
-                if (!tit1->contains(tit2->s1()) && !tit1->contains(tit2->s2()) && !tit1->contains(tit1->s3()))
+        for (auto tit1=triangles().begin();tit1!=triangles().end();++tit1)
+            for (auto tit2=tit1;tit2!=triangles().end();++tit2)
+                if (!tit1->contains(tit2->vertex(0)) && !tit1->contains(tit2->vertex(1)) && !tit1->contains(tit1->vertex(2)))
                     if (triangle_intersection(*tit1, *tit2)) {
                         selfIntersects = true;
                         std::cout << "Triangles " << tit1->index() << " and " << tit2->index() << " are intersecting." << std::endl;
@@ -324,31 +339,30 @@ namespace OpenMEEG {
         return selfIntersects;
     }
 
-    double Mesh::compute_solid_angle(const Vect3& p) const {
-
+    double Mesh::solid_angle(const Vect3& p) const {
         double solangle = 0.0;
-        for (const_iterator tit = begin(); tit != end(); ++tit)
-            solangle += p.solangl(tit->s1(), tit->s2(), tit->s3());
+        for (const auto& triangle : triangles())
+            solangle += p.solid_angle(triangle.vertex(0),triangle.vertex(1),triangle.vertex(2));
         return solangle;
     }
 
     bool Mesh::intersection(const Mesh& m) const {
 
         bool intersects = false;
-        for (const_iterator tit1 = begin(); tit1 != end(); ++tit1)
-            for (const_iterator tit2 = m.begin(); tit2 != m.end(); ++tit2)
-                intersects = intersects | triangle_intersection(*tit1, *tit2);
+        for (const auto& triangle1 : triangles())
+            for (const auto& triangle2 : m.triangles())
+                intersects = intersects | triangle_intersection(triangle1,triangle2);
         return intersects;
     }
 
     bool Mesh::triangle_intersection(const Triangle& T1, const Triangle& T2) const {
 
-        const Vect3& p1 = T1.s1();
-        const Vect3& q1 = T1.s2();
-        const Vect3& r1 = T1.s3();
-        const Vect3& p2 = T2.s1();
-        const Vect3& q2 = T2.s2();
-        const Vect3& r2 = T2.s3();
+        const Vect3& p1 = T1.vertex(0);
+        const Vect3& q1 = T1.vertex(1);
+        const Vect3& r1 = T1.vertex(2);
+        const Vect3& p2 = T2.vertex(0);
+        const Vect3& q2 = T2.vertex(1);
+        const Vect3& r2 = T2.vertex(2);
 
         double pp1[3] = {p1.x(), p1.y(), p1.z()};
         double qq1[3] = {q1.x(), q1.y(), q1.z()};
@@ -374,14 +388,14 @@ namespace OpenMEEG {
 
     unsigned Mesh::load(const std::string& filename, const bool& verbose, const bool& read_all) {
 
-        if (size() != 0)
+        if (triangles().size() != 0)
             destroy();
 
-        if (read_all && ( all_vertices_ == 0) ) {
-            unsigned nb_v = load(filename, false, false); // first allocates memory for the vertices
+        if (read_all && (all_vertices_==0)) {
+            unsigned nb_v = load(filename,false,false); // first allocates memory for the vertices
             all_vertices_ = new Vertices;
             all_vertices_->reserve(nb_v); 
-            allocate_ = true;
+            allocated = true;
         }
 
         std::string extension = getNameExtension(filename);
@@ -414,7 +428,7 @@ namespace OpenMEEG {
         if (verbose)
             info();
 
-        if (allocate_ && read_all) // we generates the indices of these mesh vertices
+        if (allocated && read_all) // we generates the indices of these mesh vertices
             generate_indices();
 
         return return_value;
@@ -422,10 +436,10 @@ namespace OpenMEEG {
 
     void Mesh::generate_indices() {
         unsigned index = 0;
-        for (vertex_iterator vit = vertex_begin(); vit != vertex_end(); ++vit, ++index)
-            (*vit)->index() = index;
-        for (iterator tit = begin(); tit!= end(); ++tit, ++index)
-            tit->index() = index;
+        for (auto& vertex : vertices())
+            vertex->index() = index++;
+        for (auto& triangle : triangles())
+            triangle.index() = index++;
     }
 
     void Mesh::save(const std::string& filename) const {
@@ -464,20 +478,20 @@ namespace OpenMEEG {
         if (!read_all)
             return npts;
 
-        for (unsigned i = 0; i < npts; ++i)
+        for (unsigned i=0;i<npts;++i)
             add_vertex(Vertex(vtkMesh->GetPoint(i)[0], vtkMesh->GetPoint(i)[1], vtkMesh->GetPoint(i)[2]));
 
         ntrgs = vtkMesh->GetNumberOfCells();
 
         vtkIdList *l;
-        reserve(ntrgs);
+        triangles().reserve(ntrgs);
 
         for (unsigned i = 0; i < ntrgs; ++i)
             if (vtkMesh->GetCellType(i) == VTK_TRIANGLE) {
                 l = vtkMesh->GetCell(i)->GetPointIds();
-                push_back(Triangle(vertices()[l->GetId(0)],vertices()[l->GetId(1)],vertices()[l->GetId(2)]));
+                triangles().push_back(Triangle(vertices()[l->GetId(0)],vertices()[l->GetId(1)],vertices()[l->GetId(2)]));
             } else {
-                std::cerr << "Mesh \"" << name_ << "\" is not a triangulation" << std::endl;
+                std::cerr << "Mesh \"" << mesh_name << "\" is not a triangulation" << std::endl;
                 exit(1);
             }
 
@@ -520,7 +534,7 @@ namespace OpenMEEG {
         vtkPolyDataReader *reader = vtkPolyDataReader::New();
         reader->SetFileName(filename.c_str()); // Specify file name of vtk data file to read
         if (!reader->IsFilePolyData()) {
-            std::cerr << "Mesh \"" << name_ << "\" is not a valid vtk poly data file" << std::endl;
+            std::cerr << "Mesh \"" << mesh_name << "\" is not a valid vtk poly data file" << std::endl;
             reader->Delete();
             exit(1);
         }
@@ -676,10 +690,10 @@ namespace OpenMEEG {
         for (unsigned i = 0; i < npts; ++i)
             add_vertex(Vertex(pts_raw[i*3+0],pts_raw[i*3+1],pts_raw[i*3+2]));
 
-        reserve(ntrgs);
+        triangles().reserve(ntrgs);
 
-        for (unsigned i = 0; i < ntrgs; ++i)
-            push_back(Triangle(vertices_[faces_raw[i*3+0]],vertices_[faces_raw[i*3+1]],vertices_[faces_raw[i*3+2]]));
+        for (unsigned i=0;i<ntrgs;++i)
+            triangles().push_back(Triangle(vertices_[faces_raw[i*3+0]],vertices_[faces_raw[i*3+1]],vertices_[faces_raw[i*3+2]]));
 
         delete[] faces_raw;
         delete[] normals_raw;
@@ -721,7 +735,7 @@ namespace OpenMEEG {
         }
         f >> ch >> ntrgs >> ntrgs >> ntrgs; // This number is repeated 3 times
 
-        reserve(ntrgs);
+        triangles().reserve(ntrgs);
         for (unsigned i=0;i<ntrgs;++i)
             f >> *this;
 
@@ -789,9 +803,9 @@ namespace OpenMEEG {
         f >> io_utils::skip_comments('#') >> st;
         om_error(st == "Polygons");
 
-        reserve(ntrgs);
+        triangles().reserve(ntrgs);
 
-        for (unsigned i = 0; i < ntrgs; ++i)
+        for (unsigned i=0; i<ntrgs; ++i)
              f >> io_utils::skip_comments('#') >> *this;
 
         return 0;
@@ -825,15 +839,15 @@ namespace OpenMEEG {
         if (!read_all)
             return npts;
 
-        for (unsigned i = 0; i < npts; ++i) {
+        for (unsigned i=0; i<npts; ++i) {
             Vertex v;
             f >> v;
             add_vertex(v);
         }
 
-        reserve(ntrgs);
+        triangles().reserve(ntrgs);
 
-        for (unsigned i = 0; i < ntrgs; ++i)
+        for (unsigned i=0; i<ntrgs; ++i)
             f >> trash >> *this;        // put the "3" to trash
 
         return 0;
@@ -860,23 +874,23 @@ namespace OpenMEEG {
         os << "File " << filename << " generated by OpenMEEG" << std::endl;
         os << "ASCII" << std::endl;
         os << "DATASET POLYDATA" << std::endl;
-        os << "POINTS " << nb_vertices() << " float" << std::endl;
+        os << "POINTS " << vertices().size() << " float" << std::endl;
 
         std::map<const Vertex *, unsigned> map;
         unsigned i = 0;
-        for (const_vertex_iterator vit = vertex_begin(); vit != vertex_end(); ++vit, ++i) {
-            map[*vit] = i;
-            os << **vit << std::endl;
+        for (const auto& vertex : vertices()) {
+            map[vertex] = i++;
+            os << *vertex << std::endl;
         }
-        os << "POLYGONS " << nb_triangles() << " " << nb_triangles()*4 << std::endl;
-        for (const_iterator tit = begin(); tit != end(); ++tit)
-            os << "3 " << map[&(tit->s1())] << " " << map[&(tit->s2())] << " " << map[&(tit->s3())] << std::endl;
+        os << "POLYGONS " << triangles().size() << " " << triangles().size()*4 << std::endl;
+        for (const auto& triangle : triangles())
+            os << "3 " << map[&(triangle.vertex(0))] << " " << map[&(triangle.vertex(1))] << " " << map[&(triangle.vertex(2))] << std::endl;
 
-        os << "CELL_DATA " << nb_triangles() << std::endl;
-        os << "POINT_DATA " << nb_vertices() << std::endl;
+        os << "CELL_DATA " << triangles().size() << std::endl;
+        os << "POINT_DATA " << vertices().size() << std::endl;
         os << "NORMALS normals float" << std::endl;
-        for (const_vertex_iterator vit = vertex_begin(); vit != vertex_end(); ++vit)
-            os << normal(**vit) << std::endl;
+        for (const auto& vertex : vertices())
+            os << normal(*vertex) << std::endl;
 
         os.close();
     }
@@ -886,20 +900,20 @@ namespace OpenMEEG {
         std::ofstream os(filename.c_str());
         os << "# Bnd mesh file generated by OpenMeeg" << std::endl;
         os << "Type= Unknown" << std::endl;
-        os << "NumberPositions= " << nb_vertices() << std::endl;
+        os << "NumberPositions= " << vertices().size() << std::endl;
         os << "UnitPosition\tmm" << std::endl;
         os << "Positions" << std::endl;
         std::map<const Vertex *, unsigned> map;
         unsigned i = 0;
-        for (const_vertex_iterator vit = vertex_begin(); vit != vertex_end(); ++vit, ++i) {
-            map[*vit] = i;
-            os << **vit << std::endl;
+        for (const auto& vertex : vertices()) {
+            map[vertex] = i++;
+            os << *vertex << std::endl;
         }
-        os << "NumberPolygons= " << nb_triangles() << std::endl;
+        os << "NumberPolygons= " << triangles().size() << std::endl;
         os << "TypePolygons=\t3" << std::endl;
         os << "Polygons" << std::endl;
-        for (const_iterator tit = begin(); tit != end(); ++tit)
-            os << map[&(tit->s1())] << " " << map[&(tit->s2())] << " " << map[&(tit->s3())] << std::endl;
+        for (const auto& triangle : triangles())
+            os << map[&(triangle.vertex(0))] << " " << map[&(triangle.vertex(1))] << " " << map[&(triangle.vertex(2))] << std::endl;
 
         os.close();
     }
@@ -907,16 +921,16 @@ namespace OpenMEEG {
     void Mesh::save_tri(const std::string& filename) const {
 
         std::ofstream os(filename.c_str());
-        os << "- " << nb_vertices() << std::endl;
+        os << "- " << vertices().size() << std::endl;
         std::map<const Vertex *, unsigned> map;
         unsigned i = 0;
-        for (const_vertex_iterator vit = vertex_begin(); vit != vertex_end(); ++vit, ++i) {
-            map[*vit] = i;
-            os << **vit << " " << normal(**vit) << std::endl;
+        for (const auto& vertex : vertices()) {
+            map[vertex] = i++;
+            os << *vertex << " " << normal(*vertex) << std::endl;
         }
-        os << "- " << nb_triangles() << " " << nb_triangles() << " " << nb_triangles() << std::endl;
-        for (const_iterator tit = begin(); tit != end(); ++tit)
-            os << map[&(tit->s1())] << " " << map[&(tit->s2())] << " " << map[&(tit->s3())] << std::endl;
+        os << "- " << triangles().size() << " " << triangles().size() << " " << triangles().size() << std::endl;
+        for (const auto& triangle : triangles())
+            os << map[&(triangle.vertex(0))] << " " << map[&(triangle.vertex(1))] << " " << map[&(triangle.vertex(2))] << std::endl;
 
         os.close();
     }
@@ -925,17 +939,17 @@ namespace OpenMEEG {
 
         std::ofstream os(filename.c_str());
         os << "OFF" << std::endl;
-        os << nb_vertices() << " " << nb_triangles() << " 0" << std::endl;
+        os << vertices().size() << " " << triangles().size() << " 0" << std::endl;
         std::map<const Vertex *, unsigned> map;
 
         unsigned i = 0;
-        for (const_vertex_iterator vit = vertex_begin(); vit != vertex_end(); ++vit, ++i) {
-            map[*vit] = i;
-            os << **vit << std::endl;
+        for (const auto& vertex : vertices()) {
+            map[vertex] = i++;
+            os << *vertex << std::endl;
         }
 
-        for (const_iterator tit = begin(); tit != end(); ++tit)
-            os << "3 " << map[&(tit->s1())] << " " << map[&(tit->s2())] << " " << map[&(tit->s3())] << std::endl;
+        for (const auto& triangle : triangles())
+            os << "3 " << map[&(triangle.vertex(0))] << " " << map[&(triangle.vertex(1))] << " " << map[&(triangle.vertex(2))] << std::endl;
 
         os.close();
     }
@@ -965,42 +979,43 @@ namespace OpenMEEG {
         unsigned int mesh_step[1] = {0}; // mesh_step
         os.write((char*)mesh_step, sizeof(unsigned int));
 
-        unsigned int vertex_number[1] = {static_cast<unsigned>(nb_vertices())}; // vertex number
+        unsigned int vertex_number[1] = {static_cast<unsigned>(vertices().size())}; // vertex number
         os.write((char*)vertex_number, sizeof(unsigned int));
 
-        float* pts_raw = new float[nb_vertices()*3]; // Points
-        float* normals_raw = new float[nb_vertices()*3]; // Normals
-        unsigned int* faces_raw = new unsigned int[nb_triangles()*3]; // Faces
+        float* pts_raw = new float[vertices().size()*3]; // Points
+        float* normals_raw = new float[vertices().size()*3]; // Normals
+        unsigned int* faces_raw = new unsigned int[triangles().size()*3]; // Faces
 
         std::map<const Vertex *, unsigned> map;
         unsigned i = 0;
-
-        for (const_vertex_iterator vit = vertex_begin(); vit != vertex_end(); ++vit, ++i) {
-            map[*vit] = i;
-            pts_raw[i*3+0]     = (float)((*vit)->x());
-            pts_raw[i*3+1]     = (float)((*vit)->y());
-            pts_raw[i*3+2]     = (float)((*vit)->z());
-            Normal n = normal(**vit);
-            normals_raw[i*3+0] = (float)(n.x());
-            normals_raw[i*3+1] = (float)(n.y());
-            normals_raw[i*3+2] = (float)(n.z());
+        for (const auto& vertex : vertices()) {
+            map[vertex] = i;
+            pts_raw[i*3+0]     = static_cast<float>(vertex->x());
+            pts_raw[i*3+1]     = static_cast<float>(vertex->y());
+            pts_raw[i*3+2]     = static_cast<float>(vertex->z());
+            const Normal& n = normal(*vertex);
+            normals_raw[i*3+0] = static_cast<float>(n.x());
+            normals_raw[i*3+1] = static_cast<float>(n.y());
+            normals_raw[i*3+2] = static_cast<float>(n.z());
+            ++i;
         }
 
         i = 0;
-        for (const_iterator tit = begin(); tit != end(); ++tit, ++i) {
-            faces_raw[i*3+0] = map[&(tit->s1())];
-            faces_raw[i*3+1] = map[&(tit->s2())];
-            faces_raw[i*3+2] = map[&(tit->s3())];
+        for (const auto& triangle : triangles()) {
+            faces_raw[i*3+0] = map[&(triangle.vertex(0))];
+            faces_raw[i*3+1] = map[&(triangle.vertex(1))];
+            faces_raw[i*3+2] = map[&(triangle.vertex(2))];
+            ++i;
         }
 
-        os.write((char*)pts_raw, sizeof(float)*nb_vertices()*3);           // vertices
+        os.write((char*)pts_raw, sizeof(float)*vertices().size()*3);           // vertices
         os.write((char*)vertex_number, sizeof(unsigned int));              // arg size : npts
-        os.write((char*)normals_raw, sizeof(float)*nb_vertices()*3);       // normals
+        os.write((char*)normals_raw, sizeof(float)*vertices().size()*3);       // normals
         unsigned char zero[1] = {0};
         os.write((char*)zero, sizeof(char));                               // arg size : 0
-        unsigned int faces_number[1] = {static_cast<unsigned>(nb_triangles())};
+        unsigned int faces_number[1] = {static_cast<unsigned>(triangles().size())};
         os.write((char*)faces_number, sizeof(unsigned int));               // ntrgs
-        os.write((char*)faces_raw, sizeof(unsigned int)*nb_triangles()*3); // triangles
+        os.write((char*)faces_raw, sizeof(unsigned int)*triangles().size()*3); // triangles
 
         delete[] faces_raw;
         delete[] normals_raw;
@@ -1011,13 +1026,13 @@ namespace OpenMEEG {
     #ifdef USE_GIFTI
     void Mesh::save_gifti(const std::string& filename) const {
 
-        int dims[2] = {int(nb_vertices()), 3};
+        int dims[2] = {int(vertices().size()), 3};
         gifti_image * gim = gifti_create_image(1, NIFTI_INTENT_POINTSET, NIFTI_TYPE_FLOAT32, 2, dims, 1);
         gim->darray[0]->encoding = GIFTI_ENCODING_B64GZ;
 
         // vertices
         std::map<const Vertex *, int> mapVertexIndex;
-        gim->darray[0]->data = new float[nb_vertices()*3];
+        gim->darray[0]->data = new float[vertices().size()*3];
         float * pts = (float *)gim->darray[0]->data;
         int i = 0;
         for (const_vertex_iterator vit = vertex_begin(); vit != vertex_end(); ++vit, ++i) {
@@ -1035,22 +1050,22 @@ namespace OpenMEEG {
         gDA->datatype = NIFTI_TYPE_INT32;
         gDA->ind_ord  = GIFTI_IND_ORD_ROW_MAJOR;
         gDA->num_dim  = 2;
-        gDA->dims[0]  = int(nb_triangles());
+        gDA->dims[0]  = int(triangles().size());
         gDA->dims[1]  = 3;
-        gDA->nvals    = 3*nb_triangles();
+        gDA->nvals    = 3*triangles().size();
         gDA->encoding = GIFTI_ENCODING_B64GZ;
         gDA->endian   = GIFTI_ENDIAN_LITTLE;
 
-        gDA->data = new int[nb_triangles()*3];
+        gDA->data = new int[triangles().size()*3];
         int * trgs = (int *)gDA->data;
         i = 0;
         for (const_iterator tit = begin(); tit != end(); ++tit, ++i) {
-            trgs[3*i]   = mapVertexIndex[&(tit->s1())];
-            trgs[3*i+1] = mapVertexIndex[&(tit->s2())];
-            trgs[3*i+2] = mapVertexIndex[&(tit->s3())];
+            trgs[3*i]   = mapVertexIndex[&(tit->vertex(0))];
+            trgs[3*i+1] = mapVertexIndex[&(tit->vertex(1))];
+            trgs[3*i+2] = mapVertexIndex[&(tit->vertex(2))];
         }
         // gifti_add_to_meta(&gDA->meta, "TopologicalType", "Closed", 0);
-        gifti_add_to_meta(&gDA->meta, "Name",name_.c_str(), 0);
+        gifti_add_to_meta(&gDA->meta, "Name",mesh_name.c_str(), 0);
 
         gifti_write_image(gim, filename.c_str(), 1);
     }
@@ -1058,63 +1073,63 @@ namespace OpenMEEG {
 
     const Mesh::EdgeMap Mesh::compute_edge_map() const {
 
-        // define the triangle edges as (first vertex, second vertex)
-        // if a triangle edge is ordered with (lower index, higher index) add 1 to its map else remove 1
-        // in the end each mapping should be: 0 (well oriented), 1 for border edge (non closed), and 2 for non well oriented
+        // Associate an integer with each edge.
+        // Well oriented inner edges will be mapped to 0, border edges to 1 and badly oriented edges to 2.
+        // The algorithm goes through each triangle edge e=(first vertex, second vertex)
+        // If e is ordered with (lower index, higher index) add 1 to its map else remove 1.
 
-        EdgeMap mape; // map the edges with an unsigned
-        for (const_iterator tit = begin(); tit != end(); ++tit)
-            for (unsigned j = 0; j < 3; ++j)
-                if ((*tit)(j).index() > (*tit)(j+1).index()) {
-                    std::pair<const Vertex *, const Vertex *> pairv((*tit)[j], (*tit)[j+1]);
-                    if (mape.count(pairv) == 0) {
-                        mape[pairv] = 1;
-                    } else {
-                        mape[pairv]++;
-                    }
-                } else {
-                    std::pair<const Vertex *, const Vertex *> pairv((*tit)[j+1], (*tit)[j]);
-                    if (mape.count(pairv) == 0) {
-                        mape[pairv] = -1;
-                    } else {
-                        mape[pairv]--;
-                    }
-                }
+        EdgeMap edgemap;
+        auto lambda = [&](const Vertex& V1,const Vertex& V2,const int incr) {
+            const auto& index = std::make_pair(&V1,&V2);
+            if (edgemap.count(index)==0)
+                edgemap[index] = incr;
+            else
+                edgemap[index] += incr;
+        };
 
-        return mape;
-    }
+        for (const auto& triangle : triangles())
+            for (const auto& edge : triangle.edges()) {
+                const Vertex& V1 = edge.vertex(0);
+                const Vertex& V2 = edge.vertex(1);
+                if (V1.index()>V2.index())
+                    lambda(V1,V2,1);
+                else
+                    lambda(V2,V1,-1);
+            }
 
-    /// get the 3 adjacents triangles of a triangle t
-    Mesh::VectPTriangle Mesh::adjacent_triangles(const Triangle& t) const {
-
-        VectPTriangle tris;
-        std::map<Triangle *, unsigned> mapt;
-        for (Triangle::const_iterator sit = t.begin(); sit != t.end(); ++sit) {
-            VectPTriangle tri1 = links_.at(*sit);
-            for (VectPTriangle::const_iterator tit = tri1.begin(); tit != tri1.end(); ++tit)
-                if (mapt.count(*tit) == 0) {
-                    mapt[*tit] = 1;
-                } else {
-                    mapt[*tit]++;
-                }
-        }
-
-        for (std::map<Triangle *, unsigned>::iterator mit = mapt.begin(); mit != mapt.end(); ++mit)
-            if (mit->second == 2)
-                tris.push_back(mit->first);
-
-        return tris;
+        return edgemap;
     }
 
     void Mesh::correct_local_orientation() {
-
         if (!has_correct_orientation()) {
             std::cerr << "Reorienting..." << std::endl << std::endl;
-            std::stack<Triangle *>     tri_stack;
-            std::map<Triangle *, bool> tri_reoriented;
-            tri_stack.push(&*begin());
-            tri_reoriented[&*begin()] = true;
-            orient_adjacent_triangles(tri_stack, tri_reoriented);
+            std::stack<Triangle*>    triangle_stack;
+            std::map<Triangle*,bool> reoriented_triangles;
+            triangle_stack.push(&triangles().front());
+            reoriented_triangles[&triangles().front()] = true;
+
+            const auto has_same_edge = [](const Edges& edges1,const Edges& edges2) {
+                for (const auto& edge2 : edges2)
+                    for (const auto& edge1 : edges1)
+                        if (edge1==edge2)
+                            return true;
+                return false;
+            };
+
+            while (!triangle_stack.empty()) {
+                const Triangle& t1     = *triangle_stack.top();
+                const Edges&    edges1 = t1.edges();
+                triangle_stack.pop();
+                for (const auto& tp : adjacent_triangles(t1))
+                    if (reoriented_triangles.count(tp)==0) {
+                        triangle_stack.push(tp);
+                        Triangle& t2 = *tp;
+                        const Edges& edges2 = t2.edges();
+                        if (has_same_edge(edges1,edges2))
+                            t2.change_orientation();
+                        reoriented_triangles[tp] = true;
+                    }
+            }
         }
     }
 
@@ -1124,38 +1139,19 @@ namespace OpenMEEG {
     void Mesh::correct_global_orientation() {
 
         Vect3 center(0.,0.,0.);
-        for (const_vertex_iterator vit = vertex_begin(); vit != vertex_end(); ++vit)
-            center += **vit;
+        for (const auto& vertex : vertices())
+            center += *vertex;
 
-        center /= nb_vertices();
-        double solangle = compute_solid_angle(center);
-        if (almost_equal(solangle, 0.)) {
-            std::cout << "Center point :" << center << " is on the mesh." << std::endl;
-        } else if (almost_equal(solangle, -4.*M_PI)) {
-            // mesh is ok
-        } else if (almost_equal(solangle, 4.*M_PI)) {
-            flip_triangles();
-        } else {
-            std::cout << "Not a closed mesh." << std::endl;
-        }
-    }
-
-    void Mesh::orient_adjacent_triangles(std::stack<Triangle *>& t_stack, std::map<Triangle *, bool>& tri_reoriented) {
-
-        while ( !t_stack.empty()) {
-            Triangle * t = t_stack.top();
-            t_stack.pop();
-            VectPTriangle t_adj = adjacent_triangles(*t);
-            for (VectPTriangle::iterator tit = t_adj.begin(); tit != t_adj.end(); ++tit)
-                if (tri_reoriented.count(*tit) == 0) {
-                    t_stack.push(*tit);
-                    for (Triangle::iterator vit = (*tit)->begin(); vit != (*tit)->end(); ++vit)
-                        if (t->next(**vit) == (*tit)->next(**vit)) {
-                            (*tit)->flip();
-                            break;
-                        }
-                    tri_reoriented[*tit] = true;
-                }
+        center /= vertices().size();
+        const double solangle = solid_angle(center);
+        if (!almost_equal(solangle,-4*Pi)) {
+            if (almost_equal(solangle,0.0)) {
+                std::cout << "Center point :" << center << " is on the mesh." << std::endl;
+            } else if (almost_equal(solangle,4*Pi)) {
+                change_orientation();
+            } else {
+                std::cout << "Not a closed mesh." << std::endl;
+            }
         }
     }
 

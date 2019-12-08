@@ -36,8 +36,6 @@ parser.add_option(
 options, args = parser.parse_args()
 data_path = options.data_path
 
-
-###############################################################################
 # Load data
 
 subject = "Head1"
@@ -49,6 +47,7 @@ squidsFile = op.join(data_path, subject, subject + ".squids")
 patches_file = op.join(data_path, subject, subject + ".patches")
 
 geom = om.Geometry()
+# XXX : when trying to load a missing file it makes Python crash
 geom.read(geom_file, cond_file)
 
 mesh = om.Mesh()
@@ -63,14 +62,13 @@ sensors.load(squidsFile)
 patches = om.Sensors()
 patches.load(patches_file)
 
-###############################################################################
 # Compute forward problem (Build Gain Matrices)
 
 gauss_order = 3
 use_adaptive_integration = True
 dipole_in_cortex = True
 
-hm = om.HeadMat(geom, gauss_order)
+hm = om.HeadMat(geom,gauss_order)
 # hm.invert() # invert hm inplace (no copy)
 # hminv = hm
 hminv = hm.inverse()  # invert hm with a copy
@@ -161,7 +159,6 @@ print(
     % (est_eeg_adjoint.nlin(), est_eeg_adjoint.ncol())
 )
 
-###############################################################################
 # Example of basic manipulations
 
 # TODO: the same with numpy
@@ -195,8 +192,6 @@ m2.load(ssm_file)
 # print(m2(0, 0))
 # print(m2.nlin())
 # print(m2.ncol())
-
-###############################################################################
 
 # remove useless files
 os.remove(hm_file)

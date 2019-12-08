@@ -50,28 +50,35 @@ namespace OpenMEEG {
 
     /// \brief A class to read geometry and cond file
     class GeometryReader {
-        public:
-            GeometryReader(Geometry& g): geom(g) {};
+    public:
 
-            /// \brief read a geometry file
-            void read_geom(const std::string&);
+        typedef enum { UNKNOWN_VERSION=-1, VERSION10, VERSION11 } VersionId;
 
-            /// \brief read a cond file
-            void read_cond(const std::string&);
+        GeometryReader(Geometry& g): geom(g) {};
 
-        private:
-            Geometry& geom;
+        /// \brief read a geometry file
+        void read_geom(const std::string&);
 
-            /// \return true if name is a realtive path. \param name
-            bool is_relative_path(const std::string& name);
+        /// \brief read a cond file
+        void read_cond(const std::string&);
+
+        VersionId version() const { return version_id; }
+
+    private:
+
+        VersionId version_id;
+        Geometry& geom;
+
+        /// \return true if name is a realtive path. \param name
+        bool is_relative_path(const std::string& name);
         #if WIN32
-            static const char PathSeparator[];
+        static const char PathSeparator[];
         #else
-            static const char PathSeparator   = '/';
+        static const char PathSeparator   = '/';
         #endif
     };
     #if WIN32
-        const char GeometryReader::PathSeparator[] = "/\\";
+    const char GeometryReader::PathSeparator[] = "/\\";
     #endif
 
     bool GeometryReader::is_relative_path(const std::string& name) {
@@ -125,32 +132,33 @@ namespace OpenMEEG {
         unsigned version[2]; ///< version of the domain description
         ifs >> io_utils::match("# Domain Description ") >> version[0] >> io_utils::match(".") >> version[1];
 
-        if ( ifs.fail() ) {
+        if (ifs.fail())
             throw OpenMEEG::WrongFileFormat(geometry);
-        }
 
-        geom.version_id = Geometry::UNKNOWN_VERSION;
+        version_id = UNKNOWN_VERSION;
         if (version[0]==1) {
             if (version[1]==0) {
-                geom.version_id = Geometry::VERSION10;
+                version_id = VERSION10;
                 std::cerr << "(DEPRECATED) Please consider updating your geometry file to the new format 1.1 (see data/README.rst): "
                           << geometry << std::endl;
             }
             if (version[1]==1)
-                geom.version_id = Geometry::VERSION11;
+                version_id = VERSION11;
         }
 
-        if (geom.version_id==Geometry::UNKNOWN_VERSION) {
+        if (version_id==UNKNOWN_VERSION) {
              std::cerr << "Domain Description version not available !" << std::endl;
              throw OpenMEEG::WrongFileFormat(geometry);
         }
 
-        // extract the absolut path of geometry file
+        // Extract the absolut path of geometry file
+
         const std::string::size_type pos = geometry.find_last_of(this->PathSeparator);
         const std::string path = (pos == std::string::npos) ? "" : geometry.substr(0, pos+1);
 
-        // Process meshes. -----------------------------------------------------------------------------------
-        if (geom.version_id==Geometry::VERSION11) {
+        // Process meshes.
+
+        if (version_id==VERSION11) {
             // Read the mesh section of the description file.
             // Try to load the meshfile (VTK::vtp file)
             // or try to load the meshes
@@ -192,22 +200,25 @@ namespace OpenMEEG {
             }
         }
 
-        // Process interfaces. -----------------------------------------------------------------------------------
+        // Process interfaces.
+
         unsigned nb_interfaces;
         bool trash; // backward compatibility, catch "Mesh" optionnally.
         ifs >> io_utils::skip_comments('#')
             >> io_utils::match("Interfaces") >> nb_interfaces >> io_utils::match_optional("Mesh", trash);
 
-        if ( ifs.fail() ) {
+        if (ifs.fail())
             throw OpenMEEG::WrongFileFormat(geometry);
-        }
 
-        // load the interfaces
+        // Load interfaces
+
         std::string id; // id of mesh/interface/domain
         Interfaces interfaces;
-        // if meshes are not already loaded
-        if ( geom.nb_meshes() == 0 ) { // ---------------------------------------
-            geom.meshes_.reserve(nb_interfaces);
+
+        // If meshes are not already loaded
+
+        if (geom.meshes().size()==0) {
+            geom.meshes().reserve(nb_interfaces);
             std::vector<std::string> interfacename(nb_interfaces);
             std::vector<std::string> filename(nb_interfaces);
             std::vector<std::string> fullname(nb_interfaces);
@@ -215,7 +226,7 @@ namespace OpenMEEG {
             // First read the total number of vertices
 
             unsigned nb_vertices = 0;
-            for ( unsigned i = 0; i < nb_interfaces; ++i ) {
+            for (unsigned i=0; i<nb_interfaces; ++i) {
                 bool unnamed;
                 ifs >> io_utils::skip_comments("#") >> io_utils::match_optional("Interface:", unnamed);
                 if ( unnamed ) {
@@ -223,7 +234,7 @@ namespace OpenMEEG {
                     std::stringstream defaultname;
                     defaultname << i+1;
                     interfacename[i] = defaultname.str();
-                } else if (geom.version_id==Geometry::VERSION10) { // backward compatibility
+                } else if (version_id==VERSION10) { // backward compatibility
                     std::stringstream defaultname;
                     defaultname << i+1;
                     interfacename[i] = defaultname.str();
@@ -237,17 +248,19 @@ namespace OpenMEEG {
                 fullname[i] = (is_relative_path(filename[i]))?path+filename[i]:filename[i];
                 nb_vertices += m.load(fullname[i], false, false); 
             }
-            geom.vertices_.reserve(nb_vertices);
+            geom.vertices().reserve(nb_vertices);
+
             // Second really load the meshes
-            for ( unsigned i = 0; i < nb_interfaces; ++i ) {
-                geom.meshes_.push_back(Mesh(geom.vertices_, interfacename[i]));
-                geom.meshes_[i].load(fullname[i], false);
-                interfaces.push_back( Interface(interfacename[i]) );
-                interfaces[i].push_back(OrientedMesh(geom.meshes_[i], true)); // one mesh per interface, (well oriented)
+
+            for (unsigned i=0; i<nb_interfaces; ++i) {
+                geom.meshes().push_back(Mesh(geom.vertices(), interfacename[i]));
+                geom.meshes()[i].load(fullname[i], false);
+                interfaces.push_back(Interface(interfacename[i]));
+                interfaces[i].oriented_meshes().push_back(OrientedMesh(geom.meshes()[i])); // one mesh per interface, (well oriented)
             }
-        } else { // -----------------------
+        } else {
             std::string interfacename;
-            for ( unsigned i = 0; i < nb_interfaces; ++i ) {
+            for (unsigned i=0; i<nb_interfaces; ++i) {
                 bool unnamed;
                 std::string line; // extract a line and parse it
                 ifs >> io_utils::skip_comments("#");
@@ -262,145 +275,81 @@ namespace OpenMEEG {
                     iss >> io_utils::match("Interface")
                         >> io_utils::token(interfacename, ':');
                 }
-                interfaces.push_back( interfacename );
-                while ( iss >> id ) {
-                    bool oriented = true; // does the id starts with a '-' or a '+' ?
-                    if ( ( id[0] == '-' ) || ( id[0] == '+' ) ) {
-                        oriented = ( id[0] == '+' );
-                        id = id.substr(1, id.size());
+                interfaces.push_back(interfacename);
+                while (iss >> id) {
+                    OrientedMesh::Orientation oriented = OrientedMesh::Normal; // does the id starts with a '-' or a '+' ?
+                    if ((id[0]=='-') || (id[0]=='+')) {
+                        oriented = (id[0]=='+') ? OrientedMesh::Normal : OrientedMesh::Opposite;
+                        id = id.substr(1,id.size());
                     }
-                    interfaces[i].push_back(OrientedMesh(geom.mesh(id), oriented));
+                    interfaces[i].oriented_meshes().push_back(OrientedMesh(geom.mesh(id),oriented));
                 }
             }
         }
 
-        // Process domains. -----------------------------------------------------------------------------------
+        // Process domains.
 
         unsigned num_domains;
         ifs >> io_utils::skip_comments('#') >> io_utils::match("Domains") >> num_domains;
 
-        if ( ifs.fail() ) {
+        if (ifs.fail())
             throw OpenMEEG::WrongFileFormat(geometry);
-        }
 
-        geom.domains_.resize(num_domains);
-        for ( Domains::iterator dit = geom.domain_begin(); dit != geom.domain_end(); ++dit) {
+        geom.domains().resize(num_domains);
+        for (auto& domain : geom.domains()) {
             std::string line;
-            if (geom.version_id==Geometry::VERSION10) { // backward compatibility
-                ifs >> io_utils::skip_comments('#') >> io_utils::match("Domain") >> dit->name();
+            ifs >> io_utils::skip_comments('#') >> io_utils::match("Domain");
+            if (version_id==VERSION10) { // backward compatibility
+                ifs >> domain.name();
             } else {
-                ifs >> io_utils::skip_comments('#') >> io_utils::match("Domain") >> io_utils::token(dit->name(), ':');
+                ifs >> io_utils::token(domain.name(),':');
             }
-            getline(ifs, line);
+            getline(ifs,line);
             std::istringstream iss(line);
-            while ( iss >> id ) {
+            while (iss >> id) {
                 bool found = false;
-                bool inside = false; // does the id starts with a '-' or a '+' ?
-                if ( ( id[0] == '-' ) || ( id[0] == '+' ) ) {
-                    inside = ( id[0] == '-' );
-                    id = id.substr(1, id.size());
-                } else if ( id == "shared" ) {
+                SimpleDomain::Side side = SimpleDomain::Outside; // does the id starts with a '-' or a '+' ?
+                if ((id[0]=='-') || (id[0]=='+')) {
+                    side = (id[0]=='-') ? SimpleDomain::Inside : SimpleDomain::Outside;
+                    id = id.substr(1,id.size());
+                } else if (id=="shared") {
                     std::cerr << "(DEPRECATED) Keyword shared is useless. Please consider updating your geometry file to the new format 1.1 (see data/README.rst): " << geometry << std::endl;
                     break;                    
                 }
-                for ( Interfaces::iterator iit = interfaces.begin(); iit != interfaces.end() ; ++iit) {
-                    if ( iit->name() == id ) {
+                for (auto& omesh : interfaces)
+                    if (omesh.name()==id) {
                         found = true;
-                        if ( !iit->check() ) { // check and correct global orientation
-                            std::cerr << "Interface \"" << iit->name() << "\" is not closed !" << std::endl;
+                        if (!omesh.is_mesh_orientations_coherent()) { // check and correct global orientation
+                            std::cerr << "Interface \"" << omesh.name() << "\" is not closed !" << std::endl;
                             std::cerr << "Please correct a mesh orientation when defining the interface in the geometry file." << std::endl;
                             exit(1);
                         }
-                        dit->push_back(HalfSpace(*iit, inside));
+                        domain.boundaries().push_back(SimpleDomain(omesh,side));
                     }
-                }
-                if ( !found ) {
-                    throw OpenMEEG::NonExistingDomain<std::string>(dit->name(), id);
-                }
+
+                if (!found)
+                    throw OpenMEEG::NonExistingDomain<std::string>(domain.name(), id);
             }
         }
 
-        // Search for the outermost domain and set boolean OUTERMOST on the domain in the vector domains.
-        // An outermost domain is (here) defined as the only domain outside represented by only one interface.
-
-        Domains::iterator dit_out;
-        for ( Domains::iterator dit = geom.domain_begin(); dit != geom.domain_end(); ++dit) {
-            bool outer = true;
-            for ( Domain::iterator hit = dit->begin(); hit != dit->end(); ++hit)
-                outer = outer && !(hit->inside());
-
-            if (outer) {
-                dit_out = dit;
-                dit_out->outermost() = true;
-                for (Domain::iterator hit = dit_out->begin(); hit != dit_out->end(); ++hit) {
-                    hit->interface().set_to_outermost();
-                }
-                break;
-            }
-        }
-
-        // Determine if the geometry is nested or not
-        // The geometry is considered non nested if (at least) one domain is defined as being outside two or more interfaces
-        // OR
-        // if 2 interfaces are composed by a same mesh oriented once correctly once wrongly.
-
-        bool nested = true;
-        for ( Domains::const_iterator dit = geom.domain_begin(); dit != geom.domain_end(); ++dit) {
-            unsigned out_interface = 0;
-            if ( dit != dit_out ) {
-                for ( Domain::const_iterator hit = dit->begin(); hit != dit->end(); ++hit) {
-                    if ( !hit->inside() ) {
-                        out_interface++;
-                    }
-                }
-            }
-            if ( out_interface >= 2 ) {
-                nested = false;
-                break;
-            }
-        }
-
-        if ( nested ) {
-            for ( Geometry::const_iterator mit = geom.begin(); mit != geom.end(); ++mit) {
-                unsigned m_oriented = 0;
-                for ( Domains::const_iterator dit = geom.domain_begin(); dit != geom.domain_end(); ++dit) {
-                    for ( Domain::const_iterator hit = dit->begin(); hit != dit->end(); ++hit) {
-                        for ( Interface::const_iterator iit = hit->first.begin(); iit != hit->first.end(); ++iit) {
-                            if ( iit->mesh() == *mit ) {
-                                m_oriented += (iit->orientation());
-                            }
-                        }
-                    }
-                }
-                if ( m_oriented == 0 ) {
-                    nested = false; // TODO unless a mesh is defined but unused ...
-                    break;
-                }
-            }
-        }
-        geom.is_nested_ = nested;
-
-        if ( ifs.fail() ) {
+        if (ifs.fail())
             throw OpenMEEG::WrongFileFormat(geometry);
-        }
-
-        // Close the input file. -----------------------------------------------------------------------------------
-        ifs.close();
     }
 
     void GeometryReader::read_cond(const std::string& condFileName) {
 
-        typedef Utils::Properties::Named<std::string, Conductivity<double> > HeadProperties;
+        typedef Utils::Properties::Named<std::string,Conductivity<double>> HeadProperties;
         HeadProperties properties(condFileName.c_str());
 
         // Store the internal conductivity of the external boundary of domain i
         // and store the external conductivity of the internal boundary of domain i
-        for ( Domains::iterator dit = geom.domain_begin(); dit != geom.domain_end(); ++dit) {
+
+        for (auto& domain : geom.domains()) {
             try {
-                const Conductivity<double>& cond = properties.find(dit->name());
-                dit->sigma() =  cond.sigma();
-            } catch( const Utils::Properties::UnknownProperty<HeadProperties::Id>& e) {
-                throw OpenMEEG::BadDomain(dit->name());
+                const Conductivity<double>& cond = properties.find(domain.name());
+                domain.set_conductivity(cond.sigma());
+            } catch (const Utils::Properties::UnknownProperty<HeadProperties::Id>& e) {
+                throw OpenMEEG::BadDomain(domain.name());
             }
         }
     }

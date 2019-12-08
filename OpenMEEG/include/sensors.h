@@ -169,7 +169,6 @@ namespace OpenMEEG {
     inline Sensors::Sensors(const Strings &labels, const Matrix& positions, const Matrix& orientations, const Vector &weights, const Vector &radii) :
         m_nb(labels.size()), m_names(labels), m_positions(positions), m_orientations(orientations),m_weights(weights), m_radii(radii)
     {
-        std::cout << "const" << labels.size() << std::endl;
         m_pointSensorIdx = std::vector<size_t>(labels.size());
         for ( std::size_t i = 0; i < labels.size(); ++i) {
             m_pointSensorIdx[i] = getSensorIdx(m_names[i]);

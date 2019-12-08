@@ -45,6 +45,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #include <string>
 #include <cmath>
+#include <random>
 #include <iostream>
 #include <sstream>
 #include <algorithm>
@@ -64,92 +65,64 @@ knowledge of the CeCILL-B license and that you accept its terms.
 namespace OpenMEEG {
 
     #ifndef M_PI
-        #define M_PI 3.14159265358979323846
+        constexpr double Pi = 3.14159265358979323846;
+    #else
+        constexpr double Pi = M_PI;
     #endif
 
-    #define MU0 (4*M_PI*1e-7)
+    constexpr double MagFactor = 1e-7;
 
-    inline std::string getNameExtension ( const std::string& name )
-    {
-        std::string::size_type idx = name.find('.');
-        if (idx == std::string::npos) {
+    inline std::string getNameExtension(const std::string& name) {
+        const std::string::size_type idx = name.find('.');
+        if (idx==std::string::npos) {
             return std::string("");
-        } else if (name.substr(idx+1).find('.') != std::string::npos) {
-            return getNameExtension( name.substr(idx+1) );
+        } else if (name.substr(idx+1).find('.')!=std::string::npos) {
+            return getNameExtension(name.substr(idx+1));
         } else {
             return name.substr(idx+1);
         }
-    };
-
-    inline void init_random(int seed) {
-        static bool first=true;
-        if (seed==-1 && !first)
-            return;
-        first=false;
-        // srand((unsigned int)((seed==-1)?time(0):seed));
-        srand(0);
-        rand(); // the first is biased!
     }
 
-    inline double drandom()
-    {
-        init_random(-1);
-        return double(rand())/RAND_MAX;
-    }
-
-    inline double gaussian()
-    {
-        double x;
-        do
-            x=drandom();
-        while (x==0);
-        return (double)(sqrt(-2*log(x))*cos(2*M_PI*drandom()));
-    }
-
-    inline void disp_argv(int argc, char **argv) {
+    inline void disp_argv(const int argc,char **argv) {
         std::cout << std::endl << "| ------ " << argv[0] << std::endl;
-        for( int i = 1; i < argc; i += 1 )
-        {
+        for (int i=1;i<argc;++i)
             std::cout << "| " << argv[i] << std::endl;
-        }
         std::cout << "| -----------------------" << std::endl;
     }
 
 #ifdef USE_PROGRESSBAR
-    inline void progressbar(unsigned n, unsigned N, unsigned w = 20) {
+    inline void progressbar(const unsigned n,const unsigned N,const unsigned w=20) {
         // w : nb of steps
-        const char* cprog = ".";
-        const char* cprog1 = "*";
-        const char* cbeg = "[";
-        const char* cend = "]";
-        unsigned p = (unsigned)std::min( (unsigned)floor(1.f*n*(w+1)/N), w);
+        const char cprog  = '.';
+        const char cprog1 = '*';
+        const char cbeg   = '[';
+        const char cend   = ']';
+        const unsigned p = std::min(static_cast<unsigned>(floor(1.f*n*(w+1)/N)),w);
 
         static unsigned pprev = -1;
         if (N>1) {
-            if (n == 0) {
+            if (n==0)
                 pprev = -1;
-            }
 
-            if (p != pprev) {
+            if (p!=pprev) {
                 if (n>1) {
                     // clear previous string
-                    for(unsigned i = 0; i < (w+2); ++i)
-                        std::cout<< "\b";
+                    for (unsigned i=0;i<(w+2);++i)
+                        std::cout << "\b";
 
-                    std::cout<< cbeg;
-                    for(unsigned i = 0; i < p; ++i) {
-                        std::cout<< cprog1;
-                    }
-                    for(unsigned i = p; i < w; ++i) {
-                        std::cout<< cprog;
-                    }
+                    std::cout << cbeg;
+                    for (unsigned i=0;i<p;++i)
+                        std::cout << cprog1;
+
+                    for (unsigned i=p;i<w;++i)
+                        std::cout << cprog;
+
                     std::cout<< cend;
                 }
             }
             pprev = p;
-            if (n >= (N-1)) {
-                std::cout<<"\n";
-            }
+            if (n>=(N-1))
+                std::cout << std::endl;
             std::cout.flush();
         }
     }

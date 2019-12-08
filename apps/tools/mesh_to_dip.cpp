@@ -61,19 +61,17 @@ int main( int argc, char **argv)
 
     Mesh m(input_filename, false);
 
-    Matrix mat(m.nb_vertices(), 6);
+    Matrix mat(m.vertices().size(),6);
 
     unsigned i = 0;
-
-    for ( Mesh::const_vertex_iterator vit = m.vertex_begin(); vit != m.vertex_end(); ++vit, ++i)
-    {
-        mat(i, 0) = (*vit)->x();
-        mat(i, 1) = (*vit)->y();
-        mat(i, 2) = (*vit)->z();
-        Normal n = m.normal(**vit);
-        mat(i, 3) = n.x();
-        mat(i, 4) = n.y();
-        mat(i, 5) = n.z();
+    for (const auto& vertex : m.vertices()) {
+        mat(i,0) = vertex->x();
+        mat(i,1) = vertex->y();
+        mat(i,2) = vertex->z();
+        const Normal& n = m.normal(*vertex);
+        mat(i,3)   = n.x();
+        mat(i,4)   = n.y();
+        mat(i++,5) = n.z();
     }
 
     mat.save(output_filename);
