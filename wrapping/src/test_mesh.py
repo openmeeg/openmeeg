@@ -1,32 +1,35 @@
 #!/usr/bin/env python
 
-from os import path as path
-import openmeeg as om
-import numpy as np
 from optparse import OptionParser
+from os import path as path
+
+import numpy as np
+
+import openmeeg as om
 
 data_path = path.dirname(path.abspath(__file__))
 parser = OptionParser()
 parser.add_option("-p", "--path", dest="data_path",
-                  help="path to data folder", metavar="FILE", default=data_path)
+                  help="path to data folder", metavar="FILE",
+                  default=data_path)
 
 options, args = parser.parse_args()
 data_path = options.data_path
 
 
-def test_mesh(name, Vs, Ts, ExpectedResult):
+def test_mesh(name, vertices, triangles, expected_result):
     try:
-        mesh = om.Mesh(Vs, Ts)
+        mesh = om.Mesh(vertices, triangles)
         mesh.update()
         mesh.info()
     except:
-        if ExpectedResult:
+        if expected_result:
             print("Test", name, "--> Failed")
             assert False
         else:
             print("Test", name, "--> Expected failure")
         return
-    if not ExpectedResult:
+    if not expected_result:
         print("Test", name, "--> Unexpected success")
         assert False
     print("Test", name, "--> Expected success")
@@ -66,8 +69,8 @@ mesh_X.update()
 
 # test Y -> redo with np.array()
 V_Y = mesh_X.vertices()
-#T6 = mesh_6.triangles()
-#mesh_7 = om.Mesh(V6, T6)
+# T6 = mesh_6.triangles()
+# mesh_7 = om.Mesh(V6, T6)
 # mesh_7.info()
 
 # TODO

@@ -1,11 +1,11 @@
 #!/usr/bin/env python
+
+from optparse import OptionParser
+from os import path as op
+
 import numpy as np
 
 import openmeeg as om
-
-from os import path as op
-from optparse import OptionParser
-
 
 data_path = op.dirname(op.abspath(__file__))
 parser = OptionParser()

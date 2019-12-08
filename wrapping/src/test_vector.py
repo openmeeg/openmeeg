@@ -1,6 +1,5 @@
 #!/usr/bin/env python
-import sys
-import os
+
 import numpy as np
 
 import openmeeg as om

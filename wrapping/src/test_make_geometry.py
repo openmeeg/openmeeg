@@ -4,14 +4,16 @@
 # then execute it (python3 ./wrapping/src/test_make_geometry
 # path_to_data_directory)
 
-import openmeeg as om
 import os.path as op
 from optparse import OptionParser
+
+import openmeeg as om
 
 data_path = op.dirname(op.abspath(__file__))
 parser = OptionParser()
 parser.add_option("-p", "--path", dest="data_path",
-                  help="path to data folder", metavar="FILE", default=data_path)
+                  help="path to data folder", metavar="FILE",
+                  default=data_path)
 
 options, args = parser.parse_args()
 data_path = options.data_path

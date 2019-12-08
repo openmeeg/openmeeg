@@ -1,18 +1,19 @@
 #!/usr/bin/env python
 
-import openmeeg as om
 import numpy as np
 
-Vertices  = np.array([[0.0,0.0,0.0],[1.0,0.0,0.0],
-                     [1.0,1.0,0.0],[0.0,1.0,0.0]])
-Triangles = np.array([[1,2,3],[2,3,0]])
+import openmeeg as om
 
-mesh = om.Mesh(Vertices,Triangles)
+vertices = np.array([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0],
+                     [1.0, 1.0, 0.0], [0.0, 1.0, 0.0]])
+triangles = np.array([[1, 2, 3], [2, 3, 0]])
 
-g = om.Geometry( )
+mesh = om.Mesh(vertices, triangles)
 
-assert g.check(mesh)==True
+g = om.Geometry()
+
+assert g.check(mesh)
 
 g.import_meshes([mesh])
 
-assert g.check(mesh)==False
+assert not g.check(mesh)
