@@ -67,21 +67,14 @@ int main( int argc, char **argv) {
 
     geo.load_vtp(input);
 
-    std::string::size_type idx;
-    std::string extension;
-    std::string output_string(output);
+    const std::string output_string(output);
 
-    idx = output_string.rfind('.');
+    const std::string::size_type idx = output_string.rfind('.');
+    const std::string& extension = (idx!=std::string::npos) ? output_string.substr(idx+1) : std::string("");
+    const std::string& basename = output_string.substr(0,idx);
 
-    if ( idx != std::string::npos ) {
-        extension = output_string.substr(idx+1);
-    } else {
-        extension = "";
-    }
-
-    for ( Geometry::const_iterator mit = geo.begin(); mit != geo.end(); mit++) {
-        mit->save(output_string.substr(0, idx) + mit->name() + '.' + extension);
-    }
+    for (const auto& mesh : geo.meshes())
+        mesh.save(basename+mesh.name()+'.'+extension);
 
     return 0;
 }

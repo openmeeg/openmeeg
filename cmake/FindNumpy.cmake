@@ -38,15 +38,15 @@
 #
 #============================================================================
 
-message("***** Entering FindNumpy")
 # Finding NumPy involves calling the Python interpreter
-if(Numpy_FIND_REQUIRED)
+
+if (Numpy_FIND_REQUIRED)
     find_package(PythonInterp REQUIRED)
 else()
     find_package(PythonInterp)
 endif()
 
-if(NOT PYTHONINTERP_FOUND)
+if (NOT PYTHONINTERP_FOUND)
     set(NUMPY_FOUND FALSE)
     return()
 endif()
@@ -60,24 +60,26 @@ execute_process(COMMAND "${PYTHON_EXECUTABLE}" "-c"
 
 #message("FindNumpy: ${_NUMPY_SEARCH_SUCCESS} / ${PYTHON_EXECUTABLE} / ${Numpy_FIND_REQUIRED}")
 
-if(NOT _NUMPY_SEARCH_SUCCESS MATCHES 0)
-    if(Numpy_FIND_REQUIRED)
-        message(FATAL_ERROR
-            "NumPy import failure:\n${_NUMPY_ERROR_VALUE}")
+if (NOT _NUMPY_SEARCH_SUCCESS MATCHES 0)
+    if (Numpy_FIND_REQUIRED)
+        message(FATAL_ERROR "NumPy import failure:\n${_NUMPY_ERROR_VALUE}")
     endif()
     set(NUMPY_FOUND FALSE)
     return()
 endif()
 
 # Convert the process output into a list
+
 string(REGEX REPLACE ";" "\\\\;" _NUMPY_VALUES ${_NUMPY_VALUES_OUTPUT})
 string(REGEX REPLACE "\n" ";" _NUMPY_VALUES ${_NUMPY_VALUES})
+
 # Just in case there is unexpected output from the Python command.
+
 list(GET _NUMPY_VALUES -2 NUMPY_VERSION)
 list(GET _NUMPY_VALUES -1 NUMPY_INCLUDE_DIRS)
 
 string(REGEX MATCH "^[0-9]+\\.[0-9]+\\.[0-9]+" _VER_CHECK "${NUMPY_VERSION}")
-if("${_VER_CHECK}" STREQUAL "")
+if ("${_VER_CHECK}" STREQUAL "")
     # The output from Python was unexpected. Raise an error always
     # here, because we found NumPy, but it appears to be corrupted somehow.
     message(FATAL_ERROR
@@ -86,9 +88,11 @@ if("${_VER_CHECK}" STREQUAL "")
 endif()
 
 # Make sure all directory separators are '/'
+
 string(REGEX REPLACE "\\\\" "/" NUMPY_INCLUDE_DIRS ${NUMPY_INCLUDE_DIRS})
 
 # Get the major and minor version numbers
+
 string(REGEX REPLACE "\\." ";" _NUMPY_VERSION_LIST ${NUMPY_VERSION})
 list(GET _NUMPY_VERSION_LIST 0 NUMPY_VERSION_MAJOR)
 list(GET _NUMPY_VERSION_LIST 1 NUMPY_VERSION_MINOR)

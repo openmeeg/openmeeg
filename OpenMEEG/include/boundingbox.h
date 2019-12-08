@@ -1,7 +1,7 @@
 /*
 Project Name : OpenMEEG
 
-© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre 
+© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre
 GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU, Théodore PAPADOPOULO,
 Emmanuel OLIVI
 Maureen.Clerc.AT.inria.fr, keriven.AT.certis.enpc.fr,
@@ -37,31 +37,54 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#define _USE_MATH_DEFINES
-#include <cmath>
+#pragma once
 
-#include <operators.h>
-#include <om_utils.h>
+#include <random>
+
+#include <vertex.h>
 
 namespace OpenMEEG {
 
-    // geom = geometry
-    // mat  = storage for Ferguson Matrix
-    // pts  = where the magnetic field is to be computed
+    /// An Oriented Mesh is a mesh associated with a boolean stating if it is well oriented.
 
-    void assemble_ferguson(const Geometry& geom,Matrix& mat,const Matrix& pts) {
+    class BoundingBox {
+    public:
 
-        // Computation of blocks of Ferguson's Matrix
+        BoundingBox() { }
 
-        unsigned progress = 0;
-        for (const auto& mesh : geom.meshes()) {
-            const unsigned n = pts.nlin();
-            const double coeff = MagFactor*geom.conductivity_difference(mesh);
-            for (unsigned i=0,offsetI=0; i<n; ++i,offsetI+=3,++progress) {
-                PROGRESSBAR(progress,geom.meshes().size()*n);
-                const Vect3 p(pts(i,0),pts(i,1),pts(i,2));
-                operatorFerguson(p,mesh,mat,offsetI,coeff);
-            }
+        void add(const Vertex& V) {
+            xmin = std::min(xmin,V.x());
+            ymin = std::min(ymin,V.y());
+            zmin = std::min(zmin,V.z());
+            xmax = std::max(xmax,V.x());
+            ymax = std::max(ymax,V.y());
+            zmax = std::max(zmax,V.z());
         }
-    }
+
+        void add(const Vertex* Vp) { add(*Vp); }
+
+        Vertex random_point() const {
+            std::random_device rd;
+            std::mt19937 gen(rd());
+            std::uniform_real_distribution<> disx(xmin,xmax);
+            std::uniform_real_distribution<> disy(ymin,ymax);
+            std::uniform_real_distribution<> disz(zmin,zmax);
+            return Vertex(disx(gen),disy(gen),disz(gen));
+        }
+
+        Vertex min() const { return Vertex(xmin,ymin,zmin); }
+        Vertex max() const { return Vertex(xmax,ymax,zmax); }
+
+        Vertex center() const { return 0.5*(min()+max()); }
+
+    private:
+
+        double xmin =  std::numeric_limits<double>::max();
+        double ymin =  std::numeric_limits<double>::max();
+        double zmin =  std::numeric_limits<double>::max();
+        double xmax = -std::numeric_limits<double>::max();
+        double ymax = -std::numeric_limits<double>::max();
+        double zmax = -std::numeric_limits<double>::max();
+
+    };
 }

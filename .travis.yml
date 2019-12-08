@@ -212,6 +212,7 @@ script:
   - cmake .. ${CMAKE_OPTIONS}
   - make -j ${JOBS}
   - CTEST_OUTPUT_ON_FAILURE=1 ctest .
+  - cat Testing/Temporary/LastTest.log
   - |
     if [[ "${BUILD_PACKAGE}" == "ON" ]]; then
       cpack -G TGZ .

@@ -1,7 +1,7 @@
 /*
 Project Name : OpenMEEG
 
-© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre 
+© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre
 GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU, Théodore PAPADOPOULO,
 Emmanuel OLIVI
 Maureen.Clerc.AT.inria.fr, keriven.AT.certis.enpc.fr,
@@ -37,31 +37,28 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#define _USE_MATH_DEFINES
-#include <cmath>
+#pragma once
 
-#include <operators.h>
-#include <om_utils.h>
+#include "matrix.h"
+#include "sparse_matrix.h"
 
 namespace OpenMEEG {
 
-    // geom = geometry
-    // mat  = storage for Ferguson Matrix
-    // pts  = where the magnetic field is to be computed
+    inline Matrix
+    nullspace_projector(const Matrix& M) {
+        const size_t Nl = M.nlin();
+        const size_t Nc = M.ncol();
 
-    void assemble_ferguson(const Geometry& geom,Matrix& mat,const Matrix& pts) {
+        Matrix U,V;
+        SparseMatrix D;
+        M.svd(U,D,V);
 
-        // Computation of blocks of Ferguson's Matrix
+        // Set S to 0 everywhere, except in the last part of the diag:
 
-        unsigned progress = 0;
-        for (const auto& mesh : geom.meshes()) {
-            const unsigned n = pts.nlin();
-            const double coeff = MagFactor*geom.conductivity_difference(mesh);
-            for (unsigned i=0,offsetI=0; i<n; ++i,offsetI+=3,++progress) {
-                PROGRESSBAR(progress,geom.meshes().size()*n);
-                const Vect3 p(pts(i,0),pts(i,1),pts(i,2));
-                operatorFerguson(p,mesh,mat,offsetI,coeff);
-            }
-        }
+        SparseMatrix S(Nc,Nc);
+        for (unsigned i=Nl;i<Nc;++i)
+            S(i,i) = 1.0;
+
+        return (V.transpose()*S)*V; // P is a projector: P^2 = P and mat*P*X = 0
     }
 }

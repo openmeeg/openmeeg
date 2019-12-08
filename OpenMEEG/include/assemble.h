@@ -49,87 +49,90 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 namespace OpenMEEG {
 
-    class OPENMEEG_EXPORT HeadMat: public virtual SymMatrix {
+    class OPENMEEG_EXPORT HeadMat: public SymMatrix {
     public:
-        HeadMat (const Geometry& geo, const unsigned gauss_order=3);
-        virtual ~HeadMat () {};
+        HeadMat(const Geometry& geo,const unsigned gauss_order=3);
+        virtual ~HeadMat() { };
     };
 
-    class OPENMEEG_EXPORT SurfSourceMat: public virtual Matrix {
+    class OPENMEEG_EXPORT SurfSourceMat: public Matrix {
     public:
-        SurfSourceMat (const Geometry& geo, Mesh& sources, const unsigned gauss_order=3);
-        virtual ~SurfSourceMat () {};
+        SurfSourceMat(const Geometry& geo,Mesh& sources,const unsigned gauss_order=3);
+        virtual ~SurfSourceMat() { };
     };
 
-    class OPENMEEG_EXPORT DipSourceMat: public virtual Matrix {
+    class OPENMEEG_EXPORT DipSourceMat: public Matrix {
     public:
-        DipSourceMat (const Geometry& geo, const Matrix& dipoles, const unsigned gauss_order=3,
-                      const bool adapt_rhs = true, const std::string& domain_name = "");
-        virtual ~DipSourceMat () {};
+        DipSourceMat(const Geometry& geo,const Matrix& dipoles,const unsigned gauss_order=3,
+                     const bool adapt_rhs=true,const std::string& domain_name="");
+        virtual ~DipSourceMat() { };
     };
 
-    class OPENMEEG_EXPORT EITSourceMat: public virtual Matrix {
+    class OPENMEEG_EXPORT EITSourceMat: public Matrix {
     public:
-        EITSourceMat(const Geometry& geo, const Sensors& electrodes, const unsigned gauss_order=3);
-        virtual ~EITSourceMat () {};
+        EITSourceMat(const Geometry& geo,const Sensors& electrodes,const unsigned gauss_order=3);
+        virtual ~EITSourceMat() { }
     };
 
-    class OPENMEEG_EXPORT Surf2VolMat: public virtual Matrix {
+    class OPENMEEG_EXPORT Surf2VolMat: public Matrix {
     public:
         using Matrix::operator=;
-        Surf2VolMat(const Geometry& geo, const Matrix& points);
-        virtual ~Surf2VolMat () {};
+        Surf2VolMat(const Geometry& geo,const Matrix& points);
+        virtual ~Surf2VolMat() { }
     };
 
-    class OPENMEEG_EXPORT Head2EEGMat: public virtual SparseMatrix {
+    class OPENMEEG_EXPORT Head2EEGMat: public SparseMatrix {
     public:
-        Head2EEGMat (const Geometry& geo, const Sensors& electrodes);
-        virtual ~Head2EEGMat () {};
+        Head2EEGMat(const Geometry& geo,const Sensors& electrodes);
+        virtual ~Head2EEGMat() { }
     };
 
-    class OPENMEEG_EXPORT Head2ECoGMat: public virtual SparseMatrix {
+    class OPENMEEG_EXPORT Head2ECoGMat: public SparseMatrix {
     public:
-        Head2ECoGMat (const Geometry& geo, const Sensors& electrodes, const Interface& i);
-        Head2ECoGMat (const Geometry& geo, const Sensors& electrodes, const std::string& id); // mainly for SWIG
-        virtual ~Head2ECoGMat () {};
+        Head2ECoGMat(const Geometry& geo,const Sensors& electrodes,const Interface& i);
+        // Mainly for SWIG
+        Head2ECoGMat(const Geometry& geo,const Sensors& electrodes,const std::string& id):
+            Head2ECoGMat(geo,electrodes,geo.interface(id)) { }
+
+        virtual ~Head2ECoGMat() { }
     };
 
-    class OPENMEEG_EXPORT Head2MEGMat: public virtual Matrix {
+    class OPENMEEG_EXPORT Head2MEGMat: public Matrix {
     public:
-        Head2MEGMat (const Geometry& geo, const Sensors& sensors);
-        virtual ~Head2MEGMat () {};
+        Head2MEGMat(const Geometry& geo,const Sensors& sensors);
+        virtual ~Head2MEGMat() { }
     };
 
-    class OPENMEEG_EXPORT SurfSource2MEGMat: public virtual Matrix {
+    class OPENMEEG_EXPORT SurfSource2MEGMat: public Matrix {
     public:
-        SurfSource2MEGMat (const Mesh& sources, const Sensors& sensors);
-        virtual ~SurfSource2MEGMat () {};
+        SurfSource2MEGMat(const Mesh& sources,const Sensors& sensors);
+        virtual ~SurfSource2MEGMat() { }
     };
 
-    class OPENMEEG_EXPORT DipSource2MEGMat: public virtual Matrix {
+    class OPENMEEG_EXPORT DipSource2MEGMat: public Matrix {
     public:
-        DipSource2MEGMat(const Matrix& dipoles, const Sensors& sensors);
-        virtual ~DipSource2MEGMat () {};
+        DipSource2MEGMat(const Matrix& dipoles,const Sensors& sensors);
+        virtual ~DipSource2MEGMat() { }
     };
 
-    class OPENMEEG_EXPORT DipSource2InternalPotMat: public virtual Matrix {
+    class OPENMEEG_EXPORT DipSource2InternalPotMat: public Matrix {
     public:
-        DipSource2InternalPotMat(const Geometry& geo, const Matrix& dipoles,
-                                 const Matrix& points, const std::string& domain_name = "");
-        virtual ~DipSource2InternalPotMat () {};
+        DipSource2InternalPotMat(const Geometry& geo,const Matrix& dipoles,
+                                 const Matrix& points,const std::string& domain_name = "");
+        virtual ~DipSource2InternalPotMat() { }
     };
 
-    class OPENMEEG_EXPORT CorticalMat: public virtual Matrix {
+    class OPENMEEG_EXPORT CorticalMat: public Matrix {
     public:
-        CorticalMat (const Geometry& geo, const Head2EEGMat& M, const std::string& domain_name = "CORTEX",
-                const unsigned gauss_order=3, double alpha=-1., double beta=-1., const std::string &filename="");
-        virtual ~CorticalMat () {};
+        CorticalMat(const Geometry& geo,const Head2EEGMat& M,const std::string& domain_name="CORTEX",
+                const unsigned gauss_order=3,double alpha=-1.,double beta=-1.,const std::string &filename="");
+        virtual ~CorticalMat() { }
     };
 
-    class OPENMEEG_EXPORT CorticalMat2: public virtual Matrix {
+    class OPENMEEG_EXPORT CorticalMat2: public Matrix {
     public:
-        CorticalMat2(const Geometry& geo, const Head2EEGMat& M, const std::string& domain_name = "CORTEX",
-                const unsigned gauss_order=3, double gamma=1., const std::string &filename="");
-        virtual ~CorticalMat2() {};
+        CorticalMat2(const Geometry& geo,const Head2EEGMat& M,const std::string& domain_name="CORTEX",
+                const unsigned gauss_order=3,double gamma=1.,const std::string &filename="");
+        virtual ~CorticalMat2() { }
     };
 }

@@ -14,6 +14,7 @@ print("V1 =", V1, V1.info(), "\n")
 
 W1 = V1.array()
 print("W1 =", W1)
+np.testing.assert_equal(W1, 2 * np.ones(3))
 
 # np.array -> om.Vector
 W2 = np.array([1.0, 2.0, 3.0])

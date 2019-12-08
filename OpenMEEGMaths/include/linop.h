@@ -125,9 +125,7 @@ namespace OpenMEEG {
         typedef SharedPtr<double[]> base;
 
         LinOpValue(): base(0) { }
-
         LinOpValue(const size_t n): base(new double[n]) { }
-
         LinOpValue(const size_t n,const double* initval): LinOpValue(n) { std::copy(initval,initval+n,&(*this)[0]); }
         LinOpValue(const size_t n,const LinOpValue& v):   LinOpValue(n,&(v[0])) { }
 
