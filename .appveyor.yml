@@ -9,12 +9,12 @@ configuration:
   - Release
 
 image:
-  - Visual Studio 2015
-  # - Visual Studio 2017
+  - Visual Studio 2017
+  #- Visual Studio 2015
 
 cache:
-  - C:\cmake-3.10.1-win64-x64
-  - C:\w_mkl_2018.0.124.exe
+  - C:\cmake-3.16.0-win64-x64
+  - C:\w_mkl_2019.5.281.exe
 
 environment:
   global:
@@ -64,23 +64,23 @@ install:
   # Install CMake
   ############################################################################
   - ps: |
-      if (![IO.File]::Exists("C:\cmake-3.10.1-win64-x64\bin\cmake.exe")) {
-        Start-FileDownload 'https://cmake.org/files/v3.10/cmake-3.10.1-win64-x64.zip'
-        7z x -y cmake-3.10.1-win64-x64.zip -oC:\
+      if (![IO.File]::Exists("C:\cmake-3.16.0-win64-x64\bin\cmake.exe")) {
+        Start-FileDownload 'https://github.com/Kitware/CMake/releases/download/v3.16.0/cmake-3.16.0-win64-x64.zip'
+        7z x -y cmake-3.16.0-win64-x64.zip -oC:\
       }
-      $env:PATH="C:\cmake-3.10.1-win64-x64\bin;$env:PATH"
+      $env:PATH="C:\cmake-3.16.0-win64-x64\bin;$env:PATH"
 
   ############################################################################
   # Install MKL
   ############################################################################
   - ps: |
-      if (![IO.File]::Exists("C:\w_mkl_2018.0.124.exe")) {
-        ECHO 'w_mkl_2018.0.124.exe does not exist. Preparing to download MKL ..'
-        Start-FileDownload 'http://registrationcenter-download.intel.com/akdlm/irc_nas/tec/12079/w_mkl_2018.0.124.exe' -FileName 'C:\w_mkl_2018.0.124.exe'
+      if (![IO.File]::Exists("C:\w_mkl_2019.5.281.exe")) {
+        ECHO 'w_mkl_2019.5.281.exe does not exist. Preparing to download MKL ..'
+        Start-FileDownload 'http://registrationcenter-download.intel.com/akdlm/irc_nas/tec/15806/w_mkl_2019.5.281.exe' -FileName 'C:\w_mkl_2019.5.281.exe'
         ECHO 'Done'
       }
-      C:\w_mkl_2018.0.124.exe -s -l c:\logs\extract-mkl.log -a install --eula=accept --components=all --output='C:\logs\install-mkl-output.txt' --installdir='C:\Program Files (x86)\IntelSWTools' --log='c:\logs\install-mkl.log' | Out-Null
-      $env:LD_MKL_PATH='C:\Program Files (x86)\IntelSWTools\compilers_and_libraries_2018.0.124\windows\mkl\lib\intel64_win\'
+      C:\w_mkl_2019.5.281.exe -s -l c:\logs\extract-mkl.log -a install --eula=accept --components=all --output='C:\logs\install-mkl-output.txt' --installdir='C:\Program Files (x86)\IntelSWTools' --log='c:\logs\install-mkl.log' | Out-Null
+      $env:LD_MKL_PATH='C:\Program Files (x86)\IntelSWTools\compilers_and_libraries_2019.5.281\windows\mkl\lib\intel64_win\'
       $env:LIB="$env:LD_MKL_PATH;$env:LIB"
 
   ############################################################################
@@ -93,12 +93,12 @@ install:
   # force to pick zlibstatic in order to create proper wheels
   
 before_build:
-  - call "C:\Program Files (x86)\IntelSWTools\compilers_and_libraries_2018.0.124\windows\bin\compilervars_arch.bat" intel64 vs2015
-  - call "C:\Program Files (x86)\IntelSWTools\compilers_and_libraries_2018.0.124\windows\mkl\bin\mklvars.bat" intel64
+  - call "C:\Program Files (x86)\IntelSWTools\compilers_and_libraries_2019.5.281\windows\bin\compilervars_arch.bat" intel64 vs2017
+  - call "C:\Program Files (x86)\IntelSWTools\compilers_and_libraries_2019.5.281\windows\mkl\bin\mklvars.bat" intel64
   - "ECHO %MKLROOT%"
   - cd %APPVEYOR_BUILD_FOLDER%
   - "ECHO %BLAS_VERSION%"
-  - "ECHO 'cmake -DBLA_STATIC=%BUILD_STATIC% -DBLA_VENDOR=%BLAS_VERSION% -G \"Visual Studio 14 2015 Win64\" .. '"
+  - "ECHO 'cmake -DBLA_STATIC=%BUILD_STATIC% -DBLA_VENDOR=%BLAS_VERSION% -G \"Visual Studio 15 2017 Win64\" .. '"
   - cmake --version
   - "ECHO 'MKLROOT is %MKLROOT%'"
   - ps: |
@@ -113,7 +113,7 @@ before_build:
           -DBLA_STATIC=%BUILD_STATIC%            ^
           -DBLA_VENDOR=%BLAS_VERSION%            ^
           -DVCOMP_WORKAROUND=ON                  ^
-          -G "Visual Studio 14 2015 Win64" ..
+          -G "Visual Studio 15 2017 Win64" ..
   - appveyor PushArtifact C:\projects\openmeeg\build\cmake_install.cmake
 
 build_script:
@@ -140,7 +140,7 @@ test_script:
   - appveyor PushArtifact C:\projects\depends-omassemble.txt
 
   # Test
-  - call "C:\Program Files (x86)\IntelSWTools\compilers_and_libraries_2018.0.124\windows\mkl\bin\mklvars.bat" intel64
+  - call "C:\Program Files (x86)\IntelSWTools\compilers_and_libraries_2019.5.281\windows\mkl\bin\mklvars.bat" intel64
   - cmd: ctest --build-config %CONFIGURATION% -v .
 
 on_success:

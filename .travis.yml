@@ -60,6 +60,7 @@ matrix:
             - cmake
             - hdf5
             - libmatio
+            - boost
 
     - name: openblas, vtk, full dep using brew
       os: osx
@@ -77,6 +78,7 @@ matrix:
             - gcc
             - hdf5
             - libmatio
+            - boost
             - openblas
             - vtk
             - numpy
@@ -96,6 +98,7 @@ matrix:
             - gcc
             - hdf5
             - libmatio
+            - boost
 
 before_install:
   - eval "${MATRIX_EVAL}"
@@ -106,12 +109,14 @@ before_install:
   ############################################################################
   # Handle caching of downloaded files
   ############################################################################
+
   - export DL_DIR=$HOME/downloads
   - curl -fsSkL https://raw.githubusercontent.com/openmeeg/ci-utils/master/travis/travis_tools.sh > x.sh && source ./x.sh
 
   ############################################################################
   # Install MKL (if necessary)
   ############################################################################
+
   - |
     if [[ "${BACKEND}" == *"Intel"* ]]; then
       curl -fsSkL https://raw.githubusercontent.com/openmeeg/ci-utils/master/travis/install_mkl.sh > install_mkl.sh && source ./install_mkl.sh
@@ -120,6 +125,7 @@ before_install:
   ############################################################################
   # Install Matio (using conda for shipping in Linux)
   ############################################################################
+
   - |
     if [[ "${TRAVIS_OS_NAME}" == "linux" && "${BUILD_PACKAGE}" == "ON" ]]; then
         git clone https://github.com/astropy/ci-helpers.git;
@@ -130,6 +136,7 @@ before_install:
   ############################################################################
   # Install scan-build clang analyser
   ############################################################################
+
   - |
     export SCAN_BUILD=""
     if [[ "${ANALYSE}" == "ON" ]]; then
@@ -152,16 +159,18 @@ before_install:
   ############################################################################
   # Install brew llvm
   ############################################################################
+
   - |
     if [[ "${USE_BREW_LLVM}" == "ON" ]]; then
         brew install llvm;
+        BREW_PREFIX=$(brew --prefix)
         export OMP_NUM_THREADS=4;
-        export LDFLAGS="-L/usr/local/opt/llvm/lib -Wl,-rpath,/usr/local/opt/llvm/lib";
-        export DYLD_LIBRARY_PATH="/usr/local/opt/llvm/lib:$DYLD_LIBRARY_PATH";
-        export CC="/usr/local/opt/llvm/bin/clang";
-        export CXX="/usr/local/opt/llvm/bin/clang++";
-        export CPPFLAGS="-I/usr/local/opt/llvm/include $CPPFLAGS";
-        export CFLAGS="-I/usr/local/opt/llvm/include $CFLAGS";
+        export LDFLAGS="-L${BREW_PREFIX}/opt/llvm/lib -Wl,-rpath,/usr/local/opt/llvm/lib";
+        export DYLD_LIBRARY_PATH="${BREW_PREFIX}/opt/llvm/lib:$DYLD_LIBRARY_PATH";
+        export CC="${BREW_PREFIX}/opt/llvm/bin/clang";
+        export CXX="${BREW_PREFIX}/opt/llvm/bin/clang++";
+        export CPPFLAGS="-I${BREW_PREFIX}/opt/llvm/include $CPPFLAGS";
+        export CFLAGS="-I${BREW_PREFIX}/opt/llvm/include $CFLAGS";
     fi
 
 script:
