@@ -241,8 +241,6 @@ after_success:
       MESSAGE="[av skip] Push from openmeeg $(date)"
       git clone git://${GH_REPO}
       cd ${REPO}
-      # git config user.email ${EMAIL}
-      # git config user.name ${USER}
       git config user.email "openmeeg@openmeeg.org"
       git config user.name "openmeeg"
       function gitpush() {
