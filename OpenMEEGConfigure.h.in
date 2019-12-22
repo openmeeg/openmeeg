@@ -16,10 +16,10 @@ static const char version[] = "@OpenMEEG_VERSION@";
 
     #if _OPENMP>=201811 || __GNUC__>=9
         #define OPENMP_RANGEFOR
-        #define OPENMP_ITERATOR
+        // #define OPENMP_ITERATOR
         #define OPENMP_UNSIGNED
     #elif _OPENMP>=200805
-        #define OPENMP_ITERATOR
+        // #define OPENMP_ITERATOR
         #define OPENMP_UNSIGNED
     #else
         #define OPENMP_INT
