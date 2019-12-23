@@ -26,7 +26,7 @@ endif()
 
 # OpenMP
 if (OPENMP_FOUND)
-    target_compile_definitions(OpenMEEG PUBLIC USE_OMP)
+    target_compile_definitions(OpenMEEG PUBLIC ${OPENMP_DEFINITIONS})
     target_link_libraries(OpenMEEG PUBLIC OpenMP::OpenMP_CXX)
 else()
     message("OpenMP library not found. Use a compiler with OpenMP support for optimized running time." )

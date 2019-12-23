@@ -11,17 +11,6 @@ static const char version[] = "@OpenMEEG_VERSION@";
     //  201511 -> OpenMP 4.5
     //  201811 -> OpenMP 5.0
 
-    #if _OPENMP>=201811 || __GNUC__>=9
-        #define OPENMP_RANGEFOR
-        #define OPENMP_ITERATOR
-        #define OPENMP_UNSIGNED
-    #elif _OPENMP>=200805
-        #define OPENMP_ITERATOR
-        #define OPENMP_UNSIGNED
-    #else
-        #define OPENMP_INT
-    #endif
-
     #define STATIC_OMP
 #else
     #define STATIC_OMP static
