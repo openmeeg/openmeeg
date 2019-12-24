@@ -257,17 +257,18 @@ namespace OpenMEEG {
                 for (const auto& triangle1 : m1.triangles()) {
                     PROGRESSBAR(i++,m1.triangles().size());
                     const unsigned ind1 = triangle1.index()-m1.triangles().front().index();
+                    const Triangles& m2_triangles = m2.triangles();
                     #pragma omp parallel for
                     #if defined NO_OPENMP || defined OPENMP_RANGEFOR
-                    for (const auto& triangle2 : m2.triangles()) {
+                    for (const auto& triangle2 : m2_triangles) {
                     #elif defined OPENMP_ITERATOR
-                    for (Triangles::const_iterator tit2=m2.triangles().begin();tit2<m2.triangles().end();++tit2) {
+                    for (Triangles::const_iterator tit2=m2_triangles.begin();tit2<m2_triangles.end();++tit2) {
                         const Triangle& triangle2 = *tit2;
                     #else
-                    for (int i2=0;i2<m2.triangles().size();++i2) {
-                        const Triangle& triangle2 = *(m2.triangles().begin()+i2);
+                    for (int i2=0;i2<m2_triangles.size();++i2) {
+                        const Triangle& triangle2 = *(m2_triangles.begin()+i2);
                     #endif
-                        const unsigned ind2 = triangle2.index()-m2.triangles().front().index();
+                        const unsigned ind2 = triangle2.index()-m2_triangles.front().index();
                         matS(ind1,ind2) = _operatorS(triangle1,triangle2,gauss_order)/(triangle1.area()*triangle2.area());
                     }
                 }
@@ -312,15 +313,16 @@ namespace OpenMEEG {
 
             for (const auto& triangle1 : m1.triangles()) {
                 PROGRESSBAR(i++,m1.triangles().size());
+                const Triangles& m2_triangles = m2.triangles();
                 #pragma omp parallel for
                 #if defined NO_OPENMP || defined OPENMP_RANGEFOR
-                for (const auto& triangle2 : m2.triangles()) {
+                for (const auto& triangle2 : m2_triangles) {
                 #elif defined OPENMP_ITERATOR
-                for (Triangles::const_iterator tit2=m2.triangles().begin();tit2<m2.triangles().end();++tit2) {
+                for (Triangles::const_iterator tit2=m2_triangles.begin();tit2<m2_triangles.end();++tit2) {
                     const Triangle& triangle2 = *tit2;
                 #else
-                for (int i2=0;i2<m2.triangles().size();++i2) {
-                    const Triangle& triangle2 = *(m2.triangles().begin()+i2);
+                for (int i2=0;i2<m2_triangles.size();++i2) {
+                    const Triangle& triangle2 = *(m2_triangles.begin()+i2);
                 #endif
                     mat(triangle1.index(),triangle2.index()) = _operatorS(triangle1,triangle2,gauss_order)*coeff;
                 }
@@ -342,17 +344,18 @@ namespace OpenMEEG {
         //
 
         unsigned i = 0; // for the PROGRESSBAR
+        const Triangles& m1_triangles = m1.triangles();
         #pragma omp parallel for
         #if defined NO_OPENMP || defined OPENMP_RANGEFOR
-        for (const auto& triangle1 : m1.triangles()) {
+        for (const auto& triangle1 : m1_triangles) {
         #elif defined OPENMP_ITERATOR
-        for (Triangles::const_iterator tit1=m1.triangles().begin();tit1<m1.triangles().end();++tit1) {
+        for (Triangles::const_iterator tit1=m1_triangles.begin();tit1<m1_triangles.end();++tit1) {
             const Triangle& triangle1 = *tit1;
         #else
-        for (int i1=0; i1 < m1.triangles().size(); ++i1) {
-            const Triangle& triangle1 = *(m1.triangles().begin()+i1);
+        for (int i1=0; i1 < m1_triangles.size(); ++i1) {
+            const Triangle& triangle1 = *(m1_triangles.begin()+i1);
         #endif
-            PROGRESSBAR(i++,m1.triangles().size());
+            PROGRESSBAR(i++,m1_triangles.size());
             for (const auto& triangle2 : m2.triangles())
                 _operatorD(triangle1,triangle2,mat,coeff,gauss_order);
         }
