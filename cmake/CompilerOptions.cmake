@@ -28,8 +28,6 @@ endif()
 
 find_package(OpenMP)
 if (OpenMP_FOUND)
-    # Does not work currently
-    #message("Found OpenMP support version ${OpenMP_CXX_VERSION}")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
     CHECK_CXX_OPENMP_SUPPORT()
     set(OPENMP_DEFINITIONS USE_OMP)
