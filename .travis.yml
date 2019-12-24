@@ -211,7 +211,7 @@ script:
   - echo "cmake .. ${CMAKE_OPTIONS}"
   - cmake .. ${CMAKE_OPTIONS}
   - cat CMakeFiles/CMakeOutput.log
-  - make -j ${JOBS}
+  - make -j ${JOBS} VERBOSE=1
   - CTEST_OUTPUT_ON_FAILURE=1 ctest .
   - |
     if [[ "${BUILD_PACKAGE}" == "ON" ]]; then
