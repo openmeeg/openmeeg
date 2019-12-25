@@ -134,7 +134,7 @@ namespace OpenMEEG {
         std::string&       name()       { return mesh_name; } ///< \return the mesh name
         const std::string& name() const { return mesh_name; } ///< \return the mesh name
 
-        void setName(const std::string& name) { mesh_name = name ; return ;  } ///< \setter for the mesh name
+        void setName(const std::string& name) { mesh_name = name ; return ;  } ///< setter for the mesh name
 
         const VectPVertex& vertices()     const { return vertices_;      } ///< \return the vector of pointers to the mesh vertices
               Vertices     all_vertices() const { return *all_vertices_; }

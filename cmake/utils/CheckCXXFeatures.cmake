@@ -3,11 +3,17 @@ mark_as_advanced(CHECK_CXX_FEATURE_PREFIX)
 
 macro(CHECK_CXX_FEATURE feature file message)
     if (NOT ${feature}_DONE)
+        set(flags)
+        foreach (flag ${ARGV3})
+            set(flags ${flags} -D${flag})
+        endforeach()
+        set(libs ${ARGV4})
         message(STATUS "Check whether the compiler ${message}")
         try_compile(RESULT ${CMAKE_BINARY_DIR}
             #${CMAKE_ROOT}/Modules/TestForSTDNamespace.cxx
             ${CMAKE_SOURCE_DIR}/cmake/utils/cxx_tests/${file}
-            COMPILE_DEFINITIONS "${CHECK_CXX_FEATURE_DEFINITIONS}"
+            COMPILE_DEFINITIONS "${CHECK_CXX_FEATURE_DEFINITIONS} ${flags}"
+            LINK_LIBRARIES "${CHECK_CXX_FEATURE_LINK_LIBRARIES} ${libs}"
             OUTPUT_VARIABLE OUTPUT)
 
         if (RESULT)
@@ -104,6 +110,12 @@ macro(CHECK_CXX_STANDARD_LIBRARY)
     CHECK_CXX_FEATURE(HAVE_STD                           have_std.cpp                      "supports ISO C++ standard library")
     CHECK_CXX_FEATURE(HAVE_STL                           have_stl.cpp                      "supports Standard Template Library")
     CHECK_CXX_FEATURE(HAVE_RUSAGE                        have_rusage.cpp                   "has getrusage() function")
+endmacro()
+
+macro(CHECK_CXX_OPENMP_SUPPORT)
+    CHECK_CXX_FEATURE(HAVE_OPENMP_RANGEFOR openmp_support.cpp  "has OpenMP support for range for loops" RANGEFOR ${OpenMP_LIBRRIES})
+    CHECK_CXX_FEATURE(HAVE_OPENMP_ITERATOR openmp_support.cpp  "has OpenMP support for iterator loops"  ITERATOR ${OpenMP_LIBRRIES})
+    CHECK_CXX_FEATURE(HAVE_OPENMP_UNSIGNED openmp_support.cpp  "has OpenMP support for unsigned loops"  ""       ${OpenMP_LIBRRIES})
 endmacro()
 
 macro(CHECK_ALL_CXX_FEATURES)
