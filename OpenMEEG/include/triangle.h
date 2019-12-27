@@ -141,5 +141,6 @@ namespace OpenMEEG {
         unsigned ind;          ///< Index of the triangle
     };
 
-    typedef std::vector<Triangle> Triangles;
+    typedef std::vector<Triangle>  Triangles;
+    typedef std::vector<Triangle*> TrianglePointers;
 }
