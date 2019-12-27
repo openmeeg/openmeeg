@@ -42,7 +42,10 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <algorithm>
 #include <ciso646>
 #include <iterator>     // std::distance
-#include <vector>       // std::vector
+#include <vector>
+#include <stack>
+
+#include <sparse_matrix.h>
 
 #include <danielsson.h>
 
@@ -258,7 +261,7 @@ namespace OpenMEEG {
                         if ( (t->center()-current_position).norm() < m_radii(idx) ) {
                             if (t->index() != current_nearest_triangle.index()) //don't push the nearest triangle twice
                                 triangles.push_back(*t);
-                            Interface::VectPTriangle t_adj = m_geo->interface(s_map).adjacent_triangles(*t);
+                            TrianglePointers t_adj = m_geo->interface(s_map).adjacent_triangles(*t);
                             if ( index_seen.insert(t_adj[0]->index()).second ) tri_stack.push(t_adj[0]);
                             if ( index_seen.insert(t_adj[1]->index()).second ) tri_stack.push(t_adj[1]);
                             if ( index_seen.insert(t_adj[2]->index()).second ) tri_stack.push(t_adj[2]);
@@ -268,9 +271,8 @@ namespace OpenMEEG {
                 // now set the weight as the ratio between the wanted sensor surface and the actual surface
                 // (should be close to 1)
                 double triangles_area = 0.;
-                for ( Triangles::const_iterator tit = triangles.begin(); tit != triangles.end(); ++tit) {
+                for ( Triangles::const_iterator tit = triangles.begin(); tit != triangles.end(); ++tit)
                     triangles_area += tit->area();
-                }
                 m_weights(idx) = Pi*sqr(m_radii(idx))/triangles_area;
             }
             m_triangles.push_back(triangles);
@@ -283,17 +285,15 @@ namespace OpenMEEG {
         size_t nb_to_display = (int)std::min((int)m_nb,(int)5);
         std::cout << "Nb of sensors : " << m_nb << std::endl;
         std::cout << "Positions" << std::endl;
-        for(size_t i = 0; i < nb_to_display ; ++i) {
-            for (size_t j=0;j<m_positions.ncol();++j) {
+        for (size_t i = 0; i < nb_to_display ; ++i) {
+            for (size_t j=0;j<m_positions.ncol();++j)
                 std::cout << m_positions(i,j) << " ";
-            }
             std::cout << std::endl;
         }
-        if(m_nb > nb_to_display) {
+        if (m_nb > nb_to_display)
             std::cout << "..." << std::endl;
-        }
 
-        if(hasOrientations()) {
+        if (hasOrientations()) {
             std::cout << "Orientations" << std::endl;
             for(size_t i = 0; i < nb_to_display ; ++i) {
                 for (size_t j=0;j<m_orientations.ncol();++j) {
@@ -305,23 +305,19 @@ namespace OpenMEEG {
                 std::cout << "..." << std::endl;
             }
         }
-        if(hasRadii()) {
+        if (hasRadii()) {
             std::cout << "Radii" << std::endl;
-            for(size_t i = 0; i < nb_to_display ; ++i) {
+            for (size_t i = 0; i < nb_to_display ; ++i)
                 std::cout << m_radii(i) << " " << std::endl;
-            }
-            if(m_nb > nb_to_display) {
+            if (m_nb > nb_to_display)
                 std::cout << "..." << std::endl;
-            }
         }
-        if(hasNames()) {
+        if (hasNames()) {
             std::cout << "Names" << std::endl;
-            for(size_t i = 0; i < nb_to_display; ++i) {
+            for (size_t i = 0; i < nb_to_display; ++i)
                 std::cout << m_names[i] << std::endl;
-            }
-            if(m_nb > nb_to_display) {
+            if (m_nb > nb_to_display)
                 std::cout << "..." << std::endl;
-            }
         }
     }
 }
