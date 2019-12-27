@@ -47,12 +47,15 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <om_common.h>
 #include <vertex.h>
 #include <triangle.h>
-#include <mesh.h>
 #include <interface.h>
 #include <domain.h>
+#include <matrix.h>
+
 #include <GeometryExceptions.H>
 
 namespace OpenMEEG {
+
+    class Mesh;
 
     /// \brief Geometry contains the electrophysiological model
     /// Vertices, meshes and domains are stored in this geometry.
@@ -99,13 +102,26 @@ namespace OpenMEEG {
 
         /// \brief Return the list of vertices involved in the geometry.
 
-              Vertices& vertices()       { return vertices_; }
-        const Vertices& vertices() const { return vertices_; }
+              Vertices& vertices()       { return geom_vertices; }
+        const Vertices& vertices() const { return geom_vertices; }
+
+        /// \brief Add a vertex \param V to the geometry and return the index of V in the vector of vertices.
+
+        unsigned add_vertex(const Vertex& V) {
+            // Insert the vertex in the set of vertices if it is not already in.
+
+            const Vertices::iterator vit = std::find(vertices().begin(),vertices().end(),V);
+            if (vit!=vertices().end())
+                return vit-vertices().begin();
+
+            vertices().push_back(V);
+            return vertices().size()-1;
+        }
 
         /// \brief Return the list of meshes involved in the geometry.
 
-              Meshes& meshes()       { return meshes_; }
-        const Meshes& meshes() const { return meshes_; }
+              Meshes& meshes()       { return geom_meshes; }
+        const Meshes& meshes() const { return geom_meshes; }
 
         const MeshPairs& communicating_mesh_pairs() const { return meshpairs; }
 
@@ -115,8 +131,8 @@ namespace OpenMEEG {
 
         /// \brief  Return the list of domains.
 
-              Domains& domains()       { return domains_; }
-        const Domains& domains() const { return domains_; }
+              Domains& domains()       { return geom_domains; }
+        const Domains& domains() const { return geom_domains; }
 
         /// \brief Get specific domains.
 
@@ -178,9 +194,7 @@ namespace OpenMEEG {
             read_geometry_file(geomFileName);
             read_conductivity_file(condFileName);
             conductivity = true;
-
             mark_current_barriers(); // mark meshes that touch the domains of null conductivity.
-
             finalize(OLD_ORDERING);
         }
 
@@ -196,6 +210,7 @@ namespace OpenMEEG {
             for (auto& boundary : outer_domain.boundaries())
                 boundary.interface().set_to_outermost();
 
+            std::cerr << "NESTED: " << check_geometry_is_nested() << std::endl;
             if (check_geometry_is_nested())
                 set_nested();
 
@@ -224,9 +239,9 @@ namespace OpenMEEG {
     private:
 
         void clear() {
-            vertices_.clear();
-            meshes_.clear();
-            domains_.clear();
+            geom_vertices.clear();
+            geom_meshes.clear();
+            geom_domains.clear();
             conductivity = nested = false;
             outer_domain = 0;
             size_ = 0;
@@ -239,9 +254,9 @@ namespace OpenMEEG {
 
         /// Members
 
-        Vertices vertices_;
-        Meshes   meshes_;
-        Domains  domains_;
+        Vertices     geom_vertices;
+        Meshes       geom_meshes;
+        Domains      geom_domains;
 
         const Domain* outer_domain = 0;
         bool          nested       = false;
