@@ -145,8 +145,8 @@ namespace OpenMEEG {
     template <typename T>
     inline double _operatorN(const Vertex& V1,const Vertex& V2,const Mesh& m1,const Mesh& m2,const T& mat) {
 
-        const Mesh::VectPTriangle& trgs1 = m1.get_triangles_for_vertex(V1);
-        const Mesh::VectPTriangle& trgs2 = m2.get_triangles_for_vertex(V2);
+        const TrianglesRefs& trgs1 = m1.triangles(V1);
+        const TrianglesRefs& trgs2 = m2.triangles(V2);
 
         const bool same_shared_vertex = ((&m1!=&m2) && (V1==V2));
         const double factor = (same_shared_vertex) ? 0.5 : 0.25;
@@ -397,7 +397,7 @@ namespace OpenMEEG {
         result.z() = 0.0;
 
         //loop over triangles of which V is a vertex
-        const Mesh::VectPTriangle& trgs = m.get_triangles_for_vertex(V);
+        const TrianglesRefs& trgs = m.triangles(V);
 
         for (const auto& tp : trgs) {
             const Triangle& T    = *tp;

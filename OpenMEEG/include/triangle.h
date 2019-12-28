@@ -142,5 +142,5 @@ namespace OpenMEEG {
     };
 
     typedef std::vector<Triangle>  Triangles;
-    typedef std::vector<Triangle*> TrianglePointers;
+    typedef std::vector<Triangle*> TrianglesRefs;
 }
