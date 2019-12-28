@@ -394,10 +394,9 @@ namespace OpenMEEG {
 
         result = 0.0;
 
-        //loop over triangles of which V is a vertex
-        const TrianglesRefs& trgs = m.triangles(V);
+        //  Loop over triangles of which V is a vertex
 
-        for (const auto& tp : trgs) {
+        for (const auto& tp : m.triangles(V)) {
             const Triangle& T    = *tp;
             const Edge&     edge = T.edge(V);
 
