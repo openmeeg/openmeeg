@@ -45,8 +45,6 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <mesh_ios.h>
 #include <geometry.h>
 
-#include <Triangle_triangle_intersection.h>
-
 namespace OpenMEEG {
 
     Mesh::Mesh(): geom(new Geometry),mesh_triangles() { }
@@ -144,7 +142,7 @@ namespace OpenMEEG {
         std::cerr << "3" << std::endl;
         mesh_name.clear();
         std::cerr << "6" << std::endl;
-        links_.clear();
+        vertex_triangles.clear();
         std::cerr << "7" << std::endl;
         outermost_ = false;
         std::cerr << "8" << std::endl;
@@ -165,6 +163,7 @@ namespace OpenMEEG {
 #endif
 
     /// Update triangles area/normal, update links and vertices normals if needed
+
     void Mesh::update() {
 
         make_adjacencies();
@@ -190,11 +189,11 @@ namespace OpenMEEG {
     /// Compute normals at vertices.
 
     Normal Mesh::normal(const Vertex& v) const {
-        Normal _normal(0);
-        for (TrianglesRefs::const_iterator tit = links_.at(&v).begin(); tit != links_.at(&v).end(); ++tit)
-            _normal += (*tit)->normal();
-        _normal.normalize();
-        return _normal;
+        Normal N(0);
+        for (const auto& triangle : triangles(v))
+            N += triangle->normal();
+        N.normalize();
+        return N;
     }
 
     /// Add a mesh (assumes geometry points are of sufficient size.
@@ -222,30 +221,27 @@ namespace OpenMEEG {
 
     void Mesh::smooth(const double& smoothing_intensity,const unsigned& niter) {
 
-        typedef std::vector<std::set<Vertex>> Neighbors;
-        Neighbors neighbors(vertices().size());
-        unsigned i = 0;
-        for (const auto& vertex : vertices()) {
-            for (const auto& triangle : adjacent_triangles(*vertex))
-                for (unsigned  k=0;k<3;++k)
-                    if (triangle->vertex(k)==*vertex) // TODO: Is a pointer comparison sufficient ?
-                        neighbors[i].insert(triangle->vertex(k));
-            ++i; // Can't we use the vertex index instead ? TODO
-        }
+        typedef std::map<const Vertex*,std::set<Vertex>> Neighbors;
+        Neighbors neighbors;
+        for (const auto& vertex : vertices())
+            for (const auto& triangle : triangles(*vertex))
+                for (unsigned k=0;k<3;++k)
+                    if (&triangle->vertex(k)!=vertex)
+                        neighbors[vertex].insert(triangle->vertex(k));
 
-        Vertices new_pts(vertices().size());
-        for (unsigned n = 0; n < niter; ++n) {
-            Neighbors::const_iterator nit = neighbors.begin();
+
+        for (unsigned n=0; n<niter; ++n) {
+            Vertices new_pts(vertices().size());
             for (const auto& vertex : vertices()) {
-                new_pts.push_back(*vertex);
-                auto& newpt = new_pts.back();
-                for (std::set<Vertex>::const_iterator it = nit->begin();it!=nit->end();++it)
-                    newpt += (smoothing_intensity*(*it-*vertex))/nit->size();
-                ++nit;
+                Vertex newpt;
+                const auto& vneighbors = neighbors.at(vertex);
+                for (const auto& neighbor : vneighbors)
+                    newpt += (smoothing_intensity*(neighbor-*vertex));
+                new_pts.push_back(newpt/vneighbors.size());
             }
+            unsigned i = 0;
             for (auto& vertex : vertices())
-                *vertex = new_pts[i];
-            new_pts.clear();
+                *vertex = new_pts[i++];
         }
         update(); // Updating triangles (areas + normals)
     }
@@ -259,7 +255,7 @@ namespace OpenMEEG {
         for (const auto& vp : vertices()) {
             const Vertex& v1 = *vp;
             const unsigned index = v1.index();
-            for (const auto& t : links_.at(vp)) {
+            for (const auto& t : triangles(v1)) {
                 const Edge& edge = t->edge(v1);
                 const Vertex& v2 = edge.vertex(0);
                 const Vertex& v3 = edge.vertex(1);
@@ -289,6 +285,7 @@ namespace OpenMEEG {
         }
 
         // P0 gradients: loop on triangles
+
         if (!outermost_) // if it is an outermost mesh: p=0 thus no need for computing it
             for (const auto& triangle1 : triangles()) {
                 A(triangle1.index(),triangle1.index()) = 0.;
@@ -319,12 +316,11 @@ namespace OpenMEEG {
     }
 
     bool Mesh::has_self_intersection() const {
-
         bool selfIntersects = false;
         for (auto tit1=triangles().begin();tit1!=triangles().end();++tit1)
             for (auto tit2=tit1;tit2!=triangles().end();++tit2)
                 if (!tit1->contains(tit2->vertex(0)) && !tit1->contains(tit2->vertex(1)) && !tit1->contains(tit1->vertex(2)))
-                    if (triangle_intersection(*tit1, *tit2)) {
+                    if (tit1->intersects(*tit2)) {
                         selfIntersects = true;
                         std::cout << "Triangles " << tit1->index() << " and " << tit2->index() << " are intersecting." << std::endl;
                     }
@@ -342,35 +338,8 @@ namespace OpenMEEG {
         bool intersects = false;
         for (const auto& triangle1 : triangles())
             for (const auto& triangle2 : m.triangles())
-                intersects = intersects | triangle_intersection(triangle1,triangle2);
+                intersects = intersects | triangle1.intersects(triangle2);
         return intersects;
-    }
-
-    bool Mesh::triangle_intersection(const Triangle& T1, const Triangle& T2) const {
-        const Vect3& p1 = T1.vertex(0);
-        const Vect3& q1 = T1.vertex(1);
-        const Vect3& r1 = T1.vertex(2);
-        const Vect3& p2 = T2.vertex(0);
-        const Vect3& q2 = T2.vertex(1);
-        const Vect3& r2 = T2.vertex(2);
-
-        double pp1[3] = { p1.x(), p1.y(), p1.z() };
-        double qq1[3] = { q1.x(), q1.y(), q1.z() };
-        double rr1[3] = { r1.x(), r1.y(), r1.z() };
-        double pp2[3] = { p2.x(), p2.y(), p2.z() };
-        double qq2[3] = { q2.x(), q2.y(), q2.z() };
-        double rr2[3] = { r2.x(), r2.y(), r2.z() };
-        return tri_tri_overlap_test_3d(pp1,qq1,rr1,pp2,qq2,rr2);
-    }
-
-    const TrianglesRefs& Mesh::triangles(const Vertex& V) const {
-        AdjacencyMap::const_iterator it = links_.find(&V);
-        if (it!=links_.end())
-            return it->second;
-
-        // TODO ??? Throw an exception ?
-        static TrianglesRefs a;
-        return a;
     }
 
     void Mesh::load(const std::string& filename,const bool verbose) {

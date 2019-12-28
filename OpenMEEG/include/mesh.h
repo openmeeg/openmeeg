@@ -65,7 +65,7 @@ namespace OpenMEEG {
 
         friend class Geometry;
 
-        typedef std::map<const Vertex*,TrianglesRefs> AdjacencyMap;
+        typedef std::map<const Vertex*,TrianglesRefs> VertexTriangles;
 
         /// Default constructor
 
@@ -150,7 +150,7 @@ namespace OpenMEEG {
 
         /// \brief Get the triangles adjacent to vertex \param V .
 
-        TrianglesRefs adjacent_triangles(const Vertex& V) const { return links_.at(&V); }
+        TrianglesRefs triangles(const Vertex& V) const { return vertex_triangles.at(&V); }
 
         /// \brief Get the triangles adjacent to \param triangle .
 
@@ -158,7 +158,7 @@ namespace OpenMEEG {
             std::map<Triangle*,unsigned> mapt;
             TrianglesRefs result;
             for (auto& vertex : triangle)
-                for (const auto& t2 : adjacent_triangles(*vertex))
+                for (const auto& t2 : triangles(*vertex))
                     if (++mapt[t2]==2)
                         result.push_back(t2);
             return result;
@@ -174,7 +174,6 @@ namespace OpenMEEG {
         void correct_local_orientation(); ///< \brief Correct the local orientation of the mesh triangles.
         void correct_global_orientation(); ///< \brief Correct the global orientation (if there is one).
         double solid_angle(const Vect3& p) const; ///< Given a point p, computes the solid angle of the mesh seen from \param p .
-        const TrianglesRefs& triangles(const Vertex& V) const; ///< \brief Get the triangles associated with vertex V \return the links
         Normal normal(const Vertex& v) const; ///< \brief Get normal at vertex.`
         void laplacian(SymMatrix &A) const; ///< \brief Compute mesh laplacian.
 
@@ -204,7 +203,7 @@ namespace OpenMEEG {
         void load(const std::string& filename,const bool verbose=true);
 
         /// Save mesh to file
-        /// \param filename can be .vtk, .tri (ascii), .bnd, .off or .mesh */
+        /// \param filename can be .vtk, .tri (ascii), .bnd, .off or .mesh
 
         void save(const std::string& filename) const ;
 
@@ -250,16 +249,16 @@ namespace OpenMEEG {
         // Create the map that for each vertex gives the triangles containing it.
 
         void make_adjacencies() {
-            links_.clear();
+            vertex_triangles.clear();
             for (auto& triangle : triangles())
                 for (const auto& vertex : triangle)
-                    links_[vertex].push_back(&triangle);
+                    vertex_triangles[vertex].push_back(&triangle);
         }
 
         typedef std::shared_ptr<Geometry> Geom;
 
         std::string      mesh_name = "";     ///< Name of the mesh.
-        AdjacencyMap     links_;             ///< links[&v] are the triangles that contain vertex v.
+        VertexTriangles  vertex_triangles;   ///< links[&v] are the triangles that contain vertex v.
         Geometry*        geom;               ///< Pointer to the geometry containing the mesh.
         VerticesRefs     mesh_vertices;      ///< Vector of pointers to the mesh vertices.
         Triangles        mesh_triangles;     ///< Vector of triangles.
@@ -271,8 +270,6 @@ namespace OpenMEEG {
         bool             current_barrier_ = false;
         bool             isolated_        = false;
     };
-
-    /// A vector of Mesh is called Meshes
 
     typedef std::vector<Mesh> Meshes;
 }
