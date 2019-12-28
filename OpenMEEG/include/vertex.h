@@ -71,5 +71,6 @@ namespace OpenMEEG {
         unsigned ind; ///< Index of the vertex
     };
 
-    typedef std::vector<Vertex> Vertices;
+    typedef std::vector<Vertex>  Vertices;
+    typedef std::vector<Vertex*> VerticesRefs;
 }

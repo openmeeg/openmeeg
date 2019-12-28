@@ -261,10 +261,10 @@ namespace OpenMEEG {
                         if ( (t->center()-current_position).norm() < m_radii(idx) ) {
                             if (t->index() != current_nearest_triangle.index()) //don't push the nearest triangle twice
                                 triangles.push_back(*t);
-                            TrianglePointers t_adj = m_geo->interface(s_map).adjacent_triangles(*t);
-                            if ( index_seen.insert(t_adj[0]->index()).second ) tri_stack.push(t_adj[0]);
-                            if ( index_seen.insert(t_adj[1]->index()).second ) tri_stack.push(t_adj[1]);
-                            if ( index_seen.insert(t_adj[2]->index()).second ) tri_stack.push(t_adj[2]);
+                            TrianglesRefs t_adj = m_geo->interface(s_map).adjacent_triangles(*t);
+                            if (index_seen.insert(t_adj[0]->index()).second) tri_stack.push(t_adj[0]);
+                            if (index_seen.insert(t_adj[1]->index()).second) tri_stack.push(t_adj[1]);
+                            if (index_seen.insert(t_adj[2]->index()).second) tri_stack.push(t_adj[2]);
                         }
                     }
                 }
