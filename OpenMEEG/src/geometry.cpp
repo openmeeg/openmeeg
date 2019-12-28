@@ -187,16 +187,16 @@ namespace OpenMEEG {
     }
 
     void Geometry::read_geometry_file(const std::string& filename) {
-         GeometryReader geoR(*this);
-         try {
+        GeometryReader geoR(*this);
+        try {
             geoR.read_geom(filename);
-         } catch ( OpenMEEG::Exception& e) {
+        } catch ( OpenMEEG::Exception& e) {
             std::cerr << e.what() << " in the file " << filename << std::endl;
-             exit(e.code());
-         } catch (...) {
+            exit(e.code());
+        } catch (...) {
             std::cerr << "Could not read the geometry file: " << filename << std::endl;
-             exit(1);
-         }
+            exit(1);
+        }
     }
 
     void Geometry::read_conductivity_file(const std::string& filename) {
@@ -252,6 +252,7 @@ namespace OpenMEEG {
 
             // even the last surface triangles (yes for EIT... )
 
+            std::cerr << "KKKKKK = " << meshes().size() << std::endl;
             nb_current_barrier_triangles_ = 0;
             for (auto& mesh : meshes())
                 if (mesh.current_barrier()) {
@@ -268,7 +269,7 @@ namespace OpenMEEG {
             size_ = index;
         } else {
             std::cout << "First vertex index: " << vertices().front().index() << std::endl; // Necessary ? TODO
-            size_ = vertices_.size();
+            size_ = vertices().size();
             for (const auto& mesh : meshes())
                 size_ += mesh.triangles().size();
         }
@@ -325,17 +326,20 @@ namespace OpenMEEG {
 
     bool Geometry::check(const Mesh& m) const {
         bool OK = true;
+        std::cerr << "HERE check 0" << std::endl;
         if (m.has_self_intersection()) {
             warning(std::string("Mesh is self intersecting !"));
             m.info();
             OK = false;
         }
+        std::cerr << "HERE check " << OK << std::endl;
         for (const auto& mesh : meshes())
             if (mesh.intersection(m)) {
                 warning(std::string("Mesh is intersecting with one of the mesh in geom file !"));
                 mesh.info();
                 OK = false;
             }
+        std::cerr << "HERE check 1 " << OK << std::endl;
         return OK;
     }
 
@@ -378,25 +382,35 @@ namespace OpenMEEG {
                 return false;
         }
 
+        std::cerr << "HERE" << std::endl;
+
         // ... if 2 interfaces are composed by a same mesh oriented into two different directions.
 
         for (const auto& mesh : meshes()) {
+            std::cerr << "Mesh: " << mesh.name() << std::endl;
             unsigned m_oriented = 0;
             for (const auto& domain : domains())
                 for (const auto& boundary : domain.boundaries())
-                    for (const auto& oriented_mesh : boundary.interface().oriented_meshes())
+                    for (const auto& oriented_mesh : boundary.interface().oriented_meshes()) {
+                        std::cerr << "MM: " << oriented_mesh.mesh().name() << ' ' << oriented_mesh.orientation() << ' ' << &oriented_mesh.mesh().triangles()[0] << ' ' << &mesh.triangles()[0] << std::endl;
                         if (oriented_mesh.mesh()==mesh)
                             m_oriented += oriented_mesh.orientation();
-            if (m_oriented==0)
+                    }
+            std::cerr << m_oriented << std::endl;
+            if (m_oriented==0) {
                 return false;
+            }
         }
 
         return true;
     }
 
     void Geometry::import_meshes(const Meshes& m) {
-        meshes_.clear();
-        vertices_.clear();
+        for (const auto& mesh: m)
+            std::cerr << static_cast<const void*>(&mesh.triangles()) << std::endl;
+
+        meshes().clear();
+        vertices().clear();
 
         // Count vertices
 
@@ -406,23 +420,15 @@ namespace OpenMEEG {
 
         // Copy vertices and triangles in the geometry.
 
-        vertices_.reserve(n_vert_max);
-        meshes_.reserve(m.size());
-        std::map<const Vertex*,Vertex*> map_vertices;
+        vertices().reserve(n_vert_max);
+        meshes().reserve(m.size());
         for (const auto& mesh : m) {
-            meshes_.push_back(Mesh(vertices_,mesh.name()));
-            Mesh& newmesh = meshes_.back();
-            for (const auto& vertex : mesh.vertices()) {
-                newmesh.add_vertex(*vertex);
-                map_vertices[vertex] = newmesh.vertices().back();
-            }
-            Triangles& triangles = newmesh.triangles();
-            for (const auto& triangle : mesh.triangles())
-                triangles.push_back(Triangle(map_vertices[&triangle.vertex(0)],
-                                             map_vertices[&triangle.vertex(1)],
-                                             map_vertices[&triangle.vertex(2)]));
+            meshes().emplace_back(*this,mesh.name());
+            Mesh& newmesh = meshes().back();
+            newmesh.add_mesh(mesh);
             newmesh.update();
         }
+        std::cerr << "Finished" << std::endl;
     }
 
     //  Create the vector of pairs of communicating meshes.
