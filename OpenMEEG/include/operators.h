@@ -392,9 +392,7 @@ namespace OpenMEEG {
         STATIC_OMP Vect3 result;
         STATIC_OMP analyticS analyS;
 
-        result.x() = 0.0;
-        result.y() = 0.0;
-        result.z() = 0.0;
+        result = 0.0;
 
         //loop over triangles of which V is a vertex
         const TrianglesRefs& trgs = m.triangles(V);
