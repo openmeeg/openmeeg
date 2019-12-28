@@ -73,6 +73,8 @@ namespace OpenMEEG {
                 m[i] = v.m[i];
         }
 
+        operator const double*() const { return m; }
+
         Vect3& operator=(const double& v) {
             for (unsigned i=0;i<3;++i)
                 m[i] = v;

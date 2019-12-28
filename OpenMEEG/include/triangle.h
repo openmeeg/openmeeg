@@ -124,6 +124,10 @@ namespace OpenMEEG {
 
         void change_orientation() { std::swap(vertices_[0],vertices_[1]); }
 
+        /// Check for intersection with another triangle.
+
+        bool intersects(const Triangle& triangle) const;
+
     private:
 
         unsigned vertex_index(const Vertex& V) const {
