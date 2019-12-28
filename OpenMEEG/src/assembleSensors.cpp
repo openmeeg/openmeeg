@@ -43,6 +43,8 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <sensors.h>
 #include <om_utils.h>
 
+#include <sparse_matrix.h>
+
 namespace OpenMEEG {
 
     void assemble_ferguson(const Geometry& geo,Matrix& mat,const Matrix& pts);

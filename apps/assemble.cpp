@@ -170,7 +170,7 @@ int main(int argc, char** argv)
 
         // Loading surfaces from geometry file.
         Geometry geo;
-        geo.read(argv[2], argv[3], OLD_ORDERING);
+        geo.read(argv[2],argv[3],OLD_ORDERING);
 
         // Loading mesh for distributed sources
         Mesh mesh_sources;
