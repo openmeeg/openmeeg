@@ -47,6 +47,8 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <geometry.h>
 #include <sensors.h>
 
+#include <sparse_matrix.h>
+
 namespace OpenMEEG {
 
     class OPENMEEG_EXPORT HeadMat: public SymMatrix {
