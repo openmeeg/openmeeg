@@ -106,20 +106,25 @@ struct Spheres
 using namespace CGAL::parameters;
 
 namespace OpenMEEG {
+
     class Build_Mesh2Polyhedron : public CGAL::Modifier_base<HDS> {
+
         const Mesh *m;
+
     public:
+
         Build_Mesh2Polyhedron(const Mesh& m): m(&m) {}
+
         void operator()(HDS& target) {
             CGAL::Polyhedron_incremental_builder_3<HDS> builder(target, true);
             builder.begin_surface(m->nb_vertices(), m->nb_triangles(), 6*m->nb_vertices()-12);
             std::map<const Vertex *, unsigned> map;
             unsigned i = 0;
-            for ( Mesh::const_vertex_iterator vit = m->vertex_begin(); vit != m->vertex_end(); ++vit, ++i) {
+            for (Mesh::const_vertex_iterator vit = m->vertex_begin(); vit != m->vertex_end(); ++vit, ++i) {
                 builder.add_vertex(Polyhedron::Point_3((*vit)->x(), (*vit)->y(), (*vit)->z()));
                 map[*vit] = i;
             }
-            for ( Mesh::const_iterator tit = m->begin(); tit != m->end(); ++tit) {
+            for (Mesh::const_iterator tit = m->begin(); tit != m->end(); ++tit) {
                 builder.begin_facet();
                 builder.add_vertex_to_facet(map[&(tit->s1())]);
                 builder.add_vertex_to_facet(map[&(tit->s2())]);
@@ -130,8 +135,7 @@ namespace OpenMEEG {
         }
     };
 
-    Polyhedron Mesh2Polyhedron(const Mesh& m)
-    {
+    Polyhedron Mesh2Polyhedron(const Mesh& m) {
         Polyhedron p;
         Build_Mesh2Polyhedron modifier(m);
         p.delegate(modifier);
@@ -140,8 +144,8 @@ namespace OpenMEEG {
     }
 
     // refine a mesh
-    Mesh cgal_refine(const Mesh& m_in, double radius_bound, double distance_bound, const char* sizing_field)
-    {
+
+    Mesh cgal_refine(const Mesh& m_in, double radius_bound, double distance_bound, const char* sizing_field) {
         // Mesh criteria
         Mesh_criteriaP * criteria;
         if ( sizing_field ) {
@@ -180,6 +184,7 @@ namespace OpenMEEG {
     }
 
     /// decimate safely a mesh
+
     namespace SMS = CGAL::Surface_mesh_simplification;
     Mesh cgal_decimate(const Mesh& m_in, unsigned nb_points) {
         Polyhedron polyhedron = Mesh2Polyhedron(m_in);

@@ -64,26 +64,63 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 namespace OpenMEEG {
 
-    #ifndef M_PI
-        constexpr double Pi = 3.14159265358979323846;
-    #else
-        constexpr double Pi = M_PI;
-    #endif
+#ifndef M_PI
+    constexpr double Pi = 3.14159265358979323846;
+#else
+    constexpr double Pi = M_PI;
+#endif
+
+#if WIN32
+    constexpr char PathSeparator[] = "/\\";
+#else
+    constexpr char PathSeparator = '/';
+#endif
 
     constexpr double MagFactor = 1e-7;
 
-    inline std::string getNameExtension(const std::string& name) {
-        const std::string::size_type idx = name.find('.');
-        if (idx==std::string::npos) {
-            return std::string("");
-        } else if (name.substr(idx+1).find('.')!=std::string::npos) {
-            return getNameExtension(name.substr(idx+1));
-        } else {
-            return name.substr(idx+1);
-        }
+    inline std::string
+    getFilenameExtension(const std::string& name) {
+        const std::string::size_type idx = name.find_last_of('.');
+        if (idx==std::string::npos)
+            return "";
+        return name.substr(idx+1);
     }
 
-    inline void disp_argv(const int argc,char **argv) {
+    inline std::string
+    tolower(const std::string& s) {
+        std::string res = s;
+        std::transform(res.begin(),res.end(),res.begin(),
+                       [](unsigned char c){ return std::tolower(c); });
+        return res;
+    }
+
+    /// \return absolute path of file \param name.
+    
+    inline std::string
+    absolute_path(const std::string& name) {
+        const std::string::size_type pos = name.find_last_of(PathSeparator);
+        return (pos==std::string::npos) ? "" : name.substr(0,pos+1);
+    }
+
+    /// \return true if name is a relative path. \param name
+
+    inline bool
+    is_relative_path(const std::string& name) {
+    #if WIN32
+        const char c0 = name[0];
+        if (c0=='/' || c0=='\\')
+            return false;
+
+        const char c1 = name[1];
+        const char c2 = name[2];
+        return !(std::isalpha(c0) && c1==':' && (c2=='/' || c2=='\\'));
+    #else
+        return name[0]!=PathSeparator;
+    #endif
+    }
+
+    inline void
+    disp_argv(const int argc,char **argv) {
         std::cout << std::endl << "| ------ " << argv[0] << std::endl;
         for (int i=1;i<argc;++i)
             std::cout << "| " << argv[i] << std::endl;
