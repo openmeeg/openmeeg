@@ -11,6 +11,7 @@ add_library(OpenMEEG SHARED
     src/operators.cpp
     src/sensors.cpp
     src/mesh_ios.cpp
+    src/triangle.cpp
 )
 
 set_target_properties(OpenMEEG PROPERTIES
