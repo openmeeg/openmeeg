@@ -36,17 +36,17 @@ int main(int argc,char** argv) {
     Mesh mesh_orig;
     mesh_orig.load(argv[1]);
 
-    Mesh mesh = mesh_orig;
+    Mesh mesh;
 
     // // TRI
 
-    mesh.save("tmp.tri");
+    mesh_orig.save("tmp.tri");
     mesh.load("tmp.tri");
 
     om_error(are_equal(mesh, mesh_orig));
 
     // VTK
-    mesh.save("tmp.vtk");
+    mesh_orig.save("tmp.vtk");
 #ifdef USE_VTK
     mesh.load("tmp.vtk");
     om_error(are_equal(mesh, mesh_orig));
@@ -55,22 +55,22 @@ int main(int argc,char** argv) {
 #ifdef USE_GIFTI
     // GIFTI
 
-    mesh.save("tmp.gii");
+    mesh_orig.save("tmp.gii");
     mesh.load("tmp.gii");
     om_error(are_equal(mesh, mesh_orig));
 #endif
 
     // MESH
 
-    mesh.save("tmp.mesh");
+    mesh_orig.save("tmp.mesh");
     mesh.load("tmp.mesh");
     om_error(are_equal(mesh, mesh_orig));
 
     // BND && OFF that do not store normals
 
-    mesh.save("tmp.bnd");
-    mesh.save("tmp.off");
-    mesh.info();
+    mesh_orig.save("tmp.bnd");
+    mesh_orig.save("tmp.off");
+    mesh_orig.info();
 
     Mesh mesh1;
     Mesh mesh2;
