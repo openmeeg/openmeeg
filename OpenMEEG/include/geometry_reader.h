@@ -78,8 +78,75 @@ namespace OpenMEEG {
 
     private:
 
-        VersionId version_id;
-        Geometry& geom;
+        struct MeshDescription {
+            std::string name;
+            MeshIO*     io;
+        };
+
+        typedef std::vector<MeshDescription> MeshDescriptions;
+
+        static std::string default_name(const unsigned n) {
+            std::stringstream res;
+            res << n;
+            return res.str();
+        }
+
+        std::string given_name(const std::string& keyword) {
+            std::string res;
+            ifs >> io_utils::match(keyword) >> io_utils::token(res,':');
+            return res;
+        }
+
+        std::string filename() {
+            std::string filename;
+            ifs >> io_utils::filename(filename,'"',false);
+            return (is_relative_path(filename)) ? directory+filename : filename;
+        }
+
+        std::string section_name(const unsigned n,const std::string& keyword) {
+            bool unnamed;
+            ifs >> io_utils::skip_comments("#") >> io_utils::match_optional(keyword+':',unnamed);
+            const std::string& name = (unnamed || version_id==VERSION10) ? default_name(n+1) : given_name(keyword);
+            return name;
+        }
+
+        MeshDescriptions read_mesh_descriptions(const unsigned n,const std::string& keyword) {
+            MeshDescriptions meshdesc;
+            for (unsigned i=0; i<n; ++i) {
+                const std::string& name = section_name(i,keyword);
+                const std::string& path = filename();
+                meshdesc.push_back({ name, MeshIO::create(path) });
+            }
+            return meshdesc;
+        }
+
+        void load_meshes(MeshDescriptions& descriptions) {
+
+            geom.meshes().reserve(descriptions.size());
+
+            // First read the total number of vertices
+
+            for (auto& desc : descriptions) {
+                desc.io->open();
+                desc.io->load_points(geom); 
+            }
+
+            // Second really load the meshes
+
+            for (const auto& desc : descriptions) {
+                geom.meshes().emplace_back(geom,desc.name);
+                Mesh& mesh = geom.meshes().back();
+                desc.io->load_triangles(mesh);
+                mesh.update(true);
+            }
+        }
+
+        VersionId     version_id;
+        Geometry&     geom;
+        std::ifstream ifs;
+        std::string   directory;
+        bool          has_meshfile;
+        bool          has_meshsection;
     };
 
     void GeometryReader::read_geom(const std::string& geometry) {
@@ -109,7 +176,7 @@ namespace OpenMEEG {
         //
         // Any line starting with # is considered a comment and is silently ignored.
         
-        std::ifstream ifs(geometry.c_str());
+        ifs.open(geometry.c_str());
 
         if (!ifs.is_open())
             throw OpenMEEG::OpenError(geometry);
@@ -134,139 +201,64 @@ namespace OpenMEEG {
 
         // Extract the absolute path of geometry file
 
-        const std::string& path = absolute_path(geometry);
+        directory = absolute_path(geometry);
 
         // Process meshes.
 
+        MeshDescriptions mesh_descriptions;
+
         if (version_id==VERSION11) {
+
             // Read the mesh section of the description file.
-            // Try to load the meshfile (VTK::vtp file)
-            // or try to load the meshes
-            bool Is_MeshFile, Is_Meshes;
-            ifs >> io_utils::skip_comments("#") >> io_utils::match_optional("MeshFile", Is_MeshFile);
-            ifs >> io_utils::skip_comments("#") >> io_utils::match_optional("Meshes", Is_Meshes);
-            if (Is_MeshFile) {
-                std::string name;
-                ifs >> io_utils::skip_comments("#") >> io_utils::filename(name, '"', false);
-                const std::string& full_name = (is_relative_path(name)) ? path+name : name;
-                geom.load_vtp(full_name);
-            } else if (Is_Meshes) {
+            // Try to load the meshfile (VTK::vtp file) or try to load the meshes
+
+            ifs >> io_utils::skip_comments("#") >> io_utils::match_optional("MeshFile",has_meshfile);
+
+            if (has_meshfile)
+                geom.load_vtp(filename());
+
+            ifs >> io_utils::skip_comments("#") >> io_utils::match_optional("Meshes",has_meshsection);
+            if (has_meshsection) {
                 unsigned nb_meshes;
                 ifs >> nb_meshes;
-                Meshes meshes(nb_meshes);
-                for (unsigned i=0; i<nb_meshes; ++i) {
-                    bool unnamed;
-                    ifs >> io_utils::skip_comments("#") >> io_utils::match_optional("Mesh:", unnamed);
-                    std::string meshname;
-                    std::string filename;
-                    if (unnamed) {
-                        ifs >> io_utils::filename(filename,'"',false);
-                        std::stringstream defaultname;
-                        defaultname << i+1;
-                        meshname = defaultname.str();
-                    } else {
-                        ifs >> io_utils::match("Mesh") 
-                            >> io_utils::token(meshname, ':') 
-                            >> io_utils::filename(filename,'"',false);
-                    }
-                    const std::string& fullname = (is_relative_path(filename)) ? path+filename : filename;
-
-                    // Load the mesh.
-
-                    meshes[i].load(fullname,false);
-                    meshes[i].name() = meshname;
-                }
-
-                // Now properly load the meshes into the geometry (no duplicated vertices)
-
-                geom.import_meshes(meshes);
+                mesh_descriptions = read_mesh_descriptions(nb_meshes,"Mesh");
             }
         }
 
         // Process interfaces.
 
         unsigned nb_interfaces;
-        bool trash; // backward compatibility, catch "Mesh" optionnally.
+        bool trash; // backward compatibility, catch "Mesh" optionally.
         ifs >> io_utils::skip_comments('#')
             >> io_utils::match("Interfaces") >> nb_interfaces >> io_utils::match_optional("Mesh", trash);
 
         if (ifs.fail())
             throw OpenMEEG::WrongFileFormat(geometry);
 
+        const bool mesh_interfaces = !has_meshfile && !has_meshsection;
+        if (mesh_interfaces)
+            mesh_descriptions = read_mesh_descriptions(nb_interfaces,"Interface");
+
+        load_meshes(mesh_descriptions);
+
         // Load interfaces
 
-        std::string id; // id of mesh/interface/domain
         Interfaces interfaces;
 
-        // If meshes are not already loaded
-
-        if (geom.meshes().size()==0) {
-            geom.meshes().reserve(nb_interfaces);
-
-            struct MeshDescription {
-                std::string interfacename;
-                MeshIO*     io;
-            };  
-
-            std::vector<MeshDescription> mesh_descriptions(nb_interfaces);
-
-            // First read the total number of vertices
-
-            for (unsigned i=0; i<nb_interfaces; ++i) {
-                bool unnamed;
-                ifs >> io_utils::skip_comments("#") >> io_utils::match_optional("Interface:", unnamed);
-                std::string filename;
-                std::string interfacename;
-                if (unnamed) {
-                    ifs >> io_utils::filename(filename,'"',false);
-                    std::stringstream defaultname;
-                    defaultname << i+1;
-                    interfacename = defaultname.str();
-                } else if (version_id==VERSION10) { // backward compatibility
-                    std::stringstream defaultname;
-                    defaultname << i+1;
-                    interfacename = defaultname.str();
-                    ifs >> io_utils::filename(filename,'"',false);
-                } else {
-                    ifs >> io_utils::match("Interface") 
-                        >> io_utils::token(interfacename, ':') 
-                        >> io_utils::filename(filename,'"',false);
-                }
-                const std::string& fullname = (is_relative_path(filename)) ? path+filename : filename;
-                MeshIO* io = MeshIO::create(fullname);
-                io->open();
-                io->load_points(geom); 
-                mesh_descriptions[i] = MeshDescription({interfacename,io});
-            }
-
-            // Second really load the meshes
-
-            for (const auto& desc : mesh_descriptions) {
-                geom.meshes().emplace_back(geom,desc.interfacename);
-                Mesh& mesh = geom.meshes().back();
-                desc.io->load_triangles(mesh);
-                interfaces.push_back(Interface(desc.interfacename));
-                Interface& interface = interfaces.back();
-                interface.oriented_meshes().push_back(OrientedMesh(mesh));
+        if (mesh_interfaces) {
+            for (unsigned i=0; i<mesh_descriptions.size(); ++i) {
+                Interface interface(mesh_descriptions.at(i).name);
+                interface.oriented_meshes().push_back(OrientedMesh(geom.meshes().at(i)));
+                interfaces.push_back(interface);
             }
         } else {
             for (unsigned i=0; i<nb_interfaces; ++i) {
-                bool unnamed;
-                std::string line; // extract a line and parse it
-                ifs >> io_utils::skip_comments("#");
-                std::getline(ifs, line);
-                std::istringstream iss(line);
-                iss >> io_utils::match_optional("Interface:", unnamed);
-                std::string interfacename;
-                if (unnamed) {
-                    std::stringstream defaultname;
-                    defaultname << i+1;
-                    interfacename = defaultname.str();
-                } else {
-                    iss >> io_utils::match("Interface")
-                        >> io_utils::token(interfacename, ':');
-                }
+                const std::string& interfacename = section_name(i,"Interface");
                 interfaces.push_back(interfacename);
+                std::string line; // extract a line and parse it
+                std::getline(ifs,line);
+                std::istringstream iss(line);
+                std::string id; // id of interface
                 while (iss >> id) {
                     OrientedMesh::Orientation oriented = OrientedMesh::Normal; // does the id starts with a '-' or a '+' ?
                     if ((id[0]=='-') || (id[0]=='+')) {
@@ -297,6 +289,7 @@ namespace OpenMEEG {
             }
             getline(ifs,line);
             std::istringstream iss(line);
+            std::string id; // id of domain
             while (iss >> id) {
                 bool found = false;
                 SimpleDomain::Side side = SimpleDomain::Outside; // does the id starts with a '-' or a '+' ?
