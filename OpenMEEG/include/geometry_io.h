@@ -97,7 +97,7 @@ namespace OpenMEEG {
         // Create the meshes
 
         for (auto& name : meshes_name)
-            meshes().push_back(Mesh(vertices(),name));
+            meshes().push_back(Mesh(*this,name));
 
         // Insert the triangle and mesh vertices addresses into the right mesh
 
@@ -185,7 +185,7 @@ namespace OpenMEEG {
                 for (const auto& vertex : vertices())
                     potentials[j]->InsertNextValue(data(vertex.index(),j));
 
-                for(const auto& mesh : meshes_)
+                for(const auto& mesh : meshes())
                     for (const auto& triangle: mesh.triangles())
                         currents[j]->InsertNextValue(((mesh.outermost() && !HAS_OUTERMOST) ? 0.0 : data(triangle.index(),j)));
             }
@@ -206,7 +206,7 @@ namespace OpenMEEG {
 
         vtkSmartPointer<vtkCellArray> polys  = vtkSmartPointer<vtkCellArray>::New(); // the triangles
 
-        for(const auto& mesh : meshes_)
+        for(const auto& mesh : meshes())
             for (const auto& triangle: mesh.triangles()) {
                 const vtkIdType vtktriangle[3] = { map[&(triangle.vertex(0))], map[&(triangle.vertex(1))], map[&(triangle.vertex(2))] };
                 polys->InsertNextCell(3, vtktriangle);
