@@ -233,46 +233,38 @@ namespace OpenMEEG {
         // or by the user himself encoded into the vtp file.
         // if you use OLD_ORDERING make sure to iterate only once on each vertex: not to overwrite index (meshes have shared vertices).
 
-        if (meshes().front().triangles().front().index()==unsigned(-1)) {
-            unsigned index = 0;
-            if (!OLD_ORDERING)
-                for (auto& vertex : vertices())
-                    vertex.index() = (invalid_vertices_.count(vertex)==0) ? index++ : unsigned(-1);
+        unsigned index = 0;
+        if (!OLD_ORDERING)
+            for (auto& vertex : vertices())
+                vertex.index() = (invalid_vertices_.count(vertex)==0) ? index++ : unsigned(-1);
 
-            for (auto& mesh : meshes()) {
-                if (OLD_ORDERING) {
-                    om_error(is_nested()); // OR non nested but without shared vertices
-                    for (const auto& vertex : mesh.vertices())
-                        vertex->index() = index++;
-                }
-                if (!mesh.isolated() && !mesh.current_barrier())
+        for (auto& mesh : meshes()) {
+            if (OLD_ORDERING) {
+                om_error(is_nested()); // OR non nested but without shared vertices
+                for (const auto& vertex : mesh.vertices())
+                    vertex->index() = index++;
+            }
+            if (!mesh.isolated() && !mesh.current_barrier())
+                for (auto& triangle : mesh.triangles())
+                    triangle.index() = index++;
+        }
+
+        // even the last surface triangles (yes for EIT... )
+
+        nb_current_barrier_triangles_ = 0;
+        for (auto& mesh : meshes())
+            if (mesh.current_barrier()) {
+                if (!mesh.isolated()) {
+                    nb_current_barrier_triangles_ += mesh.triangles().size();
                     for (auto& triangle : mesh.triangles())
                         triangle.index() = index++;
+                } else {
+                    for (auto& triangle : mesh.triangles())
+                        triangle.index() = unsigned(-1);
+                }
             }
 
-            // even the last surface triangles (yes for EIT... )
-
-            std::cerr << "KKKKKK = " << meshes().size() << std::endl;
-            nb_current_barrier_triangles_ = 0;
-            for (auto& mesh : meshes())
-                if (mesh.current_barrier()) {
-                    if (!mesh.isolated()) {
-                        nb_current_barrier_triangles_ += mesh.triangles().size();
-                        for (auto& triangle : mesh.triangles())
-                            triangle.index() = index++;
-                    } else {
-                        for (auto& triangle : mesh.triangles())
-                            triangle.index() = unsigned(-1);
-                    }
-                }
-
-            size_ = index;
-        } else {
-            std::cout << "First vertex index: " << vertices().front().index() << std::endl; // Necessary ? TODO
-            size_ = vertices().size();
-            for (const auto& mesh : meshes())
-                size_ += mesh.triangles().size();
-        }
+        num_params = index;
     }
 
     /// \return the difference of conductivities of the 2 domains.
@@ -326,20 +318,17 @@ namespace OpenMEEG {
 
     bool Geometry::check(const Mesh& m) const {
         bool OK = true;
-        std::cerr << "HERE check 0" << std::endl;
         if (m.has_self_intersection()) {
             warning(std::string("Mesh is self intersecting !"));
             m.info();
             OK = false;
         }
-        std::cerr << "HERE check " << OK << std::endl;
         for (const auto& mesh : meshes())
             if (mesh.intersection(m)) {
                 warning(std::string("Mesh is intersecting with one of the mesh in geom file !"));
                 mesh.info();
                 OK = false;
             }
-        std::cerr << "HERE check 1 " << OK << std::endl;
         return OK;
     }
 
@@ -382,53 +371,20 @@ namespace OpenMEEG {
                 return false;
         }
 
-        std::cerr << "HERE" << std::endl;
-
         // ... if 2 interfaces are composed by a same mesh oriented into two different directions.
 
         for (const auto& mesh : meshes()) {
-            std::cerr << "Mesh: " << mesh.name() << std::endl;
             unsigned m_oriented = 0;
             for (const auto& domain : domains())
                 for (const auto& boundary : domain.boundaries())
-                    for (const auto& oriented_mesh : boundary.interface().oriented_meshes()) {
-                        std::cerr << "MM: " << oriented_mesh.mesh().name() << ' ' << oriented_mesh.orientation() << ' ' << &oriented_mesh.mesh().triangles()[0] << ' ' << &mesh.triangles()[0] << std::endl;
+                    for (const auto& oriented_mesh : boundary.interface().oriented_meshes())
                         if (oriented_mesh.mesh()==mesh)
                             m_oriented += oriented_mesh.orientation();
-                    }
-            std::cerr << m_oriented << std::endl;
-            if (m_oriented==0) {
+            if (m_oriented==0)
                 return false;
-            }
         }
 
         return true;
-    }
-
-    void Geometry::import_meshes(const Meshes& m) {
-        for (const auto& mesh: m)
-            std::cerr << static_cast<const void*>(&mesh.triangles()) << std::endl;
-
-        meshes().clear();
-        vertices().clear();
-
-        // Count vertices
-
-        unsigned n_vert_max = 0;
-        for (const auto& mesh : m)
-            n_vert_max += mesh.vertices().size();
-
-        // Copy vertices and triangles in the geometry.
-
-        vertices().reserve(n_vert_max);
-        meshes().reserve(m.size());
-        for (const auto& mesh : m) {
-            meshes().emplace_back(*this,mesh.name());
-            Mesh& newmesh = meshes().back();
-            newmesh.add_mesh(mesh);
-            newmesh.update();
-        }
-        std::cerr << "Finished" << std::endl;
     }
 
     //  Create the vector of pairs of communicating meshes.

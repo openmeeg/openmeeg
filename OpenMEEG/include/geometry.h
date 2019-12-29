@@ -149,7 +149,7 @@ namespace OpenMEEG {
             return result;
         }
 
-        size_t nb_parameters() const { return size_; } ///< \brief the total number of vertices + triangles
+        size_t nb_parameters() const { return num_params; } ///< \brief the total number of vertices + triangles
 
         /// Returns the outermost domain.
 
@@ -161,8 +161,6 @@ namespace OpenMEEG {
         const Interface& innermost_interface() const; ///< \brief returns the innermost interface (only valid for nested geometries).
 
         const Interface& interface(const std::string& name) const; ///< \brief returns the Interface called \param name
-
-        void import_meshes(const Meshes& m); ///< \brief imports meshes from a list of meshes
 
         //  TODO: Find better names for the next two methods.
 
@@ -210,7 +208,6 @@ namespace OpenMEEG {
             for (auto& boundary : outer_domain.boundaries())
                 boundary.interface().set_to_outermost();
 
-            std::cerr << "NESTED: " << check_geometry_is_nested() << std::endl;
             if (check_geometry_is_nested())
                 set_nested();
 
@@ -244,7 +241,7 @@ namespace OpenMEEG {
             geom_domains.clear();
             conductivity = nested = false;
             outer_domain = 0;
-            size_ = 0;
+            num_params = 0;
         }
 
         void read_geometry_file(const std::string& filename);
@@ -261,7 +258,7 @@ namespace OpenMEEG {
         const Domain* outer_domain = 0;
         bool          nested       = false;
         bool          conductivity = false;
-        size_t        size_        = 0;   // total number = nb of vertices + nb of triangles
+        size_t        num_params   = 0;   // total number = nb of vertices + nb of triangles
 
         void  generate_indices(const bool);
 
