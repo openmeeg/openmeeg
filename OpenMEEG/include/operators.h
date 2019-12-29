@@ -145,18 +145,15 @@ namespace OpenMEEG {
     template <typename T>
     inline double _operatorN(const Vertex& V1,const Vertex& V2,const Mesh& m1,const Mesh& m2,const T& mat) {
 
-        const TrianglesRefs& trgs1 = m1.triangles(V1);
-        const TrianglesRefs& trgs2 = m2.triangles(V2);
-
         const bool same_shared_vertex = ((&m1!=&m2) && (V1==V2));
         const double factor = (same_shared_vertex) ? 0.5 : 0.25;
 
         double result = 0.0;
-        for (const auto& tp1 : trgs1) {
+        for (const auto& tp1 : m1.triangles(V1)) {
             const Edge& edge1 = tp1->edge(V1);
             const Vect3& CB1 = edge1.vertex(0)-edge1.vertex(1);
             const unsigned ind1 = tp1->index()-m1.triangles().front().index();
-            for (const auto& tp2 : trgs2) {
+            for (const auto& tp2 : m2.triangles(V2)) {
 
                 const unsigned ind2 = tp2->index()-m2.triangles().front().index();
 
@@ -192,9 +189,8 @@ namespace OpenMEEG {
 
         if (&m1==&m2) {
             auto NUpdate = [&](const Mesh& m,const auto& M) {
-                unsigned i = 0; // for the PROGRESSBAR
+                ProgressBar pb(m1.vertices().size());
                 for (auto vit1=m.vertices().begin();vit1!=m.vertices().end();++vit1) {
-                    PROGRESSBAR(i++,m1.vertices().size());
                     #pragma omp parallel for
                     #if defined NO_OPENMP || defined OPENMP_ITERATOR
                     for (auto vit2=vit1;vit2<m.vertices().end();++vit2) {
@@ -204,17 +200,17 @@ namespace OpenMEEG {
                     #endif
                         mat((*vit1)->index(),(*vit2)->index()) += _operatorN(**vit1,**vit2,m,m,M)*coeff;
                     }
+                    ++pb;
                 }
             };
 
             if (m1.current_barrier()) {
-                // we thus precompute operator S divided by the product of triangles area.
+                // Precompute operator S divided by the product of triangles area.
 
-                unsigned i = 0; // for the PROGRESSBAR
+                ProgressBar pb(m1.triangles().size());
                 SymMatrix matS(m1.triangles().size());
                 for (Triangles::const_iterator tit1=m1.triangles().begin();tit1!=m1.triangles().end();++tit1) {
                     const unsigned ind1 = tit1->index()-m1.triangles().front().index();
-                    PROGRESSBAR(i++,m1.triangles().size());
                     #pragma omp parallel for
                     #if defined NO_OPENMP || defined OPENMP_ITERATOR
                     for (Triangles::const_iterator tit2=tit1;tit2<m1.triangles().end();++tit2) {
@@ -225,6 +221,7 @@ namespace OpenMEEG {
                         const unsigned ind2 = tit2->index()-m2.triangles().front().index();
                         matS(ind1,ind2) = _operatorS(*tit1,*tit2,gauss_order)/(tit1->area()*tit2->area());
                     }
+                    ++pb;
                 }
                 NUpdate(m1,matS);
             } else {
@@ -232,9 +229,8 @@ namespace OpenMEEG {
             }
         } else {
             auto NUpdate = [&](const Mesh& m1,const Mesh& m2,const auto& M) {
-                unsigned i = 0; // for the PROGRESSBAR
+                ProgressBar pb(m1.vertices().size());
                 for (const auto& vertex1 : m1.vertices()) {
-                    PROGRESSBAR(i++,m1.vertices().size());
                     #pragma omp parallel for
                     #if defined NO_OPENMP || defined OPENMP_RANGEFOR
                     for (const auto& vertex2 : m2.vertices()) {
@@ -247,15 +243,16 @@ namespace OpenMEEG {
                     #endif
                         mat(vertex1->index(),vertex2->index()) += _operatorN(*vertex1,*vertex2,m1,m2,M)*coeff;
                     }
+                    ++pb;
                 }
             };
 
             if (m1.current_barrier() || m2.current_barrier()) {
                 // Precompute operator S divided by the product of triangles area.
                 Matrix matS(m1.triangles().size(),m2.triangles().size());
+                ProgressBar pb(m1.triangles().size());
                 unsigned i = 0;
                 for (const auto& triangle1 : m1.triangles()) {
-                    PROGRESSBAR(i++,m1.triangles().size());
                     const unsigned ind1 = triangle1.index()-m1.triangles().front().index();
                     const Triangles& m2_triangles = m2.triangles();
                     #pragma omp parallel for
@@ -271,6 +268,7 @@ namespace OpenMEEG {
                         const unsigned ind2 = triangle2.index()-m2_triangles.front().index();
                         matS(ind1,ind2) = _operatorS(triangle1,triangle2,gauss_order)/(triangle1.area()*triangle2.area());
                     }
+                    ++pb;
                 }
                 NUpdate(m1,m2,matS);
             } else {
@@ -280,22 +278,21 @@ namespace OpenMEEG {
     }
 
     template <typename T>
-    void operatorS(const Mesh& m1, const Mesh& m2, T& mat, const double& coeff, const unsigned gauss_order)
-    {
+    void operatorS(const Mesh& m1,const Mesh& m2,T& mat,const double& coeff,const unsigned gauss_order) {
+
         // This function has the following arguments:
         //    the 2 interacting meshes
         //    the storage Matrix for the result
-        //    the coefficient to be appleid to each matrix element (depending on conductivities, ...)
+        //    the coefficient to be applied to each matrix element (depending on conductivities, ...)
         //    the gauss order parameter (for adaptive integration)
 
         std::cout << "OPERATOR S ... (arg : mesh " << m1.name() << " , mesh " << m2.name() << " )" << std::endl;
 
-        unsigned i = 0; // for the PROGRESSBAR
         // The operator S is given by Sij=\Int G*PSI(I, i)*Psi(J, j) with
         // PSI(A, a) is a P0 test function on layer A and triangle a
         if (&m1==&m2) {
-            for (Triangles::const_iterator tit1=m1.triangles().begin();tit1!=m1.triangles().end();++tit1) {
-                PROGRESSBAR(i++,m1.triangles().size());
+            ProgressBar pb(m1.triangles().size());
+            for (Triangles::const_iterator tit1=m1.triangles().begin(); tit1!=m1.triangles().end(); ++tit1,++pb) {
                 #pragma omp parallel for
                 #if defined OPENMP_ITERATOR
                 for (Triangles::const_iterator tit2=tit1;tit2<m1.triangles().end();++tit2) {
@@ -311,8 +308,8 @@ namespace OpenMEEG {
             // if we invert tit1 with tit2: results in HeadMat differs at 4.e-5 which is too big.
             // using ADAPT_LHS with tolerance at 0.000005 (for _opS) drops this at 6.e-6. (but increase the computation time)
 
+            ProgressBar pb(m1.triangles().size());
             for (const auto& triangle1 : m1.triangles()) {
-                PROGRESSBAR(i++,m1.triangles().size());
                 const Triangles& m2_triangles = m2.triangles();
                 #pragma omp parallel for
                 #if defined NO_OPENMP || defined OPENMP_RANGEFOR
@@ -326,6 +323,7 @@ namespace OpenMEEG {
                 #endif
                     mat(triangle1.index(),triangle2.index()) = _operatorS(triangle1,triangle2,gauss_order)*coeff;
                 }
+                ++pb;
             }
         }
     }
@@ -338,12 +336,12 @@ namespace OpenMEEG {
         //    the coefficient to be appleid to each matrix element (depending on conductivities, ...)
         //    the gauss order parameter (for adaptive integration)
 
-        //In this version of the function, in order to skip multiple computations of the same quantities
+        // In this version of the function, in order to skip multiple computations of the same quantities
         //    loops are run over the triangles but the Matrix cannot be filled in this function anymore
         //    That's why the filling is done is function _operatorD
         //
 
-        unsigned i = 0; // for the PROGRESSBAR
+        ProgressBar pb(m1.triangles().size());
         const Triangles& m1_triangles = m1.triangles();
         #pragma omp parallel for
         #if defined NO_OPENMP || defined OPENMP_RANGEFOR
@@ -355,14 +353,14 @@ namespace OpenMEEG {
         for (int i1=0; i1 < m1_triangles.size(); ++i1) {
             const Triangle& triangle1 = *(m1_triangles.begin()+i1);
         #endif
-            PROGRESSBAR(i++,m1_triangles.size());
             for (const auto& triangle2 : m2.triangles())
                 _operatorD(triangle1,triangle2,mat,coeff,gauss_order);
+            ++pb;
         }
     }
 
     template <typename T>
-    void operatorD(const Mesh& m1,const Mesh& m2, T& mat,const double& coeff,const unsigned gauss_order,const bool star) {
+    void operatorD(const Mesh& m1,const Mesh& m2,T& mat,const double& coeff,const unsigned gauss_order,const bool star) {
         // This function (OPTIMIZED VERSION) has the following arguments:
         //    the 2 interacting meshes
         //    the storage Matrix for the result
@@ -373,10 +371,23 @@ namespace OpenMEEG {
         std::cout << "OPERATOR D" << ((star) ? "*" : " ") << "... (arg : mesh " << m1.name() << " , mesh " << m2.name() << " )" << std::endl;
 
         if (star) {
-            operatorD(m2, m1, mat, coeff, gauss_order);
+            operatorD(m2,m1,mat,coeff,gauss_order);
         } else {
-            operatorD(m1, m2, mat, coeff, gauss_order);
+            operatorD(m1,m2,mat,coeff,gauss_order);
         }
+    }
+
+    template <typename T>
+    void operatorDstar(const Mesh& m1,const Mesh& m2,T& mat,const double& coeff,const unsigned gauss_order) {
+        // This function (OPTIMIZED VERSION) has the following arguments:
+        //    the 2 interacting meshes
+        //    the storage Matrix for the result
+        //    the coefficient to be appleid to each matrix element (depending on conductivities, ...)
+        //    the gauss order parameter (for adaptive integration)
+        //    an optional star parameter, which denotes the adjoint of the operator
+
+        std::cout << "OPERATOR D*... (arg : mesh " << m1.name() << " , mesh " << m2.name() << ')' << std::endl;
+        operatorD(m2,m1,mat,coeff,gauss_order);
     }
 
     template <typename T>
