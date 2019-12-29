@@ -118,14 +118,14 @@ namespace OpenMEEG {
 
             const int orientation = mp.relative_orientation();
 
-            double Ncoeff;
+            double Ncoeff = geo.sigma(mesh1,mesh2);
             if ((!mesh1.current_barrier()) && (!mesh2.current_barrier()) ) {
                 // Computing S block first because it's needed for the corresponding N block
                 const double inv_cond = geo.sigma_inv(mesh1,mesh2);
                 operatorS(mesh1,mesh2,symmatrix,orientation*inv_cond*K,gauss_order);
-                Ncoeff = geo.sigma(mesh1,mesh2)/inv_cond;
+                Ncoeff /= inv_cond; //  Why no orientation here ????
             } else {
-                Ncoeff = orientation*geo.sigma(mesh1,mesh2)*K;
+                Ncoeff *= orientation*K;
             }
 
             const double Dcoeff = -orientation*geo.indicator(mesh1,mesh2)*K;
