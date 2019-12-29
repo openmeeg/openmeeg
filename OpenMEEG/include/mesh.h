@@ -145,7 +145,7 @@ namespace OpenMEEG {
         bool has_correct_orientation() const; ///< \brief Check local orientation of mesh triangles.
         void build_mesh_vertices(); ///< \brief Construct mesh vertices from its triangles,
         void generate_indices(); ///< \brief Generate indices (if allocate).
-        void update(); ///< \brief Recompute triangles normals, area, and links.
+        void update(const bool topology_changed); ///< \brief Recompute triangles normals, area, and vertex triangles.
         void merge(const Mesh&,const Mesh&); ///< Merge two meshes.
 
         /// \brief Get the triangles adjacent to vertex \param V .
@@ -196,8 +196,7 @@ namespace OpenMEEG {
         /// Be verbose if \param verbose is true. The difference between
         /// read and load is that read just reads the file and does not update
         /// the geometry. Read has to be used when multiple meshes are used in
-        /// a geometry. load reads a mesh and finalizes it (i.e. updates the 
-        /// geometry.
+        /// a geometry. load reads a mesh.
 
         void read(const std::string& filename,const bool verbose=true);
         void load(const std::string& filename,const bool verbose=true);
@@ -262,7 +261,6 @@ namespace OpenMEEG {
         Geometry*        geom;               ///< Pointer to the geometry containing the mesh.
         VerticesRefs     mesh_vertices;      ///< Vector of pointers to the mesh vertices.
         Triangles        mesh_triangles;     ///< Vector of triangles.
-        bool             finalized = false;  ///< Has the mesh been finalized.
         bool             outermost_ = false; ///< Is it an outermost mesh ? (i.e does it touch the Air domain)
 
         /// Multiple 0 conductivity domains

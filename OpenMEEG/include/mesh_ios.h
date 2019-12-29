@@ -65,7 +65,6 @@ namespace OpenMEEG {
         virtual const char* name() const = 0;
 
         void open(const std::ios_base::openmode mode=std::ios_base::in) {
-            std::cerr << ((binary()) ? "binary" : "text") << std::endl;
             fs.open(fname,(binary()) ? mode|std::ios_base::binary : mode);
             if (!fs.is_open()) {
                 std::ostringstream ost;
@@ -83,6 +82,7 @@ namespace OpenMEEG {
             // TODO
             load_triangles(m);
             fs.close();
+            m.update(true);
         }
 
         virtual void save(const Mesh& mesh,std::ostream& os) const = 0;
@@ -129,11 +129,8 @@ namespace OpenMEEG {
         }
 
         void reference_vertices(Mesh& mesh) const {
-            std::cerr << mesh.vertices().size() << ' ' << mesh.geometry().vertices().size() << std::endl;
-            for (const auto& mapping : indmap) {
-                std::cerr << mapping.first << " -> " << mapping.second << std::endl;
+            for (const auto& mapping : indmap)
                 mesh.vertices().push_back(&mesh.geometry().vertices().at(mapping.second));
-            }
         }
 
         static Registery registery;
