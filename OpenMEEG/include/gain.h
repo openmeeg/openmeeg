@@ -39,180 +39,150 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #pragma once
 
-#define USE_GMRES 0
-
 #include "matrix.h"
 #include "sparse_matrix.h"
 #include "symmatrix.h"
 #include "geometry.h"
 #include "assemble.h"
+
+#define USE_GMRES 0
+#if USE_GMRES
 #include "gmres.h"
+#endif
 
 namespace OpenMEEG {
 
-    class GainMEG : public Matrix {
+#if USE_GMRES
+
+    // Consider the GMRes solver for problems with dimension>15,000 (3,000 vertices per interface)
+
+    template <typename MATRIX>
+    Matrix linsolve(const SymMatrix& H,const MATRIX& S) {
+        Matrix res(S.nlin(),H.nlin());
+        Jacobi<SymMatrix> M(H);    // Jacobi preconditionner
+        #pragma omp parallel for
+        #ifdef OPENMP_UNSIGNED
+        for (unsigned i=0; i<S.nlin(); ++i) {
+        #else
+        for (int i=0; i<static_cast<int>(S.nlin()); ++i) {
+        #endif
+            Vector vtemp(H.nlin());
+            GMRes(H,M,vtemp,S.getlin(i),1000,1e-7,H.nlin()); // max number of iteration=1000, and precision=1e-7 (1e-5 for faster resolution)
+            res.setlin(i,vtemp);
+            #pragma omp critical
+            PROGRESSBAR(i,S.nlin());
+        }
+        return res
+    }
+#else
+    template <typename SelectionMatrix>
+    Matrix linsolve(const SymMatrix& H,const SelectionMatrix& S) {
+        Matrix res(S.transpose());
+        H.solveLin(res); // solving the system AX=B with LAPACK
+        return res.transpose();
+    }
+#endif
+
+    class GainMEG: public Matrix {
     public:
         using Matrix::operator=;
         GainMEG (const Matrix& GainMat): Matrix(GainMat) {}
-        GainMEG (const SymMatrix& HeadMatInv,const Matrix& SourceMat, const Matrix& Head2MEGMat, const Matrix& Source2MEGMat) {
-            *this = Source2MEGMat+(Head2MEGMat*HeadMatInv)*SourceMat;
-        }
+        GainMEG(const SymMatrix& HeadMatInv,const Matrix& SourceMat,const Matrix& Head2MEGMat,const Matrix& Source2MEGMat):
+            Matrix(Source2MEGMat+(Head2MEGMat*HeadMatInv)*SourceMat)
+        { }
         ~GainMEG () {};
     };
 
-    class GainEEG : public Matrix {
+    class GainEEG: public Matrix {
     public:
         using Matrix::operator=;
         GainEEG (const Matrix& GainMat): Matrix(GainMat) {}
-        GainEEG (const SymMatrix& HeadMatInv,const Matrix& SourceMat, const SparseMatrix& Head2EEGMat) {
-            *this = (Head2EEGMat*HeadMatInv)*SourceMat;
-        }
+        GainEEG (const SymMatrix& HeadMatInv,const Matrix& SourceMat,const SparseMatrix& Head2EEGMat):
+            Matrix((Head2EEGMat*HeadMatInv)*SourceMat)
+        { }
         ~GainEEG () {};
     };
 
-    class GainEEGadjoint : public Matrix {
-        public:
-            using Matrix::operator=;
-            GainEEGadjoint (const Geometry& geo,const Matrix& dipoles,const SymMatrix& HeadMat, const SparseMatrix& Head2EEGMat) {
-                Matrix LeadField(Head2EEGMat.nlin(),dipoles.nlin());
-                int gauss_order = 3;
-                // Consider the GMRes solver for problem with dimension > 15,000 (3,000 vertices per interface) else use LAPACK solver
-                #if USE_GMRES
-                Matrix mtemp(Head2EEGMat.nlin(),HeadMat.nlin());
-                Jacobi<SymMatrix> M(HeadMat);    // Jacobi preconditionner
-                #pragma omp parallel for
-                #ifdef OPENMP_UNSIGNED
-                for (unsigned i=0;i<LeadField.nlin();++i) {
-                #else
-                for (int i=0;i<static_cast<int>(LeadField.nlin());++i) {
-                #endif
-                    Vector vtemp(HeadMat.nlin());
-                    GMRes(HeadMat, M, vtemp, Head2EEGMat.getlin(i), 1e3, 1e-7, HeadMat.nlin()); // max number of iteration = 1000, and precision=1e-7 (1e-5 for faster resolution)
-                    mtemp.setlin(i, vtemp);
-                    #pragma omp critical
-                    PROGRESSBAR(i, LeadField.nlin());
-                }
-                #else
-                Matrix mtemp(Head2EEGMat.transpose());
-                HeadMat.solveLin(mtemp); // solving the system AX=B with LAPACK
-                mtemp=mtemp.transpose();
-                #endif
-                for (unsigned i=0;i<LeadField.ncol();++i) {
-                    LeadField.setcol(i,mtemp*DipSourceMat(geo,dipoles.submat(i,1,0,dipoles.ncol()),gauss_order,true,"").getcol(0)); // TODO ugly
-                    PROGRESSBAR(i,LeadField.ncol());
-                }
-                *this = LeadField;
-            }
-            ~GainEEGadjoint () {};
+    class GainEEGadjoint: public Matrix {
+    public:
+
+        using Matrix::operator=;
+
+        GainEEGadjoint(const Geometry& geo,const Matrix& dipoles,const SymMatrix& HeadMat,const SparseMatrix& Head2EEGMat): Matrix(Head2EEGMat.nlin(),dipoles.nlin()) {
+            const Matrix& Hinv = linsolve(HeadMat,Head2EEGMat);
+            const int gauss_order = 3;
+            ProgressBar pb(ncol());
+            for (unsigned i=0; i<ncol(); ++i,++pb)
+                setcol(i,Hinv*DipSourceMat(geo,dipoles.submat(i,1,0,dipoles.ncol()),gauss_order,true,"").getcol(0)); // TODO ugly
+        }
+        ~GainEEGadjoint () {};
     };
 
-    class GainMEGadjoint : public Matrix {
-        public:
-            using Matrix::operator=;
-            GainMEGadjoint (const Geometry& geo, const Matrix& dipoles,
-                            const SymMatrix& HeadMat,
-                            const Matrix& Head2MEGMat,
-                            const Matrix& Source2MEGMat) {
-                Matrix LeadField(Head2MEGMat.nlin(),dipoles.nlin());
-                int gauss_order = 3;
-                // Consider the GMRes solver for problem with dimension > 15,000 (3,000 vertices per interface) else use LAPACK solver
-                #if USE_GMRES
-                Matrix mtemp(Head2MEGMat.nlin(),HeadMat.nlin()); 
-                Jacobi<SymMatrix> M(HeadMat);    // Jacobi preconditionner
-                #pragma omp parallel for
-                #ifdef OPENMP_UNSIGNED
-                for (unsigned i=0;i<LeadField.nlin();++i) {
-                #else
-                for (int i=0;i<static_cast<int>(LeadField.nlin());++i) {
-                #endif
-                    Vector vtemp(HeadMat.nlin());
-                    GMRes(HeadMat, M, vtemp, Head2MEGMat.getlin(i), 1e3, 1e-7, HeadMat.nlin()); // max number of iteration = 1000, and precision=1e-7 (1e-5 for faster resolution)
-                    mtemp.setlin(i,vtemp);
-                    #pragma omp critical
-                    PROGRESSBAR(i,LeadField.nlin());
-                }
-                #else
-                Matrix mtemp(Head2MEGMat.transpose());
-                HeadMat.solveLin(mtemp); // solving the system AX=B with LAPACK
-                mtemp=mtemp.transpose();
-                #endif
-                for (unsigned i=0;i<LeadField.ncol();i++) {
-                    LeadField.setcol(i,mtemp*DipSourceMat(geo,dipoles.submat(i,1,0,dipoles.ncol()),gauss_order,true,"").getcol(0)+Source2MEGMat.getcol(i)); // TODO ugly
-                    PROGRESSBAR(i,LeadField.ncol());
-                }
-                *this = LeadField;
-            }
-            ~GainMEGadjoint () {};
+    class GainMEGadjoint: public Matrix {
+    public:
+
+        using Matrix::operator=;
+
+        GainMEGadjoint(const Geometry& geo,const Matrix& dipoles,const SymMatrix& HeadMat,const Matrix& Head2MEGMat,const Matrix& Source2MEGMat):
+            Matrix(Head2MEGMat.nlin(),dipoles.nlin()) 
+        {
+            const Matrix& Hinv = linsolve(HeadMat,Head2MEGMat);
+            const int gauss_order = 3;
+            ProgressBar pb(ncol());
+            for (unsigned i=0; i<ncol(); ++i,++pb)
+                setcol(i,Hinv*DipSourceMat(geo,dipoles.submat(i,1,0,dipoles.ncol()),gauss_order,true,"").getcol(0)+Source2MEGMat.getcol(i)); // TODO ugly
+        }
+        ~GainMEGadjoint () {};
     };
 
     class GainEEGMEGadjoint {
-        public:
-            GainEEGMEGadjoint (const Geometry& geo,const Matrix& dipoles,const SymMatrix& HeadMat, const SparseMatrix& Head2EEGMat, const Matrix& Head2MEGMat, const Matrix& Source2MEGMat) {
-                unsigned gauss_order = 3;
-                this->EEGleadfield = Matrix(Head2EEGMat.nlin(), dipoles.nlin());
-                this->MEGleadfield = Matrix(Head2MEGMat.nlin(), dipoles.nlin());
-                Matrix RHS(Head2EEGMat.nlin()+Head2MEGMat.nlin(), HeadMat.nlin());
-
-                for ( unsigned i = 0; i < Head2EEGMat.nlin(); ++i) {
-                    RHS.setlin(i, Head2EEGMat.getlin(i));
-                }
-                for ( unsigned i = 0; i < Head2MEGMat.nlin(); ++i) {
-                    RHS.setlin(i + Head2EEGMat.nlin(), Head2MEGMat.getlin(i));
-                }
-                // Consider the GMRes solver for problem with dimension > 15,000 (3,000 vertices per interface) else use LAPACK solver
-                #if USE_GMRES
-                Matrix mtemp(RHS.nlin(), HeadMat.nlin()); 
-                Jacobi<SymMatrix> M(HeadMat); // Jacobi preconditionner
-                #pragma omp parallel for
-                #ifdef OPENMP_UNSIGNED
-                for (unsigned i=0;i<RHS.nlin();++i) {
-                #else
-                for (int i=0;i<static_cast<int>(RHS.nlin());++i) {
-                #endif
-                    Vector vtemp(HeadMat.nlin());
-                    GMRes(HeadMat, M, vtemp, RHS.getlin(i), 1e3, 1e-7, HeadMat.nlin()); // max number of iteration = 1000, and precision=1e-7 (1e-5 for faster resolution)
-                    mtemp.setlin(i, vtemp);
-                    #pragma omp critical
-                    PROGRESSBAR(i, RHS.nlin());
-                }
-                #else
-                Matrix mtemp(RHS.transpose());
-                HeadMat.solveLin(mtemp); // solving the system AX=B with LAPACK
-                mtemp = mtemp.transpose();
-                #endif
-                for ( unsigned i = 0; i < dipoles.nlin(); ++i) {
-                    Vector dsm = DipSourceMat(geo,dipoles.submat(i, 1, 0, dipoles.ncol()), gauss_order, true, "").getcol(0); // TODO ugly
-                    EEGleadfield.setcol(i, mtemp.submat(0, Head2EEGMat.nlin(), 0, HeadMat.nlin()) * dsm);
-                    MEGleadfield.setcol(i, mtemp.submat(Head2EEGMat.nlin(), Head2MEGMat.nlin(), 0, HeadMat.nlin()) * dsm + Source2MEGMat.getcol(i));
-                    PROGRESSBAR(i, dipoles.nlin());
-                }
+    public:
+        GainEEGMEGadjoint(const Geometry& geo,const Matrix& dipoles,const SymMatrix& HeadMat,const SparseMatrix& Head2EEGMat,const Matrix& Head2MEGMat,const Matrix& Source2MEGMat):
+            EEGleadfield(Head2EEGMat.nlin(),dipoles.nlin()),MEGleadfield(Head2MEGMat.nlin(),dipoles.nlin())
+        {
+            Matrix RHS(Head2EEGMat.nlin()+Head2MEGMat.nlin(),HeadMat.nlin());
+            for (unsigned i=0; i<Head2EEGMat.nlin(); ++i) {
+                RHS.setlin(i,Head2EEGMat.getlin(i));
+                RHS.setlin(i+Head2EEGMat.nlin(),Head2MEGMat.getlin(i));
             }
-            
-            void saveEEG( const std::string filename ) const { EEGleadfield.save(filename); }
 
-            void saveMEG( const std::string filename ) const { MEGleadfield.save(filename); }
-            
-            ~GainEEGMEGadjoint () {};
-        private:
-            Matrix EEGleadfield;
-            Matrix MEGleadfield;
+            const Matrix& Hinv = linsolve(HeadMat,RHS);
+
+            const unsigned gauss_order = 3;
+            ProgressBar pb(dipoles.nlin());
+            for ( unsigned i=0; i<dipoles.nlin(); ++i,++pb) {
+                Vector dsm = DipSourceMat(geo,dipoles.submat(i, 1, 0, dipoles.ncol()), gauss_order, true, "").getcol(0); // TODO ugly
+                EEGleadfield.setcol(i,Hinv.submat(0,Head2EEGMat.nlin(),0,HeadMat.nlin())*dsm);
+                MEGleadfield.setcol(i,Hinv.submat(Head2EEGMat.nlin(), Head2MEGMat.nlin(),0,HeadMat.nlin())*dsm+Source2MEGMat.getcol(i));
+            }
+        }
+        
+        void saveEEG( const std::string filename ) const { EEGleadfield.save(filename); }
+        void saveMEG( const std::string filename ) const { MEGleadfield.save(filename); }
+        
+        ~GainEEGMEGadjoint () {};
+
+    private:
+
+        Matrix EEGleadfield;
+        Matrix MEGleadfield;
     };
 
     class GainInternalPot : public Matrix {
     public:
         using Matrix::operator=;
-        GainInternalPot (const SymMatrix& HeadMatInv, const Matrix& SourceMat, const Matrix& Head2IPMat, const Matrix& Source2IPMat) {
-            *this = Source2IPMat + (Head2IPMat * HeadMatInv) * SourceMat;
-        }
+        GainInternalPot (const SymMatrix& HeadMatInv,const Matrix& SourceMat,const Matrix& Head2IPMat,const Matrix& Source2IPMat):
+            Matrix(Source2IPMat+(Head2IPMat*HeadMatInv)*SourceMat)
+        { }
         ~GainInternalPot () {};
     };
 
-   class GainEITInternalPot : public Matrix {
+    class GainEITInternalPot : public Matrix {
     public:
         using Matrix::operator=;
-        GainEITInternalPot (const SymMatrix& HeadMatInv, const Matrix& SourceMat, const Matrix& Head2IPMat) {
-            *this = (Head2IPMat * HeadMatInv) * SourceMat;
-        }
+        GainEITInternalPot (const SymMatrix& HeadMatInv,const Matrix& SourceMat,const Matrix& Head2IPMat):
+            Matrix((Head2IPMat*HeadMatInv)*SourceMat)
+        { }
         ~GainEITInternalPot () {};
     };
 }
