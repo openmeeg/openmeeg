@@ -53,12 +53,11 @@ namespace OpenMEEG {
 
         // Computation of blocks of Ferguson's Matrix
 
-        unsigned progress = 0;
+        const unsigned n = pts.nlin();
+        ProgressBar pb(geom.meshes().size()*n);
         for (const auto& mesh : geom.meshes()) {
-            const unsigned n = pts.nlin();
             const double coeff = MagFactor*geom.conductivity_difference(mesh);
-            for (unsigned i=0,offsetI=0; i<n; ++i,offsetI+=3,++progress) {
-                PROGRESSBAR(progress,geom.meshes().size()*n);
+            for (unsigned i=0,offsetI=0; i<n; ++i,offsetI+=3,++pb) {
                 const Vect3 p(pts(i,0),pts(i,1),pts(i,2));
                 operatorFerguson(p,mesh,mat,offsetI,coeff);
             }
