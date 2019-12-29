@@ -115,8 +115,8 @@ namespace OpenMEEG {
         mat = Matrix(nbIntegrationPoints,p0_p1_size);
         mat.set(0.0);
 
-        for (unsigned i=0;i<nbIntegrationPoints;++i) {
-            PROGRESSBAR(i,nbIntegrationPoints);
+        ProgressBar pb(nbIntegrationPoints);
+        for (unsigned i=0; i<nbIntegrationPoints; ++i,++pb) {
             for (const auto& vertex : geo.vertices()) {
                 const Vect3 fergusonField(FergusonMat(3*i,vertex.index()),
                                           FergusonMat(3*i+1,vertex.index()),
@@ -143,8 +143,8 @@ namespace OpenMEEG {
         mat = Matrix(nsquids,sources_mesh.vertices().size());
         mat.set(0.0);
 
-        for (unsigned i=0;i<nsquids;++i) {
-            PROGRESSBAR(i,nsquids);
+        ProgressBar pb(nsquids);
+        for (unsigned i=0; i<nsquids; ++i,++pb) {
             Vect3 p(positions(i,0),positions(i,1),positions(i,2));
             Matrix FergusonMat(3,mat.ncol());
             FergusonMat.set(0.0);
