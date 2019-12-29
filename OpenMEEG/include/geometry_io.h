@@ -119,7 +119,7 @@ namespace OpenMEEG {
             }
 
             mesh.build_mesh_vertices();
-            mesh.update();
+            mesh.update(true);
             if (READ_DATA) {
                 const unsigned nc = vtkMesh->GetPointData()->GetNumberOfArrays()-1;
                 const unsigned nl = vtkMesh->GetNumberOfPoints()+vtkMesh->GetNumberOfCells(); 

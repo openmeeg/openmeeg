@@ -135,18 +135,11 @@ namespace OpenMEEG {
     }
 
     void Mesh::clear() {
-        std::cerr << geom << std::endl;
-        std::cerr << "1" << std::endl;
         vertices().clear();
         triangles().clear();
-        std::cerr << "3" << std::endl;
         mesh_name.clear();
-        std::cerr << "6" << std::endl;
         vertex_triangles.clear();
-        std::cerr << "7" << std::endl;
         outermost_ = false;
-        std::cerr << "8" << std::endl;
-        std::cerr << "Destroyed" << std::endl;
     }
 
 #if 0
@@ -162,18 +155,15 @@ namespace OpenMEEG {
     }
 #endif
 
-    /// Update triangles area/normal, update links and vertices normals if needed
+    /// Update triangles area/normal, update vertex triangles and vertices normals if needed
 
-    void Mesh::update() {
-
-        make_adjacencies();
+    void Mesh::update(const bool topology_changed) {
 
         // If indices are not set, we generate them for sorting edge and testing orientation
 
-        if (!finalized) {
-            finalized = true;
-            if (vertices().front()->index()==unsigned(-1))
-                generate_indices();
+        if (topology_changed) {
+            make_adjacencies();
+            generate_indices();
             correct_local_orientation();
         }
 
@@ -214,7 +204,7 @@ namespace OpenMEEG {
         geom->vertices().reserve(m1.vertices().size()+m2.vertices().size());
         add_mesh(m1);
         add_mesh(m2);
-        update();
+        update(true);
     }
 
     /// Smooth Mesh
@@ -243,7 +233,7 @@ namespace OpenMEEG {
             for (auto& vertex : vertices())
                 *vertex = new_pts[i++];
         }
-        update(); // Updating triangles (areas + normals)
+        update(false); // Updating triangles (areas + normals)
     }
 
     /// Sq. Norm Surface Gradient: square norm of the surfacic gradient of the P1 and P0 elements
@@ -351,8 +341,7 @@ namespace OpenMEEG {
         delete io;
         if (verbose)
             info();
-        update();
-        generate_indices();
+        update(true);
     }
 
     void Mesh::generate_indices() {
