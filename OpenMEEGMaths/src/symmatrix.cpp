@@ -152,8 +152,7 @@ namespace OpenMEEG {
         return C;
     }
 
-    Matrix SymMatrix::solveLin(Matrix &RHS) const
-    {
+    Matrix SymMatrix::solveLin(Matrix &RHS) const {
     #ifdef HAVE_LAPACK
         SymMatrix A(*this,DEEP_COPY);
         // LU
