@@ -56,12 +56,6 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #include "OpenMEEGConfigure.h"
 
-#ifdef USE_PROGRESSBAR
-    #define PROGRESSBAR(a,b) progressbar((a),(b))
-#else
-    #define PROGRESSBAR(a,b)
-#endif
-
 namespace OpenMEEG {
 
 #ifndef M_PI
@@ -77,6 +71,40 @@ namespace OpenMEEG {
 #endif
 
     constexpr double MagFactor = 1e-7;
+
+#ifdef USE_PROGRESSBAR
+    class ProgressBar {
+    public:
+
+        ProgressBar(const unsigned n,const unsigned sz=20): max_iter(n),bar_size(sz) {
+        }
+
+        void operator++() {
+            const unsigned p = std::min(static_cast<unsigned>(floor(static_cast<double>((bar_size+1)*iter++)/max_iter)),bar_size);
+            if (p!=pprev && iter>1) {
+                std::cout << std::string(bar_size+2,'\b') << '[' << std::string(p,'*') << std::string(bar_size-p,'.') << ']';
+                pprev = p;
+            }
+            if (iter>=max_iter)
+                std::cout << std::endl;
+            std::cout.flush();
+        }
+        
+    private:
+        
+        unsigned iter = 0;
+        unsigned pprev = -1;
+        const unsigned max_iter;
+        const unsigned bar_size;
+    };
+#else
+    class ProgressBar {
+    public:
+
+        ProgressBar(const unsigned,const unsigned=20) { }
+        void operator++() { {
+    };
+#endif
 
     inline std::string
     getFilenameExtension(const std::string& name) {
@@ -132,8 +160,6 @@ namespace OpenMEEG {
         // w : nb of steps
         const char cprog  = '.';
         const char cprog1 = '*';
-        const char cbeg   = '[';
-        const char cend   = ']';
         const unsigned p = std::min(static_cast<unsigned>(floor(1.f*n*(w+1)/N)),w);
 
         static unsigned pprev = -1;
@@ -147,14 +173,14 @@ namespace OpenMEEG {
                     for (unsigned i=0;i<(w+2);++i)
                         std::cout << "\b";
 
-                    std::cout << cbeg;
+                    std::cout << '[';
                     for (unsigned i=0;i<p;++i)
                         std::cout << cprog1;
 
                     for (unsigned i=p;i<w;++i)
                         std::cout << cprog;
 
-                    std::cout<< cend;
+                    std::cout<< ']';
                 }
             }
             pprev = p;
