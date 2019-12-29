@@ -71,11 +71,11 @@ int main(int argc, char** argv)
         OLD_ORDERING = (strcmp(argv[argc-1], "-old-ordering") == 0);
         if (OLD_ORDERING) {
             argc--;
-            cout << "Using old ordering i.e using (V1, p1, V2, p2, V3) instead of (V1, V2, V3, p1, p2)" << endl;
+            std::cout << "Using old ordering i.e using (V1, p1, V2, p2, V3) instead of (V1, V2, V3, p1, p2)" << std::endl;
         }
     }
 
-    if ( option(argc, argv, {"-h","--help"}, {})) getHelp(argv);
+    if (option(argc,argv,{"-h","--help"}, {})) getHelp(argv);
 
     disp_argv(argc, argv);
 
@@ -85,19 +85,18 @@ int main(int argc, char** argv)
     /*********************************************************************************************
     * Computation of Head Matrix for BEM Symmetric formulation
     **********************************************************************************************/
-    if ( option(argc, argv, {"-HeadMat","-HM", "-hm"},
+    if (option(argc,argv,{"-HeadMat","-HM", "-hm"},
                 {"geometry file", "conductivity file", "output file"}) ) {
         // Loading surfaces from geometry file
         Geometry geo;
-        geo.read(argv[2], argv[3], OLD_ORDERING);
+        geo.read(argv[2],argv[3],OLD_ORDERING);
 
         // Check for intersecting meshes
-        if ( !geo.selfCheck() ) {
+        if (!geo.selfCheck())
             exit(1);
-        }
 
-        // Assembling Matrix from discretization :
-        HeadMat HM(geo, gauss_order);
+        // Assembling Matrix from discretization.
+        HeadMat HM(geo,gauss_order);
         HM.save(argv[4]);
     } else if (option(argc,argv,{ "-CorticalMat","-CM","-cm" },
                                 { "geometry file","conductivity file","sensors file","domain name","output file" })) {
@@ -147,15 +146,14 @@ int main(int argc, char** argv)
         geo.read(argv[2], argv[3], OLD_ORDERING);
 
         // Check for intersecting meshes
-        if ( !geo.selfCheck() ) {
+        if (!geo.selfCheck())
             exit(1);
-        }
 
         // read the file containing the positions of the EEG patches
         Sensors electrodes(argv[4]);
         Head2EEGMat M(geo, electrodes);
 
-        // Assembling Matrix from discretization :
+        // Assembling Matrix from discretization.
 
         const Matrix* CM = (gamma>0.0) ? static_cast<Matrix*>(new CorticalMat2(geo,M,argv[5],gauss_order,gamma,filename)) :
                                          static_cast<Matrix*>(new CorticalMat (geo,M,argv[5],gauss_order,alpha,beta,filename));
@@ -165,7 +163,7 @@ int main(int argc, char** argv)
     /*********************************************************************************************
     * Computation of general Surface Source Matrix for BEM Symmetric formulation
     **********************************************************************************************/
-    else if ( option(argc, argv, {"-SurfSourceMat", "-SSM", "-ssm"},
+    else if (option(argc,argv,{"-SurfSourceMat", "-SSM", "-ssm"},
                      {"geometry file", "conductivity file", "'mesh of sources' file", "output file"})) {
 
         // Loading surfaces from geometry file.
@@ -176,7 +174,7 @@ int main(int argc, char** argv)
         Mesh mesh_sources;
         mesh_sources.load(argv[4]);
 
-        // Assembling Matrix from discretization :
+        // Assembling Matrix from discretization.
         SurfSourceMat ssm(geo, mesh_sources, gauss_order);
         ssm.save(argv[5]); // if outfile is specified
     }
@@ -184,36 +182,36 @@ int main(int argc, char** argv)
     /*********************************************************************************************
     * Computation of RHS for discrete dipolar case
     **********************************************************************************************/
-    else if ( option(argc, argv, {"-DipSourceMat", "-DSM", "-dsm", "-DipSourceMatNoAdapt", "-DSMNA", "-dsmna"},
+    else if (option(argc,argv,{"-DipSourceMat", "-DSM", "-dsm", "-DipSourceMatNoAdapt", "-DSMNA", "-dsmna"},
                      {"geometry file", "conductivity file", "dipoles file", "output file"}) ) {
 
         string domain_name = "";
-        if ( argc == 7 ) {
+        if (argc==7) {
             domain_name = argv[6];
-            cout << "Dipoles are considered to be in \"" << domain_name << "\" domain." << endl;
+            std::cout << "Dipoles are considered to be in \"" << domain_name << "\" domain." << std::endl;
         }
 
         // Loading surfaces from geometry file.
         Geometry geo;
         geo.read(argv[2], argv[3], OLD_ORDERING);
 
-        // Loading Matrix of dipoles :
+        // Loading Matrix of dipoles.
         Matrix dipoles(argv[4]);
-        if ( dipoles.ncol() != 6 ) {
-            cerr << "Dipoles File Format Error" << endl;
+        if (dipoles.ncol()!=6) {
+            std::cerr << "Dipoles File Format Error" << std::endl;
             exit(1);
         }
 
         bool adapt_rhs = true;
 
         // Choosing between adaptive integration or not for the RHS
-        if ( option(argc, argv, {"-DipSourceMatNoAdapt", "-DSMNA", "-dsmna"},
+        if (option(argc,argv,{"-DipSourceMatNoAdapt", "-DSMNA", "-dsmna"},
                     {"geometry file", "conductivity file", "dipoles file", "output file"})) {
             adapt_rhs = false;
         }
 
         DipSourceMat dsm(geo, dipoles, gauss_order, adapt_rhs, domain_name);
-        // Saving RHS Matrix for dipolar case :
+        // Saving RHS Matrix for dipolar case.
         dsm.save(argv[5]);
     }
 
@@ -221,7 +219,7 @@ int main(int argc, char** argv)
     * Computation of the RHS for EIT
     **********************************************************************************************/
 
-    else if ( option(argc, argv, {"-EITSourceMat", "-EITSM", "-EITsm"},
+    else if (option(argc,argv,{"-EITSourceMat", "-EITSM", "-EITsm"},
                      {"geometry file", "conductivity file", "electrodes positions file", "output file"}) ) {
 
         // Loading surfaces from geometry file.
@@ -239,7 +237,7 @@ int main(int argc, char** argv)
     * (i.e. the potential and the normal current on all interfaces)
     * |----> v (potential at the electrodes)
     **********************************************************************************************/
-    else if ( option(argc, argv, {"-Head2EEGMat", "-H2EM", "-h2em"},
+    else if (option(argc,argv,{"-Head2EEGMat", "-H2EM", "-h2em"},
                      {"geometry file", "conductivity file", "electrodes positions file", "output file"}) ) {
 
         // Loading surfaces from geometry file.
@@ -249,10 +247,10 @@ int main(int argc, char** argv)
         // read the file containing the positions of the EEG patches
         Sensors electrodes(argv[4]);
 
-        // Assembling Matrix from discretization :
+        // Assembling Matrix from discretization.
         // Head2EEG is the linear application which maps x |----> v
         Head2EEGMat mat(geo, electrodes);
-        // Saving Head2EEG Matrix :
+        // Saving Head2EEG Matrix.
         mat.save(argv[5]);
     }
 
@@ -298,19 +296,19 @@ int main(int argc, char** argv)
     * (i.e. the potential and the normal current on all interfaces)
     * |----> bFerguson (contrib to MEG response)
     **********************************************************************************************/
-    else if ( option(argc, argv, {"-Head2MEGMat", "-H2MM", "-h2mm"},
+    else if (option(argc,argv,{"-Head2MEGMat", "-H2MM", "-h2mm"},
                      {"geometry file", "conductivity file", "squids file", "output file"}) ) {
 
         // Loading surfaces from geometry file.
         Geometry geo;
         geo.read(argv[2],argv[3],OLD_ORDERING);
 
-        // Load positions and orientations of sensors  :
+        // Load positions and orientations of sensors.
         Sensors sensors(argv[4]);
 
-        // Assembling Matrix from discretization :
+        // Assembling Matrix from discretization.
         Head2MEGMat mat(geo, sensors);
-        // Saving Head2MEG Matrix :
+        // Saving Head2MEG Matrix.
         mat.save(argv[5]); // if outfile is specified
     }
 
@@ -318,18 +316,18 @@ int main(int argc, char** argv)
     * Computation of the linear application which maps the distributed source
     * |----> binf (contrib to MEG response)
     **********************************************************************************************/
-    else if ( option(argc, argv, {"-SurfSource2MEGMat", "-SS2MM", "-ss2mm"},
+    else if (option(argc,argv,{"-SurfSource2MEGMat", "-SS2MM", "-ss2mm"},
                      {"'mesh sources' file", "squids file", "output file"}) ) {
 
-        // Loading mesh for distributed sources :
+        // Loading mesh for distributed sources.
         Mesh mesh_sources;
         mesh_sources.load(argv[2]);
-        // Load positions and orientations of sensors  :
+        // Load positions and orientations of sensors.
         Sensors sensors(argv[3]);
 
-        // Assembling Matrix from discretization :
+        // Assembling Matrix from discretization.
         SurfSource2MEGMat mat(mesh_sources, sensors);
-        // Saving SurfSource2MEG Matrix :
+        // Saving SurfSource2MEG Matrix.
         mat.save(argv[4]);
     }
 
@@ -340,13 +338,13 @@ int main(int argc, char** argv)
     // arguments are the positions and orientations of the squids,
     // the position and orientations of the sources and the output name.
 
-    else if ( option(argc, argv, {"-DipSource2MEGMat", "-DS2MM", "-ds2mm"},
+    else if (option(argc,argv,{"-DipSource2MEGMat", "-DS2MM", "-ds2mm"},
                      {"dipoles file", "squids file", "output file"}) ) {
 
-        // Loading dipoles :
+        // Loading dipoles.
         Matrix dipoles(argv[2]);
 
-        // Load positions and orientations of sensors  :
+        // Load positions and orientations of sensors.
         Sensors sensors(argv[3]);
 
         DipSource2MEGMat mat( dipoles, sensors );
@@ -358,7 +356,7 @@ int main(int argc, char** argv)
     * |----> v, potential at a set of prescribed points within the 3D volume
     **********************************************************************************************/
 
-    else if ( option(argc, argv, {"-Head2InternalPotMat", "-H2IPM", "-h2ipm"},
+    else if (option(argc,argv,{"-Head2InternalPotMat", "-H2IPM", "-h2ipm"},
                      {"geometry file", "conductivity file", "point positions file", "output file"}) ) {
 
         // Loading surfaces from geometry file
@@ -366,7 +364,7 @@ int main(int argc, char** argv)
         geo.read(argv[2], argv[3], OLD_ORDERING);
         Matrix points(argv[4]);
         Surf2VolMat mat(geo, points);
-        // Saving SurfToVol Matrix :
+        // Saving SurfToVol Matrix.
         mat.save(argv[5]);
     }
     /*********************************************************************************************
@@ -375,24 +373,24 @@ int main(int argc, char** argv)
     *    Vinf(r)=1/(4*pi*sigma)*(r-r0).q/(||r-r0||^3)
     **********************************************************************************************/
 
-    else if ( option(argc, argv, {"-DipSource2InternalPotMat", "-DS2IPM", "-ds2ipm"},
+    else if (option(argc,argv,{"-DipSource2InternalPotMat", "-DS2IPM", "-ds2ipm"},
                      {"geometry file", "conductivity file", "dipole file", "point positions file", "output file"})) {
         string domain_name = "";
         if (argc==9) {
             domain_name = argv[7];
-            cout << "Dipoles are considered to be in \"" << domain_name << "\" domain." << endl;
+            std::cout << "Dipoles are considered to be in \"" << domain_name << "\" domain." << std::endl;
         }
         // Loading surfaces from geometry file
         Geometry geo;
         geo.read(argv[2],argv[3],OLD_ORDERING);
-        // Loading dipoles :
+        // Loading dipoles.
         Matrix dipoles(argv[4]);
         Matrix points(argv[5]);
         DipSource2InternalPotMat mat(geo, dipoles, points, domain_name);
         mat.save(argv[6]);
     }
     else {
-        cerr << "unknown argument: " << argv[1] << endl;
+        std::cerr << "unknown argument: " << argv[1] << std::endl;
         exit(1);
     }
 
@@ -411,14 +409,14 @@ bool option(const int argc, char ** argv, const Strings& options, const Strings&
                 if (f[0]=='[')
                     --minimum_nparms;
             if (argc-2 < minimum_nparms) {
-                cout << "\'om_assemble\' option \'" << argv[1] << "\' expects " << files.size() << " arguments (";
+                std::cout << "\'om_assemble\' option \'" << argv[1] << "\' expects " << files.size() << " arguments (";
                 for ( auto f: files) {
-                    cout << f;
+                    std::cout << f;
                     if (f != files[files.size() - 1]){
-                        cout << ", ";
+                        std::cout << ", ";
                     }
                 }
-                cout << ") and you gave only " << argc-2 << " arguments." << endl;
+                std::cout << ") and you gave only " << argc-2 << " arguments." << std::endl;
                 exit(1);
             }
             return true;
@@ -428,120 +426,120 @@ bool option(const int argc, char ** argv, const Strings& options, const Strings&
 }
 
 void getHelp(char** argv) {
-    cout << argv[0] <<" [-option] [filepaths...]" << endl << endl;
+    std::cout << argv[0] <<" [-option] [filepaths...]" << std::endl << std::endl;
 
-    cout << "option :" << endl;
-    cout << "   -HeadMat, -HM, -hm :   " << endl;
-    cout << "       Compute Head Matrix for Symmetric BEM (left-hand side of linear system)." << endl;
-    cout << "             Arguments :" << endl;
-    cout << "               geometry file (.geom)" << endl;
-    cout << "               conductivity file (.cond)" << endl;
-    cout << "               output matrix" << endl << endl;
+    std::cout << "option:" << std::endl
+              << "   -HeadMat, -HM, -hm:   " << std::endl
+              << "       Compute Head Matrix for Symmetric BEM (left-hand side of linear system)." << std::endl
+              << "             Arguments:" << std::endl
+              << "               geometry file (.geom)" << std::endl
+              << "               conductivity file (.cond)" << std::endl
+              << "               output matrix" << std::endl << std::endl;
 
-    cout << "   -CorticalMat, -CM, -cm :   " << endl;
-    cout << "       Compute Cortical Matrix for Symmetric BEM (left-hand side of linear system)." << endl;
-    cout << "       Comment on optional parameters:" << endl;
-    cout << "       Giving two (or zero) numeric optional parameters => CorticalMat will try to use (or estimate) alpha/beta." << endl;
-    cout << "       Giving one numeric optional parameters => CorticalMat2 will use gamma." << endl;
-    cout << "       Giving a filename (a string), one can save time saving the intermediate matrix in all cases (useful when trying multiple values)." << endl;
-    cout << "             Arguments :" << endl;
-    cout << "               geometry file (.geom)" << endl;
-    cout << "               conductivity file (.cond)" << endl;
-    cout << "               file containing the positions of EEG electrodes (.patches)" << endl;
-    cout << "               domain name (containing the sources)" << endl;
-    cout << "               output matrix" << endl;
-    cout << "               [optional parameter alpha or gamma or filename]" << endl;
-    cout << "               [optional parameter beta or filename]" << endl;
-    cout << "               [optional filename]" << endl << endl;
+    std::cout << "   -CorticalMat, -CM, -cm:   " << std::endl
+              << "       Compute Cortical Matrix for Symmetric BEM (left-hand side of linear system)." << std::endl
+              << "       Comment on optional parameters:" << std::endl
+              << "       Giving two (or zero) numeric optional parameters => CorticalMat will try to use (or estimate) alpha/beta." << std::endl
+              << "       Giving one numeric optional parameters => CorticalMat2 will use gamma." << std::endl
+              << "       Giving a filename (a string), one can save time saving the intermediate matrix in all cases (useful when trying multiple values)." << std::endl
+              << "             Arguments:" << std::endl
+              << "               geometry file (.geom)" << std::endl
+              << "               conductivity file (.cond)" << std::endl
+              << "               file containing the positions of EEG electrodes (.patches)" << std::endl
+              << "               domain name (containing the sources)" << std::endl
+              << "               output matrix" << std::endl
+              << "               [optional parameter alpha or gamma or filename]" << std::endl
+              << "               [optional parameter beta or filename]" << std::endl
+              << "               [optional filename]" << std::endl << std::endl;
 
-    cout << "   -SurfSourceMat, -SSM, -ssm :   " << endl;
-    cout << "       Compute Surfacic Source Matrix for Symmetric BEM (right-hand side of linear system). " << endl;
-    cout << "            Arguments :" << endl;
-    cout << "               geometry file (.geom)" << endl;
-    cout << "               conductivity file (.cond)" << endl;
-    cout << "               mesh of sources (.tri .vtk .mesh .bnd)" << endl;
-    cout << "               output matrix" << endl << endl;
+    std::cout << "   -SurfSourceMat, -SSM, -ssm:   " << std::endl
+              << "       Compute Surfacic Source Matrix for Symmetric BEM (right-hand side of linear system). " << std::endl
+              << "            Arguments:" << std::endl
+              << "               geometry file (.geom)" << std::endl
+              << "               conductivity file (.cond)" << std::endl
+              << "               mesh of sources (.tri .vtk .mesh .bnd)" << std::endl
+              << "               output matrix" << std::endl << std::endl;
 
-    cout << "   -DipSourceMat, -DSM, -dsm:    " << endl;
-    cout << "      Compute Dipolar Source Matrix for Symmetric BEM (right-hand side of linear system). " << endl;
-    cout << "            Arguments :" << endl;
-    cout << "               geometry file (.geom)" << endl;
-    cout << "               conductivity file (.cond)" << endl;
-    cout << "               dipoles positions and orientations" << endl;
-    cout << "               output matrix" << endl;
-    cout << "               (Optional) domain name where lie all dipoles." << endl << endl;
+    std::cout << "   -DipSourceMat, -DSM, -dsm:    " << std::endl
+              << "      Compute Dipolar Source Matrix for Symmetric BEM (right-hand side of linear system). " << std::endl
+              << "            Arguments:" << std::endl
+              << "               geometry file (.geom)" << std::endl
+              << "               conductivity file (.cond)" << std::endl
+              << "               dipoles positions and orientations" << std::endl
+              << "               output matrix" << std::endl
+              << "               (Optional) domain name where lie all dipoles." << std::endl << std::endl;
 
-    cout << "   -EITSourceMat, -EITSM -EITsm : " << endl;
-    cout << "       Compute the EIT Source Matrix from an injected current (right-hand side of linear system). " << endl;
-    cout << "            Arguments :" << endl;
-    cout << "               geometry file (.geom)" << endl;
-    cout << "               conductivity file (.cond)" << endl;
-    cout << "               file containing the positions of EIT electrodes (.patches)" << endl;
-    cout << "               output EITSourceOp" << endl;
+    std::cout << "   -EITSourceMat, -EITSM -EITsm: " << std::endl
+              << "       Compute the EIT Source Matrix from an injected current (right-hand side of linear system). " << std::endl
+              << "            Arguments:" << std::endl
+              << "               geometry file (.geom)" << std::endl
+              << "               conductivity file (.cond)" << std::endl
+              << "               file containing the positions of EIT electrodes (.patches)" << std::endl
+              << "               output EITSourceOp" << std::endl;
 
-    cout << "   -Head2EEGMat, -H2EM, -h2em : " << endl;
-    cout << "        Compute the linear application which maps the potential" << endl;
-    cout << "        on the scalp to the EEG electrodes"  << endl;
-    cout << "            Arguments :" << endl;
-    cout << "               geometry file (.geom)" << endl;
-    cout << "               conductivity file (.cond)" << endl;
-    cout << "               file containing the positions of EEG electrodes (.patches)" << endl;
-    cout << "               output matrix" << endl << endl;
+    std::cout << "   -Head2EEGMat, -H2EM, -h2em: " << std::endl
+              << "        Compute the linear application which maps the potential" << std::endl
+              << "        on the scalp to the EEG electrodes"  << std::endl
+              << "            Arguments:" << std::endl
+              << "               geometry file (.geom)" << std::endl
+              << "               conductivity file (.cond)" << std::endl
+              << "               file containing the positions of EEG electrodes (.patches)" << std::endl
+              << "               output matrix" << std::endl << std::endl;
 
-    cout << "   -Head2ECoGMat, -H2ECogM, -h2ecogm, -H2ECOGM : " << endl;
-    cout << "        Compute the linear application which maps the potential" << endl;
-    cout << "        on the scalp to the ECoG electrodes"  << endl;
-    cout << "            Arguments :" << endl;
-    cout << "               geometry file (.geom)" << endl;
-    cout << "               conductivity file (.cond)" << endl;
-    cout << "               file containing the positions of ECoG electrodes (.patches)" << endl;
-    cout << "               name of the interface on which to project the electrodes (\"name\")" << endl;
-    cout << "               output matrix" << endl << endl;
+    std::cout << "   -Head2ECoGMat, -H2ECogM, -h2ecogm, -H2ECOGM: " << std::endl
+              << "        Compute the linear application which maps the potential" << std::endl
+              << "        on the scalp to the ECoG electrodes"  << std::endl
+              << "            Arguments:" << std::endl
+              << "               geometry file (.geom)" << std::endl
+              << "               conductivity file (.cond)" << std::endl
+              << "               file containing the positions of ECoG electrodes (.patches)" << std::endl
+              << "               name of the interface on which to project the electrodes (\"name\")" << std::endl
+              << "               output matrix" << std::endl << std::endl;
 
-    cout << "   -Head2MEGMat, -H2MM, -h2mm : " << endl;
-    cout << "        Compute the linear application which maps the potential" << endl;
-    cout << "        on the scalp to the MEG sensors"  << endl;
-    cout << "            Arguments :" << endl;
-    cout << "               geometry file (.geom)" << endl;
-    cout << "               conductivity file (.cond)" << endl;
-    cout << "               file containing the positions and orientations of the MEG sensors (.squids)" << endl;
-    cout << "               output matrix" << endl << endl;
+    std::cout << "   -Head2MEGMat, -H2MM, -h2mm: " << std::endl
+              << "        Compute the linear application which maps the potential" << std::endl
+              << "        on the scalp to the MEG sensors"  << std::endl
+              << "            Arguments:" << std::endl
+              << "               geometry file (.geom)" << std::endl
+              << "               conductivity file (.cond)" << std::endl
+              << "               file containing the positions and orientations of the MEG sensors (.squids)" << std::endl
+              << "               output matrix" << std::endl << std::endl;
 
-    cout << "   -SurfSource2MEGMat, -SS2MM, -ss2mm : " << endl;
-    cout << "        Compute the linear application which maps the " << endl;
-    cout << "        distributed source  to the MEG sensors" << endl;
-    cout << "            Arguments :" << endl;
-    cout << "               mesh file for distributed sources (.tri .vtk .mesh .bnd)" << endl;
-    cout << "               positions and orientations of the MEG sensors (.squids)" << endl;
-    cout << "               output matrix" << endl << endl;
+    std::cout << "   -SurfSource2MEGMat, -SS2MM, -ss2mm: " << std::endl
+              << "        Compute the linear application which maps the " << std::endl
+              << "        distributed source  to the MEG sensors" << std::endl
+              << "            Arguments:" << std::endl
+              << "               mesh file for distributed sources (.tri .vtk .mesh .bnd)" << std::endl
+              << "               positions and orientations of the MEG sensors (.squids)" << std::endl
+              << "               output matrix" << std::endl << std::endl;
 
-    cout << "   -DipSource2MEGMat, -DS2MM, -ds2mm :  " << endl;
-    cout << "        Compute the linear application which maps the current dipoles" << endl;
-    cout << "        to the MEG sensors" << endl;
-    cout << "            Arguments :" << endl;
-    cout << "               dipoles positions and orientations" << endl;
-    cout << "               positions and orientations of the MEG sensors (.squids)" << endl;
-    cout << "               output matrix" << endl << endl;
+    std::cout << "   -DipSource2MEGMat, -DS2MM, -ds2mm:  " << std::endl
+              << "        Compute the linear application which maps the current dipoles" << std::endl
+              << "        to the MEG sensors" << std::endl
+              << "            Arguments:" << std::endl
+              << "               dipoles positions and orientations" << std::endl
+              << "               positions and orientations of the MEG sensors (.squids)" << std::endl
+              << "               output matrix" << std::endl << std::endl;
 
-    cout << "   -Head2InternalPotMat, -H2IPM -h2ipm :  " << endl;
-    cout << "        Compute the linear transformation which maps the surface potential" << endl;
-    cout << "        and normal current to the value of the internal potential at a set of points within a volume" << endl;
-    cout << "            Arguments :" << endl;
-    cout << "               geometry file (.geom)" << endl;
-    cout << "               conductivity file (.cond)" << endl;
-    cout << "               a mesh file or a file with point positions at which to evaluate the potential" << endl;
-    cout << "               output matrix" << endl << endl;
+    std::cout << "   -Head2InternalPotMat, -H2IPM -h2ipm:  " << std::endl
+              << "        Compute the linear transformation which maps the surface potential" << std::endl
+              << "        and normal current to the value of the internal potential at a set of points within a volume" << std::endl
+              << "            Arguments:" << std::endl
+              << "               geometry file (.geom)" << std::endl
+              << "               conductivity file (.cond)" << std::endl
+              << "               a mesh file or a file with point positions at which to evaluate the potential" << std::endl
+              << "               output matrix" << std::endl << std::endl;
 
-    cout << "   -DipSource2InternalPotMat, -DS2IPM -ds2ipm :   " << endl;
-    cout << "        Compute the linear transformation  which maps the current dipoles" << endl;
-    cout << "        to the value of the infinite potential at a set of points within a volume" << endl;
-    cout << "            Arguments :" << endl;
-    cout << "               geometry file (.geom)" << endl;
-    cout << "               conductivity file (.cond)" << endl;
-    cout << "               dipoles positions and orientations" << endl;
-    cout << "               a mesh file or a file with point positions at which to evaluate the potential" << endl;
-    cout << "               output matrix" << endl;
-    cout << "               (Optional) domain name where lie all dipoles." << endl << endl;
+    std::cout << "   -DipSource2InternalPotMat, -DS2IPM -ds2ipm:   " << std::endl
+              << "        Compute the linear transformation  which maps the current dipoles" << std::endl
+              << "        to the value of the infinite potential at a set of points within a volume" << std::endl
+              << "            Arguments:" << std::endl
+              << "               geometry file (.geom)" << std::endl
+              << "               conductivity file (.cond)" << std::endl
+              << "               dipoles positions and orientations" << std::endl
+              << "               a mesh file or a file with point positions at which to evaluate the potential" << std::endl
+              << "               output matrix" << std::endl
+              << "               (Optional) domain name where lie all dipoles." << std::endl << std::endl;
 
     exit(0);
 }
