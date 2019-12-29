@@ -106,9 +106,9 @@ namespace OpenMEEG {
         rhs = Matrix(size,n_dipoles);
         rhs.set(0.0);
 
+        ProgressBar pb(n_dipoles);
         Vector rhs_col(rhs.nlin());
-        for (unsigned s=0; s<n_dipoles; ++s) {
-            PROGRESSBAR(s,n_dipoles);
+        for (unsigned s=0; s<n_dipoles; ++s,++pb) {
             const Vect3 r(dipoles(s,0),dipoles(s,1),dipoles(s,2));
             const Vect3 q(dipoles(s,3),dipoles(s,4),dipoles(s,5));
 
