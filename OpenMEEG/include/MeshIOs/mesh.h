@@ -70,13 +70,13 @@ namespace OpenMEEG::MeshIOs {
             fs.ignore(arg_size);
 
             unsigned vertex_per_face;
-            fs.read(reinterpret_cast<char*>(vertex_per_face),sizeof(unsigned));
+            fs.read(reinterpret_cast<char*>(&vertex_per_face),sizeof(unsigned));
 
             unsigned mesh_time;
-            fs.read(reinterpret_cast<char*>(mesh_time),sizeof(unsigned));
+            fs.read(reinterpret_cast<char*>(&mesh_time),sizeof(unsigned));
             fs.ignore(sizeof(unsigned)); // mesh_step
             unsigned npts;
-            fs.read(reinterpret_cast<char*>(npts),sizeof(unsigned));
+            fs.read(reinterpret_cast<char*>(&npts),sizeof(unsigned));
             
             // Support only for triangulations and one time frame.
 
@@ -101,7 +101,7 @@ namespace OpenMEEG::MeshIOs {
             reference_vertices(mesh);
 
             unsigned ntrgs; // Number of faces
-            fs.read(reinterpret_cast<char*>(ntrgs),sizeof(unsigned));
+            fs.read(reinterpret_cast<char*>(&ntrgs),sizeof(unsigned));
 
             unsigned* pts_inds = new unsigned[3*ntrgs]; // Faces
             fs.read(reinterpret_cast<char*>(pts_inds),3*ntrgs*sizeof(unsigned));
@@ -156,7 +156,7 @@ namespace OpenMEEG::MeshIOs {
             unsigned vertex_number = mesh.vertices().size();
             os.write(reinterpret_cast<char*>(&vertex_number),sizeof(unsigned));
             os.write(reinterpret_cast<char*>(pts_raw),sizeof(float)*vertex_number*3);
-            os.write(reinterpret_cast<char*>(vertex_number),sizeof(unsigned));
+            os.write(reinterpret_cast<char*>(&vertex_number),sizeof(unsigned));
             os.write(reinterpret_cast<char*>(normals_raw),sizeof(float)*vertex_number*3);
 
             delete[] normals_raw;
