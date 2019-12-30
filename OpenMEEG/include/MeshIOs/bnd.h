@@ -44,7 +44,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #include <IOUtils.H>
 #include <om_utils.h>
-#include <mesh_ios.h>
+#include <MeshIO.h>
 
 namespace OpenMEEG::MeshIOs {
 
