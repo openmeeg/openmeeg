@@ -37,9 +37,6 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#define _USE_MATH_DEFINES
-#include <cmath>
-
 #include <operators.h>
 #include <om_utils.h>
 
@@ -57,9 +54,9 @@ namespace OpenMEEG {
         ProgressBar pb(geom.meshes().size()*n);
         for (const auto& mesh : geom.meshes()) {
             const double coeff = MagFactor*geom.conductivity_difference(mesh);
-            for (unsigned i=0,offsetI=0; i<n; ++i,offsetI+=3,++pb) {
+            for (unsigned i=0,index=0; i<n; ++i,index+=3,++pb) {
                 const Vect3 p(pts(i,0),pts(i,1),pts(i,2));
-                operatorFerguson(p,mesh,mat,offsetI,coeff);
+                operatorFerguson(p,mesh,mat,index,coeff);
             }
         }
     }
