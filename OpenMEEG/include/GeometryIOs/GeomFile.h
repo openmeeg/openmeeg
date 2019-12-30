@@ -47,7 +47,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <GeometryExceptions.H>
 #include <IOUtils.H>
 #include <GeometryIO.h>
-#include <mesh_ios.h>
+#include <MeshIO.h>
 
 namespace OpenMEEG::GeometryIOs {
 
