@@ -38,9 +38,8 @@ knowledge of the CeCILL-B license and that you accept its terms.
 */
 
 #include <geometry.h>
-#include <geometry_reader.h>
-#include <geometry_io.h>
-#include <ciso646>
+#include <GeometryIO.h>
+#include <PropertiesSpecialized.h>
 
 namespace OpenMEEG {
 
@@ -187,10 +186,10 @@ namespace OpenMEEG {
     }
 
     void Geometry::read_geometry_file(const std::string& filename) {
-        GeometryReader geoR(*this);
+        GeometryIO* io = GeometryIO::create(filename);
         try {
-            geoR.read_geom(filename);
-        } catch ( OpenMEEG::Exception& e) {
+            io->load(*this);
+        } catch (OpenMEEG::Exception& e) {
             std::cerr << e.what() << " in the file " << filename << std::endl;
             exit(e.code());
         } catch (...) {
@@ -452,18 +451,18 @@ namespace OpenMEEG {
 
         //  Do not invalidate vertices of isolated meshes if they are shared by non isolated meshes.
 
-        std::set<Vertex> shared_vtx;
-        for (std::set<Vertex>::const_iterator vit = invalid_vertices_.begin(); vit != invalid_vertices_.end(); ++vit)
+        std::set<Vertex> shared_vertices;
+        for (const auto& vertex : invalid_vertices_)
             for (const auto& mesh : meshes())
                 if (!mesh.isolated()) {
-                    const auto comp = [vit](const Vertex* v) { return *v==*vit; };
-                    const std::vector<Vertex*>::const_iterator vfind = std::find_if(mesh.vertices().begin(),mesh.vertices().end(),comp);
+                    const auto comp = [vertex](const Vertex* v) { return *v==vertex; };
+                    const auto& vfind = std::find_if(mesh.vertices().begin(),mesh.vertices().end(),comp);
                     if (vfind!=mesh.vertices().end())
-                        shared_vtx.insert(**vfind); //a shared vertex is found
+                        shared_vertices.insert(**vfind); //a shared vertex is found
                 }
 
-        for (std::set<Vertex>::const_iterator vit = shared_vtx.begin(); vit != shared_vtx.end(); ++vit)
-            invalid_vertices_.erase(*vit);
+        for (const auto& vertex : shared_vertices)
+            invalid_vertices_.erase(vertex);
 
         // Find the various components in the geometry.
         // The various components are separated by zero-conductivity domains.

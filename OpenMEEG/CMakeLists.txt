@@ -11,6 +11,7 @@ add_library(OpenMEEG SHARED
     src/operators.cpp
     src/sensors.cpp
     src/mesh_ios.cpp
+    src/GeometryIOs.cpp
     src/triangle.cpp
 )
 
@@ -22,12 +23,13 @@ set_target_properties(OpenMEEG PROPERTIES
 target_compile_definitions(OpenMEEG PUBLIC HAVE_ISNORMAL_IN_NAMESPACE_STD)
 target_compile_definitions(OpenMEEG PUBLIC HAVE_ISNORMAL_IN_MATH_H)
 
-if(VTK_FOUND)
+if (VTK_FOUND)
     target_compile_definitions(OpenMEEG PUBLIC USE_VTK)
 endif()
 
 # OpenMP
-if (OPENMP_FOUND)
+
+if (OpenMP_FOUND)
     target_compile_definitions(OpenMEEG PUBLIC ${OPENMP_DEFINITIONS})
     target_link_libraries(OpenMEEG PUBLIC OpenMP::OpenMP_CXX)
 else()
