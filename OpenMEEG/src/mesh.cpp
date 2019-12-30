@@ -42,7 +42,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <algorithm>
 
 #include <mesh.h>
-#include <mesh_ios.h>
+#include <MeshIO.h>
 #include <geometry.h>
 
 namespace OpenMEEG {
