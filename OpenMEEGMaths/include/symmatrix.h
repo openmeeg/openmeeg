@@ -90,7 +90,7 @@ namespace OpenMEEG {
         Vector    getlin(size_t i) const;
         void      setlin(size_t i, const Vector& v);
         Vector    solveLin(const Vector &B) const;
-        void      solveLin(Vector * B, int nbvect);
+        void      solveLin(Vector* B,const int nbvect);
         Matrix    solveLin(Matrix& B) const;
 
         const SymMatrix& operator=(const double d);
@@ -138,7 +138,8 @@ namespace OpenMEEG {
             return data()[j+i*(i+1)/2];
     }
 
-    //returns the solution of (this)*X = B
+    // Returns the solution of (this)*X = B
+
     inline Vector SymMatrix::solveLin(const Vector &B) const {
         SymMatrix invA(*this,DEEP_COPY);
         Vector X(B,DEEP_COPY);
@@ -160,7 +161,8 @@ namespace OpenMEEG {
     }
 
     // stores in B the solution of (this)*X = B, where B is a set of nbvect vector
-    inline void SymMatrix::solveLin(Vector * B, int nbvect) {
+
+    inline void SymMatrix::solveLin(Vector* B,const int nbvect) {
         SymMatrix invA(*this,DEEP_COPY);
 
     #ifdef HAVE_LAPACK
