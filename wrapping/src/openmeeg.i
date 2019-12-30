@@ -33,7 +33,7 @@
     #include <fast_sparse_matrix.h>
     #include <sensors.h>
     #include <geometry.h>
-    #include <geometry_io.h>
+    #include <GeometryIO.h>
     #include <mesh.h>
     #include <interface.h>
     #include <domain.h>
@@ -145,7 +145,6 @@ namespace std {
     %template(vector_vertex) vector<OpenMEEG::Vertex>;
     %template(vector_pvertex) vector<OpenMEEG::Vertex *>;
     %template(vector_triangle) vector<OpenMEEG::Triangle>;
-    %template(vector_mesh) vector<OpenMEEG::Mesh>;
     %template(vector_string) vector<std::string>;
     %template(vector_interface) vector<OpenMEEG::Interface>;
     %template(vector_simple_dom) vector<OpenMEEG::SimpleDomain>;
@@ -159,7 +158,6 @@ namespace OpenMEEG {
     %typedef std::vector<OpenMEEG::Vertex>   Vertices;
     %typedef std::vector<OpenMEEG::Vertex*>  PVertices;
     %typedef std::vector<OpenMEEG::Triangle> Triangles;
-    %typedef std::vector<OpenMEEG::Mesh>     Meshes;
     %typedef std::vector<OpenMEEG::Domain>   Domains;
     %typedef std::vector<std::string>        Strings;
     %typedef std::vector<SimpleDomain>       Boundaries;
@@ -170,9 +168,6 @@ namespace OpenMEEG {
 
     %naturalvar Mesh;
     class Mesh;
-
-    %naturalvar Meshes;
-    class Meshes;
 
     %naturalvar Matrix;
     class Matrix;
@@ -463,7 +458,7 @@ namespace OpenMEEG {
             const double x = *reinterpret_cast<double*>(PyArray_GETPTR2(mat_v,vi,0));
             const double y = *reinterpret_cast<double*>(PyArray_GETPTR2(mat_v,vi,1));
             const double z = *reinterpret_cast<double*>(PyArray_GETPTR2(mat_v,vi,2));
-            newMesh->add_vertex(*new Vertex(x,y,z));
+            newMesh->geometry().add_vertex(*new Vertex(x,y,z));
         }
 
         auto get_vertex = [=](PyArrayObject* mat,const int i,const int j) {
@@ -496,6 +491,29 @@ namespace OpenMEEG {
     }
 }
 
+%extend OpenMEEG::Geometry {
+
+    void import_meshes(PyObject* pylist) {
+        if (pylist==nullptr || !PyList_Check(pylist)) {
+            PyErr_SetString(PyExc_TypeError,"Wrong parameter to import_meshes");
+            return;
+        }
+        std::cerr << "Executing import_meshes" << std::endl;
+        const unsigned N = PyList_Size(pylist);
+        OpenMEEG::Meshes meshes(N);
+        for (unsigned i=0;i<N;++i) {
+            PyObject* item = PyList_GetItem(pylist,i);
+            void* ptr = 0;
+            if (!SWIG_IsOK(SWIG_ConvertPtr(item,&ptr,SWIGTYPE_p_OpenMEEG__Mesh,SWIG_POINTER_EXCEPTION))) {
+                PyErr_SetString(PyExc_TypeError, "Input object must be a list of Mesh.");
+                return;
+            }
+            meshes.emplace_back(std::forward<Mesh>(*reinterpret_cast<OpenMEEG::Mesh*>(ptr)));
+        }
+        $self->import_meshes(meshes);
+    }
+}
+
 // Input
 
 %include <vect3.h>
@@ -508,7 +526,7 @@ namespace OpenMEEG {
 %include <sparse_matrix.h>
 %include <fast_sparse_matrix.h>
 %include <geometry.h>
-%include <geometry_io.h>
+%include <GeometryIO.h>
 %include <sensors.h>
 %include <mesh.h>
 %include <interface.h>
