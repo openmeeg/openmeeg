@@ -1,7 +1,9 @@
 set(BUILD_TESTING True)
 enable_testing()
 
-option(USE_VTK "Use VTK" OFF)
+option(USE_VTK   "Use VTK"   OFF)
+option(USE_GIFTI "Use GIFTI" OFF)
+option(USE_CGAL  "Use CGAL"  OFF)
 
 option(ENABLE_COVERAGE "Enable coverage" OFF)
 
@@ -9,8 +11,9 @@ option(ENABLE_PYTHON "Enable python bindings" OFF)
 set(PYTHON_VERSION 3 CACHE STRING "Python version to use: 2, 2.x, 3, 3.x, or empty")
 
 # Documentation configuration
+
 option(BUILD_DOCUMENTATION "Build doxygen documentation when building all" OFF)
-mark_as_advanced(BUILD_DOCUMENTATION)
+
 include(CMakeDependentOption)
 cmake_dependent_option(BUILD_REFERENCE_DOC "Build reference documentation" ON
                        "BUILD_DOCUMENTATION" OFF)
