@@ -65,35 +65,6 @@ namespace OpenMEEG {
         load(filename,verbose);
     }
 
-    #if 0
-    Mesh::Mesh(Geometry& g,const std::string name): mesh_name(name),geom(&g) { }
-
-    void Mesh::copy(const Mesh& m) {
-
-        if (m.all_vertices_) {
-            all_vertices_ = std::make_shared<Vertices>();
-            all_vertices_->reserve(m.vertices().size());
-            std::map<const Vertex*,Vertex*> map; // for the triangles
-            for (const auto& vertex : m.vertices()) {
-                add_vertex(*vertex);
-                map[vertex] = vertices().back();
-            }
-            for (const auto& triangle : m.triangles()) {
-                Triangle t(map[&triangle.vertex(0)],map[&triangle.vertex(1)],map[&triangle.vertex(2)]);
-                triangles().push_back(t);
-            }
-            update();
-        } else {
-            all_vertices_ = m.all_vertices_;
-            for (const auto& triangle : m.triangles())
-                triangles().push_back(triangle);
-            build_mesh_vertices();
-        }
-        outermost_ = m.outermost_;
-        mesh_name  = m.mesh_name;
-    }
-    #endif
-
     /// Print informations about the mesh 
 
     void Mesh::info(const bool verbose) const {
@@ -141,19 +112,6 @@ namespace OpenMEEG {
         vertex_triangles.clear();
         outermost_ = false;
     }
-
-#if 0
-    /// Add vertex to the mesh/geometry.
-
-    void Mesh::add_vertex(const Vertex& V) {
-
-        geom->add_vertex(V);
-
-            if (std::find(vertices().begin(),vertices().end(),&(*vit))==vertices().end())
-                vertices().push_back(&(*vit));
-        }
-    }
-#endif
 
     /// Update triangles area/normal, update vertex triangles and vertices normals if needed
 
