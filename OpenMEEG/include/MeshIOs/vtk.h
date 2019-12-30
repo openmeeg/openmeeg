@@ -74,14 +74,14 @@ namespace OpenMEEG::MeshIOs {
 
         void load_points(Geometry& geom) override {
             //  TODO: Replace with newer filesystem calls.
-            ifs.seekg (0,ios::end);
-            const unsigned length = ifs.tellg();
-            ifs.seekg (0,ios::beg);
+            fs.seekg (0,ios::end);
+            const unsigned length = fs.tellg();
+            fs.seekg (0,ios::beg);
 
             // Read data as a block and pass it to vtk.
 
             buffer = new char[length];
-            ifs.read(buffer,length);
+            fs.read(buffer,length);
 
             vtkCharArray* buf = vtkCharArray::New();
             buf->SetArray(buffer,length,1);
