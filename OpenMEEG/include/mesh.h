@@ -198,23 +198,12 @@ namespace OpenMEEG {
         /// the geometry. Read has to be used when multiple meshes are used in
         /// a geometry. load reads a mesh.
 
-        void read(const std::string& filename,const bool verbose=true);
         void load(const std::string& filename,const bool verbose=true);
 
         /// Save mesh to file
         /// \param filename can be .vtk, .tri (ascii), .bnd, .off or .mesh
 
         void save(const std::string& filename) const ;
-
-        #if 0
-        Mesh& operator=(const Mesh& m) {
-            std::cerr << "COPY of " << &m << ' ' << &m.triangles() << std::endl;
-            if (this!=&m)
-                copy(m);
-            std::cerr << "COPIED " << this << ' ' << &triangles() << std::endl;
-            return *this;
-        }
-        #endif
 
     private:
 
@@ -223,7 +212,6 @@ namespace OpenMEEG {
         typedef std::map<std::pair<const Vertex*,const Vertex*>,int> EdgeMap;
 
         void clear();
-        void copy(const Mesh&);
 
         /// Add the mesh \param m to the current mesh. Assumes that geometry vertices are properly
         /// reserved (i.e. the vector is not resized while adding the mesh.
