@@ -52,19 +52,20 @@ knowledge of the CeCILL-B license and that you accept its terms.
 extern "C" {
     #include <gifti_io.h>
 }
+#else
+#include "Unavailable.h"
 #endif
 
 namespace OpenMEEG::MeshIOs {
 
     /// \brief Mesh io for GIFTI file format.
 
+#ifdef USE_GIFTI
     class OPENMEEG_EXPORT Gifti: public MeshIO {
 
         typedef MeshIO base;
 
     public:
-
-    #ifdef USE_GIFTI
 
         void load_points(Geometry& geom) override {
             // Use gifti_io API
@@ -161,21 +162,6 @@ namespace OpenMEEG::MeshIOs {
             gifti_free_image(gim);
         }
 
-    #else
-
-        static unsigned gifti_error() {
-            std::cerr << "OpenMEEG not compiled with GIFTI support." << std::endl;
-            exit(1);
-            return 0;
-        }
-
-        void     load_points(Geometry&)          override { gifti_error(); }
-        void     load_triangles(OpenMEEG::Mesh&) override { gifti_error(); }
-        void     load(OpenMEEG::Mesh&)           override { gifti_error(); }
-
-        void save(const OpenMEEG::Mesh&) override { gifti_error(); }
-    #endif
-
         void save(const OpenMEEG::Mesh&,std::ostream&) const override { } // TODO: remove...
 
     private:
@@ -184,7 +170,6 @@ namespace OpenMEEG::MeshIOs {
 
         Gifti(const std::string& filename=""): base(filename,"gii") { }
 
-        #ifdef USE_GIFTI
         template <typename T>
         void read_pts(const void* data,Geometry& geom) {
             const unsigned npts     = gim->darray[ipts]->dims[0];
@@ -205,10 +190,17 @@ namespace OpenMEEG::MeshIOs {
         }
 
         gifti_image* gim;
-        #endif
 
         static const Gifti prototype;
 
         const char* name() const override { return "GIFTI"; }
     };
+#else
+    struct OPENMEEG_EXPORT Gifti: public Unavailable {
+
+        Gifti(const std::string& filename=""): Unavailable("GIFTI","gii","USE_GIFTI") { }
+
+        static const Gifti prototype;
+    };
+#endif
 }
