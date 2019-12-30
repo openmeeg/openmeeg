@@ -129,14 +129,12 @@ namespace OpenMEEG::GeometryIOs {
             return (is_relative_path(filename)) ? directory+filename : filename;
         }
 
-        static bool extract_sign(std::string& str,const bool mandatory=false) {
+        static bool extract_sign(std::string& str) {
             const char sign = str[0];
             if (sign=='-' || sign=='+') {
                 str = str.substr(1,str.size());
                 return sign=='+';
             }
-            if (mandatory)
-                throw "";
             return true;
         }
 
