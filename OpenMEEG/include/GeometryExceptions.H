@@ -56,7 +56,7 @@ namespace OpenMEEG {
     typedef enum { UNEXPECTED = 128, IO_EXCPT, OPEN_ERROR,
                    BAD_FMT, NO_SUFFIX, NON_MATCH_FMT, BAD_HDR, BAD_DATA, WRONG_FILE_FMT, BAD_DIM, UNKN_DIM, BAD_SIZE_SPEC, UNKN_PIX, UNKN_PIX_TYPE,
                    UNKN_FILE_FMT, UNKN_FILE_SUFFIX, UNKN_NAMED_FILE_FMT, NON_MATCH_NAMED_FILE_FMT, NO_FILE_FMT,
-                   BAD_PLGIN_LIST, BAD_PLGIN_FILE, BAD_PLGIN, ALREADY_KN_TAG, NON_EXISTING_DOMAIN,
+                   BAD_PLGIN_LIST, BAD_PLGIN_FILE, BAD_PLGIN, ALREADY_KN_TAG, NON_EXISTING_DOMAIN, UNKNOWN_VERTEX,
                    NO_IMG_ARG, DIFF_IMG } ExceptionCode;
 
     class Exception: public std::exception {
@@ -251,6 +251,12 @@ namespace OpenMEEG {
 
         const std::string domain;
         const T&          interface;
+    };
+
+    struct UnknownVertex: public Exception {
+        UnknownVertex(): Exception("Unknown vertex in triangle") { }
+
+        ExceptionCode code() const throw() { return UNKNOWN_VERTEX; }
     };
 
     //  Revisit (TODO).
