@@ -60,7 +60,7 @@ namespace OpenMEEG {
 
         OrientedMesh() {}
 
-        OrientedMesh(Mesh& m,const Orientation o=Normal): meshptr(&m),orient(o) { }
+        OrientedMesh(Mesh& m,const Orientation o): meshptr(&m),orient(o) { }
 
               Mesh&  mesh()       { return *meshptr; } ///< \brief access mesh
         const Mesh&  mesh() const { return *meshptr; } ///< \brief access mesh
