@@ -104,8 +104,10 @@ namespace OpenMEEG::MeshIOs {
             delete[] buffer;
             reader->Delete();
             const unsigned npts = vtkMesh->GetNumberOfPoints();
+            Vertices vertices;
             for (unsigned i=0;i<npts;++i)
-                add_vertex(i,Vertex(vtkMesh->GetPoint(i)),geom);
+                vertices.push_back(Vertex(vtkMesh->GetPoint(i)));
+            indmap = geom.add_vertices(vertices);
         }
 
         void load_triangles(OpenMEEG::Mesh& mesh) override {
@@ -120,7 +122,7 @@ namespace OpenMEEG::MeshIOs {
                     exit(1);
                 }
                 const vtkIdList* l = vtkMesh->GetCell(i)->GetPointIds();
-                add_triangle(l);
+                mesh.add_triangle(l,indmap);
             }
         }
     #else

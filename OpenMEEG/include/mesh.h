@@ -61,42 +61,45 @@ namespace OpenMEEG {
     //  on which triangles are based.
 
     class OPENMEEG_EXPORT Mesh {
+
+        static Geometry* create_geometry(Geometry* geom);
+
     public:
 
         friend class Geometry;
+        friend class MeshIO;
 
         typedef std::map<const Vertex*,TrianglesRefs> VertexTriangles;
 
         /// Default constructor
+        /// or constructor using a provided geometry \param geometry
 
-        Mesh();
+        Mesh(Geometry* geometry=nullptr): geom(create_geometry(geometry)) { }
 
-        /// Constructor from scratch (add vertices/triangles one by one)
+        /// Constructor from scratch (vertices/triangles t be added)
         /// \param nv space to allocate for vertices
         /// \param nt space to allocate for triangles
+        /// \param geometry the geometry to use
+        // Do we need this ? TODO
 
-        Mesh(const unsigned nv,const unsigned nt);
-
-        /// Constructor from vertices and triangles.
-
-        Mesh(Vertices&& vs,Triangles&& ts);
-
-        /// Constructor from another mesh \param m
+        Mesh(const unsigned nv,const unsigned nt,Geometry* geometry=nullptr);
 
         Mesh(const Mesh&) = delete;
         Mesh(Mesh&& m) = default;
 
-        /// Constructor using an existing geometry.
-        /// \param g geometry
-        /// \param name mesh name
+        /// Constructors
+        /// \param filename mesh file name
+        /// \param verbose verbose mode
+        /// \param geometry geometry
 
-        Mesh(Geometry& g,const std::string name=""): mesh_name(name),geom(&g) { }
+        Mesh(const std::string& filename,const bool verbose,Geometry* geometry=nullptr): Mesh(geometry) {
+            load(filename,verbose);
+        }
 
-        /// Constructor loading directly a mesh file named \param filename .
-        /// Be verbose if \param verbose is true.
-        /// The mesh name is \param name .
+        /// \param filename mesh file name
+        /// \param geometry geometry
 
-        Mesh(const std::string& filename,const bool verbose=true,const std::string& name="");
+        Mesh(const std::string& filename,Geometry* geometry=nullptr): Mesh(filename,false,geometry) { }
 
         /// Destructor
 
@@ -104,8 +107,6 @@ namespace OpenMEEG {
 
         std::string&       name()       { return mesh_name; } ///< \return the mesh name
         const std::string& name() const { return mesh_name; } ///< \return the mesh name
-
-        void setName(const std::string& name) { mesh_name = name ; return ;  } ///< setter for the mesh name
 
               VerticesRefs& vertices()       { return mesh_vertices; } ///< \return the vector of pointers to the mesh vertices
         const VerticesRefs& vertices() const { return mesh_vertices; } ///< \return the vector of pointers to the mesh vertices
@@ -115,21 +116,30 @@ namespace OpenMEEG {
               Triangles& triangles()       { return mesh_triangles; } ///< \return the triangles of the mesh
         const Triangles& triangles() const { return mesh_triangles; } ///< \return the triangles of the mesh
 
+        TriangleIndices triangle(const Triangle& t) const;
+
         bool  current_barrier() const { return current_barrier_; }
         bool& current_barrier()       { return current_barrier_; }
         bool  isolated()        const { return isolated_;        }
         bool& isolated()              { return isolated_;        }
 
-        // void add_vertex(const Vertex& v); ///< \brief Add vertex to the mesh.
+        /// \brief Add a triangle specified by its indices in the geometry.
 
-        void add_triangle(const unsigned inds[3]) {
-            for (unsigned i=0;i<3;++i)
-                if (inds[i]>=vertices().size()) {
-                    std::cerr << "Unknown vertex: " << inds[i] << " (hint: vertex numbering often starts at 0). Aborting." << std::endl;
-                    exit(1);
-                }
-            Triangle t(vertices()[inds[0]],vertices()[inds[1]],vertices()[inds[2]]);
-            triangles().push_back(t);
+        void add_triangle(const TriangleIndices inds);
+
+        void add_triangle(const TriangleIndices inds,const IndexMap& indmap) {
+            const TriangleIndices t = { indmap.at(inds[0]), indmap.at(inds[1]), indmap.at(inds[2])};
+            add_triangle(t);
+        }
+
+        void add(const std::vector<TriangleIndices>& trgs) {
+            for (const auto& triangle : trgs)
+                add_triangle(triangle);
+        }
+
+        void add(const std::vector<TriangleIndices>& trgs,const IndexMap& indmap) {
+            for (const auto& triangle : trgs)
+                add_triangle(triangle,indmap);
         }
 
         bool operator==(const Mesh& m) const { return triangles()==m.triangles(); }
@@ -143,7 +153,6 @@ namespace OpenMEEG {
         bool has_self_intersection() const; ///< \brief Check whether the mesh self-intersects.
         bool intersection(const Mesh&) const; ///< \brief Check whether the mesh intersects another mesh.
         bool has_correct_orientation() const; ///< \brief Check local orientation of mesh triangles.
-        void build_mesh_vertices(); ///< \brief Construct mesh vertices from its triangles,
         void generate_indices(); ///< \brief Generate indices (if allocate).
         void update(const bool topology_changed); ///< \brief Recompute triangles normals, area, and vertex triangles.
         void merge(const Mesh&,const Mesh&); ///< Merge two meshes.
@@ -204,6 +213,14 @@ namespace OpenMEEG {
         /// \param filename can be .vtk, .tri (ascii), .bnd, .off or .mesh
 
         void save(const std::string& filename) const ;
+
+    #ifndef SWIGPYTHON
+    private:
+    #endif
+
+        //  This private method must be accessible from swig.
+
+        void reference_vertices(const IndexMap& indmap); ///< \brief Construct mesh vertices references,
 
     private:
 

@@ -47,22 +47,17 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 namespace OpenMEEG {
 
-    Mesh::Mesh(): geom(new Geometry),mesh_triangles() { }
+    //  We need a shared_ptr TODO
 
-    Mesh::Mesh(const unsigned nv,const unsigned nt): geom(new Geometry) {
+    Geometry* Mesh::create_geometry(Geometry* geom) {
+        if (geom!=nullptr)
+            return geom;
+        return new Geometry;
+    }
+
+    Mesh::Mesh(const unsigned nv,const unsigned nt,Geometry* geometry): Mesh(geometry) {
         geom->vertices().reserve(nv);
         triangles().reserve(nt);
-    }
-
-    Mesh::Mesh(Vertices&& vs,Triangles&& ts): geom(new Geometry) {
-        geom->vertices() = vs;
-        triangles()      = ts;
-    }
-
-    Mesh::Mesh(const std::string& filename,const bool verbose,const std::string& name):
-        mesh_name(name),geom(new Geometry)
-    {
-        load(filename,verbose);
     }
 
     /// Print informations about the mesh 
@@ -93,16 +88,21 @@ namespace OpenMEEG {
         }
     }
 
-    void Mesh::build_mesh_vertices() {
+    TriangleIndices Mesh::triangle(const Triangle& t) const {
+        auto ind = [&](const unsigned i) { return &t.vertex(i)-&geometry().vertices()[0]; };
+        return TriangleIndices(ind(0),ind(1),ind(2));
+    }
 
-        // Sets do not preserve the order, and we would like to preserve it so we push_back in the vector as soon as the element is unique.
+    void Mesh::add_triangle(const TriangleIndices inds) {
+        Vertex* vptrs[3];
+        for (unsigned i=0; i<3; ++i)
+            vptrs[i] = &geometry().vertices().at(inds[i]);
+        triangles().push_back(vptrs);
+    }
 
-        std::set<const Vertex *> mesh_v;
-        vertices().clear();
-        for (auto& triangle : triangles())
-            for (auto& vertex : triangle)
-                if (mesh_v.insert(vertex).second)
-                    vertices().push_back(vertex);
+    void Mesh::reference_vertices(const IndexMap& indmap) {
+        for (const auto& mapping : indmap)
+            vertices().push_back(&geometry().vertices().at(mapping.second));
     }
 
     void Mesh::clear() {

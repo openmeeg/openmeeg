@@ -85,12 +85,23 @@ namespace OpenMEEG {
         /// Constructors
 
         Geometry() {}
-        Geometry(const std::string& geomFileName,const std::string& condFileName="",const bool OLD_ORDERING=false) {
-            read(geomFileName,condFileName,OLD_ORDERING);
+
+        Geometry(const std::string& geomFileName,const bool OLD_ORDERING=false) {
+            load(geomFileName,OLD_ORDERING);
         }
 
+        Geometry(const std::string& geomFileName,const std::string& condFileName,const bool OLD_ORDERING=false) {
+            load(geomFileName,condFileName,OLD_ORDERING);
+        }
+
+        //  Absolutely necessary or wrong constructor is called because of conversion of char* to bool.
+
+        Geometry(const char* geomFileName,const bool OLD_ORDERING=false): Geometry(std::string(geomFileName),OLD_ORDERING) { }
+        Geometry(const char* geomFileName,const char* condFileName,const bool OLD_ORDERING=false):
+            Geometry(std::string(geomFileName),std::string(condFileName),OLD_ORDERING) { }
+
         void info(const bool verbose=false) const; ///< \brief Print information on the geometry
-        bool has_cond()                     const { return conductivity; } // TODO: Is this useful ?
+        bool has_cond()                     const { return conductivities; } // TODO: Is this useful ?
         bool selfCheck()                    const; ///< \brief the geometry meshes intersect each other
         bool check(const Mesh& m)           const; ///< \brief check if m intersect geometry meshes
         bool check_inner(const Matrix& m)   const; ///< \brief check if dipoles are outside of geometry meshes
@@ -118,6 +129,24 @@ namespace OpenMEEG {
             return vertices().size()-1;
         }
 
+        Mesh& add_mesh(const std::string& name="") {
+
+            //  It is dangerous to store the returned mesh because the vector can be reallocated.
+            //  Use mesh(name) after all meshes have been added....
+
+            meshes().emplace_back(this);
+            Mesh& mesh = meshes().back();
+            mesh.name() = name;
+            return mesh;
+        }
+
+        IndexMap add_vertices(const Vertices& vs) {
+            IndexMap indmap;
+            for (unsigned i=0; i<vs.size(); ++i)
+                indmap.insert({ i, add_vertex(vs[i]) });
+            return indmap;
+        }
+
         /// \brief Return the list of meshes involved in the geometry.
 
               Meshes& meshes()       { return geom_meshes; }
@@ -125,7 +154,7 @@ namespace OpenMEEG {
 
         const MeshPairs& communicating_mesh_pairs() const { return meshpairs; }
 
-        ///< \brief returns the Mesh called \param name .
+        /// \brief returns the Mesh called \param name .
 
         Mesh& mesh(const std::string& name);
 
@@ -185,14 +214,10 @@ namespace OpenMEEG {
             finalize(OLD_ORDERING);
         }
 
-        void read(const std::string& filename) { load(filename); }
-
-        void read(const std::string& geomFileName,const std::string& condFileName,const bool OLD_ORDERING=false) {
+        void load(const std::string& geomFileName,const std::string& condFileName,const bool OLD_ORDERING=false) {
             clear();
             read_geometry_file(geomFileName);
             read_conductivity_file(condFileName);
-            conductivity = true;
-            mark_current_barriers(); // mark meshes that touch the domains of null conductivity.
             finalize(OLD_ORDERING);
         }
 
@@ -201,6 +226,8 @@ namespace OpenMEEG {
             // In a correct decomposition, each interface is used exactly once ?? Unsure...
             // Search for the outermost domain and set boolean OUTERMOST on the domain in the vector domains.
             // An outermost domain is (here) defined as the only domain outside represented by only one interface.
+
+            mark_current_barriers(); // mark meshes that touch the domains of null conductivity.
 
             Domain& outer_domain = outermost_domain();
             set_outermost_domain(outer_domain);
@@ -232,7 +259,7 @@ namespace OpenMEEG {
             geom_vertices.clear();
             geom_meshes.clear();
             geom_domains.clear();
-            conductivity = nested = false;
+            conductivities = nested = false;
             outer_domain = 0;
             num_params = 0;
         }
@@ -248,10 +275,10 @@ namespace OpenMEEG {
         Meshes       geom_meshes;
         Domains      geom_domains;
 
-        const Domain* outer_domain = 0;
-        bool          nested       = false;
-        bool          conductivity = false;
-        size_t        num_params   = 0;   // total number = nb of vertices + nb of triangles
+        const Domain* outer_domain   = 0;
+        bool          nested         = false;
+        bool          conductivities = false; //    Is this really useful ??
+        size_t        num_params     = 0;   // total number = nb of vertices + nb of triangles
 
         void  generate_indices(const bool);
 
