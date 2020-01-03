@@ -46,12 +46,9 @@ dipole_file = op.join(data_path, subject, subject + ".dip")
 squidsFile = op.join(data_path, subject, subject + ".squids")
 patches_file = op.join(data_path, subject, subject + ".patches")
 
-geom = om.Geometry()
-# XXX : when trying to load a missing file it makes Python crash
-geom.read(geom_file, cond_file)
+geom = om.Geometry(geom_file,cond_file)
 
-mesh = om.Mesh()
-mesh.load(source_mesh_file)
+mesh = om.Mesh(source_mesh_file)
 
 dipoles = om.Matrix()
 dipoles.load(dipole_file)

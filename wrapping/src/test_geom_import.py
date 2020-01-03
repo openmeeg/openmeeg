@@ -8,12 +8,7 @@ vertices = np.array([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0],
                      [1.0, 1.0, 0.0], [0.0, 1.0, 0.0]])
 triangles = np.array([[1, 2, 3], [2, 3, 0]])
 
-mesh = om.Mesh(vertices, triangles)
-
 g = om.Geometry()
+mesh = om.Mesh(vertices, triangles, "test", g)
 
-assert g.check(mesh)
-
-g.import_meshes([mesh])
-
-assert not g.check(mesh)
+assert mesh.geometry().check(mesh)
