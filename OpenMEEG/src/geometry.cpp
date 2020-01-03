@@ -218,9 +218,10 @@ namespace OpenMEEG {
             std::cerr << e.what() << " in the file " << filename << std::endl;
             exit(e.code());
         } catch (...) {
-            std::cerr << "Could not read the conducitvity file: " << filename << std::endl;
+            std::cerr << "Could not read the conductivity file: " << filename << std::endl;
             exit(1);
         }
+        conductivities = true;
     }
 
     // This generates unique indices for vertices and triangles which will correspond to our unknowns.

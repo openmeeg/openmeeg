@@ -103,10 +103,10 @@ namespace OpenMEEG::MeshIOs {
             const int* trgs = static_cast<const int*>(gim->darray[itrgs]->data);
             if (gim->darray[itrgs]->ind_ord==GIFTI_IND_ORD_ROW_MAJOR) { // RowMajor
                 for (unsigned i=0; i<ntrgs; ++i)
-                    add_triangle(Triangle(vertices_[trgs[i*3]],vertices_[trgs[i*3+1]],vertices_[trgs[i*3+2]]));
+                    mesh.add_triangle(Triangle(vertices_[trgs[i*3]],vertices_[trgs[i*3+1]],vertices_[trgs[i*3+2]]),indmap);
             } else {
                 for (unsigned i=0; i<ntrgs; ++i)
-                    add_triangle(Triangle(vertices_[trgs[i]],vertices_[trgs[i+ntrgs]],vertices_[trgs[i+2*ntrgs]]));
+                    mesh.add_triangle(Triangle(vertices_[trgs[i]],vertices_[trgs[i+ntrgs]],vertices_[trgs[i+2*ntrgs]]),indmap);
             }
 
             gifti_free_image(gim);
@@ -174,13 +174,15 @@ namespace OpenMEEG::MeshIOs {
         void read_pts(const void* data,Geometry& geom) {
             const unsigned npts     = gim->darray[ipts]->dims[0];
             const T*       pts_data = static_cast<const T*>(data);
+            Vertices vertices;
             if (gim->darray[ipts]->ind_ord==GIFTI_IND_ORD_ROW_MAJOR) { // RowMajor
                 for (unsigned i=0; i<npts; ++i)
-                    add_vertex(i,Vertex(pts_data[i*3],pts_data[i*3+1],pts_data[i*3+2]),geom);
+                    vertices.push_back(Vertex(pts_data[i*3],pts_data[i*3+1],pts_data[i*3+2]));
             } else {
                 for (unsigned i=0; i<npts; ++i)
-                    add_vertex(i,Vertex(pts_data[i],pts_data[i+npts],pts_data[i+2*npts]),geom);
+                    vertices.push_back(Vertex(pts_data[i],pts_data[i+npts],pts_data[i+2*npts]));
             }
+            indmap = geom.add_vertices(vertices);
         }
 
         static unsigned find(const gifti_image* gim,const unsigned intent) {

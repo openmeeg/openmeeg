@@ -60,12 +60,14 @@ namespace OpenMEEG::MeshIOs {
             unsigned npts;
             fs >> ch >> npts;
 
+            Vertices vertices;
             for (unsigned i=0; i<npts; ++i) {
                 Vertex v;
                 Normal n;
                 fs >> v >> n;
-                add_vertex(i,v,geom);
+                vertices.push_back(v);
             }
+            indmap = geom.add_vertices(vertices);
         }
 
         void load_triangles(OpenMEEG::Mesh& mesh) override {
@@ -79,7 +81,7 @@ namespace OpenMEEG::MeshIOs {
             for (unsigned i=0; i<ntrgs; ++i) {
                 TriangleIndices t;
                 fs >> t[0] >> t[1] >> t[2];
-                add_triangle(t,mesh);
+                mesh.add_triangle(t,indmap);
             }
         }
 
