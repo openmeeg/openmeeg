@@ -78,19 +78,18 @@ Vector VR(const Geometry& geo, const Matrix& points, const SymMatrix& HeadMatInv
 int main(const int argc, const char* argv[]) {
     print_version(argv[0]);
 
-    if ( argc < 2 ) {
+    if (argc<2) {
         std::cerr << "Not enough arguments \nPlease try \"" << argv[0];
         std::cerr << " -h\" or \"" << argv[0] << " --help \" \n" << std::endl;
         return 0;
     }
 
-    if ( (!strcmp(argv[1], "-h")) || (!strcmp(argv[1], "--help")) ) {
+    if ((!strcmp(argv[1],"-h")) || (!strcmp(argv[1],"--help"))) {
         getHelp(argv);
         return 0;
     }
 
-    Geometry geo;
-    geo.read(argv[1], argv[2]);
+    Geometry geo(argv[1],argv[2]);
 
     const unsigned gauss_order = 3;
     const unsigned totalsize = geo.nb_parameters();
