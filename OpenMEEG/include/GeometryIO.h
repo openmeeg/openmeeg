@@ -87,7 +87,7 @@ namespace OpenMEEG {
         virtual void   load_domains(Geometry& geometry) { }
         virtual Matrix load_data() const = 0;
 
-        virtual void save_geom(const Geometry& geometry) const = 0;
+        virtual void save_geom(const Geometry& geometry)       = 0;
         virtual void save_data(const Matrix& matrix)     const = 0;
         virtual void write() const = 0;
 
