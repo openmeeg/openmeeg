@@ -131,10 +131,8 @@ namespace OpenMEEG::GeometryIOs {
                     triangles.back().index() = c_indices->GetValue(i);
             }
 
-            for (auto& mesh : geometry.meshes()) {
-                mesh.build_mesh_vertices();
+            for (auto& mesh : geometry.meshes())
                 mesh.update(true);
-            }
         }
 
         Matrix load_data() const {
@@ -221,7 +219,7 @@ namespace OpenMEEG::GeometryIOs {
 
         }
 
-        void save_data(const Matrix& data) const {
+        void save_data(const Matrix& data) {
             // Check the data corresponds to the geometry
 
             const bool HAS_OUTERMOST = (data.nlin()==geometry.meshes().size()); // data has least p values ?
@@ -308,7 +306,7 @@ namespace OpenMEEG::GeometryIOs {
 
     private:
 
-        virtual void save_geom(const Geometry& geometry) const override { }
+        virtual void save_geom(const Geometry& geometry)       override { }
         virtual void save_data(const Matrix& matrix)     const override { }
         virtual void write() const override { }
 
