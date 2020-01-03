@@ -45,7 +45,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #include <mesh.h>
 #include <integrator.h>
-#include "cpuChrono.h"   // XXX: to refactor when reviewing text-gui
+#include <om_utils.h>
 #include <assemble.h>
 #include <sensors.h>
 #include <geometry.h>
@@ -88,8 +88,7 @@ int main(int argc, char** argv)
     if (option(argc,argv,{"-HeadMat","-HM", "-hm"},
                 {"geometry file", "conductivity file", "output file"}) ) {
         // Loading surfaces from geometry file
-        Geometry geo;
-        geo.read(argv[2],argv[3],OLD_ORDERING);
+        Geometry geo(argv[2],argv[3],OLD_ORDERING);
 
         // Check for intersecting meshes
         if (!geo.selfCheck())
@@ -142,8 +141,7 @@ int main(int argc, char** argv)
         }
 
         // Loading surfaces from geometry file
-        Geometry geo;
-        geo.read(argv[2], argv[3], OLD_ORDERING);
+        Geometry geo(argv[2],argv[3],OLD_ORDERING);
 
         // Check for intersecting meshes
         if (!geo.selfCheck())
@@ -167,15 +165,14 @@ int main(int argc, char** argv)
                      {"geometry file", "conductivity file", "'mesh of sources' file", "output file"})) {
 
         // Loading surfaces from geometry file.
-        Geometry geo;
-        geo.read(argv[2],argv[3],OLD_ORDERING);
+        Geometry geo(argv[2],argv[3],OLD_ORDERING);
 
         // Loading mesh for distributed sources
         Mesh mesh_sources;
         mesh_sources.load(argv[4]);
 
         // Assembling Matrix from discretization.
-        SurfSourceMat ssm(geo, mesh_sources, gauss_order);
+        SurfSourceMat ssm(geo,mesh_sources,gauss_order);
         ssm.save(argv[5]); // if outfile is specified
     }
 
@@ -192,8 +189,7 @@ int main(int argc, char** argv)
         }
 
         // Loading surfaces from geometry file.
-        Geometry geo;
-        geo.read(argv[2], argv[3], OLD_ORDERING);
+        Geometry geo(argv[2],argv[3],OLD_ORDERING);
 
         // Loading Matrix of dipoles.
         Matrix dipoles(argv[4]);
@@ -223,8 +219,7 @@ int main(int argc, char** argv)
                      {"geometry file", "conductivity file", "electrodes positions file", "output file"}) ) {
 
         // Loading surfaces from geometry file.
-        Geometry geo;
-        geo.read(argv[2], argv[3], OLD_ORDERING);
+        Geometry geo(argv[2],argv[3],OLD_ORDERING);
 
         Sensors electrodes(argv[4], geo); // special parameter for EIT electrodes: the interface
         electrodes.info(); // <- just to test that function on the code coverage
@@ -241,8 +236,7 @@ int main(int argc, char** argv)
                      {"geometry file", "conductivity file", "electrodes positions file", "output file"}) ) {
 
         // Loading surfaces from geometry file.
-        Geometry geo;
-        geo.read(argv[2], argv[3], OLD_ORDERING);
+        Geometry geo(argv[2],argv[3],OLD_ORDERING);
 
         // read the file containing the positions of the EEG patches
         Sensors electrodes(argv[4]);
@@ -265,8 +259,7 @@ int main(int argc, char** argv)
 
         // Load surfaces from geometry file.
 
-        Geometry geo;
-        geo.read(argv[2], argv[3], OLD_ORDERING);
+        Geometry geo(argv[2],argv[3],OLD_ORDERING);
 
         // Read the file containing the positions of the EEG patches
 
@@ -300,8 +293,7 @@ int main(int argc, char** argv)
                      {"geometry file", "conductivity file", "squids file", "output file"}) ) {
 
         // Loading surfaces from geometry file.
-        Geometry geo;
-        geo.read(argv[2],argv[3],OLD_ORDERING);
+        Geometry geo(argv[2],argv[3],OLD_ORDERING);
 
         // Load positions and orientations of sensors.
         Sensors sensors(argv[4]);
@@ -360,8 +352,7 @@ int main(int argc, char** argv)
                      {"geometry file", "conductivity file", "point positions file", "output file"}) ) {
 
         // Loading surfaces from geometry file
-        Geometry geo;
-        geo.read(argv[2], argv[3], OLD_ORDERING);
+        Geometry geo(argv[2],argv[3],OLD_ORDERING);
         Matrix points(argv[4]);
         Surf2VolMat mat(geo, points);
         // Saving SurfToVol Matrix.
@@ -381,8 +372,7 @@ int main(int argc, char** argv)
             std::cout << "Dipoles are considered to be in \"" << domain_name << "\" domain." << std::endl;
         }
         // Loading surfaces from geometry file
-        Geometry geo;
-        geo.read(argv[2],argv[3],OLD_ORDERING);
+        Geometry geo(argv[2],argv[3],OLD_ORDERING);
         // Loading dipoles.
         Matrix dipoles(argv[4]);
         Matrix points(argv[5]);

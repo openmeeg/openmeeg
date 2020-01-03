@@ -44,60 +44,57 @@ knowledge of the CeCILL-B license and that you accept its terms.
 using namespace std;
 using namespace OpenMEEG;
 
+inline std::string
+param(const char* base,const unsigned n) {
+    std::stringstream res;
+    res << base << n;
+    return res.str();
+}
+
 int main( int argc, char **argv) {
 
     print_version(argv[0]);
 
     command_usage("Convert meshes OR geometry into a single VTK/VTP file.");
-    const char * geom_filename;
-    const char * input[7];
-    const char * name[7];
-    const char * output;
-    geom_filename = command_option("-g", (const char *) NULL, "Input geometry");
-    input[0] = command_option("-i1", (const char *) NULL, "Input mesh");
-    input[1] = command_option("-i2", (const char *) NULL, "Input mesh");
-    input[2] = command_option("-i3", (const char *) NULL, "Input mesh");
-    input[3] = command_option("-i4", (const char *) NULL, "Input mesh");
-    input[4] = command_option("-i5", (const char *) NULL, "Input mesh");
-    input[5] = command_option("-i6", (const char *) NULL, "Input mesh");
-    input[6] = command_option("-i7", (const char *) NULL, "Input mesh");
-    name[0]  = command_option("-n1", (const char *) "1", "Mesh name");
-    name[1]  = command_option("-n2", (const char *) "2", "Mesh name");
-    name[2]  = command_option("-n3", (const char *) "3", "Mesh name");
-    name[3]  = command_option("-n4", (const char *) "4", "Mesh name");
-    name[4]  = command_option("-n5", (const char *) "5", "Mesh name");
-    name[5]  = command_option("-n6", (const char *) "6", "Mesh name");
-    name[6]  = command_option("-n7", (const char *) "7", "Mesh name");
-    output   = command_option("-o" , (const char *) NULL, "Output VTP file");
+    const char* geom_filename = command_option("-g", (const char *) NULL, "Input geometry");
 
-    if ( command_option("-h", (const char *)0, 0) )
+    const char * input[7];
+    for (unsigned i=0; i<7; ++i) {
+        const std::string& pname = param("-i",i+1);
+        input[i] = command_option(pname.c_str(),(const char *) NULL,"Input mesh");
+    }
+
+    const char * name[7];
+    for (unsigned i=0; i<7; ++i) {
+        const std::string& pname = param("-n",i+1);
+        const std::string& lname = param("",i+1);
+        name[i]  = command_option(pname.c_str(),lname.c_str(),"Mesh name");
+    }
+
+    const char* output = command_option("-o" , (const char *) NULL, "Output VTP file");
+
+    if (command_option("-h",(const char *)0,0))
         return 0;
 
-    if ( (!input[0] && !geom_filename) || !output ) {
+    if ((!input[0] && !geom_filename) || !output) {
         std::cout << "Not enough arguments, try the -h option" << std::endl;
         return 1;
     }
     
     Geometry geo;
 
-    if (!geom_filename)
-    {
+    if (!geom_filename) {
         Meshes meshes;
 
-        unsigned i_input     = 0;
-
         // first only read the number of inputs
-        while ( input[i_input] != 0 ) {
-            Mesh m(input[i_input], false, name[i_input]);
-            m.correct_local_orientation();
-            meshes.push_back(m);
-            ++i_input;
+
+        for (unsigned i=0; input[i]!=0; ++i) {
+            meshes.emplace_back({ input[i], false, name[i] });
+            meshes.back().correct_local_orientation();
         }
 
         geo.import_meshes(meshes);
-    }
-    else
-    {
+    } else {
         geo.read(geom_filename);
     }
 
@@ -106,4 +103,4 @@ int main( int argc, char **argv) {
     geo.write_vtp(output);
 
     return 0;
-}
+
