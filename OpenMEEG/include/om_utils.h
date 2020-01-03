@@ -47,6 +47,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <cmath>
 #include <random>
 #include <iostream>
+#include <chrono>
 #include <sstream>
 #include <algorithm>
 #include <cctype>
@@ -190,6 +191,12 @@ namespace OpenMEEG {
         }
     }
 #endif
+
+    inline void dispEllapsed(const std::chrono::duration<double> elapsed_seconds) {
+        std::cout <<  "-------------------------------------------" << std::endl
+                  <<  "| Elapsed Time: " << elapsed_seconds.count() << " s." << std::endl
+                  <<  "-------------------------------------------" << std::endl;
+    }
 
     inline void warning(std::string message) {
         std::cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
