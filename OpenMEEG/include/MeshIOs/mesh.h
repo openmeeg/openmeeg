@@ -88,8 +88,10 @@ namespace OpenMEEG::MeshIOs {
 
             float* coords = new float[3*npts]; // Point coordinates
             fs.read(reinterpret_cast<char*>(coords),3*npts*sizeof(float));
+            Vertices vertices;
             for (unsigned i=0,j=0; i<npts; ++i,j+=3)
-                add_vertex(i,Vertex(coords[j],coords[j+1],coords[j+2]),geom);
+                vertices.push_back(Vertex(coords[j],coords[j+1],coords[j+2]));
+            indmap = geom.add_vertices(vertices);
             delete[] coords;
 
             fs.ignore(sizeof(unsigned));
@@ -107,8 +109,8 @@ namespace OpenMEEG::MeshIOs {
             fs.read(reinterpret_cast<char*>(pts_inds),3*ntrgs*sizeof(unsigned));
             mesh.triangles().reserve(ntrgs);
             for (unsigned i=0,j=0; i<ntrgs; ++i,j+=3) {
-                TriangleIndices t = { pts_inds[j], pts_inds[j+1], pts_inds[j+2] };
-                add_triangle(t,mesh);
+                const TriangleIndices t = { pts_inds[j], pts_inds[j+1], pts_inds[j+2] };
+                mesh.add_triangle(t,indmap);
             }
             delete[] pts_inds;
         }

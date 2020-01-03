@@ -95,8 +95,6 @@ namespace OpenMEEG {
 
     protected:
 
-        typedef unsigned TriangleIndices[3];
-        typedef std::map<unsigned,unsigned>   IndexMap;
         typedef std::map<std::string,MeshIO*> Registery;
 
         class VertexIndices {
@@ -120,18 +118,7 @@ namespace OpenMEEG {
         virtual MeshIO* clone(const std::string& filename) const = 0;
         virtual constexpr bool binary() const { return false; }
 
-        void add_vertex(const unsigned index,const Vertex& V,Geometry& geometry) { indmap.insert({index,geometry.add_vertex(V)}); }
-        void add_triangle(const TriangleIndices& tinds,Mesh& mesh) {
-            Vertex* vptrs[3];
-            for (unsigned i=0; i<3; ++i)
-                vptrs[i] = &mesh.geometry().vertices().at(indmap.at(tinds[i]));
-            mesh.triangles().push_back(vptrs);
-        }
-
-        void reference_vertices(Mesh& mesh) const {
-            for (const auto& mapping : indmap)
-                mesh.vertices().push_back(&mesh.geometry().vertices().at(mapping.second));
-        }
+        void reference_vertices(Mesh& mesh) const { mesh.reference_vertices(indmap); }
 
         static Registery registery;
 
