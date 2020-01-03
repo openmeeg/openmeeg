@@ -20,7 +20,6 @@ data_path = options.data_path
 def test_mesh(name, vertices, triangles, expected_result):
     try:
         mesh = om.Mesh(vertices, triangles)
-        mesh.update()
         mesh.info()
     except:
         if expected_result:
@@ -61,11 +60,10 @@ triangles = np.array([[1, 2, 3], [2, 3, 0]], dtype=np.int64)
 test_mesh("9", vertices, triangles, True)
 
 # test X -> should be OK
-# TODO: Does not work if not jls....
+
 data_file = path.join(data_path, "Head1", "Head1.tri")
 mesh_X = om.Mesh()
 mesh_X.load(data_file)
-mesh_X.update()
 
 # test Y -> redo with np.array()
 V_Y = mesh_X.vertices()
