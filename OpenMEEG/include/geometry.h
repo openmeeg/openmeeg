@@ -247,7 +247,6 @@ namespace OpenMEEG {
 
             generate_indices(OLD_ORDERING);
             make_mesh_pairs();
-            info();
         }
 
         /// Handle multiple isolated domains
