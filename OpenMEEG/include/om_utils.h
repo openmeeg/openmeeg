@@ -39,10 +39,6 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #pragma once
 
-#if WIN32
-#define _USE_MATH_DEFINES
-#endif
-
 #include <string>
 #include <cmath>
 #include <random>
@@ -51,146 +47,10 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <sstream>
 #include <algorithm>
 #include <cctype>
-#ifdef USE_OMP
-#include <omp.h>
-#endif
 
 #include "OpenMEEGConfigure.h"
 
 namespace OpenMEEG {
-
-#ifndef M_PI
-    constexpr double Pi = 3.14159265358979323846;
-#else
-    constexpr double Pi = M_PI;
-#endif
-
-#if WIN32
-    constexpr char PathSeparator[] = "/\\";
-#else
-    constexpr char PathSeparator = '/';
-#endif
-
-    constexpr double MagFactor = 1e-7;
-
-#ifdef USE_PROGRESSBAR
-    class ProgressBar {
-    public:
-
-        ProgressBar(const unsigned n,const unsigned sz=20): max_iter(n),bar_size(sz) {
-        }
-
-        void operator++() {
-            const unsigned p = std::min(static_cast<unsigned>(floor(static_cast<double>((bar_size+1)*iter++)/max_iter)),bar_size);
-            if (p!=pprev && iter>1) {
-                std::cout << std::string(bar_size+2,'\b') << '[' << std::string(p,'*') << std::string(bar_size-p,'.') << ']';
-                pprev = p;
-            }
-            if (iter>=max_iter)
-                std::cout << std::endl;
-            std::cout.flush();
-        }
-        
-    private:
-        
-        unsigned iter = 0;
-        unsigned pprev = -1;
-        const unsigned max_iter;
-        const unsigned bar_size;
-    };
-#else
-    class ProgressBar {
-    public:
-
-        ProgressBar(const unsigned,const unsigned=20) { }
-        void operator++() { {
-    };
-#endif
-
-    inline std::string
-    getFilenameExtension(const std::string& name) {
-        const std::string::size_type idx = name.find_last_of('.');
-        if (idx==std::string::npos)
-            return "";
-        return name.substr(idx+1);
-    }
-
-    inline std::string
-    tolower(const std::string& s) {
-        std::string res = s;
-        std::transform(res.begin(),res.end(),res.begin(),
-                       [](unsigned char c){ return std::tolower(c); });
-        return res;
-    }
-
-    /// \return absolute path of file \param name.
-    
-    inline std::string
-    absolute_path(const std::string& name) {
-        const std::string::size_type pos = name.find_last_of(PathSeparator);
-        return (pos==std::string::npos) ? "" : name.substr(0,pos+1);
-    }
-
-    /// \return true if name is a relative path. \param name
-
-    inline bool
-    is_relative_path(const std::string& name) {
-    #if WIN32
-        const char c0 = name[0];
-        if (c0=='/' || c0=='\\')
-            return false;
-
-        const char c1 = name[1];
-        const char c2 = name[2];
-        return !(std::isalpha(c0) && c1==':' && (c2=='/' || c2=='\\'));
-    #else
-        return name[0]!=PathSeparator;
-    #endif
-    }
-
-    inline void
-    disp_argv(const int argc,char **argv) {
-        std::cout << std::endl << "| ------ " << argv[0] << std::endl;
-        for (int i=1;i<argc;++i)
-            std::cout << "| " << argv[i] << std::endl;
-        std::cout << "| -----------------------" << std::endl;
-    }
-
-#ifdef USE_PROGRESSBAR
-    inline void progressbar(const unsigned n,const unsigned N,const unsigned w=20) {
-        // w : nb of steps
-        const char cprog  = '.';
-        const char cprog1 = '*';
-        const unsigned p = std::min(static_cast<unsigned>(floor(1.f*n*(w+1)/N)),w);
-
-        static unsigned pprev = -1;
-        if (N>1) {
-            if (n==0)
-                pprev = -1;
-
-            if (p!=pprev) {
-                if (n>1) {
-                    // clear previous string
-                    for (unsigned i=0;i<(w+2);++i)
-                        std::cout << "\b";
-
-                    std::cout << '[';
-                    for (unsigned i=0;i<p;++i)
-                        std::cout << cprog1;
-
-                    for (unsigned i=p;i<w;++i)
-                        std::cout << cprog;
-
-                    std::cout<< ']';
-                }
-            }
-            pprev = p;
-            if (n>=(N-1))
-                std::cout << std::endl;
-            std::cout.flush();
-        }
-    }
-#endif
 
     inline void dispEllapsed(const std::chrono::duration<double> elapsed_seconds) {
         std::cout <<  "-------------------------------------------" << std::endl
@@ -198,25 +58,11 @@ namespace OpenMEEG {
                   <<  "-------------------------------------------" << std::endl;
     }
 
-    inline void warning(std::string message) {
-        std::cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
-        std::cout << "!!!!!!!!!!! WARNING !!!!!!!!!!!" << std::endl;
-        std::cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
-        std::cout << message << std::endl;
-    }
-
-    inline void print_version(const char* cmd) {
-        #ifdef USE_OMP
-            std::string omp_support = " using OpenMP\n Executing using " + std::to_string(omp_get_max_threads()) + " threads.";
-        #else
-            std::string omp_support = "";
-        #endif
-
-        std::ostringstream display_info;
-        display_info << cmd;
-        display_info << " version " << version;
-        display_info << " compiled at " << __DATE__ << " " << __TIME__;
-        display_info << omp_support;
-        std::cout << display_info.str() << std::endl << std::endl;
+    inline void
+    warning(const std::string& message) {
+        std::cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl
+                  << "!!!!!!!!!!! WARNING !!!!!!!!!!!" << std::endl
+                  << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl
+                  << message << std::endl;
     }
 }

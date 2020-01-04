@@ -37,32 +37,34 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
+#include <string>
+
 #include "mesh.h"
 #include "geometry.h"
-#include "options.h"
-#include <string>
+#include "commandline.h"
 
 using namespace OpenMEEG;
 
 int
-main( int argc,char **argv) {
+main(int argc,char* argv[]) {
 
     print_version(argv[0]);
 
-    command_usage("Print Geometry information");
-    const char* geom_filename = command_option("-g",nullptr,"Input .geom file");
-    const char* cond_filename = command_option("-c",nullptr,"Input .cond file");
-    const bool  verbose       = command_option("-v",false,  "Verbose mode");
+    const CommandLine cmd(argc,argv,"Print Geometry information");
+    const std::string& geom_filename = cmd.option("-g",std::string(),"Input .geom file");
+    const std::string& cond_filename = cmd.option("-c",std::string(),"Input .cond file");
+    const bool         verbose       = cmd.option("-v",false,        "Verbose mode");
 
-    if (command_option("-h",nullptr,0)) return 0;
+    if (cmd.help_mode())
+        return 0;
 
-    if (!geom_filename) {
+    if (geom_filename=="") {
         std::cout << "Not enough arguments, try the -h option" << std::endl;
         return 1;
     }
 
     Geometry geo;
-    if (cond_filename) {
+    if (cond_filename!="") {
         geo.load(geom_filename,std::string(cond_filename));
     } else {
         geo.load(geom_filename);

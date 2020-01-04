@@ -37,6 +37,7 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 
 */
+
 // This program is a test used to validate the EIT.
 // see 'Boundary Element Method for Electrical Impedance Tomography' for more details.
 // We check if q.Grad(Vj(r0)) equals Vf(ri)-Vf(re)
@@ -46,26 +47,28 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include "assemble.h"
 #include "danielsson.h"
 
+#include "commandline.h"
+
 using namespace OpenMEEG;
 
-void getHelp(const char* argv[]) 
-{
-    std::cout << "Testing the EIT : \n using the Helmholtz reciprocity principle." << std::endl;
-
-    std::cout << argv[0] << " [filepaths...]" << std::endl;
-    std::cout << "Arguments :"                << std::endl;
-    std::cout << "               geometry file (.geom)"     << std::endl;
-    std::cout << "               conductivity file (.cond)" << std::endl;
-    std::cout << "               dipoles file (.dip)"       << std::endl;
-    std::cout << "               SourceMat"                 << std::endl;
-    std::cout << "               HeadMatInv"                << std::endl ;
-    std::cout << "               output q.grad(Vj)         " << std::endl;
-    std::cout << "               output Vf(ri) - Vf(re)      " << std::endl;
+void
+getHelp(const char* argv[]) {
+    std::cout << "Testing the EIT : \n using the Helmholtz reciprocity principle." << std::endl
+              << argv[0] << " [filepaths...]" << std::endl
+              << "Arguments :"                << std::endl
+              << "               geometry file (.geom)"     << std::endl
+              << "               conductivity file (.cond)" << std::endl
+              << "               dipoles file (.dip)"       << std::endl
+              << "               SourceMat"                 << std::endl
+              << "               HeadMatInv"                << std::endl
+              << "               output q.grad(Vj)         " << std::endl
+              << "               output Vf(ri) - Vf(re)      " << std::endl;
     exit(0);
 }
 
-Vector VR(const Geometry& geo, const Matrix& points, const SymMatrix& HeadMatInv, const Matrix& rhsEIT) 
-{
+Vector
+VR(const Geometry& geo,const Matrix& points,const SymMatrix& HeadMatInv,const Matrix& rhsEIT) {
+
     Surf2VolMat matdx(geo, points);
 
     Matrix EEGGainMatrix;
@@ -75,7 +78,9 @@ Vector VR(const Geometry& geo, const Matrix& points, const SymMatrix& HeadMatInv
     return ( EEGGainMatrix * rhsEIT).getcol(0);
 }
 
-int main(const int argc, const char* argv[]) {
+int
+main(const int argc,const char* argv[]) {
+
     print_version(argv[0]);
 
     if (argc<2) {

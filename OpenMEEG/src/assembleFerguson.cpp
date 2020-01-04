@@ -38,7 +38,8 @@ knowledge of the CeCILL-B license and that you accept its terms.
 */
 
 #include <operators.h>
-#include <om_utils.h>
+#include <progressbar.h>
+#include <constants.h>
 
 namespace OpenMEEG {
 

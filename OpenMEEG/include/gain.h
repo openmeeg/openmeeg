@@ -43,6 +43,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include "sparse_matrix.h"
 #include "symmatrix.h"
 #include "geometry.h"
+#include "progressbar.h"
 #include "assemble.h"
 
 #define USE_GMRES 0

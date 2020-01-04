@@ -38,43 +38,47 @@ knowledge of the CeCILL-B license and that you accept its terms.
 */
 
 #include "mesh.h"
-#include "options.h"
+#include "commandline.h"
 
-using namespace std;
 using namespace OpenMEEG;
 
-int main( int argc, char **argv)
-{
+int
+main(int argc,char* argv[]) {
+
     print_version(argv[0]);
 
-    command_usage("Get info about a Mesh");
-    const char *input_filename = command_option("-i",(const char *) NULL,"Input Mesh");
-    if (command_option("-h",(const char *)0,0)) return 0;
+    const CommandLine cmd(argc,argv,"Get info about a Mesh");
+    const std::string& input_filename = cmd.option("-i",std::string(),"Input Mesh");
 
-    if(!input_filename) 
-    {
+    if (cmd.help_mode())
+        return 0;
+
+    if (input_filename=="") {
         std::cout << "Not enough arguments, try the -h option" << std::endl;
         return 1;
     }
 
     Mesh m(input_filename);
 
-    if ( m.has_self_intersection() ) 
-    {
+    if (m.has_self_intersection())
         warning(std::string("Mesh is self intersecting !"));
-    }
 
     // for closed mesh
-    if ( !m.has_correct_orientation() ) 
-    {
-        warning(std::string("Mesh is not well-oriented (valid for closed mesh) !"));
-    } else {
-        if (m.vertices().size()-3*m.triangles().size()/2+m.triangles().size()==2) {
-            std::cout << "Mesh orientation correct (valid for closed mesh)." << std::endl;
-        } else {
-            std::cout << "Mesh local orientation correct." << std::endl;
-        }
 
+    if (!m.has_correct_orientation()) {
+        warning(std::string("Mesh is not well-oriented (valid for closed mesh) !"));
+        return 1;
     }
+
+    //  For closed meshes E = 3*F/2
+    //  For a simple closed surface, V-E+F=2.
+    //  This the test for a closed mesh is V-F/2=2 or 2*V-F=4.
+
+    if (2*m.vertices().size()-m.triangles().size()==4) {
+        std::cout << "Mesh orientation correct (valid for closed mesh)." << std::endl;
+    } else {
+        std::cout << "Mesh local orientation correct." << std::endl;
+    }
+
     return 0;
 }

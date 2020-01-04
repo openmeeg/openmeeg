@@ -88,6 +88,14 @@ namespace OpenMEEG {
         Vector subvect(size_t istart, size_t isize) const;
         Vector operator+(const Vector& v) const;
         Vector operator-(const Vector& v) const;
+
+        Vector operator-() const {
+            Vector res(nlin());
+            for (size_t i=0; i<nlin(); i++ )
+                res.data()[i] = -data()[i];
+            return res;
+        }
+
         void operator+=(const Vector& v);
         void operator-=(const Vector& v);
         void operator*=(double x);
@@ -109,6 +117,7 @@ namespace OpenMEEG {
         double mean() const { return sum()/size(); }
 
         void set(double x);
+
         void save(const char *filename) const;
         void load(const char *filename);
 
@@ -140,7 +149,7 @@ namespace OpenMEEG {
     #ifdef HAVE_BLAS
         BLAS(daxpy,DAXPY)(sizet_to_int(nlin()),1,v.data(),1,p.data(),1);
     #else
-        for( size_t i=0; i<nlin(); i++ )
+        for (size_t i=0; i<nlin(); i++ )
             p.data()[i]=data()[i]+v.data()[i];
     #endif
         return p;
@@ -152,7 +161,7 @@ namespace OpenMEEG {
     #ifdef HAVE_BLAS
         BLAS(daxpy,DAXPY)(sizet_to_int(nlin()),-1,v.data(),1,p.data(),1);
     #else
-        for( size_t i=0; i<nlin(); i++ )
+        for (size_t i=0; i<nlin(); i++ )
             p.data()[i]=data()[i]-v.data()[i];
     #endif
         return p;
@@ -163,7 +172,7 @@ namespace OpenMEEG {
     #ifdef HAVE_BLAS
         BLAS(daxpy,DAXPY)(sizet_to_int(nlin()),1,v.data(),1,data(),1);
     #else
-        for( size_t i=0; i<nlin(); i++ )
+        for (size_t i=0; i<nlin(); i++ )
             data()[i]+=v.data()[i];
     #endif
     }
@@ -173,7 +182,7 @@ namespace OpenMEEG {
     #ifdef HAVE_BLAS
         BLAS(daxpy,DAXPY)(sizet_to_int(nlin()),-1,v.data(),1,data(),1);
     #else
-        for( size_t i=0; i<nlin(); i++ )
+        for (size_t i=0; i<nlin(); i++ )
             data()[i]-=v.data()[i];
     #endif
     }
@@ -184,7 +193,7 @@ namespace OpenMEEG {
         return BLAS(ddot,DDOT)(sizet_to_int(nlin()),data(),1,v.data(),1);
     #else
         double s=0;
-        for( size_t i=0; i<nlin(); i++ )
+        for (size_t i=0; i<nlin(); i++ )
             s+=data()[i]*v.data()[i];
         return s;
     #endif
@@ -196,7 +205,7 @@ namespace OpenMEEG {
         BLAS(dscal,DSCAL)(sizet_to_int(nlin()),x,p.data(),1);
     #else
         Vector p(nlin());
-        for( size_t i=0; i<nlin(); i++ )
+        for (size_t i=0; i<nlin(); i++ )
             p.data()[i]=x*data()[i];
     #endif
         return p;
@@ -206,7 +215,7 @@ namespace OpenMEEG {
     #ifdef HAVE_BLAS
         BLAS(dscal,DSCAL)(sizet_to_int(nlin()),x,data(),1);
     #else
-        for( size_t i=0; i<nlin(); i++ )
+        for (size_t i=0; i<nlin(); i++ )
             data()[i]*=x;
     #endif
     }

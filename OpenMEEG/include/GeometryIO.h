@@ -44,7 +44,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #include <geometry.h>
 #include <matrix.h>
-#include <om_utils.h>
+#include <filenames.h>
 
 namespace OpenMEEG {
 

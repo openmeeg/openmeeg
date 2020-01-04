@@ -37,43 +37,73 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#include "geometry.h"
-#include "matrix.h"
-#include "options.h"
+#pragma once
 
-using namespace std;
-using namespace OpenMEEG;
+#if WIN32
+#define _USE_MATH_DEFINES
+#endif
 
-int main( int argc, char **argv) {
+#include <string>
+#include <cmath>
+#include <random>
+#include <iostream>
+#include <chrono>
+#include <sstream>
+#include <algorithm>
+#include <cctype>
 
-    print_version(argv[0]);
+namespace OpenMEEG {
 
-    command_usage("Convert a single VTK/VTP into meshes.");
-    const char * input;
-    const char * output;
-    input  = command_option("-i",nullptr,"Input VTK/VTP file");
-    output = command_option("-o",nullptr,"Output mesh base name");
+#if WIN32
+    constexpr char PathSeparator[] = "/\\";
+#else
+    constexpr char PathSeparator = '/';
+#endif
 
-    if (command_option("-h",nullptr,nullptr))
-        return 0;
-
-    if (!input || !output) {
-        std::cout << "Not enough arguments, try the -h option" << std::endl;
-        return 1;
+    inline std::string
+    getFilenameExtension(const std::string& name) {
+        const std::string::size_type idx = name.find_last_of('.');
+        if (idx==std::string::npos)
+            return "";
+        return name.substr(idx+1);
     }
 
-    Geometry geo;
+    inline std::string
+    tolower(const std::string& s) {
+        std::string res = s;
+        std::transform(res.begin(),res.end(),res.begin(),
+                       [](unsigned char c){ return std::tolower(c); });
+        return res;
+    }
 
-    geo.load_vtp(input);
+    /// \return absolute path of file \param name.
+    
+    inline std::string
+    absolute_path(const std::string& name) {
+        const std::string::size_type pos = name.find_last_of(PathSeparator);
+        return (pos==std::string::npos) ? "" : name.substr(0,pos+1);
+    }
 
-    const std::string output_string(output);
+    /// \return the base name of file \param name.
+    
+    inline std::string
+    basename(const std::string& name) {
+        const std::string::size_type pos = name.find_last_of(PathSeparator);
+        return (pos==std::string::npos) ? name : name.substr(pos+1);
+    }
 
-    const std::string::size_type idx = output_string.rfind('.');
-    const std::string& extension = (idx!=std::string::npos) ? output_string.substr(idx+1) : std::string("");
-    const std::string& basename = output_string.substr(0,idx);
+    /// \return true if name is a relative path. \param name
 
-    for (const auto& mesh : geo.meshes())
-        mesh.save(basename+mesh.name()+'.'+extension);
-
-    return 0;
+    inline bool
+    is_relative_path(const std::string& name) {
+    #if WIN32
+        const std::string sep = PathSperator;
+        const char c0 = name[0];
+        if (sep.find(c0)!=sep.end())
+            return false;
+        return !(std::isalpha(c0) && name[1]==':' && sep.find(name[2])!=sep.end());
+    #else
+        return name[0]!=PathSeparator;
+    #endif
+    }
 }

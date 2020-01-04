@@ -42,28 +42,38 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <matrix.h>
 #include <symmatrix.h>
 #include <vector.h>
+
+#include <commandline.h>
 #include <om_utils.h>
 
-using namespace std;
 using namespace OpenMEEG;
 
-void getHelp(char** argv);
+void
+getHelp(char** argv) {
+    std::cout << argv[0] <<" [-option] [filepaths...]" << std::endl << std::endl
+              << "   Inverse HeadMatrix " << std::endl
+              << "   Filepaths are in order :" << std::endl
+              << "       HeadMat (bin), HeadMatInv (bin)" << std::endl << std::endl;
 
-int main(int argc, char **argv)
-{
+    exit(0);
+}
+
+int
+main(int argc,char* argv[]) {
+
     print_version(argv[0]);
 
-    if(argc==1)
-    {
-        cerr << "Not enough arguments \nPlease try \"" << argv[0] << " -h\" or \"" << argv[0] << " --help \" \n" << endl;
+    if (argc==1) {
+        std::cerr << "Not enough arguments \nPlease try \"" << argv[0] << " -h\" or \"" << argv[0] << " --help \" \n" << std::endl;
         return 0;
     }
 
-    if ((!strcmp(argv[1],"-h")) | (!strcmp(argv[1],"--help"))) getHelp(argv);
+    if ((!strcmp(argv[1],"-h")) || (!strcmp(argv[1],"--help"))) getHelp(argv);
 
-    disp_argv(argc,argv);
+    print_commandline(argc,argv);
 
     // Start Chrono
+
     auto start_time = std::chrono::system_clock::now();
 
     SymMatrix HeadMat;
@@ -73,19 +83,9 @@ int main(int argc, char **argv)
     HeadMat.save(argv[2]);
 
     // Stop Chrono
+
     auto end_time = std::chrono::system_clock::now();
     dispEllapsed(end_time-start_time);
 
     return 0;
-}
-
-void getHelp(char** argv)
-{
-    cout << argv[0] <<" [-option] [filepaths...]" << endl << endl;
-
-    cout << "   Inverse HeadMatrix " << endl;
-    cout << "   Filepaths are in order :" << endl;
-    cout << "       HeadMat (bin), HeadMatInv (bin)" << endl << endl;
-
-    exit(0);
 }

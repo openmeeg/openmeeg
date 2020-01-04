@@ -1,7 +1,7 @@
 /*
 Project Name : OpenMEEG
 
-© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre 
+© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre
 GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU, Théodore PAPADOPOULO,
 Emmanuel OLIVI
 Maureen.Clerc.AT.inria.fr, keriven.AT.certis.enpc.fr,
@@ -37,53 +37,42 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#include "vector.h"
-#include "sparse_matrix.h"
-#include "symmatrix.h"
-#include "matrix.h"
-#include "commandline.h"
+#pragma once
 
 #include <cmath>
+#include <iostream>
 
-using namespace OpenMEEG;
+namespace OpenMEEG {
+#ifndef USE_PROGRESSBAR
+    class ProgressBar {
+    public:
 
-template <typename MATRIX>
-void print_infos(const std::string& filename) {
-    MATRIX M;
-    M.load(filename);
-    M.info();
-}
+        ProgressBar(const unsigned n,const unsigned sz=20): max_iter(n),bar_size(sz) { }
 
-int
-main(int argc,char* argv[]) {
+        void operator++() {
+            const unsigned p = std::min(static_cast<unsigned>(floor(static_cast<double>((bar_size+1)*iter++)/max_iter)),bar_size);
+            if (p!=pprev && iter>1) {
+                std::cout << std::string(bar_size+2,'\b') << '[' << std::string(p,'*') << std::string(bar_size-p,'.') << ']';
+                pprev = p;
+            }
+            if (iter>=max_iter)
+                std::cout << std::endl;
+            std::cout.flush();
+        }
+        
+    private:
+        
+        unsigned iter = 0;
+        unsigned pprev = -1;
+        const unsigned max_iter;
+        const unsigned bar_size;
+    };
+#else
+    class ProgressBar {
+    public:
 
-    print_version(argv[0]);
-
-    //TODO doesn't say txt, if you don't specify it
-
-    const CommandLine cmd(argc,argv,"Provides informations on a Matrix generated with OpenMEEG");
-
-    const std::string& filename = cmd.option("-i",     std::string(),"Matrix file");
-    const bool         sym      = cmd.option("-sym",   false,        "Data are symmetric matrices");
-    const bool         sparse   = cmd.option("-sparse",false,        "Data are sparse matrices");
-    
-    if (cmd.help_mode())
-        return 0;
-
-    if (filename=="") {
-        std::cerr << "Please set Matrix File" << std::endl;
-        exit(1);
-    }
-
-    std::cout << "Loading : " << filename << std::endl;
-
-    if (sym) {
-        print_infos<SymMatrix>(filename);
-    } else if (sparse) {
-        print_infos<SparseMatrix>(filename);
-    } else {
-        print_infos<Matrix>(filename);
-    }
-
-    return 0;
+        ProgressBar(const unsigned,const unsigned=20) { }
+        void operator++() { }
+    };
+#endif
 }

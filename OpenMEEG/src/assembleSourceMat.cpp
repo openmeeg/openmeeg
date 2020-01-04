@@ -37,18 +37,14 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#if WIN32
-#define _USE_MATH_DEFINES
-#endif
-#include <cmath>
-
 #include <vector.h>
 #include <matrix.h>
 #include <danielsson.h>
 #include <operators.h>
 #include <assemble.h>
 #include <sensors.h>
-#include <fstream>
+
+#include <constants.h>
 
 namespace OpenMEEG {
 
