@@ -72,6 +72,11 @@ namespace OpenMEEG::MeshIOs {
 
     #ifdef USE_VTK
 
+        ~Vtk() {
+            if (buffer)
+                delete[] buffer;
+        }
+
         void load_points(Geometry& geom) override {
             //  TODO: Replace with newer filesystem calls.
             fs.seekg (0,ios::end);
@@ -83,17 +88,17 @@ namespace OpenMEEG::MeshIOs {
             buffer = new char[length];
             fs.read(buffer,length);
 
-            vtkCharArray* buf = vtkCharArray::New();
+            vtkSmartPointer<vtkCharArray> buf = vtkSmartPointer<vtkCharArray>::New();
             buf->SetArray(buffer,length,1);
 
             //  Create the vtk reader.
             //  Make it read from the InputArray 'buf' instead of the default.
 
-            vtkPolyDataReader* reader = vtkPolyDataReader::New();
+            vtkSmartPointer<vtkPolyDataReader> reader = vtkSmartPointer<vtkPolyDataReader>::New();
             reader->SetInputArray(buf);
             reader->SetReadFromInputString(1);
             if (!reader->IsFilePolyData()) {
-                std::cerr << "Mesh \"" << mesh_name << "\" is not a valid vtk poly data file" << std::endl;
+                std::cerr << "Mesh \"" << fname << "\" is not a valid vtk poly data file" << std::endl;
                 reader->Delete();
                 exit(1);
             }
@@ -101,8 +106,6 @@ namespace OpenMEEG::MeshIOs {
             reader->Update();
             vtkMesh = reader->GetOutput();
 
-            delete[] buffer;
-            reader->Delete();
             const unsigned npts = vtkMesh->GetNumberOfPoints();
             Vertices vertices;
             for (unsigned i=0;i<npts;++i)
@@ -114,15 +117,15 @@ namespace OpenMEEG::MeshIOs {
             reference_vertices(mesh);
 
             const unsigned ntrgs = vtkMesh->GetNumberOfCells();
-            mesh->triangles().reserve(ntrgs);
+            mesh.triangles().reserve(ntrgs);
 
             for (unsigned i = 0; i < ntrgs; ++i) {
                 if (vtkMesh->GetCellType(i)!=VTK_TRIANGLE) {
-                    std::cerr << "Mesh \"" << mesh_name << "\" is not a triangulation" << std::endl;
+                    std::cerr << "Mesh \"" << fname << "\" is not a triangulation" << std::endl;
                     exit(1);
                 }
-                const vtkIdList* l = vtkMesh->GetCell(i)->GetPointIds();
-                mesh.add_triangle(l,indmap);
+                vtkIdList* l = vtkMesh->GetCell(i)->GetPointIds();
+                mesh.add_triangle(TriangleIndices(l->GetId(0),l->GetId(1),l->GetId(2)),indmap);
             }
         }
     #else
@@ -168,8 +171,8 @@ namespace OpenMEEG::MeshIOs {
         Vtk(const std::string& filename=""): base(filename,"vtk") { }
 
         #ifdef USE_VTK
-        char*        buffer;
-        vtkPolyData* vtkMesh;
+        char*                        buffer = nullptr;
+        vtkSmartPointer<vtkPolyData> vtkMesh;
         #endif
         
         static const Vtk prototype;

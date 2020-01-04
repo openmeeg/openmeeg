@@ -94,11 +94,12 @@ namespace OpenMEEG {
         return TriangleIndices(ind(0),ind(1),ind(2));
     }
 
-    void Mesh::add_triangle(const TriangleIndices inds) {
+    Triangle& Mesh::add_triangle(const TriangleIndices inds) {
         Vertex* vptrs[3];
         for (unsigned i=0; i<3; ++i)
             vptrs[i] = &geometry().vertices().at(inds[i]);
         triangles().push_back(vptrs);
+        return triangles().back();
     }
 
     void Mesh::reference_vertices(const IndexMap& indmap) {

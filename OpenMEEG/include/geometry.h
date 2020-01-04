@@ -82,6 +82,8 @@ namespace OpenMEEG {
         typedef std::vector<const Domain*>            DomainsReference;
         typedef std::vector<std::vector<const Mesh*>> MeshParts;
 
+        typedef std::vector<std::pair<std::string,std::string>> MeshList;
+
         /// Constructors
 
         Geometry() {}
@@ -101,15 +103,14 @@ namespace OpenMEEG {
             Geometry(std::string(geomFileName),std::string(condFileName),OLD_ORDERING) { }
 
         void info(const bool verbose=false) const; ///< \brief Print information on the geometry
-        bool has_cond()                     const { return conductivities; } // TODO: Is this useful ?
+        bool has_conductivities()           const { return conductivities; } // TODO: Is this useful ?
         bool selfCheck()                    const; ///< \brief the geometry meshes intersect each other
         bool check(const Mesh& m)           const; ///< \brief check if m intersect geometry meshes
         bool check_inner(const Matrix& m)   const; ///< \brief check if dipoles are outside of geometry meshes
 
-        bool check_geometry_is_nested() const;
+        void check_geometry_is_nested();
 
         bool is_nested() const { return nested; }
-        void set_nested()      { nested = true; }
 
         /// \brief Return the list of vertices involved in the geometry.
 
@@ -221,22 +222,28 @@ namespace OpenMEEG {
             finalize(OLD_ORDERING);
         }
 
+        void import(const MeshList& meshes);
+
+        void save(const std::string& filename) const;
+
         void finalize(const bool OLD_ORDERING=false) {
             // TODO: We should check the correct decomposition of the geometry into domains here.
             // In a correct decomposition, each interface is used exactly once ?? Unsure...
             // Search for the outermost domain and set boolean OUTERMOST on the domain in the vector domains.
             // An outermost domain is (here) defined as the only domain outside represented by only one interface.
 
-            mark_current_barriers(); // mark meshes that touch the domains of null conductivity.
+            if (has_conductivities())
+                mark_current_barriers(); // mark meshes that touch the domains of null conductivity.
 
-            Domain& outer_domain = outermost_domain();
-            set_outermost_domain(outer_domain);
-            //  TODO: Integrate this loop (if necessary) in set_outermost_domain...
-            for (auto& boundary : outer_domain.boundaries())
-                boundary.interface().set_to_outermost();
+            if (domains().size()!=0) {
+                Domain& outer_domain = outermost_domain();
+                set_outermost_domain(outer_domain);
+                //  TODO: Integrate this loop (if necessary) in set_outermost_domain...
+                for (auto& boundary : outer_domain.boundaries())
+                    boundary.interface().set_to_outermost();
 
-            if (check_geometry_is_nested())
-                set_nested();
+                check_geometry_is_nested();
+            }
 
             generate_indices(OLD_ORDERING);
             make_mesh_pairs();

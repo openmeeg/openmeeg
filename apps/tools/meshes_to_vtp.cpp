@@ -39,9 +39,8 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #include <geometry.h>
 #include <matrix.h>
-#include <options.h>
+#include <commandline.h>
 
-using namespace std;
 using namespace OpenMEEG;
 
 inline std::string
@@ -55,52 +54,39 @@ int main( int argc, char **argv) {
 
     print_version(argv[0]);
 
-    command_usage("Convert meshes OR geometry into a single VTK/VTP file.");
-    const char* geom_filename = command_option("-g",nullptr,"Input geometry");
+    const CommandLine cmd(argc,argv,"Convert meshes OR geometry into a single VTK/VTP file.");
+    const std::string& geom_filename = cmd.option("-g",std::string(),"Input geometry");
 
-    const char * input[7];
+    Geometry::MeshList meshes;
     for (unsigned i=0; i<7; ++i) {
-        const std::string& pname = param("-i",i+1);
-        input[i] = command_option(pname.c_str(),nullptr,"Input mesh");
+        const std::string& mesh_path_option_name = param("-i",i+1);
+        const std::string& mesh_name_option_name = param("-n",i+1);
+        const std::string& mesh_name_default_val = param("",i+1);
+        const std::string& path = cmd.option(mesh_path_option_name,std::string(),        "Input mesh");
+        const std::string& name = cmd.option(mesh_name_option_name,mesh_name_default_val,"Mesh name");
+        meshes.push_back({ name, path });
     }
 
-    const char * name[7];
-    for (unsigned i=0; i<7; ++i) {
-        const std::string& pname = param("-n",i+1);
-        const std::string& lname = param("",i+1);
-        name[i]  = command_option(pname.c_str(),lname.c_str(),"Mesh name");
-    }
+    const std::string& output = cmd.option("-o",std::string(),"Output VTP file");
 
-    const char* output = command_option("-o" ,nullptr,"Output VTP file");
-
-    if (command_option("-h",nullptr,nullptr))
+    if (cmd.help_mode())
         return 0;
 
-    if ((!input[0] && !geom_filename) || !output) {
-        std::cout << "Not enough arguments, try the -h option" << std::endl;
+    if ((meshes.size()==0 && geom_filename=="") || output=="") {
+        std::cout << "Missing arguments, try the -h option" << std::endl;
         return 1;
     }
     
-    Geometry geo;
+    Geometry geom;
 
-    if (!geom_filename) {
-        Meshes meshes;
-
-        // first only read the number of inputs
-
-        for (unsigned i=0; input[i]!=0; ++i) {
-            meshes.emplace_back({ input[i], false, name[i] });
-            meshes.back().correct_local_orientation();
-        }
-
-        geo.import_meshes(meshes);
+    if (geom_filename!="") {
+        geom.load(geom_filename);
     } else {
-        geo.read(geom_filename);
+        geom.import(meshes);
     }
 
-    geo.info();
-
-    geo.write_vtp(output);
+    geom.info();
+    geom.save(output);
 
     return 0;
-
+}

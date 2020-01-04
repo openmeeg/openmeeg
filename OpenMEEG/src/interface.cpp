@@ -104,7 +104,6 @@ namespace OpenMEEG {
         if (almost_equal(solangle,0.0))
             while (almost_equal(solangle,0.)) {
                 const Vertex& V = bb.random_point();
-                std::cerr << V << doublecheck << std::endl;
                 solangle = solid_angle(V);
             }
 
