@@ -525,28 +525,7 @@ namespace OpenMEEG {
                 return nullptr;
             }
             PyObject* vertices  = PyList_GetItem(item,1);
-            if (vertices==nullptr || !PyList_Check(vertices)) {
-                PyErr_SetString(PyExc_TypeError,"Wrong parameter to import_meshes");
-                return nullptr;
-            }
-            const unsigned npts = PyList_Size(vertices);
-            for (unsigned j=0; j<npts; ++j) {
-                PyObject* pt = PyList_GetItem(vertices,j);
-                if (pt==nullptr || !PyList_Check(pt) || PyList_Size(pt)!=3) {
-                    PyErr_SetString(PyExc_TypeError,"Wrong parameter to import_meshes");
-                    return nullptr;
-                }
-                OpenMEEG::Vertex V;
-                for (unsigned k=0; k<3; ++k) {
-                    PyObject* coord = PyList_GetItem(pt,k);
-                    if (coord==nullptr || !PyFloat_Check(coord)) {
-                        PyErr_SetString(PyExc_TypeError,"Wrong parameter to import_meshes");
-                        return nullptr;
-                    }
-                    V(k) = PyFloat_AsDouble(coord);
-                }
-                indmap[i].insert({ j, geometry->add_vertex(V) });
-            }
+            indmap[i] = geom_add_vertices(geometry,vertices);
         }
 
         //  Create meshes and add triangles.
@@ -559,35 +538,9 @@ namespace OpenMEEG {
                 return nullptr;
             }
 
-            PyObject* vertices  = PyList_GetItem(item,1);
-            const unsigned npts = PyList_Size(vertices);
-
-            PyObject* triangles = PyList_GetItem(item,2);
-            if (triangles==nullptr || !PyList_Check(triangles)) {
-                PyErr_SetString(PyExc_TypeError,"Wrong parameter to import_meshes");
-                return nullptr;
-            }
-
-            const unsigned ntrgs = PyList_Size(vertices);
             OpenMEEG:Mesh& mesh = geometry->add_mesh();
-
-            for (unsigned j=0; j<ntrgs; ++j) {
-                PyObject* triangle = PyList_GetItem(triangles,j);
-                if (triangles==nullptr || !PyList_Check(triangles) || PyList_Size(triangles)!=3) {
-                    PyErr_SetString(PyExc_TypeError,"Wrong parameter to import_meshes");
-                    return nullptr;
-                }
-                OpenMEEG::TriangleIndices inds;
-                for (unsigned k=0; k<3; ++k) {
-                    PyObject* ind = PyList_GetItem(triangle,k);
-                    if (ind==nullptr || !PyLong_Check(ind)) {
-                        PyErr_SetString(PyExc_TypeError,"Wrong parameter to import_meshes");
-                        return nullptr;
-                    }
-                    inds[k] = PyLong_AsLong(ind);
-                }
-                mesh.add_triangle(inds,indmap[i]);
-            }
+            PyObject* triangles = PyList_GetItem(item,2);
+            mesh_add_triangles(&mesh,triangles,indmap[i]);
             mesh.update(true);
         }
         return geometry;
