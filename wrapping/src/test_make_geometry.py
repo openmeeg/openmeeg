@@ -36,7 +36,6 @@ meshes = dict();
 meshes["cortex"] = python_mesh("cortex",op.join(dirpath, "cortex.1.tri"))
 meshes["skull"]  = python_mesh("skull", op.join(dirpath, "skull.1.tri"))
 meshes["scalp"]  = python_mesh("scalp", op.join(dirpath, "scalp.1.tri"))
-print("------------------------------")
 
 # It should be possible to have multiple oriented meshes per interface. e.g.
 # interface1 = [(m1,om.OrientedMesh.Normal), (m2,om.OrientedMesh.Opposite), (m3,om.OrientedMesh.Normal)]
