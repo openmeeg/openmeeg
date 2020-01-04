@@ -57,7 +57,7 @@ domains = {
 }
 
 g1 = om.make_geometry(meshes, interfaces, domains)
-g2 = om.Geometry(op.join(dirpath, subject + "1.geom"), op.join(dirpath, subject + ".cond"))
+g2 = om.Geometry(op.join(dirpath, subject + ".geom"), op.join(dirpath, subject + ".cond"))
 
 assert g1.is_nested()
 assert g2.is_nested()
