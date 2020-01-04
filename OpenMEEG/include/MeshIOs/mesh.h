@@ -188,7 +188,7 @@ namespace OpenMEEG::MeshIOs {
 
     private:
 
-        constexpr bool binary() const override { return true; }
+        bool binary() const override { return true; }
 
         Mesh(const std::string& filename=""): base(filename,"mesh") { }
 
