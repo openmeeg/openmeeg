@@ -79,24 +79,31 @@ namespace OpenMEEG {
 
         template <typename T>
         T option(const std::string& name,const T defaultvalue,const std::string usage) const {
-            if (help)
-                std::cerr << "    " << bold << std::setw(8) << name << normal << ": " << std::setw(12) << purple << usage << normal << std::endl;
             char** arg = find_argument(name);
-            if (arg==end())
-                return defaultvalue;
-            return parse_value(arg+1,defaultvalue);
+            const T result = (arg==end()) ?  defaultvalue : parse_value(arg+1,defaultvalue);
+            if (help)
+                std::cerr << "    " << bold << std::left << std::setw(8) << name << normal
+                          << " = " << std::left << std::setw(12) << value(result) << purple << usage << normal << std::endl;
+            return result;
         }
 
         bool option(const std::string& name,const bool defaultvalue,const std::string usage) const {
-            if (help)
-                std::cerr << "    " << bold << std::setw(8) << name << normal << ": " << std::setw(12) << purple << usage << normal << std::endl;
             char** arg = find_argument(name);
-            if (arg==end())
-                return defaultvalue;
-            return !defaultvalue;
+            const bool result = (arg==end()) ?  defaultvalue : !defaultvalue;
+            if (help)
+                std::cerr << "    " << bold << std::left << std::setw(8) << name << normal
+                          << " = " << std::left << std::setw(12) << value(result)  << purple << usage << normal << std::endl;
+            return result;
         }
 
     private:
+
+        template <typename T>
+        static T value(const T val) { return val; }
+
+        static std::string value(const bool val) { return (val) ? "true" : "false"; }
+
+        static std::string value(const std::string& val) { return '"'+val+'"'; }
 
         char** end() const { return args+n; }
 
