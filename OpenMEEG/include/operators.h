@@ -52,6 +52,8 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <integrator.h>
 #include <analytics.h>
 
+#include <progressbar.h>
+
 namespace OpenMEEG {
 
     // #define ADAPT_LHS

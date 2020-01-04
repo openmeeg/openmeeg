@@ -1,42 +1,83 @@
+/*
+Project Name : OpenMEEG
+
+© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre 
+GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU, Théodore PAPADOPOULO,
+Emmanuel OLIVI
+Maureen.Clerc.AT.inria.fr, keriven.AT.certis.enpc.fr,
+kybic.AT.fel.cvut.cz, papadop.AT.inria.fr)
+
+The OpenMEEG software is a C++ package for solving the forward/inverse
+problems of electroencephalography and magnetoencephalography.
+
+This software is governed by the CeCILL-B license under French law and
+abiding by the rules of distribution of free software.  You can  use,
+modify and/ or redistribute the software under the terms of the CeCILL-B
+license as circulated by CEA, CNRS and INRIA at the following URL
+"http://www.cecill.info".
+
+As a counterpart to the access to the source code and  rights to copy,
+modify and redistribute granted by the license, users are provided only
+with a limited warranty  and the software's authors,  the holders of the
+economic rights,  and the successive licensors  have only  limited
+liability.
+
+In this respect, the user's attention is drawn to the risks associated
+with loading,  using,  modifying and/or developing or reproducing the
+software by the user in light of its specific status of free software,
+that may mean  that it is complicated to manipulate,  and  that  also
+therefore means  that it is reserved for developers  and  experienced
+professionals having in-depth computer knowledge. Users are therefore
+encouraged to load and test the software's suitability as regards their
+requirements in conditions enabling the security of their systems and/or
+data to be ensured and,  more generally, to use and operate it in the
+same conditions as regards security.
+
+The fact that you are presently reading this means that you have had
+knowledge of the CeCILL-B license and that you accept its terms.
+*/
+
+#include <iostream>
+#include <cmath>
+
 #include "OpenMEEGMathsConfig.h"
 #include "vector.h"
 #include "matrix.h"
 #include "symmatrix.h"
 #include "sparse_matrix.h"
-#include "options.h"
-#include <iostream>
-#include <cmath>
+#include "commandline.h"
 
 using namespace OpenMEEG;
 
-template<class T> bool compare(const T& mat1, const T& mat2, double eps, size_t col = 0);
-template<class T> bool compare_rdm(const T& mat1, const T& mat2, double eps, size_t col = 0);
-template<class T> bool compare_mag(const T& mat1, const T& mat2, double eps, size_t col = 0);
-template<class T> bool compare_matrix(maths::ifstream& ifs1,T& mat1,maths::ifstream& ifs2,T& mat2,
-        double eps,const char* rdm,const char* mag,size_t col);
+template <typename T> bool compare(const T& mat1,const T& mat2,const double eps,const size_t col=0);
+template <typename T> bool compare_rdm(const T& mat1,const T& mat2,const double eps,const size_t col=0);
+template <typename T> bool compare_mag(const T& mat1,const T& mat2,const double eps,const size_t col=0);
+template <typename T> bool compare_matrix(maths::ifstream& ifs1,T& mat1,maths::ifstream& ifs2,T& mat2,
+                                          const double eps,const bool rdm,const bool mag,const size_t col);
 bool compare(maths::ifstream& ifs1,Vector& V1,maths::ifstream& ifs2,Vector& V2,const double eps);
 
-int main (int argc, char** argv)
-{
-    command_usage("Compare two matrices with a certain numerical precision\ncompare_matrix mat1 mat2 [options]");
+int
+main(int argc,char* argv[]) {
+
+    const CommandLine cmd(argc,argv,"Compare two matrices with a certain numerical precision\ncompare_matrix mat1 mat2 [options]");
     // const char *input_format1 = command_option("-if1",(const char *) NULL,
     //         "Input file format for Matrix 1 : ascii, binary, tex, matlab");
     // const char *input_format2 = command_option("-if2",(const char *) NULL,
     //         "Input file format for Matrix 2 : ascii, binary, tex, matlab");
 
-    const char* isfull   = command_option("-full",(const char *) 0,"Data are full matrices");
-    const char* issym    = command_option("-sym",(const char *) 0,"Data are symmetric matrices");
-    const char* issparse = command_option("-sparse",(const char *) 0,"Data are sparse matrices");
-    const char* isvector = command_option("-vector",(const char *) 0,"Data are vectors");
+    const bool isfull   = cmd.option("-full",  false,"Data are full matrices");
+    const bool issym    = cmd.option("-sym",   false,"Data are symmetric matrices");
+    const bool issparse = cmd.option("-sparse",false,"Data are sparse matrices");
+    const bool isvector = cmd.option("-vector",false,"Data are vectors");
 
-    const char* epsilon = command_option("-eps","0.00002","Tolerance on differences"); // Hacking tol for tests
+    const double epsilon = cmd.option("-eps",0.00002,"Tolerance on differences"); // Hacking tol for tests
 
-    const char* rdm = command_option("-rdm",(const char *) 0,"Use RDM (Relative difference measure) to compare each column of matrices");
-    const char* mag = command_option("-mag",(const char *) 0,"Use MAG (MAGnification error) to compare each column of matrices");
+    const bool rdm = cmd.option("-rdm",false,"Use RDM (Relative difference measure) to compare each column of matrices");
+    const bool mag = cmd.option("-mag",false,"Use MAG (MAGnification error) to compare each column of matrices");
+    const int  col = cmd.option("-col",0,    "Restrict RDM comparison to one column (index starts at 1)");
 
-    const int col = command_option("-col",(int) 0,"Restrict RDM comparison to one column (index starts at 1)");
-
-    if (command_option("-h",(const char *)0,0)) return 0;
+    if (cmd.help_mode())
+        return 0;
 
     if (argc<3) {
         std::cout << "Not enough arguments, try the -h option" << std::endl;
@@ -48,7 +89,7 @@ int main (int argc, char** argv)
         return 1;
     }
 
-    if (!isfull && (rdm||mag)) {
+    if (!isfull && (rdm || mag)) {
         std::cerr << "Can use -rdm, -mag or -col only with full matrices" << std::endl;
         return 1;
     }
@@ -58,13 +99,10 @@ int main (int argc, char** argv)
         return 1;
     }
 
-
-    double eps = atof(epsilon);
-
-    std::cout << "-------------------------------------------------" << std::endl;
-    std::cout << "Comparing : " << std::endl;
-    std::cout << "- " << argv[1] << std::endl;
-    std::cout << "- " << argv[2] << std::endl;
+    std::cout << "-------------------------------------------------" << std::endl
+              << "Comparing : " << std::endl
+              << "- " << argv[1] << std::endl
+              << "- " << argv[2] << std::endl;
 
     maths::ifstream ifs1(argv[1]);
     if (!ifs1) {
@@ -94,25 +132,25 @@ int main (int argc, char** argv)
         SymMatrix mat2;
         ifs1 >> mat1;
         ifs2 >> mat2;
-        flag = compare(mat1,mat2,eps,col);
+        flag = compare(mat1,mat2,epsilon,col);
     } else if (issparse) {
         SparseMatrix mat1;
         SparseMatrix mat2;
         ifs1 >> mat1;
         ifs2 >> mat2;
-        flag = compare(mat1,mat2,eps,col);
+        flag = compare(mat1,mat2,epsilon,col);
     } else if (isfull) {
         Matrix mat1;
         Matrix mat2;
-        flag = compare_matrix(ifs1,mat1,ifs2,mat2,eps,rdm,mag,col);
+        flag = compare_matrix(ifs1,mat1,ifs2,mat2,epsilon,rdm,mag,col);
     } else {
         Vector V1;
         Vector V2;
-        flag = compare(ifs1,V1,ifs2,V2,eps);
+        flag = compare(ifs1,V1,ifs2,V2,epsilon);
     }
 
     if (!flag){
-        std::cerr << std::endl << "ERROR : Matrices are different at the precision : eps = " << eps << std::endl;
+        std::cerr << std::endl << "ERROR : Matrices are different at the precision : eps = " << epsilon << std::endl;
         exit(1);
     }
     std::cout << "OK" << std::endl;
@@ -145,7 +183,7 @@ double normInf(const Vector& V) { // compute the norm 1 of a vector
 
 template<class T>
 bool compare_matrix(maths::ifstream& ifs1,T& mat1,maths::ifstream& ifs2,T& mat2,
-        double eps,const char*rdm,const char*mag,size_t col) {
+                    const double eps,const bool rdm,const bool mag,const size_t col) {
     bool flag;
     try {
         ifs1 >> mat1;
@@ -156,23 +194,11 @@ bool compare_matrix(maths::ifstream& ifs1,T& mat1,maths::ifstream& ifs2,T& mat2,
     }
     
     if (rdm) {
-        if (col) {
-            flag = compare_rdm(mat1,mat2,eps,col);
-        } else {
-            flag = compare_rdm(mat1,mat2,eps);
-        }
+        flag = (col) ? compare_rdm(mat1,mat2,eps,col) : compare_rdm(mat1,mat2,eps);
     } else if (mag) {
-        if (col) {
-            flag = compare_mag(mat1,mat2,eps,col);
-        } else {
-            flag = compare_mag(mat1,mat2,eps);
-        }
+        flag = (col) ? compare_mag(mat1,mat2,eps,col) : compare_mag(mat1,mat2,eps);
     } else {
-        if (col) {
-            flag = compare(mat1,mat2,eps,col);
-        } else {
-            flag = compare(mat1,mat2,eps);
-        }
+        flag = (col) ? compare(mat1,mat2,eps,col) : compare(mat1,mat2,eps);
     }
     return flag;
 }

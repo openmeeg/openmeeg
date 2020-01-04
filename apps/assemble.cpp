@@ -46,11 +46,11 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <mesh.h>
 #include <integrator.h>
 #include <om_utils.h>
+#include <commandline.h>
 #include <assemble.h>
 #include <sensors.h>
 #include <geometry.h>
 
-using namespace std;
 using namespace OpenMEEG;
 
 unsigned gauss_order = 3;
@@ -77,14 +77,16 @@ int main(int argc, char** argv)
 
     if (option(argc,argv,{"-h","--help"}, {})) getHelp(argv);
 
-    disp_argv(argc, argv);
+    print_commandline(argc, argv);
 
     // Start Chrono
+
     auto start_time = std::chrono::system_clock::now();
 
     /*********************************************************************************************
     * Computation of Head Matrix for BEM Symmetric formulation
     **********************************************************************************************/
+
     if (option(argc,argv,{"-HeadMat","-HM", "-hm"},
                 {"geometry file", "conductivity file", "output file"}) ) {
         // Loading surfaces from geometry file
@@ -110,15 +112,15 @@ int main(int argc, char** argv)
 
         switch (argc) {
             case 8: { // case gamma or filename
-                stringstream ss(argv[7]);
+                std::stringstream ss(argv[7]);
                 if (!(ss >> gamma))
                     filename = argv[7];
                 break;
             }
             case 9: { // case alpha+beta or gamma+filename
-                stringstream ss(argv[7]);
+                std::stringstream ss(argv[7]);
                 if (!(ss >> alpha))
-                    throw runtime_error("given parameter is not a number");
+                    throw std::runtime_error("given parameter is not a number");
                 ss.str(argv[8]);
                 ss.clear();
                 if (!(ss >> beta)) {
@@ -128,13 +130,13 @@ int main(int argc, char** argv)
                 break;
             }
             case 10: { // case alpha+beta + filename
-                stringstream ss(argv[7]);
+                std::stringstream ss(argv[7]);
                 if (!(ss >> alpha))
-                    throw runtime_error("given parameter is not a number");
+                    throw std::runtime_error("given parameter is not a number");
                 ss.str(argv[8]);
                 ss.clear();
                 if (!(ss >> beta))
-                    throw runtime_error("given parameter is not a number");
+                    throw std::runtime_error("given parameter is not a number");
                 filename = argv[9];
                 break;
             }
@@ -182,7 +184,7 @@ int main(int argc, char** argv)
     else if (option(argc,argv,{"-DipSourceMat", "-DSM", "-dsm", "-DipSourceMatNoAdapt", "-DSMNA", "-dsmna"},
                      {"geometry file", "conductivity file", "dipoles file", "output file"}) ) {
 
-        string domain_name = "";
+        std::string domain_name = "";
         if (argc==7) {
             domain_name = argv[6];
             std::cout << "Dipoles are considered to be in \"" << domain_name << "\" domain." << std::endl;
@@ -366,7 +368,7 @@ int main(int argc, char** argv)
 
     else if (option(argc,argv,{"-DipSource2InternalPotMat", "-DS2IPM", "-ds2ipm"},
                      {"geometry file", "conductivity file", "dipole file", "point positions file", "output file"})) {
-        string domain_name = "";
+        std::string domain_name = "";
         if (argc==9) {
             domain_name = argv[7];
             std::cout << "Dipoles are considered to be in \"" << domain_name << "\" domain." << std::endl;

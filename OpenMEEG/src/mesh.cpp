@@ -41,6 +41,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <stack>
 #include <algorithm>
 
+#include <constants.h>
 #include <mesh.h>
 #include <MeshIO.h>
 #include <geometry.h>

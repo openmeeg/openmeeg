@@ -42,45 +42,48 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <sparse_matrix.h>
 #include <fast_sparse_matrix.h>
 #include <fstream>
-#include <options.h>
-#include <om_utils.h>
+#include <commandline.h>
 
-using namespace std;
 using namespace OpenMEEG;
 
 template <typename MATRIX>
-void conversion(maths::ifstream& ifs,const char* input_format,maths::ofstream& ofs,const char* output_format,const char* output_filename) {
+void conversion(maths::ifstream& ifs,const std::string& input_format,maths::ofstream& ofs,
+                const std::string& output_format,const std::string& output_filename)
+{
     MATRIX M;
-    if (input_format)
+    if (input_format!="")
         ifs >> maths::format(input_format) >> M;
     else
         ifs >> M;
 
     M.info();
-    if (output_format)
+    if (output_format!="")
         ofs << maths::format(output_format) << M;
     else
         ofs << maths::format(output_filename,maths::format::FromSuffix) << M;
 }
 
-int main(int argc, char **argv) try {
+int
+main(int argc,char* argv[]) try {
 
     print_version(argv[0]);
 
-    command_usage("Convert full/sparse/symmetric vectors/matrices between different formats");
-    const char* input_filename = command_option("-i",(const char *) NULL,"Input matrix/vector");
-    const char* output_filename = command_option("-o",(const char *) NULL,"Output matrix/vector");
-    const char* input_format = command_option("-if",(const char *) NULL,"Input file format : ascii, binary, tex, matlab");
-    const char* output_format = command_option("-of",(const char *) NULL,"Output file format : ascii, binary, tex, matlab");
-    if ( command_option("-h",(const char *)0,0) ) { return 0; }
+    const CommandLine cmd(argc,argv,"Convert full/sparse/symmetric vectors/matrices between different formats");
+    const std::string& input_filename  = cmd.option("-i", std::string(),"Input matrix/vector");
+    const std::string& output_filename = cmd.option("-o", std::string(),"Output matrix/vector");
+    const std::string& input_format    = cmd.option("-if",std::string(),"Input file format : ascii, binary, tex, matlab");
+    const std::string& output_format   = cmd.option("-of",std::string(),"Output file format : ascii, binary, tex, matlab");
 
-    if ( argc < 2 || !input_filename || !output_filename ) {
-        cout << "Not enough arguments, try the -h option" << endl;
+    if (cmd.help_mode())
+        return 0;
+
+    if (argc<2 || input_filename=="" || output_filename=="") {
+        std::cout << "Missing arguments, try the -h option" << std::endl;
         return 1;
     }
 
-    maths::ifstream ifs(input_filename);
-    maths::ofstream ofs(output_filename);
+    maths::ifstream ifs(input_filename.c_str());
+    maths::ofstream ofs(output_filename.c_str());
 
     try {
         conversion<Vector>(ifs,input_format,ofs,output_format,output_filename);

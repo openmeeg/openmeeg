@@ -38,17 +38,18 @@ knowledge of the CeCILL-B license and that you accept its terms.
 */
 
 #include <om_utils.h>
+#include <commandline.h>
 #include <forward.h>
 
-using namespace std;
 using namespace OpenMEEG;
 
 void
 getHelp(const char* command) {
-    std::cout << command << " [-h | --help] filepaths" << std::endl << std::endl;
-    std::cout << "   Compute the forward problem " << std::endl;
-    std::cout << "   Filepaths are in order :" << std::endl;
-    std::cout << "   GainMatrix (bin), RealSourcesData (txt), SimulatedData (txt), NoiseLevel (float)" << std::endl << std::endl;
+    std::cout << command << " [-h | --help] filepaths" << std::endl << std::endl
+              << "   Compute the forward problem " << std::endl
+              << "   Filepaths are in order :" << std::endl
+              << "   GainMatrix (bin), RealSourcesData (txt), SimulatedData (txt), NoiseLevel (float)" << std::endl
+              << std::endl;
 }
 
 void error(const char* command,const bool unknown_option=false) {
@@ -74,7 +75,7 @@ main(int argc,char **argv) {
 
     auto start_time = std::chrono::system_clock::now();
 
-    disp_argv(argc,argv);
+    print_commandline(argc,argv);
 
     // declaration of argument variables======================================================================
 

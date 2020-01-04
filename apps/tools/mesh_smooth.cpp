@@ -38,24 +38,25 @@ knowledge of the CeCILL-B license and that you accept its terms.
 */
 
 #include "mesh.h"
-#include "options.h"
+#include "commandline.h"
 
-using namespace std;
 using namespace OpenMEEG;
 
-int main( int argc, char **argv)
-{
+int
+main(int argc,char* argv[]) {
+
     print_version(argv[0]);
 
-    command_usage("Get info about a Mesh");
-    const char *input_filename       = command_option("-i", (const char *) NULL, "Input Mesh");
-    const char *output_filename      = command_option("-o", (const char *) NULL, "Output Mesh");
-    const double smoothing_intensity = command_option("-s", 0.1, "Smoothing Intensity");
-    const size_t niter = command_option("-n", 1000, "Number of iterations");
+    const CommandLine cmd(argc,argv,"Get info about a Mesh");
+    const std::string& input_filename      = cmd.option("-i",std::string(),"Input Mesh");
+    const std::string& output_filename     = cmd.option("-o",std::string(),"Output Mesh");
+    const double       smoothing_intensity = cmd.option("-s",0.1,          "Smoothing Intensity");
+    const size_t       niter               = cmd.option("-n",1000,         "Number of iterations");
 
-    if (command_option("-h",(const char *)0,0)) return 0;
+    if (cmd.help_mode())
+        return 0;
 
-    if (!input_filename || !output_filename) {
+    if (input_filename=="" || output_filename=="") {
         std::cout << "Not enough arguments, try the -h option" << std::endl;
         return 1;
     }

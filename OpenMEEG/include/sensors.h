@@ -100,9 +100,12 @@ namespace OpenMEEG {
         Sensors(const Strings &labels, const Matrix& positions, const Matrix& orientations, const Vector &weights, const Vector &radii);
         Sensors(const Strings &labels, const Matrix& positions, const Matrix& orientations, const Vector &weights, const Vector &radii, const Geometry &g);
 
-        void load(const char* filename, char filetype = 't' ); /*!< Load sensors from file. Filetype is 't' for text file or 'b' for binary file. */
+        void load(const char* filename,const char filetype='t' ); /*!< Load sensors from file. Filetype is 't' for text file or 'b' for binary file. */
+        void load(const std::string& filename,const char filetype='t') { load(filename.c_str(),filetype); }
         void load(std::istream &in); /*!< Load description file of sensors from stream. */
-        void save(const char* filename);
+
+        void save(const char* filename) const;
+        void save(const std::string& filename) const { save(filename.c_str()); }
 
         size_t getNumberOfSensors() const { return m_nb; } /*!< Return the number of sensors. */
         size_t getNumberOfPositions() const { return m_positions.nlin(); } /*!< Return the number of integration points. */
