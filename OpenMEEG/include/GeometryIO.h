@@ -71,13 +71,13 @@ namespace OpenMEEG {
         }
 
         void save(const Geometry& geometry) {
-            save(geometry);
+            save_geom(geometry);
             write();
         }
 
         void save(const Geometry& geometry,const Matrix& matrix) {
-            save(geometry);
-            save_data(matrix);
+            save_geom(geometry);
+            save_data(geometry,matrix);
             write();
         }
 
@@ -87,8 +87,8 @@ namespace OpenMEEG {
         virtual void   load_domains(Geometry& geometry) { }
         virtual Matrix load_data() const = 0;
 
-        virtual void save_geom(const Geometry& geometry)       = 0;
-        virtual void save_data(const Matrix& matrix)     const = 0;
+        virtual void save_geom(const Geometry& geometry) = 0;
+        virtual void save_data(const Geometry& geometry,const Matrix& matrix) const = 0;
         virtual void write() const = 0;
 
         virtual GeometryIO* clone(const std::string& filename) const = 0;

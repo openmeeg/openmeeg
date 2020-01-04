@@ -38,6 +38,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 */
 
 #include <geometry.h>
+#include <MeshIO.h>
 #include <GeometryIO.h>
 #include <PropertiesSpecialized.h>
 
@@ -185,6 +186,19 @@ namespace OpenMEEG {
         throw OpenMEEG::BadDomain(name);
     }
 
+    void Geometry::save(const std::string& filename) const {
+        GeometryIO* io = GeometryIO::create(filename);
+        try {
+            io->save(*this);
+        } catch (OpenMEEG::Exception& e) {
+            std::cerr << e.what() << " in the file " << filename << std::endl;
+            exit(e.code());
+        } catch (...) {
+            std::cerr << "Could not read the geometry file: " << filename << std::endl;
+            exit(1);
+        }
+    }
+
     void Geometry::read_geometry_file(const std::string& filename) {
         GeometryIO* io = GeometryIO::create(filename);
         try {
@@ -196,6 +210,40 @@ namespace OpenMEEG {
             std::cerr << "Could not read the geometry file: " << filename << std::endl;
             exit(1);
         }
+    }
+
+    void Geometry::import(const MeshList& mesh_list) {
+
+        struct MeshDescription {
+            std::string name;
+            MeshIO*     io;
+        };
+
+        clear();
+
+        // First read all the vertices
+
+        std::vector<MeshDescription> mesh_descriptions;
+        for (const auto& desc : mesh_list) {
+            const std::string& name = desc.first;
+            const std::string& path = desc.second;
+            MeshIO* io = MeshIO::create(path);
+            io->open();
+            io->load_points(*this); 
+            mesh_descriptions.push_back({ name, io });
+        }
+
+        // Second really load the meshes
+
+        meshes().reserve(mesh_descriptions.size());
+        for (const auto& desc : mesh_descriptions) {
+            Mesh& mesh = add_mesh(desc.name);
+            desc.io->load_triangles(mesh);
+            mesh.update(true);
+        }
+
+        for (auto& desc : mesh_descriptions)
+            delete desc.io;
     }
 
     void Geometry::read_conductivity_file(const std::string& filename) {
@@ -356,19 +404,21 @@ namespace OpenMEEG {
 
     /// Determine whether the geometry is nested or not.
 
-    bool Geometry::check_geometry_is_nested() const {
+    void Geometry::check_geometry_is_nested() {
         // The geometry is considered non nested if:
         // (at least) one domain is defined as being outside two or more interfaces OR....
 
-        bool nested = true;
+        nested = true;
         for (const auto& domain : domains()) {
             unsigned out_interface = 0;
             if (!is_outermost(domain))
                 for (const auto& boundary : domain.boundaries())
                     if (boundary.inside())
                         out_interface++;
-            if (out_interface>=2)
-                return false;
+            if (out_interface>=2) {
+                nested = false;
+                return;
+            }
         }
 
         // ... if 2 interfaces are composed by a same mesh oriented into two different directions.
@@ -380,11 +430,11 @@ namespace OpenMEEG {
                     for (const auto& oriented_mesh : boundary.interface().oriented_meshes())
                         if (oriented_mesh.mesh()==mesh)
                             m_oriented += oriented_mesh.orientation();
-            if (m_oriented==0)
-                return false;
+            if (m_oriented==0) {
+                nested = false;
+                return;
+            }
         }
-
-        return true;
     }
 
     //  Create the vector of pairs of communicating meshes.
