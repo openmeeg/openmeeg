@@ -51,6 +51,7 @@
 #include <cstring>
 #include <vector>
 #include <cmath>
+#include <functional>
 
 #include "mesh.h"
 #include "sparse_matrix.h"
