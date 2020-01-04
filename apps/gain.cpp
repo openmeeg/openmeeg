@@ -37,18 +37,17 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#include <cstring>
 #include <om_utils.h>
+#include <commandline.h>
 #include <gain.h>
 
-using namespace std;
 using namespace OpenMEEG;
 
 void getHelp(char** argv);
 
 inline void
 error(const char* command,const bool unknown_option=false) {
-    std::cerr << "Error: " << ((unknown_option) ? "unknown option." : "Not enough arguments.") << std::endl
+    std::cerr << "Error: " << ((unknown_option) ? "Unknown option." : "Not enough arguments.") << std::endl
               << "Please try \"" << command << " -h\" or \"" << command << " --help \" \n" << std::endl;
     exit(1);
 }
@@ -66,7 +65,7 @@ main(int argc,char** argv) {
 
     // Start Chrono
 
-    disp_argv(argc,argv);
+    print_commandline(argc,argv);
 
     const std::string& option = argv[1];
     if (argc<5)
@@ -132,7 +131,7 @@ main(int argc,char** argv) {
         if (argc<9)
             error(argv[0]);
 
-        Geometry geo(argv[2], argv[3]);
+        Geometry geo(argv[2],argv[3]);
         const Matrix dipoles(argv[4]);
         const SymMatrix HeadMat(argv[5]);
         const Matrix Head2MEGMat(argv[6]);
@@ -148,7 +147,7 @@ main(int argc,char** argv) {
         if (argc<11)
             error(argv[0]);
 
-        Geometry geo(argv[2], argv[3]);
+        Geometry geo(argv[2],argv[3]);
         const Matrix dipoles(argv[4]);
         const SymMatrix HeadMat(argv[5]);
         const SparseMatrix Head2EEGMat(argv[6]);

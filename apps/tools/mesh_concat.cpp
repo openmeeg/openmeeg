@@ -38,25 +38,26 @@ knowledge of the CeCILL-B license and that you accept its terms.
 */
 
 #include "mesh.h"
-#include "options.h"
+#include "commandline.h"
 
-using namespace std;
 using namespace OpenMEEG;
 
-int main( int argc, char **argv)
-{
+int
+main( int argc,char* argv[]) {
+
     print_version(argv[0]);
 
-    command_usage("Concat 2 mesh and save the result");
+    const CommandLine cmd(argc,argv,"Concat 2 mesh and save the result");
     
-    const char *input_filename1 = command_option("-i1", (const char *) "", "Input Mesh 1");
-    const char *input_filename2 = command_option("-i2", (const char *) "", "Input Mesh 2");
-    const char *output_filename = command_option("-o", (const char *) "", "Output Mesh");
+    const std::string& input_filename1 = cmd.option("-i1",std::string(),"Input Mesh 1");
+    const std::string& input_filename2 = cmd.option("-i2",std::string(),"Input Mesh 2");
+    const std::string& output_filename = cmd.option("-o", std::string(),"Output Mesh");
 
-    if ( command_option("-h", (const char *)0, 0)) return 0;
+    if (cmd.help_mode())
+        return 0;
 
-    if ( argc < 2 ) {
-        cout << "Not enough arguments, try the -h option" << endl;
+    if (argc<2) {
+        std::cout << "Not enough arguments, try the -h option" << std::endl;
         return 1;
     }
 

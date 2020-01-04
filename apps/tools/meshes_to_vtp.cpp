@@ -56,12 +56,12 @@ int main( int argc, char **argv) {
     print_version(argv[0]);
 
     command_usage("Convert meshes OR geometry into a single VTK/VTP file.");
-    const char* geom_filename = command_option("-g", (const char *) NULL, "Input geometry");
+    const char* geom_filename = command_option("-g",nullptr,"Input geometry");
 
     const char * input[7];
     for (unsigned i=0; i<7; ++i) {
         const std::string& pname = param("-i",i+1);
-        input[i] = command_option(pname.c_str(),(const char *) NULL,"Input mesh");
+        input[i] = command_option(pname.c_str(),nullptr,"Input mesh");
     }
 
     const char * name[7];
@@ -71,9 +71,9 @@ int main( int argc, char **argv) {
         name[i]  = command_option(pname.c_str(),lname.c_str(),"Mesh name");
     }
 
-    const char* output = command_option("-o" , (const char *) NULL, "Output VTP file");
+    const char* output = command_option("-o" ,nullptr,"Output VTP file");
 
-    if (command_option("-h",(const char *)0,0))
+    if (command_option("-h",nullptr,nullptr))
         return 0;
 
     if ((!input[0] && !geom_filename) || !output) {

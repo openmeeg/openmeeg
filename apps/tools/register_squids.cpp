@@ -37,13 +37,14 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#include "options.h"
+#include <string>
+
 #include "matrix.h"
 #include "symmatrix.h"
 #include "vector.h"
-#include "om_utils.h"
 #include "sensors.h"
-#include <string>
+
+#include "commandline.h"
 
 using namespace OpenMEEG;
 
@@ -60,27 +61,30 @@ Vector cross_product(const Vector &a, const Vector &b)
     return p;
 }
 
-int main( int argc, char** argv)
-{
+int
+main(int argc,char* argv[]) {
+
     print_version(argv[0]);
 
-    command_usage("Convert squids positions from the CTF MEG coordinate system to the MRI coordinate system");
-    const char *squids_filename = command_option("-i",(const char *) NULL,"Squids positions in CTF coordinate system");
-    const char *fiducials_filename = command_option("-f",(const char *) NULL,"Fiducial points in the MRI coordinate system (mm in txt format)");
-    const char *rotation_filename = command_option("-r",(const char *) NULL,"Output Rotation Matrix");
-    const char *translation_filename = command_option("-t",(const char *) NULL,"Output Translation vector");
-    const char *squids_output_filename = command_option("-o",(const char *) NULL,"Squids positions in the MRI coordinate system");
-    const double scale = command_option("-scale",10.0,"Scaling (10 by default for CTF data)"); // CTF counts in cm whereas MRI is in mm
-    if (command_option("-h",(const char *)0,0)) return 0;
+    const CommandLine cmd(argc,argv,"Convert squids positions from the CTF MEG coordinate system to the MRI coordinate system");
+    const std::string& squids_filename        = cmd.option("-i",std::string(),"Squids positions in CTF coordinate system");
+    const std::string& fiducials_filename     = cmd.option("-f",std::string(),"Fiducial points in the MRI coordinate system (mm in txt format)");
+    const std::string& rotation_filename      = cmd.option("-r",std::string(),"Output Rotation Matrix");
+    const std::string& translation_filename   = cmd.option("-t",std::string(),"Output Translation vector");
+    const std::string& squids_output_filename = cmd.option("-o",std::string(),"Squids positions in the MRI coordinate system");
+    const double       scale                  = cmd.option("-scale",10.0,     "Scaling (10 by default for CTF data)"); // CTF uses cm whereas MRI is in mm
 
-    if(!squids_filename || !fiducials_filename || !squids_output_filename) {
+    if (cmd.help_mode())
+        return 0;
+
+    if(squids_filename=="" || fiducials_filename=="" || squids_output_filename=="") {
         std::cout << "Not enough arguments, try the -h option" << std::endl;
         return 1;
     }
 
     Sensors squids;
     squids.load(squids_filename);
-    size_t nb_positions = squids.getNumberOfPositions();
+    const size_t nb_positions = squids.getNumberOfPositions();
 
     Matrix fiducials; fiducials.load(fiducials_filename);
 
@@ -88,11 +92,11 @@ int main( int argc, char** argv)
         (fiducials.ncol()!=3))
         throw std::invalid_argument("OpenMEEG only handles 3 3D fiducial points.");
 
-    Vector nas = fiducials.getlin(0); // Nasion
-    Vector lpa = fiducials.getlin(1); // Left preauricular
-    Vector rpa = fiducials.getlin(2); // Right preauricular
+    const Vector nas = fiducials.getlin(0); // Nasion
+    const Vector lpa = fiducials.getlin(1); // Left preauricular
+    const Vector rpa = fiducials.getlin(2); // Right preauricular
 
-    Vector origin = (lpa+rpa)/2.0;
+    const Vector origin = (lpa+rpa)/2.0;
     Vector vx = (nas-origin);
     Vector vz = cross_product(vx, lpa-rpa);
     Vector vy = cross_product(vz,vx);
@@ -106,11 +110,10 @@ int main( int argc, char** argv)
     R.setlin(1,vy);
     R.setlin(2,vz);
 
-    Vector T = R * origin;
-    T = T * (-1);
+    const Vector& T = -(R*origin);
 
-    for( size_t i = 0; i < nb_positions; i += 1 )
-    {
+    for (size_t i=0; i<nb_positions; ++i) {
+
         Vector position = squids.getPosition(i);
         Vector orientation = squids.getOrientation(i);
 
@@ -123,6 +126,12 @@ int main( int argc, char** argv)
     }
 
     squids.save(squids_output_filename);
-    if(rotation_filename) R.save(rotation_filename);
-    if(translation_filename) T.save(translation_filename);
+
+    if (rotation_filename!="")
+        R.save(rotation_filename);
+
+    if (translation_filename!="")
+        T.save(translation_filename);
+
+    return 0;
 }

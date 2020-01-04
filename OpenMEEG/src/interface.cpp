@@ -38,8 +38,8 @@ knowledge of the CeCILL-B license and that you accept its terms.
 */
 
 #include <algorithm>
-#include <ciso646>
 
+#include <constants.h>
 #include <boundingbox.h>
 #include <interface.h>
 

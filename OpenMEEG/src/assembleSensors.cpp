@@ -41,8 +41,8 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <danielsson.h>
 #include <operators.h>
 #include <sensors.h>
-#include <om_utils.h>
 
+#include <constants.h>
 #include <sparse_matrix.h>
 
 namespace OpenMEEG {

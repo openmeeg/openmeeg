@@ -263,8 +263,7 @@ namespace OpenMEEG {
         maths::ifstream ifs(filename);
         try {
             ifs >> maths::format(filename,maths::format::FromSuffix) >> *this;
-        }
-        catch (maths::Exception& e) {
+        } catch (maths::Exception& e) {
             ifs >> *this;
         }
     }
@@ -273,8 +272,7 @@ namespace OpenMEEG {
         maths::ofstream ofs(filename);
         try {
             ofs << maths::format(filename,maths::format::FromSuffix) << *this;
-        }
-        catch (maths::Exception& e) {
+        } catch (maths::Exception& e) {
             ofs << *this;
         }
     }

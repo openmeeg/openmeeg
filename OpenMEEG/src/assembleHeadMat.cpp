@@ -48,6 +48,8 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <operators.h>
 #include <assemble.h>
 
+#include <constants.h>
+
 namespace OpenMEEG {
 
     template <typename T>
