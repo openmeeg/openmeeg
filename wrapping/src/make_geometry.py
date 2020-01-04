@@ -42,7 +42,6 @@ def make_geometry(meshes, interfaces, domains):
         om_mesh = geom.add_mesh(name)
         om_mesh.add_triangles(mesh[1],indmaps[name])
         om_mesh.update(True);
-        om_mesh.info();
 
     for dname, domain in domains.items():
         domain_interfaces, conductivity = domain
@@ -73,7 +72,6 @@ def make_geometry(meshes, interfaces, domains):
                         "Wrong description for interface (" + iname + "), second tuple member should a be an orientation")
 
                 mesh = geom.mesh(mesh_name)
-                mesh.info()
                 oriented_mesh = OrientedMesh(mesh, orientation)
                 om_interface.oriented_meshes().push_back(oriented_mesh)
 

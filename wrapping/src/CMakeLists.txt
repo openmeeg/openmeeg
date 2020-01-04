@@ -66,7 +66,7 @@ endif()
 
 list(APPEND CMAKE_SWIG_FLAGS -v -O)
 set(SWIG_MODULE_openmeeg_EXTRA_DEPS numpy.i make_geometry.py ${SWIG_MODULE_openmeeg_EXTRA_DEPS})
-set_source_files_properties(openmeeg.i PROPERTIES CPLUSPLUS ON)
+set_source_files_properties(openmeeg.i PROPERTIES CPLUSPLUS ON GENERATED_COMPILE_DEFINITIONS SWIG_PYTHON_SILENT_MEMLEAK)
 swig_add_library(openmeeg LANGUAGE python SOURCES openmeeg.i)
 
 if (APPLE)
