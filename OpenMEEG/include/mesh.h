@@ -125,11 +125,11 @@ namespace OpenMEEG {
 
         /// \brief Add a triangle specified by its indices in the geometry.
 
-        void add_triangle(const TriangleIndices inds);
+        Triangle& add_triangle(const TriangleIndices inds);
 
-        void add_triangle(const TriangleIndices inds,const IndexMap& indmap) {
+        Triangle& add_triangle(const TriangleIndices inds,const IndexMap& indmap) {
             const TriangleIndices t = { indmap.at(inds[0]), indmap.at(inds[1]), indmap.at(inds[2])};
-            add_triangle(t);
+            return add_triangle(t);
         }
 
         void add(const std::vector<TriangleIndices>& trgs) {

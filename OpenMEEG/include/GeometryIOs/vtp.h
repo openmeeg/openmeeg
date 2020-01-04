@@ -70,13 +70,11 @@ namespace OpenMEEG::GeometryIOs {
 
     public:
 
-        void open(const std::string& filename) { vtpfilename = filename; }
-
         /// \brief load a VTK\\vtp file \param filename into a mesh. Optionally read some associated data in matrix \param data if \param READ_DATA is true.
 
-        void load_mehes(Geometry& geometry) {
+        void load_meshes(Geometry& geometry) override {
             vtkSmartPointer<vtkXMLPolyDataReader> reader = vtkSmartPointer<vtkXMLPolyDataReader>::New();
-            reader->SetFileName(vtpfilename.c_str());
+            reader->SetFileName(fname.c_str());
             reader->Update();
 
             vtkMesh = reader->GetOutput();
@@ -99,49 +97,60 @@ namespace OpenMEEG::GeometryIOs {
 
             geometry.vertices().reserve(npts);
 
+            IndexMap indmap;
             for (unsigned i=0; i<npts; ++i) {
-                geometry.vertices().push_back(Vertex(vtkMesh->GetPoint(i)[0],vtkMesh->GetPoint(i)[1],vtkMesh->GetPoint(i)[2]));
+                Vertex vertex(vtkMesh->GetPoint(i)[0],vtkMesh->GetPoint(i)[1],vtkMesh->GetPoint(i)[2]);
                 if (trash!=-1) // index provided
-                    geometry.vertices().back().index() = v_indices->GetValue(i);
+                    vertex.index() = v_indices->GetValue(i);
+                indmap.insert({ i, geometry.add_vertex(vertex) });
             }
 
             // Create meshes using the different meshes names associated with the cells.
 
             vtkSmartPointer<vtkStringArray> cell_id = vtkStringArray::SafeDownCast(vtkMesh->GetCellData()->GetAbstractArray("Names"));
 
-            std::set<std::string> meshes_name;
-            std::map<const std::string,unsigned> mesh_map;
-            for (unsigned i=0; i<ntrgs; ++i)
-                if (meshes_name.insert(cell_id->GetValue(i)).second) {
-                    geometry.meshes().push_back(Mesh(*this,name));
-                    mesh_map.insert({ name, geometry.meshes().size()-1 }):
-                }
+            std::set<std::string> mesh_names;
+            for (unsigned i=0; i<ntrgs; ++i) {
+                const std::string& name = cell_id->GetValue(i);
+                if (mesh_names.insert(name).second)
+                    geometry.add_mesh(name);
+            }
 
             // Insert the triangle and mesh vertices addresses into the right mesh
 
-            vtkSmartPointer<vtkUnsignedIntArray> c_indices = vtkUnsignedIntArray::SafeDownCast(vtkMesh->GetCellData()->GetArray("Indices",trash));
+            int indices;
+            vtkSmartPointer<vtkUnsignedIntArray> c_indices = vtkUnsignedIntArray::SafeDownCast(vtkMesh->GetCellData()->GetArray("Indices",indices));
             for (unsigned i=0; i<ntrgs; ++i) {
                 const std::string& mesh_name = cell_id->GetValue(i);
-                Mesh& mesh = geometry.meshes().at(mesh_map.at(mesh_name));
-                Triangles& triangles = mesh.triangles();
-
+                Mesh& mesh = geometry.mesh(mesh_name);
                 const vtkSmartPointer<vtkIdList>& vl = vtkMesh->GetCell(i)->GetPointIds();
-                triangles.push_back(Triangle(geometry.vertices()[vl->GetId(0)],geometry.vertices()[vl->GetId(1)],geometry.vertices()[vl->GetId(2)]));
-                if (trash!=-1) // index provided
-                    triangles.back().index() = c_indices->GetValue(i);
+                const TriangleIndices t(vl->GetId(0),vl->GetId(1),vl->GetId(2));
+                Triangle& triangle = mesh.add_triangle(t);
+                if (indices!=-1) // index provided
+                    triangle.index() = c_indices->GetValue(i);
             }
 
-            for (auto& mesh : geometry.meshes())
+            for (auto& mesh : geometry.meshes()) {
+                // Sets do not preserve the order, and we would like to preserve it so we push_back in the vector as soon as the element is unique.
+
+                std::set<const Vertex*> mesh_vertices;
+                mesh.vertices().clear();
+                for (auto& triangle : mesh.triangles())
+                    for (auto& vertex : triangle)
+                        if (mesh_vertices.insert(vertex).second)
+                            mesh.vertices().push_back(vertex);
+
                 mesh.update(true);
+            }
         }
 
-        Matrix load_data() const {
+        Matrix load_data() const override {
 
             const unsigned nl = vtkMesh->GetNumberOfPoints()+vtkMesh->GetNumberOfCells(); 
             const unsigned nc = vtkMesh->GetPointData()->GetNumberOfArrays()-1;
 
             if (nl==0 || nc==0)
-                return;
+                return Matrix();
 
             Matrix data(nl,nc);
             for (unsigned j=0; j<nc; ++j) {
@@ -166,7 +175,7 @@ namespace OpenMEEG::GeometryIOs {
 
         /// \brief write a VTK\\vtp file.
 
-        void save(const Geometry& geometry) const {
+        void save_geom(const Geometry& geometry) override {
 
             vtkMesh = vtkSmartPointer<vtkPolyData>::New();
 
@@ -178,7 +187,7 @@ namespace OpenMEEG::GeometryIOs {
             point_indices->SetName("Indices");
 
             unsigned i = 0;
-            for (const auto& vertex : vertices()) {
+            for (const auto& vertex : geometry.vertices()) {
                 points->InsertNextPoint(vertex(0),vertex(1),vertex(2));
                 point_indices->InsertNextValue(vertex.index());
                 map[&vertex] = i++;
@@ -190,7 +199,7 @@ namespace OpenMEEG::GeometryIOs {
             //  Normals.
 
             vtkSmartPointer<vtkDoubleArray> normals = vtkSmartPointer<vtkDoubleArray>::New();
-            normal-->SetNumberOfComponents(3); // 3d normals (ie x, y, z)
+            normals->SetNumberOfComponents(3); // 3d normals (ie x, y, z)
             normals->SetName("Normals");
 
             // TODO: Not finished.
@@ -219,12 +228,12 @@ namespace OpenMEEG::GeometryIOs {
 
         }
 
-        void save_data(const Matrix& data) {
+        void save_data(const Geometry& geometry,const Matrix& data) const override {
             // Check the data corresponds to the geometry
 
-            const bool HAS_OUTERMOST = (data.nlin()==geometry.meshes().size()); // data has least p values ?
-            if (!HAS_OUTERMOST)
-                om_error(data.nlin()==geometry.meshes().size()-outermost_interface().nb_triangles());
+            const bool outer_interface_used = data.nlin()!=geometry.meshes().size();
+            if (outer_interface_used )
+                om_error(data.nlin()==geometry.meshes().size()-geometry.outermost_interface().nb_triangles());
 
             std::vector<vtkSmartPointer<vtkDoubleArray>> potentials(data.ncol()); // potential on vertices
             std::vector<vtkSmartPointer<vtkDoubleArray>> currents(data.ncol()); // current on triangles
@@ -239,12 +248,12 @@ namespace OpenMEEG::GeometryIOs {
                 currents[j]   = vtkSmartPointer<vtkDoubleArray>::New();
                 currents[j]->SetName(("Currents-"+sdip.str()).c_str());
 
-                for (const auto& vertex : vertices())
+                for (const auto& vertex : geometry.vertices())
                     potentials[j]->InsertNextValue(data(vertex.index(),j));
 
                 for(const auto& mesh : geometry.meshes())
                     for (const auto& triangle: mesh.triangles())
-                        currents[j]->InsertNextValue(((mesh.outermost() && !HAS_OUTERMOST) ? 0.0 : data(triangle.index(),j)));
+                        currents[j]->InsertNextValue(((mesh.outermost() && !outer_interface_used ) ? 0.0 : data(triangle.index(),j)));
             }
 
             for (unsigned j=0;j<data.ncol();++j) {
@@ -253,9 +262,9 @@ namespace OpenMEEG::GeometryIOs {
             }
         }
 
-        void write() {
+        void write() const override {
             vtkSmartPointer<vtkXMLPolyDataWriter> writer = vtkSmartPointer<vtkXMLPolyDataWriter>::New();
-            writer->SetFileName(vtpfilename.c_str());
+            writer->SetFileName(fname.c_str());
 
             #if VTK_MAJOR_VERSION <= 5
             writer->SetInput(vtkMesh);
@@ -268,11 +277,6 @@ namespace OpenMEEG::GeometryIOs {
     private:
 
         const char* name() const override { return "vtp"; }
-        Matrix load_data() const { return Matrix(); }
-
-        virtual void save_geom(const Geometry& geometry) const { }
-        virtual void save_data(const Matrix& matrix)     const { }
-        virtual void write() const { }
 
         GeometryIO* clone(const std::string& filename) const override { return new Vtp(filename); }
 
@@ -280,7 +284,6 @@ namespace OpenMEEG::GeometryIOs {
 
         static const Vtp prototype;
 
-        std::string                  vtpfilename;
         vtkSmartPointer<vtkPolyData> vtkMesh;
     };
 #else
@@ -306,9 +309,9 @@ namespace OpenMEEG::GeometryIOs {
 
     private:
 
-        virtual void save_geom(const Geometry& geometry)       override { }
-        virtual void save_data(const Matrix& matrix)     const override { }
-        virtual void write() const override { }
+        virtual void save_geom(const Geometry& geometry)                            override { }
+        virtual void save_data(const Geometry& geometry,const Matrix& matrix) const override { }
+        virtual void write()                                                  const override { }
 
         GeometryIO* clone(const std::string& filename) const override { return new Vtp(filename); }
 

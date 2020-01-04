@@ -91,7 +91,7 @@ namespace OpenMEEG::GeometryIOs {
         Matrix load_data() const { return Matrix(); }
 
         virtual void save_geom(const Geometry& geometry);
-        virtual void save_data(const Matrix& matrix) const { }
+        virtual void save_data(const Geometry&,const Matrix&) const { }
         virtual void write() const { }
 
         GeometryIO* clone(const std::string& filename) const override { return new GeomFile(filename); }
@@ -149,7 +149,7 @@ namespace OpenMEEG::GeometryIOs {
             for (unsigned i=0; i<n; ++i) {
                 const std::string& name = section_name(i,keyword);
                 const std::string& path = filename();
-                mesh_descriptions.push_back({ name, MeshIO::create(path) });
+                meshes.push_back({ name, path });
             }
         }
 
@@ -165,43 +165,18 @@ namespace OpenMEEG::GeometryIOs {
             return res;
         }
 
-        void read_meshes(Geometry& geometry) {
-
-            geometry.meshes().reserve(mesh_descriptions.size());
-
-            // First read the total number of vertices
-
-            for (auto& desc : mesh_descriptions) {
-                desc.io->open();
-                desc.io->load_points(geometry); 
-            }
-
-            // Second really load the meshes
-
-            for (const auto& desc : mesh_descriptions) {
-                Mesh& mesh = geometry.add_mesh(desc.name);
-                desc.io->load_triangles(mesh);
-                mesh.update(true);
-            }
-        }
-
-        struct MeshDescription {
-            std::string name;
-            MeshIO*     io;
-        };
-
-        typedef std::vector<MeshDescription> MeshDescriptions;
-
         GeomFile(const std::string& filename=""): base(filename,"geom") { }
 
         static const GeomFile prototype;
 
-        VersionId        version_id;
-        std::fstream     fs;
-        std::string      directory;
-        MeshDescriptions mesh_descriptions;
-        bool             mesh_provided_as_interfaces;
-        unsigned         nb_interfaces;
+        typedef Geometry::MeshList MeshList;
+
+        VersionId    version_id;
+        std::fstream fs;
+        std::string  directory;
+        MeshList     meshes;
+        bool         mesh_provided_as_interfaces;
+        unsigned     nb_interfaces;
     };
 
     void GeomFile::load_meshes(Geometry& geometry) {
@@ -271,7 +246,8 @@ namespace OpenMEEG::GeometryIOs {
         if (mesh_provided_as_interfaces)
             read_mesh_descriptions(nb_interfaces,"Interface");
 
-        read_meshes(geometry);
+        if (!has_meshfile)
+            geometry.import(meshes);
     }
 
     void GeomFile::load_domains(Geometry& geometry) {
@@ -281,9 +257,10 @@ namespace OpenMEEG::GeometryIOs {
         Interfaces interfaces;
 
         if (mesh_provided_as_interfaces) {
-            for (unsigned i=0; i<mesh_descriptions.size(); ++i) {
-                Interface interface(mesh_descriptions.at(i).name);
-                interface.oriented_meshes().push_back(OrientedMesh(geometry.meshes().at(i),OrientedMesh::Normal));
+            for (const auto desc : meshes) {
+                const std::string& name = desc.first;
+                Interface interface(name);
+                interface.oriented_meshes().push_back(OrientedMesh(geometry.mesh(name),OrientedMesh::Normal));
                 interfaces.push_back(interface);
             }
         } else {
