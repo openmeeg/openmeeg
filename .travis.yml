@@ -115,7 +115,7 @@ before_install:
   - curl -fsSkL https://raw.githubusercontent.com/openmeeg/ci-utils/master/travis/travis_tools.sh > x.sh && source ./x.sh
 
   ############################################################################
-  # Install MKL (if necessary)
+  # Install MKL if necessary
   ############################################################################
 
   - if [[ "${BACKEND}" == *"Intel"* ]]; then
