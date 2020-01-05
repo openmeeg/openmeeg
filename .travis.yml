@@ -176,6 +176,7 @@ before_install:
     fi
 
 script:
+  - set -x
   - cd ${TRAVIS_BUILD_DIR}
   - mkdir -p build && cd build
   - if [[ $BUILD_PACKAGE == "ON" && $TRAVIS_PULL_REQUEST == "false" && $TRAVIS_BRANCH == "master" ]]; then
