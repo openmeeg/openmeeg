@@ -51,7 +51,6 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #ifdef USE_VTK
 #include <vtkPolyData.h>
 #include <vtkPoints.h>
-#include <vtkMesh.h>
 #include <vtkPolyDataReader.h>
 #include <vtkSmartPointer.h>
 #include <vtkXMLPolyDataReader.h>
