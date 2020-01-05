@@ -97,11 +97,11 @@ namespace OpenMEEG {
     inline bool
     is_relative_path(const std::string& name) {
     #if WIN32
-        const std::string sep = PathSeparator;
+        const std::string& sep = PathSeparator;
         const char c0 = name[0];
-        if (sep.find(c0)!=sep.end())
+        if (sep.find(c0)!=std::string::npos)
             return false;
-        return !(std::isalpha(c0) && name[1]==':' && sep.find(name[2])!=sep.end());
+        return !(std::isalpha(c0) && name[1]==':' && sep.find(name[2])!=std::string::npos);
     #else
         return name[0]!=PathSeparator;
     #endif
