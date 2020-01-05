@@ -128,7 +128,7 @@ namespace OpenMEEG::MeshIOs {
                    << vertex_index(triangle,2) << std::endl;
         }
 
-        MeshIO* clone(const std::string& filename) const { return new Bnd(filename); }
+        MeshIO* clone(const std::string& filename) const override { return new Bnd(filename); }
 
     private:
 

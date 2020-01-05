@@ -115,7 +115,7 @@ namespace OpenMEEG::MeshIOs {
             delete[] pts_inds;
         }
 
-        void save(const OpenMEEG::Mesh& mesh,std::ostream& os) const {
+        void save(const OpenMEEG::Mesh& mesh,std::ostream& os) const override {
             unsigned char format[5] = {'b', 'i', 'n', 'a', 'r'}; // File format
             os.write(reinterpret_cast<char*>(format),5);
 
