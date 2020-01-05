@@ -206,8 +206,6 @@ script:
     if [[ "${TRAVIS_OS_NAME}" == "osx" && "${USE_GCC}" == "ON" ]]; then
       export CMAKE_OPTIONS="${CMAKE_OPTIONS} -DCMAKE_C_COMPILER=/usr/local/bin/gcc-7 -DCMAKE_CXX_COMPILER=/usr/local/bin/g++-7"
     fi
-  - if [[ "${TRAVIS_OS_NAME}" == "linux" ]]; then echo $LD_LIBRARY_PATH; fi
-  - if [[ "${TRAVIS_OS_NAME}" == "osx" ]]; then echo $DYLD_LIBRARY_PATH; fi
   - echo "cmake .. ${CMAKE_OPTIONS}"
   - cmake .. ${CMAKE_OPTIONS}
   - make -j ${JOBS}
