@@ -63,6 +63,8 @@ namespace OpenMEEG {
 
         TriangleIndices(const TriangleIndices& ind) { std::copy(&ind[0],&ind[3],&indices[0]); }
 
+        TriangleIndices& operator=(const TriangleIndices&) = default;
+
               unsigned& operator[](const unsigned i)       { return indices[i]; }
         const unsigned& operator[](const unsigned i) const { return indices[i]; }
 
