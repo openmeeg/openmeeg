@@ -86,8 +86,8 @@ namespace OpenMEEG {
 
         #ifndef WIN32
         Mesh(const Mesh&) = delete;
-        #endif
         Mesh(Mesh&& m) = default;
+        #endif
 
         /// Constructors
         /// \param filename mesh file name
