@@ -84,7 +84,9 @@ namespace OpenMEEG {
 
         Mesh(const unsigned nv,const unsigned nt,Geometry* geometry=nullptr);
 
+        #ifndef WIN32
         Mesh(const Mesh&) = delete;
+        #endif
         Mesh(Mesh&& m) = default;
 
         /// Constructors
@@ -104,8 +106,6 @@ namespace OpenMEEG {
         /// Destructor
 
         ~Mesh() { clear(); }
-
-        Mesh& operator=(const Mesh&) = delete;
 
         std::string&       name()       { return mesh_name; } ///< \return the mesh name
         const std::string& name() const { return mesh_name; } ///< \return the mesh name
