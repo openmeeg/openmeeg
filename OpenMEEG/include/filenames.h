@@ -76,7 +76,7 @@ namespace OpenMEEG {
         return res;
     }
 
-    /// \return absolute path of file \param name.
+    /// \return absolute path of file \param name .
     
     inline std::string
     absolute_path(const std::string& name) {
@@ -84,7 +84,7 @@ namespace OpenMEEG {
         return (pos==std::string::npos) ? "" : name.substr(0,pos+1);
     }
 
-    /// \return the base name of file \param name.
+    /// \return the base name of file \param name .
     
     inline std::string
     basename(const std::string& name) {
