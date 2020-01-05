@@ -116,7 +116,7 @@ namespace OpenMEEG {
         };
 
         virtual MeshIO* clone(const std::string& filename) const = 0;
-        virtual constexpr bool binary() const { return false; }
+        virtual bool binary() const { return false; }
 
         void reference_vertices(Mesh& mesh) const { mesh.reference_vertices(indmap); }
 
