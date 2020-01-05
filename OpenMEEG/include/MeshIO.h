@@ -57,6 +57,8 @@ namespace OpenMEEG {
     class OPENMEEG_EXPORT MeshIO {
     public:
 
+        virtual ~MeshIO() { }
+
         static MeshIO* create(const std::string& filename) {
             const std::string& extension = tolower(getFilenameExtension(filename));
             return registery.at(extension)->clone(filename);
