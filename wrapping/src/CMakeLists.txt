@@ -11,16 +11,13 @@
 # those macros are driven by CMAKE_SWIG_FLAGS, and SWIG_MODULE_XXXXXXX_EXTRA_DEPS
 # where XXXXXXX is the name of the target object in swig_add_library(XXXXXXX ...)
 
-set(Python_ADDITIONAL_VERSIONS ${PYTHON_VERSION})
-find_package(PythonInterp REQUIRED)
-find_package(PythonLibs REQUIRED)
-find_package(Numpy REQUIRED)
+find_package(Python3 REQUIRED COMPONENTS Interpreter Development NumPy)
 
 # XXXX: this include_directories should be removed and transitive properties
 #       of OpenMEEG::OpenMEEG and OpenMEEG::OpenMEEGMaths should be used instead
 
-include_directories(${PYTHON_INCLUDE_PATH}
-                    ${NUMPY_INCLUDE_DIRS}
+include_directories(${Python3_INCLUDE_DIRS}
+                    ${Python3_NumPy_INCLUDE_DIRS}
                     ${CMAKE_CURRENT_SOURCE_DIR}
                     ${PROJECT_SOURCE_DIR}/OpenMEEG/include/
                     ${PROJECT_SOURCE_DIR}/OpenMEEGMaths/include/
@@ -51,7 +48,7 @@ if (BUILD_DOCUMENTATION)
     set(DOXY_INDEX_XML ${PROJECT_BINARY_DIR}/documentation/reference/xml/index.xml)
     add_custom_command(
         OUTPUT docstrings.i
-        COMMAND ${PYTHON_EXECUTABLE} ${DOXY2SWIG_EXECUTABLE}
+        COMMAND ${Python3_EXECUTABLE} ${DOXY2SWIG_EXECUTABLE}
         ARGS    --function-signature --type-info --overloaded-functions --attribute-list --constructor-list
                 ${DOXY_INDEX_XML} ${CMAKE_CURRENT_BINARY_DIR}/docstrings.i
         DEPENDS OpenMEEG-doxygen_outputs
@@ -72,14 +69,12 @@ swig_add_library(openmeeg LANGUAGE python SOURCES openmeeg.i)
 if (APPLE)
   swig_link_libraries(openmeeg OpenMEEG::OpenMEEG)
 else()
-  swig_link_libraries(openmeeg ${PYTHON_LIBRARIES} OpenMEEG::OpenMEEG)
+  swig_link_libraries(openmeeg ${Python3_LIBRARIES} OpenMEEG::OpenMEEG)
 endif()
 
-execute_process(COMMAND ${PYTHON_EXECUTABLE} "-c" "from distutils.sysconfig import get_python_lib; print(get_python_lib(1))"
-                OUTPUT_VARIABLE PYTHON_SITE_ARCH
-                RESULT_VARIABLE PYTHON_SITEARCH_NOT_FOUND)
 #extract correctly python location: e.g lib64/python2.7/site-packages
-string(REGEX MATCH "[Ll]ib.*packages" PYTHON_REL_SITE_ARCH ${PYTHON_SITE_ARCH})
+
+string(REGEX MATCH "[Ll]ib.*packages" PYTHON_REL_SITE_ARCH ${Python3_SITEARCH})
 
 install(TARGETS  "_openmeeg"
         LIBRARY DESTINATION ${PYTHON_REL_SITE_ARCH}
@@ -108,7 +103,7 @@ if (BUILD_TESTING)
 
     foreach (test ${PYTHON_TEST_FILES_REQUIRING_DATA})
         execute_process(COMMAND ${CMAKE_COMMAND} -E copy ${OpenMEEG_SOURCE_DIR}/wrapping/src/${test} ${OpenMEEG_BINARY_DIR}/wrapping/src/)
-        add_test(openmeeg_python_${test} ${PYTHON_EXECUTABLE} ${OpenMEEG_BINARY_DIR}/wrapping/src/${test} --path ${OpenMEEG_SOURCE_DIR}/data)
+        add_test(openmeeg_python_${test} ${Python3_EXECUTABLE} ${OpenMEEG_BINARY_DIR}/wrapping/src/${test} --path ${OpenMEEG_SOURCE_DIR}/data)
         if (USE_MKL AND BUILD_SHARED_LIBS AND NOT MKL_USE_sdl)
             # due to this bug in the MKL
             message(WARNING "Due to a bug in the MKL when used from python: see https://software.intel.com/en-us/forums/intel-distribution-for-python/topic/628976 "
@@ -122,7 +117,7 @@ if (BUILD_TESTING)
 
     foreach (test ${PYTHON_TEST_FILES})
         execute_process(COMMAND ${CMAKE_COMMAND} -E copy ${OpenMEEG_SOURCE_DIR}/wrapping/src/${test} ${OpenMEEG_BINARY_DIR}/wrapping/src/)
-        add_test(openmeeg_python_${test} ${PYTHON_EXECUTABLE} ${OpenMEEG_BINARY_DIR}/wrapping/src/${test})
+        add_test(openmeeg_python_${test} ${Python3_EXECUTABLE} ${OpenMEEG_BINARY_DIR}/wrapping/src/${test})
         if (USE_MKL AND BUILD_SHARED_LIBS AND NOT MKL_USE_sdl)
             # due to this bug in the MKL
             message(WARNING "Due to a bug in the MKL when used from python: see https://software.intel.com/en-us/forums/intel-distribution-for-python/topic/628976 "
@@ -134,7 +129,7 @@ if (BUILD_TESTING)
 
     if (BUILD_REFERENCE_DOC)
         execute_process(COMMAND ${CMAKE_COMMAND} -E copy ${OpenMEEG_SOURCE_DIR}/wrapping/src/test_doc.py ${OpenMEEG_BINARY_DIR}/wrapping/src/)
-        add_test(openmeeg_python_doc ${PYTHON_EXECUTABLE} ${OpenMEEG_BINARY_DIR}/wrapping/src/test_doc.py)
+        add_test(openmeeg_python_doc ${Python3_EXECUTABLE} ${OpenMEEG_BINARY_DIR}/wrapping/src/test_doc.py)
     endif()
 
 endif()
