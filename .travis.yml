@@ -102,7 +102,6 @@ matrix:
             - boost
 
 before_install:
-  - brew link --overwrite python
   - eval "${MATRIX_EVAL}"
 
   # Travis machines have 2 cores
