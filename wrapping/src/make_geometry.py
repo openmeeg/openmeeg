@@ -34,6 +34,7 @@ def make_geometry(meshes, interfaces, domains):
     indmaps = dict()
     geom = Geometry()
     for name,mesh in meshes.items():
+        print(name,mesh)
         indmaps[name] = geom.add_vertices(mesh[0])
 
     # Create meshes
