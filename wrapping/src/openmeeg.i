@@ -259,12 +259,14 @@ namespace OpenMEEG {
 
     IndexMap
     geom_add_vertices(Geometry* geom,PyObject* pyobj) {
+        std::cerr << "A" << std::endl;
         if ((pyobj==nullptr || !PyArray_Check(pyobj))) {
             PyErr_SetString(PyExc_TypeError,
                             "Matrix of vertices requires an 2 dimensions array.");
             return IndexMap();
         }
 
+        std::cerr << "B" << std::endl;
         PyArrayObject* mat_v  = reinterpret_cast<PyArrayObject*>(PyArray_FromObject(pyobj,NPY_DOUBLE,0,0));
         if (mat_v==nullptr) {
             PyErr_SetString(PyExc_TypeError,
@@ -272,6 +274,7 @@ namespace OpenMEEG {
             return IndexMap();
         }
 
+        std::cerr << "C" << std::endl;
         const size_t nbdims_v = PyArray_NDIM(mat_v);
         if (nbdims_v!=2 || PyArray_DIM(mat_v,1)<3) {
             PyErr_SetString(PyExc_TypeError,
@@ -279,6 +282,7 @@ namespace OpenMEEG {
             return IndexMap();
         }
 
+        std::cerr << "D" << std::endl;
         IndexMap indmap;
         const size_t nbVertices = PyArray_DIM(mat_v,0);
         for (int i=0; i<nbVertices; ++i) {
@@ -287,6 +291,7 @@ namespace OpenMEEG {
             const double z = *reinterpret_cast<double*>(PyArray_GETPTR2(mat_v,i,2));
             indmap.insert({ i, geom->add_vertex(Vertex(x,y,z)) });
         }
+        std::cerr << "E" << std::endl;
 
         return indmap;
     }
