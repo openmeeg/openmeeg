@@ -35,6 +35,7 @@ matrix:
           sources:
             - ubuntu-toolchain-r-test
           packages:
+            - python3.7-dev
             - libopenblas-dev
             - liblapacke-dev # XXX: If lapacke is missing, cmake does not break at generation but at compilation.
             - swig
