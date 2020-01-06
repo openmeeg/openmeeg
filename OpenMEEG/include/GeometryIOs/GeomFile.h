@@ -88,11 +88,11 @@ namespace OpenMEEG::GeometryIOs {
         typedef enum { UNKNOWN_VERSION=-1, VERSION10, VERSION11 } VersionId;
 
         const char* name() const override { return "geom"; }
-        Matrix load_data() const { return Matrix(); }
+        Matrix load_data() const override { return Matrix(); }
 
-        virtual void save_geom(const Geometry& geometry);
-        virtual void save_data(const Geometry&,const Matrix&) const { }
-        virtual void write() const { }
+        virtual void save_geom(const Geometry& geometry) override;
+        virtual void save_data(const Geometry&,const Matrix&) const override { }
+        virtual void write() const override { }
 
         GeometryIO* clone(const std::string& filename) const override { return new GeomFile(filename); }
 
