@@ -1,6 +1,8 @@
 sudo: true
 
 language: cpp
+python:
+  - "3.6"
 
 cache:
   ccache: true
