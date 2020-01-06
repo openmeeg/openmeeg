@@ -1,8 +1,6 @@
 sudo: true
 
 language: cpp
-python:
-  - "3.6"
 
 cache:
   ccache: true
@@ -66,6 +64,7 @@ matrix:
 
     - name: openblas, vtk, full dep using brew
       os: osx
+      python: "3.7"
       env:
         - BACKEND=OpenBLAS
         - USE_VTK=ON
