@@ -26,6 +26,7 @@ matrix:
         - BACKEND=OpenBLAS
         - USE_VTK=ON
         - ENABLE_PYTHON=ON
+        - SWIG_VERSION=4.0.1
         - ANALYSE=ON
         - ENABLE_COVERAGE=ON
         - BUILD_DOCUMENTATION=ON
@@ -144,6 +145,13 @@ before_install:
     if [[ "${TRAVIS_OS_NAME}" == "linux" && "${ENABLE_PYTHON}" == "ON" ]]; then
       script=install-swig.sh
       curl -fsSkL https://raw.githubusercontent.com/openmeeg/ci-utils/master/travis/${script} > ${script} && source ./${script}
+    fi
+
+  - |
+    if [[ "${TRAVIS_OS_NAME}" == "linux" && "${ENABLE_PYTHON}" == "ON" ]]; then
+      ls -lR /usr/lib/python3/dist-packages/numpy/
+      python --version
+      python -c "import numpy; print(numpy.version.version)"
     fi
 
   ############################################################################
