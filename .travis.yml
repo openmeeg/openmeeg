@@ -35,10 +35,8 @@ matrix:
           sources:
             - ubuntu-toolchain-r-test
           packages:
-            - python3.7-dev
             - libopenblas-dev
             - liblapacke-dev # XXX: If lapacke is missing, cmake does not break at generation but at compilation.
-            - swig
             - python3-numpy
             - doxygen
             - graphviz
@@ -136,6 +134,16 @@ before_install:
         git clone https://github.com/astropy/ci-helpers.git;
         source ci-helpers/travis/setup_conda.sh;
         conda install -c massich libmatio;
+    fi
+
+  ############################################################################
+  # Install Swig 4.0 (Bionic contains a swig 3.0 which has bugs in our context)
+  ############################################################################
+
+  - |
+    if [[ "${TRAVIS_OS_NAME}" == "linux" && "${ENABLE_PYTHON}" == "ON" ]]; then
+      script=install-swig.sh
+      curl -fsSkL https://raw.githubusercontent.com/openmeeg/ci-utils/master/travis/${script} > ${script} && source ./${script}
     fi
 
   ############################################################################
