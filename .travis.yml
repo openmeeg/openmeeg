@@ -149,9 +149,8 @@ before_install:
 
   - |
     if [[ "${TRAVIS_OS_NAME}" == "linux" && "${ENABLE_PYTHON}" == "ON" ]]; then
-      alias python="python3"
-      python --version
-      python -c "import numpy; print(numpy.version.version)"
+      python3 --version
+      python3 -c "import numpy; print(numpy.version.version)"
     fi
 
   ############################################################################
