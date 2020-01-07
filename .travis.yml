@@ -103,6 +103,8 @@ matrix:
             - boost
 
 before_install:
+  - DEPS_DIR="${TRAVIS_BUILD_DIR}/deps"
+  - mkdir ${DEPS_DIR} && cd ${DEPS_DIR}
   - if [[ "${TRAVIS_OS_NAME}" == "osx" ]]; then
       brew link --overwrite python;
     fi
