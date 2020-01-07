@@ -149,7 +149,7 @@ before_install:
 
   - |
     if [[ "${TRAVIS_OS_NAME}" == "linux" && "${ENABLE_PYTHON}" == "ON" ]]; then
-      ls -lR /usr/lib/python3/dist-packages/numpy/
+      alias python="python3"
       python --version
       python -c "import numpy; print(numpy.version.version)"
     fi
