@@ -26,6 +26,7 @@ matrix:
         - BACKEND=OpenBLAS
         - USE_VTK=ON
         - ENABLE_PYTHON=ON
+        - CMAKE_VERSION=3.12.4
         - SWIG_VERSION=4.0.1
         - ANALYSE=ON
         - ENABLE_COVERAGE=ON
@@ -135,6 +136,16 @@ before_install:
         git clone https://github.com/astropy/ci-helpers.git;
         source ci-helpers/travis/setup_conda.sh;
         conda install -c massich libmatio;
+    fi
+
+  ############################################################################
+  # Install cmake (Bionic contains a cmake 3.10
+  ############################################################################
+
+  - |
+    if [[ "${TRAVIS_OS_NAME}" == "linux" && "${ENABLE_PYTHON}" == "ON" ]]; then
+      script=install-swig.sh
+      curl -fsSkL https://raw.githubusercontent.com/openmeeg/ci-utils/master/travis/${script} > ${script} && source ./${script}
     fi
 
   ############################################################################
