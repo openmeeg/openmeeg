@@ -144,7 +144,7 @@ before_install:
 
   - |
     if [[ "${TRAVIS_OS_NAME}" == "linux" && "${ENABLE_PYTHON}" == "ON" ]]; then
-      script=install-swig.sh
+      script=install_cmake.sh
       curl -fsSkL https://raw.githubusercontent.com/openmeeg/ci-utils/master/travis/${script} > ${script} && source ./${script}
     fi
 
