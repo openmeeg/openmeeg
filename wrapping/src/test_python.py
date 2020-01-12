@@ -46,7 +46,7 @@ dipole_file = op.join(data_path, subject, subject + ".dip")
 squidsFile = op.join(data_path, subject, subject + ".squids")
 patches_file = op.join(data_path, subject, subject + ".patches")
 
-geom = om.Geometry(geom_file,cond_file)
+geom = om.Geometry(geom_file, cond_file)
 
 mesh = om.Mesh(source_mesh_file)
 
@@ -65,7 +65,7 @@ gauss_order = 3
 use_adaptive_integration = True
 dipole_in_cortex = True
 
-hm = om.HeadMat(geom,gauss_order)
+hm = om.HeadMat(geom, gauss_order)
 # hm.invert() # invert hm inplace (no copy)
 # hminv = hm
 hminv = hm.inverse()  # invert hm with a copy
