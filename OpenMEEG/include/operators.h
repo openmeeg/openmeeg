@@ -232,16 +232,17 @@ namespace OpenMEEG {
         } else {
             auto NUpdate = [&](const Mesh& m1,const Mesh& m2,const auto& M) {
                 ProgressBar pb(m1.vertices().size());
+                const VerticesRefs& v2 = m2.vertices();
                 for (const auto& vertex1 : m1.vertices()) {
                     #pragma omp parallel for
                     #if defined NO_OPENMP || defined OPENMP_RANGEFOR
-                    for (const auto& vertex2 : m2.vertices()) {
+                    for (const auto& vertex2 : v2) {
                     #elif defined OPENMP_ITERATOR
-                    for (auto vit2=m2.vertices().begin();vit2<m2.vertices().end();++vit2) {
+                    for (auto vit2=v2.begin();vit2<v2.end();++vit2) {
                         const Vertex* vertex2 = *vit2;
                     #else
-                    for (int i2=0;i2<m2.vertices().size();++i2) {
-                        const Vertex* vertex2 = *(m2.vertices().begin()+i2);
+                    for (int i2=0;i2<v2.size();++i2) {
+                        const Vertex* vertex2 = *(v2.begin()+i2);
                     #endif
                         mat(vertex1->index(),vertex2->index()) += _operatorN(*vertex1,*vertex2,m1,m2,M)*coeff;
                     }
