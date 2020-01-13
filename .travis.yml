@@ -126,7 +126,7 @@ before_install:
 
   - |
     if [[ "${BACKEND}" == *"Intel"* ]]; then
-      curl -fsSkL https://raw.githubusercontent.com/openmeeg/ci-utils/master/travis/install-mkl.sh > install_mkl.sh && source ./install_mkl.sh
+      curl -fsSkL https://raw.githubusercontent.com/openmeeg/ci-utils/master/travis/install_mkl.sh > install_mkl.sh && source ./install_mkl.sh
     fi
 
   ############################################################################
