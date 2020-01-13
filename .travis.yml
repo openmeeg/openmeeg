@@ -26,7 +26,7 @@ matrix:
         - BACKEND=OpenBLAS
         - USE_VTK=ON
         - ENABLE_PYTHON=ON
-        - CMAKE_VERSION=3.16.2
+        - CMAKE_VERSION=3.12.4  # minimal dependency
         - SWIG_VERSION=4.0.1
         - ANALYSE=ON
         - ENABLE_COVERAGE=ON
