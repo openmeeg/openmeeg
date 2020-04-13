@@ -46,93 +46,92 @@ knowledge of the CeCILL-B license and that you accept its terms.
 /// The second element of each pair states whether the domain is contains in the
 /// inside or the outside of the volume bounded by the interface.
 
-#include <string>
 #include <interface.h>
+#include <string>
 
 namespace OpenMEEG {
 
-    /// \brief a SimpleDomain is a pair of an Interface and a boolean.
-    /// A simple domain (SimpleDomain) is given by an interface (of type Interface) identifying
-    /// a closed surface and a side information. The closed surface/interface splits the space
-    /// into two components. The side depicts which of these two components is the simple domain.
+/// \brief a SimpleDomain is a pair of an Interface and a boolean.
+/// A simple domain (SimpleDomain) is given by an interface (of type Interface)
+/// identifying a closed surface and a side information. The closed
+/// surface/interface splits the space into two components. The side depicts
+/// which of these two components is the simple domain.
 
-    class SimpleDomain {
-    public:
+class SimpleDomain {
+public:
+  typedef enum { Inside, Outside } Side;
 
-        typedef enum { Inside, Outside } Side;
+  SimpleDomain() {}
+  SimpleDomain(Interface &i, const Side s) : interf(i), side(s) {}
+  ~SimpleDomain() {}
 
-         SimpleDomain() { }
-         SimpleDomain(Interface& i,const Side s): interf(i),side(s) { }
-        ~SimpleDomain() { }
+  Interface &interface() { return interf; }
+  const Interface &interface() const { return interf; }
 
-              Interface& interface()       { return interf;  }
-        const Interface& interface() const { return interf;  }
+  bool inside() const { return (side == Inside); }
 
-        bool inside() const { return (side==Inside); }
+private:
+  Interface interf;
+  Side side;
+};
 
-    private:
+/// \brief a Domain is a vector of SimpleDomain
+/// A Domain is the intersection of simple domains (of type SimpleDomain).
+/// In addition the domain is named and has a conductivity.
 
-        Interface interf;
-        Side      side;
-    };
+class OPENMEEG_EXPORT Domain {
+public:
+  typedef std::vector<SimpleDomain> Boundaries;
 
-    /// \brief a Domain is a vector of SimpleDomain
-    /// A Domain is the intersection of simple domains (of type SimpleDomain).
-    /// In addition the domain is named and has a conductivity.
+  Domain(const std::string &dname = "") : domain_name(dname) {}
+  ~Domain() {}
 
-    class OPENMEEG_EXPORT Domain {
-    public:
+  /// Boundaries of the domain.
 
-        typedef std::vector<SimpleDomain> Boundaries;
+  Boundaries &boundaries() { return bounds; }
+  const Boundaries &boundaries() const { return bounds; }
 
-         Domain(const std::string& dname=""): domain_name(dname) { }
-        ~Domain() { }
+  /// The name of the domain.
 
-        /// Boundaries of the domain.
+  std::string &name() { return domain_name; }
+  const std::string &name() const { return domain_name; }
 
-              Boundaries& boundaries()       { return bounds; }
-        const Boundaries& boundaries() const { return bounds; }
+  /// The conductivity of the domain.
 
-        /// The name of the domain.
+  void set_conductivity(const double c) { cond = c; }
+  const double &conductivity() const { return cond; }
 
-              std::string& name()       { return domain_name; }
-        const std::string& name() const { return domain_name; }
+  /// Print information about the domain.
+  /// \param outermost specifies if the domain is the outer domain
+  /// (the geometry knows this information).
 
-        /// The conductivity of the domain.
+  void info(const bool outermost = false) const;
 
-        void set_conductivity(const double c) { cond = c;    }
-        const double& conductivity() const    { return cond; }
+  bool contains(const Mesh &m) const { return mesh_orientation(m) != 0; }
 
-        /// Print information about the domain.
-        /// \param outermost specifies if the domain is the outer domain
-        /// (the geometry knows this information).
+  bool contains(
+      const Vect3 &point) const; ///< Does this point belongs to the domain ?
 
-        void info(const bool outermost=false) const;
+  /// \return 1 if the mesh is oriented towards the inside of the domain.
+  ///        -1 if the mesh is oriented towards the outsde of the domain.
+  ///         0 otherwise (the mesh is not part of the domain boundary).
 
-        bool contains(const Mesh& m) const { return mesh_orientation(m)!=0; }
+  int mesh_orientation(const Mesh &m) const {
+    for (const auto &boundary : boundaries())
+      for (const auto &omesh : boundary.interface().oriented_meshes())
+        if (&omesh.mesh() == &m)
+          return (boundary.inside()) ? omesh.orientation()
+                                     : -omesh.orientation();
+    return 0;
+  }
 
-        bool contains(const Vect3& point) const; ///< Does this point belongs to the domain ?
+private:
+  Boundaries bounds; ///< Interfaces (with side) delimiting the domain.
+  std::string domain_name = ""; ///< Name of the domain.
+  double cond = -1.0;           ///< Conductivity of the domain.
+};
 
-        /// \return 1 if the mesh is oriented towards the inside of the domain.
-        ///        -1 if the mesh is oriented towards the outsde of the domain.
-        ///         0 otherwise (the mesh is not part of the domain boundary).
+/// A vector of Domain is called Domains
 
-        int mesh_orientation(const Mesh& m) const {
-            for (const auto& boundary : boundaries())
-                for (const auto& omesh : boundary.interface().oriented_meshes())
-                    if (&omesh.mesh()==&m)
-                        return (boundary.inside()) ? omesh.orientation() : -omesh.orientation();
-            return 0;
-        }
-
-    private:
-
-        Boundaries  bounds;             ///< Interfaces (with side) delimiting the domain.
-        std::string domain_name = "";   ///< Name of the domain.
-        double      cond        = -1.0; ///< Conductivity of the domain.
-    };
-
-    /// A vector of Domain is called Domains
-
-    typedef std::vector<Domain> Domains;
-}
+typedef std::vector<Domain> Domains;
+} // namespace OpenMEEG

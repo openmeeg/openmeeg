@@ -39,18 +39,20 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #pragma once
 
-#include <limits>
 #include <cmath>
+#include <limits>
 
+#include <geometry.h>
+#include <interface.h>
+#include <mesh.h>
 #include <om_common.h>
 #include <vertex.h>
-#include <mesh.h>
-#include <interface.h>
-#include <geometry.h>
 
 namespace OpenMEEG {
 
-    double dist_point_cell(const Vect3&, const Triangle& , Vect3&, bool&);
-    OPENMEEG_EXPORT double dist_point_interface(const Vect3&, const Interface&, Vect3&, Triangle&);
-    OPENMEEG_EXPORT std::string dist_point_geom(const Vect3&, const Geometry&, Vect3&, Triangle&, double&);
-}
+double dist_point_cell(const Vect3 &, const Triangle &, Vect3 &, bool &);
+OPENMEEG_EXPORT double dist_point_interface(const Vect3 &, const Interface &,
+                                            Vect3 &, Triangle &);
+OPENMEEG_EXPORT std::string dist_point_geom(const Vect3 &, const Geometry &,
+                                            Vect3 &, Triangle &, double &);
+} // namespace OpenMEEG

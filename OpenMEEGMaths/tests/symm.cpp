@@ -41,28 +41,29 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <iostream>
 
 #include <OpenMEEGMathsConfig.h>
-#include <symmatrix.h>
-#include <matrix.h>
 #include <generic_test.hpp>
+#include <matrix.h>
+#include <symmatrix.h>
 
 int main() {
 
-    using namespace OpenMEEG;
+  using namespace OpenMEEG;
 
-    // section SymMatrix
+  // section SymMatrix
 
-    std::cout << std::endl << "========== symmetric matrices ==========" << std::endl;
+  std::cout << std::endl
+            << "========== symmetric matrices ==========" << std::endl;
 
-    SymMatrix S(4);
-    for (unsigned i=0;i<4;++i)
-        for (unsigned j=i; j<4;++j)
-            S(i,j) = pow(2.0,(double)i)+pow(3.0,(double)j);
+  SymMatrix S(4);
+  for (unsigned i = 0; i < 4; ++i)
+    for (unsigned j = i; j < 4; ++j)
+      S(i, j) = pow(2.0, (double)i) + pow(3.0, (double)j);
 
-    genericTest("symm",S);
+  genericTest("symm", S);
 
-    const Matrix R = S(1,2,0,2); // extract submatrix
-    std::cout << "Matrice R : " << std::endl;
-    R.info();
+  const Matrix R = S(1, 2, 0, 2); // extract submatrix
+  std::cout << "Matrice R : " << std::endl;
+  R.info();
 
-    return 0;
+  return 0;
 }

@@ -40,48 +40,48 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <iostream>
 
 #include <OpenMEEGMathsConfig.h>
-#include <vector.h>
-#include <matrix.h>
 #include <generic_test.hpp>
+#include <matrix.h>
+#include <vector.h>
 
-int main () {
+int main() {
 
-    using namespace OpenMEEG;
+  using namespace OpenMEEG;
 
-    // section Vector
+  // section Vector
 
-    std::cout << std::endl << "========== vectors ==========" << std::endl;
+  std::cout << std::endl << "========== vectors ==========" << std::endl;
 
-    Vector v(8);
-    v.set(0);
-    v.save("tmp.bin");
+  Vector v(8);
+  v.set(0);
+  v.save("tmp.bin");
 
-    for (int i=0;i<8;++i)
-        v(i) = i;
+  for (int i = 0; i < 8; ++i)
+    v(i) = i;
 
-    v.save("tmp.txt");
-    v.load("tmp.bin");
-    std::cout << "v = " << std::endl << v << std::endl;
-    v.load("tmp.txt");
-    std::cout << "v = " << std::endl << v << std::endl;
+  v.save("tmp.txt");
+  v.load("tmp.bin");
+  std::cout << "v = " << std::endl << v << std::endl;
+  v.load("tmp.txt");
+  std::cout << "v = " << std::endl << v << std::endl;
 
-    std::cout << "MAT :" << std::endl;
-    v.save("tmp_matrix.mat");
-    v.load("tmp_matrix.mat");
-    v.info();
+  std::cout << "MAT :" << std::endl;
+  v.save("tmp_matrix.mat");
+  v.load("tmp_matrix.mat");
+  v.info();
 
-    v(0) = 115;
-    v(7) = 0.16;
-    v(3) = 0.22;
-    v(2) = 2.;
-    Matrix m(v,v.size(),1);
-    m = m* m.transpose();
-    m -= v.outer_product(v);
-    if ( m.frobenius_norm() > eps) {
-        m.info();
-        std::cerr << "Error: Vector outerproduct is WRONG-1" << std::endl;
-        exit(1);
-    }
+  v(0) = 115;
+  v(7) = 0.16;
+  v(3) = 0.22;
+  v(2) = 2.;
+  Matrix m(v, v.size(), 1);
+  m = m * m.transpose();
+  m -= v.outer_product(v);
+  if (m.frobenius_norm() > eps) {
+    m.info();
+    std::cerr << "Error: Vector outerproduct is WRONG-1" << std::endl;
+    exit(1);
+  }
 
-    return 0;
+  return 0;
 }

@@ -1,7 +1,7 @@
 /*
 Project Name : OpenMEEG
 
-© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre 
+© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre
 GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU, Théodore PAPADOPOULO,
 Emmanuel OLIVI
 Maureen.Clerc.AT.inria.fr, keriven.AT.certis.enpc.fr,
@@ -37,52 +37,58 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#include <iostream>
+#include "commandline.h"
 #include "matrix.h"
 #include "symmatrix.h"
 #include "vector.h"
-#include "commandline.h"
+#include <iostream>
 
 using namespace OpenMEEG;
 
-int
-main(int argc,char** argv) {
+int main(int argc, char **argv) {
 
-    print_version(argv[0]);
+  print_version(argv[0]);
 
-    const CommandLine cmd(argc,argv,"Convert squids in text file to a vtk file for vizualisation");
-    const std::string& input_filename  = cmd.option("-i",std::string(),"Squids positions in original coordinate system");
-    const std::string& output_filename = cmd.option("-o",std::string(),"Squids positions with orientations in vtk format");
-    if (cmd.help_mode())
-        return 0;
-
-    if(input_filename=="" || output_filename=="") {
-        std::cerr << "Not enough arguments, try the -h option" << std::endl;
-        return 1;
-    }
-
-    Matrix squids(input_filename);
-
-    std::ofstream ofs(output_filename);
-    if (!ofs) {
-        std::cerr << "Cannot open file " << output_filename << " for writing." << std::endl;
-        return 1;
-    }
-
-    ofs <<"# vtk DataFile Version 3.0" << std::endl
-        << "vtk output" << std::endl
-        << "ASCII" << std::endl
-        << "DATASET POLYDATA" << std::endl
-        << "POINTS " << squids.nlin() << " float" << std::endl;
-
-    for (unsigned int i=0; i<squids.nlin(); ++i)
-        ofs << squids(i,0) << ' ' << squids(i,1) << ' ' << squids(i,2) << std::endl;
-
-    ofs << "POINT_DATA " << squids.nlin() << std::endl
-        << "NORMALS normals float" << std::endl;
-
-    for (unsigned int i=0; i<squids.nlin(); ++i)
-        ofs << squids(i,3) << ' ' << squids(i,4) << ' ' << squids(i,5) << std::endl;
-
+  const CommandLine cmd(
+      argc, argv,
+      "Convert squids in text file to a vtk file for vizualisation");
+  const std::string &input_filename = cmd.option(
+      "-i", std::string(), "Squids positions in original coordinate system");
+  const std::string &output_filename = cmd.option(
+      "-o", std::string(), "Squids positions with orientations in vtk format");
+  if (cmd.help_mode())
     return 0;
+
+  if (input_filename == "" || output_filename == "") {
+    std::cerr << "Not enough arguments, try the -h option" << std::endl;
+    return 1;
+  }
+
+  Matrix squids(input_filename);
+
+  std::ofstream ofs(output_filename);
+  if (!ofs) {
+    std::cerr << "Cannot open file " << output_filename << " for writing."
+              << std::endl;
+    return 1;
+  }
+
+  ofs << "# vtk DataFile Version 3.0" << std::endl
+      << "vtk output" << std::endl
+      << "ASCII" << std::endl
+      << "DATASET POLYDATA" << std::endl
+      << "POINTS " << squids.nlin() << " float" << std::endl;
+
+  for (unsigned int i = 0; i < squids.nlin(); ++i)
+    ofs << squids(i, 0) << ' ' << squids(i, 1) << ' ' << squids(i, 2)
+        << std::endl;
+
+  ofs << "POINT_DATA " << squids.nlin() << std::endl
+      << "NORMALS normals float" << std::endl;
+
+  for (unsigned int i = 0; i < squids.nlin(); ++i)
+    ofs << squids(i, 3) << ' ' << squids(i, 4) << ' ' << squids(i, 5)
+        << std::endl;
+
+  return 0;
 }

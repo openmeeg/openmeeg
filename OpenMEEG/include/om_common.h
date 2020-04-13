@@ -39,22 +39,22 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #pragma once
 
+#include <OMassert.H>
+#include <cmath>
 #include <iostream>
+#include <limits>
 #include <string>
 #include <vector>
-#include <cmath>
-#include <OMassert.H>
-#include <limits>
 
 namespace OpenMEEG {
 
-    // a vector of string is called Strings
-    using Strings = std::vector<std::string>;
+// a vector of string is called Strings
+using Strings = std::vector<std::string>;
 
-    // how to compare doubles and floats
-    template<class T>
-    bool almost_equal(T x, T y, double eps = 1e3) {
-        return (std::abs(x-y) < std::numeric_limits<T>::epsilon() * std::abs(x+y) * eps) || std::abs(x-y) < std::numeric_limits<T>::min();
-    }
+// how to compare doubles and floats
+template <class T> bool almost_equal(T x, T y, double eps = 1e3) {
+  return (std::abs(x - y) <
+          std::numeric_limits<T>::epsilon() * std::abs(x + y) * eps) ||
+         std::abs(x - y) < std::numeric_limits<T>::min();
 }
-
+} // namespace OpenMEEG

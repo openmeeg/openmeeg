@@ -37,39 +37,41 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
+#include "commandline.h"
 #include "geometry.h"
 #include "matrix.h"
-#include "commandline.h"
 
 using namespace OpenMEEG;
 
-int
-main(int argc,char* argv[]) {
+int main(int argc, char *argv[]) {
 
-    print_version(argv[0]);
+  print_version(argv[0]);
 
-    const CommandLine cmd(argc,argv,"Convert a single VTK/VTP into meshes.");
-    const std::string& input  = cmd.option("-i",std::string(),"Input VTK/VTP file");
-    const std::string& output = cmd.option("-o",std::string(),"Output mesh base name");
+  const CommandLine cmd(argc, argv, "Convert a single VTK/VTP into meshes.");
+  const std::string &input =
+      cmd.option("-i", std::string(), "Input VTK/VTP file");
+  const std::string &output =
+      cmd.option("-o", std::string(), "Output mesh base name");
 
-    if (cmd.help_mode())
-        return 0;
-
-    if (input=="" || output=="") {
-        std::cout << "Missing arguments, try the -h option" << std::endl;
-        return 1;
-    }
-
-    Geometry geom(input);
-
-    const std::string::size_type idx = output.rfind('.');
-    const std::string& extension = (idx!=std::string::npos) ? output.substr(idx+1) : std::string("");
-    const std::string& basename = output.substr(0,idx);
-
-    for (const auto& mesh : geom.meshes())
-        mesh.save(basename+mesh.name()+'.'+extension);
-
-    geom.save(basename+".geom");
-
+  if (cmd.help_mode())
     return 0;
+
+  if (input == "" || output == "") {
+    std::cout << "Missing arguments, try the -h option" << std::endl;
+    return 1;
+  }
+
+  Geometry geom(input);
+
+  const std::string::size_type idx = output.rfind('.');
+  const std::string &extension =
+      (idx != std::string::npos) ? output.substr(idx + 1) : std::string("");
+  const std::string &basename = output.substr(0, idx);
+
+  for (const auto &mesh : geom.meshes())
+    mesh.save(basename + mesh.name() + '.' + extension);
+
+  geom.save(basename + ".geom");
+
+  return 0;
 }

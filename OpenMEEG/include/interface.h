@@ -39,111 +39,120 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #pragma once
 
-#include <string>
-#include <sstream>
-#include <vector>
 #include <cstdlib>
 #include <ctime>
-#include <om_common.h>
 #include <mesh.h>
+#include <om_common.h>
+#include <sstream>
+#include <string>
+#include <vector>
 
 namespace OpenMEEG {
 
-    class Mesh;
+class Mesh;
 
-    /// An Oriented Mesh is a mesh associated with a boolean stating if it is well oriented.
+/// An Oriented Mesh is a mesh associated with a boolean stating if it is well
+/// oriented.
 
-    class OrientedMesh {
-    public:
+class OrientedMesh {
+public:
+  typedef enum { Normal = 1, Opposite = -1 } Orientation;
 
-        typedef enum { Normal=1, Opposite=-1 } Orientation ;
+  OrientedMesh() {}
 
-        OrientedMesh() {}
+  OrientedMesh(Mesh &m, const Orientation o) : meshptr(&m), orient(o) {}
 
-        OrientedMesh(Mesh& m,const Orientation o): meshptr(&m),orient(o) { }
+  Mesh &mesh() { return *meshptr; }             ///< \brief access mesh
+  const Mesh &mesh() const { return *meshptr; } ///< \brief access mesh
 
-              Mesh&  mesh()       { return *meshptr; } ///< \brief access mesh
-        const Mesh&  mesh() const { return *meshptr; } ///< \brief access mesh
+  int orientation() const {
+    return orient;
+  } ///< \brief orientation is +1 or -1 ?
 
-        int orientation() const { return orient; } ///< \brief orientation is +1 or -1 ?
+  void change_orientation() { orient = -orient; }
 
-        void change_orientation() { orient = -orient; }
+private:
+  Mesh *meshptr;
+  int orient;
+};
 
-    private:
+/// Interface class
+/// An interface is a closed-shape composed of oriented meshes (vector of
+/// oriented meshes).
 
-        Mesh* meshptr;
-        int   orient;
-    };
+class OPENMEEG_EXPORT Interface {
+public:
+  //        using OrientedMesh::Orientation;
 
-    /// Interface class
-    /// An interface is a closed-shape composed of oriented meshes (vector of oriented meshes).
+  typedef std::vector<OrientedMesh> OrientedMeshes;
 
-    class OPENMEEG_EXPORT Interface {
-    public:
+  /// Default Constructor
 
-        //        using OrientedMesh::Orientation;
+  Interface() {}
 
-        typedef std::vector<OrientedMesh> OrientedMeshes;
+  /// Constructor from a name
 
-        /// Default Constructor
+  Interface(const std::string &interfname) : interface_name(interfname) {}
 
-        Interface() { }
+  const std::string &name() const {
+    return interface_name;
+  } ///< \return Interface name
 
-        /// Constructor from a name
+  OrientedMeshes &oriented_meshes() { return orientedmeshes; }
+  const OrientedMeshes &oriented_meshes() const { return orientedmeshes; }
 
-        Interface(const std::string& interfname): interface_name(interfname) { }
+  bool outermost() const {
+    return outermost_interface;
+  }                        ///< \return true if it is the outermost interface.
+  void set_to_outermost(); ///< set all interface meshes to outermost state.
 
-        const std::string& name() const { return interface_name; } ///< \return Interface name
+  bool contains(const Vect3 &p)
+      const; ///< \param p a point \return true if point is inside interface
 
-              OrientedMeshes& oriented_meshes()       { return orientedmeshes; }
-        const OrientedMeshes& oriented_meshes() const { return orientedmeshes; }
+  bool is_mesh_orientations_coherent(
+      const bool doublechecked = false); ///< Check the global orientation
 
-        bool outermost() const { return outermost_interface; } ///< \return true if it is the outermost interface.
-        void set_to_outermost(); ///< set all interface meshes to outermost state.
+  /// \return the total number of the interface vertices
 
-        bool contains(const Vect3& p) const; ///< \param p a point \return true if point is inside interface
+  size_t nb_vertices() const {
+    size_t nb = 0;
+    for (const auto &omesh : oriented_meshes())
+      nb += omesh.mesh().vertices().size();
+    return nb;
+  }
 
-        bool is_mesh_orientations_coherent(const bool doublechecked=false); ///< Check the global orientation
+  /// \return the total number of the interface triangles
 
-        /// \return the total number of the interface vertices
+  size_t nb_triangles() const {
+    size_t nb = 0;
+    for (const auto &omesh : oriented_meshes())
+      nb += omesh.mesh().triangles().size();
+    return nb;
+  }
 
-        size_t nb_vertices() const {
-            size_t nb = 0;
-            for (const auto& omesh : oriented_meshes())
-                nb += omesh.mesh().vertices().size();
-            return nb;
-        }
+  /// \return the adjacent triangles
 
-        /// \return the total number of the interface triangles
+  TrianglesRefs adjacent_triangles(const Triangle &t) const {
+    TrianglesRefs triangles;
+    for (const auto &omesh : oriented_meshes()) {
+      const TrianglesRefs &tri = omesh.mesh().adjacent_triangles(t);
+      triangles.insert(triangles.end(), tri.begin(), tri.end());
+    }
+    return triangles;
+  }
 
-        size_t nb_triangles() const {
-            size_t nb = 0;
-            for (const auto& omesh : oriented_meshes())
-                nb += omesh.mesh().triangles().size();
-            return nb;
-        }
+private:
+  double solid_angle(
+      const Vect3 &p) const; ///< Given a point p, it computes the solid angle
+                             ///< \return should return +/- 4 PI or 0.
 
-        /// \return the adjacent triangles
+  std::string interface_name = "";  ///< interface name is "" by default
+  bool outermost_interface = false; ///< whether or not the interface touches
+                                    ///< the Air (outermost) domain.
+  OrientedMeshes orientedmeshes;
+};
 
-        TrianglesRefs adjacent_triangles(const Triangle& t) const {
-            TrianglesRefs triangles;
-            for (const auto& omesh : oriented_meshes()) {
-                const TrianglesRefs& tri = omesh.mesh().adjacent_triangles(t);
-                triangles.insert(triangles.end(),tri.begin(),tri.end());
-            }
-            return triangles;
-        }
+/// A vector of Interface is called Interfaces.
 
-    private:
-
-        double solid_angle(const Vect3& p) const; ///< Given a point p, it computes the solid angle \return should return +/- 4 PI or 0.
-
-        std::string    interface_name      = "";    ///< interface name is "" by default
-        bool           outermost_interface = false; ///< whether or not the interface touches the Air (outermost) domain.
-        OrientedMeshes orientedmeshes;
-    };
-
-    /// A vector of Interface is called Interfaces.
-
-    typedef std::vector<Interface> Interfaces;
-}
+typedef std::vector<Interface> Interfaces;
+} // namespace OpenMEEG

@@ -1,7 +1,7 @@
 /*
 Project Name : OpenMEEG
 
-© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre 
+© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre
 GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU, Théodore PAPADOPOULO,
 Emmanuel OLIVI
 Maureen.Clerc.AT.inria.fr, keriven.AT.certis.enpc.fr,
@@ -41,35 +41,36 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 namespace OpenMEEG {
 
-    bool Domain::contains(const Vect3& p) const {
-        bool inside = true;
-        for (const auto& boundary : boundaries())
-            inside = (inside && (boundary.interface().contains(p)==boundary.inside()));
-        return inside;
-    }
-
-    void Domain::info(const bool outermost) const {
-
-        std::cout << "Info:: Domain name : "  << name() << std::endl;
-        std::cout << "\t\tConductivity : "    << conductivity() << std::endl;
-        std::cout << "\t\tComposed by interfaces : ";
-        for (const auto& boundary : boundaries()) {
-            std::cout << ((boundary.inside()) ? '-' : '+');
-            std::cout << boundary.interface().name() << " ";
-        }
-        std::cout << std::endl;
-        if (outermost)
-            std::cout << "\t\tConsidered as the outermost domain." << std::endl;
-        
-        for (const auto& boundary : boundaries()) {
-            std::cout << "\t\tInterface \"" << boundary.interface().name() << "\"= { ";
-            for (const auto& oriented_mesh : boundary.interface().oriented_meshes()) {
-                std::cout << "mesh \""<< oriented_mesh.mesh().name() << "\"";
-                if (oriented_mesh.mesh().outermost())
-                    std::cout << "(outermost)";
-                std::cout << ", ";
-            }
-            std::cout << "\b\b }" << std::endl;
-        }
-    }
+bool Domain::contains(const Vect3 &p) const {
+  bool inside = true;
+  for (const auto &boundary : boundaries())
+    inside =
+        (inside && (boundary.interface().contains(p) == boundary.inside()));
+  return inside;
 }
+
+void Domain::info(const bool outermost) const {
+
+  std::cout << "Info:: Domain name : " << name() << std::endl;
+  std::cout << "\t\tConductivity : " << conductivity() << std::endl;
+  std::cout << "\t\tComposed by interfaces : ";
+  for (const auto &boundary : boundaries()) {
+    std::cout << ((boundary.inside()) ? '-' : '+');
+    std::cout << boundary.interface().name() << " ";
+  }
+  std::cout << std::endl;
+  if (outermost)
+    std::cout << "\t\tConsidered as the outermost domain." << std::endl;
+
+  for (const auto &boundary : boundaries()) {
+    std::cout << "\t\tInterface \"" << boundary.interface().name() << "\"= { ";
+    for (const auto &oriented_mesh : boundary.interface().oriented_meshes()) {
+      std::cout << "mesh \"" << oriented_mesh.mesh().name() << "\"";
+      if (oriented_mesh.mesh().outermost())
+        std::cout << "(outermost)";
+      std::cout << ", ";
+    }
+    std::cout << "\b\b }" << std::endl;
+  }
+}
+} // namespace OpenMEEG

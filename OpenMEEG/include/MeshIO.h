@@ -43,92 +43,91 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <map>
 #include <string>
 
-#include <triangle.h>
-#include <mesh.h>
-#include <geometry.h>
 #include <filenames.h>
+#include <geometry.h>
+#include <mesh.h>
+#include <triangle.h>
 
 namespace OpenMEEG {
 
-    //  Mesh class
-    //  \brief Mesh is a collection of triangles associated to a geometry containing the points
-    //  on which triangles are based.
+//  Mesh class
+//  \brief Mesh is a collection of triangles associated to a geometry containing
+//  the points on which triangles are based.
 
-    class OPENMEEG_EXPORT MeshIO {
-    public:
+class OPENMEEG_EXPORT MeshIO {
+public:
+  virtual ~MeshIO() {}
 
-        virtual ~MeshIO() { }
+  static MeshIO *create(const std::string &filename) {
+    const std::string &extension = tolower(getFilenameExtension(filename));
+    return registery.at(extension)->clone(filename);
+  }
 
-        static MeshIO* create(const std::string& filename) {
-            const std::string& extension = tolower(getFilenameExtension(filename));
-            return registery.at(extension)->clone(filename);
-        }
+  virtual const char *name() const = 0;
 
-        virtual const char* name() const = 0;
+  void open(const std::ios_base::openmode mode = std::ios_base::in) {
+    fs.open(fname, (binary()) ? mode | std::ios_base::binary : mode);
+    if (!fs.is_open()) {
+      std::ostringstream ost;
+      ost << "Error opening " << name() << " file: " << fname << " for reading."
+          << std::endl;
+      throw std::invalid_argument(ost.str());
+    }
+  }
 
-        void open(const std::ios_base::openmode mode=std::ios_base::in) {
-            fs.open(fname,(binary()) ? mode|std::ios_base::binary : mode);
-            if (!fs.is_open()) {
-                std::ostringstream ost;
-                ost << "Error opening " << name() << " file: " << fname << " for reading." << std::endl;
-                throw std::invalid_argument(ost.str());
-            }
-        }
+  virtual void load_points(Geometry &geom) = 0;
+  virtual void load_triangles(Mesh &m) = 0;
 
-        virtual void load_points(Geometry& geom) = 0;
-        virtual void load_triangles(Mesh& m)     = 0;
+  virtual void load(Mesh &m) {
+    open(std::ios_base::in);
+    load_points(m.geometry());
+    // TODO
+    load_triangles(m);
+    fs.close();
+    m.update(true);
+  }
 
-        virtual void load(Mesh& m) {
-            open(std::ios_base::in);
-            load_points(m.geometry());
-            // TODO
-            load_triangles(m);
-            fs.close();
-            m.update(true);
-        }
+  virtual void save(const Mesh &mesh, std::ostream &os) const = 0;
 
-        virtual void save(const Mesh& mesh,std::ostream& os) const = 0;
+  virtual void save(const Mesh &mesh) {
+    open(std::ios_base::out);
+    save(mesh, fs);
+    fs.close();
+  }
 
-        virtual void save(const Mesh& mesh) {
-            open(std::ios_base::out);
-            save(mesh,fs);
-            fs.close();
-        }
+protected:
+  typedef std::map<std::string, MeshIO *> Registery;
 
-    protected:
+  class VertexIndices {
+  public:
+    VertexIndices(const Mesh &mesh) {
+      unsigned i = 0;
+      for (const auto &vertex : mesh.vertices())
+        vmap[vertex] = i++;
+    }
 
-        typedef std::map<std::string,MeshIO*> Registery;
+    unsigned operator()(const Triangle &triangle, const unsigned ind) const {
+      return vmap.at(&(triangle.vertex(ind)));
+    }
 
-        class VertexIndices {
-        public:
+  private:
+    std::map<const Vertex *, unsigned> vmap;
+  };
 
-            VertexIndices(const Mesh& mesh) {
-                unsigned i = 0;
-                for (const auto& vertex : mesh.vertices())
-                    vmap[vertex] = i++;
-            }
+  virtual MeshIO *clone(const std::string &filename) const = 0;
+  virtual bool binary() const { return false; }
 
-            unsigned operator()(const Triangle& triangle,const unsigned ind) const {
-                return vmap.at(&(triangle.vertex(ind)));
-            }
+  void reference_vertices(Mesh &mesh) const { mesh.reference_vertices(indmap); }
 
-        private:
+  static Registery registery;
 
-            std::map<const Vertex*,unsigned> vmap;
-        };
+  MeshIO(const std::string &filename, const char *name) : fname(filename) {
+    registery.insert({name, this});
+  }
 
-        virtual MeshIO* clone(const std::string& filename) const = 0;
-        virtual bool binary() const { return false; }
-
-        void reference_vertices(Mesh& mesh) const { mesh.reference_vertices(indmap); }
-
-        static Registery registery;
-
-        MeshIO(const std::string& filename,const char* name): fname(filename) { registery.insert({ name, this }); }
-
-        std::string  fname;
-        std::fstream fs;
-        Mesh*        mesh;
-        IndexMap     indmap;
-    };
-}
+  std::string fname;
+  std::fstream fs;
+  Mesh *mesh;
+  IndexMap indmap;
+};
+} // namespace OpenMEEG

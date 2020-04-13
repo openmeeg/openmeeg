@@ -1,7 +1,7 @@
 /*
 Project Name : OpenMEEG
 
-© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre 
+© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre
 GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU, Théodore PAPADOPOULO,
 Emmanuel OLIVI
 Maureen.Clerc.AT.inria.fr, keriven.AT.certis.enpc.fr,
@@ -48,44 +48,47 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 using namespace OpenMEEG;
 
-void
-getHelp(char** argv) {
-    std::cout << argv[0] <<" [-option] [filepaths...]" << std::endl << std::endl
-              << "   Inverse HeadMatrix " << std::endl
-              << "   Filepaths are in order :" << std::endl
-              << "       HeadMat (bin), HeadMatInv (bin)" << std::endl << std::endl;
+void getHelp(char **argv) {
+  std::cout << argv[0] << " [-option] [filepaths...]" << std::endl
+            << std::endl
+            << "   Inverse HeadMatrix " << std::endl
+            << "   Filepaths are in order :" << std::endl
+            << "       HeadMat (bin), HeadMatInv (bin)" << std::endl
+            << std::endl;
 
-    exit(0);
+  exit(0);
 }
 
-int
-main(int argc,char* argv[]) {
+int main(int argc, char *argv[]) {
 
-    print_version(argv[0]);
+  print_version(argv[0]);
 
-    if (argc==1) {
-        std::cerr << "Not enough arguments \nPlease try \"" << argv[0] << " -h\" or \"" << argv[0] << " --help \" \n" << std::endl;
-        return 0;
-    }
-
-    if ((!strcmp(argv[1],"-h")) || (!strcmp(argv[1],"--help"))) getHelp(argv);
-
-    print_commandline(argc,argv);
-
-    // Start Chrono
-
-    auto start_time = std::chrono::system_clock::now();
-
-    SymMatrix HeadMat;
-
-    HeadMat.load(argv[1]);
-    HeadMat.invert(); // invert inplace
-    HeadMat.save(argv[2]);
-
-    // Stop Chrono
-
-    auto end_time = std::chrono::system_clock::now();
-    dispEllapsed(end_time-start_time);
-
+  if (argc == 1) {
+    std::cerr << "Not enough arguments \nPlease try \"" << argv[0]
+              << " -h\" or \"" << argv[0] << " --help \" \n"
+              << std::endl;
     return 0;
+  }
+
+  if ((!strcmp(argv[1], "-h")) || (!strcmp(argv[1], "--help")))
+    getHelp(argv);
+
+  print_commandline(argc, argv);
+
+  // Start Chrono
+
+  auto start_time = std::chrono::system_clock::now();
+
+  SymMatrix HeadMat;
+
+  HeadMat.load(argv[1]);
+  HeadMat.invert(); // invert inplace
+  HeadMat.save(argv[2]);
+
+  // Stop Chrono
+
+  auto end_time = std::chrono::system_clock::now();
+  dispEllapsed(end_time - start_time);
+
+  return 0;
 }

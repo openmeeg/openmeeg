@@ -44,31 +44,33 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 namespace OpenMEEG {
 
-    /// \brief Edge
-    /// Edge class
+/// \brief Edge
+/// Edge class
 
-    class OPENMEEG_EXPORT Edge {
-    public:
+class OPENMEEG_EXPORT Edge {
+public:
+  Edge() {
+    vertices[0] = nullptr;
+    vertices[1] = nullptr;
+  }
 
-        Edge() {
-            vertices[0] = nullptr;
-            vertices[1] = nullptr;
-        }
+  Edge(const Vertex &V1, const Vertex &V2) {
+    vertices[0] = &V1;
+    vertices[1] = &V2;
+  }
 
-        Edge(const Vertex& V1,const Vertex& V2) {
-            vertices[0] = &V1;
-            vertices[1] = &V2;
-        }
+  const Vertex &vertex(const unsigned i) const { return *vertices[i]; }
 
-        const Vertex& vertex(const unsigned i) const { return *vertices[i]; }
+  bool operator==(const Edge &e) const {
+    return (e.vertex(0) == vertex(0)) && (e.vertex(1) == vertex(1));
+  }
+  bool operator!=(const Edge &e) const {
+    return (e.vertex(0) != vertex(0)) || (e.vertex(1) != vertex(1));
+  }
 
-        bool operator==(const Edge& e) const { return (e.vertex(0)==vertex(0)) && (e.vertex(1)==vertex(1)); }
-        bool operator!=(const Edge& e) const { return (e.vertex(0)!=vertex(0)) || (e.vertex(1)!=vertex(1)); }
+private:
+  const Vertex *vertices[2];
+};
 
-    private:
-
-        const Vertex* vertices[2];
-    };
-
-    typedef std::vector<Edge> Edges;
-}
+typedef std::vector<Edge> Edges;
+} // namespace OpenMEEG

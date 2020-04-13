@@ -39,83 +39,84 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #pragma once
 
-#include <iostream>
 #include <fstream>
+#include <iostream>
 
 #include <map>
 #include <string>
 
-#include <om_utils.h>
-#include <MeshIO.h>
 #include <GeometryExceptions.H>
+#include <MeshIO.h>
+#include <om_utils.h>
 
 namespace OpenMEEG::MeshIOs {
 
-    /// \brief Mesh io for TRI file format.
+/// \brief Mesh io for TRI file format.
 
-    class OPENMEEG_EXPORT Off: public MeshIO {
+class OPENMEEG_EXPORT Off : public MeshIO {
 
-        typedef MeshIO base;
+  typedef MeshIO base;
 
-    public:
+public:
+  void load_points(Geometry &geom) override {
+    std::string magic;
+    fs >> magic;
+    if (magic != "OFF")
+      OpenMEEG::WrongFileFormat("File is not in OFF format.");
 
-        void load_points(Geometry& geom) override {
-            std::string magic;
-            fs >> magic;
-            if (magic!="OFF")
-                OpenMEEG::WrongFileFormat("File is not in OFF format.");
+    unsigned npts;
+    fs >> io_utils::skip_comments("#") >> npts;
 
-            unsigned npts;
-            fs >> io_utils::skip_comments("#") >> npts;
-            
-            unsigned trash;
-            fs >> ntriangles >> trash;
-            
-            Vertices vertices;
-            for (unsigned i=0; i<npts; ++i) {
-                Vertex v;
-                fs >> v;
-                vertices.push_back(v);
-            }
-            indmap = geom.add_vertices(vertices);
-        }
+    unsigned trash;
+    fs >> ntriangles >> trash;
 
-        void load_triangles(OpenMEEG::Mesh& mesh) override {
-            reference_vertices(mesh);
+    Vertices vertices;
+    for (unsigned i = 0; i < npts; ++i) {
+      Vertex v;
+      fs >> v;
+      vertices.push_back(v);
+    }
+    indmap = geom.add_vertices(vertices);
+  }
 
-            mesh.triangles().reserve(ntriangles);
-            for (unsigned i=0; i<ntriangles; ++i) {
-                unsigned trash;
-                TriangleIndices t;
-                fs >> trash >> t[0] >> t[1] >> t[2];
-                mesh.add_triangle(t,indmap);
-            }
-        }
+  void load_triangles(OpenMEEG::Mesh &mesh) override {
+    reference_vertices(mesh);
 
-        void save(const OpenMEEG::Mesh& mesh,std::ostream& os) const override {
-            os << "OFF" << std::endl;
-            os << mesh.vertices().size() << " " << mesh.triangles().size() << " 0" << std::endl;
-            const VertexIndices& vertex_index(mesh);
+    mesh.triangles().reserve(ntriangles);
+    for (unsigned i = 0; i < ntriangles; ++i) {
+      unsigned trash;
+      TriangleIndices t;
+      fs >> trash >> t[0] >> t[1] >> t[2];
+      mesh.add_triangle(t, indmap);
+    }
+  }
 
-            for (const auto& vertex : mesh.vertices())
-                os << *vertex << std::endl;
+  void save(const OpenMEEG::Mesh &mesh, std::ostream &os) const override {
+    os << "OFF" << std::endl;
+    os << mesh.vertices().size() << " " << mesh.triangles().size() << " 0"
+       << std::endl;
+    const VertexIndices &vertex_index(mesh);
 
-            for (const auto& triangle : mesh.triangles())
-                os << "3 " << vertex_index(triangle,0) << ' '
-                           << vertex_index(triangle,1) << ' '
-                           << vertex_index(triangle,2) << std::endl;
-        }
+    for (const auto &vertex : mesh.vertices())
+      os << *vertex << std::endl;
 
-        MeshIO* clone(const std::string& filename) const override { return new Off(filename); }
+    for (const auto &triangle : mesh.triangles())
+      os << "3 " << vertex_index(triangle, 0) << ' '
+         << vertex_index(triangle, 1) << ' ' << vertex_index(triangle, 2)
+         << std::endl;
+  }
 
-    private:
+  MeshIO *clone(const std::string &filename) const override {
+    return new Off(filename);
+  }
 
-        Off(const std::string& filename=""): base(filename,"off") { }
+private:
+  Off(const std::string &filename = "") : base(filename, "off") {}
 
-        static const Off prototype;
+  static const Off prototype;
 
-        const char* name() const override { return "OFF"; }
+  const char *name() const override { return "OFF"; }
 
-        unsigned ntriangles;
-    };
-}
+  unsigned ntriangles;
+};
+} // namespace OpenMEEG::MeshIOs

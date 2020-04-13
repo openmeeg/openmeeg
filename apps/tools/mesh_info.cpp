@@ -37,48 +37,49 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#include "mesh.h"
 #include "commandline.h"
+#include "mesh.h"
 
 using namespace OpenMEEG;
 
-int
-main(int argc,char* argv[]) {
+int main(int argc, char *argv[]) {
 
-    print_version(argv[0]);
+  print_version(argv[0]);
 
-    const CommandLine cmd(argc,argv,"Get info about a Mesh");
-    const std::string& input_filename = cmd.option("-i",std::string(),"Input Mesh");
+  const CommandLine cmd(argc, argv, "Get info about a Mesh");
+  const std::string &input_filename =
+      cmd.option("-i", std::string(), "Input Mesh");
 
-    if (cmd.help_mode())
-        return 0;
-
-    if (input_filename=="") {
-        std::cout << "Not enough arguments, try the -h option" << std::endl;
-        return 1;
-    }
-
-    Mesh m(input_filename);
-
-    if (m.has_self_intersection())
-        warning(std::string("Mesh is self intersecting !"));
-
-    // for closed mesh
-
-    if (!m.has_correct_orientation()) {
-        warning(std::string("Mesh is not well-oriented (valid for closed mesh) !"));
-        return 1;
-    }
-
-    //  For closed meshes E = 3*F/2
-    //  For a simple closed surface, V-E+F=2.
-    //  This the test for a closed mesh is V-F/2=2 or 2*V-F=4.
-
-    if (2*m.vertices().size()-m.triangles().size()==4) {
-        std::cout << "Mesh orientation correct (valid for closed mesh)." << std::endl;
-    } else {
-        std::cout << "Mesh local orientation correct." << std::endl;
-    }
-
+  if (cmd.help_mode())
     return 0;
+
+  if (input_filename == "") {
+    std::cout << "Not enough arguments, try the -h option" << std::endl;
+    return 1;
+  }
+
+  Mesh m(input_filename);
+
+  if (m.has_self_intersection())
+    warning(std::string("Mesh is self intersecting !"));
+
+  // for closed mesh
+
+  if (!m.has_correct_orientation()) {
+    warning(std::string("Mesh is not well-oriented (valid for closed mesh) !"));
+    return 1;
+  }
+
+  //  For closed meshes E = 3*F/2
+  //  For a simple closed surface, V-E+F=2.
+  //  This the test for a closed mesh is V-F/2=2 or 2*V-F=4.
+
+  if (2 * m.vertices().size() - m.triangles().size() == 4) {
+    std::cout << "Mesh orientation correct (valid for closed mesh)."
+              << std::endl;
+  } else {
+    std::cout << "Mesh local orientation correct." << std::endl;
+  }
+
+  return 0;
 }

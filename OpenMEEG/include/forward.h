@@ -1,7 +1,7 @@
 /*
 Project Name : OpenMEEG
 
-© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre 
+© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre
 GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU, Théodore PAPADOPOULO,
 Emmanuel OLIVI
 Maureen.Clerc.AT.inria.fr, keriven.AT.certis.enpc.fr,
@@ -43,22 +43,22 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 namespace OpenMEEG {
 
-    class Forward : public virtual Matrix {
-    public:
+class Forward : public virtual Matrix {
+public:
+  Forward(const Matrix &GainMatrix, const Matrix &RealSourcesData,
+          const double NoiseLevel) {
 
-        Forward(const Matrix& GainMatrix,const Matrix& RealSourcesData,const double NoiseLevel) {
+    std::random_device rd{};
+    std::mt19937 gen{rd()};
+    std::normal_distribution<> noise{0, NoiseLevel};
 
-            std::random_device rd{};
-            std::mt19937 gen{rd()};
-            std::normal_distribution<> noise{0,NoiseLevel};
+    Matrix &SimulatedData = *this;
+    SimulatedData = GainMatrix * RealSourcesData;
+    for (unsigned i = 0; i < SimulatedData.nlin(); ++i)
+      for (unsigned j = 0; j < SimulatedData.ncol(); ++j)
+        SimulatedData(i, j) += noise(gen);
+  }
 
-            Matrix& SimulatedData = *this;
-            SimulatedData = GainMatrix*RealSourcesData;
-            for (unsigned i=0; i<SimulatedData.nlin(); ++i)
-                for (unsigned j=0; j<SimulatedData.ncol(); ++j)
-                    SimulatedData(i,j) += noise(gen);
-        }
-
-        virtual ~Forward() { }
-    };
-}
+  virtual ~Forward() {}
+};
+} // namespace OpenMEEG

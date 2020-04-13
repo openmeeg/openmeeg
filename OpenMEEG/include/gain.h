@@ -1,7 +1,7 @@
 /*
 Project Name : OpenMEEG
 
-© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre 
+© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre
 GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU, Théodore PAPADOPOULO,
 Emmanuel OLIVI
 Maureen.Clerc.AT.inria.fr, keriven.AT.certis.enpc.fr,
@@ -39,12 +39,12 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #pragma once
 
+#include "assemble.h"
+#include "geometry.h"
 #include "matrix.h"
+#include "progressbar.h"
 #include "sparse_matrix.h"
 #include "symmatrix.h"
-#include "geometry.h"
-#include "progressbar.h"
-#include "assemble.h"
 
 #define USE_GMRES 0
 #if USE_GMRES
@@ -55,135 +55,157 @@ namespace OpenMEEG {
 
 #if USE_GMRES
 
-    // Consider the GMRes solver for problems with dimension>15,000 (3,000 vertices per interface)
+// Consider the GMRes solver for problems with dimension>15,000 (3,000 vertices
+// per interface)
 
-    template <typename MATRIX>
-    Matrix linsolve(const SymMatrix& H,const MATRIX& S) {
-        Matrix res(S.nlin(),H.nlin());
-        Jacobi<SymMatrix> M(H);    // Jacobi preconditionner
-        #pragma omp parallel for
-        #ifdef OPENMP_UNSIGNED
-        for (unsigned i=0; i<S.nlin(); ++i) {
-        #else
-        for (int i=0; i<static_cast<int>(S.nlin()); ++i) {
-        #endif
-            Vector vtemp(H.nlin());
-            GMRes(H,M,vtemp,S.getlin(i),1000,1e-7,H.nlin()); // max number of iteration=1000, and precision=1e-7 (1e-5 for faster resolution)
-            res.setlin(i,vtemp);
-            #pragma omp critical
-            PROGRESSBAR(i,S.nlin());
-        }
-        return res
-    }
+template <typename MATRIX>
+Matrix linsolve(const SymMatrix &H, const MATRIX &S) {
+  Matrix res(S.nlin(), H.nlin());
+  Jacobi<SymMatrix> M(H); // Jacobi preconditionner
+#pragma omp parallel for
+#ifdef OPENMP_UNSIGNED
+  for (unsigned i = 0; i < S.nlin(); ++i) {
 #else
-    template <typename SelectionMatrix>
-    Matrix linsolve(const SymMatrix& H,const SelectionMatrix& S) {
-        Matrix res(S.transpose());
-        H.solveLin(res); // solving the system AX=B with LAPACK
-        return res.transpose();
-    }
+  for (int i = 0; i < static_cast<int>(S.nlin()); ++i) {
+#endif
+    Vector vtemp(H.nlin());
+    GMRes(H, M, vtemp, S.getlin(i), 1000, 1e-7,
+          H.nlin()); // max number of iteration=1000, and precision=1e-7 (1e-5
+                     // for faster resolution)
+    res.setlin(i, vtemp);
+#pragma omp critical
+    PROGRESSBAR(i, S.nlin());
+  }
+  return res
+}
+#else
+template <typename SelectionMatrix>
+Matrix linsolve(const SymMatrix &H, const SelectionMatrix &S) {
+  Matrix res(S.transpose());
+  H.solveLin(res); // solving the system AX=B with LAPACK
+  return res.transpose();
+}
 #endif
 
-    class GainMEG: public Matrix {
-    public:
-        using Matrix::operator=;
-        GainMEG (const Matrix& GainMat): Matrix(GainMat) {}
-        GainMEG(const SymMatrix& HeadMatInv,const Matrix& SourceMat,const Matrix& Head2MEGMat,const Matrix& Source2MEGMat):
-            Matrix(Source2MEGMat+(Head2MEGMat*HeadMatInv)*SourceMat)
-        { }
-        ~GainMEG () {};
-    };
+class GainMEG : public Matrix {
+public:
+  using Matrix::operator=;
+  GainMEG(const Matrix &GainMat) : Matrix(GainMat) {}
+  GainMEG(const SymMatrix &HeadMatInv, const Matrix &SourceMat,
+          const Matrix &Head2MEGMat, const Matrix &Source2MEGMat)
+      : Matrix(Source2MEGMat + (Head2MEGMat * HeadMatInv) * SourceMat) {}
+  ~GainMEG(){};
+};
 
-    class GainEEG: public Matrix {
-    public:
-        using Matrix::operator=;
-        GainEEG (const Matrix& GainMat): Matrix(GainMat) {}
-        GainEEG (const SymMatrix& HeadMatInv,const Matrix& SourceMat,const SparseMatrix& Head2EEGMat):
-            Matrix((Head2EEGMat*HeadMatInv)*SourceMat)
-        { }
-        ~GainEEG () {};
-    };
+class GainEEG : public Matrix {
+public:
+  using Matrix::operator=;
+  GainEEG(const Matrix &GainMat) : Matrix(GainMat) {}
+  GainEEG(const SymMatrix &HeadMatInv, const Matrix &SourceMat,
+          const SparseMatrix &Head2EEGMat)
+      : Matrix((Head2EEGMat * HeadMatInv) * SourceMat) {}
+  ~GainEEG(){};
+};
 
-    class GainEEGadjoint: public Matrix {
-    public:
+class GainEEGadjoint : public Matrix {
+public:
+  using Matrix::operator=;
 
-        using Matrix::operator=;
+  GainEEGadjoint(const Geometry &geo, const Matrix &dipoles,
+                 const SymMatrix &HeadMat, const SparseMatrix &Head2EEGMat)
+      : Matrix(Head2EEGMat.nlin(), dipoles.nlin()) {
+    const Matrix &Hinv = linsolve(HeadMat, Head2EEGMat);
+    const int gauss_order = 3;
+    ProgressBar pb(ncol());
+    for (unsigned i = 0; i < ncol(); ++i, ++pb)
+      setcol(i,
+             Hinv * DipSourceMat(geo, dipoles.submat(i, 1, 0, dipoles.ncol()),
+                                 gauss_order, true, "")
+                        .getcol(0)); // TODO ugly
+  }
+  ~GainEEGadjoint(){};
+};
 
-        GainEEGadjoint(const Geometry& geo,const Matrix& dipoles,const SymMatrix& HeadMat,const SparseMatrix& Head2EEGMat): Matrix(Head2EEGMat.nlin(),dipoles.nlin()) {
-            const Matrix& Hinv = linsolve(HeadMat,Head2EEGMat);
-            const int gauss_order = 3;
-            ProgressBar pb(ncol());
-            for (unsigned i=0; i<ncol(); ++i,++pb)
-                setcol(i,Hinv*DipSourceMat(geo,dipoles.submat(i,1,0,dipoles.ncol()),gauss_order,true,"").getcol(0)); // TODO ugly
-        }
-        ~GainEEGadjoint () {};
-    };
+class GainMEGadjoint : public Matrix {
+public:
+  using Matrix::operator=;
 
-    class GainMEGadjoint: public Matrix {
-    public:
+  GainMEGadjoint(const Geometry &geo, const Matrix &dipoles,
+                 const SymMatrix &HeadMat, const Matrix &Head2MEGMat,
+                 const Matrix &Source2MEGMat)
+      : Matrix(Head2MEGMat.nlin(), dipoles.nlin()) {
+    const Matrix &Hinv = linsolve(HeadMat, Head2MEGMat);
+    const int gauss_order = 3;
+    ProgressBar pb(ncol());
+    for (unsigned i = 0; i < ncol(); ++i, ++pb)
+      setcol(i,
+             Hinv * DipSourceMat(geo, dipoles.submat(i, 1, 0, dipoles.ncol()),
+                                 gauss_order, true, "")
+                         .getcol(0) +
+                 Source2MEGMat.getcol(i)); // TODO ugly
+  }
+  ~GainMEGadjoint(){};
+};
 
-        using Matrix::operator=;
+class GainEEGMEGadjoint {
+public:
+  GainEEGMEGadjoint(const Geometry &geo, const Matrix &dipoles,
+                    const SymMatrix &HeadMat, const SparseMatrix &Head2EEGMat,
+                    const Matrix &Head2MEGMat, const Matrix &Source2MEGMat)
+      : EEGleadfield(Head2EEGMat.nlin(), dipoles.nlin()),
+        MEGleadfield(Head2MEGMat.nlin(), dipoles.nlin()) {
+    Matrix RHS(Head2EEGMat.nlin() + Head2MEGMat.nlin(), HeadMat.nlin());
+    for (unsigned i = 0; i < Head2EEGMat.nlin(); ++i) {
+      RHS.setlin(i, Head2EEGMat.getlin(i));
+      RHS.setlin(i + Head2EEGMat.nlin(), Head2MEGMat.getlin(i));
+    }
 
-        GainMEGadjoint(const Geometry& geo,const Matrix& dipoles,const SymMatrix& HeadMat,const Matrix& Head2MEGMat,const Matrix& Source2MEGMat):
-            Matrix(Head2MEGMat.nlin(),dipoles.nlin()) 
-        {
-            const Matrix& Hinv = linsolve(HeadMat,Head2MEGMat);
-            const int gauss_order = 3;
-            ProgressBar pb(ncol());
-            for (unsigned i=0; i<ncol(); ++i,++pb)
-                setcol(i,Hinv*DipSourceMat(geo,dipoles.submat(i,1,0,dipoles.ncol()),gauss_order,true,"").getcol(0)+Source2MEGMat.getcol(i)); // TODO ugly
-        }
-        ~GainMEGadjoint () {};
-    };
+    const Matrix &Hinv = linsolve(HeadMat, RHS);
 
-    class GainEEGMEGadjoint {
-    public:
-        GainEEGMEGadjoint(const Geometry& geo,const Matrix& dipoles,const SymMatrix& HeadMat,const SparseMatrix& Head2EEGMat,const Matrix& Head2MEGMat,const Matrix& Source2MEGMat):
-            EEGleadfield(Head2EEGMat.nlin(),dipoles.nlin()),MEGleadfield(Head2MEGMat.nlin(),dipoles.nlin())
-        {
-            Matrix RHS(Head2EEGMat.nlin()+Head2MEGMat.nlin(),HeadMat.nlin());
-            for (unsigned i=0; i<Head2EEGMat.nlin(); ++i) {
-                RHS.setlin(i,Head2EEGMat.getlin(i));
-                RHS.setlin(i+Head2EEGMat.nlin(),Head2MEGMat.getlin(i));
-            }
+    const unsigned gauss_order = 3;
+    ProgressBar pb(dipoles.nlin());
+    for (unsigned i = 0; i < dipoles.nlin(); ++i, ++pb) {
+      Vector dsm = DipSourceMat(geo, dipoles.submat(i, 1, 0, dipoles.ncol()),
+                                gauss_order, true, "")
+                       .getcol(0); // TODO ugly
+      EEGleadfield.setcol(
+          i, Hinv.submat(0, Head2EEGMat.nlin(), 0, HeadMat.nlin()) * dsm);
+      MEGleadfield.setcol(i, Hinv.submat(Head2EEGMat.nlin(), Head2MEGMat.nlin(),
+                                         0, HeadMat.nlin()) *
+                                     dsm +
+                                 Source2MEGMat.getcol(i));
+    }
+  }
 
-            const Matrix& Hinv = linsolve(HeadMat,RHS);
+  void saveEEG(const std::string filename) const {
+    EEGleadfield.save(filename);
+  }
+  void saveMEG(const std::string filename) const {
+    MEGleadfield.save(filename);
+  }
 
-            const unsigned gauss_order = 3;
-            ProgressBar pb(dipoles.nlin());
-            for ( unsigned i=0; i<dipoles.nlin(); ++i,++pb) {
-                Vector dsm = DipSourceMat(geo,dipoles.submat(i, 1, 0, dipoles.ncol()), gauss_order, true, "").getcol(0); // TODO ugly
-                EEGleadfield.setcol(i,Hinv.submat(0,Head2EEGMat.nlin(),0,HeadMat.nlin())*dsm);
-                MEGleadfield.setcol(i,Hinv.submat(Head2EEGMat.nlin(), Head2MEGMat.nlin(),0,HeadMat.nlin())*dsm+Source2MEGMat.getcol(i));
-            }
-        }
-        
-        void saveEEG( const std::string filename ) const { EEGleadfield.save(filename); }
-        void saveMEG( const std::string filename ) const { MEGleadfield.save(filename); }
-        
-        ~GainEEGMEGadjoint () {};
+  ~GainEEGMEGadjoint(){};
 
-    private:
+private:
+  Matrix EEGleadfield;
+  Matrix MEGleadfield;
+};
 
-        Matrix EEGleadfield;
-        Matrix MEGleadfield;
-    };
+class GainInternalPot : public Matrix {
+public:
+  using Matrix::operator=;
+  GainInternalPot(const SymMatrix &HeadMatInv, const Matrix &SourceMat,
+                  const Matrix &Head2IPMat, const Matrix &Source2IPMat)
+      : Matrix(Source2IPMat + (Head2IPMat * HeadMatInv) * SourceMat) {}
+  ~GainInternalPot(){};
+};
 
-    class GainInternalPot : public Matrix {
-    public:
-        using Matrix::operator=;
-        GainInternalPot (const SymMatrix& HeadMatInv,const Matrix& SourceMat,const Matrix& Head2IPMat,const Matrix& Source2IPMat):
-            Matrix(Source2IPMat+(Head2IPMat*HeadMatInv)*SourceMat)
-        { }
-        ~GainInternalPot () {};
-    };
-
-    class GainEITInternalPot : public Matrix {
-    public:
-        using Matrix::operator=;
-        GainEITInternalPot (const SymMatrix& HeadMatInv,const Matrix& SourceMat,const Matrix& Head2IPMat):
-            Matrix((Head2IPMat*HeadMatInv)*SourceMat)
-        { }
-        ~GainEITInternalPot () {};
-    };
-}
+class GainEITInternalPot : public Matrix {
+public:
+  using Matrix::operator=;
+  GainEITInternalPot(const SymMatrix &HeadMatInv, const Matrix &SourceMat,
+                     const Matrix &Head2IPMat)
+      : Matrix((Head2IPMat * HeadMatInv) * SourceMat) {}
+  ~GainEITInternalPot(){};
+};
+} // namespace OpenMEEG

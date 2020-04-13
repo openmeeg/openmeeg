@@ -39,30 +39,30 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #pragma once
 
-#include <string>
-#include <cmath>
-#include <random>
-#include <iostream>
-#include <chrono>
-#include <sstream>
 #include <algorithm>
 #include <cctype>
+#include <chrono>
+#include <cmath>
+#include <iostream>
+#include <random>
+#include <sstream>
+#include <string>
 
 #include "OpenMEEGConfigure.h"
 
 namespace OpenMEEG {
 
-    inline void dispEllapsed(const std::chrono::duration<double> elapsed_seconds) {
-        std::cout <<  "-------------------------------------------" << std::endl
-                  <<  "| Elapsed Time: " << elapsed_seconds.count() << " s." << std::endl
-                  <<  "-------------------------------------------" << std::endl;
-    }
-
-    inline void
-    warning(const std::string& message) {
-        std::cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl
-                  << "!!!!!!!!!!! WARNING !!!!!!!!!!!" << std::endl
-                  << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl
-                  << message << std::endl;
-    }
+inline void dispEllapsed(const std::chrono::duration<double> elapsed_seconds) {
+  std::cout << "-------------------------------------------" << std::endl
+            << "| Elapsed Time: " << elapsed_seconds.count() << " s."
+            << std::endl
+            << "-------------------------------------------" << std::endl;
 }
+
+inline void warning(const std::string &message) {
+  std::cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl
+            << "!!!!!!!!!!! WARNING !!!!!!!!!!!" << std::endl
+            << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl
+            << message << std::endl;
+}
+} // namespace OpenMEEG

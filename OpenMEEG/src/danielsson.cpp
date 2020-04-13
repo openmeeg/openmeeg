@@ -38,124 +38,124 @@ knowledge of the CeCILL-B license and that you accept its terms.
 */
 
 #include <danielsson.h>
-/* implements an algorithm  proposed in Danielsson, P.-E. Euclidean Distance Mapping. Computer Graphics and Image
-Processing 14, 3 (Nov. 1980), 227-248.
+/* implements an algorithm  proposed in Danielsson, P.-E. Euclidean Distance
+Mapping. Computer Graphics and Image Processing 14, 3 (Nov. 1980), 227-248.
 */
-namespace OpenMEEG
-{
+namespace OpenMEEG {
 
-    // Distance from p to a triangle (3 pointers to vertex)
-    // alpha-> barycentric coordinates of closest point
-    // sum(alpha_i)=1
-    // inside: closest point is inside (alpha_i!=0 for all i)
+// Distance from p to a triangle (3 pointers to vertex)
+// alpha-> barycentric coordinates of closest point
+// sum(alpha_i)=1
+// inside: closest point is inside (alpha_i!=0 for all i)
 
-    // Auxilary Fn : nb vertices left (for the others alpha=0)
+// Auxilary Fn : nb vertices left (for the others alpha=0)
 
-    using namespace std;
+using namespace std;
 
-    static double dpc(const Vect3& p, const Triangle& triangle, Vect3& alphas, unsigned nb, int* idx, bool& inside)
-    {
-        if ( nb == 1 ) {
-            alphas(idx[0]) = 1.0;
-            return (p - triangle.vertex(idx[0])).norm();
+static double dpc(const Vect3 &p, const Triangle &triangle, Vect3 &alphas,
+                  unsigned nb, int *idx, bool &inside) {
+  if (nb == 1) {
+    alphas(idx[0]) = 1.0;
+    return (p - triangle.vertex(idx[0])).norm();
+  }
+  // Solves H=sum(alpha_i A_i), sum(alpha_i)=1, et HM.(A_i-A_0)=0
+  Vect3 A0Ai[3]; // A_i-A_0
+  for (unsigned i = 1; i < nb; ++i)
+    A0Ai[i] = triangle.vertex(idx[i]) - triangle.vertex(idx[0]);
+
+  Vect3 A0M = p - triangle.vertex(idx[0]); // M-A_0
+  if (nb == 2) {
+    alphas(idx[1]) = dotprod(A0M, A0Ai[1]) / dotprod(A0Ai[1], A0Ai[1]);
+    alphas(idx[0]) = 1.0 - alphas(idx[1]);
+  } else if (nb == 3) {
+    // direct inversion (2x2 linear system)
+    const double a00 = dotprod(A0Ai[1], A0Ai[1]);
+    const double a10 = dotprod(A0Ai[1], A0Ai[2]);
+    const double a11 = dotprod(A0Ai[2], A0Ai[2]);
+    const double b0 = dotprod(A0M, A0Ai[1]);
+    const double b1 = dotprod(A0M, A0Ai[2]);
+    const double d = a00 * a11 - a10 * a10;
+    om_error(d != 0);
+    alphas(idx[1]) = (b0 * a11 - b1 * a10) / d;
+    alphas(idx[2]) = (a00 * b1 - a10 * b0) / d;
+    alphas(idx[0]) = 1.0 - alphas(idx[1]) - alphas(idx[2]);
+  } else {
+    // 3 unknowns or more -> solve system
+    //  Ax=b with: A(i, j)=A0Ai.AjA0, x=(alpha_1, alpha_2, ...), b=A0M.A0Ai
+    cerr << "Error : dim>=4 in danielsson !" << endl;
+    exit(0);
+  }
+  // If alpha_i<0 -> brought to 0 and recursion
+  // NB: also takes care of alpha > 1 because if alpha_i>1 then alpha_j<0 for at
+  // least one j
+  for (unsigned i = 0; i < nb; ++i) {
+    if (alphas(idx[i]) < 0) {
+      inside = false;
+      alphas(idx[i]) = 0;
+      swap(idx[i], idx[nb - 1]);
+      return dpc(p, triangle, alphas, nb - 1, idx, inside);
+    }
+  }
+  // Sinon: distance HM
+  Vect3 MH = -A0M;
+  for (unsigned i = 1; i < nb; ++i) {
+    MH += alphas(idx[i]) * A0Ai[i];
+  }
+  return MH.norm();
+}
+
+// Main Function
+double dist_point_triangle(const Vect3 &p, const Triangle &triangle,
+                           Vect3 &alphas, bool &inside) {
+  int idx[3] = {0, 1, 2};
+  inside = true;
+  return dpc(p, triangle, alphas, 3, idx, inside);
+}
+
+static inline int sgn(double s) { return (s > 0) ? 1 : (s < 0) ? -1 : 0; }
+
+double dist_point_interface(const Vect3 &p, const Interface &interface,
+                            Vect3 &alphas, Triangle &nearestTriangle) {
+  double distmin = std::numeric_limits<double>::max();
+
+  for (const auto &omesh : interface.oriented_meshes())
+    for (const auto &triangle : omesh.mesh().triangles()) {
+      bool inside;
+      Vect3 alphasLoop;
+      const double distance =
+          dist_point_triangle(p, triangle, alphasLoop, inside);
+      if (distance < distmin) {
+        distmin = distance;
+        alphas = alphasLoop;
+        nearestTriangle = triangle;
+      }
+    }
+  return distmin;
+}
+
+// find the closest triangle on the interfaces that touches 0 conductivity
+
+std::string dist_point_geom(const Vect3 &p, const Geometry &g, Vect3 &alphas,
+                            Triangle &nearestTriangle, double &dist) {
+
+  double distmin = std::numeric_limits<double>::max();
+  std::string name_nearest_interface;
+
+  for (const auto &domain : g.domains())
+    if (domain.conductivity() == 0.0)
+      for (const auto &boundary : domain.boundaries()) {
+        Triangle local_nearest_triangle;
+        const double distance = dist_point_interface(
+            p, boundary.interface(), alphas, local_nearest_triangle);
+        if (distance < distmin) {
+          name_nearest_interface = boundary.interface().name();
+          distmin = distance;
+          nearestTriangle = local_nearest_triangle;
         }
-        // Solves H=sum(alpha_i A_i), sum(alpha_i)=1, et HM.(A_i-A_0)=0
-        Vect3 A0Ai[3]; // A_i-A_0
-        for (unsigned i=1;i<nb;++i)
-            A0Ai[i] = triangle.vertex(idx[i])-triangle.vertex(idx[0]);
+      }
 
-        Vect3 A0M = p - triangle.vertex(idx[0]); // M-A_0
-        if ( nb == 2 ) {
-            alphas(idx[1]) = dotprod(A0M,A0Ai[1])/dotprod(A0Ai[1],A0Ai[1]);
-            alphas(idx[0]) = 1.0-alphas(idx[1]);
-        } else if (nb==3) {
-            // direct inversion (2x2 linear system)
-            const double a00 = dotprod(A0Ai[1],A0Ai[1]);
-            const double a10 = dotprod(A0Ai[1],A0Ai[2]);
-            const double a11 = dotprod(A0Ai[2],A0Ai[2]);
-            const double b0 = dotprod(A0M,A0Ai[1]);
-            const double b1 = dotprod(A0M,A0Ai[2]);
-            const double d = a00*a11-a10*a10;
-            om_error(d!=0);
-            alphas(idx[1]) = (b0*a11-b1*a10)/d;
-            alphas(idx[2]) = (a00*b1-a10*b0)/d;
-            alphas(idx[0]) = 1.0-alphas(idx[1])-alphas(idx[2]);
-        } else {
-            // 3 unknowns or more -> solve system
-            //  Ax=b with: A(i, j)=A0Ai.AjA0, x=(alpha_1, alpha_2, ...), b=A0M.A0Ai
-            cerr << "Error : dim>=4 in danielsson !" << endl;
-            exit(0);
-        }
-        // If alpha_i<0 -> brought to 0 and recursion
-        // NB: also takes care of alpha > 1 because if alpha_i>1 then alpha_j<0 for at least one j
-        for ( unsigned i = 0; i < nb; ++i) {
-            if ( alphas(idx[i]) < 0 ) {
-                inside = false;
-                alphas(idx[i]) = 0;
-                swap(idx[i], idx[nb-1]);
-                return dpc(p, triangle, alphas, nb-1, idx, inside);
-            }
-        }
-        // Sinon: distance HM
-        Vect3 MH = -A0M;
-        for ( unsigned i = 1; i < nb; ++i) {
-            MH += alphas(idx[i]) * A0Ai[i];
-        }
-        return MH.norm();
-    }
-
-    // Main Function
-    double dist_point_triangle(const Vect3& p, const Triangle& triangle, Vect3& alphas, bool& inside)
-    {
-        int idx[3] = {0, 1, 2};
-        inside = true;
-        return dpc(p, triangle, alphas, 3, idx, inside);
-    }
-
-    static inline int sgn(double s)
-    {
-        return ( s > 0 ) ? 1 : ( s < 0 ) ? -1: 0;
-    }
-
-    double dist_point_interface(const Vect3& p,const Interface& interface,Vect3& alphas,Triangle& nearestTriangle) {
-        double distmin = std::numeric_limits<double>::max();
-
-        for (const auto& omesh : interface.oriented_meshes())
-            for (const auto& triangle : omesh.mesh().triangles()) {
-                bool  inside;
-                Vect3 alphasLoop;
-                const double distance = dist_point_triangle(p,triangle,alphasLoop,inside);
-                if (distance<distmin) {
-                    distmin = distance;
-                    alphas  = alphasLoop;
-                    nearestTriangle = triangle;
-                }
-            }
-        return distmin;
-    }
-
-    //find the closest triangle on the interfaces that touches 0 conductivity
-
-    std::string dist_point_geom(const Vect3& p,const Geometry& g,Vect3& alphas,Triangle& nearestTriangle,double& dist) {
-
-        double distmin = std::numeric_limits<double>::max();
-        std::string name_nearest_interface;
-
-        for(const auto& domain : g.domains())
-            if (domain.conductivity()==0.0)
-                for (const auto& boundary : domain.boundaries()) {
-                    Triangle local_nearest_triangle;
-                    const double distance = dist_point_interface(p,boundary.interface(),alphas,local_nearest_triangle);
-                    if (distance<distmin) {
-                        name_nearest_interface = boundary.interface().name();
-                        distmin = distance;
-                        nearestTriangle = local_nearest_triangle;
-                    }
-                }
-
-        dist = distmin;
-        return name_nearest_interface;
-    }
+  dist = distmin;
+  return name_nearest_interface;
+}
 
 } // end namespace OpenMEEG
-
