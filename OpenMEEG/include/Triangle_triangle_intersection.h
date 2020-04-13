@@ -46,6 +46,7 @@
 /*                                                                           */
 /*****************************************************************************/
 
+#include <OpenMEEG_Export.h>
 #include <cmath>
 
 namespace OpenMEEG {

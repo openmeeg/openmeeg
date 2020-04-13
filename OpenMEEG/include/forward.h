@@ -40,6 +40,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #pragma once
 
 #include "matrix.h"
+#include "om_utils.h"
 
 namespace OpenMEEG {
 
