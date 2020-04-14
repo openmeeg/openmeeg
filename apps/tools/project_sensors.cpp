@@ -39,58 +39,63 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #include <string>
 
-#include <matrix.h>
-#include <danielsson.h>
-#include <vector.h>
-#include <sensors.h>
 #include <commandline.h>
+#include <danielsson.h>
+#include <matrix.h>
+#include <sensors.h>
+#include <vector.h>
 
 using namespace OpenMEEG;
 
-int
-main(int argc,char* argv[]) {
+int main(int argc, char *argv[]) {
 
-    print_version(argv[0]);
+  print_version(argv[0]);
 
-    const CommandLine cmd(argc,argv,"Project the sensors onto the given mesh:");
-    const std::string& sensors_filename = cmd.option("-i",std::string(),"Sensors positions");
-    const std::string& mesh_filename    = cmd.option("-m",std::string(),"Mesh on which to project the sensors");
-    const std::string& output_filename  = cmd.option("-o",std::string(),"Output sensors positions");
+  const CommandLine cmd(argc, argv, "Project the sensors onto the given mesh:");
+  const std::string &sensors_filename =
+      cmd.option("-i", std::string(), "Sensors positions");
+  const std::string &mesh_filename =
+      cmd.option("-m", std::string(), "Mesh on which to project the sensors");
+  const std::string &output_filename =
+      cmd.option("-o", std::string(), "Output sensors positions");
 
-    if (cmd.help_mode())
-        return 0;
-
-    if (sensors_filename=="" || mesh_filename=="" || output_filename=="") {
-        std::cout << "Missing arguments, try the -h option" << std::endl;
-        return 1;
-    }
-
-    // Read the file containing the positions of the EEG patches
-
-    Sensors sensors(sensors_filename);
-
-    Mesh mesh(mesh_filename);
-    Interface interface;
-    interface.oriented_meshes().push_back(OrientedMesh(mesh,OrientedMesh::Normal)); // one mesh per interface, (well oriented)
-
-    Matrix output(sensors.getNumberOfPositions(), 3);
-
-    const size_t nb_positions = sensors.getNumberOfPositions();
-    for (size_t i=0; i<nb_positions; ++i) {
-        const Vector position = sensors.getPosition(i);
-        Vect3 current_position;
-        for (unsigned k=0; k<3; ++k)
-            current_position(k) = position(k);
-        Vect3 alphas;
-        Triangle triangle; // closest triangle
-        dist_point_interface(current_position,interface,alphas,triangle);
-        current_position = alphas(0)*triangle.vertex(0)+alphas(1)*triangle.vertex(1)+alphas(2)*triangle.vertex(2);
-        for (unsigned k=0; k<3; ++k)
-            output(i,k) = current_position(k);
-    }
-
-    sensors.getPositions() = output;
-    sensors.save(output_filename);
-
+  if (cmd.help_mode())
     return 0;
+
+  if (sensors_filename == "" || mesh_filename == "" || output_filename == "") {
+    std::cout << "Missing arguments, try the -h option" << std::endl;
+    return 1;
+  }
+
+  // Read the file containing the positions of the EEG patches
+
+  Sensors sensors(sensors_filename);
+
+  Mesh mesh(mesh_filename);
+  Interface interface;
+  interface.oriented_meshes().push_back(OrientedMesh(
+      mesh, OrientedMesh::Normal)); // one mesh per interface, (well oriented)
+
+  Matrix output(sensors.getNumberOfPositions(), 3);
+
+  const size_t nb_positions = sensors.getNumberOfPositions();
+  for (size_t i = 0; i < nb_positions; ++i) {
+    const Vector position = sensors.getPosition(i);
+    Vect3 current_position;
+    for (unsigned k = 0; k < 3; ++k)
+      current_position(k) = position(k);
+    Vect3 alphas;
+    Triangle triangle; // closest triangle
+    dist_point_interface(current_position, interface, alphas, triangle);
+    current_position = alphas(0) * triangle.vertex(0) +
+                       alphas(1) * triangle.vertex(1) +
+                       alphas(2) * triangle.vertex(2);
+    for (unsigned k = 0; k < 3; ++k)
+      output(i, k) = current_position(k);
+  }
+
+  sensors.getPositions() = output;
+  sensors.save(output_filename);
+
+  return 0;
 }

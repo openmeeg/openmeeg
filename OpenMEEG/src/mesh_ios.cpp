@@ -37,24 +37,24 @@ Thh fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#include <MeshIOs/tri.h>
 #include <MeshIOs/bnd.h>
-#include <MeshIOs/off.h>
-#include <MeshIOs/mesh.h>
-#include <MeshIOs/vtk.h>
 #include <MeshIOs/gifti.h>
+#include <MeshIOs/mesh.h>
+#include <MeshIOs/off.h>
+#include <MeshIOs/tri.h>
+#include <MeshIOs/vtk.h>
 
 namespace OpenMEEG {
 
-    MeshIO::Registery MeshIO::registery;
+MeshIO::Registery MeshIO::registery;
 
-    namespace MeshIOs {
+namespace MeshIOs {
 
-        const Tri   Tri::prototype;
-        const Bnd   Bnd::prototype;
-        const Off   Off::prototype;
-        const Mesh  Mesh::prototype;
-        const Vtk   Vtk::prototype;
-        const Gifti Gifti::prototype;
-    }
-}
+const Tri Tri::prototype;
+const Bnd Bnd::prototype;
+const Off Off::prototype;
+const Mesh Mesh::prototype;
+const Vtk Vtk::prototype;
+const Gifti Gifti::prototype;
+} // namespace MeshIOs
+} // namespace OpenMEEG

@@ -37,18 +37,21 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#include <triangle.h>
 #include <Triangle_triangle_intersection.h>
+#include <triangle.h>
 
 namespace OpenMEEG {
 
-    bool Triangle::intersects(const Triangle& triangle) const {
-        double* p1 = const_cast<double*>(static_cast<const double*>(vertex(0)));
-        double* q1 = const_cast<double*>(static_cast<const double*>(vertex(1)));
-        double* r1 = const_cast<double*>(static_cast<const double*>(vertex(2)));
-        double* p2 = const_cast<double*>(static_cast<const double*>(triangle.vertex(0)));
-        double* q2 = const_cast<double*>(static_cast<const double*>(triangle.vertex(1)));
-        double* r2 = const_cast<double*>(static_cast<const double*>(triangle.vertex(2)));
-        return tri_tri_overlap_test_3d(p1,q1,r1,p2,q2,r2);
-    }
+bool Triangle::intersects(const Triangle &triangle) const {
+  double *p1 = const_cast<double *>(static_cast<const double *>(vertex(0)));
+  double *q1 = const_cast<double *>(static_cast<const double *>(vertex(1)));
+  double *r1 = const_cast<double *>(static_cast<const double *>(vertex(2)));
+  double *p2 =
+      const_cast<double *>(static_cast<const double *>(triangle.vertex(0)));
+  double *q2 =
+      const_cast<double *>(static_cast<const double *>(triangle.vertex(1)));
+  double *r2 =
+      const_cast<double *>(static_cast<const double *>(triangle.vertex(2)));
+  return tri_tri_overlap_test_3d(p1, q1, r1, p2, q2, r2);
 }
+} // namespace OpenMEEG

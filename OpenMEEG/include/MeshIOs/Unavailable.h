@@ -39,54 +39,52 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #pragma once
 
-#include <iostream>
 #include <fstream>
+#include <iostream>
 
 #include <map>
 #include <string>
 
-#include <om_utils.h>
 #include <MeshIO.h>
+#include <om_utils.h>
 
 #ifdef USE_GIFTI
 extern "C" {
-    #include <gifti_io.h>
+#include <gifti_io.h>
 }
 #endif
 
 namespace OpenMEEG::MeshIOs {
 
-    /// \brief Not existent IO.
+/// \brief Not existent IO.
 
-    class OPENMEEG_EXPORT Unavailable: public MeshIO {
+class OPENMEEG_EXPORT Unavailable : public MeshIO {
 
-        typedef MeshIO base;
+  typedef MeshIO base;
 
-    public:
+public:
+  void load_points(Geometry &) override {}
+  void load_triangles(OpenMEEG::Mesh &) override {}
+  void load(OpenMEEG::Mesh &) override {}
 
-        void load_points(Geometry&)          override { }
-        void load_triangles(OpenMEEG::Mesh&) override { }
-        void load(OpenMEEG::Mesh&)           override { }
+  void save(const OpenMEEG::Mesh &) override {}
+  void save(const OpenMEEG::Mesh &, std::ostream &) const override {
+  } // TODO: remove...
 
-        void save(const OpenMEEG::Mesh&) override { }
-        void save(const OpenMEEG::Mesh&,std::ostream&) const override { } // TODO: remove...
+  const char *name() const override { return ioname; }
 
-        const char* name() const override { return ioname; }
+protected:
+  Unavailable(const char *name, const char *extension, const char *cmake)
+      : base("", extension), ioname(name), cmakevar(cmake) {}
 
-    protected:
+private:
+  MeshIO *clone(const std::string &) const override {
+    std::cerr << "OpenMEEG not compiled with " << name() << " support. Specify "
+              << cmakevar << " in cmake." << std::endl;
+    return const_cast<MeshIO *>(static_cast<const base *>(this));
+  }
 
-        Unavailable(const char* name,const char* extension,const char* cmake):
-            base("",extension),ioname(name),cmakevar(cmake)
-        { }
-
-    private:
-
-        MeshIO* clone(const std::string&) const override {
-            std::cerr << "OpenMEEG not compiled with " << name() << " support. Specify " << cmakevar << " in cmake." << std::endl;
-            return const_cast<MeshIO*>(static_cast<const base*>(this)); 
-        }
-
-        const char* ioname;
-        const char* cmakevar;
-    };
-}
+  const char *ioname;
+  const char *cmakevar;
+};
+} // namespace OpenMEEG::MeshIOs

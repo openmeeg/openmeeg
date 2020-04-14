@@ -53,15 +53,15 @@ knowledge of the CeCILL-B license and that you accept its terms.
 typedef CGAL::Exact_predicates_inexact_constructions_kernel K;
 typedef K::Point_3 Point_3;
 typedef K::FT FT;
-typedef CGAL::Polyhedron_3<K>  Polyhedron;
+typedef CGAL::Polyhedron_3<K> Polyhedron;
 typedef Polyhedron::HalfedgeDS HDS;
 
 namespace OpenMEEG {
 
-    namespace {
-        template <typename C3t3>
-        Mesh CGAL_to_OM(C3t3 c3t3);
-    }
-
-    Mesh cgal_mesh_function(double sphere_radius, double hemisphere, double radius_bound, double distance_bound);
+namespace {
+template <typename C3t3> Mesh CGAL_to_OM(C3t3 c3t3);
 }
+
+Mesh cgal_mesh_function(double sphere_radius, double hemisphere,
+                        double radius_bound, double distance_bound);
+} // namespace OpenMEEG

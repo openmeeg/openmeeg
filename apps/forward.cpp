@@ -1,7 +1,7 @@
 /*
 Project Name : OpenMEEG
 
-© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre 
+© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre
 GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU, Théodore PAPADOPOULO,
 Emmanuel OLIVI
 Maureen.Clerc.AT.inria.fr, keriven.AT.certis.enpc.fr,
@@ -37,63 +37,68 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#include <om_utils.h>
 #include <commandline.h>
 #include <forward.h>
+#include <om_utils.h>
 
 using namespace OpenMEEG;
 
-void
-getHelp(const char* command) {
-    std::cout << command << " [-h | --help] filepaths" << std::endl << std::endl
-              << "   Compute the forward problem " << std::endl
-              << "   Filepaths are in order :" << std::endl
-              << "   GainMatrix (bin), RealSourcesData (txt), SimulatedData (txt), NoiseLevel (float)" << std::endl
-              << std::endl;
+void getHelp(const char *command) {
+  std::cout << command << " [-h | --help] filepaths" << std::endl
+            << std::endl
+            << "   Compute the forward problem " << std::endl
+            << "   Filepaths are in order :" << std::endl
+            << "   GainMatrix (bin), RealSourcesData (txt), SimulatedData "
+               "(txt), NoiseLevel (float)"
+            << std::endl
+            << std::endl;
 }
 
-void error(const char* command,const bool unknown_option=false) {
-    std::cerr << "Error: " << ((unknown_option) ? "Unknown option." : "Not enough arguments.") << std::endl;
-    getHelp(command);
-    exit(1);
+void error(const char *command, const bool unknown_option = false) {
+  std::cerr << "Error: "
+            << ((unknown_option) ? "Unknown option." : "Not enough arguments.")
+            << std::endl;
+  getHelp(command);
+  exit(1);
 }
 
-int
-main(int argc,char **argv) {
+int main(int argc, char **argv) {
 
-    print_version(argv[0]);
+  print_version(argv[0]);
 
-    if (argc==2 && (!strcmp(argv[1],"-h") || !strcmp(argv[1],"--help"))) {
-        getHelp(argv[0]);
-        return 0;
-    }
-
-    if (argc<5)
-        error(argv[0]);
-
-    // Start Chrono
-
-    auto start_time = std::chrono::system_clock::now();
-
-    print_commandline(argc,argv);
-
-    // declaration of argument variables======================================================================
-
-    Matrix GainMatrix(argv[1]);
-    Matrix RealSourcesData(argv[2]);
-
-    const double NoiseLevel = atof(argv[4]);
-
-    Forward SimulatedData(GainMatrix,RealSourcesData,NoiseLevel);
-
-    // write output variables ===================================================================================
-
-    SimulatedData.save(argv[3]);
-
-    // Stop Chrono
-
-    auto end_time = std::chrono::system_clock::now();
-    dispEllapsed(end_time-start_time);
-
+  if (argc == 2 && (!strcmp(argv[1], "-h") || !strcmp(argv[1], "--help"))) {
+    getHelp(argv[0]);
     return 0;
+  }
+
+  if (argc < 5)
+    error(argv[0]);
+
+  // Start Chrono
+
+  auto start_time = std::chrono::system_clock::now();
+
+  print_commandline(argc, argv);
+
+  // declaration of argument
+  // variables======================================================================
+
+  Matrix GainMatrix(argv[1]);
+  Matrix RealSourcesData(argv[2]);
+
+  const double NoiseLevel = atof(argv[4]);
+
+  Forward SimulatedData(GainMatrix, RealSourcesData, NoiseLevel);
+
+  // write output variables
+  // ===================================================================================
+
+  SimulatedData.save(argv[3]);
+
+  // Stop Chrono
+
+  auto end_time = std::chrono::system_clock::now();
+  dispEllapsed(end_time - start_time);
+
+  return 0;
 }

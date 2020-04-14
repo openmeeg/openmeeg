@@ -43,11 +43,11 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 namespace OpenMEEG {
 
-    GeometryIO::Registery GeometryIO::registery;
+GeometryIO::Registery GeometryIO::registery;
 
-    namespace GeometryIOs {
+namespace GeometryIOs {
 
-        const GeomFile  GeomFile::prototype;
-        const Vtp       Vtp::prototype;
-    }
-}
+const GeomFile GeomFile::prototype;
+const Vtp Vtp::prototype;
+} // namespace GeometryIOs
+} // namespace OpenMEEG

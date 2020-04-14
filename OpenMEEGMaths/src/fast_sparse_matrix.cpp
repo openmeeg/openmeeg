@@ -6,9 +6,10 @@ Project Name : OpenMEEG
 version           : $Revision: 284 $
 last revision     : $Date: 2008-07-24 23:56:52 +0200 (jeu., 24 juil. 2008) $
 modified by       : $LastChangedBy: gramfort $
-last modified     : $LastChangedDate: 2008-07-24 23:56:52 +0200 (jeu., 24 juil. 2008) $
+last modified     : $LastChangedDate: 2008-07-24 23:56:52 +0200 (jeu., 24 juil.
+2008) $
 
-© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre 
+© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre
 GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU, Théodore PAPADOPOULO,
 Emmanuel OLIVI
 Maureen.Clerc.AT.inria.fr, keriven.AT.certis.enpc.fr,

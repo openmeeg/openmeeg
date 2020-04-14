@@ -44,35 +44,37 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 namespace OpenMEEG {
 #ifndef USE_PROGRESSBAR
-    class ProgressBar {
-    public:
+class ProgressBar {
+public:
+  ProgressBar(const unsigned n, const unsigned sz = 20)
+      : max_iter(n), bar_size(sz) {}
 
-        ProgressBar(const unsigned n,const unsigned sz=20): max_iter(n),bar_size(sz) { }
+  void operator++() {
+    const unsigned p =
+        std::min(static_cast<unsigned>(floor(
+                     static_cast<double>((bar_size + 1) * iter++) / max_iter)),
+                 bar_size);
+    if (p != pprev && iter > 1) {
+      std::cout << std::string(bar_size + 2, '\b') << '[' << std::string(p, '*')
+                << std::string(bar_size - p, '.') << ']';
+      pprev = p;
+    }
+    if (iter >= max_iter)
+      std::cout << std::endl;
+    std::cout.flush();
+  }
 
-        void operator++() {
-            const unsigned p = std::min(static_cast<unsigned>(floor(static_cast<double>((bar_size+1)*iter++)/max_iter)),bar_size);
-            if (p!=pprev && iter>1) {
-                std::cout << std::string(bar_size+2,'\b') << '[' << std::string(p,'*') << std::string(bar_size-p,'.') << ']';
-                pprev = p;
-            }
-            if (iter>=max_iter)
-                std::cout << std::endl;
-            std::cout.flush();
-        }
-        
-    private:
-        
-        unsigned iter = 0;
-        unsigned pprev = -1;
-        const unsigned max_iter;
-        const unsigned bar_size;
-    };
+private:
+  unsigned iter = 0;
+  unsigned pprev = -1;
+  const unsigned max_iter;
+  const unsigned bar_size;
+};
 #else
-    class ProgressBar {
-    public:
-
-        ProgressBar(const unsigned,const unsigned=20) { }
-        void operator++() { }
-    };
+class ProgressBar {
+public:
+  ProgressBar(const unsigned, const unsigned = 20) {}
+  void operator++() {}
+};
 #endif
-}
+} // namespace OpenMEEG

@@ -39,15 +39,16 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #pragma once
 
-#include <iostream>
 #include <iomanip>
-#include <string>
+#include <iostream>
 #include <sstream>
+#include <string>
 
 #ifdef WIN32
-#pragma warning( disable : 4530)    //MSVC standard library can't be inlined
-#pragma warning( disable : 4996)    //MSVC warning C4996: declared deprecated
-#pragma warning( disable : 4290)    //MSVC warning C4290: C++ exception specification
+#pragma warning(disable : 4530) // MSVC standard library can't be inlined
+#pragma warning(disable : 4996) // MSVC warning C4996: declared deprecated
+#pragma warning(                                                               \
+    disable : 4290) // MSVC warning C4290: C++ exception specification
 #else
 #define use_color_terminal
 #endif
@@ -62,109 +63,114 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 namespace OpenMEEG {
 
-    class CommandLine {
-    public:
-
-        CommandLine(const int argc,char* argv[],const std::string& usage): n(argc),args(argv) {
-            help = find_argument("-h")!=end() || find_argument("--help")!=end();
-            if (help) {
-                std::cerr << red << basename(args[0]) << normal;
-                if (usage!="")
-                    std::cerr << ": " << usage;
-                std::cerr << std::endl << std::endl;
-            }
-        }
-
-        bool help_mode() const { return help; }
-
-        template <typename T>
-        T option(const std::string& name,const T defaultvalue,const std::string usage) const {
-            char** arg = find_argument(name);
-            const T result = (arg==end()) ?  defaultvalue : parse_value(arg+1,defaultvalue);
-            if (help)
-                std::cerr << "    " << bold << std::left << std::setw(8) << name << normal
-                          << " = " << std::left << std::setw(12) << value(result) << purple << usage << normal << std::endl;
-            return result;
-        }
-
-        bool option(const std::string& name,const bool defaultvalue,const std::string usage) const {
-            char** arg = find_argument(name);
-            const bool result = (arg==end()) ?  defaultvalue : !defaultvalue;
-            if (help)
-                std::cerr << "    " << bold << std::left << std::setw(8) << name << normal
-                          << " = " << std::left << std::setw(12) << value(result)  << purple << usage << normal << std::endl;
-            return result;
-        }
-
-    private:
-
-        template <typename T>
-        static T value(const T val) { return val; }
-
-        static std::string value(const bool val) { return (val) ? "true" : "false"; }
-
-        static std::string value(const std::string& val) { return '"'+val+'"'; }
-
-        char** end() const { return args+n; }
-
-        char** find_argument(const std::string& name) const {
-            for (auto arg = args; arg!=end(); ++arg)
-                if (name==*arg)
-                    return arg;
-            return end();
-        }
-
-        template <typename T>
-        T parse_value(char* arg[],const T defaultvalue) const {
-            if (arg==end())
-                return defaultvalue;
-            std::istringstream iss(*arg);
-            T value = defaultvalue;
-            iss >> value;
-            return value;
-        }
-
-        #if 1
-        static constexpr char normal[9]      = { 0x1b, '[', '0', ';', '0', ';', '0', 'm', '\0' };
-        static constexpr char red[11]        = { 0x1b, '[', '4', ';', '3', '1', ';', '5', '9', 'm', '\0' };
-        static constexpr char bold[5]        = { 0x1b, '[', '1', 'm', '\0' };
-        static constexpr char purple[11]     = { 0x1b, '[', '0', ';', '3', '5', ';', '5', '9', 'm', '\0' };
-        static constexpr char path_delimiter = '/';
-        #else
-        static constexpr char normal[1]      = { '\0' };
-        static constexpr char red[1]         = { '\0' };
-        static constexpr char bold[1]        = { '\0' };
-        static constexpr char purple[1]      = { '\0' };
-        static constexpr char path_delimiter = '\\';
-        #endif
-
-        unsigned n;
-        char**   args;
-        bool     help;
-    };
-
-    inline void
-    print_commandline(const int argc,char **argv) {
-        std::cout << std::endl << "| ------ " << argv[0] << std::endl;
-        for (int i=1;i<argc;++i)
-            std::cout << "| " << argv[i] << std::endl;
-        std::cout << "| -----------------------" << std::endl;
+class CommandLine {
+public:
+  CommandLine(const int argc, char *argv[], const std::string &usage)
+      : n(argc), args(argv) {
+    help = find_argument("-h") != end() || find_argument("--help") != end();
+    if (help) {
+      std::cerr << red << basename(args[0]) << normal;
+      if (usage != "")
+        std::cerr << ": " << usage;
+      std::cerr << std::endl << std::endl;
     }
+  }
 
-    inline void print_version(const char* cmd) {
-        #ifdef USE_OMP
-            std::string omp_support = " using OpenMP\n Executing using " + std::to_string(omp_get_max_threads()) + " threads.";
-        #else
-            std::string omp_support = "";
-        #endif
+  bool help_mode() const { return help; }
 
-        std::ostringstream display_info;
-        display_info << cmd;
-        display_info << " version " << version;
-        display_info << " compiled at " << __DATE__ << " " << __TIME__;
-        display_info << omp_support;
-        std::cout << display_info.str() << std::endl << std::endl;
-    }
+  template <typename T>
+  T option(const std::string &name, const T defaultvalue,
+           const std::string usage) const {
+    char **arg = find_argument(name);
+    const T result =
+        (arg == end()) ? defaultvalue : parse_value(arg + 1, defaultvalue);
+    if (help)
+      std::cerr << "    " << bold << std::left << std::setw(8) << name << normal
+                << " = " << std::left << std::setw(12) << value(result)
+                << purple << usage << normal << std::endl;
+    return result;
+  }
+
+  bool option(const std::string &name, const bool defaultvalue,
+              const std::string usage) const {
+    char **arg = find_argument(name);
+    const bool result = (arg == end()) ? defaultvalue : !defaultvalue;
+    if (help)
+      std::cerr << "    " << bold << std::left << std::setw(8) << name << normal
+                << " = " << std::left << std::setw(12) << value(result)
+                << purple << usage << normal << std::endl;
+    return result;
+  }
+
+private:
+  template <typename T> static T value(const T val) { return val; }
+
+  static std::string value(const bool val) { return (val) ? "true" : "false"; }
+
+  static std::string value(const std::string &val) { return '"' + val + '"'; }
+
+  char **end() const { return args + n; }
+
+  char **find_argument(const std::string &name) const {
+    for (auto arg = args; arg != end(); ++arg)
+      if (name == *arg)
+        return arg;
+    return end();
+  }
+
+  template <typename T> T parse_value(char *arg[], const T defaultvalue) const {
+    if (arg == end())
+      return defaultvalue;
+    std::istringstream iss(*arg);
+    T value = defaultvalue;
+    iss >> value;
+    return value;
+  }
+
+#if 1
+  static constexpr char normal[9] = {0x1b, '[', '0', ';', '0',
+                                     ';',  '0', 'm', '\0'};
+  static constexpr char red[11] = {0x1b, '[', '4', ';', '3', '1',
+                                   ';',  '5', '9', 'm', '\0'};
+  static constexpr char bold[5] = {0x1b, '[', '1', 'm', '\0'};
+  static constexpr char purple[11] = {0x1b, '[', '0', ';', '3', '5',
+                                      ';',  '5', '9', 'm', '\0'};
+  static constexpr char path_delimiter = '/';
+#else
+  static constexpr char normal[1] = {'\0'};
+  static constexpr char red[1] = {'\0'};
+  static constexpr char bold[1] = {'\0'};
+  static constexpr char purple[1] = {'\0'};
+  static constexpr char path_delimiter = '\\';
+#endif
+
+  unsigned n;
+  char **args;
+  bool help;
+};
+
+inline void print_commandline(const int argc, char **argv) {
+  std::cout << std::endl << "| ------ " << argv[0] << std::endl;
+  for (int i = 1; i < argc; ++i)
+    std::cout << "| " << argv[i] << std::endl;
+  std::cout << "| -----------------------" << std::endl;
+}
+
+inline void print_version(const char *cmd) {
+#ifdef USE_OMP
+  std::string omp_support = " using OpenMP\n Executing using " +
+                            std::to_string(omp_get_max_threads()) + " threads.";
+#else
+  std::string omp_support = "";
+#endif
+
+  std::ostringstream display_info;
+  display_info << cmd;
+  display_info << " version " << version;
+  display_info << " compiled at " << __DATE__ << " " << __TIME__;
+  display_info << omp_support;
+  std::cout << display_info.str() << std::endl << std::endl;
+}
 
 #if 0
     inline bool option(const char *const name, const int argc, char **argv,
@@ -210,4 +216,4 @@ namespace OpenMEEG {
         return res;
     }
 #endif
-}
+} // namespace OpenMEEG

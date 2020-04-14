@@ -1,7 +1,7 @@
 /*
 Project Name : OpenMEEG
 
-© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre 
+© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre
 GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU, Théodore PAPADOPOULO,
 Emmanuel OLIVI
 Maureen.Clerc.AT.inria.fr, keriven.AT.certis.enpc.fr,
@@ -39,40 +39,41 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #include <string>
 
-#include "mesh.h"
-#include "geometry.h"
 #include "commandline.h"
+#include "geometry.h"
+#include "mesh.h"
 
 using namespace OpenMEEG;
 
-int
-main(int argc,char* argv[]) {
+int main(int argc, char *argv[]) {
 
-    print_version(argv[0]);
+  print_version(argv[0]);
 
-    const CommandLine cmd(argc,argv,"Print Geometry information");
-    const std::string& geom_filename = cmd.option("-g",std::string(),"Input .geom file");
-    const std::string& cond_filename = cmd.option("-c",std::string(),"Input .cond file");
-    const bool         verbose       = cmd.option("-v",false,        "Verbose mode");
+  const CommandLine cmd(argc, argv, "Print Geometry information");
+  const std::string &geom_filename =
+      cmd.option("-g", std::string(), "Input .geom file");
+  const std::string &cond_filename =
+      cmd.option("-c", std::string(), "Input .cond file");
+  const bool verbose = cmd.option("-v", false, "Verbose mode");
 
-    if (cmd.help_mode())
-        return 0;
-
-    if (geom_filename=="") {
-        std::cout << "Not enough arguments, try the -h option" << std::endl;
-        return 1;
-    }
-
-    Geometry geo;
-    if (cond_filename!="") {
-        geo.load(geom_filename,std::string(cond_filename));
-    } else {
-        geo.load(geom_filename);
-    }
-
-    if (!geo.selfCheck())
-        return 1;
-
-    std::cout << ".geom : OK" << std::endl;
+  if (cmd.help_mode())
     return 0;
+
+  if (geom_filename == "") {
+    std::cout << "Not enough arguments, try the -h option" << std::endl;
+    return 1;
+  }
+
+  Geometry geo;
+  if (cond_filename != "") {
+    geo.load(geom_filename, std::string(cond_filename));
+  } else {
+    geo.load(geom_filename);
+  }
+
+  if (!geo.selfCheck())
+    return 1;
+
+  std::cout << ".geom : OK" << std::endl;
+  return 0;
 }

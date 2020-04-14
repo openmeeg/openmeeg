@@ -47,151 +47,174 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 namespace OpenMEEG {
 
-    void assemble_ferguson(const Geometry& geo,Matrix& mat,const Matrix& pts);
+void assemble_ferguson(const Geometry &geo, Matrix &mat, const Matrix &pts);
 
-    // EEG patches positions are reported line by line in the positions Matrix
-    // mat is supposed to be filled with zeros
-    // mat is the linear application which maps x (the unknown vector in symmetric system) -> v (potential at the electrodes)
+// EEG patches positions are reported line by line in the positions Matrix
+// mat is supposed to be filled with zeros
+// mat is the linear application which maps x (the unknown vector in symmetric
+// system) -> v (potential at the electrodes)
 
-    Head2EEGMat::Head2EEGMat(const Geometry& geo,const Sensors& electrodes) {
-        SparseMatrix& mat = *this;
+Head2EEGMat::Head2EEGMat(const Geometry &geo, const Sensors &electrodes) {
+  SparseMatrix &mat = *this;
 
-        const Matrix& positions = electrodes.getPositions();
+  const Matrix &positions = electrodes.getPositions();
 
-        mat = SparseMatrix(positions.nlin(),(geo.nb_parameters()-geo.nb_current_barrier_triangles()));
+  mat = SparseMatrix(positions.nlin(), (geo.nb_parameters() -
+                                        geo.nb_current_barrier_triangles()));
 
-        for (unsigned i=0;i<positions.nlin();++i) {
-            const Vect3 current_position(positions(i,0),positions(i,1),positions(i,2));
-            double dist;
-            Vect3 current_alphas;
-            Triangle current_triangle;
-            dist_point_geom(current_position,geo,current_alphas,current_triangle,dist);
-            for (unsigned j=0;j<3;++j)
-                mat(i,current_triangle.vertex(j).index()) = current_alphas(j);
-        }
-    }
-
-    // ECoG positions are reported line by line in the positions Matrix
-    // mat is supposed to be filled with zeros
-    // mat is the linear application which maps x (the unknown vector in symmetric system) -> v (potential at the ECoG electrodes)
-    // difference with Head2EEG is that it interpolates the inner skull layer instead of the scalp layer. 
-
-    Head2ECoGMat::Head2ECoGMat(const Geometry& geo,const Sensors& electrodes,const Interface& i) {
-        SparseMatrix& mat = *this;
-
-        const Matrix& positions = electrodes.getPositions();
-
-        mat = SparseMatrix(positions.nlin(),(geo.nb_parameters()-geo.nb_current_barrier_triangles()));
-
-        for (unsigned it=0;it<positions.nlin();++it) {
-            Vect3 current_position;
-            for (unsigned k=0;k<3;++k)
-                current_position(k) = positions(it,k);
-            Vect3 current_alphas;
-            Triangle current_triangle;
-            dist_point_interface(current_position,i,current_alphas,current_triangle);
-            for (unsigned j=0;j<3;++j)
-                mat(it,current_triangle.vertex(j).index()) = current_alphas(j);
-        }
-    }
-
-    // MEG patches positions are reported line by line in the positions Matrix (same for positions)
-    // mat is supposed to be filled with zeros
-    // mat is the linear application which maps x (the unknown vector in symmetric system) -> bFerguson (contrib to MEG response)
-
-    Head2MEGMat::Head2MEGMat(const Geometry& geo,const Sensors& sensors) {
-        Matrix& mat = *this;
-
-        const Matrix& positions    = sensors.getPositions();
-        const Matrix& orientations = sensors.getOrientations();
-        const unsigned nbIntegrationPoints = sensors.getNumberOfPositions();
-        unsigned p0_p1_size = geo.nb_parameters()-geo.nb_current_barrier_triangles();
-
-        Matrix FergusonMat(3*nbIntegrationPoints,geo.vertices().size());
-        FergusonMat.set(0.0);
-
-        assemble_ferguson(geo,FergusonMat,positions);
-
-        mat = Matrix(nbIntegrationPoints,p0_p1_size);
-        mat.set(0.0);
-
-        ProgressBar pb(nbIntegrationPoints);
-        for (unsigned i=0; i<nbIntegrationPoints; ++i,++pb) {
-            for (const auto& vertex : geo.vertices()) {
-                const Vect3 fergusonField(FergusonMat(3*i,vertex.index()),
-                                          FergusonMat(3*i+1,vertex.index()),
-                                          FergusonMat(3*i+2,vertex.index()));
-                const Vect3 direction(orientations(i,0),orientations(i,1),orientations(i,2));
-                mat(i,vertex.index()) = dotprod(fergusonField,direction)/direction.norm();
-            }
-        }
-        mat = sensors.getWeightsMatrix()*mat; // Apply weights
-    }
-
-    // MEG patches positions are reported line by line in the positions Matrix (same for positions)
-    // mat is supposed to be filled with zeros
-    // mat is the linear application which maps x (the unknown vector in symmetric system) -> binf (contrib to MEG response)
-
-    SurfSource2MEGMat::SurfSource2MEGMat(const Mesh& sources_mesh,const Sensors& sensors) {
-
-        Matrix& mat = *this;
-
-        const Matrix& positions    = sensors.getPositions();
-        const Matrix& orientations = sensors.getOrientations();
-        const unsigned nsquids = positions.nlin();
-
-        mat = Matrix(nsquids,sources_mesh.vertices().size());
-        mat.set(0.0);
-
-        ProgressBar pb(nsquids);
-        for (unsigned i=0; i<nsquids; ++i,++pb) {
-            Vect3 p(positions(i,0),positions(i,1),positions(i,2));
-            Matrix FergusonMat(3,mat.ncol());
-            FergusonMat.set(0.0);
-            operatorFerguson(p,sources_mesh,FergusonMat,0,1.);
-            for (unsigned j=0;j<mat.ncol();++j) {
-                const Vect3 fergusonField(FergusonMat(0,j),FergusonMat(1,j),FergusonMat(2,j));
-                const Vect3 direction(orientations(i,0),orientations(i,1),orientations(i,2));
-                mat(i,j) = dotprod(fergusonField,direction)/direction.norm();
-            }
-        }
-
-        mat = sensors.getWeightsMatrix()*mat; // Apply weights
-    }
-
-    // Creates the DipSource2MEG Matrix with unconstrained orientations for the sources.
-    // MEG patches positions are reported line by line in the positions Matrix (same for positions)
-    // mat is supposed to be filled with zeros
-    // sources is the name of a file containing the description of the sources - one dipole per line: x1 x2 x3 n1 n2 n3,x being the position and n the orientation.
-
-    DipSource2MEGMat::DipSource2MEGMat(const Matrix& dipoles,const Sensors& sensors) {
-
-        Matrix& mat = *this;
-
-        const Matrix& positions    = sensors.getPositions();
-        const Matrix& orientations = sensors.getOrientations();
-
-        if ( dipoles.ncol() != 6) {
-            std::cerr << "Dipoles File Format Error" << std::endl;
-            exit(1);
-        }
-
-        // this Matrix will contain the field generated at the location of the i-th squid by the j-th source
-        mat = Matrix(positions.nlin(),dipoles.nlin());
-
-        // The following routine is the equivalent of operatorFerguson for point-like dipoles.
-
-        for (unsigned i=0;i<mat.nlin();++i)
-            for (unsigned j=0;j<mat.ncol();++j) {
-                const Vect3 r(dipoles(j,0),dipoles(j,1),dipoles(j,2));
-                const Vect3 q(dipoles(j,3),dipoles(j,4),dipoles(j,5));
-                const Vect3& diff = Vect3(positions(i,0),positions(i,1),positions(i,2))-r;
-                const double norm_diff = diff.norm();
-                const Vect3 fergusonField = q ^ diff / (norm_diff * norm_diff * norm_diff);
-                const Vect3 direction(orientations(i,0),orientations(i,1),orientations(i,2));
-                mat(i,j) = dotprod(fergusonField,direction)*MagFactor/direction.norm();
-            }
-
-        mat = sensors.getWeightsMatrix()*mat; // Apply weights
-    }
+  for (unsigned i = 0; i < positions.nlin(); ++i) {
+    const Vect3 current_position(positions(i, 0), positions(i, 1),
+                                 positions(i, 2));
+    double dist;
+    Vect3 current_alphas;
+    Triangle current_triangle;
+    dist_point_geom(current_position, geo, current_alphas, current_triangle,
+                    dist);
+    for (unsigned j = 0; j < 3; ++j)
+      mat(i, current_triangle.vertex(j).index()) = current_alphas(j);
+  }
 }
+
+// ECoG positions are reported line by line in the positions Matrix
+// mat is supposed to be filled with zeros
+// mat is the linear application which maps x (the unknown vector in symmetric
+// system) -> v (potential at the ECoG electrodes) difference with Head2EEG is
+// that it interpolates the inner skull layer instead of the scalp layer.
+
+Head2ECoGMat::Head2ECoGMat(const Geometry &geo, const Sensors &electrodes,
+                           const Interface &i) {
+  SparseMatrix &mat = *this;
+
+  const Matrix &positions = electrodes.getPositions();
+
+  mat = SparseMatrix(positions.nlin(), (geo.nb_parameters() -
+                                        geo.nb_current_barrier_triangles()));
+
+  for (unsigned it = 0; it < positions.nlin(); ++it) {
+    Vect3 current_position;
+    for (unsigned k = 0; k < 3; ++k)
+      current_position(k) = positions(it, k);
+    Vect3 current_alphas;
+    Triangle current_triangle;
+    dist_point_interface(current_position, i, current_alphas, current_triangle);
+    for (unsigned j = 0; j < 3; ++j)
+      mat(it, current_triangle.vertex(j).index()) = current_alphas(j);
+  }
+}
+
+// MEG patches positions are reported line by line in the positions Matrix (same
+// for positions) mat is supposed to be filled with zeros mat is the linear
+// application which maps x (the unknown vector in symmetric system) ->
+// bFerguson (contrib to MEG response)
+
+Head2MEGMat::Head2MEGMat(const Geometry &geo, const Sensors &sensors) {
+  Matrix &mat = *this;
+
+  const Matrix &positions = sensors.getPositions();
+  const Matrix &orientations = sensors.getOrientations();
+  const unsigned nbIntegrationPoints = sensors.getNumberOfPositions();
+  unsigned p0_p1_size =
+      geo.nb_parameters() - geo.nb_current_barrier_triangles();
+
+  Matrix FergusonMat(3 * nbIntegrationPoints, geo.vertices().size());
+  FergusonMat.set(0.0);
+
+  assemble_ferguson(geo, FergusonMat, positions);
+
+  mat = Matrix(nbIntegrationPoints, p0_p1_size);
+  mat.set(0.0);
+
+  ProgressBar pb(nbIntegrationPoints);
+  for (unsigned i = 0; i < nbIntegrationPoints; ++i, ++pb) {
+    for (const auto &vertex : geo.vertices()) {
+      const Vect3 fergusonField(FergusonMat(3 * i, vertex.index()),
+                                FergusonMat(3 * i + 1, vertex.index()),
+                                FergusonMat(3 * i + 2, vertex.index()));
+      const Vect3 direction(orientations(i, 0), orientations(i, 1),
+                            orientations(i, 2));
+      mat(i, vertex.index()) =
+          dotprod(fergusonField, direction) / direction.norm();
+    }
+  }
+  mat = sensors.getWeightsMatrix() * mat; // Apply weights
+}
+
+// MEG patches positions are reported line by line in the positions Matrix (same
+// for positions) mat is supposed to be filled with zeros mat is the linear
+// application which maps x (the unknown vector in symmetric system) -> binf
+// (contrib to MEG response)
+
+SurfSource2MEGMat::SurfSource2MEGMat(const Mesh &sources_mesh,
+                                     const Sensors &sensors) {
+
+  Matrix &mat = *this;
+
+  const Matrix &positions = sensors.getPositions();
+  const Matrix &orientations = sensors.getOrientations();
+  const unsigned nsquids = positions.nlin();
+
+  mat = Matrix(nsquids, sources_mesh.vertices().size());
+  mat.set(0.0);
+
+  ProgressBar pb(nsquids);
+  for (unsigned i = 0; i < nsquids; ++i, ++pb) {
+    Vect3 p(positions(i, 0), positions(i, 1), positions(i, 2));
+    Matrix FergusonMat(3, mat.ncol());
+    FergusonMat.set(0.0);
+    operatorFerguson(p, sources_mesh, FergusonMat, 0, 1.);
+    for (unsigned j = 0; j < mat.ncol(); ++j) {
+      const Vect3 fergusonField(FergusonMat(0, j), FergusonMat(1, j),
+                                FergusonMat(2, j));
+      const Vect3 direction(orientations(i, 0), orientations(i, 1),
+                            orientations(i, 2));
+      mat(i, j) = dotprod(fergusonField, direction) / direction.norm();
+    }
+  }
+
+  mat = sensors.getWeightsMatrix() * mat; // Apply weights
+}
+
+// Creates the DipSource2MEG Matrix with unconstrained orientations for the
+// sources. MEG patches positions are reported line by line in the positions
+// Matrix (same for positions) mat is supposed to be filled with zeros sources
+// is the name of a file containing the description of the sources - one dipole
+// per line: x1 x2 x3 n1 n2 n3,x being the position and n the orientation.
+
+DipSource2MEGMat::DipSource2MEGMat(const Matrix &dipoles,
+                                   const Sensors &sensors) {
+
+  Matrix &mat = *this;
+
+  const Matrix &positions = sensors.getPositions();
+  const Matrix &orientations = sensors.getOrientations();
+
+  if (dipoles.ncol() != 6) {
+    std::cerr << "Dipoles File Format Error" << std::endl;
+    exit(1);
+  }
+
+  // this Matrix will contain the field generated at the location of the i-th
+  // squid by the j-th source
+  mat = Matrix(positions.nlin(), dipoles.nlin());
+
+  // The following routine is the equivalent of operatorFerguson for point-like
+  // dipoles.
+
+  for (unsigned i = 0; i < mat.nlin(); ++i)
+    for (unsigned j = 0; j < mat.ncol(); ++j) {
+      const Vect3 r(dipoles(j, 0), dipoles(j, 1), dipoles(j, 2));
+      const Vect3 q(dipoles(j, 3), dipoles(j, 4), dipoles(j, 5));
+      const Vect3 &diff =
+          Vect3(positions(i, 0), positions(i, 1), positions(i, 2)) - r;
+      const double norm_diff = diff.norm();
+      const Vect3 fergusonField =
+          q ^ diff / (norm_diff * norm_diff * norm_diff);
+      const Vect3 direction(orientations(i, 0), orientations(i, 1),
+                            orientations(i, 2));
+      mat(i, j) =
+          dotprod(fergusonField, direction) * MagFactor / direction.norm();
+    }
+
+  mat = sensors.getWeightsMatrix() * mat; // Apply weights
+}
+} // namespace OpenMEEG

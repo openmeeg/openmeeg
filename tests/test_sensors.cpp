@@ -37,32 +37,34 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#include <fstream>
 #include <cstring>
+#include <fstream>
 
 #include <sensors.h>
 
 using namespace OpenMEEG;
 
-int main(const int,const char** argv) {
-// usage : sensors sensors_file_description.txt
+int main(const int, const char **argv) {
+  // usage : sensors sensors_file_description.txt
 
-    /*** tests on sensors file ****/
-    Sensors S(argv[1]);
+  /*** tests on sensors file ****/
+  Sensors S(argv[1]);
 
-    size_t n = S.getNumberOfSensors();
-    std::cout << "Number of sensors of S : " << n << std::endl;
+  size_t n = S.getNumberOfSensors();
+  std::cout << "Number of sensors of S : " << n << std::endl;
 
-    if (S.isEmpty())
-        std::cout << "WARNING : empty sensors !" << std::endl;
-    else{
-        S.info();
+  if (S.isEmpty())
+    std::cout << "WARNING : empty sensors !" << std::endl;
+  else {
+    S.info();
 
-        /**** test on copy constructor ****/
-        Sensors Scopy(S);
-        if(Scopy.getNumberOfSensors()!=n)
-            std::cout << "ERROR in copy from copy constructor : incorrect number of sensors" << std::endl;
+    /**** test on copy constructor ****/
+    Sensors Scopy(S);
+    if (Scopy.getNumberOfSensors() != n)
+      std::cout
+          << "ERROR in copy from copy constructor : incorrect number of sensors"
+          << std::endl;
 
-        Scopy.info();
-    }
+    Scopy.info();
+  }
 }

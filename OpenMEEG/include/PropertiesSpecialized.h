@@ -1,7 +1,7 @@
 /*
 Project Name : OpenMEEG
 
-© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre 
+© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre
 GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU, Théodore PAPADOPOULO,
 Emmanuel OLIVI
 Maureen.Clerc.AT.inria.fr, keriven.AT.certis.enpc.fr,
@@ -39,34 +39,39 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #pragma once
 
-#include "Properties.H"
 #include "DataTag.H"
+#include "Properties.H"
 
 namespace OpenMEEG {
 
-    template <typename REP=double>
-    class OPENMEEG_EXPORT Conductivity {
-    public:
+template <typename REP = double> class OPENMEEG_EXPORT Conductivity {
+public:
+  Conductivity() : conductivity(1.0) {}
 
-        Conductivity(): conductivity(1.0) { }
+  REP &sigma() { return conductivity; }
+  REP sigma() const { return conductivity; }
 
-        REP& sigma()       { return conductivity; }
-        REP  sigma() const { return conductivity; }
-    private:
-        REP conductivity;    //  The conductivity of the layer (constant per layer).
-    };
+private:
+  REP conductivity; //  The conductivity of the layer (constant per layer).
+};
 
-    template <typename REP>
-    inline std::istream& operator>>(std::istream& is,Conductivity<REP>& m) { return is >> m.sigma(); }
-
-    template <typename REP>
-    inline std::ostream& operator<<(std::ostream& os,const Conductivity<REP>& m) { return os << m.sigma(); }
+template <typename REP>
+inline std::istream &operator>>(std::istream &is, Conductivity<REP> &m) {
+  return is >> m.sigma();
 }
 
+template <typename REP>
+inline std::ostream &operator<<(std::ostream &os, const Conductivity<REP> &m) {
+  return os << m.sigma();
+}
+} // namespace OpenMEEG
+
 namespace Types {
-    template<>
-    struct DataTrait<Utils::Properties::Named<std::string,OpenMEEG::Conductivity<double> > >{
-        static const char TAG[];
-    };
-    const char DataTrait<Utils::Properties::Named<std::string,OpenMEEG::Conductivity<double> > >::TAG[]= "Conductivities";
+template <>
+struct DataTrait<
+    Utils::Properties::Named<std::string, OpenMEEG::Conductivity<double>>> {
+  static const char TAG[];
 };
+const char DataTrait<Utils::Properties::Named<
+    std::string, OpenMEEG::Conductivity<double>>>::TAG[] = "Conductivities";
+}; // namespace Types

@@ -39,145 +39,152 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #pragma once
 
-#include <iostream>
 #include <fstream>
+#include <iostream>
 
 #include <map>
 #include <string>
 
-#include <om_utils.h>
 #include <MeshIO.h>
+#include <om_utils.h>
 
 #ifdef USE_VTK
-#include <vtkPolyData.h>
+#include <vtkCellArray.h>
+#include <vtkCharArray.h>
+#include <vtkDataArray.h>
+#include <vtkDataReader.h>
+#include <vtkPointData.h>
 #include <vtkPoints.h>
+#include <vtkPolyData.h>
 #include <vtkPolyDataReader.h>
 #include <vtkSmartPointer.h>
 #include <vtkXMLPolyDataReader.h>
-#include <vtkDataReader.h>
-#include <vtkCellArray.h>
-#include <vtkCharArray.h>
-#include <vtkPointData.h>
-#include <vtkDataArray.h>
 #endif
 
 namespace OpenMEEG::MeshIOs {
 
-    /// \brief Mesh io for VTK file format.
+/// \brief Mesh io for VTK file format.
 
-    class OPENMEEG_EXPORT Vtk: public MeshIO {
+class OPENMEEG_EXPORT Vtk : public MeshIO {
 
-        typedef MeshIO base;
+  typedef MeshIO base;
 
-    public:
+public:
+#ifdef USE_VTK
 
-    #ifdef USE_VTK
+  ~Vtk() {
+    if (buffer)
+      delete[] buffer;
+  }
 
-        ~Vtk() {
-            if (buffer)
-                delete[] buffer;
-        }
+  void load_points(Geometry &geom) override {
+    //  TODO: Replace with newer filesystem calls.
+    fs.seekg(0, ios::end);
+    const unsigned length = fs.tellg();
+    fs.seekg(0, ios::beg);
 
-        void load_points(Geometry& geom) override {
-            //  TODO: Replace with newer filesystem calls.
-            fs.seekg (0,ios::end);
-            const unsigned length = fs.tellg();
-            fs.seekg (0,ios::beg);
+    // Read data as a block and pass it to vtk.
 
-            // Read data as a block and pass it to vtk.
+    buffer = new char[length];
+    fs.read(buffer, length);
 
-            buffer = new char[length];
-            fs.read(buffer,length);
+    vtkSmartPointer<vtkCharArray> buf = vtkSmartPointer<vtkCharArray>::New();
+    buf->SetArray(buffer, length, 1);
 
-            vtkSmartPointer<vtkCharArray> buf = vtkSmartPointer<vtkCharArray>::New();
-            buf->SetArray(buffer,length,1);
+    //  Create the vtk reader.
+    //  Make it read from the InputArray 'buf' instead of the default.
 
-            //  Create the vtk reader.
-            //  Make it read from the InputArray 'buf' instead of the default.
+    vtkSmartPointer<vtkPolyDataReader> reader =
+        vtkSmartPointer<vtkPolyDataReader>::New();
+    reader->SetInputArray(buf);
+    reader->SetReadFromInputString(1);
+    if (!reader->IsFilePolyData()) {
+      std::cerr << "Mesh \"" << fname << "\" is not a valid vtk poly data file"
+                << std::endl;
+      reader->Delete();
+      exit(1);
+    }
 
-            vtkSmartPointer<vtkPolyDataReader> reader = vtkSmartPointer<vtkPolyDataReader>::New();
-            reader->SetInputArray(buf);
-            reader->SetReadFromInputString(1);
-            if (!reader->IsFilePolyData()) {
-                std::cerr << "Mesh \"" << fname << "\" is not a valid vtk poly data file" << std::endl;
-                reader->Delete();
-                exit(1);
-            }
+    reader->Update();
+    vtkMesh = reader->GetOutput();
 
-            reader->Update();
-            vtkMesh = reader->GetOutput();
+    const unsigned npts = vtkMesh->GetNumberOfPoints();
+    Vertices vertices;
+    for (unsigned i = 0; i < npts; ++i)
+      vertices.push_back(Vertex(vtkMesh->GetPoint(i)));
+    indmap = geom.add_vertices(vertices);
+  }
 
-            const unsigned npts = vtkMesh->GetNumberOfPoints();
-            Vertices vertices;
-            for (unsigned i=0;i<npts;++i)
-                vertices.push_back(Vertex(vtkMesh->GetPoint(i)));
-            indmap = geom.add_vertices(vertices);
-        }
+  void load_triangles(OpenMEEG::Mesh &mesh) override {
+    reference_vertices(mesh);
 
-        void load_triangles(OpenMEEG::Mesh& mesh) override {
-            reference_vertices(mesh);
+    const unsigned ntrgs = vtkMesh->GetNumberOfCells();
+    mesh.triangles().reserve(ntrgs);
 
-            const unsigned ntrgs = vtkMesh->GetNumberOfCells();
-            mesh.triangles().reserve(ntrgs);
+    for (unsigned i = 0; i < ntrgs; ++i) {
+      if (vtkMesh->GetCellType(i) != VTK_TRIANGLE) {
+        std::cerr << "Mesh \"" << fname << "\" is not a triangulation"
+                  << std::endl;
+        exit(1);
+      }
+      vtkIdList *l = vtkMesh->GetCell(i)->GetPointIds();
+      mesh.add_triangle(TriangleIndices(l->GetId(0), l->GetId(1), l->GetId(2)),
+                        indmap);
+    }
+  }
+#else
+  static unsigned vtk_error() {
+    std::cerr << "OpenMEEG was not compiled with VTK support. Specify USE_VTK "
+                 "in cmake."
+              << std::endl;
+    exit(1);
+    return 0;
+  }
 
-            for (unsigned i = 0; i < ntrgs; ++i) {
-                if (vtkMesh->GetCellType(i)!=VTK_TRIANGLE) {
-                    std::cerr << "Mesh \"" << fname << "\" is not a triangulation" << std::endl;
-                    exit(1);
-                }
-                vtkIdList* l = vtkMesh->GetCell(i)->GetPointIds();
-                mesh.add_triangle(TriangleIndices(l->GetId(0),l->GetId(1),l->GetId(2)),indmap);
-            }
-        }
-    #else
-        static unsigned vtk_error() {
-            std::cerr << "OpenMEEG was not compiled with VTK support. Specify USE_VTK in cmake." << std::endl;
-            exit(1);
-            return 0;
-        }
+  void load_points(Geometry &) override { vtk_error(); }
+  void load_triangles(OpenMEEG::Mesh &) override { vtk_error(); }
+  void load(OpenMEEG::Mesh &) override { vtk_error(); }
+#endif
 
-        void     load_points(Geometry&)          override { vtk_error();        }
-        void     load_triangles(OpenMEEG::Mesh&) override { vtk_error();        }
-        void     load(OpenMEEG::Mesh&)           override { vtk_error();        }
-    #endif
+  void save(const OpenMEEG::Mesh &mesh, std::ostream &os) const override {
+    os << "# vtk DataFile Version 2.0" << std::endl;
+    os << "Mesh file generated by OpenMEEG" << std::endl;
+    os << "ASCII" << std::endl;
+    os << "DATASET POLYDATA" << std::endl;
+    os << "POINTS " << mesh.vertices().size() << " float" << std::endl;
 
-        void save(const OpenMEEG::Mesh& mesh,std::ostream& os) const override {
-            os << "# vtk DataFile Version 2.0" << std::endl;
-            os << "Mesh file generated by OpenMEEG" << std::endl;
-            os << "ASCII" << std::endl;
-            os << "DATASET POLYDATA" << std::endl;
-            os << "POINTS " << mesh.vertices().size() << " float" << std::endl;
+    const VertexIndices &vertex_index(mesh);
+    for (const auto &vertex : mesh.vertices())
+      os << *vertex << std::endl;
 
-            const VertexIndices& vertex_index(mesh);
-            for (const auto& vertex : mesh.vertices())
-                os << *vertex << std::endl;
+    os << "POLYGONS " << mesh.triangles().size() << ' '
+       << mesh.triangles().size() * 4 << std::endl;
+    for (const auto &triangle : mesh.triangles())
+      os << "3 " << vertex_index(triangle, 0) << ' '
+         << vertex_index(triangle, 1) << ' ' << vertex_index(triangle, 2)
+         << std::endl;
 
-            os << "POLYGONS " << mesh.triangles().size() << ' ' << mesh.triangles().size()*4 << std::endl;
-            for (const auto& triangle : mesh.triangles())
-                os << "3 " << vertex_index(triangle,0) << ' '
-                           << vertex_index(triangle,1) << ' '
-                           << vertex_index(triangle,2) << std::endl;
+    os << "CELL_DATA " << mesh.triangles().size() << std::endl;
+    os << "POINT_DATA " << mesh.vertices().size() << std::endl;
+    os << "NORMALS normals float" << std::endl;
+    for (const auto &vertex : mesh.vertices())
+      os << mesh.normal(*vertex) << std::endl;
+  }
 
-            os << "CELL_DATA " << mesh.triangles().size() << std::endl;
-            os << "POINT_DATA " << mesh.vertices().size() << std::endl;
-            os << "NORMALS normals float" << std::endl;
-            for (const auto& vertex : mesh.vertices())
-                os << mesh.normal(*vertex) << std::endl;
-        }
+  MeshIO *clone(const std::string &filename) const override {
+    return new Vtk(filename);
+  }
 
-        MeshIO* clone(const std::string& filename) const override { return new Vtk(filename); }
+private:
+  Vtk(const std::string &filename = "") : base(filename, "vtk") {}
 
-    private:
+#ifdef USE_VTK
+  char *buffer = nullptr;
+  vtkSmartPointer<vtkPolyData> vtkMesh;
+#endif
 
-        Vtk(const std::string& filename=""): base(filename,"vtk") { }
+  static const Vtk prototype;
 
-        #ifdef USE_VTK
-        char*                        buffer = nullptr;
-        vtkSmartPointer<vtkPolyData> vtkMesh;
-        #endif
-        
-        static const Vtk prototype;
-
-        const char* name() const override { return "VTK"; }
-    };
-}
+  const char *name() const override { return "VTK"; }
+};
+} // namespace OpenMEEG::MeshIOs

@@ -41,240 +41,274 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #include <iostream>
 
-#include <vector>
 #include <map>
-#include <string>
 #include <memory>
+#include <string>
+#include <vector>
 
 #include <om_common.h>
-#include <triangle.h>
 #include <om_utils.h>
+#include <triangle.h>
 
 #include <symmatrix.h>
 
 namespace OpenMEEG {
 
-    class Geometry;
+class Geometry;
 
-    //  Mesh class
-    //  \brief Mesh is a collection of triangles associated to a geometry containing the points
-    //  on which triangles are based.
+//  Mesh class
+//  \brief Mesh is a collection of triangles associated to a geometry containing
+//  the points on which triangles are based.
 
-    class OPENMEEG_EXPORT Mesh {
+class OPENMEEG_EXPORT Mesh {
 
-        static Geometry* create_geometry(Geometry* geom);
+  static Geometry *create_geometry(Geometry *geom);
 
-    public:
+public:
+  friend class Geometry;
+  friend class MeshIO;
 
-        friend class Geometry;
-        friend class MeshIO;
+  typedef std::map<const Vertex *, TrianglesRefs> VertexTriangles;
 
-        typedef std::map<const Vertex*,TrianglesRefs> VertexTriangles;
+  /// Default constructor
+  /// or constructor using a provided geometry \param geometry
 
-        /// Default constructor
-        /// or constructor using a provided geometry \param geometry
+  Mesh(Geometry *geometry = nullptr) : geom(create_geometry(geometry)) {}
 
-        Mesh(Geometry* geometry=nullptr): geom(create_geometry(geometry)) { }
+  /// Constructor from scratch (vertices/triangles t be added)
+  /// \param nv space to allocate for vertices
+  /// \param nt space to allocate for triangles
+  /// \param geometry the geometry to use
+  // Do we need this ? TODO
 
-        /// Constructor from scratch (vertices/triangles t be added)
-        /// \param nv space to allocate for vertices
-        /// \param nt space to allocate for triangles
-        /// \param geometry the geometry to use
-        // Do we need this ? TODO
+  Mesh(const unsigned nv, const unsigned nt, Geometry *geometry = nullptr);
 
-        Mesh(const unsigned nv,const unsigned nt,Geometry* geometry=nullptr);
+#ifndef WIN32
+  Mesh(const Mesh &) = delete;
+  Mesh(Mesh &&m) = default;
+#endif
 
-        #ifndef WIN32
-        Mesh(const Mesh&) = delete;
-        Mesh(Mesh&& m) = default;
-        #endif
+  /// Constructors
+  /// \param filename mesh file name
+  /// \param verbose verbose mode
+  /// \param geometry geometry
+
+  Mesh(const std::string &filename, const bool verbose,
+       Geometry *geometry = nullptr)
+      : Mesh(geometry) {
+    load(filename, verbose);
+  }
 
-        /// Constructors
-        /// \param filename mesh file name
-        /// \param verbose verbose mode
-        /// \param geometry geometry
+  /// \param filename mesh file name
+  /// \param geometry geometry
+
+  Mesh(const std::string &filename, Geometry *geometry = nullptr)
+      : Mesh(filename, false, geometry) {}
+
+  /// Destructor
+
+  ~Mesh() { clear(); }
+
+  std::string &name() { return mesh_name; } ///< \return the mesh name
+  const std::string &name() const {
+    return mesh_name;
+  } ///< \return the mesh name
+
+  VerticesRefs &vertices() {
+    return mesh_vertices;
+  } ///< \return the vector of pointers to the mesh vertices
+  const VerticesRefs &vertices() const {
+    return mesh_vertices;
+  } ///< \return the vector of pointers to the mesh vertices
+
+  Geometry &geometry() const { return *geom; }
+
+  Triangles &triangles() {
+    return mesh_triangles;
+  } ///< \return the triangles of the mesh
+  const Triangles &triangles() const {
+    return mesh_triangles;
+  } ///< \return the triangles of the mesh
+
+  TriangleIndices triangle(const Triangle &t) const;
+
+  bool current_barrier() const { return current_barrier_; }
+  bool &current_barrier() { return current_barrier_; }
+  bool isolated() const { return isolated_; }
+  bool &isolated() { return isolated_; }
+
+  /// \brief Add a triangle specified by its indices in the geometry.
+
+  Triangle &add_triangle(const TriangleIndices inds);
+
+  Triangle &add_triangle(const TriangleIndices inds, const IndexMap &indmap) {
+    const TriangleIndices t = {indmap.at(inds[0]), indmap.at(inds[1]),
+                               indmap.at(inds[2])};
+    return add_triangle(t);
+  }
+
+  void add(const std::vector<TriangleIndices> &trgs) {
+    for (const auto &triangle : trgs)
+      add_triangle(triangle);
+  }
+
+  void add(const std::vector<TriangleIndices> &trgs, const IndexMap &indmap) {
+    for (const auto &triangle : trgs)
+      add_triangle(triangle, indmap);
+  }
+
+  bool operator==(const Mesh &m) const { return triangles() == m.triangles(); }
+  bool operator!=(const Mesh &m) const { return triangles() != m.triangles(); }
+
+  /// \brief Print info
+  ///  Print to std::cout some info about the mesh
+  ///  \return void \sa
+
+  void
+  info(const bool verbose = false) const; ///< \brief Print mesh information.
+  bool has_self_intersection()
+      const; ///< \brief Check whether the mesh self-intersects.
+  bool intersection(const Mesh &)
+      const; ///< \brief Check whether the mesh intersects another mesh.
+  bool has_correct_orientation()
+      const; ///< \brief Check local orientation of mesh triangles.
+  void generate_indices(); ///< \brief Generate indices (if allocate).
+  void
+  update(const bool topology_changed); ///< \brief Recompute triangles normals,
+                                       ///< area, and vertex triangles.
+  void merge(const Mesh &, const Mesh &); ///< Merge two meshes.
 
-        Mesh(const std::string& filename,const bool verbose,Geometry* geometry=nullptr): Mesh(geometry) {
-            load(filename,verbose);
-        }
+  /// \brief Get the triangles adjacent to vertex \param V .
 
-        /// \param filename mesh file name
-        /// \param geometry geometry
+  TrianglesRefs triangles(const Vertex &V) const {
+    return vertex_triangles.at(&V);
+  }
 
-        Mesh(const std::string& filename,Geometry* geometry=nullptr): Mesh(filename,false,geometry) { }
+  /// \brief Get the triangles adjacent to \param triangle .
 
-        /// Destructor
+  TrianglesRefs adjacent_triangles(const Triangle &triangle) const {
+    std::map<Triangle *, unsigned> mapt;
+    TrianglesRefs result;
+    for (auto &vertex : triangle)
+      for (const auto &t2 : triangles(*vertex))
+        if (++mapt[t2] == 2)
+          result.push_back(t2);
+    return result;
+  }
 
-        ~Mesh() { clear(); }
+  /// Change mesh orientation.
 
-        std::string&       name()       { return mesh_name; } ///< \return the mesh name
-        const std::string& name() const { return mesh_name; } ///< \return the mesh name
+  void change_orientation() {
+    for (auto &triangle : triangles())
+      triangle.change_orientation();
+  }
 
-              VerticesRefs& vertices()       { return mesh_vertices; } ///< \return the vector of pointers to the mesh vertices
-        const VerticesRefs& vertices() const { return mesh_vertices; } ///< \return the vector of pointers to the mesh vertices
+  void correct_local_orientation(); ///< \brief Correct the local orientation of
+                                    ///< the mesh triangles.
+  void correct_global_orientation(); ///< \brief Correct the global orientation
+                                     ///< (if there is one).
+  double
+  solid_angle(const Vect3 &p) const; ///< Given a point p, computes the solid
+                                     ///< angle of the mesh seen from \param p .
+  Normal normal(const Vertex &v) const; ///< \brief Get normal at vertex.`
+  void laplacian(SymMatrix &A) const;   ///< \brief Compute mesh laplacian.
 
-              Geometry&    geometry() const { return *geom; }
+  bool &outermost() {
+    return outermost_;
+  } /// \brief Returns True if it is an outermost mesh.
+  bool outermost() const { return outermost_; }
 
-              Triangles& triangles()       { return mesh_triangles; } ///< \return the triangles of the mesh
-        const Triangles& triangles() const { return mesh_triangles; } ///< \return the triangles of the mesh
+  /// \brief Smooth Mesh
+  /// \param smoothing_intensity
+  /// \param niter
+  /// \return void
 
-        TriangleIndices triangle(const Triangle& t) const;
+  void smooth(const double &smoothing_intensity, const unsigned &niter);
 
-        bool  current_barrier() const { return current_barrier_; }
-        bool& current_barrier()       { return current_barrier_; }
-        bool  isolated()        const { return isolated_;        }
-        bool& isolated()              { return isolated_;        }
+  /// \brief Compute the square norm of the surfacic gradient
 
-        /// \brief Add a triangle specified by its indices in the geometry.
+  void gradient_norm2(SymMatrix &A) const;
 
-        Triangle& add_triangle(const TriangleIndices inds);
+  /// Read mesh from file
+  /// \param filename can be .vtk, .tri (ascii), .off, .bnd or .mesh.
+  /// Be verbose if \param verbose is true. The difference between
+  /// read and load is that read just reads the file and does not update
+  /// the geometry. Read has to be used when multiple meshes are used in
+  /// a geometry. load reads a mesh.
 
-        Triangle& add_triangle(const TriangleIndices inds,const IndexMap& indmap) {
-            const TriangleIndices t = { indmap.at(inds[0]), indmap.at(inds[1]), indmap.at(inds[2])};
-            return add_triangle(t);
-        }
+  void load(const std::string &filename, const bool verbose = true);
 
-        void add(const std::vector<TriangleIndices>& trgs) {
-            for (const auto& triangle : trgs)
-                add_triangle(triangle);
-        }
+  /// Save mesh to file
+  /// \param filename can be .vtk, .tri (ascii), .bnd, .off or .mesh
 
-        void add(const std::vector<TriangleIndices>& trgs,const IndexMap& indmap) {
-            for (const auto& triangle : trgs)
-                add_triangle(triangle,indmap);
-        }
+  void save(const std::string &filename) const;
 
-        bool operator==(const Mesh& m) const { return triangles()==m.triangles(); }
-        bool operator!=(const Mesh& m) const { return triangles()!=m.triangles(); }
+#ifndef SWIGPYTHON
+private:
+#endif
 
-        /// \brief Print info
-        ///  Print to std::cout some info about the mesh
-        ///  \return void \sa
+  //  This private method must be accessible from swig.
 
-        void info(const bool verbose=false) const; ///< \brief Print mesh information.
-        bool has_self_intersection() const; ///< \brief Check whether the mesh self-intersects.
-        bool intersection(const Mesh&) const; ///< \brief Check whether the mesh intersects another mesh.
-        bool has_correct_orientation() const; ///< \brief Check local orientation of mesh triangles.
-        void generate_indices(); ///< \brief Generate indices (if allocate).
-        void update(const bool topology_changed); ///< \brief Recompute triangles normals, area, and vertex triangles.
-        void merge(const Mesh&,const Mesh&); ///< Merge two meshes.
+  void reference_vertices(
+      const IndexMap &indmap); ///< \brief Construct mesh vertices references,
 
-        /// \brief Get the triangles adjacent to vertex \param V .
+private:
+  /// Map edges to an integer
 
-        TrianglesRefs triangles(const Vertex& V) const { return vertex_triangles.at(&V); }
+  typedef std::map<std::pair<const Vertex *, const Vertex *>, int> EdgeMap;
 
-        /// \brief Get the triangles adjacent to \param triangle .
+  void clear();
 
-        TrianglesRefs adjacent_triangles(const Triangle& triangle) const {
-            std::map<Triangle*,unsigned> mapt;
-            TrianglesRefs result;
-            for (auto& vertex : triangle)
-                for (const auto& t2 : triangles(*vertex))
-                    if (++mapt[t2]==2)
-                        result.push_back(t2);
-            return result;
-        }
+  /// Add the mesh \param m to the current mesh. Assumes that geometry vertices
+  /// are properly reserved (i.e. the vector is not resized while adding the
+  /// mesh.
 
-        /// Change mesh orientation.
+  void add_mesh(const Mesh &m);
 
-        void change_orientation() {
-            for (auto& triangle : triangles())
-                triangle.change_orientation();
-        }
+  // regarding mesh orientation
 
-        void correct_local_orientation(); ///< \brief Correct the local orientation of the mesh triangles.
-        void correct_global_orientation(); ///< \brief Correct the global orientation (if there is one).
-        double solid_angle(const Vect3& p) const; ///< Given a point p, computes the solid angle of the mesh seen from \param p .
-        Normal normal(const Vertex& v) const; ///< \brief Get normal at vertex.`
-        void laplacian(SymMatrix &A) const; ///< \brief Compute mesh laplacian.
+  const EdgeMap compute_edge_map() const;
+  bool triangle_intersection(const Triangle &, const Triangle &) const;
 
-        bool& outermost()       { return outermost_; } /// \brief Returns True if it is an outermost mesh.
-        bool  outermost() const { return outermost_; }
+  /// P1gradient: aux function to compute the surfacic gradient
 
-        /// \brief Smooth Mesh
-        /// \param smoothing_intensity
-        /// \param niter
-        /// \return void
+  Vect3 P1gradient(const Vect3 &p0, const Vect3 &p1, const Vect3 &p2) const {
+    return crossprod(p1, p2) / det(p0, p1, p2);
+  }
 
-        void smooth(const double& smoothing_intensity, const unsigned& niter);
+  /// P0gradient_norm2: aux function to compute the square norm of the surfacic
+  /// gradient
 
-        /// \brief Compute the square norm of the surfacic gradient
+  double P0gradient_norm2(const Triangle &t1, const Triangle &t2) const {
+    return sqr(dotprod(t1.normal(), t2.normal())) /
+           (t1.center() - t2.center()).norm2();
+  }
 
-        void gradient_norm2(SymMatrix &A) const;
+  // Create the map that for each vertex gives the triangles containing it.
 
-        /// Read mesh from file
-        /// \param filename can be .vtk, .tri (ascii), .off, .bnd or .mesh.
-        /// Be verbose if \param verbose is true. The difference between
-        /// read and load is that read just reads the file and does not update
-        /// the geometry. Read has to be used when multiple meshes are used in
-        /// a geometry. load reads a mesh.
+  void make_adjacencies() {
+    vertex_triangles.clear();
+    for (auto &triangle : triangles())
+      for (const auto &vertex : triangle)
+        vertex_triangles[vertex].push_back(&triangle);
+  }
 
-        void load(const std::string& filename,const bool verbose=true);
+  typedef std::shared_ptr<Geometry> Geom;
 
-        /// Save mesh to file
-        /// \param filename can be .vtk, .tri (ascii), .bnd, .off or .mesh
+  std::string mesh_name = ""; ///< Name of the mesh.
+  VertexTriangles
+      vertex_triangles; ///< links[&v] are the triangles that contain vertex v.
+  Geometry *geom;       ///< Pointer to the geometry containing the mesh.
+  VerticesRefs mesh_vertices; ///< Vector of pointers to the mesh vertices.
+  Triangles mesh_triangles;   ///< Vector of triangles.
+  bool outermost_ =
+      false; ///< Is it an outermost mesh ? (i.e does it touch the Air domain)
 
-        void save(const std::string& filename) const ;
+  /// Multiple 0 conductivity domains
 
-    #ifndef SWIGPYTHON
-    private:
-    #endif
+  bool current_barrier_ = false;
+  bool isolated_ = false;
+};
 
-        //  This private method must be accessible from swig.
-
-        void reference_vertices(const IndexMap& indmap); ///< \brief Construct mesh vertices references,
-
-    private:
-
-        /// Map edges to an integer
-
-        typedef std::map<std::pair<const Vertex*,const Vertex*>,int> EdgeMap;
-
-        void clear();
-
-        /// Add the mesh \param m to the current mesh. Assumes that geometry vertices are properly
-        /// reserved (i.e. the vector is not resized while adding the mesh.
-
-        void add_mesh(const Mesh& m);
-
-        // regarding mesh orientation
-
-        const EdgeMap compute_edge_map() const;
-        bool  triangle_intersection(const Triangle&,const Triangle&) const;
-
-        /// P1gradient: aux function to compute the surfacic gradient
-
-        Vect3 P1gradient(const Vect3& p0,const Vect3& p1,const Vect3& p2) const { return crossprod(p1,p2)/det(p0,p1,p2); }
-
-        /// P0gradient_norm2: aux function to compute the square norm of the surfacic gradient
-
-        double P0gradient_norm2(const Triangle& t1,const Triangle& t2) const {
-            return sqr(dotprod(t1.normal(),t2.normal()))/(t1.center()-t2.center()).norm2();
-        }
-
-        // Create the map that for each vertex gives the triangles containing it.
-
-        void make_adjacencies() {
-            vertex_triangles.clear();
-            for (auto& triangle : triangles())
-                for (const auto& vertex : triangle)
-                    vertex_triangles[vertex].push_back(&triangle);
-        }
-
-        typedef std::shared_ptr<Geometry> Geom;
-
-        std::string      mesh_name = "";     ///< Name of the mesh.
-        VertexTriangles  vertex_triangles;   ///< links[&v] are the triangles that contain vertex v.
-        Geometry*        geom;               ///< Pointer to the geometry containing the mesh.
-        VerticesRefs     mesh_vertices;      ///< Vector of pointers to the mesh vertices.
-        Triangles        mesh_triangles;     ///< Vector of triangles.
-        bool             outermost_ = false; ///< Is it an outermost mesh ? (i.e does it touch the Air domain)
-
-        /// Multiple 0 conductivity domains
-
-        bool             current_barrier_ = false;
-        bool             isolated_        = false;
-    };
-
-    typedef std::vector<Mesh> Meshes;
-}
+typedef std::vector<Mesh> Meshes;
+} // namespace OpenMEEG

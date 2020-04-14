@@ -1,7 +1,7 @@
 /*
 Project Name : OpenMEEG
 
-© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre 
+© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre
 GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU, Théodore PAPADOPOULO,
 Emmanuel OLIVI
 Maureen.Clerc.AT.inria.fr, keriven.AT.certis.enpc.fr,
@@ -37,35 +37,37 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#include "mesh.h"
 #include "commandline.h"
+#include "mesh.h"
 
 using namespace OpenMEEG;
 
-int
-main(int argc,char* argv[]) {
+int main(int argc, char *argv[]) {
 
-    print_version(argv[0]);
+  print_version(argv[0]);
 
-    const CommandLine cmd(argc,argv,"Get info about a Mesh");
-    const std::string& input_filename      = cmd.option("-i",std::string(),"Input Mesh");
-    const std::string& output_filename     = cmd.option("-o",std::string(),"Output Mesh");
-    const double       smoothing_intensity = cmd.option("-s",0.1,          "Smoothing Intensity");
-    const size_t       niter               = cmd.option("-n",1000,         "Number of iterations");
+  const CommandLine cmd(argc, argv, "Get info about a Mesh");
+  const std::string &input_filename =
+      cmd.option("-i", std::string(), "Input Mesh");
+  const std::string &output_filename =
+      cmd.option("-o", std::string(), "Output Mesh");
+  const double smoothing_intensity =
+      cmd.option("-s", 0.1, "Smoothing Intensity");
+  const size_t niter = cmd.option("-n", 1000, "Number of iterations");
 
-    if (cmd.help_mode())
-        return 0;
-
-    if (input_filename=="" || output_filename=="") {
-        std::cout << "Not enough arguments, try the -h option" << std::endl;
-        return 1;
-    }
-
-    Mesh m(input_filename);
-    m.smooth(smoothing_intensity, niter);
-    std::cout << "Smoothing done !" << std::endl;
-    m.info();
-    m.save(output_filename);
-
+  if (cmd.help_mode())
     return 0;
+
+  if (input_filename == "" || output_filename == "") {
+    std::cout << "Not enough arguments, try the -h option" << std::endl;
+    return 1;
+  }
+
+  Mesh m(input_filename);
+  m.smooth(smoothing_intensity, niter);
+  std::cout << "Smoothing done !" << std::endl;
+  m.info();
+  m.save(output_filename);
+
+  return 0;
 }

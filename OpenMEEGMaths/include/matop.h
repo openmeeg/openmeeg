@@ -44,21 +44,20 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 namespace OpenMEEG {
 
-    inline Matrix
-    nullspace_projector(const Matrix& M) {
-        const size_t Nl = M.nlin();
-        const size_t Nc = M.ncol();
+inline Matrix nullspace_projector(const Matrix &M) {
+  const size_t Nl = M.nlin();
+  const size_t Nc = M.ncol();
 
-        Matrix U,V;
-        SparseMatrix D;
-        M.svd(U,D,V);
+  Matrix U, V;
+  SparseMatrix D;
+  M.svd(U, D, V);
 
-        // Set S to 0 everywhere, except in the last part of the diag:
+  // Set S to 0 everywhere, except in the last part of the diag:
 
-        SparseMatrix S(Nc,Nc);
-        for (unsigned i=Nl;i<Nc;++i)
-            S(i,i) = 1.0;
+  SparseMatrix S(Nc, Nc);
+  for (unsigned i = Nl; i < Nc; ++i)
+    S(i, i) = 1.0;
 
-        return (V.transpose()*S)*V; // P is a projector: P^2 = P and mat*P*X = 0
-    }
+  return (V.transpose() * S) * V; // P is a projector: P^2 = P and mat*P*X = 0
 }
+} // namespace OpenMEEG

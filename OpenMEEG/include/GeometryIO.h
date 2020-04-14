@@ -42,63 +42,64 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <map>
 #include <string>
 
+#include <filenames.h>
 #include <geometry.h>
 #include <matrix.h>
-#include <filenames.h>
 
 namespace OpenMEEG {
 
-    //  Geometry IO class
+//  Geometry IO class
 
-    class OPENMEEG_EXPORT GeometryIO {
-    public:
+class OPENMEEG_EXPORT GeometryIO {
+public:
+  static GeometryIO *create(const std::string &filename) {
+    const std::string &extension = tolower(getFilenameExtension(filename));
+    return registery.at(extension)->clone(filename);
+  }
 
-        static GeometryIO* create(const std::string& filename) {
-            const std::string& extension = tolower(getFilenameExtension(filename));
-            return registery.at(extension)->clone(filename);
-        }
+  virtual const char *name() const = 0;
 
-        virtual const char* name() const = 0;
+  void load(Geometry &geometry) {
+    load_meshes(geometry);
+    load_domains(geometry);
+  }
 
-        void load(Geometry& geometry) {
-            load_meshes(geometry);
-            load_domains(geometry);
-        }
+  void load(Geometry &geometry, Matrix &matrix) {
+    load(geometry);
+    matrix = load_data();
+  }
 
-        void load(Geometry& geometry,Matrix& matrix) {
-            load(geometry);
-            matrix = load_data();
-        }
+  void save(const Geometry &geometry) {
+    save_geom(geometry);
+    write();
+  }
 
-        void save(const Geometry& geometry) {
-            save_geom(geometry);
-            write();
-        }
+  void save(const Geometry &geometry, const Matrix &matrix) {
+    save_geom(geometry);
+    save_data(geometry, matrix);
+    write();
+  }
 
-        void save(const Geometry& geometry,const Matrix& matrix) {
-            save_geom(geometry);
-            save_data(geometry,matrix);
-            write();
-        }
+protected:
+  virtual void load_meshes(Geometry &geometry) = 0;
+  virtual void load_domains(Geometry &geometry) {}
+  virtual Matrix load_data() const = 0;
 
-    protected:
+  virtual void save_geom(const Geometry &geometry) = 0;
+  virtual void save_data(const Geometry &geometry,
+                         const Matrix &matrix) const = 0;
+  virtual void write() const = 0;
 
-        virtual void   load_meshes(Geometry& geometry) = 0;
-        virtual void   load_domains(Geometry& geometry) { }
-        virtual Matrix load_data() const = 0;
+  virtual GeometryIO *clone(const std::string &filename) const = 0;
 
-        virtual void save_geom(const Geometry& geometry) = 0;
-        virtual void save_data(const Geometry& geometry,const Matrix& matrix) const = 0;
-        virtual void write() const = 0;
+  typedef std::map<std::string, GeometryIO *> Registery;
 
-        virtual GeometryIO* clone(const std::string& filename) const = 0;
+  static Registery registery;
 
-        typedef std::map<std::string,GeometryIO*> Registery;
+  GeometryIO(const std::string &filename, const char *name) : fname(filename) {
+    registery.insert({name, this});
+  }
 
-        static Registery registery;
-
-        GeometryIO(const std::string& filename,const char* name): fname(filename) { registery.insert({ name, this }); }
-
-        std::string fname;
-    };
-}
+  std::string fname;
+};
+} // namespace OpenMEEG
