@@ -2,6 +2,7 @@ sudo: true
 
 language: cpp
 
+
 cache:
   ccache: true
   directories:
@@ -65,7 +66,6 @@ matrix:
 
     - name: openblas, vtk, full dep using brew
       os: osx
-      python: "3.7"
       env:
         - BACKEND=OpenBLAS
         - USE_VTK=ON
@@ -106,6 +106,7 @@ before_install:
   - DEPS_DIR="${TRAVIS_BUILD_DIR}/deps"
   - mkdir ${DEPS_DIR} && cd ${DEPS_DIR}
   - if [[ "${TRAVIS_OS_NAME}" == "osx" ]]; then
+      brew unlink python;
       brew link --overwrite python;
     fi
   - eval "${MATRIX_EVAL}"
@@ -126,7 +127,10 @@ before_install:
 
   - |
     if [[ "${BACKEND}" == *"Intel"* ]]; then
-      curl -fsSkL https://raw.githubusercontent.com/openmeeg/ci-utils/master/travis/install_mkl.sh > install_mkl.sh && source ./install_mkl.sh
+      # curl -fsSkL https://raw.githubusercontent.com/openmeeg/ci-utils/master/travis/install_mkl.sh > install_mkl.sh;
+      curl -fsSkL https://raw.githubusercontent.com/nemequ/icc-travis/master/install-icc.sh > install_mkl.sh;
+      chmod +x ./install_mkl.sh
+      ./install_mkl.sh --components mkl
     fi
 
   ############################################################################
