@@ -10,81 +10,81 @@ cache:
 matrix:
   include:
 
-    - name: (shipping) MKL + minimal dep using conda
-      os: linux
-      dist: bionic
-      env:
-        - BACKEND=Intel10_64lp
-        - BUILD_STATIC=ON
-        - BUILD_PACKAGE=ON
-        - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
+    # - name: (shipping) MKL + minimal dep using conda
+    #   os: linux
+    #   dist: bionic
+    #   env:
+    #     - BACKEND=Intel10_64lp
+    #     - BUILD_STATIC=ON
+    #     - BUILD_PACKAGE=ON
+    #     - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
 
-    - name: (analyse) openblas, python, vtk, gcc-7, apt-get dependencies
-      os: linux
-      dist: bionic
-      env:
-        - BACKEND=OpenBLAS
-        - USE_VTK=ON
-        - ENABLE_PYTHON=ON
-        - CMAKE_VERSION=3.16.2  # required to find python 3
-        - SWIG_VERSION=4.0.1
-        - ANALYSE=ON
-        - ENABLE_COVERAGE=ON
-        - BUILD_DOCUMENTATION=ON
-        - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-          packages:
-            - libopenblas-dev
-            - liblapacke-dev # XXX: If lapacke is missing, cmake does not break at generation but at compilation.
-            - python3-numpy
-            - doxygen
-            - graphviz
-            - libmatio4
-            - libmatio-dev
-            - libvtk6-dev
-            - lcov
+    # - name: (analyse) openblas, python, vtk, gcc-7, apt-get dependencies
+    #   os: linux
+    #   dist: bionic
+    #   env:
+    #     - BACKEND=OpenBLAS
+    #     - USE_VTK=ON
+    #     - ENABLE_PYTHON=ON
+    #     - CMAKE_VERSION=3.16.2  # required to find python 3
+    #     - SWIG_VERSION=4.0.1
+    #     - ANALYSE=ON
+    #     - ENABLE_COVERAGE=ON
+    #     - BUILD_DOCUMENTATION=ON
+    #     - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
+    #   addons:
+    #     apt:
+    #       sources:
+    #         - ubuntu-toolchain-r-test
+    #       packages:
+    #         - libopenblas-dev
+    #         - liblapacke-dev # XXX: If lapacke is missing, cmake does not break at generation but at compilation.
+    #         - python3-numpy
+    #         - doxygen
+    #         - graphviz
+    #         - libmatio4
+    #         - libmatio-dev
+    #         - libvtk6-dev
+    #         - lcov
 
-    - name: (shipping) MKL + minimal dep using brew
-      os: osx
-      osx_image: xcode9.4
-      env:
-        - BACKEND=Intel10_64lp
-        - BUILD_STATIC=ON
-        - BUILD_PACKAGE=ON
-      addons:
-        homebrew:
-          update: true
-          packages:
-            - cmake
-            - hdf5
-            - libmatio
-            - boost
+    # - name: (shipping) MKL + minimal dep using brew
+    #   os: osx
+    #   osx_image: xcode9.4
+    #   env:
+    #     - BACKEND=Intel10_64lp
+    #     - BUILD_STATIC=ON
+    #     - BUILD_PACKAGE=ON
+    #   addons:
+    #     homebrew:
+    #       update: true
+    #       packages:
+    #         - cmake
+    #         - hdf5
+    #         - libmatio
+    #         - boost
 
-    - name: openblas, vtk, full dep using brew
-      os: osx
-      python: "3.7"
-      env:
-        - BACKEND=OpenBLAS
-        - USE_VTK=ON
-        - ENABLE_PYTHON=ON
-        # - USE_GCC=ON  # XXX : vtk does not work with GCC
-        # - USE_BREW_LLVM=ON  # XXX: To have OpenMP but segfaults...
-      addons:
-        homebrew:
-          update: true
-          packages:
-            - cmake
-            - gcc
-            - hdf5
-            - libmatio
-            - boost
-            - openblas
-            - vtk
-            - numpy
-            - swig
+    # - name: openblas, vtk, full dep using brew
+    #   os: osx
+    #   python: "3.7"
+    #   env:
+    #     - BACKEND=OpenBLAS
+    #     - USE_VTK=ON
+    #     - ENABLE_PYTHON=ON
+    #     # - USE_GCC=ON  # XXX : vtk does not work with GCC
+    #     # - USE_BREW_LLVM=ON  # XXX: To have OpenMP but segfaults...
+    #   addons:
+    #     homebrew:
+    #       update: true
+    #       packages:
+    #         - cmake
+    #         - gcc
+    #         - hdf5
+    #         - libmatio
+    #         - boost
+    #         - openblas
+    #         - vtk
+    #         - numpy
+    #         - swig
 
     - name: (analyse) Static analysis using clang-analyzer
       os: osx
@@ -106,6 +106,7 @@ before_install:
   - DEPS_DIR="${TRAVIS_BUILD_DIR}/deps"
   - mkdir ${DEPS_DIR} && cd ${DEPS_DIR}
   - if [[ "${TRAVIS_OS_NAME}" == "osx" ]]; then
+      # brew update
       brew link --overwrite python;
     fi
   - eval "${MATRIX_EVAL}"
