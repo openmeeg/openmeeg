@@ -84,23 +84,24 @@ jobs:
         cd build
         CTEST_OUTPUT_ON_FAILURE=1 ctest .
 
-  # macos:
-  #   runs-on: macOS-latest
-  #   steps:
-  #   - uses: actions/checkout@v1
-  #     with:
-  #       fetch-depth: 1
-  #   - name: Install the dependencies
-  #     run: |
-  #       brew install cmake gcc hdf5 libmatio boost
-  #   - name: Build the application
-  #     run: |
-  #       mkdir build
-  #       cd build
-  #       cmake -DBLA_VENDOR=Apple ..
-  #       make -j2
-  #   - name: Test the application
-  #     shell: bash
-  #     run: |
-  #       cd build
-  #       CTEST_OUTPUT_ON_FAILURE=1 ctest .
+  macos:
+    runs-on: macOS-latest
+    steps:
+    - uses: actions/checkout@v1
+      with:
+        fetch-depth: 1
+    - name: Install the dependencies
+      run: |
+        brew install cmake gcc boost
+        brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/4050d7cca8036179f372cdb1cb27a0dd388d3c48/Formula/libmatio.rb
+    - name: Build the application
+      run: |
+        mkdir build
+        cd build
+        cmake -DBLA_VENDOR=Apple ..
+        make -j2
+    - name: Test the application
+      shell: bash
+      run: |
+        cd build
+        CTEST_OUTPUT_ON_FAILURE=1 ctest .
