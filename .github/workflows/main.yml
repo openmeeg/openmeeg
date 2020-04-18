@@ -94,8 +94,11 @@ jobs:
       run: |
         # brew install cmake gcc boost
         brew install cmake boost
-        brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/4050d7cca8036179f372cdb1cb27a0dd388d3c48/Formula/hdf5.rb
+        brew extract https://raw.githubusercontent.com/Homebrew/homebrew-core/4050d7cca8036179f372cdb1cb27a0dd388d3c48/Formula/hdf5.rb
         brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/4050d7cca8036179f372cdb1cb27a0dd388d3c48/Formula/libmatio.rb
+    - name: DEBUG
+      run: |
+        ls /usr/local/opt/hdf5/lib/
     - name: Build the application
       run: |
         mkdir build
@@ -117,7 +120,7 @@ jobs:
     - name: Install the dependencies
       run: |
         brew install cmake boost
-        brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/4050d7cca8036179f372cdb1cb27a0dd388d3c48/Formula/hdf5.rb
+        brew extract https://raw.githubusercontent.com/Homebrew/homebrew-core/4050d7cca8036179f372cdb1cb27a0dd388d3c48/Formula/hdf5.rb
         brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/4050d7cca8036179f372cdb1cb27a0dd388d3c48/Formula/libmatio.rb
     - name: Install MKL
       run: |
