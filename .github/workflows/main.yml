@@ -94,6 +94,7 @@ jobs:
       run: |
         # brew install cmake gcc boost
         brew install cmake boost
+        brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/4050d7cca8036179f372cdb1cb27a0dd388d3c48/Formula/hdf5.rb
         brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/4050d7cca8036179f372cdb1cb27a0dd388d3c48/Formula/libmatio.rb
     - name: Build the application
       run: |
@@ -116,10 +117,19 @@ jobs:
     - name: Install the dependencies
       run: |
         brew install cmake boost
+        brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/4050d7cca8036179f372cdb1cb27a0dd388d3c48/Formula/hdf5.rb
         brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/4050d7cca8036179f372cdb1cb27a0dd388d3c48/Formula/libmatio.rb
     - name: Install MKL
       run: |
-        curl -fsSkL https://raw.githubusercontent.com/openmeeg/ci-utils/master/travis/install_mkl.sh > install_mkl.sh && source ./install_mkl.sh
+          export MKL_INSTALL_DIR=/opt/intel
+          export ARCH_FNAME=m_mkl_2018.4.231.dmg
+          wget http://registrationcenter-download.intel.com/akdlm/irc_nas/tec/13634/${ARCH_FNAME}
+          hdiutil attach $DL_DIR/${ARCH_FNAME}
+          cat /Volumes/m_mkl_2018.4.231/m_mkl_2018.4.231.app/Contents/MacOS/silent.cfg | grep -v EULA | grep -v PSET_INSTALL_DIR > silent.cfg
+          echo "ACCEPT_EULA=accept" >> silent.cfg
+          echo "PSET_INSTALL_DIR=${MKL_INSTALL_DIR}" >> silent.cfg
+          sudo /Volumes/m_mkl_2018.4.231/m_mkl_2018.4.231.app/Contents/MacOS/install.sh -s ./silent.cfg
+          . /opt/intel/mkl/bin/mklvars.sh intel64 ilp64
     - name: Build the application
       run: |
         mkdir build
