@@ -42,6 +42,10 @@ jobs:
         cd build
         cmake -DBLA_VENDOR=OpenBLAS -DUSE_VTK=ON -DBUILD_DOCUMENTATION=ON ..
         cmake --build . -- -j2
+    - name: Test the application
+      shell: bash
+      run: |
+        CTEST_OUTPUT_ON_FAILURE=1 ctest .
 
   # macos:
   #   runs-on: macOS-latest
