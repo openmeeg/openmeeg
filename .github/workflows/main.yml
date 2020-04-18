@@ -12,7 +12,7 @@ on:
 
 jobs:
   msvc:
-    runs-on: windows-2017
+    runs-on: windows-2019
     steps:
     - uses: actions/checkout@v1
       with:
@@ -35,6 +35,7 @@ jobs:
         # conda create -n py33 python=3.3 -c conda-forge -y
         # conda activate py33
     - name: Install MKL
+      run: |
         Invoke-WebRequest http://registrationcenter-download.intel.com/akdlm/irc_nas/tec/15806/w_mkl_2019.5.281.exe -OutFile 'C:\w_mkl_2019.5.281.exe'
         C:\w_mkl_2019.5.281.exe -s -l c:\logs\extract-mkl.log -a install --eula=accept --components=all --output='C:\logs\install-mkl-output.txt' --installdir='C:\Program Files (x86)\IntelSWTools' --log='c:\logs\install-mkl.log' | Out-Null
         $env:LD_MKL_PATH='C:\Program Files (x86)\IntelSWTools\compilers_and_libraries_2019.5.281\windows\mkl\lib\intel64_win\'
@@ -55,6 +56,8 @@ jobs:
         cd build
         ctest --build-config Release -v .
     - name: Package the application
+      shell: bash
+      run: |
         cpack -C Release
         cpack -C Release -G NSIS
 
