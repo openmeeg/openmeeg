@@ -96,11 +96,14 @@ jobs:
         brew install cmake boost
         brew install hdf5@1.8
         export PATH="/usr/local/opt/hdf5@1.8/bin:$PATH"
-        brew install --enable-bar https://raw.githubusercontent.com/Homebrew/homebrew-core/4050d7cca8036179f372cdb1cb27a0dd388d3c48/Formula/libmatio.rb
+        # brew install libmatio
+        brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/4050d7cca8036179f372cdb1cb27a0dd388d3c48/Formula/libmatio.rb
     - name: DEBUG
       run: |
         ls /usr/local/opt/hdf5/lib/
         ls /usr/local/opt/hdf5@1.8/lib/
+        brew tap homebrew/versions
+        brew search libmatio
     - name: Build the application
       run: |
         mkdir build
