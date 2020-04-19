@@ -75,8 +75,7 @@ matrix:
         # - USE_BREW_LLVM=ON  # XXX: To have OpenMP but segfaults...
       addons:
         homebrew:
-          # update: true
-          update: false
+          update: true
           packages:
             - cmake
             - gcc
@@ -96,8 +95,7 @@ matrix:
         - ANALYSE=ON
       addons:
         homebrew:
-          # update: true
-          update: false
+          update: true
           packages:
             - cmake
             - gcc
