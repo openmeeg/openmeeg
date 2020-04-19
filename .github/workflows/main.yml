@@ -11,77 +11,77 @@ on:
       - '**'
 
 jobs:
-  msvc:
-    runs-on: windows-2019
-    steps:
-    - uses: actions/checkout@v1
-      with:
-        fetch-depth: 1
-    - name: Setup Miniconda
-      run: |
-        $ErrorActionPreference = "Continue"
-        $env:PATH = "$env:CONDA;$env:CONDA\Scripts;$env:PATH"
-        conda init powershell
-    - name: Install conda dependencies
-      run: |
-        $ErrorActionPreference = "Continue"
-        # conda install conda=4.5.12 -y
-        conda config --add channels conda-forge
-        conda install --yes -c massich matio-cmake
-        conda install swig cmake
-        # conda install -c intel mkl
-        conda install --yes -c massich matio-cmake
-        # conda config --set allow_conda_downgrades true
-        # conda create -n py33 python=3.3 -c conda-forge -y
-        # conda activate py33
-    - name: Install MKL
-      run: |
-        Invoke-WebRequest http://registrationcenter-download.intel.com/akdlm/irc_nas/tec/15806/w_mkl_2019.5.281.exe -OutFile 'C:\w_mkl_2019.5.281.exe'
-        C:\w_mkl_2019.5.281.exe -s -l c:\logs\extract-mkl.log -a install --eula=accept --components=all --output='C:\logs\install-mkl-output.txt' --installdir='C:\Program Files (x86)\IntelSWTools' --log='c:\logs\install-mkl.log' | Out-Null
-        $env:LD_MKL_PATH='C:\Program Files (x86)\IntelSWTools\compilers_and_libraries_2019.5.281\windows\mkl\lib\intel64_win\'
-        $env:LIB="$env:LD_MKL_PATH;$env:LIB"
-        call "C:\Program Files (x86)\IntelSWTools\compilers_and_libraries_2019.5.281\windows\bin\compilervars_arch.bat" intel64 vs2017
-        call "C:\Program Files (x86)\IntelSWTools\compilers_and_libraries_2019.5.281\windows\mkl\bin\mklvars.bat" intel64
-    - name: Build the application
-      shell: bash
-      run: |
-        mkdir build
-        cd build
-        cmake -DCMAKE_INSTALL_PREFIX=../release -DCMAKE_BUILD_TYPE=Release -DBLA_STATIC=ON -DBLA_VENDOR=Intel10_64lp_seq -DVCOMP_WORKAROUND=ON -G "Visual Studio 15 2017 Win64" ..
-        cmake --build . --config Release -- -m
-    - name: Test the application
-      shell: bash
-      run: |
-        cd build
-        ctest --build-config Release -v .
-    - name: Package the application
-      shell: bash
-      run: |
-        cpack -C Release
-        cpack -C Release -G NSIS
+  # msvc:
+  #   runs-on: windows-2019
+  #   steps:
+  #   - uses: actions/checkout@v1
+  #     with:
+  #       fetch-depth: 1
+  #   - name: Setup Miniconda
+  #     run: |
+  #       $ErrorActionPreference = "Continue"
+  #       $env:PATH = "$env:CONDA;$env:CONDA\Scripts;$env:PATH"
+  #       conda init powershell
+  #   - name: Install conda dependencies
+  #     run: |
+  #       $ErrorActionPreference = "Continue"
+  #       # conda install conda=4.5.12 -y
+  #       conda config --add channels conda-forge
+  #       conda install --yes -c massich matio-cmake
+  #       conda install swig cmake
+  #       # conda install -c intel mkl
+  #       conda install --yes -c massich matio-cmake
+  #       # conda config --set allow_conda_downgrades true
+  #       # conda create -n py33 python=3.3 -c conda-forge -y
+  #       # conda activate py33
+  #   - name: Install MKL
+  #     run: |
+  #       Invoke-WebRequest http://registrationcenter-download.intel.com/akdlm/irc_nas/tec/15806/w_mkl_2019.5.281.exe -OutFile 'C:\w_mkl_2019.5.281.exe'
+  #       C:\w_mkl_2019.5.281.exe -s -l c:\logs\extract-mkl.log -a install --eula=accept --components=all --output='C:\logs\install-mkl-output.txt' --installdir='C:\Program Files (x86)\IntelSWTools' --log='c:\logs\install-mkl.log' | Out-Null
+  #       $env:LD_MKL_PATH='C:\Program Files (x86)\IntelSWTools\compilers_and_libraries_2019.5.281\windows\mkl\lib\intel64_win\'
+  #       $env:LIB="$env:LD_MKL_PATH;$env:LIB"
+  #       call "C:\Program Files (x86)\IntelSWTools\compilers_and_libraries_2019.5.281\windows\bin\compilervars_arch.bat" intel64 vs2017
+  #       call "C:\Program Files (x86)\IntelSWTools\compilers_and_libraries_2019.5.281\windows\mkl\bin\mklvars.bat" intel64
+  #   - name: Build the application
+  #     shell: bash
+  #     run: |
+  #       mkdir build
+  #       cd build
+  #       cmake -DCMAKE_INSTALL_PREFIX=../release -DCMAKE_BUILD_TYPE=Release -DBLA_STATIC=ON -DBLA_VENDOR=Intel10_64lp_seq -DVCOMP_WORKAROUND=ON -G "Visual Studio 15 2017 Win64" ..
+  #       cmake --build . --config Release -- -m
+  #   - name: Test the application
+  #     shell: bash
+  #     run: |
+  #       cd build
+  #       ctest --build-config Release -v .
+  #   - name: Package the application
+  #     shell: bash
+  #     run: |
+  #       cpack -C Release
+  #       cpack -C Release -G NSIS
 
-  linux:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v1
-      with:
-        fetch-depth: 1
-    - name: Install dependencies
-      run: |
-        sudo apt update
-        sudo apt install libopenblas-dev liblapacke-dev doxygen graphviz libmatio4 libmatio-dev libvtk6-dev lcov
-    - name: Build the application
-      shell: bash
-      run: |
-        mkdir build
-        cd build
-        cmake -DBLA_VENDOR=OpenBLAS -DUSE_VTK=ON -DBUILD_DOCUMENTATION=ON ..
-        cmake --build . -- -j2
-    - name: Test the application
-      shell: bash
-      run: |
-        cd build
-        CTEST_OUTPUT_ON_FAILURE=1 ctest .
+  # linux:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #   - uses: actions/checkout@v1
+  #     with:
+  #       fetch-depth: 1
+  #   - name: Install dependencies
+  #     run: |
+  #       sudo apt update
+  #       sudo apt install libopenblas-dev liblapacke-dev doxygen graphviz libmatio4 libmatio-dev libvtk6-dev lcov
+  #   - name: Build the application
+  #     shell: bash
+  #     run: |
+  #       mkdir build
+  #       cd build
+  #       cmake -DBLA_VENDOR=OpenBLAS -DUSE_VTK=ON -DBUILD_DOCUMENTATION=ON ..
+  #       cmake --build . -- -j2
+  #   - name: Test the application
+  #     shell: bash
+  #     run: |
+  #       cd build
+  #       CTEST_OUTPUT_ON_FAILURE=1 ctest .
 
   macos:
     runs-on: macOS-latest
