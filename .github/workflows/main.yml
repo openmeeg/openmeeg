@@ -42,7 +42,6 @@ jobs:
         $env:LIB="$env:LD_MKL_PATH;$env:LIB"
         call "C:\Program Files (x86)\IntelSWTools\compilers_and_libraries_2019.5.281\windows\bin\compilervars_arch.bat" intel64 vs2017
         call "C:\Program Files (x86)\IntelSWTools\compilers_and_libraries_2019.5.281\windows\mkl\bin\mklvars.bat" intel64
-        "ECHO %MKLROOT%"
     - name: Build the application
       shell: bash
       run: |
@@ -94,16 +93,16 @@ jobs:
       run: |
         # brew install cmake gcc boost
         brew install cmake boost
-        brew install hdf5@1.8
-        export PATH="/usr/local/opt/hdf5@1.8/bin:$PATH"
-        # brew install libmatio
-        brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/4050d7cca8036179f372cdb1cb27a0dd388d3c48/Formula/libmatio.rb
+        # brew install hdf5@1.8
+        # export PATH="/usr/local/opt/hdf5@1.8/bin:$PATH"
+        brew install libmatio
+        # brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/4050d7cca8036179f372cdb1cb27a0dd388d3c48/Formula/libmatio.rb
     - name: DEBUG
       run: |
         ls /usr/local/opt/hdf5/lib/
-        ls /usr/local/opt/hdf5@1.8/lib/
-        brew tap homebrew/versions
-        brew search libmatio
+        # ls /usr/local/opt/hdf5@1.8/lib/
+        # brew tap homebrew/versions
+        # brew search libmatio
     - name: Build the application
       run: |
         mkdir build
