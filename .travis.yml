@@ -63,28 +63,30 @@ matrix:
     #         - libmatio
     #         - boost
 
-    # - name: openblas, vtk, full dep using brew
-    #   os: osx
-    #   python: "3.7"
-    #   env:
-    #     - BACKEND=OpenBLAS
-    #     - USE_VTK=ON
-    #     - ENABLE_PYTHON=ON
-    #     # - USE_GCC=ON  # XXX : vtk does not work with GCC
-    #     # - USE_BREW_LLVM=ON  # XXX: To have OpenMP but segfaults...
-    #   addons:
-    #     homebrew:
-    #       update: true
-    #       packages:
-    #         - cmake
-    #         - gcc
-    #         - hdf5
-    #         - libmatio
-    #         - boost
-    #         - openblas
-    #         - vtk
-    #         - numpy
-    #         - swig
+    - name: openblas, vtk, full dep using brew
+      os: osx
+      python: "3.7"
+      env:
+        - BACKEND=OpenBLAS
+        - USE_VTK=ON
+        - ENABLE_PYTHON=OFF
+        # - ENABLE_PYTHON=ON
+        # - USE_GCC=ON  # XXX : vtk does not work with GCC
+        # - USE_BREW_LLVM=ON  # XXX: To have OpenMP but segfaults...
+      addons:
+        homebrew:
+          # update: true
+          update: false
+          packages:
+            - cmake
+            - gcc
+            - hdf5
+            - libmatio
+            - boost
+            - openblas
+            - vtk
+            - numpy
+            - swig
 
     - name: (analyse) Static analysis using clang-analyzer
       os: osx
@@ -94,7 +96,8 @@ matrix:
         - ANALYSE=ON
       addons:
         homebrew:
-          update: true
+          # update: true
+          update: false
           packages:
             - cmake
             - gcc
