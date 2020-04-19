@@ -47,21 +47,21 @@ matrix:
     #         - libvtk6-dev
     #         - lcov
 
-    # - name: (shipping) MKL + minimal dep using brew
-    #   os: osx
-    #   osx_image: xcode9.4
-    #   env:
-    #     - BACKEND=Intel10_64lp
-    #     - BUILD_STATIC=ON
-    #     - BUILD_PACKAGE=ON
-    #   addons:
-    #     homebrew:
-    #       update: true
-    #       packages:
-    #         - cmake
-    #         - hdf5
-    #         - libmatio
-    #         - boost
+    - name: (shipping) MKL + minimal dep using brew
+      os: osx
+      osx_image: xcode9.4
+      env:
+        - BACKEND=Intel10_64lp
+        - BUILD_STATIC=ON
+        - BUILD_PACKAGE=ON
+      addons:
+        homebrew:
+          update: true
+          packages:
+            - cmake
+            - hdf5
+            - libmatio
+            - boost
 
     - name: openblas, vtk, full dep using brew
       os: osx
@@ -69,8 +69,8 @@ matrix:
       env:
         - BACKEND=OpenBLAS
         - USE_VTK=ON
-        - ENABLE_PYTHON=OFF
-        # - ENABLE_PYTHON=ON
+        - ENABLE_PYTHON=ON
+        # - ENABLE_PYTHON=OFF
         # - USE_GCC=ON  # XXX : vtk does not work with GCC
         # - USE_BREW_LLVM=ON  # XXX: To have OpenMP but segfaults...
       addons:
@@ -109,7 +109,6 @@ before_install:
   - DEPS_DIR="${TRAVIS_BUILD_DIR}/deps"
   - mkdir ${DEPS_DIR} && cd ${DEPS_DIR}
   - if [[ "${TRAVIS_OS_NAME}" == "osx" ]]; then
-      # brew update
       brew link --overwrite python;
     fi
   - eval "${MATRIX_EVAL}"
