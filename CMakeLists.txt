@@ -3,6 +3,7 @@ project (OpenMEEG VERSION 2.4.9999 LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 17)  # use c++17
 
+
 set(OpenMEEG_HEADER_INSTALLDIR include) # XXX I don't know why this should be here
 
 # Modify where to find the modules

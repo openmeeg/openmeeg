@@ -10,42 +10,42 @@ cache:
 matrix:
   include:
 
-    - name: (shipping) MKL + minimal dep using conda
-      os: linux
-      dist: bionic
-      env:
-        - BACKEND=Intel10_64lp
-        - BUILD_STATIC=ON
-        - BUILD_PACKAGE=ON
-        - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
+    # - name: (shipping) MKL + minimal dep using conda
+    #   os: linux
+    #   dist: bionic
+    #   env:
+    #     - BACKEND=Intel10_64lp
+    #     - BUILD_STATIC=ON
+    #     - BUILD_PACKAGE=ON
+    #     - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
 
-    - name: (analyse) openblas, python, vtk, gcc-7, apt-get dependencies
-      os: linux
-      dist: bionic
-      env:
-        - BACKEND=OpenBLAS
-        - USE_VTK=ON
-        - ENABLE_PYTHON=ON
-        - CMAKE_VERSION=3.16.2  # required to find python 3
-        - SWIG_VERSION=4.0.1
-        - ANALYSE=ON
-        - ENABLE_COVERAGE=ON
-        - BUILD_DOCUMENTATION=ON
-        - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-          packages:
-            - libopenblas-dev
-            - liblapacke-dev # XXX: If lapacke is missing, cmake does not break at generation but at compilation.
-            - python3-numpy
-            - doxygen
-            - graphviz
-            - libmatio4
-            - libmatio-dev
-            - libvtk6-dev
-            - lcov
+    # - name: (analyse) openblas, python, vtk, gcc-7, apt-get dependencies
+    #   os: linux
+    #   dist: bionic
+    #   env:
+    #     - BACKEND=OpenBLAS
+    #     - USE_VTK=ON
+    #     - ENABLE_PYTHON=ON
+    #     - CMAKE_VERSION=3.16.2  # required to find python 3
+    #     - SWIG_VERSION=4.0.1
+    #     - ANALYSE=ON
+    #     - ENABLE_COVERAGE=ON
+    #     - BUILD_DOCUMENTATION=ON
+    #     - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
+    #   addons:
+    #     apt:
+    #       sources:
+    #         - ubuntu-toolchain-r-test
+    #       packages:
+    #         - libopenblas-dev
+    #         - liblapacke-dev # XXX: If lapacke is missing, cmake does not break at generation but at compilation.
+    #         - python3-numpy
+    #         - doxygen
+    #         - graphviz
+    #         - libmatio4
+    #         - libmatio-dev
+    #         - libvtk6-dev
+    #         - lcov
 
     - name: (shipping) MKL + minimal dep using brew
       os: osx
@@ -70,6 +70,7 @@ matrix:
         - BACKEND=OpenBLAS
         - USE_VTK=ON
         - ENABLE_PYTHON=ON
+        # - ENABLE_PYTHON=OFF
         # - USE_GCC=ON  # XXX : vtk does not work with GCC
         # - USE_BREW_LLVM=ON  # XXX: To have OpenMP but segfaults...
       addons:
