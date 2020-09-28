@@ -352,12 +352,19 @@ namespace OpenMEEG {
                     tank_inverted[std::pair<size_t,size_t>(j,i)] = val;
                 }
 
-                const int sz = linop.size();
-                const int num = linop.ncol()+1;
 
-                double* t  = new double[sz];
-                int*    ir = new int[sz];
-                int*    jc = new int[num];
+                #if MATIO_VERSION>=1518
+                    typedef mat_uint32_t matio_int_type;
+                #else
+                    typedef int matio_int_type;
+                #endif
+
+                const matio_int_type sz  = linop.size();
+                const matio_int_type num = linop.ncol()+1;
+                matio_int_type*      ir  = new matio_int_type[sz];
+                matio_int_type*      jc  = new matio_int_type[num];
+
+                double* t = new double[sz];
 
                 size_t cnt = 0;
                 size_t current_col = (size_t)-1;
