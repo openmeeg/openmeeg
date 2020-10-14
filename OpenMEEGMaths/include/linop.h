@@ -61,11 +61,11 @@ namespace OpenMEEG {
         struct OPENMEEGMATHS_EXPORT MathsIO;
     }
 
-    // to properly convert a size_t int to an int
-    OPENMEEGMATHS_EXPORT inline BLAS_INT sizet_to_int(const size_t& num)
-    {
+    // Properly convert a size_t int to an int
+
+    OPENMEEGMATHS_EXPORT inline BLAS_INT sizet_to_int(const size_t& num) {
         BLAS_INT num_out = static_cast<BLAS_INT>(num);
-        om_assert(num_out >= 0);
+        om_assert(num_out>=0);
         return num_out;
     }
 
@@ -74,8 +74,8 @@ namespace OpenMEEG {
 
         typedef maths::MathsIO* IO;
 
-        typedef enum { FULL, SYMMETRIC, SPARSE } StorageType;
-        typedef unsigned                         Dimension;
+        typedef enum { FULL, SYMMETRIC, BLOCK, SPARSE } StorageType;
+        typedef unsigned                                Dimension;
 
         LinOpInfo() { }
         LinOpInfo(const size_t m,const size_t n,const StorageType st,const Dimension d):
@@ -99,11 +99,11 @@ namespace OpenMEEG {
 
     protected:
 
-        size_t            num_lines;
-        size_t            num_cols;
-        StorageType       storage;
-        Dimension         dim;
-        IO                DefaultIO;
+        size_t      num_lines;
+        size_t      num_cols;
+        StorageType storage;
+        Dimension   dim;
+        IO          DefaultIO;
     };
 
     class OPENMEEGMATHS_EXPORT LinOp: public LinOpInfo {
