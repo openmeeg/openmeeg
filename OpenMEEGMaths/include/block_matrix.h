@@ -43,9 +43,11 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <iostream>
 #include <vector>
 #include <map>
+#include <algorithm>
 
 #include <linop.h>
 #include <range.h>
+#include <matrix.h>
 #include <Exceptions.H>
 
 namespace OpenMEEG::maths {
