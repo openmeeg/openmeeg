@@ -52,159 +52,133 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 namespace OpenMEEG {
 
-    template <typename T>
-    void deflate(T& M,const Interface& interface,const double coef) {
-        //  deflate the Matrix
-        for (const auto& omesh : interface.oriented_meshes()) {
-            const Mesh& mesh     = omesh.mesh();
-            const auto& vertices = mesh.vertices();
-            for (auto vit1=vertices.begin();vit1!=vertices.end();++vit1) {
-                #pragma omp parallel for
-                #if defined NO_OPENMP || defined OPENMP_ITERATOR
-                for (auto vit2=vit1; vit2<vertices.end(); ++vit2) {
-                #else
-                for (int i2=vit1-vertices.begin();i2<vertices.size();++i2) {
-                    const auto vit2 = vertices.begin()+i2;
-                #endif
-                    M((*vit1)->index(),(*vit2)->index()) += coef;
+    namespace Details {
+
+        template <typename T>
+        void deflate(T& M,const Interface& interface,const double coef) {
+            //  deflate the Matrix
+            for (const auto& omesh : interface.oriented_meshes()) {
+                const Mesh& mesh     = omesh.mesh();
+                const auto& vertices = mesh.vertices();
+                for (auto vit1=vertices.begin();vit1!=vertices.end();++vit1) {
+                    #pragma omp parallel for
+                    #if defined NO_OPENMP || defined OPENMP_ITERATOR
+                    for (auto vit2=vit1; vit2<vertices.end(); ++vit2) {
+                    #else
+                    for (int i2=vit1-vertices.begin();i2<vertices.size();++i2) {
+                        const auto vit2 = vertices.begin()+i2;
+                    #endif
+                        M((*vit1)->index(),(*vit2)->index()) += coef;
+                    }
                 }
             }
         }
-    }
 
-    template <typename T>
-    void deflate(T& M,const Geometry& geo) {
-        //  deflate all current barriers as one
-        for (const auto& part : geo.isolated_parts()) {
-            unsigned nb_vertices = 0;
-            unsigned i_first = 0;
-            for (const auto& meshptr : part)
-                if (meshptr->outermost()){
-                    nb_vertices += meshptr->vertices().size();
-                    if (i_first==0)
-                        i_first = meshptr->vertices().front()->index();
-                }
-            const double coef = M(i_first,i_first)/nb_vertices;
-            for (const auto& meshptr : part)
-                if (meshptr->outermost()) {
-                    const auto& vertices = meshptr->vertices();
-                    for (auto vit1=vertices.begin(); vit1!=vertices.end(); ++vit1) {
-                        #pragma omp parallel for
-                        #if defined NO_OPENMP || defined OPENMP_ITERATOR
-                        for (auto vit2=vit1; vit2<vertices.end(); ++vit2) {
-                        #else
-                        for (int i2=vit1-vertices.begin();i2<vertices.size();++i2) {
-                            const auto vit2 = vertices.begin()+i2;
-                        #endif
-                            M((*vit1)->index(),(*vit2)->index()) += coef;
+        template <typename T>
+        void deflate(T& M,const Geometry& geo) {
+            //  deflate all current barriers as one
+            for (const auto& part : geo.isolated_parts()) {
+                unsigned nb_vertices = 0;
+                unsigned i_first = 0;
+                for (const auto& meshptr : part)
+                    if (meshptr->outermost()){
+                        nb_vertices += meshptr->vertices().size();
+                        if (i_first==0)
+                            i_first = meshptr->vertices().front()->index();
+                    }
+                const double coef = M(i_first,i_first)/nb_vertices;
+                for (const auto& meshptr : part)
+                    if (meshptr->outermost()) {
+                        const auto& vertices = meshptr->vertices();
+                        for (auto vit1=vertices.begin(); vit1!=vertices.end(); ++vit1) {
+                            #pragma omp parallel for
+                            #if defined NO_OPENMP || defined OPENMP_ITERATOR
+                            for (auto vit2=vit1; vit2<vertices.end(); ++vit2) {
+                            #else
+                            for (int i2=vit1-vertices.begin();i2<vertices.size();++i2) {
+                                const auto vit2 = vertices.begin()+i2;
+                            #endif
+                                M((*vit1)->index(),(*vit2)->index()) += coef;
+                            }
                         }
                     }
+            }
+        }
+
+        struct AllBlocks {
+            AllBlocks() { }
+            bool operator()(const Mesh&,const Mesh&) const { return false; }
+        };
+
+        struct AllButBlock {
+            AllButBlock(const Mesh& m): mesh(m) { }
+            bool operator()(const Mesh& mesh1,const Mesh& mesh2) const { return mesh1==mesh2 && mesh1==mesh; }
+            const Mesh& mesh;
+        };
+
+        template <typename Selector>
+        SymMatrix HeadMatrix(const Geometry& geo,const unsigned gauss_order,const Selector& disableBlock) {
+
+            SymMatrix symmatrix(geo.nb_parameters()-geo.nb_current_barrier_triangles());
+            symmatrix.set(0.0);
+
+            // Iterate over pairs of communicating meshes (sharing a domains) to fill the
+            // lower half of the HeadMat (since it is symmetric).
+
+            for (const auto& mp : geo.communicating_mesh_pairs()) {
+                const Mesh& mesh1 = mp(0);
+                const Mesh& mesh2 = mp(1);
+
+                const int orientation = mp.relative_orientation();
+
+                constexpr double K = 1.0/(4*Pi);
+                double Ncoeff;
+                if (!mesh1.current_barrier() && !mesh2.current_barrier() && !disableBlock(mesh1,mesh2)) {
+                    // Computing S block first because it's needed for the corresponding N block
+                    const double inv_cond = geo.sigma_inv(mesh1,mesh2);
+                    operatorS(mesh1,mesh2,symmatrix,orientation*inv_cond*K,gauss_order);
+                    Ncoeff = geo.sigma(mesh1,mesh2)/inv_cond;
+                } else {
+                    Ncoeff = orientation*geo.sigma(mesh1,mesh2)*K;
                 }
+
+                const double Dcoeff = -orientation*geo.indicator(mesh1,mesh2)*K;
+                if (!mesh1.current_barrier() && !disableBlock(mesh1,mesh2)) // Computing D block
+                    operatorD(mesh1,mesh2,symmatrix,Dcoeff,gauss_order,false);
+
+                if (mesh1!=mesh2 && !mesh2.current_barrier()) // Computing D* block
+                    operatorD(mesh1,mesh2,symmatrix,Dcoeff,gauss_order,true);
+
+                // Computing N block
+
+                if (!disableBlock(mesh1,mesh2))
+                    operatorN(mesh1,mesh2,symmatrix,Ncoeff,gauss_order);
+            }
+
+            // Deflate all current barriers as one
+
+            deflate(symmatrix,geo);
+
+            return symmatrix;
         }
     }
 
     HeadMat::HeadMat(const Geometry& geo,const unsigned gauss_order) {
-
         SymMatrix& symmatrix = *this;
-
-        symmatrix = SymMatrix((geo.nb_parameters()-geo.nb_current_barrier_triangles()));
-        symmatrix.set(0.0);
-        constexpr double K = 1.0/(4*Pi);
-
-        // We iterate over pairs of communicating meshes (sharing a domains) to fill the
-        // lower half of the HeadMat (since it is symmetric).
-
-        for (const auto& mp : geo.communicating_mesh_pairs()) {
-            const Mesh& mesh1 = mp(0);
-            const Mesh& mesh2 = mp(1);
-
-            const int orientation = mp.relative_orientation();
-
-            double Ncoeff = geo.sigma(mesh1,mesh2);
-            if ((!mesh1.current_barrier()) && (!mesh2.current_barrier()) ) {
-                // Computing S block first because it's needed for the corresponding N block
-                const double inv_cond = geo.sigma_inv(mesh1,mesh2);
-                operatorS(mesh1,mesh2,symmatrix,orientation*inv_cond*K,gauss_order);
-                Ncoeff /= inv_cond; //  Why no orientation here ????
-            } else {
-                Ncoeff *= orientation*K;
-            }
-
-            const double Dcoeff = -orientation*geo.indicator(mesh1,mesh2)*K;
-            if (!mesh1.current_barrier()){
-                // Computing D block
-                operatorD(mesh1,mesh2,symmatrix,Dcoeff,gauss_order,false);
-            }
-            if ((mesh1!=mesh2) && (!mesh2.current_barrier())){
-                // Computing D* block
-                operatorD(mesh1,mesh2,symmatrix,Dcoeff,gauss_order,true);
-            }
-
-            // Computing N block
-
-            operatorN(mesh1,mesh2,symmatrix,Ncoeff,gauss_order);
-        }
-
-        // Deflate all current barriers as one
-
-        deflate(symmatrix,geo);
+        symmatrix = Details::HeadMatrix(geo,gauss_order,Details::AllBlocks());
     }
-
-    //  The first part of this code is extremely similar to the method above.... TODO: Commonize ??
 
     Matrix HeadMatrix(const Geometry& geo,const Interface& Cortex,const unsigned gauss_order,const unsigned extension=0) {
 
-        // Build the HeadMat:
-        // The following is the same as HeadMat::HeadMat except N_11, D_11 and S_11 are not computed. TODO ?
-
-        const unsigned Nl = geo.nb_parameters()-geo.nb_current_barrier_triangles()-Cortex.nb_vertices()-Cortex.nb_triangles()+extension;
-        const unsigned Nc = geo.nb_parameters()-geo.nb_current_barrier_triangles();
-
-        SymMatrix symmatrix(Nc);
-        symmatrix.set(0.0);
-
-        // Iterate over pairs of communicating meshes (sharing a domains) to fill the
-        // lower half of the HeadMat (since it is symmetric).
-
         const Mesh& cortex = Cortex.oriented_meshes().front().mesh();
-        for (const auto& mp : geo.communicating_mesh_pairs()) {
-            const Mesh& mesh1 = mp(0);
-            const Mesh& mesh2 = mp(1);
-
-            const int orientation = mp.relative_orientation();
-
-            constexpr double K = 1.0/(4*Pi);
-            double Ncoeff;
-            if (!(mesh1.current_barrier() || mesh2.current_barrier()) && ((mesh1!=mesh2) || (mesh1!=cortex))) {
-                // Computing S block first because it's needed for the corresponding N block
-                const double inv_cond = geo.sigma_inv(mesh1,mesh2);
-                operatorS(mesh1,mesh2,symmatrix,orientation*inv_cond*K,gauss_order);
-                Ncoeff = geo.sigma(mesh1,mesh2)/inv_cond;
-            } else {
-                Ncoeff = orientation*geo.sigma(mesh1,mesh2)*K;
-            }
-
-            const double Dcoeff = -orientation*geo.indicator(mesh1,mesh2)*K;
-            if (!mesh1.current_barrier() && (((mesh1!=mesh2) || (mesh1!=cortex)))) // Computing D block
-                operatorD(mesh1,mesh2,symmatrix,Dcoeff,gauss_order,false);
-
-            if ((mesh1!=mesh2) && mesh2.current_barrier()) // Computing D* block
-                operatorD(mesh1,mesh2,symmatrix,Dcoeff,gauss_order,true);
-
-            // Computing N block
-
-            if ((mesh1!=mesh2) || (mesh1!=cortex))
-                operatorN(mesh1,mesh2,symmatrix,Ncoeff,gauss_order);
-        }
-
-        // Deflate all current barriers as one
-
-        deflate(symmatrix,geo);
+        const SymMatrix& symmatrix = Details::HeadMatrix(geo,gauss_order,Details::AllButBlock(cortex));
 
         // Copy symmatrix into the returned matrix except for the lines related to the cortex
         // (vertices [i_vb_c, i_ve_c] and triangles [i_tb_c, i_te_c]).
 
-        Matrix matrix = Matrix(Nl,Nc);
+        const unsigned Nl = geo.nb_parameters()-geo.nb_current_barrier_triangles()-Cortex.nb_vertices()-Cortex.nb_triangles()+extension;
+
+        Matrix matrix = Matrix(Nl,symmatrix.ncol());
         matrix.set(0.0);
         unsigned iNl = 0;
         for (const auto& mesh : geo.meshes())
