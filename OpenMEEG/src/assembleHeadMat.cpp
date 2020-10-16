@@ -55,33 +55,13 @@ namespace OpenMEEG {
     namespace Details {
 
         template <typename T>
-        void deflate(T& M,const Interface& interface,const double coef) {
-            //  deflate the Matrix
-            for (const auto& omesh : interface.oriented_meshes()) {
-                const Mesh& mesh     = omesh.mesh();
-                const auto& vertices = mesh.vertices();
-                for (auto vit1=vertices.begin();vit1!=vertices.end();++vit1) {
-                    #pragma omp parallel for
-                    #if defined NO_OPENMP || defined OPENMP_ITERATOR
-                    for (auto vit2=vit1; vit2<vertices.end(); ++vit2) {
-                    #else
-                    for (int i2=vit1-vertices.begin();i2<vertices.size();++i2) {
-                        const auto vit2 = vertices.begin()+i2;
-                    #endif
-                        M((*vit1)->index(),(*vit2)->index()) += coef;
-                    }
-                }
-            }
-        }
-
-        template <typename T>
         void deflate(T& M,const Geometry& geo) {
             //  deflate all current barriers as one
             for (const auto& part : geo.isolated_parts()) {
                 unsigned nb_vertices = 0;
                 unsigned i_first = 0;
                 for (const auto& meshptr : part)
-                    if (meshptr->outermost()){
+                    if (meshptr->outermost()) {
                         nb_vertices += meshptr->vertices().size();
                         if (i_first==0)
                             i_first = meshptr->vertices().front()->index();
