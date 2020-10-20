@@ -85,23 +85,20 @@ namespace OpenMEEG {
 
     public:
 
-         analyticS() { }
-        ~analyticS() { }
-
-        void init(const Triangle& T) {
+        analyticS(const Triangle& T) {
             initialize(T.vertex(0),T.vertex(1),T.vertex(2));
             n = T.normal();
             finish_intialization();
         }
 
-        #if 1
-        void init(const Vect3& v0,const Vect3& v1,const Vect3& v2) {
+        analyticS(const Vect3& v0,const Vect3& v1,const Vect3& v2) {
             initialize(v0,v1,v2);
             n = p1p0^p0p2;
             n /= n.norm();
             finish_intialization();
         }
-        #endif
+
+        ~analyticS() { }
 
         double f(const Vect3& x) const {
             // analytical value of the internal integral of S operator at point X

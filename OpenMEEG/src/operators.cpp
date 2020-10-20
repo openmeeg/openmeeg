@@ -41,11 +41,17 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 namespace OpenMEEG {
 
+    // TODO: Use overloading and remove the internal suffix.
+
     void operatorDinternal(const Mesh& m,Matrix& mat,const Vertices& points,const double& coeff) {
         std::cout << "INTERNAL OPERATOR D..." << std::endl;
         for (const auto& vertex : points)
-            for (const auto& triangle : m.triangles())
-                _operatorDinternal(triangle,vertex,mat,coeff);
+            for (const auto& triangle : m.triangles()) {
+                analyticD3 analyD(triangle);
+                const Vect3 total = analyD.f(vertex);
+                for (unsigned i=0;i<3;++i)
+                    mat(vertex.index(),triangle.vertex(i).index()) += total(i)*coeff;
+            }
     }
 
     void operatorSinternal(const Mesh& m,Matrix& mat,const Vertices& points,const double& coeff) {
@@ -54,12 +60,13 @@ namespace OpenMEEG {
             const unsigned vindex = vertex.index();
             for (const auto& triangle : m.triangles()) {
                 const unsigned tindex = triangle.index();
-                mat(vindex,tindex) = _operatorSinternal(triangle,vertex)*coeff;
+                const analyticS analyS(triangle);
+                mat(vindex,tindex) = coeff*analyS.f(vertex);
             }
         }
     }
 
-    // General routine for applying _operatorFerguson (see this function for further comments)
+    // General routine for applying Details::operatorFerguson (see this function for further comments)
     // to an entire mesh, and storing coordinates of the output in a Matrix.
 
     void operatorFerguson(const Vect3& x,const Mesh& m,Matrix& mat,const unsigned& offsetI,const double& coeff) {
@@ -74,7 +81,7 @@ namespace OpenMEEG {
             const Vertex* vertexp = *(m.vertices().begin()+i);
         #endif
             const unsigned vindex = vertexp->index();
-            Vect3 v = _operatorFerguson(x,*vertexp,m);
+            Vect3 v = Details::operatorFerguson(x,*vertexp,m);
             mat(offsetI+0,vindex) += v.x()*coeff;
             mat(offsetI+1,vindex) += v.y()*coeff;
             mat(offsetI+2,vindex) += v.z()*coeff;
