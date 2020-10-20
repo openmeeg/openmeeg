@@ -75,20 +75,6 @@ namespace OpenMEEG {
         inline Vect3& operator()(const int i)       { return t[i]; }
     };
 
-    template <unsigned d>
-    inline void multadd(Vect3array<d>& target,const double scale,const Vect3array<d>& incr) {
-        for (unsigned i=0;i<d;++i)
-            target(i) = target(i)+scale*incr(i);
-    }
-
-    inline void multadd(double& target,const double scale,const double incr) {
-        target += scale*incr;
-    }
-
-    inline void multadd(Vect3& target,const double scale,const Vect3& incr) {
-        target = target+scale*incr;
-    }
-
     // Quadrature rules are from Marc Bonnet's book: Equations integrales..., Appendix B.3
 
     static const double cordBars[4][16][4] = {
@@ -193,8 +179,8 @@ namespace OpenMEEG {
             if (n<4) {
                 order = n;
             } else {
-                std::cout << "Unavailable Gauss order: min is 1, max is 3" << n << std::endl;
-                order = (n < 1) ? 1 : 3;
+                std::cout << "Unavailable Gauss order " << n << ": min is 1, max is 3" << std::endl;
+                order = (n<1) ? 1 : 3;
             }
         }
 
@@ -206,16 +192,18 @@ namespace OpenMEEG {
     protected:
 
         inline T triangle_integration(const I& fc,const Vect3 points[3]) {
-            // compute double area of triangle defined by points
-            Vect3 crossprod = (points[1] - points[0])^(points[2] - points[0]);
-            double S = crossprod.norm();
             T result = 0;
             for (unsigned i=0;i<nbPts[order];++i) {
                 Vect3 v(0.0,0.0,0.0);
                 for (unsigned j=0;j<3;++j)
-                    v.multadd(cordBars[order][i][j], points[j]);
-                multadd(result, cordBars[order][i][3], fc.f(v));
+                    v.multadd(cordBars[order][i][j],points[j]);
+                result += cordBars[order][i][3]*fc.f(v);
             }
+
+            // compute double area of triangle defined by points
+
+            const Vect3 crossprod = (points[1]-points[0])^(points[2]-points[0]);
+            const double S = crossprod.norm();
             return result*S;
         }
     };
@@ -227,8 +215,7 @@ namespace OpenMEEG {
 
     public:
 
-        AdaptiveIntegrator(): tolerance(0.0001) { }
-        AdaptiveIntegrator(const double tol): tolerance(tol) { }
+        AdaptiveIntegrator(const double tol=0.0001): tolerance(tol) { }
         ~AdaptiveIntegrator() { }
 
         double norm(const double a) { return fabs(a);  }
@@ -245,15 +232,9 @@ namespace OpenMEEG {
         double tolerance;
 
         inline T adaptive_integration(const I& fc,const Vect3* points,T I0,unsigned n) {
-            Vect3 newpoint0(0.0, 0.0, 0.0);
-            multadd(newpoint0, 0.5, points[0]);
-            multadd(newpoint0, 0.5, points[1]);
-            Vect3 newpoint1(0.0, 0.0, 0.0);
-            multadd(newpoint1, 0.5, points[1]);
-            multadd(newpoint1, 0.5, points[2]);
-            Vect3 newpoint2(0.0, 0.0, 0.0);
-            multadd(newpoint2, 0.5, points[2]);
-            multadd(newpoint2, 0.5, points[0]);
+            Vect3 newpoint0 = 0.5*(points[0]+points[1]);
+            Vect3 newpoint1 = 0.5*(points[1]+points[2]);
+            Vect3 newpoint2 = 0.5*(points[2]+points[0]);
             Vect3 points1[3] = { points[0], newpoint0, newpoint2 };
             Vect3 points2[3] = { points[1], newpoint1, newpoint0 };
             Vect3 points3[3] = { points[2], newpoint2, newpoint1 };
