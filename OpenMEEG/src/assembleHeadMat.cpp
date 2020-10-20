@@ -55,13 +55,33 @@ namespace OpenMEEG {
     namespace Details {
 
         template <typename T>
+        void deflate(T& M,const Interface& interface,const double coef) {
+            //  deflate the Matrix
+            for (const auto& omesh : interface.oriented_meshes()) {
+                const Mesh& mesh     = omesh.mesh();
+                const auto& vertices = mesh.vertices();
+                for (auto vit1=vertices.begin();vit1!=vertices.end();++vit1) {
+                    #pragma omp parallel for
+                    #if defined NO_OPENMP || defined OPENMP_ITERATOR
+                    for (auto vit2=vit1; vit2<vertices.end(); ++vit2) {
+                    #else
+                    for (int i2=vit1-vertices.begin();i2<vertices.size();++i2) {
+                        const auto vit2 = vertices.begin()+i2;
+                    #endif
+                        M((*vit1)->index(),(*vit2)->index()) += coef;
+                    }
+                }
+            }
+        }
+
+        template <typename T>
         void deflate(T& M,const Geometry& geo) {
             //  deflate all current barriers as one
             for (const auto& part : geo.isolated_parts()) {
                 unsigned nb_vertices = 0;
                 unsigned i_first = 0;
                 for (const auto& meshptr : part)
-                    if (meshptr->outermost()) {
+                    if (meshptr->outermost()){
                         nb_vertices += meshptr->vertices().size();
                         if (i_first==0)
                             i_first = meshptr->vertices().front()->index();
@@ -109,30 +129,29 @@ namespace OpenMEEG {
                 const Mesh& mesh1 = mp(0);
                 const Mesh& mesh2 = mp(1);
 
-                const int orientation = mp.relative_orientation();
+                const double factor = mp.relative_orientation()*K;
 
-                constexpr double K = 1.0/(4*Pi);
                 double Ncoeff;
                 if (!mesh1.current_barrier() && !mesh2.current_barrier() && !disableBlock(mesh1,mesh2)) {
-                    // Computing S block first because it's needed for the corresponding N block
+                    // Computing S block first because it is needed for the corresponding N block
                     const double inv_cond = geo.sigma_inv(mesh1,mesh2);
-                    operatorS(mesh1,mesh2,symmatrix,orientation*inv_cond*K,gauss_order);
+                    OpenMEEG::operatorS(mesh1,mesh2,symmatrix,factor*inv_cond,gauss_order);
                     Ncoeff = geo.sigma(mesh1,mesh2)/inv_cond;
                 } else {
-                    Ncoeff = orientation*geo.sigma(mesh1,mesh2)*K;
+                    Ncoeff = factor*geo.sigma(mesh1,mesh2);
                 }
 
-                const double Dcoeff = -orientation*geo.indicator(mesh1,mesh2)*K;
-                if (!mesh1.current_barrier() && !disableBlock(mesh1,mesh2)) // Computing D block
-                    operatorD(mesh1,mesh2,symmatrix,Dcoeff,gauss_order,false);
+                const double Dcoeff = -factor*geo.indicator(mesh1,mesh2);
+                if (!mesh1.current_barrier() && !disableBlock(mesh1,mesh2))
+                    OpenMEEG::operatorD(mesh1,mesh2,symmatrix,Dcoeff,gauss_order);
 
-                if (mesh1!=mesh2 && !mesh2.current_barrier()) // Computing D* block
-                    operatorD(mesh1,mesh2,symmatrix,Dcoeff,gauss_order,true);
+                if (mesh1!=mesh2 && !mesh2.current_barrier())
+                    OpenMEEG::operatorDstar(mesh1,mesh2,symmatrix,Dcoeff,gauss_order);
 
                 // Computing N block
 
                 if (!disableBlock(mesh1,mesh2))
-                    operatorN(mesh1,mesh2,symmatrix,Ncoeff,gauss_order);
+                    OpenMEEG::operatorN(mesh1,mesh2,symmatrix,Ncoeff,gauss_order);
             }
 
             // Deflate all current barriers as one
@@ -141,6 +160,19 @@ namespace OpenMEEG {
 
             return symmatrix;
         }
+    }
+
+    SymMatrix conductivity_coefficients(const Geometry& geo) {
+        SymMatrix cond_coeffs(10,10);
+        for (const auto& mp : geo.communicating_mesh_pairs()) {
+            const Mesh& mesh1 = mp(0);
+            const Mesh& mesh2 = mp(1);
+            const double factor = mp.relative_orientation()*K;
+            const double Scoeff =  factor*geo.sigma_inv(mesh1,mesh2);
+            const double Ncoeff =  factor*geo.sigma(mesh1,mesh2);
+            const double Dcoeff = -factor*geo.indicator(mesh1,mesh2);
+        }
+        return cond_coeffs;
     }
 
     HeadMat::HeadMat(const Geometry& geo,const unsigned gauss_order) {
@@ -346,7 +378,6 @@ namespace OpenMEEG {
         }
 
         Matrix& mat = *this;
-        const double K = 1.0/(4*Pi);
 
         unsigned size = 0; // total number of inside points
         for (const auto& map_element : m_points)

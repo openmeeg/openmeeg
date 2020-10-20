@@ -86,7 +86,7 @@ namespace OpenMEEG {
                 const double coeffN = factorN*oriented_mesh.orientation();
                 operatorN(mesh,source_mesh,mat,coeffN,gauss_order);
                 // Second block is nFacesFistLayer*source_mesh.vertices().size()
-                operatorD(mesh,source_mesh,mat,coeffN*L,gauss_order,false);
+                operatorD(mesh,source_mesh,mat,coeffN*L,gauss_order);
             }
         }
     }
@@ -159,7 +159,7 @@ namespace OpenMEEG {
                     const int orientation = geo.oriented(mesh1,mesh2);
                     if (orientation != 0){
                         // D*_23 or D*_33
-                        operatorD(mesh2,mesh1,transmat,K*orientation,gauss_order,true);
+                        operatorDstar(mesh2,mesh1,transmat,K*orientation,gauss_order);
                         if (mesh1==mesh2) {
                             // I_33
                             operatorP1P0(mesh1,transmat,-0.5*orientation);
