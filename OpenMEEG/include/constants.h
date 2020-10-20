@@ -52,3 +52,4 @@ constexpr double Pi = M_PI;
 #endif
 
 constexpr double MagFactor = 1e-7;
+constexpr double K = 1.0/(4*Pi);
