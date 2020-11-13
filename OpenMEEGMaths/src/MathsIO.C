@@ -9,7 +9,7 @@ namespace OpenMEEG {
             //  Read a few bytes to figure out the file format and put them back into the stream.
             static const unsigned maxtagsize = 32;
 
-            static const char*
+            const std::string
             ReadTag(std::istream& is) {
 
                 static char buffer[maxtagsize];
@@ -23,7 +23,7 @@ namespace OpenMEEG {
                 for(int i=maxtagsize-1;i>=0;--i)
                     is.putback(buffer[i]);
 
-                return buffer;
+                return std::string(buffer, maxtagsize);
             }
         }
 
@@ -55,10 +55,10 @@ namespace OpenMEEG {
             if (is.fail())
                 throw BadFileOpening(mio.name(),BadFileOpening::READ);
 
-            const char* buffer = Internal::ReadTag(is);
+            const std::string buffer = Internal::ReadTag(is);
 
             if (maths::MathsIO::IO dio = maths::MathsIO::GetCurrentFormat()) {
-                if (dio->identify(std::string(buffer))) {
+                if (dio->identify(buffer)) {
                     dio->setName(mio.name());
                     dio->read(is,linop);
                     linop.default_io() = dio;
@@ -66,7 +66,7 @@ namespace OpenMEEG {
                 }
             } else {
                 for (maths::MathsIO::IOs::const_iterator io=maths::MathsIO::ios().begin();io!=maths::MathsIO::ios().end();++io) {
-                    if ((*io)->identify(std::string(buffer))) {
+                    if ((*io)->identify(buffer)) {
                         (*io)->setName(mio.name());
                         (*io)->read(is,linop);
                         linop.default_io() = *io;
@@ -106,16 +106,16 @@ namespace OpenMEEG {
             if(is.fail())
                 throw BadFileOpening(name,BadFileOpening::READ);
 
-            const char* buffer = Internal::ReadTag(is);
+            const std::string buffer = Internal::ReadTag(is);
 
             if (maths::MathsIO::IO dio = maths::MathsIO::default_io()) {
-                if (dio->identify(std::string(buffer))) {
+                if (dio->identify(buffer)) {
                     dio->setName(name);
                     return dio->info(is);
                 }
             } else {
                 for (maths::MathsIO::IOs::const_iterator io=maths::MathsIO::ios().begin();io!=maths::MathsIO::ios().end();++io) {
-                    if ((*io)->identify(std::string(buffer))) {
+                    if ((*io)->identify(buffer)) {
                         (*io)->setName(name);
                         return (*io)->info(is);
                     }

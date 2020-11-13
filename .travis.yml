@@ -26,7 +26,6 @@ matrix:
         - BACKEND=OpenBLAS
         - USE_VTK=ON
         - ENABLE_PYTHON=ON
-        - CMAKE_VERSION=3.16.2  # required to find python 3
         - SWIG_VERSION=4.0.1
         - ANALYSE=ON
         - ENABLE_COVERAGE=ON
@@ -65,7 +64,7 @@ matrix:
 
     - name: openblas, vtk, full dep using brew
       os: osx
-      python: "3.7"
+      python: "3.8"
       env:
         - BACKEND=OpenBLAS
         - USE_VTK=ON

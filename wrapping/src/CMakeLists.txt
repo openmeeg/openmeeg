@@ -11,7 +11,13 @@
 # those macros are driven by CMAKE_SWIG_FLAGS, and SWIG_MODULE_XXXXXXX_EXTRA_DEPS
 # where XXXXXXX is the name of the target object in swig_add_library(XXXXXXX ...)
 
-find_package(Python3 REQUIRED COMPONENTS Interpreter Development NumPy)
+set(PYTHON_COMPONENTS Interpreter Development)
+
+# https://github.com/PDAL/PDAL/issues/2444
+if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.14")
+    list(APPEND PYTHON_COMPONENTS NumPy)
+endif()
+find_package(Python3 REQUIRED COMPONENTS ${PYTHON_COMPONENTS})
 
 # XXXX: this include_directories should be removed and transitive properties
 #       of OpenMEEG::OpenMEEG and OpenMEEG::OpenMEEGMaths should be used instead
