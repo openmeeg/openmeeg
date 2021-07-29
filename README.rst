@@ -57,6 +57,10 @@ To install OpenMEEG via `anaconda <https://www.anaconda.com/download/>`_ you can
 
 On Ubuntu/Debian GNU Linux you may be able use the http://neuro.debian.net package repository.
 
+    | OpenMEEG packages in NeuroDebian may be to old to be used in modern Ubuntu/Debian version.
+    | Check http://neurodebian.inm7.de/debian/pool/main/o/openmeeg/ for updates and
+    | consider building OpenMEEG from source if packages are older than five years.
+
 On Fedora::
 
     $ dnf install openmeeg openmeeg-devel python2-openmeeg
