@@ -48,7 +48,7 @@ The references to be acknowledged are ::
 Install precompiled binaries
 ----------------------------
 
-Binaries for Linux/Mac/Windows are available at `Download precompiled binaries <http://openmeeg.gforge.inria.fr/download/?C=M;O=D>`_.
+Binaries for Linux/Mac/Windows are available at `Download precompiled binaries <https://files.inria.fr/OpenMEEG/download/>`_.
 
 To install OpenMEEG via `anaconda <https://www.anaconda.com/download/>`_ you can just do::
 
