@@ -64,7 +64,11 @@ find_package(matio REQUIRED)
 
 if (USE_VTK)
     # what components do we want:
-    set(VTK_FIND_COMPONENTS vtkIOXML vtkIOLegacy)
+    set(VTK_COMPONENTS IOXML IOLegacy)
+    if (${CMAKE_VERSION} VERSION_LESS_EQUAL "3.18")
+        set(VTK_COMPONENTS vtkIOXML vtkIOLegacy)
+    endif()
+    set(VTK_FIND_COMPONENTS ${VTK_COMPONENTS})
     mark_as_advanced(VTK_FIND_COMPONENTS)
 
     find_package(VTK REQUIRED COMPONENTS ${VTK_FIND_COMPONENTS})

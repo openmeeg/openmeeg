@@ -22,12 +22,9 @@ if (NOT matio_LIBRARIES)
     if(MATIO_USE_STATIC_LIBRARIES AND APPLE)
         set(HDF5_LIBRARIES_XXX)
         foreach(LIB ${HDF5_LIBRARIES})
-            if(${LIB} MATCHES "libsz")
+            if (${LIB} MATCHES "libsz")
                 # get_filename_component(ABS_LIB ${LIB} REALPATH)
-                find_library(LIBSZ
-                    NAMES libsz.a
-                    HINTS /usr/local/opt/szip/lib/
-                    )
+                find_library(LIBSZ NAMES libsz.a HINTS /usr/local/opt/szip/lib/)
                 set(LIB ${LIBSZ})
             endif()
             set(HDF5_LIBRARIES_XXX ${HDF5_LIBRARIES_XXX} ${LIB})
@@ -36,10 +33,12 @@ if (NOT matio_LIBRARIES)
     endif()
 
     # Make a modern cmake interface to HDF5
-    add_library(HDF5::HDF5 INTERFACE IMPORTED)
-    set_target_properties(HDF5::HDF5 PROPERTIES
-        INTERFACE_INCLUDE_DIRECTORIES "${HDF5_INCLUDE_DIRS}"
-        INTERFACE_LINK_LIBRARIES "${HDF5_LIBRARIES}")
+    if (${CMAKE_VERSION} VERSION_LESS_EQUAL "3.18")
+        add_library(HDF5::HDF5 INTERFACE IMPORTED)
+        set_target_properties(HDF5::HDF5 PROPERTIES
+            INTERFACE_INCLUDE_DIRECTORIES "${HDF5_INCLUDE_DIRS}"
+            INTERFACE_LINK_LIBRARIES "${HDF5_LIBRARIES}")
+    endif()
 
     # Look for the header file.
     set(conda_matio /home/travis/miniconda/pkgs/libmatio-1.5.12-0/)

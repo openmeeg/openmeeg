@@ -2,28 +2,14 @@
 # Build the documentation
 #
 
-include(Documentation OPTIONAL)
+option(BUILD_DOCUMENTATION "Build the documentation (Doxygen)." OFF)
+mark_as_advanced(BUILD_DOCUMENTATION)
 
 if (BUILD_DOCUMENTATION)
 
-    #
     # Configure the script and the doxyfile, then add target
-    #
-    # XXXX: This should not be done in this manner, or at least it should break when dot is not found.
-    #       The way to do that is:
-    #       find_package(Doxygen
-    #                    REQUIRED dot
-    #                    OPTIONAL_COMPONENTS gnuplot)
-    #       if(NOT DOXYGEN_DOT_FOUND)
-    #            message(WARNING "Graphviz doesn't seem to be installed.\
-    #                             Doxygen will not be able to generate graphs.\
-    #                             Consider installing this package.")
-    #       endif(NOT DOXYGEN_DOT_FOUND)
-    #
-    if (NOT DOT_PATH)
-        get_filename_component(DOT_PATH ${DOT} PATH)
-    endif()
 
+    find_package(Doxygen REQUIRED dot)
 
     if (NOT USE_CGAL)
         set(OpenMEEG_EXCLUDE_FROM_DOCUMENTATION
