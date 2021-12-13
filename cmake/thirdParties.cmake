@@ -58,16 +58,17 @@ endif()
 
 find_package(matio REQUIRED)
 
-################
 # VTK stuff
-###############
 
 if (USE_VTK)
     # what components do we want:
-    set(VTK_FIND_COMPONENTS vtkIOXML vtkIOLegacy)
-    mark_as_advanced(VTK_FIND_COMPONENTS)
+    set(VTK_COMPONENTS IOXML IOLegacy)
+    if (${CMAKE_VERSION} VERSION_LESS_EQUAL "3.18")
+        set(VTK_COMPONENTS vtkIOXML vtkIOLegacy)
+    endif()
+    mark_as_advanced(VTK_COMPONENTS)
 
-    find_package(VTK REQUIRED COMPONENTS ${VTK_FIND_COMPONENTS})
+    find_package(VTK REQUIRED COMPONENTS ${VTK_COMPONENTS})
     if (VTK_FOUND)
         if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
             add_compile_options(-Wno-inconsistent-missing-override)
