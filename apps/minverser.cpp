@@ -59,7 +59,7 @@ getHelp(char** argv) {
 }
 
 int
-main(int argc,char* argv[]) {
+main(int argc,char* argv[]) try {
 
     print_version(argv[0]);
 
@@ -88,4 +88,10 @@ main(int argc,char* argv[]) {
     dispEllapsed(end_time-start_time);
 
     return 0;
+} catch (const OpenMEEG::maths::Exception& e) {
+    std::cerr << e.what() << std::endl;
+    return e.code();
+} catch (const std::exception& e) {
+    std::cerr << e.what() << std::endl;
+    return 1;
 }
