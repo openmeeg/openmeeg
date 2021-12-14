@@ -23,8 +23,13 @@ include_directories(${Python3_INCLUDE_DIRS}
                     ${PROJECT_SOURCE_DIR}/OpenMEEGMaths/include/
 )
 
-if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.13")
-    cmake_policy(SET CMP0078 OLD) # Use old policy as our required cmake version (3.9) is older than 3.13 (For the NEW we need to chage the target name).
+# CMake changed the swig target name in version 3.13
+
+if (${CMAKE_VERSION} VERSION_GREATER "3.13")
+    cmake_policy(SET CMP0078 NEW)
+    set(SWIG_TARGET_NAME "openmeeg")
+else()
+    set(SWIG_TARGET_NAME "_openmeeg")
 endif()
 
 if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.14")
@@ -76,7 +81,7 @@ endif()
 
 string(REGEX MATCH "[Ll]ib.*packages" PYTHON_REL_SITE_ARCH ${Python3_SITEARCH})
 
-install(TARGETS  "_openmeeg"
+install(TARGETS ${SWIG_TARGET_NAME}
         LIBRARY DESTINATION ${PYTHON_REL_SITE_ARCH}
         RUNTIME DESTINATION ${PYTHON_REL_SITE_ARCH}
         PERMISSIONS OWNER_WRITE OWNER_READ GROUP_READ WORLD_READ)
