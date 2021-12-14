@@ -41,9 +41,9 @@ find_package(SWIG REQUIRED)
 # load SWIG macros. The path to UseSWIG.cmake is provided by SWIG_USE_FILE which is set in FindSWIG
 
 if (SWIG_USE_FILE STREQUAL "")
-  message(FATAL_ERROR "unexpected: the variable SWIG_USE_FILE is the empty string. Did you run FindSWIG.cmake?")
+    message(FATAL_ERROR "unexpected: the variable SWIG_USE_FILE is the empty string. Did you run FindSWIG.cmake?")
 else()
-  include(${SWIG_USE_FILE})
+    include(${SWIG_USE_FILE})
 endif()
 
 if (BUILD_DOCUMENTATION)
@@ -72,9 +72,9 @@ set_source_files_properties(openmeeg.i PROPERTIES CPLUSPLUS ON GENERATED_COMPILE
 swig_add_library(openmeeg LANGUAGE python SOURCES openmeeg.i)
 
 if (APPLE)
-  swig_link_libraries(openmeeg OpenMEEG::OpenMEEG)
+    swig_link_libraries(openmeeg OpenMEEG::OpenMEEG)
 else()
-  swig_link_libraries(openmeeg ${Python3_LIBRARIES} OpenMEEG::OpenMEEG)
+    swig_link_libraries(openmeeg ${Python3_LIBRARIES} OpenMEEG::OpenMEEG)
 endif()
 
 #extract correctly python location: e.g lib64/python2.7/site-packages
@@ -87,7 +87,7 @@ install(TARGETS ${SWIG_TARGET_NAME}
         PERMISSIONS OWNER_WRITE OWNER_READ GROUP_READ WORLD_READ)
 
 if (APPLE)
-  set_target_properties(_openmeeg PROPERTIES LINK_FLAGS "-undefined dynamic_lookup")
+    set_target_properties(_openmeeg PROPERTIES LINK_FLAGS "-undefined dynamic_lookup")
 endif()
 
 install(FILES  ${OpenMEEG_BINARY_DIR}/wrapping/src/openmeeg.py
