@@ -16,7 +16,6 @@ parser.add_option("-p", "--path", dest="data_path",
 options, args = parser.parse_args()
 data_path = options.data_path
 
-
 def test_mesh(name, vertices, triangles, expected_result):
     try:
         mesh = om.Mesh(vertices, triangles)
@@ -37,27 +36,21 @@ vertices = np.array([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0],
                      [1.0, 1.0, 0.0], [0.0, 1.0, 0.0]])
 triangles = np.array([[1, 2, 3], [2, 3, 0]])
 
-bad_vertices = np.array([[0.0, 0.0], [1.0, 0.0, 0.0],
-                        [1.0, 1.0, 0.0], [0.0, 1.0, 0.0]])
-bad_triangles = np.array([[1, 2], [0, 1, 2]])
-
 test_mesh("1", vertices, triangles, True)
 test_mesh("2", np.array([0.0, 0.0, 0.0]), triangles, False)
 test_mesh("3", vertices, np.array([0, 1, 2]), False)
-test_mesh("4", bad_vertices, triangles, False)
-test_mesh("5", vertices, bad_triangles, False)
 
 bad_vertices = np.array([0.0, 0.0])
-test_mesh("6", bad_vertices, triangles, False)
+test_mesh("4", bad_vertices, triangles, False)
 
 bad_triangles = np.array([1, 2, 3])
-test_mesh("7", vertices, bad_triangles, False)
+test_mesh("5", vertices, bad_triangles, False)
 
 triangles = np.array([[1, 2, 3], [2, 3, 0]], dtype=np.uint64)
-test_mesh("8", vertices, triangles, True)
+test_mesh("6", vertices, triangles, True)
 
 triangles = np.array([[1, 2, 3], [2, 3, 0]], dtype=np.int64)
-test_mesh("9", vertices, triangles, True)
+test_mesh("7", vertices, triangles, True)
 
 # test X -> should be OK
 
