@@ -223,7 +223,7 @@ namespace OpenMEEG {
 
         virtual T integrate(const I& fc, const Triangle& triangle) {
             const Vect3 points[3] = { triangle.vertex(0), triangle.vertex(1), triangle.vertex(2) };
-            T I0 = base::triangle_integration(fc,points);
+            const T& I0 = base::triangle_integration(fc,points);
             return adaptive_integration(fc,points,I0,0);
         }
 
@@ -231,7 +231,7 @@ namespace OpenMEEG {
 
         double tolerance;
 
-        inline T adaptive_integration(const I& fc,const Vect3* points,T I0,unsigned n) {
+        inline T adaptive_integration(const I& fc,const Vect3* points,const T& I0,unsigned n) {
             Vect3 newpoint0 = 0.5*(points[0]+points[1]);
             Vect3 newpoint1 = 0.5*(points[1]+points[2]);
             Vect3 newpoint2 = 0.5*(points[2]+points[0]);
@@ -251,10 +251,10 @@ namespace OpenMEEG {
                     I2 = adaptive_integration(fc,points2,I2,n);
                     I3 = adaptive_integration(fc,points3,I3,n);
                     I4 = adaptive_integration(fc,points4,I4,n);
-                    I0 = I1+I2+I3+I4;
+                    sum = I1+I2+I3+I4;
                 }
             }
-            return I0;
+            return sum;
         }
     };
 }
