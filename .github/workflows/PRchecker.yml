@@ -18,7 +18,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [ubuntu-18.04, ubuntu-20.04]
+        os: [macos-latest, ubuntu-18.04, ubuntu-20.04]
         #os: [macos-latest, windows-latest, ubuntu-18.04, ubuntu-20.04]
     runs-on: ${{ matrix.os }}
 
@@ -32,9 +32,10 @@ jobs:
           sudo brew install hdf5 libmatio boost 
         elif [[ "$os" =~ ^windows* ]]; then
           echo "OS_NAME=windows" >> $GITHUB_ENV
-        elif [[ "$os" =~ ^ubuntu* ]]; then
-          echo "OS_NAME=ubuntu" >> $GITHUB_ENV
-          sudo apt-get install libopenblas-dev liblapacke-dev python3-numpy doxygen graphviz libmatio libmatio-dev libvtk-dev lcov
+        elif [[ "$os" == 'ubuntu-18.04' ]]; then
+          sudo apt-get install libopenblas-dev liblapacke-dev python3-numpy doxygen graphviz libmatio libmatio4-dev libvtk7.1-dev lcov
+        elif [[ "$os" == 'ubuntu-20.04' ]]; then
+          sudo apt-get install libopenblas-dev liblapacke-dev python3-numpy doxygen graphviz libmatio libmatio9-dev libvtk7.1p-dev lcov
         else
           ::setFailed title='Setup error'::'Unknown os'
         fi
