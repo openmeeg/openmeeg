@@ -18,7 +18,8 @@ jobs:
 
     strategy:
       matrix:
-        os: [macos-latest, ubuntu-18.04, ubuntu-20.04]
+        os: [windows-latest]
+        #os: [macos-latest, ubuntu-18.04, ubuntu-20.04]
         #os: [macos-latest, windows-latest, ubuntu-18.04, ubuntu-20.04]
     runs-on: ${{ matrix.os }}
 
@@ -29,10 +30,15 @@ jobs:
       run: |
         if [[ "$os" =~ ^macos* ]]; then
           echo "OS_NAME=macos" >> $GITHUB_ENV
+          brew update
           brew install hdf5 libmatio boost openblas vtk numpy swig
         elif [[ "$os" =~ ^windows* ]]; then
           echo "OS_NAME=windows" >> $GITHUB_ENV
+          $CONDA/conda config --add channels conda-forge
+          $CONDA/conda install --yes -c massich matio-cmake
+          $CONDA/conda install numpy mkl=2019.* blas=*=*mkl
         elif [[ "$os" =~ ^ubuntu* ]]; then
+          sudo apt-get update
           sudo apt-get install libopenblas-dev liblapacke-dev python3-numpy doxygen graphviz libmatio-dev libvtk7-dev lcov
         else
           ::setFailed title='Setup error'::'Unknown os'
