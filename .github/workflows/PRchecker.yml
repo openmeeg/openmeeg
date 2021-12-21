@@ -26,23 +26,21 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name: Set OS name    
+    - name: OS setup
       run: |
-        if [[ "$os" =~ ^macos* ]]; then
-          echo "OS_NAME=macos" >> $GITHUB_ENV
-          brew update
-          brew install hdf5 libmatio boost openblas vtk numpy swig
-        elif [[ "$os" =~ ^windows* ]]; then
-          echo "OS_NAME=windows" >> $GITHUB_ENV
-          $CONDA/conda config --add channels conda-forge
-          $CONDA/conda install --yes -c massich matio-cmake
-          $CONDA/conda install numpy mkl=2019.* blas=*=*mkl
-        elif [[ "$os" =~ ^ubuntu* ]]; then
-          sudo apt-get update
-          sudo apt-get install libopenblas-dev liblapacke-dev python3-numpy doxygen graphviz libmatio-dev libvtk7-dev lcov
-        else
-          ::setFailed title='Setup error'::'Unknown os'
-        fi
+        if: startsWith($os,'windows')
+        $CONDA/conda config --add channels conda-forge
+        $CONDA/conda install --yes -c massich matio-cmake
+        $CONDA/conda install numpy mkl=2019.* blas=*=*mkl
+      run: |
+        if: startsWith($os,'macos')
+        echo "OS_NAME=macos" >> $GITHUB_ENV
+        brew update
+        brew install hdf5 libmatio boost openblas vtk numpy swig
+      run: |
+        if: startsWidth($os,'ubuntu')
+        sudo apt-get update
+        sudo apt-get install libopenblas-dev liblapacke-dev python3-numpy doxygen graphviz libmatio-dev libvtk7-dev lcov
       env:
         os: ${{ matrix.os }}
 
