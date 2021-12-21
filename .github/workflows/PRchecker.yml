@@ -33,7 +33,7 @@ jobs:
         elif [[ "$os" =~ ^windows* ]]; then
           echo "OS_NAME=windows" >> $GITHUB_ENV
         elif [[ "$os" =~ ^ubuntu* ]]; then
-          sudo apt-get install libopenblas-dev liblapacke-dev python3-numpy doxygen graphviz libmatio libmatio-dev libvtk7-dev lcov
+          sudo apt-get install libopenblas-dev liblapacke-dev python3-numpy doxygen graphviz libmatio-dev libvtk7-dev lcov
         else
           ::setFailed title='Setup error'::'Unknown os'
         fi
