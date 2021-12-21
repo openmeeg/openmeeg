@@ -36,7 +36,7 @@ jobs:
           echo "OS_NAME=ubuntu" >> $GITHUB_ENV
           sudo apt-get install libopenblas-dev liblapacke-dev python3-numpy doxygen graphviz libmatio libmatio-dev libvtk-dev lcov
         else
-          ::setFailed title='Setup error'::'Unknown os;
+          ::setFailed title='Setup error'::'Unknown os'
         fi
       env:
         os: ${{ matrix.os }}
