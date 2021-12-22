@@ -34,6 +34,7 @@ jobs:
         C:/Miniconda/condabin/conda.bat config --add channels conda-forge
         C:/Miniconda/condabin/conda.bat install --yes -c massich matio-cmake
         C:/Miniconda/condabin/conda.bat install numpy mkl=2019.* blas=*=*mkl
+        echo "MKL_SETUP=C:/Program Files (x86)/IntelSWTools/compilers_and_libraries_2019.5.281/windows/mkl/bin/mklvars.bat" >> $GITHUB_ENV
       shell: bash
 
     - name: MacOS setuo
@@ -55,7 +56,10 @@ jobs:
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
-      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DBLA_STATIC=ON -DBLA_VENDOR=${{env.BLAS}}
+      run: |
+        source ${{env.MKL_SETUP}}
+        cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DBLA_STATIC=ON -DBLA_VENDOR=${{env.BLAS}}
+      shell: bash
 
     - name: Build
       # Build your program with the given configuration
