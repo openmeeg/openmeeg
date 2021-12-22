@@ -41,7 +41,7 @@ jobs:
         brew install hdf5 libmatio boost openblas vtk numpy swig
 
     - name: Linux setup
-      if: startsWidth(matrix.os,'ubuntu')
+      if: startsWith(matrix.os,'ubuntu')
       run: |
         sudo apt-get update
         sudo apt-get install libopenblas-dev liblapacke-dev python3-numpy doxygen graphviz libmatio-dev libvtk7-dev lcov
