@@ -40,7 +40,7 @@ jobs:
         brew update
         brew install hdf5 libmatio boost openblas vtk numpy swig
 
-    - name Linux setup
+    - name: Linux setup
       run: |
         if: startsWidth($os,'ubuntu')
         sudo apt-get update
