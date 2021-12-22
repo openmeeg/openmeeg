@@ -29,6 +29,7 @@ jobs:
     - name: Windows setup
       if: startsWith(matrix.os,'windows')
       run: |
+        echo "BLAS=Intel10_64lp_seq" >> $GITHUB_ENV
         C:\Miniconda\condabin\conda.bat config --add channels conda-forge
         C:\Miniconda\condabin\conda.bat install --yes -c massich matio-cmake
         C:\Miniconda\condabin\conda.bat install numpy mkl=2019.* blas=*=*mkl
@@ -36,13 +37,14 @@ jobs:
     - name: MacOS setuo
       if: startsWith(matrix.os,'macos')
       run: |
-        echo "OS_NAME=macos" >> $GITHUB_ENV
+        echo "BLAS=OpenBLAS" >> $GITHUB_ENV
         brew update
         brew install hdf5 libmatio boost openblas vtk numpy swig
 
     - name: Linux setup
       if: startsWith(matrix.os,'ubuntu')
       run: |
+        echo "BLAS=OpenBLAS" >> $GITHUB_ENV
         sudo apt-get update
         sudo apt-get install libopenblas-dev liblapacke-dev python3-numpy doxygen graphviz libmatio-dev libvtk7-dev lcov
       env:
@@ -51,7 +53,7 @@ jobs:
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
-      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DBLA_STATIC=ON -DBLA_VENDOR=${{env.BLAS}}
 
     - name: Build
       # Build your program with the given configuration
