@@ -29,9 +29,9 @@ jobs:
     - name: Windows setup
       run: |
         if: startsWith($os,'windows')
-        $CONDA\condabin\conda.bat config --add channels conda-forge
-        $CONDA\condabin\conda.bat install --yes -c massich matio-cmake
-        $CONDA\condabin\conda.bat install numpy mkl=2019.* blas=*=*mkl
+        C:\Miniconda\condabin\conda.bat config --add channels conda-forge
+        C:\Miniconda\condabin\conda.bat install --yes -c massich matio-cmake
+        C:\Miniconda\condabin\conda.bat install numpy mkl=2019.* blas=*=*mkl
 
     - name: MacOS setuo
       run: |
