@@ -27,22 +27,22 @@ jobs:
     - uses: actions/checkout@v2
 
     - name: Windows setup
+      if: startsWith($os,'windows')
       run: |
-        if: startsWith($os,'windows')
         C:\Miniconda\condabin\conda.bat config --add channels conda-forge
         C:\Miniconda\condabin\conda.bat install --yes -c massich matio-cmake
         C:\Miniconda\condabin\conda.bat install numpy mkl=2019.* blas=*=*mkl
 
     - name: MacOS setuo
+      if: startsWith($os,'macos')
       run: |
-        if: startsWith($os,'macos')
         echo "OS_NAME=macos" >> $GITHUB_ENV
         brew update
         brew install hdf5 libmatio boost openblas vtk numpy swig
 
     - name: Linux setup
+      if: startsWidth($os,'ubuntu')
       run: |
-        if: startsWidth($os,'ubuntu')
         sudo apt-get update
         sudo apt-get install libopenblas-dev liblapacke-dev python3-numpy doxygen graphviz libmatio-dev libvtk7-dev lcov
       env:
