@@ -35,8 +35,6 @@ jobs:
         C:/Miniconda/condabin/conda.bat config --add channels conda-forge
         C:/Miniconda/condabin/conda.bat install --yes -c massich matio-cmake
         C:/Miniconda/condabin/conda.bat install --yes -c intel -c intel mkl-devel
-        #C:/Miniconda/condabin/conda.bat install numpy mkl=2021.* libblas=*=*mkl
-        #source "C:/Program Files (x86)/IntelSWTools/compilers_and_libraries_2019.5.281/windows/mkl/bin/mklvars.bat"
         printenv >> $GITHUB_ENV
       shell: bash
 
