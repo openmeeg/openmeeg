@@ -1,5 +1,6 @@
 # OpenMEEGMath
 
+include_directories(${BLA_INCLUDE_DIR})
 add_library(OpenMEEGMaths SHARED
   src/vector.cpp src/matrix.cpp src/symmatrix.cpp src/sparse_matrix.cpp
   src/fast_sparse_matrix.cpp src/MathsIO.C src/MatlabIO.C src/AsciiIO.C
@@ -26,7 +27,7 @@ target_include_directories(OpenMEEGMaths
 
 target_link_libraries(OpenMEEGMaths
       PUBLIC # XXX : this should become PRIVATE ! and hdf5 should come from matio
-          ${LAPACK_LIBRARIES}
+          BLAS::BLAS
           HDF5::HDF5
           MATIO::MATIO
 )
