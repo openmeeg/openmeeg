@@ -64,7 +64,7 @@ jobs:
             # install intel repository
             sudo wget https://apt.repos.intel.com/setup/intelproducts.list -O /etc/apt/sources.list.d/intelproducts.list
             sudo apt-get update
-            sudo apt-get install intel-mkl
+            sudo apt-get install intel-mkl-2020.4-912
           
           else
             ## download the key to system keyring
