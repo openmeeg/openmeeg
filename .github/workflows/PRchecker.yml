@@ -53,13 +53,7 @@ jobs:
         if [ ${{matrix.blas}} == "OpenBLAS" ]; then
           sudo apt-get install libopenblas-dev liblapacke-dev
         else
-          # download the key to system keyring
-          sudo wget -O- https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB | \
-               gpg --dearmor | sudo tee /usr/share/keyrings/oneapi-archive-keyring.gpg > /dev/null
-          # add signed entry to apt sources and configure the APT client to use Intel repository:
-          echo "deb [signed-by=/usr/share/keyrings/oneapi-archive-keyring.gpg] https://apt.repos.intel.com/oneapi all main" | \
-               sudo tee /etc/apt/sources.list.d/oneAPI.list
-          sudo apt-get install intel-hpckit
+          sudo apt-get install intel-mkl libmkl-full-dev intel-mkl-linktool
         fi
 
         sudo apt-get update
