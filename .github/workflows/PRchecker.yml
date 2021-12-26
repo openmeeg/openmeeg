@@ -56,7 +56,7 @@ jobs:
           if [ ${{matrix.os}} == 'ubuntu-18.04' ]; then
             # There is no mkl in the official repository for this version. Rely on intel packages.
             # get and install the key:
-            wget -O- https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS-2019.PUB |\
+            wget -O- https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB |\
                  gpg --dearmor | sudo tee /usr/share/keyrings/oneapi-archive-keyring.gpg > /dev/null
 
             # install intel repository
@@ -71,7 +71,7 @@ jobs:
             ## add signed entry to apt sources and configure the APT client to use Intel repository:
             #echo "deb [signed-by=/usr/share/keyrings/oneapi-archive-keyring.gpg] https://apt.repos.intel.com/oneapi all main" | \
             #     sudo tee /etc/apt/sources.list.d/oneAPI.list
-            sudo apt-get install intel-mkl libmkl-full-dev intel-ml-linktool
+            sudo apt-get install intel-mkl libmkl-full-dev intel-mkl-linktool
           fi
         fi
 
