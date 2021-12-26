@@ -50,10 +50,29 @@ jobs:
     - name: Linux setup
       if: startsWith(matrix.os,'ubuntu')
       run: |
-        if [  ${{matrix.blas}} == "OpenBLAS" ]; then
+        if [ ${{matrix.blas}} == "OpenBLAS" ]; then
           sudo apt-get install libopenblas-dev liblapacke-dev
         else
-          sudo apt-get install intel-mkl libmkl-full-dev intel-mkl-linktool
+          if [ ${{matrix.os}} == 'ubuntu-18.04' ]; then
+            # There is no mkl in the official repository for this version. Rely on intel packages.
+            # get and install the key:
+            wget https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS-2019.PUB
+            apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS-2019.PUB
+            rm GPG-PUB-KEY-INTEL-SW-PRODUCTS-2019.PUB
+
+            # install intel repository
+            sudo wget https://apt.repos.intel.com/setup/intelproducts.list -O /etc/apt/sources.list.d/intelproducts.list
+            sudo apt-get install intel-mkl-devel
+          
+          else
+            ## download the key to system keyring
+            #sudo wget -O- https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB | \
+            #     gpg --dearmor | sudo tee /usr/share/keyrings/oneapi-archive-keyring.gpg > /dev/null
+            ## add signed entry to apt sources and configure the APT client to use Intel repository:
+            #echo "deb [signed-by=/usr/share/keyrings/oneapi-archive-keyring.gpg] https://apt.repos.intel.com/oneapi all main" | \
+            #     sudo tee /etc/apt/sources.list.d/oneAPI.list
+            sudo apt-get install intel-mkl libmkl-full-dev intel-ml-linktool
+          fi
         fi
 
         sudo apt-get update
