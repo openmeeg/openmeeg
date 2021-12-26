@@ -51,7 +51,7 @@ jobs:
       if: startsWith(matrix.os,'ubuntu')
       run: |
         if [ ${{matrix.blas}} == "OpenBLAS" ]; then
-          sudo apt-get install libopenblas-dev liblapacke-dev
+          BLAS_PACKAGES="libopenblas-dev liblapacke-dev"
         else
           if [ ${{matrix.os}} == 'ubuntu-18.04' ]; then
             # There is no mkl in the official repository for this version. Rely on intel packages.
@@ -63,8 +63,7 @@ jobs:
 
             # install intel repository
             sudo wget https://apt.repos.intel.com/setup/intelproducts.list -O /etc/apt/sources.list.d/intelproducts.list
-            sudo apt-get update
-            sudo apt-get install intel-mkl-2020.4-912
+            BLAS_PACKAGES="intel-mkl-2020.4-912"
           
           else
             ## download the key to system keyring
@@ -73,12 +72,12 @@ jobs:
             ## add signed entry to apt sources and configure the APT client to use Intel repository:
             #echo "deb [signed-by=/usr/share/keyrings/oneapi-archive-keyring.gpg] https://apt.repos.intel.com/oneapi all main" | \
             #     sudo tee /etc/apt/sources.list.d/oneAPI.list
-            sudo apt-get install intel-mkl libmkl-full-dev
+            BLAS_PACKAGES="intel-mkl libmkl-full-dev"
           fi
         fi
 
         sudo apt-get update
-        sudo apt-get install libopenblas-dev liblapacke-dev python3-numpy doxygen graphviz libmatio-dev libvtk7-dev lcov
+        sudo apt-get install ${BLAS_PACKAGES} python3-numpy doxygen graphviz libmatio-dev libvtk7-dev lcov
 
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration
