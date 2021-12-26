@@ -18,9 +18,11 @@ jobs:
 
     strategy:
       matrix:
-        os: [windows-latest]
-        #os: [macos-latest, ubuntu-18.04, ubuntu-20.04]
+        #os: [windows-latest]
+        os: [macos-latest, ubuntu-18.04, ubuntu-20.04]
         #os: [macos-latest, windows-latest, ubuntu-18.04, ubuntu-20.04]
+        blas: [ OpenBLAS, MKL ]
+
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -42,14 +44,12 @@ jobs:
     - name: MacOS setuo
       if: startsWith(matrix.os,'macos')
       run: |
-        echo "BLAS=OpenBLAS" >> $GITHUB_ENV
         brew update
         brew install hdf5 libmatio boost openblas vtk numpy swig
 
     - name: Linux setup
       if: startsWith(matrix.os,'ubuntu')
       run: |
-        echo "BLAS=OpenBLAS" >> $GITHUB_ENV
         sudo apt-get update
         sudo apt-get install libopenblas-dev liblapacke-dev python3-numpy doxygen graphviz libmatio-dev libvtk7-dev lcov
 
@@ -58,7 +58,7 @@ jobs:
       # generator such as make.
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
       run: |
-        cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DBLA_STATIC=ON -DBLA_VENDOR=${{env.BLAS}}
+        cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DBLA_STATIC=ON -DBLAS_IMPLEMENTATION=${{matrix.blas}}
 
     - name: Build
       # Build your program with the given configuration
