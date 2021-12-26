@@ -54,7 +54,6 @@ To install OpenMEEG via `anaconda <https://www.anaconda.com/download/>`_ you can
 
     $ conda install -c conda-forge openmeeg
 
-
 On Ubuntu/Debian GNU Linux you may be able use the http://neuro.debian.net package repository.
 
 .. note::
@@ -74,7 +73,6 @@ On RHEL/CentOS 7, enable `EPEL repositories <https://fedoraproject.org/wiki/EPEL
 Additional repositories recommended on RHEL 7::
 
     $ subscription-manager repos --enable "rhel-*-optional-rpms" --enable "rhel-*-extras-rpms"
-
 
 Build OpenMEEG from source
 --------------------------
@@ -172,7 +170,7 @@ and generate the visual studio project. You can then open it and build the proje
 Note that on Windows we currently recommend to use Intel MKL library.
 See how we build OpenMEEG on AppVeyor: `.appveyor.yml <https://github.com/openmeeg/openmeeg/blob/master/.appveyor.yml>`_
 
-Supported Blas-Lapack Implementations
+Supported Blas/Lapack Implementations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 - on Linux: `Intel MKL <http://software.intel.com/en-us/intel-mkl/>`_ , `OpenBLAS <http://www.openblas.net/>`_ (and possibly `Atlas <http://math-atlas.sourceforge.net>`_)
 
