@@ -50,7 +50,7 @@ jobs:
     - name: Linux setup
       if: startsWith(matrix.os,'ubuntu')
       run: |
-        if [ ${{matrix.blas}} == "OpenBLAS" ]; then
+        if [  ${{matrix.blas}} == "OpenBLAS" ]; then
           sudo apt-get install libopenblas-dev liblapacke-dev
         else
           sudo apt-get install intel-mkl libmkl-full-dev intel-mkl-linktool
