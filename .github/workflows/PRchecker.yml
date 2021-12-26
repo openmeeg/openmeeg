@@ -11,6 +11,10 @@ env:
   BUILD_TYPE: Release
 
 jobs:
+  concurrency: 
+    group: ${{ github.head_ref }}
+    cancel-in-progress: true
+
   build:
     # The CMake configure and build commands are platform agnostic and should work equally well on Windows or Mac.
     # You can convert this to a matrix build if you need cross-platform coverage.
@@ -22,6 +26,8 @@ jobs:
         os: [macos-latest, ubuntu-18.04, ubuntu-20.04]
         #os: [macos-latest, windows-latest, ubuntu-18.04, ubuntu-20.04]
         blas: [ OpenBLAS, MKL ]
+        static: [ OFF ]
+        #static: [ ON, OFF ]
 
     runs-on: ${{ matrix.os }}
 
@@ -84,7 +90,7 @@ jobs:
       # generator such as make.
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
       run: |
-        cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DBLA_STATIC=ON -DBLAS_IMPLEMENTATION=${{matrix.blas}}
+        cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DBLA_STATIC=${{matrix.static}} -DBLAS_IMPLEMENTATION=${{matrix.blas}}
 
     - name: Build
       # Build your program with the given configuration
