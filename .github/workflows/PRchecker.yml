@@ -56,7 +56,7 @@ jobs:
         #source "C:/Program Files (x86)/IntelSWTools/compilers_and_libraries_2019.5.281/windows/mkl/bin/mklvars.bat"
         #printenv >> $GITHUB_ENV
 
-    - name: MacOS setuo
+    - name: MacOS setup
       if: startsWith(matrix.os,'macos')
       run: |
         if [ ${{matrix.blas}} == "OpenBLAS" ]; then
@@ -66,7 +66,8 @@ jobs:
           if [ ${{matrix.linking}} == 'static' ]; then
             MKL_LIBS=mkl-static
           fi
-          $CONDA/bin/conda install -c intel mkl ${MKL_LIBS} mkl-include
+          $CONDA/bin/conda create -n openmeeg -c intel mkl ${MKL_LIBS} mkl-include
+          $CONDA/bin/conda activate openmeeg
         fi
         brew update
         brew install hdf5 libmatio boost ${BLAS_PACKAGES} vtk numpy swig
