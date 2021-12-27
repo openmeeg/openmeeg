@@ -20,16 +20,26 @@ jobs:
     strategy:
       matrix:
         #os: [windows-latest]
-        os: [macos-latest, ubuntu-18.04, ubuntu-20.04]
+        os: [macos-latest]
+        #os: [macos-latest, ubuntu-18.04, ubuntu-20.04]
         #os: [macos-latest, windows-latest, ubuntu-18.04, ubuntu-20.04]
         blas: [ OpenBLAS, MKL ]
-        static: [ OFF ]
-        #static: [ ON, OFF ]
+        linking: [ dynamic ]
+        #linking: [ static, dynamic ]
 
     runs-on: ${{ matrix.os }}
 
     steps:
     - uses: actions/checkout@v2
+
+    - name: Environment setup
+      run: |
+        if [ ${{matrix.linking}} == 'static' ]; then
+          echo "STATIC=ON" >> $GITHUB_ENV
+        else
+          echo "STATIC=OFF" >> $GITHUB_ENV
+        fi
+      shell: bash
 
     - name: Windows setup
       if: startsWith(matrix.os,'windows')
@@ -47,8 +57,17 @@ jobs:
     - name: MacOS setuo
       if: startsWith(matrix.os,'macos')
       run: |
+        if [ ${{matrix.blas}} == "OpenBLAS" ]; then
+          BLAS_PACKAGES="openblas"
+        else
+          MKL_LIBS=mkl-devel
+          if [ ${{matrix.linking}} == 'static' ]; then
+            MKL_LIBS=mkl-static
+          fi
+          conda install -c intel mkl ${MKL_LIBS} mkl-include
+        fi
         brew update
-        brew install hdf5 libmatio boost openblas vtk numpy swig
+        brew install hdf5 libmatio boost ${BLAS_PACKAGES} vtk numpy swig
 
     - name: Linux setup
       if: startsWith(matrix.os,'ubuntu')
@@ -87,7 +106,7 @@ jobs:
       # generator such as make.
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
       run: |
-        cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DBLA_STATIC=${{matrix.static}} -DBLAS_IMPLEMENTATION=${{matrix.blas}}
+        cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DBLA_STATIC=${{env.STATIC}} -DBLAS_IMPLEMENTATION=${{matrix.blas}}
 
     - name: Build
       # Build your program with the given configuration
