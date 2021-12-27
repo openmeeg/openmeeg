@@ -30,6 +30,7 @@ if (NOT matio_LIBRARIES)
             set(HDF5_LIBRARIES ${HDF5_LIBRARIES} ${LIB})
         endforeach(LIB)
     endif()
+    message("[[[ HDF5_LIBRARIES ${HDF5_LIBRARIES} ${LIB} ]]]")
 
     # Make a modern cmake interface to HDF5.
     # Since around cmake 2.18, this target is created by the hdf5 module.
@@ -42,9 +43,7 @@ if (NOT matio_LIBRARIES)
     endif()
 
     # Look for the header file.
-    set(conda_matio /home/travis/miniconda/pkgs/libmatio-1.5.12-0/)
-    find_path(matio_INCLUDE_DIR HINTS $ENV{matio_dir}include ${conda_matio}include
-	                            NAMES matio.h)
+    find_path(matio_INCLUDE_DIR HINTS $ENV{matio_dir}include NAMES matio.h)
 
     message(STATUS "matio.h ${matio_INCLUDE_DIR}")
     mark_as_advanced(matio_INCLUDE_DIR)
@@ -53,7 +52,7 @@ if (NOT matio_LIBRARIES)
 
     # XXXX This needs to go out !
     set(matio_LIB_SEARCH_PATHS C:/conda/Library/ C:/conda/Library/lib C:/conda/Library/bin $ENV{matio_dir}
-        $ENV{matio_dir}lib $ENV{matio_dir}bin ${conda_matio} ${conda_matio}lib ${conda_matio}bin)
+        $ENV{matio_dir}lib $ENV{matio_dir}bin)
 
     set(MATIO_NAMES matio libmatio)
     if (MATIO_USE_STATIC_LIBRARIES)
