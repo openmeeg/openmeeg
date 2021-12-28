@@ -59,8 +59,12 @@ jobs:
     - name: MacOS setup
       if: startsWith(matrix.os,'macos')
       run: |
+        brew update > /dev/null
+        brew install hdf5 libmatio boost vtk numpy swig
         if [ ${{matrix.blas}} == "OpenBLAS" ]; then
-          BLAS_PACKAGES="openblas"
+          brew install openbla
+          echo "LDFLAGS=-L/usr/local/opt/openblas/lib" >> $GITHUB_ENV
+          echo "CPPFLAGS=-I/usr/local/opt/openblas/include" >> $GITHUB_ENV'
         else
           MKL_LIBS=mkl-devel
           if [ ${{matrix.linking}} == 'static' ]; then
@@ -69,8 +73,6 @@ jobs:
           $CONDA/bin/conda create -n openmeeg -c intel mkl ${MKL_LIBS} mkl-include
           $CONDA/bin/conda activate openmeeg
         fi
-        brew update
-        brew install hdf5 libmatio boost ${BLAS_PACKAGES} vtk numpy swig
 
     - name: Linux setup
       if: startsWith(matrix.os,'ubuntu')
