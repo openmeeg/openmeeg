@@ -9,6 +9,8 @@
 
 #define CLAPACK_INTERFACE
 
+typedef MKL_INT BLAS_INT;
+
 extern "C" {
     double dlange(const char&,const BLAS_INT&,const BLAS_INT&,double*,const int&,double*);
 }

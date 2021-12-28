@@ -10,6 +10,8 @@
 #include <lapacke.h>
 #undef I // undefine this def due to complex.h that causes issues later
 
+typedef int BLAS_INT;
+
 #define BLAS(x,X) cblas_ ## x
 #define LAPACK(x,X) LAPACKE_ ## x
 

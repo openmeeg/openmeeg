@@ -6,6 +6,8 @@ extern "C" {
     #include <atlas/clapack.h>
 }
 
+typdef int BLAS_INT;
+
 #define BLAS(x,X) cblas_ ## x
 #define LAPACK(x,X) clapack_ ## x
 

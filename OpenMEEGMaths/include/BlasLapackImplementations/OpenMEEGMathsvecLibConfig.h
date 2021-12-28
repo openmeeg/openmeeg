@@ -5,6 +5,7 @@
 
 # include <Accelerate/Accelerate.h>
 
+typedef int BLAS_INT;
 
 #define BLAS(x,X) cblas_ ## x
 #define LAPACK(x,X) x ## _

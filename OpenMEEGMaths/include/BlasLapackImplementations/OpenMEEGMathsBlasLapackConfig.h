@@ -12,6 +12,8 @@
 #define BLAS(x,X) FC_GLOBAL(x,X)
 #define LAPACK(x,X) FC_GLOBAL(x,X)
 
+typedef int BLAS_INT;
+
 #include <BlasLapackImplementations/blas.h>
 #include <BlasLapackImplementations/lapack.h>
 #include <BlasLapackImplementations/OpenMEEGMathsFBlasLapack.h>
