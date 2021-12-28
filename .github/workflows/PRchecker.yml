@@ -64,7 +64,7 @@ jobs:
         if [ ${{matrix.blas}} == "OpenBLAS" ]; then
           brew install openbla
           echo "LDFLAGS=-L/usr/local/opt/openblas/lib" >> $GITHUB_ENV
-          echo "CPPFLAGS=-I/usr/local/opt/openblas/include" >> $GITHUB_ENV'
+          echo "CPPFLAGS=-I/usr/local/opt/openblas/include" >> $GITHUB_ENV
         else
           MKL_LIBS=mkl-devel
           if [ ${{matrix.linking}} == 'static' ]; then
