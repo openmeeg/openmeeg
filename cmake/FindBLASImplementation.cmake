@@ -57,6 +57,7 @@ if (BLA_IMPLEMENTATION STREQUAL "MKL")
     set(ENV{MKLROOT} ${MKL_ROOT})
     get_filename_component(OMP_LIBRARY_DIR ${OMP_LIBRARY} DIRECTORY)
     set(ENV{LD_LIBRARY_PATH} ${OMP_LIBRARY_DIR})
+    set(ENV{LIBRARY_PATH} ${OMP_LIBRARY_DIR} ${MKL_LIBRARIES})
 
     # For some reason ilp version of MKL does not work. TODO.
     # So for the time being, we force lp mode.
@@ -72,6 +73,7 @@ elseif (BLA_IMPLEMENTATION STREQUAL "OpenBLAS")
 
 endif()
 
+message("---> ${BLA_VENDOR} $ENV{MKLROOT} $ENV{LD_LIBRARY_PATH} ${BLA_INCLUDE_DIR} ${MKL_ENV}")
 find_package(BLAS REQUIRED)
 find_package(LAPACK REQUIRED)
 
