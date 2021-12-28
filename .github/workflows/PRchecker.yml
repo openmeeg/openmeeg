@@ -76,7 +76,8 @@ jobs:
       if: startsWith(matrix.os,'ubuntu')
       run: |
         if [ ${{matrix.blas}} == "OpenBLAS" ]; then
-          BLAS_PACKAGES="libopenblas-dev liblapacke-dev"
+          sudo apt-get update
+          sudo apt-get -yq install libopenblas-dev liblapacke-dev
         else
           # There is a mkl version in the official repository for 20.04 but not for 18.04, but it is not up-to-date.
           # Instead rely on intel packages.
@@ -86,15 +87,22 @@ jobs:
           echo "deb [signed-by=/usr/share/keyrings/oneapi-archive-keyring.gpg] https://apt.repos.intel.com/oneapi all main" |\
                 sudo tee /etc/apt/sources.list.d/oneAPI.list
 
-          # In newer ubuntu, mkl is part of the distribution. It can directly be installed with:
-          # sudo apt-get install intel-mkl libmkl-full-dev
-          # Use this when the ubuntu mkl will be more up-to-date and reliable.
+          # In newer ubuntu >=20.04, mkl is part of the distribution. It can directly be installed with:
+          # The syntaxic sugar is because the installation has some interactive configuration part.
+          # sudo DEBIAN_FRONTEND=noninteractive apt-get -yq intel-mkl libmkl-full-dev
+          # Use this when the ubuntu mkl will be more up-to-date and reliable (in particular in its cmake support).
 
-          BLAS_PACKAGES="intel-mkl-devel"
+          sudo apt-get update
+          sudo apt-get -yq install intel-oneapi-mkl-devel
+
+          # We need to set some global vars to allow cmake to detect MKL on ubuntu.
+
+          source /opt/intel/oneapi/setvars.sh
+          printenv >> $GITHUB_ENV
         fi
 
         sudo apt-get update
-        sudo DEBIAN_FRONTEND=noninteractive apt-get -yq install ${BLAS_PACKAGES} python3-numpy doxygen graphviz libmatio-dev libvtk7-dev lcov
+        sudo apt-get -yq install  python3-numpy doxygen graphviz libmatio-dev libvtk7-dev lcov
 
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration
