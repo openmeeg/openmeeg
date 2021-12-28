@@ -179,12 +179,12 @@ namespace OpenMEEG {
     
     inline double Matrix::frobenius_norm() const {
     #ifdef HAVE_LAPACK
-    if ( nlin()*ncol() != 0 ) {
-        double work;
-        return DLANGE('F', sizet_to_int(nlin()), sizet_to_int(ncol()), data(), sizet_to_int(nlin()), &work);
-    } else {
-        return 0;
-    }
+        if ( nlin()*ncol() != 0 ) {
+            double work;
+            return DLANGE('F', sizet_to_int(nlin()), sizet_to_int(ncol()), data(), sizet_to_int(nlin()), &work);
+        } else {
+            return 0;
+        }
     #else
         double d = 0.;
         for (size_t i=0; i<nlin()*ncol(); i++) d+=data()[i]*data()[i];
