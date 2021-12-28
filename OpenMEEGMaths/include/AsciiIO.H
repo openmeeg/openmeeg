@@ -141,7 +141,7 @@ namespace OpenMEEG {
 
         private:
 
-            AsciiIO(): MathsIOBase(9) { }
+            AsciiIO(): MathsIOBase(9) { std::cerr << "Constructor called" << std::endl; }
             ~AsciiIO() {};
 
             static unsigned length(const std::string& line) {

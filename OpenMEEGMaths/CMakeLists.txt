@@ -2,10 +2,9 @@
 
 include_directories(${BLA_INCLUDE_DIR})
 add_library(OpenMEEGMaths SHARED
-  src/vector.cpp src/matrix.cpp src/symmatrix.cpp src/sparse_matrix.cpp
-  src/fast_sparse_matrix.cpp src/MathsIO.C src/MatlabIO.C src/AsciiIO.C
-  src/BrainVisaTextureIO.C src/TrivialBinIO.C
-)
+    src/vector.cpp src/matrix.cpp src/symmatrix.cpp src/sparse_matrix.cpp
+    src/fast_sparse_matrix.cpp src/MathsIO.C src/MatlabIO.C src/AsciiIO.C
+    src/BrainVisaTextureIO.C src/TrivialBinIO.C)
 
 set_target_properties(OpenMEEGMaths PROPERTIES
                       VERSION 1.1.0
@@ -27,9 +26,10 @@ target_include_directories(OpenMEEGMaths
 
 target_link_libraries(OpenMEEGMaths
       PUBLIC # XXX : this should become PRIVATE ! and hdf5 should come from matio
+          LAPACK::LAPACK
           BLAS::BLAS
-          HDF5::HDF5
           MATIO::MATIO
+          HDF5::HDF5
 )
 target_compile_definitions(OpenMEEGMaths PUBLIC ${BLA_DEFINITIONS} ${SHARED_PTR_DEFINITIONS})
 add_library(OpenMEEG::OpenMEEGMaths ALIAS OpenMEEGMaths)
