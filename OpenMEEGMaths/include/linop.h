@@ -62,10 +62,9 @@ namespace OpenMEEG {
     }
 
     // to properly convert a size_t int to an int
-    OPENMEEGMATHS_EXPORT inline BLAS_INT sizet_to_int(const size_t& num)
-    {
-        BLAS_INT num_out = static_cast<BLAS_INT>(num);
-        om_assert(num_out >= 0);
+    OPENMEEGMATHS_EXPORT inline BLAS_INT sizet_to_int(const size_t& num) {
+        const BLAS_INT num_out = static_cast<BLAS_INT>(num);
+        om_assert(num_out>=0);
         return num_out;
     }
 
