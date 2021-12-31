@@ -154,7 +154,7 @@ main(int argc,char** argv) {
         const Matrix Head2MEGMat(argv[7]);
         const Matrix Source2MEGMat(argv[8]);
 
-        const GainEEGMEGadjoint EEGMEGGainMat(geo, dipoles, HeadMat, Head2EEGMat, Head2MEGMat, Source2MEGMat);
+        const GainEEGMEGadjoint EEGMEGGainMat(geo,dipoles,HeadMat,Head2EEGMat,Head2MEGMat,Source2MEGMat);
         EEGMEGGainMat.saveEEG(argv[9]);
         EEGMEGGainMat.saveMEG(argv[10]);
 
