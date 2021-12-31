@@ -65,7 +65,7 @@ namespace OpenMEEG {
             }
 
             LinOpInfo info(std::ifstream& is) const {
-                size_t nlin,ncol;
+                Dimension nlin,ncol;
                 read_header(is,nlin,ncol);
                 is.seekg(0,std::ios_base::beg);
                 return LinOpInfo(nlin,ncol,LinOpInfo::FULL,2);
@@ -78,14 +78,14 @@ namespace OpenMEEG {
                     throw maths::BadVector(m.ncol());
                 m.alloc_data();
 
-                for (size_t j=0;j<m.ncol();++j) {
+                for (Index j=0; j<m.ncol(); ++j) {
                     unsigned ind;
                     is >> io_utils::skip_line;   // skip column index
                     is >> ind;
                     if(ind==0)
                         is >> ind; // Hack for certain tex files
 
-                    for (size_t i=0;i<m.nlin();++i)
+                    for (Index i=0; i<m.nlin(); ++i)
                         is >> m(i,j);
 
                     is >> io_utils::skip_line;
@@ -96,9 +96,9 @@ namespace OpenMEEG {
                 const Matrix& m = dynamic_cast<const Matrix&>(linop);
 
                 os << "ascii" << std::endl << "FLOAT" << std::endl << static_cast<unsigned>(m.ncol()) << std::endl;
-                for (size_t j=0; j<m.ncol(); ++j) {
+                for (Index j=0; j<m.ncol(); ++j) {
                     os << static_cast<unsigned>(j) << std::endl << static_cast<unsigned>(m.nlin()) << std::endl;
-                    for (size_t i=0; i<m.nlin(); ++i)
+                    for (Index i=0; i<m.nlin(); ++i)
                         os << " " << m(i,j);
                     os << std::endl;
                 }
@@ -109,7 +109,7 @@ namespace OpenMEEG {
             BrainVisaTextureIO(): MathsIOBase(8) { }
             ~BrainVisaTextureIO() {};
 
-            static void read_header(std::ifstream& is,size_t& nlin,size_t& ncol) {
+            static void read_header(std::ifstream& is,Dimension& nlin,Dimension& ncol) {
                 is >> io_utils::match(MagicTag) >> io_utils::skip_line;
                 is >> io_utils::skip_line;         // skip keyword FLOAT
                 is >> ncol >> io_utils::skip_line;
