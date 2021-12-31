@@ -52,16 +52,11 @@ namespace OpenMEEG {
     class OPENMEEG_EXPORT Vertex: public Vect3 {
     public:
 
-        Vertex(): ind(-1) {};
+        Vertex(): ind(-1) { };
         
-        Vertex(const Vect3& V): Vect3(V),ind(-1) { }
-        Vertex(const double V[3],const unsigned& id): Vect3(V[0],V[1],V[2]),ind(id) { }
-        Vertex(const double& x,const double& y,const double& z,const unsigned& id): Vect3(x,y,z),ind(id) { }
-
-        Vertex(const double V[3]): Vertex(V,-1) { }
-        Vertex(const double& x,const double& y,const double& z): Vertex(x,y,z,-1) { }
-
-        ~Vertex() {};
+        Vertex(const Vect3& V,const unsigned id=-1): Vect3(V),ind(id) { }
+        Vertex(const double V[3],const unsigned id=-1): Vect3(V[0],V[1],V[2]),ind(id) { }
+        Vertex(const double& x,const double& y,const double& z,const unsigned id=-1): Vect3(x,y,z),ind(id) { }
 
               unsigned& index()       { return ind; }
         const unsigned& index() const { return ind; }
