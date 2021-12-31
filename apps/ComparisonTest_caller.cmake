@@ -11,7 +11,6 @@ set_file_properties(CompareOptions
     "SurfGainEEG -full" "ESTEEG -full" "H2MM -full" "SS2MM -full" "SurfGainMEG -full" "ESTMEG -full"
 )
 
-
 #   TEST COMMON RESULTS ON HEAD1 (Regression test)
 
 foreach (COMPARISON HM HMInv SSM DSM H2EM SurfGainEEG ESTEEG H2MM SS2MM SurfGainMEG ESTMEG)
