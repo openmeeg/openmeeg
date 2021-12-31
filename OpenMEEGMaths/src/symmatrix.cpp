@@ -145,7 +145,7 @@ namespace OpenMEEG {
         Matrix D(*this);
         const BLAS_INT M = sizet_to_int(nlin());
         const BLAS_INT N = sizet_to_int(B.ncol());
-        DSYMM(CblasLeft,CblasUpper,M,N,1.0,data(),M,B.data(),sizet_to_int(B.nlin()),0,C.data(),M);
+        DSYMM(CblasLeft,CblasUpper,M,N,1.0,D.data(),M,B.data(),M,0,C.data(),M);
     #else
         for (Index j=0; j<B.ncol(); ++j)
             for (Index i=0; i<nlin(); ++i) {
