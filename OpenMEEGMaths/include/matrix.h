@@ -468,18 +468,6 @@ namespace OpenMEEG {
                 C(i,j) = sum;
             }
     #endif
-        Matrix CC(nlin(),B.ncol());
-        for (Index j=0; j<B.ncol(); ++j)
-            for (Index i=0; i<nlin(); ++i) {
-                double sum = 0.0;
-                for (size_t k=0; k<ncol(); ++k)
-                    sum += (*this)(i,k)*B(k,j);
-                CC(i,j) = sum;
-            }
-        for (Index j=0; j<B.ncol(); ++j)
-            for (Index i=0; i<nlin(); ++i)
-                if (std::abs(C(i,j)-CC(i,j)))
-                    std::cerr << i << ' ' << j << ' ' << C(i,j) << ' ' << CC(i,j) << std::endl;
         return C;
     }
     
