@@ -41,31 +41,6 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 namespace OpenMEEG {
 
-    // TODO: Use overloading and remove the internal suffix.
-
-    void operatorDinternal(const Mesh& m,Matrix& mat,const Vertices& points,const double& coeff) {
-        std::cout << "INTERNAL OPERATOR D..." << std::endl;
-        for (const auto& vertex : points)
-            for (const auto& triangle : m.triangles()) {
-                analyticD3 analyD(triangle);
-                const Vect3 total = analyD.f(vertex);
-                for (unsigned i=0;i<3;++i)
-                    mat(vertex.index(),triangle.vertex(i).index()) += total(i)*coeff;
-            }
-    }
-
-    void operatorSinternal(const Mesh& m,Matrix& mat,const Vertices& points,const double& coeff) {
-        std::cout << "INTERNAL OPERATOR S..." << std::endl;
-        for (const auto& vertex : points) {
-            const unsigned vindex = vertex.index();
-            for (const auto& triangle : m.triangles()) {
-                const unsigned tindex = triangle.index();
-                const analyticS analyS(triangle);
-                mat(vindex,tindex) = coeff*analyS.f(vertex);
-            }
-        }
-    }
-
     // General routine for applying Details::operatorFerguson (see this function for further comments)
     // to an entire mesh, and storing coordinates of the output in a Matrix.
 
@@ -88,42 +63,7 @@ namespace OpenMEEG {
         }
     }
 
-    void operatorDipolePotDer(const Vect3& r0,const Vect3& q,const Mesh& m,Vector& rhs,const double& coeff,const unsigned gauss_order,const bool adapt_rhs) {
-        static analyticDipPotDer anaDPD;
-
-        Integrator<Vect3,analyticDipPotDer>* gauss = (adapt_rhs) ? new AdaptiveIntegrator<Vect3,analyticDipPotDer>(0.001) :
-                                                                   new Integrator<Vect3,analyticDipPotDer>;
-
-        gauss->setOrder(gauss_order);
-        #pragma omp parallel for private(anaDPD)
-        #if defined NO_OPENMP || defined OPENMP_RANGEFOR
-        for (const auto& triangle : m.triangles()) {
-        #elif defined OPENMP_ITERATOR
-        for (Triangles::const_iterator tit=m.triangles().begin();tit<m.triangles().end();++tit) {
-            const Triangle& triangle = *tit;
-        #else
-        for (int i=0;i<m.triangles().size();++i) {
-            const Triangle& triangle = *(m.triangles().begin()+i);
-        #endif
-            anaDPD.init(triangle,q,r0);
-            Vect3 v = gauss->integrate(anaDPD,triangle);
-            #pragma omp critical
-            {
-                for (unsigned i=0;i<3;++i)
-                    rhs(triangle.vertex(i).index()) += v(i)*coeff;
-            }
-        }
-        delete gauss;
-    }
-
-    void operatorDipolePot(const Vect3& r0,const Vect3& q,const Mesh& m,Vector& rhs,const double& coeff,const unsigned gauss_order,const bool adapt_rhs) {
-        static analyticDipPot anaDP;
-
-        anaDP.init(q,r0);
-        Integrator<double,analyticDipPot>* gauss = (adapt_rhs) ? new AdaptiveIntegrator<double,analyticDipPot>(0.001) :
-                                                                 new Integrator<double,analyticDipPot>;
-        gauss->setOrder(gauss_order);
-
+    void operatorDipolePotDer(const Dipole& dipole,const Mesh& m,Vector& rhs,const double& coeff,const Integrator& integrator) {
         #pragma omp parallel for
         #if defined NO_OPENMP || defined OPENMP_RANGEFOR
         for (const auto& triangle : m.triangles()) {
@@ -134,10 +74,32 @@ namespace OpenMEEG {
         for (int i=0;i<m.triangles().size();++i) {
             const Triangle& triangle = *(m.triangles().begin()+i);
         #endif
-            const double d = gauss->integrate(anaDP,triangle);
+            const analyticDipPotDer anaDPD(dipole,triangle);
+            const auto dipder = [&](const Vect3& r) { return anaDPD.f(r); };
+
+            const Vect3& v = integrator.integrate(dipder,triangle);
             #pragma omp critical
+            {
+                for (unsigned i=0; i<3; ++i)
+                    rhs(triangle.vertex(i).index()) += v(i)*coeff;
+            }
+        }
+    }
+
+    void operatorDipolePot(const Dipole& dipole,const Mesh& m,Vector& rhs,const double& coeff,const Integrator& integrator) {
+        const auto& dippot = [&dipole](const Vect3& r) { return dipole.potential(r); };
+        #pragma omp parallel for
+        #if defined NO_OPENMP || defined OPENMP_RANGEFOR
+        for (const auto& triangle : m.triangles()) {
+        #elif defined OPENMP_ITERATOR
+        for (Triangles::const_iterator tit=m.triangles().begin();tit<m.triangles().end();++tit) {
+            const Triangle& triangle = *tit;
+        #else
+        for (int i=0;i<m.triangles().size();++i) {
+            const Triangle& triangle = *(m.triangles().begin()+i);
+        #endif
+            const double d = integrator.integrate(dippot,triangle);
             rhs(triangle.index()) += d*coeff;
         }
-        delete gauss;
     }
 }

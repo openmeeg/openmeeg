@@ -45,25 +45,10 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <vector>
 #include <stack>
 
-#include <sparse_matrix.h>
-
 #include <constants.h>
 #include <danielsson.h>
 
 namespace OpenMEEG {
-
-    bool Sensors::hasSensor(std::string name) const {
-        return (std::find(m_names.cbegin(), m_names.cend(), name) != m_names.cend());
-    }
-
-    size_t Sensors::getSensorIdx(std::string name) const {
-        auto it = std::find(m_names.cbegin(), m_names.cend(), name);
-        if (it==m_names.cend()) {
-            std::cerr << "Unknown sensor : " << name << std::endl;
-            exit(1);
-        }
-        return std::distance(m_names.cbegin(), it);
-    }
 
     void Sensors::load(const char* filename,const char filetype) {
         std::ifstream in;
@@ -72,7 +57,7 @@ namespace OpenMEEG {
         } else if (filetype=='b') {
             in.open(filename,std::ios::in|std::ios::binary);
         } else {
-            std::cerr << "ERROR: unkown filetype. " << std::endl; exit(1);
+            std::cerr << "ERROR: unknown filetype. " << std::endl; exit(1);
         }
 
         if (!in.is_open()) {
@@ -83,7 +68,7 @@ namespace OpenMEEG {
         in.close();
     }
 
-    void Sensors::load(std::istream &in) {
+    void Sensors::load(std::istream& in) {
 
         in >> io_utils::skip_comments('#');
 
@@ -93,73 +78,72 @@ namespace OpenMEEG {
         bool labeled = true;
         size_t nlin = 0;
         size_t ncol = 0;
-        size_t i = 0;
         // determine number of lines, columns and labeled or not
+
         while (std::getline(in,s)) {
             if (!s.empty()) {
                 // Tokenize the line.
                 std::stringstream iss(s);
                 tokens.clear();
-                while (iss >> buf) {
+
+                while (iss >> buf)
                     tokens.push_back(buf);
-                    if (i==0)
-                        ncol++;
+
+                if (nlin++==0) {
+                    ncol = tokens.size();
+                } else if (tokens.size()!=ncol) {
+                    std::cerr << "Problem while reading Sensors file !" << std::endl
+                              << "Line " << nlin-1 << " has " << tokens.size() << " columns when " << ncol << " are expected." << std::endl
+                              << "Each line should have the same number of elements" << std::endl;
+                    exit(1);
                 }
 
-                // it is labeled unless there exists a float (i.e containing one '.')
+                // Sensors are labeled unless token[0] is a float (i.e containing one '.')
 
                 if (std::count(tokens[0].cbegin(),tokens[0].cend(),'.')==1)
                     labeled = false;
-
-                if (tokens.size()!=ncol) {
-                    std::cout << tokens.size() << " != " << ncol << std::endl;
-                    std::cerr << "Problem while reading Sensors file" << std::endl;
-                    std::cerr << "Each line should have the same number of elements" << std::endl;
-                    exit(1);
-                }
-                ++nlin;
-                ++i;
             }
         }
+
         in.clear();
         in.seekg(0,std::ios::beg); // move the get pointer to the beginning of the file.
         in >> io_utils::skip_comments('#');
 
-        if (labeled) {
+        if (labeled)
             ncol--;
-        }
 
         Matrix mat(nlin,ncol);
-        i = 0;
-        while (std::getline(in,s)) {
-            if (!s.empty()) {
-                // Tokenize the line.
-                std::stringstream iss(s);
-                if (labeled) {
-                    iss >> buf;
-                    names.push_back(buf);
-                }
-                Vector v(ncol);
-                iss >> v;
-                mat.setlin(i, v);
-                ++i;
+        for (unsigned i=0; i<nlin; ++i) {
+            do {
+                std::getline(in,s);
+            } while (s.empty());
+
+            // Tokenize the line.
+            std::stringstream iss(s);
+            if (labeled) {
+                iss >> buf;
+                names.push_back(buf);
             }
+            Vector v(ncol);
+            iss >> v;
+            mat.setlin(i,v);
         }
 
-        // init private members :
-        // positions
+        // Initialize private members
+
         m_positions = mat.submat(0,nlin,0,3);
+
         // weights
-        if (m_geo) { // EIT
+        if (geometry!=nullptr) { // EIT
             if (ncol==4) { // if radii were specified
                 m_radii = mat.getcol(mat.ncol()-1);
             } else {
                 m_radii = Vector(nlin);
-                m_radii.set(0.);
+                m_radii.set(0.0);
             }
             // find triangles on which to inject the currents and compute weights
             findInjectionTriangles();
-        } else if ((ncol==4) && (m_geo==nullptr)) {
+        } else if (ncol==4) {
             std::cerr << "Sensors:: please specify at constructor stage the geometry on which to apply the spatially extended EIT sensors." << std::endl;
             exit(1);
         } else if (ncol==7) { // MEG
@@ -184,15 +168,12 @@ namespace OpenMEEG {
                     m_pointSensorIdx[i] = getSensorIdx(names[i]);
                 } else {
                     m_names.push_back(names[i]);
-                    m_pointSensorIdx[i] = m_nb;
-                    m_nb++;
+                    m_pointSensorIdx[i] = m_nb++;
                 }
             }
         } else {
-            for (unsigned i=0; i<nlin; ++i) {
-                m_pointSensorIdx[i] = m_nb;
-                m_nb++;
-            }
+            for (unsigned i=0; i<nlin; ++i)
+                m_pointSensorIdx[i] = m_nb++;
         }
     }
 
@@ -218,57 +199,48 @@ namespace OpenMEEG {
         return;
     }
 
-    SparseMatrix Sensors::getWeightsMatrix() const {
-        SparseMatrix weight_matrix(getNumberOfSensors(),getNumberOfPositions());
-        for(size_t i=0; i<getNumberOfPositions(); ++i)
-            weight_matrix(m_pointSensorIdx[i],i) = m_weights(i);
-        return weight_matrix;
-    }
-
     void Sensors::findInjectionTriangles() {
-        om_error(m_geo!=NULL);
+        om_error(geometry!=NULL);
         m_weights = Vector(m_positions.nlin());
-        m_weights.set(1.);
-        //To count the number of points that have been mapped to each mesh.
+        m_weights.set(1.0);
         Strings ci_mesh_names;
-        std::vector<size_t>      ci_triangles;
+        std::vector<size_t> ci_triangles; // Count of the number of points that have been mapped to each mesh.
 
         for (size_t idx=0; idx<m_positions.nlin(); ++idx) {
-            Triangles triangles;
-            const Vect3 current_position(m_positions(idx, 0), m_positions(idx, 1), m_positions(idx, 2));
+            const Vect3 current_position(m_positions(idx,0),m_positions(idx,1),m_positions(idx,2));
             Vect3 current_alphas; //not used here
-            Triangle current_nearest_triangle; // to hold the closest triangle to electrode.
 
-            double dist;
-            std::string s_map=dist_point_geom(current_position, *m_geo, current_alphas, current_nearest_triangle, dist);
-            Strings::iterator sit=std::find(ci_mesh_names.begin(),ci_mesh_names.end(),s_map);
+            const auto& res = dist_point_geom(current_position,*geometry,current_alphas);
+            const std::string& s_map = std::get<3>(res).name();
+            const Strings::iterator sit = std::find(ci_mesh_names.begin(),ci_mesh_names.end(),s_map);
             if (sit!=ci_mesh_names.end()){
-                size_t idx2=std::distance(ci_mesh_names.begin(),sit);
+                const size_t idx2 = std::distance(ci_mesh_names.begin(),sit);
                 ci_triangles[idx2]++;
-            }
-            else{
+            } else {
                 ci_mesh_names.push_back(s_map);
                 ci_triangles.push_back(1);
             }
 
+            Triangles triangles;
+            const Triangle& current_nearest_triangle = std::get<1>(res);
             triangles.push_back(current_nearest_triangle);
             std::set<size_t> index_seen; // to avoid infinite looping
             index_seen.insert(current_nearest_triangle.index());
             if (!almost_equal(m_radii(idx),0.)) {
                 // if the electrode is larger than the triangle, look for adjacent triangles
                 if (current_nearest_triangle.area()<4*Pi*sqr(m_radii(idx))) {
-                    std::stack<Triangle *> tri_stack;
+                    std::stack<const Triangle*> tri_stack;
                     tri_stack.push(&current_nearest_triangle);
                     while (!tri_stack.empty()) {
-                        Triangle * t = tri_stack.top();
+                        const Triangle* t = tri_stack.top();
                         tri_stack.pop();
                         if ((t->center()-current_position).norm()<m_radii(idx)) {
                             if (t->index()!=current_nearest_triangle.index()) //don't push the nearest triangle twice
                                 triangles.push_back(*t);
-                            TrianglesRefs t_adj = m_geo->interface(s_map).adjacent_triangles(*t);
-                            if (index_seen.insert(t_adj[0]->index()).second) tri_stack.push(t_adj[0]);
-                            if (index_seen.insert(t_adj[1]->index()).second) tri_stack.push(t_adj[1]);
-                            if (index_seen.insert(t_adj[2]->index()).second) tri_stack.push(t_adj[2]);
+                            TrianglesRefs t_adj = geometry->interface(s_map).adjacent_triangles(*t);
+                            for (unsigned i=0; i<3; ++i)
+                                if (index_seen.insert(t_adj[i]->index()).second)
+                                    tri_stack.push(t_adj[i]);
                         }
                     }
                 }

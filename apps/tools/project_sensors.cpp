@@ -82,8 +82,8 @@ main(int argc,char* argv[]) {
         for (unsigned k=0; k<3; ++k)
             current_position(k) = position(k);
         Vect3 alphas;
-        Triangle triangle; // closest triangle
-        dist_point_interface(current_position,interface,alphas,triangle);
+        const auto& res = dist_point_interface(current_position,interface,alphas);
+        const Triangle& triangle = std::get<1>(res); // closest triangle
         current_position = alphas(0)*triangle.vertex(0)+alphas(1)*triangle.vertex(1)+alphas(2)*triangle.vertex(2);
         for (unsigned k=0; k<3; ++k)
             output(i,k) = current_position(k);
