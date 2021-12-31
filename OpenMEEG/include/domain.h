@@ -70,6 +70,12 @@ namespace OpenMEEG {
 
         bool inside() const { return (side==Inside); }
 
+        // omesh must belong to the interface.
+
+        int mesh_orientation(const OrientedMesh& omesh) const {
+            return (inside()) ? omesh.orientation() : -omesh.orientation();
+        }
+
     private:
 
         Interface interf;
@@ -121,7 +127,7 @@ namespace OpenMEEG {
             for (const auto& boundary : boundaries())
                 for (const auto& omesh : boundary.interface().oriented_meshes())
                     if (&omesh.mesh()==&m)
-                        return (boundary.inside()) ? omesh.orientation() : -omesh.orientation();
+                        return boundary.mesh_orientation(omesh);
             return 0;
         }
 
