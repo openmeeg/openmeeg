@@ -61,48 +61,51 @@ namespace OpenMEEG {
         struct OPENMEEGMATHS_EXPORT MathsIO;
     }
 
-    // to properly convert a size_t int to an int
-    OPENMEEGMATHS_EXPORT inline BLAS_INT sizet_to_int(const size_t& num) {
+    // Properly convert an unsigned int to a BLAS_INT
+
+    OPENMEEGMATHS_EXPORT inline BLAS_INT sizet_to_int(const unsigned& num) {
         const BLAS_INT num_out = static_cast<BLAS_INT>(num);
         om_assert(num_out>=0);
         return num_out;
     }
+
+    typedef unsigned Dimension;
+    typedef unsigned Index;
 
     class OPENMEEGMATHS_EXPORT LinOpInfo {
     public:
 
         typedef maths::MathsIO* IO;
 
-        typedef enum { FULL, SYMMETRIC, SPARSE } StorageType;
-        typedef unsigned                         Dimension;
+        typedef enum { FULL, SYMMETRIC, BLOCK, BLOCK_SYMMETRIC, SPARSE } StorageType;
 
         LinOpInfo() { }
-        LinOpInfo(const size_t m,const size_t n,const StorageType st,const Dimension d):
+        LinOpInfo(const Dimension m,const Dimension n,const StorageType st,const unsigned d):
             num_lines(m),num_cols(n),storage(st),dim(d)  { }
 
         virtual ~LinOpInfo() {};
 
-        size_t  nlin() const { return num_lines; }
-        size_t& nlin()       { return num_lines; }
+        Dimension  nlin() const { return num_lines; }
+        Dimension& nlin()       { return num_lines; }
 
-        virtual size_t  ncol() const { return num_cols; }
-                size_t& ncol()       { return num_cols; }
+        virtual Dimension  ncol() const { return num_cols; }
+                Dimension& ncol()       { return num_cols; }
 
         StorageType  storageType() const { return storage; }
         StorageType& storageType()       { return storage; }
 
-        Dimension   dimension()   const { return dim;     }
-        Dimension&  dimension()         { return dim;     }
+        unsigned   dimension()   const { return dim;     }
+        unsigned&  dimension()         { return dim;     }
 
         IO& default_io() { return DefaultIO; }
 
     protected:
 
-        size_t            num_lines;
-        size_t            num_cols;
-        StorageType       storage;
-        Dimension         dim;
-        IO                DefaultIO;
+        Dimension   num_lines;
+        Dimension   num_cols;
+        StorageType storage;
+        unsigned    dim;
+        IO          DefaultIO;
     };
 
     class OPENMEEGMATHS_EXPORT LinOp: public LinOpInfo {
@@ -112,7 +115,7 @@ namespace OpenMEEG {
     public:
 
         LinOp() { }
-        LinOp(const size_t m,const size_t n,const StorageType st,const Dimension d): base(m,n,st,d) { }
+        LinOp(const Dimension m,const Dimension n,const StorageType st,const unsigned d): base(m,n,st,d) { }
 
         virtual size_t size() const = 0;
         virtual void   info() const = 0;
@@ -126,7 +129,7 @@ namespace OpenMEEG {
         LinOpValue(): base(0) { }
         LinOpValue(const size_t n): base(new double[n]) { }
         LinOpValue(const size_t n,const double* initval): LinOpValue(n) { std::copy(initval,initval+n,&(*this)[0]); }
-        LinOpValue(const size_t n,const LinOpValue& v):   LinOpValue(n,&(v[0])) { }
+        LinOpValue(const size_t n,const LinOpValue& v): LinOpValue(n,&(v[0])) { }
 
         ~LinOpValue() { }
 
