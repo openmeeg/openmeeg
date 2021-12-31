@@ -112,7 +112,7 @@ jobs:
       # generator such as make.
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
       run: |
-        cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DBLA_STATIC=${{env.STATIC}} -DBLA_IMPLEMENTATION=${{matrix.blas}} ${{OTHER}}
+        cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DBLA_STATIC=${{env.STATIC}} -DBLA_IMPLEMENTATION=${{matrix.blas}} ${{env.OTHER}}
 
     - name: Build
       # Build your program with the given configuration
