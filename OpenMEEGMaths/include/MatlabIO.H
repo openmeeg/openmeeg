@@ -352,7 +352,6 @@ namespace OpenMEEG {
                     tank_inverted[std::pair<size_t,size_t>(j,i)] = val;
                 }
 
-
                 #if MATIO_VERSION>=1518
                     typedef mat_uint32_t matio_int_type;
                 #else
