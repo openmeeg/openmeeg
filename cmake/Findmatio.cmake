@@ -30,7 +30,6 @@ if (NOT matio_LIBRARIES)
             set(HDF5_LIBRARIES ${HDF5_LIBRARIES} ${LIB})
         endforeach(LIB)
     endif()
-    message("[[[ HDF5_LIBRARIES ${HDF5_LIBRARIES} ${LIB} ]]]")
 
     # Make a modern cmake interface to HDF5.
     # Since around cmake 2.18, this target is created by the hdf5 module.
