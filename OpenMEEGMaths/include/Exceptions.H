@@ -12,11 +12,14 @@
 namespace OpenMEEG {
     namespace maths {
 
+        class Range;
+        std::ostream& operator<<(std::ostream& os,const Range& r);
+
         typedef enum { UNEXPECTED = 128, IO_EXCPT,
                        BAD_FILE, BAD_FILE_OPEN, BAD_CONTENT, NO_SUFFIX, BAD_HDR, BAD_DATA, BAD_VECT, UNKN_DIM, BAD_SYMM_MAT,
-                       BAD_STORAGE_TYPE, NO_IO, MATIO_ERROR, UNKN_FILE_FMT, UNKN_FILE_SUFFIX, NO_FILE_FMT, UNKN_NAMED_FILE_FMT,
-                       IMPOSSIBLE_IDENTIFICATION } ExceptionCode;
-
+                       BAD_STORAGE_TYPE, NO_IO, OVERLAPPING_RANGES, NON_EXISTING_BLOCK, MATIO_ERROR, UNKN_FILE_FMT,
+                       UNKN_FILE_SUFFIX, NO_FILE_FMT, UNKN_NAMED_FILE_FMT, IMPOSSIBLE_IDENTIFICATION
+                     } ExceptionCode;
 
         class Exception: public std::exception {
         public:
@@ -205,6 +208,36 @@ namespace OpenMEEG {
 
             static std::string message(const std::string& file,const Mode& mode) {
                 return std::string("Unable to find ")+((mode==READ) ? "reader" : "writer")+" for file "+file+".";
+            }
+        };
+
+        struct OPENMEEGMATHS_EXPORT OverlappingRanges: public Exception {
+
+            OverlappingRanges(const Range& r1,const Range& r2): Exception(message(r1,r2)) { }
+
+            ExceptionCode code() const throw() { return OVERLAPPING_RANGES; }
+
+        private:
+
+            static std::string message(const Range& r1,const Range& r2) {
+                std::ostringstream ost;
+                ost << "Ranges " << r1 << " and " << r2 << " are overlapping blocks in a block matrix.";
+                return ost.str();
+            }
+        };
+
+        struct OPENMEEGMATHS_EXPORT NonExistingBlock: public Exception {
+
+            NonExistingBlock(const unsigned ind): Exception(message(ind)) { }
+
+            ExceptionCode code() const throw() { return NON_EXISTING_BLOCK; }
+
+        private:
+
+            static std::string message(const unsigned ind) {
+                std::ostringstream ost;
+                ost << "Attempt to access a non-existing block at index " << ind << '.';
+                return ost.str();
             }
         };
 
