@@ -140,7 +140,7 @@ namespace OpenMEEG {
         om_assert(ncol()==B.nlin());
         Matrix C(nlin(),B.ncol());
     // Workaround an MKL bug
-    //#ifdef HAVE_BLAS1
+    //#ifdef HAVE_BLAS
     #if defined(HAVE_BLAS) && !defined(USE_MKL)
         Matrix D(*this);
         const BLAS_INT M = sizet_to_int(nlin());
