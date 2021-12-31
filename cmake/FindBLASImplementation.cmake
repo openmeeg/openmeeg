@@ -1,6 +1,5 @@
 set(BLA_DEFINITIONS)
 set(BLA_SIZEOF_INTEGER 4)
-set(BLA_VENDOR "OpenBLAS" CACHE STRING "BLAS/LAPACK implementation")
 set(BLA_IMPLEMENTATION "OpenBLAS" CACHE STRING "BLAS/LAPACK implementation")
 set_property(CACHE BLA_IMPLEMENTATION PROPERTY STRINGS "OpenBlas" "mkl")
 
@@ -9,10 +8,10 @@ if (BLA_IMPLEMENTATION STREQUAL "MKL")
     set_property(CACHE MKL_PARALLELISM PROPERTY STRINGS "parallel" "sequential" "sdl")
 
     set(MKL_PARALLEL_SUFFIX)
-    if (${MKL_PARALLELISM} STREQUAL "seq")
+    if (${MKL_PARALLELISM} STREQUAL "sequential")
         set(MKL_PARALLEL_SUFFIX "_seq")
         set(MKL_THREADING sequential)
-    elif (${MKL_PARALLELISM} STREQUAL "sdl")
+    elseif (${MKL_PARALLELISM} STREQUAL "sdl")
         if (BLA_STATIC)
             message(FATAL_ERROR "mkl sdl mode incompatible with static linking")
         endif()
@@ -57,7 +56,8 @@ if (BLA_IMPLEMENTATION STREQUAL "MKL")
     set(ENV{MKLROOT} ${MKL_ROOT})
     get_filename_component(OMP_LIBRARY_DIR ${OMP_LIBRARY} DIRECTORY)
     set(ENV{LD_LIBRARY_PATH} ${OMP_LIBRARY_DIR})
-    set(ENV{LIBRARY_PATH} ${OMP_LIBRARY_DIR} ${MKL_LIBRARIES})
+    set(_libs ${OMP_LIBRARY_DIR} ${MKL_LIBRARIES})
+    set(ENV{LIBRARY_PATH} "${_libs}")
 
     # For some reason ilp version of MKL does not work. TODO.
     # So for the time being, we force lp mode.
@@ -73,7 +73,6 @@ elseif (BLA_IMPLEMENTATION STREQUAL "OpenBLAS")
 
 endif()
 
-message("---> ${BLA_VENDOR} $ENV{MKLROOT} $ENV{LD_LIBRARY_PATH} ${BLA_INCLUDE_DIR} ${MKL_ENV}")
 find_package(BLAS REQUIRED)
 find_package(LAPACK REQUIRED)
 
