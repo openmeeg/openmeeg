@@ -35,9 +35,9 @@ endif()
 
 # Progress bar
 option(USE_PROGRESSBAR "Use progressar to display computation progress" ON)
-if(USE_PROGRESSBAR)
+if (USE_PROGRESSBAR)
     target_compile_definitions(OpenMEEG PUBLIC USE_PROGRESSBAR)
-endif(USE_PROGRESSBAR)
+endif()
 
 target_include_directories(OpenMEEG
       PUBLIC
