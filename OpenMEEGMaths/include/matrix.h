@@ -154,9 +154,6 @@ namespace OpenMEEG {
         Matrix multt(const Matrix& m) const;
         Matrix tmultt(const Matrix& m) const;
 
-        Vector mean() const;
-        Vector tmean() const;
-
         Matrix transpose() const;
         Matrix inverse() const;
         Matrix pinverse(const double reltol=0.0) const;
