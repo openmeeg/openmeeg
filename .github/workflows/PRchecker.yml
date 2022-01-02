@@ -46,7 +46,7 @@ jobs:
           echo "PYTHON_OPT='-DENABLE_PYTHON=ON'" >> $GITHUB_ENV
         fi
         if [ ${{matrix.blas}} == 'MKL' ]; then
-          echo "BLA_OPT='-DBLA_IMPLEMENTATION=MKL -DMKL_PARALLELISM=sequential'" >> $GITHUB_ENV
+          echo "BLA_OPTS=-DBLA_IMPLEMENTATION=MKL\ -DMKL_PARALLELISM=sequential" >> $GITHUB_ENV
         fi
 
     - name: Windows setup
@@ -118,7 +118,7 @@ jobs:
       # generator such as make.
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
       run: |
-        cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} ${{env.STATIC_OPT}} ${{env.BLA_OPT}} ${{env.PYTHON_OPT}}\
+        cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} ${{env.STATIC_OPT}} ${{env.BLA_OPTS}} ${{env.PYTHON_OPT}}\
                  -DBUILD_DOCUMENTATION=ON -DTEST_HEAD3=ON
 
     - name: Build
