@@ -54,11 +54,12 @@ if (BLA_IMPLEMENTATION STREQUAL "MKL")
     # setting global variables.
 
     set(ENV{MKLROOT} ${MKL_ROOT})
-    message("--> ${OMP_LIBRARY}")
-    get_filename_component(OMP_LIBRARY_DIR ${OMP_LIBRARY} DIRECTORY)
-    set(ENV{LD_LIBRARY_PATH} ${OMP_LIBRARY_DIR})
-    set(_libs ${OMP_LIBRARY_DIR} ${MKL_LIBRARIES})
-    set(ENV{LIBRARY_PATH} "${_libs}")
+    if (${OMP_LIBRARY})
+        get_filename_component(OMP_LIBRARY_DIR ${OMP_LIBRARY} DIRECTORY)
+        set(ENV{LD_LIBRARY_PATH} ${OMP_LIBRARY_DIR})
+        set(_libs ${OMP_LIBRARY_DIR} ${MKL_LIBRARIES})
+        set(ENV{LIBRARY_PATH} "${_libs}")
+    endif()
 
     # For some reason ilp version of MKL does not work. TODO.
     # So for the time being, we force lp mode.
