@@ -29,6 +29,7 @@ jobs:
         #os: [macos-latest, windows-latest, ubuntu-18.04, ubuntu-20.04]
         blas: [ OpenBLAS, MKL ]
         linking: [ dynamic ]
+        python: [ python, no-python ]
         #linking: [ static, dynamic ]
 
     runs-on: ${{ matrix.os }}
@@ -39,9 +40,13 @@ jobs:
     - name: Environment setup
       run: |
         if [ ${{matrix.linking}} == 'static' ]; then
-          echo "STATIC=ON" >> $GITHUB_ENV
-        else
-          echo "STATIC=OFF" >> $GITHUB_ENV
+          echo "STATIC='-DBLA_STATIC=ON'" >> $GITHUB_ENV
+        fi
+        if [ ${{matrix.python}} == 'python' ]; then
+          echo "PYTHON_OPT='-DENABLE_PYTHON=ON'" >> $GITHUB_ENV
+        fi
+        if [ ${{matrix.blas}} == 'MKL' ]; then
+          echo "BLA_OPT='-DBLA_IMPLEMENTATION=MKL -DMKL_PARALLELISM=sequential'" >> $GITHUB_ENV
         fi
 
     - name: Windows setup
@@ -103,7 +108,6 @@ jobs:
 
           source /opt/intel/oneapi/setvars.sh
           printenv >> $GITHUB_ENV
-          echo "OTHER=-DMKL_PARALLELISM=sequential" >> $GITHUB_ENV
         fi
 
         sudo apt-get update
@@ -114,7 +118,8 @@ jobs:
       # generator such as make.
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
       run: |
-        cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DBLA_STATIC=${{env.STATIC}} -DBLA_IMPLEMENTATION=${{matrix.blas}} ${{env.OTHER}}
+        cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} ${{env.STATIC_OPT}} ${{env.BLA_OPT}} $${env.PYTHON_OPT}}\
+                 -DBUILD_DOCUMENTATION=ON -DTEST_HEAD3=ON
 
     - name: Build
       # Build your program with the given configuration
