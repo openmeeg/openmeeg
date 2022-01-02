@@ -65,13 +65,13 @@ gauss_order = 3
 use_adaptive_integration = True
 dipole_in_cortex = True
 
-hm = om.HeadMat(geom, gauss_order)
+hm = om.HeadMat(geom)
 # hm.invert() # invert hm inplace (no copy)
 # hminv = hm
 hminv = hm.inverse()  # invert hm with a copy
 ssm = om.SurfSourceMat(geom, mesh)
 ss2mm = om.SurfSource2MEGMat(mesh, sensors)
-dsm = om.DipSourceMat(geom, dipoles, gauss_order, use_adaptive_integration, "")
+dsm = om.DipSourceMat(geom, dipoles)
 ds2mm = om.DipSource2MEGMat(dipoles, sensors)
 h2mm = om.Head2MEGMat(geom, sensors)
 h2em = om.Head2EEGMat(geom, patches)
@@ -121,7 +121,7 @@ print(
 
 gain_meg_surf_one_line = om.GainMEG(
     om.HeadMat(geom, gauss_order).inverse(),
-    om.SurfSourceMat(geom, mesh, gauss_order),
+    om.SurfSourceMat(geom, mesh),
     om.Head2MEGMat(geom, sensors),
     om.SurfSource2MEGMat(mesh, sensors),
 )
