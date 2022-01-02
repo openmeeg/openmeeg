@@ -118,12 +118,14 @@ namespace OpenMEEG {
 
     Matrix SymMatrix::operator*(const SymMatrix& m) const {
         om_assert(nlin()==m.nlin());
-    #ifdef HAVE_BLAS
+    // Workaround an MKL bug
+    //#ifdef HAVE_BLAS
+    #if defined(HAVE_BLAS) && !defined(USE_MKL)
         Matrix D(*this);
         Matrix B(m);
         Matrix C(nlin(),nlin());
         const BLAS_INT M = sizet_to_int(nlin());
-        DSYMM(CblasLeft,CblasUpper,M,M,1.,D.data(),M,B.data(),M,0,C.data(),M);
+        DSYMM(CblasLeft,CblasUpper,M,M,1.0,D.data(),M,B.data(),M,0.0,C.data(),M);
     #else
         Matrix C(nlin());
         for (Index j = 0; j<m.ncol(); ++j)
@@ -145,7 +147,7 @@ namespace OpenMEEG {
         Matrix D(*this);
         const BLAS_INT M = sizet_to_int(nlin());
         const BLAS_INT N = sizet_to_int(B.ncol());
-        DSYMM(CblasLeft,CblasUpper,M,N,1.0,D.data(),M,B.data(),M,0,C.data(),M);
+        DSYMM(CblasLeft,CblasUpper,M,N,1.0,D.data(),M,B.data(),M,0.0,C.data(),M);
     #else
         for (Index j=0; j<B.ncol(); ++j)
             for (Index i=0; i<nlin(); ++i) {
