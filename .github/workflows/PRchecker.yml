@@ -70,7 +70,9 @@ jobs:
           if [ ${{matrix.linking}} == 'static' ]; then
             MKL_LIBS=mkl-static
           fi
+          sudo chown -R 501:20 /usr/local/miniconda/pkgs/cache/  # Workaround gha miniconda installation pb.
           $CONDA/bin/conda create -n openmeeg -c intel mkl ${MKL_LIBS} mkl-include
+          conda init bash
           $CONDA/bin/conda activate openmeeg
         fi
 
