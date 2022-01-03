@@ -1,5 +1,4 @@
 import inspect
-
 import openmeeg as om
 
 # Make sure that doc is generated
