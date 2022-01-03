@@ -93,7 +93,7 @@ namespace OpenMEEG {
     }
 
     Matrix
-    DipSourceMat(const Geometry& geo,const Matrix& dipoles,const Integrator& integrator,const std::string& domain_name) {
+    DipSourceMat(const Geometry& geo,const Matrix& dipoles,const std::string& domain_name,const Integrator& integrator) {
 
         const size_t size      = geo.nb_parameters()-geo.nb_current_barrier_triangles();
         const size_t n_dipoles = dipoles.nlin();

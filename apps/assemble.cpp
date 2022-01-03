@@ -187,7 +187,7 @@ int main(int argc, char** argv)
             integration_levels = 0;
         }
 
-        const Matrix& dsm = DipSourceMat(geo,dipoles,Integrator(3,integration_levels,0.001));
+        const Matrix& dsm = DipSourceMat(geo,dipoles,"",Integrator(3,integration_levels,0.001));
         dsm.save(argv[5]);
 
     } else if (option(argc,argv,{"-EITSourceMat", "-EITSM", "-EITsm"},
