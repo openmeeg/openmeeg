@@ -120,7 +120,7 @@ print(
 # Leadfield MEG in one line :
 
 gain_meg_surf_one_line = om.GainMEG(
-    om.HeadMat(geom, gauss_order).inverse(),
+    om.HeadMat(geom).inverse(),
     om.SurfSourceMat(geom, mesh),
     om.Head2MEGMat(geom, sensors),
     om.SurfSource2MEGMat(mesh, sensors),
