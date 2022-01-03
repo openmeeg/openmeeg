@@ -1,9 +1,7 @@
 # Build a geometry with given interfaces and domains.
 
-
 def make_geometry(meshes, interfaces, domains):
     """Make a geometry from dictionary of domains and a list of interfaces
-
 
     Parameters
     ----------
