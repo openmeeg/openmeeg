@@ -50,6 +50,9 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #include <sparse_matrix.h>
 
+/// @file
+/// @brief Various helper functions for assembling matrices.
+
 namespace OpenMEEG {
 
     // For ADAPT_LHS change the 0 in Integrator below into 10
