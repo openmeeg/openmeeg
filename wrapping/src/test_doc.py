@@ -6,7 +6,6 @@ assert inspect.getdoc(om.HeadMat) is not None
 
 # Check docstring content
 headmat_expected_docstring = \
-    ("`HeadMat(const Geometry &geo, const unsigned gauss_order=3)`  "
-     "\n\nConstructors\n------------\n* `HeadMat(const Geometry &geo, "
-     "const unsigned gauss_order=3)`  \n\nC++ includes: assemble.h")
+    ("`HeadMat(const Geometry &geo, const Integrator &integrator=Integrator(3, 0,"
+     "\n    0.005)) -> SymMatrix`  ")
 assert inspect.getdoc(om.HeadMat) == headmat_expected_docstring
