@@ -46,26 +46,6 @@ else()
     include(${SWIG_USE_FILE})
 endif()
 
-if (BUILD_DOCUMENTATION)
-    # In order to generate python docstrings we use doxy2swig (which is bundled in our codebase)
-    # doxy2swig takes xml output from doxygen and generates a .i file that can be include in openmeeg.i
-    set(DOXY2SWIG_EXECUTABLE ${PROJECT_SOURCE_DIR}/wrapping/src/doxy2swig.py)
-    set(DOXY_INDEX_XML ${PROJECT_BINARY_DIR}/documentation/reference/xml/index.xml)
-    add_custom_command(
-        OUTPUT docstrings.i
-        COMMAND ${Python3_EXECUTABLE} ${DOXY2SWIG_EXECUTABLE}
-        ARGS    --function-signature --type-info --overloaded-functions --attribute-list --constructor-list
-                ${DOXY_INDEX_XML} ${CMAKE_CURRENT_BINARY_DIR}/docstrings.i
-        DEPENDS OpenMEEG-doxygen_outputs
-        COMMENT "Generating Swig documentation" VERBATIM
-    )
-
-    list(APPEND CMAKE_SWIG_FLAGS "-DDOCSTRINGS")
-    add_custom_target(docstrings DEPENDS docstrings.i)
-    add_dependencies(OpenMEEG-documentation docstrings)
-    set(SWIG_MODULE_openmeeg_EXTRA_DEPS docstrings)
-endif()
-
 list(APPEND CMAKE_SWIG_FLAGS -v -O)
 set(SWIG_MODULE_openmeeg_EXTRA_DEPS numpy.i make_geometry.py ${SWIG_MODULE_openmeeg_EXTRA_DEPS})
 set_source_files_properties(openmeeg.i PROPERTIES CPLUSPLUS ON GENERATED_COMPILE_DEFINITIONS SWIG_PYTHON_SILENT_MEMLEAK)

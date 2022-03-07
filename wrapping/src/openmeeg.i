@@ -1,5 +1,7 @@
 %module(docstring="OpenMEEG bindings for python") openmeeg
 
+%feature("autodoc", "1");
+
 %include <exception.i>
 %exception {
     try {
@@ -11,10 +13,6 @@
 
 #ifdef SWIGWIN
 %include <windows.i>
-#endif
-
-#ifdef DOCSTRINGS
-%include <docstrings.i>
 #endif
 
 %include <std_string.i>
