@@ -398,10 +398,8 @@ class Doxy2SWIG:
         sig_dict = {}
         sig_prefix = ''
         if kind in ('file', 'namespace'):
-            ns_node = node.getElementsByTagName('innernamespace')
-            if not ns_node and kind == 'namespace':
+            if kind == 'namespace':
                 ns_node = node.getElementsByTagName('compoundname')
-            if ns_node:
                 sig_prefix = self.extract_text(ns_node[0]) + '::'
         elif kind in ('class', 'struct'):
             # Get the full function name.
