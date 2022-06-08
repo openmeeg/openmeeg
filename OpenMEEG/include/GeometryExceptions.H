@@ -1,7 +1,7 @@
 /*
 Project Name : OpenMEEG
 
-© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre 
+© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre
 GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU, Théodore PAPADOPOULO,
 Emmanuel OLIVI
 Maureen.Clerc.AT.inria.fr, keriven.AT.certis.enpc.fr,
@@ -47,9 +47,9 @@ knowledge of the CeCILL-B license and that you accept its terms.
 namespace OpenMEEG {
 
     //TODO  remove all unused exception
-#if 0 
+#if 0
     struct ReturnCode {
-        static const unsigned code = 
+        static const unsigned code =
     };
 #endif
 
@@ -73,7 +73,7 @@ namespace OpenMEEG {
 
         const std::string whatstring;
     };
-    
+
     struct UnexpectedException: public Exception {
 
         UnexpectedException(const std::string& func,const std::string& file,const unsigned line): Exception(message(func,file,line)) { }
@@ -106,7 +106,7 @@ namespace OpenMEEG {
 
     private:
 
-        static std::string message(const std::string& fmtname) { return std::string("Cannot open file "+fmtname+" !"); }   
+        static std::string message(const std::string& fmtname) { return std::string("Cannot open file "+fmtname+" !"); }
     };
 
     struct BadFormat: public IOException {
@@ -244,7 +244,9 @@ namespace OpenMEEG {
         const char* what() const throw() {
             std::ostringstream oss;
             oss << "Definition of domain " << domain << ": interface " << interface << " does not exist";
-            return oss.str().c_str();
+            std::string temp = oss.str();
+            const char* out = temp.c_str();
+            return out;
         }
 
         ExceptionCode code() const throw() { return NON_EXISTING_DOMAIN; }
