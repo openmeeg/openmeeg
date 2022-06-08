@@ -67,7 +67,7 @@ install(TARGETS ${SWIG_TARGET_NAME}
         PERMISSIONS OWNER_WRITE OWNER_READ GROUP_READ WORLD_READ)
 
 if (APPLE)
-    set_target_properties(_openmeeg PROPERTIES LINK_FLAGS "-undefined dynamic_lookup")
+    set_target_properties(${SWIG_TARGET_NAME} PROPERTIES LINK_FLAGS "-undefined dynamic_lookup")
 endif()
 
 install(FILES  ${OpenMEEG_BINARY_DIR}/wrapping/src/openmeeg.py
