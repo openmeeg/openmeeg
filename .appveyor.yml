@@ -56,7 +56,7 @@ install:
   ############################################################################
   # Install Conda
   ############################################################################
-  - "git clone --depth 1 git://github.com/astropy/ci-helpers.git"
+  - "git clone --depth 1 https://github.com/astropy/ci-helpers.git"
   - "powershell ci-helpers/appveyor/install-miniconda.ps1"
   - CALL "%PYTHON%\\Scripts\\activate.bat"
 
@@ -91,7 +91,7 @@ install:
   - set LIBRARY_LIB=C:\conda\Library\lib
   - copy /y %LIBRARY_LIB%\zlibstatic.lib %LIBRARY_LIB%\z.lib
   # force to pick zlibstatic in order to create proper wheels
-  
+
 before_build:
   - call "C:\Program Files (x86)\IntelSWTools\compilers_and_libraries_2019.5.281\windows\bin\compilervars_arch.bat" intel64 vs2017
   - call "C:\Program Files (x86)\IntelSWTools\compilers_and_libraries_2019.5.281\windows\mkl\bin\mklvars.bat" intel64
