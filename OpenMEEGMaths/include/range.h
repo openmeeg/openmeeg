@@ -71,6 +71,7 @@ namespace OpenMEEG::maths {
         size_t end_index;
     };
 
+    template <typename Range>
     inline std::ostream& operator<<(std::ostream& os,const Range& r) {
         return os << '(' << r.start() << ',' << r.end() << ')';
     }
