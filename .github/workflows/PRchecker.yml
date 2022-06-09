@@ -28,10 +28,11 @@ jobs:
     strategy:
       matrix:
         # Cover the most useful cases most completely
-        # TODO: ubuntu-18.04 is broken (Python tests fail)
-        # TODO: MKL+Python is broken on Ubuntu
-        # TODO: MKL broken on Windows
-        # TODO: MKL unknown on macOS
+        # TODO: ubuntu-18.04 Python is broken (tests fail)
+        # TODO: ubuntu+MKL Python is broken (symbol not found/linking/path issue)
+        # TODO: MKL will not build on Windows
+        # TODO: MKL status unknown on macOS
+        # TODO: Static build broken for OpenBLAS (Could NOT find LAPACK (missing: LAPACK_LIBRARIES))
         os: [ubuntu-20.04, windows-latest, macos-latest]
         blas: [OpenBLAS]
         linking: [dynamic]
@@ -43,10 +44,10 @@ jobs:
             linking: dynamic
             python: no-python
           # static build
-          - os: ubuntu-20.04
-            blas: OpenBLAS
-            linking: static
-            python: python
+          #- os: ubuntu-20.04
+          #  blas: OpenBLAS
+          #  linking: static
+          #  python: python
           # ubuntu-18.04 build, but Python tests currently fail so use no-python
           - os: ubuntu-18.04
             blas: OpenBLAS
@@ -94,8 +95,8 @@ jobs:
         vcpkg install --triplet x64-windows matio hdf5
         echo "LDFLAGS=-L${PWD}/openblas/lib" >> $GITHUB_ENV
         echo "CPPFLAGS=-I${PWD}/openblas/include" >> $GITHUB_ENV
-        echo "CMAKE_TOOLCHAIN_FILE=${PWD}/vcpkg/scripts/buildsystems/vcpkg.cmake" >> $GITHUB_ENV
-        echo "CMAKE_CXX_FLAGS=-I${PWD}/openblas/include" >> $GITHUB_ENV
+        echo "CMAKE_TOOLCHAIN_FILE=$(cygpath -w ${PWD}/vcpkg/scripts/buildsystems/vcpkg.cmake)" >> $GITHUB_ENV
+        echo "CMAKE_CXX_FLAGS=-I$(cygpath -w ${PWD}/openblas/include)" >> $GITHUB_ENV
 
     - name: MacOS setup
       if: startsWith(matrix.os,'macos')
@@ -156,7 +157,7 @@ jobs:
       run: |
         set -x
         cmake -B build \
-              -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} \
+              -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} \
               ${{env.STATIC_OPT}} \
               ${{env.BLA_IMPL}} \
               ${{env.BLA_PARA}} \
