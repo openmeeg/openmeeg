@@ -83,10 +83,10 @@ jobs:
     - name: Windows setup
       if: startsWith(matrix.os,'windows')
       run: |
-        LF=$(cygpath -w "${PWD}/openblas/lib")
-        CF=$(cygpath -w "${PWD}/openblas/include")
-        TF=$(cygpath -w "${PWD}/vcpkg/scripts/buildsystems/vcpkg.cmake")
-        XF=$(cygpath -w "${PWD}/openblas/include")
+        LF=$(cygpath -m "${PWD}/openblas/lib")
+        CF=$(cygpath -m "${PWD}/openblas/include")
+        TF=$(cygpath -m "${PWD}/vcpkg/scripts/buildsystems/vcpkg.cmake")
+        XF=$(cygpath -m "${PWD}/openblas/include")
         echo "$LF"
         echo "$CF"
         echo "$TF"
