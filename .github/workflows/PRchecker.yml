@@ -89,6 +89,7 @@ jobs:
 
     - name: Windows hdf5 and matio via vcpkg
       uses: lukka/run-vcpkg@v10
+      id: runvcpkg
       if: startsWith(matrix.os,'windows')
       with:
         vcpkgDirectory: '${{ github.workspace }}/vcpkg'
@@ -101,12 +102,25 @@ jobs:
       if: startsWith(matrix.os,'windows')
       run: |
         conda install -yq numpy
-        LF=$(cygpath -m "${PWD}/openblas/lib")
-        CF=$(cygpath -m "${PWD}/openblas/include")
-        TF=$(cygpath -m "${PWD}/vcpkg/scripts/buildsystems/vcpkg.cmake")
+
+        LF=${PWD}/openblas/lib
         echo "$LF"
+        test -h "$LF"
+        LF=$(cygpath -m "$LF")
+        echo "$LF"
+
+        CF=${PWD}/openblas/include
         echo "$CF"
+        test -h "$CF"
+        CF=$(cygpath -m "$CF")
+        echo "$CF"
+
+        TF=${PWD}/vcpkg/scripts/buildsystems/vcpkg.cmake
         echo "$TF"
+        test -f "$TF"
+        TF=$(cygpath -m "$TF")
+        echo "$TF"
+
         echo "LIB=${LF};${LIB}" >> $GITHUB_ENV
         echo "CPATH=${CF};${CPATH}" >> $GITHUB_ENV
         echo "CMAKE_CXX_FLAGS=-I${TF}" >> $GITHUB_ENV
