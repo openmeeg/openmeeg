@@ -83,7 +83,7 @@ jobs:
       if: startsWith(matrix.os,'windows')
       run: |
         # OpenBLAS direct download (too slow to build using vcpkg)
-        curl -O https://github.com/xianyi/OpenBLAS/releases/download/v0.3.20/OpenBLAS-0.3.20-x64.zip
+        curl -LO https://github.com/xianyi/OpenBLAS/releases/download/v0.3.20/OpenBLAS-0.3.20-x64.zip
         unzip OpenBLAS-0.3.20-x64.zip -d openblas
         # vcpkg for matio and hdf5
         git clone --depth=1 https://github.com/Microsoft/vcpkg.git
