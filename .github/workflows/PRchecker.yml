@@ -94,7 +94,8 @@ jobs:
         vcpkg install --triplet x64-windows matio hdf5
         echo "LDFLAGS=-L${PWD}/openblas/lib" >> $GITHUB_ENV
         echo "CPPFLAGS=-I${PWD}/openblas/include" >> $GITHUB_ENV
-        echo "CMAKE_ARGS=-DCMAKE_TOOLCHAIN_FILE=${PWD}/vcpkg/scripts/buildsystems/vcpkg.cmake -DCMAKE_CXX_FLAGS=-I${PWD}/openblas/include" >> $GITHUB_ENV
+        echo "CMAKE_TOOLCHAIN_FILE=${PWD}/vcpkg/scripts/buildsystems/vcpkg.cmake" >> $GITHUB_ENV
+        echo "CMAKE_CXX_FLAGS=-I${PWD}/openblas/include" >> $GITHUB_ENV
 
     - name: MacOS setup
       if: startsWith(matrix.os,'macos')
@@ -105,7 +106,7 @@ jobs:
           brew install openblas
           echo "LDFLAGS=-L/usr/local/opt/openblas/lib" >> $GITHUB_ENV
           echo "CPPFLAGS=-I/usr/local/opt/openblas/include" >> $GITHUB_ENV
-          echo "CMAKE_ARGS=-DCMAKE_CXX_FLAGS=-I/usr/local/opt/openblas/include" >> $GITHUB_ENV
+          echo "CMAKE_CXX_FLAGS=-I/usr/local/opt/openblas/include" >> $GITHUB_ENV
         else
           MKL_LIBS=mkl-devel
           if [ ${{matrix.linking}} == 'static' ]; then
@@ -153,13 +154,15 @@ jobs:
       # generator such as make.
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
       run: |
+        set -x
         cmake -B build \
               -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} \
               ${{env.STATIC_OPT}} \
               ${{env.BLA_IMPL}} \
               ${{env.BLA_PARA}} \
               ${{env.PYTHON_OPT}} \
-              ${{env.CMAKE_ARGS}} \
+              -DCMAKE_TOOLCHAIN_FILE=${{ env.CMAKE_TOOLCHAIN_FILE }} \
+              -DCMAKE_CXX_FLAGS=${{ env.CMAKE_CXX_FLAGS }} \
               -DBUILD_DOCUMENTATION=ON \
               -DTEST_HEAD3=ON
 
