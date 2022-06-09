@@ -1,0 +1,8 @@
+{
+  "name": "openmeeg-deps",
+  "version-string": "0.0.1",
+  "dependencies": [
+    "matio",
+    "hdf5"
+  ]
+}
