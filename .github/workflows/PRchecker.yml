@@ -83,6 +83,18 @@ jobs:
     - name: Windows setup
       if: startsWith(matrix.os,'windows')
       run: |
+        LF="$(cygpath -w "${PWD}/openblas/lib")"
+        CF="$(cygpath -w "${PWD}/openblas/include")"
+        TF="$(cygpath -w "${PWD}/vcpkg/scripts/buildsystems/vcpkg.cmake")"
+        XF="$(cygpath -w \"${PWD}/openblas/include)"
+        echo "$LF"
+        echo "$CF"
+        echo "$TF"
+        echo "$XF"
+        echo "LDFLAGS=-L${LF}" >> $GITHUB_ENV
+        echo "CPPFLAGS=-I${CF}" >> $GITHUB_ENV
+        echo "CMAKE_TOOLCHAIN_FILE=${TF}" >> $GITHUB_ENV
+        echo "CMAKE_CXX_FLAGS=-I${XF}" >> $GITHUB_ENV
         # OpenBLAS direct download (too slow to build using vcpkg)
         curl -LO https://github.com/xianyi/OpenBLAS/releases/download/v0.3.20/OpenBLAS-0.3.20-x64.zip
         unzip OpenBLAS-0.3.20-x64.zip -d openblas
@@ -93,18 +105,6 @@ jobs:
         ls -al ./vcpkg
         which vcpkg
         vcpkg install --triplet x64-windows matio hdf5
-        LF=$(cygpath -w "${PWD}/openblas/lib")
-        CF=$(cygpath -w "${PWD}/openblas/include")
-        TF=$(cygpath -w "${PWD}/vcpkg/scripts/buildsystems/vcpkg.cmake")
-        XF=$(cygpath -w \"${PWD}/openblas/include)
-        echo $LF
-        echo $CF
-        echo $TF
-        echo $XF
-        echo "LDFLAGS=-L${LF}" >> $GITHUB_ENV
-        echo "CPPFLAGS=-I${CF}" >> $GITHUB_ENV
-        echo "CMAKE_TOOLCHAIN_FILE=${TF}" >> $GITHUB_ENV
-        echo "CMAKE_CXX_FLAGS=-I${XF}" >> $GITHUB_ENV
 
     - name: MacOS setup
       if: startsWith(matrix.os,'macos')
