@@ -28,8 +28,10 @@ jobs:
     strategy:
       matrix:
         # Cover the most useful cases most completely
-        # TODO: ubuntu-18.04 is broken
-        # TODO: MKL+Python is broken, MKL broken on Windows
+        # TODO: ubuntu-18.04 is broken (Python tests fail)
+        # TODO: MKL+Python is broken on Ubuntu
+        # TODO: MKL broken on Windows
+        # TODO: MKL unknown on macOS
         os: [ubuntu-20.04, windows-latest, macos-latest]
         blas: [OpenBLAS]
         linking: [dynamic]
@@ -57,7 +59,7 @@ jobs:
     - uses: actions/checkout@v2
 
     - uses: conda-incubator/setup-miniconda@v2
-      if: startsWith(matrix.os,'windows') || (startsWith(matrix.os,'macos') && startswith(matrix.blas,'MKL'))
+      if: startsWith(matrix.os,'macos') && startswith(matrix.blas,'MKL')
       with:
         auto-activate-base: true
         python-version: 3.6
@@ -104,7 +106,6 @@ jobs:
           echo "LDFLAGS=-L/usr/local/opt/openblas/lib" >> $GITHUB_ENV
           echo "CPPFLAGS=-I/usr/local/opt/openblas/include" >> $GITHUB_ENV
           echo "CMAKE_ARGS=-DCMAKE_CXX_FLAGS=-I/usr/local/opt/openblas/include" >> $GITHUB_ENV
-
         else
           MKL_LIBS=mkl-devel
           if [ ${{matrix.linking}} == 'static' ]; then
