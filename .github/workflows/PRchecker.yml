@@ -29,9 +29,9 @@ jobs:
       matrix:
         # Cover the most useful cases most completely
         # TODO: ubuntu-18.04 is broken
-        # TODO: MKL+Python is broken
+        # TODO: MKL+Python is broken, MKL broken on Windows
         os: [ubuntu-20.04, windows-latest, macos-latest]
-        blas: [OpenBLAS, MKL]
+        blas: [OpenBLAS]
         linking: [dynamic]
         python: [python]
         include:
@@ -45,11 +45,24 @@ jobs:
             blas: OpenBLAS
             linking: static
             python: python
+          # An 18.04 build, where Python tests currently fail
+          - os: ubuntu-18.04
+            blas: OpenBLAS
+            linking: dynamic
+            python: no-python
 
     runs-on: ${{ matrix.os }}
 
     steps:
     - uses: actions/checkout@v2
+
+    - uses: conda-incubator/setup-miniconda@v2
+      if: startsWith(matrix.os,'windows') || (startsWith(matrix.os,'macos') && ${{ matrix.blas == "MKL" }})
+      with:
+        auto-activate-base: true
+        python-version: 3.6
+        channels: conda-forge
+        channel-priority: strict
 
     - name: Environment setup
       run: |
@@ -67,20 +80,13 @@ jobs:
     - name: Windows setup
       if: startsWith(matrix.os,'windows')
       run: |
-        echo "BLAS=Intel10_64lp_seq" >> $GITHUB_ENV
-        #C:/Miniconda/condabin/conda.bat update conda
-        #C:/Miniconda/condabin/conda.bat config --add channels conda-forge
-        C:/Miniconda/condabin/conda.bat install --yes -c massich matio-cmake
-        C:/Miniconda/condabin/conda.bat install --yes -c intel -c intel mkl-devel
-        #C:/Miniconda/condabin/conda.bat install numpy mkl=2021.* libblas=*=*mkl
-        #source "C:/Program Files (x86)/IntelSWTools/compilers_and_libraries_2019.5.281/windows/mkl/bin/mklvars.bat"
-        #printenv >> $GITHUB_ENV
+        conda install -yc conda-forge libmatio hdf5 cmake vtk numpy swig
 
     - name: MacOS setup
       if: startsWith(matrix.os,'macos')
       run: |
         brew update > /dev/null
-        brew install hdf5 libmatio boost vtk numpy swig
+        brew install hdf5 libmatio boost vtk numpy swig doxygen
         if [ ${{matrix.blas}} == "OpenBLAS" ]; then
           brew install openblas
           echo "LDFLAGS=-L/usr/local/opt/openblas/lib" >> $GITHUB_ENV
@@ -90,10 +96,9 @@ jobs:
           if [ ${{matrix.linking}} == 'static' ]; then
             MKL_LIBS=mkl-static
           fi
-          sudo chown -R 501:20 /usr/local/miniconda/pkgs/  # Workaround gha miniconda installation pb.
-          conda init bash
-          $CONDA/bin/conda create -n openmeeg -c intel mkl ${MKL_LIBS} mkl-include
-          $CONDA/bin/conda activate openmeeg
+          conda create -n openmeeg -c intel mkl ${MKL_LIBS} mkl-include
+          conda activate openmeeg
+          printenv >> $GITHUB_ENV
         fi
 
     - name: Linux setup
