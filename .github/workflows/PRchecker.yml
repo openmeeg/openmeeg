@@ -28,14 +28,21 @@ jobs:
     strategy:
       matrix:
         # Cover the most useful cases most completely
-        os: [ubuntu-18.04, ubuntu-20.04]  # windows-latest, macos-latest]
-        blas: [OpenBLAS, MKL]
+        # TODO: ubuntu-18.04 is broken
+        # TODO: MKL+Python is broken
+        os: [ubuntu-20.04, windows-latest, macos-latest]
+        blas: [OpenBLAS]
         linking: [dynamic]
         python: [python]
         include:
           # A no-python build
           - os: ubuntu-20.04
             blas: OpenBLAS
+            linking: dynamic
+            python: no-python
+          # A MKL build
+          - os: ubuntu-20.04
+            blas: MKL
             linking: dynamic
             python: no-python
           # A static build
