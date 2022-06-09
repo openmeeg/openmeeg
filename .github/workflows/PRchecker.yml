@@ -93,10 +93,18 @@ jobs:
         ls -al ./vcpkg
         which vcpkg
         vcpkg install --triplet x64-windows matio hdf5
-        echo "LDFLAGS=-L${PWD}/openblas/lib" >> $GITHUB_ENV
-        echo "CPPFLAGS=-I${PWD}/openblas/include" >> $GITHUB_ENV
-        echo "CMAKE_TOOLCHAIN_FILE=$(cygpath -w ${PWD}/vcpkg/scripts/buildsystems/vcpkg.cmake)" >> $GITHUB_ENV
-        echo "CMAKE_CXX_FLAGS=-I$(cygpath -w ${PWD}/openblas/include)" >> $GITHUB_ENV
+        LF=$(cygpath -w "${PWD}/openblas/lib")
+        CF=$(cygpath -w "${PWD}/openblas/include")
+        TF=$(cygpath -w "${PWD}/vcpkg/scripts/buildsystems/vcpkg.cmake")
+        XF=$(cygpath -w \"${PWD}/openblas/include)
+        echo $LF
+        echo $CF
+        echo $TF
+        echo $XF
+        echo "LDFLAGS=-L${LF}" >> $GITHUB_ENV
+        echo "CPPFLAGS=-I${CF}" >> $GITHUB_ENV
+        echo "CMAKE_TOOLCHAIN_FILE=${TF}" >> $GITHUB_ENV
+        echo "CMAKE_CXX_FLAGS=-I${XF}" >> $GITHUB_ENV
 
     - name: MacOS setup
       if: startsWith(matrix.os,'macos')
