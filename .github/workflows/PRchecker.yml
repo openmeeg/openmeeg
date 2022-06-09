@@ -80,13 +80,19 @@ jobs:
     - name: Windows setup
       if: startsWith(matrix.os,'windows')
       run: |
+        # vcpkg for matio and hdf5
         git clone --depth=1 https://github.com/Microsoft/vcpkg.git
         ./vcpkg/bootstrap-vcpkg.sh
         echo "print"
         ls -al ./vcpkg
         which vcpkg
-        vcpkg install --triplet x64-windows matio hdf5 openblas
-        echo "CMAKE_ARGS=-DCMAKE_TOOLCHAIN_FILE=${PWD}/vcpkg/vcpkg" >> $GITHUB_ENV
+        vcpkg install --triplet x64-windows matio hdf5
+        # OpenBLAS direct download (too slow to build using vcpkg)
+        wget https://github.com/xianyi/OpenBLAS/releases/download/v0.3.20/OpenBLAS-0.3.20-x64.zip
+        unzip OpenBLAS-0.3.20-x64.zip -d openblas
+        echo "LDFLAGS=-L${PWD}/openblas/lib" >> $GITHUB_ENV
+        echo "CPPFLAGS=-I${PWD}/openblas/include" >> $GITHUB_ENV
+        echo "CMAKE_ARGS=-DCMAKE_TOOLCHAIN_FILE=${PWD}/vcpkg/scripts/buildsystems/vcpkg.cmake -DCMAKE_CXX_FLAGS=-I${PWD}/openblas/include" >> $GITHUB_ENV
 
     - name: MacOS setup
       if: startsWith(matrix.os,'macos')
@@ -97,6 +103,8 @@ jobs:
           brew install openblas
           echo "LDFLAGS=-L/usr/local/opt/openblas/lib" >> $GITHUB_ENV
           echo "CPPFLAGS=-I/usr/local/opt/openblas/include" >> $GITHUB_ENV
+          echo "CMAKE_ARGS=-DCMAKE_CXX_FLAGS=-I/usr/local/opt/openblas/include" >> $GITHUB_ENV
+
         else
           MKL_LIBS=mkl-devel
           if [ ${{matrix.linking}} == 'static' ]; then
