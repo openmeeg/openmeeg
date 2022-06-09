@@ -87,10 +87,17 @@ jobs:
         fi
         echo "DOC_OPT=-DBUILD_DOCUMENTATION=$BUILD_DOCS" >> $GITHUB_ENV
 
-    # TODO: cache vcpkg because building these packages takes
-    # ~5 minutes. This would probably be a good option:
-    # https://github.com/marketplace/actions/run-vcpkg
-    - name: Windows setup
+    - name: Windows hdf5 and matio via vcpkg
+      uses: lukka/run-vcpkg@v10
+      if: startsWith(matrix.os,'windows')
+      with:
+        vcpkgDirectory: '${{ github.workspace }}/vcpkg'
+        vcpkgGitCommitId: '14e7bb4ae24616ec54ff6b2f6ef4e8659434ea44'  # 2022-05-05 release
+        runVcpkgInstall: true
+        vcpkgJsonGlob: '**/build_tools/vcpkg.json'
+        appendedCacheKey: vcpkginstall
+
+    - name: Windows Python and NumPy from conda, OpenBLAS download
       if: startsWith(matrix.os,'windows')
       run: |
         conda install -yq numpy
@@ -102,8 +109,8 @@ jobs:
         echo "$TF"
         echo "LIB=${LF};${LIB}" >> $GITHUB_ENV
         echo "CPATH=${CF};${CPATH}" >> $GITHUB_ENV
+        echo "CMAKE_CXX_FLAGS=-I${TF}" >> $GITHUB_ENV
         echo "CMAKE_TOOLCHAIN_FILE=${TF}" >> $GITHUB_ENV
-        cat $GITHUB_ENV
         # OpenBLAS direct download (too slow to build using vcpkg)
         # and renaming to match what cmake wants to see
         curl -LO https://github.com/xianyi/OpenBLAS/releases/download/v0.3.20/OpenBLAS-0.3.20-x64.zip
@@ -114,10 +121,8 @@ jobs:
         for fname in lib*; do mv $fname ${fname:3:100}; done
         ls -al
         cd ../..
-        # vcpkg for matio and hdf5
-        git clone --depth=1 https://github.com/Microsoft/vcpkg.git
-        ./vcpkg/bootstrap-vcpkg.sh
-        ./vcpkg/vcpkg install --triplet x64-windows matio hdf5
+        # Finally, print our settings
+        cat $GITHUB_ENV
 
     - name: MacOS setup
       if: startsWith(matrix.os,'macos')
