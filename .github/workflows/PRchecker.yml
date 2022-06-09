@@ -86,26 +86,27 @@ jobs:
         LF=$(cygpath -m "${PWD}/openblas/lib")
         CF=$(cygpath -m "${PWD}/openblas/include")
         TF=$(cygpath -m "${PWD}/vcpkg/scripts/buildsystems/vcpkg.cmake")
-        XF=$(cygpath -m "${PWD}/openblas/include")
         echo "$LF"
         echo "$CF"
         echo "$TF"
-        echo "$XF"
-        echo "LDFLAGS=-L\"${LF}\"" >> $GITHUB_ENV
-        echo "CPPFLAGS=-I\"${CF}\"" >> $GITHUB_ENV
-        echo "CMAKE_TOOLCHAIN_FILE=\"${TF}\"" >> $GITHUB_ENV
-        echo "CMAKE_CXX_FLAGS=-I\"${XF}\"" >> $GITHUB_ENV
+        echo "LIB=${LF};${LIB}" >> $GITHUB_ENV
+        echo "CPATH=${CF};${CPATH}" >> $GITHUB_ENV
+        echo "CMAKE_TOOLCHAIN_FILE=${TF}" >> $GITHUB_ENV
         cat $GITHUB_ENV
         # OpenBLAS direct download (too slow to build using vcpkg)
+        # and renaming to match what cmake wants to see
         curl -LO https://github.com/xianyi/OpenBLAS/releases/download/v0.3.20/OpenBLAS-0.3.20-x64.zip
         unzip OpenBLAS-0.3.20-x64.zip -d openblas
+        cd openblas/lib
+        ls -al
+        mv ../bin/libopenblas.dll .
+        for fname in lib*; do mv $fname ${fname:3:100}; done
+        ls -al
+        cd ../..
         # vcpkg for matio and hdf5
         git clone --depth=1 https://github.com/Microsoft/vcpkg.git
         ./vcpkg/bootstrap-vcpkg.sh
-        echo "print"
-        ls -al ./vcpkg
-        which vcpkg
-        vcpkg install --triplet x64-windows matio hdf5
+        ./vcpkg/vcpkg install --triplet x64-windows matio hdf5
 
     - name: MacOS setup
       if: startsWith(matrix.os,'macos')
