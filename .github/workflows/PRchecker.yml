@@ -15,7 +15,7 @@ env:
 
 defaults:
   run:
-    shell: bash -l {0}
+    shell: bash -el {0}
 
 jobs:
 
@@ -27,14 +27,22 @@ jobs:
     continue-on-error: true
     strategy:
       matrix:
-        #os: [windows-latest]
-        #os: [macos-latest]
-        os: [ubuntu-18.04, ubuntu-20.04]
-        #os: [macos-latest, windows-latest, ubuntu-18.04, ubuntu-20.04]
-        blas: [ OpenBLAS, MKL ]
-        linking: [ dynamic ]
-        python: [ python, no-python ]
-        #linking: [ static, dynamic ]
+        # Cover the most useful cases most completely
+        os: [ubuntu-18.04, ubuntu-20.04]  # windows-latest, macos-latest]
+        blas: [OpenBLAS, MKL]
+        linking: [dynamic]
+        python: [python]
+        include:
+          # A no-python build
+          - os: ubuntu-20.04
+            blas: OpenBLAS
+            linking: dynamic
+            python: no-python
+          # A static build
+          - os: ubuntu-20.04
+            blas: OpenBLAS
+            linking: static
+            python: python
 
     runs-on: ${{ matrix.os }}
 
@@ -116,16 +124,21 @@ jobs:
         fi
 
         sudo apt-get update
-        sudo apt-get -yq install  python3-numpy doxygen graphviz libmatio-dev libvtk7-dev lcov
+        sudo apt-get -yq install python3-numpy doxygen graphviz libmatio-dev libvtk7-dev lcov
 
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration
       # generator such as make.
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
       run: |
-        cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} ${{env.STATIC_OPT}}\
-              ${{env.BLA_IMPL}} ${{env.BLA_PARA}}\
-              ${{env.PYTHON_OPT}} -DBUILD_DOCUMENTATION=ON -DTEST_HEAD3=ON
+        cmake -B ${{github.workspace}}/build \
+              -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} \
+              ${{env.STATIC_OPT}} \
+              ${{env.BLA_IMPL}} \
+              ${{env.BLA_PARA}} \
+              ${{env.PYTHON_OPT}} \
+              -DBUILD_DOCUMENTATION=ON \
+              -DTEST_HEAD3=ON
 
     - name: Build
       # Build your program with the given configuration
