@@ -37,17 +37,17 @@ jobs:
         linking: [dynamic]
         python: [python]
         include:
-          # A no-python build
+          # no-python build
           - os: ubuntu-20.04
             blas: OpenBLAS
             linking: dynamic
             python: no-python
-          # A static build
+          # static build
           - os: ubuntu-20.04
             blas: OpenBLAS
             linking: static
             python: python
-          # An 18.04 build, where Python tests currently fail
+          # ubuntu-18.04 build, but Python tests currently fail so use no-python
           - os: ubuntu-18.04
             blas: OpenBLAS
             linking: dynamic
@@ -82,6 +82,9 @@ jobs:
     - name: Windows setup
       if: startsWith(matrix.os,'windows')
       run: |
+        # OpenBLAS direct download (too slow to build using vcpkg)
+        curl -O https://github.com/xianyi/OpenBLAS/releases/download/v0.3.20/OpenBLAS-0.3.20-x64.zip
+        unzip OpenBLAS-0.3.20-x64.zip -d openblas
         # vcpkg for matio and hdf5
         git clone --depth=1 https://github.com/Microsoft/vcpkg.git
         ./vcpkg/bootstrap-vcpkg.sh
@@ -89,9 +92,6 @@ jobs:
         ls -al ./vcpkg
         which vcpkg
         vcpkg install --triplet x64-windows matio hdf5
-        # OpenBLAS direct download (too slow to build using vcpkg)
-        wget https://github.com/xianyi/OpenBLAS/releases/download/v0.3.20/OpenBLAS-0.3.20-x64.zip
-        unzip OpenBLAS-0.3.20-x64.zip -d openblas
         echo "LDFLAGS=-L${PWD}/openblas/lib" >> $GITHUB_ENV
         echo "CPPFLAGS=-I${PWD}/openblas/include" >> $GITHUB_ENV
         echo "CMAKE_ARGS=-DCMAKE_TOOLCHAIN_FILE=${PWD}/vcpkg/scripts/buildsystems/vcpkg.cmake -DCMAKE_CXX_FLAGS=-I${PWD}/openblas/include" >> $GITHUB_ENV
