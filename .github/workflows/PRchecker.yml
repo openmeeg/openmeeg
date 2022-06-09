@@ -69,7 +69,7 @@ jobs:
     - name: Environment setup
       run: |
         if [ ${{matrix.linking}} == 'static' ]; then
-          echo "STATIC='-DBLA_STATIC=ON'" >> $GITHUB_ENV
+          echo "STATIC_OPT='-DBLA_STATIC=ON'" >> $GITHUB_ENV
         fi
         if [ ${{matrix.python}} == 'python' ]; then
           echo "PYTHON_OPT='-DENABLE_PYTHON=ON'" >> $GITHUB_ENV
