@@ -57,7 +57,7 @@ jobs:
     - uses: actions/checkout@v2
 
     - uses: conda-incubator/setup-miniconda@v2
-      if: startsWith(matrix.os,'windows') || (startsWith(matrix.os,'macos') && matrix.blas == "MKL" )
+      if: startsWith(matrix.os,'windows') || (startsWith(matrix.os,'macos') && startswith(matrix.blas,'MKL'))
       with:
         auto-activate-base: true
         python-version: 3.6
