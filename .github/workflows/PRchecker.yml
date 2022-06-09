@@ -80,13 +80,19 @@ jobs:
     - name: Windows setup
       if: startsWith(matrix.os,'windows')
       run: |
-        conda install -yc conda-forge libmatio hdf5 cmake vtk numpy swig
+        git clone --depth=1 https://github.com/Microsoft/vcpkg.git
+        ./vcpkg/bootstrap-vcpkg.sh
+        echo "print"
+        ls -al ./vcpkg
+        which vcpkg
+        vcpkg install --triplet x64-windows matio hdf5 openblas
+        echo "CMAKE_ARGS=-DCMAKE_TOOLCHAIN_FILE=${PWD}/vcpkg/vcpkg" >> $GITHUB_ENV
 
     - name: MacOS setup
       if: startsWith(matrix.os,'macos')
       run: |
         brew update > /dev/null
-        brew install hdf5 libmatio boost vtk numpy swig doxygen
+        brew install hdf5 libmatio boost vtk numpy swig doxygen graphviz
         if [ ${{matrix.blas}} == "OpenBLAS" ]; then
           brew install openblas
           echo "LDFLAGS=-L/usr/local/opt/openblas/lib" >> $GITHUB_ENV
@@ -144,6 +150,7 @@ jobs:
               ${{env.BLA_IMPL}} \
               ${{env.BLA_PARA}} \
               ${{env.PYTHON_OPT}} \
+              ${{env.CMAKE_ARGS}} \
               -DBUILD_DOCUMENTATION=ON \
               -DTEST_HEAD3=ON
 
