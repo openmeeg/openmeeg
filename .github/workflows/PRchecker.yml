@@ -31,18 +31,13 @@ jobs:
         # TODO: ubuntu-18.04 is broken
         # TODO: MKL+Python is broken
         os: [ubuntu-20.04, windows-latest, macos-latest]
-        blas: [OpenBLAS]
+        blas: [OpenBLAS, MKL]
         linking: [dynamic]
         python: [python]
         include:
           # A no-python build
           - os: ubuntu-20.04
             blas: OpenBLAS
-            linking: dynamic
-            python: no-python
-          # A MKL build
-          - os: ubuntu-20.04
-            blas: MKL
             linking: dynamic
             python: no-python
           # A static build
@@ -87,7 +82,7 @@ jobs:
         brew update > /dev/null
         brew install hdf5 libmatio boost vtk numpy swig
         if [ ${{matrix.blas}} == "OpenBLAS" ]; then
-          brew install openbla
+          brew install openblas
           echo "LDFLAGS=-L/usr/local/opt/openblas/lib" >> $GITHUB_ENV
           echo "CPPFLAGS=-I/usr/local/opt/openblas/include" >> $GITHUB_ENV
         else
