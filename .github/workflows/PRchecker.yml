@@ -123,7 +123,7 @@ jobs:
 
         echo "LIB=${LF};${LIB}" >> $GITHUB_ENV
         echo "CPATH=${CF};${CPATH}" >> $GITHUB_ENV
-        echo "CMAKE_CXX_FLAGS=-I${TF}" >> $GITHUB_ENV
+        echo "CMAKE_CXX_FLAGS=-I${CF}" >> $GITHUB_ENV
         echo "CMAKE_TOOLCHAIN_FILE=${TF}" >> $GITHUB_ENV
         # OpenBLAS direct download (too slow to build using vcpkg)
         # and renaming to match what cmake wants to see
