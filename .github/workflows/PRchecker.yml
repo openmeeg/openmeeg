@@ -37,12 +37,14 @@ jobs:
         blas: [OpenBLAS]
         linking: [dynamic]
         python: [python]
+        build_docs: ["OFF"]
         include:
-          # no-python build
+          # no-python build, but with docs
           - os: ubuntu-20.04
             blas: OpenBLAS
             linking: dynamic
             python: no-python
+            build_docs: "ON"
           # static build
           #- os: ubuntu-20.04
           #  blas: OpenBLAS
@@ -53,6 +55,7 @@ jobs:
             blas: OpenBLAS
             linking: dynamic
             python: no-python
+            build_docs: "OFF"
 
     runs-on: ${{ matrix.os }}
 
@@ -79,6 +82,7 @@ jobs:
           echo "BLA_IMPL=-DBLA_IMPLEMENTATION=MKL" >> $GITHUB_ENV
           echo "BLA_PARA=-DMKL_PARALLELISM=sequential" >> $GITHUB_ENV
         fi
+        echo "DOC_OPT=-DBUILD_DOCUMENTATION=${{ matrix.build_docs }}" >> $GITHUB_ENV
 
     - name: Windows setup
       if: startsWith(matrix.os,'windows')
@@ -172,9 +176,9 @@ jobs:
               ${{env.BLA_IMPL}} \
               ${{env.BLA_PARA}} \
               ${{env.PYTHON_OPT}} \
+              ${{env.DOC_OPT}} \
               -DCMAKE_TOOLCHAIN_FILE=${{ env.CMAKE_TOOLCHAIN_FILE }} \
               -DCMAKE_CXX_FLAGS=${{ env.CMAKE_CXX_FLAGS }} \
-              -DBUILD_DOCUMENTATION=ON \
               -DTEST_HEAD3=ON
 
     - name: Build
