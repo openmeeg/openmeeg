@@ -37,14 +37,12 @@ jobs:
         blas: [OpenBLAS]
         linking: [dynamic]
         python: [python]
-        build_docs: ["OFF"]
         include:
           # no-python build, but with docs
           - os: ubuntu-20.04
             blas: OpenBLAS
             linking: dynamic
             python: no-python
-            build_docs: "ON"
           # static build
           #- os: ubuntu-20.04
           #  blas: OpenBLAS
@@ -55,7 +53,6 @@ jobs:
             blas: OpenBLAS
             linking: dynamic
             python: no-python
-            build_docs: "OFF"
 
     runs-on: ${{ matrix.os }}
 
@@ -63,10 +60,10 @@ jobs:
     - uses: actions/checkout@v2
 
     - uses: conda-incubator/setup-miniconda@v2
-      if: startsWith(matrix.os,'macos') && startswith(matrix.blas,'MKL')
+      if: startsWith(matrix.os,'windows') || (startsWith(matrix.os,'macos') && startswith(matrix.blas,'MKL'))
       with:
         auto-activate-base: true
-        python-version: 3.6
+        python-version: 3.10
         channels: conda-forge
         channel-priority: strict
 
@@ -82,11 +79,18 @@ jobs:
           echo "BLA_IMPL=-DBLA_IMPLEMENTATION=MKL" >> $GITHUB_ENV
           echo "BLA_PARA=-DMKL_PARALLELISM=sequential" >> $GITHUB_ENV
         fi
-        echo "DOC_OPT=-DBUILD_DOCUMENTATION=${{ matrix.build_docs }}" >> $GITHUB_ENV
+        # Build docs on Ubuntu, not elsewhere (for speed)
+        if [[ ${{matrix.os}} == 'ubuntu'* ]]; then
+          BUILD_DOCS=ON
+        else
+          BUILD_DOCS=OFF
+        fi
+        echo "DOC_OPT=-DBUILD_DOCUMENTATION=$BUILD_DOCS" >> $GITHUB_ENV
 
     - name: Windows setup
       if: startsWith(matrix.os,'windows')
       run: |
+        conda install -yq numpy
         LF=$(cygpath -m "${PWD}/openblas/lib")
         CF=$(cygpath -m "${PWD}/openblas/include")
         TF=$(cygpath -m "${PWD}/vcpkg/scripts/buildsystems/vcpkg.cmake")
