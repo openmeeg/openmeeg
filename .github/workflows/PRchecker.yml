@@ -111,6 +111,7 @@ jobs:
         appendedCacheKey: vcpkginstall
 
     - name: Windows OpenBLAS setup 2 - set env and install NumPy via pip
+      if: startswith(matrix.blas,'OpenBLAS') && startswith(matrix.os,'windows')
       run: |
         #git clone https://github.com/Microsoft/vcpkg.git
         #git checkout 14e7bb4ae24616ec54ff6b2f6ef4e8659434ea44
