@@ -118,13 +118,13 @@ jobs:
 
         LF=${PWD}/openblas/lib
         echo "$LF"
-        test -h "$LF"
+        test -d "$LF"
         LF=$(cygpath -m "$LF")
         echo "$LF"
 
         CF=${PWD}/openblas/include
         echo "$CF"
-        test -h "$CF"
+        test -d "$CF"
         CF=$(cygpath -m "$CF")
         echo "$CF"
 
