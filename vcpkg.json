@@ -3,6 +3,7 @@
   "version-string": "0.0.1",
   "dependencies": [
     "openblas",
+    "clapack",
     {
       "name": "lapack-reference",
       "features": [
