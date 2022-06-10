@@ -60,12 +60,16 @@ jobs:
     - uses: actions/checkout@v2
 
     - uses: conda-incubator/setup-miniconda@v2
-      if: startsWith(matrix.os,'windows') || (startsWith(matrix.os,'macos') && startswith(matrix.blas,'MKL'))
+      if: startswith(matrix.blas,'MKL')
       with:
         activate-environment: "test"
         python-version: "3.10"
         channels: conda-forge
         channel-priority: strict
+
+    - uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
 
     - name: Environment setup
       run: |
@@ -98,13 +102,9 @@ jobs:
         vcpkgJsonGlob: '**/build_tools/vcpkg.json'
         appendedCacheKey: vcpkginstall
 
-    - name: Windows Python and NumPy from conda, OpenBLAS download
+    - name: Windows OpenBLAS download and NumPy install
       if: startsWith(matrix.os,'windows')
       run: |
-        echo "LIB=${LF};${LIB}" >> $GITHUB_ENV
-        echo "CPATH=${CF};${CPATH}" >> $GITHUB_ENV
-        echo "CMAKE_CXX_FLAGS=-I${CF}" >> $GITHUB_ENV
-        echo "CMAKE_TOOLCHAIN_FILE=${TF}" >> $GITHUB_ENV
         # OpenBLAS direct download (too slow to build using vcpkg)
         # and renaming to match what cmake wants to see
         curl -LO https://github.com/xianyi/OpenBLAS/releases/download/v0.3.20/OpenBLAS-0.3.20-x64.zip
@@ -134,8 +134,13 @@ jobs:
         TF=$(cygpath -m "$TF")
         echo "$TF"
 
+        echo "LIB=${LF};${LIB}" >> $GITHUB_ENV
+        echo "CPATH=${CF};${CPATH}" >> $GITHUB_ENV
+        echo "CMAKE_CXX_FLAGS=-I${CF}" >> $GITHUB_ENV
+        echo "CMAKE_TOOLCHAIN_FILE=${TF}" >> $GITHUB_ENV
+
         # NumPy
-        conda install -yq numpy
+        pip install -yq numpy
 
         # Finally, print our settings
         cat $GITHUB_ENV
