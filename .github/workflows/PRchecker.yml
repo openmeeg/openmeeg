@@ -62,7 +62,7 @@ jobs:
     - uses: conda-incubator/setup-miniconda@v2
       if: startsWith(matrix.os,'windows') || (startsWith(matrix.os,'macos') && startswith(matrix.blas,'MKL'))
       with:
-        activate-environment: ""
+        activate-environment: "test"
         python-version: "3.10"
         channels: conda-forge
         channel-priority: strict
