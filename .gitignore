@@ -7,3 +7,5 @@ build.ninja
 *.user
 .DS_Store
 __pycache__
+vcpkg/
+b/
