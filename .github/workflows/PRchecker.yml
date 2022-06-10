@@ -33,6 +33,7 @@ jobs:
         # TODO: MKL will not build on Windows
         # TODO: MKL status unknown on macOS
         # TODO: Static build broken for OpenBLAS (Could NOT find LAPACK (missing: LAPACK_LIBRARIES))
+        # TODO: Use OpenBLAS for LAPACK on Windows (https://github.com/microsoft/vcpkg/issues/25176)
         os: [ubuntu-20.04, windows-latest, macos-latest]
         blas: [OpenBLAS]
         linking: [dynamic]

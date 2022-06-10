@@ -5,12 +5,6 @@
     "openblas",
     "clapack",
     {
-      "name": "lapack-reference",
-      "features": [
-        "blas-select"
-      ]
-    },
-    {
       "name": "matio",
       "features": [
         "mat73",
