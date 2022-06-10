@@ -142,7 +142,7 @@ jobs:
         git checkout lapack
         cd ..
         ./vcpkg/bootstrap-vcpkg.sh
-        ./vcpkg/vcpkg install
+        ./vcpkg/vcpkg install --triplet=x64-windows
 
     - name: Windows OpenBLAS setup 3 - check env
       if: startswith(matrix.blas,'OpenBLAS') && startswith(matrix.os,'windows')
