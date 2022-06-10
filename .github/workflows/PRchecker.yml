@@ -107,14 +107,14 @@ jobs:
         test -d "$VM"
         VM=$(cygpath -m "$VM")
         echo "$VM"
-        echo "VCPKG_MANIFEST_DIR=$VM" >> $BASH_ENV
+        echo "VCPKG_MANIFEST_DIR=$VM" >> $GITHUB_ENV
 
         VI="${PWD}/b/vcpkg_installed"
         echo "$VI"
         test -d "$VI"
         VI=$(cygpath -m "$VI")
         echo "$VI"
-        echo "VCPKG_INSTALLED_DIR=$VI" >> $BASH_ENV
+        echo "VCPKG_INSTALLED_DIR=$VI" >> $GITHUB_ENV
 
         TF=${PWD}/vcpkg/scripts/buildsystems/vcpkg.cmake
         echo "$TF"
