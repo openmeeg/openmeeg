@@ -3,7 +3,7 @@
   "version-string": "0.0.1",
   "dependencies": [
     "blas",
-    "clapack",
+    "lapack",
     {
       "name": "matio",
       "features": [
