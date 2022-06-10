@@ -34,7 +34,7 @@ jobs:
         # TODO: MKL status unknown on macOS
         # TODO: Static build broken for OpenBLAS (Could NOT find LAPACK (missing: LAPACK_LIBRARIES))
         os: [ubuntu-20.04, windows-latest, macos-latest]
-        blas: [OpenBLAS]
+        blas: [OpenBLAS, MKL]
         linking: [dynamic]
         python: [python]
         include:
@@ -59,18 +59,6 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - uses: conda-incubator/setup-miniconda@v2
-      if: startswith(matrix.blas,'MKL')
-      with:
-        activate-environment: "test"
-        python-version: "3.10"
-        channels: conda-forge
-        channel-priority: strict
-
-    - uses: actions/setup-python@v4
-      with:
-        python-version: '3.10'
-
     - name: Environment setup
       run: |
         if [ ${{matrix.linking}} == 'static' ]; then
@@ -91,10 +79,30 @@ jobs:
         fi
         echo "DOC_OPT=-DBUILD_DOCUMENTATION=$BUILD_DOCS" >> $GITHUB_ENV
 
-    - name: Windows hdf5 and matio via vcpkg
+    # We can use the default Python3 for other OSes
+    - uses: actions/setup-python@v4
+      if: startswith(matrix.blas,'OpenBLAS') && startswith(matrix.os,'windows')
+      with:
+        python-version: '3.10'
+
+    # For MKL we'll always use conda
+    - uses: conda-incubator/setup-miniconda@v2
+      if: startswith(matrix.blas,'MKL')
+      with:
+        activate-environment: "test"
+        python-version: "3.10"
+        channels: conda-forge
+        channel-priority: strict
+
+    - name: MKL setup - mkl, hdf5, and libmatio via conda
+      if: startswith(matrix.blas,'MKL')
+      run: |
+        conda install mkl mkl-include numpy hdf5 libmatio swig
+
+    - name: Windows OpenBLAS setup 1 - hdf5 and libmatio via vcpkg
       uses: lukka/run-vcpkg@v10
       id: runvcpkg
-      if: startsWith(matrix.os,'windows')
+      if: startswith(matrix.blas,'OpenBLAS') && startsWith(matrix.os,'windows')
       with:
         vcpkgDirectory: '${{ github.workspace }}/vcpkg'
         vcpkgGitCommitId: '14e7bb4ae24616ec54ff6b2f6ef4e8659434ea44'  # 2022-05-05 release
@@ -102,8 +110,8 @@ jobs:
         vcpkgJsonGlob: '**/build_tools/vcpkg.json'
         appendedCacheKey: vcpkginstall
 
-    - name: Windows OpenBLAS download and NumPy install
-      if: startsWith(matrix.os,'windows')
+    - name: Windows OpenBLAS setup 2 - OpenBLAS and NumPy
+      if: startsWith(matrix.blas,'OpenBLAS') && startsWith(matrix.os,'windows')
       run: |
         # OpenBLAS direct download (too slow to build using vcpkg)
         # and renaming to match what cmake wants to see
@@ -140,67 +148,29 @@ jobs:
         echo "CMAKE_TOOLCHAIN_FILE=${TF}" >> $GITHUB_ENV
 
         # NumPy
-        pip install -yq numpy
+        pip install --upgrade -q pip
+        pip install --upgrade --progress-bar off -q numpy
 
         # Finally, print our settings
         cat $GITHUB_ENV
 
-    - name: MacOS setup
+    - name: MacOS OpenBLAS setup - Python, NumPy, hdf5, libmatio, and doxygen via brew
       if: startsWith(matrix.os,'macos')
       run: |
         brew update > /dev/null
         brew install hdf5 libmatio boost vtk numpy swig homebrew/cask/doxygen graphviz
-        if [ ${{matrix.blas}} == "OpenBLAS" ]; then
-          brew install openblas
-          echo "LDFLAGS=-L/usr/local/opt/openblas/lib" >> $GITHUB_ENV
-          echo "CPPFLAGS=-I/usr/local/opt/openblas/include" >> $GITHUB_ENV
-          echo "CMAKE_CXX_FLAGS=-I/usr/local/opt/openblas/include" >> $GITHUB_ENV
-        else
-          MKL_LIBS=mkl-devel
-          if [ ${{matrix.linking}} == 'static' ]; then
-            MKL_LIBS=mkl-static
-          fi
-          conda create -n openmeeg -c intel mkl ${MKL_LIBS} mkl-include
-          conda activate openmeeg
-          printenv >> $GITHUB_ENV
-        fi
+        brew install openblas
+        echo "LDFLAGS=-L/usr/local/opt/openblas/lib" >> $GITHUB_ENV
+        echo "CPPFLAGS=-I/usr/local/opt/openblas/include" >> $GITHUB_ENV
+        echo "CMAKE_CXX_FLAGS=-I/usr/local/opt/openblas/include" >> $GITHUB_ENV
 
-    - name: Linux setup
-      if: startsWith(matrix.os,'ubuntu')
+    - name: Linux OpenBLAS setup - Python, NumPy, hdf5, libmatio, and doxygen via apt
+      if: startsWith(matrix.os,'ubuntu') && startswith(matrix.blas,'OpenBLAS')
       run: |
-        if [ ${{matrix.blas}} == "OpenBLAS" ]; then
-          sudo apt-get update
-          sudo apt-get -yq install libopenblas-dev liblapacke-dev
-        else
-          # There is a mkl version in the official repository for 20.04 but not for 18.04, but it is not up-to-date.
-          # Instead rely on intel packages.
-          # Get and install the key:
-          wget -O- https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB |\
-                gpg --dearmor | sudo tee /usr/share/keyrings/oneapi-archive-keyring.gpg > /dev/null
-          echo "deb [signed-by=/usr/share/keyrings/oneapi-archive-keyring.gpg] https://apt.repos.intel.com/oneapi all main" |\
-                sudo tee /etc/apt/sources.list.d/oneAPI.list
-
-          # In newer ubuntu >=20.04, mkl is part of the distribution. It can directly be installed with:
-          # The syntaxic sugar is because the installation has some interactive configuration part.
-          # sudo DEBIAN_FRONTEND=noninteractive apt-get -yq intel-mkl libmkl-full-dev
-          # Use this when the ubuntu mkl will be more up-to-date and reliable (in particular in its cmake support).
-
-          sudo apt-get update
-          sudo apt-get -yq install intel-oneapi-mkl-devel
-
-          # We need to set some global vars to allow cmake to detect MKL on ubuntu.
-
-          source /opt/intel/oneapi/setvars.sh
-          printenv >> $GITHUB_ENV
-        fi
-
-        sudo apt-get update
-        sudo apt-get -yq install python3-numpy doxygen graphviz libmatio-dev libvtk7-dev lcov
+        sudo apt update
+        sudo apt -yq install libopenblas-dev liblapacke-dev python3-numpy doxygen graphviz libmatio-dev libvtk7-dev lcov
 
     - name: Configure CMake
-      # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration
-      # generator such as make.
-      # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
       run: |
         set -x
         cmake -B build \
