@@ -4,6 +4,12 @@
   "dependencies": [
     "openblas",
     {
+      "name": "lapack-reference",
+      "features": [
+        "blas-select"
+      ]
+    },
+    {
       "name": "matio",
       "features": [
         "mat73",
