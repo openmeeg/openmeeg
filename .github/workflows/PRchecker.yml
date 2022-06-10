@@ -34,7 +34,7 @@ jobs:
         # TODO: MKL status unknown on macOS
         # TODO: Static build broken for OpenBLAS (Could NOT find LAPACK (missing: LAPACK_LIBRARIES))
         os: [ubuntu-20.04, windows-latest, macos-latest]
-        blas: [OpenBLAS, MKL]
+        blas: [OpenBLAS]
         linking: [dynamic]
         python: [python]
         include:
@@ -109,6 +109,8 @@ jobs:
         runVcpkgInstall: true
         vcpkgJsonGlob: '**/build_tools/vcpkg.json'
         appendedCacheKey: vcpkginstall
+      env:
+        VCPKG_DEFAULT_TRIPLET: x64-windows
 
     - name: Windows OpenBLAS setup 2 - OpenBLAS and NumPy
       if: startsWith(matrix.blas,'OpenBLAS') && startsWith(matrix.os,'windows')
