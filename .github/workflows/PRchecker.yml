@@ -100,17 +100,22 @@ jobs:
         conda install mkl mkl-include numpy hdf5 libmatio swig
 
     - name: Windows OpenBLAS setup 1 - hdf5 and libmatio via vcpkg
-      uses: lukka/run-vcpkg@v10
-      id: runvcpkg
       if: startswith(matrix.blas,'OpenBLAS') && startsWith(matrix.os,'windows')
-      with:
-        vcpkgDirectory: '${{ github.workspace }}/vcpkg'
-        vcpkgGitCommitId: '14e7bb4ae24616ec54ff6b2f6ef4e8659434ea44'  # 2022-05-05 release
-        runVcpkgInstall: true
-        vcpkgJsonGlob: '**/build_tools/vcpkg.json'
-        appendedCacheKey: vcpkginstall
-      env:
-        VCPKG_DEFAULT_TRIPLET: x64-windows
+      # TODO: get run-vcpkg to work, as it caches
+      #uses: lukka/run-vcpkg@v10
+      #id: runvcpkg
+      #with:
+      #  vcpkgDirectory: '${{ github.workspace }}/vcpkg'
+      #  vcpkgGitCommitId: '14e7bb4ae24616ec54ff6b2f6ef4e8659434ea44'  # 2022-05-05 release
+      #  runVcpkgInstall: true
+      #  vcpkgJsonGlob: '**/build_tools/vcpkg.json'
+      #  appendedCacheKey: vcpkginstall
+      #env:
+      #  VCPKG_DEFAULT_TRIPLET: x64-windows
+      run: |
+        git clone --depth=1 https://github.com/Microsoft/vcpkg.git
+        ./vcpkg/bootstrap-vcpkg.sh
+        ./vcpkg/vcpkg install --triplet x64-windows matio[mat73,zlib] hdf5[zlib]
 
     - name: Windows OpenBLAS setup 2 - OpenBLAS and NumPy
       if: startsWith(matrix.blas,'OpenBLAS') && startsWith(matrix.os,'windows')
