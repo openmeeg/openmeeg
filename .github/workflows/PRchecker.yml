@@ -62,7 +62,7 @@ jobs:
     - uses: conda-incubator/setup-miniconda@v2
       if: startsWith(matrix.os,'windows') || (startsWith(matrix.os,'macos') && startswith(matrix.blas,'MKL'))
       with:
-        auto-activate-base: true
+        activate-environment: ""
         python-version: "3.10"
         channels: conda-forge
         channel-priority: strict
@@ -101,7 +101,20 @@ jobs:
     - name: Windows Python and NumPy from conda, OpenBLAS download
       if: startsWith(matrix.os,'windows')
       run: |
-        conda install -yq numpy
+        echo "LIB=${LF};${LIB}" >> $GITHUB_ENV
+        echo "CPATH=${CF};${CPATH}" >> $GITHUB_ENV
+        echo "CMAKE_CXX_FLAGS=-I${CF}" >> $GITHUB_ENV
+        echo "CMAKE_TOOLCHAIN_FILE=${TF}" >> $GITHUB_ENV
+        # OpenBLAS direct download (too slow to build using vcpkg)
+        # and renaming to match what cmake wants to see
+        curl -LO https://github.com/xianyi/OpenBLAS/releases/download/v0.3.20/OpenBLAS-0.3.20-x64.zip
+        unzip OpenBLAS-0.3.20-x64.zip -d openblas
+        cd openblas/lib
+        ls -al
+        mv ../bin/libopenblas.dll .
+        for fname in lib*; do mv $fname ${fname:3:100}; done
+        ls -al
+        cd ../..
 
         LF=${PWD}/openblas/lib
         echo "$LF"
@@ -121,20 +134,9 @@ jobs:
         TF=$(cygpath -m "$TF")
         echo "$TF"
 
-        echo "LIB=${LF};${LIB}" >> $GITHUB_ENV
-        echo "CPATH=${CF};${CPATH}" >> $GITHUB_ENV
-        echo "CMAKE_CXX_FLAGS=-I${CF}" >> $GITHUB_ENV
-        echo "CMAKE_TOOLCHAIN_FILE=${TF}" >> $GITHUB_ENV
-        # OpenBLAS direct download (too slow to build using vcpkg)
-        # and renaming to match what cmake wants to see
-        curl -LO https://github.com/xianyi/OpenBLAS/releases/download/v0.3.20/OpenBLAS-0.3.20-x64.zip
-        unzip OpenBLAS-0.3.20-x64.zip -d openblas
-        cd openblas/lib
-        ls -al
-        mv ../bin/libopenblas.dll .
-        for fname in lib*; do mv $fname ${fname:3:100}; done
-        ls -al
-        cd ../..
+        # NumPy
+        conda install -yq numpy
+
         # Finally, print our settings
         cat $GITHUB_ENV
 
