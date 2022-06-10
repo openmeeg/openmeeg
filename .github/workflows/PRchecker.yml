@@ -111,7 +111,6 @@ jobs:
 
         VI="${PWD}/b/vcpkg_installed"
         echo "$VI"
-        test -d "$VI"
         VI=$(cygpath -m "$VI")
         echo "$VI"
         echo "VCPKG_INSTALLED_DIR=$VI" >> $GITHUB_ENV
@@ -143,6 +142,12 @@ jobs:
       #  ./bootstrap-vcpkg.sh
       #  ./vcpkg install
       #  cd ..
+
+    - name: Windows OpenBLAS setup 3 - check env
+      if: startswith(matrix.blas,'OpenBLAS') && startswith(matrix.os,'windows')
+      run: |
+        echo "VCPKG_INSTALLED_DIR: $VCPKG_INSTALLED_DIR"
+        test -d "$VCPKG_INSTALLED_DIR"
 
     #- name: Windows OpenBLAS setup 2 - OpenBLAS
     #  if: startsWith(matrix.blas,'OpenBLAS') && startsWith(matrix.os,'windows')
