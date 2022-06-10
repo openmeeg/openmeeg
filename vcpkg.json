@@ -2,7 +2,7 @@
   "name": "openmeeg-deps",
   "version-string": "0.0.1",
   "dependencies": [
-    "cblas",
+    "blas",
     "clapack",
     {
       "name": "matio",
