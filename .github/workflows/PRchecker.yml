@@ -102,15 +102,6 @@ jobs:
     - name: Windows OpenBLAS setup 1 - set env and install NumPy via pip
       if: startswith(matrix.blas,'OpenBLAS') && startswith(matrix.os,'windows')
       run: |
-        VM="${PWD}/build_tools"
-        echo "$VM"
-        test -d "$VM"
-        echo "$VM/vcpkg.json"
-        test -f "$VM/vcpkg.json"
-        VM=$(cygpath -m "$VM")
-        echo "$VM"
-        echo "VCPKG_MANIFEST_DIR=$VM" >> $GITHUB_ENV
-
         cd ..
         VI="${PWD}/b/vcpkg_installed"
         cd openmeeg
@@ -131,20 +122,20 @@ jobs:
     - name: Windows OpenBLAS setup 2 - hdf5, libmatio, and openblas via vcpkg
       if: startswith(matrix.blas,'OpenBLAS') && startsWith(matrix.os,'windows')
       id: runvcpkg
-      #uses: lukka/run-vcpkg@v10
-      #with:
-      #  vcpkgDirectory: '${{ github.workspace }}/vcpkg'
-      #  vcpkgGitCommitId: '14e7bb4ae24616ec54ff6b2f6ef4e8659434ea44'  # 2022-05-05 release
-      #  runVcpkgInstall: true
-      #  vcpkgJsonGlob: '**/build_tools/vcpkg.json'
-      #  appendedCacheKey: vcpkginstall
-      run: |
-        git clone https://github.com/Microsoft/vcpkg.git
-        cd vcpkg
-        git checkout 14e7bb4ae24616ec54ff6b2f6ef4e8659434ea44
-        ./bootstrap-vcpkg.sh
-        ./vcpkg install
-        cd ..
+      uses: lukka/run-vcpkg@v10
+      with:
+        vcpkgDirectory: '${{ github.workspace }}/vcpkg'
+        vcpkgGitCommitId: '14e7bb4ae24616ec54ff6b2f6ef4e8659434ea44'  # 2022-05-05 release
+        runVcpkgInstall: true
+        vcpkgJsonGlob: '**/vcpkg.json'
+        appendedCacheKey: vcpkginstall
+      #run: |
+      #  git clone https://github.com/Microsoft/vcpkg.git
+      #  cd vcpkg
+      #  git checkout 14e7bb4ae24616ec54ff6b2f6ef4e8659434ea44
+      #  ./bootstrap-vcpkg.sh
+      #  ./vcpkg install
+      #  cd ..
 
     - name: Windows OpenBLAS setup 3 - check env
       if: startswith(matrix.blas,'OpenBLAS') && startswith(matrix.os,'windows')
