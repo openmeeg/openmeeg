@@ -102,9 +102,7 @@ jobs:
     - name: Windows OpenBLAS setup 1 - set env and install NumPy via pip
       if: startswith(matrix.blas,'OpenBLAS') && startswith(matrix.os,'windows')
       run: |
-        cd ..
         VI="${PWD}/b/vcpkg_installed"
-        cd openmeeg
         echo "$VI"
         VI=$(cygpath -m "$VI")
         echo "$VI"
