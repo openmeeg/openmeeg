@@ -109,7 +109,9 @@ jobs:
         echo "$VM"
         echo "VCPKG_MANIFEST_DIR=$VM" >> $GITHUB_ENV
 
+        cd ..
         VI="${PWD}/b/vcpkg_installed"
+        cd openmeeg
         echo "$VI"
         VI=$(cygpath -m "$VI")
         echo "$VI"
@@ -117,7 +119,6 @@ jobs:
 
         TF=${PWD}/vcpkg/scripts/buildsystems/vcpkg.cmake
         echo "$TF"
-        test -f "$TF"
         TF=$(cygpath -m "$TF")
         echo "$TF"
         echo "CMAKE_TOOLCHAIN_FILE=${TF}" >> $GITHUB_ENV
@@ -147,7 +148,9 @@ jobs:
       if: startswith(matrix.blas,'OpenBLAS') && startswith(matrix.os,'windows')
       run: |
         echo "VCPKG_INSTALLED_DIR: $VCPKG_INSTALLED_DIR"
-        test -d "$VCPKG_INSTALLED_DIR"
+        test -d $(cygpath -u "$VCPKG_INSTALLED_DIR")
+        echo "CMAKE_TOOLCHAIN_FILE: $CMAKE_TOOLCHAIN_FILE"
+        test -f $(cygpath -u "$CMAKE_TOOLCHAIN_FILE")
 
     #- name: Windows OpenBLAS setup 2 - OpenBLAS
     #  if: startsWith(matrix.blas,'OpenBLAS') && startsWith(matrix.os,'windows')
