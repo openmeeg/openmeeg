@@ -99,67 +99,61 @@ jobs:
       run: |
         conda install mkl mkl-include numpy hdf5 libmatio swig
 
-    - name: Windows OpenBLAS setup 1 - hdf5 and libmatio via vcpkg
+    - name: Windows OpenBLAS setup 1 - hdf5, libmatio, and openblas via vcpkg
       if: startswith(matrix.blas,'OpenBLAS') && startsWith(matrix.os,'windows')
-      # TODO: get run-vcpkg to work, as it caches
-      #uses: lukka/run-vcpkg@v10
-      #id: runvcpkg
-      #with:
-      #  vcpkgDirectory: '${{ github.workspace }}/vcpkg'
-      #  vcpkgGitCommitId: '14e7bb4ae24616ec54ff6b2f6ef4e8659434ea44'  # 2022-05-05 release
-      #  runVcpkgInstall: true
-      #  vcpkgJsonGlob: '**/build_tools/vcpkg.json'
-      #  appendedCacheKey: vcpkginstall
-      #env:
-      #  VCPKG_DEFAULT_TRIPLET: x64-windows
+      uses: lukka/run-vcpkg@v10
+      id: runvcpkg
+      with:
+        vcpkgDirectory: '${{ github.workspace }}/vcpkg'
+        vcpkgGitCommitId: '14e7bb4ae24616ec54ff6b2f6ef4e8659434ea44'  # 2022-05-05 release
+        runVcpkgInstall: true
+        vcpkgJsonGlob: '**/build_tools/vcpkg.json'
+        appendedCacheKey: vcpkginstall
+
+    - name: Windows OpenBLAS setup 2 - set env and install NumPy via pip
       run: |
-        git clone --depth=1 https://github.com/Microsoft/vcpkg.git
-        ./vcpkg/bootstrap-vcpkg.sh
-        ./vcpkg/vcpkg install --triplet x64-windows matio[mat73,zlib] hdf5[zlib]
-
-    - name: Windows OpenBLAS setup 2 - OpenBLAS and NumPy
-      if: startsWith(matrix.blas,'OpenBLAS') && startsWith(matrix.os,'windows')
-      run: |
-        # OpenBLAS direct download (too slow to build using vcpkg)
-        # and renaming to match what cmake wants to see
-        curl -LO https://github.com/xianyi/OpenBLAS/releases/download/v0.3.20/OpenBLAS-0.3.20-x64.zip
-        unzip OpenBLAS-0.3.20-x64.zip -d openblas
-        cd openblas/lib
-        ls -al
-        mv ../bin/libopenblas.dll .
-        for fname in lib*; do mv $fname ${fname:3:100}; done
-        ls -al
-        cd ../..
-
-        LF=${PWD}/openblas/lib
-        echo "$LF"
-        test -d "$LF"
-        LF=$(cygpath -m "$LF")
-        echo "$LF"
-
-        CF=${PWD}/openblas/include
-        echo "$CF"
-        test -d "$CF"
-        CF=$(cygpath -m "$CF")
-        echo "$CF"
-
+        #git clone https://github.com/Microsoft/vcpkg.git
+        #git checkout 14e7bb4ae24616ec54ff6b2f6ef4e8659434ea44
+        #./vcpkg/bootstrap-vcpkg.sh
+        #./vcpkg/vcpkg install matio[mat73,zlib] hdf5[zlib] openblas
+        echo "VCPKG_MANIFEST_DIR=${PWD}/build_tools/vcpkg.json"
         TF=${PWD}/vcpkg/scripts/buildsystems/vcpkg.cmake
         echo "$TF"
         test -f "$TF"
         TF=$(cygpath -m "$TF")
         echo "$TF"
-
-        echo "LIB=${LF};${LIB}" >> $GITHUB_ENV
-        echo "CPATH=${CF};${CPATH}" >> $GITHUB_ENV
-        echo "CMAKE_CXX_FLAGS=-I${CF}" >> $GITHUB_ENV
         echo "CMAKE_TOOLCHAIN_FILE=${TF}" >> $GITHUB_ENV
-
-        # NumPy
         pip install --upgrade -q pip
         pip install --upgrade --progress-bar off -q numpy
 
-        # Finally, print our settings
-        cat $GITHUB_ENV
+    #- name: Windows OpenBLAS setup 2 - OpenBLAS
+    #  if: startsWith(matrix.blas,'OpenBLAS') && startsWith(matrix.os,'windows')
+    #  run: |
+    #    # OpenBLAS direct download (too slow to build using vcpkg)
+    #    # and renaming to match what cmake wants to see
+    #    curl -LO https://github.com/xianyi/OpenBLAS/releases/download/v0.3.20/OpenBLAS-0.3.20-x64.zip
+    #    unzip OpenBLAS-0.3.20-x64.zip -d openblas
+    #    cd openblas/lib
+    #    ls -al
+    #    mv ../bin/libopenblas.dll .
+    #    for fname in lib*; do mv $fname ${fname:3:100}; done
+    #    ls -al
+    #    cd ../..
+    #    LF=${PWD}/openblas/lib
+    #    echo "$LF"
+    #    test -d "$LF"
+    #    LF=$(cygpath -m "$LF")
+    #    echo "$LF"
+    #    CF=${PWD}/openblas/include
+    #    echo "$CF"
+    #    test -d "$CF"
+    #    CF=$(cygpath -m "$CF")
+    #    echo "$CF"
+    #    echo "LIB=${LF};${LIB}" >> $GITHUB_ENV
+    #    echo "CPATH=${CF};${CPATH}" >> $GITHUB_ENV
+    #    echo "CMAKE_CXX_FLAGS=-I${CF}" >> $GITHUB_ENV
+    #    # Finally, print our settings
+    #    cat $GITHUB_ENV
 
     - name: MacOS OpenBLAS setup - Python, NumPy, hdf5, libmatio, and doxygen via brew
       if: startsWith(matrix.os,'macos')
