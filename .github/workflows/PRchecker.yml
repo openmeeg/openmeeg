@@ -99,7 +99,34 @@ jobs:
       run: |
         conda install mkl mkl-include numpy hdf5 libmatio swig
 
-    - name: Windows OpenBLAS setup 1 - hdf5, libmatio, and openblas via vcpkg
+    - name: Windows OpenBLAS setup 1 - set env and install NumPy via pip
+      if: startswith(matrix.blas,'OpenBLAS') && startswith(matrix.os,'windows')
+      run: |
+        VM="${PWD}/build_tools"
+        echo "$VM"
+        test -d "$VM"
+        VM=$(cygpath -m "$VM")
+        echo "$VM"
+        echo "VCPKG_MANIFEST_DIR=$VM" >> $BASH_ENV
+
+        VI="${PWD}/b/vcpkg_installed"
+        echo "$VI"
+        test -d "$VI"
+        VI=$(cygpath -m "$VI")
+        echo "$VI"
+        echo "VCPKG_INSTALLED_DIR=$VI" >> $BASH_ENV
+
+        TF=${PWD}/vcpkg/scripts/buildsystems/vcpkg.cmake
+        echo "$TF"
+        test -f "$TF"
+        TF=$(cygpath -m "$TF")
+        echo "$TF"
+        echo "CMAKE_TOOLCHAIN_FILE=${TF}" >> $GITHUB_ENV
+
+        pip install --upgrade -q pip
+        pip install --upgrade --progress-bar off -q numpy
+
+    - name: Windows OpenBLAS setup 2 - hdf5, libmatio, and openblas via vcpkg
       if: startswith(matrix.blas,'OpenBLAS') && startsWith(matrix.os,'windows')
       uses: lukka/run-vcpkg@v10
       id: runvcpkg
@@ -109,23 +136,13 @@ jobs:
         runVcpkgInstall: true
         vcpkgJsonGlob: '**/build_tools/vcpkg.json'
         appendedCacheKey: vcpkginstall
-
-    - name: Windows OpenBLAS setup 2 - set env and install NumPy via pip
-      if: startswith(matrix.blas,'OpenBLAS') && startswith(matrix.os,'windows')
-      run: |
-        #git clone https://github.com/Microsoft/vcpkg.git
-        #git checkout 14e7bb4ae24616ec54ff6b2f6ef4e8659434ea44
-        #./vcpkg/bootstrap-vcpkg.sh
-        #./vcpkg/vcpkg install matio[mat73,zlib] hdf5[zlib] openblas
-        echo "VCPKG_MANIFEST_DIR=${PWD}/build_tools/vcpkg.json"
-        TF=${PWD}/vcpkg/scripts/buildsystems/vcpkg.cmake
-        echo "$TF"
-        test -f "$TF"
-        TF=$(cygpath -m "$TF")
-        echo "$TF"
-        echo "CMAKE_TOOLCHAIN_FILE=${TF}" >> $GITHUB_ENV
-        pip install --upgrade -q pip
-        pip install --upgrade --progress-bar off -q numpy
+      #run: |
+      #  git clone https://github.com/Microsoft/vcpkg.git
+      #  cd vcpkg
+      #  git checkout 14e7bb4ae24616ec54ff6b2f6ef4e8659434ea44
+      #  ./bootstrap-vcpkg.sh
+      #  ./vcpkg install
+      #  cd ..
 
     #- name: Windows OpenBLAS setup 2 - OpenBLAS
     #  if: startsWith(matrix.blas,'OpenBLAS') && startsWith(matrix.os,'windows')
