@@ -2,13 +2,8 @@
   "name": "openmeeg-deps",
   "version-string": "0.0.1",
   "dependencies": [
-    "openblas",
-    {
-      "name": "lapack-reference",
-      "features": [
-        "noblas"
-      ]
-    },
+    "blas",
+    "lapack",
     {
       "name": "matio",
       "features": [
