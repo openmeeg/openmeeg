@@ -118,23 +118,31 @@ jobs:
         pip install --upgrade -q pip
         pip install --upgrade --progress-bar off -q numpy
 
+    - uses: actions/cache@v3
+      with:
+        path: |
+          vcpkg
+          b/vcpkg_installed
+        key: vcpkg-pr21479-${{ hashFiles('**/vcpkg.json') }}
+
     - name: Windows OpenBLAS setup 2 - hdf5, libmatio, and openblas via vcpkg
       if: startswith(matrix.blas,'OpenBLAS') && startsWith(matrix.os,'windows')
       id: runvcpkg
-      uses: lukka/run-vcpkg@v10
-      with:
-        vcpkgDirectory: '${{ github.workspace }}/vcpkg'
-        vcpkgGitCommitId: '14e7bb4ae24616ec54ff6b2f6ef4e8659434ea44'  # 2022-05-05 release
-        runVcpkgInstall: true
-        vcpkgJsonGlob: '**/vcpkg.json'
-        appendedCacheKey: vcpkginstall
-      #run: |
-      #  git clone https://github.com/Microsoft/vcpkg.git
-      #  cd vcpkg
-      #  git checkout 14e7bb4ae24616ec54ff6b2f6ef4e8659434ea44
-      #  cd ..
-      #  ./vcpkg/bootstrap-vcpkg.sh
-      #  ./vcpkg/vcpkg install
+      #uses: lukka/run-vcpkg@v10
+      #with:
+      #  vcpkgDirectory: '${{ github.workspace }}/vcpkg'
+      #  vcpkgGitCommitId: '14e7bb4ae24616ec54ff6b2f6ef4e8659434ea44'  # 2022-05-05 release
+      #  runVcpkgInstall: true
+      #  vcpkgJsonGlob: '**/vcpkg.json'
+      #  appendedCacheKey: vcpkginstall
+      run: |
+        git clone https://github.com/Microsoft/vcpkg.git
+        cd vcpkg
+        git fetch origin pull/21479/head:lapack
+        git checkout lapack
+        cd ..
+        ./vcpkg/bootstrap-vcpkg.sh
+        ./vcpkg/vcpkg install
 
     - name: Windows OpenBLAS setup 3 - check env
       if: startswith(matrix.blas,'OpenBLAS') && startswith(matrix.os,'windows')
