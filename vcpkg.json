@@ -19,4 +19,5 @@
     "vcpkg-cmake",
     "vcpkg-cmake-config",
     "zlib"
+  ]
 }
