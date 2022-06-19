@@ -47,11 +47,16 @@ jobs:
         #    blas: OpenBLAS
         #    linking: dynamic
         #    python: no-python
-        #  # static build
+        #  # Ubuntu static build
         #  #- os: ubuntu-20.04
         #  #  blas: OpenBLAS
         #  #  linking: static
         #  #  python: python
+        # Windows static build
+        - os: windows-latest
+          blas: OpenBLAS
+          linking: static
+          python: python
         #  # ubuntu-18.04 build, but Python tests currently fail so use no-python
         #  - os: ubuntu-18.04
         #    blas: OpenBLAS
@@ -162,7 +167,7 @@ jobs:
       with:
         path: |
           /c/opt/OpenBLAS
-        key: OpenBLAS-x64-windows-static-0
+        key: OpenBLAS-x64-windows-${{ matrix.linking }}-0
 
     - name: Windows OpenBLAS setup 4 - OpenBLAS
       if: startsWith(matrix.blas,'OpenBLAS') && startsWith(matrix.os,'windows')

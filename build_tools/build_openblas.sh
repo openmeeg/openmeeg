@@ -26,6 +26,7 @@ test -d $OPENBLAS_LIB
 ls -al $OPENBLAS_LIB
 test -f $OPENBLAS_LIB/libopenblas.a
 cp $OPENBLAS_LIB/libopenblas.a $OPENBLAS_LIB/openblas.a
+cp $OPENBLAS_LIB/libopenblas.dll $OPENBLAS_LIB/openblas.dll
 test -d $OPENBLAS_INCLUDE
 ls -al $OPENBLAS_INCLUDE
 test -f $OPENBLAS_INCLUDE/cblas.h
