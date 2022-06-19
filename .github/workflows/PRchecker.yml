@@ -177,7 +177,9 @@ jobs:
         source ./build_tools/build_openblas.sh
         echo "Using OPENBLAS_LIB=$OPENBLAS_LIB, OPENBLAS_INCLUDE=$OPENBLAS_INCLUDE"
         test ! -z $OPENBLAS_LIB
+        ls -al $OPENBLAS_LIB
         test ! -z $OPENBLAS_INCLUDE
+        ls -al $OPENBLAS_INCLUDE
         echo "LIB=$(cygpath -m $OPENBLAS_LIB);${LIB}" >> $GITHUB_ENV
         echo "CPATH=$(cygpath -m $OPENBLAS_INCLUDE);${CPATH}" >> $GITHUB_ENV
         echo "CMAKE_CXX_FLAGS=-I$(cygpath -m $OPENBLAS_INCLUDE)" >> $GITHUB_ENV
