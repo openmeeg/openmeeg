@@ -37,30 +37,31 @@ jobs:
         # os: [ubuntu-20.04, windows-latest, macos-latest]
         os: [windows-latest]
         blas: [OpenBLAS]
-        linking: [dynamic]
+        blas_linking: [dynamic]
         python: [python]
         dynamic_arch: ['0']
         include:
         # Windows static build
         - os: windows-latest
           blas: OpenBLAS
-          linking: static
+          blas_linking: static
           python: python
+          dynamic_arch: ['0']
         # TODO: UNCOMMENT!
         #  # no-python build
         #  - os: ubuntu-20.04
         #    blas: OpenBLAS
-        #    linking: dynamic
+        #    blas_linking: dynamic
         #    python: no-python
         #  # Ubuntu static build
         #  #- os: ubuntu-20.04
         #  #  blas: OpenBLAS
-        #  #  linking: static
+        #  #  blas_linking: static
         #  #  python: python
         #  # ubuntu-18.04 build, but Python tests currently fail so use no-python
         #  - os: ubuntu-18.04
         #    blas: OpenBLAS
-        #    linking: dynamic
+        #    blas_linking: dynamic
         #    python: no-python
 
     runs-on: ${{ matrix.os }}
@@ -70,7 +71,7 @@ jobs:
 
     - name: Environment setup
       run: |
-        if [ ${{matrix.linking}} == 'static' ]; then
+        if [ ${{matrix.blas_linking}} == 'static' ]; then
           echo "STATIC_OPT='-DBLA_STATIC=ON'" >> $GITHUB_ENV
         fi
         if [ ${{matrix.python}} == 'python' ]; then
@@ -132,13 +133,11 @@ jobs:
         path: |
           vcpkg
           b/vcpkg_installed
-        key: vcpkg-${{ hashFiles('**/vcpkg.json') }}-${{ matrix.linking }}
+        key: vcpkg-${{ hashFiles('**/vcpkg.json') }}-0
 
     - name: Windows OpenBLAS setup 2 - hdf5 and libmatio via vcpkg
       if: startswith(matrix.blas,'OpenBLAS') && startsWith(matrix.os,'windows')
       id: runvcpkg
-      env:
-        LINKING: ${{ matrix.linking }}
       #uses: lukka/run-vcpkg@v10
       #with:
       #  vcpkgDirectory: '${{ github.workspace }}/vcpkg'
@@ -149,11 +148,8 @@ jobs:
       run: |
         git clone https://github.com/Microsoft/vcpkg.git --depth=1
         ./vcpkg/bootstrap-vcpkg.sh
-        if [ "$LINKING" == "static" ]; then
-            TRIPLET_EXTRA="-static"
-        fi
         set -x
-        ./vcpkg/vcpkg install --triplet=x64-windows$TRIPLET_EXTRA --x-install-root=$VCPKG_INSTALLED_DIR
+        ./vcpkg/vcpkg install --triplet=x64-windows --x-install-root=$VCPKG_INSTALLED_DIR
 
     - name: Windows OpenBLAS setup 3 - check env
       if: startswith(matrix.blas,'OpenBLAS') && startswith(matrix.os,'windows')
@@ -168,7 +164,7 @@ jobs:
     #  with:
     #    path: |
     #      /c/opt/OpenBLAS
-    #    key: OpenBLAS-x64-windows-${{ matrix.linking }}-${{ matrix.dynamic_arch }}-0
+    #    key: OpenBLAS-x64-windows-${{ matrix.dynamic_arch }}-0
 #
     #- name: Windows OpenBLAS setup 4 - OpenBLAS
     #  if: startsWith(matrix.blas,'OpenBLAS') && startsWith(matrix.os,'windows')
