@@ -146,9 +146,15 @@ jobs:
       #  vcpkgJsonGlob: '**/vcpkg.json'
       #  appendedCacheKey: vcpkginstall
       run: |
-        git clone https://github.com/Microsoft/vcpkg.git --depth=1
-        ./vcpkg/bootstrap-vcpkg.sh
         set -x
+        if [ ! -d vcpkg ]; then
+          git clone https://github.com/Microsoft/vcpkg.git --depth=1
+          cd vcpkg
+          git fetch origin 2022.05.10:use --depth=1
+          git checkout use
+          ./bootstrap-vcpkg.sh
+          cd ..
+        fi
         ./vcpkg/vcpkg install --triplet=x64-windows --x-install-root=$VCPKG_INSTALLED_DIR
 
     - name: Windows OpenBLAS setup 3 - check env
@@ -212,28 +218,28 @@ jobs:
         sudo apt update
         sudo apt -yq install libopenblas-dev liblapacke-dev python3-numpy doxygen graphviz libmatio-dev libvtk7-dev lcov
 
-    #- name: Configure CMake
-    #  run: |
-    #    set -x
-    #    cmake -B build \
-    #          -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} \
-    #          ${{env.STATIC_OPT}} \
-    #          ${{env.BLA_IMPL}} \
-    #          ${{env.BLA_PARA}} \
-    #          ${{env.PYTHON_OPT}} \
-    #          ${{env.DOC_OPT}} \
-    #          -DCMAKE_TOOLCHAIN_FILE=${{ env.CMAKE_TOOLCHAIN_FILE }} \
-    #          -DCMAKE_CXX_FLAGS=${{ env.CMAKE_CXX_FLAGS }} \
-    #          -DTEST_HEAD3=ON
-#
-    #- name: Build
-    #  # Build your program with the given configuration
-    #  run: |
-    #    cmake --build build --config ${{env.BUILD_TYPE}}
-#
-    #- name: Test
-    #  working-directory: ${{github.workspace}}/build
-    #  # Execute tests defined by the CMake configuration.
-    #  # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
-    #  run: |
-    #    ctest -C ${{env.BUILD_TYPE}} || ctest --rerun-failed --output-on-failure
+    - name: Configure CMake
+      run: |
+        set -x
+        cmake -B build \
+              -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} \
+              ${{env.STATIC_OPT}} \
+              ${{env.BLA_IMPL}} \
+              ${{env.BLA_PARA}} \
+              ${{env.PYTHON_OPT}} \
+              ${{env.DOC_OPT}} \
+              -DCMAKE_TOOLCHAIN_FILE=${{ env.CMAKE_TOOLCHAIN_FILE }} \
+              -DCMAKE_CXX_FLAGS=${{ env.CMAKE_CXX_FLAGS }} \
+              -DTEST_HEAD3=ON
+
+    - name: Build
+      # Build your program with the given configuration
+      run: |
+        cmake --build build --config ${{env.BUILD_TYPE}}
+
+    - name: Test
+      working-directory: ${{github.workspace}}/build
+      # Execute tests defined by the CMake configuration.
+      # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
+      run: |
+        ctest -C ${{env.BUILD_TYPE}} || ctest --rerun-failed --output-on-failure
