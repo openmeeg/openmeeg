@@ -210,28 +210,28 @@ jobs:
         sudo apt update
         sudo apt -yq install libopenblas-dev liblapacke-dev python3-numpy doxygen graphviz libmatio-dev libvtk7-dev lcov
 
-    - name: Configure CMake
-      run: |
-        set -x
-        cmake -B build \
-              -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} \
-              ${{env.BLA_STATIC_OPT}} \
-              ${{env.BLA_IMPL}} \
-              ${{env.BLA_PARA}} \
-              ${{env.PYTHON_OPT}} \
-              ${{env.DOC_OPT}} \
-              -DCMAKE_TOOLCHAIN_FILE=${{ env.CMAKE_TOOLCHAIN_FILE }} \
-              -DCMAKE_CXX_FLAGS=${{ env.CMAKE_CXX_FLAGS }} \
-              -DTEST_HEAD3=ON
-
-    - name: Build
-      # Build your program with the given configuration
-      run: |
-        cmake --build build --config ${{env.BUILD_TYPE}}
-
-    - name: Test
-      working-directory: ${{github.workspace}}/build
-      # Execute tests defined by the CMake configuration.
-      # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
-      run: |
-        ctest -C ${{env.BUILD_TYPE}} || ctest --rerun-failed --output-on-failure
+    #- name: Configure CMake
+    #  run: |
+    #    set -x
+    #    cmake -B build \
+    #          -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} \
+    #          ${{env.BLA_STATIC_OPT}} \
+    #          ${{env.BLA_IMPL}} \
+    #          ${{env.BLA_PARA}} \
+    #          ${{env.PYTHON_OPT}} \
+    #          ${{env.DOC_OPT}} \
+    #          -DCMAKE_TOOLCHAIN_FILE=${{ env.CMAKE_TOOLCHAIN_FILE }} \
+    #          -DCMAKE_CXX_FLAGS=${{ env.CMAKE_CXX_FLAGS }} \
+    #          -DTEST_HEAD3=ON
+#
+    #- name: Build
+    #  # Build your program with the given configuration
+    #  run: |
+    #    cmake --build build --config ${{env.BUILD_TYPE}}
+#
+    #- name: Test
+    #  working-directory: ${{github.workspace}}/build
+    #  # Execute tests defined by the CMake configuration.
+    #  # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
+    #  run: |
+    #    ctest -C ${{env.BUILD_TYPE}} || ctest --rerun-failed --output-on-failure
