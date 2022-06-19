@@ -70,7 +70,7 @@ jobs:
     - name: Environment setup
       run: |
         if [ ${{matrix.blas_linking}} == 'static' ]; then
-          echo "STATIC_OPT='-DBLA_STATIC=ON'" >> $GITHUB_ENV
+          echo "BLA_STATIC_OPT='-DBLA_STATIC=ON'" >> $GITHUB_ENV
         fi
         if [ ${{matrix.python}} == 'python' ]; then
           echo "PYTHON_OPT='-DENABLE_PYTHON=ON'" >> $GITHUB_ENV
@@ -185,9 +185,9 @@ jobs:
         mv libopenblas_v0.3.18-gcc_8_1_0.exp libopenblas.exp
         mv libopenblas_v0.3.18-gcc_8_1_0.lib libopenblas.lib
         cd ../../../
-        echo "LIB=$(cygpath -m '$OPENBLAS_LIB');${LIB}" >> $GITHUB_ENV
-        echo "CPATH=$(cygpath -m '$OPENBLAS_INCLUDE');${CPATH}" >> $GITHUB_ENV
-        echo "CMAKE_CXX_FLAGS=-I$(cygpath -m '$OPENBLAS_INCLUDE')" >> $GITHUB_ENV
+        echo "LIB=$(cygpath -m $OPENBLAS_LIB);${LIB}" >> $GITHUB_ENV
+        echo "CPATH=$(cygpath -m $OPENBLAS_INCLUDE);${CPATH}" >> $GITHUB_ENV
+        echo "CMAKE_CXX_FLAGS=-I$(cygpath -m $OPENBLAS_INCLUDE)" >> $GITHUB_ENV
         # Finally, print our settings
         cat $GITHUB_ENV
 
@@ -212,7 +212,7 @@ jobs:
         set -x
         cmake -B build \
               -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} \
-              ${{env.STATIC_OPT}} \
+              ${{env.BLA_STATIC_OPT}} \
               ${{env.BLA_IMPL}} \
               ${{env.BLA_PARA}} \
               ${{env.PYTHON_OPT}} \
