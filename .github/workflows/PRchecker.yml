@@ -40,8 +40,13 @@ jobs:
         blas: [OpenBLAS]
         linking: [dynamic]
         python: [python]
+        include:
+        # Windows static build
+        - os: windows-latest
+          blas: OpenBLAS
+          linking: static
+          python: python
         # TODO: UNCOMMENT!
-        #include:
         #  # no-python build
         #  - os: ubuntu-20.04
         #    blas: OpenBLAS
@@ -52,11 +57,6 @@ jobs:
         #  #  blas: OpenBLAS
         #  #  linking: static
         #  #  python: python
-        # Windows static build
-        - os: windows-latest
-          blas: OpenBLAS
-          linking: static
-          python: python
         #  # ubuntu-18.04 build, but Python tests currently fail so use no-python
         #  - os: ubuntu-18.04
         #    blas: OpenBLAS
