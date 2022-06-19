@@ -110,7 +110,7 @@ jobs:
     - name: Windows OpenBLAS setup 1 - set env and install NumPy via pip
       if: startswith(matrix.blas,'OpenBLAS') && startswith(matrix.os,'windows')
       run: |
-        VCPKG_INSTALLED_DIR="${PWD}/b/vcpkg_installed"
+        VCPKG_INSTALLED_DIR="${PWD}/build/vcpkg_installed"
         echo "$VCPKG_INSTALLED_DIR"
         VCPKG_INSTALLED_DIR=$(cygpath -m "$VCPKG_INSTALLED_DIR")
         echo "$VI"
@@ -133,8 +133,8 @@ jobs:
       with:
         path: |
           vcpkg
-          b/vcpkg_installed
-        key: vcpkg-${{ hashFiles('**/vcpkg.json') }}-0
+          build/vcpkg_installed
+        key: vcpkg-${{ hashFiles('**/vcpkg.json') }}-1
 
     - name: Windows OpenBLAS setup 2 - hdf5 and libmatio via vcpkg
       if: startswith(matrix.blas,'OpenBLAS') && startsWith(matrix.os,'windows')
@@ -220,7 +220,6 @@ jobs:
               ${{env.BLA_PARA}} \
               ${{env.PYTHON_OPT}} \
               ${{env.DOC_OPT}} \
-              ${{env.VCPKG_OPT}} \
               -DCMAKE_TOOLCHAIN_FILE=${{ env.CMAKE_TOOLCHAIN_FILE }} \
               -DCMAKE_CXX_FLAGS=${{ env.CMAKE_CXX_FLAGS }} \
               -DTEST_HEAD3=ON
