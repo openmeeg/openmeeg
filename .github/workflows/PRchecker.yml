@@ -34,6 +34,7 @@ jobs:
         # TODO: MKL status unknown on macOS
         # TODO: Static build broken for OpenBLAS (Could NOT find LAPACK (missing: LAPACK_LIBRARIES))
         # TODO: Use OpenBLAS for LAPACK on Windows (https://github.com/microsoft/vcpkg/issues/25176)
+        # TODO: Add Windows static case
         # os: [ubuntu-20.04, windows-latest, macos-latest]
         os: [windows-latest]
         blas: [OpenBLAS]
@@ -121,15 +122,18 @@ jobs:
         pip install --upgrade --progress-bar off -q numpy
 
     - uses: actions/cache@v3
+      name: Cache vcpkg
       with:
         path: |
           vcpkg
           b/vcpkg_installed
-        key: vcpkg-${{ hashFiles('**/vcpkg.json') }}-x64-mingw-static-0
+        key: vcpkg-${{ hashFiles('**/vcpkg.json') }}-${{ matrix.linking }}
 
     - name: Windows OpenBLAS setup 2 - hdf5 and libmatio via vcpkg
       if: startswith(matrix.blas,'OpenBLAS') && startsWith(matrix.os,'windows')
       id: runvcpkg
+      env:
+        LINKING: ${{ matrix.linking }}
       #uses: lukka/run-vcpkg@v10
       #with:
       #  vcpkgDirectory: '${{ github.workspace }}/vcpkg'
@@ -138,11 +142,12 @@ jobs:
       #  vcpkgJsonGlob: '**/vcpkg.json'
       #  appendedCacheKey: vcpkginstall
       run: |
-        # Eventually maybe we'll want to use the x64-mingw-static	triplet?
-        # pacman -S --needed base-devel mingw-w64-x86_64-toolchain mingw-w64-x86_64-cmake git
         git clone https://github.com/Microsoft/vcpkg.git --depth=1
         ./vcpkg/bootstrap-vcpkg.sh
-        ./vcpkg/vcpkg install --triplet=x64-windows-static
+        if $LINKING == "static"; then
+            TRIPLET_EXTRA="-static"
+        fi
+        ./vcpkg/vcpkg install --triplet=x64-windows$TRIPLET_EXTRA --x-install-root=$VCPKG_INSTALLED_DIR
 
     - name: Windows OpenBLAS setup 3 - check env
       if: startswith(matrix.blas,'OpenBLAS') && startswith(matrix.os,'windows')
@@ -153,6 +158,7 @@ jobs:
         test -f $(cygpath -u "$CMAKE_TOOLCHAIN_FILE")
 
     - uses: actions/cache@v3
+      name: Cache OpenBLAS
       with:
         path: |
           /c/opt/OpenBLAS
