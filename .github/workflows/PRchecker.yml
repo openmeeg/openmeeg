@@ -148,9 +148,10 @@ jobs:
       run: |
         git clone https://github.com/Microsoft/vcpkg.git --depth=1
         ./vcpkg/bootstrap-vcpkg.sh
-        if $LINKING == "static"; then
+        if [ "$LINKING" == "static" ]; then
             TRIPLET_EXTRA="-static"
         fi
+        set -x
         ./vcpkg/vcpkg install --triplet=x64-windows$TRIPLET_EXTRA --x-install-root=$VCPKG_INSTALLED_DIR
 
     - name: Windows OpenBLAS setup 3 - check env
