@@ -132,13 +132,11 @@ jobs:
         path: |
           vcpkg
           b/vcpkg_installed
-        key: vcpkg-${{ hashFiles('**/vcpkg.json') }}-${{ matrix.linking }}
+        key: vcpkg-${{ hashFiles('**/vcpkg.json') }}
 
     - name: Windows OpenBLAS setup 2 - hdf5 and libmatio via vcpkg
       if: startswith(matrix.blas,'OpenBLAS') && startsWith(matrix.os,'windows')
       id: runvcpkg
-      env:
-        LINKING: ${{ matrix.linking }}
       #uses: lukka/run-vcpkg@v10
       #with:
       #  vcpkgDirectory: '${{ github.workspace }}/vcpkg'
@@ -149,11 +147,8 @@ jobs:
       run: |
         git clone https://github.com/Microsoft/vcpkg.git --depth=1
         ./vcpkg/bootstrap-vcpkg.sh
-        if [ "$LINKING" == "static" ]; then
-            TRIPLET_EXTRA="-static"
-        fi
         set -x
-        ./vcpkg/vcpkg install --triplet=x64-windows$TRIPLET_EXTRA --x-install-root=$VCPKG_INSTALLED_DIR
+        ./vcpkg/vcpkg install --triplet=x64-windows,x64-windows-static --x-install-root=$VCPKG_INSTALLED_DIR
 
     - name: Windows OpenBLAS setup 3 - check env
       if: startswith(matrix.blas,'OpenBLAS') && startswith(matrix.os,'windows')
@@ -163,31 +158,31 @@ jobs:
         echo "CMAKE_TOOLCHAIN_FILE: $CMAKE_TOOLCHAIN_FILE"
         test -f $(cygpath -u "$CMAKE_TOOLCHAIN_FILE")
 
-    - uses: actions/cache@v3
-      name: Cache OpenBLAS
-      with:
-        path: |
-          /c/opt/OpenBLAS
-        key: OpenBLAS-x64-windows-${{ matrix.linking }}-${{ matrix.dynamic_arch }}-0
-
-    - name: Windows OpenBLAS setup 4 - OpenBLAS
-      if: startsWith(matrix.blas,'OpenBLAS') && startsWith(matrix.os,'windows')
-      env:
-        DYNAMIC_ARCH: ${{ matrix.dynamic_arch }}
-      run: |
-        # OpenBLAS direct download (too slow to build using vcpkg)
-        # and renaming to match what cmake wants to see
-        source ./build_tools/build_openblas.sh
-        echo "Using OPENBLAS_LIB=$OPENBLAS_LIB, OPENBLAS_INCLUDE=$OPENBLAS_INCLUDE"
-        test ! -z $OPENBLAS_LIB
-        ls -al $OPENBLAS_LIB
-        test ! -z $OPENBLAS_INCLUDE
-        ls -al $OPENBLAS_INCLUDE
-        echo "LIB=$(cygpath -m $OPENBLAS_LIB);${LIB}" >> $GITHUB_ENV
-        echo "CPATH=$(cygpath -m $OPENBLAS_INCLUDE);${CPATH}" >> $GITHUB_ENV
-        echo "CMAKE_CXX_FLAGS=-I$(cygpath -m $OPENBLAS_INCLUDE)" >> $GITHUB_ENV
-        # Finally, print our settings
-        cat $GITHUB_ENV
+    #- uses: actions/cache@v3
+    #  name: Cache OpenBLAS
+    #  with:
+    #    path: |
+    #      /c/opt/OpenBLAS
+    #    key: OpenBLAS-x64-windows-${{ matrix.dynamic_arch }}-0
+#
+    #- name: Windows OpenBLAS setup 4 - OpenBLAS
+    #  if: startsWith(matrix.blas,'OpenBLAS') && startsWith(matrix.os,'windows')
+    #  env:
+    #    DYNAMIC_ARCH: ${{ matrix.dynamic_arch }}
+    #  run: |
+    #    # OpenBLAS direct download (too slow to build using vcpkg)
+    #    # and renaming to match what cmake wants to see
+    #    source ./build_tools/build_openblas.sh
+    #    echo "Using OPENBLAS_LIB=$OPENBLAS_LIB, OPENBLAS_INCLUDE=$OPENBLAS_INCLUDE"
+    #    test ! -z $OPENBLAS_LIB
+    #    ls -al $OPENBLAS_LIB
+    #    test ! -z $OPENBLAS_INCLUDE
+    #    ls -al $OPENBLAS_INCLUDE
+    #    echo "LIB=$(cygpath -m $OPENBLAS_LIB);${LIB}" >> $GITHUB_ENV
+    #    echo "CPATH=$(cygpath -m $OPENBLAS_INCLUDE);${CPATH}" >> $GITHUB_ENV
+    #    echo "CMAKE_CXX_FLAGS=-I$(cygpath -m $OPENBLAS_INCLUDE)" >> $GITHUB_ENV
+    #    # Finally, print our settings
+    #    cat $GITHUB_ENV
 
     - name: MacOS OpenBLAS setup - Python, NumPy, hdf5, libmatio, and doxygen via brew
       if: startsWith(matrix.os,'macos')
