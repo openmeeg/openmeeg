@@ -39,7 +39,7 @@ jobs:
         blas: [OpenBLAS]
         blas_linking: [dynamic]
         python: [python]
-        dynamic_arch: ['0']
+        dynamic_arch: ['0']  # only relevant for Windows
         include:
         # Windows static build
         - os: windows-latest
@@ -165,25 +165,36 @@ jobs:
     #    path: |
     #      /c/opt/OpenBLAS
     #    key: OpenBLAS-x64-windows-${{ matrix.dynamic_arch }}-0
-#
-    #- name: Windows OpenBLAS setup 4 - OpenBLAS
-    #  if: startsWith(matrix.blas,'OpenBLAS') && startsWith(matrix.os,'windows')
-    #  env:
-    #    DYNAMIC_ARCH: ${{ matrix.dynamic_arch }}
-    #  run: |
-    #    # OpenBLAS direct download (too slow to build using vcpkg)
-    #    # and renaming to match what cmake wants to see
-    #    source ./build_tools/build_openblas.sh
-    #    echo "Using OPENBLAS_LIB=$OPENBLAS_LIB, OPENBLAS_INCLUDE=$OPENBLAS_INCLUDE"
-    #    test ! -z $OPENBLAS_LIB
-    #    ls -al $OPENBLAS_LIB
-    #    test ! -z $OPENBLAS_INCLUDE
-    #    ls -al $OPENBLAS_INCLUDE
-    #    echo "LIB=$(cygpath -m $OPENBLAS_LIB);${LIB}" >> $GITHUB_ENV
-    #    echo "CPATH=$(cygpath -m $OPENBLAS_INCLUDE);${CPATH}" >> $GITHUB_ENV
-    #    echo "CMAKE_CXX_FLAGS=-I$(cygpath -m $OPENBLAS_INCLUDE)" >> $GITHUB_ENV
-    #    # Finally, print our settings
-    #    cat $GITHUB_ENV
+
+    - name: Windows OpenBLAS setup 4 - OpenBLAS
+      if: startsWith(matrix.blas,'OpenBLAS') && startsWith(matrix.os,'windows')
+      env:
+        DYNAMIC_ARCH: ${{ matrix.dynamic_arch }}
+      run: |
+        # OpenBLAS direct download (too slow to build using vcpkg)
+        # and renaming to match what cmake wants to see
+        curl -LO https://anaconda.org/multibuild-wheels-staging/openblas-libs/v0.3.18/download/openblas-v0.3.18-win_amd64-gcc_8_1_0.zip
+        unzip openblas-v0.3.18-win_amd64-gcc_8_1_0.zip -d openblas
+        OPENBLAS_LIB=${PWD}/openblas/64/lib
+        OPENBLAS_INCLUDE=${PWD}/openblas/include
+        echo "$OPENBLAS_LIB"
+        test -d "$OPENBLAS_LIB"
+        echo "$OPENBLAS_INCLUDE"
+        test -d "$OPENBLAS_INCLUDE"
+        cd $OPENBLAS_LIB
+        ls -al
+        mv ../bin/libopenblas_v0.3.18-gcc_8_1_0.dll libopenblas.dll
+        mv libopenblas_v0.3.18-gcc_8_1_0.a libopenblas.a
+        mv libopenblas_v0.3.18-gcc_8_1_0.def libopenblas.def
+        mv libopenblas_v0.3.18-gcc_8_1_0.dll.a libopenblas.dll.a
+        mv libopenblas_v0.3.18-gcc_8_1_0.exp libopenblas.exp
+        mv libopenblas_v0.3.18-gcc_8_1_0.lib libopenblas.lib
+        cd ../../../
+        echo "LIB=$(cygpath -m '$OPENBLAS_LIB');${LIB}" >> $GITHUB_ENV
+        echo "CPATH=$(cygpath -m '$OPENBLAS_INCLUDE');${CPATH}" >> $GITHUB_ENV
+        echo "CMAKE_CXX_FLAGS=-I$(cygpath -m '$OPENBLAS_INCLUDE')" >> $GITHUB_ENV
+        # Finally, print our settings
+        cat $GITHUB_ENV
 
     - name: MacOS OpenBLAS setup - Python, NumPy, hdf5, libmatio, and doxygen via brew
       if: startsWith(matrix.os,'macos')

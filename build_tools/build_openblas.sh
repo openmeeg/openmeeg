@@ -22,10 +22,13 @@ git reset --hard
 cflags="-O2 -march=x86-64 -mtune=generic -fno-asynchronous-unwind-tables"
 fflags="$cflags -frecursive -ffpe-summary=invalid,zero"
 # TODO: This should be cross-checked with
-# https://github.com/MacPython/openblas-libs/blob/master/tools/build_openblas.sh#L69
-make BINARY=32 DYNAMIC_ARCH=DYNAMIC_ARCH USE_THREAD=1 USE_OPENMP=0 \
-    NO_WARMUP=1 BUILD_LAPACK_DEPRECATED=1 \
-    COMMON_OPT="$cflags" FCOMMON_OPT="$fflags"
+# https://github.com/MacPython/openblas-libs/blob/master/tools/build_openblas.sh#L69-L74
+make BINARY=32 DYNAMIC_ARCH=$DYNAMIC_ARCH USE_THREAD=1 USE_OPENMP=0 \
+     NUM_THREADS=24 NO_WARMUP=1 NO_AFFINITY=1 CONSISTENT_FPCSR=1 \
+     BUILD_LAPACK_DEPRECATED=1 TARGET=PRESCOTT BUFFERSIZE=20 \
+     COMMON_OPT="$cflags" \
+     FCOMMON_OPT="$fflags" \
+     MAX_STACK_ALLOC=2048
 make install PREFIX=$INSTALL_PREFIX
 test -d $OPENBLAS_LIB
 ls -al $OPENBLAS_LIB
