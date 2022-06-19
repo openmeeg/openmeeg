@@ -9,6 +9,9 @@ if [ -f "${OPENBLAS_LIB}/openblas.a" ]; then
     echo "Completed OpenBLAS build found, returning..."
     return  # exit as a sourced script without killing the calling shell
 fi
+if [ -z "$DYNAMIC_ARCH" ]; then
+    DYNAMIC_ARCH=1
+fi
 git clone https://github.com/xianyi/OpenBLAS.git
 cd OpenBLAS
 git submodule update --init --recursive
@@ -18,7 +21,7 @@ git clean -fxd
 git reset --hard
 cflags="-O2 -march=x86-64 -mtune=generic -fno-asynchronous-unwind-tables"
 fflags="$cflags -frecursive -ffpe-summary=invalid,zero"
-make BINARY=32 DYNAMIC_ARCH=1 USE_THREAD=1 USE_OPENMP=0 \
+make BINARY=32 DYNAMIC_ARCH=DYNAMIC_ARCH USE_THREAD=1 USE_OPENMP=0 \
     NO_WARMUP=1 BUILD_LAPACK_DEPRECATED=1 \
     COMMON_OPT="$cflags" FCOMMON_OPT="$fflags"
 make install PREFIX=$INSTALL_PREFIX

@@ -39,6 +39,7 @@ jobs:
         blas: [OpenBLAS]
         linking: [dynamic]
         python: [python]
+        dynamic_arch: ['0']
         include:
         # Windows static build
         - os: windows-latest
@@ -167,10 +168,12 @@ jobs:
       with:
         path: |
           /c/opt/OpenBLAS
-        key: OpenBLAS-x64-windows-${{ matrix.linking }}-0
+        key: OpenBLAS-x64-windows-${{ matrix.linking }}-${{ matrix.dynamic_arch }}-0
 
     - name: Windows OpenBLAS setup 4 - OpenBLAS
       if: startsWith(matrix.blas,'OpenBLAS') && startsWith(matrix.os,'windows')
+      env:
+        DYNAMIC_ARCH: ${{ matrix.dynamic_arch }}
       run: |
         # OpenBLAS direct download (too slow to build using vcpkg)
         # and renaming to match what cmake wants to see
