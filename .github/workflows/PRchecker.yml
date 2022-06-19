@@ -33,13 +33,9 @@ jobs:
         # TODO: MKL will not build on Windows
         # TODO: MKL status unknown on macOS
         # TODO: Static build broken for OpenBLAS (Could NOT find LAPACK (missing: LAPACK_LIBRARIES))
-<<<<<<< HEAD
         # TODO: Use OpenBLAS for LAPACK on Windows (https://github.com/microsoft/vcpkg/issues/25176)
-        os: [ubuntu-20.04, windows-latest, macos-latest]
-=======
         # TODO: Add back windows-latest after following https://docs.scipy.org/doc/scipy/building/windows.html#building-openblas
         os: [ubuntu-20.04, macos-latest]
->>>>>>> 5b255ca4 (FIX: Ignore Windows for now)
         blas: [OpenBLAS]
         linking: [dynamic]
         python: [python]
