@@ -115,7 +115,9 @@ jobs:
         VCPKG_INSTALLED_DIR=$(cygpath -m "$VCPKG_INSTALLED_DIR")
         echo "$VI"
         echo "VCPKG_INSTALLED_DIR=$VCPKG_INSTALLED_DIR" >> $GITHUB_ENV
-        echo "VCPKG_INSTALL_OPTIONS=--x-install-root=$VCPKG_INSTALLED_DIR" >> $GITHUB_ENV
+        VCPKG_INSTALL_OPTIONS=--x-install-root=$VCPKG_INSTALLED_DIR
+        echo "VCPKG_INSTALL_OPTIONS=$VCPKG_INSTALL_OPTIONS" >> $GITHUB_ENV
+        echo "VCPKG_OPT=-DVCPKG_INSTALL_OPTIONS=$VCPKG_INSTALL_OPTIONS" >> $GITHUB_ENV
 
         CMAKE_TOOLCHAIN_FILE=${PWD}/vcpkg/scripts/buildsystems/vcpkg.cmake
         echo "$CMAKE_TOOLCHAIN_FILE"
@@ -218,6 +220,7 @@ jobs:
               ${{env.BLA_PARA}} \
               ${{env.PYTHON_OPT}} \
               ${{env.DOC_OPT}} \
+              ${{env.VCPKG_OPT}} \
               -DCMAKE_TOOLCHAIN_FILE=${{ env.CMAKE_TOOLCHAIN_FILE }} \
               -DCMAKE_CXX_FLAGS=${{ env.CMAKE_CXX_FLAGS }} \
               -DTEST_HEAD3=ON
