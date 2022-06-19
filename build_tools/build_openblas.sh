@@ -5,9 +5,9 @@ gcc --version
 INSTALL_PREFIX=/c/opt/OpenBLAS
 export OPENBLAS_LIB=$INSTALL_PREFIX/lib
 export OPENBLAS_INCLUDE=$INSTALL_PREFIX/include
-if ! -f "${OPENBLAS_LIB}/openblas.a"; then
+if [ ! -f "${OPENBLAS_LIB}/openblas.a" ]; then
     echo "Completed OpenBLAS build found, returning..."
-    exit 0
+    return  # exit as a sourced script without killing the calling shell
 fi
 git clone https://github.com/xianyi/OpenBLAS.git
 cd OpenBLAS
