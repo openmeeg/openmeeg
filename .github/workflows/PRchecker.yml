@@ -171,7 +171,7 @@ jobs:
         curl -LO https://anaconda.org/multibuild-wheels-staging/openblas-libs/v0.3.18/download/openblas-v0.3.18-win_amd64-gcc_8_1_0.zip
         unzip openblas-v0.3.18-win_amd64-gcc_8_1_0.zip -d openblas
         OPENBLAS_LIB=${PWD}/openblas/64/lib
-        OPENBLAS_INCLUDE=${PWD}/openblas/include
+        OPENBLAS_INCLUDE=${PWD}/openblas/64/include
         echo "$OPENBLAS_LIB"
         test -d "$OPENBLAS_LIB"
         echo "$OPENBLAS_INCLUDE"
