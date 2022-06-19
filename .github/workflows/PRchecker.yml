@@ -139,7 +139,7 @@ jobs:
       #  appendedCacheKey: vcpkginstall
       run: |
         # Eventually maybe we'll want to use the x64-mingw-static	triplet?
-        pacman -S --needed base-devel mingw-w64-x86_64-toolchain mingw-w64-x86_64-cmake git
+        # pacman -S --needed base-devel mingw-w64-x86_64-toolchain mingw-w64-x86_64-cmake git
         git clone https://github.com/Microsoft/vcpkg.git --depth=1
         ./vcpkg/bootstrap-vcpkg.sh
         ./vcpkg/vcpkg install --triplet=x64-windows-static
