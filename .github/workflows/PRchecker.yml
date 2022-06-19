@@ -39,14 +39,12 @@ jobs:
         blas: [OpenBLAS]
         blas_linking: [dynamic]
         python: [python]
-        dynamic_arch: ['0']  # only relevant for Windows
         include:
         # Windows static build
         - os: windows-latest
           blas: OpenBLAS
           blas_linking: static
           python: python
-          dynamic_arch: ['0']
         # TODO: UNCOMMENT!
         #  # no-python build
         #  - os: ubuntu-20.04
@@ -165,17 +163,8 @@ jobs:
         echo "CMAKE_TOOLCHAIN_FILE: $CMAKE_TOOLCHAIN_FILE"
         test -f $(cygpath -u "$CMAKE_TOOLCHAIN_FILE")
 
-    #- uses: actions/cache@v3
-    #  name: Cache OpenBLAS
-    #  with:
-    #    path: |
-    #      /c/opt/OpenBLAS
-    #    key: OpenBLAS-x64-windows-${{ matrix.dynamic_arch }}-0
-
     - name: Windows OpenBLAS setup 4 - OpenBLAS
       if: startsWith(matrix.blas,'OpenBLAS') && startsWith(matrix.os,'windows')
-      env:
-        DYNAMIC_ARCH: ${{ matrix.dynamic_arch }}
       run: |
         # OpenBLAS direct download (too slow to build using vcpkg)
         # and renaming to match what cmake wants to see
