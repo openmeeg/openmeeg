@@ -228,13 +228,12 @@ jobs:
           ldd hdf5.dll
           echo "szip:"
           ldd szip.dll
-          ls -al OpenMEEGMaths/*
           cd ..
         fi
         ls -al build
 
-    #- name: Test
-    #  working-directory: ${{github.workspace}}/build
-    #  # TODO: Remove 2x --stop-on-failure below
-    #  run: |
-    #    ctest -C $BUILD_TYPE --stop-on-failure || ctest -C $BUILD_TYPE --rerun-failed --output-on-failure --stop-on-failure
+    - name: Test
+      working-directory: ${{github.workspace}}/build
+      # TODO: Remove 2x --stop-on-failure below
+      run: |
+        ctest -C $BUILD_TYPE --stop-on-failure || ctest -C $BUILD_TYPE --rerun-failed --output-on-failure --stop-on-failure
