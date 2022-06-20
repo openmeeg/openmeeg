@@ -119,7 +119,7 @@ jobs:
         path: |
           vcpkg
           build/vcpkg_installed
-        key: vcpkg-${{ hashFiles('**/vcpkg.json') }}-1
+        key: vcpkg-${{ hashFiles('**/vcpkg.json') }}-mingw64
 
     - name: Windows OpenBLAS setup 4 - hdf5 and libmatio via vcpkg
       if: startswith(matrix.blas,'OpenBLAS') && startsWith(matrix.os,'windows')
@@ -134,7 +134,7 @@ jobs:
           ./bootstrap-vcpkg.sh
           cd ..
         fi
-        ./vcpkg/vcpkg install --triplet=x64-windows --recurse $VCPKG_INSTALL_OPTIONS
+        ./vcpkg/vcpkg install --triplet=x64-mingw-dynamic --recurse $VCPKG_INSTALL_OPTIONS
 
     - name: Windows OpenBLAS setup 5 - check env
       if: startswith(matrix.blas,'OpenBLAS') && startswith(matrix.os,'windows')
@@ -159,12 +159,12 @@ jobs:
         test -d "$OPENBLAS_INCLUDE"
         cd $OPENBLAS_LIB
         ls -al
-        mv ../bin/libopenblas_v0.3.18-gcc_8_1_0.dll openblas.dll
-        mv libopenblas_v0.3.18-gcc_8_1_0.a openblas.a
-        mv libopenblas_v0.3.18-gcc_8_1_0.def openblas.def
-        mv libopenblas_v0.3.18-gcc_8_1_0.dll.a openblas.dll.a
-        mv libopenblas_v0.3.18-gcc_8_1_0.exp openblas.exp
-        mv libopenblas_v0.3.18-gcc_8_1_0.lib openblas.lib
+        #mv ../bin/libopenblas_v0.3.18-gcc_8_1_0.dll openblas.dll
+        #mv libopenblas_v0.3.18-gcc_8_1_0.a openblas.a
+        #mv libopenblas_v0.3.18-gcc_8_1_0.def openblas.def
+        #mv libopenblas_v0.3.18-gcc_8_1_0.dll.a openblas.dll.a
+        #mv libopenblas_v0.3.18-gcc_8_1_0.exp openblas.exp
+        #mv libopenblas_v0.3.18-gcc_8_1_0.lib openblas.lib
         cd ../../../
         echo "OPENBLAS_LIB=$OPENBLAS_LIB" >> $GITHUB_ENV
         echo "LIB=$(cygpath -w $OPENBLAS_LIB);${LIB}" >> $GITHUB_ENV
@@ -215,15 +215,14 @@ jobs:
         # TODO: This should be in cmake...
         if [[ ${{matrix.os}} == 'windows'* ]]; then
           cd build
-          cp "$OPENBLAS_LIB/openblas.dll" ./
+          cp OpenMEEGMaths/libmatio.dll .
+          ls *.dll
           echo "OpenMEEG:"
           ldd libOpenMEEG.dll
           echo "OpenMEEGMaths:"
           ldd libOpenMEEGMaths.dll
           echo "hdf5:"
           ldd hdf5.dll
-          echo "openblas:"
-          ldd openblas.dll
           echo "szip:"
           ldd szip.dll
           ls -al OpenMEEGMaths/*
