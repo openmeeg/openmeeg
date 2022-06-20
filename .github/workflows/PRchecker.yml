@@ -23,6 +23,7 @@ jobs:
     strategy:
       matrix:
         # TODO: MKL currently untested on any platform
+        # TODO: static (BLAS linking) builds currently untested on any platform
         # Someday we could use OpenBLAS for Windows once vcpkg sorts things out
         # (https://github.com/microsoft/vcpkg/issues/25176), but it's unclear
         # if this will really help anything. SciPy's should be well tested
@@ -32,11 +33,6 @@ jobs:
         blas_linking: [dynamic]
         python: [python]
         include:
-        # Windows static build
-        - os: windows-latest
-          blas: OpenBLAS
-          blas_linking: static
-          python: python
         # ubuntu-18.04 build, but Python tests currently fail so use no-python
         - os: ubuntu-18.04
           blas: OpenBLAS
@@ -234,6 +230,7 @@ jobs:
           echo "Before:"
           ls -al *.dll
           cp $OPENBLAS_LIB/libopenblas_v0.3.18-gcc_8_1_0.dll .
+          cp $OPENBLAS_LIB/libopenblas_v0.3.18-gcc_8_1_0.dll openblas.dll
           cp OpenMEEGMaths/libmatio.dll .
           echo "After:"
           ls *.dll

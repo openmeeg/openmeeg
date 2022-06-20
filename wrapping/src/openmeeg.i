@@ -376,7 +376,7 @@ namespace OpenMEEG {
 %ignore OpenMEEG::Filetype;
 
 %ignore OpenMEEG::Geometry::MeshPair;  // Warning 325: Nested struct not currently supported (MeshPair ignored)
-%rename(OpenMEEG::Geometry::import_) OpenMEEG::Geometry::import; // Warning 314: 'import' is a python keyword, renaming to '_import'
+%rename(import_) import; // Warning 314: 'import' is a python keyword, renaming to '_import' (in Geometry)
 
 %extend OpenMEEG::Geometry {
 
