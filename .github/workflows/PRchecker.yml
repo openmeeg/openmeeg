@@ -192,7 +192,8 @@ jobs:
         echo "CPATH=$(cygpath -w $OPENBLAS_INCLUDE);${CPATH}" >> $GITHUB_ENV
         echo "CMAKE_CXX_FLAGS=-I$(cygpath -m $OPENBLAS_INCLUDE)" >> $GITHUB_ENV
         echo "CMAKE_GENERATOR=MinGW Makefiles" >> $GITHUB_ENV
-        echo "BUILD_OPT=-j 1" >> $GITHUB_ENV
+        # This makes debugging easier on failure
+        # echo "BUILD_OPT=-j 1" >> $GITHUB_ENV
         # Finally, print our settings
         cat $GITHUB_ENV
 
