@@ -232,7 +232,7 @@ jobs:
           cp OpenMEEGMaths/libmatio.dll .
           echo "After:"
           ls *.dll
-          for name in libOpenMEEG libOpenMEEGMaths hdf5 szip libmatio libopenblas_v0.3.18-gcc_8_1_0; do
+          for name in libOpenMEEG libOpenMEEGMaths hdf5 szip libmatio libopenblas_v0.3.18-gcc_8_1_0 wrapping/src/_openmeeg; do
             if [[ -f ${name}.dll ]]; then
               echo "${name}:"
               ldd "${name}.dll"
@@ -240,12 +240,12 @@ jobs:
               echo "Missing ${name}"
             fi
           done
+          ls -al wrapping/src
           cd ..
         fi
         ls -al build
 
     - name: Test
       working-directory: ${{github.workspace}}/build
-      # TODO: Remove 2x --stop-on-failure below
       run: |
-        ctest -C $BUILD_TYPE --stop-on-failure || ctest -C $BUILD_TYPE --rerun-failed --output-on-failure --stop-on-failure
+        ctest -C $BUILD_TYPE || ctest -C $BUILD_TYPE --rerun-failed --output-on-failure
