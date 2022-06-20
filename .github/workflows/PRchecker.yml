@@ -120,13 +120,20 @@ jobs:
         pip install --upgrade -q pip
         pip install --upgrade --progress-bar off -q numpy
 
+    - name: Windows OpenBLAS setup 3 - setup MSVC 14.0 (2015)
+      uses: ilammy/msvc-dev-cmd@v1
+      with:
+        arch: amd64
+        toolset: "14.0"
+        sdk: "8.1"
+
     - uses: actions/cache@v3
-      name: Windows OpenBLAS setup 3 - cache vcpkg
+      name: Windows OpenBLAS setup 4 - cache vcpkg
       with:
         path: |
           vcpkg
           build/vcpkg_installed
-        key: vcpkg-${{ hashFiles('**/vcpkg.json') }}-1
+        key: vcpkg-${{ hashFiles('**/vcpkg.json') }}-2
 
     - name: Windows OpenBLAS setup 4 - hdf5 and libmatio via vcpkg
       if: startswith(matrix.blas,'OpenBLAS') && startsWith(matrix.os,'windows')
@@ -177,7 +184,7 @@ jobs:
         echo "OPENBLAS_LIB=$OPENBLAS_LIB" >> $GITHUB_ENV
         echo "LIB=$(cygpath -w $OPENBLAS_LIB);${LIB}" >> $GITHUB_ENV
         echo "CPATH=$(cygpath -w $OPENBLAS_INCLUDE);${CPATH}" >> $GITHUB_ENV
-        echo "CMAKE_CXX_FLAGS=-I$(cygpath -m $OPENBLAS_INCLUDE)" >> $GITHUB_ENV
+        echo "CMAKE_CXX_FLAGS=-I$(cygpath -m $OPENBLAS_INCLUDE) /std:c++14" >> $GITHUB_ENV
         # echo "CMAKE_GENERATOR=MinGW Makefiles" >> $GITHUB_ENV
         # On Windows, we tell cmake to copy all runtime deps to the build dir,
         # and for tests (and Python) to find them, we need to add it to PATH
