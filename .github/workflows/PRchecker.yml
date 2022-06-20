@@ -218,8 +218,8 @@ jobs:
               ${{env.BLA_PARA}} \
               ${{env.PYTHON_OPT}} \
               ${{env.DOC_OPT}} \
-              -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
-              -DCMAKE_C_COMPILER_LAUNCHER=ccache
+              -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
+              -DCMAKE_C_COMPILER_LAUNCHER=ccache \
               -DCMAKE_TOOLCHAIN_FILE=${{ env.CMAKE_TOOLCHAIN_FILE }} \
               -DCMAKE_CXX_FLAGS=${{ env.CMAKE_CXX_FLAGS }} \
               -DENABLE_WERROR=${{ env.ENABLE_WERROR }} \
