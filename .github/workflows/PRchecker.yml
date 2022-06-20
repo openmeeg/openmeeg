@@ -183,7 +183,7 @@ jobs:
         echo "CMAKE_GENERATOR=Visual Studio 16 2019" >> $GITHUB_ENV
         echo "CMAKE_GENERATOR_PLATFORM=x64" >> $GITHUB_ENV
         echo "SDK_OPT=-DCMAKE_SYSTEM_VERSION=8.1" >> $GITHUB_ENV
-        echo "TOOLSET_OPT=-DCMAKE_GENERATOR_TOOLSET=v140" >> $GITHUB_ENV
+        #echo "TOOLSET_OPT=-DCMAKE_GENERATOR_TOOLSET=v140" >> $GITHUB_ENV
         # On Windows, we tell cmake to copy all runtime deps to the build dir,
         # and for tests (and Python) to find them, we need to add it to PATH
         echo "PATH=$(cygpath -w ${PWD}/build);$PATH" >> $GITHUB_ENV
