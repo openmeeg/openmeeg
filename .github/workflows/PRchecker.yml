@@ -28,7 +28,7 @@ jobs:
         # (https://github.com/microsoft/vcpkg/issues/25176), but it's unclear
         # if this will really help anything. SciPy's should be well tested
         # already.
-        os: [ubuntu-20.04, windows-latest, macos-latest]
+        os: [ubuntu-20.04, windows-2019, macos-latest]
         blas: [OpenBLAS]
         blas_linking: [dynamic]
         python: [python]
