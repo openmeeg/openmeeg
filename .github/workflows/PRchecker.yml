@@ -234,12 +234,6 @@ jobs:
       run: |
         cmake --build build ${{env.BUILD_OPT}} --config ${{env.BUILD_TYPE}}
         ls -al build
-        if [ -d build/OpenMEEG ]; then
-          ls -al build/OpenMEEG
-        fi
-        if [ -d build/vcpkg_installed ]; then
-          ls -al build/vcpkg_installed
-        fi
 
     - name: Test
       working-directory: ${{github.workspace}}/build
