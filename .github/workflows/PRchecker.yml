@@ -66,6 +66,13 @@ jobs:
         else
           BUILD_DOCS=OFF
         fi
+        # Use -Werror on Windows, eventually should use everywhere
+        if [[ ${{matrix.os}} == 'windows*' ]]; then
+          ENABLE_WERROR=ON
+        else
+          ENABLE_WERROR=OFF
+        fi
+        echo "ENABLE_WERROR=$ENABLE_WERROR" >> $GITHUB_ENV
         echo "DOC_OPT=-DBUILD_DOCUMENTATION=$BUILD_DOCS" >> $GITHUB_ENV
 
     - name: Setup ccache
@@ -210,7 +217,7 @@ jobs:
               ${{env.DOC_OPT}} \
               -DCMAKE_TOOLCHAIN_FILE=${{ env.CMAKE_TOOLCHAIN_FILE }} \
               -DCMAKE_CXX_FLAGS=${{ env.CMAKE_CXX_FLAGS }} \
-              -DENABLE_WERROR=ON \
+              -DENABLE_WERROR=${{ env.ENABLE_WERROR }} \
               -DTEST_HEAD3=ON
 
     - name: Build
