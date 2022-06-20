@@ -68,8 +68,24 @@ jobs:
         fi
         echo "DOC_OPT=-DBUILD_DOCUMENTATION=$BUILD_DOCS" >> $GITHUB_ENV
 
+    - name: Windows OpenBLAS setup 1 - install msys2
+      uses: msys2/setup-msys2@v2
+      if: startswith(matrix.blas,'OpenBLAS') && startswith(matrix.os,'windows')
+      with:
+        update: false
+        msystem: mingw64
+        install: >-
+          make
+          mingw-w64-x86_64-toolchain
+
+    - name: Setup ccache
+      uses: Chocobo1/setup-ccache-action@v1
+      with:
+        windows_compile_environment: msys2
+
     # Windows only -- we can use the default Python3 for Linux + macOS
-    - uses: actions/setup-python@v4
+    - name: Windows OpenBLAS setup 2 - install Python
+      uses: actions/setup-python@v4
       if: startswith(matrix.blas,'OpenBLAS') && startswith(matrix.os,'windows')
       with:
         python-version: '3.10'
@@ -88,7 +104,7 @@ jobs:
       run: |
         conda install mkl mkl-include numpy hdf5 libmatio swig
 
-    - name: Windows OpenBLAS setup 1 - set env and install NumPy via pip
+    - name: Windows OpenBLAS setup 3 - set env and install NumPy via pip
       if: startswith(matrix.blas,'OpenBLAS') && startswith(matrix.os,'windows')
       run: |
         VCPKG_INSTALLED_DIR="${PWD}/build/vcpkg_installed"
@@ -110,14 +126,14 @@ jobs:
         pip install --upgrade --progress-bar off -q numpy
 
     - uses: actions/cache@v3
-      name: Windows OpenBLAS setup 2 - cache vcpkg
+      name: Windows OpenBLAS setup 4 - cache vcpkg
       with:
         path: |
           vcpkg
           build/vcpkg_installed
         key: vcpkg-${{ hashFiles('**/vcpkg.json') }}-1
 
-    - name: Windows OpenBLAS setup 3 - hdf5 and libmatio via vcpkg
+    - name: Windows OpenBLAS setup 5 - hdf5 and libmatio via vcpkg
       if: startswith(matrix.blas,'OpenBLAS') && startsWith(matrix.os,'windows')
       id: runvcpkg
       run: |
@@ -132,7 +148,7 @@ jobs:
         fi
         ./vcpkg/vcpkg install --triplet=x64-windows --recurse $VCPKG_INSTALL_OPTIONS
 
-    - name: Windows OpenBLAS setup 4 - check env
+    - name: Windows OpenBLAS setup 6 - check env
       if: startswith(matrix.blas,'OpenBLAS') && startswith(matrix.os,'windows')
       run: |
         echo "VCPKG_INSTALLED_DIR: $VCPKG_INSTALLED_DIR"
@@ -140,7 +156,7 @@ jobs:
         echo "CMAKE_TOOLCHAIN_FILE: $CMAKE_TOOLCHAIN_FILE"
         test -f $(cygpath -u "$CMAKE_TOOLCHAIN_FILE")
 
-    - name: Windows OpenBLAS setup 5 - OpenBLAS
+    - name: Windows OpenBLAS setup 7 - OpenBLAS
       if: startsWith(matrix.blas,'OpenBLAS') && startsWith(matrix.os,'windows')
       run: |
         # OpenBLAS direct download (too slow to build using vcpkg)
@@ -174,21 +190,6 @@ jobs:
         # echo "BUILD_OPT=-j 1" >> $GITHUB_ENV
         # Finally, print our settings
         cat $GITHUB_ENV
-
-    - name: Winows OpenBLAS setup 6 - msys2
-      uses: msys2/setup-msys2@v2
-      if: startswith(matrix.blas,'OpenBLAS') && startswith(matrix.os,'windows')
-      with:
-        update: false
-        msystem: mingw64
-        install: >-
-          make
-          mingw-w64-x86_64-toolchain
-
-    - name: Setup ccache
-      uses: Chocobo1/setup-ccache-action@v1
-      with:
-        windows_compile_environment: msys2
 
     - name: MacOS OpenBLAS setup - Python, NumPy, hdf5, libmatio, and doxygen via brew
       if: startsWith(matrix.os,'macos')
