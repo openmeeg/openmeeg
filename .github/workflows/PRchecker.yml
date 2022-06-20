@@ -230,6 +230,7 @@ jobs:
       # Build your program with the given configuration
       run: |
         cmake --build build ${{env.BUILD_OPT}} --config ${{env.BUILD_TYPE}}
+        ls -al build
 
     - name: Test
       working-directory: ${{github.workspace}}/build
