@@ -100,9 +100,9 @@ jobs:
         VCPKG_INSTALLED_DIR=$(cygpath -m "$VCPKG_INSTALLED_DIR")
         echo "$VI"
         echo "VCPKG_INSTALLED_DIR=$VCPKG_INSTALLED_DIR" >> $GITHUB_ENV
-        VCPKG_INSTALL_OPTIONS=--x-install-root=$VCPKG_INSTALLED_DIR
+        VCPKG_INSTALL_OPTIONS=--x-install-root=$VCPKG_INSTALLED_DIR --triplet=x64-mingw-dynamic
         echo "VCPKG_INSTALL_OPTIONS=$VCPKG_INSTALL_OPTIONS" >> $GITHUB_ENV
-        echo "VCPKG_OPT=-DVCPKG_INSTALL_OPTIONS=$VCPKG_INSTALL_OPTIONS" >> $GITHUB_ENV
+        echo "VCPKG_DEFAULT_TRIPLET=x64-mingw-dynamic"
 
         CMAKE_TOOLCHAIN_FILE=${PWD}/vcpkg/scripts/buildsystems/vcpkg.cmake
         echo "$CMAKE_TOOLCHAIN_FILE"
@@ -134,7 +134,7 @@ jobs:
           ./bootstrap-vcpkg.sh
           cd ..
         fi
-        ./vcpkg/vcpkg install --triplet=x64-mingw-dynamic --recurse $VCPKG_INSTALL_OPTIONS
+        ./vcpkg/vcpkg install --recurse $VCPKG_INSTALL_OPTIONS
 
     - name: Windows OpenBLAS setup 5 - check env
       if: startswith(matrix.blas,'OpenBLAS') && startswith(matrix.os,'windows')
@@ -159,12 +159,12 @@ jobs:
         test -d "$OPENBLAS_INCLUDE"
         cd $OPENBLAS_LIB
         ls -al
-        #mv ../bin/libopenblas_v0.3.18-gcc_8_1_0.dll openblas.dll
-        #mv libopenblas_v0.3.18-gcc_8_1_0.a openblas.a
-        #mv libopenblas_v0.3.18-gcc_8_1_0.def openblas.def
-        #mv libopenblas_v0.3.18-gcc_8_1_0.dll.a openblas.dll.a
-        #mv libopenblas_v0.3.18-gcc_8_1_0.exp openblas.exp
-        #mv libopenblas_v0.3.18-gcc_8_1_0.lib openblas.lib
+        mv ../bin/libopenblas_v0.3.18-gcc_8_1_0.dll openblas.dll
+        mv libopenblas_v0.3.18-gcc_8_1_0.a openblas.a
+        mv libopenblas_v0.3.18-gcc_8_1_0.def openblas.def
+        mv libopenblas_v0.3.18-gcc_8_1_0.dll.a openblas.dll.a
+        mv libopenblas_v0.3.18-gcc_8_1_0.exp openblas.exp
+        mv libopenblas_v0.3.18-gcc_8_1_0.lib openblas.lib
         cd ../../../
         echo "OPENBLAS_LIB=$OPENBLAS_LIB" >> $GITHUB_ENV
         echo "LIB=$(cygpath -w $OPENBLAS_LIB);${LIB}" >> $GITHUB_ENV
@@ -215,6 +215,7 @@ jobs:
         # TODO: This should be in cmake...
         if [[ ${{matrix.os}} == 'windows'* ]]; then
           cd build
+          cp $OPENBLAS_LIB/openblas.dll libopenblas_v0.3.18-gcc_8_1_0.dll
           cp OpenMEEGMaths/libmatio.dll .
           ls *.dll
           echo "OpenMEEG:"
