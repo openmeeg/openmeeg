@@ -186,7 +186,7 @@ jobs:
         echo "CPATH=$(cygpath -w $OPENBLAS_INCLUDE);${CPATH}" >> $GITHUB_ENV
         # echo "CL=/std:c++14" >> $GITHUB_ENV
         echo "CMAKE_CXX_FLAGS=-I$(cygpath -m $OPENBLAS_INCLUDE),/std:c++14" >> $GITHUB_ENV
-        # echo "CMAKE_GENERATOR=MinGW Makefiles" >> $GITHUB_ENV
+        echo "CMAKE_GENERATOR=Visual Studio 14 2015" >> $GITHUB_ENV
         # On Windows, we tell cmake to copy all runtime deps to the build dir,
         # and for tests (and Python) to find them, we need to add it to PATH
         echo "PATH=$(cygpath -w ${PWD}/build);$PATH" >> $GITHUB_ENV
