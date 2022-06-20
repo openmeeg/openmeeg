@@ -188,11 +188,11 @@ jobs:
         # Finally, print our settings
         cat $GITHUB_ENV
 
-    - name: MacOS OpenBLAS setup - Python, NumPy, hdf5, libmatio, and doxygen via brew
+    - name: MacOS OpenBLAS setup - Python, NumPy, hdf5, and libmatio via brew
       if: startsWith(matrix.os,'macos')
       run: |
         brew update > /dev/null
-        brew install hdf5 libmatio boost vtk numpy swig homebrew/cask/doxygen graphviz
+        brew install hdf5 libmatio boost vtk numpy swig
         brew install openblas
         echo "LDFLAGS=-L/usr/local/opt/openblas/lib" >> $GITHUB_ENV
         echo "CPPFLAGS=-I/usr/local/opt/openblas/include" >> $GITHUB_ENV
@@ -245,6 +245,9 @@ jobs:
           set -x
           cd wrapping/src
           cp -a ../../*.dll .
+          curl -LO https://github.com/lucasg/Dependencies/releases/download/v1.11.1/Dependencies_x64_Release.zip
+          unzip Dependencies_x64_Release.zip -d deps
+          ./deps/Dependencies -imports _openmeeg.pyd
           python -c "import openmeeg; print(openmeeg.sqr(4))"
           cd ../../
           PYTHONPATH=$(cygpath -w ${PWD}/wrapping/src);${PYTHONPATH} python -c "import openmeeg; print(openmeeg.sqr(4))"
