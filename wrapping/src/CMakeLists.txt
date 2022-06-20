@@ -71,7 +71,7 @@ if (APPLE)
 endif()
 if (WIN32)  # Eventually we could probably use this to bundle on macOS and Linux, too...
     add_custom_command(TARGET ${SWIG_TARGET_NAME} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_RUNTIME_DLLS:${SWIG_TARGET_NAME}> $<CMAKE_BINARY_DIR>
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_RUNTIME_DLLS:${SWIG_TARGET_NAME}> ${CMAKE_BINARY_DIR}
         COMMAND_EXPAND_LISTS
     )
 endif()
