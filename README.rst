@@ -126,6 +126,8 @@ You will need to define more CMake variables if you want the support for:
 
 - Treating compilation warnings as errors, add `-DENABLE_WERROR=ON`
 
+- To speed up builds, consider installing `ccache` and passing `-DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_C_COMPILER_LAUNCHER=ccache`
+
 Then you can run the full test suite with::
 
     $ make
