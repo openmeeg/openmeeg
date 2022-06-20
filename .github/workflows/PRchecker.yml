@@ -191,6 +191,16 @@ jobs:
         sudo apt update
         sudo apt -yq install libopenblas-dev liblapacke-dev python3-numpy doxygen graphviz libmatio-dev libvtk7-dev lcov
 
+    - name: Winows OpenBLAS setup 6 - msys2
+      uses: msys2/setup-msys2@v2
+      if: startswith(matrix.blas,'OpenBLAS') && startswith(matrix.os,'windows')
+      with:
+        update: false
+        msystem: mingw64
+        install: >-
+          make
+          mingw-w64-x86_64-toolchain
+
     - name: Setup ccache
       uses: Chocobo1/setup-ccache-action@v1
       with:
