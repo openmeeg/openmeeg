@@ -125,7 +125,6 @@ jobs:
       with:
         arch: amd64
         toolset: "14.0"
-        sdk: "8.1"
 
     - uses: actions/cache@v3
       name: Windows OpenBLAS setup 4 - cache vcpkg
