@@ -105,7 +105,7 @@ jobs:
         VCPKG_INSTALLED_DIR=$(cygpath -m "$VCPKG_INSTALLED_DIR")
         echo "$VI"
         echo "VCPKG_INSTALLED_DIR=$VCPKG_INSTALLED_DIR" >> $GITHUB_ENV
-        VCPKG_DEFAULT_TRIPLET=x64-windows-release-v140
+        VCPKG_DEFAULT_TRIPLET=x64-windows-release
         echo "VCPKG_DEFAULT_TRIPLET=$VCPKG_DEFAULT_TRIPLET" >> $GITHUB_ENV
         echo "VCPKG_DEFAULT_HOST_TRIPLET=$VCPKG_DEFAULT_TRIPLET" >> $GITHUB_ENV
         VCPKG_INSTALL_OPTIONS="--x-install-root=$VCPKG_INSTALLED_DIR --triplet=$VCPKG_DEFAULT_TRIPLET"
@@ -120,14 +120,7 @@ jobs:
         pip install --upgrade -q pip
         pip install --upgrade --progress-bar off -q numpy
 
-    - name: Windows OpenBLAS setup 3 - setup MSVC 14.0 (2015)
-      if: startswith(matrix.blas,'OpenBLAS') && startswith(matrix.os,'windows')
-      uses: ilammy/msvc-dev-cmd@v1
-      with:
-        arch: amd64
-        toolset: "14.0"
-
-    - name: Windows OpenBLAS setup 4 - cache vcpkg
+    - name: Windows OpenBLAS setup 3 - cache vcpkg
       if: startswith(matrix.blas,'OpenBLAS') && startswith(matrix.os,'windows')
       uses: actions/cache@v3
       with:
@@ -136,7 +129,7 @@ jobs:
           build/vcpkg_installed
         key: vcpkg-${{ hashFiles('**/vcpkg.json') }}-2
 
-    - name: Windows OpenBLAS setup 5 - hdf5 and libmatio via vcpkg
+    - name: Windows OpenBLAS setup 4 - hdf5 and libmatio via vcpkg
       if: startswith(matrix.blas,'OpenBLAS') && startsWith(matrix.os,'windows')
       id: runvcpkg
       run: |
