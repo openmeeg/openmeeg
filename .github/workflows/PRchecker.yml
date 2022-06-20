@@ -10,7 +10,6 @@ on:
     branches: [ master ]
 
 env:
-  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
   BUILD_TYPE: Release
 
 defaults:
@@ -20,22 +19,15 @@ defaults:
 jobs:
 
   build:
-    # The CMake configure and build commands are platform agnostic and should work equally well on Windows or Mac.
-    # You can convert this to a matrix build if you need cross-platform coverage.
-    # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
-
     continue-on-error: true
     strategy:
       matrix:
-        # Cover the most useful cases most completely
-        # TODO: ubuntu-18.04 Python is broken (tests fail)
-        # TODO: ubuntu+MKL Python is broken (symbol not found/linking/path issue)
-        # TODO: MKL will not build on Windows
-        # TODO: MKL status unknown on macOS
-        # TODO: Static build broken for OpenBLAS (Could NOT find LAPACK (missing: LAPACK_LIBRARIES))
-        # TODO: Use OpenBLAS for Windows once vcpkg sorts things out (https://github.com/microsoft/vcpkg/issues/25176)
+        # TODO: MKL currently untested on any platform
+        # Someday we could use OpenBLAS for Windows once vcpkg sorts things out
+        # (https://github.com/microsoft/vcpkg/issues/25176), but it's unclear
+        # if this will really help anything. SciPy's should be well tested
+        # already.
         os: [ubuntu-20.04, windows-latest, macos-latest]
-        # os: [windows-latest]
         blas: [OpenBLAS]
         blas_linking: [dynamic]
         python: [python]
@@ -45,16 +37,6 @@ jobs:
           blas: OpenBLAS
           blas_linking: static
           python: python
-        # no-python build
-        - os: ubuntu-20.04
-          blas: OpenBLAS
-          blas_linking: dynamic
-          python: no-python
-        # Ubuntu static build
-        #- os: ubuntu-20.04
-        #  blas: OpenBLAS
-        #  blas_linking: static
-        #  python: python
         # ubuntu-18.04 build, but Python tests currently fail so use no-python
         - os: ubuntu-18.04
           blas: OpenBLAS
@@ -138,13 +120,6 @@ jobs:
     - name: Windows OpenBLAS setup 3 - hdf5 and libmatio via vcpkg
       if: startswith(matrix.blas,'OpenBLAS') && startsWith(matrix.os,'windows')
       id: runvcpkg
-      #uses: lukka/run-vcpkg@v10
-      #with:
-      #  vcpkgDirectory: '${{ github.workspace }}/vcpkg'
-      #  vcpkgGitCommitId: '14e7bb4ae24616ec54ff6b2f6ef4e8659434ea44'  # 2022-05-05 release
-      #  runVcpkgInstall: true
-      #  vcpkgJsonGlob: '**/vcpkg.json'
-      #  appendedCacheKey: vcpkginstall
       run: |
         set -x
         if [ ! -d vcpkg ]; then
@@ -215,7 +190,7 @@ jobs:
         sudo apt update
         sudo apt -yq install libopenblas-dev liblapacke-dev python3-numpy doxygen graphviz libmatio-dev libvtk7-dev lcov
 
-    - name: Configure CMake
+    - name: Configure
       run: |
         set -x
         cmake -B build \
@@ -230,7 +205,6 @@ jobs:
               -DTEST_HEAD3=ON
 
     - name: Build
-      # Build your program with the given configuration
       run: |
         cmake --build build ${{env.BUILD_OPT}} --config ${{env.BUILD_TYPE}}
         ls -al build
