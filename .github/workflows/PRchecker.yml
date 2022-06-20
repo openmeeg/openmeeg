@@ -24,7 +24,7 @@ jobs:
       matrix:
         # TODO: MKL currently untested on any platform
         # TODO: static (BLAS linking) builds currently untested on any platform
-        # TODO: Get vcpkg to actually use MSVC 14 (2015)
+        # TODO: Get vcpkg to actually use the Windows 8.1 SDK
         # Someday we could use OpenBLAS for Windows once vcpkg sorts things out
         # (https://github.com/microsoft/vcpkg/issues/25176), but it's unclear
         # if this will really help anything. SciPy's should be well tested
@@ -180,6 +180,7 @@ jobs:
         echo "LIB=$(cygpath -w $OPENBLAS_LIB);${LIB}" >> $GITHUB_ENV
         echo "CPATH=$(cygpath -w $OPENBLAS_INCLUDE);${CPATH}" >> $GITHUB_ENV
         echo "CMAKE_CXX_FLAGS=-I$(cygpath -m $OPENBLAS_INCLUDE)" >> $GITHUB_ENV
+        echo "CMAKE_GENERATOR=Visual Studio 15 2017" >> $GITHUB_ENV
         echo "CMAKE_GENERATOR_PLATFORM=x64" >> $GITHUB_ENV
         # On Windows, we tell cmake to copy all runtime deps to the build dir,
         # and for tests (and Python) to find them, we need to add it to PATH
