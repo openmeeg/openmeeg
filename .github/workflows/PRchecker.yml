@@ -105,7 +105,7 @@ jobs:
         VCPKG_INSTALLED_DIR=$(cygpath -m "$VCPKG_INSTALLED_DIR")
         echo "$VI"
         echo "VCPKG_INSTALLED_DIR=$VCPKG_INSTALLED_DIR" >> $GITHUB_ENV
-        VCPKG_DEFAULT_TRIPLET=x64-windows-release
+        VCPKG_DEFAULT_TRIPLET=x64-windows-release-v140
         echo "VCPKG_DEFAULT_TRIPLET=$VCPKG_DEFAULT_TRIPLET" >> $GITHUB_ENV
         echo "VCPKG_DEFAULT_HOST_TRIPLET=$VCPKG_DEFAULT_TRIPLET" >> $GITHUB_ENV
         VCPKG_INSTALL_OPTIONS="--x-install-root=$VCPKG_INSTALLED_DIR --triplet=$VCPKG_DEFAULT_TRIPLET"
@@ -149,6 +149,7 @@ jobs:
           ./bootstrap-vcpkg.sh
           cd ..
         fi
+        cp build_tools/${VCPKG_DEFAULT_TRIPLET}.cmake vcpkg/triplets/community
         ./vcpkg/vcpkg install --recurse $VCPKG_INSTALL_OPTIONS
     - name: Windows OpenBLAS setup 6 - check env
       if: startswith(matrix.blas,'OpenBLAS') && startswith(matrix.os,'windows')
