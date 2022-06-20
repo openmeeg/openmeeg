@@ -247,7 +247,7 @@ jobs:
           cp -a ../../*.dll .
           curl -LO https://github.com/lucasg/Dependencies/releases/download/v1.11.1/Dependencies_x64_Release.zip
           unzip Dependencies_x64_Release.zip -d deps
-          ./deps/Dependencies -imports -modules _openmeeg.pyd
+          ./deps/Dependencies -modules _openmeeg.pyd
           python -c "import openmeeg; print(openmeeg.sqr(4))"
           cd ../../
           PYTHONPATH=$(cygpath -w ${PWD}/wrapping/src);${PYTHONPATH} python -c "import openmeeg; print(openmeeg.sqr(4))"
