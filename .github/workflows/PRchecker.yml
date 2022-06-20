@@ -219,18 +219,18 @@ jobs:
           cd build
           echo "Before:"
           ls -al *.dll
-          cp $OPENBLAS_LIB/openblas.dll libopenblas_v0.3.18-gcc_8_1_0.dll
+          cp $OPENBLAS_LIB/libopenblas_v0.3.18-gcc_8_1_0.dll .
           cp OpenMEEGMaths/libmatio.dll .
           echo "After:"
           ls *.dll
-          echo "OpenMEEG:"
-          ldd libOpenMEEG.dll
-          echo "OpenMEEGMaths:"
-          ldd libOpenMEEGMaths.dll
-          echo "hdf5:"
-          ldd hdf5.dll
-          echo "szip:"
-          ldd szip.dll
+          for name in libOpenMEEG libOpenMEEGMaths hdf5 szip libmatio libopenblas_v0.3.18-gcc_8_1_0; do
+            if [[ -f ${name}.dll ]]; then
+              echo "${name}:"
+              ldd "${name}.dll"
+            else:
+              echo "Missing ${name}"
+            fi
+          done
           cd ..
         fi
         ls -al build
