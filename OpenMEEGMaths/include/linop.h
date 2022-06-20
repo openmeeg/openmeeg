@@ -63,8 +63,7 @@ namespace OpenMEEG {
 
     // Properly convert an unsigned int to a BLAS_INT
 
-    inline BLAS_INT sizet_to_int(const unsigned& num);
-    OPENMEEGMATHS_EXPORT inline BLAS_INT sizet_to_int(const unsigned& num) {
+    inline BLAS_INT sizet_to_int(const unsigned& num) {
         const BLAS_INT num_out = static_cast<BLAS_INT>(num);
         om_assert(num_out>=0);
         return num_out;

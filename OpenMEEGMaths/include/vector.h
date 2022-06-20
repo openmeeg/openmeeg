@@ -267,5 +267,5 @@ namespace OpenMEEG {
 
     //  Operators.
 
-    OPENMEEGMATHS_EXPORT inline Vector operator*(const double d,const Vector& v) { return v*d; }
+    inline Vector operator*(const double d,const Vector& v) { return v*d; }
 }
