@@ -142,5 +142,4 @@ jobs:
           ./bootstrap-vcpkg.sh
           cd ..
         fi
-        cp build_tools/${VCPKG_DEFAULT_TRIPLET}.cmake vcpkg/triplets/community
         ./vcpkg/vcpkg install --recurse $VCPKG_INSTALL_OPTIONS
