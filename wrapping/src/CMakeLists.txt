@@ -69,6 +69,12 @@ install(TARGETS ${SWIG_TARGET_NAME}
 if (APPLE)
     set_target_properties(${SWIG_TARGET_NAME} PROPERTIES LINK_FLAGS "-undefined dynamic_lookup")
 endif()
+if (WIN32)  # Eventually we could probably use this to bundle on macOS and Linux, too...
+    add_custom_command(TARGET ${SWIG_TARGET_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_RUNTIME_DLLS:${SWIG_TARGET_NAME}> $<CMAKE_BINARY_DIR>
+        COMMAND_EXPAND_LISTS
+    )
+endif()
 
 install(FILES  ${OpenMEEG_BINARY_DIR}/wrapping/src/openmeeg.py
         DESTINATION ${PYTHON_REL_SITE_ARCH}

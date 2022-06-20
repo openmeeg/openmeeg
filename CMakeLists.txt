@@ -14,7 +14,6 @@ list(APPEND CMAKE_MODULE_PATH
 
 # OpenMEEG Configuration and needed things
 
-include(BundleWindowsLibs)
 include(GenerateExportHeader)
 include(CompilerOptions)
 include(options)
