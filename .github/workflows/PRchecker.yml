@@ -184,6 +184,7 @@ jobs:
         # On Windows, we tell cmake to copy all runtime deps to the build dir,
         # and for tests (and Python) to find them, we need to add it to PATH
         echo "PATH=$(cygpath -w ${PWD}/build);$PATH" >> $GITHUB_ENV
+        echo "PYTHONPATH=$(cygpath -w ${PWD}/build);$PYTHONPATH" >> $GITHUB_ENV
         # This makes debugging easier on failure
         # echo "BUILD_OPT=-j 1" >> $GITHUB_ENV
         # Finally, print our settings
@@ -223,7 +224,7 @@ jobs:
     - name: Build
       run: |
         cmake --build build ${{env.BUILD_OPT}} --config ${{env.BUILD_TYPE}}
-        # TODO: This should be in cmake...
+        # Ideally this would be in cmake, but we can live with manual moving for inplace testing
         if [[ ${{matrix.os}} == 'windows'* ]]; then
           cd build
           echo "Before:"
@@ -240,7 +241,14 @@ jobs:
               echo "Missing ${name}"
             fi
           done
+          set -x
+          cd wrapping/src
+          cp -a ../../*.dll .
+          python -c "import openmeeg; print(openmeeg.sqr(4))"
+          cd ../../
+          PYTHONPATH=$(cygpath -w ${PWD}/wrapping/src);${PYTHONPATH} python -c "import openmeeg; print(openmeeg.sqr(4))"
           cd ..
+          PYTHONPATH=$(cygpath -w ${PWD}/build/wrapping/src);${PYTHONPATH} python -c "import openmeeg; print(openmeeg.sqr(4))"
         fi
         ls -al build
 
