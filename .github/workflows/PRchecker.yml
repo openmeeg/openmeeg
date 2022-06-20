@@ -232,15 +232,14 @@ jobs:
           cp OpenMEEGMaths/libmatio.dll .
           echo "After:"
           ls *.dll
-          for name in libOpenMEEG libOpenMEEGMaths hdf5 szip libmatio libopenblas_v0.3.18-gcc_8_1_0 wrapping/src/_openmeeg; do
-            if [[ -f ${name}.dll ]]; then
+          for name in libOpenMEEG.dll libOpenMEEGMaths.dll hdf5.dll szip.dll libmatio.dll libopenblas_v0.3.18-gcc_8_1_0.dll wrapping/src/_openmeeg.pyd; do
+            if [[ -f ${name} ]]; then
               echo "${name}:"
-              ldd "${name}.dll"
+              ldd "${name}"
             else
               echo "Missing ${name}"
             fi
           done
-          ls -al wrapping/src
           cd ..
         fi
         ls -al build
