@@ -24,6 +24,7 @@ jobs:
       matrix:
         # TODO: MKL currently untested on any platform
         # TODO: static (BLAS linking) builds currently untested on any platform
+        # TODO: Get vcpkg to actually use MSVC 14 (2015)
         # Someday we could use OpenBLAS for Windows once vcpkg sorts things out
         # (https://github.com/microsoft/vcpkg/issues/25176), but it's unclear
         # if this will really help anything. SciPy's should be well tested
@@ -178,8 +179,7 @@ jobs:
         echo "OPENBLAS_LIB=$OPENBLAS_LIB" >> $GITHUB_ENV
         echo "LIB=$(cygpath -w $OPENBLAS_LIB);${LIB}" >> $GITHUB_ENV
         echo "CPATH=$(cygpath -w $OPENBLAS_INCLUDE);${CPATH}" >> $GITHUB_ENV
-        # echo "CL=/std:c++14" >> $GITHUB_ENV
-        echo "CMAKE_CXX_FLAGS=-I$(cygpath -m $OPENBLAS_INCLUDE),/std:c++14" >> $GITHUB_ENV
+        echo "CMAKE_CXX_FLAGS=-I$(cygpath -m $OPENBLAS_INCLUDE)" >> $GITHUB_ENV
         echo "CMAKE_GENERATOR=Visual Studio 14 2015" >> $GITHUB_ENV
         echo "CMAKE_GENERATOR_PLATFORM=x64" >> $GITHUB_ENV
         # On Windows, we tell cmake to copy all runtime deps to the build dir,
@@ -190,3 +190,76 @@ jobs:
         # echo "BUILD_OPT=-j 1" >> $GITHUB_ENV
         # Finally, print our settings
         cat $GITHUB_ENV
+
+    - name: MacOS OpenBLAS setup - Python, NumPy, hdf5, and libmatio via brew
+      if: startsWith(matrix.os,'macos')
+      run: |
+        brew update > /dev/null
+        brew install hdf5 libmatio boost vtk numpy swig
+        brew install openblas
+        echo "LDFLAGS=-L/usr/local/opt/openblas/lib" >> $GITHUB_ENV
+        echo "CPPFLAGS=-I/usr/local/opt/openblas/include" >> $GITHUB_ENV
+        echo "CMAKE_CXX_FLAGS=-I/usr/local/opt/openblas/include" >> $GITHUB_ENV
+
+    - name: Linux OpenBLAS setup - Python, NumPy, hdf5, libmatio, and doxygen via apt
+      if: startsWith(matrix.os,'ubuntu') && startswith(matrix.blas,'OpenBLAS')
+      run: |
+        sudo apt update
+        sudo apt -yq install libopenblas-dev liblapacke-dev python3-numpy doxygen graphviz libmatio-dev libvtk7-dev lcov
+
+    - name: Configure
+      run: |
+        set -x
+        cmake -B build \
+              -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} \
+              ${{env.BLA_STATIC_OPT}} \
+              ${{env.BLA_IMPL}} \
+              ${{env.BLA_PARA}} \
+              ${{env.PYTHON_OPT}} \
+              ${{env.DOC_OPT}} \
+              -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
+              -DCMAKE_C_COMPILER_LAUNCHER=ccache \
+              -DCMAKE_TOOLCHAIN_FILE=${{ env.CMAKE_TOOLCHAIN_FILE }} \
+              -DCMAKE_CXX_FLAGS=${{ env.CMAKE_CXX_FLAGS }} \
+              -DENABLE_WERROR=${{ env.ENABLE_WERROR }} \
+              -DTEST_HEAD3=ON
+
+    - name: Build
+      run: |
+        cmake --build build ${{env.BUILD_OPT}} --config ${{env.BUILD_TYPE}}
+        # Ideally this would be in cmake, but we can live with manual moving for inplace testing
+        if [[ ${{matrix.os}} == 'windows'* ]]; then
+          cd build
+          echo "Before:"
+          ls -al *.dll
+          cp $OPENBLAS_LIB/libopenblas_v0.3.18-gcc_8_1_0.dll .
+          cp $OPENBLAS_LIB/libopenblas_v0.3.18-gcc_8_1_0.dll openblas.dll
+          cp OpenMEEGMaths/libmatio.dll .
+          echo "After:"
+          ls *.dll
+          for name in libOpenMEEG libOpenMEEGMaths hdf5 szip libmatio libopenblas_v0.3.18-gcc_8_1_0; do
+            if [[ -f "${name}.dll" ]]; then
+              echo "${name}:"
+              ldd "${name}.dll"
+            else
+              echo "Missing ${name}"
+            fi
+          done
+          set -x
+          cd wrapping/src
+          cp -a ../../*.dll .
+          curl -LO https://github.com/lucasg/Dependencies/releases/download/v1.11.1/Dependencies_x64_Release.zip
+          unzip Dependencies_x64_Release.zip -d deps
+          ./deps/Dependencies -modules _openmeeg.pyd
+          python -c "import openmeeg; print(openmeeg.sqr(4))"
+          cd ../../
+          PYTHONPATH=$(cygpath -w ${PWD}/wrapping/src);${PYTHONPATH} python -c "import openmeeg; print(openmeeg.sqr(4))"
+          cd ..
+          PYTHONPATH=$(cygpath -w ${PWD}/build/wrapping/src);${PYTHONPATH} python -c "import openmeeg; print(openmeeg.sqr(4))"
+        fi
+        ls -al build
+
+    - name: Test
+      working-directory: ${{github.workspace}}/build
+      run: |
+        ctest -C $BUILD_TYPE || ctest -C $BUILD_TYPE --rerun-failed --output-on-failure

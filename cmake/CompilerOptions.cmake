@@ -4,6 +4,13 @@
 
 include(CheckCXXFeatures)
 
+if(CMAKE_CXX_COMPILER_LOADED)
+     message(STATUS "Compiler path: ${CMAKE_CXX_COMPILER}")
+     message(STATUS "Compiler ID: ${CMAKE_CXX_COMPILER_ID}")
+     message(STATUS "Compiler version:
+             ${CMAKE_CXX_COMPILER_VERSION}")
+endif()
+
 # Workaround the missing support of shared_ptr for arrays.
 
 check_cxx_feature(HAVE_SHARED_PTR_ARRAY_EXTENSION
