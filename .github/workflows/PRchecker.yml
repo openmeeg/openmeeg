@@ -211,6 +211,16 @@ jobs:
         # TODO: This should be in cmake...
         if [[ ${{matrix.os}} == 'windows'* ]]; then
           cp "$OPENBLAS_LIB/openblas.dll" build/
+          echo "OpenMEEG:"
+          dumpbin /dependents build/libOpenMEEG.dll
+          echo "OpenMEEGMaths:"
+          dumpbin /dependents build/libOpenMEEGMaths.dll
+          echo "hdf5:"
+          dumpbin /dependents build/hdf5.dll
+          echo "openblas:"
+          dumpbin /dependents build/openblas.dll
+          echo "szip:"
+          dumpbin /dependents build/szip.dll
         fi
         ls -al build
 
