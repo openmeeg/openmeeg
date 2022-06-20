@@ -161,7 +161,8 @@ jobs:
         test -d "$OPENBLAS_INCLUDE"
         cd $OPENBLAS_LIB
         ls -al
-        cp ../bin/libopenblas_v0.3.18-gcc_8_1_0.dll openblas.dll
+        cp ../bin/libopenblas_v0.3.18-gcc_8_1_0.dll .
+        cp libopenblas_v0.3.18-gcc_8_1_0.dll openblas.dll
         mv libopenblas_v0.3.18-gcc_8_1_0.a openblas.a
         mv libopenblas_v0.3.18-gcc_8_1_0.def openblas.def
         mv libopenblas_v0.3.18-gcc_8_1_0.dll.a openblas.dll.a
