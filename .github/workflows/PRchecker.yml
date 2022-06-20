@@ -74,13 +74,16 @@ jobs:
       with:
         update: false
         msystem: mingw64
+        path-type: inherit
         install: >-
           make
           mingw-w64-x86_64-toolchain
+          ccache
 
     - name: Setup ccache
       uses: Chocobo1/setup-ccache-action@v1
       with:
+        install: false
         windows_compile_environment: msys2
 
     # Windows only -- we can use the default Python3 for Linux + macOS
