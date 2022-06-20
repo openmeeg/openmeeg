@@ -100,7 +100,7 @@ jobs:
         VCPKG_INSTALLED_DIR=$(cygpath -m "$VCPKG_INSTALLED_DIR")
         echo "$VI"
         echo "VCPKG_INSTALLED_DIR=$VCPKG_INSTALLED_DIR" >> $GITHUB_ENV
-        VCPKG_INSTALL_OPTIONS=--x-install-root=$VCPKG_INSTALLED_DIR --triplet=x64-mingw-dynamic
+        VCPKG_INSTALL_OPTIONS="--x-install-root=$VCPKG_INSTALLED_DIR --triplet=x64-mingw-dynamic"
         echo "VCPKG_INSTALL_OPTIONS=$VCPKG_INSTALL_OPTIONS" >> $GITHUB_ENV
         echo "VCPKG_DEFAULT_TRIPLET=x64-mingw-dynamic"
 
