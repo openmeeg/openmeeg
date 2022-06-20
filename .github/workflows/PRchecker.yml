@@ -87,7 +87,7 @@ jobs:
         fi
         echo "DOC_OPT=-DBUILD_DOCUMENTATION=$BUILD_DOCS" >> $GITHUB_ENV
 
-    # We can use the default Python3 for other OSes
+    # Windows only -- we can use the default Python3 for Linux + macOS
     - uses: actions/setup-python@v4
       if: startswith(matrix.blas,'OpenBLAS') && startswith(matrix.os,'windows')
       with:
@@ -129,14 +129,14 @@ jobs:
         pip install --upgrade --progress-bar off -q numpy
 
     - uses: actions/cache@v3
-      name: Cache vcpkg
+      name: Windows OpenBLAS setup 2 - cache vcpkg
       with:
         path: |
           vcpkg
           build/vcpkg_installed
         key: vcpkg-${{ hashFiles('**/vcpkg.json') }}-1
 
-    - name: Windows OpenBLAS setup 2 - hdf5 and libmatio via vcpkg
+    - name: Windows OpenBLAS setup 3 - hdf5 and libmatio via vcpkg
       if: startswith(matrix.blas,'OpenBLAS') && startsWith(matrix.os,'windows')
       id: runvcpkg
       #uses: lukka/run-vcpkg@v10
@@ -158,7 +158,7 @@ jobs:
         fi
         ./vcpkg/vcpkg install --triplet=x64-windows --recurse $VCPKG_INSTALL_OPTIONS
 
-    - name: Windows OpenBLAS setup 3 - check env
+    - name: Windows OpenBLAS setup 4 - check env
       if: startswith(matrix.blas,'OpenBLAS') && startswith(matrix.os,'windows')
       run: |
         echo "VCPKG_INSTALLED_DIR: $VCPKG_INSTALLED_DIR"
@@ -166,7 +166,7 @@ jobs:
         echo "CMAKE_TOOLCHAIN_FILE: $CMAKE_TOOLCHAIN_FILE"
         test -f $(cygpath -u "$CMAKE_TOOLCHAIN_FILE")
 
-    - name: Windows OpenBLAS setup 4 - OpenBLAS
+    - name: Windows OpenBLAS setup 5 - OpenBLAS
       if: startsWith(matrix.blas,'OpenBLAS') && startsWith(matrix.os,'windows')
       run: |
         # OpenBLAS direct download (too slow to build using vcpkg)
