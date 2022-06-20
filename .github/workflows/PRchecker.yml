@@ -34,8 +34,8 @@ jobs:
         # TODO: MKL status unknown on macOS
         # TODO: Static build broken for OpenBLAS (Could NOT find LAPACK (missing: LAPACK_LIBRARIES))
         # TODO: Use OpenBLAS for Windows once vcpkg sorts things out (https://github.com/microsoft/vcpkg/issues/25176)
-        # os: [ubuntu-20.04, windows-latest, macos-latest]
-        os: [windows-latest]
+        os: [ubuntu-20.04, windows-latest, macos-latest]
+        # os: [windows-latest]
         blas: [OpenBLAS]
         blas_linking: [dynamic]
         python: [python]
@@ -231,10 +231,16 @@ jobs:
       run: |
         cmake --build build ${{env.BUILD_OPT}} --config ${{env.BUILD_TYPE}}
         ls -al build
+        if [ -d build/OpenMEEG ]; then
+          ls -al build/OpenMEEG
+        fi
+        if [ -d build/vcpkg_installed ]; then
+          ls -al build/vcpkg_installed
+        fi
 
     - name: Test
       working-directory: ${{github.workspace}}/build
       # Execute tests defined by the CMake configuration.
       # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
       run: |
-        ctest -C ${{env.BUILD_TYPE}} || ctest --rerun-failed --output-on-failure
+        ctest -C $BUILD_TYPE --stop-on-failure || ctest -C $BUILD_TYPE --rerun-failed --output-on-failure --stop-on-failure
