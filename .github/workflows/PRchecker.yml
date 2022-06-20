@@ -25,6 +25,7 @@ jobs:
         # TODO: MKL currently untested on any platform
         # TODO: static (BLAS linking) builds currently untested on any platform
         # TODO: Get vcpkg to actually use the Windows 8.1 SDK
+        # TODO: Could try boost-smart-ptr from vcpkg when using v140 tools
         # Someday we could use OpenBLAS for Windows once vcpkg sorts things out
         # (https://github.com/microsoft/vcpkg/issues/25176), but it's unclear
         # if this will really help anything. SciPy's should be well tested
@@ -183,7 +184,7 @@ jobs:
         echo "CMAKE_GENERATOR=Visual Studio 16 2019" >> $GITHUB_ENV
         echo "CMAKE_GENERATOR_PLATFORM=x64" >> $GITHUB_ENV
         echo "SDK_OPT=-DCMAKE_SYSTEM_VERSION=8.1" >> $GITHUB_ENV
-        #echo "TOOLSET_OPT=-DCMAKE_GENERATOR_TOOLSET=v140" >> $GITHUB_ENV
+        echo "TOOLSET_OPT=-DCMAKE_GENERATOR_TOOLSET=v141" >> $GITHUB_ENV
         # On Windows, we tell cmake to copy all runtime deps to the build dir,
         # and for tests (and Python) to find them, we need to add it to PATH
         echo "PATH=$(cygpath -w ${PWD}/build);$PATH" >> $GITHUB_ENV
