@@ -76,7 +76,9 @@ jobs:
         echo "DOC_OPT=-DBUILD_DOCUMENTATION=$BUILD_DOCS" >> $GITHUB_ENV
 
     - name: Setup ccache
-      uses: Chocobo1/setup-ccache-action@v1
+      uses: hendrikmuhs/ccache-action@v1.2
+      with:
+        key: ${{ github.job }}-${{ matrix.os }}
 
     # Windows only -- we can use the default Python3 for Linux + macOS
     - name: Windows OpenBLAS setup 1 - install Python
@@ -233,10 +235,10 @@ jobs:
           cp OpenMEEGMaths/libmatio.dll .
           echo "After:"
           ls *.dll
-          for name in libOpenMEEG.dll libOpenMEEGMaths.dll hdf5.dll szip.dll libmatio.dll libopenblas_v0.3.18-gcc_8_1_0.dll wrapping/src/_openmeeg.pyd; do
-            if [[ -f ${name} ]]; then
+          for name in libOpenMEEG libOpenMEEGMaths hdf5 szip libmatio libopenblas_v0.3.18-gcc_8_1_0; do
+            if [[ -f "${name}.dll" ]]; then
               echo "${name}:"
-              ldd "${name}"
+              ldd "${name}.dll"
             else
               echo "Missing ${name}"
             fi
