@@ -161,7 +161,7 @@ jobs:
         test -d "$OPENBLAS_INCLUDE"
         cd $OPENBLAS_LIB
         ls -al
-        mv ../bin/libopenblas_v0.3.18-gcc_8_1_0.dll openblas.dll
+        cp ../bin/libopenblas_v0.3.18-gcc_8_1_0.dll openblas.dll
         mv libopenblas_v0.3.18-gcc_8_1_0.a openblas.a
         mv libopenblas_v0.3.18-gcc_8_1_0.def openblas.def
         mv libopenblas_v0.3.18-gcc_8_1_0.dll.a openblas.dll.a
@@ -217,8 +217,11 @@ jobs:
         # TODO: This should be in cmake...
         if [[ ${{matrix.os}} == 'windows'* ]]; then
           cd build
+          echo "Before:"
+          ls -al *.dll
           cp $OPENBLAS_LIB/openblas.dll libopenblas_v0.3.18-gcc_8_1_0.dll
           cp OpenMEEGMaths/libmatio.dll .
+          echo "After:"
           ls *.dll
           echo "OpenMEEG:"
           ldd libOpenMEEG.dll
