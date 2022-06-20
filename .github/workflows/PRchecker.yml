@@ -100,7 +100,7 @@ jobs:
         VCPKG_INSTALLED_DIR=$(cygpath -m "$VCPKG_INSTALLED_DIR")
         echo "$VI"
         echo "VCPKG_INSTALLED_DIR=$VCPKG_INSTALLED_DIR" >> $GITHUB_ENV
-        VCPKG_DEFAULT_TRIPLET=x64-mingw-dynamic
+        VCPKG_DEFAULT_TRIPLET=x64-windows
         echo "VCPKG_DEFAULT_TRIPLET=$VCPKG_DEFAULT_TRIPLET" >> $GITHUB_ENV
         echo "VCPKG_DEFAULT_HOST_TRIPLET=$VCPKG_DEFAULT_TRIPLET" >> $GITHUB_ENV
         VCPKG_INSTALL_OPTIONS="--x-install-root=$VCPKG_INSTALLED_DIR --triplet=$VCPKG_DEFAULT_TRIPLET"
@@ -121,7 +121,7 @@ jobs:
         path: |
           vcpkg
           build/vcpkg_installed
-        key: vcpkg-${{ hashFiles('**/vcpkg.json') }}-mingw64
+        key: vcpkg-${{ hashFiles('**/vcpkg.json') }}-1
 
     - name: Windows OpenBLAS setup 4 - hdf5 and libmatio via vcpkg
       if: startswith(matrix.blas,'OpenBLAS') && startsWith(matrix.os,'windows')
