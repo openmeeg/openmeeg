@@ -105,6 +105,9 @@ namespace OpenMEEG {
         inline Vector operator*(const double x) const;
         Vector operator/(const double x) const { return (*this)*(1.0/x); }
         inline double operator*(const Vector& v) const;
+        Vector operator+(const double i) const;
+        Vector operator-(const double i) const;
+        Vector operator*(const Matrix& m) const;
 
         Vector kmult(const Vector& x) const;
         // Vector conv(const Vector& v) const;
