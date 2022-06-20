@@ -210,6 +210,7 @@ jobs:
               ${{env.DOC_OPT}} \
               -DCMAKE_TOOLCHAIN_FILE=${{ env.CMAKE_TOOLCHAIN_FILE }} \
               -DCMAKE_CXX_FLAGS=${{ env.CMAKE_CXX_FLAGS }} \
+              -DENABLE_WERROR=ON \
               -DTEST_HEAD3=ON
 
     - name: Build
@@ -228,7 +229,7 @@ jobs:
             if [[ -f ${name}.dll ]]; then
               echo "${name}:"
               ldd "${name}.dll"
-            else:
+            else
               echo "Missing ${name}"
             fi
           done

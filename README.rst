@@ -116,13 +116,15 @@ then::
 
 You will need to define more CMake variables if you want the support for:
 
-- Python wrapping, add "-DENABLE_PYTHON=ON" (Python >= 3.6 is required)
+- Python wrapping, add `-DENABLE_PYTHON=ON`` (Python >= 3.7 is required)
 
-- VTK file format, add "-DUSE_VTK=ON".
+- VTK file format, add `-DUSE_VTK=ON`.
 
-- CGAL meshing tools, add "-DUSE_CGAL=ON".
+- CGAL meshing tools, add `-DUSE_CGAL=ON`.
 
-- Reference documentation, add "-DBUILD_DOCUMENTATION=ON". Make sure to have `doxygen` with `dot` support.
+- Reference documentation, add `-DBUILD_DOCUMENTATION=ON`. Make sure to have `doxygen` with `dot` support.
+
+- Treating compilation warnings as errors, add `-DENABLE_WERROR=ON`
 
 Then you can run the full test suite with::
 
