@@ -51,15 +51,24 @@ set(SWIG_MODULE_openmeeg_EXTRA_DEPS numpy.i make_geometry.py ${SWIG_MODULE_openm
 set_source_files_properties(openmeeg.i PROPERTIES CPLUSPLUS ON GENERATED_COMPILE_DEFINITIONS SWIG_PYTHON_SILENT_MEMLEAK)
 swig_add_library(openmeeg LANGUAGE python SOURCES openmeeg.i)
 
+# For PyPy, see
+# https://github.com/conda-forge/openmeeg-feedstock/pull/20#issuecomment-1161729565
+if(UNIX)
+    set_target_properties(openmeeg PROPERTIES SUFFIX "${Python_SOABI}")
+endif()
+
 if (APPLE)
     swig_link_libraries(openmeeg OpenMEEG::OpenMEEG)
 else()
     swig_link_libraries(openmeeg ${Python3_LIBRARIES} OpenMEEG::OpenMEEG)
 endif()
 
-#extract correctly python location: e.g lib64/python2.7/site-packages
-
-string(REGEX MATCH "[Ll]ib.*packages" PYTHON_REL_SITE_ARCH ${Python3_SITEARCH})
+if (WIN32)
+    file(TO_CMAKE_PATH "${PYTHON_SITE_ARCH}" PYTHON_REL_SITE_ARCH)
+    string(REGEX REPLACE "\n$" "" PYTHON_REL_SITE_ARCH "${PYTHON_REL_SITE_ARCH}")
+else()
+    string(REGEX MATCH "[Ll]ib.*packages" PYTHON_REL_SITE_ARCH ${Python3_SITEARCH})
+endif()
 
 install(TARGETS ${SWIG_TARGET_NAME}
         LIBRARY DESTINATION ${PYTHON_REL_SITE_ARCH}
