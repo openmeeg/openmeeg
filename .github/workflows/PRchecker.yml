@@ -243,6 +243,7 @@ jobs:
         # use delvewheel/auditwheel/delocate to do this magic for us.
         # This will probably be a part of CIBUILDWHEEL, though, so
         # we probably don't need to bother here
+      run: |
         if [[ ${{matrix.os}} == 'windows'* ]]; then
           cd build
           echo "Before:"
