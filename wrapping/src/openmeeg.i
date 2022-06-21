@@ -305,7 +305,7 @@ namespace OpenMEEG {
             !PyArray_EquivTypenums(type_num, NPY_INT64) &&
             !PyArray_EquivTypenums(type_num, NPY_UINT64)) {
             std::vector<char> buf(1000); // note +1 for null terminator
-            std::snprintf(&buf[0], buf.size(), "Wrong dtype for triangles array (only 32 or 64 int or uint supported), got type '%c%d'", descr->kind, descr->elsize, type_num);
+            std::snprintf(&buf[0], buf.size(), "Wrong dtype for triangles array (only 32 or 64 int or uint supported), got type '%c%d'", descr->kind, descr->elsize);
             PyErr_SetString(PyExc_TypeError,&buf[0]);
             return;
         }
