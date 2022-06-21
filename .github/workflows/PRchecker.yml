@@ -129,7 +129,7 @@ jobs:
         path: |
           vcpkg
           build/vcpkg_installed
-        key: vcpkg-${{ hashFiles('**/vcpkg.json') }}-3
+        key: vcpkg-${{ hashFiles('**/vcpkg.json') }}-mingw64
 
     - name: Windows OpenBLAS setup 4 - hdf5 and libmatio via vcpkg
       if: startswith(matrix.blas,'OpenBLAS') && startsWith(matrix.os,'windows')
@@ -144,7 +144,6 @@ jobs:
           ./bootstrap-vcpkg.sh
           cd ..
         fi
-        #./vcpkg/vcpkg install --recurse $VCPKG_INSTALL_OPTIONS
 
     - name: Windows OpenBLAS setup 5 - check env
       if: startswith(matrix.blas,'OpenBLAS') && startswith(matrix.os,'windows')
@@ -266,21 +265,21 @@ jobs:
         name: wrapping-${{ matrix.os }}
         path: build/wrapping/src
 
-    - name: Test Python quickly first
-      if: startswith(matrix.python, 'python')
-      run:
-        cd wrapping/src
-        ls -al
-        if [[ ${{matrix.os}} == 'windows'* ]]; then
-          curl -LO https://github.com/lucasg/Dependencies/releases/download/v1.11.1/Dependencies_x64_Release.zip
-          unzip -q Dependencies_x64_Release.zip -d deps
-          ./deps/Dependencies -modules _openmeeg.pyd
-        else if [[ ${{matrix.os}} == 'ubuntu'* ]]; then
-          ldd _openmeeg.pyd
-        fi
-        python -c "import openmeeg; print(openmeeg.sqr(4))"
-
-    - name: Test
-      working-directory: ${{github.workspace}}/build
-      run: |
-        ctest -C $BUILD_TYPE || ctest -C $BUILD_TYPE --rerun-failed --output-on-failure
+#    - name: Test Python quickly first
+#      if: startswith(matrix.python, 'python')
+#      run:
+#        cd wrapping/src
+#        ls -al
+#        if [[ ${{matrix.os}} == 'windows'* ]]; then
+#          curl -LO https://github.com/lucasg/Dependencies/releases/download/v1.11.1/Dependencies_x64_Release.zip
+#          unzip -q Dependencies_x64_Release.zip -d deps
+#          ./deps/Dependencies -modules _openmeeg.pyd
+#        else if [[ ${{matrix.os}} == 'ubuntu'* ]]; then
+#          ldd _openmeeg.pyd
+#        fi
+#        python -c "import openmeeg; print(openmeeg.sqr(4))"
+#
+#    - name: Test
+#      working-directory: ${{github.workspace}}/build
+#      run: |
+#        ctest -C $BUILD_TYPE || ctest -C $BUILD_TYPE --rerun-failed --output-on-failure
