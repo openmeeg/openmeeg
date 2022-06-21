@@ -298,10 +298,14 @@ namespace OpenMEEG {
         }
 
         PyArrayObject* array = reinterpret_cast<PyArrayObject*>(pyobj);
-        const int type = PyArray_TYPE(array);
         const PyArray_Descr *descr = PyArray_DESCR(array);
+        const int type_num = descr->type_num;
+        const bool bad = (!PyArray_EquivTypenums(type_num, NPY_INT32) &&
+            !PyArray_EquivTypenums(type_num, NPY_UINT34) &&
+            !PyArray_EquivTypenums(type_num, NPY_INT64) &&
+            !PyArray_EquivTypenums(type_num, NPY_UINT64))
         if (type!=NPY_INT32 && type!=NPY_UINT32 && type!=NPY_INT64 && type!=NPY_UINT64) {
-            PyErr_SetString(PyExc_TypeError,sprintf("Wrong dtype for triangles array (only 32 or 64 int or uint supported), got %c%d (%d != %d, %d, %d, or %d", descr.kind,descr.elsize,descr.type_num,NPY_INT32,NPY_UINT32,NPY_INT64,NPY_UINT64);
+            PyErr_SetString(PyExc_TypeError,sprintf("Wrong dtype for triangles array (only 32 or 64 int or uint supported), %d got %c%d (%d != %d, %d, %d, or %d", bad, descr->kind, descr->elsize, descr->type_num, NPY_INT32, NPY_UINT32, NPY_INT64, NPY_UINT64);
             return;
         }
 
