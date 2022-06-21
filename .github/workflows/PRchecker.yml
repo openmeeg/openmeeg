@@ -107,7 +107,7 @@ jobs:
         VCPKG_INSTALLED_DIR=$(cygpath -m "$VCPKG_INSTALLED_DIR")
         echo "$VI"
         echo "VCPKG_INSTALLED_DIR=$VCPKG_INSTALLED_DIR" >> $GITHUB_ENV
-        VCPKG_DEFAULT_TRIPLET=x64-windows
+        VCPKG_DEFAULT_TRIPLET=x64-mingw64-dynamic
         echo "VCPKG_DEFAULT_TRIPLET=$VCPKG_DEFAULT_TRIPLET" >> $GITHUB_ENV
         echo "VCPKG_DEFAULT_HOST_TRIPLET=$VCPKG_DEFAULT_TRIPLET" >> $GITHUB_ENV
         VCPKG_INSTALL_OPTIONS="--x-install-root=$VCPKG_INSTALLED_DIR --triplet=$VCPKG_DEFAULT_TRIPLET"
@@ -129,7 +129,7 @@ jobs:
         path: |
           vcpkg
           build/vcpkg_installed
-        key: vcpkg-${{ hashFiles('**/vcpkg.json') }}-3
+        key: vcpkg-${{ hashFiles('**/vcpkg.json') }}-mingw64
 
     - name: Windows OpenBLAS setup 4 - hdf5 and libmatio via vcpkg
       if: startswith(matrix.blas,'OpenBLAS') && startsWith(matrix.os,'windows')
@@ -144,7 +144,7 @@ jobs:
           ./bootstrap-vcpkg.sh
           cd ..
         fi
-        ./vcpkg/vcpkg install --recurse $VCPKG_INSTALL_OPTIONS
+        #./vcpkg/vcpkg install --recurse $VCPKG_INSTALL_OPTIONS
 
     - name: Windows OpenBLAS setup 5 - check env
       if: startswith(matrix.blas,'OpenBLAS') && startswith(matrix.os,'windows')
@@ -182,10 +182,12 @@ jobs:
         #echo "CPATH=$(cygpath -w $OPENBLAS_INCLUDE);${CPATH}" >> $GITHUB_ENV
         echo "CMAKE_CXX_FLAGS=-I$(cygpath -m $OPENBLAS_INCLUDE)" >> $GITHUB_ENV
 
-        echo "CMAKE_GENERATOR=Visual Studio 16 2019" >> $GITHUB_ENV
-        echo "CMAKE_GENERATOR_PLATFORM=x64" >> $GITHUB_ENV
-        echo "SDK_OPT=-DCMAKE_SYSTEM_VERSION=8.1" >> $GITHUB_ENV
-        echo "TOOLSET_OPT=-DCMAKE_GENERATOR_TOOLSET=v141" >> $GITHUB_ENV
+        echo "CMAKE_GENERATOR=MinGW Makefiles" >> $GITHUB_ENV
+
+        #echo "CMAKE_GENERATOR=Visual Studio 16 2019" >> $GITHUB_ENV
+        #echo "CMAKE_GENERATOR_PLATFORM=x64" >> $GITHUB_ENV
+        #echo "SDK_OPT=-DCMAKE_SYSTEM_VERSION=8.1" >> $GITHUB_ENV
+        #echo "TOOLSET_OPT=-DCMAKE_GENERATOR_TOOLSET=v141" >> $GITHUB_ENV
 
         # On Windows, we tell cmake to copy all runtime deps to the build dir,
         # and for tests (and Python) to find them, we need to add it to PATH
@@ -268,13 +270,14 @@ jobs:
       if: startswith(matrix.python, 'python')
       run:
         cd wrapping/src
+        ls -al
         if [[ ${{matrix.os}} == 'windows'* ]]; then
           curl -LO https://github.com/lucasg/Dependencies/releases/download/v1.11.1/Dependencies_x64_Release.zip
           unzip -q Dependencies_x64_Release.zip -d deps
           ./deps/Dependencies -modules _openmeeg.pyd
         else if [[ ${{matrix.os}} == 'ubuntu'* ]]; then
           ldd _openmeeg.pyd
-        fi;
+        fi
         python -c "import openmeeg; print(openmeeg.sqr(4))"
 
     - name: Test
