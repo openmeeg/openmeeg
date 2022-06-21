@@ -301,7 +301,7 @@ namespace OpenMEEG {
         const PyArray_Descr *descr = PyArray_DESCR(array);
         const int type_num = descr->type_num;
         const bool bad = (!PyArray_EquivTypenums(type_num, NPY_INT32) &&
-            !PyArray_EquivTypenums(type_num, NPY_UINT34) &&
+            !PyArray_EquivTypenums(type_num, NPY_UINT32) &&
             !PyArray_EquivTypenums(type_num, NPY_INT64) &&
             !PyArray_EquivTypenums(type_num, NPY_UINT64))
         if (type!=NPY_INT32 && type!=NPY_UINT32 && type!=NPY_INT64 && type!=NPY_UINT64) {
