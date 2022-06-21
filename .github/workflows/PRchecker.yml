@@ -244,7 +244,7 @@ jobs:
             if [[ -f "${name}.dll" ]]; then
               echo "${name}:"
               ldd "${name}.dll"
-              #python -c "import os; from ctypes import WinDLL; print(WinDLL(os.path.abspath(os.path.join(os.getcwd(), '${name}.dll'))))"
+              python -c "import os; from ctypes import WinDLL; print(WinDLL(os.path.abspath(os.path.join(os.getcwd(), '${name}.dll'))))"
             else
               echo "Missing ${name}"
             fi
@@ -262,22 +262,22 @@ jobs:
         name: wrapping-${{ matrix.os }}
         path: build/wrapping/src
 
-#    - name: Test Python quickly first
-#      if: startswith(matrix.python, 'python')
-#      run:
-#        cd wrapping/src
-#        ls -al
-#        if [[ ${{matrix.os}} == 'windows'* ]]; then
-#          curl -LO https://github.com/lucasg/Dependencies/releases/download/v1.11.1/Dependencies_x64_Release.zip
-#          unzip -q Dependencies_x64_Release.zip -d deps
-#          ./deps/Dependencies -modules _openmeeg.pyd
-#          python -c "from ctypes import WinDLL; print(WinDLL('_openmeeg.pyd'))"
-#        else if [[ ${{matrix.os}} == 'ubuntu'* ]]; then
-#          ldd _openmeeg.pyd
-#        fi
-#        python -c "import openmeeg; print(openmeeg.sqr(4))"
-#
-#    - name: Test
-#      working-directory: ${{github.workspace}}/build
-#      run: |
-#        ctest -C $BUILD_TYPE || ctest -C $BUILD_TYPE --rerun-failed --output-on-failure
+    - name: Test Python quickly first
+      if: startswith(matrix.python, 'python')
+      run:
+        cd wrapping/src
+        ls -al
+        if [[ ${{matrix.os}} == 'windows'* ]]; then
+          curl -LO https://github.com/lucasg/Dependencies/releases/download/v1.11.1/Dependencies_x64_Release.zip
+          unzip -q Dependencies_x64_Release.zip -d deps
+          ./deps/Dependencies -modules _openmeeg.pyd
+          python -c "import os; from ctypes import WinDLL; print(os.path.abspath(os.path.join(os.getcwd(), WinDLL('_openmeeg.pyd'))))"
+        else if [[ ${{matrix.os}} == 'ubuntu'* ]]; then
+          ldd _openmeeg.pyd
+        fi
+        python -c "import openmeeg; print(openmeeg.sqr(4))"
+
+    - name: Test
+      working-directory: ${{github.workspace}}/build
+      run: |
+        ctest -C $BUILD_TYPE || ctest -C $BUILD_TYPE --rerun-failed --output-on-failure
