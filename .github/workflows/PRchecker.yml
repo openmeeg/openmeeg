@@ -249,6 +249,7 @@ jobs:
             if [[ -f "${name}.dll" ]]; then
               echo "${name}:"
               ldd "${name}.dll"
+              python -c "from ctypes import WinDLL; print(WinDLL('${name}.dll'))"
             else
               echo "Missing ${name}"
             fi
@@ -275,6 +276,7 @@ jobs:
 #          curl -LO https://github.com/lucasg/Dependencies/releases/download/v1.11.1/Dependencies_x64_Release.zip
 #          unzip -q Dependencies_x64_Release.zip -d deps
 #          ./deps/Dependencies -modules _openmeeg.pyd
+#          python -c "from ctypes import WinDLL; print(WinDLL('_openmeeg.pyd'))"
 #        else if [[ ${{matrix.os}} == 'ubuntu'* ]]; then
 #          ldd _openmeeg.pyd
 #        fi
