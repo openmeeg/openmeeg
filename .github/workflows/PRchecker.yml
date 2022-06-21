@@ -129,7 +129,7 @@ jobs:
         path: |
           vcpkg
           build/vcpkg_installed
-        key: vcpkg-${{ hashFiles('**/vcpkg.json') }}-mingw64-0
+        key: vcpkg-${{ hashFiles('**/vcpkg.json') }}-mingw64-3
 
     - name: Windows OpenBLAS setup 4 - hdf5 and libmatio via vcpkg
       if: startswith(matrix.blas,'OpenBLAS') && startsWith(matrix.os,'windows')
