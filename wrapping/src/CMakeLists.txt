@@ -53,8 +53,8 @@ swig_add_library(openmeeg LANGUAGE python SOURCES openmeeg.i)
 
 # For PyPy, see
 # https://github.com/conda-forge/openmeeg-feedstock/pull/20#issuecomment-1161729565
-if(UNIX AND NOT "${Python_SOABI}" STREQUAL "")
-    set_target_properties(openmeeg PROPERTIES SUFFIX "${Python_SOABI}")
+if(UNIX)
+    set_target_properties(openmeeg PROPERTIES SUFFIX "${Python3_SOABI}")
 endif()
 
 if (APPLE)
