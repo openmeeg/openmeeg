@@ -236,6 +236,9 @@ jobs:
       run: |
         cmake --build build ${{env.BUILD_OPT}} --config ${{env.BUILD_TYPE}}
         ls -al build
+        if [ -d build/wrapping/src ]; then
+          ls -al build/wrapping/src
+        fi
 
     - name: Prepare Python
       if: startswith(matrix.python, 'python')
