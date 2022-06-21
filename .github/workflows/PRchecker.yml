@@ -278,7 +278,7 @@ jobs:
           curl -LO https://github.com/lucasg/Dependencies/releases/download/v1.11.1/Dependencies_x64_Release.zip
           unzip -q Dependencies_x64_Release.zip -d deps
           ./deps/Dependencies -modules _openmeeg.pyd
-          python -c "import os; from ctypes import WinDLL; print([WinDLL(os.path.abspath(os.path.join(os.getcwd(), name))) for name in '"libopenblas_v0.3.18-gcc_8_1_0.dll szip.dll hdf5.dll libmatio.dll libOpenMEEGMaths.dll libOpenMEEG.dll _openmeeg.pyd'.split()])"
+          python -c "import os; from ctypes import WinDLL; print([WinDLL(os.path.abspath(os.path.join(os.getcwd(), name))) for name in 'libwinpthread-1.dll libgcc_s_seh-1.dll zlib1.dll libquadmath-0.dll libstdc++-6.dll libgomp-1.dll libopenblas_v0.3.18-gcc_8_1_0.dll szip.dll hdf5.dll libmatio.dll libOpenMEEGMaths.dll libOpenMEEG.dll _openmeeg.pyd'.split()])"
         elif [[ ${{matrix.os}} == 'ubuntu'* ]]; then
           ldd _openmeeg.so
         fi
