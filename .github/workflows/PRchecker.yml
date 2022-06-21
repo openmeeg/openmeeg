@@ -235,9 +235,14 @@ jobs:
     - name: Build
       run: |
         cmake --build build ${{env.BUILD_OPT}} --config ${{env.BUILD_TYPE}}
-        # Ideally this would be in cmake, but we can live with manual moving for inplace testing
+        ls -al build
+
+    - name: Prepare Python
+      if: startswith(matrix.python, 'python')
         # TODO: we should just build a standard wheel using setup.py, then
-        # use delvewheel to do this magic for us
+        # use delvewheel/auditwheel/delocate to do this magic for us.
+        # This will probably be a part of CIBUILDWHEEL, though, so
+        # we probably don't need to bother here
         if [[ ${{matrix.os}} == 'windows'* ]]; then
           cd build
           echo "Before:"
@@ -256,18 +261,18 @@ jobs:
           cp -a *.dll wrapping/src
           cd ..
         fi
-        ls -al build
 
     - name: Upload wrapped Python lib
       if: startswith(matrix.python, 'python')
       uses: actions/upload-artifact@v3
       with:
-        name: wrapping-${{ matrix.os }}
+        name: wrapping-${{ matrix.os }}-${{ matrix.blas_linking }}
         path: build/wrapping/src
 
     - name: Test Python quickly first
       if: startswith(matrix.python, 'python')
       run: |
+        cd build/wrapping/src
         python -c "import openmeeg; print(openmeeg.sqr(4))"
 
     - name: Test
