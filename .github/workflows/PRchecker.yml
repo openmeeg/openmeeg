@@ -240,15 +240,16 @@ jobs:
           cp OpenMEEGMaths/libmatio.dll .
           echo "After:"
           ls *.dll
-          for name in libOpenMEEG libOpenMEEGMaths hdf5 szip libmatio libopenblas_v0.3.18-gcc_8_1_0; do
+          NAMES="libopenblas_v0.3.18-gcc_8_1_0 szip hdf5 libmatio libOpenMEEGMaths libOpenMEEG"
+          for name in $NAMES; do
             if [[ -f "${name}.dll" ]]; then
               echo "${name}:"
               ldd "${name}.dll"
-              python -c "import os; from ctypes import WinDLL; print(WinDLL(os.path.abspath(os.path.join(os.getcwd(), '${name}.dll'))))"
             else
               echo "Missing ${name}"
             fi
           done
+          python -c "import os; from ctypes import WinDLL; print([WinDLL(os.path.abspath(os.path.join(os.getcwd(), name + '.dll'))) for name in '$NAMES'.split()])"
           set -x
           cp -a *.dll wrapping/src
           cd ..
@@ -264,7 +265,7 @@ jobs:
 
     - name: Test Python quickly first
       if: startswith(matrix.python, 'python')
-      run:
+      run: |
         cd wrapping/src
         ls -al
         if [[ ${{matrix.os}} == 'windows'* ]]; then
