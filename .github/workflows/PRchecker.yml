@@ -78,13 +78,6 @@ jobs:
       with:
         key: ${{ github.job }}-${{ matrix.os }}
 
-    # Windows only -- we can use the default Python3 for Linux + macOS
-    - name: Windows OpenBLAS setup 1 - install Python
-      if: startswith(matrix.blas,'OpenBLAS') && startswith(matrix.os,'windows')
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.10'
-
     # For MKL we'll always use conda
     - uses: conda-incubator/setup-miniconda@v2
       if: startswith(matrix.blas,'MKL')
@@ -98,6 +91,13 @@ jobs:
       if: startswith(matrix.blas,'MKL')
       run: |
         conda install mkl mkl-include numpy hdf5 libmatio swig
+
+    # Windows only -- we can use the default Python3 for Linux + macOS
+    - name: Windows OpenBLAS setup 1 - install Python
+      if: startswith(matrix.blas,'OpenBLAS') && startswith(matrix.os,'windows')
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
 
     - name: Windows OpenBLAS setup 2 - set env and install NumPy via pip
       if: startswith(matrix.blas,'OpenBLAS') && startswith(matrix.os,'windows')
@@ -129,7 +129,7 @@ jobs:
         path: |
           vcpkg
           build/vcpkg_installed
-        key: vcpkg-${{ hashFiles('**/vcpkg.json') }}-mingw64-3
+        key: vcpkg-${{ hashFiles('**/vcpkg.json') }}-mingw64-0
 
     - name: Windows OpenBLAS setup 4 - hdf5 and libmatio via vcpkg
       if: startswith(matrix.blas,'OpenBLAS') && startsWith(matrix.os,'windows')
@@ -144,16 +144,11 @@ jobs:
           ./bootstrap-vcpkg.sh
           cd ..
         fi
-
-    - name: Windows OpenBLAS setup 5 - check env
-      if: startswith(matrix.blas,'OpenBLAS') && startswith(matrix.os,'windows')
-      run: |
         echo "VCPKG_INSTALLED_DIR: $VCPKG_INSTALLED_DIR"
-        test -d $(cygpath -u "$VCPKG_INSTALLED_DIR")
         echo "CMAKE_TOOLCHAIN_FILE: $CMAKE_TOOLCHAIN_FILE"
         test -f $(cygpath -u "$CMAKE_TOOLCHAIN_FILE")
 
-    - name: Windows OpenBLAS setup 6 - OpenBLAS
+    - name: Windows OpenBLAS setup 5 - OpenBLAS
       if: startsWith(matrix.blas,'OpenBLAS') && startsWith(matrix.os,'windows')
       run: |
         # OpenBLAS direct download (too slow to build using vcpkg)
