@@ -47,15 +47,12 @@ else()
 endif()
 
 list(APPEND CMAKE_SWIG_FLAGS -v -O)
-set(SWIG_MODULE_openmeeg_EXTRA_DEPS numpy.i make_geometry.py ${SWIG_MODULE_openmeeg_EXTRA_DEPS})
-set_source_files_properties(openmeeg.i PROPERTIES CPLUSPLUS ON GENERATED_COMPILE_DEFINITIONS SWIG_PYTHON_SILENT_MEMLEAK)
-swig_add_library(openmeeg LANGUAGE python SOURCES openmeeg.i)
-
-# For PyPy, see
-# https://github.com/conda-forge/openmeeg-feedstock/pull/20#issuecomment-1161729565
-if(UNIX)
-    set_target_properties(openmeeg PROPERTIES SUFFIX ".${Python3_SOABI}.so")
-endif()
+set(SWIG_MODULE_openmeeg_EXTRA_DEPS openmeeg/numpy.i ${SWIG_MODULE_openmeeg_EXTRA_DEPS})
+set_source_files_properties(openmeeg/openmeeg.i PROPERTIES CPLUSPLUS ON GENERATED_COMPILE_DEFINITIONS SWIG_PYTHON_SILENT_MEMLEAK)
+# This puts openmeeg.py in openmeeg/
+swig_add_library(${SWIG_TARGET_NAME} LANGUAGE python OUTPUT_DIR ${CMAKE_CURRENT_BINARY_DIR}/openmeeg SOURCES openmeeg/openmeeg.i)
+# This puts _openmeeg.so in openmeeg/
+set_target_properties(${SWIG_TARGET_NAME} PROPERTIES LIBRARY_OUTPUT_DIRECTORY openmeeg/)
 
 if (APPLE)
     swig_link_libraries(openmeeg OpenMEEG::OpenMEEG)
@@ -67,10 +64,21 @@ endif()
 
 string(REGEX MATCH "[Ll]ib.*packages" PYTHON_REL_SITE_ARCH ${Python3_SITEARCH})
 
-install(TARGETS ${SWIG_TARGET_NAME}
-        LIBRARY DESTINATION ${PYTHON_REL_SITE_ARCH}
-        RUNTIME DESTINATION ${PYTHON_REL_SITE_ARCH}
-        PERMISSIONS OWNER_WRITE OWNER_READ GROUP_READ WORLD_READ)
+# Copy our .py files over, dealing with Windows wildcard issues
+file(GLOB PYTHON_COPY_FILENAMES ${CMAKE_SOURCE_DIR}/wrapping/python/openmeeg/*.py)
+add_custom_command(
+    TARGET ${SWIG_TARGET_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy ${PYTHON_COPY_FILENAMES} ${CMAKE_CURRENT_BINARY_DIR}/openmeeg/)
+add_custom_command(
+    TARGET ${SWIG_TARGET_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${CMAKE_SOURCE_DIR}/wrapping/python/openmeeg/tests
+    ${CMAKE_CURRENT_BINARY_DIR}/openmeeg/tests)
+
+# Installation just copies the directory
+install(DIRECTORY  ${OpenMEEG_BINARY_DIR}/wrapping/python/openmeeg
+        DESTINATION ${PYTHON_REL_SITE_ARCH}
+        DIRECTORY_PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ)
 
 if (APPLE)
     set_target_properties(${SWIG_TARGET_NAME} PROPERTIES LINK_FLAGS "-undefined dynamic_lookup")
@@ -90,14 +98,7 @@ if (WIN32)
     )
 endif()
 
-install(FILES  ${OpenMEEG_BINARY_DIR}/wrapping/src/openmeeg.py
-        DESTINATION ${PYTHON_REL_SITE_ARCH}
-        PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ)
-
 # Test Python wrapping
-#
-# XXXX: we copy all python scripts from source to binary so that openmeeg.py is in the path. There should be a manner of just adding
-#       it to the python path for the testing environment and allow to execute the python scripts from source.
 
 if (BUILD_TESTING)
 
@@ -107,8 +108,7 @@ if (BUILD_TESTING)
     # Add tests requiring data
 
     foreach (test ${PYTHON_TEST_FILES_REQUIRING_DATA})
-        execute_process(COMMAND ${CMAKE_COMMAND} -E copy ${OpenMEEG_SOURCE_DIR}/wrapping/src/${test} ${OpenMEEG_BINARY_DIR}/wrapping/src/)
-        add_test(openmeeg_python_${test} ${Python3_EXECUTABLE} ${OpenMEEG_BINARY_DIR}/wrapping/src/${test} --path ${OpenMEEG_SOURCE_DIR}/data)
+        add_test(openmeeg_python_${test} ${Python3_EXECUTABLE} ${OpenMEEG_BINARY_DIR}/wrapping/python/openmeeg/tests/${test} --path ${OpenMEEG_SOURCE_DIR}/data)
         if (USE_MKL AND BUILD_SHARED_LIBS AND NOT MKL_USE_sdl)
             # due to this bug in the MKL
             message(WARNING "Due to a bug in the MKL when used from python: see https://software.intel.com/en-us/forums/intel-distribution-for-python/topic/628976 "
@@ -116,13 +116,13 @@ if (BUILD_TESTING)
                 "${MKL_ROOT_DIR}/lib/intel64/libmkl_sequential.so\"")
             set_tests_properties(openmeeg_python_${test} PROPERTIES ENVIRONMENT LD_PRELOAD=${MKL_ROOT_DIR}/lib/intel64/libmkl_core.so:${MKL_ROOT_DIR}/lib/intel64/libmkl_sequential.so)
         endif()
+        set_tests_properties(openmeeg_python_${test} PROPERTIES ENVIRONMENT PYTHONPATH=${OpenMEEG_BINARY_DIR}/wrapping/python)
     endforeach()
 
     # Add python tests not requiring data
 
     foreach (test ${PYTHON_TEST_FILES})
-        execute_process(COMMAND ${CMAKE_COMMAND} -E copy ${OpenMEEG_SOURCE_DIR}/wrapping/src/${test} ${OpenMEEG_BINARY_DIR}/wrapping/src/)
-        add_test(openmeeg_python_${test} ${Python3_EXECUTABLE} ${OpenMEEG_BINARY_DIR}/wrapping/src/${test})
+        add_test(openmeeg_python_${test} ${Python3_EXECUTABLE} ${OpenMEEG_BINARY_DIR}/wrapping/python/openmeeg/tests/${test})
         if (USE_MKL AND BUILD_SHARED_LIBS AND NOT MKL_USE_sdl)
             # due to this bug in the MKL
             message(WARNING "Due to a bug in the MKL when used from python: see https://software.intel.com/en-us/forums/intel-distribution-for-python/topic/628976 "
@@ -130,11 +130,12 @@ if (BUILD_TESTING)
                 "${MKL_ROOT_DIR}/lib/intel64/libmkl_sequential.so\"")
             set_tests_properties(openmeeg_python_${test} PROPERTIES ENVIRONMENT LD_PRELOAD=${MKL_ROOT_DIR}/lib/intel64/libmkl_core.so:${MKL_ROOT_DIR}/lib/intel64/libmkl_sequential.so)
         endif()
+        set_tests_properties(openmeeg_python_${test} PROPERTIES ENVIRONMENT PYTHONPATH=${OpenMEEG_BINARY_DIR}/wrapping/python)
     endforeach()
 
     if (BUILD_REFERENCE_DOC)
-        execute_process(COMMAND ${CMAKE_COMMAND} -E copy ${OpenMEEG_SOURCE_DIR}/wrapping/src/test_doc.py ${OpenMEEG_BINARY_DIR}/wrapping/src/)
-        add_test(openmeeg_python_doc ${Python3_EXECUTABLE} ${OpenMEEG_BINARY_DIR}/wrapping/src/test_doc.py)
+        add_test(openmeeg_python_doc ${Python3_EXECUTABLE} ${OpenMEEG_BINARY_DIR}/wrapping/python/openmeeg/tests/test_doc.py)
+        set_tests_properties(openmeeg_python_doc PROPERTIES ENVIRONMENT PYTHONPATH=${OpenMEEG_BINARY_DIR}/wrapping/python)
     endif()
 
 endif()
