@@ -270,12 +270,6 @@ jobs:
         name: wrapping-${{ matrix.os }}-${{ matrix.blas_linking }}
         path: build/wrapping/src
 
-    - name: Test Python quickly first
-      if: startswith(matrix.python, 'python')
-      run: |
-        cd build/wrapping/src
-        python -c "import openmeeg; print(openmeeg.sqr(4))"
-
     - name: Test
       working-directory: ${{github.workspace}}/build
       run: |
