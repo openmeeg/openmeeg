@@ -236,8 +236,8 @@ jobs:
       run: |
         cmake --build build ${{env.BUILD_OPT}} --config ${{env.BUILD_TYPE}}
         ls -al build
-        if [ -d build/wrapping/src ]; then
-          ls -al build/wrapping/src
+        if [ -d build/wrapping/python/openmeeg ]; then
+          ls -al build/wrapping/python/openmeeg
         fi
 
     - name: Prepare Python
@@ -262,7 +262,7 @@ jobs:
           cp /c/Strawberry/c/bin/libgomp-1.dll .
           cp /mingw64/bin/zlib1.dll .
           cp OpenMEEGMaths/libmatio.dll .
-          cp -a *.dll wrapping/src
+          cp -a *.dll wrapping/python/openmeeg
           cd ..
         fi
 
@@ -271,7 +271,7 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: wrapping-${{ matrix.os }}-${{ matrix.blas_linking }}
-        path: build/wrapping/src
+        path: build/wrapping/python/openmeeg
 
     - name: Test
       working-directory: ${{github.workspace}}/build

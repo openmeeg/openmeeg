@@ -1,7 +1,5 @@
 %module(docstring="OpenMEEG bindings for python") openmeeg
 
-%pythoncode "_distributor_init.py"
-
 %feature("autodoc", "1");
 
 %include <exception.i>
@@ -556,5 +554,3 @@ namespace OpenMEEG {
 %include <assemble.h>
 %include <gain.h>
 %include <forward.h>
-
-%pythoncode "make_geometry.py"

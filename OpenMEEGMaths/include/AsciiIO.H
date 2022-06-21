@@ -102,7 +102,7 @@ namespace OpenMEEG {
             void read(std::ifstream& is,LinOp& linop) const {
 
                 const LinOpInfo& inforead = info(is);
-                
+
                 if (linop.storageType()!=inforead.storageType())
                     throw BadStorageType(name());
 
@@ -141,7 +141,7 @@ namespace OpenMEEG {
 
         private:
 
-            AsciiIO(): MathsIOBase(9) { std::cerr << "Constructor called" << std::endl; }
+            AsciiIO(): MathsIOBase(9) {}
             ~AsciiIO() {};
 
             static unsigned length(const std::string& line) {

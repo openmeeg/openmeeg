@@ -1,8 +1,4 @@
 #!/usr/bin/env python3
-#
-# WIP: copy this file in wrapping/src directory of the build tree
-# then execute it (python3 ./wrapping/src/test_make_geometry
-# path_to_data_directory)
 
 import os.path as op
 import numpy as np
