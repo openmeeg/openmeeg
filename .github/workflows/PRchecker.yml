@@ -24,8 +24,6 @@ jobs:
       matrix:
         # TODO: MKL currently untested on any platform
         # TODO: static (BLAS linking) builds currently untested on any platform
-        # TODO: Get vcpkg to actually use the Windows 8.1 SDK
-        # TODO: Could try boost-smart-ptr from vcpkg when using v140 tools
         # Someday we could use OpenBLAS for Windows once vcpkg sorts things out
         # (https://github.com/microsoft/vcpkg/issues/25176), but it's unclear
         # if this will really help anything. SciPy's should be well tested
@@ -40,6 +38,11 @@ jobs:
           blas: OpenBLAS
           blas_linking: dynamic
           python: no-python
+        # Windows static build
+        - os: windows-2019
+          blas: OpenBLAS
+          blas_linking: static
+          python: python
 
     runs-on: ${{ matrix.os }}
 
@@ -163,11 +166,13 @@ jobs:
         test -d "$OPENBLAS_INCLUDE"
         cd $OPENBLAS_LIB
         ls -al
-        cp ../bin/libopenblas_v0.3.18-gcc_8_1_0.dll .
-        cp libopenblas_v0.3.18-gcc_8_1_0.dll openblas.dll
+        if [[ "${{ matrix.linking }}" != "static" ]]; then
+          cp ../bin/libopenblas_v0.3.18-gcc_8_1_0.dll .
+          cp libopenblas_v0.3.18-gcc_8_1_0.dll openblas.dll
+          mv libopenblas_v0.3.18-gcc_8_1_0.dll.a openblas.dll.a
+        fi
         mv libopenblas_v0.3.18-gcc_8_1_0.a openblas.a
         mv libopenblas_v0.3.18-gcc_8_1_0.def openblas.def
-        mv libopenblas_v0.3.18-gcc_8_1_0.dll.a openblas.dll.a
         mv libopenblas_v0.3.18-gcc_8_1_0.exp openblas.exp
         mv libopenblas_v0.3.18-gcc_8_1_0.lib openblas.lib
         cd ../../../
@@ -231,12 +236,16 @@ jobs:
       run: |
         cmake --build build ${{env.BUILD_OPT}} --config ${{env.BUILD_TYPE}}
         # Ideally this would be in cmake, but we can live with manual moving for inplace testing
+        # TODO: we should just build a standard wheel using setup.py, then
+        # use delvewheel to do this magic for us
         if [[ ${{matrix.os}} == 'windows'* ]]; then
           cd build
           echo "Before:"
           ls -al *.dll
-          cp $OPENBLAS_LIB/libopenblas_v0.3.18-gcc_8_1_0.dll .
-          cp $OPENBLAS_LIB/libopenblas_v0.3.18-gcc_8_1_0.dll openblas.dll
+          if [[ "${{ matrix.linking }}" != "static" ]]; then
+            cp $OPENBLAS_LIB/libopenblas_v0.3.18-gcc_8_1_0.dll .
+            cp $OPENBLAS_LIB/libopenblas_v0.3.18-gcc_8_1_0.dll openblas.dll
+          fi
           cp /mingw64/bin/libgcc_s_seh-1.dll .
           cp /mingw64/bin/libwinpthread-1.dll .
           cp /c/Strawberry/c/bin/libquadmath-0.dll .
@@ -244,19 +253,6 @@ jobs:
           cp /c/Strawberry/c/bin/libgomp-1.dll .
           cp /mingw64/bin/zlib1.dll .
           cp OpenMEEGMaths/libmatio.dll .
-          echo "After:"
-          ls *.dll
-          NAMES="libwinpthread-1 libgcc_s_seh-1 zlib1 libquadmath-0 libstdc++-6 libgomp-1 libopenblas_v0.3.18-gcc_8_1_0 szip hdf5 libmatio libOpenMEEGMaths libOpenMEEG"
-          for name in $NAMES; do
-            if [[ -f "${name}.dll" ]]; then
-              echo "${name}:"
-              ldd "${name}.dll"
-            else
-              echo "Missing ${name}"
-            fi
-          done
-          python -c "import os; from ctypes import WinDLL; print([WinDLL(os.path.abspath(os.path.join(os.getcwd(), name + '.dll'))) for name in '$NAMES'.split()])"
-          set -x
           cp -a *.dll wrapping/src
           cd ..
         fi
@@ -272,16 +268,6 @@ jobs:
     - name: Test Python quickly first
       if: startswith(matrix.python, 'python')
       run: |
-        cd build/wrapping/src
-        ls -al
-        if [[ ${{matrix.os}} == 'windows'* ]]; then
-          curl -LO https://github.com/lucasg/Dependencies/releases/download/v1.11.1/Dependencies_x64_Release.zip
-          unzip -q Dependencies_x64_Release.zip -d deps
-          ./deps/Dependencies -modules _openmeeg.pyd
-          python -c "import os; from ctypes import WinDLL; print([WinDLL(os.path.abspath(os.path.join(os.getcwd(), name))) for name in 'libwinpthread-1.dll libgcc_s_seh-1.dll zlib1.dll libquadmath-0.dll libstdc++-6.dll libgomp-1.dll libopenblas_v0.3.18-gcc_8_1_0.dll szip.dll hdf5.dll libmatio.dll libOpenMEEGMaths.dll libOpenMEEG.dll _openmeeg.pyd'.split()])"
-        elif [[ ${{matrix.os}} == 'ubuntu'* ]]; then
-          ldd _openmeeg.so
-        fi
         python -c "import openmeeg; print(openmeeg.sqr(4))"
 
     - name: Test
