@@ -244,7 +244,7 @@ jobs:
             if [[ -f "${name}.dll" ]]; then
               echo "${name}:"
               ldd "${name}.dll"
-              python -c "from ctypes import WinDLL; print(WinDLL('${name}.dll'))"
+              #python -c "import os; from ctypes import WinDLL; print(WinDLL(os.path.abspath(os.path.join(os.getcwd(), '${name}.dll'))))"
             else
               echo "Missing ${name}"
             fi
