@@ -81,6 +81,8 @@ namespace OpenMEEG {
             write();
         }
 
+        virtual ~GeometryIO() = default;
+
     protected:
 
         virtual void   load_meshes(Geometry& geometry) = 0;

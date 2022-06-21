@@ -67,11 +67,11 @@ jobs:
         else
           BUILD_DOCS=OFF
         fi
-        # Use -Werror on Windows, eventually should use everywhere
-        if [[ ${{matrix.os}} == 'windows*' ]]; then
-          ENABLE_WERROR=ON
-        else
+        # Use -Werror on Windows and macOS, eventually should use on Linux
+        if [[ ${{matrix.os}} != 'ubuntu*' ]]; then
           ENABLE_WERROR=OFF
+        else
+          ENABLE_WERROR=ON
         fi
         echo "ENABLE_WERROR=$ENABLE_WERROR" >> $GITHUB_ENV
         echo "DOC_OPT=-DBUILD_DOCUMENTATION=$BUILD_DOCS" >> $GITHUB_ENV
