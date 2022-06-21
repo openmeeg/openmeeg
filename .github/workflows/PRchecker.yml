@@ -255,6 +255,7 @@ jobs:
           done
           set -x
           cp -a *.dll wrapping/src
+          cd ..
         fi
         ls -al build
 
