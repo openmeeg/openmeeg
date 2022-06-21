@@ -63,12 +63,9 @@ else()
     swig_link_libraries(openmeeg ${Python3_LIBRARIES} OpenMEEG::OpenMEEG)
 endif()
 
-if (WIN32)
-    file(TO_CMAKE_PATH "${PYTHON_SITE_ARCH}" PYTHON_REL_SITE_ARCH)
-    string(REGEX REPLACE "\n$" "" PYTHON_REL_SITE_ARCH "${PYTHON_REL_SITE_ARCH}")
-else()
-    string(REGEX MATCH "[Ll]ib.*packages" PYTHON_REL_SITE_ARCH ${Python3_SITEARCH})
-endif()
+#extract correctly python location: e.g lib64/python2.7/site-packages
+
+string(REGEX MATCH "[Ll]ib.*packages" PYTHON_REL_SITE_ARCH ${Python3_SITEARCH})
 
 install(TARGETS ${SWIG_TARGET_NAME}
         LIBRARY DESTINATION ${PYTHON_REL_SITE_ARCH}
