@@ -271,8 +271,8 @@ jobs:
           curl -LO https://github.com/lucasg/Dependencies/releases/download/v1.11.1/Dependencies_x64_Release.zip
           unzip -q Dependencies_x64_Release.zip -d deps
           ./deps/Dependencies -modules _openmeeg.pyd
-          python -c "import os; from ctypes import WinDLL; print(os.path.abspath(os.path.join(os.getcwd(), WinDLL('_openmeeg.pyd'))))"
-        else if [[ ${{matrix.os}} == 'ubuntu'* ]]; then
+          python -c "import os; from ctypes import WinDLL; print(WinDLL(os.path.abspath(os.path.join(os.getcwd(), '_openmeeg.pyd'))))"
+        elif [[ ${{matrix.os}} == 'ubuntu'* ]]; then
           ldd _openmeeg.pyd
         fi
         python -c "import openmeeg; print(openmeeg.sqr(4))"
