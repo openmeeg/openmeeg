@@ -1,5 +1,7 @@
 %module(docstring="OpenMEEG bindings for python") openmeeg
 
+%pythoncode "_distributor_init.py"
+
 %feature("autodoc", "1");
 
 %include <exception.i>
@@ -296,9 +298,15 @@ namespace OpenMEEG {
         }
 
         PyArrayObject* array = reinterpret_cast<PyArrayObject*>(pyobj);
-        const int type = PyArray_TYPE(array);
-        if (type!=NPY_INT32 && type!=NPY_UINT32 && type!=NPY_INT64 && type!=NPY_UINT64) {
-            PyErr_SetString(PyExc_TypeError,"Wrong dtype for triangles array (only 32 or 64 int or uint supported)");
+        const PyArray_Descr *descr = PyArray_DESCR(array);
+        const int type_num = descr->type_num;
+        if (!PyArray_EquivTypenums(type_num, NPY_INT32) &&
+            !PyArray_EquivTypenums(type_num, NPY_UINT32) &&
+            !PyArray_EquivTypenums(type_num, NPY_INT64) &&
+            !PyArray_EquivTypenums(type_num, NPY_UINT64)) {
+            std::vector<char> buf(1000); // note +1 for null terminator
+            std::snprintf(&buf[0], buf.size(), "Wrong dtype for triangles array (only 32 or 64 int or uint supported), got type '%c%d'", descr->kind, descr->elsize, type_num);
+            PyErr_SetString(PyExc_TypeError,&buf[0]);
             return;
         }
 
@@ -374,6 +382,9 @@ namespace OpenMEEG {
 // OpenMEEG
 
 %ignore OpenMEEG::Filetype;
+
+%ignore OpenMEEG::Geometry::MeshPair;  // Warning 325: Nested struct not currently supported (MeshPair ignored)
+%rename(import_) import; // Warning 314: 'import' is a python keyword, renaming to '_import' (in Geometry)
 
 %extend OpenMEEG::Geometry {
 

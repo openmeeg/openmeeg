@@ -143,8 +143,8 @@ namespace OpenMEEG {
 
         Matrix operator*(double x) const;
         Matrix operator/(double x) const;
-        void operator+=(const Matrix& B);
-        void operator-=(const Matrix& B);
+        inline void operator+=(const Matrix& B);
+        inline void operator-=(const Matrix& B);
         void operator*=(double x);
         void operator/=(double x);
 
@@ -232,7 +232,7 @@ namespace OpenMEEG {
         om_assert(istart+isize<=nlin() && jstart+jsize<=ncol());
 
         Matrix res(isize,jsize);
-        
+
         for (Index j=0; j<jsize; ++j) {
     #ifdef HAVE_BLAS
             const BLAS_INT sz = sizet_to_int(isize);
@@ -387,7 +387,7 @@ namespace OpenMEEG {
     #endif
         return C;
     }
-    
+
     inline Matrix Matrix::tmult(const Matrix& B) const {
         om_assert(nlin()==B.nlin());
         Matrix C(ncol(),B.ncol());
@@ -467,7 +467,7 @@ namespace OpenMEEG {
     #endif
         return C;
     }
-    
+
     inline void Matrix::operator+=(const Matrix& B) {
         om_assert(nlin()==B.nlin());
         om_assert(ncol()==B.ncol());
@@ -493,7 +493,7 @@ namespace OpenMEEG {
             data()[i] -= B.data()[i];
     #endif
     }
-    
+
     inline double Matrix::dot(const Matrix& B) const {
         om_assert(nlin()==B.nlin());
         om_assert(ncol()==B.ncol());

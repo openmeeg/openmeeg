@@ -1,4 +1,4 @@
-name: PR Checker
+name: Test
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.number }}-${{ github.event.ref }}
   cancel-in-progress: true
@@ -10,7 +10,6 @@ on:
     branches: [ master ]
 
 env:
-  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
   BUILD_TYPE: Release
 
 defaults:
@@ -20,41 +19,30 @@ defaults:
 jobs:
 
   build:
-    # The CMake configure and build commands are platform agnostic and should work equally well on Windows or Mac.
-    # You can convert this to a matrix build if you need cross-platform coverage.
-    # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
-
     continue-on-error: true
     strategy:
       matrix:
-        # Cover the most useful cases most completely
-        # TODO: ubuntu-18.04 Python is broken (tests fail)
-        # TODO: ubuntu+MKL Python is broken (symbol not found/linking/path issue)
-        # TODO: MKL will not build on Windows
-        # TODO: MKL status unknown on macOS
-        # TODO: Static build broken for OpenBLAS (Could NOT find LAPACK (missing: LAPACK_LIBRARIES))
-        # TODO: Use OpenBLAS for LAPACK on Windows (https://github.com/microsoft/vcpkg/issues/25176)
-        # TODO: Add back windows-latest after following https://docs.scipy.org/doc/scipy/building/windows.html#building-openblas
-        os: [ubuntu-20.04, macos-latest]
+        # TODO: MKL currently untested on any platform
+        # TODO: static (BLAS linking) builds currently untested on any platform
+        # Someday we could use OpenBLAS for Windows once vcpkg sorts things out
+        # (https://github.com/microsoft/vcpkg/issues/25176), but it's unclear
+        # if this will really help anything. SciPy's should be well tested
+        # already.
+        os: [ubuntu-20.04, windows-2019, macos-latest]
         blas: [OpenBLAS]
-        linking: [dynamic]
+        blas_linking: [dynamic]
         python: [python]
         include:
-          # no-python build
-          - os: ubuntu-20.04
-            blas: OpenBLAS
-            linking: dynamic
-            python: no-python
-          # static build
-          #- os: ubuntu-20.04
-          #  blas: OpenBLAS
-          #  linking: static
-          #  python: python
-          # ubuntu-18.04 build, but Python tests currently fail so use no-python
-          - os: ubuntu-18.04
-            blas: OpenBLAS
-            linking: dynamic
-            python: no-python
+        # ubuntu-18.04 build, but Python tests currently fail so use no-python
+        - os: ubuntu-18.04
+          blas: OpenBLAS
+          blas_linking: dynamic
+          python: no-python
+        # Windows static build
+        - os: windows-2019
+          blas: OpenBLAS
+          blas_linking: static
+          python: python
 
     runs-on: ${{ matrix.os }}
 
@@ -63,8 +51,8 @@ jobs:
 
     - name: Environment setup
       run: |
-        if [ ${{matrix.linking}} == 'static' ]; then
-          echo "STATIC_OPT='-DBLA_STATIC=ON'" >> $GITHUB_ENV
+        if [ ${{matrix.blas_linking}} == 'static' ]; then
+          echo "BLA_STATIC_OPT='-DBLA_STATIC=ON'" >> $GITHUB_ENV
         fi
         if [ ${{matrix.python}} == 'python' ]; then
           echo "PYTHON_OPT='-DENABLE_PYTHON=ON'" >> $GITHUB_ENV
@@ -79,13 +67,19 @@ jobs:
         else
           BUILD_DOCS=OFF
         fi
+        # Use -Werror on Windows, eventually should use everywhere
+        if [[ ${{matrix.os}} == 'windows*' ]]; then
+          ENABLE_WERROR=ON
+        else
+          ENABLE_WERROR=OFF
+        fi
+        echo "ENABLE_WERROR=$ENABLE_WERROR" >> $GITHUB_ENV
         echo "DOC_OPT=-DBUILD_DOCUMENTATION=$BUILD_DOCS" >> $GITHUB_ENV
 
-    # We can use the default Python3 for other OSes
-    - uses: actions/setup-python@v4
-      if: startswith(matrix.blas,'OpenBLAS') && startswith(matrix.os,'windows')
+    - name: Setup ccache
+      uses: hendrikmuhs/ccache-action@v1.2
       with:
-        python-version: '3.10'
+        key: ${{ github.job }}-${{ matrix.os }}
 
     # For MKL we'll always use conda
     - uses: conda-incubator/setup-miniconda@v2
@@ -101,92 +95,113 @@ jobs:
       run: |
         conda install mkl mkl-include numpy hdf5 libmatio swig
 
-    - name: Windows OpenBLAS setup 1 - set env and install NumPy via pip
+    # Windows only -- we can use the default Python3 for Linux + macOS
+    - name: Windows OpenBLAS setup 1 - install Python
+      if: startswith(matrix.blas,'OpenBLAS') && startswith(matrix.os,'windows')
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: Windows OpenBLAS setup 2 - set env and install NumPy via pip
       if: startswith(matrix.blas,'OpenBLAS') && startswith(matrix.os,'windows')
       run: |
-        VI="${PWD}/b/vcpkg_installed"
+        VCPKG_INSTALLED_DIR="${PWD}/build/vcpkg_installed"
+        echo "$VCPKG_INSTALLED_DIR"
+        VCPKG_INSTALLED_DIR=$(cygpath -m "$VCPKG_INSTALLED_DIR")
         echo "$VI"
-        VI=$(cygpath -m "$VI")
-        echo "$VI"
-        echo "VCPKG_INSTALLED_DIR=$VI" >> $GITHUB_ENV
+        echo "VCPKG_INSTALLED_DIR=$VCPKG_INSTALLED_DIR" >> $GITHUB_ENV
+        VCPKG_DEFAULT_TRIPLET=x64-mingw-dynamic
+        echo "VCPKG_DEFAULT_TRIPLET=$VCPKG_DEFAULT_TRIPLET" >> $GITHUB_ENV
+        echo "VCPKG_DEFAULT_HOST_TRIPLET=$VCPKG_DEFAULT_TRIPLET" >> $GITHUB_ENV
+        VCPKG_INSTALL_OPTIONS="--x-install-root=$VCPKG_INSTALLED_DIR --triplet=$VCPKG_DEFAULT_TRIPLET"
+        echo "VCPKG_INSTALL_OPTIONS=$VCPKG_INSTALL_OPTIONS" >> $GITHUB_ENV
 
-        TF=${PWD}/vcpkg/scripts/buildsystems/vcpkg.cmake
-        echo "$TF"
-        TF=$(cygpath -m "$TF")
-        echo "$TF"
-        echo "CMAKE_TOOLCHAIN_FILE=${TF}" >> $GITHUB_ENV
+        CMAKE_TOOLCHAIN_FILE=${PWD}/vcpkg/scripts/buildsystems/vcpkg.cmake
+        echo "$CMAKE_TOOLCHAIN_FILE"
+        CMAKE_TOOLCHAIN_FILE=$(cygpath -m "$CMAKE_TOOLCHAIN_FILE")
+        echo "$CMAKE_TOOLCHAIN_FILE"
+        echo "CMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}" >> $GITHUB_ENV
 
         pip install --upgrade -q pip
         pip install --upgrade --progress-bar off -q numpy
 
-    - uses: actions/cache@v3
+    - name: Windows OpenBLAS setup 3 - cache vcpkg
+      if: startswith(matrix.blas,'OpenBLAS') && startswith(matrix.os,'windows')
+      uses: actions/cache@v3
       with:
         path: |
           vcpkg
-          b/vcpkg_installed
-        key: vcpkg-pr21479-${{ hashFiles('**/vcpkg.json') }}
+          build/vcpkg_installed
+        key: vcpkg-${{ hashFiles('**/vcpkg.json') }}-mingw64-0
 
-    - name: Windows OpenBLAS setup 2 - hdf5, libmatio, and openblas via vcpkg
+    - name: Windows OpenBLAS setup 4 - hdf5 and libmatio via vcpkg
       if: startswith(matrix.blas,'OpenBLAS') && startsWith(matrix.os,'windows')
       id: runvcpkg
-      #uses: lukka/run-vcpkg@v10
-      #with:
-      #  vcpkgDirectory: '${{ github.workspace }}/vcpkg'
-      #  vcpkgGitCommitId: '14e7bb4ae24616ec54ff6b2f6ef4e8659434ea44'  # 2022-05-05 release
-      #  runVcpkgInstall: true
-      #  vcpkgJsonGlob: '**/vcpkg.json'
-      #  appendedCacheKey: vcpkginstall
       run: |
-        git clone https://github.com/Microsoft/vcpkg.git
-        cd vcpkg
-        git fetch origin pull/21479/head:lapack
-        git checkout lapack
-        cd ..
-        ./vcpkg/bootstrap-vcpkg.sh
-        ./vcpkg/vcpkg install --triplet=x64-windows
-
-    - name: Windows OpenBLAS setup 3 - check env
-      if: startswith(matrix.blas,'OpenBLAS') && startswith(matrix.os,'windows')
-      run: |
+        set -x
+        if [ ! -d vcpkg ]; then
+          git clone https://github.com/Microsoft/vcpkg.git --depth=1
+          cd vcpkg
+          git fetch origin 2022.05.10:use --depth=1
+          git checkout use
+          ./bootstrap-vcpkg.sh
+          cd ..
+        fi
         echo "VCPKG_INSTALLED_DIR: $VCPKG_INSTALLED_DIR"
-        test -d $(cygpath -u "$VCPKG_INSTALLED_DIR")
         echo "CMAKE_TOOLCHAIN_FILE: $CMAKE_TOOLCHAIN_FILE"
         test -f $(cygpath -u "$CMAKE_TOOLCHAIN_FILE")
 
-    #- name: Windows OpenBLAS setup 2 - OpenBLAS
-    #  if: startsWith(matrix.blas,'OpenBLAS') && startsWith(matrix.os,'windows')
-    #  run: |
-    #    # OpenBLAS direct download (too slow to build using vcpkg)
-    #    # and renaming to match what cmake wants to see
-    #    curl -LO https://github.com/xianyi/OpenBLAS/releases/download/v0.3.20/OpenBLAS-0.3.20-x64.zip
-    #    unzip OpenBLAS-0.3.20-x64.zip -d openblas
-    #    cd openblas/lib
-    #    ls -al
-    #    mv ../bin/libopenblas.dll .
-    #    for fname in lib*; do mv $fname ${fname:3:100}; done
-    #    ls -al
-    #    cd ../..
-    #    LF=${PWD}/openblas/lib
-    #    echo "$LF"
-    #    test -d "$LF"
-    #    LF=$(cygpath -m "$LF")
-    #    echo "$LF"
-    #    CF=${PWD}/openblas/include
-    #    echo "$CF"
-    #    test -d "$CF"
-    #    CF=$(cygpath -m "$CF")
-    #    echo "$CF"
-    #    echo "LIB=${LF};${LIB}" >> $GITHUB_ENV
-    #    echo "CPATH=${CF};${CPATH}" >> $GITHUB_ENV
-    #    echo "CMAKE_CXX_FLAGS=-I${CF}" >> $GITHUB_ENV
-    #    # Finally, print our settings
-    #    cat $GITHUB_ENV
+    - name: Windows OpenBLAS setup 5 - OpenBLAS
+      if: startsWith(matrix.blas,'OpenBLAS') && startsWith(matrix.os,'windows')
+      run: |
+        # OpenBLAS direct download (too slow to build using vcpkg)
+        # and renaming to match what cmake wants to see
+        curl -LO https://anaconda.org/multibuild-wheels-staging/openblas-libs/v0.3.18/download/openblas-v0.3.18-win_amd64-gcc_8_1_0.zip
+        unzip openblas-v0.3.18-win_amd64-gcc_8_1_0.zip -d openblas
+        OPENBLAS_LIB=${PWD}/openblas/64/lib
+        OPENBLAS_INCLUDE=${PWD}/openblas/64/include
+        echo "$OPENBLAS_LIB"
+        test -d "$OPENBLAS_LIB"
+        echo "$OPENBLAS_INCLUDE"
+        test -d "$OPENBLAS_INCLUDE"
+        cd $OPENBLAS_LIB
+        ls -al
+        if [[ "${{ matrix.linking }}" != "static" ]]; then
+          cp ../bin/libopenblas_v0.3.18-gcc_8_1_0.dll .
+          cp libopenblas_v0.3.18-gcc_8_1_0.dll openblas.dll
+          mv libopenblas_v0.3.18-gcc_8_1_0.dll.a openblas.dll.a
+        fi
+        mv libopenblas_v0.3.18-gcc_8_1_0.a openblas.a
+        mv libopenblas_v0.3.18-gcc_8_1_0.def openblas.def
+        mv libopenblas_v0.3.18-gcc_8_1_0.exp openblas.exp
+        mv libopenblas_v0.3.18-gcc_8_1_0.lib openblas.lib
+        cd ../../../
+        echo "OPENBLAS_LIB=$OPENBLAS_LIB" >> $GITHUB_ENV
+        echo "LIB=$(cygpath -w $OPENBLAS_LIB);${LIB}" >> $GITHUB_ENV
+        #echo "CPATH=$(cygpath -w $OPENBLAS_INCLUDE);${CPATH}" >> $GITHUB_ENV
+        echo "CMAKE_CXX_FLAGS=-I$(cygpath -m $OPENBLAS_INCLUDE)" >> $GITHUB_ENV
 
-    - name: MacOS OpenBLAS setup - Python, NumPy, hdf5, libmatio, and doxygen via brew
+        echo "CMAKE_GENERATOR=MinGW Makefiles" >> $GITHUB_ENV
+
+        #echo "CMAKE_GENERATOR=Visual Studio 16 2019" >> $GITHUB_ENV
+        #echo "CMAKE_GENERATOR_PLATFORM=x64" >> $GITHUB_ENV
+        #echo "SDK_OPT=-DCMAKE_SYSTEM_VERSION=8.1" >> $GITHUB_ENV
+        #echo "TOOLSET_OPT=-DCMAKE_GENERATOR_TOOLSET=v141" >> $GITHUB_ENV
+
+        # On Windows, we tell cmake to copy all runtime deps to the build dir,
+        # and for tests (and Python) to find them, we need to add it to PATH
+        echo "PATH=$(cygpath -w ${PWD}/build);$PATH" >> $GITHUB_ENV
+        echo "PYTHONPATH=$(cygpath -w ${PWD}/build);$PYTHONPATH" >> $GITHUB_ENV
+        # This makes debugging easier on failure
+        # echo "BUILD_OPT=-j 1" >> $GITHUB_ENV
+        # Finally, print our settings
+        cat $GITHUB_ENV
+
+    - name: MacOS OpenBLAS setup - Python, NumPy, hdf5, and libmatio via brew
       if: startsWith(matrix.os,'macos')
       run: |
         brew update > /dev/null
-        brew install hdf5 libmatio boost vtk numpy swig homebrew/cask/doxygen graphviz
+        brew install hdf5 libmatio boost vtk numpy swig
         brew install openblas
         echo "LDFLAGS=-L/usr/local/opt/openblas/lib" >> $GITHUB_ENV
         echo "CPPFLAGS=-I/usr/local/opt/openblas/include" >> $GITHUB_ENV
@@ -198,28 +213,67 @@ jobs:
         sudo apt update
         sudo apt -yq install libopenblas-dev liblapacke-dev python3-numpy doxygen graphviz libmatio-dev libvtk7-dev lcov
 
-    - name: Configure CMake
+    - name: Configure
       run: |
         set -x
         cmake -B build \
               -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} \
-              ${{env.STATIC_OPT}} \
+              ${{env.BLA_STATIC_OPT}} \
               ${{env.BLA_IMPL}} \
               ${{env.BLA_PARA}} \
               ${{env.PYTHON_OPT}} \
               ${{env.DOC_OPT}} \
+              ${{env.SDK_OPT}} \
+              ${{env.TOOLSET_OPT}} \
+              -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
+              -DCMAKE_C_COMPILER_LAUNCHER=ccache \
               -DCMAKE_TOOLCHAIN_FILE=${{ env.CMAKE_TOOLCHAIN_FILE }} \
               -DCMAKE_CXX_FLAGS=${{ env.CMAKE_CXX_FLAGS }} \
+              -DENABLE_WERROR=${{ env.ENABLE_WERROR }} \
               -DTEST_HEAD3=ON
 
     - name: Build
-      # Build your program with the given configuration
       run: |
-        cmake --build build --config ${{env.BUILD_TYPE}}
+        cmake --build build ${{env.BUILD_OPT}} --config ${{env.BUILD_TYPE}}
+        ls -al build
+        if [ -d build/wrapping/src ]; then
+          ls -al build/wrapping/src
+        fi
+
+    - name: Prepare Python
+      if: startswith(matrix.python, 'python')
+        # TODO: we should just build a standard wheel using setup.py, then
+        # use delvewheel/auditwheel/delocate to do this magic for us.
+        # This will probably be a part of CIBUILDWHEEL, though, so
+        # we probably don't need to bother here
+      run: |
+        if [[ ${{matrix.os}} == 'windows'* ]]; then
+          cd build
+          echo "Before:"
+          ls -al *.dll
+          if [[ "${{ matrix.linking }}" != "static" ]]; then
+            cp $OPENBLAS_LIB/libopenblas_v0.3.18-gcc_8_1_0.dll .
+            cp $OPENBLAS_LIB/libopenblas_v0.3.18-gcc_8_1_0.dll openblas.dll
+          fi
+          cp /mingw64/bin/libgcc_s_seh-1.dll .
+          cp /mingw64/bin/libwinpthread-1.dll .
+          cp /c/Strawberry/c/bin/libquadmath-0.dll .
+          cp /mingw64/bin/libstdc++-6.dll .
+          cp /c/Strawberry/c/bin/libgomp-1.dll .
+          cp /mingw64/bin/zlib1.dll .
+          cp OpenMEEGMaths/libmatio.dll .
+          cp -a *.dll wrapping/src
+          cd ..
+        fi
+
+    - name: Upload wrapped Python lib
+      if: startswith(matrix.python, 'python')
+      uses: actions/upload-artifact@v3
+      with:
+        name: wrapping-${{ matrix.os }}-${{ matrix.blas_linking }}
+        path: build/wrapping/src
 
     - name: Test
       working-directory: ${{github.workspace}}/build
-      # Execute tests defined by the CMake configuration.
-      # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
       run: |
-        ctest -C ${{env.BUILD_TYPE}} || ctest --rerun-failed --output-on-failure
+        ctest -C $BUILD_TYPE || ctest -C $BUILD_TYPE --rerun-failed --output-on-failure

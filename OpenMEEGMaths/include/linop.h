@@ -1,7 +1,7 @@
 /*
 Project Name : OpenMEEG
 
-© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre 
+© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre
 GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU, Théodore PAPADOPOULO,
 Emmanuel OLIVI
 Maureen.Clerc.AT.inria.fr, keriven.AT.certis.enpc.fr,
@@ -63,7 +63,7 @@ namespace OpenMEEG {
 
     // Properly convert an unsigned int to a BLAS_INT
 
-    OPENMEEGMATHS_EXPORT inline BLAS_INT sizet_to_int(const unsigned& num) {
+    inline BLAS_INT sizet_to_int(const unsigned& num) {
         const BLAS_INT num_out = static_cast<BLAS_INT>(num);
         om_assert(num_out>=0);
         return num_out;

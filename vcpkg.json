@@ -1,9 +1,7 @@
 {
-  "name": "openmeeg-deps",
-  "version-string": "0.0.1",
+  "name": "openmeeg",
+  "version-string": "2.4.2",
   "dependencies": [
-    "blas",
-    "lapack",
     {
       "name": "matio",
       "features": [
@@ -16,6 +14,10 @@
       "features": [
         "zlib"
       ]
-    }
+    },
+    "szip",
+    "vcpkg-cmake",
+    "vcpkg-cmake-config",
+    "zlib"
   ]
 }

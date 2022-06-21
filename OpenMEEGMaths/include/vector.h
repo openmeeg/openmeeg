@@ -98,15 +98,15 @@ namespace OpenMEEG {
             return res;
         }
 
-        void operator+=(const Vector& v);
-        void operator-=(const Vector& v);
-        void operator*=(const double x);
+        inline void operator+=(const Vector& v);
+        inline void operator-=(const Vector& v);
+        inline void operator*=(const double x);
         void operator/=(const double x) { (*this) *= (1.0/x); }
         Vector operator+(const double i) const;
         Vector operator-(const double i) const;
-        Vector operator*(const double x) const;
+        inline Vector operator*(const double x) const;
         Vector operator/(const double x) const { return (*this)*(1.0/x); }
-        double operator*(const Vector& v) const;
+        inline double operator*(const Vector& v) const;
         Vector operator*(const Matrix& m) const;
 
         Vector kmult(const Vector& x) const;
@@ -235,7 +235,7 @@ namespace OpenMEEG {
     // inline Vector Vector::conv(const Vector& v) const {
     //     if (v.nlin()<nlin())
     //         return v.conv(*this);
-    // 
+    //
     //     Vector p(nlin()+v.nlin()-1);
     //     p.set(0);
     //     for (Index i=0; i<v.nlin(); ++i) {
@@ -248,7 +248,7 @@ namespace OpenMEEG {
     //     }
     //     return p;
     // }
-    // 
+    //
     // inline Vector Vector::conv_trunc(const Vector& v) const {
     //     Vector p(v.nlin());
     //     p.set(0);
@@ -267,5 +267,5 @@ namespace OpenMEEG {
 
     //  Operators.
 
-    OPENMEEGMATHS_EXPORT inline Vector operator*(const double d,const Vector& v) { return v*d; }
+    inline Vector operator*(const double d,const Vector& v) { return v*d; }
 }

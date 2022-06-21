@@ -51,6 +51,12 @@ set(SWIG_MODULE_openmeeg_EXTRA_DEPS numpy.i make_geometry.py ${SWIG_MODULE_openm
 set_source_files_properties(openmeeg.i PROPERTIES CPLUSPLUS ON GENERATED_COMPILE_DEFINITIONS SWIG_PYTHON_SILENT_MEMLEAK)
 swig_add_library(openmeeg LANGUAGE python SOURCES openmeeg.i)
 
+# For PyPy, see
+# https://github.com/conda-forge/openmeeg-feedstock/pull/20#issuecomment-1161729565
+if(UNIX)
+    set_target_properties(openmeeg PROPERTIES SUFFIX ".${Python3_SOABI}.so")
+endif()
+
 if (APPLE)
     swig_link_libraries(openmeeg OpenMEEG::OpenMEEG)
 else()
@@ -68,6 +74,20 @@ install(TARGETS ${SWIG_TARGET_NAME}
 
 if (APPLE)
     set_target_properties(${SWIG_TARGET_NAME} PROPERTIES LINK_FLAGS "-undefined dynamic_lookup")
+endif()
+if (WIN32)
+    add_custom_command(TARGET ${SWIG_TARGET_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_RUNTIME_DLLS:${SWIG_TARGET_NAME}> ${CMAKE_BINARY_DIR}
+        COMMAND_EXPAND_LISTS
+    )
+    add_custom_command(TARGET ${SWIG_TARGET_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_RUNTIME_DLLS:OpenMEEG> ${CMAKE_BINARY_DIR}
+        COMMAND_EXPAND_LISTS
+    )
+    add_custom_command(TARGET ${SWIG_TARGET_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_RUNTIME_DLLS:OpenMEEGMaths> ${CMAKE_BINARY_DIR}
+        COMMAND_EXPAND_LISTS
+    )
 endif()
 
 install(FILES  ${OpenMEEG_BINARY_DIR}/wrapping/src/openmeeg.py
