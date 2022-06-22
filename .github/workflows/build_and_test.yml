@@ -238,6 +238,8 @@ jobs:
               ${{env.SDK_OPT}} \
               ${{env.TOOLSET_OPT}} \
               ${{env.STRIP_OPT}} \
+              -DPYTHON_INCLUDE_DIR=$(python -c "import sysconfig; print(sysconfig.get_config_var('INCLUDEDIR'))")  \
+              -DPYTHON_LIBRARY=$(python -c "import sysconfig; print(sysconfig.get_config_var('LIBDIR'))") \
               -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
               -DCMAKE_C_COMPILER_LAUNCHER=ccache \
               -DCMAKE_TOOLCHAIN_FILE=${{ env.CMAKE_TOOLCHAIN_FILE }} \
