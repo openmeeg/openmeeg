@@ -222,6 +222,7 @@ jobs:
         test -d $PYTHON_DIR
         ls -al $PYTHON_DIR
         echo "PATH=PYTHON_DIR:$PATH" >> $GITHUB_ENV
+        export PATH="PYTHON_DIR:$PATH"
         echo $PATH
         which python
         which pip
