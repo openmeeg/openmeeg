@@ -91,6 +91,7 @@ jobs:
         channel-priority: strict
 
     - name: Add Python packages
+      if: startswith(matrix.python, 'python')
       run: |
         pip install --upgrade -q pip
         if [[ ${{matrix.os}} == 'windows'* ]]; then
@@ -100,7 +101,9 @@ jobs:
         else
           EXTRA_PIP=auditwheel
         fi
-        pip install --upgrade --progress-bar off -q setuptools wheel twine $EXTRA_PIP
+        pip install --upgrade --progress-bar off -q oldest-supported-numpy setuptools wheel twine $EXTRA_PIP
+        # Fix Miniconda paths
+        echo "PYTHON_INFO_OPT=-DPython3_EXECUTABLE=$(which python)" >> $GITHUB_ENV
 
     - name: MKL setup - mkl via conda
       if: startswith(matrix.blas,'MKL')
@@ -203,7 +206,7 @@ jobs:
       if: startswith(matrix.blas,'OpenBLAS') && startswith(matrix.os,'macos')
       run: |
         brew update > /dev/null
-        brew install hdf5 libmatio boost swig openblas numpy
+        brew install hdf5 libmatio boost swig openblas
         BLAS_DIR=/usr/local/opt/openblas
         echo "Checking for $BLAS_DIR/include"
         test -d $BLAS_DIR/include
@@ -238,7 +241,7 @@ jobs:
               ${{env.SDK_OPT}} \
               ${{env.TOOLSET_OPT}} \
               ${{env.STRIP_OPT}} \
-              -DPython3_EXECUTABLE=$(which python) \
+              ${{env.PYTHON_INFO_OPT}} \
               -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
               -DCMAKE_C_COMPILER_LAUNCHER=ccache \
               -DCMAKE_TOOLCHAIN_FILE=${{ env.CMAKE_TOOLCHAIN_FILE }} \
