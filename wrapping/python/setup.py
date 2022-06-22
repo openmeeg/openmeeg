@@ -4,16 +4,9 @@
 # <alexandre.gramfort@inria.fr>
 # This assumes/requires that SWIG has already been run so the .so exists!
 
-from ctypes.util import find_library
-import glob
 from pathlib import Path
 import os
-import platform  # noqa
-from shutil import copyfile
-
-import numpy as np
-from setuptools import setup, Extension
-from distutils.command.build import build
+from setuptools import setup
 
 root = Path(__file__).parent
 
@@ -38,6 +31,15 @@ VERSION = version
 
 
 """  # in case someday we do a proper SWIG build...
+from ctypes.util import find_library
+import glob
+import platform
+from shutil import copyfile
+import numpy as np
+from setuptools import Extension
+from distutils.command.build import build
+
+
 def find_openmeeg_include():
     # If a path is provded by the environment, expect the GLPK header there.
     header_path = os.environ.get('OPENMEEG_HEADER_PATH', None)
@@ -69,21 +71,22 @@ if __name__ == "__main__":
     with open('README.rst', 'r') as fid:
         long_description = fid.read()
 
-    #openmeeg_root = root / '..' / '..' / 'install'
-    #openmeeg_include = find_openmeeg_include()
-    #openmeeg_lib = (openmeeg_root / '..' / 'lib').resolve()
-    #assert openmeeg_include.is_dir()
-    #assert (openmeeg_include / 'OpenMEEG' / 'vect3.h').is_file()
-    #numpy_include = np.get_include()
-    #swig_openmeeg = Extension(
-    #    "openmeeg._openmeeg",
-    #    ["openmeeg/openmeeg.i", "openmeeg/openmeeg.cpp"],
-    #    include_dirs=[openmeeg_include],
-    #    swig_opts=['-c++', '-v', '-Werror', f'-I{openmeeg_include}'],
-    #    libraries=['OpenMEEG'],
-    #    library_dirs=[openmeeg_lib],
-    #    extra_compile_args=['-v', '-std=c++17'],
-    #)
+    # SWIG compiling was kind of close with this...
+    # openmeeg_root = root / '..' / '..' / 'install'
+    # openmeeg_include = find_openmeeg_include()
+    # openmeeg_lib = (openmeeg_root / '..' / 'lib').resolve()
+    # assert openmeeg_include.is_dir()
+    # assert (openmeeg_include / 'OpenMEEG' / 'vect3.h').is_file()
+    # numpy_include = np.get_include()
+    # swig_openmeeg = Extension(
+    #     "openmeeg._openmeeg",
+    #     ["openmeeg/openmeeg.i", "openmeeg/openmeeg.cpp"],
+    #     include_dirs=[openmeeg_include],
+    #     swig_opts=['-c++', '-v', '-Werror', f'-I{openmeeg_include}'],
+    #     libraries=['OpenMEEG'],
+    #     library_dirs=[openmeeg_lib],
+    #     extra_compile_args=['-v', '-std=c++17'],
+    # )
 
     setup(name=DISTNAME,
           maintainer=MAINTAINER,
@@ -119,5 +122,5 @@ if __name__ == "__main__":
           python_requires='>=3.7',
           install_requires=["numpy"],
           packages=["openmeeg", "openmeeg.tests"],
-          #ext_modules=[swig_openmeeg],
-    )
+          # ext_modules=[swig_openmeeg],
+          )
