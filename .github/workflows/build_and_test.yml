@@ -103,7 +103,7 @@ jobs:
         fi
         pip install --upgrade --progress-bar off -q oldest-supported-numpy setuptools wheel twine $EXTRA_PIP
         # Fix Miniconda paths
-        echo "PYTHON_INFO_OPT=-DPython3_EXECUTABLE=$(which python) -DPython3_EXT_SUFFIX=.pyd" >> $GITHUB_ENV
+        echo "PYTHON_INFO_OPT=-DPython3_EXECUTABLE=$(which python)" >> $GITHUB_ENV
 
     - name: MKL setup - mkl via conda
       if: startswith(matrix.blas,'MKL')
