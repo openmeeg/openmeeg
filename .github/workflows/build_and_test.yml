@@ -101,7 +101,7 @@ jobs:
         else
           EXTRA_PIP=auditwheel
         fi
-        pip install --upgrade --progress-bar off -q oldest-supported-numpy setuptools wheel twine $EXTRA_PIP
+        pip install --upgrade --progress-bar off -q numpy setuptools wheel twine $EXTRA_PIP
         # Fix Miniconda paths
         echo "PYTHON_INFO_OPT=-DPython3_EXECUTABLE=$(which python)" >> $GITHUB_ENV
 
@@ -310,10 +310,10 @@ jobs:
         echo "Contents after:"
         ls -al check/*
         twine check dist/*
-        pip uninstall -yq oldest-supported-numpy
         pip install dist/*.whl --force-reinstall
         cd ~
         python -c "import openmeeg; print(openmeeg.__version__)"
+        pip uninstall -yq openmeeg
 
     - name: Upload wrapped Python lib
       if: startswith(matrix.python, 'python')
