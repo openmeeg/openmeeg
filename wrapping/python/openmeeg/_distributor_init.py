@@ -11,7 +11,7 @@ if os.name == 'nt':
     try:
         owd = os.getcwd()
         os.chdir(libs_path)
-        for filename in glob.glob(os.path.join(libs_path, '*dll')):
+        for filename in glob.glob(os.path.join(libs_path, '.libs', '*dll')):
             WinDLL(os.path.abspath(filename))
     finally:
         os.chdir(owd)

@@ -123,7 +123,7 @@ jobs:
         echo "CMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}" >> $GITHUB_ENV
 
         pip install --upgrade -q pip
-        pip install --upgrade --progress-bar off -q numpy
+        pip install --upgrade --progress-bar off -q numpy setuptools wheel twine delvewheel
 
     - name: Windows OpenBLAS setup 3 - cache vcpkg
       if: startswith(matrix.blas,'OpenBLAS') && startswith(matrix.os,'windows')
@@ -201,17 +201,18 @@ jobs:
       if: startsWith(matrix.os,'macos')
       run: |
         brew update > /dev/null
-        brew install hdf5 libmatio boost vtk numpy swig
-        brew install openblas
+        brew install hdf5 libmatio boost vtk python3.10 openblas
         echo "LDFLAGS=-L/usr/local/opt/openblas/lib" >> $GITHUB_ENV
         echo "CPPFLAGS=-I/usr/local/opt/openblas/include" >> $GITHUB_ENV
         echo "CMAKE_CXX_FLAGS=-I/usr/local/opt/openblas/include" >> $GITHUB_ENV
+        pip install --upgrade setuptools wheel twine delocate
 
     - name: Linux OpenBLAS setup - Python, NumPy, hdf5, libmatio, and doxygen via apt
       if: startsWith(matrix.os,'ubuntu') && startswith(matrix.blas,'OpenBLAS')
       run: |
         sudo apt update
         sudo apt -yq install libopenblas-dev liblapacke-dev python3-numpy doxygen graphviz libmatio-dev libvtk7-dev lcov
+        pip install --upgrade setuptools wheel twine auditwheel
 
     - name: Configure
       run: |
@@ -242,10 +243,7 @@ jobs:
 
     - name: Prepare Python
       if: startswith(matrix.python, 'python')
-        # TODO: we should just build a standard wheel using setup.py, then
-        # use delvewheel/auditwheel/delocate to do this magic for us.
-        # This will probably be a part of CIBUILDWHEEL, though, so
-        # we probably don't need to bother here
+      # Let's make it easy for delvewheel to find the stuff it might need
       run: |
         if [[ ${{matrix.os}} == 'windows'* ]]; then
           cd build
@@ -266,12 +264,31 @@ jobs:
           cd ..
         fi
 
+    - name: Make, delocate, install, and check wheel
+      run: |
+        cd build/wrapping/python
+        python setup.py bdist_wheel sdist
+        ls -al dist/*.whl
+        if [[ ${{matrix.os}} == 'windows'* ]]; then
+          export PATH="$(cygpath -w $PWD/openmeeg);$PATH"
+          delvewheel show dist/*.whl
+          delvewheel repair dist/*.whl
+        elif [[ ${{matrix.os}} == 'ubuntu'* ]]; then
+          auditwheel show dist/*.whl
+          auditwheel repair dist/*.whl
+        else
+          delocate-wheel dist/*.whl
+        fi
+        pip install dist/*.whl
+        python -c "import openmeeg; print(openmeeg.__version__)"
+        twine check dist/*
+
     - name: Upload wrapped Python lib
       if: startswith(matrix.python, 'python')
       uses: actions/upload-artifact@v3
       with:
         name: wrapping-${{ matrix.os }}-${{ matrix.blas_linking }}
-        path: build/wrapping/python/openmeeg
+        path: dist/*.whl
 
     - name: Test
       working-directory: ${{github.workspace}}/build

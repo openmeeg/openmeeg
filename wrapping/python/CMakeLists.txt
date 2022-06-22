@@ -71,6 +71,13 @@ add_custom_command(
     COMMAND ${CMAKE_COMMAND} -E copy ${PYTHON_COPY_FILENAMES} ${CMAKE_CURRENT_BINARY_DIR}/openmeeg/)
 add_custom_command(
     TARGET ${SWIG_TARGET_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy
+    ${CMAKE_SOURCE_DIR}/wrapping/python/MANIFEST.in
+    ${CMAKE_SOURCE_DIR}/wrapping/python/setup.py
+    ${CMAKE_SOURCE_DIR}/wrapping/python/README.rst
+    ${CMAKE_CURRENT_BINARY_DIR})
+add_custom_command(
+    TARGET ${SWIG_TARGET_NAME} POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
     ${CMAKE_SOURCE_DIR}/wrapping/python/openmeeg/tests
     ${CMAKE_CURRENT_BINARY_DIR}/openmeeg/tests)
