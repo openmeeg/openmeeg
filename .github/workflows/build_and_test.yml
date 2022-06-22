@@ -97,7 +97,7 @@ jobs:
 
     # Windows only -- we can use the default Python3 for Linux + macOS
     - name: Windows OpenBLAS setup 1 - install Python
-      if: startswith(matrix.blas,'OpenBLAS') && startswith(matrix.os,'windows')
+      if: startswith(matrix.blas,'OpenBLAS') && (startswith(matrix.os,'windows') || startswith(matrix.os, 'macos'))
       uses: actions/setup-python@v4
       with:
         python-version: '3.10'
@@ -204,12 +204,13 @@ jobs:
       if: startsWith(matrix.os,'macos')
       run: |
         brew update > /dev/null
-        brew install hdf5 libmatio boost vtk numpy swig
+        brew install hdf5 libmatio boost vtk
         brew install openblas
         echo "LDFLAGS=-L/usr/local/opt/openblas/lib" >> $GITHUB_ENV
         echo "CPPFLAGS=-I/usr/local/opt/openblas/include" >> $GITHUB_ENV
         echo "CMAKE_CXX_FLAGS=-I/usr/local/opt/openblas/include" >> $GITHUB_ENV
-        pip install --upgrade setuptools wheel twine delocate
+        pip install --upgrade pip
+        pip install --upgrade --progress-bar off setuptools wheel twine delocate swig numpy
 
     - name: Linux OpenBLAS setup - Python, NumPy, hdf5, libmatio, and doxygen via apt
       if: startsWith(matrix.os,'ubuntu') && startswith(matrix.blas,'OpenBLAS')
@@ -280,7 +281,7 @@ jobs:
         if [[ ${{matrix.os}} == 'windows'* ]]; then
           export PATH="$(cygpath -w $PWD/openmeeg);$PATH"
           delvewheel show dist/*.whl
-          delvewheel repair --no-mangle="libstdc++" dist/*.whl
+          delvewheel repair --no-mangle="libstdc++\\libgcc_s_seh-1.dll" dist/*.whl
         elif [[ ${{matrix.os}} == 'macos'* ]]; then
           delocate-wheel dist/*.whl
         # This build uses a toolchain that is too new, so skip this on Linux

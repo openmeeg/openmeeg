@@ -54,6 +54,17 @@ swig_add_library(${SWIG_TARGET_NAME} LANGUAGE python OUTPUT_DIR ${CMAKE_CURRENT_
 # This puts _openmeeg.so in openmeeg/
 set_target_properties(${SWIG_TARGET_NAME} PROPERTIES LIBRARY_OUTPUT_DIRECTORY openmeeg/)
 
+# For PyPy, see
+# https://github.com/conda-forge/openmeeg-feedstock/pull/20#issuecomment-1161729565
+if(NOT Python3_EXT_SUFFIX)
+    if(UNIX)
+        set(Python3_EXT_SUFFIX ".${Python3_SOABI}.so")
+    else()
+        set(Python3_EXT_SUFFIX ".${Python3_SOABI}.pyd")
+    endif()
+endif()
+set_target_properties(openmeeg PROPERTIES SUFFIX "${Python3_EXT_SUFFIX}")
+
 if (APPLE)
     swig_link_libraries(openmeeg OpenMEEG::OpenMEEG)
 else()
