@@ -209,6 +209,8 @@ jobs:
         echo "LDFLAGS=-L/usr/local/opt/openblas/lib" >> $GITHUB_ENV
         echo "CPPFLAGS=-I/usr/local/opt/openblas/include" >> $GITHUB_ENV
         echo "CMAKE_CXX_FLAGS=-I/usr/local/opt/openblas/include" >> $GITHUB_ENV
+        which pip
+        which python
         pip install --upgrade pip
         pip install --upgrade --progress-bar off numpy setuptools wheel twine delocate
 
