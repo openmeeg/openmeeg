@@ -23,7 +23,7 @@ jobs:
     strategy:
       matrix:
         # TODO: MKL currently untested on any platform
-        # TODO: static (BLAS linking) builds currently untested on any platform
+        # Currently, VTK is only installed+tested on Ubuntu
         # Someday we could use OpenBLAS for Windows once vcpkg sorts things out
         # (https://github.com/microsoft/vcpkg/issues/25176), but it's unclear
         # if this will really help anything. SciPy's should be well tested
@@ -150,7 +150,7 @@ jobs:
         echo "CMAKE_TOOLCHAIN_FILE: $CMAKE_TOOLCHAIN_FILE"
         test -f $(cygpath -u "$CMAKE_TOOLCHAIN_FILE")
 
-    - name: Windows OpenBLAS setup 5 - OpenBLAS
+    - name: Windows OpenBLAS setup 5 - OpenBLAS via MacPython download
       if: startsWith(matrix.blas,'OpenBLAS') && startsWith(matrix.os,'windows')
       run: |
         # OpenBLAS direct download (too slow to build using vcpkg)
@@ -203,11 +203,16 @@ jobs:
       if: startswith(matrix.blas,'OpenBLAS') && startswith(matrix.os,'macos')
       run: |
         brew update > /dev/null
-        brew install hdf5 libmatio boost vtk swig
-        brew install openblas --reinstall
+        brew install hdf5 libmatio boost swig openblas
+        INCLUDE=/usr/local/opt/openblas/include
+        echo "Checking for $INCLUDE"
+        test -d $INCLUDE
+        echo "Checking for LAPACK"
+        test -f $INCLUDE/lapack.h
+        ls -al /usr/local/opt/openblas/lib
         echo "LDFLAGS=-L/usr/local/opt/openblas/lib" >> $GITHUB_ENV
-        echo "CPPFLAGS=-I/usr/local/opt/openblas/include" >> $GITHUB_ENV
-        echo "CMAKE_CXX_FLAGS=-I/usr/local/opt/openblas/include" >> $GITHUB_ENV
+        echo "CPPFLAGS=-I$INCLUDE" >> $GITHUB_ENV
+        echo "CMAKE_CXX_FLAGS=-I$INCLUDE" >> $GITHUB_ENV
 
     - name: macOS OpenBLAS setup 2 - install Python
       if: startswith(matrix.blas,'OpenBLAS') && startswith(matrix.os,'macos')
@@ -215,7 +220,7 @@ jobs:
       with:
         python-version: '3.10'
 
-    - name: macOS OpenBLAS setup 1 - openblas, hdf5, libmatio via brew
+    - name: macOS OpenBLAS setup 3 - NumPy via pip
       if: startswith(matrix.blas,'OpenBLAS') && startswith(matrix.os,'macos')
       run: |
         which pip
