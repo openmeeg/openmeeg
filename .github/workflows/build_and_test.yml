@@ -14,7 +14,7 @@ env:
 
 defaults:
   run:
-    shell: bash -el {0}
+    shell: bash -e {0}
 
 jobs:
 
@@ -95,8 +95,8 @@ jobs:
       run: |
         conda install mkl mkl-include numpy hdf5 libmatio swig
 
-    - name: Windows OpenBLAS setup 1 - install Python
-      if: startswith(matrix.blas,'OpenBLAS') && startswith(matrix.os,'windows')
+    - name: Windows and macOS OpenBLAS setup 1 - install Python
+      if: startswith(matrix.blas,'OpenBLAS') && (startswith(matrix.os,'windows') || startswith(matrix.os,'macos'))
       uses: actions/setup-python@v4
       with:
         python-version: '3.10'
@@ -199,7 +199,7 @@ jobs:
         # Finally, print our settings
         cat $GITHUB_ENV
 
-    - name: macOS OpenBLAS setup 1 - openblas, hdf5, libmatio via brew
+    - name: macOS OpenBLAS setup 2 - openblas, hdf5, libmatio via brew
       if: startswith(matrix.blas,'OpenBLAS') && startswith(matrix.os,'macos')
       run: |
         brew update > /dev/null
@@ -208,17 +208,13 @@ jobs:
         echo "Checking for $INCLUDE"
         test -d $INCLUDE
         echo "Checking for LAPACK"
+        ls -al $INCLUDE
         test -f $INCLUDE/lapack.h
         ls -al /usr/local/opt/openblas/lib
+        test -f /usr/local/opt/openblas/lib/libopenblas.dylib
         echo "LDFLAGS=-L/usr/local/opt/openblas/lib" >> $GITHUB_ENV
         echo "CPPFLAGS=-I$INCLUDE" >> $GITHUB_ENV
         echo "CMAKE_CXX_FLAGS=-I$INCLUDE" >> $GITHUB_ENV
-
-    - name: macOS OpenBLAS setup 2 - install Python
-      if: startswith(matrix.blas,'OpenBLAS') && startswith(matrix.os,'macos')
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.10'
 
     - name: macOS OpenBLAS setup 3 - NumPy via pip
       if: startswith(matrix.blas,'OpenBLAS') && startswith(matrix.os,'macos')
