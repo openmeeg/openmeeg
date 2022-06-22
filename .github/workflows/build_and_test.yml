@@ -95,8 +95,8 @@ jobs:
       run: |
         conda install mkl mkl-include numpy hdf5 libmatio swig
 
-    - name: Windows and macOS OpenBLAS setup 1 - install Python
-      if: startswith(matrix.blas,'OpenBLAS') && (startswith(matrix.os,'windows') || startswith(matrix.os,'macos'))
+    - name: Windows OpenBLAS setup 1 - install Python
+      if: startswith(matrix.blas,'OpenBLAS') && startswith(matrix.os,'windows')
       uses: actions/setup-python@v4
       id: setuppython
       with:
@@ -197,11 +197,11 @@ jobs:
         # Finally, print our settings
         cat $GITHUB_ENV
 
-    - name: macOS OpenBLAS setup 2 - openblas, hdf5, libmatio via brew
+    - name: macOS OpenBLAS setup - openblas, hdf5, libmatio via brew
       if: startswith(matrix.blas,'OpenBLAS') && startswith(matrix.os,'macos')
       run: |
         brew update > /dev/null
-        brew install hdf5 libmatio boost swig openblas
+        brew install hdf5 libmatio boost swig openblas numpy
         INCLUDE=/usr/local/opt/openblas/include
         echo "Checking for $INCLUDE"
         test -d $INCLUDE
@@ -213,25 +213,11 @@ jobs:
         echo "LDFLAGS=-L/usr/local/opt/openblas/lib" >> $GITHUB_ENV
         echo "CPPFLAGS=-I$INCLUDE" >> $GITHUB_ENV
         echo "CMAKE_CXX_FLAGS=-I$INCLUDE" >> $GITHUB_ENV
-        # https://github.com/actions/setup-python/issues/132
-        PYTHON_DIR=$(dirname ${{ steps.setuppython.outputs.python-path }})
-        echo $PYTHON_DIR
-        test -d $PYTHON_DIR
-        ls -al $PYTHON_DIR
-        echo "PATH=$PYTHON_DIR:$PATH" >> $GITHUB_ENV
-        export PATH="$PYTHON_DIR:$PATH"
-        echo $PATH
+        pip install --upgrade --progress-bar off -q setuptools wheel twine delocate
         which python
         which pip
+        which delocate-wheel
         cat $GITHUB_ENV
-
-    - name: macOS OpenBLAS setup 4 - NumPy via pip
-      if: startswith(matrix.blas,'OpenBLAS') && startswith(matrix.os,'macos')
-      run: |
-        which pip
-        which python
-        pip install --upgrade pip
-        pip install --upgrade --progress-bar off numpy setuptools wheel twine delocate
 
     - name: Linux OpenBLAS setup - Python, NumPy, hdf5, libmatio, and doxygen via apt
       if: startsWith(matrix.os,'ubuntu') && startswith(matrix.blas,'OpenBLAS')
@@ -298,7 +284,11 @@ jobs:
       run: |
         cd build/wrapping/python
         python setup.py bdist_wheel sdist
+        echo "Wheels:"
         ls -al dist/*.whl
+        unzip dist/*.whl -d check
+        echo "Contents:"
+        ls -al check/*
         if [[ ${{matrix.os}} == 'windows'* ]]; then
           export PATH="$(cygpath -w $PWD/openmeeg);$PATH"
           delvewheel show dist/*.whl
