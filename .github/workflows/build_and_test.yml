@@ -273,6 +273,8 @@ jobs:
           cp /c/Strawberry/c/bin/libquadmath-0.dll .
           cp /mingw64/bin/libstdc++-6.dll .
           strip libstdc++-6.dll
+          strip libOpenMEEG.dll
+          strip libOpenMEEGMaths.dll
           strip --help
           ls -al wrapping/python/openmeeg/
           strip wrapping/python/openmeeg/*.pyd
@@ -308,6 +310,7 @@ jobs:
         echo "Contents after:"
         ls -al check/*
         twine check dist/*
+        pip uninstall -yq oldest-supported-numpy
         pip install dist/*.whl --force-reinstall
         cd ~
         python -c "import openmeeg; print(openmeeg.__version__)"
@@ -317,7 +320,7 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: wrapping-${{ matrix.os }}-${{ matrix.blas_linking }}
-        path: dist/*.whl
+        path: build/wrapping/python/dist/*.whl
 
     - name: Test
       working-directory: ${{github.workspace}}/build
