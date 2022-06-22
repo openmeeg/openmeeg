@@ -222,7 +222,7 @@ jobs:
         echo "CMAKE_CXX_FLAGS=-I$BLAS_DIR/include" >> $GITHUB_ENV
 
     - name: Linux OpenBLAS setup - hdf5, libmatio, vtk, doxygen, and (optionally) OpenBLAS via apt
-      if: startsWith(matrix.os,'ubuntu') && startswith(matrix.blas,'OpenBLAS')
+      if: startsWith(matrix.os,'ubuntu')
       run: |
         sudo apt update
         if [[ "${{ matrix.blas }}" == "OpenBLAS" ]]; then
