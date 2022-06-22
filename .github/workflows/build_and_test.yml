@@ -14,7 +14,7 @@ env:
 
 defaults:
   run:
-    shell: bash -e {0}
+    shell: bash -el {0}
 
 jobs:
 
@@ -199,7 +199,13 @@ jobs:
         # Finally, print our settings
         cat $GITHUB_ENV
 
-    - name: macOS OpenBLAS setup 2 - openblas, hdf5, libmatio via brew
+    - name: macOS OpenBLAS setup 2 - fix Python
+      if: startswith(matrix.blas,'OpenBLAS') && startswith(matrix.os,'macos')
+      run: |
+        # https://github.com/actions/setup-python/issues/132
+        tee -a ~/.profile <<<'export PATH="$pythonLocation/bin:$PATH"'
+
+    - name: macOS OpenBLAS setup 3 - openblas, hdf5, libmatio via brew
       if: startswith(matrix.blas,'OpenBLAS') && startswith(matrix.os,'macos')
       run: |
         brew update > /dev/null
@@ -216,7 +222,7 @@ jobs:
         echo "CPPFLAGS=-I$INCLUDE" >> $GITHUB_ENV
         echo "CMAKE_CXX_FLAGS=-I$INCLUDE" >> $GITHUB_ENV
 
-    - name: macOS OpenBLAS setup 3 - NumPy via pip
+    - name: macOS OpenBLAS setup 4 - NumPy via pip
       if: startswith(matrix.blas,'OpenBLAS') && startswith(matrix.os,'macos')
       run: |
         which pip
