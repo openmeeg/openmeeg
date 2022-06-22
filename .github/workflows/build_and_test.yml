@@ -316,7 +316,9 @@ jobs:
         python -c "import openmeeg; print(openmeeg.__version__)"
         pip uninstall -yq openmeeg
         # Now make it so our tests can find the libs
-        echo "PYTHONPATH=$(cygpath -w ${PWD}/build);$PYTHONPATH" >> $GITHUB_ENV
+        if [[ ${{matrix.os}} == 'windows'* ]]; then
+          echo "PYTHONPATH=$(cygpath -w ${PWD}/build);$PYTHONPATH" >> $GITHUB_ENV
+        fi
 
     - name: Upload wrapped Python lib
       if: startswith(matrix.python, 'python')
