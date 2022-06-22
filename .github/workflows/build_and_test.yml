@@ -180,7 +180,7 @@ jobs:
         echo "LIB=$(cygpath -w $OPENBLAS_LIB);${LIB}" >> $GITHUB_ENV
         #echo "CPATH=$(cygpath -w $OPENBLAS_INCLUDE);${CPATH}" >> $GITHUB_ENV
         echo "CMAKE_CXX_FLAGS=-I$(cygpath -m $OPENBLAS_INCLUDE)" >> $GITHUB_ENV
-
+        echo "STRIP_OPT=-DCMAKE_SHARED_LINKER_FLAGS=-s -DCMAKE_MODULE_LINKER_FLAGS=-s -DCMAKE_EXE_LINKER_FLAGS=-s" >> $GITHUB_ENV
         echo "CMAKE_GENERATOR=MinGW Makefiles" >> $GITHUB_ENV
 
         #echo "CMAKE_GENERATOR=Visual Studio 16 2019" >> $GITHUB_ENV
@@ -252,6 +252,7 @@ jobs:
               ${{env.DOC_OPT}} \
               ${{env.SDK_OPT}} \
               ${{env.TOOLSET_OPT}} \
+              ${{env.STRIP_OPT}} \
               -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
               -DCMAKE_C_COMPILER_LAUNCHER=ccache \
               -DCMAKE_TOOLCHAIN_FILE=${{ env.CMAKE_TOOLCHAIN_FILE }} \
@@ -289,7 +290,6 @@ jobs:
           cp /mingw64/bin/zlib1.dll .
           cp OpenMEEGMaths/libmatio.dll .
           cp -a *.dll wrapping/python/openmeeg
-          strip wrapping/python/openmeeg/_openmeeg.pyd
           cd ..
         fi
 
