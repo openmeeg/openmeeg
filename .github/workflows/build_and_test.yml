@@ -81,28 +81,33 @@ jobs:
       with:
         key: ${{ github.job }}-${{ matrix.os }}
 
-    # For MKL we'll always use conda
-    - uses: conda-incubator/setup-miniconda@v2
-      if: startswith(matrix.blas,'MKL')
+    # Always use conda for Python
+    - name: Setup Python
+      uses: conda-incubator/setup-miniconda@v2
       with:
         activate-environment: "test"
         python-version: "3.10"
         channels: conda-forge
         channel-priority: strict
 
-    - name: MKL setup - mkl, hdf5, and libmatio via conda
+    - name: Add Python packages
+      run: |
+        pip install --upgrade -q pip
+        if [[ ${{matrix.os}} == 'windows'* ]]; then
+          EXTRA_PIP=delvewheel
+        elif [[ ${{matrix.os}} == 'macos'* ]]; then
+          EXTRA_PIP=delocate
+        else
+          EXTRA_PIP=auditwheel
+        fi
+        pip install --upgrade --progress-bar off -q setuptools wheel twine $EXTRA_PIP
+
+    - name: MKL setup - mkl via conda
       if: startswith(matrix.blas,'MKL')
       run: |
-        conda install mkl mkl-include numpy hdf5 libmatio swig
+        conda install mkl mkl-include
 
-    - name: Windows OpenBLAS setup 1 - install Python
-      if: startswith(matrix.blas,'OpenBLAS') && startswith(matrix.os,'windows')
-      uses: actions/setup-python@v4
-      id: setuppython
-      with:
-        python-version: '3.10'
-
-    - name: Windows OpenBLAS setup 2 - set env and install NumPy via pip
+    - name: Windows OpenBLAS setup 1 - set env
       if: startswith(matrix.blas,'OpenBLAS') && startswith(matrix.os,'windows')
       run: |
         VCPKG_INSTALLED_DIR="${PWD}/build/vcpkg_installed"
@@ -122,10 +127,7 @@ jobs:
         echo "$CMAKE_TOOLCHAIN_FILE"
         echo "CMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}" >> $GITHUB_ENV
 
-        pip install --upgrade -q pip
-        pip install --upgrade --progress-bar off -q numpy setuptools wheel twine delvewheel
-
-    - name: Windows OpenBLAS setup 3 - cache vcpkg
+    - name: Windows OpenBLAS setup 2 - cache vcpkg
       if: startswith(matrix.blas,'OpenBLAS') && startswith(matrix.os,'windows')
       uses: actions/cache@v3
       with:
@@ -134,7 +136,7 @@ jobs:
           build/vcpkg_installed
         key: vcpkg-${{ hashFiles('**/vcpkg.json') }}-mingw64-0
 
-    - name: Windows OpenBLAS setup 4 - hdf5 and libmatio via vcpkg
+    - name: Windows OpenBLAS setup 3 - hdf5 and libmatio via vcpkg
       if: startswith(matrix.blas,'OpenBLAS') && startsWith(matrix.os,'windows')
       id: runvcpkg
       run: |
@@ -151,7 +153,7 @@ jobs:
         echo "CMAKE_TOOLCHAIN_FILE: $CMAKE_TOOLCHAIN_FILE"
         test -f $(cygpath -u "$CMAKE_TOOLCHAIN_FILE")
 
-    - name: Windows OpenBLAS setup 5 - OpenBLAS via MacPython download
+    - name: Windows OpenBLAS setup 4 - OpenBLAS via MacPython download
       if: startsWith(matrix.blas,'OpenBLAS') && startsWith(matrix.os,'windows')
       run: |
         # OpenBLAS direct download (too slow to build using vcpkg)
@@ -190,8 +192,8 @@ jobs:
 
         # On Windows, we tell cmake to copy all runtime deps to the build dir,
         # and for tests (and Python) to find them, we need to add it to PATH
-        echo "PATH=$(cygpath -w ${PWD}/build);$PATH" >> $GITHUB_ENV
-        echo "PYTHONPATH=$(cygpath -w ${PWD}/build);$PYTHONPATH" >> $GITHUB_ENV
+        #echo "PATH=$(cygpath -w ${PWD}/build);$PATH" >> $GITHUB_ENV
+        #echo "PYTHONPATH=$(cygpath -w ${PWD}/build);$PYTHONPATH" >> $GITHUB_ENV
         # This makes debugging easier on failure
         # echo "BUILD_OPT=-j 1" >> $GITHUB_ENV
         # Finally, print our settings
@@ -202,29 +204,26 @@ jobs:
       run: |
         brew update > /dev/null
         brew install hdf5 libmatio boost swig openblas numpy
-        INCLUDE=/usr/local/opt/openblas/include
-        echo "Checking for $INCLUDE"
-        test -d $INCLUDE
+        BLAS_DIR=/usr/local/opt/openblas
+        echo "Checking for $BLAS_DIR/include"
+        test -d $BLAS_DIR/include
         echo "Checking for LAPACK"
-        ls -al $INCLUDE
-        test -f $INCLUDE/lapack.h
+        ls -al $BLAS_DIR/include
+        test -f $BLAS_DIR/include/lapack.h
         ls -al /usr/local/opt/openblas/lib
         test -f /usr/local/opt/openblas/lib/libopenblas.dylib
         echo "LDFLAGS=-L/usr/local/opt/openblas/lib" >> $GITHUB_ENV
-        echo "CPPFLAGS=-I$INCLUDE" >> $GITHUB_ENV
-        echo "CMAKE_CXX_FLAGS=-I$INCLUDE" >> $GITHUB_ENV
-        pip install --upgrade --progress-bar off -q setuptools wheel twine delocate
-        which python
-        which pip
-        which delocate-wheel
-        cat $GITHUB_ENV
+        echo "CPPFLAGS=-I$BLAS_DIR/include" >> $GITHUB_ENV
+        echo "CMAKE_CXX_FLAGS=-I$BLAS_DIR/include" >> $GITHUB_ENV
 
-    - name: Linux OpenBLAS setup - Python, NumPy, hdf5, libmatio, and doxygen via apt
+    - name: Linux OpenBLAS setup - hdf5, libmatio, vtk, doxygen, and (optionally) OpenBLAS via apt
       if: startsWith(matrix.os,'ubuntu') && startswith(matrix.blas,'OpenBLAS')
       run: |
         sudo apt update
-        sudo apt -yq install libopenblas-dev liblapacke-dev python3-numpy doxygen graphviz libmatio-dev libvtk7-dev lcov
-        pip install --upgrade setuptools wheel twine
+        if [[ "${{ matrix.blas }}" == "OpenBLAS" ]]; then
+          EXTRA_APT=libopenblas-dev
+        fi
+        sudo apt -yq install liblapacke-dev doxygen graphviz libhdf5-dev libmatio-dev libvtk7-dev lcov $EXTRA_APT
 
     - name: Configure
       run: |
@@ -287,12 +286,11 @@ jobs:
         echo "Wheels:"
         ls -al dist/*.whl
         unzip dist/*.whl -d check
-        echo "Contents:"
+        echo "Contents before:"
         ls -al check/*
         if [[ ${{matrix.os}} == 'windows'* ]]; then
-          export PATH="$(cygpath -w $PWD/openmeeg);$PATH"
-          delvewheel show dist/*.whl
-          delvewheel repair dist/*.whl
+          PATH="$(cygpath -w $PWD/openmeeg);$PATH" delvewheel show dist/*.whl
+          PATH="$(cygpath -w $PWD/openmeeg);$PATH" delvewheel repair dist/*.whl
         elif [[ ${{matrix.os}} == 'macos'* ]]; then
           delocate-wheel dist/*.whl
         # This build uses a toolchain that is too new, so skip this on Linux
@@ -300,6 +298,10 @@ jobs:
         #   auditwheel show dist/*.whl
         #   auditwheel repair dist/*.whl
         fi
+        rm -Rf check
+        unzip dist/*.whl -d check
+        echo "Contents after:"
+        ls -al check/*
         twine check dist/*
         pip install dist/*.whl --force-reinstall
         cd ~
