@@ -186,6 +186,7 @@ jobs:
         #echo "CPATH=$(cygpath -w $OPENBLAS_INCLUDE);${CPATH}" >> $GITHUB_ENV
         echo "CMAKE_CXX_FLAGS=-I$(cygpath -m $OPENBLAS_INCLUDE)" >> $GITHUB_ENV
         echo "CMAKE_GENERATOR=MinGW Makefiles" >> $GITHUB_ENV
+        #echo "STRIP_OPT=-DCMAKE_EXE_LINKER_FLAGS=-s -DCMAKE_SHARED_LINKER_FLAGS=-s -DCMAKE_MODULE_LINKER_FLAGS=-s" >> $GITHUB_ENV
 
         #echo "CMAKE_GENERATOR=Visual Studio 16 2019" >> $GITHUB_ENV
         #echo "CMAKE_GENERATOR_PLATFORM=x64" >> $GITHUB_ENV
@@ -240,6 +241,7 @@ jobs:
               ${{env.SDK_OPT}} \
               ${{env.TOOLSET_OPT}} \
               ${{env.PYTHON_INFO_OPT}} \
+              ${{env.STRIP_OPT}} \
               -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
               -DCMAKE_C_COMPILER_LAUNCHER=ccache \
               -DCMAKE_TOOLCHAIN_FILE=${{ env.CMAKE_TOOLCHAIN_FILE }} \
@@ -264,20 +266,20 @@ jobs:
           echo "Before:"
           ls -al *.dll
           if [[ "${{ matrix.linking }}" != "static" ]]; then
-            strip $OPENBLAS_LIB/libopenblas_v0.3.18-gcc_8_1_0.dll
             cp $OPENBLAS_LIB/libopenblas_v0.3.18-gcc_8_1_0.dll .
             cp $OPENBLAS_LIB/libopenblas_v0.3.18-gcc_8_1_0.dll openblas.dll
+            #strip $OPENBLAS_LIB/libopenblas_v0.3.18-gcc_8_1_0.dll
           fi
           cp /mingw64/bin/libgcc_s_seh-1.dll .
           cp /mingw64/bin/libwinpthread-1.dll .
           cp /c/Strawberry/c/bin/libquadmath-0.dll .
           cp /mingw64/bin/libstdc++-6.dll .
-          strip libstdc++-6.dll
-          strip libOpenMEEG.dll
-          strip libOpenMEEGMaths.dll
-          strip --help
+          #strip libstdc++-6.dll
+          #strip libOpenMEEG.dll
+          #strip libOpenMEEGMaths.dll
+          #strip --help
           ls -al wrapping/python/openmeeg/
-          strip wrapping/python/openmeeg/*.pyd
+          #strip wrapping/python/openmeeg/*.pyd
           cp /c/Strawberry/c/bin/libgomp-1.dll .
           cp /mingw64/bin/zlib1.dll .
           cp OpenMEEGMaths/libmatio.dll .
@@ -297,7 +299,7 @@ jobs:
         ls -al check/*
         if [[ ${{matrix.os}} == 'windows'* ]]; then
           PATH="$(cygpath -w $PWD/openmeeg);$PATH" delvewheel show dist/*.whl
-          PATH="$(cygpath -w $PWD/openmeeg);$PATH" delvewheel repair -w dist dist/*.whl
+          PATH="$(cygpath -w $PWD/openmeeg);$PATH" delvewheel repair --no-mangle -w dist dist/*.whl
         elif [[ ${{matrix.os}} == 'macos'* ]]; then
           delocate-wheel dist/*.whl
         # This build uses a toolchain that is too new, so skip this on Linux
