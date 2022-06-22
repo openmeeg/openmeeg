@@ -284,6 +284,7 @@ jobs:
           cp /mingw64/bin/libwinpthread-1.dll .
           cp /c/Strawberry/c/bin/libquadmath-0.dll .
           cp /mingw64/bin/libstdc++-6.dll .
+          strip libstdc++-6.dll
           cp /c/Strawberry/c/bin/libgomp-1.dll .
           cp /mingw64/bin/zlib1.dll .
           cp OpenMEEGMaths/libmatio.dll .
@@ -300,7 +301,7 @@ jobs:
         if [[ ${{matrix.os}} == 'windows'* ]]; then
           export PATH="$(cygpath -w $PWD/openmeeg);$PATH"
           delvewheel show dist/*.whl
-          delvewheel repair --no-mangle="libstdc++;libgcc_s_seh-1.dll" dist/*.whl
+          delvewheel repair dist/*.whl
         elif [[ ${{matrix.os}} == 'macos'* ]]; then
           delocate-wheel dist/*.whl
         # This build uses a toolchain that is too new, so skip this on Linux
