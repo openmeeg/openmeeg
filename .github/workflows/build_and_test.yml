@@ -267,6 +267,7 @@ jobs:
         fi
 
     - name: Make, delocate, install, and check wheel
+      if: startswith(matrix.python, 'python')
       run: |
         cd build/wrapping/python
         python setup.py bdist_wheel sdist
