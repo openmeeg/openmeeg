@@ -200,7 +200,7 @@ jobs:
         cat $GITHUB_ENV
 
     - name: macOS OpenBLAS setup 1 - openblas, hdf5, libmatio via brew
-      if: startsWith(matrix.os,'macos')
+      if: startswith(matrix.blas,'OpenBLAS') && startswith(matrix.os,'macos')
       run: |
         brew update > /dev/null
         brew install hdf5 libmatio boost vtk swig
@@ -215,7 +215,9 @@ jobs:
       with:
         python-version: '3.10'
 
-    - name: macOS OpenBLAS setup 3 - NumPy via pip
+    - name: macOS OpenBLAS setup 1 - openblas, hdf5, libmatio via brew
+      if: startswith(matrix.blas,'OpenBLAS') && startswith(matrix.os,'macos')
+      run: |
         which pip
         which python
         pip install --upgrade pip
