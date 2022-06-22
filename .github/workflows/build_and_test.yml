@@ -300,7 +300,7 @@ jobs:
         if [[ ${{matrix.os}} == 'windows'* ]]; then
           export PATH="$(cygpath -w $PWD/openmeeg);$PATH"
           delvewheel show dist/*.whl
-          delvewheel repair --no-mangle="libstdc++\\libgcc_s_seh-1.dll" dist/*.whl
+          delvewheel repair --no-mangle="libstdc++;libgcc_s_seh-1.dll" dist/*.whl
         elif [[ ${{matrix.os}} == 'macos'* ]]; then
           delocate-wheel dist/*.whl
         # This build uses a toolchain that is too new, so skip this on Linux
