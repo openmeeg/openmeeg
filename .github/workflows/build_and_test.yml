@@ -199,13 +199,7 @@ jobs:
         # Finally, print our settings
         cat $GITHUB_ENV
 
-    - name: macOS OpenBLAS setup 2 - fix Python
-      if: startswith(matrix.blas,'OpenBLAS') && startswith(matrix.os,'macos')
-      run: |
-        # https://github.com/actions/setup-python/issues/132
-        tee -a ~/.profile <<<'export PATH="$pythonLocation/bin:$PATH"'
-
-    - name: macOS OpenBLAS setup 3 - openblas, hdf5, libmatio via brew
+    - name: macOS OpenBLAS setup 2 - openblas, hdf5, libmatio via brew
       if: startswith(matrix.blas,'OpenBLAS') && startswith(matrix.os,'macos')
       run: |
         brew update > /dev/null
@@ -221,6 +215,11 @@ jobs:
         echo "LDFLAGS=-L/usr/local/opt/openblas/lib" >> $GITHUB_ENV
         echo "CPPFLAGS=-I$INCLUDE" >> $GITHUB_ENV
         echo "CMAKE_CXX_FLAGS=-I$INCLUDE" >> $GITHUB_ENV
+        # https://github.com/actions/setup-python/issues/132
+        echo $$pythonLocation
+        echo "PATH=$pythonLocation/bin:$PATH" >> $GITHUB_ENV
+        which python
+        which pip
 
     - name: macOS OpenBLAS setup 4 - NumPy via pip
       if: startswith(matrix.blas,'OpenBLAS') && startswith(matrix.os,'macos')
@@ -309,9 +308,10 @@ jobs:
         #   auditwheel show dist/*.whl
         #   auditwheel repair dist/*.whl
         fi
-        pip install dist/*.whl
-        python -c "import openmeeg; print(openmeeg.__version__)"
         twine check dist/*
+        pip install dist/*.whl --force-reinstall
+        cd ~
+        python -c "import openmeeg; print(openmeeg.__version__)"
 
     - name: Upload wrapped Python lib
       if: startswith(matrix.python, 'python')
