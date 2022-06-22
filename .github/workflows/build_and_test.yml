@@ -98,6 +98,7 @@ jobs:
     - name: Windows and macOS OpenBLAS setup 1 - install Python
       if: startswith(matrix.blas,'OpenBLAS') && (startswith(matrix.os,'windows') || startswith(matrix.os,'macos'))
       uses: actions/setup-python@v4
+      id: setuppython
       with:
         python-version: '3.10'
 
@@ -216,8 +217,12 @@ jobs:
         echo "CPPFLAGS=-I$INCLUDE" >> $GITHUB_ENV
         echo "CMAKE_CXX_FLAGS=-I$INCLUDE" >> $GITHUB_ENV
         # https://github.com/actions/setup-python/issues/132
-        echo $$pythonLocation
-        echo "PATH=$pythonLocation/bin:$PATH" >> $GITHUB_ENV
+        PYTHON_DIR=$(dirname ${{ steps.setuppython.outputs.python-path }})
+        echo $PYTHON_DIR
+        test -d $PYTHON_DIR
+        ls -al $PYTHON_DIR
+        echo "PATH=PYTHON_DIR:$PATH" >> $GITHUB_ENV
+        echo $PATH
         which python
         which pip
 
