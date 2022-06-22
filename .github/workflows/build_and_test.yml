@@ -95,9 +95,8 @@ jobs:
       run: |
         conda install mkl mkl-include numpy hdf5 libmatio swig
 
-    # Windows only -- we can use the default Python3 for Linux + macOS
     - name: Windows OpenBLAS setup 1 - install Python
-      if: startswith(matrix.blas,'OpenBLAS') && (startswith(matrix.os,'windows') || startswith(matrix.os, 'macos'))
+      if: startswith(matrix.blas,'OpenBLAS') && startswith(matrix.os,'windows')
       uses: actions/setup-python@v4
       with:
         python-version: '3.10'
@@ -200,15 +199,23 @@ jobs:
         # Finally, print our settings
         cat $GITHUB_ENV
 
-    - name: MacOS OpenBLAS setup - Python, NumPy, hdf5, and libmatio via brew
+    - name: macOS OpenBLAS setup 1 - openblas, hdf5, libmatio via brew
       if: startsWith(matrix.os,'macos')
       run: |
         brew update > /dev/null
         brew install hdf5 libmatio boost vtk swig
-        brew install openblas
+        brew install openblas --reinstall
         echo "LDFLAGS=-L/usr/local/opt/openblas/lib" >> $GITHUB_ENV
         echo "CPPFLAGS=-I/usr/local/opt/openblas/include" >> $GITHUB_ENV
         echo "CMAKE_CXX_FLAGS=-I/usr/local/opt/openblas/include" >> $GITHUB_ENV
+
+    - name: macOS OpenBLAS setup 2 - install Python
+      if: startswith(matrix.blas,'OpenBLAS') && startswith(matrix.os,'macos')
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: macOS OpenBLAS setup 3 - NumPy via pip
         which pip
         which python
         pip install --upgrade pip
@@ -260,6 +267,7 @@ jobs:
           echo "Before:"
           ls -al *.dll
           if [[ "${{ matrix.linking }}" != "static" ]]; then
+            strip $OPENBLAS_LIB/libopenblas_v0.3.18-gcc_8_1_0.dll
             cp $OPENBLAS_LIB/libopenblas_v0.3.18-gcc_8_1_0.dll .
             cp $OPENBLAS_LIB/libopenblas_v0.3.18-gcc_8_1_0.dll openblas.dll
           fi
