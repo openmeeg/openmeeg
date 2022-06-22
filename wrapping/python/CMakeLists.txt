@@ -59,8 +59,6 @@ set_target_properties(${SWIG_TARGET_NAME} PROPERTIES LIBRARY_OUTPUT_DIRECTORY op
 if(NOT Python3_EXT_SUFFIX)
     if(UNIX)
         set(Python3_EXT_SUFFIX ".${Python3_SOABI}.so")
-    else()
-        set(Python3_EXT_SUFFIX ".${Python3_SOABI}.pyd")
     endif()
 endif()
 set_target_properties(openmeeg PROPERTIES SUFFIX "${Python3_EXT_SUFFIX}")
