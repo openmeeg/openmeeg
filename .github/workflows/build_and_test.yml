@@ -180,6 +180,7 @@ jobs:
         echo "LIB=$(cygpath -w $OPENBLAS_LIB);${LIB}" >> $GITHUB_ENV
         #echo "CPATH=$(cygpath -w $OPENBLAS_INCLUDE);${CPATH}" >> $GITHUB_ENV
         echo "CMAKE_CXX_FLAGS=-I$(cygpath -m $OPENBLAS_INCLUDE)" >> $GITHUB_ENV
+        echo "CMAKE_SHARED_LINKER_FLAGS=-s" >> $GITHUB_ENV
 
         echo "CMAKE_GENERATOR=MinGW Makefiles" >> $GITHUB_ENV
 
@@ -201,18 +202,18 @@ jobs:
       if: startsWith(matrix.os,'macos')
       run: |
         brew update > /dev/null
-        brew install hdf5 libmatio boost vtk python@3.10 openblas
+        brew install hdf5 libmatio boost vtk python openblas
         echo "LDFLAGS=-L/usr/local/opt/openblas/lib" >> $GITHUB_ENV
         echo "CPPFLAGS=-I/usr/local/opt/openblas/include" >> $GITHUB_ENV
         echo "CMAKE_CXX_FLAGS=-I/usr/local/opt/openblas/include" >> $GITHUB_ENV
-        pip install --upgrade setuptools wheel twine delocate
+        pip install --upgrade numpy setuptools wheel twine delocate
 
     - name: Linux OpenBLAS setup - Python, NumPy, hdf5, libmatio, and doxygen via apt
       if: startsWith(matrix.os,'ubuntu') && startswith(matrix.blas,'OpenBLAS')
       run: |
         sudo apt update
         sudo apt -yq install libopenblas-dev liblapacke-dev python3-numpy doxygen graphviz libmatio-dev libvtk7-dev lcov
-        pip install --upgrade setuptools wheel twine auditwheel
+        pip install --upgrade setuptools wheel twine
 
     - name: Configure
       run: |
@@ -230,6 +231,7 @@ jobs:
               -DCMAKE_C_COMPILER_LAUNCHER=ccache \
               -DCMAKE_TOOLCHAIN_FILE=${{ env.CMAKE_TOOLCHAIN_FILE }} \
               -DCMAKE_CXX_FLAGS=${{ env.CMAKE_CXX_FLAGS }} \
+              -DCMAKE_SHARED_LINKER_FLAGS=${{ env.CMAKE_SHARED_LINKER_FLAGS }} \
               -DENABLE_WERROR=${{ env.ENABLE_WERROR }} \
               -DTEST_HEAD3=ON
 
@@ -273,11 +275,12 @@ jobs:
           export PATH="$(cygpath -w $PWD/openmeeg);$PATH"
           delvewheel show dist/*.whl
           delvewheel repair dist/*.whl
-        elif [[ ${{matrix.os}} == 'ubuntu'* ]]; then
-          auditwheel show dist/*.whl
-          auditwheel repair dist/*.whl
-        else
+        elif [[ ${{matrix.os}} == 'macos'* ]]; then
           delocate-wheel dist/*.whl
+        # This build uses a toolchain that is too new, so skip this on Linux
+        # else
+        #   auditwheel show dist/*.whl
+        #   auditwheel repair dist/*.whl
         fi
         pip install dist/*.whl
         python -c "import openmeeg; print(openmeeg.__version__)"
