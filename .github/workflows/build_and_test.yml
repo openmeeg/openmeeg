@@ -22,27 +22,27 @@ jobs:
     continue-on-error: true
     strategy:
       matrix:
-        # TODO: MKL currently untested on any platform
         # Currently, VTK is only installed+tested on Ubuntu
         # Someday we could use OpenBLAS for Windows once vcpkg sorts things out
         # (https://github.com/microsoft/vcpkg/issues/25176), but it's unclear
         # if this will really help anything. SciPy's should be well tested
         # already.
-        os: [ubuntu-20.04, windows-2019, macos-latest]
-        blas: [OpenBLAS]
+        # TODO: RESTORE
+        os: [ubuntu-20.04]  #, windows-2019, macos-latest]
+        blas: [OpenBLAS, MKL]
         blas_linking: [dynamic]
         python: [python]
-        include:
-        # ubuntu-18.04 build, but Python tests currently fail so use no-python
-        - os: ubuntu-18.04
-          blas: OpenBLAS
-          blas_linking: dynamic
-          python: no-python
-        # Windows static build
-        - os: windows-2019
-          blas: OpenBLAS
-          blas_linking: static
-          python: python
+        #include:
+        ## ubuntu-18.04 build, but Python tests currently fail so use no-python
+        #- os: ubuntu-18.04
+        #  blas: OpenBLAS
+        #  blas_linking: dynamic
+        #  python: no-python
+        ## Windows static build
+        #- os: windows-2019
+        #  blas: OpenBLAS
+        #  blas_linking: static
+        #  python: python
 
     runs-on: ${{ matrix.os }}
 
@@ -108,7 +108,10 @@ jobs:
     - name: MKL setup - mkl via conda
       if: startswith(matrix.blas,'MKL')
       run: |
-        conda install mkl mkl-include
+        if [[ ${{ matrix.os }} != 'ubuntu'* ]]; then
+          CONDA_EXTRA=hdf5 libmatio
+        fi
+        conda install mkl mkl-include $CONDA_EXTRA
 
     - name: Windows OpenBLAS setup 1 - set env
       if: startswith(matrix.blas,'OpenBLAS') && startswith(matrix.os,'windows')
