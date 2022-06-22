@@ -204,13 +204,13 @@ jobs:
       if: startsWith(matrix.os,'macos')
       run: |
         brew update > /dev/null
-        brew install hdf5 libmatio boost vtk
+        brew install hdf5 libmatio boost vtk swig
         brew install openblas
         echo "LDFLAGS=-L/usr/local/opt/openblas/lib" >> $GITHUB_ENV
         echo "CPPFLAGS=-I/usr/local/opt/openblas/include" >> $GITHUB_ENV
         echo "CMAKE_CXX_FLAGS=-I/usr/local/opt/openblas/include" >> $GITHUB_ENV
         pip install --upgrade pip
-        pip install --upgrade --progress-bar off setuptools wheel twine delocate swig numpy
+        pip install --upgrade --progress-bar off numpy setuptools wheel twine delocate
 
     - name: Linux OpenBLAS setup - Python, NumPy, hdf5, libmatio, and doxygen via apt
       if: startsWith(matrix.os,'ubuntu') && startswith(matrix.blas,'OpenBLAS')
