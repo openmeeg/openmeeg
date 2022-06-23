@@ -126,13 +126,14 @@ jobs:
 
         echo "CMAKE_GENERATOR=MinGW Makefiles" >> $GITHUB_ENV
         echo "STRIP_OPT=-DCMAKE_EXE_LINKER_FLAGS=-s -DCMAKE_SHARED_LINKER_FLAGS=-s -DCMAKE_MODULE_LINKER_FLAGS=-s" >> $GITHUB_ENV
+
         #echo "CMAKE_GENERATOR=Visual Studio 16 2019" >> $GITHUB_ENV
         #echo "CMAKE_GENERATOR_PLATFORM=x64" >> $GITHUB_ENV
         #echo "SDK_OPT=-DCMAKE_SYSTEM_VERSION=8.1" >> $GITHUB_ENV
         #echo "TOOLSET_OPT=-DCMAKE_GENERATOR_TOOLSET=v141" >> $GITHUB_ENV
 
     - name: Windows 2 - cache vcpkg
-      if: startswith(matrix.blas,'OpenBLAS') && startswith(matrix.os,'windows')
+      if: startswith(matrix.os,'windows')
       uses: actions/cache@v3
       with:
         path: |
@@ -141,7 +142,7 @@ jobs:
         key: vcpkg-${{ hashFiles('**/vcpkg.json') }}-mingw64-0
 
     - name: Windows 3 - hdf5 and libmatio via vcpkg
-      if: startswith(matrix.blas,'OpenBLAS') && startsWith(matrix.os,'windows')
+      if: startsWith(matrix.os,'windows')
       id: runvcpkg
       run: |
         set -x
@@ -184,7 +185,6 @@ jobs:
         cd ../../../
         echo "OPENBLAS_LIB=$OPENBLAS_LIB" >> $GITHUB_ENV
         echo "LIB=$(cygpath -w $OPENBLAS_LIB);${LIB}" >> $GITHUB_ENV
-        #echo "CPATH=$(cygpath -w $OPENBLAS_INCLUDE);${CPATH}" >> $GITHUB_ENV
         echo "CMAKE_CXX_FLAGS=-I$(cygpath -m $OPENBLAS_INCLUDE)" >> $GITHUB_ENV
 
     - name: macOS - hdf5, libmatio, and (optionally) openblas via brew
@@ -200,19 +200,17 @@ jobs:
           echo "CMAKE_CXX_FLAGS=-I$BLAS_DIR/include" >> $GITHUB_ENV
         fi
 
-    - name: Linux - hdf5, libmatio, vtk, doxygen, and OpenBLAS or MKL via apt
+    - name: Linux - hdf5, libmatio, vtk, doxygen, and (optionally) OpenBLAS via apt
       if: startsWith(matrix.os,'ubuntu')
       run: |
         sudo apt update
         if [[ "${{ matrix.blas }}" == "OpenBLAS" ]]; then
           EXTRA_APT=libopenblas-dev
-        else
-          EXTRA_APT=libmkl-dev
         fi
         sudo apt -yq install liblapacke-dev doxygen graphviz libhdf5-dev libmatio-dev libvtk7-dev lcov $EXTRA_APT
 
-    - name: MKL on macOS and Windows
-      if: startswith(matrix.blas,'MKL') && !startswith(matrix.os, 'ubuntu')
+    - name: MKL
+      if: startswith(matrix.blas,'MKL')
       run: |
         conda install mkl mkl-include
 
