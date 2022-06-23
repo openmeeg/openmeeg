@@ -27,11 +27,11 @@ jobs:
         # (https://github.com/microsoft/vcpkg/issues/25176), but it's unclear
         # if this will really help anything. SciPy's should be well tested
         # already.
-        # TODO: RESTORE
-        os: [ubuntu-20.04]  #, windows-2019, macos-latest]
+        os: [ubuntu-20.04, windows-2019, macos-latest]
         blas: [OpenBLAS, MKL]
         blas_linking: [dynamic]
         python: [python]
+        #TODO: RESTORE
         #include:
         ## ubuntu-18.04 build, but Python tests currently fail so use no-python
         #- os: ubuntu-18.04
@@ -105,13 +105,10 @@ jobs:
         # Fix Miniconda paths
         echo "PYTHON_INFO_OPT=-DPython3_EXECUTABLE=$(which python)" >> $GITHUB_ENV
 
-    - name: MKL via conda
-      if: startswith(matrix.blas,'MKL')
+    - name: MKL macOS and Windows - hdf5, and libmatio via conda
+      if: startswith(matrix.blas,'MKL') && !startswith(matrix.os, 'ubuntu')
       run: |
-        if [[ ${{ matrix.os }} != 'ubuntu'* ]]; then
-          CONDA_EXTRA=hdf5 libmatio
-        fi
-        conda install mkl mkl-include $CONDA_EXTRA
+        conda install mkl mkl-include hdf5 libmatio
 
     - name: OpenBLAS Windows 1 - set env
       if: startswith(matrix.blas,'OpenBLAS') && startswith(matrix.os,'windows')
@@ -221,12 +218,14 @@ jobs:
         echo "CPPFLAGS=-I$BLAS_DIR/include" >> $GITHUB_ENV
         echo "CMAKE_CXX_FLAGS=-I$BLAS_DIR/include" >> $GITHUB_ENV
 
-    - name: Linux dependencies - hdf5, libmatio, vtk, doxygen, and (optionally) OpenBLAS via apt
+    - name: Linux dependencies - hdf5, libmatio, vtk, doxygen, and OpenBLAS or MKL via apt
       if: startsWith(matrix.os,'ubuntu')
       run: |
         sudo apt update
         if [[ "${{ matrix.blas }}" == "OpenBLAS" ]]; then
           EXTRA_APT=libopenblas-dev
+        else
+          EXTRA_APT=libmkl-dev
         fi
         sudo apt -yq install liblapacke-dev doxygen graphviz libhdf5-dev libmatio-dev libvtk7-dev lcov $EXTRA_APT
 
