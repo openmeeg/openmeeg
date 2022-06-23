@@ -31,9 +31,6 @@ jobs:
         blas: [OpenBLAS, MKL]
         blas_linking: [dynamic]
         python: [python]
-        include:
-        # a MKL build for Linux
-
         #include:
         ## ubuntu-18.04 build, but Python tests currently fail so use no-python
         #- os: ubuntu-18.04
