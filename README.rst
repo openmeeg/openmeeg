@@ -105,7 +105,7 @@ then::
     $ cd openmeeg
     $ mkdir build
     $ cd build
-    $ cmake -DCMAKE_BUILD_TYPE=Release -DUSE_PROGRESSBAR=ON -DBLA_VENDOR=OpenBLAS ..
+    $ cmake -DUSE_PROGRESSBAR=ON -DBLA_VENDOR=OpenBLAS ..
     $ make
 
 

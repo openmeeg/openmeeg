@@ -1,0 +1,11 @@
+[build_requires]
+matio/1.5.23
+hdf5/1.12.1
+
+[options]
+matio:shared=True
+hdf5:shared=True
+
+[generators]
+CMakeDeps
+CMakeToolchain

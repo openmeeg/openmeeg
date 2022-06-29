@@ -9,9 +9,6 @@ on:
   pull_request:
     branches: [ master ]
 
-env:
-  BUILD_TYPE: Release
-
 defaults:
   run:
     shell: bash -el {0}
@@ -28,10 +25,14 @@ jobs:
         # if this will really help anything. SciPy's should be well tested
         # already.
         os: [ubuntu-20.04, windows-2019, macos-latest]
-        blas: [OpenBLAS, MKL]
+        blas: [OpenBLAS]
         blas_linking: [dynamic]
         python: [python]
-        #include:
+        include:
+        - os: windows-2019
+          blas: MKL
+          blas_linking: static
+          python: python
         ## ubuntu-18.04 build, but Python tests currently fail so use no-python
         #- os: ubuntu-18.04
         #  blas: OpenBLAS
@@ -53,12 +54,13 @@ jobs:
         if [ ${{matrix.blas_linking}} == 'static' ]; then
           echo "BLA_STATIC_OPT='-DBLA_STATIC=ON'" >> $GITHUB_ENV
         fi
-        if [ ${{matrix.python}} == 'python' ]; then
-          echo "PYTHON_OPT='-DENABLE_PYTHON=ON'" >> $GITHUB_ENV
+        if [ ${{matrix.python}} != 'python' ]; then
+          echo "PYTHON_OPT=-DENABLE_PYTHON=ON" >> $GITHUB_ENV
+        else
+          echo "PYTHON_OPT=-DENABLE_PYTHON=OFF" >> $GITHUB_ENV
         fi
         if [ ${{matrix.blas}} == 'MKL' ]; then
           echo "BLA_IMPL=-DBLA_IMPLEMENTATION=MKL" >> $GITHUB_ENV
-          echo "BLA_PARA=-DMKL_PARALLELISM=sequential" >> $GITHUB_ENV
         fi
         # Build docs on Ubuntu, not elsewhere (for speed)
         if [[ ${{matrix.os}} == 'ubuntu'* ]]; then
@@ -68,11 +70,11 @@ jobs:
         fi
         # Use -Werror on Windows and macOS, eventually should use on Linux
         if [[ ${{matrix.os}} != 'ubuntu*' ]]; then
-          ENABLE_WERROR=OFF
+          WERROR_OPT="-DENABLE_WERROR=OFF"
         else
-          ENABLE_WERROR=ON
+          WERROR_OPT="-DENABLE_WERROR=ON"
         fi
-        echo "ENABLE_WERROR=$ENABLE_WERROR" >> $GITHUB_ENV
+        echo "WERROR_OPT=$WERROR_OPT" >> $GITHUB_ENV
         echo "DOC_OPT=-DBUILD_DOCUMENTATION=$BUILD_DOCS" >> $GITHUB_ENV
 
     - name: Setup ccache
@@ -104,35 +106,7 @@ jobs:
         # Fix Miniconda paths
         echo "PYTHON_INFO_OPT=-DPython3_EXECUTABLE=$(which python)" >> $GITHUB_ENV
 
-    - name: Windows 1 - set env for vcpkg and compilation
-      if: startswith(matrix.os,'windows')
-      run: |
-        VCPKG_INSTALLED_DIR="${PWD}/build/vcpkg_installed"
-        echo "$VCPKG_INSTALLED_DIR"
-        VCPKG_INSTALLED_DIR=$(cygpath -m "$VCPKG_INSTALLED_DIR")
-        echo "$VI"
-        echo "VCPKG_INSTALLED_DIR=$VCPKG_INSTALLED_DIR" >> $GITHUB_ENV
-        VCPKG_DEFAULT_TRIPLET=x64-mingw-dynamic
-        echo "VCPKG_DEFAULT_TRIPLET=$VCPKG_DEFAULT_TRIPLET" >> $GITHUB_ENV
-        echo "VCPKG_DEFAULT_HOST_TRIPLET=$VCPKG_DEFAULT_TRIPLET" >> $GITHUB_ENV
-        VCPKG_INSTALL_OPTIONS="--x-install-root=$VCPKG_INSTALLED_DIR --triplet=$VCPKG_DEFAULT_TRIPLET"
-        echo "VCPKG_INSTALL_OPTIONS=$VCPKG_INSTALL_OPTIONS" >> $GITHUB_ENV
-
-        CMAKE_TOOLCHAIN_FILE=${PWD}/vcpkg/scripts/buildsystems/vcpkg.cmake
-        echo "$CMAKE_TOOLCHAIN_FILE"
-        CMAKE_TOOLCHAIN_FILE=$(cygpath -m "$CMAKE_TOOLCHAIN_FILE")
-        echo "$CMAKE_TOOLCHAIN_FILE"
-        echo "CMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}" >> $GITHUB_ENV
-
-        echo "CMAKE_GENERATOR=MinGW Makefiles" >> $GITHUB_ENV
-        echo "STRIP_OPT=-DCMAKE_EXE_LINKER_FLAGS=-s -DCMAKE_SHARED_LINKER_FLAGS=-s -DCMAKE_MODULE_LINKER_FLAGS=-s" >> $GITHUB_ENV
-
-        #echo "CMAKE_GENERATOR=Visual Studio 16 2019" >> $GITHUB_ENV
-        #echo "CMAKE_GENERATOR_PLATFORM=x64" >> $GITHUB_ENV
-        #echo "SDK_OPT=-DCMAKE_SYSTEM_VERSION=8.1" >> $GITHUB_ENV
-        #echo "TOOLSET_OPT=-DCMAKE_GENERATOR_TOOLSET=v141" >> $GITHUB_ENV
-
-    - name: Windows 2 - cache vcpkg
+    - name: Windows 1 - cache vcpkg
       if: startswith(matrix.os,'windows')
       uses: actions/cache@v3
       with:
@@ -141,24 +115,14 @@ jobs:
           build/vcpkg_installed
         key: vcpkg-${{ hashFiles('**/vcpkg.json') }}-mingw64-0
 
-    - name: Windows 3 - hdf5 and libmatio via vcpkg
+    - name: Windows 2 - hdf5 and libmatio via vcpkg
       if: startsWith(matrix.os,'windows')
       id: runvcpkg
       run: |
-        set -x
-        if [ ! -d vcpkg ]; then
-          git clone https://github.com/Microsoft/vcpkg.git --depth=1
-          cd vcpkg
-          git fetch origin 2022.05.10:use --depth=1
-          git checkout use
-          ./bootstrap-vcpkg.sh
-          cd ..
-        fi
-        echo "VCPKG_INSTALLED_DIR: $VCPKG_INSTALLED_DIR"
-        echo "CMAKE_TOOLCHAIN_FILE: $CMAKE_TOOLCHAIN_FILE"
-        test -f $(cygpath -u "$CMAKE_TOOLCHAIN_FILE")
+        export VCPKG_DEFAULT_TRIPLET=x64-mingw-dynamic
+        source ./build_tools/
 
-    - name: Windows 4 - OpenBLAS via MacPython download
+    - name: Windows 3 - OpenBLAS via MacPython download
       if: startsWith(matrix.blas,'OpenBLAS') && startsWith(matrix.os,'windows')
       run: |
         # OpenBLAS direct download (too slow to build using vcpkg)
@@ -212,61 +176,45 @@ jobs:
     - name: MKL
       if: startswith(matrix.blas,'MKL')
       run: |
-        conda install mkl mkl-include
+        conda install mkl mkl-include mkl-devel
+        if [[ "${{matrix.os}}" == 'windows'* ]]; then
+          echo "CMAKE_PREFIX_PATH=-I$(cygpath -m $CONDA_PREFIX/Library)" >> $GITHUB_ENV
+        fi
 
     - name: Configure
       run: |
-        set -x
-        cmake -B build \
-              -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} \
-              ${{env.BLA_STATIC_OPT}} \
-              ${{env.BLA_IMPL}} \
-              ${{env.BLA_PARA}} \
-              ${{env.PYTHON_OPT}} \
-              ${{env.DOC_OPT}} \
-              ${{env.SDK_OPT}} \
-              ${{env.TOOLSET_OPT}} \
-              ${{env.PYTHON_INFO_OPT}} \
-              ${{env.STRIP_OPT}} \
-              -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
-              -DCMAKE_C_COMPILER_LAUNCHER=ccache \
-              -DCMAKE_TOOLCHAIN_FILE=${{ env.CMAKE_TOOLCHAIN_FILE }} \
-              -DCMAKE_CXX_FLAGS=${{ env.CMAKE_CXX_FLAGS }} \
-              -DENABLE_WERROR=${{ env.ENABLE_WERROR }} \
-              -DTEST_HEAD3=ON
+        ./build_tools/ci_cmake_configure.sh
 
     - name: Build
       run: |
-        cmake --build build ${{env.BUILD_OPT}} --config ${{env.BUILD_TYPE}}
+        cmake --build build --config Release
         ls -al build
         if [ -d build/wrapping/python/openmeeg ]; then
           ls -al build/wrapping/python/openmeeg
         fi
 
     - name: Prepare Python
-      if: startswith(matrix.python, 'python')
+      if: startswith(matrix.python, 'python') && startsWith(matrix.os,'windows')
       # Let's make it easy for delvewheel to find the stuff it might need
       run: |
-        if [[ "${{matrix.os}}" == 'windows'* ]]; then
-          cd build
-          if [[ "${{ matrix.blas }}" == "OpenBLAS" ]]; then
-            if [[ "${{ matrix.linking }}" != "static" ]]; then
-              cp $OPENBLAS_LIB/libopenblas_v0.3.18-gcc_8_1_0.dll .
-              strip libopenblas_v0.3.18-gcc_8_1_0.dll
-              cp libopenblas_v0.3.18-gcc_8_1_0.dll openblas.dll
-            fi
-            cp /mingw64/bin/libgcc_s_seh-1.dll .
-            cp /mingw64/bin/libwinpthread-1.dll .
-            cp /c/Strawberry/c/bin/libquadmath-0.dll .
-            cp /mingw64/bin/libstdc++-6.dll .
-            strip libstdc++-6.dll
-            cp /c/Strawberry/c/bin/libgomp-1.dll .
-            cp /mingw64/bin/zlib1.dll .
-            cp OpenMEEGMaths/libmatio.dll .
+        cd build
+        if [[ "${{ matrix.blas }}" == "OpenBLAS" ]]; then
+          if [[ "${{ matrix.linking }}" != "static" ]]; then
+            cp $OPENBLAS_LIB/libopenblas_v0.3.18-gcc_8_1_0.dll .
+            strip libopenblas_v0.3.18-gcc_8_1_0.dll
+            cp libopenblas_v0.3.18-gcc_8_1_0.dll openblas.dll
           fi
-          # This should allow delvewheel to find libs, as well as the tests
-          echo "PATH=$PWD;$PATH" >> $GITHUB_ENV
+          cp /mingw64/bin/libgcc_s_seh-1.dll .
+          cp /mingw64/bin/libwinpthread-1.dll .
+          cp /c/Strawberry/c/bin/libquadmath-0.dll .
+          cp /mingw64/bin/libstdc++-6.dll .
+          strip libstdc++-6.dll
+          cp /c/Strawberry/c/bin/libgomp-1.dll .
+          cp /mingw64/bin/zlib1.dll .
+          cp OpenMEEGMaths/libmatio.dll .
         fi
+        # This should allow delvewheel to find libs, as well as the tests
+        echo "PATH=$PWD;$PATH" >> $GITHUB_ENV
 
     - name: Make, delocate, install, and check wheel
       if: startswith(matrix.python, 'python')
@@ -307,4 +255,4 @@ jobs:
     - name: Test
       working-directory: ${{github.workspace}}/build
       run: |
-        ctest -C $BUILD_TYPE || ctest -C $BUILD_TYPE --rerun-failed --output-on-failure
+        ctest -C Release || ctest -C Release --rerun-failed --output-on-failure
