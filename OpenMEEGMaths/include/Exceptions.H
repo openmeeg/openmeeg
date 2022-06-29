@@ -17,7 +17,7 @@ namespace OpenMEEG {
     namespace maths {
 
         class Range;
-        std::ostream& operator<<(std::ostream& os,const Range& r);
+        //std::ostream& operator<<(std::ostream& os,const Range& r);
 
         typedef enum { UNEXPECTED = 128, IO_EXCPT,
                        BAD_FILE, BAD_FILE_OPEN, BAD_CONTENT, NO_SUFFIX, BAD_HDR, BAD_DATA, BAD_VECT, UNKN_DIM, BAD_SYMM_MAT,
@@ -225,7 +225,8 @@ namespace OpenMEEG {
 
             static std::string message(const Range& r1,const Range& r2) {
                 std::ostringstream ost;
-                ost << "Ranges " << r1 << " and " << r2 << " are overlapping blocks in a block matrix.";
+                // ost << "Ranges " << r1 << " and " << r2 << " are overlapping blocks in a block matrix.";
+                ost << "Ranges r1 and r2 are overlapping blocks in a block matrix.";
                 return ost.str();
             }
         };

@@ -65,15 +65,18 @@ namespace OpenMEEG::maths {
         bool operator==(const Range& r) const { return start()==r.start() && end()==r.end();      }
         bool operator!=(const Range& r) const { return start()!=r.start() || end()!=r.end();      }
 
+        friend std::ostream& operator<<(std::ostream& os,const Range& dt);
+
     private:
 
         size_t start_index;
         size_t end_index;
     };
 
-    inline std::ostream& operator<<(std::ostream& os,const Range& r) {
-        return os << '(' << r.start() << ',' << r.end() << ')';
-    }
+    // SWIG+Windows+CMake bug, e.g. https://github.com/swig/swig/issues/1091
+    //std::ostream& operator<<(std::ostream& os,const Range& r) {
+    //    return os << '(' << r.start() << ',' << r.end() << ')';
+    //}
 
     class OPENMEEGMATHS_EXPORT Ranges: public std::vector<Range> {
 

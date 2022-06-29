@@ -118,7 +118,7 @@ jobs:
       id: runvcpkg
       run: |
         export VCPKG_DEFAULT_TRIPLET=x64-mingw-dynamic
-        source ./build_tools/
+        source ./build_tools/setup_windows_compilation.sh
 
     - name: Windows 3 - OpenBLAS via MacPython download
       if: startsWith(matrix.blas,'OpenBLAS') && startsWith(matrix.os,'windows')
