@@ -30,7 +30,7 @@ jobs:
         python: [python]
         include:
         - os: windows-2019
-          blas: MKL
+          blas: mkl-findblas
           blas_linking: static
           python: python
         ## ubuntu-18.04 build, but Python tests currently fail so use no-python
@@ -59,9 +59,7 @@ jobs:
         else
           echo "PYTHON_OPT=-DENABLE_PYTHON=OFF" >> $GITHUB_ENV
         fi
-        if [ ${{matrix.blas}} == 'MKL' ]; then
-          echo "BLA_IMPL=-DBLA_IMPLEMENTATION=MKL" >> $GITHUB_ENV
-        fi
+        echo "BLA_IMPL=-DBLA_IMPLEMENTATION=${{matrix.blas}}" >> $GITHUB_ENV
         # Build docs on Ubuntu, not elsewhere (for speed)
         if [[ ${{matrix.os}} == 'ubuntu'* ]]; then
           BUILD_DOCS=ON
@@ -174,8 +172,10 @@ jobs:
         sudo apt -yq install liblapacke-dev doxygen graphviz libhdf5-dev libmatio-dev libvtk7-dev lcov $EXTRA_APT
 
     - name: MKL
-      if: startswith(matrix.blas,'MKL')
+      if: startswith(matrix.blas,'mkl')
       run: |
+        # On Windows, locally this works:
+        # ./build_tools/cmake_configure.sh -DBLA_IMPLEMENTATION=mkl-findblas -DBLA_STATIC=ON -DCMAKE_PREFIX_PATH="$CONDA_PREFIX/Library" -DCMAKE_CXX_FLAGS="-I$CONDA_PREFIX/Library/include"
         conda install mkl mkl-include mkl-devel
         if [[ "${{matrix.os}}" == 'windows'* ]]; then
           echo "CMAKE_PREFIX_PATH=-I$(cygpath -m $CONDA_PREFIX/Library)" >> $GITHUB_ENV
@@ -183,7 +183,7 @@ jobs:
 
     - name: Configure
       run: |
-        ./build_tools/ci_cmake_configure.sh
+        ./build_tools/cmake_configure.sh
 
     - name: Build
       run: |

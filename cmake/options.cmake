@@ -45,5 +45,11 @@ if (ENABLE_WERROR)
     endif()
 endif()
 
+# Deal with:
+# warning C4530: C++ exception handler used, but unwind semantics are not enabled. Specify /EHsc
+if (MSVC)
+    add_compile_options(/EHsc)
+endif()
+
 # Installation options
 include(GNUInstallDirs)
