@@ -63,17 +63,20 @@ jobs:
 
     - name: Environment variables
       run: |
-        if [ ${{matrix.blas_linking}} == 'static' ]; then
+        if [ "${{matrix.blas_linking}}" == 'static' ]; then
+          echo "Enabling static BLAS"
           echo "BLA_STATIC_OPT=-DBLA_STATIC=ON" >> $GITHUB_ENV
         fi
-        if [ ${{matrix.python}} == 'python' ]; then
+        if [ "${{matrix.python}}" == 'python' ]; then
+          echo "Enabling Python"
           echo "PYTHON_OPT=-DENABLE_PYTHON=ON" >> $GITHUB_ENV
         fi
-        if [ ${{matrix.blas}} == 'mkl'* ]; then
+        if [ "${{matrix.blas}}" == 'mkl'* ]; then
+          echo "Setting BLA_IMPLEMENTATION=${{matrix.blas}}"
           echo "BLA_IMPL=-DBLA_IMPLEMENTATION=${{matrix.blas}}" >> $GITHUB_ENV
         fi
         # Build docs on Ubuntu, not elsewhere (for speed)
-        if [[ ${{matrix.os}} == 'ubuntu'* ]]; then
+        if [[ "${{matrix.os}}" == 'ubuntu'* ]]; then
           BUILD_DOCS=ON
         else
           BUILD_DOCS=OFF
@@ -84,7 +87,9 @@ jobs:
         else
           WERROR_OPT="-DENABLE_WERROR=ON"
         fi
+        echo "Using WERROR_OPT=$WERROR_OPT"
         echo "WERROR_OPT=$WERROR_OPT" >> $GITHUB_ENV
+        echo "Using DOC_OPT=$DOC_OPT"
         echo "DOC_OPT=-DBUILD_DOCUMENTATION=$BUILD_DOCS" >> $GITHUB_ENV
 
     - name: Setup ccache
@@ -178,9 +183,8 @@ jobs:
           test -f $BLAS_DIR/include/lapack.h
           ls -al /usr/local/opt/openblas/lib
           test -f /usr/local/opt/openblas/lib/libopenblas.dylib
-          echo "LDFLAGS=-L/usr/local/opt/openblas/lib" >> $GITHUB_ENV
-          echo "CPPFLAGS=-I$BLAS_DIR/include" >> $GITHUB_ENV
-          echo "CMAKE_CXX_FLAGS=-I$BLAS_DIR/include" >> $GITHUB_ENV
+          echo "CMAKE_CXX_FLAGS=-I$BLAS_DIR/include -L$BLAS_DIR/lib" >> $GITHUB_ENV
+          echo "CMAKE_PREFIX_PATH=$BLAS_DIR" >> $GITHUB_ENV
         fi
 
     - name: Linux - hdf5, libmatio, vtk, doxygen, and (optionally) OpenBLAS via apt
