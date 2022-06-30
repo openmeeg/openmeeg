@@ -136,6 +136,9 @@ jobs:
       run: |
         export VCPKG_DEFAULT_TRIPLET=x64-mingw-dynamic
         source ./build_tools/setup_windows_compilation.sh
+        # On Windows, we tell cmake to copy all runtime deps to the build dir,
+        # and for tests (and Python) to find them, we need to add it to PATH
+        echo "PATH=$(cygpath -w ${PWD}/build);$PATH" >> $GITHUB_ENV
 
     - name: Windows 3 - OpenBLAS via MacPython download
       if: startsWith(matrix.blas,'OpenBLAS') && startsWith(matrix.os,'windows')
@@ -150,7 +153,7 @@ jobs:
         test -d "$OPENBLAS_LIB"
         echo "$OPENBLAS_INCLUDE"
         test -d "$OPENBLAS_INCLUDE"
-        cd $OPENBLAS_LIB
+        pushd $OPENBLAS_LIB
         ls -al
         if [[ "${{ matrix.linking }}" != "static" ]]; then
           cp ../bin/libopenblas_v0.3.18-gcc_8_1_0.dll .
@@ -161,7 +164,7 @@ jobs:
         mv libopenblas_v0.3.18-gcc_8_1_0.def openblas.def
         mv libopenblas_v0.3.18-gcc_8_1_0.exp openblas.exp
         mv libopenblas_v0.3.18-gcc_8_1_0.lib openblas.lib
-        cd ../../../
+        popd
         echo "OPENBLAS_LIB=$OPENBLAS_LIB" >> $GITHUB_ENV
         echo "LIB=$(cygpath -w $OPENBLAS_LIB);${LIB}" >> $GITHUB_ENV
         echo "CMAKE_CXX_FLAGS=-I$(cygpath -m $OPENBLAS_INCLUDE)" >> $GITHUB_ENV
