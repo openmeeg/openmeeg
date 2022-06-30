@@ -251,11 +251,11 @@ jobs:
           echo "Before:"
           ls -al *.dll || true
           if [[ "${{matrix.blas}}" == "OpenBLAS" ]]; then
-            if [[ "${{ matrix.blas_linking }}" != "static" ]]; then
-              strip $OPENBLAS_LIB/libopenblas_v0.3.18-gcc_8_1_0.dll
-              cp $OPENBLAS_LIB/libopenblas_v0.3.18-gcc_8_1_0.dll .
-              cp $OPENBLAS_LIB/libopenblas_v0.3.18-gcc_8_1_0.dll openblas.dll
-            fi
+            #if [[ "${{ matrix.blas_linking }}" != "static" ]]; then
+            strip $OPENBLAS_LIB/libopenblas_v0.3.18-gcc_8_1_0.dll
+            cp $OPENBLAS_LIB/libopenblas_v0.3.18-gcc_8_1_0.dll .
+            cp $OPENBLAS_LIB/libopenblas_v0.3.18-gcc_8_1_0.dll openblas.dll
+            #fi
           fi;
           cp /mingw64/bin/libgcc_s_seh-1.dll .
           cp /mingw64/bin/libwinpthread-1.dll .
