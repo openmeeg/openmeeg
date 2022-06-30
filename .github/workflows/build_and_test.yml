@@ -183,11 +183,12 @@ jobs:
         test -d "$OPENBLAS_INCLUDE"
         pushd $OPENBLAS_LIB
         ls -al
-        if [[ "${{ matrix.blas_linking }}" != "static" ]]; then
-          cp ../bin/libopenblas_v0.3.18-gcc_8_1_0.dll .
-          cp libopenblas_v0.3.18-gcc_8_1_0.dll openblas.dll
-          mv libopenblas_v0.3.18-gcc_8_1_0.dll.a openblas.dll.a
-        fi
+        # TODO: This conditional should work but it does not...
+        # if [[ "${{ matrix.blas_linking }}" != "static" ]]; then
+        cp ../bin/libopenblas_v0.3.18-gcc_8_1_0.dll .
+        cp libopenblas_v0.3.18-gcc_8_1_0.dll openblas.dll
+        mv libopenblas_v0.3.18-gcc_8_1_0.dll.a openblas.dll.a
+        # fi
         mv libopenblas_v0.3.18-gcc_8_1_0.a openblas.a
         mv libopenblas_v0.3.18-gcc_8_1_0.def openblas.def
         mv libopenblas_v0.3.18-gcc_8_1_0.exp openblas.exp
