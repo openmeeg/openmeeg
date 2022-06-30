@@ -32,7 +32,16 @@ jobs:
         blas_linking: [dynamic]
         python: [python]
         include:
+        # MKL on each OS (static unless it has to be dynamic)
         - os: windows-2019
+          blas: mkl-findblas
+          blas_linking: static
+          python: python
+        - os: ubuntu-20.04
+          blas: mkl-findblas
+          blas_linking: dynamic
+          python: python
+        - os: macos-latest
           blas: mkl-findblas
           blas_linking: static
           python: python
@@ -55,10 +64,10 @@ jobs:
     - name: Environment variables
       run: |
         if [ ${{matrix.blas_linking}} == 'static' ]; then
-          echo "BLA_STATIC_OPT='-DBLA_STATIC=ON'" >> $GITHUB_ENV
+          echo "BLA_STATIC_OPT=-DBLA_STATIC=ON" >> $GITHUB_ENV
         fi
         if [ ${{matrix.python}} == 'python' ]; then
-          echo "PYTHON_OPT='-DENABLE_PYTHON=ON'" >> $GITHUB_ENV
+          echo "PYTHON_OPT=-DENABLE_PYTHON=ON" >> $GITHUB_ENV
         fi
         if [ ${{matrix.blas}} == 'mkl'* ]; then
           echo "BLA_IMPL=-DBLA_IMPLEMENTATION=${{matrix.blas}}" >> $GITHUB_ENV
@@ -181,11 +190,22 @@ jobs:
     - name: MKL
       if: startswith(matrix.blas,'mkl')
       run: |
+        # To get a local testing env, you can do for example:
+        # conda create -n openmeeg-mkl -c conda-forge --strict-channel-priority mkl-devel swig libmatio hdf5 numpy
+        #
         # On Windows, locally this works:
-        # ./build_tools/cmake_configure.sh -DBLA_IMPLEMENTATION=mkl-findblas -DBLA_STATIC=ON -DCMAKE_PREFIX_PATH="$CONDA_PREFIX/Library" -DCMAKE_CXX_FLAGS="-I$CONDA_PREFIX/Library/include"
-        conda install mkl mkl-include mkl-devel
+        # ./build_tools/cmake_configure.sh -DBLA_IMPLEMENTATION=mkl-findblas -DBLA_STATIC=ON -DCMAKE_PREFIX_PATH="$CONDA_PREFIX/Library" -DCMAKE_CXX_FLAGS="-I$CONDA_PREFIX/Library/include" -DENABLE_PYTHON=ON
+        # cmake --build build --config Release
+        #
+        # On Linux, locally this works:
+        # ./build_tools/cmake_configure.sh -DBLA_IMPLEMENTATION=mkl-findblas -DCMAKE_PREFIX_PATH="$CONDA_PREFIX/lib" -DCMAKE_CXX_FLAGS="-I$CONDA_PREFIX/include" -DENABLE_PYTHON=ON
+        # cmake --build build --config Release
+        # cd build && LD_PRELOAD=$CONDA_PREFIX/lib/libmkl_rt.so ctest -C Release
+        #
         if [[ "${{matrix.os}}" == 'windows'* ]]; then
           echo "CMAKE_PREFIX_PATH=-I$(cygpath -m $CONDA_PREFIX/Library)" >> $GITHUB_ENV
+        elif [[ "${{matrix.os}}" == 'ubuntu'* ]]; then
+          echo "LD_PRELOAD=$CONDA_PREFIX/lib/libmkl_rt.so" >> $GITHUB_ENV
         fi
 
     - name: Configure
@@ -200,14 +220,14 @@ jobs:
           ls -al build/wrapping/python/openmeeg
         fi
 
-    - name: Prepare Python
-      if: startswith(matrix.python, 'python')
+    - name: Prepare Python for OpenBLAS
+      if: startswith(matrix.python, 'python') && startswith(matrix.blas, 'OpenBLAS')
       # Let's make it easy for delvewheel to find the stuff it might need
       run: |
-        if [[ ${{matrix.os}} == 'windows'* ]]; then
+        if [[ "${{matrix.os}}"" == 'windows'* ]]; then
           cd build
           echo "Before:"
-          ls -al *.dll
+          ls -al *.dll || true
           if [[ "${{ matrix.linking }}" != "static" ]]; then
             strip $OPENBLAS_LIB/libopenblas_v0.3.18-gcc_8_1_0.dll
             cp $OPENBLAS_LIB/libopenblas_v0.3.18-gcc_8_1_0.dll .
