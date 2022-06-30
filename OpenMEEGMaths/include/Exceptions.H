@@ -1,9 +1,5 @@
 #pragma once
 
-#ifdef WIN32
-#pragma warning(disable : 4275)    //MSVC warning C4275: non dll-interface class 'OpenMEEG::maths::Exception' used as base for dll-interface struct 'OpenMEEG::maths::OverlappingRanges'
-#endif
-
 //  Largely derivate work from Images/src/Exceptions.H (merge if possible).
 
 #include <string>
@@ -17,7 +13,7 @@ namespace OpenMEEG {
     namespace maths {
 
         class Range;
-        //std::ostream& operator<<(std::ostream& os,const Range& r);
+        std::ostream& operator<<(std::ostream& os,const Range& r);
 
         typedef enum { UNEXPECTED = 128, IO_EXCPT,
                        BAD_FILE, BAD_FILE_OPEN, BAD_CONTENT, NO_SUFFIX, BAD_HDR, BAD_DATA, BAD_VECT, UNKN_DIM, BAD_SYMM_MAT,
@@ -39,7 +35,7 @@ namespace OpenMEEG {
 
             std::string whatstring;
         };
-
+        
         struct UnexpectedException: public Exception {
 
             UnexpectedException(const std::string& func,const std::string& file,const unsigned line): Exception(message(func,file,line)) { }
@@ -66,7 +62,7 @@ namespace OpenMEEG {
         };
 
         struct BadFile: public IOException {
-
+     
             BadFile(const std::string& fmtname):                  IOException(message(fmtname))    { }
             BadFile(std::istream& is,const std::string& fmtname): IOException(is,message(fmtname)) { }
 
@@ -78,7 +74,7 @@ namespace OpenMEEG {
         };
 
         struct BadFileOpening: public IOException {
-
+     
             typedef enum { READ, WRITE } Mode;
 
             BadFileOpening(const std::string& file,const Mode& mode):                  IOException(message(file,mode))    { }
@@ -225,8 +221,7 @@ namespace OpenMEEG {
 
             static std::string message(const Range& r1,const Range& r2) {
                 std::ostringstream ost;
-                // ost << "Ranges " << r1 << " and " << r2 << " are overlapping blocks in a block matrix.";
-                ost << "Ranges r1 and r2 are overlapping blocks in a block matrix.";
+                ost << "Ranges " << r1 << " and " << r2 << " are overlapping blocks in a block matrix.";
                 return ost.str();
             }
         };

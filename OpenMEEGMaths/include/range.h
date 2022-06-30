@@ -71,10 +71,9 @@ namespace OpenMEEG::maths {
         size_t end_index;
     };
 
-    // SWIG+Windows+CMake bug, e.g. https://github.com/swig/swig/issues/1091
-    //std::ostream& operator<<(std::ostream& os,const Range& r) {
-    //    return os << '(' << r.start() << ',' << r.end() << ')';
-    //}
+    inline std::ostream& operator<<(std::ostream& os,const Range& r) {
+        return os << '(' << r.start() << ',' << r.end() << ')';
+    }
 
     class OPENMEEGMATHS_EXPORT Ranges: public std::vector<Range> {
 

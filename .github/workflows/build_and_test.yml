@@ -121,6 +121,34 @@ jobs:
         # Fix Miniconda paths
         echo "PYTHON_INFO_OPT=-DPython3_EXECUTABLE=$(which python)" >> $GITHUB_ENV
 
+    - name: MKL setup - mkl viai conda
+      if: startswith(matrix.blas,'mkl')
+      run: |
+        # To get a local testing env, you can do for example:
+        # $ conda create -n openmeeg-mkl -c conda-forge --strict-channel-priority mkl-devel swig libmatio hdf5 numpy
+        # $ conda activate openmeeg-mkl
+        #
+        # On Windows, locally this static build almost works:
+        # ./build_tools/cmake_configure.sh -DBLA_IMPLEMENTATION=mkl-findblas -DBLA_STATIC=ON -DCMAKE_PREFIX_PATH="$CONDA_PREFIX/Library" -DCMAKE_CXX_FLAGS="-I$CONDA_PREFIX/Library/include" -DENABLE_PYTHON=ON
+        # cmake --build build --config Release
+        #
+        # On Linux, locally this works:
+        # ./build_tools/cmake_configure.sh -DBLA_IMPLEMENTATION=mkl-findblas -DCMAKE_PREFIX_PATH="$CONDA_PREFIX/lib" -DCMAKE_CXX_FLAGS="-I$CONDA_PREFIX/include" -DENABLE_PYTHON=ON
+        # cmake --build build --config Release
+        # cd build && LD_PRELOAD=$CONDA_PREFIX/lib/libmkl_rt.so ctest -C Release
+        #
+        conda install -c conda-forge -q mkl-devel
+        if [[ "${{matrix.os}}" == 'windows'* ]]; then
+          echo "CMAKE_PREFIX_PATH=$(cygpath -m $CONDA_PREFIX/Library)" >> $GITHUB_ENV
+          echo "CMAKE_CXX_FLAGS=-I$(cygpath -m $CONDA_PREFIX/Library/include) ${CMAKE_CXX_FLAGS}" >> $GITHUB_ENV
+        else
+          echo "CMAKE_PREFIX_PATH=$CONDA_PREFIX/lib" >> $GITHUB_ENV
+          echo "CMAKE_CXX_FLAGS=-I$CONDA_PREFIX/include ${CMAKE_CXX_FLAGS}" >> $GITHUB_ENV
+          if [[ "${{matrix.os}}" == 'ubuntu'* ]]; then
+            echo "LD_PRELOAD=$CONDA_PREFIX/lib/libmkl_rt.so" >> $GITHUB_ENV
+          fi
+        fi
+
     - name: Windows 1 - cache vcpkg
       if: startswith(matrix.os,'windows')
       uses: actions/cache@v3
@@ -155,7 +183,7 @@ jobs:
         test -d "$OPENBLAS_INCLUDE"
         pushd $OPENBLAS_LIB
         ls -al
-        if [[ "${{ matrix.linking }}" != "static" ]]; then
+        if [[ "${{ matrix.blas_linking }}" != "static" ]]; then
           cp ../bin/libopenblas_v0.3.18-gcc_8_1_0.dll .
           cp libopenblas_v0.3.18-gcc_8_1_0.dll openblas.dll
           mv libopenblas_v0.3.18-gcc_8_1_0.dll.a openblas.dll.a
@@ -199,34 +227,6 @@ jobs:
         fi
         sudo apt -yq install liblapacke-dev doxygen graphviz libhdf5-dev libmatio-dev libvtk7-dev lcov $APT_EXTRA
 
-    - name: MKL
-      if: startswith(matrix.blas,'mkl')
-      run: |
-        # To get a local testing env, you can do for example:
-        # $ conda create -n openmeeg-mkl -c conda-forge --strict-channel-priority mkl-devel swig libmatio hdf5 numpy
-        # $ conda activate openmeeg-mkl
-        #
-        # On Windows, locally this static build almost works:
-        # ./build_tools/cmake_configure.sh -DBLA_IMPLEMENTATION=mkl-findblas -DBLA_STATIC=ON -DCMAKE_PREFIX_PATH="$CONDA_PREFIX/Library" -DCMAKE_CXX_FLAGS="-I$CONDA_PREFIX/Library/include" -DENABLE_PYTHON=ON
-        # cmake --build build --config Release
-        #
-        # On Linux, locally this works:
-        # ./build_tools/cmake_configure.sh -DBLA_IMPLEMENTATION=mkl-findblas -DCMAKE_PREFIX_PATH="$CONDA_PREFIX/lib" -DCMAKE_CXX_FLAGS="-I$CONDA_PREFIX/include" -DENABLE_PYTHON=ON
-        # cmake --build build --config Release
-        # cd build && LD_PRELOAD=$CONDA_PREFIX/lib/libmkl_rt.so ctest -C Release
-        #
-        conda install -c conda-forge -q mkl-devel
-        if [[ "${{matrix.os}}" == 'windows'* ]]; then
-          echo "CMAKE_PREFIX_PATH=$(cygpath -m $CONDA_PREFIX/Library)" >> $GITHUB_ENV
-          echo "CMAKE_CXX_FLAGS=-I$(cygpath -m $CONDA_PREFIX/Library/include) ${CMAKE_CXX_FLAGS}" >> $GITHUB_ENV
-        else
-          echo "CMAKE_PREFIX_PATH=$CONDA_PREFIX/lib" >> $GITHUB_ENV
-          echo "CMAKE_CXX_FLAGS=-I$CONDA_PREFIX/include ${CMAKE_CXX_FLAGS}" >> $GITHUB_ENV
-          if [[ "${{matrix.os}}" == 'ubuntu'* ]]; then
-            echo "LD_PRELOAD=$CONDA_PREFIX/lib/libmkl_rt.so" >> $GITHUB_ENV
-          fi
-        fi
-
     - name: Configure
       run: |
         source ./build_tools/cmake_configure.sh
@@ -242,18 +242,20 @@ jobs:
         fi
 
     - name: Prepare Python for OpenBLAS
-      if: startswith(matrix.python, 'python') && startswith(matrix.blas, 'OpenBLAS')
+      if: startswith(matrix.python, 'python')
       # Let's make it easy for delvewheel to find the stuff it might need
       run: |
         if [[ "${{matrix.os}}" == 'windows'* ]]; then
           cd build
           echo "Before:"
           ls -al *.dll || true
-          if [[ "${{ matrix.linking }}" != "static" ]]; then
-            strip $OPENBLAS_LIB/libopenblas_v0.3.18-gcc_8_1_0.dll
-            cp $OPENBLAS_LIB/libopenblas_v0.3.18-gcc_8_1_0.dll .
-            cp $OPENBLAS_LIB/libopenblas_v0.3.18-gcc_8_1_0.dll openblas.dll
-          fi
+          if [[ "${{matrix.blas}}" == "OpenBLAS" ]]; then
+            if [[ "${{ matrix.blas_linking }}" != "static" ]]; then
+              strip $OPENBLAS_LIB/libopenblas_v0.3.18-gcc_8_1_0.dll
+              cp $OPENBLAS_LIB/libopenblas_v0.3.18-gcc_8_1_0.dll .
+              cp $OPENBLAS_LIB/libopenblas_v0.3.18-gcc_8_1_0.dll openblas.dll
+            fi
+          fi;
           cp /mingw64/bin/libgcc_s_seh-1.dll .
           cp /mingw64/bin/libwinpthread-1.dll .
           cp /c/Strawberry/c/bin/libquadmath-0.dll .
@@ -263,6 +265,8 @@ jobs:
           cp /mingw64/bin/zlib1.dll .
           cp OpenMEEGMaths/libmatio.dll .
           cp -a *.dll wrapping/python/openmeeg
+          echo "After:"
+          ls -al *.dll || true
           cd ..
         fi
 

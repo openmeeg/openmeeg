@@ -137,8 +137,8 @@ if __name__ == "__main__":
           python_requires='>=3.7',
           install_requires=["numpy"],
           packages=["openmeeg", "openmeeg.tests"],
-          cmdclass={
-              'bdist_wheel': bdist_wheel,
-          },
+          #cmdclass={  # TODO: This breaks macOS for some reason!
+          #    'bdist_wheel': bdist_wheel,
+          #},
           # ext_modules=[swig_openmeeg],
           )

@@ -43,7 +43,6 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #include <constants.h>
 #include <mesh.h>
-#include <range.h>
 #include <MeshIO.h>
 #include <geometry.h>
 
@@ -62,7 +61,7 @@ namespace OpenMEEG {
         triangles().reserve(nt);
     }
 
-    /// Print informations about the mesh
+    /// Print informations about the mesh 
 
     void Mesh::info(const bool verbose) const {
         std::cout << "Info:: Mesh name/ID : "  << name() << std::endl;
