@@ -65,8 +65,6 @@ namespace OpenMEEG::maths {
         bool operator==(const Range& r) const { return start()==r.start() && end()==r.end();      }
         bool operator!=(const Range& r) const { return start()!=r.start() || end()!=r.end();      }
 
-        friend std::ostream& operator<<(std::ostream& os,const Range& dt);
-
     private:
 
         size_t start_index;
