@@ -1,7 +1,12 @@
 #!/bin/bash -ef
 
+if [[ "${BUILD_TYPE}" == "" ]]; then
+    BUILD_TYPE=Release
+fi
+
 set -x
 cmake -B build \
+      -DCMAKE_BUILD_TYPE=$BUILD_TYPE
       $BLA_STATIC_OPT \
       $BLA_IMPL \
       $PYTHON_OPT \

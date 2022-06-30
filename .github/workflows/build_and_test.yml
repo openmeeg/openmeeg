@@ -9,6 +9,9 @@ on:
   pull_request:
     branches: [ master ]
 
+env:
+  BUILD_TYPE: Release
+
 defaults:
   run:
     shell: bash -el {0}
@@ -187,22 +190,24 @@ jobs:
 
     - name: Build
       run: |
-        cmake --build build --config Release
+        cmake --build build --config ${{env.BUILD_TYPE}}
         ls -al build
         if [ -d build/wrapping/python/openmeeg ]; then
           ls -al build/wrapping/python/openmeeg
         fi
 
     - name: Prepare Python
-      if: startswith(matrix.python, 'python') && startsWith(matrix.os,'windows')
+      if: startswith(matrix.python, 'python')
       # Let's make it easy for delvewheel to find the stuff it might need
       run: |
-        cd build
-        if [[ "${{ matrix.blas }}" == "OpenBLAS" ]]; then
+        if [[ ${{matrix.os}} == 'windows'* ]]; then
+          cd build
+          echo "Before:"
+          ls -al *.dll
           if [[ "${{ matrix.linking }}" != "static" ]]; then
+            strip $OPENBLAS_LIB/libopenblas_v0.3.18-gcc_8_1_0.dll
             cp $OPENBLAS_LIB/libopenblas_v0.3.18-gcc_8_1_0.dll .
-            strip libopenblas_v0.3.18-gcc_8_1_0.dll
-            cp libopenblas_v0.3.18-gcc_8_1_0.dll openblas.dll
+            cp $OPENBLAS_LIB/libopenblas_v0.3.18-gcc_8_1_0.dll openblas.dll
           fi
           cp /mingw64/bin/libgcc_s_seh-1.dll .
           cp /mingw64/bin/libwinpthread-1.dll .
@@ -212,9 +217,9 @@ jobs:
           cp /c/Strawberry/c/bin/libgomp-1.dll .
           cp /mingw64/bin/zlib1.dll .
           cp OpenMEEGMaths/libmatio.dll .
+          cp -a *.dll wrapping/python/openmeeg
+          cd ..
         fi
-        # This should allow delvewheel to find libs, as well as the tests
-        echo "PATH=$PWD;$PATH" >> $GITHUB_ENV
 
     - name: Make, delocate, install, and check wheel
       if: startswith(matrix.python, 'python')
@@ -223,8 +228,8 @@ jobs:
         python setup.py bdist_wheel sdist
         echo "Wheels:"
         if [[ ${{matrix.os}} == 'windows'* ]]; then
-          delvewheel show dist/*.whl
-          delvewheel repair -w dist dist/*.whl
+          PATH="$(cygpath -w $PWD/openmeeg);$PATH" delvewheel show dist/*.whl
+          PATH="$(cygpath -w $PWD/openmeeg);$PATH" delvewheel repair -w dist dist/*.whl
         elif [[ ${{matrix.os}} == 'macos'* ]]; then
           delocate-wheel dist/*.whl
         # This build uses a toolchain that is too new, so skip this on Linux
