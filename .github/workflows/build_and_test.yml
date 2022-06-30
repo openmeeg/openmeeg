@@ -203,9 +203,12 @@ jobs:
         # cd build && LD_PRELOAD=$CONDA_PREFIX/lib/libmkl_rt.so ctest -C Release
         #
         if [[ "${{matrix.os}}" == 'windows'* ]]; then
-          echo "CMAKE_PREFIX_PATH=-I$(cygpath -m $CONDA_PREFIX/Library)" >> $GITHUB_ENV
-        elif [[ "${{matrix.os}}" == 'ubuntu'* ]]; then
-          echo "LD_PRELOAD=$CONDA_PREFIX/lib/libmkl_rt.so" >> $GITHUB_ENV
+          echo "CMAKE_PREFIX_PATH=$(cygpath -m $CONDA_PREFIX/Library)" >> $GITHUB_ENV
+        else
+          echo "CMAKE_PREFIX_PATH=$CONDA_PREFIX/lib" >> $GITHUB_ENV
+          if [[ "${{matrix.os}}" == 'ubuntu'* ]]; then
+            echo "LD_PRELOAD=$CONDA_PREFIX/lib/libmkl_rt.so" >> $GITHUB_ENV
+          fi
         fi
 
     - name: Configure
