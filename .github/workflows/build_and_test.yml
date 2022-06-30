@@ -165,18 +165,23 @@ jobs:
       if: startswith(matrix.blas,'OpenBLAS') && startswith(matrix.os,'macos')
       run: |
         brew update > /dev/null
-        brew install hdf5 libmatio boost swig openblas
-        BLAS_DIR=/usr/local/opt/openblas
-        echo "Checking for $BLAS_DIR/include"
-        test -d $BLAS_DIR/include
-        echo "Checking for LAPACK"
-        ls -al $BLAS_DIR/include
-        test -f $BLAS_DIR/include/lapack.h
-        ls -al /usr/local/opt/openblas/lib
-        test -f /usr/local/opt/openblas/lib/libopenblas.dylib
-        echo "LDFLAGS=-L/usr/local/opt/openblas/lib" >> $GITHUB_ENV
-        echo "CPPFLAGS=-I$BLAS_DIR/include" >> $GITHUB_ENV
-        echo "CMAKE_CXX_FLAGS=-I$BLAS_DIR/include" >> $GITHUB_ENV
+        if [[ "${{matrix.blas}}" == "OpenBLAS" ]]; then
+          BREW_EXTRA=openblas
+        fi
+        brew install hdf5 libmatio boost swig $BREW_EXTRA
+        if [[ "${{matrix.blas}}" == "OpenBLAS" ]]; then
+          BLAS_DIR=/usr/local/opt/openblas
+          echo "Checking for $BLAS_DIR/include"
+          test -d $BLAS_DIR/include
+          echo "Checking for LAPACK"
+          ls -al $BLAS_DIR/include
+          test -f $BLAS_DIR/include/lapack.h
+          ls -al /usr/local/opt/openblas/lib
+          test -f /usr/local/opt/openblas/lib/libopenblas.dylib
+          echo "LDFLAGS=-L/usr/local/opt/openblas/lib" >> $GITHUB_ENV
+          echo "CPPFLAGS=-I$BLAS_DIR/include" >> $GITHUB_ENV
+          echo "CMAKE_CXX_FLAGS=-I$BLAS_DIR/include" >> $GITHUB_ENV
+        fi
 
     - name: Linux - hdf5, libmatio, vtk, doxygen, and (optionally) OpenBLAS via apt
       if: startsWith(matrix.os,'ubuntu')
