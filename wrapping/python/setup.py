@@ -29,6 +29,21 @@ LICENSE = 'CECILL-B'
 DOWNLOAD_URL = 'http://github.com/openmeeg/openmeeg'
 VERSION = version
 
+# Adapted from MIT-licensed
+# https://github.com/Yelp/dumb-init/blob/48db0c0d0ecb4598d1a6400710445b85d67616bf/setup.py#L11-L27  # noqa
+try:
+    from wheel.bdist_wheel import bdist_wheel as _bdist_wheel
+
+    class bdist_wheel(_bdist_wheel):
+
+        def finalize_options(self):
+            _bdist_wheel.finalize_options(self)
+            # Mark us as not a pure python package
+            self.root_is_pure = False
+
+except ImportError:
+    bdist_wheel = None  # noqa
+
 
 """  # in case someday we do a proper SWIG build...
 from ctypes.util import find_library
@@ -122,5 +137,8 @@ if __name__ == "__main__":
           python_requires='>=3.7',
           install_requires=["numpy"],
           packages=["openmeeg", "openmeeg.tests"],
+          #cmdclass={  # TODO: This breaks macOS for some reason!
+          #    'bdist_wheel': bdist_wheel,
+          #},
           # ext_modules=[swig_openmeeg],
           )

@@ -8,7 +8,7 @@ option(USE_CGAL  "Use CGAL"  OFF)
 option(ENABLE_COVERAGE "Enable coverage" OFF)
 
 option(ENABLE_PYTHON "Enable python bindings" OFF)
-set(PYTHON_VERSION 3 CACHE STRING "Python version to use: 2, 2.x, 3, 3.x, or empty")
+set(PYTHON_VERSION 3 CACHE STRING "Python version to use: 3, 3.x, or empty")
 
 option(ENABLE_WERROR "Turn on -Werror" OFF)
 
@@ -43,6 +43,12 @@ if (ENABLE_WERROR)
         # lots of warnings and all warnings as errors
         add_compile_options(-Wall -Wextra -pedantic -Werror)
     endif()
+endif()
+
+# Deal with:
+# warning C4530: C++ exception handler used, but unwind semantics are not enabled. Specify /EHsc
+if (MSVC)
+    add_compile_options(/EHsc)
 endif()
 
 # Installation options

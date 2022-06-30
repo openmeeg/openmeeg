@@ -1,9 +1,16 @@
 set(BLA_DEFINITIONS)
 set(BLA_SIZEOF_INTEGER 4)
 set(BLA_IMPLEMENTATION "OpenBLAS" CACHE STRING "BLAS/LAPACK implementation")
-set_property(CACHE BLA_IMPLEMENTATION PROPERTY STRINGS "OpenBlas" "mkl")
+set_property(CACHE BLA_IMPLEMENTATION PROPERTY STRINGS "OpenBlas" "mkl" "mkl-findblas")
 
-if (BLA_IMPLEMENTATION STREQUAL "MKL")
+if (BLA_IMPLEMENTATION STREQUAL "mkl-findblas")
+
+    # Just use the findblas interface
+    message(STATUS "Using BLA_IMPLEMENTATION=mkl-findblas")
+    set(BLA_DEFINITIONS USE_MKL HAVE_BLAS HAVE_LAPACK)
+
+elseif (BLA_IMPLEMENTATION STREQUAL "mkl")
+    message(STATUS "Using BLA_IMPLEMENTATION=mkl")
     set(MKL_PARALLELISM "parallel" CACHE STRING "MKL parallelism")
     set_property(CACHE MKL_PARALLELISM PROPERTY STRINGS "parallel" "sequential" "sdl")
 
@@ -70,8 +77,13 @@ if (BLA_IMPLEMENTATION STREQUAL "MKL")
 
 elseif (BLA_IMPLEMENTATION STREQUAL "OpenBLAS")
 
+    message(STATUS "Using BLA_IMPLEMENTATION=OpenBLAS")
     set(BLA_DEFINITIONS USE_OPENBLAS HAVE_BLAS HAVE_LAPACK)
     set(BLA_VENDOR ${BLA_IMPLEMENTATION})
+
+else()
+
+    message(STATUS "Using no BLAS implementation")
 
 endif()
 

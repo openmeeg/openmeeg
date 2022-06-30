@@ -1,9 +1,5 @@
 #pragma once
 
-#ifdef WIN32
-#pragma warning(disable : 4275)    //MSVC warning C4275: non dll-interface class 'OpenMEEG::maths::Exception' used as base for dll-interface struct 'OpenMEEG::maths::OverlappingRanges'
-#endif
-
 //  Largely derivate work from Images/src/Exceptions.H (merge if possible).
 
 #include <string>
@@ -39,7 +35,7 @@ namespace OpenMEEG {
 
             std::string whatstring;
         };
-
+        
         struct UnexpectedException: public Exception {
 
             UnexpectedException(const std::string& func,const std::string& file,const unsigned line): Exception(message(func,file,line)) { }
@@ -66,7 +62,7 @@ namespace OpenMEEG {
         };
 
         struct BadFile: public IOException {
-
+     
             BadFile(const std::string& fmtname):                  IOException(message(fmtname))    { }
             BadFile(std::istream& is,const std::string& fmtname): IOException(is,message(fmtname)) { }
 
@@ -78,7 +74,7 @@ namespace OpenMEEG {
         };
 
         struct BadFileOpening: public IOException {
-
+     
             typedef enum { READ, WRITE } Mode;
 
             BadFileOpening(const std::string& file,const Mode& mode):                  IOException(message(file,mode))    { }
