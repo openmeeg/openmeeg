@@ -4,13 +4,17 @@
 DIR=$(realpath "$(dirname "${BASH_SOURCE[0]}")")
 cd $DIR/..
 
+if [[ "$VCPKG_DEFAULT_TRIPLET" == "" ]]; then
+    export VCPKG_DEFAULT_TRIPLET="x64-windows"
+fi
+
 if [[ "$VCPKG_DEFAULT_TRIPLET" == "x64-mingw-dynamic" ]]; then
     export CMAKE_GENERATOR="MinGW Makefiles"
     export STRIP_OPT="-DCMAKE_EXE_LINKER_FLAGS=-s -DCMAKE_SHARED_LINKER_FLAGS=-s -DCMAKE_MODULE_LINKER_FLAGS=-s"
 elif [[ "$VCPKG_DEFAULT_TRIPLET" == "x64-windows" ]]; then
-    export CMAKE_GENERATOR="Visual Studio 15 2019"
+    export CMAKE_GENERATOR="Visual Studio 16 2019"
     export SDK_OPT="-DCMAKE_SYSTEM_VERSION=8.1"
-    export TOOLSET_OPT="-DCMAKE_GENERATOR_TOOLSET=v142"
+    export TOOLSET_OPT="-DCMAKE_GENERATOR_TOOLSET=v141"
 else
     echo "Unknown VCPKG_DEFAULT_TRIPLET: '${VCPKG_DEFAULT_TRIPLET}'"
     exit 1
@@ -31,6 +35,7 @@ export CMAKE_TOOLCHAIN_FILE=$(cygpath -m "${PWD}/vcpkg/scripts/buildsystems/vcpk
 export CMAKE_GENERATOR_PLATFORM="x64"
 if [[ "${PYTHON_OPT}" == "" ]]; then
     export PYTHON_OPT="-DENABLE_PYTHON=ON"
+    export PYTHON_INFO_OPT="-DPython3_EXECUTABLE=$(which python)"
 fi
 
 if [[ $GITHUB_ENV != "" ]]; then
