@@ -193,7 +193,7 @@ jobs:
         # To get a local testing env, you can do for example:
         # conda create -n openmeeg-mkl -c conda-forge --strict-channel-priority mkl-devel swig libmatio hdf5 numpy
         #
-        # On Windows, locally this works:
+        # On Windows, locally this static build almost works:
         # ./build_tools/cmake_configure.sh -DBLA_IMPLEMENTATION=mkl-findblas -DBLA_STATIC=ON -DCMAKE_PREFIX_PATH="$CONDA_PREFIX/Library" -DCMAKE_CXX_FLAGS="-I$CONDA_PREFIX/Library/include" -DENABLE_PYTHON=ON
         # cmake --build build --config Release
         #
@@ -204,8 +204,10 @@ jobs:
         #
         if [[ "${{matrix.os}}" == 'windows'* ]]; then
           echo "CMAKE_PREFIX_PATH=$(cygpath -m $CONDA_PREFIX/Library)" >> $GITHUB_ENV
+          echo "CMAKE_CXX_FLAGS=-I$(cygpath -m $CONDA_PREFIX/Library/include) ${CMAKE_CXX_FLAGS}" >> $GITHUB_ENV
         else
           echo "CMAKE_PREFIX_PATH=$CONDA_PREFIX/lib" >> $GITHUB_ENV
+          echo "CMAKE_CXX_FLAGS=-I$CONDA_PREFIX/include ${CMAKE_CXX_FLAGS}" >> $GITHUB_ENV
           if [[ "${{matrix.os}}" == 'ubuntu'* ]]; then
             echo "LD_PRELOAD=$CONDA_PREFIX/lib/libmkl_rt.so" >> $GITHUB_ENV
           fi
