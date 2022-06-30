@@ -53,21 +53,23 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 using namespace OpenMEEG;
 
+unsigned gauss_order = 3;
+
 void getHelp(char** argv);
 
-bool option(const int argc,char** argv,const Strings& options,const Strings& files);
+bool option(const int argc, char ** argv, const Strings& options, const Strings& files);
 
 int main(int argc, char** argv)
 {
     print_version(argv[0]);
 
-    bool use_old_ordering = false;
+    bool OLD_ORDERING = false;
     if (argc<2) {
         getHelp(argv);
         return 0;
     } else {
-        use_old_ordering = (strcmp(argv[argc-1], "-old-ordering") == 0);
-        if (use_old_ordering) {
+        OLD_ORDERING = (strcmp(argv[argc-1], "-old-ordering") == 0);
+        if (OLD_ORDERING) {
             argc--;
             std::cout << "Using old ordering i.e using (V1, p1, V2, p2, V3) instead of (V1, V2, V3, p1, p2)" << std::endl;
         }
@@ -87,14 +89,16 @@ int main(int argc, char** argv)
 
     if (option(argc,argv,{"-HeadMat","-HM", "-hm"},
                 {"geometry file", "conductivity file", "output file"}) ) {
-        const Geometry geo(argv[2],argv[3],use_old_ordering);
+        // Loading surfaces from geometry file
+        Geometry geo(argv[2],argv[3],OLD_ORDERING);
 
-        if (!geo.selfCheck()) // Check for intersecting meshes
+        // Check for intersecting meshes
+        if (!geo.selfCheck())
             exit(1);
 
-        const SymMatrix& HM = HeadMat(geo);
+        // Assembling Matrix from discretization.
+        HeadMat HM(geo,gauss_order);
         HM.save(argv[4]);
-
     } else if (option(argc,argv,{ "-CorticalMat","-CM","-cm" },
                                 { "geometry file","conductivity file","sensors file","domain name","output file" })) {
 
@@ -138,95 +142,130 @@ int main(int argc, char** argv)
             }
         }
 
-        const Geometry geo(argv[2],argv[3],use_old_ordering);
+        // Loading surfaces from geometry file
+        Geometry geo(argv[2],argv[3],OLD_ORDERING);
 
-        if (!geo.selfCheck()) // Check for intersecting meshes
+        // Check for intersecting meshes
+        if (!geo.selfCheck())
             exit(1);
 
-        const Sensors electrodes(argv[4]);
-        const SparseMatrix& M = Head2EEGMat(geo,electrodes);
+        // read the file containing the positions of the EEG patches
+        Sensors electrodes(argv[4]);
+        Head2EEGMat M(geo, electrodes);
 
-        const Matrix& CM = (gamma>0.0) ? CorticalMat2(geo,M,argv[5],gamma,filename) :
-                                         CorticalMat(geo,M,argv[5],alpha,beta,filename);
-        CM.save(argv[6]);
+        // Assembling Matrix from discretization.
 
-    } else if (option(argc,argv,{"-SurfSourceMat", "-SSM", "-ssm"},
+        const Matrix* CM = (gamma>0.0) ? static_cast<Matrix*>(new CorticalMat2(geo,M,argv[5],gauss_order,gamma,filename)) :
+                                         static_cast<Matrix*>(new CorticalMat (geo,M,argv[5],gauss_order,alpha,beta,filename));
+        CM->save(argv[6]);
+    }
+
+    /*********************************************************************************************
+    * Computation of general Surface Source Matrix for BEM Symmetric formulation
+    **********************************************************************************************/
+    else if (option(argc,argv,{"-SurfSourceMat", "-SSM", "-ssm"},
                      {"geometry file", "conductivity file", "'mesh of sources' file", "output file"})) {
 
-        // Computation of distributed Surface Source Matrix for BEM Symmetric formulation
-        
-        const Geometry geo(argv[2],argv[3],use_old_ordering);
-        Mesh mesh_sources(argv[4]);
+        // Loading surfaces from geometry file.
+        Geometry geo(argv[2],argv[3],OLD_ORDERING);
 
-        const Matrix& ssm = SurfSourceMat(geo,mesh_sources);
-        ssm.save(argv[5]);
+        // Loading mesh for distributed sources
+        Mesh mesh_sources;
+        mesh_sources.load(argv[4]);
 
-    } else if (option(argc,argv,{"-DipSourceMat", "-DSM", "-dsm", "-DipSourceMatNoAdapt", "-DSMNA", "-dsmna"},
+        // Assembling Matrix from discretization.
+        SurfSourceMat ssm(geo,mesh_sources,gauss_order);
+        ssm.save(argv[5]); // if outfile is specified
+    }
+
+    /*********************************************************************************************
+    * Computation of RHS for discrete dipolar case
+    **********************************************************************************************/
+    else if (option(argc,argv,{"-DipSourceMat", "-DSM", "-dsm", "-DipSourceMatNoAdapt", "-DSMNA", "-dsmna"},
                      {"geometry file", "conductivity file", "dipoles file", "output file"}) ) {
 
-        // Computation of RHS for discrete dipolar case
-    
         std::string domain_name = "";
         if (argc==7) {
             domain_name = argv[6];
             std::cout << "Dipoles are considered to be in \"" << domain_name << "\" domain." << std::endl;
         }
 
-        const Geometry geo(argv[2],argv[3],use_old_ordering);
-        const Matrix dipoles(argv[4]);
+        // Loading surfaces from geometry file.
+        Geometry geo(argv[2],argv[3],OLD_ORDERING);
+
+        // Loading Matrix of dipoles.
+        Matrix dipoles(argv[4]);
         if (dipoles.ncol()!=6) {
             std::cerr << "Dipoles File Format Error" << std::endl;
             exit(1);
         }
 
-        // Choosing between adaptive integration or not for the RHS
+        bool adapt_rhs = true;
 
-        unsigned integration_levels = 10;
+        // Choosing between adaptive integration or not for the RHS
         if (option(argc,argv,{"-DipSourceMatNoAdapt", "-DSMNA", "-dsmna"},
                     {"geometry file", "conductivity file", "dipoles file", "output file"})) {
-            integration_levels = 0;
+            adapt_rhs = false;
         }
 
-        const Matrix& dsm = DipSourceMat(geo,dipoles,"",Integrator(3,integration_levels,0.001));
+        DipSourceMat dsm(geo, dipoles, gauss_order, adapt_rhs, domain_name);
+        // Saving RHS Matrix for dipolar case.
         dsm.save(argv[5]);
+    }
 
-    } else if (option(argc,argv,{"-EITSourceMat", "-EITSM", "-EITsm"},
+    /*********************************************************************************************
+    * Computation of the RHS for EIT
+    **********************************************************************************************/
+
+    else if (option(argc,argv,{"-EITSourceMat", "-EITSM", "-EITsm"},
                      {"geometry file", "conductivity file", "electrodes positions file", "output file"}) ) {
 
-        // Computation of the RHS for EIT
+        // Loading surfaces from geometry file.
+        Geometry geo(argv[2],argv[3],OLD_ORDERING);
 
-        const Geometry geo(argv[2],argv[3],use_old_ordering);
-
-        const Sensors electrodes(argv[4], geo); // special parameter for EIT electrodes: the interface
-        electrodes.info(); // <- just to test that function on the code coverage TODO this is not the place.
-        const Matrix& EITsource = EITSourceMat(geo,electrodes);
+        Sensors electrodes(argv[4], geo); // special parameter for EIT electrodes: the interface
+        electrodes.info(); // <- just to test that function on the code coverage
+        EITSourceMat EITsource(geo, electrodes, gauss_order);
         EITsource.save(argv[5]);
+    }
 
-    } else if (option(argc,argv,{"-Head2EEGMat", "-H2EM", "-h2em"},
+    /*********************************************************************************************
+    * Computation of the linear application which maps the unknown vector in symmetric system,
+    * (i.e. the potential and the normal current on all interfaces)
+    * |----> v (potential at the electrodes)
+    **********************************************************************************************/
+    else if (option(argc,argv,{"-Head2EEGMat", "-H2EM", "-h2em"},
                      {"geometry file", "conductivity file", "electrodes positions file", "output file"}) ) {
 
-        // Computation of the linear application which maps the unknown vector in symmetric system,
-        // (i.e. the potential and the normal current on all interfaces)
-        // |----> v (potential at the electrodes)
+        // Loading surfaces from geometry file.
+        Geometry geo(argv[2],argv[3],OLD_ORDERING);
 
-        const Geometry geo(argv[2],argv[3],use_old_ordering);
-        const Sensors electrodes(argv[4]);
+        // read the file containing the positions of the EEG patches
+        Sensors electrodes(argv[4]);
 
+        // Assembling Matrix from discretization.
         // Head2EEG is the linear application which maps x |----> v
-
-        const SparseMatrix& mat = Head2EEGMat(geo,electrodes);
+        Head2EEGMat mat(geo, electrodes);
+        // Saving Head2EEG Matrix.
         mat.save(argv[5]);
+    }
 
-    } else if (option(argc, argv, {"-Head2ECoGMat", "-H2ECogM", "-H2ECOGM", "-h2ecogm"},
+    /*********************************************************************************************
+    * Computation of the linear application which maps the unknown vector in symmetric system,
+    * (i.e. the potential and the normal current on all interfaces)
+    * |----> v (potential at the ECoG electrodes)
+    **********************************************************************************************/
+    else if (option(argc, argv, {"-Head2ECoGMat", "-H2ECogM", "-H2ECOGM", "-h2ecogm"},
                                 {"geometry file", "conductivity file", "ECoG electrodes positions file",
                                  "[name of the interface for EcoG]", "output file"}) ) {
 
-        // Computation of the linear application which maps the unknown vector in symmetric system,
-        // (i.e. the potential and the normal current on all interfaces)
-        // |----> v (potential at the ECoG electrodes)
+        // Load surfaces from geometry file.
 
-        const Geometry geo(argv[2],argv[3],use_old_ordering);
-        const Sensors electrodes(argv[4]);
+        Geometry geo(argv[2],argv[3],OLD_ORDERING);
+
+        // Read the file containing the positions of the EEG patches
+
+        Sensors electrodes(argv[4]);
 
         // Find the mesh of the ECoG electrodes
 
@@ -240,78 +279,106 @@ int main(int argc, char** argv)
 
         const Interface& ECoG_layer = (old_cmd_line) ? geo.innermost_interface() : geo.interface(argv[5]);
 
+        // Assemble matrix from discretization:
         // Head2ECoG is the linear application which maps x |----> v
 
-        const SparseMatrix& mat = Head2ECoGMat(geo,electrodes,ECoG_layer);
+        Head2ECoGMat mat(geo,electrodes,ECoG_layer);
         mat.save(argv[(old_cmd_line) ? 5 : 6]);
-
-    } else if (option(argc,argv,{"-Head2MEGMat", "-H2MM", "-h2mm"},
-                     {"geometry file", "conductivity file", "squids file", "output file"}) ) {
-
-        // Computation of the linear application which maps the unknown vector in symmetric system,
-        // (i.e. the potential and the normal current on all interfaces)
-        // |----> bFerguson (contrib to MEG response)
-
-        const Geometry geo(argv[2],argv[3],use_old_ordering);
-        const Sensors sensors(argv[4]);
-
-        const Matrix& mat = Head2MEGMat(geo,sensors);
-        mat.save(argv[5]); // if outfile is specified
-
-    } else if (option(argc,argv,{"-SurfSource2MEGMat", "-SS2MM", "-ss2mm"},
-                     {"'mesh sources' file", "squids file", "output file"}) ) {
-
-        // Computation of the linear application which maps the distributed source
-        // |----> binf (contrib to MEG response)
-
-        const Mesh mesh_sources(argv[2]);
-        const Sensors sensors(argv[3]);
-
-        const Matrix& mat = SurfSource2MEGMat(mesh_sources,sensors);
-        mat.save(argv[4]);
-
-    } else if (option(argc,argv,{"-DipSource2MEGMat", "-DS2MM", "-ds2mm"},
-                     {"dipoles file", "squids file", "output file"}) ) {
-
-        // Computation of the discrete linear application which maps s (the dipolar source)
-        // |----> binf (contrib to MEG response)
-        // arguments are the positions and orientations of the squids,
-        // the position and orientations of the sources and the output name.
-
-        const Matrix dipoles(argv[2]);
-        const Sensors sensors(argv[3]);
-
-        const Matrix& mat = DipSource2MEGMat(dipoles,sensors);
-        mat.save(argv[4]);
-
-    } else if (option(argc,argv,{"-Head2InternalPotMat", "-H2IPM", "-h2ipm"},
-                      {"geometry file", "conductivity file", "point positions file", "output file"}) ) {
-
-        // Computation of the discrete linear application which maps x (the unknown vector in a symmetric system)
-        // |----> v, potential at a set of prescribed points within the 3D volume
-
-        const Geometry geo(argv[2],argv[3],use_old_ordering);
-        const Matrix points(argv[4]);
-        const Matrix& mat = Surf2VolMat(geo,points);
-        mat.save(argv[5]);
     }
 
+    /*********************************************************************************************
+    * Computation of the linear application which maps the unknown vector in symmetric system,
+    * (i.e. the potential and the normal current on all interfaces)
+    * |----> bFerguson (contrib to MEG response)
+    **********************************************************************************************/
+    else if (option(argc,argv,{"-Head2MEGMat", "-H2MM", "-h2mm"},
+                     {"geometry file", "conductivity file", "squids file", "output file"}) ) {
+
+        // Loading surfaces from geometry file.
+        Geometry geo(argv[2],argv[3],OLD_ORDERING);
+
+        // Load positions and orientations of sensors.
+        Sensors sensors(argv[4]);
+
+        // Assembling Matrix from discretization.
+        Head2MEGMat mat(geo, sensors);
+        // Saving Head2MEG Matrix.
+        mat.save(argv[5]); // if outfile is specified
+    }
+
+    /*********************************************************************************************
+    * Computation of the linear application which maps the distributed source
+    * |----> binf (contrib to MEG response)
+    **********************************************************************************************/
+    else if (option(argc,argv,{"-SurfSource2MEGMat", "-SS2MM", "-ss2mm"},
+                     {"'mesh sources' file", "squids file", "output file"}) ) {
+
+        // Loading mesh for distributed sources.
+        Mesh mesh_sources;
+        mesh_sources.load(argv[2]);
+        // Load positions and orientations of sensors.
+        Sensors sensors(argv[3]);
+
+        // Assembling Matrix from discretization.
+        SurfSource2MEGMat mat(mesh_sources, sensors);
+        // Saving SurfSource2MEG Matrix.
+        mat.save(argv[4]);
+    }
+
+    /*********************************************************************************************
+    * Computation of the discrete linear application which maps s (the dipolar source)
+    * |----> binf (contrib to MEG response)
+    **********************************************************************************************/
+    // arguments are the positions and orientations of the squids,
+    // the position and orientations of the sources and the output name.
+
+    else if (option(argc,argv,{"-DipSource2MEGMat", "-DS2MM", "-ds2mm"},
+                     {"dipoles file", "squids file", "output file"}) ) {
+
+        // Loading dipoles.
+        Matrix dipoles(argv[2]);
+
+        // Load positions and orientations of sensors.
+        Sensors sensors(argv[3]);
+
+        DipSource2MEGMat mat( dipoles, sensors );
+        mat.save(argv[4]);
+    }
+
+    /*********************************************************************************************
+    * Computation of the discrete linear application which maps x (the unknown vector in a symmetric system)
+    * |----> v, potential at a set of prescribed points within the 3D volume
+    **********************************************************************************************/
+
+    else if (option(argc,argv,{"-Head2InternalPotMat", "-H2IPM", "-h2ipm"},
+                     {"geometry file", "conductivity file", "point positions file", "output file"}) ) {
+
+        // Loading surfaces from geometry file
+        Geometry geo(argv[2],argv[3],OLD_ORDERING);
+        Matrix points(argv[4]);
+        Surf2VolMat mat(geo, points);
+        // Saving SurfToVol Matrix.
+        mat.save(argv[5]);
+    }
+    /*********************************************************************************************
+    * Computation of the discrete linear application which maps the dipoles
+    * |----> Vinf, potential at a set of prescribed points within the volume, in an infinite medium
+    *    Vinf(r)=1/(4*pi*sigma)*(r-r0).q/(||r-r0||^3)
+    **********************************************************************************************/
+
     else if (option(argc,argv,{"-DipSource2InternalPotMat", "-DS2IPM", "-ds2ipm"},
-                    {"geometry file", "conductivity file", "dipole file", "point positions file", "output file"})) {
-
-        // Computation of the discrete linear application which maps the dipoles
-        // |----> Vinf, potential at a set of prescribed points within the volume, in an infinite medium
-        //    Vinf(r)=1/(4*pi*sigma)*(r-r0).q/(||r-r0||^3)
-
+                     {"geometry file", "conductivity file", "dipole file", "point positions file", "output file"})) {
         std::string domain_name = "";
         if (argc==9) {
             domain_name = argv[7];
             std::cout << "Dipoles are considered to be in \"" << domain_name << "\" domain." << std::endl;
         }
-        const Geometry geo(argv[2],argv[3],use_old_ordering);
-        const Matrix dipoles(argv[4]);
-        const Matrix points(argv[5]);
-        const Matrix& mat = DipSource2InternalPotMat(geo,dipoles,points,domain_name);
+        // Loading surfaces from geometry file
+        Geometry geo(argv[2],argv[3],OLD_ORDERING);
+        // Loading dipoles.
+        Matrix dipoles(argv[4]);
+        Matrix points(argv[5]);
+        DipSource2InternalPotMat mat(geo, dipoles, points, domain_name);
         mat.save(argv[6]);
     }
     else {
