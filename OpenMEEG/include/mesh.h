@@ -183,7 +183,7 @@ namespace OpenMEEG {
         //  Triangles always have a contiguous range as they are never shared between meshes.
 
         Range triangles_range() const { return Range(triangles().front().index(),triangles().back().index()); }
-        
+
         /// \brief Get the triangles adjacent to vertex \param V .
 
         TrianglesRefs triangles(const Vertex& V) const { return vertex_triangles.at(&V); }

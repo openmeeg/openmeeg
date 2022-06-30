@@ -1,5 +1,6 @@
-#!/bin/bash -efx
+#!/bin/bash -ef
 
+set -x
 cmake -B build \
       $BLA_STATIC_OPT \
       $BLA_IMPL \
