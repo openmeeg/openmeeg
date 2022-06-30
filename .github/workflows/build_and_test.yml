@@ -238,7 +238,7 @@ jobs:
       if: startswith(matrix.python, 'python') && startswith(matrix.blas, 'OpenBLAS')
       # Let's make it easy for delvewheel to find the stuff it might need
       run: |
-        if [[ "${{matrix.os}}"" == 'windows'* ]]; then
+        if [[ "${{matrix.os}}" == 'windows'* ]]; then
           cd build
           echo "Before:"
           ls -al *.dll || true
