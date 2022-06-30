@@ -55,9 +55,9 @@ jobs:
           echo "BLA_STATIC_OPT='-DBLA_STATIC=ON'" >> $GITHUB_ENV
         fi
         if [ ${{matrix.python}} != 'python' ]; then
-          echo "PYTHON_OPT=-DENABLE_PYTHON=ON" >> $GITHUB_ENV
-        else
           echo "PYTHON_OPT=-DENABLE_PYTHON=OFF" >> $GITHUB_ENV
+        else
+          echo "PYTHON_OPT=-DENABLE_PYTHON=ON" >> $GITHUB_ENV
         fi
         echo "BLA_IMPL=-DBLA_IMPLEMENTATION=${{matrix.blas}}" >> $GITHUB_ENV
         # Build docs on Ubuntu, not elsewhere (for speed)
