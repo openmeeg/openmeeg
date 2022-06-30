@@ -10,7 +10,7 @@ fi
 
 if [[ "$VCPKG_DEFAULT_TRIPLET" == "x64-mingw-dynamic" ]]; then
     export CMAKE_GENERATOR="MinGW Makefiles"
-    export STRIP_OPT="-DCMAKE_EXE_LINKER_FLAGS=-s -DCMAKE_SHARED_LINKER_FLAGS=-s -DCMAKE_MODULE_LINKER_FLAGS=-s"
+    export LINKER_OPT="-s"
 elif [[ "$VCPKG_DEFAULT_TRIPLET" == "x64-windows" ]]; then
     export CMAKE_GENERATOR="Visual Studio 16 2019"
     export SDK_OPT="-DCMAKE_SYSTEM_VERSION=8.1"
@@ -47,6 +47,7 @@ if [[ $GITHUB_ENV != "" ]]; then
     echo "SDK_OPT=${SDK_OPT}" >> $GITHUB_ENV
     echo "STRIP_OPT=${STRIP_OPT}" >> $GITHUB_ENV
     echo "TOOLSET_OPT=${TOOLSET_OPT}" >> $GITHUB_ENV
+    echo "LINKER_OPT=${LINKER_OPT}" >> $GITHUB_ENV
     echo "CMAKE_GENERATOR=${CMAKE_GENERATOR}" >> $GITHUB_ENV
     echo "CMAKE_GENERATOR_PLATFORM=${CMAKE_GENERATOR_PLATFORM}" >> $GITHUB_ENV
 fi
