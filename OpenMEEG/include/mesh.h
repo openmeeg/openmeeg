@@ -87,10 +87,10 @@ namespace OpenMEEG {
 
         Mesh(const unsigned nv,const unsigned nt,Geometry* geometry=nullptr);
 
-        #ifndef WIN32
-        Mesh(const Mesh&) = delete;
+        Mesh(const Mesh&) = default;
         Mesh(Mesh&& m) = default;
-        #endif
+        // MSVC 2019 https://stackoverflow.com/questions/31264984/c-compiler-error-c2280-attempting-to-reference-a-deleted-function-in-visual
+        Mesh& operator=(const Mesh&) = default;
 
         /// Constructors
         /// \param filename mesh file name

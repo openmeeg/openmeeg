@@ -183,7 +183,7 @@ jobs:
 
     - name: Configure
       run: |
-        ./build_tools/cmake_configure.sh
+        source ./build_tools/cmake_configure.sh
 
     - name: Build
       run: |
