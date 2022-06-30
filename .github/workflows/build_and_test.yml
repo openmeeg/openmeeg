@@ -161,7 +161,7 @@ jobs:
         echo "LIB=$(cygpath -w $OPENBLAS_LIB);${LIB}" >> $GITHUB_ENV
         echo "CMAKE_CXX_FLAGS=-I$(cygpath -m $OPENBLAS_INCLUDE)" >> $GITHUB_ENV
 
-    - name: macOS - hdf5, libmatio, and (optionally) openblas via brew
+    - name: macOS - hdf5, libmatio, and (optionally) OpenBLAS via brew
       if: startswith(matrix.os,'macos')
       run: |
         brew update > /dev/null
@@ -186,17 +186,18 @@ jobs:
     - name: Linux - hdf5, libmatio, vtk, doxygen, and (optionally) OpenBLAS via apt
       if: startsWith(matrix.os,'ubuntu')
       run: |
-        sudo apt update
+        sudo apt update -q
         if [[ "${{ matrix.blas }}" == "OpenBLAS" ]]; then
-          EXTRA_APT=libopenblas-dev
+          APT_EXTRA=libopenblas-dev
         fi
-        sudo apt -yq install liblapacke-dev doxygen graphviz libhdf5-dev libmatio-dev libvtk7-dev lcov $EXTRA_APT
+        sudo apt -yq install liblapacke-dev doxygen graphviz libhdf5-dev libmatio-dev libvtk7-dev lcov $APT_EXTRA
 
     - name: MKL
       if: startswith(matrix.blas,'mkl')
       run: |
         # To get a local testing env, you can do for example:
-        # conda create -n openmeeg-mkl -c conda-forge --strict-channel-priority mkl-devel swig libmatio hdf5 numpy
+        # $ conda create -n openmeeg-mkl -c conda-forge --strict-channel-priority mkl-devel swig libmatio hdf5 numpy
+        # $ conda activate openmeeg-mkl
         #
         # On Windows, locally this static build almost works:
         # ./build_tools/cmake_configure.sh -DBLA_IMPLEMENTATION=mkl-findblas -DBLA_STATIC=ON -DCMAKE_PREFIX_PATH="$CONDA_PREFIX/Library" -DCMAKE_CXX_FLAGS="-I$CONDA_PREFIX/Library/include" -DENABLE_PYTHON=ON
@@ -207,6 +208,7 @@ jobs:
         # cmake --build build --config Release
         # cd build && LD_PRELOAD=$CONDA_PREFIX/lib/libmkl_rt.so ctest -C Release
         #
+        conda install -c conda-forge -q mkl-devel
         if [[ "${{matrix.os}}" == 'windows'* ]]; then
           echo "CMAKE_PREFIX_PATH=$(cygpath -m $CONDA_PREFIX/Library)" >> $GITHUB_ENV
           echo "CMAKE_CXX_FLAGS=-I$(cygpath -m $CONDA_PREFIX/Library/include) ${CMAKE_CXX_FLAGS}" >> $GITHUB_ENV
@@ -228,6 +230,8 @@ jobs:
         ls -al build
         if [ -d build/wrapping/python/openmeeg ]; then
           ls -al build/wrapping/python/openmeeg
+        else
+          echo "No Python wrapping found"
         fi
 
     - name: Prepare Python for OpenBLAS
