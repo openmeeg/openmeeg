@@ -6,7 +6,7 @@ fi
 
 set -x
 cmake -B build \
-      -DCMAKE_BUILD_TYPE=$BUILD_TYPE
+      -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
       $BLA_STATIC_OPT \
       $BLA_IMPL \
       $PYTHON_OPT \
