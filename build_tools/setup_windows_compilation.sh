@@ -12,7 +12,10 @@ if [[ "$VCPKG_DEFAULT_TRIPLET" == "x64-mingw-dynamic" ]]; then
     export CMAKE_GENERATOR="MinGW Makefiles"
     export LINKER_OPT="-s"
 elif [[ "$VCPKG_DEFAULT_TRIPLET" == "x64-windows" ]]; then
-    export CMAKE_GENERATOR="Visual Studio 15 2017"
+    if [[ "$CMAKE_GENERATOR" == "" ]]; then  # assume we're using an old version
+        CMAKE_GENERATOR="Visual Studio 15 2017"
+    fi
+    export CMAKE_GENERATOR="$CMAKE_GENERATOR"
     export CMAKE_GENERATOR_PLATFORM="x64"
     export SDK_OPT="-DCMAKE_SYSTEM_VERSION=8.1"
     export TOOLSET_OPT="-DCMAKE_GENERATOR_TOOLSET=v141"
