@@ -162,7 +162,7 @@ jobs:
         echo "CMAKE_CXX_FLAGS=-I$(cygpath -m $OPENBLAS_INCLUDE)" >> $GITHUB_ENV
 
     - name: macOS - hdf5, libmatio, and (optionally) openblas via brew
-      if: startswith(matrix.blas,'OpenBLAS') && startswith(matrix.os,'macos')
+      if: startswith(matrix.os,'macos')
       run: |
         brew update > /dev/null
         if [[ "${{matrix.blas}}" == "OpenBLAS" ]]; then
