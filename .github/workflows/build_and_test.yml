@@ -39,29 +39,34 @@ jobs:
           blas_linking: static
           python: python
           windows_compiler: msvc
-        ## MKL on each OS (static unless it has to be dynamic)
-        #- os: windows-2019
-        #  blas: mkl-findblas
-        #  blas_linking: static
-        #  python: python
-        #- os: ubuntu-20.04
-        #  blas: mkl-findblas
-        #  blas_linking: dynamic
-        #  python: python
-        #- os: macos-latest
-        #  blas: mkl-findblas
-        #  blas_linking: static
-        #  python: python
-        ## ubuntu-18.04 build, but Python tests currently fail so use no-python
-        #- os: ubuntu-18.04
-        #  blas: OpenBLAS
-        #  blas_linking: dynamic
-        #  python: no-python
-        ## Windows static build
-        #- os: windows-2019
-        #  blas: OpenBLAS
-        #  blas_linking: static
-        #  python: python
+        # MKL on each OS (static unless it has to be dynamic)
+        - os: windows-2019
+          blas: mkl-findblas
+          blas_linking: static
+          python: python
+          windows_compiler: mingw64
+        - os: ubuntu-20.04
+          blas: mkl-findblas
+          blas_linking: dynamic
+          python: python
+          windows_compiler: mingw64
+        - os: macos-latest
+          blas: mkl-findblas
+          blas_linking: static
+          python: python
+          windows_compiler: mingw64
+        # ubuntu-18.04 build, but Python tests currently fail so use no-python
+        - os: ubuntu-18.04
+          blas: OpenBLAS
+          blas_linking: dynamic
+          python: no-python
+          windows_compiler: mingw64
+        # Windows static build
+        - os: windows-2019
+          blas: OpenBLAS
+          blas_linking: static
+          python: python
+          windows_compiler: mingw64
 
     runs-on: ${{ matrix.os }}
 
@@ -249,17 +254,25 @@ jobs:
         cmake --build build --config ${{env.BUILD_TYPE}}
         ls -al build
         if [ -d build/wrapping/python/openmeeg ]; then
-          ls -al build/wrapping/python/openmeeg
+          if [[ "${{matrix.os}}" == 'windows'* ]] && [[ "${{matrix.windows_compiler}}" == 'msvc'* ]]; then
+            echo "Copying MSVC pyd file"
+            cp -a build/wrapping/python/openmeeg/${BUILD_TYPE}/_openmeeg.pyd build/wrapping/python/openmeeg/
+          fi
+          ls -alR build/wrapping/python/openmeeg
         else
           echo "No Python wrapping found"
         fi
 
-    - name: Prepare Python for OpenBLAS
+    - name: Prepare for delocate
       if: startswith(matrix.python, 'python')
       # Let's make it easy for delvewheel to find the stuff it might need
       run: |
         if [[ "${{matrix.os}}" == 'windows'* ]]; then
           cd build
+          echo "All:"
+          find . -type f -iname "*.dll"
+          echo "Data:"
+          find . -type f -name "Head1.geom"
           echo "Before:"
           ls -al *.dll || true
           if [[ "${{matrix.blas}}" == "OpenBLAS" ]]; then
@@ -280,14 +293,20 @@ jobs:
             cp /c/Strawberry/c/bin/libgomp-1.dll .
             cp /mingw64/bin/zlib1.dll .
           fi
-          cp OpenMEEGMaths/libmatio.dll .
+          if [[ -f "./OpenMEEGMaths/libmatio.dll" ]]; then
+            cp ./OpenMEEGMaths/libmatio.dll .
+          elif [[ -f "./OpenMEEGMaths/Release/libmatio.dll" ]]; then
+            cp ./OpenMEEGMaths/Release/libmatio.dll .
+            cp ./OpenMEEGMaths/Release/zlib1.dll .
+            cp ./OpenMEEGMaths/Release/hdf5.dll .
+          fi
           cp -a *.dll wrapping/python/openmeeg
           echo "After:"
           ls -al *.dll || true
           cd ..
         fi
 
-    - name: Make, delocate, install, and check wheel
+    - name: Create, delocate, check, install, and test wheel
       if: startswith(matrix.python, 'python')
       run: |
         cd build/wrapping/python
@@ -326,7 +345,7 @@ jobs:
       if: startswith(matrix.python, 'python')
       uses: actions/upload-artifact@v3
       with:
-        name: wrapping-${{ matrix.os }}-${{ matrix.blas_linking }}
+        name: wrapping-${{ matrix.os }}_${{ matrix.blas }}_${{ matrix.blas_linking }}_${{ matrix.windows_compiler }}
         path: build/wrapping/python/dist/*.whl
 
     - name: Test

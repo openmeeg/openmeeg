@@ -216,7 +216,7 @@ namespace OpenMEEG {
 
         void save(const std::string& filename) const ;
 
-    #ifndef SWIGPYTHON
+    #if !defined(SWIGPYTHON) && !defined(_MSC_VER)
     private:
     #endif
 
