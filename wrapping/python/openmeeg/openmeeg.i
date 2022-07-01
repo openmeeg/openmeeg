@@ -27,7 +27,6 @@
     #include <matrix.h>
     #include <symmatrix.h>
     #include <sparse_matrix.h>
-    #include <block_matrix.h>
     #include <fast_sparse_matrix.h>
     #include <sensors.h>
     #include <geometry.h>

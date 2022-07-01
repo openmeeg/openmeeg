@@ -35,6 +35,10 @@ parser.add_option(
 )
 options, args = parser.parse_args()
 data_path = options.data_path
+# deal with MSVC not handling mixed paths like
+# D:/a/openmeeg/openmeeg/data\Head1\Head1.geom
+# but cmake uses a mixed path for the --path arg
+data_path = data_path.replace('/', op.sep)
 
 # Load data
 

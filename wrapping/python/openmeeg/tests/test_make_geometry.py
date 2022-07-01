@@ -23,6 +23,7 @@ parser.add_option("-p", "--path", dest="data_path",
 
 options, args = parser.parse_args()
 data_path = options.data_path
+data_path = data_path.replace('/', op.sep)
 
 # Load mesh data to mimic Head1.geom + Head1.cond
 

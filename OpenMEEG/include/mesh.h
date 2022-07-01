@@ -51,13 +51,10 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <om_utils.h>
 
 #include <symmatrix.h>
-#include <block_matrix.h>
 
 namespace OpenMEEG {
 
     class Geometry;
-    using maths::Range;
-    using maths::Ranges;
 
     //  Mesh class
     //  \brief Mesh is a collection of triangles associated to a geometry containing the points
@@ -151,38 +148,16 @@ namespace OpenMEEG {
         bool operator!=(const Mesh& m) const { return triangles()!=m.triangles(); }
 
         /// \brief Print info
-        ///  Print to std::cout some info about the mesh.
+        ///  Print to std::cout some info about the mesh
         ///  \return void \sa
 
         void info(const bool verbose=false) const; ///< \brief Print mesh information.
-        bool has_self_intersection() const;        ///< \brief Check whether the mesh self-intersects.
-        bool intersection(const Mesh&) const;      ///< \brief Check whether the mesh intersects another mesh.
-        bool has_correct_orientation() const;      ///< \brief Check local orientation of mesh triangles.
-        void generate_indices();                   ///< \brief Generate indices (if allocate).
-        void update(const bool topology_changed);  ///< \brief Recompute triangles normals, area, and vertex triangles.
-        void merge(const Mesh&,const Mesh&);       ///< Merge two meshes.
-
-        /// \brief Get the ranges of the specific mesh in the global matrix.
-        /// \return vector of Range \sa
-
-        Ranges vertices_ranges() const {
-            std::vector<size_t> indices;
-            for (const auto& vertex : vertices())
-                indices.push_back(vertex->index());
-            std::sort(indices.begin(),indices.end());
-            Ranges result;
-            for (auto it=indices.begin(); it!=indices.end();) {
-                auto it1 = it;
-                for (auto it2=it1+1; it2!=indices.end() && *it2==*it1+1; it1=it2++);
-                result.push_back(Range(*it,*it1));
-                it = it1+1;
-            }
-            return result;
-        }
-
-        //  Triangles always have a contiguous range as they are never shared between meshes.
-
-        Range triangles_range() const { return Range(triangles().front().index(),triangles().back().index()); }
+        bool has_self_intersection() const; ///< \brief Check whether the mesh self-intersects.
+        bool intersection(const Mesh&) const; ///< \brief Check whether the mesh intersects another mesh.
+        bool has_correct_orientation() const; ///< \brief Check local orientation of mesh triangles.
+        void generate_indices(); ///< \brief Generate indices (if allocate).
+        void update(const bool topology_changed); ///< \brief Recompute triangles normals, area, and vertex triangles.
+        void merge(const Mesh&,const Mesh&); ///< Merge two meshes.
 
         /// \brief Get the triangles adjacent to vertex \param V .
 
@@ -241,7 +216,7 @@ namespace OpenMEEG {
 
         void save(const std::string& filename) const ;
 
-    #ifndef SWIGPYTHON
+    #if !defined(SWIGPYTHON) && !defined(_MSC_VER)
     private:
     #endif
 

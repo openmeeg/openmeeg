@@ -194,7 +194,7 @@ namespace OpenMEEG {
             std::cerr << e.what() << " in the file " << filename << std::endl;
             exit(e.code());
         } catch (...) {
-            std::cerr << "Could not read the geometry file: " << filename << std::endl;
+            std::cerr << "Could not write the geometry file: " << filename << std::endl;
             exit(1);
         }
     }
@@ -229,7 +229,7 @@ namespace OpenMEEG {
             const std::string& path = desc.second;
             MeshIO* io = MeshIO::create(path);
             io->open();
-            io->load_points(*this); 
+            io->load_points(*this);
             mesh_descriptions.push_back({ name, io });
         }
 

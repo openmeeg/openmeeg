@@ -2,9 +2,13 @@ import inspect
 import openmeeg as om
 
 # Make sure that doc is generated
-assert inspect.getdoc(om.HeadMat) is not None
+doc = inspect.getdoc(om.HeadMat)
+assert doc is not None
 
 # Check docstring content
-headmat_expected_docstring = \
-    ("HeadMat(Geometry geo, Integrator const & integrator=Integrator(3,0,0.005)) -> SymMatrix")
-assert inspect.getdoc(om.HeadMat) == headmat_expected_docstring
+# Before reverting a bunch of commits this was better:
+# headmat_expected_docstring = \
+#     ("HeadMat(Geometry geo, Integrator const & integrator=Integrator(3,0,0.005)) -> SymMatrix")
+# But now we get:
+headmat_expected_docstring = 'Proxy of C++ OpenMEEG::HeadMat class.'
+assert doc == headmat_expected_docstring, f'got: {repr(doc)} != expected: {repr(headmat_expected_docstring)}'
