@@ -27,14 +27,13 @@ jobs:
         # (https://github.com/microsoft/vcpkg/issues/25176), but it's unclear
         # if this will really help anything. SciPy's should be well tested
         # already.
-        #os: [ubuntu-20.04, windows-2019, macos-latest]
-        os: [windows-2019]
+        os: [ubuntu-20.04, windows-2019, macos-latest]
         blas: [OpenBLAS]
         blas_linking: [dynamic]
         python: [python]
         windows_compiler: [mingw64]
         include:
-        ## MSVC + MKL + static + Python
+        # MSVC + MKL + static + Python
         - os: windows-2019
           blas: mkl-findblas
           blas_linking: static
