@@ -15,10 +15,21 @@ elif [[ "$VCPKG_DEFAULT_TRIPLET" == "x64-windows" ]]; then
     if [[ "$CMAKE_GENERATOR" == "" ]]; then  # assume we're using an old version
         CMAKE_GENERATOR="Visual Studio 15 2017"
     fi
+    if [[ "$CMAKE_GENERATOR_TOOLSET" == "" ]]; then
+        if [[ "$CMAKE_GENERATOR" == "Visual Studio 15 2017" ]]; then
+            CMAKE_GENERATOR_TOOLSET="v141"
+        else
+            CMAKE_GENERATOR_TOOLSET="v142"
+        fi
+    fi
+    if [[ "$CMAKE_SYSTEM_VERSION" == "" ]]; then
+        CMAKE_SYSTEM_VERSION="7"
+    fi
     export CMAKE_GENERATOR="$CMAKE_GENERATOR"
     export CMAKE_GENERATOR_PLATFORM="x64"
-    export SDK_OPT="-DCMAKE_SYSTEM_VERSION=8.1"
-    export TOOLSET_OPT="-DCMAKE_GENERATOR_TOOLSET=v141"
+    export CMAKE_SYSTEM_VERSION="$CMAKE_SYSTEM_VERSION"
+    export SDK_OPT="-DCMAKE_SYSTEM_VERSION=$CMAKE_SYSTEM_VERSION"
+    export TOOLSET_OPT="-DCMAKE_GENERATOR_TOOLSET=$CMAKE_GENERATOR_TOOLSET"
 else
     echo "Unknown VCPKG_DEFAULT_TRIPLET: '${VCPKG_DEFAULT_TRIPLET}'"
     exit 1
