@@ -3,8 +3,10 @@
 #if defined(_MSC_VER)
     #include <complex.h>
     #define LAPACK_COMPLEX_CUSTOM
-    #define lapack_complex_float _Fcomplex
-    #define lapack_complex_double _Dcomplex
+    typedef _Dcomplex lapack_complex_float;
+    typedef _Fcomplex lapack_complex_double;
+    #define lapack_complex_float_real(z)       (real(z))
+    #define lapack_complex_float_imag(z)       (imag(z))
 #endif
 
 #include <cblas.h>
