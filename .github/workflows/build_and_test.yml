@@ -222,6 +222,13 @@ jobs:
         echo "LIB=$(cygpath -w $OPENBLAS_LIB);${LIB}" >> $GITHUB_ENV
         echo "CMAKE_CXX_FLAGS=-I$(cygpath -m $OPENBLAS_INCLUDE)" >> $GITHUB_ENV
 
+    - name: Windows 4 - OpenBLAS needs Windows 8.1 SDK
+      if: startsWith(matrix.blas,'OpenBLAS') && startsWith(matrix.os,'windows') && startsWith(matrix.windows_compiler,'msvc')
+      shell: powershell
+      run: |
+        Invoke-WebRequest -Method Get -Uri https://go.microsoft.com/fwlink/p/?LinkId=323507 -OutFile sdksetup.exe -UseBasicParsing
+        Start-Process -Wait sdksetup.exe -ArgumentList "/q", "/norestart", "/features", "OptionId.WindowsDesktopSoftwareDevelopmentKit", "OptionId.NetFxSoftwareDevelopmentKit"
+
     - name: macOS - hdf5, libmatio, and (optionally) OpenBLAS via brew
       if: startswith(matrix.os,'macos')
       run: |
