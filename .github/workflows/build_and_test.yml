@@ -39,6 +39,12 @@ jobs:
           blas_linking: static
           python: python
           windows_compiler: msvc
+        # MSVC + OpenBLAS + Python
+        - os: windows-2019
+          blas: OpenBLAS
+          blas_linking: dynamic
+          python: python
+          windows_compiler: msvc
         # MKL on each OS (static unless it has to be dynamic)
         - os: windows-2019
           blas: mkl-findblas
@@ -214,6 +220,14 @@ jobs:
         echo "OPENBLAS_LIB=$OPENBLAS_LIB" >> $GITHUB_ENV
         echo "LIB=$(cygpath -w $OPENBLAS_LIB);${LIB}" >> $GITHUB_ENV
         echo "CMAKE_CXX_FLAGS=-I$(cygpath -m $OPENBLAS_INCLUDE)" >> $GITHUB_ENV
+
+    - name: Windows 4 - OpenBLAS + MSVC needs Windows 8.1 SDK
+      if: startsWith(matrix.blas,'OpenBLAS') && startsWith(matrix.os,'windows') && startsWith(matrix.windows_compiler,'msvc')
+      # https://github.com/actions/virtual-environments/issues/842#issuecomment-643382166
+      shell: powershell
+      run: |
+        Invoke-WebRequest -Method Get -Uri https://go.microsoft.com/fwlink/p/?LinkId=323507 -OutFile sdksetup.exe -UseBasicParsing
+        Start-Process -Wait sdksetup.exe -ArgumentList "/q", "/norestart", "/features", "OptionId.WindowsDesktopSoftwareDevelopmentKit", "OptionId.NetFxSoftwareDevelopmentKit"
 
     - name: macOS - hdf5, libmatio, and (optionally) OpenBLAS via brew
       if: startswith(matrix.os,'macos')

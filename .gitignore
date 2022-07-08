@@ -9,4 +9,6 @@ build.ninja
 __pycache__
 vcpkg/
 b/
+vcpkg_installed/
+openblas/
 *.orig
