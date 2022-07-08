@@ -27,46 +27,53 @@ jobs:
         # (https://github.com/microsoft/vcpkg/issues/25176), but it's unclear
         # if this will really help anything. SciPy's should be well tested
         # already.
-        os: [ubuntu-20.04, windows-2019, macos-latest]
+        #os: [ubuntu-20.04, windows-2019, macos-latest]
+        os: [windows-2019]
         blas: [OpenBLAS]
         blas_linking: [dynamic]
         python: [python]
         windows_compiler: [mingw64]
         include:
-        # MSVC + MKL + static + Python
+        ## MSVC + MKL + static + Python
+        #- os: windows-2019
+        #  blas: mkl-findblas
+        #  blas_linking: static
+        #  python: python
+        #  windows_compiler: msvc
+        # MSVC + OpenBLAS + Python
         - os: windows-2019
-          blas: mkl-findblas
-          blas_linking: static
+          blas: OpenBLAS
+          blas_linking: dynamic
           python: python
           windows_compiler: msvc
-        # MKL on each OS (static unless it has to be dynamic)
-        - os: windows-2019
-          blas: mkl-findblas
-          blas_linking: static
-          python: python
-          windows_compiler: mingw64
-        - os: ubuntu-20.04
-          blas: mkl-findblas
-          blas_linking: dynamic
-          python: python
-          windows_compiler: mingw64
-        - os: macos-latest
-          blas: mkl-findblas
-          blas_linking: static
-          python: python
-          windows_compiler: mingw64
+        ## MKL on each OS (static unless it has to be dynamic)
+        #- os: windows-2019
+        #  blas: mkl-findblas
+        #  blas_linking: static
+        #  python: python
+        #  windows_compiler: mingw64
+        #- os: ubuntu-20.04
+        #  blas: mkl-findblas
+        #  blas_linking: dynamic
+        #  python: python
+        #  windows_compiler: mingw64
+        #- os: macos-latest
+        #  blas: mkl-findblas
+        #  blas_linking: static
+        #  python: python
+        #  windows_compiler: mingw64
         # ubuntu-18.04 build, but Python tests currently fail so use no-python
-        - os: ubuntu-18.04
-          blas: OpenBLAS
-          blas_linking: dynamic
-          python: no-python
-          windows_compiler: mingw64
+        #- os: ubuntu-18.04
+        #  blas: OpenBLAS
+        #  blas_linking: dynamic
+        #  python: no-python
+        #  windows_compiler: mingw64
         # Windows static build
-        - os: windows-2019
-          blas: OpenBLAS
-          blas_linking: static
-          python: python
-          windows_compiler: mingw64
+        #- os: windows-2019
+        #  blas: OpenBLAS
+        #  blas_linking: static
+        #  python: python
+        #  windows_compiler: mingw64
 
     runs-on: ${{ matrix.os }}
 
