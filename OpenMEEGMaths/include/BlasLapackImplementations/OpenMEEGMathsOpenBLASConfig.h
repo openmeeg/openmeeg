@@ -1,3 +1,5 @@
+#pragma once
+
 #if defined(_MSC_VER)
     #define _SILENCE_CXX17_C_HEADER_DEPRECATION_WARNING
     #include <complex.h>
@@ -5,8 +7,6 @@
     #define lapack_complex_float _Fcomplex
     #define lapack_complex_double _Dcomplex
 #endif
-
-#pragma once
 
 #include <cblas.h>
 #include <lapacke.h>
