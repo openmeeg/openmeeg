@@ -1,12 +1,11 @@
 #pragma once
 
-#ifdef _MSC_VER
+#if defined(_MSC_VER)
+    #define _SILENCE_CXX17_C_HEADER_DEPRECATION_WARNING
     #include <complex.h>
     #define LAPACK_COMPLEX_CUSTOM
-    typedef _Fcomplex lapack_complex_float;
-    typedef _Dcomplex lapack_complex_double;
-    #define lapack_complex_float_real(z) (real(z))
-    #define lapack_complex_float_imag(z) (imag(z))
+    #define lapack_complex_float _Fcomplex
+    #define lapack_complex_double _Dcomplex
 #endif
 
 #include <cblas.h>
