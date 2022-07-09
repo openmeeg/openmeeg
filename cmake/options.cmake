@@ -12,6 +12,8 @@ set(PYTHON_VERSION 3 CACHE STRING "Python version to use: 3, 3.x, or empty")
 option(PYTHON_INSTALL_RELATIVE "Make Python install path relative to install-prefix (instead of using Python3_SITEARCH directly)" ON)
 option(PYTHON_FORCE_EXT_SUFFIX "Force Python extension suffix" OFF)
 
+option (INSTALL_HDF5_AND_MATIO "Install HDF5 and MatIO" OFF)
+
 option(ENABLE_WERROR "Turn on -Werror" OFF)
 
 # Documentation configuration

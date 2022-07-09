@@ -264,7 +264,11 @@ jobs:
 
     - name: Configure
       run: |
-        source ./build_tools/cmake_configure.sh --install-prefix=$PWD/install
+        if [[ "${{matrix.os}}" == 'windows'* ]]; then
+          export EXTRA_UCRT="-DCMAKE_INSTALL_UCRT_LIBRARIES=TRUE"
+          export EXTRA_INSTALL="-DINSTALL_HDF5_AND_MATIO=ON"
+        fi
+        source ./build_tools/cmake_configure.sh --install-prefix=$PWD/install $EXTRA_UCRT $EXTRA_INSTALL
 
     - name: Build
       run: |
@@ -282,17 +286,12 @@ jobs:
 
     - name: Check installed binaries and Python wrapper
       run: |
+        # Eventually some of this should be replaced with -DINSTALL_HDF5_AND_MATIO=ON
+        # and maybe -DCMAKE_INSTALL_UCRT_LIBRARIES=TRUE
         ls -alR ./install/bin ./install/lib
         if [[ "${{matrix.os}}" == 'windows'* ]]; then
           if [[ "${{matrix.blas}}" == "OpenBLAS" ]]; then
             cp $OPENBLAS_LIB/libopenblas_v0.3.18-gcc_8_1_0.dll ./install/bin
-          fi
-          if [[ -f "./build/OpenMEEGMaths/libmatio.dll" ]]; then
-            cp ./build/OpenMEEGMaths/libmatio.dll ./install/bin
-          elif [[ -f "./build/OpenMEEGMaths/Release/libmatio.dll" ]]; then
-            cp ./build/OpenMEEGMaths/Release/libmatio.dll ./install/bin
-            cp ./build/OpenMEEGMaths/Release/zlib1.dll ./install/bin
-            cp ./build/OpenMEEGMaths/Release/hdf5.dll ./install/bin
           fi
           export PATH="$(cygpath -u $CONDA_PREFIX)/Library:$(cygpath -u $CONDA_PREFIX)/Library/lib:$PWD/install/bin:$PATH"
           echo "PATH=$PATH"
