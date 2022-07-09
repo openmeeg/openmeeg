@@ -283,9 +283,7 @@ jobs:
 
     - name: Check installed binaries and Python wrapper
       run: |
-        # This has too much stuff for the ls-alR below
-        rm -Rf ./install/share ./install/include
-        ls -alR ./install
+        ls -alR ./install/bin ./install/lib
         if [[ "${{matrix.os}}" == 'windows'* ]]; then
           export PATH="$PWD/install/lib:$PATH"
           echo "PATH=$PATH"
