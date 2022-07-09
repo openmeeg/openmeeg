@@ -90,22 +90,17 @@ string(REGEX REPLACE "\n$" "" PYTHON_SITE_ARCH "${PYTHON_SITE_ARCH}")
 message(STATUS "Python installation directory ${PYTHON_SITE_ARCH}")
 
 # Copy our .py files over, dealing with Windows wildcard issues
-file(GLOB PYTHON_COPY_FILENAMES ${CMAKE_SOURCE_DIR}/wrapping/python/openmeeg/*.py)
 add_custom_command(
-    TARGET ${SWIG_TARGET_NAME} POST_BUILD
+    TARGET ${SWIG_TARGET_NAME} PRE_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/wrapping/python/openmeeg ${CMAKE_CURRENT_BINARY_DIR}/openmeeg)
     COMMAND ${CMAKE_COMMAND} -E copy ${PYTHON_COPY_FILENAMES} ${CMAKE_CURRENT_BINARY_DIR}/openmeeg/)
 add_custom_command(
-    TARGET ${SWIG_TARGET_NAME} POST_BUILD
+    TARGET ${SWIG_TARGET_NAME} PRE_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy
     ${CMAKE_SOURCE_DIR}/wrapping/python/MANIFEST.in
     ${CMAKE_SOURCE_DIR}/wrapping/python/setup.py
     ${CMAKE_SOURCE_DIR}/wrapping/python/README.rst
     ${CMAKE_CURRENT_BINARY_DIR})
-add_custom_command(
-    TARGET ${SWIG_TARGET_NAME} POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
-    ${CMAKE_SOURCE_DIR}/wrapping/python/openmeeg/tests
-    ${CMAKE_CURRENT_BINARY_DIR}/openmeeg/tests)
 
 # Installation just copies the directory
 install(DIRECTORY  ${OpenMEEG_BINARY_DIR}/wrapping/python/openmeeg
