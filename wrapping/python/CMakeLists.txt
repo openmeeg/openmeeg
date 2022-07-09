@@ -58,6 +58,23 @@ if ( MSVC )
     set_target_properties(${SWIG_TARGET_NAME} PROPERTIES LIBRARY_OUTPUT_DIRECTORY_RELEASE openmeeg/)
 endif()
 
+if (PYTHON_FORCE_EXT_SUFFIX)
+    # For PyPy, see
+    # https://github.com/conda-forge/openmeeg-feedstock/pull/20#issuecomment-1161729565
+    if(NOT Python3_EXT_SUFFIX)
+        if(UNIX)
+            set(Python3_EXT_SUFFIX ".${Python3_SOABI}.so")
+        else()
+            set(Python3_EXT_SUFFIX ".${Python3_SOABI}.pyd")
+        endif()
+    endif()
+
+    set_target_properties(openmeeg PROPERTIES SUFFIX "${Python3_EXT_SUFFIX}")
+    message(STATUS "Python forced suffix ${Python3_EXT_SUFFIX}")
+else()
+    message(STATUS "Python default suffix ${Python3_EXT_SUFFIX}")
+endif()
+
 if (APPLE)
     swig_link_libraries(openmeeg OpenMEEG::OpenMEEG)
 else()
@@ -65,12 +82,12 @@ else()
 endif()
 
 set(PYTHON_SITE_ARCH ${Python3_SITEARCH})
-if (${PYTHON_INSTALL_RELATIVE})
+if (PYTHON_INSTALL_RELATIVE)
     string(REGEX MATCH "[Ll]ib.*packages" PYTHON_SITE_ARCH ${PYTHON_SITE_ARCH})
 endif()
 file(TO_CMAKE_PATH "${PYTHON_SITE_ARCH}" PYTHON_SITE_ARCH)
 string(REGEX REPLACE "\n$" "" PYTHON_SITE_ARCH "${PYTHON_SITE_ARCH}")
-message(STATUS "Python installation direcotry: ${PYTHON_SITE_ARCH}")
+message(STATUS "Python installation directory ${PYTHON_SITE_ARCH}")
 
 # Copy our .py files over, dealing with Windows wildcard issues
 file(GLOB PYTHON_COPY_FILENAMES ${CMAKE_SOURCE_DIR}/wrapping/python/openmeeg/*.py)

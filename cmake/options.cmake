@@ -10,6 +10,7 @@ option(ENABLE_COVERAGE "Enable coverage" OFF)
 option(ENABLE_PYTHON "Enable python bindings" OFF)
 set(PYTHON_VERSION 3 CACHE STRING "Python version to use: 3, 3.x, or empty")
 option(PYTHON_INSTALL_RELATIVE "Make Python install path relative to install-prefix (instead of using Python3_SITEARCH directly)" ON)
+option(PYTHON_FORCE_EXT_SUFFIX "Force Python extension suffix" OFF)
 
 option(ENABLE_WERROR "Turn on -Werror" OFF)
 
