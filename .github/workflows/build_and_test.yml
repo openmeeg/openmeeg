@@ -283,9 +283,9 @@ jobs:
 
     - name: Check installed binaries and Python wrapper
       run: |
-        ls -alR install
-        PYVER=$(python -c "import sys; print(''.join(sys.version.split('.')[:2]))")
-        export PYTHONPATH=$PWD/install/lib/python3/dist-packages
+        # This has too much stuff for the ls-alR below
+        rm -Rf ./install/share
+        ls -alR ./install
         if [[ "${{matrix.os}}" == 'windows'* ]]; then
           export PATH="$PWD/install/lib:$PATH"
           echo "PATH=$PATH"
@@ -297,6 +297,8 @@ jobs:
           echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH"
         fi
         if [[ "${{matrix.python}}" == 'python'* ]]; then
+          PYVER=$(python -c "import sys; print(''.join(sys.version.split('.')[:2]))")
+          export PYTHONPATH=$PWD/install/lib/python${PYVER}/site-packages
           echo "PYTHONPATH=$PYTHONPATH"
           python -c "import openmeeg; print(openmeeg.sqr(4)); assert openmeeg.sqr(4) == 16"
         fi
