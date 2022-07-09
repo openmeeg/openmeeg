@@ -60,9 +60,10 @@ else()
     swig_link_libraries(openmeeg ${Python3_LIBRARIES} OpenMEEG::OpenMEEG)
 endif()
 
-#extract correctly python location: e.g lib64/python2.7/site-packages
-
-string(REGEX MATCH "[Ll]ib.*packages" PYTHON_REL_SITE_ARCH ${Python3_SITEARCH})
+string(REGEX MATCH "[Ll]ib.*packages" PYTHON_SITE_ARCH ${Python3_SITEARCH})
+file(TO_CMAKE_PATH "${PYTHON_SITE_ARCH}" PYTHON_SITE_ARCH)
+string(REGEX REPLACE "\n$" "" PYTHON_SITE_ARCH "${PYTHON_SITE_ARCH}")
+message(STATUS "Python installation direcotry: ${PYTHON_SITE_ARCH}")
 
 # Copy our .py files over, dealing with Windows wildcard issues
 file(GLOB PYTHON_COPY_FILENAMES ${CMAKE_SOURCE_DIR}/wrapping/python/openmeeg/*.py)
@@ -84,7 +85,7 @@ add_custom_command(
 
 # Installation just copies the directory
 install(DIRECTORY  ${OpenMEEG_BINARY_DIR}/wrapping/python/openmeeg
-        DESTINATION ${PYTHON_REL_SITE_ARCH}
+        DESTINATION ${PYTHON_SITE_ARCH}
         DIRECTORY_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
 
 if (APPLE)

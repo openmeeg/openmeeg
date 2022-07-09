@@ -162,6 +162,8 @@ jobs:
         else
           echo "CMAKE_PREFIX_PATH=$CONDA_PREFIX/lib" >> $GITHUB_ENV
           echo "CMAKE_CXX_FLAGS=-I$CONDA_PREFIX/include ${CMAKE_CXX_FLAGS}" >> $GITHUB_ENV
+          echo "$CONDA_PREFIX/lib/*mkl*:"
+          ls -alR $CONDA_PREFIX/lib/*mkl*
           if [[ "${{matrix.os}}" == 'ubuntu'* ]]; then
             echo "LD_PRELOAD=$CONDA_PREFIX/lib/libmkl_rt.so" >> $GITHUB_ENV
           fi
@@ -285,13 +287,13 @@ jobs:
       run: |
         ls -alR ./install/bin ./install/lib
         if [[ "${{matrix.os}}" == 'windows'* ]]; then
-          export PATH="$PWD/install/lib:$PATH"
+          export PATH="$CONDA_PREFIX/lib:$PWD/install/lib:$PATH"
           echo "PATH=$PATH"
         elif [[ "${{matrix.os}}" == 'macos'* ]]; then
-          export DYLD_LIBRARY_PATH="$PWD/install/lib:$DYLD_LIBRARY_PATH"
+          export DYLD_LIBRARY_PATH="$CONDA_PREFIX/lib:$PWD/install/lib:$DYLD_LIBRARY_PATH"
           echo "DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH"
         else
-          export LD_LIBRARY_PATH="$PWD/install/lib:LD_LIBRARY_PATH"
+          export LD_LIBRARY_PATH="$CONDA_PREFIX/lib:$PWD/install/lib:LD_LIBRARY_PATH"
           echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH"
         fi
         if [[ "${{matrix.python}}" == 'python'* ]]; then
