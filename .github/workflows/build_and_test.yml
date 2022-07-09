@@ -159,7 +159,7 @@ jobs:
         if [[ "${{matrix.os}}" == 'windows'* ]]; then
           echo "CMAKE_PREFIX_PATH=$(cygpath -m $CONDA_PREFIX/Library)" >> $GITHUB_ENV
           echo "CMAKE_CXX_FLAGS=-I$(cygpath -m $CONDA_PREFIX/Library/include) ${CMAKE_CXX_FLAGS}" >> $GITHUB_ENV
-          ls -alR $(cygpath -u $CONDA_PREFIX)/Library/*mkl*
+          ls -alR $(cygpath -u $CONDA_PREFIX)/Library/lib/*mkl*
         else
           echo "CMAKE_PREFIX_PATH=$CONDA_PREFIX/lib" >> $GITHUB_ENV
           echo "CMAKE_CXX_FLAGS=-I$CONDA_PREFIX/include ${CMAKE_CXX_FLAGS}" >> $GITHUB_ENV
@@ -284,7 +284,7 @@ jobs:
       run: |
         ls -alR ./install/bin ./install/lib
         if [[ "${{matrix.os}}" == 'windows'* ]]; then
-          export PATH="$CONDA_PREFIX/lib:$PWD/install/bin:$PATH"
+          export PATH="$CONDA_PREFIX/Library:$CONDA_PREFIX/Library/lib:$PWD/install/bin:$PATH"
           echo "PATH=$PATH"
         elif [[ "${{matrix.os}}" == 'macos'* ]]; then
           export DYLD_LIBRARY_PATH="$CONDA_PREFIX/lib:$PWD/install/lib:$DYLD_LIBRARY_PATH"
