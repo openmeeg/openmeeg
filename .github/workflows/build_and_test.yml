@@ -261,7 +261,7 @@ jobs:
 
     - name: Configure
       run: |
-        source ./build_tools/cmake_configure.sh
+        source ./build_tools/cmake_configure.sh --install-prefix=$(PWD)/install
 
     - name: Build
       run: |
@@ -276,6 +276,29 @@ jobs:
         else
           echo "No Python wrapping found"
         fi
+
+    - name: Install
+      run: |
+        cmake --build build --target install --config Release
+
+    - name: Check installed binaries and Python wrapper
+      run: |
+        ls -alR install
+        PYVER=$(python -c "import sys; print(''.join(sys.version.split('.')[:2]))")
+        export PYTHONPATH=$PWD/install/lib/python3/dist-packages
+        if [[ "${{matrix.os}}" == 'windows'* ]]; then
+          export PATH="$PWD/install/lib:$PATH"
+          echo "PATH=$PATH"
+        elif [[ "${{matrix.os}}" == 'macos'* ]]; then
+          export DYLD_LIBRARY_PATH="$PWD/install/lib:$DYLD_LIBRARY_PATH"
+          echo "DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH"
+        else
+          export LD_LIBRARY_PATH="$PWD/install/lib:LD_LIBRARY_PATH"
+          echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH"
+        fi
+        echo "PYTHONPATH=$PYTHONPATH"
+        python -c "import openmeeg; print(openmeeg.sqr(4)); assert openmeeg.sqr(4) == 16"
+        ./install/bin/om_minverser --help
 
     - name: Prepare for delocate
       if: startswith(matrix.python, 'python')
