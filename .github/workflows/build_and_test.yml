@@ -270,10 +270,6 @@ jobs:
         cmake --build build --config ${{env.BUILD_TYPE}}
         ls -al build
         if [ -d build/wrapping/python/openmeeg ]; then
-          if [[ "${{matrix.os}}" == 'windows'* ]] && [[ "${{matrix.windows_compiler}}" == 'msvc'* ]]; then
-            echo "Copying MSVC pyd file"
-            cp -a build/wrapping/python/openmeeg/${BUILD_TYPE}/_openmeeg.pyd build/wrapping/python/openmeeg/
-          fi
           ls -alR build/wrapping/python/openmeeg
         else
           echo "No Python wrapping found"
@@ -298,7 +294,11 @@ jobs:
         fi
         if [[ "${{matrix.python}}" == 'python'* ]]; then
           PYVER=$(python -c "import sys; print('.'.join(sys.version.split('.')[:2]))")
-          export PYTHONPATH=$PWD/install/lib/python${PYVER}/site-packages
+          if [[ "${{matrix.os}}" == 'windows'* ]]; then
+            export PYTHONPATH=$PWD/install/lib/site-packages
+          else
+            export PYTHONPATH=$PWD/install/lib/python${PYVER}/site-packages
+          fi
           echo "PYTHONPATH=$PYTHONPATH"
           python -c "import openmeeg; print(openmeeg.sqr(4)); assert openmeeg.sqr(4) == 16"
         fi

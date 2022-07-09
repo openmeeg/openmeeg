@@ -53,6 +53,10 @@ set_source_files_properties(openmeeg/openmeeg.i PROPERTIES CPLUSPLUS ON GENERATE
 swig_add_library(${SWIG_TARGET_NAME} LANGUAGE python OUTPUT_DIR ${CMAKE_CURRENT_BINARY_DIR}/openmeeg SOURCES openmeeg/openmeeg.i)
 # This puts _openmeeg.so in openmeeg/
 set_target_properties(${SWIG_TARGET_NAME} PROPERTIES LIBRARY_OUTPUT_DIRECTORY openmeeg/)
+if ( MSVC )
+    set_target_properties(${SWIG_TARGET_NAME} PROPERTIES LIBRARY_OUTPUT_DIRECTORY_DEBUG openmeeg/)
+    set_target_properties(${SWIG_TARGET_NAME} PROPERTIES LIBRARY_OUTPUT_DIRECTORY_RELEASE openmeeg/)
+endif()
 
 if (APPLE)
     swig_link_libraries(openmeeg OpenMEEG::OpenMEEG)
@@ -60,7 +64,10 @@ else()
     swig_link_libraries(openmeeg ${Python3_LIBRARIES} OpenMEEG::OpenMEEG)
 endif()
 
-string(REGEX MATCH "[Ll]ib.*packages" PYTHON_SITE_ARCH ${Python3_SITEARCH})
+set(PYTHON_SITE_ARCH ${Python3_SITEARCH})
+if (${PYTHON_INSTALL_RELATIVE})
+    string(REGEX MATCH "[Ll]ib.*packages" PYTHON_SITE_ARCH ${PYTHON_SITE_ARCH})
+endif()
 file(TO_CMAKE_PATH "${PYTHON_SITE_ARCH}" PYTHON_SITE_ARCH)
 string(REGEX REPLACE "\n$" "" PYTHON_SITE_ARCH "${PYTHON_SITE_ARCH}")
 message(STATUS "Python installation direcotry: ${PYTHON_SITE_ARCH}")
