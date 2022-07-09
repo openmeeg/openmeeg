@@ -261,7 +261,7 @@ jobs:
 
     - name: Configure
       run: |
-        source ./build_tools/cmake_configure.sh --install-prefix=$(PWD)/install
+        source ./build_tools/cmake_configure.sh --install-prefix=$PWD/install
 
     - name: Build
       run: |
@@ -296,8 +296,10 @@ jobs:
           export LD_LIBRARY_PATH="$PWD/install/lib:LD_LIBRARY_PATH"
           echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH"
         fi
-        echo "PYTHONPATH=$PYTHONPATH"
-        python -c "import openmeeg; print(openmeeg.sqr(4)); assert openmeeg.sqr(4) == 16"
+        if [[ "${{matrix.python}}" == 'python'* ]]; then
+          echo "PYTHONPATH=$PYTHONPATH"
+          python -c "import openmeeg; print(openmeeg.sqr(4)); assert openmeeg.sqr(4) == 16"
+        fi
         ./install/bin/om_minverser --help
 
     - name: Prepare for delocate
