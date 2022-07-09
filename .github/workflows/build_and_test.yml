@@ -346,6 +346,8 @@ jobs:
             export PYTHONPATH=$PWD/install/lib/site-packages
             curl -LO https://github.com/lucasg/Dependencies/releases/download/v1.11.1/Dependencies_x64_Release.zip
             unzip Dependencies_x64_Release.zip -d Dependencies
+            # TODO: This should not be necessary but let's see if it makes things green
+            cp build/*.dll $PWD/install/lib/site-packages/openmeeg/
             ./Dependencies/Dependencies.exe -modules $PWD/install/lib/site-packages/openmeeg/_openmeeg.pyd
           else
             export PYTHONPATH=$PWD/install/lib/python${PYVER}/site-packages
