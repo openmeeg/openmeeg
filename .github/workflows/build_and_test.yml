@@ -339,6 +339,7 @@ jobs:
           export LD_LIBRARY_PATH="$CONDA_PREFIX/lib:$PWD/install/lib:LD_LIBRARY_PATH"
           echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH"
         fi
+        ./install/bin/om_minverser --help
         if [[ "${{matrix.python}}" == 'python'* ]]; then
           PYVER=$(python -c "import sys; print('.'.join(sys.version.split('.')[:2]))")
           if [[ "${{matrix.os}}" == 'windows'* ]]; then
@@ -352,7 +353,6 @@ jobs:
           echo "PYTHONPATH=$PYTHONPATH"
           python -c "import openmeeg; print(openmeeg.sqr(4)); assert openmeeg.sqr(4) == 16"
         fi
-        ./install/bin/om_minverser --help
 
 
     - name: Create, delocate, check, install, and test wheel
