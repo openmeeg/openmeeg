@@ -156,10 +156,13 @@ jobs:
         # cd build && LD_PRELOAD=$CONDA_PREFIX/lib/libmkl_rt.so ctest -C Release
         #
         conda install -c conda-forge -q mkl-devel
+        echo "$CONDA_PREFIX/lib/*mkl*:"
         if [[ "${{matrix.os}}" == 'windows'* ]]; then
+          ls -alR $(cygpath -u $CONDA_PREFIX)/Library/lib/*mkl*
           echo "CMAKE_PREFIX_PATH=$(cygpath -m $CONDA_PREFIX/Library)" >> $GITHUB_ENV
           echo "CMAKE_CXX_FLAGS=-I$(cygpath -m $CONDA_PREFIX/Library/include) ${CMAKE_CXX_FLAGS}" >> $GITHUB_ENV
         else
+          ls -alR $CONDA_PREFIX/lib/*mkl*
           echo "CMAKE_PREFIX_PATH=$CONDA_PREFIX/lib" >> $GITHUB_ENV
           echo "CMAKE_CXX_FLAGS=-I$CONDA_PREFIX/include ${CMAKE_CXX_FLAGS}" >> $GITHUB_ENV
           if [[ "${{matrix.os}}" == 'ubuntu'* ]]; then
@@ -261,21 +264,24 @@ jobs:
 
     - name: Configure
       run: |
-        source ./build_tools/cmake_configure.sh
+        if [[ "${{matrix.os}}" == 'windows'* ]]; then
+          export EXTRA_UCRT="-DCMAKE_INSTALL_UCRT_LIBRARIES=TRUE"
+        fi
+        source ./build_tools/cmake_configure.sh --install-prefix=$PWD/install $EXTRA_UCRT
 
     - name: Build
       run: |
         cmake --build build --config ${{env.BUILD_TYPE}}
         ls -al build
         if [ -d build/wrapping/python/openmeeg ]; then
-          if [[ "${{matrix.os}}" == 'windows'* ]] && [[ "${{matrix.windows_compiler}}" == 'msvc'* ]]; then
-            echo "Copying MSVC pyd file"
-            cp -a build/wrapping/python/openmeeg/${BUILD_TYPE}/_openmeeg.pyd build/wrapping/python/openmeeg/
-          fi
           ls -alR build/wrapping/python/openmeeg
         else
           echo "No Python wrapping found"
         fi
+
+    - name: Install
+      run: |
+        cmake --build build --target install --config Release
 
     - name: Prepare for delocate
       if: startswith(matrix.python, 'python')
@@ -319,6 +325,37 @@ jobs:
           ls -al *.dll || true
           cd ..
         fi
+
+    - name: Check installed binaries and Python wrapper
+      run: |
+        ls -alR ./install/bin ./install/lib
+        if [[ "${{matrix.os}}" == 'windows'* ]]; then
+          export PATH="$PWD/build:$PWD/install/bin:$(cygpath -u $CONDA_PREFIX)/Library:$(cygpath -u $CONDA_PREFIX)/Library/lib:$PATH"
+          echo "PATH=$PATH"
+        elif [[ "${{matrix.os}}" == 'macos'* ]]; then
+          export DYLD_LIBRARY_PATH="$CONDA_PREFIX/lib:$PWD/install/lib:$DYLD_LIBRARY_PATH"
+          echo "DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH"
+        else
+          export LD_LIBRARY_PATH="$CONDA_PREFIX/lib:$PWD/install/lib:LD_LIBRARY_PATH"
+          echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH"
+        fi
+        ./install/bin/om_minverser --help
+        if [[ "${{matrix.python}}" == 'python'* ]]; then
+          PYVER=$(python -c "import sys; print('.'.join(sys.version.split('.')[:2]))")
+          if [[ "${{matrix.os}}" == 'windows'* ]]; then
+            export PYTHONPATH=$PWD/install/lib/site-packages
+            curl -LO https://github.com/lucasg/Dependencies/releases/download/v1.11.1/Dependencies_x64_Release.zip
+            unzip Dependencies_x64_Release.zip -d Dependencies
+            # TODO: This should not be necessary but let's see if it makes things green
+            cp build/*.dll $PWD/install/lib/site-packages/openmeeg/
+            ./Dependencies/Dependencies.exe -modules $PWD/install/lib/site-packages/openmeeg/_openmeeg.pyd
+          else
+            export PYTHONPATH=$PWD/install/lib/python${PYVER}/site-packages
+          fi
+          echo "PYTHONPATH=$PYTHONPATH"
+          python -c "import openmeeg; print(openmeeg.sqr(4)); assert openmeeg.sqr(4) == 16"
+        fi
+
 
     - name: Create, delocate, check, install, and test wheel
       if: startswith(matrix.python, 'python')
