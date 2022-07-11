@@ -47,10 +47,6 @@ fi
 export VCPKG_INSTALLED_DIR=$(cygpath -m "${PWD}/build/vcpkg_installed")
 export VCPKG_INSTALL_OPTIONS="--x-install-root=$VCPKG_INSTALLED_DIR --triplet=$VCPKG_DEFAULT_TRIPLET"
 export CMAKE_TOOLCHAIN_FILE=$(cygpath -m "${PWD}/vcpkg/scripts/buildsystems/vcpkg.cmake")
-if [[ "${PYTHON_OPT}" == "" ]]; then
-    export PYTHON_OPT="-DENABLE_PYTHON=ON"
-    export PYTHON_INFO_OPT="-DPython3_EXECUTABLE=$(which python)"
-fi
 
 if [[ $GITHUB_ENV != "" ]]; then
     echo "VCPKG_INSTALLED_DIR=$VCPKG_INSTALLED_DIR" >> $GITHUB_ENV

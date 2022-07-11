@@ -86,9 +86,7 @@ jobs:
           echo "BLA_STATIC_OPT=-DBLA_STATIC=ON" >> $GITHUB_ENV
         fi
         if [[ "${{matrix.python}}" == 'python' ]]; then
-          echo "Enabling Python"
-          echo "PYTHON_OPT=-DENABLE_PYTHON=ON" >> $GITHUB_ENV
-        else
+          echo "Disabling Python"
           echo "PYTHON_OPT=-DENABLE_PYTHON=OFF" >> $GITHUB_ENV
         fi
         if [[ "${{matrix.blas}}" == 'mkl'* ]]; then
@@ -97,20 +95,26 @@ jobs:
         fi
         # Build docs on Ubuntu, not elsewhere (for speed)
         if [[ "${{matrix.os}}" == 'ubuntu'* ]]; then
-          BUILD_DOCS=ON
+          DOC_OPT="-DBUILD_DOCUMENTATION=ON"
         else
-          BUILD_DOCS=OFF
+          DOC_OPT="-DBUILD_DOCUMENTATION=OFF"
         fi
         # Use -Werror on Windows and macOS, eventually should use on Linux
-        if [[ ${{matrix.os}} != 'ubuntu*' ]]; then
+        if [[ "${{matrix.os}}"" != 'ubuntu*' ]]; then
           WERROR_OPT="-DENABLE_WERROR=OFF"
         else
           WERROR_OPT="-DENABLE_WERROR=ON"
         fi
+        # On windows, copy the runtime DLLs
+        if [[ "${{matrix.os}}" == 'windows'* ]]; then
+          PYTHON_COPY_RUNTIME_DLLS_OPT="-DPYTHON_COPY_RUNTIME_DLLS=ON"
+        fi
         echo "Using WERROR_OPT=$WERROR_OPT"
         echo "WERROR_OPT=$WERROR_OPT" >> $GITHUB_ENV
         echo "Using DOC_OPT=$DOC_OPT"
-        echo "DOC_OPT=-DBUILD_DOCUMENTATION=$BUILD_DOCS" >> $GITHUB_ENV
+        echo "DOC_OPT=$DOC_OPT" >> $GITHUB_ENV
+        echo "Using PYTHON_COPY_RUNTIME_DLLS=$PYTHON_COPY_RUNTIME_DLLS_OPT"
+        echoh "PYTHON_COPY_RUNTIME_DLLS_OPT=$PYTHON_COPY_RUNTIME_DLLS_OPT" >> $GITHUB_ENV
 
     - name: Setup ccache
       uses: hendrikmuhs/ccache-action@v1.2
@@ -138,8 +142,6 @@ jobs:
           EXTRA_PIP=auditwheel
         fi
         pip install --upgrade --progress-bar off -q numpy setuptools wheel twine $EXTRA_PIP
-        # Fix Miniconda paths
-        echo "PYTHON_INFO_OPT=-DPython3_EXECUTABLE=$(which python)" >> $GITHUB_ENV
 
     - name: MKL setup - mkl via conda
       if: startswith(matrix.blas,'mkl')
