@@ -85,7 +85,7 @@ jobs:
           echo "Enabling static BLAS"
           echo "BLA_STATIC_OPT=-DBLA_STATIC=ON" >> $GITHUB_ENV
         fi
-        if [[ "${{matrix.python}}" == 'python' ]]; then
+        if [[ "${{matrix.python}}" != 'python' ]]; then
           echo "Disabling Python"
           echo "PYTHON_OPT=-DENABLE_PYTHON=OFF" >> $GITHUB_ENV
         fi
@@ -100,7 +100,7 @@ jobs:
           DOC_OPT="-DBUILD_DOCUMENTATION=OFF"
         fi
         # Use -Werror on Windows and macOS, eventually should use on Linux
-        if [[ "${{matrix.os}}"" != 'ubuntu*' ]]; then
+        if [[ "${{matrix.os}}" != 'ubuntu*' ]]; then
           WERROR_OPT="-DENABLE_WERROR=OFF"
         else
           WERROR_OPT="-DENABLE_WERROR=ON"
