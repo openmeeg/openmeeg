@@ -4,6 +4,11 @@ if [[ "${BUILD_TYPE}" == "" ]]; then
     BUILD_TYPE=Release
 fi
 
+if [[ "${PYTHON_OPT}" == "" ]]; then
+    PYTHON_OPT="-DENABLE_PYTHON=ON"
+    PYTHON_INFO_OPT="-DPython3_EXECUTABLE=$(which python)"
+fi
+
 set -x
 cmake -B build \
       -DCMAKE_BUILD_TYPE=$BUILD_TYPE \

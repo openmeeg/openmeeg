@@ -92,14 +92,20 @@ message(STATUS "Python installation directory ${PYTHON_SITE_ARCH}")
 # Copy our .py files over, dealing with Windows wildcard issues
 add_custom_command(
     TARGET ${SWIG_TARGET_NAME} PRE_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/wrapping/python/openmeeg ${CMAKE_CURRENT_BINARY_DIR}/openmeeg)
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/wrapping/python/openmeeg ${CMAKE_CURRENT_BINARY_DIR}/openmeeg
+    COMMENT "Copying ${CMAKE_SOURCE_DIR}/wrapping/python/openmeeg to ${CMAKE_CURRENT_BINARY_DIR}/openmeeg"
+    VERBATIM
+)
 add_custom_command(
     TARGET ${SWIG_TARGET_NAME} PRE_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy
     ${CMAKE_SOURCE_DIR}/wrapping/python/MANIFEST.in
     ${CMAKE_SOURCE_DIR}/wrapping/python/setup.py
     ${CMAKE_SOURCE_DIR}/wrapping/python/README.rst
-    ${CMAKE_CURRENT_BINARY_DIR})
+    ${CMAKE_CURRENT_BINARY_DIR}
+    COMMENT "Copying MANIFEST.in, setup.py, and README.rst to ${CMAKE_CURRENT_BINARY_DIR}"
+    VERBATIM
+)
 
 # Installation just copies the directory
 install(DIRECTORY  ${OpenMEEG_BINARY_DIR}/wrapping/python/openmeeg
