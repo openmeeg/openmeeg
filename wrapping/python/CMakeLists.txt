@@ -93,7 +93,6 @@ message(STATUS "Python installation directory ${PYTHON_SITE_ARCH}")
 add_custom_command(
     TARGET ${SWIG_TARGET_NAME} PRE_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/wrapping/python/openmeeg ${CMAKE_CURRENT_BINARY_DIR}/openmeeg)
-    COMMAND ${CMAKE_COMMAND} -E copy ${PYTHON_COPY_FILENAMES} ${CMAKE_CURRENT_BINARY_DIR}/openmeeg/)
 add_custom_command(
     TARGET ${SWIG_TARGET_NAME} PRE_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy
