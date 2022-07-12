@@ -90,22 +90,22 @@ string(REGEX REPLACE "\n$" "" PYTHON_SITE_ARCH "${PYTHON_SITE_ARCH}")
 message(STATUS "Python installation directory ${PYTHON_SITE_ARCH}")
 
 # Copy our .py files over, dealing with Windows wildcard issues
-file(GLOB PYTHON_COPY_FILENAMES ${CMAKE_SOURCE_DIR}/wrapping/python/openmeeg/*.py)
 add_custom_command(
-    TARGET ${SWIG_TARGET_NAME} POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy ${PYTHON_COPY_FILENAMES} ${CMAKE_CURRENT_BINARY_DIR}/openmeeg/)
+    TARGET ${SWIG_TARGET_NAME} PRE_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/wrapping/python/openmeeg ${CMAKE_CURRENT_BINARY_DIR}/openmeeg
+    COMMENT "Python: Copying ${CMAKE_SOURCE_DIR}/wrapping/python/openmeeg to ${CMAKE_CURRENT_BINARY_DIR}/openmeeg"
+    VERBATIM
+)
 add_custom_command(
-    TARGET ${SWIG_TARGET_NAME} POST_BUILD
+    TARGET ${SWIG_TARGET_NAME} PRE_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy
     ${CMAKE_SOURCE_DIR}/wrapping/python/MANIFEST.in
     ${CMAKE_SOURCE_DIR}/wrapping/python/setup.py
     ${CMAKE_SOURCE_DIR}/wrapping/python/README.rst
-    ${CMAKE_CURRENT_BINARY_DIR})
-add_custom_command(
-    TARGET ${SWIG_TARGET_NAME} POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
-    ${CMAKE_SOURCE_DIR}/wrapping/python/openmeeg/tests
-    ${CMAKE_CURRENT_BINARY_DIR}/openmeeg/tests)
+    ${CMAKE_CURRENT_BINARY_DIR}
+    COMMENT "Python: Copying MANIFEST.in, setup.py, and README.rst to ${CMAKE_CURRENT_BINARY_DIR}"
+    VERBATIM
+)
 
 # Installation just copies the directory
 install(DIRECTORY  ${OpenMEEG_BINARY_DIR}/wrapping/python/openmeeg
@@ -115,18 +115,24 @@ install(DIRECTORY  ${OpenMEEG_BINARY_DIR}/wrapping/python/openmeeg
 if (APPLE)
     set_target_properties(${SWIG_TARGET_NAME} PROPERTIES LINK_FLAGS "-undefined dynamic_lookup")
 endif()
-if (WIN32)
+if (PYTHON_COPY_RUNTIME_DLLS)
     add_custom_command(TARGET ${SWIG_TARGET_NAME} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_RUNTIME_DLLS:${SWIG_TARGET_NAME}> ${CMAKE_BINARY_DIR}
         COMMAND_EXPAND_LISTS
+        COMMENT "Python: Copying runtime DLLs for ${SWIG_TARGET_NAME}"
+        VERBATIM
     )
     add_custom_command(TARGET ${SWIG_TARGET_NAME} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_RUNTIME_DLLS:OpenMEEG> ${CMAKE_BINARY_DIR}
         COMMAND_EXPAND_LISTS
+        COMMENT "Python: Copying runtime DLLs for OpenMEEG"
+        VERBATIM
     )
     add_custom_command(TARGET ${SWIG_TARGET_NAME} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_RUNTIME_DLLS:OpenMEEGMaths> ${CMAKE_BINARY_DIR}
         COMMAND_EXPAND_LISTS
+        COMMENT "Python: Copying runtime DLLs for OpenMEEGMaths"
+        VERBATIM
     )
 endif()
 

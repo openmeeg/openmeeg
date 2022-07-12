@@ -4,16 +4,22 @@ if [[ "${BUILD_TYPE}" == "" ]]; then
     BUILD_TYPE=Release
 fi
 
+if [[ "${PYTHON_OPT}" == "" ]]; then
+    PYTHON_OPT="-DENABLE_PYTHON=ON"
+    PYTHON_EXECUTABLE_OPT="-DPython3_EXECUTABLE=$(which python)"
+fi
+
 set -x
 cmake -B build \
       -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
       $BLA_STATIC_OPT \
       $BLA_IMPL \
       $PYTHON_OPT \
+      $PYTHON_EXECUTABLE_OPT \
+      $PYTHON_COPY_RUNTIME_DLLS_OPT \
       $DOC_OPT \
       $SDK_OPT \
       $TOOLSET_OPT \
-      $PYTHON_INFO_OPT \
       $WERROR_OPT \
       -DCMAKE_EXE_LINKER_FLAGS="$LINKER_OPT" \
       -DCMAKE_SHARED_LINKER_FLAGS="$LINKER_OPT" \
