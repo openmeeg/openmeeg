@@ -6,6 +6,8 @@
 
 from pathlib import Path
 import os
+import sys
+
 from setuptools import setup, Extension  # noqa
 
 root = Path(__file__).parent
@@ -87,6 +89,7 @@ if __name__ == "__main__":
         long_description = fid.read()
 
     # SWIG
+    cmdclass = {}
     ext_modules = []
     if os.getenv('OPENMEEG_USE_SWIG', '0').lower() in ('1', 'true'):
         include_dirs = [np.get_include()]
@@ -113,6 +116,10 @@ if __name__ == "__main__":
             library_dirs=library_dirs,
         )
         ext_modules.append(swig_openmeeg)
+    else:  # built with -DENABLE_PYTHON=ON
+        # TODO: This breaks macOS for some reason!
+        if sys.platform != 'darwin':
+            cmdclass['bdist_wheel'] = bdist_wheel
 
     setup(name=DISTNAME,
           maintainer=MAINTAINER,
@@ -148,8 +155,6 @@ if __name__ == "__main__":
           python_requires='>=3.7',
           install_requires=["numpy"],
           packages=["openmeeg", "openmeeg.tests"],
-          #cmdclass={  # TODO: This breaks macOS for some reason!
-          #    'bdist_wheel': bdist_wheel,
-          #},
+          cmdclass=cmdclass,
           ext_modules=ext_modules,
           )
