@@ -31,7 +31,6 @@ target_link_libraries(OpenMEEGMaths
           MATIO::MATIO
           HDF5::HDF5
 )
-target_compile_definitions(OpenMEEGMaths PUBLIC ${BLA_DEFINITIONS} ${SHARED_PTR_DEFINITIONS})
 add_library(OpenMEEG::OpenMEEGMaths ALIAS OpenMEEGMaths)
 
 generate_export_header(OpenMEEGMaths

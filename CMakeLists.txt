@@ -21,6 +21,7 @@ include(thirdParties)
 include(install)  # install setup (do it before adding targets)
 include(Uninstall)  # install setup (do it before adding targets)
 
+message("-- Configuring OpenMEEGConfigure.h ...")
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/OpenMEEGConfigure.h.in
                ${CMAKE_CURRENT_BINARY_DIR}/OpenMEEGConfigure.h)
 

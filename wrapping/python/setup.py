@@ -6,7 +6,7 @@
 
 from pathlib import Path
 import os
-from setuptools import setup
+from setuptools import setup, Extension  # noqa
 
 root = Path(__file__).parent
 
@@ -51,7 +51,6 @@ import glob
 import platform
 from shutil import copyfile
 import numpy as np
-from setuptools import Extension
 from distutils.command.build import build
 
 
@@ -79,6 +78,7 @@ def find_openmeeg_include():
 """
 
 if __name__ == "__main__":
+    import numpy as np
     manifest = (root / 'MANIFEST')
     if manifest.is_file():
         os.remove(manifest)
@@ -86,22 +86,33 @@ if __name__ == "__main__":
     with open('README.rst', 'r') as fid:
         long_description = fid.read()
 
-    # SWIG compiling was kind of close with this...
-    # openmeeg_root = root / '..' / '..' / 'install'
-    # openmeeg_include = find_openmeeg_include()
-    # openmeeg_lib = (openmeeg_root / '..' / 'lib').resolve()
-    # assert openmeeg_include.is_dir()
-    # assert (openmeeg_include / 'OpenMEEG' / 'vect3.h').is_file()
-    # numpy_include = np.get_include()
-    # swig_openmeeg = Extension(
-    #     "openmeeg._openmeeg",
-    #     ["openmeeg/openmeeg.i", "openmeeg/openmeeg.cpp"],
-    #     include_dirs=[openmeeg_include],
-    #     swig_opts=['-c++', '-v', '-Werror', f'-I{openmeeg_include}'],
-    #     libraries=['OpenMEEG'],
-    #     library_dirs=[openmeeg_lib],
-    #     extra_compile_args=['-v', '-std=c++17'],
-    # )
+    # SWIG
+    ext_modules = []
+    if os.getenv('OPENMEEG_USE_SWIG', '0').lower() in ('1', 'true'):
+        include_dirs = [np.get_include()]
+        swig_opts = ['-c++', '-v', '-Werror']
+        library_dirs = []
+        openmeeg_include = os.getenv('OPENMEEG_INCLUDE')
+        if openmeeg_include is not None:
+            openmeeg_include = Path(openmeeg_include)
+            assert openmeeg_include.is_dir(), openmeeg_include
+            include_dirs.append(str(openmeeg_include))
+            swig_opts.append(f'-I{openmeeg_include}')
+        openmeeg_lib = os.getenv('OPENMEEG_LIB')
+        if openmeeg_lib is not None:
+            openmeeg_lib = Path(openmeeg_lib)
+            assert openmeeg_lib.is_dir(), openmeeg_lib
+            library_dirs.append(openmeeg_lib)
+        swig_openmeeg = Extension(
+            "openmeeg._openmeeg",
+            ["openmeeg/openmeeg.i"],
+            libraries=['OpenMEEG'],
+            swig_opts=swig_opts,
+            extra_compile_args=['-v', '-std=c++17'],
+            include_dirs=include_dirs,
+            library_dirs=library_dirs,
+        )
+        ext_modules.append(swig_openmeeg)
 
     setup(name=DISTNAME,
           maintainer=MAINTAINER,
@@ -140,5 +151,5 @@ if __name__ == "__main__":
           #cmdclass={  # TODO: This breaks macOS for some reason!
           #    'bdist_wheel': bdist_wheel,
           #},
-          # ext_modules=[swig_openmeeg],
+          ext_modules=ext_modules,
           )

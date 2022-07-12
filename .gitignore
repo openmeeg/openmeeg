@@ -11,4 +11,5 @@ vcpkg/
 b/
 vcpkg_installed/
 openblas/
+install/
 *.orig

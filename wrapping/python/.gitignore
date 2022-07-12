@@ -1,0 +1,3 @@
+*.egg-info
+openmeeg/openmeeg.py
+openmeeg/openmeeg_wrap.cpp
