@@ -43,7 +43,7 @@ target_include_directories(OpenMEEG
       PUBLIC
           $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/OpenMEEG>
           $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-          $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}> # XXX: this is to include the generated file OpenMEEG_Export.h
+          $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/exports>
           $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}>         # XXX: this is to include the generated file OpenMEEGConfigure.h
           ${VTK_INCLUDE_DIRS}
           ${GIFTI_INCLUDE_DIRS}
@@ -61,7 +61,7 @@ target_link_libraries(OpenMEEG
 add_library(OpenMEEG::OpenMEEG ALIAS OpenMEEG)
 
 generate_export_header(OpenMEEG
-    EXPORT_FILE_NAME OpenMEEG_Export.h
+    EXPORT_FILE_NAME ${CMAKE_BINARY_DIR}/exports/OpenMEEG_Export.h
     STATIC_DEFINE OpenMEEG_BUILT_AS_STATIC)
 
 # 'make install' to the correct locations (provided by GNUInstallDirs).
@@ -70,3 +70,4 @@ install(TARGETS OpenMEEG EXPORT OpenMEEGConfig
     LIBRARY  DESTINATION ${CMAKE_INSTALL_LIBDIR}
     RUNTIME  DESTINATION ${CMAKE_INSTALL_BINDIR})  # This is for Windows
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/OpenMEEG)
+install(DIRECTORY ${CMAKE_BINARY_DIR}/exports/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/OpenMEEG)
