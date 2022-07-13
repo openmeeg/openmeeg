@@ -16,3 +16,15 @@ static const char version[] = "@OpenMEEG_VERSION@";
     #define STATIC_OMP static
     #define NO_OPENMP
 #endif
+
+// export things for later use (e.g., by Python SWIG) under the assumption
+// that we're using the same compilation setup
+#cmakedefine HAVE_BLAS
+#cmakedefine HAVE_LAPACK
+#cmakedefine USE_LAPACK
+#cmakedefine USE_MKL
+#cmakedefine USE_ATLAS
+#cmakedefine USE_OPENBLAS
+#cmakedefine USE_VECLIB
+#cmakedefine HAVE_SHARED_PTR_ARRAY_SUPPORT
+#cmakedefine CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION "@CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION@"

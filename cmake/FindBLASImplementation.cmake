@@ -1,4 +1,3 @@
-set(BLA_DEFINITIONS)
 set(BLA_SIZEOF_INTEGER 4)
 set(BLA_IMPLEMENTATION "OpenBLAS" CACHE STRING "BLAS/LAPACK implementation")
 set_property(CACHE BLA_IMPLEMENTATION PROPERTY STRINGS "OpenBlas" "mkl" "mkl-findblas")
@@ -7,7 +6,9 @@ if (BLA_IMPLEMENTATION STREQUAL "mkl-findblas")
 
     # Just use the findblas interface
     message(STATUS "Using BLA_IMPLEMENTATION=mkl-findblas")
-    set(BLA_DEFINITIONS USE_MKL HAVE_BLAS HAVE_LAPACK)
+    set(USE_MKL ON)
+    set(HAVE_BLAS ON)
+    set(HAVE_LAPACK ON)
 
 elseif (BLA_IMPLEMENTATION STREQUAL "mkl")
     message(STATUS "Using BLA_IMPLEMENTATION=mkl")
@@ -72,13 +73,17 @@ elseif (BLA_IMPLEMENTATION STREQUAL "mkl")
     # So for the time being, we force lp mode.
 
     set(BLA_VENDOR Intel10_${MKL_ARCH_BITS}${MKL_INT_MODEL}${MKL_PARALLEL_SUFFIX})
-    set(BLA_DEFINITIONS USE_MKL ${MKL_INTERFACE_DEF} HAVE_BLAS HAVE_LAPACK)
+    set(USE_MKL ON)
+    set(HAVE_BLAS ON)
+    set(HAVE_LAPACK ON)
     set(BLA_INCLUDE_DIR ${MKL_INCLUDE})
 
 elseif (BLA_IMPLEMENTATION STREQUAL "OpenBLAS")
 
     message(STATUS "Using BLA_IMPLEMENTATION=OpenBLAS")
-    set(BLA_DEFINITIONS USE_OPENBLAS HAVE_BLAS HAVE_LAPACK)
+    set(USE_OPENBLAS ON)
+    set(HAVE_BLAS ON)
+    set(HAVE_LAPACK ON)
     set(BLA_VENDOR ${BLA_IMPLEMENTATION})
 
 else()

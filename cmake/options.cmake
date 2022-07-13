@@ -53,6 +53,8 @@ endif()
 if (MSVC)
     add_compile_options(/EHsc)
 endif()
-
+if(CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION)
+    message(STATUS "Selected Windows SDK version ${CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION}")
+endif()
 # Installation options
 include(GNUInstallDirs)

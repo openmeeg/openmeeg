@@ -17,11 +17,11 @@ check_cxx_feature(HAVE_SHARED_PTR_ARRAY_EXTENSION
                   shared_ptr_array_extension.cpp
                   "has C++17 extension of shared_ptr for arrays")
 
-set(SHARED_PTR_DEFINITIONS HAVE_SHARED_PTR_ARRAY_SUPPORT)
+set(HAVE_SHARED_PTR_ARRAY_SUPPORT ON)
 if (NOT HAVE_SHARED_PTR_ARRAY_EXTENSION)
     message("Missing support of shared_ptr for arrays. Using boost instead.")
     find_package(Boost 1.53.0 REQUIRED)
-    unset(SHARED_PTR_DEFINITIONS)
+    unset(HAVE_SHARED_PTR_ARRAY_SUPPORT)
 endif()
 
 check_cxx_feature(HAVE_ISNORMAL_IN_NAMESPACE_STD

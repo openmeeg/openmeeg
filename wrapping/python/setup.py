@@ -6,7 +6,10 @@
 
 from pathlib import Path
 import os
-from setuptools import setup
+import sys
+
+from setuptools import setup, Extension  # noqa
+from setuptools.command import build_py
 
 root = Path(__file__).parent
 
@@ -45,40 +48,16 @@ except ImportError:
     bdist_wheel = None  # noqa
 
 
-"""  # in case someday we do a proper SWIG build...
-from ctypes.util import find_library
-import glob
-import platform
-from shutil import copyfile
-import numpy as np
-from setuptools import Extension
-from distutils.command.build import build
+# Subclass the build command so that build_ext is called before build_py
+class BuildExtFirst(build_py.build_py):
+    def run(self):
+        self.run_command("build_ext")
+        super().run()
 
 
-def find_openmeeg_include():
-    # If a path is provded by the environment, expect the GLPK header there.
-    header_path = os.environ.get('OPENMEEG_HEADER_PATH', None)
-    if not header_path:
-        header_path = find_library('OpenMEEG')
-        if header_path is not None:
-            header_path = Path(header_path).parent.parent / 'include'
-    else:
-        header_path = Path(header_path)
-
-    if header_path is None or not header_path.is_dir():
-        extra = f' {header_path}' if header_path is not None else ''
-        raise RuntimeError(f'Could not find OpenMEEG header directory{extra}, '
-                           'consider setting OPENMEEG_HEADER_PATH')
-    header_path = header_path.resolve()
-    header_file = header_path / 'OpenMEEG' / 'OpenMEEGMathsConfig.h'
-    if not header_file.is_file():
-        raise RuntimeError(
-            f'Could not find expected OpenMEEG header {header_file} in '
-            f'directory {header_path}')
-    return header_path
-"""
 
 if __name__ == "__main__":
+    import numpy as np
     manifest = (root / 'MANIFEST')
     if manifest.is_file():
         os.remove(manifest)
@@ -86,22 +65,42 @@ if __name__ == "__main__":
     with open('README.rst', 'r') as fid:
         long_description = fid.read()
 
-    # SWIG compiling was kind of close with this...
-    # openmeeg_root = root / '..' / '..' / 'install'
-    # openmeeg_include = find_openmeeg_include()
-    # openmeeg_lib = (openmeeg_root / '..' / 'lib').resolve()
-    # assert openmeeg_include.is_dir()
-    # assert (openmeeg_include / 'OpenMEEG' / 'vect3.h').is_file()
-    # numpy_include = np.get_include()
-    # swig_openmeeg = Extension(
-    #     "openmeeg._openmeeg",
-    #     ["openmeeg/openmeeg.i", "openmeeg/openmeeg.cpp"],
-    #     include_dirs=[openmeeg_include],
-    #     swig_opts=['-c++', '-v', '-Werror', f'-I{openmeeg_include}'],
-    #     libraries=['OpenMEEG'],
-    #     library_dirs=[openmeeg_lib],
-    #     extra_compile_args=['-v', '-std=c++17'],
-    # )
+    # SWIG
+    cmdclass = dict(build_py=BuildExtFirst)
+    ext_modules = []
+    if os.getenv('OPENMEEG_USE_SWIG', '0').lower() in ('1', 'true'):
+        include_dirs = [np.get_include()]
+        swig_opts = ['-c++', '-v', '-Werror']
+        library_dirs = []
+        openmeeg_include = os.getenv('OPENMEEG_INCLUDE')
+        if openmeeg_include is not None:
+            openmeeg_include = Path(openmeeg_include)
+            assert openmeeg_include.is_dir(), openmeeg_include
+            include_dirs.append(str(openmeeg_include))
+            swig_opts.append(f'-I{openmeeg_include}')
+        openmeeg_lib = os.getenv('OPENMEEG_LIB')
+        if openmeeg_lib is not None:
+            openmeeg_lib = Path(openmeeg_lib)
+            assert openmeeg_lib.is_dir(), openmeeg_lib
+            library_dirs.append(str(openmeeg_lib))
+        extra_compile_opts = []
+        if os.getenv('SWIG_FLAGS', '') != 'msvc':
+            extra_compile_opts.extend(['-v', '-std=c++17'])
+
+        swig_openmeeg = Extension(
+            "openmeeg._openmeeg",
+            sources=["openmeeg/openmeeg.i"],
+            libraries=['OpenMEEG'],
+            swig_opts=swig_opts,
+            extra_compile_args=extra_compile_opts,
+            include_dirs=include_dirs,
+            library_dirs=library_dirs,
+        )
+        ext_modules.append(swig_openmeeg)
+    else:  # built with -DENABLE_PYTHON=ON
+        # TODO: This breaks macOS for some reason!
+        if sys.platform != 'darwin':
+            cmdclass['bdist_wheel'] = bdist_wheel
 
     setup(name=DISTNAME,
           maintainer=MAINTAINER,
@@ -137,8 +136,6 @@ if __name__ == "__main__":
           python_requires='>=3.7',
           install_requires=["numpy"],
           packages=["openmeeg", "openmeeg.tests"],
-          #cmdclass={  # TODO: This breaks macOS for some reason!
-          #    'bdist_wheel': bdist_wheel,
-          #},
-          # ext_modules=[swig_openmeeg],
+          cmdclass=cmdclass,
+          ext_modules=ext_modules,
           )
