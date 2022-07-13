@@ -408,7 +408,7 @@ jobs:
             export OPENMEEG_LIB=$(cygpath -w $OPENMEEG_LIB)
             export OPENMEEG_INCLUDE=$(cygpath -w $OPENMEEG_INCLUDE)
             if [[ "${{matrix.windows_compiler}}" == 'msvc'* ]]; then
-              export CL="/I$OPENBLAS_INCLUDE /p:WindowsTargetPlatformVersion=7"
+              export CL="/I$OPENBLAS_INCLUDE /p:WindowsTargetPlatformVersion=7 /VERBOSE /std:c++17"
             fi
             export SWIG_FLAGS="msvc"
             echo "PATH=$PATH"

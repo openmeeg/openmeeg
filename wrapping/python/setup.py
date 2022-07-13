@@ -85,8 +85,6 @@ if __name__ == "__main__":
             library_dirs.append(str(openmeeg_lib))
         extra_compile_opts = []
         if os.getenv('SWIG_FLAGS', '') != 'msvc':
-            extra_compile_opts.extend(['/VERBOSE', '/std:c++17'])
-        else:
             extra_compile_opts.extend(['-v', '-std=c++17'])
 
         swig_openmeeg = Extension(
