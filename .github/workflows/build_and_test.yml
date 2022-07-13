@@ -274,15 +274,17 @@ jobs:
         brew install hdf5 libmatio boost swig $BREW_EXTRA
         if [[ "${{matrix.blas}}" == "OpenBLAS" ]]; then
           BLAS_DIR=/usr/local/opt/openblas
-          echo "Checking for $BLAS_DIR/include"
-          test -d $BLAS_DIR/include
+          OPENBLAS_INCLUDE=$BLAS_DIR/include
+          OPENBLAS_LIB=$BLAS_DIR/lib
+          echo "Checking for $OPENBLAS_INCLUDE"
+          test -d $OPENBLAS_INCLUDE
           echo "Checking for LAPACK"
-          ls -al $BLAS_DIR/include
-          test -f $BLAS_DIR/include/lapack.h
-          ls -al /usr/local/opt/openblas/lib
-          test -f /usr/local/opt/openblas/lib/libopenblas.dylib
-          echo "OPENBLAS_INCLUDE=$BLAS_DIR/include" >> $GITHUB_ENV
-          echo "CMAKE_CXX_FLAGS=-I$BLAS_DIR/include -L$BLAS_DIR/lib" >> $GITHUB_ENV
+          ls -al $OPENBLAS_INCLUDE
+          test -f $OPENBLAS_INCLUDE/lapack.h
+          ls -al $OPENBLAS_LIB
+          test -f $OPENBLAS_LIB/libopenblas.dylib
+          echo "OPENBLAS_INCLUDE=$OPENBLAS_INCLUDE" >> $GITHUB_ENV
+          echo "CMAKE_CXX_FLAGS=-I$OPENBLAS_INCLUDE -L$OPENBLAS_LIB" >> $GITHUB_ENV
           echo "CMAKE_PREFIX_PATH=$BLAS_DIR" >> $GITHUB_ENV
         fi
 
