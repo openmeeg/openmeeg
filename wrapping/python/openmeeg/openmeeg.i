@@ -276,7 +276,7 @@ namespace OpenMEEG {
 
         IndexMap indmap;
         const size_t num_vertices = PyArray_DIM(array,0);
-        for (int i=0; i<num_vertices; ++i) {
+        for (unsigned int i=0; i<num_vertices; ++i) {
             const double x = *reinterpret_cast<double*>(PyArray_GETPTR2(array,i,0));
             const double y = *reinterpret_cast<double*>(PyArray_GETPTR2(array,i,1));
             const double z = *reinterpret_cast<double*>(PyArray_GETPTR2(array,i,2));
@@ -326,7 +326,7 @@ namespace OpenMEEG {
             return &(mesh->geometry().vertices().at(indmap.at(vi)));
         };
 
-        for (int i=0; i<nbTriangles; ++i) {
+        for (int unsigned i=0; i<nbTriangles; ++i) {
             try {
                 Vertex* v1 = get_vertex(array,i,0);
                 Vertex* v2 = get_vertex(array,i,1);
@@ -524,7 +524,7 @@ namespace OpenMEEG {
                 return nullptr;
             }
 
-            OpenMEEG:Mesh& mesh = geometry->add_mesh();
+            Mesh& mesh = geometry->add_mesh();
             PyObject* triangles = PyList_GetItem(item,2);
             mesh_add_triangles(&mesh,triangles,indmap[i]);
             mesh.update(true);

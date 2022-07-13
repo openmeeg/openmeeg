@@ -9,6 +9,7 @@ import os
 import sys
 
 from setuptools import setup, Extension  # noqa
+from setuptools.command import build_py
 
 root = Path(__file__).parent
 
@@ -47,6 +48,14 @@ except ImportError:
     bdist_wheel = None  # noqa
 
 
+# Subclass the build command so that build_ext is called before build_py
+class BuildExtFirst(build_py.build_py):
+    def run(self):
+        self.run_command("build_ext")
+        super().run()
+
+
+
 if __name__ == "__main__":
     import numpy as np
     manifest = (root / 'MANIFEST')
@@ -57,7 +66,7 @@ if __name__ == "__main__":
         long_description = fid.read()
 
     # SWIG
-    cmdclass = {}
+    cmdclass = dict(build_py=BuildExtFirst)
     ext_modules = []
     if os.getenv('OPENMEEG_USE_SWIG', '0').lower() in ('1', 'true'):
         include_dirs = [np.get_include()]
@@ -76,7 +85,7 @@ if __name__ == "__main__":
             library_dirs.append(str(openmeeg_lib))
         swig_openmeeg = Extension(
             "openmeeg._openmeeg",
-            ["openmeeg/openmeeg.i"],
+            sources=["openmeeg/openmeeg.i"],
             libraries=['OpenMEEG'],
             swig_opts=swig_opts,
             extra_compile_args=['-v', '-std=c++17'],
