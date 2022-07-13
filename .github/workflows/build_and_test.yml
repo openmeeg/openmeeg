@@ -254,6 +254,7 @@ jobs:
         echo "OPENBLAS_LIB=$OPENBLAS_LIB" >> $GITHUB_ENV
         echo "LIB=$(cygpath -w $OPENBLAS_LIB);${LIB}" >> $GITHUB_ENV
         echo "CMAKE_CXX_FLAGS=-I$(cygpath -m $OPENBLAS_INCLUDE)" >> $GITHUB_ENV
+        echo "OPENBLAS_INCLUDE=$(cygpath -w $OPENBLAS_INCLUDE)" >> $GITHUB_ENV
 
     - name: Windows 4 - OpenBLAS + MSVC needs Windows 8.1 SDK
       if: startsWith(matrix.blas,'OpenBLAS') && startsWith(matrix.os,'windows') && startsWith(matrix.windows_compiler,'msvc')
@@ -280,6 +281,7 @@ jobs:
           test -f $BLAS_DIR/include/lapack.h
           ls -al /usr/local/opt/openblas/lib
           test -f /usr/local/opt/openblas/lib/libopenblas.dylib
+          echo "OPENBLAS_INCLUDE=$BLAS_DIR/include" >> $GITHUB_ENV
           echo "CMAKE_CXX_FLAGS=-I$BLAS_DIR/include -L$BLAS_DIR/lib" >> $GITHUB_ENV
           echo "CMAKE_PREFIX_PATH=$BLAS_DIR" >> $GITHUB_ENV
         fi
@@ -351,7 +353,11 @@ jobs:
             cp ./OpenMEEGMaths/Release/zlib1.dll .
             cp ./OpenMEEGMaths/Release/hdf5.dll .
           fi
-          cp -a *.dll wrapping/python/openmeeg
+          if [[ "${{steps.env-vars.outputs.python_type}}" == 'cmake' ]]; then
+            cp -a *.dll wrapping/python/openmeeg
+          else
+            cp -a *.dll python/openmeeg
+          fi
           echo "After:"
           ls -al *.dll || true
           cd ..
@@ -362,10 +368,14 @@ jobs:
         ls -alR ./install/bin ./install/lib
         if [[ "${{matrix.os}}" == 'windows'* ]]; then
           export PATH="$PWD/build:$PWD/install/bin:$(cygpath -u $CONDA_PREFIX)/Library:$(cygpath -u $CONDA_PREFIX)/Library/lib:$PATH"
+          export CPATH="$OPENBLAS_INCLUDE:$CPATH"
           echo "PATH=$PATH"
+          echo "CPATH=$CPATH"
         elif [[ "${{matrix.os}}" == 'macos'* ]]; then
           export DYLD_LIBRARY_PATH="$CONDA_PREFIX/lib:$PWD/install/lib:$DYLD_LIBRARY_PATH"
+          export CPATH="$OPENBLAS_INCLUDE:$CPATH"
           echo "DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH"
+          echo "CPATH=$CPATH"
         else
           export LD_LIBRARY_PATH="$CONDA_PREFIX/lib:$PWD/install/lib:LD_LIBRARY_PATH"
           echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH"
