@@ -73,19 +73,21 @@ jobs:
         #  blas_linking: static
         #  python: cmake
         #  windows_compiler: mingw64
-        # TODO: Replace with separate cibuildwheel job instead!
-        # All three OSes using setuptools
+        ## TODO: Replace with separate cibuildwheel job instead!
+        ## All three OSes using setuptools
         - os: ubuntu-20.04
           blas: OpenBLAS
           blas_linking: dynamic
           python: setuptools
           windows_compiler: msvc
-        - os: windows-2019
+        - os: macos-latest
           blas: OpenBLAS
           blas_linking: dynamic
           python: setuptools
           windows_compiler: msvc
-        - os: macos-latest
+        # TODO: This works other than being able to set the SDK... let's hope it's
+        # not an issue for cibuildwheel!
+        - os: windows-2019
           blas: OpenBLAS
           blas_linking: dynamic
           python: setuptools
@@ -256,14 +258,6 @@ jobs:
         echo "CMAKE_CXX_FLAGS=-I$(cygpath -m $OPENBLAS_INCLUDE)" >> $GITHUB_ENV
         echo "OPENBLAS_INCLUDE=$(cygpath -w $OPENBLAS_INCLUDE)" >> $GITHUB_ENV
 
-    - name: Windows 4 - OpenBLAS + MSVC needs Windows 8.1 SDK
-      if: startsWith(matrix.blas,'OpenBLAS') && startsWith(matrix.os,'windows') && startsWith(matrix.windows_compiler,'msvc')
-      # https://github.com/actions/virtual-environments/issues/842#issuecomment-643382166
-      shell: powershell
-      run: |
-        Invoke-WebRequest -Method Get -Uri https://go.microsoft.com/fwlink/p/?LinkId=323507 -OutFile sdksetup.exe -UseBasicParsing
-        Start-Process -Wait sdksetup.exe -ArgumentList "/q", "/norestart", "/features", "OptionId.WindowsDesktopSoftwareDevelopmentKit", "OptionId.NetFxSoftwareDevelopmentKit"
-
     - name: macOS - hdf5, libmatio, and (optionally) OpenBLAS via brew
       if: startswith(matrix.os,'macos')
       run: |
@@ -277,12 +271,12 @@ jobs:
           OPENBLAS_INCLUDE=$BLAS_DIR/include
           OPENBLAS_LIB=$BLAS_DIR/lib
           echo "Checking for $OPENBLAS_INCLUDE"
-          test -d $OPENBLAS_INCLUDE
+          test -d "$OPENBLAS_INCLUDE"
           echo "Checking for LAPACK"
           ls -al $OPENBLAS_INCLUDE
-          test -f $OPENBLAS_INCLUDE/lapack.h
+          test -f "$OPENBLAS_INCLUDE/lapack.h"
           ls -al $OPENBLAS_LIB
-          test -f $OPENBLAS_LIB/libopenblas.dylib
+          test -f "$OPENBLAS_LIB/libopenblas.dylib"
           echo "OPENBLAS_INCLUDE=$OPENBLAS_INCLUDE" >> $GITHUB_ENV
           echo "CMAKE_CXX_FLAGS=-I$OPENBLAS_INCLUDE -L$OPENBLAS_LIB" >> $GITHUB_ENV
           echo "CMAKE_PREFIX_PATH=$BLAS_DIR" >> $GITHUB_ENV
@@ -411,7 +405,7 @@ jobs:
               ls "/C/Program Files (x86)/Windows Kits/10/include"
               SDK_PATH="C:\Program Files (x86)\Windows Kits\10\include\10.0.14393.0"
               echo $SDK_PATH
-              test -d $(cygpath -u $SDK_PATH)
+              test -d "$(cygpath -u $SDK_PATH)"
               export CL="/I$OPENBLAS_INCLUDE /std:c++17 \"-I${SDK_PATH}\ucrt\" \"-I${SDK_PATH}\shared\" \"-I${SDK_PATH}\um\" \"-I${SDK_PATH}\winrt\" \"-I${SDK_PATH}\cppwinrt\""
             fi
             export SWIG_FLAGS="msvc"
