@@ -73,7 +73,8 @@ jobs:
         #  blas_linking: static
         #  python: cmake
         #  windows_compiler: mingw64
-        # All three OSes using setuptools (TODO: Replace with cibuildwheel job instead)
+        # TODO: Replace with separate cibuildwheel job instead!
+        # All three OSes using setuptools
         - os: ubuntu-20.04
           blas: OpenBLAS
           blas_linking: dynamic
@@ -111,7 +112,7 @@ jobs:
         else
           echo '::set-output name=python::python'
           echo '::set-output name=python_type::${{matrix.python}}'
-          if [[ "{{matrix.python}}" == 'setuptools' ]]; then
+          if [[ "${{matrix.python}}" == 'setuptools' ]]; then
             echo "PYTHON_OPT=-DENABLE_PYTHON=OFF" >> $GITHUB_ENV
           fi
         fi
