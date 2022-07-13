@@ -47,38 +47,6 @@ except ImportError:
     bdist_wheel = None  # noqa
 
 
-"""  # in case someday we do a proper SWIG build...
-from ctypes.util import find_library
-import glob
-import platform
-from shutil import copyfile
-import numpy as np
-from distutils.command.build import build
-
-
-def find_openmeeg_include():
-    # If a path is provded by the environment, expect the GLPK header there.
-    header_path = os.environ.get('OPENMEEG_HEADER_PATH', None)
-    if not header_path:
-        header_path = find_library('OpenMEEG')
-        if header_path is not None:
-            header_path = Path(header_path).parent.parent / 'include'
-    else:
-        header_path = Path(header_path)
-
-    if header_path is None or not header_path.is_dir():
-        extra = f' {header_path}' if header_path is not None else ''
-        raise RuntimeError(f'Could not find OpenMEEG header directory{extra}, '
-                           'consider setting OPENMEEG_HEADER_PATH')
-    header_path = header_path.resolve()
-    header_file = header_path / 'OpenMEEG' / 'OpenMEEGMathsConfig.h'
-    if not header_file.is_file():
-        raise RuntimeError(
-            f'Could not find expected OpenMEEG header {header_file} in '
-            f'directory {header_path}')
-    return header_path
-"""
-
 if __name__ == "__main__":
     import numpy as np
     manifest = (root / 'MANIFEST')
@@ -105,7 +73,7 @@ if __name__ == "__main__":
         if openmeeg_lib is not None:
             openmeeg_lib = Path(openmeeg_lib)
             assert openmeeg_lib.is_dir(), openmeeg_lib
-            library_dirs.append(openmeeg_lib)
+            library_dirs.append(str(openmeeg_lib))
         swig_openmeeg = Extension(
             "openmeeg._openmeeg",
             ["openmeeg/openmeeg.i"],
