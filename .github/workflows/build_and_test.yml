@@ -386,9 +386,10 @@ jobs:
 
     - name: Create, delocate, check, install, and test wheel
       if: startswith(steps.env-vars.outputs.python, 'python')
+      id: wheel
       run: |
-        cd build/wrapping/python
         if [[ "${{steps.env-vars.outputs.python_type}}" == 'setuptools' ]]; then
+          cd build
           export OPENMEEG_INCLUDE=$PWD/install/include/OpenMEEG
           export OPENMEEG_LIB=$PWD/install/lib
           export OPENMEEG_USE_SWIG=1
@@ -405,7 +406,13 @@ jobs:
             export LIBRARY_PATH="$CONDA_PREFIX/lib:$PWD/install/lib:LIBRARY_PATH"
             echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH"
           fi
+          cd ../wrapping/python  # in root
+          echo '::set-output name=path::wrapping/python/dist/*.whl'
+        else
+          cd build/wrapping/python  # in build dir
+          echo '::set-output name=path::build/wrapping/python/dist/*.whl'
         fi
+        pwd
         python setup.py bdist_wheel sdist
         echo "Wheels:"
         ls -alR dist/*.whl
@@ -442,7 +449,7 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: wrapping-${{ matrix.os }}_${{ matrix.python_type }}_${{ matrix.blas }}_${{ matrix.blas_linking }}_${{ matrix.windows_compiler }}
-        path: build/wrapping/python/dist/*.whl
+        path: ${{ steps.wheel.outputs.path }}
 
     - name: Test
       working-directory: ${{github.workspace}}/build
