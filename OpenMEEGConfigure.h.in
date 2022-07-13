@@ -27,3 +27,4 @@ static const char version[] = "@OpenMEEG_VERSION@";
 #cmakedefine USE_OPENBLAS
 #cmakedefine USE_VECLIB
 #cmakedefine HAVE_SHARED_PTR_ARRAY_SUPPORT
+#cmakedefine CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION

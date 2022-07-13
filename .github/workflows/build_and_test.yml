@@ -322,8 +322,8 @@ jobs:
       if: startswith(steps.env-vars.outputs.python, 'python')
       # Let's make it easy for delvewheel to find the stuff it might need
       run: |
+        cd build
         if [[ "${{matrix.os}}" == 'windows'* ]]; then
-          cd build
           echo "All:"
           find . -type f -iname "*.dll"
           echo "Data:"
@@ -362,8 +362,8 @@ jobs:
           else
             cp -a *.dll ../wrapping/python/openmeeg
           fi
-          cd ..
         fi
+        cat OpenMEEGConfigure.h
 
     - name: Check installed binaries and Python wrapper
       run: |
