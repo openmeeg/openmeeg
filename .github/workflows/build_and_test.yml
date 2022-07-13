@@ -409,7 +409,9 @@ jobs:
             export OPENMEEG_INCLUDE=$(cygpath -w $OPENMEEG_INCLUDE)
             if [[ "${{matrix.windows_compiler}}" == 'msvc'* ]]; then
               ls "/C/Program Files (x86)/Windows Kits/10/include"
-              SDK_PATH="C:\Program Files (x86)\Windows Kits\10\include\8.1"
+              SDK_PATH="C:\Program Files (x86)\Windows Kits\10\include\10.0.14393.0"
+              echo $SDK_PATH
+              test -d $(cygpath -u $SDK_PATH)
               export CL="/I$OPENBLAS_INCLUDE /std:c++17 \"-I${SDK_PATH}\ucrt\" \"-I${SDK_PATH}\shared\" \"-I${SDK_PATH}\um\" \"-I${SDK_PATH}\winrt\" \"-I${SDK_PATH}\cppwinrt\""
             fi
             export SWIG_FLAGS="msvc"
