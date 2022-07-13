@@ -33,48 +33,48 @@ jobs:
         python: [cmake]
         windows_compiler: [mingw64]
         include:
-        ## MSVC + MKL + static + Python
-        #- os: windows-2019
-        #  blas: mkl-findblas
-        #  blas_linking: static
-        #  python: cmake
-        #  windows_compiler: msvc
-        ## MSVC + OpenBLAS + Python
-        #- os: windows-2019
-        #  blas: OpenBLAS
-        #  blas_linking: dynamic
-        #  python: cmake
-        #  windows_compiler: msvc
-        ## MKL on each OS (static unless it has to be dynamic)
-        #- os: windows-2019
-        #  blas: mkl-findblas
-        #  blas_linking: static
-        #  python: cmake
-        #  windows_compiler: mingw64
-        #- os: ubuntu-20.04
-        #  blas: mkl-findblas
-        #  blas_linking: dynamic
-        #  python: cmake
-        #  windows_compiler: mingw64
-        #- os: macos-latest
-        #  blas: mkl-findblas
-        #  blas_linking: static
-        #  python: cmake
-        #  windows_compiler: mingw64
-        ## ubuntu-18.04 build, but Python tests currently fail so use no-python
-        #- os: ubuntu-18.04
-        #  blas: OpenBLAS
-        #  blas_linking: dynamic
-        #  python: no-python
-        #  windows_compiler: mingw64
-        ## Windows static build
-        #- os: windows-2019
-        #  blas: OpenBLAS
-        #  blas_linking: static
-        #  python: cmake
-        #  windows_compiler: mingw64
-        ## TODO: Replace with separate cibuildwheel job instead!
-        ## All three OSes using setuptools
+        # MSVC + MKL + static + Python
+        - os: windows-2019
+          blas: mkl-findblas
+          blas_linking: static
+          python: cmake
+          windows_compiler: msvc
+        # MSVC + OpenBLAS + Python
+        - os: windows-2019
+          blas: OpenBLAS
+          blas_linking: dynamic
+          python: cmake
+          windows_compiler: msvc
+        # MKL on each OS (static unless it has to be dynamic)
+        - os: windows-2019
+          blas: mkl-findblas
+          blas_linking: static
+          python: cmake
+          windows_compiler: mingw64
+        - os: ubuntu-20.04
+          blas: mkl-findblas
+          blas_linking: dynamic
+          python: cmake
+          windows_compiler: mingw64
+        - os: macos-latest
+          blas: mkl-findblas
+          blas_linking: static
+          python: cmake
+          windows_compiler: mingw64
+        # ubuntu-18.04 build, but Python tests currently fail so use no-python
+        - os: ubuntu-18.04
+          blas: OpenBLAS
+          blas_linking: dynamic
+          python: no-python
+          windows_compiler: mingw64
+        # Windows static build
+        - os: windows-2019
+          blas: OpenBLAS
+          blas_linking: static
+          python: cmake
+          windows_compiler: mingw64
+        # TODO: Replace with separate cibuildwheel job instead!
+        # All three OSes using setuptools
         - os: ubuntu-20.04
           blas: OpenBLAS
           blas_linking: dynamic
@@ -87,11 +87,11 @@ jobs:
           windows_compiler: msvc
         # TODO: This works other than being able to set the SDK... let's hope it's
         # not an issue for cibuildwheel!
-        - os: windows-2019
-          blas: OpenBLAS
-          blas_linking: dynamic
-          python: setuptools
-          windows_compiler: msvc
+        #- os: windows-2019
+        #  blas: OpenBLAS
+        #  blas_linking: dynamic
+        #  python: setuptools
+        #  windows_compiler: msvc
 
 
     runs-on: ${{ matrix.os }}
@@ -404,8 +404,6 @@ jobs:
             if [[ "${{matrix.windows_compiler}}" == 'msvc'* ]]; then
               ls "/C/Program Files (x86)/Windows Kits/10/include"
               SDK_PATH="C:\Program Files (x86)\Windows Kits\10\include\10.0.14393.0"
-              echo $SDK_PATH
-              test -d "$(cygpath -u $SDK_PATH)"
               export CL="/I$OPENBLAS_INCLUDE /std:c++17 \"-I${SDK_PATH}\ucrt\" \"-I${SDK_PATH}\shared\" \"-I${SDK_PATH}\um\" \"-I${SDK_PATH}\winrt\" \"-I${SDK_PATH}\cppwinrt\""
             fi
             export SWIG_FLAGS="msvc"
