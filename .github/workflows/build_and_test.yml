@@ -408,8 +408,9 @@ jobs:
             export OPENMEEG_LIB=$(cygpath -w $OPENMEEG_LIB)
             export OPENMEEG_INCLUDE=$(cygpath -w $OPENMEEG_INCLUDE)
             if [[ "${{matrix.windows_compiler}}" == 'msvc'* ]]; then
-              export CL="/I$OPENBLAS_INCLUDE /std:c++17 /VERBOSE"
+              export CL="/I$OPENBLAS_INCLUDE /p:WindowsTargetPlatformVersion=7"
             fi
+            export SWIG_FLAGS="msvc"
             echo "PATH=$PATH"
             echo "CL=$CL"
           elif [[ "${{matrix.os}}" == 'macos'* ]]; then
