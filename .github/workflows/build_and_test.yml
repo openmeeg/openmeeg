@@ -389,10 +389,10 @@ jobs:
       id: wheel
       run: |
         if [[ "${{steps.env-vars.outputs.python_type}}" == 'setuptools' ]]; then
-          cd build
           export OPENMEEG_INCLUDE=$PWD/install/include/OpenMEEG
           export OPENMEEG_LIB=$PWD/install/lib
           export OPENMEEG_USE_SWIG=1
+          cd build
           if [[ "${{matrix.os}}" == 'windows'* ]]; then
             export PATH="$PWD/build:$PWD/install/bin:$(cygpath -u $CONDA_PREFIX)/Library:$(cygpath -u $CONDA_PREFIX)/Library/lib:$PATH"
             export OPENMEEG_LIB=$(cygpath -w $OPENMEEG_LIB)
@@ -406,7 +406,7 @@ jobs:
             export LIBRARY_PATH="$CONDA_PREFIX/lib:$PWD/install/lib:LIBRARY_PATH"
             echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH"
           fi
-          cd ../wrapping/python  # in root
+          cd ../wrapping/python  # back to root
           echo '::set-output name=path::wrapping/python/dist/*.whl'
         else
           cd build/wrapping/python  # in build dir
