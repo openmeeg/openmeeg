@@ -73,12 +73,12 @@ jobs:
         #  blas_linking: static
         #  python: cmake
         #  windows_compiler: mingw64
-        # All three OSes using setuptools
+        # All three OSes using setuptools (TODO: Replace with cibuildwheel job instead)
         - os: ubuntu-20.04
           blas: OpenBLAS
           blas_linking: dynamic
           python: setuptools
-          windows_compiler: mingw64
+          windows_compiler: msvc
         - os: windows-2019
           blas: OpenBLAS
           blas_linking: dynamic
@@ -107,7 +107,9 @@ jobs:
           echo "Disabling Python"
           echo "PYTHON_OPT=-DENABLE_PYTHON=OFF" >> $GITHUB_ENV
           echo '::set-output name=python::no-python'
+          echo '::set-output name=python_type::no-python'
         else
+          echo '::set-output name=python::python'
           echo '::set-output name=python_type::${{matrix.python}}'
           if [[ "{{matrix.python}}" == 'setuptools' ]]; then
             echo "PYTHON_OPT=-DENABLE_PYTHON=OFF" >> $GITHUB_ENV
@@ -368,13 +370,10 @@ jobs:
           echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH"
         fi
         ./install/bin/om_minverser --help
-        if [[ "${{steps.env-vars.outputs.python}}" == 'python'* ]]; then
+        if [[ "${{steps.env-vars.outputs.python_type}}" == 'cmake' ]]; then
           PYVER=$(python -c "import sys; print('.'.join(sys.version.split('.')[:2]))")
           if [[ "${{matrix.os}}" == 'windows'* ]]; then
-            export PYTHONPATH=$PWD/install/lib/site-packages
-            curl -LO https://github.com/lucasg/Dependencies/releases/download/v1.11.1/Dependencies_x64_Release.zip
-            unzip Dependencies_x64_Release.zip -d Dependencies
-            # TODO: This should not be necessary but let's see if it makes things green
+            # Ideally this would not be necessary but it makes things work
             cp build/*.dll $PWD/install/lib/site-packages/openmeeg/
             ./Dependencies/Dependencies.exe -modules $PWD/install/lib/site-packages/openmeeg/_openmeeg.pyd
           else
@@ -384,11 +383,28 @@ jobs:
           python -c "import openmeeg; print(openmeeg.sqr(4)); assert openmeeg.sqr(4) == 16"
         fi
 
-
     - name: Create, delocate, check, install, and test wheel
       if: startswith(steps.env-vars.outputs.python, 'python')
       run: |
         cd build/wrapping/python
+        if [[ "${{steps.env-vars.outputs.python_type}}" == 'setuptools' ]]; then
+          export OPENMEEG_INCLUDE=$PWD/install/include/OpenMEEG
+          export OPENMEEG_LIB=$PWD/install/lib
+          export OPENMEEG_USE_SWIG=1
+          if [[ "${{matrix.os}}" == 'windows'* ]]; then
+            export PATH="$PWD/build:$PWD/install/bin:$(cygpath -u $CONDA_PREFIX)/Library:$(cygpath -u $CONDA_PREFIX)/Library/lib:$PATH"
+            export OPENMEEG_LIB=$(cygpath -w $OPENMEEG_LIB)
+            export OPENMEEG_INCLUDE=$(cygpath -w $OPENMEEG_INCLUDE)
+            echo "PATH=$PATH"
+          elif [[ "${{matrix.os}}" == 'macos'* ]]; then
+            export DYLD_LIBRARY_PATH="$CONDA_PREFIX/lib:$PWD/install/lib:$DYLD_LIBRARY_PATH"
+            echo "DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH"
+          else
+            export LD_LIBRARY_PATH="$CONDA_PREFIX/lib:$PWD/install/lib:LD_LIBRARY_PATH"
+            export LIBRARY_PATH="$CONDA_PREFIX/lib:$PWD/install/lib:LIBRARY_PATH"
+            echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH"
+          fi
+        fi
         python setup.py bdist_wheel sdist
         echo "Wheels:"
         ls -alR dist/*.whl
