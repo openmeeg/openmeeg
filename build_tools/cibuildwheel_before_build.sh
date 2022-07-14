@@ -16,7 +16,8 @@ pwd
 # TODO: Use newer OpenBLAS on Linux by downloading it!
 if [[ "$PLATFORM" == "linux" ]]; then
     apt-get update -q
-    apt-get -yq install liblapacke-dev libhdf5-dev libmatio-dev libopenblas-dev libboost-dev
+    apt-get -yq install libhdf5-dev libmatio-dev libboost-dev
+    source ./build_tools/download_openblas.sh linux
 elif [[ "$PLATFORM" == "darwin" ]]; then
     brew install hdf5 libmatio boost swig openblas
     BLAS_DIR=/usr/local/opt/openblas
@@ -25,8 +26,10 @@ elif [[ "$PLATFORM" == "darwin" ]]; then
     export CMAKE_CXX_FLAGS="-I$OPENBLAS_INCLUDE -L$OPENBLAS_LIB"
     export CMAKE_PREFIX_PATH="$BLAS_DIR"
 elif [[ "$PLATFORM" == "win32" ]]; then
+    export VCPKG_DEFAULT_TRIPLET="x64-windows"
+    export CMAKE_GENERATOR="Visual Studio 16 2019"
     source ./build_tools/setup_windows_compilation.sh
-    source ./build_tools/download_openblas_windows.sh
+    source ./build_tools/download_openblas.sh windows
     pip install delvewheel
 else
     echo "Unknown platform: ${PLATFORM}"
@@ -37,5 +40,5 @@ export BLA_STATIC_OPT=-DBLA_STATIC=ON
 export BLA_IMPLEMENTATION=OpenBLAS
 export DISABLE_CCACHE=1
 pip install cmake
-./build_tools/cmake_configure.sh -DCMAKE_INSTALL_PREFIX=${ROOT}/install
+./build_tools/cmake_configure.sh -DCMAKE_INSTALL_PREFIX=${ROOT}/install -DVCPKG_BUILD_TYPE=release -DCMAKE_INSTALL_UCRT_LIBRARIES=TRUE
 cmake --build build --target install
