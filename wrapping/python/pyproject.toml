@@ -19,6 +19,7 @@ manylinux-aarch64-image = "manylinux_2_24"
 
 [tool.cibuildwheel.macos]
 archs = "x86_64 arm64"
+test-skip = "*_arm64"
 
 [tool.cibuildwheel.windows]
 repair-wheel-command = "delvewheel repair -w {dest_dir} {wheel}"
