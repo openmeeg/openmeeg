@@ -7,21 +7,22 @@ else
     PLATFORM=$1
 fi
 
-if [[ "${PLATFORM}" == 'win'* ]]
-    # https://anaconda.org/multibuild-wheels-staging/openblas-libs/v0.3.20-140-gbfd9c1b5/download/openblas-v0.3.20-140-gbfd9c1b5-win_amd64-gcc_8_1_0.zip
+# https://anaconda.org/multibuild-wheels-staging/openblas-libs/files
+if [[ "${PLATFORM}" == 'win'* ]]; then
     BLAS_TAG="${BLAS_VER}-win_amd64-gcc_8_1_0.zip"
-    BLAS_EXT="${BLAS_VER}-gcc_8_1_0"
 elif [[ "${PLATFORM}" == 'linux'* ]]; then
     BLAS_TAG="${BLAS_VER}-manylinux2014_x86_64.tar.gz"
 else
     echo "Unknown/unsupported PLATFORM=\"${PLATFORM}\""
     exit 1
 fi
+echo "Downloading and setting cmake flags for PLATFORM=\"${PLATFORM}\""
 curl -LO https://anaconda.org/multibuild-wheels-staging/openblas-libs/${BLAS_VER}/download/openblas-${BLAS_TAG}
 if [[ "${PLATFORM}" == 'win'* ]]; then
     unzip openblas-${BLAS_TAG} -d openblas
     export OPENBLAS_LIB=${PWD}/openblas/64/lib
     export OPENBLAS_INCLUDE=${PWD}/openblas/64/include
+    BLAS_EXT="${BLAS_VER}-gcc_8_1_0"
     pushd $OPENBLAS_LIB
     # TODO: This conditional should work but it does not...
     # if [[ "${{ matrix.blas_linking }}" != "static" ]]; then
@@ -36,7 +37,7 @@ if [[ "${PLATFORM}" == 'win'* ]]; then
     popd
     export LIB="$(cygpath -w $OPENBLAS_LIB);${LIB}"
     export CMAKE_CXX_FLAGS="-I$(cygpath -m $OPENBLAS_INCLUDE)"
-elif [[ "${BLAS_TAG}" == 'linux'* ]]
+elif [[ "${BLAS_TAG}" == 'linux'* ]]; then
     mkdir openblas
     tar xzfv openblas-${BLAS_TAG} -C openblas
     BLAS_DIR=${PWD}/openblas/usr/local
