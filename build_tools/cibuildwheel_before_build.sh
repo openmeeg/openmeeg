@@ -16,7 +16,7 @@ pwd
 ls -al .
 ls -al build_tools/
 if [[ "$PLATFORM" == "linux" ]]; then
-    apt-get -yq install liblapacke-dev libhdf5-dev libmatio-dev libopenblas-dev
+    apt-get -y install liblapacke-dev libhdf5-dev libmatio-dev libopenblas-dev
 elif [[ "$PLATFORM" == "darwin" ]]; then
     brew install hdf5 libmatio boost swig openblas
     BLAS_DIR=/usr/local/opt/openblas
@@ -34,6 +34,6 @@ else
 fi
 export PYTHON_OPT=-DENABLE_PYTHON=OFF
 export STATIC_OPT=-DBLA_STATIC=ON
-pip install -yq cmake
+pip install cmake
 ./build_tools/cmake_configure.sh -DCMAKE_INSTALL_PREFIX=${ROOT}/install
 cmake --build build --target install
