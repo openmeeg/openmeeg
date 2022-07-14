@@ -16,7 +16,7 @@ pwd
 # TODO: Use newer OpenBLAS on Linux by downloading it!
 if [[ "$PLATFORM" == "linux" ]]; then
     apt-get update -q
-    apt-get -y install liblapacke-dev libhdf5-dev libmatio-dev libopenblas-dev
+    apt-get -y install liblapacke-dev libhdf5-dev libmatio-dev libopenblas-dev libboost-dev
 elif [[ "$PLATFORM" == "darwin" ]]; then
     brew install hdf5 libmatio boost swig openblas
     BLAS_DIR=/usr/local/opt/openblas

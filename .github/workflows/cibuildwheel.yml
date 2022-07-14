@@ -30,7 +30,6 @@ jobs:
         with:
           package-dir: ./wrapping/python
           output-dir: wheelhouse
-          config-file: "{package}/pyproject.toml"
 
       - uses: actions/upload-artifact@v3
         with:
