@@ -20,8 +20,8 @@ elif [[ "$CIBW_PLATFORM" == "osx" ]]; then
     export CMAKE_CXX_FLAGS="-I$OPENBLAS_INCLUDE -L$OPENBLAS_LIB"
     export CMAKE_PREFIX_PATH="$BLAS_DIR"
 elif [[ "$CIBW_PLATFORM" == "win" ]]; then
-    source ./setup_windows_compilation.sh
-    source ./download_openblas_windows.sh
+    source ${ROOT}/build_tools/setup_windows_compilation.sh
+    source ${ROOT}/build_tools/download_openblas_windows.sh
     pip install delvewheel
 else
     echo "Unknown platform: ${CIBW_PLATFORM}"

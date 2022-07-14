@@ -31,3 +31,4 @@ cmake -B build \
       -DCMAKE_CXX_FLAGS="$CMAKE_CXX_FLAGS" \
       -DTEST_HEAD3=ON \
       "$@"  # any additional args to this script
+set +x
