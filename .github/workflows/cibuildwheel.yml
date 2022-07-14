@@ -62,7 +62,7 @@ jobs:
           repository_url: https://test.pypi.org/legacy/
 
   upload_pypi:
-    needs: [build_wheels, build_sdist]
+    needs: [build_wheels]
     runs-on: ubuntu-latest
     # upload to PyPI on every tag (we assume these are releases!)
     if: github.event_name == 'release' && github.event.action == 'published'
