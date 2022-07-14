@@ -1,8 +1,9 @@
-#!/bin/bash -ef
+#!/bin/bash
 
 # Build and install (locally) OpenMEEG to prepare for SWIG-building the Python
 # bindings separately
 
+set -e
 if [[ "$1" == "" ]]; then
     echo "Usage: $0 <PROJECT_PATH>"
     exit 1
@@ -10,9 +11,12 @@ fi
 ROOT=$1
 PLATFORM=$(python -c "import sys; print(sys.platform)")
 echo "Using project root for platform \"${PLATFORM}\": \"${ROOT}\""
-pip install cmake
+cd $ROOT
+pwd
+ls -al .
+ls -al build_tools/
 if [[ "$PLATFORM" == "linux" ]]; then
-    sudo apt -yq install liblapacke-dev libhdf5-dev libmatio-dev libopenblas-dev
+    apt-get -yq install liblapacke-dev libhdf5-dev libmatio-dev libopenblas-dev
 elif [[ "$PLATFORM" == "darwin" ]]; then
     brew install hdf5 libmatio boost swig openblas
     BLAS_DIR=/usr/local/opt/openblas
@@ -21,8 +25,8 @@ elif [[ "$PLATFORM" == "darwin" ]]; then
     export CMAKE_CXX_FLAGS="-I$OPENBLAS_INCLUDE -L$OPENBLAS_LIB"
     export CMAKE_PREFIX_PATH="$BLAS_DIR"
 elif [[ "$PLATFORM" == "win32" ]]; then
-    source ${ROOT}/build_tools/setup_windows_compilation.sh
-    source ${ROOT}/build_tools/download_openblas_windows.sh
+    source ./build_tools/setup_windows_compilation.sh
+    source ./build_tools/download_openblas_windows.sh
     pip install delvewheel
 else
     echo "Unknown platform: ${PLATFORM}"
@@ -30,5 +34,6 @@ else
 fi
 export PYTHON_OPT=-DENABLE_PYTHON=OFF
 export STATIC_OPT=-DBLA_STATIC=ON
-./cmake_configure.sh -DCMAKE_INSTALL_PREFIX=$ROOT/install
+pip install -yq cmake
+./build_tools/cmake_configure.sh -DCMAKE_INSTALL_PREFIX=${ROOT}/install
 cmake --build build --target install
