@@ -16,7 +16,7 @@ else
     echo "Unknown/unsupported PLATFORM=\"${PLATFORM}\""
     exit 1
 fi
-echo "Downloading and setting cmake flags for PLATFORM=\"${PLATFORM}\""
+echo "Downloading OpenBLAS and setting cmake flags for PLATFORM=\"${PLATFORM}\""
 curl -LO https://anaconda.org/multibuild-wheels-staging/openblas-libs/${BLAS_VER}/download/openblas-${BLAS_TAG}
 if [[ "${PLATFORM}" == 'win'* ]]; then
     unzip openblas-${BLAS_TAG} -d openblas
@@ -37,7 +37,7 @@ if [[ "${PLATFORM}" == 'win'* ]]; then
     popd
     export LIB="$(cygpath -w $OPENBLAS_LIB);${LIB}"
     export CMAKE_CXX_FLAGS="-I$(cygpath -m $OPENBLAS_INCLUDE)"
-elif [[ "${BLAS_TAG}" == 'linux'* ]]; then
+elif [[ "${PLATFORM}" == 'linux'* ]]; then
     mkdir openblas
     tar xzfv openblas-${BLAS_TAG} -C openblas
     BLAS_DIR=${PWD}/openblas/usr/local
@@ -47,4 +47,5 @@ elif [[ "${BLAS_TAG}" == 'linux'* ]]; then
     export CMAKE_PREFIX_PATH="$BLAS_DIR"
 else
     echo "Unknown PLATFORM=${PLATFORM}"
+    exit 1
 fi
