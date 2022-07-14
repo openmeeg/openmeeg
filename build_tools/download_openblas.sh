@@ -9,17 +9,17 @@ fi
 
 # https://anaconda.org/multibuild-wheels-staging/openblas-libs/files
 if [[ "${PLATFORM}" == 'win'* ]]; then
-    BLAS_TAG="${BLAS_VER}-win_amd64-gcc_8_1_0.zip"
+    BLAS_FILENAME="openblas-${BLAS_VER}-win_amd64-gcc_8_1_0.zip"
 elif [[ "${PLATFORM}" == 'linux'* ]]; then
-    BLAS_TAG="${BLAS_VER}-manylinux2014_x86_64.tar.gz"
+    BLAS_FILENAME="openblas-${BLAS_VER}-manylinux2014_x86_64.tar.gz"
 else
     echo "Unknown/unsupported PLATFORM=\"${PLATFORM}\""
     exit 1
 fi
 echo "Downloading OpenBLAS and setting cmake flags for PLATFORM=\"${PLATFORM}\""
-curl -LO https://anaconda.org/multibuild-wheels-staging/openblas-libs/${BLAS_VER}/download/openblas-${BLAS_TAG}
+curl -LO https://anaconda.org/multibuild-wheels-staging/openblas-libs/${BLAS_VER}/download/${BLAS_FILENAME}
 if [[ "${PLATFORM}" == 'win'* ]]; then
-    unzip openblas-${BLAS_TAG} -d openblas
+    unzip ${BLAS_FILENAME} -d openblas
     export OPENBLAS_LIB=${PWD}/openblas/64/lib
     export OPENBLAS_INCLUDE=${PWD}/openblas/64/include
     BLAS_EXT="${BLAS_VER}-gcc_8_1_0"
@@ -39,7 +39,7 @@ if [[ "${PLATFORM}" == 'win'* ]]; then
     export CMAKE_CXX_FLAGS="-I$(cygpath -m $OPENBLAS_INCLUDE)"
 elif [[ "${PLATFORM}" == 'linux'* ]]; then
     mkdir openblas
-    tar xzfv openblas-${BLAS_TAG} -C openblas
+    tar xzfv ${BLAS_FILENAME} -C openblas
     BLAS_DIR=${PWD}/openblas/usr/local
     export OPENBLAS_LIB=${BLAS_DIR}/lib
     export OPENBLAS_INCLUDE=${PWD}/openblas/usr/local/include
