@@ -6,8 +6,9 @@ concurrency:
 on:
   push:
     branches: [ master ]
-  pull_request:
-    branches: [ master ]
+# TODO: Reenable after cibuildwheel works
+#  pull_request:
+#    branches: [ master ]
 
 env:
   BUILD_TYPE: Release
@@ -73,31 +74,18 @@ jobs:
           blas_linking: static
           python: cmake
           windows_compiler: mingw64
-        # TODO: Replace with separate cibuildwheel job instead!
-        # All three OSes using setuptools
+        # One OS using setuptools (let cibuildwheel test the others)
         - os: ubuntu-20.04
           blas: OpenBLAS
           blas_linking: dynamic
           python: setuptools
           windows_compiler: msvc
-        - os: macos-latest
-          blas: OpenBLAS
-          blas_linking: dynamic
-          python: setuptools
-          windows_compiler: msvc
-        # TODO: This works other than being able to set the SDK... let's hope it's
-        # not an issue for cibuildwheel!
-        #- os: windows-2019
-        #  blas: OpenBLAS
-        #  blas_linking: dynamic
-        #  python: setuptools
-        #  windows_compiler: msvc
 
 
     runs-on: ${{ matrix.os }}
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
     - name: Environment variables
       id: env-vars

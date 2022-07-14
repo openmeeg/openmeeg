@@ -18,6 +18,7 @@ defaults:
 
 jobs:
   build_wheels:
+    continue-on-error: true
     name: Build wheels on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
