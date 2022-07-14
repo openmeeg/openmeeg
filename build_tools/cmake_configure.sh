@@ -8,6 +8,12 @@ if [[ "${PYTHON_OPT}" == "" ]]; then
     PYTHON_OPT="-DENABLE_PYTHON=ON"
     PYTHON_EXECUTABLE_OPT="-DPython3_EXECUTABLE=$(which python)"
 fi
+# Most of the time we want to use ccache, but lets allow for disabling it
+# (e.g., on cibuildwheel)
+if [[ "${DISABLE_CCACHE}" != "1" ]]; then
+    CXX_COMPILER_LAUNCHER_OPT="-DCMAKE_CXX_COMPILER_LAUNCHER=\"ccache\""
+    C_COMPILER_LAUNCHER_OPT="-DCMAKE_C_COMPILER_LAUNCHER=\"ccache\""
+fi
 
 set -x
 cmake -B build \
@@ -21,11 +27,11 @@ cmake -B build \
       $SDK_OPT \
       $TOOLSET_OPT \
       $WERROR_OPT \
+      $CXX_COMPILER_LAUNCHER_OPT \
+      $C_COMPILER_LAUNCHER_OPT \
       -DCMAKE_EXE_LINKER_FLAGS="$LINKER_OPT" \
       -DCMAKE_SHARED_LINKER_FLAGS="$LINKER_OPT" \
       -DCMAKE_MODULE_LINKER_FLAGS="$LINKER_OPT" \
-      -DCMAKE_CXX_COMPILER_LAUNCHER="ccache" \
-      -DCMAKE_C_COMPILER_LAUNCHER="ccache" \
       -DCMAKE_PREFIX_PATH="$CMAKE_PREFIX_PATH" \
       -DCMAKE_TOOLCHAIN_FILE="$CMAKE_TOOLCHAIN_FILE" \
       -DCMAKE_CXX_FLAGS="$CMAKE_CXX_FLAGS" \

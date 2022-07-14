@@ -13,9 +13,9 @@ PLATFORM=$(python -c "import sys; print(sys.platform)")
 echo "Using project root for platform \"${PLATFORM}\": \"${ROOT}\""
 cd $ROOT
 pwd
-ls -al .
-ls -al build_tools/
+# TODO: Use newer OpenBLAS on Linux by downloading it!
 if [[ "$PLATFORM" == "linux" ]]; then
+    apt-get update -q
     apt-get -y install liblapacke-dev libhdf5-dev libmatio-dev libopenblas-dev
 elif [[ "$PLATFORM" == "darwin" ]]; then
     brew install hdf5 libmatio boost swig openblas
@@ -34,6 +34,7 @@ else
 fi
 export PYTHON_OPT=-DENABLE_PYTHON=OFF
 export STATIC_OPT=-DBLA_STATIC=ON
+export DISABLE_CCACHE=1
 pip install cmake
 ./build_tools/cmake_configure.sh -DCMAKE_INSTALL_PREFIX=${ROOT}/install
 cmake --build build --target install
