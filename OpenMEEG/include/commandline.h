@@ -68,7 +68,9 @@ namespace OpenMEEG {
         CommandLine(const int argc,char* argv[],const std::string& usage): n(argc),args(argv) {
             help = find_argument("-h")!=end() || find_argument("--help")!=end();
             if (help) {
-                std::cerr << red << basename(args[0]) << normal;
+                // Older GCC doesn't know about red so let's avoid it for now
+                // std::cerr << red << basename(args[0]) << normal;
+                std::cerr << basename(args[0]);
                 if (usage!="")
                     std::cerr << ": " << usage;
                 std::cerr << std::endl << std::endl;
@@ -82,8 +84,10 @@ namespace OpenMEEG {
             char** arg = find_argument(name);
             const T result = (arg==end()) ?  defaultvalue : parse_value(arg+1,defaultvalue);
             if (help)
-                std::cerr << "    " << bold << std::left << std::setw(8) << name << normal
-                          << " = " << std::left << std::setw(12) << value(result) << purple << usage << normal << std::endl;
+                //std::cerr << "    " << bold << std::left << std::setw(8) << name << normal
+                //          << " = " << std::left << std::setw(12) << value(result) << purple << usage << normal << std::endl;
+                std::cerr << "    " << std::left << std::setw(8) << name
+                          << " = " << std::left << std::setw(12) << value(result) << usage << std::endl;
             return result;
         }
 
@@ -91,8 +95,10 @@ namespace OpenMEEG {
             char** arg = find_argument(name);
             const bool result = (arg==end()) ?  defaultvalue : !defaultvalue;
             if (help)
-                std::cerr << "    " << bold << std::left << std::setw(8) << name << normal
-                          << " = " << std::left << std::setw(12) << value(result)  << purple << usage << normal << std::endl;
+                // std::cerr << "    " << bold << std::left << std::setw(8) << name << normal
+                //          << " = " << std::left << std::setw(12) << value(result)  << purple << usage << normal << std::endl;
+                std::cerr << "    " << std::left << std::setw(8) << name
+                          << " = " << std::left << std::setw(12) << value(result) << usage << std::endl;
             return result;
         }
 
@@ -168,7 +174,7 @@ namespace OpenMEEG {
 
 #if 0
     inline bool option(const char *const name, const int argc, char **argv,
-                       const bool defaut, const char *const usage=NULL) 
+                       const bool defaut, const char *const usage=NULL)
     {
         const char *s = command_line::option(name, argc, argv, (const char*)NULL);
         const bool res = s?(command_line::strcasecmp(s,"false") && command_line::strcasecmp(s,"off") && command_line::strcasecmp(s,"0")):defaut;
@@ -177,7 +183,7 @@ namespace OpenMEEG {
     }
 
     inline int option(const char *const name, const int argc, char **argv,
-                      const int defaut, const char *const usage=NULL) 
+                      const int defaut, const char *const usage=NULL)
     {
         const char *s = command_line::option(name, argc, argv, (const char*)NULL);
         const int res = s?std::atoi(s):defaut;
@@ -188,7 +194,7 @@ namespace OpenMEEG {
     }
 
     inline char option(const char *const name, const int argc, char **argv,
-               const char defaut, const char *const usage=NULL) 
+               const char defaut, const char *const usage=NULL)
     {
         const char *s = command_line::option(name, argc, argv, (const char*)NULL);
         const char res = s?s[0]:defaut;
@@ -200,7 +206,7 @@ namespace OpenMEEG {
     }
 
     inline double option(const char *const name, const int argc, char **argv,
-             const double defaut, const char *const usage=NULL) 
+             const double defaut, const char *const usage=NULL)
     {
         const char *s = command_line::option(name, argc, argv, (const char*)NULL);
         const double res = s?command_line::atof(s):defaut;

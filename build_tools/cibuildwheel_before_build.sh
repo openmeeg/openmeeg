@@ -16,7 +16,7 @@ pwd
 # TODO: Use newer OpenBLAS on Linux by downloading it!
 if [[ "$PLATFORM" == "linux" ]]; then
     apt-get update -q
-    apt-get -y install liblapacke-dev libhdf5-dev libmatio-dev libopenblas-dev libboost-dev
+    apt-get -yq install liblapacke-dev libhdf5-dev libmatio-dev libopenblas-dev libboost-dev
 elif [[ "$PLATFORM" == "darwin" ]]; then
     brew install hdf5 libmatio boost swig openblas
     BLAS_DIR=/usr/local/opt/openblas
@@ -33,7 +33,8 @@ else
     exit 1
 fi
 export PYTHON_OPT=-DENABLE_PYTHON=OFF
-export STATIC_OPT=-DBLA_STATIC=ON
+export BLA_STATIC_OPT=-DBLA_STATIC=ON
+export BLA_IMPLEMENTATION=OpenBLAS
 export DISABLE_CCACHE=1
 pip install cmake
 ./build_tools/cmake_configure.sh -DCMAKE_INSTALL_PREFIX=${ROOT}/install
