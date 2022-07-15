@@ -16,7 +16,7 @@ environment = { OPENMEEG_LIB="../../install/lib", OPENMEEG_INCLUDE="../../instal
 [tool.cibuildwheel.linux]
 manylinux-x86_64-image = "manylinux_2_24"
 manylinux-aarch64-image = "manylinux_2_24"
-environment = { OPENMEEG_LIB="../../install/lib", OPENMEEG_INCLUDE="../../install/include/OpenMEEG", OPENMEEG_USE_SWIG="1", CPATH="../../openblas/usr/local/include" }
+environment = { OPENMEEG_LIB="../../install/lib", OPENMEEG_INCLUDE="../../install/include/OpenMEEG", OPENMEEG_USE_SWIG="1", CPATH="../../openblas/usr/local/include", LD_LIBRARY_PATH="../../install/lib" }
 
 [tool.cibuildwheel.macos]
 archs = "x86_64 arm64"
@@ -25,4 +25,4 @@ environment = { OPENMEEG_LIB="../../install/lib", OPENMEEG_INCLUDE="../../instal
 
 [tool.cibuildwheel.windows]
 repair-wheel-command = "delvewheel repair -w {dest_dir} {wheel}"
-environment = { OPENMEEG_LIB="../../install/lib", OPENMEEG_INCLUDE="../../install/include/OpenMEEG", OPENMEEG_USE_SWIG="1", CL="/I..\\..\\openblas\\64\\include /std:c++17", SWIG_FLAGS="msvc" }
+environment = { OPENMEEG_LIB="../../install/lib", OPENMEEG_INCLUDE="../../install/include/OpenMEEG", OPENMEEG_USE_SWIG="1", CL="-I..\\..\\openblas\\64\\include /std:c++17", SWIG_FLAGS="msvc" }

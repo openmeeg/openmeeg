@@ -78,6 +78,12 @@ if __name__ == "__main__":
             assert openmeeg_include.is_dir(), openmeeg_include
             include_dirs.append(str(openmeeg_include))
             swig_opts.append(f'-I{openmeeg_include}')
+        #openblas_include = os.getenv('OPENBLAS_INCLUDE')
+        #if openblas_include is not None:
+        #    openblas_include = Path(openblas_include).resolve()
+        #    assert openblas_include.is_dir(), openblas_include
+        #    include_dirs.append(str(openblas_include))
+        #    swig_opts.append(f'-I{openblas_include}')
         openmeeg_lib = os.getenv('OPENMEEG_LIB')
         if openmeeg_lib is not None:
             openmeeg_lib = Path(openmeeg_lib).resolve()

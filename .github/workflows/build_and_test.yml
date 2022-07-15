@@ -263,7 +263,7 @@ jobs:
       run: |
         if [[ "${{matrix.os}}" == 'windows'* ]]; then
           export EXTRA_UCRT="-DCMAKE_INSTALL_UCRT_LIBRARIES=TRUE"
-          export EXTRA_VCPKG"-DVCPKG_BUILD_TYPE=release"
+          export EXTRA_VCPKG="-DVCPKG_BUILD_TYPE=release"
         fi
         source ./build_tools/cmake_configure.sh --install-prefix=$PWD/install $EXTRA_UCRT $EXTRA_VCPKG
 
