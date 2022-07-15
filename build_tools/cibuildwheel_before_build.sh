@@ -52,7 +52,8 @@ if [[ "$PLATFORM" == "linux" ]]; then
     cp install/lib/*.so* /usr/local/lib
 elif [[ "$PLATFORM" == "darwin" ]]; then
     ls -al install/lib/*.dylib*
-    sudo cp install/lib/*.dylib* /usr/lib
+    sudo mkdir -p /usr/local/lib
+    sudo cp install/lib/*.dylib* /usr/local/lib/
 else
     ls -al $PWD/install/bin/*.dll*
     cp $PWD/install/bin/*.dll* .
