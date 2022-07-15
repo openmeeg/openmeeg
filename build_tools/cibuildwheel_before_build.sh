@@ -13,7 +13,6 @@ PLATFORM=$(python -c "import sys; print(sys.platform)")
 echo "Using project root for platform \"${PLATFORM}\": \"${ROOT}\""
 cd $ROOT
 pwd
-# TODO: Use newer OpenBLAS on Linux by downloading it!
 if [[ "$PLATFORM" == "linux" ]]; then
     apt-get update -q
     apt-get -yq install libhdf5-dev libmatio-dev libboost-dev
@@ -21,6 +20,7 @@ if [[ "$PLATFORM" == "linux" ]]; then
     BLAS_LIBRARIES_OPT="-DBLAS_LIBRARIES=$OPENBLAS_LIB/libopenblas.a"
     LAPACK_LIBRARIES_OPT="-DLAPACK_LIBRARIES=$OPENBLAS_LIB/libopenblas.a"
     HDF5_LIBRARIES_OPT="-DHDF5_LIBRARIES=/usr/lib/x86_64-linux-gnu/hdf5/serial/libhdf5.so"
+    export CMAKE_CXX_FLAGS="-lgfortran"
 elif [[ "$PLATFORM" == "darwin" ]]; then
     brew install hdf5 libmatio boost swig openblas
     BLAS_DIR=/usr/local/opt/openblas
