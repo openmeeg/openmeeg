@@ -32,6 +32,7 @@ elif [[ "$PLATFORM" == "win32" ]]; then
     source ./build_tools/setup_windows_compilation.sh
     source ./build_tools/download_openblas.sh windows
     pip install delvewheel
+    VCPKG_BUILD_TYPE_OPT="-DVCPKG_BUILD_TYPE=release"
 else
     echo "Unknown platform: ${PLATFORM}"
     exit 1
@@ -41,5 +42,5 @@ export BLA_STATIC_OPT=-DBLA_STATIC=ON
 export BLA_IMPLEMENTATION=OpenBLAS
 export DISABLE_CCACHE=1
 pip install cmake
-./build_tools/cmake_configure.sh -DCMAKE_INSTALL_PREFIX=${ROOT}/install -DVCPKG_BUILD_TYPE=release -DCMAKE_INSTALL_UCRT_LIBRARIES=TRUE ${LAPACK_LIBRARIES_OPT}
+./build_tools/cmake_configure.sh -DCMAKE_INSTALL_PREFIX=${ROOT}/install ${VCPKG_BUILD_TYPE_OPT} -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_UCRT_LIBRARIES=TRUE ${LAPACK_LIBRARIES_OPT}
 cmake --build build --target install
