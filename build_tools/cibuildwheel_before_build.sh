@@ -48,9 +48,12 @@ pip install cmake
 cmake --build build --target install
 # make life easier for auditwheel/delocate/delvewheel
 if [[ "$PLATFORM" == "linux" ]]; then
-    cp install/lib/*.so .
+    ls -al install/lib/*.so*
+    cp install/lib/*.so* .
 elif [[ "$PLATFORM" == "darwin" ]]; then
-    cp install/lib/*.dylib .
+    ls -al install/lib/*.dylib*
+    cp install/lib/*.dylib* .
 else
-    cp install/bin/*.dll .
+    ls -al install/bin/*.dll*
+    cp install/bin/*.dll* .
 fi
