@@ -16,7 +16,7 @@ env:
 jobs:
   build_wheels:
     continue-on-error: true
-    name: Build wheels on ${{ matrix.os }}
+    name: Using ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -36,6 +36,7 @@ jobs:
           path: ./wheelhouse/*.whl
 
   upload_test_pypi:
+    name: Upload to TestPyPi
     needs: [build_wheels]
     runs-on: ubuntu-latest
     # upload to Test PyPI for every commit on main branch
@@ -52,6 +53,7 @@ jobs:
           repository_url: https://test.pypi.org/legacy/
 
   upload_pypi:
+    name: Upload to PyPi
     needs: [build_wheels]
     runs-on: ubuntu-latest
     # upload to PyPI on every tag (we assume these are releases!)

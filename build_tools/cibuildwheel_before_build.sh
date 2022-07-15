@@ -52,7 +52,7 @@ if [[ "$PLATFORM" == "linux" ]]; then
     cp install/lib/*.so* /usr/local/lib
 elif [[ "$PLATFORM" == "darwin" ]]; then
     ls -al install/lib/*.dylib*
-    cp install/lib/*.so* /usr/lib
+    cp install/lib/*.dylib* /usr/lib
 else
     ls -al $PWD/install/bin/*.dll*
     cp $PWD/install/bin/*.dll* .
