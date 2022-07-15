@@ -18,7 +18,7 @@ if [[ "$PLATFORM" == "linux" ]]; then
     apt-get update -q
     apt-get -yq install libhdf5-dev libmatio-dev libboost-dev
     source ./build_tools/download_openblas.sh linux
-    LAPACK_LIBRARIES_OPT="-DLAPACK_LIBRARIES=$OPENBLAS_LIB/libopenblas.a"
+    LAPACK_LIBRARIES_OPT="-DLAPACK_LIBRARIES=$OPENBLAS_LIB/libopenblas.so"
 elif [[ "$PLATFORM" == "darwin" ]]; then
     brew install hdf5 libmatio boost swig openblas
     BLAS_DIR=/usr/local/opt/openblas
