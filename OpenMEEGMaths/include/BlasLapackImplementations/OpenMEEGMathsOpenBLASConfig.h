@@ -5,7 +5,7 @@
 // https://github.com/Reference-LAPACK/lapack/issues/683
 // https://stackoverflow.com/questions/47520244/using-openblas-lapacke-in-visual-studio
 #if defined(_MSC_VER)
-    #include <complex.h>
+    #include "complex_msvc_vendor.h"  // taken from C:\Program Files (x86)\Windows Kits\10\Include\10.0.16299.0\ucrt\complex.h
     #define LAPACK_COMPLEX_CUSTOM
     #define lapack_complex_float _Fcomplex
     #define lapack_complex_double _Dcomplex

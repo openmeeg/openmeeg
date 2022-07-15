@@ -24,7 +24,6 @@ cmake -B build \
       $PYTHON_EXECUTABLE_OPT \
       $PYTHON_COPY_RUNTIME_DLLS_OPT \
       $DOC_OPT \
-      $SDK_OPT \
       $TOOLSET_OPT \
       $WERROR_OPT \
       $CXX_COMPILER_LAUNCHER_OPT \
