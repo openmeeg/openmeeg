@@ -46,3 +46,11 @@ export DISABLE_CCACHE=1
 pip install cmake
 ./build_tools/cmake_configure.sh -DCMAKE_INSTALL_PREFIX=${ROOT}/install ${VCPKG_BUILD_TYPE_OPT} ${SYSTEM_VERSION_OPT} -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_UCRT_LIBRARIES=TRUE ${BLAS_LIBRARIES_OPT} ${LAPACK_LIBRARIES_OPT} ${HDF5_LIBRARIES_OPT}
 cmake --build build --target install
+# make life easier for auditwheel/delocate/delvewheel
+if [[ "$PLATFORM" == "linux" ]]; then
+    cp install/lib/*.so .
+elif [[ "$PLATFORM" == "darwin" ]]; then
+    cp install/lib/*.dylib .
+else
+    cp install/bin/*.dll .
+fi
