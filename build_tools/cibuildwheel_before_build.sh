@@ -18,6 +18,7 @@ if [[ "$PLATFORM" == "linux" ]]; then
     apt-get update -q
     apt-get -yq install libhdf5-dev libmatio-dev libboost-dev
     source ./build_tools/download_openblas.sh linux
+    BLAS_LIBRARIES_OPT="-DBLAS_LIBRARIES=$OPENBLAS_LIB/libopenblas.a"
     LAPACK_LIBRARIES_OPT="-DLAPACK_LIBRARIES=$OPENBLAS_LIB/libopenblas.a"
     HDF5_LIBRARIES_OPT="-DHDF5_LIBRARIES=/usr/lib/x86_64-linux-gnu/hdf5/serial/libhdf5.so"
 elif [[ "$PLATFORM" == "darwin" ]]; then
@@ -42,5 +43,5 @@ export PYTHON_OPT="-DENABLE_PYTHON=OFF"
 export BLA_IMPLEMENTATION="OpenBLAS"
 export DISABLE_CCACHE=1
 pip install cmake
-./build_tools/cmake_configure.sh -DCMAKE_INSTALL_PREFIX=${ROOT}/install ${VCPKG_BUILD_TYPE_OPT} -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_UCRT_LIBRARIES=TRUE ${LAPACK_LIBRARIES_OPT} ${HDF5_LIBRARIES_OPT}
+./build_tools/cmake_configure.sh -DCMAKE_INSTALL_PREFIX=${ROOT}/install ${VCPKG_BUILD_TYPE_OPT} -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_UCRT_LIBRARIES=TRUE ${BLAS_LIBRARIES_OPT} ${LAPACK_LIBRARIES_OPT} ${HDF5_LIBRARIES_OPT}
 cmake --build build --target install
