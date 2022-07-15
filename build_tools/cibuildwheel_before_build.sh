@@ -49,11 +49,9 @@ cmake --build build --target install
 # make life easier for auditwheel/delocate/delvewheel
 if [[ "$PLATFORM" == "linux" ]]; then
     ls -al install/lib/*.so*
-    cp install/lib/*.so* .
+    cp install/lib/*.so* /usr/local/lib
 elif [[ "$PLATFORM" == "darwin" ]]; then
-    ls -al install/lib/*.dylib*
-    cp install/lib/*.dylib* .
+    echo "DYLD_LIBRARY_PATH=$PWD/install/lib:DYLD_LIBRARY_PATH" >> $GITHUB_ENV
 else
-    ls -al install/bin/*.dll*
-    cp install/bin/*.dll* .
+    echo "PATH=$PWD/install/lib;$PATH" >> $GITHUB_ENV
 fi
