@@ -11,8 +11,8 @@ fi
 # Most of the time we want to use ccache, but lets allow for disabling it
 # (e.g., on cibuildwheel)
 if [[ "${DISABLE_CCACHE}" != "1" ]]; then
-    CXX_COMPILER_LAUNCHER_OPT="-DCMAKE_CXX_COMPILER_LAUNCHER=\"ccache\""
-    C_COMPILER_LAUNCHER_OPT="-DCMAKE_C_COMPILER_LAUNCHER=\"ccache\""
+    CXX_COMPILER_LAUNCHER_OPT="-DCMAKE_CXX_COMPILER_LAUNCHER=ccache"
+    C_COMPILER_LAUNCHER_OPT="-DCMAKE_C_COMPILER_LAUNCHER=ccache"
 fi
 
 set -x
