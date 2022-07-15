@@ -11,7 +11,7 @@ skip = "cp36-* *-manylinux_i686 *_ppc64le *_s390x *-musllinux* *-win32"
 build-verbosity = "3"
 before-build = "bash {project}/build_tools/cibuildwheel_before_build.sh {project}"
 test-command = "python -c 'import openmeeg; print(openmeeg.sqr(4)); assert openmeeg.sqr(4) == 16'"
-environment = { OPENMEEG_LIB="{project}/install/lib", OPENMEEG_INCLUDE="{project}/install/include/OpenMEEG", OPENMEEG_USE_SWIG="1" }
+environment = { OPENMEEG_LIB="../../install/lib", OPENMEEG_INCLUDE="../../install/include/OpenMEEG", OPENMEEG_USE_SWIG="1" }
 
 [tool.cibuildwheel.linux]
 manylinux-x86_64-image = "manylinux_2_24"

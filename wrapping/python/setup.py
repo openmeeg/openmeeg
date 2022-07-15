@@ -74,13 +74,13 @@ if __name__ == "__main__":
         library_dirs = []
         openmeeg_include = os.getenv('OPENMEEG_INCLUDE')
         if openmeeg_include is not None:
-            openmeeg_include = Path(openmeeg_include)
+            openmeeg_include = Path(openmeeg_include).resolve()
             assert openmeeg_include.is_dir(), openmeeg_include
             include_dirs.append(str(openmeeg_include))
             swig_opts.append(f'-I{openmeeg_include}')
         openmeeg_lib = os.getenv('OPENMEEG_LIB')
         if openmeeg_lib is not None:
-            openmeeg_lib = Path(openmeeg_lib)
+            openmeeg_lib = Path(openmeeg_lib).resolve()
             assert openmeeg_lib.is_dir(), openmeeg_lib
             library_dirs.append(str(openmeeg_lib))
         extra_compile_opts = []
