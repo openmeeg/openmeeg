@@ -11,11 +11,7 @@ skip = "cp36-* *-manylinux_i686 *_ppc64le *_s390x *-musllinux* *-win32"
 build-verbosity = "3"
 before-build = "bash {project}/build_tools/cibuildwheel_before_build.sh {project}"
 test-command = "python -c 'import openmeeg; print(openmeeg.sqr(4)); assert openmeeg.sqr(4) == 16'"
-environment = {
-    OPENMEEG_LIB="../../install/lib",
-    OPENMEEG_INCLUDE="../../install/include/OpenMEEG",
-    OPENMEEG_USE_SWIG="1"
-}
+environment = { OPENMEEG_LIB="../../install/lib", OPENMEEG_INCLUDE="../../install/include/OpenMEEG", OPENMEEG_USE_SWIG="1" }
 
 [tool.cibuildwheel.linux]
 manylinux-x86_64-image = "manylinux_2_24"
@@ -27,10 +23,4 @@ test-skip = "*_arm64"
 
 [tool.cibuildwheel.windows]
 repair-wheel-command = "delvewheel repair -w {dest_dir} {wheel}"
-environment = {
-    OPENMEEG_LIB="../../install/lib",
-    OPENMEEG_INCLUDE="../../install/include/OpenMEEG",
-    OPENMEEG_USE_SWIG="1",
-    CL="/I..\..\openblas\64\include /std:c++17",
-    SWIG_FLAGS="msvc"
-}
+environment = { OPENMEEG_LIB="../../install/lib", OPENMEEG_INCLUDE="../../install/include/OpenMEEG", OPENMEEG_USE_SWIG="1", CL="/I..\\..\\openblas\\64\\include /std:c++17", SWIG_FLAGS="msvc" }
