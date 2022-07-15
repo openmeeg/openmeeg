@@ -1,7 +1,9 @@
 # Install stuff
 
 if (APPLE)
-    set(CMAKE_MACOSX_RPATH 1)
+    if (NOT DEFINED CMAKE_MACOSX_RPATH)
+        set(CMAKE_MACOSX_RPATH 1)
+    endif()
     set(CMAKE_SKIP_BUILD_RPATH  FALSE)
     set(CMAKE_INSTALL_RPATH "@executable_path/../lib/")
     set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)

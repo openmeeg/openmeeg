@@ -16,6 +16,8 @@ pwd
 if [[ "$PLATFORM" == "linux" ]]; then
     apt-get update -q
     apt-get -yq install libhdf5-dev libmatio-dev libboost-dev
+    which g++
+    which g++-17
     source ./build_tools/download_openblas.sh linux
     BLAS_LIBRARIES_OPT="-DBLAS_LIBRARIES=$OPENBLAS_LIB/libopenblas.a"
     LAPACK_LIBRARIES_OPT="-DLAPACK_LIBRARIES=$OPENBLAS_LIB/libopenblas.a"
@@ -28,6 +30,7 @@ elif [[ "$PLATFORM" == "darwin" ]]; then
     OPENBLAS_LIB=$BLAS_DIR/lib
     export CMAKE_CXX_FLAGS="-I$OPENBLAS_INCLUDE -L$OPENBLAS_LIB"
     export CMAKE_PREFIX_PATH="$BLAS_DIR"
+    MACOSX_RPATH_OPT="-DCMAKE_MACOSX_RPATH=OFF"
 elif [[ "$PLATFORM" == "win32" ]]; then
     export VCPKG_DEFAULT_TRIPLET="x64-windows"
     export CMAKE_GENERATOR="Visual Studio 16 2019"
@@ -44,7 +47,7 @@ export PYTHON_OPT="-DENABLE_PYTHON=OFF"
 export BLA_IMPLEMENTATION="OpenBLAS"
 export DISABLE_CCACHE=1
 pip install cmake
-./build_tools/cmake_configure.sh -DCMAKE_INSTALL_PREFIX=${ROOT}/install ${VCPKG_BUILD_TYPE_OPT} ${SYSTEM_VERSION_OPT} -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_UCRT_LIBRARIES=TRUE ${BLAS_LIBRARIES_OPT} ${LAPACK_LIBRARIES_OPT} ${HDF5_LIBRARIES_OPT}
+./build_tools/cmake_configure.sh -DCMAKE_INSTALL_PREFIX=${ROOT}/install ${VCPKG_BUILD_TYPE_OPT} ${SYSTEM_VERSION_OPT} ${MACOSX_RPATH_OPT} -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_UCRT_LIBRARIES=TRUE ${BLAS_LIBRARIES_OPT} ${LAPACK_LIBRARIES_OPT} ${HDF5_LIBRARIES_OPT}
 cmake --build build --target install
 # make life easier for auditwheel/delocate/delvewheel
 if [[ "$PLATFORM" == "linux" ]]; then
