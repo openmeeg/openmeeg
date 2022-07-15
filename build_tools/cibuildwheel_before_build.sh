@@ -52,8 +52,8 @@ if [[ "$PLATFORM" == "linux" ]]; then
     cp install/lib/*.so* /usr/local/lib
 elif [[ "$PLATFORM" == "darwin" ]]; then
     ls -al install/lib/*.dylib*
-    echo "DYLD_LIBRARY_PATH=$PWD/install/lib:DYLD_LIBRARY_PATH" >> $GITHUB_ENV
+    cp install/lib/*.so* /usr/lib
 else
     ls -al $PWD/install/bin/*.dll*
-    echo "PATH=$PWD/install/bin;$PATH" >> $GITHUB_ENV
+    cp $PWD/install/bin/*.dll* .
 fi
