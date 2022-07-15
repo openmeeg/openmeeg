@@ -19,6 +19,7 @@ if [[ "$PLATFORM" == "linux" ]]; then
     apt-get -yq install libhdf5-dev libmatio-dev libboost-dev
     source ./build_tools/download_openblas.sh linux
     LAPACK_LIBRARIES_OPT="-DLAPACK_LIBRARIES=$OPENBLAS_LIB/libopenblas.a"
+    HDF5_LIBRARIES_OPT="-DHDF5_LIBRARIES=/usr/lib/x86_64-linux-gnu/hdf5/serial/libhdf5.so"
 elif [[ "$PLATFORM" == "darwin" ]]; then
     brew install hdf5 libmatio boost swig openblas
     BLAS_DIR=/usr/local/opt/openblas
@@ -37,10 +38,10 @@ else
     echo "Unknown platform: ${PLATFORM}"
     exit 1
 fi
-export PYTHON_OPT=-DENABLE_PYTHON=OFF
-export BLA_STATIC_OPT=-DBLA_STATIC=ON
-export BLA_IMPLEMENTATION=OpenBLAS
+export PYTHON_OPT="-DENABLE_PYTHON=OFF"
+export BLA_STATIC_OPT="-DBLA_STATIC=ON"
+export BLA_IMPLEMENTATION="OpenBLAS"
 export DISABLE_CCACHE=1
 pip install cmake
-./build_tools/cmake_configure.sh -DCMAKE_INSTALL_PREFIX=${ROOT}/install ${VCPKG_BUILD_TYPE_OPT} -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_UCRT_LIBRARIES=TRUE ${LAPACK_LIBRARIES_OPT}
+./build_tools/cmake_configure.sh -DCMAKE_INSTALL_PREFIX=${ROOT}/install ${VCPKG_BUILD_TYPE_OPT} -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_UCRT_LIBRARIES=TRUE ${LAPACK_LIBRARIES_OPT} ${HDF%_LIBRARIES_OPT}
 cmake --build build --target install
