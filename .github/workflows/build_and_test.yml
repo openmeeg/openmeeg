@@ -296,10 +296,10 @@ jobs:
           if [[ "${{matrix.blas}}" == "OpenBLAS" ]]; then
             #if [[ "${{ matrix.blas_linking }}" != "static" ]]; then
             if [[ "{{ matrix.windows_compiler }}" != "msvc"* ]]; then
-              strip $OPENBLAS_LIB/libopenblas_v0.3.18-gcc_8_1_0.dll
+              strip $OPENBLAS_LIB/libopenblas_v*.dll
             fi
-            cp $OPENBLAS_LIB/libopenblas_v0.3.18-gcc_8_1_0.dll .
-            cp $OPENBLAS_LIB/libopenblas_v0.3.18-gcc_8_1_0.dll openblas.dll
+            cp $OPENBLAS_LIB/libopenblas_v*.dll .
+            cp $OPENBLAS_LIB/libopenblas_v*.dll openblas.dll
             #fi
           fi;
           if [[ "{{ matrix.windows_compiler }}" != "msvc"* ]]; then
