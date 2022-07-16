@@ -14,8 +14,8 @@ test-command = "python -c 'import openmeeg; print(openmeeg.sqr(4)); assert openm
 environment = { OPENMEEG_LIB="../../install/lib", OPENMEEG_INCLUDE="../../install/include/OpenMEEG", OPENMEEG_USE_SWIG="1" }
 
 [tool.cibuildwheel.linux]
-manylinux-x86_64-image = "manylinux_2_24"
-manylinux-aarch64-image = "manylinux_2_24"
+manylinux-x86_64-image = "manylinux_2_28"
+manylinux-aarch64-image = "manylinux_2_28"
 environment = { OPENMEEG_LIB="../../install/lib", OPENMEEG_INCLUDE="../../install/include/OpenMEEG", OPENMEEG_USE_SWIG="1", OPENBLAS_INCLUDE="../../openblas/usr/local/include" }
 
 [tool.cibuildwheel.macos]
