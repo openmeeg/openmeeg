@@ -9,7 +9,7 @@ if [[ "$1" == "" ]]; then
     exit 1
 fi
 ROOT=$1
-echo "Using project root \"${ROOT}\""
+echo "Using project root \"${ROOT}\" on RUNNER_OS=\"${RUNNER_OS}\""
 cd $ROOT
 pwd
 
@@ -18,7 +18,8 @@ curl -L https://github.com/numpy/numpy/archive/refs/tags/v1.23.1.tar.gz | tar xz
 mv numpy-1.23.1/tools .
 mv numpy-1.23.1/numpy .  # on Windows, _distributor_init gets modified
 echo "Running NumPy tools/wheels/cibw_before_build.sh $1"
-source tools/wheels/cibw_before_build.sh $1
+./tools/wheels/cibw_before_build.sh $1
+PLATFORM=$(PYTHONPATH=tools python -c "import openblas_support; print(openblas_support.get_plat())")
 rm -Rf numpy numpy-1.23.1 tools
 echo "Using NumPy PLATFORM=\"${PLATFORM}\""
 
@@ -30,16 +31,17 @@ echo "Using NumPy PLATFORM=\"${PLATFORM}\""
 if [[ "$PLATFORM" == "linux-x86_64" ]]; then
     dnf -y install epel-release
     dnf -y install hdf5-devel matio-devel
-    export OPENBLAS_LIB=/usr/local/lib
     export OPENBLAS_INCLUDE=/usr/local/include
+    export OPENBLAS_LIB=/usr/local/lib
     ls -al $OPENBLAS_LIB
     # source ./build_tools/download_openblas.sh linux
-    BLAS_LIBRARIES_OPT="-DBLAS_LIBRARIES=$OPENBLAS_LIB/libopenblas.so"
-    LAPACK_LIBRARIES_OPT="-DLAPACK_LIBRARIES=$OPENBLAS_LIB/libopenblas.so"
+    # BLAS_LIBRARIES_OPT="-DBLAS_LIBRARIES=$OPENBLAS_LIB/libopenblas.so"
+    # LAPACK_LIBRARIES_OPT="-DLAPACK_LIBRARIES=$OPENBLAS_LIB/libopenblas.so"
     export CMAKE_CXX_FLAGS="-lgfortran -I$OPENBLAS_INCLUDE"
 elif [[ "$PLATFORM" == "macosx-x86_64" ]]; then
     #brew install hdf5 libmatio boost swig openblas
     #BLAS_DIR=/usr/local/opt/openblas
+    brew install boost swig
     BLAS_DIR=/usr/local
     OPENBLAS_INCLUDE=$BLAS_DIR/include
     OPENBLAS_LIB=$BLAS_DIR/lib
@@ -61,7 +63,7 @@ elif [[ "$PLATFORM" == "win-amd64" ]]; then
     export VCPKG_DEFAULT_TRIPLET="x64-windows"
     export CMAKE_GENERATOR="Visual Studio 16 2019"
     source ./build_tools/setup_vcpkg_compilation.sh
-    # source ./build_tools/download_openblas.sh windows
+    source ./build_tools/download_openblas.sh windows  # NumPy doesn't install the headers for Windows
     pip install delvewheel
     VCPKG_BUILD_TYPE_OPT="-DVCPKG_BUILD_TYPE=release"
     SYSTEM_VERSION_OPT="-DCMAKE_SYSTEM_VERSION=7"
@@ -78,7 +80,7 @@ cmake --build build --target install
 # make life easier for auditwheel/delocate/delvewheel
 if [[ "$PLATFORM" == 'linux'* ]]; then
     ls -al install/lib/*.so*
-    cp install/lib/*.so* /usr/local/lib
+    cp install/lib/*.so* /usr/local/lib/
 elif [[ "$PLATFORM" == 'macosx'* ]]; then
     ls -al install/lib/*.dylib*
     sudo mkdir -p /usr/local/lib

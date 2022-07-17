@@ -16,12 +16,12 @@ environment = { OPENMEEG_LIB="../../install/lib", OPENMEEG_INCLUDE="../../instal
 [tool.cibuildwheel.linux]
 manylinux-x86_64-image = "manylinux_2_28"
 manylinux-aarch64-image = "manylinux_2_28"
-environment = { OPENMEEG_LIB="../../install/lib", OPENMEEG_INCLUDE="../../install/include/OpenMEEG", OPENMEEG_USE_SWIG="1", OPENBLAS_INCLUDE="../../openblas/usr/local/include" }
+environment = { OPENMEEG_LIB="../../install/lib", OPENMEEG_INCLUDE="../../install/include/OpenMEEG", OPENMEEG_USE_SWIG="1", OPENBLAS_INCLUDE="/usr/local/include", RUNNER_OS="Linux" }
 
 [tool.cibuildwheel.macos]
 archs = "x86_64 arm64"
 test-skip = "*_arm64"
-environment = { OPENMEEG_LIB="../../install/lib", OPENMEEG_INCLUDE="../../install/include/OpenMEEG", OPENMEEG_USE_SWIG="1", OPENBLAS_INCLUDE="/usr/local/opt/openblas/include" }
+environment = { OPENMEEG_LIB="../../install/lib", OPENMEEG_INCLUDE="../../install/include/OpenMEEG", OPENMEEG_USE_SWIG="1", OPENBLAS_INCLUDE="/usr/local/include" }
 
 [tool.cibuildwheel.windows]
 repair-wheel-command = "delvewheel repair -w {dest_dir} {wheel}"
