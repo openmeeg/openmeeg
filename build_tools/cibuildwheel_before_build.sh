@@ -28,8 +28,10 @@ echo "Using NumPy PLATFORM=\"${PLATFORM}\""
 # win-amd64
 
 if [[ "$PLATFORM" == "linux-x86_64" ]]; then
-    sudo dnf makecache --refresh
-    sudo dnf -y install hdf5-devel matio-devel
+    dnf makecache --refresh
+    dnf -y install epel-release
+    dnf makecache --refresh
+    dnf -y install hdf5-devel matio-devel
     # source ./build_tools/download_openblas.sh linux
     #BLAS_LIBRARIES_OPT="-DBLAS_LIBRARIES=$OPENBLAS_LIB/libopenblas.a"
     #LAPACK_LIBRARIES_OPT="-DLAPACK_LIBRARIES=$OPENBLAS_LIB/libopenblas.a"
