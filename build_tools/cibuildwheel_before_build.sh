@@ -14,12 +14,13 @@ cd $ROOT
 pwd
 
 # Let's have NumPy help us out
-curl -L https://github.com/numpy/numpy/archive/refs/tags/v1.23.1.tar.gz | tar xzv numpy-1.23.1/tools
+curl -L https://github.com/numpy/numpy/archive/refs/tags/v1.23.1.tar.gz | tar xz numpy-1.23.1
 mv numpy-1.23.1/tools .
 mv numpy-1.23.1/numpy .  # on Windows, _distributor_init gets modified
+echo "Running NumPy tools/wheels/cibw_before_build.sh $1"
 source tools/wheels/cibw_before_build.sh $1
 rm -Rf numpy numpy-1.23.1 tools
-echo "Using PLATFORM=\"${PLATFORM}\""
+echo "Using NumPy PLATFORM=\"${PLATFORM}\""
 
 # PLATFORM can be:
 # linux-x86_64
@@ -45,6 +46,7 @@ elif [[ "$PLATFORM" == "macosx-x86_64" ]]; then
     fi
     # TODO: Need to add arm64 target here, probably via arm64-osx
     export VCPKG_DEFAULT_TRIPLET="x64-osx"
+    # https://github.com/microsoft/vcpkg/issues/10038
     export VCPKG_OSX_DEPLOYMENT_TARGET="${MACOSX_DEPLOYMENT_TARGET}"
     source ./build_tools/setup_vcpkg_compilation.sh
     VCPKG_BUILD_TYPE_OPT="-DVCPKG_BUILD_TYPE=release"
