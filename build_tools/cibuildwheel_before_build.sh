@@ -30,17 +30,20 @@ echo "Using NumPy PLATFORM=\"${PLATFORM}\""
 if [[ "$PLATFORM" == "linux-x86_64" ]]; then
     dnf -y install epel-release
     dnf -y install hdf5-devel matio-devel
+    export OPENBLAS_LIB=/usr/lib/openblas
+    export OPENBLAS_INCLUDE=/usr/lib/include
     # source ./build_tools/download_openblas.sh linux
-    #BLAS_LIBRARIES_OPT="-DBLAS_LIBRARIES=$OPENBLAS_LIB/libopenblas.a"
-    #LAPACK_LIBRARIES_OPT="-DLAPACK_LIBRARIES=$OPENBLAS_LIB/libopenblas.a"
-    #export CMAKE_CXX_FLAGS="-lgfortran -I$OPENBLAS_INCLUDE"
+    BLAS_LIBRARIES_OPT="-DBLAS_LIBRARIES=$OPENBLAS_LIB/libopenblas.a"
+    LAPACK_LIBRARIES_OPT="-DLAPACK_LIBRARIES=$OPENBLAS_LIB/libopenblas.a"
+    export CMAKE_CXX_FLAGS="-lgfortran -I$OPENBLAS_INCLUDE"
 elif [[ "$PLATFORM" == "macosx-x86_64" ]]; then
     #brew install hdf5 libmatio boost swig openblas
     #BLAS_DIR=/usr/local/opt/openblas
-    #OPENBLAS_INCLUDE=$BLAS_DIR/include
-    #OPENBLAS_LIB=$BLAS_DIR/lib
-    #export CMAKE_CXX_FLAGS="-I$OPENBLAS_INCLUDE -L$OPENBLAS_LIB"
-    #export CMAKE_PREFIX_PATH="$BLAS_DIR"
+    BLAS_DIR=/usr/local
+    OPENBLAS_INCLUDE=$BLAS_DIR/include
+    OPENBLAS_LIB=$BLAS_DIR/lib
+    export CMAKE_CXX_FLAGS="-I$OPENBLAS_INCLUDE -L$OPENBLAS_LIB"
+    export CMAKE_PREFIX_PATH="$BLAS_DIR"
     echo "MACOSX_DEPLOYMENT_TARGET=$MACOSX_DEPLOYMENT_TARGET"
     if [[ "${MACOSX_DEPLOYMENT_TARGET}" == "" ]]; then
         export MACOSX_DEPLOYMENT_TARGET="10.9"
