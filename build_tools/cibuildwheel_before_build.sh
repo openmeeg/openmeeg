@@ -13,29 +13,41 @@ PLATFORM=$(python -c "import sys; print(sys.platform)")
 echo "Using project root for platform \"${PLATFORM}\": \"${ROOT}\""
 cd $ROOT
 pwd
+
+# Let's have NumPy help us out
+curl -L https://github.com/numpy/numpy/archive/refs/tags/v1.23.1.tar.gz | tar xzv numpy-1.23.1/tools
+mv numpy-1.23.1/tools .
+source tools/wheels/cibw_before_build.sh $1
+
 if [[ "$PLATFORM" == "linux" ]]; then
-    apt-get update -q
-    apt-get -yq install libhdf5-dev libmatio-dev libboost-dev
-    which g++
-    which g++-17
-    source ./build_tools/download_openblas.sh linux
-    BLAS_LIBRARIES_OPT="-DBLAS_LIBRARIES=$OPENBLAS_LIB/libopenblas.a"
-    LAPACK_LIBRARIES_OPT="-DLAPACK_LIBRARIES=$OPENBLAS_LIB/libopenblas.a"
-    HDF5_LIBRARIES_OPT="-DHDF5_LIBRARIES=/usr/lib/x86_64-linux-gnu/hdf5/serial/libhdf5.so"
-    export CMAKE_CXX_FLAGS="-lgfortran -I$OPENBLAS_INCLUDE"
+    dnf install install hdf5-devel matio-devel
+    # source ./build_tools/download_openblas.sh linux
+    #BLAS_LIBRARIES_OPT="-DBLAS_LIBRARIES=$OPENBLAS_LIB/libopenblas.a"
+    #LAPACK_LIBRARIES_OPT="-DLAPACK_LIBRARIES=$OPENBLAS_LIB/libopenblas.a"
+    #export CMAKE_CXX_FLAGS="-lgfortran -I$OPENBLAS_INCLUDE"
 elif [[ "$PLATFORM" == "darwin" ]]; then
-    brew install hdf5 libmatio boost swig openblas
-    BLAS_DIR=/usr/local/opt/openblas
-    OPENBLAS_INCLUDE=$BLAS_DIR/include
-    OPENBLAS_LIB=$BLAS_DIR/lib
-    export CMAKE_CXX_FLAGS="-I$OPENBLAS_INCLUDE -L$OPENBLAS_LIB"
-    export CMAKE_PREFIX_PATH="$BLAS_DIR"
-    MACOSX_RPATH_OPT="-DCMAKE_MACOSX_RPATH=OFF"
+    #brew install hdf5 libmatio boost swig openblas
+    #BLAS_DIR=/usr/local/opt/openblas
+    #OPENBLAS_INCLUDE=$BLAS_DIR/include
+    #OPENBLAS_LIB=$BLAS_DIR/lib
+    #export CMAKE_CXX_FLAGS="-I$OPENBLAS_INCLUDE -L$OPENBLAS_LIB"
+    #export CMAKE_PREFIX_PATH="$BLAS_DIR"
+    # TODO: Need to add arm64 target here, probably via custom vcpkg target
+    echo "MACOSX_DEPLOYMENT_TARGET=$MACOSX_DEPLOYMENT_TARGET"
+    if [[ "${MACOSX_DEPLOYMENT_TARGET}" == "" ]]; then
+        export MACOSX_DEPLOYMENT_TARGET="10.9"
+    fi
+    export VCPKG_DEFAULT_TRIPLET="x64-osx"
+    export VCPKG_OSX_DEPLOYMENT_TARGET="${MACOSX_DEPLOYMENT_TARGET}"
+    source ./build_tools/setup_vcpkg_compilation.sh
+    VCPKG_BUILD_TYPE_OPT="-DVCPKG_BUILD_TYPE=release"
+    VCPKG_BUILD_C_FLAGS_OPT="-DVCPKG_C_FLAGS=-mmacosx-version-min=${MACOSX_DEPLOYMENT_TARGET}"
+    VCPKG_BUILD_CXX_FLAGS_OPT="-DVCPKG_CXX_FLAGS=-mmacosx-version-min=${MACOSX_DEPLOYMENT_TARGET}"
 elif [[ "$PLATFORM" == "win32" ]]; then
     export VCPKG_DEFAULT_TRIPLET="x64-windows"
     export CMAKE_GENERATOR="Visual Studio 16 2019"
-    source ./build_tools/setup_windows_compilation.sh
-    source ./build_tools/download_openblas.sh windows
+    source ./build_tools/setup_vcpkg_compilation.sh
+    # source ./build_tools/download_openblas.sh windows
     pip install delvewheel
     VCPKG_BUILD_TYPE_OPT="-DVCPKG_BUILD_TYPE=release"
     SYSTEM_VERSION_OPT="-DCMAKE_SYSTEM_VERSION=7"
@@ -47,7 +59,7 @@ export PYTHON_OPT="-DENABLE_PYTHON=OFF"
 export BLA_IMPLEMENTATION="OpenBLAS"
 export DISABLE_CCACHE=1
 pip install cmake
-./build_tools/cmake_configure.sh -DCMAKE_INSTALL_PREFIX=${ROOT}/install ${VCPKG_BUILD_TYPE_OPT} ${SYSTEM_VERSION_OPT} ${MACOSX_RPATH_OPT} -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_UCRT_LIBRARIES=TRUE ${BLAS_LIBRARIES_OPT} ${LAPACK_LIBRARIES_OPT} ${HDF5_LIBRARIES_OPT}
+./build_tools/cmake_configure.sh -DCMAKE_INSTALL_PREFIX=${ROOT}/install ${VCPKG_BUILD_TYPE_OPT} ${VCPKG_BUILD_C_FLAGS_OPT} ${VCPKG_BUILD_CXX_FLAGS_OPT} ${SYSTEM_VERSION_OPT} -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_UCRT_LIBRARIES=TRUE ${BLAS_LIBRARIES_OPT} ${LAPACK_LIBRARIES_OPT}
 cmake --build build --target install
 # make life easier for auditwheel/delocate/delvewheel
 if [[ "$PLATFORM" == "linux" ]]; then
