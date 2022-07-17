@@ -32,10 +32,10 @@ if [[ "$PLATFORM" == "linux-x86_64" ]]; then
     dnf -y install hdf5-devel matio-devel
     export OPENBLAS_LIB=/usr/local/lib
     export OPENBLAS_INCLUDE=/usr/local/include
+    ls -al $OPENBLAS_LIB
     # source ./build_tools/download_openblas.sh linux
-    #BLAS_LIBRARIES_OPT="-DBLAS_LIBRARIES=$OPENBLAS_LIB/libopenblas.so"
-    #LAPACK_LIBRARIES_OPT="-DLAPACK_LIBRARIES=$OPENBLAS_LIB/libopenblas.so"
-    export CMAKE_PREFIX_PATH="/usr/local"
+    BLAS_LIBRARIES_OPT="-DBLAS_LIBRARIES=$OPENBLAS_LIB/libopenblas.so"
+    LAPACK_LIBRARIES_OPT="-DLAPACK_LIBRARIES=$OPENBLAS_LIB/libopenblas.so"
     export CMAKE_CXX_FLAGS="-lgfortran -I$OPENBLAS_INCLUDE"
 elif [[ "$PLATFORM" == "macosx-x86_64" ]]; then
     #brew install hdf5 libmatio boost swig openblas
@@ -53,7 +53,7 @@ elif [[ "$PLATFORM" == "macosx-x86_64" ]]; then
     export VCPKG_DEFAULT_TRIPLET="x64-osx"
     # https://github.com/microsoft/vcpkg/issues/10038
     export VCPKG_OSX_DEPLOYMENT_TARGET="${MACOSX_DEPLOYMENT_TARGET}"
-    source ./build_tools/setup_vcpkg_compilation.sh $PWD
+    source ./build_tools/setup_vcpkg_compilation.sh
     VCPKG_BUILD_TYPE_OPT="-DVCPKG_BUILD_TYPE=release"
     VCPKG_BUILD_C_FLAGS_OPT="-DVCPKG_C_FLAGS=-mmacosx-version-min=${MACOSX_DEPLOYMENT_TARGET}"
     VCPKG_BUILD_CXX_FLAGS_OPT="-DVCPKG_CXX_FLAGS=-mmacosx-version-min=${MACOSX_DEPLOYMENT_TARGET}"

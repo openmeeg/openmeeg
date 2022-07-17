@@ -1,11 +1,7 @@
 #!/bin/bash -ef
 
 # Go to the repo root
-if [[ "$1" == "" ]]; then
-    DIR=$(realpath "$(dirname "${BASH_SOURCE[0]}")")
-else
-    DIR=$1
-fi
+DIR=$(dirname "${BASH_SOURCE[0]}")
 cd $DIR/..
 
 if [[ "$VCPKG_DEFAULT_TRIPLET" == "" ]]; then
