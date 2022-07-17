@@ -30,8 +30,8 @@ echo "Using NumPy PLATFORM=\"${PLATFORM}\""
 if [[ "$PLATFORM" == "linux-x86_64" ]]; then
     dnf -y install epel-release
     dnf -y install hdf5-devel matio-devel
-    export OPENBLAS_LIB=/usr/lib/openblas
-    export OPENBLAS_INCLUDE=/usr/lib/include
+    export OPENBLAS_LIB=/usr/local/lib/openblas
+    export OPENBLAS_INCLUDE=/usr/local/lib/include
     # source ./build_tools/download_openblas.sh linux
     BLAS_LIBRARIES_OPT="-DBLAS_LIBRARIES=$OPENBLAS_LIB/libopenblas.a"
     LAPACK_LIBRARIES_OPT="-DLAPACK_LIBRARIES=$OPENBLAS_LIB/libopenblas.a"
@@ -52,7 +52,7 @@ elif [[ "$PLATFORM" == "macosx-x86_64" ]]; then
     export VCPKG_DEFAULT_TRIPLET="x64-osx"
     # https://github.com/microsoft/vcpkg/issues/10038
     export VCPKG_OSX_DEPLOYMENT_TARGET="${MACOSX_DEPLOYMENT_TARGET}"
-    source ./build_tools/setup_vcpkg_compilation.sh
+    source ./build_tools/setup_vcpkg_compilation.sh $PWD
     VCPKG_BUILD_TYPE_OPT="-DVCPKG_BUILD_TYPE=release"
     VCPKG_BUILD_C_FLAGS_OPT="-DVCPKG_C_FLAGS=-mmacosx-version-min=${MACOSX_DEPLOYMENT_TARGET}"
     VCPKG_BUILD_CXX_FLAGS_OPT="-DVCPKG_CXX_FLAGS=-mmacosx-version-min=${MACOSX_DEPLOYMENT_TARGET}"
