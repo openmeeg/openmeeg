@@ -64,7 +64,7 @@ elif [[ "$PLATFORM" == "win-amd64" ]]; then
     #export VCPKG_DEFAULT_TRIPLET="x64-windows"
     #export CMAKE_GENERATOR="Visual Studio 16 2019"
     #SYSTEM_VERSION_OPT="-DCMAKE_SYSTEM_VERSION=7"
-    export VCPKG_DEFAULT_TRIPLET="x64-mingw"
+    export VCPKG_DEFAULT_TRIPLET="x64-windows"
     source ./build_tools/setup_vcpkg_compilation.sh
     source ./build_tools/download_openblas.sh windows  # NumPy doesn't install the headers for Windows
     pip install delvewheel
@@ -77,7 +77,7 @@ export PYTHON_OPT="-DENABLE_PYTHON=OFF"
 export BLA_IMPLEMENTATION="OpenBLAS"
 export DISABLE_CCACHE=1
 pip install cmake
-./build_tools/cmake_configure.sh -DCMAKE_INSTALL_PREFIX=${ROOT}/install ${VCPKG_BUILD_TYPE_OPT} ${VCPKG_BUILD_C_FLAGS_OPT} ${VCPKG_BUILD_CXX_FLAGS_OPT} ${SYSTEM_VERSION_OPT} -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_UCRT_LIBRARIES=TRUE ${BLAS_LIBRARIES_OPT} ${LAPACK_LIBRARIES_OPT}
+./build_tools/cmake_configure.sh -DCMAKE_INSTALL_PREFIX=${ROOT}/install ${VCPKG_BUILD_TYPE_OPT} ${VCPKG_BUILD_C_FLAGS_OPT} ${VCPKG_BUILD_CXX_FLAGS_OPT} ${SYSTEM_VERSION_OPT} -DBUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_UCRT_LIBRARIES=TRUE ${BLAS_LIBRARIES_OPT} ${LAPACK_LIBRARIES_OPT}
 cmake --build build --target install
 # make life easier for auditwheel/delocate/delvewheel
 if [[ "$PLATFORM" == 'linux'* ]]; then
