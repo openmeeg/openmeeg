@@ -48,7 +48,6 @@ elif [[ "$PLATFORM" == "macosx-x86_64" ]]; then
     export VCPKG_DEFAULT_TRIPLET="x64-osx-release-10.9"
     source ./build_tools/setup_vcpkg_compilation.sh
     OPENMP_OPT="-DUSE_OPENMP=OFF"
-    VCPKG_TRIPLET_OPT="-DVCPKG_TARGET_TRIPLET=$VCPKG_DEFAULT_TRIPLET"
 elif [[ "$PLATFORM" == "win-amd64" ]]; then
     export VCPKG_DEFAULT_TRIPLET="x64-windows-release-static"
     export CMAKE_GENERATOR="Visual Studio 16 2019"
@@ -56,7 +55,6 @@ elif [[ "$PLATFORM" == "win-amd64" ]]; then
     source ./build_tools/download_openblas.sh windows  # NumPy doesn't install the headers for Windows
     pip install delvewheel
     SYSTEM_VERSION_OPT="-DCMAKE_SYSTEM_VERSION=7"
-    VCPKG_TRIPLET_OPT="-DVCPKG_TARGET_TRIPLET=$VCPKG_DEFAULT_TRIPLET"
     #export BLA_STATIC_OPT="-DBLA_STATIC=ON"
 else
     echo "Unknown platform: ${PLATFORM}"
