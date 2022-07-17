@@ -30,11 +30,12 @@ echo "Using NumPy PLATFORM=\"${PLATFORM}\""
 if [[ "$PLATFORM" == "linux-x86_64" ]]; then
     dnf -y install epel-release
     dnf -y install hdf5-devel matio-devel
-    export OPENBLAS_LIB=/usr/local/lib/openblas
-    export OPENBLAS_INCLUDE=/usr/local/lib/include
+    export OPENBLAS_LIB=/usr/local/lib
+    export OPENBLAS_INCLUDE=/usr/local/include
     # source ./build_tools/download_openblas.sh linux
-    BLAS_LIBRARIES_OPT="-DBLAS_LIBRARIES=$OPENBLAS_LIB/libopenblas.so"
-    LAPACK_LIBRARIES_OPT="-DLAPACK_LIBRARIES=$OPENBLAS_LIB/libopenblas.so"
+    #BLAS_LIBRARIES_OPT="-DBLAS_LIBRARIES=$OPENBLAS_LIB/libopenblas.so"
+    #LAPACK_LIBRARIES_OPT="-DLAPACK_LIBRARIES=$OPENBLAS_LIB/libopenblas.so"
+    export CMAKE_PREFIX_PATH="/usr/local"
     export CMAKE_CXX_FLAGS="-lgfortran -I$OPENBLAS_INCLUDE"
 elif [[ "$PLATFORM" == "macosx-x86_64" ]]; then
     #brew install hdf5 libmatio boost swig openblas
