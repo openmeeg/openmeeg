@@ -4,8 +4,11 @@ enable_testing()
 option(USE_VTK   "Use VTK"   OFF)
 option(USE_GIFTI "Use GIFTI" OFF)
 option(USE_CGAL  "Use CGAL"  OFF)
+option(USE_OPENMP "Use OpenMP (if available)"  ON)
+option(BUILD_SHARED_LIBS "Build Shared Libraries" ON)
 
 option(ENABLE_COVERAGE "Enable coverage" OFF)
+option(ENABLE_APPS "Enable app creation" ON)
 
 option(ENABLE_PYTHON "Enable python bindings" OFF)
 set(PYTHON_VERSION 3 CACHE STRING "Python version to use: 3, 3.x, or empty")
@@ -14,6 +17,7 @@ option(PYTHON_COPY_RUNTIME_DLLS "Copy runtime DLLs to the cmake build path" OFF)
 option(PYTHON_FORCE_EXT_SUFFIX "Force Python extension suffix" OFF)
 
 option(ENABLE_WERROR "Turn on -Werror" OFF)
+option(TEST_HEAD3 "Run tests on Head 3" OFF)
 
 # Documentation configuration
 

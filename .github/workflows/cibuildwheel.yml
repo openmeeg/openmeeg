@@ -24,6 +24,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4  # to make before-all work properly
+        with:
+          python-version: '3.10'
 
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.8.0

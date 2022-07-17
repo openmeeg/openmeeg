@@ -1,10 +1,15 @@
 # OpenMEEGMath
 
 include_directories(${BLA_INCLUDE_DIR})
-add_library(OpenMEEGMaths SHARED
+set(OPENMEEGMATHS_SOURCES
     src/vector.cpp src/matrix.cpp src/symmatrix.cpp src/sparse_matrix.cpp
     src/fast_sparse_matrix.cpp src/MathsIO.C src/MatlabIO.C src/AsciiIO.C
     src/BrainVisaTextureIO.C src/TrivialBinIO.C)
+if(BUILD_SHARED_LIBS OR (UNIX AND NOT APPLE))
+    add_library(OpenMEEGMaths SHARED ${OPENMEEGMATHS_SOURCES})
+else()
+    add_library(OpenMEEGMaths STATIC ${OPENMEEGMATHS_SOURCES})
+endif()
 
 set_target_properties(OpenMEEGMaths PROPERTIES
                       VERSION 1.1.0
@@ -38,6 +43,12 @@ generate_export_header(OpenMEEGMaths
     STATIC_DEFINE OpenMEEGMaths_BUILT_AS_STATIC)
 
 # create_library(OpenMEEGMaths ${OpenMEEGMaths_SOURCES})
+
+# Shared
+if (WIN32 AND NOT BUILD_SHARED_LIBS)
+    target_compile_options(OpenMEEGMaths PUBLIC /MT)
+    target_link_options(OpenMEEGMaths PUBLIC /INCREMENTAL:NO /NODEFAULTLIB:MSVCRT)
+endif()
 
 # 'make install' to the correct locations (provided by GNUInstallDirs).
 

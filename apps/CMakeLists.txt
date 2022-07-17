@@ -70,8 +70,6 @@ if (BUILD_TESTING)
         TESTHEAD(NNc2)
     endif()
 
-    option(TEST_HEAD3 "Run tests on Head 3" OFF)
-
     if (TEST_HEAD3)
         TESTHEAD(3)
         if (USE_VTK)
