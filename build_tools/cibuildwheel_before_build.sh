@@ -9,41 +9,48 @@ if [[ "$1" == "" ]]; then
     exit 1
 fi
 ROOT=$1
-PLATFORM=$(python -c "import sys; print(sys.platform)")
-echo "Using project root for platform \"${PLATFORM}\": \"${ROOT}\""
+echo "Using project root \"${ROOT}\""
 cd $ROOT
 pwd
 
 # Let's have NumPy help us out
 curl -L https://github.com/numpy/numpy/archive/refs/tags/v1.23.1.tar.gz | tar xzv numpy-1.23.1/tools
 mv numpy-1.23.1/tools .
+mv numpy-1.23.1/numpy .  # on Windows, _distributor_init gets modified
 source tools/wheels/cibw_before_build.sh $1
+rm -Rf numpy numpy-1.23.1 tools
+echo "Using PLATFORM=\"${PLATFORM}\""
 
-if [[ "$PLATFORM" == "linux" ]]; then
+# PLATFORM can be:
+# linux-x86_64
+# macosx-x86_64
+# win-amd64
+
+if [[ "$PLATFORM" == "linux-x86_64" ]]; then
     dnf install install hdf5-devel matio-devel
     # source ./build_tools/download_openblas.sh linux
     #BLAS_LIBRARIES_OPT="-DBLAS_LIBRARIES=$OPENBLAS_LIB/libopenblas.a"
     #LAPACK_LIBRARIES_OPT="-DLAPACK_LIBRARIES=$OPENBLAS_LIB/libopenblas.a"
     #export CMAKE_CXX_FLAGS="-lgfortran -I$OPENBLAS_INCLUDE"
-elif [[ "$PLATFORM" == "darwin" ]]; then
+elif [[ "$PLATFORM" == "macosx-x86_64" ]]; then
     #brew install hdf5 libmatio boost swig openblas
     #BLAS_DIR=/usr/local/opt/openblas
     #OPENBLAS_INCLUDE=$BLAS_DIR/include
     #OPENBLAS_LIB=$BLAS_DIR/lib
     #export CMAKE_CXX_FLAGS="-I$OPENBLAS_INCLUDE -L$OPENBLAS_LIB"
     #export CMAKE_PREFIX_PATH="$BLAS_DIR"
-    # TODO: Need to add arm64 target here, probably via custom vcpkg target
     echo "MACOSX_DEPLOYMENT_TARGET=$MACOSX_DEPLOYMENT_TARGET"
     if [[ "${MACOSX_DEPLOYMENT_TARGET}" == "" ]]; then
         export MACOSX_DEPLOYMENT_TARGET="10.9"
     fi
+    # TODO: Need to add arm64 target here, probably via arm64-osx
     export VCPKG_DEFAULT_TRIPLET="x64-osx"
     export VCPKG_OSX_DEPLOYMENT_TARGET="${MACOSX_DEPLOYMENT_TARGET}"
     source ./build_tools/setup_vcpkg_compilation.sh
     VCPKG_BUILD_TYPE_OPT="-DVCPKG_BUILD_TYPE=release"
     VCPKG_BUILD_C_FLAGS_OPT="-DVCPKG_C_FLAGS=-mmacosx-version-min=${MACOSX_DEPLOYMENT_TARGET}"
     VCPKG_BUILD_CXX_FLAGS_OPT="-DVCPKG_CXX_FLAGS=-mmacosx-version-min=${MACOSX_DEPLOYMENT_TARGET}"
-elif [[ "$PLATFORM" == "win32" ]]; then
+elif [[ "$PLATFORM" == "win-amd64" ]]; then
     export VCPKG_DEFAULT_TRIPLET="x64-windows"
     export CMAKE_GENERATOR="Visual Studio 16 2019"
     source ./build_tools/setup_vcpkg_compilation.sh
@@ -62,10 +69,10 @@ pip install cmake
 ./build_tools/cmake_configure.sh -DCMAKE_INSTALL_PREFIX=${ROOT}/install ${VCPKG_BUILD_TYPE_OPT} ${VCPKG_BUILD_C_FLAGS_OPT} ${VCPKG_BUILD_CXX_FLAGS_OPT} ${SYSTEM_VERSION_OPT} -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_UCRT_LIBRARIES=TRUE ${BLAS_LIBRARIES_OPT} ${LAPACK_LIBRARIES_OPT}
 cmake --build build --target install
 # make life easier for auditwheel/delocate/delvewheel
-if [[ "$PLATFORM" == "linux" ]]; then
+if [[ "$PLATFORM" == 'linux'* ]]; then
     ls -al install/lib/*.so*
     cp install/lib/*.so* /usr/local/lib
-elif [[ "$PLATFORM" == "darwin" ]]; then
+elif [[ "$PLATFORM" == 'macosx'* ]]; then
     ls -al install/lib/*.dylib*
     sudo mkdir -p /usr/local/lib
     sudo cp install/lib/*.dylib* /usr/local/lib/
