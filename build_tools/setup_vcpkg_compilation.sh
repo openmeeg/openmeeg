@@ -3,6 +3,8 @@
 # Go to the repo root
 if [[ "$1" == "" ]]; then
     DIR=$(realpath "$(dirname "${BASH_SOURCE[0]}")")
+else
+    DIR=$1
 fi
 cd $DIR/..
 
