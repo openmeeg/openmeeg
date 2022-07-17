@@ -61,13 +61,14 @@ elif [[ "$PLATFORM" == "macosx-x86_64" ]]; then
     VCPKG_BUILD_C_FLAGS_OPT="-DVCPKG_C_FLAGS=-mmacosx-version-min=${MACOSX_DEPLOYMENT_TARGET}"
     VCPKG_BUILD_CXX_FLAGS_OPT="-DVCPKG_CXX_FLAGS=-mmacosx-version-min=${MACOSX_DEPLOYMENT_TARGET}"
 elif [[ "$PLATFORM" == "win-amd64" ]]; then
-    export VCPKG_DEFAULT_TRIPLET="x64-windows"
-    export CMAKE_GENERATOR="Visual Studio 16 2019"
+    #export VCPKG_DEFAULT_TRIPLET="x64-windows"
+    #export CMAKE_GENERATOR="Visual Studio 16 2019"
+    #SYSTEM_VERSION_OPT="-DCMAKE_SYSTEM_VERSION=7"
+    export VCPKG_DEFAULT_TRIPLET="x64-mingw"
     source ./build_tools/setup_vcpkg_compilation.sh
     source ./build_tools/download_openblas.sh windows  # NumPy doesn't install the headers for Windows
     pip install delvewheel
     VCPKG_BUILD_TYPE_OPT="-DVCPKG_BUILD_TYPE=release"
-    SYSTEM_VERSION_OPT="-DCMAKE_SYSTEM_VERSION=7"
 else
     echo "Unknown platform: ${PLATFORM}"
     exit 1
@@ -80,8 +81,8 @@ pip install cmake
 cmake --build build --target install
 # make life easier for auditwheel/delocate/delvewheel
 if [[ "$PLATFORM" == 'linux'* ]]; then
-    ls -al install/lib/*.so*
-    cp install/lib/*.so* /usr/local/lib/
+    ls -al install/lib64/*.so*
+    cp install/lib64/*.so* /usr/local/lib/
 elif [[ "$PLATFORM" == 'macosx'* ]]; then
     ls -al install/lib/*.dylib*
     sudo mkdir -p /usr/local/lib

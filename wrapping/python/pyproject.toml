@@ -16,7 +16,7 @@ environment = { OPENMEEG_LIB="../../install/lib", OPENMEEG_INCLUDE="../../instal
 [tool.cibuildwheel.linux]
 manylinux-x86_64-image = "manylinux_2_28"
 manylinux-aarch64-image = "manylinux_2_28"
-environment = { OPENMEEG_LIB="../../install/lib", OPENMEEG_INCLUDE="../../install/include/OpenMEEG", OPENMEEG_USE_SWIG="1", OPENBLAS_INCLUDE="/usr/local/include", RUNNER_OS="Linux" }
+environment = { OPENMEEG_LIB="../../install/lib64", OPENMEEG_INCLUDE="../../install/include/OpenMEEG", OPENMEEG_USE_SWIG="1", OPENBLAS_INCLUDE="/usr/local/include", RUNNER_OS="Linux" }
 
 [tool.cibuildwheel.macos]
 archs = "x86_64 arm64"
