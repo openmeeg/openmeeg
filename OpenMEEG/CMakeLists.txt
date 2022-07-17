@@ -38,12 +38,6 @@ else()
     message("OpenMP library not found. Use a compiler with OpenMP support for optimized running time." )
 endif()
 
-# Shared
-if (WIN32 AND NOT BUILD_SHARED_LIBS)
-    target_compile_options(OpenMEEG PUBLIC /MT)
-    target_link_options(OpenMEEG PUBLIC /INCREMENTAL:NO /NODEFAULTLIB:MSVCRT)
-endif()
-
 # Progress bar
 option(USE_PROGRESSBAR "Use progressar to display computation progress" ON)
 if (USE_PROGRESSBAR)

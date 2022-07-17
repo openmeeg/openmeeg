@@ -52,7 +52,6 @@ elif [[ "$PLATFORM" == "macosx-x86_64" ]]; then
     source ./build_tools/setup_vcpkg_compilation.sh
     OPENMP_OPT="-DUSE_OPENMP=OFF"
     VCPKG_TRIPLET_OPT="-DVCPKG_TARGET_TRIPLET=$VCPKG_DEFAULT_TRIPLET"
-    export BLA_STATIC_OPT="-DBLA_STATIC=ON"
 elif [[ "$PLATFORM" == "win-amd64" ]]; then
     export VCPKG_DEFAULT_TRIPLET="x64-windows-release-static"
     export CMAKE_GENERATOR="Visual Studio 16 2019"
@@ -70,8 +69,8 @@ export PYTHON_OPT="-DENABLE_PYTHON=OFF"
 export BLA_IMPLEMENTATION="OpenBLAS"
 export DISABLE_CCACHE=1
 pip install cmake
-./build_tools/cmake_configure.sh -DCMAKE_INSTALL_PREFIX=${ROOT}/install ${SYSTEM_VERSION_OPT} ${OPENMP_OPT} ${VCPKG_TRIPLET_OPT} -DENABLE_APPS=OFF -DBUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_UCRT_LIBRARIES=TRUE ${BLAS_LIBRARIES_OPT} ${LAPACK_LIBRARIES_OPT}
-cmake --build build --target install
+./build_tools/cmake_configure.sh -DCMAKE_INSTALL_PREFIX=${ROOT}/install ${OPENMP_OPT} ${VCPKG_TRIPLET_OPT} ${SYSTEM_VERSION_OPT} -DENABLE_APPS=OFF -DBUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_UCRT_LIBRARIES=TRUE ${BLAS_LIBRARIES_OPT} ${LAPACK_LIBRARIES_OPT}
+cmake --build build --target install --config release
 # make life easier for auditwheel/delocate/delvewheel
 if [[ "$PLATFORM" == 'linux'* ]]; then
     ls -al install/lib64/*.so*

@@ -44,12 +44,6 @@ generate_export_header(OpenMEEGMaths
 
 # create_library(OpenMEEGMaths ${OpenMEEGMaths_SOURCES})
 
-# Shared
-if (WIN32 AND NOT BUILD_SHARED_LIBS)
-    target_compile_options(OpenMEEGMaths PUBLIC /MT)
-    target_link_options(OpenMEEGMaths PUBLIC /INCREMENTAL:NO /NODEFAULTLIB:MSVCRT)
-endif()
-
 # 'make install' to the correct locations (provided by GNUInstallDirs).
 
 install(TARGETS OpenMEEGMaths EXPORT OpenMEEGConfig
