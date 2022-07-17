@@ -34,24 +34,24 @@ jobs:
         python: [cmake]
         windows_compiler: [mingw64]
         include:
-        # MSVC + MKL + static + Python
+        ## MSVC + MKL + static + Python
         #- os: windows-2019
         #  blas: mkl-findblas
         #  blas_linking: static
         #  python: cmake
         #  windows_compiler: msvc
-        # MSVC + OpenBLAS + Python
-        - os: windows-2019
-          blas: OpenBLAS
-          blas_linking: dynamic
-          python: cmake
-          windows_compiler: msvc
-        # MKL on each OS (static unless it has to be dynamic)
-        - os: windows-2019
-          blas: mkl-findblas
-          blas_linking: static
-          python: cmake
-          windows_compiler: mingw64
+        ## MSVC + OpenBLAS + Python
+        #- os: windows-2019
+        #  blas: OpenBLAS
+        #  blas_linking: dynamic
+        #  python: cmake
+        #  windows_compiler: msvc
+        ## MKL on each OS (static unless it has to be dynamic)
+        #- os: windows-2019
+        #  blas: mkl-findblas
+        #  blas_linking: static
+        #  python: cmake
+        #  windows_compiler: mingw64
         #- os: ubuntu-20.04
         #  blas: mkl-findblas
         #  blas_linking: dynamic
@@ -74,12 +74,22 @@ jobs:
         #  blas_linking: static
         #  python: cmake
         #  windows_compiler: mingw64
-        ## One OS using setuptools (let cibuildwheel test the others)
-        #- os: ubuntu-20.04
-        #  blas: OpenBLAS
-        #  blas_linking: dynamic
-        #  python: setuptools
-        #  windows_compiler: msvc
+        # Setuptools
+        - os: ubuntu-20.04
+          blas: OpenBLAS
+          blas_linking: dynamic
+          python: setuptools
+          windows_compiler: msvc
+        - os: macos-11
+          blas: OpenBLAS
+          blas_linking: dynamic
+          python: setuptools
+          windows_compiler: msvc
+        - os: windows-2019
+          blas: OpenBLAS
+          blas_linking: dynamic
+          python: setuptools
+          windows_compiler: msvc
 
 
     runs-on: ${{ matrix.os }}

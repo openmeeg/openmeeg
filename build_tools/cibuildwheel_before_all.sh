@@ -34,13 +34,10 @@ if [[ "$PLATFORM" == "linux-x86_64" ]]; then
     dnf -y install hdf5-devel matio-devel
     export OPENBLAS_INCLUDE=/usr/local/include
     export OPENBLAS_LIB=/usr/local/lib
-    # source ./build_tools/download_openblas.sh linux
-    # BLAS_LIBRARIES_OPT="-DBLAS_LIBRARIES=$OPENBLAS_LIB/libopenblas.so"
-    # LAPACK_LIBRARIES_OPT="-DLAPACK_LIBRARIES=$OPENBLAS_LIB/libopenblas.so"
     export CMAKE_CXX_FLAGS="-lgfortran -lpthread -I$OPENBLAS_INCLUDE"
+    SHARED_OPT="-DBUILD_SHARED_LIBS=OFF"
 elif [[ "$PLATFORM" == "macosx-x86_64" ]]; then
     #brew install hdf5 libmatio boost swig openblas
-    #BLAS_DIR=/usr/local/opt/openblas
     brew install boost swig
     BLAS_DIR=/usr/local
     OPENBLAS_INCLUDE=$BLAS_DIR/include
@@ -60,7 +57,7 @@ elif [[ "$PLATFORM" == "win-amd64" ]]; then
     pip install delvewheel
     SYSTEM_VERSION_OPT="-DCMAKE_SYSTEM_VERSION=7"
     VCPKG_TRIPLET_OPT="-DVCPKG_TARGET_TRIPLET=$VCPKG_DEFAULT_TRIPLET"
-    export BLA_STATIC_OPT="-DBLA_STATIC=ON"
+    #export BLA_STATIC_OPT="-DBLA_STATIC=ON"
 else
     echo "Unknown platform: ${PLATFORM}"
     exit 1
@@ -69,17 +66,17 @@ export PYTHON_OPT="-DENABLE_PYTHON=OFF"
 export BLA_IMPLEMENTATION="OpenBLAS"
 export DISABLE_CCACHE=1
 pip install cmake
-./build_tools/cmake_configure.sh -DCMAKE_INSTALL_PREFIX=${ROOT}/install ${OPENMP_OPT} ${VCPKG_TRIPLET_OPT} ${SYSTEM_VERSION_OPT} -DENABLE_APPS=OFF -DBUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_UCRT_LIBRARIES=TRUE ${BLAS_LIBRARIES_OPT} ${LAPACK_LIBRARIES_OPT}
+./build_tools/cmake_configure.sh -DCMAKE_INSTALL_PREFIX=${ROOT}/install ${OPENMP_OPT} ${VCPKG_TRIPLET_OPT} ${SYSTEM_VERSION_OPT} -DENABLE_APPS=OFF ${SHARED_OPT} -DCMAKE_INSTALL_UCRT_LIBRARIES=TRUE ${BLAS_LIBRARIES_OPT} ${LAPACK_LIBRARIES_OPT}
 cmake --build build --target install --config release
 # make life easier for auditwheel/delocate/delvewheel
 if [[ "$PLATFORM" == 'linux'* ]]; then
     ls -al install/lib64/*.so*
     cp install/lib64/*.so* /usr/local/lib/
 elif [[ "$PLATFORM" == 'macosx'* ]]; then
-    ls -al install/lib/*.a
+    ls -al install/lib/*.dylib*
     sudo mkdir -p /usr/local/lib
-    sudo cp install/lib/*.a /usr/local/lib/
+    sudo cp install/lib/*.dylib* /usr/local/lib/
 else
-    ls -al $PWD/install/lib/*.lib*
-    cp $PWD/install/lib/*.lib* .
+    ls -al $PWD/install/bin/*.dll*
+    cp $PWD/install/bin/*.dll* .
 fi
