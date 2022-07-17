@@ -20,7 +20,9 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-20.04, windows-2019, macOS-11]
+        # TODO: Reenable windows and macOS
+        # os: [ubuntu-20.04, windows-2019, macOS-11]
+        os: [ubuntu-20.04]
 
     steps:
       - uses: actions/checkout@v3
@@ -55,18 +57,18 @@ jobs:
           password: ${{ secrets.OPENMEEG_TEST_PYPI_TOKEN }}
           repository_url: https://test.pypi.org/legacy/
 
-  upload_pypi:
-    name: Upload to PyPi
-    needs: [build_wheels]
-    runs-on: ubuntu-latest
-    # upload to PyPI on every tag (we assume these are releases!)
-    if: github.event_name == 'release' && github.event.action == 'published'
-    steps:
-    - uses: actions/download-artifact@v2
-      with:
-        name: artifact
-        path: dist
-    - uses: pypa/gh-action-pypi-publish@master
-      with:
-        user: __token__
-        password: ${{ secrets.OPENMEEG_PYPI_TOKEN }}
+  #upload_pypi:
+  #  name: Upload to PyPi
+  #  needs: [build_wheels]
+  #  runs-on: ubuntu-latest
+  #  # upload to PyPI on every tag (we assume these are releases!)
+  #  if: github.event_name == 'release' && github.event.action == 'published'
+  #  steps:
+  #  - uses: actions/download-artifact@v2
+  #    with:
+  #      name: artifact
+  #      path: dist
+  #  - uses: pypa/gh-action-pypi-publish@master
+  #    with:
+  #      user: __token__
+  #      password: ${{ secrets.OPENMEEG_PYPI_TOKEN }}
