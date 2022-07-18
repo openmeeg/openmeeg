@@ -1,6 +1,6 @@
-|GitHub Actions|_ |lgtm|_ |CodeCov|_ |condaVersion|_ |gitter|_
+|GitHub Actions|_ |lgtm|_ |CodeCov|_ |condaVersion|_
 
-.. |GitHub Actions| image:: ![example workflow](https://github.com/openmeeg/openmeeg/actions/workflows/build_and_test.yml/badge.svg)
+.. |GitHub Actions| image:: https://github.com/openmeeg/openmeeg/actions/workflows/build_and_test.yml/badge.svg
 .. _Github Actions: https://github.com/openmeeg/openmeeg/actions/workflows/build_and_test.yml
 
 .. |CodeCov| image:: https://codecov.io/gh/openmeeg/openmeeg/branch/main/graph/badge.svg
