@@ -1,0 +1,74 @@
+name: cibuildwheel
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.number }}-${{ github.event.ref }}
+  cancel-in-progress: true
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+env:
+  BUILD_TYPE: Release
+
+# https://cibuildwheel.readthedocs.io/en/stable/setup/#github-actions
+jobs:
+  build_wheels:
+    continue-on-error: true
+    name: Using ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        # TODO: Reenable windows and macOS
+        # os: [ubuntu-20.04, windows-2019, macOS-11]
+        os: [ubuntu-20.04]
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4  # to make before-all work properly
+        with:
+          python-version: '3.10'
+
+      - name: Build wheels
+        uses: pypa/cibuildwheel@v2.8.0
+        with:
+          package-dir: ./wrapping/python
+          output-dir: wheelhouse
+
+      - uses: actions/upload-artifact@v3
+        with:
+          path: ./wheelhouse/*.whl
+
+  upload_test_pypi:
+    name: Upload to TestPyPi
+    needs: [build_wheels]
+    runs-on: ubuntu-latest
+    # upload to Test PyPI for every commit on main branch
+    if: github.event_name == 'push' && github.event.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/download-artifact@v2
+        with:
+          name: artifact
+          path: dist
+      - uses: pypa/gh-action-pypi-publish@master
+        with:
+          user: __token__
+          password: ${{ secrets.OPENMEEG_TEST_PYPI_TOKEN }}
+          repository_url: https://test.pypi.org/legacy/
+
+  #upload_pypi:
+  #  name: Upload to PyPi
+  #  needs: [build_wheels]
+  #  runs-on: ubuntu-latest
+  #  # upload to PyPI on every tag (we assume these are releases!)
+  #  if: github.event_name == 'release' && github.event.action == 'published'
+  #  steps:
+  #  - uses: actions/download-artifact@v2
+  #    with:
+  #      name: artifact
+  #      path: dist
+  #  - uses: pypa/gh-action-pypi-publish@master
+  #    with:
+  #      user: __token__
+  #      password: ${{ secrets.OPENMEEG_PYPI_TOKEN }}

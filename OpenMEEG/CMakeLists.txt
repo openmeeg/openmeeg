@@ -1,4 +1,4 @@
-add_library(OpenMEEG SHARED
+set(OPENMEEG_SOURCES
     src/assembleFerguson.cpp
     src/assembleHeadMat.cpp
     src/assembleSourceMat.cpp
@@ -14,6 +14,11 @@ add_library(OpenMEEG SHARED
     src/GeometryIOs.cpp
     src/triangle.cpp
 )
+if(BUILD_SHARED_LIBS OR (UNIX AND NOT APPLE))
+    add_library(OpenMEEG SHARED ${OPENMEEG_SOURCES})
+else()
+    add_library(OpenMEEG STATIC ${OPENMEEG_SOURCES})
+endif()
 
 set_target_properties(OpenMEEG PROPERTIES VERSION 1.1.0 SOVERSION 1 CLEAN_DIRECT_OUTPUT 1)
 

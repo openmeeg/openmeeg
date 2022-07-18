@@ -29,7 +29,9 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/OpenMEEGConfigure.h.in
 
 add_subdirectory(OpenMEEGMaths)
 add_subdirectory(OpenMEEG)
-add_subdirectory(apps)
+if(ENABLE_APPS)
+    add_subdirectory(apps)
+endif()
 add_subdirectory(wrapping)
 add_subdirectory(tests)
 add_subdirectory(documentation)

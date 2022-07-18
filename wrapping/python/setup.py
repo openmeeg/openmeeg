@@ -74,17 +74,24 @@ if __name__ == "__main__":
         library_dirs = []
         openmeeg_include = os.getenv('OPENMEEG_INCLUDE')
         if openmeeg_include is not None:
-            openmeeg_include = Path(openmeeg_include)
+            openmeeg_include = Path(openmeeg_include).resolve()
             assert openmeeg_include.is_dir(), openmeeg_include
             include_dirs.append(str(openmeeg_include))
             swig_opts.append(f'-I{openmeeg_include}')
+        msvc = os.getenv('SWIG_FLAGS', '') == 'msvc'
+        openblas_include = os.getenv('OPENBLAS_INCLUDE')
+        if openblas_include is not None:
+            openblas_include = Path(openblas_include).resolve()
+            assert openblas_include.is_dir(), openblas_include
+            include_dirs.append(str(openblas_include))
+            swig_opts.append(f'-I{openblas_include}')
         openmeeg_lib = os.getenv('OPENMEEG_LIB')
         if openmeeg_lib is not None:
-            openmeeg_lib = Path(openmeeg_lib)
+            openmeeg_lib = Path(openmeeg_lib).resolve()
             assert openmeeg_lib.is_dir(), openmeeg_lib
             library_dirs.append(str(openmeeg_lib))
         extra_compile_opts = []
-        if os.getenv('SWIG_FLAGS', '') != 'msvc':
+        if not msvc:
             extra_compile_opts.extend(['-v', '-std=c++17'])
 
         swig_openmeeg = Extension(
