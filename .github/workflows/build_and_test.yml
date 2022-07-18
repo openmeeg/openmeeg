@@ -27,58 +27,58 @@ jobs:
         # (https://github.com/microsoft/vcpkg/issues/25176), but it's unclear
         # if this will really help anything. SciPy's should be well tested
         # already.
-        os: [ubuntu-20.04, windows-2019, macos-latest]
+        os: [macos-latest]  # [ubuntu-20.04, windows-2019, macos-latest]
         blas: [OpenBLAS]
         blas_linking: [dynamic]
         python: [cmake]
         windows_compiler: [mingw64]
         include:
-        # MSVC + MKL + static + Python
-        - os: windows-2019
-          blas: mkl-findblas
-          blas_linking: static
-          python: cmake
-          windows_compiler: msvc
-        # MSVC + OpenBLAS + Python
-        - os: windows-2019
-          blas: OpenBLAS
-          blas_linking: dynamic
-          python: cmake
-          windows_compiler: msvc
-        # MKL on each OS (static unless it has to be dynamic)
-        - os: windows-2019
-          blas: mkl-findblas
-          blas_linking: static
-          python: cmake
-          windows_compiler: mingw64
-        - os: ubuntu-20.04
-          blas: mkl-findblas
-          blas_linking: dynamic
-          python: cmake
-          windows_compiler: mingw64
-        - os: macos-latest
-          blas: mkl-findblas
-          blas_linking: static
-          python: cmake
-          windows_compiler: mingw64
-        # ubuntu-18.04 build, but Python tests currently fail so use no-python
-        - os: ubuntu-18.04
-          blas: OpenBLAS
-          blas_linking: dynamic
-          python: no-python
-          windows_compiler: mingw64
-        # Windows static build
-        - os: windows-2019
-          blas: OpenBLAS
-          blas_linking: static
-          python: cmake
-          windows_compiler: mingw64
-        # Setuptools
-        - os: ubuntu-20.04
-          blas: OpenBLAS
-          blas_linking: dynamic
-          python: setuptools
-          windows_compiler: msvc
+        ## MSVC + MKL + static + Python
+        #- os: windows-2019
+        #  blas: mkl-findblas
+        #  blas_linking: static
+        #  python: cmake
+        #  windows_compiler: msvc
+        ## MSVC + OpenBLAS + Python
+        #- os: windows-2019
+        #  blas: OpenBLAS
+        #  blas_linking: dynamic
+        #  python: cmake
+        #  windows_compiler: msvc
+        ## MKL on each OS (static unless it has to be dynamic)
+        #- os: windows-2019
+        #  blas: mkl-findblas
+        #  blas_linking: static
+        #  python: cmake
+        #  windows_compiler: mingw64
+        #- os: ubuntu-20.04
+        #  blas: mkl-findblas
+        #  blas_linking: dynamic
+        #  python: cmake
+        #  windows_compiler: mingw64
+        #- os: macos-latest
+        #  blas: mkl-findblas
+        #  blas_linking: static
+        #  python: cmake
+        #  windows_compiler: mingw64
+        ## ubuntu-18.04 build, but Python tests currently fail so use no-python
+        #- os: ubuntu-18.04
+        #  blas: OpenBLAS
+        #  blas_linking: dynamic
+        #  python: no-python
+        #  windows_compiler: mingw64
+        ## Windows static build
+        #- os: windows-2019
+        #  blas: OpenBLAS
+        #  blas_linking: static
+        #  python: cmake
+        #  windows_compiler: mingw64
+        ## Setuptools
+        #- os: ubuntu-20.04
+        #  blas: OpenBLAS
+        #  blas_linking: dynamic
+        #  python: setuptools
+        #  windows_compiler: msvc
         - os: macos-11
           blas: OpenBLAS
           blas_linking: dynamic
@@ -414,6 +414,7 @@ jobs:
           PATH="$(cygpath -w $PWD/openmeeg);$PATH" delvewheel show dist/*.whl
           PATH="$(cygpath -w $PWD/openmeeg);$PATH" delvewheel repair -w dist dist/*.whl
         elif [[ ${{matrix.os}} == 'macos'* ]]; then
+          printenv
           delocate-wheel -v dist/*.whl
           delocate-listdeps --all dist/*.whl
         # This build uses a toolchain that is too new, so skip this on Linux

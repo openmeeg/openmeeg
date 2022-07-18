@@ -22,7 +22,7 @@ jobs:
       matrix:
         # TODO: Reenable windows and macOS
         # os: [ubuntu-20.04, windows-2019, macOS-11]
-        os: [ubuntu-20.04]
+        os: [ubuntu-20.04, macos-11]
 
     steps:
       - uses: actions/checkout@v3
