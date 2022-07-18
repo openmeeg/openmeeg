@@ -13,3 +13,4 @@ vcpkg_installed/
 openblas/
 install/
 *.orig
+coverage.info

@@ -273,8 +273,10 @@ jobs:
       run: |
         if [[ "${{matrix.os}}" == 'windows'* ]]; then
           export EXTRA_UCRT="-DCMAKE_INSTALL_UCRT_LIBRARIES=TRUE"
+        elif [[ "${{matrix.os}}" == 'linux'* ]]; then
+          export EXTRA_COV="-DENABLE_COVERAGE=ON"
         fi
-        source ./build_tools/cmake_configure.sh --install-prefix=$PWD/install $EXTRA_UCRT $VCPKG_TRIPLET_OPT
+        source ./build_tools/cmake_configure.sh --install-prefix=$PWD/install $EXTRA_UCRT $EXTRA_COV $VCPKG_TRIPLET_OPT
 
     - name: Build
       run: |
@@ -444,3 +446,17 @@ jobs:
       working-directory: ${{github.workspace}}/build
       run: |
         ctest -C $BUILD_TYPE || ctest -C $BUILD_TYPE --rerun-failed --output-on-failure
+
+    - name: Prepare coverage
+      if: startsWith(matrix.os,'ubuntu')
+      run: |
+        lcov --directory . --capture --output-file coverage.info > /dev/null 2>&1 # capture coverage info
+        lcov --remove coverage.info '/usr/*' --output-file coverage.info > /dev/null 2>&1 # filter out system
+        lcov --remove coverage.info '*numpy/*' --output-file coverage.info > /dev/null 2>&1 # filter out NumPy
+        lcov --list coverage.info
+
+    - name: Upload coverage to CodeCov
+      uses: codecov/codecov-action@v3
+      if: startsWith(matrix.os,'ubuntu')
+      with:
+        files: coverage.info
