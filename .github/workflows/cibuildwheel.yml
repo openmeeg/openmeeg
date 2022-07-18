@@ -21,11 +21,12 @@ jobs:
       matrix:
         # TODO: Reenable windows and macOS
         # os: [ubuntu-20.04, windows-2019, macOS-11]
-        os: [ubuntu-20.04, macos-11]
-        macos_archs: "x86_64"
         include:
+        - os: ubuntu-20.04
         - os: macos-11
-          macos_archs: "arm64"
+          macos_archs: arm64
+        - os: macos-11
+          macos_archs: x86_64
 
     steps:
       - uses: actions/checkout@v3
