@@ -16,7 +16,6 @@ env:
 jobs:
   build_wheels:
     continue-on-error: true
-    name: Using ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -25,9 +24,9 @@ jobs:
         os: [ubuntu-20.04, macos-11]
         include:
         - os: macos-11
-          macos_archs: arm64
+          macos_archs: "arm64"
         - os: macos-11
-          macos_archs: x86_64
+          macos_archs: "x86_64"
 
     steps:
       - uses: actions/checkout@v3
