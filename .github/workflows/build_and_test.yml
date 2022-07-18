@@ -276,7 +276,7 @@ jobs:
         elif [[ "${{matrix.os}}" == 'ubuntu'* ]]; then
           export EXTRA_COV="-DENABLE_COVERAGE=ON"
         fi
-        source ./build_tools/cmake_configure.sh --install-prefix=$PWD/install $EXTRA_UCRT $EXTRA_COV $VCPKG_TRIPLET_OPT
+        source ./build_tools/cmake_configure.sh --install-prefix=$PWD/install $EXTRA_UCRT $EXTRA_COV
 
     - name: Build
       run: |
