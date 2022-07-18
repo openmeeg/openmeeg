@@ -13,7 +13,11 @@ echo "Using project root \"${ROOT}\" on RUNNER_OS=\"${RUNNER_OS}\""
 cd $ROOT
 pwd
 
-# Let's have NumPy help us out
+# Let's have NumPy help us out, but we need to tell it to build for the correct
+# macOS platform
+if [[ "$CIBW_ARCHS_MACOS" == "arm64" ]]; then
+    export _PYTHON_HOST_PLATFORM="macosx-11.0-arm64"
+fi
 curl -L https://github.com/numpy/numpy/archive/refs/tags/v1.23.1.tar.gz | tar xz numpy-1.23.1
 mv numpy-1.23.1/tools .
 mv numpy-1.23.1/numpy .  # on Windows, _distributor_init gets modified
@@ -36,7 +40,7 @@ if [[ "$PLATFORM" == "linux-x86_64" ]]; then
     export OPENBLAS_LIB=/usr/local/lib
     export CMAKE_CXX_FLAGS="-lgfortran -lpthread -I$OPENBLAS_INCLUDE"
     SHARED_OPT="-DBUILD_SHARED_LIBS=OFF"
-elif [[ "$PLATFORM" == "macosx-x86_64" ]]; then
+elif [[ "$PLATFORM" == 'macosx-'* ]]; then
     #brew install hdf5 libmatio boost swig openblas
     brew install boost swig
     BLAS_DIR=/usr/local
@@ -47,7 +51,7 @@ elif [[ "$PLATFORM" == "macosx-x86_64" ]]; then
     echo "Building for CIBW_ARCHS_MACOS=\"$CIBW_ARCHS_MACOS\""
     if [[ "$CIBW_ARCHS_MACOS" == "x86_64" ]]; then
         export VCPKG_DEFAULT_TRIPLET="x64-osx-release-10.9"
-    elif [[ "$CIBW_ARCHS_MACOS" == "x86_64" ]]; then
+    elif [[ "$CIBW_ARCHS_MACOS" == "arm64" ]]; then
         export VCPKG_DEFAULT_TRIPLET="arm64-osx-release-10.9"
         CMAKE_OSX_ARCH_OPT="-DCMAKE_OSX_ARCHITECTURES=arm64"
     else
