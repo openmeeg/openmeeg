@@ -273,7 +273,7 @@ jobs:
       run: |
         if [[ "${{matrix.os}}" == 'windows'* ]]; then
           export EXTRA_UCRT="-DCMAKE_INSTALL_UCRT_LIBRARIES=TRUE"
-        elif [[ "${{matrix.os}}" == 'linux'* ]]; then
+        elif [[ "${{matrix.os}}" == 'ubuntu'* ]]; then
           export EXTRA_COV="-DENABLE_COVERAGE=ON"
         fi
         source ./build_tools/cmake_configure.sh --install-prefix=$PWD/install $EXTRA_UCRT $EXTRA_COV $VCPKG_TRIPLET_OPT
