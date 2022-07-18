@@ -1,19 +1,13 @@
-|Travis|_ |AppVeyor|_ |lgtm|_ |CodeCov|_ |condaVersion|_ |gitter|_
+|GitHub Actions|_ |lgtm|_ |CodeCov|_ |condaVersion|_ |gitter|_
 
-.. |Travis| image:: https://api.travis-ci.org/openmeeg/openmeeg.svg?branch=master
-.. _Travis: https://travis-ci.org/openmeeg/openmeeg/branches
+.. |GitHub Actions| image:: ![example workflow](https://github.com/openmeeg/openmeeg/actions/workflows/build_and_test.yml/badge.svg)
+.. _Github Actions: https://github.com/openmeeg/openmeeg/actions/workflows/build_and_test.yml
 
-.. |AppVeyor| image:: https://ci.appveyor.com/api/projects/status/11um4d4c8nn4itju/branch/master?svg=true
-.. _AppVeyor: https://ci.appveyor.com/project/openmeegci/openmeeg/history
-
-.. |CodeCov| image:: https://codecov.io/gh/openmeeg/openmeeg/branch/master/graph/badge.svg
+.. |CodeCov| image:: https://codecov.io/gh/openmeeg/openmeeg/branch/main/graph/badge.svg
 .. _CodeCov: https://codecov.io/gh/openmeeg/openmeeg
 
 .. |condaVersion| image:: https://anaconda.org/conda-forge/openmeeg/badges/version.svg
 .. _condaVersion: https://anaconda.org/conda-forge/openmeeg
-
-.. |gitter| image:: https://badges.gitter.im/openmeeg/openmeeg.svg
-.. _gitter: https://gitter.im/openmeeg/openmeeg
 
 .. |lgtm| image:: https://img.shields.io/lgtm/grade/cpp/g/openmeeg/openmeeg.svg?logo=lgtm&logoWidth=18
 .. _lgtm: https://lgtm.com/projects/g/openmeeg/openmeeg/context:cpp
@@ -172,7 +166,7 @@ You will need to install visual studio, `CMake <http://www.cmake.org>`_.
 Then download the source from github, load the CMake.exe GUI, set the proper option
 and generate the visual studio project. You can then open it and build the project.
 Note that on Windows we currently recommend to use Intel MKL library.
-See how we build OpenMEEG on AppVeyor: `.appveyor.yml <https://github.com/openmeeg/openmeeg/blob/master/.appveyor.yml>`_
+See how we build OpenMEEG on GitHub Actions: `.github/workflows/build_and_test.yml <https://github.com/openmeeg/openmeeg/blob/main/.github/workflows/build_and_test.yml>`_
 
 Supported Blas/Lapack Implementations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
