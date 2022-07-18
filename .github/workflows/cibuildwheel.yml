@@ -22,9 +22,9 @@ jobs:
         include:
         - os: ubuntu-20.04
         - os: macos-11
-          macos_archs: "arm64"
+          archs_macos: "arm64"
         - os: macos-11
-          macos_archs: "x86_64"
+          archs_macos: "x86_64"
         # TODO: Reenable windows
         # - os: windows-2019
 
@@ -40,7 +40,7 @@ jobs:
           package-dir: ./wrapping/python
           output-dir: wheelhouse
         env:
-          CIBW_MACOS_ARCHS: "${{matrix.macos_archs}}"
+          CIBW_ARCHS_MACOS: "${{matrix.archs_macos}}"
 
       - uses: actions/upload-artifact@v3
         with:
