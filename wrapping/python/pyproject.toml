@@ -23,10 +23,8 @@ archs = "x86_64 arm64"
 test-skip = "*_arm64"
 repair-wheel-command = [
   "set -x",
-  "printenv",
-  "echo \"$DYLD_LIBRARY_PATH\"",
-  "ls -al \"$DYLD_LIBRARY_PATH\"",
-  "delocate-wheel --require-archs {delocate_archs} -w {dest_dir} {wheel}",
+  "DYLD_LIBRARY_PATH=$GITHUB_WORKSPACE/install/lib delocate-wheel --require-archs {delocate_archs} -w {dest_dir} {wheel}",
+  "set +x"
 ]
 environment = { OPENMEEG_LIB="../../install/lib", OPENMEEG_INCLUDE="../../install/include/OpenMEEG", OPENMEEG_USE_SWIG="1", OPENBLAS_INCLUDE="/usr/local/include", DYLD_LIBRARY_PATH="../../install/lib" }
 
