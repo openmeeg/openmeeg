@@ -44,9 +44,18 @@ elif [[ "$PLATFORM" == "macosx-x86_64" ]]; then
     OPENBLAS_LIB=$BLAS_DIR/lib
     export CMAKE_CXX_FLAGS="-I$OPENBLAS_INCLUDE -L$OPENBLAS_LIB -L/usr/local/gfortran/lib -lgfortran"
     export CMAKE_PREFIX_PATH="$BLAS_DIR"
-    # TODO: Need to add arm64 target here
-    export VCPKG_DEFAULT_TRIPLET="x64-osx-release-10.9"
+    echo "Building for CIBW_ARCHS_MACOS=\"$CIBW_ARCHS_MACOS\""
+    if [[ "$CIBW_ARCHS_MACOS" == "x86_64" ]]; then
+        export VCPKG_DEFAULT_TRIPLET="x64-osx-release-10.9"
+    elif [[ "$CIBW_ARCHS_MACOS" == "x86_64" ]]
+        export VCPKG_DEFAULT_TRIPLET="arm64-osx-release-10.9"
+        CMAKE_OSX_ARCH_OPT="-DCMAKE_OSX_ARCHITECTURES=arm64"
+    else
+        echo "Unknown CIBW_ARCHS_MACOS=\"$CIBW_ARCHS_MACOS\""
+        exit 1
+    fi
     source ./build_tools/setup_vcpkg_compilation.sh
+    CMAKE_OSX_ARCH_OPT="-DCMAKE_OSX_ARCHITECTURES=${CIBW_ARCHS_MACOS}"
     OPENMP_OPT="-DUSE_OPENMP=OFF"
 elif [[ "$PLATFORM" == "win-amd64" ]]; then
     export VCPKG_DEFAULT_TRIPLET="x64-windows-release-static"
@@ -64,7 +73,7 @@ export PYTHON_OPT="-DENABLE_PYTHON=OFF"
 export BLA_IMPLEMENTATION="OpenBLAS"
 export DISABLE_CCACHE=1
 pip install cmake
-./build_tools/cmake_configure.sh -DCMAKE_INSTALL_PREFIX=${ROOT}/install ${OPENMP_OPT} ${VCPKG_TRIPLET_OPT} ${SYSTEM_VERSION_OPT} -DENABLE_APPS=OFF ${SHARED_OPT} -DCMAKE_INSTALL_UCRT_LIBRARIES=TRUE ${BLAS_LIBRARIES_OPT} ${LAPACK_LIBRARIES_OPT}
+./build_tools/cmake_configure.sh -DCMAKE_INSTALL_PREFIX=${ROOT}/install ${OPENMP_OPT} ${VCPKG_TRIPLET_OPT} ${SYSTEM_VERSION_OPT} ${CMAKE_OSX_ARCH_OPT} -DENABLE_APPS=OFF ${SHARED_OPT} -DCMAKE_INSTALL_UCRT_LIBRARIES=TRUE ${BLAS_LIBRARIES_OPT} ${LAPACK_LIBRARIES_OPT}
 cmake --build build --target install --config release
 # make life easier for auditwheel/delocate/delvewheel
 if [[ "$PLATFORM" == 'linux'* ]]; then
