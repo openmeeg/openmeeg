@@ -1,9 +1,10 @@
 [build-system]
 # Minimum requirements for the build system to execute.
+# TODO: We should look at SciPy and set mins for these like they do
 requires = [
-    "setuptools",
-    "wheel",
-    "numpy",
+    "setuptools==59.2.0",
+    "wheel==0.37.0",
+    "numpy"
 ]
 
 [tool.cibuildwheel]
@@ -21,6 +22,11 @@ environment = { OPENMEEG_LIB="../../install/lib64", OPENMEEG_INCLUDE="../../inst
 [tool.cibuildwheel.macos]
 archs = "x86_64 arm64"
 test-skip = "*_arm64"
+repair-wheel-command = [
+  "export DYLD_LIBRARY_PATH=$GITHUB_WORKSPACE/install/lib",
+  "delocate-listdeps {wheel}",
+  " delocate-wheel --require-archs {delocate_archs} -w {dest_dir} {wheel}"
+]
 environment = { OPENMEEG_LIB="../../install/lib", OPENMEEG_INCLUDE="../../install/include/OpenMEEG", OPENMEEG_USE_SWIG="1", OPENBLAS_INCLUDE="/usr/local/include" }
 
 [tool.cibuildwheel.windows]

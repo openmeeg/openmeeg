@@ -46,6 +46,9 @@ cp -v ./build_tools/vcpkg_triplets/*.cmake vcpkg/triplets
 export VCPKG_INSTALLED_DIR="${PWD}/build/vcpkg_installed"
 export VCPKG_INSTALL_OPTIONS="--x-install-root=$VCPKG_INSTALLED_DIR --triplet=$VCPKG_DEFAULT_TRIPLET"
 export CMAKE_TOOLCHAIN_FILE="${PWD}/vcpkg/scripts/buildsystems/vcpkg.cmake"
+if [[ "$VCPKG_DEFAULT_TRIPLET" != 'x64-mingw'* ]]; then  # for some reason this breaks things
+    export VCPKG_TRIPLET_OPT="-DVCPKG_TARGET_TRIPLET=${VCPKG_DEFAULT_TRIPLET}"
+fi
 
 if [[ "$USE_CYGPATH" == "1" ]]; then
     export VCPKG_INSTALLED_DIR=$(cygpath -m "${VCPKG_INSTALLED_DIR}")
@@ -56,7 +59,7 @@ if [[ "$GITHUB_ENV" != "" ]]; then
     echo "VCPKG_INSTALLED_DIR=$VCPKG_INSTALLED_DIR" >> $GITHUB_ENV
     echo "VCPKG_DEFAULT_TRIPLET=$VCPKG_DEFAULT_TRIPLET" >> $GITHUB_ENV
     echo "VCPKG_DEFAULT_HOST_TRIPLET=$VCPKG_DEFAULT_TRIPLET" >> $GITHUB_ENV
-    echo "VCPKG_TRIPLET_OPT=${VCPKG_DEFAULT_TRIPLET}" >> $GITHUB_ENV
+    echo "VCPKG_TRIPLET_OPT=$VCPKG_TRIPLET_OPT" >> $GITHUB_ENV
     echo "VCPKG_INSTALL_OPTIONS=$VCPKG_INSTALL_OPTIONS" >> $GITHUB_ENV
     echo "CMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}" >> $GITHUB_ENV
     echo "STRIP_OPT=${STRIP_OPT}" >> $GITHUB_ENV
@@ -65,4 +68,9 @@ if [[ "$GITHUB_ENV" != "" ]]; then
     echo "CMAKE_GENERATOR=${CMAKE_GENERATOR}" >> $GITHUB_ENV
     echo "CMAKE_GENERATOR_PLATFORM=${CMAKE_GENERATOR_PLATFORM}" >> $GITHUB_ENV
 fi
-test -f $(cygpath -u "$CMAKE_TOOLCHAIN_FILE")
+CMAKE_TOOLCHAIN_CHECK=$CMAKE_TOOLCHAIN_FILE
+if [[ "$USE_CYGPATH" == "1" ]]; then
+    CMAKE_TOOLCHAIN_CHECK=$(cygpath -m "${CMAKE_TOOLCHAIN_CHECK}")
+fi
+echo "Checking for CMAKE_TOOLCHAIN_FILE=\"$CMAKE_TOOLCHAIN_CHECK\""
+test -f "$CMAKE_TOOLCHAIN_CHECK"

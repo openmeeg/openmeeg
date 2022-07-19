@@ -16,13 +16,18 @@ env:
 jobs:
   build_wheels:
     continue-on-error: true
-    name: Using ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        # TODO: Reenable windows and macOS
-        # os: [ubuntu-20.04, windows-2019, macOS-11]
-        os: [ubuntu-20.04]
+        include:
+        - os: ubuntu-20.04
+        - os: macos-11
+          archs_macos: "x86_64"
+        # TODO: Reenable macOS-arm64 once https://github.com/microsoft/vcpkg/issues/25850 is sorted out
+        #- os: macos-11
+        #  archs_macos: "arm64"
+        # TODO: Reenable windows
+        # - os: windows-2019
 
     steps:
       - uses: actions/checkout@v3
@@ -35,6 +40,8 @@ jobs:
         with:
           package-dir: ./wrapping/python
           output-dir: wheelhouse
+        env:
+          CIBW_ARCHS_MACOS: "${{matrix.archs_macos}}"
 
       - uses: actions/upload-artifact@v3
         with:

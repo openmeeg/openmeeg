@@ -13,7 +13,11 @@ echo "Using project root \"${ROOT}\" on RUNNER_OS=\"${RUNNER_OS}\""
 cd $ROOT
 pwd
 
-# Let's have NumPy help us out
+# Let's have NumPy help us out, but we need to tell it to build for the correct
+# macOS platform
+if [[ "$CIBW_ARCHS_MACOS" == "arm64" ]]; then
+    export _PYTHON_HOST_PLATFORM="macosx-11.0-arm64"
+fi
 curl -L https://github.com/numpy/numpy/archive/refs/tags/v1.23.1.tar.gz | tar xz numpy-1.23.1
 mv numpy-1.23.1/tools .
 mv numpy-1.23.1/numpy .  # on Windows, _distributor_init gets modified
@@ -27,6 +31,7 @@ echo "Using NumPy PLATFORM=\"${PLATFORM}\""
 # PLATFORM can be:
 # linux-x86_64
 # macosx-x86_64
+# macosx-arm64
 # win-amd64
 
 if [[ "$PLATFORM" == "linux-x86_64" ]]; then
@@ -36,17 +41,25 @@ if [[ "$PLATFORM" == "linux-x86_64" ]]; then
     export OPENBLAS_LIB=/usr/local/lib
     export CMAKE_CXX_FLAGS="-lgfortran -lpthread -I$OPENBLAS_INCLUDE"
     SHARED_OPT="-DBUILD_SHARED_LIBS=OFF"
-elif [[ "$PLATFORM" == "macosx-x86_64" ]]; then
-    #brew install hdf5 libmatio boost swig openblas
+elif [[ "$PLATFORM" == 'macosx-'* ]]; then
     brew install boost swig
     BLAS_DIR=/usr/local
     OPENBLAS_INCLUDE=$BLAS_DIR/include
     OPENBLAS_LIB=$BLAS_DIR/lib
     export CMAKE_CXX_FLAGS="-I$OPENBLAS_INCLUDE -L$OPENBLAS_LIB -L/usr/local/gfortran/lib -lgfortran"
     export CMAKE_PREFIX_PATH="$BLAS_DIR"
-    # TODO: Need to add arm64 target here
-    export VCPKG_DEFAULT_TRIPLET="x64-osx-release-10.9"
+    echo "Building for CIBW_ARCHS_MACOS=\"$CIBW_ARCHS_MACOS\""
+    if [[ "$CIBW_ARCHS_MACOS" == "x86_64" ]]; then
+        export VCPKG_DEFAULT_TRIPLET="x64-osx-release-10.9"
+    elif [[ "$CIBW_ARCHS_MACOS" == "arm64" ]]; then
+        export VCPKG_DEFAULT_TRIPLET="arm64-osx-release-10.9"
+        CMAKE_OSX_ARCH_OPT="-DCMAKE_OSX_ARCHITECTURES=arm64"
+    else
+        echo "Unknown CIBW_ARCHS_MACOS=\"$CIBW_ARCHS_MACOS\""
+        exit 1
+    fi
     source ./build_tools/setup_vcpkg_compilation.sh
+    CMAKE_OSX_ARCH_OPT="-DCMAKE_OSX_ARCHITECTURES=${CIBW_ARCHS_MACOS}"
     OPENMP_OPT="-DUSE_OPENMP=OFF"
 elif [[ "$PLATFORM" == "win-amd64" ]]; then
     export VCPKG_DEFAULT_TRIPLET="x64-windows-release-static"
@@ -64,7 +77,7 @@ export PYTHON_OPT="-DENABLE_PYTHON=OFF"
 export BLA_IMPLEMENTATION="OpenBLAS"
 export DISABLE_CCACHE=1
 pip install cmake
-./build_tools/cmake_configure.sh -DCMAKE_INSTALL_PREFIX=${ROOT}/install ${OPENMP_OPT} ${VCPKG_TRIPLET_OPT} ${SYSTEM_VERSION_OPT} -DENABLE_APPS=OFF ${SHARED_OPT} -DCMAKE_INSTALL_UCRT_LIBRARIES=TRUE ${BLAS_LIBRARIES_OPT} ${LAPACK_LIBRARIES_OPT}
+./build_tools/cmake_configure.sh -DCMAKE_INSTALL_PREFIX=${ROOT}/install ${OPENMP_OPT} ${SYSTEM_VERSION_OPT} ${CMAKE_OSX_ARCH_OPT} -DENABLE_APPS=OFF ${SHARED_OPT} -DCMAKE_INSTALL_UCRT_LIBRARIES=TRUE ${BLAS_LIBRARIES_OPT} ${LAPACK_LIBRARIES_OPT}
 cmake --build build --target install --config release
 # make life easier for auditwheel/delocate/delvewheel
 if [[ "$PLATFORM" == 'linux'* ]]; then
