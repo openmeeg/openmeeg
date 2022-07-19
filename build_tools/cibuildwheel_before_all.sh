@@ -51,20 +51,18 @@ elif [[ "$PLATFORM" == 'macosx-'* ]]; then
     echo "Building for CIBW_ARCHS_MACOS=\"$CIBW_ARCHS_MACOS\""
     if [[ "$CIBW_ARCHS_MACOS" == "x86_64" ]]; then
         export VCPKG_DEFAULT_TRIPLET="x64-osx-release-10.9"
+        source ./build_tools/setup_vcpkg_compilation.sh
     elif [[ "$CIBW_ARCHS_MACOS" == "arm64" ]]; then
-        export VCPKG_DEFAULT_TRIPLET="arm64-osx-release-10.9"
+        # export VCPKG_DEFAULT_TRIPLET="arm64-osx-release-10.9"
         CMAKE_OSX_ARCH_OPT="-DCMAKE_OSX_ARCHITECTURES=arm64"
-    else
-        echo "Unknown CIBW_ARCHS_MACOS=\"$CIBW_ARCHS_MACOS\""
-        exit 1
-    fi
-    if [[ "$CIBW_ARCHS_MACOS" == "arm64" ]]; then
         # The deps were compiled locally on 2022/07/19 on an M1 machine and uploaded
         curl -L https://osf.io/download/x45fz > openmeeg-deps-arm64-osx-release-10.9.tar.gz
         tar xzfv openmeeg-deps-arm64-osx-release-10.9.tar.gz
         CMAKE_PREFIX_PATH_OPT="-DCMAKE_PREFIX_PATH=$PWD/vcpkg_installed/arm64-osx-release-10.9"
+        export CMAKE_CXX_FLAGS="$CMAKE_CXX_FLAGS -L$PWD/vcpkg_installed/arm64-osx-release-10.9/lib/ -llibz"
     else
-        source ./build_tools/setup_vcpkg_compilation.sh
+        echo "Unknown CIBW_ARCHS_MACOS=\"$CIBW_ARCHS_MACOS\""
+        exit 1
     fi
     CMAKE_OSX_ARCH_OPT="-DCMAKE_OSX_ARCHITECTURES=${CIBW_ARCHS_MACOS}"
     OPENMP_OPT="-DUSE_OPENMP=OFF"
