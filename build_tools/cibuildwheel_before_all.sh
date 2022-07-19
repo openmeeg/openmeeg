@@ -31,6 +31,7 @@ echo "Using NumPy PLATFORM=\"${PLATFORM}\""
 # PLATFORM can be:
 # linux-x86_64
 # macosx-x86_64
+# macosx-arm64
 # win-amd64
 
 if [[ "$PLATFORM" == "linux-x86_64" ]]; then
@@ -41,7 +42,6 @@ if [[ "$PLATFORM" == "linux-x86_64" ]]; then
     export CMAKE_CXX_FLAGS="-lgfortran -lpthread -I$OPENBLAS_INCLUDE"
     SHARED_OPT="-DBUILD_SHARED_LIBS=OFF"
 elif [[ "$PLATFORM" == 'macosx-'* ]]; then
-    #brew install hdf5 libmatio boost swig openblas
     brew install boost swig
     BLAS_DIR=/usr/local
     OPENBLAS_INCLUDE=$BLAS_DIR/include

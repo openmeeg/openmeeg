@@ -414,7 +414,6 @@ jobs:
           PATH="$(cygpath -w $PWD/openmeeg);$PATH" delvewheel show dist/*.whl
           PATH="$(cygpath -w $PWD/openmeeg);$PATH" delvewheel repair -w dist dist/*.whl
         elif [[ ${{matrix.os}} == 'macos'* ]]; then
-          printenv
           delocate-wheel -v dist/*.whl
           delocate-listdeps --all dist/*.whl
         # This build uses a toolchain that is too new, so skip this on Linux
