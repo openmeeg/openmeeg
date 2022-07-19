@@ -70,7 +70,7 @@ if __name__ == "__main__":
     ext_modules = []
     if os.getenv('OPENMEEG_USE_SWIG', '0').lower() in ('1', 'true'):
         include_dirs = [np.get_include()]
-        swig_opts = ['-c++', '-v', '-Werror']
+        swig_opts = ['-c++', '-v', '-O']  # TODO: , '-Werror']
         library_dirs = []
         openmeeg_include = os.getenv('OPENMEEG_INCLUDE')
         if openmeeg_include is not None:
