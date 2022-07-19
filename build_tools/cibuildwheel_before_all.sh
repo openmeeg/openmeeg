@@ -58,8 +58,9 @@ elif [[ "$PLATFORM" == 'macosx-'* ]]; then
         # The deps were compiled locally on 2022/07/19 on an M1 machine and uploaded
         curl -L https://osf.io/download/x45fz > openmeeg-deps-arm64-osx-release-10.9.tar.gz
         tar xzfv openmeeg-deps-arm64-osx-release-10.9.tar.gz
-        CMAKE_PREFIX_PATH_OPT="-DCMAKE_PREFIX_PATH=$PWD/vcpkg_installed/arm64-osx-release-10.9"
-        export CMAKE_CXX_FLAGS="$CMAKE_CXX_FLAGS -L$PWD/vcpkg_installed/arm64-osx-release-10.9/lib/ -llibz"
+        CMAKE_PREFIX_PATH_OPT="-DCMAKE_PREFIX_PATH=$ROOT/vcpkg_installed/arm64-osx-release-10.9"
+        ls -al $ROOT/vcpkg_installed/arm64-osx-release-10.9/lib
+        export CMAKE_CXX_FLAGS="$CMAKE_CXX_FLAGS -L$ROOT/vcpkg_installed/arm64-osx-release-10.9/lib -lz"
     else
         echo "Unknown CIBW_ARCHS_MACOS=\"$CIBW_ARCHS_MACOS\""
         exit 1
