@@ -1,12 +1,13 @@
-#!/usr/bin/env python
-
+import os
 from os import path as op
-
+import pytest
 import numpy as np
 
 import openmeeg as om
 
 
+@pytest.mark.skipif(os.getenv('OPENMEEG_BAD_MKL') == os.getenv('OPENMEEG_BAD_MSVC') == '1',
+                    reason='bad windows mkl')
 def test_python2(data_path):
     subject = "Head1"
     file_name_skeleton = op.join(data_path, subject, subject)
