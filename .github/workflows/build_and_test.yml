@@ -89,6 +89,7 @@ jobs:
           echo "Enabling static BLAS"
           echo "BLA_STATIC_OPT=-DBLA_STATIC=ON" >> $GITHUB_ENV
           echo '::set-output name=blas_linking::static'
+          echo "OPENMEEG_BAD_MKL=1" >> $GITHUB_ENV
         else
           echo '::set-output name=blas_linking::dynamic'
         fi
