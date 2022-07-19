@@ -100,7 +100,7 @@ jobs:
           echo '::set-output name=python::python'
           if [[ "${{matrix.python}}" == "" ]] || [[ "${{matrix.python}}" == "cmake" ]]; then
             echo '::set-output name=python_type::cmake'
-          elif [[ "${{matrix.python}}" == "setuptools" ]]
+          elif [[ "${{matrix.python}}" == "setuptools" ]]; then
             echo '::set-output name=python_type::setuptools'
             echo "PYTHON_OPT=-DENABLE_PYTHON=OFF" >> $GITHUB_ENV
           else
