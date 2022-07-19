@@ -178,4 +178,4 @@ def test_python(data_path):
 
     # remove useless files
     os.remove(hm_file)
-    os.remove(ssm_file)`
+    os.remove(ssm_file)
