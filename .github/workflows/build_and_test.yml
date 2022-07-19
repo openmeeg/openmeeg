@@ -168,7 +168,7 @@ jobs:
         else
           EXTRA_PIP=auditwheel
         fi
-        pip install --upgrade --progress-bar off -q numpy setuptools wheel twine $EXTRA_PIP
+        pip install --upgrade --progress-bar off -q numpy setuptools wheel twine pytest $EXTRA_PIP
 
     - name: MKL setup - mkl via conda
       if: startswith(steps.env-vars.outputs.blas,'mkl')

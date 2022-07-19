@@ -11,7 +11,12 @@
 # those macros are driven by CMAKE_SWIG_FLAGS, and SWIG_MODULE_XXXXXXX_EXTRA_DEPS
 # where XXXXXXX is the name of the target object in swig_add_library(XXXXXXX ...)
 
-find_package(Python3 REQUIRED COMPONENTS Interpreter Development NumPy)
+
+if (BUILD_TESTING)
+    find_package(Python3 REQUIRED COMPONENTS Interpreter Development NumPy)
+else()
+    find_package(Python3 REQUIRED COMPONENTS Interpreter Development NumPy Pytest)
+endif()
 
 # XXXX: this include_directories should be removed and transitive properties
 #       of OpenMEEG::OpenMEEG and OpenMEEG::OpenMEEGMaths should be used instead
@@ -139,38 +144,18 @@ endif()
 # Test Python wrapping
 
 if (BUILD_TESTING)
-
-    set(PYTHON_TEST_FILES test_vector.py test_matrix.py test_sensors.py test_geom_import.py)
-
     # TODO: This conditional shouldn't be necessary, but we get:
     # 1/2 Test #689: openmeeg_python_test_python.py ..........***Failed    0.29 sec
     # Could not read the geometry file: D:\a\openmeeg\openmeeg\data\Head1\Head1.geom
     # 2/2 Test #692: openmeeg_python_test_make_geometry.py ...***Failed    0.30 sec
     # Could not read the geometry file: D:\a\openmeeg\openmeeg\data\Head1\Head1.geom
-    if(MSVC)
-        set(PYTHON_TEST_FILES_REQUIRING_DATA test_python2.py test_mesh.py)
-    else()
-        set(PYTHON_TEST_FILES_REQUIRING_DATA test_python.py test_python2.py test_mesh.py test_make_geometry.py)
+    set(PYTHON_TEST_FILES test_vector.py test_matrix.py test_sensors.py test_geom_import.py test_python2.py test_mesh.py)
+    if(NOT MSVC)
+        set(PYTHON_TEST_FILES ${PYTHON_TEST_FILES} test_python.py test_make_geometry.py)
     endif()
 
-    # Add tests requiring data
-
-    foreach (test ${PYTHON_TEST_FILES_REQUIRING_DATA})
-        add_test(openmeeg_python_${test} ${Python3_EXECUTABLE} ${OpenMEEG_BINARY_DIR}/wrapping/python/openmeeg/tests/${test} --path ${OpenMEEG_SOURCE_DIR}/data)
-        if (USE_MKL AND BUILD_SHARED_LIBS AND NOT MKL_USE_sdl)
-            # due to this bug in the MKL
-            message(WARNING "Due to a bug in the MKL when used from python: see https://software.intel.com/en-us/forums/intel-distribution-for-python/topic/628976 "
-                "workaround: set environment variable:\nexport LD_PRELOAD=\"${MKL_ROOT_DIR}/lib/intel64/libmkl_core.so:"
-                "${MKL_ROOT_DIR}/lib/intel64/libmkl_sequential.so\"")
-            set_tests_properties(openmeeg_python_${test} PROPERTIES ENVIRONMENT LD_PRELOAD=${MKL_ROOT_DIR}/lib/intel64/libmkl_core.so:${MKL_ROOT_DIR}/lib/intel64/libmkl_sequential.so)
-        endif()
-        set_tests_properties(openmeeg_python_${test} PROPERTIES ENVIRONMENT PYTHONPATH=${OpenMEEG_BINARY_DIR}/wrapping/python)
-    endforeach()
-
-    # Add python tests not requiring data
-
     foreach (test ${PYTHON_TEST_FILES})
-        add_test(openmeeg_python_${test} ${Python3_EXECUTABLE} ${OpenMEEG_BINARY_DIR}/wrapping/python/openmeeg/tests/${test})
+        add_test(openmeeg_python_${test} ${Python3_EXECUTABLE} -m pytest ${OpenMEEG_BINARY_DIR}/wrapping/python/openmeeg/tests/${test})
         if (USE_MKL AND BUILD_SHARED_LIBS AND NOT MKL_USE_sdl)
             # due to this bug in the MKL
             message(WARNING "Due to a bug in the MKL when used from python: see https://software.intel.com/en-us/forums/intel-distribution-for-python/topic/628976 "
@@ -178,7 +163,7 @@ if (BUILD_TESTING)
                 "${MKL_ROOT_DIR}/lib/intel64/libmkl_sequential.so\"")
             set_tests_properties(openmeeg_python_${test} PROPERTIES ENVIRONMENT LD_PRELOAD=${MKL_ROOT_DIR}/lib/intel64/libmkl_core.so:${MKL_ROOT_DIR}/lib/intel64/libmkl_sequential.so)
         endif()
-        set_tests_properties(openmeeg_python_${test} PROPERTIES ENVIRONMENT PYTHONPATH=${OpenMEEG_BINARY_DIR}/wrapping/python)
+        set_tests_properties(openmeeg_python_${test} PROPERTIES ENVIRONMENT PYTHONPATH=${OpenMEEG_BINARY_DIR}/wrapping/python OPENMEEG_DATA_PATH=${OpenMEEG_SOURCE_DIR}/data)
     endforeach()
 
     if (BUILD_REFERENCE_DOC)
