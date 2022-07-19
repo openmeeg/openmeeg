@@ -23,7 +23,7 @@ jobs:
         - os: ubuntu-20.04
         - os: macos-11
           archs_macos: "x86_64"
-        os: macos-11
+        - os: macos-11
           archs_macos: "arm64"
         # TODO: Reenable windows
         # - os: windows-2019
