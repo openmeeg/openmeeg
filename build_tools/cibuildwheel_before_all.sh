@@ -46,19 +46,25 @@ elif [[ "$PLATFORM" == 'macosx-'* ]]; then
     BLAS_DIR=/usr/local
     OPENBLAS_INCLUDE=$BLAS_DIR/include
     OPENBLAS_LIB=$BLAS_DIR/lib
-    export CMAKE_CXX_FLAGS="-I$OPENBLAS_INCLUDE -L$OPENBLAS_LIB -L/usr/local/gfortran/lib -lgfortran"
+    export CMAKE_CXX_FLAGS="-I$OPENBLAS_INCLUDE -L$OPENBLAS_LIB"
     export CMAKE_PREFIX_PATH="$BLAS_DIR"
     echo "Building for CIBW_ARCHS_MACOS=\"$CIBW_ARCHS_MACOS\""
     if [[ "$CIBW_ARCHS_MACOS" == "x86_64" ]]; then
         export VCPKG_DEFAULT_TRIPLET="x64-osx-release-10.9"
+        source ./build_tools/setup_vcpkg_compilation.sh
     elif [[ "$CIBW_ARCHS_MACOS" == "arm64" ]]; then
-        export VCPKG_DEFAULT_TRIPLET="arm64-osx-release-10.9"
+        # export VCPKG_DEFAULT_TRIPLET="arm64-osx-release-10.9"
         CMAKE_OSX_ARCH_OPT="-DCMAKE_OSX_ARCHITECTURES=arm64"
+        # The deps were compiled locally on 2022/07/19 on an M1 machine and uploaded
+        curl -L https://osf.io/download/x45fz > openmeeg-deps-arm64-osx-release-10.9.tar.gz
+        tar xzfv openmeeg-deps-arm64-osx-release-10.9.tar.gz
+        CMAKE_PREFIX_PATH_OPT="-DCMAKE_PREFIX_PATH=$ROOT/vcpkg_installed/arm64-osx-release-10.9"
+        ls -al $ROOT/vcpkg_installed/arm64-osx-release-10.9/lib
+        export CMAKE_CXX_FLAGS="$CMAKE_CXX_FLAGS -L$ROOT/vcpkg_installed/arm64-osx-release-10.9/lib -lz"
     else
         echo "Unknown CIBW_ARCHS_MACOS=\"$CIBW_ARCHS_MACOS\""
         exit 1
     fi
-    source ./build_tools/setup_vcpkg_compilation.sh
     CMAKE_OSX_ARCH_OPT="-DCMAKE_OSX_ARCHITECTURES=${CIBW_ARCHS_MACOS}"
     OPENMP_OPT="-DUSE_OPENMP=OFF"
 elif [[ "$PLATFORM" == "win-amd64" ]]; then
@@ -77,7 +83,7 @@ export PYTHON_OPT="-DENABLE_PYTHON=OFF"
 export BLA_IMPLEMENTATION="OpenBLAS"
 export DISABLE_CCACHE=1
 pip install cmake
-./build_tools/cmake_configure.sh -DCMAKE_INSTALL_PREFIX=${ROOT}/install ${OPENMP_OPT} ${SYSTEM_VERSION_OPT} ${CMAKE_OSX_ARCH_OPT} -DENABLE_APPS=OFF ${SHARED_OPT} -DCMAKE_INSTALL_UCRT_LIBRARIES=TRUE ${BLAS_LIBRARIES_OPT} ${LAPACK_LIBRARIES_OPT}
+./build_tools/cmake_configure.sh -DCMAKE_VERBOSE_MAKEFILE=ON -DCMAKE_INSTALL_PREFIX=${ROOT}/install ${OPENMP_OPT} ${SYSTEM_VERSION_OPT} ${CMAKE_OSX_ARCH_OPT} ${CMAKE_PREFIX_PATH_OPT} -DENABLE_APPS=OFF ${SHARED_OPT} -DCMAKE_INSTALL_UCRT_LIBRARIES=TRUE ${BLAS_LIBRARIES_OPT} ${LAPACK_LIBRARIES_OPT}
 cmake --build build --target install --config release
 # make life easier for auditwheel/delocate/delvewheel
 if [[ "$PLATFORM" == 'linux'* ]]; then
