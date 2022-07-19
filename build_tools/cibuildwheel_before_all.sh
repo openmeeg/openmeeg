@@ -46,7 +46,7 @@ elif [[ "$PLATFORM" == 'macosx-'* ]]; then
     BLAS_DIR=/usr/local
     OPENBLAS_INCLUDE=$BLAS_DIR/include
     OPENBLAS_LIB=$BLAS_DIR/lib
-    export CMAKE_CXX_FLAGS="-I$OPENBLAS_INCLUDE -L$OPENBLAS_LIB -L/usr/local/gfortran/lib -lgfortran"
+    export CMAKE_CXX_FLAGS="-I$OPENBLAS_INCLUDE -L$OPENBLAS_LIB"
     export CMAKE_PREFIX_PATH="$BLAS_DIR"
     echo "Building for CIBW_ARCHS_MACOS=\"$CIBW_ARCHS_MACOS\""
     if [[ "$CIBW_ARCHS_MACOS" == "x86_64" ]]; then
@@ -59,6 +59,9 @@ elif [[ "$PLATFORM" == 'macosx-'* ]]; then
         exit 1
     fi
     source ./build_tools/setup_vcpkg_compilation.sh
+    #if [[ "$CIBW_ARCHS_MACOS" == "arm64" ]]; then
+    #    source ./build_tools/compile_hdf5_arm64.sh
+    #fi
     CMAKE_OSX_ARCH_OPT="-DCMAKE_OSX_ARCHITECTURES=${CIBW_ARCHS_MACOS}"
     OPENMP_OPT="-DUSE_OPENMP=OFF"
 elif [[ "$PLATFORM" == "win-amd64" ]]; then
