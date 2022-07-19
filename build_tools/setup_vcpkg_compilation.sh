@@ -46,7 +46,9 @@ cp -v ./build_tools/vcpkg_triplets/*.cmake vcpkg/triplets
 export VCPKG_INSTALLED_DIR="${PWD}/build/vcpkg_installed"
 export VCPKG_INSTALL_OPTIONS="--x-install-root=$VCPKG_INSTALLED_DIR --triplet=$VCPKG_DEFAULT_TRIPLET"
 export CMAKE_TOOLCHAIN_FILE="${PWD}/vcpkg/scripts/buildsystems/vcpkg.cmake"
-export VCPKG_TRIPLET_OPT="-DVCPKG_TARGET_TRIPLET=${VCPKG_DEFAULT_TRIPLET}"
+if [[ "$VCPKG_DEFAULT_TRIPLET" != 'x64-mingw'* ]]; then  # for some reason this breaks things
+    export VCPKG_TRIPLET_OPT="-DVCPKG_TARGET_TRIPLET=${VCPKG_DEFAULT_TRIPLET}"
+fi
 
 if [[ "$USE_CYGPATH" == "1" ]]; then
     export VCPKG_INSTALLED_DIR=$(cygpath -m "${VCPKG_INSTALLED_DIR}")
