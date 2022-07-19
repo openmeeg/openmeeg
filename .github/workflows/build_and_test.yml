@@ -430,7 +430,7 @@ jobs:
         pip install dist/*.whl --force-reinstall
         cd ~
         python -c "import openmeeg; print(openmeeg.__version__)"
-        pytest $GITHUB_WORKSPACE/wrapping/python/openmeeg/tests
+        ${GITHUB_WORKSPACE}/build_tools/cibuildwheel_test_command.sh
         pip uninstall -yq openmeeg
         # Now make it so our tests can find the libs
         if [[ ${{steps.env-vars.outputs.os}} == 'windows'* ]]; then

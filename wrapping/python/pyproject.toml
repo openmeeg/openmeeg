@@ -11,7 +11,7 @@ requires = [
 skip = "cp36-* *-manylinux_i686 *_ppc64le *_s390x *-musllinux* *-win32 pp*"
 build-verbosity = "3"
 before-all = "bash {project}/build_tools/cibuildwheel_before_all.sh {project}"
-test-command = "python -c 'import openmeeg; print(openmeeg.sqr(4)); assert openmeeg.sqr(4) == 16'"
+test-command = "bash {project}/build_tools/cibuildwheel_test_command.sh"
 environment = { OPENMEEG_LIB="../../install/lib", OPENMEEG_INCLUDE="../../install/include/OpenMEEG", OPENMEEG_USE_SWIG="1" }
 
 [tool.cibuildwheel.linux]
