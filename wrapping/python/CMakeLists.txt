@@ -13,9 +13,9 @@
 
 
 if (BUILD_TESTING)
-    find_package(Python3 REQUIRED COMPONENTS Interpreter Development NumPy)
-else()
     find_package(Python3 REQUIRED COMPONENTS Interpreter Development NumPy Pytest)
+else()
+    find_package(Python3 REQUIRED COMPONENTS Interpreter Development NumPy)
 endif()
 
 # XXXX: this include_directories should be removed and transitive properties
