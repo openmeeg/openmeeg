@@ -97,14 +97,15 @@ jobs:
           echo '::set-output name=python::no-python'
           echo '::set-output name=python_type::no-python'
         else
-          PYTHON_TYPE=${{matrix.python}}
-          if [[ "$PYTHON_TYPE" == "" ]]; then
-            PYTHON_TYPE=cmake
-          fi
           echo '::set-output name=python::python'
-          echo '::set-output name=python_type::$PYTHON_TYPE'
-          if [[ "$PYTHON_TYPE" == 'setuptools' ]]; then
+          if [[ "${{matrix.python}}" == "" ]] || [[ "${{matrix.python}}" == "cmake" ]]; then
+            echo '::set-output name=python_type::cmake'
+          elif [[ "${{matrix.python}}" == "setuptools" ]]
+            echo '::set-output name=python_type::setuptools'
             echo "PYTHON_OPT=-DENABLE_PYTHON=OFF" >> $GITHUB_ENV
+          else
+            echo "Unknown matrix.python=\"${{matrix.python}}\""
+            exit 1
           fi
         fi
         if [[ "${{matrix.windows_compiler}}" == "mingw64" ]]; then
