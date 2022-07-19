@@ -62,6 +62,7 @@ jobs:
           user: __token__
           password: ${{ secrets.OPENMEEG_TEST_PYPI_TOKEN }}
           repository_url: https://test.pypi.org/legacy/
+          skip_existing: true
 
   #upload_pypi:
   #  name: Upload to PyPi
