@@ -12,10 +12,9 @@
 # where XXXXXXX is the name of the target object in swig_add_library(XXXXXXX ...)
 
 
+find_package(Python3 REQUIRED COMPONENTS Interpreter Development NumPy)
 if (BUILD_TESTING)
-    find_package(Python3 REQUIRED COMPONENTS Interpreter Development NumPy Pytest)
-else()
-    find_package(Python3 REQUIRED COMPONENTS Interpreter Development NumPy)
+    find_package(Pytest)
 endif()
 
 # XXXX: this include_directories should be removed and transitive properties
@@ -163,7 +162,7 @@ if (BUILD_TESTING)
                 "${MKL_ROOT_DIR}/lib/intel64/libmkl_sequential.so\"")
             set_tests_properties(openmeeg_python_${test} PROPERTIES ENVIRONMENT LD_PRELOAD=${MKL_ROOT_DIR}/lib/intel64/libmkl_core.so:${MKL_ROOT_DIR}/lib/intel64/libmkl_sequential.so)
         endif()
-        set_tests_properties(openmeeg_python_${test} PROPERTIES ENVIRONMENT PYTHONPATH=${OpenMEEG_BINARY_DIR}/wrapping/python OPENMEEG_DATA_PATH=${OpenMEEG_SOURCE_DIR}/data)
+        set_tests_properties(openmeeg_python_${test} PROPERTIES ENVIRONMENT "PYTHONPATH=${OpenMEEG_BINARY_DIR}/wrapping/python OPENMEEG_DATA_PATH=${OpenMEEG_SOURCE_DIR}/data")
     endforeach()
 
     if (BUILD_REFERENCE_DOC)
