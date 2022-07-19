@@ -58,10 +58,14 @@ elif [[ "$PLATFORM" == 'macosx-'* ]]; then
         echo "Unknown CIBW_ARCHS_MACOS=\"$CIBW_ARCHS_MACOS\""
         exit 1
     fi
-    source ./build_tools/setup_vcpkg_compilation.sh
-    #if [[ "$CIBW_ARCHS_MACOS" == "arm64" ]]; then
-    #    source ./build_tools/compile_hdf5_arm64.sh
-    #fi
+    if [[ "$CIBW_ARCHS_MACOS" == "arm64" ]]; then
+        # The deps were compiled locally on 2022/07/19 on an M1 machine and uploaded
+        curl -L https://osf.io/download/x45fz > openmeeg-deps-arm64-osx-release-10.9.tar.gz
+        tar xzfv openmeeg-deps-arm64-osx-release-10.9.tar.gz
+        CMAKE_PREFIX_PATH_OPT="-DCMAKE_PREFIX_PATH=$PWD/vcpkg_installed/arm64-osx-release-10.9"
+    else
+        source ./build_tools/setup_vcpkg_compilation.sh
+    fi
     CMAKE_OSX_ARCH_OPT="-DCMAKE_OSX_ARCHITECTURES=${CIBW_ARCHS_MACOS}"
     OPENMP_OPT="-DUSE_OPENMP=OFF"
 elif [[ "$PLATFORM" == "win-amd64" ]]; then
