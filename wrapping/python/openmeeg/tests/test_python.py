@@ -23,13 +23,7 @@ from os import path as op
 
 
 def test_python(data_path):
-    # deal with MSVC not handling mixed paths like
-`    # D:/a/openmeeg/openmeeg/data\Head1\Head1.geom
-    # but cmake uses a mixed path for the --path arg
-    data_path = data_path.replace('/', op.sep)
-
     # Load data
-
     subject = "Head1"
     cond_file = op.join(data_path, subject, subject + ".cond")
     geom_file = op.join(data_path, subject, subject + ".geom")

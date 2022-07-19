@@ -7,7 +7,7 @@ from optparse import OptionParser
 import openmeeg as om
 
 
-def test_make_geometry():
+def test_make_geometry(data_path):
     def python_mesh(name, path):
         mesh = om.Mesh(path)
         mesh_vertices = mesh.geometry().vertices()
@@ -16,18 +16,7 @@ def test_make_geometry():
         triangles = np.array([mesh.triangle(triangle).array() for triangle in mesh_triangles])
         return vertices, triangles
 
-    data_path = op.dirname(op.abspath(__file__))
-    parser = OptionParser()
-    parser.add_option("-p", "--path", dest="data_path",
-                    help="path to data folder", metavar="FILE",
-                    default=data_path)
-
-    options, args = parser.parse_args()
-    data_path = options.data_path
-    data_path = data_path.replace('/', op.sep)
-
     # Load mesh data to mimic Head1.geom + Head1.cond
-
     subject = "Head1"
     dirpath = op.join(data_path, subject)
 

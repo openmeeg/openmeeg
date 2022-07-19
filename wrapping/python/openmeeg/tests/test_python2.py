@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-from optparse import OptionParser
 from os import path as op
 
 import numpy as np
