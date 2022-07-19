@@ -90,9 +90,26 @@ if __name__ == "__main__":
             openmeeg_lib = Path(openmeeg_lib).resolve()
             assert openmeeg_lib.is_dir(), openmeeg_lib
             library_dirs.append(str(openmeeg_lib))
-        extra_compile_opts = []
-        if not msvc:
+        extra_compile_opts, extra_link_opts = [], []
+        if msvc:
+            extra_compile_opts.extend(['/std:c++17'])
+            extra_link_opts.extend(['/std:c++17'])
+        else:
             extra_compile_opts.extend(['-v', '-std=c++17'])
+        # An example cmake command that works is:
+        #   C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Tools\MSVC\14.16.27023\bin\HostX64\x64\link.exe
+        #     /ERRORREPORT:QUEUE /INCREMENTAL:NO /NOLOGO
+        #     /OUT:"D:\a\openmeeg\openmeeg\build\wrapping\python\openmeeg\_openmeeg.pyd"
+        #     C:\Miniconda\envs\test\libs\python310.lib ..\..\OpenMEEG\Release\OpenMEEG.lib ..\..\OpenMEEGMaths\Release\OpenMEEGMaths.lib ..\..\..\openblas\64\lib\openblas.lib "..\..\vcpkg_installed\x64-windows-release\lib\libmatio.lib" "..\..\vcpkg_installed\x64-windows-release\lib\hdf5.lib" kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib
+        #     /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /PDB:"D:/a/openmeeg/openmeeg/build/wrapping/python/openmeeg/_openmeeg.pdb"
+        #     /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT
+        #     /IMPLIB:"D:/a/openmeeg/openmeeg/build/wrapping/python/Release/openmeeg.lib" /MACHINE:X64 /DLL openmeeg.dir\Release\openmeegPYTHON_wrap.obj
+        # An example setuptools command that fails is:
+        #   C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Tools\MSVC\14.29.30133\bin\HostX86\x64\cl.exe
+        #     -IC:\Miniconda\envs\test\lib\site-packages\numpy\core\include -ID:\a\openmeeg\openmeeg\install\include\OpenMEEG -ID:\a\openmeeg\openmeeg\openblas\64\include -IC:\Miniconda\envs\test\include -IC:\Miniconda\envs\test\Include "-IC:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Tools\MSVC\14.29.30133\ATLMFC\include" "-IC:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Tools\MSVC\14.29.30133\include" "-IC:\Program Files (x86)\Windows Kits\NETFXSDK\4.8\include\um" "-IC:\Program Files (x86)\Windows Kits\10\include\10.0.22000.0\ucrt" "-IC:\Program Files (x86)\Windows Kits\10\include\10.0.22000.0\shared" "-IC:\Program Files (x86)\Windows Kits\10\include\10.0.22000.0\um" "-IC:\Program Files (x86)\Windows Kits\10\include\10.0.22000.0\winrt" "-IC:\Program Files (x86)\Windows Kits\10\include\10.0.22000.0\cppwinrt"
+        #     /c /nologo /O2 /W3 /GL /DNDEBUG /MD
+        #     /EHsc /Tpopenmeeg/openmeeg_wrap.cpp /Fobuild\temp.win-amd64-cpython-310\Release\openmeeg/openmeeg_wrap.obj
+
 
         swig_openmeeg = Extension(
             "openmeeg._openmeeg",

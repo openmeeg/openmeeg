@@ -70,11 +70,6 @@ jobs:
           blas_linking: dynamic
           python: setuptools
           windows_compiler: msvc
-        - os: windows-2019
-          blas: OpenBLAS
-          blas_linking: static
-          python: setuptools
-          windows_compiler: msvc
 
 
     runs-on: ${{ matrix.os }}
