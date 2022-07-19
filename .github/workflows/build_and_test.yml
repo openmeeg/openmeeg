@@ -113,7 +113,7 @@ jobs:
           echo '::set-output name=windows_compiler::mingw64'
         else
           echo '::set-output name=windows_compiler::msvc'
-          echo "OPENMEEG_BAD_TYPE=1" >> $GITHUB_ENV
+          echo "OPENMEEG_BAD_MSVC=1" >> $GITHUB_ENV
         fi
         if [[ "${{matrix.blas}}" == 'mkl'* ]]; then
           echo "Setting BLA_IMPLEMENTATION=${{matrix.blas}}"
