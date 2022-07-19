@@ -83,7 +83,7 @@ jobs:
     - name: Environment variables
       id: env-vars
       run: |
-        echo "OPENMEEG_DATA_PATH=$PWD" >> $GITHUB_ENV
+        echo "OPENMEEG_DATA_PATH=$PWD/data" >> $GITHUB_ENV
         echo '::set-output name=os::${{matrix.os}}'
         if [[ "${{matrix.blas_linking}}" == 'static' ]]; then
           echo "Enabling static BLAS"
@@ -430,7 +430,7 @@ jobs:
         pip install dist/*.whl --force-reinstall
         cd ~
         python -c "import openmeeg; print(openmeeg.__version__)"
-        ${GITHUB_WORKSPACE}/build_tools/cibuildwheel_test_command.sh
+        ${GITHUB_WORKSPACE}/build_tools/cibuildwheel_test_command.sh ${GITHUB_WORKSPACE}
         pip uninstall -yq openmeeg
         # Now make it so our tests can find the libs
         if [[ ${{steps.env-vars.outputs.os}} == 'windows'* ]]; then
