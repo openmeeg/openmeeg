@@ -21,13 +21,10 @@ jobs:
       matrix:
         include:
         - os: ubuntu-20.04
-        # TODO: Reenable once Windows works
         #- os: macos-11
         #  archs_macos: "x86_64"
-        # TODO: Reenable macOS-arm64 once https://github.com/microsoft/vcpkg/issues/25850 is sorted out
         #- os: macos-11
         #  archs_macos: "arm64"
-        # TODO: Reenable windows
         - os: windows-2019
 
     steps:
