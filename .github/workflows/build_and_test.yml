@@ -104,7 +104,7 @@ jobs:
           echo '::set-output name=numpy_version::oldest'
         fi
         echo '::set-output name=python_version::${{matrix.python-version}}'
-        if [[ "${{matrix.python_version}}" == 'pypy'* ]]; then
+        if [[ "${{matrix.python-version}}" == 'pypy'* ]]; then
           echo "OPENMEEG_BAD_PYPY=1" >> $GITHUB_ENV
         fi
         if [[ "${{matrix.blas_linking}}" == 'static' ]]; then
