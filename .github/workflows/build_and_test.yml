@@ -31,7 +31,6 @@ jobs:
         - os: ubuntu-20.04
           blas: OpenBLAS
           blas_linking: dynamic
-          blas_version: apt
           python: cmake
         #- os: windows-2019
         #  blas: OpenBLAS
@@ -44,9 +43,8 @@ jobs:
         #  python: cmake
         # Latest OpenBLAS release
         - os: ubuntu-20.04
-          blas: OpenBLAS
+          blas: OpenBLAS-latest
           blas_linking: dynamic
-          blas_version: latest
           python: cmake
         ## Windows mingw64
         #- os: windows-2019
@@ -99,7 +97,6 @@ jobs:
         else
           echo '::set-output name=blas_linking::dynamic'
         fi
-        echo '::set-output name=blas_version::${{matrix.blas_version}}'
         if [[ "${{matrix.python}}" == 'no-python' ]]; then
           echo "Disabling Python"
           echo "PYTHON_OPT=-DENABLE_PYTHON=OFF" >> $GITHUB_ENV
@@ -130,6 +127,11 @@ jobs:
         else
           echo '::set-output name=blas::OpenBLAS'
         fi
+        if [[ "${{matrix.blas}}" == *'-latest' ]]; then
+          echo "Setting blas_version=latest"
+          echo '::set-output name=blas_version::latest'
+        fi
+        echo '::set-output name=blas_version::${{matrix.blas_version}}'
         # Build docs on Ubuntu, not elsewhere (for speed)
         if [[ "${{matrix.os}}" == 'ubuntu'* ]]; then
           DOC_OPT="-DBUILD_DOCUMENTATION=ON"
@@ -286,8 +288,8 @@ jobs:
         tar xzf OpenBLAS-0.3.20.tar.gz
         ls -al
         cd OpenBLAS-0.3.20
-        make DYNAMIC_ARCH=0 PREFIX=/usr/local
-        sudo make install
+        cmake -B build -DDYNAMIC_ARCH=FALSE -DNO_FORTRAN=OFF -DNO_STATIC=OFF -DNO_DYNAMIC=OFF -DNUM_THREADS=24 -DNO_WARMUP=TRUE -DBUILD_TESTING=OFF .
+        cmake -B build --target install --install-prefix=/usr/local
 
     - name: Configure
       run: |
