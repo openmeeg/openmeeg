@@ -23,17 +23,10 @@ environment = { OPENMEEG_LIB="../../install/lib64", OPENMEEG_INCLUDE="../../inst
 [tool.cibuildwheel.macos]
 archs = "x86_64 arm64"
 test-skip = "*_arm64"
-repair-wheel-command = [
-  "export DYLD_LIBRARY_PATH=\"$GITHUB_WORKSPACE/install/lib\"",
-  "delocate-listdeps {wheel}",
-  " delocate-wheel --require-archs {delocate_archs} -w {dest_dir} {wheel}"
-]
+repair-wheel-command = "bash $GITHUB_WORKSPACE/build_tools/cibw_before_build_macos.sh {delocate_archs} {dest_dir} {wheel}"
 environment = { OPENMEEG_LIB="../../install/lib", OPENMEEG_INCLUDE="../../install/include/OpenMEEG", OPENMEEG_USE_SWIG="1", OPENBLAS_INCLUDE="/usr/local/include" }
 
 [tool.cibuildwheel.windows]
-repair-wheel-command = [
-  "export PATH=\"$GITHUB_WORKSPACE\\install\\bin;$PATH\"",
-  "delvewheel repair -w {dest_dir} {wheel}"
-]
 before-build = "bash {project}/build_tools/cibw_before_build_windows.sh {project}"
+repair-wheel-command = "bash $GITHUB_WORKSPACE/build_tools/cibw_repair_wheel_command_windows.sh {dest_dir} {wheel}"
 environment = { OPENMEEG_USE_SWIG="0" }
