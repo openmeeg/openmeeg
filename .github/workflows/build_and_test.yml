@@ -65,11 +65,12 @@ jobs:
         #  python: setuptools
         #- os: macos-11
         #  python: setuptools
-        - os: windows-2019
-          blas: OpenBLAS
-          blas_linking: dynamic
-          python: setuptools
-          windows_compiler: msvc
+        # TODO: Fix this someday
+        #- os: windows-2019
+        #  blas: OpenBLAS
+        #  blas_linking: dynamic
+        #  python: setuptools
+        #  windows_compiler: msvc
 
 
     runs-on: ${{ matrix.os }}
@@ -431,7 +432,7 @@ jobs:
         pip install dist/*.whl --force-reinstall
         cd ~
         python -c "import openmeeg; print(openmeeg.__version__)"
-        ${GITHUB_WORKSPACE}/build_tools/cibuildwheel_test_command.sh ${GITHUB_WORKSPACE}
+        ${GITHUB_WORKSPACE}/build_tools/cibw_test_command.sh ${GITHUB_WORKSPACE}
         pip uninstall -yq openmeeg
         # Now make it so our tests can find the libs
         if [[ ${{steps.env-vars.outputs.os}} == 'windows'* ]]; then

@@ -97,3 +97,10 @@ else
     ls -al $PWD/install/bin/*.dll*
     cp $PWD/install/bin/*.dll* .
 fi
+
+# TODO: This is only necessary because SWIG does not work outside cmake yet
+
+if [[ "$PLATFORM" == "win-amd64" ]]; then
+    cp -a build build_nopython
+fi
+rm -Rf build
