@@ -4,7 +4,6 @@ enable_testing()
 option(USE_VTK   "Use VTK"   OFF)
 option(USE_GIFTI "Use GIFTI" OFF)
 option(USE_CGAL  "Use CGAL"  OFF)
-option(USE_OPENMP "Use OpenMP (if available)"  ON)
 option(BUILD_SHARED_LIBS "Build Shared Libraries" ON)
 
 option(ENABLE_COVERAGE "Enable coverage" OFF)
