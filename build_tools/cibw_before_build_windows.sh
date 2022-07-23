@@ -14,6 +14,9 @@ pwd
 ls -al
 rm -Rf build
 cp -a build_nopython build
-cmake -B build -DENABLE_PYTHON=ON .
+which python
+python --version
+cmake -B build -DENABLE_PYTHON=ON -DPython3_EXECUTABLE="$(which python)" .
 cmake --build build
-cp -av build/wrapping/python/openmeeg/* wrapping/python/openmeeg/
+cp -av build/wrapping/python/openmeeg/*.pyd build/wrapping/python/openmeeg/openmeeg.py wrapping/python/openmeeg/
+rm -Rf build

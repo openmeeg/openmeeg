@@ -86,12 +86,10 @@ pip install cmake
 cmake --build build --target install --config release
 if [[ "$PLATFORM" == 'linux'* ]]; then
     ls -al install/lib64/*.so*
-else
-    ls -al $PWD/install/bin/*.dll*
+    cp install/lib64/*.so* /usr/local/lib/
 fi
 
 # TODO: This is only necessary because SWIG does not work outside cmake yet,
 # and we want this on windows
-cp -av build build_nopython
-rm -Rf build
+mv build build_nopython
 ls -al
