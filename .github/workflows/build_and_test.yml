@@ -131,7 +131,6 @@ jobs:
           echo "Setting blas_version=latest"
           echo '::set-output name=blas_version::latest'
         fi
-        echo '::set-output name=blas_version::${{matrix.blas_version}}'
         # Build docs on Ubuntu, not elsewhere (for speed)
         if [[ "${{matrix.os}}" == 'ubuntu'* ]]; then
           DOC_OPT="-DBUILD_DOCUMENTATION=ON"
