@@ -33,6 +33,7 @@ jobs:
           blas_linking: dynamic
           python: cmake
           python-version: '3.10'
+          numpy: numpyold
         #- os: windows-2019
         #  blas: OpenBLAS
         #  blas_linking: dynamic
@@ -49,6 +50,11 @@ jobs:
         - os: ubuntu-20.04
           blas: OpenBLAS
           python-version: 'pypy-3.9'
+        # One with latest numpy
+        - os: ubuntu-20.04
+          blas: OpenBLAS
+          python-version: '3.10'
+          numpy: numpydev
         ## Windows mingw64
         #- os: windows-2019
         #  windows_compiler: mingw64
@@ -92,6 +98,12 @@ jobs:
       run: |
         echo "OPENMEEG_DATA_PATH=$PWD/data" >> $GITHUB_ENV
         echo '::set-output name=os::${{matrix.os}}'
+        if [[ "${{matrix.numpy}}" == *'dev' ]]; then
+          echo '::set-output name=numpy_version::dev'
+        else
+          echo '::set-output name=numpy_version::oldest'
+        fi
+        echo '::set-output name=python_version::${{matrix.python-version}}'
         if [[ "${{matrix.blas_linking}}" == 'static' ]]; then
           echo "Enabling static BLAS"
           echo "BLA_STATIC_OPT=-DBLA_STATIC=ON" >> $GITHUB_ENV
@@ -165,7 +177,7 @@ jobs:
     # Use conda for all Python except PyPy
     - name: Python via conda
       uses: conda-incubator/setup-miniconda@v2
-      if: startswith(matrix.python, 'python') && !startswith(matrix.python-version, 'pypy')
+      if: startswith(steps.env-vars.outputs.python, 'python') && !startswith(steps.env-vars.outputs.python_version, 'pypy')
       with:
         activate-environment: "test"
         python-version: "3.10"
@@ -173,9 +185,9 @@ jobs:
         channel-priority: strict
     - name: Python via setup-python
       uses: actions/setup-python@v4
-      if: startswith(matrix.python, 'python') && startswith(matrix.python-version, 'pypy')
+      if: startswith(steps.env-vars.outputs.python, 'python') && startswith(steps.env-vars.outputs.python_version, 'pypy')
       with:
-        python-version: ${{ matrix.python-version }}
+        python-version: ${{ steps.env-vars.outputs.python_version }}
 
     - name: Python packages
       if: startswith(steps.env-vars.outputs.python, 'python')
@@ -192,7 +204,14 @@ jobs:
         else
           EXTRA_PIP=auditwheel
         fi
-        pip install --upgrade --progress-bar off -q numpy setuptools wheel twine pytest $EXTRA_PIP
+        if [[ ${{steps.env-vars.outputs.numpy_version}} == 'dev' ]]; then
+          echo "Installing NumPy main"
+        	pip install --upgrade --pre --only-binary ":all:" --default-timeout=60 -i "https://pypi.anaconda.org/scipy-wheels-nightly/simple" numpy
+        else
+          echo "Installing oldest supported NumPy"
+          NUMPY_PIP=oldest-supported-numpy
+        fi
+        pip install --upgrade --progress-bar off -q $NUMPY_PIP setuptools wheel twine pytest $EXTRA_PIP
 
     - name: MKL setup - mkl via conda
       if: startswith(steps.env-vars.outputs.blas,'mkl')
