@@ -32,5 +32,5 @@ environment = { OPENMEEG_LIB="../../install/lib", OPENMEEG_INCLUDE="../../instal
 
 [tool.cibuildwheel.windows]
 repair-wheel-command = "delvewheel repair -w {dest_dir} {wheel}"
-before-build = "bash {project}/build_tools/cibw_before_windows.sh {project}"
+before-build = "bash {project}/build_tools/cibw_before_build_windows.sh {project}"
 environment = { OPENMEEG_USE_SWIG="0" }
