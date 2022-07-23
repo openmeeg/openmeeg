@@ -34,15 +34,15 @@ jobs:
           python: cmake
           python-version: '3.10'
           numpy: numpyold
-        #- os: windows-2019
-        #  blas: OpenBLAS
-        #  blas_linking: dynamic
-        #  python: cmake
-        #  windows_compiler: msvc
-        #- os: macos-latest
-        #  blas: OpenBLAS
-        #  blas_linking: dynamic
-        #  python: cmake
+        - os: windows-2019
+          blas: OpenBLAS
+          blas_linking: dynamic
+          python: cmake
+          windows_compiler: msvc
+        - os: macos-latest
+          blas: OpenBLAS
+          blas_linking: dynamic
+          python: cmake
         # Latest OpenBLAS release
         - os: ubuntu-20.04
           blas: OpenBLAS-latest
@@ -55,30 +55,30 @@ jobs:
           blas: OpenBLAS
           python-version: '3.10'
           numpy: numpydev
-        ## Windows mingw64
-        #- os: windows-2019
-        #  windows_compiler: mingw64
-        ## MKL on each OS (static unless it has to be dynamic)
-        #- os: windows-2019
-        #  blas: mkl-findblas
-        #  blas_linking: static
-        #- os: ubuntu-20.04
-        #  blas: mkl-findblas
-        #- os: macos-latest
-        #  blas: mkl-findblas
-        #  blas_linking: static
-        ## ubuntu-18.04 build, but Python tests currently fail so use no-python
-        #- os: ubuntu-18.04
-        #  python: no-python
-        ## Windows static
-        #- os: windows-2019
-        #  blas: OpenBLAS
-        #  blas_linking: static
-        ## Setuptools
-        #- os: ubuntu-20.04
-        #  python: setuptools
-        #- os: macos-11
-        #  python: setuptools
+        # Windows mingw64
+        - os: windows-2019
+          windows_compiler: mingw64
+        # MKL on each OS (static unless it has to be dynamic)
+        - os: windows-2019
+          blas: mkl-findblas
+          blas_linking: static
+        - os: ubuntu-20.04
+          blas: mkl-findblas
+        - os: macos-latest
+          blas: mkl-findblas
+          blas_linking: static
+        # ubuntu-18.04 build, but Python tests currently fail so use no-python
+        - os: ubuntu-18.04
+          python: no-python
+        # Windows static
+        - os: windows-2019
+          blas: OpenBLAS
+          blas_linking: static
+        # Setuptools
+        - os: ubuntu-20.04
+          python: setuptools
+        - os: macos-11
+          python: setuptools
         # TODO: Still broken
         #- os: windows-2019
         #  blas: OpenBLAS
