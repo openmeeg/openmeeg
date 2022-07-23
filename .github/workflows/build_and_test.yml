@@ -286,7 +286,7 @@ jobs:
         curl -LO https://github.com/xianyi/OpenBLAS/archive/refs/tags/v0.3.20.tar.gz
         tar xzf v0.3.20.tar.gz
         ls -al
-        cd OpenBLAS-v0.3.20
+        cd OpenBLAS-OpenBLAS-0.3.20
         ls -alR .
         make NO_FORTRAN=0 NO_STATIC=0 NO_DYNAMIC=0 NUM_THREADS=24 NO_WARMUP=1
         sudo make install PREFIX=/usr/local
