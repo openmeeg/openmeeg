@@ -18,7 +18,7 @@ which python
 python --version
 python -m pip install oldest-supported-numpy
 cmake -B build -DENABLE_PYTHON=ON -DPython3_EXECUTABLE="$(which python)" .
-cmake --build build
+cmake --build build --config Release
 python -m pip uninstall numpy
 cp -av build/wrapping/python/openmeeg/*.pyd build/wrapping/python/openmeeg/openmeeg.py wrapping/python/openmeeg/
 rm -Rf build
