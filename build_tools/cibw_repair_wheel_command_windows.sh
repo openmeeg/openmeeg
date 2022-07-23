@@ -1,7 +1,7 @@
 #!/bin/bash
 
 set -e
-if [[ "$1" == "" ]] || [[ "$2" == ""]]; then
+if [[ "$1" == "" ]] || [[ "$2" == "" ]]; then
     echo "Usage: $0 <DEST_DIR> <WHEEL>"
     exit 1
 fi
