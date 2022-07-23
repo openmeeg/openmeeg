@@ -86,15 +86,12 @@ pip install cmake
 cmake --build build --target install --config release
 if [[ "$PLATFORM" == 'linux'* ]]; then
     ls -al install/lib64/*.so*
-elif [[ "$PLATFORM" == 'macosx'* ]]; then
-    ls -al install/lib/*.dylib*
 else
     ls -al $PWD/install/bin/*.dll*
 fi
 
-# TODO: This is only necessary because SWIG does not work outside cmake yet
-if [[ "$PLATFORM" == "win-amd64" ]]; then
-    pwd
-    cp -av build build_nopython
-fi
+# TODO: This is only necessary because SWIG does not work outside cmake yet,
+# and we want this on windows
+cp -av build build_nopython
 rm -Rf build
+ls -al
