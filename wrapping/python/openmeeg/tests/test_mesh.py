@@ -1,10 +1,13 @@
+import os
 from os import path as path
 
 import numpy as np
-
+import pytest
 import openmeeg as om
 
 
+@pytest.mark.skipif(os.getenv('OPENMEEG_BAD_PYPY') == '1',
+                    reason="bug with PyPy support")
 def test_mesh_full(data_path):
     def test_mesh(name, vertices, triangles, expected_result):
         try:

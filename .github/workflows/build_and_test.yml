@@ -32,6 +32,7 @@ jobs:
           blas: OpenBLAS
           blas_linking: dynamic
           python: cmake
+          python-version: '3.10'
         #- os: windows-2019
         #  blas: OpenBLAS
         #  blas_linking: dynamic
@@ -44,8 +45,10 @@ jobs:
         # Latest OpenBLAS release
         - os: ubuntu-20.04
           blas: OpenBLAS-latest
-          blas_linking: dynamic
-          python: cmake
+        # PyPy build
+        - os: ubuntu-20.04
+          blas: OpenBLAS
+          python-version: 'pypy-3.9'
         ## Windows mingw64
         #- os: windows-2019
         #  windows_compiler: mingw64
@@ -159,18 +162,28 @@ jobs:
       with:
         key: ${{ github.job }}-${{ steps.env-vars.outputs.os }}
 
-    # Always use conda for Python
+    # Use conda for all Python except PyPy
     - name: Python via conda
       uses: conda-incubator/setup-miniconda@v2
+      if: startswith(matrix.python, 'python') && !startswith(matrix.python-version, 'pypy')
       with:
         activate-environment: "test"
         python-version: "3.10"
         channels: conda-forge
         channel-priority: strict
+    - name: Python via setup-python
+      uses: actions/setup-python@v4
+      if: startswith(matrix.python, 'python') && startswith(matrix.python-version, 'pypy')
+      with:
+        python-version: ${{ matrix.python-version }}
 
     - name: Python packages
       if: startswith(steps.env-vars.outputs.python, 'python')
       run: |
+        which python
+        python --version
+        which pip
+        pip --version
         pip install --upgrade -q pip
         if [[ ${{steps.env-vars.outputs.os}} == 'windows'* ]]; then
           EXTRA_PIP=delvewheel
