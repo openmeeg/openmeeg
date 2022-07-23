@@ -31,47 +31,53 @@ jobs:
         - os: ubuntu-20.04
           blas: OpenBLAS
           blas_linking: dynamic
+          blas_version: apt
           python: cmake
-        - os: windows-2019
+        #- os: windows-2019
+        #  blas: OpenBLAS
+        #  blas_linking: dynamic
+        #  python: cmake
+        #  windows_compiler: msvc
+        #- os: macos-latest
+        #  blas: OpenBLAS
+        #  blas_linking: dynamic
+        #  python: cmake
+        # Latest OpenBLAS release
+        - os: ubuntu-20.04
           blas: OpenBLAS
           blas_linking: dynamic
+          blas_version: latest
           python: cmake
-          windows_compiler: msvc
-        - os: macos-latest
-          blas: OpenBLAS
-          blas_linking: dynamic
-          python: cmake
-        # Windows mingw64
-        - os: windows-2019
-          windows_compiler: mingw64
-        # MKL on each OS (static unless it has to be dynamic)
-        - os: windows-2019
-          blas: mkl-findblas
-          blas_linking: static
-        - os: ubuntu-20.04
-          blas: mkl-findblas
-        - os: macos-latest
-          blas: mkl-findblas
-          blas_linking: static
-        # ubuntu-18.04 build, but Python tests currently fail so use no-python
-        - os: ubuntu-18.04
-          python: no-python
-        # Windows static
-        - os: windows-2019
-          blas: OpenBLAS
-          blas_linking: static
-        # Setuptools
-        - os: ubuntu-20.04
-          python: setuptools
-        - os: macos-11
-          python: setuptools
+        ## Windows mingw64
+        #- os: windows-2019
+        #  windows_compiler: mingw64
+        ## MKL on each OS (static unless it has to be dynamic)
+        #- os: windows-2019
+        #  blas: mkl-findblas
+        #  blas_linking: static
+        #- os: ubuntu-20.04
+        #  blas: mkl-findblas
+        #- os: macos-latest
+        #  blas: mkl-findblas
+        #  blas_linking: static
+        ## ubuntu-18.04 build, but Python tests currently fail so use no-python
+        #- os: ubuntu-18.04
+        #  python: no-python
+        ## Windows static
+        #- os: windows-2019
+        #  blas: OpenBLAS
+        #  blas_linking: static
+        ## Setuptools
+        #- os: ubuntu-20.04
+        #  python: setuptools
+        #- os: macos-11
+        #  python: setuptools
         # TODO: Still broken
         #- os: windows-2019
         #  blas: OpenBLAS
         #  blas_linking: dynamic
         #  python: setuptools
         #  windows_compiler: msvc
-
 
     runs-on: ${{ matrix.os }}
 
@@ -93,6 +99,7 @@ jobs:
         else
           echo '::set-output name=blas_linking::dynamic'
         fi
+        echo '::set-output name=blas_version::${{matrix.blas_version}}'
         if [[ "${{matrix.python}}" == 'no-python' ]]; then
           echo "Disabling Python"
           echo "PYTHON_OPT=-DENABLE_PYTHON=OFF" >> $GITHUB_ENV
@@ -267,10 +274,20 @@ jobs:
       if: startsWith(steps.env-vars.outputs.os,'ubuntu')
       run: |
         sudo apt update -q
-        if [[ "${{ steps.env-vars.outputs.blas }}" == "OpenBLAS" ]]; then
+        if [[ "${{ steps.env-vars.outputs.blas }}" == "OpenBLAS" ]] && [[ "${{ steps.env-vars.outputs.blas_version }}" != "latest" ]]; then
           APT_EXTRA=libopenblas-dev
         fi
         sudo apt -yq install liblapacke-dev doxygen graphviz libhdf5-dev libmatio-dev libvtk7-dev lcov $APT_EXTRA
+
+    - name: Linux - OpenBLAS via GitHub
+      if: startsWith(steps.env-vars.outputs.os,'ubuntu') && startsWith(steps.env-vars.outputs.blas_version,'latest')
+      run: |
+        curl -LO https://github.com/xianyi/OpenBLAS/releases/download/v0.3.20/OpenBLAS-0.3.20.tar.gz
+        tar xzf OpenBLAS-0.3.20.tar.gz
+        ls -al
+        cd OpenBLAS-0.3.20
+        make DYNAMIC_ARCH=0
+        sudo make install
 
     - name: Configure
       run: |
