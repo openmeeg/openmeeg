@@ -36,7 +36,7 @@ environment = { OPENMEEG_LIB="../../install/lib", OPENMEEG_INCLUDE="../../instal
 
 [tool.cibuildwheel.windows]
 repair-wheel-command = [
-  "export PATH='$GITHUB_WORKSPACE\install\bin;$PATH'",
+  "export PATH='$GITHUB_WORKSPACE\\install\\bin;$PATH'",
   "delvewheel repair -w {dest_dir} {wheel}"
 ]
 before-build = "bash {project}/build_tools/cibw_before_build_windows.sh {project}"
