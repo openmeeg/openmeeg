@@ -286,7 +286,7 @@ jobs:
         tar xzf OpenBLAS-0.3.20.tar.gz
         ls -al
         cd OpenBLAS-0.3.20
-        make DYNAMIC_ARCH=0
+        make DYNAMIC_ARCH=0 PREFIX=/usr/local
         sudo make install
 
     - name: Configure
