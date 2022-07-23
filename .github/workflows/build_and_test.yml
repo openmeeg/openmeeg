@@ -384,7 +384,7 @@ jobs:
           export DYLD_LIBRARY_PATH="$CONDA_PREFIX/lib:$PWD/install/lib:$DYLD_LIBRARY_PATH"
           echo "DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH"
         else
-          export LD_LIBRARY_PATH="$CONDA_PREFIX/lib:$PWD/install/lib:LD_LIBRARY_PATH"
+          export LD_LIBRARY_PATH="$CONDA_PREFIX/lib:$PWD/install/lib:/usr/local/lib:LD_LIBRARY_PATH"
           echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH"
         fi
         ./install/bin/om_minverser --help
@@ -428,8 +428,8 @@ jobs:
             echo "DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH"
             echo "CPATH=$CPATH"
           else
-            export LD_LIBRARY_PATH="$CONDA_PREFIX/lib:$PWD/install/lib:LD_LIBRARY_PATH"
-            export LIBRARY_PATH="$CONDA_PREFIX/lib:$PWD/install/lib:LIBRARY_PATH"
+            export LD_LIBRARY_PATH="$CONDA_PREFIX/lib:$PWD/install/lib:/usr/local/lib:LD_LIBRARY_PATH"
+            export LIBRARY_PATH="$CONDA_PREFIX/lib:$PWD/install/lib:/usr/local/lib:LIBRARY_PATH"
             echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH"
           fi
           cd wrapping/python  # in root
