@@ -283,12 +283,13 @@ jobs:
     - name: Linux - OpenBLAS via GitHub
       if: startsWith(steps.env-vars.outputs.os,'ubuntu') && startsWith(steps.env-vars.outputs.blas_version,'latest')
       run: |
-        curl -LO https://github.com/xianyi/OpenBLAS/releases/download/v0.3.20/OpenBLAS-0.3.20.tar.gz
-        tar xzf OpenBLAS-0.3.20.tar.gz
+        curl -LO https://github.com/xianyi/OpenBLAS/archive/refs/tags/v0.3.20.tar.gz
+        tar xzf v0.3.20.tar.gz
         ls -al
-        cd OpenBLAS-0.3.20
-        cmake -B build -DDYNAMIC_ARCH=FALSE -DNO_FORTRAN=OFF -DNO_STATIC=OFF -DNO_DYNAMIC=OFF -DNUM_THREADS=24 -DNO_WARMUP=TRUE -DBUILD_TESTING=OFF .
-        cmake -B build --target install --install-prefix=/usr/local
+        cd OpenBLAS-v0.3.20
+        ls -alR .
+        make NO_FORTRAN=0 NO_STATIC=0 NO_DYNAMIC=0 NUM_THREADS=24 NO_WARMUP=1
+        sudo make install PREFIX=/usr/local
 
     - name: Configure
       run: |
