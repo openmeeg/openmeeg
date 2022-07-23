@@ -50,6 +50,8 @@ jobs:
         - os: ubuntu-20.04
           blas: OpenBLAS
           python-version: 'pypy-3.9'
+          env:
+            OPENMEEG_BAD_PYPY: '1'
         # One with latest numpy
         - os: ubuntu-20.04
           blas: OpenBLAS
