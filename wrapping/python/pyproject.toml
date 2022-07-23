@@ -17,6 +17,10 @@ environment = { OPENMEEG_LIB="../../install/lib", OPENMEEG_INCLUDE="../../instal
 
 [tool.cibuildwheel.linux]
 manylinux-x86_64-image = "manylinux_2_28"
+repair-wheel-command = [
+  "export LD_LIBRARY_PATH=$GITHUB_WORKSPACE/install/lib64",
+  "auditwheel repair -w {dest_dir} {wheel}"
+]
 manylinux-aarch64-image = "manylinux_2_28"
 environment = { OPENMEEG_LIB="../../install/lib64", OPENMEEG_INCLUDE="../../install/include/OpenMEEG", OPENMEEG_USE_SWIG="1", OPENBLAS_INCLUDE="/usr/local/include", RUNNER_OS="Linux" }
 
@@ -31,6 +35,9 @@ repair-wheel-command = [
 environment = { OPENMEEG_LIB="../../install/lib", OPENMEEG_INCLUDE="../../install/include/OpenMEEG", OPENMEEG_USE_SWIG="1", OPENBLAS_INCLUDE="/usr/local/include" }
 
 [tool.cibuildwheel.windows]
-repair-wheel-command = "delvewheel repair -w {dest_dir} {wheel}"
+repair-wheel-command = [
+  "export PATH='$GITHUB_WORKSPACE\install\bin;$PATH'",
+  "delvewheel repair -w {dest_dir} {wheel}"
+]
 before-build = "bash {project}/build_tools/cibw_before_build_windows.sh {project}"
 environment = { OPENMEEG_USE_SWIG="0" }

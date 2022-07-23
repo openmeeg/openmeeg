@@ -8,8 +8,10 @@ fi
 ROOT=$1
 echo "Using project root \"${ROOT}\" on RUNNER_OS=\"${RUNNER_OS}\""
 cd $ROOT
+pwd
 
 # Build the Python bindings on Windows
+ls -al
 rm -Rf build
 cp -a build_nopython build
 cmake -B build -DENABLE_PYTHON=ON .
