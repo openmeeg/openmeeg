@@ -25,8 +25,7 @@ jobs:
           archs_macos: "x86_64"
         - os: macos-11
           archs_macos: "arm64"
-        # TODO: Reenable windows
-        # - os: windows-2019
+        - os: windows-2019
 
     steps:
       - uses: actions/checkout@v3

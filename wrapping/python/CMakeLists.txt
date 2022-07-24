@@ -27,18 +27,9 @@ include_directories(${Python3_INCLUDE_DIRS}
                     ${PROJECT_SOURCE_DIR}/OpenMEEGMaths/include/
 )
 
-# CMake changed the swig target name in version 3.13
-
-if (${CMAKE_VERSION} VERSION_GREATER "3.13")
-    cmake_policy(SET CMP0078 NEW)
-    set(SWIG_TARGET_NAME "openmeeg")
-else()
-    set(SWIG_TARGET_NAME "_openmeeg")
-endif()
-
-if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.14")
-    cmake_policy(SET CMP0086 NEW) # Use NEW policy as we do not use SWIG_MODULE_NAME
-endif()
+cmake_policy(SET CMP0078 NEW)
+set(SWIG_TARGET_NAME "openmeeg")
+cmake_policy(SET CMP0086 NEW) # Use NEW policy as we do not use SWIG_MODULE_NAME
 
 find_package(SWIG REQUIRED)
 

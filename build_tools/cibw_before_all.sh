@@ -74,7 +74,6 @@ elif [[ "$PLATFORM" == "win-amd64" ]]; then
     source ./build_tools/download_openblas.sh windows  # NumPy doesn't install the headers for Windows
     pip install delvewheel
     SYSTEM_VERSION_OPT="-DCMAKE_SYSTEM_VERSION=7"
-    #export BLA_STATIC_OPT="-DBLA_STATIC=ON"
 else
     echo "Unknown platform: ${PLATFORM}"
     exit 1
@@ -85,15 +84,18 @@ export DISABLE_CCACHE=1
 pip install cmake
 ./build_tools/cmake_configure.sh -DCMAKE_VERBOSE_MAKEFILE=ON -DCMAKE_INSTALL_PREFIX=${ROOT}/install ${OPENMP_OPT} ${SYSTEM_VERSION_OPT} ${CMAKE_OSX_ARCH_OPT} ${CMAKE_PREFIX_PATH_OPT} -DENABLE_APPS=OFF ${SHARED_OPT} -DCMAKE_INSTALL_UCRT_LIBRARIES=TRUE ${BLAS_LIBRARIES_OPT} ${LAPACK_LIBRARIES_OPT}
 cmake --build build --target install --config release
-# make life easier for auditwheel/delocate/delvewheel
+
+# Put DLLs where they can be found
 if [[ "$PLATFORM" == 'linux'* ]]; then
     ls -al install/lib64/*.so*
-    cp install/lib64/*.so* /usr/local/lib/
-elif [[ "$PLATFORM" == 'macosx'* ]]; then
-    ls -al install/lib/*.dylib*
-    sudo mkdir -p /usr/local/lib
-    sudo cp install/lib/*.dylib* /usr/local/lib/
-else
-    ls -al $PWD/install/bin/*.dll*
-    cp $PWD/install/bin/*.dll* .
+    cp -a install/lib64/*.so* /usr/local/lib/
+elif [[ "$PLATFORM" == 'win'* ]]; then
+    cp -a $OPENBLAS_LIB/libopenblas_v0.3.20-140-gbfd9c1b5-gcc_8_1_0.dll install/bin
 fi
+
+# TODO: This is only necessary because SWIG does not work outside cmake yet,
+# and we want this on windows
+if [[ "$PLATFORM" == 'win'* ]]; then
+    mv build build_nopython
+fi
+ls -al
