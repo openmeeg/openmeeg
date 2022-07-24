@@ -23,9 +23,8 @@ jobs:
         - os: ubuntu-20.04
         - os: macos-11
           archs_macos: "x86_64"
-        # TODO: Restore
-        #- os: macos-11
-        #  archs_macos: "arm64"
+        - os: macos-11
+          archs_macos: "arm64"
         - os: windows-2019
 
     steps:
