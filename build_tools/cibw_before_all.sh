@@ -84,12 +84,18 @@ export DISABLE_CCACHE=1
 pip install cmake
 ./build_tools/cmake_configure.sh -DCMAKE_VERBOSE_MAKEFILE=ON -DCMAKE_INSTALL_PREFIX=${ROOT}/install ${OPENMP_OPT} ${SYSTEM_VERSION_OPT} ${CMAKE_OSX_ARCH_OPT} ${CMAKE_PREFIX_PATH_OPT} -DENABLE_APPS=OFF ${SHARED_OPT} -DCMAKE_INSTALL_UCRT_LIBRARIES=TRUE ${BLAS_LIBRARIES_OPT} ${LAPACK_LIBRARIES_OPT}
 cmake --build build --target install --config release
+
+# Put DLLs where they can be found
 if [[ "$PLATFORM" == 'linux'* ]]; then
     ls -al install/lib64/*.so*
-    cp install/lib64/*.so* /usr/local/lib/
+    cp -a install/lib64/*.so* /usr/local/lib/
+elif [[ "$PLATFORM" == 'win'* ]]; then
+    cp -a $OPENBLAS_LIB/libopenblas_v0.3.20-140-gbfd9c1b5-gcc_8_1_0.dll install/bin
 fi
 
 # TODO: This is only necessary because SWIG does not work outside cmake yet,
 # and we want this on windows
-mv build build_nopython
+if [[ "$PLATFORM" == 'win'* ]]; then
+    mv build build_nopython
+fi
 ls -al
