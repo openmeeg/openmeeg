@@ -4,7 +4,8 @@
 requires = [
     "setuptools==59.2.0",
     "wheel==0.37.0",
-    "oldest-supported-numpy"
+    "oldest-supported-numpy; platform_python_implementation!='PyPy'",
+    "numpy==1.21.0; platform_python_implementation=='PyPy'",
 ]
 
 [tool.cibuildwheel]
