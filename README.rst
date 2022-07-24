@@ -1,4 +1,4 @@
-|GitHub Actions|_ |lgtm|_ |CodeCov|_ |PyPiVersion|_ |condaVersion|_
+|GitHub Actions|_ |lgtm|_ |CodeCov|_ |PyPIVersion|_ |condaVersion|_
 
 .. |GitHub Actions| image:: https://github.com/openmeeg/openmeeg/actions/workflows/build_and_test.yml/badge.svg
 .. _Github Actions: https://github.com/openmeeg/openmeeg/actions/workflows/build_and_test.yml
@@ -11,6 +11,7 @@
 
 .. |PyPIVersion| image:: https://badge.fury.io/py/openmeeg.svg
 .. _PyPIVersion: https://badge.fury.io/py/openmeeg
+
 .. |condaVersion| image:: https://anaconda.org/conda-forge/openmeeg/badges/version.svg
 .. _condaVersion: https://anaconda.org/conda-forge/openmeeg
 
