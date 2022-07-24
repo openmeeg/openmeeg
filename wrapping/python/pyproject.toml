@@ -4,7 +4,7 @@
 requires = [
     "setuptools==59.2.0",
     "wheel==0.37.0",
-    "oldest-supported-numpy",
+    "oldest-supported-numpy"
 ]
 
 [tool.cibuildwheel]
