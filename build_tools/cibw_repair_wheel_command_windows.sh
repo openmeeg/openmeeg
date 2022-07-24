@@ -14,4 +14,4 @@ ADD_PATH=$(cygpath -w $ADD_PATH)
 echo "Adding path \"$ADD_PATH\""
 set -x
 delvewheel show --add-path="$ADD_PATH" "$WHEEL"
-delvewheel repair --add-path="$ADD_PATH" -w "$DEST_DIR" "$WHEEL"
+delvewheel repair --add-path="$ADD_PATH" --no-mangle="libquadmath-0.dll;libgcc_s_seh-1.dll" -w "$DEST_DIR" "$WHEEL"
