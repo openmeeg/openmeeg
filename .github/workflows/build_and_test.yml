@@ -208,7 +208,7 @@ jobs:
           echo "Installing oldest supported NumPy"
           NUMPY_PIP=oldest-supported-numpy
         fi
-        pip install --upgrade --progress-bar off -q $NUMPY_PIP setuptools wheel twine pytest $EXTRA_PIP
+        pip install --upgrade --progress-bar off --only-binary="numpy" -q $NUMPY_PIP setuptools wheel twine pytest $EXTRA_PIP
 
     - name: MKL setup - mkl via conda
       if: startswith(steps.env-vars.outputs.blas,'mkl')

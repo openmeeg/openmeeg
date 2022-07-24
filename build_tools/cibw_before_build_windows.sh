@@ -16,7 +16,13 @@ rm -Rf build
 cp -a build_nopython build
 which python
 python --version
-python -m pip install oldest-supported-numpy
+IS_PYPY=$(python -c "import sys; print(int('pypy' in sys.implementation.name))")
+if [[ "$IS_PYPY" == "1" ]]; then
+    NUMPY_PIP="numpy==1.23.0"
+else
+    NUMPY_PIP="oldest-supported-numpy"
+fi
+python -m pip install "$NUMPY_PIP" --only-binary="numpy"
 cmake -B build -DENABLE_PYTHON=ON -DPython3_EXECUTABLE="$(which python)" .
 cmake --build build --config Release
 python -m pip uninstall -yq numpy
