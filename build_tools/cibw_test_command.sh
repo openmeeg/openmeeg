@@ -14,7 +14,7 @@ if [[ "$OPENMEEG_BAD_MSVC" == "" ]]; then
     export OPENMEEG_BAD_MSVC=$(python -c "import sys; print(int(sys.platform=='win32'))")
 fi
 if [[ "$OPENMEEG_BAD_PYPY" == "" ]]; then
-    export OPENMEEG_BAD_PYPY=0
+    export OPENMEEG_BAD_PYPY=$(python -c "import sys; print(int('pypy' in sys.implementation.name))")
 fi
 TEST_PATH=$(python -c 'from pathlib import Path; import openmeeg; print(Path(openmeeg.__file__).parent)')
 echo "OPENMEEG_DATA_PATH=\"$OPENMEEG_DATA_PATH\""
