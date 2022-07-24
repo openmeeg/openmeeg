@@ -32,6 +32,8 @@ jobs:
         #  blas: OpenBLAS
         #  blas_linking: dynamic
         #  python: cmake
+        #  python-version: '3.10'
+        #  numpy: numpyold
         - os: windows-2019
           blas: OpenBLAS
           blas_linking: dynamic
@@ -41,6 +43,18 @@ jobs:
         #  blas: OpenBLAS
         #  blas_linking: dynamic
         #  python: cmake
+        ## Latest OpenBLAS release
+        #- os: ubuntu-20.04
+        #  blas: OpenBLAS-latest
+        ## PyPy build
+        #- os: ubuntu-20.04
+        #  blas: OpenBLAS
+        #  python-version: 'pypy-3.9'
+        ## One with latest numpy
+        #- os: ubuntu-20.04
+        #  blas: OpenBLAS
+        #  python-version: '3.10'
+        #  numpy: numpydev
         ## Windows mingw64
         #- os: windows-2019
         #  windows_compiler: mingw64
@@ -65,13 +79,6 @@ jobs:
         #  python: setuptools
         #- os: macos-11
         #  python: setuptools
-        # TODO: Fix this someday
-        #- os: windows-2019
-        #  blas: OpenBLAS
-        #  blas_linking: dynamic
-        #  python: setuptools
-        #  windows_compiler: msvc
-
 
     runs-on: ${{ matrix.os }}
 
@@ -85,6 +92,15 @@ jobs:
       run: |
         echo "OPENMEEG_DATA_PATH=$PWD/data" >> $GITHUB_ENV
         echo '::set-output name=os::${{matrix.os}}'
+        if [[ "${{matrix.numpy}}" == *'dev' ]]; then
+          echo '::set-output name=numpy_version::dev'
+        else
+          echo '::set-output name=numpy_version::oldest'
+        fi
+        echo '::set-output name=python_version::${{matrix.python-version}}'
+        if [[ "${{matrix.python-version}}" == 'pypy'* ]]; then
+          echo "OPENMEEG_BAD_PYPY=1" >> $GITHUB_ENV
+        fi
         if [[ "${{matrix.blas_linking}}" == 'static' ]]; then
           echo "Enabling static BLAS"
           echo "BLA_STATIC_OPT=-DBLA_STATIC=ON" >> $GITHUB_ENV
@@ -123,6 +139,10 @@ jobs:
         else
           echo '::set-output name=blas::OpenBLAS'
         fi
+        if [[ "${{matrix.blas}}" == *'-latest' ]]; then
+          echo "Setting blas_version=latest"
+          echo '::set-output name=blas_version::latest'
+        fi
         # Build docs on Ubuntu, not elsewhere (for speed)
         if [[ "${{matrix.os}}" == 'ubuntu'* ]]; then
           DOC_OPT="-DBUILD_DOCUMENTATION=ON"
@@ -151,18 +171,28 @@ jobs:
       with:
         key: ${{ github.job }}-${{ steps.env-vars.outputs.os }}
 
-    # Always use conda for Python
+    # Use conda for all Python except PyPy
     - name: Python via conda
       uses: conda-incubator/setup-miniconda@v2
+      if: startswith(steps.env-vars.outputs.python, 'python') && !startswith(steps.env-vars.outputs.python_version, 'pypy')
       with:
         activate-environment: "test"
         python-version: "3.10"
         channels: conda-forge
         channel-priority: strict
+    - name: Python via setup-python
+      uses: actions/setup-python@v4
+      if: startswith(steps.env-vars.outputs.python, 'python') && startswith(steps.env-vars.outputs.python_version, 'pypy')
+      with:
+        python-version: ${{ steps.env-vars.outputs.python_version }}
 
     - name: Python packages
       if: startswith(steps.env-vars.outputs.python, 'python')
       run: |
+        which python
+        python --version
+        which pip
+        pip --version
         pip install --upgrade -q pip
         if [[ ${{steps.env-vars.outputs.os}} == 'windows'* ]]; then
           EXTRA_PIP=delvewheel
@@ -171,7 +201,14 @@ jobs:
         else
           EXTRA_PIP=auditwheel
         fi
-        pip install --upgrade --progress-bar off -q numpy setuptools wheel twine pytest $EXTRA_PIP
+        if [[ ${{steps.env-vars.outputs.numpy_version}} == 'dev' ]]; then
+          echo "Installing NumPy main"
+        	pip install --upgrade --pre --only-binary ":all:" --default-timeout=60 -i "https://pypi.anaconda.org/scipy-wheels-nightly/simple" numpy
+        else
+          echo "Installing oldest supported NumPy"
+          NUMPY_PIP=oldest-supported-numpy
+        fi
+        pip install --upgrade --progress-bar off -q $NUMPY_PIP setuptools wheel twine pytest $EXTRA_PIP
 
     - name: MKL setup - mkl via conda
       if: startswith(steps.env-vars.outputs.blas,'mkl')
@@ -267,10 +304,21 @@ jobs:
       if: startsWith(steps.env-vars.outputs.os,'ubuntu')
       run: |
         sudo apt update -q
-        if [[ "${{ steps.env-vars.outputs.blas }}" == "OpenBLAS" ]]; then
+        if [[ "${{ steps.env-vars.outputs.blas }}" == "OpenBLAS" ]] && [[ "${{ steps.env-vars.outputs.blas_version }}" != "latest" ]]; then
           APT_EXTRA=libopenblas-dev
         fi
         sudo apt -yq install liblapacke-dev doxygen graphviz libhdf5-dev libmatio-dev libvtk7-dev lcov $APT_EXTRA
+
+    - name: Linux - OpenBLAS via GitHub
+      if: startsWith(steps.env-vars.outputs.os,'ubuntu') && startsWith(steps.env-vars.outputs.blas_version,'latest')
+      run: |
+        curl -LO https://github.com/xianyi/OpenBLAS/archive/refs/tags/v0.3.20.tar.gz
+        tar xzf v0.3.20.tar.gz
+        ls -al
+        cd OpenBLAS-0.3.20
+        ls -alR .
+        make NO_FORTRAN=0 NO_STATIC=0 NO_DYNAMIC=0 NUM_THREADS=24 NO_WARMUP=1
+        sudo make install PREFIX=/usr/local
 
     - name: Configure
       run: |
@@ -279,7 +327,8 @@ jobs:
         elif [[ "${{steps.env-vars.outputs.os}}" == 'ubuntu'* ]]; then
           export EXTRA_COV="-DENABLE_COVERAGE=ON"
         fi
-        source ./build_tools/cmake_configure.sh --install-prefix=$PWD/install -DCMAKE_VERBOSE_MAKEFILE=ON $EXTRA_UCRT $EXTRA_COV
+        EXT_SUFFIX=$(python -c "import sysconfig;print(sysconfig.get_config_var('EXT_SUFFIX'))")
+        source ./build_tools/cmake_configure.sh --install-prefix=$PWD/install -DCMAKE_VERBOSE_MAKEFILE=ON $EXTRA_UCRT $EXTRA_COV -DPython3_EXT_SUFFIX=$EXT_SUFFIX -DPYTHON_FORCE_EXT_SUFFIX=ON
 
     - name: Build
       run: |
@@ -352,12 +401,13 @@ jobs:
           export DYLD_LIBRARY_PATH="$CONDA_PREFIX/lib:$PWD/install/lib:$DYLD_LIBRARY_PATH"
           echo "DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH"
         else
-          export LD_LIBRARY_PATH="$CONDA_PREFIX/lib:$PWD/install/lib:LD_LIBRARY_PATH"
+          export LD_LIBRARY_PATH="$CONDA_PREFIX/lib:$PWD/install/lib:/usr/local/lib:LD_LIBRARY_PATH"
           echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH"
         fi
         ./install/bin/om_minverser --help
         if [[ "${{steps.env-vars.outputs.python_type}}" == 'cmake' ]]; then
           PYVER=$(python -c "import sys; print('.'.join(sys.version.split('.')[:2]))")
+          PYNAME=$(python -c "import sys; print('pypy' if 'pypy' in sys.implementation.name else 'python')")
           if [[ "${{steps.env-vars.outputs.os}}" == 'windows'* ]]; then
             export PYTHONPATH=$PWD/install/lib/site-packages
             curl -LO https://github.com/lucasg/Dependencies/releases/download/v1.11.1/Dependencies_x64_Release.zip
@@ -366,7 +416,7 @@ jobs:
             cp build/*.dll $PWD/install/lib/site-packages/openmeeg/
             ./Dependencies/Dependencies.exe -modules $PWD/install/lib/site-packages/openmeeg/_openmeeg.pyd
           else
-            export PYTHONPATH=$PWD/install/lib/python${PYVER}/site-packages
+            export PYTHONPATH=$PWD/install/lib/${PYNAME}${PYVER}/site-packages
           fi
           echo "PYTHONPATH=$PYTHONPATH"
           python -c "import openmeeg; print(openmeeg.sqr(4)); assert openmeeg.sqr(4) == 16"
@@ -396,8 +446,8 @@ jobs:
             echo "DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH"
             echo "CPATH=$CPATH"
           else
-            export LD_LIBRARY_PATH="$CONDA_PREFIX/lib:$PWD/install/lib:LD_LIBRARY_PATH"
-            export LIBRARY_PATH="$CONDA_PREFIX/lib:$PWD/install/lib:LIBRARY_PATH"
+            export LD_LIBRARY_PATH="$CONDA_PREFIX/lib:$PWD/install/lib:/usr/local/lib:LD_LIBRARY_PATH"
+            export LIBRARY_PATH="$CONDA_PREFIX/lib:$PWD/install/lib:/usr/local/lib:LIBRARY_PATH"
             echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH"
           fi
           cd wrapping/python  # in root
