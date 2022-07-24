@@ -46,7 +46,7 @@ jobs:
           path: ./wheelhouse/*.whl
 
   upload_test_pypi:
-    name: Upload to TestPyPi
+    name: Upload to TestPyPI
     needs: [build_wheels]
     runs-on: ubuntu-latest
     # upload to Test PyPI for every commit on main branch
@@ -63,18 +63,18 @@ jobs:
           repository_url: https://test.pypi.org/legacy/
           skip_existing: true
 
-  #upload_pypi:
-  #  name: Upload to PyPi
-  #  needs: [build_wheels]
-  #  runs-on: ubuntu-latest
-  #  # upload to PyPI on every tag (we assume these are releases!)
-  #  if: github.event_name == 'release' && github.event.action == 'published'
-  #  steps:
-  #  - uses: actions/download-artifact@v2
-  #    with:
-  #      name: artifact
-  #      path: dist
-  #  - uses: pypa/gh-action-pypi-publish@master
-  #    with:
-  #      user: __token__
-  #      password: ${{ secrets.OPENMEEG_PYPI_TOKEN }}
+  upload_pypi:
+    name: Upload to PyPI
+    needs: [build_wheels]
+    runs-on: ubuntu-latest
+    # upload to PyPI on every tag (we assume these are releases!)
+    if: github.event_name == 'release' && github.event.action == 'published'
+    steps:
+    - uses: actions/download-artifact@v2
+      with:
+        name: artifact
+        path: dist
+    - uses: pypa/gh-action-pypi-publish@master
+      with:
+        user: __token__
+        password: ${{ secrets.OPENMEEG_PYPI_TOKEN }}
