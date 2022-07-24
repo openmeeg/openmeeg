@@ -4,11 +4,13 @@
 requires = [
     "setuptools==59.2.0",
     "wheel==0.37.0",
-    "numpy"
+    "oldest-supported-numpy; platform_python_implementation!='PyPy'",
+    "numpy==1.23.0; platform_python_implementation=='PyPy'",
 ]
 
 [tool.cibuildwheel]
-skip = "cp36-* *-manylinux_i686 *_ppc64le *_s390x *-musllinux* *-win32 pp*"
+# TODO: only 3.8 until NumPy supplies wheels for 3.9
+skip = "cp36-* *-manylinux_i686 *_ppc64le *_s390x *-musllinux* *-win32 pp37* pp39* pp*-win_*"
 build-verbosity = "3"
 before-all = "bash {project}/build_tools/cibw_before_all.sh {project}"
 test-requires = "pytest"
