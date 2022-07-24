@@ -7,7 +7,7 @@ if [[ "$1" == "" ]] || [[ "$2" == "" ]]; then
 fi
 DEST_DIR=$1
 WHEEL=$2
-set -x
 
-export PATH="(cygwin -u $GITHUB_WORKSPACE)/install/bin:$PATH"
-delvewheel repair -w "$DEST_DIR" "$WHEEL"
+ls -al $GITHUB_WORKSPACE)/install/bin
+set -x
+delvewheel repair --add-path "$(cygwin -w $GITHUB_WORKSPACE/install/bin)" -w "$DEST_DIR" "$WHEEL"
