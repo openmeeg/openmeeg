@@ -8,6 +8,9 @@ fi
 DEST_DIR=$1
 WHEEL=$2
 
+ADD_PATH=$GITHUB_WORKSPACE/install/bin
 ls -al $GITHUB_WORKSPACE/install/bin
+ADD_PATH=$(cygpath -w $ADD_PATH)
+echo "Adding path \"$ADD_PATH\""
 set -x
-delvewheel repair --add-path="$(cygpath -w $GITHUB_WORKSPACE/install/bin)" -w "$DEST_DIR" "$WHEEL"
+delvewheel repair --add-path="$ADD_PATH" -w "$DEST_DIR" "$WHEEL"
