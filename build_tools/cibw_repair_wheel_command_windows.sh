@@ -8,6 +8,6 @@ fi
 DEST_DIR=$1
 WHEEL=$2
 
-ls -al $GITHUB_WORKSPACE)/install/bin
+ls -al $GITHUB_WORKSPACE/install/bin
 set -x
 delvewheel repair --add-path "$(cygwin -w $GITHUB_WORKSPACE/install/bin)" -w "$DEST_DIR" "$WHEEL"
