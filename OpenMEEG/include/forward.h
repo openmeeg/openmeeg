@@ -1,7 +1,7 @@
 /*
 Project Name : OpenMEEG
 
-© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre 
+© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre
 GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU, Théodore PAPADOPOULO,
 Emmanuel OLIVI
 Maureen.Clerc.AT.inria.fr, keriven.AT.certis.enpc.fr,
@@ -50,13 +50,14 @@ namespace OpenMEEG {
 
             std::random_device rd{};
             std::mt19937 gen{rd()};
-            std::normal_distribution<> noise{0,NoiseLevel};
+            std::normal_distribution<> noise{0, NoiseLevel > 0 ? NoiseLevel : 1.};
 
             Matrix& SimulatedData = *this;
             SimulatedData = GainMatrix*RealSourcesData;
-            for (unsigned i=0; i<SimulatedData.nlin(); ++i)
-                for (unsigned j=0; j<SimulatedData.ncol(); ++j)
-                    SimulatedData(i,j) += noise(gen);
+            if (NoiseLevel > 0)
+                for (unsigned i=0; i<SimulatedData.nlin(); ++i)
+                    for (unsigned j=0; j<SimulatedData.ncol(); ++j)
+                        SimulatedData(i,j) += noise(gen);
         }
 
         virtual ~Forward() { }
