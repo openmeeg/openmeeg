@@ -44,7 +44,7 @@ jobs:
           blas_linking: dynamic
           python: cmake
         # Latest OpenBLAS release
-        - os: ubuntu-20.04
+        - os: ubuntu-22.04
           blas: OpenBLAS-latest
         # PyPy build
         - os: ubuntu-20.04
@@ -313,6 +313,11 @@ jobs:
           APT_EXTRA=libopenblas-dev
         fi
         sudo apt -yq install liblapacke-dev doxygen graphviz libhdf5-dev libmatio-dev libvtk7-dev lcov $APT_EXTRA
+        if [[ "${{matrix.os}}" == "ubuntu-22.04" ]]; then
+          sudo apt install g++-12 gcc-12 gfortran-12
+          sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-12 100 --slave /usr/bin/g++ g++ /usr/bin/g++-12 --slave /usr/bin/gcov gcov /usr/bin/gcov-12
+          gcc --version
+        fi
 
     - name: Linux - OpenBLAS via GitHub
       if: startsWith(steps.env-vars.outputs.os,'ubuntu') && startsWith(steps.env-vars.outputs.blas_version,'latest')
