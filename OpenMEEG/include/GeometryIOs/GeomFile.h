@@ -210,8 +210,8 @@ namespace OpenMEEG::GeometryIOs {
 
         // Process meshes.
 
-        bool has_meshfile;
-        bool has_meshsection;
+        bool has_meshfile = false;
+        bool has_meshsection = false;
 
         if (version_id==VERSION11) {
 
