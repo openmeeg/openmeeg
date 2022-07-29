@@ -48,16 +48,19 @@ namespace OpenMEEG {
 
         Forward(const Matrix& GainMatrix,const Matrix& RealSourcesData,const double NoiseLevel) {
 
-            std::random_device rd{};
-            std::mt19937 gen{rd()};
-            std::normal_distribution<> noise{0, NoiseLevel > 0 ? NoiseLevel : 1.};
-
             Matrix& SimulatedData = *this;
             SimulatedData = GainMatrix*RealSourcesData;
-            if (NoiseLevel > 0)
+
+            if (NoiseLevel>0) {
+
+                std::random_device rd{};
+                std::mt19937 gen{rd()};
+                std::normal_distribution<> noise{0,NoiseLevel};
+
                 for (unsigned i=0; i<SimulatedData.nlin(); ++i)
                     for (unsigned j=0; j<SimulatedData.ncol(); ++j)
                         SimulatedData(i,j) += noise(gen);
+            }
         }
 
         virtual ~Forward() { }
