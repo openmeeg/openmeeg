@@ -14,6 +14,8 @@ add_executable(test_compare_matrix test_compare_matrix.cpp)
 target_link_libraries(test_compare_matrix OpenMEEG::OpenMEEG OpenMEEG::OpenMEEGMaths)
 
 if (BUILD_TESTING)
+    OPENMEEG_TEST(check_test_load_geo_legacy
+        test_load_geo ${OpenMEEG_SOURCE_DIR}/data/Head1/Head1_legacy.geom ${OpenMEEG_SOURCE_DIR}/data/Head1/Head1.cond)
     OPENMEEG_TEST(check_test_load_geo
         test_load_geo ${OpenMEEG_SOURCE_DIR}/data/Head1/Head1.geom ${OpenMEEG_SOURCE_DIR}/data/Head1/Head1.cond)
     OPENMEEG_TEST(check_test_mesh_ios
