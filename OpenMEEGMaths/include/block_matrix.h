@@ -39,7 +39,6 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #pragma once
 
-#include <OpenMEEGMathsConfig.h>
 #include <iostream>
 #include <map>
 #include <algorithm>
@@ -48,14 +47,13 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <range.h>
 #include <ranges.h>
 #include <matrix.h>
-#include <Exceptions.H>
 
 namespace OpenMEEG::maths {
 
     /// \brief  Block matrix class
     /// Block matrix class
 
-    class OPENMEEGMATHS_EXPORT BlockMatrix: public LinOp {
+    class BlockMatrix: public LinOp {
 
         typedef std::pair<unsigned,unsigned> Index;
         typedef std::map<Index,Matrix>       Blocks;

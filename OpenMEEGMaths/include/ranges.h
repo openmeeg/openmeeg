@@ -49,7 +49,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 namespace OpenMEEG::maths {
 
-    class OPENMEEGMATHS_EXPORT Ranges: public std::vector<Range> {
+    class Ranges: public std::vector<Range> {
 
         typedef std::vector<Range> base;
 
