@@ -42,11 +42,9 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <iostream>
 #include <vector>
 
-#include "OpenMEEGMathsConfig.h"
-
 namespace OpenMEEG::maths {
 
-    class OPENMEEGMATHS_EXPORT Range {
+    class Range {
     public:
 
         Range(): start_index(0),end_index(0) { }

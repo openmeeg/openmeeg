@@ -39,7 +39,6 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #pragma once
 
-#include <OpenMEEGMathsConfig.h>
 #include <iostream>
 #include <map>
 #include <algorithm>
@@ -51,10 +50,10 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 namespace OpenMEEG::maths {
 
-    /// \brief  Block symmetric matrix class
+    /// \brief Block symmetric matrix class
     /// Block symmetric matrix class
 
-    class OPENMEEGMATHS_EXPORT SymmetricBlockMatrix: public LinOp {
+    class SymmetricBlockMatrix: public LinOp {
 
         typedef std::pair<unsigned,unsigned> Index;
         typedef std::map<Index,Matrix>       Blocks;
@@ -106,18 +105,12 @@ namespace OpenMEEG::maths {
             blocks[ind] = Matrix(size.first,size.second);
         }
 
-        void add_blocks(const Ranges& ir,const Ranges& jr) {
-            for (unsigned i=0; i<ir.size(); ++i)
-                for (unsigned j=i; j<jr.size(); ++j)
-                    add_block(ir[i],jr[j]);
-        }
-
         void set_blocks(const Ranges& r) {
             blocks.clear();
             ranges.clear();
-            for (unsigned i=0; i<ranges.size(); ++i)
-                for (unsigned j=i; j<ranges.size(); ++j)
-                    add_block(ranges[i],ranges[j]);
+            for (unsigned i=0; i<r.size(); ++i)
+                for (unsigned j=i; j<r.size(); ++j)
+                    add_block(r[i],r[j]);
         }
 
         double& operator()(const size_t i,const size_t j) {
