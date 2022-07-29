@@ -46,6 +46,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #include <linop.h>
 #include <range.h>
+#include <ranges.h>
 #include <matrix.h>
 #include <Exceptions.H>
 
