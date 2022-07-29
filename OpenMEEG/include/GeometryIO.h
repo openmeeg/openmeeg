@@ -55,7 +55,11 @@ namespace OpenMEEG {
 
         static GeometryIO* create(const std::string& filename) {
             const std::string& extension = tolower(getFilenameExtension(filename));
-            return registery.at(extension)->clone(filename);
+            try {
+                return registery.at(extension)->clone(filename);
+            } catch(std::out_of_range&) {
+                 throw UnknownFileSuffix(extension);
+            }
         }
 
         virtual const char* name() const = 0;
