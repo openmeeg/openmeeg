@@ -37,37 +37,35 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#pragma once
-
 #include <iostream>
-#include <vector>
+#include <range.h>
+#include <ranges.h>
+#include <block_matrix.h>
+#include <symm_block_matrix.h>
 
-namespace OpenMEEG::maths {
+int main() {
 
-    class Range {
-    public:
+    using namespace OpenMEEG::maths;
 
-        Range(): start_index(0),end_index(0) { }
-        Range(const size_t s,const size_t e): start_index(s),end_index(e) { }
+    Ranges row_ranges;
+    Ranges col_ranges;
 
-        size_t start() const { return start_index; }
-        size_t end()   const { return end_index;   }
+    row_ranges.push_back(Range(1,4));
+    row_ranges.push_back(Range(5,6));
+    row_ranges.push_back(Range(7,9));
 
-        size_t length() const { return end()-start()+1; }
+    col_ranges.push_back(Range(1,2));
+    col_ranges.push_back(Range(5,9));
 
-        bool contains(const size_t ind) const { return ind>=start() && ind<=end();               }
-        bool intersect(const Range& r)  const { return contains(r.start()) || contains(r.end()); }
+    BlockMatrix bm(10,10);
+    bm.set_blocks(row_ranges,col_ranges);
+    bm.info();
 
-        bool operator==(const Range& r) const { return start()==r.start() && end()==r.end();     }
-        bool operator!=(const Range& r) const { return start()!=r.start() || end()!=r.end();     }
+    std::cout << bm << std::endl;
 
-    private:
+    // section SymMatrix
 
-        size_t start_index;
-        size_t end_index;
-    };
-
-    inline std::ostream& operator<<(std::ostream& os,const Range& r) {
-        return os << '(' << r.start() << ',' << r.end() << ')';
-    }
+    SymmetricBlockMatrix sbm(10);
+    sbm.set_blocks(row_ranges);
+    sbm.info();
 }
