@@ -1,3 +1,15 @@
+# This CI run builds wheels using the cibuildwheel infrastructure.
+# This means it:
+# - Uses as old dependencies/infrastructure as possible:
+#   - An old manylinux docker container on Linux
+#   - An old MACOSX_DEPLOYMENT_TARGET on macOS
+#   - An old SYSTEM_VERSION target on Windows
+# - Builds OpenMEEG
+# - Creates wheels
+# - Delocates them
+# - Uploads them to TestPyPI (main) or PyPi (releases)
+# Most of the config lives in `pyproject.toml` and build_tools/cibw_* scripts.
+
 name: cibuildwheel
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.number }}-${{ github.event.ref }}

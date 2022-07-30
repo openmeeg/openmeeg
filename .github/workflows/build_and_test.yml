@@ -1,3 +1,6 @@
+# This CI run does core building+testing of OpenMEEG using various OSes
+# and options.
+
 name: Test
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.number }}-${{ github.event.ref }}
@@ -27,6 +30,18 @@ jobs:
         # (https://github.com/microsoft/vcpkg/issues/25176), but it's unclear
         # if this will really help anything. SciPy's should be well tested
         # already.
+        #
+        # By default, all builds use:
+        # - OpenBLAS
+        # - dynamic BLAS linking
+        # - cmake to build Python bindings
+        # - Python 3.10
+        # - The oldest supported version of numpy (numpyold)
+        # - MSVC on Windows (if relevant)
+        #
+        # Deviations from this are noted by additions to the `include`
+        # params. Defaults are set up properly in the `env-vars` step,
+        # whose `output`s should be used by subsequent steps.
         include:
         - os: ubuntu-20.04
           blas: OpenBLAS
