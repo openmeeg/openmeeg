@@ -39,6 +39,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #include <iostream>
 #include <range.h>
+#include <ranges.h>
 #include <block_matrix.h>
 #include <symm_block_matrix.h>
 
