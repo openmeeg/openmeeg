@@ -338,7 +338,7 @@ jobs:
         if [[ "${{ steps.env-vars.outputs.blas }}" == "OpenBLAS" ]] && [[ "${{ steps.env-vars.outputs.blas_version }}" != "latest" ]]; then
           APT_EXTRA=libopenblas-dev
         fi
-        sudo apt -yq install liblapacke-dev doxygen graphviz libhdf5-dev libmatio-dev libvtk7-dev lcov $APT_EXTRA
+        sudo apt -yq install liblapacke-dev doxygen graphviz libhdf5-dev libmatio-dev libvtk9-dev lcov $APT_EXTRA
         if [[ "${{matrix.os}}" == "ubuntu-22.04" ]]; then
           sudo apt install g++-12 gcc-12 gfortran-12
           sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-12 100 --slave /usr/bin/g++ g++ /usr/bin/g++-12 --slave /usr/bin/gcov gcov /usr/bin/gcov-12
