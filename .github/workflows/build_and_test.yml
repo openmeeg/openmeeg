@@ -25,12 +25,6 @@ jobs:
     continue-on-error: true
     strategy:
       matrix:
-        # Currently, VTK is only installed+tested on Ubuntu
-        # Someday we could use OpenBLAS for Windows once vcpkg sorts things out
-        # (https://github.com/microsoft/vcpkg/issues/25176), but it's unclear
-        # if this will really help anything. SciPy's should be well tested
-        # already.
-        #
         # By default, all builds use:
         # - OpenBLAS
         # - dynamic BLAS linking
@@ -42,6 +36,16 @@ jobs:
         # Deviations from this are noted by additions to the `include`
         # params. Defaults are set up properly in the `env-vars` step,
         # whose `output`s should be used by subsequent steps.
+        #
+        # Currently, VTK is only installed+tested on Ubuntu.
+        #
+        # MKL is tested on all OSes.
+        #
+        # Someday we could use OpenBLAS for Windows once vcpkg sorts things out
+        # (https://github.com/microsoft/vcpkg/issues/25176), but it's unclear
+        # if this will really help anything. NumPy/SciPy's OpenBLAS (which
+        # we use currently) should be well tested already though, so there is
+        # perhaps no need to switch.
         include:
         - os: ubuntu-20.04
           blas: OpenBLAS
@@ -159,8 +163,13 @@ jobs:
           echo '::set-output name=blas_version::latest'
         fi
         # Build docs on Ubuntu, not elsewhere (for speed)
+        # And build VTK on Ubuntu+OpenBLAS only (for speed)
+        VTK_OPT="-DUSE_VTK=OFF"
         if [[ "${{matrix.os}}" == 'ubuntu'* ]]; then
           DOC_OPT="-DBUILD_DOCUMENTATION=ON"
+          if [[ "${matrix.blas}" != 'mkl'* ]]; then
+            VTK_OPT="-DUSE_VTK=ON"
+          fi
         else
           DOC_OPT="-DBUILD_DOCUMENTATION=OFF"
         fi
@@ -178,6 +187,8 @@ jobs:
         echo "WERROR_OPT=$WERROR_OPT" >> $GITHUB_ENV
         echo "Using DOC_OPT=$DOC_OPT"
         echo "DOC_OPT=$DOC_OPT" >> $GITHUB_ENV
+        echo "Using VTK_OPT=$VTK_OPT"
+        echo "VTK_OPT=$VTK_OPT" >> $GITHUB_ENV
         echo "Using PYTHON_COPY_RUNTIME_DLLS=$PYTHON_COPY_RUNTIME_DLLS_OPT"
         echo "PYTHON_COPY_RUNTIME_DLLS_OPT=$PYTHON_COPY_RUNTIME_DLLS_OPT" >> $GITHUB_ENV
 
