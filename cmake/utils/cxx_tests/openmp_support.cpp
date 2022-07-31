@@ -10,7 +10,7 @@ main() {
     #if defined RANGEFOR
     for (const auto& val : V) {
     #elif defined ITERATOR
-    for (std::vector<unsigned>::const_iterator v=V.begin();vi!=V.end();++vi) {
+    for (std::vector<unsigned>::const_iterator vi=V.begin();vi!=V.end();++vi) {
         const unsigned val = *vi;
     #else
     for (unsigned i=0;i<V.size();++i) {
