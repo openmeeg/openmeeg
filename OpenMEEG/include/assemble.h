@@ -46,6 +46,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <symmatrix.h>
 #include <geometry.h>
 #include <sensors.h>
+#include <integrator.h>
 
 #include <sparse_matrix.h>
 
@@ -54,90 +55,36 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 namespace OpenMEEG {
 
-    class OPENMEEG_EXPORT HeadMat: public SymMatrix {
-    public:
-        HeadMat(const Geometry& geo,const unsigned gauss_order=3);
-        virtual ~HeadMat() { };
-    };
+    // For ADAPT_LHS change the 0 in Integrator below into 10
+    // It would be nice to define some constant integrators for the default values but swig does not like them. 
 
-    class OPENMEEG_EXPORT SurfSourceMat: public Matrix {
-    public:
-        SurfSourceMat(const Geometry& geo,Mesh& sources,const unsigned gauss_order=3);
-        virtual ~SurfSourceMat() { };
-    };
+    OPENMEEG_EXPORT SymMatrix HeadMat(const Geometry& geo,const Integrator& integrator=Integrator(3,0,0.005));
+    OPENMEEG_EXPORT Matrix SurfSourceMat(const Geometry& geo,Mesh& sources,const Integrator& integrator=Integrator(3,0,0.005));
 
-    class OPENMEEG_EXPORT DipSourceMat: public Matrix {
-    public:
-        DipSourceMat(const Geometry& geo,const Matrix& dipoles,const unsigned gauss_order=3,
-                     const bool adapt_rhs=true,const std::string& domain_name="");
-        virtual ~DipSourceMat() { };
-    };
+    OPENMEEG_EXPORT Matrix
+    DipSourceMat(const Geometry& geo,const Matrix& dipoles,const Integrator& integrator=Integrator(3,10,0.001),const std::string& domain_name="");
 
-    class OPENMEEG_EXPORT EITSourceMat: public Matrix {
-    public:
-        EITSourceMat(const Geometry& geo,const Sensors& electrodes,const unsigned gauss_order=3);
-        virtual ~EITSourceMat() { }
-    };
+    OPENMEEG_EXPORT Matrix EITSourceMat(const Geometry& geo,const Sensors& electrodes,const Integrator& integrator=Integrator(3,0,0.005));
 
-    class OPENMEEG_EXPORT Surf2VolMat: public Matrix {
-    public:
-        using Matrix::operator=;
-        Surf2VolMat(const Geometry& geo,const Matrix& points);
-        virtual ~Surf2VolMat() { }
-    };
+    OPENMEEG_EXPORT Matrix Surf2VolMat(const Geometry& geo,const Matrix& points);
 
-    class OPENMEEG_EXPORT Head2EEGMat: public SparseMatrix {
-    public:
-        Head2EEGMat(const Geometry& geo,const Sensors& electrodes);
-        virtual ~Head2EEGMat() { }
-    };
+    OPENMEEG_EXPORT SparseMatrix Head2EEGMat(const Geometry& geo,const Sensors& electrodes);
+    OPENMEEG_EXPORT SparseMatrix Head2ECoGMat(const Geometry& geo,const Sensors& electrodes,const Interface& i);
 
-    class OPENMEEG_EXPORT Head2ECoGMat: public SparseMatrix {
-    public:
-        Head2ECoGMat(const Geometry& geo,const Sensors& electrodes,const Interface& i);
-        // Mainly for SWIG
-        Head2ECoGMat(const Geometry& geo,const Sensors& electrodes,const std::string& id):
-            Head2ECoGMat(geo,electrodes,geo.interface(id)) { }
+    inline SparseMatrix
+    Head2ECoGMat(const Geometry& geo,const Sensors& electrodes,const std::string& id) { // Mainly for SWIG
+        return Head2ECoGMat(geo,electrodes,geo.interface(id));
+    }
 
-        virtual ~Head2ECoGMat() { }
-    };
+    OPENMEEG_EXPORT Matrix Head2MEGMat(const Geometry& geo,const Sensors& sensors);
+    OPENMEEG_EXPORT Matrix SurfSource2MEGMat(const Mesh& sources,const Sensors& sensors);
+    OPENMEEG_EXPORT Matrix DipSource2MEGMat(const Matrix& dipoles,const Sensors& sensors);
+    OPENMEEG_EXPORT Matrix DipSource2InternalPotMat(const Geometry& geo,const Matrix& dipoles,const Matrix& points,const std::string& domain_name="");
 
-    class OPENMEEG_EXPORT Head2MEGMat: public Matrix {
-    public:
-        Head2MEGMat(const Geometry& geo,const Sensors& sensors);
-        virtual ~Head2MEGMat() { }
-    };
+    OPENMEEG_EXPORT Matrix CorticalMat(const Geometry& geo,const SparseMatrix& M,const std::string& domain_name="CORTEX",
+                                       const double alpha=-1.0,const double beta=-1.0,const std::string &filename="",
+                                       const Integrator& integrator=Integrator(3,0,0.005));
 
-    class OPENMEEG_EXPORT SurfSource2MEGMat: public Matrix {
-    public:
-        SurfSource2MEGMat(const Mesh& sources,const Sensors& sensors);
-        virtual ~SurfSource2MEGMat() { }
-    };
-
-    class OPENMEEG_EXPORT DipSource2MEGMat: public Matrix {
-    public:
-        DipSource2MEGMat(const Matrix& dipoles,const Sensors& sensors);
-        virtual ~DipSource2MEGMat() { }
-    };
-
-    class OPENMEEG_EXPORT DipSource2InternalPotMat: public Matrix {
-    public:
-        DipSource2InternalPotMat(const Geometry& geo,const Matrix& dipoles,
-                                 const Matrix& points,const std::string& domain_name = "");
-        virtual ~DipSource2InternalPotMat() { }
-    };
-
-    class OPENMEEG_EXPORT CorticalMat: public Matrix {
-    public:
-        CorticalMat(const Geometry& geo,const Head2EEGMat& M,const std::string& domain_name="CORTEX",
-                const unsigned gauss_order=3,double alpha=-1.,double beta=-1.,const std::string &filename="");
-        virtual ~CorticalMat() { }
-    };
-
-    class OPENMEEG_EXPORT CorticalMat2: public Matrix {
-    public:
-        CorticalMat2(const Geometry& geo,const Head2EEGMat& M,const std::string& domain_name="CORTEX",
-                const unsigned gauss_order=3,double gamma=1.,const std::string &filename="");
-        virtual ~CorticalMat2() { }
-    };
+    OPENMEEG_EXPORT Matrix CorticalMat2(const Geometry& geo,const SparseMatrix& M,const std::string& domain_name="CORTEX",
+                                        const double gamma=1.0,const std::string &filename="",const Integrator& integrator=Integrator(3,0,0.005));
 }
