@@ -116,9 +116,9 @@ macro(CHECK_CXX_STANDARD_LIBRARY)
 endmacro()
 
 macro(CHECK_CXX_OPENMP_SUPPORT)
-    CHECK_CXX_FEATURE(HAVE_OPENMP_RANGEFOR openmp_support.cpp  "has OpenMP support for range for loops" RANGEFOR ${OpenMP_LIBRRIES})
-    CHECK_CXX_FEATURE(HAVE_OPENMP_ITERATOR openmp_support.cpp  "has OpenMP support for iterator loops"  ITERATOR ${OpenMP_LIBRRIES})
-    CHECK_CXX_FEATURE(HAVE_OPENMP_UNSIGNED openmp_support.cpp  "has OpenMP support for unsigned loops"  ""       ${OpenMP_LIBRRIES})
+    CHECK_CXX_FEATURE(HAVE_OPENMP_RANGEFOR openmp_support.cpp  "has OpenMP support for range for loops" RANGEFOR OpenMP::OpenMP_CXX)
+    CHECK_CXX_FEATURE(HAVE_OPENMP_ITERATOR openmp_support.cpp  "has OpenMP support for iterator loops"  ITERATOR OpenMP::OpenMP_CXX)
+    CHECK_CXX_FEATURE(HAVE_OPENMP_UNSIGNED openmp_support.cpp  "has OpenMP support for unsigned loops"  ""       OpenMP::OpenMP_CXX)
 endmacro()
 
 macro(CHECK_ALL_CXX_FEATURES)
