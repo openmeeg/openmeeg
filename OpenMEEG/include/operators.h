@@ -108,15 +108,9 @@ namespace OpenMEEG {
         template <typename T>
         void D(const Triangles& triangles1,const Triangles& triangles2,const double& coeff,T& mat) const {
             // This function (OPTIMIZED VERSION) has the following arguments:
-            //    the 2 interacting meshes
-            //    the storage Matrix for the result
-            //    the coefficient to be appleid to each matrix element (depending on conductivities, ...)
-            //    the gauss order parameter (for adaptive integration)
-
-            // In this version of the function, in order to skip multiple computations of the same quantities
-            //    loops are run over triangles but the Matrix cannot be filled in this function anymore
-            //    That's why the filling is done is function Details::operatorD
-            //
+            //    - the 2 interacting meshes
+            //    - the coefficient to be applied to each matrix element (depending on conductivities, ...)
+            //    - the storage Matrix for the result
 
             ProgressBar pb(triangles1.size());
             #pragma omp parallel for
@@ -129,8 +123,14 @@ namespace OpenMEEG {
             for (int i1=0; i1<triangles1.size(); ++i1) {
                 const Triangle& triangle1 = *(triangles1.begin()+i1);
             #endif
-                for (const auto& triangle2 : triangles2)
-                    D(triangle1,triangle2,mat,coeff);
+                for (const auto& triangle2 : triangles2) {
+                    const analyticD3 analyD(triangle2);
+                    const auto&  Dfunc = [&analyD](const Vect3& r) { return analyD.f(r); };
+                    const Vect3& total = integrator.integrate(Dfunc,triangle1);
+
+                    for (unsigned i=0; i<3; ++i)
+                        mat(triangle1.index(),triangle2.vertex(i).index()) += total(i)*coeff;
+                }
                 ++pb;
             }
         }
@@ -166,19 +166,6 @@ namespace OpenMEEG {
                 }
             }
             return result;
-        }
-
-        template <typename T>
-        void D(const Triangle& T1,const Triangle& T2,T& mat,const double& coeff) const {
-            //this version of operatorD add in the Matrix the contribution of T2 on T1
-            // for all the P1 functions it gets involved
-            // consider varying order of quadrature with the distance between T1 and T2
-            const analyticD3 analyD(T2);
-            const auto& Dfunc = [&analyD](const Vect3& r) { return analyD.f(r); };
-            const Vect3 total = integrator.integrate(Dfunc,T1);
-
-            for (unsigned i=0; i<3; ++i)
-                mat(T1.index(),T2.vertex(i).index()) += total(i)*coeff;
         }
 
     protected:
