@@ -167,7 +167,7 @@ jobs:
         VTK_OPT="-DUSE_VTK=OFF"
         if [[ "${{matrix.os}}" == 'ubuntu'* ]]; then
           DOC_OPT="-DBUILD_DOCUMENTATION=ON"
-          if [[ "${matrix.blas}" != 'mkl'* ]]; then
+          if [[ "${{matrix.blas}}" != 'mkl'* ]]; then
             VTK_OPT="-DUSE_VTK=ON"
           fi
         else
