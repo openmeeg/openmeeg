@@ -296,14 +296,14 @@ jobs:
         echo "LIB=$LIB" >> $GITHUB_ENV
         echo "CMAKE_CXX_FLAGS=$CMAKE_CXX_FLAGS" >> $GITHUB_ENV
 
-    - name: macOS - hdf5, libmatio, and (optionally) OpenBLAS via brew
+    - name: macOS - hdf5, libmatio, libomp and (optionally) OpenBLAS via brew
       if: startswith(steps.env-vars.outputs.os,'macos')
       run: |
         brew update > /dev/null
         if [[ "${{steps.env-vars.outputs.blas}}" == "OpenBLAS" ]]; then
           BREW_EXTRA=openblas
         fi
-        brew install hdf5 libmatio boost swig $BREW_EXTRA
+        brew install hdf5 libmatio libomp boost swig $BREW_EXTRA
         if [[ "${{steps.env-vars.outputs.blas}}" == "OpenBLAS" ]]; then
           BLAS_DIR=/usr/local/opt/openblas
           OPENBLAS_INCLUDE=$BLAS_DIR/include
