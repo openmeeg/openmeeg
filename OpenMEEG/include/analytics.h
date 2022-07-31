@@ -156,7 +156,7 @@ namespace OpenMEEG {
             // Used in non-optimized version of operator D.
             // Returns a vector of the inner integrals of operator D on a triangle wrt its three P1 functions.
 
-            //  First part omega is just x.solid_angle(v1,v2,v3)
+            //  First part omega is just x.solid_angle(triangle.vertex(0),triangle.vertex(1),triangle.vertex(2))
 
             const Vect3& Y1 = triangle.vertex(0)-x;
             const Vect3& Y2 = triangle.vertex(1)-x;
