@@ -16,6 +16,7 @@ macro(CHECK_CXX_FEATURE feature file message)
             LINK_LIBRARIES "${CHECK_CXX_FEATURE_LINK_LIBRARIES} ${libs}"
             OUTPUT_VARIABLE OUTPUT)
         message(WARNING "${CHECK_CXX_FEATURE_DEFINITIONS} ${flags}")
+        message(WARNING "${CHECK_CXX_FEATURE_LINK_LIBRARIES} ${libs}")
         message(WARNING "${OUTPUT}")
 
         if (RESULT)
