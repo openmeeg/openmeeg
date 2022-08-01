@@ -43,57 +43,57 @@ jobs:
         # params. Defaults are set up properly in the `env-vars` step,
         # whose `output`s should be used by subsequent steps.
         include:
-        - os: ubuntu-20.04
-          blas: OpenBLAS
-          blas_linking: dynamic
-          python: cmake
-          python-version: '3.10'
-          numpy: numpyold
+        #- os: ubuntu-20.04
+        #  blas: OpenBLAS
+        #  blas_linking: dynamic
+        #  python: cmake
+        #  python-version: '3.10'
+        #  numpy: numpyold
         - os: windows-2019
           blas: OpenBLAS
           blas_linking: dynamic
           python: cmake
           windows_compiler: msvc
-        - os: macos-latest
-          blas: OpenBLAS
-          blas_linking: dynamic
-          python: cmake
-        # Latest OpenBLAS release
-        - os: ubuntu-22.04
-          blas: OpenBLAS-latest
-        # PyPy build
-        - os: ubuntu-20.04
-          blas: OpenBLAS
-          python-version: 'pypy-3.8'
-        # One with latest numpy
-        - os: ubuntu-20.04
-          blas: OpenBLAS
-          python-version: '3.10'
-          numpy: numpydev
+        #- os: macos-latest
+        #  blas: OpenBLAS
+        #  blas_linking: dynamic
+        #  python: cmake
+        ## Latest OpenBLAS release
+        #- os: ubuntu-22.04
+        #  blas: OpenBLAS-latest
+        ## PyPy build
+        #- os: ubuntu-20.04
+        #  blas: OpenBLAS
+        #  python-version: 'pypy-3.8'
+        ## One with latest numpy
+        #- os: ubuntu-20.04
+        #  blas: OpenBLAS
+        #  python-version: '3.10'
+        #  numpy: numpydev
         # Windows mingw64
         - os: windows-2019
           windows_compiler: mingw64
-        # MKL on each OS (static unless it has to be dynamic)
-        - os: windows-2019
-          blas: mkl-findblas
-          blas_linking: static
-        - os: ubuntu-20.04
-          blas: mkl-findblas
-        - os: macos-latest
-          blas: mkl-findblas
-          blas_linking: static
-        # ubuntu-18.04 build, but Python tests currently fail so use no-python
-        - os: ubuntu-18.04
-          python: no-python
-        # Windows static
+        ## MKL on each OS (static unless it has to be dynamic)
+        #- os: windows-2019
+        #  blas: mkl-findblas
+        #  blas_linking: static
+        #- os: ubuntu-20.04
+        #  blas: mkl-findblas
+        #- os: macos-latest
+        #  blas: mkl-findblas
+        #  blas_linking: static
+        ## ubuntu-18.04 build, but Python tests currently fail so use no-python
+        #- os: ubuntu-18.04
+        #  python: no-python
+        ## Windows static
         - os: windows-2019
           blas: OpenBLAS
           blas_linking: static
         # Setuptools
-        - os: ubuntu-20.04
-          python: setuptools
-        - os: macos-11
-          python: setuptools
+        #- os: ubuntu-20.04
+        #  python: setuptools
+        #- os: macos-11
+        #  python: setuptools
 
     runs-on: ${{ matrix.os }}
 
@@ -382,13 +382,15 @@ jobs:
           echo "Before:"
           ls -al *.dll || true
           if [[ "${{steps.env-vars.outputs.blas}}" == "OpenBLAS" ]]; then
-            #if [[ "${{ steps.env-vars.outputs.blas_linking }}" != "static" ]]; then
-            if [[ "{{ steps.env-vars.outputs.windows_compiler }}" != "msvc"* ]]; then
-              strip $OPENBLAS_LIB/libopenblas_v*.dll
+            if [[ "${{ steps.env-vars.outputs.blas_linking }}" == "static" ]]; then
+              rm $OPENBLAS_LIB/*.dll
+            else
+              if [[ "{{ steps.env-vars.outputs.windows_compiler }}" != "msvc"* ]]; then
+                strip $OPENBLAS_LIB/libopenblas_v*.dll
+              fi
+              cp $OPENBLAS_LIB/libopenblas_v*.dll .
+              cp $OPENBLAS_LIB/libopenblas_v*.dll openblas.dll
             fi
-            cp $OPENBLAS_LIB/libopenblas_v*.dll .
-            cp $OPENBLAS_LIB/libopenblas_v*.dll openblas.dll
-            #fi
           fi;
           if [[ "{{ steps.env-vars.outputs.windows_compiler }}" != "msvc"* ]]; then
             cp /c/Strawberry/c/bin/libquadmath-0.dll .
