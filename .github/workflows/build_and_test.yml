@@ -340,6 +340,7 @@ jobs:
         fi
         if [[ "${{matrix.os}}" == "ubuntu-22.04" ]]; then
           APT_EXTRA="$APT_EXTRA g++-12 gcc-12 gfortran-12 libvtk9-dev"
+        fi
         sudo apt -yq install liblapacke-dev doxygen graphviz libhdf5-dev libmatio-dev lcov $APT_EXTRA
         if [[ "${{matrix.os}}" == "ubuntu-22.04" ]]; then
           sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-12 100 --slave /usr/bin/g++ g++ /usr/bin/g++-12 --slave /usr/bin/gcov gcov /usr/bin/gcov-12
