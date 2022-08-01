@@ -291,6 +291,10 @@ jobs:
         # OpenBLAS direct download (too slow to build using vcpkg)
         # and renaming to match what cmake wants to see
         source ./build_tools/download_openblas.sh windows
+        if [[ "${{ steps.env-vars.outputs.blas_linking }}" !"= "static" ]]; then
+          ls -al $OPENBLAS_LIB/*.dll
+          rm $OPENBLAS_LIB/*.dll
+        fi
         echo "OPENBLAS_LIB=$OPENBLAS_LIB" >> $GITHUB_ENV
         echo "OPENBLAS_INCLUDE=$OPENBLAS_INCLUDE" >> $GITHUB_ENV
         echo "LIB=$LIB" >> $GITHUB_ENV
@@ -382,16 +386,14 @@ jobs:
           echo "Before:"
           ls -al *.dll || true
           if [[ "${{steps.env-vars.outputs.blas}}" == "OpenBLAS" ]]; then
-            if [[ "${{ steps.env-vars.outputs.blas_linking }}" == "static" ]]; then
-              rm $OPENBLAS_LIB/*.dll
-            else
+            if [[ "${{ steps.env-vars.outputs.blas_linking }}" !"= "static" ]]; then
               if [[ "{{ steps.env-vars.outputs.windows_compiler }}" != "msvc"* ]]; then
                 strip $OPENBLAS_LIB/libopenblas_v*.dll
               fi
               cp $OPENBLAS_LIB/libopenblas_v*.dll .
               cp $OPENBLAS_LIB/libopenblas_v*.dll openblas.dll
             fi
-          fi;
+          fi
           if [[ "{{ steps.env-vars.outputs.windows_compiler }}" != "msvc"* ]]; then
             cp /c/Strawberry/c/bin/libquadmath-0.dll .
             cp /mingw64/bin/libgcc_s_seh-1.dll .
