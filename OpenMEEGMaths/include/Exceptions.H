@@ -7,6 +7,7 @@
 #include <iostream>
 #include <exception>
 
+#include "range.h"
 #include "OpenMEEGMaths_Export.h"
 
 namespace OpenMEEG {
@@ -14,11 +15,11 @@ namespace OpenMEEG {
 
         typedef enum { UNEXPECTED = 128, IO_EXCPT,
                        BAD_FILE, BAD_FILE_OPEN, BAD_CONTENT, NO_SUFFIX, BAD_HDR, BAD_DATA, BAD_VECT, UNKN_DIM, BAD_SYMM_MAT,
-                       BAD_STORAGE_TYPE, NO_IO, MATIO_ERROR, UNKN_FILE_FMT, UNKN_FILE_SUFFIX, NO_FILE_FMT, UNKN_NAMED_FILE_FMT,
-                       IMPOSSIBLE_IDENTIFICATION } ExceptionCode;
+                       BAD_STORAGE_TYPE, NO_IO, OVERLAPPING_RANGES, NON_EXISTING_BLOCK, MATIO_ERROR, UNKN_FILE_FMT,
+                       UNKN_FILE_SUFFIX, NO_FILE_FMT, UNKN_NAMED_FILE_FMT, IMPOSSIBLE_IDENTIFICATION
+                     } ExceptionCode;
 
-
-        class OPENMEEGMATHS_EXPORT Exception: public std::exception {
+        class Exception: public std::exception {
         public:
 
             Exception(const std::string& w): whatstring(std::string("Exception: ")+w) { }
@@ -33,7 +34,7 @@ namespace OpenMEEG {
             std::string whatstring;
         };
         
-        struct OPENMEEGMATHS_EXPORT UnexpectedException: public Exception {
+        struct UnexpectedException: public Exception {
 
             UnexpectedException(const std::string& func,const std::string& file,const unsigned line): Exception(message(func,file,line)) { }
 
@@ -48,7 +49,7 @@ namespace OpenMEEG {
             }
         };
 
-        struct OPENMEEGMATHS_EXPORT IOException: public Exception {
+        struct IOException: public Exception {
 
             IOException(const std::string& str): Exception(str) { }
 
@@ -58,7 +59,7 @@ namespace OpenMEEG {
             ExceptionCode code() const throw() { return IO_EXCPT; }
         };
 
-        struct OPENMEEGMATHS_EXPORT BadFile: public IOException {
+        struct BadFile: public IOException {
      
             BadFile(const std::string& fmtname):                  IOException(message(fmtname))    { }
             BadFile(std::istream& is,const std::string& fmtname): IOException(is,message(fmtname)) { }
@@ -70,7 +71,7 @@ namespace OpenMEEG {
             static std::string message(const std::string& fmtname) { return std::string("Unable to read the input as a "+fmtname+" image file."); }
         };
 
-        struct OPENMEEGMATHS_EXPORT BadFileOpening: public IOException {
+        struct BadFileOpening: public IOException {
      
             typedef enum { READ, WRITE } Mode;
 
@@ -86,7 +87,7 @@ namespace OpenMEEG {
             }
         };
 
-        struct OPENMEEGMATHS_EXPORT BadContent: public IOException {
+        struct BadContent: public IOException {
 
             BadContent(const std::string& fmtname,const std::string& object):                  IOException(message(fmtname,object))    { }
             BadContent(std::istream& is,const std::string& fmtname,const std::string& object): IOException(is,message(fmtname,object)) { }
@@ -100,13 +101,13 @@ namespace OpenMEEG {
             }
         };
 
-        struct OPENMEEGMATHS_EXPORT NoSuffix: public IOException {
+        struct NoSuffix: public IOException {
             NoSuffix(const std::string& name): IOException(std::string("No identifiable suffix in name ")+name) { }
 
             ExceptionCode code() const throw() { return NO_SUFFIX; }
         };
 
-        struct OPENMEEGMATHS_EXPORT BadHeader: public IOException {
+        struct BadHeader: public IOException {
 
             BadHeader():                 IOException(message())    { }
             BadHeader(std::istream& is): IOException(is,message()) { }
@@ -118,7 +119,7 @@ namespace OpenMEEG {
             static std::string message() { return std::string("Bad file header."); }
         };
 
-        struct OPENMEEGMATHS_EXPORT ImpossibleObjectIdentification: public IOException {
+        struct ImpossibleObjectIdentification: public IOException {
 
             ImpossibleObjectIdentification(const std::string& file):                  IOException(message(file))    { }
             ImpossibleObjectIdentification(std::istream& is,const std::string& file): IOException(is,message(file)) { }
@@ -130,7 +131,7 @@ namespace OpenMEEG {
             static std::string message(const std::string& name) { return std::string("Impossible to identify the object in this file: ")+name; }
         };
 
-        struct OPENMEEGMATHS_EXPORT BadStorageType: public IOException {
+        struct BadStorageType: public IOException {
 
             BadStorageType(const std::string& file):                  IOException(message(file))    { }
             BadStorageType(std::istream& is,const std::string& file): IOException(is,message(file)) { }
@@ -142,7 +143,7 @@ namespace OpenMEEG {
             static std::string message(const std::string& file) { return std::string("Bad storage type in file ")+file+"."; }
         };
 
-        struct OPENMEEGMATHS_EXPORT BadData: public IOException {
+        struct BadData: public IOException {
 
             BadData(const std::string& fmtname):                  IOException(message(fmtname))    { }
             BadData(std::istream& is,const std::string& fmtname): IOException(is,message(fmtname)) { }
@@ -154,7 +155,7 @@ namespace OpenMEEG {
             static std::string message(const std::string& fmtname) { return std::string("Bad ")+fmtname+" file data."; }
         };
 
-        struct OPENMEEGMATHS_EXPORT BadVector: public IOException {
+        struct BadVector: public IOException {
 
             BadVector(const std::size_t dim): IOException(message(dim)) { }
 
@@ -172,7 +173,7 @@ namespace OpenMEEG {
             }
         };
 
-        struct OPENMEEGMATHS_EXPORT BadSymmMatrix: public IOException {
+        struct BadSymmMatrix: public IOException {
 
             BadSymmMatrix(const std::size_t dim1,const std::size_t dim2): IOException(message(dim1,dim2)) { }
 
@@ -190,7 +191,7 @@ namespace OpenMEEG {
             }
         };
 
-        struct OPENMEEGMATHS_EXPORT NoIO: public IOException {
+        struct NoIO: public IOException {
 
             typedef enum { READ, WRITE } Mode;
 
@@ -208,12 +209,42 @@ namespace OpenMEEG {
             }
         };
 
-        struct OPENMEEGMATHS_EXPORT MatioError: public IOException {
+        struct OPENMEEGMATHS_EXPORT OverlappingRanges: public Exception {
+
+            OverlappingRanges(const Range& r1,const Range& r2): Exception(message(r1,r2)) { }
+
+            ExceptionCode code() const throw() { return OVERLAPPING_RANGES; }
+
+        private:
+
+            static std::string message(const Range& r1,const Range& r2) {
+                std::ostringstream ost;
+                ost << "Ranges " << r1 << " and " << r2 << " are overlapping blocks in a block matrix.";
+                return ost.str();
+            }
+        };
+
+        struct OPENMEEGMATHS_EXPORT NonExistingBlock: public Exception {
+
+            NonExistingBlock(const unsigned ind): Exception(message(ind)) { }
+
+            ExceptionCode code() const throw() { return NON_EXISTING_BLOCK; }
+
+        private:
+
+            static std::string message(const unsigned ind) {
+                std::ostringstream ost;
+                ost << "Attempt to access a non-existing block at index " << ind << '.';
+                return ost.str();
+            }
+        };
+
+        struct MatioError: public IOException {
             MatioError(const std::string& err): IOException(err) { }
             ExceptionCode code() const throw() { return MATIO_ERROR; }
         };
 
-        struct OPENMEEGMATHS_EXPORT UnknownFileFormat: public IOException {
+        struct UnknownFileFormat: public IOException {
 
             UnknownFileFormat(const std::string& fmt): IOException(std::string("Unknown ")+fmt+" format.") { }
 
@@ -223,12 +254,12 @@ namespace OpenMEEG {
             ExceptionCode code() const throw() { return UNKN_FILE_FMT; }
         };
 
-        struct OPENMEEGMATHS_EXPORT UnknownFileSuffix: public IOException {
+        struct UnknownFileSuffix: public IOException {
             UnknownFileSuffix(const std::string& fmt): IOException(std::string("Unknown ")+fmt+" suffix.") { }
             ExceptionCode code() const throw() { return UNKN_FILE_SUFFIX; }
         };
 
-        struct OPENMEEGMATHS_EXPORT UnknownNamedFileFormat: public Exception {
+        struct UnknownNamedFileFormat: public Exception {
             UnknownNamedFileFormat(const std::string& name): Exception(std::string("Unknown format for file "+name+".")) { }
             ExceptionCode code() const throw() { return UNKN_NAMED_FILE_FMT; }
         };

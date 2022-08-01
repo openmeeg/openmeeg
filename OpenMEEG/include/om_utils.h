@@ -39,114 +39,30 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #pragma once
 
-#if WIN32
-#define _USE_MATH_DEFINES
-#endif
-
 #include <string>
 #include <cmath>
 #include <random>
 #include <iostream>
+#include <chrono>
 #include <sstream>
 #include <algorithm>
 #include <cctype>
-#ifdef USE_OMP
-#include <omp.h>
-#endif
 
 #include "OpenMEEGConfigure.h"
 
-#ifdef USE_PROGRESSBAR
-    #define PROGRESSBAR(a,b) progressbar((a),(b))
-#else
-    #define PROGRESSBAR(a,b)
-#endif
-
 namespace OpenMEEG {
 
-    #ifndef M_PI
-        constexpr double Pi = 3.14159265358979323846;
-    #else
-        constexpr double Pi = M_PI;
-    #endif
-
-    constexpr double MagFactor = 1e-7;
-
-    inline std::string getNameExtension(const std::string& name) {
-        const std::string::size_type idx = name.find('.');
-        if (idx==std::string::npos) {
-            return std::string("");
-        } else if (name.substr(idx+1).find('.')!=std::string::npos) {
-            return getNameExtension(name.substr(idx+1));
-        } else {
-            return name.substr(idx+1);
-        }
+    inline void dispEllapsed(const std::chrono::duration<double> elapsed_seconds) {
+        std::cout <<  "-------------------------------------------" << std::endl
+                  <<  "| Elapsed Time: " << elapsed_seconds.count() << " s." << std::endl
+                  <<  "-------------------------------------------" << std::endl;
     }
 
-    inline void disp_argv(const int argc,char **argv) {
-        std::cout << std::endl << "| ------ " << argv[0] << std::endl;
-        for (int i=1;i<argc;++i)
-            std::cout << "| " << argv[i] << std::endl;
-        std::cout << "| -----------------------" << std::endl;
-    }
-
-#ifdef USE_PROGRESSBAR
-    inline void progressbar(const unsigned n,const unsigned N,const unsigned w=20) {
-        // w : nb of steps
-        const char cprog  = '.';
-        const char cprog1 = '*';
-        const char cbeg   = '[';
-        const char cend   = ']';
-        const unsigned p = std::min(static_cast<unsigned>(floor(1.f*n*(w+1)/N)),w);
-
-        static unsigned pprev = -1;
-        if (N>1) {
-            if (n==0)
-                pprev = -1;
-
-            if (p!=pprev) {
-                if (n>1) {
-                    // clear previous string
-                    for (unsigned i=0;i<(w+2);++i)
-                        std::cout << "\b";
-
-                    std::cout << cbeg;
-                    for (unsigned i=0;i<p;++i)
-                        std::cout << cprog1;
-
-                    for (unsigned i=p;i<w;++i)
-                        std::cout << cprog;
-
-                    std::cout<< cend;
-                }
-            }
-            pprev = p;
-            if (n>=(N-1))
-                std::cout << std::endl;
-            std::cout.flush();
-        }
-    }
-#endif
-
-    inline void warning(std::string message) {
-        std::cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
-        std::cout << "!!!!!!!!!!! WARNING !!!!!!!!!!!" << std::endl;
-        std::cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
-        std::cout << message << std::endl;
-    }
-
-    inline void print_version(const char* cmd) {
-        #ifdef USE_OMP
-            std::string omp_support = " using OpenMP\n Executing using " + std::to_string(omp_get_max_threads()) + " threads.";
-        #else
-            std::string omp_support = "";
-        #endif
-
-        std::ostringstream display_info;
-        display_info << cmd;
-        display_info << " version " << version;
-        display_info << " compiled at " << __DATE__ << " " << __TIME__;
-        display_info << omp_support;
-        std::cout << display_info.str() << std::endl << std::endl;
+    inline void
+    warning(const std::string& message) {
+        std::cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl
+                  << "!!!!!!!!!!! WARNING !!!!!!!!!!!" << std::endl
+                  << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl
+                  << message << std::endl;
     }
 }

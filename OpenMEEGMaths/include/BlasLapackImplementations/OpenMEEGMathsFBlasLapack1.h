@@ -1,4 +1,3 @@
-
 #pragma once
 
 //  The functions in this file are not always implemented in clapack.

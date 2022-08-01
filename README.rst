@@ -1,25 +1,24 @@
-|Travis|_ |AppVeyor|_ |lgtm|_ |CodeCov|_ |condaVersion|_ |gitter|_
+|GitHub Actions|_ |lgtm|_ |CodeCov|_ |PyPIVersion|_ |condaVersion|_
 
-.. |Travis| image:: https://api.travis-ci.org/openmeeg/openmeeg.svg?branch=master
-.. _Travis: https://travis-ci.org/openmeeg/openmeeg/branches
-
-.. |AppVeyor| image:: https://ci.appveyor.com/api/projects/status/11um4d4c8nn4itju/branch/master?svg=true
-.. _AppVeyor: https://ci.appveyor.com/project/openmeegci/openmeeg/history
-
-.. |CodeCov| image:: https://codecov.io/gh/openmeeg/openmeeg/branch/master/graph/badge.svg
-.. _CodeCov: https://codecov.io/gh/openmeeg/openmeeg
-
-.. |condaVersion| image:: https://anaconda.org/conda-forge/openmeeg/badges/version.svg
-.. _condaVersion: https://anaconda.org/conda-forge/openmeeg
-
-.. |gitter| image:: https://badges.gitter.im/openmeeg/openmeeg.svg
-.. _gitter: https://gitter.im/openmeeg/openmeeg
+.. |GitHub Actions| image:: https://github.com/openmeeg/openmeeg/actions/workflows/build_and_test.yml/badge.svg
+.. _Github Actions: https://github.com/openmeeg/openmeeg/actions/workflows/build_and_test.yml
 
 .. |lgtm| image:: https://img.shields.io/lgtm/grade/cpp/g/openmeeg/openmeeg.svg?logo=lgtm&logoWidth=18
 .. _lgtm: https://lgtm.com/projects/g/openmeeg/openmeeg/context:cpp
 
+.. |CodeCov| image:: https://codecov.io/gh/openmeeg/openmeeg/branch/main/graph/badge.svg
+.. _CodeCov: https://codecov.io/gh/openmeeg/openmeeg
+
+.. |PyPIVersion| image:: https://badge.fury.io/py/openmeeg.svg
+.. _PyPIVersion: https://badge.fury.io/py/openmeeg
+
+.. |condaVersion| image:: https://anaconda.org/conda-forge/openmeeg/badges/version.svg
+.. _condaVersion: https://anaconda.org/conda-forge/openmeeg
+
 OpenMEEG: forward problems solver in the field of EEG and MEG
 =============================================================
+
+.. highlight:: console
 
 The OpenMEEG software is a C++ package for solving the forward
 problems of electroencephalography (EEG) and magnetoencephalography (MEG).
@@ -45,18 +44,17 @@ The references to be acknowledged are ::
 
 .. image:: https://raw.githubusercontent.com/openmeeg/openmeeg.github.io/source/_static/inria.png
 
-Install precompiled binaries
-----------------------------
+Install precompiled library and Python bindings
+-----------------------------------------------
 
-Binaries for Linux/Mac/Windows are available at `Download precompiled binaries <http://openmeeg.gforge.inria.fr/download/?C=M;O=D>`_.
-
-To install OpenMEEG via `anaconda <https://www.anaconda.com/download/>`_ you can just do::
+To install OpenMEEG (along with the binary applications) via `anaconda <https://www.anaconda.com/download/>`_ you can just do::
 
     $ conda install -c conda-forge openmeeg
 
+Python wrappers can also be installed via `pip`::
 
-On Ubuntu/Debian GNU Linux you may be able use the http://neuro.debian.net package repository.
-
+    $ pip install openmeeg
+    
 On Fedora::
 
     $ dnf install openmeeg openmeeg-devel python2-openmeeg
@@ -70,7 +68,6 @@ Additional repositories recommended on RHEL 7::
 
     $ subscription-manager repos --enable "rhel-*-optional-rpms" --enable "rhel-*-extras-rpms"
 
-
 Build OpenMEEG from source
 --------------------------
 
@@ -79,27 +76,19 @@ Unix (Linux & Mac OS X)
 
 On Debian/Ubuntu you will need to install the dependencies with::
 
-    sudo apt-get install gcc g++ make cmake libopenblas-dev liblapacke-dev libhdf5-serial-dev libmatio-dev
+    $ sudo apt-get install gcc g++ make cmake libopenblas-dev liblapacke-dev libmatio-dev libhdf5-dev
 
 *optionally*::
 
-    sudo apt-get install python-dev python-numpy swig libvtk6-dev doxygen graphviz libcgal-dev
+    $ sudo apt-get install python3-numpy swig libvtk6-dev doxygen graphviz libcgal-dev
 
 On Fedora and Centos::
 
-    sudo yum install gcc make cmake openblas-devel hdf5-devel matio-devel
+    $ sudo yum install gcc make cmake openblas-devel hdf5-devel matio-devel
 
 *optionally*::
 
-    sudo yum install python-devel python2-numpy swig vtk-devel doxygen cgal-devel
-
-On Mac OS X, we recommend you install it with `Homebrew <http://brew.sh/>`_ using::
-
-    $ brew install https://raw.githubusercontent.com/openmeeg/openmeeg/master/openmeeg.rb
-
-To install with Homebrew the current development version use::
-
-    $ brew install https://raw.githubusercontent.com/openmeeg/openmeeg/master/openmeeg.rb --devel
+    $ sudo yum install python3-numpy swig vtk-devel doxygen cgal-devel
 
 To install OpenMEEG from source in a terminal::
 
@@ -108,38 +97,43 @@ To install OpenMEEG from source in a terminal::
 then::
 
     $ cd openmeeg
-    $ mkdir build
-    $ cd build
-    $ cmake -DCMAKE_BUILD_TYPE=Release -DUSE_PROGRESSBAR=ON -DBLA_VENDOR=OpenBLAS ..
-    $ make
+    $ cmake -D build -DCMAKE_BUILD_TYPE=Release -DUSE_PROGRESSBAR=ON -DBLA_VENDOR=OpenBLAS .
+    $ cmake --build build --config=Release
 
+**Note for Python users**:
+
+- To use Python bindings you will need a recent version of CMake >= 3.16.2
+- and a recent version of Swig >= 4.0
 
 You will need to define more CMake variables if you want the support for:
 
-- Python wrapping, add "-DENABLE_PYTHON=ON" (default version is 3, add "-DPYTHON_VERSION=2" to use python2)
+`-DENABLE_PYTHON=ON`` (Python >= 3.7 is required)
+    Enable Python wrapping.
+`-DUSE_VTK=ON`
+    VTK file format support. 
+`-DUSE_CGAL=ON`
+    CGAL meshing tools.
+`-DBUILD_DOCUMENTATION=ON`
+    Reference documentation. Make sure to have `doxygen` with `dot` support.
+`-DENABLE_WERROR=ON`
+    Treat compilation warnings as errors 
+`-DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_C_COMPILER_LAUNCHER=ccache`
+    To speed up builds. `ccache` must be installed.
 
-- VTK file format, add "-DUSE_VTK=ON".
+You can run the full test suite with::
 
-- CGAL meshing tools, add "-DUSE_CGAL=ON".
+    $ pushd build
+    $ ctest -C Release || ctest -C Release --rerun-failed --output-on-failure
+    $ popd
 
-- Reference documentation, add "-DBUILD_DOCUMENTATION=ON". Make sure to have `doxygen` with `dot` support.
+If no test is failing you can install with (and optionally with ``--install-prefix=...`` to install somewhere other than the default)::
 
-Then you can run the full test suite with::
-
-    $ make
-
-or if you just want to run the tests for OpenMEEG::
-
-    $ make test
-
-If no test is failing you can install with::
-
-    $ make install
+    $ cmake --build build --target install
 
 You should now be able to run the *om_assemble* command and see something like this::
 
     $ om_assemble
-    om_assemble version 2.4.0 compiled at Mar 21 2018 18:17:12
+    om_assemble version 2.4.7 compiled at Jul 26 2022 18:17:12
 
     om_assemble [-option] [filepaths...]
 
@@ -152,31 +146,24 @@ In some Linux distributions (AMD64/X86_64) you may see some errors like this::
 
     Error while loading shared libraries: libOpenMEEG.so.1: cannot open shared object file: No such file or directory
 
-OpenMEEG puts its libraries in "/usr/local/lib64", which is not included
-in your loader's search path. If so, run this command as root::
-
-    # echo '/usr/local/lib64/' >> /etc/ld.so.conf && ldconfig
-
-Now you can try to run the *om_assemble* again.
+You need to ensure that the ``install`` target libraries (given the prefix that
+was used) is in your library search path, e.g., by settincg ``LD_LIBRARY_PATH``
+or editing ``/etc/ld.so.conf`` and using ``sudo ldconfig``.
 
 You can now give a try to OpenMEEG on the `sample dataset <https://github.com/openmeeg/openmeeg_sample_data/archive/master.zip>`_.
 
 Windows
 ^^^^^^^
 
-You will need to install visual studio, `CMake <http://www.cmake.org>`_.
-Then download the source from github, load the CMake.exe GUI, set the proper option
-and generate the visual studio project. You can then open it and build the project.
-Note that on Windows we currently recommend to use Intel MKL library.
-See how we build OpenMEEG on AppVeyor: `.appveyor.yml <https://github.com/openmeeg/openmeeg/blob/master/.appveyor.yml>`_
+You will need to install MSVC 15 (2017) or later and `CMake <http://www.cmake.org>`_,
+which can be installed via ``pip``.
+Then download the source from github, and follow the steps that we use to
+build OpenMEEG on GitHub Actions: `.github/workflows/build_and_test.yml <https://github.com/openmeeg/openmeeg/blob/main/.github/workflows/build_and_test.yml>`_
 
-Supported Blas-Lapack Implementations
+Supported Blas/Lapack Implementations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-- on Linux: `Intel MKL <http://software.intel.com/en-us/intel-mkl/>`_ , `OpenBLAS <http://www.openblas.net/>`_ (and possibly `Atlas <http://math-atlas.sourceforge.net>`_)
-
-- on Mac OS X: `Intel MKL <http://software.intel.com/en-us/intel-mkl/>`_ , `OpenBLAS <http://www.openblas.net/>`_, `vecLib <https://developer.apple.com/reference/accelerate/veclib>`_
-
-- on Windows: `Intel MKL <http://software.intel.com/en-us/intel-mkl/>`_ , `OpenBLAS <http://www.openblas.net/>`_
+We support `OpenBLAS <http://www.openblas.net/>`_ and
+`Intel MKL <http://software.intel.com/en-us/intel-mkl/>`_ on Linux, macOS, and Windows.
 
 Using OpenMEEG
 --------------

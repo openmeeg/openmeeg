@@ -37,67 +37,63 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#include "cpuChrono.h"   // XXX: to refactor when reviewing text-gui
 #include <om_utils.h>
+#include <commandline.h>
 #include <forward.h>
 
-using namespace std;
 using namespace OpenMEEG;
 
-void getHelp(char** argv);
+void
+getHelp(const char* command) {
+    std::cout << command << " [-h | --help] filepaths" << std::endl << std::endl
+              << "   Compute the forward problem " << std::endl
+              << "   Filepaths are in order :" << std::endl
+              << "   GainMatrix (bin), RealSourcesData (txt), SimulatedData (txt), NoiseLevel (float)" << std::endl
+              << std::endl;
+}
 
-int main(int argc, char **argv)
-{
+void error(const char* command,const bool unknown_option=false) {
+    std::cerr << "Error: " << ((unknown_option) ? "Unknown option." : "Not enough arguments.") << std::endl;
+    getHelp(command);
+    exit(1);
+}
+
+int
+main(int argc,char **argv) {
+
     print_version(argv[0]);
 
-    if(argc==1)
-    {
-        cerr << "Not enough arguments \nPlease try \"" << argv[0] << " -h\" or \"" << argv[0] << " --help \" \n" << endl;
+    if (argc==2 && (!strcmp(argv[1],"-h") || !strcmp(argv[1],"--help"))) {
+        getHelp(argv[0]);
         return 0;
     }
 
-    if ((!strcmp(argv[1],"-h")) | (!strcmp(argv[1],"--help"))) {
-        getHelp(argv);
-        return 0;
-    }
-
-    if(argc < 5)
-    {
-        cerr << "Bad arguments \nPlease try \"" << argv[0] << " -h\" or \"" << argv[0] << " --help \" \n" << endl;
-        exit(1);
-    }
+    if (argc<5)
+        error(argv[0]);
 
     // Start Chrono
+
     auto start_time = std::chrono::system_clock::now();
 
-    disp_argv(argc,argv);
+    print_commandline(argc,argv);
 
     // declaration of argument variables======================================================================
+
     Matrix GainMatrix(argv[1]);
     Matrix RealSourcesData(argv[2]);
-    double NoiseLevel;
 
-    NoiseLevel = atof(argv[4]);
+    const double NoiseLevel = atof(argv[4]);
 
     Forward SimulatedData(GainMatrix,RealSourcesData,NoiseLevel);
 
     // write output variables ===================================================================================
+
     SimulatedData.save(argv[3]);
 
     // Stop Chrono
+
     auto end_time = std::chrono::system_clock::now();
     dispEllapsed(end_time-start_time);
 
     return 0;
-}
-
-void getHelp(char** argv)
-{
-    cout << argv[0] << " [filepaths...]" << endl << endl;
-
-    cout << "   Compute the forward problem " << endl;
-    cout << "   Filepaths are in order :" << endl;
-    cout << "   GainMatrix (bin), RealSourcesData (txt), SimulatedData (txt), NoiseLevel (float)" << endl << endl;
-
-    exit(0);
 }

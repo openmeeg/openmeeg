@@ -39,13 +39,37 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #pragma once
 
-#include <cstdlib>
 #include <vector>
+#include <map>
+
 #include <vect3.h>
 #include <vertex.h>
 #include <edge.h>
+#include <GeometryExceptions.H>
 
 namespace OpenMEEG {
+
+    struct TriangleIndices {
+
+        TriangleIndices() { }
+
+        TriangleIndices(const unsigned i,const unsigned j,const unsigned k) {
+            indices[0] = i;
+            indices[1] = j;
+            indices[2] = k;
+        }
+
+        TriangleIndices(const unsigned ind[3]): TriangleIndices(ind[0],ind[1],ind[2]) { }
+
+        TriangleIndices(const TriangleIndices& ind) { std::copy(&ind[0],&ind[3],&indices[0]); }
+
+        TriangleIndices& operator=(const TriangleIndices&) = default;
+
+              unsigned& operator[](const unsigned i)       { return indices[i]; }
+        const unsigned& operator[](const unsigned i) const { return indices[i]; }
+
+        unsigned indices[3];
+    };
 
     /// \brief  Triangle
     /// Triangle class
@@ -93,8 +117,6 @@ namespace OpenMEEG {
 
         Edge edge(const Vertex& V) const {
             const unsigned ind = vertex_index(V);
-            if (ind==4)
-                return Edge();
             return Edge(vertex(indices[ind][0]),vertex(indices[ind][1]));
         }
 
@@ -124,13 +146,17 @@ namespace OpenMEEG {
 
         void change_orientation() { std::swap(vertices_[0],vertices_[1]); }
 
+        /// Check for intersection with another triangle.
+
+        bool intersects(const Triangle& triangle) const;
+
     private:
 
         unsigned vertex_index(const Vertex& V) const {
             for (unsigned i=0;i<3;++i)
                 if (&vertex(i)==&V)
                     return i;
-            return 4;
+            throw UnknownVertex();
         }
 
         static constexpr unsigned indices[3][2] = {{1,2},{2,0},{0,1}};
@@ -141,5 +167,8 @@ namespace OpenMEEG {
         unsigned ind;          ///< Index of the triangle
     };
 
-    typedef std::vector<Triangle> Triangles;
+    typedef std::vector<Triangle>  Triangles;
+    typedef std::vector<Triangle*> TrianglesRefs;
+
+    typedef std::map<unsigned,unsigned> IndexMap;
 }

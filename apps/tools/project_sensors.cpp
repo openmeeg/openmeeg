@@ -38,51 +38,54 @@ knowledge of the CeCILL-B license and that you accept its terms.
 */
 
 #include <string>
-#include <options.h>
+
 #include <matrix.h>
 #include <danielsson.h>
 #include <vector.h>
-#include <om_utils.h>
 #include <sensors.h>
+#include <commandline.h>
 
 using namespace OpenMEEG;
 
-int main( int argc, char** argv)
-{
+int
+main(int argc,char* argv[]) {
+
     print_version(argv[0]);
 
-    command_usage("Project the sensors onto the given mesh:");
-    const char *sensors_filename = command_option("-i",(const char *) NULL,"Sensors positions");
-    const char *mesh_filename = command_option("-m",(const char *) NULL,"Mesh on which to project the sensors");
-    const char *output_filename = command_option("-o",(const char *) NULL,"Output sensors positions");
+    const CommandLine cmd(argc,argv,"Project the sensors onto the given mesh:");
+    const std::string& sensors_filename = cmd.option("-i",std::string(),"Sensors positions");
+    const std::string& mesh_filename    = cmd.option("-m",std::string(),"Mesh on which to project the sensors");
+    const std::string& output_filename  = cmd.option("-o",std::string(),"Output sensors positions");
 
-    if (command_option("-h",(const char *)0,0)) return 0;
+    if (cmd.help_mode())
+        return 0;
 
-    if ( !sensors_filename || !mesh_filename || !output_filename) {
-        std::cout << "Not enough arguments, try the -h option" << std::endl;
+    if (sensors_filename=="" || mesh_filename=="" || output_filename=="") {
+        std::cout << "Missing arguments, try the -h option" << std::endl;
         return 1;
     }
 
-    // read the file containing the positions of the EEG patches
+    // Read the file containing the positions of the EEG patches
+
     Sensors sensors(sensors_filename);
 
     Mesh mesh(mesh_filename);
     Interface interface;
-    interface.oriented_meshes().push_back(OrientedMesh(mesh)); // one mesh per interface, (well oriented)
+    interface.oriented_meshes().push_back(OrientedMesh(mesh,OrientedMesh::Normal)); // one mesh per interface, (well oriented)
 
     Matrix output(sensors.getNumberOfPositions(), 3);
 
     const size_t nb_positions = sensors.getNumberOfPositions();
-    for (size_t i=0;i<nb_positions;++i) {
+    for (size_t i=0; i<nb_positions; ++i) {
         const Vector position = sensors.getPosition(i);
         Vect3 current_position;
-        for (unsigned k=0;k<3;++k)
+        for (unsigned k=0; k<3; ++k)
             current_position(k) = position(k);
         Vect3 alphas;
-        Triangle triangle; // closest triangle
-        dist_point_interface(current_position,interface,alphas,triangle);
+        const auto& res = dist_point_interface(current_position,interface,alphas);
+        const Triangle& triangle = std::get<1>(res); // closest triangle
         current_position = alphas(0)*triangle.vertex(0)+alphas(1)*triangle.vertex(1)+alphas(2)*triangle.vertex(2);
-        for (unsigned k=0;k<3;++k)
+        for (unsigned k=0; k<3; ++k)
             output(i,k) = current_position(k);
     }
 

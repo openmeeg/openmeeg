@@ -61,8 +61,8 @@ namespace OpenMEEG {
         SymMatrix(): LinOp(0,0,SYMMETRIC,2),value() {}
 
         SymMatrix(const char* fname): LinOp(0,0,SYMMETRIC,2),value() { this->load(fname); }
-        SymMatrix(size_t N): LinOp(N,N,SYMMETRIC,2),value(size()) { }
-        SymMatrix(size_t M,size_t N): LinOp(N,N,SYMMETRIC,2),value(size()) { om_assert(N==M); }
+        SymMatrix(Dimension N): LinOp(N,N,SYMMETRIC,2),value(size()) { }
+        SymMatrix(Dimension M,Dimension N): LinOp(N,N,SYMMETRIC,2),value(size()) { om_assert(N==M); }
         SymMatrix(const SymMatrix& S,const DeepCopy): LinOp(S.nlin(),S.nlin(),SYMMETRIC,2),value(S.size(),S.data()) { }
 
         explicit SymMatrix(const Vector& v);
@@ -71,8 +71,8 @@ namespace OpenMEEG {
         size_t size() const { return nlin()*(nlin()+1)/2; };
         void info() const ;
 
-        size_t  ncol() const { return nlin(); } // SymMatrix only need num_lines
-        size_t& ncol()       { return nlin(); }
+        Dimension  ncol() const { return nlin(); } // SymMatrix only need num_lines
+        Dimension& ncol()       { return nlin(); }
 
         void alloc_data() { value = LinOpValue(size()); }
         void reference_data(const double* array) { value = LinOpValue(size(),array); }
@@ -81,40 +81,50 @@ namespace OpenMEEG {
         void set(double x) ;
         double* data() const { return value.get(); }
 
-        inline double operator()(size_t i,size_t j) const;
-        inline double& operator()(size_t i,size_t j) ;
+        double  operator()(const Index i,const Index j) const {
+            om_assert(i<nlin());
+            om_assert(j<nlin());
+            return data()[(i<=j) ? i+j*(j+1)/2 : j+i*(i+1)/2];
+        }
 
-        Matrix    operator()(size_t i_start, size_t i_end, size_t j_start, size_t j_end) const;
-        Matrix    submat(size_t istart, size_t isize, size_t jstart, size_t jsize) const;
-        SymMatrix submat(size_t istart, size_t iend) const;
-        Vector    getlin(size_t i) const;
-        void      setlin(size_t i, const Vector& v);
-        Vector    solveLin(const Vector &B) const;
-        void      solveLin(Vector * B, int nbvect);
+        double& operator()(const Index i,const Index j) {
+            om_assert(i<nlin());
+            om_assert(j<nlin());
+            return data()[(i<=j) ? i+j*(j+1)/2 : j+i*(i+1)/2];
+        }
+
+        Matrix    operator()(const Index i_start,const Index i_end,const Index j_start,const Index j_end) const;
+        Matrix    submat(const Index istart,const Index isize,const Index jstart,const Index jsize) const;
+        SymMatrix submat(const Index istart,const Index iend) const;
+        Vector    getlin(const Index i) const;
+        void      setlin(const Index i,const Vector& v);
+        Vector    solveLin(const Vector& B) const;
+        void      solveLin(Vector* B,const int nbvect);
         Matrix    solveLin(Matrix& B) const;
 
         const SymMatrix& operator=(const double d);
 
         SymMatrix operator+(const SymMatrix& B) const;
         SymMatrix operator-(const SymMatrix& B) const;
-        SymMatrix operator*(const SymMatrix& B) const;
+        Matrix    operator*(const SymMatrix& B) const;
         Matrix    operator*(const Matrix& B) const;
         Vector    operator*(const Vector& v) const;
-        SymMatrix operator*(double x) const;
-        SymMatrix operator/(double x) const {return (*this)*(1/x);}
+        SymMatrix operator*(const double x) const;
+        SymMatrix operator/(const double x) const { return (*this)*(1/x); }
+
         void operator +=(const SymMatrix& B);
         void operator -=(const SymMatrix& B);
-        void operator *=(double x);
-        void operator /=(double x) { (*this)*=(1/x); }
+        void operator *=(const double x);
+        void operator /=(const double x) { (*this)*=(1/x); }
 
         SymMatrix inverse() const;
         void invert();
         SymMatrix posdefinverse() const;
         double det();
-        // void eigen(Matrix & Z, Vector & D );
+        // void eigen(Matrix& Z,Vector& D);
 
-        void save(const char *filename) const;
-        void load(const char *filename);
+        void save(const char* filename) const;
+        void load(const char* filename);
 
         void save(const std::string& s) const { save(s.c_str()); }
         void load(const std::string& s)       { load(s.c_str()); }
@@ -122,30 +132,15 @@ namespace OpenMEEG {
         friend class Matrix;
     };
 
-    inline double SymMatrix::operator()(size_t i,size_t j) const {
-        om_assert(i<nlin() && j<nlin());
-        if(i<=j)
-            return data()[i+j*(j+1)/2];
-        else
-            return data()[j+i*(i+1)/2];
-    }
+    // Returns the solution of (this)*X = B
 
-    inline double& SymMatrix::operator()(size_t i,size_t j) {
-        om_assert(i<nlin() && j<nlin());
-        if(i<=j)
-            return data()[i+j*(j+1)/2];
-        else
-            return data()[j+i*(i+1)/2];
-    }
-
-    //returns the solution of (this)*X = B
-    inline Vector SymMatrix::solveLin(const Vector &B) const {
+    inline Vector SymMatrix::solveLin(const Vector& B) const {
         SymMatrix invA(*this,DEEP_COPY);
         Vector X(B,DEEP_COPY);
 
     #ifdef HAVE_LAPACK
-        // Bunch Kaufman Factorization
-        BLAS_INT *pivots=new BLAS_INT[nlin()];
+        // Bunch Kaufman factorization
+        BLAS_INT* pivots=new BLAS_INT[nlin()];
         int Info = 0;
         DSPTRF('U',sizet_to_int(invA.nlin()),invA.data(),pivots,Info);
         // Inverse
@@ -160,7 +155,8 @@ namespace OpenMEEG {
     }
 
     // stores in B the solution of (this)*X = B, where B is a set of nbvect vector
-    inline void SymMatrix::solveLin(Vector * B, int nbvect) {
+
+    inline void SymMatrix::solveLin(Vector* B,const int nbvect) {
         SymMatrix invA(*this,DEEP_COPY);
 
     #ifdef HAVE_LAPACK
@@ -180,23 +176,25 @@ namespace OpenMEEG {
     #endif
     }
 
-    inline void SymMatrix::operator -=(const SymMatrix &B) {
-        om_assert(nlin()==B.nlin());
-    #ifdef HAVE_BLAS
-        BLAS(daxpy,DAXPY)(sizet_to_int(nlin()*(nlin()+1)/2), -1.0, B.data(), 1, data() , 1);
-    #else
-        for (size_t i=0;i<nlin()*(nlin()+1)/2;i++)
-            data()[i]+=B.data()[i];
-    #endif
-    }
-
-    inline void SymMatrix::operator +=(const SymMatrix &B) {
+    inline void SymMatrix::operator+=(const SymMatrix& B) {
         om_assert(nlin()==B.nlin());
     #ifdef HAVE_BLAS
         BLAS(daxpy,DAXPY)(sizet_to_int(nlin()*(nlin()+1)/2), 1.0, B.data(), 1, data() , 1);
     #else
-        for (size_t i=0;i<nlin()*(nlin()+1)/2;i++)
-            data()[i]+=B.data()[i];
+        const size_t sz = size();
+        for (size_t i=0; i<sz; ++i)
+            data()[i] += B.data()[i];
+    #endif
+    }
+
+    inline void SymMatrix::operator-=(const SymMatrix& B) {
+        om_assert(nlin()==B.nlin());
+    #ifdef HAVE_BLAS
+        BLAS(daxpy,DAXPY)(sizet_to_int(nlin()*(nlin()+1)/2), -1.0, B.data(), 1, data() , 1);
+    #else
+        const size_t sz = size();
+        for (size_t i=0; i<sz; ++i)
+            data()[i] -= B.data()[i];
     #endif
     }
 
@@ -246,7 +244,7 @@ namespace OpenMEEG {
         return(d);
     }
 
-    // inline void SymMatrix::eigen(Matrix & Z, Vector & D ){
+    // inline void SymMatrix::eigen(Matrix& Z,Vector& D ){
     //     // performs the complete eigen-decomposition.
     //     //  (*this) = Z.D.Z'
     //     // -> eigenvector are columns of the Matrix Z.
@@ -272,28 +270,17 @@ namespace OpenMEEG {
     // #endif
     // }
 
-    inline SymMatrix SymMatrix::operator +(const SymMatrix &B) const {
+    inline SymMatrix SymMatrix::operator+(const SymMatrix& B) const {
         om_assert(nlin()==B.nlin());
         SymMatrix C(*this,DEEP_COPY);
-    #ifdef HAVE_BLAS
-        BLAS(daxpy,DAXPY)(sizet_to_int(nlin()*(nlin()+1)/2), 1.0, B.data(), 1, C.data() , 1);
-    #else
-        for (size_t i=0;i<nlin()*(nlin()+1)/2;i++)
-            C.data()[i]+=B.data()[i];
-    #endif
+        C += B;
         return C;
     }
 
-    inline SymMatrix SymMatrix::operator -(const SymMatrix &B) const
-    {
+    inline SymMatrix SymMatrix::operator-(const SymMatrix& B) const {
         om_assert(nlin()==B.nlin());
         SymMatrix C(*this,DEEP_COPY);
-    #ifdef HAVE_BLAS
-        BLAS(daxpy,DAXPY)(sizet_to_int(nlin()*(nlin()+1)/2), -1.0, B.data(), 1, C.data() , 1);
-    #else
-        for (size_t i=0;i<nlin()*(nlin()+1)/2;i++)
-            C.data()[i]-=B.data()[i];
-    #endif
+        C -= B;
         return C;
     }
 
@@ -301,14 +288,15 @@ namespace OpenMEEG {
     #ifdef HAVE_LAPACK
         SymMatrix invA(*this, DEEP_COPY);
         // LU
-        BLAS_INT *pivots = new BLAS_INT[nlin()];
+        BLAS_INT* pivots = new BLAS_INT[nlin()];
         int Info = 0;
-        DSPTRF('U', sizet_to_int(nlin()), invA.data(), pivots, Info);
+        const BLAS_INT M = sizet_to_int(nlin());
+        DSPTRF('U',M,invA.data(),pivots,Info);
         // Inverse
-        double *work = new double[this->nlin() * 64];
-        DSPTRI('U', sizet_to_int(nlin()), invA.data(), pivots, work, Info);
-        om_assert(Info==0);
+        double* work = new double[nlin()*64];
+        DSPTRI('U',M,invA.data(),pivots,work,Info);
 
+        om_assert(Info==0);
         delete[] pivots;
         delete[] work;
         return invA;
@@ -321,12 +309,13 @@ namespace OpenMEEG {
     inline void SymMatrix::invert() {
     #ifdef HAVE_LAPACK
         // LU
-        BLAS_INT *pivots = new BLAS_INT[nlin()];
+        BLAS_INT* pivots = new BLAS_INT[nlin()];
         int Info = 0;
-        DSPTRF('U', sizet_to_int(nlin()), data(), pivots, Info);
+        const BLAS_INT M = sizet_to_int(nlin());
+        DSPTRF('U',M,data(),pivots,Info);
         // Inverse
-        double *work = new double[this->nlin() * 64];
-        DSPTRI('U', sizet_to_int(nlin()), data(), pivots, work, Info);
+        double* work = new double[nlin()*64];
+        DSPTRI('U',M,data(),pivots,work,Info);
 
         om_assert(Info==0);
         delete[] pivots;
@@ -338,30 +327,34 @@ namespace OpenMEEG {
     #endif
     }
 
-    inline Vector SymMatrix::operator *(const Vector &v) const {
+    inline Vector SymMatrix::operator*(const Vector& v) const {
         om_assert(nlin()==v.size());
         Vector y(nlin());
     #ifdef HAVE_BLAS
-        DSPMV(CblasUpper,sizet_to_int(nlin()),1.,data(),v.data(),1,0.,y.data(),1);
+        const BLAS_INT M = sizet_to_int(nlin());
+        DSPMV(CblasUpper,M,1.0,data(),v.data(),1,0.0,y.data(),1);
     #else
-        for (size_t i=0;i<nlin();i++) {
+        for (Index i=0; i<nlin(); ++i) {
             y(i)=0;
-            for (size_t j=0;j<nlin();j++)
+            for (Index j=0; j<nlin(); ++j)
                 y(i)+=(*this)(i,j)*v(j);
         }
     #endif
         return y;
     }
 
-    inline Vector SymMatrix::getlin(size_t i) const {
+    inline Vector SymMatrix::getlin(const Index i) const {
         om_assert(i<nlin());
         Vector v(ncol());
-        for ( size_t j = 0; j < ncol(); ++j) v.data()[j] = this->operator()(i,j);
+        for (Index j=0; j<ncol(); ++j)
+            v(j) = (*this)(i,j);
         return v;
     }
 
-    inline void SymMatrix::setlin(size_t i,const Vector& v) {
-        om_assert(v.size()==nlin() && i<nlin());
-        for ( size_t j = 0; j < ncol(); ++j) this->operator()(i,j) = v(j);
+    inline void SymMatrix::setlin(const Index i,const Vector& v) {
+        om_assert(v.size()==nlin());
+        om_assert(i<nlin());
+        for (Index j=0; j<ncol(); ++j)
+            (*this)(i,j) = v(j);
     }
 }

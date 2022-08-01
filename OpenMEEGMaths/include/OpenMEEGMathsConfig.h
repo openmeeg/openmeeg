@@ -1,7 +1,7 @@
 /*
 Project Name : OpenMEEG
 
-© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre 
+© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre
 GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU, Théodore PAPADOPOULO,
 Emmanuel OLIVI
 Maureen.Clerc.AT.inria.fr, keriven.AT.certis.enpc.fr,
@@ -70,12 +70,6 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #endif
 
 //  Blas/Lapack configuration
-
-#if defined(MKL_ILP64) && defined(USE_MKL)
-typedef long long int BLAS_INT;
-#else
-typedef int BLAS_INT;
-#endif
 
 #if defined(USE_LAPACK)
 #include <BlasLapackImplementations/OpenMEEGMathsBlasLapackConfig.h>

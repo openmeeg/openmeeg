@@ -41,40 +41,41 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include "sparse_matrix.h"
 #include "symmatrix.h"
 #include "matrix.h"
-#include "options.h"
-#include "om_utils.h"
+#include "commandline.h"
 
 #include <cmath>
 
-using namespace std;
 using namespace OpenMEEG;
 
 template <typename MATRIX>
-void print_infos(const char* filename) {
+void print_infos(const std::string& filename) {
     MATRIX M;
     M.load(filename);
     M.info();
 }
 
-int main( int argc, char **argv)
-{
+int
+main(int argc,char* argv[]) {
+
     print_version(argv[0]);
+
     //TODO doesn't say txt, if you don't specify it
 
-    command_usage("Provides informations on a Matrix generated with OpenMEEG");
+    const CommandLine cmd(argc,argv,"Provides informations on a Matrix generated with OpenMEEG");
 
-    const char* filename = command_option("-i",(const char *) NULL,"Matrix file");
-    const char* sym      = command_option("-sym",(const char *) 0,"Data are symmetric matrices");
-    const char* sparse   = command_option("-sparse",(const char *) 0,"Data are sparse matrices");
+    const std::string& filename = cmd.option("-i",     std::string(),"Matrix file");
+    const bool         sym      = cmd.option("-sym",   false,        "Data are symmetric matrices");
+    const bool         sparse   = cmd.option("-sparse",false,        "Data are sparse matrices");
     
-    if (command_option("-h",(const char *)0,0)) return 0;
+    if (cmd.help_mode())
+        return 0;
 
-    if (!filename) {
-        cerr << "Please set Matrix File" << endl;
+    if (filename=="") {
+        std::cerr << "Please set Matrix File" << std::endl;
         exit(1);
     }
 
-    cout << "Loading : " << filename << endl;
+    std::cout << "Loading : " << filename << std::endl;
 
     if (sym) {
         print_infos<SymMatrix>(filename);

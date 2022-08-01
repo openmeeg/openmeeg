@@ -48,161 +48,122 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <operators.h>
 #include <assemble.h>
 
+#include <constants.h>
+
 namespace OpenMEEG {
 
-    template <typename T>
-    void deflate(T& M,const Interface& interface,const double coef) {
-        //  deflate the Matrix
-        for (const auto& omesh : interface.oriented_meshes()) {
-            const Mesh& mesh     = omesh.mesh();
-            const auto& vertices = mesh.vertices();
-            for (auto vit1=vertices.begin();vit1!=vertices.end();++vit1) {
-                #pragma omp parallel for
-                #if defined NO_OPENMP || defined OPENMP_ITERATOR
-                for (auto vit2=vit1; vit2<vertices.end(); ++vit2) {
-                #else
-                for (int i2=vit1-vertices.begin();i2<vertices.size();++i2) {
-                    const auto vit2 = vertices.begin()+i2;
-                #endif
-                    M((*vit1)->index(),(*vit2)->index()) += coef;
-                }
-            }
-        }
-    }
+    namespace Details {
 
-    template <typename T>
-    void deflate(T& M,const Geometry& geo) {
-        //  deflate all current barriers as one
-        for (const auto& part : geo.isolated_parts()) {
-            unsigned nb_vertices = 0;
-            unsigned i_first = 0;
-            for (const auto& meshptr : part)
-                if (meshptr->outermost()){
-                    nb_vertices += meshptr->vertices().size();
-                    if (i_first==0)
-                        i_first = meshptr->vertices().front()->index();
-                }
-            const double coef = M(i_first,i_first)/nb_vertices;
-            for (const auto& meshptr : part)
-                if (meshptr->outermost()) {
-                    const auto& vertices = meshptr->vertices();
-                    for (auto vit1=vertices.begin(); vit1!=vertices.end(); ++vit1) {
-                        #pragma omp parallel for
-                        #if defined NO_OPENMP || defined OPENMP_ITERATOR
-                        for (auto vit2=vit1; vit2<vertices.end(); ++vit2) {
-                        #else
-                        for (int i2=vit1-vertices.begin();i2<vertices.size();++i2) {
-                            const auto vit2 = vertices.begin()+i2;
-                        #endif
-                            M((*vit1)->index(),(*vit2)->index()) += coef;
+        template <typename T>
+        void deflate(T& M,const Geometry& geo) {
+            //  deflate all current barriers as one
+            for (const auto& part : geo.isolated_parts()) {
+                unsigned nb_vertices = 0;
+                unsigned i_first = 0;
+                for (const auto& meshptr : part)
+                    if (meshptr->outermost()){
+                        nb_vertices += meshptr->vertices().size();
+                        if (i_first==0)
+                            i_first = meshptr->vertices().front()->index();
+                    }
+                const double coef = M(i_first,i_first)/nb_vertices;
+                for (const auto& meshptr : part)
+                    if (meshptr->outermost()) {
+                        const auto& vertices = meshptr->vertices();
+                        for (auto vit1=vertices.begin(); vit1!=vertices.end(); ++vit1) {
+                            #pragma omp parallel for
+                            #if defined NO_OPENMP || defined OPENMP_ITERATOR
+                            for (auto vit2=vit1; vit2<vertices.end(); ++vit2) {
+                            #else
+                            for (int i2=vit1-vertices.begin();i2<vertices.size();++i2) {
+                                const auto vit2 = vertices.begin()+i2;
+                            #endif
+                                M((*vit1)->index(),(*vit2)->index()) += coef;
+                            }
                         }
                     }
+            }
+        }
+
+        struct AllBlocks {
+            AllBlocks() { }
+            bool operator()(const Mesh&,const Mesh&) const { return false; }
+        };
+
+        struct AllButBlock {
+            AllButBlock(const Mesh& m): mesh(m) { }
+            bool operator()(const Mesh& mesh1,const Mesh& mesh2) const { return mesh1==mesh2 && mesh1==mesh; }
+            const Mesh& mesh;
+        };
+
+        template <typename TYPE,typename Selector>
+        TYPE HeadMatrix(const Geometry& geo,const Integrator& integrator,const Selector& disableBlock) {
+
+            TYPE symmatrix(geo.nb_parameters()-geo.nb_current_barrier_triangles());
+            HeadMatrixBlocks<TYPE>::init(symmatrix);
+
+            // Iterate over pairs of communicating meshes (sharing a domains) to fill the
+            // lower half of the HeadMat (since it is symmetric).
+
+            for (const auto& mp : geo.communicating_mesh_pairs()) {
+                const Mesh& mesh1 = mp(0);
+                const Mesh& mesh2 = mp(1);
+
+                if (disableBlock(mesh1,mesh2))
+                    continue;
+
+                const double factor     = mp.relative_orientation()*K;
+                const double SCondCoeff =  factor*geo.sigma_inv(mesh1,mesh2);
+                const double NCondCoeff =  factor*geo.sigma(mesh1,mesh2);
+                const double DCondCoeff = -factor*geo.indicator(mesh1,mesh2);
+
+                const double coeffs[3] = { SCondCoeff, NCondCoeff, DCondCoeff };
+
+                if (&mesh1==&mesh2) {
+                    HeadMatrixBlocks<DiagonalBlock> operators(DiagonalBlock(mesh1,integrator));
+                    operators.set_blocks(coeffs,symmatrix);
+                } else {
+                    HeadMatrixBlocks<NonDiagonalBlock> operators(NonDiagonalBlock(mesh1,mesh2,integrator));
+                    operators.set_blocks(coeffs,symmatrix);
                 }
+            }
+
+            // Deflate all current barriers as one
+
+            deflate(symmatrix,geo);
+
+            return symmatrix;
         }
     }
 
-    HeadMat::HeadMat(const Geometry& geo,const unsigned gauss_order) {
-
-        SymMatrix& symmatrix = *this;
-
-        symmatrix = SymMatrix((geo.nb_parameters()-geo.nb_current_barrier_triangles()));
-        symmatrix.set(0.0);
-        constexpr double K = 1.0/(4*Pi);
-
-        // We iterate over pairs of communicating meshes (sharing a domains) to fill the
-        // lower half of the HeadMat (since it is symmetric).
-
+    SymMatrix conductivity_coefficients(const Geometry& geo) {
+        SymMatrix cond_coeffs(10,10);
         for (const auto& mp : geo.communicating_mesh_pairs()) {
             const Mesh& mesh1 = mp(0);
             const Mesh& mesh2 = mp(1);
-
-            const int orientation = mp.relative_orientation();
-
-            double Ncoeff;
-            if ((!mesh1.current_barrier()) && (!mesh2.current_barrier()) ) {
-                // Computing S block first because it's needed for the corresponding N block
-                const double inv_cond = geo.sigma_inv(mesh1,mesh2);
-                operatorS(mesh1,mesh2,symmatrix,orientation*inv_cond*K,gauss_order);
-                Ncoeff = geo.sigma(mesh1,mesh2)/inv_cond;
-            } else {
-                Ncoeff = orientation*geo.sigma(mesh1,mesh2)*K;
-            }
-
-            const double Dcoeff = -orientation*geo.indicator(mesh1,mesh2)*K;
-            if (!mesh1.current_barrier()){
-                // Computing D block
-                operatorD(mesh1,mesh2,symmatrix,Dcoeff,gauss_order,false);
-            }
-            if ((mesh1!=mesh2) && (!mesh2.current_barrier())){
-                // Computing D* block
-                operatorD(mesh1,mesh2,symmatrix,Dcoeff,gauss_order,true);
-            }
-
-            // Computing N block
-
-            operatorN(mesh1,mesh2,symmatrix,Ncoeff,gauss_order);
+            const double factor = mp.relative_orientation()*K;
+            const double Scoeff =  factor*geo.sigma_inv(mesh1,mesh2);
+            const double Ncoeff =  factor*geo.sigma(mesh1,mesh2);
+            const double Dcoeff = -factor*geo.indicator(mesh1,mesh2);
         }
-
-        // Deflate all current barriers as one
-
-        deflate(symmatrix,geo);
+        return cond_coeffs;
     }
 
-    //  The first part of this code is extremely similar to the method above.... TODO: Commonize ??
+    SymMatrix HeadMat(const Geometry& geo,const Integrator& integrator) {
+        return Details::HeadMatrix<SymMatrix>(geo,integrator,Details::AllBlocks());
+    }
 
-    Matrix HeadMatrix(const Geometry& geo,const Interface& Cortex,const unsigned gauss_order,const unsigned extension=0) {
-
-        // Build the HeadMat:
-        // The following is the same as HeadMat::HeadMat except N_11, D_11 and S_11 are not computed. TODO ?
-
-        const unsigned Nl = geo.nb_parameters()-geo.nb_current_barrier_triangles()-Cortex.nb_vertices()-Cortex.nb_triangles()+extension;
-        const unsigned Nc = geo.nb_parameters()-geo.nb_current_barrier_triangles();
-
-        SymMatrix symmatrix(Nc);
-        symmatrix.set(0.0);
-
-        // Iterate over pairs of communicating meshes (sharing a domains) to fill the
-        // lower half of the HeadMat (since it is symmetric).
+    Matrix HeadMatrix(const Geometry& geo,const Interface& Cortex,const Integrator& integrator,const unsigned extension=0) {
 
         const Mesh& cortex = Cortex.oriented_meshes().front().mesh();
-        for (const auto& mp : geo.communicating_mesh_pairs()) {
-            const Mesh& mesh1 = mp(0);
-            const Mesh& mesh2 = mp(1);
-
-            const int orientation = mp.relative_orientation();
-
-            constexpr double K = 1.0/(4*Pi);
-            double Ncoeff;
-            if (!(mesh1.current_barrier() || mesh2.current_barrier()) && ((mesh1!=mesh2) || (mesh1!=cortex))) {
-                // Computing S block first because it's needed for the corresponding N block
-                const double inv_cond = geo.sigma_inv(mesh1,mesh2);
-                operatorS(mesh1,mesh2,symmatrix,orientation*inv_cond*K,gauss_order);
-                Ncoeff = geo.sigma(mesh1,mesh2)/inv_cond;
-            } else {
-                Ncoeff = orientation*geo.sigma(mesh1,mesh2)*K;
-            }
-
-            const double Dcoeff = -orientation*geo.indicator(mesh1,mesh2)*K;
-            if (!mesh1.current_barrier() && (((mesh1!=mesh2) || (mesh1!=cortex)))) // Computing D block
-                operatorD(mesh1,mesh2,symmatrix,Dcoeff,gauss_order,false);
-
-            if ((mesh1!=mesh2) && mesh2.current_barrier()) // Computing D* block
-                operatorD(mesh1,mesh2,symmatrix,Dcoeff,gauss_order,true);
-
-            // Computing N block
-
-            if ((mesh1!=mesh2) || (mesh1!=cortex))
-                operatorN(mesh1,mesh2,symmatrix,Ncoeff,gauss_order);
-        }
-
-        // Deflate all current barriers as one
-
-        deflate(symmatrix,geo);
+        const SymMatrix& symmatrix = Details::HeadMatrix<SymMatrix>(geo,integrator,Details::AllButBlock(cortex));
 
         // Copy symmatrix into the returned matrix except for the lines related to the cortex
         // (vertices [i_vb_c, i_ve_c] and triangles [i_tb_c, i_te_c]).
 
-        Matrix matrix = Matrix(Nl,Nc);
+        const unsigned Nl = geo.nb_parameters()-geo.nb_current_barrier_triangles()-Cortex.nb_vertices()-Cortex.nb_triangles()+extension;
+
+        Matrix matrix = Matrix(Nl,symmatrix.ncol());
         matrix.set(0.0);
         unsigned iNl = 0;
         for (const auto& mesh : geo.meshes())
@@ -217,14 +178,14 @@ namespace OpenMEEG {
         return matrix;
     }
 
-    CorticalMat::CorticalMat(const Geometry& geo,const Head2EEGMat& M,const std::string& domain_name,
-                             const unsigned gauss_order,const double alpha,const double beta,const std::string& filename)
+    Matrix CorticalMat(const Geometry& geo,const SparseMatrix& M,const std::string& domain_name,
+                       const double alpha,const double beta,const std::string& filename,const Integrator& integrator)
     {
-        Matrix& mat = *this;
-
-        // Following the article: M. Clerc, J. Kybic "Cortical mapping by Laplace–Cauchy transmission using a boundary element method".
+        // Following the article: M. Clerc, J. Kybic "Cortical mapping by Laplace–Cauchy transmission using
+        // a boundary element method".
         // Assumptions:
-        // - domain_name: the domain containing the sources is an innermost domain (defined as the interior of only one interface (called Cortex))
+        // - domain_name: the domain containing the sources is an innermost domain (defined as the interior of
+        //   only one interface (called Cortex))
         // - Cortex interface is composed of one mesh only (no shared vertices).
 
         const Domain& SourceDomain = geo.domain(domain_name);
@@ -240,7 +201,7 @@ namespace OpenMEEG {
         Matrix P;
         std::fstream f(filename.c_str());
         if (!f) {
-            const Matrix& mat = HeadMatrix(geo,Cortex,gauss_order);
+            const Matrix& mat = HeadMatrix(geo,Cortex,integrator);
 
             //  Construct P: the null-space projector.
             //  P is a projector: P^2 = P and mat*P*X = 0
@@ -295,16 +256,15 @@ namespace OpenMEEG {
         // X = P * { P'*(MM + a*RR)*P }¡(-1) * P'*M'm
         // X = P * Z¡(-1) * P' * M'm
 
-        Matrix rhs = P.transpose()*M.transpose();
-        mat = P*Z.pinverse()*rhs;
+        const Matrix& rhs = P.transpose()*M.transpose();
+        return P*Z.pinverse()*rhs;
     }
 
-    CorticalMat2::CorticalMat2(const Geometry& geo,const Head2EEGMat& M,const std::string& domain_name,
-                               const unsigned gauss_order,const double gamma,const std::string &filename)
+    Matrix CorticalMat2(const Geometry& geo,const SparseMatrix& M,const std::string& domain_name,
+                        const double gamma,const std::string &filename,const Integrator& integrator)
     {
-        Matrix& mat = *this;
-
-        // Re-writting of the optimization problem in M. Clerc, J. Kybic "Cortical mapping by Laplace–Cauchy transmission using a boundary element method".
+        // Re-writting of the optimization problem in M. Clerc, J. Kybic "Cortical mapping by Laplace–Cauchy
+        // transmission using a boundary element method".
         // with a Lagrangian formulation as in see http://www.math.uh.edu/~rohop/fall_06/Chapter3.pdf eq3.3
         // find argmin(norm(gradient(X)) under constraints: 
         // H*X = 0 and M*X = m
@@ -318,7 +278,8 @@ namespace OpenMEEG {
         //      K
         // we want a submatrix of the inverse of K (using block-wise inversion, (TODO maybe iterative solution better ?)).
         // Assumptions:
-        // - domain_name: the domain containing the sources is an innermost domain (defined as the interior of only one interface (called Cortex)
+        // - domain_name: the domain containing the sources is an innermost domain (defined as the interior of only one
+        //   interface (called Cortex)
         // - Cortex interface is composed of one mesh only (no shared vertices)
 
         const Domain& SourceDomain = geo.domain(domain_name);
@@ -332,7 +293,7 @@ namespace OpenMEEG {
         std::fstream f(filename.c_str());
         Matrix H;
         if (!f) {
-            H = HeadMatrix(geo,Cortex,gauss_order,M.nlin());
+            H = HeadMatrix(geo,Cortex,integrator,M.nlin());
             if (filename.length()!=0) {
                 std::cout << "Saving matrix H (" << filename << ")." << std::endl;
                 H.save(filename);
@@ -370,43 +331,46 @@ namespace OpenMEEG {
         std::cout << "gamma = " << gamma << std::endl;
 
         G.invert();
-        mat = (G*H.transpose()*(H*G*H.transpose()).inverse()).submat(0,Nc,Nl,M.nlin());
+        return (G*H.transpose()*(H*G*H.transpose()).inverse()).submat(0,Nc,Nl,M.nlin());
     }
 
-    Surf2VolMat::Surf2VolMat(const Geometry& geo,const Matrix& points) {
+    Matrix Surf2VolMat(const Geometry& geo,const Matrix& points) {
 
         // Find the points per domain and generate the indices for the m_points
+        // What happens if a point is on the boundary of a domain ? TODO
 
         std::map<const Domain*,Vertices> m_points;
         unsigned index = 0;
-        for (unsigned i=0;i<points.nlin();++i) {
-            const Domain& domain = geo.domain(Vect3(points(i,0),points(i,1),points(i,2))); // TODO: see Vertex below....
+        for (unsigned i=0; i<points.nlin(); ++i) {
+            const Vect3 point(points(i,0),points(i,1),points(i,2));
+            const Domain& domain = geo.domain(point);
             if (domain.conductivity()==0.0) {
-                std::cerr << " Surf2Vol: Point [ " << points.getlin(i);
-                std::cerr << "] is inside a non-conductive domain. Point is dropped." << std::endl;
+                std::cerr << " Surf2Vol: Point [ " << points.getlin(i) << "]"
+                          << " is inside a non-conductive domain. Point is dropped." << std::endl;
             } else {
-                m_points[&domain].push_back(Vertex(points(i,0), points(i,1),points(i,2),index++));
+                m_points[&domain].push_back(Vertex(point,index++));
             }
         }
 
-        Matrix& mat = *this;
-        const double K = 1.0/(4*Pi);
+        // At this point index is the total number of inside points.
 
-        unsigned size = 0; // total number of inside points
-        for (const auto& map_element : m_points)
-            size += map_element.second.size();
+        const unsigned size = index; // total number of inside points
 
-        mat = Matrix(size,(geo.nb_parameters()-geo.nb_current_barrier_triangles()));
+        Matrix mat(size,geo.nb_parameters()-geo.nb_current_barrier_triangles());
         mat.set(0.0);
 
-        for (const auto& map_element : m_points)
-            for (const auto& mesh : geo.meshes()) {
-                const int orientation = map_element.first->mesh_orientation(mesh);
-                if (orientation!=0) {
-                    operatorDinternal(mesh,mat,map_element.second,-orientation*K);
+        for (const auto& [domainptr,pts] : m_points) {
+            for (const auto& boundary : domainptr->boundaries())
+                for (const auto& omesh : boundary.interface().oriented_meshes()) {
+                    const Mesh& mesh = omesh.mesh();
+                    const PartialBlock block(mesh);
+                    const double coeff = boundary.mesh_orientation(omesh)*K;
+                    block.addD(-coeff,pts,mat);
                     if (!mesh.current_barrier())
-                        operatorSinternal(mesh,mat,map_element.second,orientation*K/map_element.first->conductivity());
+                        block.S(coeff/domainptr->conductivity(),pts,mat);
                 }
-            }
+        }
+
+        return mat;
     }
 }

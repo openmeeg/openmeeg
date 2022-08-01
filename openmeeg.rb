@@ -6,7 +6,7 @@ class Openmeeg < Formula
   version "2.4.1"
 
   devel do
-    url "https://github.com/openmeeg/openmeeg/archive/master.zip"
+    url "https://github.com/openmeeg/openmeeg/archive/main.zip"
     version "development"
   end
 

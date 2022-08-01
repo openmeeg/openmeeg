@@ -45,38 +45,35 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 namespace OpenMEEG {
 
-    Vector::Vector(Matrix& A) {
-        nlin()=A.nlin()*A.ncol();
-        value = A.value;
+    Vector::Vector(const Matrix& A) {
+        nlin() = A.nlin()*A.ncol();
+        value  = A.value;
     }
 
-    Vector::Vector(SymMatrix& A) {
-        nlin()=A.nlin()*(A.nlin()+1)/2;
-        value = A.value;
+    Vector::Vector(const SymMatrix& A) {
+        nlin() = A.nlin()*(A.nlin()+1)/2;
+        value  = A.value;
     }
 
     Vector Vector::kmult(const Vector& v) const { // Kronecker multiplication
-        om_assert(nlin() == v.nlin());
+        om_assert(nlin()==v.nlin());
         Vector p(nlin());
-        for( size_t i=0; i<nlin(); i++ )
-            p(i) = v(i)*data()[i];
+        for (Index i=0; i<nlin(); i++ )
+            p(i) = v(i)*(*this)(i);
         return p;
     }
 
-    Vector Vector::operator+(double x) const
-    {
+    Vector Vector::operator+(const double x) const {
         Vector p(*this,DEEP_COPY);
-        for( size_t i=0; i<nlin(); i++ )
-            p.data()[i]+=x;
+        for (Index i=0; i<nlin(); ++i)
+            p(i) += x;
         return p;
     }
 
-    Vector Vector::operator-(double x) const
-    {
+    Vector Vector::operator-(double x) const {
         Vector p(*this,DEEP_COPY);
-        for( size_t i=0; i<nlin(); i++ )
-            p.data()[i]-=x;
-
+        for (Index i=0; i<nlin(); ++i)
+            p(i) -= x;
         return p;
     }
 
@@ -86,39 +83,39 @@ namespace OpenMEEG {
         return m.transpose()*(*this);
     }
 
-    void Vector::set(double x) {
+    void Vector::set(const double x) {
         om_assert(nlin()>0);
-        for( size_t i=0; i<nlin(); i++ )
-            data()[i]=x;
+        for (Index i=0; i<nlin(); ++i)
+            (*this)(i) = x;
     }
 
-    double Vector::sum() const
-    {
+    double Vector::sum() const {
         double s=0;
-        for (size_t i=0; i<nlin(); i++)
-            s+=data()[i];
+        for (Index i=0; i<nlin(); ++i)
+            s += (*this)(i);
         return s;
     }
 
     void Vector::info() const {
-        if ( size() == 0 ) {
+        if (size()==0) {
             std::cout << "Vector Empty" << std::endl;
             return;
         }
 
         std::cout << "Size : " << nlin() << std::endl;
 
-        double minv = this->operator()(0);
-        double maxv = this->operator()(0);
-        size_t mini = 0;
-        size_t maxi = 0;
+        double minv = (*this)(0);
+        double maxv = (*this)(0);
+        Index mini = 0;
+        Index maxi = 0;
 
-        for ( size_t i = 0; i < nlin(); ++i) {
-            if ( minv > this->operator()(i) ) {
-                minv = this->operator()(i);
+        for (Index i=0; i<nlin(); ++i) {
+            const double value = (*this)(i);
+            if (minv>value) {
+                minv = value;
                 mini = i;
-            } else if ( maxv < this->operator()(i) ) {
-                maxv = this->operator()(i);
+            } else if (maxv<value ) {
+                maxv = value;
                 maxi = i;
             }
         }
@@ -126,8 +123,8 @@ namespace OpenMEEG {
         std::cout << "Min Value : " << minv << " (" << mini << ")" << std::endl;
         std::cout << "Max Value : " << maxv << " (" << maxi << ")" << std::endl;
         std::cout << "First Values" << std::endl;
-        for ( size_t i = 0; i < std::min(nlin(), (size_t) 5); ++i) {
-            std::cout << this->operator()(i) << std::endl;
+        for (Index i=0; i<std::min(nlin(),5U); ++i) {
+            std::cout << (*this)(i) << std::endl;
         }
     }
 
@@ -135,31 +132,29 @@ namespace OpenMEEG {
     // = IOs =
     // =======
 
-    std::ostream& operator<<(std::ostream& f,const Vector &M) {
-        for ( size_t i = 0; i < M.size(); i++) {
+    std::ostream& operator<<(std::ostream& f,const Vector& M) {
+        for (size_t i=0; i<M.size(); ++i)
             f << M(i) << ' ';
-        }
         return f;
     }
 
     std::istream& operator>>(std::istream& f,Vector &M) {
-        for ( size_t i = 0; i < M.size(); i++) {
+        for (size_t i=0; i<M.size(); ++i)
             f >> M(i);
-        }
         return f;
     }
 
-    void Vector::load(const char *filename) {
+    void Vector::load(const char* filename) {
         maths::ifstream ifs(filename);
         try {
-            ifs >> maths::format(filename, maths::format::FromSuffix) << *this;
+            ifs >> maths::format(filename, maths::format::FromSuffix) >> *this;
         }
         catch (maths::Exception& e) {
             ifs >> *this;
         }
     }
 
-    void Vector::save(const char *filename) const {
+    void Vector::save(const char* filename) const {
         maths::ofstream ofs(filename);
         try {
             ofs << maths::format(filename,maths::format::FromSuffix) << *this;
@@ -173,12 +168,13 @@ namespace OpenMEEG {
     {
         om_assert(size()==v.size());
         Matrix A(size(),v.size());
-        A.set(0.);
+        A.set(0.0);
     #ifdef HAVE_BLAS
-        DGER(sizet_to_int(size()),sizet_to_int(v.size()),1.,data(),1,v.data(),1,A.data(),sizet_to_int(size()));
+        const BLAS_INT sz = sizet_to_int(size());
+        DGER(sz,sz,1.0,data(),1,v.data(),1,A.data(),sz);
     #else
-        for( unsigned int j=0; j<nlin(); j++ )
-            for ( unsigned int i=0; i<nlin(); i++)
+        for(Index j=0; j<nlin(); ++j)
+            for(Index i=0; i<nlin(); ++i)
                 A(i,j) = v(i)*(*this)(j);
     #endif
         return A;

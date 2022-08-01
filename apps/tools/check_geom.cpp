@@ -37,62 +37,60 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
+#include <string>
+
 #include "mesh.h"
 #include "geometry.h"
-#include "options.h"
-#include <string>
+#include "commandline.h"
 
 using namespace OpenMEEG;
 
-int main( int argc, char **argv)
-{
+int 
+main(int argc,char* argv[]) {
+
     print_version(argv[0]);
 
-    command_usage("Check mesh intersections in geometry file");
-    const char* geom_filename = command_option("-g",(const char *) NULL,"Input .geom file");
-    const char* mesh_filename = command_option("-m",(const char *) NULL,"Mesh file (ex: to test .geom with cortex mesh)");
-    const char* verbose       = command_option("-v",(const char *) NULL,"Print verbose information about the geometry");
-    const char *dip_filename  = command_option("-d", (const char *) NULL, "The dipole .dip file (ex: to test .geom with cortical dipoles");
-    if (command_option("-h",(const char *)0,0)) return 0;
+    const CommandLine cmd(argc,argv,"Check mesh intersections in geometry file");
+    const std::string& geom_filename = cmd.option("-g",std::string(),"Input .geom file");
+    const std::string& mesh_filename = cmd.option("-m",std::string(),"Mesh file (ex: to test .geom with cortex mesh)");
+    const std::string& dip_filename  = cmd.option("-d",std::string(),"The dipole .dip file (ex: to test .geom with cortical dipoles");
+    const bool         verbose       = cmd.option("-v",false,        "Print verbose information about the geometry");
 
-    if ( !geom_filename ) {
+    if (cmd.help_mode())
+        return 0;
+
+    if (geom_filename=="") {
         std::cout << "Not enough arguments, try the -h option" << std::endl;
         return 1;
     }
 
-    int status = 0;
-    Geometry g;
-    g.read(geom_filename);
+    Geometry g(geom_filename);
 
-    if ( g.selfCheck() ) {
-        std::cout << ".geom : OK" << std::endl;
-    } else {
-        status = 1;
-    }
-    if ( mesh_filename ) {
-        Mesh m;
-        m.load(mesh_filename);
-        if ( g.check(m) ) {
-            std::cout << ".geom and mesh : OK" << std::endl;
-        } else {
-            status = 1;
-        }
-    }
-    if ( dip_filename ) {
-        if (!g.is_nested()) {
-            std::cerr << "Dipoles are only allowed when geometry is nested." << std::endl;
-            status = 1;
-        }
-        Matrix dipoles(dip_filename);
-        if (g.check_inner(dipoles)) {
-            std::cout << ".geom and .dip dipoles : OK" << std::endl;
-        } else {
-            status = 1;
-        }
-    }
-    if ( verbose ) {
+    if (!g.selfCheck())
+        return 1;
+
+    if (verbose) {
         std::cout << "Detailed information about the geom file :" << std::endl;
         g.info(true);
     }
-    return status;
+
+    std::cout << ".geom : OK" << std::endl;
+    if (mesh_filename!="") {
+        Mesh m(mesh_filename);
+        if (!g.check(m))
+            return 1;
+        std::cout << ".geom and mesh : OK" << std::endl;
+    }
+
+    if (dip_filename!="") {
+        if (!g.is_nested()) {
+            std::cerr << "Dipoles are only allowed when geometry is nested." << std::endl;
+            return 1;
+        }
+        Matrix dipoles(dip_filename);
+        if (!g.check_inner(dipoles))
+            return 1;
+        std::cout << ".geom and .dip dipoles : OK" << std::endl;
+    }
+    return 0;
 }

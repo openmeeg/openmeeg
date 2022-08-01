@@ -51,251 +51,276 @@
 #include <cstring>
 #include <vector>
 #include <cmath>
+#include <functional>
 
 #include "mesh.h"
 #include "sparse_matrix.h"
 #include "fast_sparse_matrix.h"
 #include "stdlib.h"
 #include "triangle.h"
-#include "options.h"
+#include "commandline.h"
+#include "constants.h"
 #include "geometry.h"
 #include "vector.h"
 
-#define Pi 3.14159265358979323846f
-
-using namespace std;
 using namespace OpenMEEG;
 
 void getHelp(char** argv);
 
-void decoupe (double dt, double x, int* nx, double* dx)
-{
-    *nx = (int)(x/dt + 0.5);
-    *nx = (*nx > 0)?*nx:1;
-    *dx = x/ *nx;
+unsigned num_points(const double x,const double dt) { return std::max(static_cast<unsigned>(x/dt+0.5),1U); }
+double   step_size(const double x,const unsigned n) { return x/n; }
+
+typedef std::vector<TriangleIndices> MeshTriangles;
+
+template <typename T>
+void input(const char* message,T& value) {
+    std::cout << message;
+    std::cout.flush();
+    std::cin >> value;
 }
 
-int cylindre (char namesurf[], char namepatches[], char namepatchcount[], double L, double R, double dt, int*E, int*Nteta, int*Nz, double Ea, double Eb, double Eb2)
-{
-    int i, j, g, k, save;                       //counters
-    double decal_teta;                       // gap along teta.
-    double z = -L/2.0f;
-    double ez = Ea, iz = Eb, iz2 = Eb2, eo = 1.85f/9.f*2.f*Pi, io = Pi/2.f-eo;    // size of electrode contacts
-    int nteta, nl, c, nez, niz, niz2, neo, nio;        //number of points
-    double dteta, dl, alpha, o, dez, diz, diz2, deo, dio;
-    int np = 0, nt = 0;                //number of points and triangles to create
+void make_lid(const unsigned n,const double R,const double z0,const double dt,const double theta0,Vertices& vertices,MeshTriangles& triangles) {
 
-    decoupe(dt, ez, &nez, &dez);
-    decoupe(dt, iz, &niz, &diz);
-    decoupe(dt, iz2, &niz2, &diz2);
-    decoupe(dt/R, eo, &neo, &deo);
-    decoupe(dt/R, io, &nio, &dio);
+    const unsigned c     = std::max(2U,static_cast<unsigned>((Pi/2*R/dt+0.5)+1)); // Number of inner circles
+    const double   alpha = Pi/2/(c-1);                                            // Distance between inner circles
 
-    nteta = 2*(neo+nio);                //number of points on an outer circle
-    dteta = 2*Pi/nteta;
-    dt  =  dteta*R;
-    decoupe(dt, (L-3*ez-3*iz - iz2)/2, &nl, &dl);
-    decal_teta =  -deo*neo/2;
-    *Nteta = 4*(neo+nio);
-    *Nz = 3*nez +3*niz +niz2+1;
-
-    c = (int)(Pi/2*R/dt+0.5)+1;                   //number of inner circles
-    c = (c<2)?2:c;
-    alpha = Pi/2/(c-1);                           //distance between inner circles
-    std::vector<int> N(c);                      //number of points on inner circles
-    std::vector<int> num(c);                    //index of first point on inner circle
+    std::vector<unsigned> N(c);   // Number of points on inner circles
+    std::vector<unsigned> num(c); // Index of first point on inner circle
 
     std::vector<double> ang(c);
 
-    int max = (int) floor(nteta*(L/dt+2*c)*4);
-    Vertices P(max);
-    Triangles T(2*max);
+    N[0] = 1;
+    ang[0] = 2*Pi;
+    for (unsigned j=1; j<c; ++j) {
+        N[j]   = num_points(2*Pi,dt/(R*sin(alpha*j)));
+        ang[j] = step_size(2*Pi,N[j]);
+    }
 
-    // indices and coordinates of points before electrode
-    for (j=0;j<nl;j++)
-    {
-        for (i=0;i<nteta;i++)
-        {
-            o=i*dteta + (j-nl+1)*dteta/2 + decal_teta;
-            P[np].x()=R*cos(o);
-            P[np].y()=R*sin(o);
-            P[np].z()=j*dl +z;
-            np ++;
+    const double dz = (n==0) ? -0.3 : 0.3;
+
+    for (unsigned j=0; j<c-1; ++j) {
+        num[j] = vertices.size();
+        for (double angle=theta0; angle<2*Pi; angle+=ang[j])
+            vertices.push_back(Vertex(R*sin(alpha*j)*cos(angle),R*sin(alpha*j)*sin(angle),z0+R*cos(alpha*j)*dz));
+    }
+    num[c-1] = n;
+
+    std::function<void(const unsigned i,const unsigned j,const unsigned k)> add_triangle;
+    if (n==0) {
+        add_triangle = [&](const unsigned i,const unsigned j,const unsigned k) { triangles.push_back({ i, j, k }); };
+    } else {
+        add_triangle = [&](const unsigned i,const unsigned j,const unsigned k) { triangles.push_back({ j, i, k }); };
+    }
+
+    for (unsigned j=2; j<c; ++j) {
+        unsigned k=0;
+        add_triangle(num[j],num[j]+1,num[j-1]);
+        for (unsigned i=1; i<N[j]; ++i) {
+            if (ang[j-1]*(k+0.5)<ang[j]*(i+0.5)) {
+                add_triangle(num[j]+i,num[j-1]+(k+1)%N[j-1],num[j-1]+k);
+                k = (k+1)%N[j-1];
+            }
+            add_triangle(num[j]+i%N[j],num[j]+(i+1)%N[j],num[j-1]+k);
+        }
+    }
+
+    for (unsigned i=0; i<N[1]; ++i)
+        add_triangle(num[1]+i,num[1]+(i+1)%N[1],num[0]);
+}
+
+void
+cylindre(const std::string& namesurf,const char namepatches[],const char namepatchcount[],
+         const double L,const double R,const double d,const unsigned* E,
+         unsigned& Ntheta,unsigned& Nz,
+         const double Ea,const double Eb,const double Eb2)
+{
+    const unsigned nez = num_points(Ea,d);
+    const double   dez = step_size(Ea,nez);
+    const unsigned niz = num_points(Eb,d);
+    const double   diz = step_size(Eb,niz);
+    const unsigned niz2 = num_points(Eb2,d);
+    const double   diz2 = step_size(Eb2,niz2);
+
+    // Size of electrode contacts.
+
+    const double eo = 1.85f/9.f*2.f*Pi;
+    const double io = Pi/2.f-eo;
+
+    const unsigned neo = num_points(eo,d/R);
+    const double   deo = step_size(eo,neo);
+
+    const unsigned nio = num_points(io,d/R);
+    const double   dio = step_size(io,nio);
+
+    const unsigned ntheta = 2*(neo+nio);                //number of points on an outer circle
+    const double   dtheta = 2*Pi/ntheta;
+    const double   dt     =  dtheta*R;
+
+    const double   El = (L-3*Ea-3*Eb-Eb2)/2;
+    const unsigned nl = num_points(El,dt);
+    const double   dl = step_size(El,nl);
+
+    const double decal_theta = -deo*neo/2; // Gap along theta
+    Ntheta = 4*(neo+nio);
+    Nz     = 3*nez+3*niz+niz2+1;
+
+    // Points before electrode
+
+    Vertices vertices;
+
+    const double z = -L/2.0f;
+    for (unsigned j=0; j<nl; ++j) {
+        for (unsigned i=0; i<ntheta; ++i) {
+            const double angle = i*dtheta+(j-nl+1)*dtheta/2+decal_theta;
+            vertices.push_back(Vertex(R*cos(angle),R*sin(angle),j*dl+z));
         }
     }
 
     // indices and coordinates of electrode points
-    double zz=nl*dl +z -diz;
-    for (j=0;j<=6;j++) {
-        int gmax=(j%2 == 0)?((j  ==  4)?niz2:niz):(nez);
-        if (j == 0) gmax++;
-        for (g=0;g<gmax;g++) {
-            zz += (j%2 == 0)?((j  ==  4)?diz2:diz):(dez);
-            for (k=0;k<4;k++) {
-                for (i=0;i<neo;i++) {
-                    o=i*deo +k*(deo*neo+dio*nio) + decal_teta;
-                    P[np].x()=R*cos(o);
-                    P[np].y()=R*sin(o);
-                    P[np].z()=zz;
-                    np ++;
+
+    double zz = nl*dl+z-diz;
+    const unsigned gmax[] = { 1+niz, nez, niz, nez, niz2, nez, niz };
+    const double   dzz[]  = {   diz, dez, diz, dez, diz2, dez, diz };
+    for (unsigned j=0,l=1; j<=6; ++j,l=0) {
+        for (unsigned g=0; g<gmax[j]; ++g) {
+            zz += dzz[j];
+            for (unsigned k=0; k<4; ++k) {
+                for (unsigned i=0; i<neo; ++i) {
+                    const double angle = i*deo+k*(deo*neo+dio*nio)+decal_theta;
+                    vertices.push_back(Vertex(R*cos(angle),R*sin(angle),zz));
                 }
-                for (i=0;i<nio;i++)
-                {
-                    o=i*dio +neo*deo +k*(deo*neo+dio*nio) + decal_teta;
-                    P[np].x()=R*cos(o);
-                    P[np].y()=R*sin(o);
-                    P[np].z()=zz;
-                    np ++;
+                for (unsigned i=0; i<nio; ++i) {
+                    const double angle = i*dio+neo*deo+k*(deo*neo+dio*nio)+decal_theta;
+                    vertices.push_back(Vertex(R*cos(angle),R*sin(angle),zz));
                 }
             }
         }
     }
 
     // indices and coordinates of points after electrode
-    save=np;
-    for (j=nl;j<(2*nl);j++) {
-        for (i=0;i<nteta;i++) {
-            o = i*dteta+(j-nl)*dteta/2+decal_teta;
-            P[np].x() = R*cos(o);
-            P[np].y() = R*sin(o);
-            P[np].z() = (j+1)*dl+z+3*ez+3*iz+iz2;
-            ++np;
+
+    const unsigned n1 = vertices.size();
+    for (unsigned j=nl; j<(2*nl); ++j) {
+        for (unsigned i=0; i<ntheta; ++i) {
+            const double angle = i*dtheta+(j-nl)*dtheta/2+decal_theta;
+            vertices.push_back(Vertex(R*cos(angle),R*sin(angle),(j+1)*dl+z+3*Ea+3*Eb+Eb2));
         }
     }
 
+    // Triangles before electrode
 
-    // definition of triangles before electrode
-    for (j=0;j<nl-1;j++)
-        for (i=0;i<nteta;i++) {
-            T[nt++] = Triangle(P[i+nteta*j], P[(i+1)%nteta +nteta*j], P[i+nteta*(j+1)]);
-            T[nt++] = Triangle(P[i+nteta*j], P[i+nteta*(j+1)], P[(nteta+i-1)%nteta +nteta*(j+1)]);
+    MeshTriangles triangles;
+
+    for (unsigned j=0; j<nl-1; ++j)
+        for (unsigned i=0; i<ntheta; ++i) {
+            const unsigned ind1 = i+ntheta*j;
+            const unsigned ind2 = (i+1)%ntheta+ntheta*j;
+            const unsigned ind3 = ind1+ntheta;
+            const unsigned ind4 = (ntheta+i-1)%ntheta+ind3-i;
+            triangles.push_back({ ind1, ind2, ind3 });
+            triangles.push_back({ ind1, ind3, ind4 });
         }
 
-    // definition of transition triangles
-    for (i=0;i<nteta;i++) {
-        T[nt++] = Triangle(P[i+nteta*(nl-1)], P[(2*i+1) + nteta*nl], P[2*i + nteta*nl]);
-        T[nt++] = Triangle(P[i+nteta*(nl-1)], P[(i+1)%nteta + nteta*(nl-1)], P[2*i+1 + nteta*nl]);
-        T[nt++] = Triangle(P[(i+1)%nteta+nteta*(nl-1)], P[(2*i+2)%(2*nteta) + nteta*nl], P[(2*i+1) + nteta*nl]);
+    // Transition triangles
+
+    for (unsigned i=0; i<ntheta; ++i) {
+        const unsigned ind1 = i+ntheta*(nl-1);
+        const unsigned ind3 = 2*i+ntheta*nl;
+        const unsigned ind2 = ind3+1;
+        const unsigned ind4 = (i+1)%ntheta+ntheta*(nl-1);
+        const unsigned ind5 = (2*i+2)%(2*ntheta)+ntheta*nl;
+        triangles.push_back({ ind1, ind2, ind3 });
+        triangles.push_back({ ind1, ind4, ind2 });
+        triangles.push_back({ ind4, ind5, ind2 });
     }
 
-    // definition of electrode triangles
-    for (j=0;j<(3*nez+3*niz+niz2);j++)
-        for (i=0;i<2*nteta;i++) {
-            T[nt++] = Triangle(P[i+2*nteta*j+nteta*nl],P[i+2*nteta*(j+1)+nteta*nl],P[(2*nteta+i-1)%(2*nteta)+2*nteta*(j+1)+nteta*nl]);
-            T[nt++] = Triangle(P[i+2*nteta*j+nteta*nl],P[(i+1)%(2*nteta)+2*nteta*j+nteta*nl],P[i+2*nteta*(j+1)+nteta*nl]);
+    // Electrode triangles
+
+    for (unsigned j=0; j<(3*nez+3*niz+niz2); ++j)
+        for (unsigned i=0; i<2*ntheta; ++i) {
+            const unsigned ind1 = i+2*ntheta*j+ntheta*nl;
+            const unsigned ind2 = ind1+2*ntheta;
+            const unsigned ind3 = (2*ntheta+i-1)%(2*ntheta)+ind2-i;
+            const unsigned ind4 = (i+1)%(2*ntheta)+ind1-i;
+            triangles.push_back({ ind1, ind2, ind3 });
+            triangles.push_back({ ind1, ind4, ind2 });
         }
 
-    // definition of transition triangles
-    for (i=0;i<nteta;i++) {
-        T[nt++] = Triangle(P[i+save],P[2*i+save-2*nteta],P[(2*i+1)+save-2*nteta]);
-        T[nt++] = Triangle(P[i+save],P[(2*i+1)+save-2*nteta],P[(i+1)%nteta+save]);
-        T[nt++] = Triangle(P[(i+1)%nteta+save],P[(2*i+1)+save-2*nteta],P[(2*i+2)%(2*nteta)+save-2*nteta]);
+    // Transition triangles
+
+    for (unsigned i=0; i<ntheta; ++i) {
+        const unsigned ind1 = i+n1;
+        const unsigned ind2 = ind1+i-2*ntheta;
+        const unsigned ind3 = ind2+1;
+        const unsigned ind4 = (i+1)%ntheta+n1;
+        const unsigned ind5 = (2*i+2)%(2*ntheta)+n1-2*ntheta;
+        triangles.push_back({ ind1, ind2, ind3 });
+        triangles.push_back({ ind1, ind3, ind4 });
+        triangles.push_back({ ind4, ind3, ind5 });
     }
 
-    // definition of triangles after electrode
-    for (j=0;j<nl-1;j++) {
-        for (i=0;i<nteta;i++) {
-            T[nt++] = Triangle(P[i+nteta*j+save],P[(i+1)%nteta+nteta*j+save],P[i+nteta*(j+1)+save]);
-            T[nt++] = Triangle(P[i+nteta*j+save],P[i+nteta*(j+1)+save],P[(nteta+i-1)%nteta+nteta*(j+1)+save]);
+    // Triangles after electrode
+
+    for (unsigned j=0; j<nl-1; ++j) {
+        for (unsigned i=0; i<ntheta; ++i) {
+            const unsigned ind1 = i+ntheta*j+n1;
+            const unsigned ind2 = (i+1)%ntheta+ntheta*j+n1;
+            const unsigned ind3 = ind1+ntheta;
+            const unsigned ind4 = (ntheta+i-1)%ntheta+ind3-i;
+            triangles.push_back({ ind1, ind2, ind3 });
+            triangles.push_back({ ind1, ind3, ind4 });
         }
     }
 
-    save = np-nteta;
-    // the lids:
-    for (g=0;g<=1;g++) {
-        num[c-1]=((g == 0)?(0):(save));
-        for (j=0;j<c;j++) {
-            if (j==0)
-                N[0]=1;
-            else
-                decoupe(dt/(R*sin(alpha*j)), 2*Pi, &N[j], &ang[j]);
-            if (j==c-1) break;
-            num[j] = np;
-            for (i=0;i<N[j];++i,++np) {
-                o = i*ang[j]+((g==0) ? 1-nl : nl-1)*dteta/2+decal_teta;
-                P[np].x() = R*sin(alpha*j)*cos(o);
-                P[np].y() = R*sin(alpha*j)*sin(o);
-                P[np].z() = g*L+z+R*cos(alpha*j)*(g*2-1)*0.3;
-            }
-        }
-        for (j=2;j<c;j++) {
-            k=0;
-            T[nt] = Triangle(P[num[j]],P[num[j]+1],P[num[j-1]]);
-            if (g==0)
-                T[nt].change_orientation();
-            ++nt;
-            for (i=1;i<N[j];i++) {
-                if (ang[j-1]*(k+0.5)<ang[j]*(i+0.5)) {
-                    T[nt] = Triangle(P[num[j]+i], P[num[j-1]+(k+1)%N[j-1]], P[num[j-1]+k]);
-                    if (g==0)
-                        T[nt].change_orientation();
-                    k = (k+1)%N[j-1];
-                    ++nt;
-                }
-                T[nt] = Triangle(P[num[j]+i%N[j]], P[num[j]+(i+1)%N[j]], P[num[j-1]+k]);
-                if (g==0)
-                    T[nt].change_orientation();
-                ++nt;
-            }
-        }
-        for (i=0;i<N[1];++i,++nt) {
-            T[nt] = Triangle(P[num[1]+i],P[num[1]+(i+1)%N[1]],P[num[0]]);
-            if (g==0)
-                T[nt].change_orientation();
-        }
-    }
-    Mesh surf(P);
-    for (i=0;i<nt;++i)
-        surf.triangles().push_back(T[i]);
+    const unsigned n2 = vertices.size()-ntheta;
+
+    //  Lids:
+
+    make_lid(0,R,z,  dt,(1-nl)*dtheta/2+decal_theta,vertices,triangles);
+    make_lid(1,R,z+L,dt,(nl-1)*dtheta/2+decal_theta,vertices,triangles);
+
+    //  Since we created the points, there is no need to map triangle indices.
+
+    Mesh surf;
+
+    for (const auto& vertex : vertices)
+        surf.geometry().vertices().push_back(vertex);
+
+    for (const auto& triangle : triangles)
+        surf.add_triangle(triangle);
+
+    surf.update(true);
+        
     surf.save(namesurf);
 
-    //the electrode
-    if (E[0]>=0){ 
-        int trianglecounter=0;
-        int electrodetriangleindex = 0;
-        int maxelectrodetriangles=0;
-        int electrodetriangles [12][20];
-        Vect3 electrodecenter;
-        for (i=0;i<(nl-1)*2*nteta+3*nteta+1;i++) {
-            trianglecounter++;
-        }     
-        for (j=0;j<=6;j++){
-            for (g=0;g<((j%2 == 0)?((j  ==  4)?niz2:niz):(nez));g++) {
-                for (k=0;k<4;k++){
+    // Electrode
+
+    if (E!=nullptr) { 
+
+        unsigned maxelectrodetriangles = 0;
+        unsigned electrodetriangles[12][20];
+
+        for (unsigned j=0,electrodetriangleindex=0,trianglecounter=(nl-1)*2*ntheta+3*ntheta+1; j<=6; ++j) {
+            const unsigned ng = (j%2==0) ? ((j==4) ? niz2 : niz) : nez;
+            for (unsigned g=0; g<ng; ++g) {
+                for (unsigned k=0; k<4; ++k,trianglecounter+=2*nio) {
                     maxelectrodetriangles = std::max(maxelectrodetriangles, electrodetriangleindex);
-                    electrodetriangleindex = 0;
-                    for (i=0;i<neo;i++){
+                    for (unsigned i=0; i<neo; ++i,trianglecounter+=2){
                         // find for each electrode to which triangles it corresponds
-                        if(j%2 == 1){ 
-                            //  first triangle of a pair
-                            electrodetriangles[4*(j/2)+k][electrodetriangleindex]=trianglecounter;
-                            electrodetriangleindex++;
-                            trianglecounter++;
-                            //  second triangle of a pair
-                            electrodetriangles[4*(j/2)+k][electrodetriangleindex]=trianglecounter;
-                            electrodetriangleindex++;
-                            trianglecounter++;
+                        if (j%2==1) { 
+                            electrodetriangles[4*(j/2)+k][electrodetriangleindex++] = trianglecounter;
+                            electrodetriangles[4*(j/2)+k][electrodetriangleindex++] = trianglecounter+1;
                         }
-                        else{
-                            trianglecounter++;
-                            trianglecounter++;
-                        }
-                    }
-                    for (i=0;i<nio;i++)
-                    {
-                        trianglecounter++;
-                        trianglecounter++;
                     }
                 }
                 //    if(j%2 == 1) eleccounter++;
             }
         }
-        for (i= (nl-1)*2*nteta +3*nteta + 2*2*nteta*(3*nez+3*niz+niz2)+1;i<nt;i++){
-            trianglecounter++;
-        }
+
         // compute and store the electrodes, represented as a collection of 3D positions (patches)
 
         // A file for storing the patch coordinates (for all the electrodes)
+
         std::ofstream ofs1(namepatches);
         if (!ofs1) {
             std::cerr << "Cannot open file " << namepatches << " for writing." << std::endl;
@@ -308,37 +333,30 @@ int cylindre (char namesurf[], char namepatches[], char namepatchcount[], double
             std::cerr << "Cannot open file " << namepatchcount << " for writing." << std::endl;
             exit(1);
         }
-        for (j=0;j<12;j++){
-            for (i=0; i<maxelectrodetriangles;++i){ // compute the barycenters of the triangles corresponding to each electrode
-                electrodecenter = (T[electrodetriangles[j][i]].vertex(0)+T[electrodetriangles[j][i]].vertex(1)+T[electrodetriangles[j][i]].vertex(2))/3;
+        Vect3 electrodecenter;
+        for (unsigned j=0; j<12; ++j) {
+            for (unsigned i=0; i<maxelectrodetriangles; ++i){ // compute the barycenters of the triangles corresponding to each electrode
+                electrodecenter = (surf.triangles()[electrodetriangles[j][i]].vertex(0)+surf.triangles()[electrodetriangles[j][i]].vertex(1)+surf.triangles()[electrodetriangles[j][i]].vertex(2))/3;
                 ofs1 << electrodecenter.x() << ' ' << electrodecenter.y() << ' ' << electrodecenter.z() << std::endl;
             }
-            ofs2 << i << std::endl; // the number of patches used to represent electrode j
+            ofs2 << maxelectrodetriangles << std::endl; // the number of patches used to represent electrode j
         }
     }
-    return 0;
 }
 
-template <typename T>
-void input(const char* message,T& value) {
-    std::cout << message;
-    std::cout.flush();
-    std::cin >> value;
-}
+int main(int argc, char** argv) {
 
-int main(int argc, char** argv)
-{
+    const CommandLine cmd(argc,argv,"Make nerve geometry from existing parameters or make nerve geometry and parameter file from commandline user interface.");
+    if ((!strcmp(argv[1],"-h")) || (!strcmp(argv[1], "--help")))
+        getHelp(argv);
     print_version(argv[0]);
+    print_commandline(argc,argv);
 
-    command_usage("Make nerve geometry from existing parameters or make nerve geometry and parameter file from commandline user interface.");
-    if ((!strcmp(argv[1], "-h")) | (!strcmp(argv[1], "--help"))) getHelp(argv);
-    disp_argv(argc, argv);
-    // char nom[80], s[80];
-    const int Nc = 2;
-    int i, Elec[4], E[1]={-1};
+    // input("number of cylinders (for the moment fixed to 2) :",Nc);
+
+    const unsigned Nc = 2;
+
     double Ea, Eb, Eb2;
-    std::vector<int> Nteta(Nc);
-    std::vector<int> Nz(Nc);
     std::vector<double> L(Nc);
     std::vector<double> R(Nc);
     std::vector<double> dt(Nc);
@@ -346,14 +364,13 @@ int main(int argc, char** argv)
     sig[Nc]=0;
 
     if (!strcmp(argv[1], "-makeparameters")){
-        // input("number of cylinders (for the moment fixed to 2) :",Nc);
         input("Size of electrode contact along z :",Ea);
         input("Distance between first anode and cathode:",Eb);
         input("Distance between second anode and cathode :",Eb2);
 
-        for (i=0;i<Nc;++i) {
+        for (unsigned i=0; i<Nc; ++i) {
             std::cout << " Nerve geometry (" << ((i==0) ? "inner cylinder" : "outer cylinder containing electrode") << std::endl;
-            input("Length :",L[1]);
+            input("Length :",L[i]);
             input("Radius :",R[i]);
             input("Discretization step :",dt[i]);
             input("Conductivity :",sig[i]);
@@ -364,18 +381,14 @@ int main(int argc, char** argv)
             std::cerr << "Cannot open file " << argv[2] << " for writing." << std::endl;
             return 1;
         }
-        ofs << Ea << std::endl
-            << Eb << std::endl
-            << Eb2 << std::endl;
-        for (i=0;i<Nc;++i) {
-            ofs << L[i] << std::endl
-                << R[i] << std::endl
-                << dt[i] << std::endl
-                << sig[i] << std::endl;
-        }
-    }
-    else if (!strcmp(argv[1], "-useparameters")){
+        ofs << Ea << std::endl << Eb << std::endl << Eb2 << std::endl;
+        for (unsigned i=0; i<Nc; ++i)
+            ofs << L[i] << ' ' << R[i] << ' ' << dt[i] << ' ' << sig[i] << std::endl;
+
+    } else if (!strcmp(argv[1], "-useparameters")){
+
         // Read parameter file :
+
         std::ifstream ifs(argv[2]);
         if (!ifs) {
             std::cerr << "Cannot open file " << argv[2] << " for reading." << std::endl;
@@ -383,18 +396,22 @@ int main(int argc, char** argv)
         }
 
         ifs >> Ea >> Eb >> Eb2;
-        for (i=0;i<Nc;++i)
+        for (unsigned i=0; i<Nc; ++i)
             ifs >> L[i] >> R[i] >> dt[i] >> sig[i];
+
+        std::cerr << L[0] << ' ' << L[1] << std::endl;
     } else {
-        std::cerr << "unknown argument: " << argv[1] << endl;
+        std::cerr << "unknown argument: " << argv[1] << std::endl;
         return 1;
     }
 
     //  the electrode:
-    Elec[0]=(int)((L[Nc-1]/2-Ea/2-Eb/2)/dt[Nc-1] +0.5);
-    Elec[1]=(int)(Eb / dt[Nc-1]);
-    Elec[2]=(int)((L[Nc-1]/2+Ea/2-Eb2/2)/dt[Nc-1] +0.5);
-    Elec[3]=(int)(Eb2 /dt[Nc-1] +0.5);
+
+    const unsigned Elec[4] = {
+        static_cast<unsigned>((L[Nc-1]/2-Ea/2-Eb/2)/dt[Nc-1]+0.5),  static_cast<unsigned>(Eb/dt[Nc-1]),
+        static_cast<unsigned>((L[Nc-1]/2+Ea/2-Eb2/2)/dt[Nc-1]+0.5), static_cast<unsigned>(Eb2/dt[Nc-1]+0.5)
+    };
+    
     // saving the corresponding geom and cond files
 
     std::ofstream ofgeom(argv[3]);
@@ -405,9 +422,14 @@ int main(int argc, char** argv)
 
     ofgeom << "# Domain Description 1.0" << std::endl << std::endl
            << "Interfaces " << Nc << " Mesh" << std::endl << std::endl;
-    for (i=0;i<Nc;i++){
-        cylindre(argv[5+i], argv[7], argv[8], L[i], R[i], dt[i], (i == Nc-1)?(Elec):(E), &Nteta[i], &Nz[i], Ea, Eb, Eb2);
+
+    std::vector<unsigned> Ntheta(Nc);
+    std::vector<unsigned> Nz(Nc);
+
+    for (unsigned i=0;i<Nc;i++) {
+        const unsigned* electrode = (i==Nc-1) ? Elec : nullptr;
         const std::string& name = argv[5+i];
+        cylindre(name,argv[7],argv[8],L[i],R[i],dt[i],electrode,Ntheta[i],Nz[i],Ea,Eb,Eb2);
         // only keep the file name without the directories (after the last /)
         ofgeom << name.substr(name.rfind("/")+1) << std::endl;
     }

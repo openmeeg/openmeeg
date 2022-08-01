@@ -53,19 +53,18 @@ namespace OpenMEEG
 
     using namespace std;
 
-    static double dpc(const Vect3& p, const Triangle& triangle, Vect3& alphas, unsigned nb, int* idx, bool& inside)
-    {
-        if ( nb == 1 ) {
+    static double dpc(const Vect3& p,const Triangle& triangle,Vect3& alphas,unsigned nb,int* idx,bool& inside) {
+        if (nb==1) {
             alphas(idx[0]) = 1.0;
-            return (p - triangle.vertex(idx[0])).norm();
+            return (p-triangle.vertex(idx[0])).norm();
         }
         // Solves H=sum(alpha_i A_i), sum(alpha_i)=1, et HM.(A_i-A_0)=0
         Vect3 A0Ai[3]; // A_i-A_0
-        for (unsigned i=1;i<nb;++i)
+        for (unsigned i=1; i<nb; ++i)
             A0Ai[i] = triangle.vertex(idx[i])-triangle.vertex(idx[0]);
 
-        Vect3 A0M = p - triangle.vertex(idx[0]); // M-A_0
-        if ( nb == 2 ) {
+        Vect3 A0M = p-triangle.vertex(idx[0]); // M-A_0
+        if (nb==2) {
             alphas(idx[1]) = dotprod(A0M,A0Ai[1])/dotprod(A0Ai[1],A0Ai[1]);
             alphas(idx[0]) = 1.0-alphas(idx[1]);
         } else if (nb==3) {
@@ -88,8 +87,8 @@ namespace OpenMEEG
         }
         // If alpha_i<0 -> brought to 0 and recursion
         // NB: also takes care of alpha > 1 because if alpha_i>1 then alpha_j<0 for at least one j
-        for ( unsigned i = 0; i < nb; ++i) {
-            if ( alphas(idx[i]) < 0 ) {
+        for (unsigned i=0; i<nb; ++i) {
+            if (alphas(idx[i])<0) {
                 inside = false;
                 alphas(idx[i]) = 0;
                 swap(idx[i], idx[nb-1]);
@@ -98,28 +97,27 @@ namespace OpenMEEG
         }
         // Sinon: distance HM
         Vect3 MH = -A0M;
-        for ( unsigned i = 1; i < nb; ++i) {
+        for (unsigned i=1; i<nb; ++i)
             MH += alphas(idx[i]) * A0Ai[i];
-        }
         return MH.norm();
     }
 
     // Main Function
-    double dist_point_triangle(const Vect3& p, const Triangle& triangle, Vect3& alphas, bool& inside)
-    {
-        int idx[3] = {0, 1, 2};
+    double dist_point_triangle(const Vect3& p,const Triangle& triangle,Vect3& alphas,bool& inside) {
+        int idx[3] = { 0, 1, 2 };
         inside = true;
-        return dpc(p, triangle, alphas, 3, idx, inside);
+        return dpc(p,triangle,alphas,3,idx,inside);
     }
 
-    static inline int sgn(double s)
-    {
-        return ( s > 0 ) ? 1 : ( s < 0 ) ? -1: 0;
+    static inline int sgn(double s) {
+        return (s>0) ? 1 : (s<0) ? -1 : 0;
     }
 
-    double dist_point_interface(const Vect3& p,const Interface& interface,Vect3& alphas,Triangle& nearestTriangle) {
+    std::tuple<double,const Triangle&,const Mesh&>
+    dist_point_interface(const Vect3& p,const Interface& interface,Vect3& alphas) {
         double distmin = std::numeric_limits<double>::max();
-
+        const Mesh*     nearest_mesh     = nullptr;
+        const Triangle* nearest_triangle = nullptr;
         for (const auto& omesh : interface.oriented_meshes())
             for (const auto& triangle : omesh.mesh().triangles()) {
                 bool  inside;
@@ -128,34 +126,36 @@ namespace OpenMEEG
                 if (distance<distmin) {
                     distmin = distance;
                     alphas  = alphasLoop;
-                    nearestTriangle = triangle;
+                    nearest_triangle = &triangle;
+                    nearest_mesh = &omesh.mesh();
                 }
             }
-        return distmin;
+        return { distmin, *nearest_triangle, *nearest_mesh };;
     }
 
-    //find the closest triangle on the interfaces that touches 0 conductivity
+    // Find the closest triangle on the interfaces that touches 0 conductivity
 
-    std::string dist_point_geom(const Vect3& p,const Geometry& g,Vect3& alphas,Triangle& nearestTriangle,double& dist) {
+    std::tuple<double,const Triangle&,const Mesh&,const Interface&>
+    dist_point_geom(const Vect3& p,const Geometry& g,Vect3& alphas) {
 
         double distmin = std::numeric_limits<double>::max();
-        std::string name_nearest_interface;
+        const Mesh*      nearest_mesh      = nullptr;
+        const Interface* nearest_interface = nullptr;
+        const Triangle*  nearest_triangle  = nullptr;
 
         for(const auto& domain : g.domains())
             if (domain.conductivity()==0.0)
                 for (const auto& boundary : domain.boundaries()) {
-                    Triangle local_nearest_triangle;
-                    const double distance = dist_point_interface(p,boundary.interface(),alphas,local_nearest_triangle);
+                    const auto& res = dist_point_interface(p,boundary.interface(),alphas);
+                    const double distance = std::get<0>(res);
                     if (distance<distmin) {
-                        name_nearest_interface = boundary.interface().name();
+                        nearest_interface = &boundary.interface();
+                        nearest_mesh = &std::get<2>(res);
                         distmin = distance;
-                        nearestTriangle = local_nearest_triangle;
+                        nearest_triangle = &std::get<1>(res);
                     }
                 }
 
-        dist = distmin;
-        return name_nearest_interface;
+        return { distmin, *nearest_triangle, *nearest_mesh, *nearest_interface };
     }
-
-} // end namespace OpenMEEG
-
+}

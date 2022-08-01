@@ -1,14 +1,21 @@
 #pragma once
 
-#if WIN32
+// https://github.com/xianyi/OpenBLAS/wiki/How-to-use-OpenBLAS-in-Microsoft-Visual-Studio#visual-studio-2017-c2017-standard
+// https://github.com/xianyi/OpenBLAS/issues/3661
+// https://github.com/Reference-LAPACK/lapack/issues/683
+// https://stackoverflow.com/questions/47520244/using-openblas-lapacke-in-visual-studio
+#if defined(_MSC_VER)
+    #include "complex_msvc_vendor.h"  // taken from C:\Program Files (x86)\Windows Kits\10\Include\10.0.16299.0\ucrt\complex.h
     #define LAPACK_COMPLEX_CUSTOM
-    #define lapack_complex_float float
-    #define lapack_complex_double double
+    #define lapack_complex_float _Fcomplex
+    #define lapack_complex_double _Dcomplex
 #endif
 
 #include <cblas.h>
 #include <lapacke.h>
 #undef I // undefine this def due to complex.h that causes issues later
+
+typedef int BLAS_INT;
 
 #define BLAS(x,X) cblas_ ## x
 #define LAPACK(x,X) LAPACKE_ ## x

@@ -38,8 +38,8 @@ knowledge of the CeCILL-B license and that you accept its terms.
 */
 
 #include <algorithm>
-#include <ciso646>
 
+#include <constants.h>
 #include <boundingbox.h>
 #include <interface.h>
 
@@ -104,7 +104,6 @@ namespace OpenMEEG {
         if (almost_equal(solangle,0.0))
             while (almost_equal(solangle,0.)) {
                 const Vertex& V = bb.random_point();
-                std::cerr << V << doublecheck << std::endl;
                 solangle = solid_angle(V);
             }
 

@@ -1,7 +1,7 @@
 /*
 Project Name : OpenMEEG
 
-© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre 
+© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre
 GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU, Théodore PAPADOPOULO,
 Emmanuel OLIVI
 Maureen.Clerc.AT.inria.fr, keriven.AT.certis.enpc.fr,
@@ -47,17 +47,17 @@ knowledge of the CeCILL-B license and that you accept its terms.
 namespace OpenMEEG {
 
     //TODO  remove all unused exception
-#if 0 
+#if 0
     struct ReturnCode {
-        static const unsigned code = 
+        static const unsigned code =
     };
 #endif
 
     typedef enum { UNEXPECTED = 128, IO_EXCPT, OPEN_ERROR,
                    BAD_FMT, NO_SUFFIX, NON_MATCH_FMT, BAD_HDR, BAD_DATA, WRONG_FILE_FMT, BAD_DIM, UNKN_DIM, BAD_SIZE_SPEC, UNKN_PIX, UNKN_PIX_TYPE,
                    UNKN_FILE_FMT, UNKN_FILE_SUFFIX, UNKN_NAMED_FILE_FMT, NON_MATCH_NAMED_FILE_FMT, NO_FILE_FMT,
-                   BAD_PLGIN_LIST, BAD_PLGIN_FILE, BAD_PLGIN, ALREADY_KN_TAG, NON_EXISTING_DOMAIN,
-                   NO_IMG_ARG, DIFF_IMG } ExceptionCode;
+                   BAD_PLGIN_LIST, BAD_PLGIN_FILE, BAD_PLGIN, ALREADY_KN_TAG, NON_EXISTING_DOMAIN, UNKNOWN_VERTEX,
+                   SOURCE_MESH_OVERLAPS_GEOMETRY, NO_IMG_ARG, DIFF_IMG } ExceptionCode;
 
     class Exception: public std::exception {
     public:
@@ -73,7 +73,7 @@ namespace OpenMEEG {
 
         const std::string whatstring;
     };
-    
+
     struct UnexpectedException: public Exception {
 
         UnexpectedException(const std::string& func,const std::string& file,const unsigned line): Exception(message(func,file,line)) { }
@@ -106,7 +106,7 @@ namespace OpenMEEG {
 
     private:
 
-        static std::string message(const std::string& fmtname) { return std::string("Cannot open file "+fmtname+" !"); }   
+        static std::string message(const std::string& fmtname) { return std::string("Cannot open file "+fmtname+" !"); }
     };
 
     struct BadFormat: public IOException {
@@ -244,13 +244,27 @@ namespace OpenMEEG {
         const char* what() const throw() {
             std::ostringstream oss;
             oss << "Definition of domain " << domain << ": interface " << interface << " does not exist";
-            return oss.str().c_str();
+            std::string temp = oss.str();
+            const char* out = temp.c_str();
+            return out;
         }
 
         ExceptionCode code() const throw() { return NON_EXISTING_DOMAIN; }
 
         const std::string domain;
         const T&          interface;
+    };
+
+    struct UnknownVertex: public Exception {
+        UnknownVertex(): Exception("Unknown vertex in triangle") { }
+
+        ExceptionCode code() const throw() { return UNKNOWN_VERTEX; }
+    };
+
+    struct OverlappingSourceMesh: public Exception {
+        OverlappingSourceMesh(): Exception("Source mesh overlaps the geometry") { }
+
+        ExceptionCode code() const throw() { return SOURCE_MESH_OVERLAPS_GEOMETRY; }
     };
 
     //  Revisit (TODO).

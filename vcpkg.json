@@ -1,0 +1,23 @@
+{
+  "name": "openmeeg",
+  "version-string": "2.4.2",
+  "dependencies": [
+    {
+      "name": "matio",
+      "features": [
+        "mat73",
+        "zlib"
+      ]
+    },
+    {
+      "name": "hdf5",
+      "features": [
+        "zlib"
+      ]
+    },
+    "szip",
+    "vcpkg-cmake",
+    "vcpkg-cmake-config",
+    "zlib"
+  ]
+}

@@ -1,4 +1,3 @@
 if (ENABLE_PYTHON)
-    subdirs(src)
+    subdirs(python)
 endif()
-

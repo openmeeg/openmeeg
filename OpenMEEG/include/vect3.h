@@ -68,14 +68,22 @@ namespace OpenMEEG {
         Vect3(const double& a) { std::fill(&m[0],&m[3],a); }
         ~Vect3() { }
 
-        Vect3& operator=(const Vect3& v) {
-            std::copy(&v.m[0],&v.m[3],&m[0]);
-            return *this;
-        }
-
         Vect3(const Vect3& v) {
             for (unsigned i=0;i<3;++i)
                 m[i] = v.m[i];
+        }
+
+        operator const double*() const { return m; }
+
+        Vect3& operator=(const double& v) {
+            for (unsigned i=0;i<3;++i)
+                m[i] = v;
+            return *this;
+        }
+
+        Vect3& operator=(const Vect3& v) {
+            std::copy(&v.m[0],&v.m[3],&m[0]);
+            return *this;
         }
 
               double& x()       { return m[0]; }

@@ -49,119 +49,131 @@ knowledge of the CeCILL-B license and that you accept its terms.
 namespace OpenMEEG {
 
     const SymMatrix& SymMatrix::operator=(const double d) {
-        for(size_t i=0;i<size();i++) data()[i]=d;
+        const size_t sz = size();
+        for (size_t i=0; i<sz; ++i)
+            data()[i] = d;
         return *this;
     }
 
     SymMatrix::SymMatrix(const Vector& v) {
-        size_t N = v.size();
-        nlin() = (size_t)((sqrt((double)(1+8*N))-1)/2+0.1);
-        om_assert(nlin()*(nlin()+1)/2==N);
+        const size_t sz = v.size();
+        nlin() = std::round((sqrt(1+8*sz)-1)/2);
+        om_assert(size()==sz);
         value = v.value;
     }
 
     SymMatrix::SymMatrix(const Matrix& M): LinOp(M.nlin(),M.nlin(),SYMMETRIC,2),value(size()) {
-        om_assert(nlin() == M.nlin());
-        for (size_t i=0; i<nlin();++i)
-            for (size_t j=i; j<nlin();++j)
+        om_assert(nlin()==M.nlin());
+        for (Index i=0; i<nlin(); ++i)
+            for (Index j=i; j<nlin(); ++j)
                 (*this)(i,j) = M(i,j);
     }
 
-    void SymMatrix::set(double x) {
-        for (size_t i=0;i<(nlin()*(nlin()+1))/2;i++)
-            data()[i]=x;
+    void SymMatrix::set(const double x) {
+        const size_t sz = size();
+        for (size_t i=0; i<sz; ++i)
+            data()[i] = x;
     }
 
-    SymMatrix SymMatrix::operator *(double x) const {
+    SymMatrix SymMatrix::operator*(const double x) const {
         SymMatrix C(nlin());
-        for (size_t k=0; k<nlin()*(nlin()+1)/2; k++) C.data()[k] = data()[k]*x;
+        const size_t sz = size();
+        for (size_t i=0; i<sz; ++i)
+            C.data()[i] = data()[i]*x;
         return C;
     }
 
-    void SymMatrix::operator *=(double x) {
-        for (size_t k=0; k<nlin()*(nlin()+1)/2; k++) data()[k] *= x;
+    void SymMatrix::operator*=(const double x) {
+        const size_t sz = size();
+        for (size_t i=0; i<sz; ++i)
+            data()[i] *= x;
     }
 
-    Matrix SymMatrix::operator()(size_t i_start, size_t i_end, size_t j_start, size_t j_end) const {
+    Matrix SymMatrix::operator()(const Index i_start,const Index i_end,const Index j_start,const Index j_end) const {
         Matrix retMat(i_end-i_start+1,j_end-j_start+1);
-        for(size_t i=0;i<=i_end-i_start;i++)
-            for(size_t j=0;j<=j_end-j_start;j++)
-                retMat(i,j)=this->operator()(i_start+i,j_start+j);
-
+        for (Index i=0; i<=i_end-i_start; ++i)
+            for (Index j=0; j<=j_end-j_start; ++j)
+                retMat(i,j) = (*this)(i_start+i,j_start+j);
         return retMat;
     }
 
-    Matrix SymMatrix::submat(size_t istart, size_t isize, size_t jstart, size_t jsize) const {
-        om_assert ( istart+isize<=nlin() && jstart+jsize<=nlin() );
+    Matrix SymMatrix::submat(const Index istart,const Index isize,const Index jstart,const Index jsize) const {
+        om_assert(istart+isize<=nlin());
+        om_assert(jstart+jsize<=nlin());
         return (*this)(istart,istart+isize-1,jstart,jstart+jsize-1);
     }
 
-    SymMatrix SymMatrix::submat(size_t istart, size_t iend) const {
-        om_assert( iend > istart);
-        size_t isize = iend - istart + 1;
-        om_assert ( istart+isize<=nlin() );
+    SymMatrix SymMatrix::submat(const Index istart,const Index iend) const {
+        om_assert(iend>istart);
+        const Index isize = iend-istart+1;
+        om_assert(istart+isize<=nlin());
 
         SymMatrix mat(isize);
-        for(size_t i=istart;i<=iend;i++)
-            for(size_t j=i;j<=iend;j++)
-                mat(i,j)=this->operator()(i,j);
+        for (Index i=istart; i<=iend; ++i)
+            for (Index j=i; j<=iend; ++j)
+                mat(i,j) = (*this)(i,j);
 
         return mat;
     }
 
-    SymMatrix SymMatrix::operator*(const SymMatrix &m) const
-    {
+    Matrix SymMatrix::operator*(const SymMatrix& m) const {
         om_assert(nlin()==m.nlin());
-    #ifdef HAVE_BLAS
+    // Workaround an MKL bug
+    //#ifdef HAVE_BLAS
+    #if defined(HAVE_BLAS) && !defined(USE_MKL)
         Matrix D(*this);
         Matrix B(m);
         Matrix C(nlin(),nlin());
-        DSYMM(CblasLeft,CblasUpper,sizet_to_int(nlin()),sizet_to_int(B.ncol()),1.,D.data(),sizet_to_int(D.ncol()),B.data(),sizet_to_int(B.nlin()),0,C.data(),sizet_to_int(C.nlin()));
-        return SymMatrix(C);
+        const BLAS_INT M = sizet_to_int(nlin());
+        DSYMM(CblasLeft,CblasUpper,M,M,1.0,D.data(),M,B.data(),M,0.0,C.data(),M);
     #else
-        SymMatrix C(nlin());
-        for ( size_t j = 0; j < m.ncol(); ++j) {
-            for ( size_t i = 0; i < ncol(); ++i) {
-                C(i, j) = 0;
-                for ( size_t k = 0; k < ncol(); ++k) {
-                    C(i, j) += (*this)(i, k) * m(k, j);
-                }
+        Matrix C(nlin());
+        for (Index j = 0; j<m.ncol(); ++j)
+            for (Index i=0; i<ncol(); ++i) {
+                C(i,j) = 0;
+                for (Index k=0; k<ncol(); ++k)
+                    C(i,j) += (*this)(i,k)*m(k,j);
             }
-        }
-        return C;
     #endif
+        return C;
     }
 
-    Matrix SymMatrix::operator*(const Matrix &B) const
-    {
+    Matrix SymMatrix::operator*(const Matrix& B) const {
         om_assert(ncol()==B.nlin());
         Matrix C(nlin(),B.ncol());
-    #ifdef HAVE_BLAS
+    // Workaround an MKL bug
+    //#ifdef HAVE_BLAS
+    #if defined(HAVE_BLAS) && !defined(USE_MKL)
         Matrix D(*this);
-        DSYMM(CblasLeft,CblasUpper, sizet_to_int(nlin()), sizet_to_int(B.ncol()), 1. , D.data(), sizet_to_int(D.ncol()), B.data(), sizet_to_int(B.nlin()), 0, C.data(),sizet_to_int(C.nlin()));
+        const BLAS_INT M = sizet_to_int(nlin());
+        const BLAS_INT N = sizet_to_int(B.ncol());
+        DSYMM(CblasLeft,CblasUpper,M,N,1.0,D.data(),M,B.data(),M,0.0,C.data(),M);
     #else
-        for ( size_t j = 0; j < B.ncol(); ++j) {
-            for ( size_t i = 0; i < ncol(); ++i) {
-                C(i, j) = 0;
-                for ( size_t k = 0; k < ncol(); ++k) {
-                    C(i, j) += (*this)(i, k) * B(k, j);
+        for (Index j=0; j<B.ncol(); ++j)
+            for (Index i=0; i<nlin(); ++i) {
+                double sum = 0.0;
+                for (Index k=0; k<i; ++k) {
+                    C(k,j) += (*this)(i,k)*B(i,j);
+                    sum += (*this)(i,k)*B(k,j);
                 }
+                C(i,j) = (*this)(i,i)*B(i,j)+sum;
             }
-        }
     #endif
         return C;
     }
 
-    Matrix SymMatrix::solveLin(Matrix &RHS) const
-    {
+    Matrix SymMatrix::solveLin(Matrix& RHS) const {
+    om_assert(nlin()==RHS.nlin());
     #ifdef HAVE_LAPACK
         SymMatrix A(*this,DEEP_COPY);
+        const BLAS_INT M = sizet_to_int(nlin());
+        const BLAS_INT N = sizet_to_int(RHS.ncol());
         // LU
-        BLAS_INT *pivots = new BLAS_INT[nlin()];
+        BLAS_INT* pivots = new BLAS_INT[nlin()];
         int Info = 0;
-        DSPTRF('U',sizet_to_int(A.nlin()),A.data(),pivots,Info);
+        DSPTRF('U',M,A.data(),pivots,Info);
         // Solve the linear system AX=B
-        DSPTRS('U',sizet_to_int(A.nlin()),sizet_to_int(RHS.ncol()),A.data(),pivots,RHS.data(),sizet_to_int(A.nlin()),Info);
+        DSPTRS('U',M,N,A.data(),pivots,RHS.data(),M,Info);
         om_assert(Info == 0);
         return RHS;
     #else
@@ -171,39 +183,41 @@ namespace OpenMEEG {
     }
 
     void SymMatrix::info() const {
-        if (nlin() == 0) {
+        if (nlin()==0) {
             std::cout << "Matrix Empty" << std::endl;
             return;
         }
 
         std::cout << "Dimensions : " << nlin() << " x " << ncol() << std::endl;
 
-        double minv = this->operator()(0,0);
-        double maxv = this->operator()(0,0);
-        size_t mini = 0;
-        size_t maxi = 0;
-        size_t minj = 0;
-        size_t maxj = 0;
+        double minv = (*this)(0,0);
+        double maxv = (*this)(0,0);
+        Index mini = 0;
+        Index maxi = 0;
+        Index minj = 0;
+        Index maxj = 0;
 
-        for (size_t i=0;i<nlin();++i)
-            for (size_t j=i;j<ncol();++j)
-                if (minv>this->operator()(i,j)) {
-                    minv = this->operator()(i,j);
+        for (Index i=0; i<nlin(); ++i)
+            for (Index j=i; j<ncol(); ++j) {
+                const double value = (*this)(i,j);
+                if (minv>value) {
+                    minv = value;
                     mini = i;
                     minj = j;
-                } else if (maxv<this->operator()(i,j)) {
-                    maxv = this->operator()(i,j);
+                } else if (maxv<value) {
+                    maxv = value;
                     maxi = i;
                     maxj = j;
                 }
+            }
 
         std::cout << "Min Value : " << minv << " (" << mini << "," << minj << ")" << std::endl;
         std::cout << "Max Value : " << maxv << " (" << maxi << "," << maxj << ")" << std::endl;
         std::cout << "First Values" << std::endl;
 
-        for (size_t i=0;i<std::min(nlin(),(size_t) 5);++i) {
-            for (size_t j=i;j<std::min(ncol(),(size_t) 5);++j)
-                std::cout << this->operator()(i,j) << " " ;
+        for (Index i=0; i<std::min(nlin(),5U); ++i) {
+            for (Index j=i; j<std::min(ncol(),5U); ++j)
+                std::cout << (*this)(i,j) << " " ;
             std::cout << std::endl ;
         }
     }
@@ -212,7 +226,7 @@ namespace OpenMEEG {
     // = IOs =
     // =======
 
-    void SymMatrix::load(const char *filename) {
+    void SymMatrix::load(const char* filename) {
         maths::ifstream ifs(filename);
         try {
             ifs >> maths::format(filename,maths::format::FromSuffix) >> *this;
@@ -222,7 +236,7 @@ namespace OpenMEEG {
         }
     }
 
-    void SymMatrix::save(const char *filename) const {
+    void SymMatrix::save(const char* filename) const {
         maths::ofstream ofs(filename);
         try {
             ofs << maths::format(filename,maths::format::FromSuffix) << *this;

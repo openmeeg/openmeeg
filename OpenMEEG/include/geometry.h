@@ -47,12 +47,15 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <om_common.h>
 #include <vertex.h>
 #include <triangle.h>
-#include <mesh.h>
 #include <interface.h>
 #include <domain.h>
+#include <matrix.h>
+
 #include <GeometryExceptions.H>
 
 namespace OpenMEEG {
+
+    class Mesh;
 
     /// \brief Geometry contains the electrophysiological model
     /// Vertices, meshes and domains are stored in this geometry.
@@ -79,44 +82,87 @@ namespace OpenMEEG {
         typedef std::vector<const Domain*>            DomainsReference;
         typedef std::vector<std::vector<const Mesh*>> MeshParts;
 
+        typedef std::vector<std::pair<std::string,std::string>> MeshList;
+
         /// Constructors
 
         Geometry() {}
-        Geometry(const std::string& geomFileName,const std::string& condFileName="",const bool OLD_ORDERING=false) {
-            read(geomFileName,condFileName,OLD_ORDERING);
+
+        Geometry(const std::string& geomFileName,const bool OLD_ORDERING=false) {
+            load(geomFileName,OLD_ORDERING);
         }
 
+        Geometry(const std::string& geomFileName,const std::string& condFileName,const bool OLD_ORDERING=false) {
+            load(geomFileName,condFileName,OLD_ORDERING);
+        }
+
+        //  Absolutely necessary or wrong constructor is called because of conversion of char* to bool.
+
+        Geometry(const char* geomFileName,const bool OLD_ORDERING=false): Geometry(std::string(geomFileName),OLD_ORDERING) { }
+        Geometry(const char* geomFileName,const char* condFileName,const bool OLD_ORDERING=false):
+            Geometry(std::string(geomFileName),std::string(condFileName),OLD_ORDERING) { }
+
         void info(const bool verbose=false) const; ///< \brief Print information on the geometry
-        bool has_cond()                     const { return conductivity; } // TODO: Is this useful ?
+        bool has_conductivities()           const { return conductivities; } // TODO: Is this useful ?
         bool selfCheck()                    const; ///< \brief the geometry meshes intersect each other
         bool check(const Mesh& m)           const; ///< \brief check if m intersect geometry meshes
         bool check_inner(const Matrix& m)   const; ///< \brief check if dipoles are outside of geometry meshes
 
-        bool check_geometry_is_nested() const;
+        void check_geometry_is_nested();
 
         bool is_nested() const { return nested; }
-        void set_nested()      { nested = true; }
 
         /// \brief Return the list of vertices involved in the geometry.
 
-              Vertices& vertices()       { return vertices_; }
-        const Vertices& vertices() const { return vertices_; }
+              Vertices& vertices()       { return geom_vertices; }
+        const Vertices& vertices() const { return geom_vertices; }
+
+        /// \brief Add a vertex \param V to the geometry and return the index of V in the vector of vertices.
+
+        unsigned add_vertex(const Vertex& V) {
+            // Insert the vertex in the set of vertices if it is not already in.
+
+            const Vertices::iterator vit = std::find(vertices().begin(),vertices().end(),V);
+            if (vit!=vertices().end())
+                return vit-vertices().begin();
+
+            vertices().push_back(V);
+            return vertices().size()-1;
+        }
+
+        Mesh& add_mesh(const std::string& name="") {
+
+            //  It is dangerous to store the returned mesh because the vector can be reallocated.
+            //  Use mesh(name) after all meshes have been added....
+
+            meshes().emplace_back(this);
+            Mesh& mesh = meshes().back();
+            mesh.name() = name;
+            return mesh;
+        }
+
+        IndexMap add_vertices(const Vertices& vs) {
+            IndexMap indmap;
+            for (unsigned i=0; i<vs.size(); ++i)
+                indmap.insert({ i, add_vertex(vs[i]) });
+            return indmap;
+        }
 
         /// \brief Return the list of meshes involved in the geometry.
 
-              Meshes& meshes()       { return meshes_; }
-        const Meshes& meshes() const { return meshes_; }
+              Meshes& meshes()       { return geom_meshes; }
+        const Meshes& meshes() const { return geom_meshes; }
 
         const MeshPairs& communicating_mesh_pairs() const { return meshpairs; }
 
-        ///< \brief returns the Mesh called \param name .
+        /// \brief returns the Mesh called \param name .
 
         Mesh& mesh(const std::string& name);
 
         /// \brief  Return the list of domains.
 
-              Domains& domains()       { return domains_; }
-        const Domains& domains() const { return domains_; }
+              Domains& domains()       { return geom_domains; }
+        const Domains& domains() const { return geom_domains; }
 
         /// \brief Get specific domains.
 
@@ -133,7 +179,7 @@ namespace OpenMEEG {
             return result;
         }
 
-        size_t nb_parameters() const { return size_; } ///< \brief the total number of vertices + triangles
+        size_t nb_parameters() const { return num_params; } ///< \brief the total number of vertices + triangles
 
         /// Returns the outermost domain.
 
@@ -145,8 +191,6 @@ namespace OpenMEEG {
         const Interface& innermost_interface() const; ///< \brief returns the innermost interface (only valid for nested geometries).
 
         const Interface& interface(const std::string& name) const; ///< \brief returns the Interface called \param name
-
-        void import_meshes(const Meshes& m); ///< \brief imports meshes from a list of meshes
 
         //  TODO: Find better names for the next two methods.
 
@@ -171,18 +215,16 @@ namespace OpenMEEG {
             finalize(OLD_ORDERING);
         }
 
-        void read(const std::string& filename) { load(filename); }
-
-        void read(const std::string& geomFileName,const std::string& condFileName,const bool OLD_ORDERING=false) {
+        void load(const std::string& geomFileName,const std::string& condFileName,const bool OLD_ORDERING=false) {
             clear();
             read_geometry_file(geomFileName);
             read_conductivity_file(condFileName);
-            conductivity = true;
-
-            mark_current_barriers(); // mark meshes that touch the domains of null conductivity.
-
             finalize(OLD_ORDERING);
         }
+
+        void import(const MeshList& meshes);
+
+        void save(const std::string& filename) const;
 
         void finalize(const bool OLD_ORDERING=false) {
             // TODO: We should check the correct decomposition of the geometry into domains here.
@@ -190,26 +232,22 @@ namespace OpenMEEG {
             // Search for the outermost domain and set boolean OUTERMOST on the domain in the vector domains.
             // An outermost domain is (here) defined as the only domain outside represented by only one interface.
 
-            Domain& outer_domain = outermost_domain();
-            set_outermost_domain(outer_domain);
-            //  TODO: Integrate this loop (if necessary) in set_outermost_domain...
-            for (auto& boundary : outer_domain.boundaries())
-                boundary.interface().set_to_outermost();
+            if (has_conductivities())
+                mark_current_barriers(); // mark meshes that touch the domains of null conductivity.
 
-            if (check_geometry_is_nested())
-                set_nested();
+            if (domains().size()!=0) {
+                Domain& outer_domain = outermost_domain();
+                set_outermost_domain(outer_domain);
+                //  TODO: Integrate this loop (if necessary) in set_outermost_domain...
+                for (auto& boundary : outer_domain.boundaries())
+                    boundary.interface().set_to_outermost();
+
+                check_geometry_is_nested();
+            }
 
             generate_indices(OLD_ORDERING);
             make_mesh_pairs();
-            info();
         }
-
-        //  Do those belong to this class ?
-        //  TODO: Move this away in Reader/Writer classes....
-
-        void load_vtp(const std::string& filename) { Matrix trash; load_vtp(filename, trash, false); }
-        void load_vtp(const std::string& filename, Matrix& data, const bool READ_DATA = true);
-        void write_vtp(const std::string& filename, const Matrix& data = Matrix()) const; // optional give a dataset
 
         /// Handle multiple isolated domains
 
@@ -224,12 +262,12 @@ namespace OpenMEEG {
     private:
 
         void clear() {
-            vertices_.clear();
-            meshes_.clear();
-            domains_.clear();
-            conductivity = nested = false;
+            geom_vertices.clear();
+            geom_meshes.clear();
+            geom_domains.clear();
+            conductivities = nested = false;
             outer_domain = 0;
-            size_ = 0;
+            num_params = 0;
         }
 
         void read_geometry_file(const std::string& filename);
@@ -239,14 +277,14 @@ namespace OpenMEEG {
 
         /// Members
 
-        Vertices vertices_;
-        Meshes   meshes_;
-        Domains  domains_;
+        Vertices     geom_vertices;
+        Meshes       geom_meshes;
+        Domains      geom_domains;
 
-        const Domain* outer_domain = 0;
-        bool          nested       = false;
-        bool          conductivity = false;
-        size_t        size_        = 0;   // total number = nb of vertices + nb of triangles
+        const Domain* outer_domain   = 0;
+        bool          nested         = false;
+        bool          conductivities = false; //    Is this really useful ??
+        size_t        num_params     = 0;   // total number = nb of vertices + nb of triangles
 
         void  generate_indices(const bool);
 

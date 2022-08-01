@@ -38,9 +38,9 @@ knowledge of the CeCILL-B license and that you accept its terms.
 */
 
 #include <geometry.h>
-#include <geometry_reader.h>
-#include <geometry_io.h>
-#include <ciso646>
+#include <MeshIO.h>
+#include <GeometryIO.h>
+#include <PropertiesSpecialized.h>
 
 namespace OpenMEEG {
 
@@ -186,17 +186,64 @@ namespace OpenMEEG {
         throw OpenMEEG::BadDomain(name);
     }
 
-    void Geometry::read_geometry_file(const std::string& filename) {
-         GeometryReader geoR(*this);
-         try {
-            geoR.read_geom(filename);
-         } catch ( OpenMEEG::Exception& e) {
+    void Geometry::save(const std::string& filename) const {
+        GeometryIO* io = GeometryIO::create(filename);
+        try {
+            io->save(*this);
+        } catch (OpenMEEG::Exception& e) {
             std::cerr << e.what() << " in the file " << filename << std::endl;
-             exit(e.code());
-         } catch (...) {
+            exit(e.code());
+        } catch (...) {
+            std::cerr << "Could not write the geometry file: " << filename << std::endl;
+            exit(1);
+        }
+    }
+
+    void Geometry::read_geometry_file(const std::string& filename) {
+        GeometryIO* io = GeometryIO::create(filename);
+        try {
+            io->load(*this);
+        } catch (OpenMEEG::Exception& e) {
+            std::cerr << e.what() << " in the file " << filename << std::endl;
+            exit(e.code());
+        } catch (...) {
             std::cerr << "Could not read the geometry file: " << filename << std::endl;
-             exit(1);
-         }
+            exit(1);
+        }
+    }
+
+    void Geometry::import(const MeshList& mesh_list) {
+
+        struct MeshDescription {
+            std::string name;
+            MeshIO*     io;
+        };
+
+        clear();
+
+        // First read all the vertices
+
+        std::vector<MeshDescription> mesh_descriptions;
+        for (const auto& desc : mesh_list) {
+            const std::string& name = desc.first;
+            const std::string& path = desc.second;
+            MeshIO* io = MeshIO::create(path);
+            io->open();
+            io->load_points(*this);
+            mesh_descriptions.push_back({ name, io });
+        }
+
+        // Second really load the meshes
+
+        meshes().reserve(mesh_descriptions.size());
+        for (const auto& desc : mesh_descriptions) {
+            Mesh& mesh = add_mesh(desc.name);
+            desc.io->load_triangles(mesh);
+            mesh.update(true);
+        }
+
+        for (auto& desc : mesh_descriptions)
+            delete desc.io;
     }
 
     void Geometry::read_conductivity_file(const std::string& filename) {
@@ -219,9 +266,10 @@ namespace OpenMEEG {
             std::cerr << e.what() << " in the file " << filename << std::endl;
             exit(e.code());
         } catch (...) {
-            std::cerr << "Could not read the conducitvity file: " << filename << std::endl;
+            std::cerr << "Could not read the conductivity file: " << filename << std::endl;
             exit(1);
         }
+        conductivities = true;
     }
 
     // This generates unique indices for vertices and triangles which will correspond to our unknowns.
@@ -233,45 +281,38 @@ namespace OpenMEEG {
         // or by the user himself encoded into the vtp file.
         // if you use OLD_ORDERING make sure to iterate only once on each vertex: not to overwrite index (meshes have shared vertices).
 
-        if (meshes().front().triangles().front().index()==unsigned(-1)) {
-            unsigned index = 0;
-            if (!OLD_ORDERING)
-                for (auto& vertex : vertices())
-                    vertex.index() = (invalid_vertices_.count(vertex)==0) ? index++ : unsigned(-1);
+        unsigned index = 0;
+        if (!OLD_ORDERING)
+            for (auto& vertex : vertices())
+                vertex.index() = (invalid_vertices_.count(vertex)==0) ? index++ : unsigned(-1);
 
-            for (auto& mesh : meshes()) {
-                if (OLD_ORDERING) {
-                    om_error(is_nested()); // OR non nested but without shared vertices
-                    for (const auto& vertex : mesh.vertices())
-                        vertex->index() = index++;
-                }
-                if (!mesh.isolated() && !mesh.current_barrier())
+        for (auto& mesh : meshes()) {
+            if (OLD_ORDERING) {
+                om_error(is_nested()); // OR non nested but without shared vertices
+                for (const auto& vertex : mesh.vertices())
+                    vertex->index() = index++;
+            }
+            if (!mesh.isolated() && !mesh.current_barrier())
+                for (auto& triangle : mesh.triangles())
+                    triangle.index() = index++;
+        }
+
+        // even the last surface triangles (yes for EIT... )
+
+        nb_current_barrier_triangles_ = 0;
+        for (auto& mesh : meshes())
+            if (mesh.current_barrier()) {
+                if (!mesh.isolated()) {
+                    nb_current_barrier_triangles_ += mesh.triangles().size();
                     for (auto& triangle : mesh.triangles())
                         triangle.index() = index++;
+                } else {
+                    for (auto& triangle : mesh.triangles())
+                        triangle.index() = unsigned(-1);
+                }
             }
 
-            // even the last surface triangles (yes for EIT... )
-
-            nb_current_barrier_triangles_ = 0;
-            for (auto& mesh : meshes())
-                if (mesh.current_barrier()) {
-                    if (!mesh.isolated()) {
-                        nb_current_barrier_triangles_ += mesh.triangles().size();
-                        for (auto& triangle : mesh.triangles())
-                            triangle.index() = index++;
-                    } else {
-                        for (auto& triangle : mesh.triangles())
-                            triangle.index() = unsigned(-1);
-                    }
-                }
-
-            size_ = index;
-        } else {
-            std::cout << "First vertex index: " << vertices().front().index() << std::endl; // Necessary ? TODO
-            size_ = vertices_.size();
-            for (const auto& mesh : meshes())
-                size_ += mesh.triangles().size();
-        }
+        num_params = index;
     }
 
     /// \return the difference of conductivities of the 2 domains.
@@ -363,19 +404,21 @@ namespace OpenMEEG {
 
     /// Determine whether the geometry is nested or not.
 
-    bool Geometry::check_geometry_is_nested() const {
+    void Geometry::check_geometry_is_nested() {
         // The geometry is considered non nested if:
         // (at least) one domain is defined as being outside two or more interfaces OR....
 
-        bool nested = true;
+        nested = true;
         for (const auto& domain : domains()) {
             unsigned out_interface = 0;
             if (!is_outermost(domain))
                 for (const auto& boundary : domain.boundaries())
                     if (boundary.inside())
                         out_interface++;
-            if (out_interface>=2)
-                return false;
+            if (out_interface>=2) {
+                nested = false;
+                return;
+            }
         }
 
         // ... if 2 interfaces are composed by a same mesh oriented into two different directions.
@@ -387,41 +430,10 @@ namespace OpenMEEG {
                     for (const auto& oriented_mesh : boundary.interface().oriented_meshes())
                         if (oriented_mesh.mesh()==mesh)
                             m_oriented += oriented_mesh.orientation();
-            if (m_oriented==0)
-                return false;
-        }
-
-        return true;
-    }
-
-    void Geometry::import_meshes(const Meshes& m) {
-        meshes_.clear();
-        vertices_.clear();
-
-        // Count vertices
-
-        unsigned n_vert_max = 0;
-        for (const auto& mesh : m)
-            n_vert_max += mesh.vertices().size();
-
-        // Copy vertices and triangles in the geometry.
-
-        vertices_.reserve(n_vert_max);
-        meshes_.reserve(m.size());
-        std::map<const Vertex*,Vertex*> map_vertices;
-        for (const auto& mesh : m) {
-            meshes_.push_back(Mesh(vertices_,mesh.name()));
-            Mesh& newmesh = meshes_.back();
-            for (const auto& vertex : mesh.vertices()) {
-                newmesh.add_vertex(*vertex);
-                map_vertices[vertex] = newmesh.vertices().back();
+            if (m_oriented==0) {
+                nested = false;
+                return;
             }
-            Triangles& triangles = newmesh.triangles();
-            for (const auto& triangle : mesh.triangles())
-                triangles.push_back(Triangle(map_vertices[&triangle.vertex(0)],
-                                             map_vertices[&triangle.vertex(1)],
-                                             map_vertices[&triangle.vertex(2)]));
-            newmesh.update();
         }
     }
 
@@ -490,18 +502,18 @@ namespace OpenMEEG {
 
         //  Do not invalidate vertices of isolated meshes if they are shared by non isolated meshes.
 
-        std::set<Vertex> shared_vtx;
-        for (std::set<Vertex>::const_iterator vit = invalid_vertices_.begin(); vit != invalid_vertices_.end(); ++vit)
+        std::set<Vertex> shared_vertices;
+        for (const auto& vertex : invalid_vertices_)
             for (const auto& mesh : meshes())
                 if (!mesh.isolated()) {
-                    const auto comp = [vit](const Vertex* v) { return *v==*vit; };
-                    const std::vector<Vertex*>::const_iterator vfind = std::find_if(mesh.vertices().begin(),mesh.vertices().end(),comp);
+                    const auto comp = [vertex](const Vertex* v) { return *v==vertex; };
+                    const auto& vfind = std::find_if(mesh.vertices().begin(),mesh.vertices().end(),comp);
                     if (vfind!=mesh.vertices().end())
-                        shared_vtx.insert(**vfind); //a shared vertex is found
+                        shared_vertices.insert(**vfind); //a shared vertex is found
                 }
 
-        for (std::set<Vertex>::const_iterator vit = shared_vtx.begin(); vit != shared_vtx.end(); ++vit)
-            invalid_vertices_.erase(*vit);
+        for (const auto& vertex : shared_vertices)
+            invalid_vertices_.erase(vertex);
 
         // Find the various components in the geometry.
         // The various components are separated by zero-conductivity domains.

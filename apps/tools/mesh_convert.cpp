@@ -40,9 +40,8 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <om_common.h>
 #include <geometry.h>
 #include <matrix.h>
-#include <options.h>
+#include <commandline.h>
 
-using namespace std;
 using namespace OpenMEEG;
 
 //  Should not be here...
@@ -57,23 +56,26 @@ double determinant3x3(const Matrix& mat) {
            mat(0,1)*(mat(1,2)*mat(2,0)-mat(1,0)*mat(2,2));
 }
 
-int main( int argc, char **argv) {
+int
+main(int argc,char* argv[]) {
     print_version(argv[0]);
 
-    command_usage("Convert mesh between different formats");
-    const char *input_filename = command_option("-i", (const char *) NULL, "Input Mesh");
-    const char *output_filename = command_option("-o", (const char *) NULL, "Output Mesh");
-    const double tx = command_option("-tx", 0.0, "Translation along the x axis");
-    const double ty = command_option("-ty", 0.0, "Translation along the y axis");
-    const double tz = command_option("-tz", 0.0, "Translation along the z axis");
-    const double sx = command_option("-sx", 1.0, "Scaling along the x axis");
-    const double sy = command_option("-sy", 1.0, "Scaling along the y axis");
-    const double sz = command_option("-sz", 1.0, "Scaling along the z axis");
-    const char* transfmat = command_option("-mat", (const char *) NULL, "4x4 Transformation Matrix (Assumed format ASCII)");
-    const char* invert = command_option("-invert", (const char *) NULL, "Invert triangles point order");
-    if (command_option("-h", (const char *)0, 0)) return 0;
+    const CommandLine cmd(argc,argv,"Convert mesh between different formats");
+    const std::string& input_filename  = cmd.option("-i",     std::string(),"Input Mesh");
+    const std::string& output_filename = cmd.option("-o",     std::string(),"Output Mesh");
+    const double       tx              = cmd.option("-tx",    0.0,          "Translation along the x axis");
+    const double       ty              = cmd.option("-ty",    0.0,          "Translation along the y axis");
+    const double       tz              = cmd.option("-tz",    0.0,          "Translation along the z axis");
+    const double       sx              = cmd.option("-sx",    1.0,          "Scaling along the x axis");
+    const double       sy              = cmd.option("-sy",    1.0,          "Scaling along the y axis");
+    const double       sz              = cmd.option("-sz",    1.0,          "Scaling along the z axis");
+    const std::string& transfmat       = cmd.option("-mat",   std::string(),"4x4 Transformation Matrix (ASCII format)");
+    const bool         invert          = cmd.option("-invert",false,        "Invert triangles point order");
 
-    if(!input_filename || !output_filename) {
+    if (cmd.help_mode())
+        return 0;
+
+    if (input_filename=="" || output_filename=="") {
         std::cout << "Not enough arguments, try the -h option" << std::endl;
         return 1;
     }
@@ -87,7 +89,7 @@ int main( int argc, char **argv) {
         v(2) = v(2)*sz+tz;
     }
 
-    if (transfmat) {
+    if (transfmat!="") {
         Matrix mat;
         mat.load(transfmat);
 
@@ -96,8 +98,8 @@ int main( int argc, char **argv) {
             return 2;
         }
 
-        double mdet = determinant3x3(mat.submat(0, 3, 0, 3));
-        if (mdet < 0 && !invert) // transformation is indirect => should force face flipping
+        const double mdet = determinant3x3(mat.submat(0,3,0,3));
+        if (mdet<0 && !invert) // transformation is indirect => should force face flipping
             std::cout << "Warning : Transformation is indirect use -invert option to force face flipping" << std::endl;
 
         for (const auto& vertex : m.vertices()) {
@@ -110,7 +112,7 @@ int main( int argc, char **argv) {
         }
     }
 
-    if ( invert ) {
+    if (invert) {
         std::cout << "Change mesh orientation" << std::endl;
         m.change_orientation();
     }

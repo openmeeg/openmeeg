@@ -49,6 +49,8 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 namespace OpenMEEG {
 
+    class Mesh;
+
     /// An Oriented Mesh is a mesh associated with a boolean stating if it is well oriented.
 
     class OrientedMesh {
@@ -58,7 +60,7 @@ namespace OpenMEEG {
 
         OrientedMesh() {}
 
-        OrientedMesh(Mesh& m,const Orientation o=Normal): meshptr(&m),orient(o) { }
+        OrientedMesh(Mesh& m,const Orientation o): meshptr(&m),orient(o) { }
 
               Mesh&  mesh()       { return *meshptr; } ///< \brief access mesh
         const Mesh&  mesh() const { return *meshptr; } ///< \brief access mesh
@@ -82,7 +84,6 @@ namespace OpenMEEG {
         //        using OrientedMesh::Orientation;
 
         typedef std::vector<OrientedMesh> OrientedMeshes;
-        typedef Mesh::VectPTriangle       VectPTriangle;
 
         /// Default Constructor
 
@@ -124,10 +125,10 @@ namespace OpenMEEG {
 
         /// \return the adjacent triangles
 
-        VectPTriangle adjacent_triangles(const Triangle& t) const {
-            VectPTriangle triangles;
+        TrianglesRefs adjacent_triangles(const Triangle& t) const {
+            TrianglesRefs triangles;
             for (const auto& omesh : oriented_meshes()) {
-                VectPTriangle tri = omesh.mesh().adjacent_triangles(t);
+                const TrianglesRefs& tri = omesh.mesh().adjacent_triangles(t);
                 triangles.insert(triangles.end(),tri.begin(),tri.end());
             }
             return triangles;
