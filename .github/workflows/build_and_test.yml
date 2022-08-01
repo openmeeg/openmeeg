@@ -25,12 +25,6 @@ jobs:
     continue-on-error: true
     strategy:
       matrix:
-        # Currently, VTK is only installed+tested on Ubuntu
-        # Someday we could use OpenBLAS for Windows once vcpkg sorts things out
-        # (https://github.com/microsoft/vcpkg/issues/25176), but it's unclear
-        # if this will really help anything. SciPy's should be well tested
-        # already.
-        #
         # By default, all builds use:
         # - OpenBLAS
         # - dynamic BLAS linking
@@ -38,10 +32,19 @@ jobs:
         # - Python 3.10
         # - The oldest supported version of numpy (numpyold)
         # - MSVC on Windows (if relevant)
+        # - No VTK support
         #
         # Deviations from this are noted by additions to the `include`
         # params. Defaults are set up properly in the `env-vars` step,
         # whose `output`s should be used by subsequent steps.
+        #
+        # MKL is tested on all OSes.
+        #
+        # Someday we could use OpenBLAS for Windows once vcpkg sorts things out
+        # (https://github.com/microsoft/vcpkg/issues/25176), but it's unclear
+        # if this will really help anything. NumPy/SciPy's OpenBLAS (which
+        # we use currently) should be well tested already though, so there is
+        # perhaps no need to switch.
         include:
         - os: ubuntu-20.04
           blas: OpenBLAS
@@ -65,11 +68,12 @@ jobs:
         - os: ubuntu-20.04
           blas: OpenBLAS
           python-version: 'pypy-3.8'
-        # One with latest numpy
-        - os: ubuntu-20.04
+        # One with latest numpy, plus VTK
+        - os: ubuntu-22.04
           blas: OpenBLAS
           python-version: '3.10'
           numpy: numpydev
+          vtk: vtk9
         # Windows mingw64
         - os: windows-2019
           windows_compiler: mingw64
@@ -164,6 +168,12 @@ jobs:
         else
           DOC_OPT="-DBUILD_DOCUMENTATION=OFF"
         fi
+        if [[ "${{matrix.vtk}}" == 'vtk'* ]]; then
+          echo '::set-output name=vtk_version::${{matrix.vtk}}'
+          VTK_OPT="-DUSE_VTK=ON"
+        else
+          VTK_OPT="-DUSE_VTK=OFF"
+        fi
         # Use -Werror on Windows and macOS, eventually should use on Linux
         if [[ "${{matrix.os}}" != 'ubuntu*' ]]; then
           WERROR_OPT="-DENABLE_WERROR=OFF"
@@ -178,6 +188,8 @@ jobs:
         echo "WERROR_OPT=$WERROR_OPT" >> $GITHUB_ENV
         echo "Using DOC_OPT=$DOC_OPT"
         echo "DOC_OPT=$DOC_OPT" >> $GITHUB_ENV
+        echo "Using VTK_OPT=$VTK_OPT"
+        echo "VTK_OPT=$VTK_OPT" >> $GITHUB_ENV
         echo "Using PYTHON_COPY_RUNTIME_DLLS=$PYTHON_COPY_RUNTIME_DLLS_OPT"
         echo "PYTHON_COPY_RUNTIME_DLLS_OPT=$PYTHON_COPY_RUNTIME_DLLS_OPT" >> $GITHUB_ENV
 
@@ -320,19 +332,26 @@ jobs:
           echo "CMAKE_PREFIX_PATH=$BLAS_DIR" >> $GITHUB_ENV
         fi
 
-    - name: Linux - hdf5, libmatio, vtk, doxygen, and (optionally) OpenBLAS via apt
+    - name: Linux - hdf5, libmatio, doxygen, (optionally) vtk, and (optionally) OpenBLAS via apt
       if: startsWith(steps.env-vars.outputs.os,'ubuntu')
       run: |
         sudo apt update -q
+        APT_EXTRA=""
         if [[ "${{ steps.env-vars.outputs.blas }}" == "OpenBLAS" ]] && [[ "${{ steps.env-vars.outputs.blas_version }}" != "latest" ]]; then
-          APT_EXTRA=libopenblas-dev
+          APT_EXTRA="$APT_EXTRA libopenblas-dev"
         fi
-        sudo apt -yq install liblapacke-dev doxygen graphviz libhdf5-dev libmatio-dev libvtk7-dev lcov $APT_EXTRA
-        if [[ "${{matrix.os}}" == "ubuntu-22.04" ]]; then
-          sudo apt install g++-12 gcc-12 gfortran-12
+        if [[ "${{ steps.env-vars.outputs.blas }}" == "OpenBLAS-latest" ]]; then
+          APT_EXTRA="$APT_EXTRA g++-12 gcc-12 gfortran-12"
+        fi
+        if [[ "${{ steps.env-vars.outputs.vtk_version }}" != "" ]]; then
+          APT_EXTRA="$APT_EXTRA lib${{ steps.env-vars.outputs.vtk_version }}-dev"
+        fi
+        sudo apt -yq install liblapacke-dev doxygen graphviz libhdf5-dev libmatio-dev lcov $APT_EXTRA
+        # Set GCC version
+        if [[ "${{ steps.env-vars.outputs.blas }}" == "OpenBLAS-latest" ]]; then
           sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-12 100 --slave /usr/bin/g++ g++ /usr/bin/g++-12 --slave /usr/bin/gcov gcov /usr/bin/gcov-12
-          gcc --version
         fi
+        gcc --version
 
     - name: Linux - OpenBLAS via GitHub
       if: startsWith(steps.env-vars.outputs.os,'ubuntu') && startsWith(steps.env-vars.outputs.blas_version,'latest')
