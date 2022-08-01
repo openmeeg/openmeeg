@@ -291,7 +291,7 @@ jobs:
         # OpenBLAS direct download (too slow to build using vcpkg)
         # and renaming to match what cmake wants to see
         source ./build_tools/download_openblas.sh windows
-        if [[ "${{ steps.env-vars.outputs.blas_linking }}" !"= "static" ]]; then
+        if [[ "${{ steps.env-vars.outputs.blas_linking }}" != "static" ]]; then
           ls -al $OPENBLAS_LIB/*.dll
           rm $OPENBLAS_LIB/*.dll
         fi
@@ -386,7 +386,7 @@ jobs:
           echo "Before:"
           ls -al *.dll || true
           if [[ "${{steps.env-vars.outputs.blas}}" == "OpenBLAS" ]]; then
-            if [[ "${{ steps.env-vars.outputs.blas_linking }}" !"= "static" ]]; then
+            if [[ "${{ steps.env-vars.outputs.blas_linking }}" != "static" ]]; then
               if [[ "{{ steps.env-vars.outputs.windows_compiler }}" != "msvc"* ]]; then
                 strip $OPENBLAS_LIB/libopenblas_v*.dll
               fi
