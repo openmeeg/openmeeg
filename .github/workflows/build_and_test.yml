@@ -37,7 +37,7 @@ jobs:
         # params. Defaults are set up properly in the `env-vars` step,
         # whose `output`s should be used by subsequent steps.
         #
-        # Currently, VTK is only installed+tested on Ubuntu 21.04.
+        # Currently, VTK is only installed+tested on Ubuntu 22.04.
         #
         # MKL is tested on all OSes.
         #
