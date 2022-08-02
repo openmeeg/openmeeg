@@ -172,7 +172,7 @@ namespace io_utils {
     match_string(std::istream& is,const char*& s)
     {
         is >> std::ws;
-        while (*s && is.peek()==static_cast<const unsigned char>(*s)) {
+        while (*s && is.peek()==static_cast<unsigned char>(*s)) {
             is.get();
             s++;
         }
