@@ -59,7 +59,6 @@ namespace OpenMEEG {
 
         for (unsigned i=0;i<positions.nlin();++i) {
             const Vect3 current_position(positions(i,0),positions(i,1),positions(i,2));
-            double dist;
             Vect3 current_alphas;
             const auto& res = dist_point_geom(current_position,geo,current_alphas);
             const Triangle& current_triangle = std::get<1>(res);
