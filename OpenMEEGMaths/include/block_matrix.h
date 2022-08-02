@@ -89,14 +89,10 @@ namespace OpenMEEG::maths {
 
         void add_block(const Range& ir,const Range& jr) {
             Index inds = find_block_indices(ir,jr);
-            if (inds.first==-1) {
-                row_ranges.push_back(ir);
-                inds.first = row_ranges.size()-1;
-            }
-            if (inds.second==-1) {
-                col_ranges.push_back(jr);
-                inds.second = col_ranges.size()-1;
-            }
+            row_ranges.push_back(ir);
+            inds.first = row_ranges.size()-1;
+            col_ranges.push_back(jr);
+            inds.second = col_ranges.size()-1;
             all_blocks[inds] = Matrix(ir.length(),jr.length());
         }
 
