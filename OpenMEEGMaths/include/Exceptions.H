@@ -15,8 +15,8 @@ namespace OpenMEEG {
 
         typedef enum { UNEXPECTED = 128, IO_EXCPT,
                        BAD_FILE, BAD_FILE_OPEN, BAD_CONTENT, NO_SUFFIX, BAD_HDR, BAD_DATA, BAD_VECT, UNKN_DIM, BAD_SYMM_MAT,
-                       BAD_STORAGE_TYPE, NO_IO, OVERLAPPING_RANGES, NON_EXISTING_BLOCK, MATIO_ERROR, UNKN_FILE_FMT,
-                       UNKN_FILE_SUFFIX, NO_FILE_FMT, UNKN_NAMED_FILE_FMT, IMPOSSIBLE_IDENTIFICATION
+                       BAD_STORAGE_TYPE, NO_IO, NON_EXISTING_RANGE, OVERLAPPING_RANGES, NON_EXISTING_BLOCK, MATIO_ERROR,
+                       UNKN_FILE_FMT, UNKN_FILE_SUFFIX, NO_FILE_FMT, UNKN_NAMED_FILE_FMT, IMPOSSIBLE_IDENTIFICATION
                      } ExceptionCode;
 
         class Exception: public std::exception {
@@ -206,6 +206,21 @@ namespace OpenMEEG {
 
             static std::string message(const std::string& file,const Mode& mode) {
                 return std::string("Unable to find ")+((mode==READ) ? "reader" : "writer")+" for file "+file+".";
+            }
+        };
+
+        struct OPENMEEGMATHS_EXPORT NonExistingRange: public Exception {
+
+            NonExistingRange(const Range& range): Exception(message(range)) { }
+
+            ExceptionCode code() const throw() { return NON_EXISTING_RANGE; }
+
+        private:
+
+            static std::string message(const Range& range) {
+                std::ostringstream ost;
+                ost << "Attempt to access a non-existing range " << range << '.';
+                return ost.str();
             }
         };
 

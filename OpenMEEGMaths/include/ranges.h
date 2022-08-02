@@ -57,6 +57,17 @@ namespace OpenMEEG::maths {
 
         using base::base;
 
+        unsigned add(const Range& range) {
+            for (unsigned i=0;i<size();++i)
+                if ((*this)[i].intersect(range)) {
+                    if (range!=(*this)[i])
+                        throw OverlappingRanges(range,(*this)[i]);
+                    return i;
+                }
+            push_back(range);
+            return size()-1;
+        }
+
         unsigned find_index(const size_t ind) const {
             for (unsigned i=0;i<size();++i)
                 if ((*this)[i].contains(ind))
@@ -71,7 +82,7 @@ namespace OpenMEEG::maths {
                         throw OverlappingRanges(range,(*this)[i]);
                     return i;
                 }
-            return -1;
+            throw NonExistingRange(range);
         }
     };
 }
