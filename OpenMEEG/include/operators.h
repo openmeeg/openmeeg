@@ -184,7 +184,7 @@ namespace OpenMEEG {
 
         public:
 
-            SymBloc(const unsigned off,const unsigned sz): offset(off),base(sz) { }
+            SymBloc(const unsigned off,const unsigned sz): base(sz),offset(off) { }
 
             double& operator()(const unsigned i,const unsigned j)       { return base::operator()(i-offset,j-offset); }
             double  operator()(const unsigned i,const unsigned j) const { return base::operator()(i-offset,j-offset); }
@@ -216,7 +216,7 @@ namespace OpenMEEG {
         }
 
         template <typename T>
-        void set_Dstar_block(const double& coeff,T& matrix) const { }
+        void set_Dstar_block(const double& /* coeff */,T& /* matrix */) const { }
 
         template <typename T>
         void addId(const double& coeff,T& matrix) const {
@@ -355,7 +355,7 @@ namespace OpenMEEG {
 
         public:
 
-            Bloc(const unsigned r0,const unsigned c0,const unsigned n,const unsigned m): i0(r0),j0(c0),base(n,m) { }
+            Bloc(const unsigned r0,const unsigned c0,const unsigned n,const unsigned m): base(n,m),i0(r0),j0(c0) { }
 
             double& operator()(const unsigned i,const unsigned j)       { return base::operator()(i-i0,j-j0); }
             double  operator()(const unsigned i,const unsigned j) const { return base::operator()(i-i0,j-j0); }
