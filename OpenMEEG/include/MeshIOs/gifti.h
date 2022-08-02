@@ -200,7 +200,7 @@ namespace OpenMEEG::MeshIOs {
 #else
     struct OPENMEEG_EXPORT Gifti: public Unavailable {
 
-        Gifti(const std::string& filename=""): Unavailable("GIFTI","gii","USE_GIFTI") { }
+        Gifti(const std::string& /* filename */=""): Unavailable("GIFTI","gii","USE_GIFTI") { }
 
         static const Gifti prototype;
     };

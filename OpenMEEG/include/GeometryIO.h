@@ -90,7 +90,7 @@ namespace OpenMEEG {
     protected:
 
         virtual void   load_meshes(Geometry& geometry) = 0;
-        virtual void   load_domains(Geometry& geometry) { }
+        virtual void   load_domains(Geometry&) { }
         virtual Matrix load_data() const = 0;
 
         virtual void save_geom(const Geometry& geometry) = 0;
