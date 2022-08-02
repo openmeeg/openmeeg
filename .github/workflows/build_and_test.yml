@@ -109,7 +109,6 @@ jobs:
     - name: Environment variables
       id: env-vars
       run: |
-        echo "OPENMEEG_DATA_PATH=$PWD/data" >> $GITHUB_ENV
         echo '::set-output name=os::${{matrix.os}}'
         if [[ "${{matrix.numpy}}" == *'dev' ]]; then
           echo '::set-output name=numpy_version::dev'
