@@ -37,7 +37,6 @@ knowledge of the CeCILL-B license and that you accept its terms.
 */
 
 #include <fstream>
-#include <cstring>
 #include <sstream>
 #include <stdexcept>
 #include <string>
@@ -53,50 +52,58 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 using namespace OpenMEEG;
 
-void getHelp(char** argv);
-
-bool option(const int argc,char** argv,const Strings& options,const Strings& files);
+void help(const char* cmd_name);
 
 int main(int argc, char** argv)
 {
     print_version(argv[0]);
 
-    bool use_old_ordering = false;
-    if (argc<2) {
-        getHelp(argv);
+    const CommandLine cmd(argc,argv,"Compute various head matrices [options] geometry");
+    const bool use_old_ordering = cmd.option("-old-ordering", false,"Using old ordering i.e using (V1, p1, V2, p2, V3) instead of (V1, V2, V3, p1, p2)");
+
+    if (argc<2 || cmd.help_mode()) {
+        help(argv[0]);
         return 0;
-    } else {
-        use_old_ordering = (strcmp(argv[argc-1], "-old-ordering") == 0);
-        if (use_old_ordering) {
-            argc--;
-            std::cout << "Using old ordering i.e using (V1, p1, V2, p2, V3) instead of (V1, V2, V3, p1, p2)" << std::endl;
-        }
     }
 
-    if (option(argc,argv,{"-h","--help"}, {})) getHelp(argv);
+    cmd.print();
 
-    print_commandline(argc, argv);
+    constexpr char geomfileopt[]       = "geometry file";
+    constexpr char condfileopt[]       = "conductivity file";
+    constexpr char outputfileopt[]     = "output file";
+    constexpr char dipolefileopt[]     = "dipoles file";
+    constexpr char electrodesfileopt[] = "electrodes positions file";
+    constexpr char squidsfileopt[]     = "squids file";
+    constexpr char sourcemeshfileopt[] = "'mesh sources' file";
+    constexpr char pointsfileopt[]     = "point positions file";
 
     // Start Chrono
 
-    auto start_time = std::chrono::system_clock::now();
+    const auto start_time = std::chrono::system_clock::now();
 
-    /*********************************************************************************************
-    * Computation of Head Matrix for BEM Symmetric formulation
-    **********************************************************************************************/
+    // Computation of Head Matrix for BEM Symmetric formulation
 
-    if (option(argc,argv,{"-HeadMat","-HM", "-hm"},
-                {"geometry file", "conductivity file", "output file"}) ) {
-        const Geometry geo(argv[2],argv[3],use_old_ordering);
+    unsigned num_options = 0;
+
+
+    const auto& HMparms = { geomfileopt, condfileopt, outputfileopt };
+    if (char** opt_parms = cmd.option({ "-HeadMat", "-HM", "-hm" },HMparms)) {
+
+        assert_non_conflicting_options(argv[0],++num_options);
+
+        const Geometry geo(opt_parms[1],opt_parms[2],use_old_ordering);
 
         if (!geo.selfCheck()) // Check for intersecting meshes
             exit(1);
 
         const SymMatrix& HM = HeadMat(geo);
-        HM.save(argv[4]);
+        HM.save(opt_parms[3]);
+    }
 
-    } else if (option(argc,argv,{ "-CorticalMat","-CM","-cm" },
-                                { "geometry file","conductivity file","sensors file","domain name","output file" })) {
+    const auto& CMparms = { geomfileopt, condfileopt, "sensors file", "domain name", outputfileopt };
+    if (char** opt_parms = cmd.option({ "-CorticalMat", "-CM", "-cm" },CMparms)) {
+
+        assert_non_conflicting_options(argv[0],++num_options);
 
         //  Computation of Cortical Matrix for BEM Symmetric formulation
 
@@ -106,74 +113,80 @@ int main(int argc, char** argv)
 
         std::string filename;
 
-        switch (argc) {
-            case 8: { // case gamma or filename
-                std::stringstream ss(argv[7]);
+        switch (cmd.num_args(opt_parms)) {
+            case 6: { // case gamma or filename
+                std::stringstream ss(opt_parms[6]);
                 if (!(ss >> gamma))
-                    filename = argv[7];
+                    filename = opt_parms[6];
                 break;
             }
-            case 9: { // case alpha+beta or gamma+filename
-                std::stringstream ss(argv[7]);
+            case 7: { // case alpha+beta or gamma+filename
+                std::stringstream ss(opt_parms[6]);
                 if (!(ss >> alpha))
                     throw std::runtime_error("given parameter is not a number");
-                ss.str(argv[8]);
+                ss.str(opt_parms[7]);
                 ss.clear();
                 if (!(ss >> beta)) {
-                    filename = argv[8];
+                    filename = opt_parms[7];
                     gamma = alpha;
                 }
                 break;
             }
-            case 10: { // case alpha+beta + filename
-                std::stringstream ss(argv[7]);
+            case 8: { // case alpha+beta + filename
+                std::stringstream ss(opt_parms[6]);
                 if (!(ss >> alpha))
                     throw std::runtime_error("given parameter is not a number");
-                ss.str(argv[8]);
+                ss.str(opt_parms[7]);
                 ss.clear();
                 if (!(ss >> beta))
                     throw std::runtime_error("given parameter is not a number");
-                filename = argv[9];
+                filename = opt_parms[8];
                 break;
             }
         }
 
-        const Geometry geo(argv[2],argv[3],use_old_ordering);
+        const Geometry geo(opt_parms[1],opt_parms[2],use_old_ordering);
 
         if (!geo.selfCheck()) // Check for intersecting meshes
             exit(1);
 
-        const Sensors electrodes(argv[4]);
+        const Sensors electrodes(opt_parms[3]);
         const SparseMatrix& M = Head2EEGMat(geo,electrodes);
 
-        const Matrix& CM = (gamma>0.0) ? CorticalMat2(geo,M,argv[5],gamma,filename) :
-                                         CorticalMat(geo,M,argv[5],alpha,beta,filename);
-        CM.save(argv[6]);
+        const Matrix& CM = (gamma>0.0) ? CorticalMat2(geo,M,opt_parms[4],gamma,filename) :
+                                         CorticalMat(geo,M,opt_parms[4],alpha,beta,filename);
+        CM.save(opt_parms[5]);
+    }
 
-    } else if (option(argc,argv,{"-SurfSourceMat", "-SSM", "-ssm"},
-                     {"geometry file", "conductivity file", "'mesh of sources' file", "output file"})) {
+    const auto& SSMparms = { geomfileopt, condfileopt, sourcemeshfileopt, outputfileopt };
+    if (char** opt_parms = cmd.option({"-SurfSourceMat", "-SSM", "-ssm"},SSMparms)) {
+
+        assert_non_conflicting_options(argv[0],++num_options);
 
         // Computation of distributed Surface Source Matrix for BEM Symmetric formulation
         
-        const Geometry geo(argv[2],argv[3],use_old_ordering);
-        Mesh mesh_sources(argv[4]);
+        const Geometry geo(opt_parms[1],opt_parms[2],use_old_ordering);
+        Mesh mesh_sources(opt_parms[3]);
 
         const Matrix& ssm = SurfSourceMat(geo,mesh_sources);
-        ssm.save(argv[5]);
+        ssm.save(opt_parms[4]);
+    }
 
-    } else if (option(argc,argv,{"-DipSourceMat", "-DSM", "-dsm", "-DipSourceMatNoAdapt", "-DSMNA", "-dsmna"},
-                     {"geometry file", "conductivity file", "dipoles file", "output file"}) ) {
+    const auto& DSMparms = { geomfileopt, condfileopt, dipolefileopt, outputfileopt };
+    if (char** opt_parms = cmd.option({"-DipSourceMat", "-DSM", "-dsm", "-DipSourceMatNoAdapt", "-DSMNA", "-dsmna"},DSMparms)) {
+
+        assert_non_conflicting_options(argv[0],++num_options);
 
         // Computation of RHS for discrete dipolar case
     
         std::string domain_name = "";
-        if (argc==7) {
-            domain_name = argv[6];
+        if (cmd.num_args(opt_parms)==5) {
+            domain_name = opt_parms[6];
             std::cout << "Dipoles are considered to be in \"" << domain_name << "\" domain." << std::endl;
         }
 
-        const Geometry geo(argv[2],argv[3],use_old_ordering);
-        const Matrix dipoles(argv[4]);
+        const Geometry geo(opt_parms[1],opt_parms[2],use_old_ordering);
+        const Matrix dipoles(opt_parms[3]);
         if (dipoles.ncol()!=6) {
             std::cerr << "Dipoles File Format Error" << std::endl;
             exit(1);
@@ -181,177 +194,179 @@ int main(int argc, char** argv)
 
         // Choosing between adaptive integration or not for the RHS
 
-        unsigned integration_levels = 10;
-        if (option(argc,argv,{"-DipSourceMatNoAdapt", "-DSMNA", "-dsmna"},
-                    {"geometry file", "conductivity file", "dipoles file", "output file"})) {
-            integration_levels = 0;
-        }
+        const auto& check_no_adapt = [](const char* option,const std::vector<std::string>& optlist) {
+            for (const std::string& opt : optlist)
+                if (opt==option)
+                    return true;
+            return false;
+        };
 
+        const char* optname = opt_parms[0];
+        const unsigned integration_levels = check_no_adapt(optname,{"-DipSourceMatNoAdapt", "-DSMNA", "-dsmna"}) ? 0 : 10;
+        
         const Matrix& dsm = DipSourceMat(geo,dipoles,Integrator(3,integration_levels,0.001));
-        dsm.save(argv[5]);
+        dsm.save(opt_parms[4]);
+    }
 
-    } else if (option(argc,argv,{"-EITSourceMat", "-EITSM", "-EITsm"},
-                     {"geometry file", "conductivity file", "electrodes positions file", "output file"}) ) {
+    const auto& EITSMparms = { geomfileopt, condfileopt, electrodesfileopt, outputfileopt };
+    if (char** opt_parms = cmd.option({"-EITSourceMat", "-EITSM", "-EITsm"},EITSMparms)) {
+
+        assert_non_conflicting_options(argv[0],++num_options);
 
         // Computation of the RHS for EIT
 
-        const Geometry geo(argv[2],argv[3],use_old_ordering);
+        const Geometry geo(opt_parms[1],opt_parms[2],use_old_ordering);
 
-        const Sensors electrodes(argv[4], geo); // special parameter for EIT electrodes: the interface
+        const Sensors electrodes(opt_parms[3], geo); // special parameter for EIT electrodes: the interface
         electrodes.info(); // <- just to test that function on the code coverage TODO this is not the place.
         const Matrix& EITsource = EITSourceMat(geo,electrodes);
-        EITsource.save(argv[5]);
+        EITsource.save(opt_parms[4]);
+    }
 
-    } else if (option(argc,argv,{"-Head2EEGMat", "-H2EM", "-h2em"},
-                     {"geometry file", "conductivity file", "electrodes positions file", "output file"}) ) {
+    const auto& H2EMparms = { geomfileopt, condfileopt, electrodesfileopt, outputfileopt };
+    if (char** opt_parms = cmd.option({"-Head2EEGMat", "-H2EM", "-h2em"},H2EMparms)) {
+
+        assert_non_conflicting_options(argv[0],++num_options);
 
         // Computation of the linear application which maps the unknown vector in symmetric system,
         // (i.e. the potential and the normal current on all interfaces)
         // |----> v (potential at the electrodes)
 
-        const Geometry geo(argv[2],argv[3],use_old_ordering);
-        const Sensors electrodes(argv[4]);
+        const Geometry geo(opt_parms[1],opt_parms[2],use_old_ordering);
+        const Sensors electrodes(opt_parms[3]);
 
         // Head2EEG is the linear application which maps x |----> v
 
         const SparseMatrix& mat = Head2EEGMat(geo,electrodes);
-        mat.save(argv[5]);
+        mat.save(opt_parms[4]);
+    }
 
-    } else if (option(argc, argv, {"-Head2ECoGMat", "-H2ECogM", "-H2ECOGM", "-h2ecogm"},
-                                {"geometry file", "conductivity file", "ECoG electrodes positions file",
-                                 "[name of the interface for EcoG]", "output file"}) ) {
+    const auto& H2ECOGMparms = {
+        geomfileopt, condfileopt, "ECoG electrodes positions file", "[name of the interface for EcoG]", outputfileopt
+    };
+    if (char** opt_parms = cmd.option({"-Head2ECoGMat", "-H2ECogM", "-H2ECOGM", "-h2ecogm"},H2ECOGMparms)) {
+
+        assert_non_conflicting_options(argv[0],++num_options);
 
         // Computation of the linear application which maps the unknown vector in symmetric system,
         // (i.e. the potential and the normal current on all interfaces)
         // |----> v (potential at the ECoG electrodes)
 
-        const Geometry geo(argv[2],argv[3],use_old_ordering);
-        const Sensors electrodes(argv[4]);
+        const Geometry geo(opt_parms[1],opt_parms[2],use_old_ordering);
+        const Sensors electrodes(opt_parms[3]);
 
         // Find the mesh of the ECoG electrodes
 
-        bool old_cmd_line = false;
-        if (argc==6) {
+        const bool old_cmd_line = (cmd.num_args(opt_parms)==4) ? true : false;
+        if (old_cmd_line)
             std::cerr << "Warning: we assume that ECoG electrodes are placed on the inner interface." << std::endl
                       << "This is only valid for nested files. Consider specifying an interface as a name" << std::endl
                       << " right after the electrode position file." << std::endl;
-            old_cmd_line = true;
-        }
 
-        const Interface& ECoG_layer = (old_cmd_line) ? geo.innermost_interface() : geo.interface(argv[5]);
+        const Interface& ECoG_layer = (old_cmd_line) ? geo.innermost_interface() : geo.interface(opt_parms[4]);
 
         // Head2ECoG is the linear application which maps x |----> v
 
         const SparseMatrix& mat = Head2ECoGMat(geo,electrodes,ECoG_layer);
-        mat.save(argv[(old_cmd_line) ? 5 : 6]);
+        mat.save(opt_parms[(old_cmd_line) ? 4 : 5]);
+    }
 
-    } else if (option(argc,argv,{"-Head2MEGMat", "-H2MM", "-h2mm"},
-                     {"geometry file", "conductivity file", "squids file", "output file"}) ) {
+    const auto& H2MMparms = { geomfileopt, condfileopt, squidsfileopt, outputfileopt };
+    if (char** opt_parms = cmd.option({"-Head2MEGMat", "-H2MM", "-h2mm"},H2MMparms)) {
+
+        assert_non_conflicting_options(argv[0],++num_options);
 
         // Computation of the linear application which maps the unknown vector in symmetric system,
         // (i.e. the potential and the normal current on all interfaces)
         // |----> bFerguson (contrib to MEG response)
 
-        const Geometry geo(argv[2],argv[3],use_old_ordering);
-        const Sensors sensors(argv[4]);
+        const Geometry geo(opt_parms[1],opt_parms[2],use_old_ordering);
+        const Sensors sensors(opt_parms[3]);
 
         const Matrix& mat = Head2MEGMat(geo,sensors);
-        mat.save(argv[5]); // if outfile is specified
+        mat.save(opt_parms[4]); // if outfile is specified
+    }
 
-    } else if (option(argc,argv,{"-SurfSource2MEGMat", "-SS2MM", "-ss2mm"},
-                     {"'mesh sources' file", "squids file", "output file"}) ) {
+    const auto& SS2MMparms = { sourcemeshfileopt, squidsfileopt, outputfileopt };
+    if (char** opt_parms = cmd.option({"-SurfSource2MEGMat", "-SS2MM", "-ss2mm"},SS2MMparms)) {
+
+        assert_non_conflicting_options(argv[0],++num_options);
 
         // Computation of the linear application which maps the distributed source
         // |----> binf (contrib to MEG response)
 
-        const Mesh mesh_sources(argv[2]);
-        const Sensors sensors(argv[3]);
+        const Mesh mesh_sources(opt_parms[1]);
+        const Sensors sensors(opt_parms[2]);
 
         const Matrix& mat = SurfSource2MEGMat(mesh_sources,sensors);
-        mat.save(argv[4]);
+        mat.save(opt_parms[3]);
+    }
 
-    } else if (option(argc,argv,{"-DipSource2MEGMat", "-DS2MM", "-ds2mm"},
-                     {"dipoles file", "squids file", "output file"}) ) {
+    const auto& DS2MMparms = { dipolefileopt, squidsfileopt, outputfileopt };
+    if (char** opt_parms = cmd.option({"-DipSource2MEGMat", "-DS2MM", "-ds2mm"},DS2MMparms)) {
+
+        assert_non_conflicting_options(argv[0],++num_options);
 
         // Computation of the discrete linear application which maps s (the dipolar source)
         // |----> binf (contrib to MEG response)
         // arguments are the positions and orientations of the squids,
         // the position and orientations of the sources and the output name.
 
-        const Matrix dipoles(argv[2]);
-        const Sensors sensors(argv[3]);
+        const Matrix dipoles(opt_parms[1]);
+        const Sensors sensors(opt_parms[2]);
 
         const Matrix& mat = DipSource2MEGMat(dipoles,sensors);
-        mat.save(argv[4]);
+        mat.save(opt_parms[3]);
+    }
 
-    } else if (option(argc,argv,{"-Head2InternalPotMat", "-H2IPM", "-h2ipm"},
-                      {"geometry file", "conductivity file", "point positions file", "output file"}) ) {
+    const auto& H2IPMparms = { geomfileopt, condfileopt, pointsfileopt, outputfileopt };
+    if (char** opt_parms = cmd.option({"-Head2InternalPotMat", "-H2IPM", "-h2ipm"},H2IPMparms)) {
+
+        assert_non_conflicting_options(argv[0],++num_options);
 
         // Computation of the discrete linear application which maps x (the unknown vector in a symmetric system)
         // |----> v, potential at a set of prescribed points within the 3D volume
 
-        const Geometry geo(argv[2],argv[3],use_old_ordering);
-        const Matrix points(argv[4]);
+        const Geometry geo(opt_parms[1],opt_parms[2],use_old_ordering);
+        const Matrix points(opt_parms[3]);
         const Matrix& mat = Surf2VolMat(geo,points);
-        mat.save(argv[5]);
+        mat.save(opt_parms[4]);
     }
 
-    else if (option(argc,argv,{"-DipSource2InternalPotMat", "-DS2IPM", "-ds2ipm"},
-                    {"geometry file", "conductivity file", "dipole file", "point positions file", "output file"})) {
+    const auto& DS2IPMparms = { geomfileopt, condfileopt, dipolefileopt, pointsfileopt, outputfileopt };
+    if (char** opt_parms = cmd.option({"-DipSource2InternalPotMat", "-DS2IPM", "-ds2ipm"},DS2IPMparms)) {
+
+        assert_non_conflicting_options(argv[0],++num_options);
 
         // Computation of the discrete linear application which maps the dipoles
         // |----> Vinf, potential at a set of prescribed points within the volume, in an infinite medium
         //    Vinf(r)=1/(4*pi*sigma)*(r-r0).q/(||r-r0||^3)
 
-        std::string domain_name = "";
-        if (argc==9) {
-            domain_name = argv[7];
+        const std::string& domain_name = (cmd.num_args(opt_parms)==6) ? opt_parms[6] : "";
+        if (domain_name!="")
             std::cout << "Dipoles are considered to be in \"" << domain_name << "\" domain." << std::endl;
-        }
-        const Geometry geo(argv[2],argv[3],use_old_ordering);
-        const Matrix dipoles(argv[4]);
-        const Matrix points(argv[5]);
+
+        const Geometry geo(opt_parms[1],opt_parms[2],use_old_ordering);
+        const Matrix dipoles(opt_parms[3]);
+        const Matrix points(opt_parms[4]);
         const Matrix& mat = DipSource2InternalPotMat(geo,dipoles,points,domain_name);
-        mat.save(argv[6]);
+        mat.save(opt_parms[5]);
     }
-    else {
+
+    if (num_options==0) {
         std::cerr << "unknown argument: " << argv[1] << std::endl;
         exit(1);
     }
 
     // Stop Chrono
-    auto end_time = std::chrono::system_clock::now();
+    const auto end_time = std::chrono::system_clock::now();
     dispEllapsed(end_time-start_time);
 
     return 0;
 }
 
-bool option(const int argc, char ** argv, const Strings& options, const Strings& files) {
-    for ( auto s: options) {
-        if (argv[1] == s) {
-            unsigned minimum_nparms = files.size();
-            for (auto f: files)
-                if (f[0]=='[')
-                    --minimum_nparms;
-            if (argc-2 < minimum_nparms) {
-                std::cout << "\'om_assemble\' option \'" << argv[1] << "\' expects " << files.size() << " arguments (";
-                for ( auto f: files) {
-                    std::cout << f;
-                    if (f != files[files.size() - 1]){
-                        std::cout << ", ";
-                    }
-                }
-                std::cout << ") and you gave only " << argc-2 << " arguments." << std::endl;
-                exit(1);
-            }
-            return true;
-        }
-    }
-    return false;
-}
-
-void getHelp(char** argv) {
-    std::cout << argv[0] <<" [-option] [filepaths...]" << std::endl << std::endl;
+void help(const char* cmd_name) {
+    std::cout << cmd_name <<" [-option] [filepaths...]" << std::endl << std::endl;
 
     std::cout << "option:" << std::endl
               << "   -HeadMat, -HM, -hm:   " << std::endl
@@ -465,6 +480,4 @@ void getHelp(char** argv) {
               << "               a mesh file or a file with point positions at which to evaluate the potential" << std::endl
               << "               output matrix" << std::endl
               << "               (Optional) domain name where lie all dipoles." << std::endl << std::endl;
-
-    exit(0);
 }
