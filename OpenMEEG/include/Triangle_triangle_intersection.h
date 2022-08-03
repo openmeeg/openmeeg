@@ -211,12 +211,11 @@ namespace OpenMEEG {
           else return coplanar_tri_tri3d(p1,q1,r1,p2,q2,r2,N1,N2);
         }
       }
-    };
-
+    }
 
     bool coplanar_tri_tri3d(double p1[3], double q1[3], double r1[3],
                            double p2[3], double q2[3], double r2[3],
-                           double normal_1[3], double[3]){
+                           double normal_1[3], double[3]) {
 
       double P1[2],Q1[2],R1[2];
       double P2[2],Q2[2],R2[2];
@@ -264,9 +263,7 @@ namespace OpenMEEG {
 
       return tri_tri_overlap_test_2d(P1,Q1,R1,P2,Q2,R2);
 
-    };
-
-
+    }
 
     /******************************************************************/
     /*                                                                */
@@ -457,11 +454,7 @@ namespace OpenMEEG {
           }
         }
       }
-    };
-
-
-
-
+    }
 
     /******************************************************************/
     /*                                                                */
@@ -503,9 +496,7 @@ namespace OpenMEEG {
               else return 0; }\
             else return 0; \
         else  return 0; \
-     };
-
-
+     }
 
     #define INTERSECTION_TEST_EDGE(P1, Q1, R1, P2, Q2, R2) { \
       if (ORIENT_2D(R2,P2,Q1) >= 0.0f) {\
@@ -540,8 +531,7 @@ namespace OpenMEEG {
           if ( ORIENT_2D(r2,p2,p1) >= 0.0f ) INTERSECTION_TEST_EDGE(p1,q1,r1,q2,r2,p2)
           else  INTERSECTION_TEST_VERTEX(p1,q1,r1,q2,r2,p2)}
         else INTERSECTION_TEST_VERTEX(p1,q1,r1,r2,p2,q2)}
-    };
-
+    }
 
     bool tri_tri_overlap_test_2d(double p1[2], double q1[2], double r1[2],
                                 double p2[2], double q2[2], double r2[2]) {
@@ -556,8 +546,7 @@ namespace OpenMEEG {
         else
           return ccw_tri_tri_intersection_2d(p1,q1,r1,p2,q2,r2);
 
-    };
-
+    }
 
     double triangle_area(double p[3], double q[3], double r[3]) {
         double v1[3], v2[3], N[3];

@@ -69,4 +69,4 @@ namespace Types {
         static const char TAG[];
     };
     const char DataTrait<Utils::Properties::Named<std::string,OpenMEEG::Conductivity<double> > >::TAG[]= "Conductivities";
-};
+}
