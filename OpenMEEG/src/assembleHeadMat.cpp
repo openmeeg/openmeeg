@@ -75,7 +75,7 @@ namespace OpenMEEG {
                             #if defined NO_OPENMP || defined OPENMP_ITERATOR
                             for (auto vit2=vit1; vit2<vertices.end(); ++vit2) {
                             #else
-                            for (int i2=vit1-vertices.begin();i2<vertices.size();++i2) {
+                            for (int i2=vit1-vertices.begin();i2<static_cast<int>(vertices.size());++i2) {
                                 const auto vit2 = vertices.begin()+i2;
                             #endif
                                 M((*vit1)->index(),(*vit2)->index()) += coef;

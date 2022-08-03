@@ -120,7 +120,7 @@ namespace OpenMEEG {
             for (Triangles::const_iterator tit1=triangles1.begin(); tit1<triangles1.end(); ++tit1) {
                 const Triangle& triangle1 = *tit1;
             #else
-            for (int i1=0; i1<triangles1.size(); ++i1) {
+            for (int i1=0; i1<static_cast<int>(triangles1.size()); ++i1) {
                 const Triangle& triangle1 = *(triangles1.begin()+i1);
             #endif
                 for (const auto& triangle2 : triangles2) {
@@ -248,7 +248,7 @@ namespace OpenMEEG {
                 for (Triangles::const_iterator tit2=tit1; tit2!=triangles.end(); ++tit2) {
                     const Triangle& triangle2 = *tit2;
                 #else
-                for (int i2=tit1-triangles.begin(); i2<triangles.size(); ++i2) {
+                for (int i2=tit1-triangles.begin(); i2<static_cast<int>(triangles.size()); ++i2) {
                     const Triangle& triangle2 = *(triangles.begin()+i2);
                 #endif
                     matrix(triangle1.index(),triangle2.index()) = base::integrator.integrate(Sfunc,triangle2)*coeff;
@@ -428,7 +428,7 @@ namespace OpenMEEG {
                 for (Triangles::const_iterator tit2=m2_triangles.begin();tit2<m2_triangles.end();++tit2) {
                     const Triangle& triangle2 = *tit2;
                 #else
-                for (int i2=0;i2<m2_triangles.size();++i2) {
+                for (int i2=0;i2<static_cast<int>(m2_triangles.size());++i2) {
                     const Triangle& triangle2 = *(m2_triangles.begin()+i2);
                 #endif
                     matrix(triangle1.index(),triangle2.index()) = base::integrator.integrate(Sfunc,triangle2)*coeff;
@@ -479,7 +479,7 @@ namespace OpenMEEG {
                 for (auto vit2=m2_vertices.begin(); vit2<m2_vertices.end(); ++vit2) {
                     const Vertex* vertex2 = *vit2;
                 #else
-                for (int i2=0; i2<m2_vertices.size(); ++i2) {
+                for (int i2=0; i2<static_cast<int>(m2_vertices.size()); ++i2) {
                     const Vertex* vertex2 = *(m2_vertices.begin()+i2);
                 #endif
                     matrix(vertex1->index(),vertex2->index()) += base::N(*vertex1,*vertex2,mesh1,mesh2,S)*coeff;
@@ -499,7 +499,7 @@ namespace OpenMEEG {
         
         HeadMatrixBlocks(const BlockType& blk): block(blk) { }
 
-        // SymMatrix is initialized at once, and there is nothing to so blockwise.
+        // SymMatrix is initialized at once, and there is nothing to for blockwise matrix.
 
         static void init(SymMatrix& matrix) { matrix.set(0.0); }
         void set_blocks(SymMatrix&) const   { }

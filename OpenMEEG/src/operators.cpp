@@ -49,10 +49,10 @@ namespace OpenMEEG {
         #if defined NO_OPENMP || defined OPENMP_RANGEFOR
         for (const auto& vertexp : m.vertices()) {
         #elif defined OPENMP_ITERATOR
-        for (auto vit=m.vertices().begin();vit<m.vertices().end();++vit) {
+        for (auto vit=m.vertices().begin(); vit<m.vertices().end(); ++vit) {
             const Vertex* vertexp = *vit;
         #else
-        for (int i=0;i<m.vertices().size();++i) {
+        for (int i=0; i<static_cast<int>(m.vertices().size()); ++i) {
             const Vertex* vertexp = *(m.vertices().begin()+i);
         #endif
             const unsigned vindex = vertexp->index();
@@ -68,10 +68,10 @@ namespace OpenMEEG {
         #if defined NO_OPENMP || defined OPENMP_RANGEFOR
         for (const auto& triangle : m.triangles()) {
         #elif defined OPENMP_ITERATOR
-        for (Triangles::const_iterator tit=m.triangles().begin();tit<m.triangles().end();++tit) {
+        for (Triangles::const_iterator tit=m.triangles().begin(); tit<m.triangles().end(); ++tit) {
             const Triangle& triangle = *tit;
         #else
-        for (int i=0;i<m.triangles().size();++i) {
+        for (int i=0; i<static_cast<int>(m.triangles().size()); ++i) {
             const Triangle& triangle = *(m.triangles().begin()+i);
         #endif
             const analyticDipPotDer anaDPD(dipole,triangle);
@@ -92,10 +92,10 @@ namespace OpenMEEG {
         #if defined NO_OPENMP || defined OPENMP_RANGEFOR
         for (const auto& triangle : m.triangles()) {
         #elif defined OPENMP_ITERATOR
-        for (Triangles::const_iterator tit=m.triangles().begin();tit<m.triangles().end();++tit) {
+        for (Triangles::const_iterator tit=m.triangles().begin(); tit<m.triangles().end(); ++tit) {
             const Triangle& triangle = *tit;
         #else
-        for (int i=0;i<m.triangles().size();++i) {
+        for (int i=0; i<static_cast<int>(m.triangles().size()); ++i) {
             const Triangle& triangle = *(m.triangles().begin()+i);
         #endif
             const double d = integrator.integrate(dippot,triangle);
