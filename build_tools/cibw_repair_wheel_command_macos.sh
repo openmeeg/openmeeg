@@ -10,6 +10,6 @@ DEST_DIR=$2
 WHEEL=$3
 set -x
 
-export DYLD_LIBRARY_PATH="$GITHUB_WORKSPACE/install/lib"
+export DYLD_LIBRARY_PATH="$GITHUB_WORKSPACE/install/lib:$GITHUB_WORKSPACE/vcpkg_installed/lib"
 delocate-listdeps "$WHEEL"
 delocate-wheel --require-archs "$DELOCATE_ARCHS" -w "$DEST_DIR" "$WHEEL"
