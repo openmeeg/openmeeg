@@ -39,14 +39,16 @@ if [[ "$PLATFORM" == "linux-x86_64" ]]; then
     dnf -y install hdf5-devel matio-devel
     export OPENBLAS_INCLUDE=/usr/local/include
     export OPENBLAS_LIB=/usr/local/lib
-    export CMAKE_CXX_FLAGS="-lgfortran -lpthread -I$OPENBLAS_INCLUDE"
+    export CMAKE_CXX_FLAGS="-I$OPENBLAS_INCLUDE"
+    CMAKE_LINKER_OPT="-DCMAKE_SHARED_LINKER_FLAGS=\"-lgfortran -lpthread\" -DCMAKE_EXE_LINKER_FLAGS=\"-lgfortran -lpthread\""
     SHARED_OPT="-DBUILD_SHARED_LIBS=OFF"
 elif [[ "$PLATFORM" == 'macosx-'* ]]; then
-    brew install boost swig
+    brew install boost swig llvm libomp
     BLAS_DIR=/usr/local
     OPENBLAS_INCLUDE=$BLAS_DIR/include
     OPENBLAS_LIB=$BLAS_DIR/lib
-    export CMAKE_CXX_FLAGS="-I$OPENBLAS_INCLUDE -L$OPENBLAS_LIB"
+    export PATH="/usr/local/opt/llvm/bin:$PATH"
+    export CMAKE_CXX_FLAGS="-I$OPENBLAS_INCLUDE -L$OPENBLAS_LIB -L/usr/local/opt/llvm/lib"
     export CMAKE_PREFIX_PATH="$BLAS_DIR"
     echo "Building for CIBW_ARCHS_MACOS=\"$CIBW_ARCHS_MACOS\""
     if [[ "$CIBW_ARCHS_MACOS" == "x86_64" ]]; then
@@ -61,12 +63,12 @@ elif [[ "$PLATFORM" == 'macosx-'* ]]; then
         CMAKE_PREFIX_PATH_OPT="-DCMAKE_PREFIX_PATH=$ROOT/vcpkg_installed/arm64-osx-release-10.9"
         ls -al $ROOT/vcpkg_installed/arm64-osx-release-10.9/lib
         export CMAKE_CXX_FLAGS="$CMAKE_CXX_FLAGS -L$ROOT/vcpkg_installed/arm64-osx-release-10.9/lib -lz"
+        CMAKE_LINKER_OPT="-DCMAKE_SHARED_LINKER_FLAGS=\"-lgfortran -lpthread\" -DCMAKE_EXE_LINKER_FLAGS=\"-lz\""
     else
         echo "Unknown CIBW_ARCHS_MACOS=\"$CIBW_ARCHS_MACOS\""
         exit 1
     fi
     CMAKE_OSX_ARCH_OPT="-DCMAKE_OSX_ARCHITECTURES=${CIBW_ARCHS_MACOS}"
-    OPENMP_OPT="-DUSE_OPENMP=OFF"
 elif [[ "$PLATFORM" == "win-amd64" ]]; then
     export VCPKG_DEFAULT_TRIPLET="x64-windows-release-static"
     export CMAKE_GENERATOR="Visual Studio 16 2019"
@@ -82,7 +84,7 @@ export PYTHON_OPT="-DENABLE_PYTHON=OFF"
 export BLA_IMPLEMENTATION="OpenBLAS"
 export DISABLE_CCACHE=1
 pip install cmake
-./build_tools/cmake_configure.sh -DCMAKE_VERBOSE_MAKEFILE=ON -DCMAKE_INSTALL_PREFIX=${ROOT}/install ${OPENMP_OPT} ${SYSTEM_VERSION_OPT} ${CMAKE_OSX_ARCH_OPT} ${CMAKE_PREFIX_PATH_OPT} -DENABLE_APPS=OFF ${SHARED_OPT} -DCMAKE_INSTALL_UCRT_LIBRARIES=TRUE ${BLAS_LIBRARIES_OPT} ${LAPACK_LIBRARIES_OPT}
+./build_tools/cmake_configure.sh -DUSE_OPENMP=ON -DCMAKE_VERBOSE_MAKEFILE=ON -DCMAKE_INSTALL_PREFIX=${ROOT}/install ${SYSTEM_VERSION_OPT} ${CMAKE_LINKER_OPT} ${CMAKE_OSX_ARCH_OPT} ${CMAKE_PREFIX_PATH_OPT} -DENABLE_APPS=OFF ${SHARED_OPT} -DCMAKE_INSTALL_UCRT_LIBRARIES=TRUE ${BLAS_LIBRARIES_OPT} ${LAPACK_LIBRARIES_OPT}
 cmake --build build --target install --config release
 
 # Put DLLs where they can be found
