@@ -70,11 +70,12 @@ namespace OpenMEEG {
         // Workaround a bug in old gcc compilers which does not allow the conversion of
         // const std::initializer_list<const char* const> to const Strings.
 
-        typedef std::initializer_list<const char* const> List;
+        typedef std::initializer_list<const char*> List;
 
         static Strings build_strings(const List& list) {
             Strings strs;
-            std::copy(list.begin(),list.end(),strs.begin());
+            for (const auto& item : list)
+                strs.push_back(item);
             return strs;
         }
 
@@ -158,6 +159,8 @@ namespace OpenMEEG {
 
         char** option(const std::string& name,const List& parms) const { return option(name,build_strings(parms));                   }
         char** option(const List& options,const List& parms)     const { return option(build_strings(options),build_strings(parms)); }
+
+        // End of workaround.
 
         unsigned num_args(char** argument) const {
             unsigned res = 0;
