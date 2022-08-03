@@ -95,9 +95,11 @@ cmake --build build --target install --config release
 # Put DLLs where they can be found
 if [[ "$PLATFORM" == 'linux'* ]]; then
     ls -al install/lib64/*.so*
-    cp -a install/lib64/*.so* /usr/local/lib/
+    cp -av install/lib64/*.so* /usr/local/lib/
+elif [[ "$PLATFORM" == 'macosx-arm64' ]]; then
+    cp -av $ROOT/vcpkg_installed/lib/libomp* $ROOT/install/lib/
 elif [[ "$PLATFORM" == 'win'* ]]; then
-    cp -a $OPENBLAS_LIB/libopenblas_v0.3.20-140-gbfd9c1b5-gcc_8_1_0.dll install/bin
+    cp -av $OPENBLAS_LIB/libopenblas_v0.3.20-140-gbfd9c1b5-gcc_8_1_0.dll install/bin
 fi
 
 # TODO: This is only necessary because SWIG does not work outside cmake yet,
