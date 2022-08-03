@@ -40,8 +40,8 @@ if [[ "$PLATFORM" == "linux-x86_64" ]]; then
     export OPENBLAS_INCLUDE=/usr/local/include
     export OPENBLAS_LIB=/usr/local/lib
     export CMAKE_CXX_FLAGS="-I$OPENBLAS_INCLUDE"
-    SHARED_OPT="-DBUILD_SHARED_LIBS=OFF"
     export LINKER_OPT="-lgfortran -lpthread"
+    SHARED_OPT="-DBUILD_SHARED_LIBS=OFF"
 elif [[ "$PLATFORM" == 'macosx-'* ]]; then
     brew install boost swig libomp
     BLAS_DIR=/usr/local
@@ -61,7 +61,7 @@ elif [[ "$PLATFORM" == 'macosx-'* ]]; then
         tar xzfv openmeeg-deps-arm64-osx-release-10.9.tar.gz
         CMAKE_PREFIX_PATH_OPT="-DCMAKE_PREFIX_PATH=$ROOT/vcpkg_installed/arm64-osx-release-10.9"
         ls -al $ROOT/vcpkg_installed/arm64-osx-release-10.9/lib
-        export CMAKE_CXX_FLAGS="$CMAKE_CXX_FLAGS -L$ROOT/vcpkg_installed/arm64-osx-release-10.9/lib -lz"
+        export CMAKE_CXX_FLAGS="$CMAKE_CXX_FLAGS -L$ROOT/vcpkg_installed/arm64-osx-release-10.9/lib"
         # OpenMP URL taken from https://formulae.brew.sh/api/bottle/libomp.json
         # And downloading method taken from https://stackoverflow.com/a/69858397
         curl -LH "Authorization: Bearer QQ==" -o x.tar.gz https://ghcr.io/v2/homebrew/core/libomp/blobs/sha256:f00a5f352167b2fd68ad25b1959ef66a346023c6dbeb50892b386381d7ebe183
