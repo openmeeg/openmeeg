@@ -58,18 +58,18 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 namespace OpenMEEG {
 
-    void operatorFerguson(const Vect3&,const Mesh&,Matrix&,const unsigned&,const double&);
-    void operatorDipolePotDer(const Dipole&,const Mesh&,Vector&,const double&,const Integrator&);
-    void operatorDipolePot(const Dipole&,const Mesh&,Vector&,const double&,const Integrator&);
+    void operatorFerguson(const Vect3&,const Mesh&,Matrix&,const unsigned&,const double);
+    void operatorDipolePotDer(const Dipole&,const Mesh&,Vector&,const double,const Integrator&);
+    void operatorDipolePot(const Dipole&,const Mesh&,Vector&,const double,const Integrator&);
 
     namespace Details {
 
         inline Vect3 operatorFerguson(const Vect3& x,const Vertex& V,const Mesh& m) {
             Vect3 result;
-            result = 0.0;
 
             //  Loop over triangles of which V is a vertex
 
+            result = 0.0;
             for (const auto& tp : m.triangles(V)) {
                 const Triangle& T    = *tp;
                 const Edge&     edge = T.edge(V);
@@ -106,11 +106,11 @@ namespace OpenMEEG {
     protected:
 
         template <typename T>
-        void D(const Triangles& triangles1,const Triangles& triangles2,const double& coeff,T& mat) const {
+        void D(const Triangles& triangles1,const Triangles& triangles2,const double coeff,T& mat) const {
             // This function (OPTIMIZED VERSION) has the following arguments:
-            //    - the 2 interacting meshes
-            //    - the coefficient to be applied to each matrix element (depending on conductivities, ...)
-            //    - the storage Matrix for the result
+            //    - 2 interacting meshes (as sets of triangles).
+            //    - coefficient to be applied to each matrix element (depending on conductivities, ...)
+            //    - storage Matrix for the result.
 
             ProgressBar pb(triangles1.size());
             #pragma omp parallel for
@@ -135,6 +135,8 @@ namespace OpenMEEG {
             }
         }
 
+        // Operator N for two vertices of the same mesh.
+
         template <typename T>
         static double N(const Vertex& V1,const Vertex& V2,const Mesh& m,const T& matrix) {
             return N(0.25,V1,V2,m,m,matrix);
@@ -151,7 +153,7 @@ namespace OpenMEEG {
     private:
 
         template <typename T>
-        static double N(const double& factor,const Vertex& V1,const Vertex& V2,const Mesh& m1,const Mesh& m2,const T& matrix) {
+        static double N(const double factor,const Vertex& V1,const Vertex& V2,const Mesh& m1,const Mesh& m2,const T& matrix) {
 
             double result = 0.0;
             for (const auto& tp1 : m1.triangles(V1)) {
@@ -199,7 +201,7 @@ namespace OpenMEEG {
         DiagonalBlock(const Mesh& m,const Integrator& intg): base(intg),mesh(m) { }
 
         template <typename T>
-        void set_S_block(const double& coeff,T& matrix) {
+        void set_S_block(const double coeff,T& matrix) {
             if (!mesh.current_barrier()) {
                 S(coeff,matrix);
                 Scoeff = coeff;
@@ -207,19 +209,19 @@ namespace OpenMEEG {
         }
 
         template <typename T>
-        void set_N_block(const double& coeff,T& matrix) const { N(coeff,matrix); }
+        void set_N_block(const double coeff,T& matrix) const { N(coeff,matrix); }
 
         template <typename T>
-        void set_D_block(const double& coeff,T& matrix) const {
+        void set_D_block(const double coeff,T& matrix) const {
             if (!mesh.current_barrier())
                 D(coeff,matrix);
         }
 
         template <typename T>
-        void set_Dstar_block(const double& /* coeff */,T& /* matrix */) const { }
+        void set_Dstar_block(const double /* coeff */,T& /* matrix */) const { }
 
         template <typename T>
-        void addId(const double& coeff,T& matrix) const {
+        void addId(const double coeff,T& matrix) const {
             // The Matrix is incremented by the identity P1P0 operator
             base::message("Id",mesh);
             for (const auto& triangle : mesh.triangles())
@@ -228,7 +230,7 @@ namespace OpenMEEG {
         }
 
         template <typename T>
-        void S(const double& coeff,T& matrix) const {
+        void S(const double coeff,T& matrix) const {
             base::message("S",mesh,mesh);
             ProgressBar pb(mesh.triangles().size());
 
@@ -255,7 +257,7 @@ namespace OpenMEEG {
         }
 
         template <typename T>
-        void N(const double& coeff,T& matrix) const {
+        void N(const double coeff,T& matrix) const {
             if (S_block_is_computed()) {
                 N(coeff/Scoeff,matrix,matrix);
             } else {
@@ -266,13 +268,13 @@ namespace OpenMEEG {
         }
 
         template <typename T>
-        void D(const double& coeff,T& matrix) const {
+        void D(const double coeff,T& matrix) const {
             base::message("D",mesh,mesh);
             base::D(mesh.triangles(),mesh.triangles(),coeff,matrix);
         }
 
         template <typename T>
-        void Dstar(const double& coeff,T& matrix) const {
+        void Dstar(const double coeff,T& matrix) const {
             base::message("D*",mesh,mesh);
             base::D(mesh.triangles(),mesh.triangles(),coeff,matrix);
         }
@@ -287,7 +289,7 @@ namespace OpenMEEG {
         }
 
         template <typename T1,typename T2>
-        void N(const double& coeff,const T1& S,T2& matrix) const {
+        void N(const double coeff,const T1& S,T2& matrix) const {
 
             base::message("N",mesh,mesh);
 
@@ -318,7 +320,7 @@ namespace OpenMEEG {
 
         PartialBlock(const Mesh& m): mesh(m) { }
 
-        void addD(const double& coeff,const Vertices& points,Matrix& matrix) const {
+        void addD(const double coeff,const Vertices& points,Matrix& matrix) const {
             std::cout << "PARTAL OPERATOR D..." << std::endl;
             for (const auto& triangle : mesh.triangles()) {
                 const analyticD3 analyD(triangle);
@@ -330,7 +332,7 @@ namespace OpenMEEG {
             }
         }
 
-        void S(const double& coeff,const Vertices& points,Matrix& matrix) const {
+        void S(const double coeff,const Vertices& points,Matrix& matrix) const {
             std::cout << "PARTIAL OPERATOR S..." << std::endl;
             for (const auto& triangle : mesh.triangles()) {
                 const analyticS analyS(triangle);
@@ -376,7 +378,7 @@ namespace OpenMEEG {
         NonDiagonalBlock(const Mesh& m1,const Mesh& m2,const Integrator& intg): base(intg),mesh1(m1),mesh2(m2) { }
 
         template <typename T>
-        void set_S_block(const double& coeff,T& matrix) {
+        void set_S_block(const double coeff,T& matrix) {
             if (!mesh1.current_barrier() && !mesh2.current_barrier()) {
                 S(coeff,matrix);
                 Scoeff = coeff;
@@ -384,16 +386,16 @@ namespace OpenMEEG {
         }
 
         template <typename T>
-        void set_N_block(const double& coeff,T& matrix) const { N(coeff,matrix); }
+        void set_N_block(const double coeff,T& matrix) const { N(coeff,matrix); }
 
         template <typename T>
-        void set_D_block(const double& coeff,T& matrix) const {
+        void set_D_block(const double coeff,T& matrix) const {
             if (!mesh1.current_barrier())
                 D(coeff,matrix);
         }
 
         template <typename T>
-        void set_Dstar_block(const double& coeff,T& matrix) const {
+        void set_Dstar_block(const double coeff,T& matrix) const {
             if (mesh1!=mesh2 && !mesh2.current_barrier())
                 Dstar(coeff,matrix);
         }
@@ -403,7 +405,7 @@ namespace OpenMEEG {
         //  - The storage Matrix for the result
 
         template <typename T>
-        void S(const double& coeff,T& matrix) const {
+        void S(const double coeff,T& matrix) const {
             base::message("S",mesh1,mesh2);
             ProgressBar pb(mesh1.triangles().size());
 
@@ -436,7 +438,7 @@ namespace OpenMEEG {
         }
 
         template <typename T>
-        void N(const double& coeff,T& matrix) const {
+        void N(const double coeff,T& matrix) const {
             if (S_block_is_computed()) {
                 N(coeff/Scoeff,matrix,matrix);
             } else {
@@ -447,13 +449,13 @@ namespace OpenMEEG {
         }
 
         template <typename T>
-        void D(const double& coeff,T& matrix) const {
+        void D(const double coeff,T& matrix) const {
             base::message("D",mesh1,mesh2);
             base::D(mesh1.triangles(),mesh2.triangles(),coeff,matrix);
         }
 
         template <typename T>
-        void Dstar(const double& coeff,T& matrix) const {
+        void Dstar(const double coeff,T& matrix) const {
             base::message("D*",mesh1,mesh2);
             base::D(mesh2.triangles(),mesh1.triangles(),coeff,matrix);
         }
@@ -463,7 +465,7 @@ namespace OpenMEEG {
         bool S_block_is_computed() const { return Scoeff!=0.0; }
 
         template <typename T1,typename T2>
-        void N(const double& coeff,const T1& S,T2& matrix) const {
+        void N(const double coeff,const T1& S,T2& matrix) const {
 
             base::message("N",mesh1,mesh2);
 

@@ -44,7 +44,7 @@ namespace OpenMEEG {
     // General routine for applying Details::operatorFerguson (see this function for further comments)
     // to an entire mesh, and storing coordinates of the output in a Matrix.
 
-    void operatorFerguson(const Vect3& x,const Mesh& m,Matrix& mat,const unsigned& offsetI,const double& coeff) {
+    void operatorFerguson(const Vect3& x,const Mesh& m,Matrix& mat,const unsigned& offsetI,const double coeff) {
         #pragma omp parallel for
         #if defined NO_OPENMP || defined OPENMP_RANGEFOR
         for (const auto& vertexp : m.vertices()) {
@@ -63,7 +63,7 @@ namespace OpenMEEG {
         }
     }
 
-    void operatorDipolePotDer(const Dipole& dipole,const Mesh& m,Vector& rhs,const double& coeff,const Integrator& integrator) {
+    void operatorDipolePotDer(const Dipole& dipole,const Mesh& m,Vector& rhs,const double coeff,const Integrator& integrator) {
         #pragma omp parallel for
         #if defined NO_OPENMP || defined OPENMP_RANGEFOR
         for (const auto& triangle : m.triangles()) {
@@ -86,7 +86,7 @@ namespace OpenMEEG {
         }
     }
 
-    void operatorDipolePot(const Dipole& dipole,const Mesh& m,Vector& rhs,const double& coeff,const Integrator& integrator) {
+    void operatorDipolePot(const Dipole& dipole,const Mesh& m,Vector& rhs,const double coeff,const Integrator& integrator) {
         const auto& dippot = [&dipole](const Vect3& r) { return dipole.potential(r); };
         #pragma omp parallel for
         #if defined NO_OPENMP || defined OPENMP_RANGEFOR
