@@ -97,7 +97,8 @@ if [[ "$PLATFORM" == 'linux'* ]]; then
     cp -av install/lib64/*.so* /usr/local/lib/
 elif [[ "$PLATFORM" == 'macosx-arm64' ]]; then
     cp -av $ROOT/vcpkg_installed/arm64-osx-release-10.9/lib/libomp* $ROOT/install/lib/
-    otool -L $ROOT/install/lib/libOpenMEEG.1.1.0.dylib
+    dyld_info -dependents $ROOT/install/lib/libOpenMEEG.1.1.0.dylib
+    # https://matthew-brett.github.io/docosx/mac_runtime_link.html
     install_name_tool -change "@@HOMEBREW_PREFIX@@/opt/libomp/lib/libomp.dylib" "@loader_path/libomp.dylib" $ROOT/install/lib/libOpenMEEG.1.1.0.dylib
 elif [[ "$PLATFORM" == 'win'* ]]; then
     cp -av $OPENBLAS_LIB/libopenblas_v0.3.20-140-gbfd9c1b5-gcc_8_1_0.dll install/bin/
