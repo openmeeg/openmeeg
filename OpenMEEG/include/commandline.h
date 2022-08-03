@@ -44,6 +44,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <string>
 #include <vector>
 #include <sstream>
+#include <initializer_list>
 
 #ifdef WIN32
 #pragma warning( disable : 4530)    //MSVC standard library can't be inlined
@@ -65,7 +66,7 @@ namespace OpenMEEG {
 
     class CommandLine {
 
-        typedef std::vector<const char*> Strings;
+        typedef std::vector<const char* const> Strings;
 
         // Workaround a bug in old gcc compilers which does not allow the conversion of
         // const std::initializer_list<const char* const> to const Strings.
