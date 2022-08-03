@@ -75,7 +75,9 @@ namespace OpenMEEG {
 
         static Strings build_strings(const List& list) {
             Strings strs;
-            std::copy(list.begin(),list.end(),strs.begin());
+            strs.reserve(list.size());
+            for (const auto& item : list)
+                strs.push_back(item);
             return strs;
         }
 
