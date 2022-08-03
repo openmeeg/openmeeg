@@ -100,6 +100,7 @@ elif [[ "$PLATFORM" == 'macosx-arm64' ]]; then
     # https://matthew-brett.github.io/docosx/mac_runtime_link.html
     otool -L $ROOT/install/lib/libOpenMEEG.1.1.0.dylib
     install_name_tool -change "@@HOMEBREW_PREFIX@@/opt/libomp/lib/libomp.dylib" "@loader_path/libomp.dylib" $ROOT/install/lib/libOpenMEEG.1.1.0.dylib
+    otool -L $ROOT/install/lib/libOpenMEEG.1.1.0.dylib
 elif [[ "$PLATFORM" == 'win'* ]]; then
     cp -av $OPENBLAS_LIB/libopenblas_v0.3.20-140-gbfd9c1b5-gcc_8_1_0.dll install/bin/
 fi
