@@ -47,8 +47,9 @@ elif [[ "$PLATFORM" == 'macosx-'* ]]; then
     BLAS_DIR=/usr/local
     OPENBLAS_INCLUDE=$BLAS_DIR/include
     OPENBLAS_LIB=$BLAS_DIR/lib
-    export CMAKE_CXX_FLAGS="-I$OPENBLAS_INCLUDE -L$OPENBLAS_LIB"
+    export CMAKE_CXX_FLAGS="-I$OPENBLAS_INCLUDE"
     export CMAKE_PREFIX_PATH="$BLAS_DIR"
+    export LINKER_OPT="-L$OPENBLAS_LIB"
     echo "Building for CIBW_ARCHS_MACOS=\"$CIBW_ARCHS_MACOS\""
     if [[ "$CIBW_ARCHS_MACOS" == "x86_64" ]]; then
         export VCPKG_DEFAULT_TRIPLET="x64-osx-release-10.9"
@@ -61,14 +62,13 @@ elif [[ "$PLATFORM" == 'macosx-'* ]]; then
         tar xzfv openmeeg-deps-arm64-osx-release-10.9.tar.gz
         CMAKE_PREFIX_PATH_OPT="-DCMAKE_PREFIX_PATH=$ROOT/vcpkg_installed/arm64-osx-release-10.9"
         ls -al $ROOT/vcpkg_installed/arm64-osx-release-10.9/lib
-        export CMAKE_CXX_FLAGS="$CMAKE_CXX_FLAGS -L$ROOT/vcpkg_installed/arm64-osx-release-10.9/lib"
         # OpenMP URL taken from https://formulae.brew.sh/api/bottle/libomp.json
         # And downloading method taken from https://stackoverflow.com/a/69858397
         curl -LH "Authorization: Bearer QQ==" -o x.tar.gz https://ghcr.io/v2/homebrew/core/libomp/blobs/sha256:f00a5f352167b2fd68ad25b1959ef66a346023c6dbeb50892b386381d7ebe183
         tar xzfv x.tar.gz
         cp -a libomp/14.0.6/lib/* $ROOT/vcpkg_installed/arm64-osx-release-10.9/lib/
         cp -a libomp/14.0.6/include/* $ROOT/vcpkg_installed/arm64-osx-release-10.9/include/
-        export LINKER_OPT="-lz"
+        export LINKER_OPT="$LINKER_OPT -L$ROOT/vcpkg_installed/arm64-osx-release-10.9/lib -lz"
     else
         echo "Unknown CIBW_ARCHS_MACOS=\"$CIBW_ARCHS_MACOS\""
         exit 1
@@ -98,8 +98,9 @@ if [[ "$PLATFORM" == 'linux'* ]]; then
     cp -av install/lib64/*.so* /usr/local/lib/
 elif [[ "$PLATFORM" == 'macosx-arm64' ]]; then
     cp -av $ROOT/vcpkg_installed/arm64-osx-release-10.9/lib/libomp* $ROOT/install/lib/
+    install_name_tool -delete_rpath "@@HOMEBREW_PREFIX@@/opt/libomp/lib/libomp.dylib" $ROOT/install/lib/libOpenMEEG.1.1.0.dylib
 elif [[ "$PLATFORM" == 'win'* ]]; then
-    cp -av $OPENBLAS_LIB/libopenblas_v0.3.20-140-gbfd9c1b5-gcc_8_1_0.dll install/bin
+    cp -av $OPENBLAS_LIB/libopenblas_v0.3.20-140-gbfd9c1b5-gcc_8_1_0.dll install/bin/
 fi
 
 # TODO: This is only necessary because SWIG does not work outside cmake yet,
