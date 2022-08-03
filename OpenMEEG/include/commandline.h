@@ -122,6 +122,15 @@ namespace OpenMEEG {
 
         char** option(const std::string& name,const Strings& parms) const { return option(name,parms,parms.size()); }
 
+        char** option(const std::string& name,const std::initializer_list<const char* const>& parms) const { 
+            // Workaround a bug in old gcc compilers which does not allow the conversion of
+            // const std::initializer_list<const char* const> to const Strings.
+            Strings parameters;
+            for (const auto& parm : parms)
+                parameters.push_back(parm);
+            return option(name,parameters);
+        }
+
         char** option(const Strings& options,const Strings& parms) const {
             unsigned num_mandatory_parms = parms.size();
             for (const auto& parm : parms)
