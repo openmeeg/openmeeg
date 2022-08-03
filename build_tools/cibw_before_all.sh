@@ -8,9 +8,8 @@ if [[ "$1" == "" ]]; then
     echo "Usage: $0 <PROJECT_PATH>"
     exit 1
 fi
-ROOT=$1
-cd $ROOT
-$ROOT=$(pwd)
+cd $1
+ROOT=$(pwd)
 echo "Using project root \"${ROOT}\" on RUNNER_OS=\"${RUNNER_OS}\""
 
 # Let's have NumPy help us out, but we need to tell it to build for the correct
