@@ -40,7 +40,8 @@ if [[ "$PLATFORM" == "linux-x86_64" ]]; then
     export OPENBLAS_INCLUDE=/usr/local/include
     export OPENBLAS_LIB=/usr/local/lib
     export CMAKE_CXX_FLAGS="-I$OPENBLAS_INCLUDE"
-    CMAKE_LINKER_OPT="-DCMAKE_SHARED_LINKER_FLAGS=\"-lgfortran -lpthread\" -DCMAKE_EXE_LINKER_FLAGS=\"-lgfortran -lpthread\""
+    CMAKE_SHARED_LINKER_OPT="-DCMAKE_SHARED_LINKER_FLAGS='-lgfortran -lpthread'"
+    CMAKE_EXE_LINKER_OPT="-DCMAKE_EXE_LINKER_FLAGS='-lgfortran -lpthread'"
     SHARED_OPT="-DBUILD_SHARED_LIBS=OFF"
 elif [[ "$PLATFORM" == 'macosx-'* ]]; then
     brew install boost swig libomp
@@ -62,7 +63,8 @@ elif [[ "$PLATFORM" == 'macosx-'* ]]; then
         CMAKE_PREFIX_PATH_OPT="-DCMAKE_PREFIX_PATH=$ROOT/vcpkg_installed/arm64-osx-release-10.9"
         ls -al $ROOT/vcpkg_installed/arm64-osx-release-10.9/lib
         export CMAKE_CXX_FLAGS="$CMAKE_CXX_FLAGS -L$ROOT/vcpkg_installed/arm64-osx-release-10.9/lib -lz"
-        CMAKE_LINKER_OPT="-DCMAKE_SHARED_LINKER_FLAGS=\"-lz\" -DCMAKE_EXE_LINKER_FLAGS=\"-lz\""
+        CMAKE_SHARED_LINKER_OPT="-DCMAKE_SHARED_LINKER_FLAGS=-lz"
+        CMAKE_EXE_LINKER_OPT="-DCMAKE_EXE_LINKER_FLAGS=-lz"
     else
         echo "Unknown CIBW_ARCHS_MACOS=\"$CIBW_ARCHS_MACOS\""
         exit 1
@@ -83,7 +85,7 @@ export PYTHON_OPT="-DENABLE_PYTHON=OFF"
 export BLA_IMPLEMENTATION="OpenBLAS"
 export DISABLE_CCACHE=1
 pip install cmake
-./build_tools/cmake_configure.sh -DUSE_OPENMP=ON -DCMAKE_VERBOSE_MAKEFILE=ON -DCMAKE_INSTALL_PREFIX=${ROOT}/install ${SYSTEM_VERSION_OPT} ${CMAKE_LINKER_OPT} ${CMAKE_OSX_ARCH_OPT} ${CMAKE_PREFIX_PATH_OPT} -DENABLE_APPS=OFF ${SHARED_OPT} -DCMAKE_INSTALL_UCRT_LIBRARIES=TRUE ${BLAS_LIBRARIES_OPT} ${LAPACK_LIBRARIES_OPT}
+./build_tools/cmake_configure.sh -DUSE_OPENMP=ON -DCMAKE_VERBOSE_MAKEFILE=ON -DCMAKE_INSTALL_PREFIX=${ROOT}/install ${SYSTEM_VERSION_OPT} ${CMAKE_SHARED_LINKER_OPT} ${CMAKE_EXE_LINKER_OPT} ${CMAKE_OSX_ARCH_OPT} ${CMAKE_PREFIX_PATH_OPT} -DENABLE_APPS=OFF ${SHARED_OPT} -DCMAKE_INSTALL_UCRT_LIBRARIES=TRUE ${BLAS_LIBRARIES_OPT} ${LAPACK_LIBRARIES_OPT}
 cmake --build build --target install --config release
 
 # Put DLLs where they can be found
