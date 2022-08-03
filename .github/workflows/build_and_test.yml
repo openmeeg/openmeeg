@@ -9,8 +9,9 @@ concurrency:
 on:
   push:
     branches: [ main ]
-  pull_request:
-    branches: [ main ]
+  # TODO: Restore
+  #pull_request:
+  #  branches: [ main ]
 
 env:
   BUILD_TYPE: Release

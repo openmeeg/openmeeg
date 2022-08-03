@@ -43,12 +43,11 @@ if [[ "$PLATFORM" == "linux-x86_64" ]]; then
     CMAKE_LINKER_OPT="-DCMAKE_SHARED_LINKER_FLAGS=\"-lgfortran -lpthread\" -DCMAKE_EXE_LINKER_FLAGS=\"-lgfortran -lpthread\""
     SHARED_OPT="-DBUILD_SHARED_LIBS=OFF"
 elif [[ "$PLATFORM" == 'macosx-'* ]]; then
-    brew install boost swig llvm libomp
+    brew install boost swig libomp
     BLAS_DIR=/usr/local
     OPENBLAS_INCLUDE=$BLAS_DIR/include
     OPENBLAS_LIB=$BLAS_DIR/lib
-    export PATH="/usr/local/opt/llvm/bin:$PATH"
-    export CMAKE_CXX_FLAGS="-I$OPENBLAS_INCLUDE -L$OPENBLAS_LIB -L/usr/local/opt/llvm/lib"
+    export CMAKE_CXX_FLAGS="-I$OPENBLAS_INCLUDE -L$OPENBLAS_LIB"
     export CMAKE_PREFIX_PATH="$BLAS_DIR"
     echo "Building for CIBW_ARCHS_MACOS=\"$CIBW_ARCHS_MACOS\""
     if [[ "$CIBW_ARCHS_MACOS" == "x86_64" ]]; then
