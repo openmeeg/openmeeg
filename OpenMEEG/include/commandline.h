@@ -65,7 +65,24 @@ namespace OpenMEEG {
 
     class CommandLine {
 
-        typedef std::vector<const char*> Strings;
+        // Workaround a bug in old gcc compilers which does not allow the conversion of
+        // const std::initializer_list<const char* const> to const Strings.
+        // Otherwise it could just be:
+        // typedef std::vector<const char*> Strings;
+
+        class Strings: public std::vector<const char*> {
+
+            typedef std::vector<const char*> base;
+
+        public:
+
+            using base::base;
+
+            Strings(const std::initializer_list<const char* const>& list) {
+                for (const auto& str : list)
+                    push_back(str);
+            }
+        };
 
     public:
 
@@ -121,15 +138,6 @@ namespace OpenMEEG {
         }
 
         char** option(const std::string& name,const Strings& parms) const { return option(name,parms,parms.size()); }
-
-        char** option(const std::string& name,const std::initializer_list<const char* const>& parms) const { 
-            // Workaround a bug in old gcc compilers which does not allow the conversion of
-            // const std::initializer_list<const char* const> to const Strings.
-            Strings parameters;
-            for (const auto& parm : parms)
-                parameters.push_back(parm);
-            return option(name,parameters);
-        }
 
         char** option(const Strings& options,const Strings& parms) const {
             unsigned num_mandatory_parms = parms.size();
