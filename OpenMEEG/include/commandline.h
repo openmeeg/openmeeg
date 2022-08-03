@@ -66,17 +66,16 @@ namespace OpenMEEG {
 
     class CommandLine {
 
-        typedef std::vector<const char* const> Strings;
+        typedef std::vector<const char*> Strings;
 
         // Workaround a bug in old gcc compilers which does not allow the conversion of
         // const std::initializer_list<const char* const> to const Strings.
 
-        typedef std::initializer_list<const char*> List;
+        typedef std::initializer_list<const char* const> List;
 
         static Strings build_strings(const List& list) {
             Strings strs;
-            for (const auto& item : list)
-                strs.push_back(item);
+            std::copy(list.begin(),list.end(),strs.begin());
             return strs;
         }
 
