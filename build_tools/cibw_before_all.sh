@@ -40,6 +40,7 @@ if [[ "$PLATFORM" == "linux-x86_64" ]]; then
     export OPENBLAS_INCLUDE=/usr/local/include
     export OPENBLAS_LIB=/usr/local/lib
     export CMAKE_CXX_FLAGS="-I$OPENBLAS_INCLUDE"
+    SHARED_OPT="-DBUILD_SHARED_LIBS=OFF"
     export LINKER_OPT="-lgfortran -lpthread"
 elif [[ "$PLATFORM" == 'macosx-'* ]]; then
     brew install boost swig libomp
