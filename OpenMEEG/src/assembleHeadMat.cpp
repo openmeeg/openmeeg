@@ -112,7 +112,7 @@ namespace OpenMEEG {
                 if (disableBlock(mesh1,mesh2))
                     continue;
 
-                const double factor     = mp.relative_orientation()*K;
+                const double factor     =  mp.relative_orientation()*K;
                 const double SCondCoeff =  factor*geo.sigma_inv(mesh1,mesh2);
                 const double NCondCoeff =  factor*geo.sigma(mesh1,mesh2);
                 const double DCondCoeff = -factor*geo.indicator(mesh1,mesh2);
@@ -136,6 +136,7 @@ namespace OpenMEEG {
         }
     }
 
+    #if 0
     SymMatrix conductivity_coefficients(const Geometry& geo) {
         SymMatrix cond_coeffs(10,10);
         for (const auto& mp : geo.communicating_mesh_pairs()) {
@@ -148,6 +149,7 @@ namespace OpenMEEG {
         }
         return cond_coeffs;
     }
+    #endif
 
     SymMatrix HeadMat(const Geometry& geo,const Integrator& integrator) {
         return Details::HeadMatrix<SymMatrix>(geo,integrator,Details::AllBlocks());
@@ -196,8 +198,6 @@ namespace OpenMEEG {
 
         // shape of the new matrix:
 
-        const unsigned Nl = geo.nb_parameters()-geo.nb_current_barrier_triangles()-Cortex.nb_vertices()-Cortex.nb_triangles();
-        const unsigned Nc = geo.nb_parameters()-geo.nb_current_barrier_triangles();
         Matrix P;
         std::fstream f(filename.c_str());
         if (!f) {
@@ -218,8 +218,9 @@ namespace OpenMEEG {
 
         // ** Get the gradient of P1&P0 elements on the meshes **
 
+        const unsigned Nc = geo.nb_parameters()-geo.nb_current_barrier_triangles();
         SymMatrix RR(Nc,Nc);
-        RR.set(0.);
+        RR.set(0.0);
         for (const auto& mesh : geo.meshes())
             mesh.gradient_norm2(RR);
 
@@ -261,7 +262,7 @@ namespace OpenMEEG {
     }
 
     Matrix CorticalMat2(const Geometry& geo,const SparseMatrix& M,const std::string& domain_name,
-                        const double gamma,const std::string &filename,const Integrator& integrator)
+                        const double gamma,const std::string& filename,const Integrator& integrator)
     {
         // Re-writting of the optimization problem in M. Clerc, J. Kybic "Cortical mapping by Laplace–Cauchy
         // transmission using a boundary element method".
@@ -326,7 +327,7 @@ namespace OpenMEEG {
             if (!mesh.current_barrier())
                 for (const auto& triangle1 : mesh.triangles())
                     for (const auto& triangle2 : mesh.triangles())
-                        G(triangle1.index(),triangle1.index()) *= gamma;
+                        G(triangle1.index(),triangle2.index()) *= gamma;
 
         std::cout << "gamma = " << gamma << std::endl;
 
