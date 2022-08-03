@@ -162,7 +162,7 @@ namespace OpenMEEG {
         static constexpr unsigned indices[3][2] = {{1,2},{2,0},{0,1}};
 
         Vertex*  vertices_[3]; ///< &Vertex-triplet defining the triangle
-        double   area_;        ///< Area
+        double   area_ = 0.0;  ///< Area
         Normal   normal_;      ///< Normal
         unsigned ind;          ///< Index of the triangle
     };
