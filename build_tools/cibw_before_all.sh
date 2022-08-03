@@ -62,7 +62,7 @@ elif [[ "$PLATFORM" == 'macosx-'* ]]; then
         CMAKE_PREFIX_PATH_OPT="-DCMAKE_PREFIX_PATH=$ROOT/vcpkg_installed/arm64-osx-release-10.9"
         ls -al $ROOT/vcpkg_installed/arm64-osx-release-10.9/lib
         export CMAKE_CXX_FLAGS="$CMAKE_CXX_FLAGS -L$ROOT/vcpkg_installed/arm64-osx-release-10.9/lib -lz"
-        CMAKE_LINKER_OPT="-DCMAKE_SHARED_LINKER_FLAGS=\"-lgfortran -lpthread\" -DCMAKE_EXE_LINKER_FLAGS=\"-lz\""
+        CMAKE_LINKER_OPT="-DCMAKE_SHARED_LINKER_FLAGS=\"-lz\" -DCMAKE_EXE_LINKER_FLAGS=\"-lz\""
     else
         echo "Unknown CIBW_ARCHS_MACOS=\"$CIBW_ARCHS_MACOS\""
         exit 1
