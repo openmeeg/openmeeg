@@ -97,7 +97,7 @@ namespace OpenMEEG {
         Dimension   num_cols;
         StorageType storage;
         unsigned    dim;
-        IO          DefaultIO;
+        IO          DefaultIO = nullptr;
     };
 
     class OPENMEEGMATHS_EXPORT LinOp: public LinOpInfo {
