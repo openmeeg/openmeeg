@@ -9,9 +9,9 @@ if [[ "$1" == "" ]]; then
     exit 1
 fi
 ROOT=$1
-echo "Using project root \"${ROOT}\" on RUNNER_OS=\"${RUNNER_OS}\""
 cd $ROOT
-pwd
+$ROOT=$(pwd)
+echo "Using project root \"${ROOT}\" on RUNNER_OS=\"${RUNNER_OS}\""
 
 # Let's have NumPy help us out, but we need to tell it to build for the correct
 # macOS platform
@@ -98,7 +98,8 @@ if [[ "$PLATFORM" == 'linux'* ]]; then
     cp -av install/lib64/*.so* /usr/local/lib/
 elif [[ "$PLATFORM" == 'macosx-arm64' ]]; then
     cp -av $ROOT/vcpkg_installed/arm64-osx-release-10.9/lib/libomp* $ROOT/install/lib/
-    install_name_tool -delete_rpath "@@HOMEBREW_PREFIX@@/opt/libomp/lib/libomp.dylib" $ROOT/install/lib/libOpenMEEG.1.1.0.dylib
+    otool -L $ROOT/install/lib/libOpenMEEG.1.1.0.dylib
+    install_name_tool -change "@@HOMEBREW_PREFIX@@/opt/libomp/lib/libomp.dylib" "@loader_path/libomp.dylib" $ROOT/install/lib/libOpenMEEG.1.1.0.dylib
 elif [[ "$PLATFORM" == 'win'* ]]; then
     cp -av $OPENBLAS_LIB/libopenblas_v0.3.20-140-gbfd9c1b5-gcc_8_1_0.dll install/bin/
 fi
