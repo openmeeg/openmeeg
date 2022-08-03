@@ -97,7 +97,7 @@ if [[ "$PLATFORM" == 'linux'* ]]; then
     ls -al install/lib64/*.so*
     cp -av install/lib64/*.so* /usr/local/lib/
 elif [[ "$PLATFORM" == 'macosx-arm64' ]]; then
-    cp -av $ROOT/vcpkg_installed/lib/libomp* $ROOT/install/lib/
+    cp -av $ROOT/vcpkg_installed/arm64-osx-release-10.9/lib/libomp* $ROOT/install/lib/
 elif [[ "$PLATFORM" == 'win'* ]]; then
     cp -av $OPENBLAS_LIB/libopenblas_v0.3.20-140-gbfd9c1b5-gcc_8_1_0.dll install/bin
 fi
