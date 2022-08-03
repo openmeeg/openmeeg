@@ -173,12 +173,7 @@ jobs:
         else
           VTK_OPT="-DUSE_VTK=OFF"
         fi
-        # Use -Werror on Windows and macOS, eventually should use on Linux
-        if [[ "${{matrix.os}}" != 'ubuntu*' ]]; then
-          WERROR_OPT="-DENABLE_WERROR=OFF"
-        else
-          WERROR_OPT="-DENABLE_WERROR=ON"
-        fi
+        WERROR_OPT="-DENABLE_WERROR=ON"
         # On windows, copy the runtime DLLs
         if [[ "${{matrix.os}}" == 'windows'* ]]; then
           PYTHON_COPY_RUNTIME_DLLS_OPT="-DPYTHON_COPY_RUNTIME_DLLS=ON"
