@@ -64,18 +64,22 @@ main(int argc,char* argv[]) try {
     print_version(argv[0]);
     const CommandLine cmd(argc,argv);
 
-    if (argc<3 || cmd.help_mode()) {
-        if (argc<3)
-            std::cerr << "Not enough arguments." << std::endl;
+    if (cmd.help_mode()) {
         help(argv[0]);
-        return (argc<3) ? 1 : 0;
+        return 0;
+    }
+
+    if (argc<3) {
+        std::cerr << "Not enough arguments." << std::endl;
+        help(argv[0]);
+        return 1;
     }
 
     cmd.print();
 
     // Start Chrono
 
-    auto start_time = std::chrono::system_clock::now();
+    const auto start_time = std::chrono::system_clock::now();
 
     SymMatrix HeadMat;
 
@@ -85,7 +89,7 @@ main(int argc,char* argv[]) try {
 
     // Stop Chrono
 
-    auto end_time = std::chrono::system_clock::now();
+    const auto end_time = std::chrono::system_clock::now();
     dispEllapsed(end_time-start_time);
 
     return 0;
