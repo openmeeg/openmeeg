@@ -77,6 +77,9 @@ jobs:
         # Windows mingw64
         - os: windows-2019
           windows_compiler: mingw64
+        # One ATLAS build
+        - os: ubuntu-22.04
+          blas: ATLAS
         # MKL on each OS (static unless it has to be dynamic)
         - os: windows-2019
           blas: mkl-findblas
@@ -150,7 +153,7 @@ jobs:
           echo '::set-output name=windows_compiler::msvc'
           echo "OPENMEEG_BAD_MSVC=1" >> $GITHUB_ENV
         fi
-        if [[ "${{matrix.blas}}" == 'mkl'* ]]; then
+        if [[ "${{matrix.blas}}" == 'mkl'* ]] || [[ "${{matrix.blas}}" == "ATLAS" ]]; then
           echo "Setting BLA_IMPLEMENTATION=${{matrix.blas}}"
           echo "BLA_IMPL=-DBLA_IMPLEMENTATION=${{matrix.blas}}" >> $GITHUB_ENV
           echo '::set-output name=blas::${{matrix.blas}}'
@@ -331,13 +334,16 @@ jobs:
           echo "CMAKE_PREFIX_PATH=$BLAS_DIR" >> $GITHUB_ENV
         fi
 
-    - name: Linux - hdf5, libmatio, doxygen, (optionally) vtk, and (optionally) OpenBLAS via apt
+    - name: Linux - hdf5, libmatio, doxygen; optionally vtk, OpenBLAS, and/or ATLAS via apt
       if: startsWith(steps.env-vars.outputs.os,'ubuntu')
       run: |
         sudo apt update -q
         APT_EXTRA=""
         if [[ "${{ steps.env-vars.outputs.blas }}" == "OpenBLAS" ]] && [[ "${{ steps.env-vars.outputs.blas_version }}" != "latest" ]]; then
           APT_EXTRA="$APT_EXTRA libopenblas-dev"
+        fi
+        if [[ "${{ steps.env-vars.outputs.blas }}" == "ATLAS" ]]; then
+          APT_EXTRA="$APT_EXTRA libatlas-base-dev"
         fi
         if [[ "${{ steps.env-vars.outputs.blas }}" == "OpenBLAS-latest" ]]; then
           APT_EXTRA="$APT_EXTRA g++-12 gcc-12 gfortran-12"
