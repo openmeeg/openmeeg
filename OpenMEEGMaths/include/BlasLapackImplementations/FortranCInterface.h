@@ -8,6 +8,9 @@
 #elif defined (USE_ATLAS)
     // XXX : this is currently a hack as we did not have the mechanism to generate the FC.h
     #define FC_GLOBAL(name,NAME) name##_
+#elif defined (USE_LAPACK)
+    // XXX : this is currently a hack as we did not have the mechanism to generate the FC.h
+    #define FC_GLOBAL(name,NAME) name##_
 #else
     #include <FC.h>
 #endif

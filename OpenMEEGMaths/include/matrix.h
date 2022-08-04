@@ -501,7 +501,7 @@ namespace OpenMEEG {
         const BLAS_INT sz = sizet_to_int(size());
         return BLAS(ddot,DDOT)(sz,data(),1,B.data(),1);
     #else
-        const  sz = size();
+        const size_t sz = size();
         double s = 0.0;
         for (size_t i=0; i<sz; i++)
             s += data()[i]*B.data()[i];

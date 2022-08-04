@@ -90,11 +90,15 @@ elseif (BLA_IMPLEMENTATION STREQUAL "ATLAS")
 
     message(STATUS "Using BLA_IMPLEMENTATION=ATLAS")
     set(USE_ATLAS ON)
+    set(HAVE_BLAS ON)
+    set(HAVE_LAPACK ON)
 
 elseif (BLA_IMPLEMENTATION STREQUAL "Generic")
 
     message(STATUS "Using BLA_IMPLEMENTATION=Generic")
     set(USE_LAPACK ON)
+    set(HAVE_BLAS ON)
+    set(HAVE_LAPACK ON)
 
 else()
 
