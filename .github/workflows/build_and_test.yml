@@ -173,11 +173,11 @@ jobs:
         else
           VTK_OPT="-DUSE_VTK=OFF"
         fi
-        # Use -Werror on Windows, macOS, and newer Ubuntu
-        if [[ "${{matrix.os}}" == 'ubuntu-18.04' ]]; then
-          WERROR_OPT="-DENABLE_WERROR=OFF"
-        else
+        # Use -Werror on Ubuntu
+        if [[ "${{matrix.os}}" == 'ubuntu-'* ]]; then
           WERROR_OPT="-DENABLE_WERROR=ON"
+        else
+          WERROR_OPT="-DENABLE_WERROR=OFF"
         fi
         # On windows, copy the runtime DLLs
         if [[ "${{matrix.os}}" == 'windows'* ]]; then
