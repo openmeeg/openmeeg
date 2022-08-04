@@ -162,9 +162,10 @@ build OpenMEEG on GitHub Actions: `.github/workflows/build_and_test.yml <https:/
 
 Supported Blas/Lapack Implementations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-We support `OpenBLAS <http://www.openblas.net/>`_,
-`Intel MKL <http://software.intel.com/en-us/intel-mkl/>`_,
-and `ATLAS <http://math-atlas.sourceforge.net/>`_ on Linux, macOS, and Windows.
+We support `OpenBLAS <http://www.openblas.net/>`_ and
+`Intel MKL <http://software.intel.com/en-us/intel-mkl/>`_
+on Linux, macOS, and Windows, and `ATLAS <http://math-atlas.sourceforge.net/>`_
+on Linux.
 
 Using OpenMEEG
 --------------

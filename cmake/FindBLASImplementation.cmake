@@ -86,6 +86,12 @@ elseif (BLA_IMPLEMENTATION STREQUAL "OpenBLAS")
     set(HAVE_LAPACK ON)
     set(BLA_VENDOR ${BLA_IMPLEMENTATION})
 
+elseif (BLA_IMPLEMENTATION STREQUAL "ATLAS")
+
+    # Just use the findblas interface
+    message(STATUS "Using BLA_IMPLEMENTATION=ATLAS")
+    set(USE_ATLAS ON)
+
 else()
 
     message(STATUS "Using no BLAS implementation")
