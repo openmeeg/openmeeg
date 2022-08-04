@@ -79,16 +79,9 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <BlasLapackImplementations/OpenMEEGMathsAtlasConfig.h>
 #elif defined(USE_OPENBLAS)
 #include <BlasLapackImplementations/OpenMEEGMathsOpenBLASConfig.h>
-#elif defined(USE_VECLIB)
-#include <BlasLapackImplementations/OpenMEEGMathsvecLibConfig.h>
 #else
 #warning "No blas/lapack implementation selected."
 #endif
-
-//#define inline __forceinline
-//#define inline __attribute__((always_inline))
-//#define inline __attribute__((weak)) inline
-
 
 #define DPOTF2 LAPACK(dpotf2,DPOTF2)
 #define DSPEVD LAPACK(dspevd,DSPEVD)

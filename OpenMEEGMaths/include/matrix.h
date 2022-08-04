@@ -328,27 +328,12 @@ namespace OpenMEEG {
         Matrix invA(*this,DEEP_COPY);
         // LU
         #if defined(CLAPACK_INTERFACE)
-            #if defined(__APPLE__) && defined(USE_VECLIB) // Apple Veclib Framework (Handles 32 and 64 Bits)
-                __CLPK_integer *pivots = new __CLPK_integer[ncol()];
-                __CLPK_integer Info = 0;
-                __CLPK_integer nlin_local = invA.nlin();
-                __CLPK_integer nlin_local2 = invA.nlin();
-                __CLPK_integer ncol_local = invA.ncol();
-                __CLPK_integer sz = invA.ncol()*64;
-                DGETRF(nlin_local,ncol_local,invA.data(),nlin_local2,pivots,Info);
-                double* work = new double[sz];
-                DGETRI(ncol_local,invA.data(),ncol_local,pivots,work,sz,Info);
-                delete[] pivots;
-                delete[] work;
-                om_assert(Info==0);
-            #else
-                const BLAS_INT M = sizet_to_int(invA.nlin());
-                const BLAS_INT N = sizet_to_int(ncol());
-                BLAS_INT* pivots = new BLAS_INT[N];
-                DGETRF(M,N,invA.data(),M,pivots);
-                DGETRI(N,invA.data(),N,pivots);
-                delete[] pivots;
-            #endif
+            const BLAS_INT M = sizet_to_int(invA.nlin());
+            const BLAS_INT N = sizet_to_int(ncol());
+            BLAS_INT* pivots = new BLAS_INT[N];
+            DGETRF(M,N,invA.data(),M,pivots);
+            DGETRI(N,invA.data(),N,pivots);
+            delete[] pivots;
         #else
             int Info = 0;
             BLAS_INT M = sizet_to_int(invA.nlin());
