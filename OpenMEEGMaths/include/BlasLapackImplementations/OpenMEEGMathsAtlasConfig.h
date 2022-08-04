@@ -3,10 +3,10 @@
 #include <BlasLapackImplementations/FortranCInterface.h>
 
 extern "C" {
-    #include <atlas/clapack.h>
+    #include <clapack.h>
 }
 
-typdef int BLAS_INT;
+typedef int BLAS_INT;
 
 #define BLAS(x,X) cblas_ ## x
 #define LAPACK(x,X) clapack_ ## x
@@ -18,4 +18,3 @@ typdef int BLAS_INT;
 
 #define DGETRF(X1,X2,X3,X4,X5) LAPACK(dgetrf,DGETRF)(CblasColMajor,X1,X2,X3,X4,X5)
 #define DGETRI(X1,X2,X3,X4)    LAPACK(dgetri,DGETRI)(CblasColMajor,X1,X2,X3,X4)
-

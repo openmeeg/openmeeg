@@ -86,6 +86,22 @@ elseif (BLA_IMPLEMENTATION STREQUAL "OpenBLAS")
     set(HAVE_LAPACK ON)
     set(BLA_VENDOR ${BLA_IMPLEMENTATION})
 
+elseif (BLA_IMPLEMENTATION STREQUAL "ATLAS")
+
+    message(STATUS "Using BLA_IMPLEMENTATION=ATLAS")
+    set(BLA_VENDOR ${BLA_IMPLEMENTATION})
+    set(USE_ATLAS ON)
+    set(HAVE_BLAS ON)
+    set(HAVE_LAPACK ON)
+
+elseif (BLA_IMPLEMENTATION STREQUAL "Generic")
+
+    message(STATUS "Using BLA_IMPLEMENTATION=Generic")
+    set(BLA_VENDOR ${BLA_IMPLEMENTATION})
+    set(USE_LAPACK ON)
+    set(HAVE_BLAS ON)
+    set(HAVE_LAPACK ON)
+
 else()
 
     message(STATUS "Using no BLAS implementation")
@@ -136,13 +152,13 @@ if (NOT TARGET LAPACK::LAPACK)
 endif()
 
 # OpenBLAS may or may not include lapacke.
-# Check which version is used.
-
+# ATLAS does not include lapacke.
 set(CMAKE_REQUIRED_LIBRARIES LAPACK::LAPACK BLAS::BLAS)
 check_function_exists(LAPACKE_dlange LAPACKE_WORKS)
 mark_as_advanced(LAPACKE_WORKS)
 if (NOT LAPACKE_WORKS)
     find_library(LAPACKE lapacke REQUIRED)
     list(PREPEND _lapack_libs ${LAPACKE})
+    message(STATUS "Found LAPACKE: " ${LAPACKE})
     set_target_properties(LAPACK::LAPACK PROPERTIES INTERFACE_LINK_LIBRARIES "${_lapack_libs}")
 endif()
