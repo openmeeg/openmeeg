@@ -507,8 +507,8 @@ namespace OpenMEEG {
         // SymmetricBlockMatrix is initialized blockwise.
 
         static void init(maths::SymmetricBlockMatrix&) { }
+        #if 0
         void set_blocks(maths::SymmetricBlockMatrix& matrix) const { // Integrate this in blocks.
-            #if 0
             const Ranges& vrange1 = mesh1.vertices_ranges();
             const Ranges& vrange2 = mesh2.vertices_ranges();
             const Ranges& trange1 = { mesh1.triangles_range() };
@@ -519,8 +519,8 @@ namespace OpenMEEG {
             matrix.add_blocks(trange1,vrange2); // D blocks.
             if (!same_mesh)
                 matrix.add_blocks(trange2,vrange1); // D* blocks when they are not the transpose of D blocks.
-            #endif
         }
+        #endif
         
         template <typename T>
         void set_blocks(const double coeffs[3],T& matrix) {
