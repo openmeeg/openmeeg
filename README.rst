@@ -164,8 +164,9 @@ Supported Blas/Lapack Implementations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 We support `OpenBLAS <http://www.openblas.net/>`_ and
 `Intel MKL <http://software.intel.com/en-us/intel-mkl/>`_
-on Linux, macOS, and Windows, and `ATLAS <http://math-atlas.sourceforge.net/>`_
-on Linux.
+on Linux, macOS, and Windows; and `ATLAS <http://math-atlas.sourceforge.net/>`_
+and reference Netlib `BLAS <https://netlib.org/blas/>`_ /
+`LAPACK <https://netlib.org/lapack/>`_ on Linux.
 
 Using OpenMEEG
 --------------

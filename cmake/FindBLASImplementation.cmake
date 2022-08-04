@@ -88,9 +88,13 @@ elseif (BLA_IMPLEMENTATION STREQUAL "OpenBLAS")
 
 elseif (BLA_IMPLEMENTATION STREQUAL "ATLAS")
 
-    # Just use the findblas interface
     message(STATUS "Using BLA_IMPLEMENTATION=ATLAS")
     set(USE_ATLAS ON)
+
+elseif (BLA_IMPLEMENTATION STREQUAL "Generic")
+
+    message(STATUS "Using BLA_IMPLEMENTATION=Generic")
+    set(USE_LAPACK ON)
 
 else()
 
