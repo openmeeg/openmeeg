@@ -12,15 +12,6 @@ if(CMAKE_CXX_COMPILER_LOADED)
              ${CMAKE_CXX_COMPILER_VERSION}")
 endif()
 
-check_cxx_feature(HAVE_ISNORMAL_IN_NAMESPACE_STD
-                  isnormal_in_namespace_std.cpp
-                  "has isnormal function in namespace std")
-
-if (NOT HAVE_ISNORMAL_IN_NAMESPACE_STD)
-    include(CheckSymbolExists)
-    check_symbol_exists(isnormal math.h HAVE_ISNORMAL_IN_MATH_H)
-endif()
-
 if (USE_OPENMP)
     find_package(OpenMP)
     if (OpenMP_FOUND)

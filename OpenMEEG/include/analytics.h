@@ -39,7 +39,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #pragma once
 
-#include <isnormal.H>
+#include <cmath>
 #include <triangle.h>
 #include <dipole.h>
 
