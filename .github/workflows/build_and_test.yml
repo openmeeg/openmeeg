@@ -346,7 +346,7 @@ jobs:
           APT_EXTRA="$APT_EXTRA libopenblas-dev"
         fi
         if [[ "${{ steps.env-vars.outputs.blas }}" == "ATLAS" ]]; then
-          APT_EXTRA="$APT_EXTRA libatlas-base-dev"
+          APT_EXTRA="$APT_EXTRA libatlas-dev"
         fi
         if [[ "${{ steps.env-vars.outputs.blas }}" == "Generic" ]]; then
           APT_EXTRA="$APT_EXTRA liblapack-dev libblas-dev"
