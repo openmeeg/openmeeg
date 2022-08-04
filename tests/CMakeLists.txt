@@ -1,3 +1,5 @@
+add_compile_options(${WERROR_COMPILE_OPTION})
+
 add_executable(test_load_geo test_load_geo.cpp)
 target_link_libraries(test_load_geo OpenMEEG::OpenMEEG)
 

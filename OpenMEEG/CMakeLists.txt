@@ -14,7 +14,10 @@ set(OPENMEEG_SOURCES
     src/GeometryIOs.cpp
     src/triangle.cpp
 )
-if(BUILD_SHARED_LIBS OR (UNIX AND NOT APPLE))
+
+add_compile_options(${WERROR_COMPILE_OPTION})
+
+if (BUILD_SHARED_LIBS OR (UNIX AND NOT APPLE))
     add_library(OpenMEEG SHARED ${OPENMEEG_SOURCES})
 else()
     add_library(OpenMEEG STATIC ${OPENMEEG_SOURCES})
