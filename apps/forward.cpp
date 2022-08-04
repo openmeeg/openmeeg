@@ -44,7 +44,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 using namespace OpenMEEG;
 
 void
-getHelp(const char* command) {
+help(const char* command) {
     std::cout << command << " [-h | --help] filepaths" << std::endl << std::endl
               << "   Compute the forward problem " << std::endl
               << "   Filepaths are in order :" << std::endl
@@ -52,47 +52,46 @@ getHelp(const char* command) {
               << std::endl;
 }
 
-void error(const char* command,const bool unknown_option=false) {
-    std::cerr << "Error: " << ((unknown_option) ? "Unknown option." : "Not enough arguments.") << std::endl;
-    getHelp(command);
-    exit(1);
-}
-
 int
 main(int argc,char **argv) {
 
     print_version(argv[0]);
+    const CommandLine cmd(argc,argv);
 
-    if (argc==2 && (!strcmp(argv[1],"-h") || !strcmp(argv[1],"--help"))) {
-        getHelp(argv[0]);
+    if (cmd.help_mode()) {
+        help(argv[0]);
         return 0;
     }
 
-    if (argc<5)
-        error(argv[0]);
+    if (argc<5) {
+        std::cerr << "Not enough arguments." << std::endl;
+        help(argv[0]);
+        return 1;
+    }
+
+    print_version(argv[0]);
+    cmd.print();
 
     // Start Chrono
 
-    auto start_time = std::chrono::system_clock::now();
+    const auto start_time = std::chrono::system_clock::now();
 
-    print_commandline(argc,argv);
+    // Loading input matrices.
 
-    // declaration of argument variables======================================================================
-
-    Matrix GainMatrix(argv[1]);
-    Matrix RealSourcesData(argv[2]);
+    const Matrix GainMatrix(argv[1]);
+    const Matrix RealSourcesData(argv[2]);
 
     const double NoiseLevel = atof(argv[4]);
 
-    Forward SimulatedData(GainMatrix,RealSourcesData,NoiseLevel);
+    const Forward SimulatedData(GainMatrix,RealSourcesData,NoiseLevel);
 
-    // write output variables ===================================================================================
+    // Write output variables
 
     SimulatedData.save(argv[3]);
 
     // Stop Chrono
 
-    auto end_time = std::chrono::system_clock::now();
+    const auto end_time = std::chrono::system_clock::now();
     dispEllapsed(end_time-start_time);
 
     return 0;

@@ -48,7 +48,7 @@ set_source_files_properties(openmeeg/openmeeg.i PROPERTIES CPLUSPLUS ON GENERATE
 swig_add_library(${SWIG_TARGET_NAME} LANGUAGE python OUTPUT_DIR ${CMAKE_CURRENT_BINARY_DIR}/openmeeg SOURCES openmeeg/openmeeg.i)
 # This puts _openmeeg.so in openmeeg/
 set_target_properties(${SWIG_TARGET_NAME} PROPERTIES LIBRARY_OUTPUT_DIRECTORY openmeeg/)
-if ( MSVC )
+if (MSVC)
     set_target_properties(${SWIG_TARGET_NAME} PROPERTIES LIBRARY_OUTPUT_DIRECTORY_DEBUG openmeeg/)
     set_target_properties(${SWIG_TARGET_NAME} PROPERTIES LIBRARY_OUTPUT_DIRECTORY_RELEASE openmeeg/)
 endif()

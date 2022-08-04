@@ -309,9 +309,9 @@ namespace OpenMEEG::GeometryIOs {
 
     private:
 
-        virtual void save_geom(const Geometry& geometry)                            override { }
-        virtual void save_data(const Geometry& geometry,const Matrix& matrix) const override { }
-        virtual void write()                                                  const override { }
+        virtual void save_geom(const Geometry&)                     override { }
+        virtual void save_data(const Geometry&,const Matrix&) const override { }
+        virtual void write()                                  const override { }
 
         GeometryIO* clone(const std::string& filename) const override { return new Vtp(filename); }
 

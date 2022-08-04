@@ -64,6 +64,7 @@ namespace OpenMEEG {
                     linop.dimension()   = 1;
                     linop.storageType() = LinOpInfo::FULL;
                     linop.nlin()        = matvar->dims[0];
+                    linop.ncol()        = 1;
                     return matvar;
                 }
                 static bool good_type(const matvar_t* matvar) {

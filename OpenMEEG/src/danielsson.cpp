@@ -109,10 +109,6 @@ namespace OpenMEEG
         return dpc(p,triangle,alphas,3,idx,inside);
     }
 
-    static inline int sgn(double s) {
-        return (s>0) ? 1 : (s<0) ? -1 : 0;
-    }
-
     std::tuple<double,const Triangle&,const Mesh&>
     dist_point_interface(const Vect3& p,const Interface& interface,Vect3& alphas) {
         double distmin = std::numeric_limits<double>::max();

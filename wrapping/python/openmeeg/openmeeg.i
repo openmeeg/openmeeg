@@ -401,7 +401,7 @@ namespace OpenMEEG {
     PyObject* array() const {
         npy_intp shape[1] = { 3 };
         PyObject* array = PyArray_SimpleNew(1,shape,NPY_DOUBLE);
-        const double* data = &(($self)->x());
+        const double* data = static_cast<const double*>(*($self));
         double* datain = static_cast<double*>(PyArray_DATA(reinterpret_cast<PyArrayObject*>(array)));
         std::copy(&data[0],&data[3],datain);
         return array;

@@ -152,7 +152,7 @@ cylindre(const std::string& namesurf,const char namepatches[],const char namepat
     const unsigned nio = num_points(io,d/R);
     const double   dio = step_size(io,nio);
 
-    const unsigned ntheta = 2*(neo+nio);                //number of points on an outer circle
+    const unsigned ntheta = 2*(neo+nio); // Number of points on an outer circle
     const double   dtheta = 2*Pi/ntheta;
     const double   dt     =  dtheta*R;
 
@@ -181,7 +181,7 @@ cylindre(const std::string& namesurf,const char namepatches[],const char namepat
     double zz = nl*dl+z-diz;
     const unsigned gmax[] = { 1+niz, nez, niz, nez, niz2, nez, niz };
     const double   dzz[]  = {   diz, dez, diz, dez, diz2, dez, diz };
-    for (unsigned j=0,l=1; j<=6; ++j,l=0) {
+    for (unsigned j=0; j<=6; ++j) {
         for (unsigned g=0; g<gmax[j]; ++g) {
             zz += dzz[j];
             for (unsigned k=0; k<4; ++k) {
@@ -272,8 +272,6 @@ cylindre(const std::string& namesurf,const char namepatches[],const char namepat
         }
     }
 
-    const unsigned n2 = vertices.size()-ntheta;
-
     //  Lids:
 
     make_lid(0,R,z,  dt,(1-nl)*dtheta/2+decal_theta,vertices,triangles);
@@ -347,10 +345,14 @@ cylindre(const std::string& namesurf,const char namepatches[],const char namepat
 int main(int argc, char** argv) {
 
     const CommandLine cmd(argc,argv,"Make nerve geometry from existing parameters or make nerve geometry and parameter file from commandline user interface.");
-    if ((!strcmp(argv[1],"-h")) || (!strcmp(argv[1], "--help")))
+
+    if (cmd.help_mode()) {
         getHelp(argv);
+        return 0;
+    }
+
     print_version(argv[0]);
-    print_commandline(argc,argv);
+    cmd.print();
 
     // input("number of cylinders (for the moment fixed to 2) :",Nc);
 

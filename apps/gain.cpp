@@ -43,7 +43,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 using namespace OpenMEEG;
 
-void getHelp(char** argv);
+void help(const char* cmd_name);
 
 inline void
 error(const char* command,const bool unknown_option=false) {
@@ -55,141 +55,187 @@ error(const char* command,const bool unknown_option=false) {
 int
 main(int argc,char** argv) {
 
+    const CommandLine cmd(argc,argv);
+
+    if (cmd.help_mode()) {
+        help(argv[0]);
+        return 0;
+    }
+
+    if (argc<5) {
+        std::cerr << "Not enough arguments." << std::endl;
+        help(argv[0]);
+        return 1;
+    }
+
     print_version(argv[0]);
+    cmd.print();
 
-    if (argc<2)
-        error(argv[0]);
-
-    if ((!strcmp(argv[1],"-h")) || (!strcmp(argv[1],"--help")))
-        getHelp(argv);
+    constexpr char geomfileopt[]       = "geometry file";
+    constexpr char condfileopt[]       = "conductivity file";
+    constexpr char outputfileopt[]     = "output file";
+    constexpr char dipolefileopt[]     = "dipoles file";
+    constexpr char HMfileopt[]         = "head matrix";
+    constexpr char invHMfileopt[]      = "inverse head matrix";
+    constexpr char sourcematfileopt[]  = "source matrix";
+    constexpr char h2eegfileopt[]      = "head to EEG matrix";
+    constexpr char h2megfileopt[]      = "head to MEG matrix";
+    constexpr char h2ipfileopt[]       = "head to internal potential matrix";
+    constexpr char source2megfileopt[] = "sources to MEG matrix";
+    constexpr char source2ipfileopt[]  = "sources to internal potential matrix";
 
     // Start Chrono
 
-    print_commandline(argc,argv);
-
-    const std::string& option = argv[1];
-    if (argc<5)
-        error(argv[0]);
-
     const auto start_time = std::chrono::system_clock::now();
 
-    if (!strcmp(argv[1],"-EEG")) {
+    unsigned num_options = 0;
+
+    const auto& EEGparms = {
+        invHMfileopt, sourcematfileopt, h2eegfileopt, outputfileopt
+    };
+
+    if (char** opt_parms = cmd.option("-EEG",EEGparms)) {
+
+        assert_non_conflicting_options(argv[0],++num_options);
 
         // EEG DATA
-
-        if (argc<6)
-            error(argv[0]);
 
         //  Split the 2 matrix multiplications in order to spare memory.
         //  This is why we do not use GainEEG...
 
-        const SymMatrix HeadMatInv(argv[2]);
-        const SparseMatrix Head2EEGMat(argv[4]);
+        const SymMatrix    HeadMatInv(opt_parms[1]);
+        const SparseMatrix Head2EEGMat(opt_parms[3]);
         const Matrix& tmp = Head2EEGMat*HeadMatInv;
-        const Matrix SourceMat(argv[3]);
+        const Matrix SourceMat(opt_parms[2]);
         const Matrix& EEGGainMat = tmp*SourceMat;
-        EEGGainMat.save(argv[5]);
+        EEGGainMat.save(opt_parms[4]);
+    }
 
-    } else if (!strcmp(argv[1],"-EEGadjoint")) {
+    const auto& EEGAdjointparms = {
+        geomfileopt, condfileopt, dipolefileopt, HMfileopt, h2eegfileopt, outputfileopt
+    };
+
+    if (char** opt_parms = cmd.option("-EEGadjoint",EEGAdjointparms)) {
+
+        assert_non_conflicting_options(argv[0],++num_options);
 
         // Compute gain matrix with the adjoint method for use with EEG DATA
 
-        if (argc<8)
-            error(argv[0]);
-
-        Geometry geo(argv[2],argv[3]);
-        const Matrix dipoles(argv[4]);
-        const SymMatrix HeadMat(argv[5]);
-        const SparseMatrix Head2EEGMat(argv[6]);
+        Geometry geo(opt_parms[1],opt_parms[2]);
+        const Matrix dipoles(opt_parms[3]);
+        const SymMatrix HeadMat(opt_parms[4]);
+        const SparseMatrix Head2EEGMat(opt_parms[5]);
 
         const GainEEGadjoint EEGGainMat(geo, dipoles, HeadMat, Head2EEGMat);
-        EEGGainMat.save(argv[7]);
+        EEGGainMat.save(opt_parms[6]);
+    }
 
-    } else if (!strcmp(argv[1],"-MEG")) {
+    const auto& MEGparms = {
+        invHMfileopt, sourcematfileopt, h2megfileopt, source2megfileopt, outputfileopt
+    };
+
+    if (char** opt_parms = cmd.option("-MEG",MEGparms)) {
+
+        assert_non_conflicting_options(argv[0],++num_options);
 
         // MEG DATA
-
-        if (argc<7)
-            error(argv[0]);
 
         //  We split the 3 matrix multiplications in order to spare memory.
         //  This is also why we do not use GainMEG...
 
-        const SymMatrix HeadMatInv(argv[2]);
-        const Matrix Head2MEGMat(argv[4]);
+        const SymMatrix HeadMatInv(opt_parms[1]);
+        const Matrix Head2MEGMat(opt_parms[3]);
         const Matrix& tmp1 = Head2MEGMat*HeadMatInv;
-        const Matrix SourceMat(argv[3]);
+        const Matrix SourceMat(opt_parms[2]);
         const Matrix& tmp2 = tmp1*SourceMat;
-        const Matrix Source2MEGMat(argv[5]);
+        const Matrix Source2MEGMat(opt_parms[4]);
         const Matrix MEGGainMat = Source2MEGMat+tmp2;
-        MEGGainMat.save(argv[6]);
+        MEGGainMat.save(opt_parms[5]);
+    }
 
-    } else if ( !strcmp(argv[1], "-MEGadjoint") ) {
+    const auto& MEGAdjointparms = {
+        geomfileopt, condfileopt, dipolefileopt, HMfileopt, h2megfileopt, source2megfileopt, outputfileopt
+    };
+
+    if (char** opt_parms = cmd.option("-MEGadjoint",MEGAdjointparms)) {
+
+        assert_non_conflicting_options(argv[0],++num_options);
 
         // Compute the gain matrix with the adjoint method for use with MEG DATA
 
-        if (argc<9)
-            error(argv[0]);
-
-        Geometry geo(argv[2],argv[3]);
-        const Matrix dipoles(argv[4]);
-        const SymMatrix HeadMat(argv[5]);
-        const Matrix Head2MEGMat(argv[6]);
-        const Matrix Source2MEGMat(argv[7]);
+        Geometry geo(opt_parms[1],opt_parms[2]);
+        const Matrix dipoles(opt_parms[3]);
+        const SymMatrix HeadMat(opt_parms[4]);
+        const Matrix Head2MEGMat(opt_parms[5]);
+        const Matrix Source2MEGMat(opt_parms[6]);
 
         const GainMEGadjoint MEGGainMat(geo, dipoles, HeadMat, Head2MEGMat, Source2MEGMat);
-        MEGGainMat.save(argv[8]);
+        MEGGainMat.save(opt_parms[7]);
+    }
 
-    } else if (!strcmp(argv[1],"-EEGMEGadjoint")) {
+    const auto& EEGMEGAdjointparms = {
+        geomfileopt, condfileopt, dipolefileopt, HMfileopt, h2eegfileopt, h2megfileopt, source2megfileopt,
+        "EEG output file", "MEG output file"
+    };
+
+    if (char** opt_parms = cmd.option("-EEGMEGadjoint",EEGMEGAdjointparms)) {
+
+        assert_non_conflicting_options(argv[0],++num_options);
 
         // Compute the gain matrices with the adjoint method for EEG and MEG DATA
 
-        if (argc<11)
-            error(argv[0]);
-
-        Geometry geo(argv[2],argv[3]);
-        const Matrix dipoles(argv[4]);
-        const SymMatrix HeadMat(argv[5]);
-        const SparseMatrix Head2EEGMat(argv[6]);
-        const Matrix Head2MEGMat(argv[7]);
-        const Matrix Source2MEGMat(argv[8]);
+        Geometry geo(opt_parms[1],opt_parms[2]);
+        const Matrix dipoles(opt_parms[3]);
+        const SymMatrix HeadMat(opt_parms[4]);
+        const SparseMatrix Head2EEGMat(opt_parms[5]);
+        const Matrix Head2MEGMat(opt_parms[6]);
+        const Matrix Source2MEGMat(opt_parms[7]);
 
         const GainEEGMEGadjoint EEGMEGGainMat(geo,dipoles,HeadMat,Head2EEGMat,Head2MEGMat,Source2MEGMat);
-        EEGMEGGainMat.saveEEG(argv[9]);
-        EEGMEGGainMat.saveMEG(argv[10]);
+        EEGMEGGainMat.saveEEG(opt_parms[8]);
+        EEGMEGGainMat.saveMEG(opt_parms[9]);
+    }
 
-    } else if (!strcmp(argv[1],"-InternalPotential") || !strcmp(argv[1],"-IP")) {
+    const auto& IPparms = {
+        invHMfileopt, sourcematfileopt, h2ipfileopt, source2ipfileopt, outputfileopt
+    };
 
-        if (argc<7)
-            error(argv[0]);
+    if (char** opt_parms = cmd.option({ "-InternalPotential", "-IP", "-ip" },IPparms)) {
 
-        const SymMatrix HeadMatInv(argv[2]);
-        const Matrix Head2IPMat(argv[4]);
+        assert_non_conflicting_options(argv[0],++num_options);
+
+        const SymMatrix HeadMatInv(opt_parms[1]);
+        const Matrix Head2IPMat(opt_parms[3]);
 
         const Matrix& tmp1 = Head2IPMat*HeadMatInv;
-        const Matrix SourceMat(argv[3]);
+        const Matrix SourceMat(opt_parms[2]);
         const Matrix& tmp2 = tmp1*SourceMat;
-        const Matrix Source2IPMat(argv[5]);
+        const Matrix Source2IPMat(opt_parms[4]);
 
         const Matrix& InternalPotGainMat = Source2IPMat+tmp2;
-        InternalPotGainMat.save(argv[6]);
+        InternalPotGainMat.save(opt_parms[5]);
+    }
 
-    } else if (!strcmp(argv[1],"-EITInternalPotential") || !strcmp(argv[1], "-EITIP")) {
+    const auto& EITIPparms = {
+        invHMfileopt, sourcematfileopt, h2ipfileopt, outputfileopt
+    };
 
-        if (argc<6)
-            error(argv[0]);
+    if (char** opt_parms = cmd.option({ "-EITInternalPotential", "-EITIP", "-eitip" },EITIPparms)) {
 
-        const SymMatrix HeadMatInv(argv[2]);
-        const Matrix Head2IPMat(argv[4]);
-        const Matrix SourceMat(argv[3]);
+        assert_non_conflicting_options(argv[0],++num_options);
+
+        const SymMatrix HeadMatInv(opt_parms[1]);
+        const Matrix SourceMat(opt_parms[2]);
+        const Matrix Head2IPMat(opt_parms[3]);
 
         const Matrix& InternalPotGainMat = (Head2IPMat*HeadMatInv)*SourceMat;
 
-        InternalPotGainMat.save(argv[5]);
+        InternalPotGainMat.save(opt_parms[4]);
+    }
 
-    } else {
-
-        error(argv[0],true);
+    if (num_options==0) {
+        std::cerr << "Unknown argument: " << argv[1] << std::endl;
+        exit(1);
     }
 
     // Stop Chrono
@@ -201,54 +247,52 @@ main(int argc,char** argv) {
 }
 
 void
-getHelp(char** argv) {
+help(const char* cmd_name) {
 
-    std::cout << argv[0] <<" [-option] [filepaths...]" << std::endl << std::endl;
+    std::cout << cmd_name << " [-option] [filepaths...]" << std::endl << std::endl;
 
-    std::cout << "-option :" << std::endl;
-    std::cout << "   -EEG :   Compute the gain for EEG " << std::endl;
-    std::cout << "            Filepaths are in order :" << std::endl;
-    std::cout << "            HeadMatInv, SourceMat, Head2EEGMat, EEGGainMatrix" << std::endl;
-    std::cout << "            bin Matrix" << std::endl << std::endl;
+    std::cout << "-option :" << std::endl
+              << "   -EEG :   Compute the gain for EEG " << std::endl
+              << "            Filepaths are in order :" << std::endl
+              << "            HeadMatInv, SourceMat, Head2EEGMat, EEGGainMatrix" << std::endl
+              << "            bin Matrix" << std::endl << std::endl;
 
-    std::cout << "   -MEG :   Compute the gain for MEG " << std::endl;
-    std::cout << "            Filepaths are in order :" << std::endl;
-    std::cout << "            HeadMatInv, SourceMat, Head2MEGMat, Source2MEGMat, MEGGainMatrix" << std::endl;
-    std::cout << "            Matrix (.bin or .txt)" << std::endl << std::endl;
+    std::cout << "   -MEG :   Compute the gain for MEG " << std::endl
+              << "            Filepaths are in order :" << std::endl
+              << "            HeadMatInv, SourceMat, Head2MEGMat, Source2MEGMat, MEGGainMatrix" << std::endl
+              << "            Matrix (.bin or .txt)" << std::endl << std::endl;
 
-    std::cout << "   -InternalPotential or -IP :   Compute the gain for internal potentials, measured within the volume " << std::endl;
-    std::cout << "            Filepaths are in order :" << std::endl;
-    std::cout << "            HeadMatInv, SourceMat, Head2IPMat, Source2IPMat" << std::endl;
-    std::cout << "            InternalPotential gain Matrix (.txt)" << std::endl << std::endl;
+    std::cout << "   -InternalPotential or -IP :   Compute the gain for internal potentials, measured within the volume " << std::endl
+              << "            Filepaths are in order :" << std::endl
+              << "            HeadMatInv, SourceMat, Head2IPMat, Source2IPMat" << std::endl
+              << "            InternalPotential gain Matrix (.txt)" << std::endl << std::endl;
 
-    std::cout << "   -EITInternalPotential or -EITIP :   Compute the gain for internal potentials using boundary normal current as input" << std::endl;
-    std::cout << "            Filepaths are in order :" << std::endl;
-    std::cout << "            HeadMatInv, SourceMat, Head2IPMat" << std::endl;
-    std::cout << "            EITInternalPotential gain Matrix" << std::endl << std::endl;
+    std::cout << "   -EITInternalPotential or -EITIP :   Compute the gain for internal potentials using boundary normal current as input" << std::endl
+              << "            Filepaths are in order :" << std::endl
+              << "            HeadMatInv, SourceMat, Head2IPMat" << std::endl
+              << "            EITInternalPotential gain Matrix" << std::endl << std::endl;
 
-    std::cout << "   -EEGadjoint :   Compute the gain for EEG " << std::endl;
-    std::cout << "            Filepaths are in order :" << std::endl;
-    std::cout << "            geometry file (.geom)" << std::endl;
-    std::cout << "            conductivity file (.cond)" << std::endl;
-    std::cout << "            dipoles positions and orientations" << std::endl;
-    std::cout << "            HeadMat, Head2EEGMat, EEGGainMatrix" << std::endl;
-    std::cout << "            bin Matrix" << std::endl << std::endl;
+    std::cout << "   -EEGadjoint :   Compute the gain for EEG " << std::endl
+              << "            Filepaths are in order :" << std::endl
+              << "            geometry file (.geom)" << std::endl
+              << "            conductivity file (.cond)" << std::endl
+              << "            dipoles positions and orientations" << std::endl
+              << "            HeadMat, Head2EEGMat, EEGGainMatrix" << std::endl
+              << "            bin Matrix" << std::endl << std::endl;
 
-    std::cout << "   -MEGadjoint :   Compute the gain for MEG " << std::endl;
-    std::cout << "            Filepaths are in order :" << std::endl;
-    std::cout << "            geometry file (.geom)" << std::endl;
-    std::cout << "            conductivity file (.cond)" << std::endl;
-    std::cout << "            dipoles positions and orientations" << std::endl;
-    std::cout << "            HeadMat, Head2MEGMat, Source2MEGMat, MEGGainMatrix" << std::endl;
-    std::cout << "            bin Matrix" << std::endl << std::endl;
+    std::cout << "   -MEGadjoint :   Compute the gain for MEG " << std::endl
+              << "            Filepaths are in order :" << std::endl
+              << "            geometry file (.geom)" << std::endl
+              << "            conductivity file (.cond)" << std::endl
+              << "            dipoles positions and orientations" << std::endl
+              << "            HeadMat, Head2MEGMat, Source2MEGMat, MEGGainMatrix" << std::endl
+              << "            bin Matrix" << std::endl << std::endl;
 
-    std::cout << "   -EEGMEGadjoint :   Compute the gain for EEG and MEG at the same time" << std::endl;
-    std::cout << "            Filepaths are in order :" << std::endl;
-    std::cout << "            geometry file (.geom)" << std::endl;
-    std::cout << "            conductivity file (.cond)" << std::endl;
-    std::cout << "            dipoles positions and orientations" << std::endl;
-    std::cout << "            HeadMat, Head2EEGMat, Head2MEGMat, Source2MEGMat, EEGGainMatrix, MEGGainMatrix" << std::endl;
-    std::cout << "            bin Matrix" << std::endl << std::endl;
-
-    exit(0);
+    std::cout << "   -EEGMEGadjoint :   Compute the gain for EEG and MEG at the same time" << std::endl
+              << "            Filepaths are in order :" << std::endl
+              << "            geometry file (.geom)" << std::endl
+              << "            conductivity file (.cond)" << std::endl
+              << "            dipoles positions and orientations" << std::endl
+              << "            HeadMat, Head2EEGMat, Head2MEGMat, Source2MEGMat, EEGGainMatrix, MEGGainMatrix" << std::endl
+              << "            bin Matrix" << std::endl << std::endl;
 }

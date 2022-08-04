@@ -58,9 +58,10 @@ knowledge of the CeCILL-B license and that you accept its terms.
 namespace OpenMEEG {
 
     /// Sensors class for EEG and MEG sensors.
-    /// This class is made for reading sensors description file. This description file is a file text. Sensors may have names (labels)
-    /// in the first column of the file (it has to contains at least one character to be considered as label)
-    /// the file can have the shape of (neglecting if present the first, label column):
+    /// This class is made for reading sensors description file. This description file is a file text.
+    /// Sensors may have names (labels) in the first column of the file (it has to contains at least
+    /// one character to be considered as label) the file can have the shape of (neglecting if present
+    /// the first, label column):
     /// <ul>
     ///
     /// <li> 1 line per sensor and 3 columns (EEG sensors OR MEG sensors without orientation OR EIT punctual patches)
@@ -101,7 +102,7 @@ namespace OpenMEEG {
 
         /// Default constructor. Number of sensors = 0.
 
-        Sensors(): m_nb(0),geometry(NULL) { }
+        Sensors(): m_nb(0),geometry(nullptr) { }
 
         /// Default constructor with a geometry. Number of sensors = 0.
 
@@ -109,7 +110,7 @@ namespace OpenMEEG {
 
         /// Construct from text file.
 
-        Sensors(const char* filename): geometry(NULL) { load(filename,'t'); }
+        Sensors(const char* filename): geometry(nullptr) { load(filename,'t'); }
 
         /// Construct from file and geometry (for EIT).
 

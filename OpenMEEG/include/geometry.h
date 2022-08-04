@@ -298,9 +298,9 @@ namespace OpenMEEG {
 
         //  Accumulate a function over the domain common to two meshes.
 
-        static double IDENTITY(const Domain& domain)  { return domain.conductivity();     }
-        static double INVERSE(const Domain& domain)   { return 1.0/domain.conductivity(); }
-        static double INDICATOR(const Domain& domain) { return 1.0;                       }
+        static double IDENTITY(const Domain& domain) { return domain.conductivity();     }
+        static double INVERSE(const Domain& domain)  { return 1.0/domain.conductivity(); }
+        static double INDICATOR(const Domain&)       { return 1.0;                       }
 
         template <double Function(const Domain&)>
         double eval_on_common_domains(const Mesh& m1,const Mesh& m2) const {

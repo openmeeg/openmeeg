@@ -392,7 +392,7 @@ namespace OpenMEEG {
 
         const Interface& interface = innermost_interface();
         unsigned n_outside = 0;
-        for (int i=0; i<mat.nlin(); i++)
+        for (unsigned i=0; i<mat.nlin(); ++i)
             if (!interface.contains(Vect3(mat(i,0),mat(i,1),mat(i,2))))
                 ++n_outside;
         if (n_outside!=0) {

@@ -124,7 +124,6 @@ namespace OpenMEEG {
         Vect3 nu0, nu1, nu2;
         Vect3 n;
         double norm2p2p1, norm2p1p0, norm2p0p2;
-        double tanTHETA0m, tanTHETA0p, tanTHETA1m, tanTHETA1p, tanTHETA2m, tanTHETA2p;
     };
 
     class OPENMEEG_EXPORT analyticD3 {
@@ -178,7 +177,6 @@ namespace OpenMEEG {
             const double g2 = log((y3+dotprod(Y3,U2))/(y2+dotprod(Y2,U2)));
             const double g3 = log((y1+dotprod(Y1,U3))/(y3+dotprod(Y3,U3)));
             const Vect3& N = Z1+Z2+Z3;
-            const double invA = 1.0/N.norm2();
             const Vect3& S = U1*g1+U2*g2+U3*g3;
 
             return (omega*Vect3(dotprod(Z1,N),dotprod(Z2,N),dotprod(Z3,N))+d*Vect3(dotprod(D2,S),dotprod(D3,S),dotprod(D1,S)))/N.norm2();

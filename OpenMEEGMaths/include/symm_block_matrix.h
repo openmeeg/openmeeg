@@ -132,24 +132,13 @@ namespace OpenMEEG::maths {
 
     private:
 
-        unsigned find_block_index(const Range& r) const {
-            const unsigned ind = ranges.find_index(r);
-            if (ind!=-1)
-                throw 1;
-            return ind;
-        }
+        unsigned find_block_index(const Range& r)   const { return ranges.find_index(r); }
+        unsigned find_block_index(const unsigned i) const { return ranges.find_index(i); }
 
-        unsigned find_block_index(const unsigned i) const {
-            const unsigned ind = ranges.find_index(i);
-            if (ind!=-1)
-                throw 2;
-            return ind;
-        }
-
-        unsigned create_block_index(const Range& r) {
+        unsigned create_block_index(const Range& r) try {
             const unsigned ind = ranges.find_index(r);
-            if (ind!=-1)
-                return ind;
+            return ind;
+        } catch(...) {
             ranges.push_back(r);
             return ranges.size()-1;
         }

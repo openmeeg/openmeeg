@@ -1,11 +1,15 @@
 # OpenMEEGMath
 
 include_directories(${BLA_INCLUDE_DIR})
+
 set(OPENMEEGMATHS_SOURCES
     src/vector.cpp src/matrix.cpp src/symmatrix.cpp src/sparse_matrix.cpp
     src/fast_sparse_matrix.cpp src/MathsIO.C src/MatlabIO.C src/AsciiIO.C
     src/BrainVisaTextureIO.C src/TrivialBinIO.C)
-if(BUILD_SHARED_LIBS OR (UNIX AND NOT APPLE))
+
+add_compile_options(${WERROR_COMPILE_OPTION})
+
+if (BUILD_SHARED_LIBS OR (UNIX AND NOT APPLE))
     add_library(OpenMEEGMaths SHARED ${OPENMEEGMATHS_SOURCES})
 else()
     add_library(OpenMEEGMaths STATIC ${OPENMEEGMATHS_SOURCES})

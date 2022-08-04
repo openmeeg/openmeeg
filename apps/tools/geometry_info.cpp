@@ -53,7 +53,6 @@ main(int argc,char* argv[]) {
     const CommandLine cmd(argc,argv,"Print Geometry information");
     const std::string& geom_filename = cmd.option("-g",std::string(),"Input .geom file");
     const std::string& cond_filename = cmd.option("-c",std::string(),"Input .cond file");
-    const bool         verbose       = cmd.option("-v",false,        "Verbose mode");
 
     if (cmd.help_mode())
         return 0;

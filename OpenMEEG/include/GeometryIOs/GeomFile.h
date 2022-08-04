@@ -257,7 +257,7 @@ namespace OpenMEEG::GeometryIOs {
         Interfaces interfaces;
 
         if (mesh_provided_as_interfaces) {
-            for (const auto desc : meshes) {
+            for (const auto& desc : meshes) {
                 const std::string& name = desc.first;
                 Interface interface(name);
                 interface.oriented_meshes().push_back(OrientedMesh(geometry.mesh(name),OrientedMesh::Normal));
@@ -337,11 +337,11 @@ namespace OpenMEEG::GeometryIOs {
                 const Interface& interface = boundary.interface();
                 if (std::find(interfaces.begin(),interfaces.end(),&interface)!=interfaces.end())
                     interfaces.push_back(&interface);
-                    for (const auto& omesh : interface.oriented_meshes()) {
-                        const Mesh& mesh = omesh.mesh();
-                        if (std::find(meshes.begin(),meshes.end(),&mesh)!=meshes.end())
-                            meshes.push_back(&mesh);
-                    }
+                for (const auto& omesh : interface.oriented_meshes()) {
+                    const Mesh& mesh = omesh.mesh();
+                    if (std::find(meshes.begin(),meshes.end(),&mesh)!=meshes.end())
+                        meshes.push_back(&mesh);
+                }
             }
 
         fs << "Meshes " << meshes.size() << std::endl << std::endl;

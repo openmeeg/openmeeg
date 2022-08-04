@@ -42,7 +42,9 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <iostream>
 #include <iomanip>
 #include <string>
+#include <vector>
 #include <sstream>
+#include <initializer_list>
 
 #ifdef WIN32
 #pragma warning( disable : 4530)    //MSVC standard library can't be inlined
@@ -63,9 +65,25 @@ knowledge of the CeCILL-B license and that you accept its terms.
 namespace OpenMEEG {
 
     class CommandLine {
+
+        typedef std::vector<const char*> Strings;
+
+        // Workaround a bug in old gcc compilers which does not allow the conversion of
+        // const std::initializer_list<const char* const> to const Strings.
+
+        typedef std::initializer_list<const char* const> List;
+
+        static Strings build_strings(const List& list) {
+            Strings strs;
+            strs.reserve(list.size());
+            for (const auto& item : list)
+                strs.push_back(item);
+            return strs;
+        }
+
     public:
 
-        CommandLine(const int argc,char* argv[],const std::string& usage): n(argc),args(argv) {
+        CommandLine(const int argc,char* argv[],const std::string& usage=""): n(argc),args(argv) {
             help = find_argument("-h")!=end() || find_argument("--help")!=end();
             if (help) {
                 std::cerr << red << basename(args[0]) << normal;
@@ -96,6 +114,71 @@ namespace OpenMEEG {
             return result;
         }
 
+        char** option(const std::string& option,const Strings& parms,const unsigned num_mandatory_parms) const {
+            char** arg = find_argument(option);
+            if (arg==end())
+                return nullptr;
+
+            const unsigned num_parms = num_args(arg);
+            if (num_parms<num_mandatory_parms) {
+                std::cerr << "\'" << args[0] << "\' option \'" << option << "\' expects at least "
+                          << num_mandatory_parms << " arguments (";
+                if (parms.size()!=0) {
+                    std::cerr << parms[0];
+                    for (unsigned i=1; i<parms.size(); ++i)
+                        std::cerr << ", " << parms[i];
+                }
+                std::cerr << ") and you gave only " << num_parms << " arguments." << std::endl;
+                exit(1);
+            }
+            return arg;
+        }
+
+        char** option(const std::string& name,const Strings& parms) const { return option(name,parms,parms.size()); }
+
+        char** option(const Strings& options,const Strings& parms) const {
+            unsigned num_mandatory_parms = parms.size();
+            for (const auto& parm : parms)
+                if (parm[0]=='[')
+                    --num_mandatory_parms;
+
+            char** mandatory_args = nullptr;
+            for (const char* opt : options) {
+                char** arg = option(opt,parms,num_mandatory_parms);
+                if (arg!=nullptr) {
+                    if (mandatory_args!=nullptr) {
+                        std::cerr << "Warning: option " << *(options.begin()) << " provided multiple times!" << std::endl;
+                        exit(1);
+                    }
+                    mandatory_args = arg;
+                }
+            }
+            return mandatory_args;
+        }
+
+        // Workaround a bug in old gcc compilers which does not allow the conversion of
+        // const std::initializer_list<const char* const> to const Strings.
+
+        char** option(const std::string& name,const List& parms) const { return option(name,build_strings(parms));                   }
+        char** option(const List& options,const List& parms)     const { return option(build_strings(options),build_strings(parms)); }
+
+        // End of workaround.
+
+        unsigned num_args(char** argument) const {
+            unsigned res = 0;
+            for (char** arg=argument+1; arg!=end(); ++arg,++res)
+                if ((*arg)[0]=='-')
+                    break;
+            return res; 
+        }
+
+        void print() const {
+            std::cout << std::endl << "| ------ " << args[0] << std::endl;
+            for (unsigned i=1; i<n; ++i)
+                std::cout << "| " << args[i] << std::endl;
+            std::cout << "| -----------------------" << std::endl;
+        }
+
     private:
 
         template <typename T>
@@ -124,7 +207,7 @@ namespace OpenMEEG {
             return value;
         }
 
-        #if 1
+        #ifndef WIN32
         static constexpr char normal[9]      = { 0x1b, '[', '0', ';', '0', ';', '0', 'm', '\0' };
         static constexpr char red[11]        = { 0x1b, '[', '4', ';', '3', '1', ';', '5', '9', 'm', '\0' };
         static constexpr char bold[5]        = { 0x1b, '[', '1', 'm', '\0' };
@@ -143,14 +226,6 @@ namespace OpenMEEG {
         bool     help;
     };
 
-    inline void
-    print_commandline(const int argc,char **argv) {
-        std::cout << std::endl << "| ------ " << argv[0] << std::endl;
-        for (int i=1;i<argc;++i)
-            std::cout << "| " << argv[i] << std::endl;
-        std::cout << "| -----------------------" << std::endl;
-    }
-
     inline void print_version(const char* cmd) {
         #ifdef USE_OMP
             std::string omp_support = " using OpenMP\n Executing using " + std::to_string(omp_get_max_threads()) + " threads.";
@@ -166,48 +241,14 @@ namespace OpenMEEG {
         std::cout << display_info.str() << std::endl << std::endl;
     }
 
-#if 0
-    inline bool option(const char *const name, const int argc, char **argv,
-                       const bool defaut, const char *const usage=NULL) 
-    {
-        const char *s = command_line::option(name, argc, argv, (const char*)NULL);
-        const bool res = s?(command_line::strcasecmp(s,"false") && command_line::strcasecmp(s,"off") && command_line::strcasecmp(s,"0")):defaut;
-        command_line::option(name, 0, NULL, res?"true":"false", usage);
-        return res;
-    }
+    // Some command have mutually exclusive options.
+    // This helper function ensures that.
+    // The counter num_options is counting options in each exclusive group.
 
-    inline int option(const char *const name, const int argc, char **argv,
-                      const int defaut, const char *const usage=NULL) 
-    {
-        const char *s = command_line::option(name, argc, argv, (const char*)NULL);
-        const int res = s?std::atoi(s):defaut;
-        char tmp[256];
-        std::sprintf(tmp, "%d", res);
-        command_line::option(name, 0, NULL, tmp, usage);
-        return res;
+    inline void assert_non_conflicting_options(const char* command,const unsigned num_options) {
+        if (num_options!=1) {
+            std::cerr << "Error: providing mutually exclusive options to " << command << "!" << std::endl;
+            exit(1);
+        }
     }
-
-    inline char option(const char *const name, const int argc, char **argv,
-               const char defaut, const char *const usage=NULL) 
-    {
-        const char *s = command_line::option(name, argc, argv, (const char*)NULL);
-        const char res = s?s[0]:defaut;
-        char tmp[8];
-        tmp[0] = res;
-        tmp[1] ='\0';
-        command_line::option(name, 0, NULL, tmp, usage);
-        return res;
-    }
-
-    inline double option(const char *const name, const int argc, char **argv,
-             const double defaut, const char *const usage=NULL) 
-    {
-        const char *s = command_line::option(name, argc, argv, (const char*)NULL);
-        const double res = s?command_line::atof(s):defaut;
-        char tmp[256];
-        std::sprintf(tmp, "%g", res);
-        command_line::option(name, 0, NULL, tmp, usage);
-        return res;
-    }
-#endif
 }

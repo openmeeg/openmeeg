@@ -88,15 +88,9 @@ namespace OpenMEEG::maths {
         const Blocks& blocks() const { return all_blocks; }
 
         void add_block(const Range& ir,const Range& jr) {
-            Index inds = find_block_indices(ir,jr);
-            if (inds.first==-1) {
-                row_ranges.push_back(ir);
-                inds.first = row_ranges.size()-1;
-            }
-            if (inds.second==-1) {
-                col_ranges.push_back(jr);
-                inds.second = col_ranges.size()-1;
-            }
+            const unsigned iind = row_ranges.add(ir);
+            const unsigned jind = col_ranges.add(jr);
+            const Index inds = { iind, jind };
             all_blocks[inds] = Matrix(ir.length(),jr.length());
         }
 
