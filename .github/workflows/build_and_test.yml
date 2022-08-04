@@ -327,7 +327,7 @@ jobs:
           ls -al $OPENBLAS_LIB
           test -f "$OPENBLAS_LIB/libopenblas.dylib"
           echo "OPENBLAS_INCLUDE=$OPENBLAS_INCLUDE" >> $GITHUB_ENV
-          echo "CMAKE_CXX_FLAGS=-I$OPENBLAS_INCLUDE -L$OPENBLAS_LIB" >> $GITHUB_ENV
+          echo "CMAKE_CXX_FLAGS=-I$OPENBLAS_INCLUDE" >> $GITHUB_ENV
           echo "CMAKE_PREFIX_PATH=$BLAS_DIR" >> $GITHUB_ENV
         fi
 
