@@ -40,6 +40,8 @@ jobs:
         #
         # MKL is tested on all OSes.
         #
+        # VTK and CGAL are only tested on one Ubuntu build.
+        #
         # Someday we could use OpenBLAS for Windows once vcpkg sorts things out
         # (https://github.com/microsoft/vcpkg/issues/25176), but it's unclear
         # if this will really help anything. NumPy/SciPy's OpenBLAS (which
@@ -74,6 +76,7 @@ jobs:
           python-version: '3.10'
           numpy: numpydev
           vtk: vtk9
+          cgal: cgal
         # Windows mingw64
         - os: windows-2019
           windows_compiler: mingw64
@@ -173,6 +176,12 @@ jobs:
         else
           VTK_OPT="-DUSE_VTK=OFF"
         fi
+        if [[ "${{matrix.cgal}}" == 'cgal'* ]]; then
+          echo '::set-output name=cgal_version::${{matrix.vtk}}'
+          CGAL_OPT="-DUSE_CGAL=ON"
+        else
+          CGAL_OPT="-DUSE_CGAL=OFF"
+        fi
         # Use -Werror on Windows and macOS, eventually should use on Linux
         if [[ "${{matrix.os}}" != 'ubuntu*' ]]; then
           WERROR_OPT="-DENABLE_WERROR=OFF"
@@ -189,6 +198,7 @@ jobs:
         echo "DOC_OPT=$DOC_OPT" >> $GITHUB_ENV
         echo "Using VTK_OPT=$VTK_OPT"
         echo "VTK_OPT=$VTK_OPT" >> $GITHUB_ENV
+        echo "CGAL_OPT=$CGAL_OPT" >> $GITHUB_ENV
         echo "Using PYTHON_COPY_RUNTIME_DLLS=$PYTHON_COPY_RUNTIME_DLLS_OPT"
         echo "PYTHON_COPY_RUNTIME_DLLS_OPT=$PYTHON_COPY_RUNTIME_DLLS_OPT" >> $GITHUB_ENV
 
@@ -331,7 +341,7 @@ jobs:
           echo "CMAKE_PREFIX_PATH=$BLAS_DIR" >> $GITHUB_ENV
         fi
 
-    - name: Linux - hdf5, libmatio, doxygen, (optionally) vtk, and (optionally) OpenBLAS via apt
+    - name: Linux - hdf5, libmatio, and doxygen; optionally vtk, cgal, and OpenBLAS via apt
       if: startsWith(steps.env-vars.outputs.os,'ubuntu')
       run: |
         sudo apt update -q
@@ -344,6 +354,9 @@ jobs:
         fi
         if [[ "${{ steps.env-vars.outputs.vtk_version }}" != "" ]]; then
           APT_EXTRA="$APT_EXTRA lib${{ steps.env-vars.outputs.vtk_version }}-dev"
+        fi
+        if [[ "${{ steps.env-vars.outputs.vtk_version }}" != "" ]]; then
+          APT_EXTRA="$APT_EXTRA lib${{ steps.env-vars.outputs.cgal_version }}-dev"
         fi
         sudo apt -yq install liblapacke-dev doxygen graphviz libhdf5-dev libmatio-dev lcov $APT_EXTRA
         # Set GCC version
