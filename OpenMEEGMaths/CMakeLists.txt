@@ -21,7 +21,6 @@ target_include_directories(OpenMEEGMaths
           $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/OpenMEEGMaths>
           $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
           $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/exports>
-          ${Boost_INCLUDE_Dir}
           ${BLA_INCLUDE_DIR} # XXX : this should not be here, transitive properties should work
           $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}>         # XXX: this is to include the generated file OpenMEEGConfigure.h
       PRIVATE

@@ -42,7 +42,7 @@ if [[ "$PLATFORM" == "linux-x86_64" ]]; then
     export LINKER_OPT="-lgfortran -lpthread"
     SHARED_OPT="-DBUILD_SHARED_LIBS=OFF"
 elif [[ "$PLATFORM" == 'macosx-'* ]]; then
-    brew install boost swig libomp
+    brew install swig libomp
     BLAS_DIR=/usr/local
     OPENBLAS_INCLUDE=$BLAS_DIR/include
     OPENBLAS_LIB=$BLAS_DIR/lib
