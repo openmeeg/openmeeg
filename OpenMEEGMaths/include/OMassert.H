@@ -34,6 +34,5 @@
 
 inline void Assert(const char* assertion,const char* file,const unsigned line,const char* function) {
     std::cerr << file << ':' << line << ':' << function << ": Assertion `" << assertion << "' failed." << std::endl;
-    if (!assertion)
-        throw std::invalid_argument(assertion);
+    throw std::invalid_argument(assertion);
 }
