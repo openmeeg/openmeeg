@@ -54,7 +54,7 @@ namespace OpenMEEG {
         const unsigned n = pts.nlin();
         ProgressBar pb(geom.meshes().size()*n);
         for (const auto& mesh : geom.meshes()) {
-            const double coeff = MagFactor*geom.conductivity_difference(mesh);
+            const double coeff = MagFactor*geom.conductivity_jump(mesh);
             for (unsigned i=0,index=0; i<n; ++i,index+=3,++pb) {
                 const Vect3 p(pts(i,0),pts(i,1),pts(i,2));
                 operatorFerguson(p,mesh,mat,index,coeff);

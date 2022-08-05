@@ -198,14 +198,28 @@ namespace OpenMEEG {
         double sigma_inv(const Mesh& m1,const Mesh& m2) const { return eval_on_common_domains<INVERSE>(m1,m2);   } // return the (sum) inverse of conductivity(ies) of the shared domain(s).
         double indicator(const Mesh& m1,const Mesh& m2) const { return eval_on_common_domains<INDICATOR>(m1,m2); } // return the (sum) indicator function of the shared domain(s).
 
-        double conductivity_difference(const Mesh& m) const; // return the difference of conductivities of the 2 domains.
+        /// \brief Return the conductivity jump across a mesh (i.e. between the 2 domains it separates).
+
+        double conductivity_jump(const Mesh& m) const {
+            const DomainsReference& doms = domains(m);
+            double res = 0.0;
+            for (const auto& domainptr : doms)
+                res += domainptr->conductivity()*domainptr->mesh_orientation(m);
+            return res;
+        }
 
         /// \brief Give the relative orientation of two meshes:
         /// \return  0, if they don't have any domains in common
         ///          1, if they are both oriented toward the same domain
         ///         -1, if they are not
 
-        int oriented(const Mesh&,const Mesh&) const;
+        int oriented(const Mesh& m1,const Mesh& m2) const {
+            if (&m1==&m2) // Fast path for identical meshes.
+                return 1;
+            const DomainsReference& doms = common_domains(m1,m2); // 2 meshes have either 0, 1 or 2 domains in common
+            return (doms.size()==0) ? 0 : ((doms[0]->mesh_orientation(m1)==doms[0]->mesh_orientation(m2)) ? 1 : -1);
+        }
+
 
         //  Calling this method read induces failures due do wrong conversions when read is passed with one or two arguments...
 
