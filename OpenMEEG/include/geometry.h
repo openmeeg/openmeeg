@@ -213,7 +213,7 @@ namespace OpenMEEG {
         ///          1, if they are both oriented toward the same domain
         ///         -1, if they are not
 
-        int oriented(const Mesh& m1,const Mesh& m2) const {
+        int relative_orientation(const Mesh& m1,const Mesh& m2) const {
             if (&m1==&m2) // Fast path for identical meshes.
                 return 1;
             const DomainsReference& doms = common_domains(m1,m2); // 2 meshes have either 0, 1 or 2 domains in common
