@@ -62,12 +62,12 @@ namespace OpenMEEG::MeshIOs {
 
             unsigned char uc[5];
             fs.read(reinterpret_cast<char*>(uc),5); // File format
-            fs.read(reinterpret_cast<char*>(uc),4); // lbindian
+            fs.read(reinterpret_cast<char*>(uc),4); // little/big endian
             //  TODO: we should check that these values are correct.
 
             unsigned arg_size;
-            fs.read(reinterpret_cast<char*>(&arg_size),sizeof(unsigned));
-            fs.ignore(arg_size);
+            fs.read(reinterpret_cast<char*>(&arg_size),sizeof(unsigned)); // Should be 4
+            fs.read(reinterpret_cast<char*>(&arg_size),arg_size); // Should be characters VOID.
 
             unsigned vertex_per_face;
             fs.read(reinterpret_cast<char*>(&vertex_per_face),sizeof(unsigned));
@@ -75,8 +75,6 @@ namespace OpenMEEG::MeshIOs {
             unsigned mesh_time;
             fs.read(reinterpret_cast<char*>(&mesh_time),sizeof(unsigned));
             fs.ignore(sizeof(unsigned)); // mesh_step
-            unsigned npts;
-            fs.read(reinterpret_cast<char*>(&npts),sizeof(unsigned));
             
             // Support only for triangulations and one time frame.
 
@@ -86,6 +84,9 @@ namespace OpenMEEG::MeshIOs {
             if (mesh_time!=1)
                 throw std::invalid_argument("OpenMEEG only handles 3D surfacic meshes with one time frame.");
 
+            unsigned npts;
+            fs.read(reinterpret_cast<char*>(&npts),sizeof(unsigned));
+
             float* coords = new float[3*npts]; // Point coordinates
             fs.read(reinterpret_cast<char*>(coords),3*npts*sizeof(float));
             Vertices vertices;
@@ -94,7 +95,7 @@ namespace OpenMEEG::MeshIOs {
             indmap = geom.add_vertices(vertices);
             delete[] coords;
 
-            fs.ignore(sizeof(unsigned));
+            fs.read(reinterpret_cast<char*>(&npts),sizeof(unsigned)); // Number of normals
             fs.ignore(3*npts*sizeof(float)); // Ignore normals.
             fs.ignore(sizeof(unsigned));
         }
@@ -119,8 +120,8 @@ namespace OpenMEEG::MeshIOs {
             unsigned char format[5] = {'b', 'i', 'n', 'a', 'r'}; // File format
             os.write(reinterpret_cast<char*>(format),5);
 
-            unsigned char lbindian[4] = {'D', 'C', 'B', 'A'}; // lbindian
-            os.write(reinterpret_cast<char*>(lbindian),4);
+            unsigned char lbendian[4] = {'D', 'C', 'B', 'A'}; // little/big endian
+            os.write(reinterpret_cast<char*>(lbendian),4);
 
             unsigned arg_size = 4;
             os.write(reinterpret_cast<char*>(&arg_size),sizeof(unsigned));
@@ -175,8 +176,8 @@ namespace OpenMEEG::MeshIOs {
                 ++i;
             }
 
-            unsigned char zero = 0;
-            os.write(reinterpret_cast<char*>(&zero),1);
+            unsigned zero = 0;
+            os.write(reinterpret_cast<char*>(&zero),sizeof(unsigned));
             unsigned ntrgs = mesh.triangles().size();
             os.write(reinterpret_cast<char*>(&ntrgs),sizeof(unsigned));
             os.write(reinterpret_cast<char*>(faces_raw),sizeof(unsigned)*ntrgs*3);

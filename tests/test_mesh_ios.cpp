@@ -38,7 +38,10 @@ int main(int argc,char** argv) {
 
     Mesh mesh;
 
-    // // TRI
+    // Test that saving and reloading the mesh in several file formats provides
+    // an identical result.
+
+    // TRI
 
     mesh_orig.save("tmp.tri");
     mesh.load("tmp.tri");
