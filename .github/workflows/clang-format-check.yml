@@ -1,0 +1,22 @@
+name: clang-format
+on: [push, pull_request]
+jobs:
+  formatting-check:
+    name: Formatting Check
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    # https://github.com/marketplace/actions/clang-format-lint
+    - uses: DoozyX/clang-format-lint-action@v0.14
+      with:
+        source: '.'
+        clangFormatVersion: 13
+        inplace: ${{ contains(github.event.head_commit.message, '[actions format]') }}
+    - uses: EndBug/add-and-commit@v4
+      with:
+        author_name: Clang Robot
+        author_email: robot@example.com
+        message: 'Committing clang-format changes'
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      if: ${{ contains(github.event.head_commit.message, '[actions format]') }}

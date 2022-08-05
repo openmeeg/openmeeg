@@ -7,5 +7,5 @@ def test_doc():
     assert doc is not None
 
     headmat_expected_docstring = \
-        ("HeadMat(Geometry geo, Integrator const & integrator=Integrator(3,0,0.005)) -> SymMatrix")
+        ("HeadMat(Geometry geo, Integrator const & integrator=Integrator(3, 0, 0.005)) -> SymMatrix")
     assert doc == headmat_expected_docstring, f'got: {repr(doc)} != expected: {repr(headmat_expected_docstring)}'

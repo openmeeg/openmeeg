@@ -47,6 +47,7 @@
 /*****************************************************************************/
 
 #include <cmath>
+#include <triangle.h>
 
 namespace OpenMEEG {
 

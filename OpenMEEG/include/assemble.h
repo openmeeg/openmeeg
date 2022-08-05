@@ -56,9 +56,9 @@ knowledge of the CeCILL-B license and that you accept its terms.
 namespace OpenMEEG {
 
     // For ADAPT_LHS change the 0 in Integrator below into 10
-    // It would be nice to define some constant integrators for the default values but swig does not like them. 
+    // It would be nice to define some constant integrators for the default values but swig does not like them.
 
-    OPENMEEG_EXPORT SymMatrix HeadMat(const Geometry& geo,const Integrator& integrator=Integrator(3,0,0.005));
+    OPENMEEG_EXPORT SymMatrix HeadMat(const Geometry& geo,const Integrator& integrator=Integrator(3, 0, 0.005));
     OPENMEEG_EXPORT Matrix SurfSourceMat(const Geometry& geo,Mesh& sources,const Integrator& integrator=Integrator(3,0,0.005));
 
     OPENMEEG_EXPORT Matrix
