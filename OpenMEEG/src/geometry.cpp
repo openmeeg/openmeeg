@@ -315,23 +315,6 @@ namespace OpenMEEG {
         num_params = index;
     }
 
-    /// \return the difference of conductivities of the 2 domains.
-
-    double Geometry::conductivity_difference(const Mesh& m) const {
-        const DomainsReference& doms = domains(m);
-        double res = 0.0;
-        for (const auto& domainptr : doms)
-            res += domainptr->conductivity()*domainptr->mesh_orientation(m);
-        return res;
-    }
-
-    /// \return 0. for non communicating meshes, 1. for same oriented meshes, -1. for different orientation
-
-    int Geometry::oriented(const Mesh& m1,const Mesh& m2) const {
-        const DomainsReference& doms = common_domains(m1,m2); // 2 meshes have either 0, 1 or 2 domains in common
-        return (doms.size()==0) ? 0 : ((doms[0]->mesh_orientation(m1)==doms[0]->mesh_orientation(m2)) ? 1 : -1);
-    }
-
     bool Geometry::selfCheck() const {
 
         bool OK = true;
@@ -443,7 +426,7 @@ namespace OpenMEEG {
         for (const auto& mesh1 : meshes())
             if (!mesh1.isolated())
                 for (const auto& mesh2 : meshes()) {
-                    const int orientation = oriented(mesh1,mesh2);
+                    const int orientation = relative_orientation(mesh1,mesh2);
                     if ((!mesh2.isolated()) && (sigma(mesh1,mesh2)!=0.0) && orientation!=0) {
                         // Communicating meshes are used for the definition of a common domain
                         meshpairs.push_back(MeshPair(mesh1,mesh2,orientation));

@@ -152,11 +152,11 @@ namespace OpenMEEG {
 
             if (mesh1.current_barrier()) {
                 const NonDiagonalBlock operators(mesh1,mesh2,integrator);
-                const int orientation = geo.oriented(mesh1,mesh2);
+                const int orientation = geo.relative_orientation(mesh1,mesh2);
                 operators.D(K*orientation,transmat); // D23 or D33 of the formula.
-                if (&mesh1==&mesh2) { // I_33 of the formula.
+                if (&mesh1==&mesh2) { // I_33 of the formula, orientation is necessarily 1.
                     DiagonalBlock block(mesh1,integrator);
-                    block.addId(-0.5*orientation,transmat);
+                    block.addId(-0.5,transmat);
                 } else { // S_2 of the formula.
                     operators.S(-K*orientation*geo.sigma_inv(mesh1,mesh2),transmat);
                 }
