@@ -6,8 +6,6 @@ import openmeeg as om
 # vector mapping
 @pytest.mark.skipif(os.getenv('OPENMEEG_BAD_MKL') == os.getenv('OPENMEEG_BAD_MSVC') == '1',
                     reason='bad mkl msvc')
-@pytest.mark.xfail(os.getenv('OPENMEEG_BAD_TYPE') == '1',
-                   reason="bug type handling")
 def test_vector():
     # om.Vector -> np.array
     V1 = om.Vector(3)
