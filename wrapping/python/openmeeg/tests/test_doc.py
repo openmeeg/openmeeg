@@ -1,6 +1,7 @@
 import inspect
 import openmeeg as om
 
+
 def test_doc():
     # Make sure that doc is generated
     doc = inspect.getdoc(om.HeadMat)
