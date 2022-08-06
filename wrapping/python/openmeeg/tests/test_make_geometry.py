@@ -6,7 +6,7 @@ import openmeeg as om
 
 
 def test_make_geometry(data_path):
-    def python_mesh(name, path):
+    def python_mesh(path):
         mesh = om.Mesh(path)
         mesh_vertices = mesh.geometry().vertices()
         vertices = np.array([vertex.array() for vertex in mesh_vertices])
@@ -18,10 +18,12 @@ def test_make_geometry(data_path):
     subject = "Head1"
     dirpath = op.join(data_path, subject)
 
+    # Make sure we handle bad paths gracefully
+    with pytest.raises(RuntimeError, match='Error opening'):
+        om.Mesh(op.join(dirpath, 'fake.1.tri'))
     meshes = dict()
-    meshes["cortex"] = python_mesh("cortex", op.join(dirpath, "cortex.1.tri"))
-    meshes["skull"] = python_mesh("skull", op.join(dirpath, "skull.1.tri"))
-    meshes["scalp"] = python_mesh("scalp", op.join(dirpath, "scalp.1.tri"))
+    for key in ('cortex', 'skull', 'scalp'):
+        meshes[key] = python_mesh(op.join(dirpath, f"{key}.1.tri"))
 
     # It should be possible to have multiple oriented meshes per interface. e.g.
     # interface1 = [(m1,om.OrientedMesh.Normal), (m2,om.OrientedMesh.Opposite), (m3,om.OrientedMesh.Normal)]
