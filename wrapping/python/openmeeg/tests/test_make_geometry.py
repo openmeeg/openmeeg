@@ -2,6 +2,7 @@
 
 import os.path as op
 import numpy as np
+import pytest
 import openmeeg as om
 
 
