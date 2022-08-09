@@ -2,12 +2,32 @@
 
 %feature("autodoc", "1");
 
+%inline %{
+
+    class Error: public std::exception {
+    public:
+
+        Error(const int t,const char* m): typ(t),mes(m) { }
+
+        int type() const { return typ; }
+
+        const std::string& message() const { return mes; }
+
+    private:
+
+        const int         typ;
+        const std::string mes;
+    };
+%}
+
 %include <exception.i>
 %exception {
     try {
         $action
+    } catch (const Error& e) {
+        SWIG_exception(e.type(),e.message().c_str());
     } catch (const std::exception& e) {
-        SWIG_exception(SWIG_RuntimeError, e.what());
+        SWIG_exception(SWIG_RuntimeError,e.what());
     }
 }
 
@@ -82,16 +102,6 @@
 %init %{
 import_array();
 %}
-
-%exception {
-    try {
-        $action
-    }
-    catch (std::exception& e) {
-        PyErr_SetString(PyExc_RuntimeError,e.what());
-        return NULL;
-    }
-}
 
 // /////////////////////////////////////////////////////////////////
 // Definitions
@@ -259,21 +269,15 @@ namespace OpenMEEG {
     IndexMap
     geom_add_vertices(Geometry* geom,PyObject* pyobj) {
 
-        if (pyobj==nullptr || !PyArray_Check(pyobj)) {
-            PyErr_SetString(PyExc_TypeError,"Vertices matrix should be an array.");
-            return IndexMap();
-        }
+        if (pyobj==nullptr || !PyArray_Check(pyobj))
+            throw Error(SWIG_ValueError,"Vertices matrix should be an array.");
 
         PyArrayObject* array = reinterpret_cast<PyArrayObject*>(PyArray_FromObject(pyobj,NPY_DOUBLE,0,0));
-        if (array==nullptr) {
-            PyErr_SetString(PyExc_TypeError,"Matrix cannot be converted into a matrix of double.");
-            return IndexMap();
-        }
+        if (array==nullptr)
+            throw Error(SWIG_ValueError,"Matrix cannot be converted into a matrix of double.");
 
-        if (PyArray_NDIM(array)!=2 || PyArray_DIM(array,1)!=3) {
-            PyErr_SetString(PyExc_TypeError,"Vertices matrix must be a 2 dimensions array with 3 columns.");
-            return IndexMap();
-        }
+        if (PyArray_NDIM(array)!=2 || PyArray_DIM(array,1)!=3)
+            throw Error(SWIG_ValueError,"Vertices matrix must be a 2 dimensional array with 3 columns.");
 
         IndexMap indmap;
         const size_t num_vertices = PyArray_DIM(array,0);
@@ -290,54 +294,48 @@ namespace OpenMEEG {
     void
     mesh_add_triangles(Mesh* mesh,PyObject* pyobj,const IndexMap& indmap) {
 
-        if (pyobj==nullptr || !PyArray_Check(pyobj)) {
-            PyErr_SetString(PyExc_TypeError,"Matrix of triangles should be an array.");
-            return;
-        }
+        if (pyobj==nullptr || !PyArray_Check(pyobj))
+            throw Error(SWIG_TypeError,"Matrix of triangles should be an array.");
 
         PyArrayObject* array = reinterpret_cast<PyArrayObject*>(pyobj);
         const PyArray_Descr *descr = PyArray_DESCR(array);
         const int type_num = descr->type_num;
-        if (!PyArray_EquivTypenums(type_num, NPY_INT32) &&
-            !PyArray_EquivTypenums(type_num, NPY_UINT32) &&
-            !PyArray_EquivTypenums(type_num, NPY_INT64) &&
-            !PyArray_EquivTypenums(type_num, NPY_UINT64)) {
+        if (!PyArray_EquivTypenums(type_num,NPY_INT32) &&
+            !PyArray_EquivTypenums(type_num,NPY_UINT32) &&
+            !PyArray_EquivTypenums(type_num,NPY_INT64) &&
+            !PyArray_EquivTypenums(type_num,NPY_UINT64)) {
             std::vector<char> buf(1000); // note +1 for null terminator
-            std::snprintf(&buf[0], buf.size(), "Wrong dtype for triangles array (only 32 or 64 int or uint supported), got type '%c%d'", descr->kind, descr->elsize);
+            std::snprintf(&buf[0],buf.size(),"Wrong dtype for triangles array (only 32 or 64 int or uint supported), got type '%c%d'",
+                          descr->kind,descr->elsize);
             PyErr_SetString(PyExc_TypeError,&buf[0]);
             return;
         }
 
         const size_t ndims = PyArray_NDIM(array);
-        if (ndims!=2) {
-            PyErr_SetString(PyExc_TypeError,"Matrix of triangles must be a 2 dimensions array.");
-            return;
-        }
+        if (ndims!=2)
+            throw Error(SWIG_TypeError,"Matrix of triangles must be a 2 dimensional array.");
 
         const size_t nbTriangles  = PyArray_DIM(array,0);
-        if (PyArray_DIM(array,1)!=3) {
-            PyErr_SetString(PyExc_TypeError,"Matrix of triangles requires exactly 3 columns, standing for indices of 3 vertices.");
-            return;
-        }
+        if (PyArray_DIM(array,1)!=3)
+            throw Error(SWIG_TypeError,"Matrix of triangles requires exactly 3 columns, standing for indices of 3 vertices.");
 
         mesh->reference_vertices(indmap);
 
         auto get_vertex = [&](PyArrayObject* mat,const int i,const int j) {
             const unsigned vi = *reinterpret_cast<unsigned*>(PyArray_GETPTR2(mat,i,j));
+            if (vi>=indmap.size()) {
+                std::ostringstream oss;
+                oss << "Vertex index " << vi << " in triangle " << i << " out of range";
+                throw Error(SWIG_ValueError,oss.str().c_str());
+            }
             return &(mesh->geometry().vertices().at(indmap.at(vi)));
         };
 
         for (int unsigned i=0; i<nbTriangles; ++i) {
-            try {
-                Vertex* v1 = get_vertex(array,i,0);
-                Vertex* v2 = get_vertex(array,i,1);
-                Vertex* v3 = get_vertex(array,i,2);
-                mesh->triangles().push_back(Triangle(v1,v2,v3));
-            } catch(unsigned& ind) {
-                //  TODO: Improve the error message to indicate the triangle and the index of vertex
-                PyErr_SetString(PyExc_TypeError,"Triangle index out of range");
-                return;
-            }
+            Vertex* v1 = get_vertex(array,i,0);
+            Vertex* v2 = get_vertex(array,i,1);
+            Vertex* v3 = get_vertex(array,i,2);
+            mesh->triangles().push_back(Triangle(v1,v2,v3));
         }
     }
 %}
@@ -439,7 +437,7 @@ namespace OpenMEEG {
 
     double value(unsigned int i) {
         if (i>=($self)->size()) {
-            PyErr_SetString(PyExc_TypeError, "Out of range");
+            PyErr_SetString(PyExc_TypeError,"Out of range");
             return std::nan("");
         }
         return (*($self))(i);
@@ -479,7 +477,7 @@ namespace OpenMEEG {
         mesh_add_triangles($self,pyobj,indmap);
     }
 
-    Mesh(PyObject* vertices,PyObject* triangles,const std::string name="",Geometry* geom=0) {
+    Mesh(PyObject* vertices,PyObject* triangles,const std::string name="",Geometry* geom=nullptr) {
         Mesh* mesh = new Mesh(geom);
         const OpenMEEG::IndexMap& indmap = geom_add_vertices(&(mesh->geometry()),vertices);
         mesh_add_triangles(mesh,triangles,indmap);
