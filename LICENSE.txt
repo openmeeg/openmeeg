@@ -3,7 +3,7 @@ Contributors: Geoffray ADDE, Maureen CLERC, Alexandre GRAMFORT,
               Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU,
               Emmanuel OLIVI, Theodore PAPADOPOULO.
 
-Contact : openmeeg-info@lists.gforge.inria.fr
+Contact : openmeeg-info@inria.fr
 Web : http://openmeeg.github.io
 
 The OpenMEEG software is a C++ package for solving the forward
