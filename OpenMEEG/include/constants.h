@@ -39,7 +39,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #pragma once
 
-#if WIN32
+#ifdef WIN32
 #define _USE_MATH_DEFINES
 #endif
 

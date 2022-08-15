@@ -39,7 +39,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 #pragma once
 
-#if WIN32
+#ifdef WIN32
 #define _USE_MATH_DEFINES
 #endif
 
@@ -54,7 +54,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 
 namespace OpenMEEG {
 
-#if WIN32
+#ifdef WIN32
     constexpr char PathSeparator[] = "/\\";
 #else
     constexpr char PathSeparator = '/';
@@ -77,15 +77,16 @@ namespace OpenMEEG {
     }
 
     /// \return absolute path of file \param name .
-    
+
     inline std::string
     absolute_path(const std::string& name) {
         const std::string::size_type pos = name.find_last_of(PathSeparator);
+        std::cerr << " " << name << " last" << PathSeparator << "=" << pos << " npos=" << std::string::npos << " ";
         return (pos==std::string::npos) ? "" : name.substr(0,pos+1);
     }
 
     /// \return the base name of file \param name .
-    
+
     inline std::string
     basename(const std::string& name) {
         const std::string::size_type pos = name.find_last_of(PathSeparator);
@@ -96,14 +97,22 @@ namespace OpenMEEG {
 
     inline bool
     is_relative_path(const std::string& name) {
-    #if WIN32
+        bool is_rel = false;
+        std::cerr << "is_relative_path " << name;
+    #ifdef WIN32
         const std::string& sep = PathSeparator;
         const char c0 = name[0];
+        std::cerr << " npos=" << std::string::npos << " find=" << sep.find(c0);
         if (sep.find(c0)!=std::string::npos)
-            return false;
-        return !(std::isalpha(c0) && name[1]==':' && sep.find(name[2])!=std::string::npos);
+            is_rel = false;
+        else {
+            std::cerr << " isalpha=" << std::isalpha(c0) << " colon=" << (name[1] == ':') << " sep.find=" << sep.find(name[2]);
+            is_rel = !(std::isalpha(c0) && name[1]==':' && sep.find(name[2])!=std::string::npos);
+        }
     #else
-        return name[0]!=PathSeparator;
+        is_rel = name[0]!=PathSeparator;
     #endif
+        std::cerr << ": " << is_rel << std::endl;
+        return is_rel;
     }
 }

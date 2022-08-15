@@ -206,6 +206,9 @@ namespace OpenMEEG {
         } catch (OpenMEEG::Exception& e) {
             std::cerr << e.what() << " in the file " << filename << std::endl;
             exit(e.code());
+        } catch (std::invalid_argument& e) {
+            std::cerr << e.what() << " for the file " << filename << std::endl;
+            exit(1);
         } catch (...) {
             std::cerr << "Could not read the geometry file: " << filename << std::endl;
             exit(1);
@@ -219,26 +222,35 @@ namespace OpenMEEG {
             MeshIO*     io;
         };
 
+        std::cerr << "  clear" << std::endl;
         clear();
 
         // First read all the vertices
 
+        std::cerr << "  vertices" << std::endl;
         std::vector<MeshDescription> mesh_descriptions;
         for (const auto& desc : mesh_list) {
             const std::string& name = desc.first;
             const std::string& path = desc.second;
+            std::cerr << "    create path " << path << std::endl;
             MeshIO* io = MeshIO::create(path);
+            std::cerr << "    open" << std::endl;
             io->open();
+            std::cerr << "    load" << std::endl;
             io->load_points(*this);
             mesh_descriptions.push_back({ name, io });
         }
 
         // Second really load the meshes
 
+        std::cerr << "  really load" << std::endl;
         meshes().reserve(mesh_descriptions.size());
         for (const auto& desc : mesh_descriptions) {
+            std::cerr << "    add_mesh " << desc.name << std::endl;
             Mesh& mesh = add_mesh(desc.name);
+            std::cerr << "    load_triangles" << std::endl;
             desc.io->load_triangles(mesh);
+            std::cerr << "    update" << std::endl;
             mesh.update(true);
         }
 
