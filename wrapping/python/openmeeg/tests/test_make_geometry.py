@@ -42,9 +42,7 @@ def test_make_geometry(data_path):
     }
 
     g1 = om.make_geometry(meshes, interfaces, domains)
-    print('om dot geom')
     g2 = om.Geometry(op.join(dirpath, subject + ".geom"), op.join(dirpath, subject + ".cond"))
-    print('done')
 
     assert g1.is_nested()
     assert g2.is_nested()

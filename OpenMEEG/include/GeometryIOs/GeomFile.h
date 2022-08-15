@@ -72,7 +72,7 @@ namespace OpenMEEG::GeometryIOs {
     //       contains domains descriptions, one per line. Each domain consist of:
     //
     //         o a domain name.
-    //         o a list of IDs (signed numbers or signed names): the sign ('+'by default) of the ID depicts
+    //         o a list of IDs (signed numbers or signed names): the sign ('+'by default) of the ID depicts 
     //           whether the interior or the exterior of the interface should be used to select the domain.
     //
     // Any line starting with # is considered a comment and is silently ignored.
@@ -180,8 +180,7 @@ namespace OpenMEEG::GeometryIOs {
     };
 
     void GeomFile::load_meshes(Geometry& geometry) {
-        std::cerr << "fs.open" << std::endl;
-
+        
         fs.open(fname.c_str());
 
         if (!fs.is_open())
@@ -189,14 +188,12 @@ namespace OpenMEEG::GeometryIOs {
 
         //  Get the version of the geometry file format.
 
-        std::cerr << "major minor" << std::endl;
         unsigned major,minor; ///< version of the domain description
         fs >> io_utils::match("# Domain Description ") >> major >> io_utils::match(".") >> minor;
 
         if (fs.fail())
             throw OpenMEEG::WrongFileFormat(fname);
 
-        std::cerr << "version" << std::endl;
         version_id = version(major,minor);
         if (version_id==VERSION10)
             std::cerr << "(DEPRECATED) Please consider updating your geometry file to the new format 1.1 (see data/README.rst): "
@@ -209,16 +206,13 @@ namespace OpenMEEG::GeometryIOs {
 
         // Extract the absolute path of geometry file
 
-        std::cerr << "abspath of " << fname << std::endl;
         directory = absolute_path(fname);
-        std::cerr << " is " << directory << std::endl;
 
         // Process meshes.
 
         bool has_meshfile = false;
         bool has_meshsection = false;
 
-        std::cerr << "v1" << std::endl;
         if (version_id==VERSION11) {
 
             // Read the mesh section of the description file.
@@ -241,7 +235,6 @@ namespace OpenMEEG::GeometryIOs {
 
         // Process interfaces.
 
-        std::cerr << "trash" << std::endl;
         bool trash; // backward compatibility, catch "Mesh" optionally.
         fs >> io_utils::skip_comments('#')
             >> io_utils::match("Interfaces") >> nb_interfaces >> io_utils::match_optional("Mesh", trash);
@@ -249,16 +242,12 @@ namespace OpenMEEG::GeometryIOs {
         if (fs.fail())
             throw OpenMEEG::WrongFileFormat(fname);
 
-        std::cerr << "mai" << std::endl;
         mesh_provided_as_interfaces = !has_meshfile && !has_meshsection;
         if (mesh_provided_as_interfaces)
             read_mesh_descriptions(nb_interfaces,"Interface");
 
-        std::cerr << "meshfile" << std::endl;
         if (!has_meshfile)
-            std::cerr << "!has_meshfile" << std::endl;
             geometry.import(meshes);
-        std::cerr << "done" << std::endl;
     }
 
     void GeomFile::load_domains(Geometry& geometry) {
@@ -315,7 +304,7 @@ namespace OpenMEEG::GeometryIOs {
                 if (token=="shared") {
                     std::cerr << "(DEPRECATED) Ignoring the useless shared keyword. Please consider updating the geometry file " << fname
                               << " to the new 1.1 format (see data/README.rst)." << std::endl;
-                    break;
+                    break;                    
                 }
                 const SimpleDomain::Side side = (extract_sign(token)) ? SimpleDomain::Outside : SimpleDomain::Inside;
                 try {
@@ -356,7 +345,7 @@ namespace OpenMEEG::GeometryIOs {
             }
 
         fs << "Meshes " << meshes.size() << std::endl << std::endl;
-
+        
         for (const auto& mesh : meshes) {
             fs << "Mesh " << mesh->name() << ": \"" << "" << '"' << std::endl;
         }
