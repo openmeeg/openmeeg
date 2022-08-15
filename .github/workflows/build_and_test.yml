@@ -405,7 +405,8 @@ jobs:
             #fi
           # TODO: if this is static it shouldn't be necessary, but it seems to be...
           elif [[ "${{steps.env-vars.outputs.blas}}" == 'mkl'* ]]; then
-            cp $(cygpath -u $CONDA_PREFIX)/Library/lib/*mkl*.dll .
+            ls -alR $(cygpath -u $CONDA_PREFIX)/Library/bin)
+            cp $(cygpath -u $CONDA_PREFIX)/Library/bin/*mkl*.dll .
           fi
           if [[ "{{ steps.env-vars.outputs.windows_compiler }}" != "msvc"* ]]; then
             cp /c/Strawberry/c/bin/libquadmath-0.dll .
