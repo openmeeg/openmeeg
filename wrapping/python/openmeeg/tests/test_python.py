@@ -19,12 +19,9 @@
 ###########################################
 import os
 from os import path as op
-import pytest
 import openmeeg as om
 
 
-@pytest.mark.skipif(os.getenv('OPENMEEG_BAD_MSVC') == '1',
-                    reason="bug with msvc-based wrapping")
 def test_python(data_path):
     # Load data
     subject = "Head1"

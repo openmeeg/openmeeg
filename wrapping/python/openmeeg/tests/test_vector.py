@@ -4,7 +4,7 @@ import pytest
 import openmeeg as om
 
 # vector mapping
-@pytest.mark.skipif(os.getenv('OPENMEEG_BAD_MKL') == os.getenv('OPENMEEG_BAD_MSVC') == '1',
+@pytest.mark.skipif(os.getenv('OPENMEEG_BAD_MKL') == '1',
                     reason='bad mkl msvc')
 def test_vector():
     # om.Vector -> np.array
