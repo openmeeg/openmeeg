@@ -80,7 +80,6 @@ jobs:
         # MKL on each OS (static unless it has to be dynamic)
         - os: windows-2019
           blas: mkl-findblas
-          blas_linking: static
         - os: ubuntu-20.04
           blas: mkl-findblas
         - os: macos-latest
@@ -438,7 +437,7 @@ jobs:
       run: |
         ls -alR ./install/bin ./install/lib
         if [[ "${{steps.env-vars.outputs.os}}" == 'windows'* ]]; then
-          export PATH="$PWD/build:$PWD/install/bin:$(cygpath -u $CONDA_PREFIX)/Library:$(cygpath -u $CONDA_PREFIX)/Library/lib:$(cygpath -u $CONDA_PREFIX)/Library/bin:$PATH"
+          export PATH="$PWD/build:$PWD/install/bin:$(cygpath -u $CONDA_PREFIX)/Library:$(cygpath -u $CONDA_PREFIX)/Library/lib:$PATH"
           echo "PATH=$PATH"
         elif [[ "${{steps.env-vars.outputs.os}}" == 'macos'* ]]; then
           export DYLD_LIBRARY_PATH="$CONDA_PREFIX/lib:$PWD/install/lib:$DYLD_LIBRARY_PATH"
