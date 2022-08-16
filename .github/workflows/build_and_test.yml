@@ -438,7 +438,7 @@ jobs:
       run: |
         ls -alR ./install/bin ./install/lib
         if [[ "${{steps.env-vars.outputs.os}}" == 'windows'* ]]; then
-          export PATH="$PWD/build:$PWD/install/bin:$(cygpath -u $CONDA_PREFIX)/Library:$(cygpath -u $CONDA_PREFIX)/Library/lib:$PATH"
+          export PATH="$PWD/build:$PWD/install/bin:$(cygpath -u $CONDA_PREFIX)/Library:$(cygpath -u $CONDA_PREFIX)/Library/lib:$(cygpath -u $CONDA_PREFIX)/Library/bin:$PATH"
           echo "PATH=$PATH"
         elif [[ "${{steps.env-vars.outputs.os}}" == 'macos'* ]]; then
           export DYLD_LIBRARY_PATH="$CONDA_PREFIX/lib:$PWD/install/lib:$DYLD_LIBRARY_PATH"
