@@ -19,12 +19,9 @@
 ###########################################
 import os
 from os import path as op
-import sys
-import pytest
 import openmeeg as om
 
 
-@pytest.mark.skipif(sys.platform == 'win32', reason='Fails on Windows')
 def test_python(data_path):
     # Load data
     subject = "Head1"
