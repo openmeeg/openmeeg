@@ -40,6 +40,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #pragma once
 
 #include <iostream>
+#include <filesystem>
 #include <iomanip>
 #include <string>
 #include <vector>
@@ -86,7 +87,7 @@ namespace OpenMEEG {
         CommandLine(const int argc,char* argv[],const std::string& usage=""): n(argc),args(argv) {
             help = find_argument("-h")!=end() || find_argument("--help")!=end();
             if (help) {
-                std::cerr << red << basename(args[0]) << normal;
+                std::cerr << red << fs::path(args[0]).filename() << normal;
                 if (usage!="")
                     std::cerr << ": " << usage;
                 std::cerr << std::endl << std::endl;

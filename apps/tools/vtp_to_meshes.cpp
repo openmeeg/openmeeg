@@ -37,7 +37,10 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
+#include <filesystem>
+
 #include "geometry.h"
+#include "filenames.h"
 #include "matrix.h"
 #include "commandline.h"
 
@@ -62,9 +65,8 @@ main(int argc,char* argv[]) {
 
     Geometry geom(input);
 
-    const std::string::size_type idx = output.rfind('.');
-    const std::string& extension = (idx!=std::string::npos) ? output.substr(idx+1) : std::string("");
-    const std::string& basename = output.substr(0,idx);
+    const std::string  basename  = fs::path(output).stem();
+    const std::string& extension = getFilenameExtension(output);
 
     for (const auto& mesh : geom.meshes())
         mesh.save(basename+mesh.name()+'.'+extension);
