@@ -285,6 +285,8 @@ jobs:
           export VCPKG_DEFAULT_TRIPLET="x64-mingw-dynamic"
           # At some point this switched from g++ to c++, no idea why
           echo "CXX_EXTRA=-DCMAKE_CXX_COMPILER=C:/ProgramData/chocolatey/bin/g++.exe" >> $GITHUB_ENV
+          # Try not automatically adding the Python3_Executable...
+          echo "PYTHON_OPT=-DENABLE_PYTHON=ON" >> $GITHUB_ENV
         else
           export VCPKG_DEFAULT_TRIPLET="x64-windows-release"
           export CMAKE_GENERATOR="Visual Studio 16 2019"
