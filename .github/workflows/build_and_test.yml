@@ -80,6 +80,7 @@ jobs:
         # MKL on each OS (static unless it has to be dynamic)
         - os: windows-2019
           blas: mkl-findblas
+          blas_linking: static
         - os: ubuntu-20.04
           blas: mkl-findblas
         - os: macos-latest
@@ -406,6 +407,7 @@ jobs:
           elif [[ "${{steps.env-vars.outputs.blas}}" == 'mkl'* ]]; then
             ls -alR $(cygpath -u $CONDA_PREFIX)/Library/bin
             cp $(cygpath -u $CONDA_PREFIX)/Library/bin/*mkl*.dll .
+            echo "DELVEWHEEL_ADD_DLL=--add-dll=$CONDA_PREFIX\Library\bin\mkl_intel_thread.2.dll" >> $GITHUB_ENV
           fi
           if [[ "{{ steps.env-vars.outputs.windows_compiler }}" != "msvc"* ]]; then
             cp /c/Strawberry/c/bin/libquadmath-0.dll .
@@ -437,7 +439,7 @@ jobs:
       run: |
         ls -alR ./install/bin ./install/lib
         if [[ "${{steps.env-vars.outputs.os}}" == 'windows'* ]]; then
-          export PATH="$PWD/build:$PWD/install/bin:$(cygpath -u $CONDA_PREFIX)/Library:$(cygpath -u $CONDA_PREFIX)/Library/lib:$PATH"
+          export PATH="$PWD/build:$PWD/install/bin:$(cygpath -u $CONDA_PREFIX)/Library:$PATH"
           echo "PATH=$PATH"
         elif [[ "${{steps.env-vars.outputs.os}}" == 'macos'* ]]; then
           export DYLD_LIBRARY_PATH="$CONDA_PREFIX/lib:$PWD/install/lib:$DYLD_LIBRARY_PATH"
@@ -507,7 +509,7 @@ jobs:
         ls -alR check/*
         if [[ ${{steps.env-vars.outputs.os}} == 'windows'* ]]; then
           PATH="$(cygpath -w $PWD/openmeeg);$PATH" delvewheel show dist/*.whl
-          PATH="$(cygpath -w $PWD/openmeeg);$PATH" delvewheel repair -w dist dist/*.whl
+          PATH="$(cygpath -w $PWD/openmeeg);$PATH" delvewheel repair $DELVEWHEEL_ADD_DLL -w dist dist/*.whl
         elif [[ ${{steps.env-vars.outputs.os}} == 'macos'* ]]; then
           delocate-wheel -v dist/*.whl
           delocate-listdeps --all dist/*.whl
