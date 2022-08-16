@@ -407,7 +407,7 @@ jobs:
           elif [[ "${{steps.env-vars.outputs.blas}}" == 'mkl'* ]]; then
             ls -alR $(cygpath -u $CONDA_PREFIX)/Library/bin
             cp $(cygpath -u $CONDA_PREFIX)/Library/bin/*mkl*.dll .
-            echo "DELVEWHEEL_ADD_DLL=--add-dll=$CONDA_PREFIX\Library\bin\mkl_intel_thread.2.dll" >> $GITHUB_ENV
+            echo "DELVEWHEEL_ADD_DLL=--add-dll=mkl_intel_thread.2.dll" >> $GITHUB_ENV
           fi
           if [[ "{{ steps.env-vars.outputs.windows_compiler }}" != "msvc"* ]]; then
             cp /c/Strawberry/c/bin/libquadmath-0.dll .
