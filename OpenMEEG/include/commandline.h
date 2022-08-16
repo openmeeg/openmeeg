@@ -14,11 +14,7 @@
 #include <sstream>
 #include <initializer_list>
 
-#ifdef WIN32
-#pragma warning( disable : 4530)    //MSVC standard library can't be inlined
-#pragma warning( disable : 4996)    //MSVC warning C4996: declared deprecated
-#pragma warning( disable : 4290)    //MSVC warning C4290: C++ exception specification
-#else
+#ifndef WIN32
 #define use_color_terminal
 #endif
 
