@@ -15,6 +15,7 @@
 
 #include <om_utils.h>
 #include <MeshIO.h>
+#include <GeometryExceptions.H>
 
 #ifdef USE_VTK
 #include <vtkPolyData.h>
@@ -67,9 +68,8 @@ namespace OpenMEEG::MeshIOs {
             reader->SetInputArray(buf);
             reader->SetReadFromInputString(1);
             if (!reader->IsFilePolyData()) {
-                std::cerr << "Mesh \"" << fname << "\" is not a valid vtk poly data file" << std::endl;
                 reader->Delete();
-                exit(1);
+                throw OpenMEEG::VTKError("Mesh \"" + fname + "\" is not a valid vtk poly data file");
             }
 
             reader->Update();
@@ -89,24 +89,20 @@ namespace OpenMEEG::MeshIOs {
             mesh.triangles().reserve(ntrgs);
 
             for (unsigned i = 0; i < ntrgs; ++i) {
-                if (vtkMesh->GetCellType(i)!=VTK_TRIANGLE) {
-                    std::cerr << "Mesh \"" << fname << "\" is not a triangulation" << std::endl;
-                    exit(1);
-                }
+                if (vtkMesh->GetCellType(i)!=VTK_TRIANGLE)
+                    throw OpenMEEG::VTKError("Mesh \"" + fname + "\" is not a triangulation");
                 vtkIdList* l = vtkMesh->GetCell(i)->GetPointIds();
                 mesh.add_triangle(TriangleIndices(l->GetId(0),l->GetId(1),l->GetId(2)),indmap);
             }
         }
     #else
         static unsigned vtk_error() {
-            std::cerr << "OpenMEEG was not compiled with VTK support. Specify USE_VTK in cmake." << std::endl;
-            exit(1);
-            return 0;
+            throw OpenMEEG::VTKError("OpenMEEG was not compiled with VTK support. Specify USE_VTK in cmake.");
         }
 
-        void     load_points(Geometry&)          override { vtk_error();        }
-        void     load_triangles(OpenMEEG::Mesh&) override { vtk_error();        }
-        void     load(OpenMEEG::Mesh&)           override { vtk_error();        }
+        void     load_points(Geometry&)          override { vtk_error(); }
+        void     load_triangles(OpenMEEG::Mesh&) override { vtk_error(); }
+        void     load(OpenMEEG::Mesh&)           override { vtk_error(); }
     #endif
 
         void save(const OpenMEEG::Mesh& mesh,std::ostream& os) const override {
@@ -143,7 +139,7 @@ namespace OpenMEEG::MeshIOs {
         char*                        buffer = nullptr;
         vtkSmartPointer<vtkPolyData> vtkMesh;
         #endif
-        
+
         static const Vtk prototype;
 
         const char* name() const override { return "VTK"; }

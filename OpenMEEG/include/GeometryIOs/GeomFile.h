@@ -40,7 +40,7 @@ namespace OpenMEEG::GeometryIOs {
     //       contains domains descriptions, one per line. Each domain consist of:
     //
     //         o a domain name.
-    //         o a list of IDs (signed numbers or signed names): the sign ('+'by default) of the ID depicts 
+    //         o a list of IDs (signed numbers or signed names): the sign ('+'by default) of the ID depicts
     //           whether the interior or the exterior of the interface should be used to select the domain.
     //
     // Any line starting with # is considered a comment and is silently ignored.
@@ -148,7 +148,7 @@ namespace OpenMEEG::GeometryIOs {
     };
 
     void GeomFile::load_meshes(Geometry& geometry) {
-        
+
         fs.open(fname.c_str());
 
         if (!fs.is_open())
@@ -248,7 +248,7 @@ namespace OpenMEEG::GeometryIOs {
             if (!interface.is_mesh_orientations_coherent()) { // check and correct global orientation
                 std::cerr << "Interface \"" << interface.name() << "\" is not closed !" << std::endl
                           << "Please correct a mesh orientation when defining the interface in the geometry file." << std::endl;
-                exit(1);
+                throw OpenMEEG::WrongFileFormat(fname);
             }
         }
 
@@ -272,7 +272,7 @@ namespace OpenMEEG::GeometryIOs {
                 if (token=="shared") {
                     std::cerr << "(DEPRECATED) Ignoring the useless shared keyword. Please consider updating the geometry file " << fname
                               << " to the new 1.1 format (see data/README.rst)." << std::endl;
-                    break;                    
+                    break;
                 }
                 const SimpleDomain::Side side = (extract_sign(token)) ? SimpleDomain::Outside : SimpleDomain::Inside;
                 try {
@@ -313,7 +313,7 @@ namespace OpenMEEG::GeometryIOs {
             }
 
         fs << "Meshes " << meshes.size() << std::endl << std::endl;
-        
+
         for (const auto& mesh : meshes) {
             fs << "Mesh " << mesh->name() << ": \"" << "" << '"' << std::endl;
         }

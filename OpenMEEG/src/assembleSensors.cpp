@@ -12,6 +12,7 @@
 
 #include <constants.h>
 #include <sparse_matrix.h>
+#include <GeometryExceptions.H>
 
 namespace OpenMEEG {
 
@@ -40,7 +41,7 @@ namespace OpenMEEG {
     // ECoG positions are reported line by line in the positions Matrix
     // mat is supposed to be filled with zeros
     // mat is the linear application which maps x (the unknown vector in symmetric system) -> v (potential at the ECoG electrodes)
-    // difference with Head2EEG is that it interpolates the inner skull layer instead of the scalp layer. 
+    // difference with Head2EEG is that it interpolates the inner skull layer instead of the scalp layer.
 
     SparseMatrix Head2ECoGMat(const Geometry& geo,const Sensors& electrodes,const Interface& i) {
 
@@ -134,10 +135,8 @@ namespace OpenMEEG {
         const Matrix& positions    = sensors.getPositions();
         const Matrix& orientations = sensors.getOrientations();
 
-        if (dipoles.ncol()!=6) {
-            std::cerr << "Dipoles File Format Error" << std::endl;
-            exit(1);
-        }
+        if (dipoles.ncol()!=6)
+            throw OpenMEEG::DipoleError("Dipoles File Format Error, expecting 6 columns");
 
         // This Matrix will contain the field generated at the location of the i-th squid by the j-th source
 

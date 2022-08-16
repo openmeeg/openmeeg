@@ -12,6 +12,7 @@
 #include <iostream>
 #include <exception>
 
+// TODO We should rename this file Exceptions.H probably
 namespace OpenMEEG {
 
     //TODO  remove all unused exception
@@ -25,7 +26,7 @@ namespace OpenMEEG {
                    BAD_FMT, NO_SUFFIX, NON_MATCH_FMT, BAD_HDR, BAD_DATA, WRONG_FILE_FMT, BAD_DIM, UNKN_DIM, BAD_SIZE_SPEC, UNKN_PIX, UNKN_PIX_TYPE,
                    UNKN_FILE_FMT, UNKN_FILE_SUFFIX, UNKN_NAMED_FILE_FMT, NON_MATCH_NAMED_FILE_FMT, NO_FILE_FMT,
                    BAD_PLGIN_LIST, BAD_PLGIN_FILE, BAD_PLGIN, ALREADY_KN_TAG, NON_EXISTING_DOMAIN, UNKNOWN_VERTEX,
-                   SOURCE_MESH_OVERLAPS_GEOMETRY, NO_IMG_ARG, DIFF_IMG } ExceptionCode;
+                   SOURCE_MESH_OVERLAPS_GEOMETRY, NO_IMG_ARG, DIFF_IMG, BAD_VTK, BAD_SENSOR, BAD_DIPOLE, BAD_DANIELSSON } ExceptionCode;
 
     class Exception: public std::exception {
     public:
@@ -247,5 +248,37 @@ namespace OpenMEEG {
         DifferentImages(): Exception("Different image types.") { }
 
         ExceptionCode code() const throw() { return DIFF_IMG; }
+    };
+
+    // VTK
+    struct VTKError: public Exception {
+        VTKError(const std::string& str): Exception(message(str)) { }
+        ExceptionCode code() const throw() { return BAD_VTK; }
+    private:
+        static std::string message(const std::string& fmtname) { return std::string("VTK error: " + fmtname); }
+    };
+
+    // Sensors
+    struct SensorError: public Exception {
+        SensorError(const std::string& str): Exception(message(str)) { }
+        ExceptionCode code() const throw() { return BAD_SENSOR; }
+    private:
+        static std::string message(const std::string& fmtname) { return std::string("Sensor error: " + fmtname); }
+    };
+
+    // Dipoles
+    struct DipoleError: public Exception {
+        DipoleError(const std::string& str): Exception(message(str)) { }
+        ExceptionCode code() const throw() { return BAD_DIPOLE; }
+    private:
+        static std::string message(const std::string& fmtname) { return std::string("Sensor error: " + fmtname); }
+    };
+
+    // Danielsson
+    struct DanielssonError: public Exception {
+        DanielssonError(const std::string& str): Exception(message(str)) { }
+        ExceptionCode code() const throw() { return BAD_DANIELSSON; }
+    private:
+        static std::string message(const std::string& fmtname) { return std::string("Sensor error: " + fmtname); }
     };
 }

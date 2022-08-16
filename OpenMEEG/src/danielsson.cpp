@@ -6,6 +6,7 @@
 // - replace this header by the LICENSE.txt content.
 
 #include <danielsson.h>
+#include <GeometryExceptions.H>
 
 // Implement an algorithm  proposed in Danielsson, P.-E.
 // Euclidean Distance Mapping. Computer Graphics and Image Processing 14, 3
@@ -51,8 +52,7 @@ namespace OpenMEEG {
         } else {
             // 3 unknowns or more -> solve system
             //  Ax=b with: A(i, j)=A0Ai.AjA0, x=(alpha_1, alpha_2, ...), b=A0M.A0Ai
-            cerr << "Error : dim>=4 in danielsson !" << endl;
-            exit(0);
+            throw OpenMEEG::DanielsonError("Error : dim>=4 in danielsson !");
         }
         // If alpha_i<0 -> brought to 0 and recursion
         // NB: also takes care of alpha > 1 because if alpha_i>1 then alpha_j<0 for at least one j
