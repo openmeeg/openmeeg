@@ -1,4 +1,3 @@
-import os
 from os import path as op
 import numpy as np
 
