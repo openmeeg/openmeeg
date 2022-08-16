@@ -1,8 +1,9 @@
-Copyright INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC,
-Alexandre GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU,
-Emmanuel OLIVI, Theodore PAPADOPOULO, Maureen.Clerc.AT.inria.fr, keriven.AT.certis.enpc.fr, kybic.AT.fel.cvut.cz, papadop.AT.inria.fr, Alexandre.Gramfort.AT.inria.fr, Emmanuel.Olivi.AT.inria.fr)
+© Copyright INRIA and ENPC
+Contributors: Geoffray ADDE, Maureen CLERC, Alexandre GRAMFORT,
+              Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU,
+              Emmanuel OLIVI, Theodore PAPADOPOULO.
 
-Contact : openmeeg-info@lists.gforge.inria.fr
+Contact : openmeeg-info@inria.fr
 Web : http://openmeeg.github.io
 
 The OpenMEEG software is a C++ package for solving the forward
