@@ -206,6 +206,9 @@ namespace OpenMEEG {
         } catch (OpenMEEG::Exception& e) {
             std::cerr << e.what() << " in the file " << filename << std::endl;
             exit(e.code());
+        } catch (std::invalid_argument& e) {
+            std::cerr << e.what() << " for the file " << filename << std::endl;
+            exit(1);
         } catch (...) {
             std::cerr << "Could not read the geometry file: " << filename << std::endl;
             exit(1);

@@ -36,7 +36,7 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#if WIN32
+#ifdef WIN32
 #define _USE_MATH_DEFINES
 #endif
 
@@ -192,7 +192,7 @@ namespace OpenMEEG {
 
         const Domain& SourceDomain = geo.domain(domain_name);
         const Interface& Cortex    = SourceDomain.boundaries().front().interface();
-        
+
         om_error(SourceDomain.boundaries().size()==1);
         om_error(Cortex.oriented_meshes().size()==1);
 
@@ -267,10 +267,10 @@ namespace OpenMEEG {
         // Re-writting of the optimization problem in M. Clerc, J. Kybic "Cortical mapping by Laplace–Cauchy
         // transmission using a boundary element method".
         // with a Lagrangian formulation as in see http://www.math.uh.edu/~rohop/fall_06/Chapter3.pdf eq3.3
-        // find argmin(norm(gradient(X)) under constraints: 
+        // find argmin(norm(gradient(X)) under constraints:
         // H*X = 0 and M*X = m
         // let G be the gradient norm matrix, l1, l2 the lagrange parameters
-        // 
+        //
         // [ G  H' M'] [ X  ]   [ 0 ]
         // | H  0    | | l1 | = | 0 |
         // [ M     0 ] [ l2 ]   [ m ]
@@ -285,7 +285,7 @@ namespace OpenMEEG {
 
         const Domain& SourceDomain = geo.domain(domain_name);
         const Interface& Cortex    = SourceDomain.boundaries().front().interface();
-        
+
         om_error(SourceDomain.boundaries().size()==1);
         om_error(Cortex.oriented_meshes().size()==1);
 

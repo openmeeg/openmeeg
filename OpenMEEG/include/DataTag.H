@@ -1,7 +1,7 @@
 /*
 Project Name : OpenMEEG
 
-© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre 
+© INRIA and ENPC (contributors: Geoffray ADDE, Maureen CLERC, Alexandre
 GRAMFORT, Renaud KERIVEN, Jan KYBIC, Perrine LANDREAU, Théodore PAPADOPOULO,
 Emmanuel OLIVI
 Maureen.Clerc.AT.inria.fr, keriven.AT.certis.enpc.fr,
@@ -62,12 +62,12 @@ namespace Types {
     //  If not it raises an exception.
     //  This methods can be overloaded for more specific behaviours.
 
-#if WIN32
+#ifdef WIN32
 #pragma warning (disable: 4290)	// this particular throw is not the one Visual 2005 is waiting for
 #endif
     template <typename T>
     std::istream& operator>>(std::istream& is,Types::DataTag<T>& tag) {
-#if WIN32
+#ifdef WIN32
 #pragma warning (default: 4290)
 #endif
         bool DataP;
