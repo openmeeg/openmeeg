@@ -283,6 +283,8 @@ jobs:
       run: |
         if [[ "${{ steps.env-vars.outputs.windows_compiler }}" == "mingw64" ]]; then
           export VCPKG_DEFAULT_TRIPLET="x64-mingw-dynamic"
+          # At some point this switched from g++ to c++, no idea why
+          echo "CXX_EXTRA=CXX=C:/ProgramData/chocolatey/bin/g++.exe" >> $GITHUB_ENV
         else
           export VCPKG_DEFAULT_TRIPLET="x64-windows-release"
           export CMAKE_GENERATOR="Visual Studio 16 2019"
@@ -367,7 +369,7 @@ jobs:
           export EXTRA_COV="-DENABLE_COVERAGE=ON"
         fi
         EXT_SUFFIX=$(python -c "import sysconfig;print(sysconfig.get_config_var('EXT_SUFFIX'))")
-        source ./build_tools/cmake_configure.sh --install-prefix=$PWD/install -DCMAKE_VERBOSE_MAKEFILE=ON $EXTRA_UCRT $EXTRA_COV -DPython3_EXT_SUFFIX=$EXT_SUFFIX -DPYTHON_FORCE_EXT_SUFFIX=ON
+        source ./build_tools/cmake_configure.sh --install-prefix=$PWD/install -DCMAKE_VERBOSE_MAKEFILE=ON $EXTRA_UCRT $EXTRA_COV -DPython3_EXT_SUFFIX=$EXT_SUFFIX -DPYTHON_FORCE_EXT_SUFFIX=ON ${CXX_EXTRA}
 
     - name: Build
       run: |
