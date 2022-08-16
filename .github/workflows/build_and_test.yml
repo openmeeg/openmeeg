@@ -74,9 +74,14 @@ jobs:
           python-version: '3.10'
           numpy: numpydev
           vtk: vtk9
-        # Windows mingw64
-        - os: windows-2019
-          windows_compiler: mingw64
+        # Windows mingw64 is disabled because of some path problem where cmake
+        # cannot find Python3 (!). We don't really need it because wheels and
+        # conda-forge both use MSVC, things work there, and it's the official
+        # Windows compiler. So we disable it for now at least (YAGNI).
+        # There is some stuff below and in cmake_configure.sh we could get rid
+        # of if we decide to fully drop it later.
+        # - os: windows-2019
+        #   windows_compiler: mingw64
         # MKL on each OS (static unless it has to be dynamic)
         - os: windows-2019
           blas: mkl-findblas
@@ -367,6 +372,8 @@ jobs:
           export EXTRA_COV="-DENABLE_COVERAGE=ON"
         fi
         EXT_SUFFIX=$(python -c "import sysconfig;print(sysconfig.get_config_var('EXT_SUFFIX'))")
+        which cmake
+        cmake --version
         source ./build_tools/cmake_configure.sh --install-prefix=$PWD/install -DCMAKE_VERBOSE_MAKEFILE=ON $EXTRA_UCRT $EXTRA_COV -DPython3_EXT_SUFFIX=$EXT_SUFFIX -DPYTHON_FORCE_EXT_SUFFIX=ON
 
     - name: Build

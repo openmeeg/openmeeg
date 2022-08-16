@@ -29,6 +29,6 @@ endif()
 set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Choose the type of build.")
 set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "None" "Debug" "Release" "RelWithDebInfo" "MinSizeRel")
 
-if (MSVC AND NOT BUILD_SHARED_LIBS)
+if (WIN32 AND NOT BUILD_SHARED_LIBS)
     set(CMAKE_FIND_LIBRARY_SUFFIXES ".lib")
 endif()
