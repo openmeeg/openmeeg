@@ -47,12 +47,8 @@ knowledge of the CeCILL-B license and that you accept its terms.
 #include <vector.h>
 #include <matrix.h>
 
-// #ifdef WIN32
-// #pragma warning( disable : 4251)    //MSVC warning C4251 : DLL exports of STL templates
-// #endif
-
 #ifdef WIN32
-    template class OPENMEEGMATHS_EXPORT std::map< std::pair< size_t, size_t >, double >;
+    template class OPENMEEGMATHS_EXPORT std::map<std::pair<size_t,size_t>,double>;
 #endif
 
 namespace OpenMEEG {
@@ -60,30 +56,28 @@ namespace OpenMEEG {
     class SymMatrix;
 
     class OPENMEEGMATHS_EXPORT SparseMatrix : public LinOp {
-
     public:
 
-        typedef std::map< std::pair< size_t, size_t >, double > Tank;
-        typedef std::map< std::pair< size_t, size_t >, double >::const_iterator const_iterator;
-        typedef std::map< std::pair< size_t, size_t >, double >::iterator iterator;
+        typedef std::map<std::pair<size_t,size_t>,double> Tank;
+        typedef Tank::const_iterator                      const_iterator;
+        typedef Tank::iterator                            iterator;
 
-        SparseMatrix() : LinOp(0,0,SPARSE,2) {};
-        SparseMatrix(const char* fname) : LinOp(0,0,SPARSE,2) { this->load(fname); }
-        SparseMatrix(size_t N,size_t M) : LinOp(N,M,SPARSE,2) {};
+        SparseMatrix(): LinOp(0,0,SPARSE,2) {};
+        SparseMatrix(const char* fname): LinOp(0,0,SPARSE,2) { this->load(fname); }
+        SparseMatrix(const size_t N,const size_t M): LinOp(N,M,SPARSE,2) {};
         ~SparseMatrix() {};
 
-        inline double operator()( size_t i, size_t j ) const {
-            om_assert(i < nlin());
-            om_assert(j < ncol());
-            const_iterator it = m_tank.find(std::make_pair(i, j));
-            if (it != m_tank.end()) return it->second;
-            else return 0.0;
+        inline double operator()(const size_t i,const size_t j) const {
+            om_assert(i<nlin());
+            om_assert(j<ncol());
+            const_iterator it = m_tank.find(std::make_pair(i,j));
+            return (it!=m_tank.end()) ? it->second : 0.0;
         }
 
         inline double& operator()( size_t i, size_t j ) {
-            om_assert(i < nlin());
-            om_assert(j < ncol());
-            return m_tank[ std::make_pair( i, j ) ];
+            om_assert(i<nlin());
+            om_assert(j<ncol());
+            return m_tank[std::make_pair(i,j)];
         }
 
         size_t size() const {
@@ -91,18 +85,50 @@ namespace OpenMEEG {
         }
 
         const_iterator begin() const { return m_tank.begin(); }
-        const_iterator end()   const { return m_tank.end(); }
+        const_iterator end()   const { return m_tank.end();   }
 
         SparseMatrix transpose() const;
 
-        const Tank& tank() const {return m_tank;}
+        const Tank& tank() const { return m_tank; }
 
-        void set( double t);
-        Vector getlin(size_t i) const;
-        void setlin(Vector v, size_t i);
+        void set(const double d) {
+            for(auto& tkelmt : m_tank)
+                tkelmt.second = d;
+        }
 
-        void save(const char *filename) const;
-        void load(const char *filename);
+        Vector getlin(const size_t i) const {
+            om_assert(i<nlin());
+            Vector v(ncol());
+            for (size_t j=0; j<ncol(); ++j) {
+                const_iterator it = m_tank.find(std::make_pair(i,j));
+                v(j) = (it!=m_tank.end()) ? it->second : 0.0;
+            }
+            return v;
+        }
+
+        void setlin(const Vector& v,const size_t i) {
+            om_assert(i<nlin());
+            for (size_t j=0; j<v.nlin(); ++j)
+                (*this)(i,j) = v(j);
+        }
+
+        void save(const char* filename) const {
+            maths::ofstream ofs(filename);
+            try {
+                ofs << maths::format(filename,maths::format::FromSuffix) << *this;
+            } catch (maths::Exception& e) {
+                ofs << *this;
+            }
+        }
+
+        void load(const char* filename) {
+            maths::ifstream ifs(filename);
+            try {
+                ifs >> maths::format(filename,maths::format::FromSuffix) >> *this;
+            } catch (maths::Exception& e) {
+                ifs >> *this;
+            }
+        }
 
         void save(const std::string& s) const { save(s.c_str()); }
         void load(const std::string& s)       { load(s.c_str()); }
@@ -110,32 +136,14 @@ namespace OpenMEEG {
         void info() const;
         double frobenius_norm() const;
 
-        Vector       operator*( const Vector &x ) const;
-        Matrix       operator*( const SymMatrix &m ) const;
-        Matrix       operator*( const Matrix &m ) const;
-        SparseMatrix operator*( const SparseMatrix &m ) const;
-        SparseMatrix operator+( const SparseMatrix &m ) const;
+        Vector       operator*(const Vector& x) const;
+        Matrix       operator*(const SymMatrix& m) const;
+        Matrix       operator*(const Matrix& m) const;
+        SparseMatrix operator*(const SparseMatrix& m) const;
+        SparseMatrix operator+(const SparseMatrix& m) const;
 
     private:
 
         Tank m_tank;
     };
-
-    inline Vector SparseMatrix::getlin(size_t i) const {
-        om_assert(i<nlin());
-        Vector v(ncol());
-        for (size_t j=0;j<ncol();j++){
-            const_iterator it = m_tank.find(std::make_pair(i, j));
-            if (it != m_tank.end()) v(j)=it->second;
-            else v(j)=0.0;
-        }
-        return v;
-    }
-
-    inline void SparseMatrix::setlin(Vector v, size_t i) {
-        om_assert(i<nlin());
-        for (size_t j=0;j<v.nlin();j++){
-            (*this)(i,j) = v(j);
-        }
-    }
 }
