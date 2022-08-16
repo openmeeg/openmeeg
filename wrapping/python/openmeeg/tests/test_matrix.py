@@ -51,16 +51,16 @@ def test_matrix():
     # mimic info()
 
     print("First Values of numpy array")
-    for l in range(5):
-        for c in range(5):
-            print(mat_numpy[l, c], end=" ")
+    for li in range(5):
+        for ci in range(5):
+            print(mat_numpy[li, ci], end=" ")
         print()
 
     error = False
-    for l in range(5):
-        for c in range(5):
-            if mat_numpy[l, c] != mat_om.value(l, c):
-                print("matrices differ at:", l, c)
+    for li in range(5):
+        for ci in range(5):
+            if mat_numpy[li, ci] != mat_om.value(li, ci):
+                print("matrices differ at:", li, ci)
                 error = True
 
     if error:

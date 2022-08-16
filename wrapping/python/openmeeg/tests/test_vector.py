@@ -42,8 +42,8 @@ def test_vector():
     print("conversion between OpenMEEG:Vector <> numpy.array is OK")
 
     # degenerate cases
-    with pytest.raises(TypeError, match='Input object is neither.*Vector'):
-        om.Vector('foo')
+    with pytest.raises(TypeError, match="Input object is neither.*Vector"):
+        om.Vector("foo")
     vec = om.Vector(3)
-    with pytest.raises(IndexError, match='Index out of range'):
+    with pytest.raises(IndexError, match="Index out of range"):
         vec.value(3)
