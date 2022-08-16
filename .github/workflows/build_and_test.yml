@@ -74,9 +74,14 @@ jobs:
           python-version: '3.10'
           numpy: numpydev
           vtk: vtk9
-        # Windows mingw64
-        - os: windows-2019
-          windows_compiler: mingw64
+        # Windows mingw64 is disabled because of some path problem where cmake
+        # cannot find Python3 (!). We don't really need it because wheels and
+        # conda-forge both use MSVC, things work there, and it's the official
+        # Windows compiler. So we disable it for now at least (YAGNI).
+        # There is some stuff below and in cmake_configure.sh we could get rid
+        # of if we decide to fully drop it later.
+        # - os: windows-2019
+        #   windows_compiler: mingw64
         # MKL on each OS (static unless it has to be dynamic)
         - os: windows-2019
           blas: mkl-findblas
@@ -235,7 +240,7 @@ jobs:
             NUMPY_PIP="oldest-supported-numpy"
           fi
         fi
-        pip install --upgrade --progress-bar off --only-binary="numpy" -q $NUMPY_PIP setuptools wheel twine pytest cmake $EXTRA_PIP
+        pip install --upgrade --progress-bar off --only-binary="numpy" -q $NUMPY_PIP setuptools wheel twine pytest $EXTRA_PIP
 
     - name: MKL setup - mkl via conda
       if: startswith(steps.env-vars.outputs.blas,'mkl')
