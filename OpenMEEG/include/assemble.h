@@ -31,6 +31,8 @@ namespace OpenMEEG {
 
     OPENMEEG_EXPORT Matrix
     DipSourceMat(const Geometry& geo,const Matrix& dipoles,const Integrator& integrator=Integrator(3,10,0.001),const std::string& domain_name="");
+    OPENMEEG_EXPORT Matrix
+    DipSourceMat(const Geometry& geo,const Matrix& dipoles,const std::string& domain_name);
 
     OPENMEEG_EXPORT Matrix EITSourceMat(const Geometry& geo,const Sensors& electrodes,const Integrator& integrator=Integrator(3,0,0.005));
 

@@ -101,6 +101,11 @@ namespace OpenMEEG {
         return rhs;
     }
 
+    Matrix
+    DipSourceMat(const Geometry& geo,const Matrix& dipoles,const std::string& domain_name) {
+        return DipSourceMat(geo,dipoles,Integrator(3,10,0.001),domain_name);
+    }
+    
     Matrix EITSourceMat(const Geometry& geo,const Sensors& electrodes,const Integrator& integrator) {
 
         // Matrix to be applied to the scalp-injected current to obtain the source term of the EIT foward problem,

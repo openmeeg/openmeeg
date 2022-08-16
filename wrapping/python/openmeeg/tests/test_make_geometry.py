@@ -1,14 +1,10 @@
 #!/usr/bin/env python3
 
-import os
 import os.path as op
 import numpy as np
-import pytest
 import openmeeg as om
 
 
-@pytest.mark.skipif(os.getenv('OPENMEEG_BAD_MSVC') == '1',
-                    reason="bug with msvc-based handling")
 def test_make_geometry(data_path):
     def python_mesh(name, path):
         mesh = om.Mesh(path)

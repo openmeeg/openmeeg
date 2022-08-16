@@ -13,7 +13,7 @@
 #include <OpenMEEGMaths_Export.h>
 
 // specially for windows
-#if WIN32
+#ifdef WIN32
     #pragma inline_recursion (on)
     #pragma inline_depth (255) // MSVC static build with MKL cause LNK2019 error.
     #pragma warning( disable : 4530)    //MSVC standard library can't be inlined.

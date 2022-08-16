@@ -7,7 +7,7 @@
 
 #pragma once
 
-#if WIN32
+#ifdef WIN32
 #define _USE_MATH_DEFINES
 #endif
 

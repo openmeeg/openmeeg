@@ -7,7 +7,7 @@
 
 #pragma once
 
-#if WIN32
+#ifdef WIN32
 #define _USE_MATH_DEFINES
 #endif
 
@@ -22,7 +22,7 @@
 
 namespace OpenMEEG {
 
-#if WIN32
+#ifdef WIN32
     constexpr char PathSeparator[] = "/\\";
 #else
     constexpr char PathSeparator = '/';
@@ -45,7 +45,7 @@ namespace OpenMEEG {
     }
 
     /// \return absolute path of file \param name .
-    
+
     inline std::string
     absolute_path(const std::string& name) {
         const std::string::size_type pos = name.find_last_of(PathSeparator);
@@ -53,7 +53,7 @@ namespace OpenMEEG {
     }
 
     /// \return the base name of file \param name .
-    
+
     inline std::string
     basename(const std::string& name) {
         const std::string::size_type pos = name.find_last_of(PathSeparator);
@@ -64,14 +64,18 @@ namespace OpenMEEG {
 
     inline bool
     is_relative_path(const std::string& name) {
-    #if WIN32
+        bool is_rel = false;
+    #ifdef WIN32
         const std::string& sep = PathSeparator;
         const char c0 = name[0];
         if (sep.find(c0)!=std::string::npos)
-            return false;
-        return !(std::isalpha(c0) && name[1]==':' && sep.find(name[2])!=std::string::npos);
+            is_rel = false;
+        else {
+            is_rel = !(std::isalpha(c0) && name[1]==':' && sep.find(name[2])!=std::string::npos);
+        }
     #else
-        return name[0]!=PathSeparator;
+        is_rel = name[0]!=PathSeparator;
     #endif
+        return is_rel;
     }
 }
