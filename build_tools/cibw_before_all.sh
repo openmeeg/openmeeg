@@ -40,6 +40,7 @@ if [[ "$PLATFORM" == "linux-x86_64" ]]; then
     export OPENBLAS_LIB=/usr/local/lib
     export CMAKE_CXX_FLAGS="-I$OPENBLAS_INCLUDE"
     export LINKER_OPT="-lgfortran -lpthread"
+    export WERROR_OPT="-DENABLE_WERROR=ON"
     SHARED_OPT="-DBUILD_SHARED_LIBS=OFF"
 elif [[ "$PLATFORM" == 'macosx-'* ]]; then
     brew install swig libomp
@@ -49,6 +50,7 @@ elif [[ "$PLATFORM" == 'macosx-'* ]]; then
     export CMAKE_CXX_FLAGS="-I$OPENBLAS_INCLUDE"
     export CMAKE_PREFIX_PATH="$BLAS_DIR"
     export LINKER_OPT="-L$OPENBLAS_LIB"
+    export WERROR_OPT="-DENABLE_WERROR=ON"
     echo "Building for CIBW_ARCHS_MACOS=\"$CIBW_ARCHS_MACOS\""
     if [[ "$CIBW_ARCHS_MACOS" == "x86_64" ]]; then
         export VCPKG_DEFAULT_TRIPLET="x64-osx-release-10.9"
