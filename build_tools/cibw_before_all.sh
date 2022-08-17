@@ -40,7 +40,6 @@ if [[ "$PLATFORM" == "linux-x86_64" ]]; then
     export OPENBLAS_LIB=/usr/local/lib
     export CMAKE_CXX_FLAGS="-I$OPENBLAS_INCLUDE"
     export LINKER_OPT="-lgfortran -lpthread"
-    export WERROR_OPT="-DENABLE_WERROR=ON"
     SHARED_OPT="-DBUILD_SHARED_LIBS=OFF"
 elif [[ "$PLATFORM" == 'macosx-'* ]]; then
     brew install swig libomp
@@ -50,7 +49,6 @@ elif [[ "$PLATFORM" == 'macosx-'* ]]; then
     export CMAKE_CXX_FLAGS="-I$OPENBLAS_INCLUDE"
     export CMAKE_PREFIX_PATH="$BLAS_DIR"
     export LINKER_OPT="-L$OPENBLAS_LIB"
-    export WERROR_OPT="-DENABLE_WERROR=ON"
     echo "Building for CIBW_ARCHS_MACOS=\"$CIBW_ARCHS_MACOS\""
     if [[ "$CIBW_ARCHS_MACOS" == "x86_64" ]]; then
         export VCPKG_DEFAULT_TRIPLET="x64-osx-release-10.9"
@@ -89,6 +87,7 @@ fi
 export PYTHON_OPT="-DENABLE_PYTHON=OFF"
 export BLA_IMPLEMENTATION="OpenBLAS"
 export DISABLE_CCACHE=1
+export WERROR_OPT="-DENABLE_WERROR=ON"
 pip install cmake
 ./build_tools/cmake_configure.sh -DCMAKE_VERBOSE_MAKEFILE=ON -DCMAKE_INSTALL_PREFIX=${ROOT}/install ${SYSTEM_VERSION_OPT} ${CMAKE_OSX_ARCH_OPT} ${CMAKE_PREFIX_PATH_OPT} -DENABLE_APPS=OFF ${SHARED_OPT} -DCMAKE_INSTALL_UCRT_LIBRARIES=TRUE ${BLAS_LIBRARIES_OPT} ${LAPACK_LIBRARIES_OPT}
 cmake --build build --target install --config release
