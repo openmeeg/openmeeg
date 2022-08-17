@@ -98,10 +98,10 @@ namespace OpenMEEG {
             return arg;
         }
 
-        char** option(const std::string& name,const Strings& parms) const { return option(name,parms,parms.size()); }
+        char** option(const std::string& name,const Strings& parms) const { return option(name,parms,(unsigned)parms.size()); }
 
         char** option(const Strings& options,const Strings& parms) const {
-            unsigned num_mandatory_parms = parms.size();
+            unsigned num_mandatory_parms = (unsigned)parms.size();
             for (const auto& parm : parms)
                 if (parm[0]=='[')
                     --num_mandatory_parms;
@@ -133,7 +133,7 @@ namespace OpenMEEG {
             for (char** arg=argument+1; arg!=end(); ++arg,++res)
                 if ((*arg)[0]=='-')
                     break;
-            return res; 
+            return res;
         }
 
         void print() const {

@@ -218,10 +218,10 @@ namespace OpenMEEG {
                 mark_current_barriers(); // mark meshes that touch the domains of null conductivity.
 
             if (domains().size()!=0) {
-                Domain& outer_domain = outermost_domain();
-                set_outermost_domain(outer_domain);
+                Domain& this_outer_domain = outermost_domain();
+                set_outermost_domain(this_outer_domain);
                 //  TODO: Integrate this loop (if necessary) in set_outermost_domain...
-                for (auto& boundary : outer_domain.boundaries())
+                for (auto& boundary : this_outer_domain.boundaries())
                     boundary.interface().set_to_outermost();
 
                 check_geometry_is_nested();

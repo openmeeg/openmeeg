@@ -43,7 +43,7 @@ namespace OpenMEEG::MeshIOs {
             unsigned mesh_time;
             fs.read(reinterpret_cast<char*>(&mesh_time),sizeof(unsigned));
             fs.ignore(sizeof(unsigned)); // mesh_step
-            
+
             // Support only for triangulations and one time frame.
 
             if (vertex_per_face!=3)
@@ -68,23 +68,23 @@ namespace OpenMEEG::MeshIOs {
             fs.ignore(sizeof(unsigned));
         }
 
-        void load_triangles(OpenMEEG::Mesh& mesh) override {
-            reference_vertices(mesh);
+        void load_triangles(OpenMEEG::Mesh& this_mesh) override {
+            reference_vertices(this_mesh);
 
             unsigned ntrgs; // Number of faces
             fs.read(reinterpret_cast<char*>(&ntrgs),sizeof(unsigned));
 
             unsigned* pts_inds = new unsigned[3*ntrgs]; // Faces
             fs.read(reinterpret_cast<char*>(pts_inds),3*ntrgs*sizeof(unsigned));
-            mesh.triangles().reserve(ntrgs);
+            this_mesh.triangles().reserve(ntrgs);
             for (unsigned i=0,j=0; i<ntrgs; ++i,j+=3) {
                 const TriangleIndices t = { pts_inds[j], pts_inds[j+1], pts_inds[j+2] };
-                mesh.add_triangle(t,indmap);
+                this_mesh.add_triangle(t,indmap);
             }
             delete[] pts_inds;
         }
 
-        void save(const OpenMEEG::Mesh& mesh,std::ostream& os) const override {
+        void save(const OpenMEEG::Mesh& this_mesh,std::ostream& os) const override {
             unsigned char format[5] = {'b', 'i', 'n', 'a', 'r'}; // File format
             os.write(reinterpret_cast<char*>(format),5);
 
@@ -108,23 +108,23 @@ namespace OpenMEEG::MeshIOs {
 
             //  Vertices
 
-            float* pts_raw     = new float[mesh.vertices().size()*3]; // Points
-            float* normals_raw = new float[mesh.vertices().size()*3]; // Normals
+            float* pts_raw     = new float[this_mesh.vertices().size()*3]; // Points
+            float* normals_raw = new float[this_mesh.vertices().size()*3]; // Normals
 
-            const VertexIndices& vertex_index(mesh);
+            const VertexIndices& vertex_index(this_mesh);
 
             unsigned i = 0;
-            for (const auto& vertex : mesh.vertices()) {
+            for (const auto& vertex : this_mesh.vertices()) {
                 pts_raw[i*3+0]     = static_cast<float>(vertex->x());
                 pts_raw[i*3+1]     = static_cast<float>(vertex->y());
                 pts_raw[i*3+2]     = static_cast<float>(vertex->z());
-                const Normal& n = mesh.normal(*vertex);
+                const Normal& n = this_mesh.normal(*vertex);
                 normals_raw[i*3+0] = static_cast<float>(n.x());
                 normals_raw[i*3+1] = static_cast<float>(n.y());
                 normals_raw[i*3+2] = static_cast<float>(n.z());
                 ++i;
             }
-            unsigned vertex_number = mesh.vertices().size();
+            unsigned vertex_number = this_mesh.vertices().size();
             os.write(reinterpret_cast<char*>(&vertex_number),sizeof(unsigned));
             os.write(reinterpret_cast<char*>(pts_raw),sizeof(float)*vertex_number*3);
             os.write(reinterpret_cast<char*>(&vertex_number),sizeof(unsigned));
@@ -135,9 +135,9 @@ namespace OpenMEEG::MeshIOs {
 
             //  Triangles
 
-            unsigned* faces_raw = new unsigned[mesh.triangles().size()*3]; // Faces
+            unsigned* faces_raw = new unsigned[this_mesh.triangles().size()*3]; // Faces
             i = 0;
-            for (const auto& triangle : mesh.triangles()) {
+            for (const auto& triangle : this_mesh.triangles()) {
                 faces_raw[i*3+0] = vertex_index(triangle,0);
                 faces_raw[i*3+1] = vertex_index(triangle,1);
                 faces_raw[i*3+2] = vertex_index(triangle,2);
@@ -146,7 +146,7 @@ namespace OpenMEEG::MeshIOs {
 
             unsigned zero = 0;
             os.write(reinterpret_cast<char*>(&zero),sizeof(unsigned));
-            unsigned ntrgs = mesh.triangles().size();
+            unsigned ntrgs = this_mesh.triangles().size();
             os.write(reinterpret_cast<char*>(&ntrgs),sizeof(unsigned));
             os.write(reinterpret_cast<char*>(faces_raw),sizeof(unsigned)*ntrgs*3);
 

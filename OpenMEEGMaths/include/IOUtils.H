@@ -291,7 +291,7 @@ namespace io_utils {
             bool found;
             is >> match_optional(*i,found);
             if (found) {
-                index = i-alternatives.begin();
+                index = int(i-alternatives.begin());  // Windows cast from int64 to int
                 return is;
             }
         }
@@ -419,7 +419,7 @@ namespace io_utils {
     }
 
     //  Counts lines remaining in file.
-    
+
     inline std::istream&
     count_lines_internal(std::istream& is,unsigned& n) {
         std::ios::pos_type pos = is.tellg();

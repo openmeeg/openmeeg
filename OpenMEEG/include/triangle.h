@@ -50,7 +50,12 @@ namespace OpenMEEG {
 
         /// Constructors
 
+        #ifdef _MSC_VER
+        #pragma warning( suppress : 4245 )  // 'initializing': conversion from 'int' to 'unsigned int', signed/unsigned mismatch
         Triangle(): ind(-1) { }
+        #else
+        Triangle(): ind(-1) { }
+        #endif
 
         /// Create a new triangle from a set of vertices.
 
@@ -84,8 +89,8 @@ namespace OpenMEEG {
         const Vertex& vertex(const unsigned& vindex) const { return *vertices_[vindex]; }
 
         Edge edge(const Vertex& V) const {
-            const unsigned ind = vertex_index(V);
-            return Edge(vertex(indices[ind][0]),vertex(indices[ind][1]));
+            const unsigned indx = vertex_index(V);
+            return Edge(vertex(indices[indx][0]),vertex(indices[indx][1]));
         }
 
         Edges edges() const {

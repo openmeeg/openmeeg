@@ -10,6 +10,11 @@
 #include "range.h"
 #include "OpenMEEGMaths_Export.h"
 
+#if defined(_MSC_VER)
+    #pragma warning(disable : 4275) /* non dll-interface class X used as base for dll-interface struct Y */
+#endif
+
+
 namespace OpenMEEG {
     namespace maths {
 
@@ -33,7 +38,7 @@ namespace OpenMEEG {
 
             std::string whatstring;
         };
-        
+
         struct UnexpectedException: public Exception {
 
             UnexpectedException(const std::string& func,const std::string& file,const unsigned line): Exception(message(func,file,line)) { }
@@ -60,7 +65,7 @@ namespace OpenMEEG {
         };
 
         struct BadFile: public IOException {
-     
+
             BadFile(const std::string& fmtname):                  IOException(message(fmtname))    { }
             BadFile(std::istream& is,const std::string& fmtname): IOException(is,message(fmtname)) { }
 
@@ -72,7 +77,7 @@ namespace OpenMEEG {
         };
 
         struct BadFileOpening: public IOException {
-     
+
             typedef enum { READ, WRITE } Mode;
 
             BadFileOpening(const std::string& file,const Mode& mode):                  IOException(message(file,mode))    { }

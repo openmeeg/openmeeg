@@ -35,10 +35,10 @@ namespace OpenMEEG::MeshIOs {
 
             unsigned npts;
             fs >> io_utils::skip_comments("#") >> npts;
-            
+
             unsigned trash;
             fs >> ntriangles >> trash;
-            
+
             Vertices vertices;
             for (unsigned i=0; i<npts; ++i) {
                 Vertex v;
@@ -48,27 +48,27 @@ namespace OpenMEEG::MeshIOs {
             indmap = geom.add_vertices(vertices);
         }
 
-        void load_triangles(OpenMEEG::Mesh& mesh) override {
-            reference_vertices(mesh);
+        void load_triangles(OpenMEEG::Mesh& this_mesh) override {
+            reference_vertices(this_mesh);
 
-            mesh.triangles().reserve(ntriangles);
+            this_mesh.triangles().reserve(ntriangles);
             for (unsigned i=0; i<ntriangles; ++i) {
                 unsigned trash;
                 TriangleIndices t;
                 fs >> trash >> t[0] >> t[1] >> t[2];
-                mesh.add_triangle(t,indmap);
+                this_mesh.add_triangle(t,indmap);
             }
         }
 
-        void save(const OpenMEEG::Mesh& mesh,std::ostream& os) const override {
+        void save(const OpenMEEG::Mesh& this_mesh,std::ostream& os) const override {
             os << "OFF" << std::endl;
-            os << mesh.vertices().size() << " " << mesh.triangles().size() << " 0" << std::endl;
-            const VertexIndices& vertex_index(mesh);
+            os << this_mesh.vertices().size() << " " << this_mesh.triangles().size() << " 0" << std::endl;
+            const VertexIndices& vertex_index(this_mesh);
 
-            for (const auto& vertex : mesh.vertices())
+            for (const auto& vertex : this_mesh.vertices())
                 os << *vertex << std::endl;
 
-            for (const auto& triangle : mesh.triangles())
+            for (const auto& triangle : this_mesh.triangles())
                 os << "3 " << vertex_index(triangle,0) << ' '
                            << vertex_index(triangle,1) << ' '
                            << vertex_index(triangle,2) << std::endl;

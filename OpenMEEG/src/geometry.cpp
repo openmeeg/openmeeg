@@ -98,7 +98,7 @@ namespace OpenMEEG {
         if (is_nested()) {
             std::cout << "This geometry is a NESTED geometry." << std::endl;
         } else {
-            int shared = -vertices().size();
+            int shared = -(int)vertices().size(); // MSVC: unary minus operator applied to unsigned type, result still unsigned
             for (const auto& mesh : meshes())
                 shared += mesh.vertices().size();
 
@@ -229,7 +229,7 @@ namespace OpenMEEG {
                 try {
                     const Conductivity<double>& cond = properties.find(domain.name());
                     domain.set_conductivity(cond.sigma());
-                } catch (const Utils::Properties::UnknownProperty<HeadProperties::Id>& e) {
+                } catch (const Utils::Properties::UnknownProperty<HeadProperties::Id>&) {
                     throw OpenMEEG::BadDomain(domain.name());
                 }
             }

@@ -40,7 +40,7 @@ namespace OpenMEEG::GeometryIOs {
     //       contains domains descriptions, one per line. Each domain consist of:
     //
     //         o a domain name.
-    //         o a list of IDs (signed numbers or signed names): the sign ('+'by default) of the ID depicts 
+    //         o a list of IDs (signed numbers or signed names): the sign ('+'by default) of the ID depicts
     //           whether the interior or the exterior of the interface should be used to select the domain.
     //
     // Any line starting with # is considered a comment and is silently ignored.
@@ -148,7 +148,7 @@ namespace OpenMEEG::GeometryIOs {
     };
 
     void GeomFile::load_meshes(Geometry& geometry) {
-        
+
         fs.open(fname.c_str());
 
         if (!fs.is_open())
@@ -272,7 +272,7 @@ namespace OpenMEEG::GeometryIOs {
                 if (token=="shared") {
                     std::cerr << "(DEPRECATED) Ignoring the useless shared keyword. Please consider updating the geometry file " << fname
                               << " to the new 1.1 format (see data/README.rst)." << std::endl;
-                    break;                    
+                    break;
                 }
                 const SimpleDomain::Side side = (extract_sign(token)) ? SimpleDomain::Outside : SimpleDomain::Inside;
                 try {
@@ -298,7 +298,7 @@ namespace OpenMEEG::GeometryIOs {
 
         //  Create the list of interfaces.
 
-        std::vector<const Mesh*> meshes;
+        std::vector<const Mesh*> these_meshes;
         std::vector<const Interface*> interfaces;
         for (const auto& domain : geometry.domains())
             for (const auto& boundary : domain.boundaries()) {
@@ -307,14 +307,14 @@ namespace OpenMEEG::GeometryIOs {
                     interfaces.push_back(&interface);
                 for (const auto& omesh : interface.oriented_meshes()) {
                     const Mesh& mesh = omesh.mesh();
-                    if (std::find(meshes.begin(),meshes.end(),&mesh)!=meshes.end())
-                        meshes.push_back(&mesh);
+                    if (std::find(these_meshes.begin(),these_meshes.end(),&mesh)!=these_meshes.end())
+                        these_meshes.push_back(&mesh);
                 }
             }
 
-        fs << "Meshes " << meshes.size() << std::endl << std::endl;
-        
-        for (const auto& mesh : meshes) {
+        fs << "Meshes " << these_meshes.size() << std::endl << std::endl;
+
+        for (const auto& mesh : these_meshes) {
             fs << "Mesh " << mesh->name() << ": \"" << "" << '"' << std::endl;
         }
 
