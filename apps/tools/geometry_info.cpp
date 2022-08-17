@@ -31,10 +31,18 @@ main(int argc,char* argv[]) {
     }
 
     Geometry geo;
-    if (cond_filename!="") {
-        geo.load(geom_filename,std::string(cond_filename));
-    } else {
-        geo.load(geom_filename);
+    try {
+        if (cond_filename!="") {
+            geo.load(geom_filename,std::string(cond_filename));
+        } else {
+            geo.load(geom_filename);
+        }
+    } catch (maths::Exception& e) {
+        std::cerr << e.what() << std::endl;
+        return e.code();
+    } catch (Exception& e) {
+        std::cerr << e.what() << std::endl;
+        return e.code();
     }
 
     if (!geo.selfCheck())
