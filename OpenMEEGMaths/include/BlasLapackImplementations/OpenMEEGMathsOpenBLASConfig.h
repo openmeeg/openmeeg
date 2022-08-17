@@ -1,6 +1,5 @@
 #pragma once
 
-#pragma clang diagnostic ignored "-Wc99-extensions"
 
 // https://github.com/xianyi/OpenBLAS/wiki/How-to-use-OpenBLAS-in-Microsoft-Visual-Studio#visual-studio-2017-c2017-standard
 // https://github.com/xianyi/OpenBLAS/issues/3661
@@ -11,6 +10,8 @@
     #define LAPACK_COMPLEX_CUSTOM
     #define lapack_complex_float _Fcomplex
     #define lapack_complex_double _Dcomplex
+#elif defined(__clang__)
+    #pragma clang diagnostic ignored "-Wc99-extensions"
 #endif
 
 #include <cblas.h>
