@@ -1,6 +1,5 @@
 #pragma once
 
-
 // https://github.com/xianyi/OpenBLAS/wiki/How-to-use-OpenBLAS-in-Microsoft-Visual-Studio#visual-studio-2017-c2017-standard
 // https://github.com/xianyi/OpenBLAS/issues/3661
 // https://github.com/Reference-LAPACK/lapack/issues/683
