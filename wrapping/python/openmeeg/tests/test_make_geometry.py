@@ -22,7 +22,7 @@ def test_make_geometry(data_path):
     dirpath = op.join(data_path, subject)
 
     # Make sure we handle bad paths gracefully
-    with pytest.raises(RuntimeError, match="Error opening"):
+    with pytest.raises(IOError, match="Cannot open file"):
         om.Mesh(op.join(dirpath, "fake.1.tri"))
     meshes = dict()
     for key in ("cortex", "skull", "scalp"):

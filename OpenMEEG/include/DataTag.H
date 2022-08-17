@@ -10,7 +10,7 @@
 #include <string>
 #include <iostream>
 #include <IOUtils.H>
-#include <FileExceptions.H>
+#include <GeometryExceptions.H>
 
 namespace Types {
 
@@ -36,7 +36,7 @@ namespace Types {
         is >> io_utils::match_optional(tag.tag(),DataP);
 
         if (!DataP)
-            throw std::io_except::read_error(is);
+            throw OpenMEEG::BadContent("data", tag.tag());
 
         return is;
     }
