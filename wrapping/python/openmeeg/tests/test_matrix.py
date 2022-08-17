@@ -1,9 +1,10 @@
-import random
+import pytest
 import numpy as np
 import openmeeg as om
 
 
 def test_matrix():
+    rng = np.random.RandomState(0)
     W = np.asfortranarray([[0.0, 0.0, 3.0], [0.0, 2.0, 0.0], [1.0, 0.0, 0.0]])
     print("W of", W.__class__)
     print("W =", W, "\n")
@@ -35,10 +36,10 @@ def test_matrix():
         for j in range(c.ncol()):
             assert c.value(i, j) == a[i, j]
 
-    nlines = random.randrange(10, 20)
+    nlines = rng.randint(10, 20)
     ncols = nlines + 2  # test on not squared matric
 
-    mat_numpy = np.asfortranarray(np.random.randn(nlines, ncols))
+    mat_numpy = np.asfortranarray(rng.randn(nlines, ncols))
     mat_om = om.Matrix(mat_numpy)
 
     print("dimensions of mat_numpy: ", mat_numpy.shape)
@@ -68,3 +69,13 @@ def test_matrix():
     # Testing going back from OpenMEEG to numpy
     mat_om2np = mat_om.array()
     np.testing.assert_array_equal(mat_numpy, mat_om2np)
+
+    with pytest.raises(TypeError, match="can only have 2 dim"):
+        om.Matrix(np.zeros((1, 1, 1)))
+    with pytest.raises(TypeError, match="Fortran order"):
+        om.Matrix(np.zeros((2, 2)))
+    with pytest.raises(TypeError, match="Input object must.*OpenMEEG Matrix"):
+        om.Matrix([])
+    mat = om.Matrix(np.zeros((2, 2)).T)  # okay
+    with pytest.raises(IndexError, match="out of range"):
+        mat.value(2, 2)
