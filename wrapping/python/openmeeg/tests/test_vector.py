@@ -1,13 +1,8 @@
-import os
-import sys
 import numpy as np
 import pytest
 import openmeeg as om
 
-# vector mapping
-@pytest.mark.skipif(os.getenv('OPENMEEG_BAD_MKL') == '1' and
-                    sys.platform=='win32',
-                    reason='bad mkl windows')
+
 def test_vector():
     # om.Vector -> np.array
     V1 = om.Vector(3)
@@ -45,3 +40,10 @@ def test_vector():
     for i in range(3):
         assert W1[i] == V1.value(i)
     print("conversion between OpenMEEG:Vector <> numpy.array is OK")
+
+    # degenerate cases
+    with pytest.raises(TypeError, match="Input object is neither.*Vector"):
+        om.Vector("foo")
+    vec = om.Vector(3)
+    with pytest.raises(IndexError, match="Index out of range"):
+        vec.value(3)

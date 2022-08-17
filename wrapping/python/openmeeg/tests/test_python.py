@@ -71,7 +71,6 @@ def test_python(data_path):
         geom, dipoles, hm, h2em, h2mm, ds2mm
     )
 
-
     print("hm                  : %d x %d" % (hm.nlin(), hm.ncol()))
     print("hminv               : %d x %d" % (hminv.nlin(), hminv.ncol()))
     print("ssm                 : %d x %d" % (ssm.nlin(), ssm.ncol()))
@@ -81,23 +80,17 @@ def test_python(data_path):
     print("h2mm                : %d x %d" % (h2mm.nlin(), h2mm.ncol()))
     print("h2em                : %d x %d" % (h2mm.nlin(), h2mm.ncol()))
     print(
-        "gain_meg_surf       : %d x %d"
-        % (gain_meg_surf.nlin(), gain_meg_surf.ncol())
+        "gain_meg_surf       : %d x %d" % (gain_meg_surf.nlin(), gain_meg_surf.ncol())
     )
     print(
-        "gain_eeg_surf       : %d x %d"
-        % (gain_eeg_surf.nlin(), gain_eeg_surf.ncol())
+        "gain_eeg_surf       : %d x %d" % (gain_eeg_surf.nlin(), gain_eeg_surf.ncol())
     )
-    print(
-        "gain_meg_dip        : %d x %d" % (gain_meg_dip.nlin(), gain_meg_dip.ncol())
-    )
+    print("gain_meg_dip        : %d x %d" % (gain_meg_dip.nlin(), gain_meg_dip.ncol()))
     print(
         "gain_adjoint_meg_dip: %d x %d"
         % (gain_adjoint_meg_dip.nlin(), gain_adjoint_meg_dip.ncol())
     )
-    print(
-        "gain_eeg_dip        : %d x %d" % (gain_eeg_dip.nlin(), gain_eeg_dip.ncol())
-    )
+    print("gain_eeg_dip        : %d x %d" % (gain_eeg_dip.nlin(), gain_eeg_dip.ncol()))
     print(
         "gain_adjoint_eeg_dip: %d x %d"
         % (gain_adjoint_eeg_dip.nlin(), gain_adjoint_eeg_dip.ncol())

@@ -22,17 +22,20 @@ def make_geometry(meshes, interfaces, domains):
     if not isinstance(meshes, dict) or len(meshes) == 0:
         raise ValueError(
             "Wrong argument (should be a non empty dictionary of named "
-            "meshes). Got {type(meshes)}")
+            "meshes). Got {type(meshes)}"
+        )
 
     if not isinstance(interfaces, dict) or len(interfaces) == 0:
         raise ValueError(
             "Wrong argument (should be a non empty dictionary of named "
-            f"interfaces). Got {type(interfaces)}")
+            f"interfaces). Got {type(interfaces)}"
+        )
 
     if not isinstance(domains, dict) or len(domains) == 0:
         raise ValueError(
             "Wrong argument (should be a non empty dictionary of named "
-            f"domains). Got {type(domains)}")
+            f"domains). Got {type(domains)}"
+        )
 
     # First add mesh points
 
@@ -51,11 +54,11 @@ def make_geometry(meshes, interfaces, domains):
     for dname, domain in domains.items():
         domain_interfaces, conductivity = domain
 
-        if not isinstance(domain_interfaces, list) or \
-                len(domain_interfaces) == 0:
+        if not isinstance(domain_interfaces, list) or len(domain_interfaces) == 0:
             raise Exception(
                 f"wrong description of domain ({dname}), should be a "
-                "non-empty list of interfaces")
+                "non-empty list of interfaces"
+            )
 
         om_domain = Domain(dname)
         om_domain.set_conductivity(conductivity)
@@ -63,24 +66,30 @@ def make_geometry(meshes, interfaces, domains):
         for iname, side in domain_interfaces:
             if iname not in interfaces:
                 raise Exception(
-                    f"Domain {dname} contains and unknown interface {iname}.")
+                    f"Domain {dname} contains and unknown interface {iname}."
+                )
             oriented_meshes = interfaces[iname]
             if type(oriented_meshes) != list or len(oriented_meshes) == 0:
                 raise Exception(
                     f"Interface definition {iname} first argument should be a "
-                    "non-empty list of (mesh,orientation)")
+                    "non-empty list of (mesh,orientation)"
+                )
             if side != SimpleDomain.Inside and side != SimpleDomain.Outside:
                 raise Exception(
                     f"Domain {dname}: interface {iname} has a wrong side "
-                    "direction (In/Out)")
+                    "direction (In/Out)"
+                )
 
             om_interface = Interface(iname)
             for mesh_name, orientation in oriented_meshes:
-                if orientation != OrientedMesh.Normal and \
-                        orientation != OrientedMesh.Opposite:
+                if (
+                    orientation != OrientedMesh.Normal
+                    and orientation != OrientedMesh.Opposite
+                ):
                     raise Exception(
                         f"Wrong description for interface ({iname}), second "
-                        "tuple member should a be an orientation")
+                        "tuple member should a be an orientation"
+                    )
 
                 mesh = geom.mesh(mesh_name)
                 oriented_mesh = OrientedMesh(mesh, orientation)

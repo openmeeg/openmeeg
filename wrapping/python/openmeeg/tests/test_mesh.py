@@ -1,4 +1,3 @@
-import os
 from os import path as path
 
 import numpy as np
@@ -10,7 +9,7 @@ def test_mesh_full(data_path):
         try:
             mesh = om.Mesh(vertices, triangles)
             mesh.info()
-        except:
+        except Exception:
             if expected_result:
                 print("Test", name, "--> Failed")
                 assert False
@@ -22,8 +21,9 @@ def test_mesh_full(data_path):
             assert False
         print("Test", name, "--> Expected success")
 
-    vertices = np.array([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0],
-                        [1.0, 1.0, 0.0], [0.0, 1.0, 0.0]])
+    vertices = np.array(
+        [[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [1.0, 1.0, 0.0], [0.0, 1.0, 0.0]]
+    )
     triangles = np.array([[1, 2, 3], [2, 3, 0]])
 
     test_mesh("1", vertices, triangles, True)

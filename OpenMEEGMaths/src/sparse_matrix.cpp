@@ -10,122 +10,107 @@
 
 namespace OpenMEEG {
 
+    static inline double sqr(const double x) { return x*x; }
+
     double SparseMatrix::frobenius_norm() const {
         double d = 0.;
-        for ( const_iterator it = m_tank.begin() ; it != m_tank.end(); ++it) {
-            d += std::pow(it->second,2);
-        }
+        for (const auto& tkelmt : m_tank)
+            d += sqr(tkelmt.second);
         return sqrt(d);
     }
 
-    Vector SparseMatrix::operator*(const Vector &x) const
-    {
+    Vector SparseMatrix::operator*(const Vector& x) const {
         Vector ret(nlin());
         ret.set(0);
 
-        Tank::const_iterator it;
-        for(it = m_tank.begin(); it != m_tank.end(); ++it) {
-            size_t i = it->first.first;
-            size_t j = it->first.second;
-            double val = it->second;
-            ret(i) += val * x(j);
+        for (const auto& tkelmt : m_tank) {
+            const size_t i = tkelmt.first.first;
+            const size_t j = tkelmt.first.second;
+            const double val = tkelmt.second;
+            ret(i) += val*x(j);
         }
 
         return ret;
     }
 
-    Matrix SparseMatrix::operator*(const SymMatrix &mat) const
+    Matrix SparseMatrix::operator*(const SymMatrix& mat) const
     {
         om_assert(ncol()==mat.nlin());
         Matrix out(nlin(),mat.ncol());
         out.set(0.0);
 
-        Tank::const_iterator it;
-        for(it = m_tank.begin(); it != m_tank.end(); ++it) {
-            size_t i = it->first.first;
-            size_t j = it->first.second;
-            double val = it->second;
-            for(size_t k = 0; k < mat.ncol(); ++k) {
-                out(i,k) += val * mat(j,k);
-            }
+        for (const auto& tkelmt : m_tank) {
+            const size_t i = tkelmt.first.first;
+            const size_t j = tkelmt.first.second;
+            const double val = tkelmt.second;
+            for (size_t k=0; k<mat.ncol(); ++k)
+                out(i,k) += val*mat(j,k);
         }
 
         return out;
     }
 
-    Matrix SparseMatrix::operator*(const Matrix &mat) const
-    {
+    Matrix SparseMatrix::operator*(const Matrix& mat) const {
         om_assert(ncol()==mat.nlin());
         Matrix out(nlin(),mat.ncol());
         out.set(0.0);
 
-        for( Tank::const_iterator it = m_tank.begin(); it != m_tank.end(); ++it) {
-            size_t i = it->first.first;
-            size_t j = it->first.second;
-            double val = it->second;
-            for ( size_t k = 0; k < mat.ncol(); ++k) {
-                out(i, k) += val * mat(j, k);
-            }
+        for (const auto& tkelmt : m_tank) {
+            const size_t i = tkelmt.first.first;
+            const size_t j = tkelmt.first.second;
+            const double val = tkelmt.second;
+            for (size_t k=0; k<mat.ncol(); ++k)
+                out(i,k) += val*mat(j,k);
         }
 
         return out;
     }
 
-    SparseMatrix SparseMatrix::operator*(const SparseMatrix &mat) const
-    {
+    SparseMatrix SparseMatrix::operator*(const SparseMatrix& mat) const {
         // fast enough ?
-        om_assert(ncol() == mat.nlin());
-        SparseMatrix out(nlin(), mat.ncol());
+        om_assert(ncol()==mat.nlin());
+        SparseMatrix out(nlin(),mat.ncol());
 
-        for ( Tank::const_iterator it1 = m_tank.begin(); it1 != m_tank.end(); ++it1) {
-            size_t i = it1->first.first;
-            size_t j = it1->first.second;
-            for ( Tank::const_iterator it2 = mat.begin(); it2 != mat.end(); ++it2) {
-                if ( it2->first.first == j ) {
-                    out(i, it2->first.second) += it1->second * it2->second;
-                }
-            }
+        for (const auto& tkelmt1 : m_tank) {
+            const size_t i = tkelmt1.first.first;
+            const size_t j = tkelmt1.first.second;
+            for (const auto& elmt2 : mat)
+                if (elmt2.first.first==j)
+                    out(i,elmt2.first.second) += tkelmt1.second*elmt2.second;
         }
         return out;
     }
 
-    SparseMatrix SparseMatrix::operator+(const SparseMatrix &mat) const
-    {
-        om_assert(nlin() == mat.nlin() && ncol() == mat.ncol());
-        SparseMatrix out(nlin(), ncol());
+    SparseMatrix SparseMatrix::operator+(const SparseMatrix& mat) const {
+        om_assert(nlin()==mat.nlin() && ncol()==mat.ncol());
+        SparseMatrix out(nlin(),ncol());
 
-        for ( Tank::const_iterator it = m_tank.begin(); it != m_tank.end(); ++it) {
-            size_t i = it->first.first;
-            size_t j = it->first.second;
-            out(i, j) += it->second;
+        for (const auto& tkelmt : m_tank) {
+            const size_t i = tkelmt.first.first;
+            const size_t j = tkelmt.first.second;
+            out(i,j) += tkelmt.second;
         }
-        for ( Tank::const_iterator it = mat.begin(); it != mat.end(); ++it) {
-            size_t i = it->first.first;
-            size_t j = it->first.second;
-            out(i, j) += it->second;
+        for (const auto& tkelmt : m_tank) {
+            const size_t i = tkelmt.first.first;
+            const size_t j = tkelmt.first.second;
+            out(i,j) += tkelmt.second;
         }
         return out;
     }
 
     SparseMatrix SparseMatrix::transpose() const {
         SparseMatrix tsp(ncol(),nlin());
-        const_iterator it;
-        for(it = m_tank.begin(); it != m_tank.end(); ++it) {
-            size_t i = it->first.first;
-            size_t j = it->first.second;
-            tsp(j,i) = it->second;
+        for (const auto& tkelmt : m_tank) {
+            const size_t i = tkelmt.first.first;
+            const size_t j = tkelmt.first.second;
+            tsp(j,i) = tkelmt.second;
         }
         return tsp;
     }
 
-    void SparseMatrix::set(double d) {
-        for( iterator it = m_tank.begin(); it != m_tank.end(); ++it) {
-            it->second = d;
-        }
-    }
 
     void SparseMatrix::info() const {
-        if ((nlin() == 0) || (ncol() == 0) || m_tank.empty()) {
+        if (nlin()==0 || ncol()==0 || m_tank.empty()) {
             std::cout << "Matrix Empty" << std::endl;
             return;
         }
@@ -139,50 +124,26 @@ namespace OpenMEEG {
         size_t minj = 0;
         size_t maxj = 0;
 
-        for (Tank::const_iterator it=m_tank.begin();it!=m_tank.end();++it) {
-            if (minv>it->second) {
-                minv = it->second;
-                mini = it->first.first;
-                minj = it->first.second;
-            } else if (maxv<it->second) {
-                maxv = it->second;
-                maxi = it->first.first;
-                maxj = it->first.second;
+        for (const auto& tkelmt : m_tank)
+            if (minv>tkelmt.second) {
+                minv = tkelmt.second;
+                mini = tkelmt.first.first;
+                minj = tkelmt.first.second;
+            } else if (maxv<tkelmt.second) {
+                maxv = tkelmt.second;
+                maxi = tkelmt.first.first;
+                maxj = tkelmt.first.second;
             }
-        }
 
         std::cout << "Min Value : " << minv << " (" << mini << "," << minj << ")" << std::endl;
         std::cout << "Max Value : " << maxv << " (" << maxi << "," << maxj << ")" << std::endl;
         std::cout << "First Values" << std::endl;
 
         size_t cnt = 0;
-        for(Tank::const_iterator it = m_tank.begin(); it != m_tank.end() && cnt < 5; ++it) {
-            std::cout << "(" << it->first.first << "," << it->first.second << ") " << it->second << std::endl;
-            cnt++;
-        }
-    }
-
-    // =======
-    // = IOs =
-    // =======
-
-    void SparseMatrix::load(const char *filename) {
-        maths::ifstream ifs(filename);
-        try {
-            ifs >> maths::format(filename,maths::format::FromSuffix) >> *this;
-        }
-        catch (maths::Exception& e) {
-            ifs >> *this;
-        }
-    }
-
-    void SparseMatrix::save(const char *filename) const {
-        maths::ofstream ofs(filename);
-        try {
-            ofs << maths::format(filename,maths::format::FromSuffix) << *this;
-        }
-        catch (maths::Exception& e) {
-            ofs << *this;
+        for (const auto& tkelmt : m_tank) {
+            std::cout << "(" << tkelmt.first.first << "," << tkelmt.first.second << ") " << tkelmt.second << std::endl;
+            if (++cnt==5)
+                break;
         }
     }
 }

@@ -18,10 +18,6 @@
 
 #include <Exceptions.H>
 
-#ifdef WIN32
-#pragma warning( disable : 4290)    //MSVC warning C4290
-#endif
-
 namespace OpenMEEG {
     namespace maths {
 
