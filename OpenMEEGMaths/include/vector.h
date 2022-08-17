@@ -194,9 +194,7 @@ namespace OpenMEEG {
     #ifdef HAVE_BLAS
         return BLAS(dnrm2,DNRM2)(sizet_to_int(nlin()),data(),1);
     #else
-        std::cout << "'Vector::norm' not implemented" << std::endl;
-        exit(1);
-        return 0;
+        throw OpenMEEG::maths::LinearAlgebraError("'Vector::norm' not implemented, requires BLAS");
     #endif
     }
 

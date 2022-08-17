@@ -16,7 +16,8 @@ namespace OpenMEEG {
         typedef enum { UNEXPECTED = 128, IO_EXCPT,
                        BAD_FILE, BAD_FILE_OPEN, BAD_CONTENT, NO_SUFFIX, BAD_HDR, BAD_DATA, BAD_VECT, UNKN_DIM, BAD_SYMM_MAT,
                        BAD_STORAGE_TYPE, NO_IO, NON_EXISTING_RANGE, OVERLAPPING_RANGES, NON_EXISTING_BLOCK, MATIO_ERROR,
-                       UNKN_FILE_FMT, UNKN_FILE_SUFFIX, NO_FILE_FMT, UNKN_NAMED_FILE_FMT, IMPOSSIBLE_IDENTIFICATION
+                       UNKN_FILE_FMT, UNKN_FILE_SUFFIX, NO_FILE_FMT, UNKN_NAMED_FILE_FMT, IMPOSSIBLE_IDENTIFICATION,
+                       BAD_SPARSE_OPERATION, BAD_LINEAR_ALGEBRA
                      } ExceptionCode;
 
         class Exception: public std::exception {
@@ -33,7 +34,7 @@ namespace OpenMEEG {
 
             std::string whatstring;
         };
-        
+
         struct UnexpectedException: public Exception {
 
             UnexpectedException(const std::string& func,const std::string& file,const unsigned line): Exception(message(func,file,line)) { }
@@ -60,7 +61,7 @@ namespace OpenMEEG {
         };
 
         struct BadFile: public IOException {
-     
+
             BadFile(const std::string& fmtname):                  IOException(message(fmtname))    { }
             BadFile(std::istream& is,const std::string& fmtname): IOException(is,message(fmtname)) { }
 
@@ -72,7 +73,7 @@ namespace OpenMEEG {
         };
 
         struct BadFileOpening: public IOException {
-     
+
             typedef enum { READ, WRITE } Mode;
 
             BadFileOpening(const std::string& file,const Mode& mode):                  IOException(message(file,mode))    { }
@@ -277,6 +278,16 @@ namespace OpenMEEG {
         struct UnknownNamedFileFormat: public Exception {
             UnknownNamedFileFormat(const std::string& name): Exception(std::string("Unknown format for file "+name+".")) { }
             ExceptionCode code() const throw() { return UNKN_NAMED_FILE_FMT; }
+        };
+
+        struct BadSparseOperation: public Exception {
+            BadSparseOperation(const std::string& what): Exception(what) { }
+            ExceptionCode code() const throw() { return BAD_SPARSE_OPERATION; }
+        };
+
+        struct LinearAlgebraError: public Exception {
+            LinearAlgebraError(const std::string& what): Exception(what) { }
+            ExceptionCode code() const throw() { return BAD_LINEAR_ALGEBRA; }
         };
     }
 }

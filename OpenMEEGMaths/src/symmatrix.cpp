@@ -145,8 +145,7 @@ namespace OpenMEEG {
         om_assert(Info == 0);
         return RHS;
     #else
-        std::cerr << "!!!!! solveLin not defined : Try a GMres !!!!!" << std::endl;
-        exit(1);
+        throw OpenMEEG::maths::LinearAlgebraError("solveLin not defined without LAPACK: Try a GMres");
     #endif
     }
 
