@@ -206,8 +206,7 @@ namespace OpenMEEG {
         }
         delete[] pivots;
     #else
-        std::cerr << "Determinant not defined without LAPACK" << std::endl;
-        exit(1);
+        throw OpenMEEG::maths::LinearAlgebraError("Determinant not defined without LAPACK");
     #endif
         return(d);
     }
@@ -221,18 +220,18 @@ namespace OpenMEEG {
     //     SymMatrix symtemp(*this,DEEP_COPY);
     //     D = Vector(nlin());
     //     Z = Matrix(nlin(),nlin());
-    // 
+    //
     //     int info;
     //     double lworkd;
     //     int lwork;
     //     int liwork;
-    // 
+    //
     //     DSPEVD('V','U',sizet_to_int(nlin()),symtemp.data(),D.data(),Z.data(),sizet_to_int(nlin()),&lworkd,-1,&liwork,-1,info);
     //     lwork = (int) lworkd;
     //     double * work = new double[lwork];
     //     BLAS_INT *iwork = new BLAS_INT[liwork];
     //     DSPEVD('V','U',sizet_to_int(nlin()),symtemp.data(),D.data(),Z.data(),sizet_to_int(nlin()),work,lwork,iwork,liwork,info);
-    // 
+    //
     //     delete[] work;
     //     delete[] iwork;
     // #endif
@@ -269,8 +268,7 @@ namespace OpenMEEG {
         delete[] work;
         return invA;
     #else
-        std::cerr << "!!!!! Inverse not implemented !!!!!" << std::endl;
-        exit(1);
+        throw OpenMEEG::maths::LinearAlgebraError("Inverse not implemented, requires LAPACK");
     #endif
     }
 
@@ -290,8 +288,7 @@ namespace OpenMEEG {
         delete[] work;
         return;
     #else
-        std::cerr << "!!!!! Inverse not implemented !!!!!" << std::endl;
-        exit(1);
+        throw OpenMEEG::maths::LinearAlgebraError("Inverse not implemented, requires LAPACK");
     #endif
     }
 

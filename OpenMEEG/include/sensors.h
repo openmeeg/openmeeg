@@ -110,7 +110,7 @@ namespace OpenMEEG {
         void load(const char* filename,const char filetype='t');
         void load(const std::string& filename,const char filetype='t') { load(filename.c_str(),filetype); }
 
-        /// Load description file of sensors from stream. 
+        /// Load description file of sensors from stream.
 
         void load(std::istream& in);
 
@@ -167,16 +167,14 @@ namespace OpenMEEG {
 
         void setOrientation(const size_t idx,const Vector& orient) { return m_orientations.setlin(idx,orient); }
 
-        bool hasSensor(const std::string& name) const { 
+        bool hasSensor(const std::string& name) const {
             return std::find(m_names.begin(),m_names.end(),name)!=m_names.end();
         }
 
         size_t getSensorIdx(const std::string& name) const {
             const auto& it = std::find(m_names.begin(),m_names.end(),name);
-            if (it==m_names.end()) {
-                std::cerr << "Unknown sensor : " << name << std::endl;
-                exit(1);
-            }
+            if (it==m_names.end())
+                throw OpenMEEG::SensorError("Unknown sensor \"" + name + "\"");
             return std::distance(m_names.begin(),it);
         }
 

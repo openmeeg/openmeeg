@@ -15,6 +15,7 @@
 #include <mesh.h>
 #include <geometry.h>
 #include <filenames.h>
+#include <OMExceptions.H>
 
 namespace OpenMEEG {
 
@@ -36,12 +37,8 @@ namespace OpenMEEG {
 
         void open(const std::ios_base::openmode mode=std::ios_base::in) {
             fs.open(fname,(binary()) ? mode|std::ios_base::binary : mode);
-            if (!fs.is_open()) {
-                std::ostringstream ost;
-                ost << "Error opening " << name() << " file: " << fname << " for reading." << std::endl;
-                // TODO this should use read_error from FileExceptions.H, then we should look for io_error in openmeeg.i and reraise as SWIG_IOError
-                throw std::invalid_argument(ost.str());
-            }
+            if (!fs.is_open())
+                throw OpenMEEG::OpenError(name());
         }
 
         virtual void load_points(Geometry& geom) = 0;

@@ -316,8 +316,7 @@ namespace OpenMEEG {
         #endif
         return invA;
     #else
-        std::cerr << "!!!!! Inverse not implemented !!!!!" << std::endl;
-        exit(1);
+        throw OpenMEEG::maths::LinearAlgebraError("Inverse not implemented, requires LAPACK");
     #endif
     }
 

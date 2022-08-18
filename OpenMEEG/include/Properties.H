@@ -31,7 +31,7 @@ namespace Utils {
         class UnknownProperty: public std::runtime_error {
         public:
             UnknownProperty(const ID& i): std::runtime_error("Unknown property"), id(i) { }
-            ~UnknownProperty() throw() { }
+            ~UnknownProperty() noexcept { }
             ID id;
         };
 
@@ -39,7 +39,7 @@ namespace Utils {
         class MultiplyDefinedProperty: public std::runtime_error {
         public:
             MultiplyDefinedProperty(const ID& i): std::runtime_error("Property defined multiple times"), id(i) { }
-            ~MultiplyDefinedProperty() throw() { }
+            ~MultiplyDefinedProperty() noexcept { }
             ID id;
         };
 

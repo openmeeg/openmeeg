@@ -15,7 +15,7 @@
 #include <range.h>
 #include <ranges.h>
 #include <matrix.h>
-#include <Exceptions.H>
+#include <OMMathExceptions.H>
 
 namespace OpenMEEG::maths {
 

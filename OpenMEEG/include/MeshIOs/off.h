@@ -15,7 +15,7 @@
 
 #include <om_utils.h>
 #include <MeshIO.h>
-#include <GeometryExceptions.H>
+#include <OMExceptions.H>
 
 namespace OpenMEEG::MeshIOs {
 

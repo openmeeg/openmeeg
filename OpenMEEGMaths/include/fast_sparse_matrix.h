@@ -203,8 +203,7 @@ namespace OpenMEEG {
             else break;
         }
 
-        std::cerr<<"FastSparseMatrix : double& operator()(size_t i,size_t j) can't add element"<<std::endl;
-        exit(1);
+        throw OpenMEEG::maths::BadSparseOperation("FastSparseMatrix : double& operator()(size_t i,size_t j) can't add element");
     }
 
     inline Vector FastSparseMatrix::operator * (const Vector &v) const

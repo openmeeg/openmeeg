@@ -12,7 +12,7 @@
 #include <string>
 
 #include <interface.h>
-#include <GeometryExceptions.H>
+#include <OMExceptions.H>
 #include <IOUtils.H>
 #include <GeometryIO.h>
 #include <MeshIO.h>
@@ -247,7 +247,7 @@ namespace OpenMEEG::GeometryIOs {
             if (!interface.is_mesh_orientations_coherent()) { // check and correct global orientation
                 std::cerr << "Interface \"" << interface.name() << "\" is not closed !" << std::endl
                           << "Please correct a mesh orientation when defining the interface in the geometry file." << std::endl;
-                exit(1);
+                throw OpenMEEG::WrongFileFormat(fname);
             }
         }
 

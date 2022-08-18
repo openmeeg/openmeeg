@@ -25,7 +25,7 @@ def test_geometry():
     with pytest.raises(ValueError, match="Vertices.*2 dim.*3 columns"):
         g.add_vertices(np.array([[0.0]]))
     # TODO should be IOError and have a better error message
-    with pytest.raises(RuntimeError, match="Unknown foo suffix"):
+    with pytest.raises(IOError, match="Unknown foo suffix"):
         om.Geometry("a.foo")
     with pytest.raises(TypeError, match="Argument.*must be a list"):
         om.Geometry(())

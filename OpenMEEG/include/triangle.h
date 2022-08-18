@@ -13,7 +13,7 @@
 #include <vect3.h>
 #include <vertex.h>
 #include <edge.h>
-#include <GeometryExceptions.H>
+#include <OMExceptions.H>
 
 namespace OpenMEEG {
 

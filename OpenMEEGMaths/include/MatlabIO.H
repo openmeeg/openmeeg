@@ -9,7 +9,7 @@
 
 #include <matio.h>
 
-#include <Exceptions.H>
+#include <OMMathExceptions.H>
 #include "MathsIO.H"
 #include "sparse_matrix.h"
 #include "matrix.h"

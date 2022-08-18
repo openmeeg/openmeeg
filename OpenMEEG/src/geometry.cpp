@@ -156,15 +156,15 @@ namespace OpenMEEG {
     }
 
     void Geometry::save(const std::string& filename) const {
-        GeometryIO* io = GeometryIO::create(filename);
         try {
+            GeometryIO* io = GeometryIO::create(filename);
             io->save(*this);
         } catch (OpenMEEG::Exception& e) {
-            std::cerr << e.what() << " in the file " << filename << std::endl;
-            exit(e.code());
+            std::string& message = e.what();
+            message += " in the file "+filename+'.';
+            throw;
         } catch (...) {
-            std::cerr << "Could not write the geometry file: " << filename << std::endl;
-            exit(1);
+            throw GenericError(std::string("Could not write the geometry file: ")+filename+'.');
         }
     }
 
@@ -173,14 +173,15 @@ namespace OpenMEEG {
         try {
             io->load(*this);
         } catch (OpenMEEG::Exception& e) {
-            std::cerr << e.what() << " in the file " << filename << std::endl;
-            exit(e.code());
+            std::string& message = e.what();
+            message += " in the file "+filename+'.';
+            throw;
         } catch (std::invalid_argument& e) {
-            std::cerr << e.what() << " for the file " << filename << std::endl;
-            exit(1);
+            std::string message = e.what();
+            message += " for the file "+filename+'.';
+            throw std::invalid_argument(message);
         } catch (...) {
-            std::cerr << "Could not read the geometry file: " << filename << std::endl;
-            exit(1);
+            throw OpenMEEG::GenericError(std::string("Could not read the geometry file: ")+filename+'.');
         }
     }
 
@@ -226,20 +227,18 @@ namespace OpenMEEG {
             // Store the internal conductivity of the external boundary of domain i
             // and store the external conductivity of the internal boundary of domain i
 
-            for (auto& domain : domains()) {
-                try {
-                    const Conductivity<double>& cond = properties.find(domain.name());
-                    domain.set_conductivity(cond.sigma());
-                } catch (const Utils::Properties::UnknownProperty<HeadProperties::Id>&) {
-                    throw OpenMEEG::BadDomain(domain.name());
-                }
+            for (auto& domain : domains()) try {
+                const Conductivity<double>& cond = properties.find(domain.name());
+                domain.set_conductivity(cond.sigma());
+            } catch (const Utils::Properties::UnknownProperty<HeadProperties::Id>&) {
+                throw OpenMEEG::BadDomain(domain.name());
             }
         } catch (OpenMEEG::Exception& e) {
-            std::cerr << e.what() << " in the file " << filename << std::endl;
-            exit(e.code());
+            std::string& message = e.what();
+            message += " in the file "+filename+'.';
+            throw;
         } catch (...) {
-            std::cerr << "Could not read the conductivity file: " << filename << std::endl;
-            exit(1);
+            throw OpenMEEG::GenericError(std::string("Could not read the conductivity file: ")+filename+'.');
         }
         conductivities = true;
     }

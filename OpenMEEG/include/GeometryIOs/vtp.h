@@ -53,11 +53,9 @@ namespace OpenMEEG::GeometryIOs {
             //  Check that the mesh is a triangulation.
 
             for (unsigned i=0; i<ntrgs; ++i)
-                if (vtkMesh->GetCellType(i)!=VTK_TRIANGLE) {
-                    std::cerr << "This is not a triangulation" << std::endl;
-                    exit(1);
-                }
-            
+                if (vtkMesh->GetCellType(i)!=VTK_TRIANGLE)
+                    throw OpenMEEG::VTKError("GetCellType was not VTK_TRIANGLE, this is not a valid triangulation");
+
             //  Add vertices.
 
             int trash;
@@ -114,7 +112,7 @@ namespace OpenMEEG::GeometryIOs {
 
         Matrix load_data() const override {
 
-            const unsigned nl = vtkMesh->GetNumberOfPoints()+vtkMesh->GetNumberOfCells(); 
+            const unsigned nl = vtkMesh->GetNumberOfPoints()+vtkMesh->GetNumberOfCells();
             const unsigned nc = vtkMesh->GetPointData()->GetNumberOfArrays()-1;
 
             if (nl==0 || nc==0)
@@ -193,7 +191,6 @@ namespace OpenMEEG::GeometryIOs {
             vtkMesh->SetPolys(cells);
             vtkMesh->GetCellData()->AddArray(cell_id);
             vtkMesh->GetCellData()->AddArray(cell_indices);
-
         }
 
         void save_data(const Geometry& geometry,const Matrix& data) const override {
@@ -267,12 +264,11 @@ namespace OpenMEEG::GeometryIOs {
     protected:
 
         void load_meshes(Geometry&) override {
-            std::cerr << "Error: please specify USE_VTK to cmake" << std::endl; // TODO in Legacy format ? // Exceptions
+            throw OpenMEEG::VTKError("OpenMEEG was not compiled with VTK support. Specify USE_VTK in cmake.");
         }
 
         Matrix load_data() const override {
-            std::cerr << "Error: please specify USE_VTK to cmake" << std::endl; // TODO in Legacy format ? // Exceptions
-            throw "";
+            throw OpenMEEG::VTKError("OpenMEEG was not compiled with VTK support. Specify USE_VTK in cmake.");
         }
 
     private:
