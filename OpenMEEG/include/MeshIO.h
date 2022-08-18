@@ -58,9 +58,9 @@ namespace OpenMEEG {
 
         virtual void save(const Mesh& mesh,std::ostream& os) const = 0;
 
-        virtual void save(const Mesh& this_mesh) {
+        virtual void save(const Mesh& mesh) {
             open(std::ios_base::out);
-            save(this_mesh,fs);
+            save(mesh,fs);
             fs.close();
         }
 
@@ -89,7 +89,7 @@ namespace OpenMEEG {
         virtual MeshIO* clone(const std::string& filename) const = 0;
         virtual bool binary() const { return false; }
 
-        void reference_vertices(Mesh& this_mesh) const { this_mesh.reference_vertices(indmap); }
+        void reference_vertices(Mesh& mesh) const { mesh.reference_vertices(indmap); }
 
         static Registery registery;
 
@@ -97,7 +97,6 @@ namespace OpenMEEG {
 
         std::string  fname;
         std::fstream fs;
-        Mesh*        mesh;
         IndexMap     indmap;
     };
 }
