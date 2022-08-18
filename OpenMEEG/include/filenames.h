@@ -37,19 +37,12 @@ namespace OpenMEEG {
     }
 
     inline std::string
-    #ifdef _MSC_VER
-    #pragma warning( push )
-    #pragma warning( disable:4244 )  /*  warning C4244: '=': conversion from 'int' to 'char', possible loss of data */
-    #endif
     tolower(const std::string& s) {
         std::string res = s;
         std::transform(res.begin(),res.end(),res.begin(),
-                       [](unsigned char c){ return std::tolower(c); });
+                       [](unsigned char c){ return static_cast<unsigned char>(std::tolower(c)); });
         return res;
     }
-    #ifdef _MSC_VER
-    #pragma warning( pop )
-    #endif
 
     /// \return absolute path of file \param name .
 
