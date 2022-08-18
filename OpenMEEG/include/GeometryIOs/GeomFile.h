@@ -311,9 +311,9 @@ namespace OpenMEEG::GeometryIOs {
                 }
             }
 
-        fs << "Meshes " << these_meshes.size() << std::endl << std::endl;
+        fs << "Meshes " << meshes.size() << std::endl << std::endl;
 
-        for (const auto& mesh : these_meshes) {
+        for (const auto& mesh : meshes) {
             fs << "Mesh " << mesh->name() << ": \"" << "" << '"' << std::endl;
         }
 
