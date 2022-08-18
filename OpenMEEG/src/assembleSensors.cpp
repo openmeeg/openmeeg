@@ -12,7 +12,7 @@
 
 #include <constants.h>
 #include <sparse_matrix.h>
-#include <GeometryExceptions.H>
+#include <OMExceptions.H>
 
 namespace OpenMEEG {
 
@@ -136,7 +136,7 @@ namespace OpenMEEG {
         const Matrix& orientations = sensors.getOrientations();
 
         if (dipoles.ncol()!=6)
-            throw OpenMEEG::DipoleError("Dipoles File Format Error, expecting 6 columns");
+            throw OpenMEEG::DipoleError("expecting 6 columns.");
 
         // This Matrix will contain the field generated at the location of the i-th squid by the j-th source
 

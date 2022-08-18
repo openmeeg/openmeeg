@@ -16,7 +16,7 @@
 
 #include "linop.h"
 
-#include <Exceptions.H>
+#include <OMMathExceptions.H>
 
 namespace OpenMEEG {
     namespace maths {
@@ -112,7 +112,7 @@ namespace OpenMEEG {
             virtual void read(std::ifstream&,LinOp&) const = 0;
             virtual void write(std::ofstream&,const LinOp&) const = 0;
 
-            virtual bool known_suffix(const char* suffix)  const throw() {
+            virtual bool known_suffix(const char* suffix)  const noexcept {
                 const Suffixes& suffs = suffixes();
                 for (Suffixes::const_iterator i=suffs.begin();i!=suffs.end();++i) {
                     if (!strcmp(suffix,i->c_str()))

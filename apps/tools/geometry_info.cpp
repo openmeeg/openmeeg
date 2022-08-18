@@ -40,7 +40,7 @@ main(int argc,char* argv[]) {
     } catch (maths::Exception& e) {
         std::cerr << e.what() << std::endl;
         return e.code();
-    } catch (Exception& e) {
+    } catch (OpenMEEG::Exception& e) {
         std::cerr << e.what() << std::endl;
         return e.code();
     }

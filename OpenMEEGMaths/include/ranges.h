@@ -11,7 +11,7 @@
 #include <vector>
 
 #include <range.h>
-#include <Exceptions.H>
+#include <OMMathExceptions.H>
 
 #include "OpenMEEGMathsConfig.h"
 

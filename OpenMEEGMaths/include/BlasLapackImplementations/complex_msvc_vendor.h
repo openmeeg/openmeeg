@@ -159,112 +159,112 @@ extern "C++"
     // double complex overloads
     //
     //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    inline _Dcomplex __CRTDECL acos(_In_ _Dcomplex _X) throw()
+    inline _Dcomplex __CRTDECL acos(_In_ _Dcomplex _X) noexcept
     {
         return cacos(_X);
     }
 
-    inline _Dcomplex __CRTDECL acosh(_In_ _Dcomplex _X) throw()
+    inline _Dcomplex __CRTDECL acosh(_In_ _Dcomplex _X) noexcept
     {
         return cacosh(_X);
     }
 
-    inline _Dcomplex __CRTDECL asin(_In_ _Dcomplex _X) throw()
+    inline _Dcomplex __CRTDECL asin(_In_ _Dcomplex _X) noexcept
     {
         return casin(_X);
     }
 
-    inline _Dcomplex __CRTDECL asinh(_In_ _Dcomplex _X) throw()
+    inline _Dcomplex __CRTDECL asinh(_In_ _Dcomplex _X) noexcept
     {
         return casinh(_X);
     }
 
-    inline _Dcomplex __CRTDECL atan(_In_ _Dcomplex _X) throw()
+    inline _Dcomplex __CRTDECL atan(_In_ _Dcomplex _X) noexcept
     {
         return catan(_X);
     }
 
-    inline _Dcomplex __CRTDECL atanh(_In_ _Dcomplex _X) throw()
+    inline _Dcomplex __CRTDECL atanh(_In_ _Dcomplex _X) noexcept
     {
         return catanh(_X);
     }
 
-    inline _Dcomplex __CRTDECL cos(_In_ _Dcomplex _X) throw()
+    inline _Dcomplex __CRTDECL cos(_In_ _Dcomplex _X) noexcept
     {
         return ccos(_X);
     }
 
-    inline _Dcomplex __CRTDECL cosh(_In_ _Dcomplex _X) throw()
+    inline _Dcomplex __CRTDECL cosh(_In_ _Dcomplex _X) noexcept
     {
         return ccosh(_X);
     }
 
-    inline _Dcomplex __CRTDECL proj(_In_ _Dcomplex _X) throw()
+    inline _Dcomplex __CRTDECL proj(_In_ _Dcomplex _X) noexcept
     {
         return cproj(_X);
     }
 
-    inline _Dcomplex __CRTDECL exp(_In_ _Dcomplex _X) throw()
+    inline _Dcomplex __CRTDECL exp(_In_ _Dcomplex _X) noexcept
     {
         return cexp(_X);
     }
 
-    inline _Dcomplex __CRTDECL log(_In_ _Dcomplex _X) throw()
+    inline _Dcomplex __CRTDECL log(_In_ _Dcomplex _X) noexcept
     {
         return clog(_X);
     }
 
-    inline _Dcomplex __CRTDECL log10(_In_ _Dcomplex _X) throw()
+    inline _Dcomplex __CRTDECL log10(_In_ _Dcomplex _X) noexcept
     {
         return clog10(_X);
     }
 
-    inline _Dcomplex __CRTDECL pow(_In_ _Dcomplex _X, _In_ _Dcomplex _Y) throw()
+    inline _Dcomplex __CRTDECL pow(_In_ _Dcomplex _X, _In_ _Dcomplex _Y) noexcept
     {
         return cpow(_X, _Y);
     }
 
-    inline _Dcomplex __CRTDECL sin(_In_ _Dcomplex _X) throw()
+    inline _Dcomplex __CRTDECL sin(_In_ _Dcomplex _X) noexcept
     {
         return csin(_X);
     }
 
-    inline _Dcomplex __CRTDECL sinh(_In_ _Dcomplex _X) throw()
+    inline _Dcomplex __CRTDECL sinh(_In_ _Dcomplex _X) noexcept
     {
         return csinh(_X);
     }
 
-    inline _Dcomplex __CRTDECL sqrt(_In_ _Dcomplex _X) throw()
+    inline _Dcomplex __CRTDECL sqrt(_In_ _Dcomplex _X) noexcept
     {
         return csqrt(_X);
     }
 
-    inline _Dcomplex __CRTDECL tan(_In_ _Dcomplex _X) throw()
+    inline _Dcomplex __CRTDECL tan(_In_ _Dcomplex _X) noexcept
     {
         return ctan(_X);
     }
 
-    inline _Dcomplex __CRTDECL tanh(_In_ _Dcomplex _X) throw()
+    inline _Dcomplex __CRTDECL tanh(_In_ _Dcomplex _X) noexcept
     {
         return ctanh(_X);
     }
 
-    inline double __CRTDECL abs(_In_ _Dcomplex _X) throw()
+    inline double __CRTDECL abs(_In_ _Dcomplex _X) noexcept
     {
         return cabs(_X);
     }
 
-    inline double __CRTDECL arg(_In_ _Dcomplex _X) throw()
+    inline double __CRTDECL arg(_In_ _Dcomplex _X) noexcept
     {
         return carg(_X);
     }
 
-    inline double __CRTDECL imag(_In_ _Dcomplex _X) throw()
+    inline double __CRTDECL imag(_In_ _Dcomplex _X) noexcept
     {
         return cimag(_X);
     }
 
-    inline double __CRTDECL real(_In_ _Dcomplex _X) throw()
+    inline double __CRTDECL real(_In_ _Dcomplex _X) noexcept
     {
         return creal(_X);
     }
@@ -276,142 +276,142 @@ extern "C++"
     // float complex overloads
     //
     //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    inline _Fcomplex __CRTDECL acos(_In_ _Fcomplex _X) throw()
+    inline _Fcomplex __CRTDECL acos(_In_ _Fcomplex _X) noexcept
     {
         return cacosf(_X);
     }
 
-    inline _Fcomplex __CRTDECL acosh(_In_ _Fcomplex _X) throw()
+    inline _Fcomplex __CRTDECL acosh(_In_ _Fcomplex _X) noexcept
     {
         return cacoshf(_X);
     }
 
-    inline _Fcomplex __CRTDECL asin(_In_ _Fcomplex _X) throw()
+    inline _Fcomplex __CRTDECL asin(_In_ _Fcomplex _X) noexcept
     {
         return casinf(_X);
     }
 
-    inline _Fcomplex __CRTDECL asinh(_In_ _Fcomplex _X) throw()
+    inline _Fcomplex __CRTDECL asinh(_In_ _Fcomplex _X) noexcept
     {
         return casinhf(_X);
     }
 
-    inline _Fcomplex __CRTDECL atan(_In_ _Fcomplex _X) throw()
+    inline _Fcomplex __CRTDECL atan(_In_ _Fcomplex _X) noexcept
     {
         return catanf(_X);
     }
 
-    inline _Fcomplex __CRTDECL atanh(_In_ _Fcomplex _X) throw()
+    inline _Fcomplex __CRTDECL atanh(_In_ _Fcomplex _X) noexcept
     {
         return catanhf(_X);
     }
 
-    inline _Fcomplex __CRTDECL conj(_In_ _Fcomplex _X) throw()
+    inline _Fcomplex __CRTDECL conj(_In_ _Fcomplex _X) noexcept
     {
         return conjf(_X);
     }
 
-    inline _Fcomplex __CRTDECL cos(_In_ _Fcomplex _X) throw()
+    inline _Fcomplex __CRTDECL cos(_In_ _Fcomplex _X) noexcept
     {
         return ccosf(_X);
     }
 
-    inline _Fcomplex __CRTDECL cosh(_In_ _Fcomplex _X) throw()
+    inline _Fcomplex __CRTDECL cosh(_In_ _Fcomplex _X) noexcept
     {
         return ccoshf(_X);
     }
 
-    inline _Fcomplex __CRTDECL cproj(_In_ _Fcomplex _X) throw()
+    inline _Fcomplex __CRTDECL cproj(_In_ _Fcomplex _X) noexcept
     {
         return cprojf(_X);
     }
 
-    inline _Fcomplex __CRTDECL proj(_In_ _Fcomplex _X) throw()
+    inline _Fcomplex __CRTDECL proj(_In_ _Fcomplex _X) noexcept
     {
         return cprojf(_X);
     }
 
-    inline _Fcomplex __CRTDECL exp(_In_ _Fcomplex _X) throw()
+    inline _Fcomplex __CRTDECL exp(_In_ _Fcomplex _X) noexcept
     {
         return cexpf(_X);
     }
 
-    inline _Fcomplex __CRTDECL log(_In_ _Fcomplex _X) throw()
+    inline _Fcomplex __CRTDECL log(_In_ _Fcomplex _X) noexcept
     {
         return clogf(_X);
     }
 
-    inline _Fcomplex __CRTDECL log10(_In_ _Fcomplex _X) throw()
+    inline _Fcomplex __CRTDECL log10(_In_ _Fcomplex _X) noexcept
     {
         return clog10f(_X);
     }
 
-    inline float __CRTDECL norm(_In_ _Fcomplex _X) throw()
+    inline float __CRTDECL norm(_In_ _Fcomplex _X) noexcept
     {
         return normf(_X);
     }
 
-    inline _Fcomplex __CRTDECL pow(_In_ _Fcomplex _X, _In_ _Fcomplex _Y) throw()
+    inline _Fcomplex __CRTDECL pow(_In_ _Fcomplex _X, _In_ _Fcomplex _Y) noexcept
     {
         return cpowf(_X, _Y);
     }
 
-    inline _Fcomplex __CRTDECL sin(_In_ _Fcomplex _X) throw()
+    inline _Fcomplex __CRTDECL sin(_In_ _Fcomplex _X) noexcept
     {
         return csinf(_X);
     }
 
-    inline _Fcomplex __CRTDECL sinh(_In_ _Fcomplex _X) throw()
+    inline _Fcomplex __CRTDECL sinh(_In_ _Fcomplex _X) noexcept
     {
         return csinhf(_X);
     }
 
-    inline _Fcomplex __CRTDECL sqrt(_In_ _Fcomplex _X) throw()
+    inline _Fcomplex __CRTDECL sqrt(_In_ _Fcomplex _X) noexcept
     {
         return csqrtf(_X);
     }
 
-    inline _Fcomplex __CRTDECL tan(_In_ _Fcomplex _X) throw()
+    inline _Fcomplex __CRTDECL tan(_In_ _Fcomplex _X) noexcept
     {
         return ctanf(_X);
     }
 
-    inline _Fcomplex __CRTDECL tanh(_In_ _Fcomplex _X) throw()
+    inline _Fcomplex __CRTDECL tanh(_In_ _Fcomplex _X) noexcept
     {
         return ctanhf(_X);
     }
 
-    inline float __CRTDECL abs(_In_ _Fcomplex _X) throw()
+    inline float __CRTDECL abs(_In_ _Fcomplex _X) noexcept
     {
         return cabsf(_X);
     }
 
-    inline float __CRTDECL arg(_In_ _Fcomplex _X) throw()
+    inline float __CRTDECL arg(_In_ _Fcomplex _X) noexcept
     {
         return cargf(_X);
     }
 
-    inline float __CRTDECL carg(_In_ _Fcomplex _X) throw()
+    inline float __CRTDECL carg(_In_ _Fcomplex _X) noexcept
     {
         return cargf(_X);
     }
 
-    inline float __CRTDECL cimag(_In_ _Fcomplex _X) throw()
+    inline float __CRTDECL cimag(_In_ _Fcomplex _X) noexcept
     {
         return cimagf(_X);
     }
 
-    inline float __CRTDECL creal(_In_ _Fcomplex _X) throw()
+    inline float __CRTDECL creal(_In_ _Fcomplex _X) noexcept
     {
         return crealf(_X);
     }
 
-    inline float __CRTDECL imag(_In_ _Fcomplex _X) throw()
+    inline float __CRTDECL imag(_In_ _Fcomplex _X) noexcept
     {
         return cimagf(_X);
     }
 
-    inline float __CRTDECL real(_In_ _Fcomplex _X) throw()
+    inline float __CRTDECL real(_In_ _Fcomplex _X) noexcept
     {
         return crealf(_X);
     }
@@ -423,142 +423,142 @@ extern "C++"
     // long double complex overloads
     //
     //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    inline _Lcomplex __CRTDECL acos(_In_ _Lcomplex _X) throw()
+    inline _Lcomplex __CRTDECL acos(_In_ _Lcomplex _X) noexcept
     {
         return cacosl(_X);
     }
 
-    inline _Lcomplex __CRTDECL acosh(_In_ _Lcomplex _X) throw()
+    inline _Lcomplex __CRTDECL acosh(_In_ _Lcomplex _X) noexcept
     {
         return cacoshl(_X);
     }
 
-    inline _Lcomplex __CRTDECL asin(_In_ _Lcomplex _X) throw()
+    inline _Lcomplex __CRTDECL asin(_In_ _Lcomplex _X) noexcept
     {
         return casinl(_X);
     }
 
-    inline _Lcomplex __CRTDECL asinh(_In_ _Lcomplex _X) throw()
+    inline _Lcomplex __CRTDECL asinh(_In_ _Lcomplex _X) noexcept
     {
         return casinhl(_X);
     }
 
-    inline _Lcomplex __CRTDECL atan(_In_ _Lcomplex _X) throw()
+    inline _Lcomplex __CRTDECL atan(_In_ _Lcomplex _X) noexcept
     {
         return catanl(_X);
     }
 
-    inline _Lcomplex __CRTDECL atanh(_In_ _Lcomplex _X) throw()
+    inline _Lcomplex __CRTDECL atanh(_In_ _Lcomplex _X) noexcept
     {
         return catanhl(_X);
     }
 
-    inline _Lcomplex __CRTDECL conj(_In_ _Lcomplex _X) throw()
+    inline _Lcomplex __CRTDECL conj(_In_ _Lcomplex _X) noexcept
     {
         return conjl(_X);
     }
 
-    inline _Lcomplex __CRTDECL cos(_In_ _Lcomplex _X) throw()
+    inline _Lcomplex __CRTDECL cos(_In_ _Lcomplex _X) noexcept
     {
         return ccosl(_X);
     }
 
-    inline _Lcomplex __CRTDECL cosh(_In_ _Lcomplex _X) throw()
+    inline _Lcomplex __CRTDECL cosh(_In_ _Lcomplex _X) noexcept
     {
         return ccoshl(_X);
     }
 
-    inline _Lcomplex __CRTDECL cproj(_In_ _Lcomplex _X) throw()
+    inline _Lcomplex __CRTDECL cproj(_In_ _Lcomplex _X) noexcept
     {
         return cprojl(_X);
     }
 
-    inline _Lcomplex __CRTDECL proj(_In_ _Lcomplex _X) throw()
+    inline _Lcomplex __CRTDECL proj(_In_ _Lcomplex _X) noexcept
     {
         return cprojl(_X);
     }
 
-    inline _Lcomplex __CRTDECL exp(_In_ _Lcomplex _X) throw()
+    inline _Lcomplex __CRTDECL exp(_In_ _Lcomplex _X) noexcept
     {
         return cexpl(_X);
     }
 
-    inline _Lcomplex __CRTDECL log(_In_ _Lcomplex _X) throw()
+    inline _Lcomplex __CRTDECL log(_In_ _Lcomplex _X) noexcept
     {
         return clogl(_X);
     }
 
-    inline _Lcomplex __CRTDECL log10(_In_ _Lcomplex _X) throw()
+    inline _Lcomplex __CRTDECL log10(_In_ _Lcomplex _X) noexcept
     {
         return clog10l(_X);
     }
 
-    inline long double __CRTDECL norm(_In_ _Lcomplex _X) throw()
+    inline long double __CRTDECL norm(_In_ _Lcomplex _X) noexcept
     {
         return norml(_X);
     }
 
-    inline _Lcomplex __CRTDECL pow(_In_ _Lcomplex _X, _In_ _Lcomplex _Y) throw()
+    inline _Lcomplex __CRTDECL pow(_In_ _Lcomplex _X, _In_ _Lcomplex _Y) noexcept
     {
         return cpowl(_X, _Y);
     }
 
-    inline _Lcomplex __CRTDECL sin(_In_ _Lcomplex _X) throw()
+    inline _Lcomplex __CRTDECL sin(_In_ _Lcomplex _X) noexcept
     {
         return csinl(_X);
     }
 
-    inline _Lcomplex __CRTDECL sinh(_In_ _Lcomplex _X) throw()
+    inline _Lcomplex __CRTDECL sinh(_In_ _Lcomplex _X) noexcept
     {
         return csinhl(_X);
     }
 
-    inline _Lcomplex __CRTDECL sqrt(_In_ _Lcomplex _X) throw()
+    inline _Lcomplex __CRTDECL sqrt(_In_ _Lcomplex _X) noexcept
     {
         return csqrtl(_X);
     }
 
-    inline _Lcomplex __CRTDECL tan(_In_ _Lcomplex _X) throw()
+    inline _Lcomplex __CRTDECL tan(_In_ _Lcomplex _X) noexcept
     {
         return ctanl(_X);
     }
 
-    inline _Lcomplex __CRTDECL tanh(_In_ _Lcomplex _X) throw()
+    inline _Lcomplex __CRTDECL tanh(_In_ _Lcomplex _X) noexcept
     {
         return ctanhl(_X);
     }
 
-    inline long double __CRTDECL abs(_In_ _Lcomplex _X) throw()
+    inline long double __CRTDECL abs(_In_ _Lcomplex _X) noexcept
     {
         return cabsl(_X);
     }
 
-    inline long double __CRTDECL arg(_In_ _Lcomplex _X) throw()
+    inline long double __CRTDECL arg(_In_ _Lcomplex _X) noexcept
     {
         return cargl(_X);
     }
 
-    inline long double __CRTDECL carg(_In_ _Lcomplex _X) throw()
+    inline long double __CRTDECL carg(_In_ _Lcomplex _X) noexcept
     {
         return cargl(_X);
     }
 
-    inline long double __CRTDECL cimag(_In_ _Lcomplex _X) throw()
+    inline long double __CRTDECL cimag(_In_ _Lcomplex _X) noexcept
     {
         return cimagl(_X);
     }
 
-    inline long double __CRTDECL creal(_In_ _Lcomplex _X) throw()
+    inline long double __CRTDECL creal(_In_ _Lcomplex _X) noexcept
     {
         return creall(_X);
     }
 
-    inline long double __CRTDECL imag(_In_ _Lcomplex _X) throw()
+    inline long double __CRTDECL imag(_In_ _Lcomplex _X) noexcept
     {
         return cimagl(_X);
     }
 
-    inline long double __CRTDECL real(_In_ _Lcomplex _X) throw()
+    inline long double __CRTDECL real(_In_ _Lcomplex _X) noexcept
     {
         return creall(_X);
     }

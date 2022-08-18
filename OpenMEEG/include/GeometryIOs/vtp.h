@@ -191,7 +191,6 @@ namespace OpenMEEG::GeometryIOs {
             vtkMesh->SetPolys(cells);
             vtkMesh->GetCellData()->AddArray(cell_id);
             vtkMesh->GetCellData()->AddArray(cell_indices);
-
         }
 
         void save_data(const Geometry& geometry,const Matrix& data) const override {
@@ -265,11 +264,11 @@ namespace OpenMEEG::GeometryIOs {
     protected:
 
         void load_meshes(Geometry&) override {
-            std::cerr << "Error: please specify USE_VTK to cmake" << std::endl; // TODO in Legacy format ? // Exceptions
+            throw OpenMEEG::VTKError("OpenMEEG was not compiled with VTK support. Specify USE_VTK in cmake.");
         }
 
         Matrix load_data() const override {
-            throw OpenMEEG::VTKError("Error: please specify USE_VTK to cmake"); // TODO in Legacy format ? // Exceptions
+            throw OpenMEEG::VTKError("OpenMEEG was not compiled with VTK support. Specify USE_VTK in cmake.");
         }
 
     private:

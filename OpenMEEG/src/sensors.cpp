@@ -25,7 +25,7 @@ namespace OpenMEEG {
         } else if (filetype=='b') {
             in.open(filename,std::ios::in|std::ios::binary);
         } else {
-            throw OpenMEEG::BadFormat("sensors");
+            throw OpenMEEG::GenericError("Sensors: Unknown file type.");
         }
 
         if (!in.is_open())
@@ -58,10 +58,11 @@ namespace OpenMEEG {
                 if (nlin++==0) {
                     ncol = tokens.size();
                 } else if (tokens.size()!=ncol) {
-                    std::cerr << "Problem while reading Sensors file !" << std::endl
-                              << "Line " << nlin-1 << " has " << tokens.size() << " columns when " << ncol << " are expected." << std::endl
-                              << "Each line should have the same number of elements" << std::endl;
-                    throw OpenMEEG::BadData("sensors");
+                    std::ostringstream oss;
+                    oss << "Problem while reading Sensors file !" << std::endl
+                        << "Line " << nlin-1 << " has " << tokens.size() << " columns when " << ncol << " are expected." << std::endl
+                        << "Each line should have the same number of elements" << std::endl;
+                    throw OpenMEEG::GenericError(oss.str());
                 }
 
                 // Sensors are labeled unless token[0] is a float (i.e containing one '.')
@@ -110,8 +111,7 @@ namespace OpenMEEG {
             // find triangles on which to inject the currents and compute weights
             findInjectionTriangles();
         } else if (ncol==4) {
-            std::cerr << "Sensors:: please specify at constructor stage the geometry on which to apply the spatially extended EIT sensors." << std::endl;
-            throw OpenMEEG::BadData("sensors");
+            throw OpenMEEG::GenericError("Sensors:: please specify at constructor stage the geometry on which to apply the spatially extended EIT sensors.");
         } else if (ncol==7) { // MEG
             m_weights = mat.getcol(mat.ncol()-1);
         } else { // Others

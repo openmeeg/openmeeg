@@ -12,7 +12,7 @@
 #include <string>
 
 #include <interface.h>
-#include <GeometryExceptions.H>
+#include <OMExceptions.H>
 #include <IOUtils.H>
 #include <GeometryIO.h>
 #include <MeshIO.h>

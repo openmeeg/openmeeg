@@ -156,13 +156,33 @@ namespace OpenMEEG {
     }
 
     void Geometry::save(const std::string& filename) const {
-        GeometryIO* io = GeometryIO::create(filename);
-        io->save(*this);
+        try {
+            GeometryIO* io = GeometryIO::create(filename);
+            io->save(*this);
+        } catch (OpenMEEG::Exception& e) {
+            std::string& message = e.what();
+            message += " in the file "+filename+'.';
+            throw;
+        } catch (...) {
+            throw GenericError(std::string("Could not write the geometry file: ")+filename+'.');
+        }
     }
 
     void Geometry::read_geometry_file(const std::string& filename) {
         GeometryIO* io = GeometryIO::create(filename);
-        io->load(*this);
+        try {
+            io->load(*this);
+        } catch (OpenMEEG::Exception& e) {
+            std::string& message = e.what();
+            message += " in the file "+filename+'.';
+            throw;
+        } catch (std::invalid_argument& e) {
+            std::string message = e.what();
+            message += " for the file "+filename+'.';
+            throw std::invalid_argument(message);
+        } catch (...) {
+            throw OpenMEEG::GenericError(std::string("Could not read the geometry file: ")+filename+'.');
+        }
     }
 
     void Geometry::import(const MeshList& mesh_list) {
@@ -200,19 +220,25 @@ namespace OpenMEEG {
     }
 
     void Geometry::read_conductivity_file(const std::string& filename) {
-        typedef Utils::Properties::Named<std::string,Conductivity<double>> HeadProperties;
-        HeadProperties properties(filename.c_str());
+        try {
+            typedef Utils::Properties::Named<std::string,Conductivity<double>> HeadProperties;
+            HeadProperties properties(filename.c_str());
 
-        // Store the internal conductivity of the external boundary of domain i
-        // and store the external conductivity of the internal boundary of domain i
+            // Store the internal conductivity of the external boundary of domain i
+            // and store the external conductivity of the internal boundary of domain i
 
-        for (auto& domain : domains()) {
-            try {
+            for (auto& domain : domains()) try {
                 const Conductivity<double>& cond = properties.find(domain.name());
                 domain.set_conductivity(cond.sigma());
             } catch (const Utils::Properties::UnknownProperty<HeadProperties::Id>&) {
                 throw OpenMEEG::BadDomain(domain.name());
             }
+        } catch (OpenMEEG::Exception& e) {
+            std::string& message = e.what();
+            message += " in the file "+filename+'.';
+            throw;
+        } catch (...) {
+            throw OpenMEEG::GenericError(std::string("Could not read the conductivity file: ")+filename+'.');
         }
         conductivities = true;
     }

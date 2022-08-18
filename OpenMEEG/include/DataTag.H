@@ -10,7 +10,7 @@
 #include <string>
 #include <iostream>
 #include <IOUtils.H>
-#include <GeometryExceptions.H>
+#include <OMExceptions.H>
 
 namespace Types {
 

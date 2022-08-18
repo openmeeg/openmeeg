@@ -19,7 +19,7 @@
 #include <domain.h>
 #include <matrix.h>
 
-#include <GeometryExceptions.H>
+#include <OMExceptions.H>
 
 namespace OpenMEEG {
 

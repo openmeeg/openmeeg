@@ -15,8 +15,7 @@
 #include <mesh.h>
 #include <geometry.h>
 #include <filenames.h>
-#include <GeometryExceptions.H>
-
+#include <OMExceptions.H>
 
 namespace OpenMEEG {
 

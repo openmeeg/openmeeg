@@ -9,7 +9,7 @@
 
 #include <sstream>
 
-#include <Exceptions.H>
+#include <OMMathExceptions.H>
 #include <IOUtils.H>
 #include "MathsIO.H"
 #include "matrix.h"
