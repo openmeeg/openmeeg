@@ -291,7 +291,7 @@ namespace io_utils {
             bool found;
             is >> match_optional(*i,found);
             if (found) {
-                index = int(i-alternatives.begin());  // Windows cast from int64 to int
+                index = std::distance(i,alternatives.begin());
                 return is;
             }
         }
