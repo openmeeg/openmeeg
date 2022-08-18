@@ -1,6 +1,6 @@
 © Copyright INRIA and ENPC
 
-Contributors: See https://github.com/openmeeg/openmeeg/graphs/contributors
+Contributors: See https://openmeeg.github.io/contributors.html
 Contact : openmeeg-info@inria.fr
 Web : http://openmeeg.github.io
 
