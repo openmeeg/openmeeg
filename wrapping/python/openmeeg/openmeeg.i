@@ -39,9 +39,9 @@
 #endif
 
 #ifdef _MSC_VER
-#pragma warning( push )
-#pragma warning( disable:4127 )  /* conditional expression is constant */
-#pragma warning( disable:4701 )  /* potentially uninitialized local variable 'v' used */
+#pragma warning(push)
+#pragma warning(disable:4127)  /* conditional expression is constant */
+#pragma warning(disable:4701)  /* potentially uninitialized local variable 'v' used */
 #endif
 
 %include <std_string.i>
