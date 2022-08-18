@@ -150,9 +150,16 @@ namespace OpenMEEG {
         size_t nb_parameters() const { return num_params; } ///< \brief the total number of vertices + triangles
 
         /// Returns the outermost domain.
+        // It is unclear whether outermost_domain and set_outermost_domain need to be in the public interface.
 
         Domain& outermost_domain();
-        void    set_outermost_domain(const Domain& domain) { outer_domain = &domain; } //   Do we need this (and the previous) or can they be hidden ?
+
+        void set_outermost_domain(Domain& domain) {
+            outer_domain = &domain;
+            for (auto& boundary : domain.boundaries())
+                boundary.interface().set_to_outermost();
+        }
+
         bool    is_outermost(const Domain& domain) const { return outer_domain==&domain; }
 
         const Interface& outermost_interface() const; ///< \brief returns the outermost interface (only valid for nested geometries).
@@ -212,18 +219,14 @@ namespace OpenMEEG {
             // TODO: We should check the correct decomposition of the geometry into domains here.
             // In a correct decomposition, each interface is used exactly once ?? Unsure...
             // Search for the outermost domain and set boolean OUTERMOST on the domain in the vector domains.
-            // An outermost domain is (here) defined as the only domain outside represented by only one interface.
+            // An outermost domain is defined as the only domain which has no inside. It is supposed to be
+            // unique.
 
             if (has_conductivities())
                 mark_current_barriers(); // mark meshes that touch the domains of null conductivity.
 
             if (domains().size()!=0) {
-                Domain& this_outer_domain = outermost_domain();
-                set_outermost_domain(this_outer_domain);
-                //  TODO: Integrate this loop (if necessary) in set_outermost_domain...
-                for (auto& boundary : this_outer_domain.boundaries())
-                    boundary.interface().set_to_outermost();
-
+                set_outermost_domain(outermost_domain());
                 check_geometry_is_nested();
             }
 
