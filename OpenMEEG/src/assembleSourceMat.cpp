@@ -80,7 +80,6 @@ namespace OpenMEEG {
             const double cond = domain.conductivity();
             if (cond!=0.0) {
                 rhs_col.set(0.0);
-                const double K = 1.0/(4*Pi);
                 for (const auto& boundary : domain.boundaries()) {
                     const double factorD = (boundary.inside()) ? K : -K;
                     for (const auto& oriented_mesh : boundary.interface().oriented_meshes()) {
@@ -105,7 +104,7 @@ namespace OpenMEEG {
     DipSourceMat(const Geometry& geo,const Matrix& dipoles,const std::string& domain_name) {
         return DipSourceMat(geo,dipoles,Integrator(3,10,0.001),domain_name);
     }
-    
+
     Matrix EITSourceMat(const Geometry& geo,const Sensors& electrodes,const Integrator& integrator) {
 
         // Matrix to be applied to the scalp-injected current to obtain the source term of the EIT foward problem,

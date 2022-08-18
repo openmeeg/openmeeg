@@ -144,8 +144,7 @@ namespace OpenMEEG {
                 } else {
                     throw BadFileOpening(name(),maths::BadFileOpening::READ);
                 }
-
-                return linop;
+                // We can never get here based on the above return/throw combinations
             }
 
             void read(std::ifstream& is,LinOp& linop) const {

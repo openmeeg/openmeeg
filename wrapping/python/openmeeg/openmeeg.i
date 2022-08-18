@@ -42,6 +42,12 @@
 %include <windows.i>
 #endif
 
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable:4127)  /* conditional expression is constant */
+#pragma warning(disable:4701)  /* potentially uninitialized local variable 'v' used */
+#endif
+
 %include <std_string.i>
 %include <std_vector.i>
 
@@ -539,3 +545,7 @@ namespace OpenMEEG {
 %include <assemble.h>
 %include <gain.h>
 %include <forward.h>
+
+#ifdef _MSC_VER
+#pragma warning( pop )
+#endif

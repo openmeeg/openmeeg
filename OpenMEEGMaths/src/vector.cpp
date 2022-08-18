@@ -78,12 +78,12 @@ namespace OpenMEEG {
         Index maxi = 0;
 
         for (Index i=0; i<nlin(); ++i) {
-            const double value = (*this)(i);
-            if (minv>value) {
-                minv = value;
+            const double val = (*this)(i);
+            if (minv>val) {
+                minv = val;
                 mini = i;
-            } else if (maxv<value ) {
-                maxv = value;
+            } else if (maxv<val ) {
+                maxv = val;
                 maxi = i;
             }
         }
@@ -117,7 +117,7 @@ namespace OpenMEEG {
         try {
             ifs >> maths::format(filename, maths::format::FromSuffix) >> *this;
         }
-        catch (maths::Exception& e) {
+        catch (maths::Exception&) {
             ifs >> *this;
         }
     }
@@ -127,7 +127,7 @@ namespace OpenMEEG {
         try {
             ofs << maths::format(filename,maths::format::FromSuffix) << *this;
         }
-        catch (maths::Exception& e) {
+        catch (maths::Exception&) {
             ofs << *this;
         }
     }

@@ -43,7 +43,7 @@ namespace OpenMEEG::MeshIOs {
             unsigned mesh_time;
             fs.read(reinterpret_cast<char*>(&mesh_time),sizeof(unsigned));
             fs.ignore(sizeof(unsigned)); // mesh_step
-            
+
             // Support only for triangulations and one time frame.
 
             if (vertex_per_face!=3)

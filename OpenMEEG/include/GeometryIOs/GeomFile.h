@@ -113,12 +113,14 @@ namespace OpenMEEG::GeometryIOs {
             return name;
         }
 
-        void read_mesh_descriptions(const unsigned n,const std::string& keyword) {
+        Geometry::MeshList read_mesh_descriptions(const unsigned n,const std::string& keyword) {
+            Geometry::MeshList meshes;
             for (unsigned i=0; i<n; ++i) {
                 const std::string& name = section_name(i,keyword);
                 const std::string& path = filename();
                 meshes.push_back({ name, path });
             }
+            return meshes;
         }
 
         //  Extract the tokens on the remainder of the line in the stream.
@@ -137,12 +139,9 @@ namespace OpenMEEG::GeometryIOs {
 
         static const GeomFile prototype;
 
-        typedef Geometry::MeshList MeshList;
-
         VersionId    version_id;
         std::fstream fs;
         std::string  directory;
-        MeshList     meshes;
         bool         mesh_provided_as_interfaces;
         unsigned     nb_interfaces;
     };
@@ -197,7 +196,8 @@ namespace OpenMEEG::GeometryIOs {
             if (has_meshsection) {
                 unsigned nb_meshes;
                 fs >> nb_meshes;
-                read_mesh_descriptions(nb_meshes,"Mesh");
+                const Geometry::MeshList& meshes = read_mesh_descriptions(nb_meshes,"Mesh");
+                geometry.import(meshes);
             }
         }
 
@@ -211,11 +211,10 @@ namespace OpenMEEG::GeometryIOs {
             throw OpenMEEG::WrongFileFormat(fname);
 
         mesh_provided_as_interfaces = !has_meshfile && !has_meshsection;
-        if (mesh_provided_as_interfaces)
-            read_mesh_descriptions(nb_interfaces,"Interface");
-
-        if (!has_meshfile)
+        if (mesh_provided_as_interfaces) {
+            const Geometry::MeshList& meshes = read_mesh_descriptions(nb_interfaces,"Interface");
             geometry.import(meshes);
+        }
     }
 
     void GeomFile::load_domains(Geometry& geometry) {
@@ -225,10 +224,10 @@ namespace OpenMEEG::GeometryIOs {
         Interfaces interfaces;
 
         if (mesh_provided_as_interfaces) {
-            for (const auto& desc : meshes) {
-                const std::string& name = desc.first;
+            for (auto& mesh : geometry.meshes()) {
+                const std::string& name = mesh.name();
                 Interface interface(name);
-                interface.oriented_meshes().push_back(OrientedMesh(geometry.mesh(name),OrientedMesh::Normal));
+                interface.oriented_meshes().push_back(OrientedMesh(mesh,OrientedMesh::Normal));
                 interfaces.push_back(interface);
             }
         } else {

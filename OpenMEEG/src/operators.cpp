@@ -48,8 +48,8 @@ namespace OpenMEEG {
             const Vect3& v = integrator.integrate(dipder,triangle);
             #pragma omp critical
             {
-                for (unsigned i=0; i<3; ++i)
-                    rhs(triangle.vertex(i).index()) += v(i)*coeff;
+                for (unsigned j=0; j<3; ++j)
+                    rhs(triangle.vertex(j).index()) += v(j)*coeff;
             }
         }
     }

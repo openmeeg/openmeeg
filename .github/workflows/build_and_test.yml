@@ -173,12 +173,7 @@ jobs:
         else
           VTK_OPT="-DUSE_VTK=OFF"
         fi
-        # Use -Werror on Ubuntu
-        if [[ "${{matrix.os}}" == 'ubuntu-'* ]]; then
-          WERROR_OPT="-DENABLE_WERROR=ON"
-        else
-          WERROR_OPT="-DENABLE_WERROR=OFF"
-        fi
+        WERROR_OPT="-DENABLE_WERROR=ON"
         # On windows, copy the runtime DLLs
         if [[ "${{matrix.os}}" == 'windows'* ]]; then
           PYTHON_COPY_RUNTIME_DLLS_OPT="-DPYTHON_COPY_RUNTIME_DLLS=ON"
@@ -327,7 +322,8 @@ jobs:
           ls -al $OPENBLAS_LIB
           test -f "$OPENBLAS_LIB/libopenblas.dylib"
           echo "OPENBLAS_INCLUDE=$OPENBLAS_INCLUDE" >> $GITHUB_ENV
-          echo "CMAKE_CXX_FLAGS=-I$OPENBLAS_INCLUDE -L$OPENBLAS_LIB" >> $GITHUB_ENV
+          echo "CMAKE_CXX_FLAGS=-I$OPENBLAS_INCLUDE" >> $GITHUB_ENV
+          echo "LINKER_OPT=-L$OPENBLAS_LIB" >> $GITHUB_ENV
           echo "CMAKE_PREFIX_PATH=$BLAS_DIR" >> $GITHUB_ENV
         fi
 

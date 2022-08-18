@@ -10,6 +10,11 @@
 #include "range.h"
 #include "OpenMEEGMaths_Export.h"
 
+#if defined(_MSC_VER)
+    #pragma warning(disable : 4275) /* non dll-interface class X used as base for dll-interface struct Y */
+#endif
+
+
 namespace OpenMEEG {
     namespace maths {
 

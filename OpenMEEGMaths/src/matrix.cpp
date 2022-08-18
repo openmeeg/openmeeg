@@ -99,7 +99,7 @@ namespace OpenMEEG {
         V = Matrix(ncol(),ncol());
         V.set(0.0);
         double* s = new double[mini];
-        // int lwork = 4 *mini*mini + maxi + 9*mini; 
+        // int lwork = 4 *mini*mini + maxi + 9*mini;
         // http://www.netlib.no/netlib/lapack/double/dgesdd.f :
         BLAS_INT* iwork = new BLAS_INT[8*mini];
         BLAS_INT lwork = 4*mini*mini+std::max(maxi,4*mini*mini+4*mini);
@@ -180,13 +180,13 @@ namespace OpenMEEG {
         //#pragma omp parallel for reduction()
         for (Index i=0; i<nlin(); ++i)
             for (Index j=0; j<ncol(); ++j) {
-                const double value = (*this)(i,j);
-                if (minv>value) {
-                    minv = value;
+                const double val = (*this)(i,j);
+                if (minv>val) {
+                    minv = val;
                     mini = i;
                     minj = j;
-                } else if (maxv<value) {
-                    maxv = value;
+                } else if (maxv<val) {
+                    maxv = val;
                     maxi = i;
                     maxj = j;
                 }
@@ -211,7 +211,7 @@ namespace OpenMEEG {
         maths::ifstream ifs(filename);
         try {
             ifs >> maths::format(filename,maths::format::FromSuffix) >> *this;
-        } catch (maths::Exception& e) {
+        } catch (maths::Exception&) {
             ifs >> *this;
         }
     }
@@ -220,7 +220,7 @@ namespace OpenMEEG {
         maths::ofstream ofs(filename);
         try {
             ofs << maths::format(filename,maths::format::FromSuffix) << *this;
-        } catch (maths::Exception& e) {
+        } catch (maths::Exception&) {
             ofs << *this;
         }
     }
