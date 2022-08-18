@@ -291,7 +291,7 @@ namespace io_utils {
             bool found;
             is >> match_optional(*i,found);
             if (found) {
-                index = std::distance(i,alternatives.begin());
+                index = static_cast<int>(std::distance(i,alternatives.begin()));
                 return is;
             }
         }
