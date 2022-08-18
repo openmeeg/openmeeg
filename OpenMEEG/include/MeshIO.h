@@ -97,7 +97,6 @@ namespace OpenMEEG {
 
         std::string  fname;
         std::fstream fs;
-        Mesh*        mesh;
         IndexMap     indmap;
     };
 }

@@ -101,7 +101,6 @@ namespace OpenMEEG::MeshIOs {
         static unsigned vtk_error() {
             std::cerr << "OpenMEEG was not compiled with VTK support. Specify USE_VTK in cmake." << std::endl;
             exit(1);
-            return 0;
         }
 
         void     load_points(Geometry&)          override { vtk_error();        }
@@ -143,7 +142,7 @@ namespace OpenMEEG::MeshIOs {
         char*                        buffer = nullptr;
         vtkSmartPointer<vtkPolyData> vtkMesh;
         #endif
-        
+
         static const Vtk prototype;
 
         const char* name() const override { return "VTK"; }

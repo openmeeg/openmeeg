@@ -40,7 +40,7 @@ namespace OpenMEEG {
     tolower(const std::string& s) {
         std::string res = s;
         std::transform(res.begin(),res.end(),res.begin(),
-                       [](unsigned char c){ return std::tolower(c); });
+                       [](unsigned char c){ return static_cast<unsigned char>(std::tolower(c)); });
         return res;
     }
 

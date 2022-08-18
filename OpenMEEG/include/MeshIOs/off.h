@@ -35,10 +35,10 @@ namespace OpenMEEG::MeshIOs {
 
             unsigned npts;
             fs >> io_utils::skip_comments("#") >> npts;
-            
+
             unsigned trash;
             fs >> ntriangles >> trash;
-            
+
             Vertices vertices;
             for (unsigned i=0; i<npts; ++i) {
                 Vertex v;

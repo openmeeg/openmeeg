@@ -98,9 +98,10 @@ namespace OpenMEEG {
         if (is_nested()) {
             std::cout << "This geometry is a NESTED geometry." << std::endl;
         } else {
-            int shared = -vertices().size();
+            unsigned shared = 0;
             for (const auto& mesh : meshes())
                 shared += mesh.vertices().size();
+            shared -= vertices().size();
 
             // those are not the number of shared vertices but the number of demands for adding the same vertex...
             std::cout << "This geometry is a NON NESTED geometry. (There was " << shared << " demands for adding same vertices)." << std::endl;
@@ -229,7 +230,7 @@ namespace OpenMEEG {
                 try {
                     const Conductivity<double>& cond = properties.find(domain.name());
                     domain.set_conductivity(cond.sigma());
-                } catch (const Utils::Properties::UnknownProperty<HeadProperties::Id>& e) {
+                } catch (const Utils::Properties::UnknownProperty<HeadProperties::Id>&) {
                     throw OpenMEEG::BadDomain(domain.name());
                 }
             }

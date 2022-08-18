@@ -20,8 +20,8 @@ namespace OpenMEEG {
     class OPENMEEG_EXPORT Vertex: public Vect3 {
     public:
 
-        Vertex(): ind(-1) { };
-        
+        Vertex() { }
+
         Vertex(const Vect3& V,const unsigned id=-1): Vect3(V),ind(id) { }
         Vertex(const double V[3],const unsigned id=-1): Vect3(V[0],V[1],V[2]),ind(id) { }
         Vertex(const double& x,const double& y,const double& z,const unsigned id=-1): Vect3(x,y,z),ind(id) { }

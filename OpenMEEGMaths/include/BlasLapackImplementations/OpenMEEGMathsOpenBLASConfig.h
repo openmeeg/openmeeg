@@ -9,6 +9,8 @@
     #define LAPACK_COMPLEX_CUSTOM
     #define lapack_complex_float _Fcomplex
     #define lapack_complex_double _Dcomplex
+#elif defined(__clang__)
+    #pragma clang diagnostic ignored "-Wc99-extensions"
 #endif
 
 #include <cblas.h>

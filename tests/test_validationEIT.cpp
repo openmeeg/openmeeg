@@ -93,7 +93,6 @@ main(const int argc,const char* argv[]) {
 
     Vect3 current_position; // buffer for electrodes positions
     Vect3 current_alphas;
-    Triangle current_nearest_triangle; // buffer for closest triangle to electrode
     SparseMatrix matH2E(nelec,newsize); // Matrices Head2Electrodes
 
     for (unsigned ielec=0; ielec<nelec; ++ielec) {
@@ -135,7 +134,7 @@ main(const int argc,const char* argv[]) {
         gradVj.setcol(i,(VRd-VR0)/delta);
         points.setcol(i,dipoles.getcol(i));
     }
-	
+
     Matrix qgradVj(1,ndip);
     for (unsigned i=0; i<ndip; ++i)
         qgradVj(0,i) = dipoles(i,3)*gradVj(i,0)+dipoles(i,4)*gradVj(i,1)+dipoles(i,5)*gradVj(i,2);
