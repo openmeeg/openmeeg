@@ -78,12 +78,12 @@ namespace OpenMEEG {
             return result;
         }
 
-        char** option(const std::string& option,const Strings& parms,const unsigned num_mandatory_parms) const {
+        char** option(const std::string& option,const Strings& parms,const std::size_t num_mandatory_parms) const {
             char** arg = find_argument(option);
             if (arg==end())
                 return nullptr;
 
-            const unsigned num_parms = num_args(arg);
+            const std::size_t num_parms = num_args(arg);
             if (num_parms<num_mandatory_parms) {
                 std::cerr << "\'" << args[0] << "\' option \'" << option << "\' expects at least "
                           << num_mandatory_parms << " arguments (";
@@ -98,10 +98,10 @@ namespace OpenMEEG {
             return arg;
         }
 
-        char** option(const std::string& name,const Strings& parms) const { return option(name,parms,(unsigned)parms.size()); }
+        char** option(const std::string& name,const Strings& parms) const { return option(name,parms,parms.size()); }
 
         char** option(const Strings& options,const Strings& parms) const {
-            unsigned num_mandatory_parms = (unsigned)parms.size();
+            std::size_t num_mandatory_parms = parms.size();
             for (const auto& parm : parms)
                 if (parm[0]=='[')
                     --num_mandatory_parms;
