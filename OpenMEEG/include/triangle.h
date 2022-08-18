@@ -50,12 +50,7 @@ namespace OpenMEEG {
 
         /// Constructors
 
-        #ifdef _MSC_VER
-        #pragma warning( suppress : 4245 )  // 'initializing': conversion from 'int' to 'unsigned int', signed/unsigned mismatch
-        Triangle(): ind(-1) { }
-        #else
-        Triangle(): ind(-1) { }
-        #endif
+        Triangle() { } // Is this needed besides for SWIG ?
 
         /// Create a new triangle from a set of vertices.
 
