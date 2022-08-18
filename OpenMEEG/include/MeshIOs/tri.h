@@ -38,31 +38,31 @@ namespace OpenMEEG::MeshIOs {
             indmap = geom.add_vertices(vertices);
         }
 
-        void load_triangles(OpenMEEG::Mesh& this_mesh) override {
-            reference_vertices(this_mesh);
+        void load_triangles(OpenMEEG::Mesh& mesh) override {
+            reference_vertices(mesh);
 
             char ch;
             unsigned ntrgs;
             fs >> ch >> ntrgs >> ntrgs >> ntrgs; // This number is repeated 3 times
 
-            this_mesh.triangles().reserve(ntrgs);
+            mesh.triangles().reserve(ntrgs);
             for (unsigned i=0; i<ntrgs; ++i) {
                 TriangleIndices t;
                 fs >> t[0] >> t[1] >> t[2];
-                this_mesh.add_triangle(t,indmap);
+                mesh.add_triangle(t,indmap);
             }
         }
 
-        void save(const OpenMEEG::Mesh& this_mesh,std::ostream& os) const override {
-            os << "- " << this_mesh.vertices().size() << std::endl;
+        void save(const OpenMEEG::Mesh& mesh,std::ostream& os) const override {
+            os << "- " << mesh.vertices().size() << std::endl;
 
-            const VertexIndices& vertex_index(this_mesh);
-            for (const auto& vertex : this_mesh.vertices())
-                os << *vertex << " " << this_mesh.normal(*vertex) << std::endl;
+            const VertexIndices& vertex_index(mesh);
+            for (const auto& vertex : mesh.vertices())
+                os << *vertex << " " << mesh.normal(*vertex) << std::endl;
 
-            const unsigned ntriangles = this_mesh.triangles().size();
+            const unsigned ntriangles = mesh.triangles().size();
             os << "- " << ntriangles << ' ' << ntriangles << ' ' << ntriangles << std::endl;
-            for (const auto& triangle : this_mesh.triangles())
+            for (const auto& triangle : mesh.triangles())
                 os << vertex_index(triangle,0) << ' '
                    << vertex_index(triangle,1) << ' '
                    << vertex_index(triangle,2) << std::endl;
