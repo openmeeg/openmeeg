@@ -327,8 +327,8 @@ namespace OpenMEEG {
     #ifdef HAVE_BLAS
         const BLAS_INT M = sizet_to_int(nlin());
         const BLAS_INT N = sizet_to_int(ncol());
-        const BLAS_INT this_K = sizet_to_int(B.ncol());
-        DGEMM(CblasNoTrans,CblasNoTrans,M,this_K,N,1.0,data(),M,B.data(),N,0.0,C.data(),M);
+        const BLAS_INT L = sizet_to_int(B.ncol());
+        DGEMM(CblasNoTrans,CblasNoTrans,M,L,N,1.0,data(),M,B.data(),N,0.0,C.data(),M);
     #else
         for (Index i=0; i<C.nlin(); ++i)
             for (Index j=0; j<C.ncol(); ++j) {
@@ -346,8 +346,8 @@ namespace OpenMEEG {
     #ifdef HAVE_BLAS
         const BLAS_INT M = sizet_to_int(nlin());
         const BLAS_INT N = sizet_to_int(ncol());
-        const BLAS_INT this_K = sizet_to_int(B.ncol());
-        DGEMM(CblasTrans,CblasNoTrans,N,this_K,M,1.0,data(),M,B.data(),M,0.0,C.data(),N);
+        const BLAS_INT L = sizet_to_int(B.ncol());
+        DGEMM(CblasTrans,CblasNoTrans,N,L,M,1.0,data(),M,B.data(),M,0.0,C.data(),N);
     #else
         for (Index i=0; i<C.nlin(); ++i)
             for (Index j=0; j<C.ncol(); ++j) {
@@ -365,8 +365,8 @@ namespace OpenMEEG {
     #ifdef HAVE_BLAS
         const BLAS_INT M = sizet_to_int(nlin());
         const BLAS_INT N = sizet_to_int(ncol());
-        const BLAS_INT this_K = sizet_to_int(B.nlin());
-        DGEMM(CblasNoTrans,CblasTrans,M,this_K,N,1.0,data(),M,B.data(),this_K,0.0,C.data(),M);
+        const BLAS_INT L = sizet_to_int(B.nlin());
+        DGEMM(CblasNoTrans,CblasTrans,M,L,N,1.0,data(),M,B.data(),L,0.0,C.data(),M);
     #else
         for (Index j=0; j<C.ncol(); ++j)
             for (Index i=0; i<C.nlin(); ++i) {
@@ -384,8 +384,8 @@ namespace OpenMEEG {
     #ifdef HAVE_BLAS
         const BLAS_INT M = sizet_to_int(nlin());
         const BLAS_INT N = sizet_to_int(ncol());
-        const BLAS_INT this_K = sizet_to_int(B.nlin());
-        DGEMM(CblasTrans,CblasTrans,this_K,N,M,1.0,data(),M,B.data(),N,0.0,C.data(),this_K);
+        const BLAS_INT L = sizet_to_int(B.nlin());
+        DGEMM(CblasTrans,CblasTrans,L,N,M,1.0,data(),M,B.data(),N,0.0,C.data(),L);
     #else
         for (Index i=0; i<C.nlin(); ++i)
             for (Index j=0; j<C.ncol(); ++j) {
