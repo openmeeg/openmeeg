@@ -298,7 +298,7 @@ namespace OpenMEEG::GeometryIOs {
 
         //  Create the list of interfaces.
 
-        std::vector<const Mesh*> these_meshes;
+        std::vector<const Mesh*> meshes;
         std::vector<const Interface*> interfaces;
         for (const auto& domain : geometry.domains())
             for (const auto& boundary : domain.boundaries()) {
@@ -307,8 +307,8 @@ namespace OpenMEEG::GeometryIOs {
                     interfaces.push_back(&interface);
                 for (const auto& omesh : interface.oriented_meshes()) {
                     const Mesh& mesh = omesh.mesh();
-                    if (std::find(these_meshes.begin(),these_meshes.end(),&mesh)!=these_meshes.end())
-                        these_meshes.push_back(&mesh);
+                    if (std::find(meshes.begin(),meshes.end(),&mesh)!=meshes.end())
+                        meshes.push_back(&mesh);
                 }
             }
 
