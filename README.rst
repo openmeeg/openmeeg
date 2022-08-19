@@ -1,10 +1,10 @@
-|GitHub Actions|_ |lgtm|_ |CodeCov|_ |PyPIVersion|_ |condaVersion|_
+|GitHub Actions|_ |CodeQL|_ |CodeCov|_ |PyPIVersion|_ |condaVersion|_
 
 .. |GitHub Actions| image:: https://github.com/openmeeg/openmeeg/actions/workflows/build_and_test.yml/badge.svg
 .. _Github Actions: https://github.com/openmeeg/openmeeg/actions/workflows/build_and_test.yml
 
-.. |lgtm| image:: https://img.shields.io/lgtm/grade/cpp/g/openmeeg/openmeeg.svg?logo=lgtm&logoWidth=18
-.. _lgtm: https://lgtm.com/projects/g/openmeeg/openmeeg/context:cpp
+.. |CodeQL| image:: https://github.com/openmeeg/openmeeg/workflows/CodeQL/badge.svg
+.. _CodeQL: https://github.com/openmeeg/openmeeg/actions/workflows/codeql-analysis.yml
 
 .. |CodeCov| image:: https://codecov.io/gh/openmeeg/openmeeg/branch/main/graph/badge.svg
 .. _CodeCov: https://codecov.io/gh/openmeeg/openmeeg
