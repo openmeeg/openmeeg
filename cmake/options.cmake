@@ -1,5 +1,4 @@
-set(BUILD_TESTING True)
-enable_testing()
+include(CTest)
 
 option(USE_VTK   "Use VTK"   OFF)
 option(USE_GIFTI "Use GIFTI" OFF)
