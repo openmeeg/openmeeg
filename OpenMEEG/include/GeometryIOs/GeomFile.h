@@ -96,7 +96,7 @@ namespace OpenMEEG::GeometryIOs {
         std::string filename() {
             std::string filename;
             ifs >> io_utils::filename(filename,'"',false);
-            return (std::filesystem::path(filename).is_relative()) ? std::string(directory/filename) : filename;
+            return (std::filesystem::path(filename).is_relative()) ? (directory/filename).string() : filename;
         }
 
         static bool extract_sign(std::string& str) {
