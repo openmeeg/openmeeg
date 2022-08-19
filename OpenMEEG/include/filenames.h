@@ -16,8 +16,7 @@ namespace OpenMEEG {
 
     inline std::string
     getFilenameExtension(const std::string& name) {
-        const std::filesystem::path p(name);
-        const std::string ext = p.extension();
+        const std::string ext = std::filesystem::path(name).extension().string();
         if (ext=="")
             return "";
         return ext.substr(1);

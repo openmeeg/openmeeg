@@ -96,8 +96,7 @@ namespace OpenMEEG::GeometryIOs {
         std::string filename() {
             std::string filename;
             ifs >> io_utils::filename(filename,'"',false);
-            const std::filesystem::path p(filename);
-            return (p.is_relative()) ? std::string(directory/filename) : filename;
+            return (std::filesystem::path(filename).is_relative()) ? std::string(directory/filename) : filename;
         }
 
         static bool extract_sign(std::string& str) {
@@ -176,8 +175,7 @@ namespace OpenMEEG::GeometryIOs {
 
         // Extract the absolute path of geometry file
 
-        const std::filesystem::path p(fname);
-        directory = p.parent_path();
+        directory = std::filesystem::path(fname).parent_path();
 
         // Process meshes.
 
