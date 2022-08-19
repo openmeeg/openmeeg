@@ -91,8 +91,8 @@ jobs:
         - os: macos-latest
           blas: mkl-findblas
           blas_linking: static
-        # ubuntu-18.04 build, but Python tests currently fail so use no-python
-        - os: ubuntu-18.04
+        # One without Python
+        - os: ubuntu-22.04
           python: no-python
         # Windows static
         - os: windows-2019

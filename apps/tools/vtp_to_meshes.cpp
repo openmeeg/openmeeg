@@ -33,7 +33,8 @@ main(int argc,char* argv[]) {
 
     Geometry geom(input);
 
-    const std::string  basename  = fs::path(output).stem();
+    const std::filesystem::path p(output);
+    const std::string basename = p.stem();
     const std::string& extension = getFilenameExtension(output);
 
     for (const auto& mesh : geom.meshes())

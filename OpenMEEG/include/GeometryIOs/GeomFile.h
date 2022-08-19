@@ -21,8 +21,6 @@
 
 namespace OpenMEEG::GeometryIOs {
 
-    namespace fs = std::filesystem;
-
     // Read the head file description (.geom files) and load the information into a Geometry.
 
     // Check file data/README.rst for complete details about the .geom format.
@@ -98,7 +96,8 @@ namespace OpenMEEG::GeometryIOs {
         std::string filename() {
             std::string filename;
             ifs >> io_utils::filename(filename,'"',false);
-            return (fs::path(filename).is_relative()) ? std::string(directory/filename) : filename;
+            const std::filesystem::path p(filename);
+            return (p.is_relative()) ? std::string(directory/filename) : filename;
         }
 
         static bool extract_sign(std::string& str) {
@@ -143,11 +142,11 @@ namespace OpenMEEG::GeometryIOs {
 
         static const GeomFile prototype;
 
-        VersionId     version_id;
-        std::ifstream ifs;
-        fs::path      directory;
-        bool          mesh_provided_as_interfaces;
-        unsigned      nb_interfaces;
+        VersionId             version_id;
+        std::ifstream         ifs;
+        std::filesystem::path directory;
+        bool                  mesh_provided_as_interfaces;
+        unsigned              nb_interfaces;
     };
 
     void GeomFile::load_meshes(Geometry& geometry) {
@@ -177,7 +176,8 @@ namespace OpenMEEG::GeometryIOs {
 
         // Extract the absolute path of geometry file
 
-        directory = fs::path(fname).parent_path();
+        const std::filesystem::path p(fname);
+        directory = p.parent_path();
 
         // Process meshes.
 
