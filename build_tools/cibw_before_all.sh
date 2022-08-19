@@ -53,7 +53,7 @@ elif [[ "$PLATFORM" == 'macosx-'* ]]; then
     if [[ "$CIBW_ARCHS_MACOS" == "x86_64" ]]; then
         export VCPKG_DEFAULT_TRIPLET="x64-osx-release-10.9"
         source ./build_tools/setup_vcpkg_compilation.sh
-        SYSTEM_VERSION_OPT="-DCMAKE_OSX_DEPLOYMENT_TARGET=10.15"
+        export SYSTEM_VERSION_OPT="-DCMAKE_OSX_DEPLOYMENT_TARGET=10.15"
     elif [[ "$CIBW_ARCHS_MACOS" == "arm64" ]]; then
         # export VCPKG_DEFAULT_TRIPLET="arm64-osx-release-10.9"
         CMAKE_OSX_ARCH_OPT="-DCMAKE_OSX_ARCHITECTURES=arm64"
@@ -69,7 +69,7 @@ elif [[ "$PLATFORM" == 'macosx-'* ]]; then
         cp -a libomp/14.0.6/lib/* $ROOT/vcpkg_installed/arm64-osx-release-10.9/lib/
         cp -a libomp/14.0.6/include/* $ROOT/vcpkg_installed/arm64-osx-release-10.9/include/
         export LINKER_OPT="$LINKER_OPT -L$ROOT/vcpkg_installed/arm64-osx-release-10.9/lib -lz"
-        SYSTEM_VERSION_OPT="-DCMAKE_OSX_DEPLOYMENT_TARGET=11"
+        export SYSTEM_VERSION_OPT="-DCMAKE_OSX_DEPLOYMENT_TARGET=11"
     else
         echo "Unknown CIBW_ARCHS_MACOS=\"$CIBW_ARCHS_MACOS\""
         exit 1
@@ -81,7 +81,7 @@ elif [[ "$PLATFORM" == "win-amd64" ]]; then
     source ./build_tools/setup_vcpkg_compilation.sh
     source ./build_tools/download_openblas.sh windows  # NumPy doesn't install the headers for Windows
     pip install delvewheel
-    SYSTEM_VERSION_OPT="-DCMAKE_SYSTEM_VERSION=7"
+    export SYSTEM_VERSION_OPT="-DCMAKE_SYSTEM_VERSION=7"
 else
     echo "Unknown platform: ${PLATFORM}"
     exit 1
