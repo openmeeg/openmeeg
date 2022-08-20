@@ -34,12 +34,12 @@ echo "Using NumPy PLATFORM=\"${PLATFORM}\""
 # win-amd64
 
 if [[ "$PLATFORM" == "linux-x86_64" ]]; then
-    dnf -y install epel-release
-    dnf -y install hdf5-devel matio-devel
     export OPENBLAS_INCLUDE=/usr/local/include
     export OPENBLAS_LIB=/usr/local/lib
     export CMAKE_CXX_FLAGS="-I$OPENBLAS_INCLUDE"
     export LINKER_OPT="-lgfortran -lpthread"
+    export VCPKG_DEFAULT_TRIPLET="x64-linux"
+    source ./build_tools/setup_vcpkg_compilation.sh
     LAPACK_LIBRARIES_OPT="-DLAPACK_LIBRARIES=/usr/local/lib/libopenblas.a"
     SHARED_OPT="-DBUILD_SHARED_LIBS=OFF"
 elif [[ "$PLATFORM" == 'macosx-'* ]]; then
