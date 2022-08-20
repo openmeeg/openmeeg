@@ -4,6 +4,7 @@ option(USE_VTK   "Use VTK"   OFF)
 option(USE_GIFTI "Use GIFTI" OFF)
 option(USE_CGAL  "Use CGAL"  OFF)
 option(BUILD_SHARED_LIBS "Build Shared Libraries" ON)
+option(OPENMP_STATIC "Use static OpenMP" OFF)
 
 option(ENABLE_COVERAGE "Enable coverage" OFF)
 option(ENABLE_APPS "Enable app creation" ON)
