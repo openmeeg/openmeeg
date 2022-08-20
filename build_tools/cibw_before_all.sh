@@ -58,7 +58,8 @@ elif [[ "$PLATFORM" == 'macosx-'* ]]; then
     elif [[ "$CIBW_ARCHS_MACOS" == "arm64" ]]; then
         # OpenBLAS v0.3.21 was compiled locally on M1 with:
         # $ MACOSX_DEPLOYMENT_TARGET=11.0 make USE_THREAD=1 USE_OPENMP=0 NUM_THREADS=24 TARGET=VORTEX
-        curl -L https://osf.io/download/uwdqa?version=1 > openmeeg-deps-arm64-openblas.tar.gz
+        # then libquadmath.a and libgfortran.a were added
+        curl -L https://osf.io/download/uwdqa?version=2 > openmeeg-deps-arm64-openblas.tar.gz
         tar xzfv openmeeg-deps-arm64-openblas.tar.gz
         BLAS_DIR=$PWD/OpenBLAS
         OPENBLAS_INCLUDE=$BLAS_DIR/include
@@ -79,7 +80,7 @@ elif [[ "$PLATFORM" == 'macosx-'* ]]; then
         tar xzfv x.tar.gz
         cp -a libomp/14.0.6/lib/* $ROOT/vcpkg_installed/arm64-osx-release-10.9/lib/
         cp -a libomp/14.0.6/include/* $ROOT/vcpkg_installed/arm64-osx-release-10.9/include/
-        export LINKER_OPT="$LINKER_OPT -L$ROOT/vcpkg_installed/arm64-osx-release-10.9/lib -lz"
+        export LINKER_OPT="$LINKER_OPT -L$ROOT/vcpkg_installed/arm64-osx-release-10.9/lib -lz -lgfortran -lquadmath"
     else
         echo "Unknown CIBW_ARCHS_MACOS=\"$CIBW_ARCHS_MACOS\""
         exit 1
