@@ -95,7 +95,7 @@ export WERROR_OPT="-DENABLE_WERROR=ON"
 export BLA_STATIC_OPT="-DBLA_STATIC=ON"
 pip install cmake
 ./build_tools/cmake_configure.sh -DCMAKE_VERBOSE_MAKEFILE=ON -DCMAKE_INSTALL_PREFIX=${ROOT}/install ${SYSTEM_VERSION_OPT} ${CMAKE_OSX_ARCH_OPT} ${CMAKE_PREFIX_PATH_OPT} -DENABLE_APPS=ON ${SHARED_OPT} -DCMAKE_INSTALL_UCRT_LIBRARIES=FALSE -DOPENMP_STATIC=ON ${BLAS_LIBRARIES_OPT} ${LAPACK_LIBRARIES_OPT}
-cmake --build build --target install --config release
+cmake --build build --target install --target package --config release
 
 # Put DLLs where they can be found
 if [[ "$PLATFORM" == 'linux'* ]]; then
