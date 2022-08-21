@@ -61,7 +61,7 @@ elif [[ "$PLATFORM" == 'macosx-'* ]]; then
         # export VCPKG_DEFAULT_TRIPLET="arm64-osx-release-10.9"
         CMAKE_OSX_ARCH_OPT="-DCMAKE_OSX_ARCHITECTURES=arm64"
         # The deps were compiled locally on 2022/07/19 on an M1 machine and uploaded
-        curl -L https://osf.io/download/x45fz?version= > openmeeg-deps-arm64-osx-release-10.9.tar.gz
+        curl -L https://osf.io/download/x45fz?version=1 > openmeeg-deps-arm64-osx-release-10.9.tar.gz
         tar xzfv openmeeg-deps-arm64-osx-release-10.9.tar.gz
         CMAKE_PREFIX_PATH_OPT="-DCMAKE_PREFIX_PATH=$ROOT/vcpkg_installed/arm64-osx-release-10.9"
         ls -al $ROOT/vcpkg_installed/arm64-osx-release-10.9/lib
