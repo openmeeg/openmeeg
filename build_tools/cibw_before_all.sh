@@ -43,6 +43,7 @@ if [[ "$PLATFORM" == "linux-x86_64" ]]; then
     source ./build_tools/setup_vcpkg_compilation.sh
     LAPACK_LIBRARIES_OPT="-DLAPACK_LIBRARIES=/usr/local/lib/libopenblas.a"
     SHARED_OPT="-DBUILD_SHARED_LIBS=OFF"
+    OPENMP_STATIC_OPT="-DOPENMP_STATIC=OFF"
 elif [[ "$PLATFORM" == 'macosx-'* ]]; then
     # brew install swig libomp # This might be for macOS 11+!
     BLAS_DIR=/usr/local
