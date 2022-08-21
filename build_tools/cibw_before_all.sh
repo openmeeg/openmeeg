@@ -41,6 +41,7 @@ if [[ "$PLATFORM" == "linux-x86_64" ]]; then
     export LINKER_OPT="-lgfortran -lpthread"
     export VCPKG_DEFAULT_TRIPLET="x64-linux"
     source ./build_tools/setup_vcpkg_compilation.sh
+    LAPACK_LIBRARIES_OPT="-DLAPACK_LIBRARIES=/usr/local/lib/libopenblas.a"
     SHARED_OPT="-DBUILD_SHARED_LIBS=OFF"
 elif [[ "$PLATFORM" == 'macosx-'* ]]; then
     # brew install swig libomp # This might be for macOS 11+!
@@ -92,7 +93,7 @@ export DISABLE_CCACHE=1
 export WERROR_OPT="-DENABLE_WERROR=ON"
 export BLA_STATIC_OPT="-DBLA_STATIC=ON"
 pip install cmake
-./build_tools/cmake_configure.sh -DCMAKE_VERBOSE_MAKEFILE=ON -DCMAKE_INSTALL_PREFIX=${ROOT}/install ${SYSTEM_VERSION_OPT} ${CMAKE_OSX_ARCH_OPT} ${CMAKE_PREFIX_PATH_OPT} -DENABLE_APPS=ON ${SHARED_OPT} -DCMAKE_INSTALL_UCRT_LIBRARIES=FALSE -DOPENMP_STATIC=ON ${BLAS_LIBRARIES_OPT}
+./build_tools/cmake_configure.sh -DCMAKE_VERBOSE_MAKEFILE=ON -DCMAKE_INSTALL_PREFIX=${ROOT}/install ${SYSTEM_VERSION_OPT} ${CMAKE_OSX_ARCH_OPT} ${CMAKE_PREFIX_PATH_OPT} -DENABLE_APPS=ON ${SHARED_OPT} -DCMAKE_INSTALL_UCRT_LIBRARIES=FALSE -DOPENMP_STATIC=ON ${LAPACK_LIBRARIES_OPT}
 cmake --build build --target install --target package --config release
 
 # Put DLLs where they can be found
