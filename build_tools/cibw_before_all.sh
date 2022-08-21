@@ -38,10 +38,9 @@ if [[ "$PLATFORM" == "linux-x86_64" ]]; then
     export OPENBLAS_INCLUDE=/usr/local/include
     export OPENBLAS_LIB=/usr/local/lib
     export CMAKE_CXX_FLAGS="-I$OPENBLAS_INCLUDE"
-    export LINKER_OPT="-l:libgfortran.a -l:libquadmath.a -lpthread"
+    export LINKER_OPT="-lgfortran -lpthread"
     export VCPKG_DEFAULT_TRIPLET="x64-linux"
     source ./build_tools/setup_vcpkg_compilation.sh
-    LAPACK_LIBRARIES_OPT="-DLAPACK_LIBRARIES=/usr/local/lib/libopenblas.a"
     SHARED_OPT="-DBUILD_SHARED_LIBS=OFF"
 elif [[ "$PLATFORM" == 'macosx-'* ]]; then
     # brew install swig libomp # This might be for macOS 11+!
@@ -55,9 +54,8 @@ elif [[ "$PLATFORM" == 'macosx-'* ]]; then
     if [[ "$CIBW_ARCHS_MACOS" == "x86_64" ]]; then
         export VCPKG_DEFAULT_TRIPLET="x64-osx-release-10.9"
         source ./build_tools/setup_vcpkg_compilation.sh
+        export LINKER_OPT="$LINKER_OPT -L/usr/local/gfortran/lib"
     elif [[ "$CIBW_ARCHS_MACOS" == "arm64" ]]; then
-        # OpenBLAS v0.3.21 was compiled locally on M1 with:
-        # $ MACOSX_DEPLOYMENT_TARGET=11.0 make USE_THREAD=1 USE_OPENMP=0 NUM_THREADS=24 TARGET=VORTEX
         # export VCPKG_DEFAULT_TRIPLET="arm64-osx-release-10.9"
         CMAKE_OSX_ARCH_OPT="-DCMAKE_OSX_ARCHITECTURES=arm64"
         # The deps were compiled locally on 2022/07/19 on an M1 machine and uploaded
@@ -71,7 +69,7 @@ elif [[ "$PLATFORM" == 'macosx-'* ]]; then
         tar xzfv x.tar.gz
         cp -a libomp/14.0.6/lib/* $ROOT/vcpkg_installed/arm64-osx-release-10.9/lib/
         cp -a libomp/14.0.6/include/* $ROOT/vcpkg_installed/arm64-osx-release-10.9/include/
-        export LINKER_OPT="$LINKER_OPT -L$ROOT/vcpkg_installed/arm64-osx-release-10.9/lib -lz"
+        export LINKER_OPT="$LINKER_OPT -L/opt/gfortran-darwin-arm64/lib/gcc/arm64-apple-darwin20.0.0/10.2.1 -L$ROOT/vcpkg_installed/arm64-osx-release-10.9/lib -lz"
     else
         echo "Unknown CIBW_ARCHS_MACOS=\"$CIBW_ARCHS_MACOS\""
         exit 1
@@ -94,7 +92,7 @@ export DISABLE_CCACHE=1
 export WERROR_OPT="-DENABLE_WERROR=ON"
 export BLA_STATIC_OPT="-DBLA_STATIC=ON"
 pip install cmake
-./build_tools/cmake_configure.sh -DCMAKE_VERBOSE_MAKEFILE=ON -DCMAKE_INSTALL_PREFIX=${ROOT}/install ${SYSTEM_VERSION_OPT} ${CMAKE_OSX_ARCH_OPT} ${CMAKE_PREFIX_PATH_OPT} -DENABLE_APPS=ON ${SHARED_OPT} -DCMAKE_INSTALL_UCRT_LIBRARIES=FALSE -DOPENMP_STATIC=ON ${BLAS_LIBRARIES_OPT} ${LAPACK_LIBRARIES_OPT}
+./build_tools/cmake_configure.sh -DCMAKE_VERBOSE_MAKEFILE=ON -DCMAKE_INSTALL_PREFIX=${ROOT}/install ${SYSTEM_VERSION_OPT} ${CMAKE_OSX_ARCH_OPT} ${CMAKE_PREFIX_PATH_OPT} -DENABLE_APPS=ON ${SHARED_OPT} -DCMAKE_INSTALL_UCRT_LIBRARIES=FALSE -DOPENMP_STATIC=ON ${BLAS_LIBRARIES_OPT}
 cmake --build build --target install --target package --config release
 
 # Put DLLs where they can be found
