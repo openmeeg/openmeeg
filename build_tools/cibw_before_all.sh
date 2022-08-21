@@ -55,7 +55,7 @@ elif [[ "$PLATFORM" == 'macosx-'* ]]; then
     if [[ "$CIBW_ARCHS_MACOS" == "x86_64" ]]; then
         export VCPKG_DEFAULT_TRIPLET="x64-osx-release-10.9"
         source ./build_tools/setup_vcpkg_compilation.sh
-        export LINKER_OPT="$LINKER_OPT -L/usr/local/gfortran/lib"
+        cp -av /usr/local/gfortran/lib/libgfortran* $OPENBLAS_LIB/
     elif [[ "$CIBW_ARCHS_MACOS" == "arm64" ]]; then
         # export VCPKG_DEFAULT_TRIPLET="arm64-osx-release-10.9"
         CMAKE_OSX_ARCH_OPT="-DCMAKE_OSX_ARCHITECTURES=arm64"
@@ -69,9 +69,9 @@ elif [[ "$PLATFORM" == 'macosx-'* ]]; then
         curl -LH "Authorization: Bearer QQ==" -o x.tar.gz https://ghcr.io/v2/homebrew/core/libomp/blobs/sha256:f00a5f352167b2fd68ad25b1959ef66a346023c6dbeb50892b386381d7ebe183
         tar xzfv x.tar.gz
         VCPKG_DIR=$ROOT/vcpkg_installed/arm64-osx-release-10.9
-        cp -a libomp/14.0.6/lib/* $VCPKG_DIR/lib/
+        cp -av libomp/14.0.6/lib/* $VCPKG_DIR/lib/
         cp -a libomp/14.0.6/include/* $VCPKG_DIR/include/
-        cp /opt/gfortran-darwin-arm64/lib/gcc/arm64-apple-darwin20.0.0/10.2.1/libgfortran* $VCPKG_DIR/lib/
+        cp -av /opt/gfortran-darwin-arm64/lib/gcc/arm64-apple-darwin20.0.0/10.2.1/libgfortran* $OPENBLAS_LIB/
         export LINKER_OPT="$LINKER_OPT -L$ROOT/vcpkg_installed/arm64-osx-release-10.9/lib -lz"
     else
         echo "Unknown CIBW_ARCHS_MACOS=\"$CIBW_ARCHS_MACOS\""
@@ -107,9 +107,11 @@ if [[ "$PLATFORM" == 'linux'* ]]; then
     ls -alR /usr/local/lib
 elif [[ "$PLATFORM" == 'macosx-arm64' ]]; then
     cp -av $ROOT/vcpkg_installed/arm64-osx-release-10.9/lib/libomp* $ROOT/install/lib/
+    cp -av $ROOT/vcpkg_installed/arm64-osx-release-10.9/lib/libgfortran* $ROOT/install/lib/
     # https://matthew-brett.github.io/docosx/mac_runtime_link.html
     otool -L $ROOT/install/lib/libOpenMEEG.1.1.0.dylib
     install_name_tool -change "@@HOMEBREW_PREFIX@@/opt/libomp/lib/libomp.dylib" "@loader_path/libomp.dylib" $ROOT/install/lib/libOpenMEEG.1.1.0.dylib
+    install_name_tool -change "@rpath/libgfortran.5.dylib" "@loader_path/libomp.dylib" $ROOT/install/lib/libOpenMEEG.1.1.0.dylib
     otool -L $ROOT/install/lib/libOpenMEEG.1.1.0.dylib
 elif [[ "$PLATFORM" == 'win'* ]]; then
     cp -av $OPENBLAS_LIB/libopenblas_v0.3.20-140-gbfd9c1b5-gcc_8_1_0.dll install/bin/
