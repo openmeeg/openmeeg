@@ -34,12 +34,12 @@ echo "Using NumPy PLATFORM=\"${PLATFORM}\""
 # win-amd64
 
 if [[ "$PLATFORM" == "linux-x86_64" ]]; then
+    dnf -y install curl zip unzip tar
     export OPENBLAS_INCLUDE=/usr/local/include
     export OPENBLAS_LIB=/usr/local/lib
     export CMAKE_CXX_FLAGS="-I$OPENBLAS_INCLUDE"
     export LINKER_OPT="-l:libgfortran.a -l:libquadmath.a -lpthread"
     export VCPKG_DEFAULT_TRIPLET="x64-linux"
-    dnf install curl zip unzip tar
     source ./build_tools/setup_vcpkg_compilation.sh
     LAPACK_LIBRARIES_OPT="-DLAPACK_LIBRARIES=/usr/local/lib/libopenblas.a"
     SHARED_OPT="-DBUILD_SHARED_LIBS=OFF"
@@ -50,7 +50,7 @@ elif [[ "$PLATFORM" == 'macosx-'* ]]; then
     OPENBLAS_LIB=$BLAS_DIR/lib
     export CMAKE_CXX_FLAGS="-I$OPENBLAS_INCLUDE"
     export CMAKE_PREFIX_PATH="$BLAS_DIR"
-    export LINKER_OPT="-L$OPENBLAS_LIB"
+    export LINKER_OPT="-L$OPENBLAS_LIB -lgfortran"
     echo "Building for CIBW_ARCHS_MACOS=\"$CIBW_ARCHS_MACOS\""
     if [[ "$CIBW_ARCHS_MACOS" == "x86_64" ]]; then
         export VCPKG_DEFAULT_TRIPLET="x64-osx-release-10.9"
