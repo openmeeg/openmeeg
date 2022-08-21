@@ -12,19 +12,19 @@ cd $1
 ROOT=$(pwd)
 echo "Using project root \"${ROOT}\" on RUNNER_OS=\"${RUNNER_OS}\""
 
-# Let's have NumPy help us out for all builds other than arm64
-if [[ "$CIBW_ARCHS_MACOS" != "arm64" ]]; then
-    curl -L https://github.com/numpy/numpy/archive/refs/tags/v1.23.1.tar.gz | tar xz numpy-1.23.1
-    mv numpy-1.23.1/tools .
-    mv numpy-1.23.1/numpy .  # on Windows, _distributor_init gets modified
-    echo "Running NumPy tools/wheels/cibw_before_build.sh $1"
-    chmod +x ./tools/wheels/cibw_before_build.sh
-    ./tools/wheels/cibw_before_build.sh $1
-    PLATFORM=$(PYTHONPATH=tools python -c "import openblas_support; print(openblas_support.get_plat())")
-    rm -Rf numpy numpy-1.23.1 tools
-else
-    PLATFORM=macosx-arm64
+# Let's have NumPy help us out, but we need to tell it to build for the correct
+# macOS platform
+if [[ "$CIBW_ARCHS_MACOS" == "arm64" ]]; then
+    export _PYTHON_HOST_PLATFORM="macosx-11.0-arm64"
 fi
+curl -L https://github.com/numpy/numpy/archive/refs/tags/v1.23.1.tar.gz | tar xz numpy-1.23.1
+mv numpy-1.23.1/tools .
+mv numpy-1.23.1/numpy .  # on Windows, _distributor_init gets modified
+echo "Running NumPy tools/wheels/cibw_before_build.sh $1"
+chmod +x ./tools/wheels/cibw_before_build.sh
+./tools/wheels/cibw_before_build.sh $1
+PLATFORM=$(PYTHONPATH=tools python -c "import openblas_support; print(openblas_support.get_plat())")
+rm -Rf numpy numpy-1.23.1 tools
 echo "Using NumPy PLATFORM=\"${PLATFORM}\""
 
 # PLATFORM can be:
@@ -34,7 +34,6 @@ echo "Using NumPy PLATFORM=\"${PLATFORM}\""
 # win-amd64
 
 if [[ "$PLATFORM" == "linux-x86_64" ]]; then
-    dnf install curl zip unzip tar
     export OPENBLAS_INCLUDE=/usr/local/include
     export OPENBLAS_LIB=/usr/local/lib
     export CMAKE_CXX_FLAGS="-I$OPENBLAS_INCLUDE"
@@ -44,33 +43,24 @@ if [[ "$PLATFORM" == "linux-x86_64" ]]; then
     LAPACK_LIBRARIES_OPT="-DLAPACK_LIBRARIES=/usr/local/lib/libopenblas.a"
     SHARED_OPT="-DBUILD_SHARED_LIBS=OFF"
 elif [[ "$PLATFORM" == 'macosx-'* ]]; then
-    # brew install swig libomp  # already installed!
+    # brew install swig libomp # This might be for macOS 11+!
     BLAS_DIR=/usr/local
+    OPENBLAS_INCLUDE=$BLAS_DIR/include
+    OPENBLAS_LIB=$BLAS_DIR/lib
+    export CMAKE_CXX_FLAGS="-I$OPENBLAS_INCLUDE"
+    export CMAKE_PREFIX_PATH="$BLAS_DIR"
+    export LINKER_OPT="-L$OPENBLAS_LIB -L/usr/local/gfortran/lib -lgfortran"
     echo "Building for CIBW_ARCHS_MACOS=\"$CIBW_ARCHS_MACOS\""
     if [[ "$CIBW_ARCHS_MACOS" == "x86_64" ]]; then
         export VCPKG_DEFAULT_TRIPLET="x64-osx-release-10.9"
         source ./build_tools/setup_vcpkg_compilation.sh
-        OPENBLAS_INCLUDE=$BLAS_DIR/include
-        OPENBLAS_LIB=$BLAS_DIR/lib
-        export CMAKE_CXX_FLAGS="-I$OPENBLAS_INCLUDE"
-        export CMAKE_PREFIX_PATH="$BLAS_DIR"
-        export LINKER_OPT="-L$OPENBLAS_LIB"
     elif [[ "$CIBW_ARCHS_MACOS" == "arm64" ]]; then
         # OpenBLAS v0.3.21 was compiled locally on M1 with:
         # $ MACOSX_DEPLOYMENT_TARGET=11.0 make USE_THREAD=1 USE_OPENMP=0 NUM_THREADS=24 TARGET=VORTEX
-        # then libquadmath.a and libgfortran.a were added
-        curl -L https://osf.io/download/uwdqa?version=2 > openmeeg-deps-arm64-openblas.tar.gz
-        tar xzfv openmeeg-deps-arm64-openblas.tar.gz
-        BLAS_DIR=$PWD/OpenBLAS
-        OPENBLAS_INCLUDE=$BLAS_DIR/include
-        OPENBLAS_LIB=$BLAS_DIR/lib
-        export CMAKE_CXX_FLAGS="-I$OPENBLAS_INCLUDE"
-        export CMAKE_PREFIX_PATH="$BLAS_DIR"
-        export LINKER_OPT="-L$OPENBLAS_LIB"
         # export VCPKG_DEFAULT_TRIPLET="arm64-osx-release-10.9"
         CMAKE_OSX_ARCH_OPT="-DCMAKE_OSX_ARCHITECTURES=arm64"
         # The deps were compiled locally on 2022/07/19 on an M1 machine and uploaded
-        curl -L https://osf.io/download/x45fz?version=1 > openmeeg-deps-arm64-osx-release-10.9.tar.gz
+        curl -L https://osf.io/download/x45fz?version= > openmeeg-deps-arm64-osx-release-10.9.tar.gz
         tar xzfv openmeeg-deps-arm64-osx-release-10.9.tar.gz
         CMAKE_PREFIX_PATH_OPT="-DCMAKE_PREFIX_PATH=$ROOT/vcpkg_installed/arm64-osx-release-10.9"
         ls -al $ROOT/vcpkg_installed/arm64-osx-release-10.9/lib
@@ -80,7 +70,7 @@ elif [[ "$PLATFORM" == 'macosx-'* ]]; then
         tar xzfv x.tar.gz
         cp -a libomp/14.0.6/lib/* $ROOT/vcpkg_installed/arm64-osx-release-10.9/lib/
         cp -a libomp/14.0.6/include/* $ROOT/vcpkg_installed/arm64-osx-release-10.9/include/
-        export LINKER_OPT="$LINKER_OPT -L$ROOT/vcpkg_installed/arm64-osx-release-10.9/lib -lz -lgfortran -lquadmath"
+        export LINKER_OPT="$LINKER_OPT -L$ROOT/vcpkg_installed/arm64-osx-release-10.9/lib -lz"
     else
         echo "Unknown CIBW_ARCHS_MACOS=\"$CIBW_ARCHS_MACOS\""
         exit 1
