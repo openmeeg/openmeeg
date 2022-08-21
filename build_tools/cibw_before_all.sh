@@ -101,6 +101,7 @@ cmake --build build --target install --config release
 if [[ "$PLATFORM" == 'linux'* ]]; then
     ls -al install/lib64/*.so*
     cp -av install/lib64/*.so* /usr/local/lib/
+    ls -alR /usr/local/lib
 elif [[ "$PLATFORM" == 'macosx-arm64' ]]; then
     cp -av $ROOT/vcpkg_installed/arm64-osx-release-10.9/lib/libomp* $ROOT/install/lib/
     # https://matthew-brett.github.io/docosx/mac_runtime_link.html
