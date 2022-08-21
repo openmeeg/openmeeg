@@ -68,9 +68,11 @@ elif [[ "$PLATFORM" == 'macosx-'* ]]; then
         # And downloading method taken from https://stackoverflow.com/a/69858397
         curl -LH "Authorization: Bearer QQ==" -o x.tar.gz https://ghcr.io/v2/homebrew/core/libomp/blobs/sha256:f00a5f352167b2fd68ad25b1959ef66a346023c6dbeb50892b386381d7ebe183
         tar xzfv x.tar.gz
-        cp -a libomp/14.0.6/lib/* $ROOT/vcpkg_installed/arm64-osx-release-10.9/lib/
-        cp -a libomp/14.0.6/include/* $ROOT/vcpkg_installed/arm64-osx-release-10.9/include/
-        export LINKER_OPT="$LINKER_OPT -L/opt/gfortran-darwin-arm64/lib/gcc/arm64-apple-darwin20.0.0/10.2.1 -L$ROOT/vcpkg_installed/arm64-osx-release-10.9/lib -lz"
+        VCPKG_DIR=$ROOT/vcpkg_installed/arm64-osx-release-10.9
+        cp -a libomp/14.0.6/lib/* $VCPKG_DIR/lib/
+        cp -a libomp/14.0.6/include/* $VCPKG_DIR/include/
+        cp /opt/gfortran-darwin-arm64/lib/gcc/arm64-apple-darwin20.0.0/10.2.1/libgfortran* $VCPKG_DIR/lib/
+        export LINKER_OPT="$LINKER_OPT -L -L$ROOT/vcpkg_installed/arm64-osx-release-10.9/lib -lz"
     else
         echo "Unknown CIBW_ARCHS_MACOS=\"$CIBW_ARCHS_MACOS\""
         exit 1
