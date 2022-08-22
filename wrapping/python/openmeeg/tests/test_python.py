@@ -19,7 +19,8 @@
 ###########################################
 import os
 from os import path as op
-from numpy.testing import assert_allclose
+
+# from numpy.testing import assert_allclose
 import openmeeg as om
 
 
@@ -40,6 +41,7 @@ def test_python(data_path):
 
     dipoles = om.Matrix()
     dipoles.load(dipole_file)
+    n_dipoles = dipoles.nlin()
 
     sensors = om.Sensors()
     sensors.load(squidsFile)
@@ -58,7 +60,7 @@ def test_python(data_path):
     hm = om.HeadMat(geom)
     hminv = hm.inverse()  # invert hm with a copy
     hminv_inplace = om.HeadMat(geom)
-    hminv_inplace.invert() # invert hm inplace (no copy)
+    hminv_inplace.invert()  # invert hm inplace (no copy)
     # assert_allclose(hminv.asarray(), hminv_inplace.asarray())  # XXX fails
 
     ssm = om.SurfSourceMat(geom, mesh)
@@ -94,12 +96,9 @@ def test_python(data_path):
     print(
         "gain_eeg_surf       : %d x %d" % (gain_eeg_surf.nlin(), gain_eeg_surf.ncol())
     )
-    print("gain_meg_dip        : %d x %d" % (gain_meg_dip.nlin(), gain_meg_dip.ncol()))
-    print(
-        "gain_adjoint_meg_dip: %d x %d"
-        % (gain_adjoint_meg_dip.nlin(), gain_adjoint_meg_dip.ncol())
-    )
-    print("gain_eeg_dip        : %d x %d" % (gain_eeg_dip.nlin(), gain_eeg_dip.ncol()))
+    assert (gain_eeg_dip.nlin(), gain_eeg_dip.ncol()) == (n_eeg_sensors, n_dipoles)
+    assert (gain_meg_dip.nlin(), gain_meg_dip.ncol()) == (n_meg_sensors, n_dipoles)
+    assert (gain_adjoint_meg_dip.nlin(), gain_adjoint_meg_dip.ncol()) == (n_meg_sensors, n_dipoles)
     print(
         "gain_adjoint_eeg_dip: %d x %d"
         % (gain_adjoint_eeg_dip.nlin(), gain_adjoint_eeg_dip.ncol())

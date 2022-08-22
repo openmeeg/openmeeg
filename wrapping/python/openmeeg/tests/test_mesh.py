@@ -1,5 +1,4 @@
-from os import path as path
-
+import os
 import numpy as np
 import openmeeg as om
 
@@ -46,7 +45,7 @@ def test_mesh_full(data_path):
 
     # test X -> should be OK
 
-    data_file = path.join(data_path, "Head1", "Head1.tri")
+    data_file = os.path.join(data_path, "Head1", "Head1.tri")
     mesh_X = om.Mesh()
     mesh_X.load(data_file)
     mesh_X.info()
@@ -55,7 +54,7 @@ def test_mesh_full(data_path):
     V_X = mesh_X.vertices()
     T_X = mesh_X.triangles()
     # V_X.torray() should be possible
-    mesh_Y = om.Mesh(V_X, T_X)  # XXX fails for now
+    # mesh_Y = om.Mesh(V_X, T_X)  # XXX fails for now
     # mesh_Y.info()
 
     # TODO
