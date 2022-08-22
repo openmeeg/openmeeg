@@ -121,7 +121,9 @@ namespace OpenMEEG {
         
         void saveEEG( const std::string filename ) const { EEGleadfield.save(filename); }
         void saveMEG( const std::string filename ) const { MEGleadfield.save(filename); }
-        
+
+        size_t nlin() const { return MEGleadfield.nlin() + EEGleadfield.nlin(); }
+
     private:
 
         Matrix EEGleadfield;

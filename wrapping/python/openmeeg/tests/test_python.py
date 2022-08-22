@@ -19,6 +19,7 @@
 ###########################################
 import os
 from os import path as op
+from numpy.testing import assert_allclose
 import openmeeg as om
 
 
@@ -33,6 +34,7 @@ def test_python(data_path):
     patches_file = op.join(data_path, subject, subject + ".patches")
 
     geom = om.Geometry(geom_file, cond_file)
+    assert geom.is_nested()
 
     mesh = om.Mesh(source_mesh_file)
 
@@ -41,20 +43,24 @@ def test_python(data_path):
 
     sensors = om.Sensors()
     sensors.load(squidsFile)
+    n_meg_sensors = sensors.getNumberOfSensors()
 
     patches = om.Sensors()
     patches.load(patches_file)
+    n_eeg_sensors = patches.getNumberOfSensors()
 
     # Compute forward problem (Build Gain Matrices)
 
-    gauss_order = 3
+    gauss_order = 3  # XXX cannot get Integrator exposed
     use_adaptive_integration = True
     dipole_in_cortex = True
 
     hm = om.HeadMat(geom)
-    # hm.invert() # invert hm inplace (no copy)
-    # hminv = hm
     hminv = hm.inverse()  # invert hm with a copy
+    hminv_inplace = om.HeadMat(geom)
+    hminv_inplace.invert() # invert hm inplace (no copy)
+    # assert_allclose(hminv.asarray(), hminv_inplace.asarray())  # XXX fails
+
     ssm = om.SurfSourceMat(geom, mesh)
     ss2mm = om.SurfSource2MEGMat(mesh, sensors)
     dsm = om.DipSourceMat(geom, dipoles)
@@ -70,6 +76,9 @@ def test_python(data_path):
     gain_adjoint_eeg_meg_dip = om.GainEEGMEGadjoint(
         geom, dipoles, hm, h2em, h2mm, ds2mm
     )
+
+    assert gain_adjoint_eeg_meg_dip.nlin() == (n_meg_sensors + n_eeg_sensors)
+    assert (hm.nlin(), hm.ncol()) == (hminv.nlin(), hminv.ncol())  # XXX do better
 
     print("hm                  : %d x %d" % (hm.nlin(), hm.ncol()))
     print("hminv               : %d x %d" % (hminv.nlin(), hminv.ncol()))
@@ -113,30 +122,24 @@ def test_python(data_path):
     ###############################################################################
     # Compute forward data =
 
-    srcFile = op.join(data_path, subject, subject + ".srcdip")
-    sources = om.Matrix(srcFile)
+    src_fname = op.join(data_path, subject, subject + ".srcdip")
+    sources = om.Matrix(src_fname)
+    n_times = sources.ncol()
 
     noise_level = 0.0
     est_meg = om.Forward(gain_meg_dip, sources, noise_level)
-    print("est_meg    : %d x %d" % (est_meg.nlin(), est_meg.ncol()))
+    assert (est_meg.nlin(), est_meg.ncol()) == (n_meg_sensors, n_times)
 
     est_meg_adjoint = om.Forward(gain_adjoint_meg_dip, sources, noise_level)
-    print(
-        "est_meg_adjoint    : %d x %d"
-        % (est_meg_adjoint.nlin(), est_meg_adjoint.ncol())
-    )
+    assert (est_meg_adjoint.nlin(), est_meg_adjoint.ncol()) == (n_meg_sensors, n_times)
 
     est_eeg = om.Forward(gain_eeg_dip, sources, noise_level)
-    print("est_eeg    : %d x %d" % (est_eeg.nlin(), est_eeg.ncol()))
+    assert (est_eeg.nlin(), est_eeg.ncol()) == (n_eeg_sensors, n_times)
 
     est_eeg_adjoint = om.Forward(gain_adjoint_eeg_dip, sources, noise_level)
-    print(
-        "est_eeg_adjoint    : %d x %d"
-        % (est_eeg_adjoint.nlin(), est_eeg_adjoint.ncol())
-    )
+    assert (est_eeg_adjoint.nlin(), est_eeg_adjoint.ncol()) == (n_eeg_sensors, n_times)
 
     # Example of basic manipulations
-
     # TODO: the same with numpy
     v1 = om.Vertex(1.0, 0.0, 0.0, 0)
     v2 = om.Vertex(0.0, 1.0, 0.0, 1)
