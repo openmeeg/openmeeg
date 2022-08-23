@@ -53,6 +53,7 @@ def test_mesh_full(data_path):
     # test Y -> redo with np.array()
     V_X = mesh_X.vertices()
     T_X = mesh_X.triangles()
+    assert V_X is not None and T_X is not None
     # V_X.torray() should be possible
     # mesh_Y = om.Mesh(V_X, T_X)  # XXX fails for now
     # mesh_Y.info()

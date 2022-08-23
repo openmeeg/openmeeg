@@ -53,9 +53,9 @@ def test_python(data_path, tmp_path):
     n_eeg_sensors = patches.getNumberOfSensors()
 
     # Compute forward problem (Build Gain Matrices)
-    gauss_order = 3  # XXX cannot get Integrator exposed
-    use_adaptive_integration = True
-    dipole_in_cortex = True
+    # gauss_order = 3  # XXX cannot get Integrator exposed
+    # use_adaptive_integration = True
+    # dipole_in_cortex = True
 
     hm = om.HeadMat(geom)
     hminv = hm.inverse()  # invert hm with a copy
@@ -146,7 +146,7 @@ def test_python(data_path, tmp_path):
     # TODO: the same with numpy
     v1 = om.Vertex(1.0, 0.0, 0.0, 0)
     v2 = om.Vertex(0.0, 1.0, 0.0, 1)
-    v3 = om.Vertex(0.0, 0.0, 1.0, 2)
+    om.Vertex(0.0, 0.0, 1.0, 2)
     # TODO: v4 = om.Vertex( [double] , int )
 
     # print(v1.norm()
