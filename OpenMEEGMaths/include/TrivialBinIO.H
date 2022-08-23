@@ -59,7 +59,7 @@ namespace OpenMEEG {
                     } else {
                         is.read(reinterpret_cast<char*>(&ui),sizeof(unsigned int));
                         linop.ncol()        = ui;
-                        const std::streamoff n_elmts = linop.nlin()*linop.ncol();
+                        const std::streamoff n_elmts = static_cast<std::streamoff>(linop.nlin())*static_cast<std::streamoff>(linop.ncol());
                         linop.storageType() = (size-sizeof(unsigned int)==n_elmts*sizeof(double)) ?
                                                 LinOp::FULL : LinOp::SPARSE;
                     }
