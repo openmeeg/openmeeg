@@ -10,6 +10,8 @@
 #include <map>
 #include <vector>
 #include <string>
+#include <fstream>
+#include <filesystem>
 
 #include <interface.h>
 #include <OMExceptions.H>
@@ -87,14 +89,14 @@ namespace OpenMEEG::GeometryIOs {
 
         std::string given_name(const std::string& keyword) {
             std::string res;
-            fs >> io_utils::match(keyword) >> io_utils::token(res,':');
+            ifs >> io_utils::match(keyword) >> io_utils::token(res,':');
             return res;
         }
 
         std::string filename() {
             std::string filename;
-            fs >> io_utils::filename(filename,'"',false);
-            return (is_relative_path(filename)) ? directory+filename : filename;
+            ifs >> io_utils::filename(filename,'"',false);
+            return (std::filesystem::path(filename).is_relative()) ? (directory/filename).string() : filename;
         }
 
         static bool extract_sign(std::string& str) {
@@ -108,7 +110,7 @@ namespace OpenMEEG::GeometryIOs {
 
         std::string section_name(const unsigned n,const std::string& keyword) {
             bool unnamed;
-            fs >> io_utils::skip_comments("#") >> io_utils::match_optional(keyword+':',unnamed);
+            ifs >> io_utils::skip_comments("#") >> io_utils::match_optional(keyword+':',unnamed);
             const std::string& name = (unnamed || version_id==VERSION10) ? default_name(n+1) : given_name(keyword);
             return name;
         }
@@ -127,7 +129,7 @@ namespace OpenMEEG::GeometryIOs {
 
         std::vector<std::string> get_line_tokens() {
             std::string line;
-            std::getline(fs,line);
+            std::getline(ifs,line);
             std::istringstream iss(line);
             typedef std::istream_iterator<std::string> Iterator;
             std::vector<std::string> res;
@@ -139,26 +141,26 @@ namespace OpenMEEG::GeometryIOs {
 
         static const GeomFile prototype;
 
-        VersionId    version_id;
-        std::fstream fs;
-        std::string  directory;
-        bool         mesh_provided_as_interfaces;
-        unsigned     nb_interfaces;
+        VersionId             version_id;
+        std::ifstream         ifs;
+        std::filesystem::path directory;
+        bool                  mesh_provided_as_interfaces;
+        unsigned              nb_interfaces;
     };
 
     void GeomFile::load_meshes(Geometry& geometry) {
 
-        fs.open(fname.c_str());
+        ifs.open(fname.c_str());
 
-        if (!fs.is_open())
+        if (!ifs.is_open())
             throw OpenMEEG::OpenError(fname);
 
         //  Get the version of the geometry file format.
 
         unsigned major,minor; ///< version of the domain description
-        fs >> io_utils::match("# Domain Description ") >> major >> io_utils::match(".") >> minor;
+        ifs >> io_utils::match("# Domain Description ") >> major >> io_utils::match(".") >> minor;
 
-        if (fs.fail())
+        if (ifs.fail())
             throw OpenMEEG::WrongFileFormat(fname);
 
         version_id = version(major,minor);
@@ -173,7 +175,7 @@ namespace OpenMEEG::GeometryIOs {
 
         // Extract the absolute path of geometry file
 
-        directory = absolute_path(fname);
+        directory = std::filesystem::path(fname).parent_path();
 
         // Process meshes.
 
@@ -185,17 +187,17 @@ namespace OpenMEEG::GeometryIOs {
             // Read the mesh section of the description file.
             // Try to load the meshfile (VTK::vtp file) or try to load the meshes
 
-            fs >> io_utils::skip_comments("#") >> io_utils::match_optional("MeshFile",has_meshfile);
+            ifs >> io_utils::skip_comments("#") >> io_utils::match_optional("MeshFile",has_meshfile);
 
             if (has_meshfile) {
                 GeometryIO* io = GeometryIO::create(filename());
                 io->load(geometry);
             }
 
-            fs >> io_utils::skip_comments("#") >> io_utils::match_optional("Meshes",has_meshsection);
+            ifs >> io_utils::skip_comments("#") >> io_utils::match_optional("Meshes",has_meshsection);
             if (has_meshsection) {
                 unsigned nb_meshes;
-                fs >> nb_meshes;
+                ifs >> nb_meshes;
                 const Geometry::MeshList& meshes = read_mesh_descriptions(nb_meshes,"Mesh");
                 geometry.import(meshes);
             }
@@ -204,10 +206,10 @@ namespace OpenMEEG::GeometryIOs {
         // Process interfaces.
 
         bool trash; // backward compatibility, catch "Mesh" optionally.
-        fs >> io_utils::skip_comments('#')
+        ifs >> io_utils::skip_comments('#')
             >> io_utils::match("Interfaces") >> nb_interfaces >> io_utils::match_optional("Mesh", trash);
 
-        if (fs.fail())
+        if (ifs.fail())
             throw OpenMEEG::WrongFileFormat(fname);
 
         mesh_provided_as_interfaces = !has_meshfile && !has_meshsection;
@@ -254,18 +256,18 @@ namespace OpenMEEG::GeometryIOs {
         //  Load domains.
 
         unsigned num_domains;
-        fs >> io_utils::skip_comments('#') >> io_utils::match("Domains") >> num_domains;
+        ifs >> io_utils::skip_comments('#') >> io_utils::match("Domains") >> num_domains;
 
-        if (fs.fail())
+        if (ifs.fail())
             throw OpenMEEG::WrongFileFormat(fname);
 
         geometry.domains().resize(num_domains);
         for (auto& domain : geometry.domains()) {
-            fs >> io_utils::skip_comments('#') >> io_utils::match("Domain");
+            ifs >> io_utils::skip_comments('#') >> io_utils::match("Domain");
             if (version_id==VERSION10) { // backward compatibility
-                fs >> domain.name();
+                ifs >> domain.name();
             } else {
-                fs >> io_utils::token(domain.name(),':');
+                ifs >> io_utils::token(domain.name(),':');
             }
             for (auto& token : get_line_tokens()) {
                 if (token=="shared") {
@@ -283,17 +285,17 @@ namespace OpenMEEG::GeometryIOs {
             }
         }
 
-        if (fs.fail())
+        if (ifs.fail())
             throw OpenMEEG::WrongFileFormat(fname);
     }
 
     void GeomFile::save_geom(const Geometry& geometry) {
-        fs.open(fname.c_str(),std::fstream::out);
+        std::ofstream ofs(fname.c_str());
 
-        if (!fs.is_open())
+        if (!ofs.is_open())
             throw OpenMEEG::OpenError(fname);
 
-        fs << "# Domain Description 1.1" << std::endl << std::endl;
+        ofs << "# Domain Description 1.1" << std::endl << std::endl;
 
         //  Create the list of interfaces.
 
@@ -311,30 +313,29 @@ namespace OpenMEEG::GeometryIOs {
                 }
             }
 
-        fs << "Meshes " << meshes.size() << std::endl << std::endl;
+        ofs << "Meshes " << meshes.size() << std::endl << std::endl;
 
-        for (const auto& mesh : meshes) {
-            fs << "Mesh " << mesh->name() << ": \"" << "" << '"' << std::endl;
-        }
+        for (const auto& mesh : meshes)
+            ofs << "Mesh " << mesh->name() << ": \"" << "" << '"' << std::endl;
 
-        fs << "Interfaces " << interfaces.size() << std::endl << std::endl;
+        ofs << "Interfaces " << interfaces.size() << std::endl << std::endl;
 
         for (const auto& interface : interfaces) {
-            fs << "Interface " << interface->name() << ":";
+            ofs << "Interface " << interface->name() << ":";
             for (const auto& omesh : interface->oriented_meshes())
-                fs << ' ' << ((omesh.orientation()==OrientedMesh::Normal) ? '+' : '-') << omesh.mesh().name();
+                ofs << ' ' << ((omesh.orientation()==OrientedMesh::Normal) ? '+' : '-') << omesh.mesh().name();
 
-            fs << std::endl;
+            ofs << std::endl;
         }
-        fs << std::endl;
+        ofs << std::endl;
 
-        fs << "Domains " << geometry.domains().size() << std::endl << std::endl;
+        ofs << "Domains " << geometry.domains().size() << std::endl << std::endl;
         for (const auto& domain : geometry.domains()) {
-            fs << "Domain " << domain.name() << ":";
+            ofs << "Domain " << domain.name() << ":";
             for (const auto& boundary : domain.boundaries())
-                fs << ' ' << ((boundary.inside()) ? '-' : '+') << boundary.interface().name();
-            fs << std::endl;
+                ofs << ' ' << ((boundary.inside()) ? '-' : '+') << boundary.interface().name();
+            ofs << std::endl;
         }
-        fs << std::endl;
+        ofs << std::endl;
     }
 }

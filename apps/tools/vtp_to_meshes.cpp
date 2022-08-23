@@ -5,7 +5,10 @@
 // - provide also LICENSE.txt and modify this header to refer to it.
 // - replace this header by the LICENSE.txt content.
 
+#include <filesystem>
+
 #include "geometry.h"
+#include "filenames.h"
 #include "matrix.h"
 #include "commandline.h"
 
@@ -30,9 +33,8 @@ main(int argc,char* argv[]) {
 
     Geometry geom(input);
 
-    const std::string::size_type idx = output.rfind('.');
-    const std::string& extension = (idx!=std::string::npos) ? output.substr(idx+1) : std::string("");
-    const std::string& basename = output.substr(0,idx);
+    const std::string basename = std::filesystem::path(output).stem();
+    const std::string& extension = getFilenameExtension(output);
 
     for (const auto& mesh : geom.meshes())
         mesh.save(basename+mesh.name()+'.'+extension);
