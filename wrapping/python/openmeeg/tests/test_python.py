@@ -61,11 +61,7 @@ def test_python(data_path, tmp_path):
     hminv = hm.inverse()  # invert hm with a copy
     hminv_inplace = om.HeadMat(geom)
     hminv_inplace.invert()  # invert hm inplace (no copy)
-    # XXX the copy() in the next line should not be necessary :'(
-    # but otherwise it fails...
-    assert_allclose(
-        om.Matrix(hminv).array().copy(), om.Matrix(hminv_inplace).array().copy()
-    )
+    assert_allclose(om.Matrix(hminv).array(), om.Matrix(hminv_inplace).array())
 
     ssm = om.SurfSourceMat(geom, mesh)
     ss2mm = om.SurfSource2MEGMat(mesh, sensors)
@@ -168,6 +164,5 @@ def test_python(data_path, tmp_path):
     m2 = om.Matrix()
     m2.load(ssm_fname)
 
-    # XXX copy should not be necessary...
-    assert_allclose(om.Matrix(hm).array().copy(), om.Matrix(m1).array().copy())
+    assert_allclose(om.Matrix(hm).array(), om.Matrix(m1).array())
     assert_allclose(ssm.array(), m2.array())

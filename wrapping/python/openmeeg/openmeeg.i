@@ -455,8 +455,13 @@ namespace OpenMEEG {
         dims[0] = ($self)->nlin();
         dims[1] = ($self)->ncol();
 
+        // make a copy of the data
+        double* data = new double[($self)->nlin()*($self)->ncol()];
+        for (unsigned int i=0; i<($self)->nlin(); ++i)
+            for (unsigned int j=0; j<($self)->ncol(); ++j)
+                data[i*($self)->ncol()+j] = (*($self))(i,j);
         PyArrayObject* array = reinterpret_cast<PyArrayObject*>(PyArray_New(&PyArray_Type,ndims,dims,NPY_DOUBLE,NULL,
-                                                                            static_cast<void*>(($self)->data()),0,NPY_ARRAY_F_CONTIGUOUS,NULL));
+                                                                            static_cast<void*>(data),0,NPY_ARRAY_C_CONTIGUOUS | NPY_ARRAY_OWNDATA,NULL));
         return PyArray_Return(array);
     }
 
