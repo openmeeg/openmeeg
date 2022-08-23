@@ -1,25 +1,27 @@
 import pytest
 import numpy as np
+from numpy.testing import assert_array_equal
 import openmeeg as om
+
+
+def _assert_equal(matrix, numpy_array):
+    assert matrix.nlin() == numpy_array.shape[0]
+    assert matrix.ncol() == numpy_array.shape[1]
+    for i in range(matrix.nlin()):
+        for j in range(matrix.ncol()):
+            assert matrix.value(i, j) == numpy_array[i, j]
 
 
 def test_matrix():
     rng = np.random.RandomState(0)
     W = np.asfortranarray([[0.0, 0.0, 3.0], [0.0, 2.0, 0.0], [1.0, 0.0, 0.0]])
-    print("W of", W.__class__)
-    print("W =", W, "\n")
 
     X = om.Matrix(W)
-    print("X of", X.__class__)
-    print("X =", X, "\n")
-
     Z = X.array()
-    print("Z of", Z.__class__)
-    print("Z =", Z, "\n")
+    assert isinstance(Z, np.ndarray)
+    assert_array_equal(Z, W)
 
     a = np.asfortranarray([[1, 2, 3], [4, 5, 6]])
-    print("a=", a)
-
     b = om.Matrix(a)
     assert b.nlin() == 2
     assert b.ncol() == 3
@@ -32,9 +34,7 @@ def test_matrix():
     assert c.nlin() == 2
     assert c.ncol() == 3
 
-    for i in range(c.nlin()):
-        for j in range(c.ncol()):
-            assert c.value(i, j) == a[i, j]
+    _assert_equal(c, a)
 
     nlines = rng.randint(10, 20)
     ncols = nlines + 2  # test on not squared matric
@@ -42,33 +42,14 @@ def test_matrix():
     mat_numpy = np.asfortranarray(rng.randn(nlines, ncols))
     mat_om = om.Matrix(mat_numpy)
 
-    print("dimensions of mat_numpy: ", mat_numpy.shape)
-
     assert (mat_om.nlin(), mat_om.ncol()) == mat_numpy.shape
-
     mat_om.info()
 
-    # mimic info()
-
-    print("First Values of numpy array")
-    for li in range(5):
-        for ci in range(5):
-            print(mat_numpy[li, ci], end=" ")
-        print()
-
-    error = False
-    for li in range(5):
-        for ci in range(5):
-            if mat_numpy[li, ci] != mat_om.value(li, ci):
-                print("matrices differ at:", li, ci)
-                error = True
-
-    if error:
-        print("conversion between OpenMEEG:Matrix <> numpy.ndarray is OK")
+    _assert_equal(mat_om, mat_numpy)
 
     # Testing going back from OpenMEEG to numpy
     mat_om2np = mat_om.array()
-    np.testing.assert_array_equal(mat_numpy, mat_om2np)
+    assert_array_equal(mat_numpy, mat_om2np)
 
     with pytest.raises(TypeError, match="can only have 2 dim"):
         om.Matrix(np.zeros((1, 1, 1)))
