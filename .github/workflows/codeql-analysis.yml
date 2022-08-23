@@ -58,9 +58,11 @@ jobs:
 
 
     - run: |
-        sudo apt -yq install liblapacke-dev libhdf5-dev libmatio-dev
+        sudo apt -yq install liblapacke-dev libhdf5-dev libmatio-dev libopenblas-dev
         ./build_tools/cmake_configure.sh
         cmake --build build --config Release
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v2
+      with:
+        config-file: ./.github/codeql/codeql-config.yml
