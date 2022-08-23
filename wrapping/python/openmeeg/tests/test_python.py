@@ -17,14 +17,14 @@
 # > subM = M.submat(0,10,0,10)
 # > mySubMat = om.asarray(subM)
 ###########################################
-import os
-from os import path as op
+import os.path as op
+import numpy as np
 
-# from numpy.testing import assert_allclose
+from numpy.testing import assert_allclose
 import openmeeg as om
 
 
-def test_python(data_path):
+def test_python(data_path, tmp_path):
     # Load data
     subject = "Head1"
     cond_file = op.join(data_path, subject, subject + ".cond")
@@ -38,6 +38,7 @@ def test_python(data_path):
     assert geom.is_nested()
 
     mesh = om.Mesh(source_mesh_file)
+    n_dipoles_surf = mesh.vertices().size()
 
     dipoles = om.Matrix()
     dipoles.load(dipole_file)
@@ -52,7 +53,6 @@ def test_python(data_path):
     n_eeg_sensors = patches.getNumberOfSensors()
 
     # Compute forward problem (Build Gain Matrices)
-
     gauss_order = 3  # XXX cannot get Integrator exposed
     use_adaptive_integration = True
     dipole_in_cortex = True
@@ -61,7 +61,11 @@ def test_python(data_path):
     hminv = hm.inverse()  # invert hm with a copy
     hminv_inplace = om.HeadMat(geom)
     hminv_inplace.invert()  # invert hm inplace (no copy)
-    # assert_allclose(hminv.asarray(), hminv_inplace.asarray())  # XXX fails
+    # XXX the copy() in the next line should not be necessary :'(
+    # but otherwise it fails...
+    assert_allclose(
+        om.Matrix(hminv).array().copy(), om.Matrix(hminv_inplace).array().copy()
+    )
 
     ssm = om.SurfSourceMat(geom, mesh)
     ss2mm = om.SurfSource2MEGMat(mesh, sensors)
@@ -79,33 +83,36 @@ def test_python(data_path):
         geom, dipoles, hm, h2em, h2mm, ds2mm
     )
 
+    n_hm_unknowns = geom.nb_parameters() - geom.nb_current_barrier_triangles()
     assert gain_adjoint_eeg_meg_dip.nlin() == (n_meg_sensors + n_eeg_sensors)
-    assert (hm.nlin(), hm.ncol()) == (hminv.nlin(), hminv.ncol())  # XXX do better
-
-    print("hm                  : %d x %d" % (hm.nlin(), hm.ncol()))
-    print("hminv               : %d x %d" % (hminv.nlin(), hminv.ncol()))
-    print("ssm                 : %d x %d" % (ssm.nlin(), ssm.ncol()))
-    print("ss2mm               : %d x %d" % (ss2mm.nlin(), ss2mm.ncol()))
-    print("dsm                 : %d x %d" % (ssm.nlin(), ssm.ncol()))
-    print("ds2mm               : %d x %d" % (ss2mm.nlin(), ss2mm.ncol()))
-    print("h2mm                : %d x %d" % (h2mm.nlin(), h2mm.ncol()))
-    print("h2em                : %d x %d" % (h2mm.nlin(), h2mm.ncol()))
-    print(
-        "gain_meg_surf       : %d x %d" % (gain_meg_surf.nlin(), gain_meg_surf.ncol())
-    )
-    print(
-        "gain_eeg_surf       : %d x %d" % (gain_eeg_surf.nlin(), gain_eeg_surf.ncol())
-    )
+    assert hm.nlin() == hm.ncol() == n_hm_unknowns
+    assert hminv.nlin() == hminv.ncol() == n_hm_unknowns
+    assert (ssm.nlin(), ssm.ncol()) == (n_hm_unknowns, n_dipoles_surf)
+    assert (dsm.nlin(), dsm.ncol()) == (n_hm_unknowns, n_dipoles)
+    assert (ss2mm.nlin(), ss2mm.ncol()) == (n_meg_sensors, n_dipoles_surf)
+    assert (ds2mm.nlin(), ds2mm.ncol()) == (n_meg_sensors, n_dipoles)
+    assert (h2mm.nlin(), h2mm.ncol()) == (n_meg_sensors, n_hm_unknowns)
+    assert (h2em.nlin(), h2em.ncol()) == (n_eeg_sensors, n_hm_unknowns)
     assert (gain_eeg_dip.nlin(), gain_eeg_dip.ncol()) == (n_eeg_sensors, n_dipoles)
+    assert (gain_eeg_surf.nlin(), gain_eeg_surf.ncol()) == (
+        n_eeg_sensors,
+        n_dipoles_surf,
+    )
     assert (gain_meg_dip.nlin(), gain_meg_dip.ncol()) == (n_meg_sensors, n_dipoles)
-    assert (gain_adjoint_meg_dip.nlin(), gain_adjoint_meg_dip.ncol()) == (n_meg_sensors, n_dipoles)
-    print(
-        "gain_adjoint_eeg_dip: %d x %d"
-        % (gain_adjoint_eeg_dip.nlin(), gain_adjoint_eeg_dip.ncol())
+    assert (gain_meg_surf.nlin(), gain_meg_surf.ncol()) == (
+        n_meg_sensors,
+        n_dipoles_surf,
+    )
+    assert (gain_adjoint_meg_dip.nlin(), gain_adjoint_meg_dip.ncol()) == (
+        n_meg_sensors,
+        n_dipoles,
+    )
+    assert (gain_adjoint_eeg_dip.nlin(), gain_adjoint_eeg_dip.ncol()) == (
+        n_eeg_sensors,
+        n_dipoles,
     )
 
     # Leadfield MEG in one line :
-
     gain_meg_surf_one_line = om.GainMEG(
         om.HeadMat(geom).inverse(),
         om.SurfSourceMat(geom, mesh),
@@ -113,10 +120,7 @@ def test_python(data_path):
         om.SurfSource2MEGMat(mesh, sensors),
     )
 
-    print(
-        "gain_meg_surf_one_line : %d x %d"
-        % (gain_meg_surf_one_line.nlin(), gain_meg_surf_one_line.ncol())
-    )
+    assert_allclose(gain_meg_surf_one_line.array(), gain_meg_surf.array())
 
     ###############################################################################
     # Compute forward data =
@@ -146,31 +150,24 @@ def test_python(data_path):
     # TODO: v4 = om.Vertex( [double] , int )
 
     # print(v1.norm()
-    # print((v1 + v2).norm()
+    assert v1.norm() == np.linalg.norm(v1.array())
+    assert (v1 + v2).norm() == np.linalg.norm(v1.array() + v2.array())
 
     normal = om.Vect3(1.0, 0.0, 0.0)
-    t = om.Triangle(v1, v2, v3)
+    assert normal.norm() == 1.0
 
-    hm_file = subject + ".hm"
-    hm.save(hm_file)
+    hm_fname = str(tmp_path / f"{subject}.hm")
+    hm.save(hm_fname)
 
-    ssm_file = subject + ".ssm"
-    ssm.save(ssm_file)
+    ssm_fname = str(tmp_path / f"{subject}.ssm")
+    ssm.save(ssm_fname)
 
     m1 = om.SymMatrix()
-    m1.load(hm_file)
-    # print(m1(0, 0))
-    # print(m1.nlin())
-    # print(m1.ncol())
+    m1.load(hm_fname)
 
     m2 = om.Matrix()
-    m2.load(ssm_file)
-    # m2.setvalue(2,3,-0.2) # m2(2,3)=-0.2
-    # print(m2(2,3))
-    # print(m2(0, 0))
-    # print(m2.nlin())
-    # print(m2.ncol())
+    m2.load(ssm_fname)
 
-    # remove useless files
-    os.remove(hm_file)
-    os.remove(ssm_file)
+    # XXX copy should not be necessary...
+    assert_allclose(om.Matrix(hm).array().copy(), om.Matrix(m1).array().copy())
+    assert_allclose(ssm.array(), m2.array())

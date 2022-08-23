@@ -1,6 +1,18 @@
 # Build a geometry with given interfaces and domains.
+import numpy as np
 
-from .openmeeg import Geometry, Domain, SimpleDomain, Interface, OrientedMesh
+from .openmeeg import (Geometry, Domain, SimpleDomain, Interface, OrientedMesh,
+                       Mesh)
+
+
+def _mesh_vertices_and_triangles(mesh):
+    mesh_vertices = mesh.geometry().vertices()
+    vertices = np.array([vertex.array() for vertex in mesh_vertices])
+    mesh_triangles = mesh.triangles()
+    triangles = np.array(
+        [mesh.triangle(triangle).array() for triangle in mesh_triangles]
+    )
+    return vertices, triangles
 
 
 def make_geometry(meshes, interfaces, domains):
@@ -8,8 +20,11 @@ def make_geometry(meshes, interfaces, domains):
 
     Parameters
     ----------
-    interfaces : list
-        The XXX
+    meshes : dict
+        Dictionary of meshes, indexed by domain name. Meshes can be
+        either instances of Mesh or tuples of (vertices, triangles).
+    interfaces : dict
+        Dictionary of interfaces, indexed by interface name.
     domains : dict
         The domains.
 
@@ -22,7 +37,7 @@ def make_geometry(meshes, interfaces, domains):
     if not isinstance(meshes, dict) or len(meshes) == 0:
         raise ValueError(
             "Wrong argument (should be a non empty dictionary of named "
-            "meshes). Got {type(meshes)}"
+            f"meshes). Got {type(meshes)}"
         )
 
     if not isinstance(interfaces, dict) or len(interfaces) == 0:
@@ -38,6 +53,14 @@ def make_geometry(meshes, interfaces, domains):
         )
 
     # First add mesh points
+    for name, mesh in meshes.items():
+        if isinstance(mesh, Mesh):
+            meshes[name] = _mesh_vertices_and_triangles(mesh)
+        else:
+            raise ValueError(
+                f"Wrong argument (should be a Mesh or a tuple of "
+                f"vertices and triangles). Got {type(mesh)}"
+            )
 
     indmaps = dict()
     geom = Geometry()
@@ -113,4 +136,65 @@ def make_geometry(meshes, interfaces, domains):
         geom.domains().push_back(om_domain)
 
     geom.finalize()
+    return geom
+
+
+def make_nested_geometry(meshes):
+    """Make a geometry from a list of meshes assumed to be nested.
+
+    Parameters
+    ----------
+    meshes : list
+        List of meshes from inner to outer. For now only 3 layer
+        models are supported.
+
+    Returns
+    -------
+    geometry : isinstance of om.Geometry
+        The geometry that can be used in OpenMEEG.
+    """
+
+    if not isinstance(meshes, list) or len(meshes) != 3:
+        raise ValueError(
+            f"Wrong argument (should be a list of 3 meshes). Got {type(meshes)}"
+        )
+
+    # Convert meshes to dictionary of meshes for make_geometry
+    meshes = {
+        name: meshes[i] for i, name in enumerate(["cortex", "skull", "scalp"])
+    }
+
+    # It should be possible to have multiple oriented meshes per interface. e.g.
+    # interface1 = [(m1,om.OrientedMesh.Normal),
+    #               (m2,om.OrientedMesh.Opposite),
+    #               (m3,om.OrientedMesh.Normal)]
+    # It should also be possible to have a name added at the beginning of the
+    # tuple.
+
+    interfaces = {
+        "interface1": [("cortex", OrientedMesh.Normal)],
+        "interface2": [("skull", OrientedMesh.Normal)],
+        "interface3": [("scalp", OrientedMesh.Normal)],
+    }
+
+    domains = {
+        "Scalp": (
+            [
+                ("interface2", SimpleDomain.Outside),
+                ("interface3", SimpleDomain.Inside),
+            ],
+            1.0,
+        ),
+        "Brain": ([("interface1", SimpleDomain.Inside)], 1.0),
+        "Air": ([("interface3", SimpleDomain.Outside)], 0.0),
+        "Skull": (
+            [
+                ("interface2", SimpleDomain.Inside),
+                ("interface1", SimpleDomain.Outside),
+            ],
+            0.0125,
+        ),
+    }
+
+    geom = make_geometry(meshes, interfaces, domains)
     return geom

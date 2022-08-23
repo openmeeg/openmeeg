@@ -1,7 +1,7 @@
-#!/usr/bin/env python
-
+import os.path as op
 import numpy as np
 import pytest
+
 import openmeeg as om
 
 
@@ -33,3 +33,27 @@ def test_geometry():
         om.Geometry([()])
     with pytest.raises(TypeError, match="first entry a non-empty"):
         om.Geometry([[0, np.zeros((1, 3)), 0]])
+
+
+def test_make_geometry(data_path):
+    # Load mesh data to mimic Head1.geom + Head1.cond
+    subject = "Head1"
+    dirpath = op.join(data_path, subject)
+
+    # Make sure we handle bad paths gracefully
+    with pytest.raises(IOError, match="Cannot open file"):
+        om.Mesh(op.join(dirpath, "fake.1.tri"))
+
+    meshes = list()
+    for key in ("cortex", "skull", "scalp"):
+        meshes.append(om.Mesh(op.join(dirpath, f"{key}.1.tri")))
+
+    g1 = om.make_nested_geometry(meshes)
+    g2 = om.Geometry(
+        op.join(dirpath, subject + ".geom"),
+        op.join(dirpath, subject + ".cond")
+    )
+
+    assert g1.is_nested()
+    assert g2.is_nested()
+    assert g1.__class__ == g2.__class__
