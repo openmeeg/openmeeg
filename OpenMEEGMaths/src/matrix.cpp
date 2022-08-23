@@ -37,7 +37,7 @@ namespace OpenMEEG {
     }
 
     Matrix::Matrix(const Vector& v,const Dimension M,const Dimension N): LinOp(M,N,FULL,2) {
-        om_assert(M*N==v.size());
+        om_assert(static_cast<unsigned long>(M)*static_cast<unsigned long>(N)==v.size());
         value = v.value;
     }
 
