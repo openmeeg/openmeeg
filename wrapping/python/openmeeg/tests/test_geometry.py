@@ -50,8 +50,7 @@ def test_make_geometry(data_path):
 
     g1 = om.make_nested_geometry(meshes)
     g2 = om.Geometry(
-        op.join(dirpath, subject + ".geom"),
-        op.join(dirpath, subject + ".cond")
+        op.join(dirpath, subject + ".geom"), op.join(dirpath, subject + ".cond")
     )
 
     assert g1.is_nested()

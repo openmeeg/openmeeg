@@ -1,8 +1,7 @@
 # Build a geometry with given interfaces and domains.
 import numpy as np
 
-from .openmeeg import (Geometry, Domain, SimpleDomain, Interface, OrientedMesh,
-                       Mesh)
+from .openmeeg import Geometry, Domain, SimpleDomain, Interface, OrientedMesh, Mesh
 
 
 def _mesh_vertices_and_triangles(mesh):
@@ -160,9 +159,7 @@ def make_nested_geometry(meshes):
         )
 
     # Convert meshes to dictionary of meshes for make_geometry
-    meshes = {
-        name: meshes[i] for i, name in enumerate(["cortex", "skull", "scalp"])
-    }
+    meshes = {name: meshes[i] for i, name in enumerate(["cortex", "skull", "scalp"])}
 
     # It should be possible to have multiple oriented meshes per interface. e.g.
     # interface1 = [(m1,om.OrientedMesh.Normal),
