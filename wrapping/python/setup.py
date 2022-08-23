@@ -6,6 +6,7 @@
 
 from pathlib import Path
 import os
+import platform
 import sys
 
 from setuptools import setup, Extension  # noqa
@@ -95,6 +96,9 @@ if __name__ == "__main__":
             extra_link_opts.extend(["/std:c++17"])
         else:
             extra_compile_opts.extend(["-v", "-std=c++17"])
+        if sys.platform == "darwin":
+            version_min = "11" if "arm64" in platform.platform() else "10.15"
+            extra_compile_opts.extend([f"-mmacosx-version-min={version_min}"])
         # An example cmake command that works is:
         #   C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Tools\MSVC\14.16.27023\bin\HostX64\x64\link.exe
         #     /ERRORREPORT:QUEUE /INCREMENTAL:NO /NOLOGO
