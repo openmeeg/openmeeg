@@ -69,7 +69,7 @@ jobs:
         with:
           name: artifact
           path: dist
-      - uses: pypa/gh-action-pypi-publish@master
+      - uses: pypa/gh-action-pypi-publish@main
         with:
           user: __token__
           password: ${{ secrets.OPENMEEG_TEST_PYPI_TOKEN }}
@@ -87,7 +87,7 @@ jobs:
       with:
         name: artifact
         path: dist
-    - uses: pypa/gh-action-pypi-publish@master
+    - uses: pypa/gh-action-pypi-publish@main
       with:
         user: __token__
         password: ${{ secrets.OPENMEEG_PYPI_TOKEN }}
