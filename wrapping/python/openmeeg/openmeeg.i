@@ -457,7 +457,7 @@ namespace OpenMEEG {
 
         // make a copy of the data
         double* data = new double[dims[0]*dims[1]];
-        double* start = &((*($self))(0,0));
+        double* start = (*($self)).data();
         std::copy(start,start+dims[0]*dims[1],data);
         PyArrayObject* array = reinterpret_cast<PyArrayObject*>(PyArray_New(&PyArray_Type,ndims,dims,NPY_DOUBLE,NULL,
                                                                             static_cast<void*>(data),0,NPY_ARRAY_F_CONTIGUOUS | NPY_ARRAY_OWNDATA,NULL));
