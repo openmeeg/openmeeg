@@ -84,8 +84,6 @@ def test_make_geometry_mne_sample(data_path):
         meshes.append(om.Mesh(op.join(dirpath, f"{key}.tri")))
 
     g1 = om.make_nested_geometry(meshes, conductivity=(0.3, 0.006, 0.3))
-    g2 = om.Geometry(
-        op.join(dirpath, "model.geom"), op.join(dirpath, "model.cond")
-    )
+    g2 = om.Geometry(op.join(dirpath, "model.geom"), op.join(dirpath, "model.cond"))
 
     _assert_geometry(g1, g2)
