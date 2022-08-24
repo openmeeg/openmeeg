@@ -45,6 +45,8 @@ namespace OpenMEEG {
         }
         std::cout << "\t\tMin Area : " << min_area << std::endl;
         std::cout << "\t\tMax Area : " << max_area << std::endl;
+        if (current_barrier())
+            std::cout << "\t\tCurrent barrier : " << current_barrier() << std::endl;
         if (verbose) {
             std::cout << "Indices :" << std::endl;
             for (const auto& vertex : vertices())

@@ -55,6 +55,8 @@ def make_geometry(meshes, interfaces, domains):
     for name, mesh in meshes.items():
         if isinstance(mesh, Mesh):
             meshes[name] = _mesh_vertices_and_triangles(mesh)
+        elif isinstance(mesh, (list, tuple)):
+            pass
         else:
             raise ValueError(
                 f"Wrong argument (should be a Mesh or a tuple of "
@@ -120,25 +122,11 @@ def make_geometry(meshes, interfaces, domains):
             om_domain.boundaries().push_back(SimpleDomain(om_interface, side))
         geom.domains().push_back(om_domain)
 
-    for dname, domain in domains.items():
-        domain_interfaces, conductivity = domain
-        om_domain = Domain(dname)
-        om_domain.set_conductivity(conductivity)
-        for iname, side in domain_interfaces:
-            oriented_meshes = interfaces[iname]
-            om_interface = Interface(iname)
-            for mesh, orientation in oriented_meshes:
-                om_mesh = geom.mesh(mesh)
-                oriented_mesh = OrientedMesh(om_mesh, orientation)
-                om_interface.oriented_meshes().push_back(oriented_mesh)
-            om_domain.boundaries().push_back(SimpleDomain(om_interface, side))
-        geom.domains().push_back(om_domain)
-
     geom.finalize()
     return geom
 
 
-def make_nested_geometry(meshes):
+def make_nested_geometry(meshes, conductivity):
     """Make a geometry from a list of meshes assumed to be nested.
 
     Parameters
@@ -146,6 +134,9 @@ def make_nested_geometry(meshes):
     meshes : list
         List of meshes from inner to outer. For now only 3 layer
         models are supported.
+    conductivity : array-like
+        The list of conductivities for each domain from the inside to the
+        outside. For example [1, 0.0125, 1].
 
     Returns
     -------
@@ -159,7 +150,13 @@ def make_nested_geometry(meshes):
         )
 
     # Convert meshes to dictionary of meshes for make_geometry
-    meshes = {name: meshes[i] for i, name in enumerate(["cortex", "skull", "scalp"])}
+    # meshes = {name: meshes[i] for i, name in enumerate(["cortex", "skull", "scalp"])}
+    meshes = {
+        "Skull": meshes[1],
+        "Cortex": meshes[0],
+        "Head": meshes[2],
+    }
+    brain_conductivity, skull_conductivity, scalp_conductivity = conductivity
 
     # It should be possible to have multiple oriented meshes per interface. e.g.
     # interface1 = [(m1,om.OrientedMesh.Normal),
@@ -169,27 +166,27 @@ def make_nested_geometry(meshes):
     # tuple.
 
     interfaces = {
-        "interface1": [("cortex", OrientedMesh.Normal)],
-        "interface2": [("skull", OrientedMesh.Normal)],
-        "interface3": [("scalp", OrientedMesh.Normal)],
+        "Cortex": [("Cortex", OrientedMesh.Normal)],
+        "Skull": [("Skull", OrientedMesh.Normal)],
+        "Head": [("Head", OrientedMesh.Normal)],
     }
 
     domains = {
         "Scalp": (
             [
-                ("interface2", SimpleDomain.Outside),
-                ("interface3", SimpleDomain.Inside),
+                ("Skull", SimpleDomain.Outside),
+                ("Head", SimpleDomain.Inside),
             ],
-            1.0,
+            scalp_conductivity,
         ),
-        "Brain": ([("interface1", SimpleDomain.Inside)], 1.0),
-        "Air": ([("interface3", SimpleDomain.Outside)], 0.0),
+        "Brain": ([("Cortex", SimpleDomain.Inside)], brain_conductivity),
+        "Air": ([("Head", SimpleDomain.Outside)], 0.0),
         "Skull": (
             [
-                ("interface2", SimpleDomain.Inside),
-                ("interface1", SimpleDomain.Outside),
+                ("Cortex", SimpleDomain.Outside),
+                ("Skull", SimpleDomain.Inside),
             ],
-            0.0125,
+            skull_conductivity,
         ),
     }
 

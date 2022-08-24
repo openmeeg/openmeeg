@@ -71,7 +71,12 @@ namespace OpenMEEG {
             Geometry(std::string(geomFileName),std::string(condFileName),OLD_ORDERING) { }
 
         void info(const bool verbose=false) const; ///< \brief Print information on the geometry
-        bool has_conductivities()           const { return conductivities; } // TODO: Is this useful ?
+        bool has_conductivities()           const {
+            for (const auto& domain : domains())
+                if (!domain.has_conductivity())
+                    return false;
+            return true;
+        }
         bool selfCheck()                    const; ///< \brief the geometry meshes intersect each other
         bool check(const Mesh& m)           const; ///< \brief check if m intersect geometry meshes
         bool check_inner(const Matrix& m)   const; ///< \brief check if dipoles are outside of geometry meshes
@@ -250,7 +255,7 @@ namespace OpenMEEG {
             geom_vertices.clear();
             geom_meshes.clear();
             geom_domains.clear();
-            conductivities = nested = false;
+            nested = false;
             outer_domain = 0;
             num_params = 0;
         }
@@ -268,7 +273,6 @@ namespace OpenMEEG {
 
         const Domain* outer_domain   = 0;
         bool          nested         = false;
-        bool          conductivities = false; //    Is this really useful ??
         size_t        num_params     = 0;   // total number = nb of vertices + nb of triangles
 
         void  generate_indices(const bool);
