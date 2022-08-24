@@ -255,7 +255,7 @@ namespace OpenMEEG {
             geom_vertices.clear();
             geom_meshes.clear();
             geom_domains.clear();
-            conductivities = nested = false;
+            nested = false;
             outer_domain = 0;
             num_params = 0;
         }
@@ -273,7 +273,6 @@ namespace OpenMEEG {
 
         const Domain* outer_domain   = 0;
         bool          nested         = false;
-        bool          conductivities = false; //    Is this really useful ??
         size_t        num_params     = 0;   // total number = nb of vertices + nb of triangles
 
         void  generate_indices(const bool);
