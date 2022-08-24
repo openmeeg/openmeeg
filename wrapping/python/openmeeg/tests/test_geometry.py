@@ -72,18 +72,3 @@ def test_make_geometry_head(data_path):
     )
 
     _assert_geometry(g1, g2)
-
-
-def test_make_geometry_mne_sample(data_path):
-    subject_id = "mne_sample"
-    subject = f"{subject_id}"
-    dirpath = op.join(data_path, subject)
-
-    meshes = list()
-    for key in ("inner_skull", "outer_skull", "outer_skin"):
-        meshes.append(om.Mesh(op.join(dirpath, f"{key}.tri")))
-
-    g1 = om.make_nested_geometry(meshes, conductivity=(0.3, 0.006, 0.3))
-    g2 = om.Geometry(op.join(dirpath, "model.geom"), op.join(dirpath, "model.cond"))
-
-    _assert_geometry(g1, g2)
