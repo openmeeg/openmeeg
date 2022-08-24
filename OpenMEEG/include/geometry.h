@@ -71,7 +71,12 @@ namespace OpenMEEG {
             Geometry(std::string(geomFileName),std::string(condFileName),OLD_ORDERING) { }
 
         void info(const bool verbose=false) const; ///< \brief Print information on the geometry
-        bool has_conductivities()           const { return conductivities; } // TODO: Is this useful ?
+        bool has_conductivities()           const {
+            for (const auto& domain : domains())
+                if (!domain.has_conductivity())
+                    return false;
+            return true;
+        }
         bool selfCheck()                    const; ///< \brief the geometry meshes intersect each other
         bool check(const Mesh& m)           const; ///< \brief check if m intersect geometry meshes
         bool check_inner(const Matrix& m)   const; ///< \brief check if dipoles are outside of geometry meshes
