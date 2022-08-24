@@ -65,7 +65,7 @@ def test_python(data_path, tmp_path):
 
     ssm = om.SurfSourceMat(geom, mesh)
     ss2mm = om.SurfSource2MEGMat(mesh, sensors)
-    dsm = om.DipSourceMat(geom, dipoles)
+    dsm = om.DipSourceMat(geom, dipoles, "Brain")
     ds2mm = om.DipSource2MEGMat(dipoles, sensors)
     h2mm = om.Head2MEGMat(geom, sensors)
     h2em = om.Head2EEGMat(geom, patches)
