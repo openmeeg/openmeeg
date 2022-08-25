@@ -49,7 +49,11 @@ generate_export_header(OpenMEEGMaths
 
 # 'make install' to the correct locations (provided by GNUInstallDirs).
 
-install(TARGETS OpenMEEGMaths EXPORT OpenMEEGConfig
+if(WIN32)
+    set(RUNTIME_DEPENDENCIES_VALUE RUNTIME_DEPENDENCIES)
+endif()
+
+install(TARGETS OpenMEEGMaths ${RUNTIME_DEPENDENCIES_VALUE} EXPORT OpenMEEGConfig
     ARCHIVE  DESTINATION ${CMAKE_INSTALL_LIBDIR}
     LIBRARY  DESTINATION ${CMAKE_INSTALL_LIBDIR}
     RUNTIME  DESTINATION ${CMAKE_INSTALL_BINDIR})  # This is for Windows
