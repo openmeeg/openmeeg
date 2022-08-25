@@ -133,7 +133,7 @@ If no test is failing you can install with (and optionally with ``--install-pref
 You should now be able to run the *om_assemble* command and see something like this::
 
     $ om_assemble
-    om_assemble version 2.5.1 compiled at Aug 23 2022 18:17:12
+    om_assemble version 2.5.4 compiled at Aug 25 2022 18:17:12
 
     om_assemble [-option] [filepaths...]
 
