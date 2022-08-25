@@ -24,7 +24,9 @@ elif [[ "${RUNNER_OS}" == "macOS" ]]; then
     cd OpenMEEG-*
     ./bin/om_minverser --help
 elif [[ "${RUNNER_OS}" == "Windows" ]]; then
-    $ROOT/installers/OpenMEEG-*-*.exe
+    ROOT=$(cygpath -u $ROOT)
+    tar xzfv $ROOT/installers/OpenMEEG-*-*.tar.gz
+    cd OpenMEEG-*
     om_minverser --help
 else
     echo "Unknown RUNNER_OS=\"${RUNNER_OS}\""
