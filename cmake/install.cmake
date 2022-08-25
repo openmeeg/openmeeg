@@ -6,7 +6,9 @@ if (APPLE)
     set(CMAKE_INSTALL_RPATH "@executable_path/../lib/")
     set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 elseif (UNIX)  # means if LINUX
-    SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+    # to fix the installed rpath so it looks in ../lib
+    # https://www.semipol.de/2012/02/16/relative-rpath-settings-with-cmake.html
+    set(CMAKE_INSTALL_RPATH "$ORIGIN/../lib")
 endif()
 
 # Find absolute path to each external lib to avoid symlinks then package it

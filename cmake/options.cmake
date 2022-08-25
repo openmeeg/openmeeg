@@ -17,6 +17,7 @@ option(PYTHON_FORCE_EXT_SUFFIX "Force Python extension suffix" OFF)
 
 option(ENABLE_WERROR "Turn on -Werror" OFF)
 option(TEST_HEAD3 "Run tests on Head 3" OFF)
+option(PACKAGE_ARCH_SUFFIX "Package architecture suffix" "")
 
 # Documentation configuration
 
