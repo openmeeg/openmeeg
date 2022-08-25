@@ -99,7 +99,7 @@ endif()
 find_package(BLAS REQUIRED)
 find_package(LAPACK REQUIRED)
 if (BLA_STATIC)
-    set(CMAKE_FIND_LIBRARY_SUFFIXES ${CMAKE_FIND_LIBRARY_SUFFIXES})
+    set(CMAKE_FIND_LIBRARY_SUFFIXES ${CMAKE_FIND_LIBRARY_SUFFIXES_OLD})
 endif()
 
 # Add targets for compatibility with older cmake versions < 3.18
