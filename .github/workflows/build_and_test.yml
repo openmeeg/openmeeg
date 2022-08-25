@@ -459,8 +459,7 @@ jobs:
           PYNAME=$(python -c "import sys; print('pypy' if 'pypy' in sys.implementation.name else 'python')")
           if [[ "${{steps.env-vars.outputs.os}}" == 'windows'* ]]; then
             export PYTHONPATH=$PWD/install/lib/site-packages
-            curl -LO https://github.com/lucasg/Dependencies/releases/download/v1.11.1/Dependencies_x64_Release.zip
-            unzip Dependencies_x64_Release.zip -d Dependencies
+            ./build_tools/install_dependency_walker.sh
             # Ideally this would not be necessary but it makes things work
             cp build/*.dll $PWD/install/lib/site-packages/openmeeg/
             ./Dependencies/Dependencies.exe -modules $PWD/install/lib/site-packages/openmeeg/_openmeeg.pyd
