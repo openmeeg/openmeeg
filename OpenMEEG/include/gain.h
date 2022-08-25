@@ -79,7 +79,7 @@ namespace OpenMEEG {
             const Matrix& Hinv = linsolve(HeadMat,Head2EEGMat);
             ProgressBar pb(ncol());
             for (unsigned i=0; i<ncol(); ++i,++pb)
-                setcol(i,Hinv*DipSourceMat(geo,dipoles.submat(i,1,0,dipoles.ncol())).getcol(0)); // TODO ugly
+                setcol(i,Hinv*DipSourceMat(geo,dipoles.submat(i,1,0,dipoles.ncol()),"").getcol(0)); // TODO ugly
         }
     };
 
@@ -89,12 +89,12 @@ namespace OpenMEEG {
         using Matrix::operator=;
 
         GainMEGadjoint(const Geometry& geo,const Matrix& dipoles,const SymMatrix& HeadMat,const Matrix& Head2MEGMat,const Matrix& Source2MEGMat):
-            Matrix(Head2MEGMat.nlin(),dipoles.nlin()) 
+            Matrix(Head2MEGMat.nlin(),dipoles.nlin())
         {
             const Matrix& Hinv = linsolve(HeadMat,Head2MEGMat);
             ProgressBar pb(ncol());
             for (unsigned i=0; i<ncol(); ++i,++pb)
-                setcol(i,Hinv*DipSourceMat(geo,dipoles.submat(i,1,0,dipoles.ncol())).getcol(0)+Source2MEGMat.getcol(i)); // TODO ugly
+                setcol(i,Hinv*DipSourceMat(geo,dipoles.submat(i,1,0,dipoles.ncol()),"").getcol(0)+Source2MEGMat.getcol(i)); // TODO ugly
         }
     };
 
@@ -113,15 +113,17 @@ namespace OpenMEEG {
 
             ProgressBar pb(dipoles.nlin());
             for (unsigned i=0; i<dipoles.nlin(); ++i,++pb) {
-                const Vector& dsm = DipSourceMat(geo,dipoles.submat(i,1,0,dipoles.ncol())).getcol(0); // TODO ugly
+                const Vector& dsm = DipSourceMat(geo,dipoles.submat(i,1,0,dipoles.ncol()),"").getcol(0); // TODO ugly
                 EEGleadfield.setcol(i,Hinv.submat(0,Head2EEGMat.nlin(),0,HeadMat.nlin())*dsm);
                 MEGleadfield.setcol(i,Hinv.submat(Head2EEGMat.nlin(),Head2MEGMat.nlin(),0,HeadMat.nlin())*dsm+Source2MEGMat.getcol(i));
             }
         }
-        
+
         void saveEEG( const std::string filename ) const { EEGleadfield.save(filename); }
         void saveMEG( const std::string filename ) const { MEGleadfield.save(filename); }
-        
+
+        size_t nlin() const { return MEGleadfield.nlin() + EEGleadfield.nlin(); }
+
     private:
 
         Matrix EEGleadfield;

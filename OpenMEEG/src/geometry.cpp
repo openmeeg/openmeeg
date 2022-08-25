@@ -240,7 +240,6 @@ namespace OpenMEEG {
         } catch (...) {
             throw OpenMEEG::GenericError(std::string("Could not read the conductivity file: ")+filename+'.');
         }
-        conductivities = true;
     }
 
     // This generates unique indices for vertices and triangles which will correspond to our unknowns.

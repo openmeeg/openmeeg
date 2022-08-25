@@ -1,10 +1,10 @@
-|GitHub Actions|_ |lgtm|_ |CodeCov|_ |PyPIVersion|_ |condaVersion|_
+|GitHub Actions|_ |CodeQL|_ |CodeCov|_ |PyPIVersion|_ |condaVersion|_
 
 .. |GitHub Actions| image:: https://github.com/openmeeg/openmeeg/actions/workflows/build_and_test.yml/badge.svg
 .. _Github Actions: https://github.com/openmeeg/openmeeg/actions/workflows/build_and_test.yml
 
-.. |lgtm| image:: https://img.shields.io/lgtm/grade/cpp/g/openmeeg/openmeeg.svg?logo=lgtm&logoWidth=18
-.. _lgtm: https://lgtm.com/projects/g/openmeeg/openmeeg/context:cpp
+.. |CodeQL| image:: https://github.com/openmeeg/openmeeg/workflows/CodeQL/badge.svg
+.. _CodeQL: https://github.com/openmeeg/openmeeg/actions/workflows/codeql-analysis.yml
 
 .. |CodeCov| image:: https://codecov.io/gh/openmeeg/openmeeg/branch/main/graph/badge.svg
 .. _CodeCov: https://codecov.io/gh/openmeeg/openmeeg
@@ -54,7 +54,7 @@ To install OpenMEEG (along with the binary applications) via `anaconda <https://
 Python wrappers can also be installed via `pip`::
 
     $ pip install openmeeg
-    
+
 On Fedora::
 
     $ dnf install openmeeg openmeeg-devel python2-openmeeg
@@ -110,13 +110,13 @@ You will need to define more CMake variables if you want the support for:
 `-DENABLE_PYTHON=ON`` (Python >= 3.7 is required)
     Enable Python wrapping.
 `-DUSE_VTK=ON`
-    VTK file format support. 
+    VTK file format support.
 `-DUSE_CGAL=ON`
     CGAL meshing tools.
 `-DBUILD_DOCUMENTATION=ON`
     Reference documentation. Make sure to have `doxygen` with `dot` support.
 `-DENABLE_WERROR=ON`
-    Treat compilation warnings as errors 
+    Treat compilation warnings as errors
 `-DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_C_COMPILER_LAUNCHER=ccache`
     To speed up builds. `ccache` must be installed.
 
@@ -133,7 +133,7 @@ If no test is failing you can install with (and optionally with ``--install-pref
 You should now be able to run the *om_assemble* command and see something like this::
 
     $ om_assemble
-    om_assemble version 2.5.0 compiled at Aug 18 2022 18:17:12
+    om_assemble version 2.5.4 compiled at Aug 25 2022 18:17:12
 
     om_assemble [-option] [filepaths...]
 

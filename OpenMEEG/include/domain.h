@@ -75,6 +75,7 @@ namespace OpenMEEG {
         /// The conductivity of the domain.
 
         void set_conductivity(const double c) { cond = c;    }
+        bool has_conductivity() const { return cond != -1.0;    }
         const double& conductivity() const    { return cond; }
 
         /// Print information about the domain.

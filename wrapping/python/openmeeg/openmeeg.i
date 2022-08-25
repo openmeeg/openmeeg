@@ -303,6 +303,11 @@ namespace OpenMEEG {
             throw Error(SWIG_TypeError,"Matrix of triangles should be an array.");
 
         PyArrayObject* array = reinterpret_cast<PyArrayObject*>(pyobj);
+        if (PyArray_SIZE(array)==0) {
+            std::ostringstream oss;
+            oss << "Matrix of triangles for mesh \"" << mesh->name() << "\" was empty";
+            throw Error(SWIG_ValueError,oss.str().c_str());
+        }
         const PyArray_Descr *descr = PyArray_DESCR(array);
         const int type_num = descr->type_num;
         if (!PyArray_EquivTypenums(type_num,NPY_INT32) &&
@@ -455,8 +460,12 @@ namespace OpenMEEG {
         dims[0] = ($self)->nlin();
         dims[1] = ($self)->ncol();
 
+        // make a copy of the data
+        double* data = new double[dims[0]*dims[1]];
+        double* start = (*($self)).data();
+        std::copy(start,start+dims[0]*dims[1],data);
         PyArrayObject* array = reinterpret_cast<PyArrayObject*>(PyArray_New(&PyArray_Type,ndims,dims,NPY_DOUBLE,NULL,
-                                                                            static_cast<void*>(($self)->data()),0,NPY_ARRAY_F_CONTIGUOUS,NULL));
+                                                                            static_cast<void*>(data),0,NPY_ARRAY_F_CONTIGUOUS | NPY_ARRAY_OWNDATA,NULL));
         return PyArray_Return(array);
     }
 

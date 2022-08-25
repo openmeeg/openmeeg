@@ -92,8 +92,8 @@ jobs:
         - os: macos-latest
           blas: mkl-findblas
           blas_linking: static
-        # ubuntu-18.04 build, but Python tests currently fail so use no-python
-        - os: ubuntu-18.04
+        # One without Python
+        - os: ubuntu-22.04
           python: no-python
         # Windows static
         - os: windows-2019
@@ -327,6 +327,8 @@ jobs:
           echo "LINKER_OPT=-L$OPENBLAS_LIB" >> $GITHUB_ENV
           echo "CMAKE_PREFIX_PATH=$BLAS_DIR" >> $GITHUB_ENV
         fi
+        # Set our version min
+        echo "SYSTEM_VERSION_OPT=-DCMAKE_OSX_DEPLOYMENT_TARGET=10.15" >> $GITHUB_ENV
 
     - name: Linux - hdf5, libmatio, doxygen, (optionally) vtk, and (optionally) OpenBLAS via apt
       if: startsWith(steps.env-vars.outputs.os,'ubuntu')

@@ -1,0 +1,40 @@
+name: "CodeQL"
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.number }}-${{ github.event.ref }}
+  cancel-in-progress: true
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    # The branches below must be a subset of the branches above
+    branches: [ "main" ]
+  schedule:
+    - cron: '18 15 * * 3'
+
+defaults:
+  run:
+    shell: bash -el {0}
+
+jobs:
+  analyze:
+    name: Analyze
+    runs-on: ubuntu-22.04
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    steps:
+    - uses: actions/checkout@v3
+    - uses: github/codeql-action/init@v2
+      with:
+        languages: cpp, python
+    - uses: hendrikmuhs/ccache-action@v1.2
+      with:
+        key: ${{ github.workflow }}-${{ github.job }}
+    - name: Build
+      run: |
+        sudo apt -yq install liblapacke-dev libhdf5-dev libmatio-dev libopenblas-dev python3-numpy
+        ./build_tools/cmake_configure.sh
+        cmake --build build --config Release
+    - uses: github/codeql-action/analyze@v2

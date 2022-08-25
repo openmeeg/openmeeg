@@ -133,7 +133,7 @@ int main(int argc, char** argv)
         assert_non_conflicting_options(argv[0],++num_options);
 
         // Computation of distributed Surface Source Matrix for BEM Symmetric formulation
-        
+
         const Geometry geo(opt_parms[1],opt_parms[2],use_old_ordering);
         Mesh mesh_sources(opt_parms[3]);
 
@@ -147,7 +147,7 @@ int main(int argc, char** argv)
         assert_non_conflicting_options(argv[0],++num_options);
 
         // Computation of RHS for discrete dipolar case
-    
+
         std::string domain_name = "";
         if (cmd.num_args(opt_parms)==5) {
             domain_name = opt_parms[6];
@@ -172,8 +172,8 @@ int main(int argc, char** argv)
 
         const char* optname = opt_parms[0];
         const unsigned integration_levels = check_no_adapt(optname,{"-DipSourceMatNoAdapt", "-DSMNA", "-dsmna"}) ? 0 : 10;
-        
-        const Matrix& dsm = DipSourceMat(geo,dipoles,Integrator(3,integration_levels,0.001));
+
+        const Matrix& dsm = DipSourceMat(geo,dipoles,Integrator(3,integration_levels,0.001),domain_name);
         dsm.save(opt_parms[4]);
     }
 
