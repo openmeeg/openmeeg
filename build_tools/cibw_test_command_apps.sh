@@ -13,9 +13,6 @@ echo
 echo "Installers:"
 ls -alR $ROOT/installers
 echo
-echo "OpenMEEG"
-ls -al $ROOT/installers/OpenMEEG-*-*.*
-echo
 
 if [[ "${RUNNER_OS}" == "Linux" ]]; then
     tar xzfv $ROOT/installers/OpenMEEG-*-*.tar.gz
@@ -32,7 +29,7 @@ elif [[ "${RUNNER_OS}" == "macOS" ]]; then
     ./bin/om_minverser --help
 elif [[ "${RUNNER_OS}" == "Windows" ]]; then
     ROOT=$(cygpath -u $ROOT)
-    tar xzfv $ROOT/installers/OpenMEEG-*-*.tar.gz
+    tar xzfv $ROOT/installers/OpenMEEG-*.tar.gz
     cd OpenMEEG-*
     om_minverser --help
 else
