@@ -31,7 +31,7 @@ elif [[ "${RUNNER_OS}" == "Windows" ]]; then
     ROOT=$(cygpath -u $ROOT)
     tar xzfv $ROOT/installers/OpenMEEG-*.tar.gz
     cd OpenMEEG-*
-    om_minverser --help
+    ./bin/om_minverser --help
 else
     echo "Unknown RUNNER_OS=\"${RUNNER_OS}\""
     exit 1
