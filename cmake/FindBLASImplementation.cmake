@@ -92,8 +92,11 @@ else()
 
 endif()
 
+set(CMAKE_FIND_LIBRARY_SUFFIXES_OLD ${CMAKE_FIND_LIBRARY_SUFFIXES})
+set(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
 find_package(BLAS REQUIRED)
 find_package(LAPACK REQUIRED)
+set(CMAKE_FIND_LIBRARY_SUFFIXES ${CMAKE_FIND_LIBRARY_SUFFIXES})
 
 # Add targets for compatibility with older cmake versions < 3.18
 

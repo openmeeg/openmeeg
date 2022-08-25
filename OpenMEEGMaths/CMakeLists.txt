@@ -58,17 +58,3 @@ install(DIRECTORY ${CMAKE_BINARY_DIR}/exports/ DESTINATION ${CMAKE_INSTALL_INCLU
 # This are executables using OpenMEEGMath
 
 add_subdirectory(tests)
-
-if(WIN32)
-    # https://gitlab.kitware.com/cmake/cmake/-/issues/22406
-    # install(IMPORTED_RUNTIME_ARTIFACTS BLAS::BLAS DESTINATION "${CMAKE_INSTALL_PREFIX}/bin")
-    if (BUILD_SHARED_LIBS)
-        string (REPLACE ";" " " BLAS_LIBRARIES_SPLIT "${BLAS_LIBRARIES}")
-        message("-- Configuring to copy BLAS: " ${BLAS_LIBRARIES_SPLIT})
-        add_custom_command(
-            TARGET OpenMEEGMaths POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            ${BLAS_LIBRARIES_SPLIT}
-            $<TARGET_FILE_DIR:OpenMEEGMaths>)
-    endif()
-endif()
