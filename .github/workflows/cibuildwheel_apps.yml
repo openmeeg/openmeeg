@@ -10,7 +10,7 @@
 # - Uploads them to TestPyPI (main) or PyPi (releases)
 # Most of the config lives in `pyproject.toml` and build_tools/cibw_* scripts.
 
-name: cibuildwheel
+name: installers
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.number }}-${{ github.event.ref }}
   cancel-in-progress: true
@@ -18,18 +18,17 @@ concurrency:
 on:
   push:
     branches: [ main ]
-  # TODO: Revert
-  #pull_request:
-  #  branches: [ main ]
-  release:
-    types: [ published ]
+    tags:
+      - '*'
+  pull_request:
+    branches: [ main ]
 
 env:
   BUILD_TYPE: Release
 
 # https://cibuildwheel.readthedocs.io/en/stable/setup/#github-actions
 jobs:
-  build_wheels:
+  build:
     continue-on-error: true
     runs-on: ${{ matrix.os }}
     strategy:
@@ -44,51 +43,48 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4  # to make before-all work properly
+      - uses: actions/setup-python@v4
         with:
           python-version: '3.10'
-
       - uses: pypa/cibuildwheel@v2.8.0
         with:
           package-dir: ./wrapping/python
-          output-dir: wheelhouse
+          output-dir: installers
         env:
           CIBW_ARCHS_MACOS: "${{matrix.archs_macos}}"
-
+          CIBW_ENVIRONMENT_LINUX: ""
+          CIBW_ENVIRONMENT_MACOS: ""
+          CIBW_ENVIRONMENT_WINDOWS: ""
+          CIBW_BUILD: "cp310-*"
+          CIBW_BEFORE_ALL: "bash {project}/build_tools/cibw_before_all_apps.sh {project}"
+          CIBW_BEFORE_BUILD_WINDOWS: ""
+          CIBW_REPAIR_WHEEL_COMMAND_MACOS: ""
+          CIBW_REPAIR_WHEEL_COMMAND_LINUX: ""
+          CIBW_TEST_COMMAND: "bash {project}/build_tools/cibw_test_command_apps.sh {project}"
       - uses: actions/upload-artifact@v3
         with:
-          path: ./wheelhouse/*.whl
+          path: ./installers/*
 
-  upload_test_pypi:
-    name: Upload to TestPyPI
-    needs: [build_wheels]
+  release:
+    needs: [build]
     runs-on: ubuntu-latest
-    # upload to Test PyPI for every commit on main branch
-    if: github.event_name == 'push' && github.event.ref == 'refs/heads/main'
+    strategy:
+      matrix:
+        include:
+        - filename_pattern: "OpenMEEG-*-*.*"
     steps:
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
           name: artifact
-          path: dist
-      - uses: pypa/gh-action-pypi-publish@v1
+      - run: ls -alR .
+      - run: ls -al "${{ matrix.filename_pattern }}"
+      - run: test $(ls -al "${{matrix.filename_pattern }}" | wc -l) == "4"
+      - uses: ncipollo/release-action@v1
+        if: github.ref_type == 'tag'
         with:
-          user: __token__
-          password: ${{ secrets.OPENMEEG_TEST_PYPI_TOKEN }}
-          repository_url: https://test.pypi.org/legacy/
-          skip_existing: true
-
-  upload_pypi:
-    name: Upload to PyPI
-    needs: [build_wheels]
-    runs-on: ubuntu-latest
-    # upload to PyPI on every tag (we assume these are releases!)
-    if: github.event_name == 'release' && github.event.action == 'published'
-    steps:
-    - uses: actions/download-artifact@v2
-      with:
-        name: artifact
-        path: dist
-    - uses: pypa/gh-action-pypi-publish@v1
-      with:
-        user: __token__
-        password: ${{ secrets.OPENMEEG_PYPI_TOKEN }}
+          artifacts: "${{ matrix.filename_pattern }}"
+          token: ${{ secrets.GITHUB_TOKEN }}
+          draft: true
+          prerelease: true
+          allowUpdates: true
+          generateReleaseNotes: true
