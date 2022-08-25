@@ -106,5 +106,5 @@ if [[ "$PLATFORM" == 'linux'* ]]; then
 elif [[ "$PLATFORM" == 'macosx-'* ]]; then
     otool -L $ROOT/build/OpenMEEG/libOpenMEEG.1.1.0.dylib
 fi
-mkdir -p wheelhouse
-cp build/OpenMEEG-*-*.* wheelhouse/
+mkdir -p installers
+cp -av build/OpenMEEG-*-*.* installers/

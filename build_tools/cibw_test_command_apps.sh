@@ -9,8 +9,11 @@ ROOT=$1
 
 set -e
 ls -al $ROOT
+echo
 ls -alR $ROOT/installers
+echo
 ls -al $ROOT/installers/OpenMEEG-*-*.*
+echo
 
 if [[ "${RUNNER_OS}" == "Linux" ]]; then
     tar xzfv $ROOT/installers/OpenMEEG-*-*.tar.gz
