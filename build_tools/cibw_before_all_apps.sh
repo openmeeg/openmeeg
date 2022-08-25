@@ -98,19 +98,13 @@ export WERROR_OPT="-DENABLE_WERROR=ON"
 pip install cmake
 export BLA_STATIC_OPT="-DBLA_STATIC=ON"
 ./build_tools/cmake_configure.sh -DCMAKE_VERBOSE_MAKEFILE=ON -DCMAKE_INSTALL_PREFIX=${ROOT}/install ${OPENMP_OPT} ${CMAKE_OSX_ARCH_OPT} ${CMAKE_PREFIX_PATH_OPT} -DENABLE_APPS=OFF ${SHARED_OPT} -DCMAKE_INSTALL_UCRT_LIBRARIES=TRUE ${BLAS_LIBRARIES_OPT} ${LAPACK_LIBRARIES_OPT}
-cmake --build build --target package --config release
+cmake --build build --target package --target install --config release
 
 # Put DLLs where they can be found
 if [[ "$PLATFORM" == 'linux'* ]]; then
     ls -alR /usr/local/lib
-elif [[ "$PLATFORM" == 'macosx-arm64' ]]; then
-    # cp -av $ROOT/vcpkg_installed/arm64-osx-release-10.9/lib/libgfortran* $ROOT/install/lib/
-    # https://matthew-brett.github.io/docosx/mac_runtime_link.html
-    otool -L $ROOT/install/lib/libOpenMEEG.1.1.0.dylib
-    # install_name_tool -change "@@HOMEBREW_PREFIX@@/opt/libomp/lib/libomp.dylib" "@loader_path/libomp.dylib" $ROOT/install/lib/libOpenMEEG.1.1.0.dylib
-    # install_name_tool -change "@rpath/libgfortran.5.dylib" "@loader_path/libomp.dylib" $ROOT/install/lib/libOpenMEEG.1.1.0.dylib
-    # otool -L $ROOT/install/lib/libOpenMEEG.1.1.0.dylib
+elif [[ "$PLATFORM" == 'macosx-'* ]]; then
+    otool -L $ROOT/build/OpenMEEG/libOpenMEEG.1.1.0.dylib
 fi
 mkdir -p wheelhouse
 cp build/OpenMEEG-*-*.* wheelhouse/
-
