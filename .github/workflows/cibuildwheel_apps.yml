@@ -29,9 +29,10 @@ env:
 # https://cibuildwheel.readthedocs.io/en/stable/setup/#github-actions
 jobs:
   apps:
-    continue-on-error: true
+    continue-on-error: false
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         include:
         - os: ubuntu-20.04
@@ -77,15 +78,15 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           name: artifact
-      - run: echo '::set-output name=os::${{matrix.os}}'
-
+      - run: echo '::set-output name=pattern::OpenMEEG-*-*.*'
+        id: filename
       - run: ls -alR .
-      - run: ls -al "${{ matrix.filename_pattern }}"
-      - run: test $(ls -al "${{matrix.filename_pattern }}" | wc -l) == "4"
+      - run: ls -al "${{ steps.filename.outputs.pattern }}"
+      - run: test $(ls -al "${{ steps.filename.outputs.pattern }}" | wc -l) == "4"
       - uses: ncipollo/release-action@v1
-        if: github.ref_type == 'tag'
+        #if: github.ref_type == 'tag'
         with:
-          artifacts: "${{ matrix.filename_pattern }}"
+          artifacts: "${{ steps.filename.outputs.pattern }}"
           token: ${{ secrets.GITHUB_TOKEN }}
           draft: true
           prerelease: true
