@@ -29,7 +29,7 @@ if (ENABLE_PACKAGING)
             set(PACKAGE_ARCH_SHORT "Win32${PACKAGE_ARCH_SUFFIX}")
         endif()
     elseif(APPLE)
-        set(PACKAGE_ARCH_SHORT "macOS${PACKAGE_ARCH_SUFFIX")
+        set(PACKAGE_ARCH_SHORT "macOS${PACKAGE_ARCH_SUFFIX}")
     endif()
 
     # set(PACKAGE_OPTIONS ${BLASLAPACK_IMPLEMENTATION})
