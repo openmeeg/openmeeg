@@ -42,7 +42,6 @@ if [[ "$PLATFORM" == "linux-x86_64" ]]; then
     export LINKER_OPT="-lgfortran -lpthread"
     SHARED_OPT="-DBUILD_SHARED_LIBS=OFF"
 elif [[ "$PLATFORM" == 'macosx-'* ]]; then
-    brew install swig
     BLAS_DIR=/usr/local
     OPENBLAS_INCLUDE=$BLAS_DIR/include
     OPENBLAS_LIB=$BLAS_DIR/lib
@@ -58,7 +57,7 @@ elif [[ "$PLATFORM" == 'macosx-'* ]]; then
         # export VCPKG_DEFAULT_TRIPLET="arm64-osx-release-10.9"
         CMAKE_OSX_ARCH_OPT="-DCMAKE_OSX_ARCHITECTURES=arm64"
         # The deps were compiled locally on 2022/07/19 on an M1 machine and uploaded
-        curl -L https://osf.io/download/x45fz > openmeeg-deps-arm64-osx-release-10.9.tar.gz
+        curl -L https://osf.io/download/x45fz?version=1 > openmeeg-deps-arm64-osx-release-10.9.tar.gz
         tar xzfv openmeeg-deps-arm64-osx-release-10.9.tar.gz
         CMAKE_PREFIX_PATH_OPT="-DCMAKE_PREFIX_PATH=$ROOT/vcpkg_installed/arm64-osx-release-10.9"
         ls -al $ROOT/vcpkg_installed/arm64-osx-release-10.9/lib
@@ -66,8 +65,6 @@ elif [[ "$PLATFORM" == 'macosx-'* ]]; then
         # And downloading method taken from https://stackoverflow.com/a/69858397
         curl -LH "Authorization: Bearer QQ==" -o x.tar.gz https://ghcr.io/v2/homebrew/core/libomp/blobs/sha256:f00a5f352167b2fd68ad25b1959ef66a346023c6dbeb50892b386381d7ebe183
         tar xzfv x.tar.gz
-        cp -a libomp/14.0.6/lib/* $ROOT/vcpkg_installed/arm64-osx-release-10.9/lib/
-        cp -a libomp/14.0.6/include/* $ROOT/vcpkg_installed/arm64-osx-release-10.9/include/
         export LINKER_OPT="$LINKER_OPT -L$ROOT/vcpkg_installed/arm64-osx-release-10.9/lib -lz"
         export SYSTEM_VERSION_OPT="-DCMAKE_OSX_DEPLOYMENT_TARGET=11"
     else
