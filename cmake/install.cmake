@@ -29,5 +29,13 @@ if (${MKL_USE_parallel})
     endforeach(LIB)
 endif()
 if(WIN32)
-    install(IMPORTED_RUNTIME_ARTIFACTS BLAS::BLAS DESTINATION "${CMAKE_INSTALL_PREFIX}/bin")
+    # https://gitlab.kitware.com/cmake/cmake/-/issues/22406
+    # install(IMPORTED_RUNTIME_ARTIFACTS BLAS::BLAS DESTINATION "${CMAKE_INSTALL_PREFIX}/bin")
+    if (BUILD_SHARED_LIBS)
+      add_custom_command(
+        TARGET OpenMEEGMaths POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+          $<TARGET_FILE:BLAS::BLAS>
+          $<TARGET_FILE_DIR:OpenMEEGMaths>)
+  endif()
 endif()
