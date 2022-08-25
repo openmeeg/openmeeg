@@ -124,9 +124,7 @@ if __name__ == "__main__":
         )
         ext_modules.append(swig_openmeeg)
     else:  # built with -DENABLE_PYTHON=ON
-        # TODO: This breaks macOS for some reason!
-        if sys.platform != "darwin":
-            cmdclass["bdist_wheel"] = bdist_wheel
+        cmdclass["bdist_wheel"] = bdist_wheel
 
     setup(
         name=DISTNAME,
