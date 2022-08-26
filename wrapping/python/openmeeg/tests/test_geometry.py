@@ -35,11 +35,11 @@ def test_geometry():
         om.Geometry([[0, np.zeros((1, 3)), 0]])
 
 
-def _assert_geometry(g1, g2):
+def _assert_geometry(g1, g2, n_domains):
     assert g1.is_nested()
     assert g2.is_nested()
     assert g1.vertices().size() == g2.vertices().size()
-    assert g1.domains().size() == g2.domains().size() == 4
+    assert g1.domains().size() == g2.domains().size() == n_domains
     assert g1.__class__ == g2.__class__
 
     for d1, d2 in zip(g1.domains(), g2.domains()):
@@ -67,9 +67,17 @@ def test_make_geometry_head(data_path):
     for key in ("cortex", "skull", "scalp"):
         meshes.append(om.Mesh(op.join(dirpath, f"{key}.{subject_id}.tri")))
 
+    # Make a geometry from a 3 layers model
     g1 = om.make_nested_geometry(meshes, conductivity=(1, 0.0125, 1))
     g2 = om.Geometry(
         op.join(dirpath, subject + ".geom"), op.join(dirpath, subject + ".cond")
     )
+    _assert_geometry(g1, g2, n_domains=4)
 
-    _assert_geometry(g1, g2)
+    # Make a geometry from a 1 layer model
+    g1 = om.make_nested_geometry(meshes[:1], conductivity=(1,))
+    g2 = om.Geometry(
+        op.join(dirpath, subject + "_1_layer.geom"),
+        op.join(dirpath, subject + "_1_layer.cond"),
+    )
+    _assert_geometry(g1, g2, n_domains=2)
