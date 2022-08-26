@@ -115,7 +115,7 @@ export BLA_STATIC_OPT="-DBLA_STATIC=ON"
 cmake --build build --config release
 if [[ "${PLATFORM}" == 'macosx-x86_64'* ]]; then
     for name in OpenMEEG OpenMEEGMaths; do
-        install_name_tool -change "/usr/local/gfortran/lib/libgfortran.3.dylib" "@rpath/libgfortran.3.dylib" $ROOT/build/${name}/{$name}.1.1.0.dylib
+        install_name_tool -change "/usr/local/gfortran/lib/libgfortran.3.dylib" "@rpath/libgfortran.3.dylib" ./build/${name}/lib${name}.1.1.0.dylib
     done
 fi
 cmake --build build --target package --target install --config release
@@ -129,7 +129,6 @@ if [[ "$PLATFORM" == 'linux'* ]]; then
     cp -av build/OpenMEEG-*-*.* /output/
 elif [[ "$PLATFORM" == 'macosx-'* ]]; then
     otool -L $ROOT/build/OpenMEEG/libOpenMEEG.1.1.0.dylib
-    install_name_tool /usr/local/gfortran/lib/libgfortran.3.dylib
 else
     ./build_tools/install_dependency_walker.sh
 fi
