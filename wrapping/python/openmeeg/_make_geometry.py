@@ -132,7 +132,7 @@ def make_nested_geometry(meshes, conductivity):
     Parameters
     ----------
     meshes : list
-        List of meshes from inner to outer. For now only 3 layer
+        List of meshes from inner to outer. For now only 1 or 3 layer
         models are supported.
     conductivity : array-like
         The list of conductivities for each domain from the inside to the
@@ -144,54 +144,67 @@ def make_nested_geometry(meshes, conductivity):
         The geometry that can be used in OpenMEEG.
     """
 
-    if not isinstance(meshes, list) or len(meshes) != 3:
+    if not isinstance(meshes, list) or len(meshes) not in [1, 3]:
         raise ValueError(
-            "Wrong argument (should be a list of 3 meshes). " f"Got {type(meshes)}"
+            "Wrong argument (should be a list of 1 or 3 meshes). " f"Got {type(meshes)}"
         )
 
-    # Convert meshes to dictionary of meshes for make_geometry
-    # meshes = {
-    #  name: meshes[i] for i, name in enumerate(["cortex", "skull", "scalp"])
-    # }
-    meshes = {
-        "Skull": meshes[1],
-        "Cortex": meshes[0],
-        "Head": meshes[2],
-    }
-    brain_conductivity, skull_conductivity, scalp_conductivity = conductivity
+    if len(meshes) == 3:
+        # Convert meshes to dictionary of meshes for make_geometry
+        meshes = {
+            "Skull": meshes[1],
+            "Cortex": meshes[0],
+            "Head": meshes[2],
+        }
+        brain_conductivity, skull_conductivity, scalp_conductivity = conductivity
 
-    # It should be possible to have multiple oriented meshes per interface.
-    # e.g.
-    # interface1 = [(m1,om.OrientedMesh.Normal),
-    #               (m2,om.OrientedMesh.Opposite),
-    #               (m3,om.OrientedMesh.Normal)]
-    # It should also be possible to have a name added at the beginning of the
-    # tuple.
+        # It should be possible to have multiple oriented meshes per interface.
+        # e.g.
+        # interface1 = [(m1,om.OrientedMesh.Normal),
+        #               (m2,om.OrientedMesh.Opposite),
+        #               (m3,om.OrientedMesh.Normal)]
+        # It should also be possible to have a name added at the beginning of the
+        # tuple.
 
-    interfaces = {
-        "Cortex": [("Cortex", OrientedMesh.Normal)],
-        "Skull": [("Skull", OrientedMesh.Normal)],
-        "Head": [("Head", OrientedMesh.Normal)],
-    }
+        interfaces = {
+            "Cortex": [("Cortex", OrientedMesh.Normal)],
+            "Skull": [("Skull", OrientedMesh.Normal)],
+            "Head": [("Head", OrientedMesh.Normal)],
+        }
 
-    domains = {
-        "Scalp": (
-            [
-                ("Skull", SimpleDomain.Outside),
-                ("Head", SimpleDomain.Inside),
-            ],
-            scalp_conductivity,
-        ),
-        "Brain": ([("Cortex", SimpleDomain.Inside)], brain_conductivity),
-        "Air": ([("Head", SimpleDomain.Outside)], 0.0),
-        "Skull": (
-            [
-                ("Cortex", SimpleDomain.Outside),
-                ("Skull", SimpleDomain.Inside),
-            ],
-            skull_conductivity,
-        ),
-    }
+        domains = {
+            "Scalp": (
+                [
+                    ("Skull", SimpleDomain.Outside),
+                    ("Head", SimpleDomain.Inside),
+                ],
+                scalp_conductivity,
+            ),
+            "Brain": ([("Cortex", SimpleDomain.Inside)], brain_conductivity),
+            "Air": ([("Head", SimpleDomain.Outside)], 0.0),
+            "Skull": (
+                [
+                    ("Cortex", SimpleDomain.Outside),
+                    ("Skull", SimpleDomain.Inside),
+                ],
+                skull_conductivity,
+            ),
+        }
+    else:  # assume 1 layer model
+        # Convert meshes to dictionary of meshes for make_geometry
+        meshes = {
+            "Cortex": meshes[0],
+        }
+        (brain_conductivity,) = conductivity
+
+        interfaces = {
+            "Cortex": [("Cortex", OrientedMesh.Normal)],
+        }
+
+        domains = {
+            "Brain": ([("Cortex", SimpleDomain.Inside)], brain_conductivity),
+            "Air": ([("Cortex", SimpleDomain.Outside)], 0.0),
+        }
 
     geom = make_geometry(meshes, interfaces, domains)
     return geom
