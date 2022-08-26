@@ -88,6 +88,8 @@ elif [[ "$PLATFORM" == "win-amd64" ]]; then
     source ./build_tools/download_openblas.sh windows  # NumPy doesn't install the headers for Windows
     pip install delvewheel
     export SYSTEM_VERSION_OPT="-DCMAKE_SYSTEM_VERSION=7"
+    LAPACK_LIBRARIES_OPT="-DLAPACK_LIBRARIES=$OPENBLAS_LIB/libopenblas.a"
+    BLAS_LIBRARIES_OPT="-DBLASLIBRARIES=$OPENBLAS_LIB/libopenblas.a"
 else
     echo "Unknown platform: ${PLATFORM}"
     exit 1

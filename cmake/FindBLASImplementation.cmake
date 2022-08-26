@@ -92,13 +92,8 @@ else()
 
 endif()
 
-set(CMAKE_FIND_LIBRARY_SUFFIXES_OLD ${CMAKE_FIND_LIBRARY_SUFFIXES})
-if (WIN32 AND BLA_STATIC AND BLA_IMPLEMENTATION STREQUAL "OpenBLAS")
-    set(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
-endif()
 find_package(BLAS REQUIRED)
 find_package(LAPACK REQUIRED)
-set(CMAKE_FIND_LIBRARY_SUFFIXES ${CMAKE_FIND_LIBRARY_SUFFIXES_OLD})
 
 # Add targets for compatibility with older cmake versions < 3.18
 
