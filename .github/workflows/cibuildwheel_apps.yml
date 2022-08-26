@@ -65,7 +65,8 @@ jobs:
           CIBW_TEST_COMMAND: "bash {project}/build_tools/cibw_test_command_apps.sh {project}"
       - uses: actions/upload-artifact@v3
         with:
-          path: ./installers/*
+          path: |
+            ./installers/OpenMEEG-*.tar.gz
           name: installers
 
   release:
@@ -77,7 +78,7 @@ jobs:
           name: installers
       # pattern is a comma-separated list of names or globs
       - run: |
-          echo '::set-output name=pattern::OpenMEEG-*.tar.gz'
+          echo '::set-output name=pattern::OpenMEEG-*'
           if [[ "${{ github.ref_type }}" != "tag" ]]; then
             echo '::set-output name=tag::dev'  # default empty uses tag
             echo '::set-output name=generate::true'  # default false
