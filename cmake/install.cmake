@@ -33,5 +33,8 @@ endif()
 # install_system_libs(MATIO::MATIO)
 
 if(${EXTRA_INSTALL_LIBRARIES})
-    list(APPEND CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS ${EXTRA_INSTALL_LIBRARIES})
-endif()
+    # https://stackoverflow.com/questions/12995166/how-can-i-install-gcc-runtime-libraries-with-cmake
+    # list(APPEND CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS ${EXTRA_INSTALL_LIBRARIES})
+    message("-- Adding custom bin install of ${EXTRA_INSTALL_LIBRARIES}")
+    install(PROGRAMS ${EXTRA_INSTALL_LIBRARIES} DESTINATION bin)
+endif( CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS )endif()
