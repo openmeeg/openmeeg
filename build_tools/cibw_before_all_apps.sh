@@ -81,7 +81,7 @@ elif [[ "$PLATFORM" == 'macosx-'* ]]; then
         codesign --force --sign - /opt/gfortran-darwin-arm64/lib/gcc/arm64-apple-darwin20.0.0/10.2.1/libgfortran.5.dylib
         codesign --force --sign - /opt/gfortran-darwin-arm64/lib/gcc/arm64-apple-darwin20.0.0/10.2.1/libgcc_s.2.dylib
         cp -av /opt/gfortran-darwin-arm64/lib/gcc/arm64-apple-darwin20.0.0/10.2.1/libgfortran* $VCPKG_DIR/lib/
-        LIBRARIES_INSTALL_OPT="-DEXTRA_INSTALL_LIBRARIES=/opt/gfortran-darwin-arm64/lib/gcc/arm64-apple-darwin20.0.0/10.2.1/libgfortran.5.dylib,/opt/gfortran-darwin-arm64/lib/gcc/arm64-apple-darwin20.0.0/10.2.1/libgcc_s.2.dylib"
+        LIBRARIES_INSTALL_OPT="-DEXTRA_INSTALL_LIBRARIES=/opt/gfortran-darwin-arm64/lib/gcc/arm64-apple-darwin20.0.0/10.2.1/libgfortran.5.dylib;/opt/gfortran-darwin-arm64/lib/gcc/arm64-apple-darwin20.0.0/10.2.1/libgcc_s.2.dylib"
     else
         echo "Unknown CIBW_ARCHS_MACOS=\"$CIBW_ARCHS_MACOS\""
         exit 1
