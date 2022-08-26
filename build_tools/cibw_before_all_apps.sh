@@ -91,7 +91,7 @@ elif [[ "$PLATFORM" == "win-amd64" ]]; then
     OPENBLAS_DLL=$(ls $OPENBLAS_LIB/libopenblas*.dll)
     echo "OPENBLAS_DLL=\"${OPENBLAS_DLL}\""
     test -f $OPENBLAS_DLL
-    LIBRARIES_INSTALL_OPT="-DEXTRA_INSTALL_LIBRARIES=$(cygpath -m ${OPENBLAS_DLL})"}
+    LIBRARIES_INSTALL_OPT="-DEXTRA_INSTALL_LIBRARIES=$(cygpath -m ${OPENBLAS_DLL})"
 else
     echo "Unknown platform: ${PLATFORM}"
     exit 1
