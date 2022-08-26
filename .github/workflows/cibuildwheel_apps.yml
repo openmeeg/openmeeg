@@ -67,7 +67,7 @@ jobs:
         with:
           path: |
             ./installers/OpenMEEG-*.tar.gz
-          name: installers
+          name: OpenMEEG-installers
 
   release:
     needs: [apps]
@@ -75,7 +75,7 @@ jobs:
     steps:
       - uses: actions/download-artifact@v3
         with:
-          name: installers
+          name: OpenMEEG-installers
       # pattern is a comma-separated list of names or globs
       - run: |
           echo '::set-output name=pattern::OpenMEEG-*'
