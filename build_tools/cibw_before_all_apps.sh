@@ -59,7 +59,7 @@ elif [[ "$PLATFORM" == 'macosx-'* ]]; then
         export SYSTEM_VERSION_OPT="-DCMAKE_OSX_DEPLOYMENT_TARGET=10.15"
         cp -av /usr/local/gfortran/lib/libgfortran* $OPENBLAS_LIB/
         PACKAGE_ARCH_SUFFIX="_Intel"
-        LINKER_OPT="$LINKER_OPT -Wl,-rpath=../lib"
+        LINKER_OPT="$LINKER_OPT -Wl,-rpath,../lib"
         LIBRARIES_INSTALL_OPT="-DEXTRA_INSTALL_LIBRARIES=/usr/local/gfortran/lib/libgfortran.3.dylib"
     elif [[ "$CIBW_ARCHS_MACOS" == "arm64" ]]; then
         # export VCPKG_DEFAULT_TRIPLET="arm64-osx-release-10.9"
