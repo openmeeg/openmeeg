@@ -98,4 +98,6 @@ jobs:
           prerelease: true
           allowUpdates: true
           generateReleaseNotes: true
+          removeArtifacts: true
+          replacesArtifacts: false
           name: ${{ steps.filename.outputs.release_name }}
