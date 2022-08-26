@@ -77,7 +77,7 @@ elif [[ "$PLATFORM" == 'macosx-'* ]]; then
         export LINKER_OPT="$LINKER_OPT -L$ROOT/vcpkg_installed/arm64-osx-release-10.9/lib -lz"
         export SYSTEM_VERSION_OPT="-DCMAKE_OSX_DEPLOYMENT_TARGET=11"
         PACKAGE_ARCH_SUFFIX="_M1"
-        chmod -R a+w /opt/gfortran-darwin-arm64/lib/gcc/arm64-apple-darwin20.0.0/10.2.1/
+        sudo chmod -R a+w /opt/gfortran-darwin-arm64/lib/gcc/arm64-apple-darwin20.0.0/10.2.1
         codesign --force --sign - /opt/gfortran-darwin-arm64/lib/gcc/arm64-apple-darwin20.0.0/10.2.1/libgfortran.5.dylib
         codesign --force --sign - /opt/gfortran-darwin-arm64/lib/gcc/arm64-apple-darwin20.0.0/10.2.1/libgcc_s.2.dylib
         cp -av /opt/gfortran-darwin-arm64/lib/gcc/arm64-apple-darwin20.0.0/10.2.1/libgfortran* $VCPKG_DIR/lib/
