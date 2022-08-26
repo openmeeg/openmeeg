@@ -66,6 +66,7 @@ jobs:
       - uses: actions/upload-artifact@v3
         with:
           path: ./installers/*
+          name: installers
 
   release:
     needs: [apps]
@@ -73,7 +74,7 @@ jobs:
     steps:
       - uses: actions/download-artifact@v3
         with:
-          name: artifact
+          name: installers
       - run: |
           echo '::set-output name=pattern::OpenMEEG-*-*.*'
           if [[ "${{ github.ref_type }}" != "tag" ]]; then
