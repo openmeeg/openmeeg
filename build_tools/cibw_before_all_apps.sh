@@ -58,6 +58,7 @@ elif [[ "$PLATFORM" == 'macosx-'* ]]; then
         source ./build_tools/setup_vcpkg_compilation.sh
         export SYSTEM_VERSION_OPT="-DCMAKE_OSX_DEPLOYMENT_TARGET=10.15"
         cp -av /usr/local/gfortran/lib/libgfortran* $OPENBLAS_LIB/
+        PACKAGE_ARCH_SUFFIX="_Intel"
     elif [[ "$CIBW_ARCHS_MACOS" == "arm64" ]]; then
         # export VCPKG_DEFAULT_TRIPLET="arm64-osx-release-10.9"
         CMAKE_OSX_ARCH_OPT="-DCMAKE_OSX_ARCHITECTURES=arm64"
@@ -74,6 +75,7 @@ elif [[ "$PLATFORM" == 'macosx-'* ]]; then
         cp -av /opt/gfortran-darwin-arm64/lib/gcc/arm64-apple-darwin20.0.0/10.2.1/libgfortran* $VCPKG_DIR/lib/
         export LINKER_OPT="$LINKER_OPT -L$ROOT/vcpkg_installed/arm64-osx-release-10.9/lib -lz"
         export SYSTEM_VERSION_OPT="-DCMAKE_OSX_DEPLOYMENT_TARGET=11"
+        PACKAGE_ARCH_SUFFIX="_M1"
     else
         echo "Unknown CIBW_ARCHS_MACOS=\"$CIBW_ARCHS_MACOS\""
         exit 1
@@ -81,6 +83,7 @@ elif [[ "$PLATFORM" == 'macosx-'* ]]; then
     CMAKE_OSX_ARCH_OPT="-DCMAKE_OSX_ARCHITECTURES=${CIBW_ARCHS_MACOS}"
     # libomp can cause segfaults on macos... maybe from version conflicts with OpenBLAS, or from being too recent?
     OPENMP_OPT="-DUSE_OPENMP=OFF"
+    PACKAGE_ARCH_SUFFIX="-DPACKAGE_ARCH_SUFFIX=$PACKAGE_ARCH_SUFFIX"
 elif [[ "$PLATFORM" == "win-amd64" ]]; then
     export VCPKG_DEFAULT_TRIPLET="x64-windows-release-static"
     export CMAKE_GENERATOR="Visual Studio 16 2019"

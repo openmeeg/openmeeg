@@ -78,10 +78,10 @@ jobs:
         id: filename
       - run: |
           set -ex
-          ls -alR . && rm ./*.whl
+          ls -alR .
+          rm ./*.whl
           echo "${{ steps.filename.outputs.pattern }}"
-          ls -al "${{ steps.filename.outputs.pattern }}"
-          test $(ls -al "${{ steps.filename.outputs.pattern }}" | wc -l) == "4"
+        name: Check files
       - uses: ncipollo/release-action@v1
         #if: github.ref_type == 'tag'
         with:
