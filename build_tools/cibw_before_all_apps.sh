@@ -88,9 +88,10 @@ elif [[ "$PLATFORM" == "win-amd64" ]]; then
     source ./build_tools/download_openblas.sh windows  # NumPy doesn't install the headers for Windows
     pip install delvewheel
     export SYSTEM_VERSION_OPT="-DCMAKE_SYSTEM_VERSION=7"
-    LAPACK_LIBRARIES_OPT="-DLAPACK_LIBRARIES=$OPENBLAS_LIB/libopenblas.a"
-    BLAS_LIBRARIES_OPT="-DBLASLIBRARIES=$OPENBLAS_LIB/libopenblas.a"
-    BLAS_LINKER_OPT="-DBLAS_LINKER_FLAGS=-lgfortran"
+    OPENBLAS_DLL=$(ls $OPENBLAS_LIB/libopenblas*.dll)
+    echo "OPENBLAS_DLL=\"${OPENBLAS_DLL}\""
+    test -f $OPENBLAS_DLL
+    LIBRARIES_INSTALL_OPT="-DEXTRA_INSTALL_LIBRARIES=$(cygpath -m ${OPENBLAS_DLL})"}
 else
     echo "Unknown platform: ${PLATFORM}"
     exit 1
@@ -101,7 +102,7 @@ export DISABLE_CCACHE=1
 export WERROR_OPT="-DENABLE_WERROR=ON"
 pip install cmake
 export BLA_STATIC_OPT="-DBLA_STATIC=ON"
-./build_tools/cmake_configure.sh -DCMAKE_VERBOSE_MAKEFILE=ON -DCMAKE_INSTALL_PREFIX=${ROOT}/install ${LIBDIR_OPT} ${OPENMP_OPT} ${CMAKE_OSX_ARCH_OPT} ${CMAKE_PREFIX_PATH_OPT} -DENABLE_APPS=ON ${SHARED_OPT} -DCMAKE_INSTALL_UCRT_LIBRARIES=TRUE ${BLAS_LIBRARIES_OPT} ${LAPACK_LIBRARIES_OPT} ${BLAS_LINKER_OPT}
+./build_tools/cmake_configure.sh -DCMAKE_VERBOSE_MAKEFILE=ON -DCMAKE_INSTALL_PREFIX=${ROOT}/install ${LIBDIR_OPT} ${LIBRARIES_INSTALL_OPT} ${OPENMP_OPT} ${CMAKE_OSX_ARCH_OPT} ${CMAKE_PREFIX_PATH_OPT} -DENABLE_APPS=ON ${SHARED_OPT} -DCMAKE_INSTALL_UCRT_LIBRARIES=TRUE ${BLAS_LIBRARIES_OPT} ${LAPACK_LIBRARIES_OPT}
 cmake --build build --target package --target install --config release
 
 # Put DLLs where they can be found

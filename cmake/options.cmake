@@ -18,6 +18,7 @@ option(PYTHON_FORCE_EXT_SUFFIX "Force Python extension suffix" OFF)
 option(ENABLE_WERROR "Turn on -Werror" OFF)
 option(TEST_HEAD3 "Run tests on Head 3" OFF)
 set(PACKAGE_ARCH_SUFFIX "" CACHE STRING "Package architecture suffix")
+set(EXTRA_INSTALL_LIBRARIES "" CACHE STRING "Extra library paths to install to the lib path")
 
 # Documentation configuration
 

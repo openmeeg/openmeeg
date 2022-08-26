@@ -48,6 +48,7 @@ generate_export_header(OpenMEEGMaths
 # create_library(OpenMEEGMaths ${OpenMEEGMaths_SOURCES})
 
 # 'make install' to the correct locations (provided by GNUInstallDirs).
+
 install(TARGETS OpenMEEGMaths EXPORT OpenMEEGConfig
     ARCHIVE  DESTINATION ${CMAKE_INSTALL_LIBDIR}
     LIBRARY  DESTINATION ${CMAKE_INSTALL_LIBDIR}

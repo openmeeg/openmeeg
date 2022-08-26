@@ -28,3 +28,7 @@ if (${MKL_USE_parallel})
         endif()
     endforeach(LIB)
 endif()
+
+if(${EXTRA_INSTALL_LIBRARIES})
+    list(APPEND CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS ${EXTRA_INSTALL_LIBRARIES})
+endif()
