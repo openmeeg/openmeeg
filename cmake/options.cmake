@@ -19,6 +19,7 @@ option(ENABLE_WERROR "Turn on -Werror" OFF)
 option(TEST_HEAD3 "Run tests on Head 3" OFF)
 set(PACKAGE_ARCH_SUFFIX "" CACHE STRING "Package architecture suffix")
 set(EXTRA_INSTALL_LIBRARIES "" CACHE STRING "Extra library files to install")
+option(RPATH_USE_LINK_PATH "Set CMAKE_INSTALL_RPATH_USE_LINK_PATH=ON on macOS (only, currently)" ON)
 
 # Documentation configuration
 
