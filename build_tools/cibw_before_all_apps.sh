@@ -104,6 +104,8 @@ pip install cmake
 export BLA_STATIC_OPT="-DBLA_STATIC=ON"
 ./build_tools/cmake_configure.sh -DCMAKE_VERBOSE_MAKEFILE=ON -DCMAKE_INSTALL_PREFIX=${ROOT}/install ${LIBDIR_OPT} ${LIBRARIES_INSTALL_OPT} ${OPENMP_OPT} ${CMAKE_OSX_ARCH_OPT} ${CMAKE_PREFIX_PATH_OPT} -DENABLE_APPS=ON ${SHARED_OPT} -DCMAKE_INSTALL_UCRT_LIBRARIES=TRUE ${BLAS_LIBRARIES_OPT} ${LAPACK_LIBRARIES_OPT}
 cmake --build build --target package --target install --config release
+mkdir -p installers
+cp -av build/OpenMEEG-*-*.* installers/
 
 # Put DLLs where they can be found
 if [[ "$PLATFORM" == 'linux'* ]]; then
@@ -111,7 +113,7 @@ if [[ "$PLATFORM" == 'linux'* ]]; then
 elif [[ "$PLATFORM" == 'macosx-'* ]]; then
     otool -L $ROOT/build/OpenMEEG/libOpenMEEG.1.1.0.dylib
 else
+    cd installers
     ./build_tools/install_dependency_walker.sh
+    cd ..
 fi
-mkdir -p installers
-cp -av build/OpenMEEG-*-*.* installers/

@@ -11,7 +11,7 @@ set -e
 ls -al $ROOT
 echo
 echo "Installers:"
-ls -alR $ROOT/installers
+ls -al $ROOT/installers
 echo
 
 if [[ "${RUNNER_OS}" == "Linux" ]]; then
@@ -31,9 +31,8 @@ elif [[ "${RUNNER_OS}" == "Windows" ]]; then
     ROOT=$(cygpath -u $ROOT)
     tar xzfv $ROOT/installers/OpenMEEG-*.tar.gz
     cd OpenMEEG-*
-    ls ..
-    ls ../Dependencies
-    ../Dependencies/Dependencies.exe -modules $(cygpath -w $PWD/bin/om_minverser.exe)
+    ls ../installers/Dependencies
+    ../installers/Dependencies/Dependencies.exe -modules $(cygpath -w $PWD/bin/om_minverser.exe)
     ./bin/om_minverser --help
 else
     echo "Unknown RUNNER_OS=\"${RUNNER_OS}\""
