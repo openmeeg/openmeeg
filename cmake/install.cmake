@@ -36,6 +36,7 @@ if(NOT "${EXTRA_INSTALL_LIBRARIES}" STREQUAL "")
     # https://stackoverflow.com/questions/12995166/how-can-i-install-gcc-runtime-libraries-with-cmake
     # list(APPEND CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS ${EXTRA_INSTALL_LIBRARIES})
     message("-- Adding custom bin install of ${EXTRA_INSTALL_LIBRARIES}")
+    string (REPLACE "," " " EXTRA_INSTALL_LIBRARIES "${EXTRA_INSTALL_LIBRARIES}")
     if(WIN32)
         install(PROGRAMS ${EXTRA_INSTALL_LIBRARIES} DESTINATION bin)
     else()
