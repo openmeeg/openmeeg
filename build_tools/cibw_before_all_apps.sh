@@ -59,8 +59,7 @@ elif [[ "$PLATFORM" == 'macosx-'* ]]; then
         export SYSTEM_VERSION_OPT="-DCMAKE_OSX_DEPLOYMENT_TARGET=10.15"
         cp -av /usr/local/gfortran/lib/libgfortran* $OPENBLAS_LIB/
         PACKAGE_ARCH_SUFFIX="_Intel"
-        LINKER_OPT="$LINKER_OPT -Wl,-rpath,../lib"
-        LIBRARIES_INSTALL_OPT="-DEXTRA_INSTALL_LIBRARIES=/usr/local/gfortran/lib/libgfortran.3.dylib"
+        LIBRARIES_INSTALL_OPT="-DEXTRA_INSTALL_LIBRARIES=/usr/local/gfortran/lib/libgfortran.3.dylib;/usr/local/gfortran/lib/libquadmath.3.dylib"
     elif [[ "$CIBW_ARCHS_MACOS" == "arm64" ]]; then
         # export VCPKG_DEFAULT_TRIPLET="arm64-osx-release-10.9"
         CMAKE_OSX_ARCH_OPT="-DCMAKE_OSX_ARCHITECTURES=arm64"
@@ -113,6 +112,12 @@ export WERROR_OPT="-DENABLE_WERROR=ON"
 pip install cmake
 export BLA_STATIC_OPT="-DBLA_STATIC=ON"
 ./build_tools/cmake_configure.sh -DCMAKE_VERBOSE_MAKEFILE=ON -DCMAKE_INSTALL_PREFIX=${ROOT}/install ${RPATH_USE_LINK_OPT} ${LIBDIR_OPT} ${LIBRARIES_INSTALL_OPT} ${PACKAGE_ARCH_OPT} ${OPENMP_OPT} ${CMAKE_OSX_ARCH_OPT} ${CMAKE_PREFIX_PATH_OPT} -DENABLE_APPS=ON ${SHARED_OPT} -DCMAKE_INSTALL_UCRT_LIBRARIES=TRUE ${BLAS_LIBRARIES_OPT} ${LAPACK_LIBRARIES_OPT}
+cmake --build build --config release
+if [[ "${PLATFORM}" == 'macosx-x86_64'* ]]; then
+    for name in OpenMEEG OpenMEEGMaths; do
+        install_name_tool -change "/usr/local/gfortran/lib/libgfortran.3.dylib" "@rpath/libgfortran.3.dylib" $ROOT/build/${name}/{$name}.1.1.0.dylib
+    done
+fi
 cmake --build build --target package --target install --config release
 mkdir -p installers
 cp -av build/OpenMEEG-*-*.* installers/
@@ -124,6 +129,7 @@ if [[ "$PLATFORM" == 'linux'* ]]; then
     cp -av build/OpenMEEG-*-*.* /output/
 elif [[ "$PLATFORM" == 'macosx-'* ]]; then
     otool -L $ROOT/build/OpenMEEG/libOpenMEEG.1.1.0.dylib
+    install_name_tool /usr/local/gfortran/lib/libgfortran.3.dylib
 else
     ./build_tools/install_dependency_walker.sh
 fi

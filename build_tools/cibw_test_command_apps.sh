@@ -24,7 +24,6 @@ if [[ "${RUNNER_OS}" == "Linux" ]]; then
 elif [[ "${RUNNER_OS}" == "macOS" ]]; then
     tar xzfv $ROOT/installers/OpenMEEG-*-*.tar.gz
     cd OpenMEEG-*
-    # If these are not found we could use "install_name_tool -add_rpath newpath filename"
     sudo rm /usr/local/gfortran/lib/*.dylib
     otool -L ./lib/libOpenMEEG.dylib
     otool -L ./lib/libOpenMEEGMaths.dylib
