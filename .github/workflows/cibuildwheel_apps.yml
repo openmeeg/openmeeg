@@ -93,8 +93,7 @@ jobs:
       - run: |
           set -ex
           ls -alR .
-          rm ./*.whl
-          echo "${{ steps.filename.outputs.pattern }}"
+          echo "Using filename pattern \"${{ steps.filename.outputs.pattern }}\""
         name: Check files
       # https://github.com/ncipollo/release-action
       - uses: ncipollo/release-action@v1
