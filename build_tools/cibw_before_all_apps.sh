@@ -129,6 +129,7 @@ if [[ "$PLATFORM" == 'linux'* ]]; then
     cp -av build/OpenMEEG-*-*.* /output/
 elif [[ "$PLATFORM" == 'macosx-'* ]]; then
     otool -L $ROOT/build/OpenMEEG/libOpenMEEG.1.1.0.dylib
+    # otool -L $ROOT/
 else
     ./build_tools/install_dependency_walker.sh
 fi

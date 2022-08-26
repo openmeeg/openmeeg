@@ -27,6 +27,7 @@ elif [[ "${RUNNER_OS}" == "macOS" ]]; then
     sudo rm /usr/local/gfortran/lib/*.dylib
     otool -L ./lib/libOpenMEEG.dylib
     otool -L ./lib/libOpenMEEGMaths.dylib
+    otool -L ./lib/libgfortran.*.dylib
     ./bin/om_minverser --help
 elif [[ "${RUNNER_OS}" == "Windows" ]]; then
     ROOT=$(cygpath -u $ROOT)
