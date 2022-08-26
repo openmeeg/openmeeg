@@ -1,7 +1,8 @@
 # Build a geometry with given interfaces and domains.
 import numpy as np
 
-from .openmeeg import Geometry, Domain, SimpleDomain, Interface, OrientedMesh, Mesh
+from .openmeeg import (Geometry, Domain, SimpleDomain, Interface, OrientedMesh,
+                       Mesh)
 
 
 def _mesh_vertices_and_triangles(mesh):
@@ -78,7 +79,8 @@ def make_geometry(meshes, interfaces, domains):
     for dname, domain in domains.items():
         domain_interfaces, conductivity = domain
 
-        if not isinstance(domain_interfaces, list) or len(domain_interfaces) == 0:
+        if (not isinstance(domain_interfaces, list)
+                or len(domain_interfaces) == 0):
             raise Exception(
                 f"wrong description of domain ({dname}), should be a "
                 "non-empty list of interfaces"
@@ -146,11 +148,14 @@ def make_nested_geometry(meshes, conductivity):
 
     if not isinstance(meshes, list) or len(meshes) != 3:
         raise ValueError(
-            f"Wrong argument (should be a list of 3 meshes). Got {type(meshes)}"
+            "Wrong argument (should be a list of 3 meshes). "
+            f"Got {type(meshes)}"
         )
 
     # Convert meshes to dictionary of meshes for make_geometry
-    # meshes = {name: meshes[i] for i, name in enumerate(["cortex", "skull", "scalp"])}
+    # meshes = {
+    #  name: meshes[i] for i, name in enumerate(["cortex", "skull", "scalp"])
+    # }
     meshes = {
         "Skull": meshes[1],
         "Cortex": meshes[0],
@@ -158,7 +163,8 @@ def make_nested_geometry(meshes, conductivity):
     }
     brain_conductivity, skull_conductivity, scalp_conductivity = conductivity
 
-    # It should be possible to have multiple oriented meshes per interface. e.g.
+    # It should be possible to have multiple oriented meshes per interface.
+    # e.g.
     # interface1 = [(m1,om.OrientedMesh.Normal),
     #               (m2,om.OrientedMesh.Opposite),
     #               (m3,om.OrientedMesh.Normal)]

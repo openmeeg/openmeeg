@@ -91,12 +91,14 @@ def test_python(data_path, tmp_path):
     assert (ds2mm.nlin(), ds2mm.ncol()) == (n_meg_sensors, n_dipoles)
     assert (h2mm.nlin(), h2mm.ncol()) == (n_meg_sensors, n_hm_unknowns)
     assert (h2em.nlin(), h2em.ncol()) == (n_eeg_sensors, n_hm_unknowns)
-    assert (gain_eeg_dip.nlin(), gain_eeg_dip.ncol()) == (n_eeg_sensors, n_dipoles)
+    assert (gain_eeg_dip.nlin(), gain_eeg_dip.ncol()) == (n_eeg_sensors,
+                                                          n_dipoles)
     assert (gain_eeg_surf.nlin(), gain_eeg_surf.ncol()) == (
         n_eeg_sensors,
         n_dipoles_surf,
     )
-    assert (gain_meg_dip.nlin(), gain_meg_dip.ncol()) == (n_meg_sensors, n_dipoles)
+    assert (gain_meg_dip.nlin(), gain_meg_dip.ncol()) == (n_meg_sensors,
+                                                          n_dipoles)
     assert (gain_meg_surf.nlin(), gain_meg_surf.ncol()) == (
         n_meg_sensors,
         n_dipoles_surf,
@@ -120,7 +122,7 @@ def test_python(data_path, tmp_path):
 
     assert_allclose(gain_meg_surf_one_line.array(), gain_meg_surf.array())
 
-    ###############################################################################
+    ###########################################################################
     # Compute forward data =
 
     src_fname = op.join(data_path, subject, subject + ".srcdip")
@@ -132,13 +134,15 @@ def test_python(data_path, tmp_path):
     assert (est_meg.nlin(), est_meg.ncol()) == (n_meg_sensors, n_times)
 
     est_meg_adjoint = om.Forward(gain_adjoint_meg_dip, sources, noise_level)
-    assert (est_meg_adjoint.nlin(), est_meg_adjoint.ncol()) == (n_meg_sensors, n_times)
+    assert (est_meg_adjoint.nlin(), est_meg_adjoint.ncol()) == (n_meg_sensors,
+                                                                n_times)
 
     est_eeg = om.Forward(gain_eeg_dip, sources, noise_level)
     assert (est_eeg.nlin(), est_eeg.ncol()) == (n_eeg_sensors, n_times)
 
     est_eeg_adjoint = om.Forward(gain_adjoint_eeg_dip, sources, noise_level)
-    assert (est_eeg_adjoint.nlin(), est_eeg_adjoint.ncol()) == (n_eeg_sensors, n_times)
+    assert (est_eeg_adjoint.nlin(), est_eeg_adjoint.ncol()) == (n_eeg_sensors,
+                                                                n_times)
 
     # Example of basic manipulations
     # TODO: the same with numpy

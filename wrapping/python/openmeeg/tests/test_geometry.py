@@ -46,9 +46,10 @@ def _assert_geometry(g1, g2):
         assert d1.conductivity() == d2.conductivity()
         assert d1.boundaries().size() == d2.boundaries().size()
         for b1, b2 in zip(d1.boundaries(), d2.boundaries()):
+            i1, i2 = b1.interface(), b2.interface()
             assert b1.inside() == b2.inside()
-            assert b1.interface().nb_vertices() == b2.interface().nb_vertices()
-            assert b1.interface().nb_triangles() == b2.interface().nb_triangles()
+            assert i1.nb_vertices() == i2.nb_vertices()
+            assert i1.nb_triangles() == i2.nb_triangles()
             assert b1.__class__ == b2.__class__
 
 
@@ -68,7 +69,8 @@ def test_make_geometry_head(data_path):
 
     g1 = om.make_nested_geometry(meshes, conductivity=(1, 0.0125, 1))
     g2 = om.Geometry(
-        op.join(dirpath, subject + ".geom"), op.join(dirpath, subject + ".cond")
+        op.join(dirpath, subject + ".geom"),
+        op.join(dirpath, subject + ".cond")
     )
 
     _assert_geometry(g1, g2)
