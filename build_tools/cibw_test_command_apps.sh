@@ -24,6 +24,11 @@ if [[ "${RUNNER_OS}" == "Linux" ]]; then
 elif [[ "${RUNNER_OS}" == "macOS" ]]; then
     tar xzfv $ROOT/installers/OpenMEEG-*-*.tar.gz
     cd OpenMEEG-*
+    # TODO:
+    # - install_name_tool -add_rpath newpath filename
+    # - codesign --force --sign - ../lib/libgfortran.5.dylib
+    # - Add libgcc_s.2.dylib
+    # - Fix rpath unused on macOS Intel binaries
     otool -L ./lib/libOpenMEEG.dylib
     otool -L ./lib/libOpenMEEGMaths.dylib
     ./bin/om_minverser --help

@@ -59,6 +59,7 @@ elif [[ "$PLATFORM" == 'macosx-'* ]]; then
         export SYSTEM_VERSION_OPT="-DCMAKE_OSX_DEPLOYMENT_TARGET=10.15"
         cp -av /usr/local/gfortran/lib/libgfortran* $OPENBLAS_LIB/
         PACKAGE_ARCH_SUFFIX="_Intel"
+        LINKER_OPT="$LINKER_OPT -Wl,-rpath=../lib"
         LIBRARIES_INSTALL_OPT="-DEXTRA_INSTALL_LIBRARIES=/usr/local/gfortran/lib/libgfortran.3.dylib"
     elif [[ "$CIBW_ARCHS_MACOS" == "arm64" ]]; then
         # export VCPKG_DEFAULT_TRIPLET="arm64-osx-release-10.9"
@@ -77,7 +78,9 @@ elif [[ "$PLATFORM" == 'macosx-'* ]]; then
         export LINKER_OPT="$LINKER_OPT -L$ROOT/vcpkg_installed/arm64-osx-release-10.9/lib -lz"
         export SYSTEM_VERSION_OPT="-DCMAKE_OSX_DEPLOYMENT_TARGET=11"
         PACKAGE_ARCH_SUFFIX="_M1"
-        LIBRARIES_INSTALL_OPT="-DEXTRA_INSTALL_LIBRARIES=/opt/gfortran-darwin-arm64/lib/gcc/arm64-apple-darwin20.0.0/10.2.1/libgfortran.5.dylib"
+        codesign --force --sign - /opt/gfortran-darwin-arm64/lib/gcc/arm64-apple-darwin20.0.0/10.2.1/libgfortran.5.dylib
+        codesign --force --sign - /opt/gfortran-darwin-arm64/lib/gcc/arm64-apple-darwin20.0.0/10.2.1/libgcc_s.2.dylib
+        LIBRARIES_INSTALL_OPT="-DEXTRA_INSTALL_LIBRARIES=/opt/gfortran-darwin-arm64/lib/gcc/arm64-apple-darwin20.0.0/10.2.1/libgfortran.5.dylib /opt/gfortran-darwin-arm64/lib/gcc/arm64-apple-darwin20.0.0/10.2.1/libgcc_s.2.dylib"
     else
         echo "Unknown CIBW_ARCHS_MACOS=\"$CIBW_ARCHS_MACOS\""
         exit 1
