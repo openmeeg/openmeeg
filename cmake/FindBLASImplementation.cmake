@@ -92,12 +92,7 @@ else()
 
 endif()
 
-find_package(BLAS REQUIRED)
-find_package(LAPACK REQUIRED)
-
-# Add targets for compatibility with older cmake versions < 3.18
-
-if (NOT TARGET BLAS::BLAS)
+if (${BLAS_LIBRARIES})
     add_library(BLAS::BLAS INTERFACE IMPORTED)
     if (BLAS_LIBRARIES)
         set_target_properties(BLAS::BLAS PROPERTIES INTERFACE_LINK_LIBRARIES "${BLAS_LIBRARIES}")
@@ -105,8 +100,20 @@ if (NOT TARGET BLAS::BLAS)
     if (BLAS_LINKER_FLAGS)
         set_target_properties(BLAS::BLAS PROPERTIES INTERFACE_LINK_OPTIONS ${BLAS_LINKER_FLAGS})
     endif()
+else()
+    find_package(BLAS REQUIRED)
+    if (NOT TARGET BLAS::BLAS)
+        add_library(BLAS::BLAS INTERFACE IMPORTED)
+        if (BLAS_LIBRARIES)
+            set_target_properties(BLAS::BLAS PROPERTIES INTERFACE_LINK_LIBRARIES "${BLAS_LIBRARIES}")
+        endif()
+        if (BLAS_LINKER_FLAGS)
+            set_target_properties(BLAS::BLAS PROPERTIES INTERFACE_LINK_OPTIONS ${BLAS_LINKER_FLAGS})
+        endif()
+    endif()
 endif()
 
+find_package(LAPACK REQUIRED)
 if (NOT TARGET LAPACK::LAPACK)
     add_library(LAPACK::LAPACK INTERFACE IMPORTED)
 
@@ -134,6 +141,7 @@ if (NOT TARGET LAPACK::LAPACK)
         set_target_properties(LAPACK::LAPACK PROPERTIES INTERFACE_LINK_OPTIONS "${_lapack_flags}")
     endif()
 endif()
+
 
 # OpenBLAS may or may not include lapacke.
 # Check which version is used.
