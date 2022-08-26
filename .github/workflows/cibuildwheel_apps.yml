@@ -74,7 +74,12 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           name: artifact
-      - run: echo '::set-output name=pattern::OpenMEEG-*-*.*'
+      - run: |
+          echo '::set-output name=pattern::OpenMEEG-*-*.*'
+          DATE=$(date +'%Y-%m-%d')"
+          if [[ "${{ github.ref_type }}" != "tag" ]]; then
+            echo '::set-output release_name=name::dev-$DATE'
+          fi
         id: filename
       - run: |
           set -ex
@@ -82,8 +87,9 @@ jobs:
           rm ./*.whl
           echo "${{ steps.filename.outputs.pattern }}"
         name: Check files
+      # https://github.com/ncipollo/release-action
       - uses: ncipollo/release-action@v1
-        #if: github.ref_type == 'tag'
+        #if: github.ref_type == 'tag' || github.event_name != 'pull_request'
         with:
           artifacts: "${{ steps.filename.outputs.pattern }}"
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -91,3 +97,4 @@ jobs:
           prerelease: true
           allowUpdates: true
           generateReleaseNotes: true
+          name: ${{ steps.filename.outputs.release_name }}

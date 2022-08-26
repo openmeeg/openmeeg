@@ -59,6 +59,7 @@ elif [[ "$PLATFORM" == 'macosx-'* ]]; then
         export SYSTEM_VERSION_OPT="-DCMAKE_OSX_DEPLOYMENT_TARGET=10.15"
         cp -av /usr/local/gfortran/lib/libgfortran* $OPENBLAS_LIB/
         PACKAGE_ARCH_SUFFIX="_Intel"
+        LIBRARIES_INSTALL_OPT="-DEXTRA_INSTALL_LIBRARIES=/usr/local/gfortran/lib/libgfortran.3.dylib"
     elif [[ "$CIBW_ARCHS_MACOS" == "arm64" ]]; then
         # export VCPKG_DEFAULT_TRIPLET="arm64-osx-release-10.9"
         CMAKE_OSX_ARCH_OPT="-DCMAKE_OSX_ARCHITECTURES=arm64"
@@ -76,6 +77,7 @@ elif [[ "$PLATFORM" == 'macosx-'* ]]; then
         export LINKER_OPT="$LINKER_OPT -L$ROOT/vcpkg_installed/arm64-osx-release-10.9/lib -lz"
         export SYSTEM_VERSION_OPT="-DCMAKE_OSX_DEPLOYMENT_TARGET=11"
         PACKAGE_ARCH_SUFFIX="_M1"
+        LIBRARIES_INSTALL_OPT="-DEXTRA_INSTALL_LIBRARIES=/opt/gfortran-darwin-arm64/lib/gcc/arm64-apple-darwin20.0.0/10.2.1/libgfortran.5.dylib"
     else
         echo "Unknown CIBW_ARCHS_MACOS=\"$CIBW_ARCHS_MACOS\""
         exit 1
@@ -83,7 +85,7 @@ elif [[ "$PLATFORM" == 'macosx-'* ]]; then
     CMAKE_OSX_ARCH_OPT="-DCMAKE_OSX_ARCHITECTURES=${CIBW_ARCHS_MACOS}"
     # libomp can cause segfaults on macos... maybe from version conflicts with OpenBLAS, or from being too recent?
     OPENMP_OPT="-DUSE_OPENMP=OFF"
-    PACKAGE_ARCH_SUFFIX="-DPACKAGE_ARCH_SUFFIX=$PACKAGE_ARCH_SUFFIX"
+    PACKAGE_ARCH_OPT="-DPACKAGE_ARCH_SUFFIX=$PACKAGE_ARCH_SUFFIX"
 elif [[ "$PLATFORM" == "win-amd64" ]]; then
     export VCPKG_DEFAULT_TRIPLET="x64-windows-release-static"
     export CMAKE_GENERATOR="Visual Studio 16 2019"
@@ -105,7 +107,7 @@ export DISABLE_CCACHE=1
 export WERROR_OPT="-DENABLE_WERROR=ON"
 pip install cmake
 export BLA_STATIC_OPT="-DBLA_STATIC=ON"
-./build_tools/cmake_configure.sh -DCMAKE_VERBOSE_MAKEFILE=ON -DCMAKE_INSTALL_PREFIX=${ROOT}/install ${LIBDIR_OPT} ${LIBRARIES_INSTALL_OPT} ${OPENMP_OPT} ${CMAKE_OSX_ARCH_OPT} ${CMAKE_PREFIX_PATH_OPT} -DENABLE_APPS=ON ${SHARED_OPT} -DCMAKE_INSTALL_UCRT_LIBRARIES=TRUE ${BLAS_LIBRARIES_OPT} ${LAPACK_LIBRARIES_OPT}
+./build_tools/cmake_configure.sh -DCMAKE_VERBOSE_MAKEFILE=ON -DCMAKE_INSTALL_PREFIX=${ROOT}/install ${LIBDIR_OPT} ${LIBRARIES_INSTALL_OPT} ${PACKAGE_ARCH_OPT} ${OPENMP_OPT} ${CMAKE_OSX_ARCH_OPT} ${CMAKE_PREFIX_PATH_OPT} -DENABLE_APPS=ON ${SHARED_OPT} -DCMAKE_INSTALL_UCRT_LIBRARIES=TRUE ${BLAS_LIBRARIES_OPT} ${LAPACK_LIBRARIES_OPT}
 cmake --build build --target package --target install --config release
 mkdir -p installers
 cp -av build/OpenMEEG-*-*.* installers/
