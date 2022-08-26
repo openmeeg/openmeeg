@@ -70,19 +70,18 @@ jobs:
   release:
     needs: [apps]
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        include:
-        - filename_pattern: "OpenMEEG-*-*.*"
     steps:
       - uses: actions/download-artifact@v3
         with:
           name: artifact
       - run: echo '::set-output name=pattern::OpenMEEG-*-*.*'
         id: filename
-      - run: ls -alR .
-      - run: ls -al "${{ steps.filename.outputs.pattern }}"
-      - run: test $(ls -al "${{ steps.filename.outputs.pattern }}" | wc -l) == "4"
+      - run:
+          set -ex
+          ls -alR . && rm ./*.whl
+          echo "${{ steps.filename.outputs.pattern }}"
+          ls -al "${{ steps.filename.outputs.pattern }}"
+          test $(ls -al "${{ steps.filename.outputs.pattern }}" | wc -l) == "4"
       - uses: ncipollo/release-action@v1
         #if: github.ref_type == 'tag'
         with:

@@ -109,7 +109,9 @@ cp -av build/OpenMEEG-*-*.* installers/
 
 # Put DLLs where they can be found
 if [[ "$PLATFORM" == 'linux'* ]]; then
-    ls -alR /usr/local/lib
+    ls /
+    mkdir -p /output
+    cp -av build/OpenMEEG-*-*.* /output/
 elif [[ "$PLATFORM" == 'macosx-'* ]]; then
     otool -L $ROOT/build/OpenMEEG/libOpenMEEG.1.1.0.dylib
 else
