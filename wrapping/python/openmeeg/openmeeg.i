@@ -191,6 +191,9 @@ namespace OpenMEEG {
     %naturalvar Matrix;
     class Matrix;
 
+    %naturalvar SymMatrix;
+    class SymMatrix;
+
     %naturalvar Triangle;
     class Triangle;
 
@@ -215,6 +218,10 @@ namespace OpenMEEG {
     %naturalvar OrientedMeshes;
     class OrientedMeshes;
 }
+
+#ifndef SWIGPYTHON
+#define SWIGPYTHON
+#endif
 
 #ifdef SWIGPYTHON
 
@@ -269,6 +276,34 @@ namespace OpenMEEG {
             throw Error(SWIG_TypeError, "Input object must be a PyArray or an OpenMEEG Matrix.");
 
         return new Matrix(*(reinterpret_cast<OpenMEEG::Matrix*>(ptr)));
+    }
+
+    OpenMEEG::SymMatrix* new_OpenMEEG_SymMatrix(PyObject* pyobj) {
+        if (pyobj && PyArray_Check(pyobj)) {
+            const int nbdims = PyArray_NDIM(reinterpret_cast<PyArrayObject*>(pyobj));
+            if (nbdims!=1)
+                throw Error(SWIG_TypeError, "SymMatrix are stored as 1 dimensional arrays.");
+
+            PyArrayObject* mat = reinterpret_cast<PyArrayObject*>(PyArray_FromObject(pyobj,NPY_DOUBLE,1,1));
+
+            if (!PyArray_ISFARRAY(mat))
+                throw Error(SWIG_TypeError, "SymMatrixMatrix requires the use of Fortran order.");
+
+            const size_t size = PyArray_DIM(mat,0);
+            const size_t nblines = round((-1 + sqrt(1+8*size))/2);
+
+            OpenMEEG::SymMatrix* result = new SymMatrix(nblines);
+            result->reference_data(static_cast<double*>(PyArray_GETPTR2(mat,0,0)));
+            return result;
+        }
+
+        //  If the object is an OpenMEEG matrix converted to python, just return the matrix.
+
+        void* ptr = 0;
+        if (!SWIG_IsOK(SWIG_ConvertPtr(pyobj,&ptr,SWIGTYPE_p_OpenMEEG__Matrix,SWIG_POINTER_EXCEPTION)))
+            throw Error(SWIG_TypeError, "Input object must be a PyArray or an OpenMEEG Matrix.");
+
+        return new SymMatrix(*(reinterpret_cast<OpenMEEG::SymMatrix*>(ptr)));
     }
 
     IndexMap
@@ -464,6 +499,32 @@ namespace OpenMEEG {
         double* data = new double[dims[0]*dims[1]];
         double* start = (*($self)).data();
         std::copy(start,start+dims[0]*dims[1],data);
+        PyArrayObject* array = reinterpret_cast<PyArrayObject*>(PyArray_New(&PyArray_Type,ndims,dims,NPY_DOUBLE,NULL,
+                                                                            static_cast<void*>(data),0,NPY_ARRAY_F_CONTIGUOUS | NPY_ARRAY_OWNDATA,NULL));
+        return PyArray_Return(array);
+    }
+
+    void setvalue(const unsigned int i,const unsigned int j,const double d) { (*($self))(i,j) = d; }
+
+    double value(const unsigned int i,const unsigned int j) {
+        if ((i>=($self)->nlin()) || (j>=($self)->ncol()))
+            throw Error(SWIG_IndexError, "i or j out of range");
+        return (*($self))(i,j);
+    }
+}
+
+%extend OpenMEEG::SymMatrix {
+    SymMatrix(PyObject* pyobj) { return new_OpenMEEG_SymMatrix(pyobj); }
+
+    PyObject* array_flat() {
+        const npy_intp ndims = 1;
+        npy_intp* dims = new npy_intp[ndims];
+        dims[0] = ($self)->size();
+
+        // make a copy of the data
+        double* data = new double[dims[0]];
+        double* start = (*($self)).data();
+        std::copy(start,start+dims[0],data);
         PyArrayObject* array = reinterpret_cast<PyArrayObject*>(PyArray_New(&PyArray_Type,ndims,dims,NPY_DOUBLE,NULL,
                                                                             static_cast<void*>(data),0,NPY_ARRAY_F_CONTIGUOUS | NPY_ARRAY_OWNDATA,NULL));
         return PyArray_Return(array);
