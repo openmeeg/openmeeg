@@ -79,8 +79,15 @@ jobs:
       - run: |
           echo '::set-output name=pattern::OpenMEEG-*.tar.gz'
           if [[ "${{ github.ref_type }}" != "tag" ]]; then
-            echo '::set-output name=release_name::dev'
+            echo '::set-output name=tag::dev'  # default empty uses tag
+            echo '::set-output name=generate::true'  # default false
+          else
+            echo '::set-output name=body::body.md'  # default empty
           fi
+          DATE="$(date +'%Y-%m-%d')"
+          echo "# Development release" >> body.md
+          echo "" >> body.md
+          echo "Created from latest main on ${DATE}" >> body.md
         id: filename
       - run: |
           set -ex
@@ -97,7 +104,8 @@ jobs:
           draft: true
           prerelease: true
           allowUpdates: true
-          generateReleaseNotes: true
+          generateReleaseNotes: ${{ steps.filename.outputs.generate }}
+          bodyFile: ${{ steps.filename.outputs.body }}
           removeArtifacts: true
           replacesArtifacts: false
-          name: ${{ steps.filename.outputs.release_name }}
+          tag: ${{ steps.filename.outputs.name }}
