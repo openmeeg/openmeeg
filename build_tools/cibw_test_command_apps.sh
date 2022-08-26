@@ -31,7 +31,7 @@ elif [[ "${RUNNER_OS}" == "Windows" ]]; then
     ROOT=$(cygpath -u $ROOT)
     tar xzfv $ROOT/installers/OpenMEEG-*.tar.gz
     cd OpenMEEG-*
-    ../../Dependencies/Dependencies.exe -modules $(cygpath -w $PWD/bin/om_minverser.exe)
+    ../Dependencies/Dependencies.exe -modules $(cygpath -w $PWD/bin/om_minverser.exe)
     ./bin/om_minverser --help
 else
     echo "Unknown RUNNER_OS=\"${RUNNER_OS}\""
