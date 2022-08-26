@@ -5,7 +5,7 @@ import openmeeg as om
 
 def test_sensors(data_path):
     # Test creating sensors from numpy arrays
-    labels = ["toto"]
+    labels = ["toto", "tata"]
     positions = np.array([[0, 1, 2], [0, 1, 2]], order="F")
     orientations = np.array([[-1, -1, -2], [-1, -1, -2]], order="F")
     weights = np.array([0.5, 0.5])
@@ -13,6 +13,10 @@ def test_sensors(data_path):
     s1 = om.Sensors(labels, positions, orientations, weights, radii)
     print("s1 =", s1)
     s1.info()
+
+    # Test creating sensors from only positions and orientations
+    # XXX it's still broken for the moment
+    # s1 = om.Sensors(positions, orientations)
 
     # Test creating Sensors from a geometry
     subject = "Head1"
