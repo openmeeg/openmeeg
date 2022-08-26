@@ -76,7 +76,7 @@ jobs:
           name: artifact
       - run: echo '::set-output name=pattern::OpenMEEG-*-*.*'
         id: filename
-      - run:
+      - run: |
           set -ex
           ls -alR . && rm ./*.whl
           echo "${{ steps.filename.outputs.pattern }}"
