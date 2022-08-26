@@ -33,6 +33,7 @@ elif [[ "${RUNNER_OS}" == "Windows" ]]; then
     cd OpenMEEG-*
     ls ../installers/Dependencies
     ../installers/Dependencies/Dependencies.exe -modules $(cygpath -w $PWD/bin/om_minverser.exe)
+    rm -Rf ../installers/Dependencies
     ./bin/om_minverser --help
 else
     echo "Unknown RUNNER_OS=\"${RUNNER_OS}\""
