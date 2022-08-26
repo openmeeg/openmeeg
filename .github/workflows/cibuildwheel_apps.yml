@@ -75,8 +75,9 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           name: installers
+      # pattern is a comma-separated list of names or globs
       - run: |
-          echo '::set-output name=pattern::OpenMEEG-*-*.*'
+          echo '::set-output name=pattern::OpenMEEG-*.tar.gz'
           if [[ "${{ github.ref_type }}" != "tag" ]]; then
             echo '::set-output release_name=name::dev'
           fi
