@@ -67,6 +67,8 @@ def test_python(data_path, tmp_path):
     ss2mm = om.SurfSource2MEGMat(mesh, sensors)
     dsm = om.DipSourceMat(geom, dipoles, "Brain")
     ds2mm = om.DipSource2MEGMat(dipoles, sensors)
+    # XXX test DipSourceMat with dipoles as array and make sure it breaks
+    # if it's transposed
     h2mm = om.Head2MEGMat(geom, sensors)
     h2em = om.Head2EEGMat(geom, patches)
     gain_meg_surf = om.GainMEG(hminv, ssm, h2mm, ss2mm)
@@ -118,7 +120,7 @@ def test_python(data_path, tmp_path):
 
     assert_allclose(gain_meg_surf_one_line.array(), gain_meg_surf.array())
 
-    ###############################################################################
+    ###########################################################################
     # Compute forward data =
 
     src_fname = op.join(data_path, subject, subject + ".srcdip")
