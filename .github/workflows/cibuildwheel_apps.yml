@@ -76,9 +76,8 @@ jobs:
           name: artifact
       - run: |
           echo '::set-output name=pattern::OpenMEEG-*-*.*'
-          DATE=$(date +'%Y-%m-%d')"
           if [[ "${{ github.ref_type }}" != "tag" ]]; then
-            echo '::set-output release_name=name::dev-$DATE'
+            echo '::set-output release_name=name::dev'
           fi
         id: filename
       - run: |
