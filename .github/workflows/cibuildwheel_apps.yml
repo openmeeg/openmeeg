@@ -79,7 +79,7 @@ jobs:
       - run: |
           echo '::set-output name=pattern::OpenMEEG-*.tar.gz'
           if [[ "${{ github.ref_type }}" != "tag" ]]; then
-            echo '::set-output release_name=name::dev'
+            echo '::set-output name=release_name::dev'
           fi
         id: filename
       - run: |
