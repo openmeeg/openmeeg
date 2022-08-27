@@ -96,17 +96,14 @@ jobs:
           echo "Using filename pattern \"${{ steps.filename.outputs.pattern }}\""
         name: Check files
       # https://github.com/ncipollo/release-action
-      - uses: ncipollo/release-action@v1.10
+      # https://github.com/softprops/action-gh-release
+      - uses: softprops/action-gh-release@v1
         #if: github.ref_type == 'tag' || github.event_name != 'pull_request'
         with:
-          artifacts: "${{ steps.filename.outputs.pattern }}"
-          token: ${{ secrets.GITHUB_TOKEN }}
+          body_path: ${{ steps.filename.outputs.body }}
           draft: true
           prerelease: true
-          allowUpdates: true
-          generateReleaseNotes: ${{ steps.filename.outputs.generate }}
-          bodyFile: ${{ steps.filename.outputs.body }}
-          removeArtifacts: true
-          replacesArtifacts: false
-          tag: ${{ steps.filename.outputs.name }}
-          name: ${{ steps.filename.outputs.name }}
+          files: |
+            "${{ steps.filename.outputs.pattern }}"
+          tag_name: ${{ steps.filename.outputs.name }}
+          generate_release_notes: ${{ steps.filename.outputs.generate }}
