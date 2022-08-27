@@ -91,10 +91,12 @@ jobs:
           else
             echo '::set-output name=generate::true'  # default false
           fi
-          DATE="$(date +'%Y-%m-%d')"
           echo "# Development release" >> body.md
           echo "" >> body.md
-          echo "Created from latest main on ${DATE}" >> body.md
+          echo "This is an unreleased draft version (only visible to maintainers)." >> body.md
+          echo "" >> body.md
+          echo "- Created: $(date +'%Y-%m-%dT%H:%M:%S%z')" >> body.md
+          echo "- Commit: `${{ github.sha }}`" >> body.md
       - name: Check files
         run: |
           set -ex
