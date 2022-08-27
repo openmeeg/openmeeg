@@ -18,15 +18,16 @@
 # > mySubMat = om.asarray(subM)
 ###########################################
 import os.path as op
+import pytest
 import numpy as np
 
 from numpy.testing import assert_allclose
 import openmeeg as om
 
 
-def test_python(data_path, tmp_path):
+@pytest.mark.parametrize("subject", ["Head1", "mne_sample_ico3"])
+def test_python(subject, data_path, tmp_path):
     # Load data
-    subject = "Head1"
     cond_file = op.join(data_path, subject, subject + ".cond")
     geom_file = op.join(data_path, subject, subject + ".geom")
     source_mesh_file = op.join(data_path, subject, subject + ".tri")
@@ -37,25 +38,20 @@ def test_python(data_path, tmp_path):
     geom = om.Geometry(geom_file, cond_file)
     assert geom.is_nested()
 
-    mesh = om.Mesh(source_mesh_file)
-    n_dipoles_surf = mesh.vertices().size()
-
     dipoles = om.Matrix()
     dipoles.load(dipole_file)
     n_dipoles = dipoles.nlin()
 
-    sensors = om.Sensors()
-    sensors.load(squidsFile)
-    n_meg_sensors = sensors.getNumberOfSensors()
+    has_meg = False
+    if op.exists(squidsFile):
+        has_meg = True
+        sensors = om.Sensors()
+        sensors.load(squidsFile)
+        n_meg_sensors = sensors.getNumberOfSensors()
 
     patches = om.Sensors()
     patches.load(patches_file)
     n_eeg_sensors = patches.getNumberOfSensors()
-
-    # Compute forward problem (Build Gain Matrices)
-    # gauss_order = 3  # XXX cannot get Integrator exposed
-    # use_adaptive_integration = True
-    # dipole_in_cortex = True
 
     hm = om.HeadMat(geom)
     hminv = hm.inverse()  # invert hm with a copy
@@ -63,62 +59,77 @@ def test_python(data_path, tmp_path):
     hminv_inplace.invert()  # invert hm inplace (no copy)
     assert_allclose(om.Matrix(hminv).array(), om.Matrix(hminv_inplace).array())
 
-    ssm = om.SurfSourceMat(geom, mesh)
-    ss2mm = om.SurfSource2MEGMat(mesh, sensors)
     dsm = om.DipSourceMat(geom, dipoles, "Brain")
-    ds2mm = om.DipSource2MEGMat(dipoles, sensors)
-    # XXX test DipSourceMat with dipoles as array and make sure it breaks
-    # if it's transposed
-    h2mm = om.Head2MEGMat(geom, sensors)
     h2em = om.Head2EEGMat(geom, patches)
-    gain_meg_surf = om.GainMEG(hminv, ssm, h2mm, ss2mm)
-    gain_eeg_surf = om.GainEEG(hminv, ssm, h2em)
-    gain_meg_dip = om.GainMEG(hminv, dsm, h2mm, ds2mm)
-    gain_adjoint_meg_dip = om.GainMEGadjoint(geom, dipoles, hm, h2mm, ds2mm)
+
     gain_eeg_dip = om.GainEEG(hminv, dsm, h2em)
     gain_adjoint_eeg_dip = om.GainEEGadjoint(geom, dipoles, hm, h2em)
-    gain_adjoint_eeg_meg_dip = om.GainEEGMEGadjoint(
-        geom, dipoles, hm, h2em, h2mm, ds2mm
-    )
-
     n_hm_unknowns = geom.nb_parameters() - geom.nb_current_barrier_triangles()
-    assert gain_adjoint_eeg_meg_dip.nlin() == (n_meg_sensors + n_eeg_sensors)
+
     assert hm.nlin() == hm.ncol() == n_hm_unknowns
     assert hminv.nlin() == hminv.ncol() == n_hm_unknowns
-    assert (ssm.nlin(), ssm.ncol()) == (n_hm_unknowns, n_dipoles_surf)
     assert (dsm.nlin(), dsm.ncol()) == (n_hm_unknowns, n_dipoles)
-    assert (ss2mm.nlin(), ss2mm.ncol()) == (n_meg_sensors, n_dipoles_surf)
-    assert (ds2mm.nlin(), ds2mm.ncol()) == (n_meg_sensors, n_dipoles)
-    assert (h2mm.nlin(), h2mm.ncol()) == (n_meg_sensors, n_hm_unknowns)
-    assert (h2em.nlin(), h2em.ncol()) == (n_eeg_sensors, n_hm_unknowns)
     assert (gain_eeg_dip.nlin(), gain_eeg_dip.ncol()) == (n_eeg_sensors, n_dipoles)
-    assert (gain_eeg_surf.nlin(), gain_eeg_surf.ncol()) == (
-        n_eeg_sensors,
-        n_dipoles_surf,
-    )
-    assert (gain_meg_dip.nlin(), gain_meg_dip.ncol()) == (n_meg_sensors, n_dipoles)
-    assert (gain_meg_surf.nlin(), gain_meg_surf.ncol()) == (
-        n_meg_sensors,
-        n_dipoles_surf,
-    )
-    assert (gain_adjoint_meg_dip.nlin(), gain_adjoint_meg_dip.ncol()) == (
-        n_meg_sensors,
-        n_dipoles,
-    )
     assert (gain_adjoint_eeg_dip.nlin(), gain_adjoint_eeg_dip.ncol()) == (
         n_eeg_sensors,
         n_dipoles,
     )
 
-    # Leadfield MEG in one line :
-    gain_meg_surf_one_line = om.GainMEG(
-        om.HeadMat(geom).inverse(),
-        om.SurfSourceMat(geom, mesh),
-        om.Head2MEGMat(geom, sensors),
-        om.SurfSource2MEGMat(mesh, sensors),
-    )
+    if op.exists(source_mesh_file):
+        mesh = om.Mesh(source_mesh_file)
+        n_dipoles_surf = mesh.vertices().size()
+        ssm = om.SurfSourceMat(geom, mesh)
+        gain_eeg_surf = om.GainEEG(hminv, ssm, h2em)
+        assert (ssm.nlin(), ssm.ncol()) == (n_hm_unknowns, n_dipoles_surf)
+        assert (gain_eeg_surf.nlin(), gain_eeg_surf.ncol()) == (
+            n_eeg_sensors,
+            n_dipoles_surf,
+        )
+        assert (gain_eeg_surf.nlin(), gain_eeg_surf.ncol()) == (
+            n_eeg_sensors,
+            n_dipoles_surf,
+        )
 
-    assert_allclose(gain_meg_surf_one_line.array(), gain_meg_surf.array())
+    if has_meg:
+        ss2mm = om.SurfSource2MEGMat(mesh, sensors)
+        ds2mm = om.DipSource2MEGMat(dipoles, sensors)
+        # XXX test DipSourceMat with dipoles as array and make sure it breaks
+        # if it's transposed
+        h2mm = om.Head2MEGMat(geom, sensors)
+        gain_meg_surf = om.GainMEG(hminv, ssm, h2mm, ss2mm)
+        gain_meg_dip = om.GainMEG(hminv, dsm, h2mm, ds2mm)
+        gain_adjoint_meg_dip = om.GainMEGadjoint(geom, dipoles, hm, h2mm, ds2mm)
+        gain_adjoint_eeg_meg_dip = om.GainEEGMEGadjoint(
+            geom, dipoles, hm, h2em, h2mm, ds2mm
+        )
+
+        assert gain_adjoint_eeg_meg_dip.nlin() == (n_meg_sensors + n_eeg_sensors)
+        assert (ss2mm.nlin(), ss2mm.ncol()) == (n_meg_sensors, n_dipoles_surf)
+        assert (ds2mm.nlin(), ds2mm.ncol()) == (n_meg_sensors, n_dipoles)
+        assert (h2mm.nlin(), h2mm.ncol()) == (n_meg_sensors, n_hm_unknowns)
+        assert (h2em.nlin(), h2em.ncol()) == (n_eeg_sensors, n_hm_unknowns)
+        assert (gain_meg_dip.nlin(), gain_meg_dip.ncol()) == (n_meg_sensors, n_dipoles)
+        assert (gain_meg_surf.nlin(), gain_meg_surf.ncol()) == (
+            n_meg_sensors,
+            n_dipoles_surf,
+        )
+        assert (gain_adjoint_meg_dip.nlin(), gain_adjoint_meg_dip.ncol()) == (
+            n_meg_sensors,
+            n_dipoles,
+        )
+
+        # Leadfield MEG in one line :
+        gain_meg_surf_one_line = om.GainMEG(
+            om.HeadMat(geom).inverse(),
+            om.SurfSourceMat(geom, mesh),
+            om.Head2MEGMat(geom, sensors),
+            om.SurfSource2MEGMat(mesh, sensors),
+        )
+
+        assert_allclose(gain_meg_surf_one_line.array(), gain_meg_surf.array())
+
+    if subject != "Head1":
+        return  # only test the rest for Head1
 
     ###########################################################################
     # Compute forward data =
