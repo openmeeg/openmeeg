@@ -84,6 +84,7 @@ jobs:
       - name: Set vars
         id: vars
         run: |
+          set -e
           echo "Using ref_type=${{ github.ref_type }}"
           if [[ "${{ github.ref_type }}" != "tag" ]]; then
             echo '::set-output name=name::dev'  # default empty uses tag
@@ -97,9 +98,10 @@ jobs:
           echo "" >> body.md
           echo "- Created: $(date +'%Y-%m-%dT%H:%M:%S%z')" >> body.md
           echo "- Commit: `${{ github.sha }}`" >> body.md
+          cat body.md
       - name: Check files
         run: |
-          set -ex
+          set -e
           ls -alR .
           for key in body name generate; do
             echo "Using vars.outputs.${key}=${{ steps.vars.outputs.body }}"
