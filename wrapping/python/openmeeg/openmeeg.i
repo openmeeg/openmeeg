@@ -73,10 +73,10 @@
     #include <forward.h>
     #include <iostream>
 
-    #ifdef SWIGPYTHON
-        #define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
-        #include <numpy/arrayobject.h>
-    #endif
+    // 3.7 (our min) requires 1.14
+    // https://pypi.org/project/oldest-supported-numpy
+    #define NPY_NO_DEPRECATED_API NPY_1_14_API_VERSION
+    #include <numpy/arrayobject.h>
 
     using namespace OpenMEEG;
 %}
@@ -122,39 +122,6 @@ import_array();
 
 #define OPENMEEGMATHS_EXPORT
 #define OPENMEEG_EXPORT
-
-#ifdef 0  // POC for translating tuple(Vertex *) to numpy.array
-#ifdef SWIGPYTHON
-
-namespace OpenMEEG {
-
-    // C++ -> Python
-
-    %typemap(out) Vertex& {
-        npy_intp shape[] = { 3 };
-        double* data = &(($1)->x());
-        $result = PyArray_SimpleNewFromData(1,shape,NPY_DOUBLE,static_cast<void*>(data));
-    }
-
-    %typemap(out) PVertices & {
-        std::cerr << "Calling TYPEMAP OUT PVertices & (NOT IMPLEMENTED)" << std::endl;
-    }
-
-    %typemap(out) Mesh::VectPVertex &  {
-        std::cerr << "Calling TYPEMAP OUT Mesh::VectPVertex & " << std::endl;
-
-        npy_intp shape[2];
-        shape[0] = ($1)->size();
-        shape[1] = 4;
-
-        double &data = ($1)->at(0)->x();
-
-        $result = PyArray_SimpleNewFromData(2, shape, NPY_DOUBLE, static_cast<void*>(&data));
-    }
-}
-
-#endif // SWIGPYTHON
-#endif // 0
 
 namespace std {
     // std::vector<Mesh> cannot be handled similarly because swig assumes a copy constructor.
@@ -218,12 +185,6 @@ namespace OpenMEEG {
     %naturalvar OrientedMeshes;
     class OrientedMeshes;
 }
-
-#ifndef SWIGPYTHON
-#define SWIGPYTHON
-#endif
-
-#ifdef SWIGPYTHON
 
 %inline %{
 
@@ -413,7 +374,6 @@ namespace OpenMEEG {
         $result = PyInt_FromLong(*($1));
     }
 }
-#endif // SWIGPYTHON
 
 // /////////////////////////////////////////////////////////////////
 // extensions
