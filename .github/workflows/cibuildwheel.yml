@@ -46,14 +46,16 @@ jobs:
       - uses: actions/setup-python@v4  # to make before-all work properly
         with:
           python-version: '3.10'
-
+      - name: Setup ccache
+        uses: hendrikmuhs/ccache-action@v1.2
+        with:
+          key: ${{ github.job }}-${{ matrix.os }}
       - uses: pypa/cibuildwheel@v2.8.0
         with:
           package-dir: ./wrapping/python
           output-dir: wheelhouse
         env:
           CIBW_ARCHS_MACOS: "${{matrix.archs_macos}}"
-
       - uses: actions/upload-artifact@v3
         with:
           path: ./wheelhouse/*.whl
