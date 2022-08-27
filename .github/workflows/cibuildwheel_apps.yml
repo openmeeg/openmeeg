@@ -1,14 +1,5 @@
-# This CI run builds wheels using the cibuildwheel infrastructure.
-# This means it:
-# - Uses as old dependencies/infrastructure as possible:
-#   - An old manylinux docker container on Linux
-#   - An old MACOSX_DEPLOYMENT_TARGET on macOS
-#   - An old SYSTEM_VERSION target on Windows
-# - Builds OpenMEEG
-# - Creates wheels
-# - Delocates them
-# - Uploads them to TestPyPI (main) or PyPi (releases)
-# Most of the config lives in `pyproject.toml` and build_tools/cibw_* scripts.
+# This CI run builds wheels using the cibuildwheel infrastructure
+# to build the C++ binaries (with no Python wrappers).
 
 name: installers
 concurrency:
@@ -60,7 +51,7 @@ jobs:
         env:
           CIBW_ARCHS_MACOS: "${{matrix.archs_macos}}"
           CIBW_ENVIRONMENT_LINUX: "RUNNER_OS=Linux"
-          CIBW_ENVIRONMENT_MACOS: ""
+          CIBW_ENVIRONMENT_MACOS: "OPENMEEG_MACOS_WHEEL_PURE=false"
           CIBW_ENVIRONMENT_WINDOWS: ""
           CIBW_BUILD: "cp310-*"
           CIBW_BEFORE_ALL: "bash {project}/build_tools/cibw_before_all_apps.sh {project}"

@@ -43,6 +43,7 @@ try:
             _bdist_wheel.finalize_options(self)
             # Mark us as not a pure python package
             self.root_is_pure = False
+            raise RuntimeError
 
 except ImportError:
     bdist_wheel = None  # noqa
@@ -124,7 +125,10 @@ if __name__ == "__main__":
         )
         ext_modules.append(swig_openmeeg)
     else:  # built with -DENABLE_PYTHON=ON
-        cmdclass["bdist_wheel"] = bdist_wheel
+        if sys.platform != "darwin" or os.getenv(
+            "OPENMEEG_MACOS_WHEEL_PURE", "true"
+        ).lower() in ("false", "0"):
+            cmdclass["bdist_wheel"] = bdist_wheel
 
     setup(
         name=DISTNAME,

@@ -4,7 +4,6 @@ option(USE_VTK   "Use VTK"   OFF)
 option(USE_GIFTI "Use GIFTI" OFF)
 option(USE_CGAL  "Use CGAL"  OFF)
 option(BUILD_SHARED_LIBS "Build Shared Libraries" ON)
-option(OPENMP_STATIC "Use static OpenMP" OFF)
 
 option(ENABLE_COVERAGE "Enable coverage" OFF)
 option(ENABLE_APPS "Enable app creation" ON)
@@ -19,7 +18,6 @@ option(ENABLE_WERROR "Turn on -Werror" OFF)
 option(TEST_HEAD3 "Run tests on Head 3" OFF)
 set(PACKAGE_ARCH_SUFFIX "" CACHE STRING "Package architecture suffix")
 set(EXTRA_INSTALL_LIBRARIES "" CACHE STRING "Extra library files to install")
-option(RPATH_USE_LINK_PATH "Set CMAKE_INSTALL_RPATH_USE_LINK_PATH=ON on macOS (only, currently)" ON)
 
 # Documentation configuration
 
