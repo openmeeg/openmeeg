@@ -115,9 +115,9 @@ export BLA_STATIC_OPT="-DBLA_STATIC=ON"
 cmake --build build --config release
 if [[ "${PLATFORM}" == 'macosx-x86_64'* ]]; then
     for name in OpenMEEG OpenMEEGMaths; do
-        install_name_tool -change "/usr/local/gfortran/lib/libgfortran.3.dylib" "@loader_path/libgfortran.3.dylib" ./build/${name}/lib${name}.1.1.0.dylib
+        install_name_tool -change "/usr/local/gfortran/lib/libgfortran.3.dylib" "@rpath/libgfortran.3.dylib" ./build/${name}/lib${name}.1.1.0.dylib
     done
-    install_name_tool -change "/usr/local/gfortran/lib/libquadmath.0.dylib" "@loader_path/libquadmath.0.dylib" /usr/local/lib/libgfortran.3.dylib
+    install_name_tool -change "/usr/local/gfortran/lib/libquadmath.0.dylib" "@rpath/libquadmath.0.dylib" /usr/local/gfortran/lib/libgfortran.3.dylib
 fi
 cmake --build build --target package --target install --config release
 mkdir -p installers
