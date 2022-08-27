@@ -73,31 +73,35 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           name: OpenMEEG-installers
-      - run: |
+      - name: Set vars
+        id: vars
+        run: |
+          echo "Using ref_type=${{ github.ref_type }}"
           if [[ "${{ github.ref_type }}" != "tag" ]]; then
-            echo '::set-output name=tag::dev'  # default empty uses tag
-            echo '::set-output name=generate::true'  # default false
-          else
+            echo '::set-output name=name::dev'  # default empty uses tag
             echo '::set-output name=body::body.md'  # default empty
+          else
+            echo '::set-output name=generate::true'  # default false
           fi
           DATE="$(date +'%Y-%m-%d')"
           echo "# Development release" >> body.md
           echo "" >> body.md
           echo "Created from latest main on ${DATE}" >> body.md
-        id: filename
-      - run: |
+      - name: Check files
+        run: |
           set -ex
           ls -alR .
-        name: Check files
+          for key in body name generate; do
+            echo "Using vars.outputs.${key}=${{ steps.vars.outputs.body }}"
+          done
       # https://github.com/ncipollo/release-action
       # https://github.com/softprops/action-gh-release
       - uses: softprops/action-gh-release@v1
         if: github.ref_type == 'tag' || github.event_name != 'pull_request'
         with:
-          body_path: ${{ steps.filename.outputs.body }}
           draft: true
           prerelease: true
-          files: |
-            OpenMEEG-*
-          tag_name: ${{ steps.filename.outputs.name }}
-          generate_release_notes: ${{ steps.filename.outputs.generate }}
+          body_path: ${{ steps.vars.outputs.body }}
+          generate_release_notes: ${{ steps.vars.outputs.generate }}
+          tag_name: ${{ steps.vars.outputs.name }}
+          files: OpenMEEG-*
