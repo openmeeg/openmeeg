@@ -60,6 +60,10 @@ elif [[ "$PLATFORM" == 'macosx-'* ]]; then
         cp -av /usr/local/gfortran/lib/libgfortran* $OPENBLAS_LIB/
         PACKAGE_ARCH_SUFFIX="_Intel"
         sudo chmod -R a+w /usr/local/gfortran/lib
+        name=/usr/local/gfortran/lib
+        install_name_tool -change "${name}/libquadmath.0.dylib" "@rpath/libquadmath.0.dylib" ${name}/lib/libgfortran.3.dylib
+        install_name_tool -change "${name}/libgcc_s.1.dylib" "@rpath/libgcc_s.1.dylib" ${name}/libgfortran.3.dylib
+        install_name_tool -id "@rpath/libgfortran.3.dylib" ${name}/libgfortran.3.dylib
         LIBRARIES_INSTALL_OPT="-DEXTRA_INSTALL_LIBRARIES=/usr/local/gfortran/lib/libgfortran.3.dylib;/usr/local/gfortran/lib/libquadmath.0.dylib;/usr/local/gfortran/lib/libgcc_s.1.dylib"
     elif [[ "$CIBW_ARCHS_MACOS" == "arm64" ]]; then
         # export VCPKG_DEFAULT_TRIPLET="arm64-osx-release-10.9"
@@ -118,8 +122,6 @@ if [[ "${PLATFORM}" == 'macosx-x86_64'* ]]; then
     for name in OpenMEEG OpenMEEGMaths; do
         install_name_tool -change "/usr/local/gfortran/lib/libgfortran.3.dylib" "@rpath/libgfortran.3.dylib" ./build/${name}/lib${name}.1.1.0.dylib
     done
-    install_name_tool -change "/usr/local/gfortran/lib/libquadmath.0.dylib" "@rpath/libquadmath.0.dylib" /usr/local/gfortran/lib/libgfortran.3.dylib
-    install_name_tool -id "@rpath/libgfortran.3.dylib" /usr/local/gfortran/lib/libgfortran.3.dylib
 fi
 cmake --build build --target package --target install --config release
 mkdir -p installers
