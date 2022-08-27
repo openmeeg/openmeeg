@@ -76,11 +76,12 @@ jobs:
       - name: Set vars
         id: vars
         run: |
+          echo "Using ref_type=${{ github.ref_type }}"
           if [[ "${{ github.ref_type }}" != "tag" ]]; then
             echo '::set-output name=tag::dev'  # default empty uses tag
-            echo '::set-output name=generate::true'  # default false
-          else
             echo '::set-output name=body::body.md'  # default empty
+          else
+            echo '::set-output name=generate::true'  # default false
           fi
           DATE="$(date +'%Y-%m-%d')"
           echo "# Development release" >> body.md
@@ -91,17 +92,16 @@ jobs:
           set -ex
           ls -alR .
           for key in body name generate; do
-            echo "Using vars.outputs.${key}=${{steps.vars.outputs.body}}"
+            echo "Using vars.outputs.${key}=${{ steps.vars.outputs.body }}"
           done
       # https://github.com/ncipollo/release-action
       # https://github.com/softprops/action-gh-release
       - uses: softprops/action-gh-release@v1
         #if: github.ref_type == 'tag' || github.event_name != 'pull_request'
         with:
-          body_path: ${{ steps.vars.outputs.body }}
           draft: true
           prerelease: true
-          tag_name: ${{ steps.vars.outputs.name }}
-          files: |
-            OpenMEEG-*
+          body_path: ${{ steps.vars.outputs.body }}
           generate_release_notes: ${{ steps.vars.outputs.generate }}
+          tag_name: ${{ steps.vars.outputs.name }}
+          files: OpenMEEG-*
