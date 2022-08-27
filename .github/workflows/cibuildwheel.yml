@@ -18,9 +18,8 @@ concurrency:
 on:
   push:
     branches: [ main ]
-  # TODO: Revert
-  #pull_request:
-  #  branches: [ main ]
+  pull_request:
+    branches: [ main ]
   release:
     types: [ published ]
 
