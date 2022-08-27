@@ -39,6 +39,7 @@ if [[ "$PLATFORM" == "linux-x86_64" ]]; then
     export OPENBLAS_LIB=/usr/local/lib
     export CMAKE_CXX_FLAGS="-I$OPENBLAS_INCLUDE"
     export LINKER_OPT="-lgfortran -lpthread"
+    export DISABLE_CCACHE=1
     export VCPKG_DEFAULT_TRIPLET="x64-linux"
     source ./build_tools/setup_vcpkg_compilation.sh
     LAPACK_LIBRARIES_OPT="-DLAPACK_LIBRARIES=/usr/local/lib/libopenblas.a"
