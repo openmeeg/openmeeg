@@ -369,12 +369,9 @@ jobs:
           export EXTRA_COV="-DENABLE_COVERAGE=ON"
         fi
         EXT_SUFFIX=$(python -c "import sysconfig;print(sysconfig.get_config_var('EXT_SUFFIX'))")
-        if [[ "${{steps.env-vars.outputs.os}}" != 'windows'* ]]; then
-          PYTHON_FORCE_EXT_OPT="-DPYTHON_FORCE_EXT_SUFFIX=ON"
-        fi
         which cmake
         cmake --version
-        source ./build_tools/cmake_configure.sh --install-prefix=$PWD/install -DCMAKE_VERBOSE_MAKEFILE=ON $EXTRA_UCRT $EXTRA_COV -DPython3_EXT_SUFFIX=$EXT_SUFFIX $PYTHON_FORCE_EXT_OPT
+        source ./build_tools/cmake_configure.sh --install-prefix=$PWD/install -DCMAKE_VERBOSE_MAKEFILE=ON $EXTRA_UCRT $EXTRA_COV -DPython3_EXT_SUFFIX=$EXT_SUFFIX -DPYTHON_FORCE_EXT_SUFFIX=ON
 
     - name: Build
       run: |
@@ -404,7 +401,7 @@ jobs:
           ls -al *.dll || true
           if [[ "${{steps.env-vars.outputs.blas}}" == "OpenBLAS" ]]; then
             #if [[ "${{ steps.env-vars.outputs.blas_linking }}" != "static" ]]; then
-            if [[ "${{ steps.env-vars.outputs.windows_compiler }}" != "msvc"* ]]; then
+            if [[ "{{ steps.env-vars.outputs.windows_compiler }}" != "msvc"* ]]; then
               strip $OPENBLAS_LIB/libopenblas_v*.dll
             fi
             cp $OPENBLAS_LIB/libopenblas_v*.dll .
@@ -416,7 +413,7 @@ jobs:
             cp $(cygpath -u $CONDA_PREFIX)/Library/bin/*mkl*.dll .
             echo "DELVEWHEEL_ADD_DLL=--add-dll=mkl_intel_thread.2.dll" >> $GITHUB_ENV
           fi
-          if [[ "${{ steps.env-vars.outputs.windows_compiler }}" != "msvc"* ]]; then
+          if [[ "{{ steps.env-vars.outputs.windows_compiler }}" != "msvc"* ]]; then
             cp /c/Strawberry/c/bin/libquadmath-0.dll .
             cp /mingw64/bin/libgcc_s_seh-1.dll .
             cp /mingw64/bin/libwinpthread-1.dll .
