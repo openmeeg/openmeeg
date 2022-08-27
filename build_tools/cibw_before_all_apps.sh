@@ -57,7 +57,6 @@ elif [[ "$PLATFORM" == 'macosx-'* ]]; then
         export VCPKG_DEFAULT_TRIPLET="x64-osx-release-10.9"
         source ./build_tools/setup_vcpkg_compilation.sh
         export SYSTEM_VERSION_OPT="-DCMAKE_OSX_DEPLOYMENT_TARGET=10.15"
-        cp -av /usr/local/gfortran/lib/libgfortran* $OPENBLAS_LIB/
         PACKAGE_ARCH_SUFFIX="_Intel"
         sudo chmod -R a+w /usr/local/gfortran/lib
         name=/usr/local/gfortran/lib
