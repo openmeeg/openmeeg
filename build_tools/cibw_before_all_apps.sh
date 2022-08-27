@@ -119,6 +119,7 @@ if [[ "${PLATFORM}" == 'macosx-x86_64'* ]]; then
         install_name_tool -change "/usr/local/gfortran/lib/libgfortran.3.dylib" "@rpath/libgfortran.3.dylib" ./build/${name}/lib${name}.1.1.0.dylib
     done
     install_name_tool -change "/usr/local/gfortran/lib/libquadmath.0.dylib" "@rpath/libquadmath.0.dylib" /usr/local/gfortran/lib/libgfortran.3.dylib
+    install_name_tool -id "@rpath/libgfortran.3.dylib" /usr/local/gfortran/lib/libgfortran.3.dylib
 fi
 cmake --build build --target package --target install --config release
 mkdir -p installers
