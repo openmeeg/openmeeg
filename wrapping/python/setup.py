@@ -43,7 +43,6 @@ try:
             _bdist_wheel.finalize_options(self)
             # Mark us as not a pure python package
             self.root_is_pure = False
-            raise RuntimeError
 
 except ImportError:
     bdist_wheel = None  # noqa
