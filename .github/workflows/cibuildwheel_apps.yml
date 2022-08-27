@@ -97,7 +97,7 @@ jobs:
       # https://github.com/ncipollo/release-action
       # https://github.com/softprops/action-gh-release
       - uses: softprops/action-gh-release@v1
-        #if: github.ref_type == 'tag' || github.event_name != 'pull_request'
+        if: github.ref_type == 'tag' || github.event_name != 'pull_request'
         with:
           draft: true
           prerelease: true
