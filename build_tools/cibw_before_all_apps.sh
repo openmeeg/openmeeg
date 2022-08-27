@@ -64,6 +64,7 @@ elif [[ "$PLATFORM" == 'macosx-'* ]]; then
         install_name_tool -change "${name}/libquadmath.0.dylib" "@rpath/libquadmath.0.dylib" ${name}/libgfortran.3.dylib
         install_name_tool -change "${name}/libgcc_s.1.dylib" "@rpath/libgcc_s.1.dylib" ${name}/libgfortran.3.dylib
         install_name_tool -id "@rpath/libgfortran.3.dylib" ${name}/libgfortran.3.dylib
+        otool -L ${name}/libgfortran.3.dylib
         LIBRARIES_INSTALL_OPT="-DEXTRA_INSTALL_LIBRARIES=/usr/local/gfortran/lib/libgfortran.3.dylib;/usr/local/gfortran/lib/libquadmath.0.dylib;/usr/local/gfortran/lib/libgcc_s.1.dylib"
     elif [[ "$CIBW_ARCHS_MACOS" == "arm64" ]]; then
         # export VCPKG_DEFAULT_TRIPLET="arm64-osx-release-10.9"
