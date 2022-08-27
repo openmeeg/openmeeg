@@ -56,6 +56,7 @@ elif [[ "$PLATFORM" == 'macosx-'* ]]; then
     if [[ "$CIBW_ARCHS_MACOS" == "x86_64" ]]; then
         export VCPKG_DEFAULT_TRIPLET="x64-osx-release-10.9"
         source ./build_tools/setup_vcpkg_compilation.sh
+        LINKER_OPT="$LINKER_OPT -L/usr/local/gfortran/lib"
         export SYSTEM_VERSION_OPT="-DCMAKE_OSX_DEPLOYMENT_TARGET=10.15"
         PACKAGE_ARCH_SUFFIX="_Intel"
         sudo chmod -R a+w /usr/local/gfortran/lib
