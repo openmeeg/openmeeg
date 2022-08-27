@@ -61,7 +61,7 @@ elif [[ "$PLATFORM" == 'macosx-'* ]]; then
         PACKAGE_ARCH_SUFFIX="_Intel"
         sudo chmod -R a+w /usr/local/gfortran/lib
         name=/usr/local/gfortran/lib
-        install_name_tool -change "${name}/libquadmath.0.dylib" "@rpath/libquadmath.0.dylib" ${name}/lib/libgfortran.3.dylib
+        install_name_tool -change "${name}/libquadmath.0.dylib" "@rpath/libquadmath.0.dylib" ${name}/libgfortran.3.dylib
         install_name_tool -change "${name}/libgcc_s.1.dylib" "@rpath/libgcc_s.1.dylib" ${name}/libgfortran.3.dylib
         install_name_tool -id "@rpath/libgfortran.3.dylib" ${name}/libgfortran.3.dylib
         LIBRARIES_INSTALL_OPT="-DEXTRA_INSTALL_LIBRARIES=/usr/local/gfortran/lib/libgfortran.3.dylib;/usr/local/gfortran/lib/libquadmath.0.dylib;/usr/local/gfortran/lib/libgcc_s.1.dylib"
