@@ -73,7 +73,9 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           name: OpenMEEG-installers
-      - run: |
+      - name: Set vars
+        id: vars
+        run: |
           if [[ "${{ github.ref_type }}" != "tag" ]]; then
             echo '::set-output name=tag::dev'  # default empty uses tag
             echo '::set-output name=generate::true'  # default false
@@ -84,20 +86,22 @@ jobs:
           echo "# Development release" >> body.md
           echo "" >> body.md
           echo "Created from latest main on ${DATE}" >> body.md
-        id: filename
-      - run: |
+      - name: Check files
+        run: |
           set -ex
           ls -alR .
-        name: Check files
+          for key in body name generate; do
+            echo "Using vars.outputs.${key}=${{steps.vars.outputs.body}}"
+          done
       # https://github.com/ncipollo/release-action
       # https://github.com/softprops/action-gh-release
       - uses: softprops/action-gh-release@v1
-        if: github.ref_type == 'tag' || github.event_name != 'pull_request'
+        #if: github.ref_type == 'tag' || github.event_name != 'pull_request'
         with:
-          body_path: ${{ steps.filename.outputs.body }}
+          body_path: ${{ steps.vars.outputs.body }}
           draft: true
           prerelease: true
+          tag_name: ${{ steps.vars.outputs.name }}
           files: |
             OpenMEEG-*
-          tag_name: ${{ steps.filename.outputs.name }}
-          generate_release_notes: ${{ steps.filename.outputs.generate }}
+          generate_release_notes: ${{ steps.vars.outputs.generate }}

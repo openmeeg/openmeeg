@@ -401,7 +401,7 @@ jobs:
           ls -al *.dll || true
           if [[ "${{steps.env-vars.outputs.blas}}" == "OpenBLAS" ]]; then
             #if [[ "${{ steps.env-vars.outputs.blas_linking }}" != "static" ]]; then
-            if [[ "{{ steps.env-vars.outputs.windows_compiler }}" != "msvc"* ]]; then
+            if [[ "${{ steps.env-vars.outputs.windows_compiler }}" != "msvc"* ]]; then
               strip $OPENBLAS_LIB/libopenblas_v*.dll
             fi
             cp $OPENBLAS_LIB/libopenblas_v*.dll .
@@ -413,7 +413,7 @@ jobs:
             cp $(cygpath -u $CONDA_PREFIX)/Library/bin/*mkl*.dll .
             echo "DELVEWHEEL_ADD_DLL=--add-dll=mkl_intel_thread.2.dll" >> $GITHUB_ENV
           fi
-          if [[ "{{ steps.env-vars.outputs.windows_compiler }}" != "msvc"* ]]; then
+          if [[ "${{ steps.env-vars.outputs.windows_compiler }}" != "msvc"* ]]; then
             cp /c/Strawberry/c/bin/libquadmath-0.dll .
             cp /mingw64/bin/libgcc_s_seh-1.dll .
             cp /mingw64/bin/libwinpthread-1.dll .
