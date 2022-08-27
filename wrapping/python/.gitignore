@@ -5,3 +5,4 @@ openmeeg/_*.pyd
 openmeeg/_*.so
 openmeeg/_*.dylib
 build/
+dist/
