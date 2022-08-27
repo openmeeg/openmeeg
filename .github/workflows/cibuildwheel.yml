@@ -46,10 +46,18 @@ jobs:
       - uses: actions/setup-python@v4  # to make before-all work properly
         with:
           python-version: '3.10'
-      - name: Setup ccache
-        uses: hendrikmuhs/ccache-action@v1.2
+      - uses: hendrikmuhs/ccache-action@v1.2
+        if: matrix.os != ubuntu-20.04
         with:
-          key: ${{ github.job }}-${{ matrix.os }}
+          key: ${{ github.job }}-${{ matrix.os }}-${{ matrix.archs_macos }}
+      - name: Cache vcpkg
+        if: matrix.os != ubuntu-20.04
+        uses: actions/cache@v3
+        with:
+          path: |
+            vcpkg
+            build/vcpkg_installed
+          key: ${{ github.job }}-${{ hashFiles('**/vcpkg.json') }}-${{ matrix.os }}-${{ matrix.archs_macos }}-0
       - uses: pypa/cibuildwheel@v2.8.0
         with:
           package-dir: ./wrapping/python
