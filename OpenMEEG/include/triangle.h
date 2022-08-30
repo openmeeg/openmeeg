@@ -124,7 +124,9 @@ namespace OpenMEEG {
             for (unsigned i=0;i<3;++i)
                 if (&vertex(i)==&V)
                     return i;
-            throw UnknownVertex();
+            std::ostringstream oss;
+            oss << V;
+            throw UnknownVertex(oss.str());
         }
 
         static constexpr unsigned indices[3][2] = {{1,2},{2,0},{0,1}};

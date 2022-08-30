@@ -16,6 +16,7 @@
 #include <geometry.h>
 #include <operators.h>
 #include <assemble.h>
+#include <OMExceptions.H>
 
 #include <constants.h>
 
@@ -26,6 +27,7 @@ namespace OpenMEEG {
         template <typename T>
         void deflate(T& M,const Geometry& geo) {
             //  deflate all current barriers as one
+            ThreadException e;
             for (const auto& part : geo.isolated_parts()) {
                 unsigned nb_vertices = 0;
                 unsigned i_first = 0;
@@ -47,8 +49,11 @@ namespace OpenMEEG {
                             for (int i2=vit1-vertices.begin();i2<static_cast<int>(vertices.size());++i2) {
                                 const auto vit2 = vertices.begin()+i2;
                             #endif
-                                M((*vit1)->index(),(*vit2)->index()) += coef;
+                                e.Run([&](){
+                                    M((*vit1)->index(),(*vit2)->index()) += coef;
+                                });
                             }
+                            e.Rethrow();
                         }
                     }
             }
