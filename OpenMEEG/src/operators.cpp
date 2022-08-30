@@ -52,7 +52,9 @@ namespace OpenMEEG {
                 const auto dipder = [&](const Vect3& r) { return anaDPD.f(r); };
 
                 const Vect3& v = integrator.integrate(dipder,triangle);
+                #ifndef __APPLE__
                 #pragma omp critical
+                #endif
                 {
                     for (unsigned j=0; j<3; ++j)
                         rhs(triangle.vertex(j).index()) += v(j)*coeff;
