@@ -82,8 +82,6 @@ elif [[ "$PLATFORM" == "win-amd64" ]]; then
     source ./build_tools/download_openblas.sh windows  # NumPy doesn't install the headers for Windows
     pip install delvewheel
     export SYSTEM_VERSION_OPT="-DCMAKE_SYSTEM_VERSION=7"
-    # OpenMP seems to cause problems on Windows, too, at least when used in conjunction with NumPy built with OpenMP-enabled OpenBLAS, etc.
-    OPENMP_OPT="-DUSE_OPENMP=OFF"
 else
     echo "Unknown platform: ${PLATFORM}"
     exit 1
