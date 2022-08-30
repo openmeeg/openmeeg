@@ -29,18 +29,22 @@ namespace OpenMEEG {
     Matrix linsolve(const SymMatrix& H,const MATRIX& S) {
         Matrix res(S.nlin(),H.nlin());
         Jacobi<SymMatrix> M(H);    // Jacobi preconditionner
+        ThreadException e;
         #pragma omp parallel for
         #ifdef OPENMP_UNSIGNED
         for (unsigned i=0; i<S.nlin(); ++i) {
         #else
         for (int i=0; i<static_cast<int>(S.nlin()); ++i) {
         #endif
-            Vector vtemp(H.nlin());
-            GMRes(H,M,vtemp,S.getlin(i),1000,1e-7,H.nlin()); // max number of iteration=1000, and precision=1e-7 (1e-5 for faster resolution)
-            res.setlin(i,vtemp);
-            #pragma omp critical
-            PROGRESSBAR(i,S.nlin());
+            e.Run([&](){
+                Vector vtemp(H.nlin());
+                GMRes(H,M,vtemp,S.getlin(i),1000,1e-7,H.nlin()); // max number of iteration=1000, and precision=1e-7 (1e-5 for faster resolution)
+                res.setlin(i,vtemp);
+                #pragma omp critical
+                PROGRESSBAR(i,S.nlin());
+            });
         }
+        e.Rethrow();
         return res
     }
 #else
