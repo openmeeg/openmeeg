@@ -9,18 +9,19 @@ requires = [
 ]
 
 [tool.cibuildwheel]
-# TODO: only 3.8 until NumPy supplies wheels for 3.9
+# TODO: only 3.8 until NumPy supplies wheels for 3.9 (not on PyPi as of 2022/08/27)
 skip = "cp36-* *-manylinux_i686 *_ppc64le *_s390x *-musllinux* *-win32 pp37* pp39* pp*-win_*"
 build-verbosity = "3"
 before-all = "bash {project}/build_tools/cibw_before_all.sh {project}"
 test-requires = ["pytest", "threadpoolctl"]
 test-command = "bash {project}/build_tools/cibw_test_command.sh {project}"
-environment = { OPENMEEG_LIB="../../install/lib", OPENMEEG_INCLUDE="../../install/include/OpenMEEG", OPENMEEG_USE_SWIG="1" }
 
 [tool.cibuildwheel.linux]
 manylinux-x86_64-image = "manylinux_2_28"
 manylinux-aarch64-image = "manylinux_2_28"
-environment = { OPENMEEG_LIB="../../install/lib64", OPENMEEG_INCLUDE="../../install/include/OpenMEEG", OPENMEEG_USE_SWIG="1", OPENBLAS_INCLUDE="/usr/local/include", RUNNER_OS="Linux" }
+repair-wheel-command = "auditwheel show {wheel} && auditwheel repair -w {dest_dir} {wheel}"
+environment-pass = ["RUNNER_OS"]
+environment = { OPENMEEG_LIB="../../install/lib64", OPENMEEG_INCLUDE="../../install/include/OpenMEEG", OPENMEEG_USE_SWIG="1", OPENBLAS_INCLUDE="/usr/local/include" }
 
 [tool.cibuildwheel.macos]
 archs = "x86_64 arm64"
