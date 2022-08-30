@@ -16,7 +16,6 @@
 #include <geometry.h>
 #include <operators.h>
 #include <assemble.h>
-#include <OMExceptions.H>
 
 #include <constants.h>
 

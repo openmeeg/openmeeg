@@ -104,6 +104,7 @@ namespace OpenMEEG {
                     ++pb;
                 });
             }
+            e.Rethrow();
         }
 
         // Operator N for two vertices of the same mesh.
