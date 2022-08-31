@@ -134,9 +134,11 @@ endif()
 # Test Python wrapping
 
 if (BUILD_TESTING)
-    if (TEST_SLOW_PYTHON)
-        message(STATUS "Including slow tests for Python")
+    if (not TEST_SLOW_PYTHON)
+        message(STATUS "Excluding slow tests for Python")
         set(TEST_PYTHON_ARGS "-m" "not slowtest")
+    else()
+        message(STATUS "Including slow tests for Python")
     endif()
     set(PYTHON_TEST_FILES test_vector.py test_matrix.py test_sensors.py test_geometry.py test_python.py test_mesh.py)
     foreach (test ${PYTHON_TEST_FILES})
