@@ -65,7 +65,11 @@ namespace OpenMEEG {
 
         double* data() const { return value.get(); }
 
-    #ifdef SWIGPYTHON
+    #if defined(SWIGPYTHON) || defined(WIN32)
+
+        // This method is only needed for swig wrapping. But windows insists on having it
+        // in the library despite the fact it is inlined.
+
         /// \brief Get a shared pointer on the Matrix data.
         
         std::shared_ptr<double[]> get_shared_data_ptr() { return value; }
