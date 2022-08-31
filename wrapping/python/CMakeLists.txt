@@ -134,7 +134,7 @@ endif()
 # Test Python wrapping
 
 if (BUILD_TESTING)
-    if (not TEST_SLOW_PYTHON)
+    if (NOT TEST_SLOW_PYTHON)
         message(STATUS "Excluding slow tests for Python")
         set(TEST_PYTHON_ARGS "-m" "not slowtest")
     else()
