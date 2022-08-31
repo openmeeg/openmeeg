@@ -122,10 +122,7 @@ namespace OpenMEEG {
 
         unsigned vertex_index(const Vertex& V) const {
             for (unsigned i=0;i<3;++i)
-                // TODO: With no copies, this should work:
-                // if (&vertex(i)==&V)
-                // But with copies, let's try equivalence (slower)
-                if (vertex(i)==V)
+                if (&vertex(i)==&V)
                     return i;
             std::ostringstream oss;
             oss << V;
