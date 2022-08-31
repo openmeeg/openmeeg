@@ -109,8 +109,10 @@ def read_tri(fname):
     return points, normals, faces
 
 
-# If needed, we can readd "mne_sample_ico3" here
-@pytest.mark.parametrize("subject", ["Head1"])
+@pytest.mark.parametrize("subject", [
+    "Head1",
+    pytest.param("mne_sample_ico3", marks=pytest.mark.slow),
+])
 @pytest.mark.parametrize("load_from_numpy", [True, False])
 def test_python(subject, data_path, load_from_numpy, tmp_path):
     # Load data

@@ -6,6 +6,7 @@ import pytest
 def pytest_configure(config):
     """Configure pytest options."""
     config.addinivalue_line("usefixtures", "run_some_parallel")
+    config.addinivalue_line("markers", "slow: marks tests as slow")
 
 
 @pytest.fixture(scope="session")
