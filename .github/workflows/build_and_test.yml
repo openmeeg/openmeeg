@@ -33,6 +33,7 @@ jobs:
         # - The oldest supported version of numpy (numpyold)
         # - MSVC on Windows (if relevant)
         # - No VTK support
+        # - No slow python tests
         #
         # Deviations from this are noted by additions to the `include`
         # params. Defaults are set up properly in the `env-vars` step,
@@ -52,15 +53,18 @@ jobs:
           python: cmake
           python-version: '3.10'
           numpy: numpyold
+          slow: false
         - os: windows-2019
           blas: OpenBLAS
           blas_linking: dynamic
           python: cmake
           windows_compiler: msvc
+          slow: false
         - os: macos-latest
           blas: OpenBLAS
           blas_linking: dynamic
           python: cmake
+          slow: false
         # Latest OpenBLAS release
         - os: ubuntu-22.04
           blas: OpenBLAS-latest
@@ -74,6 +78,7 @@ jobs:
           python-version: '3.10'
           numpy: numpydev
           vtk: vtk9
+          slow: true
         # Windows mingw64 is disabled because of some path problem where cmake
         # cannot find Python3 (!). We don't really need it because wheels and
         # conda-forge both use MSVC, things work there, and it's the official
@@ -150,6 +155,9 @@ jobs:
         else
           echo '::set-output name=windows_compiler::msvc'
         fi
+        if [[ "${{matrix.slow}}" == "true" ]]; then
+          SLOW_OPT="-DTEST_SLOW_PYTHON=ON"
+        fi
         if [[ "${{matrix.blas}}" == 'mkl'* ]]; then
           echo "Setting BLA_IMPLEMENTATION=${{matrix.blas}}"
           echo "BLA_IMPL=-DBLA_IMPLEMENTATION=${{matrix.blas}}" >> $GITHUB_ENV
@@ -180,6 +188,7 @@ jobs:
           echo "OMP_NUM_THREADS=1" >> $GITHUB_ENV
         fi
         echo "Using WERROR_OPT=$WERROR_OPT"
+        echo "SLOW_OPT=$SLOW_OPT" >> $GITHUB_ENV
         echo "WERROR_OPT=$WERROR_OPT" >> $GITHUB_ENV
         echo "Using DOC_OPT=$DOC_OPT"
         echo "DOC_OPT=$DOC_OPT" >> $GITHUB_ENV
