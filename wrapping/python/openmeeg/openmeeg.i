@@ -73,11 +73,6 @@
     #include <forward.h>
     #include <iostream>
 
-    // 3.7 (our min) requires 1.14
-    // https://pypi.org/project/oldest-supported-numpy
-    #define NPY_NO_DEPRECATED_API NPY_1_14_API_VERSION
-    #include <numpy/arrayobject.h>
-
     using namespace OpenMEEG;
 %}
 
@@ -108,12 +103,16 @@
 // Legacy
 // /////////////////////////////////////////////////////////////////
 
+%{
 #define SWIG_FILE_WITH_INIT
+%}
 %include "numpy.i"
+%{
 #undef SWIG_FILE_WITH_INIT
+%}
 
 %init %{
-import_array();
+    import_array();
 %}
 
 // /////////////////////////////////////////////////////////////////
@@ -188,25 +187,27 @@ namespace OpenMEEG {
 
 %inline %{
 
+    typedef std::shared_ptr<double[]> SharedData;
+
     // Creator of Vector from PyArrayObject or Vector
 
     OpenMEEG::Vector* new_OpenMEEG_Vector(PyObject* pyobj) {
         if (pyobj && PyArray_Check(pyobj)) {
-            PyArrayObject *vect = (PyArrayObject *) PyArray_FromObject(pyobj, NPY_DOUBLE, 1, 1);
-            const size_t nelem = PyArray_DIM(vect, 0);
-            OpenMEEG::Vector *v = new Vector(nelem);
-            v->reference_data(static_cast<double *>(PyArray_GETPTR1(vect, 0)));
+            PyArrayObject* vect = reinterpret_cast<PyArrayObject*>(PyArray_FromObject(pyobj,NPY_DOUBLE,1,1));
+            const size_t nelem = PyArray_DIM(vect,0);
+            OpenMEEG::Vector* v = new Vector(nelem);
+            v->reference_data(static_cast<double*>(PyArray_GETPTR1(vect,0)));
             return v;
         }
 
         //  If the object is an OpenMEEG vector converted to python, copy the vector.
         //  TODO: do we need this ???
 
-        void *ptr = 0 ;
+        void* ptr = 0 ;
         if (!SWIG_IsOK(SWIG_ConvertPtr(pyobj,&ptr,SWIGTYPE_p_OpenMEEG__Vector,SWIG_POINTER_EXCEPTION)))
             throw Error(SWIG_TypeError, "Input object is neither a PyArray nor a Vector.");
 
-        return new Vector(*(reinterpret_cast<OpenMEEG::Vector *>(ptr)), DEEP_COPY);
+        return new Vector(*(reinterpret_cast<OpenMEEG::Vector*>(ptr)),DEEP_COPY);
     }
 
     // Creator of Matrix from PyArrayObject or Matrix
@@ -447,20 +448,36 @@ namespace OpenMEEG {
 }
 
 %extend OpenMEEG::Matrix {
+
     Matrix(PyObject* pyobj) { return new_OpenMEEG_Matrix(pyobj); }
 
+    static void Free(PyObject* capsule) {
+        SharedData* shared_data = reinterpret_cast<SharedData*>(PyCapsule_GetPointer(capsule,PyCapsule_GetName(capsule)));
+        delete shared_data;
+    }
+
     PyObject* array() {
+
         const npy_intp ndims = 2;
         npy_intp* dims = new npy_intp[ndims];
         dims[0] = ($self)->nlin();
         dims[1] = ($self)->ncol();
 
-        // make a copy of the data
-        double* data = new double[dims[0]*dims[1]];
-        double* start = (*($self)).data();
-        std::copy(start,start+dims[0]*dims[1],data);
-        PyArrayObject* array = reinterpret_cast<PyArrayObject*>(PyArray_New(&PyArray_Type,ndims,dims,NPY_DOUBLE,NULL,
-                                                                            static_cast<void*>(data),0,NPY_ARRAY_F_CONTIGUOUS | NPY_ARRAY_OWNDATA,NULL));
+        SharedData* shared_data = new SharedData(($self)->get_shared_data_ptr());
+        void* data = static_cast<void*>(shared_data->get());
+        PyObject* obj = PyArray_New(&PyArray_Type,ndims,dims,NPY_DOUBLE,NULL,
+                                    data,0,NPY_ARRAY_F_CONTIGUOUS | NPY_ARRAY_OWNDATA,NULL);
+
+        PyArrayObject* array = reinterpret_cast<PyArrayObject*>(obj);
+        if (array==nullptr)
+            throw Error(SWIG_RuntimeError,"Cannot create numpy array from OpenMEEG matrix.");
+
+        PyObject* capsule = PyCapsule_New(shared_data,"wrapped matrix",static_cast<PyCapsule_Destructor>(&OpenMEEG_Matrix_Free));
+        if (PyArray_SetBaseObject(array,capsule)==-1) {
+            Py_DECREF(array);
+            throw Error(SWIG_RuntimeError,"Cannot create numpy array from OpenMEEG matrix.");
+        }
+
         return PyArray_Return(array);
     }
 
