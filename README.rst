@@ -109,7 +109,7 @@ Then follow brew's suggestion to add to your paths (probably in ``.bash_profile`
     $ export LDFLAGS="-L$HOMEBREW_PREFIX/opt/llvm/lib -L$HOMEBREW_PREFIX/opt/openblas/lib"
     $ export CPPFLAGS="-I$HOMEBREW_PREFIX/opt/llvm/include -I$HOMEBREW_PREFIX/opt/openblas/include"
 
-Then you should be able to build as usual:
+Then you should be able to build as usual::
 
     $ ./build_tools/cmake_configure.sh
     $ cmake --build build --config release
