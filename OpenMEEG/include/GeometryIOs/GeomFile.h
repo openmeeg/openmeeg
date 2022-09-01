@@ -298,6 +298,7 @@ namespace OpenMEEG::GeometryIOs {
             ifs.close();
             throw OpenMEEG::WrongFileFormat(fname);
         }
+        ifs.close();
     }
 
     void GeomFile::save_geom(const Geometry& geometry) {
