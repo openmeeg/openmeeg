@@ -107,7 +107,7 @@ Then follow brew's suggestion to add to your paths (probably in ``.bash_profile`
 
     $ export PATH="$HOMEBREW_PREFIX/opt/llvm/bin:$PATH
     $ export LDFLAGS="-L$HOMEBREW_PREFIX/opt/llvm/lib -L$HOMEBREW_PREFIX/opt/openblas/lib"
-    $ export CPPFLAGS="-I$HOMEBREW_PREFIX/opt/llvm/include -L$HOMEBREW_PREFIX/opt/openblas/include"
+    $ export CPPFLAGS="-I$HOMEBREW_PREFIX/opt/llvm/include -I$HOMEBREW_PREFIX/opt/openblas/include"
 
 Then you should be able to build as usual:
 
