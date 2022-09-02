@@ -46,7 +46,7 @@ namespace OpenMEEG {
                 const Vertex& A = edge.vertex(0);
                 const Vertex& B = edge.vertex(1);
                 const Vect3& AB = (A-B)/(2*T.area());
-                
+
                 const analyticS analyS(V,A,B);
 
                 result += AB*analyS.f(x);
@@ -163,10 +163,10 @@ namespace OpenMEEG {
 
             const unsigned offset;
         };
-        
+
     public:
 
-        DiagonalBlock(const Mesh& m,const Integrator& intg): base(intg),mesh(m) { }
+        DiagonalBlock(const Mesh& m,const Integrator& intg,const bool verbose=true): base(intg),mesh(m) { this->verbose = verbose; }
 
         template <typename T>
         void set_S_block(const double coeff,T& matrix) {
@@ -286,10 +286,11 @@ namespace OpenMEEG {
     class PartialBlock {
     public:
 
-        PartialBlock(const Mesh& m): mesh(m) { }
+        PartialBlock(const Mesh& m,const bool verbose=true): mesh(m) { this->verbose = verbose; }
 
         void addD(const double coeff,const Vertices& points,Matrix& matrix) const {
-            std::cout << "PARTAL OPERATOR D..." << std::endl;
+            if (verbose)
+                std::cout << "PARTAL OPERATOR D..." << std::endl;
             for (const auto& triangle : mesh.triangles()) {
                 const analyticD3 analyD(triangle);
                 for (const auto& vertex : points) {
@@ -301,7 +302,8 @@ namespace OpenMEEG {
         }
 
         void S(const double coeff,const Vertices& points,Matrix& matrix) const {
-            std::cout << "PARTIAL OPERATOR S..." << std::endl;
+            if (verbose)
+                std::cout << "PARTIAL OPERATOR S..." << std::endl;
             for (const auto& triangle : mesh.triangles()) {
                 const analyticS analyS(triangle);
                 for (const auto& vertex : points)
@@ -309,10 +311,13 @@ namespace OpenMEEG {
             }
         }
 
-
     private:
 
         const Mesh& mesh;
+
+    protected:
+
+        bool verbose = true;
     };
 
     class NonDiagonalBlock: public BlocksBase  {
@@ -335,7 +340,7 @@ namespace OpenMEEG {
             const unsigned i0;
             const unsigned j0;
         };
-        
+
     public:
 
         // This constructor takes the following arguments:
@@ -343,7 +348,7 @@ namespace OpenMEEG {
         //  - The gauss order parameter (for adaptive integration).
         //  - A verbosity parameters (for printing the action on the terminal).
 
-        NonDiagonalBlock(const Mesh& m1,const Mesh& m2,const Integrator& intg): base(intg),mesh1(m1),mesh2(m2) { }
+        NonDiagonalBlock(const Mesh& m1,const Mesh& m2,const Integrator& intg,const bool verbose=true): base(intg),mesh1(m1),mesh2(m2) { this->verbose = verbose; }
 
         template <typename T>
         void set_S_block(const double coeff,T& matrix) {
@@ -379,7 +384,7 @@ namespace OpenMEEG {
 
             // Operator S is given by Sij=\Int G*PSI(I,i)*Psi(J,j) with PSI(l,t) a P0 test function on layer l and triangle t.
 
-            // TODO check the symmetry of S. 
+            // TODO check the symmetry of S.
             // if we invert tit1 with tit2: results in HeadMat differs at 4.e-5 which is too big.
             // using ADAPT_LHS with tolerance at 0.000005 (for S) drops this at 6.e-6 (but increase the computation time).
 
@@ -464,7 +469,7 @@ namespace OpenMEEG {
     template <typename BlockType>
     class HeadMatrixBlocks {
     public:
-        
+
         HeadMatrixBlocks(const BlockType& blk): block(blk) { }
 
         // SymMatrix is initialized at once, and there is nothing to for blockwise matrix.
@@ -489,7 +494,7 @@ namespace OpenMEEG {
                 matrix.add_blocks(trange2,vrange1); // D* blocks when they are not the transpose of D blocks.
         }
         #endif
-        
+
         template <typename T>
         void set_blocks(const double coeffs[3],T& matrix) {
             const double SCondCoeff = coeffs[0];

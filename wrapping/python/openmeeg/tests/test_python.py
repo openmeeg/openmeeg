@@ -53,11 +53,11 @@ def test_python(data_path, tmp_path):
     n_eeg_sensors = patches.getNumberOfSensors()
 
     # Compute forward problem (Build Gain Matrices)
-    # gauss_order = 3  # XXX cannot get Integrator exposed
+    # gauss_order = 3  # XXX cannot get Integrator exposed because of SyntaxError when doing %include <integrator.h>
     # use_adaptive_integration = True
     # dipole_in_cortex = True
 
-    hm = om.HeadMat(geom)
+    hm = om.HeadMat(geom, False)
     hminv = hm.inverse()  # invert hm with a copy
     hminv_inplace = om.HeadMat(geom)
     hminv_inplace.invert()  # invert hm inplace (no copy)
