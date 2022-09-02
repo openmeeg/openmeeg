@@ -27,7 +27,7 @@ namespace OpenMEEG {
     // It would be nice to define some constant integrators for the default values but swig does not like them.
 
     OPENMEEG_EXPORT SymMatrix HeadMat(const Geometry& geo,const Integrator& integrator=Integrator(3,0,0.005),const bool verbose=true);
-    OPENMEEG_EXPORT Matrix SurfSourceMat(const Geometry& geo,Mesh& sources,const Integrator& integrator=Integrator(3,0,0.005));
+    OPENMEEG_EXPORT Matrix SurfSourceMat(const Geometry& geo,Mesh& sources,const Integrator& integrator=Integrator(3,0,0.005),const bool verbose=true);
 
     OPENMEEG_EXPORT Matrix
     DipSourceMat(const Geometry& geo,const Matrix& dipoles,const Integrator& integrator,const std::string& domain_name);

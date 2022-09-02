@@ -57,9 +57,10 @@ def test_python(data_path, tmp_path):
     # use_adaptive_integration = True
     # dipole_in_cortex = True
 
-    hm = om.HeadMat(geom, om.Integrator(3, 0, 0.005), False)
+    integrator = om.Integrator(3, 0, 0.005)
+    hm = om.HeadMat(geom, integrator, False)
     hminv = hm.inverse()  # invert hm with a copy
-    hminv_inplace = om.HeadMat(geom)
+    hminv_inplace = om.HeadMat(geom, om.Integrator(3, 0, 0.005), False)
     hminv_inplace.invert()  # invert hm inplace (no copy)
     assert_allclose(om.Matrix(hminv).array(), om.Matrix(hminv_inplace).array())
 
@@ -112,8 +113,8 @@ def test_python(data_path, tmp_path):
 
     # Leadfield MEG in one line :
     gain_meg_surf_one_line = om.GainMEG(
-        om.HeadMat(geom).inverse(),
-        om.SurfSourceMat(geom, mesh),
+        om.HeadMat(geom, integrator, False).inverse(),
+        om.SurfSourceMat(geom, mesh, integrator, False),
         om.Head2MEGMat(geom, sensors),
         om.SurfSource2MEGMat(mesh, sensors),
     )
