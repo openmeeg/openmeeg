@@ -311,10 +311,9 @@ namespace OpenMEEG {
             !PyArray_EquivTypenums(type_num,NPY_UINT32) &&
             !PyArray_EquivTypenums(type_num,NPY_INT64) &&
             !PyArray_EquivTypenums(type_num,NPY_UINT64)) {
-            std::vector<char> buf(1000); // note +1 for null terminator
-            std::snprintf(&buf[0],buf.size(),"Wrong dtype for triangles array (only 32 or 64 int or uint supported), got type '%c%d'",
-                          descr->kind,descr->elsize);
-            throw Error(SWIG_TypeError, &buf[0]);
+            std::ostringstream oss;
+            oss << "Wrong dtype for triangles array (only 32 or 64 int or uint supported), got type '" << descr->kind << descr->elsize << "'";
+            throw Error(SWIG_TypeError, oss.str().c_str());
         }
 
         const size_t ndims = PyArray_NDIM(array);
@@ -563,10 +562,9 @@ namespace OpenMEEG {
             PyObject* name = PyList_GetItem(item,0);
             if (name==nullptr || !PyUnicode_Check(name))
                 throw Error(SWIG_TypeError, "Geometry constructor list of lists must each have first entry a non-empty string.");
-            Mesh& mesh = geometry->add_mesh();
+            Mesh& mesh = geometry->add_mesh(PyUnicode_AsUTF8(name));
             PyObject* triangles = PyList_GetItem(item,2);
             mesh_add_triangles(&mesh,triangles,indmap[i]);
-            mesh.name() = PyUnicode_AsUTF8(name);
             mesh.update(true);
         }
         return geometry;

@@ -96,8 +96,11 @@ namespace OpenMEEG {
             // Insert the vertex in the set of vertices if it is not already in.
 
             const Vertices::iterator vit = std::find(vertices().begin(),vertices().end(),V);
-            if (vit!=vertices().end())
+            if (vit!=vertices().end()) {
+                // TODO: This is just to try to see if this is the underlying problem in Windows!
+                throw OpenMEEG::UnknownVertex("Vertex already in the geometry");
                 return vit-vertices().begin();
+            }
 
             vertices().push_back(V);
             return vertices().size()-1;
