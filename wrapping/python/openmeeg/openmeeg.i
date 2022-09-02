@@ -545,7 +545,6 @@ namespace OpenMEEG {
         //  Add vertices of all meshes.
 
         OpenMEEG::Geometry* geometry = new OpenMEEG::Geometry();
-        geometry->clear();
         const unsigned N = PyList_Size(pylist);
 
         std::vector<OpenMEEG::IndexMap> indmap(N);
