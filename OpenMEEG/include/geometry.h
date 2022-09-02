@@ -98,8 +98,11 @@ namespace OpenMEEG {
             const Vertices::iterator vit = std::find(vertices().begin(),vertices().end(),V);
             if (vit!=vertices().end()) {
                 // TODO: This is just to try to see if this is the underlying problem in Windows!
-                throw OpenMEEG::UnknownVertex("Vertex already in the geometry");
-                return vit-vertices().begin();
+                auto loc = vit-vertices().begin();
+                std::ostringstream oss;
+                oss << "Vertex already in the geometry: " << V << ". Index: " << loc << std::endl;
+                throw OpenMEEG::UnknownVertex(oss.str());
+                return loc;
             }
 
             vertices().push_back(V);
