@@ -566,6 +566,7 @@ namespace OpenMEEG {
             Mesh& mesh = geometry->add_mesh();
             PyObject* triangles = PyList_GetItem(item,2);
             mesh_add_triangles(&mesh,triangles,indmap[i]);
+            mesh.name() = PyUnicode_AsUTF8(name);
             mesh.update(true);
         }
         return geometry;

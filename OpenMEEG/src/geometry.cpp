@@ -73,13 +73,17 @@ namespace OpenMEEG {
     }
 
     Mesh& Geometry::mesh(const std::string& id) {
+        std::ostringstream oss;
+
         for (auto& mesh: meshes())
             if (mesh.name()==id)
                 return mesh;
+            else
+                oss << mesh.name() << " ";
 
         // Should never happen
 
-        warning(std::string("Geometry::mesh: Error mesh id/name not found: ") + id);
+        warning(std::string("Geometry::mesh: Error mesh id/name not found: ") + id + " from candidates: " + oss.str());
         throw OpenMEEG::BadInterface(id);
     }
 

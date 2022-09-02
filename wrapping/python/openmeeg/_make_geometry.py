@@ -67,7 +67,7 @@ def make_geometry(meshes, interfaces, domains):
 
     # Create meshes by adding vertices and triangles
     # Add vertices and triangles
-    meshes = [(name, mesh[0], mesh[0]) for name, mesh in meshes.items()]
+    meshes = [[name, mesh[0], mesh[1]] for name, mesh in meshes.items()]
     geom = Geometry(meshes)
     del meshes
 
