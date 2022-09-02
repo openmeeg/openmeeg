@@ -41,15 +41,18 @@ namespace OpenMEEG {
 
         // TODO: T can be deduced from Function.
 
+        #ifndef SWIGPYTHON  // SWIG sees the integrate def as a syntax error
         template <typename Function>
         decltype(auto) integrate(const Function& function,const Triangle& triangle) const {
             const TrianglePoints tripts = { triangle.vertex(0), triangle.vertex(1), triangle.vertex(2) };
             const auto& coarse = triangle_integration(function,tripts);
             return (max_depth==0) ? coarse : adaptive_integration(function,tripts,coarse,max_depth);
         }
+        #endif /* not SWIGPYTHON */
 
     private:
 
+        #ifndef SWIGPYTHON  // SWIG sees the integrate def as a syntax error
         template <typename Function>
         decltype(auto) triangle_integration(const Function& function,const TrianglePoints& triangle) const {
             using T = decltype(function(Vect3()));
@@ -66,6 +69,7 @@ namespace OpenMEEG {
             const double area2 = crossprod(triangle[1]-triangle[0],triangle[2]-triangle[0]).norm();
             return result*area2;
         }
+        #endif /* not SWIGPYTHON */
 
         template <typename T,typename Function>
         T adaptive_integration(const Function& function,const TrianglePoints& triangle,const T& coarse,const unsigned level) const {

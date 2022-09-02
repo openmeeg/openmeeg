@@ -120,10 +120,6 @@ namespace OpenMEEG {
     }
     #endif
 
-    SymMatrix HeadMat(const Geometry& geo, const bool verbose) {
-        return HeadMat(geo, Integrator(3,0,0.005), verbose);
-    }
-
     SymMatrix HeadMat(const Geometry& geo,const Integrator& integrator,const bool verbose) {
         return Details::HeadMatrix<SymMatrix>(geo,integrator,Details::AllBlocks(),verbose);
     }

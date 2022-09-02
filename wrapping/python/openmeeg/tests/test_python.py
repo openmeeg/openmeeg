@@ -57,7 +57,7 @@ def test_python(data_path, tmp_path):
     # use_adaptive_integration = True
     # dipole_in_cortex = True
 
-    hm = om.HeadMat(geom, False)
+    hm = om.HeadMat(geom, om.Integrator(3, 0, 0.005), False)
     hminv = hm.inverse()  # invert hm with a copy
     hminv_inplace = om.HeadMat(geom)
     hminv_inplace.invert()  # invert hm inplace (no copy)
