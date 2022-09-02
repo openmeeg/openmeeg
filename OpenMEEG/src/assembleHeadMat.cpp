@@ -313,7 +313,7 @@ namespace OpenMEEG {
         return (G*H.transpose()*(H*G*H.transpose()).inverse()).submat(0,Nc,Nl,M.nlin());
     }
 
-    Matrix Surf2VolMat(const Geometry& geo,const Matrix& points) {
+    Matrix Surf2VolMat(const Geometry& geo,const Matrix& points,const bool verbose) {
 
         // Find the points per domain and generate the indices for the m_points
         // What happens if a point is on the boundary of a domain ? TODO
@@ -342,7 +342,7 @@ namespace OpenMEEG {
             for (const auto& boundary : domainptr->boundaries())
                 for (const auto& omesh : boundary.interface().oriented_meshes()) {
                     const Mesh& mesh = omesh.mesh();
-                    const PartialBlock block(mesh);
+                    const PartialBlock block(mesh, verbose);
                     const double coeff = boundary.mesh_orientation(omesh)*K;
                     block.addD(-coeff,pts,mat);
                     if (!mesh.current_barrier())

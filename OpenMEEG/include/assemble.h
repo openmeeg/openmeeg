@@ -36,7 +36,7 @@ namespace OpenMEEG {
 
     OPENMEEG_EXPORT Matrix EITSourceMat(const Geometry& geo,const Sensors& electrodes,const Integrator& integrator=Integrator(3,0,0.005));
 
-    OPENMEEG_EXPORT Matrix Surf2VolMat(const Geometry& geo,const Matrix& points);
+    OPENMEEG_EXPORT Matrix Surf2VolMat(const Geometry& geo,const Matrix& points,const bool verbose=true);
 
     OPENMEEG_EXPORT SparseMatrix Head2EEGMat(const Geometry& geo,const Sensors& electrodes);
     OPENMEEG_EXPORT SparseMatrix Head2ECoGMat(const Geometry& geo,const Sensors& electrodes,const Interface& i);
