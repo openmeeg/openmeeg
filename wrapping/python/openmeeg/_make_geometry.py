@@ -9,7 +9,8 @@ def _mesh_vertices_and_triangles(mesh):
     vertices = np.array([vertex.array() for vertex in mesh_vertices])
     mesh_triangles = mesh.triangles()
     triangles = np.array(
-        [mesh.triangle(triangle).array() for triangle in mesh_triangles]
+        [mesh.triangle(triangle).array() for triangle in mesh_triangles],
+        dtype=np.int64,
     )
     return vertices, triangles
 
