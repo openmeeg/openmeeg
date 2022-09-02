@@ -6,7 +6,8 @@ from .openmeeg import Geometry, Domain, SimpleDomain, Interface, OrientedMesh, M
 
 def _mesh_vertices_and_triangles(mesh):
     mesh_vertices = mesh.geometry().vertices()
-    vertices = np.array([vertex.array() for vertex in mesh_vertices])
+    vertices = np.array(
+        [vertex.array() for vertex in mesh_vertices], np.float64)
     mesh_triangles = mesh.triangles()
     triangles = np.array(
         [mesh.triangle(triangle).array() for triangle in mesh_triangles],
@@ -64,17 +65,11 @@ def make_geometry(meshes, interfaces, domains):
                 f"vertices and triangles). Got {type(mesh)}"
             )
 
-    indmaps = dict()
-    geom = Geometry()
-    for name, mesh in meshes.items():
-        indmaps[name] = geom.add_vertices(mesh[0])
-
-    # Create meshes
-
-    for name, mesh in meshes.items():
-        om_mesh = geom.add_mesh(name)
-        om_mesh.add_triangles(mesh[1], indmaps[name])
-        om_mesh.update(True)
+    # Create meshes by adding vertices and triangles
+    # Add vertices and triangles
+    meshes = [(name, mesh[0], mesh[0]) for name, mesh in meshes.items()]
+    geom = Geometry(meshes)
+    del meshes
 
     for dname, domain in domains.items():
         domain_interfaces, conductivity = domain
