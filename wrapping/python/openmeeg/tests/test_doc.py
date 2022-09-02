@@ -7,7 +7,8 @@ def test_doc():
     doc = inspect.getdoc(om.HeadMat)
     assert doc is not None
 
-    headmat_expected_docstring = """HeadMat(Geometry geo, \
+    headmat_expected_docstring = """\
+HeadMat(Geometry geo, \
 Integrator integrator=OpenMEEG::Integrator(3,0,0.005), \
 bool const verbose=True) -> SymMatrix"""
     assert (
