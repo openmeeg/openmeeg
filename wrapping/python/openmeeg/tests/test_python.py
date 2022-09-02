@@ -53,7 +53,7 @@ def test_python(data_path, tmp_path):
     n_eeg_sensors = patches.getNumberOfSensors()
 
     # Compute forward problem (Build Gain Matrices)
-    # gauss_order = 3  # XXX cannot get Integrator exposed
+    # gauss_order = 3  # XXX Integrator is now exposed, just need to use it...
     # use_adaptive_integration = True
     # dipole_in_cortex = True
 
