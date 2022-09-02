@@ -52,7 +52,7 @@ namespace OpenMEEG {
 
     private:
 
-        #ifndef SWIGPYTHON  // SWIG sees the integrate def as a syntax error
+        #ifndef SWIGPYTHON  // SWIG sees the triangle_integration def as a syntax error
         template <typename Function>
         decltype(auto) triangle_integration(const Function& function,const TrianglePoints& triangle) const {
             using T = decltype(function(Vect3()));
