@@ -48,7 +48,7 @@ namespace OpenMEEG {
             for (const auto& oriented_mesh : boundary.interface().oriented_meshes()) {
                 const Mesh& mesh = oriented_mesh.mesh();
 
-                NonDiagonalBlock operators(mesh,source_mesh,integrator);
+                NonDiagonalBlock operators(mesh,source_mesh,integrator,verbose);
 
                 // First block is nVertexFistLayer*source_mesh.vertices().size()
                 const double coeffN = factorN*oriented_mesh.orientation();
