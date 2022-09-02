@@ -103,9 +103,9 @@ def read_tri(fname):
         faces.append(vals[:3])
 
     # Convert to numpy arrays
-    points = np.asarray(points)
-    normals = np.asarray(normals)
-    faces = np.asarray(faces)
+    points = np.asarray(points, np.float64)
+    normals = np.asarray(normals, np.float64)
+    faces = np.asarray(faces, np.int64)
     return points, normals, faces
 
 
@@ -131,7 +131,7 @@ def test_python(subject, data_path, load_from_numpy, tmp_path):
         meshes = []
         for fname in mesh_files:  # we assume the order is form inner to outer
             points, _, tris = read_tri(fname)
-            meshes.append((points.astype(np.float64), tris.astype(np.int64)))
+            meshes.append((points, tris))
         geom = om.make_nested_geometry(meshes, conductivity=(1, 0.0125, 1))
         dipoles = np.loadtxt(dipole_file)
         dipoles = om.Matrix(np.asfortranarray(dipoles))
