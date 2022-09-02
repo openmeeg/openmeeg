@@ -103,9 +103,9 @@ def read_tri(fname):
         faces.append(vals[:3])
 
     # Convert to numpy arrays
-    points = np.asarray(points, np.float64)
-    normals = np.asarray(normals, np.float64)
-    faces = np.asarray(faces, np.int64)
+    points = np.array(points, np.float64)
+    normals = np.array(normals, np.float64)
+    faces = np.array(faces, np.int64)
     return points, normals, faces
 
 
