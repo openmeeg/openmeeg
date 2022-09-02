@@ -53,17 +53,18 @@ def test_python(data_path, tmp_path):
     n_eeg_sensors = patches.getNumberOfSensors()
 
     # Compute forward problem (Build Gain Matrices)
-    # gauss_order = 3  # XXX cannot get Integrator exposed
+    # gauss_order = 3  # XXX Integrator is now exposed, just need to use it...
     # use_adaptive_integration = True
     # dipole_in_cortex = True
 
-    hm = om.HeadMat(geom)
+    integrator = om.Integrator(3, 0, 0.005)
+    hm = om.HeadMat(geom, integrator, False)
     hminv = hm.inverse()  # invert hm with a copy
-    hminv_inplace = om.HeadMat(geom)
+    hminv_inplace = om.HeadMat(geom, integrator, False)
     hminv_inplace.invert()  # invert hm inplace (no copy)
     assert_allclose(om.Matrix(hminv).array(), om.Matrix(hminv_inplace).array())
 
-    ssm = om.SurfSourceMat(geom, mesh)
+    ssm = om.SurfSourceMat(geom, mesh, integrator, False)
     ss2mm = om.SurfSource2MEGMat(mesh, sensors)
     dsm = om.DipSourceMat(geom, dipoles, "Brain")
     ds2mm = om.DipSource2MEGMat(dipoles, sensors)
@@ -112,8 +113,8 @@ def test_python(data_path, tmp_path):
 
     # Leadfield MEG in one line :
     gain_meg_surf_one_line = om.GainMEG(
-        om.HeadMat(geom).inverse(),
-        om.SurfSourceMat(geom, mesh),
+        om.HeadMat(geom, integrator, False).inverse(),
+        om.SurfSourceMat(geom, mesh, integrator, False),
         om.Head2MEGMat(geom, sensors),
         om.SurfSource2MEGMat(mesh, sensors),
     )
