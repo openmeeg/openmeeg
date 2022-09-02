@@ -146,8 +146,8 @@ def make_nested_geometry(meshes, conductivity):
     if len(meshes) == 3:
         # Convert meshes to dictionary of meshes for make_geometry
         meshes = {
-            "Skull": meshes[1],
             "Cortex": meshes[0],
+            "Skull": meshes[1],
             "Head": meshes[2],
         }
         brain_conductivity, skull_conductivity, scalp_conductivity = conductivity
