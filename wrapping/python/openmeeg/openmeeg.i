@@ -571,7 +571,8 @@ namespace OpenMEEG {
 %include <GeometryIO.h>
 %include <sensors.h>
 %include <mesh.h>
-%include <integrator.h>
+// TODO: Cannot include this because SWIG sees it as a SyntaxError (probably the decltype(auto) ?)
+// %include <integrator.h>
 %include <interface.h>
 %include <domain.h>
 %include <assemble.h>
