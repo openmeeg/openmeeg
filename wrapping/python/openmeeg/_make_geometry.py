@@ -65,8 +65,7 @@ def make_geometry(meshes, interfaces, domains):
                 f"vertices and triangles). Got {type(mesh)}"
             )
 
-    # Create meshes by adding vertices and triangles
-    # Add vertices and triangles
+    # Create geometry from list-of-lists
     meshes = [[name, mesh[0], mesh[1]] for name, mesh in meshes.items()]
     geom = Geometry(meshes)
     del meshes
