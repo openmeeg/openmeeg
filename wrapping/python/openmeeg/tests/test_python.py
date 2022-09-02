@@ -131,7 +131,7 @@ def test_python(subject, data_path, load_from_numpy, tmp_path):
         meshes = []
         for fname in mesh_files:  # we assume the order is form inner to outer
             points, _, tris = read_tri(fname)
-            meshes.append((points, tris))
+            meshes.append((points.astype(np.float64), tris.astype(np.int64)))
         geom = om.make_nested_geometry(meshes, conductivity=(1, 0.0125, 1))
         dipoles = np.loadtxt(dipole_file)
         dipoles = om.Matrix(np.asfortranarray(dipoles))
