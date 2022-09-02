@@ -91,7 +91,7 @@ def read_tri(fname):
 
     # fills the vertices arrays
     for _ in range(npoints):
-        vals = list(map(float, fid.readline().split()))
+        vals = fid.readline().split()
         points.append(vals[:3])
         normals.append(vals[3:])
 
@@ -99,7 +99,7 @@ def read_tri(fname):
     n_faces = int(fid.readline().split()[1])
     # create the list of triangles
     for _ in range(n_faces):
-        vals = list(map(int, fid.readline().split()))
+        vals = fid.readline().split()
         faces.append(vals[:3])
 
     # Convert to numpy arrays
