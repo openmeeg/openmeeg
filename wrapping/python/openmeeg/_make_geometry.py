@@ -6,8 +6,7 @@ from .openmeeg import Geometry, Domain, SimpleDomain, Interface, OrientedMesh, M
 
 def _mesh_vertices_and_triangles(mesh):
     mesh_vertices = mesh.geometry().vertices()
-    vertices = np.array(
-        [vertex.array() for vertex in mesh_vertices], np.float64)
+    vertices = np.array([vertex.array() for vertex in mesh_vertices], np.float64)
     mesh_triangles = mesh.triangles()
     triangles = np.array(
         [mesh.triangle(triangle).array() for triangle in mesh_triangles],
