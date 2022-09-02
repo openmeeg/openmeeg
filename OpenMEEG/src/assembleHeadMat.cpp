@@ -178,11 +178,13 @@ namespace OpenMEEG {
 
             P = nullspace_projector(mat);
             if (filename.length()!=0) {
-                std::cout << "Saving projector P (" << filename << ")." << std::endl;
+                if (verbose)
+                    std::cout << "Saving projector P (" << filename << ")." << std::endl;
                 P.save(filename);
             }
         } else {
-            std::cout << "Loading projector P (" << filename << ")." << std::endl;
+            if (verbose)
+                std::cout << "Loading projector P (" << filename << ")." << std::endl;
             P.load(filename);
         }
 
@@ -206,9 +208,11 @@ namespace OpenMEEG {
             alphas.set(0.);
             alpha1 = MM.frobenius_norm()/(1.e3*nRR_v);
             beta1  = alpha1*50000.;
-            std::cout << "AUTOMATIC alphas = " << alpha1 << "\tbeta = " << beta1 << std::endl;
+            if (verbose)
+                std::cout << "AUTOMATIC alphas = " << alpha1 << "\tbeta = " << beta1 << std::endl;
         } else {
-            std::cout << "alphas = " << alpha << "\tbeta = " << beta << std::endl;
+            if (verbose)
+                std::cout << "alphas = " << alpha << "\tbeta = " << beta << std::endl;
         }
 
         for (const auto& vertex : geo.vertices())
@@ -267,11 +271,13 @@ namespace OpenMEEG {
         if (!f) {
             H = HeadMatrix(geo,Cortex,integrator,M.nlin(),verbose);
             if (filename.length()!=0) {
-                std::cout << "Saving matrix H (" << filename << ")." << std::endl;
+                if (verbose)
+                    std::cout << "Saving matrix H (" << filename << ")." << std::endl;
                 H.save(filename);
             }
         } else {
-            std::cout << "Loading matrix H (" << filename << ")." << std::endl;
+            if (verbose)
+                std::cout << "Loading matrix H (" << filename << ")." << std::endl;
             H.load(filename);
         }
 
@@ -300,7 +306,8 @@ namespace OpenMEEG {
                     for (const auto& triangle2 : mesh.triangles())
                         G(triangle1.index(),triangle2.index()) *= gamma;
 
-        std::cout << "gamma = " << gamma << std::endl;
+        if (verbose)
+            std::cout << "gamma = " << gamma << std::endl;
 
         G.invert();
         return (G*H.transpose()*(H*G*H.transpose()).inverse()).submat(0,Nc,Nl,M.nlin());

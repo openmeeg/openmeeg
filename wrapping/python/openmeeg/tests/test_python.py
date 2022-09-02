@@ -60,11 +60,11 @@ def test_python(data_path, tmp_path):
     integrator = om.Integrator(3, 0, 0.005)
     hm = om.HeadMat(geom, integrator, False)
     hminv = hm.inverse()  # invert hm with a copy
-    hminv_inplace = om.HeadMat(geom, om.Integrator(3, 0, 0.005), False)
+    hminv_inplace = om.HeadMat(geom, integrator, False)
     hminv_inplace.invert()  # invert hm inplace (no copy)
     assert_allclose(om.Matrix(hminv).array(), om.Matrix(hminv_inplace).array())
 
-    ssm = om.SurfSourceMat(geom, mesh)
+    ssm = om.SurfSourceMat(geom, mesh, integrator, False)
     ss2mm = om.SurfSource2MEGMat(mesh, sensors)
     dsm = om.DipSourceMat(geom, dipoles, "Brain")
     ds2mm = om.DipSource2MEGMat(dipoles, sensors)
