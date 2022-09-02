@@ -7,7 +7,9 @@ def test_doc():
     doc = inspect.getdoc(om.HeadMat)
     assert doc is not None
 
-    headmat_expected_docstring = """HeadMat(Geometry geo, Integrator const & integrator=Integrator(3,0,0.005), bool const verbose=True) -> SymMatrix
+    headmat_expected_docstring = """HeadMat(Geometry geo, \
+Integrator const & integrator=Integrator(3,0,0.005), \
+bool const verbose=True) -> SymMatrix
 HeadMat(Geometry geo, bool const verbose) -> SymMatrix"""
     assert (
         doc == headmat_expected_docstring
