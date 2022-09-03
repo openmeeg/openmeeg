@@ -54,7 +54,7 @@ namespace OpenMEEG {
 
         /// Constructors
 
-        Geometry() { clear(); }
+        Geometry() { }
 
         Geometry(const std::string& geomFileName,const bool OLD_ORDERING=false) {
             load(geomFileName,OLD_ORDERING);
