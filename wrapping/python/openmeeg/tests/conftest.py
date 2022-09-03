@@ -1,6 +1,7 @@
 import os
 import numpy as np
 import pytest
+from pathlib import Path
 
 
 def pytest_configure(config):
@@ -18,7 +19,7 @@ def data_path():
     # but cmake uses a mixed path for the --path arg
     data_path = data_path.replace("/", os.path.sep)
     assert os.path.isdir(data_path), f"OPENMEEG_DATA_PATH does not exist: ${data_path}"
-    return data_path
+    return Path(data_path)
 
 
 @pytest.fixture(scope="session")

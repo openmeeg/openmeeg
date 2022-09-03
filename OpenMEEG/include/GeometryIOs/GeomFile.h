@@ -160,8 +160,10 @@ namespace OpenMEEG::GeometryIOs {
         unsigned major,minor; ///< version of the domain description
         ifs >> io_utils::match("# Domain Description ") >> major >> io_utils::match(".") >> minor;
 
-        if (ifs.fail())
+        if (ifs.fail()) {
+            ifs.close();
             throw OpenMEEG::WrongFileFormat(fname);
+        }
 
         version_id = version(major,minor);
         if (version_id==VERSION10)
@@ -170,6 +172,7 @@ namespace OpenMEEG::GeometryIOs {
 
         if (version_id==UNKNOWN_VERSION) {
              std::cerr << "Domain Description version not available !" << std::endl;
+             ifs.close();
              throw OpenMEEG::WrongFileFormat(fname);
         }
 
@@ -209,14 +212,17 @@ namespace OpenMEEG::GeometryIOs {
         ifs >> io_utils::skip_comments('#')
             >> io_utils::match("Interfaces") >> nb_interfaces >> io_utils::match_optional("Mesh", trash);
 
-        if (ifs.fail())
+        if (ifs.fail()) {
+            ifs.close();
             throw OpenMEEG::WrongFileFormat(fname);
+        }
 
         mesh_provided_as_interfaces = !has_meshfile && !has_meshsection;
         if (mesh_provided_as_interfaces) {
             const Geometry::MeshList& meshes = read_mesh_descriptions(nb_interfaces,"Interface");
             geometry.import(meshes);
         }
+        // ideally we would close here, but load_domains comes immediately afterward, so leave it open
     }
 
     void GeomFile::load_domains(Geometry& geometry) {
@@ -249,6 +255,7 @@ namespace OpenMEEG::GeometryIOs {
             if (!interface.is_mesh_orientations_coherent()) { // check and correct global orientation
                 std::cerr << "Interface \"" << interface.name() << "\" is not closed !" << std::endl
                           << "Please correct a mesh orientation when defining the interface in the geometry file." << std::endl;
+                ifs.close();
                 throw OpenMEEG::WrongFileFormat(fname);
             }
         }
@@ -258,9 +265,10 @@ namespace OpenMEEG::GeometryIOs {
         unsigned num_domains;
         ifs >> io_utils::skip_comments('#') >> io_utils::match("Domains") >> num_domains;
 
-        if (ifs.fail())
+        if (ifs.fail()) {
+            ifs.close();
             throw OpenMEEG::WrongFileFormat(fname);
-
+        }
         geometry.domains().resize(num_domains);
         for (auto& domain : geometry.domains()) {
             ifs >> io_utils::skip_comments('#') >> io_utils::match("Domain");
@@ -280,13 +288,17 @@ namespace OpenMEEG::GeometryIOs {
                     Interface& interface = interfaces_map.at(token);
                     domain.boundaries().push_back(SimpleDomain(interface,side));
                 } catch(...) {
+                    ifs.close();
                     throw OpenMEEG::NonExistingDomain<std::string>(domain.name(),token);
                 }
             }
         }
 
-        if (ifs.fail())
+        if (ifs.fail()) {
+            ifs.close();
             throw OpenMEEG::WrongFileFormat(fname);
+        }
+        ifs.close();
     }
 
     void GeomFile::save_geom(const Geometry& geometry) {

@@ -21,6 +21,7 @@ import os
 import os.path as op
 import pytest
 import numpy as np
+import shutil
 
 from numpy.testing import assert_allclose
 import openmeeg as om
@@ -293,3 +294,49 @@ def test_python(subject, data_path, load_from_numpy, tmp_path):
 
     assert_allclose(om.Matrix(hm).array(), om.Matrix(m1).array())
     assert_allclose(ssm.array(), m2.array())
+
+
+def test_pointer_clearing(data_path, tmp_path):
+    """Test that file pointers are cleared after data is loaded."""
+    # copy files to tmp_path
+    for fname in ("cortex.1.tri", "skull.1.tri", "scalp.1.tri"):
+        shutil.copyfile(data_path / "Head1" / fname, tmp_path / fname)
+    for ext in ("cond", "geom", "tri", "dip", "squids", "patches"):
+        fname = f"Head1.{ext}"
+        shutil.copyfile(data_path / "Head1" / fname, tmp_path / fname)
+    del data_path
+
+    # now load each one and delete it immediately
+    tmp_geom_path = tmp_path / "Head1.geom"
+    tmp_cond_path = tmp_path / "Head1.cond"
+    assert tmp_geom_path.is_file()
+    assert tmp_cond_path.is_file()
+    geom = om.Geometry(str(tmp_geom_path), str(tmp_cond_path))
+    assert geom.is_nested()
+    os.remove(tmp_geom_path)
+    os.remove(tmp_cond_path)
+
+    tmp_mesh_path = tmp_path / "Head1.tri"
+    assert tmp_mesh_path.is_file()
+    mesh = om.Mesh(str(tmp_mesh_path))
+    assert mesh.vertices().size() == 42
+    os.remove(tmp_mesh_path)
+
+    tmp_dipole_path = tmp_path / "Head1.dip"
+    assert tmp_dipole_path.is_file()
+    dipoles = om.Matrix()
+    dipoles.load(str(tmp_dipole_path))
+    assert dipoles.nlin() == 6
+    os.remove(tmp_dipole_path)
+
+    tmp_squids_path = tmp_path / "Head1.squids"
+    assert tmp_squids_path.is_file()
+    sensors = om.Sensors()
+    sensors.load(str(tmp_squids_path))
+    assert sensors.getNumberOfSensors() == 162
+
+    tmp_patches_path = tmp_path / "Head1.patches"
+    assert tmp_patches_path.is_file()
+    patches = om.Sensors()
+    patches.load(str(tmp_patches_path))
+    assert patches.getNumberOfSensors() == 32
