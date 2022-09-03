@@ -66,6 +66,7 @@
     #include <geometry.h>
     #include <GeometryIO.h>
     #include <mesh.h>
+    #include <integrator.h>
     #include <interface.h>
     #include <domain.h>
     #include <assemble.h>
@@ -586,6 +587,7 @@ namespace OpenMEEG {
 %include <GeometryIO.h>
 %include <sensors.h>
 %include <mesh.h>
+%include <integrator.h>
 %include <interface.h>
 %include <domain.h>
 %include <assemble.h>

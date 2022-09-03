@@ -170,7 +170,7 @@ namespace OpenMEEG {
 
     public:
 
-        DiagonalBlock(const Mesh& m,const Integrator& intg): base(intg),mesh(m) { }
+        DiagonalBlock(const Mesh& m,const Integrator& intg,const bool verbose=true): base(intg),mesh(m) { this->verbose = verbose; }
 
         template <typename T>
         void set_S_block(const double coeff,T& matrix) {
@@ -298,10 +298,11 @@ namespace OpenMEEG {
     class PartialBlock {
     public:
 
-        PartialBlock(const Mesh& m): mesh(m) { }
+        PartialBlock(const Mesh& m,const bool verbose=true): mesh(m) { this->verbose = verbose; }
 
         void addD(const double coeff,const Vertices& points,Matrix& matrix) const {
-            std::cout << "PARTAL OPERATOR D..." << std::endl;
+            if (verbose)
+                std::cout << "PARTAL OPERATOR D..." << std::endl;
             for (const auto& triangle : mesh.triangles()) {
                 const analyticD3 analyD(triangle);
                 for (const auto& vertex : points) {
@@ -313,7 +314,8 @@ namespace OpenMEEG {
         }
 
         void S(const double coeff,const Vertices& points,Matrix& matrix) const {
-            std::cout << "PARTIAL OPERATOR S..." << std::endl;
+            if (verbose)
+                std::cout << "PARTIAL OPERATOR S..." << std::endl;
             for (const auto& triangle : mesh.triangles()) {
                 const analyticS analyS(triangle);
                 for (const auto& vertex : points)
@@ -321,10 +323,13 @@ namespace OpenMEEG {
             }
         }
 
-
     private:
 
         const Mesh& mesh;
+
+    protected:
+
+        bool verbose = true;
     };
 
     class NonDiagonalBlock: public BlocksBase  {
@@ -355,7 +360,7 @@ namespace OpenMEEG {
         //  - The gauss order parameter (for adaptive integration).
         //  - A verbosity parameters (for printing the action on the terminal).
 
-        NonDiagonalBlock(const Mesh& m1,const Mesh& m2,const Integrator& intg): base(intg),mesh1(m1),mesh2(m2) { }
+        NonDiagonalBlock(const Mesh& m1,const Mesh& m2,const Integrator& intg,const bool verbose=true): base(intg),mesh1(m1),mesh2(m2) { this->verbose = verbose; }
 
         template <typename T>
         void set_S_block(const double coeff,T& matrix) {
